@@ -237,6 +237,9 @@ class MuFastSteering : public HLT::FexAlgo,
   Gaudi::Property< std::string > m_calBufferName { this, "MuonCalBufferName", "/tmp/testOutput", ""};
   Gaudi::Property< int > m_calBufferSize { this, "MuonCalBufferSize", 1024*1024, ""};
 
+  // Enable to fill FS RoI for ID (cosmic run)
+  Gaudi::Property< bool > m_fill_FSIDRoI { this, "FILL_FSIDRoI", false, "Fill FS RoI for ID (will be used in cosmic run)"};
+
   //adding a part of DataHandle for AthenaMT
   //ReadHandle xAOD::EventInfo
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{
