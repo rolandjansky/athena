@@ -101,7 +101,7 @@ private:
 	const TrackParameters&			parameters,
 	const Surface&				surface,
 	PropDirection				dir,
-	BoundaryCheck				boundsCheck,
+	const BoundaryCheck&				boundsCheck,
 	ParticleHypothesis			particleHypothesis,
         Garbage_t&                              garbage) const;
 
