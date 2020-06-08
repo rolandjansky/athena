@@ -98,18 +98,17 @@ def createHLTPrescalesFileFromMenu( flags=None ):
     log = logging.getLogger('TrigConfigSvcCfg')
     menuFN = getHLTMenuFileName( flags )
     with open(menuFN,'r') as fh:
-        data = json.load(fh)
+        data = json.load(fh, object_pairs_hook = odict)
         pso = odict()
         pso['filetype'] = 'hltprescale'
         pso['name'] = data['name']
         pso['prescales'] = odict()
         ps = pso['prescales']
-        for ch in data['chains']:
-            chName = ch['name']
-            ps[chName] = odict([
-                ("name", chName),
-                ("counter", ch['counter']),
-                ("hash", ch['nameHash']),
+        for name, chain in data['chains'].items():
+            ps[name] = odict([
+                ("name", name),
+                ("counter", chain['counter']),
+                ("hash", chain['nameHash']),
                 ("prescale", 1),
                 ("enabled", 1)
             ])
