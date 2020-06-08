@@ -291,13 +291,13 @@ StatusCode PixelMainMon::bookRODErrorMon(void) {
   sc = rodExpert.regHist(m_errhist_expert_servrec_ibl_count = TH1F_LW::create(hname.c_str(), htitles.c_str(), 100, -0.5, 99.5));
 
   if (m_errhist_expert_servrec_ibl_unweighted) {
-    for (int i = 0; i < kNumErrorBits; i++) {
+    for (int i = 0; i < kNumErrorBitsIBL; i++) {
       m_errhist_expert_servrec_ibl_unweighted->GetXaxis()->SetBinLabel(i + 1, errorBitsIBL[i]);
     }
   }
 
   if (m_errhist_expert_servrec_ibl_weighted) {
-    for (int i = 0; i < kNumErrorBits; i++) {
+    for (int i = 0; i < kNumErrorBitsIBL; i++) {
       m_errhist_expert_servrec_ibl_weighted->GetXaxis()->SetBinLabel(i + 1, errorBitsIBL[i]);
     }
   }
