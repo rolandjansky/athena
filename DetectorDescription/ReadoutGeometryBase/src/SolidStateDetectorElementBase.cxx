@@ -618,29 +618,29 @@ void SolidStateDetectorElementBase::getEtaPhiPoint(const HepGeom::Point3D<double
 }
 
 Amg::Vector2D
+SolidStateDetectorElementBase::correctedLocalPositionOfCell(const SiCellId &cellId) const
+{
+  Amg::Vector2D pos(m_design->localPositionOfCell(cellId));
+  return correctLocalPosition(pos);
+}
+
+Amg::Vector2D
+SolidStateDetectorElementBase::correctedLocalPositionOfCell(const Identifier & id) const
+{
+  SiCellId cellId = cellIdFromIdentifier(id);
+  SiLocalPosition silp = m_design->localPositionOfCell(cellId);
+  Amg::Vector2D pos = hitLocalToLocal(silp.xEta(), silp.xPhi());
+  return correctLocalPosition(pos);
+}
+
+Amg::Vector2D
 SolidStateDetectorElementBase::localPositionOfCell(const SiCellId &cellId) const
-{
-    Amg::Vector2D pos(m_design->localPositionOfCell(cellId));
-    return correctLocalPosition(pos);
-}
-
-Amg::Vector2D
-SolidStateDetectorElementBase::localPositionOfCell(const Identifier & id) const
-{
-    SiCellId cellId = cellIdFromIdentifier(id);
-    SiLocalPosition silp = m_design->localPositionOfCell(cellId);
-    Amg::Vector2D pos = hitLocalToLocal(silp.xEta(), silp.xPhi());
-    return correctLocalPosition(pos);
-}
-
-Amg::Vector2D
-SolidStateDetectorElementBase::rawLocalPositionOfCell(const SiCellId &cellId) const
 {
     return m_design->localPositionOfCell(cellId);
 }
 
 Amg::Vector2D
-SolidStateDetectorElementBase::rawLocalPositionOfCell(const Identifier & id) const
+SolidStateDetectorElementBase::localPositionOfCell(const Identifier & id) const
 {
     SiCellId cellId = cellIdFromIdentifier(id);
     return m_design->localPositionOfCell(cellId);

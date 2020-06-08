@@ -531,7 +531,7 @@ StatusCode SCT_FastDigitizationTool::digitize()
 	// needed for both approaches with and w/o drift
 	Identifier          currentId             = entryId;
 	InDetDD::SiCellId   currentCellId         = entryCellId;
-	Amg::Vector2D  currentCenterPosition = hitSiDetElement->rawLocalPositionOfCell(currentCellId);
+	Amg::Vector2D  currentCenterPosition = hitSiDetElement->localPositionOfCell(currentCellId);
 	Amg::Vector3D  currentPosition3D(localEntryX,localEntryY,localEntryZ);
 	Amg::Vector3D  currentStep3D(0.,0.,0.);
 	
@@ -562,7 +562,7 @@ StatusCode SCT_FastDigitizationTool::digitize()
 	    const int phiExitIndex   = exitCellId.phiIndex() <= 2 ? 0 : numberOfDiodesPhi-1;
 	    
 	    const InDetDD::SiCellId  phiExitId(phiExitIndex);
-	    const Amg::Vector2D phiExitCenter = hitSiDetElement->rawLocalPositionOfCell(phiExitId);
+	    const Amg::Vector2D phiExitCenter = hitSiDetElement->localPositionOfCell(phiExitId);
 	    // fill the step parameters
 	    // this may need to be changed to Rectangular/Trapezoid check
 	    currentStep3D = stepToStripBorder(*hitSiDetElement,
@@ -585,7 +585,7 @@ StatusCode SCT_FastDigitizationTool::digitize()
 	  // reset the entry parameters to the first valid pixel
 	  currentId             = hitSiDetElement->identifierOfPosition(positionInFirstValid);
 	  currentCellId         = hitSiDetElement->cellIdFromIdentifier(currentId);
-	  currentCenterPosition = hitSiDetElement->rawLocalPositionOfCell(currentId);
+	  currentCenterPosition = hitSiDetElement->localPositionOfCell(currentId);
 	  
 	} // ----- start position has been reset -------- ( // endif (!entryValid) )
 	
@@ -750,7 +750,7 @@ StatusCode SCT_FastDigitizationTool::digitize()
 	  currentCellId          = hitSiDetElement->cellIdFromIdentifier(currentId);
 	  
 	  // just to be sure also for fan structure cases
-	  currentCenterPosition = hitSiDetElement->rawLocalPositionOfCell(currentCellId);
+	  currentCenterPosition = hitSiDetElement->localPositionOfCell(currentCellId);
 	  // The new current Position && the path length for monitoring
 	  potentialClusterPath_Step              += currentStep3D.mag();
 	  ATH_MSG_VERBOSE("[ cluster - sct ] CurrentPosition " << currentPosition3D
@@ -830,7 +830,7 @@ StatusCode SCT_FastDigitizationTool::digitize()
 	
 	
 	// get the position according to the identifier
-	const Amg::Vector2D chargeCenterPosition = hitSiDetElement->rawLocalPositionOfCell(chargeId);
+	const Amg::Vector2D chargeCenterPosition = hitSiDetElement->localPositionOfCell(chargeId);
 	potentialClusterPath_Used += chargeWeight;
 	// taken Weight (Fatras can do analog SCT clustering)
 	const double takenWeight =  m_sctAnalogStripClustering ? chargeWeight : 1.;

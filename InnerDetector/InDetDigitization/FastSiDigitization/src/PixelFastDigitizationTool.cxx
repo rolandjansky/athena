@@ -739,7 +739,7 @@ StatusCode PixelFastDigitizationTool::digitize()
 	if (!diode.isValid()) 
 	  continue;
 	
-	Amg::Vector2D chargeCenterPosition = hitSiDetElement->rawLocalPositionOfCell(diode);
+	Amg::Vector2D chargeCenterPosition = hitSiDetElement->localPositionOfCell(diode);
 	
 	const Identifier rdoId            =  hitSiDetElement->identifierOfPosition(chargeCenterPosition);
 	clusterPosition += pathlenght * chargeCenterPosition;

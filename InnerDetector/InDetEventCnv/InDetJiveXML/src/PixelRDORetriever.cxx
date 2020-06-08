@@ -1,15 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetJiveXML/PixelRDORetriever.h"
 
-//#include "StoreGate/DataHandle.h"
 #include "InDetIdentifier/PixelID.h"
 #include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-//#include "TrkEventPrimitives/LocalPosition.h"
-//#include "GaudiKernel/SystemOfUnits.h"
 #include "InDetRawData/PixelRDO_Container.h"
 
 #include "JiveXML/IFormatTool.h"
@@ -81,7 +78,7 @@ namespace JiveXML {
         }
 
         //Get the global position from the local position
-	Amg::Vector2D localPos = element->localPositionOfCell(id);
+	Amg::Vector2D localPos = element->correctedLocalPositionOfCell(id);
 	Amg::Vector3D globalPos = element->globalPosition(localPos);
 
         //Fill in all the data in our data vectors

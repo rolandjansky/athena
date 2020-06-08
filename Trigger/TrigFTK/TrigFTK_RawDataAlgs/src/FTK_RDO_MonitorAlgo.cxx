@@ -1558,8 +1558,8 @@ double FTK_RDO_MonitorAlgo::getSctLocX(const IdentifierHash hash, const float ra
   const InDetDD::SiCellId cell1(firstStrip - 1);
   const InDetDD::SiCellId cell2(lastStrip + 1);
   
-  const InDetDD::SiLocalPosition firstStripPos(pDE->rawLocalPositionOfCell(cell1));
-  const InDetDD::SiLocalPosition lastStripPos(pDE->rawLocalPositionOfCell(cell2));
+  const InDetDD::SiLocalPosition firstStripPos(pDE->localPositionOfCell(cell1));
+  const InDetDD::SiLocalPosition lastStripPos(pDE->localPositionOfCell(cell2));
   
   const InDetDD::SiLocalPosition centre((firstStripPos+lastStripPos)/2.0);
   

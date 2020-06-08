@@ -594,10 +594,10 @@ ReadSiDetectorElements::testElement(const Identifier & id,
       SiCellId cellId2 = element->cellIdFromIdentifier(fullCellId);
       cout << " extracted cell id [phiIndex.etaIndex] = " << cellId2 << endl;
       
-      InDetDD::SiLocalPosition localPosRaw1 = element->rawLocalPositionOfCell(cellId);
-      InDetDD::SiLocalPosition localPosRaw2 = element->rawLocalPositionOfCell(fullCellId);
-      InDetDD::SiLocalPosition localPos1 = element->localPositionOfCell(cellId);
-      InDetDD::SiLocalPosition localPos2 = element->localPositionOfCell(fullCellId);
+      InDetDD::SiLocalPosition localPosRaw1 = element->localPositionOfCell(cellId);
+      InDetDD::SiLocalPosition localPosRaw2 = element->localPositionOfCell(fullCellId);
+      InDetDD::SiLocalPosition localPos1 = element->correctedLocalPositionOfCell(cellId);
+      InDetDD::SiLocalPosition localPos2 = element->correctedLocalPositionOfCell(fullCellId);
       cout << " raw localPosition (using cell id) (xPhi,xEta) = " 
      << localPosRaw1.xPhi() << ", " << localPosRaw1.xEta() << endl;
       cout << " raw localPosition (using full id) (xPhi,xEta) = " 

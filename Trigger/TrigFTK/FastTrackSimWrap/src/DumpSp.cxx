@@ -837,8 +837,8 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
         Identifier rdoId = (*iRDO)->identify();
         // get the det element from the det element collection
         const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(rdoId); assert( sielement );
-        const InDetDD::SiLocalPosition localPos = sielement->localPositionOfCell(rdoId);
-        const InDetDD::SiLocalPosition rawPos = sielement->rawLocalPositionOfCell(rdoId);
+        const InDetDD::SiLocalPosition localPos = sielement->correctedLocalPositionOfCell(rdoId);
+        const InDetDD::SiLocalPosition rawPos = sielement->localPositionOfCell(rdoId);
         const Amg::Vector3D gPos( sielement->globalPosition(localPos) );
         // update map between pixel identifier and event-unique hit index. 
         // ganged pixels (nCells==2) get two entries.
@@ -950,8 +950,8 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
           Identifier rdoId = (*iRDO)->identify();
           // get the det element from the det element collection
           const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(rdoId); assert( sielement);
-          const InDetDD::SiLocalPosition localPos = sielement->localPositionOfCell(rdoId);
-          const InDetDD::SiLocalPosition rawPos = sielement->rawLocalPositionOfCell(rdoId);
+          const InDetDD::SiLocalPosition localPos = sielement->correctedLocalPositionOfCell(rdoId);
+          const InDetDD::SiLocalPosition rawPos = sielement->localPositionOfCell(rdoId);
           const Amg::Vector3D gPos( sielement->globalPosition(localPos) );
           (*oflraw) << "# S\t" 
                     << setw(14) << setprecision(10)
@@ -1189,7 +1189,7 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
              rdoIter != (*iCluster)->rdoList().end(); rdoIter++ ) {
           const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(*rdoIter); 
           assert( sielement );
-          const InDetDD::SiLocalPosition rawPos = sielement->rawLocalPositionOfCell(*rdoIter);
+          const InDetDD::SiLocalPosition rawPos = sielement->localPositionOfCell(*rdoIter);
           const int nCells = sielement->numberOfConnectedCells( sielement->cellIdOfPosition(rawPos) );
           InDetSimDataCollection::const_iterator iter( pixelSimDataMap->find(*rdoIter) );
           // this might be the ganged pixel copy.
@@ -1331,7 +1331,7 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
              rdoIter != (*iCluster)->rdoList().end(); rdoIter++ ) {
           const InDetDD::SiDetectorElement* sielement = m_SCT_mgr->getDetectorElement(*rdoIter); 
           assert( sielement );
-          const InDetDD::SiLocalPosition rawPos = sielement->rawLocalPositionOfCell(*rdoIter);
+          const InDetDD::SiLocalPosition rawPos = sielement->localPositionOfCell(*rdoIter);
           InDetSimDataCollection::const_iterator iter( sctSimDataMap->find(*rdoIter) );
           // if SDO found for this cluster, associate the particle. otherwise leave unassociated.
           if( iter!=sctSimDataMap->end() )  {
@@ -1378,7 +1378,7 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
       {
         const InDetDD::SiLocalPosition localCentroid( (*iCluster)->localPosition() );
         const InDetDD::SiCellId cellIdCentroid( sielement->cellIdOfPosition( localCentroid ) );
-        const Amg::Vector2D localCellCentroid( sielement->localPositionOfCell( cellIdCentroid ) );
+        const Amg::Vector2D localCellCentroid( sielement->correctedLocalPositionOfCell( cellIdCentroid ) );
         float deltaphi = (*iCluster)->localPosition()[Trk::distPhi] - localCellCentroid[Trk::distPhi];
         float deltaxphi = deltaphi / sielement->phiPitch();
         // do not add 0.5 to center in middle of strip; match SCT leading spatial edge convention

@@ -292,14 +292,14 @@ public:
     SiCellId cellIdOfPosition(const Amg::Vector2D &localPos) const;
 
     /// Returns position (center) of cell. These are corrected for the Lorentz shift
+    Amg::Vector2D correctedLocalPositionOfCell(const SiCellId & cellId) const;
+    /// As above
+    Amg::Vector2D correctedLocalPositionOfCell(const Identifier & id) const;
+
+    /// Returns position (center) of cell. These are the raw positions *NOT* corrected for the Lorentz shift
     Amg::Vector2D localPositionOfCell(const SiCellId & cellId) const;
     /// As above
     Amg::Vector2D localPositionOfCell(const Identifier & id) const;
-
-    /// Returns position (center) of cell. These are the raw positions *NOT* corrected for the Lorentz shift
-    Amg::Vector2D rawLocalPositionOfCell(const SiCellId & cellId) const;
-    /// As above
-    Amg::Vector2D rawLocalPositionOfCell(const Identifier & id) const;
 
     /// Test if readout cell has more than one diode associated with it.
     /// Number of cells sharing the same readout as this cell.

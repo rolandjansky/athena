@@ -596,7 +596,9 @@ StatusCode PixelRDOAnalysis::execute() {
         const int pixLVL1A((*rdo_itr)->getLVL1A());
         const int pixLVL1ID((*rdo_itr)->getLVL1ID());
 
-        InDetDD::SiLocalPosition localPos = detEl->localPositionOfCell(rdoID);
+	//NB This is the lorentz-angle corrected local position for consistency with past implementation
+	//Possible that this results in slight shift with respect to anticipated position (cf SCT_RDOAnalysis)
+        InDetDD::SiLocalPosition localPos = detEl->correctedLocalPositionOfCell(rdoID);
         Amg::Vector3D globalPos = detEl->globalPosition(localPos);
         if(m_doPos){
           m_globalX->push_back(globalPos[Amg::x]);
