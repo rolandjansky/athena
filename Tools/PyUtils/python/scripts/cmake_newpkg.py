@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.scripts.cmake_newpkg
 # @purpose streamline and ease the creation of new cmake packages
@@ -7,7 +7,6 @@
 
 from __future__ import with_statement, print_function
 
-__version__ = "$Revision: 795362 $"
 __author__ = "Will buttinger"
 __doc__ = "streamline and ease the creation of new cmake packages"
 
@@ -68,8 +67,8 @@ def main(args):
         os.makedirs(pkg_path+"/"+pkg_name+"/src")
         os.makedirs(pkg_path+"/"+pkg_name+"/share")
         os.makedirs(pkg_path+"/"+pkg_name+"/python")
-        os.makedirs(pkg_path+"/"+pkg_name+"/data");
-        os.makedirs(pkg_path+"/"+pkg_name+"/util");
+        os.makedirs(pkg_path+"/"+pkg_name+"/data")
+        os.makedirs(pkg_path+"/"+pkg_name+"/util")
     except OSError:
         print ("ERROR while making directories for " % (pkg_path+"/"+pkg_name+"/src"))
         return -1
@@ -137,7 +136,7 @@ def main(args):
     #need to reconfigure cmake so it knows about the new files
     #rely on the WorkDir_DIR env var for this
     workDir = os.environ.get("WorkDir_DIR")
-    if workDir == None:
+    if workDir is None:
         print ("::: ERROR No WorkDir_DIR env var, did you forget to source the setup.sh script?")
         print ("::: ERROR Please do this and reconfigure cmake manually!")
     else:

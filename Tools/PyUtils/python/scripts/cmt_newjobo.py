@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.scripts.cmt_newalg
 # @purpose streamline and ease the creation of a skeleton joboption
@@ -9,16 +9,13 @@
 
 from __future__ import with_statement, print_function
 
-__version__ = "$Revision: 801598 $"
 __author__ = "Will Buttinger"
 __doc__ = "streamline and ease the creation of new skeleton joboption for analysis"
 
 ### imports -------------------------------------------------------------------
 import os
 import textwrap
-import commands
 import PyUtils.acmdlib as acmdlib
-import fileinput
 
 class Templates:
     jobo_template = """\
