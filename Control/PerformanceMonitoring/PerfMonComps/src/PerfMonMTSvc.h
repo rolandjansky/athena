@@ -147,6 +147,8 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, public AthService {
   Gaudi::Property<int> m_numberOfThreads{this, "numberOfThreads", 1, "Number of threads in the job."};
   /// Get the number of slots
   Gaudi::Property<int> m_numberOfSlots{this, "numberOfSlots", 1, "Number of slots in the job."};
+  /// Set the number of messages for the event-level report
+  Gaudi::Property<unsigned long> m_eventLoopMsgLimit{this, "eventLoopMsgLimit", 10, "Maximum number of event-level messages."};
 
   /// Snapshots data
   std::vector<PMonMT::MeasurementData> m_snapshotData;
@@ -161,6 +163,9 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, public AthService {
 
   // Count the number of events processed
   std::atomic<unsigned long long> m_eventCounter;
+
+  // Instant event-loop report counter
+  std::atomic<unsigned long> m_eventLoopMsgCounter;
 
   /* 
    * Data structure  to store component level measurements
