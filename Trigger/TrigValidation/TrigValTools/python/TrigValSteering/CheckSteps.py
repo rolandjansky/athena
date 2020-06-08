@@ -460,17 +460,17 @@ class PhysValWebStep(InputDependentStep):
         self.required = True
         
     def configure(self, test):
+        outargs = ' --outdir PHYSVAL_WEB/'+self.sig
+        dirargs = ' --startpath run_1/HLT/'+self.sig
+        self.args += ' '+outargs+' '+dirargs
+        super(PhysValWebStep, self).configure(test)
+
+    def run(self, dry_run=False):
         for fname in os.listdir('.'):
             if fname.startswith('ref-'): 
                 self.refdir = fname
         refargs = ' --reffile Ref:'+self.refdir+'/NTUP_PHYSVAL.pool.root '
-        outargs = ' --outdir PHYSVAL_WEB/'+self.sig
-        dirargs = ' --startpath run_1/HLT/'+self.sig
-        self.args += ' '+refargs+' '+outargs+' '+dirargs
-        self.args += ' '+self.input_file
-        super(PhysValWebStep, self).configure(test)
-
-    def run(self, dry_run=False):
+        self.args += ' '+refargs+' '+self.input_file
         retcode, cmd = super(PhysValWebStep, self).run(dry_run)
         fname='PHYSVAL_WEB/'+self.sig+'/index.html'
         if os.path.exists(fname):
