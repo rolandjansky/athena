@@ -466,9 +466,9 @@ if globalflags.InputFormat.is_bytestream():
 
             # Specify input file
             if len(athenaCommonFlags.FilesInput())>0:
-                svcMgr.ByteStreamInputSvc.FullFileName=athenaCommonFlags.FilesInput()
+                svcMgr.EventSelector.Input=athenaCommonFlags.FilesInput()
             elif len(athenaCommonFlags.BSRDOInput())>0:
-                svcMgr.ByteStreamInputSvc.FullFileName=athenaCommonFlags.BSRDOInput()
+                svcMgr.EventSelector.Input=athenaCommonFlags.BSRDOInput()
         # --> AK
     else:
         logRecExCommon_topOptions.info("Read ByteStream file(s)")
@@ -476,9 +476,9 @@ if globalflags.InputFormat.is_bytestream():
 
         # Specify input file
         if len(athenaCommonFlags.FilesInput())>0:
-            svcMgr.ByteStreamInputSvc.FullFileName=athenaCommonFlags.FilesInput()
+            svcMgr.EventSelector.Input=athenaCommonFlags.FilesInput()
         elif len(athenaCommonFlags.BSRDOInput())>0:
-            svcMgr.ByteStreamInputSvc.FullFileName=athenaCommonFlags.BSRDOInput()
+            svcMgr.EventSelector.Input=athenaCommonFlags.BSRDOInput()
 
     if globalflags.DataSource()=='geant4':
         logRecExCommon_topOptions.info("DataSource is 'geant4'")

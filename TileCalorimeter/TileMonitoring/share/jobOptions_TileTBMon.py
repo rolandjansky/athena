@@ -204,7 +204,7 @@ if not athenaCommonFlags.isOnline() or TestOnline:
     log.info( "Skip Events is " + str(EvtMin) )
     log.info( "Max events is " + str(EvtMax) )
 
-    svcMgr.ByteStreamInputSvc.FullFileName = FileNameVec
+    svcMgr.EventSelector.Input = FileNameVec
     svcMgr.EventSelector.MaxBadEvents = MaxBadEvents
    
     athenaCommonFlags.FilesInput = FileNameVec
