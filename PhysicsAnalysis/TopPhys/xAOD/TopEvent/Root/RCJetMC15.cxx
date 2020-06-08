@@ -310,15 +310,13 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
 
 
         if (m_config->sgKeyJetsTDS(hash_factor * m_config->nominalHashValue(),
-                                   false).find("AntiKt4EMTopoJets") != std::string::npos) getEMTopoClusters(clusters,
-                                                                                                            rcjet); // //
-                                                                                                                    //  //
-                                                                                                                    // use
-                                                                                                                    // subjet
-                                                                                                                    // constituents
+                                   false).find("AntiKt4EMTopoJets") != std::string::npos) {
+	  getEMTopoClusters(clusters,rcjet); // use subjet constituents
+	}
         else if (m_config->sgKeyJetsTDS(hash_factor * m_config->nominalHashValue(),
-                                        false).find("AntiKt4EMPFlowJets") != std::string::npos) getPflowConstituent(
-            clusters, rcjet, event); // use ghost-matche tracks
+                                        false).find("AntiKt4EMPFlowJets") != std::string::npos) {
+	  getPflowConstituent(clusters, rcjet, event); // use ghost-matched tracks
+	}
         else getLCTopoClusters(clusters, rcjet); //  // use LCTOPO CLUSTERS matched to subjet
 
         if (m_config->sgKeyJetsTDS(hash_factor * m_config->nominalHashValue(),
@@ -615,10 +613,12 @@ void RCJetMC15::getPflowConstituent(std::vector<fastjet::PseudoJet>& clusters, c
 
   for (auto subjet : rcjet->getConstituents()) {
     const xAOD::Jet* subjet_raw = static_cast<const xAOD::Jet*>(subjet->rawConstituent());
+    
+    if(subjet->pt() < m_config->jetPtGhostTracks() || std::abs(subjet->eta()) > m_config->jetEtaGhostTracks()) continue;
+    
 
     jetTracks.clear();
-    jetTracks =
-      subjet_raw->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(event.m_hashValue));
+    jetTracks = subjet_raw->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(event.m_hashValue));
     bool haveJetTracks = jetTracks.size() != 0;
 
     if (haveJetTracks) {

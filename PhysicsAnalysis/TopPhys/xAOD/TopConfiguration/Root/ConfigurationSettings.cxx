@@ -165,8 +165,11 @@ namespace top {
                                       "Default (does nothing on forward jets), fJVT (No longer recommended), fJVTTight(apply tight fJVT cut if pT<60GeV and |eta|>2.5), Tight (requires pT>30GeV if |eta|>2.5).",
                       "Default");
     registerParameter("JetPtGhostTracks",
-                      "Jet pT threshold for ghost track systematic variations calculation (in MeV). Default 19 GeV.",
-                      "19000.");
+                      "Jet pT threshold for ghost track systematic variations calculation (in MeV). Default 30 GeV.",
+                      "30000.");
+    registerParameter("JetEtaGhostTracks",
+                      "Jet eta threshold for ghost track systematic variations calculation. Default 2.5",
+                      "2.5");
     registerParameter("JetUncertainties_NPModel",
                       "AllNuisanceParameters, CategoryReduction (default), GlobalReduction, StrongReduction - for JetUncertainties",
                       "CategoryReduction");
