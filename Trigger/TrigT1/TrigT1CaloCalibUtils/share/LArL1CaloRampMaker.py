@@ -70,7 +70,7 @@ from AtlasGeoModel import SetupRecoGeometry
 
 # setup bytestream reading
 from ByteStreamCnvSvc import ReadByteStream
-svcMgr.ByteStreamInputSvc.FullFileName = athenaCommonFlags.FilesInput()
+svcMgr.EventSelector.Input = athenaCommonFlags.FilesInput()
 theApp.EvtMax = athenaCommonFlags.EvtMax()
 svcMgr.EventSelector.SkipEvents = athenaCommonFlags.SkipEvents()
 # Level-1 bs data

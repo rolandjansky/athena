@@ -96,7 +96,6 @@ private: // properties
   ServiceHandle<StoreGateSvc>                m_storeGate;     //!< StoreGateSvc
   ServiceHandle<StoreGateSvc>                m_inputMetadata; //!< StoreGateSvc
   ServiceHandle<IROBDataProviderSvc>         m_robProvider;
-  Gaudi::Property<std::vector<std::string> > m_vExplicitFile;
   Gaudi::Property<bool>                      m_sequential;    //!< enable sequential reading.
   Gaudi::Property<bool>                      m_dump;
   Gaudi::Property<float>                     m_wait;

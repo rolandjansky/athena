@@ -137,7 +137,7 @@ IOVDbSvc.GlobalTag="CONDBR2-BLKPA-2018-03"
 IOVDbSvc.OutputLevel = WARNING
 
 include("ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py")
-ServiceMgr.ByteStreamInputSvc.FullFileName = inputBSFiles
+ServiceMgr.EventSelector.Input = inputBSFiles
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = inputBSFiles
 

@@ -119,7 +119,7 @@ elif inputStreamType == "RAW":
   svcMgr = theApp.serviceMgr()
   from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamEventStorageInputSvc
   svcMgr += ByteStreamEventStorageInputSvc("ByteStreamInputSvc")
-  cscEventSelector = svcMgr.ByteStreamInputSvc
+  cscEventSelector = svcMgr.EventSelector
   from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamCnvSvc
   svcMgr += ByteStreamCnvSvc()
   ByteStreamCnvSvc = svcMgr.ByteStreamCnvSvc
@@ -133,5 +133,5 @@ elif inputStreamType == "RDO":
     "/afs/usatlas.bnl.gov/users/dladams/data/calib0.005145.PythiaZmumu.digit.RDO.v12003101_tid003432._00001.pool.root.1"
   ]
 elif inputStreamType == "RAW":
-#  cscEventSelector.FullFileName=["/afs/usatlas.bnl.gov/users/dladams/data/daq_CSC-EB-RCD__0001190_file01.data"]
-  cscEventSelector.FullFileName=["rfio:/castor/cern.ch/atlas/muon/CSC/daq_CSC-EB-RCD__0001215_file01.data"]
+#  cscEventSelector.Input=["/afs/usatlas.bnl.gov/users/dladams/data/daq_CSC-EB-RCD__0001190_file01.data"]
+  cscEventSelector.Input=["rfio:/castor/cern.ch/atlas/muon/CSC/daq_CSC-EB-RCD__0001215_file01.data"]

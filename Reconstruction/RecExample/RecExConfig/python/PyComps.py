@@ -41,7 +41,7 @@ class AutoConfigConsistencyCheckSvc(PyAthena.Svc):
           if esName=="EventSelectorAthenaPool":
              ic=ServiceMgr.EventSelector.InputCollections
           elif esName=="EventSelectorByteStream":
-             ic=ServiceMgr.ByteStreamInputSvc.FullFileName
+             ic=ServiceMgr.EventSelector.Input
           else:
              self.msg.warning("Unknown EventSelector instance.Cannot check AutoCOnfig.")
              return

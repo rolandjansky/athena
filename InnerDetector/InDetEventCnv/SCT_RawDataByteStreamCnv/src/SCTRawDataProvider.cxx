@@ -8,6 +8,7 @@
 #include "SCT_Cabling/ISCT_CablingTool.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "EventContainers/IdentifiableContTemp.h"
+#include "EventContainers/IdentifiableContainerBase.h"
 
 #include <memory>
 
