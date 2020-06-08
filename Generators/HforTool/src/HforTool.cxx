@@ -445,8 +445,9 @@ void HforTool::findHFQuarksHerwig
 	isPDF = true ;
       }
       if ( !isPDF && prodvtx ) {
-	HepMC::GenVertex::particle_iterator pin = prodvtx->particles_begin(HepMC::ancestors) ;
-	for ( ; pin != prodvtx->particles_end(HepMC::ancestors) && !iscquarkfromb && !isPDF ; pin++ ) {
+	HepMC::GenVertex::particle_iterator prodvtx_particles_begin = prodvtx->particles_begin(HepMC::ancestors) ;
+	HepMC::GenVertex::particle_iterator prodvtx_particles_end =    prodvtx->particles_end(HepMC::ancestors) ;
+	for (auto  pin=prodvtx_particles_begin;  pin!= prodvtx_particles_end && !iscquarkfromb && !isPDF ; pin++ ) {
 	  int apdgin = std::abs((*pin)->pdg_id()) ;
 	  if (apdgin != apdg ) {
 	    ATH_MSG_DEBUG("  non b/c parent " << *(*pin));

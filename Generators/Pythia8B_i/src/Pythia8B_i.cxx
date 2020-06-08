@@ -360,7 +360,7 @@ StatusCode Pythia8B_i::fillEvt(HepMC::GenEvent *evt){
     
     // set the randomseeds
     if(useRndmGenSvc() && Pythia8B_i::p_AtRndmGenSvc)
-        evt->set_random_states(m_seeds);
+        HepMC::set_random_states(evt,m_seeds);
     
     // set the event weight
     evt->weights().push_back(m_pythia->info.weight());

@@ -26,6 +26,11 @@ template <class T> void set_random_states(GenEvent* e, std::vector<T> a) {
 template <class T> void set_signal_process_vertex(GenEvent* e, T v) {
     e->set_signal_process_vertex(v);
 }
+namespace Print {
+inline void line(std::ostream& os,const GenEvent& e){e.print(os);}
+inline void line(std::ostream& os,const GenEvent* e){e->print(os);}
+}
+inline bool valid_beam_particles(const GenEvent* e){return e->valid_beam_particles();}
 }
 #include "AtlasHepMC/SimpleVector.h"
 #endif
