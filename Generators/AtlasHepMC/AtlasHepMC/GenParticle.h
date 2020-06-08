@@ -14,5 +14,9 @@ inline int barcode(GenParticle p) {   return    p.barcode(); }
 template <class T> inline int barcode(T p) {   return    p->barcode(); }
 inline void suggest_barcode(GenParticle p, int i){p.suggest_barcode(i);}
 template <class T> void suggest_barcode(T* p, int i){p->suggest_barcode(i);}
+namespace Print {
+inline void line(std::ostream& os,const GenParticle& p){p.print(os);}
+inline void line(std::ostream& os,const GenParticle* p){p->print(os);}
+}
 }
 #endif

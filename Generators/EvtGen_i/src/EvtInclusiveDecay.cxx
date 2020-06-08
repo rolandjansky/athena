@@ -404,7 +404,7 @@ void EvtInclusiveDecay::removeDecayTree(HepMC::GenEvent* hepMC, HepMC::GenPartic
 //
 void EvtInclusiveDecay::decayParticle(HepMC::GenEvent* hepMC, HepMC::GenParticlePtr part) {
   ATH_MSG_DEBUG("Decaying particle " << pdgName(part) << " (barcode " << HepMC::barcode(part) << ")");
-  if (msgLvl(MSG::VERBOSE)) part->print();
+  if (msgLvl(MSG::VERBOSE)) HepMC::Print::line(std::cout,part);
 
   // Remove existing decay tree, if any, and flag particle as being decayed by EvtGen
   removeDecayTree(hepMC,part);
