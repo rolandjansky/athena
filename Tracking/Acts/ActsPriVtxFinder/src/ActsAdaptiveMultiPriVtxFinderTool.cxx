@@ -402,9 +402,7 @@ vertexingOptions.vertexConstraint = beamSpotConstraintVtx;
   for(const auto& vtx : allVertices){
       xAOD::Vertex* xAODVtx = new xAOD::Vertex;
       xAODVtx->makePrivateStore();
-      auto pos = vtx.position();
-      pos[2] += 10;
-      xAODVtx->setPosition(pos);
+      xAODVtx->setPosition(vtx.position());
       xAODVtx->setCovariancePosition(vtx.covariance());
       // TODO: remove this 1.e9 subtraction once acts bug fix is in.
       xAODVtx->setFitQuality(vtx.fitQuality().first-1.e9, vtx.fitQuality().second);
@@ -481,8 +479,14 @@ return std::make_pair(theVertexContainer, theVertexAuxContainer);
 
 Trk::Perigee* ActsAdaptiveMultiPriVtxFinderTool::actsBoundToTrkPerigee(
   const Acts::BoundParameters& bound, const Acts::Vector3D& surfCenter) const {
+  using namespace Acts::UnitLiterals;
   AmgSymMatrix(5)* cov =  new AmgSymMatrix(5)(bound.covariance()->block<5,5>(0,0));
-  return new Trk::Perigee(bound.parameters().head<5>(), Trk::PerigeeSurface(surfCenter), cov);
+  cov->col(Trk::qOverP) *= 1_MeV;
+  cov->row(Trk::qOverP) *= 1_MeV;
+  Acts::ActsVectorD<5> params = bound.parameters().head<5>();
+  params[Trk::qOverP] *= 1_MeV;
+
+  return new Trk::Perigee(params, Trk::PerigeeSurface(surfCenter), cov);
 }
 
 double
@@ -496,22 +500,22 @@ ActsAdaptiveMultiPriVtxFinderTool::estimateSignalCompatibility(xAOD::Vertex* vtx
          && trk.trackQuality().chiSquared() < m_finalCutMaxVertexChi2
          && !m_useFastCompatibility)) {
       const Trk::TrackParameters* perigee = nullptr;
-  if (trk.perigeeAtVertex() != nullptr) {
-      perigee = trk.perigeeAtVertex();
-  } else {
-      ATH_MSG_VERBOSE("Only initialPerigee is available");
-      perigee = trk.initialPerigee();
+      if (trk.perigeeAtVertex() != nullptr) {
+          perigee = trk.perigeeAtVertex();
+      } else {
+          ATH_MSG_VERBOSE("Only initialPerigee is available");
+          perigee = trk.initialPerigee();
+      }
+      if (perigee == nullptr) {
+          ATH_MSG_ERROR("Neutrals are not supported. Skipping track in pT calculation...");
+          continue;
+      }
+      totalPt2 +=
+      std::pow(std::fabs(1. / perigee->parameters()[Trk::qOverP]) * std::sin(perigee->parameters()[Trk::theta]), 2);
+      nTracks += 1;
+    }
   }
-  if (perigee == nullptr) {
-      ATH_MSG_ERROR("Neutrals are not supported. Skipping track in pT calculation...");
-      continue;
-  }
-  totalPt2 +=
-  std::pow(std::fabs(1. / perigee->parameters()[Trk::qOverP]) * std::sin(perigee->parameters()[Trk::theta]), 2);
-  nTracks += 1;
-}
-}
-return totalPt2 * std::sqrt((double) nTracks);
+  return totalPt2 * std::sqrt((double) nTracks);
 }
 
 
