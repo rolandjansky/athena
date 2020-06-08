@@ -122,13 +122,13 @@ def __generateJSON( chainDicts, chainConfigs, HLTAllSteps, menuName, fileName ):
     menuDict["sequencers"].update( __getSequencerAlgs(stepsData) )
 
     # Menu dictionary now completed, write to JSON
-    __log.info( "Writing trigger menu to %s", fileName )
+    __log.info( "Writing HLT Menu JSON to %s", fileName )
     with open( fileName, 'w' ) as fp:
         json.dump( menuDict, fp, indent=4, sort_keys=False )
 
 
 def generateJSON():
-    __log.info("Generating HLT JSON config in the rec-ex-common job")
+    __log.info("Generating HLT Menu JSON in the rec-ex-common job")
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
     from AthenaCommon.AlgSequence import AlgSequence
@@ -141,7 +141,7 @@ def generateJSON():
                            getHLTMenuFileName() )
     
 def generateJSON_newJO( chainDicts, chainConfigs, HLTAllSteps ):
-    __log.info("Generating HLT JSON config in the new JO")
+    __log.info("Generating HLT Menu JSON in the new JO")
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
     return __generateJSON( chainDicts, 
