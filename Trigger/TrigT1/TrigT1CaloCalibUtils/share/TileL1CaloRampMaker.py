@@ -121,7 +121,7 @@ else:
     include( "TileRec/TileRec_jobOptions.py" )
     include( "TileRec/TileCellMaker_jobOptions.py" )
     # turn off masking of bad channels
-    ToolSvc.TileCellBuilder.maskBadChannels = False
+    topSequence.CaloCellMaker.CaloCellMakerToolNames["TileCellBuilder"].maskBadChannels = False
 
 # setup l1calo database
 include('TrigT1CaloCalibConditions/L1CaloCalibConditions_jobOptions.py')

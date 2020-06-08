@@ -295,12 +295,10 @@ if doTileCells:
     doCaloNeighborsCorr = False
     if TileBiGainRun:
         include( "TileRec/TileCellMaker_jobOptions_doublegain.py" )
-        ToolSvc.TileCellBuilderLG.SkipGain = 1
-        ToolSvc.TileCellBuilderHG.SkipGain = 0
     else:
         include('TileRec/TileCellMaker_jobOptions.py')
-        ToolSvc.TileCellBuilder.UseDemoCabling = UseDemoCabling
-        ToolSvc.TileCellBuilder.maskBadChannels = False
+        topSequence.CaloCellMaker.CaloCellMakerToolNames["TileCellBuilder"].UseDemoCabling = UseDemoCabling
+        topSequence.CaloCellMaker.CaloCellMakerToolNames["TileCellBuilder"].maskBadChannels = False
 
 from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
 TileDQstatusAlgDefault()
