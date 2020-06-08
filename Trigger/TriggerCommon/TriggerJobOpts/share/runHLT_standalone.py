@@ -501,6 +501,12 @@ if not opt.createHLTMenuExternally:
 
 
 
+#Needed to get full output from TrigSignatureMoniMT with a large menu: see ATR-21487
+#Can be removed once chainDump.py is used instead of log file parsing
+svcMgr.MessageSvc.infoLimit=10000
+
+
+
 from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc, setupHLTPrescaleCondAlg
 svcMgr += conf2toConfigurable( getHLTConfigSvc() )
 setupHLTPrescaleCondAlg()
