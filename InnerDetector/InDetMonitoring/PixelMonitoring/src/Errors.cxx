@@ -113,7 +113,7 @@ StatusCode PixelMainMon::bookRODErrorMon(void) {
     "Readout processor",         "17",                   "18",                   "19",
     "20",                        "21",                   "22",                   "Skipped trig counter",
     "Truncated event flag",      "25",                   "26",                   "27",
-    "28",                        "29",                   "30"                    "31"
+    "28",                        "29",                   "30",                   "31",
     "Triple redundant CNFGMEM",  "Write reg data",       "Address error",        "Other CMD decoder",
     "CMD decoder bit flip",      "CMD decoder SEU",      "Data bus address",     "Triple redundant EFUSE"
   };
