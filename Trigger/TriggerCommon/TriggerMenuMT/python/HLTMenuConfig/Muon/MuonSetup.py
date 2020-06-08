@@ -322,7 +322,7 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
   return muDecodeRecoSequence
 
 
-def muFastRecoSequence( RoIs ):
+def muFastRecoSequence( RoIs, doFullScanID = False ):
 
   from AthenaCommon.AppMgr import ToolSvc
   from AthenaCommon.CFElements import parOR
@@ -404,6 +404,7 @@ def muFastRecoSequence( RoIs ):
   muFastAlg.MuonCalibrationStream = "MuonCalibrationStream"
   muFastAlg.forID = muNames.L2forIDName
   muFastAlg.forMS = "forMS" 
+  muFastAlg.FILL_FSIDRoI = doFullScanID
 
   muFastRecoSequence += muFastAlg
   sequenceOut = muFastAlg.MuonL2SAInfo

@@ -219,6 +219,10 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
   } 
   ATH_MSG_DEBUG( "topoRoad = " << m_topoRoad);
 
+  if (m_fill_FSIDRoI) {
+    ATH_MSG_INFO("will fill " << m_muIdContainerKey.key() << " in Full Scan mode. Please check if it's correct.");
+  }
+
   return HLT::OK;
 }
 
@@ -1386,6 +1390,12 @@ bool MuFastSteering::storeIDRoiDescriptor(const TrigRoiDescriptor*              
                                           const DataVector<xAOD::L2StandAloneMuon>& outputTracks,
 		                          TrigRoiDescriptorCollection&	 	    outputID)
 {
+
+  if (m_fill_FSIDRoI) {  // this mode will be used in cosmic run, if ID expert want to run full scan FTF.
+    TrigRoiDescriptor* IDroiDescriptor = new TrigRoiDescriptor(true);
+    outputID.push_back(IDroiDescriptor);
+    return true;
+  }
 
   const float ZERO_LIMIT = 1.e-5;
 
