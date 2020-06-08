@@ -436,7 +436,7 @@ def generate(process_dir='PROC_mssm_0', grid_pack=False, gridpack_compile=False,
             ### NLO RUN ###
             mglog.info('Package up process_dir')
             os.rename(process_dir,MADGRAPH_GRIDPACK_LOCATION)
-            tar = subprocess.Popen(['tar','czf',gridpack_name,MADGRAPH_GRIDPACK_LOCATION,'--exclude=lib/PDFsets','--exclude=Events/*/*events*gz'])
+            tar = subprocess.Popen(['tar','czf',gridpack_name,MADGRAPH_GRIDPACK_LOCATION,'--exclude=lib/PDFsets','--exclude=Events/*/*events*gz','--exclude=SubProcesses/P*/G*/log*txt','--exclude=*/*.o','--exclude=*/*/*.o','--exclude=*/*/*/*.o','--exclude=--exclude=*/*/*/*/*.o'])
             tar.wait()
             os.rename(MADGRAPH_GRIDPACK_LOCATION,process_dir)
 
@@ -483,7 +483,7 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None,
         check_reweight_card(MADGRAPH_GRIDPACK_LOCATION)
 
     # Check the param card
-    code = check_PMG_updates(process_dir)
+    code = check_PMG_updates(process_dir=MADGRAPH_GRIDPACK_LOCATION)
     if requirePMGSettings and code!=0:
         raise RuntimeError('Settings are not compliant with PMG defaults! Please use do_PMG_updates function to get PMG default params.')
 
