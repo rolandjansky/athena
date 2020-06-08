@@ -275,6 +275,12 @@ addQGTaggerTool(jetalg="AntiKt4EMTopo",  sequence=higg2d1Seq, algname="QGTaggerT
 addQGTaggerTool(jetalg="AntiKt4EMPFlow", sequence=higg2d1Seq, algname="QGTaggerToolPFAlg", truthjetalg='AntiKt4TruthJets')
 
 #====================================================================
+# fJVT for Particle Flow jets
+#====================================================================
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import getPFlowfJVT
+getPFlowfJVT(jetalg='AntiKt4EMPFlow', sequence=higg2d1Seq, algname='JetForwardPFlowJvtToolAlg')
+
+#====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
 from DerivationFrameworkHiggs.HIGG2D1ExtraContent import *
