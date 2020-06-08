@@ -101,7 +101,7 @@ private:
   
   /// property: the services declared as providers
   StringArrayProperty m_providerNames{this,"ProviderNames",{},
-      "names of the services to be use as address providers","Set<std::string>"};
+      "names of the services to be use as address providers","OrderedSet<std::string>"};
   /// the handler for m_providerNames
   void providerNamesPropertyHandler( Property& theProp );
   

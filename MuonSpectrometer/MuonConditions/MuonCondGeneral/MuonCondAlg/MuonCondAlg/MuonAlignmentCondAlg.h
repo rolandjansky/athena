@@ -35,7 +35,7 @@ class MuonAlignmentCondAlg: public AthAlgorithm {
 
   //std::vector<std::string> parlineFolder() { return m_parlineFolder; }
 
-  Gaudi::Property<std::vector<std::string>> m_parlineFolder {this, "ParlineFolders", std::vector<std::string>(), "Database folders", "Set<std::string>"};
+  Gaudi::Property<std::vector<std::string>> m_parlineFolder {this, "ParlineFolders", std::vector<std::string>(), "Database folders", "OrderedSet<std::string>"};
     
  private:
 

@@ -156,8 +156,12 @@ class GenericMonitoringArray:
         import collections
         assert isinstance(dimensions,list) and len(dimensions)>0, \
             'GenericMonitoringArray must have list of dimensions.'
-        if dimensions==[1]:
-            return [''], {'': ['']}
+        try:
+            if dimensions==[1]:
+                return [''], {'': ['']}
+        except AttributeError: 
+            #Evidently not [1]
+            pass
         postList = []
         accessorDict = collections.OrderedDict()
         first = dimensions[0]
