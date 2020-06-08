@@ -40,6 +40,12 @@ namespace CP {
     declareProperty( "MVAreaderFile_ODD_MuGirl", m_MVAreaderFile_ODD_MuGirl =
 		     "MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuGirl_ODD.weights.xml");
 
+    //switch to force the effect of the bad muon veto in perfectly aligned MC to match misaligned MC
+    declareProperty( "DoBadMuonVetoMimic", m_doBadMuonVetoMimic = false );
+
+    //file for bad muon veto efficiencies from misaligned MC
+    declareProperty( "BMVefficiencyFile", m_BMVefficiencyFile = "/mn/kvant/u2/magnarkb/xAODanalysis_MCPwork_smearAnalysis/data/BMVefficiencies.root");
+
 
     // DEVELOPEMENT MODE: EXPERTS ONLY!!! 
     declareProperty( "ExpertDevelopMode", m_developMode = false );
@@ -55,6 +61,11 @@ namespace CP {
     m_tightWP_lowPt_qOverPCuts = 0;
     m_tightWP_mediumPt_rhoCuts = 0;
     m_tightWP_highPt_rhoCuts = 0;
+    //
+    m_BMVefficiency_barrel = 0;
+    m_BMVefficiency_endcap = 0;
+    //
+    m_random = 0;
     //
     readerE_MUID = 0;
     readerO_MUID = 0;
@@ -92,10 +103,15 @@ namespace CP {
     m_tightWP_mediumPt_rhoCuts = 0;
     m_tightWP_highPt_rhoCuts = 0;
     //
+    m_BMVefficiency_barrel = 0;
+    m_BMVefficiency_endcap = 0;
+    //
     readerE_MUID = 0;
     readerO_MUID = 0;
     readerE_MUGIRL = 0;
     readerO_MUGIRL = 0;
+    //
+    m_random = 0;
     //
     lowPTmva_middleHoles = new Float_t; lowPTmva_muonSeg1ChamberIdx = new Float_t;
     lowPTmva_muonSeg2ChamberIdx = new Float_t; lowPTmva_momentumBalanceSig = new Float_t;
@@ -123,6 +139,20 @@ namespace CP {
     if( m_tightWP_highPt_rhoCuts ){
       delete m_tightWP_highPt_rhoCuts;
       m_tightWP_highPt_rhoCuts = 0;
+    }
+    //
+    if( m_BMVefficiency_barrel ){
+      delete m_BMVefficiency_barrel;
+      m_BMVefficiency_barrel = 0;
+    }
+    if( m_BMVefficiency_endcap ){
+      delete m_BMVefficiency_endcap;
+      m_BMVefficiency_endcap = 0;
+    }
+    //
+    if( m_random ){
+      delete m_random;
+      m_random = 0;
     }
     //
     if( readerE_MUID ){
@@ -216,7 +246,33 @@ namespace CP {
     ATH_CHECK( getHist( file.get(),"tightWP_highPt_rhoCuts",m_tightWP_highPt_rhoCuts) ) ;
     // 
     file->Close();
-  
+
+    
+    //Read bad muon veto efficiency histograms
+    std::string BMVefficiencyFile_fullPath = m_BMVefficiencyFile; //PathResolverFindCalibFile(m_BMVefficiencyFile);
+
+    //ATH_MSG_INFO( "Reading bad muon veto efficiency histograms from " << BMVefficiencyFile_fullPath  );
+    // 
+    std::unique_ptr<TFile> BMVfile ( TFile::Open( BMVefficiencyFile_fullPath.c_str() ,"READ"));
+
+    if( !BMVfile->IsOpen() ){
+      ATH_MSG_ERROR( "Cannot read bad muon veto efficiency histograms file from " << BMVefficiencyFile_fullPath );
+      return StatusCode::FAILURE;
+    }
+
+    m_BMVefficiency_barrel = (TH2D*)BMVfile->Get("BMVefficiencies_etaBin0_cat3");
+    m_BMVefficiency_endcap = (TH2D*)BMVfile->Get("BMVefficiencies_etaBin1_cat3");
+
+    m_BMVefficiency_barrel->SetDirectory(0);
+    m_BMVefficiency_endcap->SetDirectory(0);
+
+    BMVfile->Close();
+
+    if (!m_BMVefficiency_barrel || !m_BMVefficiency_endcap) {
+      ATH_MSG_ERROR( "Cannot read bad muon veto efficiency histograms");
+      return StatusCode::FAILURE;
+    }
+
 
     //Set up TMVA readers for MVA-based low-pT working point
     //E and O refer to even and odd event numbers to avoid applying the MVA on events used for training
@@ -240,6 +296,9 @@ namespace CP {
     readerO_MUGIRL = new TMVA::Reader();
     PrepareReader( readerO_MUGIRL );
     readerO_MUGIRL->BookMVA("BDTG", weightPath_ODD_MuGirl);
+
+    //Initialize random number generator
+    m_random = new TRandom3;
     
     // Return gracefully:
     return StatusCode::SUCCESS;
@@ -1148,6 +1207,26 @@ namespace CP {
     // ::
     if( mu.muonType() != xAOD::Muon::Combined ) return false;
     // :: 
+    uint8_t nprecisionLayers(0);
+    if ( !mu.summaryValue( nprecisionLayers, xAOD::SummaryType::numberOfPrecisionLayers ) )
+      ATH_MSG_WARNING("passedErrorCutCB - unable to retrieve numberOfPrecisionLayers");
+
+    if( m_doBadMuonVetoMimic && nprecisionLayers == 2) {
+      
+      const xAOD::EventInfo* info = nullptr;
+      if (!evtStore()->contains<xAOD::EventInfo>(m_eventInfoContName) || !evtStore()->retrieve(info, m_eventInfoContName).isSuccess()) {
+	ATH_MSG_WARNING("Could not retrieve the xAOD::EventInfo with name: " << m_eventInfoContName << ". Bad muon veto mimic will not work.");
+	return false;
+      }
+      
+      if (info->eventType(xAOD::EventInfo::IS_SIMULATION)) {
+	ATH_MSG_DEBUG("The current event is a MC event. Use bad muon veto mimic.");
+	ULong64_t seed = 1 + TMath::Abs(mu.phi())*1E6 + TMath::Abs(mu.eta())*1E3 + info->eventNumber();
+	m_random->SetSeed(seed);
+	return passedBMVmimicCut(mu);
+      }
+    }
+    // ::
     double start_cut = 2.5;
     double abs_eta = std::abs(mu.eta());
 
@@ -1169,9 +1248,6 @@ namespace CP {
       start_cut = 2.0;
     }
     // :: 
-    uint8_t nprecisionLayers(0);
-    if ( !mu.summaryValue( nprecisionLayers, xAOD::SummaryType::numberOfPrecisionLayers ) )
-      ATH_MSG_WARNING("passedErrorCutCB - unable to retrieve numberOfPrecisionLayers");
 
     //independent parametrization for 2-station muons
     if (m_use2stationMuonsHighPt && nprecisionLayers == 2) {
@@ -1216,6 +1292,25 @@ namespace CP {
     // :: 
     return passErrorCutCB;
   }
+
+
+  bool MuonSelectionTool::passedBMVmimicCut( const xAOD::Muon& mu ) const {
+
+    TH2* efficiencyHist;
+    if (std::abs(mu.eta()) < 1.05)
+      efficiencyHist = m_BMVefficiency_barrel;
+    else
+      efficiencyHist = m_BMVefficiency_endcap;
+
+    double truthPt = mu.auxdataConst<float>("truthPt");
+
+    if (m_random->Uniform() > efficiencyHist->GetBinContent(efficiencyHist->FindBin(truthPt/1e3,mu.pt()/truthPt-1.0)))
+      return false;
+    else
+      return true;
+  }
+
+
 
   bool MuonSelectionTool::passedMuonCuts( const xAOD::Muon& mu ) const {
     // ::
