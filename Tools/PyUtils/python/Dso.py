@@ -8,10 +8,9 @@ from __future__ import print_function
 
 __author__  = "Sebastien Binet"
 
-__all__ = [
-    'DsoDb',
-    ]
+__all__ = ['DsoDb']
 
+import sys
 import os
 import re
 
@@ -70,12 +69,12 @@ _cpp_builtins = (
     'bool',
     )
 
-_is_stl_sequence = re.compile (r'std::(?P<ContType>.*?)'\
-                               r'<(?P<TemplateArg>.*?)'\
+_is_stl_sequence = re.compile (r'std::(?P<ContType>.*?)'
+                               r'<(?P<TemplateArg>.*?)'
                                r',\s*?std::allocator<\2> >')
-_is_stl_mapping = re.compile (r'std::map<'\
-                              r'(?P<TemplateArg1>.*?),\s*?'\
-                              r'(?P<TemplateArg2>.*?)'\
+_is_stl_mapping = re.compile (r'std::map<'
+                              r'(?P<TemplateArg1>.*?),\s*?'
+                              r'(?P<TemplateArg2>.*?)'
                               r',\s*?std::allocator<\2> >')
     
 
@@ -84,7 +83,6 @@ _is_stl_mapping = re.compile (r'std::map<'\
 ### helpers
 def _get_native_libname(libname):
     """ return the OS-native name from an OS-indenpendent one """
-    import sys
     plat = sys.platform
     if plat.count('linux')>0:
         lib_prefix,lib_suffix = 'lib', '.so'
@@ -122,8 +120,8 @@ def find_library(libname):
      >>> find_library('AthenaServices')
      '/afs/cern.ch/.../AtlasCore/[release]/InstallArea/.../libAthenaServices.so
     """
-    import os, sys
-    import ctypes.util as cu
+    import os
+    ## import ctypes.util as cu
     ## # ctypes.util.find_library does not return the path
     ## # to the library, just the basename of the so-name...
     ## lib = cu._findLib_ldconfig(libname) or cu._findLib_gcc(libname)
@@ -142,7 +140,6 @@ def find_library(libname):
     return
 
 
-import re
 def _is_rootcint_dict (libname):
     """helper function to reject rootcint libraries entries from rootmap
     files (which appeared w/ ROOT v21/22)
@@ -160,7 +157,7 @@ class CxxDsoDb(object):
     The repository of 'rootmap' files (location, content,...)
     """
     def __init__(self):
-        import cppyy
+        import cppyy  # noqa: F401
         # import root
         import PyUtils.RootUtils as ru
         ROOT = ru.import_root()
@@ -237,7 +234,6 @@ def _to_rootmap_name(typename):
         # rootmap files do not contain the default template arguments
         # for STL containers... consistency, again.
         _m = _is_stl_sequence.match(typename)
-        _cont_type = _m.group('ContType')
         _m_type = _m.group('TemplateArg')
         # handle the dreaded 'std::Bla<Foo<d> >
         _m_type = _to_rootmap_name(_m_type.strip())
@@ -324,7 +320,7 @@ class PyDsoDb( object ):
                 except Exception as err:
                     msg.warning("caught:\n%s", err)
             if dir_content is None:
-                msg.warning("could not run os.listdir on [%s]" % path)
+                msg.warning("could not run os.listdir on [%s]", path)
                 dir_content = []
             dsoFiles = [ f for f in dir_content
                          if f.endswith(self.RootMap) ]
@@ -362,8 +358,7 @@ class PyDsoDb( object ):
                             db = self.pf
                         else:
                             db = self.db
-                        if not db.has_key(dsoKey): db[dsoKey] = list()
-                        import re
+                        if dsoKey not in db: db[dsoKey] = list()
                         if _is_rootcint_dict (libName):
                             #print "## discarding [%s]..." % libName
                             continue
@@ -411,9 +406,9 @@ class PyDsoDb( object ):
                        self.pfDuplicates(pedantic) ]:
             for k in dupDb:
                 if k in caps:
-                    if not dups.has_key(k): dups[k] = []
+                    if k not in dups: dups[k] = []
                     dups[k] += [ lib for lib in dupDb[k]
-                                 if not libName in os.path.basename(lib) ]
+                                 if libName not in os.path.basename(lib) ]
         dups.keys().sort()
         for k in dups.keys():
             dups[k].sort()

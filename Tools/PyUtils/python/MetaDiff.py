@@ -62,9 +62,9 @@ def print_diff_dict_keys(parent_key, obj1, obj2, diff_format):
     result = '\n'
 
     value1 = ', '.join(['{}: {}'.format(k, '{...}' if isinstance(v, dict) else v)
-            for k, v in sorted(obj1.items())]);
+                        for k, v in sorted(obj1.items())])
     value2 = ', '.join(['{}: {}'.format(k, '{...}' if isinstance(v, dict) else v)
-            for k, v in sorted(obj2.items())])
+                        for k, v in sorted(obj2.items())])
     
     if diff_format == 'simple':
         if obj1 is None:
