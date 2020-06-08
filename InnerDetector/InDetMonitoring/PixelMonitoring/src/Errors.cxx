@@ -584,7 +584,7 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
 
               if (bit == 8)                                                                                 error_type = 1;  // synchronization error   (8:BCID counter)
               if (bit == 24)                                                                                error_type = 3;  // truncation error        (24:Truncated event)
-              if (bit == 9 || bit == 10 || bit == 11 || bit == 32 || bit == 36 || bit == 38 || bit == 40)   error_type = 6;  // SEU error               (9:Hamming code 0, 10:Hamming code 1, 12:Hamming code 2, 32:Triple redundant CNFGMEM, 36:Bit flip in CMD, 38:Triple redundant CMD, 40:Triple redundant EFUSE)
+              if (bit == 9 || bit == 10 || bit == 11 || bit == 32 || bit == 36 || bit == 37 || bit == 39)   error_type = 6;  // SEU error               (9:Hamming code 0, 10:Hamming code 1, 12:Hamming code 2, 32:Triple redundant CNFGMEM, 36:Bit flip in CMD, 37:Triple redundant CMD, 39:Triple redundant EFUSE)
 
 
               if (error_type) {
@@ -937,10 +937,10 @@ int PixelMainMon::getErrorState(int bit, bool isibl) {
       case 36:
         erstate = 32;  // Bit flip in CMD, FE SEU
         break;
-      case 38:
+      case 37:
         erstate = 33;  // Triple redundant mismatch in CMD, FE SEU
         break;
-      case 40:
+      case 39:
         erstate = 34;  // Triple redundant mismatch in EFUSE, FE SEU
         break;
       case 2:
@@ -964,7 +964,7 @@ int PixelMainMon::getErrorState(int bit, bool isibl) {
       case 35:
         erstate = 41;  // Other CMD decoder error, FE
         break;
-      case 39:
+      case 38:
         erstate = 42;  // Data bus address, FE
         break;
       default:
