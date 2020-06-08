@@ -6,12 +6,17 @@
 #define ITOOLBASE_TAU_H
 
 #include "AsgTools/IAsgTool.h"
-#include "xAODParticleEvent/Particle.h"
-#include "xAODParticleEvent/ParticleContainer.h"
-#include "xAODParticleEvent/ParticleAuxContainer.h"
 
-#include "xAODTau/TauJetContainer.h"
-#include "xAODTau/TauJetAuxContainer.h"
+#include "xAODTau/TauJet.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODPFlow/PFOContainer.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODParticleEvent/ParticleContainer.h"
+
+#ifndef XAOD_ANALYSIS
+#include "CaloEvent/CaloCellContainer.h"
+#endif
 
 /**
  * @brief The base class for all tau tools.
