@@ -16,7 +16,7 @@
 #define ASG_DATA_HANDLES_VAR_HANDLE_BASE_H
 
 #ifndef XAOD_STANDALONE
-#incldue <StoreGate/VarHandleBase.h>
+#include <StoreGate/VarHandleBase.h>
 #else
 
 // STL includes

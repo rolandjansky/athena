@@ -51,11 +51,10 @@ namespace InDet {
   }
 
 
-  StatusCode JetTrackFilterTool::finalize()
+  JetTrackFilterTool::~JetTrackFilterTool()
   {
     delete m_effForJetPt; m_effForJetPt = nullptr;
     delete m_trkNomEff; m_trkNomEff = nullptr;
-    return StatusCode::SUCCESS;
   }
 
   bool JetTrackFilterTool::accept(const xAOD::TrackParticle* track, const xAOD::Jet* jet) const
