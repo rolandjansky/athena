@@ -269,6 +269,7 @@ def muEFCBAlgSequence(ConfigFlags):
     #
     efcbViewsMaker.RequireParentView = True
     efcbViewsMaker.ViewFallThrough = True
+    efcbViewsMaker.mergeUsingFeature = True
 
     #outside-in reco sequence
     muEFCBRecoSequence, sequenceOutCB = muEFCBRecoSequence( efcbViewsMaker.InViewRoIs, "RoI" )
