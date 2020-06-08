@@ -80,39 +80,41 @@ StatusCode BTaggingEigenVectorRecompositionTool::initialize()
 
 // Print out nuisance parameter names correspond to the chosen flavour.
 CP::CorrectionCode BTaggingEigenVectorRecompositionTool::printListOfOriginalNuisanceParameters(const std::string & label) const
+
 {
+  ATH_MSG_INFO("=============================================");
+  ATH_MSG_INFO("printListOfOriginalNuisanceParameters()");
+  ATH_MSG_INFO("Calling getListOfOriginalNuisanceParameters()");
   std::vector<std::string> NPnameList = getListOfOriginalNuisanceParameters(label);
   if(NPnameList.empty()){
     ATH_MSG_ERROR("Could not retrieve list of original nuisance parameters");
     return CP::CorrectionCode::Error;
   }
   
-  ATH_MSG_INFO("=============================================");
-  ATH_MSG_INFO("Printing list of original nuisance parameters:");
+  ATH_MSG_INFO("Printing list of original NP names for " << label <<":");
   ATH_MSG_INFO("");
   for (std::string name : NPnameList){
     ATH_MSG_INFO(name);
   }
   ATH_MSG_INFO("");
-  ATH_MSG_INFO("Finished printing list of original nuisance parameters.");
+  ATH_MSG_INFO("Finished printing list of original NP names for " << label <<".");
   ATH_MSG_INFO("=============================================");
 
   return CP::CorrectionCode::Ok;
 
 }
 
-// Print out coefficients for the chosen eigen vector of chosen flavour label.
+// Print out list of coefficients for the chosen eigen vector of chosen flavour label.
 // The output contains original uncertainties' names and the corresponding
 // coefficient value. The order of the original uncertainty printed is
 // exactly the same as the order given by printListOfOriginalNuisanceParameters()
 CP::CorrectionCode BTaggingEigenVectorRecompositionTool::printListOfCoefficients(const std::string & label, const int& evIdx) const
 {
   ATH_MSG_INFO("=============================================");
-  ATH_MSG_INFO(" ");
+  ATH_MSG_INFO("printListOfCoefficients()");
   ATH_MSG_INFO("Here you print the coefficients for now");
   ATH_MSG_INFO("Tagger name = " << m_btageffTool->getTaggerName());
   ATH_MSG_INFO(" ");
-  ATH_MSG_INFO("=============================================");
   std::vector<int> evIdxList = {evIdx};
   std::map<std::string, std::map<std::string, double>> outterMap = 
     getCoefficientMap(label, evIdxList);
@@ -123,7 +125,6 @@ CP::CorrectionCode BTaggingEigenVectorRecompositionTool::printListOfCoefficients
 
   std::map<std::string, double> innerMap =
     outterMap["Eigen_"+label+"_"+std::to_string(evIdx)];
-  ATH_MSG_INFO("=============================================");
   ATH_MSG_INFO("Printing coefficient of Eigen_"<<label<<"_"<<std::to_string(evIdx));
   ATH_MSG_INFO("");
   for (std::map<std::string, double>::iterator in = innerMap.begin();
@@ -243,12 +244,31 @@ std::vector<double> BTaggingEigenVectorRecompositionTool::getCoefficients(const 
   return coefficients;
 }
 
-// this returns a list of systematics supported by the btaggingEfficiency tool handle
+// Return number of eigenvectors used for the chosen label.
+int BTaggingEigenVectorRecompositionTool::getNumEigenVectors(const std::string & label)const{
+  std::map<std::string, std::map<std::string, double>> fullMap;
+  if(label.compare("B") == 0)
+    fullMap = m_coefficientMapB;
+  else if(label.compare("C") == 0)
+    fullMap = m_coefficientMapC;
+  else if(label.compare("T") == 0)
+    fullMap = m_coefficientMapT;
+  else if(label.compare("Light") == 0)
+    fullMap = m_coefficientMapLight;
+  else{
+    ATH_MSG_ERROR("Label is illegal! Available label: B, C, T and Light.");    
+    return -1;
+  }
+  return fullMap.size();
+}
+
+// this returns a list of eigen vector systematics supported by the btaggingEfficiency tool handle
 CP::SystematicSet BTaggingEigenVectorRecompositionTool::affectingSystematics() const {
   return m_btageffTool->affectingSystematics();
 }
 
-// it indicates which systematic shifts are to be applied for all future calls  
+// it indicates which systematic shifts are to be applied for all future calls
+// no systematics for now, proxy for later
 CP::SystematicCode BTaggingEigenVectorRecompositionTool::applySystematicVariation( const CP::SystematicSet & systConfig )
 {
   for (auto syst : systConfig) {
@@ -267,7 +287,7 @@ bool BTaggingEigenVectorRecompositionTool::isAffectedBySystematic( const CP::Sys
   return sys.find(systematic) != sys.end();
 }
 
-// subset of systematics that are recommended by the
+// subset of Eigenvector systeamtics that are recommended by the
 // btaggingEfficiency tool handle
 CP::SystematicSet BTaggingEigenVectorRecompositionTool::recommendedSystematics() const {
   return affectingSystematics();

@@ -9,7 +9,12 @@
 ///////////////////////////////////////////////////////////////////
 /**
 @class BTaggingEigenVectorRecompositionTool
-Tool to get eigen vector recomposition coefficients
+Tool to help retrieving(from CDI) and providing coefficents values which
+could be used for expressing eigen vector NPs by linear combination of
+original uncertainty NPs in workspace level of the physics analysis.
+Then eigenvector uncertainties are replaced by original uncertainties.
+Replacement could help us correlate uncertainties between analyses
+which are using different tagger algorighthms.
 @author Y. Ke, Q. Buat
 @contact yake@cern.ch, qbuat@cern.ch
 **/
@@ -44,25 +49,71 @@ class BTaggingEigenVectorRecompositionTool: public asg::AsgTool,
   /// Create a constructor for standalone usage
   virtual ~BTaggingEigenVectorRecompositionTool();
 
-  /* Get list of original nuisance parameters that will linearly combined with the list of 
-     coefficients returns below to recompose each eigen vector
- */
+  /**
+   * Print list of original nuisance parameters names.
+   **/
   CP::CorrectionCode printListOfOriginalNuisanceParameters(const std::string & label) const;
 
-  /* print list of coefficients to be used to build the linear combination 
-   */
+  /**
+   * Print out list of coefficients for the chosen eigen vector of chosen flavour label.
+   * The output contains original uncertainties' names and the corresponding
+   * coefficient value. The order of the original uncertainty printed is
+   * exactly the same as the order given by printListOfOriginalNuisanceParameters()
+   **/
   CP::CorrectionCode printListOfCoefficients(const std::string & label, const int& evIdx) const;
 
+  /**
+   * Return a vector which contains a list of original vector uncertainties names.
+   * vector list is for the chosen flavour label. The order of the names is the same
+   * as the coefficient values given by getCoefficients()  
+   **/
   std::vector<std::string> getListOfOriginalNuisanceParameters(const std::string& label) const;
-  std::map<std::string, std::map<std::string, double>> getCoefficientMap(const std::string & label, const std::vector<int> eigenIdxList = std::vector<int>()) const;
+  
+  /**
+   * Produce a coefficient map contains only eigenvectors that is showing in
+   * eigenIdxList and return it to user. If given empty evIdxList, the function
+   * returns a full map. Produced map is for the chosen flavour label.
+   **/
+   std::map<std::string, std::map<std::string, double>> getCoefficientMap(const std::string & label,
+									 const std::vector<int> eigenIdxList = 
+									 std::vector<int>()) const;
+
+  /**
+   * Returns a vector contains the coefficients value of the chosen label
+   * and the chosen eigenvector. The order of the value is the same as
+   * the order of original uncertainty names given by
+   * getListOfOriginalNuisanceParameters()
+   **/
   std::vector<double> getCoefficients(const std::string & label, const int& evIdx) const;
 
+  // Return number of eigenvectors used for the chosen label.
+  int getNumEigenVectors(const std::string & label)const;
 
+  /**
+   * Initialize BtaggingEfficiencyTool handle and retrieve coefficient map for
+   * all flavours. Also initialize vectors which contains all original sources
+   * uncertainties' names. One vector for each flavour.
+   **/  
   StatusCode initialize();
 
+  // this returns a list of systematics supported by the btaggingEfficiency tool handle
   CP::SystematicSet affectingSystematics() const;
+
+  /** it indicates which systematic shifts are to be applied for all future calls
+   * no systematics for now, proxy for later
+   **/
   CP::SystematicCode applySystematicVariation( const CP::SystematicSet & systConfig);
+
+  /**
+   * subset of systematics that are recommended by the
+   * btaggingEfficiency tool handle
+   **/
   CP::SystematicSet recommendedSystematics() const;
+
+  /**
+   * returns true if the argument systematic is supported by the
+   * btaggingEfficiency tool handle
+   **/
   bool isAffectedBySystematic( const CP::SystematicVariation & systematic ) const;
 
 

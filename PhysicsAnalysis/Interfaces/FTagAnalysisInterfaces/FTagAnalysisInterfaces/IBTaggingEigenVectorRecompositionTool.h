@@ -37,6 +37,8 @@ class IBTaggingEigenVectorRecompositionTool : virtual public CP::ISystematicsToo
 
   virtual std::vector<double> getCoefficients(const std::string & label, const int& evIdx) const = 0;
 
+  virtual int getNumEigenVectors(const std::string & label) const = 0;
+
 };
 
 #endif // CPIBTAGGINGEIGENVECTORRECOMPOSITIONTOOL_H

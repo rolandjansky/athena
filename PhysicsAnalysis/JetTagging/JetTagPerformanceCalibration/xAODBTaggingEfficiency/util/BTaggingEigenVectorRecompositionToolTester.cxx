@@ -116,6 +116,18 @@ int main() {
     std::cout << "printListOfOriginalNuisanceParameters failed!" << std::endl;
   }
 
+  /**
+     getNumEigenVectors(label)
+     
+     input value:
+     1. label: falvor label in std::string format, could be one of B, C, T, Light
+     return value:
+     number of eigen vectors used for chosen label.
+   */
+  int nEigen = evr_tool->getNumEigenVectors("B");
+  std::cout<<"There are "<<nEigen
+	   <<" eigen vectors for flavour B."<<std::endl;
+
   return retval;
 
 }

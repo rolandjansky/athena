@@ -197,9 +197,16 @@ class BTaggingEfficiencyTool: public asg::AsgTool,
   /// @}
 
   /**
-   * Run EigenvectorRecomposition method and get the coefficient map
+   * Run EigenvectorRecomposition method and get the coefficient map.
+   * Calling EigenVectorRecomposition method in CDI and retrieve recomposition map.
+   * If success, coefficientMap would be filled and return ok.
+   * If failed, return error.
+   * label  :  flavour label
+   * coefficientMap: store returned coefficient map. This map could help expressing eigenvector NPs by linear
+   * combination of original uncertainty NPs in workspace level of physics analysis. The coefficient value
+   * is stored in the map in the format of:
+   * map<"Eigen_B_0", map<"[original uncertainty name]", [corresponding coefficient value]>> 
    */
-
   CP::CorrectionCode getEigenRecompositionCoefficientMap(const std::string &label, std::map<std::string, std::map<std::string, double>> & coefficientMap);
   /// @}
 
