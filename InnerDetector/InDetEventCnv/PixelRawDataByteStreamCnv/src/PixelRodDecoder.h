@@ -13,13 +13,14 @@
 #include "eformat/SourceIdentifier.h"
 
 #include "PixelConditionsTools/IPixelByteStreamErrorsTool.h"
-
+#include "PixelConditionsData/PixelByteStreamErrors.h"
 #include "PixelConditionsData/PixelCablingCondData.h"
 #include "PixelConditionsData/PixelHitDiscCnfgData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 class IPixelCablingSvc;
 class PixelID;
+class PixelRodDecoderErrorsHelper;
 
 class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
 
@@ -155,8 +156,10 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
     //!< adds given ErrorCode to all hasIDs for given ROB
     void addRODError(uint32_t robid, IDCInDetBSErrContainer::ErrorCode, IDCInDetBSErrContainer& errorsCollection) const;
 
+    void addRODError(uint32_t robid, PixelByteStreamErrors::PixelErrorsEnum, PixelRodDecoderErrorsHelper& errorsCollection) const;
+
     //! checks status word in ROD for truncations and similar, returns success or recoverable errors, fills errors container at the same time
-    StatusCode checkRODStatus( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, IDCInDetBSErrContainer& decodingErrors ) const;
+// STSTST    StatusCode checkRODStatus( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, IDCInDetBSErrContainer& decodingErrors ) const;
 
     //! checks if data words do not look like header & trailer markers, return true if so, this is sign of data corruption
     bool checkDataWordsCorruption( uint32_t word ) const;

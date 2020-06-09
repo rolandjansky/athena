@@ -11,7 +11,6 @@
 #include "PixelByteStreamModuleMask.h"
 #include "ByteStreamData/RawEvent.h"
 #include "eformat/SourceIdentifier.h"
-#include "PixelConditionsData/PixelByteStreamErrors.h"
 #include "xAODEventInfo/EventInfo.h"
 
 #include <fstream>
@@ -100,6 +99,30 @@ StatusCode PixelRodDecoder::finalize() {
   return StatusCode::SUCCESS;
 }
 
+/**
+ * @brief allows to accumulate errors in one fillColection call
+ *
+ * Errors information is scattered across this code.
+ * To be sure that all of the errors are saved this helper class provides add method allowing to update/accumulate erorr.
+ * The IDC, for a very good reasons (MT safety) do not allow for that.
+ **/
+class PixelRodDecoderErrorsHelper {
+  public:
+    PixelRodDecoderErrorsHelper( IDCInDetBSErrContainer& idcContainer )
+      : m_errorsIDC{ idcContainer } {}
+    ~PixelRodDecoderErrorsHelper() {
+      for ( auto [id, err]: m_accumulatedErrors ) {
+        m_errorsIDC.setOrDrop( id, err );
+      }
+    }
+    void add(const IdentifierHash id, PixelByteStreamErrors::PixelErrorsEnum etype) {
+      PixelByteStreamErrors::addError(m_accumulatedErrors[id], etype);
+    }
+
+  private:
+    std::map<IdentifierHash, IDCInDetBSErrContainer::ErrorCode> m_accumulatedErrors;
+    IDCInDetBSErrContainer& m_errorsIDC;
+};
 
 //---------------------------------------------------------------------------------------------------- fillCixollection
 StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRDO_Container* rdoIdc,
@@ -111,6 +134,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
   ATH_MSG_DEBUG("Entering PixelRodDecoder");
 #endif
 
+  PixelRodDecoderErrorsHelper errs(decodingErrors); // on destruction will fill the IDC
   Identifier invalidPixelId = Identifier(); // used by Cabling for an invalid entry
   Identifier pixelId;
   uint64_t onlineId(0);
@@ -126,21 +150,46 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
   }
 
   SG::ReadCondHandle<PixelCablingCondData> pixCabling(m_condCablingKey);
-  //SG::ReadCondHandle<PixelHitDiscCnfgData> pixHitDiscCnfg(m_condHitDiscCnfgKey);
-  std::unique_ptr<SG::ReadCondHandle<PixelHitDiscCnfgData> > pixHitDiscCnfg;
+  std::unique_ptr<SG::ReadCondHandle<PixelHitDiscCnfgData>> pixHitDiscCnfg;
 
-  {
-    StatusCode sc = checkRODStatus( robFrag, decodingErrors );
-    if ( not sc.isSuccess() )
-      return sc;
+// STSTST ==============================================================
+
+// STSTST   {
+// STSTST     StatusCode sc = checkRODStatus( robFrag, decodingErrors );
+// STSTST     if ( not sc.isSuccess() )
+// STSTST       return sc;
+// STSTST   }
+
+  // check the ROD status for truncation
+  if (robFrag->nstatus() != 0) {
+    const uint32_t* rob_status;
+    robFrag->status(rob_status);
+    if (ATH_UNLIKELY((*rob_status)!= 0)) {
+      addRODError(robId,*rob_status);
+
+      ATH_MSG_DEBUG( "ROB status word for robid 0x"<< std::hex << robId << " is non-zero 0x" << (*rob_status) << std::dec);
+
+      if (((*rob_status) >> 27) & 0x1) { // TODO: find source of thse constants
+        addRODError(robId, PixelByteStreamErrors::TruncatedROB, errs);
+        ATH_MSG_DEBUG("ROB status word for robid 0x"<< std::hex << robId << std::dec <<" indicates data truncation.");
+        return StatusCode::RECOVERABLE;
+      }
+
+      if (((*rob_status) >> 31) & 0x1) {
+        addRODError(robId, PixelByteStreamErrors::MaskedROB, errs);
+        ATH_MSG_DEBUG( "ROB status word for robid 0x"<< std::hex << robId<< std::dec <<" indicates resource was masked off.");
+        return StatusCode::RECOVERABLE;
+      }
+    }
   }
+
+// STSTST ==============================================================
 
   unsigned int errorcode = 0;
   uint64_t bsErrCode = 0; // new BS Errors handling
   // m_errors->reset(); // reset the collection of errors
 
   StatusCode sc = StatusCode::SUCCESS;
-
 
   // Fill the Collections for this ROB.
   unsigned int mBCID           = 0x3FFF;   // create module BCID variable
@@ -227,697 +276,696 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
 
     ++nwords_in_module_fragment;
 
-
     switch (word_type) { // depending on type of word call the right decoding method
 
       //-------------------------------------------------------------------------------------------- HEADER WORD FOUND
-    case PRB_LINKHEADER:   // link (module) header found
+      case PRB_LINKHEADER:   // link (module) header found
 
-      ATH_MSG_DEBUG("Header word found");
+        ATH_MSG_DEBUG("Header word found");
 
-      if (link_start) {    // if header found before last header was closed by a trailer -> error
-	generalwarning("In ROB 0x" << std::hex << robId << ": Unexpected link header found: 0x" << std::hex << rawDataWord
-		       << ", data corruption" << std::dec);
-	m_errors->addDecodingError();
-	PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Decoding );
-      }
-      else {
-	ATH_MSG_DEBUG( "Header decoding starts" );
-      }
+        if (link_start) {    // if header found before last header was closed by a trailer -> error
+          generalwarning("In ROB 0x" << std::hex << robId << ": Unexpected link header found: 0x" << std::hex << rawDataWord
+              << ", data corruption" << std::dec);
+          m_errors->addDecodingError();
+          PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Decoding );
 
-      link_start = true;   // setting link (module) header found flag
-      are_4condensed_words = false;
-      receivedCondensedWords = false;
-      isIBLModule = false;
-      isDBMModule = false;
-      countHitCondensedWords = 0;
-      nwords_in_module_fragment = 1;
+// STSTST          addRODError(robId, PixelByteStreamErrors::TruncatedROB, errs);
 
-      if (m_is_ibl_present) {
-	isIBLModule = isIBL(robId);
-	isDBMModule = isDBM(robId);
-      }
-
-      errorcode = 0; // reset errorcode
-      // Keep track of IDs for previous fragment before decoding the new values
-      prevLVL1ID = mLVL1ID;
-      prevBCID = mBCID;
-      prevLinkNum = mLink;
-      prevOffsetBCID_ROB_FE = offsetBCID_ROB_FE;
-
-      if (isIBLModule || isDBMModule) { // decode IBL/DBM header word.
-#ifdef PIXEL_DEBUG
-	ATH_MSG_VERBOSE( "Decoding the IBL/DBM header word: 0x" << std::hex << rawDataWord << std::dec );
-#endif
-
-
-	// IBL header data format: 001nnnnnFLLLLLLLLLLLLLBBBBBBBBBB
-	mBCID = decodeBCID_IBL(rawDataWord);   // decode IBL BCID: B
-	mLVL1ID = decodeL1ID_IBL(rawDataWord);   // decode IBL LVL1ID: L
-	linkNum_IBLheader = decodeModule_IBL(rawDataWord);   // decode IBL FE number on the S-Link (range [0,7], as 8 FEs are connected to 1 S-Link in IBL) and the S-Link number itself: n
-
-
-	if (decodeFeI4Bflag_IBL(rawDataWord)) {
-	  m_errors->addFlaggedError(); // decode FeI4B flag bit: F
-	  PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Flagged );
-	}
-
-
-	fe_IBLheader = extractFefromLinkNum(linkNum_IBLheader);
-	mLink = fe_IBLheader; // this is used to retrieve the onlineId. It contains only the 3 LSBs of the nnnnn, indicating the number of FE w.r.t. the SLink
-	sLinkHeader = extractSLinkfromLinkNum(linkNum_IBLheader); // this is used to check that the (redundant) info is correctly transmitted
-
-	if (sLinkHeader != sLinkSourceId) {
-	  generalwarning("In ROB 0x" << std::hex << robId << ", link 0x" << mLink
-			 << ": SLink discrepancy: Slink number from SourceId = 0x" << std::hex << sLinkSourceId
-			 << ", number from link header = 0x" << sLinkHeader << std::dec);
-	}
-
-	// If decoding fragment from same FE as previous one, do LVL1ID and BCID checks
-	if (mLink == prevLinkNum) {
-
-	  // Check that L1ID is the same for all fragments
-	  if (mLVL1ID != prevLVL1ID && prevLVL1ID != 0x3FFF) {
-	    lvl1id_bcid_warning("In ROB 0x" << std::hex << robId << ", FE: 0x" << mLink
-				<< ": frame header LVL1ID differs from previous one (current frame LVL1ID = 0x"
-				<< mLVL1ID << ", previous frame LVL1ID = 0x" << prevLVL1ID << ")" << std::dec);
-	  }
-	  // Check that BCIDs are consecutive
-	  if ((mBCID != prevBCID + 1) && prevBCID != 0x3FFF && prevBCID != mBCID_max_IBL) {
-	    lvl1id_bcid_warning("In ROB 0x" << std::hex << robId << ", FE: 0x" << mLink
-				<< ": frame header with non-consecutive BCID (current BCID = 0x"
-				<< mBCID << ", previous BCID = 0x" << prevBCID << ")" << std::dec);
-	  }
-	}
-	else {  // If decoding new FE, check BCID offset
-	  offsetBCID_ROB_FE = static_cast<int>(mBCID) - robBCID;
-	  if (offsetBCID_ROB_FE != prevOffsetBCID_ROB_FE && (offsetBCID_ROB_FE != 0x3FFF && prevOffsetBCID_ROB_FE != 0x3FFF)) {
-	    lvl1id_bcid_warning("In ROB 0x" << std::hex << robId << ", FE: 0x" << mLink << std::dec << ": FE header with unexpected BCID offset"
-				<< " wrt to ROB header (offset = " << offsetBCID_ROB_FE << ", expected " << prevOffsetBCID_ROB_FE << " from ROB)");
-	  }
-	  // Check that first fragment from each FE starts at the same BCID
-	  if (mBCID != prevStartingBCID && prevStartingBCID != 0x3FFF) {
-	    lvl1id_bcid_warning("In ROB 0x" << std::hex << robId << ", FE: 0x" << mLink
-				<< ": FE BCID starts at different value than in previous FE (current BCID = 0x"
-				<< mBCID << ", prev starting BCID = 0x" << prevStartingBCID << ")" << std::dec);
-	  }
-	  prevStartingBCID = mBCID;
-	}
-
-	// Count number of headers received
-	if (mLink < 0x8) ++nFragmentsPerFE[mLink];
-
-      }
-
-      else { // decode Pixel header word. Data format: 001PtlbxdnnnnnnnMMMMLLLLBBBBBBBB
-
-	ATH_MSG_VERBOSE( "Decoding Pixel header word: 0x" << std::hex << rawDataWord << std::dec );
-
-	mBCID = decodeBCID(rawDataWord);   // decode Pixel BCID: B
-	mLVL1ID = decodeL1ID(rawDataWord);   // decode Pixel LVL1ID: L
-	mLink = decodeModule(rawDataWord);   // decode Pixel link (module): n
-	//mLVL1IDskip = decodeL1IDskip(rawDataWord);   // decode Pixel skipped LVL1ID: M    -- temporarily removed
-
-	/*
-	// If decoding fragment from same FE as previous one, do LVL1ID and BCID checks
-	if (mLink == prevLinkNum) {
-
-	// Check that L1ID is the same for all fragments
-	if (mLVL1ID != prevLVL1ID && prevLVL1ID != 0x3FFF) {
-	ATH_MSG_WARNING("In ROB " << std::hex << robId << ": got header with LVL1ID unequal to previous one (LVL1ID = 0x"
-	<< mLVL1ID << ", prevLVL1ID = 0x" << prevLVL1ID << ")" << std::dec);
-	}
-	// Check that BCIDs are consecutive
-	if ((mBCID != prevBCID + 1) && prevBCID != 0x3FFF && prevBCID != mBCID_max_pix) {
-	ATH_MSG_WARNING("In ROB " << std::hex << robId << ": got header with non-consecutive BCIDs (BCID = 0x"
-	<< mBCID << ", prevBCID = 0x" << prevBCID << ")" << std::dec);
-	}
-	}
-	else {  // If decoding new FE, check BCID offset
-	offsetBCID_ROB_FE = static_cast<int>(mBCID) - robBCID;
-	if (offsetBCID_ROB_FE != prevOffsetBCID_ROB_FE && (offsetBCID_ROB_FE != 0x3FFF && prevOffsetBCID_ROB_FE != 0x3FFF)) {
-	ATH_MSG_WARNING("In ROB 0x" << std::hex << robId << std::dec << ": got FE header with unexpected BCID offset"
-	<< " wrt to ROB header (offset = " << offsetBCID_ROB_FE << ", expected " << prevOffsetBCID_ROB_FE << ")");
-	}
-	// Check that first fragment from each FE starts at the same BCID
-	if (mBCID != prevStartingBCID && prevStartingBCID != 0x3FFF) {
-	ATH_MSG_WARNING("In ROB 0x" << std::hex << robId << ": BCID starts at different value than in previous FE (BCID = 0x" << mBCID
-	<< ", prev starting BCID = 0x" << prevStartingBCID << ")" << std::dec);
-	}
-	prevStartingBCID = mBCID;
-	}
-	*/
-
-	uint32_t headererror = decodeHeaderErrors(rawDataWord);   // get link (module) header errors
-	if (headererror != 0) { // only treatment for header errors now, FIXME
-	  sc = StatusCode::RECOVERABLE;
-	  errorcode = errorcode | (headererror << 20); //encode error as HHHHMMMMMMMMFFFFFFFFTTTT for header, flagword, trailer errors
-	  if (headererror & (1 << 3)) {
-	    m_errors->addPreambleError();
-	    PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Preamble );
-	  }
-	  if (headererror & (1 << 2)) {
-	    m_errors->addTimeOutError();
-	    PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::TimeOut );
-	  }
-	  if (headererror & (1 << 1)) {
-	    m_errors->addLVL1IDError();
-	    PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::LVL1ID );
-	  }
-	  if (headererror & (1 << 0)) {
-	    m_errors->addBCIDError();
-	    PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::BCID );
-	  }
-	}
-      }
-
-
-      // Get onlineId
-      onlineId = pixCabling->getOnlineIdFromRobId(robId, mLink);
-
-      if (onlineId == 0) {
-	generalwarning("In ROB 0x" << std::hex << robId << ", FE: 0x" << mLink
-		       << ": Got invalid onlineId (= 0) in FE header - dataword = 0x" << rawDataWord);
-      }
-
-#ifdef PIXEL_DEBUG
-      ATH_MSG_VERBOSE("In decoder: got onlineId 0x" << std::hex << onlineId );
-#endif
-
-      offlineIdHash = m_pixel_id->wafer_hash(pixCabling->find_entry_onoff(onlineId));
-
-      if (offlineIdHash != previous_offlineIdHash) {
-	m_errors->addRead(offlineIdHash); // TODO: understand this better, it seems like an additiona, transient flag denoting that the module wasdecoded for this event
-	mBCID_offset = mBCID;   // set BCID offset if this is first LVL1A
-      }
-      mLVL1A = mBCID - mBCID_offset;   // calculate the LVL1A
-      if (mLVL1A < 0) {
-	if (isIBLModule || isDBMModule) mLVL1A = mLVL1A + mBCID_max_IBL;
-	else mLVL1A = mLVL1A + mBCID_max_pix;
-      }
-
-#ifdef PIXEL_DEBUG
-      ATH_MSG_VERBOSE( "link header with BCID: " << mBCID << " LVL1ID: " << mLVL1ID << " LVL1A: " << mLVL1A << " link: " << mLink << " found");
-      ATH_MSG_VERBOSE( "got OfflineIDHash: 0x" << std::hex << offlineIdHash << " from OnlineID: 0x" <<  onlineId << std::dec << " link: " << mLink);
-#endif
-
-      if (offlineIdHash == 0xffffffff) {   // if link (module) online identifier (ROBID and link number) not found by mapping
-	generalwarning("In ROB 0x" << std::hex << robId << ", FE: 0x" << mLink
-		       << ": Unknown OnlineId identifier in FE header - not found by mapping" << std::dec);
-	m_errors->addDecodingError();  // TODO Decoding error not associated wiht any hashID. Handle that somehow
-	link_start = false;   // resetting link (module) header found flag
-	continue;   // skip this word and process next one
-      }
-      break;
-
-      //-------------------------------------------------------------------------------------------- HIT DATA WORD FOUND
-    case PRB_DATAWORD: // hit data found
-
-      if (link_start) {   // if header found before hit -> expected
-
-	ATH_MSG_DEBUG("Hit word found");
-
-	unsigned int mFE = 0;
-	unsigned int mRow = 0;
-	unsigned int mColumn = 0;
-	int mToT = 0;
-	uint32_t row[nHits], col[nHits];
-	int tot[nHits];
-
-	if (isIBLModule || isDBMModule) { // check all the different types of IBL/DBM hit words (condensed and not condensed)
-#ifdef PIXEL_DEBUG
-	  ATH_MSG_DEBUG ("Decoding IBL/DBM hit word: 0x" << std::hex << rawDataWord << std::dec);
-#endif
-
-	  if (((rawDataWord & PRB_DATAMASK) == PRB_FIRSTHITCONDENSEDWORD) && (countHitCondensedWords == 0)) { // it is the first of the 4 hit condensed words (IBL/DBM)
-
-	    countHitCondensedWords = 1;
-	    are_4condensed_words = false; // All 4 words have to be found before turning it on
-	    condensedWords[0] = rawDataWord;
-	    continue;
-	  }
-	  else if (countHitCondensedWords == 1) { // it is the second of the 4 hit condensed words (IBL)
-	    ++countHitCondensedWords;
-	    condensedWords[1] = rawDataWord;
-	    continue;
-	  }
-	  else if (countHitCondensedWords == 2) { // it is the third of the 4 hit condensed words (IBL)
-	    ++countHitCondensedWords;
-	    condensedWords[2] = rawDataWord;
-	    continue;
-	  }
-	  else if (((rawDataWord & PRB_DATAMASK) == PRB_LASTHITCONDENSEDWORD) && (countHitCondensedWords == 3)) { // it is the fourth of the 4 hit condensed words (IBL)
-	    are_4condensed_words = true;
-	    receivedCondensedWords = true;
-	    condensedWords[3] = rawDataWord;
-	    uint32_t hitwords[nHits];
-
-	    //Condensed words
-	    //  101RRRRRTTTTTTTTCCCCCCCRRRRRRRRR
-	    //  1CCCRRRRRRRRRTTTTTTTTCCCCCCCRRRR
-	    //  1TTTCCCCCCCRRRRRRRRRTTTTTTTTCCCC
-	    //  111TTTTTTTTCCCCCCCRRRRRRRRRTTTTT
-	    // They become 5 hitwords with format : TTTTTTTTCCCCCCCRRRRRRRRR
-
-	    // first hitword: simple mask of the first condensed word
-	    hitwords[0] = (condensedWords[0] & mask24);
-
-	    // second hitword: takes the "RRRRR" from the first condensed word + the "TTTTTTTTCCCCCCCRRRR" from the second (shifted left 5 bits to accomodate the "RRRRR" as LSB)
-	    hitwords[1] = ((condensedWords[0] >> (skipRow + skipCol+ skipTOT) ) & mask5) + ((condensedWords[1] & mask19) << skip5);
-
-	    // third hitword: takes remaining "CCCRRRRRRRRR" from the second condensed word + the "TTTTTTTTCCCC" from the third (shifted left 12 bits to accomodate the LSB coming from the second condensed word
-	    hitwords[2] = ((condensedWords[1] >> (skip4 + skipCol + skipTOT)) & mask12) + ((condensedWords[2] & mask12) << (skipRow + skip3));
-
-	    // fourth hitword: takes remaning "TTTCCCCCCCRRRRRRRRR" from the third condensed word +  the "TTTTT" from the fourth (shifted left 19 bits to accomodate the LSB coming from the third condensed word
-	    hitwords[3] = ((condensedWords[2] >> (skipTOT + skip4)) & mask19) + ((condensedWords[3] & mask5) << (skip3 + skipRow + skipCol));
-
-	    // fifth hitword: simply shift 5 right to eliminate the "TTTTT" and mask24
-	    hitwords[4] = (condensedWords[3] >> skip5) & mask24;
-#ifdef PIXEL_DEBUG
-	    ATH_MSG_VERBOSE( "4 consecutive IBL hit words found. Condensed hits are being decoded");
-#endif
-	    for (unsigned int i(0); i < nHits; ++i) {
-	      row[i] = divideHits (hitwords[i], 0, 8);
-	      col[i] = divideHits (hitwords[i], 9, 15);
-	      tot[i] = divideHits (hitwords[i], 16, 23);
-	      ATH_MSG_VERBOSE( "hitword[" << i << "] = 0x" << std::hex << hitwords[i] << ",  row: 0x" << row[i] << ",  col: 0x" << col[i] << ",  8-bit ToT: 0x" << tot[i] << std::dec);
-	    }
-	    countHitCondensedWords = 0;
-	    linkNum_IBLword = linkNum_IBLheader;
-	    // fe_IBLword = fe_IBLheader;
-	    // sLinkWord = sLinkHeader;
-	  } // end of the condensed hit words (IBL)
-
-
-	  else if ((rawDataWord & PRB_DATAMASK) == PRB_DATAWORD) { // it's a IBL not-condensed hit word
-	    if (countHitCondensedWords != 0) { // I received some IBL words, but less than 4, there was an error in the rod transmission
-	      generalwarning("In ROB 0x" << std::hex << robId << ", link 0x" << mLink
-			     << ": Interruption of IBL condensed words - hit(s) ignored (current dataword: 0x"
-			     << std::hex << rawDataWord << std::dec << ")");
-	      m_errors->addDecodingError();
-	      PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Decoding );
-	      countHitCondensedWords = 0;
-	    }
-	    // IBL non-condensed Hit Words decoding:
-	    are_4condensed_words = false;
-	    mRow = decodeRow(rawDataWord, isIBLModule || isDBMModule );
-	    mColumn = decodeColumn(rawDataWord, isIBLModule || isDBMModule);
-	    mToT = decodeToT(rawDataWord, isIBLModule || isDBMModule); // this needs, later in the code, to be divided into Tot(0) and Tot(1), because the IBL TOT information can give information of the ToTs from up to two adjacent pixels
-
-	    linkNum_IBLword = decodeLinkNumHit_IBL(rawDataWord); // this corresponds to the "nnnnn" bits of the bytestream convention.
-	    //They represent: 3 LSB = number of the FE linked by the S-Link sending the block (range [0,7]); 2 MSB = S-Link number (range [1,4])
-	    //                        fe_IBLword = extractFefromLinkNum(linkNum_IBLword);
-	    //                        sLinkWord = extractSLinkfromLinkNum(linkNum_IBLword);
-	    if (linkNum_IBLword != linkNum_IBLheader) {
-	      generalwarning("In ROB 0x" << std::hex << robId << ": Link number mismatch - nnnnn (hit word) = 0x" << linkNum_IBLword
-			     << ", nnnnn (header) = 0x" << linkNum_IBLheader << std::dec);
-	    }
-
-#ifdef PIXEL_DEBUG
-	    ATH_MSG_DEBUG("hit dataword found for module offlineIDHash: " << offlineIdHash << " Row: 0x"
-			  << std::hex << mRow << " Col: 0x" <<  mColumn  << " Tot: 0x" << mToT << std::dec);
-#endif
-	  }
-	  else { // it is an IBL/DBM hit word, but it hasn't been recognised
-	    generalwarning("In ROB 0x" << std::hex << robId << ", FE: 0x" << mLink
-			   << ": IBL/DBM hit word 0x" << rawDataWord << " not recognised" << std::dec);
-	    m_errors->addDecodingError();
-	    PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Decoding );
-	    continue;
-	  }
-
-	  // computing the FE number on the silicon wafer for IBL ( mFE is = 0 for IBL 3D and the lower-eta FE on the planar sensor,
-	  // while is = 1 for the higher-eta FE on the planar sensor)
-	  mFE = m_pixelCabling->getLocalFEI4(fe_IBLheader, onlineId);
-	} // end of the if (isIBLModule || isDBMModule)
-
-	else { // Pixel Hit Case
-
-#ifdef PIXEL_DEBUG
-	  ATH_MSG_VERBOSE("Decoding Pixel hit word: 0x" << std::hex << rawDataWord << std::dec);
-#endif
-
-	  if (countHitCondensedWords != 0)
-	    { // I received some IBL words, but less than 4, there was an error in the rod transmission
-	      generalwarning("In ROB 0x" << std::hex << robId << ", link 0x" << mLink
-			     << ": Interruption of IBL condensed words - hit(s) ignored (current dataword: 0x"
-			     << std::hex << rawDataWord << std::dec << ")");
-	      m_errors->addDecodingError();
-	      PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Decoding );
-	      countHitCondensedWords = 0;
-	    }
-	  //Pixel Hit Words decoding:
-	  are_4condensed_words = false;
-	  mFE = decodeFE(rawDataWord);
-	  mRow = decodeRow(rawDataWord, isIBLModule || isDBMModule );
-	  mColumn = decodeColumn(rawDataWord, isIBLModule || isDBMModule);
-	  mToT = decodeToT(rawDataWord, isIBLModule || isDBMModule);
-#ifdef PIXEL_DEBUG
-	  ATH_MSG_DEBUG( "hit dataword found for module offlineIDHash: " << offlineIdHash << " FE: " << mFE << " Row: " << mRow << " Col: " <<  mColumn );   // hit found debug message
-#endif
-
-	} // end of the condition "!isIBLModule"
-
-
-	// ------------------------
-	// Create pixel collections
-
-	// Decode only modules in provided list of hashes (i.e. not doing full scan)
-	// Disabled for now.
-	if (offlineIdHash == skipHash) continue;
-
-
-
-	if(offlineIdHash != lastHash){
-	  lastHash = offlineIdHash;
-	  if(vecHash!=nullptr ){
-	    std::vector<IdentifierHash>::iterator p = std::find(vecHash->begin(),vecHash->end(),offlineIdHash);
-
-	    if (p == vecHash->end()){ // is the Hash to be skipped (not in the request list)?
-	      skipHash = offlineIdHash;
-	      continue;
-	    }
-	  }
-
-
-	  /* TODO =, make proper use of MT IDC
-	  if(rdoIdc->hasExternalCache() && rdoIdc->tryAddFromCache(offlineIdHash)){
-	    ATH_MSG_INFO("Hash already in collection - cache hit " << offlineIdHash);
-	    continue;
-	  }
-	  */
-
-	  ATH_CHECK( rdoIdc->naughtyRetrieve(offlineIdHash, coll) );//Returns null if not present
-
-	  if( coll == nullptr ) {
-	    coll = new PixelRawCollection (offlineIdHash);
-	    // get identifier from the hash, this is not nice
-	    Identifier ident = m_pixel_id->wafer_id(offlineIdHash);
-	    // set the Identifier to be nice to downstream clients
-	    coll->setIdentifier(ident);
-
-	    StatusCode sc = rdoIdc->addCollection(coll, offlineIdHash);
-	    ATH_MSG_DEBUG("Adding " << offlineIdHash);
-	    if (sc.isFailure()){
-	        ATH_MSG_ERROR("failed to add Pixel RDO collection to container" );
-	    }
-	  }
+        }
+        else {
+          ATH_MSG_DEBUG( "Header decoding starts" );
         }
 
-	// ------------------------
-	// Fill collections
+        link_start = true;   // setting link (module) header found flag
+        are_4condensed_words = false;
+        receivedCondensedWords = false;
+        isIBLModule = false;
+        isDBMModule = false;
+        countHitCondensedWords = 0;
+        nwords_in_module_fragment = 1;
 
-	if (isIBLModule || isDBMModule) {
-	  unsigned int num_cycles_toFillCollection(0);
-	  if (are_4condensed_words) {
-	    num_cycles_toFillCollection = nHits;
-	  }
-	  else {
-	    num_cycles_toFillCollection = 1;
-	    row[0] = mRow;
-	    col[0] = mColumn;
-	    tot[0] = mToT;
-	  }
-	  int IBLtot[2];
-	  for (unsigned int i(0); i < num_cycles_toFillCollection; ++i) {
+        if (m_is_ibl_present) {
+          isIBLModule = isIBL(robId);
+          isDBMModule = isDBM(robId);
+        }
+
+        errorcode = 0; // reset errorcode
+        // Keep track of IDs for previous fragment before decoding the new values
+        prevLVL1ID = mLVL1ID;
+        prevBCID = mBCID;
+        prevLinkNum = mLink;
+        prevOffsetBCID_ROB_FE = offsetBCID_ROB_FE;
+
+        if (isIBLModule || isDBMModule) { // decode IBL/DBM header word.
 #ifdef PIXEL_DEBUG
-	    ATH_MSG_VERBOSE( "ROW[" << i << "] = 0x"  << std::hex << row[i] << std::dec << ",  COL[" << i << "] = 0x"
-			     << std::hex << col[i] << std::dec << ",  8-bit TOT[" << i << "] = 0x" << std::hex << tot[i] << std::dec );
+          ATH_MSG_VERBOSE( "Decoding the IBL/DBM header word: 0x" << std::hex << rawDataWord << std::dec );
 #endif
 
-	    // ToT1 equal 0 means no hit, regardless of HitDiscCnfg
-	    if ((tot[i] & 0xF0) == 0x00) {
-	      generalwarning("In ROB 0x" << std::hex << robId << ", FE 0x" << mLink
-			     << ": First IBL ToT field is 0 - hit word 0x" << rawDataWord
-			     << " decodes to ToT1 = 0" << (tot[i] >> 4) << ", ToT2 = 0x"
-			     << (tot[i] & 0xF) << ", row = " << std::dec << row[i]
-			     << " col = " << col[i] << std::dec);
-	      continue;
-	    }
 
-	    else {
-	      if (((row[i] != 0) && (col[i] != 0) && (row[i] <= 336) && (col[i] <= 80)) || isDBMModule) { // FIXME : Hardcoded numbers. Should be ok as they are features of the FE-I4, but worth checking!
-		pixelId = m_pixelCabling ->getPixelIdfromHash (offlineIdHash, mFE, row[i], col[i]);
+          // IBL header data format: 001nnnnnFLLLLLLLLLLLLLBBBBBBBBBB
+          mBCID = decodeBCID_IBL(rawDataWord);   // decode IBL BCID: B
+          mLVL1ID = decodeL1ID_IBL(rawDataWord);   // decode IBL LVL1ID: L
+          linkNum_IBLheader = decodeModule_IBL(rawDataWord);   // decode IBL FE number on the S-Link (range [0,7], as 8 FEs are connected to 1 S-Link in IBL) and the S-Link number itself: n
 
-#ifdef PIXEL_DEBUG
-		ATH_MSG_VERBOSE( "PixelId: " << pixelId );
-		int eta_i = m_pixel_id->eta_index(pixelId);
-		int phi_i = m_pixel_id->phi_index(pixelId);
-		int eta_m = m_pixel_id->eta_module(pixelId);
-		int phi_m = m_pixel_id->phi_module(pixelId);
-		ATH_MSG_VERBOSE( "          eta_i: " << eta_i << ", phi_i: " << phi_i << ",  eta_m: " <<  eta_m << ", phi_m: " << phi_m );
-#endif
-		if (pixelId == invalidPixelId) {
-		  generalwarning("In ROB 0x" << std::hex << robId << ", FE 0x" << mLink
-				 << ": Illegal pixelId - hit word 0x" << rawDataWord << " decodes to ToT1 = 0"
-				 << (tot[i] >> 4) << ", ToT2 = 0x" << (tot[i] & 0xF) << ", row = "
-				 << std::dec << row[i] << " col = " << col[i] << std::dec);
-		  m_errors->addInvalidIdentifier();
-		  PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Invalid );
-		  continue;
-		}
-		IBLtot[0] = divideHits(tot[i], 4, 7); // corresponds to (col, row)
-		IBLtot[1] = divideHits(tot[i], 0, 3); // corresponds to (col, row+1)
-#ifdef PIXEL_DEBUG
-		ATH_MSG_VERBOSE("Starting from tot = 0x" << std::hex << tot[i] << " IBLtot[0] = 0x" << std::hex << IBLtot[0] << "   IBLtot[1] = 0x" << IBLtot[1] << std::dec );
-#endif
-
-		if (!pixHitDiscCnfg) {
-		  pixHitDiscCnfg = std::make_unique<SG::ReadCondHandle<PixelHitDiscCnfgData> > (m_condHitDiscCnfgKey);
-		}
-		// Get the hit discrimination configuration setting for this FE
-		if (m_pixelCabling->getModuleType(pixelId)==IPixelCablingSvc::IBL_PLANAR || m_pixelCabling->getModuleType(pixelId)==IPixelCablingSvc::DBM) {
-		  hitDiscCnfg = (*pixHitDiscCnfg)->getHitDiscCnfgPL();
-		}
-		else if (m_pixelCabling->getModuleType(pixelId)==IPixelCablingSvc::IBL_3D) {
-		  hitDiscCnfg = (*pixHitDiscCnfg)->getHitDiscCnfg3D();
-		}
-
-		// Now do some interpreting of the ToT values
-		if (hitDiscCnfg == 2 && IBLtot[0] == 2) IBLtot[0] = 16;
-		if (hitDiscCnfg == 2 && IBLtot[1] == 2) IBLtot[1] = 16;
-
-		if (not m_checkDuplicatedPixel or
-		    (m_checkDuplicatedPixel and previousPixelId!=pixelId)) {
-		  // Insert the first part of the ToT info in the collection
-		  coll->push_back(new RDO(pixelId, IBLtot[0], mBCID, mLVL1ID, mLVL1A));
-		  previousPixelId = pixelId;
-		}
-
-
-#ifdef PIXEL_DEBUG
-		ATH_MSG_VERBOSE( "Collection filled with pixelId: " << pixelId << " TOT = 0x" << std::hex << IBLtot[0] << std::dec << " mBCID = " << mBCID << " mLVL1ID = " << mLVL1ID << "  mLVL1A = " << mLVL1A );
-#endif
-
-		// Second ToT field:
-		// For HitDiscCnfg 0-2, consider 0 to indicate no hit
-		// For HitDiscCng = 3, consider also F to indicate no hit
-		if (IBLtot[1] != 0x0 && (IBLtot[1] != 0xF || hitDiscCnfg != 3)) {
-		  if ((row[i] + 1) > 336) { // FIXME: hardcoded number - but it should still be ok, because it's a feature of the FE-I4!
-		    // this should never happen. If row[i] == 336, (row[i]+1) == 337. This row does not exist, so the TOT(337) should always be 0 (== no hit)
-
-
-		    generalwarning("In ROB = 0x" << std::hex << robId << ", link 0x" << mLink
-				   << ": Illegal IBL row number for second ToT field, hit word 0x"
-				   << rawDataWord << " decodes to row = " << std::dec << row[i]+1 << " col = " << col[i]
-				   << " (ToT1 = 0x" << std::hex << IBLtot[0] << " ToT2 = 0x" << IBLtot[1] << ")");
-		    PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Invalid );
-		    m_errors->addInvalidIdentifier();
-		    continue;
-		  }
-		  else {
-		    pixelId = m_pixelCabling ->getPixelIdfromHash (offlineIdHash, mFE, row[i] + 1, col[i]);
-
-#ifdef PIXEL_DEBUG
-		    int eta_i = m_pixel_id->eta_index(pixelId);
-		    int phi_i = m_pixel_id->phi_index(pixelId);
-		    int eta_m = m_pixel_id->eta_module(pixelId);
-		    int phi_m = m_pixel_id->phi_module(pixelId);
-		    int phi_i_max = m_pixel_id->phi_index_max(pixelId);
-		    int eta_i_max = m_pixel_id->eta_index_max(pixelId);
-
-		    ATH_MSG_VERBOSE( "PixelId = " << pixelId);
-		    ATH_MSG_VERBOSE( "          eta_i: " << eta_i << ", phi_i: " << phi_i << ",  eta_m: " <<  eta_m << ", phi_m: " << phi_m  << ", eta_i_max: " << eta_i_max << ", phi_i_max: " << phi_i_max );
-#endif
-		    if (pixelId == invalidPixelId) {
-		      generalwarning("In ROB 0x" << std::hex << robId << ", FE 0x" << mLink
-				     << ": Illegal pixelId - hit word 0x" << rawDataWord << " decodes to ToT1 = 0"
-				     << (tot[i] >> 4) << ", ToT2 = 0x" << (tot[i] & 0xF) << ", row = "
-				     << std::dec << row[i] << " col = " << col[i] << std::dec);
-		      m_errors->addInvalidIdentifier();
-		      PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Invalid );
-		      continue;
-		    }
-
-		    if (not m_checkDuplicatedPixel or
-			(m_checkDuplicatedPixel and previousPixelId!=pixelId)) {
-		      coll->push_back(new RDO(pixelId, IBLtot[1], mBCID, mLVL1ID, mLVL1A));
-		      previousPixelId = pixelId;
-		    }
-
-#ifdef PIXEL_DEBUG
-		    ATH_MSG_VERBOSE( "Collection filled with pixelId: " << pixelId << " TOT = 0x" << std::hex << IBLtot[1] << std::dec << " mBCID = " << mBCID << " mLVL1ID = " << mLVL1ID << "  mLVL1A = " << mLVL1A );
-#endif
-		  }
-		}
-	      } // end of the if that checks that Row and Column of the IBL have a value > 0 and smaller than the maximum of the FE-I4.
-	      else {
-		generalwarning("In ROB = 0x" << std::hex << robId << ", link 0x" << mLink
-			       << ": Illegal IBL row/col number, hit word 0x"
-			       << rawDataWord << " decodes to row = " << std::dec << row[i] << " col = " << col[i]
-			       << " (ToT1 = 0x" << std::hex << (tot[i] >> 4) << " ToT2 = 0x" << (tot[i] & 0xF) << ")");
-		m_errors->addInvalidIdentifier();
-		PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Invalid );
-		continue;
-	      }
-	    } // end of the else from the condition "(tot[i] & 0xF0) == 0xF", corresponding to an invalid tot sent by the ROD
-	  } // end of the loop over the hit information coming from the IBL words (condensed or not)
-	} // end IBL/DBM words pushed into Collection
-
-	else { // it is a Pixel hit word to be saved into the Collection
-	  pixelId = m_pixelCabling->getPixelIdfromHash(offlineIdHash, mFE, mRow, mColumn);
-
-	  if (pixelId == invalidPixelId) {
-	    ATH_MSG_DEBUG("In ROB = 0x" << std::hex << robId << ", link 0x" << mLink
-			  << ": Illegal pixelId - row = " << std::dec << mRow << ", col = " << mColumn
-			  << ", dataword = 0x" << std::hex << rawDataWord << std::dec);
-	    m_errors->addInvalidIdentifier();
-	    PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Invalid );
-	    continue;
-	  }
-	  // Now the Collection is there for sure. Create RDO and push it into Collection.
-
-          if (not m_checkDuplicatedPixel or
-              (m_checkDuplicatedPixel and previousPixelId!=pixelId)) {
-            coll->push_back(new RDO(pixelId, mToT, mBCID, mLVL1ID, mLVL1A));
-            previousPixelId = pixelId;
+          if (decodeFeI4Bflag_IBL(rawDataWord)) {
+            m_errors->addFlaggedError(); // decode FeI4B flag bit: F
+            PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Flagged );
           }
+
+          fe_IBLheader = extractFefromLinkNum(linkNum_IBLheader);
+          mLink = fe_IBLheader; // this is used to retrieve the onlineId. It contains only the 3 LSBs of the nnnnn, indicating the number of FE w.r.t. the SLink
+          sLinkHeader = extractSLinkfromLinkNum(linkNum_IBLheader); // this is used to check that the (redundant) info is correctly transmitted
+
+          if (sLinkHeader != sLinkSourceId) {
+            generalwarning("In ROB 0x" << std::hex << robId << ", link 0x" << mLink
+                << ": SLink discrepancy: Slink number from SourceId = 0x" << std::hex << sLinkSourceId
+                << ", number from link header = 0x" << sLinkHeader << std::dec);
+          }
+
+          // If decoding fragment from same FE as previous one, do LVL1ID and BCID checks
+          if (mLink == prevLinkNum) {
+
+            // Check that L1ID is the same for all fragments
+            if (mLVL1ID != prevLVL1ID && prevLVL1ID != 0x3FFF) {
+              lvl1id_bcid_warning("In ROB 0x" << std::hex << robId << ", FE: 0x" << mLink
+                  << ": frame header LVL1ID differs from previous one (current frame LVL1ID = 0x"
+                  << mLVL1ID << ", previous frame LVL1ID = 0x" << prevLVL1ID << ")" << std::dec);
+            }
+            // Check that BCIDs are consecutive
+            if ((mBCID != prevBCID + 1) && prevBCID != 0x3FFF && prevBCID != mBCID_max_IBL) {
+              lvl1id_bcid_warning("In ROB 0x" << std::hex << robId << ", FE: 0x" << mLink
+                  << ": frame header with non-consecutive BCID (current BCID = 0x"
+                  << mBCID << ", previous BCID = 0x" << prevBCID << ")" << std::dec);
+            }
+          }
+          else {  // If decoding new FE, check BCID offset
+            offsetBCID_ROB_FE = static_cast<int>(mBCID) - robBCID;
+            if (offsetBCID_ROB_FE != prevOffsetBCID_ROB_FE && (offsetBCID_ROB_FE != 0x3FFF && prevOffsetBCID_ROB_FE != 0x3FFF)) {
+              lvl1id_bcid_warning("In ROB 0x" << std::hex << robId << ", FE: 0x" << mLink << std::dec << ": FE header with unexpected BCID offset"
+                  << " wrt to ROB header (offset = " << offsetBCID_ROB_FE << ", expected " << prevOffsetBCID_ROB_FE << " from ROB)");
+            }
+            // Check that first fragment from each FE starts at the same BCID
+            if (mBCID != prevStartingBCID && prevStartingBCID != 0x3FFF) {
+              lvl1id_bcid_warning("In ROB 0x" << std::hex << robId << ", FE: 0x" << mLink
+                  << ": FE BCID starts at different value than in previous FE (current BCID = 0x"
+                  << mBCID << ", prev starting BCID = 0x" << prevStartingBCID << ")" << std::dec);
+            }
+            prevStartingBCID = mBCID;
+          }
+
+          // Count number of headers received
+          if (mLink < 0x8) ++nFragmentsPerFE[mLink];
+
+        }
+        else { // decode Pixel header word. Data format: 001PtlbxdnnnnnnnMMMMLLLLBBBBBBBB
+
+          ATH_MSG_VERBOSE( "Decoding Pixel header word: 0x" << std::hex << rawDataWord << std::dec );
+
+          mBCID = decodeBCID(rawDataWord);   // decode Pixel BCID: B
+          mLVL1ID = decodeL1ID(rawDataWord);   // decode Pixel LVL1ID: L
+          mLink = decodeModule(rawDataWord);   // decode Pixel link (module): n
+          //mLVL1IDskip = decodeL1IDskip(rawDataWord);   // decode Pixel skipped LVL1ID: M    -- temporarily removed
+
+          /*
+          // If decoding fragment from same FE as previous one, do LVL1ID and BCID checks
+          if (mLink == prevLinkNum) {
+
+          // Check that L1ID is the same for all fragments
+          if (mLVL1ID != prevLVL1ID && prevLVL1ID != 0x3FFF) {
+          ATH_MSG_WARNING("In ROB " << std::hex << robId << ": got header with LVL1ID unequal to previous one (LVL1ID = 0x"
+          << mLVL1ID << ", prevLVL1ID = 0x" << prevLVL1ID << ")" << std::dec);
+          }
+          // Check that BCIDs are consecutive
+          if ((mBCID != prevBCID + 1) && prevBCID != 0x3FFF && prevBCID != mBCID_max_pix) {
+          ATH_MSG_WARNING("In ROB " << std::hex << robId << ": got header with non-consecutive BCIDs (BCID = 0x"
+          << mBCID << ", prevBCID = 0x" << prevBCID << ")" << std::dec);
+          }
+          }
+          else {  // If decoding new FE, check BCID offset
+          offsetBCID_ROB_FE = static_cast<int>(mBCID) - robBCID;
+          if (offsetBCID_ROB_FE != prevOffsetBCID_ROB_FE && (offsetBCID_ROB_FE != 0x3FFF && prevOffsetBCID_ROB_FE != 0x3FFF)) {
+          ATH_MSG_WARNING("In ROB 0x" << std::hex << robId << std::dec << ": got FE header with unexpected BCID offset"
+          << " wrt to ROB header (offset = " << offsetBCID_ROB_FE << ", expected " << prevOffsetBCID_ROB_FE << ")");
+          }
+          // Check that first fragment from each FE starts at the same BCID
+          if (mBCID != prevStartingBCID && prevStartingBCID != 0x3FFF) {
+          ATH_MSG_WARNING("In ROB 0x" << std::hex << robId << ": BCID starts at different value than in previous FE (BCID = 0x" << mBCID
+          << ", prev starting BCID = 0x" << prevStartingBCID << ")" << std::dec);
+          }
+          prevStartingBCID = mBCID;
+          }
+           */
+
+          uint32_t headererror = decodeHeaderErrors(rawDataWord);   // get link (module) header errors
+          if (headererror != 0) { // only treatment for header errors now, FIXME
+            sc = StatusCode::RECOVERABLE;
+            errorcode = errorcode | (headererror << 20); //encode error as HHHHMMMMMMMMFFFFFFFFTTTT for header, flagword, trailer errors
+            if (headererror & (1 << 3)) {
+              m_errors->addPreambleError();
+              PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Preamble );
+            }
+            if (headererror & (1 << 2)) {
+              m_errors->addTimeOutError();
+              PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::TimeOut );
+            }
+            if (headererror & (1 << 1)) {
+              m_errors->addLVL1IDError();
+              PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::LVL1ID );
+            }
+            if (headererror & (1 << 0)) {
+              m_errors->addBCIDError();
+              PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::BCID );
+            }
+          }
+        }
+
+        // Get onlineId
+        onlineId = pixCabling->getOnlineIdFromRobId(robId, mLink);
+
+        if (onlineId == 0) {
+          generalwarning("In ROB 0x" << std::hex << robId << ", FE: 0x" << mLink
+              << ": Got invalid onlineId (= 0) in FE header - dataword = 0x" << rawDataWord);
+        }
+
 #ifdef PIXEL_DEBUG
-	  ATH_MSG_VERBOSE( "Collection filled with pixelId: " << pixelId << " TOT = 0x" << std::hex << mToT << std::dec << " mBCID = " << mBCID << " mLVL1ID = " << mLVL1ID << "  mLVL1A = " << mLVL1A );
+        ATH_MSG_VERBOSE("In decoder: got onlineId 0x" << std::hex << onlineId );
 #endif
-	} // end Pixel words pushed into Collection
-      } // end of the if (link_start)
 
-      else { // no header found before hit -> error
-	generalwarning("In ROB = 0x" << std::hex << robId << ", link 0x" << mLink
-		       << ": Unexpected hit dataword: " << rawDataWord << " - hit ignored");
-	m_errors->addDecodingError();
-	PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Decoding );
-	continue;
-      }
-      break;
+        offlineIdHash = m_pixel_id->wafer_hash(pixCabling->find_entry_onoff(onlineId));
+
+        if (offlineIdHash != previous_offlineIdHash) {
+          m_errors->addRead(offlineIdHash); // TODO: understand this better, it seems like an additiona, transient flag denoting that the module wasdecoded for this event
+          mBCID_offset = mBCID;   // set BCID offset if this is first LVL1A
+        }
+        mLVL1A = mBCID - mBCID_offset;   // calculate the LVL1A
+        if (mLVL1A < 0) {
+          if (isIBLModule || isDBMModule) mLVL1A = mLVL1A + mBCID_max_IBL;
+          else mLVL1A = mLVL1A + mBCID_max_pix;
+        }
+
+#ifdef PIXEL_DEBUG
+        ATH_MSG_VERBOSE( "link header with BCID: " << mBCID << " LVL1ID: " << mLVL1ID << " LVL1A: " << mLVL1A << " link: " << mLink << " found");
+        ATH_MSG_VERBOSE( "got OfflineIDHash: 0x" << std::hex << offlineIdHash << " from OnlineID: 0x" <<  onlineId << std::dec << " link: " << mLink);
+#endif
+
+        if (offlineIdHash == 0xffffffff) {   // if link (module) online identifier (ROBID and link number) not found by mapping
+          generalwarning("In ROB 0x" << std::hex << robId << ", FE: 0x" << mLink
+              << ": Unknown OnlineId identifier in FE header - not found by mapping" << std::dec);
+          m_errors->addDecodingError();  // TODO Decoding error not associated wiht any hashID. Handle that somehow
+          link_start = false;   // resetting link (module) header found flag
+          continue;   // skip this word and process next one
+        }
+        break;
+
+        //-------------------------------------------------------------------------------------------- HIT DATA WORD FOUND
+      case PRB_DATAWORD: // hit data found
+
+        if (link_start) {   // if header found before hit -> expected
+
+          ATH_MSG_DEBUG("Hit word found");
+
+          unsigned int mFE = 0;
+          unsigned int mRow = 0;
+          unsigned int mColumn = 0;
+          int mToT = 0;
+          uint32_t row[nHits], col[nHits];
+          int tot[nHits];
+
+          if (isIBLModule || isDBMModule) { // check all the different types of IBL/DBM hit words (condensed and not condensed)
+#ifdef PIXEL_DEBUG
+            ATH_MSG_DEBUG ("Decoding IBL/DBM hit word: 0x" << std::hex << rawDataWord << std::dec);
+#endif
+
+            if (((rawDataWord & PRB_DATAMASK) == PRB_FIRSTHITCONDENSEDWORD) && (countHitCondensedWords == 0)) { // it is the first of the 4 hit condensed words (IBL/DBM)
+
+              countHitCondensedWords = 1;
+              are_4condensed_words = false; // All 4 words have to be found before turning it on
+              condensedWords[0] = rawDataWord;
+              continue;
+            }
+            else if (countHitCondensedWords == 1) { // it is the second of the 4 hit condensed words (IBL)
+              ++countHitCondensedWords;
+              condensedWords[1] = rawDataWord;
+              continue;
+            }
+            else if (countHitCondensedWords == 2) { // it is the third of the 4 hit condensed words (IBL)
+              ++countHitCondensedWords;
+              condensedWords[2] = rawDataWord;
+              continue;
+            }
+            else if (((rawDataWord & PRB_DATAMASK) == PRB_LASTHITCONDENSEDWORD) && (countHitCondensedWords == 3)) { // it is the fourth of the 4 hit condensed words (IBL)
+              are_4condensed_words = true;
+              receivedCondensedWords = true;
+              condensedWords[3] = rawDataWord;
+              uint32_t hitwords[nHits];
+
+              //Condensed words
+              //  101RRRRRTTTTTTTTCCCCCCCRRRRRRRRR
+              //  1CCCRRRRRRRRRTTTTTTTTCCCCCCCRRRR
+              //  1TTTCCCCCCCRRRRRRRRRTTTTTTTTCCCC
+              //  111TTTTTTTTCCCCCCCRRRRRRRRRTTTTT
+              // They become 5 hitwords with format : TTTTTTTTCCCCCCCRRRRRRRRR
+
+              // first hitword: simple mask of the first condensed word
+              hitwords[0] = (condensedWords[0] & mask24);
+
+              // second hitword: takes the "RRRRR" from the first condensed word + the "TTTTTTTTCCCCCCCRRRR" from the second (shifted left 5 bits to accomodate the "RRRRR" as LSB)
+              hitwords[1] = ((condensedWords[0] >> (skipRow + skipCol+ skipTOT) ) & mask5) + ((condensedWords[1] & mask19) << skip5);
+
+              // third hitword: takes remaining "CCCRRRRRRRRR" from the second condensed word + the "TTTTTTTTCCCC" from the third (shifted left 12 bits to accomodate the LSB coming from the second condensed word
+              hitwords[2] = ((condensedWords[1] >> (skip4 + skipCol + skipTOT)) & mask12) + ((condensedWords[2] & mask12) << (skipRow + skip3));
+
+              // fourth hitword: takes remaning "TTTCCCCCCCRRRRRRRRR" from the third condensed word +  the "TTTTT" from the fourth (shifted left 19 bits to accomodate the LSB coming from the third condensed word
+              hitwords[3] = ((condensedWords[2] >> (skipTOT + skip4)) & mask19) + ((condensedWords[3] & mask5) << (skip3 + skipRow + skipCol));
+
+              // fifth hitword: simply shift 5 right to eliminate the "TTTTT" and mask24
+              hitwords[4] = (condensedWords[3] >> skip5) & mask24;
+#ifdef PIXEL_DEBUG
+              ATH_MSG_VERBOSE( "4 consecutive IBL hit words found. Condensed hits are being decoded");
+#endif
+              for (unsigned int i(0); i < nHits; ++i) {
+                row[i] = divideHits (hitwords[i], 0, 8);
+                col[i] = divideHits (hitwords[i], 9, 15);
+                tot[i] = divideHits (hitwords[i], 16, 23);
+                ATH_MSG_VERBOSE( "hitword[" << i << "] = 0x" << std::hex << hitwords[i] << ",  row: 0x" << row[i] << ",  col: 0x" << col[i] << ",  8-bit ToT: 0x" << tot[i] << std::dec);
+              }
+              countHitCondensedWords = 0;
+              linkNum_IBLword = linkNum_IBLheader;
+              // fe_IBLword = fe_IBLheader;
+              // sLinkWord = sLinkHeader;
+            } // end of the condensed hit words (IBL)
+            else if ((rawDataWord & PRB_DATAMASK) == PRB_DATAWORD) { // it's a IBL not-condensed hit word
+              if (countHitCondensedWords != 0) { // I received some IBL words, but less than 4, there was an error in the rod transmission
+                generalwarning("In ROB 0x" << std::hex << robId << ", link 0x" << mLink
+                    << ": Interruption of IBL condensed words - hit(s) ignored (current dataword: 0x"
+                    << std::hex << rawDataWord << std::dec << ")");
+                m_errors->addDecodingError();
+                PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Decoding );
+                countHitCondensedWords = 0;
+              }
+              // IBL non-condensed Hit Words decoding:
+              are_4condensed_words = false;
+              mRow = decodeRow(rawDataWord, isIBLModule || isDBMModule );
+              mColumn = decodeColumn(rawDataWord, isIBLModule || isDBMModule);
+              mToT = decodeToT(rawDataWord, isIBLModule || isDBMModule); // this needs, later in the code, to be divided into Tot(0) and Tot(1), because the IBL TOT information can give information of the ToTs from up to two adjacent pixels
+
+              linkNum_IBLword = decodeLinkNumHit_IBL(rawDataWord); // this corresponds to the "nnnnn" bits of the bytestream convention.
+              //They represent: 3 LSB = number of the FE linked by the S-Link sending the block (range [0,7]); 2 MSB = S-Link number (range [1,4])
+              //                        fe_IBLword = extractFefromLinkNum(linkNum_IBLword);
+              //                        sLinkWord = extractSLinkfromLinkNum(linkNum_IBLword);
+              if (linkNum_IBLword != linkNum_IBLheader) {
+                generalwarning("In ROB 0x" << std::hex << robId << ": Link number mismatch - nnnnn (hit word) = 0x" << linkNum_IBLword
+                    << ", nnnnn (header) = 0x" << linkNum_IBLheader << std::dec);
+              }
+
+#ifdef PIXEL_DEBUG
+              ATH_MSG_DEBUG("hit dataword found for module offlineIDHash: " << offlineIdHash << " Row: 0x"
+                  << std::hex << mRow << " Col: 0x" <<  mColumn  << " Tot: 0x" << mToT << std::dec);
+#endif
+            }
+            else { // it is an IBL/DBM hit word, but it hasn't been recognised
+              generalwarning("In ROB 0x" << std::hex << robId << ", FE: 0x" << mLink
+                  << ": IBL/DBM hit word 0x" << rawDataWord << " not recognised" << std::dec);
+              m_errors->addDecodingError();
+              PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Decoding );
+              continue;
+            }
+
+            // computing the FE number on the silicon wafer for IBL ( mFE is = 0 for IBL 3D and the lower-eta FE on the planar sensor,
+            // while is = 1 for the higher-eta FE on the planar sensor)
+            mFE = m_pixelCabling->getLocalFEI4(fe_IBLheader, onlineId);
+          } // end of the if (isIBLModule || isDBMModule)
+
+          else { // Pixel Hit Case
+
+#ifdef PIXEL_DEBUG
+            ATH_MSG_VERBOSE("Decoding Pixel hit word: 0x" << std::hex << rawDataWord << std::dec);
+#endif
+
+            if (countHitCondensedWords != 0)
+            { // I received some IBL words, but less than 4, there was an error in the rod transmission
+              generalwarning("In ROB 0x" << std::hex << robId << ", link 0x" << mLink
+                  << ": Interruption of IBL condensed words - hit(s) ignored (current dataword: 0x"
+                  << std::hex << rawDataWord << std::dec << ")");
+              m_errors->addDecodingError();
+              PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Decoding );
+              countHitCondensedWords = 0;
+            }
+            //Pixel Hit Words decoding:
+            are_4condensed_words = false;
+            mFE = decodeFE(rawDataWord);
+            mRow = decodeRow(rawDataWord, isIBLModule || isDBMModule );
+            mColumn = decodeColumn(rawDataWord, isIBLModule || isDBMModule);
+            mToT = decodeToT(rawDataWord, isIBLModule || isDBMModule);
+#ifdef PIXEL_DEBUG
+            ATH_MSG_DEBUG( "hit dataword found for module offlineIDHash: " << offlineIdHash << " FE: " << mFE << " Row: " << mRow << " Col: " <<  mColumn );   // hit found debug message
+#endif
+
+          } // end of the condition "!isIBLModule"
 
 
+          // ------------------------
+          // Create pixel collections
 
-      //-------------------------------------------------------------------------------------------- TRAILER WORD FOUND
-    case PRB_LINKTRAILER:  // link (module) trailer found
-      if (link_start) {   // if header found before trailer -> expected
-	ATH_MSG_DEBUG( "link trailer found" );   // trailer found debug message
-      }
-      else {   // no header found before trailer -> error
-	generalwarning("In ROB = 0x" << std::hex << robId << ", link 0x" << mLink
-		       << ": Unexpected trailer found: 0x" << std::hex << rawDataWord << ", data corruption");
-	m_errors->addDecodingError();
-	PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Decoding );
-	continue;
-      }
-      previous_offlineIdHash = offlineIdHash;  // save offlineId for next header;
-      link_start = false;   // resetting link (module) header found flag
-      are_4condensed_words = false;
-      m_errors->setModuleFragmentSize(offlineIdHash, nwords_in_module_fragment); // TODO understand what this is used for, and why moduel fragment size is handled by errors tool
+          // Decode only modules in provided list of hashes (i.e. not doing full scan)
+          // Disabled for now.
+          if (offlineIdHash == skipHash) continue;
 
-      // Trailer decoding and error handling
-      if (isIBLModule || isDBMModule) { // decode IBL/DBM Trailer word: 010nnnnnECPplbzhvMMMMMMMMMMxxxxx
+          if(offlineIdHash != lastHash){
+            lastHash = offlineIdHash;
+            if(vecHash!=nullptr ){
+              std::vector<IdentifierHash>::iterator p = std::find(vecHash->begin(),vecHash->end(),offlineIdHash);
 
-	ATH_MSG_VERBOSE( "Decoding IBL/DBM trailer word: 0x" << std::hex << rawDataWord << std::dec );
-
-	//                mSkippedTrigTrailer = decodeSkippedTrigTrailer_IBL(rawDataWord); // decode skipped trigger counter bits => M  -- temporarily removed
-
-	uint32_t trailererror = decodeTrailerErrors_IBL(rawDataWord); // => E cPpl bzhv // taking all errors together.
-
-	// Create a copy without the useless 'c' bit
-	uint32_t trailererror_noC = 0;
-	trailererror_noC = (trailererror & 0x7F) | ((trailererror & 0x100) >> 1);
-
-	// Insert trailer errors into errorcode (except the 'c' bit)
-	// CCC CCCC CCCC CCCC CCCC EPpl bzhv
-	errorcode = errorcode | trailererror_noC;
-
-	// Add errors to errorsvc
-	if (trailererror & (1 << 8)) { // time out error bit => E
-	  m_errors->addTimeOutError();
-	  PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::TimeOut );
-	}
-	if (trailererror & (1 << 7))  // condensed mode bit => W
-	  if (!receivedCondensedWords) {
-	    generalwarning("In ROB 0x" << std::hex << robId << ", link 0x" << mLink
-			   << ": condensed mode bit is set, but no condensed words received" << std::dec);
-	  }
-	if (trailererror & (1 << 6)) {// link masked by PPC => P
-	  m_errors->addLinkMaskedByPPC();
-	  PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::LinkMaskedByPPC );
-	}
-	if (trailererror & (1 << 5)) { // preamble error bit => p
-	  m_errors->addPreambleError();
-	  PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Preamble );
-	}
-	if (trailererror & (1 << 4)) { // LVL1 error bit => l
-	  m_errors->addLVL1IDError();
-	  PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::LVL1ID );
-	}
-	if (trailererror & (1 << 3)) {// BCID error bit => b
-	  m_errors->addBCIDError();
-	  PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::BCID );
-	}
-	if (trailererror & (1 << 2)) { // trailer error bit => z
-	  m_errors->addTrailerError();
-	  PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Trailer );
-	}
-	if (trailererror & (1 << 1)) { // header/trailer limit error=> h
-	  m_errors->addLimitError();
-	  PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Limit );
-	}
-	if (trailererror & (1 << 0)) { // data overflow error=> v
-	  m_errors->addInvalidIdentifier();
-	  PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Invalid );
-	}
-
-	// Write the error word to the service
-	if (offlineIdHash != 0xffffffff && errorcode) {
-	  m_errors->setFeErrorCode(offlineIdHash, (mLink & 0x1), errorcode);
-
-	  // Check if error code is already set for this wafer
-	  uint32_t existing_code = m_errors->getModuleErrors(offlineIdHash); // TODO Verify if this ever happens
-	  if (existing_code) {
-	    errorcode = existing_code | errorcode;
-	  }
-	  m_errors->setModuleErrors(offlineIdHash, errorcode);
-	  decodingErrors.setOrDrop( offlineIdHash, bsErrCode );
-	}
+              if (p == vecHash->end()){ // is the Hash to be skipped (not in the request list)?
+                skipHash = offlineIdHash;
+                continue;
+              }
+            }
 
 
-	//At least temporarily removed because the data format is not clear (Franconi, 17.06.2014)
-	linkNum_IBLword = decodeLinkNumTrailer_IBL(rawDataWord); // => n
-	//	mBitFlips = decodeTrailerBitflips_IBL(rawDataWord);
-	//	if (mBitFlips != 0)
-	//	  msg(MSG::WARNING) << "The IBL trailer word has bitflips" << endmsg;
+            /* TODO =, make proper use of MT IDC
+               if(rdoIdc->hasExternalCache() && rdoIdc->tryAddFromCache(offlineIdHash)){
+               ATH_MSG_INFO("Hash already in collection - cache hit " << offlineIdHash);
+               continue;
+               }
+             */
 
-	// Do checks on info in trailer vs header
-	if (linkNum_IBLword != linkNum_IBLheader) {
-	  generalwarning("In ROB 0x" << std::hex << robId << ", link 0x" << mLink
-			 <<  ": Link number mismatch - nnnnn (trailer) = 0x" << linkNum_IBLword
-			 << ", nnnnn (header) = 0x" << linkNum_IBLheader << std::dec);
-	}
+            ATH_CHECK( rdoIdc->naughtyRetrieve(offlineIdHash, coll) );//Returns null if not present
 
-	if (decodeBcidTrailer_IBL(rawDataWord) != (mBCID & PRB_BCIDSKIPTRAILERmask_IBL)) {
-	  generalwarning("In ROB 0x" << std::hex << robId << ", link 0x" << mLink
-			 << ": Trailer BCID does not match header (trailer BCID = 0x"
-			 << decodeBcidTrailer_IBL(rawDataWord) << ", 5LSB of header BCID = 0x"
-			 << (mBCID & PRB_BCIDSKIPTRAILERmask_IBL) << ")" << std::dec);
-	}
-      }
+            if( coll == nullptr ) {
+              coll = new PixelRawCollection (offlineIdHash);
+              // get identifier from the hash, this is not nice
+              Identifier ident = m_pixel_id->wafer_id(offlineIdHash);
+              // set the Identifier to be nice to downstream clients
+              coll->setIdentifier(ident);
 
-      else { // decode Pixel trailer word
+              StatusCode sc = rdoIdc->addCollection(coll, offlineIdHash);
+              ATH_MSG_DEBUG("Adding " << offlineIdHash);
+              if (sc.isFailure()){
+                ATH_MSG_ERROR("failed to add Pixel RDO collection to container" );
+              }
+            }
+          }
+
+          // ------------------------
+          // Fill collections
+
+          if (isIBLModule || isDBMModule) {
+            unsigned int num_cycles_toFillCollection(0);
+            if (are_4condensed_words) {
+              num_cycles_toFillCollection = nHits;
+            }
+            else {
+              num_cycles_toFillCollection = 1;
+              row[0] = mRow;
+              col[0] = mColumn;
+              tot[0] = mToT;
+            }
+            int IBLtot[2];
+            for (unsigned int i(0); i < num_cycles_toFillCollection; ++i) {
+#ifdef PIXEL_DEBUG
+              ATH_MSG_VERBOSE( "ROW[" << i << "] = 0x"  << std::hex << row[i] << std::dec << ",  COL[" << i << "] = 0x"
+                  << std::hex << col[i] << std::dec << ",  8-bit TOT[" << i << "] = 0x" << std::hex << tot[i] << std::dec );
+#endif
+
+              // ToT1 equal 0 means no hit, regardless of HitDiscCnfg
+              if ((tot[i] & 0xF0) == 0x00) {
+                generalwarning("In ROB 0x" << std::hex << robId << ", FE 0x" << mLink
+                    << ": First IBL ToT field is 0 - hit word 0x" << rawDataWord
+                    << " decodes to ToT1 = 0" << (tot[i] >> 4) << ", ToT2 = 0x"
+                    << (tot[i] & 0xF) << ", row = " << std::dec << row[i]
+                    << " col = " << col[i] << std::dec);
+                continue;
+              }
+
+              else {
+                if (((row[i] != 0) && (col[i] != 0) && (row[i] <= 336) && (col[i] <= 80)) || isDBMModule) { // FIXME : Hardcoded numbers. Should be ok as they are features of the FE-I4, but worth checking!
+                  pixelId = m_pixelCabling ->getPixelIdfromHash (offlineIdHash, mFE, row[i], col[i]);
+
+#ifdef PIXEL_DEBUG
+                  ATH_MSG_VERBOSE( "PixelId: " << pixelId );
+                  int eta_i = m_pixel_id->eta_index(pixelId);
+                  int phi_i = m_pixel_id->phi_index(pixelId);
+                  int eta_m = m_pixel_id->eta_module(pixelId);
+                  int phi_m = m_pixel_id->phi_module(pixelId);
+                  ATH_MSG_VERBOSE( "          eta_i: " << eta_i << ", phi_i: " << phi_i << ",  eta_m: " <<  eta_m << ", phi_m: " << phi_m );
+#endif
+                  if (pixelId == invalidPixelId) {
+                    generalwarning("In ROB 0x" << std::hex << robId << ", FE 0x" << mLink
+                        << ": Illegal pixelId - hit word 0x" << rawDataWord << " decodes to ToT1 = 0"
+                        << (tot[i] >> 4) << ", ToT2 = 0x" << (tot[i] & 0xF) << ", row = "
+                        << std::dec << row[i] << " col = " << col[i] << std::dec);
+                    m_errors->addInvalidIdentifier();
+                    PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Invalid );
+                    continue;
+                  }
+                  IBLtot[0] = divideHits(tot[i], 4, 7); // corresponds to (col, row)
+                  IBLtot[1] = divideHits(tot[i], 0, 3); // corresponds to (col, row+1)
+#ifdef PIXEL_DEBUG
+                  ATH_MSG_VERBOSE("Starting from tot = 0x" << std::hex << tot[i] << " IBLtot[0] = 0x" << std::hex << IBLtot[0] << "   IBLtot[1] = 0x" << IBLtot[1] << std::dec );
+#endif
+
+                  if (!pixHitDiscCnfg) {
+                    pixHitDiscCnfg = std::make_unique<SG::ReadCondHandle<PixelHitDiscCnfgData> > (m_condHitDiscCnfgKey);
+                  }
+                  // Get the hit discrimination configuration setting for this FE
+                  if (m_pixelCabling->getModuleType(pixelId)==IPixelCablingSvc::IBL_PLANAR || m_pixelCabling->getModuleType(pixelId)==IPixelCablingSvc::DBM) {
+                    hitDiscCnfg = (*pixHitDiscCnfg)->getHitDiscCnfgPL();
+                  }
+                  else if (m_pixelCabling->getModuleType(pixelId)==IPixelCablingSvc::IBL_3D) {
+                    hitDiscCnfg = (*pixHitDiscCnfg)->getHitDiscCnfg3D();
+                  }
+
+                  // Now do some interpreting of the ToT values
+                  if (hitDiscCnfg == 2 && IBLtot[0] == 2) IBLtot[0] = 16;
+                  if (hitDiscCnfg == 2 && IBLtot[1] == 2) IBLtot[1] = 16;
+
+                  if (not m_checkDuplicatedPixel or
+                      (m_checkDuplicatedPixel and previousPixelId!=pixelId)) {
+                    // Insert the first part of the ToT info in the collection
+                    coll->push_back(new RDO(pixelId, IBLtot[0], mBCID, mLVL1ID, mLVL1A));
+                    previousPixelId = pixelId;
+                  }
+
+#ifdef PIXEL_DEBUG
+                  ATH_MSG_VERBOSE( "Collection filled with pixelId: " << pixelId << " TOT = 0x" << std::hex << IBLtot[0] << std::dec << " mBCID = " << mBCID << " mLVL1ID = " << mLVL1ID << "  mLVL1A = " << mLVL1A );
+#endif
+
+                  // Second ToT field:
+                  // For HitDiscCnfg 0-2, consider 0 to indicate no hit
+                  // For HitDiscCng = 3, consider also F to indicate no hit
+                  if (IBLtot[1] != 0x0 && (IBLtot[1] != 0xF || hitDiscCnfg != 3)) {
+                    if ((row[i] + 1) > 336) { // FIXME: hardcoded number - but it should still be ok, because it's a feature of the FE-I4!
+                      // this should never happen. If row[i] == 336, (row[i]+1) == 337. This row does not exist, so the TOT(337) should always be 0 (== no hit)
+
+
+                      generalwarning("In ROB = 0x" << std::hex << robId << ", link 0x" << mLink
+                          << ": Illegal IBL row number for second ToT field, hit word 0x"
+                          << rawDataWord << " decodes to row = " << std::dec << row[i]+1 << " col = " << col[i]
+                          << " (ToT1 = 0x" << std::hex << IBLtot[0] << " ToT2 = 0x" << IBLtot[1] << ")");
+                      PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Invalid );
+                      m_errors->addInvalidIdentifier();
+                      continue;
+                    }
+                    else {
+                      pixelId = m_pixelCabling ->getPixelIdfromHash (offlineIdHash, mFE, row[i] + 1, col[i]);
+
+#ifdef PIXEL_DEBUG
+                      int eta_i = m_pixel_id->eta_index(pixelId);
+                      int phi_i = m_pixel_id->phi_index(pixelId);
+                      int eta_m = m_pixel_id->eta_module(pixelId);
+                      int phi_m = m_pixel_id->phi_module(pixelId);
+                      int phi_i_max = m_pixel_id->phi_index_max(pixelId);
+                      int eta_i_max = m_pixel_id->eta_index_max(pixelId);
+
+                      ATH_MSG_VERBOSE( "PixelId = " << pixelId);
+                      ATH_MSG_VERBOSE( "          eta_i: " << eta_i << ", phi_i: " << phi_i << ",  eta_m: " <<  eta_m << ", phi_m: " << phi_m  << ", eta_i_max: " << eta_i_max << ", phi_i_max: " << phi_i_max );
+#endif
+                      if (pixelId == invalidPixelId) {
+                        generalwarning("In ROB 0x" << std::hex << robId << ", FE 0x" << mLink
+                            << ": Illegal pixelId - hit word 0x" << rawDataWord << " decodes to ToT1 = 0"
+                            << (tot[i] >> 4) << ", ToT2 = 0x" << (tot[i] & 0xF) << ", row = "
+                            << std::dec << row[i] << " col = " << col[i] << std::dec);
+                        m_errors->addInvalidIdentifier();
+                        PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Invalid );
+                        continue;
+                      }
+
+                      if (not m_checkDuplicatedPixel or
+                          (m_checkDuplicatedPixel and previousPixelId!=pixelId)) {
+                        coll->push_back(new RDO(pixelId, IBLtot[1], mBCID, mLVL1ID, mLVL1A));
+                        previousPixelId = pixelId;
+                      }
+
+#ifdef PIXEL_DEBUG
+                      ATH_MSG_VERBOSE( "Collection filled with pixelId: " << pixelId << " TOT = 0x" << std::hex << IBLtot[1] << std::dec << " mBCID = " << mBCID << " mLVL1ID = " << mLVL1ID << "  mLVL1A = " << mLVL1A );
+#endif
+                    }
+                  }
+                } // end of the if that checks that Row and Column of the IBL have a value > 0 and smaller than the maximum of the FE-I4.
+                else {
+                  generalwarning("In ROB = 0x" << std::hex << robId << ", link 0x" << mLink
+                      << ": Illegal IBL row/col number, hit word 0x"
+                      << rawDataWord << " decodes to row = " << std::dec << row[i] << " col = " << col[i]
+                      << " (ToT1 = 0x" << std::hex << (tot[i] >> 4) << " ToT2 = 0x" << (tot[i] & 0xF) << ")");
+                  m_errors->addInvalidIdentifier();
+                  PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Invalid );
+                  continue;
+                }
+              } // end of the else from the condition "(tot[i] & 0xF0) == 0xF", corresponding to an invalid tot sent by the ROD
+            } // end of the loop over the hit information coming from the IBL words (condensed or not)
+          } // end IBL/DBM words pushed into Collection
+
+          else { // it is a Pixel hit word to be saved into the Collection
+            pixelId = m_pixelCabling->getPixelIdfromHash(offlineIdHash, mFE, mRow, mColumn);
+
+            if (pixelId == invalidPixelId) {
+              ATH_MSG_DEBUG("In ROB = 0x" << std::hex << robId << ", link 0x" << mLink
+                  << ": Illegal pixelId - row = " << std::dec << mRow << ", col = " << mColumn
+                  << ", dataword = 0x" << std::hex << rawDataWord << std::dec);
+              m_errors->addInvalidIdentifier();
+              PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Invalid );
+              continue;
+            }
+            // Now the Collection is there for sure. Create RDO and push it into Collection.
+
+            if (not m_checkDuplicatedPixel or
+                (m_checkDuplicatedPixel and previousPixelId!=pixelId)) {
+              coll->push_back(new RDO(pixelId, mToT, mBCID, mLVL1ID, mLVL1A));
+              previousPixelId = pixelId;
+            }
+#ifdef PIXEL_DEBUG
+            ATH_MSG_VERBOSE( "Collection filled with pixelId: " << pixelId << " TOT = 0x" << std::hex << mToT << std::dec << " mBCID = " << mBCID << " mLVL1ID = " << mLVL1ID << "  mLVL1A = " << mLVL1A );
+#endif
+          } // end Pixel words pushed into Collection
+        } // end of the if (link_start)
+
+        else { // no header found before hit -> error
+          generalwarning("In ROB = 0x" << std::hex << robId << ", link 0x" << mLink
+              << ": Unexpected hit dataword: " << rawDataWord << " - hit ignored");
+          m_errors->addDecodingError();
+          PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Decoding );
+          continue;
+        }
+        break;
+
+        //-------------------------------------------------------------------------------------------- TRAILER WORD FOUND
+      case PRB_LINKTRAILER:  // link (module) trailer found
+        if (link_start) {   // if header found before trailer -> expected
+          ATH_MSG_DEBUG( "link trailer found" );   // trailer found debug message
+        }
+        else {   // no header found before trailer -> error
+          generalwarning("In ROB = 0x" << std::hex << robId << ", link 0x" << mLink
+              << ": Unexpected trailer found: 0x" << std::hex << rawDataWord << ", data corruption");
+          m_errors->addDecodingError();
+          PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Decoding );
+          continue;
+        }
+        previous_offlineIdHash = offlineIdHash;  // save offlineId for next header;
+        link_start = false;   // resetting link (module) header found flag
+        are_4condensed_words = false;
+        m_errors->setModuleFragmentSize(offlineIdHash, nwords_in_module_fragment); // TODO understand what this is used for, and why moduel fragment size is handled by errors tool
+
+        // Trailer decoding and error handling
+        if (isIBLModule || isDBMModule) { // decode IBL/DBM Trailer word: 010nnnnnECPplbzhvMMMMMMMMMMxxxxx
+
+          ATH_MSG_VERBOSE( "Decoding IBL/DBM trailer word: 0x" << std::hex << rawDataWord << std::dec );
+
+          //                mSkippedTrigTrailer = decodeSkippedTrigTrailer_IBL(rawDataWord); // decode skipped trigger counter bits => M  -- temporarily removed
+
+          uint32_t trailererror = decodeTrailerErrors_IBL(rawDataWord); // => E cPpl bzhv // taking all errors together.
+
+          // Create a copy without the useless 'c' bit
+          uint32_t trailererror_noC = 0;
+          trailererror_noC = (trailererror & 0x7F) | ((trailererror & 0x100) >> 1);
+
+          // Insert trailer errors into errorcode (except the 'c' bit)
+          // CCC CCCC CCCC CCCC CCCC EPpl bzhv
+          errorcode = errorcode | trailererror_noC;
+
+          // Add errors to errorsvc
+          if (trailererror & (1 << 8)) { // time out error bit => E
+            m_errors->addTimeOutError();
+            PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::TimeOut );
+            addRODError(robId, PixelByteStreamErrors::TimeOut, errs);
+          }
+          if (trailererror & (1 << 7))  // condensed mode bit => W
+            if (!receivedCondensedWords) {
+              generalwarning("In ROB 0x" << std::hex << robId << ", link 0x" << mLink
+                  << ": condensed mode bit is set, but no condensed words received" << std::dec);
+            }
+          if (trailererror & (1 << 6)) {// link masked by PPC => P
+            m_errors->addLinkMaskedByPPC();
+            PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::LinkMaskedByPPC );
+            addRODError(robId, PixelByteStreamErrors::LinkMaskedByPPC, errs);
+          }
+          if (trailererror & (1 << 5)) { // preamble error bit => p
+            m_errors->addPreambleError();
+            PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Preamble );
+            addRODError(robId, PixelByteStreamErrors::Preamble, errs);
+          }
+          if (trailererror & (1 << 4)) { // LVL1 error bit => l
+            m_errors->addLVL1IDError();
+            PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::LVL1ID );
+            addRODError(robId, PixelByteStreamErrors::LVL1ID, errs);
+          }
+          if (trailererror & (1 << 3)) {// BCID error bit => b
+            m_errors->addBCIDError();
+            PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::BCID );
+            addRODError(robId, PixelByteStreamErrors::BCID, errs);
+          }
+          if (trailererror & (1 << 2)) { // trailer error bit => z
+            m_errors->addTrailerError();
+            PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Trailer );
+            addRODError(robId, PixelByteStreamErrors::Trailer, errs);
+          }
+          if (trailererror & (1 << 1)) { // header/trailer limit error=> h
+            m_errors->addLimitError();
+            PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Limit );
+            addRODError(robId, PixelByteStreamErrors::Limit, errs);
+          }
+          if (trailererror & (1 << 0)) { // data overflow error=> v
+            m_errors->addInvalidIdentifier();
+            PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Invalid );
+            addRODError(robId, PixelByteStreamErrors::Invalid, errs);
+          }
+
+          // Write the error word to the service
+          if (offlineIdHash != 0xffffffff && errorcode) {
+            m_errors->setFeErrorCode(offlineIdHash, (mLink & 0x1), errorcode);
+
+            // Check if error code is already set for this wafer
+            uint32_t existing_code = m_errors->getModuleErrors(offlineIdHash); // TODO Verify if this ever happens
+            if (existing_code) {
+              errorcode = existing_code | errorcode;
+            }
+            m_errors->setModuleErrors(offlineIdHash, errorcode);
+// STSTST            decodingErrors.setOrDrop( offlineIdHash, bsErrCode );
+          }
+
+
+          //At least temporarily removed because the data format is not clear (Franconi, 17.06.2014)
+          linkNum_IBLword = decodeLinkNumTrailer_IBL(rawDataWord); // => n
+          //	mBitFlips = decodeTrailerBitflips_IBL(rawDataWord);
+          //	if (mBitFlips != 0)
+          //	  msg(MSG::WARNING) << "The IBL trailer word has bitflips" << endmsg;
+
+          // Do checks on info in trailer vs header
+          if (linkNum_IBLword != linkNum_IBLheader) {
+            generalwarning("In ROB 0x" << std::hex << robId << ", link 0x" << mLink
+                <<  ": Link number mismatch - nnnnn (trailer) = 0x" << linkNum_IBLword
+                << ", nnnnn (header) = 0x" << linkNum_IBLheader << std::dec);
+          }
+
+          if (decodeBcidTrailer_IBL(rawDataWord) != (mBCID & PRB_BCIDSKIPTRAILERmask_IBL)) {
+            generalwarning("In ROB 0x" << std::hex << robId << ", link 0x" << mLink
+                << ": Trailer BCID does not match header (trailer BCID = 0x"
+                << decodeBcidTrailer_IBL(rawDataWord) << ", 5LSB of header BCID = 0x"
+                << (mBCID & PRB_BCIDSKIPTRAILERmask_IBL) << ")" << std::dec);
+          }
+        }
+
+        else { // decode Pixel trailer word
 
 	ATH_MSG_VERBOSE( "Decoding Pixel trailer word: 0x" << std::hex << rawDataWord << std::dec );
 
@@ -1615,7 +1663,7 @@ uint32_t PixelRodDecoder::getDataType(unsigned int rawDataWord, bool link_start)
 void PixelRodDecoder::addRODError(uint32_t robid, uint32_t robStatus) const {
   std::vector<IdentifierHash> idHashes;
 
-  const std::deque<Identifier> offlineIdList =SG::ReadCondHandle<PixelCablingCondData>(m_condCablingKey)->find_entry_offlineList(robid);
+  const std::deque<Identifier> offlineIdList = SG::ReadCondHandle<PixelCablingCondData>(m_condCablingKey)->find_entry_offlineList(robid);
   std::deque<Identifier>::const_iterator it1 = offlineIdList.begin();
   std::deque<Identifier>::const_iterator it2 = offlineIdList.end();
   for (; it1!=it2;++it1) {
@@ -1627,6 +1675,7 @@ void PixelRodDecoder::addRODError(uint32_t robid, uint32_t robStatus) const {
   for (; hashIt != hashEnd; ++hashIt) {
     m_errors->addRODError();
     m_errors->setModuleRODErrors(*hashIt,robStatus);
+    std::cout << "STSTST PixelRodDecoder::addRODError " << robid << " " << (*hashIt) << " " << robStatus << std::endl;
   }
   return;
 }
@@ -1639,33 +1688,41 @@ void PixelRodDecoder::addRODError(const uint32_t robid, const IDCInDetBSErrConta
   }
 }
 
-StatusCode PixelRodDecoder::checkRODStatus( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, IDCInDetBSErrContainer& decodingErrors ) const {
-  // check the ROD status for truncation
-  if (robFrag->nstatus() != 0) {
-    const uint32_t* rob_status;
-    robFrag->status(rob_status);
-    uint32_t robId = robFrag->rob_source_id();
-    if ( ATH_UNLIKELY( (*rob_status) != 0) ) {
-      addRODError(robId,*rob_status);
-
-      ATH_MSG_DEBUG( "ROB status word for robid 0x"<< std::hex << robId << " is non-zero 0x"
-		     << (*rob_status) << std::dec);
-
-      if (((*rob_status) >> 27) & 0x1) { // TODO: find source of thse constants
-	addRODError( robId, PixelByteStreamErrors::TruncatedROB, decodingErrors );
-	ATH_MSG_DEBUG("ROB status word for robid 0x"<< std::hex << robId << std::dec <<" indicates data truncation.");
-	return StatusCode::RECOVERABLE;
-      }
-
-      if (((*rob_status) >> 31) & 0x1) {
-	addRODError( robId, PixelByteStreamErrors::MaskedROB, decodingErrors );
-	ATH_MSG_DEBUG( "ROB status word for robid 0x"<< std::hex << robId<< std::dec <<" indicates resource was masked off.");
-	return StatusCode::RECOVERABLE;
-      }
-    }
+void PixelRodDecoder::addRODError(const uint32_t robid, const PixelByteStreamErrors::PixelErrorsEnum ec, PixelRodDecoderErrorsHelper& errorsCollection) const {
+  const std::deque<Identifier> offlineIdList = SG::ReadCondHandle<PixelCablingCondData>(m_condCablingKey)->find_entry_offlineList(robid);
+  for (const Identifier& id: offlineIdList) {
+    IdentifierHash idHash = m_pixel_id->wafer_hash(id);
+    errorsCollection.add(idHash, ec);
   }
-  return StatusCode::SUCCESS;
 }
+
+// STSTST StatusCode PixelRodDecoder::checkRODStatus( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, IDCInDetBSErrContainer& decodingErrors ) const {
+// STSTST   // check the ROD status for truncation
+// STSTST   if (robFrag->nstatus() != 0) {
+// STSTST     const uint32_t* rob_status;
+// STSTST     robFrag->status(rob_status);
+// STSTST     uint32_t robId = robFrag->rob_source_id();
+// STSTST     if ( ATH_UNLIKELY( (*rob_status) != 0) ) {
+// STSTST       addRODError(robId,*rob_status);
+// STSTST 
+// STSTST       ATH_MSG_DEBUG( "ROB status word for robid 0x"<< std::hex << robId << " is non-zero 0x"
+// STSTST           << (*rob_status) << std::dec);
+// STSTST 
+// STSTST       if (((*rob_status) >> 27) & 0x1) { // TODO: find source of thse constants
+// STSTST         addRODError( robId, PixelByteStreamErrors::TruncatedROB, decodingErrors );
+// STSTST         ATH_MSG_DEBUG("ROB status word for robid 0x"<< std::hex << robId << std::dec <<" indicates data truncation.");
+// STSTST         return StatusCode::RECOVERABLE;
+// STSTST       }
+// STSTST 
+// STSTST       if (((*rob_status) >> 31) & 0x1) {
+// STSTST         addRODError( robId, PixelByteStreamErrors::MaskedROB, decodingErrors );
+// STSTST         ATH_MSG_DEBUG( "ROB status word for robid 0x"<< std::hex << robId<< std::dec <<" indicates resource was masked off.");
+// STSTST         return StatusCode::RECOVERABLE;
+// STSTST       }
+// STSTST     }
+// STSTST   }
+// STSTST   return StatusCode::SUCCESS;
+// STSTST }
 
 bool PixelRodDecoder::checkDataWordsCorruption( uint32_t rawDataWord) const {
     if ( ATH_UNLIKELY( rawDataWord==0xaa1234aa )) {

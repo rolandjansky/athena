@@ -69,7 +69,7 @@ bool PixelConditionsSummaryTool::isBSError(const IdentifierHash & moduleHash) co
   }
   SG::ReadHandle<InDetBSErrContainer> errCont(m_BSErrContReadKey);
   if (!errCont.isValid()) {
-    ATH_MSG_ERROR("BSErrContainer is not valid!");
+// STSTST    ATH_MSG_ERROR("BSErrContainer is not valid!");
     return true;
   }
 
