@@ -64,7 +64,7 @@ HLTResultMTMaker::~HLTResultMTMaker() {}
 // =============================================================================
 StatusCode HLTResultMTMaker::initialize() {
   ATH_CHECK(m_hltResultWHKey.initialize());
-  ATH_CHECK(m_streamTagMaker.retrieve());
+  ATH_CHECK(m_streamTagMaker.retrieve(DisableTool{m_streamTagMaker.name().empty()}));
   ATH_CHECK(m_makerTools.retrieve());
   ATH_CHECK(m_monTool.retrieve());
   ATH_CHECK(m_jobOptionsSvc.retrieve());
@@ -136,9 +136,9 @@ StatusCode HLTResultMTMaker::makeResult(const EventContext& eventContext) const 
 
   // Fill the stream tags
   StatusCode finalStatus = StatusCode::SUCCESS;
-  if (StatusCode sc = m_streamTagMaker->fill(*hltResult, eventContext); sc.isFailure()) {
+  if (m_streamTagMaker.isEnabled() && m_streamTagMaker->fill(*hltResult, eventContext).isFailure()) {
     ATH_MSG_ERROR(m_streamTagMaker->name() << " failed");
-    finalStatus = sc;
+    finalStatus = StatusCode::FAILURE;
   }
 
   // Fill the result using all other tools if the event was accepted
