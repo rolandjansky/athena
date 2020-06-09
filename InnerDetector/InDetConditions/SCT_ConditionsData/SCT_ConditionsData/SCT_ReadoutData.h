@@ -44,10 +44,10 @@ public:
   SCT_ReadoutData(IMessageSvc* msgSvc=nullptr);
   ~SCT_ReadoutData() = default;
 
-  /** Default copy constructor*/
-  SCT_ReadoutData(const SCT_ReadoutData&) = default;
-  /** Default assignment operator*/
-  SCT_ReadoutData& operator=(const SCT_ReadoutData&) = default;
+  /** No copy ctor due to m_msg*/
+  SCT_ReadoutData(const SCT_ReadoutData&) = delete;
+  /** No assignment operator due to m_msg */
+  SCT_ReadoutData& operator=(const SCT_ReadoutData&) = delete;
   /** Default move constructor*/
   SCT_ReadoutData(SCT_ReadoutData&&) = default;
   /** Default move assignment operator*/
