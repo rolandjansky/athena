@@ -23,7 +23,6 @@ def MuonGeoModelCfg(flags):
         )
     detTool.UseConditionDb = 1
     detTool.UseIlinesFromGM = 1
-    detTool.BuildFromNova = 0
 
     enableAlignment = flags.Common.Project != 'AthSimulation' and not flags.Detector.SimulateMuon and not flags.Detector.OverlayMuon
     if enableAlignment:

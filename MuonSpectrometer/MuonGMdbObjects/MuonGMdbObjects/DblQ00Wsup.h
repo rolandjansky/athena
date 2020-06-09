@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************
@@ -14,15 +14,18 @@
 #define DBLQ00_WSUP_H
 
 #include "RDBAccessSvc/IRDBQuery.h"
-#include <memory>
-namespace MuonGM
-{
-class DblQ00Wsup {
 
+#include <memory>
+
+class AmdcDb;
+
+namespace MuonGM {
+class DblQ00Wsup {
 public:
     DblQ00Wsup(){};
     ~DblQ00Wsup();
     DblQ00Wsup(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Wsup(AmdcDb* wsup);
 
     // data members for DblQ00/WSUP fields
     struct WSUP {
