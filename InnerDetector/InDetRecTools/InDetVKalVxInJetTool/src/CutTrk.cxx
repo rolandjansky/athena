@@ -271,8 +271,8 @@ namespace InDet{
           if(fabs(Impact[0])     > m_CutA0)			continue;
           if(fabs(Impact[1])     > m_CutZVrt/sin(VectPerig[3]))	continue;
 
-          int currCutPixelHits=m_CutPixelHits; if(fabs((*i_ntrk)->eta())>2.  )currCutPixelHits +=1;
-          int currCutSctHits  =m_CutSctHits;   if(fabs((*i_ntrk)->eta())>1.65)currCutSctHits   +=1;
+          int currCutPixelHits=m_CutPixelHits; if(fabs((*i_ntrk)->eta())>2. && !m_IsPhase2 )currCutPixelHits +=1;
+          int currCutSctHits  =m_CutSctHits;   if(fabs((*i_ntrk)->eta())>1.65 && !m_IsPhase2 )currCutSctHits   +=1;
  
           if(PixelHits 	         < currCutPixelHits) continue;
           if(SctHits	         < currCutSctHits)   continue;
