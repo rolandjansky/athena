@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_Ski.h"
@@ -9,9 +9,9 @@
 #include "SCT_GeoModel/SCT_BarrelParameters.h"
 #include "SCT_GeoModel/SCT_GeneralParameters.h"
 #include "SCT_GeoModel/SCT_Module.h"
-#include "SCT_GeoModel/SCT_BaseBoard.h" // 18:00 Wed 15th Jun 2005 D.Naito added.
+#include "SCT_GeoModel/SCT_BaseBoard.h" 
 #include "SCT_GeoModel/SCT_Dogleg.h"
-#include "SCT_GeoModel/SCT_CoolingBlock.h" // 14th Aug 2005 S.Mima added.
+#include "SCT_GeoModel/SCT_CoolingBlock.h"
 #include "SCT_GeoModel/SCT_CoolingPipe.h"
 
 #include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
@@ -55,11 +55,6 @@ SCT_Ski::SCT_Ski(const std::string & name,
 
 SCT_Ski::~SCT_Ski()
 {
-  delete m_dogleg;
-  delete m_coolingBlock;
-  delete m_coolingPipe;
-  delete m_env1RefPointVector;
-  delete m_env2RefPointVector;
   if (m_refPointTransform) m_refPointTransform->unref();
   if (m_coolingPipePos) m_coolingPipePos->unref();
 }
@@ -110,10 +105,10 @@ SCT_Ski::preBuild()
 
 
   // Make components.
-  m_dogleg = new SCT_Dogleg(getName()+"Dogleg", m_detectorManager, m_geometryManager, m_materials);
-  m_coolingBlock = new SCT_CoolingBlock(getName()+"CoolingBlock",
+  m_dogleg = std::make_unique<SCT_Dogleg>(getName()+"Dogleg", m_detectorManager, m_geometryManager, m_materials);
+  m_coolingBlock = std::make_unique<SCT_CoolingBlock>(getName()+"CoolingBlock",
                                         m_detectorManager, m_geometryManager, m_materials);
-  m_coolingPipe = new SCT_CoolingPipe(getName()+"CoolingPipe", m_length,
+  m_coolingPipe = std::make_unique<SCT_CoolingPipe>(getName()+"CoolingPipe", m_length,
                                       m_detectorManager, m_geometryManager, m_materials);
 
   // We need the sign of the tilt in numerous places
@@ -416,8 +411,8 @@ SCT_Ski::preBuild()
 
   // *** 10:00 Tue 31st May 2005 D.Naito modified. (14)*********************************
   // *** -->>                                      (14)*********************************
-  m_env1RefPointVector = new GeoTrf::Vector3D(-xCenter, -yCenter, 0.0);
-  m_env2RefPointVector = new GeoTrf::Vector3D(-xShift2, -yShift2, 0.0);
+  m_env1RefPointVector = std::make_unique<GeoTrf::Vector3D>(-xCenter, -yCenter, 0.0);
+  m_env2RefPointVector = std::make_unique<GeoTrf::Vector3D>(-xShift2, -yShift2, 0.0);
   m_env1Thickness      = xmax1-xmin1;
   m_env1Width          = ymax1-ymin1;
   m_env2Thickness      = xmax2-xmin2;
