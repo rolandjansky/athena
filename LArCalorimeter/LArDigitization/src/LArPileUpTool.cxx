@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // +==========================================================================+
@@ -623,7 +623,6 @@ StatusCode LArPileUpTool::mergeEvent(const EventContext& ctx)
    it =  0;
    it_end = m_hitmap->GetNbCells();
 
-   Identifier cellID;
    const std::vector<std::pair<float,float> >* TimeE;
    const std::vector<std::pair<float,float> >* TimeE_DigiHSTruth = nullptr;
 
