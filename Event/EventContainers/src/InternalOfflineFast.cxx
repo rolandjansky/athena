@@ -114,5 +114,10 @@ StatusCode InternalOfflineFast::fetchOrCreate(const std::vector<IdentifierHash>&
 }
 
 void InternalOfflineFast::destructor(deleter_f* deleter) noexcept {
-    for(const auto& x : m_map)  deleter(x.second);
+    if(!m_needsupdate) for(const auto& x : m_map)  deleter(x.second);
+    else {
+      for(size_t i=0 ;i < m_fullMap.size(); ++i){
+         if(m_fullMap[i]) deleter(m_fullMap[i]);
+      }
+    }
 }
