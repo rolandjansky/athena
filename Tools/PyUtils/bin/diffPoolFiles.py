@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file:    diffPoolFiles.py
 # @purpose: check that 2 POOL files have same content (containers and sizes)
@@ -12,7 +12,6 @@
 # diffPoolFiles aod.pool ref.aod.pool
 #
 
-__version__ = "$Revision: 1.3 $"
 __author__  = "Sebastien Binet"
 
 import sys
@@ -54,8 +53,7 @@ if __name__ == "__main__":
         options.fileName = args[1]
         pass
 
-    if options.fileName    == None or \
-       options.refFileName == None :
+    if options.fileName    is None or options.refFileName is None :
         str(parser.print_help() or "")
         sys.exit(1)
         pass

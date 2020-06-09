@@ -19,7 +19,8 @@ atlas_install_scripts( bin/acmd.py bin/checkFile.py bin/checkPlugins.py
    bin/gprof2dot bin/issues bin/magnifyPoolFile.py bin/merge-poolfiles.py
    bin/pool_extractFileIdentifier.py
    bin/pool_insertFileToCatalog.py bin/print_auditor_callgraph.py bin/pyroot.py
-   bin/vmem-sz.py bin/meta-reader.py bin/meta-diff.py bin/tree-orderer.py )
+   bin/vmem-sz.py bin/meta-reader.py bin/meta-diff.py bin/tree-orderer.py
+   POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 # Aliases:
 atlas_add_alias( checkFile "checkFile.py" )
