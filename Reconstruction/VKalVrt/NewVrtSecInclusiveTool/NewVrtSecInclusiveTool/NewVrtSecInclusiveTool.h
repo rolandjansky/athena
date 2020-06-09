@@ -46,7 +46,6 @@ class TH2D;
 class TH1F;
 class TProfile;
 class TTree;
-class IChronoStatSvc;
 class IBeamCondSvc;
 
 namespace Trk{
@@ -134,13 +133,6 @@ namespace Rec {
       TH1F* m_hb_etaSV{};
       TH1F* m_hb_fakeSVBDT{};
 //--
-      long int m_iflag{};
-
-      SimpleProperty<int>    m_Robustness;
-      SimpleProperty<double> m_MassForConstraint;
-      std::vector<double>    m_MassInputParticles;
-
-
 
       long int m_cutSctHits{};
       long int m_cutPixelHits{};
@@ -160,39 +152,19 @@ namespace Rec {
       float m_zTrkErrorCut{};
       float m_VrtMassLimit{};
       float m_Vrt2TrMassLimit{};
+      float m_Vrt2TrPtLimit{};
       float m_antiPileupSigRCut{};
       float m_dRdZRatioCut{};
       float m_v2tIniBDTCut{};
       float m_v2tFinBDTCut{};
+      float m_vertexMergeCut{};
+      float m_trackDetachCut{};
+      float m_beampipeR{};
+      float m_removeTrkMatSignif{};
 
       bool m_fillHist{};
-
-      bool m_existIBL{};
-
-      long int m_RobustFit{};
-
-      double m_beampipeX{};
-      double m_beampipeY{};
-      double m_xLayerB{};
-      double m_yLayerB{};
-      double m_xLayer1{};
-      double m_yLayer1{};
-      double m_xLayer2{};
-      double m_yLayer2{};
-      double m_beampipeR{};
-      double m_rLayerB{};
-      double m_rLayer1{};
-      double m_rLayer2{};
-      double m_rLayer3{};
-
-      bool    m_useVertexCleaning{};
-      bool    m_getNegativeTail{};
-      bool    m_getNegativeTag{};
-      bool    m_multiWithOneTrkVrt{};
-
-      double  m_vertexMergeCut{};
-      double  m_trackDetachCut{};
-
+      bool m_useVertexCleaning{};
+      bool m_multiWithOneTrkVrt{};
 
       std::unique_ptr<MVAUtils::BDT> m_SV2T_BDT;
 
@@ -200,7 +172,6 @@ namespace Rec {
       ToolHandle<Trk::IVertexFitter>  m_fitterSvc;
       ToolHandle<Trk::IExtrapolator>  m_extrapolator{this,"ExtrapolatorName","Trk::Extrapolator/Extrapolator"};
       Trk::TrkVKalVrtFitter*   m_fitSvc{};
-      IChronoStatSvc * m_timingProfile{}; 
 
       double m_massPi {};
       double m_massP {};
@@ -230,28 +201,37 @@ namespace Rec {
        int   VrtTrkHF[maxNVrt];
        int   VrtTrkI[maxNVrt];
        int   VrtCh[maxNVrt];
+       int   VrtIBL[maxNVrt];
+       int   VrtBL[maxNVrt];
+       int   VrtDisk[maxNVrt];
        float VrtDist2D[maxNVrt];
        float VrtSig3D[maxNVrt];
        float VrtSig2D[maxNVrt];
        float VrtM[maxNVrt];
+       float VrtZ[maxNVrt];
        float VrtPt[maxNVrt];
        float VrtEta[maxNVrt];
        float VrtBDT[maxNVrt];
        float VrtProb[maxNVrt];
-       float VrtCosSPM[maxNVrt];
+       float VrtHR1[maxNVrt];
+       float VrtHR2[maxNVrt];
+       float VrtSinSPM[maxNVrt];
        float VMinPtT[maxNVrt];
        float VMinS3DT[maxNVrt];
        float VMaxS3DT[maxNVrt];
+       float VSigMat[maxNVrt];
        //---
        int   nNVrt;
        int   NVrtTrk[maxNVrt];
        int   NVrtTrkHF[maxNVrt];
        int   NVrtTrkI[maxNVrt];
        int   NVrtCh[maxNVrt];
+       int   NVrtIBL[maxNVrt];
+       int   NVrtBL[maxNVrt];
        float NVrtM[maxNVrt];
        float NVrtPt[maxNVrt];
        float NVrtEta[maxNVrt];
-       float NVrtCosSPM[maxNVrt];
+       float NVrtSinSPM[maxNVrt];
        float NVMinPtT[maxNVrt];
        float NVMinS3DT[maxNVrt];
        float NVMaxS3DT[maxNVrt];
@@ -391,11 +371,9 @@ namespace Rec {
                         const xAOD::Vertex       & PrimVrt) const;
 
 
-     bool  Check2TrVertexInPixel( const xAOD::TrackParticle* p1, const xAOD::TrackParticle* p2, Amg::Vector3D &, std::vector<double> &) const;
-
-     void  getPixelLayers  (const xAOD::TrackParticle* Part, int &blHit, int &l1Hit, int &l2Hit, int &nLay) const;
      void  getPixelDiscs   (const xAOD::TrackParticle* Part, int &d0Hit, int &d1Hit, int &d2Hit) const;
-     void  getPixelProblems(const xAOD::TrackParticle* Part, int &splshIBL, int &splshBL ) const;
+     int   getIBLHit(const xAOD::TrackParticle* Part) const;
+     int   getBLHit(const xAOD::TrackParticle* Part) const;
 
 
 

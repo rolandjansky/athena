@@ -355,7 +355,6 @@ namespace Rec{
     } } } }
     for(auto & curVrt : (*WrkVrtSet) ) {
        if(!curVrt.Good )                 continue;  //don't work on vertex which is already bad
-       if( fabs(curVrt.vertex.z())>650. ){curVrt.Good=false; continue;}  //vertex outside Pixel det. For ALL vertices
        if(curVrt.SelTrk.size() != 1)     continue;
        curVrt.Good=false;       // Make them bad by default
        if(m_multiWithOneTrkVrt){          /* 1track vertices left unassigned from good 2tr vertices */
@@ -392,9 +391,6 @@ namespace Rec{
           if((*WrkVrtSet)[iv].ProjectedVrt<0.)  continue;                    /* Remove vertices behind primary one */ 
           if( TMath::Prob( curVrt.Chi2, 2*nth-3)<m_globVrtProbCut) continue;           /* Bad Chi2 of refitted vertex  */
 //-----------------------------------------------------------------------------------------
-          if(nth==2 && m_useVertexCleaning){
-	     if(!Check2TrVertexInPixel(xAODwrk->tmpListTracks[0],xAODwrk->tmpListTracks[1],curVrt.vertex,curVrt.vertexCov))continue;
-	  }
           if(m_fillHist){ 
              if(nth==2 && curVrt.vertexCharge==0) m_hb_massPiPi1->Fill(curVrt.vertexMom.M(), m_w_1);
  	     m_hb_sig3DTot->Fill( Signif3D, m_w_1);
@@ -430,7 +426,7 @@ namespace Rec{
           nth=curVrt.SelTrk.size();
           if(!curVrt.Good )      continue;  //don't work on vertex which is already bad
           double minPtT=1.e6, minSig3DT=1.e6, maxSig3DT=0.;
-	  int ntrkBC=0,ntrkI=0;
+	  int ntrkBC=0,ntrkI=0,sumIBLHits=0,sumBLHits=0;
           for(i=0;i<nth;i++) {
              j=curVrt.SelTrk[i];                           /*Track number*/
              minPtT=std::min( minPtT, xAODwrk->listSelTracks[j]->pt());
@@ -439,6 +435,8 @@ namespace Rec{
 	     double SigZ2 = Impact[1]*Impact[1]/ImpactError[2];
              minSig3DT=std::min( minSig3DT, sqrt( SigR2 + SigZ2) );
              maxSig3DT=std::max( maxSig3DT, sqrt( SigR2 + SigZ2) );
+	     sumIBLHits += std::max(getIBLHit(xAODwrk->listSelTracks[j]),0);
+	     sumBLHits  += std::max(getBLHit(xAODwrk->listSelTracks[j]),0);
              if(m_fillHist && m_curTup) {
 	        ntrkBC += getIdHF(xAODwrk->listSelTracks[j]);
 	        ntrkI  += getG4Inter(xAODwrk->listSelTracks[j]);
@@ -446,7 +444,8 @@ namespace Rec{
           }
 	  float vProb=TMath::Prob(curVrt.Chi2, 2*nth-3);
           float cosSVPVM=ProjSV_PV(curVrt.vertex, PrimVrt, curVrt.vertexMom);
- 	  TLorentzVector SVPV(curVrt.vertex.x()-PrimVrt.x(),curVrt.vertex.y()-PrimVrt.y(),curVrt.vertex.z()-PrimVrt.z(), 10.);
+	  float vrtR=curVrt.vertex.perp();
+	  TLorentzVector SVPV(curVrt.vertex.x()-PrimVrt.x(),curVrt.vertex.y()-PrimVrt.y(),curVrt.vertex.z()-PrimVrt.z(), 10.);
           if(m_fillHist){
              if( m_curTup && nth>1 ){
                 VrtVrtDist(PrimVrt,curVrt.vertex, curVrt.vertexCov, Signif3D); 
@@ -457,11 +456,13 @@ namespace Rec{
                 m_curTup->NVrtProb  [m_curTup->nNVrt] = vProb;          
                 m_curTup->NVrtSig3D [m_curTup->nNVrt] = Signif3D;
                 m_curTup->NVrtSig2D [m_curTup->nNVrt] = Signif2D;
-                m_curTup->NVrtDist2D[m_curTup->nNVrt] = Dist2D;
+                m_curTup->NVrtDist2D[m_curTup->nNVrt] = vrtR<20. ? Dist2D : vrtR;
                 m_curTup->NVrtM     [m_curTup->nNVrt] = curVrt.vertexMom.M();
                 m_curTup->NVrtPt    [m_curTup->nNVrt] = curVrt.vertexMom.Pt();
                 m_curTup->NVrtEta   [m_curTup->nNVrt] = SVPV.Eta();
-                m_curTup->NVrtCosSPM[m_curTup->nNVrt] = cosSVPVM;
+                m_curTup->NVrtIBL   [m_curTup->nNVrt] = sumIBLHits;
+                m_curTup->NVrtBL    [m_curTup->nNVrt] = sumBLHits;
+                m_curTup->NVrtSinSPM[m_curTup->nNVrt] = sqrt(1.-cosSVPVM*cosSVPVM);
                 m_curTup->NVrtCh    [m_curTup->nNVrt] = curVrt.vertexCharge;
                 m_curTup->NVMinPtT  [m_curTup->nNVrt] = minPtT;
                 m_curTup->NVMinS3DT [m_curTup->nNVrt] = minSig3DT;
@@ -471,29 +472,34 @@ namespace Rec{
           }
 //-------------------BDT based rejection
           if(nth==2){
-             VrtVrtDist(PrimVrt,curVrt.vertex, curVrt.vertexCov, Signif3D); 
-             float Dist2D=VrtVrtDist2D(PrimVrt,curVrt.vertex, curVrt.vertexCov, Signif2D); 
-             std::vector<float> VARS(11);
+	     if(curVrt.vertexMom.Pt() > m_Vrt2TrPtLimit){ curVrt.Good = false; continue; }
+             float rhit0=xAODwrk->listSelTracks[curVrt.SelTrk[0]]->radiusOfFirstHit();
+             float rhit1=xAODwrk->listSelTracks[curVrt.SelTrk[1]]->radiusOfFirstHit();
+	     VrtVrtDist(PrimVrt,curVrt.vertex, curVrt.vertexCov, Signif3D); 
+	     float Dist2D=VrtVrtDist2D(PrimVrt,curVrt.vertex, curVrt.vertexCov, Signif2D); 
+	     std::vector<float> VARS(10);
 	     VARS[0]=vProb;
-	     VARS[1]=curVrt.vertexMom.Pt();
-	     VARS[2]=std::max(minPtT,m_cutPt);
-	     VARS[3]=Dist2D;
-	     VARS[4]=std::max(Signif3D,m_selVrtSigCut);
-	     VARS[5]=Signif2D;
-	     VARS[6]=std::max(minSig3DT,m_trkSigCut);
-	     VARS[7]=maxSig3DT;
-	     VARS[8]=curVrt.vertexMom.M();
-	     VARS[9]=cosSVPVM;
-	     VARS[10]=SVPV.Eta();;
-             //float wgtSelect1=m_SVselectionBDT->GetClassification(VARS); //for non-gradboost algorithms
-             float wgtSelect=1.1;
-             wgtSelect=m_SV2T_BDT->GetGradBoostMVA(VARS);
+	     VARS[1]=log(curVrt.vertexMom.Pt());
+	     VARS[2]=log(std::max(minPtT,m_cutPt));
+	     VARS[3]=log(vrtR<20. ? Dist2D : vrtR);
+	     VARS[4]=log(std::max(minSig3DT,m_trkSigCut));
+	     VARS[5]=log(maxSig3DT);
+	     VARS[6]=curVrt.vertexMom.M();
+	     VARS[7]=sqrt(fabs(1.-cosSVPVM*cosSVPVM));
+	     VARS[8]=SVPV.Eta();
+	     VARS[9]=std::max(rhit0,rhit1);
+	     //VARS[9]=sumIBLHits;
+	     //VARS[10]=sumBLHits;
+	     //VARS[4]=std::max(Signif3D,m_selVrtSigCut);
+	     float wgtSelect=m_SV2T_BDT->GetGradBoostMVA(VARS);
+	     //std::vector<float> weights=m_SV2T_BDT->GetMultiResponse(VARS,3);
+	     //float wgtSelect=weights[0];
 	     if(m_fillHist){
-               m_hb_fakeSVBDT->Fill(wgtSelect,1.);
+	       m_hb_fakeSVBDT->Fill(wgtSelect,1.);
 	       if( m_curTup ) m_curTup->NVrtBDT[m_curTup->nNVrt-1] = wgtSelect;
-             }
+	     }
 	     if(wgtSelect<m_v2tFinBDTCut) curVrt.Good = false;
-           }
+	   }
     }
 //
 //--Final cleaning of the 1-track vertices set. Must be behind all other cleanings.
@@ -517,7 +523,7 @@ namespace Rec{
         m_curTup->NVrtDist2D[m_curTup->nNVrt] = Dist2D;
         m_curTup->NVrtM     [m_curTup->nNVrt] = V.vertexMom.M();
         m_curTup->NVrtPt    [m_curTup->nNVrt] = V.vertexMom.Pt();
-        m_curTup->NVrtCosSPM[m_curTup->nNVrt] = 0.;
+        m_curTup->NVrtSinSPM[m_curTup->nNVrt] = 0.;
         m_curTup->NVrtCh    [m_curTup->nNVrt] = V.vertexCharge;
         m_curTup->NVMinPtT  [m_curTup->nNVrt] = xAODwrk->listSelTracks[V.SelTrk[0]]->pt();
         m_curTup->NVMinS3DT [m_curTup->nNVrt] = sqrt(SigR2 + SigZ2);

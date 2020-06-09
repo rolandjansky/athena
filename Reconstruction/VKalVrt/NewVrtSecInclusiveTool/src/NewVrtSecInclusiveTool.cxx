@@ -10,7 +10,6 @@
 #include "PathResolver/PathResolver.h"
  
 #include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/IChronoStatSvc.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TTree.h"
@@ -30,8 +29,8 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
     AthAlgTool(type,name,parent),
     m_cutSctHits(4),
     m_cutPixelHits(2),
-    m_cutSiHits(7),
-    m_cutBLayHits(1),
+    m_cutSiHits(8),
+    m_cutBLayHits(0),
     m_cutSharedHits(1),
     m_cutPt(500.),
     m_cutZVrt(15.),
@@ -39,35 +38,25 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
     m_cutChi2(5.),
     m_sel2VrtProbCut(0.02),
     m_globVrtProbCut(0.005),
-    m_maxSVRadiusCut(150.),
+    m_maxSVRadiusCut(140.),
     m_selVrtSigCut(3.0),
-    m_trkSigCut(2.5),
+    m_trkSigCut(2.0),
     m_a0TrkErrorCut(1.0),
     m_zTrkErrorCut(5.0),
     m_VrtMassLimit(5500.),
     m_Vrt2TrMassLimit(4000.),
-    m_antiPileupSigRCut(3.),
-    m_dRdZRatioCut(0.2),
-    m_v2tIniBDTCut(-10.4),
-    m_v2tFinBDTCut(-10.3),
-    m_fillHist(false),
-    m_RobustFit(1),
-    m_beampipeX (0.),
-    m_beampipeY (0.),
-    m_xLayerB (0.),
-    m_yLayerB (0.),
-    m_xLayer1 (0.),
-    m_yLayer1 (0.),
-    m_xLayer2 (0.),
-    m_yLayer2 (0.),
-    m_beampipeR (0.),  //Correct values are filled     
-    m_rLayerB   (0.),  // in jobO or initialize()
-    m_rLayer1   (0.),
-    m_rLayer2   (0.),
-    m_useVertexCleaning(false),
-    m_multiWithOneTrkVrt(true),
+    m_Vrt2TrPtLimit(5.e5),
+    m_antiPileupSigRCut(2.0),
+    m_dRdZRatioCut(0.25),
+    m_v2tIniBDTCut(-0.6),
+    m_v2tFinBDTCut(0.),
     m_vertexMergeCut(3.),
     m_trackDetachCut(6.),
+    m_beampipeR(24.3),
+    m_removeTrkMatSignif(0.),
+    m_fillHist(false),
+    m_useVertexCleaning(true),
+    m_multiWithOneTrkVrt(true),
     m_SV2T_BDT(nullptr),
     m_beamService("BeamCondSvc",name),
     m_fitterSvc("Trk::TrkVKalVrtFitter/VertexFitterTool",this)
@@ -91,10 +80,11 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
     declareProperty("CutChi2",       m_cutChi2,   "Track Chi2 selection cut" );
     declareProperty("TrkSigCut",     m_trkSigCut, "Track 3D impact significance w/r primary vertex. Should be >=AntiPileupSigRCut" );
 
-    declareProperty("A0TrkErrorCut",  m_a0TrkErrorCut, "Track A0 error cut" );
-    declareProperty("ZTrkErrorCut",   m_zTrkErrorCut,  "Track Z impact error cut" );
-    declareProperty("VrtMassLimit",   m_VrtMassLimit,  "Maximal allowed mass for found vertices" );
-    declareProperty("Vrt2TrMassLimit",m_Vrt2TrMassLimit,  "Maximal allowed mass for 2-track vertices" );
+    declareProperty("A0TrkErrorCut",  m_a0TrkErrorCut,  "Track A0 error cut" );
+    declareProperty("ZTrkErrorCut",   m_zTrkErrorCut,   "Track Z impact error cut" );
+    declareProperty("VrtMassLimit",   m_VrtMassLimit,   "Maximal allowed mass for found vertices" );
+    declareProperty("Vrt2TrMassLimit",m_Vrt2TrMassLimit,"Maximal allowed mass for 2-track vertices" );
+    declareProperty("Vrt2TrPtLimit",  m_Vrt2TrPtLimit,  "Maximal allowed Pt for 2-track vertices. Calibration limit" );
 
     declareProperty("Sel2VrtProbCut",    m_sel2VrtProbCut, "Cut on probability of 2-track vertex for initial selection"  );
     declareProperty("GlobVrtProbCut",    m_globVrtProbCut, "Cut on probability of any vertex for final selection"  );
@@ -107,33 +97,20 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
 
     declareProperty("FillHist",   m_fillHist, "Fill technical histograms"  );
 
-    declareProperty("RobustFit",  m_RobustFit, "Use vertex fit with RobustFit functional(VKalVrt) for common secondary vertex fit" );
 
-    declareProperty("Xbeampipe", m_beampipeX);
-    declareProperty("Ybeampipe", m_beampipeY);
-    declareProperty("XlayerB",   m_xLayerB  );
-    declareProperty("YlayerB",   m_yLayerB  );
-    declareProperty("Xlayer1",   m_xLayer1  );
-    declareProperty("Ylayer1",   m_yLayer1  );
-    declareProperty("Xlayer2",   m_xLayer2  );
-    declareProperty("Ylayer2",   m_yLayer2  );
-    declareProperty("Rbeampipe", m_beampipeR);
-    declareProperty("RlayerB",   m_rLayerB  );
-    declareProperty("Rlayer1",   m_rLayer1  );
-    declareProperty("Rlayer2",   m_rLayer2  );
+    declareProperty("useVertexCleaning",  m_useVertexCleaning,    "Clean vertices by requiring pixel hit presence according to vertex position" );
 
-//    declareProperty("useMaterialRejection",  m_useMaterialRejection, "Reject vertices from hadronic interactions in detector material" );
-    declareProperty("useVertexCleaning",     m_useVertexCleaning,    "Clean vertices by requiring pixel hit presence according to vertex position" );
-
-    declareProperty("MultiWithOneTrkVrt", m_multiWithOneTrkVrt,"Allow one-track-vertex addition to already found secondary vertices. MultiVertex Finder only! ");
+    declareProperty("MultiWithOneTrkVrt", m_multiWithOneTrkVrt,"Allow one-track-vertex addition to already found secondary vertices");
 
     declareProperty("VertexMergeCut",	  m_vertexMergeCut, "To allow vertex merging for MultiVertex Finder" );
     declareProperty("TrackDetachCut",	  m_trackDetachCut, "To allow track from vertex detachment for MultiVertex Finder" );
 
-     declareProperty("BeamSpotSvc",         m_beamService, "Name of the BeamSpot service");
-     declareProperty("VertexFitterTool",    m_fitterSvc, "Name of the Vertex Fitter tool");
+    declareProperty("beampipeR",	  m_beampipeR, "Radius of the beampipe material" );
+    declareProperty("removeTrkMatSignif", m_removeTrkMatSignif, "Significance of Vertex-TrackingMaterial distance for removal. No removal if <=0." );
+
+    declareProperty("BeamSpotSvc",         m_beamService, "Name of the BeamSpot service");
+    declareProperty("VertexFitterTool",    m_fitterSvc, "Name of the Vertex Fitter tool");
 //
-    m_iflag=0;
     m_massPi  = 139.5702 ;
     m_massP   = 938.272  ;
     m_massE   =   0.511  ;
@@ -170,16 +147,7 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
         return StatusCode::FAILURE;
      }
 
-//------------------------------------------
-     if(msgLvl(MSG::DEBUG)) ATH_CHECK(service("ChronoStatSvc", m_timingProfile));
-//------------------------------------------
-     if( m_beampipeR==0.)  m_beampipeR=24.0;    
-     if( m_rLayerB  ==0.)  m_rLayerB  =34.0;
-     if( m_rLayer1  ==0.)  m_rLayer1  =51.6;
-     if( m_rLayer2  ==0.)  m_rLayer2  =90.0;
-     m_rLayer3  =122.5;
-       
-//
+//------------------------------------------       
 //
      ITHistSvc*     hist_root=0;
      if(m_fillHist){
@@ -253,7 +221,7 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
        sc = hist_root->regHist(histDir+"cosSVMom",  m_hb_cosSVMom);
        sc = hist_root->regHist(histDir+"etaSV",     m_hb_etaSV);
        sc = hist_root->regHist(histDir+"fakeSVBDT", m_hb_fakeSVBDT);
-       if( sc.isFailure() ) ATH_MSG_INFO( "BTagVrtSec Histogram registration failure!!!");
+       if( sc.isFailure() ) ATH_MSG_INFO( "NewVrtSecInclusive Histogram registration failure!!!");
        m_w_1 = 1.;
        //------
        m_curTup=new DevTuple();
@@ -274,14 +242,21 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
           m_tuple->Branch("VrtSig3D",   &m_curTup->VrtSig3D,   "VrtSig3D[n2Vrt]/F");
           m_tuple->Branch("VrtSig2D",   &m_curTup->VrtSig2D,   "VrtSig2D[n2Vrt]/F");
           m_tuple->Branch("VrtM",       &m_curTup->VrtM,       "VrtM[n2Vrt]/F");
+          m_tuple->Branch("VrtZ",       &m_curTup->VrtZ,       "VrtZ[n2Vrt]/F");
           m_tuple->Branch("VrtPt",      &m_curTup->VrtPt,      "VrtPt[n2Vrt]/F");
           m_tuple->Branch("VrtEta",     &m_curTup->VrtEta,     "VrtEta[n2Vrt]/F");
-          m_tuple->Branch("VrtCosSPM",  &m_curTup->VrtCosSPM,  "VrtCosSPM[n2Vrt]/F");
+          m_tuple->Branch("VrtIBL",     &m_curTup->VrtIBL,     "VrtIBL[n2Vrt]/I");
+          m_tuple->Branch("VrtBL",      &m_curTup->VrtBL,      "VrtBL[n2Vrt]/I");
+          m_tuple->Branch("VrtSinSPM",  &m_curTup->VrtSinSPM,  "VrtSinSPM[n2Vrt]/F");
           m_tuple->Branch("VMinPtT",    &m_curTup->VMinPtT,    "VMinPtT[n2Vrt]/F");
           m_tuple->Branch("VMinS3DT",   &m_curTup->VMinS3DT,   "VMinS3DT[n2Vrt]/F");
           m_tuple->Branch("VMaxS3DT",   &m_curTup->VMaxS3DT,   "VMaxS3DT[n2Vrt]/F");
           m_tuple->Branch("VrtProb",    &m_curTup->VrtProb,    "VrtProb[n2Vrt]/F");
+          m_tuple->Branch("VrtHR1",     &m_curTup->VrtHR1,     "VrtHR1[n2Vrt]/F");
+          m_tuple->Branch("VrtHR2",     &m_curTup->VrtHR2,     "VrtHR2[n2Vrt]/F");
           m_tuple->Branch("VrtBDT",     &m_curTup->VrtBDT,     "VrtBDT[n2Vrt]/F");
+          m_tuple->Branch("VrtDisk",    &m_curTup->VrtDisk,    "VrtDisk[n2Vrt]/I");
+          m_tuple->Branch("VSigMat",    &m_curTup->VSigMat,    "VSigMat[n2Vrt]/F");
 
           m_tuple->Branch("nNVrt",       &m_curTup->nNVrt,       "nNVrt/I");
           m_tuple->Branch("NVrtTrk",     &m_curTup->NVrtTrk,     "NVrtTrk[nNVrt]/I");
@@ -294,20 +269,18 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
           m_tuple->Branch("NVrtM",       &m_curTup->NVrtM,       "NVrtM[nNVrt]/F");
           m_tuple->Branch("NVrtPt",      &m_curTup->NVrtPt,      "NVrtPt[nNVrt]/F");
           m_tuple->Branch("NVrtEta",     &m_curTup->NVrtEta,     "NVrtEta[nNVrt]/F");
-          m_tuple->Branch("NVrtCosSPM",  &m_curTup->NVrtCosSPM,  "NVrtCosSPM[nNVrt]/F");
+          m_tuple->Branch("NVrtIBL",     &m_curTup->NVrtIBL,     "NVrtIBL[nNVrt]/I");
+          m_tuple->Branch("NVrtBL",      &m_curTup->NVrtBL,      "NVrtBL[nNVrt]/I");
+          m_tuple->Branch("NVrtSinSPM",  &m_curTup->NVrtSinSPM,  "NVrtSinSPM[nNVrt]/F");
           m_tuple->Branch("NVMinPtT",    &m_curTup->NVMinPtT,    "NVMinPtT[nNVrt]/F");
           m_tuple->Branch("NVMinS3DT",   &m_curTup->NVMinS3DT,   "NVMinS3DT[nNVrt]/F");
           m_tuple->Branch("NVrtProb",    &m_curTup->NVrtProb,    "NVrtProb[nNVrt]/F");
           m_tuple->Branch("NVrtBDT",     &m_curTup->NVrtBDT,     "NVrtBDT[nNVrt]/F");
        }
      }
-//-------------------------------------------------------
-
-     if(m_RobustFit>7)m_RobustFit=7;
-     if(m_RobustFit<0)m_RobustFit=0;
 
 //--------------------------------------------------------
-     std::string fileName="Fake2TrVertexReject.MVA.root";
+     std::string fileName="NewVrtSecInclusiveTool/Fake2TrVertexReject.MVA.root";
      std::string rootFilePath = PathResolver::find_file(fileName, "DATAPATH");
      TFile* rootFile = TFile::Open(rootFilePath.c_str(), "READ");    
      if (!rootFile) {
@@ -326,7 +299,6 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
 
   StatusCode NewVrtSecInclusiveTool::finalize()
   {
-    if(m_timingProfile)m_timingProfile->chronoPrint("NewVrtSecInclusiveTool");
     ATH_MSG_DEBUG("NewVrtSecInclusiveTool finalize()");
     return StatusCode::SUCCESS; 
   }
@@ -338,7 +310,6 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
            const std::vector<const xAOD::TrackParticle*> & InpTrk,
            const xAOD::Vertex & PrimVrt ) const 
   {
-    if(m_timingProfile)m_timingProfile->chronoStart("NewVrtSecInclusiveTool");
     std::vector<double>     Results;
     std::vector<const xAOD::TrackParticle*>            SelSecTrk;
     std::vector< std::vector<const xAOD::TrackParticle*> >  SelSecTrkPerVrt;
@@ -371,7 +342,6 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
     if(m_fillHist && m_tuple){  m_tuple->Fill(); };
 
     m_compatibilityGraph->clear();
-    if(m_timingProfile)m_timingProfile->chronoStop("NewVrtSecInclusiveTool");
     return res;
  }
 

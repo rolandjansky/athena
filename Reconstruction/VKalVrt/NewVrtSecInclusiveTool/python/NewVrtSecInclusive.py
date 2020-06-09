@@ -23,7 +23,7 @@ class SoftBFinderTool( Rec__NewVrtSecInclusiveTool ):
         # VKalVrt vertex fitter
         # 
         from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
-        SVertexFitterTool = Trk__TrkVKalVrtFitter(name="SVertexFitterTool",
+        SVertexFitterTool = Trk__TrkVKalVrtFitter(name="SoftBVertexFitterTool",
                                                   Extrapolator="Trk::Extrapolator/AtlasExtrapolator")
         ToolSvc += SVertexFitterTool
         #----------------------
@@ -45,12 +45,13 @@ class SoftBFinderTool( Rec__NewVrtSecInclusiveTool ):
 					     CutPt             = 500,
 					     MaxSVRadiusCut    = 50        # Inside Pixel BL volume
                                              )
+        mlog = logging.getLogger( 'SoftBFinderTool::__configured__ ' )
 
 ##########################################################################################################
 # define the class
 class InclusiveBFinderTool( Rec__NewVrtSecInclusiveTool ):
 
-    def __init__(self, name = 'SoftBFinderTool'  ):        
+    def __init__(self, name = 'InclusiveBFinderTool'  ):        
 
         from __main__ import ToolSvc
         mlog = logging.getLogger( 'InclusiveBFinderTool::__init__ ' )
@@ -59,7 +60,7 @@ class InclusiveBFinderTool( Rec__NewVrtSecInclusiveTool ):
         # VKalVrt vertex fitter
         # 
         from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
-        SVertexFitterTool = Trk__TrkVKalVrtFitter(name="SVertexFitterTool",
+        SVertexFitterTool = Trk__TrkVKalVrtFitter(name="InclsusiveBVertexFitterTool",
                                                   Extrapolator="Trk::Extrapolator/AtlasExtrapolator")
         ToolSvc += SVertexFitterTool
         #----------------------
@@ -84,16 +85,16 @@ class InclusiveBFinderTool( Rec__NewVrtSecInclusiveTool ):
 # define the class
 class HighPtBFinderTool( Rec__NewVrtSecInclusiveTool ):
 
-    def __init__(self, name = 'SoftBFinderTool'  ):        
+    def __init__(self, name = 'HighPtBFinderTool'  ):        
 
         from __main__ import ToolSvc
-        mlog = logging.getLogger( 'InclusiveBFinderTool::__init__ ' )
+        mlog = logging.getLogger( 'HighPtBFinderTool::__init__ ' )
         mlog.info("entering")
         #----------------------
         # VKalVrt vertex fitter
         # 
         from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
-        SVertexFitterTool = Trk__TrkVKalVrtFitter(name="SVertexFitterTool",
+        SVertexFitterTool = Trk__TrkVKalVrtFitter(name="HighPtBVertexFitterTool",
                                                   Extrapolator="Trk::Extrapolator/AtlasExtrapolator")
         ToolSvc += SVertexFitterTool
         #----------------------
@@ -121,13 +122,13 @@ class MaterialSVFinderTool( Rec__NewVrtSecInclusiveTool ):
     def __init__(self, name = 'MaterialSVFinderTool'  ):        
 
         from __main__ import ToolSvc
-        mlog = logging.getLogger( 'MaterialFinderTool::__init__ ' )
+        mlog = logging.getLogger( 'MaterialSVFinderTool::__init__ ' )
         mlog.info("entering")
         #----------------------
         # VKalVrt vertex fitter
         # 
         from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
-        SVertexFitterTool = Trk__TrkVKalVrtFitter(name="SVertexFitterTool",
+        SVertexFitterTool = Trk__TrkVKalVrtFitter(name="MaterialSVVertexFitterTool",
                                                   Extrapolator="Trk::Extrapolator/AtlasExtrapolator")
         ToolSvc += SVertexFitterTool
         #----------------------
@@ -154,18 +155,18 @@ class MaterialSVFinderTool( Rec__NewVrtSecInclusiveTool ):
 # define the class
 class DVFinderTool( Rec__NewVrtSecInclusiveTool ):
 
-    def __init__(self, name = 'MaterialSVFinderTool'  ):        
+    def __init__(self, name = 'DVFinderTool'  ):        
 
         from __main__ import ToolSvc
-        mlog = logging.getLogger( 'MaterialFinderTool::__init__ ' )
+        mlog = logging.getLogger( 'DVFinderTool::__init__ ' )
         mlog.info("entering")
         #----------------------
         # VKalVrt vertex fitter
         # 
         from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
-        SVertexFitterTool = Trk__TrkVKalVrtFitter(name="SVertexFitterTool",
+        DVertexFitterTool = Trk__TrkVKalVrtFitter(name="DVertexFitterTool",
                                                   Extrapolator="Trk::Extrapolator/AtlasExtrapolator")
-        ToolSvc += SVertexFitterTool
+        ToolSvc += DVertexFitterTool
         #----------------------
         # Soft B-hadron vertex finder itself
         #

@@ -75,7 +75,7 @@ namespace Rec{
 	   newvrt.SelTrk[1]=(*WrkVrtSet)[iv].SelTrk[SelT];
            sc = m_fitSvc->VKalVrtFitFast(ListBaseTracks,newvrt.vertex,istate);            /* Fast crude estimation*/
            if( sc.isFailure() )  continue;
-           if( newvrt.vertex.perp() > m_rLayer2*2. )  newvrt.vertex=Amg::Vector3D(0.,0.,0.);
+           if( newvrt.vertex.perp() > m_maxSVRadiusCut )  newvrt.vertex=Amg::Vector3D(0.,0.,0.);
            m_fitSvc->setApproximateVertex(newvrt.vertex[0],newvrt.vertex[1],newvrt.vertex[2],istate);
            sc=m_fitSvc->VKalVrtFit(ListBaseTracks, neutralPartDummy,
                              newvrt.vertex,

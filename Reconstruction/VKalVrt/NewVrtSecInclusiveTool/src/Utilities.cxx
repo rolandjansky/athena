@@ -79,7 +79,7 @@ namespace Rec{
          +2.*distx*WgtMtx(0,1)*disty
          +2.*distx*WgtMtx(0,2)*distz
          +2.*disty*WgtMtx(1,2)*distz;
-    Signif=sqrt(Signif);
+    Signif=sqrt(fabs(Signif));
     if( Signif!=Signif ) Signif = 0.;
     return sqrt(distx*distx+disty*disty+distz*distz);
   }
@@ -104,7 +104,7 @@ namespace Rec{
     Signif = distx*WgtMtx(0,0)*distx
             +disty*WgtMtx(1,1)*disty
          +2.*distx*WgtMtx(0,1)*disty;
-    Signif=sqrt(Signif);
+    Signif=sqrt(fabs(Signif));
     if( Signif!=Signif ) Signif = 0.;
     return sqrt(distx*distx+disty*disty);
   }
@@ -136,7 +136,7 @@ namespace Rec{
            +2.*distx*WgtMtx(0,1)*disty
            +2.*distx*WgtMtx(0,2)*distz
            +2.*disty*WgtMtx(1,2)*distz;
-    Signif=sqrt(Signif);
+    Signif=sqrt(fabs(Signif));
     if(Signif != Signif)  Signif = 0.;
     return Signif;
   }
@@ -180,7 +180,7 @@ double NewVrtSecInclusiveTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Am
                  +2.*distx*WgtMtx(0,1)*disty
                  +2.*distx*WgtMtx(0,2)*distz
                  +2.*disty*WgtMtx(1,2)*distz;
-     Signif=sqrt(Signif);
+     Signif=sqrt(fabs(Signif));
      if( Signif!=Signif ) Signif = 0.;
      if(projDist<0)Signif=-Signif;
      return Signif;
@@ -196,7 +196,7 @@ double NewVrtSecInclusiveTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Am
                   +2.*DirX*VrtErr[1]*DirY
                      +DirY*VrtErr[2]*DirY;
     Covar /= DirX*DirX + DirY*DirY;
-    Covar=sqrt(Covar);
+    Covar=sqrt(fabs(Covar));
     if(Covar != Covar)  Covar = 0.;
     return Covar;
   }
@@ -245,34 +245,23 @@ double NewVrtSecInclusiveTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Am
   }
 
 /*************************************************************************************************************/
-  void   NewVrtSecInclusiveTool::getPixelLayers(const xAOD::TrackParticle* Part, int &blHit, int &l1Hit, int &l2Hit, int &nLays ) const
+  int   NewVrtSecInclusiveTool::getIBLHit(const xAOD::TrackParticle* Part) const
   {
-    	blHit=l1Hit=l2Hit=nLays=0; 
-        uint8_t IBLhit,BLhit,NPlay,IBLexp,BLexp;
-        if(!Part->summaryValue( IBLhit,  xAOD::numberOfInnermostPixelLayerHits) )        IBLhit = 0;
-        if(!Part->summaryValue(  BLhit,  xAOD::numberOfNextToInnermostPixelLayerHits) )   BLhit = 0;
-        if(!Part->summaryValue(  NPlay,  xAOD::numberOfContribPixelLayers) )              NPlay = 0;
+        uint8_t IBLhit,IBLexp;
         if(!Part->summaryValue( IBLexp,  xAOD::expectInnermostPixelLayerHit) )           IBLexp = 0;
-        if(!Part->summaryValue(  BLexp,  xAOD::expectNextToInnermostPixelLayerHit) )      BLexp = 0;
-        blHit=IBLhit; if( IBLexp==0 ) blHit=-1;
-        l1Hit= BLhit; if(  BLexp==0 ) l1Hit=-1;
-        nLays=NPlay;
-        uint32_t HitPattern=Part->hitPattern();
-	l2Hit=0; if( HitPattern&((1<<Trk::pixelBarrel2)) ) l2Hit=1;
-	//   bitH=HitPattern&((int)pow(2,Trk::pixelBarrel1));
-
+	if( IBLexp==0 ) return -1;
+        if(!Part->summaryValue( IBLhit,  xAOD::numberOfInnermostPixelLayerHits) )        IBLhit = 0;
+        if(IBLhit) return 1;
+	else       return 0;
   }
-  void NewVrtSecInclusiveTool::getPixelProblems(const xAOD::TrackParticle* Part, int &splshIBL, int &splshBL ) const
+  int   NewVrtSecInclusiveTool::getBLHit(const xAOD::TrackParticle* Part) const
   {
-    	splshIBL=splshBL=0;
-        uint8_t share,split;
-	//if(!Part->summaryValue( IBLout,  xAOD::numberOfInnermostPixelLayerOutliers ) )        IBLout = 0;
-	if(!Part->summaryValue( share,  xAOD::numberOfInnermostPixelLayerSharedHits ) )   share = 0;
-	if(!Part->summaryValue( split,  xAOD::numberOfInnermostPixelLayerSplitHits ) )        split = 0;
-        splshIBL=share+split;
-	if(!Part->summaryValue( share,  xAOD::numberOfNextToInnermostPixelLayerSharedHits ) )   share = 0;
-	if(!Part->summaryValue( split,  xAOD::numberOfNextToInnermostPixelLayerSplitHits ) )        split = 0;
-        splshBL=share+split;
+        uint8_t BLhit,BLexp;
+        if(!Part->summaryValue( BLexp,  xAOD::expectNextToInnermostPixelLayerHit) )           BLexp = 0;
+	if( BLexp==0 ) return -1;
+        if(!Part->summaryValue( BLhit,  xAOD::numberOfNextToInnermostPixelLayerHits) )        BLhit = 0;
+        if(BLhit) return 1;
+	else      return 0;
   }
 
   void   NewVrtSecInclusiveTool::getPixelDiscs(const xAOD::TrackParticle* Part, int &d0Hit, int &d1Hit, int &d2Hit) const
@@ -372,8 +361,8 @@ double NewVrtSecInclusiveTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Am
      double charge = 1.;
      const Trk::Perigee pseudoVrtPart(Vrt.FitVertex, momentumP, charge, Vrt.FitVertex);
 
-     const Trk::TrackParameters * extrapParP=0;
-     const Trk::TrackParameters * extrapParN=0;
+     const Trk::TrackParameters * extrapParP=0; //along momentum
+     const Trk::TrackParameters * extrapParN=0; //backward
      if(nextLayerP){ extrapParP = m_extrapolator->extrapolate(pseudoVrtPart,
                      nextLayerP->surfaceRepresentation(), Trk::anyDirection, false, Trk::nonInteractingMuon) ;}
      if(nextLayerN){ extrapParN = m_extrapolator->extrapolate(pseudoVrtPart,
@@ -388,7 +377,7 @@ double NewVrtSecInclusiveTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Am
      //         m_extrapolator->extrapolateToNextActiveLayer(pseudoVrtPart,Trk::anyDirection,true,Trk::pion) ;
 
      double Signif=1.e9;
-     std::vector<double> pntCovar={1.e-2,0.,1.e-2,0.,0.,1.e-2};
+     std::vector<double> pntCovar={1.e-2,0.,1.e-2,0.,0.,4.e-2};
      if(distanceP<distanceN)Signif=VrtVrtDist(Vrt.FitVertex, Vrt.ErrorMatrix, extrapParP->position(), pntCovar);
      else                   Signif=VrtVrtDist(Vrt.FitVertex, Vrt.ErrorMatrix, extrapParN->position(), pntCovar);
      delete extrapParP;
