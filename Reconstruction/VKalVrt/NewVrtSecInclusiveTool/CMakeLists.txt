@@ -34,6 +34,7 @@ atlas_add_component( NewVrtSecInclusiveTool
  
 # Install files from the package:
 atlas_install_headers( NewVrtSecInclusiveTool )
-#atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py )
 #atlas_install_joboptions( share/*.txt )
+atlas_install_data( share/*.root )
 
