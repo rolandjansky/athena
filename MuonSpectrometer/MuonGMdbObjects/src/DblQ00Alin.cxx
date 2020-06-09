@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -7,31 +7,19 @@
  -----------------------------------------
  ***************************************************************************/
 
-//<doc><file>	$Id: DblQ00Alin.cxx,v 1.5 2007-02-12 17:33:50 stefspa Exp $
-//<version>	$Name: not supported by cvs2svn $
-
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include "MuonGMdbObjects/DblQ00Alin.h"
+#include "RDBAccessSvc/IRDBRecordset.h"
+#include "AmdcDb/AmdcDb.h"
+#include "AmdcDb/AmdcDbRecord.h"
+
 #include <iostream>
 #include <stdio.h>
-
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
 namespace MuonGM
 {
 
-DblQ00Alin::DblQ00Alin(std::unique_ptr<IRDBQuery>&& alin)
- : m_nObj(0)
-{
+DblQ00Alin::DblQ00Alin(std::unique_ptr<IRDBQuery>&& alin) :
+    m_nObj(0) {
   if(alin) {
     alin->execute();
     m_nObj = alin->size();
@@ -75,7 +63,54 @@ DblQ00Alin::DblQ00Alin(std::unique_ptr<IRDBQuery>&& alin)
     std::cerr<<"NO Alin banks in the MuonDD Database"<<std::endl;
   }
 }
-    
+
+DblQ00Alin::DblQ00Alin(AmdcDb* alin) :
+    m_nObj(0) {
+  IRDBRecordset_ptr pIRDBRecordset = alin->getRecordsetPtr(std::string(getObjName()),"Amdc");
+  std::vector<IRDBRecord*>::const_iterator it = pIRDBRecordset->begin();
+
+  m_nObj = pIRDBRecordset->size();
+  m_d = new ALIN[m_nObj];
+  if (m_nObj == 0) std::cerr<<"NO Alin banks in the AmdcDbRecord"<<std::endl;
+
+  const AmdcDbRecord* pAmdcDbRecord = dynamic_cast<const AmdcDbRecord*>((*it));
+  if (pAmdcDbRecord == 0){
+    std::cerr << "No way to cast in AmdcDbRecord for " << getObjName() << std::endl;
+    return;
+  }
+
+  std::vector< std::string> VariableList = pAmdcDbRecord->getVariableList();
+  int ItemTot = VariableList.size() ;
+  for(int Item=0 ; Item<ItemTot ; Item++){
+    std::string DbVar = VariableList[Item];
+  }
+
+  int i = -1;
+  it = pIRDBRecordset->begin();
+  for( ; it<pIRDBRecordset->end(); it++){
+     pAmdcDbRecord = dynamic_cast<const AmdcDbRecord*>((*it));
+     if(pAmdcDbRecord == 0){
+       std::cerr << "No way to cast in AmdcDbRecord for " << getObjName() << std::endl;
+       return;
+     }
+
+     i = i + 1;
+ 
+     m_d[i].version = (*it)->getInt("VERS");
+     m_d[i].dx = (*it)->getFloat("DX");
+     m_d[i].dy = (*it)->getFloat("DY");
+     m_d[i].i = (*it)->getInt("I");
+     m_d[i].width_xs = (*it)->getFloat("WIDTH_XS");
+     m_d[i].width_xl = (*it)->getFloat("WIDTH_XL");
+     m_d[i].length_y = (*it)->getFloat("LENGTH_Y");
+     m_d[i].excent = (*it)->getFloat("EXCENT");
+     m_d[i].dead1 = (*it)->getFloat("DEAD1");
+     m_d[i].jtyp = (*it)->getInt("JTYP");
+     m_d[i].indx = (*it)->getInt("INDX");
+     m_d[i].icut = (*it)->getInt("ICUT");
+  }
+}
+
 DblQ00Alin::~DblQ00Alin()
 {
     delete [] m_d;

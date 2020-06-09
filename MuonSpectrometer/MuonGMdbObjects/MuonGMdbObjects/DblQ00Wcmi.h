@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************
@@ -14,15 +14,18 @@
 #define DBLQ00_WCMI_H
 
 #include "RDBAccessSvc/IRDBQuery.h"
-#include <memory>
-namespace MuonGM
-{
-class DblQ00Wcmi {
 
+#include <memory>
+
+class AmdcDb;
+
+namespace MuonGM {
+class DblQ00Wcmi {
 public:
     DblQ00Wcmi(){};
     ~DblQ00Wcmi();
     DblQ00Wcmi(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Wcmi(AmdcDb* wcmi);
 
     // data members for DblQ00/WCMI fields
     struct WCMI {
