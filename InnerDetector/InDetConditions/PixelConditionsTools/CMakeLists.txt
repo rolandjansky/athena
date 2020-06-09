@@ -32,17 +32,22 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( CLHEP )
 find_package( Eigen )
 
+atlas_add_library( PixelConditionsToolsLib
+                   PixelConditionsTools/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS PixelConditionsTools
+                   LINK_LIBRARIES GaudiKernel AthenaPoolUtilities PixelConditionsData InDetConditionsSummaryService ${interface_extra_lib} )
+
 # Component(s) in the package:
 atlas_add_component( PixelConditionsTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaKernel GeoPrimitives GaudiKernel AthenaBaseComps 
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} PixelConditionsToolsLib AthenaKernel GeoPrimitives GaudiKernel AthenaBaseComps 
                      SGTools AthenaPoolUtilities DetDescrConditions Identifier PixelCablingLib PixelConditionsData InDetIdentifier 
-                     GeoModelUtilities InDetReadoutGeometry PathResolver PixelGeoModelLib InDetByteStreamErrors )
+                     GeoModelUtilities InDetReadoutGeometry PathResolver PixelGeoModelLib InDetByteStreamErrors  )
 
 # Install files from the package:
-atlas_install_headers( PixelConditionsTools )
 atlas_install_joboptions( share/*.py )
 atlas_install_python_modules( python/*.py )
 atlas_install_runtime( share/*.txt share/*.py )
