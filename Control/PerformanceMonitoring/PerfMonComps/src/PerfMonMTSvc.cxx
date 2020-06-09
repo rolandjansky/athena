@@ -16,8 +16,6 @@
 // STD includes
 #include <algorithm>
 
-using json = nlohmann::json;  // for convenience
-
 /*
  * Constructor
  */
@@ -59,6 +57,12 @@ StatusCode PerfMonMTSvc::queryInterface(const InterfaceID& riid, void** ppvInter
 StatusCode PerfMonMTSvc::initialize() {
   // Print where we are
   ATH_MSG_INFO("Initializing " << name());
+
+  // Check if /proc exists, if not memory statistics are not available
+  const bool procExists = PMonMT::doesDirectoryExist("/proc");
+  if(!procExists) {
+    ATH_MSG_INFO("The system doesn't support /proc. Therefore, memory measurements are not available");
+  }
 
   // Print some information minimal information about our configuration
   ATH_MSG_INFO("Service is configured for [" << m_numberOfThreads.toString() << "] threads " <<
@@ -248,20 +252,20 @@ void PerfMonMTSvc::eventLevelMon() {
   // Lock for data integrity
   std::lock_guard<std::mutex> lock(m_mutex_capture);
 
-  // If enabled, do event level monitoring
-  if (m_doEventLoopMonitoring) {
-    if (isCheckPoint()) {
-      // Capture
-      m_measurement_events.capture_event(m_eventCounter);
-      m_eventLevelData.record_event(m_measurement_events, m_eventCounter);
-      // Report instantly - no more than m_eventLoopMsgLimit times
-      if(m_eventLoopMsgCounter < m_eventLoopMsgLimit) {
-        report2Log_EventLevel_instant();
-        m_eventLoopMsgCounter++;
-      }
+  // Increment the internal counter
+  incrementEventCounter();
+
+  // Monitor
+  if (m_doEventLoopMonitoring && isCheckPoint()) {
+    // Capture
+    m_measurement_events.capture_event();
+    m_eventLevelData.record_event(m_measurement_events, m_eventCounter);
+    // Report instantly - no more than m_eventLoopMsgLimit times
+    if(m_eventLoopMsgCounter < m_eventLoopMsgLimit) {
+      report2Log_EventLevel_instant();
+      m_eventLoopMsgCounter++;
     }
   }
-  incrementEventCounter();
 }
 
 /*
@@ -274,10 +278,17 @@ void PerfMonMTSvc::incrementEventCounter() { m_eventCounter++; }
  * Is it event-level monitoring check point yet?
  */
 bool PerfMonMTSvc::isCheckPoint() {
+  // Always check 1, 10, 25 for short tests
+  if (m_eventCounter == 1 || m_eventCounter == 10 || m_eventCounter == 25)
+    return true;
+
+  // Check the user settings
   if (m_checkPointType == "Arithmetic")
     return (m_eventCounter % m_checkPointFactor == 0);
-  else
+  else if (m_checkPointType == "Geometric")
     return isPower(m_eventCounter, m_checkPointFactor);
+  else
+    return false;
 }
 
 /*
@@ -308,19 +319,13 @@ void PerfMonMTSvc::report2Log() {
   // Header
   report2Log_Description();
 
-  // Detailed tables
-  const bool procExists = doesDirectoryExist("/proc");
-  if (!procExists) {
-    ATH_MSG_INFO("There is no /proc directory in this system, therefore memory monitoring has failed!");
-  }
-
   // Component-level
-  if (m_printDetailedTables && procExists && m_doComponentLevelMonitoring) {
+  if (m_printDetailedTables && m_doComponentLevelMonitoring) {
     report2Log_ComponentLevel();
   }
 
   // Event-level
-  if (m_printDetailedTables && procExists && m_doEventLoopMonitoring) {
+  if (m_printDetailedTables && m_doEventLoopMonitoring) {
     report2Log_EventLevel();
   }
 
@@ -434,7 +439,7 @@ void PerfMonMTSvc::report2Log_EventLevel() {
       m_eventLoopMsgCounter++;
     }
     // Add to leak estimate
-    if (it.first >= std::max(uint64_t(10), uint64_t(m_checkPointFactor))) {
+    if (it.first >= 25) {
       m_fit_vmem.addPoint(it.first, it.second.mem_stats.at("vmem"));
       m_fit_pss.addPoint(it.first, it.second.mem_stats.at("pss"));
     }
@@ -507,21 +512,17 @@ void PerfMonMTSvc::report2Log_CpuInfo() const {
  * Report data to JSON
  */
 void PerfMonMTSvc::report2JsonFile() {
-  json j;
+  nlohmann::json j;
 
   // CPU and Wall-time
   report2JsonFile_Summary(j);  // Snapshots
 
   // Memory
-  const bool procExists = doesDirectoryExist("/proc");
-
-  if (procExists) {
-    if (m_doComponentLevelMonitoring) {
-      report2JsonFile_ComponentLevel(j);  // Component-level
-    }
-    if (m_doEventLoopMonitoring) {
-      report2JsonFile_EventLevel(j);  // Event-level
-    }
+  if (m_doComponentLevelMonitoring) {
+    report2JsonFile_ComponentLevel(j);  // Component-level
+  }
+  if (m_doEventLoopMonitoring) {
+    report2JsonFile_EventLevel(j);  // Event-level
   }
 
   // Write
@@ -746,6 +747,9 @@ std::string PerfMonMTSvc::scaleMem(long memMeas) const {
   return stringObj;
 }
 
+/*
+ * Collect some hardware information
+ */
 std::string PerfMonMTSvc::get_cpu_model_info() const {
   std::string cpu_model;
 

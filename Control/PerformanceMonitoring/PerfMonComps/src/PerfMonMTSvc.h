@@ -123,7 +123,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, public AthService {
       "True if component level monitoring is enabled, false o/w. Component monitoring may cause a decrease in the "
       "performance due to the usage of locks."};
   /// Report results to JSON
-  Gaudi::Property<bool> m_reportResultsToJSON{this, "reportResultsToJSON", false, "Report results into the json file."};
+  Gaudi::Property<bool> m_reportResultsToJSON{this, "reportResultsToJSON", true, "Report results into the json file."};
   /// Name of the JSON file
   Gaudi::Property<std::string> m_jsonFileName{this, "jsonFileName", "PerfMonMTSvc_result.json",
                                               "Name of the JSON file that contains the results."};
@@ -136,7 +136,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, public AthService {
       "Type of the check point sequence: Arithmetic(0, k, 2k...) or Geometric(0,k,k^2...)."};
   /// Frequency of event level monitoring
   Gaudi::Property<uint64_t> m_checkPointFactor{
-      this, "checkPointFactor", 10,
+      this, "checkPointFactor", 50,
       "Common difference if check point sequence is arithmetic, Common ratio if it is Geometric."};
   /// Offset for the wall-time, comes from configuration
   Gaudi::Property<double> m_wallTimeOffset{this, "wallTimeOffset", 0, "Job start wall time in miliseconds."};
