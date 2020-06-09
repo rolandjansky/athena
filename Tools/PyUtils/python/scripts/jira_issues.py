@@ -60,7 +60,7 @@ def main(args):
 
     #authentication
     try: 
-        cookiesFile = file(args.cookies, 'r')
+        cookiesFile = open(args.cookies, 'r')
         cookies = {}
         for line in cookiesFile:
             text = line.split()

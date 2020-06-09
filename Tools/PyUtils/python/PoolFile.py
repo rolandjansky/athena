@@ -27,6 +27,7 @@ __all__ = [
 import sys
 import os
 import shelve
+from builtins import range
 
 if six.PY2:
     from whichdb import whichdb
@@ -65,10 +66,10 @@ class PoolFileCatalog(object):
             # chase poolfilecatalog location
             catalog = os.environ.get("POOL_CATALOG", self.DefaultCatalog)
 
-        if isinstance(catalog, basestring):
+        if isinstance(catalog, str):
             catalog = [catalog]
             
-        if not isinstance (catalog, (basestring, list)):
+        if not isinstance (catalog, (str, list)):
             raise TypeError(
                 "catalog contact string should be a string or a list thereof! (got %r)"%
                 type(catalog))
@@ -367,12 +368,12 @@ def extract_streams_from_tag (fname,
     #  [CLID=72FBBC6F-C8BE-4122-8790-DC627696C176]\
     #  [TECH=00000202]\
     #  [OID=0000008C-000002BA]'
-    token = re.compile (r'[[]DB=(?P<FID>.*?)[]]'\
-                        r'[[]CNT=(?P<CNT>.*?)[]]'\
-                        r'[[]CLID=(?P<CLID>.*?)[]]'\
-                        r'[[]TECH=(?P<TECH>.*?)[]]'\
+    token = re.compile (r'[[]DB=(?P<FID>.*?)[]]'
+                        r'[[]CNT=(?P<CNT>.*?)[]]'
+                        r'[[]CLID=(?P<CLID>.*?)[]]'
+                        r'[[]TECH=(?P<TECH>.*?)[]]'
                         r'[[]OID=(?P<OID>.*?)[]]')
-    for i in xrange(nentries):
+    for i in range(nentries):
         t.GetEntry (i)
         for ref in stream_refs:
             try:

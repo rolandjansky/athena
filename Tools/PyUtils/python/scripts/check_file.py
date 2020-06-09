@@ -43,7 +43,7 @@ def main(args):
     """read a POOL file and dump its content.
     """
     files = args.files
-    if isinstance(files, basestring):
+    if isinstance(files, str):
         files=[files]
 
     import sys
