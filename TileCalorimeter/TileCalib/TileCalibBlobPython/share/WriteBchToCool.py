@@ -374,7 +374,7 @@ if len(execFile):
         else:
             if comment=="None":
                 comment = comments[io]
-            elif comments[io] not in comment:
+            elif iov and comments[io] not in comment:
                 comment += "  //  " + comments[io]
             if io>0 and since!=until and 'ALL' not in moduleList:
                 author=commentsSplit[io]
