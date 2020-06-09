@@ -78,7 +78,7 @@ StatusCode Trk::SimpleAmbiguityProcessorTool::initialize()
       msg(MSG::FATAL) << "Failed to retrieve tool " << m_scoringTool << endmsg;
       return StatusCode::FAILURE;
     } 
-  else 
+  
     msg(MSG::INFO) << "Retrieved tool " << m_scoringTool << endmsg;
 
   sc = m_selectionTool.retrieve();
@@ -87,7 +87,7 @@ StatusCode Trk::SimpleAmbiguityProcessorTool::initialize()
       msg(MSG::FATAL) << "Failed to retrieve tool " << m_selectionTool << endmsg;
       return StatusCode::FAILURE;
     } 
-  else 
+  
     msg(MSG::INFO) << "Retrieved tool " << m_selectionTool << endmsg;
   
   sc = m_fitterTool.retrieve();
@@ -96,7 +96,7 @@ StatusCode Trk::SimpleAmbiguityProcessorTool::initialize()
       msg(MSG::FATAL) << "Failed to retrieve tool " << m_fitterTool << endmsg;
       return sc;
     } 
-  else 
+  
     msg(MSG::INFO) << "Retrieved tool " << m_fitterTool << endmsg;
   
   // suppress refit overwrites force refit
@@ -153,8 +153,8 @@ void Trk::SimpleAmbiguityProcessorTool::statistics()
 void Trk::SimpleAmbiguityProcessorTool::dumpStat(MsgStream &out) const {
    std::lock_guard<std::mutex> lock( m_statMutex );
     auto parseFileName=[](const std::string & fullname){
-      auto dotPosition = fullname.rfind(".");
-      auto slashPosition = fullname.rfind("/");
+      auto dotPosition = fullname.rfind('.');
+      auto slashPosition = fullname.rfind('/');
       auto stringLength = dotPosition - slashPosition;
     return fullname.substr(slashPosition, stringLength);
    };
@@ -214,7 +214,7 @@ void Trk::SimpleAmbiguityProcessorTool::missingTrackOrParameters(const Track* tr
      ATH_MSG_ERROR ("track pointer zero, should not happen!");
      return;
   }
-  else if (!track->trackParameters()) {
+  if (!track->trackParameters()) {
      ATH_MSG_WARNING ("No track parameters, needed for statistics code in Trk::SimpleAmbiguityProcessorTool!");
   }
 }
@@ -400,11 +400,11 @@ void Trk::SimpleAmbiguityProcessorTool::addTrack(Trk::Track* in_track,
 	      // add track to map, map is sorted small to big !
 	      trackScoreTrackMap.insert( make_pair(-score, TrackPtr(bremTrack.release(), fitted)) );
 	      return;
-	    } else {
+	    } 
 	      ATH_MSG_DEBUG ("Brem refit gave still track score zero, reject it");
 	      // statistic
 	      increment_by_eta(Counter::kNscoreZeroBremRefitScoreZero,stat,bremTrack.get());
-	    }
+	    
       cleanup_tracks.push_back(std::move(atrack));
 	  }
   } else {
