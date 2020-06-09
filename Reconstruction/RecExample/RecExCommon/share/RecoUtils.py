@@ -107,15 +107,20 @@ except Exception:
 
 if rec.doPerfMon() :
     try:
-        # see https://twiki.cern.ch/twiki/bin/view/Atlas/PerfMonComps
-        # and https://twiki.cern.ch/twiki/bin/view/Atlas/PerfMonSD
+        from AthenaCommon.ConcurrencyFlags import jobproperties as jp
         from PerfMonComps.PerfMonFlags import jobproperties
-        jobproperties.PerfMonFlags.OutputFile = "ntuple_"+OutFileName+".root"
-        jobproperties.PerfMonFlags.doMonitoring = True
-        jobproperties.PerfMonFlags.doFastMon = not rec.doDetailedPerfMon()
-        jobproperties.PerfMonFlags.doDetailedMonitoring = rec.doDetailedPerfMon()
-        jobproperties.PerfMonFlags.doSemiDetailedMonitoring = rec.doSemiDetailedPerfMon()
-        include( "PerfMonComps/PerfMonSvc_jobOptions.py" )
+        if jp.ConcurrencyFlags.NumThreads() <= 1:
+            # see https://twiki.cern.ch/twiki/bin/view/Atlas/PerfMonComps
+            # and https://twiki.cern.ch/twiki/bin/view/Atlas/PerfMonSD
+            jobproperties.PerfMonFlags.OutputFile = "ntuple_"+OutFileName+".root"
+            jobproperties.PerfMonFlags.doMonitoring = True
+            jobproperties.PerfMonFlags.doFastMon = not rec.doDetailedPerfMon()
+            jobproperties.PerfMonFlags.doDetailedMonitoring = rec.doDetailedPerfMon()
+            jobproperties.PerfMonFlags.doSemiDetailedMonitoring = rec.doSemiDetailedPerfMon()
+            include( "PerfMonComps/PerfMonSvc_jobOptions.py" )
+        else:
+            include( "PerfMonComps/PerfMonMTSvc_jobOptions.py" )
+            svcMgr.PerfMonMTSvc.jsonFileName = "perfmonmt_"+OutFileName+".json"
 
     except Exception:
         treatException("Could not load PerfMon" )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // STL include(s):
@@ -259,20 +259,20 @@ namespace Trig {
                if( *( itr->train_front() ) > *( itr->train_back() ) ) {
                   if( BunchCrossing( bcid ) <= *( itr->train_back() ) ) {
                      return ( std::count_if( itr->begin(), element,
-                                             std::bind1st( std::not_equal_to< BunchCrossing >(),
-                                                           *element ) ) +
+                                             std::bind( std::not_equal_to< BunchCrossing >(),
+                                                        *element, std::placeholders::_1 ) ) +
                               std::count_if( itr->train_front(), itr->end(),
-                                             std::bind1st( std::not_equal_to< BunchCrossing >(),
-                                                           *element ) ) );
+                                             std::bind( std::not_equal_to< BunchCrossing >(),
+                                                        *element, std::placeholders::_1 ) ) );
                   } else {
                      return std::count_if( itr->train_front(), element,
-                                           std::bind1st( std::not_equal_to< BunchCrossing >(),
-                                                         *element ) );
+                                           std::bind( std::not_equal_to< BunchCrossing >(),
+                                                      *element, std::placeholders::_1 ) );
                   }
                } else {
                   return std::count_if( itr->begin(), element,
-                                        std::bind1st( std::not_equal_to< BunchCrossing >(),
-                                                      *element ) );
+                                        std::bind( std::not_equal_to< BunchCrossing >(),
+                                                   *element, std::placeholders::_1 ) );
                }
                break;
             default:
@@ -336,20 +336,20 @@ namespace Trig {
                if( *( itr->train_front() ) > *( itr->train_back() ) ) {
                   if( BunchCrossing( bcid ) > *( itr->train_back() ) ) {
                      return ( std::count_if( element, itr->end(),
-                                             std::bind1st( std::not_equal_to< BunchCrossing >(),
-                                                           *element ) ) +
+                                             std::bind( std::not_equal_to< BunchCrossing >(),
+                                                        *element, std::placeholders::_1 ) ) +
                               std::count_if( itr->begin(), ++( itr->train_back() ),
-                                             std::bind1st( std::not_equal_to< BunchCrossing >(),
-                                                           *element ) ) );
+                                             std::bind( std::not_equal_to< BunchCrossing >(),
+                                                        *element, std::placeholders::_1 ) ) );
                   } else {
                      return std::count_if( element, ++( itr->train_back() ),
-                                           std::bind1st( std::not_equal_to< BunchCrossing >(),
-                                                         *element ) );
+                                           std::bind( std::not_equal_to< BunchCrossing >(),
+                                                      *element, std::placeholders::_1 ) );
                   }
                } else {
                   return std::count_if( element, itr->end(),
-                                        std::bind1st( std::not_equal_to< BunchCrossing >(),
-                                                      *element ) );
+                                        std::bind( std::not_equal_to< BunchCrossing >(),
+                                                   *element, std::placeholders::_1 ) );
                }
                break;
             default:
@@ -918,8 +918,7 @@ namespace Trig {
          ATH_MSG_VERBOSE( "Evaluating bunch crossing: " << *b_itr );
 
          //
-         // This is some STL magic. This expression counts how many of the
-         // paired bunches fulfill:
+         // This expression counts how many of the paired bunches fulfill:
          //
          //      distance( ref_bcid,  bcid ) <= maxBCSpacing
          //
@@ -933,12 +932,12 @@ namespace Trig {
          // bcid numbering. (When evaluating bcid 1 and
          // BunchCrossing::MAX_BCID.)
          //
-         int neighbours =
+         const int neighbours =
             std::count_if( bunches.begin(), bunches.end(),
-                           compose1( std::bind2nd( std::less_equal< int >(),
-                                                   maxBCSpacing ),
-                                     std::bind1st( std::ptr_fun( Trig::distance ),
-                                                   *b_itr ) ) );
+                           [ maxBCSpacing, &b_itr ]( int bunch ) {
+                              return ( Trig::distance( bunch, *b_itr ) <=
+                                       maxBCSpacing );
+                           } );
 
          //
          // Now decide if we want to consider this bunch crossing as a single

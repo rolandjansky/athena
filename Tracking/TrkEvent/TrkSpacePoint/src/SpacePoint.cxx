@@ -11,14 +11,14 @@
 // Version 2.0   /12/2005 Martin Siebel
 ///////////////////////////////////////////////////////////////////
 
-#include <new>
 #include "TrkSpacePoint/SpacePoint.h"
-#include "TrkPrepRawData/PrepRawData.h"
 #include "GaudiKernel/MsgStream.h"
-#include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkDetElementBase/TrkDetElementBase.h"
+#include "TrkEventPrimitives/LocalParameters.h"
+#include "TrkPrepRawData/PrepRawData.h"
 #include "TrkSurfaces/Surface.h"
-#include <math.h>
+#include <cmath>
+#include <new>
 
 namespace Trk
 {

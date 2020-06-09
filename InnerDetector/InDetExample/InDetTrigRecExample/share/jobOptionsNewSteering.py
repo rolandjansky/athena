@@ -352,7 +352,7 @@ if not doReadBS:
   ServiceMgr.EventSelector.InputCollections = ["/afs/cern.ch/atlas/maxidisk/d38/ID_ValidationData/testIdeal_07.005200.T1_McAtNlo_Jimmy.digit.RDO.v12000201_tid002760._00002.pool.root.1"]
   #ServiceMgr.EventSelector.InputCollections = ["/afs/cern.ch/atlas/maxidisk/d89/InDetRecRDO.root"]
 else:
-  ByteStreamInputSvc.FullFileName = ["/afs/cern.ch/atlas/project/trigger/pesa-sw/data/calib1_csc11.005200.T1_McAtNlo_Jimmy.digit.bs-lvl1sim.v12000301_tid003138._00001.pool.root"]
+  EventSelector.Input = ["/afs/cern.ch/atlas/project/trigger/pesa-sw/data/calib1_csc11.005200.T1_McAtNlo_Jimmy.digit.bs-lvl1sim.v12000301_tid003138._00001.pool.root"]
 # ------------------------------------------------------------
 
 # switch off history service

@@ -3,15 +3,15 @@
  */
 
 #include "TElectronLikelihoodTool.h"
-#include <cmath>
-#include "TSystem.h"
-#include "TROOT.h"
-#include <stdio.h>                      // for sprintf
-#include <algorithm>                    // for min
-#include <fstream>                      // for char_traits
 #include "TFile.h"                      // for TFile
 #include "TH1.h"                        // for TH1F
+#include "TROOT.h"
 #include "TString.h"                    // for TString
+#include "TSystem.h"
+#include <algorithm>                    // for min
+#include <cmath>
+#include <cstdio>                      // for sprintf
+#include <fstream>                      // for char_traits
 
 #include "ElectronPhotonSelectorTools/ElectronSelectorHelpers.h"
 
@@ -885,7 +885,7 @@ unsigned int Root::TElectronLikelihoodTool::getLikelihoodEtDiscBin(double eT, co
     return nEtBins-1; // Return the last bin if > the last bin.
 
   }
-  else{
+  
     const unsigned int nEtBins = s_fnDiscEtBins;
     const double eTBins[nEtBins] = {10*GeV,15*GeV,20*GeV,25*GeV,30*GeV,35*GeV,40*GeV,45*GeV,50*GeV};
 
@@ -895,7 +895,7 @@ unsigned int Root::TElectronLikelihoodTool::getLikelihoodEtDiscBin(double eT, co
     }
 
     return nEtBins-1; // Return the last bin if > the last bin.
-  }
+  
 }
 
 //---------------------------------------------------------------------------------------

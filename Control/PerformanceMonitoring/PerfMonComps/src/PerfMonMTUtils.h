@@ -58,7 +58,7 @@ struct Measurement {
   // Variables to store measurements
   double cpu_time, wall_time; // Timing
   memory_map_t mem_stats; // Memory: Vmem, Rss, Pss, Swap
-  int vmem, malloc; // Memory: Vmem, Malloc (faster than above)
+  double vmem, malloc; // Memory: Vmem, Malloc (faster than above)
 
   // Event level measurements
   event_meas_map_t eventLevel_meas_map;  // [Event count so far]: Measurement
@@ -119,7 +119,7 @@ struct Measurement {
     eventLevel_meas_map[eventCount] = meas;
   }
 
-  Measurement() : cpu_time{0.}, wall_time{0.}, vmem{0}, malloc{0} {
+  Measurement() : cpu_time{0.}, wall_time{0.}, vmem{0.}, malloc{0.} {
     mem_stats["vmem"] = 0; mem_stats["pss"] = 0; mem_stats["rss"] = 0; mem_stats["swap"] = 0;
   }
 };
@@ -134,8 +134,8 @@ struct MeasurementData {
   double m_tmp_wall, m_delta_wall;
   memory_map_t m_memMon_tmp_map;
   memory_map_t m_memMon_delta_map;
-  int m_tmp_vmem, m_delta_vmem;
-  int m_tmp_malloc, m_delta_malloc;
+  double m_tmp_vmem, m_delta_vmem;
+  double m_tmp_malloc, m_delta_malloc;
 
   // This map is used to store the event level measurements
   event_meas_map_t m_eventLevel_delta_map;
@@ -243,16 +243,16 @@ struct MeasurementData {
   double getDeltaWall() const { return m_delta_wall; }
   void add2DeltaWall(double val) { m_delta_wall += val; }
 
-  int getDeltaVmem() const { return m_delta_vmem; }
-  void add2DeltaVmem(int val) { m_delta_vmem += val; }
+  double getDeltaVmem() const { return m_delta_vmem; }
+  void add2DeltaVmem(double val) { m_delta_vmem += val; }
 
-  int getDeltaMalloc() const { return m_delta_malloc; }
-  void add2DeltaMalloc(int val) { m_delta_malloc += val; }
+  double getDeltaMalloc() const { return m_delta_malloc; }
+  void add2DeltaMalloc(double val) { m_delta_malloc += val; }
 
   long getMemMonDeltaMap(std::string mem_stat) const { return m_memMon_delta_map.at(mem_stat); }
 
   MeasurementData() : m_call_count{0}, m_tmp_cpu{0.}, m_delta_cpu{0.}, m_tmp_wall{0.}, m_delta_wall{0.},
-   m_tmp_vmem{0}, m_delta_vmem{0}, m_tmp_malloc{0}, m_delta_malloc{0}, m_offset_wall{0.} {
+    m_tmp_vmem{0.}, m_delta_vmem{0.}, m_tmp_malloc{0.}, m_delta_malloc{0.}, m_offset_wall{0.} {
     m_memMon_tmp_map["vmem"] = 0; m_memMon_tmp_map["pss"] = 0; m_memMon_tmp_map["rss"] = 0; m_memMon_tmp_map["swap"] = 0;
     m_memMon_delta_map["vmem"] = 0; m_memMon_delta_map["pss"] = 0; m_memMon_delta_map["rss"] = 0; m_memMon_delta_map["swap"] = 0;
   }

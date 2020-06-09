@@ -461,21 +461,29 @@ void Trk::TrackSummaryTool::processMeasurement(const Track& track,
 					       std::vector<int>& information,
 					       std::bitset<numberOfDetectorTypes>& hitPattern) const
 {
-  const RIO_OnTrack* rot = dynamic_cast<const RIO_OnTrack*> (meas);
-  
+
+  // Check if the measurement type is RIO on Track (ROT)
+  const RIO_OnTrack* rot = nullptr;
+  if (meas->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
+    rot = static_cast<const RIO_OnTrack*>(meas);
+  }
+
   if ( rot ){
     // have RIO_OnTrack
     const Trk::IExtendedTrackSummaryHelperTool* tool = getTool(rot->identify());
     if (tool==nullptr){
       ATH_MSG_WARNING("Cannot find tool to match ROT. Skipping.");
     } else {
-
       tool->analyse(track,prd_to_track_map, rot,tsos,information, hitPattern);
     }
   } else {
-    // Something other than a ROT.
-    const Trk::CompetingRIOsOnTrack *compROT = 
-      dynamic_cast<const Trk::CompetingRIOsOnTrack*>(meas);
+    //check if the measurement type is CompetingRIOsOnTrack
+    //
+    const Trk::CompetingRIOsOnTrack *compROT =nullptr;
+    if ( meas->type(Trk::MeasurementBaseType::CompetingRIOsOnTrack)) {
+      compROT = static_cast<const CompetingRIOsOnTrack *>(meas);
+    }
+
     if (compROT) {
       // if this works we have a CompetingRIOsOnTrack.
       rot = &compROT->rioOnTrack(0); // get 1st rot

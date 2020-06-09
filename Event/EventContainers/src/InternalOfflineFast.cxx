@@ -8,7 +8,7 @@
 
 using namespace EventContainers;
 typedef I_InternalIDC::InternalConstItr InternalConstItr;
-InternalOfflineFast::InternalOfflineFast(size_t max) : m_fullMap(max, nullptr) {}
+InternalOfflineFast::InternalOfflineFast(size_t max) : m_fullMap(max, nullptr), m_needsupdate(false) {}
 
 
 bool InternalOfflineFast::tryAddFromCache(IdentifierHash hash, EventContainers::IDC_WriteHandleBase&) {
@@ -21,10 +21,17 @@ bool InternalOfflineFast::tryAddFromCache(IdentifierHash hash)
 }
 
 void InternalOfflineFast::wait() const {
-
+   std::lock_guard lock (m_waitMutex);
+   if(m_needsupdate == false) return;
+   m_map.clear();
+   for(size_t i=0 ;i < m_fullMap.size(); ++i){
+    if(m_fullMap[i]) m_map.emplace_back(i, m_fullMap[i]);
+   }
+   m_needsupdate.store(true);
 }
 
 std::vector<IdentifierHash> InternalOfflineFast::getAllCurrentHashes() const {
+    if(m_needsupdate) wait();
     std::vector<IdentifierHash> ids;
     ids.reserve(m_map.size());
     for(auto &x : m_map) {
@@ -35,24 +42,30 @@ std::vector<IdentifierHash> InternalOfflineFast::getAllCurrentHashes() const {
 
 InternalConstItr
  InternalOfflineFast::cend() const {
+    if(m_needsupdate) wait();
     return m_map.cend();
 }
 
-const std::vector < I_InternalIDC::hashPair >& InternalOfflineFast::getAllHashPtrPair() const{ return m_map; }
+const std::vector < I_InternalIDC::hashPair >& InternalOfflineFast::getAllHashPtrPair() const{
+    if(m_needsupdate) wait();
+    return m_map;
+}
 
 InternalConstItr
  InternalOfflineFast::cbegin() const {
+    if(m_needsupdate) wait();
     return m_map.cbegin();
 }
 
 InternalConstItr InternalOfflineFast::indexFind( IdentifierHash hashId ) const{
+   if(m_needsupdate) wait();
    auto itr = std::lower_bound( m_map.cbegin(), m_map.cend(), hashId.value(), [](const hashPair &lhs,  IdentifierHash::value_type rhs) -> bool { return lhs.first < rhs; } );
    if(itr!= m_map.cend() && itr->first==hashId) return itr;
    return m_map.cend();
-//  return std::find_if(m_map.begin(), m_map.end(), [hashId](const hashPair &lhs) -> bool { return lhs.first == hashId; });
 }
 
 size_t InternalOfflineFast::numberOfCollections() const {
+    if(m_needsupdate) wait();
     return m_map.size();
 }
 
@@ -64,19 +77,9 @@ void InternalOfflineFast::cleanUp(deleter_f* deleter) noexcept {
 bool InternalOfflineFast::insert(IdentifierHash hashId, const void* ptr) {
     if(hashId >= m_fullMap.size()) return false;
     if(m_fullMap[hashId]!= nullptr) return false; //already in
-    if(m_map.empty() || m_map.back().first < hashId){
-        m_map.emplace_back(hashId, ptr);
-        m_fullMap[hashId] = ptr;
-        return true;
-    }
-    auto itr = std::lower_bound( m_map.begin(), m_map.end(), hashId.value(), [](const hashPair &lhs,  IdentifierHash::value_type rhs) -> bool { return lhs.first < rhs; } );
-    if(itr == std::end(m_map) || itr->first != hashId)
-    {
-        m_map.emplace(itr, hashId, ptr);
-        m_fullMap[hashId] = ptr;
-        return true;
-    }
-    return false;
+    m_fullMap[hashId] = ptr;
+    m_needsupdate.store(true, std::memory_order_relaxed);
+    return true;
 }
 
 const void* InternalOfflineFast::findIndexPtr(IdentifierHash hashId) const noexcept{
@@ -96,11 +99,9 @@ StatusCode InternalOfflineFast::addLock(IdentifierHash hashId, const void* ptr) 
 }
 
 void* InternalOfflineFast::removeCollection( IdentifierHash hashId ) {
-   auto itr = std::lower_bound( m_map.begin(), m_map.end(), hashId.value(), [](hashPair &lhs,  IdentifierHash::value_type rhs) -> bool { return lhs.first < rhs; } );
-   if(itr== m_map.end() || itr->first!=hashId) return nullptr;
-   void* ptr = const_cast< void* > (itr->second);
-   m_map.erase(itr);
+   void* ptr = const_cast< void* > (m_fullMap[hashId]);
    m_fullMap[hashId] = nullptr;
+   m_needsupdate.store(true, std::memory_order_relaxed);
    return ptr;
 }
 

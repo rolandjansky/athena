@@ -979,20 +979,18 @@ if doCaloCell:
    # create TileCell from TileRawChannel and store it in CaloCellContainer
    if TileBiGainRun: 
        include( "TileRec/TileCellMaker_jobOptions_doublegain.py" )
-       ToolSvc.TileCellBuilderLG.SkipGain = 1
-       ToolSvc.TileCellBuilderHG.SkipGain = 0
        if OldRun: # disable masking on the fly
-           ToolSvc.TileCellBuilderLG.TileDSPRawChannelContainer=""
-           ToolSvc.TileCellBuilderHG.TileDSPRawChannelContainer=""
+           topSequence.CaloCellMakerLG.CaloCellMakerToolNames["TileCellBuilderLG"].TileDSPRawChannelContainer=""
+           topSequence.CaloCellMakerHG.CaloCellMakerToolNames["TileCellBuilderHG"].TileDSPRawChannelContainer=""
    else: 
        include( "TileRec/TileCellMaker_jobOptions.py" )
        if OldRun: # disable masking on the fly
-           ToolSvc.TileCellBuilder.TileDSPRawChannelContainer=""
+           topSequence.CaloCellMaker.CaloCellMakerToolNames["TileCellBuilder"].TileDSPRawChannelContainer=""
        if doRecoESD:
            topSequence.CaloCellMaker.CaloCellsOutputName = "AllCaloNewReco"
-           ToolSvc.TileCellBuilder.MBTSContainer = "MBTSContainerNewReco"
-           ToolSvc.TileCellBuilder.E4prContainer = "E4prContainerNewReco"
-           ToolSvc.TileCellBuilder.TileDSPRawChannelContainer=""
+           topSequence.CaloCellMaker.CaloCellMakerToolNames["TileCellBuilder"].MBTSContainer = "MBTSContainerNewReco"
+           topSequence.CaloCellMaker.CaloCellMakerToolNames["TileCellBuilder"].E4prContainer = "E4prContainerNewReco"
+           topSequence.CaloCellMaker.CaloCellMakerToolNames["TileCellBuilder"].TileDSPRawChannelContainer=""
 
 if doTileTower:
     include( "CaloRec/CaloCombinedTower_jobOptions.py" )

@@ -18,6 +18,7 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/EventContext.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadDecorHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
@@ -38,7 +39,14 @@ public:
 
   virtual StatusCode initialize() override final;
   virtual StatusCode finalize() override final;
-  virtual StatusCode execute() override final;
+  virtual StatusCode execute() override final
+  {
+    return execute_r(Algorithm::getContext());
+  }
+  // This will become the normal execute when
+  // inheriting from AthReentrantAlgorithm
+  StatusCode execute_r(const EventContext& ctx) const;
+
 
   struct TrackWithIndex
   {

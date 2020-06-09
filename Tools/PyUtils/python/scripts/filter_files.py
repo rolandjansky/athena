@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.scripts.filter_files
 # @purpose take a bunch of input (pool/bs) files and produce a filtered one
@@ -7,7 +7,6 @@
 # @date March 2010
 from __future__ import with_statement
 
-__version__ = "$Revision: 523884 $"
 __doc__ = "take a bunch of input (pool/bs) files and produce a filtered one"
 __author__ = "Sebastien Binet"
 
@@ -43,7 +42,6 @@ def main(args):
     msg.setLevel(L.logging.INFO)
 
     msg.info(':'*40)
-    msg.info('welcome to filter-files version %s', __version__)
 
     import os.path as osp
     args.files = [ osp.expandvars(osp.expanduser(fname))
@@ -120,7 +118,7 @@ def main(args):
             '%(files)s',
             ])
         evt_list = [str(i) for _,i in args.selection]
-        run_list = [str(i) for i,_ in args.selection if not i is None]
+        run_list = [str(i) for i,_ in args.selection if i is not None]
         cmd = cmd % {
             'evt-list': ','.join(evt_list),
             'run-list': '' if len(run_list)==0 else '-r '+','.join(run_list),

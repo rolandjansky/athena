@@ -3,11 +3,12 @@
 */
 
 #include "SCT_ReadoutGeometry/StripBoxDesign.h"
+
+#include "GeoModelKernel/Units.h"
+#include "Identifier/Identifier.h"
+
 #include <stdexcept>
 #include <cmath>
-#include "Identifier/Identifier.h"
-#include "TrkSurfaces/RectangleBounds.h"
-#include "GeoModelKernel/Units.h"
 
 namespace InDetDD {
 StripBoxDesign::StripBoxDesign(const SiDetectorDesign::Axis stripDirection,
@@ -33,11 +34,7 @@ StripBoxDesign::StripBoxDesign(const SiDetectorDesign::Axis stripDirection,
 
     double width = m_nStrips * m_pitch;
     double fullLength = m_nRows * m_length;
-    m_bounds = new Trk::RectangleBounds(width / 2.0, fullLength / 2.0);
-}
-
-StripBoxDesign::~StripBoxDesign() {
-    delete m_bounds;
+    m_bounds = Trk::RectangleBounds(width / 2.0, fullLength / 2.0);
 }
 
 void StripBoxDesign::getStripRow(SiCellId cellId, int *strip, int *row) const {
@@ -79,7 +76,7 @@ void StripBoxDesign::neighboursOfCell(const SiCellId &cellId,
 const Trk::SurfaceBounds &StripBoxDesign::bounds() const {
 //    Return smallest rectangle that fully encompasses the active area.
 
-    return *m_bounds;
+    return m_bounds;
 }
 
 SiCellId StripBoxDesign::cellIdOfPosition(SiLocalPosition const &pos) const {

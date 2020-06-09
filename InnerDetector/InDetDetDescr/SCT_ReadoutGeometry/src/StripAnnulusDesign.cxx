@@ -35,10 +35,6 @@ StripAnnulusDesign::StripAnnulusDesign(const SiDetectorDesign::Axis &stripDirect
     std::unique_ptr<Trk::SurfaceBounds> m_bounds = std::make_unique<Trk::RectangleBounds>(width / 2.0, length / 2.0); // Awaiting new boundclass for Annulus shape
 }
 
-  StripAnnulusDesign::~StripAnnulusDesign() {
-    delete m_bounds;
-  }
-
 HepGeom::Point3D<double> StripAnnulusDesign::sensorCenter() const {
     double centerR = (m_stripStartRadius + m_stripEndRadius) * 0.5;
     return HepGeom::Point3D<double>(centerR, 0., 0.);

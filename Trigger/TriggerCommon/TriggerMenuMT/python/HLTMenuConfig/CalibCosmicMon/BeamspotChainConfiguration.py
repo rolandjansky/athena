@@ -41,12 +41,13 @@ def allTE_trkfast( signature="FS" ):
         vertexAlg.TrackCollections = ["TrigFastTrackFinder_Tracks_"+signature]
 
         viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+beamspotViewRoI_'+signature ),
-                                   ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+                                   ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
+                                   ( 'TagInfo' , 'DetectorStore+ProcessingTags' )]
 
-        # Make sure the event info is still available at whole-event level
+        # Make sure this is still available at whole-event level
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
-        topSequence.SGInputLoader.Load += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+        topSequence.SGInputLoader.Load += [( 'TagInfo' , 'DetectorStore+ProcessingTags' )]
 
         beamspotSequence = seqAND( "beamspotSequence_"+signature, viewAlgs+[vertexAlg] )
         inputMakerAlg.ViewNodeName = beamspotSequence.name()

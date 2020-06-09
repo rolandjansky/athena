@@ -5,23 +5,23 @@
 #ifndef TAUREC_TAUPROCESSORALG_H
 #define TAUREC_TAUPROCESSORALG_H
 
-#include "GaudiKernel/SystemOfUnits.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
 #include "tauRecTools/ITauToolBase.h"
 
-#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
-
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "xAODTau/TauJetContainer.h"
 #include "xAODPFlow/PFOContainer.h"
 #include "xAODPFlow/PFOAuxContainer.h"
-
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
 #include "CaloInterface/ICaloCellMakerTool.h"
+
+#include "GaudiKernel/SystemOfUnits.h"
+#include "GaudiKernel/ToolHandle.h"
 
 /**
  * @brief       Main class for tau candidate processing.

@@ -6,17 +6,17 @@
  
 #include "Identifier/Range.h" 
  
-#include <stdio.h> 
+#include <algorithm> 
+#include <cstdio> 
 #include <string> 
 #include <vector> 
-#include <algorithm> 
  
 #include <limits>
 #include <iostream> 
 #include <iomanip> 
 #include <set>
 
-#include <assert.h> 
+#include <cassert> 
  
 #ifdef WIN32 
 namespace std 
@@ -433,7 +433,7 @@ Range::field::get_previous (element_type current, element_type& previous) const
 	      previous = m_maximum;
 	      return (true); 
 	  }
-	  else if (has_previous == m_continuation_mode) {
+	  if (has_previous == m_continuation_mode) {
 	      previous = m_previous;
 	      return (true); 
 	  }
@@ -446,12 +446,12 @@ Range::field::get_previous (element_type current, element_type& previous) const
     case enumerated: 
       size_type index = get_value_index(current);
       if (index == 0) {
-	  if (has_wrap_around == m_continuation_mode && m_values.size() > 0) {
+	  if (has_wrap_around == m_continuation_mode && !m_values.empty()) {
 	      index = m_values.size() - 1;
 	      previous = m_values[index];
 	      return (true); 
 	  }
-	  else if (has_previous == m_continuation_mode) {
+	  if (has_previous == m_continuation_mode) {
 	      previous = m_previous;
 	      return (true); 
 	  }
@@ -498,7 +498,7 @@ Range::field::get_next     (element_type current, element_type& next) const
 	      next = m_minimum;
 	      return (true); 
 	  }
-	  else if (has_next == m_continuation_mode) {
+	  if (has_next == m_continuation_mode) {
 	      next = m_next;
 	      return (true); 
 	  }
@@ -516,7 +516,7 @@ Range::field::get_next     (element_type current, element_type& next) const
 	      next = m_values[0];
 	      return (true); 
 	  }
-	  else if (has_next == m_continuation_mode) {
+	  if (has_next == m_continuation_mode) {
 	      next = m_next;
 	      return (true); 
 	  }
@@ -752,7 +752,7 @@ void Range::field::add_value (element_type value)
 //----------------------------------------------- 
 void Range::field::set (const std::vector <element_type>& values) 
 { 
-  if (values.size () == 0) 
+  if (values.empty()) 
     { 
       clear (); 
       return; 
@@ -1112,7 +1112,7 @@ void Range::field::set_indices()
 //----------------------------------------------- 
 void Range::field::check_for_both_bounded()
 {
-    if (m_mode == enumerated && m_values.size() > 0) {
+    if (m_mode == enumerated && !m_values.empty()) {
 	element_type last = m_values[0];	
 	for (size_type i = 1; i < m_values.size (); ++i) { 
 	    if (m_values[i] > last + 1) return;
@@ -1137,7 +1137,7 @@ void Range::field::check_for_both_bounded()
 void Range::field::create_index_table()
 {
     /// Create index table from value table
-    if (m_mode == enumerated && m_values.size() > 0) {
+    if (m_mode == enumerated && !m_values.empty()) {
 	size_type size = m_maximum - m_minimum + 1;
 	// return if we are over the maximum desired vector table size	
 	if (size > max_indexes) {
@@ -1737,7 +1737,7 @@ Range::const_identifier_factory Range::factory_end () const
 } 
  
 //----------------------------------------------- 
-Range::identifier_factory::identifier_factory () : m_range (0) 
+Range::identifier_factory::identifier_factory () : m_range (nullptr) 
 { 
 } 
  
@@ -1890,10 +1890,10 @@ void Range::identifier_factory::operator ++ ()
           m_id.clear (); 
           break; 
         } 
-      else 
-        { 
+      
+        
           --i; 
-        } 
+        
     } 
 } 
  
@@ -1918,7 +1918,7 @@ bool Range::identifier_factory::operator != (const identifier_factory& other) co
 } 
  
 //----------------------------------------------- 
-Range::const_identifier_factory::const_identifier_factory () : m_range (0) 
+Range::const_identifier_factory::const_identifier_factory () : m_range (nullptr) 
 { 
 } 
  
@@ -2072,10 +2072,10 @@ void Range::const_identifier_factory::operator ++ ()
           m_id.clear (); 
           break; 
         } 
-      else 
-        { 
+      
+        
           --i; 
-        } 
+        
     } 
 } 
  
@@ -2108,7 +2108,7 @@ public:
  
   MultiRangeParser () 
       { 
-        m_multirange = 0; 
+        m_multirange = nullptr; 
       } 
  
   bool run (const std::string& text, MultiRange& multirange) 
@@ -2201,27 +2201,39 @@ private:
               break; 
             case ':': 
               pos++; 
-              if (true) 
-                { 
+              { 
+
                   Range& r = m_multirange->back (); 
+
  
+
                   if (!parse_number (text, pos, maximum))  
+
                     { 
+
                       result = false; 
+
                     } 
+
                   else 
+
                     { 
+
                       r.add_maximum ((MultiRange::element_type) maximum); 
+
                     } 
+
                 } 
  
               break; 
             case '*': 
               pos++; 
-              if (true) 
-                { 
+              { 
+
                   Range& r = m_multirange->back (); 
+
                   r.add (); 
+
                 } 
  
               break; 
@@ -2552,7 +2564,7 @@ MultiRange::const_identifier_factory MultiRange::factory_end () const
 //----------------------------------------------- 
 MultiRange::identifier_factory::identifier_factory () 
     : 
-    m_multirange(0)
+    m_multirange(nullptr)
 { 
 }
 
@@ -2677,7 +2689,7 @@ bool MultiRange::identifier_factory::operator != (const identifier_factory& othe
 //----------------------------------------------- 
 MultiRange::const_identifier_factory::const_identifier_factory () 
     : 
-    m_multirange(0)
+    m_multirange(nullptr)
 { 
 } 
 

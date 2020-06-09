@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -50,7 +50,7 @@
       double getPathLengthInEta(const CaloCell& cell, double eta_entrance, double eta_exit) const;
       double getPathLengthInZ(double zMin, double zMax, double z_entrance, double z_exit) const;
       double getPathLengthInZ(const CaloCell& cell, double z_entrance, double z_exit) const;
-      bool   crossingMatrix(Amg::MatrixX Matrix ,Amg::Vector3D entry, Amg::Vector3D& path) const;
+      bool   crossingMatrix(const Amg::MatrixX& Matrix ,const Amg::Vector3D& entry, Amg::Vector3D& path) const;
   }; 
 
 inline double PathLengthUtils::phiMean(double a, double b) const { return 0.5*(a+b) + (a*b < 0)*M_PI; }

@@ -50,6 +50,8 @@
 #define ITRKTRACKPARTICLECALOEXTENSIONTOOL_H
 
 #include "GaudiKernel/IAlgTool.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include "xAODBase/IParticle.h"
 #include "xAODBase/IParticleContainer.h"
 #include "xAODTracking/TrackParticle.h"
@@ -72,17 +74,20 @@ public:
    * by the IParticle track or the IParticle itself 
    * if it is  neutral/TruthParticle
    * The memory ownership is handled by the unique_ptr 
+   * @param ctx         event context needed for multithreading
+   * @param particle    reference to the Particle
    * @param particle    reference to the Particle
    * @return unique_ptr  to a CaloExtension 
    */
-  virtual std::unique_ptr<Trk::CaloExtension> caloExtension(const xAOD::IParticle& particle) const = 0;
+  virtual std::unique_ptr<Trk::CaloExtension> caloExtension(const EventContext& ctx,
+                                                            const xAOD::IParticle& particle) const = 0;
   
   /** Method to return the calo layers crossed  (CaloExtension)
    * by the IParticle track or the IParticle itself 
    * if it is  neutral/TruthParticle.
    *
    * An alg looping over a single collection of IParticles  
-   * re-using them multiple times can use a local  cache of
+   * re-using them multiple times can use a local cache of
    * the form 
    * std::unordered_map<size_t,std::unique_ptr<Trk::CaloExtension>>.
    * The key is the  value of IParticle::index() 
@@ -90,11 +95,13 @@ public:
    * This method adds the relevant extension to the cache look-up table 
    * which retains ownership. 
    *
+   * @param ctx           event context needed for multithreading
    * @param particle      reference to the Particle
    * @param cache         the look-up table cache 
    * @return ptr to a const CaloExtension (owned by the cache)
    */  
-  virtual const Trk::CaloExtension*  caloExtension( const xAOD::IParticle& particle, 
+  virtual const Trk::CaloExtension*  caloExtension( const EventContext& ctx,
+                                                    const xAOD::IParticle& particle, 
                                                     Cache& cache ) const = 0;
 
 
@@ -121,6 +128,74 @@ public:
    * The Collection can then be used as such to retrieve the extensions
    * or manipulated and written to StoreGate.
    *
+   * @param ctx       event context needed for multithreading
+   * @param particles The input collection
+   * @param mask      contains true for the elements for which to permorm an extension, false otherwise          
+   * @return caloextension Output to be filled,
+   * will contain unfilled CaloExtension where the mask was false, otherwise it contains the relevant
+   * result. 
+   */  
+  virtual StatusCode  caloExtensionCollection( const EventContext& ctx,
+                                               const xAOD::IParticleContainer& particles, 
+                                               const std::vector<bool>& mask,
+                                               CaloExtensionCollection& caloextensions) const = 0;
+
+  /**
+   * Method returning a unique_ptr to the caloExtension given the relevant 
+   * starting point parameters , direction and particle hypothesis
+   *
+   * @param ctx          event context needed for multithreading
+   * @param startPars    the starting track parameters
+   * @param propDir      extrapolation direction
+   * @param particleType type of particle
+   */
+  virtual std::unique_ptr<Trk::CaloExtension> caloExtension( const EventContext& ctx,
+                                                             const TrackParameters& startPars, 
+                                                             PropDirection propDir, 
+                                                             ParticleHypothesis particleType ) const =0;
+
+
+
+    /** old interfaces WITHOUT EventContext ------------------------------------------ */
+
+  /** Method returning the calo layers crossed 
+   * by the IParticle track or the IParticle itself 
+   * if it is  neutral/TruthParticle
+   * The memory ownership is handled by the unique_ptr 
+   * @param particle    reference to the Particle
+   * @return unique_ptr  to a CaloExtension 
+   */
+  virtual std::unique_ptr<Trk::CaloExtension> caloExtension(const xAOD::IParticle& particle) const;
+  
+  /** Method to return the calo layers crossed  (CaloExtension)
+   * by the IParticle track or the IParticle itself 
+   * if it is  neutral/TruthParticle.
+   *
+   * An alg looping over a single collection of IParticles  
+   * re-using them multiple times can use a local  cache of
+   * the form 
+   * std::unordered_map<size_t,std::unique_ptr<Trk::CaloExtension>>.
+   * The key is the  value of IParticle::index() 
+   *
+   * This method adds the relevant extension to the cache look-up table 
+   * which retains ownership. 
+   *
+   * @param particle      reference to the Particle
+   * @param cache         the look-up table cache 
+   * @return ptr to a const CaloExtension (owned by the cache)
+   */  
+  virtual const Trk::CaloExtension*  caloExtension( const xAOD::IParticle& particle, 
+                                                    Cache& cache ) const;
+
+
+  /** Method that can be used by algorithms that :
+   * A. Have an  IParticleCollection
+   * B. Define a mask of the size of that collection
+   * C. Want back a Calo Extension Collection alligned with the input collection 
+   * i.e 1 to 1 correspondance with the input collection.
+   * The Collection can then be used as such to retrieve the extensions
+   * or manipulated and written to StoreGate.
+   *
    * @param particles The input collection
    * @param mask      contains true for the elements for which to permorm an extension, false otherwise          
    * @return caloextension Output to be filled,
@@ -129,7 +204,7 @@ public:
    */  
   virtual StatusCode  caloExtensionCollection( const xAOD::IParticleContainer& particles, 
                                                const std::vector<bool>& mask,
-                                               CaloExtensionCollection& caloextensions) const = 0;
+                                               CaloExtensionCollection& caloextensions) const;
 
   /**
    * Method returning a unique_ptr to the caloExtension given the relevant 
@@ -137,8 +212,11 @@ public:
    */
   virtual std::unique_ptr<Trk::CaloExtension> caloExtension( const TrackParameters& startPars, 
                                                              PropDirection propDir, 
-                                                             ParticleHypothesis particleType ) const =0;
+                                                             ParticleHypothesis particleType ) const;
 
+
+
+    
   static const InterfaceID& interfaceID( ) ;
 };
 
@@ -147,5 +225,7 @@ inline const InterfaceID& Trk::IParticleCaloExtensionTool::interfaceID() {
 }
 
 } // end of namespace
+
+#include "RecoToolInterfaces/IParticleCaloExtensionTool.icc"
 
 #endif 

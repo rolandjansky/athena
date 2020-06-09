@@ -2,13 +2,13 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "SCT_ReadoutGeometry/StripStereoAnnulusDesign.h"
+#include "Identifier/Identifier.h"
+
 #include <stdexcept>
 #include <algorithm> // For upper_bound
 #include <iterator>  // for std::distance()
 #include <cmath>
-#include "SCT_ReadoutGeometry/StripStereoAnnulusDesign.h"
-#include "Identifier/Identifier.h"
-#include "TrkSurfaces/AnnulusBounds.h"
 
 namespace InDetDD {
 StripStereoAnnulusDesign::StripStereoAnnulusDesign(const SiDetectorDesign::Axis &stripDirection,
@@ -68,12 +68,8 @@ StripStereoAnnulusDesign::StripStereoAnnulusDesign(const SiDetectorDesign::Axis 
     m_scheme.setDiodes(totalStrips);
 
 // AnnulusBounds(double minR, double maxR, double R, double phi, double phiS)
-    m_bounds = new Trk::AnnulusBounds(m_stripStartRadius[0], m_stripEndRadius.back(), m_R, m_nStrips[0] * m_pitch[0], m_stereo);
+    m_bounds = Trk::AnnulusBounds(m_stripStartRadius[0], m_stripEndRadius.back(), m_R, m_nStrips[0] * m_pitch[0], m_stereo);
 
-}
-
-StripStereoAnnulusDesign::~StripStereoAnnulusDesign() {
-    delete m_bounds;
 }
 
 HepGeom::Point3D<double> StripStereoAnnulusDesign::sensorCenter() const {
@@ -136,7 +132,7 @@ void StripStereoAnnulusDesign::neighboursOfCell(const SiCellId &cellId, std::vec
 
 const Trk::SurfaceBounds &StripStereoAnnulusDesign::bounds() const {
 
-    return *m_bounds;
+    return m_bounds;
 }
 
 SiCellId StripStereoAnnulusDesign::cellIdOfPosition(SiLocalPosition const &pos) const {

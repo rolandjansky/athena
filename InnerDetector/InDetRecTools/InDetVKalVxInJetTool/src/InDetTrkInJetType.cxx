@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetVKalVxInJetTool/InDetTrkInJetType.h"
@@ -34,8 +34,7 @@ InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
   m_d0_limUpp( 5.),
   m_Z0_limLow(-8.),
   m_Z0_limUpp(12.),
-  m_calibFileName("TrackClassif_3cl.v02.xml"),
-  m_fitterSvc("Trk::TrkVKalVrtFitter/VertexFitterTool",this)
+  m_calibFileName("TrackClassif_3cl.v02.xml")
   {
      declareProperty("trkSctHits",   m_trkSctHitsCut   ,  "Cut on track SCT hits number" );
      declareProperty("trkPixelHits", m_trkPixelHitsCut ,  "Cut on track Pixel hits number" );

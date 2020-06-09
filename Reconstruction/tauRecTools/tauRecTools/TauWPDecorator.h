@@ -6,9 +6,11 @@
 #define TAUREC_TAUWPDECORATOR_H
 
 #include "tauRecTools/TauRecToolBase.h"
+
 #include "xAODTau/TauDefs.h"
-#include "xAODTau/TauJet.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "AsgDataHandles/ReadHandleKey.h"
+
 #include <map>
 
 class TH2;

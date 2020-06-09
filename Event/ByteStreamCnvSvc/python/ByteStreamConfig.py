@@ -18,19 +18,20 @@ def ByteStreamReadCfg( inputFlags, typeNames=[] ):
     if inputFlags.Input.SecondaryFiles:
         filenames = inputFlags.Input.SecondaryFiles
         eventSelector = EventSelectorByteStream("SecondaryEventSelector", IsSecondary=True)
+        eventSelector.Input = filenames
         acc.addService( eventSelector )
     else:
         filenames = inputFlags.Input.Files
         xAODMaker__EventInfoSelectorTool = CompFactory.xAODMaker.EventInfoSelectorTool
         xconv = xAODMaker__EventInfoSelectorTool()
         eventSelector = EventSelectorByteStream("EventSelector")
+        eventSelector.Input = filenames
         eventSelector.HelperTools += [xconv]
         eventSelector.SkipEvents=inputFlags.Exec.SkipEvents
         acc.addService( eventSelector )
         acc.setAppProperty( "EvtSel", eventSelector.name )
 
     bsInputSvc = ByteStreamEventStorageInputSvc( "ByteStreamInputSvc" )
-    bsInputSvc.FullFileName = filenames
     if inputFlags.Overlay.DataOverlay:
         bsInputSvc.EventInfoKey = inputFlags.Overlay.BkgPrefix + "EventInfo"
     acc.addService( bsInputSvc )

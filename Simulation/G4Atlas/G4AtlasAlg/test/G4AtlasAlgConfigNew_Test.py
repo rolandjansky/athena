@@ -139,7 +139,7 @@ if __name__ == '__main__':
     myRunNumber = 284500
     myFirstLB = 1
     myInitialTimeStamp = 1446539185
-    evtMax = 1
+    evtMax = 4
     from AthenaConfiguration.ComponentFactory import CompFactory
     evtIdModifierSvc = CompFactory.EvtIdModifierSvc(EvtStoreName="StoreGateSvc")
     iovDbMetaDataTool = CompFactory.IOVDbMetaDataTool()

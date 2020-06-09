@@ -53,6 +53,7 @@ class GenerateMenuMT(object):
         self.chains = []
         self.chainDefs = []
         self.listOfErrorChainDefs = []
+        self.selectChainsForTesting = []
         self.signaturesOverwritten = False
         self.L1Prescales = None
         self.HLTPrescales = None
@@ -208,6 +209,15 @@ class GenerateMenuMT(object):
                 log.debug('Signature %s is not switched on (disabled by flag)', sig)
 
         log.info("The following signature(s) is (are) enabled: %s", self.signaturesToGenerate)
+
+        if self.selectChainsForTesting:
+            log.info("Narrowing down the list of chains with the selectChainsForTesting list")
+            selectedChains = [ch for ch in chains if ch.name in self.selectChainsForTesting]
+            if len(selectedChains) < len(self.selectChainsForTesting):
+                selectedNames = [ch.name for ch in selectedChains]
+                missingNames = [name for name in self.selectChainsForTesting if name not in selectedNames]
+                log.warning("The following chains were specified in selectChainsForTesting but were not found in the menu: %s", str(missingNames))
+            chains = selectedChains
 
         if len(chains) == 0:
             log.warning("There seem to be no chains in the menu - please check")

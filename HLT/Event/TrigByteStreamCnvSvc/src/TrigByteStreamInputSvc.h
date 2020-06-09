@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGBYTESTREAMINPUTSVC_H
@@ -55,6 +55,7 @@ private:
   };
 
   SG::SlotSpecificObj<EventCache> m_eventsCache; //!< Cache of RawEvent pointer per event slot
+  uint16_t m_maxLB{0}; //!< Maximum lumi block number seen so far, used for monitoring
 };
 
 #endif // TRIGBYTESTREAMINPUTSVC_H
