@@ -823,7 +823,6 @@ SCTHitsNoiseMonTool::bookGeneralHitOccupancyMaps(const unsigned int systemIndex)
 // ====================================================================================================
 StatusCode
 SCTHitsNoiseMonTool::checkNoiseMaps() {
-  IdentifierHash next;
   std::vector<float> vectorOfOccupancies;
 
   if (m_doSpacePointBasedNoise) {
