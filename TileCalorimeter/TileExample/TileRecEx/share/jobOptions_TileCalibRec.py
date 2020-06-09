@@ -716,7 +716,7 @@ if ReadPool:
     # Set Geometry version
     if not 'DetDescrVersion' in dir():
         if RUN2:
-            DetDescrVersion = 'ATLAS-R2-2015-04-00-00'
+            DetDescrVersion = 'ATLAS-R2-2016-01-00-01'
         else:
             DetDescrVersion = 'ATLAS-R1-2012-02-00-00'
 else:
@@ -811,16 +811,13 @@ OfcFromCoolOF1 = doTileOF1 and OfcFromCOOL and (conddb.GetInstance() == 'CONDBR2
 #============================================================
 #=== configure TileCondToolOfc
 #============================================================
+tileCondToolOfc = None
 if not OfcFromCOOL and (doTileOpt2 or doTileOptATLAS or doTileOF1):
     from TileConditions.TileConditionsConf import TileCondToolOfc
     tileCondToolOfc = TileCondToolOfc()
     tileCondToolOfc.nSamples = TileFrameLength # default = 7
     tileCondToolOfc.OptFilterDeltaCorrelation = False # False - use matrix from DB
     tileCondToolOfc.OutputLevel = OutputLevel
-
-    ToolSvc += tileCondToolOfc
-
-    #  'LAS' or "CIS" or 'PHY' pulse shape
 
     printfunc (tileCondToolOfc)
 
@@ -913,6 +910,8 @@ if doTileOpt2:
             if TileCompareMode or TileEmulateDSP:
                 tileRawChannelBuilderOpt2Filter.EmulateDSP = True # use dsp emulation
         tileRawChannelBuilderOpt2Filter.UseDSPCorrection = not TileBiGainRun
+        if tileCondToolOfc:
+            tileRawChannelBuilderOpt2Filter.TileCondToolOfc = tileCondToolOfc
 
         printfunc (tileRawChannelBuilderOpt2Filter)
 
@@ -927,6 +926,8 @@ if doTileOptATLAS and tileRawChannelBuilderOptATLAS:
     if TileCompareMode or TileEmulateDSP:
         tileRawChannelBuilderOptATLAS.EmulateDSP = True # use dsp emulation
     tileRawChannelBuilderOptATLAS.UseDSPCorrection = not TileBiGainRun
+    if tileCondToolOfc:
+        tileRawChannelBuilderOptATLAS.TileCondToolOfc = tileCondToolOfc
 
     printfunc (tileRawChannelBuilderOptATLAS)
     
@@ -937,6 +938,8 @@ if doTileMF and tileRawChannelBuilderMF:
 
     tileRawChannelBuilderMF.BestPhase   = PhaseFromCOOL; # Phase from COOL or assume phase=0
     tileRawChannelBuilderMF.UseDSPCorrection = not TileBiGainRun
+    if tileCondToolOfc:
+        tileRawChannelBuilderMF.TileCondToolOfc = tileCondToolOfc
 
     printfunc (tileRawChannelBuilderMF )
 
@@ -950,6 +953,8 @@ if doTileOF1 and tileRawChannelBuilderOF1:
     if TileCompareMode or TileEmulateDSP:
         tileRawChannelBuilderOF1.EmulateDSP = True # use dsp emulation
     tileRawChannelBuilderOF1.UseDSPCorrection = not TileBiGainRun
+    if tileCondToolOfc:
+        tileRawChannelBuilderOF1.TileCondToolOfc = tileCondToolOfc
 
     printfunc (tileRawChannelBuilderOF1)
 
@@ -1026,27 +1031,27 @@ if doTileTMDBRawChannel:
     # Set up TileCondToolPulseShape to be used in
     # TileCondToolOfc
     from TileConditions.TileCondToolConf import getTileCondToolMuRcvPulseShape
-    ToolSvc += getTileCondToolMuRcvPulseShape('FILE', 'TileCondToolMuRcvPulseShape')
+    muRcvPulseShape = getTileCondToolMuRcvPulseShape('FILE', 'TileCondToolMuRcvPulseShape')
     
     # Set up TileCondToolOfc to be used in TileRawChannelBuilderMF
-    ToolSvc += CfgMgr.TileCondToolOfc(name = 'TileCondToolMuRcvOfc'
+    muRcvOfc = CfgMgr.TileCondToolOfc(name = 'TileCondToolMuRcvOfc'
                                       , OptFilterDeltaCorrelation = True
-                                      , TileCondToolPulseShape = ToolSvc.TileCondToolMuRcvPulseShape)
+                                      , TileCondToolPulseShape = muRcvPulseShape)
     
     
     # Set up TileRawChannelBuilderOpt2 to be used
-    ToolSvc += CfgMgr.TileRawChannelBuilderOpt2Filter(name = 'TileMuRcvRawChannelBuilderOpt2'
-                                                      , TileRawChannelContainer = 'TileMuRcvRawChannelOpt2'
-                                                      , PedestalMode = 1
-                                                      , Minus1Iteration = TRUE
-                                                      , calibrateEnergy = False
-                                                      , correctTime = False
-                                                      , TileCondToolOfc = ToolSvc.TileCondToolMuRcvOfc)
+    muRcvRawChannelBuilder = CfgMgr.TileRawChannelBuilderOpt2Filter(name = 'TileMuRcvRawChannelBuilderOpt2'
+                                                                    , TileRawChannelContainer = 'TileMuRcvRawChannelOpt2'
+                                                                    , PedestalMode = 1
+                                                                    , Minus1Iteration = TRUE
+                                                                    , calibrateEnergy = False
+                                                                    , correctTime = False
+                                                                    , TileCondToolOfc = muRcvOfc)
     
     
     topSequence += CfgMgr.TileRawChannelMaker(name = 'TileMuRcvRChMaker'
                                               , TileDigitsContainer = 'MuRcvDigitsCnt'
-                                              , TileRawChannelBuilder = [ ToolSvc.TileMuRcvRawChannelBuilderOpt2 ])
+                                              , TileRawChannelBuilder = [ muRcvRawChannelBuilder ])
 
 if (doTileNtuple or doD3PD):
 
