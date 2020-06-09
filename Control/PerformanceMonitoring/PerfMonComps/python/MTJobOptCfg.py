@@ -48,7 +48,6 @@ class PerfMonMTSvc ( _PerfMonMTSvc  ):
 
         ## Set the monitoring check points
         from AthenaCommon.ConcurrencyFlags import jobproperties as jp
-        handle.checkPointFactor = max(10,jp.ConcurrencyFlags.NumThreads())
         handle.numberOfThreads = max(1,jp.ConcurrencyFlags.NumThreads())
         handle.numberOfSlots = max(1,jp.ConcurrencyFlags.NumConcurrentEvents())
 
@@ -60,9 +59,6 @@ class PerfMonMTSvc ( _PerfMonMTSvc  ):
         ## Turn on component-level monitoring if asked by the user
         if jobproperties.PerfMonFlags.doFullMonMT():
             handle.doComponentLevelMonitoring = True
-
-        ## Turn on JSON reporting
-        handle.reportResultsToJSON = True
 
         return
 
