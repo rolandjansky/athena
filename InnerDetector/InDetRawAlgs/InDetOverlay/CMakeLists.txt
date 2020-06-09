@@ -15,6 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           DetectorDescription/IdDictParser
                           Generators/GeneratorObjects
+                          InnerDetector/InDetRawEvent/InDetBCM_RawData
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetRawEvent/InDetSimData
                           InnerDetector/InDetRecTools/TRT_ElectronPidTools
@@ -48,7 +49,7 @@ atlas_add_component( InDetOverlay
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps IDC_OverlayBase GaudiKernel InDetRawData StoreGateLib SGtests GeneratorObjects InDetIdentifier InDetSimData TrkTrack TRT_ConditionsServicesLib)
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps IDC_OverlayBase GaudiKernel InDetRawData StoreGateLib SGtests GeneratorObjects InDetBCM_RawData InDetIdentifier InDetSimData TrkTrack TRT_ConditionsServicesLib)
 
 # Install files from the package:
 atlas_install_headers( InDetOverlay )
@@ -67,3 +68,8 @@ atlas_add_test( SCTOverlayConfig_test
 atlas_add_test( TRTOverlayConfig_test
                 SCRIPT test/TRTOverlayConfig_test.py
                 PROPERTIES TIMEOUT 300 )
+
+atlas_add_test( BCMOverlay_test
+                SOURCES test/BCMOverlay_test.cxx src/BCMOverlay.cxx
+                INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
+                LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel StoreGateLib SGtests GeneratorObjects InDetBCM_RawData InDetSimData ${GTEST_LIBRARIES} )
