@@ -16,8 +16,6 @@
    see  Tracking/TrkEvent/VxSecVertex/VxSecVertex/VxSecVKalVertexInfo.h
    
 
-
-
     Author: Vadim Kostyukhin
     e-mail: vadim.kostyukhin@cern.ch
 

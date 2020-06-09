@@ -1,7 +1,10 @@
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
+///
+///    @author Vadim Kostyukhin <vadim.kostyukhin@cern.ch>
+///
+//
 // Header include
 #include "NewVrtSecInclusiveTool/NewVrtSecInclusiveTool.h"
 //-------------------------------------------------
