@@ -1,0 +1,9 @@
+A tool for inclusive secondary vertex reconstruction in ID.
+Configured finders:
+1) SoftBFinderTool       - looks for all low-pt (>1GeV) B-hadron vertices in event. No jet presence is assumed
+2) InclusiveBFinderTool  - looks for all B-hadron vertices in event with low fake rate. 
+                           Suitable for ttbar and other processes with similar pt-range.
+3) HighPtBFinderTool     - looks for all high-pt B-hadron vertices in event. No jet presence is assumed.
+4) MaterialSVFinderTool  - looks for hadronic interaction vertices in detector material.
+5) DVFinderTool          - looks for heavy displaced vertices. Pixel+SCT volumes assumed. TRT volume on request
+   
