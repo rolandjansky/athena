@@ -488,8 +488,6 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
     }
 
     SiLocalPosition centreOfPixel_i;
-    double pixelEta_i = 0.;
-    double pixelPhi_i =0.;
 
     int nnLoop_pixelEtaMax =0; 
     int nnLoop_pixelEtaMin=0; 
@@ -504,10 +502,6 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
 
     if (m_doRadDamage && m_fluence>0 && !(Module.isDBM()) && isBarrel) {
         centreOfPixel_i = p_design.positionFromColumnRow(pixel_i.etaIndex(), pixel_i.phiIndex());
-
-        //Find the displacment of the charge carriers from the centre of the pixel in +ve quadrant
-        pixelEta_i =  eta_i - centreOfPixel_i.xEta();
-        pixelPhi_i =  phi_i - centreOfPixel_i.xPhi();
 
         //Make limits for NN loop
         nnLoop_pixelEtaMax = std::min( 1,pixel_i.etaIndex() );
