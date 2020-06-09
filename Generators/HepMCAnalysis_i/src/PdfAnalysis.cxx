@@ -111,8 +111,7 @@ int PdfAnalysis::Process(HepMC::GenEvent *event)
   double weight;
   weight = MC::get_weight(event, 0 );
 
-  HepMC::PdfInfo* pdf = 0;
-  pdf = event->pdf_info();
+  auto pdf = event->pdf_info();
 
   if(pdf != 0){
     m_Qscale -> Fill(pdf -> scalePDF(), weight);

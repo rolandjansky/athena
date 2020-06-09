@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.scripts.cmt_newanalysisalg
 # @purpose streamline and ease the creation of new athena algs
@@ -9,7 +9,6 @@
 
 from __future__ import with_statement, print_function
 
-__version__ = "$Revision: 795362 $"
 __author__ = "Will Buttinger"
 __doc__ = "streamline and ease the creation of new AthAnalysisAlgorithm"
 
@@ -288,7 +287,7 @@ def main(args):
 
     #now add the algorithm to the _entries.cxx file in the components folder 
     #first check they exist
-    if not os.path.exists("src/components"): os.mkdir("src/components"); 
+    if not os.path.exists("src/components"): os.mkdir("src/components")
     if not os.path.isfile("src/components/%s_load.cxx"%full_pkg_name):
        print (":::  INFO Creating src/components/%s_load.cxx"%full_pkg_name)
        loadFile = open("src/components/%s_load.cxx"%full_pkg_name,'w')
@@ -342,7 +341,7 @@ DECLARE_FACTORY_ENTRIES( %(pkg)s )
          print (":::  INFO Adding %s to src/components/%s_entries.cxx"% (args.algname,full_pkg_name))
          nextAdd=False
          for line in fileinput.input("src/components/%s_entries.cxx"%full_pkg_name, inplace=1):
-            if nextAdd and not "{" in line:
+            if nextAdd and "{" not in line:
                nextAdd=False
                if len(namespace_begin)>0:
                   print ("""  DECLARE_NAMESPACE_ALGORITHM(%(namespace)s, %(klass)s );"""%d)
@@ -392,7 +391,7 @@ DECLARE_ALGORITHM_FACTORY( %(klass)s )
     #need to reconfigure cmake so it knows about the new files
     #rely on the WorkDir_DIR env var for this
     workDir = os.environ.get("WorkDir_DIR")
-    if workDir == None:
+    if workDir is None:
         print ("::: ERROR No WorkDir_DIR env var, did you forget to source the setup.sh script?")
         print ("::: ERROR Please do this and reconfigure cmake manually!")
     else:

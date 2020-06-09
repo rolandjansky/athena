@@ -544,6 +544,15 @@ TrigSignatureMoniMT                                 INFO -- #48519027 Features  
 TrigSignatureMoniMT                                 INFO HLT_noalg_cosmiccalo_L1RD1_EMPTY #3925252528
 TrigSignatureMoniMT                                 INFO -- #3925252528 Events         20         20         -          -          -          -          -          -          20         
 TrigSignatureMoniMT                                 INFO -- #3925252528 Features                             -          -          -          -          -          -          
+TrigSignatureMoniMT                                 INFO HLT_noalg_idmon_L1RD0_EMPTY #56818284
+TrigSignatureMoniMT                                 INFO -- #56818284 Events           20         20         -          -          -          -          -          -          20         
+TrigSignatureMoniMT                                 INFO -- #56818284 Features                               -          -          -          -          -          -          
+TrigSignatureMoniMT                                 INFO HLT_noalg_idmon_L1RD0_FILLED #1198298874
+TrigSignatureMoniMT                                 INFO -- #1198298874 Events         20         20         -          -          -          -          -          -          20         
+TrigSignatureMoniMT                                 INFO -- #1198298874 Features                             -          -          -          -          -          -          
+TrigSignatureMoniMT                                 INFO HLT_noalg_idmon_L1RD0_UNPAIRED_ISO #2536676873
+TrigSignatureMoniMT                                 INFO -- #2536676873 Events         20         20         -          -          -          -          -          -          20         
+TrigSignatureMoniMT                                 INFO -- #2536676873 Features                             -          -          -          -          -          -          
 TrigSignatureMoniMT                                 INFO HLT_sct_noise_SCTPEB_L1RD0_EMPTY #3024203296
 TrigSignatureMoniMT                                 INFO -- #3024203296 Events         20         20         20         -          -          -          -          -          20         
 TrigSignatureMoniMT                                 INFO -- #3024203296 Features                             20         -          -          -          -          -          

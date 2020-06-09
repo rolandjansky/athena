@@ -38,7 +38,6 @@ TrkVKalVrtFitter:: TrkVKalVrtFitter(const std::string& type,
     m_IDsizeZ(3000.),
     m_extPropagator(this),                   // Internal propagator
     // m_extPropagator("Trk::Extrapolator/InDetExtrapolator"),  // External propagator
-    //m_magFieldAthenaSvc("AtlasFieldSvc", name),                 //Athena magnetic field
     m_firstMeasuredPoint(false),
     m_firstMeasuredPointLimit(false),
     m_makeExtendedVertex(false),

@@ -1,6 +1,6 @@
 //Dear emacs, this is -*-c++-*-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -86,7 +86,8 @@ private:
   /** Handle to bad-channel tools */
   ToolHandle<ILArBadChannelMasker> m_badChannelMask;
 
-  SG::ReadHandleKey<LArRawChannelContainer> m_rawChannelsKey;
+  SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey{this, "EventInfoKey", "EventInfo"};
+  SG::ReadHandleKey<LArRawChannelContainer> m_rawChannelsKey{this, "LArRawChannelKey", "LArRawChannels"};
   SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey{this, "BadChanKey", "LArBadChannel", "SG bad channels key"};
   SG::ReadCondHandleKey<LArBadFebCont> m_BFKey{this, "MFKey", "LArBadFeb", "SG missing FEBs key"};
   SG::ReadCondHandleKey<CaloNoise> m_noiseCDOKey{this,"CaloNoiseKey","electronicNoise","SG Key of CaloNoise data object"};

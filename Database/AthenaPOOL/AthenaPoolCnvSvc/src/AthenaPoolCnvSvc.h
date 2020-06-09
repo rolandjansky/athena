@@ -205,7 +205,7 @@ private: // properties
    StringProperty  m_branchNameHintProp{this,"SubLevelBranchName", "<type>/<key>"};
 
    /// Output PoolAttributes, vector with names and values of technology specific attributes for POOL
-   StringArrayProperty m_poolAttr{this,"PoolAttributes",{},"Pool Attributes","Set<std::string>"};
+   StringArrayProperty m_poolAttr{this,"PoolAttributes",{},"Pool Attributes","OrderedSet<std::string>"};
    std::vector<std::vector<std::string> > m_domainAttr;
    std::vector<std::vector<std::string> > m_databaseAttr;
    std::vector<std::vector<std::string> > m_containerAttr;

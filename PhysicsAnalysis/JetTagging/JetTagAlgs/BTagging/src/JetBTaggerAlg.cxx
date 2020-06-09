@@ -89,8 +89,11 @@ namespace Analysis {
 
 
   StatusCode JetBTaggerAlg::execute() {
+      
+    EventContext ctx = Gaudi::Hive::currentContext();
+
     //retrieve the Jet container
-    SG::ReadHandle<xAOD::JetContainer> h_JetCollectionName (m_JetCollectionName);
+    SG::ReadHandle<xAOD::JetContainer> h_JetCollectionName (m_JetCollectionName, ctx);
     if (!h_JetCollectionName.isValid()) {
       ATH_MSG_ERROR( " cannot retrieve jet container with key " << m_JetCollectionName.key()  );
       return StatusCode::FAILURE;
@@ -104,25 +107,24 @@ namespace Analysis {
     }
 
     //Decor Jet with element link to the BTagging
-    SG::WriteDecorHandle<xAOD::JetContainer,ElementLink< xAOD::BTaggingContainer > > h_jetBTaggingLinkName(m_jetBTaggingLinkName);
+    SG::WriteDecorHandle<xAOD::JetContainer,ElementLink< xAOD::BTaggingContainer > > h_jetBTaggingLinkName(m_jetBTaggingLinkName, ctx);
 
     //Create a xAOD::BTaggingContainer in any case (must be done)
     std::string bTaggingContName = m_BTaggingCollectionName.key();
     ATH_MSG_DEBUG("#BTAG#  Container name: "<< bTaggingContName);
 
     /* Record the BTagging  output container */
-    SG::WriteHandle<xAOD::BTaggingContainer> h_BTaggingCollectionName (m_BTaggingCollectionName);
+    SG::WriteHandle<xAOD::BTaggingContainer> h_BTaggingCollectionName (m_BTaggingCollectionName, ctx);
     ATH_CHECK( h_BTaggingCollectionName.record(std::make_unique<xAOD::BTaggingContainer>(),
                     std::make_unique<xAOD::BTaggingAuxContainer>()) );
 
     MagField::AtlasFieldCache    fieldCache;
     // Get field cache object
-    EventContext ctx = Gaudi::Hive::currentContext();
     SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
     const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
    
     if (fieldCondObj == nullptr) {
-      ATH_MSG_ERROR("SCTSiLorentzAngleCondAlg : Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      ATH_MSG_ERROR("execute: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
       return StatusCode::FAILURE;
     }
     fieldCondObj->getInitializedCache (fieldCache);

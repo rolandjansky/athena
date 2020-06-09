@@ -85,6 +85,13 @@
             "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigAnalysisTest/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091_tid10504490_00/HITS.10504490._000001.pool.root.1"
         ]
     },
+    "munsw": {
+        "source": "mc",
+        "format": "RDO",
+        "paths": [
+            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/group.det-muon.21185285.EXT1._000026.RDO.pool.root"
+        ]
+    },
     "pileup_low": {
         "source": "mc",
         "format": "HITS",

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -66,7 +66,6 @@ LArCoverage::LArCoverage(const std::string& type,
     m_hCaloNoiseToolHEC(),
     m_hCaloNoiseToolFCAL()
 {
-  declareProperty("LArRawChannelKey",m_rawChannelsKey="LArRawChannels");
   declareProperty("LArBadChannelMask",m_badChannelMask);
   declareProperty("Nevents",m_nevents = 50);
 
@@ -111,6 +110,7 @@ LArCoverage::initialize()
   m_strHelper = new  LArOnlineIDStrHelper(m_LArOnlineIDHelper);
   m_strHelper->setDefaultNameType(LArOnlineIDStrHelper::LARONLINEID);
   
+  ATH_CHECK( m_EventInfoKey.initialize() );
   ATH_CHECK( m_noiseCDOKey.initialize() );
   ATH_CHECK( m_rawChannelsKey.initialize() );
   // End Initialize
@@ -127,9 +127,9 @@ LArCoverage::bookHistograms()
 
   //  if(isNewRun ){// Commented by B.Trocme to comply with new ManagedMonitorToolBase
 
-  const xAOD::EventInfo* thisEventInfo;
+  SG::ReadHandle<xAOD::EventInfo> thisEventInfo{m_EventInfoKey};
     uint32_t lb1 = 0;
-    if ((evtStore()->retrieve(thisEventInfo))!=StatusCode::SUCCESS)
+    if (!thisEventInfo.isValid())
       ATH_MSG_WARNING( "No EventInfo object found! Can't read run number!" );
     else{
       lb1 = thisEventInfo->lumiBlock();

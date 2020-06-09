@@ -42,17 +42,17 @@ StatusCode EMVertexBuilder::initialize() {
   if ( m_vertexFinderTool.retrieve().isFailure() ) {
     ATH_MSG_FATAL("Failed to retrieve vertex finder tool " << m_vertexFinderTool);
     return StatusCode::FAILURE;
-  } else {
+  } 
     ATH_MSG_DEBUG( "Retrieved tool " << m_vertexFinderTool);
-  }
+  
 
   // Retrieve EMExtrapolationTool
   if(m_EMExtrapolationTool.retrieve().isFailure()){
     ATH_MSG_FATAL("Cannot retrieve extrapolationTool " << m_EMExtrapolationTool);
     return StatusCode::FAILURE;
-  } else {
+  } 
     ATH_MSG_DEBUG("Retrieved extrapolationTool " << m_EMExtrapolationTool);
-  }
+  
 
 
   ATH_MSG_DEBUG( "Initialization successful");

@@ -50,7 +50,7 @@ and eventually conversions.
 
 // INCLUDE GAUDI HEADER FILES:
 #include <algorithm> 
-#include <math.h>
+#include <cmath>
 
 
 //  END OF HEADER FILES INCLUDE
@@ -142,7 +142,7 @@ StatusCode egammaBuilder::RetrieveEMTrackMatchBuilder(){
         ATH_MSG_ERROR("Unable to retrieve "<<m_trackMatchBuilder);
         return StatusCode::FAILURE;
     } 
-    else ATH_MSG_DEBUG("Retrieved Tool "<<m_trackMatchBuilder); 
+    ATH_MSG_DEBUG("Retrieved Tool "<<m_trackMatchBuilder); 
 
     return StatusCode::SUCCESS;
 }
@@ -167,7 +167,7 @@ StatusCode egammaBuilder::RetrieveEMConversionBuilder(){
         ATH_MSG_ERROR("Unable to retrieve "<<m_conversionBuilder);
         return StatusCode::FAILURE;
     } 
-    else ATH_MSG_DEBUG("Retrieved Tool "<<m_conversionBuilder); 
+    ATH_MSG_DEBUG("Retrieved Tool "<<m_conversionBuilder); 
 
     return StatusCode::SUCCESS;
 }

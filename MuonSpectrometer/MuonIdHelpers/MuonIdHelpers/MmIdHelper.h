@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ******************************************************************************
@@ -60,7 +60,7 @@ class MmIdHelper : public MuonIdHelper {
   MmIdHelper();
 
   // Destructor
-  virtual ~MmIdHelper();
+  virtual ~MmIdHelper()=default;
 
   ///////////// compact identifier stuff begins ////////////////////////////////////// 
 

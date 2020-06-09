@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -90,6 +90,7 @@ public:
   virtual unsigned int abcdErrorChips(const Identifier& moduleId, const EventContext& ctx) const override; // Internally used
 
 private:
+  enum N_ELEMENTS { N_CHIPS_PER_SIDE = 6, N_SIDES = 2, N_STRIPS_PER_CHIP = 128, N_STRIPS_PER_SIDE = N_STRIPS_PER_CHIP*N_CHIPS_PER_SIDE };
 
   ToolHandle<ISCT_ConfigurationConditionsTool> m_config{this, "ConfigTool",
       "SCT_ConfigurationConditionsTool/InDetSCT_ConfigurationConditionsTool", "Tool to retrieve SCT Configuration Tool"};
@@ -108,6 +109,8 @@ private:
     // infomations in granularity of Chips
     // misisng value mean that the map need updating
     // 0 as the value denotes no error
+    // error encoding is as follows: pattern for a module has length of 6 bits, side 0 is encoded in bits 0-5, side 1 in bits 6-11
+    // so bit 0 is for chip 0 on side 0, bit 1 is for chip 1 on side 0, ..., and bit 11 is for chip 5 on side 1
     std::map<Identifier, unsigned int> tempMaskedChips;
     std::map<Identifier, unsigned int> abcdErrorChips;
 

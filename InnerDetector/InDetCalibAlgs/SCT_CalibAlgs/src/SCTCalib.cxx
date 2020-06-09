@@ -1837,16 +1837,16 @@ StatusCode SCTCalib::getBSErrors ATLAS_NOT_THREAD_SAFE () {
                         std::string profnameAltShort = detectorStems[stemIndex] + streamHistAlt.str();
 
                         TProfile2D* prof_tmp = (TProfile2D*) m_inputHist->Get( profname.c_str() );
-                        if(prof_tmp ==NULL) {
+                        if(prof_tmp ==nullptr) {
                            prof_tmp = (TProfile2D*) m_inputHist->Get( profnameShort.c_str() );
                         }
-                        if(prof_tmp ==NULL) {
+                        if(prof_tmp ==nullptr) {
                            prof_tmp = (TProfile2D*) m_inputHist->Get( profnameAlt.c_str() );
                         }
-                        if(prof_tmp ==NULL) {
+                        if(prof_tmp ==nullptr) {
                            prof_tmp = (TProfile2D*) m_inputHist->Get( profnameAltShort.c_str() );
                         }
-                        if(prof_tmp ==NULL) {
+                        if(prof_tmp ==nullptr) {
                            msg( MSG::ERROR ) << "Unable to get profile for BSErrorsDB : " << profname << endmsg;
                            return StatusCode::FAILURE;
                         }
@@ -1922,10 +1922,10 @@ StatusCode SCTCalib::getBSErrors ATLAS_NOT_THREAD_SAFE () {
                      std::string profnameShort = "/run_" + std::to_string(m_runNumber.value()) + "/SCT/SCTB/errors/" + streamHist.str();
 
                      TProfile2D* prof_tmp = (TProfile2D*) m_inputHist->Get( profname.c_str() );
-                     if(prof_tmp ==NULL) {
+                     if(prof_tmp ==nullptr) {
                         prof_tmp = (TProfile2D*) m_inputHist->Get( profnameShort.c_str() );
                      }
-                     if(prof_tmp ==NULL) {
+                     if(prof_tmp ==nullptr) {
                         msg( MSG::ERROR ) << "Unable to get profile for BSErrorsDB : " << profname << endmsg;
                         return StatusCode::FAILURE;
                      }
@@ -3084,7 +3084,7 @@ SCTCalib::getNoisyChips(const std::set<Identifier>& stripIdList) const {
          IdentifierHash waferHash{m_pSCTHelper->wafer_hash(m_pSCTHelper->wafer_id(stripId))};
          const InDetDD::SiDetectorElement* pElement{elements->getDetectorElement(waferHash)};
          if (!pElement) {
-            ATH_MSG_FATAL("Element pointer is NULL");
+            ATH_MSG_FATAL("Element pointer is nullptr");
             continue;
          }
          int stripOnline{(pElement->swapPhiReadoutDirection()) ? lastStrip - stripOffline : stripOffline};
@@ -3124,7 +3124,7 @@ SCTCalib::getNoisyLB(const Identifier& moduleId, int& chipId) const {
    std::set<int> LBList;
    LBList.clear();
    if (!m_calibLbTool) {
-      ATH_MSG_ERROR("NULL pointer m_calibLbTool line " <<__LINE__);
+      ATH_MSG_ERROR("nullptr m_calibLbTool line " <<__LINE__);
       return std::make_pair(defectLB, defectLBFrac);
    }
 

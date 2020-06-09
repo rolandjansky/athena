@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.scripts.check_file
 # @purpose read a POOL file and dump its content.
@@ -7,7 +7,6 @@
 
 from __future__ import print_function
 
-__version__ = "$Revision: 276362 $"
 __doc__ = "read a POOL file and dump its content."
 __author__ = "Sebastien Binet"
 
@@ -49,10 +48,9 @@ def main(args):
 
     import sys
     import os
-    import os.path as osp
 
     for i,f in enumerate(files):
-        files[i] = osp.expandvars(osp.expanduser(f))
+        files[i] = os.path.expandvars(os.path.expanduser(f))
 
     exitcode = 0
     for fname in files:
@@ -62,7 +60,7 @@ def main(args):
             pool_file = PF.PoolFile(fname)
             pool_file.checkFile(sorting=args.sort_fct)
             if args.detailed_dump:
-                dump_file = osp.basename(fname) + '.txt'
+                dump_file = os.path.basename(fname) + '.txt'
                 print ("## dumping details into [%s]" % (dump_file,))
                 pool_file.detailedDump(dump_file)
             if args.output:
@@ -79,7 +77,7 @@ def main(args):
             exitcode = 1
             pass
 
-        except :
+        except Exception:
             print ("## Caught something !! (don't know what)")
             print (sys.exc_info()[0])
             print (sys.exc_info()[1])

@@ -35,10 +35,10 @@ private:
   int m_nHtoVV;
   int m_nGoodHtoVV;
 
-  void FindAncestor(const HepMC::GenVertex* searchvertex,
+  void FindAncestor(const HepMC::GenVertexPtr searchvertex,
                     int targetPDGID, bool& okPDGChild1, bool& okPDGChild2);
-  HepMC::GenParticle * CheckGrandparent(HepMC::GenParticle *pitr, int &);
-  bool RunHistory(HepMC::GenParticle *pitr);
+  HepMC::GenParticlePtr CheckGrandparent(HepMC::GenParticlePtr pitr, int &);
+  bool RunHistory(HepMC::GenParticlePtr pitr);
 };
 
 #endif

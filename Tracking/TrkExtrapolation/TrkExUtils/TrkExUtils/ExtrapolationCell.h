@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -21,7 +21,7 @@
 
 #ifndef TRKEXUTILS_CHECKPATHMACRO
 #define TRKEXUTILS_CHECKPATHMACRO
-#define reachedLimit(current, limit, tolerance) ( limit > 0 && ((current<limit) ? (current-limit)*(current-limit)/(limit*limit) < tolerance*tolerance : true))
+#define reachedLimit(current, limit, tolerance) ( (limit) > 0 && (((current)<(limit)) ? ((current)-(limit))*((current)-(limit))/((limit)*(limit)) < (tolerance)*(tolerance) : true))
 #endif
 
 namespace Trk {
@@ -177,14 +177,14 @@ namespace Trk {
         float                       time;                   //!< timing info   
         
         ExtrapolationStep(const T* pars = 0,
-                          const Surface* sf = 0,  
-                          ExtrapolationConfig eConfig = ExtrapolationConfig(),
-                          const MaterialProperties* mprop=0,
-                          const TransportJacobian* tjac=0,
+                          const Surface* sf = nullptr,  
+                          const ExtrapolationConfig& eConfig = ExtrapolationConfig(),
+                          const MaterialProperties* mprop=nullptr,
+                          const TransportJacobian* tjac=nullptr,
                           double pLength = -1.) :
          parameters(pars),
          surface(sf),
-         layer(0),        
+         layer(nullptr),        
          stepConfiguration(eConfig),              
          material(mprop),
          materialPosition(Amg::Vector3D(0.,0.,0.)), 
@@ -260,18 +260,18 @@ namespace Trk {
           /** start parameters are compulsory  */  
           ExtrapolationCell(const T& sParameters, PropDirection pDir=alongMomentum, unsigned int econfig=1) :
             startParameters(&sParameters),
-            startVolume(0),
-            startLayer(0),
+            startVolume(nullptr),
+            startLayer(nullptr),
             endParameters(0),
-            endVolume(0),
-            endLayer(0),
-            endSurface(0),
+            endVolume(nullptr),
+            endLayer(nullptr),
+            endSurface(nullptr),
             leadParameters(&sParameters),
-            leadVolume(0),
-            leadLayer(0),
-            leadLayerSurface(0),
+            leadVolume(nullptr),
+            leadLayer(nullptr),
+            leadLayerSurface(nullptr),
             lastBoundaryParameters(0),
-            lastBoundarySurface(0),
+            lastBoundarySurface(nullptr),
 	    lastLeadParameters(&sParameters),
             propDirection(pDir),
             radialDirection(1),
@@ -291,7 +291,7 @@ namespace Trk {
             sensitiveCurvilinear(false),
             destinationCurvilinear(false),
 	    extrapolationConfiguration(econfig),
-	    eLoss(0),
+	    eLoss(nullptr),
 	    zOaTrX(0.),
             zX(0.)
 	  {}
@@ -316,7 +316,7 @@ namespace Trk {
           
           /** fill transport information - path length and TransportJacobian 
               - jacobians need to be cleared */
-          void stepTransport(const Surface& sf, double pathLength=0., const TransportJacobian* tjac=0);
+          void stepTransport(const Surface& sf, double pathLength=0., const TransportJacobian* tjac=nullptr);
 
           /** fill or attach material, jacobian, step length 
               - material is just a pointer copy */
@@ -557,5 +557,5 @@ namespace Trk {
 
 } // end of namespace
 
-#endif // TRKEXUTILS_SOLUTIONSELECTOR_H
+#endif // TRKEXUTILS_EXTRAPOLATIONCELL_H
 

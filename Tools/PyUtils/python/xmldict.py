@@ -1,11 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils/python/xmldict.py
 # @purpose converts an XML file into a python dict, back and forth
 # @author http://code.activestate.com/recipes/573463
 #         slightly adapted to follow PEP8 conventions
 
-__version__ = "$Revision$"
 __doc__ = """\
 functions to convert an XML file into a python dict, back and forth
 """
@@ -23,7 +22,7 @@ def import_etree():
     except ImportError:
         pass
     # do it by hook or by crook...
-    import sys, os, imp
+    import os, imp
     xml_site_package = os.path.join(os.path.dirname(os.__file__), 'xml')
     m = imp.find_module('etree', [xml_site_package])
 
@@ -137,7 +136,7 @@ def _xml2dict_recurse (node, dictclass):
         newitem = _xml2dict_recurse (child, dictclass)
         if isinstance(newitem, basestring):
             newitem = _xml_unescape(newitem)
-        if nodedict.has_key(child.tag):
+        if child.tag in nodedict:
             # found duplicate tag, force a list
             if isinstance(nodedict[child.tag], list):
                 # append to existing list

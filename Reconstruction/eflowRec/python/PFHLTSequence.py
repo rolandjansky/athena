@@ -50,6 +50,10 @@ def getPFTrackSel(tracktype):
     PFTrackSelector.tracksName = tracksin
     PFTrackSelector.VertexContainer = verticesin
 
+    from eflowRec import PFOnlineMon
+    monTool = PFOnlineMon.getMonTool_PFTrackSelector()
+    PFTrackSelector.MonTool = monTool
+
     return PFTrackSelector
 
 # PFAlgorithm
@@ -116,6 +120,10 @@ def getPFAlg(clustersin,tracktype):
         SubtractionToolList = [PFCellLevelSubtractionTool,PFRecoverSplitShowersTool],
         BaseToolList = [PFMomentCalculatorTool]
         )
+
+    from eflowRec import PFOnlineMon
+    monTool = PFOnlineMon.getMonTool_PFAlgorithm()
+    PFAlgorithm.MonTool = monTool
     
     return PFAlgorithm
 

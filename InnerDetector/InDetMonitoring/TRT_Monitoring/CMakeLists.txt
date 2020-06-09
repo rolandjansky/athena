@@ -46,6 +46,5 @@ atlas_add_component( TRT_Monitoring
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AthenaMonitoringLib GaudiKernel InDetRawData LumiBlockCompsLib CommissionEvent AthContainers AtlasDetDescr Identifier xAODEventInfo xAODTrigger EventPrimitives TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry InDetRIO_OnTrack LWHists TrkTrack TrkTrackSummary TrkToolInterfaces TRT_DriftFunctionToolLib )
 
 # Install files from the package:
-atlas_install_headers( TRT_Monitoring )
 atlas_install_joboptions( share/*.py )
 

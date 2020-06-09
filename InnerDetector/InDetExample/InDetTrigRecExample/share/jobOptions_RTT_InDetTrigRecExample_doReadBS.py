@@ -353,7 +353,7 @@ if not doReadBS:
   ServiceMgr.EventSelector.InputCollections = ["/afs/cern.ch/atlas/maxidisk/d38/ID_ValidationData/testIdeal_07.005200.T1_McAtNlo_Jimmy.digit.RDO.v12000201_tid002760._00002.pool.root.1"]
   #ServiceMgr.EventSelector.InputCollections = ["/afs/cern.ch/atlas/maxidisk/d89/InDetRecRDO.root"]
 else:
-  ByteStreamInputSvc.FullFileName = ["/afs/cern.ch/atlas/project/trigger/pesa-sw/releases/data/daq.csc13.0000000.Single.Stream.LB0000.Athena._0001.data"]
+  EventSelector.Input = ["/afs/cern.ch/atlas/project/trigger/pesa-sw/releases/data/daq.csc13.0000000.Single.Stream.LB0000.Athena._0001.data"]
 
 # ------------------------------------------------------------
 

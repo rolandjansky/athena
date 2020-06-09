@@ -22,8 +22,8 @@ public:
     virtual StatusCode filterFinalize();
     virtual StatusCode filterEvent();
 
-    bool fromTau( const HepMC::GenParticle* tp ) const;
-    bool fromWZ( const HepMC::GenParticle* tp ) const;
+    bool fromTau( const HepMC::GenParticlePtr tp ) const;
+    bool fromWZ( const HepMC::GenParticlePtr tp ) const;
 
 private:
 

@@ -173,7 +173,7 @@ namespace xAODMaker {
 	    // https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/PileupDigitization#Arrangement_of_Truth_Information
 	    if (!m_doInTimePileUp && !m_doAllPileUp) break;
 	    isSignalProcess=false;
-	    int pid = genEvt->signal_process_id();
+	    int pid = HepMC::signal_process_id(genEvt);
 	    int eventNumber = genEvt->event_number();
 	    if (m_doInTimePileUp && pid==0 && eventNumber==-1) break; // stop at the separator
 	  }
@@ -185,7 +185,7 @@ namespace xAODMaker {
 	  if (isSignalProcess) {
 	    xTruthEventContainer->push_back( xTruthEvent );
 	    // Cross-section
-	    const HepMC::GenCrossSection* const crossSection = genEvt->cross_section();
+	    auto crossSection = genEvt->cross_section();
 	    xTruthEvent->setCrossSection(crossSection ? (float)crossSection->cross_section() : -1);
 	    xTruthEvent->setCrossSectionError(crossSection ? (float)crossSection->cross_section_error() : -1);
                     
@@ -209,7 +209,7 @@ namespace xAODMaker {
 	    xTruthEvent->setWeights(weights);
                     
 	    // Heavy ion info
-	    const HepMC::HeavyIon* const hiInfo = genEvt->heavy_ion();
+	    auto const hiInfo = genEvt->heavy_ion();
 	    if (hiInfo) {
 	      xTruthEvent->setHeavyIonParameter(hiInfo->Ncoll_hard(), xAOD::TruthEvent::NCOLLHARD);
 	      xTruthEvent->setHeavyIonParameter(hiInfo->Npart_proj(), xAOD::TruthEvent::NPARTPROJ);
@@ -230,7 +230,7 @@ namespace xAODMaker {
                     
 	    // Parton density info
 	    // This will exist 99% of the time, except for e.g. cosmic or particle gun simulation
-	    const HepMC::PdfInfo* const pdfInfo = genEvt->pdf_info();
+	    auto const pdfInfo = genEvt->pdf_info();
 	    if (pdfInfo) {
 	      xTruthEvent->setPdfInfoParameter(pdfInfo->id1(), xAOD::TruthEvent::PDGID1);
 	      xTruthEvent->setPdfInfoParameter(pdfInfo->id2(), xAOD::TruthEvent::PDGID2);
@@ -252,11 +252,11 @@ namespace xAODMaker {
 	  // If signal process vertex is a disconnected vertex (no incoming/outgoing particles), add it manually
 	  VertexMap vertexMap;
 	  VertexMap::iterator mapItr;
-	  vector<const HepMC::GenVertex*> vertices;
+	  vector<HepMC::GenVertexPtr> vertices;
                 
 	  // Check signal process vertex
 	  // If this is a disconnected vertex, add it manually or won't be added from the loop over particles below.
-	  auto disconnectedSignalProcessVtx = genEvt->signal_process_vertex(); // Get the signal process vertex
+	   auto disconnectedSignalProcessVtx = HepMC::signal_process_vertex((HepMC::GenEvent*)genEvt); // Get the signal process vertex
 	  if (disconnectedSignalProcessVtx) {
 	    if (disconnectedSignalProcessVtx->particles_in_size() == 0 &&
 		disconnectedSignalProcessVtx->particles_out_size() == 0 ) {
@@ -268,7 +268,7 @@ namespace xAODMaker {
 	  }
                 
 	  // Get the beam particles
-	  pair<HepMC::GenParticle*,HepMC::GenParticle*> beamParticles;
+	  pair<HepMC::GenParticlePtr,HepMC::GenParticlePtr> beamParticles;
 	  if ( genEvt->valid_beam_particles() ) beamParticles = genEvt->beam_particles();
 	  for (HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin(); pitr!=genEvt->particles_end(); ++pitr) {
 	    // (a) create TruthParticle
@@ -316,7 +316,7 @@ namespace xAODMaker {
 	  } // end of loop over particles
                 
 	  // (3) Loop over the map
-	  auto signalProcessVtx = genEvt->signal_process_vertex(); // Get the signal process vertex
+	  auto signalProcessVtx = HepMC::signal_process_vertex(genEvt); // Get the signal process vertex
 	  for (auto  vertex : vertices) {
 	    const auto& parts = vertexMap[vertex];
 	    // (a) create TruthVertex
@@ -354,9 +354,9 @@ namespace xAODMaker {
     
     
     // A helper to set up a TruthVertex (without filling the ELs)
-    void xAODTruthCnvAlg::fillVertex(xAOD::TruthVertex* tv, const HepMC::GenVertex* gv) {
+    void xAODTruthCnvAlg::fillVertex(xAOD::TruthVertex* tv, const HepMC::GenVertexPtr gv) {
         tv->setId(gv->id());
-        tv->setBarcode(gv->barcode());
+        tv->setBarcode(HepMC::barcode(gv));
         
         // No vertex weights
         // vector<float> weights;
@@ -371,9 +371,9 @@ namespace xAODMaker {
     
     
     // A helper to set up a TruthParticle (without filling the ELs)
-    void xAODTruthCnvAlg::fillParticle(xAOD::TruthParticle* tp, const HepMC::GenParticle* gp) {
+    void xAODTruthCnvAlg::fillParticle(xAOD::TruthParticle* tp, const HepMC::GenParticlePtr gp) {
         tp->setPdgId(gp->pdg_id());
-        tp->setBarcode(gp->barcode());
+        tp->setBarcode(HepMC::barcode(gp));
         tp->setStatus(gp->status());
         
         const HepMC::Polarization& pol = gp->polarization();
@@ -425,8 +425,7 @@ namespace xAODMaker {
         // FIXME: class member protection violation here.
         // This appears to be because WeightContainer has no public methods
         // to get information about the weight names.
-        const std::map<std::string,HepMC::WeightContainer::size_type>& weightNameMap =
-          genEvt.weights().m_names;
+        const auto& weightNameMap = genEvt.weights().m_names;
         std::vector<std::string> orderedWeightNameVec;
         orderedWeightNameVec.reserve( weightNameMap.size() );
         for (const auto& entry: weightNameMap) {

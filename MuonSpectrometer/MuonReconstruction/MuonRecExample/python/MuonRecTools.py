@@ -232,11 +232,6 @@ def MuonExtrapolator(name='MuonExtrapolator',**kwargs):
     return CfgMgr.Trk__Extrapolator(name,**kwargs)
 # end of factory function MuonExtrapolator
 
-def MuonIdHelperTool(name="MuonIdHelperTool",**kwargs):
-    from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperTool
-    getService("MuonIdHelperSvc")
-    return Muon__MuonIdHelperTool(name,**kwargs)
-
 def MuonIdHelperSvc(name="MuonIdHelperSvc",**kwargs):
     from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperSvc
     kwargs.setdefault("HasCSC", MuonGeometryFlags.hasCSC())
@@ -251,7 +246,7 @@ def MuonStraightLineExtrapolator(name="MuonStraightLineExtrapolator",**kwargs):
 
 def MuonEDMHelperSvc(name='MuonEDMHelperSvc',**kwargs):
     # configure some tools that are used but are not declared as properties (they should be!)
-    getPublicTool("MuonIdHelperTool")
+    getService("MuonIdHelperSvc")
     getPublicTool("AtlasExtrapolator")
 
     from MuonRecHelperTools.MuonRecHelperToolsConf import Muon__MuonEDMHelperSvc
@@ -265,7 +260,6 @@ class MuonEDMPrinterTool(Muon__MuonEDMPrinterTool,ConfiguredBase):
     def __init__(self,name='MuonEDMPrinterTool',**kwargs):
         self.applyUserDefaults(kwargs,name)
         super(MuonEDMPrinterTool,self).__init__(name,**kwargs)
-        kwargs.setdefault("MuonIdHelperTool", "MuonIdHelperTool")
         getService("MuonEDMHelperSvc")
 # end of class MuonEDMPrinterTool
 
@@ -466,7 +460,6 @@ def MuonSegmentFittingTool(name='MuonSegmentFittingTool',extraFlags=None,**kwarg
     kwargs.setdefault("SLFitter",     getPrivateTool('MCTBSLFitter') )
     kwargs.setdefault("CurvedFitter", getPrivateTool('MCTBFitter') )
     kwargs.setdefault("TrackCleaner", getPrivateTool('MuonTrackCleaner')  )
-    kwargs.setdefault("IdHelper",     getPublicTool('MuonIdHelperTool') )
     return CfgMgr.Muon__MuonSegmentFittingTool(name,**kwargs)
 
 if DetFlags.detdescr.Muon_on() and rec.doMuon():

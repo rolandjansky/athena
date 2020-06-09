@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetJiveXML/PixelClusterRetriever.h"
@@ -27,8 +27,8 @@ namespace JiveXML {
    **/
   PixelClusterRetriever::PixelClusterRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    m_typeName("PixCluster"),
-    m_geo("JiveXML::InDetGeoModelTool/InDetGeoModelTool",this){
+    m_typeName("PixCluster")
+  {
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);

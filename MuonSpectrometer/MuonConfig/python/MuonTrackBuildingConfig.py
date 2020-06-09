@@ -205,7 +205,7 @@ def MooCandidateMatchingToolCfg(flags, name="MooCandidateMatchingTool", doSegmen
     
     result = ComponentAccumulator()
 
-    # Won't explicitly configure MuonIdHelperTool, MuonEDMHelperSvc, MuonEDMPrinterTool
+    # Won't explicitly configure MuonEDMHelperSvc, MuonEDMPrinterTool
     
     acc = MuonExtrapolatorCfg(flags, name="MuonStraightLineExtrapolator")
     slextrap = acc.getPrimary()

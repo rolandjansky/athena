@@ -28,7 +28,7 @@
 
 using namespace TruthHelper;
 
-typedef std::vector<const HepMC::GenParticle*>  MCparticleCollection ;
+typedef std::vector<const HepMC::GenParticlePtr>  MCparticleCollection ;
 
 CheckFlow::CheckFlow(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
@@ -212,7 +212,7 @@ StatusCode CheckFlow::execute() {
   // Iterate over MC particles  We are using the IsGenStable predicate from
   // IsGenStable ifs;
   GenAll ifs;
-  std::vector<const HepMC::GenParticle*> particles;
+  MCParticleCollection particles;
   StatusCode stat = m_tesIO->getMC(particles, &ifs, m_key);
   if (stat.isFailure()) {
     msg(MSG::ERROR) << "Could not find " << m_key << endmsg;

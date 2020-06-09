@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s)
@@ -24,8 +24,6 @@ using namespace TauAnalysisTools;
 //______________________________________________________________________________
 BuildTruthTaus::BuildTruthTaus( const std::string& name )
   : AsgMetadataTool(name)
-  , m_bIsData(false)
-  , m_bIsConfigured(false)
   , m_bTruthTauAvailable(true)
   , m_sNewTruthTauContainerNameAux("TruthTausAux.")
   , m_bTruthMuonAvailable(true)
@@ -34,8 +32,6 @@ BuildTruthTaus::BuildTruthTaus( const std::string& name )
   , m_tMCTruthClassifier("MCTruthClassifier", this)
 {
   declareProperty( "WriteTruthTaus", m_bWriteTruthTaus = false);
-
-  // container names
   declareProperty( "NewTruthTauContainerName", m_sNewTruthTauContainerName = "TruthTaus");
   declareProperty( "TruthTauContainerName", m_sTruthTauContainerName = "TruthTaus");
   declareProperty( "TruthMuonContainerName", m_sTruthMuonContainerName = "TruthMuons");
@@ -70,28 +66,24 @@ StatusCode BuildTruthTaus::initialize()
 //______________________________________________________________________________
 xAOD::TruthParticleContainer* BuildTruthTaus::getTruthTauContainer()
 {
-  if (m_bIsData)
-    return 0;
   if (!m_bTruthTauAvailable)
     return m_truthTausEvent.m_xTruthTauContainer;
   else
   {
     ATH_MSG_WARNING("TruthTau container was available from the event store and not rebuilt. Please get it from the event store");
-    return 0;
+    return nullptr;
   }
 }
 
 //______________________________________________________________________________
 xAOD::TruthParticleAuxContainer* BuildTruthTaus::getTruthTauAuxContainer()
 {
-  if (m_bIsData)
-    return 0;
   if (!m_bTruthTauAvailable)
     return m_truthTausEvent.m_xTruthTauAuxContainer;
   else
   {
     ATH_MSG_WARNING("TruthTau auxiliary container was available from the event store and not rebuilt. Please get it from the event store");
-    return 0;
+    return nullptr;
   }
 }
 
@@ -99,16 +91,10 @@ xAOD::TruthParticleAuxContainer* BuildTruthTaus::getTruthTauAuxContainer()
 StatusCode BuildTruthTaus::beginEvent()
 {
   m_truthTausEvent.m_valid = false;
-  if (m_bIsConfigured)
-    return StatusCode::SUCCESS;
-
-  const xAOD::EventInfo* xEventInfo = 0;
-  ATH_CHECK(evtStore()->retrieve(xEventInfo,"EventInfo"));
-  m_bIsData = !(xEventInfo->eventType( xAOD::EventInfo::IS_SIMULATION));
-  m_bIsConfigured=true;
 
   return StatusCode::SUCCESS;
 }
+
 
 StatusCode BuildTruthTaus::retrieveTruthTaus()
 {
@@ -124,9 +110,6 @@ StatusCode BuildTruthTaus::retrieveTruthTaus(ITruthTausEvent& truthTausEvent) co
 
 StatusCode BuildTruthTaus::retrieveTruthTaus(TruthTausEvent& truthTausEvent) const
 {
-  if (m_bIsData)
-    return StatusCode::SUCCESS;
-
   if (truthTausEvent.m_valid)
     return StatusCode::SUCCESS;
   truthTausEvent.m_valid = true;

@@ -186,11 +186,11 @@ private:
   // production database instance, used to cross-check global tag
   Gaudi::Property<std::string>    m_par_dbinst{this,"DBInstance","","Database instance (like OFLP200)"};
   //  a list of folders to preload
-  Gaudi::Property<std::vector<std::string> >  m_par_folders{this,"Folders",{},"List of database folders to preload","Set<std::string>"};
+  Gaudi::Property<std::vector<std::string> >  m_par_folders{this,"Folders",{},"List of database folders to preload","OrderedSet<std::string>"};
   //  a list of overriding tags definitions
-  Gaudi::Property<std::vector<std::string> >  m_par_overrideTags{this,"overrideTags",{},"List of foolder-tag overrides","Set<std::string>"};
+  Gaudi::Property<std::vector<std::string> >  m_par_overrideTags{this,"overrideTags",{},"List of foolder-tag overrides","OrderedSet<std::string>"};
   //  a list of folders to write to file meta data
-  Gaudi::Property<std::vector<std::string> >  m_par_foldersToWrite{this,"FoldersToMetaData",{},"list of folders to write to file meta data","Set<std::string>"};    
+  Gaudi::Property<std::vector<std::string> >  m_par_foldersToWrite{this,"FoldersToMetaData",{},"list of folders to write to file meta data","OrderedSet<std::string>"};    
   //  a flag to trigger the connections management
   BooleanProperty                m_par_manageConnections{this,"ManageConnections",true,"flag to trigger the connections management"};
   //  a flag to manage pool connections

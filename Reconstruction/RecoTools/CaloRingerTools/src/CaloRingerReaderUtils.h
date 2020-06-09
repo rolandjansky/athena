@@ -1,8 +1,7 @@
+// Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: CaloRingerReaderUtils.h 688728 2015-08-11 16:01:24Z ssnyder $
 #ifndef CALORINGERTOOLS_CALORINGERREADERUTILS_H
 #define CALORINGERTOOLS_CALORINGERREADERUTILS_H
 
@@ -14,6 +13,7 @@
 // Athena framework include:
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IDataHandleHolder.h"
+#include "StoreGate/WriteDecorHandle.h"
 #include "StoreGate/WriteDecorHandleKey.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
 #include "AthContainers/DataVector.h"
@@ -110,7 +110,8 @@ class BuildCaloRingsFctor : public BuildCaloRingsFctorBase
     /// @brief Particle type that the functor will decorate the CaloRingsLinks
     typedef typename container_t::base_value_type particle_t;
     /// @brief CaloRings links decorator handle type
-    typedef typename ::xAOD::caloRingsDecoH_t< container_t > decor_t;
+    typedef typename SG::WriteDecorHandle< container_t, xAOD::CaloRingsLinks >
+      decor_t;
 
   private:
     typedef BuildCaloRingsFctorBase base_t;

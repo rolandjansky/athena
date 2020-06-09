@@ -76,7 +76,7 @@ class CondInputLoader
   //  void loader(Property&);
 
   /// Containers
-  Gaudi::Property<DataObjIDColl> m_load{this,"Load",{},"List of objects to be loaded","Set<std::vector<std::string> >"};
+  Gaudi::Property<DataObjIDColl> m_load{this,"Load",{},"List of objects to be loaded","OrderedSet<std::vector<std::string> >"};
   DataObjIDColl  m_handlesToCreate;
   std::vector< SG::VarHandleKey > m_vhk;
 

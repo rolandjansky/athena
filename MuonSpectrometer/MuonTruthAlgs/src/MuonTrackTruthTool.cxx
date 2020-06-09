@@ -776,7 +776,7 @@ namespace Muon {
         } else {
           if( (*pit)->pdg_id() == pdgFinal ) {
             auto pit_p = *pit;
-            if ( (theFirst != pit_p) && ((*pit)->momentum().t()!=ePrev) ) ++scat; // if the particle has not changed pdgid after the first step count as scatter. also avoid counting pure interface changes as scatter
+            if ( (theFirst != pit_p.cptr()) && ((*pit)->momentum().t()!=ePrev) ) ++scat; // if the particle has not changed pdgid after the first step count as scatter. also avoid counting pure interface changes as scatter
           } else { // the first time this particle appears
             --pit;
             theFirst = *pit;

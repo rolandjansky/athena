@@ -220,7 +220,7 @@ SCT_CalibLbTool::fill(const bool fromData) {
 bool
 SCT_CalibLbTool::fillFromData() {
    if (!m_evtInfo) {
-      ATH_MSG_ERROR("The evtInfo pointer is NULL");
+      ATH_MSG_ERROR("The evtInfo pointer is nullptr");
       return false;
    }
    m_lumiBlock=m_evtInfo->lumiBlock();

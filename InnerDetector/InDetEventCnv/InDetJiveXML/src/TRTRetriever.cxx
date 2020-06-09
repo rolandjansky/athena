@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetJiveXML/TRTRetriever.h"
@@ -24,9 +24,8 @@ namespace JiveXML {
    **/
   TRTRetriever::TRTRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    m_typeName("TRT"),
-    m_geo("JiveXML::InDetGeoModelTool/InDetGeoModelTool",this){
-
+    m_typeName("TRT")
+  {
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
   }

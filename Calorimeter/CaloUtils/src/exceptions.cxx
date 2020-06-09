@@ -107,4 +107,45 @@ ExcConstantReset::ExcConstantReset
 }
 
 
+//*************************************************************************
+
+
+/// Helper: Format exception string.
+std::string excBadContextlessRetrieve_format (const std::string& toolName,
+                                              const std::string& constName)
+{
+  std::ostringstream os;
+  os << "ExcBadContextlessRetrieve: constant " << constName << " in tool " << toolName
+     << " bad contextless retrieve.";
+  return os.str();
+}
+
+
+/**
+ * @brief Constructor
+ * @param toolName Name of the tool being used.
+ * @param constName Name of the constant being retrieved.
+ */
+ExcBadContextlessRetrieve::ExcBadContextlessRetrieve
+  (const std::string& toolName,
+   const std::string& constName)
+    : std::runtime_error (excBadContextlessRetrieve_format (toolName,
+                                                            constName))
+{
+}
+
+
+
+/**
+ * @brief Throw a CaloUtils::ExcBadContextlessRetrieve exception.
+ * @param toolName Name of the tool being used.
+ * @param constName Name of the constant being retrieved.
+ */
+void throwBadExcContextlessRetrieve (const std::string& toolName,
+                                     const std::string& constName)
+{
+  throw ExcBadContextlessRetrieve (toolName, constName);
+}
+
+
 } // namespace CaloUtils

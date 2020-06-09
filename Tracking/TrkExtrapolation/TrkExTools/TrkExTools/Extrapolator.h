@@ -75,6 +75,7 @@ using TrackParmContainer  = ObjContainer<const Trk::TrackParameters>;
 using TrackParmPtr        = ObjRef<>;
 using ManagedTrackParmPtr = ObjPtr<const Trk::TrackParameters>;
 
+
 /** @struct ParametersAtBoundarySurface
   has only three member
   - BoundarySurface
@@ -140,6 +141,21 @@ VERBOSE : Method call sequence with values
   class Extrapolator : public AthAlgTool,
   virtual public IExtrapolator {
   public:
+
+    /** This following "using" statements can be removed after the methods in IExtrapolator.h for the
+     * old interfaces WITHOUT EventContext are removed, i.e. only the new ones with EventContext are
+     * used throughout the sw */
+    using IExtrapolator::extrapolate;
+    using IExtrapolator::extrapolateStepwise;
+    using IExtrapolator::extrapolateDirectly;
+    using IExtrapolator::extrapolateBlindly;
+    using IExtrapolator::extrapolateToNextActiveLayer;      
+    using IExtrapolator::extrapolateToNextActiveLayerM;
+    using IExtrapolator::extrapolateToVolume;
+    using IExtrapolator::extrapolateM;
+    using IExtrapolator::extrapolateWithPathLimit;
+    
+      
     /**Constructor */
     Extrapolator(const std::string&,const std::string&,const IInterface*);
     /**Destructor*/
@@ -165,12 +181,13 @@ VERBOSE : Method call sequence with values
 
     /** xAOD 0) neutral xAOD particle */
     virtual const TrackParameters* extrapolate(
-      const xAOD::TrackParticle& particleBase,
-      const Surface& sf,
-      PropDirection dir = anyDirection,
-      const BoundaryCheck& bcheck = true,
-      ParticleHypothesis particle = pion,
-      MaterialUpdateMode matupmode = addNoise) const override final;
+        const EventContext& ctx,
+        const xAOD::TrackParticle& particleBase,
+        const Surface& sf,
+        PropDirection dir=anyDirection,
+        const BoundaryCheck&  bcheck = true,
+        ParticleHypothesis particle=pion,
+        MaterialUpdateMode matupmode=addNoise) const override final;
 
     /** [NeutralParameters] ------------------------------------------------------------- */
 
@@ -186,6 +203,7 @@ VERBOSE : Method call sequence with values
 
     /**  1) <b>Configured AlgTool extrapolation method</b>):*/
     virtual const TrackParameters* extrapolate(
+      const EventContext& ctx,
       const TrackParameters& parm,
       const Surface& sf,
       PropDirection dir = anyDirection,
@@ -196,6 +214,7 @@ VERBOSE : Method call sequence with values
 
     /** 2) <b>Configured AlgTool extrapolation method</b>):*/
     virtual TrackParametersUVector extrapolateStepwise(
+      const EventContext& ctx,
       const TrackParameters& parm,
       const Surface& sf,
       PropDirection dir = anyDirection,
@@ -204,6 +223,7 @@ VERBOSE : Method call sequence with values
 
     /** 3) <b>Configured AlgTool extrapolation method</b>):*/
     virtual const TrackParameters* extrapolate(
+      const EventContext& ctx,
       const Track& trk,
       const Surface& sf,
       PropDirection dir = anyDirection,
@@ -214,6 +234,7 @@ VERBOSE : Method call sequence with values
 
     /** 4) <b>Configured AlgTool extrapolation method</b>):*/
     virtual TrackParameters* extrapolateDirectly(
+      const EventContext& ctx,
       const TrackParameters& parm,
       const Surface& sf,
       PropDirection dir = anyDirection,
@@ -222,6 +243,7 @@ VERBOSE : Method call sequence with values
 
     /** 4.1) <b>Configured AlgTool extrapolation method</b>):*/
     virtual TrackParameters* extrapolateDirectly(
+      const EventContext& ctx,
       const IPropagator& prop,
       const TrackParameters& parm,
       const Surface& sf,
@@ -231,6 +253,7 @@ VERBOSE : Method call sequence with values
 
     /** 5) <b>Configured AlgTool extrapolation method</b>):*/
     virtual TrackParametersUVector extrapolateBlindly(
+      const EventContext& ctx,
       const TrackParameters& parm,
       PropDirection dir = anyDirection,
       const BoundaryCheck& bcheck = true,
@@ -239,6 +262,7 @@ VERBOSE : Method call sequence with values
 
     /** 6) <b>Configured AlgTool extrapolation method</b> ):*/
     virtual std::pair<const TrackParameters*, const Layer*> extrapolateToNextActiveLayer(
+      const EventContext& ctx,
       const TrackParameters& parm,
       PropDirection dir = anyDirection,
       const BoundaryCheck& bcheck = true,
@@ -247,6 +271,7 @@ VERBOSE : Method call sequence with values
 
     /** 7) <b>Configured AlgTool extrapolation method</b> ):*/
     virtual std::pair<const TrackParameters*, const Layer*> extrapolateToNextActiveLayerM(
+      const EventContext& ctx,
       const TrackParameters& parm,
       PropDirection dir,
       const BoundaryCheck& bcheck,
@@ -256,6 +281,7 @@ VERBOSE : Method call sequence with values
 
     /** 8) <b>Configured AlgTool extrapolation method</b> ):*/
     virtual const TrackParameters* extrapolateToVolume(
+      const EventContext& ctx,
       const TrackParameters& parm,
       const Trk::TrackingVolume& vol,
       PropDirection dir = anyDirection,
@@ -265,6 +291,7 @@ VERBOSE : Method call sequence with values
       - Extrapolate to a destination surface, while collecting all the material layers in between.
       */
     virtual std::vector<const TrackStateOnSurface*>* extrapolateM(
+      const EventContext& ctx,
       const TrackParameters& parameters,
       const Surface& sf,
       PropDirection dir,
@@ -277,6 +304,7 @@ VERBOSE : Method call sequence with values
       between.
       */
     virtual std::vector<const TrackParameters*>* extrapolateM(
+      const EventContext& ctx,
       const TrackParameters& parameters,
       const Surface& sf,
       PropDirection dir,
@@ -287,6 +315,7 @@ VERBOSE : Method call sequence with values
       Trk::ExtrapolationCache* cache = nullptr) const override final;
 
     virtual const Trk::TrackParameters* extrapolateWithPathLimit(
+      const EventContext& ctx,
       const Trk::TrackParameters& parm,
       double& pathLim,
       Trk::PropDirection dir,
@@ -303,6 +332,7 @@ VERBOSE : Method call sequence with values
       (subdetector boundary) : geoID (+ entry, -exit) ( default MS exit )
       */
     virtual const std::vector<std::pair<const Trk::TrackParameters*, int>>* extrapolate(
+      const EventContext& ctx,
       const Trk::TrackParameters& parm,
       Trk::PropDirection dir,
       Trk::ParticleHypothesis particle,
@@ -755,16 +785,17 @@ VERBOSE : Method call sequence with values
       - a chosen one if dir == Trk::anyDirection
       */
     PropDirection initializeNavigation(
-      Cache& cache,
-      const Trk::IPropagator& prop,
-      TrackParmPtr startPars,
-      const Trk::Surface& destSurface,
-      Trk::PropDirection dir,
-      ParticleHypothesis particle,
-      ManagedTrackParmPtr& referenceParameters,
-      const Trk::Layer*& associatedLayer,
-      const Trk::TrackingVolume*& associatedVolume,
-      const Trk::TrackingVolume*& destinationVolume) const;
+        const EventContext& ctx,
+        Cache& cache,
+        const Trk::IPropagator& prop,
+        TrackParmPtr startPars,
+        const Trk::Surface& destSurface,
+        Trk::PropDirection dir,
+        ParticleHypothesis particle,
+        ManagedTrackParmPtr& referenceParameters,
+        const Trk::Layer*& associatedLayer,
+        const Trk::TrackingVolume*& associatedVolume,
+        const Trk::TrackingVolume*& destinationVolume) const;
 
     /** RadialDirection helper method
       - inbound : -1
@@ -774,7 +805,8 @@ VERBOSE : Method call sequence with values
     /** Check for punchThrough in case of radial (perpendicular) direction change,
       returns true if the radial direction change is actually ok (i.e. punch-through allowed)
       */
-    bool radialDirectionCheck(const IPropagator& prop,
+    bool radialDirectionCheck(const EventContext& ctx,
+                              const IPropagator& prop,
                               const TrackParameters& startParm,
                               const TrackParameters& parsOnLayer,
                               const TrackingVolume& tvol,
@@ -796,7 +828,7 @@ VERBOSE : Method call sequence with values
 
     /** Prepare the IMaterialEffectsUpdator::ICache for each
      * Material Effects updator */
-    void fillMaterialEffectsUpdatorCache(Cache& cache) const;
+    void populateMatEffUpdatorCache(Cache& cache) const;
 
    
     /** Private method for setting recall Information */
@@ -828,7 +860,8 @@ VERBOSE : Method call sequence with values
     std::string momentumOutput(const Amg::Vector3D& mom) const;
 
     /** helper method for MaterialEffectsOnTrack to be added */
-    void addMaterialEffectsOnTrack(Cache& cache,
+    void addMaterialEffectsOnTrack(const EventContext& ctx,
+                                   Cache& cache,
                                    const Trk::IPropagator& prop,
                                    TrackParmPtr parm,
                                    const Trk::Layer& lay,

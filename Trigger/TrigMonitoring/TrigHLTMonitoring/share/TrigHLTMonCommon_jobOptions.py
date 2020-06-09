@@ -86,7 +86,7 @@ if data_type == 'bytestream':
     #-- set up BS reading ------------------------------------------------------------------------------
 
     from ByteStreamCnvSvc import ReadByteStream
-    svcMgr.ByteStreamInputSvc.FullFileName = athenaCommonFlags.BSRDOInput()
+    svcMgr.EventSelector.Input = athenaCommonFlags.BSRDOInput()
     if hasattr(runArgs,"skipEvents"):
         svcMgr.EventSelector.SkipEvents=runArgs.skipEvents
 

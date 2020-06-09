@@ -176,11 +176,11 @@ namespace JetVar {
       xAOD::JetFourMom_t fourVec;
       bool status = false;
 
-      status = j.getAttribute<xAOD::JetFourMom_t>( "JetConstitScaleMomentum", fourVec );
+      status = j.getAttribute<xAOD::JetFourMom_t>( "JetConstitScaleMomentum", fourVec ); // Jet four-momentum at constituent scale 
       if( status ) constitScaleEnergy = fourVec.E() * m_scale ;
       else return 0.;
-      status = j.getAttribute<std::vector<float> >("EnergyPerSampling", samplingFrac );
-      if( status ) return (samplingFrac[3]+samplingFrac[7])/constitScaleEnergy;
+      status = j.getAttribute<std::vector<float> >("EnergyPerSampling", samplingFrac ); //EnergyPerSampling is a vector of size 24; element i refers to the energy deposited in calo sampling i, see https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/Run2JetMoments#Sampling_layers
+      if( status ) return (samplingFrac[3]+samplingFrac[7])/constitScaleEnergy; //3 is 'EMB3' in the LAr barrel, 7 is 'EME3' in the LAr EM endcap
       else return 0.;
     } 
   };
@@ -193,11 +193,11 @@ namespace JetVar {
       xAOD::JetFourMom_t fourVec;
       bool status = false;
 
-      status = j.getAttribute<xAOD::JetFourMom_t>( "JetConstitScaleMomentum", fourVec );
+      status = j.getAttribute<xAOD::JetFourMom_t>( "JetConstitScaleMomentum", fourVec ); // Jet four-momentum at constituent scale 
       if( status ) constitScaleEnergy = fourVec.E() * m_scale ;
       else return 0.;
-      status = j.getAttribute<std::vector<float> >("EnergyPerSampling", samplingFrac );
-      if( status ) return (samplingFrac[12]+samplingFrac[18])/constitScaleEnergy;
+      status = j.getAttribute<std::vector<float> >("EnergyPerSampling", samplingFrac ); // refer to EM3FracVar above
+      if( status ) return (samplingFrac[12]+samplingFrac[18])/constitScaleEnergy; //12 is 'TileBar0' in the Tile barrel, 18 is 'TileExt0' in the Tile extended barrel
       else return 0.;
     } 
   };
