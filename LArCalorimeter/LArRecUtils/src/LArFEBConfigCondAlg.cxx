@@ -88,7 +88,7 @@ StatusCode LArFEBConfigCondAlg::execute(const EventContext& ctx) const {
       }  
       const HWIdentifier fid(chanit->first); //COOL channel number == FEB identifier
       //const coral::AttributeList& attr = chanit->second;
-      ATH_MSG_DEBUG("Working on FEB 0x" << std::hex << fid.get_compact() << std::dec << "  " << m_onlineID->channel_name(fid));
+      ATH_MSG_VERBOSE("Working on FEB 0x" << std::hex << fid.get_compact() << std::dec << "  " << m_onlineID->channel_name(fid));
       p_febConfig->add (fid, &chanit->second);
       ++nFebs;
     }//End loop over COOL channels
