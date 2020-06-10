@@ -15,7 +15,7 @@ EMClusterErrorsMatrix::EMClusterErrorsMatrix()
 
 EMClusterErrorsMatrix::EMClusterErrorsMatrix(const std::vector<EMAPMatrixAxis> &axes, 
 					     std::string textDescription)
-  :  EMAPMatrix<EMClusterErrorsEntry>(axes, std::move(textDescription))
+  :  EMAPMatrix<EMClusterErrorsEntry>(axes, textDescription)
 {
 }
 

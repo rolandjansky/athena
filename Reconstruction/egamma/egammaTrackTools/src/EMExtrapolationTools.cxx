@@ -396,11 +396,11 @@ EMExtrapolationTools::getMomentumAtVertex(const xAOD::Vertex& vertex, bool reuse
     // Already decorated with parameters at vertex
     ATH_MSG_DEBUG("getMomentumAtVertex : getting from auxdata");
     return Amg::Vector3D(accPx(vertex), accPy(vertex), accPz(vertex));
-  } else {
+  } 
     for (unsigned int i = 0; i < vertex.nTrackParticles(); ++i) {
       momentum += getMomentumAtVertex(vertex, i);
     }
-  }
+  
   return momentum;
 }
 /*

@@ -102,9 +102,9 @@ StatusCode EMConversionBuilder::initialize()
   if(m_extrapolationTool.retrieve().isFailure()){
     ATH_MSG_ERROR("Cannot retrieve extrapolationTool " << m_extrapolationTool);
     return StatusCode::FAILURE;
-  } else {
+  } 
     ATH_MSG_DEBUG("Retrieved extrapolationTool " << m_extrapolationTool);
-  }
+  
 
   return StatusCode::SUCCESS;
 }

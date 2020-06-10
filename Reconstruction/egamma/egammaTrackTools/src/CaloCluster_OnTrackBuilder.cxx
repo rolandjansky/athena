@@ -259,7 +259,7 @@ double CaloCluster_OnTrackBuilder::electronPhiResoA(double eta) const
   if ( eta < 0.30 )
     return 0.000191492 ;
   
-  else if ( eta < 0.60) 
+  if ( eta < 0.60) 
     return 9.35047e-05 + 0.000392766 * eta;
   
   else if ( eta < 0.80) 
@@ -291,7 +291,7 @@ double CaloCluster_OnTrackBuilder::electronPhiResoB(double eta) const
   if ( eta < 0.65 )
     return 0.0285262  + 0.00985529 * eta;
   
-  else if ( eta < 1.04 )
+  if ( eta < 1.04 )
     return -0.0690774 + 0.166424   * eta; 
   
   else if ( eta < 1.25 )
