@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -39,9 +39,9 @@ Trk::NIMatEffUpdator::initialize() {
   if (m_matUpdator.retrieve().isFailure()) {
     ATH_MSG_FATAL("Could not retrieve " << m_matUpdator);
     return StatusCode::FAILURE;
-  } else {
+  } 
     ATH_MSG_DEBUG("Successfully retrieved " << m_matUpdator);
-  }
+  
 
   return StatusCode::SUCCESS;
 }
