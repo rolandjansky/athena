@@ -263,6 +263,24 @@ namespace top {
 
     m_trackJetPtcut(7000.0),
     m_trackJetEtacut(2.5),
+    
+    m_RCJetPtcut(100000.),
+    m_RCJetEtacut(2.0),
+    m_RCInputJetPtMin(0.),
+    m_RCInputJetEtaMax(999.),
+    m_RCJetTrimcut(0.05),
+    m_RCJetRadius(1.0),
+    m_useRCJetSubstructure(false),
+    m_useRCJetAdditionalSubstructure(false),
+
+    m_VarRCJetPtcut(100000.),
+    m_VarRCJetEtacut(2.0),
+    m_VarRCJetTrimcut(0.05),
+    m_VarRCJetMaxRadius(1.0),
+    m_VarRCJetRho("2"),
+    m_VarRCJetMassScale("m_w,m_z,m_h,m_t"),
+    m_useVarRCJetSubstructure(false),
+    m_useVarRCJetAdditionalSubstructure(false),
 
     m_JSF(1.0),
     m_bJSF(1.0),
@@ -1248,6 +1266,8 @@ namespace top {
     // Jet configuration reclustered jets
     this->RCJetPtcut(std::stof(settings->value("RCJetPt")));
     this->RCJetEtacut(std::stof(settings->value("RCJetEta")));
+    this->RCInputJetPtMin(std::stof(settings->value("RCInputJetPtMin")));
+    this->RCInputJetEtaMax(std::stof(settings->value("RCInputJetEtaMax")));
     this->RCJetTrimcut(std::stof(settings->value("RCJetTrim")));
     this->RCJetRadius(std::stof(settings->value("RCJetRadius")));
     if (settings->value("UseRCJets") == "True" || settings->value("UseRCJets") == "true") this->m_useRCJets = true;

@@ -219,6 +219,8 @@ namespace top {
     registerParameter("RCJetPt", "Reclustered Jet pT cut for object selection (in MeV). Default 100000 MeV.",
                       "100000.");
     registerParameter("RCJetEta", "Reclustered Jet eta cut for object selection. Default 2.0.", "2.0");
+    registerParameter("RCInputJetPtMin", "Min Pt cut for RC jet inputs collection. Parameter is shared between RC and VarRC jets. Default 0. [MeV]", "0.");
+    registerParameter("RCInputJetEtaMax", "Max |Eta| cut for RC jet inputs collection. Parameter is shared between RC and VarRC jets. Default 999", "999.");
     registerParameter("RCJetTrim", "Reclustered Jet trimming cut for object selection. Default 0.05.", "0.05");
     registerParameter("RCJetRadius", "Reclustered Jet radius for object selection. Default 1.0", "1.0");
     registerParameter("UseRCJetSubstructure", "Calculate Reclustered Jet Substructure Variables. Default False",

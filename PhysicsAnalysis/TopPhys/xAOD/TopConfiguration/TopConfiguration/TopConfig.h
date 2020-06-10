@@ -1117,6 +1117,8 @@ namespace top {
 
     inline virtual float RCJetPtcut() const {return m_RCJetPtcut;}
     inline virtual float RCJetEtacut() const {return m_RCJetEtacut;}
+    inline virtual float RCInputJetPtMin() const {return m_RCInputJetPtMin;}
+    inline virtual float RCInputJetEtaMax() const {return m_RCInputJetEtaMax;}
     inline virtual float RCJetTrimcut() const {return m_RCJetTrimcut;}
     inline virtual float RCJetRadius() const {return m_RCJetRadius;}
     inline virtual bool useRCJetSubstructure() const {return m_useRCJetSubstructure;}
@@ -1131,6 +1133,18 @@ namespace top {
     inline virtual void RCJetEtacut(const float eta) {
       if (!m_configFixed) {
         m_RCJetEtacut = eta;
+      }
+    }
+
+    inline virtual void RCInputJetPtMin(const float pt) {
+      if (!m_configFixed) {
+        m_RCInputJetPtMin = pt;
+      }
+    }
+
+    inline virtual void RCInputJetEtaMax(const float eta) {
+      if (!m_configFixed) {
+        m_RCInputJetEtaMax = eta;
       }
     }
 
@@ -2119,6 +2133,8 @@ namespace top {
     // Jet configuration for reclustered jets
     float m_RCJetPtcut;
     float m_RCJetEtacut;
+    float m_RCInputJetPtMin;
+    float m_RCInputJetEtaMax;
     float m_RCJetTrimcut;
     float m_RCJetRadius;
     bool m_useRCJetSubstructure;
