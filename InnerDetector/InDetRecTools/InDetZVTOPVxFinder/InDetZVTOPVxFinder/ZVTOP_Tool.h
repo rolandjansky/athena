@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -71,12 +71,20 @@ namespace InDet
       virtual ~ZVTOP_Tool ();
       
        /** standard Athena-Algorithm method */
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override ;
        /** standard Athena-Algorithm method */
-      virtual StatusCode finalize  ();
-      std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const TrackCollection* trackTES);
-      std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const Trk::TrackParticleBaseCollection* trackTES);
-      std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const xAOD::TrackParticleContainer* trackParticles);
+      virtual StatusCode finalize  () override ;
+      
+      using  IVertexFinder::findVertex;
+      virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(
+        const TrackCollection* trackTES) const override ;
+      
+      virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(
+        const Trk::TrackParticleBaseCollection* trackTES) const override;
+
+      virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(
+        const xAOD::TrackParticleContainer* trackParticles) const override;
+
     private:
       
       ToolHandle <Trk::IVertexFitter>			m_iVertexFitter;

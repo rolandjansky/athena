@@ -69,30 +69,30 @@ StatusCode InDet::ZVTOP_SecVtxTool::initialize()
   if ( m_iSpatialPointFinder.retrieve().isFailure() ) {
       msg (MSG::FATAL) << "Failed to retrieve tool " << m_iSpatialPointFinder << endmsg;
       return StatusCode::FAILURE;
-  } else msg (MSG::INFO) << "Retrieved tool " << m_iSpatialPointFinder << endmsg;
+  } msg (MSG::INFO) << "Retrieved tool " << m_iSpatialPointFinder << endmsg;
 
   //Gaussian Probability Tube for the Track Trajectory
   if ( m_iTrkProbTubeCalc.retrieve().isFailure() ) {
       msg (MSG::FATAL) << "Failed to retrieve tool " << m_iTrkProbTubeCalc<< endmsg;
       return StatusCode::FAILURE;
-  } else msg (MSG::INFO) << "Retrieved tool " << m_iTrkProbTubeCalc << endmsg;
+  } msg (MSG::INFO) << "Retrieved tool " << m_iTrkProbTubeCalc << endmsg;
 
   //Vertex Probability Function
   if ( m_iVtxProbCalc.retrieve().isFailure() ) {
       msg (MSG::FATAL) << "Failed to retrieve tool " << m_iVtxProbCalc<< endmsg;
       return StatusCode::FAILURE;
-  } else msg (MSG::INFO) << "Retrieved tool " << m_iVtxProbCalc << endmsg;
+  } msg (MSG::INFO) << "Retrieved tool " << m_iVtxProbCalc << endmsg;
 
   //VxFitter
   if ( m_iVertexFitter.retrieve().isFailure() ) {
       msg (MSG::FATAL) << "Failed to retrieve tool " << m_iVertexFitter << endmsg;
       return StatusCode::FAILURE;
-  } else msg (MSG::INFO) << "Retrieved tool " << m_iVertexFitter << endmsg;
+  } msg (MSG::INFO) << "Retrieved tool " << m_iVertexFitter << endmsg;
 
   if ( m_iAmbiguitySolver.retrieve().isFailure() ) {
       msg (MSG::FATAL) << "Failed to retrieve tool " << m_iAmbiguitySolver << endmsg;
       return StatusCode::FAILURE;
-  } else msg (MSG::INFO) << "Retrieved tool " << m_iAmbiguitySolver << endmsg;
+  } msg (MSG::INFO) << "Retrieved tool " << m_iAmbiguitySolver << endmsg;
 
   msg (MSG::INFO) << "initialize() successful in " << name() << endmsg;
   return StatusCode::SUCCESS;
@@ -119,7 +119,7 @@ Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::RecVerte
   std::vector<xAOD::Vertex*> new_secVertices(0);
   //if (msgLvl(MSG::DEBUG)) msg () << "jet momentum Et s= "<<jetMomentum.et() <<  endmsg; --David S.
   if (msgLvl(MSG::DEBUG)) msg () << "jet momentum Et s= "<<jetMomentum.Et() <<  endmsg;
-  if (inputTracks.size() != 0) {
+  if (!inputTracks.empty()) {
     //some variables
     typedef std::vector<const Trk::TrackParticleBase*>::const_iterator TrkPartVecIter;
     std::vector<const Trk::TrackParticleBase*> trkColl; // the collection of tracks, which are assigned to one spatial point
@@ -140,7 +140,7 @@ Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::RecVerte
     {
       Trk::Vertex* spatialPoint;
       spatialPoint = m_iSpatialPointFinder->findSpatialPoint((*itr_1),(*itr_2));
-      if (spatialPoint != 0) 
+      if (spatialPoint != nullptr) 
       {
 	double TrkProbTube_1 = m_iTrkProbTubeCalc->calcProbTube(*(*itr_1),*spatialPoint);
 	double TrkProbTube_2 = m_iTrkProbTubeCalc->calcProbTube(*(*itr_2),*spatialPoint);
@@ -159,9 +159,9 @@ Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::RecVerte
       delete spatialPoint;
     }
     //trk-IP combination
-    Trk::Vertex* spatialPoint = 0;
+    Trk::Vertex* spatialPoint = nullptr;
     spatialPoint = m_iSpatialPointFinder->findSpatialPoint(primaryVertex,(*itr_1));
-    if (spatialPoint != 0) 
+    if (spatialPoint != nullptr) 
     {
       double IPprobTube = m_iTrkProbTubeCalc->calcProbTube(primaryVertex,*spatialPoint);
       double TrkProbTube = m_iTrkProbTubeCalc->calcProbTube(*(*itr_1),*spatialPoint);
@@ -185,7 +185,7 @@ Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::RecVerte
   for (Sp_Iter itr1 = vtxState_org.begin(); itr1 != vtxState_org.end(); itr1++)
   {
 
-    if (vtxState.size() == 0) vtxState.push_back(*itr1);
+    if (vtxState.empty()) vtxState.push_back(*itr1);
     else 
       {
 	Trk::Vertex vtx_new = (*itr1)->vertex();
@@ -215,7 +215,7 @@ Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::RecVerte
 //----associated tracks are taken as an input for the vertex fit. --------//
 //------------------------------------------------------------------------------//
 
-  if (vtxState.size() != 0 ){
+  if (!vtxState.empty() ){
     if (msgLvl(MSG::DEBUG)) msg () << " step TWO vertex clustering, number of reduced vertices = "<<vtxState.size()<< endmsg;
     //sort the vtxState collection, starting with a highest vtx probability
     std::vector<InDet::ZVTOP_TrkPartBaseVertexState*> vtxState_sorted;
@@ -253,7 +253,7 @@ Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::RecVerte
 		break; // break inner loop if found
               }
 	  }
-	  if (vtx_is_stored == true) break; // break outer loop if found
+	  if (vtx_is_stored) break; // break outer loop if found
 	}
       if (!vtx_is_stored) {
 	//if not stored
@@ -331,7 +331,7 @@ Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::RecVerte
 	}
       //call the fitter
       //Trk::VxCandidate * myVxCandidate(0); --David S.
-      xAOD::Vertex * myxAODVertex(0);
+      xAOD::Vertex * myxAODVertex(nullptr);
       //const Amg::Vector3D p(0.,0.,0.); --David S.
       const Amg::Vector3D startingPoint(0.,0.,0.);
       //Trk::Vertex startingPoint(p); --David S.
@@ -364,22 +364,22 @@ Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::RecVerte
 	      if (largest_chi2 > m_trk_chi2_cut)
 		{
 		  if (trk_coll.size() < 3) break;
-		  else {
+		  
 		    trk_coll.erase(index);
 		    if (trk_coll.size() >= 2) {
 		      //if (myVxCandidate!=0) { delete myVxCandidate; myVxCandidate=0; } --David S.
-		      if (myxAODVertex!=0) { delete myxAODVertex; myxAODVertex=0; }
+		      if (myxAODVertex!=nullptr) { delete myxAODVertex; myxAODVertex=nullptr; }
 		      //myVxCandidate = m_iVertexFitter->fit(trk_coll, startingPoint); --David S.
 		      myxAODVertex = m_iVertexFitter->fit(trk_coll, startingPoint);
 		    }
 		    //if (myVxCandidate == 0) break; --David S.
-		    if (myxAODVertex == 0) break;
-		  }
+		    if (myxAODVertex == nullptr) break;
+		  
 		} else bad_chi2 = false;
 	    }
 	}
       //if (myVxCandidate && bad_chi2 == false) secVertices.push_back(myVxCandidate); --David S.
-      if (myxAODVertex && bad_chi2 == false) secVertices.push_back(myxAODVertex);
+      if (myxAODVertex && !bad_chi2) secVertices.push_back(myxAODVertex);
     }
   new_secVertices = m_iAmbiguitySolver->solveAmbiguities(secVertices);
   if (msgLvl(MSG::DEBUG)) msg () <<"vertex container size = "<<secVertices.size()<<endmsg;
@@ -403,7 +403,7 @@ Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const xAOD::Vertex 
     msg(MSG::DEBUG) << "Returning null VxSecVertexInfo*" << endmsg;
   }
 
-  Trk::VxSecVertexInfo* returnInfo(0);
+  Trk::VxSecVertexInfo* returnInfo(nullptr);
   return returnInfo;
 
 }
@@ -417,7 +417,7 @@ Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::RecVerte
   std::vector<xAOD::Vertex*> secVertices;
   //if (msgLvl(MSG::DEBUG)) msg () << "jet momentum Et = "<<jetMomentum.et() <<  endmsg; --David S.
   if (msgLvl(MSG::DEBUG)) msg () << "jet momentum Et = "<<jetMomentum.Et() <<  endmsg;
-  if (inputTracks.size() != 0) {
+  if (!inputTracks.empty()) {
     //some variables
     typedef std::vector<const Trk::Track*>::const_iterator TrackDataVecIter;
     std::vector<const Trk::Track*> trkColl(0); // the collection of tracks, which are assigned to one spatial point
@@ -440,7 +440,7 @@ Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::RecVerte
 	  {
 	    Trk::Vertex* spatialPoint;
 	    spatialPoint = m_iSpatialPointFinder->findSpatialPoint((*itr_1),(*itr_2));
-	    if (spatialPoint != 0) 
+	    if (spatialPoint != nullptr) 
 	      {
 		double TrkProbTube_1 = m_iTrkProbTubeCalc->calcProbTube(*(*itr_1),*spatialPoint);
 		double TrkProbTube_2 = m_iTrkProbTubeCalc->calcProbTube(*(*itr_2),*spatialPoint);
@@ -459,9 +459,9 @@ Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::RecVerte
 	    delete spatialPoint;
 	  }
 	//trk-IP combination
-	Trk::Vertex* spatialPoint = 0;
+	Trk::Vertex* spatialPoint = nullptr;
 	spatialPoint = m_iSpatialPointFinder->findSpatialPoint(primaryVertex,(*itr_1));
-	if (spatialPoint != 0) 
+	if (spatialPoint != nullptr) 
 	  {
 	    double BeamProbTube = m_iTrkProbTubeCalc->calcProbTube(primaryVertex,*spatialPoint);
 	    double TrkProbTube = m_iTrkProbTubeCalc->calcProbTube(*(*itr_1),*spatialPoint);
@@ -485,7 +485,7 @@ Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::RecVerte
     for (Sp_Iter itr1 = vtxState_org.begin(); itr1 != vtxState_org.end(); itr1++)
       {
 	
-	if (vtxState.size() == 0) vtxState.push_back(*itr1);
+	if (vtxState.empty()) vtxState.push_back(*itr1);
 	else {
 	  Trk::Vertex vtx_new = (*itr1)->vertex();
 	  bool can_be_resolved = false;
@@ -515,7 +515,7 @@ Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::RecVerte
     //------------------------------------------------------------------------------//
 
 
-    if (vtxState.size() != 0 ){
+    if (!vtxState.empty() ){
       if (msgLvl(MSG::DEBUG)) msg () << " step TWO vertex clustering, number of reduced vertices = "<<vtxState.size()<< endmsg;
       //sort the vtxState collection, starting with a highest vtx probability
       std::vector<InDet::ZVTOP_VertexState*> vtxState_sorted;
@@ -556,7 +556,7 @@ Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::RecVerte
 		      break; // break inner loop if found
 		    }
 		}
-	      if (vtx_is_stored == true) break; // break outer loop if found
+	      if (vtx_is_stored) break; // break outer loop if found
 	    }
 	  if (!vtx_is_stored) {
 	    //if not stored
@@ -632,7 +632,7 @@ Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::RecVerte
 	  }
 	//call the fitter
 	//Trk::VxCandidate * myVxCandidate(0); --David S.
-	xAOD::Vertex * myxAODVertex(0);
+	xAOD::Vertex * myxAODVertex(nullptr);
 	//if (!with_IP) myVxCandidate = m_iVertexFitter->fit(trk_coll); --David S.
 	if (!with_IP) myxAODVertex = m_iVertexFitter->fit(trk_coll);
 	bool bad_chi2 = true;
@@ -659,22 +659,22 @@ Trk::VxSecVertexInfo* InDet::ZVTOP_SecVtxTool::findSecVertex(const Trk::RecVerte
 	      if (largest_chi2 > m_trk_chi2_cut)
 		{
 		  if (trk_coll.size() < 3) break;
-		  else {
+		  
 		    trk_coll.erase(index);
 		    if (trk_coll.size() >= 2) {
 		      //if (myVxCandidate!=0) { delete myVxCandidate; myVxCandidate=0; } --David S.
-		      if (myxAODVertex!=0) { delete myxAODVertex; myxAODVertex=0; }
+		      if (myxAODVertex!=nullptr) { delete myxAODVertex; myxAODVertex=nullptr; }
 		      //myVxCandidate = m_iVertexFitter->fit(trk_coll); --David S.
 		      myxAODVertex = m_iVertexFitter->fit(trk_coll);
 		    }
 		    //if (myVxCandidate == 0) break; --David S.
-		    if (myxAODVertex == 0) break;
-		  }
+		    if (myxAODVertex == nullptr) break;
+		  
 		} else bad_chi2 = false;
 	    }
 	}
 	//if (myVxCandidate && bad_chi2 == false) secVertices.push_back(myVxCandidate); --David S.
-	if (myxAODVertex && bad_chi2 == false) secVertices.push_back(myxAODVertex);
+	if (myxAODVertex && !bad_chi2) secVertices.push_back(myxAODVertex);
       }
     if (msgLvl(MSG::DEBUG)) msg () <<"vertex container size = "<<secVertices.size()<<endmsg;
     for (Sp_Iter iter = vtxState_org.begin(); iter != vtxState_org.end(); iter++) delete *iter;

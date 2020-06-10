@@ -100,7 +100,7 @@ InDetIterativePriVxFinderTool::~InDetIterativePriVxFinderTool()
 
 StatusCode InDetIterativePriVxFinderTool::initialize()
 {
-    if (m_createSplitVertices==true && m_useBeamConstraint==true)
+    if (m_createSplitVertices && m_useBeamConstraint)
     {
       ATH_MSG_FATAL(" Split vertices cannot be obtained if beam spot constraint is true! Change settings...");
       return StatusCode::FAILURE;
@@ -158,7 +158,7 @@ StatusCode InDetIterativePriVxFinderTool::initialize()
 
 
 std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> 
-InDetIterativePriVxFinderTool::findVertex(const TrackCollection* trackTES) 
+InDetIterativePriVxFinderTool::findVertex(const TrackCollection* trackTES) const
 {
 
   ATH_MSG_DEBUG(" Number of input tracks before track selection: " << trackTES->size());
@@ -202,10 +202,11 @@ InDetIterativePriVxFinderTool::findVertex(const TrackCollection* trackTES)
   return returnContainers;
 }
 
+std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
+InDetIterativePriVxFinderTool::findVertex(
+  const Trk::TrackParticleBaseCollection* trackTES) const
+{
 
-std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> 
-InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection* trackTES) {
- 
   ATH_MSG_DEBUG(" Number of input tracks before track selection: " << trackTES->size());
 
   SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
@@ -243,57 +244,64 @@ InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection
     return returnContainers;
 }
 
-  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-  InDetIterativePriVxFinderTool::findVertex(const xAOD::TrackParticleContainer* trackParticles) {
-    ATH_MSG_DEBUG(" Number of input tracks before track selection: " << trackParticles->size());
+std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
+InDetIterativePriVxFinderTool::findVertex(
+  const xAOD::TrackParticleContainer* trackParticles) const
+{
+  ATH_MSG_DEBUG(" Number of input tracks before track selection: "
+                << trackParticles->size());
 
-    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
-    const InDet::BeamSpotData* beamSpot = *beamSpotHandle;
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle{ m_beamSpotKey };
+  const InDet::BeamSpotData* beamSpot = *beamSpotHandle;
 
-    std::vector<Trk::ITrackLink*> selectedTracks;
+  std::vector<Trk::ITrackLink*> selectedTracks;
 
-    typedef DataVector<xAOD::TrackParticle>::const_iterator TrackParticleDataVecIter;
+  typedef DataVector<xAOD::TrackParticle>::const_iterator
+    TrackParticleDataVecIter;
 
-    bool selectionPassed;
-    for (TrackParticleDataVecIter itr = trackParticles->begin(); itr != trackParticles->end(); ++itr) {
+  bool selectionPassed;
+  for (TrackParticleDataVecIter itr = trackParticles->begin();
+       itr != trackParticles->end();
+       ++itr) {
 
-      if (m_useBeamConstraint && beamSpot != nullptr) 
-      {
-        xAOD::Vertex beamPosition;
-        beamPosition.makePrivateStore();
-        beamPosition.setPosition( beamSpot->beamVtx().position());
-        beamPosition.setCovariancePosition( beamSpot->beamVtx().covariancePosition() );
-        selectionPassed=static_cast<bool>(m_trkFilter->accept(**itr, &beamPosition));
-      }
-      else
-      {
+    if (m_useBeamConstraint && beamSpot != nullptr) {
+      xAOD::Vertex beamPosition;
+      beamPosition.makePrivateStore();
+      beamPosition.setPosition(beamSpot->beamVtx().position());
+      beamPosition.setCovariancePosition(
+        beamSpot->beamVtx().covariancePosition());
+      selectionPassed =
+        static_cast<bool>(m_trkFilter->accept(**itr, &beamPosition));
+    } else {
 
-        xAOD::Vertex null;
-        null.makePrivateStore();
-        null.setPosition(Amg::Vector3D(0, 0, 0));
-        AmgSymMatrix(3) vertexError;
-        vertexError.setZero();
-        null.setCovariancePosition(vertexError);
-        selectionPassed = static_cast<bool>(m_trkFilter->accept(**itr, &null));
-      }
-
-      if (selectionPassed) {
-        ElementLink<xAOD::TrackParticleContainer> link;
-        link.setElement(*itr);
-        Trk::LinkToXAODTrackParticle* linkTT = new Trk::LinkToXAODTrackParticle(link);
-        linkTT->setStorableObject(*trackParticles);
-        selectedTracks.push_back(linkTT);
-      }
+      xAOD::Vertex null;
+      null.makePrivateStore();
+      null.setPosition(Amg::Vector3D(0, 0, 0));
+      AmgSymMatrix(3) vertexError;
+      vertexError.setZero();
+      null.setCovariancePosition(vertexError);
+      selectionPassed = static_cast<bool>(m_trkFilter->accept(**itr, &null));
     }
 
-    ATH_MSG_DEBUG(
-      "Of " << trackParticles->size() << " tracks " << selectedTracks.size() << " survived the preselection.");
-
-    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers=findVertex(selectedTracks);
-
-    return returnContainers;
+    if (selectionPassed) {
+      ElementLink<xAOD::TrackParticleContainer> link;
+      link.setElement(*itr);
+      Trk::LinkToXAODTrackParticle* linkTT =
+        new Trk::LinkToXAODTrackParticle(link);
+      linkTT->setStorableObject(*trackParticles);
+      selectedTracks.push_back(linkTT);
+    }
   }
 
+  ATH_MSG_DEBUG("Of " << trackParticles->size() << " tracks "
+                      << selectedTracks.size()
+                      << " survived the preselection.");
+
+  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
+    returnContainers = findVertex(selectedTracks);
+
+  return returnContainers;
+}
 
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> 
   InDetIterativePriVxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> & trackVector) const
@@ -485,7 +493,7 @@ InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection
         }
       }
 
-      if (perigeesToFit.size() == 0) {
+      if (perigeesToFit.empty()) {
         if (msgLvl(MSG::DEBUG)) {
           msg(MSG::DEBUG) << " No good seed found. Exiting search for vertices..." << endmsg;
         }
@@ -499,10 +507,10 @@ InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection
       //to reassign vertices you look ino what is already in myVxCandidate
       //you do it only ONCE!
 
-      xAOD::Vertex* myxAODVertex = 0;
-      xAOD::Vertex* myxAODSplitVertex = 0;
+      xAOD::Vertex* myxAODVertex = nullptr;
+      xAOD::Vertex* myxAODSplitVertex = nullptr;
 
-      if (m_useBeamConstraint && perigeesToFit.size() > 0) {
+      if (m_useBeamConstraint && !perigeesToFit.empty()) {
         myxAODVertex = m_iVertexFitter->fit(perigeesToFit, theconstraint);
       } else if (!m_useBeamConstraint && perigeesToFit.size() > 1) {
         myxAODVertex = m_iVertexFitter->fit(perigeesToFit);
@@ -520,7 +528,7 @@ InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection
       countTracksAndNdf(myxAODSplitVertex, ndfSplitVertex, ntracksSplitVertex);
 
       bool goodVertex =
-        myxAODVertex != 0 &&
+        myxAODVertex != nullptr &&
         ((!m_useBeamConstraint && ndf > 0 && ntracks >= 2) ||
          (m_useBeamConstraint && ndf > 3 && ntracks >= 2));
 
@@ -576,7 +584,7 @@ InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection
 
               const Trk::TrackParameters* trackPerigee = (*tracksIter).initialPerigee();
 
-              if (trackPerigee == 0) {
+              if (trackPerigee == nullptr) {
                 msg(MSG::ERROR) << " Cast to perigee gives 0 pointer " << endmsg;
               }
 
@@ -653,9 +661,9 @@ InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection
 
           if (numberOfAddedTracks > 0) {
             delete myxAODVertex;
-            myxAODVertex = 0;
+            myxAODVertex = nullptr;
 
-            if (m_useBeamConstraint && perigeesToFit.size() > 0) {
+            if (m_useBeamConstraint && !perigeesToFit.empty()) {
               myxAODVertex = m_iVertexFitter->fit(perigeesToFit, theconstraint);
             } else if (!m_useBeamConstraint && perigeesToFit.size() > 1) {
               myxAODVertex = m_iVertexFitter->fit(perigeesToFit);
@@ -666,7 +674,7 @@ InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection
             countTracksAndNdf(myxAODVertex, ndf, ntracks);
 
             goodVertex =
-              myxAODVertex != 0 &&
+              myxAODVertex != nullptr &&
               ((!m_useBeamConstraint && ndf > 0 && ntracks >= 2) ||
                (m_useBeamConstraint && ndf > 3 && ntracks >= 2));
 
@@ -714,7 +722,7 @@ InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection
 
       if (m_createSplitVertices) {
         goodSplitVertex =
-          myxAODSplitVertex != 0 &&
+          myxAODSplitVertex != nullptr &&
           ndfSplitVertex > 0 && ntracksSplitVertex >= 2;
 
 
@@ -753,7 +761,7 @@ InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection
         } else {
           if (myxAODVertex) {
             delete myxAODVertex;
-            myxAODVertex = 0;
+            myxAODVertex = nullptr;
           }
         }
       } else {
@@ -764,7 +772,7 @@ InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection
         } else {
           if (myxAODVertex) {
             delete myxAODVertex;
-            myxAODVertex = 0;
+            myxAODVertex = nullptr;
           }
 
           xAOD::Vertex * dummyxAODVertex = new xAOD::Vertex;
@@ -781,7 +789,7 @@ InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection
         } else {
           if (myxAODSplitVertex) {
             delete myxAODSplitVertex;
-            myxAODSplitVertex = 0;
+            myxAODSplitVertex = nullptr;
           }
 
           xAOD::Vertex * dummyxAODVertex = new xAOD::Vertex;
@@ -803,9 +811,9 @@ InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection
     //---- add dummy vertex at the end ------------------------------------------------------//
     //---- if one or more vertices are already there: let dummy have same position as primary vertex
     if (!m_createSplitVertices) {
-      if (theVertexContainer->size() >= 1) {
+      if (!theVertexContainer->empty()) {
         xAOD::Vertex* primaryVtx = theVertexContainer->front();
-        if (primaryVtx->vxTrackAtVertex().size() > 0) {
+        if (!primaryVtx->vxTrackAtVertex().empty()) {
           primaryVtx->setVertexType((xAOD::VxType::VertexType) Trk::PriVtx);
           xAOD::Vertex* dummyxAODVertex = new xAOD::Vertex;
           theVertexContainer->push_back(dummyxAODVertex); // have to add vertex to container here first so it can use
@@ -820,7 +828,7 @@ InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection
       }
       //---- if no vertex is there let dummy be at beam spot
 
-      else if ( theVertexContainer->size() == 0 )
+      else if ( theVertexContainer->empty() )
       {
         xAOD::Vertex * dummyxAODVertex = new xAOD::Vertex;
         theVertexContainer->push_back( dummyxAODVertex ); // have to add vertex to container here first so it can use its aux store
@@ -927,10 +935,9 @@ InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection
   }
 
   void
-  InDetIterativePriVxFinderTool::SGError(std::string errService) {
+  InDetIterativePriVxFinderTool::SGError(const std::string& errService) {
     msg(MSG::FATAL) << errService << " not found. Exiting !" << endmsg;
-    return;
-  }
+ }
 
   double
   InDetIterativePriVxFinderTool::compatibility(const Trk::TrackParameters& measPerigee,
@@ -951,7 +958,7 @@ InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection
     double returnValue = trackParameters2D.dot(weightReduced * trackParameters2D);
 
     delete myLinearizedTrack;
-    myLinearizedTrack = 0;
+    myLinearizedTrack = nullptr;
 
     return returnValue;
   }
@@ -1104,7 +1111,7 @@ InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection
 
       const Trk::TrackParameters* myPerigee = (*perigeesToFitIter);
 
-      if (myPerigee == 0) {
+      if (myPerigee == nullptr) {
         msg(MSG::ERROR) << " Cast to perigee gives 0 pointer " << endmsg;
       }
 
