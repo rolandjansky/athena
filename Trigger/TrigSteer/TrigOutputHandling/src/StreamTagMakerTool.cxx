@@ -36,29 +36,47 @@ StatusCode StreamTagMakerTool::initialize() {
   }
 
   ATH_MSG_INFO("Configuring from HLTMenu from DetStore with " << hltMenu->size() << " chains");
+
+  std::vector<TrigConf::DataStructure> allStreams = hltMenu->streams();
+  ATH_MSG_INFO("Menu has " << allStreams.size() << " streams defined");
+  std::map<std::string, StreamTagInfo> streamDictionary;
+  for (const TrigConf::DataStructure& stream : allStreams) {
+    try {
+      std::string stream_name         = stream.getAttribute("name");
+      std::string stream_type         = stream.getAttribute("type");
+      std::string_view obeyLB         = stream.getAttribute("obeyLB");
+      std::string_view fullEventBuild = stream.getAttribute("forceFullEventBuilding");
+      StreamTagInfo streamTag = {
+        stream_name,
+        stream_type,
+        obeyLB == "true",
+        fullEventBuild == "true"
+      };
+      streamDictionary.insert(std::pair<std::string, StreamTagInfo>(stream.getAttribute("name"),streamTag));
+    } catch (const std::exception& ex) {
+      ATH_MSG_ERROR("Failure reading stream tag configuration from JSON: " << ex.what());
+      return StatusCode::FAILURE;
+    }
+  }
+
   for (const TrigConf::Chain & chain : *hltMenu) {
-    std::vector<TrigConf::DataStructure> streams = chain.streams();
+    std::vector<std::string> streams = chain.streams();
     if (streams.empty()) {
       ATH_MSG_ERROR("Chain " << chain.name() << " has no streams assigned");
       return StatusCode::FAILURE;
     }
     ATH_MSG_DEBUG("Chain " << chain.name() << " is assigned to " << streams.size() << " streams");
     m_mapping[ HLT::Identifier( chain.name() ) ] = {};
-    for (const TrigConf::DataStructure& stream : streams) {
+    for (const std::string& stream : streams) {
       try {
-        std::string stream_name         = stream.getAttribute("name");
-        std::string stream_type         = stream.getAttribute("type");
-        std::string_view obeyLB         = stream.getAttribute("obeyLB");
-        std::string_view fullEventBuild = stream.getAttribute("forceFullEventBuilding");
-        StreamTagInfo streamTag = {
-          stream_name,
-          stream_type,
-          obeyLB == "true",
-          fullEventBuild == "true"
-        };
-        m_mapping[ HLT::Identifier(chain.name()).numeric() ].push_back(streamTag);
-        ATH_MSG_DEBUG("-- " << stream_type << "_" << stream_name
-                      << " (obeyLB=" << obeyLB << ", forceFullEventBuilding=" << fullEventBuild << ")");
+        if(streamDictionary.find(stream) != streamDictionary.end()){
+           StreamTagInfo streamTag = streamDictionary.find(stream)->second;
+           m_mapping[ HLT::Identifier(chain.name()).numeric() ].push_back(streamTag);
+           ATH_MSG_DEBUG("StreamTag [Name,type,obeyLB,forceFullEventBuilding] " << streamTag);
+        }else{
+           ATH_MSG_ERROR("Failure reading stream tag configuration for stream: " << stream);
+           return StatusCode::FAILURE;
+        }
       } catch (const std::exception& ex) {
         ATH_MSG_ERROR("Failure reading stream tag configuration from JSON: " << ex.what());
         return StatusCode::FAILURE;

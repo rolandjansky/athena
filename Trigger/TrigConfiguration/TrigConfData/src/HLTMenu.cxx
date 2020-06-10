@@ -60,6 +60,19 @@ TrigConf::HLTMenu::end() const
 }
 
 
+std::vector<TrigConf::DataStructure>
+TrigConf::HLTMenu::streams() const
+{
+   std::vector<DataStructure> strlist;
+   const auto & streams = data().get_child("streams");
+   strlist.reserve(streams.size());
+
+   for( auto & strData : streams )
+      strlist.emplace_back( strData.second );
+
+   return strlist;
+}
+
 
 void
 TrigConf::HLTMenu::printMenu(bool full) const
