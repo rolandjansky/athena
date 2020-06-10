@@ -84,6 +84,15 @@ public:
   virtual void makeCorrection (const Context& myctx,
                                xAOD::CaloCluster* cluster) const override;
 
+
+  // Alternate version that takes an EventContext.
+  void makeCorrection (const EventContext& ctx,
+                       xAOD::CaloCluster* cluster) const
+  {
+    return makeCorrection (context(ctx), cluster);
+  }
+
+
   /*
    * @brief Return the seed position of a cluster.
    * @param helper Sampling calculation helper object.
