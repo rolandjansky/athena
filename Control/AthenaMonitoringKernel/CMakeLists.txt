@@ -35,9 +35,10 @@ atlas_install_joboptions( share/*.py )
 
 # Decide whether to use Valgrind in the unit tests.
 set( _extra_includes )
+set( _test_definitions )
 if( VALGRIND_FOUND )
    list( APPEND _extra_includes ${VALGRIND_INCLUDE_DIRS} )
-   add_compile_definitions( ATHMON_VALGRIND )
+   list( APPEND _test_definitions DEFINITIONS ATHMON_VALGRIND )
 endif()
 
 # Unit tests C++:
@@ -51,6 +52,7 @@ foreach ( test_file ${CXX_TEST_FILES} )
         SOURCES ${test_file}
         INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
                      ${_extra_includes}
+        ${_test_definitions}
         LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} TestTools
                        GaudiKernel AthenaKernel CxxUtils
                        AthenaMonitoringKernelLib nlohmann_json::nlohmann_json
