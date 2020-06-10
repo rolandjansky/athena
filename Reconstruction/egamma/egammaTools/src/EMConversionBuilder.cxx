@@ -3,13 +3,13 @@
 */
 
 /********************************************************************
-
 NAME:     EMConversionBuilder.cxx
 PACKAGE:  offline/Reconstruction/egamma/egammaRec
 
-AUTHORS:  D. Zerwas, B. Lenzi
+AUTHORS:  D. Zerwas, B. Lenzi , C. Anastopoulos
 CREATED:  Jul, 2005
 CHANGES:  Mar, 2014 (BL) xAOD migration
+CHANGES:  2020 (CA) Athena MT migration
 
 PURPOSE:  subAlgorithm which creates an EMConversion object. 
 
@@ -73,8 +73,8 @@ namespace {
 using namespace xAOD::EgammaParameters;
 
 EMConversionBuilder::EMConversionBuilder(const std::string& type,
-					 const std::string& name,
-					 const IInterface* parent)
+                                         const std::string& name,
+                                         const IInterface* parent)
   : AthAlgTool(type, name, parent)
 {
   
@@ -85,13 +85,10 @@ EMConversionBuilder::EMConversionBuilder(const std::string& type,
 
 // =================================================================
 // DESTRUCTOR:
-EMConversionBuilder::~EMConversionBuilder()
-{  
-}
+EMConversionBuilder::~EMConversionBuilder() {}
 
-// ==================================================================
-// INITIALIZE METHOD:  
-StatusCode EMConversionBuilder::initialize()
+StatusCode
+EMConversionBuilder::initialize()
 {
 
   ATH_MSG_DEBUG("Initializing EMConversionBuilder");
@@ -109,31 +106,42 @@ StatusCode EMConversionBuilder::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode EMConversionBuilder::executeRec(const EventContext& ctx, egammaRec* egRec) const {
+StatusCode
+EMConversionBuilder::executeRec(const EventContext& ctx, egammaRec* egRec) const
+{
   // retrieve Conversion Container
   
   SG::ReadHandle<xAOD::VertexContainer> conversions(m_conversionContainerKey, ctx); 
 
   // only for serial running; remove for MT
   if(!conversions.isValid()){
-    ATH_MSG_ERROR("Could not retrieve Conversion container with key: " << m_conversionContainerKey.key());
+    ATH_MSG_ERROR(
+      "Could not retrieve Conversion container with key: "
+      << m_conversionContainerKey.key());
     return StatusCode::FAILURE;
   }
   //reset the vertices
   std::vector< ElementLink< xAOD::VertexContainer > >  vertices;
   egRec->setVertices(vertices);
-  ATH_CHECK(vertexExecute(egRec,conversions.cptr()));
+  ATH_CHECK(vertexExecute(ctx,egRec,conversions.cptr()));
   return StatusCode::SUCCESS;
 }
 
-// =============================================================
-StatusCode EMConversionBuilder::hltExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions) const {
-  ATH_CHECK(vertexExecute(egRec,conversions));
+StatusCode
+EMConversionBuilder::hltExecute(egammaRec* egRec,
+                                const xAOD::VertexContainer* conversions) const
+{
+  ATH_CHECK(vertexExecute(Gaudi::Hive::currentContext(), egRec, conversions));
   return StatusCode::SUCCESS;
 }
 
-StatusCode EMConversionBuilder::vertexExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions) const {
-  
+StatusCode
+EMConversionBuilder::vertexExecute(
+  const EventContext& ctx,
+  egammaRec* egRec,
+  const xAOD::VertexContainer* conversions) const
+{
+
   if (!egRec || !conversions){
     ATH_MSG_WARNING("trackExecute: NULL pointer to egammaRec or VertexContainer");
     return StatusCode::SUCCESS;
@@ -154,40 +162,43 @@ StatusCode EMConversionBuilder::vertexExecute(egammaRec* egRec, const xAOD::Vert
       phiAtCalo = accphiAtCalo(*vertex);
     }
     // check extrapolation, skip vertex in case of failure
-    else if (!m_extrapolationTool->getEtaPhiAtCalo(vertex, &etaAtCalo, &phiAtCalo)){
+    else if (!m_extrapolationTool->getEtaPhiAtCalo(
+               ctx, vertex, &etaAtCalo, &phiAtCalo)) {
       continue;
     }
     const xAOD::CaloCluster *cluster = egRec->caloCluster();
-    if (!passPtAndEoverP(*vertex, *cluster)){
+    if (!passPtAndEoverP(ctx, *vertex, *cluster)) {
       continue;
     }
-    if (!m_extrapolationTool->matchesAtCalo(cluster, vertex, etaAtCalo, phiAtCalo)){
+    if (!m_extrapolationTool->matchesAtCalo(
+          cluster, vertex, etaAtCalo, phiAtCalo)) {
       continue;
     }
     const ElementLink< xAOD::VertexContainer > vertexLink( *conversions, iVtx );
     
     // If this is the best (or the first) vertex, push front and keep deltaEta, deltaPhi
-    if (!egRec->getNumberOfVertices() || ConvVxSorter(*vertex, *egRec->vertex())){
+    if (!egRec->getNumberOfVertices() ||
+        ConvVxSorter(*vertex, *egRec->vertex())) {
       egRec->pushFrontVertex( vertexLink );
       egRec->setDeltaEtaVtx( cluster->etaBE(2) - etaAtCalo );
       egRec->setDeltaPhiVtx( P4Helpers::deltaPhi(cluster->phiBE(2), phiAtCalo) );
-    }
-    else {// Not the best vertex, push back
-      egRec->pushBackVertex( vertexLink );       
+    } else { // Not the best vertex, push back
+      egRec->pushBackVertex( vertexLink );
     }
   }
   return StatusCode::SUCCESS;
 }
 
-// ==================================================================
-// FINALIZE METHOD:  
 StatusCode EMConversionBuilder::finalize(){
   return StatusCode::SUCCESS;
 }
-// ==================================================================
-bool EMConversionBuilder::passPtAndEoverP(const xAOD::Vertex& vertex, const xAOD::CaloCluster& cluster) const
+
+bool
+EMConversionBuilder::passPtAndEoverP(const EventContext& ctx,
+                                     const xAOD::Vertex& vertex,
+                                     const xAOD::CaloCluster& cluster) const
 {
-  Amg::Vector3D momentum = m_extrapolationTool->getMomentumAtVertex(vertex);
+  Amg::Vector3D momentum = m_extrapolationTool->getMomentumAtVertex(ctx,vertex);
   float pt = momentum.perp();
   float EoverP = cluster.e() / momentum.mag();
   
@@ -218,7 +229,9 @@ bool EMConversionBuilder::passPtAndEoverP(const xAOD::Vertex& vertex, const xAOD
   return !reject;
 }
 
-float EMConversionBuilder::getMaxTRTTubeHitFraction(const xAOD::Vertex& vertex) const{
+float
+EMConversionBuilder::getMaxTRTTubeHitFraction(const xAOD::Vertex& vertex) const
+{
   auto getTRTTubeHitFraction = [](const xAOD::TrackParticle *trk){
     uint8_t nTRT;
     uint8_t nTRTTube;
