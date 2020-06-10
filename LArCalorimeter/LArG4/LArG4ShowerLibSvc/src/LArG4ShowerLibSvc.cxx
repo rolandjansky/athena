@@ -191,7 +191,7 @@ LArG4ShowerLibSvc::getShower(const G4FastTrack& track, int detectorTag) const
 
   // get a shower from the library
   int randomShift = 0;
-  randomShift = (int)(CLHEP::RandGauss::shoot(G4Random::getTheEngine(), 0., 2.5)+0.5);
+  randomShift = (int)(CLHEP::RandGaussZiggurat::shoot(G4Random::getTheEngine(), 0., 2.5)+0.5);
 
 #ifdef DEBUG_FrozenShowers
   std::vector<EnergySpot>* shower = library->getShower(track.GetPrimaryTrack(), m_statisticsMap[library], randomShift);
