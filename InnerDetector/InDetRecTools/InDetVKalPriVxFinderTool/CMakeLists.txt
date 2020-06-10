@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkParticleBase
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkVertexFitter/TrkVKalVrtFitter
+                          Control/CxxUtils
                           PRIVATE
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkTrackLink
@@ -31,7 +32,9 @@ atlas_add_component( InDetVKalPriVxFinderTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps xAODTracking GaudiKernel InDetRecToolInterfaces TrkParameters TrkParticleBase TrkTrack TrkVKalVrtFitterLib TrkEventPrimitives TrkTrackSummary VxVertex TrkToolInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps xAODTracking GaudiKernel InDetRecToolInterfaces 
+                     TrkParameters TrkParticleBase TrkTrack TrkVKalVrtFitterLib CxxUtils TrkEventPrimitives TrkTrackSummary 
+                     VxVertex TrkToolInterfaces )
 
 # Install files from the package:
 atlas_install_headers( InDetVKalPriVxFinderTool )

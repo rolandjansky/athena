@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -37,17 +37,17 @@ namespace InDet {
 
   // -------------------------------------------------------------
   static const InterfaceID IID_ITrackPairsSelector("InDet::TrackPairsSelector", 1, 0);
-  
+
   // -------------------------------------------------------------
-  TrackPairsSelector::TrackPairsSelector(const std::string& type, const std::string& name, const IInterface* parent) :
-    AthAlgTool(type, name, parent),
-    m_helpertool("InDet::ConversionFinderUtils"),
-    m_distanceTool("Trk::SeedNewtonDistanceFinder/InDetConversionTrkDistanceFinder"),
-    m_maxR(500.),
-    m_MinTrkAngle(0.),
-    m_distance(9999.),
-    m_deltaCotTheta(9999.),
-    m_deltaInit(9999.)
+  TrackPairsSelector::TrackPairsSelector(const std::string& type,
+                                         const std::string& name,
+                                         const IInterface* parent)
+    : AthAlgTool(type, name, parent)
+    , m_helpertool("InDet::ConversionFinderUtils")
+    , m_distanceTool(
+        "Trk::SeedNewtonDistanceFinder/InDetConversionTrkDistanceFinder")
+    , m_maxR(500.)
+    , m_MinTrkAngle(0.)
   {
     m_etaCut.push_back(0.8);
     m_etaCut.push_back(1.2);
@@ -86,16 +86,16 @@ namespace InDet {
     if ( m_helpertool.retrieve().isFailure() ) {
       msg(MSG::ERROR) << "Failed to retrieve tool " << m_helpertool << endmsg;
       return StatusCode::FAILURE;
-    } else {
+    } 
       msg(MSG::INFO) << "Retrieved tool " << m_helpertool << endmsg;
-    }
+    
 
     /* Get the distance tool from ToolsSvc */
     if(m_distanceTool.retrieve().isFailure()) {
       msg(MSG::ERROR) << "Could not get " << m_distanceTool << endmsg; return StatusCode::FAILURE;
-    }else{
-      msg(MSG::INFO) << "Got the distance tool " << m_distanceTool << endmsg;
     }
+      msg(MSG::INFO) << "Got the distance tool " << m_distanceTool << endmsg;
+    
     msg(MSG::INFO) << "Initialization successful" << endmsg;
     return StatusCode::SUCCESS;
   }
@@ -106,7 +106,12 @@ namespace InDet {
   }
 
   // -------------------------------------------------------------
-  bool TrackPairsSelector::selectTrackParticlePair(const xAOD::TrackParticle* trkPpos, const xAOD::TrackParticle* trkPneg) {
+  bool
+  TrackPairsSelector::selectTrackParticlePair(
+    const xAOD::TrackParticle* trkPpos,
+    const xAOD::TrackParticle* trkPneg,
+    TrackPairsSelector::Cache& cache) const
+  {
 
     bool pass = true;
     //Getting the track perigee parameters
@@ -172,10 +177,6 @@ namespace InDet {
       return false;
     }
 
-    
-    
-//  Need to work out a way to do this elegently
-//    if(!parPos || !parNeg) {pass = false; return pass;}
     double firstRpos = parPos.position().perp();
     double firstRneg = parNeg.position().perp();
 
@@ -190,9 +191,11 @@ namespace InDet {
       else                                                   detaCut = m_etaCut[2];
     }
 
-    m_deltaCotTheta = fabs(1./tan(perPos->parameters()[Trk::theta]) - 1./tan(perNeg->parameters()[Trk::theta]));
-    if (m_deltaCotTheta > detaCut) return false;
-    
+    cache.m_deltaCotTheta = fabs(1. / tan(perPos->parameters()[Trk::theta]) -
+                                 1. / tan(perNeg->parameters()[Trk::theta]));
+    if (cache.m_deltaCotTheta > detaCut)
+      return false;
+
     //Cut on distance between the initial hit position of the two tracks.
     double dinit = 1000.;
     if(sCase == 0) {
@@ -203,8 +206,8 @@ namespace InDet {
       dinit = m_initCut[2];
     }
     
-    m_deltaInit = fabs(firstRpos - firstRneg);
-    if (m_deltaInit > dinit) return false;
+    cache.m_deltaInit = fabs(firstRpos - firstRneg);
+    if (cache.m_deltaInit > dinit) return false;
     
     //Cut on distance of minimum approach between the two tracks.
     double maxDist = 1000.;
@@ -216,23 +219,27 @@ namespace InDet {
       maxDist = m_maxDist[2];
     }
 
-    m_distance = 1000000.;
+    cache.m_distance = 1000000.;
     std::optional<Trk::ITrkDistanceFinder::TwoPoints> result
       = m_distanceTool->CalculateMinimumDistance(trkPneg->perigeeParameters(),
                                                  trkPpos->perigeeParameters() );
     if (!result) return false;
-    m_distance = dist (result.value());
-    if (m_distance>maxDist) return false;
+    cache.m_distance = dist (result.value());
+    if (cache.m_distance>maxDist) return false;
     
     //3D angle cut in the case of V0s, not used in the case of conversions
-    double d_beta = (perPos->momentum().dot(perNeg->momentum()))/(perPos->momentum().mag()*perNeg->momentum().mag());
+    double d_beta = (perPos->momentum().dot(perNeg->momentum())) /
+                    (perPos->momentum().mag() * perNeg->momentum().mag());
     if(d_beta <m_MinTrkAngle) pass = false;
     
     return pass;
   }
-  
+
   // -------------------------------------------------------------
-  bool TrackPairsSelector::selectTrackPair(const Trk::Track* trkpos, const Trk::Track* trkneg) {
+  bool
+  TrackPairsSelector::selectTrackPair(const Trk::Track* trkpos,
+                                      const Trk::Track* trkneg) const
+  {
 
     bool pass = true;
     ///Getting the track perigee parameters
@@ -264,7 +271,9 @@ namespace InDet {
       detaCut = m_etaCut[2];
     }
 
-    if(fabs(1./tan(perPos->parameters()[Trk::theta]) - 1./tan(perNeg->parameters()[Trk::theta])) > detaCut) pass = false;
+    if (fabs(1. / tan(perPos->parameters()[Trk::theta]) -
+             1. / tan(perNeg->parameters()[Trk::theta])) > detaCut)
+      pass = false;
 
     //Cut on distance between the initial hit position of the two tracks.
     double dinit = 1000.;
@@ -299,18 +308,21 @@ namespace InDet {
     }
     
     //3D angle cut in the case of V0s, not used in the case of conversions
-    double  d_beta = (perPos->momentum().dot(perNeg->momentum()))/(perPos->momentum().mag()*perNeg->momentum().mag());
+    double d_beta = (perPos->momentum().dot(perNeg->momentum())) /
+                    (perPos->momentum().mag() * perNeg->momentum().mag());
     if(d_beta <m_MinTrkAngle) pass = false;
     
     return pass;
   }
 
   // -------------------------------------------------------------
-  std::map<std::string, float> TrackPairsSelector::getLastValues()
+  std::map<std::string, float>
+  TrackPairsSelector::getLastValues(
+    const TrackPairsSelector::Cache& cache) const
   {
-    return {{"minimumDistanceTrk", m_distance},
-            {"deltaCotThetaTrk", m_deltaCotTheta},
-            {"deltaInitRadius", m_deltaInit} };
+    return {{"minimumDistanceTrk", cache.m_distance},
+            {"deltaCotThetaTrk", cache.m_deltaCotTheta},
+            {"deltaInitRadius", cache.m_deltaInit} };
   }
 
 } // namespace InDet

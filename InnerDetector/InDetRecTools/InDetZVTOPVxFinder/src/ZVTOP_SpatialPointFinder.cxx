@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -52,11 +52,11 @@ Trk::Vertex* InDet::ZVTOP_SpatialPointFinder::findSpatialPoint(const Trk::Track*
   const Trk::TrackParameters* perigee_2(dynamic_cast<const Trk::TrackParameters*>(trk_2->perigeeParameters()));
   if ((!perigee_1) or (!perigee_2)) {
     ATH_MSG_DEBUG( "Dynamic cast to MeasuredPerigee failed. Skipping this pair" );
-    return 0;
-  } else {
+    return nullptr;
+  } 
     Trk::Vertex * vertex = findSpatialPoint(perigee_1,perigee_2);
     return vertex;
-  }//if measured perigee
+  //if measured perigee
 }
 
 //===============================================================================================
@@ -66,10 +66,10 @@ Trk::Vertex* InDet::ZVTOP_SpatialPointFinder::findSpatialPoint(const Trk::RecVer
   if (!perigee_1) {
     ATH_MSG_DEBUG( "Dynamic cast to MeasuredPerigee failed. Skipping this pair" );
     return nullptr;
-  } else {
+  } 
     Trk::Vertex * vertex = findSpatialPoint(vtx,perigee_1);
     return vertex;
-  }
+  
 }
 
 //============================================================================================
@@ -79,11 +79,11 @@ Trk::Vertex* InDet::ZVTOP_SpatialPointFinder::findSpatialPoint(const Rec::TrackP
   const Trk::TrackParameters* perigee_2(trk_2->measuredPerigee());
   if ((!perigee_1) or (!perigee_2)) {
     ATH_MSG_DEBUG( "Dynamic cast to MeasuredPerigee failed. Skipping this pair" );
-    return 0;
-  } else {
+    return nullptr;
+  } 
 		Trk::Vertex * vertex = findSpatialPoint(perigee_1,perigee_2);
 		return vertex;
-  }//if measured perigee
+  //if measured perigee
 }
 
 //============================================================================================
@@ -92,11 +92,11 @@ Trk::Vertex* InDet::ZVTOP_SpatialPointFinder::findSpatialPoint(const Trk::RecVer
   const Trk::TrackParameters* perigee_1(trk_1->measuredPerigee());
   if (!perigee_1) {
     ATH_MSG_DEBUG( "Dynamic cast to MeasuredPerigee failed. Skipping this pair" );
-    return 0;
-  } else {
+    return nullptr;
+  } 
     Trk::Vertex * vertex = findSpatialPoint(vtx,perigee_1);
     return vertex;
-  }
+  
 }
 //============================================================================================
 Trk::Vertex* InDet::ZVTOP_SpatialPointFinder::findSpatialPoint(const Trk::TrackParticleBase* trk_1, const Trk::TrackParticleBase* trk_2) const
@@ -105,11 +105,11 @@ Trk::Vertex* InDet::ZVTOP_SpatialPointFinder::findSpatialPoint(const Trk::TrackP
   const Trk::TrackParameters* perigee_2 = dynamic_cast<const Trk::TrackParameters*>(&trk_2->definingParameters());
   if ((!perigee_1) or (!perigee_2)) {
     ATH_MSG_DEBUG ("Dynamic cast to MeasuredPerigee failed. Skipping this pair" );
-    return 0;
-  } else {
+    return nullptr;
+  } 
     Trk::Vertex * vertex = findSpatialPoint(perigee_1,perigee_2);
     return vertex;
-  }//if measured perigee
+  //if measured perigee
 }
 
 //============================================================================================
@@ -118,11 +118,11 @@ Trk::Vertex* InDet::ZVTOP_SpatialPointFinder::findSpatialPoint(const Trk::RecVer
   const Trk::TrackParameters* perigee_1 = dynamic_cast<const Trk::TrackParameters*>(&trk_1->definingParameters());
   if (!perigee_1) {
     ATH_MSG_DEBUG( "Dynamic cast to MeasuredPerigee failed. Skipping this pair" );
-    return 0;
-  } else {
+    return nullptr;
+  } 
     Trk::Vertex * vertex = findSpatialPoint(vtx,perigee_1);
     return vertex;
-  }
+  
 }
 
 //===============================================================================================
@@ -189,11 +189,11 @@ Trk::Vertex* InDet::ZVTOP_SpatialPointFinder::findSpatialPoint(const Trk::TrackP
     { 
       ATH_MSG_DEBUG("found spatial point = ("<<spatialPoint[0]<<", "<<spatialPoint[1]<<", "<<spatialPoint[2]<<")");
       return new Trk::Vertex(spatialPoint);
-    } else 
-    {
+    } 
+    
       ATH_MSG_DEBUG("found spatial point candidate doesn't pass chi2_cut" );
-      return 0;
-    }
+      return nullptr;
+    
      	
 }
 
@@ -241,11 +241,11 @@ Trk::Vertex* InDet::ZVTOP_SpatialPointFinder::findSpatialPoint(const Trk::RecVer
     { 
       if (msgLvl(MSG::DEBUG)) msg() <<"found spatial point = ("<<spatialPoint[0]<<", "<<spatialPoint[1]<<", "<<spatialPoint[2]<<")"<< endmsg;
       return new Trk::Vertex(spatialPoint);
-    } else 
-    {
+    } 
+    
       if (msgLvl(MSG::DEBUG)) msg() <<"found spatial point candidate doesn't pass chi2_cut" << endmsg;
-      return 0;
-    }
+      return nullptr;
+    
 
 }
 
