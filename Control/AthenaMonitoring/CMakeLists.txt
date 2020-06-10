@@ -50,6 +50,7 @@ atlas_add_library(
         LumiBlockCompsLib
         LumiBlockData
         TrigDecisionToolLib
+        TrigAnalysisInterfaces
     PRIVATE_LINK_LIBRARIES
         ${CORAL_LIBRARIES}
         AthenaKernel
