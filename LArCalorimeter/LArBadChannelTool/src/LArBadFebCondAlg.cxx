@@ -6,7 +6,7 @@
 #include "LArBadChannelTool/LArBadChanBlobUtils.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArBadChannelTool/LArBadChannelDecoder.h"
-
+#include "AthenaKernel/IOVInfiniteRange.h"
 
 StatusCode LArBadFebCondAlg::initialize() {
 
@@ -60,6 +60,10 @@ StatusCode LArBadFebCondAlg::execute() {
     for (auto& idBC : bcVec) {
       badFebCont->add(idBC.first,idBC.second);
     }
+  }
+  else {
+    //No input data from DB, set infinte range
+    writeHandle.addDependency(IOVInfiniteRange::infiniteRunLB());
   }
 
   if (m_inputFileName.size()) {//Read supplemental data from ASCII file (if required)
