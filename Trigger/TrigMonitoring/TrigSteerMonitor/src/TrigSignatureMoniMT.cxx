@@ -52,8 +52,8 @@ StatusCode TrigSignatureMoniMT::start() {
       }
     }
 
-    for ( const auto& stream : chain.streams() ){
-      m_streamToChainMap[stream.getAttribute("name")].insert( HLT::Identifier(chain.name()) );
+    for ( const std::string& stream : chain.streams() ){
+      m_streamToChainMap[stream].insert( HLT::Identifier(chain.name()) );
     }
 
     if( gotL1Menu && !chain.l1item().empty() ) {
