@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArBadChannelTool/LArBadChannelCondAlg.h"
@@ -8,24 +8,7 @@
 #include "LArBadChannelTool/LArBadChannelDecoder.h"
 
 
-LArBadChannelCondAlg::LArBadChannelCondAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-  m_BCInputKey("/LAR/BadChannelsOfl/BadChannels"),
-  m_cablingKey("LArOnOffIdMap"),
-  m_BCOutputKey("LArBadChannel","LArBadChannel"),
-  m_condSvc("CondSvc",name)
-{
-  declareProperty("ReadKey",m_BCInputKey);
-  declareProperty("CablingKey",m_cablingKey);
-  declareProperty("WriteKey",m_BCOutputKey);
-  declareProperty("InputFileName",m_inputFileName="");
-}
-
-LArBadChannelCondAlg::~LArBadChannelCondAlg() {}
-
-
 StatusCode LArBadChannelCondAlg::initialize() {
-
   // CondSvc
   ATH_CHECK( m_condSvc.retrieve() );
   // Read Handles
@@ -44,35 +27,28 @@ StatusCode LArBadChannelCondAlg::initialize() {
 
 StatusCode LArBadChannelCondAlg::execute() {
     
-  SG::WriteCondHandle<LArBadChannelCont> writeHandle{m_BCOutputKey};
-  
+  SG::WriteCondHandle<LArBadChannelCont> writeHandle{m_BCOutputKey};  
   if (writeHandle.isValid()) {
     msg(MSG::DEBUG) << "Found valid write handle" << endmsg;
     return StatusCode::SUCCESS;
   }  
 
-  std::unique_ptr<LArBadChannelCont> badChannelCont(new LArBadChannelCont());
+  std::unique_ptr<LArBadChannelCont> badChannelCont=std::make_unique<LArBadChannelCont>();
 
   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
   const LArOnOffIdMapping* cabling{*cablingHdl};
  
-  EventIDRange rangeW;
+  writeHandle.addDependency(cablingHdl);
+
 
   if(!m_BCInputKey.key().empty()) {
-
     SG::ReadCondHandle<CondAttrListCollection> readHandle{m_BCInputKey};
-    const CondAttrListCollection* attrListColl{*readHandle};
- 
-    if(!readHandle.range(rangeW)) {
-       ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
-       return StatusCode::FAILURE;
-    }
- 
+    const CondAttrListCollection* attrListColl{*readHandle}; 
     if (attrListColl==nullptr) {
       msg(MSG::ERROR) << "Failed to retrieve CondAttributeListCollection with key " << m_BCInputKey.key() << endmsg;
       return StatusCode::FAILURE;
     }
-
+    writeHandle.addDependency(readHandle);
   
     //Loop over COOL channels:
      CondAttrListCollection::const_iterator chanIt=attrListColl->begin();
@@ -95,12 +71,6 @@ StatusCode LArBadChannelCondAlg::execute() {
        }
        
      }// end loop over COOL channels
-  } else {
-     EventIDBase start(0, 0);
-     EventIDBase stop(std::numeric_limits<unsigned int>::max()-1,0);
-     start.set_lumi_block(0);
-     stop.set_lumi_block(std::numeric_limits<unsigned int>::max()-1);
-     rangeW=EventIDRange( start, stop );
   }
    
   if (m_inputFileName.size()) {//Read supplemental data from ASCII file (if required)
@@ -132,13 +102,16 @@ StatusCode LArBadChannelCondAlg::execute() {
    
   badChannelCont->setOflVec(oflVec);
    
-
-  if(writeHandle.record(rangeW,badChannelCont.release()).isFailure()) {
+  if(writeHandle.record(std::move(badChannelCont)).isFailure()) {
     ATH_MSG_ERROR("Could not record LArBadChannelCont object with " 
 		  << writeHandle.key() 
-		  << " with EventRange " << rangeW
+		  << " with EventRange " << writeHandle.getRange()
 		  << " into Conditions Store");
     return StatusCode::FAILURE;
   }
+  ATH_MSG_INFO("Recorded LArRawChannelCont object with key "
+	       << writeHandle.key() 
+	       << " with EventRange " << writeHandle.getRange()
+	       << " into Conditions Store");
   return StatusCode::SUCCESS;
 }
