@@ -100,7 +100,7 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
     ToolSvc += sTgcRdoToPrepDataTool
 
     from MuonRdoToPrepData.MuonRdoToPrepDataConf import StgcRdoToStgcPrepData
-    StgcRdoToStgcPrepData = StgcRdoToStgcPrepData(name                    = "StgcRdoToStgcPrepData")
+    StgcRdoToStgcPrepData = StgcRdoToStgcPrepData(name                    = "StgcRdoToStgcPrepData" + postFix)
 
     viewAlgs_MuonPRD.append( StgcRdoToStgcPrepData )
 
@@ -116,7 +116,7 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
     ToolSvc += MmRdoToPrepDataTool
 
     from MuonRdoToPrepData.MuonRdoToPrepDataConf import MM_RdoToMM_PrepData
-    MM_RdoToMM_PrepData = MM_RdoToMM_PrepData(name                    = "MM_RdoToMM_PrepData",
+    MM_RdoToMM_PrepData = MM_RdoToMM_PrepData(name                    = "MMRdoToMMPrepData" + postFix,
                                             PrintInputRdo = True  )
 
     viewAlgs_MuonPRD.append(  MM_RdoToMM_PrepData )
