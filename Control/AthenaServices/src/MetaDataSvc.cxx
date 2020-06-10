@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file MetaDataSvc.cxx
@@ -24,6 +24,8 @@
 #include "SGTools/SGVersionedKey.h"
 #include "PersistentDataModel/DataHeader.h"
 
+#include "OutputStreamSequencerSvc.h"
+
 #include <vector>
 #include <sstream>
 
@@ -34,6 +36,7 @@ MetaDataSvc::MetaDataSvc(const std::string& name, ISvcLocator* pSvcLocator) : ::
 	m_addrCrtr("AthenaPoolCnvSvc", name),
 	m_fileMgr("FileMgr", name),
 	m_incSvc("IncidentSvc", name),
+        m_outSeqSvc("OutputStreamSequencerSvc", name),
 	m_storageType(0L),
 	m_clearedInputDataStore(true),
 	m_clearedOutputDataStore(false),
@@ -157,6 +160,9 @@ StatusCode MetaDataSvc::initialize() {
          }
       }
    }
+   // retrieve the output sequences service (EventService) if available
+   m_outSeqSvc.retrieve().ignore();
+
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
@@ -197,8 +203,8 @@ StatusCode MetaDataSvc::stop() {
 StatusCode MetaDataSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
    if (riid == this->interfaceID()) {
       *ppvInterface = this;
-   } else if (riid == IMetadataTransition::interfaceID()) {
-     *ppvInterface = dynamic_cast<IMetadataTransition*>(this);
+   } else if (riid == IMetaDataSvc::interfaceID()) {
+     *ppvInterface = dynamic_cast<IMetaDataSvc*>(this);
    } else {
       // Interface is not directly available: try out a base class
       return(::AthService::queryInterface(riid, ppvInterface));
@@ -603,3 +609,18 @@ StatusCode MetaDataSvc::initInputMetaDataStore(const std::string& fileName) {
    return(StatusCode::SUCCESS);
 }
 
+
+const std::string MetaDataSvc::currentRangeID() const
+{
+   return m_outSeqSvc.isValid()? m_outSeqSvc->currentRangeID() : "";
+}
+
+
+CLID MetaDataSvc::remapMetaContCLID( const CLID& item_id ) const
+{
+   // for now just a simple dumb if
+   if( item_id == 167728019 ) {
+      return 167729019;   //  MetaCont<EventStreamInfo> CLID
+   }
+   return item_id;
+}
