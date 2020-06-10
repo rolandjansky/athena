@@ -19,7 +19,7 @@
 
 #include "AthenaKernel/IAthenaSerializeSvc.h"
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
-#include "AthenaKernel/IMetadataTransition.h"
+#include "AthenaKernel/IMetaDataSvc.h"
 #include "PersistentDataModel/Placement.h"
 #include "PersistentDataModel/Token.h"
 #include "PersistentDataModel/TokenAddress.h"
@@ -447,10 +447,10 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
                   m_metadataClient = num;
                }
  	       // Retrieve MetaDataSvc
-	       ServiceHandle<IMetadataTransition> metadataTransition("MetaDataSvc", name());
-	       ATH_CHECK(metadataTransition.retrieve());
-	       if(!metadataTransition->shmProxy(std::string(placementStr) + "[NUM=" + oss2.str() + "]").isSuccess()) {
-                  ATH_MSG_FATAL("IMetadataTransition::shmProxy() failed!");
+	       ServiceHandle<IMetaDataSvc> metadataSvc("MetaDataSvc", name());
+	       ATH_CHECK(metadataSvc.retrieve());
+	       if(!metadataSvc->shmProxy(std::string(placementStr) + "[NUM=" + oss2.str() + "]").isSuccess()) {
+                  ATH_MSG_FATAL("MetaDataSvc::shmProxy() failed!");
                   return abortSharedWrClients(num);
 	       }
             } else {
