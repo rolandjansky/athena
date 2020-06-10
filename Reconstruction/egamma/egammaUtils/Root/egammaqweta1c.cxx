@@ -13,7 +13,7 @@ float egammaqweta1c::Correct(const float eta, const float etacell, const float w
   const float etarel = RelPosition(eta, etacell);
   if (aeta < 1.0) {
     return (width - 0.76 * pow(etarel, 2));
-  } else if (aeta < 1.45) {
+  } if (aeta < 1.45) {
     return (width - 0.85 * pow(etarel, 2) + 1.9 * pow(etarel, 4));
   } else if (aeta < 1.5) {
     return width;
@@ -38,7 +38,7 @@ double egammaqweta1c::RelPosition(const float eta, const float etacell) {
     const double dgra = 0.025 / ngra;
     const double etapos = fabs(eta - etacell - dgra / 2.);
     return (fmod(etapos, dgra) / dgra - 0.5);
-  } else if (aeta < 2.0) {
+  } if (aeta < 2.0) {
     const float ngra = 6.;
     const float dgra = 0.025 / ngra;
     const double etapos = fabs(eta - etacell - dgra / 2.);

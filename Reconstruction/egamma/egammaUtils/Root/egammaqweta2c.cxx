@@ -5,7 +5,7 @@
 #include "egammaUtils/egammaqweta2c.h"
 #include "xAODCaloEvent/CaloCluster.h"
 
-#include <math.h>
+#include <cmath>
 
 namespace {
 const float P0A[3] = {0.0045, 0.005375, -0.0562};
@@ -29,7 +29,7 @@ float egammaqweta2c::Correct(const float eta, const float etacell, const float w
   if (aeta < 0.8) {
     if (etarel < 0.1) {
       return (weta2 - (P0A[0] + P1A[0] * etarel + P2A[0] * etarel * etarel));
-    } else if (etarel < 0.9) {
+    } if (etarel < 0.9) {
       return (weta2 - (P0A[1] + P1A[1] * etarel + P2A[1] * etarel * etarel));
     } else {
       return (weta2 - (P0A[2] + P1A[2] * etarel + P2A[2] * etarel * etarel));
@@ -37,7 +37,7 @@ float egammaqweta2c::Correct(const float eta, const float etacell, const float w
   } else if (aeta < 1.5) {
     if (etarel < 0.1) {
       return (weta2 - (P0B[0] + P1B[0] * etarel + P2B[0] * etarel * etarel));
-    } else if (etarel < 0.9) {
+    } if (etarel < 0.9) {
       return (weta2 - (P0B[1] + P1B[1] * etarel + P2B[1] * etarel * etarel));
     } else {
       return (weta2 - (P0B[2] + P1B[2] * etarel + P2B[2] * etarel * etarel));
@@ -46,7 +46,7 @@ float egammaqweta2c::Correct(const float eta, const float etacell, const float w
   } else if (aeta < 1.8) {
     if (etarel < 0.1) {
       return (weta2 - (P0B[0] + P1B[0] * etarel + P2B[0] * etarel * etarel));
-    } else if (etarel < 0.9) {
+    } if (etarel < 0.9) {
       return (weta2 - (P0B[1] + P1B[1] * etarel + P2B[1] * etarel * etarel));
     } else {
       return (weta2 - (P0B[2] + P1B[2] * etarel + P2B[2] * etarel * etarel));
