@@ -31,6 +31,7 @@ StatusCode AFPSiLayerAlgorithm::initialize() {
  
 	m_HitmapGroups = buildToolMap<std::map<std::string,int>>(m_tools,"AFPSiLayerTool", m_stationnames, m_pixlayers);
 	m_TrackGroup = buildToolMap<int>(m_tools, "AFPSiLayerTool", m_stationnames);
+
 	// We must declare to the framework in initialize what SG objects we are going to use:
 	SG::ReadHandleKey<xAOD::AFPSiHitContainer> afpHitContainerKey("AFPSiHits");
 	ATH_CHECK(m_afpHitContainerKey.initialize());
@@ -42,6 +43,10 @@ StatusCode AFPSiLayerAlgorithm::initialize() {
 StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const {
 	using namespace Monitored;
 
+	// Local variables:
+	unsigned int numberOfHits[16];
+	float eff;
+
 	// Declare the quantities which should be monitored:
 	auto lb = Monitored::Scalar<int>("lb", 0); 
 	auto nSiHits = Monitored::Scalar<int>("nSiHits", 1);
@@ -52,6 +57,8 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	auto clusterY = Monitored::Scalar<float>("clusterY", 0.0); 
 	auto trackX = Monitored::Scalar<float>("trackX", 0.0);
 	auto trackY = Monitored::Scalar<float>("trackY", 0.0);
+	auto layerEfficiency = Monitored::Scalar<float>("layerEfficiency", 0.0);
+	auto layerNumber = Monitored::Scalar<int>("layerNumber", 0);
     
 	lb = GetEventInfo(ctx)->lumiBlock();
  
@@ -81,7 +88,74 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 			fill(m_tools[m_HitmapGroups.at(m_stationnames.at(hitsItr->stationID())).at(m_pixlayers.at(hitsItr->pixelLayerID()))], timeOverThreshold);	
 		}
 			else ATH_MSG_WARNING("Unrecognised station index: " << hitsItr->stationID());
+
+		if(hitsItr->stationID == 0)
+		{
+			if(hitsItr->pixelLayerID == 0)
+			{
+			}
+			if(hitsItr->pixelLayerID == 1)
+			{
+			}
+			if(hitsItr->pixelLayerID == 2)
+			{
+			}
+			if(hitsItr->pixelLayerID == 3)
+			{
+			}
 		}
+
+		if(hitsItr->stationID == 1)
+		{
+			if(hitsItr->pixelLayerID == 0)
+			{
+			}
+			if(hitsItr->pixelLayerID == 1)
+			{
+			}
+			if(hitsItr->pixelLayerID == 2)
+			{
+			}
+			if(hitsItr->pixelLayerID == 3)
+			{
+			}
+		}
+
+		if(hitsItr->stationID == 2)
+		{
+			if(hitsItr->pixelLayerID == 0)
+			{
+			}
+			if(hitsItr->pixelLayerID == 1)
+			{
+			}
+			if(hitsItr->pixelLayerID == 2)
+			{
+			}
+			if(hitsItr->pixelLayerID == 3)
+			{
+			}
+		}
+
+		if(hitsItr->stationID == 3)
+		{
+			if(hitsItr->pixelLayerID == 0)
+			{
+			}
+			if(hitsItr->pixelLayerID == 1)
+			{
+			}
+			if(hitsItr->pixelLayerID == 2)
+			{
+			}
+			if(hitsItr->pixelLayerID == 3)
+			{
+			}
+		}
+
+		
+	}
+	// Filling of layerEff 2D histogram
 
 	AFPMon::AFPFastReco fast(afpHitContainer.get());
 	fast.reco();
