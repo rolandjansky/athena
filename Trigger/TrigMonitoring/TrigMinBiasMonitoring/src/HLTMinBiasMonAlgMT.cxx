@@ -145,11 +145,11 @@ StatusCode HLTMinBiasMonAlgMT::monitorSPCounts(const EventContext& context) cons
           auto xaodntrk = Scalar( "xaodnTrk", HLTxaodTrkHandle->size() );
           auto decision = Scalar<int>("decision", trigDecTool->isPassed(trig) ? 1 : 0);
           auto NumGoodOfflineTracks = Scalar("NumGoodOfflineTracks", inDetTrackParticlesHandle->size());
-          //auto ntrk = Scalar( "nTrk", trkCountsHandle->at(0)->getDetail<int>("ntrks") );
-          //auto NumGoodOnlineTracks = Scalar("NumGoodOnlineTracks", trkCountsHandle->at(0)->getDetail<int>("ntrks"));
+          auto ntrk = Scalar( "nTrk", trkCountsHandle->at(0)->getDetail<int>("ntrks") );
+          auto NumGoodOnlineTracks = Scalar("NumGoodOnlineTracks", trkCountsHandle->at(0)->getDetail<int>("ntrks"));//set appropriate condition for selection later
           auto whichtrigger =  Scalar("whichTrigger",trig);
 
-          fill(thisTrig+"_Eff",/*ntrk,NumGoodOnlineTracks,*/xaodntrk,decision,NumGoodOfflineTracks,whichtrigger);
+          fill(thisTrig+"_Eff",ntrk,NumGoodOnlineTracks,xaodntrk,decision,NumGoodOfflineTracks,whichtrigger);
           fill("EffAll",decision,whichtrigger);
         }
 
