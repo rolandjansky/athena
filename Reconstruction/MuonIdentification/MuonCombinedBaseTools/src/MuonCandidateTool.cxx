@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -11,11 +11,6 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "MuonCandidateTool.h"
-#include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
-#include "MuonRecToolInterfaces/IMuonTrackExtrapolationTool.h"
-
 
 namespace MuonCombined {
  
@@ -36,23 +31,16 @@ namespace MuonCombined {
     declareProperty("AmbiguityProcessor",m_ambiguityProcessor );
   }
 
-  MuonCandidateTool::~MuonCandidateTool()
-  {}
-
   //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
   StatusCode MuonCandidateTool::initialize() {
     ATH_CHECK(m_printer.retrieve());
-    if( !m_trackBuilder.empty() )           ATH_CHECK(m_trackBuilder.retrieve());
+    if( !m_trackBuilder.empty()) ATH_CHECK(m_trackBuilder.retrieve());
     else m_trackBuilder.disable();
     if( !m_trackExtrapolationTool.empty() ) ATH_CHECK(m_trackExtrapolationTool.retrieve());
     else m_trackExtrapolationTool.disable();
     ATH_CHECK(m_ambiguityProcessor.retrieve());
     ATH_CHECK(m_beamSpotKey.initialize());
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode MuonCandidateTool::finalize() {
     return StatusCode::SUCCESS;
   }
 
@@ -65,7 +53,7 @@ namespace MuonCombined {
     float beamSpotY = beamSpotHandle->beamPos()[Amg::y];
     float beamSpotZ = beamSpotHandle->beamPos()[Amg::z];
 
-    ATH_MSG_DEBUG( " Beamspot position  bs_x " << beamSpotX << " bs_y " << beamSpotY << " bs_z " << beamSpotZ);  
+    ATH_MSG_DEBUG("Beamspot position bs_x=" << beamSpotX << ", bs_y=" << beamSpotY << ", bs_z=" << beamSpotZ);
       
     // Temporary collection for extrapolated tracks and links with correspondent MS tracks
     std::map<const Trk::Track*, std::pair<ElementLink<xAOD::TrackParticleContainer>, Trk::Track*> > trackLinks;
@@ -81,15 +69,17 @@ namespace MuonCombined {
         continue;
       }
       ElementLink<xAOD::TrackParticleContainer> trackLink(tracks,index++);
-      //trackLink.toPersistent();
 
       const Trk::Track& msTrack = *track->track();
 
       ATH_MSG_VERBOSE("Re-Fitting track " << std::endl << m_printer->print(msTrack) << std::endl << m_printer->printStations(msTrack));
       Trk::Track* standaloneTrack = 0;
       const Trk::Vertex* vertex = 0;
-      if( m_extrapolationStrategy == 0 ) standaloneTrack = m_trackBuilder->standaloneFit(msTrack, vertex, beamSpotX, beamSpotY, beamSpotZ);
-      else                               standaloneTrack = m_trackExtrapolationTool->extrapolate(msTrack);
+      if( m_extrapolationStrategy == 0 ) {
+        standaloneTrack = m_trackBuilder->standaloneFit(msTrack, vertex, beamSpotX, beamSpotY, beamSpotZ);
+      } else {
+         standaloneTrack = m_trackExtrapolationTool->extrapolate(msTrack);
+      }
       if (standaloneTrack) {
 	standaloneTrack->info().setParticleHypothesis(Trk::muon);
 	standaloneTrack->info().setPatternRecognitionInfo(Trk::TrackInfo::MuidStandAlone);
