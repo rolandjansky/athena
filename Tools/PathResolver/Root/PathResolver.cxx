@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PathResolver/PathResolver.h"
@@ -201,6 +201,12 @@ PathResolver::find_file(const std::string& logical_file_name,
    else { path_list = envVarVal; }
 #else
   System::getEnv(search_path, path_list);
+#endif
+
+#ifndef XAOD_ANALYSIS
+  if (!logical_file_name.empty() && logical_file_name[0]=='/') {
+    msg(MSG::ERROR) << "Use of an absolute file name: " << logical_file_name << endmsg;
+  }
 #endif
 
   return (find_file_from_list (logical_file_name, path_list, search_type));
