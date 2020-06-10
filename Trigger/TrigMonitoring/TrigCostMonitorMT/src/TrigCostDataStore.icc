@@ -23,8 +23,8 @@ StatusCode TrigCostDataStore<PAYLOAD>::insert(const AlgorithmIdentifier& ai, con
   if (mapReference.insert(acc, ai)) {
     // Obtains lock on the key value 'name' until 'acc' goes out of scope or calls release()
     acc->second = payload;
-  } else if (msg.level() <= MSG::WARNING) {
-    msg << MSG::WARNING << "Key caller:'" << ai.m_caller << "' store:'" << ai.m_store 
+  } else if (msg.level() <= MSG::DEBUG) {
+    msg << MSG::DEBUG << "Key caller:'" << ai.m_caller << "' store:'" << ai.m_store 
       << "' slot:" << ai.m_realSlot <<" already in the TrigCostDataStore" << endmsg; 
   }
   return StatusCode::SUCCESS;
