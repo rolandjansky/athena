@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigL2MuonSA/AlphaBetaEstimate.h"
@@ -14,45 +14,12 @@
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-static const InterfaceID IID_AlphaBetaEstimate("IID_AlphaBetaEstimate", 1, 0);
-
-const InterfaceID& TrigL2MuonSA::AlphaBetaEstimate::interfaceID() { return IID_AlphaBetaEstimate; }
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
 TrigL2MuonSA::AlphaBetaEstimate::AlphaBetaEstimate(const std::string& type,
 						   const std::string& name,
 						   const IInterface*  parent):
   AthAlgTool(type, name, parent), 
   m_ptEndcapLUT(0)
 {
-  declareInterface<TrigL2MuonSA::AlphaBetaEstimate>(this);
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-TrigL2MuonSA::AlphaBetaEstimate::~AlphaBetaEstimate() 
-{
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigL2MuonSA::AlphaBetaEstimate::initialize()
-{
-  ATH_MSG_DEBUG("Initializing AlphaBetaEstimate - package version " << PACKAGE_VERSION) ;
-   
-  StatusCode sc;
-  sc = AthAlgTool::initialize();
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
-    return sc;
-  }
-
-  // 
-  return StatusCode::SUCCESS; 
 }
 
 // --------------------------------------------------------------------------------
@@ -391,17 +358,3 @@ double TrigL2MuonSA::AlphaBetaEstimate::calcDistance(double x1,double y1,double 
   double d=fabs(b)/sqrt(a*a+1);
   return d;
 }
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigL2MuonSA::AlphaBetaEstimate::finalize()
-{
-  ATH_MSG_DEBUG("Finalizing AlphaBetaEstimate - package version " << PACKAGE_VERSION);
-   
-  StatusCode sc = AthAlgTool::finalize(); 
-  return sc;
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
