@@ -82,19 +82,15 @@ int HIClusterSubtraction::execute() const
 {
   //const jet::cellset_t & badcells = badCellMap.cells() ;
   //retrieve UE
-	ATH_MSG_WARNING("HIClusterSubtraction being rebuilt to work in MT - upgrade not yet over! ");
 	const xAOD::HIEventShapeContainer* shape = 0;
 	SG::ReadHandle<xAOD::HIEventShapeContainer>  readHandleEvtShape ( m_eventShapeKey );
   shape = readHandleEvtShape.cptr();
-
   const HIEventShapeIndex* es_index = HIEventShapeMap::getIndex( m_eventShapeKey.key() );
-
   const xAOD::HIEventShape* eshape = nullptr;
   CHECK(m_modulatorTool->getShape(eshape), 1);
 
   //New implementation: make a deep copy of original HIClusters and apply subtraction to clusters in the new container
 	SG::ReadHandle<xAOD::CaloClusterContainer>  readHandleClusters ( m_inClusterKey );
-
   // Now a handle to write the deep Copy
   SG::WriteHandle<xAOD::CaloClusterContainer> writeHandleDeepCopyClusters ( m_outClusterKey );
   // Preparing keys and container to perfrom the origin correction
@@ -194,10 +190,10 @@ int HIClusterSubtraction::execute() const
       ATH_MSG_DEBUG(" Applying correction = " << (*toolIt)->name() );
 			CHECK((*toolIt)->execute(Gaudi::Hive::currentContext(), copyClusters), 1);
     }//End loop over correction tools
-  //}
+
 	if(missingMoment) ATH_MSG_WARNING("No origin correction applied, CENTERMAG missing");
 
-// Make sure that memory is managed safely
+  // Make sure that memory is managed safely
   std::unique_ptr<xAOD::CaloClusterContainer> outClusters(copyClusters);
   std::unique_ptr<xAOD::AuxContainerBase> deepAux(copyClustersAux);
 
