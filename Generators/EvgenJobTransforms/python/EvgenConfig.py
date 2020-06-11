@@ -124,6 +124,7 @@ class EvgenConfig(TransformConfig):
     inputFilesPerJob = Integer("number of input files per job",0, AllowedExpression("value >= 0"))
     nEventsPerJob = Integer("number of input events per job",0, AllowedExpression("value >= 0"))
     obsolete = Boolean("Are JOs/common fragment obsolete", False)
+    PDGparams = Boolean("Do we use the standard PDG values for masses, widths etc. ", False)
 
     def __init__(self, name="evgenConfig"):
         TransformConfig.__init__(self, name)
