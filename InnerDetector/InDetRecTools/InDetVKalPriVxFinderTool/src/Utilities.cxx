@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -306,13 +306,10 @@ InDetVKalPriVxFinderTool::inpSelector(
        double pmom = std::sin(VectPerig[3])/std::fabs(VectPerig[4]);
 //----------------------------------- Summary tools
        if(m_SummaryToolExist) {
-          const Trk::TrackSummary* testSum = m_sumSvc->createSummary(*(*i_ntrk));
+          std::unique_ptr<const Trk::TrackSummary> testSum = m_sumSvc->summary(*(*i_ntrk));
           if( testSum->get(Trk::numberOfInnermostPixelLayerHits) <= 0){
-            delete testSum;
-            testSum=nullptr;
             continue;
           } 
-          delete testSum;
        }
        mapTracks.insert( std::pair<double, const Trk::Track*>(pmom,(*i_ntrk)));
     }
