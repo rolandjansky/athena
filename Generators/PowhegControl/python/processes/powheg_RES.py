@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from .powheg_base import PowhegBase
+import glob
 
 
 class PowhegRES(PowhegBase):
