@@ -131,14 +131,14 @@ StatusCode FFJetSmearingTool::initialize()
     ATH_MSG_INFO("  PtRange : jet_pt < " << m_PtRange);
     // Get the file to read uncertainties in from
     m_histFileName = settings.GetValue("UncertaintyRootFile","");
-    m_HistogramsFilePath = jet::utils::findFilePath(m_histFileName.Data(),m_path.c_str(),m_calibArea.c_str());
+    m_HistogramsFilePath = jet::utils::findFilePath(m_histFileName.c_str(),m_path.c_str(),m_calibArea.c_str());
     if (m_histFileName == "")
     {
         ATH_MSG_ERROR("Cannot find uncertainty histogram file in the config file");
         return StatusCode::FAILURE;
     }
-    ATH_MSG_INFO(Form("  UncertaintyFile: \"%s\"",m_histFileName.Data()));
-    ATH_MSG_INFO(Form("    Location: %s",m_HistogramsFilePath.Data()));
+    ATH_MSG_INFO(Form("  UncertaintyFile: \"%s\"",m_histFileName.c_str()));
+    ATH_MSG_INFO(Form("    Location: %s",m_HistogramsFilePath.c_str()));
 
 
 
@@ -841,7 +841,7 @@ double FFJetSmearingTool::Read3DHistogram(TH3* histo, double x, double y, double
   if(z >= zMax) aux_z = zMax-1e-6 ; //so it fits the up-most z-bin
   if(z <= zMin) aux_z = zMin+1e-6 ; //so it fits the low-most z-bin
 
-  //Use the interpolate function from Heleprs.cxx
+  //Use the interpolate function from RootHelpers.cxx
   double weight = RootHelpers::Interpolate(histo, aux_x, aux_y, aux_z);
 
 

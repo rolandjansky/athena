@@ -155,12 +155,12 @@ class FFJetSmearingTool : public asg::AsgTool, virtual public IJetResolutionTool
         float m_MassRange;
         float m_PtRange;
         std::string m_calibArea;
-        TString m_histFileName;
-        TString m_MassDef_string;
+        std::string m_histFileName;
+        std::string m_MassDef_string;
         FFAllowedMassDef::TypeEnum m_MassDef;
         std::string m_configFile;
         std::string m_path;
-        TString m_HistogramsFilePath;
+        std::string  m_HistogramsFilePath;
 
         //Response matrix
         TH2D* m_CALO_ResponseMap;
