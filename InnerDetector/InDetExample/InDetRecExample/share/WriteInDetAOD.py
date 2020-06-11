@@ -53,7 +53,6 @@ if InDetFlags.doxAOD():
   if InDetFlags.doTrackSegmentsTRT():
     InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODTRTTrackParticleContainer()]
     InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODTRTTrackParticleContainer()+'Aux.' + excludedAuxData]
-  #if InDetFlags.doLowPtRoI():
   InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODLowPtRoITrackParticleContainer()]
   InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODLowPtRoITrackParticleContainer()+'Aux.' + excludedAuxData]
   InDetAODList+=['xAOD::VertexContainer#'+InDetKeys.xAODLowPtRoIVertexContainer()]
