@@ -160,9 +160,16 @@ namespace top {
 
     registerParameter("JetPt", "Jet pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
     registerParameter("JetEta", "Absolute Jet eta cut for object selection. Default 2.5.", "2.5");
-    registerParameter("FwdJetAndMET", "Forward jet selection and corresponding MET calculation."
-                                      "Default (does nothing on forward jets), fJVT (No longer recommended), fJVTTight(apply tight fJVT cut if pT<60GeV and |eta|>2.5), Tight (requires pT>30GeV if |eta|>2.5).",
+    //    registerParameter("FwdJetAndMET", "Forward jet selection and corresponding MET calculation."
+    //                                  "Default (does nothing on forward jets), fJVT (No longer recommended), fJVTTight(apply tight fJVT cut if pT<60GeV and |eta|>2.5), Tight (requires pT>30GeV if |eta|>2.5).",
+    //                  "Default"); JJJJJJJJ
+    registerParameter("ForwardJVTWP", "Set fJVT Working Point for selecting forward jets (|eta|>2.5 & 20GeV<pT<120GeV)"
+		      "\'Default\': No fJVT (doesn't run tool for selection) - use this if you don't have forward jets in your selection or if using using PFlow jets with a derivation older than p4173, \'Tight\' (fJVT<0.4, recommended), \'Medium\': (fJVT<0.5, if combined with ForwardJVTinMETCalculation this will set MET WP to Tenacious with stricter JVTinMET requirements",
+// , \'None\': Doesn't run fJVT tool for selection OR MET - Use only if you don't have forward jets in your selection AND don't want the fJVT decision to be used in MET calculation, or alternatively if you are using using PFlow jets with derivation before XXX",
                       "Default");
+    registerParameter("ForwardJVTinMETCalculation",
+                      "Use fJVT cut on forward jets to improve resolution in the MET recalculation? \'False\' (default - must set false if using pflow jets with derivations older than P4173), or \'True\'", "False");
+    registerParameter("SaveFailForwardJVTJets", "Save the jets that failed the fJVT cut? \'False\' (default), or \'True\'", "False");
     registerParameter("JetPtGhostTracks",
                       "Jet pT threshold for ghost track systematic variations calculation (in MeV). Default 19 GeV.",
                       "19000.");

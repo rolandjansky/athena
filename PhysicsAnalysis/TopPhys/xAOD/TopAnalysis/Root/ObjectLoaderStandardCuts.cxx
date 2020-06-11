@@ -113,8 +113,9 @@ namespace top {
 
     ///-- Jets --///
     if (topConfig->useJets()) {
-      objectSelection->jetSelection(new top::JetMC15(topConfig->jetPtcut(), topConfig->jetEtacut(),
-                                                     topConfig->fwdJetAndMET()));
+      //      objectSelection->jetSelection(new top::JetMC15(topConfig->jetPtcut(), topConfig->jetEtacut(),
+      //                                               topConfig->fwdJetAndMET()));
+      objectSelection->jetSelection(new top::JetMC15(topConfig->jetPtcut(), topConfig->jetEtacut()));
     }
 
     ///-- Large R Jets --///

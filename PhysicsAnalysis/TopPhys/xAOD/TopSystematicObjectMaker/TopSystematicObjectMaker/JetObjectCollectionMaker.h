@@ -138,7 +138,7 @@ namespace top {
     std::unordered_map<std::string, ToolHandle<IJetSelectorTool> > m_boostedJetTaggers;
 
     ToolHandle<IJetUpdateJvt> m_jetUpdateJvtTool;
-    ToolHandle<IJetModifier> m_fjvtTool;
+    ToolHandle<IJetModifier> m_jetSelectfJvtTool;
 
     std::string m_truthJetCollForHS;
 

@@ -70,6 +70,7 @@ namespace top {
     declareProperty("JetEventCleaningToolTightBad", m_jetEventCleaningToolTightBad);
 
     declareProperty("JetUpdateJvtTool", m_jetUpdateJvtTool);
+    declareProperty("JetSelectfJvtTool", m_jetSelectfJvtTool);
 
     declareProperty("JES_data2016_data2015_Recommendation_Dec2016.config", m_jetAntiKt4_MCFS_ConfigFile);
     declareProperty("JetCalibrationSequenceFS", m_jetAntiKt4_MCFS_CalibSequence);
@@ -199,28 +200,48 @@ namespace top {
       m_jetUpdateJvtTool = jetUpdateJvtTool;
     }
 
-    ///-- Update fJVT --///
-    const std::string fjvt_tool_name = "fJVTTool";
-    if (asg::ToolStore::contains<IJetModifier>(fjvt_tool_name)) {
-      m_fjvtTool = asg::ToolStore::get<IJetModifier>(fjvt_tool_name);
-    } else {
-      IJetModifier* fJVTTool = new JetForwardJvtTool(fjvt_tool_name);
-      top::check(asg::setProperty(fJVTTool, "JvtMomentName", "AnalysisTop_JVT"),
-                 "Failed to set JvtMomentName for JetForwardJvtTool");
-      // following instructions from:
-      // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/METUtilities#MET_with_forward_JVT
-      if (m_config->fwdJetAndMET() == "fJVT") {
-        top::check(asg::setProperty(fJVTTool, "CentralMaxPt", 60e3),
-                   "Failed to set CentralMaxPt for JetForwardJvtTool");
+    ///-- Calculate fJVT --///
+    //Only setup fJVT tool if user actually wants it
+    if (m_config->doForwardJVTinMET() || m_config->getfJVTWP() != "Default") {
+      
+      const std::string fjvt_tool_name = "JetSelectfJvtTool";
+      if (asg::ToolStore::contains<IJetModifier>(fjvt_tool_name)) {
+	m_jetSelectfJvtTool = asg::ToolStore::get<IJetModifier>(fjvt_tool_name);
+      } else {
+	IJetModifier* JetSelectfJvtTool = new JetForwardJvtTool(fjvt_tool_name);
+	top::check(asg::setProperty(JetSelectfJvtTool, "JvtMomentName", "AnalysisTop_JVT"), //fJVT uses JVT decision
+		   "Failed to set JvtMomentName for JetForwardJvtTool");
+	
+	//Default fJVT WP is medium but this can't be used with default Tight MET WP
+	//MET WP takes precidence so making ATop default fJVT=Tight 
+	if (m_config->getfJVTWP() != "Medium"){ 
+	  //	  top::check(asg::setProperty(JetSelectfJvtTool, "OutputDec", "passFJVTTight"),
+	  //                     "Failed to set OutputDec for JetForwardJvtTool");
+	  top::check(asg::setProperty(JetSelectfJvtTool, "UseTightOP", true),
+                     "Failed to set UseTightOP for JetForwardJvtTool");
+	}
+	// else{
+	//   top::check(asg::setProperty(JetSelectfJvtTool, "OutputDec", "passFJVTMedium"),
+        //              "Failed to set OutputDec for JetForwardJvtTool");
+	//}
+	top::check(asg::setProperty(JetSelectfJvtTool, "OutputDec", "AnalysisTop_fJVTdecision"),
+		   "Failed to set OutputDec for JetForwardJvtTool");
+
+	// following updated instructions from: JJJJJJJJJJJJJ
+	// https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EtmissRecommendationsRel21p2#Working_Points
+	// if (m_config->fwdJetAndMET() == "fJVT") {
+	//   top::check(asg::setProperty(fJVTTool, "CentralMaxPt", 60e3),
+	// 	     "Failed to set CentralMaxPt for JetForwardJvtTool");
+	// }
+	// if (m_config->fwdJetAndMET() == "fJVTTight") {
+	//   top::check(asg::setProperty(fJVTTool, "OutputDec", "passFJVTTight"),
+	// 	     "Failed to set OutputDec for JetForwardJvtTool");
+	//   top::check(asg::setProperty(fJVTTool, "UseTightOP", true),
+	// 	     "Failed to set UseTightOP for JetForwardJvtTool");
+	// }
+	top::check(JetSelectfJvtTool->initialize(), "Failed to initialize " + fjvt_tool_name);
+	m_jetSelectfJvtTool = JetSelectfJvtTool;
       }
-      if (m_config->fwdJetAndMET() == "fJVTTight") {
-        top::check(asg::setProperty(fJVTTool, "OutputDec", "passFJVTTight"),
-                   "Failed to set OutputDec for JetForwardJvtTool");
-        top::check(asg::setProperty(fJVTTool, "UseTightOP", true),
-                   "Failed to set UseTightOP for JetForwardJvtTool");
-      }
-      top::check(fJVTTool->initialize(), "Failed to initialize " + fjvt_tool_name);
-      m_fjvtTool = fJVTTool;
     }
 
     ///-- Jet Cleaning Tools --///
@@ -248,7 +269,7 @@ namespace top {
     // JER string option configuration
     bool JERisMC = m_config->isMC();
     std::string JERSmearModel = m_config->jetJERSmearingModel();
-    // Any PseudoData option (smear MC as data)
+    // Any PseudoData Option (Smear MC as data)
     if (JERSmearModel == "Full_PseudoData") {
       if (JERisMC) JERisMC = false;
       JERSmearModel = "Full";
@@ -470,6 +491,44 @@ namespace top {
       top::check(jetJvtTool->initialize(), "Failed to initialize JVT tool");
       m_jetJvtTool = jetJvtTool;
     }
+ 
+    // <jonathan.jamieson@cern.ch> Added 9th June 2020.
+    // Jet fJVT tool - uses same tool as for JVT, can be used for both selection and for SFs
+    // Only setup fJVT Efficiency tool if user actually wants it
+    if (m_config->getfJVTWP() != "Default") {
+      const std::string fjvt_tool_name = "JetForwardJvtEfficiencyTool";
+      const std::string fJVT_SFFile =
+	(m_config->useParticleFlowJets()) ?
+	"JetJvtEfficiency/May2020/fJvtSFFile.EMPFlow.root" : // pflow jets JJJJJJJJJJJJJJ
+	"JetJvtEfficiency/May2020/fJvtSFFile.EMtopo.root";      // default is EM jets
+
+      std::string fJVT_WP = m_config->getfJVTWP();
+      if (fJVT_WP == "Medium"){
+	fJVT_WP = "Loose";
+      }
+
+      if (asg::ToolStore::contains<CP::IJetJvtEfficiency>(fjvt_tool_name)) {
+	m_jetfJvtTool = asg::ToolStore::get<CP::IJetJvtEfficiency>(fjvt_tool_name);
+      } else {
+	CP::JetJvtEfficiency* jetfJvtTool = new CP::JetJvtEfficiency(fjvt_tool_name);
+	top::check(jetfJvtTool->setProperty("WorkingPoint", fJVT_WP),
+		   "Failed to set fJVT WP");
+	top::check(jetfJvtTool->setProperty("SFFile", fJVT_SFFile),
+		   "Failed to set fJVT SFFile name");
+	top::check(jetfJvtTool->setProperty("UseMuSFFormat", true),
+		   "Failed to set fJVT SFFile to updated mu binning");
+	top::check(jetfJvtTool->setProperty("ScaleFactorDecorationName", "fJVTSF"),
+		   "Failed to set fJVT SF decoration name");
+	top::check(jetfJvtTool->setProperty("JetfJvtMomentName", "AnalysisTop_fJVTdecision"),
+		   "Failed to set fJVT pass/fail decoration name");
+	top::check(jetfJvtTool->setProperty("TruthLabel", "AnalysisTop_isHS"),
+		   "Failed to set fJVT TruthLabel decoration name");
+	top::check(jetfJvtTool->setProperty("TruthJetContainerName", m_config->sgKeyTruthJets()),
+		   "Failed to set fJVT TruthJetContainerName decoration name");
+	top::check(jetfJvtTool->initialize(), "Failed to initialize fJVT Efficiency tool");
+	m_jetfJvtTool = jetfJvtTool;
+      }
+    }
     return StatusCode::SUCCESS;
   }
 
@@ -486,20 +545,31 @@ namespace top {
       if (m_config->useParticleFlowJets()) {
         top::check(metMaker->setProperty("DoPFlow", true), "Failed to set METMaker DoPFlow to true");
       }
-      if (m_config->fwdJetAndMET() == "Tight") {
-        top::check(metMaker->setProperty("JetSelection", "Tight"), "Failed to set METMaker JetSelection to Tight");
-      } else if (m_config->fwdJetAndMET() == "fJVT") {
-        ATH_MSG_WARNING(" option fJVT no longer recommended, please use  fJVTTight. Option to be removed.");
-        top::check(metMaker->setProperty("JetRejectionDec",
-                                         "passFJVT"), "Failed to set METMaker JetRejectionDec to passFJVT");
-      } else if ((m_config->fwdJetAndMET() == "fJVTTight")) {
-        ATH_MSG_INFO("JetRejectionDec set to passFJVTTight");
-        top::check(metMaker->setProperty("JetRejectionDec",
-                                         "passFJVTTight"), "Failed to set METMaker JetRejectionDec to passFJVTTight");
+     
+      if (m_config->doForwardJVTinMET()) { 
+	if (m_config->getfJVTWP() == "Medium") {
+	  top::check(metMaker->setProperty("JetSelection", "Tenacious"), "Failed to set METMaker JetSelection to Tenacious");
+	}
+        top::check(metMaker->setProperty("JetRejectionDec","AnalysisTop_fJVTdecision"), "Failed to set METMaker JetRejectionDec to AnalysisTop_fJVTdecision");
+	top::check(metMaker->initialize(), "Failed to initialize");
+	metMaker->msg().setLevel(MSG::INFO);
+	m_met_maker = metMaker;
       }
-      top::check(metMaker->initialize(), "Failed to initialize");
-      metMaker->msg().setLevel(MSG::INFO);
-      m_met_maker = metMaker;
+
+      // if (m_config->fwdJetAndMET() == "Tight") {
+      //   top::check(metMaker->setProperty("JetSelection", "Tight"), "Failed to set METMaker JetSelection to Tight");
+      // } else if (m_config->fwdJetAndMET() == "fJVT") {
+      //   ATH_MSG_WARNING(" option fJVT no longer recommended, please use  fJVTTight. Option to be removed.");
+      //   top::check(metMaker->setProperty("JetRejectionDec",
+      //                                    "passFJVT"), "Failed to set METMaker JetRejectionDec to passFJVT");
+      // } else if ((m_config->fwdJetAndMET() == "fJVTTight")) {
+      //   ATH_MSG_INFO("JetRejectionDec set to passFJVTTight");
+      //   top::check(metMaker->setProperty("JetRejectionDec",
+      //                                    "passFJVTTight"), "Failed to set METMaker JetRejectionDec to passFJVTTight");
+      // }
+      // top::check(metMaker->initialize(), "Failed to initialize");
+      // metMaker->msg().setLevel(MSG::INFO);
+      // m_met_maker = metMaker;
     }
 
     // MET Systematics tool

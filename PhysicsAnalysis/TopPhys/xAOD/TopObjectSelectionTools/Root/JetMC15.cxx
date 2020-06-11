@@ -11,21 +11,25 @@
 namespace top {
   JetMC15::JetMC15(const double ptcut,
                    const double etamax,
-                   const bool doJVTCut,
-                   const std::string fwdJetSel) :
+                   const bool doJVTCut):
+    //const std::string fwdJetSel) :
     m_ptcut(ptcut),
     m_etamax(etamax),
     m_applyJVTCut(doJVTCut),
-    m_fwdJetSel(fwdJetSel),
+    //    m_fwdJetSel(fwdJetSel),
     m_jvt_tool("JetJvtEfficiencyTool") {
     top::check(m_jvt_tool.retrieve(),
                "Failed to retrieve JVT tool");
   }
 
-  // This version of the constructor always perform JVT cut
+  // This version of the constructor always perform JVT cut 
+  JetMC15::JetMC15(const double ptcut,
+                   const double etamax) : JetMC15::JetMC15(ptcut, etamax, true) {}
+
+  // DEPRECIATED - fwdJetSel string now defunct, keeping blank string input for backwards compatibility
   JetMC15::JetMC15(const double ptcut,
                    const double etamax,
-                   const std::string fwdJetSel) : JetMC15::JetMC15(ptcut, etamax, true, fwdJetSel) {}
+                   const std::string) : JetMC15::JetMC15(ptcut, etamax, true) {}
 
   // DEPRECATED - only kept for backward compatibility
   JetMC15::JetMC15(const double ptcut,
@@ -41,11 +45,13 @@ namespace top {
 
     if (std::fabs(jet.eta()) > m_etamax) return false;
 
-    if (m_fwdJetSel == "fJVT") {
-      if (!jet.getAttribute<char>("passFJVT")) return false;
-    } else if (m_fwdJetSel == "Tight") {
-      if (std::fabs(jet.eta()) > 2.5 && jet.pt() < 30e3) return false;
-    }
+    //fJVT pass/fail decision already attatched in CP tools
+
+    // if (m_fwdJetSel == "fJVT") {
+    //   if (!jet.getAttribute<char>("passFJVT")) return false;
+    // } else if (m_fwdJetSel == "Tight") {
+    //   if (std::fabs(jet.eta()) > 2.5 && jet.pt() < 30e3) return false;
+    // }
 
     jet.auxdecor<char>("good") = 1;
     jet.auxdecor<char>("closeToLepton") = 0;

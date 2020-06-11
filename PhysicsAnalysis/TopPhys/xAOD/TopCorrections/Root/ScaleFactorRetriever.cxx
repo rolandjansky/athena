@@ -1180,6 +1180,21 @@ namespace top {
     }
   }
 
+  float ScaleFactorRetriever::fjvtSF(const top::Event& event,
+                                    const top::topSFSyst SFSyst) const {
+    xAOD::JetContainer jets = event.m_jets;
+    switch (SFSyst) {
+    case top::topSFSyst::FJVT_UP:
+      return event.m_fjvtSF_UP;
+
+    case top::topSFSyst::FJVT_DOWN:
+      return event.m_fjvtSF_DOWN;
+
+    default:
+      return event.m_fjvtSF;
+    }
+  }
+
   /**
    * @brief Print all the SF values to msg stream
    */

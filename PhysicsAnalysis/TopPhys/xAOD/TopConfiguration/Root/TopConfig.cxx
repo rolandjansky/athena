@@ -239,7 +239,7 @@ namespace top {
     // Jet configuration
     m_jetPtcut(25000.),
     m_jetEtacut(2.5),
-    m_fwdJetAndMET("Default"),
+  //    m_fwdJetAndMET("Default"),
     m_jetPtGhostTracks(19000.),
     m_jetUncertainties_NPModel("AllNuisanceParameters"),
     m_jetUncertainties_QGFracFile("None"),
@@ -251,6 +251,9 @@ namespace top {
     m_doJVTInMETCalculation(true),
     m_saveFailJVTJets(false),
     m_JVTWP("Default"),
+    m_doForwardJVTInMETCalculation(false),
+    m_saveFailForwardJVTJets(false),
+    m_fJVTWP("Default"),
 
     m_largeRJetPtcut(25000.),
     m_largeRJetEtacut(2.5),
@@ -715,13 +718,24 @@ namespace top {
               }
             }
           }
+	  // check derivation version due to fJVT info needed at derivation level for PFlow
+	  //ATH_MSG_WARNING("JJJJJJJJJJJJJJJJJJJJJJJJJJJ useParticleFlowJets() = " << this->useParticleFlowJets());
+	  //ATH_MSG_WARNING("JJJJJJJJJJJJJJJJJJJJJJJJJJJ doForwardJVTinMET() = " << settings->value("ForwardJVTinMETCalculation"));
+	  //ATH_MSG_WARNING("JJJJJJJJJJJJJJJJJJJJJJJJJJJ fJVTWP() = " << settings->value("ForwardJVTWP"));
+	  if (this->useParticleFlowJets() && (settings->value("ForwardJVTinMETCalculation") == "True" || settings->value("ForwardJVTWP") != "Default")){ //fJVT requested for PFlow
+	    //	    throw std::runtime_error("deriv version logic not working JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ");
+	    if (deriv_rel_name < "21.2.97.0") { //JJJJJJJJ
+	      throw std::runtime_error(
+			"TopConfig: You are using derivation with release 21.2.96.0 or older and requested fJVT for particle-flow jets. The necessary information for PFlow fjvt is only present from release 21.2.97.0 and newer, you will need to switch to newer derivations or turn of fJVT (ForwardJVTWP = \"Default\" & ForwardJVTinMETCalculation = \"False\")");
+	    }
+	  }
         } else {
-          ATH_MSG_WARNING("Could not parse derivation release from the file metadata. We cannot check that correct jet and/or track jet collection is used for b-tagging. You are on your own.");
+          ATH_MSG_WARNING("Could not parse derivation release from the file metadata. We cannot check that correct jet and/or track jet collection is used for b-tagging, or a new enough derivation is used for PFlow fJVT. You are on your own.");
         }
         // try to parse the derivation release, we need the release number
       } catch (std::logic_error& e) {
         ATH_MSG_WARNING(e.what());
-        ATH_MSG_WARNING("Could not obtain derivation release from the file metadata. We cannot check that correct jet and/or track jet collection is used for b-tagging. You are on your own.");
+        ATH_MSG_WARNING("Could not obtain derivation release from the file metadata. We cannot check that correct jet and/or track jet collection is used for b-tagging, or a new enough derivation is used for PFlow fJVT. You are on your own.");
       }
     }
 
@@ -1224,7 +1238,7 @@ namespace top {
     // Jet configuration
     this->jetPtcut(std::stof(settings->value("JetPt")));
     this->jetEtacut(std::stof(settings->value("JetEta")));
-    this->fwdJetAndMET(settings->value("FwdJetAndMET"));
+    //    this->fwdJetAndMET(settings->value("FwdJetAndMET"));
     this->jetPtGhostTracks(std::stof(settings->value("JetPtGhostTracks")));
     this->jetUncertainties_NPModel(settings->value("JetUncertainties_NPModel"));
     this->jetUncertainties_QGFracFile(settings->value("JetUncertainties_QGFracFile"));
@@ -1234,6 +1248,12 @@ namespace top {
     this->doJVTinMET((settings->value("JVTinMETCalculation") == "True" ? true : false));
     this->saveFailJVTJets((settings->value("SaveFailJVTJets") == "True" ? true : false));
     this->setJVTWP(settings->value("JVTWP"));
+    this->doForwardJVTinMET((settings->value("ForwardJVTinMETCalculation") == "True" ? true : false));
+    this->saveFailForwardJVTJets((settings->value("SaveFailForwardJVTJets") == "True" ? true : false));
+    this->setfJVTWP(settings->value("ForwardJVTWP"));
+    if (settings->value("ForwardJVTWP") == "Medium" && settings->value("ForwardJVTinMETCalculation") == "True"){
+      ATH_MSG_WARNING("TopConfig::setConfigSettings: fJVT WP set to Medium and fJVT in MET requested, MET working point will be changed to Tenacious to maintain compatibility with fJVT!");
+    }
 
     this->largeRJetPtcut(std::stof(settings->value("LargeRJetPt")));
     this->largeRJetEtacut(std::stof(settings->value("LargeRJetEta")));

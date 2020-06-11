@@ -92,6 +92,8 @@ namespace top {
     BTAG_SF_NAMED_UP, BTAG_SF_NAMED_DOWN,
     // JVT SFs
     JVT_UP, JVT_DOWN,
+    // fJVT SFs
+    FJVT_UP, FJVT_DOWN,
     // FWD Electron ID SFs
     FWDEL_SF_ID_UP, FWDEL_SF_ID_DOWN,
 
@@ -294,6 +296,20 @@ namespace top {
      *
      **/
     float jvtSF(const top::Event& event,
+                const top::topSFSyst SFsyst) const;
+
+    /**
+     *
+     * fJVT Efficiency SFs
+     * @brief: Get the total fJVT SF by taking the product of SFs for all jets, as of AnalysisBase124 by default central jets get a SF value of 1
+     *
+     * @param: event, a top::Event object
+     * @param: SFSyst, systematic variation enum
+     *
+     * @return: prod_fjvt, the product of the fjvt SFs for selected jets
+     *
+     **/
+    float fjvtSF(const top::Event& event,
                 const top::topSFSyst SFsyst) const;
 
     /**

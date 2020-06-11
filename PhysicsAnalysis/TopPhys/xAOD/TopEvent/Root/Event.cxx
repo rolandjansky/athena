@@ -55,6 +55,10 @@ std::ostream& operator << (std::ostream& os, const top::Event& event) {
   for (const auto* const jetPtr : event.m_failJvt_jets) {
     os << "    " << *jetPtr << "\n";
   }
+  os << "Fail-FJVT jets: " << event.m_failFJvt_jets.size() << "\n";
+  for (const auto* const jetPtr : event.m_failFJvt_jets) {
+    os << "    " << *jetPtr << "\n";
+  }
   os << "Large jets: " << event.m_largeJets.size() << "\n";
   for (const auto* const jetPtr : event.m_largeJets) {
     os << "    " << *jetPtr << "\n";
