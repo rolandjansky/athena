@@ -219,7 +219,7 @@ class ComponentAccumulator(object):
             raise ConfigurationError('{} is not the Conf2 Sequence, ComponentAccumulator handles only the former'.format(newseq.name()))
 
         if not isSequence(newseq):
-            raise ConfigurationError('{} is not a sequence'.format(newseq.name))
+            raise TypeError('%s is not a sequence' % newseq.name)
 
         if parentName is None:
             parent=self._sequence
