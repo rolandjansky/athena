@@ -144,6 +144,7 @@ private: // internal member functions
    void nextFile() const; 
    /// Search for event with number evtNum.
    int findEvent(int evtNum) const;
+   StoreGateSvc* eventStore() const;
 
 private: // properties
    /// IsSecondary, know if this is an instance of secondary event selector
@@ -164,7 +165,7 @@ private: // properties
    mutable std::vector<std::string>::const_iterator m_inputCollectionsIterator;
    void inputCollectionsHandler(Property&);
    ServiceHandle<IIncidentSvc> m_incidentSvc{this, "IncidentSvc", "IncidentSvc", ""};
-   ServiceHandle<StoreGateSvc> m_evtStore{this, "StoreGateSvc", "StoreGateSvc", ""};
+   ServiceHandle<ActiveStoreSvc> m_activeStoreSvc;
 
    Gaudi::Property<long> m_skipEvents{this, "SkipEvents", 0, ""}; // Number of events to skip at the beginning
    Gaudi::Property<std::vector<long>> m_skipEventSequenceProp{this, "SkipEventSequence", {}, ""};
