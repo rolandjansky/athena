@@ -64,7 +64,7 @@ class doEmCluster(CaloRecFlagsJobProperty):
     """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=False
+    StoredValue=True
 
 class doCaloCluster(CaloRecFlagsJobProperty):
     """ switch for combined calo cluster
