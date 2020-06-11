@@ -32,6 +32,8 @@
 // Tree Filter
 #include "TopConfiguration/TreeFilter.h"
 
+#include "TopDataPreparation/SampleXsection.h"
+
 namespace top {
   class AodMetaDataAccess;
   class ConfigurationSettings;
@@ -67,6 +69,10 @@ namespace top {
     // TDP path
     void setTDPPath(const std::string& s);
     inline const std::string& getTDPPath() const {return m_topDataPreparationPath;}
+    
+    //showering algorithm
+    void setShoweringAlgorithm(SampleXsection::showering in) { m_showeringAlgo=in; }
+    SampleXsection::showering getShoweringAlgorithm() const {return m_showeringAlgo;}
 
     inline bool recomputeCPvars() const {return m_recomputeCPvars;}
 
@@ -856,12 +862,6 @@ namespace top {
       }
     }
 
-    inline virtual void photonUseRadiativeZ(const bool b) {
-      if (!m_configFixed) {
-        m_photon_configuration.useRadiativeZ = b;
-      }
-    }
-
     // Muon configuration
     inline virtual void muonPtcut(const float pt) {
       if (!m_configFixed) {
@@ -981,15 +981,21 @@ namespace top {
       }
     }
 
-    void softmuonUseMVALowPt(const bool& UseMVALowPtSoftMuon) {
+    void softmuonUseMVALowPt(const bool UseMVALowPtSoftMuon) {
       if (!m_configFixed) {
-	m_softmuonUseMVALowPt = UseMVALowPtSoftMuon;
+        m_softmuonUseMVALowPt = UseMVALowPtSoftMuon;
       }
     }
 
     inline virtual void softmuonDRJetcut(const float DRJet) {
       if (!m_configFixed) {
         m_softmuonDRJetcut = DRJet;
+      }
+    }
+    
+    inline virtual void softmuonDRJetcutUseRapidity(const bool in) {
+      if (!m_configFixed) {
+        m_softmuonDRJetcutUseRapidity = in;
       }
     }
     
@@ -1016,6 +1022,7 @@ namespace top {
     inline virtual const std::string& softmuonQuality() const {return m_softmuonQuality;}
     inline virtual bool softmuonUseMVALowPt() const {return m_softmuonUseMVALowPt;}
     inline virtual float softmuonDRJetcut() const {return m_softmuonDRJetcut;}
+    inline virtual bool softmuonDRJetcutUseRapidity() const {return m_softmuonDRJetcutUseRapidity;}
     inline virtual bool softmuonAdditionalTruthInfo() const { return m_softmuonAdditionalTruthInfo;}
     inline virtual bool softmuonAdditionalTruthInfoCheckPartonOrigin() const { return m_softmuonAdditionalTruthInfoCheckPartonOrigin;}
     inline virtual bool softmuonAdditionalTruthInfoDoVerbose() const { return m_softmuonAdditionalTruthInfoDoVerbose;}
@@ -1412,10 +1419,6 @@ namespace top {
 
     inline const std::string& photonIsolationLoose() {
       return m_photon_configuration_loose.isolation;
-    }
-
-    inline const bool& photonUseRadiativeZ() {
-      return m_photon_configuration.useRadiativeZ;
     }
 
     // inline const std::string& tauJetID() const {return m_tauJetID;}
@@ -1884,6 +1887,7 @@ namespace top {
 
     unsigned int m_DSID;
     unsigned int m_MapIndex;
+    SampleXsection::showering m_showeringAlgo;
     bool m_is_sherpa_22_vjets = false;
 
     bool m_isMC;
@@ -2087,6 +2091,7 @@ namespace top {
     std::string m_softmuonQuality; // soft muon quality used in object selection
     bool m_softmuonUseMVALowPt; //to turn on MVA for low-pT muons
     float m_softmuonDRJetcut; // soft muon object selection DR wrt jets cut
+    bool m_softmuonDRJetcutUseRapidity; // true -> use rapidity for DR(jet,mu) matching; false -> use pseudorapidity
     bool m_softmuonAdditionalTruthInfo; //additional info on the particle-level origin of the muon, see TopParticleLevel/TruthTools.h
     bool m_softmuonAdditionalTruthInfoCheckPartonOrigin; //additional info on the parton-level origin of the muon, see TopParticleLevel/TruthTools.h
     bool m_softmuonAdditionalTruthInfoDoVerbose; //to help debugging the above options
@@ -2174,7 +2179,6 @@ namespace top {
       float eta = 2.5;
       std::string isolation = "None";
       std::string identification = "None";
-      bool useRadiativeZ = false;
     } m_photon_configuration, m_photon_configuration_loose;
 
     // [[[-----------------------------------------------

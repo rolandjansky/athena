@@ -45,7 +45,7 @@ namespace top {
     // Allowed overlap removal options
     std::set<std::string> allowed_OR_procedures = {
       "recommended", "jetmuApplyRelPt", "harmonized",
-      "Boosted", "BoostedSlidingDREl", "BoostedSlidingDRMu", "BoostedSlidingDRElMu", "noTauJetOLR"
+      "Boosted", "BoostedSlidingDREl", "BoostedSlidingDRMu", "BoostedSlidingDRElMu", "noTauJetOLR", "noPhotonMuOR", "noPhotonMuOrJetOR"
     };
     std::string OR_procedure = m_config->overlapRemovalProcedure();
 
@@ -147,7 +147,16 @@ namespace top {
     } else if (OR_procedure == "noTauJetOLR") {
       top::check(m_ORtoolBox.tauJetORT.setProperty("DR", 0.0),
                  "Failed to set DR in TauJetORT to zero");
+    } else if (OR_procedure == "noPhotonMuOR") {
+      top::check(m_ORtoolBox.phoMuORT.setProperty("DR", 0.0),
+                 "Failed to set DR in phoMuonORT to zero");
+    } else if (OR_procedure == "noPhotonMuOrJetOR") {
+      top::check(m_ORtoolBox.phoMuORT.setProperty("DR", 0.0),
+                 "Failed to set DR in phoMuonORT to zero");
+      top::check(m_ORtoolBox.phoJetORT.setProperty("DR", 0.0),
+                 "Failed to set DR in phoJetORT to zero");
     }
+    
     if (applyElectronInJetSubtraction) {
       top::check(m_ORtoolBox.eleJetORT.setProperty("UseSlidingDR", true),
                  "Failed to setSliding DR in ElJetORT");
@@ -160,6 +169,7 @@ namespace top {
       top::check(m_ORtoolBox.eleJetORT.setProperty("SlidingDRMaxCone", 0),
                  "Failed to set SlidingDRMaxCone");
     }
+    
     top::check(m_ORtoolBox.initialize(),
                "Failed to initialize overlap removal tools");
     m_overlapRemovalTool = std::move(m_ORtoolBox.masterTool);
@@ -227,7 +237,16 @@ namespace top {
     } else if (OR_procedure == "noTauJetOLR") {
       top::check(m_ORtoolBox_Loose.tauJetORT.setProperty("DR", 0.0),
                  "Failed to set DR in TauJetORT to zero");
+    } else if (OR_procedure == "noPhotonMuOR") {
+      top::check(m_ORtoolBox_Loose.phoMuORT.setProperty("DR", 0.0),
+                 "Failed to set DR in phoMuonORT to zero");
+    } else if (OR_procedure == "noPhotonMuOrJetOR") {
+      top::check(m_ORtoolBox_Loose.phoMuORT.setProperty("DR", 0.0),
+                 "Failed to set DR in phoMuonORT to zero");
+      top::check(m_ORtoolBox_Loose.phoJetORT.setProperty("DR", 0.0),
+                 "Failed to set DR in phoJetORT to zero");
     }
+    
     if (applyElectronInJetSubtraction) {
       top::check(m_ORtoolBox_Loose.eleJetORT.setProperty("UseSlidingDR", true),
                  "Failed to setSliding DR in ElJetORT");
@@ -240,10 +259,46 @@ namespace top {
       top::check(m_ORtoolBox_Loose.eleJetORT.setProperty("SlidingDRMaxCone", 0),
                  "Failed to set SlidingDRMaxCone");
     }
+    
     top::check(m_ORtoolBox_Loose.initialize(),
                "Failed to initialize loose overlap removal tools");
     m_overlapRemovalTool_Loose = std::move(m_ORtoolBox_Loose.masterTool);
-
+    
+    ATH_MSG_INFO("Setting up special OR tools for soft muons");
+    ORUtils::ORFlags OR_flags_sm_PFjets("OverlapRemovalTool_softMuons_PFjets","ORToolDecoration", "AT_fail_softMuons_OR_PFjets");
+    OR_flags_sm_PFjets.doElectrons = false;
+    OR_flags_sm_PFjets.doMuons = true;
+    OR_flags_sm_PFjets.doJets = false;
+    OR_flags_sm_PFjets.doTaus = false;
+    OR_flags_sm_PFjets.doPhotons = false;
+    OR_flags_sm_PFjets.boostedLeptons = false;
+    OR_flags_sm_PFjets.doFatJets = false;
+    OR_flags_sm_PFjets.doMuPFJetOR = true;
+    
+    top::check(ORUtils::recommendedTools(OR_flags_sm_PFjets, m_ORtoolBox_softMuons_PFjets), "Failed to setup OR Tool box for soft muons-PFjets");
+    for (auto&& tool : m_ORtoolBox_softMuons_PFjets.getOverlapTools()) {
+      top::check(tool->setProperty("EnableUserPriority", true), "Failed to set EnableUserPriority");
+    }
+    top::check(m_ORtoolBox_softMuons_PFjets.initialize(),"Failed to initialize soft muons overlap removal tools");
+    m_overlapRemovalTool_softMuons_PFjets = std::move(m_ORtoolBox_softMuons_PFjets.masterTool);
+    
+    ORUtils::ORFlags OR_flags_sm_Alljets("OverlapRemovalTool_softMuons_Alljets","ORToolDecoration", "AT_fail_softMuons_OR_Alljets");
+    OR_flags_sm_Alljets.doElectrons = false;
+    OR_flags_sm_Alljets.doMuons = true;
+    OR_flags_sm_Alljets.doJets = true;
+    OR_flags_sm_Alljets.doTaus = false;
+    OR_flags_sm_Alljets.doPhotons = false;
+    OR_flags_sm_Alljets.boostedLeptons = false;
+    OR_flags_sm_Alljets.doFatJets = false;
+    OR_flags_sm_Alljets.doMuPFJetOR = false;
+    
+    top::check(ORUtils::recommendedTools(OR_flags_sm_Alljets, m_ORtoolBox_softMuons_Alljets), "Failed to setup OR Tool box for soft muons-Alljets");
+    for (auto&& tool : m_ORtoolBox_softMuons_Alljets.getOverlapTools()) {
+      top::check(tool->setProperty("EnableUserPriority", true), "Failed to set EnableUserPriority");
+    }
+    top::check(m_ORtoolBox_softMuons_Alljets.initialize(),"Failed to initialize soft muons overlap removal tools");
+    m_overlapRemovalTool_softMuons_Alljets = std::move(m_ORtoolBox_softMuons_Alljets.masterTool);      
+    
     return StatusCode::SUCCESS;
   }
 }  // namespace top

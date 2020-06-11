@@ -66,7 +66,7 @@ namespace top {
                       "default");
     registerParameter("ElectronIsolation",
                       "Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, (EXPERIMENTAL: HighPtCaloOnly, Loose, Tight, TightTrackOnly, TightTrackOnly_FixedRad, PLVTight, PLVLoose), (DANGEROUS: PflowTight, PflowLoose), None",
-                      "Gradient");
+                      "FCTight");
     registerParameter("ElectronIsolationLoose",
                       "Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, (EXPERIMENTAL: HighPtCaloOnly, Loose, Tight, TightTrackOnly, TightTrackOnly_FixedRad, PLVTight, PLVLoose), (DANGEROUS: PflowTight, PflowLoose), None",
                       "None");
@@ -102,8 +102,6 @@ namespace top {
     registerParameter("PhotonIsolationLoose",
                       "Isolation to use : FixedCutTightCaloOnly, FixedCutTight, FixedCutLoose, (EXPERIMENTAL: TightCaloOnly, Tight, Loose), None.",
                       "FixedCutLoose");
-    registerParameter("PhotonUseRadiativeZ", "True/False. Set to True to enable photon radiative Z up to 100 GeV.",
-                      "False");
 
     registerParameter("MuonPt", "Muon pT cut for object selection (in MeV). Default 25 GeV.", "25000");
     registerParameter("MuonEta", "Absolute Muon eta cut for object selection. Default 2.5.", "2.5");
@@ -148,14 +146,17 @@ namespace top {
     registerParameter("SoftMuonDRJet",
                       "Soft Muon maximum dR wrt nearest selected jet. Can be set to 999. to keep all soft muons. Default 0.4",
                       "0.4");
+    registerParameter("SoftMuonDRJetUseRapidity",
+                      "How to calculate DR(soft muon,jet) for the SoftMuonDRJet cut: True -> use rapidity; False -> use pseudorapidity. Default False",
+                      "False");
     registerParameter("SoftMuonAdditionalTruthInfo",
-                      "Decide if you want to store additional truth information on the particle-level origin for soft muons (see TopParticleLevel/TruthTools.h): True or False (default)",
+                      "Experimental: store additional truth information on soft muons particle-level origin: True or False (default)",
                       "False");
     registerParameter("SoftMuonAdditionalTruthInfoCheckPartonOrigin",
-                      "Decide if you want to store additional truth information on the parton-level origin for soft muons (see TopParticleLevel/TruthTools.h, this makes sense only if also SoftMuonAdditionalTruthInfo is True) : True or False (default)",
+                      "Experimental: store additional truth information on soft muons parton-level origin; requires SoftMuonAdditionalTruthInfo to be true; automatically disabled if PS!=pythia8 and PS!=herwigpp : True or False (default)",
                       "False");
     registerParameter("SoftMuonAdditionalTruthInfoDoVerbose",
-                      "Debug output for soft muon addition information: True or False (default)",
+                      "Debug output for soft muon additional truth-level information: True or False (default)",
                       "False");
 
     registerParameter("JetPt", "Jet pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
@@ -200,7 +201,7 @@ namespace top {
     registerParameter("JSF", "Used for top mass analysis, default is 1.0", "1.0");
     registerParameter("bJSF", "Used for top mass analysis, default is 1.0", "1.0");
 
-    registerParameter("LargeRJetPt", "Track Jet pT cut for object selection (in MeV). Default 7 GeV.", "25000.");
+    registerParameter("LargeRJetPt", "LargeRJet pT cut for object selection (in MeV). Default 150 GeV.", "150000.");
     registerParameter("LargeRJetEta", "Absolute large-R jet eta cut for object selection. Default 2.0.", "2.0");
     registerParameter("LargeRJetUncertainties_NPModel",
                       "AllNuisanceParameters, CategoryReduction (default), GlobalReduction, - for LCTopo Large-R Jet Uncertainties or Scale_TCC_all - for TCC Large-R Jet Uncertainties",
@@ -540,7 +541,8 @@ namespace top {
 
     registerParameter("OverlapRemovalProcedure", "Overlap removal procedure to be used. Options include:"
                                                  " recommended [default], jetmuApplyRelPt, harmonized,"
-                                                 " Boosted, BoostedSlidingDREl, BoostedSlidingDRMu, BoostedSlidingDRElMu, noTauJetOLR",
+                                                 " Boosted, BoostedSlidingDREl, BoostedSlidingDRMu, BoostedSlidingDRElMu, noTauJetOLR, "
+                                                 " noPhotonMuOR, noPhotonMuOrJetOR",
                       "recommended"
                       );
 
@@ -882,6 +884,12 @@ namespace top {
       return;
     }
     throw std::invalid_argument(std::string("expected boolean value for configuration setting ") + key);
+  }
+  
+  bool ConfigurationSettings::retrieve(std::string const& key) const {
+    bool result=false;
+    retrieve(key,result);
+    return result;
   }
 
   bool ConfigurationSettings::feature(std::string const& name) const {

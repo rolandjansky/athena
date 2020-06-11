@@ -305,6 +305,12 @@ def buildVRJets(sequence, do_ghost, logger = None, doFlipTagger=False, training=
         TrackAssociatorName="GhostTrack" if do_ghost else "MatchedTracks",
     )
 
+    # add delta-R to nearest jet
+    from FlavorTagDiscriminants.FlavorTagDiscriminantsLibConf import (
+        FlavorTagDiscriminants__VRJetOverlapDecoratorTool as VRORTool )
+    vrdr_label = VRORTool(name=VRJetRecToolName + "_VRLabeling")
+    ToolSvc += vrdr_label
+
     from BTagging.BTaggingConfiguration import defaultTrackAssoc, defaultMuonAssoc
 
     # Slice the array - this forces a copy so that if we modify it we don't also
@@ -333,7 +339,8 @@ def buildVRJets(sequence, do_ghost, logger = None, doFlipTagger=False, training=
             logger.info("Create JetRecTool %s" % VRJetRecToolName)
             #can only run trackjetdrlabeler with truth labels, so MC only
 
-            mods = [defaultTrackAssoc, defaultMuonAssoc, btag_vrjets]
+            mods = [defaultTrackAssoc, defaultMuonAssoc, btag_vrjets,
+                    vrdr_label]
 
             if globalflags.DataSource()!='data':
                 mods.append(jtm.trackjetdrlabeler)

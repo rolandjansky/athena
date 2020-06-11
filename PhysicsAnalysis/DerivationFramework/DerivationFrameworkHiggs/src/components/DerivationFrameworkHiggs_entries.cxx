@@ -6,6 +6,7 @@
 #include "DerivationFrameworkHiggs/TruthCategoriesDecorator.h"
 #include "DerivationFrameworkHiggs/DiphotonVertexDecorator.h"
 #include "DerivationFrameworkHiggs/MergedElectronDetailsDecorator.h"
+#include "DerivationFrameworkHiggs/ZeeVertexRefittingTool.h"
 
 using namespace DerivationFramework;
 
@@ -16,6 +17,7 @@ DECLARE_TOOL_FACTORY( HIGG3TruthDecorator )
 DECLARE_TOOL_FACTORY( TruthCategoriesDecorator )
 DECLARE_TOOL_FACTORY( DiphotonVertexDecorator )
 DECLARE_TOOL_FACTORY( MergedElectronDetailsDecorator )
+DECLARE_TOOL_FACTORY( ZeeVertexRefittingTool )
 
 DECLARE_FACTORY_ENTRIES( DerivationFrameworkHiggs ) {
    DECLARE_TOOL( SkimmingToolHIGG1 )
@@ -25,5 +27,6 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkHiggs ) {
    DECLARE_TOOL( TruthCategoriesDecorator ) 
    DECLARE_TOOL( DiphotonVertexDecorator )
    DECLARE_TOOL( MergedElectronDetailsDecorator )
+   DECLARE_TOOL( ZeeVertexRefittingTool )
 }
 

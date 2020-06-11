@@ -30,7 +30,7 @@ namespace FakeBkgTools
 namespace CP
 {
 
-class ISelectionAccessor;
+  class ISelectionAccessor;
 
 /* 
  * Base class of concrete tools implementations, providing common helper methods
@@ -51,6 +51,7 @@ class BaseFakeBkgTool : virtual public CP::IFakeBkgTool, public CP::IFakeBkgSyst
   
     virtual StatusCode register1DHistogram(TH1* h1, const float *val) override;
     virtual StatusCode register2DHistogram(TH2* h2, const float *xval, const float *yval) override;
+    virtual StatusCode register3DHistogram(TH3* h3, const float *xval, const float *yval, const float *zval) override;
   
     virtual bool isAffectedBySystematic(const CP::SystematicVariation& systematic) const override;
     virtual CP::SystematicSet affectingSystematics() const override;
@@ -106,6 +107,7 @@ class BaseFakeBkgTool : virtual public CP::IFakeBkgTool, public CP::IFakeBkgSyst
     // maps to store relationships between histograms and variables
     std::map<TH1*, const float*> m_values_1dhisto_map; //!
     std::map<TH2*, std::pair<const float*, const float*> >  m_values_2dhisto_map; //!
+    std::map<TH3*, std::tuple<const float*, const float*, const float*> >  m_values_3dhisto_map; //!
 
     StatusCode CheckHistogramCompatibility(const TH1* lhs, const TH1* rhs);
 

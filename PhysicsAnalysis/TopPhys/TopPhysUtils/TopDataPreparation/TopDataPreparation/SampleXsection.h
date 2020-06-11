@@ -48,6 +48,7 @@ public:
   double getXsectionDown(const int dsid) const;
   std::pair<double, double> getXsectionDownUp(const int dsid) const;
   showering getShowering(const int dsid) const;
+  std::string getShoweringString(const int dsid) const;
   int getShoweringIndex(const int dsid) const;
   void setTranslator(const std::unordered_map<std::string, std::string>& map) {m_translator = map;}
 

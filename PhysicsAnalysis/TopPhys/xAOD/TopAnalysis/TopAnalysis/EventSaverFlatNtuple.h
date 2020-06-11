@@ -395,7 +395,6 @@ namespace top {
     float m_weight_photonSF = 0.;
     float m_weight_photonSF_ID_UP = 0.;
     float m_weight_photonSF_ID_DOWN = 0.;
-    float m_weight_photonSF_effIso = 0.;
     float m_weight_photonSF_effIso_UP = 0.;
     float m_weight_photonSF_effIso_DOWN = 0.;
 
@@ -1162,7 +1161,6 @@ namespace top {
     const float& weight_photonSF() const {return m_weight_photonSF;}
     const float& weight_photonSF_ID_UP() const {return m_weight_photonSF_ID_UP;}
     const float& weight_photonSF_ID_DOWN() const {return m_weight_photonSF_ID_DOWN;}
-    const float& weight_photonSF_effIso() const {return m_weight_photonSF_effIso;}
     const float& weight_photonSF_effIso_UP() const {return m_weight_photonSF_effIso_UP;}
     const float& weight_photonSF_effIso_DOWN() const {return m_weight_photonSF_effIso_DOWN;}
 

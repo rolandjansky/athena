@@ -20,9 +20,7 @@
 ///////////////////////////////////////////////////////////////////
     //Parameters
     // m_orLabel:  ""  
-    // m_jetsName : "Container name for the output reconstructed PU jets " 
-    // m_tightOP: "If true a tight fjvt threshold value is applied" 
-    // m_outLabelFjvt: "Decorator for passing fJVT threshold (tight or loose)"                            
+    // m_jetsName : "Container name for the output reconstructed PU jets "                          
     // m_verticesName: "Container name of vertices to be retrieved" 
     // m_jetchargedp4: "Name of the jet charged momentum 4-vector" 
     // m_etaThresh: "Maximum eta value for considering a jet as central" 
@@ -106,7 +104,6 @@
 
     std::string m_orLabel;
     std::string m_outLabel;
-    std::string m_outLabelFjvt;
     std::string m_verticesName;
     std::string m_jetsName;
     std::string m_jetchargedp4;
@@ -135,9 +132,7 @@
     double m_maxRap;
     double m_neutMaxRap;
     float  m_weight;
-    bool m_tightOP;
     std::unique_ptr<SG::AuxElement::Decorator<char> > Dec_OR;
-    std::unique_ptr<SG::AuxElement::Decorator<char> > Dec_outFjvt;
     std::unique_ptr<SG::AuxElement::Decorator<float> > Dec_outFjvtRaw;
     asg::AnaToolHandle<CP::RetrievePFOTool> m_pfotool;
     asg::AnaToolHandle<CP::WeightPFOTool> m_wpfotool;

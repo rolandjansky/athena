@@ -18,9 +18,10 @@ atlas_depends_on_subdirs( PUBLIC
                           xAODTau
                           xAODMissingET
                           xAODTracking
+                          FourMomUtils
                           TopConfiguration
                           TopPartons
-			  JetAnalysisInterfaces
+                          JetAnalysisInterfaces
                           JetSubStructureMomentTools
                           JetSubStructureUtils
                           JetReclustering )
@@ -55,13 +56,14 @@ atlas_add_library( TopEvent Root/*.cxx Root/*.h Root/*.icc
                                   xAODTau
                                   xAODMissingET
                                   xAODTracking
+                                  FourMomUtils
                                   TopConfiguration
                                   TopPartons
-				  JetAnalysisInterfacesLib
+                                  JetAnalysisInterfacesLib
                                   JetSubStructureMomentToolsLib
                                   JetSubStructureUtils
                                   JetReclusteringLib
-				  ${FASTJET_LIBRARIES}
+                                  ${FASTJET_LIBRARIES}
                                   ${FASTJETCONTRIB_LIBRARIES}
                                   ${ROOT_LIBRARIES}
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )

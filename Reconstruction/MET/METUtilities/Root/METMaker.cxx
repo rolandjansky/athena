@@ -66,6 +66,7 @@ namespace met {
   static const SG::AuxElement::ConstAccessor< std::vector<int> > acc_trkN("NumTrkPt500");
   static const SG::AuxElement::ConstAccessor< std::vector<float> > acc_trksumpt("SumPtTrkPt500");
   static const SG::AuxElement::ConstAccessor< std::vector<float> > acc_sampleE("EnergyPerSampling");
+  static const SG::AuxElement::ConstAccessor< float > acc_topoetcone40("topoetcone40");
 
   static const SG::AuxElement::ConstAccessor<float> acc_emf("EMFrac");
   static const SG::AuxElement::ConstAccessor<float> acc_psf("PSFrac");
@@ -119,6 +120,7 @@ namespace met {
     declareProperty("ORCaloTaggedMuons",  m_orCaloTaggedMuon   = true                );
     declareProperty("GreedyPhotons",      m_greedyPhotons      = false               );
     declareProperty("VeryGreedyPhotons",  m_veryGreedyPhotons  = false           );
+    declareProperty("DoMuonPFlowBugfix",  m_muonPflowBugfix    = false           );
     
     declareProperty("UseGhostMuons",      m_useGhostMuons      = false               );
     declareProperty("DoRemoveMuonJets",   m_doRemoveMuonJets   = true                );
@@ -134,6 +136,22 @@ namespace met {
     declareProperty("JetEmfMuOlap",       m_jetEmfMuOlap = 0.9                       );    
     declareProperty("JetTrkPtMuPt",       m_jetTrkPtMuPt = 0.8                       );    
     declareProperty("muIDPTJetPtRatioMuOlap", m_muIDPTJetPtRatioMuOlap = 2.0         );   
+
+    //Ported from OR tool
+    declareProperty("NumJetTrk", m_numJetTrk = 4,
+                    "Min number of jet tracks to keep jet and remove muon");
+    declareProperty("ConeDR", m_coneDR = 0.4,
+                    "Cone for removing jets");
+    declareProperty("MuPFJet_lowNtrk_x1", m_muPFJet_lowNtrk_x1 = 0.7,"");
+    declareProperty("MuPFJet_lowNtrk_x2", m_muPFJet_lowNtrk_x2 = 0.85,"");
+    declareProperty("MuPFJet_lowNtrk_y0", m_muPFJet_lowNtrk_y0 = 15e3,"");
+    declareProperty("MuPFJet_lowNtrk_y1", m_muPFJet_lowNtrk_y1 = 15e3,"");
+    declareProperty("MuPFJet_lowNtrk_y2", m_muPFJet_lowNtrk_y2 = 30e3,"");
+    declareProperty("MuPFJet_highNtrk_x1", m_muPFJet_highNtrk_x1 = 0.6,"");
+    declareProperty("MuPFJet_highNtrk_x2", m_muPFJet_highNtrk_x2 = 0.9,"");
+    declareProperty("MuPFJet_highNtrk_y0", m_muPFJet_highNtrk_y0 = 5e3,"");
+    declareProperty("MuPFJet_highNtrk_y1", m_muPFJet_highNtrk_y1 = 5e3,"");
+    declareProperty("MuPFJet_highNtrk_y2", m_muPFJet_highNtrk_y2 = 30e3,"");
 
     declareProperty("TrackSelectorTool",  m_trkseltool                               );
   }
@@ -656,6 +674,7 @@ namespace met {
 
     for(const auto& jet : *jets) {
       const MissingETAssociation* assoc = 0;
+      const MissingETAssociation* assocMisc = map->getMiscAssociation();
       if(originalInputs) {
         assoc = MissingETComposition::getAssociation(map,jet);
       } else {
@@ -745,6 +764,7 @@ namespace met {
         float total_eloss(0);
         MissingETBase::Types::bitmask_t muons_selflags(0);
         std::vector<const xAOD::Muon*> muons_in_jet;
+	std::vector<const xAOD::Muon*> muons_in_jet_pfBugfix;
         std::vector<const xAOD::Electron*> electrons_in_jet;
         bool passJetForEl=false;
         if(m_useGhostMuons) { // for backwards-compatibility
@@ -760,6 +780,24 @@ namespace met {
           } else {
             ATH_MSG_WARNING("Ghost muons requested but not found!");
             return StatusCode::FAILURE;
+          }
+        }
+        if (m_muonPflowBugfix) {
+	  for(const auto& obj : assocMisc->objects()) {
+	    if (!obj) { continue; }
+	    if(obj->type()==xAOD::Type::Muon) {
+	      const xAOD::Muon* mu_test(static_cast<const xAOD::Muon*>(obj));
+	      if(acc_originalObject.isAvailable(*mu_test)) mu_test = static_cast<const xAOD::Muon*>(*acc_originalObject(*mu_test));
+	      if(mu_test->p4().DeltaR(jet->p4())<m_coneDR && MissingETComposition::objSelected(map,mu_test)) muons_in_jet_pfBugfix.push_back(mu_test);
+            }
+          }
+	  for(const auto& obj : assoc->objects()) {
+	    if (!obj) { continue; }
+	    if(obj->type()==xAOD::Type::Muon) {
+	      const xAOD::Muon* mu_test(static_cast<const xAOD::Muon*>(obj));
+	      if(acc_originalObject.isAvailable(*mu_test)) mu_test = static_cast<const xAOD::Muon*>(*acc_originalObject(*mu_test));
+	      if(mu_test->p4().DeltaR(jet->p4())<m_coneDR && MissingETComposition::objSelected(map,mu_test)) muons_in_jet_pfBugfix.push_back(mu_test);
+            }
           }
         }
         for(const auto& obj : assoc->objects()) {
@@ -811,6 +849,22 @@ namespace met {
           // Is the cut appropriate?
           if(el_trk_pt>1e-9 && jet_unique_trk_pt>10.0e3) passJetForEl=true;
         } // end ele-track removal
+
+        //Handle muon-pflowJet OR
+	for(const xAOD::Muon* mu_in_jet : muons_in_jet_pfBugfix) {
+          if (mu_in_jet && mu_in_jet->p4().DeltaR(jet->p4())<m_coneDR) {
+            float mu_topoetcone40 = acc_topoetcone40(*mu_in_jet);
+	    float sumTrkPt = acc_trksumpt.isAvailable(*jet) && this->getPV() ? acc_trksumpt(*jet)[this->getPV()->index()] : 0.;
+	    float mu_id_pt = mu_in_jet->trackParticle(xAOD::Muon::InnerDetectorTrackParticle) ? mu_in_jet->trackParticle(xAOD::Muon::InnerDetectorTrackParticle)->pt() : 0.;
+	    float jet_trk_N = acc_trkN.isAvailable(*jet) && this->getPV() ? acc_trkN(*jet)[this->getPV()->index()] : 0.;
+
+            if (jet_trk_N < m_numJetTrk){
+              if (mu_topoetcone40 < m_muPFJet_lowNtrk_y0 || mu_topoetcone40<m_muPFJet_lowNtrk_y0+(m_muPFJet_lowNtrk_y2-m_muPFJet_lowNtrk_y1)/(m_muPFJet_lowNtrk_x2-m_muPFJet_lowNtrk_x1)*(mu_id_pt/sumTrkPt-m_muPFJet_lowNtrk_x1) || mu_id_pt/sumTrkPt>m_muPFJet_lowNtrk_x2) JVT_reject = true;
+            }else{
+              if (mu_topoetcone40 < m_muPFJet_highNtrk_y0 || mu_topoetcone40<m_muPFJet_highNtrk_y0+(m_muPFJet_highNtrk_y2-m_muPFJet_highNtrk_y1)/(m_muPFJet_highNtrk_x2-m_muPFJet_highNtrk_x1)*(mu_id_pt/sumTrkPt-m_muPFJet_highNtrk_x1) || mu_id_pt/sumTrkPt>m_muPFJet_highNtrk_x2) JVT_reject = true;
+            }
+          }
+        }
 
         for(const xAOD::Muon* mu_in_jet : muons_in_jet) {
           float mu_Eloss = acc_Eloss(*mu_in_jet);

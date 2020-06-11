@@ -242,7 +242,7 @@ CorrectionCode BTaggingSelectionTool::getTaggerWeight( const xAOD::Jet& jet, dou
     return  CorrectionCode::Ok;
   }
 
-  else if(taggerName.find("DL1") != string::npos){
+ else if(taggerName.find("DL1") != string::npos){
 
   double dl1_pb(-10.);
   double dl1_pc(-10.);
@@ -300,7 +300,7 @@ CorrectionCode BTaggingSelectionTool::getTaggerWeight( double pb, double pc, dou
   tagweight = -100.;
   if( taggerName.find("DL1") != string::npos ){
 
-    bool valid_input = (!std::isnan(pu) && pb>0 && pc>0 && pu>0);
+    bool valid_input = (!std::isnan(pu) && pb>=0 && pc>=0 && pu>=0);
 
     if (!valid_input){
       if(m_ErrorOnTagWeightFailure){
@@ -313,9 +313,10 @@ CorrectionCode BTaggingSelectionTool::getTaggerWeight( double pb, double pc, dou
     }
 
     if(OP.find("CTag") != string::npos){
-     tagweight = log( pc/(localtagger.fraction*pb+(1.-localtagger.fraction)*pu) );
-    }else{
-     tagweight = log( pb/(localtagger.fraction*pc+(1.-localtagger.fraction)*pu) );
+     tagweight = log(pc / (localtagger.fraction * pb + (1. - localtagger.fraction) * pu));
+    }
+    else{
+     tagweight = log(pb / (localtagger.fraction * pc + (1. - localtagger.fraction) * pu) );
     }
 
     return CorrectionCode::Ok;
@@ -596,8 +597,7 @@ int BTaggingSelectionTool::getQuantile(double pT, double eta, double weight_mv2 
   // returns 3 if between 77% and 70%
   // returns 2 if between 85% and 77%
   // returns 1 if between 100% and 85%
-  // returns 0 if smaller than -1e4-> should never happen
-  // return -1 if bigger than 1e4 or not in b-tagging acceptance
+  // return -1 not in b-tagging acceptance
   //////////////////////
 
   int bin_index(-1);
@@ -605,15 +605,16 @@ int BTaggingSelectionTool::getQuantile(double pT, double eta, double weight_mv2 
   if (! checkRange(pT, eta)) return bin_index;
 
   // If in b-tagging acceptance, cont.tagging
-  for (int i=0; i<=5; ++i) {
+  for (int i=1; i<=5; ++i) {
     if (weight_mv2 < m_continuouscuts[i]) {
       bin_index = i;
       break;
     }
+    else if (weight_mv2 >= m_continuouscuts[5]){
+      bin_index = 5;
+      break;
+    }
   }
-
-  if (0==bin_index) ATH_MSG_ERROR("B-tagging weight is smaller than 1e-4, this shouldn't happen!");
-
   return bin_index;
 }
 

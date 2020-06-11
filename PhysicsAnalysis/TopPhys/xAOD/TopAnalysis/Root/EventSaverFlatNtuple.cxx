@@ -395,8 +395,7 @@ namespace top {
 
         if (m_config->useFwdElectrons()) systematicTree->makeOutputVariable(m_weight_fwdElSF, "weight_fwdElSF");
 
-        if (m_config->usePhotons()) systematicTree->makeOutputVariable(m_weight_photonSF,
-                                                                       "weight_photonSF");
+        if (m_config->usePhotons()) systematicTree->makeOutputVariable(m_weight_photonSF, "weight_photonSF");
 
         if (m_config->useTaus()) systematicTree->makeOutputVariable(m_weight_tauSF,
                                                                     "weight_tauSF");
@@ -665,8 +664,6 @@ namespace top {
                                                "weight_photonSF_ID_UP");
             systematicTree->makeOutputVariable(m_weight_photonSF_ID_DOWN,
                                                "weight_photonSF_ID_DOWN");
-            systematicTree->makeOutputVariable(m_weight_photonSF_effIso,
-                                               "weight_photonSF_effIso");
             systematicTree->makeOutputVariable(m_weight_photonSF_effIso_UP,
                                                "weight_photonSF_effIso_UP");
             systematicTree->makeOutputVariable(m_weight_photonSF_effIso_DOWN,
@@ -2023,7 +2020,6 @@ namespace top {
         if (m_config->usePhotons()) {
           m_weight_photonSF_ID_UP = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_IDSF_UP);
           m_weight_photonSF_ID_DOWN = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_IDSF_DOWN);
-          m_weight_photonSF_effIso = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_ISO);
           m_weight_photonSF_effIso_UP = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_ISO_UP);
           m_weight_photonSF_effIso_DOWN = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_ISO_DOWN);
         }

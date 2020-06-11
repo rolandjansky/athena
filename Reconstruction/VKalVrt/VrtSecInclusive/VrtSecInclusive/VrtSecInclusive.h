@@ -193,6 +193,13 @@ namespace VKalVrtAthena {
       bool   doTwoTrSoftBtag;
       double twoTrVrtAngleCut;
       double twoTrVrtMinDistFromPV;
+
+      // When truncateWrkVertices set to true, maxWrkVertices is the maximum 
+      // number of potential vertices to process, used to truncate the list 
+      // in rare caes where several thousands are found, to avoid algorithm 
+      // timeout issues
+      bool   truncateWrkVertices;
+      size_t maxWrkVertices;
       
       double associateMinDistanceToPV;
       double associateMaxD0Signif;
@@ -222,7 +229,15 @@ namespace VKalVrtAthena {
     };
     
     struct JobProperties m_jp;
-    
+   
+    // Indicates give-up modes during vertexing
+    // 0 if no errors occured
+    // 1 if too few selected tracks
+    // 2 if too many selected tracks
+    // 3 if wrkVertices container is truncated
+    // 4 if any uncaught exception is raised at the top level of VSI execute()
+    int m_vertexingStatus;
+ 
     // xAOD Accessors
     const xAOD::VertexContainer*  m_primaryVertices;
     xAOD::Vertex*                 m_thePV;

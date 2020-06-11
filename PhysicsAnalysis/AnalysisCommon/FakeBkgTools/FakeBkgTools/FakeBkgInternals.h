@@ -11,7 +11,9 @@
 #include <cmath>
 #include <functional>
 #include <memory>
-#include <boost/container/flat_map.hpp>
+#include <map>
+#include <iostream>
+#include "TBuffer.h"
 
 namespace CP
 {
@@ -26,9 +28,11 @@ struct Uncertainty
     float up = 0, down = 0;
     Uncertainty() {} /// for older compilers
     Uncertainty(float init_up, float init_down) : up(init_up), down(init_down) {} /// for older compilers
-    inline Uncertainty& operator+=(const Uncertainty& rhs);
-    inline Uncertainty& operator*=(float rhs);
-    friend Uncertainty operator*(float lhs, const Uncertainty& rhs) { return {lhs*rhs.up, lhs*rhs.down}; }
+  inline Uncertainty& operator+=(const Uncertainty& rhs);  
+  inline Uncertainty& operator+(const Uncertainty& rhs);
+  inline Uncertainty& operator*=(float rhs);
+  inline Uncertainty& operator*=(const Uncertainty& rhs);
+  friend Uncertainty operator*(float lhs, const Uncertainty& rhs) { return {lhs*rhs.up, lhs*rhs.down}; }
 };
 
 /// \brief a structure to hold an efficiency together with a variable number of uncertainties
@@ -36,7 +40,19 @@ struct Efficiency
 {
     float value(const CP::BaseFakeBkgTool* tool) const;
     float nominal = 0;
-    boost::container::flat_map<uint16_t, FakeBkgTools::Uncertainty> uncertainties; /// key = source of uncertainty (ID), value = up/down
+    std::map<uint16_t, FakeBkgTools::Uncertainty> uncertainties; /// key = source of uncertainty (ID), value = up/down
+
+    /// add() treats systematic uncertainties as correlated and updates (or creates) the total statistical uncertainty (RMS)
+    inline Efficiency& add(const Efficiency& rhs, float weight = 1.f);
+    /// the first version of multiply() takes the product of two Efficiencies, 
+    /// setting the up and down variations for each uncertainty to give the 
+    /// correct variation for the product
+    inline Efficiency& multiply(const Efficiency& rhs, float weight = 1.f);
+    inline Efficiency& multiply(float weight);
+    /// setToConst() sets the nominal and all varied values to the same constant
+    inline Efficiency& setToConst(float value = 1.f);
+    /// subFromOne() sets nominal and varied values to 1 - previous value.
+    inline Efficiency& subFromOne();
 };
 
 using FakeFactor = Efficiency;
@@ -53,7 +69,7 @@ struct Weight : public Efficiency
 struct Yield : public Efficiency
 {
     Uncertainty stat2;
-    /// add() treats systematic uncertainties as correlated and updates (or creates) the total statistical uncertainty (RMS)
+   /// add() treats systematic uncertainties as correlated and updates (or creates) the total statistical uncertainty (RMS)
     inline Yield& add(const Yield& rhs, float weight = 1.f);
     inline Yield& add(const Weight& rhs, float weight = 1.f);
     /// Helper function to extract the total statistical uncertainty from the 'uncertainties' field;
@@ -132,6 +148,13 @@ inline Uncertainty& Uncertainty::operator+=(const Uncertainty& rhs)
     return *this;
 }
 
+inline Uncertainty& Uncertainty::operator*=(const Uncertainty& rhs)
+{
+    up *= rhs.up;
+    down *= rhs.down;
+    return *this;
+}
+
 inline Uncertainty& Uncertainty::operator*=(float rhs)
 {
     up *= rhs;
@@ -180,6 +203,77 @@ inline Yield& Yield::add(const Yield& rhs, float weight)
     nominal += weight * rhs.nominal;
     return *this;
 }
+
+inline Efficiency& Efficiency::add(const Efficiency& rhs, float weight)
+{
+    /// Systematic uncertainties
+  for(auto& kv : rhs.uncertainties)
+    {
+      auto r = uncertainties.emplace(kv);
+      if(r.second) r.first->second *= weight;
+      else r.first->second += weight * kv.second;
+    }
+  /// Central value
+  nominal += weight * rhs.nominal;
+  return *this;
+}
+
+inline Efficiency& Efficiency::multiply(const Efficiency& rhs, float weight)
+{
+  /// Systematic uncertainties
+  for(auto& kv : rhs.uncertainties)
+    {
+      auto r = uncertainties.emplace(kv);
+      if(!r.second) {
+	Uncertainty u_init = r.first->second;
+	r.first->second = nominal*kv.second;
+	r.first->second += (rhs.nominal*u_init); 
+	r.first->second += (u_init*=kv.second);
+      }
+    }
+  /// Central value
+  nominal *= weight * rhs.nominal;
+  return *this;
+}
+
+inline Efficiency& Efficiency::multiply(float weight)
+{
+    /// Systematic uncertainties
+  for(auto& kv : uncertainties)
+    {
+      kv.second*= weight;
+    }
+    /// Central value
+    nominal *= weight;
+    return *this;
+}
+
+inline Efficiency& Efficiency::setToConst(float val)
+{
+    /// Systematic uncertainties
+    for(auto& kv : uncertainties)
+    {
+      kv.second.up = 0.;
+      kv.second.down = 0.;
+    }
+    /// Central value
+    nominal = val;
+    return *this;
+}
+
+inline Efficiency& Efficiency::subFromOne()
+{
+    /// Systematic uncertainties
+    for(auto& kv : uncertainties)
+    {
+      kv.second.up = -kv.second.up;
+      kv.second.down = -kv.second.down;
+    }
+    /// Central value
+    nominal = 1.-nominal;;
+    return *this;
+}
+
 
 inline float Yield::stat() const
 {

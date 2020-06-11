@@ -15,6 +15,7 @@ from DerivationFrameworkFlavourTag.HbbCommon import *
 from BTagging.BTaggingFlags import BTaggingFlags
 from DerivationFrameworkSUSY.SUSYCommonFlags import SUSYFlags
 
+
 #BTaggingFlags.Do2019Retraining = False 
 
 if DerivationFrameworkIsMonteCarlo:
@@ -389,6 +390,8 @@ SeqSUSY1 += CfgMgr.DerivationFramework__DerivationKernel(
 
 # Add VR jets
 addVRJets(SeqSUSY1)
+addVRJets(SeqSUSY1, training='201903')
+addVRJets(SeqSUSY1, do_ghost=True)
 addRecommendedXbbTaggers(SeqSUSY1, ToolSvc)
 
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
@@ -420,9 +423,11 @@ SUSY1SlimmingHelper.SmartCollections = ["Electrons","Photons",
                                         #"BTagging_AntiKt4EMTopo",
                                         #"BTagging_AntiKt4EMPFlow",
                                         # "BTagging_AntiKt2Track",
+                                        "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810",
+                                        "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
 SUSY1SlimmingHelper.AllVariables = [
-  "TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "AntiKt4TruthDressedWZJets", "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810",
+  "TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "AntiKt4TruthDressedWZJets", "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810","AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903","BTagging_AntiKtVR30Rmax4Rmin02Track_201810","BTagging_AntiKtVR30Rmax4Rmin02Track_201903",
   #"AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets",
   "MET_Track"
 ]

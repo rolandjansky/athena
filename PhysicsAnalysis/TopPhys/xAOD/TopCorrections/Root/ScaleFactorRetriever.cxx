@@ -1015,16 +1015,22 @@ namespace top {
 
   float ScaleFactorRetriever::photonSF(const top::Event& event,
                                        const top::topSFSyst SFSyst) const {
-    float sf(1.0);
+    float sf(1.);
+    float reco(1.);
+    float isol(1.);
 
-    for (auto photon : event.m_photons)
-      sf *= photonSF(*photon, SFSyst, event.m_isLoose);
+    for (auto photon : event.m_photons) {
+      reco *= photonSF_Reco(*photon, SFSyst);
+      isol *= photonSF_Isol(*photon, SFSyst, event.m_isLoose);
+    }
+
+    sf = reco * isol;
+
     return sf;
   }
 
-  float ScaleFactorRetriever::photonSF(const xAOD::Photon& photon,
-                                       const top::topSFSyst SFSyst,
-                                       bool isLoose) const {
+  float ScaleFactorRetriever::photonSF_Reco(const xAOD::Photon& photon,
+					    const top::topSFSyst SFSyst) const {
     static const SG::AuxElement::ConstAccessor<float> acc_ph_IDSF("EFF_ID_SF");
     static const SG::AuxElement::ConstAccessor<float> acc_ph_IDSFUp("EFF_ID_SF_UP");
     static const SG::AuxElement::ConstAccessor<float> acc_ph_IDSFDown("EFF_ID_SF_DOWN");
@@ -1040,7 +1046,7 @@ namespace top {
       return acc_ph_IDSFDown(photon);
 
     default:
-      return photonSF_Isol(photon, SFSyst, isLoose);
+      return acc_ph_IDSF(photon);
     }
   }
 

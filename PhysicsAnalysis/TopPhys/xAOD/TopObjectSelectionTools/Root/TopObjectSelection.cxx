@@ -20,11 +20,16 @@
 #include "FourMomUtils/xAODP4Helpers.h"
 #include "PATCore/TAccept.h"
 
+#include "TopParticleLevel/TruthTools.h"
+#include "xAODTruth/TruthParticle.h"
+#include "xAODTruth/TruthParticleContainer.h"
+
+#include "TopDataPreparation/SampleXsection.h"
+
 namespace top {
   TopObjectSelection::TopObjectSelection(const std::string& name) :
     asg::AsgTool(name),
     m_config(nullptr),
-
     m_electronSelection(nullptr),
     m_fwdElectronSelection(nullptr),
     m_muonSelection(nullptr),
@@ -34,18 +39,17 @@ namespace top {
     m_photonSelection(nullptr),
     m_largeJetSelection(nullptr),
     m_trackJetSelection(nullptr),
-
     m_overlapRemovalToolPostSelection(nullptr),
-
     m_electronInJetSubtractor(nullptr),
-
     m_passPreORSelection("passPreORSelection"),
     m_passPreORSelectionLoose("passPreORSelectionLoose"),
     // the following two are used to give failing JVT and failing fJVT jets a lower priority in the OR
     m_ORToolDecoration("ORToolDecoration"),
     m_ORToolDecorationLoose("ORToolDecorationLoose"),
-
-    m_doLooseCuts(false) {
+    m_doLooseCuts(false),
+    m_overlapRemovalTool_softMuons_PFjets("OverlapRemovalTool_softMuons_PFjets"),
+    m_overlapRemovalTool_softMuons_Alljets("OverlapRemovalTool_softMuons_Alljets")
+  {
     declareProperty("config", m_config);
   }
 
@@ -66,6 +70,9 @@ namespace top {
     //         - The top recommendation is that you do OR on tight objects
     //   (3) Determination of Fakes control regions in MC - expert fakes mode
     //
+    
+    top::check(m_overlapRemovalTool_softMuons_PFjets.retrieve(), "Failed to retrieve overlap removal tool for soft muons - PF jets");
+    top::check(m_overlapRemovalTool_softMuons_Alljets.retrieve(), "Failed to retrieve overlap removal tool for soft muons - all jets");
 
     if (!m_config->isMC()) m_doLooseCuts = true;
 
@@ -794,11 +801,15 @@ namespace top {
       }
     }
 
-    // Post overlap removal decorations
-    decorateMuonsPostOverlapRemoval(xaod_mu, xaod_jet, goodMuons, goodJets);
-
     // for the time being the only OR performed on soft muons is wrt prompt muons
     if (xaod_softmu) {
+      
+      if(m_config->useJets())
+      {
+        top::check(m_overlapRemovalTool_softMuons_Alljets->removeOverlaps(nullptr, xaod_softmu, xaod_jet, nullptr, nullptr), "Failed to identify overlap for soft muons - all jets");
+        if(m_config->useParticleFlowJets())top::check(m_overlapRemovalTool_softMuons_PFjets->removeOverlaps(nullptr, xaod_softmu, xaod_jet, nullptr, nullptr), "Failed to identify overlap for soft muons - PFlow jets");
+      }
+      
       int i(0);
       std::string passTopCuts = "passPreORSelection";
 
@@ -816,15 +827,18 @@ namespace top {
           }
         }
 
-        float dRMin = this->calculateMinDRMuonJet(*x, xaod_jet, goodJets); //nearest jet dR
+        float dRmin = 100; //nearest jet dR
+        if(m_config->useJets()) dRmin=this->calculateMinDRMuonJet(*x, xaod_jet, goodJets, m_config->softmuonDRJetcutUseRapidity());
 
-        if (x->auxdataConst< char >(passTopCuts) == 1 && !promptMuOR &&
-            dRMin < m_config->softmuonDRJetcut()) goodSoftMuons.push_back(i);                                                                                                                                               //the dR selection must be done here, because we need the post-OR jets...
+        if (x->auxdataConst< char >(passTopCuts) == 1 && !promptMuOR && (!m_config->useJets() || dRmin < m_config->softmuonDRJetcut()))
+        {
+           goodSoftMuons.push_back(i);//the dR selection must be done here, because we need the post-OR jets...
+        }
         i++;
       }
     }//end of OR procedure for soft muons
 
-
+    if(m_config->isMC() && m_config->useSoftMuons() && m_config->softmuonAdditionalTruthInfo()) decorateSoftMuonsPostOverlapRemoval(xaod_softmu,goodSoftMuons);
 
     // set the indices in the xAOD::SystematicEvent
     currentSystematic->setGoodPhotons(goodPhotons);
@@ -838,10 +852,35 @@ namespace top {
     currentSystematic->setGoodTrackJets(goodTrackJets);
 
     decorateEventInfoPostOverlapRemoval(goodJets.size(), currentSystematic->isLooseEvent());
-
     return StatusCode::SUCCESS;
   }
+  
+  void TopObjectSelection::decorateSoftMuonsPostOverlapRemoval(const xAOD::MuonContainer* xaod_softmu,std::vector<unsigned int>& goodSoftMuons)
+  {
 
+    for (auto iMu : goodSoftMuons) {
+    // Get muon iMu
+    const xAOD::Muon* muon = xaod_softmu->at(iMu);
+
+        muon->auxdecor<bool>("hasRecoMuonHistoryInfo")=false;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthMuonLink") = 0;
+        muon->auxdecor<top::LepParticleOriginFlag>("LepParticleOriginFlag") = top::LepParticleOriginFlag::MissingTruthInfo;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthFirstNonLeptonMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthBMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthCMotherLink") = 0;
+        muon->auxdecor<top::LepPartonOriginFlag>("LepPartonOriginFlag") = top::LepPartonOriginFlag::MissingTruthInfo;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthPartonMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthTopMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthWMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthZMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthPhotonMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthHiggsMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthBSMMotherLink") = 0;
+        
+        top::truth::getRecoMuonHistory(muon,m_config->softmuonAdditionalTruthInfoCheckPartonOrigin(),m_config->getShoweringAlgorithm(),m_config->softmuonAdditionalTruthInfoDoVerbose());
+    }//end of loop on soft muons
+  }
   void TopObjectSelection::applyTightSelectionPostOverlapRemoval(const xAOD::IParticleContainer* xaod,
                                                                  std::vector<unsigned int>& indices) {
     // Copy the original indices of the xAOD objects in
@@ -913,38 +952,21 @@ namespace top {
     }
   }
 
-  void TopObjectSelection::decorateMuonsPostOverlapRemoval(const xAOD::MuonContainer* xaod_mu,
-                                                           const xAOD::JetContainer* xaod_jet,
-                                                           std::vector<unsigned int>& goodMuons,
-                                                           std::vector<unsigned int>& goodJets) {
-    // Decorate muons with the dR of closest jet (after OR is applied)
-    // Use the good indicies to loop through the good objects
-    for (auto iMu : goodMuons) {
-      // Get muon iMu
-      const xAOD::Muon* muPtr = xaod_mu->at(iMu);
-      this->calculateMinDRMuonJet(*muPtr, xaod_jet, goodJets);
-    }
-    return;
-  }
-
-  float TopObjectSelection::calculateMinDRMuonJet(const xAOD::Muon& mu, const xAOD::JetContainer* xaod_jet,
-                                                  std::vector<unsigned int>& goodJets) {
+  float TopObjectSelection::calculateMinDRMuonJet(const xAOD::Muon& mu, const xAOD::JetContainer* xaod_jet, std::vector<unsigned int>& goodJets, bool useRapidity) {
+    
     float dRMin = 100.0;
-
+    
     // Loop over jets, calculate dR and record smallest value
     for (auto iJet : goodJets) {
       const xAOD::Jet* jetPtr = xaod_jet->at(iJet);
-      float dR = mu.p4().DeltaR(jetPtr->p4());
-      if (dR < dRMin) dRMin = dR;
+      if(jetPtr->isAvailable<char>("passJVT") && !(jetPtr->auxdataConst<char>("passJVT") )) continue; //at this level we still have jets not passing the JVT cut in the ntuple
+      float dR = xAOD::P4Helpers::deltaR(mu,*jetPtr,useRapidity);
+      if (dR < dRMin) 
+      {
+        dRMin = dR;
+      }
     }
-
-    // Decorate the muon with dR of closest jet (ie smallest dR)
-
-    // commenting out as a temporary solution since this decoration
-    // would be used for 2D muon SFs, but MCP used different
-    // definition of the variable
-    //mu.auxdecor< float >("dRJet") = dRMin;
-
+    
     return dRMin;
   }
 

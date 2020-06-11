@@ -100,11 +100,6 @@ namespace top {
         "top::EgammaCPTools: no need to initialise anything since using neither electrons nor fwd electrons nor photons");
     }
 
-    // Update for R21 is to remove radiative Z corrections, so if the option is used, it will be ignored
-    if (m_config->photonUseRadiativeZ()) {
-      ATH_MSG_INFO(
-        "top::EgammaCPTools: You have requested radiative corrections for photons however these are not yet available in R21. This options will be ignored.");
-    }
     return StatusCode::SUCCESS;
   }
 
@@ -231,7 +226,7 @@ namespace top {
     for (const std::string& isoWP : photon_isolations) {
       std::string photonIsoSFName = "AsgPhotonEfficiencyCorrectionTool_IsoSF" + isoWP;
       if (!asg::ToolStore::contains<IPhotonEffTool>(photonIsoSFName)) {
-        if (m_config->isMC() && !af2) { // only available for full simulation
+        if (m_config->isMC()) {
           IPhotonEffTool* photonIsoSFTool = new AsgPhotonEfficiencyCorrectionTool(photonIsoSFName);
           top::check(asg::setProperty(photonIsoSFTool, "ForceDataType", data_type),
                      "Failed to set ForceDataType for " + photonIsoSFName);

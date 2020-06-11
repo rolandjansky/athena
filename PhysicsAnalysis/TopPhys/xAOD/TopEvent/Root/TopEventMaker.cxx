@@ -20,6 +20,7 @@
 #include "xAODJet/JetAuxContainer.h"
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODCore/ShallowCopy.h"
+#include "FourMomUtils/xAODP4Helpers.h"
 
 #include "TopPartons/PartonHistory.h"
 
@@ -584,8 +585,59 @@ namespace top {
       } // end doTopPartonHistory
     } // end isMC
 
-
-
+    decorateTopEvent(event);
+    
     return event;
   }
+  
+  void TopEventMaker::decorateTopEvent(top::Event &event)
+  {
+    if(m_config->useSoftMuons()) decorateTopEventSoftMuons(event);
+  }
+  
+  void TopEventMaker::decorateTopEventSoftMuons(top::Event &event)
+  {
+    if(!m_config->useJets()) return;
+    
+    //first we initialize decorations for all jets
+    for(const xAOD::Jet* jet : event.m_jets) 
+    {
+      jet->auxdecor<int>("AT_SoftMuonIndex")=-1;
+      jet->auxdecor<float>("AT_SoftMuonDR")=-1;
+    }
+      
+    int imuon=0;
+    for(const xAOD::Muon* sm : event.m_softmuons)
+    {
+      //writing auxiliary info for SMT jet tagging
+      double dRmin=100.;
+      int nearestJetIndex=-1;
+      int ijet=0;
+      for(const xAOD::Jet *jet : event.m_jets)
+      {
+        double dr= xAOD::P4Helpers::deltaR(sm,jet,m_config->softmuonDRJetcutUseRapidity());
+        if(dr<dRmin && dr<m_config->softmuonDRJetcut())
+        {
+          dRmin=dr;
+          nearestJetIndex=ijet;
+        }
+        ijet++;
+      }
+      sm->auxdecor<int>("AT_SMTJetIndex")=nearestJetIndex;
+      sm->auxdecor<float>("AT_SMTJetDR")=dRmin;
+      
+      if(nearestJetIndex>=0)
+      {
+        const xAOD::Jet *jet = event.m_jets[nearestJetIndex];
+        if(jet->auxdecor<int>("AT_SoftMuonIndex")<0) //in this way we only associate a jet with the highest pt soft muon
+        {
+          jet->auxdecor<int>("AT_SoftMuonIndex")=imuon;
+          jet->auxdecor<float>("AT_SoftMuonDR")=dRmin;
+        }
+      }//end of case where we found a jet nearby
+      
+      imuon++;
+    }//end of loop on muons
+    
+  }//end of TopEventMaker::decorateTopEvent
 }
