@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -131,10 +131,10 @@ Trk::TriangleBounds::minDistance(const Amg::Vector2D& pos) const
       in = false;
     Ao = A;
   }
-  if (in)
+  if (in){
     return -sqrt(dm);
-  else
-    return sqrt(dm);
+  }
+  return sqrt(dm);
 }
 
 // ostream operator overload
