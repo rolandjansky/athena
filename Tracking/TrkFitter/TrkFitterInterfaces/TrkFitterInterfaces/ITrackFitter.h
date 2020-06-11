@@ -136,7 +136,7 @@ namespace Trk {
           estimate for the track, represented close to the origin.
       */
       virtual std::unique_ptr<Track> fit(
-        const ::EventContext& ctx,
+        const EventContext& ctx,
         const MeasurementSet& measSet,
         const TrackParameters& params,
         const RunOutlierRemoval runOutlier = false,
