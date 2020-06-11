@@ -2189,13 +2189,13 @@ Trk::Extrapolator::extrapolate(const EventContext& ctx,
   if (closestTrackParameters) {
     return (extrapolate(
       ctx, *closestTrackParameters, sf, dir, bcheck, particle, matupmode, extrapolationCache));
-  } else {
+  } 
     closestTrackParameters = *(trk.trackParameters()->begin());
     if (closestTrackParameters) {
       return (extrapolate(
         ctx, *closestTrackParameters, sf, dir, bcheck, particle, matupmode, extrapolationCache));
     }
-  }
+  
 
   return nullptr;
 }
@@ -2662,7 +2662,7 @@ Trk::Extrapolator::extrapolateImpl(const EventContext& ctx,
         ATH_MSG_DEBUG("  [+] Destination surface successfully hit.");
         // return the result (succesful)
         return resultParameters;
-      } else if (!cache.m_parametersAtBoundary.nextParameters ||
+      } if (!cache.m_parametersAtBoundary.nextParameters ||
                  !cache.m_parametersAtBoundary.nextVolume) {
         ATH_MSG_DEBUG("  [-] Destination surface could not be hit.");
         return resultParameters;
@@ -2758,11 +2758,11 @@ Trk::Extrapolator::extrapolateImpl(const EventContext& ctx,
         fallback = true;
         // break it
         break;
-      } else {
+      } 
         // set the punch-through to true
         punchThroughDone = true;
         ATH_MSG_DEBUG("  [!] One time punch-through a volume done.");
-      }
+      
     }
     // ------------------- the output interpretationn of the extrapolateToVolumeBoundary
     // (3) NAVIGATION BREAK : no nextVolume found - but not in extrapolateBlindly() mode
@@ -3136,7 +3136,7 @@ Trk::Extrapolator::extrapolateWithinDetachedVolumes(const EventContext& ctx,
 
     if (fwd) {
       return fwd;
-    } else {
+    } 
       Trk::PropDirection oppDir =
         (dir != Trk::oppositeMomentum) ? Trk::oppositeMomentum : Trk::alongMomentum;
       // return prop.propagate(*nextParameters,sf,oppDir,bcheck,*currVol,particle);
@@ -3144,7 +3144,7 @@ Trk::Extrapolator::extrapolateWithinDetachedVolumes(const EventContext& ctx,
         nextParameters,
         prop.propagate(
           ctx, *nextParameters, sf, oppDir, bcheck, m_fieldProperties, particle, false, currVol));
-    }
+    
   }
 
   if (fabs(dist) < m_tolerance) {
@@ -3156,7 +3156,7 @@ Trk::Extrapolator::extrapolateWithinDetachedVolumes(const EventContext& ctx,
         nextParameters,
         prop.propagate(
           ctx, *nextParameters, sf, dir, bcheck, m_fieldProperties, particle, false, currVol));
-    } else {
+    } 
       Trk::PropDirection oppDir =
         (dir != Trk::oppositeMomentum) ? Trk::oppositeMomentum : Trk::alongMomentum;
       // return prop.propagate(*nextParameters,sf,oppDir,bcheck,*currVol,particle);
@@ -3164,8 +3164,8 @@ Trk::Extrapolator::extrapolateWithinDetachedVolumes(const EventContext& ctx,
         nextParameters,
         prop.propagate(
           ctx, *nextParameters, sf, oppDir, bcheck, m_fieldProperties, particle, false, currVol));
-    }
-  } else if (dist < 0.) {
+    
+  } if (dist < 0.) {
     ATH_MSG_DEBUG("  [!] Initial 3D-distance to the surface negative ("
                   << dist << ") -> skip extrapolation.");
     cache.m_parametersAtBoundary.resetBoundaryInformation();
@@ -3208,9 +3208,9 @@ Trk::Extrapolator::extrapolateWithinDetachedVolumes(const EventContext& ctx,
             return cParms;
           }
           return onNextLayer;
-        } else {
+        } 
           return ManagedTrackParmPtr();
-        }
+        
       }
     } else {
       // world boundary ?
@@ -3234,7 +3234,7 @@ Trk::Extrapolator::extrapolateWithinDetachedVolumes(const EventContext& ctx,
       if (dist < 0.) {
         cache.m_parametersAtBoundary.resetBoundaryInformation();
         return ManagedTrackParmPtr();
-      } else if (cache.m_parametersAtBoundary.nextVolume &&
+      } if (cache.m_parametersAtBoundary.nextVolume &&
                  (cache.m_parametersAtBoundary.nextVolume->geometrySignature() == Trk::MS ||
                   (cache.m_parametersAtBoundary.nextVolume->geometrySignature() == Trk::Calo &&
                    m_useDenseVolumeDescription))) {
@@ -3492,7 +3492,7 @@ Trk::Extrapolator::insideVolumeStaticLayers(const EventContext& ctx,
         cache.m_parametersAtBoundary.resetBoundaryInformation();
         resetRecallInformation(cache);
         return ManagedTrackParmPtr();
-      } else if (cache.m_boundaryVolume && nextParameters &&
+      } if (cache.m_boundaryVolume && nextParameters &&
                  !cache.m_boundaryVolume->inside(nextParameters->position())) {
         ATH_MSG_VERBOSE("  [+] Parameter outside the given boundary/world stopping loop.");
         // set the new boundary information
@@ -3564,7 +3564,7 @@ Trk::Extrapolator::insideVolumeStaticLayers(const EventContext& ctx,
         cache.m_parametersAtBoundary.resetBoundaryInformation();
         resetRecallInformation(cache);
         return ManagedTrackParmPtr();
-      } else if (cache.m_boundaryVolume && updateNext &&
+      } if (cache.m_boundaryVolume && updateNext &&
                  !cache.m_boundaryVolume->inside(updateNext->position())) {
         ATH_MSG_VERBOSE("  [+] Parameter outside the given boundary/world stopping loop.");
         // set the new boundary information
@@ -3823,7 +3823,7 @@ Trk::Extrapolator::extrapolateFromLayerToLayer(const EventContext& ctx,
         ATH_MSG_VERBOSE("  [+] Material update killed the track parameters - return 0");
         // kill the track - Fatras case
         return ManagedTrackParmPtr();
-      } else if (!nextPar) {
+      } if (!nextPar) {
         ++failedAttempts;
         ++m_layerSwitched; // record for statistics output
         // reset until break condition is fullfilled
@@ -4717,9 +4717,9 @@ Trk::Extrapolator::checkCache(Cache& cache, const std::string& txt) const
     ATH_MSG_DEBUG(txt << " PROBLEM Eloss cache pointer overwritten " << cache.m_cacheEloss
                       << " from extrapolationCache " << cache.m_extrapolationCache->eloss());
     return false;
-  } else {
+  } 
     return true;
-  }
+  
 }
 
 const std::vector<std::pair<const Trk::TrackParameters*, int>>*
@@ -4960,9 +4960,9 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
       if (nextPar) {
         return extrapolateToVolumeWithPathLimit(
           ctx, cache, nextPar.index(), pathLim, dir, particle, destVol, matupmod);
-      } else {
+      } 
         return ManagedTrackParmPtr();
-      }
+      
     }
   }
 
@@ -5412,7 +5412,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
     while (iSol < solutions.size()) {
       if (solutions[iSol] < iDest) {
         return nextPar;
-      } else if (solutions[iSol] < iDest + cache.m_staticBoundaries.size()) {
+      } if (solutions[iSol] < iDest + cache.m_staticBoundaries.size()) {
         // material attached ?
         const Trk::Layer* mb = cache.m_navigSurfs[solutions[iSol]].first->materialLayer();
         if (mb) {
@@ -5433,7 +5433,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
               ATH_MSG_VERBOSE("  [+] Update may have killed track - return.");
               cache.m_parametersAtBoundary.resetBoundaryInformation();
               return ManagedTrackParmPtr();
-            } else { // the MEOT will be saved at the end
+            } // the MEOT will be saved at the end
               ATH_MSG_VERBOSE(" Update energy loss:" << nextPar->momentum().mag() - pIn
                                                      << "at position:" << nextPar->position());
               if (cache.m_matstates) {
@@ -5446,7 +5446,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
                                           dir,
                                           particle);
               }
-            }
+            
           }
         }
 
@@ -5525,11 +5525,11 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
             ATH_MSG_VERBOSE("  [+] Update may have killed track - return.");
             cache.m_parametersAtBoundary.resetBoundaryInformation();
             return ManagedTrackParmPtr();
-          } else { // the MEOT will be saved at the end
+          } // the MEOT will be saved at the end
             ATH_MSG_VERBOSE(" Pre-update energy loss:"
                             << nextPar->momentum().mag() - pIn << "at position:"
                             << nextPar->position() << ", current momentum:" << nextPar->momentum());
-          }
+          
         }
         // active surface intersections ( Fatras hits ...)
         if (cache.m_parametersOnDetElements && particle != Trk::neutron) {
@@ -5568,11 +5568,11 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
                 ATH_MSG_VERBOSE("  [+] Update may have killed track - return.");
                 cache.m_parametersAtBoundary.resetBoundaryInformation();
                 return ManagedTrackParmPtr();
-              } else { // the MEOT will be saved at the end
+              } // the MEOT will be saved at the end
                 ATH_MSG_VERBOSE(" Post-update energy loss:" << nextPar->momentum().mag() - pIn
                                                             << "at position:"
                                                             << nextPar->position());
-              }
+              
             }
           } else {
             double pIn = nextPar->momentum().mag();
@@ -5585,10 +5585,10 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
               ATH_MSG_VERBOSE("  [+] Update may have killed track - return.");
               cache.m_parametersAtBoundary.resetBoundaryInformation();
               return ManagedTrackParmPtr();
-            } else { // the MEOT will be saved at the end
+            } // the MEOT will be saved at the end
               ATH_MSG_VERBOSE(" Update energy loss:" << nextPar->momentum().mag() - pIn
                                                      << "at position:" << nextPar->position());
-            }
+            
           }
           if (cache.m_matstates) {
             addMaterialEffectsOnTrack(ctx,

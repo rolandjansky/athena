@@ -258,7 +258,7 @@ namespace Trk {
                        //const TrackingVolume& tvol,
                        float time,
                        PropDirection dir = anyDirection,
-                       BoundaryCheck bcheck = true,
+                       const BoundaryCheck& bcheck = true,
                        ParticleHypothesis particle=pion,
                        bool startingLayer = false) const;
 
