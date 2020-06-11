@@ -25,12 +25,16 @@ class HLTMenuAccess(TriggerConfigAccess):
     def chains(self):
         return iter(self)
 
+    def streams(self):
+        return self["streams"]
+
     def sequencers(self):
         return self["sequencers"]
 
     def printSummary(self):
         print("HLT menu %s" % self.name())
         print("Number of chains: %i" % len(self) )
+        print("Number of streams: %i" % len(self.streams()) )
         print("Number of sequencers: %i" % len(self.sequencers()) )
 
 

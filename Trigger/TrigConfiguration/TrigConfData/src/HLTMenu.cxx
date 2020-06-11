@@ -78,6 +78,7 @@ void
 TrigConf::HLTMenu::printMenu(bool full) const
 {
    cout << "HLT menu '" << name() << "'" << endl;
+   cout << "Streams: " << data().get_child("streams").size() << endl;
    cout << "Chains: " << size() << endl;
    if(full) {
       int c(0);
