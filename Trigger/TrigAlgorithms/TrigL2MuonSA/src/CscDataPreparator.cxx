@@ -15,11 +15,7 @@ using namespace Muon;
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-static const InterfaceID IID_CscDataPreparator("IID_CscDataPreparator", 1, 0);
 bool IsUnspoiled ( Muon::CscClusterStatus status );
-
-
-const InterfaceID& TrigL2MuonSA::CscDataPreparator::interfaceID() { return IID_CscDataPreparator; }
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -28,15 +24,8 @@ TrigL2MuonSA::CscDataPreparator::CscDataPreparator(const std::string& type,
 						   const std::string& name,
 						   const IInterface*  parent): 
    AthAlgTool(type,name,parent),
-   m_regionSelector( "RegSelSvc", name ),
-   m_rawDataProviderTool("Muon::CSC_RawDataProviderTool/CSC_RawDataProviderTool"),
-   m_cscPrepDataProvider("Muon::CscRdoToCscPrepDataTool/CscPrepDataProviderTool"),
-   m_cscClusterProvider("CscThresholdClusterBuilderTool")
+   m_regionSelector( "RegSelSvc", name )
 {
-   declareInterface<TrigL2MuonSA::CscDataPreparator>(this);
-   declareProperty("CscRawDataProvider",  m_rawDataProviderTool);
-   declareProperty("CscPrepDataProvider", m_cscPrepDataProvider);
-   declareProperty("CscClusterProvider",  m_cscClusterProvider);
 }
 
 // --------------------------------------------------------------------------------
@@ -77,17 +66,8 @@ StatusCode TrigL2MuonSA::CscDataPreparator::initialize()
 
    ATH_CHECK(m_cscPrepContainerKey.initialize(!m_cscPrepContainerKey.empty()));
 
-   // 
+   //
    return StatusCode::SUCCESS; 
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-void TrigL2MuonSA::CscDataPreparator::setRoIBasedDataAccess(bool use_RoIBasedDataAccess)
-{
-  m_use_RoIBasedDataAccess = use_RoIBasedDataAccess;
-  return;
 }
 
 // --------------------------------------------------------------------------------
