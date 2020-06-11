@@ -8,8 +8,7 @@
 #include "TSystem.h"
 #include "TH1.h"
 
-#include <math.h>
-
+#include <TMath.h>
 
 
 
