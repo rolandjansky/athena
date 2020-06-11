@@ -39,6 +39,9 @@ class HIJetConstituentModifierTool : public JetModifierBase {
   SG::ReadHandleKey< xAOD::CaloClusterContainer > m_clusterKey { this, "ClusterKey", "ClusterKey", "Name of the input Cluster Container"};
   /// \brief handle to IHISubtractorTool that determines the subtracted kinematics for each constituent
   ToolHandle<IHISubtractorTool> m_subtractorTool { this, "Subtractor", "HIJetSubtractorToolBase", "" };
+  /// |brief boolean switch to drive the JetScale settings after constituents are added 
+  Gaudi::Property< bool > m_originCorrection { this, "ApplyOriginCorrection", false, "Apply Origin Correction boolean switch"};
+
 };
 
 #endif

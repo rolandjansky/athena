@@ -45,12 +45,14 @@ int HIJetConstituentModifierTool::modifyJet(xAOD::Jet& jet) const {
    if( constituentWeightAcc.isAvailable(jet) ) constituentWeightAcc( jet ).resize(0);
 
    //save unsubtracted kinematics as moment if they don’t exist already...
-   xAOD::IParticle::FourMom_t unsubtrP4;
-   unsubtrP4 = jet.p4();
+   xAOD::IParticle::FourMom_t unsubtractedP4;
+   unsubtractedP4 = jet.p4();
    jet.setJetP4(HIJetRec::unsubtractedJetState(),jet.jetP4());
 
-   xAOD::IParticle::FourMom_t subtrP4;
-   xAOD::JetFourMom_t jet4vec;
+   xAOD::IParticle::FourMom_t subtractedP4;
+   xAOD::IParticle::FourMom_t subtractedOriginCorrP4;
+   xAOD::JetFourMom_t subtractedJet4vec;
+   xAOD::JetFourMom_t subtractedOriginCorrJet4vec;
    //need to add usual safety checks on cluster container access
    SG::ReadHandle<xAOD::CaloClusterContainer> readHandleSubtractedClusters ( m_clusterKey );
 
@@ -60,16 +62,37 @@ int HIJetConstituentModifierTool::modifyJet(xAOD::Jet& jet) const {
    {
      auto cl=ccl->at(index);
      jet.addConstituent(cl);
-     subtrP4+=cl->p4(HIJetRec::subtractedClusterState());
+     subtractedP4+=cl->p4(HIJetRec::subtractedClusterState());
+     if( m_originCorrection ) subtractedOriginCorrP4+=cl->p4(HIJetRec::subtractedOriginCorrectedClusterState());
+   }
+   //Check for subtracted Kinematics
+   if(subtractedP4.E()/std::cosh(subtractedP4.Eta()) < E_min)
+   {
+     subtractedP4=unsubtractedP4;
+     subtractedP4*=1e-7;//ghost scale
+   }
+   //Check for subtracted + Origin Correction Kinematics
+   if(subtractedOriginCorrP4.E()/std::cosh(subtractedOriginCorrP4.Eta()) < E_min && m_originCorrection )
+   {
+     subtractedOriginCorrP4=unsubtractedP4;
+     subtractedOriginCorrP4*=1e-7;//ghost scale
    }
 
-   if(subtrP4.E()/std::cosh(subtrP4.Eta()) < E_min)
-   {
-     subtrP4=unsubtrP4;
-     subtrP4*=1e-7;//ghost scale
+   subtractedJet4vec.SetCoordinates(subtractedP4.Pt(),subtractedP4.Eta(),
+                                    subtractedP4.Phi(),subtractedP4.M());
+   jet.setJetP4(HIJetRec::subtractedJetState(), subtractedJet4vec);
+
+   if( m_originCorrection ) {
+     subtractedOriginCorrJet4vec.SetCoordinates(subtractedOriginCorrP4.Pt(),subtractedOriginCorrP4.Eta(),
+                                                subtractedOriginCorrP4.Phi(),subtractedOriginCorrP4.M());
+     jet.setJetP4(HIJetRec::subtractedOriginCorrectedJetState(), subtractedOriginCorrJet4vec);
+     jet.setJetP4(subtractedOriginCorrJet4vec);
+     jet.setConstituentsSignalState(HIJetRec::subtractedOriginCorrectedConstitState());
    }
-   jet4vec.SetCoordinates(subtrP4.Pt(),subtrP4.Eta(),subtrP4.Phi(),subtrP4.M());
-   jet.setJetP4(jet4vec);
+   else {
+     jet.setConstituentsSignalState(HIJetRec::subtractedConstitState());
+     jet.setJetP4(subtractedJet4vec);
+   }
 
    return 0;
 }
