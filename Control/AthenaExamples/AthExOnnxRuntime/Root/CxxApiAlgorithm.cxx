@@ -132,11 +132,11 @@ namespace AthONNX {
 
       // print output shapes/dims
         output_node_dims = tensor_info.GetShape();
-        ATH_MSG_DEBUG("Output "<<i<<" : num_dims= "<<output_node_dims.size());
+        ANA_MSG_INFO("Output "<<i<<" : num_dims= "<<output_node_dims.size());
         for (std::size_t j = 0; j < output_node_dims.size(); j++){
            if(output_node_dims[j]<0)
               output_node_dims[j] =1;
-        ATH_MSG_DEBUG("Output"<<i<<" : dim "<<j<<"= "<<output_node_dims[j]);
+        ANA_MSG_INFO("Output"<<i<<" : dim "<<j<<"= "<<output_node_dims[j]);
        }  
       }
      //*************************************************************************
@@ -168,17 +168,17 @@ namespace AthONNX {
      float* floatarr = output_tensors.front().GetTensorMutableData<float>();
      
      // show  true label for the test input
-     ATH_MSG_INFO("Label for the input test data  = "<<output_tensor_values);
+     ANA_MSG_INFO("Label for the input test data  = "<<output_tensor_values);
      float max = -999;
      int max_index = 0;
      for (int i = 0; i < 10; i++){
-       ATH_MSG_INFO("Score for class "<<i<<" = "<<floatarr[i]<<std::endl);
+       ANA_MSG_INFO("Score for class "<<i<<" = "<<floatarr[i]<<std::endl);
        if (max<floatarr[i]){
           max = floatarr[i];
           max_index = i;
        }
      }
-     ATH_MSG_INFO("Class: "<<max_index<<" has the highest score: "<<floatarr[max_index]);
+     ANA_MSG_INFO("Class: "<<max_index<<" has the highest score: "<<floatarr[max_index]);
       // Return gracefully.
       return StatusCode::SUCCESS;
    }

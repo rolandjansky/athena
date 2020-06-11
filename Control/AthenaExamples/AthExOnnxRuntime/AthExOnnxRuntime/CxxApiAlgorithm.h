@@ -28,8 +28,6 @@ namespace AthONNX {
    class CxxApiAlgorithm : public EL::AnaAlgorithm {
 
    public:
-      /// Inherit the base class's constructor
-      //using AthReentrantAlgorithm::AthReentrantAlgorithm;
       CxxApiAlgorithm (const std::string& name, ISvcLocator* pSvcLocator);
       /// @name Function(s) inherited from @c AthAlgorithm
       /// @{
@@ -53,15 +51,6 @@ namespace AthONNX {
        std::string m_pixelFileName;
        std::string m_labelFileName;
        int m_testSample;
-      /// Handle to @c AthONNX::IONNXRuntimeSvc
-      //ServiceHandle< IONNXRuntimeSvc > m_svc{ this, "ONNXRuntimeSvc",
-        //                                      "AthONNX::ONNXRuntimeSvc",
-          //                                    "Name of the service to use" };
-
-      /// @}
-
-      /// The "session" of ONNX Runtime that we'll be using
-      /// std::unique_ptr< Ort::Session > m_session;
 
    }; // class CxxApiAlgorithm
 

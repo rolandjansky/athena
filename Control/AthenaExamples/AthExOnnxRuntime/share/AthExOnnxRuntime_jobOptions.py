@@ -1,21 +1,23 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# Set up / access the algorithm sequence.
-from AthenaCommon.AlgSequence import AlgSequence
-algSequence = AlgSequence()
-
-# Set up the job.
-from AthExOnnxRuntime.AthExOnnxRuntimeConf import AthONNX__ONNXRuntimeSvc, \
-                                                  AthONNX__CxxApiAlgorithm
-
-from AthenaCommon.AppMgr import ServiceMgr
-ServiceMgr += AthONNX__ONNXRuntimeSvc( OutputLevel = DEBUG )
-algSequence += AthONNX__CxxApiAlgorithm("AthONNX")
-
 # Get a	random no. between 0 to	10k for	test sample
 from random import randint
 
-AthONNX = algSequence.AthONNX
-AthONNX.TestSample = randint(0, 9999)
-# Run for 10 "events".
-theApp.EvtMax = 10
+# Set up (Py)ROOT.
+import ROOT
+
+# Create an EventLoop job.
+job = ROOT.EL.Job()
+job.options().setDouble( ROOT.EL.Job.optMaxEvents, 10 )
+
+# Create the algorithm's configuration.
+from AnaAlgorithm.DualUseConfig import createAlgorithm
+alg = createAlgorithm ( 'AthONNX__CxxApiAlgorithm', 'AthONNX' )
+
+# later on we'll add some configuration options for our algorithm that go here
+
+# Add our algorithm to the job
+job.algsAdd( alg )
+alg.TestSample = randint(0, 9999)
+# Run the job using the direct driver.
+driver = ROOT.EL.DirectDriver()

@@ -10,15 +10,24 @@ find_package( onnxruntime )
 atlas_add_library( AthExOnnxRuntimeLib
    AthExOnnxRuntime/*.h
    Root/*.cxx
-   INTERFACE
    PUBLIC_HEADERS AthExOnnxRuntime
-   INCLUDE_DIRS ${ONNXRUNTIME_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ONNXRUNTIME_LIBRARIES} AnaAlgorithmLib)
+   INCLUDE_DIRS ${ONNXRUNTIME_INCLUDE_DIRS} PathResolver
+   LINK_LIBRARIES ${ONNXRUNTIME_LIBRARIES} AnaAlgorithmLib PathResolver)
 
-atlas_add_component( AthExOnnxRuntime
-   src/components/*.cxx
-   INCLUDE_DIRS ${ONNXRUNTIME_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ONNXRUNTIME_LIBRARIES} AthExOnnxRuntimeLib AthenaBaseComps GaudiKernel PathResolver AnaAlgorithmLib)
+if (XAOD_STANDALONE)
+ # Add the dictionary (for AnalysisBase only):
+ atlas_add_dictionary (AthExOnnxRuntimeDict
+  AthExOnnxRuntime/AthExOnnxRuntimeDict.h
+  AthExOnnxRuntime/selection.xml
+  LINK_LIBRARIES ${ONNXRUNTIME_LIBRARIES} AthExOnnxRuntimeLib)
+endif ()
+
+if (NOT XAOD_STANDALONE)
+  # Add a component library for AthAnalysis only:
+  atlas_add_component (AthExOnnxRuntime
+    src/components/*.cxx
+    LINK_LIBRARIES AthExOnnxRuntimeLib)
+endif ()
 
 # Install files from the package.
 atlas_install_joboptions( share/*.py )
