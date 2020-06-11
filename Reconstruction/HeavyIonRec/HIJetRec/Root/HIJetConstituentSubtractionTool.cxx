@@ -74,7 +74,6 @@ StatusCode HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) con
     return StatusCode::FAILURE;
   }
 
-  bool missingMoment=false;
   bool needsUnsubMoment=false;
   if(jets.size() > 0){
      xAOD::JetFourMom_t tmp;
@@ -116,9 +115,6 @@ StatusCode HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) con
 		  << std::setw(10) << std::setprecision(3) << p4_subtr.E()*1e-3
 		  << std::setw(10) << std::setprecision(3) << p4_subtr.M()*1e-3);
 
-
-
-
     xAOD::JetFourMom_t jet4vec;
     //if entire jet has negative E, do no subtraction but set to ghost scale
     //prevents cases with large cancellations with small E but pT non-trivial
@@ -143,7 +139,6 @@ StatusCode HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) con
       //can be skipped in future if custom HI calibration configuration file exists
       (*ijet)->setJetP4("JetPileupScaleMomentum", jet4vec );
       (*ijet)->setJetP4(xAOD::JetEMScaleMomentum, jet4vec);
-
       (*ijet)->setJetP4(jet4vec);
       (*ijet)->setConstituentsSignalState(HIJetRec::subtractedConstitState());
     }
