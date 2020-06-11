@@ -19,11 +19,7 @@
 TrigL2MuonSA::TgcRoadDefiner::TgcRoadDefiner(const std::string& type,
 					     const std::string& name,
 					     const IInterface*  parent):
-     AthAlgTool(type, name, parent), 
-     m_backExtrapolatorTool(0),
-     m_ptEndcapLUT(0),
-     m_tgcFit("TrigL2MuonSA::TgcFit"),
-     m_rWidth_TGC_Failed(0),
+     AthAlgTool(type, name, parent),
      m_regionSelector( "RegSelSvc", name )
 {
 }

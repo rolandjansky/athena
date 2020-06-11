@@ -51,17 +51,17 @@ class TgcRoadDefiner: public AthAlgTool
   bool prepareTgcPoints(const TrigL2MuonSA::TgcHits& tgcHits);
   
  private:
-  ToolHandle<ITrigMuonBackExtrapolator>* m_backExtrapolatorTool;
-  const ToolHandle<PtEndcapLUT>*         m_ptEndcapLUT;
+  ToolHandle<ITrigMuonBackExtrapolator>* m_backExtrapolatorTool {nullptr};
+  const ToolHandle<PtEndcapLUT>*         m_ptEndcapLUT {nullptr};
 
-  ToolHandle<TgcFit>                     m_tgcFit;
+  ToolHandle<TgcFit>                     m_tgcFit {"TrigL2MuonSA::TgcFit"};
 
   TrigL2MuonSA::TgcFit::PointArray m_tgcStripMidPoints;  // List of TGC strip middle station points.
   TrigL2MuonSA::TgcFit::PointArray m_tgcWireMidPoints;   // List of TGC wire middle station points.
   TrigL2MuonSA::TgcFit::PointArray m_tgcStripInnPoints;  // List of TGC strip inner station points.
   TrigL2MuonSA::TgcFit::PointArray m_tgcWireInnPoints;   // List of TGC wire inner station points.
 
-  double m_rWidth_TGC_Failed;
+  double m_rWidth_TGC_Failed {0};
   
   ServiceHandle<IRegSelSvc> m_regionSelector;
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
