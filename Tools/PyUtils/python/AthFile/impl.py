@@ -1280,14 +1280,14 @@ class FilePeeker(object):
         beam_type   = '<beam-type N/A>'
         try:
             beam_type = data_reader.beamType()
-        except Exception as err:
+        except Exception:
             msg.warning ("problem while extracting beam-type information")
             pass
 
         beam_energy = '<beam-energy N/A>'
         try:
             beam_energy = data_reader.beamEnergy()
-        except Exception as err:
+        except Exception:
             msg.warning ("problem while extracting beam-type information")
             pass
 

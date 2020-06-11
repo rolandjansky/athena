@@ -35,7 +35,7 @@ def main(args):
      $ check-sg LFN:ttbar.pool
     """
     files = args.files
-    if isinstance(files, basestring):
+    if isinstance(files, str):
         files = [files]
 
     import os
