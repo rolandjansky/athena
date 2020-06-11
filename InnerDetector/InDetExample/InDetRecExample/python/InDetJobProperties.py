@@ -1834,7 +1834,7 @@ class InDetJobProperties(JobPropertyContainer):
       self.doLowPt       = self.doLowPt() and self.doNewTracking() and ( DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on() ) and not self.doCosmics()
       # no low pt tracking if no new tracking before or if pixels are off (since low-pt tracking is pixel seeded)!      
       self.doVeryLowPt   = self.doVeryLowPt() and self.doLowPt()
-      # no low pt tracking exclusiveWW if no new tracking before or if pixels are off (since low-pt tracking is pixel seeded)!  Explicitly veto for cosmics to aid T0
+# no low pt roi tracking if no new tracking before or if pixels are off (since low-pt tracking is pixel seeded)!  Explicitly veto for cosmics to aid T0
       self.doLowPtRoI    = self.doLowPtRoI() and self.doNewTracking() and ( DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on() ) and not self.doCosmics()
       #
       self.doSLHCConversionFinding = self.doSLHCConversionFinding() and self.doSLHC() and self.doNewTracking() and ( DetFlags.haveRIO.pixel_on() and DetFlags.haveRIO.SCT_on() ) and not self.doCosmics()
