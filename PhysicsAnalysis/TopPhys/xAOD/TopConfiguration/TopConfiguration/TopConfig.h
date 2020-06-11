@@ -618,7 +618,7 @@ namespace top {
     const std::string& sgKeyPseudoTopLoose(const std::string) const;
 
     // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-    // Jet Ghost-Track Systematics
+    // Jet Ghost-Track Systematics and selection
 
     // The jet decoration name for a given systematic (nominal also possible).
     const std::string& decoKeyJetGhostTrack(const std::size_t hash) const;
@@ -633,6 +633,7 @@ namespace top {
     inline std::shared_ptr<std::unordered_map<std::size_t, CP::SystematicSet> > systMapJetGhostTrack()   const {
       return m_systMapJetGhostTrack;
     }
+    
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
@@ -1051,11 +1052,34 @@ namespace top {
         m_jetPtGhostTracks = pt;
       }
     }
+    
+    inline virtual void ghostTrackspT(const float pt) {
+     if (!m_configFixed) {
+        m_ghostTrackspT = pt;
+     }
+    }
+    
+    inline virtual void ghostTracksVertexAssociation(const std::string& vertexassociation) {
+     if (!m_configFixed) {
+        m_ghostTracksVertexAssociation = vertexassociation;
+     }
+    }
+    
+    inline virtual void ghostTracksQuality(const std::string& ghostTracksQuality) {
+     if (!m_configFixed) {
+        m_ghostTracksQuality = ghostTracksQuality;
+     }
+    }
 
     inline virtual float jetPtcut()  const {return m_jetPtcut;}
     inline virtual float jetEtacut() const {return m_jetEtacut;}
     inline virtual const std::string& fwdJetAndMET() const {return m_fwdJetAndMET;}
+   
     inline virtual float jetPtGhostTracks()  const {return m_jetPtGhostTracks;}
+    
+    inline virtual float ghostTrackspT()  const {return m_ghostTrackspT;}
+    inline virtual const std::string& ghostTracksVertexAssociation()  const {return m_ghostTracksVertexAssociation;}
+    inline virtual const std::string& ghostTracksQuality()  const {return m_ghostTracksQuality;}
 
     inline virtual void largeRJetPtcut(const float pt) {
       if (!m_configFixed) {
@@ -2009,6 +2033,9 @@ namespace top {
     std::string m_decoKeyJetGhostTrack;
     std::vector<std::string> m_jetGhostTrackSystematics;
     std::vector<std::uint32_t> m_jetGhostTrackRunPeriods;
+    float m_ghostTrackspT;
+    std::string m_ghostTracksVertexAssociation;
+    std::string m_ghostTracksQuality;
 
     float m_jetResponseMatchingDeltaR;
 

@@ -253,6 +253,11 @@ namespace top {
     m_doJVTInMETCalculation(true),
     m_saveFailJVTJets(false),
     m_JVTWP("Default"),
+    
+    // Ghost Track Configuration
+    m_ghostTrackspT(500.),
+    m_ghostTracksVertexAssociation("nominal"),
+    m_ghostTracksQuality("TightPrimary"),
 
     m_largeRJetPtcut(25000.),
     m_largeRJetEtacut(2.5),
@@ -1224,7 +1229,6 @@ namespace top {
     this->jetPtcut(std::stof(settings->value("JetPt")));
     this->jetEtacut(std::stof(settings->value("JetEta")));
     this->fwdJetAndMET(settings->value("FwdJetAndMET"));
-    this->jetPtGhostTracks(std::stof(settings->value("JetPtGhostTracks")));
     this->jetUncertainties_NPModel(settings->value("JetUncertainties_NPModel"));
     this->jetUncertainties_QGFracFile(settings->value("JetUncertainties_QGFracFile"));
     this->jetUncertainties_QGHistPatterns(settings->value("JetUncertainties_QGHistPatterns"));
@@ -1242,6 +1246,12 @@ namespace top {
 
     this->trackJetPtcut(std::stof(settings->value("TrackJetPt")));
     this->trackJetEtacut(std::stof(settings->value("TrackJetEta")));
+    
+    //Ghost track associated to jets
+    this->jetPtGhostTracks(std::stof(settings->value("JetPtGhostTracks")));
+    this->ghostTrackspT(std::stof(settings->value("GhostTrackspT")));
+    this->ghostTracksVertexAssociation(settings->value("GhostTracksVertexAssociation"));
+    this->ghostTracksQuality(settings->value("GhostTracksQuality"));
 
     // Jet configuration reclustered jets
     this->RCJetPtcut(std::stof(settings->value("RCJetPt")));

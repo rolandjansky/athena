@@ -167,6 +167,13 @@ namespace top {
     registerParameter("JetPtGhostTracks",
                       "Jet pT threshold for ghost track systematic variations calculation (in MeV). Default 19 GeV.",
                       "19000.");
+    registerParameter("GhostTrackspT",
+                      "PT of the ghost tracks associated small-R jets (in MeV). Default 500 MeV.",
+                      "500.");
+    registerParameter("GhostTracksVertexAssociation",
+                      "WP of the ghost track vertex association. Option: none, nominal and tight. Default nominal.","nominal");
+    registerParameter("GhostTracksQuality",
+                      "WP of the ghost track quality. Option: TightPrimary, LoosePrimary. Loose, NoCut. Default TightPrimary.","TightPrimary");
     registerParameter("JetUncertainties_NPModel",
                       "AllNuisanceParameters, CategoryReduction (default), GlobalReduction, StrongReduction - for JetUncertainties",
                       "CategoryReduction");

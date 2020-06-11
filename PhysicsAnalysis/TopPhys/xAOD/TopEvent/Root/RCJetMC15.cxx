@@ -622,18 +622,18 @@ void RCJetMC15::getPflowConstituent(std::vector<fastjet::PseudoJet>& clusters, c
     bool haveJetTracks = jetTracks.size() != 0;
 
     if (haveJetTracks) {
-      for (std::vector<const xAOD::TrackParticle*>::iterator jetTrIt = jetTracks.begin(); jetTrIt != jetTracks.end();
-           ++jetTrIt) {
+      for (std::vector<const xAOD::TrackParticle*>::iterator jetTrIt = jetTracks.begin(); jetTrIt != jetTracks.end(); ++jetTrIt) {
         TLorentzVector temp_p4;
+      
         if (*jetTrIt != nullptr) {
-          //Pileup suppression, using the nominal working point
-          float deltaz0 = (*jetTrIt)->z0() + (*jetTrIt)->vz() - primary_vertex_z;
-
-          if (std::abs((*jetTrIt)->d0()) < 2 && std::abs((*jetTrIt)->eta()) < 2.5 &&
-              std::abs(sin((*jetTrIt)->theta()) * deltaz0) < 3) {
-            temp_p4.SetPtEtaPhiE((*jetTrIt)->pt(), (*jetTrIt)->eta(), (*jetTrIt)->phi(), (*jetTrIt)->e());
-            clusters.push_back(fastjet::PseudoJet(temp_p4.Px(), temp_p4.Py(), temp_p4.Pz(), temp_p4.E()));
-          }
+          
+          // Select on track quality and match to vertex  
+          if((*jetTrIt)->auxdataConst< char >("passPreORSelection") != 1)
+            continue;
+          
+          temp_p4.SetPtEtaPhiE((*jetTrIt)->pt(), (*jetTrIt)->eta(), (*jetTrIt)->phi(), (*jetTrIt)->e());
+          clusters.push_back(fastjet::PseudoJet(temp_p4.Px(), temp_p4.Py(), temp_p4.Pz(), temp_p4.E()));
+    
         }
       }
     } else {

@@ -22,6 +22,9 @@
 #include "InDetTrackSystematicsTools/InDetTrackTruthFilterTool.h"
 #include "InDetTrackSystematicsTools/InDetTrackTruthOriginTool.h"
 #include "InDetTrackSystematicsTools/JetTrackFilterTool.h"
+#include "InDetTrackSystematicsTools/JetTrackFilterTool.h"
+#include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
+
 
 
 namespace top {
@@ -53,11 +56,17 @@ namespace top {
     const std::string m_jetTrackFilterToolName {
       "top::GhostTrackCPTools::JetTrackFilterTool"
     };
+    
+    const std::string m_TrkSelName {
+      "top::GhostTrackCPTools::TrkSelTool"
+    };
 
     ToolHandle<InDet::InDetTrackSmearingTool>      m_smearingTool;
     ToolHandle<InDet::InDetTrackTruthOriginTool>   m_truthOriginTool;
     ToolHandle<InDet::InDetTrackTruthFilterTool>   m_truthFilterTool;
     ToolHandle<InDet::JetTrackFilterTool>          m_jetTrackFilterTool;
+    ToolHandle<InDet::InDetTrackSelectionTool>     m_trackseltool;
+    
 
     std::vector<ToolHandle<InDet::InDetTrackBiasingTool> > m_biasingTool;
 
@@ -65,6 +74,7 @@ namespace top {
     StatusCode setupBiasingTools();
     StatusCode setupTruthFilterTool();
     StatusCode setupJetTrackFilterTool();
+    StatusCode setupSelectionTool();
   };
 }  // namespace top
 

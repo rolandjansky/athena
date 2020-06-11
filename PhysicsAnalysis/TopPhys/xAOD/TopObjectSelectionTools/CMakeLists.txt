@@ -26,7 +26,8 @@ atlas_depends_on_subdirs( PUBLIC
                           TriggerAnalysisInterfaces
                           TrigGlobalEfficiencyCorrection
                           GoodRunsLists
-                          JetAnalysisInterfaces
+                          InDetTrackSelectionTool
+			  JetAnalysisInterfaces
                           JetSubStructureMomentTools
                           JetSubStructureUtils
                           JetReclustering
@@ -71,7 +72,8 @@ atlas_add_library( TopObjectSelectionTools Root/*.cxx Root/*.h Root/*.icc
                                   TrigTauMatchingLib
                                   TrigGlobalEfficiencyCorrectionLib
                                   GoodRunsListsLib
-                                  JetAnalysisInterfacesLib
+                                  InDetTrackSelectionToolLib
+				  JetAnalysisInterfacesLib
                                   JetSubStructureMomentToolsLib
                                   JetSubStructureUtils
                                   JetReclusteringLib
