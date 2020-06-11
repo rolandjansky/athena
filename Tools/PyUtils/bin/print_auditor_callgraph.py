@@ -73,7 +73,7 @@ if __name__ == '__main__':
     step = Steps.ini
     if len(sys.argv) > 2:
         step = sys.argv[2].lower()
-        if not step in Steps.ALLOWED:
+        if step not in Steps.ALLOWED:
             raise SystemExit(
                 2, "Invalid step name [%s] allowed=%r"%(step, Steps.ALLOWED))
 

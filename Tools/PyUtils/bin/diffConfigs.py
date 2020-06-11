@@ -15,7 +15,6 @@
 
 from __future__ import print_function
 
-__version__ = "$Revision: 1.1 $"
 __author__  = "Sebastien Binet"
 
 import sys
@@ -51,8 +50,7 @@ if __name__ == "__main__":
         options.fileName = args[1]
         pass
 
-    if options.fileName    == None or \
-       options.refFileName == None :
+    if options.fileName    is None or options.refFileName is None :
         str(parser.print_help() or "")
         sys.exit(1)
         pass
