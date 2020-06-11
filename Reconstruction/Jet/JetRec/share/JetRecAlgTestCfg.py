@@ -84,16 +84,14 @@ def JetInputCfg(ConfigFlags):
         InputContainer = "LCOriginTopoClusters",
         OutputContainer = "PseudoJetLCTopo",
         Label = "LCTopo",
-        SkipNegativeEnergy=True,
-        GhostScale=0.)
+        SkipNegativeEnergy=True)
 
     ghostpjgalg = CompFactory.PseudoJetAlgorithm(
-        "pjgalg_Truth",
+        "pjgalg_GhostTruth",
         InputContainer = "TruthParticles",
-        OutputContainer = "PseudoJetTruth",
-        Label = "Truth",
-        SkipNegativeEnergy=True,
-        GhostScale=0.)
+        OutputContainer = "PseudoJetGhostTruth",
+        Label = "GhostTruth",
+        SkipNegativeEnergy=True)
 
     pjcs = [constitpjgalg.OutputContainer,ghostpjgalg.OutputContainer]
 
@@ -122,14 +120,14 @@ def JetBuildAlgCfg(ConfigFlags,buildjetsname):
         "pjmergealg_"+buildjetsname,
         InputPJContainers = pjcs,
         OutputContainer = "PseudoJetMerged_"+buildjetsname)
-
+    
     buildcfg.addEventAlgo(mergepjalg)
 
     # Create the JetClusterer, set some standard options
     jclust = CompFactory.JetClusterer("builder")
     jclust.JetAlgorithm = "AntiKt"
     jclust.JetRadius = 1.0
-    jclust.PtMin = 5e5 # MeV
+    jclust.PtMin = 10e3 # MeV
     jclust.InputPseudoJets = "PseudoJetMerged_"+buildjetsname
     jclust.JetInputType = 1 # Hardcoded "magic number" for now
     # See https://gitlab.cern.ch/atlas/athena/blob/master/Event/xAOD/xAODJet/xAODJet/JetContainerInfo.h
@@ -163,17 +161,17 @@ def JetGroomAlgCfg(ConfigFlags,buildjetsname,groomjetsname):
     groomcfg.addSequence( CompFactory.AthSequencer(sequencename) )
 
     # Create the JetGroomer, provide it with a JetTrimmer
-    jgroom = CompFactory.JetGroomer("groomer")
-    jgroom.Groomer = CompFactory.JetTrimmer("trimSmallR2Frac5",RClus=0.2,PtFrac=0.05,JetBuilder=CompFactory.JetFromPseudojet())
-    jgroom.UngroomedJets = buildjetsname
-    jgroom.ParentPseudoJets = "PseudoJetMerged_"+buildjetsname
+    jtrim = CompFactory.JetTrimming("trimSmallR2Frac5",RClus=0.2,PtFrac=0.05)
+    jtrim.InputJetContainer = buildjetsname
+    jtrim.InputPseudoJets = "PseudoJetMerged_"+buildjetsname
+    jtrim.TrimmedOutputPseudoJets = "PseudoJet"+groomjetsname
 
     # Create the JetRecAlg, configure it to use the builder
     # using constructor syntax instead
     # (equivalent to setting properties with "=")
     jra = CompFactory.JetRecAlg(
         "JRA_groom",
-        Provider = jgroom,       # Single ToolHandle
+        Provider = jtrim,       # Single ToolHandle
         Modifiers = [], # ToolHandleArray
         OutputContainer = groomjetsname)
 
@@ -212,34 +210,37 @@ def JetCopyAlgCfg(ConfigFlags,buildjetsname,copyjetsname):
     copycfg.addEventAlgo( jra, sequencename )
     return copycfg
 
-# Add the build config to the job
-# One could add options to make it more customisable
-buildjetsname = "MyAntiKt10LCTopoJets"
-groomjetsname = "MyAntiKt10LCTopoTrimmedSmallR5Frac20Jets"
-copyjetsname = "CopyAntiKt10LCTopoJets"
-cfg.merge( JetBuildAlgCfg(ConfigFlags, buildjetsname) )
-cfg.merge( JetGroomAlgCfg(ConfigFlags, buildjetsname, groomjetsname) )
-cfg.merge( JetCopyAlgCfg(ConfigFlags, buildjetsname, copyjetsname) )
+if __name__=="__main__":
+    # Add the build config to the job
+    # One could add options to make it more customisable
+    buildjetsname = "MyAntiKt10LCTopoJets"
+    groomjetsname = "MyAntiKt10LCTopoTrimmedSmallR5Frac20Jets"
+    copyjetsname = "CopyAntiKt10LCTopoJets"
+    cfg.merge( JetBuildAlgCfg(ConfigFlags, buildjetsname) )
+    cfg.merge( JetGroomAlgCfg(ConfigFlags, buildjetsname, groomjetsname) )
+    cfg.merge( JetCopyAlgCfg(ConfigFlags, buildjetsname, copyjetsname) )
 
-# Write what we produced to AOD
-# First define the output list
-outputlist = ["EventInfo#*"]
-jetlist = [buildjetsname]
-for jetcoll in jetlist:
-    outputlist += ["xAOD::JetContainer#"+jetcoll,
-                   "xAOD::JetAuxContainer#"+jetcoll+"Aux.-PseudoJet"]
-outputlist += ["xAOD::JetContainer#"+copyjetsname,
-               "xAOD::ShallowAuxContainer#"+copyjetsname+"Aux.-PseudoJet"]
+    # Write what we produced to AOD
+    # First define the output list
+    outputlist = ["EventInfo#*"]
+    jetlist = [buildjetsname,groomjetsname,copyjetsname]
+    for jetcoll in jetlist:
+        if "Copy" in jetcoll:
+            outputlist += ["xAOD::JetContainer#"+copyjetsname,
+                           "xAOD::ShallowAuxContainer#"+copyjetsname+"Aux.-PseudoJet"]
+        else:
+            outputlist += ["xAOD::JetContainer#"+jetcoll,
+                           "xAOD::JetAuxContainer#"+jetcoll+"Aux.-PseudoJet"]
 
-# Now get the output stream components
-from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-cfg.merge(OutputStreamCfg(ConfigFlags,"xAOD",ItemList=outputlist))
-from pprint import pprint
-pprint( cfg.getEventAlgo("OutputStreamxAOD").ItemList )
+    # Now get the output stream components
+    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+    cfg.merge(OutputStreamCfg(ConfigFlags,"xAOD",ItemList=outputlist))
+    from pprint import pprint
+    pprint( cfg.getEventAlgo("OutputStreamxAOD").ItemList )
 
-# For local tests, not in the CI
-# Print the contents of the store every event
-# cfg.getService("StoreGateSvc").Dump = True
+    # For local tests, not in the CI
+    # Print the contents of the store every event
+    # cfg.getService("StoreGateSvc").Dump = True
 
-# Run the job
-cfg.run(maxEvents=1)
+    # Run the job
+    cfg.run(maxEvents=10)

@@ -8,6 +8,9 @@
 #include "JetRec/PseudoJetGetter.h"
 #include "JetRec/IParticleExtractor.h"
 
+// Fixed value by which to scale ghost kinematics
+constexpr float ghostscale = 1e-40;
+
 //**********************************************************************
 
 StatusCode PseudoJetAlgorithm::initialize() {
@@ -49,18 +52,16 @@ StatusCode PseudoJetAlgorithm::execute(const EventContext& ctx) const {
     ATH_MSG_WARNING("Failed to retrieve " << m_incoll.key() << " for PseudoJet creation!" );
     return StatusCode::SUCCESS;
   }
-  ATH_MSG_DEBUG("Retrieved xAOD container " << m_incoll.key() << "of size " << incoll->size()
-		<< ", ghost scale=" << m_ghostscale  
-		<<  ", isGhost=" << bool(m_ghostscale));
+  ATH_MSG_DEBUG("Retrieved xAOD container " << m_incoll.key() << " of size " << incoll->size()
+		<<  ", isGhost=" << m_isGhost);
 
   ATH_MSG_DEBUG("Creating PseudoJetContainer...");
   std::unique_ptr<PseudoJetContainer> pjcont( createPJContainer(*incoll) );
 
   auto outcoll = SG::makeHandle(m_outcoll, ctx);
-  ATH_CHECK( outcoll.record(std::move(pjcont)) );
+  ATH_MSG_DEBUG("Created new PseudoJetContainer \"" << m_outcoll.key() << "\" with size " << pjcont->size());
 
-  ATH_MSG_DEBUG("Created new PseudoJetContainer in event store: " 
-		<< m_outcoll.key());
+  ATH_CHECK( outcoll.record(std::move(pjcont)) );
 
   return StatusCode::SUCCESS;
 }
@@ -76,7 +77,7 @@ std::unique_ptr<PseudoJetContainer> PseudoJetAlgorithm::createPJContainer(const 
   
   // ghostify the pseudojets if necessary
   if(m_isGhost){
-    for(fastjet::PseudoJet& pj : vpj) {pj *= 1e-40;}
+    for(fastjet::PseudoJet& pj : vpj) {pj *= ghostscale;}
   }
   
   // Put the PseudoJetContainer together
@@ -109,6 +110,7 @@ void PseudoJetAlgorithm::print() const {
   ATH_MSG_INFO("   Skip negative E: " << sskip);
   ATH_MSG_INFO("         Is EMTopo: " << m_emtopo);
   ATH_MSG_INFO("          Is PFlow: " << m_pflow);
+  ATH_MSG_INFO("          Is ghost: " << m_isGhost);
   ATH_MSG_INFO(" Treat negative E as ghost: " << m_negEnergyAsGhosts);
 }
 

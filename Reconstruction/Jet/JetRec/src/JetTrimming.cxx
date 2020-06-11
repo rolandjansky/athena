@@ -104,9 +104,10 @@ std::pair<std::unique_ptr<xAOD::JetContainer>, std::unique_ptr<SG::IAuxStore> > 
     
     int nptrim = trimmedPJ.pieces().size();
     jet->setAttribute<int>(xAOD::JetAttribute::TransformType, xAOD::JetTransform::Trim);
-    jet->setAttribute(xAOD::JetAttribute::RClus, m_rclus);
-    jet->setAttribute(xAOD::JetAttribute::PtFrac, m_ptfrac);
     jet->setAttribute<int>(xAOD::JetAttribute::NTrimSubjets, nptrim);
+    // Need to convert from GaudiProperty
+    jet->setAttribute(xAOD::JetAttribute::RClus, float(m_rclus));
+    jet->setAttribute(xAOD::JetAttribute::PtFrac, float(m_ptfrac));
     ATH_MSG_DEBUG("Properties after trimming:");
     ATH_MSG_DEBUG("   ncon: " << trimmedPJ.constituents().size() << "/"
 		  << parentPJ->constituents().size());
