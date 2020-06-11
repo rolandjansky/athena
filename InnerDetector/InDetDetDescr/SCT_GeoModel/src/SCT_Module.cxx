@@ -34,7 +34,6 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoDefinitions.h"
 #include "GaudiKernel/SystemOfUnits.h"
-// 8th Aug 2005 S.Mima modified.
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 
 #include <cmath>
@@ -231,7 +230,6 @@ SCT_Module::preBuild()
 
   m_env2RefPointVector = std::make_unique<GeoTrf::Vector3D>(-xCenterEnv2, -yCenterEnv2, -zCenterEnv2);
 
-  // 8th Aug 2005 S.Mima modified.
   // Calculate dimension of subbox 
   const double xmaxSubBox = - 0.5*m_baseBoard->thickness() - m_safety;
   const double xminSubBox = - 0.5*thicknessEnv2 - 2.0*m_safety;
@@ -274,11 +272,9 @@ SCT_Module::preBuild()
   //
   // Make an envelope for the whole module.
   //
-  // 6th Feb 2005 D.Naito modified.
   const GeoBox * envelope1 = new GeoBox(0.5*m_env1Thickness, 0.5*m_env1Width, 0.5*m_env1Length);
   const GeoBox * envelope2 = new GeoBox(0.5*m_env2Thickness, 0.5*m_env2Width, 0.5*m_env2Length);
 
-  // 8th Aug 2005 S.Mima modified.
   const GeoBox * subBox = new GeoBox(0.5*thicknessSubBox, 0.5*widthSubBox, 0.6*lengthSubBox);
 
   // In the following, envelope1 and envelope2 are added and SUBBOX is pulled. 
@@ -302,7 +298,6 @@ SCT_Module::preBuild()
 
   //
   // base board
-  // 6th Apr 2005 S.Mima modified.
   //
   const double baseBoardPosY = m_baseBoardOffsetY;
   const double baseBoardPosZ = m_baseBoardOffsetZ;

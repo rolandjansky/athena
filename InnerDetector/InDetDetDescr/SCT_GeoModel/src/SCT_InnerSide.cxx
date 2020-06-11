@@ -103,8 +103,6 @@ SCT_InnerSide::preBuild()
   // ise : InnerSideEnvelope
   // Reference: sct_module_geometry.ps
   //
-  // 28th Mar S.Mima modified
-  // Wed 15th Jun 2005 D.Naito modified.
   const double w_ise1 = w_sensor + m_safety;
   const double t_ise1 = t_sensor + m_safety;
   const double l_ise1 = l_sensor + m_safety;
@@ -154,12 +152,7 @@ SCT_InnerSide::preBuild()
   const GeoLogVol * InnerSideEnvelopeLog = new GeoLogVol("InnerSideEnvelope",
                                                          &InnerSideEnvelopeShape,
                                                          m_materials->gasMaterial());
-  // 28th Mar S.Mima modified
-  // *** 16:30 Wed 15th Jun 2005 D.Naito modified. (00)*********************************
-  //m_thickness = 0.5*t_sensor + hybridPosX + 0.5*t_ise2;
-  // *** -->>                                      (00)*********************************
   m_thickness = 0.5*t_ise1 + hybridPosX + 0.5*t_ise2;
-  // *** End of modified lines. ------------------ (00)*********************************
   m_width     = w_ise1;
   m_length    = l_ise1;
 
