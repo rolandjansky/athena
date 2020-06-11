@@ -65,7 +65,6 @@ MuonRpcCablingTest::execute()
         return StatusCode::FAILURE;
     }
 
-    IdentifierHash Idhash;
     IdContext rpcModuleContext = m_idHelperSvc->rpcIdHelper().module_context();
 
     // this is the right thing to do !!!!!!!
