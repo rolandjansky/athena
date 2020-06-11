@@ -3,9 +3,11 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # TileCalibDefaultWriter.py
 # Nils Gollub <nils.gollub@cern.ch>, 2007-11-23
-# modified Lukas Pribyl <lukas.pribyl@cern.ch>, 2008-07-09
-# modified Guilherme Lima <jlima@cernNOSPAM.ch>, 2013-07-30 - changes to default Cs conditions
-# modified Yuri Smirnov <iouri.smirnov@cern.ch>, 2014-12-24 - PyCintex->cppyy for ROOT6
+#
+# Lukas Pribyl <lukas.pribyl@cern.ch>, 2008-07-09
+# Guilherme Lima <jlima@cernNOSPAM.ch>, 2013-07-30 - changes to default Cs conditions
+# Yuri Smirnov <iouri.smirnov@cern.ch>, 2014-12-24 - PyCintex->cppyy for ROOT6
+################################################################
 """
 Python helper module for initializing db with default values
 Note the COOL channels for default values:
@@ -1088,7 +1090,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
                 folderTag = TileCalibUtils.getFullTag(folder, tag) if multiVers else ""
                 blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),folderTag)
             except Exception as e:
-               self.log().critical( e )
+                self.log().critical( e )
 
 
     #____________________________________________________________________
@@ -1535,4 +1537,3 @@ class TileCalibDefaultWriter(TileCalibLogger):
 
         #=== register in DB
         writer.register((MINRUN,MINLBK),(MAXRUN,MAXLBK), "")
-
