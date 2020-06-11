@@ -85,14 +85,14 @@ Trk::TrackParameters* Trk::KalmanWeightUpdator::addToState (  const Trk::TrackPa
     if (fitQoS) {
         ATH_MSG_WARNING( "expect nil FitQuality pointer, refuse operation to avoid mem leak!"  );
         return nullptr;
-    } else {
+    } 
         Trk::TrackParameters* outPar = calculateFilterStep (trkPar, measmtPos, measmtErr, 1, fitQoS, true);
         if (!outPar)
             fitQoS = nullptr;
         if (m_outputlevel <= 0 && outPar)
             logResult("addToState(TP,LPOS,ERR,FQ)",*outPar);
         return outPar;
-    }
+    
 }
 
 // updator #4 for Kalman Fitter - version with LocalParameters (for example for RIO_OnTrack)
@@ -103,13 +103,13 @@ Trk::TrackParameters* Trk::KalmanWeightUpdator::addToState (  const Trk::TrackPa
     if (fitQoS) {
       ATH_MSG_WARNING( "expect nil FitQuality pointer, refuse operation to avoid mem leak!"  );
         return nullptr;
-    } else {
+    } 
         Trk::TrackParameters* outPar = calculateFilterStep (trkPar, measmtPar, measmtErr, 1, fitQoS, true);
         if (!outPar)
             fitQoS = nullptr;
         if (m_outputlevel <= 0 && outPar) logResult("addToState(TP,LPAR,ERR,FQ)",*outPar);
         return outPar;
-    }
+    
 }
 
 // inverse updator #1 for Kalman Fitter - version with Amg::Vector2D (for example for PrepRawData)
@@ -141,12 +141,12 @@ Trk::TrackParameters* Trk::KalmanWeightUpdator::removeFromState ( const Trk::Tra
     if (fitQoS) {
       ATH_MSG_WARNING( "expect nil FitQuality pointer, refuse operation to avoid mem leak!"  );
         return nullptr;
-    } else {
+    } 
       Trk::TrackParameters* outPar = calculateFilterStep (trkPar, measmtPos, measmtErr, -1, fitQoS, true);
         if (!outPar) fitQoS = nullptr;
         if (m_outputlevel<=0 && outPar) logResult("removeFromState(TP,LPOS,ERR,FQ)",*outPar);
         return outPar;
-    }
+    
 }
 
 // inverse updator #4 for Kalman Fitter - version with LocalParameters (for example for RIO_OnTrack)
@@ -157,12 +157,12 @@ Trk::TrackParameters* Trk::KalmanWeightUpdator::removeFromState ( const Trk::Tra
   if (fitQoS) {
     ATH_MSG_WARNING( "expect nil FitQuality pointer, refuse operation to avoid mem leak!"  );
         return nullptr;
-    } else {
+    } 
         Trk::TrackParameters* outPar = calculateFilterStep (trkPar, measmtPar, measmtErr, -1, fitQoS, true);
         if (!outPar) fitQoS = nullptr;
         if (m_outputlevel<=0 && outPar) logResult("removeFrommState(TP,LPAR,ERR,FQ)",*outPar);
         return outPar;
-    }
+    
 }
 
 // state-to-state updator, trajectory combination - version without fitQuality
@@ -473,7 +473,7 @@ Trk::TrackParameters* Trk::KalmanWeightUpdator::calculateFilterStep ( const Trk:
       ATH_MSG_ERROR( "MeasuredTrackParameters == Null, can not calculate "
                      << "updated track state"  );
       return nullptr;
-    } else {
+    } 
       // no error given - use zero weight for the time
       GOld.setZero();
       ATH_MSG_VERBOSE( "-U- no covTrk at input - "
@@ -483,7 +483,7 @@ Trk::TrackParameters* Trk::KalmanWeightUpdator::calculateFilterStep ( const Trk:
       (GOld)(2,2) = m_weight[2];
       (GOld)(3,3) = m_weight[3];
       (GOld)(4,4) = m_weight[4];
-    }
+    
   } else {
     GOld = p.covariance()->inverse();
   }
@@ -573,7 +573,7 @@ Trk::TrackParameters* Trk::KalmanWeightUpdator::calculateFilterStep ( const Trk:
     if (sign<0) {
       ATH_MSG_ERROR( "MeasuredTrackParameters == Null, can not calculate updated track state"  );
       return nullptr;
-    } else {
+    } 
       // no error given - use zero weight for the time
       GOld.setZero();
       ATH_MSG_VERBOSE( "-U- no covTrk at input - "
@@ -583,7 +583,7 @@ Trk::TrackParameters* Trk::KalmanWeightUpdator::calculateFilterStep ( const Trk:
       (GOld)(2,2) = m_weight[2];
       (GOld)(3,3) = m_weight[3];
       (GOld)(4,4) = m_weight[4];
-    }
+    
   } else {
     GOld = p.covariance()->inverse();
   }
