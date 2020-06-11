@@ -16,6 +16,7 @@
 // Local includes
 #include "AssociationUtils/IOverlapTool.h"
 #include "AssociationUtils/BaseOverlapTool.h"
+#include "AssociationUtils/BJetHelper.h"
 #include "AssociationUtils/IObjectAssociator.h"
 
 namespace ORUtils
@@ -100,6 +101,9 @@ namespace ORUtils
       /// @name Configurable properties
       /// @{
 
+      /// Input jet decoration which labels a bjet
+      std::string m_bJetLabel;
+
       /// Minimum number of jet tracks to use the looser jet rejection criteria
       int m_numJetTrk;
       /// The 5 parameters that define the low nTrk criteria for removing jets.
@@ -131,6 +135,8 @@ namespace ORUtils
       /// @name Utilities
       /// @{
 
+      /// BJet helper
+      std::unique_ptr<BJetHelper> m_bJetHelper;
       /// Delta-R matcher for the cone
       std::unique_ptr<IParticleAssociator> m_dRMatchCone;
 
