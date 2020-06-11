@@ -222,6 +222,9 @@ def GetConstituentsModifierTool(**kwargs) :
     if 'cluster_key' in kwargs.keys() : cluster_key=kwargs['cluster_key']
     else : cluster_key=HIJetFlags.HIClusterKey()
 
+    if 'apply_origin_correction' in kwargs.keys() : apply_origin_correction=kwargs['apply_origin_correction']
+    else : apply_origin_correction=HIJetFlags.ApplyOriginCorrection()
+
     HIJetConstituentModifierTool=CompFactory.HIJetConstituentModifierTool
     toolName='HIJetConstituentModifierTool'
     if 'name' in kwargs.keys() : toolName = kwargs['name']
@@ -229,6 +232,7 @@ def GetConstituentsModifierTool(**kwargs) :
     cmod=HIJetConstituentModifierTool(toolName)
     cmod.ClusterKey=cluster_key
     cmod.Subtractor=GetSubtractorTool(**kwargs)
+    cmod.ApplyOriginCorrection=apply_origin_correction
 
     jtm.add(cmod)
     return cmod
