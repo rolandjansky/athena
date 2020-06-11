@@ -14,13 +14,16 @@
 namespace HIJetRec{
 
   //define conventions for HIJets in terms of various signal states
-  constexpr const char* unsubtractedJetState() { return "JetUnsubtractedScaleMomentum";}
-  constexpr const char* subtractedJetState() { return "JetSubtractedScaleMomentum";}
-  constexpr xAOD::JetConstitScale subtractedConstitState() {return xAOD::UncalibratedJetConstituent;}
+  constexpr const char* unsubtractedJetState()                { return "JetUnsubtractedScaleMomentum";}
+  constexpr const char* subtractedJetState()                  { return "JetSubtractedScaleMomentum";}
+  constexpr const char* subtractedOriginCorrectedJetState()   { return "JetSubtractedOriginCorrectedScaleMomentum";}
+
+  constexpr xAOD::JetConstitScale subtractedConstitState()                { return xAOD::UncalibratedJetConstituent;}
+  constexpr xAOD::JetConstitScale subtractedOriginCorrectedConstitState() { return xAOD::CalibratedJetConstituent;}
 
   constexpr xAOD::CaloCluster::State unsubtractedClusterState() {return xAOD::CaloCluster::ALTCALIBRATED;}
   constexpr xAOD::CaloCluster::State subtractedClusterState() {return xAOD::CaloCluster::UNCALIBRATED;}
-  constexpr xAOD::CaloCluster::State subtractedPVCorrectedClusterState() {return xAOD::CaloCluster::CALIBRATED;}
+  constexpr xAOD::CaloCluster::State subtractedOriginCorrectedClusterState() {return xAOD::CaloCluster::CALIBRATED;}
 
   inline bool inTowerBoundary(float eta0, float phi0, float eta, float phi)
   {
