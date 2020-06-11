@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -63,8 +63,9 @@ class SCT_PrepDataToxAOD : public AthReentrantAlgorithm {
                            const InDet::SCT_Cluster* prd,
                            const std::vector<const SiHit*>* siHits) const;
 
-  std::vector<SiHit*> findAllHitsCompatibleWithCluster(const InDet::SCT_Cluster* prd,
-                                                       const std::vector<const SiHit*>* siHits) const;
+  void findAllHitsCompatibleWithCluster(const InDet::SCT_Cluster* prd,
+                                        const std::vector<const SiHit*>* siHits,
+                                        std::vector<SiHit>& matchingHits) const;
 
   void addRDOInformation(xAOD::TrackMeasurementValidation*,
                          const InDet::SCT_Cluster*,
