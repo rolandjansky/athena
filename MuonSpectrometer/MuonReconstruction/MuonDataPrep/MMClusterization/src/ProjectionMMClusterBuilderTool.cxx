@@ -1,34 +1,24 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
 #include "ProjectionMMClusterBuilderTool.h"
+
+#include "MuonPrepRawData/MMPrepData.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <cmath>
 #include <algorithm>
 
-#include "MuonPrepRawData/MMPrepData.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonIdHelpers/MmIdHelper.h"
-
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/SystemOfUnits.h"
-
-namespace{
-// Parametrization of the strip error after the projection
-constexpr double stripErrorSlope = 0.2;
-constexpr double stripErrorIntercept = 0.15;
+namespace {
+  // Parametrization of the strip error after the projection
+  constexpr double stripErrorSlope = 0.2;
+  constexpr double stripErrorIntercept = 0.15;
 }
 
-
-
-
-
-Muon::ProjectionMMClusterBuilderTool::ProjectionMMClusterBuilderTool(const std::string& t,
-							     const std::string& n,
-							     const IInterface*  p )
-  :  
-  AthAlgTool(t,n,p)
-{
+Muon::ProjectionMMClusterBuilderTool::ProjectionMMClusterBuilderTool(const std::string& t, const std::string& n, const IInterface* p) :
+    AthAlgTool(t,n,p) {
   declareInterface<IMMClusterBuilderTool>(this);
   declareProperty("tmin", m_tmin=0.0);
   declareProperty("tmax", m_tmax=5.0);
@@ -39,8 +29,6 @@ Muon::ProjectionMMClusterBuilderTool::ProjectionMMClusterBuilderTool(const std::
   declareProperty("t0",m_t0=100);
   declareProperty("minClusterSize",m_minClusterSize=2);
 }
-
-
 
 StatusCode Muon::ProjectionMMClusterBuilderTool::initialize()
 {
