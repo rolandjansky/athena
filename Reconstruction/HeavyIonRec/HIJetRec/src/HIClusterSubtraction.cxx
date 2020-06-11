@@ -156,39 +156,42 @@ int HIClusterSubtraction::execute() const
 			if(isOriginPossible && m_originCorrection)
 			{
 				missingMoment = HIClusterSubtraction::doOriginCorrection( cl, primVertex, p4 );
-				HIJetRec::setClusterP4(p4,cl,HIJetRec::subtractedPVCorrectedClusterState());
+				HIJetRec::setClusterP4(p4,cl,HIJetRec::subtractedOriginCorrectedClusterState());
 			}
 		}
     else
     {
 			m_subtractorTool->subtract(p4,cl,shape,es_index,m_modulatorTool,eshape);
 			HIJetRec::setClusterP4(p4,cl,HIJetRec::subtractedClusterState());
-			ATH_MSG_INFO("Applying origin correction"
-						<< std::setw(12) << "Before:"
-						<< std::setw(10) << std::setprecision(3) << p4.Pt()*1e-3
-						<< std::setw(10) << std::setprecision(3) << p4.Eta()
-						<< std::setw(10) << std::setprecision(3) << p4.Phi()
-						<< std::setw(10) << std::setprecision(3) << p4.E()*1e-3
-						<< std::setw(10) << std::setprecision(3) << p4.M()*1e-3);
+
 			if(isOriginPossible)
 			{
+				ATH_MSG_DEBUG("Applying origin correction"
+							<< std::setw(12) << "Before:"
+							<< std::setw(10) << std::setprecision(3) << p4.Pt()*1e-3
+							<< std::setw(10) << std::setprecision(3) << p4.Eta()
+							<< std::setw(10) << std::setprecision(3) << p4.Phi()
+							<< std::setw(10) << std::setprecision(3) << p4.E()*1e-3
+							<< std::setw(10) << std::setprecision(3) << p4.M()*1e-3);
+
 				missingMoment = HIClusterSubtraction::doOriginCorrection( cl, primVertex, p4 );
-				HIJetRec::setClusterP4(p4,cl,HIJetRec::subtractedPVCorrectedClusterState());
+				HIJetRec::setClusterP4(p4,cl,HIJetRec::subtractedOriginCorrectedClusterState());
+
+				ATH_MSG_DEBUG("Applying origin correction"
+							<< std::setw(12) << "After:"
+							<< std::setw(10) << std::setprecision(3) << p4.Pt()*1e-3
+							<< std::setw(10) << std::setprecision(3) << p4.Eta()
+							<< std::setw(10) << std::setprecision(3) << p4.Phi()
+							<< std::setw(10) << std::setprecision(3) << p4.E()*1e-3
+							<< std::setw(10) << std::setprecision(3) << p4.M()*1e-3);
 			}
-			ATH_MSG_INFO("Applying origin correction"
-						<< std::setw(12) << "After:"
-						<< std::setw(10) << std::setprecision(3) << p4.Pt()*1e-3
-						<< std::setw(10) << std::setprecision(3) << p4.Eta()
-						<< std::setw(10) << std::setprecision(3) << p4.Phi()
-						<< std::setw(10) << std::setprecision(3) << p4.E()*1e-3
-						<< std::setw(10) << std::setprecision(3) << p4.M()*1e-3);
 		}
   }//End of iterator over CaloClusterContainer
 
     for(ToolHandleArray<CaloClusterCollectionProcessor>::const_iterator toolIt=m_clusterCorrectionTools.begin();
 	      toolIt != m_clusterCorrectionTools.end(); toolIt++)
     {
-      ATH_MSG_INFO(" Applying correction = " << (*toolIt)->name() );
+      ATH_MSG_DEBUG(" Applying correction = " << (*toolIt)->name() );
 			CHECK((*toolIt)->execute(Gaudi::Hive::currentContext(), copyClusters), 1);
     }//End loop over correction tools
   //}
