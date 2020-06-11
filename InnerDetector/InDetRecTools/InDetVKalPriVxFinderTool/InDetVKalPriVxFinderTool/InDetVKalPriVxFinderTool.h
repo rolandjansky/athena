@@ -71,14 +71,16 @@ public:
   virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
   findVertex(const TrackCollection* trackTES) const override;
 
-  virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-  findVertex(const Trk::TrackParticleBaseCollection* trackTES) const override;
 
   virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
   findVertex(const xAOD::TrackParticleContainer* trackTES) const override;
   //
 
 private:
+
+
+  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
+  findVertex(const Trk::TrackParticleBaseCollection* trackTES) const;
   /*  JobOption tunable parameters */
 
   // Beam position

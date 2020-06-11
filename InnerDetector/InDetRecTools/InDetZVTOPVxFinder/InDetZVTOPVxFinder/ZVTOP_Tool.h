@@ -78,9 +78,6 @@ namespace InDet
       using  IVertexFinder::findVertex;
       virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(
         const TrackCollection* trackTES) const override ;
-      
-      virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(
-        const Trk::TrackParticleBaseCollection* trackTES) const override;
 
       virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(
         const xAOD::TrackParticleContainer* trackParticles) const override;
