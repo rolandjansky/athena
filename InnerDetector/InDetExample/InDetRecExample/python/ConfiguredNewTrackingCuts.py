@@ -415,7 +415,8 @@ class ConfiguredNewTrackingCuts :
     # --- change defaults for low pt tracking within selected roi
     if mode == "LowPtRoI":
       self.__extension        = "LowPtRoI" # this runs parallel to NewTracking
-      self.__maxPT            = self.__minPT + 0.3 * Units.GeV # some overlap
+      self.__minPT            = 0.050 * Units.GeV
+      self.__maxPT            = self.__minPT + 0.8 * Units.GeV # some overlap
       self.__minPT            = 0.050 * Units.GeV
       self.__minClusters      = 5
       self.__minSiNotShared   = 4
