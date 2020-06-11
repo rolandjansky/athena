@@ -2,38 +2,21 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "SimpleMMClusterBuilderTool.h"
+
 #include "MuonPrepRawData/MMPrepData.h"
-#include "MuonIdHelpers/MmIdHelper.h"
 
 using namespace Muon;
 
-Muon::SimpleMMClusterBuilderTool::SimpleMMClusterBuilderTool(const std::string& t,
-							     const std::string& n,
-							     const IInterface*  p )
-  :  
-  AthAlgTool(t,n,p)
-{
+Muon::SimpleMMClusterBuilderTool::SimpleMMClusterBuilderTool(const std::string& t, const std::string& n, const IInterface* p) :
+    AthAlgTool(t,n,p) {
   declareInterface<IMMClusterBuilderTool>(this);
   declareProperty("useErrorParametrization", m_useErrorParametrization = true);
   declareProperty("maxHoleSize", m_maxHoleSize = 1);
 }
 
-Muon::SimpleMMClusterBuilderTool::~SimpleMMClusterBuilderTool()
-{
-
-}
-
-
 StatusCode Muon::SimpleMMClusterBuilderTool::initialize()
 {
-  ATH_CHECK( m_idHelperSvc.retrieve() );
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode Muon::SimpleMMClusterBuilderTool::finalize()
-{
-
+  ATH_CHECK(m_idHelperSvc.retrieve());
   return StatusCode::SUCCESS;
 }
 
