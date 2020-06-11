@@ -856,10 +856,8 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
                      // create a temporary DataObject for an entry in the  container to pass to CnvSvc
                      DataBucketBase* dbb = static_cast<DataBucketBase*>( itemProxy->object() );
                      const MetaContBase* metaCont = static_cast<MetaContBase*>( dbb->cast( ClassID_traits<MetaContBase>::ID() ) );
-                     ATH_MSG_INFO("MN: metaCont after cast=" << metaCont );
                      if( metaCont ) {
                         void* obj = metaCont->getAsVoid( m_outSeqSvc->currentRangeID() );
-                        ATH_MSG_INFO("MN:    got object" << obj );
                         auto altbucket = std::make_unique<AltDataBucket>(
                            obj, item_id, *CLIDRegistry::CLIDToTypeinfo(item_id), *itemProxy );
                         m_objects.push_back( altbucket.get() );

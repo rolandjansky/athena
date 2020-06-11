@@ -92,7 +92,6 @@ void OutputStreamSequencerSvc::handle(const Incident& inc)
    ATH_MSG_INFO("handle incident type " << inc.type());
 
    auto slot = Gaudi::Hive::currentContext().slot();
-   ATH_MSG_INFO("MN: SLOT in seq handle=" << slot);
    if( slot == EventContext::INVALID_CONTEXT_ID )  slot = 0;
 
    if( inc.type() == incidentName() ) {  // NextEventRange 
@@ -134,7 +133,7 @@ void OutputStreamSequencerSvc::handle(const Incident& inc)
    }
    else if( inc.type() == IncidentType::BeginProcessing ) {
       // new event start - assing current rangeId to its slot
-      ATH_MSG_INFO("MN: assigne rangeID = " << m_currentRangeID << " to slot " << slot);
+      ATH_MSG_DEBUG("Assigning rangeID = " << m_currentRangeID << " to slot " << slot);
       std::lock_guard lockg( m_mutex );
       m_rangeIDinSlot[ slot ] = m_currentRangeID;
    }
