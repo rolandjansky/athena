@@ -62,7 +62,7 @@ bool egammaEnergyPositionAllSamples::inBarrel(const xAOD::CaloCluster &cluster, 
     return true; // barrel
   } if (!cluster.inBarrel() && cluster.inEndcap()) {
     return false; // endcap
-  } else if (cluster.inBarrel() && cluster.inEndcap()) {
+  } if (cluster.inBarrel() && cluster.inEndcap()) {
     switch (sampling) {
       case 0: {
         return isCrackBarrel(cluster, CaloSampling::PreSamplerB, CaloSampling::PreSamplerE);
