@@ -30,15 +30,13 @@ namespace TrigL2MuonSA {
 class TgcRoadDefiner: public AthAlgTool
 {
  public:
-  static const InterfaceID& interfaceID();
-
   TgcRoadDefiner(const std::string& type, 
 		 const std::string& name,
 		 const IInterface*  parent);
 
   ~TgcRoadDefiner()=default;
   
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   StatusCode defineRoad(const LVL1::RecMuonRoI*      p_roi,
                         const TrigL2MuonSA::TgcHits& tgcHits,
