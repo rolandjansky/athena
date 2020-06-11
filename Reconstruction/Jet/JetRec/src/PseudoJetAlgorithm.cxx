@@ -83,7 +83,7 @@ std::unique_ptr<PseudoJetContainer> PseudoJetAlgorithm::createPJContainer(const 
   auto pjcont = std::make_unique<PseudoJetContainer>(extractor.release(), vpj);
   ATH_MSG_DEBUG("New PseudoJetContainer size " << pjcont->size());
 
-  return std::move(pjcont);
+  return pjcont;
 }
 
 
