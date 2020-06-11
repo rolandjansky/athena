@@ -1327,10 +1327,6 @@ if rec.doWriteAOD():
     from ParticleBuilderOptions.AODFlags import AODFlags
     # Particle Builders
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    from AthenaServices.Configurables import ThinningSvc
-    if not hasattr(svcMgr, 'ThinningSvc'):
-       svcMgr += ThinningSvc(OutputLevel=INFO)
-    svcMgr.ThinningSvc.Streams += ['StreamAOD']
 
 
     # cannot redo the slimming if readAOD and writeAOD
@@ -1365,13 +1361,6 @@ if rec.doWriteAOD():
             from ThinningUtils.ThinTrkTrack import ThinTrkTrack
             ThinTrkTrack()
             
-       # Doens't exist in xAOD world:
-       # if AODFlags.TrackParticleSlimmer or AODFlags.TrackParticleLastHitAndPerigeeSlimmer:
-       #     from PrimaryDPDMaker.PrimaryDPDMakerConf import SlimTrackInfo
-       #     topSequence += SlimTrackInfo( "SlimTrackParticles",
-       #                                   thinSvc             = 'ThinningSvc/ThinningSvc',
-       #                                   TrackPartContName   = 'TrackParticleCandidate',
-       #                                   SlimPerigee=AODFlags.TrackParticleLastHitAndPerigeeSlimmer() )
 
     pdr.flag_domain('output')
     # Create output StreamAOD
@@ -1418,9 +1407,6 @@ if rec.doWriteAOD():
 
     if AODFlags.TrackParticleSlimmer or AODFlags.TrackParticleLastHitAndPerigeeSlimmer:
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-        if not hasattr(svcMgr, 'ThinningSvc'):
-            svcMgr += createThinningSvc( svcName="ThinningSvc", outStreams=[StreamAOD] )
 
     # this is AOD->AOD copy
     if rec.readAOD():
