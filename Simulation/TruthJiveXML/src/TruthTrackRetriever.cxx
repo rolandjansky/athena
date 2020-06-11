@@ -113,10 +113,11 @@ namespace JiveXML {
         // Get the vertex information
         HepMC::GenVertex* vertex =  particle->production_vertex();
         if (vertex) {
-          rhoVertex.push_back(DataType( vertex->point3d().r()*Gaudi::Units::mm/Gaudi::Units::cm ));
-          float vtxPhi = vertex->position().phi();
+          auto pos=vertex->position();
+          rhoVertex.push_back(DataType( std::sqrt(pos.x()*pos.x()+pos.y()*pos.y()+pos.z()*pos.z())*Gaudi::Units::mm/Gaudi::Units::cm ));
+          float vtxPhi = pos.phi();
           phiVertex.push_back(DataType( (vtxPhi<0)? vtxPhi+=2*M_PI : vtxPhi ));
-          zVertex.push_back(DataType( vertex->position().z()*Gaudi::Units::mm/Gaudi::Units::cm )); 
+          zVertex.push_back(DataType( pos.z()*Gaudi::Units::mm/Gaudi::Units::cm )); 
         } else {
           rhoVertex.push_back(DataType( 0. ));
           phiVertex.push_back(DataType( 0. ));
@@ -125,10 +126,11 @@ namespace JiveXML {
         //Do the same for the end vertex
         vertex =  particle->end_vertex();
         if ( vertex ) {
-         rhoEndVertex.push_back(DataType(vertex->point3d().r()*Gaudi::Units::mm/Gaudi::Units::cm));
-         float vtxPhi = vertex->position().phi();
+         auto pos=vertex->position();
+         rhoEndVertex.push_back(DataType(std::sqrt(pos.x()*pos.x()+pos.y()*pos.y()+pos.z()*pos.z())*Gaudi::Units::mm/Gaudi::Units::cm));
+         float vtxPhi = pos.phi();
          phiEndVertex.push_back(DataType( (vtxPhi<0)? vtxPhi+=2*M_PI : vtxPhi ));
-         zEndVertex.push_back(DataType(vertex->position().z()*Gaudi::Units::mm/Gaudi::Units::cm)); 
+         zEndVertex.push_back(DataType(pos.z()*Gaudi::Units::mm/Gaudi::Units::cm)); 
         } else {
          rhoEndVertex.push_back(DataType( 0. ));
          phiEndVertex.push_back(DataType( 0. ));
