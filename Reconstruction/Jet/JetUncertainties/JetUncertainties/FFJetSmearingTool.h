@@ -154,11 +154,11 @@ class FFJetSmearingTool : public asg::AsgTool, virtual public IJetResolutionTool
         float m_EtaRange;
         float m_MassRange;
         float m_PtRange;
+        std::string m_calibArea;
         TString m_histFileName;
         TString m_MassDef_string;
         FFAllowedMassDef::TypeEnum m_MassDef;
         std::string m_configFile;
-        std::string m_calibArea;
         std::string m_path;
         TString m_HistogramsFilePath;
 

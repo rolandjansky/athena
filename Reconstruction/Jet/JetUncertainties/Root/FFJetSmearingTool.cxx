@@ -646,8 +646,8 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 
     //Obtain the average mass response of the jet. The response will depend in the chosed topology (top,W or QCD) and also in the mass definition (CALO, TA, Combined). By default the map used correspond to QCD jets
 
-    double avg_response_CALO;
-    double avg_response_TA;
+    double avg_response_CALO=1;
+    double avg_response_TA=1;
 
     if(m_MassDef==FFAllowedMassDef::Comb || m_MassDef==FFAllowedMassDef::Calo){
 
