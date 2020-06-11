@@ -145,4 +145,3 @@ for fileName in [ofcFiles[0]]:
     #<---end of file loop
 
 db.closeDatabase()
-
