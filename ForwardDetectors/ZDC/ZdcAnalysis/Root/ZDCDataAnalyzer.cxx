@@ -173,13 +173,13 @@ void ZDCDataAnalyzer::SetTauT0Values(const ZDCModuleBoolArray& fixTau1, const ZD
 }
 
 void ZDCDataAnalyzer::SetFitMinMaxAmpValues(const ZDCModuleFloatArray& minAmpHG, const ZDCModuleFloatArray& minAmpLG,
-					    const ZDCModuleFloatArray& maxAmpHG, const ZDCModuleFloatArray& maxAmpLG)
+    const ZDCModuleFloatArray& maxAmpHG, const ZDCModuleFloatArray& maxAmpLG)
 {
   for (size_t side : {0, 1}) {
     for (size_t module : {0, 1, 2, 3}) {
-      m_moduleAnalyzers[side][module]->SetFitMinMaxAmp(minAmpHG[side][module], minAmpLG[side][module], 
-						       maxAmpHG[side][module], maxAmpLG[side][module]);
-						      
+      m_moduleAnalyzers[side][module]->SetFitMinMaxAmp(minAmpHG[side][module], minAmpLG[side][module],
+          maxAmpHG[side][module], maxAmpLG[side][module]);
+
     }
   }
 }
@@ -335,8 +335,8 @@ void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::
   m_dataLoaded[side][module] = true;
 
   // if (result) {
-  //   if (!pulseAna_p->BadT0() && !pulseAna_p->BadChisq() && 
-  // 	!pulseAna_p->fitMinimumAmplitude() && !pulseAna_p->FitFailed()) {
+  //   if (!pulseAna_p->BadT0() && !pulseAna_p->BadChisq() &&
+  //  !pulseAna_p->fitMinimumAmplitude() && !pulseAna_p->FitFailed()) {
   //     int moduleMaskBit = 4 * side + module;
   //     m_moduleMask |= 1 << moduleMaskBit;
 
@@ -365,18 +365,18 @@ void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::
   //   }
   // }
   // else {
-    if (pulseAna_p->Failed()) {
-      (*m_msgFunc_p)(ZDCMsg::Debug, ("ZDCPulseAnalyzer::LoadData() returned fail for event " + std::to_string(m_eventCount) + ", side, module = " + std::to_string(side) + ", " + std::to_string(module)));
+  if (pulseAna_p->Failed()) {
+    (*m_msgFunc_p)(ZDCMsg::Debug, ("ZDCPulseAnalyzer::LoadData() returned fail for event " + std::to_string(m_eventCount) + ", side, module = " + std::to_string(side) + ", " + std::to_string(module)));
 
-      m_fail[side] = true;
-    }
-    //  }
+    m_fail[side] = true;
+  }
+  //  }
 
   m_moduleStatus[side][module] = pulseAna_p->GetStatusMask();
 }
 
 void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::vector<float> HGSamples, const std::vector<float> LGSamples,
-					 const std::vector<float> HGSamplesDelayed, const std::vector<float> LGSamplesDelayed)
+    const std::vector<float> HGSamplesDelayed, const std::vector<float> LGSamplesDelayed)
 {
   // We immediately return if this module is disabled
   //
@@ -445,19 +445,19 @@ void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::
   //   }
   // }
   // else {
-    if (pulseAna_p->Failed()) {
-      (*m_msgFunc_p)(ZDCMsg::Debug, ("ZDCPulseAnalyzer::LoadData() returned fail for event " + std::to_string(m_eventCount) + ", side, module = " + std::to_string(side) + ", " + std::to_string(module)));
+  if (pulseAna_p->Failed()) {
+    (*m_msgFunc_p)(ZDCMsg::Debug, ("ZDCPulseAnalyzer::LoadData() returned fail for event " + std::to_string(m_eventCount) + ", side, module = " + std::to_string(side) + ", " + std::to_string(module)));
 
-      m_fail[side] = true;
-    }
-    //  }
+    m_fail[side] = true;
+  }
+  //  }
 
   m_moduleStatus[side][module] = pulseAna_p->GetStatusMask();
 }
 
 bool ZDCDataAnalyzer::FinishEvent()
 {
-  // First make sure that all data is loaded. while we're at it, count how many modules on each side have a pulse 
+  // First make sure that all data is loaded. while we're at it, count how many modules on each side have a pulse
   //
   unsigned int sideNPulsesMod[2] = {0, 0};
 
@@ -470,56 +470,56 @@ bool ZDCDataAnalyzer::FinishEvent()
 
   // Are we doing a repass? If so, reanalyze modules for which no pulse was found the first time
   //   as long as we have one module with a pulse on the given side
-  // 
+  //
   if (m_repassEnabled) {
     for (size_t side : {0, 1}) {
       if (sideNPulsesMod[side] == 0) continue;
 
       for (size_t module : {0, 1, 2, 3}) {
-	ZDCPulseAnalyzer* pulseAna_p = m_moduleAnalyzers[side][module].get();
+        ZDCPulseAnalyzer* pulseAna_p = m_moduleAnalyzers[side][module].get();
 
-	// If this module had no pulse the first time, reanalyze it (with a lower 2nd derivative threshold) 
-	//
-	if (!pulseAna_p->HavePulse()) {
-	  (*m_msgFunc_p)(ZDCMsg::Debug, ("ZDCPulseAnalyzer:: performing a repass on data for side, module = " + std::to_string(side) + ", " + std::to_string(module)));
-	  pulseAna_p->ReanalyzeData();
-	}
+        // If this module had no pulse the first time, reanalyze it (with a lower 2nd derivative threshold)
+        //
+        if (!pulseAna_p->HavePulse()) {
+          (*m_msgFunc_p)(ZDCMsg::Debug, ("ZDCPulseAnalyzer:: performing a repass on data for side, module = " + std::to_string(side) + ", " + std::to_string(module)));
+          pulseAna_p->ReanalyzeData();
+        }
       }
     }
   }
 
   // Now sum up amplitudes etc
-  // 
+  //
   for (size_t side : {0, 1}) {
     for (size_t module : {0, 1, 2, 3}) {
       ZDCPulseAnalyzer* pulseAna_p = m_moduleAnalyzers[side][module].get();
 
       if (pulseAna_p->ArmSumInclude()) {
-	int moduleMaskBit = 4 * side + module;
-	m_moduleMask |= 1 << moduleMaskBit;
+        int moduleMaskBit = 4 * side + module;
+        m_moduleMask |= 1 << moduleMaskBit;
 
-	float amplitude = pulseAna_p->GetAmplitude();
-	float ampError = pulseAna_p->GetAmpError();
+        float amplitude = pulseAna_p->GetAmplitude();
+        float ampError = pulseAna_p->GetAmpError();
 
-	m_calibAmplitude[side][module] = amplitude * m_currentECalibCoeff[side][module];
+        m_calibAmplitude[side][module] = amplitude * m_currentECalibCoeff[side][module];
 
-	float calibAmpError = ampError * m_currentECalibCoeff[side][module];
+        float calibAmpError = ampError * m_currentECalibCoeff[side][module];
 
-	float timeCalib = pulseAna_p->GetT0Corr();
-	if (pulseAna_p->UseLowGain()) timeCalib -= m_currentT0OffsetsLG[side][module];
-	else timeCalib -= m_currentT0OffsetsHG[side][module];
+        float timeCalib = pulseAna_p->GetT0Corr();
+        if (pulseAna_p->UseLowGain()) timeCalib -= m_currentT0OffsetsLG[side][module];
+        else timeCalib -= m_currentT0OffsetsHG[side][module];
 
-	m_calibTime[side][module] = timeCalib;
+        m_calibTime[side][module] = timeCalib;
 
-	m_moduleSum[side] += amplitude;
-	m_moduleSumErrSq[side] += ampError * ampError;
+        m_moduleSum[side] += amplitude;
+        m_moduleSumErrSq[side] += ampError * ampError;
 
-	m_moduleSumPreSample[side] += pulseAna_p->GetPreSampleAmp();
+        m_moduleSumPreSample[side] += pulseAna_p->GetPreSampleAmp();
 
-	m_calibModuleSum[side] += m_calibAmplitude[side][module];
-	m_calibModuleSumErrSq[side] += calibAmpError * calibAmpError;
+        m_calibModuleSum[side] += m_calibAmplitude[side][module];
+        m_calibModuleSumErrSq[side] += calibAmpError * calibAmpError;
 
-	m_averageTime[side] += m_calibTime[side][module] * m_calibAmplitude[side][module];
+        m_averageTime[side] += m_calibTime[side][module] * m_calibAmplitude[side][module];
       }
     }
   }

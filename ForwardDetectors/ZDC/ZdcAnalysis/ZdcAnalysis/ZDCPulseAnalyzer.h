@@ -41,11 +41,11 @@ public:
         ExcludeEarlyLGBit     = 13, //  &8192
         ExcludeLateLGBit      = 14, //  &16384
         preExpTailBit         = 15,  // &32768
-	//
-	FitMinAmpBit          = 16,   // 0x10000
-	RepassPulseBit        = 17,    // 0x20000
-	ArmSumIncludeBit      = 18,
- };
+        //
+        FitMinAmpBit          = 16,   // 0x10000
+        RepassPulseBit        = 17,    // 0x20000
+        ArmSumIncludeBit      = 18,
+       };
 
 private:
   typedef std::vector<float>::const_iterator SampleCIter;
@@ -85,7 +85,7 @@ private:
 
   bool m_enableRepass;
   float m_peak2ndDerivMinRepassLG;
-  float m_peak2ndDerivMinRepassHG;  
+  float m_peak2ndDerivMinRepassHG;
 
   // Default fit values and cuts that can be set via modifier methods
   //
@@ -119,7 +119,7 @@ private:
 
   float m_fitAmpMinHG;      // Minimum amplitude in the fit
   float m_fitAmpMinLG;      // Minimum amplitude in the fit
-	              
+
   float m_fitAmpMaxHG;      // Minimum amplitude in the fit
   float m_fitAmpMaxLG;      // Minimum amplitude in the fit
 
@@ -185,6 +185,7 @@ private:
   bool m_preExpTail;
 
   bool m_fixPrePulse;
+  bool m_fixPostPulse;
   bool m_fitMinAmp;
   bool m_repassPulse;
 

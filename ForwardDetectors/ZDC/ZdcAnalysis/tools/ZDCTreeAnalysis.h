@@ -25,6 +25,8 @@
 #include <vector>
 #include <iostream>
 #include <sstream>
+#include <functional>
+#include <memory>
 
 #include "ZdcAnalysis/ZDCDataAnalyzer.h"
 #include "ZdcAnalysis/ZDCMsg.h"
@@ -94,17 +96,17 @@ public :
   //
   // Summary data
   //
-  int    zdc_ModuleMask;
-  float  zdc_SumAmp[2];
-  float  zdc_SumAmpErr[2];
+  int   zdc_ModuleMask;
+  float zdc_SumAmp[2];
+  float zdc_SumAmpErr[2];
 
-  float  zdc_SumCalibAmp[2];
-  float  zdc_SumCalibAmpErr[2];
+  float zdc_SumCalibAmp[2];
+  float zdc_SumCalibAmpErr[2];
 
-  float  zdc_SumPreSampleAmp[2];
+  float zdc_SumPreSampleAmp[2];
 
-  float  zdc_AvgTime[2];
-  bool   zdc_sideFailed[2];
+  float zdc_AvgTime[2];
+  bool  zdc_sideFailed[2];
 
   // Per-module data
   //
@@ -135,13 +137,13 @@ public :
   float  zdc_FitTau2[2][4];
   float  zdc_FitChisq[2][4];
   float  zdc_T0Corr[2][4];
-  float  zdc_FitPreAmp[2][4];  // bill
-  float  zdc_FitPreT0[2][4];   // bill
-  float  zdc_FitPostAmp[2][4]; // bill
-  float  zdc_FitPostT0[2][4];  // bill
-  float  zdc_FitExpAmp[2][4];  // bill
-  float  zdc_ModuleQuality[2][4];   // bill
-  float  zdc_Quality[2];            // bill
+  float  zdc_FitPreAmp[2][4];
+  float  zdc_FitPreT0[2][4];
+  float  zdc_FitPostAmp[2][4];
+  float  zdc_FitPostT0[2][4];
+  float  zdc_FitExpAmp[2][4];
+  float  zdc_ModuleQuality[2][4];
+  float  zdc_Quality[2];
 
   float  zdc_AmpError[2][4];
   float  zdc_BkgdMaxFraction[2][4];
@@ -270,6 +272,11 @@ public:
   {
     _useDelayed = true;
     _dataAnalyzer_p->EnableDelayed(delayDeltaTArray, undelayedDelayedPedestalDiff);
+  }
+
+  void EnableRepass(const ZDCDataAnalyzer::ZDCModuleFloatArray& peak2ndDerivMinRepassHG, const ZDCDataAnalyzer::ZDCModuleFloatArray& peak2ndDerivMinRepassLG)
+  {
+    _dataAnalyzer_p->EnableRepass(peak2ndDerivMinRepassHG, peak2ndDerivMinRepassLG);
   }
 
   void SetCutValues(const ZDCDataAnalyzer::ZDCModuleFloatArray& chisqDivAmpCutHG,

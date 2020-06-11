@@ -15,7 +15,7 @@ void ZDCFitWrapper::Initialize(float initialAmp, float initialT0, float ampMin, 
     m_tminAdjust = 0;
   }
 
-  SetAmpMinMax(ampMin, ampMax); 
+  SetAmpMinMax(ampMin, ampMax);
 
   DoInitialize(initialAmp, initialT0, ampMin, ampMax);
 }
@@ -30,7 +30,7 @@ void ZDCFitWrapper::Initialize(float initialAmp, float initialT0, float ampMin, 
   float newT0Min = std::max(m_t0Min, fitTmin);
   float newT0Max = std::min(m_t0Max, fitTmax);
 
-  SetAmpMinMax(ampMin, ampMax); 
+  SetAmpMinMax(ampMin, ampMax);
   SetT0FitLimits(newT0Min, newT0Max);
 
   DoInitialize(initialAmp, initialT0, ampMin, ampMax);
@@ -513,7 +513,7 @@ ZDCFitGeneralPulse::ZDCFitGeneralPulse(std::string tag, float tmin, float tmax, 
   theTF1->SetParLimits(1, tmin, tmax);
   theTF1->SetParLimits(2,    0, 2048);
   theTF1->SetParLimits(3,    0,   40);
-  theTF1->SetParLimits(6,    0, 1024);
+  theTF1->SetParLimits(6,    0, 4096);
   theTF1->SetParLimits(7,    0, 2048);
   theTF1->SetParLimits(8,  100,  163);
 

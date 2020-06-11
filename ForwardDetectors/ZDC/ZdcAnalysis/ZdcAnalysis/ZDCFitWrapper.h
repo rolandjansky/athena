@@ -52,8 +52,8 @@ public:
   //
   virtual void SetT0FitLimits(float tMin, float tMax) = 0;
 
-  void SetAmpMinMax(float minAmp, float maxAmp) 
-  { 
+  void SetAmpMinMax(float minAmp, float maxAmp)
+  {
     m_ampMin = minAmp;
     m_ampMax = maxAmp;
   }
@@ -857,7 +857,7 @@ public:
 
     double deltaT     = t - t0;
     double deltaTPre  = t - preT0;
-    double deltaTPost = postT0 - t;
+    double deltaTPost = t - postT0;
 
     // We subtract off the  value of the pre-pulse at the minimum time (nominally 0,
     //   but can change if we exclude early samples) to account for the subtraction of the pre-sample

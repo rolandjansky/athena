@@ -130,7 +130,7 @@ public:
                       const ZDCModuleFloatArray& t0HG, const ZDCModuleFloatArray& t0LG);
 
   void SetFitMinMaxAmpValues(const ZDCModuleFloatArray& minAmpHG, const ZDCModuleFloatArray& minAmpLG,
-			     const ZDCModuleFloatArray& maxAmpHG, const ZDCModuleFloatArray& maxAmpLG);
+                             const ZDCModuleFloatArray& maxAmpHG, const ZDCModuleFloatArray& maxAmpLG);
 
   void SetCutValues(const ZDCModuleFloatArray& chisqDivAmpCutHG, const ZDCModuleFloatArray& chisqDivAmpCutLG,
                     const ZDCModuleFloatArray& deltaT0MinHG, const ZDCModuleFloatArray& deltaT0MaxHG,
