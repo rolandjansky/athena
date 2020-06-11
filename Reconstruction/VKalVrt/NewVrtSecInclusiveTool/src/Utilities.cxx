@@ -212,16 +212,16 @@ double NewVrtSecInclusiveTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Am
                                double massP, double massPi )
    const
    {
-        double p1=fabs(TrkAtVrt[0][2]); double p2=fabs(TrkAtVrt[1][2]);
-        double px = cos(TrkAtVrt[0][0])*sin(TrkAtVrt[0][1])/p1 
-                  + cos(TrkAtVrt[1][0])*sin(TrkAtVrt[1][1])/p2;
-        double py = sin(TrkAtVrt[0][0])*sin(TrkAtVrt[0][1])/p1 
-                  + sin(TrkAtVrt[1][0])*sin(TrkAtVrt[1][1])/p2;
-        double pz =                     cos(TrkAtVrt[0][1])/p1 
-                  +                     cos(TrkAtVrt[1][1])/p2;
-        double ee= (1./p1 > 1./p2) ? 
-            (sqrt(1./p1/p1+massP*massP)+sqrt(1./p2/p2+massPi*massPi)):
-            (sqrt(1./p2/p2+massP*massP)+sqrt(1./p1/p1+massPi*massPi));
+        double ap1i=fabs(TrkAtVrt[0][2]); double ap2i=fabs(TrkAtVrt[1][2]);
+        double px = cos(TrkAtVrt[0][0])*sin(TrkAtVrt[0][1])*ap1i 
+                  + cos(TrkAtVrt[1][0])*sin(TrkAtVrt[1][1])*ap2i;
+        double py = sin(TrkAtVrt[0][0])*sin(TrkAtVrt[0][1])*ap1i 
+                  + sin(TrkAtVrt[1][0])*sin(TrkAtVrt[1][1])*ap2i;
+        double pz =                     cos(TrkAtVrt[0][1])*ap1i 
+                  +                     cos(TrkAtVrt[1][1])*ap2i;
+        double ee= (ap1i > ap2i) ? 
+            (sqrt(ap1i*ap1i+massP*massP)+sqrt(ap2i*ap2i+massPi*massPi)):
+            (sqrt(ap2i*ap2i+massP*massP)+sqrt(ap1i*ap1i+massPi*massPi));
         double test=(ee-pz)*(ee+pz)-px*px-py*py;
         return test>0 ? sqrt(test) : 0.; 
     }
@@ -231,9 +231,10 @@ double NewVrtSecInclusiveTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Am
   TLorentzVector NewVrtSecInclusiveTool::MomAtVrt(const std::vector< double >& InpTrk) 
   const
   {
-     double px = cos ( InpTrk[0]) * sin(InpTrk[1])/fabs(InpTrk[2]);
-     double py = sin ( InpTrk[0]) * sin(InpTrk[1])/fabs(InpTrk[2]);
-     double pz =                    cos(InpTrk[1])/fabs(InpTrk[2]);
+     double api=1./fabs(InpTrk[2]);
+     double px = cos ( InpTrk[0]) * sin(InpTrk[1])*api;
+     double py = sin ( InpTrk[0]) * sin(InpTrk[1])*api;
+     double pz =                    cos(InpTrk[1])*api;
      double ee = sqrt( px*px + py*py + pz*pz + m_massPi*m_massPi);
      return TLorentzVector(px,py,pz,ee); 
    }

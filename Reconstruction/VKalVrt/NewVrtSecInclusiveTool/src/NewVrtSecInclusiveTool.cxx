@@ -115,12 +115,11 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
     declareProperty("BeamSpotSvc",         m_beamService, "Name of the BeamSpot service");
     declareProperty("VertexFitterTool",    m_fitterSvc, "Name of the Vertex Fitter tool");
 //
-    m_massPi  = 139.5702 ;
-    m_massP   = 938.272  ;
-    m_massE   =   0.511  ;
-    m_massK0  = 497.648  ;
-    m_massLam =1115.683  ;
-    m_massB   =5279.400  ;
+    m_massPi  =  Trk::ParticleMasses().mass[Trk::pion];
+    m_massP   =  Trk::ParticleMasses().mass[Trk::proton];
+    m_massE   =  Trk::ParticleMasses().mass[Trk::electron];
+    m_massK0  =  Trk::ParticleMasses().mass[Trk::k0];
+    m_massLam =  1115.683  ;
     m_compatibilityGraph = nullptr;
     m_instanceName=name;
 
