@@ -43,38 +43,6 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::initialize()
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-void TrigL2MuonSA::TgcRoadDefiner::setMdtGeometry(const ServiceHandle<IRegSelSvc>& regionSelector)
-{
-  m_regionSelector = regionSelector;
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-void TrigL2MuonSA::TgcRoadDefiner::setRoadWidthForFailure(double rWidth_TGC_Failed)
-{
-  m_rWidth_TGC_Failed = rWidth_TGC_Failed;
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-void TrigL2MuonSA::TgcRoadDefiner::setExtrapolatorTool(ToolHandle<ITrigMuonBackExtrapolator>* backExtrapolator)
-{
-  m_backExtrapolatorTool = backExtrapolator;
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-void TrigL2MuonSA::TgcRoadDefiner::setPtLUT(const TrigL2MuonSA::PtEndcapLUTSvc* ptEndcapLUTSvc)
-{
-  m_ptEndcapLUT = ptEndcapLUTSvc->ptEndcapLUT();
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
 StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi,
                                                     const TrigL2MuonSA::TgcHits& tgcHits,
                                                     TrigL2MuonSA::MuonRoad&      muonRoad,

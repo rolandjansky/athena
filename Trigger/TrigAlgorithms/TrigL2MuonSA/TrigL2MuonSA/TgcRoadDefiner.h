@@ -33,8 +33,6 @@ class TgcRoadDefiner: public AthAlgTool
   TgcRoadDefiner(const std::string& type, 
 		 const std::string& name,
 		 const IInterface*  parent);
-
-  ~TgcRoadDefiner()=default;
   
   virtual StatusCode initialize() override;
 
@@ -43,15 +41,17 @@ class TgcRoadDefiner: public AthAlgTool
                         TrigL2MuonSA::MuonRoad&      muonRoad,
                         TrigL2MuonSA::TgcFitResult&  tgcFitResult);
 
-  void setMdtGeometry(const ServiceHandle<IRegSelSvc>& regionSelector);
-  void setPtLUT(const TrigL2MuonSA::PtEndcapLUTSvc* ptEndcapLUTSvc);
-  void setRoadWidthForFailure(double rWidth_TGC_Failed);
-  void setExtrapolatorTool(ToolHandle<ITrigMuonBackExtrapolator>* backExtrapolator);
+  void setMdtGeometry(const ServiceHandle<IRegSelSvc>& regionSelector) { m_regionSelector = regionSelector; };
+  void setPtLUT(const TrigL2MuonSA::PtEndcapLUTSvc* ptEndcapLUTSvc) { m_ptEndcapLUT = ptEndcapLUTSvc->ptEndcapLUT(); };
+  void setRoadWidthForFailure(double rWidth_TGC_Failed) { m_rWidth_TGC_Failed = rWidth_TGC_Failed; };
+  void setExtrapolatorTool(ToolHandle<ITrigMuonBackExtrapolator>* backExtrapolator) { m_backExtrapolatorTool = backExtrapolator; };
 
   bool prepareTgcPoints(const TrigL2MuonSA::TgcHits& tgcHits);
   
  private:
+  // setted in MuFastSteering::hltInitialize, setExtrapolatorTool
   ToolHandle<ITrigMuonBackExtrapolator>* m_backExtrapolatorTool {nullptr};
+  // setted in MuFastSteering::hltInitialize, setMCFlag  
   const ToolHandle<PtEndcapLUT>*         m_ptEndcapLUT {nullptr};
 
   ToolHandle<TgcFit>                     m_tgcFit {"TrigL2MuonSA::TgcFit"};

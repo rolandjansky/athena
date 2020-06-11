@@ -149,7 +149,6 @@ class TgcFit: public AthAlgTool
   };
   
  public:
-  static const InterfaceID& interfaceID();
 
   /*
    *  Default constuctor.
@@ -157,15 +156,6 @@ class TgcFit: public AthAlgTool
   TgcFit(const std::string& type, 
 	 const std::string& name,
 	 const IInterface*  parent);
-
-  /*
-   *  Default destructor.
-   */
-
-  ~TgcFit(void);
-  
-  virtual StatusCode initialize();
-  virtual StatusCode finalize  ();
 
   void setFitParameters(double CHI2_TEST,
 			unsigned MIN_WIRE_POINTS,
@@ -200,11 +190,12 @@ class TgcFit: public AthAlgTool
   
  protected:
   PointArray m_superPoints;           /**< List of wire (eta) super-points. */
-  double m_CHI2_TEST;                 /** Test for outliers: w * (value - mean)^2 > CHI2_TEST. */
-  unsigned m_MIN_WIRE_POINTS;         /**< Minimum number of wire points for linear fit. */
-  unsigned m_MIN_STRIP_POINTS;        /**< Minimum number of strip points for linear fit. */
   
-  void printDebug(const std::string& str);
+  double m_CHI2_TEST { 10.0 };                 /** Test for outliers: w * (value - mean)^2 > CHI2_TEST. */
+  unsigned m_MIN_WIRE_POINTS { 4 };         /**< Minimum number of wire points for linear fit. */
+  unsigned m_MIN_STRIP_POINTS { 3 };        /**< Minimum number of strip points for linear fit. */
+  
+  void printDebug(const std::string& str){ ATH_MSG_DEBUG(str); };
 };
  
 }
