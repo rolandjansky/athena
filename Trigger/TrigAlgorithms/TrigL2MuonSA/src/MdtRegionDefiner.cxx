@@ -12,15 +12,6 @@
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #include "xAODTrigMuon/TrigMuonDefs.h"
 
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-static const InterfaceID IID_MdtRegionDefiner("IID_MdtRegionDefiner", 1, 0);
-
-const InterfaceID& TrigL2MuonSA::MdtRegionDefiner::interfaceID() { return IID_MdtRegionDefiner; }
-
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -28,11 +19,8 @@ const InterfaceID& TrigL2MuonSA::MdtRegionDefiner::interfaceID() { return IID_Md
 TrigL2MuonSA::MdtRegionDefiner::MdtRegionDefiner(const std::string& type,
 						 const std::string& name,
 						 const IInterface*  parent):
-  AthAlgTool(type, name, parent),
-  m_muonMgr(0), m_mdtReadout(0), m_muonStation(0),
-  m_use_rpc(true)
+  AthAlgTool(type, name, parent)
 {
-  declareInterface<TrigL2MuonSA::MdtRegionDefiner>(this);
 }
 
 // --------------------------------------------------------------------------------
@@ -40,29 +28,9 @@ TrigL2MuonSA::MdtRegionDefiner::MdtRegionDefiner(const std::string& type,
 
 StatusCode TrigL2MuonSA::MdtRegionDefiner::initialize()
 {
-  ATH_MSG_DEBUG("Initializing MdtRegionDefiner - package version " << PACKAGE_VERSION) ;
   ATH_CHECK(m_idHelperSvc.retrieve());
-  return StatusCode::SUCCESS; 
+  return StatusCode::SUCCESS;
 }
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-void TrigL2MuonSA::MdtRegionDefiner::setRpcGeometry(bool use_rpc)
-{
-  m_use_rpc = use_rpc;
-  return;
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-// set the pointers for the new cabling and geometry
-void TrigL2MuonSA::MdtRegionDefiner::setMdtGeometry(const MuonGM::MuonDetectorManager* muonMgr)
-{
-  m_muonMgr = muonMgr;
-}
-
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -79,7 +47,7 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const LVL1::RecMuonRoI*
   sectors[0] = muonRoad.MDT_sector_trigger;
   sectors[1] = muonRoad.MDT_sector_overlap;
 
-  int endcap_inner = xAOD::L2MuonParameters::Chamber::EndcapInner; 
+  int endcap_inner = xAOD::L2MuonParameters::Chamber::EndcapInner;
 
   for(int i_station=0; i_station<6; i_station++) {
     int chamber = 0;
@@ -129,29 +97,29 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const LVL1::RecMuonRoI*
 	    ty1 = m_idHelperSvc->mdtIdHelper().stationNameIndex(name)+1;
 	  else if(ty2 == -1)
 	    ty2 = m_idHelperSvc->mdtIdHelper().stationNameIndex(name)+1;
-	  m_mdtReadout = m_muonMgr->getMdtReadoutElement(id);	
+	  m_mdtReadout = m_muonMgr->getMdtReadoutElement(id);
 	  m_muonStation = m_mdtReadout->parentMuonStation();
 	  
 	  Amg::Transform3D trans = Amg::CLHEPTransformToEigen(*m_muonStation->getNominalAmdbLRSToGlobal());
 	  //HepGeom::Transform3D* trans = m_muonStation->getNominalAmdbLRSToGlobal();
 	  
 	  Amg::Vector3D OrigOfMdtInAmdbFrame = 
-	    Amg::Hep3VectorToEigen( m_muonStation->getBlineFixedPointInAmdbLRS() );	    
+	    Amg::Hep3VectorToEigen( m_muonStation->getBlineFixedPointInAmdbLRS() );
 	  //	    HepPoint3D OrigOfMdtInAmdbFrame = m_muonStation->getBlineFixedPointInAmdbLRS();
 	  
 	  tmp_rMin = (trans*OrigOfMdtInAmdbFrame).perp();
 	  tmp_rMax = tmp_rMin+m_muonStation->Rsize();
 	  
 	  if(rMin==0 || tmp_rMin < rMin)rMin = tmp_rMin;
-	  if(rMax==0 || tmp_rMax > rMax)rMax = tmp_rMax;	
-    if ( chamber_this == endcap_inner ){
-      tmp_zMin = (trans*OrigOfMdtInAmdbFrame).z();
-      if(tmp_zMin < 0) sign = -1;
-      else if(tmp_zMin > 0) sign = 1;
-      tmp_zMax = tmp_zMin + sign*m_muonStation->Zsize();
+	  if(rMax==0 || tmp_rMax > rMax)rMax = tmp_rMax;
+	  if ( chamber_this == endcap_inner ){
+	    tmp_zMin = (trans*OrigOfMdtInAmdbFrame).z();
+	    if(tmp_zMin < 0) sign = -1;
+	    else if(tmp_zMin > 0) sign = 1;
+	    tmp_zMax = tmp_zMin + sign*m_muonStation->Zsize();
 	    if(zMin==0 || tmp_zMin < zMin)zMin = tmp_zMin;
-	    if(zMax==0 || tmp_zMax > zMax)zMax = tmp_zMax;	
-    }
+	    if(zMax==0 || tmp_zMax > zMax)zMax = tmp_zMax;
+	  }
 	  
 	}
       }
@@ -234,9 +202,9 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const LVL1::RecMuonRoI*
   sectors[0] = muonRoad.MDT_sector_trigger;
   sectors[1] = muonRoad.MDT_sector_overlap;
   
-  int endcap_middle = xAOD::L2MuonParameters::Chamber::EndcapMiddle; 
-  int barrel_inner = xAOD::L2MuonParameters::Chamber::BarrelInner; 
-  int bee = xAOD::L2MuonParameters::Chamber::BEE; 
+  int endcap_middle = xAOD::L2MuonParameters::Chamber::EndcapMiddle;
+  int barrel_inner = xAOD::L2MuonParameters::Chamber::BarrelInner;
+  int bee = xAOD::L2MuonParameters::Chamber::BEE;
 
   for(int i_station=0; i_station<7; i_station++) {
     int chamber = 0;
@@ -262,8 +230,8 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const LVL1::RecMuonRoI*
       int types[2];
       int& ty1 = types[0];
       int& ty2 = types[1];
-      float sta_zMin = 0;                                                                              
-      float sta_zMax = 0;                                                                                                                 
+      float sta_zMin = 0;
+      float sta_zMax = 0;
 	
       float tmp_zMin = 0;
       float tmp_zMax = 0;
@@ -289,7 +257,7 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const LVL1::RecMuonRoI*
 	    ty1 = m_idHelperSvc->mdtIdHelper().stationNameIndex(name)+1;
 	  else if(ty2 == -1)
 		ty2 = m_idHelperSvc->mdtIdHelper().stationNameIndex(name)+1;
-	  m_mdtReadout = m_muonMgr->getMdtReadoutElement(id);	
+	  m_mdtReadout = m_muonMgr->getMdtReadoutElement(id);
 	  m_muonStation = m_mdtReadout->parentMuonStation();
 	  float scale = 10.;
 	  
@@ -297,7 +265,7 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const LVL1::RecMuonRoI*
 	  //HepGeom::Transform3D* trans = m_muonStation->getNominalAmdbLRSToGlobal();
 	  
 	  Amg::Vector3D OrigOfMdtInAmdbFrame = 
-	    Amg::Hep3VectorToEigen( m_muonStation->getBlineFixedPointInAmdbLRS() );	    
+	    Amg::Hep3VectorToEigen( m_muonStation->getBlineFixedPointInAmdbLRS() );
 	  //	    HepPoint3D OrigOfMdtInAmdbFrame = m_muonStation->getBlineFixedPointInAmdbLRS();
 	  
 	  tmp_zMin = (trans*OrigOfMdtInAmdbFrame).z();
@@ -314,14 +282,14 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::getMdtRegions(const LVL1::RecMuonRoI*
 	    tmp_rMin = (trans*OrigOfMdtInAmdbFrame).perp()/scale;
 	    tmp_rMax = tmp_rMin+m_muonStation->Rsize()/scale;
 	    if(rMin==0 || tmp_rMin < rMin)rMin = tmp_rMin;
-	    if(rMax==0 || tmp_rMax > rMax)rMax = tmp_rMax;	
+	    if(rMax==0 || tmp_rMax > rMax)rMax = tmp_rMax;
 	  }
 
 	  if (chamber_this==bee){//BEE
 	    tmp_rMin = (trans*OrigOfMdtInAmdbFrame).perp()/scale;
 	    tmp_rMax = tmp_rMin+m_muonStation->Rsize()/scale;
 	    if(rMin==0 || tmp_rMin < rMin)rMin = tmp_rMin;
-	    if(rMax==0 || tmp_rMax > rMax)rMax = tmp_rMax;	
+	    if(rMax==0 || tmp_rMax > rMax)rMax = tmp_rMax;
 	  }
 	  
 	}
@@ -476,10 +444,10 @@ void TrigL2MuonSA::MdtRegionDefiner::find_eta_min_max(float zMin, float rMin, fl
       if(doEmulateMuFast) eta[1] = eta[0];
 
       theta  = (fabs(zMax)>0.1)? atan(rMax/fabsf(zMax)): CLHEP::pi/2.;
-      eta[2] = (zMax>0.)?  -log(tan(theta/2.)) : log(tan(theta/2.)); 
+      eta[2] = (zMax>0.)?  -log(tan(theta/2.)) : log(tan(theta/2.));
 
       theta  = (fabs(zMin)>0.1)? atan(rMax/fabsf(zMin)): CLHEP::pi/2.;
-      eta[3] = (zMin>0.)?  -log(tan(theta/2.)) : log(tan(theta/2.)); 
+      eta[3] = (zMin>0.)?  -log(tan(theta/2.)) : log(tan(theta/2.));
       if(doEmulateMuFast) eta[3] = eta[2];
 
       etaMin = eta[0];
@@ -616,8 +584,8 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::computePhi(const LVL1::RecMuonRoI* p_
 						      const TrigL2MuonSA::MdtRegion& mdtRegion,
 						      TrigL2MuonSA::MuonRoad& muonRoad)
 {
-  int barrel_inner = xAOD::L2MuonParameters::Chamber::BarrelInner; 
-  int barrel_middle = xAOD::L2MuonParameters::Chamber::BarrelMiddle; 
+  int barrel_inner = xAOD::L2MuonParameters::Chamber::BarrelInner;
+  int barrel_middle = xAOD::L2MuonParameters::Chamber::BarrelMiddle;
   int barrel_outer = xAOD::L2MuonParameters::Chamber::BarrelOuter;
 
   for(int i_station=0; i_station<3; i_station++) {
@@ -687,10 +655,10 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::computePhi(const LVL1::RecMuonRoI* p_
 						      const TrigL2MuonSA::MdtRegion& mdtRegion,
 						      TrigL2MuonSA::MuonRoad& muonRoad)
 {
-  int endcap_inner = xAOD::L2MuonParameters::Chamber::EndcapInner; 
-  int endcap_middle = xAOD::L2MuonParameters::Chamber::EndcapMiddle; 
+  int endcap_inner = xAOD::L2MuonParameters::Chamber::EndcapInner;
+  int endcap_middle = xAOD::L2MuonParameters::Chamber::EndcapMiddle;
   int endcap_outer = xAOD::L2MuonParameters::Chamber::EndcapOuter;
-  int barrel_inner = xAOD::L2MuonParameters::Chamber::BarrelInner; 
+  int barrel_inner = xAOD::L2MuonParameters::Chamber::BarrelInner;
 
   for(int i_station=0; i_station<5; i_station++) {
     int chamber = 0;
