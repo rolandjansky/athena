@@ -42,25 +42,23 @@ namespace MuonGM{
 // --------------------------------------------------------------------------------
 
 namespace TrigL2MuonSA {
-  
+
   class MdtDataPreparator: public AthAlgTool
   {
   public:
-    
+
     static const InterfaceID& interfaceID();
-    
+
   public:
-    
+
     MdtDataPreparator(const std::string& type, 
 		      const std::string& name,
 		      const IInterface*  parent);
-    
-    ~MdtDataPreparator()=default;
-    
-    virtual StatusCode initialize();
-    
+
+    virtual StatusCode initialize() override;
+
   public:
-    
+
     StatusCode prepareData(const LVL1::RecMuonRoI*           p_roi,
 			   const TrigRoiDescriptor*          p_roids,
 			   const TrigL2MuonSA::RpcFitResult& rpcFitResult,
@@ -77,15 +75,15 @@ namespace TrigL2MuonSA {
 			   TrigL2MuonSA::MdtHits&            mdtHits_normal,
 			   TrigL2MuonSA::MdtHits&            mdtHits_overlap);
 
-    void setRpcGeometry(bool use_rpc);
-    void setMdtDataCollection(bool use_mdtcsm);
-    void setRoIBasedDataAccess(bool use_RoIBasedDataAccess);
+    void setRpcGeometry(bool use_rpc) {m_mdtRegionDefiner->setRpcGeometry(use_rpc);};
+    void setMdtDataCollection(bool use_mdtcsm){m_use_mdtcsm = use_mdtcsm;};
+    void setRoIBasedDataAccess(bool use_RoIBasedDataAccess){m_use_RoIBasedDataAccess = use_RoIBasedDataAccess;};
 
   public:
     float etaMinChamber[11],etaMaxChamber[11],phiMinChamber[11],phiMaxChamber[11];
 
   private:
-    
+
     StatusCode getMdtHits(const LVL1::RecMuonRoI* p_roi,
 			  const TrigRoiDescriptor* p_roids, 
 			  const TrigL2MuonSA::MdtRegion& mdtRegion,
@@ -96,19 +94,19 @@ namespace TrigL2MuonSA {
     void getMdtIdHashesBarrel(const TrigL2MuonSA::MdtRegion& mdtRegion,
 			std::vector<IdentifierHash>& mdtIdHashes_normal,
 			std::vector<IdentifierHash>& mdtIdHashes_overlap);
-    
+
     void getMdtIdHashesEndcap(const TrigL2MuonSA::MdtRegion& mdtRegion,
 			std::vector<IdentifierHash>& mdtIdHashes_normal,
 			std::vector<IdentifierHash>& mdtIdHashes_overlap);
-    
+
     StatusCode getMdtCsm(const MdtCsmContainer* pMdtCsmContainer,
 			 const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& v_robFragments,
 			 const std::vector<IdentifierHash>& v_idHash,
 			 std::vector<const MdtCsm*>& v_mdtCsms);
-    
+
     bool decodeMdtCsm(const MdtCsm* csm, TrigL2MuonSA::MdtHits& mdtHits, const TrigL2MuonSA::MuonRoad& muonRoad);
     uint32_t get_system_id (unsigned short int SubsystemId) const;
-    
+
     StatusCode collectMdtHitsFromPrepData(const std::vector<IdentifierHash>& v_idHash,
 					  std::vector<uint32_t>& v_robIds,
 					  TrigL2MuonSA::MdtHits& mdtHits,
@@ -118,33 +116,34 @@ namespace TrigL2MuonSA {
 
   private:
 
-    // Reference to StoreGateSvc;
-    ServiceHandle<ActiveStoreSvc> m_activeStore;
-    
     // Tools for the Raw data conversion
-    ToolHandle<Muon::IMuonRawDataProviderTool>  m_mdtRawDataProvider;
-        
+    ToolHandle<Muon::IMuonRawDataProviderTool>  m_mdtRawDataProvider {
+      this, "MDT_RawDataProvider", "Muon::MDT_RawDataProviderTool"};
+
+
     // Geometry Services
-    const MuonGM::MuonDetectorManager* m_muonMgr;
-    const MuonGM::MdtReadoutElement* m_mdtReadout;
-    const MuonGM::MuonStation* m_muonStation;
+    const MuonGM::MuonDetectorManager* m_muonMgr {nullptr};
+    const MuonGM::MdtReadoutElement* m_mdtReadout {nullptr};
+    const MuonGM::MuonStation* m_muonStation {nullptr};
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     IdentifierHash m_hash_id;
-    
+
     // Region Selector
     ServiceHandle<IRegSelSvc> m_regionSelector;
-    
+
     // ROB DataProvider
-    ServiceHandle<IROBDataProviderSvc>  m_robDataProvider;
-    
+    ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
+
     // Utils
     TrigL2MuonSA::RecMuonRoIUtils m_recMuonRoIUtils;
-   
-    //
-    ToolHandle<MdtRegionDefiner>  m_mdtRegionDefiner;
+
+    // MdtRegionDefiner
+    ToolHandle<MdtRegionDefiner> m_mdtRegionDefiner {
+      this, "MdtRegionDefiner", "TrigL2MuonSA::MdtRegionDefiner"};
 
     // handles to data access
-    ToolHandle<Muon::IMuonRdoToPrepDataTool> m_mdtPrepDataProvider;
+    ToolHandle<Muon::IMuonRdoToPrepDataTool> m_mdtPrepDataProvider {
+      this, "MdtPrepDataProvider", "Muon::MdtRdoToPrepDataTool/MdtPrepDataProviderTool"};
 
     SG::ReadHandleKey<MdtCsmContainer> m_mdtCsmContainerKey{
 	this, "MDTCSMContainer", "MDTCSM", "Name of the MDTRDO to read in"};
@@ -169,4 +168,4 @@ namespace TrigL2MuonSA {
 
 } // namespace TrigL2MuonSA
 
-#endif  // 
+#endif  //
