@@ -52,7 +52,7 @@ class AlphaBetaEstimate: public AthAlgTool
 
   BooleanProperty m_use_mcLUT;
 
-  const ToolHandle<PtEndcapLUT>* m_ptEndcapLUT;
+  const ToolHandle<PtEndcapLUT>* m_ptEndcapLUT {nullptr}; // point to LUT when calling setMCFlag()
 
 };
 

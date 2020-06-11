@@ -1,12 +1,10 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
-#ifndef XAOD_ANALYSIS
 #include "MuonReadoutGeometry/CscReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#endif
 
 #include "TrigL2MuonSA/CscSegmentMaker.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
@@ -15,72 +13,24 @@
 #include "xAODTrigMuon/TrigMuonDefs.h"
 #include <cmath>
 
-static const InterfaceID IID_CscSegmentMaker("IID_CscSegmentMaker", 1, 0);
-
-
 
 namespace TrigL2MuonSA {
 
 
-
-const InterfaceID& CscSegmentMaker::interfaceID() { return IID_CscSegmentMaker; }
-
-
 CscSegmentMaker::CscSegmentMaker(const std::string& type, const std::string& name, const IInterface*  parent)
-  : AthAlgTool(type, name, parent), 
-  m_util(0) 
-#ifndef XAOD_ANALYSIS
-  ,m_muonMgr(0)
-#endif
+  : AthAlgTool(type, name, parent)
 {
-  declareInterface<TrigL2MuonSA::CscSegmentMaker>(this);
 }
-
-
-CscSegmentMaker :: ~CscSegmentMaker(){}
 
 
 StatusCode CscSegmentMaker :: initialize(){
 
-  ATH_MSG_DEBUG("Initializing TrigL2MuonSA::CscSegmentMaker - package version " << PACKAGE_VERSION);
-  
-  StatusCode sc = AthAlgTool::initialize();
-  if(!sc.isSuccess()) {
-    ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
-    return sc;
-  }
-  
-  if (!m_util) m_util = new UtilTools();
-  sc = m_cscregdict.retrieve();
-  if(!sc.isSuccess()) {
-    ATH_MSG_ERROR("Could not initialize CscRegDict");
-    return sc;
-  }
-  
-#ifndef XAOD_ANALYSIS
-  if(detStore()->retrieve(m_muonMgr).isFailure()){
-    ATH_MSG_WARNING("Cannot retrieve MuonDetectorManager");
-    return StatusCode::SUCCESS;
-  }
-#endif
-  
+  ATH_CHECK( m_cscregdict.retrieve() );
 
-  
+  ATH_CHECK( detStore()->retrieve(m_muonMgr) );
+
   return StatusCode::SUCCESS;
 }
-
-
-StatusCode CscSegmentMaker :: finalize(){
-  ATH_MSG_DEBUG("Finalizing TgcRoadDefiner - package version " << PACKAGE_VERSION);
-  
-  delete m_util; m_util=0;
-  
-  StatusCode sc = AthAlgTool::finalize();
-  
-  return sc;
-}
-
-
 
 
 ReturnCode CscSegmentMaker :: FindSuperPointCsc( const TrigL2MuonSA::CscHits &cscHits,
@@ -95,14 +45,14 @@ ReturnCode CscSegmentMaker :: FindSuperPointCsc( const TrigL2MuonSA::CscHits &cs
     std::vector<TrigL2MuonSA::TrackPattern>::iterator itTrack;
     for (itTrack=v_trackPatterns.begin(); itTrack!=v_trackPatterns.end(); itTrack++) { // loop for track candidates
       
-        //get module hash  to read
+      //get module hash  to read
       int hash_clusters[32]={0};      
       
       TrigL2MuonSA::CscHits clusters[32][8];
       for(unsigned int iclu=0; iclu<cscHits.size(); ++iclu){
         const TrigL2MuonSA::CscHitData &cscHit = cscHits[iclu];
         
-          //outlier or not
+	//outlier or not
         double width = (cscHit.MeasuresPhi == 0 ) ? m_max_residual_eta : m_max_residual_phi;
         if ( width < fabs(cscHit.Residual) )  continue;
         
@@ -119,7 +69,7 @@ ReturnCode CscSegmentMaker :: FindSuperPointCsc( const TrigL2MuonSA::CscHits &cs
       }//for clusters
       
       
-        //decide which module to read
+      //decide which module to read
       int hashSPs[2]={999,999};
       if( getModuleSP( hashSPs, tgcFitResult, (*itTrack).phiBin, muroad, hash_clusters)!=ReturnCode::FAILURE ){
         
@@ -158,7 +108,7 @@ ReturnCode CscSegmentMaker :: FindSuperPointCsc( const TrigL2MuonSA::CscHits &cs
 	    double CSCR=cscsegment_ext.x()*cos(phiMod)+cscsegment_ext.y()*sin(phiMod);
 	    double CSCZ=cscsegment_ext.z();
 	    double PhiAtCsc = phimiddle/* - fabs(CSCZ-tgcmidZ)*dPhidz*/;
-	    double CSCSPR = CSCR/cos( m_util->calc_dphi(PhiAtCsc,phiMod) );
+	    double CSCSPR = CSCR/cos( m_util.calc_dphi(PhiAtCsc,phiMod) );
 	    
 	    
 	    superPoint->Z = CSCZ;
@@ -174,7 +124,7 @@ ReturnCode CscSegmentMaker :: FindSuperPointCsc( const TrigL2MuonSA::CscHits &cs
 	    
 	    //calculate outerSP's correction (dphidz of tgcFitResult)
 	    double phiouter = phimiddle+fabs(outerz-tgcmidZ)*dPhidz;
-	    outerCorFactor = cos( m_util->calc_dphi(phiouter,phiMod) )/cos( m_util->calc_dphi(phimiddle,phiMod) );
+	    outerCorFactor = cos( m_util.calc_dphi(phiouter,phiMod) )/cos( m_util.calc_dphi(phimiddle,phiMod) );
 	    ATH_MSG_DEBUG("outerCorFactor=" << outerCorFactor);
 	    
 	  }//if there is a segment.
@@ -206,7 +156,6 @@ ReturnCode  CscSegmentMaker :: make_segment(int mod_hash, TrigL2MuonSA::CscHits 
 
  
   Amg::Transform3D gToLocal;
-#ifndef XAOD_ANALYSIS
   if(m_use_geometry){
     const CscIdHelper *idHelper = m_muonMgr->cscIdHelper();
 
@@ -219,16 +168,13 @@ ReturnCode  CscSegmentMaker :: make_segment(int mod_hash, TrigL2MuonSA::CscHits 
     ATH_MSG_DEBUG("CscReadoutElement");
     gToLocal = csc->GlobalToAmdbLRSTransform();
   }else{
-#endif
   double rotpi = (m_cscregdict->stationEta(mod_hash)>0) ? -M_PI/2. : M_PI/2.;
   Amg::AngleAxis3D rotZamg( (-1)*(m_cscregdict->phiMod(mod_hash)), Amg::Vector3D(0,0,1));
   Amg::AngleAxis3D rotYamg( (-1)*(m_cscregdict->actualAtanNormal(mod_hash)), Amg::Vector3D(0,1,0) );
   Amg::AngleAxis3D rotPIamg( rotpi, Amg::Vector3D(0,0,1));
   Amg::Translation3D translation( 0.0, 0.0, (-1)*(m_cscregdict->displacement(mod_hash)) );
   gToLocal=translation*rotPIamg*rotYamg*rotZamg;
-#ifndef XAOD_ANALYSIS
   }
-#endif
 
 
   localCscHit ip_loc;  
@@ -656,7 +602,7 @@ ReturnCode CscSegmentMaker :: getModuleSP(int mod_hashes[2], const TrigL2MuonSA:
     int stationeta = m_cscregdict->stationEta(imod);
     int side = (muroad.side) ? 1 : -1;
     double phiMod = m_cscregdict->phiMod(imod);
-    double dphi = m_util->calc_dphi(phiMod, tgcFitResult.phi);
+    double dphi = m_util.calc_dphi(phiMod, tgcFitResult.phi);
     ATH_MSG_DEBUG("getModuleSP()::(phi,side) modlue:(" << phiMod << "," << stationeta << ") tgcroad:(" << tgcFitResult.phi << "," << side << ")");
     if( fabs(dphi)>M_PI/8. || side != stationeta) continue;
 

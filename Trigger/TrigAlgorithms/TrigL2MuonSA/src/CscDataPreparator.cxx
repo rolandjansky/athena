@@ -10,8 +10,6 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
-using namespace Muon;
-
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
@@ -132,14 +130,14 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const TrigRoiDescriptor*
   // Get CSC container
   if(!m_cscPrepContainerKey.empty() &&(!m_doDecoding || to_full_decode || !cscHashIDs.empty() )){
     auto cscPrepContainerHandle = SG::makeHandle(m_cscPrepContainerKey);
-    const CscPrepDataContainer* cscPrepContainer = cscPrepContainerHandle.cptr();
+    const Muon::CscPrepDataContainer* cscPrepContainer = cscPrepContainerHandle.cptr();
     if (!cscPrepContainerHandle.isValid()) {
       ATH_MSG_ERROR("Cannot retrieve CSC PRD Container key: " << m_cscPrepContainerKey.key());
       return StatusCode::FAILURE;
     }    
     // Loop over collections
-    CscPrepDataContainer::const_iterator it = cscPrepContainer->begin();
-    CscPrepDataContainer::const_iterator it_end = cscPrepContainer->end();
+    Muon::CscPrepDataContainer::const_iterator it = cscPrepContainer->begin();
+    Muon::CscPrepDataContainer::const_iterator it_end = cscPrepContainer->end();
     for( ; it != it_end; ++it ){
       const Muon::CscPrepDataCollection* col = *it;
       if( !col ) continue;
