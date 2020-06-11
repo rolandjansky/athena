@@ -8,7 +8,7 @@
 # packages get fixed up, or moved to the main list if these packages
 # are not intended for analysis.
 
-- PhysicsAnalysis/Algorithms/AsgAnalysisAlgorithms
+#- PhysicsAnalysis/Algorithms/AsgAnalysisAlgorithms
 - PhysicsAnalysis/Algorithms/EgammaAnalysisAlgorithms
 - PhysicsAnalysis/Algorithms/JetAnalysisAlgorithms
 - PhysicsAnalysis/Algorithms/MetAnalysisAlgorithms

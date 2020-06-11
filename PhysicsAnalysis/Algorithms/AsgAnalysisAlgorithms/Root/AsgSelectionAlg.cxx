@@ -51,7 +51,7 @@ namespace CP
     ANA_CHECK (m_systematicsList.initialize());
     ANA_CHECK (m_preselection.initialize());
 
-    Root::TAccept blankAccept = m_selectionTool->getTAccept();
+    asg::AcceptData blankAccept (&m_selectionTool->getAcceptInfo());
     // Just in case this isn't initially set up as a failure clear it this one
     // time. This only calls reset on the bitset
     blankAccept.clear();
