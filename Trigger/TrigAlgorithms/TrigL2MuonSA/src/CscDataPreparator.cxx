@@ -135,21 +135,14 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const TrigRoiDescriptor*
       ATH_MSG_ERROR("Cannot retrieve CSC PRD Container key: " << m_cscPrepContainerKey.key());
       return StatusCode::FAILURE;
     }    
+
     // Loop over collections
-    Muon::CscPrepDataContainer::const_iterator it = cscPrepContainer->begin();
-    Muon::CscPrepDataContainer::const_iterator it_end = cscPrepContainer->end();
-    for( ; it != it_end; ++it ){
-      const Muon::CscPrepDataCollection* col = *it;
-      if( !col ) continue;
-
+    for( const Muon::CscPrepDataCollection* cscCol : *cscPrepContainer ){
+      if( cscCol==nullptr ) continue;
+      cscHits.reserve( cscHits.size() + cscCol->size() );
       // Loop over data in the collection
-      Muon::CscPrepDataCollection::const_iterator cit = col->begin();
-      Muon::CscPrepDataCollection::const_iterator cit_end = col->end();
-      for( ; cit != cit_end; ++cit ){
-	if( !*cit ) continue;
-
-	// Data in the collection
-	const Muon::CscPrepData& prepData = **cit;
+      for( const Muon::CscPrepData* prepData : *cscCol ) {
+    	if( prepData==nullptr ) continue;
 
 	// Road info
 	int chamber = xAOD::L2MuonParameters::Chamber::CSC;
@@ -159,29 +152,29 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const TrigRoiDescriptor*
 	double phiw = muonRoad.phi[4][0];//roi_descriptor->phi(); //muonRoad.phi[chamber][0];
 
 	//cluster status
-	bool isunspoiled = IsUnspoiled (prepData.status());
+	bool isunspoiled = IsUnspoiled (prepData->status());
 
 
 	// Create new digit
 	TrigL2MuonSA::CscHitData cscHit;
-	cscHit.StationName  = m_idHelperSvc->cscIdHelper().stationName( prepData.identify() );
-	cscHit.StationEta   = m_idHelperSvc->cscIdHelper().stationEta( prepData.identify() );
-	cscHit.StationPhi   = m_idHelperSvc->cscIdHelper().stationPhi( prepData.identify() );
+	cscHit.StationName  = m_idHelperSvc->cscIdHelper().stationName( prepData->identify() );
+	cscHit.StationEta   = m_idHelperSvc->cscIdHelper().stationEta( prepData->identify() );
+	cscHit.StationPhi   = m_idHelperSvc->cscIdHelper().stationPhi( prepData->identify() );
 	cscHit.ChamberLayer = (true==isunspoiled) ? 1 : 0;
-	cscHit.WireLayer    = m_idHelperSvc->cscIdHelper().wireLayer( prepData.identify() );
-	cscHit.MeasuresPhi  = m_idHelperSvc->cscIdHelper().measuresPhi( prepData.identify() );
-	cscHit.Strip        = m_idHelperSvc->cscIdHelper().strip( prepData.identify() );
+	cscHit.WireLayer    = m_idHelperSvc->cscIdHelper().wireLayer( prepData->identify() );
+	cscHit.MeasuresPhi  = m_idHelperSvc->cscIdHelper().measuresPhi( prepData->identify() );
+	cscHit.Strip        = m_idHelperSvc->cscIdHelper().strip( prepData->identify() );
 	cscHit.Chamber      = chamber;
 	cscHit.StripId = (cscHit.StationName << 18)
 	  | ((cscHit.StationEta + 2) << 16) | (cscHit.StationPhi << 12)
 	  | (cscHit.WireLayer << 9) | (cscHit.MeasuresPhi << 8) | (cscHit.Strip);
-	cscHit.eta = prepData.globalPosition().eta();
-	cscHit.phi = prepData.globalPosition().phi();
-	cscHit.r   = prepData.globalPosition().perp();
-	cscHit.z   = prepData.globalPosition().z();
-	cscHit.charge = prepData.charge();
-	cscHit.time   = prepData.time();
-	cscHit.resolution = sqrt( prepData.localCovariance()(0,0) );
+	cscHit.eta = prepData->globalPosition().eta();
+	cscHit.phi = prepData->globalPosition().phi();
+	cscHit.r   = prepData->globalPosition().perp();
+	cscHit.z   = prepData->globalPosition().z();
+	cscHit.charge = prepData->charge();
+	cscHit.time   = prepData->time();
+	cscHit.resolution = sqrt( prepData->localCovariance()(0,0) );
 	cscHit.Residual =  ( cscHit.MeasuresPhi==0 ) ? calc_residual( aw, bw, cscHit.z, cscHit.r ) : calc_residual_phi( aw,bw,phiw, cscHit.phi, cscHit.z);
 	cscHit.isOutlier = 0;
 	/*if( fabs(cscHit.Residual) > rWidth ) {

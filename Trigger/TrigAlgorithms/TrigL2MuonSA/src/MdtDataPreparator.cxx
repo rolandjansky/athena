@@ -845,18 +845,17 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std
   ///// Vectors of prep data collections
   std::vector<const Muon::MdtPrepDataCollection*> mdtCols;
 
-  Muon::MdtPrepDataContainer::const_iterator MDTcoll;
-  for(std::vector<IdentifierHash>::const_iterator idit = v_idHash.begin(); idit != v_idHash.end(); ++idit) {
+  for(const IdentifierHash& id : v_idHash) {
 
-    MDTcoll = mdtPrds->indexFind(*idit);
+    Muon::MdtPrepDataContainer::const_iterator MDTcoll = mdtPrds->indexFind(id);
 
     if( MDTcoll == mdtPrds->end() ) {
-      ATH_MSG_DEBUG("MDT prep data collection not found in Hash ID" << (int)*idit);
+      ATH_MSG_DEBUG("MDT prep data collection not found in Hash ID" << (int)id);
       continue;
     }
 
     if( (*MDTcoll)->size() == 0 ) {
-      ATH_MSG_DEBUG("MDT prep data collection is empty in Hash ID" << (int)*idit);
+      ATH_MSG_DEBUG("MDT prep data collection is empty in Hash ID" << (int)id);
       continue;
     }
 
@@ -865,23 +864,13 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std
     ATH_MSG_DEBUG("Selected Mdt Collection: "
 		  << m_idHelperSvc->mdtIdHelper().show_to_string((*MDTcoll)->identify())
 		  << " with size " << (*MDTcoll)->size()
-		  << "in Hash ID" << (int)*idit);
+		  << "in Hash ID" << (int)id);
   }
 
-  std::vector< const Muon::MdtPrepDataCollection*>::const_iterator it = mdtCols.begin();
-  std::vector< const Muon::MdtPrepDataCollection*>::const_iterator it_end = mdtCols.end();
+  for( const Muon::MdtPrepDataCollection* mdtCol : mdtCols ){
 
-  for( ;it!=it_end;++it ){
-
-    Muon::MdtPrepDataCollection::const_iterator cit_begin = (*it)->begin();
-    Muon::MdtPrepDataCollection::const_iterator cit_end = (*it)->end();
-
-    if (cit_begin == cit_end) return StatusCode::SUCCESS;
-
-    Muon::MdtPrepDataCollection::const_iterator cit = cit_begin;
-    for( ; cit!=cit_end;++cit ) {
-
-      const Muon::MdtPrepData* mdt = (*cit);
+    mdtHits.reserve( mdtHits.size() + mdtCol->size() );
+    for( const Muon::MdtPrepData* mdt : *mdtCol ) {
 
       m_mdtReadout = mdt->detectorElement();
       if (!m_mdtReadout) continue;
