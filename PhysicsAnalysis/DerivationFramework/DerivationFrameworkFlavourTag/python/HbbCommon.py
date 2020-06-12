@@ -8,7 +8,7 @@ from DerivationFrameworkJetEtMiss.JetCommon import DFJetAlgs
 from BTagging.BTaggingConfiguration import getConfiguration
 ConfInst=getConfiguration()
 
-from GaudiKernel.Configurable import WARNING
+from GaudiKernel.Configurable import WARNING, VERBOSE
 
 # Import star stuff (it was like that when I got here)
 from DerivationFrameworkJetEtMiss.JetCommon import *
@@ -311,6 +311,13 @@ def buildVRJets(sequence, do_ghost, logger = None, doFlipTagger=False, training=
     vrdr_label = VRORTool(name=VRJetRecToolName + "_VRLabeling")
     ToolSvc += vrdr_label
 
+    # add Ghost label id
+    from ParticleJetTools.ParticleJetToolsConf import (
+        ParticleJetGhostLabelTool as GhostLabelTool)
+    gl_tool = GhostLabelTool(
+        name=VRJetRecToolName + "_GhostLabeling")
+    ToolSvc += gl_tool
+
     from BTagging.BTaggingConfiguration import defaultTrackAssoc, defaultMuonAssoc
 
     # Slice the array - this forces a copy so that if we modify it we don't also
@@ -340,7 +347,7 @@ def buildVRJets(sequence, do_ghost, logger = None, doFlipTagger=False, training=
             #can only run trackjetdrlabeler with truth labels, so MC only
 
             mods = [defaultTrackAssoc, defaultMuonAssoc, btag_vrjets,
-                    vrdr_label]
+                    vrdr_label, gl_tool]
 
             if globalflags.DataSource()!='data':
                 mods.append(jtm.trackjetdrlabeler)
