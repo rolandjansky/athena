@@ -2,9 +2,9 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigL2MuonSA/TgcDataPreparator.h"
+#include <cmath>
 
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "TrigL2MuonSA/TgcDataPreparator.h"
 #include "TrigL2MuonSA/TgcData.h"
 #include "TrigL2MuonSA/RecMuonRoIUtils.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -13,15 +13,6 @@
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
-using namespace MuonGM;
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-static const InterfaceID IID_TgcDataPreparator("IID_TgcDataPreparator", 1, 0);
-
-const InterfaceID& TrigL2MuonSA::TgcDataPreparator::interfaceID() { return IID_TgcDataPreparator; }
-
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
@@ -29,16 +20,9 @@ TrigL2MuonSA::TgcDataPreparator::TgcDataPreparator(const std::string& type,
 						   const std::string& name,
 						   const IInterface*  parent): 
   AthAlgTool(type,name,parent),
-   m_activeStore( "ActiveStoreSvc", name ), 
-   m_rawDataProviderTool("Muon::TGC_RawDataProviderTool/TGC_RawDataProviderTool"),
-   m_tgcPrepDataProvider("Muon::TgcRdoToPrepDataTool/TgcPrepDataProviderTool"),
    m_regionSelector( "RegSelSvc", name ), 
-   m_robDataProvider( "ROBDataProviderSvc", name ),
-   m_options(), m_recMuonRoIUtils()
+   m_robDataProvider( "ROBDataProviderSvc", name )
 {
-   declareInterface<TrigL2MuonSA::TgcDataPreparator>(this);
-   declareProperty("TgcRawDataProvider", m_rawDataProviderTool);
-   declareProperty("TgcPrepDataProvider", m_tgcPrepDataProvider);
 }
 
 // --------------------------------------------------------------------------------
@@ -55,18 +39,12 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::initialize()
 
    ATH_CHECK(m_idHelperSvc.retrieve());
 
-   ATH_CHECK( m_activeStore.retrieve() ); 
-   ATH_MSG_DEBUG("Retrieved ActiveStoreSvc." );
-
    // Retreive TGC raw data provider tool
    ATH_MSG_DEBUG(m_decodeBS);
    ATH_MSG_DEBUG(m_doDecoding);
    // disable TGC Raw data provider if we either don't decode BS or don't decode TGCs
-   if (m_rawDataProviderTool.retrieve(DisableTool{ !m_decodeBS || !m_doDecoding}).isFailure()) {
-     msg (MSG::FATAL) << "Failed to retrieve " << m_rawDataProviderTool << endmsg;
-     return StatusCode::FAILURE;
-   } else
-     msg (MSG::INFO) << "Retrieved Tool " << m_rawDataProviderTool << endmsg;
+   ATH_CHECK( m_rawDataProviderTool.retrieve(DisableTool{ !m_decodeBS || !m_doDecoding}) );
+   ATH_MSG_DEBUG("Retrieved Tool " << m_rawDataProviderTool);
 
    // Disable PRD converter if we don't do the data decoding
    ATH_CHECK( m_tgcPrepDataProvider.retrieve(DisableTool{!m_doDecoding}) );
@@ -84,30 +62,21 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::initialize()
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-void TrigL2MuonSA::TgcDataPreparator::setRoIBasedDataAccess(bool use_RoIBasedDataAccess)
-{
-  m_use_RoIBasedDataAccess = use_RoIBasedDataAccess;
-  return;
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
 StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI*  p_roi,
 							TrigL2MuonSA::TgcHits&  tgcHits)
 {
    float roi_eta = p_roi->eta();
    float roi_phi = p_roi->phi();
-   if (roi_phi < 0) roi_phi += 2.0 * CLHEP::pi;
+   if (roi_phi < 0) roi_phi += 2.0 * M_PI;
    
    double etaMin = p_roi->eta() - 0.2;
    double etaMax = p_roi->eta() + 0.2;
    double phiMin = p_roi->phi() - 0.1;
    double phiMax = p_roi->phi() + 0.1;
-   if( phiMin < 0 ) phiMin += 2*CLHEP::pi;
-   if( phiMax < 0 ) phiMax += 2*CLHEP::pi;
-   if( phiMin > 2*CLHEP::pi ) phiMin -= 2*CLHEP::pi;
-   if( phiMax > 2*CLHEP::pi ) phiMax -= 2*CLHEP::pi;
+   if( phiMin < 0 ) phiMin += 2*M_PI;
+   if( phiMax < 0 ) phiMax += 2*M_PI;
+   if( phiMin > 2*M_PI ) phiMin -= 2*M_PI;
+   if( phiMax > 2*M_PI ) phiMax -= 2*M_PI;
 
    TrigRoiDescriptor* roi = new TrigRoiDescriptor( p_roi->eta(), etaMin, etaMax, p_roi->phi(), phiMin, phiMax ); 
    const IRoiDescriptor* iroi = (IRoiDescriptor*) roi;
@@ -117,15 +86,15 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
    int gasGap;
    int channel;
    
-   bool isLowPt = m_recMuonRoIUtils.isLowPt(p_roi);
+   const bool isLowPt = m_recMuonRoIUtils.isLowPt(p_roi);
 
    // Select the eta cut based on ROI Pt.
-   double mid_eta_test = (isLowPt) ? m_options.roadParameters().deltaEtaAtMiddleForLowPt()
+   const double mid_eta_test = (isLowPt) ? m_options.roadParameters().deltaEtaAtMiddleForLowPt()
      : m_options.roadParameters().deltaEtaAtMiddleForHighPt();
-   double inn_eta_test = (isLowPt) ? m_options.roadParameters().deltaEtaAtInnerForLowPt()
+   const double inn_eta_test = (isLowPt) ? m_options.roadParameters().deltaEtaAtInnerForLowPt()
      : m_options.roadParameters().deltaEtaAtInnerForHighPt();
-   double mid_phi_test = m_options.roadParameters().deltaPhiAtMiddle();
-   double inn_phi_test = m_options.roadParameters().deltaPhiAtInner();
+   const double mid_phi_test = m_options.roadParameters().deltaPhiAtMiddle();
+   const double inn_phi_test = m_options.roadParameters().deltaPhiAtInner();
    
    if(m_doDecoding) {
      std::vector<IdentifierHash> tgcHashList;
@@ -149,19 +118,14 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
      }
    }//doDecoding
    
-   if ( m_activeStore ) {
-     auto tgcContainerHandle = SG::makeHandle(m_tgcContainerKey);
-     tgcPrepContainer = tgcContainerHandle.cptr();
-     if (!tgcContainerHandle.isValid()) { 
-       ATH_MSG_ERROR("Could not retrieve PrepDataContainer key:" << m_tgcContainerKey.key());
-       return StatusCode::FAILURE;
-     } else {
-       ATH_MSG_DEBUG("Retrieved PrepDataContainer: " << tgcPrepContainer->numberOfCollections());
-     }
-   } else {
-     ATH_MSG_ERROR("Null pointer to ActiveStore");
+   auto tgcContainerHandle = SG::makeHandle(m_tgcContainerKey);
+   tgcPrepContainer = tgcContainerHandle.cptr();
+   if (!tgcContainerHandle.isValid()) { 
+     ATH_MSG_ERROR("Could not retrieve PrepDataContainer key:" << m_tgcContainerKey.key());
      return StatusCode::FAILURE;
-   }  
+   } else {
+     ATH_MSG_DEBUG("Retrieved PrepDataContainer: " << tgcPrepContainer->numberOfCollections());
+   }
  
    //Find closest wires in Middle
    Muon::TgcPrepDataContainer::const_iterator wi = tgcPrepContainer->begin();
@@ -249,8 +213,8 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
        if (stationNum==-1) stationNum=3;
        if (m_idHelperSvc->tgcIdHelper().isStrip(prepData.identify())) {
 	 double dphi = fabs(prepData.globalPosition().phi() - roi_phi);
-	 if( dphi > CLHEP::pi*2 ) dphi = dphi - CLHEP::pi*2;
-	 if( dphi > CLHEP::pi ) dphi = CLHEP::pi*2 - dphi;
+	 if( dphi > M_PI*2 ) dphi = dphi - M_PI*2;
+	 if( dphi > M_PI ) dphi = M_PI*2 - dphi;
 	 // For strips, apply phi cut
 	 if     ( stationNum < 3  && dphi < mid_phi_test ) { isInRoad = true; }
 	 else if( stationNum == 3 && dphi < inn_phi_test ) { isInRoad = true; }
