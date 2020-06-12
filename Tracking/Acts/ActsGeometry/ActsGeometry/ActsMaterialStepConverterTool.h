@@ -21,7 +21,7 @@ class ActsMaterialStepConverterTool : public extends<AthAlgTool, IActsMaterialSt
 {
 
 public:
-  StatusCode initialize() override;
+  virtual StatusCode initialize() override;
 
   ActsMaterialStepConverterTool(const std::string &type, const std::string &name,
                                 const IInterface *parent);

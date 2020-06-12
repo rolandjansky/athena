@@ -50,9 +50,9 @@ class IActsMaterialJsonWriterTool;
 class ActsMaterialMapping : public AthReentrantAlgorithm {
 public:
   ActsMaterialMapping (const std::string& name, ISvcLocator* pSvcLocator);
-  StatusCode initialize() override;
-  StatusCode execute(const EventContext& ctx) const override;
-  StatusCode finalize() override;
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
+  virtual StatusCode finalize() override;
 
 private:
   ServiceHandle<IActsMaterialTrackWriterSvc>      m_materialTrackWriterSvc;
