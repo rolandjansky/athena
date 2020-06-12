@@ -57,7 +57,7 @@ StatusCode InDet::FileRoISeedTool::initialize()
     fclose(file);
     ATH_MSG_DEBUG( "RoI File Exists!");
   } else {
-    ATH_MSG_DEBUG( "RoI File DOES NOT Exist!");
+    ATH_MSG_ERROR( "RoI File DOES NOT Exist!");
     return StatusCode::FAILURE;
   }
 

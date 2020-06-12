@@ -216,7 +216,7 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::execute()
 
   }
   
-  //For the Exclusive WW analysis (and other exclusive process analyses), the production point of the exclusive process can essentially be treated as a random point in the beamspot with respect to the pileup.  The mark of an exclusive process is a lack of tracks from an underlying event, but due to pileup, some fraction of exclusive events will not be classified as "exclusive" because of nearby tracks due to pileup.  To check how often an exclusive event will be rejected due to pileup tracks, we look at a random spot in the beamspot that is displaced from the exclusive process's vertex and perform low-pt tracking in that region.  Run with postexec: ToolSvc.InDetSiSpTrackFinder_LowPtRoI.doRandomSpot = True
+  //Analyses that want to run low-pt tracking with a region of interest care about the beam conditions near a collision of interest.  Validation of the beam conditions elsewhere in the beamspot (regarding low-pt tracks) will be needed to establish meaningful uncertainties.  Choosing a random position allows for this check.  Run with RAWtoESD section of postexec: ToolSvc.InDetSiSpTrackFinder_LowPtRoI.doRandomSpot = True
   double RandZBoundary[2];
   if(m_doRandomSpot){
     //Finding Random Spot in beamspot

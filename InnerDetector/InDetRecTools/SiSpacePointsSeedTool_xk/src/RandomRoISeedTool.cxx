@@ -15,6 +15,7 @@
 #include "TRandom3.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "CLHEP/Random/RandGauss.h"
+#include "InDetBeamSpotService/IBeamCondSvc.h"
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
@@ -63,7 +64,7 @@ StatusCode InDet::RandomRoISeedTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  m_chooseRandGauss = new CLHEP::RandGauss(*(collEng), 0.0, 35.0); //roughly a beamspot with sigma of 35.0mm
+  m_chooseRandGauss = new CLHEP::RandGauss(*(collEng), 0.0, 1.0); //Want to sample Gaussian with mean of 0 and sigma of 1
 
 
   return sc;
@@ -86,8 +87,24 @@ StatusCode InDet::RandomRoISeedTool::finalize()
 std::vector<InDet::IZWindowRoISeedTool::ZWindow> InDet::RandomRoISeedTool::getRoIs()
 {
 
+  // -----------------------------------
+  // Retrieve beamspot information
+  // -----------------------------------
+
+  float BS_sigz = 0.0;
+
+  IBeamCondSvc* iBeamCondSvc; 
+  StatusCode sc_bcs = service("BeamCondSvc", iBeamCondSvc);
+
+  if (sc_bcs.isFailure() || iBeamCondSvc == 0) {
+    iBeamCondSvc = 0;
+    ATH_MSG_ERROR ("Could not retrieve Beam Conditions Service.");
+  } else{
+    BS_sigz = iBeamCondSvc->beamSigma(2);
+  }
+
   float z_val;
-  z_val = m_chooseRandGauss->fire();
+  z_val = m_chooseRandGauss->fire() * BS_sigz; //This effectively samples from a beamspot with the correct beamspot sigma_z
   
   // prepare output
   std::vector<InDet::IZWindowRoISeedTool::ZWindow> listRoIs;  
