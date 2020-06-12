@@ -13,7 +13,7 @@
 **********************************/
 
 
-#include "L1TopoAlgorithms/InvariantMassInclusive2DeltaRSqrIncl2.h"
+#include "L1TopoAlgorithms/InvariantMassInclusiveDeltaRSqrIncl2.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
 // Bitwise implementation utils
@@ -27,12 +27,12 @@
 
 #include <cmath>
 
-REGISTER_ALG_TCS(InvariantMassInclusive2DeltaRSqrIncl2)
+REGISTER_ALG_TCS(InvariantMassInclusiveDeltaRSqrIncl2)
 
 using namespace std;
 
 
-TCS::InvariantMassInclusive2DeltaRSqrIncl2::InvariantMassInclusive2DeltaRSqrIncl2(const std::string & name) : DecisionAlg(name)
+TCS::InvariantMassInclusiveDeltaRSqrIncl2::InvariantMassInclusiveDeltaRSqrIncl2(const std::string & name) : DecisionAlg(name)
 {
    defineParameter("InputWidth1", 9);
    defineParameter("InputWidth2", 9);
@@ -84,11 +84,11 @@ TCS::InvariantMassInclusive2DeltaRSqrIncl2::InvariantMassInclusive2DeltaRSqrIncl
    setNumberOutputBits(6);
 }
 
-TCS::InvariantMassInclusive2DeltaRSqrIncl2::~InvariantMassInclusive2DeltaRSqrIncl2(){}
+TCS::InvariantMassInclusiveDeltaRSqrIncl2::~InvariantMassInclusiveDeltaRSqrIncl2(){}
 
 
 TCS::StatusCode
-TCS::InvariantMassInclusive2DeltaRSqrIncl2::initialize() {
+TCS::InvariantMassInclusiveDeltaRSqrIncl2::initialize() {
 
    p_NumberLeading1 = parameter("InputWidth1").value();
    p_NumberLeading2 = parameter("InputWidth2").value();
@@ -132,25 +132,22 @@ TCS::InvariantMassInclusive2DeltaRSqrIncl2::initialize() {
    for(unsigned int i=0; i<numberOutputBits(); ++i) {
        const int buf_len = 512;
        char hname_accept[buf_len], hname_reject[buf_len];
+       int n_bin = 100;
+       int MassDeltaR_min = 0;
        int mass_min = sqrt(p_InvMassMin[i]);
        int mass_max = sqrt(p_InvMassMax[i]);
-       int deltaR_min = sqrt(p_DeltaRMin[i]);
+       // if minimum mass requirement less than twice of bin length,
+       // adjust to range by changing maximum mass with the 10 time of bin length.
+       // This is necessary when range is too wide and minimum cut unvisible.
+       // Later will be changed with more automated way.
+       if ( 2*(mass_max-mass_min)/n_bin > mass_min && mass_min != 0.0 )
+	 { mass_max=10*(mass_max-mass_min)/n_bin; }
        int deltaR_max = sqrt(p_DeltaRMax[i]);
        // mass
-       snprintf(hname_accept, buf_len, "Accept_InvariantMassInclusive2_bit%d_%dM%d_Mass", i, mass_min, mass_max);
-       snprintf(hname_reject, buf_len, "Reject_InvariantMassInclusive2_bit%d_%dM%d_Mass", i, mass_min, mass_max);
-       registerHist(m_histAcceptM[i] = new TH1F(hname_accept, hname_accept, 100, 0.0, 2*mass_max));
-       registerHist(m_histRejectM[i] = new TH1F(hname_reject, hname_reject, 100, 0.0, 2*mass_max));
-       // delta R
-       snprintf(hname_accept, buf_len, "Accept_InvariantMassInclusive2DeltaRSqrIncl2_bit%d_%dDR%d_DR", i, deltaR_min, deltaR_max);
-       snprintf(hname_reject, buf_len, "Reject_InvariantMassInclusive2DeltaRSqrIncl2_bit%d_%dDR%d_DR", i, deltaR_min, deltaR_max);
-       registerHist(m_histAcceptDR[i] = new TH1F(hname_accept, hname_accept, 100, 0.0, 2*deltaR_max));
-       registerHist(m_histRejectDR[i] = new TH1F(hname_reject, hname_reject, 100, 0.0, 2*deltaR_max));
-       // eta2 vs. eta1
-       snprintf(hname_accept, buf_len, "Accept_InvariantMassInclusive2_bit%d_%dM%d_Eta1Eta2", i, mass_min, mass_max);
-       snprintf(hname_reject, buf_len, "Reject_InvariantMassInclusive2_bit%d_%dM%d_Eta1Eta2", i, mass_min, mass_max);
-       registerHist(m_histAcceptEta1Eta2[i] = new TH2F(hname_accept, hname_accept, 100, -50.0, +50.0, 100, -50.0, +50.0));
-       registerHist(m_histRejectEta1Eta2[i] = new TH2F(hname_reject, hname_reject, 100, -50.0, +50.0, 100, -50.0, +50.0));
+       snprintf(hname_accept, buf_len, "Accept_InvariantMassInclusiveDeltaRSqrIncl2_bit%d_%dM%d_Mass", i, mass_min, mass_max);
+       snprintf(hname_reject, buf_len, "Reject_InvariantMassInclusiveDeltaRSqrIncl2_bit%d_%dM%d_Mass", i, mass_min, mass_max);
+       registerHist(m_histAcceptM[i] = new TH2F(hname_accept, hname_accept, n_bin, MassDeltaR_min, 2*mass_max, n_bin, MassDeltaR_min, 2*deltaR_max));
+       registerHist(m_histRejectM[i] = new TH2F(hname_reject, hname_reject, n_bin, MassDeltaR_min, 2*mass_max, n_bin, MassDeltaR_min, 2*deltaR_max));
    }
    return StatusCode::SUCCESS;
 }
@@ -158,7 +155,7 @@ TCS::InvariantMassInclusive2DeltaRSqrIncl2::initialize() {
 
 
 TCS::StatusCode
-TCS::InvariantMassInclusive2DeltaRSqrIncl2::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
+TCS::InvariantMassInclusiveDeltaRSqrIncl2::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
                              const std::vector<TCS::TOBArray *> & output,
                              Decision & decision )
 {
@@ -182,7 +179,7 @@ TCS::InvariantMassInclusive2DeltaRSqrIncl2::processBitCorrect( const std::vector
                 const int eta2 = (*tob2)->eta();
                 const unsigned int aeta1 = std::abs(eta1);
                 const unsigned int aeta2 = std::abs(eta2);
-               for(unsigned int i=0; i<numberOutputBits(); ++i) {
+		for(unsigned int i=0; i<numberOutputBits(); ++i) {
                    bool accept = false;
                    if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
                    if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
@@ -198,13 +195,9 @@ TCS::InvariantMassInclusive2DeltaRSqrIncl2::processBitCorrect( const std::vector
                        output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                    }
                    if(fillAccept and not alreadyFilled) {
-                       fillHist1D(m_histAcceptM[i]->GetName(),sqrt((float)invmass2));
-                       fillHist1D(m_histAcceptDR[i]->GetName(),sqrt((float)deltaR2));
-                       fillHist2D(m_histAcceptEta1Eta2[i]->GetName(),eta1, eta2);
+		     fillHist2D(m_histAcceptM[i]->GetName(),sqrt((float)invmass2),sqrt((float)deltaR2));
                    } else if(fillReject) {
-                       fillHist1D(m_histRejectM[i]->GetName(),sqrt((float)invmass2));
-                       fillHist1D(m_histRejectDR[i]->GetName(),sqrt((float)deltaR2));
-                       fillHist2D(m_histRejectEta1Eta2[i]->GetName(),eta1, eta2);
+		     fillHist2D(m_histRejectM[i]->GetName(),sqrt((float)invmass2),sqrt((float)deltaR2));
                    }
                    TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " invmass2 = " << invmass2 << " deltaR2 = " << deltaR2 );
                }
@@ -212,7 +205,7 @@ TCS::InvariantMassInclusive2DeltaRSqrIncl2::processBitCorrect( const std::vector
          }
    } else {
 
-      TCS_EXCEPTION("InvariantMassInclusive2DeltaRSqrIncl2 alg must have  2 inputs, but got " << input.size());
+      TCS_EXCEPTION("InvariantMassInclusiveDeltaRSqrIncl2 alg must have  2 inputs, but got " << input.size());
 
    }
    return TCS::StatusCode::SUCCESS;
@@ -220,7 +213,7 @@ TCS::InvariantMassInclusive2DeltaRSqrIncl2::processBitCorrect( const std::vector
 }
 
 TCS::StatusCode
-TCS::InvariantMassInclusive2DeltaRSqrIncl2::process( const std::vector<TCS::TOBArray const *> & input,
+TCS::InvariantMassInclusiveDeltaRSqrIncl2::process( const std::vector<TCS::TOBArray const *> & input,
                              const std::vector<TCS::TOBArray *> & output,
                              Decision & decision )
 {
@@ -258,20 +251,16 @@ TCS::InvariantMassInclusive2DeltaRSqrIncl2::process( const std::vector<TCS::TOBA
                        output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                    }
                    if(fillAccept and not alreadyFilled) {
-                       fillHist1D(m_histAcceptM[i]->GetName(),sqrt((float)invmass2));
-                       fillHist1D(m_histAcceptDR[i]->GetName(),sqrt((float)deltaR2));
-                       fillHist2D(m_histAcceptEta1Eta2[i]->GetName(),eta1, eta2);
+		     fillHist2D(m_histAcceptM[i]->GetName(),sqrt((float)invmass2),sqrt((float)deltaR2));
                    } else if(fillReject) {
-                       fillHist1D(m_histRejectM[i]->GetName(),sqrt((float)invmass2));
-                       fillHist1D(m_histRejectDR[i]->GetName(),sqrt((float)deltaR2));
-                       fillHist2D(m_histRejectEta1Eta2[i]->GetName(),eta1, eta2);
+		     fillHist2D(m_histRejectM[i]->GetName(),sqrt((float)invmass2),sqrt((float)deltaR2));
                    }
 		  TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " invmass2 = " << invmass2 << " deltaR2 = " << deltaR2 );
                }
             }
          }
    } else {
-      TCS_EXCEPTION("InvariantMassInclusive2DeltaRSqrIncl2 alg must have  2 inputs, but got " << input.size());
+      TCS_EXCEPTION("InvariantMassInclusiveDeltaRSqrIncl2 alg must have  2 inputs, but got " << input.size());
    }
    return TCS::StatusCode::SUCCESS;
 }

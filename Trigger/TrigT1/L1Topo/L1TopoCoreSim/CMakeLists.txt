@@ -7,7 +7,6 @@ atlas_subdir( L1TopoCoreSim )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
                           Trigger/TrigT1/L1Topo/L1TopoCommon
                           Trigger/TrigT1/L1Topo/L1TopoConfig
                           Trigger/TrigT1/L1Topo/L1TopoEvent
@@ -28,13 +27,13 @@ atlas_add_library( L1TopoCoreSim
                    PUBLIC_HEADERS L1TopoCoreSim
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                   LINK_LIBRARIES GaudiKernel L1TopoCommon L1TopoConfig L1TopoEvent L1TopoInterfaces ${ROOT_LIBRARIES}
+                   LINK_LIBRARIES L1TopoCommon L1TopoConfig L1TopoEvent L1TopoInterfaces ${ROOT_LIBRARIES}
                    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} TrigConfBase L1TopoAlgorithms L1TopoHardware )
 
 atlas_add_executable( TrigConfTopoStandAlone
                       src/test/TopoStandAlone.cxx
                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} GaudiKernel L1TopoCommon L1TopoConfig L1TopoEvent L1TopoInterfaces TrigConfBase L1TopoAlgorithms L1TopoHardware L1TopoCoreSim )
+                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} L1TopoCommon L1TopoConfig L1TopoEvent L1TopoInterfaces TrigConfBase L1TopoAlgorithms L1TopoHardware L1TopoCoreSim )
 
 atlas_add_executable( TrigConfTopoTestSteeringConfig
                       src/test/TopoTestSteeringConfig.cxx

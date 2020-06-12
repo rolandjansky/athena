@@ -11,6 +11,8 @@
 **********************************/
 
 #include <cmath>
+#include "TH1F.h"
+#include "TH2F.h"
 
 #include "L1TopoAlgorithms/DeltaRSqrIncl1.h"
 #include "L1TopoCommon/Exception.h"
@@ -74,7 +76,16 @@ TCS::DeltaRSqrIncl1::initialize() {
    TRG_MSG_INFO("MinET2          : " << p_MinET2);
 
    TRG_MSG_INFO("number output : " << numberOutputBits());
- 
+   for (unsigned int i=0; i<numberOutputBits();i++) {
+       const int buf_len = 512;
+       char hname_accept[buf_len], hname_reject[buf_len];
+       int deltaR_max = sqrt(p_DeltaRMax[i]);
+       // mass
+       snprintf(hname_accept, buf_len, "Accept_DeltaRSqrIncl1_bit%d", i);
+       snprintf(hname_reject, buf_len, "Reject_DeltaRSqrIncl1_bit%d", i);
+       registerHist(m_histAccept[i] = new TH1F(hname_accept, hname_accept, 100, 0.0, 2*deltaR_max));
+       registerHist(m_histReject[i] = new TH1F(hname_reject, hname_reject, 100, 0.0, 2*deltaR_max));
+   }
    return StatusCode::SUCCESS;
 }
 
@@ -83,7 +94,7 @@ TCS::DeltaRSqrIncl1::initialize() {
 TCS::StatusCode
 TCS::DeltaRSqrIncl1::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
                              const std::vector<TCS::TOBArray *> & output,
-                             Decision & decison )
+                             Decision & decision )
 {
 
    if(input.size() == 1) {
@@ -103,13 +114,21 @@ TCS::DeltaRSqrIncl1::processBitCorrect( const std::vector<TCS::TOBArray const *>
                   // DeltaR2 cuts
                   unsigned int deltaR2 = TSU::Kinematics::calcDeltaR2BW( *tob1, *tob2 );
                   for(unsigned int i=0; i<numberOutputBits(); ++i) {
-                      bool accept = false;
-                      accept = deltaR2 >= p_DeltaRMin[i] && deltaR2 <= p_DeltaRMax[i];
-                      if( accept ) {
-                          decison.setBit(i, true);  
-                          output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
-                      }
-                      TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " deltaR2 = " << deltaR2);
+		    bool accept = false;
+		    accept = deltaR2 >= p_DeltaRMin[i] && deltaR2 <= p_DeltaRMax[i];
+		    const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
+		    const bool fillReject = fillHistos() and not fillAccept;
+		    const bool alreadyFilled = decision.bit(i);
+		    if( accept ) {
+		      decision.setBit(i, true);  
+		      output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
+		    }
+		    if(fillAccept and not alreadyFilled) {
+		      fillHist1D(m_histAccept[i]->GetName(),sqrt((float)deltaR2));
+		    } else if(fillReject) {
+		      fillHist1D(m_histReject[i]->GetName(),sqrt((float)deltaR2));
+		    }
+		    TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " deltaR2 = " << deltaR2);
                   }
               }
           }
@@ -122,7 +141,7 @@ TCS::DeltaRSqrIncl1::processBitCorrect( const std::vector<TCS::TOBArray const *>
 TCS::StatusCode
 TCS::DeltaRSqrIncl1::process( const std::vector<TCS::TOBArray const *> & input,
                              const std::vector<TCS::TOBArray *> & output,
-                             Decision & decison )
+                             Decision & decision )
 {
     if(input.size() == 1) {
         for( TOBArray::const_iterator tob1 = input[0]->begin(); 
@@ -141,13 +160,21 @@ TCS::DeltaRSqrIncl1::process( const std::vector<TCS::TOBArray const *> & input,
                     // DeltaR2 cuts
                     unsigned int deltaR2 = TSU::Kinematics::calcDeltaR2( *tob1, *tob2 );
                     for(unsigned int i=0; i<numberOutputBits(); ++i) {
-                    bool accept = false;
-                    accept = deltaR2 >= p_DeltaRMin[i] && deltaR2 <= p_DeltaRMax[i];
-                    if( accept ) {
-                        decison.setBit(i, true);  
+		      bool accept = false;
+		      accept = deltaR2 >= p_DeltaRMin[i] && deltaR2 <= p_DeltaRMax[i];
+		      const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
+		      const bool fillReject = fillHistos() and not fillAccept;
+		      const bool alreadyFilled = decision.bit(i);
+		      if( accept ) {
+                        decision.setBit(i, true);  
                         output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
-                    }
-                    TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " deltaR2 = " << deltaR2);
+		      }
+		      if(fillAccept and not alreadyFilled) {
+			fillHist1D(m_histAccept[i]->GetName(),sqrt((float)deltaR2));
+		      } else if(fillReject) {
+			fillHist1D(m_histReject[i]->GetName(),sqrt((float)deltaR2));
+		      }
+		      TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " deltaR2 = " << deltaR2);
                     }
                 }
             }

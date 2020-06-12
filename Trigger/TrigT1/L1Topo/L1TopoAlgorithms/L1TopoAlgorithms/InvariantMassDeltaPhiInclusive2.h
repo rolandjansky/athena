@@ -1,13 +1,13 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-//  InvariantMassDeltaPhiInclusive.h
+//  InvariantMassDeltaPhiInclusive2.h
 //  TopoCore
 //  Based on InvariantMassInclusive2 and DeltaPhiIncl2 by Joerg Stelzer on 19/02/2019. For questions contact atlas-trig-l1topo-algcom@cern.ch. 
 //  TO DO size of the input list to be possbly refined 
 
-#ifndef __TopoCore__InvariantMassDeltaPhiInclusive__
-#define __TopoCore__InvariantMassDeltaPhiInclusive__
+#ifndef __TopoCore__InvariantMassDeltaPhiInclusive2__
+#define __TopoCore__InvariantMassDeltaPhiInclusive2__
 
 #include "L1TopoInterfaces/DecisionAlg.h"
 
@@ -15,10 +15,10 @@ class TH2;
 
 namespace TCS {
    
-   class InvariantMassDeltaPhiInclusive : public DecisionAlg {
+   class InvariantMassDeltaPhiInclusive2 : public DecisionAlg {
    public:
-      InvariantMassDeltaPhiInclusive(const std::string & name);
-      virtual ~InvariantMassDeltaPhiInclusive();
+      InvariantMassDeltaPhiInclusive2(const std::string & name);
+      virtual ~InvariantMassDeltaPhiInclusive2();
 
       virtual StatusCode initialize() override final;
  
@@ -48,10 +48,8 @@ namespace TCS {
       parType_t      p_DeltaPhiMin[6] = { 0,0,0,0,0,0 };
       parType_t      p_DeltaPhiMax[6] = { 0,0,0,0,0,0 };
 
-      TH1 * m_histAcceptM[6] = {};
-      TH1 * m_histRejectM[6] = {};
-      TH1 * m_histAcceptDPhi[6] = {};
-      TH1 * m_histRejectDPhi[6] = {};
+      TH2 * m_histAcceptM[6] = {};
+      TH2 * m_histRejectM[6] = {};
       TH2 * m_histAcceptEta1Eta2[6] = {};
       TH2 * m_histRejectEta1Eta2[6] = {};
    };

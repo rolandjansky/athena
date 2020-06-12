@@ -48,7 +48,7 @@ atlas_add_component( L1TopoSimulation
    TrigT1Result TrigConfInterfaces )
 
 atlas_add_component( L1TopoSimulationTest
-   src/test/*.h src/test/*.cxx src/test/components/*.cxx
+   src/test/*.h src/test/*.cxx src/test/components/*.cxx src/AthenaL1TopoHistSvc.h src/AthenaL1TopoHistSvc.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel L1TopoCoreSim L1TopoEvent L1TopoInterfaces L1TopoAlgorithms L1TopoSimulationLib)
 
