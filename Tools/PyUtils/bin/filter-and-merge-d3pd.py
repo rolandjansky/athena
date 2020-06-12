@@ -747,7 +747,6 @@ Accepted command line options:
 # @author http://code.activestate.com/recipes/573463
 #         slightly adapted to follow PEP8 conventions
 
-__version__ = "$Revision: 547442 $"
 __doc__ = """\
 functions to convert an XML file into a python dict, back and forth
 """
