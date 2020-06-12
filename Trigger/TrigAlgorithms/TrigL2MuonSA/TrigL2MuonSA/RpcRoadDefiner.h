@@ -30,15 +30,13 @@ namespace TrigL2MuonSA {
 class RpcRoadDefiner: public AthAlgTool
 {
  public:
-  static const InterfaceID& interfaceID();
 
   RpcRoadDefiner(const std::string& type,
                  const std::string& name,
                  const IInterface*  parent);
-  ~RpcRoadDefiner()=default;
 
-  virtual StatusCode initialize();
-  virtual StatusCode finalize  ();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize  () override;
   
  public:
   StatusCode defineRoad(const LVL1::RecMuonRoI*      p_roi,
@@ -51,19 +49,19 @@ class RpcRoadDefiner: public AthAlgTool
 			double                       roiEtaMinHigh,
 			double                       roiEtaMaxHigh);
 
-  void setMdtGeometry(const ServiceHandle<IRegSelSvc>& regionSelector);
-  void setRoadWidthForFailure(double rWidth_RPC_Failed);
-  void setRpcGeometry(bool use_rpc);
+  void setMdtGeometry(const ServiceHandle<IRegSelSvc>& regionSelector){ m_regionSelector = regionSelector; };
+  void setRoadWidthForFailure(double rWidth_RPC_Failed){ m_rWidth_RPC_Failed = rWidth_RPC_Failed; };
+  void setRpcGeometry(bool use_rpc){ m_use_rpc = use_rpc; };
 
  protected:
   float f(float x, float c0, float c1, float c2, float c3) const;
   float fp(float x, float c33, float c22, float c1) const;
 
  private:
-  const BarrelRoadData*  m_roadData;
+  const BarrelRoadData*  m_roadData{nullptr};
 
-  double m_rWidth_RPC_Failed;
-  bool m_use_rpc;
+  double m_rWidth_RPC_Failed{0};
+  bool m_use_rpc{true};
 
   ServiceHandle<IRegSelSvc> m_regionSelector;
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
