@@ -617,13 +617,9 @@ class athenaLogFileReportTests(unittest.TestCase):
         with open('file11', 'w') as f11:
             print >> f11, testCoreDumpAbNormalLine
         with open('file12', 'w') as f12:
-<<<<<<< HEAD
             print >> f12, testCoreDumpAbnormalPattern
-=======
-            print(testCoreDumpAbnormalPattern, file=f12)
         with open('file13', 'w') as f13:
-            print(testKnowledgeFile, file=f13)
->>>>>>> a3481ff028d... Reporting non-standard errors
+            print >> f13, testKnowledgeFile
 
         self.myFileReport1 = athenaLogFileReport('file1')
         self.myFileReport2 = athenaLogFileReport('file2')
