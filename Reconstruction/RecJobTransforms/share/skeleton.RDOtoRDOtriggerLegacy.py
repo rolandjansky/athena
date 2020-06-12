@@ -198,6 +198,9 @@ if _streamRDO:
     _streamRDO.ItemList +=["2927#*"]
     _streamRDO.ItemList +=["2934#*"]
     _streamRDO.ItemList += [ "xAOD::EventInfo#*", "xAOD::EventAuxInfo#*" ]
+    # Never store wildcarded legacy EventInfo
+    if "EventInfo#*" in _streamRDO.ItemList:
+        _streamRDO.ItemList.remove("EventInfo#*")
 
 condSeq = AthSequencer("AthCondSeq")
 if not hasattr( condSeq, "LumiBlockMuWriter" ):
