@@ -4,7 +4,7 @@
 
 #include "TrigL2MuonSA/AlphaBetaEstimate.h"
 
-#include "CLHEP/Units/PhysicalConstants.h"
+#include <cmath>
 
 #include "xAODTrigMuon/TrigMuonDefs.h"
 
@@ -40,7 +40,7 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
                                                          const TrigL2MuonSA::MuonRoad& /*muonRoad*/)
 {
   const int MAX_STATION = 6;
-  const double PHI_RANGE = 12./(CLHEP::pi/8.);
+  const double PHI_RANGE = 12./(M_PI/8.);
   
   // computing ALPHA, BETA and RADIUS
   float InnerSlope      = 0;
@@ -113,11 +113,11 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
     if ( isZero(tgcFitResult.tgcMid1[3]) || isZero(tgcFitResult.tgcMid2[3]) ) {
       if ( !isZero(tgcFitResult.tgcMid1[3]) ) phi = phi1;
       if ( !isZero(tgcFitResult.tgcMid2[3]) ) phi = phi2;
-    } else if( phi1*phi2 < 0 && std::abs(phi1)>(CLHEP::pi/2.) ) {
-      double tmp1 = (phi1>0)? phi1 - CLHEP::pi : phi1 + CLHEP::pi;
-      double tmp2 = (phi2>0)? phi2 - CLHEP::pi : phi2 + CLHEP::pi;
+    } else if( phi1*phi2 < 0 && std::abs(phi1)>(M_PI/2.) ) {
+      double tmp1 = (phi1>0)? phi1 - M_PI : phi1 + M_PI;
+      double tmp2 = (phi2>0)? phi2 - M_PI : phi2 + M_PI;
       double tmp  = (tmp1+tmp2)/2.;
-      phi  = (tmp>0.)? tmp - CLHEP::pi : tmp + CLHEP::pi;
+      phi  = (tmp>0.)? tmp - M_PI : tmp + M_PI;
     } else {      
       phi  = (phi2+phi1)/2.;     
     }
@@ -147,13 +147,13 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
     else if ( !isZero(InnerZ) ) trackPattern.etaMap = etaInner;      
     if ( !isZero(tgcFitResult.tgcInn[3]) ) phi = tgcFitResult.tgcInn[1];
 
-    if ( phim > CLHEP::pi+0.1 ) phim = phim - 2*CLHEP::pi;
+    if ( phim > M_PI+0.1 ) phim = phim - 2*M_PI;
     if ( phim >= 0 ) trackPattern.phiMap = (phi>=0.)? phi - phim : phim - fabs(phi);
     else trackPattern.phiMap = phi - phim;
     
-    int Octant = (int)(tgcFitResult.tgcMid1[1] / (CLHEP::pi/4.));
-    double PhiInOctant = fabs(tgcFitResult.tgcMid1[1] - Octant * (CLHEP::pi/4.));
-    if (PhiInOctant > (CLHEP::pi/8.)) PhiInOctant = (CLHEP::pi/4.) - PhiInOctant;
+    int Octant = (int)(tgcFitResult.tgcMid1[1] / (M_PI/4.));
+    double PhiInOctant = fabs(tgcFitResult.tgcMid1[1] - Octant * (M_PI/4.));
+    if (PhiInOctant > (M_PI/8.)) PhiInOctant = (M_PI/4.) - PhiInOctant;
     
     trackPattern.endcapBeta = 0.0;
     trackPattern.phiMS      = phi;
@@ -163,8 +163,8 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
     trackPattern.phiBin = static_cast<int>(PhiInOctant * PHI_RANGE);
     trackPattern.etaBin = static_cast<int>((fabs(tgcFitResult.tgcMid1[0])-1.)/0.05);
 
-    double phiEE = (tgcFitResult.tgcMid1[1]>0) ? tgcFitResult.tgcMid1[1] : tgcFitResult.tgcMid1[1] + 2*CLHEP::pi;
-    trackPattern.phiBinEE = static_cast<int> (phiEE*96/CLHEP::pi);
+    double phiEE = (tgcFitResult.tgcMid1[1]>0) ? tgcFitResult.tgcMid1[1] : tgcFitResult.tgcMid1[1] + 2*M_PI;
+    trackPattern.phiBinEE = static_cast<int> (phiEE*96/M_PI);
 
   } else {
     // TGC data readout problem -> use RoI (eta, phi) and assume straight track
@@ -172,13 +172,13 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
     trackPattern.etaMap = p_roi->eta();
     phi = p_roi->phi();
 
-    if ( phim > CLHEP::pi+0.1 ) phim = phim - 2*CLHEP::pi;
+    if ( phim > M_PI+0.1 ) phim = phim - 2*M_PI;
     if ( phim >= 0 ) trackPattern.phiMap = (phi>=0.)? phi - phim : phim - fabs(phi);
     else trackPattern.phiMap = phi - phim;
 
-    int Octant = (int)(p_roi->phi() / (CLHEP::pi/4.));
-    double PhiInOctant = fabs(p_roi->phi() - Octant * (CLHEP::pi/4.));
-    if (PhiInOctant > (CLHEP::pi/8.)) PhiInOctant = (CLHEP::pi/4.) - PhiInOctant;
+    int Octant = (int)(p_roi->phi() / (M_PI/4.));
+    double PhiInOctant = fabs(p_roi->phi() - Octant * (M_PI/4.));
+    if (PhiInOctant > (M_PI/8.)) PhiInOctant = (M_PI/4.) - PhiInOctant;
 
     trackPattern.endcapBeta = 0.0;
     trackPattern.phiMS      = phi;
@@ -188,8 +188,8 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
     trackPattern.phiBin = static_cast<int>(PhiInOctant * PHI_RANGE);
     trackPattern.etaBin = static_cast<int>((fabs(p_roi->eta())-1.)/0.05);
 
-    double phiEE = (p_roi->phi()>0) ? p_roi->phi() : p_roi->phi() + 2*CLHEP::pi;
-    trackPattern.phiBinEE = static_cast<int> (phiEE*96/CLHEP::pi);
+    double phiEE = (p_roi->phi()>0) ? p_roi->phi() : p_roi->phi() + 2*M_PI;
+    trackPattern.phiBinEE = static_cast<int> (phiEE*96/M_PI);
     
   }
 

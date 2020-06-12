@@ -197,7 +197,6 @@ ReturnCode  CscSegmentMaker :: make_segment(int mod_hash, TrigL2MuonSA::CscHits 
       double r = cschit.r;
       double phi = cschit.phi;
       double z = cschit.z;
-        //l1id=cschit.m_l1id;
       
         //move to local coordinate system
       Amg::Vector3D vect(r*cos(phi),r*sin(phi),z);
@@ -209,9 +208,8 @@ ReturnCode  CscSegmentMaker :: make_segment(int mod_hash, TrigL2MuonSA::CscHits 
       loc_hit.loc_y = loc_vect(Amg::y);
       loc_hit.loc_z = loc_vect(Amg::z);
       loc_hit.measphi=cschit.MeasuresPhi;
-      loc_hit.error = (loc_hit.measphi==0) ? m_err_eta : m_err_phi;//cschit.eta;
+      loc_hit.error = (loc_hit.measphi==0) ? m_err_eta : m_err_phi;
       loc_hit.residual = cschit.Residual;
-      //loc_hit.index4=ihit; not used
       loc_hit.enabled=true;
       loc_hit.isIP=false;
       loc_hit.stationname=cschit.StationName;
@@ -253,11 +251,9 @@ ReturnCode  CscSegmentMaker :: make_segment(int mod_hash, TrigL2MuonSA::CscHits 
   cscsegment.set(seg_pos,seg_dir, seg2d_eta.chi2, seg2d_phi.chi2);
   cscsegment.setNHitEta(seg2d_eta.nhit);
   cscsegment.setNHitPhi(seg2d_phi.nhit);
-  //cscsegment.setL1id(l1id);
   cscsegment_noip.set(seg_pos_noip,seg_dir_noip, seg2d_eta_noip.chi2, seg2d_phi_noip.chi2);
   cscsegment_noip.setNHitEta(seg2d_eta_noip.nhit);
   cscsegment_noip.setNHitPhi(seg2d_phi_noip.nhit);
-  //cscsegment_noip.setL1id(l1id);
   
   
   return ReturnCode::SUCCESS;
@@ -502,8 +498,6 @@ ReturnCode CscSegmentMaker :: fit_clusters(int measphi, const std::vector<localC
   seg2d.zshift=rp/rq;
   
   seg2d.residual=aver_res/rq;
-  //int outlier=1; not used
-  //double displace=99999.; not used
   
   
   for (unsigned int ihit=0; ihit< hits_fit.size(); ++ihit) {
@@ -517,16 +511,9 @@ ReturnCode CscSegmentMaker :: fit_clusters(int measphi, const std::vector<localC
     Sxx += w*x*x;
     Syy += w*y*y;
     Sxy += w*x*y;
-    //double displace_tmp = fabs( seg2d.residual - w*x);
     
-    /*obsolete
-    if( !hits_fit[ihit].isIP && displace>displace_tmp ){
-      displace = displace_tmp;
-      outlier = ihit;//most distant hit as outlier
-      }*/
   }//ihit
     
-  //  seg2d.outlier=outlier;
     
   
   if(nhit_with_ip>1){
@@ -647,9 +634,6 @@ CscSegment CscSegmentMaker :: segmentAtFirstLayer(int mod_hash, TrigL2MuonSA::Cs
   double b0=mu_seg->x(), b1=mu_seg->y(),b2=mu_seg->z();
   double t = ( alpha-(n(0)*b0+n(1)*b1+n(2)*b2) )/( n(0)*a0+n(1)*a1+n(2)*a2 );
   double x0=a0*t+b0,x1=a1*t+b1,x2=a2*t+b2;
-  //double phiMod=m_cscregdict->phiMod(mod_hash);
-  //double slope=( (a0*cos(phiMod)+a1*sin(phiMod))/a2 );
-  //double intercept= x0*cos(phiMod)+x1*sin(phiMod) + slope*x2  ;
   double chisquare=mu_seg->chiSquare();  
   double chisquare_phi=mu_seg->chiSquarePhi();  
 

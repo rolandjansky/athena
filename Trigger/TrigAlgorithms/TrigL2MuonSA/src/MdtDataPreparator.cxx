@@ -8,7 +8,7 @@
 
 #include "MuonRDO/MdtCsmContainer.h"
 
-#include "CLHEP/Units/PhysicalConstants.h"
+#include <cmath>
 
 #include "Identifier/IdentifierHash.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
@@ -183,9 +183,9 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtHits(const LVL1::RecMuonRoI*  
     double phi = p_roi->phi();
     double phiMin = p_roi->phi() - 0.1;
     double phiMax = p_roi->phi() + 0.1;
-    if( phi < 0 ) phi += 2*CLHEP::pi;
-    if( phiMin < 0 ) phiMin += 2*CLHEP::pi;
-    if( phiMax < 0 ) phiMax += 2*CLHEP::pi;
+    if( phi < 0 ) phi += 2*M_PI;
+    if( phiMin < 0 ) phiMin += 2*M_PI;
+    if( phiMax < 0 ) phiMax += 2*M_PI;
     
     TrigRoiDescriptor* roi = new TrigRoiDescriptor( p_roi->eta(), etaMin, etaMax, phi, phiMin, phiMax );
     
@@ -573,9 +573,9 @@ bool TrigL2MuonSA::MdtDataPreparator::decodeMdtCsm(const MdtCsm* csm,
      double cphi  = muonRoad.phi[chamber][0];
      if( cPhip*cphi>0 ) dphi = std::abs(cPhip - cphi);
      else {
-       if(fabs(cphi) > CLHEP::pi/2.) {
-	 double phi1 = (cPhip>0.)? cPhip-CLHEP::pi : cPhip+CLHEP::pi;
-	 double phi2 = (cphi >0.)? cphi -CLHEP::pi : cphi +CLHEP::pi;
+       if(fabs(cphi) > M_PI/2.) {
+	 double phi1 = (cPhip>0.)? cPhip-M_PI : cPhip+M_PI;
+	 double phi2 = (cphi >0.)? cphi -M_PI : cphi +M_PI;
 	 dphi = std::abs(phi1) + std::abs(phi2);
        }
        else {
@@ -592,8 +592,8 @@ bool TrigL2MuonSA::MdtDataPreparator::decodeMdtCsm(const MdtCsm* csm,
 
      float cInCo = 1./cos(std::abs(atan(OrtoRadialPos/Rmin)));
      float cPhi0 = cPhip - atan(OrtoRadialPos/Rmin);
-     if(cPhi0 > CLHEP::pi) cPhip -= 2*CLHEP::pi;
-     if(cPhip<0. && (fabs(CLHEP::pi+cPhip) < 0.05) ) cPhip = acos(0.)*2.;
+     if(cPhi0 > M_PI) cPhip -= 2*M_PI;
+     if(cPhip<0. && (fabs(M_PI+cPhip) < 0.05) ) cPhip = acos(0.)*2.;
      
      uint32_t OnlineId = ChannelId | (TdcId << 5) |
        (LinkId << 10) | (get_system_id(SubsystemId) << 13) | (MrodId <<16);
@@ -949,9 +949,9 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std
       if( cPhip*cphi>0 ) {
 	dphi = std::abs(cPhip - cphi);
       } else {
-	if(fabs(cphi) > CLHEP::pi/2.) {
-	  double phi1 = (cPhip>0.)? cPhip-CLHEP::pi : cPhip+CLHEP::pi;
-	  double phi2 = (cphi >0.)? cphi -CLHEP::pi : cphi +CLHEP::pi;
+	if(fabs(cphi) > M_PI/2.) {
+	  double phi1 = (cPhip>0.)? cPhip-M_PI : cPhip+M_PI;
+	  double phi2 = (cphi >0.)? cphi -M_PI : cphi +M_PI;
 	  dphi = std::abs(phi1) + std::abs(phi2);
 	}
 	else {
@@ -968,8 +968,8 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std
 
       float cInCo = 1./cos(std::abs(atan(OrtoRadialPos/Rmin)));
       float cPhi0 = cPhip - atan(OrtoRadialPos/Rmin);
-      if(cPhi0 > CLHEP::pi) cPhip -= 2*CLHEP::pi;
-      if(cPhip<0. && (fabs(CLHEP::pi+cPhip) < 0.05) ) cPhip = acos(0.)*2.;
+      if(cPhi0 > M_PI) cPhip -= 2*M_PI;
+      if(cPhip<0. && (fabs(M_PI+cPhip) < 0.05) ) cPhip = acos(0.)*2.;
 
       ATH_MSG_DEBUG(" ...MDT hit Z/R/chamber/MultiLater/TubeLayer/Tube/Layer/adc/tdc = "
 		    << Z << "/" << R << "/" << chamber << "/" << MultiLayer << "/" << TubeLayer << "/" 

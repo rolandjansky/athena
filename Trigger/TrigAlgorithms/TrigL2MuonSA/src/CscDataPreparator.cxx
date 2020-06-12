@@ -5,7 +5,6 @@
 #include "TrigL2MuonSA/CscDataPreparator.h"
 
 #include "StoreGate/ActiveStoreSvc.h"
-#include "CLHEP/Units/PhysicalConstants.h"
 #include "xAODTrigMuon/TrigMuonDefs.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"

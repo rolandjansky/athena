@@ -4,14 +4,13 @@
 
 #include "TrigL2MuonSA/MdtRegionDefiner.h"
 
-#include "CLHEP/Units/PhysicalConstants.h"
 #include "TrigL2MuonSA/MdtRegion.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/MuonStation.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #include "xAODTrigMuon/TrigMuonDefs.h"
-
+#include <cmath>
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -415,8 +414,8 @@ void TrigL2MuonSA::MdtRegionDefiner::find_phi_min_max(float phiMiddle, float& ph
 {   
    phiMin = phiMiddle - 0.1;
    phiMax = phiMiddle + 0.1;
-   if ( phiMin < -1.*CLHEP::pi ) phiMin += 2.*CLHEP::pi;
-   if ( phiMax > 1.*CLHEP::pi ) phiMax -= 2.*CLHEP::pi;
+   if ( phiMin < -1.*M_PI ) phiMin += 2.*M_PI;
+   if ( phiMax > 1.*M_PI ) phiMax -= 2.*M_PI;
 }
 
 // --------------------------------------------------------------------------------
@@ -436,17 +435,17 @@ void TrigL2MuonSA::MdtRegionDefiner::find_eta_min_max(float zMin, float rMin, fl
       float eta[4];
       float theta;
 
-      theta  = (fabs(zMin)>0.1)? atan(rMin/fabsf(zMin)): CLHEP::pi/2.;
+      theta  = (fabs(zMin)>0.1)? atan(rMin/fabsf(zMin)): M_PI/2.;
       eta[0] = (zMin>0.)?  -log(tan(theta/2.)) : log(tan(theta/2.));
 
-      theta  = (fabs(zMax)>0.1)? atan(rMin/fabsf(zMax)): CLHEP::pi/2.;
+      theta  = (fabs(zMax)>0.1)? atan(rMin/fabsf(zMax)): M_PI/2.;
       eta[1] = (zMax>0.)?  -log(tan(theta/2.)) : log(tan(theta/2.));
       if(doEmulateMuFast) eta[1] = eta[0];
 
-      theta  = (fabs(zMax)>0.1)? atan(rMax/fabsf(zMax)): CLHEP::pi/2.;
+      theta  = (fabs(zMax)>0.1)? atan(rMax/fabsf(zMax)): M_PI/2.;
       eta[2] = (zMax>0.)?  -log(tan(theta/2.)) : log(tan(theta/2.));
 
-      theta  = (fabs(zMin)>0.1)? atan(rMax/fabsf(zMin)): CLHEP::pi/2.;
+      theta  = (fabs(zMin)>0.1)? atan(rMax/fabsf(zMin)): M_PI/2.;
       eta[3] = (zMin>0.)?  -log(tan(theta/2.)) : log(tan(theta/2.));
       if(doEmulateMuFast) eta[3] = eta[2];
 
@@ -561,7 +560,7 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::prepareTgcPoints(const TrigL2MuonSA::
       {
 	 w *= hit.r * hit.r;
 	 double phi = hit.phi;
-	 if( phi < 0 && ( (CLHEP::pi+phi)<PHI_BOUNDARY) ) phi += CLHEP::pi*2;
+	 if( phi < 0 && ( (M_PI+phi)<PHI_BOUNDARY) ) phi += M_PI*2;
 	 if      ( hit.sta < 3 ) { m_tgcStripMidPoints.push_back(TgcFit::Point(iHit + 1, hit.sta, hit.z, phi, w)); }
 	 else if ( hit.sta ==3 ) { m_tgcStripInnPoints.push_back(TgcFit::Point(iHit + 1, hit.sta, hit.z, phi, w)); }
       }
@@ -632,11 +631,11 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::computePhi(const LVL1::RecMuonRoI* p_
         
 	muonRoad.phi[chamber][i_sector] = (dz)* rpcFitResult.dPhidZ + rpcFitResult.phi;
 	
-	while (muonRoad.phi[chamber][i_sector] > CLHEP::pi)
-	  muonRoad.phi[chamber][i_sector] -= 2*CLHEP::pi;
+	while (muonRoad.phi[chamber][i_sector] > M_PI)
+	  muonRoad.phi[chamber][i_sector] -= 2*M_PI;
 	
-	while (muonRoad.phi[chamber][i_sector] <-CLHEP::pi)
-	  muonRoad.phi[chamber][i_sector] += 2*CLHEP::pi;
+	while (muonRoad.phi[chamber][i_sector] <-M_PI)
+	  muonRoad.phi[chamber][i_sector] += 2*M_PI;
 
       } else {
         // RPC data is not read -> use RoI
@@ -706,8 +705,8 @@ StatusCode TrigL2MuonSA::MdtRegionDefiner::computePhi(const LVL1::RecMuonRoI* p_
 	}
         
 	muonRoad.phi[chamber][i_sector] = (dz)* tgcFitResult.dPhidZ + tgcFitResult.phi;
-	while (muonRoad.phi[chamber][i_sector] > CLHEP::pi)  muonRoad.phi[chamber][i_sector] -= 2*CLHEP::pi;
-	while (muonRoad.phi[chamber][i_sector] <-CLHEP::pi)  muonRoad.phi[chamber][i_sector] += 2*CLHEP::pi;
+	while (muonRoad.phi[chamber][i_sector] > M_PI)  muonRoad.phi[chamber][i_sector] -= 2*M_PI;
+	while (muonRoad.phi[chamber][i_sector] <-M_PI)  muonRoad.phi[chamber][i_sector] += 2*M_PI;
 
       } else {
         // TGC data is not read -> use RoI

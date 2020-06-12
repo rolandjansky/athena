@@ -43,7 +43,6 @@ namespace TrigL2MuonSA{
       double error;
       double residual;
       int measphi;
-      //int index4; not used
       bool enabled;
       int stationname;
       bool isIP;
@@ -57,7 +56,6 @@ namespace TrigL2MuonSA{
       int nhit;
       int stationname;
       double residual;
-      //int outlier; obsolete
       std::vector<localCscHit> localHits;
     }local2dSegment;
 
@@ -67,8 +65,6 @@ namespace TrigL2MuonSA{
 
     StatusCode initialize() override;
 
-
-    //    ReturnCode initializeRegDict(ToolHandle<CscRegDict> cscregdict);
 
     ReturnCode	FindSuperPointCsc( const TrigL2MuonSA::CscHits &cscHits, std::vector<TrigL2MuonSA::TrackPattern> &v_trackPatterns, const TrigL2MuonSA::TgcFitResult &tgcFitResult, const TrigL2MuonSA::MuonRoad &muroad);
 
@@ -136,8 +132,6 @@ namespace TrigL2MuonSA{
     double chiSquare(){ return m_chisquare; }
     double chiSquarePhi(){ return m_chisquare_phi; }
 
-    //unsigned int l1id(){ return m_l1id; }
-    //void setL1id(unsigned int l1id){ m_l1id = l1id; }
     int nHitEta(){ return m_nhit_eta; }
     void setNHitEta( int nhite){ m_nhit_eta = nhite; }
     int nHitPhi(){ return m_nhit_phi; }
@@ -148,11 +142,9 @@ namespace TrigL2MuonSA{
     ReturnCode set(Amg::Vector3D &seg_pos, Amg::Vector3D &seg_dir, double chisquare, double chisquare_phi);
 
   private:
-    //unsigned int m_l1id; //not used
     double m_x, m_y, m_z, m_px, m_py, m_pz;
     double m_slopeRZ, m_interceptRZ;
     int m_nhit_eta, m_nhit_phi;
-    //bool m_clean; //not used
     double m_chisquare;    
     double m_chisquare_phi;
 
