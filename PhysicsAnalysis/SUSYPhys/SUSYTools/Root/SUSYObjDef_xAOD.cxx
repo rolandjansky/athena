@@ -717,18 +717,15 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   m_el_iso_support = {
      "FCLoose", "FCTight",             // current WPs
      "FCHighPtCaloOnly"                // current HighPtCaloOnly WPs
-  }
+  };
   // -- the muon iso points are those which have SFs available
   // -- more details https://indico.cern.ch/event/878781/contributions/3721998/attachments/1976194/3289315/20200127_IFFshort_2.pdf
   m_mu_iso_support = {
-     "PflowLoose_FixedRad", "PflowLoose_VarRad", "PflowTight_FixedRad", "PflowTight_VarRad",       // PFlow (new naming) recommended WPs
-     "FixedCutPflowLoose", "FixedCutPflowTight",                                                   // PFlow (old naming)
-     "TightTrackOnly_FixedRad", "TightTrackOnly_VarRad", "HighPtTrackOnly",                        // TrackOnly (new naming) recommended WPs
-     "FCTightTrackOnly", "FCTightTrackOnly_FixedRad", "FixedCutHighPtTrackOnly",                   // TrackOnly (old naming)
-     "PLVLoose", "PLVTight",                                                                       // PLV recommended WPs 
-     "Loose_VarRad", "Loose_FixedRad", "Tight_VarRad", "Tight_FixedRad",                           // Other WPs (new naming)
-     "FCLoose", "FCLoose_FixedRad", "FCTight", "FCTight_FixedRad"                                  // Other WPs (old naming)
-  }
+     "PflowLoose_FixedRad", "PflowLoose_VarRad", "PflowTight_FixedRad", "PflowTight_VarRad",  // PFlow (new naming) recommended WPs
+     "TightTrackOnly_FixedRad", "TightTrackOnly_VarRad", "HighPtTrackOnly",                   // TrackOnly (new naming) recommended WPs
+     "PLVLoose", "PLVTight",                                                                  // PLV recommended WPs 
+     "Loose_VarRad", "Loose_FixedRad", "Tight_VarRad", "Tight_FixedRad",                      // Other WPs (new naming)
+  };
 
   // Construct electron fallback WPs for SFs
   for (auto x : m_el_iso_support) { m_el_iso_fallback[x] = x; } // all current WPs
@@ -1303,8 +1300,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   //
   configFromFile(m_muPt, "Muon.Pt", rEnv, 25000.);
   configFromFile(m_muEta, "Muon.Eta", rEnv, 2.7);
-  configFromFile(m_muIso_WP, "Muon.Iso", rEnv, "FCLoose");
-  configFromFile(m_muIsoHighPt_WP, "Muon.IsoHighPt", rEnv, "FCLoose");
+  configFromFile(m_muIso_WP, "Muon.Iso", rEnv, "Loose_VarRad");
+  configFromFile(m_muIsoHighPt_WP, "Muon.IsoHighPt", rEnv, "Loose_VarRad");
   configFromFile(m_muIsoHighPtThresh, "Muon.IsoHighPtThresh", rEnv, 200e3);
   configFromFile(m_mud0sig, "Muon.d0sig", rEnv, 3.);
   configFromFile(m_muz0, "Muon.z0", rEnv, 0.5);
