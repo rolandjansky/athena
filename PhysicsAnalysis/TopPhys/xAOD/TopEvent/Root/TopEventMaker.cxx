@@ -380,7 +380,7 @@ namespace top {
           event.m_jvtSF *= jet->auxdataConst<float>("JET_SF_jvt");
 	  
 	  // fJVT scale factors not added to jets unless fJVT is requested
-	  if (m_config->getfJVTWP() != "Default") {
+	  if (m_config->getfJVTWP() != "None") {
 	    top::check(jet->isAvailable<float>(
 		        "JET_SF_fjvt"),
 		       " Can't find jet decoration \"JET_SF_fjvt\" - we need it to calculate the forward jet scale-factors!");
@@ -398,7 +398,7 @@ namespace top {
             event.m_jvtSF_DOWN *= jet->auxdataConst<float>("JET_SF_jvt_DOWN");
 
 	    // fJVT scale factors not added to jets unless fJVT is requested
-	    if (m_config->getfJVTWP() != "Default") {
+	    if (m_config->getfJVTWP() != "None") {
 	      top::check(jet->isAvailable<float>(
 						 "JET_SF_fjvt_UP"),
 			 " Can't find jet decoration \"JET_SF_fjvt_UP\" - we need it to calculate the forward jet scale-factors!");
@@ -415,15 +415,15 @@ namespace top {
                      "passJVT"),
                    " Can't find jet decoration \"passJVT\" - we need it to decide if we should keep the jet in the top::Event instance or not!");
 	bool passfJVT(true);
-	if (m_config->doForwardJVTinMET() || m_config->getfJVTWP() != "Default") {
+	if (m_config->doForwardJVTinMET() || m_config->getfJVTWP() != "None") {
 	  top::check(jet->isAvailable<char>("AnalysisTop_fJVTdecision"),
 		     " Can't find jet decoration \"AnalysisTop_fJVTdecision\" - we need it to decide if we should keep forward jets in the top::Event instance or not!");
 	  passfJVT = jet->auxdataConst<char>("AnalysisTop_fJVTdecision");
 	  if (m_config->saveFailForwardJVTJets()) {
 	    if (!passfJVT) event.m_failFJvt_jets.push_back(calibratedJetsTDS->at(index));
 	  }
-	  //Add to failFJVT collection but ton't actually cut on fJVT if fJVT is only requested in MET calculation (I'm not sure people will ever actually do this)
-	  if (m_config->getfJVTWP() == "Default") passfJVT = true;
+	  //Add to failFJVT collection but don't actually cut on fJVT if fJVT is only requested in MET calculation (I'm not sure people will ever actually do this)
+	  if (m_config->getfJVTWP() == "None") passfJVT = true;
 	}
 
         if (jet->auxdataConst<char>("passJVT") && passfJVT) event.m_jets.push_back(calibratedJetsTDS->at(index));
@@ -436,7 +436,7 @@ namespace top {
       //sort only the selected taus (faster)
       event.m_jets.sort(top::descendingPtSorter);
       if (m_config->saveFailJVTJets()) event.m_failJvt_jets.sort(top::descendingPtSorter);
-      if ( (m_config->doForwardJVTinMET() || m_config->getfJVTWP() != "Default") && m_config->saveFailForwardJVTJets()){
+      if ( (m_config->doForwardJVTinMET() || m_config->getfJVTWP() != "None") && m_config->saveFailForwardJVTJets()){
 	event.m_failFJvt_jets.sort(top::descendingPtSorter);
       }
     }

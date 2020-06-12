@@ -1040,12 +1040,6 @@ namespace top {
       }
     }
 
-    /* inline virtual void fwdJetAndMET(const std::string& fwd) { */
-    /*   if (!m_configFixed) { */
-    /*     m_fwdJetAndMET = fwd; */
-    /*   } */
-    /* } */
-
     inline virtual void jetPtGhostTracks(const float pt) {
       if (!m_configFixed) {
         m_jetPtGhostTracks = pt;
@@ -1054,7 +1048,6 @@ namespace top {
 
     inline virtual float jetPtcut()  const {return m_jetPtcut;}
     inline virtual float jetEtacut() const {return m_jetEtacut;}
-    //    inline virtual const std::string& fwdJetAndMET() const {return m_fwdJetAndMET;}
     inline virtual float jetPtGhostTracks()  const {return m_jetPtGhostTracks;}
 
     inline virtual void largeRJetPtcut(const float pt) {
@@ -2099,7 +2092,6 @@ namespace top {
     // Jet configuration
     float m_jetPtcut; // jet object selection pT cut
     float m_jetEtacut; // jet object selection (abs) eta cut
-    //    std::string m_fwdJEtandmet; // Type of treatment of forward jets, including for MET calculation
     float m_jetPtGhostTracks; // jet pt threshold for ghost track systematic variations calculation
     std::string m_jetUncertainties_NPModel; // AllNuisanceParameters, 19NP or 3NP
     std::string m_jetUncertainties_QGFracFile; // to improve Flavour composition and response

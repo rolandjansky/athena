@@ -145,7 +145,7 @@ namespace top {
 
     top::check(m_jetUpdateJvtTool.retrieve(), "Failed to retrieve JetUpdateJvtTool");
     //fJVT tool isn't setup unless requested
-    if (m_config->doForwardJVTinMET() || m_config->getfJVTWP() != "Default") {
+    if (m_config->doForwardJVTinMET() || m_config->getfJVTWP() != "None") {
       top::check(m_jetSelectfJvtTool.retrieve(), "Failed to retrieve JetSelectfJvtTool");
     }
     // Take this from the TopConfiguration
@@ -452,14 +452,14 @@ namespace top {
     // Check if the derivation we are running on contains
     // MET_Track (once), if so apply the fJVT decoration
     // if not then don't
-    if (!isLargeR && (m_config->doForwardJVTinMET() || m_config->getfJVTWP() != "Default")) {
+    if (!isLargeR && (m_config->doForwardJVTinMET() || m_config->getfJVTWP() != "None")) {
       static bool checked_track_MET = false;
       if (!checked_track_MET) {
 	if (evtStore()->contains<xAOD::MissingETContainer>("MET_Track")) {
 	  m_do_fjvt = true;
 	} else {
 	  ATH_MSG_ERROR(" Cannot retrieve MET_Track, fJVT values can't be calculated correctly!!"); 
-	  return StatusCode::FAILURE; //Do we absolutely have to crash here?
+	  return StatusCode::FAILURE; 
 	}
 	checked_track_MET = true;
       }
@@ -569,14 +569,14 @@ namespace top {
           ///-- Decorate fJVT for systematics too --///
 	  // Check if the derivation we are running on contains
 	  // MET_Track (once) before applying the fJVT decoration
-	  if (!isLargeR && (m_config->doForwardJVTinMET() || m_config->getfJVTWP() != "Default")) {
+	  if (!isLargeR && (m_config->doForwardJVTinMET() || m_config->getfJVTWP() != "None")) {
 	    static bool checked_track_MET = false;
 	    if (!checked_track_MET) {
 	      if (evtStore()->contains<xAOD::MissingETContainer>("MET_Track")) {
 		m_do_fjvt = true;
 	      } else {
 		ATH_MSG_ERROR(" Cannot retrieve MET_Track, fJVT values can't be calculated correctly!!"); 
-		return StatusCode::FAILURE; //Do we absolutely have to crash here?
+		return StatusCode::FAILURE;
 	      }
 	      checked_track_MET = true;
 	    }

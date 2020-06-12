@@ -32,7 +32,7 @@ namespace top {
     m_systDOWN.insert(CP::SystematicVariation(CP::JvtEfficiencyDown));
 
     // fJVT Efficiency tool is only set up if user requests it
-    if (m_config->getfJVTWP() != "Default") {
+    if (m_config->getfJVTWP() != "None") {
       top::check(m_fjvt_tool.retrieve(), "Failed to retrieve fJVT tool");
 
       m_systUP.insert(CP::SystematicVariation(CP::fJvtEfficiencyUp));
@@ -138,7 +138,7 @@ namespace top {
           } // Calibration systematic is nominal, so calculate SF systematics
 	
 	  ///-- Then fJVT --///
-	  if (m_config->getfJVTWP() != "Default") {
+	  if (m_config->getfJVTWP() != "None") {
 	    top::check(m_fjvt_tool->applySystematicVariation(m_systNominal),
 		       "Failed to set fJVT nominal SF");
 	    float fjvtSF(1.);

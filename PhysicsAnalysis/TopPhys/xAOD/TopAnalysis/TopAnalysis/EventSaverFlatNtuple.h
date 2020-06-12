@@ -633,8 +633,7 @@ namespace top {
     std::vector<float> m_jet_mv2c20;
     std::vector<float> m_jet_jvt;
     std::vector<float> m_jet_fjvt;
-    std::vector<char> m_jet_passfjvt; //JJJJJJJJJJJJ leaving to check fJVT cut is applied properly
-    std::vector<char> m_jet_passjvt; //JJJJJJJJJJJJ leaving to check JVT cut is applied properly
+    std::vector<char> m_jet_passfjvt; //Could be useful to check pass/fail when fJVT only used in MET
     std::vector<float> m_jet_ip3dsv1;
     std::vector<int>   m_jet_truthflav;
     std::vector<int>   m_jet_truthPartonLabel;
@@ -675,7 +674,6 @@ namespace top {
     std::vector<float> m_failJvt_jet_jvt;
     std::vector<float> m_failJvt_jet_fjvt;
     std::vector<char> m_failJvt_jet_passfjvt;
-    std::vector<char> m_failJvt_jet_passjvt;
     std::vector<int>   m_failJvt_jet_truthflav;
     std::vector<int>   m_failJvt_jet_truthPartonLabel;
     std::vector<char>  m_failJvt_jet_isTrueHS;
@@ -695,7 +693,6 @@ namespace top {
     std::vector<float> m_failFJvt_jet_e;
     std::vector<float> m_failFJvt_jet_jvt;
     std::vector<float> m_failFJvt_jet_fjvt;
-    std::vector<char> m_failFJvt_jet_passfjvt;
     std::vector<char> m_failFJvt_jet_passjvt;
     std::vector<int>   m_failFJvt_jet_truthflav;
     std::vector<int>   m_failFJvt_jet_truthPartonLabel;
@@ -1327,7 +1324,6 @@ namespace top {
     const std::vector<float>& jet_jvt() const {return m_jet_jvt;}
     const std::vector<float>& jet_forwardjvt() const {return m_jet_fjvt;}
     const std::vector<char>& jet_passforwardjvt() const {return m_jet_passfjvt;}
-    const std::vector<char>& jet_passjvt() const {return m_jet_passjvt;}
     const std::vector<int>& jet_truthflav() const {return m_jet_truthflav;}
     const std::vector<int>& jet_truthPartonLabel() const {return m_jet_truthPartonLabel;}
     const std::vector<char>& jet_isTrueHS() const {return m_jet_isTrueHS;}
@@ -1360,7 +1356,6 @@ namespace top {
     const std::vector<float>& failJvt_jet_jvt() const {return m_failJvt_jet_jvt;}
     const std::vector<float>& failJvt_jet_forwardjvt() const {return m_failJvt_jet_fjvt;}
     const std::vector<char>& failJvt_jet_passforwardjvt() const {return m_failJvt_jet_passfjvt;}
-    const std::vector<char>& failJvt_jet_passjvt() const {return m_failJvt_jet_passjvt;}
     const std::vector<int>& failJvt_jet_truthflav() const {return m_failJvt_jet_truthflav;}
     const std::vector<int>& failJvt_jet_truthPartonLabel() const {return m_failJvt_jet_truthPartonLabel;}
     const std::vector<char>& failJvt_jet_isTrueHS() const {return m_failJvt_jet_isTrueHS;}
@@ -1373,7 +1368,6 @@ namespace top {
     const std::vector<float>& failFJvt_jet_e() const {return m_failFJvt_jet_e;}
     const std::vector<float>& failFJvt_jet_jvt() const {return m_failFJvt_jet_jvt;}
     const std::vector<float>& failFJvt_jet_forwardjvt() const {return m_failFJvt_jet_fjvt;}
-    const std::vector<char>& failFJvt_jet_passforwardjvt() const {return m_failFJvt_jet_passfjvt;}
     const std::vector<char>& failFJvt_jet_passjvt() const {return m_failFJvt_jet_passjvt;}
     const std::vector<int>& failFJvt_jet_truthflav() const {return m_failFJvt_jet_truthflav;}
     const std::vector<int>& failFJvt_jet_truthPartonLabel() const {return m_failFJvt_jet_truthPartonLabel;}

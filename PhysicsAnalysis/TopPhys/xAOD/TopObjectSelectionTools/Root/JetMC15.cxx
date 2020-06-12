@@ -12,11 +12,9 @@ namespace top {
   JetMC15::JetMC15(const double ptcut,
                    const double etamax,
                    const bool doJVTCut):
-    //const std::string fwdJetSel) :
     m_ptcut(ptcut),
     m_etamax(etamax),
     m_applyJVTCut(doJVTCut),
-    //    m_fwdJetSel(fwdJetSel),
     m_jvt_tool("JetJvtEfficiencyTool") {
     top::check(m_jvt_tool.retrieve(),
                "Failed to retrieve JVT tool");
@@ -40,18 +38,11 @@ namespace top {
     if (m_applyJVTCut) {
       jet.auxdecor<char>("passJVT") = (m_jvt_tool->passesJvtCut(jet) ? 1 : 0);
     }
+    //fJVT pass/fail decision already attatched in CP tools
 
     if (jet.pt() < m_ptcut) return false;
 
     if (std::fabs(jet.eta()) > m_etamax) return false;
-
-    //fJVT pass/fail decision already attatched in CP tools
-
-    // if (m_fwdJetSel == "fJVT") {
-    //   if (!jet.getAttribute<char>("passFJVT")) return false;
-    // } else if (m_fwdJetSel == "Tight") {
-    //   if (std::fabs(jet.eta()) > 2.5 && jet.pt() < 30e3) return false;
-    // }
 
     jet.auxdecor<char>("good") = 1;
     jet.auxdecor<char>("closeToLepton") = 0;

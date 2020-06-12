@@ -483,7 +483,7 @@ namespace top {
 
 
         systematicTree->makeOutputVariable(m_weight_jvt, "weight_jvt");
-        if (m_config->getfJVTWP() != "Default") systematicTree->makeOutputVariable(m_weight_forwardjvt, "weight_forwardjvt");
+        if (m_config->getfJVTWP() != "None") systematicTree->makeOutputVariable(m_weight_forwardjvt, "weight_forwardjvt");
 
         if (m_config->isSherpa22Vjets()) systematicTree->makeOutputVariable(m_weight_sherpa_22_vjets,
                                                                             "weight_sherpa_22_vjets");
@@ -672,7 +672,7 @@ namespace top {
 
           systematicTree->makeOutputVariable(m_weight_jvt_up, "weight_jvt_UP");
           systematicTree->makeOutputVariable(m_weight_jvt_down, "weight_jvt_DOWN");
-	  if (m_config->getfJVTWP() != "Default") {
+	  if (m_config->getfJVTWP() != "None") {
 	    systematicTree->makeOutputVariable(m_weight_forwardjvt_up, "weight_forwardjvt_UP");
 	    systematicTree->makeOutputVariable(m_weight_forwardjvt_down, "weight_forwardjvt_DOWN");
 	  }
@@ -938,11 +938,10 @@ namespace top {
         systematicTree->makeOutputVariable(m_jet_e, "jet_e");
         systematicTree->makeOutputVariable(m_jet_mv2c10, "jet_mv2c10");
         systematicTree->makeOutputVariable(m_jet_jvt, "jet_jvt");
-	if (m_config->doForwardJVTinMET() || m_config->getfJVTWP() != "Default") {
+	if (m_config->doForwardJVTinMET() || m_config->getfJVTWP() != "None") {
 	  systematicTree->makeOutputVariable(m_jet_fjvt, "jet_forwardjvt");
 	  systematicTree->makeOutputVariable(m_jet_passfjvt, "jet_passforwardjvt");
 	}
-        systematicTree->makeOutputVariable(m_jet_passjvt, "jet_passjvt");
         if (m_config->isMC() && m_config->jetStoreTruthLabels()) {
           systematicTree->makeOutputVariable(m_jet_truthflav, "jet_truthflav");
           systematicTree->makeOutputVariable(m_jet_truthPartonLabel, "jet_truthPartonLabel");
@@ -988,11 +987,10 @@ namespace top {
         systematicTree->makeOutputVariable(m_failJvt_jet_phi, "failJvt_jet_phi");
         systematicTree->makeOutputVariable(m_failJvt_jet_e, "failJvt_jet_e");
         systematicTree->makeOutputVariable(m_failJvt_jet_jvt, "failJvt_jet_jvt");
-	if (m_config->doForwardJVTinMET() || m_config->getfJVTWP() != "Default") {
+	if (m_config->doForwardJVTinMET() || m_config->getfJVTWP() != "None") {
 	  systematicTree->makeOutputVariable(m_failJvt_jet_fjvt, "failJvt_jet_forwardjvt");
 	  systematicTree->makeOutputVariable(m_failJvt_jet_passfjvt, "failJvt_jet_passforwardjvt");
 	}
-        systematicTree->makeOutputVariable(m_failJvt_jet_passjvt, "failJvt_jet_passjvt"); //JJJJJJJJJJJ
         if (m_config->isMC() && m_config->jetStoreTruthLabels()) {
           systematicTree->makeOutputVariable(m_failJvt_jet_truthflav, "failJvt_jet_truthflav");
           systematicTree->makeOutputVariable(m_failJvt_jet_truthPartonLabel, "failJvt_jet_truthPartonLabel");
@@ -1012,18 +1010,17 @@ namespace top {
         }
       }
 
-      // fail-FJVT jets JJJJJJJJJJJJ
-      if ((m_config->doForwardJVTinMET() || m_config->getfJVTWP() != "Default") && m_config->saveFailForwardJVTJets()) {
+      // fail-FJVT jets
+      if ((m_config->doForwardJVTinMET() || m_config->getfJVTWP() != "None") && m_config->saveFailForwardJVTJets()) {
         systematicTree->makeOutputVariable(m_failFJvt_jet_pt, "failforwardJvt_jet_pt");
         systematicTree->makeOutputVariable(m_failFJvt_jet_eta, "failforwardJvt_jet_eta");
         systematicTree->makeOutputVariable(m_failFJvt_jet_phi, "failforwardJvt_jet_phi");
         systematicTree->makeOutputVariable(m_failFJvt_jet_e, "failforwardJvt_jet_e");
         systematicTree->makeOutputVariable(m_failFJvt_jet_jvt, "failforwardJvt_jet_jvt");
-	if (m_config->doForwardJVTinMET() || m_config->getfJVTWP() != "Default") {
+	if (m_config->doForwardJVTinMET() || m_config->getfJVTWP() != "None") {
 	  systematicTree->makeOutputVariable(m_failFJvt_jet_fjvt, "failforwardJvt_jet_forwardjvt");
-	  systematicTree->makeOutputVariable(m_failFJvt_jet_passfjvt, "failforwardJvt_jet_passforwardjvt");
 	}
-        systematicTree->makeOutputVariable(m_failFJvt_jet_passjvt, "failforwardJvt_jet_passjvt"); //JJJJJJJJJJJ
+        systematicTree->makeOutputVariable(m_failFJvt_jet_passjvt, "failforwardJvt_jet_passjvt");
         if (m_config->isMC() && m_config->jetStoreTruthLabels()) {
           systematicTree->makeOutputVariable(m_failFJvt_jet_truthflav, "failforwardJvt_jet_truthflav");
           systematicTree->makeOutputVariable(m_failFJvt_jet_truthPartonLabel, "failforwardJvt_jet_truthPartonLabel");
@@ -1888,7 +1885,7 @@ namespace top {
       }
 
       m_weight_jvt = m_sfRetriever->jvtSF(event, top::topSFSyst::nominal);
-      if (m_config->getfJVTWP() != "Default") m_weight_forwardjvt = m_sfRetriever->fjvtSF(event, top::topSFSyst::nominal);
+      if (m_config->getfJVTWP() != "None") m_weight_forwardjvt = m_sfRetriever->fjvtSF(event, top::topSFSyst::nominal);
 
       if (m_config->isSherpa22Vjets()) {
         if (event.m_info->isAvailable<double>("Sherpa22VJetsWeight")) {
@@ -2027,7 +2024,7 @@ namespace top {
 
         m_weight_jvt_up = m_sfRetriever->jvtSF(event, top::topSFSyst::JVT_UP);
         m_weight_jvt_down = m_sfRetriever->jvtSF(event, top::topSFSyst::JVT_DOWN);
-	if (m_config->getfJVTWP() != "Default"){
+	if (m_config->getfJVTWP() != "None"){
 	  m_weight_forwardjvt_up = m_sfRetriever->fjvtSF(event, top::topSFSyst::FJVT_UP);
 	  m_weight_forwardjvt_down = m_sfRetriever->fjvtSF(event, top::topSFSyst::FJVT_DOWN);
 	}
@@ -2576,7 +2573,6 @@ namespace top {
       m_jet_jvt.resize(event.m_jets.size());
       m_jet_fjvt.resize(event.m_jets.size());
       m_jet_passfjvt.resize(event.m_jets.size());
-      m_jet_passjvt.resize(event.m_jets.size()); //JJJJJJJJJ
 
       // ghost tracks
       if (m_config->useJetGhostTrack()) {
@@ -2739,10 +2735,7 @@ namespace top {
         if (jetPtr->isAvailable<float>("AnalysisTop_JVT")) {
           m_jet_jvt[i] = jetPtr->auxdataConst<float>("AnalysisTop_JVT");
         }
-        m_jet_passjvt[i] = -1;
-        if (jetPtr->isAvailable<char>("passJVT")) {
-          m_jet_passjvt[i] = jetPtr->getAttribute<char>("passJVT");
-        }
+
         m_jet_fjvt[i] = -1;
         if (jetPtr->isAvailable<float>("fJvt")){// && (jetPtr->eta() < -2.5 || jetPtr->eta() > 2.5) && jetPtr->pt() < 60000) {
           m_jet_fjvt[i] = jetPtr->auxdataConst<float>("fJvt");
@@ -2809,8 +2802,7 @@ namespace top {
       m_failJvt_jet_jvt.resize(event.m_failJvt_jets.size());
       m_failJvt_jet_fjvt.resize(event.m_failJvt_jets.size());
       m_failJvt_jet_passfjvt.resize(event.m_failJvt_jets.size());
-      m_failJvt_jet_passjvt.resize(event.m_failJvt_jets.size());
-
+      
       // ghost tracks
       // fail-JVT jet could still have some ghost tracks, so these variables are kept
       if (m_config->useJetGhostTrack()) {
@@ -2896,10 +2888,7 @@ namespace top {
         if (jetPtr->isAvailable<float>("AnalysisTop_JVT")) {
           m_failJvt_jet_jvt[i] = jetPtr->auxdataConst<float>("AnalysisTop_JVT");
         }
-        m_failJvt_jet_passjvt[i] = -1;
-        if (jetPtr->isAvailable<char>("passJVT")) {
-          m_failJvt_jet_passjvt[i] = jetPtr->getAttribute<char>("passJVT");
-        }
+
         m_failJvt_jet_fjvt[i] = -1;
         if (jetPtr->isAvailable<float>("fJvt")) { // && (jetPtr->eta() < -2.5 || jetPtr->eta() > 2.5) && jetPtr->pt() < 60000) {
 	  m_failJvt_jet_fjvt[i] = jetPtr->auxdataConst<float>("fJvt");
@@ -2923,11 +2912,10 @@ namespace top {
       m_failFJvt_jet_e.resize(event.m_failFJvt_jets.size());
       m_failFJvt_jet_jvt.resize(event.m_failFJvt_jets.size());
       m_failFJvt_jet_fjvt.resize(event.m_failFJvt_jets.size());
-      m_failFJvt_jet_passfjvt.resize(event.m_failFJvt_jets.size());
       m_failFJvt_jet_passjvt.resize(event.m_failFJvt_jets.size());
 
       // ghost tracks
-      // fail-FJVT jet could still have some ghost tracks... I think?, so these variables are kept JJJJJJJJJJJJJ
+      // fail-FJVT jet could still have some ghost tracks, so these variables are kept
       if (m_config->useJetGhostTrack()) {
         m_failFJvt_jet_ghostTrack_pt.clear();
         m_failFJvt_jet_ghostTrack_eta.clear();
@@ -3016,12 +3004,8 @@ namespace top {
           m_failFJvt_jet_passjvt[i] = jetPtr->getAttribute<char>("passJVT");
         }
         m_failFJvt_jet_fjvt[i] = -1;
-        if (jetPtr->isAvailable<float>("fJvt")) { // && (jetPtr->eta() < -2.5 || jetPtr->eta() > 2.5) && jetPtr->pt() < 60000) {
+        if (jetPtr->isAvailable<float>("fJvt")) { 
 	  m_failFJvt_jet_fjvt[i] = jetPtr->auxdataConst<float>("fJvt");
-        }
-        m_failFJvt_jet_passfjvt[i] = -1;
-        if (jetPtr->isAvailable<char>("AnalysisTop_fJVTdecision")) {
-          m_failFJvt_jet_passfjvt[i] = jetPtr->getAttribute<char>("AnalysisTop_fJVTdecision");
         }
 
         ++i;
