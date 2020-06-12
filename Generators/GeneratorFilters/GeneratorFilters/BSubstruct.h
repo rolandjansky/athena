@@ -9,7 +9,7 @@
 #include "xAODJet/Jet.h"
 class TH1;
 
-typedef std::vector<HepMC::GenParticlePtr> Particles;
+typedef std::vector<HepMC::ConstGenParticlePtr> Particles;
 
 class BSubstruct : public GenFilter{
 public:
@@ -31,14 +31,14 @@ private:
    *  Recursively calls itself to return a list of all particles earlier in the
    *  decay chain that are c or b-flavoured.
    */
-  Particles ancestorCBs(const HepMC::GenParticlePtr p)const;
+  Particles ancestorCBs(HepMC::ConstGenParticlePtr p)const;
 
   /// the delta-r between two vectors at y, phi
   double deltaR(double y1, double phi1, double y2, double phi2)const;
   /// the delta-r between a jet an a hadron
-  double deltaR(const HepMC::GenParticlePtr particle, const xAOD::Jet *jet)const;
+  double deltaR(HepMC::ConstGenParticlePtr particle, const xAOD::Jet *jet)const;
   /// the delta-r between two hadrons
-  double deltaR(const HepMC::GenParticlePtr particle1, const HepMC::GenParticlePtr particle2)const;
+  double deltaR(HepMC::ConstGenParticlePtr particle1, HepMC::ConstGenParticlePtr particle2)const;
   /// the delta-r between two jets
   double deltaR(const xAOD::Jet*, const xAOD::Jet*)const;
   // the delta-phi of two angles, returned in the range 0-Pi

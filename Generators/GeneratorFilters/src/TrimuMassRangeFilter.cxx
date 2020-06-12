@@ -99,8 +99,8 @@ StatusCode TrimuMassRangeFilter::filterEvent() {
     // Loop over all particles in the event
     const HepMC::GenEvent* genEvt = (*itr);
     int n=0;
-    auto genEvt_particles_begin  = genEvt->particles_begin();
-    auto genEvt_particles_end    = genEvt->particles_end();
+    auto genEvt_particles_begin  = HepMC::begin(*genEvt);
+    auto genEvt_particles_end    = HepMC::end(*genEvt);
     for(auto pitr1 = genEvt_particles_begin;
 	pitr1!=genEvt_particles_end; ++pitr1 ){
       n++;
