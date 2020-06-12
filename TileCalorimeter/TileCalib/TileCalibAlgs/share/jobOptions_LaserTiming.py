@@ -337,7 +337,7 @@ include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
 include( "ByteStreamCnvSvcBase/BSAddProvSvc_RDO_jobOptions.py" )
 theApp.ExtSvc += [ "ByteStreamCnvSvc" ] 
 ByteStreamInputSvc = svcMgr.ByteStreamInputSvc
-ByteStreamInputSvc.FullFileName += FileNameVec
+EventSelector.Input += FileNameVec
 
 # read ByteStream and reconstruct data
 include( "TileTBRec/TileTBRec_jobOptions.py" )
@@ -383,7 +383,7 @@ topCalibAlg.TileCalibTools += [ToolSvc.oTileLaserTimingTool];
 theAuditorSvc = svcMgr.AuditorSvc
 theAuditorSvc.Auditors =  [ "ChronoAuditor" ] 
 
-ByteStreamInputSvc.MaxBadEvents = 10000
+
 # ByteStreamInputSvc.DumpFlag = TRUE
 # from AthenaCommon.AppMgr import ToolSvc
 # ToolSvc.TileROD_Decoder.VerboseOutput = TRUE
@@ -391,5 +391,6 @@ ByteStreamInputSvc.MaxBadEvents = 10000
 print topSequence
 
 EventSelector.SkipEvents = EvtMin
+EventSelector.MaxBadEvents = 10000
 theApp.EvtMax=EvtMax
 

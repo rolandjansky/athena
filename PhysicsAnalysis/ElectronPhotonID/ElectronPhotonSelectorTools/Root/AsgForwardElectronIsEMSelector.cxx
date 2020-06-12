@@ -179,10 +179,10 @@ AsgForwardElectronIsEMSelector::accept(const EventContext& ctx, const xAOD::IPar
   if(part->type()==xAOD::Type::Electron || part->type()==xAOD::Type::Photon){
     return accept(ctx, static_cast<const xAOD::Egamma*> (part));
   }
-  else{
+  
     ATH_MSG_ERROR("AsgForwardElectronIsEMSelector::could not convert argument to Electron/Photon");
     return m_rootForwardTool->accept();
-  }
+  
 }
 
 asg::AcceptData
@@ -198,10 +198,10 @@ AsgForwardElectronIsEMSelector::accept( const EventContext& ctx, const xAOD::Ega
     }
     return m_rootForwardTool->fillAccept(isEM);
   }
-  else{
+  
     ATH_MSG_ERROR("AsgForwardElectronIsEMSelector::accept was given a bad argument");
     return m_rootForwardTool->accept();
-  }
+  
 }
 
 asg::AcceptData
@@ -223,10 +223,10 @@ std::string AsgForwardElectronIsEMSelector::getOperatingPointName() const
 {
 
   if (m_rootForwardTool->m_isEMMask == egammaPID::ID_ForwardElectron){ return "Forw Id"; }
-  else{
+  
     ATH_MSG_INFO( "Didn't recognize the given operating point with mask: " << m_rootForwardTool->m_isEMMask );
     return "";
-  }
+  
 }
 
 ///==========================================================================================//

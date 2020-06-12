@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ####################################################################
 # ThinningHelper.py
@@ -14,66 +14,6 @@
 
 # Needed import(s):
 import AthenaCommon.CfgMgr as CfgMgr
-from AthenaServices.Configurables import ThinningSvc as AthThinningSvc
-
-## Custom specialisation of the core ThinningSvc configurable
-#
-# Unfortunately the ThinningSvc configurable in AthenaServices was not written
-# with extendability in mind. So in order to change its behaviour, one must
-# inherit from it. As most of the settings made by that class are only made
-# after the jobOption code is already done executing...
-#
-class WorkerThinningSvc( AthThinningSvc ):
-
-    def __init__( self, name, athStream, navThinSvc, **kwargs ):
-
-        # Remember the object's properties:
-        self.athStream = athStream
-        self.navThinSvc = navThinSvc
-        # Set up a logger object:
-        from AthenaCommon.Logging import logging
-        self.log = logging.getLogger( name )
-        # Call the initialisation of the base class:
-        AthThinningSvc.__init__( self, name, **kwargs )
-        return
-
-    ## Function overriding the one defined in Configurable
-    #
-    # This is probably not the very best design, but because of how weirdly
-    # ThinningSvc.setDefaults(...) is implemented, this seemed to be the best
-    # way to tweak the configuration made by that function.
-    #
-    def setup( self ):
-
-        # Let the base class do all of its setup functions
-        super( WorkerThinningSvc, self ).setup()
-
-        # Make the stream talk to this service:
-        toolFound = False
-        for tool in self.athStream.HelperTools:
-            # Check whether there's a tool of this type already attached
-            # to the stream. If there is, it should start talking to the
-            # navigation thinning service from now on:
-            if not isinstance( tool, CfgMgr.ThinningOutputTool ):
-                continue
-            tool.ThinningSvc = self.navThinSvc
-            toolFound = True
-            self.log.info( "Updated the existing ThinningOutputTool to point at"
-                           " the TrigNavigationThinningSvc instance" )
-            pass
-        if not toolFound:
-            # If there was no such tool yet, let's create one from scratch:
-            stream.HelperTools.insert( 0,
-                    CfgMgr.ThinningOutputTool( formatName +
-                                               "ThinningOutputTool",
-                                               ThinningSvc = self.navThinSvc ) )
-            self.log.warning( "No ThinningOutputTool found for the output "
-                              "stream" )
-            self.log.warning( "Configured one now, job will likely be "
-                              "faulty..." )
-            pass
-
-        return
 
 ## Class helping to set up (navigation) thinning in derivation jobs
 #
@@ -97,7 +37,6 @@ class ThinningHelper:
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         self.helperName = helperName
         self.TriggerChains = ""
-        self.worker = None
         from AthenaCommon.Logging import logging
         self.log = logging.getLogger( "ThinningHelper" )
         return
@@ -112,42 +51,21 @@ class ThinningHelper:
     # @param augmentedStream The augmented stream object returned by
     #                        MultipleStreamManager
     #
-    def AppendToStream( self, augmentedStream ):
+    def AppendToStream( self, augmentedStream, extraTriggerContent = [] ):
         # Access the stream object:
         stream = augmentedStream.GetEventStream()
         # Get the name of the "format":
         formatName = stream.name().strip( "StreamDAOD_" )
         # The necessary import(s):
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        from AthenaServices.Configurables import createThinningSvc
-        # If no trigger selection was required, just set up "the usual" thinning
-        # service:
         
         if self.TriggerChains == "":
-            svcMgr += createThinningSvc( svcName = formatName + "ThinningSvc",
-                                         outStreams = [ stream ] )
-            self.worker = getattr( svcMgr, formatName + "ThinningSvc" )
+            # No trigger selection required.
             return
         
-        # Let's create the navigation thinning service first. Notice that its
-        # 'WorkerThinningSvc' property is not getting set at this point yet.
-        svcMgr += CfgMgr.TrigNavigationThinningSvc( formatName +
-                                                    "ThinningSvc" )
-        thinningSvc = getattr( svcMgr, formatName + "ThinningSvc" )
-
-        # Now set up the worker thinning service:
-        svcMgr += WorkerThinningSvc( formatName + "NavThinningWorkerSvc",
-                                     athStream = stream,
-                                     navThinSvc = thinningSvc,
-                                     Streams = [ stream.name() ] )
-        self.worker = getattr( svcMgr, formatName + "NavThinningWorkerSvc" )
-
-        # And now point the navigation thinning service to the worker:
-        thinningSvc.WorkerThinningSvc = self.worker
-
         # And finally, configure what the navigation thinning is supposed
         # to do:
-        from DerivationFrameworkCore.MuonTriggerContent import \
+        from DerivationFrameworkMuons.MuonTriggerContent import \
             MuonTriggerContent
         from DerivationFrameworkCore.EGammaTriggerContent import \
             EGammaTriggerContent
@@ -157,7 +75,7 @@ class ThinningHelper:
             EtMissTriggerContent 
         from DerivationFrameworkCore.TauTriggerContent import \
             TauTriggerContent 
-        from DerivationFrameworkCore.BJetTriggerContent import \
+        from DerivationFrameworkFlavourTag.BJetTriggerContent import \
             BJetTriggerContent
         from DerivationFrameworkCore.BPhysTriggerContent import \
             BPhysTriggerContent 
@@ -166,22 +84,19 @@ class ThinningHelper:
         allFeatures = MuonTriggerContent + EGammaTriggerContent + \
             JetTriggerContent +EtMissTriggerContent + \
             TauTriggerContent + BJetTriggerContent + \
-            BPhysTriggerContent + MinBiasTriggerContent
-        from TrigNavTools.TrigNavToolsConfig import slimmingTool
-        sTool = slimmingTool( { 'name' : self.helperName,
-                                'features' : allFeatures,
-                                'chains' : self.TriggerChains,
-                                'mode' : 'slimming',
-                                'ThinningSvc' : thinningSvc } )
-        thinningSvc.SlimmingTool = sTool
+            BPhysTriggerContent + MinBiasTriggerContent + extraTriggerContent
+        from TrigNavTools.TrigNavToolsConfig import navigationThinningSvc
+        tSvc = navigationThinningSvc( { 'name' : self.helperName,
+                                        'features' : allFeatures,
+                                        'chains' : self.TriggerChains,
+                                        'mode' : 'slimming' } )
+
+        for t in stream.HelperTools:
+            if t.getType() == 'Athena::ThinningCacheTool':
+                t.TrigNavigationThinningSvc = tSvc
+                break
+        else:
+            log.error ("Can't find ThinningCacheTool for stream %s", stream)
+
         return
 
-    ## Convenience function returning the thinning service
-    #
-    # This is the thinning service that needs to be passed to "normal"
-    # thinning tools to operate on.
-    #
-    # @returns The thinning service that tools should operate on
-    #
-    def ThinningSvc( self ):
-        return self.worker

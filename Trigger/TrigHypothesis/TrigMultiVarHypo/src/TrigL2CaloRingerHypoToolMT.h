@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGL2CALORINGERHYPOTOOLMT_H
@@ -13,9 +13,11 @@
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "xAODTrigRinger/TrigRingerRings.h"
 #include "TrigMultiVarHypo/tools/RingerSelectorTool.h"
+#include "ITrigL2CaloRingerHypoToolMT.h"
 #include "LumiBlockComps/ILumiBlockMuTool.h"
 
-class TrigL2CaloRingerHypoToolMT : virtual public ::AthAlgTool
+
+class TrigL2CaloRingerHypoToolMT : virtual public extends<AthAlgTool, ITrigL2CaloRingerHypoToolMT>
 { 
   public: 
     TrigL2CaloRingerHypoToolMT( const std::string& type, 
@@ -27,17 +29,8 @@ class TrigL2CaloRingerHypoToolMT : virtual public ::AthAlgTool
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
 
-
-    
-    bool decideOnSingleObject( const xAOD::TrigRingerRings* ringerShape ) const;
-
-
-    struct RingerInfo {
-      TrigCompositeUtils::Decision* decision;
-      const xAOD::TrigRingerRings* ringerShape;
-    };
-
-    StatusCode decide( std::vector<RingerInfo>& decisions )  const;
+    bool decide( const RingerInfo & decision ) const override;
+    StatusCode decide(  std::vector<RingerInfo>& decisions )  const override;
 
   private:
     

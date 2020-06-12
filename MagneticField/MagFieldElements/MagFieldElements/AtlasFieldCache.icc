@@ -53,6 +53,16 @@ MagField::AtlasFieldCache::getField(const double* ATH_RESTRICT xyz,
                                     double* ATH_RESTRICT bxyz,
                                     double* ATH_RESTRICT deriv)
 {
+    // Allow for the case of no map for testing
+  if ( m_fieldMap == nullptr ) {
+      // constant ATLAS magnetic field if no map has been set - for testing
+      constexpr double TEST_BFIELD = 1.997;      
+      bxyz[0] = bxyz[1] = 0;
+      bxyz[2] = TEST_BFIELD;
+      if (deriv) for (int i = 0; i < 9; i++) deriv[i] = 0.;
+      return;
+  }
+    
   const double& x(xyz[0]);
   const double& y(xyz[1]);
   const double& z(xyz[2]);
@@ -94,6 +104,17 @@ MagField::AtlasFieldCache::getFieldZR(const double* ATH_RESTRICT xyz,
                                       double* ATH_RESTRICT bxyz,
                                       double* ATH_RESTRICT deriv)
 {
+
+  // Allow for the case of no map for testing
+  if ( m_fieldMap == nullptr ) {
+      // constant ATLAS magnetic field if no map has been set - for testing
+      constexpr double TEST_BFIELD = 1.997;      
+      bxyz[0] = bxyz[1] = 0;
+      bxyz[2] = TEST_BFIELD;
+      if (deriv) for (int i = 0; i < 9; i++) deriv[i] = 0.;
+      return;
+  }
+    
   const double& x(xyz[0]);
   const double& y(xyz[1]);
   const double& z(xyz[2]);
@@ -117,3 +138,12 @@ MagField::AtlasFieldCache::getFieldZR(const double* ATH_RESTRICT xyz,
 }
 
 
+inline bool
+MagField::AtlasFieldCache::solenoidOn() const {
+    return m_fieldMap ? m_fieldMap->solenoidOn() : false;
+}
+
+inline bool
+MagField::AtlasFieldCache::toroidOn() const {
+    return m_fieldMap ? m_fieldMap->toroidOn() : false;
+}

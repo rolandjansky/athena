@@ -421,7 +421,7 @@ Trk::TrackingVolume::TrackingVolume(const Trk::TrackingVolume& trVol,
     const Trk::NavBinnedArray1D<Trk::Layer>* confLays = dynamic_cast<const Trk::NavBinnedArray1D<Trk::Layer>*> (confinedLayers);
     if (confLays)
         m_confinedLayers = new Trk::NavBinnedArray1D<Trk::Layer>(*confLays,
-                new std::vector<Trk::SharedObject<const Trk::Layer> >(layerOrder), transform);
+                std::vector<Trk::SharedObject<const Trk::Layer> >(layerOrder), transform);
   }
 
   // confined 'unordered' layers
@@ -467,7 +467,7 @@ Trk::TrackingVolume::TrackingVolume(const Trk::TrackingVolume& trVol,
     const Trk::NavBinnedArray1D<Trk::TrackingVolume>* confVols = dynamic_cast<const Trk::NavBinnedArray1D<Trk::TrackingVolume>*> (confinedVolumes);
     if (confVols)
         m_confinedVolumes =  new Trk::NavBinnedArray1D<Trk::TrackingVolume>(*confVols,
-                new std::vector<Trk::SharedObject<const Trk::TrackingVolume> >(volOrder), transform);
+                std::vector<Trk::SharedObject<const Trk::TrackingVolume> >(volOrder), transform);
   }
   
   // confined unordered volumes
@@ -853,7 +853,7 @@ const Trk::BoundarySurface<Trk::TrackingVolume>* Trk::TrackingVolume::boundarySu
   return (m_boundarySurfaces->operator[](oa)).get();
 }
 
-void Trk::TrackingVolume::createBoundarySurfaces()
+void Trk::TrackingVolume::createBoundarySurfaces ATLAS_NOT_THREAD_SAFE ()
 {
   // prepare the BoundarySurfaces
   m_boundarySurfaces = new std::vector< Trk::SharedObject<const Trk::BoundarySurface<Trk::TrackingVolume> > >;
@@ -1064,7 +1064,7 @@ const Trk::TrackingVolume* Trk::TrackingVolume::cloneTV ATLAS_NOT_THREAD_SAFE (A
     if (confLaysNav)
         layerArray =  new Trk::NavBinnedArray1D<Trk::Layer>(
                 *confLaysNav,
-                new std::vector<Trk::SharedObject<const Trk::Layer> >(layerOrder),
+                std::vector<Trk::SharedObject<const Trk::Layer> >(layerOrder),
                 transform);
   }
 
@@ -1117,7 +1117,7 @@ const Trk::TrackingVolume* Trk::TrackingVolume::cloneTV ATLAS_NOT_THREAD_SAFE (A
     if (confVolsNav)
         volumeArray =  new Trk::NavBinnedArray1D<Trk::TrackingVolume>(
                 *confVolsNav,
-                new std::vector<Trk::SharedObject<const TrackingVolume> >(volOrder),
+                std::vector<Trk::SharedObject<const TrackingVolume> >(volOrder),
                 transform );
   }
   
@@ -1219,7 +1219,7 @@ void  Trk::TrackingVolume::moveTV ATLAS_NOT_THREAD_SAFE (Amg::Transform3D& trans
 }
 
 
-void Trk::TrackingVolume::synchronizeLayers(MsgStream& msgstream, double envelope) const {
+void Trk::TrackingVolume::synchronizeLayers ATLAS_NOT_THREAD_SAFE (MsgStream& msgstream, double envelope) const {
 
   // case a : Layers exist
   const Trk::BinnedArray< Trk::Layer >* confLayers = confinedLayers();

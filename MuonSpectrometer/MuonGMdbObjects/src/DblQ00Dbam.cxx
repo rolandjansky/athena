@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -7,33 +7,21 @@
  -----------------------------------------
  ***************************************************************************/
 
-//<doc><file>	$Id: DblQ00Dbam.cxx,v 1.5 2007-02-12 17:33:50 stefspa Exp $
-//<version>	$Name: not supported by cvs2svn $
-
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include "MuonGMdbObjects/DblQ00Dbam.h"
+#include "RDBAccessSvc/IRDBRecordset.h"
+#include "AmdcDb/AmdcDb.h"
+#include "AmdcDb/AmdcDbRecord.h"
+
 #include <iostream>
 #include <sstream>
 #include <stdio.h>
 #include <stdexcept>
 
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
-
 namespace MuonGM
 {
 
-DblQ00Dbam::DblQ00Dbam(std::unique_ptr<IRDBQuery>&& dbam)
- : m_nObj(0)
-{
+DblQ00Dbam::DblQ00Dbam(std::unique_ptr<IRDBQuery>&& dbam) :
+    m_nObj(0) {
   if(dbam) {
     dbam->execute();
     m_nObj = dbam->size();
@@ -65,13 +53,9 @@ DblQ00Dbam::DblQ00Dbam(std::unique_ptr<IRDBQuery>&& dbam)
             }
             catch (const std::runtime_error&)
             {
-                //std::cerr<<"End of station-name list"<<std::endl;
                 break;
             }
-            //std::cerr<<j<<" Dbam amdb = "<<m_d[i].amdb<<" "<<j<<" "<<m_d[i].name[j]<<std::endl;
         }
-//         std::cerr<<" Dbam amdb = "<<m_d[i].amdb<<" test "<<m_d[i].test
-//                  <<" version/nvrs "<<m_d[i].version<<"/"<<m_d[i].nvrs<<std::endl;
         i++;
     }
     dbam->finalize();
@@ -81,7 +65,58 @@ DblQ00Dbam::DblQ00Dbam(std::unique_ptr<IRDBQuery>&& dbam)
     std::cerr<<"NO Dbam banks in the MuonDD Database"<<std::endl;
   }
 }
-    
+
+DblQ00Dbam::DblQ00Dbam(AmdcDb* dbam) :
+    m_nObj(0) {
+  IRDBRecordset_ptr pIRDBRecordset = dbam->getRecordsetPtr(std::string(getObjName()),"Amdc");
+  std::vector<IRDBRecord*>::const_iterator it = pIRDBRecordset->begin();
+
+  m_nObj = pIRDBRecordset->size();
+  m_d = new DBAM[m_nObj];
+  if (m_nObj == 0) std::cerr<<"NO Dbam banks in the AmdcDbRecord"<<std::endl;
+
+  const AmdcDbRecord* pAmdcDbRecord = dynamic_cast<const AmdcDbRecord*>((*it));
+  if (pAmdcDbRecord == 0){
+    std::cerr << "No way to cast in AmdcDbRecord for " << getObjName() << std::endl;
+    return;
+  }
+  
+  std::vector< std::string> VariableList = pAmdcDbRecord->getVariableList();
+  int ItemTot = VariableList.size() ;
+  for(int Item=0 ; Item<ItemTot ; Item++){
+    std::string DbVar = VariableList[Item];
+  }
+
+  int i = -1;
+  it = pIRDBRecordset->begin();
+  for( ; it<pIRDBRecordset->end(); it++){
+     pAmdcDbRecord = dynamic_cast<const AmdcDbRecord*>((*it));
+     if(pAmdcDbRecord == 0){
+       std::cerr << "No way to cast in AmdcDbRecord for " << getObjName() << std::endl;
+       return;
+     }
+
+     i = i + 1;
+
+     m_d[i].version = (*it)->getInt("VERS");    
+     m_d[i].nvrs = (*it)->getInt("NVRS");
+     m_d[i].mtyp = (*it)->getInt("MTYP");
+     m_d[i].numbox = (*it)->getInt("NUMBOX");
+     sprintf(m_d[i].amdb,"%s",(*it)->getString("AMDB").c_str()); 
+     if(((*it)->getString("TEST")).compare("NOT FOUND") == 0 ) sprintf(m_d[i].test,"unknown");
+     else sprintf(m_d[i].test,"%s",(*it)->getString("TEST").c_str());
+
+     for(unsigned int j=0; j<53; j++)
+     {
+       std::ostringstream tem;
+       tem << j;
+       std::string tag = "NAME_"+tem.str();
+       if(((*it)->getString(tag)).compare("NOT FOUND") == 0 ) break;
+       sprintf(m_d[i].name[j],"%s",(*it)->getString(tag).c_str());
+     }
+  }
+}
+
 DblQ00Dbam::~DblQ00Dbam()
 {
     delete [] m_d;

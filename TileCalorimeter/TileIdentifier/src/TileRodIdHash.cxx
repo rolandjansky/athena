@@ -20,13 +20,41 @@ TileRodIdHash::TileRodIdHash( )
 }
 
 
-void TileRodIdHash::initialize( int offset )  {
+void TileRodIdHash::initialize( int offset, int runnum )  {
 
 // 
 
-  m_offset = offset; 
-
   std::vector<ID>  rmod;
+  rmod.reserve(256);
+  if (runnum>318000) {
+        // new frag->ROB mapping since March 2017
+        // put 4 drawers in two subsequent RODs
+        // odd drawers in odd ROD, even drawers in even ROD
+	for(unsigned int i=0x510000;i<=0x51001f;i+=2){
+		rmod.push_back(i);
+		rmod.push_back(i+1);
+		rmod.push_back(i);
+		rmod.push_back(i+1);
+	}
+	for(unsigned int i=0x520000;i<=0x52001f;i+=2){
+		rmod.push_back(i);
+		rmod.push_back(i+1);
+		rmod.push_back(i);
+		rmod.push_back(i+1);
+	}
+	for(unsigned int i=0x530000;i<=0x53001f;i+=2){
+		rmod.push_back(i);
+		rmod.push_back(i+1);
+		rmod.push_back(i);
+		rmod.push_back(i+1);
+	}
+	for(unsigned int i=0x540000;i<=0x54001f;i+=2){
+		rmod.push_back(i);
+		rmod.push_back(i+1);
+		rmod.push_back(i);
+		rmod.push_back(i+1);
+	}
+  } else {
 	for(unsigned int i=0x510000;i<=0x51000f;i++){
 		rmod.push_back(i);
 		rmod.push_back(i);
@@ -51,22 +79,9 @@ void TileRodIdHash::initialize( int offset )  {
 		rmod.push_back(i);
 		rmod.push_back(i);
 	}
+  }
   
-  std::vector<ID>::const_iterator 
-    it = rmod.begin(); 
-  std::vector<ID>::const_iterator 
-    it_end = rmod.end() ; 
-
-  int n = 0; 
-  for (; it!=it_end;++it) {
-    ID id = *it; 
-    unsigned int i = id; 
-    m_lookup[i] = n ; 
-    m_int2id.push_back(id); 
-    ++n; 
-  } 
-
-  m_size = n; 
+  initialize(offset,rmod);
 }
 
 void TileRodIdHash::initialize( int offset, const std::vector<ID>& rmod )  {

@@ -2,11 +2,10 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//tau
 #include "tauRecTools/TauCalibrateLC.h"
-#include "xAODTau/TauJet.h"
 
-// root
+#include "AsgDataHandles/ReadHandle.h"
+
 #include "TFile.h"
 #include "TF1.h"
 #include "TH1D.h"
@@ -132,7 +131,7 @@ StatusCode TauCalibrateLC::initialize() {
 }
 
 /********************************************************************/
-StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau) 
+StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau) const
 { 
   // energy calibration depends on number of tracks - 1p or Mp
   int prongBin = 1; //Mp

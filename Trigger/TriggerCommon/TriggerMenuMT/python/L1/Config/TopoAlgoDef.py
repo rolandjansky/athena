@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TriggerJobOpts.TriggerFlags import TriggerFlags
+from .TypeWideThresholdConfig import getTypeWideThresholdConfig
 
 # algorithm python base classes generated from C++ code
 import L1TopoAlgorithms.L1TopoAlgConfig as AlgConf
@@ -25,11 +25,7 @@ class TopoAlgoDef:
         log.debug("usev7 %r", usev7)
         log.debug("usev8 %r", usev8)
 
-        _emscale_for_decision = 2 # global scale for EM, TAU        
-        if hasattr(TriggerFlags, 'useRun1CaloEnergyScale'):
-            if TriggerFlags.useRun1CaloEnergyScale :
-                _emscale_for_decision=1     
-                log.debug("Changed mscale_for_decision %s for Run1CaloEnergyScale", _emscale_for_decision)
+        _emscale_for_decision = getTypeWideThresholdConfig("EM")["emscale"]
 
         alg = AlgConf.ClusterNoSort( name = 'EMall', inputs = 'ClusterTobArray', outputs = 'EMall', algoId = currentAlgoId) 
         currentAlgoId += 1
@@ -395,7 +391,7 @@ class TopoAlgoDef:
                 pass
             for k in x:
                 setattr (d, k, x[k])
-		
+
             inputList = d.otype + d.olist
             toponames=[]
 
@@ -585,7 +581,7 @@ class TopoAlgoDef:
         algolist=[
                {"minDr": 0, "maxDr": 28, "otype1" : "MU" ,"ocut1": 10, "olist1" : "ab", "nleading1": HW.OutputWidthSelectMU, "inputwidth1": HW.OutputWidthSelectMU, "otype2" : "TAU", "ocut2": 12, "olist2" : "abi", "nleading2": HW.OutputWidthSelectTAU, "inputwidth2": HW.OutputWidthSelectTAU},   # 0DR28-MU10ab-TAU12abi
                {"minDr": 0, "maxDr": 28, "otype1" : "TAU" ,"ocut1": 20, "olist1" : "abi","nleading1": HW.OutputWidthSelectTAU, "inputwidth1": HW.OutputWidthSelectTAU,"otype2" : "TAU", "ocut2": 12, "olist2" : "abi", "nleading2": HW.OutputWidthSelectTAU, "inputwidth2": HW.OutputWidthSelectTAU}, # 0DR28-TAU20abi-TAU12abi
-               {"minDr": 0, "maxDr": 25, "otype1" : "TAU" ,"ocut1": 20, "olist1" : "abi","nleading1": HW.OutputWidthSelectTAU, "inputwidth1": HW.OutputWidthSelectTAU,"otype2" : "TAU", "ocut2": 12, "olist2" : "abi", "nleading2": HW.OutputWidthSelectTAU, "inputwidth2": HW.OutputWidthSelectTAU}, #	0DR25-TAU20abi-TAU12abi
+               {"minDr": 0, "maxDr": 25, "otype1" : "TAU" ,"ocut1": 20, "olist1" : "abi","nleading1": HW.OutputWidthSelectTAU, "inputwidth1": HW.OutputWidthSelectTAU,"otype2" : "TAU", "ocut2": 12, "olist2" : "abi", "nleading2": HW.OutputWidthSelectTAU, "inputwidth2": HW.OutputWidthSelectTAU}, # 0DR25-TAU20abi-TAU12abi
             ] 
 
 
@@ -1771,7 +1767,7 @@ class TopoAlgoDef:
                 pass
             for k in x:
                 setattr (d, k, x[k])
-		
+
             inputList = d.otype + d.olist
             toponame = "%iINVM%i-%s%s%s-%s%s"  % (d.minInvm, d.maxInvm,
                                                   d.otype, str(d.ocut1) , d.olist,
@@ -1835,7 +1831,7 @@ class TopoAlgoDef:
                 pass
             for k in x:
                 setattr (d, k, x[k])
-		
+
             inputList = [d.otype1 + d.olist1, d.otype2 + d.olist1]
             toponames=[]
 
@@ -1923,7 +1919,7 @@ class TopoAlgoDef:
                                                                  d.otype1, str(d.ocut1) , d.olist1, str(d.nleading1) if d.olist1=="s" else "",
                                                                  d.otype2, str(d.ocut2) , d.olist2, str(d.nleading2) if d.olist2=="s" else ""))
 
-            alg = AlgConf.InvariantMassDeltaPhiInclusive( name = 'INVM_DPHI_NFF', inputs = inputList, outputs = toponames, algoId = currentAlgoId)
+            alg = AlgConf.InvariantMassDeltaPhiInclusive2( name = 'INVM_DPHI_NFF', inputs = inputList, outputs = toponames, algoId = currentAlgoId)
             currentAlgoId += 1
 
 
@@ -1969,7 +1965,7 @@ class TopoAlgoDef:
    
             inputList = ['EMabi','MUab']
 
-            alg = AlgConf.InvariantMassInclusive2DeltaRSqrIncl2( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId )
+            alg = AlgConf.InvariantMassInclusiveDeltaRSqrIncl2( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId )
             currentAlgoId += 1
             alg.addgeneric('InputWidth1', HW.OutputWidthSelectEM)
             alg.addgeneric('InputWidth2', HW.OutputWidthSelectMU)
@@ -1996,7 +1992,7 @@ class TopoAlgoDef:
 
             inputList = ['EMabi','MUab']
 
-            alg = AlgConf.InvariantMassInclusive2DeltaRSqrIncl2( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId )
+            alg = AlgConf.InvariantMassInclusiveDeltaRSqrIncl2( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId )
             currentAlgoId += 1
             alg.addgeneric('InputWidth1', HW.OutputWidthSelectEM)
             alg.addgeneric('InputWidth2', HW.OutputWidthSelectMU)
@@ -2045,7 +2041,7 @@ class TopoAlgoDef:
                                                                  str(d.ocut2) , str(d.nleading2) , d.minEta2, d.maxEta2))
             
 
-            alg = AlgConf.InvariantMassDeltaPhiInclusive( name = 'ZAFB_DPHI', inputs = inputList, outputs = toponames, algoId = currentAlgoId)
+            alg = AlgConf.InvariantMassDeltaPhiInclusive2( name = 'ZAFB_DPHI', inputs = inputList, outputs = toponames, algoId = currentAlgoId)
             currentAlgoId += 1
 
 
@@ -2074,7 +2070,7 @@ class TopoAlgoDef:
             toponame = "0INVM70-27DPHI32-EM10his1-EM10his6"
             log.debug("Define %s", toponame)
             inputList = ['EMshi','EMshi']
-            alg = AlgConf.InvariantMassDeltaPhiInclusive( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId )
+            alg = AlgConf.InvariantMassDeltaPhiInclusive2( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId )
             currentAlgoId += 1
             alg.addgeneric('InputWidth1', HW.OutputWidthSortEM)
             alg.addgeneric('InputWidth2', HW.OutputWidthSortEM)
@@ -2098,7 +2094,7 @@ class TopoAlgoDef:
             toponame = "0INVM70-27DPHI32-EM12his1-EM12his6"
             log.debug("Define %s", toponame)
             inputList = ['EMshi','EMshi']
-            alg = AlgConf.InvariantMassDeltaPhiInclusive( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId )
+            alg = AlgConf.InvariantMassDeltaPhiInclusive2( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId )
             currentAlgoId += 1
             alg.addgeneric('InputWidth1', HW.OutputWidthSortEM)
             alg.addgeneric('InputWidth2', HW.OutputWidthSortEM)
@@ -2126,7 +2122,7 @@ class TopoAlgoDef:
    
             inputList = ['MUab']
 
-            alg = AlgConf.InvariantMassInclusive1DeltaRSqrIncl1( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId )
+            alg = AlgConf.InvariantMassInclusiveDeltaRSqrIncl1( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId )
             currentAlgoId += 1
             alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
             alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
@@ -2146,7 +2142,7 @@ class TopoAlgoDef:
    
             inputList = ['MUab']
 
-            alg = AlgConf.InvariantMassInclusive1DeltaRSqrIncl1( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId )
+            alg = AlgConf.InvariantMassInclusiveDeltaRSqrIncl1( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId )
             currentAlgoId += 1
             alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
             alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
@@ -2166,7 +2162,7 @@ class TopoAlgoDef:
    
             inputList = ['MUab']
 
-            alg = AlgConf.InvariantMassInclusive1DeltaRSqrIncl1( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId )
+            alg = AlgConf.InvariantMassInclusiveDeltaRSqrIncl1( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId )
             currentAlgoId += 1
             alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
             alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
@@ -2186,7 +2182,7 @@ class TopoAlgoDef:
    
             inputList = ['MUab']
 
-            alg = AlgConf.InvariantMassInclusive1DeltaRSqrIncl1( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId )
+            alg = AlgConf.InvariantMassInclusiveDeltaRSqrIncl1( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId )
             currentAlgoId += 1
             alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
             alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
@@ -2206,7 +2202,7 @@ class TopoAlgoDef:
    
             inputList = ['MUab']
 
-            alg = AlgConf.InvariantMassInclusive1DeltaRSqrIncl1( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId )
+            alg = AlgConf.InvariantMassInclusiveDeltaRSqrIncl1( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId )
             currentAlgoId += 1
             alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
             alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)

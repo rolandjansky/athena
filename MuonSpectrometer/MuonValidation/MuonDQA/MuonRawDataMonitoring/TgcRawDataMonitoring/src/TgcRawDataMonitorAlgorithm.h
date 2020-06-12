@@ -6,15 +6,16 @@
 #define TGCRAWDATAMONITORING_TGCRAWDATAMONITORALGORITHM_H
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
-#include "AthenaMonitoringKernel/Monitored.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTrigger/MuonRoIContainer.h"
-#include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonTrigCoinData/TgcCoinDataContainer.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonReadoutGeometry/TgcReadoutElement.h"
 #include "TrkExInterfaces/IExtrapolator.h"
+#include "MuonPrepRawData/TgcPrepDataContainer.h"
 
 class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
  public:
@@ -86,7 +87,7 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
 
   
  private:
-
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
   SG::ReadHandleKey<xAOD::MuonContainer> m_MuonContainerKey{this,"MuonContainerName","Muons","Offline muon track container"};
   SG::ReadHandleKey<xAOD::MuonRoIContainer> m_MuonRoIContainerKey{this,"MuonRoIContainerName","LVL1MuonRoIs","L1 muon RoI container"};
@@ -95,8 +96,6 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   SG::ReadHandleKey<Muon::TgcCoinDataContainer> m_TgcCoinDataContainerCurrBCKey{this,"TgcCoinDataContainerCurrBCName","TrigT1CoinDataCollection","TGC Coin Data Container CurrBC"};
   SG::ReadHandleKey<Muon::TgcCoinDataContainer> m_TgcCoinDataContainerNextBCKey{this,"TgcCoinDataContainerNextBCName","TrigT1CoinDataCollectionNextBC","TGC Coin Data Container NextBC"};
   SG::ReadHandleKey<Muon::TgcCoinDataContainer> m_TgcCoinDataContainerPrevBCKey{this,"TgcCoinDataContainerPrevBCName","TrigT1CoinDataCollectionPriorBC","TGC Coin Data Container PrevBC"};
-  
-  ToolHandle<Muon::MuonIdHelperTool> m_MuonIdHelperTool{this, "MuonIdHelperTool", "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   
   StringProperty m_packageName{this,"PackageName","TgcRawDataMonitor","group name for histograming"};
   StringProperty m_trigTagList{this,"TagTrigList","HLT_mu26_ivarmedium_L1MU20","list of triggers to be used for trigger matching"};

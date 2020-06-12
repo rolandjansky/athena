@@ -1,5 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from collections import OrderedDict
 from builtins import str
@@ -8,8 +7,6 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.CFElements import seqAND, seqOR, flatAlgorithmSequences, getSequenceChildren, isSequence, hasProp, getProp
 from AthenaCommon.Logging import logging
 __log = logging.getLogger('TriggerConfig')
-from AthenaCommon.Constants import DEBUG
-__log.setLevel(DEBUG)
 import six
 def __isCombo(alg):
     return hasProp( alg, "MultiplicitiesMap" )  # alg.getType() == 'ComboHypo':
@@ -42,7 +39,7 @@ def collectHypos( steps ):
                 # will replace by function once dependencies are sorted
                 if hasProp( alg, 'HypoInputDecisions'):
                     __log.info( "found hypo " + alg.getName() + " in " +stepSeq.getName() )
-                    if __isCombo( alg ):
+                    if __isCombo( alg ) and len(alg.ComboHypoTools):
                         __log.info( "    with %d comboHypoTools: %s", len(alg.ComboHypoTools), ' '.join(map(str, [tool.getName() for  tool in alg.ComboHypoTools])))
                     hypos[stepSeq.getName()].append( alg )
                 else:
@@ -53,7 +50,7 @@ def collectHypos( steps ):
 def __decisionsFromHypo( hypo ):
     """ return all chains served by this hypo and the key of produced decision object """
     from TrigCompositeUtils.TrigCompositeUtils import isLegId
-    __log.info("Hypo type is combo {}".format( __isCombo( hypo ) ) )
+    __log.debug("Hypo type is combo {}".format( __isCombo( hypo ) ) )
     if __isCombo( hypo ):
         return [key for key in list(hypo.MultiplicitiesMap.keys()) if not isLegId(key)], hypo.HypoOutputDecisions[0]
     else: # regular hypos
@@ -175,8 +172,11 @@ def triggerSummaryCfg(flags, hypos):
     decisionSummaryAlg = DecisionSummaryMakerAlg()
     allChains = OrderedDict()
 
+    
     for stepName, stepHypos in sorted( hypos.items() ):
-        for hypo in stepHypos:
+        # order hypos so that ComboHypos are last ones
+        orderedStepHypos = sorted(stepHypos, key=lambda hypo: __isCombo(hypo))  
+        for hypo in orderedStepHypos:
             hypoChains,hypoOutputKey = __decisionsFromHypo( hypo )
             allChains.update( OrderedDict.fromkeys( hypoChains, hypoOutputKey ) )
 
@@ -192,6 +192,7 @@ def triggerSummaryCfg(flags, hypos):
                 assert len(chainDict['chainParts'])  == 1, "Chains w/o the steps can not have mutiple parts in chainDict, it makes no sense: %s"%chainName
                 allChains[chainName] = mapThresholdToL1DecisionCollection( chainDict['chainParts'][0]['L1threshold'] )
                 __log.debug("The chain %s final decisions will be taken from %s", chainName, allChains[chainName] )
+
 
     for c, cont in six.iteritems (allChains):
         __log.debug("Final decision of chain  " + c + " will be read from " + cont )
@@ -284,7 +285,12 @@ def triggerOutputCfg(flags, decObj, decObjHypoOut, summaryAlg):
         # For now use old svcMgr interface as this service is not available from acc.getService()
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         hltEventLoopMgr = svcMgr.HltEventLoopMgr
-        hltEventLoopMgr.ResultMaker.MakerTools = [conf2toConfigurable(t) for t in acc.popPrivateTools()]
+        hltEventLoopMgr.ResultMaker.MakerTools = []
+        for tool in acc.popPrivateTools():
+            if 'StreamTagMaker' in tool.getName():
+                hltEventLoopMgr.ResultMaker.StreamTagMaker = conf2toConfigurable(tool)
+            else:
+                hltEventLoopMgr.ResultMaker.MakerTools += [ conf2toConfigurable(tool) ]
     elif offlineWriteBS:
         __log.info("Configuring offline ByteStream HLT output")
         acc = triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=True)
@@ -354,7 +360,8 @@ def triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=False):
         from TrigOutputHandling.TrigOutputHandlingConfig import HLTResultMTMakerCfg
         HLTResultMTMakerAlg=CompFactory.HLTResultMTMakerAlg
         hltResultMakerTool = HLTResultMTMakerCfg()
-        hltResultMakerTool.MakerTools = [bitsmaker, stmaker, serialiser] # TODO: stmaker likely not needed for offline BS writing
+        hltResultMakerTool.StreamTagMaker = stmaker
+        hltResultMakerTool.MakerTools = [bitsmaker, serialiser]
         hltResultMakerAlg = HLTResultMTMakerAlg()
         hltResultMakerAlg.ResultMaker = hltResultMakerTool
         acc.addEventAlgo( hltResultMakerAlg )
@@ -440,30 +447,23 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj, dec
     # configure views merging
     needMerging = [x for x in TriggerHLTListRun3 if len(x) >= 4 and x[3].startswith("inViews:")]
     __log.info("These collections need merging: {}".format( " ".join([ c[0] for c in needMerging ])) )
-    # group by the view collection name/(the view maker algorithm in practice)
-    from collections import defaultdict
-    groupedByView = defaultdict(list)
-    [ groupedByView[c[3]].append( c ) for c in needMerging ]
-
-    for view, colls in six.iteritems (groupedByView):
-        viewCollName = view.split(":")[1]
-        tool = HLTEDMCreator( "{}Merger".format( viewCollName ) )
-        for coll in colls:  # see the content in TrigEDMConfigRun3
-            collType, collName = coll[0].split("#")
-            collType = collType.split(":")[-1]
-            viewsColl = coll[3].split(":")[-1]
-            # Get existing property, or return empty list if not set.
-            attrView = getattr(tool, collType+"Views", [])
-            attrInView = getattr(tool, collType+"InViews", [])
-            attrName = getattr(tool, collType, [])
+    mergingTool = HLTEDMCreator( "ViewsMergingTool")
+    for coll in needMerging:
+        collType, collName = coll[0].split("#")
+        collType = collType.split(":")[-1]
+        possibleViews = coll[3].split(":")[-1].split(",")
+        for viewsColl in possibleViews:
+            attrView = getattr(mergingTool, collType+"Views", [])
+            attrInView = getattr(mergingTool, collType+"InViews", [])
+            attrName = getattr(mergingTool, collType, [])
             #
             attrView.append( viewsColl )
             attrInView.append( collName )
             attrName.append( collName )
             #
-            setattr(tool, collType+"Views", attrView )
-            setattr(tool, collType+"InViews", attrInView )
-            setattr(tool, collType, attrName )
+            setattr(mergingTool, collType+"Views", attrView )
+            setattr(mergingTool, collType+"InViews", attrInView )
+            setattr(mergingTool, collType, attrName )
             producer = [ maker for maker in viewMakers if maker.Views == viewsColl ]
             if len(producer) == 0:
                 __log.warning("The producer of the {} not in the menu, it's outputs won't ever make it out of the HLT".format( str(coll) ) )
@@ -473,7 +473,7 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj, dec
                     if pr != producer[0]:
                         __log.error("Several View making algorithms produce the same output collection {}: {}".format( viewsColl, ' '.join([p.getName() for p in producer ]) ) )
                         continue
-        alg.OutputTools += [ tool ]
+    alg.OutputTools += [mergingTool]
 
     tool = HLTEDMCreator( "GapFiller" )
     if len(edmSet) != 0:

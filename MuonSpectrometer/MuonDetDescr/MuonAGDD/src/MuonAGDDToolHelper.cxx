@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonAGDDToolHelper.h"
@@ -170,8 +170,7 @@ bool MuonAGDDToolHelper::BuildMScomponents() const
 
 bool MuonAGDDToolHelper::BuildReadoutGeometry(MuonGM::MuonDetectorManager* mgr/*, std::map<GeoFullPhysVol*, std::string>* vec*/) const
 {
-  bool geoBuilt = true;
-
+  bool geoBuilt = true;  
 //  ATH_MSG_INFO("In BuildReadoutGeometry - start");
 
   //std::map<std::string, GeoFullPhysVol*>* myMap =  NULL;
@@ -223,6 +222,7 @@ bool MuonAGDDToolHelper::BuildReadoutGeometry(MuonGM::MuonDetectorManager* mgr/*
 	  re->initDesign(-999., -999., -999., -999., -999.);
 	  re->fillCache();
 	  mgr->addMMReadoutElement_withIdFields(re, iLS, etaIndex, phiIndex, mLayer);
+    re->setDelta(mgr);
 	  }
       else if (chTag.substr(0,3)=="sTG")
 	  {
@@ -244,6 +244,7 @@ bool MuonAGDDToolHelper::BuildReadoutGeometry(MuonGM::MuonDetectorManager* mgr/*
 	  re->initDesign(-999., -999., -999., 3.2, -999., 2.7, -999., 2.6);
 	  re->fillCache();
 	  mgr->addsTgcReadoutElement_withIdFields(re, iLS, etaIndex, phiIndex, mLayer);
+    re->setDelta(mgr);
 	  }
 	  }
 

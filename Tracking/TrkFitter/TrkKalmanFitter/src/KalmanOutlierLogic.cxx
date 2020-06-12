@@ -260,7 +260,7 @@ bool Trk::KalmanOutlierLogic::flagNewOutliers(Trk::Trajectory& T,
                      "with AFB "<<chi2_AFB<<" trying if this comes from problem in last hits");
       int nLastCandidates = 0;
       double candidateChi2     = 0.0;
-      Trk::ProtoTrackStateOnSurface* suspiciousState = 0;
+      Trk::ProtoTrackStateOnSurface* suspiciousState = nullptr;
       Trk::Trajectory::reverse_iterator rit
         = Trk::Trajectory::reverse_iterator(++(m_utility->lastFittableState(T)));
       for( ; rit!=T.rend(); ++rit) {
@@ -379,7 +379,7 @@ bool Trk::KalmanOutlierLogic::reject(const Trk::FitQuality& fitQuality) const
                      fitQuality.chiSquared()/std::abs(fitQuality.numberDoF()) <<
                      ", prob= " << prob << " fails quality cut" );
       return true;
-    } else ATH_MSG_VERBOSE ("-O- trajectory passes quality cut, prob= " << prob);
+    } ATH_MSG_VERBOSE ("-O- trajectory passes quality cut, prob= " << prob);
   } else {
     if ( !(fitQuality.numberDoF() > 0))
       ATH_MSG_DEBUG ("-O- number d.o.f not positive - reject trajectory.");

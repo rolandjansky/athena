@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_RDO_ContainerCnv.h"
@@ -28,7 +28,7 @@ namespace {
       }
     }
     else {
-      os<<" [SCT_RDO_Container==NULL]";
+      os<<" [SCT_RDO_Container==nullptr]";
     }
     return os.str();
   }

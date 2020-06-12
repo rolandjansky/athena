@@ -39,9 +39,8 @@ namespace Monitored {
 
     operator double() const; //!< duration (in unit) between start and stop (or current time)
 
-    std::vector<double> getVectorRepresentation() const override { return {double(*this)}; }
-
-    virtual std::vector<std::string> getStringVectorRepresentation() const override { return std::vector<std::string>(); };
+    virtual double get(size_t) const override { return double(*this); }
+    virtual std::string getString([[maybe_unused]] size_t i) const override { return {}; }
     virtual bool hasStringRepresentation() const override { return false; };
     virtual size_t size() const override { return 1; }
     

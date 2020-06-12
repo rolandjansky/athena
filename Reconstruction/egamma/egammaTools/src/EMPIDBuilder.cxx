@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 // INCLUDE HEADER FILES:
@@ -15,30 +15,17 @@ EMPIDBuilder::EMPIDBuilder(const std::string& type,
         const IInterface* parent)
 : egammaBaseTool(type, name, parent)
 {
-    //
-    // constructor
-    //
-
     // declare interface
     declareInterface<IegammaBaseTool>(this);
 
 }
 
-// ===============================================================
 EMPIDBuilder::~EMPIDBuilder()
 { 
-    //
-    // destructor
-    //
 }
 
-// ==================================================================
 StatusCode EMPIDBuilder::initialize()
 {
-    //
-    // initialize method
-    //
-
     ATH_MSG_DEBUG(" Initializing EMPIDBuilder");
 
     ATH_CHECK(m_electronIsEMselectors.retrieve());
@@ -70,31 +57,25 @@ StatusCode EMPIDBuilder::initialize()
     }
 
     if (m_UselumiBlockMuTool) {
-        // retrieve the lumi tool
-        if (m_lumiBlockMuTool.retrieve().isFailure()) {
+       std::cout << "enabling lumiBlockMuTool" <<std::endl; 
+       if (m_lumiBlockMuTool.retrieve().isFailure()) {
             ATH_MSG_FATAL("Unable to retrieve Luminosity Tool");
             return StatusCode::FAILURE;
-        } else {
+        } 
             ATH_MSG_DEBUG("Successfully retrieved Luminosity Tool");
-        }
+        
     } else {
+       std::cout << "disabling lumiBlockMuTool" <<std::endl; 
         m_lumiBlockMuTool.disable();
     }
     return StatusCode::SUCCESS;
 }
 
-// ====================================================================
 StatusCode EMPIDBuilder::finalize()
 {
-    //
-    // finalize method
-    //
-
     return StatusCode::SUCCESS;
 }
 
-
-// =====================================================================
 StatusCode EMPIDBuilder::execute(const EventContext& ctx, xAOD::Egamma* eg) const
 {   
 
@@ -155,11 +136,13 @@ StatusCode EMPIDBuilder::execute(const EventContext& ctx, xAOD::Egamma* eg) cons
         //save the bool result
         eg->setPassSelection(static_cast<bool>(accept), m_electronLHselectorResultNames[i]);
         //save the isem
-        eg->setSelectionisEM(static_cast<unsigned int> (accept.getCutResultInverted()), "isEM"+m_electronLHselectorResultNames[i]); 
+        eg->setSelectionisEM(static_cast<unsigned int>(accept.getCutResultInverted()),
+                             "isEM" + m_electronLHselectorResultNames[i]);
 
         //save the LHValue only once
         if(i==0){
-            eg->setLikelihoodValue(static_cast<float>(m_electronLHselectors[i]->calculate(ctx,eg,avg_mu)), m_LHValueName);
+          eg->setLikelihoodValue(
+            static_cast<float>(m_electronLHselectors[i]->calculate(ctx, eg, avg_mu)),m_LHValueName);
         }  
     }
 
@@ -169,12 +152,11 @@ StatusCode EMPIDBuilder::execute(const EventContext& ctx, xAOD::Egamma* eg) cons
         //save the bool result
         eg->setPassSelection(static_cast<bool>(accept), m_genericIsEMselectorResultNames[i]);
         //save the isem
-        eg->setSelectionisEM(static_cast<unsigned int> (accept.getCutResultInverted()), "isEM"+m_genericIsEMselectorResultNames[i]);
+        eg->setSelectionisEM(static_cast<unsigned int>(accept.getCutResultInverted()),
+                             "isEM" + m_genericIsEMselectorResultNames[i]);
     }
 
 
     return StatusCode::SUCCESS;
 }
-
-
 

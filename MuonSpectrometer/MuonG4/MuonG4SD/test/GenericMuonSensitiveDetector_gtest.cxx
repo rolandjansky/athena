@@ -94,7 +94,7 @@ TEST_F ( GenericMuonSensitiveDetectortest, ProcessHits )
   ASSERT_EQ(a->begin()->StepLength(), 0);
   ASSERT_EQ(a->begin()->particleLink(), plink);
 
-  ASSERT_EQ(a->size(), 1); //test the current size of the Hit container
+  ASSERT_EQ(a->size(), 1u); //test the current size of the Hit container
 }
 
 int main( int argc, char** argv ) {

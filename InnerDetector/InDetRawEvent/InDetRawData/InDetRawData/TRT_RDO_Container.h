@@ -14,6 +14,7 @@
 # define INDETRAWDATA_TRT_RDO_CONTAINER_H
 
 #include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/ConstDataVector.h"
 #include "InDetRawData/InDetRawDataContainer.h"
 #include "InDetRawData/InDetRawDataCollection.h"
 #include "InDetRawData/TRT_RDORawData.h"
@@ -25,7 +26,7 @@ typedef InDetRawDataContainer<InDetRawDataCollection<TRT_RDORawData> >
 CLASS_DEF(TRT_RDO_Container,2542,1)
 
 // new persistent class
-typedef  DataVector<InDetRawDataCollection<TRT_RDORawData> > TRT_RDO_colvector;
+typedef  ConstDataVector<DataVector<InDetRawDataCollection<TRT_RDORawData> > > TRT_RDO_colvector;
 CLASS_DEF( TRT_RDO_colvector , 140807381 , 1 )
 
 #endif // INDETRAWDATA_TRT_RDO_CONTAINER_H

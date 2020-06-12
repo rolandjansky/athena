@@ -196,11 +196,11 @@ class MuonChainConfiguration(ChainConfigurationBase):
  
     # --------------------
     def getFSmuEFSA(self):
-        return self.getStep(4,'FSmuEFSA', [FSmuEFSASequenceCfg])
+        return self.getStep(5,'FSmuEFSA', [FSmuEFSASequenceCfg])
 
     # --------------------
     def getFSmuEFCB(self):
-        return self.getStep(5,'FSmuEFCB', [FSmuEFCBSequenceCfg])
+        return self.getStep(6,'FSmuEFCB', [FSmuEFCBSequenceCfg])
 
     #---------------------
     def getmuEFIso(self):

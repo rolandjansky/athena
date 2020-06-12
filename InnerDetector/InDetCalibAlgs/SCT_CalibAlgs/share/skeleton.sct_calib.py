@@ -497,7 +497,7 @@ SCTCalib.ReadBS         = ReadBS
 #--- Input files
 if hasattr( runArgs, 'InputType' ) :
     if runArgs.InputType is 'RAW' :
-        ServiceMgr.ByteStreamInputSvc.FullFileName = runArgs.inputNames
+        ServiceMgr.EventSelector.Input = runArgs.inputNames
 #        ServiceMgr.ByteStreamInputSvc.PartName = runArgs.part
     elif runArgs.InputType is 'NTUP_TRKVALID' :
         SCTCalib.InputTrkVal                       = runArgs.inputNames

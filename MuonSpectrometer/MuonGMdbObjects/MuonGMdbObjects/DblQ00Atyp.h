@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************
@@ -14,17 +14,18 @@
 #define DBLQ00_ATYP_H
 
 #include "RDBAccessSvc/IRDBQuery.h"
+
 #include <memory>
 
-namespace MuonGM
-{
-    
-class DblQ00Atyp {
+class AmdcDb;
 
+namespace MuonGM {
+class DblQ00Atyp {
 public:
     DblQ00Atyp(){};
     ~DblQ00Atyp();
     DblQ00Atyp(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Atyp(AmdcDb* atyp);
     
     // data members for DblQ00/ATYP fields
     struct ATYP {

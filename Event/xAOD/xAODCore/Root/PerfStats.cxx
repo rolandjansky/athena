@@ -198,15 +198,9 @@ namespace xAOD {
    /// @param complen Not sure. (Not used.)
    /// @param objlen Not sure. (Not used.)
    ///
-#if ROOT_VERSION_CODE < ROOT_VERSION( 5, 34, 19 )
-   void PerfStats::FileUnzipEvent( ::TFile* file, ::Long64_t pos,
-                                   ::Double_t start, ::Int_t complen,
-                                   ::Int_t objlen ) {
-#else
    void PerfStats::UnzipEvent( ::TObject* tree, ::Long64_t pos,
                                ::Double_t start, ::Int_t complen,
                                ::Int_t objlen ) {
-#endif // ROOT_VERSION
 
       // Do the calculation without delay:
       const ::Double_t tnow = TTimeStamp();
@@ -216,7 +210,6 @@ namespace xAOD {
       ReadStats& stats = IOStats::instance().stats();
       stats.setUnzipTime( stats.unzipTime() + dtime );
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION( 5, 34, 19 )
       // Get the cache size from the tree:
       ::TTree* t = dynamic_cast< ::TTree* >( tree );
       if( ! t ) {
@@ -224,15 +217,10 @@ namespace xAOD {
       } else {
          stats.setCacheSize( t->GetCacheSize() );
       }
-#endif // ROOT_VERSION
 
       // Forward the call if possible:
       if( m_otherPerfStats ) {
-#if ROOT_VERSION_CODE < ROOT_VERSION( 5, 34, 19 )
-         m_otherPerfStats->FileUnzipEvent( file, pos, start, complen, objlen );
-#else
          m_otherPerfStats->UnzipEvent( tree, pos, start, complen, objlen );
-#endif // ROOT_VERSION
       }
 
       return;
@@ -311,7 +299,6 @@ namespace xAOD {
       return 0;
    }
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION( 6, 14, 0 )
    /* Some methods that are pure virtual in the basaclass and need
       a definition - forwarding them to the actuall ROOT TPerfStats
       new in ROOT 6.14
@@ -337,8 +324,6 @@ namespace xAOD {
    FWD_CALL(SetMissed);
    FWD_CALL(SetUsed);
    #undef FWD_CALL
-
-#endif //ROOT_VERSION
 
    /// The constructor needs to do a few things. If there is already
    /// another TVirtualPerfStats object defined under gPerfStats, then

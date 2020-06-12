@@ -1,35 +1,29 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDCOOL_CSCREADWRITECOOLSTR_H
 #define MUONCONDCOOL_CSCREADWRITECOOLSTR_H
+
 /** CscReadWriteCoolStrFile - simple algorithm to demonstrate reading/writing
   of string objects stored in COOL via CoolStrFileSvc*/
 
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ServiceHandle.h"
+
+#include "StoreGate/DataHandle.h"
+#include "MuonCondData/CscCondDataCollection.h"
+#include "MuonCondData/CscCondDataContainer.h"
+#include "MuonCondInterface/CscICoolStrSvc.h"
+#include "AthenaKernel/errorcheck.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include <string>
 #include <fstream>
 #include <istream>
-#include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/DataHandle.h"
 
-#include "MuonCondData/CscCondDataCollection.h"
-#include "MuonCondData/CscCondDataContainer.h"
-
-#include "MuonCondInterface/CscICoolStrSvc.h"
-#include "AthenaKernel/errorcheck.h"
-
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
-
-class StoreGateSvc;
 
 namespace MuonCalib {
-  class CscICoolStrSvc;
   /**	
     @class CscReadWriteCoolStr
 
@@ -73,24 +67,17 @@ namespace MuonCalib {
       /**Retrieves data from cool database and adds to stream*/
       std::string RetrieveDataAsString(std::string coolKey, int hash, std::string dataType);
 
-      //StatusCode getIndex(const std::string & idString,  const std::string & cat,unsigned int & index ) const; 
-
       StatusCode writeToCool();
 
       StatusCode makeFile();
 
     private: 
-      MsgStream m_log;
       StoreGateSvc* p_detstore;
       ServiceHandle<MuonCalib::CscICoolStrSvc> m_cscCoolStrSvc;
 
       bool m_forceChanCat;
-
-      // properties
       bool m_write;
       std::vector<std::string> m_ifiles;
-      // methods
-
       bool m_read;
       std::string m_ofile;
       std::string m_outFileType;
@@ -99,10 +86,7 @@ namespace MuonCalib {
       CscCondDataContainer  * m_condDataContainer;
       std::map<std::string, CscCondDataCollectionBase *> m_condDataMap;
 
-      /**CscIdHelper is used to convert from identifiers to hash ids. MuonDetector manager is a
-        requirement on CscIdHelper*/
-      ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-        "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+      ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
   };
 

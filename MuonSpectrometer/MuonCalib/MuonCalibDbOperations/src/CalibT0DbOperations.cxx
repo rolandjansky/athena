@@ -1,27 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//this
 #include "MuonCalibDbOperations/CalibT0DbOperations.h"
 #include "MuonCalibDbOperations/CalibDbConnection.h"
 #include "MuonCalibDbOperations/IConditionsStorage.h"
-
-//MuonCalibStandAloneBase
 #include "MuonCalibStandAloneBase/NtupleStationId.h"
 #include "MuonCalibStandAloneBase/MdtStationT0Container.h"
-
-//MuonCalibIdentifier
 #include "MuonCalibIdentifier/MuonFixedId.h"
-
-//MdtCalibData
 #include "MdtCalibData/MdtTubeFitContainer.h"
-
-//coral
 #include "RelationalAccess/IRelationalService.h"
-//#include "RelationalAccess/IConnection.h"
-//#include "RelationalAccess/IConnectionService.h"
-//#include "RelationalAccess/ISession.h"
 #include "RelationalAccess/IRelationalDomain.h"
 #include "RelationalAccess/ITransaction.h"
 #include "RelationalAccess/IQuery.h"
@@ -37,25 +25,18 @@
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeSpecification.h"
 #include "CoralKernel/Context.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
-//c - c++
 #include "sstream"
-#include "string"
 #include "cmath"
 
 namespace MuonCalib {
 
-CalibT0DbOperations::CalibT0DbOperations(CalibDbConnection & db_conn) : m_db_conn(db_conn), m_query(NULL) {
-  //	m_query=m_db_conn.GetQuery();
-}
-
-
-CalibT0DbOperations::~CalibT0DbOperations() {
-  //	m_db_conn.DestroyQuery(m_query);
+CalibT0DbOperations::CalibT0DbOperations(CalibDbConnection & db_conn) : m_db_conn(db_conn), m_query(nullptr) {
 }
 
 MdtStationT0Container * CalibT0DbOperations::LoadT0Calibration(const NtupleStationId & id, int head_id, std::string & site_name) {
-  std::cout<<"CalibT0DbOperations::LoadT0Calibration"<<std::endl;
   try {
     //select MDT_TUBE.TUBE_ID, MDT_TUBE.P4 from MDT_TUBE where MDT_TUBE.HEAD_ID = :hid and MDT_TUBE.CHAMBER = :chamb and MDT_TUBE.VALIDFLAG>1
     m_db_conn.OpenTransaction();
@@ -83,20 +64,21 @@ MdtStationT0Container * CalibT0DbOperations::LoadT0Calibration(const NtupleStati
       count++;
     }
     if(count==0) {
-      std::cerr<<"No tubes found for "<<id.regionId()<<" Header "<<site_name<<head_id<<std::endl;
+      MsgStream log(Athena::getMessageSvc(),"CalibT0DbOperations");
+      log<<MSG::WARNING<<"No tubes found for "<<id.regionId()<<" Header "<<site_name<<head_id<<endmsg;
       delete ret;
-      return NULL;
+      return nullptr;
     }
     return ret;
   }//try
   catch( coral::SchemaException& e ) {
-    std::cerr << "Schema exception : " << e.what() << std::endl;
-    return NULL;
+    MsgStream log(Athena::getMessageSvc(),"CalibT0DbOperations");
+    log<<MSG::WARNING<<"Schema exception : " << e.what()<<endmsg;
+    return nullptr;
   }
 }
 
 MdtTubeFitContainer * CalibT0DbOperations::LoadT0Validation(const NtupleStationId & id, int head_id, std::string &/*site_name*/) {
-  std::cout<<"CalibT0DbOperations::LoadT0Validation"<<std::endl;
   try {
     m_db_conn.OpenTransaction();
     m_query=m_db_conn.GetQuery();
@@ -142,7 +124,6 @@ MdtTubeFitContainer * CalibT0DbOperations::LoadT0Validation(const NtupleStationI
     m_query->addToOutputList( "MDT_TUBE.NHITS_ABOVE_ADC_CUT", "NHITS_ABOVE_ADC_CUT");
     m_query->addToOutputList( "MDT_TUBE_V.ALGO_FLAG", "ALGO_FLAG");
     m_query->addToOutputList( "MDT_TUBE_V.TUBE_GROUPING", "TUBE_GROUPING");
-    std::cout<<"Execute"<<std::endl;
     coral::ICursor& cursor = m_query->execute();
     int n_tubes(0), n_layers(0), n_ml(0);
     std::map<MuonFixedId, MdtTubeFitContainer::SingleTubeFit> fits;
@@ -150,7 +131,6 @@ MdtTubeFitContainer * CalibT0DbOperations::LoadT0Validation(const NtupleStationI
     std::string alg_flg, tb_grp;
     bool str_set(false);
     while (cursor.next()) {
-//			std::cout<<"."<<std::endl;
       const coral::AttributeList & al= cursor.currentRow();
       MuonFixedId fid(al["TUBE_ID"].data<int>());
       MdtTubeFitContainer::SingleTubeCalib &calib(calibs[fid]);
@@ -199,17 +179,18 @@ MdtTubeFitContainer * CalibT0DbOperations::LoadT0Validation(const NtupleStationI
     return ret;	
   } //try
   catch( coral::SchemaException& e ) {
-    std::cerr << "Schema exception : " << e.what() << std::endl;
-    return NULL;
+    MsgStream log(Athena::getMessageSvc(),"CalibT0DbOperations");
+    log<<MSG::WARNING<<"Schema exception : " << e.what()<<endmsg;
+    return nullptr;
   }
 }
 
 bool CalibT0DbOperations::WriteT0Chamber(const NtupleStationId & id, const MdtTubeFitContainer * t0, std::vector<int> & validation_flag, int head_id, const std::string & site_name) {
-  std::cout<<"CalibT0DbOperations::WriteT0Chamber"<<std::endl;
   try {
     m_db_conn.OpenTransaction();
     if(!checkTubesPresent(head_id, site_name, id, validation_flag)) {
-      std::cerr<<"Trying to insert data for chamber " << id.regionId()<<" header "<<head_id<<site_name<<"  which already exists!"<<std::endl;
+      MsgStream log(Athena::getMessageSvc(),"CalibT0DbOperations");
+      log<<MSG::WARNING<<"Trying to insert data for chamber " << id.regionId()<<" header "<<head_id<<site_name<<"  which already exists!"<<endmsg;
       m_db_conn.Rollback();
       return false;
     }
@@ -275,12 +256,12 @@ bool CalibT0DbOperations::WriteT0Chamber(const NtupleStationId & id, const MdtTu
 	    rowsUpdated=setValidFlag(site_name, head_id, fixId.getIdInt(), 1, *editor[0]);
 	  
 	  if(rowsUpdated!=1){
-	    std::cerr<<id.regionId()<<" tb="<<tb<<" ly="<<ly<<" ml="<<ml<<" head_id="<<head_id<<": "<<rowsUpdated<<" Rows to be updated! This is wrong! Check database!"<<std::endl;
+      MsgStream log(Athena::getMessageSvc(),"CalibT0DbOperations");
+      log<<MSG::WARNING<<id.regionId()<<" tb="<<tb<<" ly="<<ly<<" ml="<<ml<<" head_id="<<head_id<<": "<<rowsUpdated<<" Rows to be updated! This is wrong! Check database!"<<endmsg;
 	    m_db_conn.Rollback();
 	    return false;
 	  }
 	  if(validation_flag[tb_index]!=5) {
-	    std::cout<<"Insert new "<<fixId.getIdInt()<<std::endl;
 	    //initialize row buffers
 	    if(!row_buffer_initialized)	{
 	      initRowBuffer(rowBuffer, id, head_id, site_name,  t0);
@@ -307,19 +288,17 @@ bool CalibT0DbOperations::WriteT0Chamber(const NtupleStationId & id, const MdtTu
     return true;
   }//try
   catch( coral::SchemaException& e ) {
-    std::cerr << "Schema exception : " << e.what() << std::endl;
+    MsgStream log(Athena::getMessageSvc(),"CalibT0DbOperations");
+    log<<MSG::WARNING<<"Schema exception : " << e.what()<<endmsg;
     m_db_conn.Rollback();
     return false;
   }
 }
 
 bool CalibT0DbOperations::ReadForConditions(std::string /*site_name*/, int head_id, IConditionsStorage & storage) {
-  std::cout<<"CalibT0DbOperations::ReadForConditions"<<std::endl;
   try {
     //prepare query
-    std::cout<<"OpenTransaction();"<<std::endl;
     m_db_conn.OpenTransaction();
-    std::cout<<"GetQuery();"<<std::endl;
     m_query=m_db_conn.GetQuery();
     m_query->addToTableList("MDT_TUBE");
     m_query->addToOutputList("MDT_TUBE.CHAMBER", "CHAMBER");
@@ -342,7 +321,6 @@ bool CalibT0DbOperations::ReadForConditions(std::string /*site_name*/, int head_
       m_query->addToTableList("MDT_TUBE_C");
       for(std::vector<std::string>::const_iterator it=rows_tube_c_table.begin(); it!=rows_tube_c_table.end(); it++) {
 	m_query->addToOutputList( std::string("MDT_TUBE_C.") + *it, *it);
-	std::cout<<std::string("MDT_TUBE_C.") + *it<<std::endl;
       }
     }
     coral::AttributeList conditionData;
@@ -379,13 +357,13 @@ bool CalibT0DbOperations::ReadForConditions(std::string /*site_name*/, int head_
     return true;	
   }
   catch( coral::SchemaException& e ) {
-    std::cerr << "Schema exception : " << e.what() << std::endl;
+    MsgStream log(Athena::getMessageSvc(),"CalibT0DbOperations");
+    log<<MSG::WARNING<<"Schema exception : " << e.what()<<endmsg;
     return false;
   }
 }
 
 inline void CalibT0DbOperations::initRowBuffer(std::vector<coral::AttributeList> & rowBuffer, const NtupleStationId &id, const int & head_id, const std::string & /*site_name*/, const MdtTubeFitContainer * t0) {
-  std::cout<<"CalibT0DbOperations::initRowBuffer"<<std::endl;
   for(unsigned int i=0; i<3; i++) {
     rowBuffer[i].extend<int>("TUBE_ID");
     rowBuffer[i].extend<int>("HEAD_ID");
@@ -394,12 +372,8 @@ inline void CalibT0DbOperations::initRowBuffer(std::vector<coral::AttributeList>
   }
   rowBuffer[0].extend<int>("CHAMBER");
   rowBuffer[0]["CHAMBER"].data<int>()=id.FixedId();
-  //	rowBuffer[0].extend<std::string>("SITE_NAME");
-//	rowBuffer[0]["SITE_NAME"].data<std::string>()=site_name;
   rowBuffer[0].extend<int>("VALIDFLAG");
   rowBuffer[1].extend<int>("ENTRIES");
-//	rowBuffer[1].extend<int>("SEQID");
-//	rowBuffer[2].extend<int>("SEQID");
   rowBuffer[1].extend<float>("CHISQUARE_1");
   rowBuffer[1].extend<float>("CHISQUARE_2");
   for(int i=0; i<8; i++) {
@@ -439,7 +413,6 @@ inline void CalibT0DbOperations::initRowBuffer(std::vector<coral::AttributeList>
 }
 
 inline void CalibT0DbOperations::fillRowBuffer(std::vector<coral::AttributeList> & rowBuffer, const MdtTubeFitContainer * t0, const int & ml, const int &ly, const int &tb, const MuonFixedId &fixId) {
-  std::cout<<"CalibT0DbOperations::fillRowBuffer"<<std::endl;
   for(unsigned int i=0; i<3; i++) {
     rowBuffer[i]["TUBE_ID"].data<int>()=fixId.getIdInt();
   }
@@ -516,7 +489,8 @@ bool  CalibT0DbOperations::insertTubes(const std::string & site_name, int head_i
     }
   }
   if(all_dead) {
-    std::cerr<<"Refusing to insert completely dead chamber"<<std::endl;
+    MsgStream log(Athena::getMessageSvc(),"CalibT0DbOperations");
+    log<<MSG::WARNING<<"Refusing to insert completely dead chamber"<<endmsg;
     return false;
   }
   MuonFixedId fixId(0);
@@ -544,7 +518,6 @@ bool  CalibT0DbOperations::insertTubes(const std::string & site_name, int head_i
 	}
 	fillRowBuffer(rowBuffer, t0, ml, ly, tb, fixId);
 	rowBuffer[0]["VALIDFLAG"].data<int>() =v_flag;
-	std::cout<<"XXXXXXXX='"<<rowBuffer[1]["TUBE_GROUPING"].data<std::string>()<<"'"<<std::endl;
 	for(unsigned int i=0; i<3; i++)	{
 	  rowBuffer[i]["CALIBFLAG"].data<int>() = static_cast<int>(v_flag>3);
 	  bulk_inserter[i]->processNextIteration();

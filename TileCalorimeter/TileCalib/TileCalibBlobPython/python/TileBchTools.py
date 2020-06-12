@@ -4,10 +4,8 @@
 # TileBchTools.py
 # Nils Gollub <nils.gollub@cern.ch>, 2007-12-17
 #
-#
-# Edition:
-# Andrey Kamenshchikov, 23-10-2013 (akamensh@cern.ch)
-# Yuri Smirnov, 24-12-2014 (iouri.smirnov@cern.ch)
+# Andrey Kamenshchikov <akamensh@cern.ch>, 2013-10-23
+# Yuri Smirnov <iouri.smirnov@cern.ch>, 2014-12-24
 ################################################################
 """
 Python module for managing TileCal ADC status words.
@@ -119,7 +117,7 @@ class TileBchMgr(TileCalibLogger):
                             self.__oldStat[self.__getAdcIdx(ros,mod,chn,adc)] = status1
 
     #____________________________________________________________________
-    def getComment(self):                            
+    def getComment(self):
         return self.__comment
 
     #____________________________________________________________________
@@ -162,7 +160,7 @@ class TileBchMgr(TileCalibLogger):
         status = self.getBadDefinition()
         if status.isGood():
             self.log().info("No TileBchStatus::isBad() definition found in DB, using defaults")
-        else:    
+        else:
             TileBchStatus.defineBad(status)
 
         #=== update TileBchStatus::isBadTiming() definition from DB
@@ -170,7 +168,7 @@ class TileBchMgr(TileCalibLogger):
         status = self.getBadTimingDefinition()
         if status.isGood():
             self.log().info("No TileBchStatus::isBadTiming() definition found in DB, using defaults")
-        else:    
+        else:
             TileBchStatus.defineBadTiming(status)
 
 
@@ -318,7 +316,7 @@ class TileBchMgr(TileCalibLogger):
         self.log().info("==============================================================")
         for ros in range(rosBeg,rosEnd):
             for mod in range(modBeg, min(modEnd,TileCalibUtils.getMaxDrawer(ros))):
-                modName = TileCalibUtils.getDrawerString(ros,mod)        
+                modName = TileCalibUtils.getDrawerString(ros,mod)
                 for chn in range(TileCalibUtils.max_chan()):
                     chnName = "channel %2i" % chn
                     for adc in range(TileCalibUtils.max_gain()):
@@ -330,18 +328,18 @@ class TileBchMgr(TileCalibLogger):
                             prbDesc = prbs[prbCode]
                             msg = "%s %s %s %2i (%s)" % (modName,chnName,gainName,prbCode,prbDesc)
                             self.log().info( msg )
-                            modName  = " " *  5 
+                            modName  = " " *  5
                             chnName  = " " * 10
-                            gainName = " " *  3 
+                            gainName = " " *  3
         self.log().info("==============================================================")
 
     #____________________________________________________________________
     def checkModuleForChanges(self, ros, drawer):
         """
         Returns:
-        - if nothing changed                                    :  0 
+        - if nothing changed                                    :  0
         - if something changed and complete drawer is now good  : -1
-        - if something changed but drawer is not completely good: >0 
+        - if something changed but drawer is not completely good: >0
         """
         diffCnt = 0
         allGood = True
@@ -358,15 +356,14 @@ class TileBchMgr(TileCalibLogger):
         if diffCnt>0 and allGood:
             return -1
         return diffCnt
-        
-                        
+
     #____________________________________________________________________
     def updateFromFile(self, fileName):
         """
         Updates the internal bad channel cache with the content
         found in the file. The layout of the file has to follow the
         TileConditions ASCII file layout.
-        
+
         NGO: change this at some point. In a file, not the status word (which
         depends on the bit pattern version) should be encoded, but the individual problems (enums).
         For this we need one line per ADC... this requires some modification in the reader.
@@ -397,7 +394,7 @@ class TileBchMgr(TileCalibLogger):
 
     #____________________________________________________________________
     def commitToDb(self, db, folderPath, tag, bitPatVer, author, comment,
-                   since, until=(MAXRUN,MAXLBK)):
+                   since, until=(MAXRUN,MAXLBK), untilCmt=None, moduleList=[]):
         """
         Commits the differences compared to the set of bad channels read in with the
         initialze function to the provided database.
@@ -414,107 +411,118 @@ class TileBchMgr(TileCalibLogger):
             raise( e )
 
         multiVersion = self.__multiVersion
-        #=== get latest state from db
-        if since != (MINRUN,MINLBK):
-            justBefore = list(since)
-            if justBefore[1]>MINLBK:
-                justBefore[1] = justBefore[1]-1
-            else:
-                justBefore[0] = justBefore[0]-1
-                justBefore[1] = MAXLBK                                
-            justBefore = tuple(justBefore)
-            if self.__mode!=2:
-                self.log().info("Reading db state just before %s, i.e. at %s", since,justBefore)
-                self.__updateFromDb(db, folderPath, tag, justBefore, 0)
-            else:
-                self.log().info("Using previous bad channel list from input DB")
-            self.log().info("And comparing it with new list of bad channels")
-        else:
-            if self.__mode!=2:
-                reader = TileCalibTools.TileBlobReader(db,folderPath,tag)
-                multiVersion = reader.folderIsMultiVersion()
-            self.log().info("Filling db from %s, resetting old status cache", list(since))
-            self.__oldStat = len(self.__oldStat) * [TileBchStatus()]
-
-        #=== print status information
-        self.log().info("Committing changes to DB \'%s\'", db.databaseId())
-        self.log().info("... using tag \'%s\' and [run,lumi] range: [%i,%i] - [%i,%i]",
-                 tag,since[0],since[1],until[0],until[1])
-        self.log().info("... author : \'%s\'", author  )
-        self.log().info("... comment: \'%s\'", comment )
-
-        #=== default for drawer initialization
-        loGainDefVec = cppyy.gbl.std.vector('unsigned int')()
-        loGainDefVec.push_back(0)
-        hiGainDefVec = cppyy.gbl.std.vector('unsigned int')()
-        hiGainDefVec.push_back(0)
-        comChnDefVec = cppyy.gbl.std.vector('unsigned int')()
-        comChnDefVec.push_back(0)
-        cppyy.makeClass('std::vector<unsigned int>')
-        defVec = cppyy.gbl.std.vector('std::vector<unsigned int>')()
-        defVec.push_back(loGainDefVec)
-        defVec.push_back(hiGainDefVec)
-        defVec.push_back(comChnDefVec)
-        
-        #=== loop over the whole detector
         writer = TileCalibTools.TileBlobWriter(db,folderPath,'Bch',multiVersion)
-        if len(comment):
+        if len(comment) or isinstance(author,tuple):
             writer.setComment(author, comment)
-        bchDecoder = TileBchDecoder(bitPatVer)
         nUpdates = 0
         goodComment = True
-        for ros in range(0,TileCalibUtils.max_ros()):
-            for mod in range(TileCalibUtils.getMaxDrawer(ros)):
-                modName = TileCalibUtils.getDrawerString(ros,mod)
-                nChange = self.checkModuleForChanges(ros,mod)
-                if nChange == 0:
-                    #=== do nothing if nothing changed
-                    continue
-                if nChange==-1:
-                    nUpdates += 1
-                    self.log().info("Drawer %s reset to GOOD", modName)
-                    if modName not in comment and not ("ONL" not in folderPath or "syncALL" not in comment):
-                        goodComment = False
-                        self.log().error("Comment string - '%s' - doesn't contain drawer %s", comment,modName)
-                    writer.zeroBlob(ros,mod)
+        #=== get latest state from db
+        if moduleList!=['CMT']:
+            if since != (MINRUN,MINLBK):
+                justBefore = list(since)
+                if justBefore[1]>MINLBK:
+                    justBefore[1] = justBefore[1]-1
                 else:
-                    nUpdates += 1
-                    self.log().info("Applying %2i changes to drawer %s", nChange,modName)
-                    if modName not in comment and ("ONL" not in folderPath or "syncALL" not in comment):
-                        goodComment = False
-                        self.log().error("Comment string - '%s' - doesn't contain drawer %s", comment,modName)
-                    drawer = writer.getDrawer(ros,mod)
-                    drawer.init(defVec,TileCalibUtils.max_chan(),bitPatVer)
-                    for chn in range(TileCalibUtils.max_chan()):
-                        #=== get low gain bit words
-                        wordsLo = bchDecoder.encode(self.getAdcStatus(ros,mod,chn,0))
-                        chBits = wordsLo[0]
-                        loBits = wordsLo[1]
-                        #=== get high gain bit words
-                        wordsHi = bchDecoder.encode(self.getAdcStatus(ros,mod,chn,1))
-                        chBits = wordsHi[0] | chBits
-                        hiBits = wordsHi[1]
-                        #=== set low, high and common channel word in calibDrawer
-                        drawer.setData(chn,0,0, loBits)
-                        drawer.setData(chn,1,0, hiBits)
-                        drawer.setData(chn,2,0, chBits)
-                        #=== synchronizing channel status in low and high gain
-                        if wordsLo[0] != chBits:
-                           self.log().info("Drawer %s ch %2d - sync LG status with HG ", modName,chn)
-                           status = TileBchStatus( bchDecoder.decode(chBits,loBits) )
-                           self.setAdcStatus(ros,mod,chn,0,status)
-                        if wordsHi[0] != chBits:
-                           self.log().info("Drawer %s ch %2d - sync HG status with LG ", modName,chn)
-                           status = TileBchStatus( bchDecoder.decode(chBits,hiBits) )
-                           self.setAdcStatus(ros,mod,chn,1,status)
+                    justBefore[0] = justBefore[0]-1
+                    justBefore[1] = MAXLBK
+                justBefore = tuple(justBefore)
+                if self.__mode!=2:
+                    self.log().info("Reading db state just before %s, i.e. at %s", since,justBefore)
+                    self.__updateFromDb(db, folderPath, tag, justBefore, 0)
+                else:
+                    self.log().info("Using previous bad channel list from input DB")
+                self.log().info("And comparing it with new list of bad channels")
+            else:
+                if self.__mode!=2:
+                    reader = TileCalibTools.TileBlobReader(db,folderPath,tag)
+                    multiVersion = reader.folderIsMultiVersion()
+                self.log().info("Filling db from %s, resetting old status cache", list(since))
+                self.__oldStat = len(self.__oldStat) * [TileBchStatus()]
+
+            #=== print status information
+            self.log().info("Committing changes to DB \'%s\'", db.databaseId())
+            self.log().info("... using tag \'%s\' and [run,lumi] range: [%i,%i] - [%i,%i]",
+                     tag,since[0],since[1],until[0],until[1])
+            if isinstance(author,tuple) and len(author)==3:
+                self.log().info("... author : \'%s\'", author[0] )
+                self.log().info("... comment: \'%s\'", author[1] )
+            else:
+                self.log().info("... author : \'%s\'", author  )
+                self.log().info("... comment: \'%s\'", comment )
+
+            #=== default for drawer initialization
+            loGainDefVec = cppyy.gbl.std.vector('unsigned int')()
+            loGainDefVec.push_back(0)
+            hiGainDefVec = cppyy.gbl.std.vector('unsigned int')()
+            hiGainDefVec.push_back(0)
+            comChnDefVec = cppyy.gbl.std.vector('unsigned int')()
+            comChnDefVec.push_back(0)
+            cppyy.makeClass('std::vector<unsigned int>')
+            defVec = cppyy.gbl.std.vector('std::vector<unsigned int>')()
+            defVec.push_back(loGainDefVec)
+            defVec.push_back(hiGainDefVec)
+            defVec.push_back(comChnDefVec)
+
+            #=== loop over the whole detector
+            bchDecoder = TileBchDecoder(bitPatVer)
+            for ros in range(0,TileCalibUtils.max_ros()):
+                for mod in range(TileCalibUtils.getMaxDrawer(ros)):
+                    modName = TileCalibUtils.getDrawerString(ros,mod)
+                    nChange = self.checkModuleForChanges(ros,mod)
+                    if nChange == 0 and (len(moduleList)==0 or modName not in moduleList or 'ALL' not in moduleList):
+                        #=== do nothing if nothing changed
+                        continue
+                    if nChange==-1:
+                        nUpdates += 1
+                        self.log().info("Drawer %s reset to GOOD", modName)
+                        if modName not in comment and not ("ONL" not in folderPath or "syncALL" not in comment):
+                            goodComment = False
+                            self.log().error("Comment string - '%s' - doesn't contain drawer %s", comment,modName)
+                        writer.zeroBlob(ros,mod)
+                    else:
+                        nUpdates += 1
+                        self.log().info("Applying %2i changes to drawer %s", nChange,modName)
+                        if modName not in comment and ("ONL" not in folderPath or "syncALL" not in comment):
+                            goodComment = False
+                            self.log().error("Comment string - '%s' - doesn't contain drawer %s", comment,modName)
+                        drawer = writer.getDrawer(ros,mod)
+                        drawer.init(defVec,TileCalibUtils.max_chan(),bitPatVer)
+                        for chn in range(TileCalibUtils.max_chan()):
+                            #=== get low gain bit words
+                            wordsLo = bchDecoder.encode(self.getAdcStatus(ros,mod,chn,0))
+                            chBits = wordsLo[0]
+                            loBits = wordsLo[1]
+                            #=== get high gain bit words
+                            wordsHi = bchDecoder.encode(self.getAdcStatus(ros,mod,chn,1))
+                            chBits = wordsHi[0] | chBits
+                            hiBits = wordsHi[1]
+                            #=== set low, high and common channel word in calibDrawer
+                            drawer.setData(chn,0,0, loBits)
+                            drawer.setData(chn,1,0, hiBits)
+                            drawer.setData(chn,2,0, chBits)
+                            #=== synchronizing channel status in low and high gain
+                            if wordsLo[0] != chBits:
+                                self.log().info("Drawer %s ch %2d - sync LG status with HG ", modName,chn)
+                                status = TileBchStatus( bchDecoder.decode(chBits,loBits) )
+                                self.setAdcStatus(ros,mod,chn,0,status)
+                            if wordsHi[0] != chBits:
+                                self.log().info("Drawer %s ch %2d - sync HG status with LG ", modName,chn)
+                                status = TileBchStatus( bchDecoder.decode(chBits,hiBits) )
+                                self.setAdcStatus(ros,mod,chn,1,status)
 
         #=== register
-        if nUpdates>0:
+        if nUpdates>0 or moduleList==['CMT']:
             if goodComment:
                 self.log().info("Attempting to register %i modified drawers..." , nUpdates)
-                writer.register(since,until,tag)
+                if untilCmt is not None and untilCmt!=until:
+                    if moduleList!=['CMT'] and until>since:
+                        writer.register(since,until,tag,1)
+                    if untilCmt>since:
+                        writer.register(since,untilCmt,tag,-1)
+                else:
+                    writer.register(since,until,tag)
             else:
-                self.log().error("Aborting update due to errors in comment string") 
+                self.log().error("Aborting update due to errors in comment string")
         else:
             self.log().warning("No drawer modifications detected, ignoring commit request")
 

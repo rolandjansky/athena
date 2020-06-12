@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -41,9 +41,7 @@ SCT_InnerSide::SCT_InnerSide(const std::string & name,
                              InDetDD::SCT_DetectorManager* detectorManager,
                              const SCT_GeometryManager* geometryManager,
                              SCT_MaterialManager* materials)
-  : SCT_UniqueComponentFactory(name, detectorManager, geometryManager, materials),
-    m_hybrid(0),
-    m_sensor(0)
+  : SCT_UniqueComponentFactory(name, detectorManager, geometryManager, materials)
 {
   getParameters();
   m_logVolume = preBuild();
@@ -52,10 +50,6 @@ SCT_InnerSide::SCT_InnerSide(const std::string & name,
 
 SCT_InnerSide::~SCT_InnerSide()
 {
-  delete m_hybrid;
-  delete m_sensor;
-  delete m_env1RefPointVector;
-  delete m_env2RefPointVector;
   if (m_hybridPos) m_hybridPos->unref();
   if (m_sensorPos) m_sensorPos->unref();
 }
@@ -77,8 +71,8 @@ const GeoLogVol *
 SCT_InnerSide::preBuild()
 {
   // Create child components
-  m_sensor             = new SCT_Sensor("BRLSensor", m_detectorManager, m_geometryManager, m_materials);
-  m_hybrid             = new SCT_Hybrid("Hybrid", m_detectorManager, m_geometryManager, m_materials);
+  m_sensor = std::make_unique<SCT_Sensor>("BRLSensor", m_detectorManager, m_geometryManager, m_materials);
+  m_hybrid = std::make_unique<SCT_Hybrid>("Hybrid", m_detectorManager, m_geometryManager, m_materials);
 
   //
   // Define constants for convenience.
@@ -109,8 +103,6 @@ SCT_InnerSide::preBuild()
   // ise : InnerSideEnvelope
   // Reference: sct_module_geometry.ps
   //
-  // 28th Mar S.Mima modified
-  // Wed 15th Jun 2005 D.Naito modified.
   const double w_ise1 = w_sensor + m_safety;
   const double t_ise1 = t_sensor + m_safety;
   const double l_ise1 = l_sensor + m_safety;
@@ -123,11 +115,8 @@ SCT_InnerSide::preBuild()
   const double ise2PosY = hybridPosY;
   const double ise2PosZ = hybridPosZ;
 
-  // *** 16:30 Wed 15th Jun 2005 D.Naito modified. (00)*********************************
-  // *** -->>                                      (00)*********************************
-  m_env1RefPointVector = new GeoTrf::Vector3D(0.0, 0.0, 0.0);
-  m_env2RefPointVector = new GeoTrf::Vector3D(-ise2PosX, -ise2PosY, -ise2PosZ);
-  // *** End of modified lines. ------------------ (00)*********************************
+  m_env1RefPointVector = std::make_unique<GeoTrf::Vector3D>(0.0, 0.0, 0.0);
+  m_env2RefPointVector = std::make_unique<GeoTrf::Vector3D>(-ise2PosX, -ise2PosY, -ise2PosZ);
 
   m_hybridPos             = new GeoTransform(GeoTrf::Translate3D(hybridPosX, hybridPosY, hybridPosZ));
   m_hybridPos->ref();
@@ -144,8 +133,6 @@ SCT_InnerSide::preBuild()
   // 
   //Gaudi::Units::HepRotation rotSensor;
   //rotSensor.rotateZ(180*Gaudi::Units::deg);
-  //m_outerSidePos = new GeoTrf::Transform3D(rotOuter, GeoTrf::Vector3D(0.5 * (m_sensorGap + sectThickness), 0., 0.));
-  //m_sensorPos = new GeoTransform(GeoTrf::Transform3D(rotSensor, GeoTrf::Vector3D(sensorPosX, sensorPosY, sensorPosZ)));
   m_sensorPos             = new GeoTransform(GeoTrf::Translate3D(sensorPosX, sensorPosY, sensorPosZ));
   m_sensorPos->ref();
 
@@ -165,12 +152,7 @@ SCT_InnerSide::preBuild()
   const GeoLogVol * InnerSideEnvelopeLog = new GeoLogVol("InnerSideEnvelope",
                                                          &InnerSideEnvelopeShape,
                                                          m_materials->gasMaterial());
-  // 28th Mar S.Mima modified
-  // *** 16:30 Wed 15th Jun 2005 D.Naito modified. (00)*********************************
-  //m_thickness = 0.5*t_sensor + hybridPosX + 0.5*t_ise2;
-  // *** -->>                                      (00)*********************************
   m_thickness = 0.5*t_ise1 + hybridPosX + 0.5*t_ise2;
-  // *** End of modified lines. ------------------ (00)*********************************
   m_width     = w_ise1;
   m_length    = l_ise1;
 

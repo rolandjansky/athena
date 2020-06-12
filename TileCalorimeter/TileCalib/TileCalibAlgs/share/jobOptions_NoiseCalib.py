@@ -344,7 +344,7 @@ include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
 include( "ByteStreamCnvSvcBase/BSAddProvSvc_RDO_jobOptions.py" )
 theApp.ExtSvc += [ "ByteStreamCnvSvc" ] 
 ByteStreamInputSvc = svcMgr.ByteStreamInputSvc
-ByteStreamInputSvc.FullFileName += FileNameVec
+EventSelector.Input += FileNameVec
 
 # read ByteStream and reconstruct data
 include( "TileTBRec/TileTBRec_jobOptions.py" )
@@ -399,7 +399,6 @@ if 'doPerfMon' in dir():
         jobproperties.PerfMonFlags.doFastMon = False
         include( "PerfMonComps/PerfMonSvc_jobOptions.py" )
 
-ByteStreamInputSvc.MaxBadEvents = 10000
 # ByteStreamInputSvc.DumpFlag = TRUE
 # from AthenaCommon.AppMgr import ToolSvc
 # ToolSvc.TileROD_Decoder.VerboseOutput = TRUE
@@ -416,5 +415,6 @@ svcMgr.MessageSvc.useColors = False
 print topSequence
 
 EventSelector.SkipEvents = EvtMin
+EventSelector.MaxBadEvents = 10000
 theApp.EvtMax=EvtMax
 

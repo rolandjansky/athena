@@ -135,7 +135,7 @@ for ros in range(1,5):
 
                 if copyall or statlo.isBad() or stathi.isBad():
                     #--- add IgnoreInHlt if either of the ADCs has isBad
-                    #--- add OnlineGeneralMaskAdc if the ADCs has isBad            
+                    #--- add OnlineGeneralMaskAdc if the ADCs has isBad
                     if statlo.isBad() and stathi.isBad():
                         mgr2.addAdcProblem(ros, mod, chn, 0, TileBchPrbs.IgnoredInHlt)
                         mgr2.addAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineGeneralMaskAdc)
@@ -157,7 +157,7 @@ for ros in range(1,5):
                         mgr2.delAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineGeneralMaskAdc)
                         mgr2.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.IgnoredInHlt)
                         mgr2.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineGeneralMaskAdc)
-            
+
                     #--- add OnlineBadTiming if either of the ADCs has isBadTiming
                     if statlo.isBadTiming() or stathi.isBadTiming():
                         mgr2.addAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineBadTiming)
@@ -176,7 +176,7 @@ for ros in range(1,5):
                         mgr2.delAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineTimingDmuBcOffset)
                         mgr2.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineTimingDmuBcOffset)
             else:
-                if copyall or (statlo.isBad() and not mgr2.getAdcStatus(ros, mod, chn, 0).isBad()): 
+                if copyall or (statlo.isBad() and not mgr2.getAdcStatus(ros, mod, chn, 0).isBad()):
                     mgr2.setAdcStatus(ros,mod,chn,0,statlo)
                 if copyall or (stathi.isBad() and not mgr2.getAdcStatus(ros, mod, chn, 1).isBad()):
                     mgr2.setAdcStatus(ros,mod,chn,1,stathi)
@@ -195,7 +195,7 @@ for ros in range(1,5):
                             if pb:
                                 msg += "  =>"
                             else:
-                                msg = "%s %2i %1i " % (modName, chn, adc) 
+                                msg = "%s %2i %1i " % (modName, chn, adc)
                             prbs = pbm[adc+pb*2]
                             if len(prbs):
                                 for prbCode in sorted(prbs.keys()):
@@ -223,4 +223,3 @@ else:
 #=== close databases
 db1.closeDatabase()
 db2.closeDatabase()
-

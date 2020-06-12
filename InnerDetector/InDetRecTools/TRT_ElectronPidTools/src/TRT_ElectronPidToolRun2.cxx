@@ -1,6 +1,5 @@
-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -61,18 +60,12 @@ InDet::TRT_ElectronPidToolRun2::TRT_ElectronPidToolRun2(const std::string& t, co
   AthAlgTool(t,n,p),
   m_trtId(nullptr),
   m_TRTdetMgr(nullptr),
-  m_minTRThits(5),
-  m_TRTdEdxTool(),
-  m_LocalOccTool(),
-  m_TRTStrawSummaryTool("InDetTRTStrawStatusSummaryTool",this)
+  m_minTRThits(5)
 {
   declareInterface<ITRT_ElectronPidTool>(this);
   declareInterface<ITRT_ElectronToTTool>(this);
   declareProperty("MinimumTRThitsForIDpid", m_minTRThits);
-  declareProperty("TRT_ToT_dEdx_Tool", m_TRTdEdxTool);
-  declareProperty("TRT_LocalOccupancyTool", m_LocalOccTool);
   declareProperty("isData", m_DATA = true);
-  declareProperty("TRTStrawSummaryTool",    m_TRTStrawSummaryTool);
   declareProperty("OccupancyUsedInPID", m_OccupancyUsedInPID=true);
 }
 
@@ -82,7 +75,7 @@ InDet::TRT_ElectronPidToolRun2::TRT_ElectronPidToolRun2(const std::string& t, co
 \*****************************************************************************/
 
 InDet::TRT_ElectronPidToolRun2::~TRT_ElectronPidToolRun2()
-{}
+= default;
 
 /*****************************************************************************\
 |*%%%  Initialisation  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
@@ -236,7 +229,7 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
     if (!driftcircle) continue;
 
     // From now (May 2015) onwards, we ONLY USE MIDDLE HT BIT:
-    bool isHTMB  = ((driftcircle->prepRawData()->getWord() & 0x00020000) > 0) ? true : false;
+    bool isHTMB  = (driftcircle->prepRawData()->getWord() & 0x00020000) > 0;
 
     nTRThits++;
     if (isHTMB) nTRThitsHTMB++;

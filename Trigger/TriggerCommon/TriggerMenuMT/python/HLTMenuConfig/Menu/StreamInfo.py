@@ -1,6 +1,7 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from future.moves.collections import UserList
+from six.moves import UserList
+
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
 
@@ -33,21 +34,20 @@ _all_streams = [
     StreamInfo('IDCosmic','physics',True,True),
     # EXPRESS STREAM
     StreamInfo('express', 'express', True, True),
+    # MONITORING STREAM
+    StreamInfo('IDMonitoring','monitoring', True, True),
     # CALIBRATION STREAMS
     StreamInfo('BeamSpot', 'calibration', True, False),
     StreamInfo('LArCells', 'calibration', False, False),
     StreamInfo('RPCSecondaryReadout', 'calibration', False, False),
     StreamInfo('CostMonitoring','calibration', False, False),
     StreamInfo('SCTNoise','calibration',False,False),
+    StreamInfo('Tile','calibration',False,False),
     # HI STREAMS
     StreamInfo('HardProbes', 'physics', True, True),
     StreamInfo('MinBias', 'physics', True, True),
-    StreamInfo('UPC', 'physics', True, True),
-    StreamInfo('UCC', 'physics', True, True),
-    StreamInfo('PC', 'physics', True, True),
-    StreamInfo('CC', 'physics', True, True),
-    StreamInfo('PCPEB', 'calibration', False, False),
-    StreamInfo('CCPEB', 'calibration', False, False),
+    # Special stream to be used only for special chains rejecting all events like timeburner
+    StreamInfo('DISCARD', 'unknown', False, False)
 ]
 
 

@@ -14,7 +14,12 @@
   <class name="LArNoisyROSummary_p5" id="4AE11DAE-F40C-4B90-B105-0A7BA5D29C1D"/>
   <class name="std::vector<std::pair<unsigned int, std::vector<int> > >" />
   <!-- pair<unsigned,vector<int> > and associated pair_base -->
-  <class pattern="std::*pair*<unsigned int*std::vector<int*" />
+  <class pattern="std::*pair*<unsigned int*std::vector<int*> >" />
 
+  <exclusion>
+    <!-- Exclude internal traits classes using pair that could be
+         matched by the previous rules. -->
+    <class pattern="*<std::pair*" />
+  </exclusion>
 
 </lcgdict>

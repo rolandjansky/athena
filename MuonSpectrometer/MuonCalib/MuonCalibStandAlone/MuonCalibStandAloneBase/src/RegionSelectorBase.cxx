@@ -1,19 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibStandAloneBase/RegionSelectorBase.h"
 #include "MuonCalibStandAloneBase/RegionLogicalOperation.h"
 #include "MuonCalibStandAloneBase/RegionElement.h"
-
-
+#include "AthenaKernel/getMessageSvc.h"
 
 namespace MuonCalib {
 
 RegionSelectorBase * RegionSelectorBase::GetRegion(const std::string & input)
 	{
 	unsigned int i(0);
-	std::cout<<input<<std::endl;
 	return process_region(input, i, false);
 	}
 
@@ -23,6 +21,7 @@ RegionSelectorBase * RegionSelectorBase::process_region(const std::string & inpu
 //create master region as logical operation
 	RegionLogicalOperation *new_region  = new RegionLogicalOperation();
 	bool currect_inverse(false);
+	MsgStream log(Athena::getMessageSvc(),"RegionSelectorBase");
 //loop over characters
 	for(; i<input.size(); i++)
 		{
@@ -41,28 +40,27 @@ RegionSelectorBase * RegionSelectorBase::process_region(const std::string & inpu
 					}
 				if(i==input.size())
 					{
-					std::cerr<<"Missing ']' at end of input!"<<std::endl;
-					std::cerr<<"Started here:"<<std::endl;
-					print_position(input, start_element);
+					log<<MSG::WARNING<<"Missing ']' at end of input! Started here:"<<endmsg;
+					print_position(input, start_element, &log);
 					delete new_region;
-					return NULL;
+					return nullptr;
 					}
 				RegionElement *reg_el=new RegionElement();
 			//syntax error in region
 				if(!reg_el->Initialize(element))
 					{
-					print_position(input, start_element);
+					print_position(input, start_element, &log);
 					delete reg_el;
 					delete new_region;
-					return NULL;
+					return nullptr;
 					}
 			//add region to operation
 				if(!new_region->AddRegion(reg_el, currect_inverse))
 					{
-					std::cerr<<"Missing operator!"<<std::endl;
-					print_position(input, start_element);
+					log<<MSG::WARNING<<"Missing operator!"<<endmsg;
+					print_position(input, start_element, &log);
 					delete new_region;
-					return NULL;
+					return nullptr;
 					}
 				currect_inverse=false;
 				break;
@@ -73,23 +71,23 @@ RegionSelectorBase * RegionSelectorBase::process_region(const std::string & inpu
 				i++;
 				if(i>=input.size())
 					{
-					std::cerr<<"'(' at end of input!"<<std::endl;
-					print_position(input, start_element);
+					log<<MSG::WARNING<<"'(' at end of input!"<<endmsg;
+					print_position(input, start_element, &log);
 					delete new_region;
-					return NULL;
+					return nullptr;
 					}
 				RegionSelectorBase *second_region(process_region(input, i, true));
-				if(second_region == NULL)
+				if(!second_region)
 					{
 					delete new_region;
-					return NULL;
+					return nullptr;
 					}
 				if(!new_region->AddRegion(second_region, currect_inverse))
 					{
-					std::cerr<<"Missing operator!"<<std::endl;
-					print_position(input, start_element);
+					log<<MSG::WARNING<<"Missing operator!"<<endmsg;
+					print_position(input, start_element, &log);
 					delete new_region;
-					return NULL;
+					return nullptr;
 					}
 				currect_inverse=false;	
 				break;
@@ -99,10 +97,10 @@ RegionSelectorBase * RegionSelectorBase::process_region(const std::string & inpu
 				{
 				if(currect_inverse)
 					{
-					std::cerr<<"Surplus '!'"<<std::endl;
-					print_position(input, start_element);
+					log<<MSG::WARNING<<"Surplus '!'"<<endmsg;
+					print_position(input, start_element, &log);
 					delete new_region;
-					return NULL;
+					return nullptr;
 					}
 				currect_inverse = true;
 				break;
@@ -114,10 +112,10 @@ RegionSelectorBase * RegionSelectorBase::process_region(const std::string & inpu
 				bool next_op(input[i]=='|');
 				if(!new_region->AddOperator(next_op))
 					{
-					std::cerr<<"Unexpected operator!"<<std::endl;
-					print_position(input, start_element);
+					log<<MSG::WARNING<<"Unexpected operator!"<<endmsg;
+					print_position(input, start_element, &log);
 					delete new_region;
-					return NULL;
+					return nullptr;
 					}
 				break;
 				}
@@ -126,19 +124,19 @@ RegionSelectorBase * RegionSelectorBase::process_region(const std::string & inpu
 				{
 				if(new_region->SurplusOperator())
 					{
-					std::cerr<<"Surplus operator"<<std::endl;
-					print_position(input, start_element);
+					log<<MSG::WARNING<<"Surplus operator"<<endmsg;
+					print_position(input, start_element, &log);
 					delete new_region;
-					return NULL;
+					return nullptr;
 					}
 				if(is_in_braces)
 					{
 					return new_region;
 					}
-				std::cerr<<"Unexpected ')'"<<std::endl;
-				print_position(input, start_element);
+				log<<MSG::WARNING<<"Unexpected ')'"<<endmsg;
+				print_position(input, start_element, &log);
 				delete new_region;
-				return NULL;
+				return nullptr;
 				break;
 				}
 		//ignore whitespaces
@@ -148,32 +146,32 @@ RegionSelectorBase * RegionSelectorBase::process_region(const std::string & inpu
 				break;
 		//any other characters are junk at this point
 			default:
-				std::cerr<<"Syntax Error"<<std::endl;
-				print_position(input, start_element);
+			    log<<MSG::WARNING<<"Syntax Error"<<endmsg;
+				print_position(input, start_element, &log);
 				delete new_region;
-				return NULL;
+				return nullptr;
 			}
 		}
 //if we ar ein a subregion and reached the end of input there is an error
 	if(is_in_braces)
 		{
-		std::cerr<<"Missing ')'"<<std::endl;
-		print_position(input, start_sub);
+		log<<MSG::WARNING<<"Missing ')'"<<endmsg;
+		print_position(input, start_sub, &log);
 		delete new_region;
-		return NULL;
+		return nullptr;
 		}
 	if(new_region->SurplusOperator())
 		{
-		std::cerr<<"Surplus operator"<<std::endl;
-		print_position(input, i);
+		log<<MSG::WARNING<<"Surplus operator"<<endmsg;
+		print_position(input, i, &log);
 		delete new_region;
-		return NULL;
+		return nullptr;
 		}
 	return new_region;
 	
 	}
 
-void  RegionSelectorBase:: print_position(const std::string & input, const unsigned int &position)
+void RegionSelectorBase::print_position(const std::string & input, const unsigned int &position, MsgStream *msgStr)
 	{
 	unsigned int i(0);
 	std::string st1, st2;
@@ -185,10 +183,7 @@ void  RegionSelectorBase:: print_position(const std::string & input, const unsig
 		{
 		st2+=input[i];
 		}
-	std::cerr<<st1<<"*"<<st2<<std::endl;
+	*msgStr<<MSG::WARNING<<st1<<"*"<<st2<<endmsg;
 	}
-
-
-
 
 }//namespace MuonCalib

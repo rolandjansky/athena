@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # configurables for TrigEgammaRec fexes
 from AthenaCommon.Logging import logging
@@ -12,13 +12,9 @@ from egammaRec.Factories import Factory, ToolFactory, FcnWrapper, getPropertyVal
 # The following tools use the offline configuration
 from egammaTools.egammaToolsFactories import EMConversionBuilder, EGammaAmbiguityTool,EMFourMomBuilder
 
+# Import the xAOD isolation parameters.
+from xAODPrimitives.xAODIso import xAODIso as isoPar
 
-# Define the isolation types
-import ROOT, cppyy
-# Need to be sure base dict is loaded first.
-cppyy.loadDictionary('xAODCoreRflxDict')
-cppyy.loadDictionary('xAODPrimitivesDict')
-isoPar = ROOT.xAOD.Iso
 ## Be carefull : store them in decreasing dR
 TrigEgammaIsoTypes = [ [ int(isoPar.ptcone40), int(isoPar.ptcone30), int(isoPar.ptcone20)],
         [ int(isoPar.etcone40), int(isoPar.etcone30), int(isoPar.etcone20)],

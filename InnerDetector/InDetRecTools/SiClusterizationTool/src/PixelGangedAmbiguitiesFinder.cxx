@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -53,7 +53,7 @@ StatusCode PixelGangedAmbiguitiesFinder::initialize() {
   // Output is the map.
 void PixelGangedAmbiguitiesFinder::execute(
                               PixelClusterCollection* collection,
-                              PixelGangedClusterAmbiguities& theMap){
+                              PixelGangedClusterAmbiguities& theMap) const{
     if (collection->size()<2) return;
 
     ATH_MSG_DEBUG(collection->size() << " clusters");
@@ -303,7 +303,6 @@ void PixelGangedAmbiguitiesFinder::execute(
     std::vector<PixelClusterCollection::iterator>::iterator rmend=rmList.end();
     std::sort(rmit,rmend);
     for ( ; rmit!=rmend ; ++rmit){
-      Identifier gangedID;
       ATH_MSG_DEBUG("Removed " << rmNumber+1 << " cluster: "  
                     << std::hex << (*(*rmit-rmNumber))->identify() << std::dec);
       collection->erase(*rmit-rmNumber); // The position of the iterator

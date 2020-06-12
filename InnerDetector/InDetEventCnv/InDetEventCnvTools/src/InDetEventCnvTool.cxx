@@ -32,7 +32,7 @@ InDet::InDetEventCnvTool::InDetEventCnvTool(const std::string& t,
                                             const std::string& n,
                                             const IInterface*  p )
   :
-  AthAlgTool(t,n,p),
+  base_class(t,n,p),
   m_setPrepRawDataLink(false),
   m_IDHelper(nullptr),
   m_pixelHelper(nullptr),
@@ -40,7 +40,6 @@ InDet::InDetEventCnvTool::InDetEventCnvTool(const std::string& t,
   m_TRTHelper(nullptr),
   m_idDictMgr(nullptr)
 {
-  declareInterface<ITrkEventCnvTool>(this);
   declareProperty("RecreatePRDLinks", m_setPrepRawDataLink);
   
 }
@@ -155,6 +154,29 @@ void InDet::InDetEventCnvTool::prepareRIO_OnTrack( Trk::RIO_OnTrack *RoT ) const
   InDet::TRT_DriftCircleOnTrack* trt = dynamic_cast<InDet::TRT_DriftCircleOnTrack*>(RoT);
   if (trt!=0) {
     prepareRIO_OnTrackElementLink<const InDet::TRT_DriftCircleContainer, InDet::TRT_DriftCircleOnTrack>(trt);
+    return;
+  }
+  return;
+}
+
+void
+InDet::InDetEventCnvTool::prepareRIO_OnTrackLink( const Trk::RIO_OnTrack *RoT,
+                                                  ELKey_t& key,
+                                                  ELIndex_t& index) const
+{
+  const InDet::PixelClusterOnTrack* pixel = dynamic_cast<const InDet::PixelClusterOnTrack*>(RoT);
+  if (pixel!=0) {
+    prepareRIO_OnTrackElementLink<const InDet::PixelClusterContainer, InDet::PixelClusterOnTrack>(pixel, key, index);
+    return;
+  }
+  const InDet::SCT_ClusterOnTrack* sct = dynamic_cast<const InDet::SCT_ClusterOnTrack*>(RoT);
+  if (sct!=0) {
+    prepareRIO_OnTrackElementLink<const InDet::SCT_ClusterContainer, InDet::SCT_ClusterOnTrack>(sct, key, index);
+    return;
+  }
+  const InDet::TRT_DriftCircleOnTrack* trt = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(RoT);
+  if (trt!=0) {
+    prepareRIO_OnTrackElementLink<const InDet::TRT_DriftCircleContainer, InDet::TRT_DriftCircleOnTrack>(trt, key, index);
     return;
   }
   return;

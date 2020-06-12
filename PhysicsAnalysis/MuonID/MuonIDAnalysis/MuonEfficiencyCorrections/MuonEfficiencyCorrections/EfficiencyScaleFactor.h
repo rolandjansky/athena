@@ -88,7 +88,7 @@ namespace CP {
             /// bin by bin
             bool SetSystematicBin(int bin);
             
-            bool SeperateSystBins() const;
+            bool separateBinSyst() const;
             bool IsUpVariation() const;
             
 
@@ -174,7 +174,7 @@ namespace CP {
             /// steers the pt dependent systematics
             bool m_respond_to_kineDepSyst;
             /// Can the systematic be decorrelated
-            bool m_seperateBinSyst;
+            bool m_separateBinSyst;
             /// the histograms needed to run
             std::unique_ptr<HistHandler> m_sf;
             std::unique_ptr<HistHandler> m_eff;

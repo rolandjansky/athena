@@ -1,0 +1,332 @@
+/*
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+ */
+/**
+ * @file CaloUtils/ToolWithConstants.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Apr, 2020
+ * @brief Hold constants for a tool.
+ */
+
+
+namespace CaloUtils {
+
+
+/**
+ * @brief Declare a constant with no default.
+ * @param owner The owning @c ToolWithConstants.
+ * @param name Name of the constant.
+ * @param doc Documentation string.
+ */
+template <class T>
+template <class OWNER>
+ToolConstant<T>::ToolConstant (OWNER* owner,
+                               const std::string& name,
+                               const std::string& doc /*= ""*/)
+  : m_prop (name, doc, owner->m_impl),
+    m_toolVersion (owner->toolVersion())
+{
+  owner->declareProperty (m_prop);
+  owner->m_impl.addConstant (this);
+  m_prop.template setOwnerType<OWNER>();
+}
+
+
+/**
+ * @brief Declare a constant with no default.
+ * @param owner The owning @c ToolWithConstants.
+ * @param name Name of the constant.
+ * @param doc Documentation string.
+ *
+ * (Needed in addition to the previous signature in order to avoid ambiguities;
+ * otherwise, if a char* is given for the third argument, it would
+ * match the following signature instead of the previous one.)
+ */
+template <class T>
+template <class OWNER>
+ToolConstant<T>::ToolConstant (OWNER* owner,
+                               const std::string& name,
+                               const char* doc)
+  : ToolConstant (owner, name, std::string(doc))
+{
+}
+
+
+/**
+ * @brief Declare a constant with a default.
+ * @param owner The owning @c ToolWithConstants.
+ * @param name Name of the constant.
+ * @param deflt Default value.
+ * @param doc Documentation string.
+ * 
+ * Only possible for arithmetic types, not @c Array<N>.
+ */
+template <class T>
+template <class OWNER,
+          typename U /*= T*/,
+          typename /*= std::enable_if_t<std::is_arithmetic_v<U> >*/ >
+ToolConstant<T>::ToolConstant (OWNER* owner,
+                               const std::string& name,
+                               const T& deflt,
+                               const std::string& doc /*= ""*/)
+  : m_prop (name, doc, owner->m_impl, deflt),
+    m_toolVersion (owner->toolVersion())
+{
+  owner->declareProperty (m_prop);
+  owner->m_impl.addConstant (this);
+  m_prop.template setOwnerType<OWNER>();
+}
+
+
+/** 
+ * @brief Retrieve the value of a constant.
+ * @param c Context for accessing condtions (as returned from context()).
+ */
+template <class T>
+T ToolConstant<T>::operator() (const Context& c) const
+{
+  // If it's been set from JO, just return the value.
+  if (m_prop.m_setFromJO) {
+    return static_cast<T> (m_prop);
+  }
+
+  // Check for a setting from COOL.
+  if (c.m_constants) {
+    // Verify version.
+    if (c.m_constants->version() > m_toolVersion) {
+      throw ExcBadToolConstantVersion (m_prop.m_impl.m_toolName,
+                                       m_prop.name(),
+                                       m_toolVersion,
+                                       c.m_constants->version());
+    }
+
+    // Convert form the Arrayrep stored in COOL.
+    const CxxUtils::Arrayrep& rep =
+      c.m_constants->getrep (m_prop.m_impl.m_toolName,
+                             m_prop.m_impl.m_prefix + m_prop.name());
+
+    T ret;
+    CxxUtils::fromArrayrep (rep, ret);
+    return ret;
+  }
+
+  // If we have a default value, return it.
+  if (m_prop.m_hasDefault) {
+    return static_cast<T> (m_prop);
+  }
+
+  // Otherwise it's an error.
+  throw CaloUtils::ExcConstantNotSet (m_prop.m_impl.m_toolName, m_prop.name());
+}
+
+
+/** 
+ * @brief Retrieve the value of a constant.
+ *
+ * This variant may only be used if the constant was initialized via JO.
+ */
+template <class T>
+inline
+T ToolConstant<T>::operator()() const
+{
+  if (!m_prop.m_setFromJO) {
+    CaloUtils::throwExcBadContextlessRetrieve (m_prop.m_impl.m_toolName, m_prop.name());
+  }
+  return static_cast<T> (m_prop);
+}
+
+
+/**
+ * @brief Return the name of this constant.
+ */
+template <class T>
+std::string ToolConstant<T>::name() const
+{
+  return m_prop.name();
+}
+
+
+/**
+ * @brief Was this constant set through job options?
+ */
+template <class T>
+bool ToolConstant<T>::setFromJO() const
+{
+  return m_prop.m_setFromJO;
+}
+
+
+/** 
+ * @brief Constructor, no default value.
+ * @param name Constant name.
+ * @param doc Documentation string.
+ * @param impl Internal implementation object.
+ */
+template <class T>
+ToolConstant<T>::CProperty::CProperty (const std::string& name,
+                                       const std::string& doc,
+                                       ToolWithConstantsImpl& impl)
+  : Gaudi::Property<T> (name, T(), doc),
+    m_impl (impl),
+    m_hasDefault (false)
+{
+}
+
+
+/** 
+ * @brief Constructor, with default value.
+ * @param name Constant name.
+ * @param doc Documentation string.
+ * @param impl Internal implementation object.
+ * @param deflt Default value.
+ */
+template <class T>
+ToolConstant<T>::CProperty::CProperty (const std::string& name,
+                                       const std::string& doc,
+                                       ToolWithConstantsImpl& impl,
+                                       const T& deflt)
+  : Gaudi::Property<T> (name, deflt, doc),
+    m_impl (impl),
+    m_hasDefault (true)
+{
+  // Install the default value in our internal constats representation.
+  CaloRec::Arrayrep rep;
+  rep.m_data.push_back (deflt);
+  m_impl.m_constants.setrep (this->name(), std::move (rep));
+}
+
+
+/**
+ * @brief Return the value of this property as a string.
+ */
+template <class T>
+std::string ToolConstant<T>::CProperty::toString() const
+{
+  // Do this in terms of toStream().
+  std::ostringstream ss;
+  toStream (ss);
+  return ss.str();
+}
+
+
+/**
+ * @brief Print the value of this property to a stream.
+ * @param out Stream to which to print.
+ */
+template <class T>
+void ToolConstant<T>::CProperty::toStream( std::ostream& out ) const
+{
+  out << static_cast<T> (*this);
+}
+
+
+/** 
+ * @brief Initialize this property's value from a string.
+ * @param value String from which to initialize.
+ */
+template <class T>
+StatusCode ToolConstant<T>::CProperty::fromString( const std::string& value )
+{
+  // A given constant should not be set from JO more than once.
+  if (m_setFromJO) {
+    throw ExcConstantReset (m_impl.m_toolName, this->name());
+  }
+
+  // Convert from string and sae as the value of the property.
+  CaloRec::Arrayrep rep (value, m_impl.m_toolName);
+  m_impl.m_constants.setrep (this->name(), rep);
+  T val;
+  CxxUtils::fromArrayrep (m_impl.m_constants.getrep (m_impl.m_toolName,
+                                                     this->name()), val);
+  *this = val;
+
+  // Remember that this property was set from JO.
+  m_setFromJO = true;
+  return StatusCode::SUCCESS;
+}
+
+
+//***************************************************************************
+
+
+
+/**
+ * @brief Initialize method.  Derived classes must call this.
+ */
+template <class BASE>
+StatusCode ToolWithConstants<BASE>::initialize()
+{
+  ATH_CHECK( m_impl.initialize() );
+  ATH_CHECK( BASE::initialize() );
+  return StatusCode::SUCCESS;
+}   
+
+     
+/**
+ * @brief Create a @c Context object.
+ *
+ * This can then be passed to @c Constant::operator().
+ */
+template <class BASE>
+inline
+typename ToolWithConstants<BASE>::Context
+ToolWithConstants<BASE>::context (const EventContext& ctx) const
+{
+  return m_impl.context (ctx);
+}
+
+
+/**
+ * @brief Dump method (for debugging)
+ * @param stream Ostream to which to write.
+ * @param name Name to go in output
+ * @param ctx Event context.
+ */
+template <class BASE>
+void ToolWithConstants<BASE>::writeConstants (std::ostream& stream,
+                                              const std::string& name,
+                                              const EventContext& ctx) const
+{
+  m_impl.writeConstants (stream, name, ctx);
+}
+
+
+/**
+ * @brief Merge our constants into @c out with the proper prefix.
+ * @param[out] out Object to receive our constants.
+ * @param ctx Event context.
+ */
+template <class BASE>
+StatusCode
+ToolWithConstants<BASE>::mergeConstants (CaloRec::ToolConstants& out,
+                                         const EventContext& ctx) const
+{
+  Context myctx = context (ctx);
+  return m_impl.mergeConstants (this->type(),
+                                toolVersion(),
+                                myctx,
+                                m_isdummy (myctx),
+                                out);
+}
+
+
+/**
+ * @brief Return the version number for this tool.
+ *
+ * A saved set of constants includes both the C++ class name and
+ * a version number.  The idea is that the version number can
+ * be bumped whenever there's a backwards-incompatible change;
+ * this gives some protection against trying to use an old version
+ * of a tool with an incompatible newer set of constants.
+ *
+ * If you want a tool to have a version number, override this method.
+ * Otherwise, it will default to a version number of 0.
+ */
+template <class BASE>
+int ToolWithConstants<BASE>::toolVersion() const
+{
+  return 0;
+}
+
+
+} // namespace CaloUtils

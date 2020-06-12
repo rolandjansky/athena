@@ -39,7 +39,7 @@ namespace InDet {
   StatusCode SiSpacePointMakerTool::initialize()  {
     // Get the SCT Helper
     ATH_CHECK(detStore()->retrieve(m_idHelper, "SCT_ID"));
-    m_SCTgapParameter = std::fabs(m_SCTgapParameter);
+    m_SCTgapParameter = std::abs(m_SCTgapParameter);
     if (m_SCTgapParameter > 0.002) m_SCTgapParameter = 0.002;
     return StatusCode::SUCCESS;
   }
@@ -141,19 +141,19 @@ namespace InDet {
       // point up to around z = +- 20 cm
 
       
-      if      (std::fabs(            m             ) > limit) ok = false;
-      else if (std::fabs((n=-(midpoint2x2.dot(qs)/strip2Direction.dot(qs)))) > limit) ok = false;
+      if      (std::abs(            m             ) > limit) ok = false;
+      else if (std::abs((n=-(midpoint2x2.dot(qs)/strip2Direction.dot(qs)))) > limit) ok = false;
  
       if ((not ok) and (stripLengthGapTolerance != 0.)) {
 
         const double qm     = strip1Direction.mag()                             ;
         const double limitn = limit+(stripLengthGapTolerance/qm);
 
-        if (std::fabs(m) <= limitn)  {
+        if (std::abs(m) <= limitn)  {
    
           if (n==0.) n = -(midpoint2x2.dot(qs)/strip2Direction.dot(qs));
 
-          if (std::fabs(n) <= limitn) {
+          if (std::abs(n) <= limitn) {
             double mn  = strip1Direction.dot(strip2Direction)/(qm*qm);
             if ((m >  1.) or (n >  1.)) {
               double dm = (m-1.)   ;
@@ -170,7 +170,7 @@ namespace InDet {
               m += sm;
               n += (sm*mn);
             }
-            if (std::fabs(m) < limit and std::fabs(n) < limit) ok = true;
+            if (std::abs(m) < limit and std::abs(n) < limit) ok = true;
           }
         }
       }
@@ -181,7 +181,7 @@ namespace InDet {
       const std::pair<IdentifierHash,IdentifierHash> elementIdList( element1->identifyHash() , element2->identifyHash() ); 
       const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>*
         clusList = new std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>(&cluster1, &cluster2);
-      return new InDet::SCT_SpacePoint(elementIdList, new Amg::Vector3D(point), clusList);
+      return new InDet::SCT_SpacePoint(elementIdList, point, clusList);
     }
 
     return nullptr;
@@ -446,10 +446,10 @@ namespace InDet {
     double r   = std::sqrt(T1(0,3)*T1(0,3)+T1(1,3)*T1(1,3))                                        ;
     double s   = (T1(0,3)-T2(0,3))*T1(0,2)+(T1(1,3)-T2(1,3))*T1(1,2)+(T1(2,3)-T2(2,3))*T1(2,2);
 
-    double dm  = (m_SCTgapParameter*r)*std::fabs(s*x12);
+    double dm  = (m_SCTgapParameter*r)*std::abs(s*x12);
     double d   = dm/std::sqrt((1.-x12)*(1.+x12));
     
-    if (std::fabs(T1(2,2)) > 0.7) d*=(r/std::fabs(T1(2,3))); // endcap d = d*R/Z
+    if (std::abs(T1(2,2)) > 0.7) d*=(r/std::abs(T1(2,3))); // endcap d = d*R/Z
 
     stripLengthGapTolerance = d; 
     
@@ -709,13 +709,13 @@ namespace InDet {
     double b  = In0.strip_direction().dot(In1.normal());
     double l0 = In0.oneOverStrip()*slimit+limit ;
 
-    if(std::fabs(a) > (std::fabs(b)*l0)) return nullptr;
+    if(std::abs(a) > (std::abs(b)*l0)) return nullptr;
 
     double c  =-In1.traj_direction().dot(In0.normal());
     double d  = In1.strip_direction().dot(In0.normal()); 
     double l1 = In1.oneOverStrip()*slimit+limit ;
 
-    if(std::fabs(c) > (std::fabs(d)*l1)) return nullptr;
+    if(std::abs(c) > (std::abs(d)*l1)) return nullptr;
 
     double m = a/b;
 
@@ -730,7 +730,7 @@ namespace InDet {
         double dmn = (n-1.)*cs; 
         if(dmn > dm) dm = dmn;
         m-=dm; n-=(dm/cs);
-        if(std::fabs(m) > limit || std::fabs(n) > limit) return nullptr;
+        if(std::abs(m) > limit || std::abs(n) > limit) return nullptr;
       } else if(m < -limit || n < -limit) {
         
         double cs  = In0.strip_direction().dot(In1.strip_direction())*(In0.oneOverStrip()*In0.oneOverStrip());
@@ -738,7 +738,7 @@ namespace InDet {
         double dmn = -(1.+n)*cs; 
         if(dmn > dm) dm = dmn;
         m+=dm; n+=(dm/cs);
-        if(std::fabs(m) > limit || std::fabs(n) > limit) return nullptr;
+        if(std::abs(m) > limit || std::abs(n) > limit) return nullptr;
       }
     }
     Amg::Vector3D point(In0.position(m));
@@ -746,7 +746,7 @@ namespace InDet {
     const std::pair<IdentifierHash,IdentifierHash> elementIdList(ID0,ID1); 
     const std::pair<const Trk::PrepRawData*,const Trk::PrepRawData*>* 
       clusList = new std::pair<const Trk::PrepRawData*,const Trk::PrepRawData*>(In0.cluster(),In1.cluster());
-    return new InDet::SCT_SpacePoint(elementIdList,new Amg::Vector3D(point),clusList);
+    return new InDet::SCT_SpacePoint(elementIdList, point, clusList);
   }
  
 }

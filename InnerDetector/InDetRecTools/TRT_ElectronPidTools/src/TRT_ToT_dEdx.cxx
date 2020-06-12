@@ -5,7 +5,7 @@
 //
 //  !!!!!! Problem with calibration constants for mean ToT on the tracks (norm_ ...) !!!!!!!
 //
-#include "TRT_ElectronPidTools/TRT_ToT_dEdx.h"
+#include "TRT_ToT_dEdx.h"
 #include "TRT_ElectronPidTools/TRT_ToT_Corrections.h"
 
 
@@ -16,7 +16,6 @@
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 
 #include "TrkSurfaces/Surface.h"
-#include "xAODEventInfo/EventInfo.h"
 
 #include "GaudiKernel/IChronoStatSvc.h"
 
@@ -25,6 +24,7 @@
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/ReadCondHandle.h"
+#include "StoreGate/ReadDecorHandle.h"
 #include <cmath>
 #include <limits>
 
@@ -51,8 +51,8 @@ TRT_ToT_dEdx::TRT_ToT_dEdx(const std::string& t, const std::string& n, const IIn
   
   SetDefaultConfiguration();
 
-  m_timingProfile         = 0;
-  m_trtId                                         = 0;
+  m_timingProfile         = nullptr;
+  m_trtId                                         = nullptr;
 }
 
 
@@ -98,7 +98,7 @@ void TRT_ToT_dEdx::ShowDEDXSetup() const
 
 
 // destructor
-TRT_ToT_dEdx::~TRT_ToT_dEdx() {}
+TRT_ToT_dEdx::~TRT_ToT_dEdx() = default;
 
 
 
@@ -116,14 +116,14 @@ StatusCode TRT_ToT_dEdx::initialize()
     return StatusCode::FAILURE;
   }
 
-  m_timingProfile=0;
+  m_timingProfile=nullptr;
   sc = service("ChronoStatSvc", m_timingProfile);
-  if ( sc.isFailure() || 0 == m_timingProfile) {
+  if ( sc.isFailure() || nullptr == m_timingProfile) {
     ATH_MSG_DEBUG ("Can not find ChronoStatSvc name="<<m_timingProfile );
   }
  
   // Initialize ReadHandleKey and ReadCondHandleKey
-  ATH_CHECK(m_eventInfoKey.initialize());
+  ATH_CHECK(m_rdhkEvtInfo.initialize());
   ATH_CHECK(m_ReadKey.initialize());
   ATH_CHECK(m_trtDetEleContKey.initialize());
   //Get AssoTool
@@ -136,10 +136,10 @@ StatusCode TRT_ToT_dEdx::initialize()
     ATH_MSG_ERROR ("Failed to retrieve StrawStatus Summary " << m_TRTStrawSummaryTool);
     ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
     return sc;
-  } else {
+  } 
     if ( !m_TRTStrawSummaryTool.empty() ) 
       ATH_MSG_INFO ( "Retrieved tool " << m_TRTStrawSummaryTool );
-  }
+  
 
   if (m_useTrackPartWithGasType > EGasType::kUnset || 
       m_useTrackPartWithGasType < EGasType::kXenon) {
@@ -223,12 +223,27 @@ bool TRT_ToT_dEdx::isGood_Hit(const Trk::TrackStateOnSurface *itr, bool divideBy
                               bool useHThits, double& length) const
 {
   const Trk::MeasurementBase* trkM = itr->measurementOnTrack();
-  if (!trkM)  return false;   
-  const InDet::TRT_DriftCircleOnTrack *driftcircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(trkM);  
-  if (!driftcircle) return false;
+  if (!trkM)  {
+    return false;
+  }
+
+  // Check if this is RIO on track
+  // annd if yes check if is TRT Drift Circle
+  // then set the ptr
+  const InDet::TRT_DriftCircleOnTrack* driftcircle = nullptr;
+  if (trkM->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
+    const Trk::RIO_OnTrack* tmpRio = static_cast<const Trk::RIO_OnTrack*>(trkM);
+    if (tmpRio->rioType(Trk::RIO_OnTrackType::TRT_DriftCircle)) {
+      driftcircle = static_cast<const InDet::TRT_DriftCircleOnTrack*>(tmpRio);
+    }
+  }
+
+  if (!driftcircle) {
+    return false;
+  }
 
   const Trk::TrackParameters* trkP = itr->trackParameters();
-  if(trkP==0)return false; 
+  if(trkP==nullptr)return false; 
 
   SG::ReadCondHandle<InDetDD::TRT_DetElementContainer> trtDetEleHandle(m_trtDetEleContKey);
   const InDetDD::TRT_DetElementCollection* elements(trtDetEleHandle->getElements());
@@ -310,22 +325,21 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool divideByL, bool useHThit
   ATH_MSG_DEBUG("dEdx()");
 
   double nVtx=-1.;
-  // Event information 
-  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
-  if (!eventInfo.isValid()){
-    REPORT_MESSAGE(MSG::FATAL) << "Cannot retrieve EventInfo";
+  // Event information
+  SG::ReadDecorHandle<xAOD::EventInfo,float> eventInfoDecor(m_rdhkEvtInfo);
+  if(!eventInfoDecor.isPresent()) {
+    REPORT_MESSAGE(MSG::FATAL) << "EventInfo decoration not available!";
     return 0;
   }
- 
+
   //    Average interactions per crossing for the current BCID
-  double mu = -1.;
-  mu = eventInfo->averageInteractionsPerCrossing();
+  double mu = eventInfoDecor(0);
   if(m_isData) {
     nVtx = 1.3129 + 0.716194*mu + (-0.00475074)*mu*mu;
   }
-  else
+  else {
     nVtx = 1.0897 + 0.748287*mu + (-0.00421788)*mu*mu;
-
+  }
 
   if (!track) {
     return 0;
@@ -374,7 +388,7 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool divideByL, bool useHThit
 
       return ToTsum/nhits;
     }
-  else
+  
     if(m_toolScenario==kAlgReweight || m_toolScenario==kAlgReweightTrunkOne)
       {
         std::vector<double> vecToT_Xe;
@@ -521,7 +535,7 @@ double TRT_ToT_dEdx::usedHits(const Trk::Track* track, bool divideByL, bool useH
 
       return nhits;
     }
-  else
+  
     if(m_toolScenario==kAlgReweight || m_toolScenario==kAlgReweightTrunkOne)
       {
         int nhits = 0;
@@ -652,7 +666,7 @@ double TRT_ToT_dEdx::getTest(const double dEdx_obs, const double pTrk, Trk::Part
   if( (Pone+Ptwo) != 0){
     ATH_MSG_DEBUG("getTest():: return "<<Pone/(Pone+Ptwo)<<"");
     return Pone/(Pone+Ptwo);
-  }else
+  }
     return 0.5;
 }
 
@@ -704,12 +718,12 @@ double TRT_ToT_dEdx::predictdEdx(EGasType gasType, const double pTrk, Trk::Parti
     return dEdxCorrection->paraDivideByLengthDedxP1[gasType]/std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), dEdxCorrection->paraDivideByLengthDedxP4[gasType])  * 
       (dEdxCorrection->paraDivideByLengthDedxP2[gasType] - std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), dEdxCorrection->paraDivideByLengthDedxP4[gasType] ) 
        - log(dEdxCorrection->paraDivideByLengthDedxP3[gasType]+1./( std::pow( betaGamma, dEdxCorrection->paraDivideByLengthDedxP5[gasType]) ) ) );
-  }else {
+  } 
     if(dEdxCorrection->paraDedxP3[gasType]+1./( std::pow( betaGamma, dEdxCorrection->paraDedxP5[gasType]) )<=0)return 0; 
     return dEdxCorrection->paraDedxP1[gasType]/std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), dEdxCorrection->paraDedxP4[gasType])  * 
       (dEdxCorrection->paraDedxP2[gasType] - std::pow( sqrt( (betaGamma*betaGamma)/(1.+(betaGamma*betaGamma)) ), dEdxCorrection->paraDedxP4[gasType] ) 
        - log(dEdxCorrection->paraDedxP3[gasType]+1./( std::pow( betaGamma, dEdxCorrection->paraDedxP5[gasType]) ) ) );
-  }
+  
   //return 0;  
 }
 
@@ -746,7 +760,12 @@ double TRT_ToT_dEdx::mass(const Trk::TrackStateOnSurface *itr, const double pTrk
   
   TF1 blumRolandi( "BR", blumRolandiFunction.c_str(), 0.7, 100000);
 
-  blumRolandi.SetParameters(dEdxCorrection->paraDedxP1[gasType],dEdxCorrection->paraDedxP2[gasType],dEdxCorrection->paraDedxP3[gasType],dEdxCorrection->paraDedxP4[gasType],dEdxCorrection->paraDedxP5[gasType], 1. ); 
+  blumRolandi.SetParameters(dEdxCorrection->paraDedxP1[gasType],
+                            dEdxCorrection->paraDedxP2[gasType],
+                            dEdxCorrection->paraDedxP3[gasType],
+                            dEdxCorrection->paraDedxP4[gasType],
+                            dEdxCorrection->paraDedxP5[gasType],
+                            1.);
   //blumRolandi.SetParameters(&dEdxCorrection->para_dEdx_BB);
   double betaGamma = blumRolandi.GetX(dEdx, bg_min, bg_max); 
   
@@ -761,9 +780,24 @@ double TRT_ToT_dEdx::mass(const Trk::TrackStateOnSurface *itr, const double pTrk
 ITRT_ToT_dEdx::EGasType TRT_ToT_dEdx::gasTypeInStraw(const Trk::TrackStateOnSurface *itr) const
 {
   const Trk::MeasurementBase* trkM = itr->measurementOnTrack();
-  if (!trkM)  return kUnset;   
-  const InDet::TRT_DriftCircleOnTrack *driftcircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(trkM);  
-  if (!driftcircle) return kUnset;
+  if (!trkM)  {
+    return kUnset;   
+  }
+
+  // Check if this is RIO on track
+  //annd if yes check if is TRT Drift Circle 
+  //then set the ptr
+  const InDet::TRT_DriftCircleOnTrack* driftcircle = nullptr;
+  if (trkM->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
+    const Trk::RIO_OnTrack* tmpRio = static_cast<const Trk::RIO_OnTrack*>(trkM);
+    if (tmpRio->rioType(Trk::RIO_OnTrackType::TRT_DriftCircle)) {
+      driftcircle = static_cast<const InDet::TRT_DriftCircleOnTrack*>(tmpRio);
+    }
+  }
+
+  if (!driftcircle) {
+    return kUnset;
+  }
 
   return gasTypeInStraw(driftcircle);
 }
@@ -796,14 +830,17 @@ ITRT_ToT_dEdx::EGasType TRT_ToT_dEdx::gasTypeInStraw(const InDet::TRT_DriftCircl
 
 double TRT_ToT_dEdx::getToT(unsigned int BitPattern) const
 {
-  if(m_whichToTEstimatorAlgo==kToTLargerIsland) 
+  if (m_whichToTEstimatorAlgo == kToTLargerIsland) {
     return getToTlargerIsland(BitPattern);
-  else
-    if(m_whichToTEstimatorAlgo==kToTHighOccupancy) 
-      return getToTHighOccupancy(BitPattern);
-    else
-      if(m_whichToTEstimatorAlgo==kToTHighOccupancySmart)
-        return getToTHighOccupancySmart(BitPattern);
+  }
+
+  if (m_whichToTEstimatorAlgo == kToTHighOccupancy) {
+    return getToTHighOccupancy(BitPattern);
+  }
+
+  if (m_whichToTEstimatorAlgo == kToTHighOccupancySmart) {
+    return getToTHighOccupancySmart(BitPattern);
+  }
 
   ATH_MSG_FATAL("getToT():: No ToT estimator case for m_whichToTEstimatorAlgo"<<m_whichToTEstimatorAlgo<<"");
   throw std::exception();
@@ -851,14 +888,32 @@ double TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackStateOnSurface *itr) cons
   return 0;
 }
 
-double TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackStateOnSurface *itr, bool divideByL, bool corrected, double length) const
+double
+TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackStateOnSurface* itr,
+                                bool divideByL,
+                                bool corrected,
+                                double length) const
 {
   const Trk::MeasurementBase* trkM = itr->measurementOnTrack();
   const Trk::TrackParameters* trkP = itr->trackParameters();
-  const InDet::TRT_DriftCircleOnTrack *driftcircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(trkM);
 
-  if (!driftcircle) return 0;
-  if (driftcircle->prepRawData()==0) return 0;
+  // Check if this is RIO on track
+  // annd if yes check if is TRT Drift Circle
+  // then set the ptr
+  const InDet::TRT_DriftCircleOnTrack* driftcircle = nullptr;
+  if (trkM && trkM->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
+    const Trk::RIO_OnTrack* tmpRio = static_cast<const Trk::RIO_OnTrack*>(trkM);
+    if (tmpRio->rioType(Trk::RIO_OnTrackType::TRT_DriftCircle)) {
+      driftcircle = static_cast<const InDet::TRT_DriftCircleOnTrack*>(tmpRio);
+    }
+  }
+ 
+  if (!driftcircle) {
+    return 0;
+  }
+  if (driftcircle->prepRawData()==nullptr) {
+    return 0;
+  }
 
   Identifier DCId = driftcircle->identify();
   unsigned int BitPattern = driftcircle->prepRawData()->getWord();
@@ -877,7 +932,7 @@ double TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackStateOnSurface *itr, bool
     return 0;
   }  
   
-  if(m_applyMimicToXeCorrection==true || m_toolScenario==kAlgScalingToXe)
+  if(m_applyMimicToXeCorrection || m_toolScenario==kAlgScalingToXe)
     {
       if(gasType!=kXenon) // mimic to Xenon ToT, so we skip Xenon hits
         {     
@@ -953,9 +1008,9 @@ double TRT_ToT_dEdx::correctToT_corrRZL(const Trk::TrackParameters* trkP,const I
   }
 
         
-  if(trkP==0)return false; 
+  if(trkP==nullptr)return false; 
   if (!driftcircle) return false;
-  if (driftcircle->prepRawData()==0) return 0;
+  if (driftcircle->prepRawData()==nullptr) return 0;
   double HitRtrack = fabs(trkP->parameters()[Trk::locR]);
   double Trt_RHit = fabs(driftcircle->localParameters()[Trk::driftRadius]);
   if ( m_useZeroRHitCut && Trt_RHit==0) return false;                                     // tube hit
@@ -976,7 +1031,7 @@ double TRT_ToT_dEdx::correctToT_corrRZL(const Trk::TrackParameters* trkP,const I
   double ToT = getToT(BitPattern);
   if(ToT==0) return false; // If ToT for this hit equal 0, skip it.
 
-  if(m_applyMimicToXeCorrection==true || m_toolScenario==kAlgScalingToXe)
+  if(m_applyMimicToXeCorrection || m_toolScenario==kAlgScalingToXe)
     {
       if(gasType!=kXenon) // mimic to Xenon ToT, so we skip Xenon hits
         {     
@@ -1029,9 +1084,9 @@ double TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackParameters* trkP,const In
                   << " but data type is " << m_isData << ". Ignoring!");
   }
 
-  if(trkP==0)return false; 
+  if(trkP==nullptr)return false; 
   if (!driftcircle) return false;
-  if (driftcircle->prepRawData()==0) return 0;
+  if (driftcircle->prepRawData()==nullptr) return 0;
   double HitRtrack = fabs(trkP->parameters()[Trk::locR]);
   double Trt_RHit = fabs(driftcircle->localParameters()[Trk::driftRadius]);
   if ( m_useZeroRHitCut && Trt_RHit==0) return false;                                     // tube hit
@@ -1052,7 +1107,7 @@ double TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackParameters* trkP,const In
   double ToT = getToT(BitPattern);
   if(ToT==0) return false; // If ToT for this hit equal 0, skip it.
   
-  if(m_applyMimicToXeCorrection==true || m_toolScenario==kAlgScalingToXe)
+  if(m_applyMimicToXeCorrection || m_toolScenario==kAlgScalingToXe)
     {
       if(gasType!=kXenon) // mimic to Xenon ToT, so we skip Xenon hits
         {     
@@ -1090,11 +1145,10 @@ double TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackParameters* trkP,const In
 
 double TRT_ToT_dEdx::fitFuncBarrel_corrRZ(EGasType gasType, double driftRadius,double zPosition, int Layer, int StrawLayer) const
 {
-  if(Layer==0 && StrawLayer<9)
-    return fitFuncBarrelShort_corrRZ(gasType, driftRadius,zPosition, StrawLayer);
-  else
-    return fitFuncBarrelLong_corrRZ(gasType, driftRadius,zPosition,Layer, StrawLayer);
-  //return 0;
+  if (Layer == 0 && StrawLayer < 9) {
+    return fitFuncBarrelShort_corrRZ(gasType, driftRadius, zPosition, StrawLayer);
+  }
+  return fitFuncBarrelLong_corrRZ(gasType, driftRadius, zPosition, Layer, StrawLayer);
 }
 
 
@@ -1453,7 +1507,7 @@ int TRT_ToT_dEdx::DriftTimeBin_v2(unsigned int BitPattern) const
   for(i=1;i<18;++i)
     { 
       if      (  (word_LE & mask) && SawZero) break;
-      else if ( !(word_LE & mask) ) SawZero = true; 
+      if ( !(word_LE & mask) ) SawZero = true; 
       mask>>=1;
       if(i==7 || i==15) mask>>=1;
     }
@@ -1475,7 +1529,7 @@ int TRT_ToT_dEdx::TrailingEdge_v2(unsigned int BitPattern) const
     {
       if ( (word_TE & mask) && SawZero )
         break;
-      else if ( !(word_TE & mask) )
+      if ( !(word_TE & mask) )
         SawZero = true;
 
       mask <<= 1;
@@ -1535,9 +1589,9 @@ int TRT_ToT_dEdx::TrailingEdge_v3(unsigned int BitPattern) const
             }
         }
         
-      if(SawZero2 == false) return 19;
+      if(!SawZero2) return 19;
 
-      if(SawZero2 == true){
+      if(SawZero2){
         for (k = j+1; k < 11; ++k)
           {
             mask_last_bit=mask_last_bit<<1;
@@ -1552,7 +1606,7 @@ int TRT_ToT_dEdx::TrailingEdge_v3(unsigned int BitPattern) const
           } 
       }
         
-      if(SawUnit1 == false && SawZero2 == true) return 19;
+      if(!SawUnit1 && SawZero2) return 19;
         
     }
   
@@ -1569,7 +1623,7 @@ int TRT_ToT_dEdx::TrailingEdge_v3(unsigned int BitPattern) const
         {  
           if ( (word_TE & mask) && SawZero )
             break;
-          else if ( !(word_TE & mask) )
+          if ( !(word_TE & mask) )
             SawZero = true;
         }
       mask <<= 1;
@@ -1667,13 +1721,28 @@ double TRT_ToT_dEdx::hitOccupancyCorrection(const Trk::TrackStateOnSurface *itr)
   const TRTDedxcorrection* dEdxCorrection{*readHandle};
   
   const Trk::MeasurementBase* trkM = itr->measurementOnTrack();
-  const InDet::TRT_DriftCircleOnTrack *driftcircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(trkM);  
-	
+
+  // Check if this is RIO on track
+  // annd if yes check if is TRT Drift Circle
+  // then set the ptr
+  const InDet::TRT_DriftCircleOnTrack* driftcircle = nullptr;
+  if (trkM && trkM->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
+    const Trk::RIO_OnTrack* tmpRio = static_cast<const Trk::RIO_OnTrack*>(trkM);
+    if (tmpRio->rioType(Trk::RIO_OnTrackType::TRT_DriftCircle)) {
+      driftcircle = static_cast<const InDet::TRT_DriftCircleOnTrack*>(tmpRio);
+    }
+  }
+
   const Trk::TrackParameters* trkP = itr->trackParameters();
   Identifier DCId = driftcircle->identify();
   int isHT = driftcircle->highLevel();
   int isShared=0;
-  const Trk::RIO_OnTrack* hit_trt = trkM ? dynamic_cast<const Trk::RIO_OnTrack*>(trkM) : nullptr;
+
+  const Trk::RIO_OnTrack* hit_trt = nullptr;
+  if (trkM && trkM->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
+    hit_trt = static_cast<const Trk::RIO_OnTrack*>(trkM);
+  }
+
   if (hit_trt) {
     if ( m_assoTool->isShared(*(hit_trt->prepRawData())) ) isShared=1;
   }
@@ -1699,9 +1768,23 @@ double TRT_ToT_dEdx::hitOccupancyCorrection(const Trk::TrackStateOnSurface *itr)
   int nHTConfigurations = 2;
   //this subarray exists for shared/non-shared hits, so 12 parameters
   int nSharedConfigurations = 2;
-  int num=layer*nParametersPerLayer+isHT*((abs(HitPart)-1)*(nEndcapLayers-nBarrelLayers)*nParametersPerLayer+nBarrelLayers*nParametersPerLayer)+isShared*((abs(HitPart)-1)*(nEndcapLayers-nBarrelLayers)*nParametersPerLayer*nHTConfigurations+nBarrelLayers*nParametersPerLayer*nHTConfigurations)+(abs(HitPart)-1)*nParametersPerLayer*nBarrelLayers*nHTConfigurations*nSharedConfigurations;
+  int num =
+    layer * nParametersPerLayer +
+    isHT * ((abs(HitPart) - 1) * (nEndcapLayers - nBarrelLayers) *
+              nParametersPerLayer +
+            nBarrelLayers * nParametersPerLayer) +
+    isShared * ((abs(HitPart) - 1) * (nEndcapLayers - nBarrelLayers) *
+                  nParametersPerLayer * nHTConfigurations +
+                nBarrelLayers * nParametersPerLayer * nHTConfigurations) +
+    (abs(HitPart) - 1) * nParametersPerLayer * nBarrelLayers *
+      nHTConfigurations * nSharedConfigurations;
   //number for that given hit for non-shared conditions
-  int num_flat=layer*3+isHT*((abs(HitPart)-1)*(nEndcapLayers-nBarrelLayers)*nParametersPerLayer+nBarrelLayers*nParametersPerLayer)+(abs(HitPart)-1)*nParametersPerLayer*nBarrelLayers*nHTConfigurations*nSharedConfigurations;
+  int num_flat = layer * 3 +
+                 isHT * ((abs(HitPart) - 1) * (nEndcapLayers - nBarrelLayers) *
+                           nParametersPerLayer +
+                         nBarrelLayers * nParametersPerLayer) +
+                 (abs(HitPart) - 1) * nParametersPerLayer * nBarrelLayers *
+                   nHTConfigurations * nSharedConfigurations;
 
   p0 = dEdxCorrection->hitOccPar[num];
   p1 = dEdxCorrection->hitOccPar[num+1];

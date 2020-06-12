@@ -57,7 +57,7 @@ atlas_add_component( CaloTools
    AthenaPoolUtilities AtlasDetDescr Identifier GaudiKernel LArIdentifier
    LArRecEvent LArToolsLib LumiBlockCompsLib TileConditionsLib TileEvent
    CxxUtils CaloCondBlobObjs AthAllocators IdDictParser xAODBase xAODEventInfo
-   TileIdentifier LArRawConditions )
+   TileIdentifier LArRawConditions CaloInterfaceLib )
 
 # Install files from the package:
 atlas_install_headers( CaloTools )
@@ -71,5 +71,6 @@ atlas_add_test( CaloEstimatedGainToolConfig_test
 
 atlas_add_test( CaloEstimatedGainTool_test
                 SCRIPT python -m CaloTools.CaloEstimatedGainTool_test
+                PROPERTIES TIMEOUT 300
                 LOG_SELECT_PATTERN "ERROR|error|WARNING [^U]|FATAL|processing|TestAlg" )
 

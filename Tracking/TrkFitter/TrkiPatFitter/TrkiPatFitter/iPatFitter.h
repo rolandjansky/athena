@@ -5,12 +5,9 @@
 #ifndef TRKIPATFITTER_IPATFITTER_H
 #define TRKIPATFITTER_IPATFITTER_H
 
-#include <vector>
-#include <memory>
-#include <mutex>
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/EventContext.h"
 #include "TrkiPatFitterUtils/FitMeasurement.h"
 #include "TrkiPatFitterUtils/FitParameters.h"
 #include "TrkiPatFitterUtils/IMaterialAllocator.h"
@@ -29,6 +26,9 @@
 #include "TrkiPatFitterUtils/MessageHelper.h"
 #include "TrkiPatFitterUtils/FitProcedure.h"
 
+#include <vector>
+#include <memory>
+#include <mutex>
 namespace Trk
 {
 class FitQuality;
@@ -52,47 +52,64 @@ public:
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
 
-    // 	using TrackFitter::fit;
-	
     // iPat Fitter settings (FIXME: to provide??):
-    //			RunOutlierRemoval    - use logic to remove bad hits
+    //	RunOutlierRemoval    - use logic to remove bad hits
 
+    /*
+     * Bring in default impl without
+     * EventContext for now
+     */
+    using ITrackFitter::fit;
+ 
     // refit a track
-    virtual Track*	fit (const Track&,
-		     const RunOutlierRemoval	runOutlier=false,
-		     const ParticleHypothesis	particleHypothesis=Trk::nonInteracting) const override;
+    virtual std::unique_ptr<Track> fit(
+      const EventContext& ctx,
+      const Track&,
+      const RunOutlierRemoval runOutlier = false,
+      const ParticleHypothesis particleHypothesis = Trk::nonInteracting) const override;
 
     // refit a track adding a PrepRawDataSet
-    virtual Track*	fit (const Track&,
+    virtual std::unique_ptr<Track> fit (
+         const EventContext& ctx,
+         const Track&,
 		     const PrepRawDataSet&,
 		     const RunOutlierRemoval	runOutlier=false,
 		     const ParticleHypothesis	particleHypothesis=Trk::nonInteracting) const override;
 
     // fit a set of PrepRawData objects
-    virtual Track*	fit (const PrepRawDataSet&,
-		     const TrackParameters&	perigeeStartValue,
-		     const RunOutlierRemoval	runOutlier=false,
-		     const ParticleHypothesis	particleHypothesis=Trk::nonInteracting) const override;
+    virtual std::unique_ptr<Track> fit(
+      const EventContext& ctx,
+      const PrepRawDataSet&,
+      const TrackParameters& perigeeStartValue,
+      const RunOutlierRemoval runOutlier = false,
+      const ParticleHypothesis particleHypothesis = Trk::nonInteracting) const override;
 
     // refit a track adding a MeasurementSet
-    virtual Track*	fit (const Track&,
-		     const MeasurementSet&,
-		     const RunOutlierRemoval	runOutlier=false,
-		     const ParticleHypothesis	particleHypothesis=Trk::nonInteracting) const override;
+    virtual std::unique_ptr<Track> fit(
+      const EventContext& ctx,
+      const Track&,
+      const MeasurementSet&,
+      const RunOutlierRemoval runOutlier = false,
+      const ParticleHypothesis particleHypothesis =
+        Trk::nonInteracting) const override;
 
     // fit a set of MeasurementBase objects with starting value for perigeeParameters
-    virtual Track*	fit (const MeasurementSet&,
-		     const TrackParameters&	perigeeStartValue,
-		     const RunOutlierRemoval	runOutlier=false,
-		     const ParticleHypothesis	particleHypothesis=Trk::nonInteracting) const override;
+    virtual std::unique_ptr<Track> fit(
+      const EventContext& ctx,
+      const MeasurementSet&,
+      const TrackParameters& perigeeStartValue,
+      const RunOutlierRemoval runOutlier = false,
+      const ParticleHypothesis particleHypothesis = Trk::nonInteracting) const override;
 
     // combined muon fit
-    virtual Track*	fit (const Track&,
-		     const Track&,
-		     const RunOutlierRemoval	runOutlier=false,
-		     const ParticleHypothesis	particleHypothesis=Trk::nonInteracting) const override;
+    virtual std::unique_ptr<Track> fit(
+      const EventContext& ctx,
+      const Track&,
+      const Track&,
+      const RunOutlierRemoval runOutlier = false,
+      const ParticleHypothesis particleHypothesis = Trk::nonInteracting) const override;
 
-protected:
+  protected:
     class FitState {
       public:
         ~FitState() {
@@ -141,6 +158,7 @@ protected:
 
     // fitWithState that creates and returns state
     std::pair<std::unique_ptr<Track>, std::unique_ptr<FitState>> fitWithState (
+        const EventContext& ctx,
         const Track&,
         const RunOutlierRemoval runOutlier=false,
         const ParticleHypothesis particleHypothesis=Trk::nonInteracting) const;
@@ -154,74 +172,95 @@ protected:
 
 private:
     // add MeasurementSet
-    void	addMeasurements (std::vector<FitMeasurement*>&			measurements,
-				 const MeasurementSet&				measurementSet,
-				 const FitParameters&				parameters) const;
-    
-    // add TrackStateOnSurfaces (true means material already allocated on trackTSOS)
-    bool	addMeasurements (std::vector<FitMeasurement*>&			measurements,
-				 const FitParameters&				parameters,
-				 ParticleHypothesis			   	particleHypothesis,
-				 const DataVector<const TrackStateOnSurface>&	trackTSOS) const;
+  void addMeasurements(const EventContext& ctx,
+                       std::vector<FitMeasurement*>& measurements,
+                       const MeasurementSet& measurementSet,
+                       const FitParameters& parameters) const;
 
-    // perform fit
-    Track*	performFit(
-        FitState& fitState,
-        const ParticleHypothesis particleHypothesis,
-        const TrackInfo& trackInfo,
-        const DataVector<const TrackStateOnSurface>* leadingTSOS,
-        const FitQuality*	perigeeQuality,
-        Garbage_t& garbage) const;
-    
-    // print TSOS on a track (debugging aid)
-    void	printTSOS (const Track&) const;
+  // add TrackStateOnSurfaces (true means material already allocated on
+  // trackTSOS)
+  bool addMeasurements(
+    const EventContext& ctx,
+    std::vector<FitMeasurement*>& measurements,
+    const FitParameters& parameters,
+    ParticleHypothesis particleHypothesis,
+    const DataVector<const TrackStateOnSurface>& trackTSOS) const;
 
-    void	refit(
-        FitState& fitState,
-        const Track&		track,
-        const RunOutlierRemoval	runOutlier,
-        const ParticleHypothesis	particleHypothesis) const;
-    
-    // configurables (tools and options)
-    Gaudi::Property<bool> m_aggregateMaterial {this, "AggregateMaterial", true};
-    Gaudi::Property<bool> m_asymmetricCaloEnergy {this, "AsymmetricCaloEnergy", true};
-    Gaudi::Property<bool> m_fullCombinedFit {this, "FullCombinedFit", true};
-    Gaudi::Property<bool> m_lineFit {this, "LineFit", false};
-    Gaudi::Property<double> m_lineMomentum {this, "LineMomentum", 100. * Gaudi::Units::GeV};
-    ToolHandle<IMaterialAllocator>			m_materialAllocator;
-    ToolHandle<IIntersector>				m_rungeKuttaIntersector;
-    ToolHandle<IIntersector>				m_solenoidalIntersector;
-    ToolHandle<IPropagator>				m_stepPropagator;
-    ToolHandle<IIntersector>				m_straightLineIntersector;
-    ServiceHandle<ITrackingVolumesSvc>			m_trackingVolumesSvc;
-    ToolHandle<Trk::IExtendedTrackSummaryTool>          m_trackSummaryTool;
+  // perform fit
+  std::unique_ptr<Track> performFit(
+    FitState& fitState,
+    const ParticleHypothesis particleHypothesis,
+    const TrackInfo& trackInfo,
+    const DataVector<const TrackStateOnSurface>* leadingTSOS,
+    const FitQuality* perigeeQuality,
+    Garbage_t& garbage) const;
 
-    // configurable tolerances, warnings
-    Gaudi::Property<double> m_orderingTolerance {this, "OrderingTolerance", 1. * Gaudi::Units::mm};
-    Gaudi::Property<unsigned> m_maxWarnings {this, "MaxNumberOfWarnings", 10, 
-      "Maximum number of permitted WARNING messages per message type."};
+  // print TSOS on a track (debugging aid)
+  void printTSOS(const Track&) const;
 
-    // configurables for validation purposes
-    Gaudi::Property<bool> m_constrainedAlignmentEffects {this, "ConstrainedAlignmentEffects", false};
-    Gaudi::Property<bool> m_extendedDebug {this, "ExtendedDebug", false};
-    Gaudi::Property<int> m_forcedRefitsForValidation {this, "ForcedRefitsForValidation", 0};
-    Gaudi::Property<int> m_maxIterations {this, "MaxIterations", 25}; 
+  void refit(const EventContext& ctx,
+             FitState& fitState,
+             const Track& track,
+             const RunOutlierRemoval runOutlier,
+             const ParticleHypothesis particleHypothesis) const;
 
-    // constants 
-    std::unique_ptr<Trk::Volume> m_calorimeterVolume;
-    std::unique_ptr<Trk::Volume> m_indetVolume;
-    Trk::MagneticFieldProperties m_stepField; 
+  // configurables (tools and options)
+  Gaudi::Property<bool> m_aggregateMaterial{ this, "AggregateMaterial", true };
+  Gaudi::Property<bool> m_asymmetricCaloEnergy{ this,
+                                                "AsymmetricCaloEnergy",
+                                                true };
+  Gaudi::Property<bool> m_fullCombinedFit{ this, "FullCombinedFit", true };
+  Gaudi::Property<bool> m_lineFit{ this, "LineFit", false };
+  Gaudi::Property<double> m_lineMomentum{ this,
+                                          "LineMomentum",
+                                          100. * Gaudi::Units::GeV };
+  ToolHandle<IMaterialAllocator> m_materialAllocator;
+  ToolHandle<IIntersector> m_rungeKuttaIntersector;
+  ToolHandle<IIntersector> m_solenoidalIntersector;
+  ToolHandle<IPropagator> m_stepPropagator;
+  ToolHandle<IIntersector> m_straightLineIntersector;
+  ServiceHandle<ITrackingVolumesSvc> m_trackingVolumesSvc;
+  ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool;
 
-    // counters
-    mutable std::atomic<unsigned> m_countFitAttempts = 0;
-    mutable std::atomic<unsigned> m_countGoodFits = 0;
-    mutable std::atomic<unsigned> m_countIterations = 0;
-    mutable std::atomic<unsigned> m_countRefitAttempts = 0;
-    mutable std::atomic<unsigned> m_countGoodRefits = 0;
-    mutable std::atomic<unsigned> m_countRefitIterations = 0;
+  // configurable tolerances, warnings
+  Gaudi::Property<double> m_orderingTolerance{ this,
+                                               "OrderingTolerance",
+                                               1. * Gaudi::Units::mm };
+  Gaudi::Property<unsigned> m_maxWarnings{
+    this,
+    "MaxNumberOfWarnings",
+    10,
+    "Maximum number of permitted WARNING messages per message type."
+  };
 
-    // count warnings
-    mutable std::unique_ptr<MessageHelper> m_messageHelper ATLAS_THREAD_SAFE; // MessageHelper is thread-safe
+  // configurables for validation purposes
+  Gaudi::Property<bool> m_constrainedAlignmentEffects{
+    this,
+    "ConstrainedAlignmentEffects",
+    false
+  };
+  Gaudi::Property<bool> m_extendedDebug{ this, "ExtendedDebug", false };
+  Gaudi::Property<int> m_forcedRefitsForValidation{ this,
+                                                    "ForcedRefitsForValidation",
+                                                    0 };
+  Gaudi::Property<int> m_maxIterations{ this, "MaxIterations", 25 };
+
+  // constants
+  std::unique_ptr<Trk::Volume> m_calorimeterVolume;
+  std::unique_ptr<Trk::Volume> m_indetVolume;
+  Trk::MagneticFieldProperties m_stepField;
+
+  // counters
+  mutable std::atomic<unsigned> m_countFitAttempts = 0;
+  mutable std::atomic<unsigned> m_countGoodFits = 0;
+  mutable std::atomic<unsigned> m_countIterations = 0;
+  mutable std::atomic<unsigned> m_countRefitAttempts = 0;
+  mutable std::atomic<unsigned> m_countGoodRefits = 0;
+  mutable std::atomic<unsigned> m_countRefitIterations = 0;
+
+  // count warnings
+  mutable std::unique_ptr<MessageHelper> m_messageHelper
+    ATLAS_THREAD_SAFE; // MessageHelper is thread-safe
 
 };
 

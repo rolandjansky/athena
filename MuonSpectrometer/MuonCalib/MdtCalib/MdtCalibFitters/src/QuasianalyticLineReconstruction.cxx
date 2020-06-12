@@ -683,11 +683,11 @@ bool QuasianalyticLineReconstruction::fit(MuonCalibSegment & r_segment,
 		}
 
    // copy the hit information into local vectors //
-		selected_hits.push_back(hit);//[counter2] = hit;
-		selected_hits_index.push_back(k);//[counter2] = k;
-		w.push_back(Amg::Vector3D(0.0, (hit->localPosition()).y(), (hit->localPosition()).z()));//[counter2] = Amg::Vector3D(0.0, (hit->localPosition()).y(), (hit->localPosition()).z());
-		r.push_back(std::abs(hit->driftRadius()));//[counter2] = fabs(hit->driftRadius());
-		sigma2.push_back(hit->sigma2DriftRadius());//[counter2] = hit->sigma2DriftRadius();
+		selected_hits.push_back(hit);
+		selected_hits_index.push_back(k);
+		w.push_back(Amg::Vector3D(0.0, (hit->localPosition()).y(), (hit->localPosition()).z()));
+		r.push_back(std::abs(hit->driftRadius()));
+		sigma2.push_back(hit->sigma2DriftRadius());
    // if the spatial resolution has not been set, set it to 0.1 CLHEP::mm //
 		if (sigma2[counter2] == 0) {
 			sigma2[counter2] = std::pow(0.1*CLHEP::mm, 2);

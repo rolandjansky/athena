@@ -29,7 +29,7 @@ folder = "/TILE/OFL02/STATUS/ADC"
 tag = "clean"
 instance="OFLP200"
 
-#.. Parsing arguments 
+#.. Parsing arguments
 
 import sys
 ros=int(sys.argv[1])
@@ -44,11 +44,11 @@ comment=sys.argv[7]
 
 #.. very basic input validation
 if ros<1 or ros>4:
-  raise Exception("Invalid ros=%i" % ros)
+    raise Exception("Invalid ros=%i" % ros)
 if mod<0 or mod>63:
-  raise Exception("Invalid module=%i" % mod)
+    raise Exception("Invalid module=%i" % mod)
 if run1<run:
-  raise Exception("Invalid validity range: %i < %i" % (run1,run))
+    raise Exception("Invalid validity range: %i < %i" % (run1,run))
 log.info("ros=%i mod=%i since=%s until=%s comment=%s", ros,mod,since,until,comment)
 
 #===================================================================
@@ -79,16 +79,16 @@ mgr.listBadAdcs()
 
 #.. loop over channels to be updated
 #for adc in range(0,2):
-#  for mod in range(38, 42) + range(54, 58):
-#    #.. apply updates
-#    mgr.delAdcProblem(3, mod, 4, adc, TileBchPrbs.GeneralMaskChannel)
-#    mgr.delAdcProblem(4, mod, 4, adc, TileBchPrbs.GeneralMaskChannel)
+#    for mod in range(38, 42) + range(54, 58):
+#        #.. apply updates
+#        mgr.delAdcProblem(3, mod, 4, adc, TileBchPrbs.GeneralMaskChannel)
+#        mgr.delAdcProblem(4, mod, 4, adc, TileBchPrbs.GeneralMaskChannel)
 
 for ichan in range(0,48):
-  if (ros<3 and ichan not in emptyChannelLongBarrel) or (ros>2 and ichan not in emptyChannelExtendedBarrel):
-    log.info("Masking channel %i off", ichan)
-    mgr.addAdcProblem( ros, mod, ichan, 0, TileBchPrbs.NoHV)
-    mgr.addAdcProblem( ros, mod, ichan, 1, TileBchPrbs.NoHV)
+    if (ros<3 and ichan not in emptyChannelLongBarrel) or (ros>2 and ichan not in emptyChannelExtendedBarrel):
+        log.info("Masking channel %i off", ichan)
+        mgr.addAdcProblem( ros, mod, ichan, 0, TileBchPrbs.NoHV)
+        mgr.addAdcProblem( ros, mod, ichan, 1, TileBchPrbs.NoHV)
 
 #=== print bad channels
 log.info("bad channels after update")

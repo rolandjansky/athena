@@ -1,17 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetMonitoring/JetContainerHistoFiller.h"
-#include "xAODEventInfo/EventInfo.h"
 
 JetContainerHistoFiller::JetContainerHistoFiller(const std::string& n) : HistoGroupBase(n)
                                                                        , m_histoTools(this)
-                                                                       , m_jetContainerName("")
 {
   declareInterface<JetContainerHistoFiller>(this);
-
-  declareProperty("JetContainer", m_jetContainerName="");
   declareProperty("HistoTools", m_histoTools);
 
 }
@@ -20,12 +16,14 @@ StatusCode JetContainerHistoFiller::initialize() {
 
   CHECK( m_histoTools.retrieve() );
 
-  if(m_jetContainerName=="") {
+  if(m_jetContainerName.empty()) {
     ATH_MSG_ERROR("Jet Container name not set. Please set the JetContainer property");
     return StatusCode::FAILURE;
   }
+  CHECK( m_jetContainerName.initialize() );
+  CHECK( m_EventInfoKey.initialize() );
 
-  if(m_histoDir=="") m_histoDir =  m_jetContainerName+"/";
+  if(m_histoDir=="") m_histoDir =  m_jetContainerName.key()+"/";
 
   return StatusCode::SUCCESS;
 }
@@ -34,10 +32,13 @@ StatusCode JetContainerHistoFiller::initialize() {
 
 int JetContainerHistoFiller::fillHistos(){
 
-  ATH_MSG_DEBUG ("Filling hists " << name() << "..." << m_jetContainerName);
+  ATH_MSG_DEBUG ("Filling hists " << name() << "..." << m_jetContainerName.key());
 
-  const xAOD::EventInfo* evtInfo;
-  CHECK(evtStore()->retrieve( evtInfo ), 1);
+  SG::ReadHandle<xAOD::EventInfo> evtInfo{m_EventInfoKey};
+  if (!evtInfo.isValid()) {
+    ATH_MSG_DEBUG("Unable to retrieve xAOD::EventInfo");
+    return 1;
+  }
 
   //LAr event veto: skip events rejected by LAr
   if(evtInfo->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error){
@@ -45,10 +46,9 @@ int JetContainerHistoFiller::fillHistos(){
     return 1;
   }
   
-  const xAOD::JetContainer* jCont = 0;
-  StatusCode sc=  evtStore()->retrieve(jCont, m_jetContainerName) ;
-  if( sc.isFailure() ) {
-    ATH_MSG_DEBUG (" No container  " << m_jetContainerName<< " in Evt store. Returning.");
+  SG::ReadHandle<xAOD::JetContainer> jCont{m_jetContainerName};
+  if( !jCont.isValid() ) {
+    ATH_MSG_DEBUG (" No container  " << m_jetContainerName.key()<< " in Evt store. Returning.");
     return 0;
   }
 

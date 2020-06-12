@@ -22,7 +22,7 @@ include( "AthenaServices/AthenaSealSvc_joboptions.py" )
 from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamEventStorageInputSvc
 svcMgr += ByteStreamEventStorageInputSvc("ByteStreamInputSvc")
 
-svcMgr.ByteStreamInputSvc.FullFileName = BSFileList
+svcMgr.EventSelector.Input = BSFileList
 
 from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ROBDataProviderSvc
 svcMgr += ROBDataProviderSvc()

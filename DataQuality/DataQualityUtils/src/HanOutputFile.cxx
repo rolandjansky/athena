@@ -36,6 +36,7 @@
 #include <TBufferJSON.h>
 #include <TString.h>
 #include <TEfficiency.h>
+#include "TPluginManager.h"
 
 #define BINLOEDGE(h,n) h->GetXaxis()->GetBinLowEdge(n)
 #define BINWIDTH(h,n) h->GetXaxis()->GetBinWidth(n)
@@ -80,6 +81,11 @@ HanOutputFile()
   , m_style(0)
 {
   clearData();
+  TPluginHandler* h;
+  if ((h = gROOT->GetPluginManager()->FindHandler("TVirtualPS", "image"))) {
+    if (h->LoadPlugin() == -1) return;
+    h->ExecPlugin(0);
+  }
 }
 
 
@@ -90,6 +96,11 @@ HanOutputFile( std::string fileName )
 {
   clearData();
   setFile( fileName );
+  TPluginHandler* h;
+  if ((h = gROOT->GetPluginManager()->FindHandler("TVirtualPS", "image"))) {
+    if (h->LoadPlugin() == -1) return;
+    h->ExecPlugin(0);
+  }
 }
 
 

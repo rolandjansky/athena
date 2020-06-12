@@ -6,7 +6,7 @@
 from __future__ import print_function
 
 import getopt,sys
- 
+
 def usage():
     print ("Usage: ",sys.argv[0]," [OPTION] ... ")
     print ("Write the TileCal drawer trips probabilities from ASCII file into local sqlite file")
@@ -42,14 +42,14 @@ for o, a in opts:
     elif o in ("-t","--tag"):
         tag = a
     elif o in ("-f","--folder"):
-        folderPath = "/TILE/%s/STATUS/ADC" % a    
+        folderPath = "/TILE/%s/STATUS/ADC" % a
     elif o in ("-h","--help"):
         usage()
         sys.exit(2)
     else:
         assert False, "unhandled option"
 
- 
+
 import cppyy
 
 from TileCalibBlobPython import TileCalibTools
@@ -65,25 +65,25 @@ log.setLevel(logging.DEBUG)
 #________________________________________________________________________
 def fillTripsProbs(fileTrips, folderPath, tag, since
                    , until=(TileCalibTools.MAXRUN, TileCalibTools.MAXLBK)):
-    
+
 
     #=== get full folder tag
     folderTag = TileCalibUtils.getFullTag(folderPath, tag)
 
     util = cppyy.gbl.TileCalibUtils()
-    
+
     default = cppyy.gbl.std.vector('unsigned int')()
     for i in range(util.max_drawer() + 1):
         default.push_back( 0 )
 
-    defVec = cppyy.gbl.std.vector('std::vector<unsigned int>')()  
+    defVec = cppyy.gbl.std.vector('std::vector<unsigned int>')()
     defVec.push_back(default)
-    
+
     #=====================================================
-    #=== fill 
+    #=== fill
     #=====================================================
     writer = TileCalibTools.TileBlobWriter(db, folderPath, 'Bch')
-   
+
     precisions = [[0 for drawer in range(util.max_drawer())] for ros in range(util.max_ros())]
     trips = [[0 for drawer in range(util.max_drawer())] for ros in range(util.max_ros())]
 
@@ -97,7 +97,7 @@ def fillTripsProbs(fileTrips, folderPath, tag, since
         precisions[ros][mod] = len(trip[0]) - 2
         trips[ros][mod] = float(trip[0])
 
-    
+
     tripsCalibDrawer = writer.getDrawer(util.trips_ros(), util.trips_drawer())
     tripsCalibDrawer.init(defVec, util.max_ros(), 1)
 
@@ -113,7 +113,7 @@ def fillTripsProbs(fileTrips, folderPath, tag, since
     #=== register in DB
     writer.register(since, until, folderTag)
 
-    
+
 #===================================================================
 #====================== FILL DB BELOW ==============================
 #===================================================================
@@ -127,7 +127,3 @@ fillTripsProbs(fileName, folderPath, tag, (runfrom,0))
 
 #=== close the database connection
 db.closeDatabase()
-
-   
-    
-    

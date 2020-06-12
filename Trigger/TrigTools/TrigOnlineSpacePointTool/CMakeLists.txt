@@ -42,6 +42,5 @@ atlas_depends_on_subdirs( PRIVATE
 atlas_add_component( TrigOnlineSpacePointTool
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps IRegionSelector InDetByteStreamErrors ByteStreamData ByteStreamData_test GaudiKernel InDetByteStreamErrors InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry SCT_ReadoutGeometry SCT_CablingLib InDetRawData InDetPrepRawData SiClusterizationToolLib TrkPrepRawData TrigInDetEvent TrigSteeringEvent AtlasDetDescr ByteStreamCnvSvcBaseLib SCT_ConditionsData TrkSpacePoint TrigTimeAlgsLib PixelCablingLib )
+                     LINK_LIBRARIES AthenaBaseComps IRegionSelector InDetByteStreamErrors ByteStreamData ByteStreamData_test GaudiKernel InDetByteStreamErrors InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry SCT_ReadoutGeometry SCT_CablingLib InDetRawData InDetPrepRawData SiClusterizationToolLib TrkPrepRawData TrigInDetEvent TrigSteeringEvent AtlasDetDescr ByteStreamCnvSvcBaseLib SCT_ConditionsData TrkSpacePoint TrigTimeAlgsLib PixelCablingLib TrigInDetToolInterfacesLib )
 

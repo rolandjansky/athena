@@ -56,7 +56,7 @@ else()
 		Control/AthenaKernel )
 	set( extra_libs
 		xAODCaloEvent xAODEgamma xAODJet xAODMuon xAODTracking 
-		RecoToolInterfaces GeneratorObjects
+		RecoToolInterfaces GeneratorObjects ParticlesInConeToolsLib
 		PRIVATE_LINK_LIBRARIES TrkEventPrimitives TrkParametersIdentificationHelpers )
 
 endif()
@@ -64,6 +64,7 @@ endif()
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
+   Control/AthToolSupport/AsgDataHandles
    Control/AthToolSupport/AsgTools
    Event/xAOD/xAODTruth
    Generators/TruthUtils
@@ -72,18 +73,19 @@ atlas_depends_on_subdirs(
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core RIO )
+find_package( HepMC )
 
 # Libraries in the package:
 if( HEPMC_FOUND )
 	atlas_add_library( MCTruthClassifierLib
 		MCTruthClassifier/*.h src/*.cxx Root/*.cxx
 		PUBLIC_HEADERS MCTruthClassifier
-		LINK_LIBRARIES AtlasHepMCLib AsgTools xAODTruth TruthUtils ${extra_libs} )
+		LINK_LIBRARIES AtlasHepMCLib AsgTools xAODTruth TruthUtils AsgDataHandlesLib ${extra_libs} )
 else()
 	atlas_add_library( MCTruthClassifierLib
 		MCTruthClassifier/*.h src/*.cxx Root/*.cxx
 		PUBLIC_HEADERS MCTruthClassifier
-		LINK_LIBRARIES AsgTools xAODTruth TruthUtils ${extra_libs} )
+		LINK_LIBRARIES AsgTools xAODTruth TruthUtils AsgDataHandlesLib ${extra_libs} )
 endif()
 
 if( NOT XAOD_STANDALONE )

@@ -38,6 +38,7 @@ svcMgr.EventSelector.RunNumber         = 1
 svcMgr.EventSelector.FirstEvent        = 1
 #svcMgr.EventSelector.InitialTimeStamp  = 0
 #svcMgr.EventSelector.TimeStampInterval = 5
+# svcMgr.EventSelector.MaxBadEvents      = 0
 
 #
 # Provides ByteStreamInputSvc name of the data file to process in the offline context
@@ -53,10 +54,8 @@ from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
 theApp.EvtMax=1
 
 ## theByteStreamInputSvc=svcMgr.ByteStreamInputSvc
-## theByteStreamInputSvc.FullFileName=["/home/wlampl/LArOFIter/ramp/inputs/daq.Ramp.0029146.No.Streaming.LB0000.EB-EMBA._0001.data"]
+## svcMgr.EventSelector.Input=["/home/wlampl/LArOFIter/ramp/inputs/daq.Ramp.0029146.No.Streaming.LB0000.EB-EMBA._0001.data"]
    
-## theByteStreamInputSvc.MaxBadEvents=0
-
 
 
 from LArCalibTest.LArCalibTestConf import DumpCaloBadChannels

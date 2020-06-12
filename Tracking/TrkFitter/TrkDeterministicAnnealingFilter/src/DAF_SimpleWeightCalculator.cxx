@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -72,8 +72,8 @@ const std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb >* Trk::DAF_SimpleW
     if ( ROTs->size() != trkPars->size() ) {
         ATH_MSG_ERROR("vector of RIO_OnTrack and TrackParameters do not have the same size: assignmentProbabilities cannot be calculated");
         delete assgnProbVec;
-        return 0;
-    } else {
+        return nullptr;
+    } 
         // -----------------------------
         // loop over ROTs to calc non-normalized assignment probabilities
         ATH_MSG_VERBOSE("loop over ROTs");
@@ -88,7 +88,7 @@ const std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb >* Trk::DAF_SimpleW
             normalize( *assgnProbVec, ROTs, beta, cutValue);
         }
         return assgnProbVec;
-    }
+    
 }
 
 //calculate the assignment probability (assignment weight) for a single measurement
@@ -104,7 +104,7 @@ Trk::CompetingRIOsOnTrack::AssignmentProb Trk::DAF_SimpleWeightCalculator::calcu
     if ( (ROT.associatedSurface()) !=  (trkPar.associatedSurface()) ) {
         ATH_MSG_ERROR("RIO_OnTrack and TrackParameters do not have the same associatedSurface: assignmentProbability cannot be calculated");
         return 0;
-    } else {
+    } 
         ATH_MSG_VERBOSE("start calculation:");
         // code can be written in one line; avoiding this 'cause of readability
 
@@ -128,7 +128,7 @@ Trk::CompetingRIOsOnTrack::AssignmentProb Trk::DAF_SimpleWeightCalculator::calcu
             msg(MSG::VERBOSE)<<"exponent of prob: " << exponential <<endmsg;
         }
         return ( std::exp(-exponential) );
-    } // end if (equal surfaces)
+    // end if (equal surfaces)
 }
 
 //normalize given assignment probabilities (assignment weights) using a given cutValue and annealing factor
@@ -161,7 +161,7 @@ Trk::DAF_SimpleWeightCalculator::normalize (
     if (assgnProbs.size() != ROTs->size()) {
         ATH_MSG_ERROR("sizes of AssignmentProb vector and RIO_OnTrack vector do not match: no normalization done");
         return;
-    } else {
+    } 
         ATH_MSG_DEBUG("starting normalization:");
         // ----------------------------
         // calculate sum of assgnProbs:
@@ -187,7 +187,7 @@ Trk::DAF_SimpleWeightCalculator::normalize (
                 assgnProbs[i] *= factor;
             }
         } // end if (assgnProbSum > 0.)
-    } // end if(vector sizes match)
+    // end if(vector sizes match)
 }
 
 

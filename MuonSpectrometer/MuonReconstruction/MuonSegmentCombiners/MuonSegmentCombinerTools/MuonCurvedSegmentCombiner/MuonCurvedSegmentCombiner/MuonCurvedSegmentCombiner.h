@@ -1,41 +1,27 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-
-///////////////////////////////////////////////////////////////////
-// MuonCurvedSegmentCombiner.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef MUONMUONCURVEDSEGMENTCOMBINER_H
 #define MUONMUONCURVEDSEGMENTCOMBINER_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/MsgStream.h"
 #include "MuonSegmentCombinerToolInterfaces/IMuonCurvedSegmentCombiner.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentPairFittingTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonEDM_AssociationObjects/MuonSegPatAssMap.h"
+#include "MuonCurvedSegmentCombiner/MCSCSegmentInfo.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 
 #include <string>
 #include <map>
-
-#include "GaudiKernel/ToolHandle.h"
-
-#include "MuonCurvedSegmentCombiner/MCSCSegmentInfo.h"
-
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
-class Identifier;
-
-namespace MuonGM {
-    class MuonDetectorManager;
-}
+#include <set>
 
 namespace Muon
 {
-
-  class MuonEDMPrinterTool;
-
   /** @class MuonCurvedSegmentCombiner 
 
   This is for the Doxygen-Documentation.  
@@ -52,13 +38,9 @@ namespace Muon
   public:
     MuonCurvedSegmentCombiner(const std::string&,const std::string&,const IInterface*);
 
-    /** default destructor */
-    virtual ~MuonCurvedSegmentCombiner ();
+    virtual ~MuonCurvedSegmentCombiner()=default;
       
-    /** standard Athena-Algorithm method */
     virtual StatusCode initialize();
-    /** standard Athena-Algorithm method */
-    virtual StatusCode finalize  ();
       
     /** INSERT main method here.*/
     std::unique_ptr<MuonSegmentCombinationCollection> combineSegments(    const MuonSegmentCombinationCollection& mdtCombiColl, 
@@ -84,16 +66,11 @@ namespace Muon
 
     Muon::MCSCSegmentInfo segInfo( Muon::MuonSegment* seg );
 
-    unsigned int missedHits( Muon::MuonSegment* segment );  
-
-
+    unsigned int missedHits( Muon::MuonSegment* segment );
 
   private:
-     
-    //       const Muon::MuonSegPatAssMap* m_assCscMap;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
     ToolHandle< MuonEDMPrinterTool> m_printer;
 
     bool m_debug;    
@@ -120,8 +97,6 @@ namespace Muon
 
     std::map<Muon::MuonSegment*, const MuonPatternCombination* > m_segAssoMap; 
     std::set <Identifier> m_cscIdSet;
-       
-      
   }; 
 } // end of namespace
 

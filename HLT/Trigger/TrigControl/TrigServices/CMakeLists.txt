@@ -27,3 +27,11 @@ atlas_add_component( TrigServices
 # Install files from the package:
 atlas_install_python_modules( python/*.py
                               POST_BUILD_CMD ${ATLAS_FLAKE8} )
+
+atlas_add_test( test_TrigMessageSvc
+                SOURCES test/test_TrigMessageSvc.cxx src/TrigMessageSvc.cxx
+                INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${TDAQ_INCLUDE_DIRS}
+                LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${TDAQ_LIBRARIES} GaudiKernel TestTools
+                AthenaKernel AthenaInterprocess AthenaMonitoringKernelLib
+                POST_EXEC_SCRIPT nopost.sh
+)

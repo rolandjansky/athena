@@ -6,8 +6,7 @@
 @brief Run 3 configuration builder. Histograms definitions taken from TrigEgammaPlotTool
 '''
 
-from AthenaCommon.Constants import DEBUG
-from TrigEgammaMonitoring.TrigEgammaMonitCategory import monitoring_tags_Run3, monitoring_electron_Run3, monitoring_photon_Run3, monitoringTP_electron_Run3, monitoringTP_Jpsiee_Run3
+
 #from TrigEgammaAnalysisTools.TrigEgammaProbelist import monitoring_electron, monitoring_photon, monitoringTP_electronJpsiee, monitoringTP_electron
 from TrigEgammaHypo.TrigEgammaPidTools import ElectronPidTools
 from TrigEgammaHypo.TrigEgammaPidTools import PhotonPidTools
@@ -39,7 +38,7 @@ class TrigEgammaMonAlgBuilder:
   activate_zee = False
   activate_jpsiee = False
   tagItems = []
-  JpsitagItems = []
+  jpsitagItems = []
   electronList = []
   photonList = []
   tpList = []
@@ -53,10 +52,9 @@ class TrigEgammaMonAlgBuilder:
 
   
   # Add a flag to enable emulation
-  __acceptable_keys_list=['derivation','emulation', 'debugLevel', 'detailedHistograms','basePath']
+  __acceptable_keys_list=['derivation','emulation','detailedHistograms','basePath']
   emulation = False
   derivation = False
-  debugLevel = DEBUG
   detailedHistograms = False
   basePath = 'HLT/EgammaMon'
 
@@ -108,7 +106,7 @@ class TrigEgammaMonAlgBuilder:
       self.activate_electron=True
       self.activate_photon=True
 
-
+    
   def configure(self):
     self.setProperties()
     self.configureMonitor()
@@ -117,9 +115,10 @@ class TrigEgammaMonAlgBuilder:
 
 
 
-  # Implementation of https://its.cern.ch/jira/browse/ATR-13200
+
   def get_monitoring_mode(self):
 
+    # Implementation of https://its.cern.ch/jira/browse/ATR-13200
     self.__logger.info("TrigEgammaMonToolBuilder.get_monitoring_mode()")
     self.data_type = dqflags.monManDataType()
     if self.data_type == 'monteCarlo': 
@@ -143,9 +142,7 @@ class TrigEgammaMonAlgBuilder:
 
     self.__logger.info("TrigEgammaMonToolBuilder.setProperties()")
     self.basePath = 'HLT/EgammaMon'
-    self.tagItems = monitoring_tags_Run3 
-    self.JpsitagItems = []
-    
+   
     if self.pp_mode is True:
       self.setDefaultProperties()
     elif self.cosmic_mode is True:
@@ -170,10 +167,23 @@ class TrigEgammaMonAlgBuilder:
 
   def setDefaultProperties(self):
     
-    self.electronList = monitoring_electron_Run3
-    self.photonList = monitoring_photon_Run3
-    self.tpList = monitoringTP_electron_Run3
-    self.jpsiList = monitoringTP_Jpsiee_Run3
+    
+    # This will be removed for future.
+    monitoring_electron = ['HLT_e3_etcut_L1EM3','HLT_e5_etcut_L1EM3','HLT_e7_etcut_L1EM3','HLT_e300_etcut_L1EM24VHI']
+    monitoring_photon = ['HLT_g5_etcut_L1EM3','HLT_g5_loose_L1EM3','HLT_g5_medium_L1EM3','HLT_g5_tight_L1EM3','HLT_g140_loose_L1EM24VH']
+    monitoringTP_electron = ['HLT_e26_lhtight_L1EM22VHI','HLT_e60_lhmedium_L1EM22VHI','HLT_e140_lhloose_L1EM22VHI']
+
+
+
+    self.electronList = monitoring_electron
+    self.photonList   = monitoring_photon
+    self.tpList       = monitoringTP_electron
+    self.jpsiList     = []
+    self.tagItems     = [] #monitoring_tags 
+    self.jpsitagItems = [] #monitoring_jpsitags
+
+  
+
 
 
   #
@@ -183,7 +193,6 @@ class TrigEgammaMonAlgBuilder:
 
     acc = self.helper.resobj
     EgammaMatchTool = CompFactory.TrigEgammaMatchingToolMT()
-    EgammaMatchTool.OutputLevel=2
     EgammaMatchTool.DeltaR=0.4
     acc.addPublicTool(EgammaMatchTool)
     cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
@@ -256,8 +265,7 @@ class TrigEgammaMonAlgBuilder:
       self.zeeMonAlg.RemoveCrack=False
       self.zeeMonAlg.TagTriggerList=self.tagItems
       self.zeeMonAlg.TriggerList=self.tpList
-      self.zeeMonAlg.DetailedHistograms=self.detailHistograms
-      self.zeeMonAlg.OutputLevel=self.debugLevel
+      self.zeeMonAlg.DetailedHistograms=self.detailedHistograms
 
 
     if self.activate_jpsiee:
@@ -280,10 +288,9 @@ class TrigEgammaMonAlgBuilder:
       self.jpsieeMonAlg.OfflineProbeSelector='LHLoose'
       self.jpsieeMonAlg.OppositeCharge=True
       self.jpsieeMonAlg.RemoveCrack=False
-      self.jpsieeMonAlg.TagTriggerList=self.tagItems
-      self.jpsieeMonAlg.TriggerList=self.tpList
+      self.jpsieeMonAlg.TagTriggerList=self.jpsitagItems
+      self.jpsieeMonAlg.TriggerList=self.jpsiList
       self.jpsieeMonAlg.DetailedHistograms=self.detailedHistograms
-      self.jpsieeMonAlg.OutputLevel=self.debugLevel
 
 
     if self.activate_electron:
@@ -301,7 +308,6 @@ class TrigEgammaMonAlgBuilder:
       self.elMonAlg.ForceEtThreshold=True
       self.elMonAlg.TriggerList=self.electronList
       self.elMonAlg.DetailedHistograms=self.detailedHistograms
-      self.elMonAlg.OutputLevel=self.debugLevel
 
     if self.activate_photon:
 
@@ -313,9 +319,8 @@ class TrigEgammaMonAlgBuilder:
       self.phMonAlg.LHResultNames=self.lhnames
       self.phMonAlg.ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector]
       self.phMonAlg.ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector]
-      self.phMonAlg.TriggerList=self.tpList
+      self.phMonAlg.TriggerList=self.photonList
       self.phMonAlg.DetailedHistograms=self.detailedHistograms
-      self.phMonAlg.OutputLevel=self.debugLevel
 
 
 

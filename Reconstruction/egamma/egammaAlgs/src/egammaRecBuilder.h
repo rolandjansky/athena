@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAALGS_EGAMMARECBUILDER_H
@@ -14,11 +14,9 @@
 
 // INCLUDE HEADER FILES:
 #include <vector>
-
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/IChronoStatSvc.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/EventContext.h"
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "StoreGate/ReadHandleKey.h"
@@ -40,8 +38,15 @@ class egammaRecBuilder : public AthAlgorithm
   /** @brief finalize method*/
   StatusCode finalize() override final;
   /** @brief execute method*/
-  StatusCode execute() override final;
-  
+  virtual StatusCode execute() override final
+  {
+    return execute_r(Algorithm::getContext());
+  }
+  // This will become the normal execute when
+  // inheriting from AthReentrantAlgorithm
+  StatusCode execute_r(const EventContext& ctx) const;
+
+ 
  private:
 
   /** @brief retrieve EMTrackMatchBuilder **/
@@ -82,12 +87,6 @@ class egammaRecBuilder : public AthAlgorithm
   /** @brief private member flag to do the conversion matching */
   Gaudi::Property<bool> m_doConversions {this, "doConversions", true,
       "Boolean to do conversion matching"};
-  //
-  // Other properties.
-  //
-  ServiceHandle<IChronoStatSvc> m_timingProfile;
-  /** @brief private member flag to do chrono service */
-  Gaudi::Property<bool> m_doChrono {this, "doChrono", false, "do Chrono Service"};
     
 };
 

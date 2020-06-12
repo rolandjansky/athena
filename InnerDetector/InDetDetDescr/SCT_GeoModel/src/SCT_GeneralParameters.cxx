@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_GeneralParameters.h"
@@ -17,13 +17,12 @@ const double SCT_SAFETY = 0.01 * Gaudi::Units::mm; // Used in some places to mak
 SCT_GeneralParameters::SCT_GeneralParameters(SCT_DataBase* rdb)
 {
   m_rdb = rdb;
-  m_placements = new TopLevelPlacements(m_rdb->topLevelTable());
+  m_placements = std::make_unique<TopLevelPlacements>(m_rdb->topLevelTable());
 }
 
 
 SCT_GeneralParameters::~SCT_GeneralParameters()
 {
-  delete m_placements;
 }
 
 

@@ -66,20 +66,27 @@ StatusCode DerivationFramework::ClusterEnergyPerLayerDecorator::finalize()
 // The decoration itself
 StatusCode DerivationFramework::ClusterEnergyPerLayerDecorator::addBranches() const
 {
+
+  const EventContext& ctx=Gaudi::Hive::currentContext();
   for (const std::string& SGkey : {m_SGKey_photons, m_SGKey_electrons})
   {
     if (SGkey == "") continue;
     const xAOD::EgammaContainer *container(0);
     ATH_CHECK( evtStore()->retrieve(container, SGkey) );
-    for (auto egamma : *container)
-      decorateObject(egamma);  
+    for (auto egamma : *container){
+      decorateObject(ctx, egamma);
+    }
   }
-  
+
   return StatusCode::SUCCESS;
 }
 
-void DerivationFramework::ClusterEnergyPerLayerDecorator::decorateObject(const xAOD::Egamma*& egamma) const{
-  
+void
+DerivationFramework::ClusterEnergyPerLayerDecorator::decorateObject(
+  const EventContext& ctx,
+  const xAOD::Egamma* egamma) const
+{
+
   if (not egamma or not egamma->caloCluster()) return;
   
   const CaloCellContainer* cellCont(0);
@@ -88,17 +95,20 @@ void DerivationFramework::ClusterEnergyPerLayerDecorator::decorateObject(const x
   if (evtStore()->retrieve(cellCont,m_CellCollectionName).isFailure())
     ATH_MSG_WARNING(m_CellCollectionName<< " not found");
   else if (not egamma->author(xAOD::EgammaParameters::AuthorCaloTopo35) )
-  {  
-    egcClone = CaloClusterStoreHelper::makeCluster( cellCont,
-                                                    egamma->caloCluster()->eta0(),
-                                                    egamma->caloCluster()->phi0(),
-                                                    egamma->caloCluster()->clusterSize());
-    m_tool->makeCorrection(egcClone);
+  {
+    egcClone =
+      CaloClusterStoreHelper::makeCluster(cellCont,
+                                          egamma->caloCluster()->eta0(),
+                                          egamma->caloCluster()->phi0(),
+                                          egamma->caloCluster()->clusterSize());
+    m_tool->makeCorrection(ctx, egcClone);
   }
   
-  for (unsigned int layer: m_layers)
-    egamma->auxdecor<float>(Form("E%dx%d_Lr%d", m_eta_size, m_phi_size, layer)) =\
+  for (unsigned int layer: m_layers){
+    egamma->auxdecor<float>(
+      Form("E%dx%d_Lr%d", m_eta_size, m_phi_size, layer)) =
       egcClone ? egcClone->energyBE(layer) : 0.;
+  }
 
   delete egcClone;
 }

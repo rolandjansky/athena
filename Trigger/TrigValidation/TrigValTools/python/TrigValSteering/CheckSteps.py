@@ -17,7 +17,6 @@ import glob
 from TrigValTools.TrigValSteering.Step import Step
 from TrigValTools.TrigValSteering.Common import art_input_eos, art_input_cvmfs
 
-
 class RefComparisonStep(Step):
     '''Base class for steps comparing a file to a reference'''
 
@@ -413,6 +412,24 @@ class TailStep(Step):
         self.args += ' >'+self.output_name
         super(TailStep, self).configure(test)
 
+class DownloadRefStep(Step):
+    '''Execute art.py download to downlaod results from previous day '''
+
+    def __init__(self, name='DownloadRefWeb'):
+        super(DownloadRefStep, self).__init__(name)
+        self.executable = 'art.py'
+        self.artpackage = ' '
+        self.artjobname = ' '
+        self.args = 'download '
+        self.timeout = 20*60
+        self.required = True
+        self.auto_report_result = True
+
+    def configure(self, test):
+        self.args += ' '+self.artpackage+' '+self.artjobname
+        super(DownloadRefStep, self).configure(test)
+
+
 
 class HistCountStep(InputDependentStep):
     '''Execute histSizes.py to count histograms in a ROOT file'''
@@ -426,6 +443,50 @@ class HistCountStep(InputDependentStep):
     def configure(self, test):
         self.args += ' '+self.input_file
         super(HistCountStep, self).configure(test)
+
+
+class PhysValWebStep(InputDependentStep):
+    '''Execute physval_make_web_display.py to make PhysVal web display from NTUP_PHYSVAL.root'''
+
+    def __init__(self, name='PhysValWeb'):
+        super(PhysValWebStep, self).__init__(name)
+        self.input_file = 'NTUP_PHYSVAL.pool.root'
+        self.executable = 'physval_make_web_display.py'
+        self.refdir = ' '
+        self.sig=' '
+        self.args = '--ratio --drawopt HISTPE --refdrawopt HIST --title Test '
+        self.auto_report_result = True
+        self.timeout = 30*60
+        self.required = True
+        
+    def configure(self, test):
+        outargs = ' --outdir PHYSVAL_WEB/'+self.sig
+        dirargs = ' --startpath run_1/HLT/'+self.sig
+        self.args += ' '+outargs+' '+dirargs
+        super(PhysValWebStep, self).configure(test)
+
+    def run(self, dry_run=False):
+        for fname in os.listdir('.'):
+            if fname.startswith('ref-'): 
+                self.refdir = fname
+        refargs = ' --reffile Ref:'+self.refdir+'/NTUP_PHYSVAL.pool.root '
+        self.args += ' '+refargs+' '+self.input_file
+        retcode, cmd = super(PhysValWebStep, self).run(dry_run)
+        fname='PHYSVAL_WEB/'+self.sig+'/index.html'
+        if os.path.exists(fname):
+            f=open(fname,"r")
+            nred=0
+            for line in f:
+                if (line.find('Red') != -1):
+                    nred+=1
+            if nred > 0:
+                self.log.debug("red histograms in display for slice %s %d",self.sig,nred)
+                retcode+=nred
+        else:
+            retcode+=1000
+            self.log.debug("missing index.html file for slice: %s ",self.sig)
+        self.report_result(retcode,"CheckWeb"+self.sig)
+        return retcode, cmd
 
 
 class ChainDumpStep(InputDependentStep):
@@ -564,31 +625,36 @@ class MessageCountStep(Step):
         super(MessageCountStep, self).__init__(name)
         self.executable = 'messageCounter.py'
         self.log_regex = r'(athena\..*log$|athenaHLT:.*\.out$|^log\..*to.*)'
+        self.skip_logs = []
         self.start_pattern = r'(HltEventLoopMgr|AthenaHiveEventLoopMgr).*INFO Starting loop on events'
         self.end_pattern = r'(HltEventLoopMgr.*INFO All events processed|AthenaHiveEventLoopMgr.*INFO.*Loop Finished)'
-        self.info_threshold = None
-        self.debug_threshold = None
-        self.verbose_threshold = None
-        self.other_threshold = None
+        self.print_on_fail = None
+        self.thresholds = {}
         self.auto_report_result = True
 
     def configure(self, test):
         self.args += ' -s "{:s}"'.format(self.start_pattern)
         self.args += ' -e "{:s}"'.format(self.end_pattern)
-        if self.info_threshold is None:
-            self.info_threshold = test.exec_steps[0].max_events
-        if self.debug_threshold is None:
-            self.debug_threshold = 0
-        if self.verbose_threshold is None:
-            self.verbose_threshold = 0
-        if self.other_threshold is None:
-            self.other_threshold = test.exec_steps[0].max_events
+        if self.print_on_fail is None:
+            self.print_on_fail = self.required
+        if self.print_on_fail:
+            self.args += ' --saveAll'
+        if 'WARNING' not in self.thresholds:
+            self.thresholds['WARNING'] = 0
+        if 'INFO' not in self.thresholds:
+            self.thresholds['INFO'] = test.exec_steps[0].max_events
+        if 'DEBUG' not in self.thresholds:
+            self.thresholds['DEBUG'] = 0
+        if 'VERBOSE' not in self.thresholds:
+            self.thresholds['VERBOSE'] = 0
+        if 'other' not in self.thresholds:
+            self.thresholds['other'] = test.exec_steps[0].max_events
         super(MessageCountStep, self).configure(test)
 
     def run(self, dry_run=False):
         files = os.listdir('.')
         r = re.compile(self.log_regex)
-        log_files = filter(r.match, files)
+        log_files = [f for f in filter(r.match, files) if f not in self.skip_logs]
         self.args += ' ' + ' '.join(log_files)
         auto_report = self.auto_report_result
         self.auto_report_result = False
@@ -600,37 +666,28 @@ class MessageCountStep(Step):
             if self.auto_report_result:
                 self.report_result()
             return self.result, cmd
-        (num_info, num_debug, num_verbose, num_other) = (0, 0, 0, 0)
+
         for log_file in log_files:
             json_file = 'MessageCount.{:s}.json'.format(log_file)
+            if self.print_on_fail:
+                all_json_file = 'Messages.{:s}.json'.format(log_file)
             if not os.path.isfile(json_file):
                 self.log.warning('%s cannot open file %s', self.name, json_file)
             with open(json_file) as f:
                 summary = json.load(f)
-                num_info += summary['INFO']
-                num_debug += summary['DEBUG']
-                num_verbose += summary['VERBOSE']
-                num_other += summary['other']
-        if num_info > self.info_threshold:
-            self.log.info(
-                '%s Number of INFO messages %s is higher than threshold %s',
-                self.name, num_info, self.info_threshold)
-            self.result += 1
-        if num_debug > self.debug_threshold:
-            self.log.info(
-                '%s Number of DEBUG messages %s is higher than threshold %s',
-                self.name, num_debug, self.debug_threshold)
-            self.result += 1
-        if num_verbose > self.verbose_threshold:
-            self.log.info(
-                '%s Number of VERBOSE messages %s is higher than threshold %s',
-                self.name, num_verbose, self.verbose_threshold)
-            self.result += 1
-        if num_other > self.other_threshold:
-            self.log.info(
-                '%s Number of "other" messages %s is higher than threshold %s',
-                self.name, num_other, self.other_threshold)
-            self.result += 1
+                for level, threshold in six.iteritems(self.thresholds):
+                    if summary[level] > threshold:
+                        self.result += 1
+                        self.log.info(
+                            '%s Number of %s messages %s is higher than threshold %s',
+                            self.name, level, summary[level], threshold)
+                        if self.print_on_fail:
+                            self.log.info('%s Printing all %s messages', self.name, level)
+                            with open(all_json_file) as af:
+                                all_msg = json.load(af)
+                                for msg in all_msg[level]:
+                                    print(msg.strip())  # noqa: ATL901
+
         if self.auto_report_result:
             self.report_result()
         return self.result, cmd
@@ -725,6 +782,8 @@ def default_check_steps(test):
 
     # MessageCount
     msgcount = MessageCountStep('MessageCount')
+    for logmerge in [step for step in check_steps if isinstance(step, LogMergeStep)]:
+        msgcount.skip_logs.append(logmerge.merged_name)
     check_steps.append(msgcount)
 
     # Tail (probably not so useful these days)

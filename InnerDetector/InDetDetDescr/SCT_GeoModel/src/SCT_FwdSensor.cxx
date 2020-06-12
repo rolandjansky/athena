@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////
@@ -166,7 +166,7 @@ const GeoLogVol * SCT_FwdSensor::preBuild()
     m_inactive = new GeoPhysVol(inactiveLog);
     m_inactive->ref();
   } else {
-    m_inactive = NULL;
+    m_inactive = nullptr;
   }
 
   // Make the moduleside design for this sensor
@@ -278,6 +278,7 @@ void SCT_FwdSensor::makeDesign()
   // The readout side is at the +ve depth direction
   int readoutSide = +1;
 
+  // m_design will be owned and deleted by SCT_DetectorManager
   m_design = new SCT_ForwardModuleSideDesign(m_thicknessN,    
                                              crystals, 
                                              diodes, 
@@ -323,6 +324,8 @@ GeoVPhysVol *SCT_FwdSensor::build(SCT_Identifier id)
 
   if (commonItems->getIdHelper()) {
 
+    // detElement will be owned by SCT_DetectorManager
+    // and will be deleted in destructor of SiDetectorElementCollection in SCT_DetectorManager
     SiDetectorElement * detElement = new SiDetectorElement(id.getWaferId(),
                                                            m_design,
                                                            sensor,

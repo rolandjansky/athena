@@ -40,25 +40,22 @@ atlas_add_library( SGtests test/SGtests.cxx
    NO_PUBLIC_HEADERS
    LINK_LIBRARIES StoreGateLib TestTools )
 
-# Declare the package's tests:
+# Declare the package's tests:o
 atlas_add_test( ActiveStore_test
    SOURCES test/ActiveStore_test.cxx
-   LINK_LIBRARIES SGtests
-   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+   LINK_LIBRARIES SGtests )
 
    set( _hivePatterns "JobOptionsSvc +INFO|StoreGateSvc.*DEBUG|HiveMgrSvc +DEBUG" )
 
 atlas_add_test( SGTiming_test
    SOURCES test/SGTiming_test.cxx
    LINK_LIBRARIES SGtests
-   LOG_IGNORE_PATTERN "${_hivePatterns}|rec:|averages"
-   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+   LOG_IGNORE_PATTERN "${_hivePatterns}|rec:|averages" )
 
 atlas_add_test( SGHive_test
    SOURCES test/SGHive_test.cxx
    LINK_LIBRARIES SGtests
-   LOG_IGNORE_PATTERN "${_hivePatterns}"
-   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+   LOG_IGNORE_PATTERN "${_hivePatterns}" )
 
 atlas_add_test( DataHandle_test
    SOURCES test/DataHandle_test.cxx
@@ -94,13 +91,11 @@ atlas_add_test( VarHandleKey_test
 
 atlas_add_test( VarHandleKeyProperty_test
    SOURCES test/VarHandleKeyProperty_test.cxx
-   LINK_LIBRARIES SGtests
-   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+   LINK_LIBRARIES SGtests )
 
 atlas_add_test( VarHandleProperty_test
    SOURCES test/VarHandleProperty_test.cxx
-   LINK_LIBRARIES SGtests
-   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+   LINK_LIBRARIES SGtests )
 
 atlas_add_test( ReadHandleKey_test
    SOURCES test/ReadHandleKey_test.cxx
@@ -120,9 +115,7 @@ atlas_add_test( TypelessWriteHandleKey_test
 
 atlas_add_test( VarHandleBase_test
    SOURCES test/VarHandleBase_test.cxx
-   LINK_LIBRARIES SGtests
-   LOG_IGNORE_PATTERN "could not get proxy for|try using a ReadHandle"
-   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+   LINK_LIBRARIES SGtests )
 
 atlas_add_test( VarHandles_test
    SOURCES test/VarHandles_test.cxx
@@ -130,23 +123,19 @@ atlas_add_test( VarHandles_test
 
 atlas_add_test( WriteHandle_test
    SOURCES test/WriteHandle_test.cxx
-   LINK_LIBRARIES SGtests AthContainers
-   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+   LINK_LIBRARIES SGtests AthContainers )
 
 atlas_add_test( ReadHandle_test
    SOURCES test/ReadHandle_test.cxx
-   LINK_LIBRARIES SGtests
-   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+   LINK_LIBRARIES SGtests )
 
 atlas_add_test( UpdateHandle_test
    SOURCES test/UpdateHandle_test.cxx
-   LINK_LIBRARIES SGtests
-   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+   LINK_LIBRARIES SGtests )
 
 atlas_add_test( TypelessWriteHandle_test
    SOURCES test/TypelessWriteHandle_test.cxx
-   LINK_LIBRARIES SGtests AthContainers
-   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+   LINK_LIBRARIES SGtests AthContainers )
 
 atlas_add_test( DecorKeyHelpers_test
    SOURCES test/DecorKeyHelpers_test.cxx
@@ -155,73 +144,59 @@ atlas_add_test( DecorKeyHelpers_test
 atlas_add_test( ReadDecorHandleKey_test
    SOURCES test/ReadDecorHandleKey_test.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
-   LINK_LIBRARIES StoreGateLib TestTools
-   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+   LINK_LIBRARIES StoreGateLib TestTools )
 
 atlas_add_test( WriteDecorHandleKey_test
    SOURCES test/WriteDecorHandleKey_test.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
-   LINK_LIBRARIES StoreGateLib TestTools
-   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+   LINK_LIBRARIES StoreGateLib TestTools )
 
 atlas_add_test( ReadDecorHandle_test
    SOURCES test/ReadDecorHandle_test.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
-   LINK_LIBRARIES StoreGateLib AthContainers TestTools
-   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+   LINK_LIBRARIES StoreGateLib AthContainers TestTools )
 
 atlas_add_test( WriteDecorHandle_test
    SOURCES test/WriteDecorHandle_test.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
-   LINK_LIBRARIES StoreGateLib AthContainers TestTools
-   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+   LINK_LIBRARIES StoreGateLib AthContainers TestTools )
 
 atlas_add_test( CondHandleKeyArray_test
    SOURCES test/CondHandleKeyArray_test.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
-   LINK_LIBRARIES StoreGateLib AthContainers TestTools
-   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+   LINK_LIBRARIES StoreGateLib AthContainers TestTools )
 
 atlas_add_test( WriteCondHandle_test
    SOURCES test/WriteCondHandle_test.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
-   LINK_LIBRARIES StoreGateLib AthContainers TestTools
-   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+   LINK_LIBRARIES StoreGateLib AthContainers TestTools )
  
 atlas_add_test( WriteDecorHandleKeyArray_test
    SOURCES test/WriteDecorHandleKeyArray_test.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
-   LINK_LIBRARIES StoreGateLib TestTools
-   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+   LINK_LIBRARIES StoreGateLib TestTools )
 
 atlas_add_test( ReadDecorHandleKeyArray_test
    SOURCES test/ReadDecorHandleKeyArray_test.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
-   LINK_LIBRARIES StoreGateLib TestTools
-   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+   LINK_LIBRARIES StoreGateLib TestTools )
 
 atlas_add_test( ThinningHandleKey_test
    SOURCES test/ThinningHandleKey_test.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
-   LINK_LIBRARIES StoreGateLib AthContainers TestTools
-   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+   LINK_LIBRARIES StoreGateLib AthContainers TestTools )
 
 atlas_add_test( ThinningHandleBase_test
    SOURCES test/ThinningHandleBase_test.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
-   LINK_LIBRARIES StoreGateLib AthContainers TestTools
-   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+   LINK_LIBRARIES StoreGateLib AthContainers TestTools )
 
 atlas_add_test( ThinningHandle_test
    SOURCES test/ThinningHandle_test.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
-   LINK_LIBRARIES StoreGateLib AthContainers TestTools
-   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+   LINK_LIBRARIES StoreGateLib AthContainers TestTools )
 
 # Install files from the package:
-atlas_install_joboptions( share/StoreGate_jobOptions.txt
-   share/StoreGate_jobOptions.py
-   share/SGHive_test.txt
-   share/SGTiming_test.txt
-   share/ActiveStore_test.txt )
+atlas_install_joboptions( share/*.txt
+   share/StoreGate_jobOptions.py )
 

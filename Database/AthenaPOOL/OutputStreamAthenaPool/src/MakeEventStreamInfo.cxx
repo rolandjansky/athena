@@ -24,7 +24,7 @@
 MakeEventStreamInfo::MakeEventStreamInfo(const std::string& type,
 	const std::string& name,
 	const IInterface* parent) : ::AthAlgTool(type, name, parent),
-		m_metaDataStore("StoreGateSvc/MetaDataStore", name),
+		m_metaDataSvc("MetaDataSvc", name),
                 m_eventStore("StoreGateSvc", name)
 {
    // Declare IAthenaOutputStreamTool interface
@@ -42,8 +42,8 @@ MakeEventStreamInfo::~MakeEventStreamInfo() {
 StatusCode MakeEventStreamInfo::initialize() {
    ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
    // Locate the MetaDataStore
-   if (!m_metaDataStore.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Could not find MetaDataStore");
+   if (!m_metaDataSvc.retrieve().isSuccess()) {
+      ATH_MSG_FATAL("Could not find MetaDataSvc");
       return(StatusCode::FAILURE);
    }
    if (!m_eventStore.retrieve().isSuccess()) {
@@ -56,16 +56,10 @@ StatusCode MakeEventStreamInfo::initialize() {
 //___________________________________________________________________________
 StatusCode MakeEventStreamInfo::postInitialize() {
    // Remove EventStreamInfo with same key if it exists
-   if (m_metaDataStore->contains<EventStreamInfo>(m_key.value())) {
-      const EventStreamInfo* pEventStream = nullptr;
-      if (!m_metaDataStore->retrieve(pEventStream, m_key.value()).isSuccess()) {
-         ATH_MSG_ERROR("Unable to retrieve EventStreamInfo object");
-         return(StatusCode::FAILURE);
-      }
-      if (!m_metaDataStore->removeDataAndProxy(pEventStream).isSuccess()) {
-         ATH_MSG_ERROR("Unable to remove proxy for EventStreamInfo object");
-         return(StatusCode::FAILURE);
-      }
+   bool ignoreIfAbsent = true;
+   if( !m_metaDataSvc->remove<EventStreamInfo>(m_key.value(), ignoreIfAbsent).isSuccess() ) {
+      ATH_MSG_ERROR("Unable to remove EventStreamInfo with key " << m_key.value());
+      return StatusCode::FAILURE;
    }
    return(StatusCode::SUCCESS);
 }
@@ -105,17 +99,15 @@ StatusCode MakeEventStreamInfo::postExecute() {
          return(StatusCode::FAILURE);
       }
    }
-   if (!m_metaDataStore->contains<EventStreamInfo>(m_key.value())) {
-      EventStreamInfo* pEventStream = new EventStreamInfo();
-      if (m_metaDataStore->record(pEventStream, m_key.value()).isFailure()) {
+
+   EventStreamInfo* pEventStream = m_metaDataSvc->tryRetrieve<EventStreamInfo>(m_key.value());
+   if( !pEventStream ) {
+      pEventStream = new EventStreamInfo();
+      if( m_metaDataSvc->record(pEventStream, m_key.value() ).isFailure()) {
          ATH_MSG_ERROR("Could not register EventStreamInfo object");
+         delete pEventStream;
          return(StatusCode::FAILURE);
       }
-   }
-   EventStreamInfo* pEventStream = nullptr;
-   if (!m_metaDataStore->retrieve(pEventStream, m_key.value()).isSuccess()) {
-      ATH_MSG_ERROR("Unable to retrieve EventStreamInfo object");
-      return(StatusCode::FAILURE);
    }
    pEventStream->addEvent();
    pEventStream->insertProcessingTag(dataHeader->getProcessTag());
@@ -130,9 +122,9 @@ StatusCode MakeEventStreamInfo::postExecute() {
 }
 //___________________________________________________________________________
 StatusCode MakeEventStreamInfo::preFinalize() {
-   if (!m_metaDataStore->contains<EventStreamInfo>(m_key.value())) {
+   if( !m_metaDataSvc->tryRetrieve<EventStreamInfo>(m_key.value()) ) {
       EventStreamInfo* pEventStream = new EventStreamInfo();
-      if (m_metaDataStore->record(pEventStream, m_key.value()).isFailure()) {
+      if( m_metaDataSvc->record(pEventStream, m_key.value()).isFailure() ) {
          ATH_MSG_ERROR("Could not register EventStreamInfo object");
          return(StatusCode::FAILURE);
       }
@@ -143,7 +135,7 @@ StatusCode MakeEventStreamInfo::preFinalize() {
 StatusCode MakeEventStreamInfo::finalize() {
    ATH_MSG_DEBUG("in finalize()");
    // release the MetaDataStore
-   if (!m_metaDataStore.release().isSuccess()) {
+   if (!m_metaDataSvc.release().isSuccess()) {
       ATH_MSG_WARNING("Could not release MetaDataStore");
    }
    if (!m_eventStore.release().isSuccess()) {

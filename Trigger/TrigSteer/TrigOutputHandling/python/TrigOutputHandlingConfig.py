@@ -1,9 +1,10 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 from builtins import str
 def HLTResultMTMakerCfg(name="HLTResultMTMaker"):
-   from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
+   from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
    m = CompFactory.HLTResultMTMaker(name)
 
@@ -35,16 +36,9 @@ def HLTResultMTMakerCfg(name="HLTResultMTMaker"):
 
    # Configure HLT result monitoring histograms
    m.MonTool = GenericMonitoringTool('MonTool', HistPath='HLTFramework/'+name)
-   m.MonTool.Histograms = [ defineHistogram( 'TIME_build', path='EXPERT', type='TH1F', title='Time of result making;Time [us];Events',
-                                             xbins=100, xmin=0, xmax=1000 ),
-                            defineHistogram( 'nstreams', path='EXPERT', type='TH1F', title='Number of streams;Number of streams;Events',
-                                             xbins=60, xmin=0, xmax=60 ),
-                            defineHistogram( 'nfrags', path='EXPERT', type='TH1F', title='Number of HLT results (module IDs);Number of results;Events',
-                                             xbins=10, xmin=0, xmax=10 ),
-                            defineHistogram( 'sizeMain', path='EXPERT', type='TH1F', title='Main (physics) HLT result size;Size [kB];Events',
-                                             xbins=101, xmin=-10, xmax=1000 ) ]
-   
-   
+   m.MonTool.defineHistogram('TIME_makeResult', path='EXPERT', type='TH1F', title='makeResult() call time;Time [ms];Events',
+                             xbins=200, xmin=0, xmax=50 )
+
    return m
 
 def TriggerEDMSerialiserToolCfg(name="TriggerEDMSerialiserTool"):

@@ -18,13 +18,20 @@ HIMonitoringElectronsTool::
   m_FCalEt_A = 0;
   m_FCalEt_C = 0;
 
-  m_FCalEt_nbins = 95;
-  m_low_FCalEt = -0.15;
-  m_high_FCalEt = 0.8;
-
-  m_FCalEt_oneSide_nbins = 50;
-  m_low_FCalEt_oneSide = -0.1;
-  m_high_FCalEt_oneSide = 0.4;
+  //From Dominik Derendarz - manual cherry-picking of 345b289e
+  declareProperty( "FCalEt_nbins", m_FCalEt_nbins=96 );
+  declareProperty( "lowFCalEt", m_low_FCalEt=-0.16 );
+  declareProperty( "highFCalEt", m_high_FCalEt=0.8 );
+  m_FCalEt_oneSide_nbins = m_FCalEt_nbins/2;
+  m_low_FCalEt_oneSide = m_low_FCalEt/2.0;
+  m_high_FCalEt_oneSide = m_high_FCalEt/2.0;
+  //In master, before the cherry picking, was:
+  //m_FCalEt_nbins = 95;
+  //m_low_FCalEt = -0.15;
+  //m_high_FCalEt = 0.8;
+  //m_FCalEt_oneSide_nbins = 50;
+  //m_low_FCalEt_oneSide = -0.1;
+  //m_high_FCalEt_oneSide = 0.4;
 
   m_eta_nbins = 60;
   m_low_eta = -3.0;

@@ -137,7 +137,7 @@ IOVDbSvc.GlobalTag="CONDBR2-BLKPA-2018-03"
 IOVDbSvc.OutputLevel = WARNING
 
 include("ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py")
-ServiceMgr.ByteStreamInputSvc.FullFileName = inputBSFiles
+ServiceMgr.EventSelector.Input = inputBSFiles
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = inputBSFiles
 
@@ -498,6 +498,11 @@ if doPixel:
                                                     SplitClusterAmbiguityMap= "SplitClusterAmbiguityMap")
     if not InDetFlags.doTIDE_Ambi() and clusterSplitProbTool is not None : InDetMergedPixelsTool.SplitProbTool   = clusterSplitProbTool
     if not InDetFlags.doTIDE_Ambi() and clusterSplitterTool is not None  : InDetMergedPixelsTool.ClusterSplitter = clusterSplitterTool
+    # Enable duplcated RDO check for data15 because duplication mechanism was used.
+    from RecExConfig.RecFlags import rec
+    if len(rec.projectName())>=6 and rec.projectName()[:6]=="data15":
+        InDetMergedPixelsTool.CheckDuplicatedRDO = True
+
     ToolSvc += InDetMergedPixelsTool
     from SiClusterizationTool.SiClusterizationToolConf import InDet__PixelGangedAmbiguitiesFinder
     InDetPixelGangedAmbiguitiesFinder = InDet__PixelGangedAmbiguitiesFinder(name = "InDetPixelGangedAmbiguitiesFinder")

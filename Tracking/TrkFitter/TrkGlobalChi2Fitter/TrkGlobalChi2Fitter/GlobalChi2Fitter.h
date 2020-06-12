@@ -9,12 +9,16 @@
 #include "TrkDetDescrInterfaces/IMaterialEffectsOnTrackProvider.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/EventContext.h"
 #include "TrkFitterInterfaces/IGlobalTrackFitter.h"
 #include "TrkGlobalChi2Fitter/GXFTrajectory.h"
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
 #include "TrkFitterUtils/FitterStatusCode.h"
 #include "TrkEventPrimitives/PropDirection.h"
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MagFieldElements/AtlasFieldCache.h"
 
+#include <memory>
 #include <mutex>
 
 class AtlasDetectorID;
@@ -105,6 +109,8 @@ namespace Trk {
                                     void (*)(const std::vector<const TrackStateOnSurface *> *) > >
         m_matTempStore;
 
+      MagField::AtlasFieldCache m_field_cache;
+
       FitterStatusCode m_fittercode;
 
       Cache(const GlobalChi2Fitter *fitter):
@@ -144,56 +150,67 @@ namespace Trk {
 
     virtual ~ GlobalChi2Fitter();
 
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
+    /*
+     * Bring in default impl with
+     * EventContext for now
+     */
+    using ITrackFitter::fit;
 
-    virtual Track *fit(
-      const PrepRawDataSet &,
-    const TrackParameters &,
+    virtual std::unique_ptr<Track> fit(
+      const EventContext& ctx,
+      const PrepRawDataSet&,
+      const TrackParameters&,
       const RunOutlierRemoval runOutlier = false,
       const ParticleHypothesis matEffects = nonInteracting
-    ) const;
+      ) const override final;
 
-    virtual Track *fit(
+    virtual std::unique_ptr<Track> fit(
+      const EventContext& ctx,
       const Track &,
       const RunOutlierRemoval runOutlier = false,
       const ParticleHypothesis matEffects = nonInteracting
-    ) const;
+    ) const override final;
 
-    virtual Track *fit(
+    virtual std::unique_ptr<Track> fit(
+      const EventContext& ctx,
       const MeasurementSet &,
       const TrackParameters &,
       const RunOutlierRemoval runOutlier = false,
       const ParticleHypothesis matEffects = nonInteracting
-    ) const;
+    ) const override final;
 
-    virtual Track *fit(
+    virtual std::unique_ptr<Track> fit(
+      const EventContext& ctx,
       const Track &,
       const PrepRawDataSet &,
       const RunOutlierRemoval runOutlier = false,
       const ParticleHypothesis matEffects = nonInteracting
-    ) const;
+    ) const override final;
 
-    virtual Track *fit(
+    virtual std::unique_ptr<Track> fit(
+      const EventContext& ctx,
       const Track &,
       const Track &,
       const RunOutlierRemoval runOutlier = false,
       const ParticleHypothesis matEffects = nonInteracting
-    ) const;
+    ) const override final;
 
-    virtual Track *fit(
+    virtual std::unique_ptr<Track> fit(
+      const EventContext& ctx,
       const Track &,
       const MeasurementSet &,
       const RunOutlierRemoval runOutlier = false,
       const ParticleHypothesis matEffects = nonInteracting
-    ) const;
+    ) const override final;
 
     virtual Track* alignmentFit(
       AlignmentCache&,
       const Track&,
       const RunOutlierRemoval  runOutlier=false,
       const ParticleHypothesis matEffects=Trk::nonInteracting
-    ) const;
+    ) const override;
   
   private:
     void calculateJac(
@@ -211,6 +228,7 @@ namespace Trk {
     ) const;
 
     Track * fitIm(
+      const EventContext& ctx,
       Cache & cache,
       const Track & inputTrack,
       const RunOutlierRemoval runOutlier,
@@ -218,6 +236,7 @@ namespace Trk {
     ) const;
 
     Track *myfit(
+      const EventContext& ctx,
       Cache &,
       GXFTrajectory &,
       const TrackParameters &,
@@ -234,6 +253,7 @@ namespace Trk {
     ) const;
 
     Track *mainCombinationStrategy(
+      const EventContext& ctx,
       Cache &,
       const Track &,
       const Track &,
@@ -242,6 +262,7 @@ namespace Trk {
     ) const;
 
     Track *backupCombinationStrategy(
+      const EventContext& ctx,
       Cache &,
       const Track &,
       const Track &,
@@ -280,6 +301,7 @@ namespace Trk {
      * position of the intersection can be used to find materials in that layer
      * at that position.
      *
+     * @param[in] cache The standard GX2F cache.
      * @param[in] surface The surface to intersect with.
      * @param[in] param1 The main track parameters to calculate the
      * intersection from.
@@ -296,6 +318,7 @@ namespace Trk {
      * intersection method of the appropriate Surface subclass.
      */
     std::optional<std::pair<Amg::Vector3D, double>> addMaterialFindIntersectionDisc(
+      Cache & cache,
       const DiscSurface & surface,
       const TrackParameters & param1,
       const TrackParameters & param2,
@@ -312,6 +335,7 @@ namespace Trk {
      * intersection method of the appropriate Surface subclass.
      */
     std::optional<std::pair<Amg::Vector3D, double>> addMaterialFindIntersectionCyl(
+      Cache & cache,
       const CylinderSurface & surface,
       const TrackParameters & param1,
       const TrackParameters & param2,
@@ -403,6 +427,7 @@ namespace Trk {
      * determine the behaviour of the particle as it traverses materials.
      */
     void addIDMaterialFast(
+      const EventContext& ctx,
       Cache & cache,
       GXFTrajectory & track,
       const TrackParameters * parameters,
@@ -423,6 +448,7 @@ namespace Trk {
     ) const;
 
     Track *makeTrack(
+      const EventContext& ctx,
       Cache &,
       GXFTrajectory &,
       const ParticleHypothesis
@@ -449,6 +475,7 @@ namespace Trk {
     ) const;
 
     FitterStatusCode runIteration(
+      const EventContext& ctx,
       Cache &,
       GXFTrajectory &,
       int,
@@ -465,6 +492,7 @@ namespace Trk {
     ) const;
 
     GXFTrajectory *runTrackCleanerSilicon(
+      const EventContext& ctx,
       Cache &,
       GXFTrajectory &,
       Amg::SymMatrixX &,
@@ -482,13 +510,17 @@ namespace Trk {
       bool, bool, int
     ) const;
 
-    FitterStatusCode calculateTrackParameters(GXFTrajectory &, bool) const;
+    FitterStatusCode calculateTrackParameters(
+      const EventContext& ctx,
+      GXFTrajectory&,
+      bool) const;
 
     void calculateDerivatives(GXFTrajectory &) const;
 
     void calculateTrackErrors(GXFTrajectory &, Amg::SymMatrixX &, bool) const;
 
     TransportJacobian *numericalDerivatives(
+      const EventContext& ctx,
       const TrackParameters *,
       const Surface *,
       PropDirection,
@@ -523,6 +555,22 @@ namespace Trk {
 
     void incrementFitStatus(enum FitterStatusType) const;
 
+    /**
+     * @brief Initialize a field cache inside a fit cache object.
+     *
+     * Following the shift from old-style magnetic field services to the new
+     * cached implementation for thread safety, we need some additional logic
+     * to create a magnetic field cache object and insert it into our fitting
+     * cache object for access.
+     *
+     * @param[in] cache The GX2F cache objects in which to load the magnetic
+     * field cache.
+     */
+    void initFieldCache(
+      const EventContext& ctx,
+      Cache & cache
+    ) const;
+
     ToolHandle < IRIO_OnTrackCreator > m_ROTcreator;
     ToolHandle < IRIO_OnTrackCreator > m_broadROTcreator;
     ToolHandle < IUpdator > m_updator;
@@ -537,8 +585,14 @@ namespace Trk {
     ToolHandle < IMaterialEffectsOnTrackProvider > m_calotool;
     ToolHandle < IMaterialEffectsOnTrackProvider > m_calotoolparam;
 
-    ServiceHandle < MagField::IMagFieldSvc > m_fieldService;
     ServiceHandle < ITrackingGeometrySvc > m_trackingGeometrySvc;
+
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_field_cache_key{
+      this,
+      "AtlasFieldCacheCondObj",
+      "fieldCondObj",
+      "Trk::GlobalChi2Fitter field conditions object key"
+    };
 
     bool m_signedradius;
     bool m_calomat, m_extmat;

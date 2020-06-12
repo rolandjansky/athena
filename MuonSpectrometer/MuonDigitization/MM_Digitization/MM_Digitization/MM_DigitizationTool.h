@@ -61,6 +61,7 @@
 #include "xAODEventInfo/EventAuxInfo.h"// SubEventIterator
 
 #include "NSWCalibTools/INSWCalibSmearingTool.h"
+#include "NSWCalibTools/INSWCalibTool.h"
 
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "MagFieldElements/AtlasFieldCache.h"
@@ -178,13 +179,14 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 
 		// StripsResponse stuff...
 		MM_StripsResponseSimulation *m_StripsResponseSimulation;
+
 		float m_qThreshold;
-		float m_transverseDiffusionSigma;
-		float m_longitudinalDiffusionSigma;
 		float m_driftGapWidth;
 		float m_driftVelocity;
 		float m_crossTalk1;
 		float m_crossTalk2;
+
+		float m_avalancheGain;
 
 		// ElectronicsResponse stuff...
 		MM_ElectronicsResponseSimulation *m_ElectronicsResponseSimulation;
@@ -230,6 +232,8 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 		/// tool handle for the smearing 
 		bool m_doSmearing;
 		ToolHandle<Muon::INSWCalibSmearingTool> m_smearingTool;
+
+		ToolHandle<Muon::INSWCalibTool> m_calibrationTool;
 
 };
 

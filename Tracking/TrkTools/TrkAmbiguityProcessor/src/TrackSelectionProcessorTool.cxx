@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrackSelectionProcessorTool.h"
@@ -53,7 +53,7 @@ StatusCode Trk::TrackSelectionProcessorTool::initialize()
       msg(MSG::FATAL) << "Failed to retrieve tool " << m_scoringTool << endmsg;
       return StatusCode::FAILURE;
     } 
-  else 
+  
     msg(MSG::INFO) << "Retrieved tool " << m_scoringTool << endmsg;
   
   sc = m_selectionTool.retrieve();
@@ -62,7 +62,7 @@ StatusCode Trk::TrackSelectionProcessorTool::initialize()
       msg(MSG::FATAL) << "Failed to retrieve tool " << m_selectionTool << endmsg;
       return StatusCode::FAILURE;
     } 
-  else 
+  
     msg(MSG::INFO) << "Retrieved tool " << m_selectionTool << endmsg;
 
 

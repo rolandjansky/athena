@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -34,8 +34,6 @@
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
 
-#include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
-#include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkEventUtils/PrepRawDataComparisonFunction.h"
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -58,23 +56,17 @@
 
 // constructor
 
-Trk::DistributedKalmanFilter::DistributedKalmanFilter(const std::string& t,const std::string& n,
-						      const IInterface* p) :
-  AthAlgTool(t,n,p),
-  m_ROTcreator("Trk::RIO_OnTrackCreator/RIO_OnTrackCreator"),
-  m_extrapolator("Trk::Extrapolator/Extrapolator"),
-  m_idHelper(nullptr),
-  m_MagFieldSvc("AtlasFieldSvc",this->name())
+Trk::DistributedKalmanFilter::DistributedKalmanFilter(const std::string& t,
+                                                      const std::string& n,
+                                                      const IInterface* p)
+  : AthAlgTool(t, n, p)
+  , m_idHelper(nullptr)
 {
   // AlgTool stuff
   declareInterface<ITrackFitter>( this );
   m_pvpNodes=new std::vector<TrkBaseNode*>;
   m_pvpSurfaces=new std::vector<TrkPlanarSurface*>;
   m_pvpTrackStates=new std::vector<TrkTrackState*>;
-
-  declareProperty( "AthenaFieldService", m_MagFieldSvc, "AlasFieldService");
-  declareProperty( "ExtrapolatorTool", m_extrapolator, "Extrapolator" );
-  declareProperty( "ROTcreator", m_ROTcreator, "ROTcreatorTool" );
   // ME temporary fix
   declareProperty("sortingReferencePoint",m_option_sortingRefPoint);
 }
@@ -94,10 +86,8 @@ StatusCode Trk::DistributedKalmanFilter::initialize()
 
   ATH_CHECK(detStore()->retrieve(m_idHelper, "AtlasID"));
 
-  ATH_CHECK( m_MagFieldSvc.retrieve());
-  
+  ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
   ATH_CHECK(m_ROTcreator.retrieve());
-  
   ATH_CHECK(m_extrapolator.retrieve());
   
   ATH_MSG_VERBOSE( "initialize() successful in Trk::DistributedKalmanFilter");
@@ -123,12 +113,14 @@ struct minTrkPar {
 };
 
 // refit a track
-Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::Track&       inputTrack,
-                                              const RunOutlierRemoval runOutlier,
-                                              const ParticleHypothesis matEffects) const
+std::unique_ptr<Trk::Track>
+Trk::DistributedKalmanFilter::fit(const EventContext& ctx,
+                                  const Trk::Track& inputTrack,
+                                  const RunOutlierRemoval runOutlier,
+                                  const ParticleHypothesis matEffects) const
 {
-  msg(MSG::VERBOSE) << "--> enter DistributedKalmanFilter::fit(Track,,)" << endmsg;
-  
+  ATH_MSG_VERBOSE("--> enter DistributedKalmanFilter::fit(Track,,)");
+
   // protection against track not having any parameters
   if (inputTrack.trackParameters()->empty()) {
     ATH_MSG_ERROR( "need estimated track parameters near "<< "origin, reject fit" );
@@ -144,35 +136,39 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::Track&       inputTrack
   PrepRawDataSet prepRDColl;
 
   // collect PrepRawData pointers from input track ROTs
-  msg(MSG::VERBOSE) << "extract PrepRawDataSet from Track" << endmsg;
   DataVector<const MeasurementBase>::const_iterator it    = inputTrack.measurementsOnTrack()->begin();
   DataVector<const MeasurementBase>::const_iterator itEnd = inputTrack.measurementsOnTrack()->end(); 
   for ( ; it!=itEnd; ++it) {
     if (!(*it)) 
       {
-	      ATH_MSG_WARNING( "This track contains empty MeasurementBase "<< "objects! Skipped this MB.." );  
+      ATH_MSG_WARNING("This track contains empty MeasurementBase "
+                      << "objects! Skipped this MB..");
       } 
     else 
       {
 	const RIO_OnTrack* testROT = dynamic_cast<const RIO_OnTrack*>(*it);
-	const PrepRawData* prepRD = (testROT) ? (testROT)->prepRawData() : 0;
+	const PrepRawData* prepRD = (testROT) ? (testROT)->prepRawData() : nullptr;
 	if (!prepRD) {
-	  msg(MSG::WARNING) << "RIO_OnTrack->prepRawRata() "
-	      << "returns no object, ignore... " << endmsg;
-	} else { prepRDColl.push_back( prepRD );  }
+          ATH_MSG_WARNING("RIO_OnTrack->prepRawRata() "
+                          << "returns no object, ignore... ");
+        } else { prepRDColl.push_back( prepRD );  }
       }
   }
-  const TrackParameters* minPar = *(std::min_element(inputTrack.trackParameters()->begin(),inputTrack.trackParameters()->end(),
-						     minTrkPar()));
-							
+  const TrackParameters* minPar =
+    *(std::min_element(inputTrack.trackParameters()->begin(),
+                       inputTrack.trackParameters()->end(),
+                       minTrkPar()));
+
   // fit set of PrepRawData using main method, start with first Track Parameter in inputTrack
-  msg(MSG::VERBOSE) << "call fit(PRDSet,TP,,)" << endmsg;
-  return fit(prepRDColl,*minPar,runOutlier,matEffects);
+  ATH_MSG_VERBOSE("call fit(PRDSet,TP,,)");
+  return fit(ctx, prepRDColl, *minPar, runOutlier, matEffects);
 }
 
-double Trk::DistributedKalmanFilter::integrate(double Rk[5], 
+// @TODO remove ? unused :
+double Trk::DistributedKalmanFilter::integrate(double Rk[5],
                                                TrkPlanarSurface* pSB,
-                                               TrkPlanarSurface* pSE, double* Rf) const
+                                               TrkPlanarSurface* pSE, double* Rf,
+                                               MagField::AtlasFieldCache &fieldCache) const
 {
   const double C=0.02999975;
   const int nStepMax=5;
@@ -187,7 +183,7 @@ double Trk::DistributedKalmanFilter::integrate(double Rk[5],
   sinf=sin(Rk[2]);cost=cos(Rk[3]);
   gV[0]=sint*cosf;gV[1]=sint*sinf;gV[2]=cost;CQ=C*Rk[4];
 
-  if(pSB!=NULL)
+  if(pSB!=nullptr)
     {
       lP[0]=Rk[0];lP[1]=Rk[1];lP[2]=0.0;
       pSB->transformPointToGlobal(lP,gP);
@@ -200,7 +196,7 @@ double Trk::DistributedKalmanFilter::integrate(double Rk[5],
     }
   for(i=0;i<4;i++) D[i]=pSE->getPar(i);
 
-  getMagneticField(gP,gB);
+  getMagneticField(gP,gB,fieldCache);
  
   c=D[0]*gP[0]+D[1]*gP[1]+D[2]*gP[2]+D[3];
   b=D[0]*gV[0]+D[1]*gV[1]+D[2]*gV[2];
@@ -221,9 +217,10 @@ double Trk::DistributedKalmanFilter::integrate(double Rk[5],
     {
       c=D[0]*gP[0]+D[1]*gP[1]+D[2]*gP[2]+D[3];
       b=D[0]*gV[0]+D[1]*gV[1]+D[2]*gV[2];
-      a=0.5*CQ*(gB[0]*(D[1]*gV[2]-D[2]*gV[1])+
-		gB[1]*(D[2]*gV[0]-D[0]*gV[2])+
-		gB[2]*(D[0]*gV[1]-D[1]*gV[0]));
+      a = 0.5 * CQ *
+          (gB[0] * (D[1] * gV[2] - D[2] * gV[1]) +
+           gB[1] * (D[2] * gV[0] - D[0] * gV[2]) +
+           gB[2] * (D[0] * gV[1] - D[1] * gV[0]));
       sl=-c/b;
       sl=sl*(1-a*sl/b);
       ds=sl/nStep;path+=ds;
@@ -236,69 +233,29 @@ double Trk::DistributedKalmanFilter::integrate(double Rk[5],
       V[0]=gV[0]+Av*(gV[1]*gB[2]-gV[2]*gB[1]);
       V[1]=gV[1]+Av*(gV[2]*gB[0]-gV[0]*gB[2]);
       V[2]=gV[2]+Av*(gV[0]*gB[1]-gV[1]*gB[0]);
-      for(i=0;i<3;i++) 
-	{
-	  gV[i]=V[i];gP[i]=P[i];
-	}
-      getMagneticField(gP,gB);
+      for (i = 0; i < 3; i++) {
+        gV[i] = V[i];
+        gP[i] = P[i];
+      }
+      getMagneticField(gP,gB, fieldCache);
       nStep--;
     }
-  pSE->transformPointToLocal(P,lP);
+    pSE->transformPointToLocal(P, lP);
 
-  Rf[0]=lP[0];Rf[1]=lP[1];
-  Rf[2]=atan2(V[1],V[0]);
-  Rf[3]=acos(V[2]);
-  Rf[4]=Rk[4];
+    Rf[0] = lP[0];
+    Rf[1] = lP[1];
+    Rf[2] = atan2(V[1], V[0]);
+    Rf[3] = acos(V[2]);
+    Rf[4] = Rk[4];
 
-  return path;
+    return path;
 }
-
-
-void Trk::DistributedKalmanFilter::numericalJacobian(TrkTrackState* pTS, 
-                                                     TrkPlanarSurface*,// pSB,
-                                                     TrkPlanarSurface*,// pSE,
-                                                     double A[5][5]) const
-{
-  const double eps=0.005;
-  
-  double R0[5],delta,Ri[5],Rf[5],J[5][5],Rs[5];
-  int i,j;
-  //not sure what Rs/Rf should be intialised to - at the moment it is not set at all so setting to zero to solve coverity bugs 14380/14381...
-  for(i=0;i<5;i++) {R0[i]=pTS->getTrackState(i);Rs[i]=0;Rf[i]=0;}
-  
-  //s0=integrate(R0,pSB,pSE,Rs);
-  
-  for(i=0;i<5;i++)
-  {
-    delta=R0[i]*eps;
-    for(j=0;j<5;j++) Ri[j]=R0[j];
-    Ri[i]+=delta;
-      
-    //s1=integrate(Ri,pSB,pSE,Rf);
-      
-    // dsdp[i]=(s1-s0)/delta;
-    for(j=0;j<5;j++)
-    {
-      J[j][i]=(Rf[j]-Rs[j])/delta;
-    }
-  }
-  //printf("------ Numerical Jacobian ------\n");
-  for(i=0;i<5;i++)
-  {
-    for(j=0;j<5;j++) 
-    {
-      // printf("%E ",J[i][j]);
-      A[i][j]=J[i][j];
-    }
-    // printf("\n");
-  }
-}
-
 
 
 Trk::TrkTrackState* Trk::DistributedKalmanFilter::extrapolate(Trk::TrkTrackState* pTS, 
                                                               Trk::TrkPlanarSurface* pSB,
-                                                              Trk::TrkPlanarSurface* pSE) const
+                                                              Trk::TrkPlanarSurface* pSE,
+                                                              MagField::AtlasFieldCache &fieldCache) const
 {
   const double C=0.02999975;
   const double minStep=30.0;
@@ -308,7 +265,7 @@ Trk::TrkTrackState* Trk::DistributedKalmanFilter::extrapolate(Trk::TrkTrackState
 
   bool samePlane=false;
 
-  if(pSB!=NULL)
+  if(pSB!=nullptr)
   {   
     double diff=0.0;
     for(i=0;i<4;i++) diff+=fabs(pSE->getPar(i)-pSB->getPar(i));
@@ -325,7 +282,7 @@ Trk::TrkTrackState* Trk::DistributedKalmanFilter::extrapolate(Trk::TrkTrackState
     int nStep,nStepMax;
     double sl,ds,path=0.0;
 
-    //numericalJacobian(pTS,pSB,pSE,J);
+    //numericalJacobian(pTS,pSB,pSE,J, fieldCache);
     double sint,cost,sinf,cosf;
     sint=sin(pTS->getTrackState(3));cosf=cos(pTS->getTrackState(2));
     sinf=sin(pTS->getTrackState(2));cost=cos(pTS->getTrackState(3));
@@ -333,7 +290,7 @@ Trk::TrkTrackState* Trk::DistributedKalmanFilter::extrapolate(Trk::TrkTrackState
 
     memset(&J0[0][0],0,sizeof(J0));
 
-    if(pSB!=NULL)
+    if(pSB!=nullptr)
     {    
       double L[3][3];
       lP[0]=pTS->getTrackState(0);lP[1]=pTS->getTrackState(1);lP[2]=0.0;
@@ -364,7 +321,7 @@ Trk::TrkTrackState* Trk::DistributedKalmanFilter::extrapolate(Trk::TrkTrackState
     for(i=0;i<4;i++) D[i]=pSE->getPar(i);
     for(i=0;i<3;i++) gPi[i]=gP[i];
   
-    getMagneticField(gP,gB);
+    getMagneticField(gP,gB, fieldCache);
 
     for(i=0;i<3;i++) gBi[i]=gB[i];
     
@@ -379,7 +336,7 @@ Trk::TrkTrackState* Trk::DistributedKalmanFilter::extrapolate(Trk::TrkTrackState
     if(descr<0.0) 
     {
       //      printf("D<0 - extrapolation failed\n");
-      return NULL;
+      return nullptr;
     }
     
     bool useExpansion=true;
@@ -404,7 +361,7 @@ Trk::TrkTrackState* Trk::DistributedKalmanFilter::extrapolate(Trk::TrkTrackState
     }
     if((nStepMax<0)||(nStepMax>1000))
     {
-      return NULL;
+      return nullptr;
     } 
     Av=sl*CQ;
     Ac=0.5*sl*Av;
@@ -419,7 +376,7 @@ Trk::TrkTrackState* Trk::DistributedKalmanFilter::extrapolate(Trk::TrkTrackState
     V[1]=gV[1]+Av*DVy;
     V[2]=gV[2]+Av*DVz;
     
-    getMagneticField(P,gB);
+    getMagneticField(P,gB,fieldCache);
   
     for(i=0;i<3;i++) gBf[i]=gB[i];
     for(i=0;i<3;i++)
@@ -437,9 +394,7 @@ Trk::TrkTrackState* Trk::DistributedKalmanFilter::extrapolate(Trk::TrkTrackState
                 gB[2]*(D[0]*gV[1]-D[1]*gV[0]));
 	
       ratio = 4*a*c/(b*b);
-      if(fabs(ratio)>0.1) 
-        useExpansion = false;
-      else useExpansion = true;
+      useExpansion = fabs(ratio) <= 0.1;
 	
       if(useExpansion) {
         sl=-c/b;
@@ -450,7 +405,7 @@ Trk::TrkTrackState* Trk::DistributedKalmanFilter::extrapolate(Trk::TrkTrackState
         if(descr<0.0) 
         {
           // printf("D<0 - extrapolation failed\n");
-          return NULL;
+          return nullptr;
         }
         int signb = (b<0.0)?-1:1;
         sl = (-b+signb*sqrt(descr))/(2*a);
@@ -482,7 +437,7 @@ Trk::TrkTrackState* Trk::DistributedKalmanFilter::extrapolate(Trk::TrkTrackState
 
     if(fabs(V[2])>1.0) 
     {
-      return NULL;
+      return nullptr;
     }
 
     Rf[3]=acos(V[2]);
@@ -505,9 +460,7 @@ Trk::TrkTrackState* Trk::DistributedKalmanFilter::extrapolate(Trk::TrkTrackState
 	  gB[2]*(D[0]*gV[1]-D[1]*gV[0]));
     
     ratio = 4*a*c/(b*b);
-    if(fabs(ratio)>0.1) 
-      useExpansion = false;
-    else useExpansion = true;
+    useExpansion = fabs(ratio) <= 0.1;
     
     if(useExpansion) {
       s=-c/b;
@@ -518,7 +471,7 @@ Trk::TrkTrackState* Trk::DistributedKalmanFilter::extrapolate(Trk::TrkTrackState
       if(descr<0.0) 
       {
         // printf("D<0 - extrapolation failed\n");
-        return NULL;
+        return nullptr;
       }
       int signb = (b<0.0)?-1:1;
       s = (-b+signb*sqrt(descr))/(2*a);
@@ -636,7 +589,7 @@ Trk::TrkTrackState* Trk::DistributedKalmanFilter::extrapolate(Trk::TrkTrackState
       Buf[4][i]=Jm[6][i];
     }
     
-    if(pSB!=NULL)
+    if(pSB!=nullptr)
     {
       for(i=0;i<5;i++)
       {
@@ -758,20 +711,20 @@ void Trk::DistributedKalmanFilter::matrixInversion5x5(double a[5][5]) const
   for(i=0;i<5;i++) for(j=0;j<5;j++) a[i][j]=b[i][j];
 }
 
-bool Trk::DistributedKalmanFilter::runForwardKalmanFilter(TrkTrackState* pInitState) const
+bool Trk::DistributedKalmanFilter::runForwardKalmanFilter(TrkTrackState* pInitState, MagField::AtlasFieldCache &fieldCache) const
 {
   std::vector<TrkBaseNode*>::iterator pnIt(m_pvpNodes->begin()),pnEnd(m_pvpNodes->end());
   bool OK=true;
-  Trk::TrkPlanarSurface *pSB=NULL,*pSE;
+  Trk::TrkPlanarSurface *pSB=nullptr,*pSE;
 
   Trk::TrkTrackState* pTS=new Trk::TrkTrackState(pInitState);
   m_pvpTrackStates->push_back(pTS);
   for(;pnIt!=pnEnd;++pnIt)
   {
     pSE=(*pnIt)->getSurface();
-    Trk::TrkTrackState* pNS=extrapolate(pTS,pSB,pSE);
+    Trk::TrkTrackState* pNS=extrapolate(pTS,pSB,pSE, fieldCache);
       pSB=pSE;
-      if(pNS!=NULL)
+      if(pNS!=nullptr)
 	{
 	  m_pvpTrackStates->push_back(pNS);
 
@@ -838,9 +791,9 @@ int Trk::DistributedKalmanFilter::findOutliers(double cut) const
 
 Trk::TrackStateOnSurface* Trk::DistributedKalmanFilter::createTrackStateOnSurface(Trk::TrkBaseNode* pN) const
 {
-  TrackStateOnSurface* pTSS=NULL;
+  TrackStateOnSurface* pTSS=nullptr;
   char type=pN->getNodeType();
-  const Trk::TrackParameters* pTP=NULL;
+  const Trk::TrackParameters* pTP=nullptr;
 
 
 
@@ -853,7 +806,7 @@ Trk::TrackStateOnSurface* Trk::DistributedKalmanFilter::createTrackStateOnSurfac
     {
       const Trk::Surface& rS = pPRD->detectorElement()->surface();
       const Trk::PlaneSurface* pPS = dynamic_cast<const Trk::PlaneSurface*>(&rS);
-      if(pPS==NULL) return pTSS;
+      if(pPS==nullptr) return pTSS;
       
       AmgSymMatrix(5)* pM = new AmgSymMatrix(5);
 
@@ -872,7 +825,7 @@ Trk::TrackStateOnSurface* Trk::DistributedKalmanFilter::createTrackStateOnSurfac
     {
       const Trk::Surface& rS = pPRD->detectorElement()->surface(pPRD->identify()); 
       const Trk::StraightLineSurface* pLS=dynamic_cast<const Trk::StraightLineSurface*>(&rS);
-      if(pLS==NULL) return pTSS;
+      if(pLS==nullptr) return pTSS;
 
       AmgSymMatrix(5)* pM = new AmgSymMatrix(5);
 
@@ -891,12 +844,12 @@ Trk::TrackStateOnSurface* Trk::DistributedKalmanFilter::createTrackStateOnSurfac
 				   *pLS,
 				   pM);
     }
-  if(pTP==NULL) return NULL;
+  if(pTP==nullptr) return nullptr;
   const Trk::RIO_OnTrack* pRIO=m_ROTcreator->correct(*pPRD,*pTP);
-  if(pRIO==NULL) 
+  if(pRIO==nullptr) 
     {
-      if(pTP!=NULL) delete pTP;
-      return NULL;
+      if(pTP!=nullptr) delete pTP;
+      return nullptr;
     }
   Trk::FitQualityOnSurface* pFQ=new Trk::FitQualityOnSurface(pN->getChi2(),pN->getNdof());
   pTSS = new Trk::TrackStateOnSurface(pRIO,pTP,pFQ);
@@ -907,36 +860,34 @@ Trk::Perigee* Trk::DistributedKalmanFilter::createMeasuredPerigee(TrkTrackState*
 {
 
 
-  Trk::Perigee* pMP=NULL;
+  Trk::Perigee* pMP=nullptr;
 
   AmgSymMatrix(5)* pM = new AmgSymMatrix(5);
 
-  for(int i=0;i<5;i++) 
-    for(int j=0;j<5;j++)
-      (*pM)(i,j)=pTS->getTrackCovariance(i,j);
+  for(int i=0;i<5;i++){
+    for (int j = 0; j < 5; j++){
+      (*pM)(i, j) = pTS->getTrackCovariance(i, j);
+    }
+  }
   const Trk::PerigeeSurface perSurf;
   pMP = new Trk::Perigee(pTS->getTrackState(0),
-			 pTS->getTrackState(1),
-			 pTS->getTrackState(2),
-			 pTS->getTrackState(3),
-			 pTS->getTrackState(4),perSurf,pM);
+                         pTS->getTrackState(1),
+                         pTS->getTrackState(2),
+                         pTS->getTrackState(3),
+                         pTS->getTrackState(4),
+                         perSurf,
+                         pM);
   return pMP;
 }
 
-void Trk::DistributedKalmanFilter::getMagneticField(double gP[3], double* pB) const 
-{ 
-
-  pB[0]=0.0;pB[1]=0.0;pB[2]=0.0;
-  double field[3];
-  m_MagFieldSvc->getField(gP,field);//field is returned in kT
-  for(int i=0;i<3;i++) pB[i]=field[i]/Gaudi::Units::kilogauss;//convert to kG
-}
-
 // fit a set of PrepRawData objects
-Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::PrepRawDataSet&   prepRDColl,
-					      const Trk::TrackParameters&  estimatedParametersNearOrigine,
-					      const RunOutlierRemoval      runOutlier,
-					      const Trk::ParticleHypothesis     matEffects) const
+std::unique_ptr<Trk::Track>
+Trk::DistributedKalmanFilter::fit(
+  const EventContext& ctx,
+  const Trk::PrepRawDataSet& prepRDColl,
+  const Trk::TrackParameters& estimatedParametersNearOrigine,
+  const RunOutlierRemoval runOutlier,
+  const Trk::ParticleHypothesis matEffects) const
 {
   const double outlCut=12.0;
   const double rlSili=0.022;
@@ -951,23 +902,22 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::PrepRawDataSet&   prepR
   double Rk[5],C[3],N[3],M[3][3];
   int i,nAmbHits=0;
   const Perigee* pP;
-  Trk::Track* fittedTrack=NULL;
+  Trk::Track* fittedTrack=nullptr;
   Eigen::Vector3d mx,my,mz;
   const Trk::PerigeeSurface perSurf;
 
   bool badTrack=false;
 
-  msg(MSG::VERBOSE) << "--> entering DistributedKalmanFilter::fit"
-      << "(PrepRawDataSet,TrackParameters,,)" << endmsg;
 	
   // protection, if empty PrepRawDataSet
   if (prepRDColl.empty()) {
-    msg(MSG::ERROR) << "try to fit empty vec<PrepRawData>, reject fit" << endmsg;
-    return 0;
+    ATH_MSG_ERROR("try to fit empty vec<PrepRawData>, reject fit");
+    return nullptr;
   }
-  if (runOutlier) msg(MSG::VERBOSE) << "-> Outlier removal switched on" << endmsg;
-  if (matEffects!=nonInteracting) msg(MSG::VERBOSE) << "-> Material Effects switched on" << endmsg;
-
+  if (runOutlier)
+    ATH_MSG_VERBOSE("-> Outlier removal switched on");
+  if (matEffects != nonInteracting)
+    ATH_MSG_VERBOSE("-> Material Effects switched on");
 
   // 0. Sort PRD set
 
@@ -978,64 +928,61 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::PrepRawDataSet&   prepR
   if(!is_sorted(inputPRDColl.begin(),inputPRDColl.end(),*compareHits)) 
     std::sort(inputPRDColl.begin(), inputPRDColl.end(), *compareHits);
   delete compareHits;
-  msg(MSG::VERBOSE)<<" List of sorted PRDs: "<<endmsg;      
+  ATH_MSG_VERBOSE(" List of sorted PRDs: ");
   for(PrepRawDataSet::const_iterator prdIt=inputPRDColl.begin();prdIt!=inputPRDColl.end();prdIt++) 
     {
       if(!(*prdIt)->detectorElement()) continue;
-      msg(MSG::VERBOSE)<<m_idHelper->print_to_string((*prdIt)->identify())<<" radius= "<<
-	(*prdIt)->detectorElement()->surface((*prdIt)->identify()).center().mag()<<endmsg;
+      ATH_MSG_VERBOSE(m_idHelper->print_to_string((*prdIt)->identify())
+                      << " radius= "
+                      << (*prdIt)
+                           ->detectorElement()
+                           ->surface((*prdIt)->identify())
+                           .center()
+                           .mag());
     }
 
   // 1. Create initial track state:
 
-  pP=dynamic_cast<const Perigee*>(&estimatedParametersNearOrigine);
-  if(pP==NULL)
-    {
-      msg(MSG::DEBUG) << " fit needs perigee parameters - creating it" << endmsg;
-      /*
-      const Trk::TrackParameters* pTP=m_extrapolator->extrapolate(estimatedParametersNearOrigine, perSurf,
-								  Trk::oppositeMomentum, false, matEffects);
-      */
-      const Trk::TrackParameters* pTP=m_extrapolator->extrapolateDirectly(estimatedParametersNearOrigine, 
-									  perSurf,
-									  Trk::anyDirection, false, Trk::nonInteracting);
+    pP = dynamic_cast<const Perigee*>(&estimatedParametersNearOrigine);
+    if (pP == nullptr) {
+      ATH_MSG_DEBUG(" fit needs perigee parameters - creating it");
+      const Trk::TrackParameters* pTP =
+        m_extrapolator->extrapolateDirectly(ctx,
+                                            estimatedParametersNearOrigine,
+                                            perSurf,
+                                            Trk::anyDirection,
+                                            false,
+                                            Trk::nonInteracting);
 
-      pP=dynamic_cast<const Perigee*>(pTP);
-      if(pP==NULL)
-	{
-	  msg(MSG::ERROR) << "failed to create perigee parameters, reject fit" << endmsg;
-	  return 0;
-	}
-    }
-  Rk[0]=pP->parameters()[Trk::d0];
-  Rk[1]=pP->parameters()[Trk::z0];
-  Rk[2]=pP->parameters()[Trk::phi0];
-  Rk[3]=pP->parameters()[Trk::theta];
-  Rk[4]=pP->parameters()[Trk::qOverP];
+      pP = dynamic_cast<const Perigee*>(pTP);
+      if (pP == nullptr) {
+        ATH_MSG_ERROR("failed to create perigee parameters, reject fit");
+        return nullptr;
+      }
+  }
+  Rk[0] = pP->parameters()[Trk::d0];
+  Rk[1] = pP->parameters()[Trk::z0];
+  Rk[2] = pP->parameters()[Trk::phi0];
+  Rk[3] = pP->parameters()[Trk::theta];
+  Rk[4] = pP->parameters()[Trk::qOverP];
   pTS = new TrkTrackState(Rk);
 
-  if (matEffects==Trk::nonInteracting) 
-    {
-      pTS->setScatteringMode(0);
-      msg(MSG::VERBOSE) << "-> Multiple Scattering treatment switched off" << endmsg;
+  if (matEffects == Trk::nonInteracting) {
+    pTS->setScatteringMode(0);
+    ATH_MSG_VERBOSE("-> Multiple Scattering treatment switched off");
+  } else {
+    if ((matEffects == Trk::pion) || (matEffects == Trk::muon)) {
+      pTS->setScatteringMode(1);
+      ATH_MSG_VERBOSE("-> Multiple Scattering treatment switched on");
+    } else {
+      if (matEffects == Trk::electron) {
+        pTS->setScatteringMode(2);
+        ATH_MSG_VERBOSE(
+          "-> Multiple Scattering and Bremm treatments switched on");
+      } else
+        ATH_MSG_WARNING("Material setting " << matEffects << "not supported !");
     }
-  else 
-    {
-      if ((matEffects==Trk::pion)||(matEffects==Trk::muon))      
-	{
-	  pTS->setScatteringMode(1);
-	  msg(MSG::VERBOSE) << "-> Multiple Scattering treatment switched on" << endmsg;
-	}
-      else 
-	{
-	  if (matEffects==Trk::electron)  
-	    {
-	      pTS->setScatteringMode(2);
-	      msg(MSG::VERBOSE) << "-> Multiple Scattering and Bremm treatments switched on" << endmsg;
-	    }
-	  else msg(MSG::WARNING) << "Material setting " << matEffects << "not supported !" << endmsg;
-	}
-    }
+  }
 
   pInitState=pTS;
 
@@ -1045,273 +992,290 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::PrepRawDataSet&   prepR
   m_pvpSurfaces->clear();
   m_pvpTrackStates->clear();
 
-  for(PrepRawDataSet::const_iterator prdIt=inputPRDColl.begin();prdIt!=inputPRDColl.end();prdIt++) 
-    {
-      if((*prdIt)->detectorElement()==NULL)
-	{
-	  msg(MSG::WARNING) << " PrepRawData has no detector element - drop it" << endmsg;
-	  continue;
-	} 
-      Identifier ID=(*prdIt)->identify();
-      if(m_idHelper->is_indet(ID) || m_idHelper->is_sct(ID) || m_idHelper->is_pixel(ID) || m_idHelper->is_trt(ID))
-	{	
-	  if(m_idHelper->is_pixel(ID)|| m_idHelper->is_sct(ID))
-	    {
-	      const Trk::Surface& rSurf=(*prdIt)->detectorElement()->surface();
-	      N[0]=rSurf.normal().x();
-	      N[1]=rSurf.normal().y();
-	      N[2]=rSurf.normal().z();
-	      C[0]=rSurf.center().x();
-	      C[1]=rSurf.center().y();
-	      C[2]=rSurf.center().z();
-	      mx=rSurf.transform().rotation().block(0,0,3,1);
-	      my=rSurf.transform().rotation().block(0,1,3,1);
-	      mz=rSurf.transform().rotation().block(0,2,3,1);
-	      for(i=0;i<3;i++) 
-		{
-		  M[i][0]=mx[i];M[i][1]=my[i];M[i][2]=mz[i];
-		}
-	      pS = new TrkPlanarSurface(C,N,M,rlSili);
-	      m_pvpSurfaces->push_back(pS);
-	      if(m_idHelper->is_pixel(ID))
-		{
-		  pPN = new TrkPixelNode(pS,200.0,(*prdIt));
-		  m_pvpNodes->push_back(pPN);
-		}
-	      else
-		{
-		  if(fabs(N[2])<0.1)
-		    {
-		      pCN = new TrkClusterNode(pS,200.0,(*prdIt));
-		      m_pvpNodes->push_back(pCN);
-		    }
-		  else
-		    {
-		      pECN = new TrkEndCapClusterNode(pS,200.0,(*prdIt));
-		      m_pvpNodes->push_back(pECN);
-		    }
-		}
-	      continue;
-	    }
-	  if(m_idHelper->is_trt(ID))
-	    {
-	      nAmbHits++;
-
-	      const Trk::Surface& rSurf=(*prdIt)->detectorElement()->surface(ID);
-	      double len=500.0;
-	      const Trk::SurfaceBounds& rBounds=(*prdIt)->detectorElement()->surface().bounds();
-
-	      C[0]=rSurf.center().x();C[1]=rSurf.center().y();C[2]=rSurf.center().z();
-	      double cosFs=C[0]/sqrt(C[0]*C[0]+C[1]*C[1]);
-	      double sinFs=C[1]/sqrt(C[0]*C[0]+C[1]*C[1]);
-
-	      const Amg::Vector3D& rNorm=(*prdIt)->detectorElement()->surface().normal();
-	      bool isBarrel=true;
-	      if(fabs(rNorm.z())>0.2) isBarrel=false;
-	      
-	      if(isBarrel)
-		{
-		  const Trk::RectangleBounds& bBounds=dynamic_cast<const Trk::RectangleBounds&>(rBounds);
-		  len=bBounds.halflengthY();
-		  N[0]=cosFs;N[1]=sinFs;N[2]=0.0;
-
-		  if(C[2]<0.0)
-		    {
-		      M[0][0]=-sinFs; M[0][1]=0.0; M[0][2]=cosFs;
-		      M[1][0]= cosFs; M[1][1]=0.0; M[1][2]=sinFs;
-		      M[2][0]= 0.0;   M[2][1]=1.0; M[2][2]=0.0;
-		    }
-		  else
-		    {
-		      M[0][0]= sinFs; M[0][1]=0.0; M[0][2]=cosFs;
-		      M[1][0]=-cosFs; M[1][1]=0.0; M[1][2]=sinFs;
-		      M[2][0]= 0.0;   M[2][1]=-1.0; M[2][2]=0.0;
-		    }
-		}
-	      else
-		{
-		  const Trk::DiscBounds& ecBounds=dynamic_cast<const Trk::DiscBounds&>(rBounds);
-		  len=0.5*(ecBounds.rMax()-ecBounds.rMin());
-		  N[0]=0.0;N[1]=0.0;N[2]=1.0;
-		  M[0][0]=-sinFs; M[0][1]=-cosFs; M[0][2]=0.0;
-		  M[1][0]= cosFs; M[1][1]=-sinFs; M[1][2]=0.0;
-		  M[2][0]= 0.0;   M[2][1]= 0.0;   M[2][2]=1.0;
-		}
-	      pS = new TrkPlanarSurface(C,N,M,rlTrt);
-	      m_pvpSurfaces->push_back(pS);
-	      pTN = new TrkTrtNode(pS,200.0,-len,len,(*prdIt));
-	      m_pvpNodes->push_back(pTN);
-	      
-	      continue;
-	    }
-	}
-      msg(MSG::WARNING) << " PrepRawData is neither identified nor supported !" << endmsg;
-      msg(MSG::WARNING)<<"RIO ID prints as "
-	  << m_idHelper->print_to_string(ID)<<endmsg;
+  for (PrepRawDataSet::const_iterator prdIt = inputPRDColl.begin();
+       prdIt != inputPRDColl.end();
+       prdIt++) {
+    if ((*prdIt)->detectorElement() == nullptr) {
+          ATH_MSG_WARNING(" PrepRawData has no detector element - drop it");
+          continue;
     }
-  msg(MSG::VERBOSE) << " Number of nodes/surfaces created: "<< m_pvpNodes->size()<<"/"<<m_pvpSurfaces->size()<<endmsg;
+    Identifier ID = (*prdIt)->identify();
+    if (m_idHelper->is_indet(ID) || m_idHelper->is_sct(ID) ||
+        m_idHelper->is_pixel(ID) || m_idHelper->is_trt(ID)) {
+      if (m_idHelper->is_pixel(ID) || m_idHelper->is_sct(ID)) {
+        const Trk::Surface& rSurf = (*prdIt)->detectorElement()->surface();
+        N[0] = rSurf.normal().x();
+        N[1] = rSurf.normal().y();
+        N[2] = rSurf.normal().z();
+        C[0] = rSurf.center().x();
+        C[1] = rSurf.center().y();
+        C[2] = rSurf.center().z();
+        mx = rSurf.transform().rotation().block(0, 0, 3, 1);
+        my = rSurf.transform().rotation().block(0, 1, 3, 1);
+        mz = rSurf.transform().rotation().block(0, 2, 3, 1);
+        for (i = 0; i < 3; i++) {
+          M[i][0] = mx[i];
+          M[i][1] = my[i];
+          M[i][2] = mz[i];
+        }
+        pS = new TrkPlanarSurface(C, N, M, rlSili);
+        m_pvpSurfaces->push_back(pS);
+        if (m_idHelper->is_pixel(ID)) {
+          pPN = new TrkPixelNode(pS, 200.0, (*prdIt));
+          m_pvpNodes->push_back(pPN);
+        } else {
+          if (fabs(N[2]) < 0.1) {
+            pCN = new TrkClusterNode(pS, 200.0, (*prdIt));
+            m_pvpNodes->push_back(pCN);
+          } else {
+            pECN = new TrkEndCapClusterNode(pS, 200.0, (*prdIt));
+            m_pvpNodes->push_back(pECN);
+          }
+        }
+        continue;
+      }
+      if (m_idHelper->is_trt(ID)) {
+        nAmbHits++;
 
-  // 3. Sort vector of filtering nodes according to their distances from the perigee point
+        const Trk::Surface& rSurf = (*prdIt)->detectorElement()->surface(ID);
+        double len = 500.0;
+        const Trk::SurfaceBounds& rBounds =
+          (*prdIt)->detectorElement()->surface().bounds();
 
-  //  m_sortFilteringNodes(pInitState);
+        C[0] = rSurf.center().x();
+        C[1] = rSurf.center().y();
+        C[2] = rSurf.center().z();
+        double cosFs = C[0] / sqrt(C[0] * C[0] + C[1] * C[1]);
+        double sinFs = C[1] / sqrt(C[0] * C[0] + C[1] * C[1]);
 
-  // 4. Main algorithm: filter and smoother (Rauch-Tung-Striebel)
+        const Amg::Vector3D& rNorm =
+          (*prdIt)->detectorElement()->surface().normal();
+        bool isBarrel = true;
+        if (fabs(rNorm.z()) > 0.2)
+          isBarrel = false;
 
-  if(runForwardKalmanFilter(pInitState))
-  {
-    runSmoother();
-    if(runOutlier)
-    {
-      int nOutl=findOutliers(outlCut);
-      msg(MSG::VERBOSE) << nOutl <<" outliers removed "<<endmsg;
+        if (isBarrel) {
+          const Trk::RectangleBounds& bBounds =
+            dynamic_cast<const Trk::RectangleBounds&>(rBounds);
+          len = bBounds.halflengthY();
+          N[0] = cosFs;
+          N[1] = sinFs;
+          N[2] = 0.0;
 
-      if((nOutl*1.0/m_pvpNodes->size())>0.3)
-	{
-	  msg(MSG::VERBOSE) <<" two many outliers - bad track "<<endmsg;
-	  badTrack=true;
-	}
-      if((nOutl!=0)&&(!badTrack))
-	{
-	  deleteTrackStates();
-	  runForwardKalmanFilter(pInitState);
-	  runSmoother();
-	  nOutl=findOutliers(outlCut);
-	  msg(MSG::VERBOSE) << nOutl <<" new outliers found "<<endmsg;
-	}
+          if (C[2] < 0.0) {
+            M[0][0] = -sinFs;
+            M[0][1] = 0.0;
+            M[0][2] = cosFs;
+            M[1][0] = cosFs;
+            M[1][1] = 0.0;
+            M[1][2] = sinFs;
+            M[2][0] = 0.0;
+            M[2][1] = 1.0;
+            M[2][2] = 0.0;
+          } else {
+            M[0][0] = sinFs;
+            M[0][1] = 0.0;
+            M[0][2] = cosFs;
+            M[1][0] = -cosFs;
+            M[1][1] = 0.0;
+            M[1][2] = sinFs;
+            M[2][0] = 0.0;
+            M[2][1] = -1.0;
+            M[2][2] = 0.0;
+          }
+        } else {
+          const Trk::DiscBounds& ecBounds =
+            dynamic_cast<const Trk::DiscBounds&>(rBounds);
+          len = 0.5 * (ecBounds.rMax() - ecBounds.rMin());
+          N[0] = 0.0;
+          N[1] = 0.0;
+          N[2] = 1.0;
+          M[0][0] = -sinFs;
+          M[0][1] = -cosFs;
+          M[0][2] = 0.0;
+          M[1][0] = cosFs;
+          M[1][1] = -sinFs;
+          M[1][2] = 0.0;
+          M[2][0] = 0.0;
+          M[2][1] = 0.0;
+          M[2][2] = 1.0;
+        }
+        pS = new TrkPlanarSurface(C, N, M, rlTrt);
+        m_pvpSurfaces->push_back(pS);
+        pTN = new TrkTrtNode(pS, 200.0, -len, len, (*prdIt));
+        m_pvpNodes->push_back(pTN);
+
+        continue;
+      }
     }
-    if((nAmbHits!=0)&&(!badTrack))
-      {
-	calculateLRsolution();
-	deleteTrackStates();
-	runForwardKalmanFilter(pInitState);
-	runSmoother();
-      }
-  
-    // 5. Create and store back all the stuff
-    if(!badTrack)
-      {
-	pTS=(*m_pvpTrackStates->begin());
-	const Trk::Perigee* pMP=createMeasuredPerigee(pTS);
-	msg(MSG::DEBUG) <<"Fitted perigee: d0="
-	    <<pMP->parameters()[Trk::d0]<<
-	  " z0="
-	    <<pMP->parameters()[Trk::z0]<<
-	  " phi="
-	    <<pMP->parameters()[Trk::phi0]<<
-	  " theta="
-	    <<pMP->parameters()[Trk::theta]<<
-	  " qOverP="
-	    <<pMP->parameters()[Trk::qOverP]<<
-	  " pT="<<sin(pMP->parameters()[Trk::theta])/
-	  pMP->parameters()[Trk::qOverP]<<endmsg;
-	
-	DataVector<const TrackStateOnSurface>* pvTS = new DataVector<const TrackStateOnSurface>;
-	pvTS->clear();
-
-	std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern; 
-	typePattern.set(Trk::TrackStateOnSurface::Perigee);
-	const TrackStateOnSurface* pTSOS = new TrackStateOnSurface(0,pMP,0,0,typePattern);
-
-	pvTS->push_back(pTSOS);
-	std::vector<TrkBaseNode*>::iterator pnIt(m_pvpNodes->begin()),pnEnd(m_pvpNodes->end());
-	
-	double chi2=0.0;
-	int ndof=-5;
-	
-	for(;pnIt!=pnEnd;++pnIt)
-	  {
-	    if((*pnIt)->isValidated())
-	      {
-		TrackStateOnSurface* pTSS=createTrackStateOnSurface(*pnIt);
-		if(pTSS!=NULL) 
-		  {
-		    pvTS->push_back(pTSS);
-		    chi2+=(*pnIt)->getChi2();
-		    ndof+=(*pnIt)->getNdof();
-		  }
-	      }
-	  }
-	msg(MSG::DEBUG) <<"Total Chi2: "<<chi2<<" DoF="<<ndof<<endmsg;
-	Trk::FitQuality* pFQ=new Trk::FitQuality(chi2,ndof);
-	msg(MSG::DEBUG) <<pvTS->size()<<" new RIO_OnTrack(s) created"<<endmsg; 
-	TrackInfo info(TrackInfo::DistributedKalmanFilter,matEffects);
-	fittedTrack = new Track(info,pvTS,pFQ);
-      }
-    else
-      {
-	fittedTrack=NULL;
-      }
+      ATH_MSG_WARNING(" PrepRawData is neither identified nor supported !");
+      ATH_MSG_WARNING("RIO ID prints as " << m_idHelper->print_to_string(ID));
   }
-  else
-    {
-      msg(MSG::WARNING) <<"Extrapolation failed "<<endmsg;
-      fittedTrack=NULL;
+    ATH_MSG_VERBOSE(" Number of nodes/surfaces created: "
+                    << m_pvpNodes->size() << "/" << m_pvpSurfaces->size());
+
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{
+      m_fieldCacheCondObjInputKey, ctx
+    };
+   
+    if (!readHandle.isValid()) {
+      std::stringstream msg;
+      msg << "Failed to retrieve magmnetic field conditions data "
+          << m_fieldCacheCondObjInputKey.key() << ".";
+      throw std::runtime_error(msg.str());
     }
-  deleteNodes();
-  deleteSurfaces();
-  deleteTrackStates();
-  delete pInitState;
-  return fittedTrack;
+    const AtlasFieldCacheCondObj* fieldCondObj{ *readHandle };
+
+    MagField::AtlasFieldCache fieldCache;
+    fieldCondObj->getInitializedCache(fieldCache);
+
+    // 3. Sort vector of filtering nodes according to their distances from the
+    // perigee point
+
+    //  m_sortFilteringNodes(pInitState);
+
+    // 4. Main algorithm: filter and smoother (Rauch-Tung-Striebel)
+
+    if (runForwardKalmanFilter(pInitState, fieldCache)) {
+      runSmoother();
+      if (runOutlier) {
+        int nOutl = findOutliers(outlCut);
+        ATH_MSG_VERBOSE(nOutl << " outliers removed ");
+
+        if ((nOutl * 1.0 / m_pvpNodes->size()) > 0.3) {
+          ATH_MSG_VERBOSE(" two many outliers - bad track ");
+          badTrack=true;
+        }
+        if ((nOutl != 0) && (!badTrack)) {
+          deleteTrackStates();
+          runForwardKalmanFilter(pInitState, fieldCache);
+          runSmoother();
+          nOutl = findOutliers(outlCut);
+          ATH_MSG_VERBOSE(nOutl <<" new outliers found ");
+        }
+      }
+      if ((nAmbHits != 0) && (!badTrack)) {
+        calculateLRsolution();
+        deleteTrackStates();
+        runForwardKalmanFilter(pInitState,fieldCache);
+        runSmoother();
+      }
+
+      // 5. Create and store back all the stuff
+      if (!badTrack) {
+        pTS = (*m_pvpTrackStates->begin());
+        const Trk::Perigee* pMP = createMeasuredPerigee(pTS);
+        ATH_MSG_DEBUG("Fitted perigee: d0=" << pMP->parameters()[Trk::d0]
+                        << " z0=" << pMP->parameters()[Trk::z0]
+                        << " phi=" << pMP->parameters()[Trk::phi0]
+                        << " theta=" << pMP->parameters()[Trk::theta]
+                        << " qOverP=" << pMP->parameters()[Trk::qOverP]
+                        << " pT="
+                        << sin(pMP->parameters()[Trk::theta]) /
+                             pMP->parameters()[Trk::qOverP]);
+
+        DataVector<const TrackStateOnSurface>* pvTS =
+          new DataVector<const TrackStateOnSurface>;
+        pvTS->clear();
+
+        std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>
+          typePattern;
+        typePattern.set(Trk::TrackStateOnSurface::Perigee);
+        const TrackStateOnSurface* pTSOS =
+          new TrackStateOnSurface(nullptr, pMP, nullptr, nullptr, typePattern);
+
+        pvTS->push_back(pTSOS);
+        std::vector<TrkBaseNode*>::iterator pnIt(m_pvpNodes->begin()),
+          pnEnd(m_pvpNodes->end());
+
+        double chi2=0.0;
+        int ndof = -5;
+
+        for (; pnIt != pnEnd; ++pnIt) {
+          if ((*pnIt)->isValidated()) {
+            TrackStateOnSurface* pTSS = createTrackStateOnSurface(*pnIt);
+            if (pTSS != nullptr) {
+              pvTS->push_back(pTSS);
+              chi2 += (*pnIt)->getChi2();
+              ndof += (*pnIt)->getNdof();
+            }
+          }
+        }
+        ATH_MSG_DEBUG("Total Chi2: "<<chi2<<" DoF="<<ndof);
+        Trk::FitQuality* pFQ = new Trk::FitQuality(chi2, ndof);
+        ATH_MSG_DEBUG(pvTS->size() << " new RIO_OnTrack(s) created");
+        TrackInfo info(TrackInfo::DistributedKalmanFilter,matEffects);
+        fittedTrack = new Track(info, pvTS, pFQ);
+      } else {
+        fittedTrack=nullptr;
+      }
+    } else {
+      ATH_MSG_WARNING("Extrapolation failed ");
+      fittedTrack = nullptr;
+    }
+    deleteNodes();
+    deleteSurfaces();
+    deleteTrackStates();
+    delete pInitState;
+    return std::unique_ptr<Trk::Track>(fittedTrack);
 }
 
-Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::MeasurementSet&    inputRotColl,
-                                              const Trk::TrackParameters&   estimatedParametersNearOrigine,                       
-                                              const Trk::RunOutlierRemoval  runOutlier,                                           
-                                              const Trk::ParticleHypothesis matEffects) const                                
+std::unique_ptr<Trk::Track>
+Trk::DistributedKalmanFilter::fit(
+  const EventContext& ctx,
+  const Trk::MeasurementSet& inputRotColl,
+  const Trk::TrackParameters& estimatedParametersNearOrigine,
+  const Trk::RunOutlierRemoval runOutlier,
+  const Trk::ParticleHypothesis matEffects) const
 {
   if (inputRotColl.empty()) {
-    msg(MSG::ERROR) << "try to fit empty vec<MeasurementBase>, reject fit" << endmsg;
-    return NULL;
+    ATH_MSG_ERROR( "try to fit empty vec<MeasurementBase>, reject fit" );
+    return nullptr;
   }
 
   PrepRawDataSet prepRDColl;
-
   DataVector<const MeasurementBase>::const_iterator it    = inputRotColl.begin();
-  DataVector<const MeasurementBase>::const_iterator itEnd = inputRotColl.end(); 
-  for(;it!=itEnd;++it) 
-    {
-      if(!(*it))
-	{
-	  msg(MSG::WARNING) << "This track contains empty MeasurementBase "
-	      << "objects! Skipped this MB.." << endmsg;
-	} 
-      else 
-	{
-	  const RIO_OnTrack* pROT = dynamic_cast<const RIO_OnTrack*>(*it);
-	  const PrepRawData* prepRD=(pROT)?(pROT->prepRawData()):NULL;
-	  if (!prepRD) 
-	    {
-	      msg(MSG::WARNING) << "RIO_OnTrack->prepRawRata() "
-		  << "returns no object, ignore... " << endmsg;
-	    } 
-	  else 
-	    {
-	      prepRDColl.push_back( prepRD );
-	    }
-	}          
+  DataVector<const MeasurementBase>::const_iterator itEnd = inputRotColl.end();
+  for (; it != itEnd; ++it) {
+    if (!(*it)) {
+      ATH_MSG_WARNING("This track contains empty MeasurementBase "
+                        << "objects! Skipped this MB..");
+    } else {
+      const RIO_OnTrack* pROT = dynamic_cast<const RIO_OnTrack*>(*it);
+      const PrepRawData* prepRD = (pROT) ? (pROT->prepRawData()) : nullptr;
+      if (!prepRD) {
+        ATH_MSG_WARNING("RIO_OnTrack->prepRawRata() "
+                          << "returns no object, ignore... " );
+      } else {
+        prepRDColl.push_back(prepRD);
+      }
     }
-  return fit(prepRDColl,estimatedParametersNearOrigine,runOutlier,matEffects);
+  }
+  return fit(ctx,
+    prepRDColl, estimatedParametersNearOrigine, runOutlier, matEffects);
 }
-
-Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::Track&  inputTrack,
-					      const Trk::MeasurementSet& inputRotColl,
-					      const Trk::RunOutlierRemoval runOutlier,
-					      const Trk::ParticleHypothesis matEffects) const
+std::unique_ptr<Trk::Track>
+Trk::DistributedKalmanFilter::fit(
+  const EventContext& ctx,
+  const Trk::Track& inputTrack,
+  const Trk::MeasurementSet& inputRotColl,
+  const Trk::RunOutlierRemoval runOutlier,
+  const Trk::ParticleHypothesis matEffects) const
 {
 
-  msg(MSG::VERBOSE) << "--> enter DistributedKalmanFilter::fit(Track,easurementSet,)" << endmsg;
+  ATH_MSG_VERBOSE("--> enter DistributedKalmanFilter::fit(Track,easurementSet,)");
   
   // protection against track not having any parameters
   if (inputTrack.trackParameters()->empty()) {
-    msg(MSG::ERROR) << "need estimated track parameters near "
-	<< "origin, reject fit" << endmsg;
-    return 0;
+    ATH_MSG_ERROR("need estimated track parameters near "
+                  << "origin, reject fit");
+    return nullptr;
   }
   // protection against not having RIO_OnTracks
   if (inputTrack.measurementsOnTrack()->empty()) {
-    msg(MSG::ERROR) << "try to refit track with empty "
-	<< "vec<RIO_OnTrack>, reject fit" << endmsg;
-    return 0;
+    ATH_MSG_ERROR("try to refit track with empty "
+                  << "vec<RIO_OnTrack>, reject fit");
+    return nullptr;
   }
 	
   // create PrepRawData subset
@@ -1322,77 +1286,71 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::Track&  inputTrack,
   DataVector<const MeasurementBase>::const_iterator it    = inputTrack.measurementsOnTrack()->begin();
   DataVector<const MeasurementBase>::const_iterator itEnd = inputTrack.measurementsOnTrack()->end(); 
   for ( ; it!=itEnd; ++it) {
-    if (!(*it)) 
-      {
-	msg(MSG::WARNING) << "This track contains empty MeasurementBase "
-	    << "objects! Skipped this MB.." << endmsg;  
-      } 
-    else 
-      {
-	const RIO_OnTrack* testROT = dynamic_cast<const RIO_OnTrack*>(*it);
-	const PrepRawData* prepRD = (testROT) ? (testROT)->prepRawData() : 0;
-	if (!prepRD) {
-	  msg(MSG::WARNING) << "RIO_OnTrack->prepRawRata() "
-	      << "returns no object, ignore... " << endmsg;
-	} else { prepRDColl.push_back( prepRD );  }
+    if (!(*it)) {
+      ATH_MSG_WARNING("This track contains empty MeasurementBase "
+                      << "objects! Skipped this MB..");
+    } else {
+      const RIO_OnTrack* testROT = dynamic_cast<const RIO_OnTrack*>(*it);
+      const PrepRawData* prepRD = (testROT) ? (testROT)->prepRawData() : nullptr;
+      if (!prepRD) {
+        ATH_MSG_WARNING("RIO_OnTrack->prepRawRata() "
+                        << "returns no object, ignore... ");
+      } else {
+        prepRDColl.push_back(prepRD);
       }
-  }
-  const Trk::TrackParameters* minPar = *(std::min_element(inputTrack.trackParameters()->begin(),
-							  inputTrack.trackParameters()->end(),
-							  minTrkPar()));
-
-  it    = inputRotColl.begin();
-  itEnd = inputRotColl.end(); 
-  for(;it!=itEnd;++it) 
-    {
-      if(!(*it))
-	{
-	  msg(MSG::WARNING) << "This track contains empty MeasurementBase "
-	      << "objects! Skipped this MB.." << endmsg;
-	} 
-      else 
-	{
-	  const RIO_OnTrack* pROT = dynamic_cast<const RIO_OnTrack*>(*it);
-	  const PrepRawData* prepRD=(pROT)?(pROT->prepRawData()):NULL;
-	  if (!prepRD) 
-	    {
-	      msg(MSG::WARNING) << "RIO_OnTrack->prepRawRata() "
-		  << "returns no object, ignore... " << endmsg;
-	    } 
-	  else 
-	    {
-	      prepRDColl.push_back( prepRD );
-	    }
-	}          
     }
-  return fit(prepRDColl,*minPar,runOutlier,matEffects);
+  }
+  const Trk::TrackParameters* minPar =
+    *(std::min_element(inputTrack.trackParameters()->begin(),
+                       inputTrack.trackParameters()->end(),
+                       minTrkPar()));
+
+  it = inputRotColl.begin();
+  itEnd = inputRotColl.end();
+  for (; it != itEnd; ++it) {
+    if (!(*it)) {
+      ATH_MSG_WARNING("This track contains empty MeasurementBase "
+                      << "objects! Skipped this MB..");
+    } else {
+      const RIO_OnTrack* pROT = dynamic_cast<const RIO_OnTrack*>(*it);
+      const PrepRawData* prepRD = (pROT) ? (pROT->prepRawData()) : nullptr;
+      if (!prepRD) {
+        ATH_MSG_WARNING("RIO_OnTrack->prepRawRata() "
+                        << "returns no object, ignore... ");
+      } else {
+        prepRDColl.push_back(prepRD);
+      }
+    }
+  }
+  return fit(ctx,prepRDColl,*minPar,runOutlier,matEffects);
 }
 
-
 // fit a set of RIO_OnTrack objects
-
-
-Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::RIO_OnTrackSet&   inputRotColl,
-					      const Trk::TrackParameters&  estimatedParametersNearOrigine,
-					      const Trk::RunOutlierRemoval runOutlier,
-					      const Trk::ParticleHypothesis     matEffects) const
+std::unique_ptr<Trk::Track>
+Trk::DistributedKalmanFilter::fit(
+  const EventContext& ctx,
+  const Trk::RIO_OnTrackSet& inputRotColl,
+  const Trk::TrackParameters& estimatedParametersNearOrigine,
+  const Trk::RunOutlierRemoval runOutlier,
+  const Trk::ParticleHypothesis matEffects) const
 {
-    msg(MSG::VERBOSE) << "--> entering DistributedKalmanFilter::fit"
-        << "(RIO_OnTrackSet,TrackParameters,,)" << endmsg;
+  ATH_MSG_VERBOSE("--> entering DistributedKalmanFilter::fit"
+                  << "(RIO_OnTrackSet,TrackParameters,,)");
 
-    // protection, if empty RIO_OnTrackSet
-    if (inputRotColl.empty()) {
-        msg(MSG::ERROR) << "try to fit track+vec<ROT> with empty "
-            << "extended vec<RIO_OnTrack>, reject fit" << endmsg;
-        return 0;
+  // protection, if empty RIO_OnTrackSet
+  if (inputRotColl.empty()) {
+    ATH_MSG_ERROR("try to fit track+vec<ROT> with empty "
+                  << "extended vec<RIO_OnTrack>, reject fit");
+    return nullptr;
     }
 
-    if (runOutlier) msg(MSG::VERBOSE) << "-> Outlier removal switched on" << endmsg;
-    if (matEffects!=Trk::nonInteracting) msg(MSG::VERBOSE) << "-> Material Effects switched on" << endmsg;
+    if (runOutlier) ATH_MSG_VERBOSE( "-> Outlier removal switched on");
+    if (matEffects != Trk::nonInteracting)
+      ATH_MSG_VERBOSE("-> Material Effects switched on");
 
     // for the time being, disintegrate ROTSet back to PrepRawData set.
-    msg(MSG::VERBOSE) << "copy & downgrade ROTSet into PRDset - "
-        << "this is improvised." << endmsg;
+    ATH_MSG_VERBOSE("copy & downgrade ROTSet into PRDset - "
+                    << "this is improvised.");
     PrepRawDataSet prepRDColl;
 
     RIO_OnTrackSet::const_iterator it    = inputRotColl.begin();
@@ -1401,37 +1359,43 @@ Trk::Track* Trk::DistributedKalmanFilter::fit(const Trk::RIO_OnTrackSet&   input
     for ( ; it!=itEnd; ++it) {
         const PrepRawData* prepRD = ((*it)->prepRawData());
         if (!prepRD) {
-            msg(MSG::WARNING) << "RIO_OnTrack->prepRawRata() "
-                << "returns no object, ignore... " << endmsg;
+          ATH_MSG_WARNING("RIO_OnTrack->prepRawRata() "
+                          << "returns no object, ignore... ");
         } else {
-            prepRDColl.push_back( prepRD );
+          prepRDColl.push_back(prepRD);
         }
     }
 							
     // fit set of PrepRawData using main method, start with first Track Parameter in inputTrack
-    msg(MSG::VERBOSE) << "call fit(PRDSet,TP,,)" << endmsg;
-    return fit(prepRDColl,estimatedParametersNearOrigine,runOutlier,matEffects);
+    ATH_MSG_VERBOSE("call fit(PRDSet,TP,,)");
+    return fit(
+      ctx, prepRDColl, estimatedParametersNearOrigine, runOutlier, matEffects);
 }
 
-void Trk::DistributedKalmanFilter::deleteNodes() const
+void
+Trk::DistributedKalmanFilter::deleteNodes() const
 {
-  for(std::vector<TrkBaseNode*>::iterator pnIt=m_pvpNodes->begin();pnIt!=m_pvpNodes->end();++pnIt) 
-    {
-      delete (*pnIt);
-    }
+  for (std::vector<TrkBaseNode*>::iterator pnIt = m_pvpNodes->begin();
+       pnIt != m_pvpNodes->end();
+       ++pnIt) {
+    delete (*pnIt);
+  }
   m_pvpNodes->clear();
 }
 
-void Trk::DistributedKalmanFilter::deleteSurfaces() const
+void
+Trk::DistributedKalmanFilter::deleteSurfaces() const
 {
-  std::vector<TrkPlanarSurface*>::iterator psIt(m_pvpSurfaces->begin()),psEnd(m_pvpSurfaces->end());
+  std::vector<TrkPlanarSurface*>::iterator psIt(m_pvpSurfaces->begin()),
+    psEnd(m_pvpSurfaces->end());
   for(;psIt!=psEnd;++psIt) delete (*psIt);
   m_pvpSurfaces->clear();
 }
 
 void Trk::DistributedKalmanFilter::deleteTrackStates() const
 {
-  std::vector<TrkTrackState*>::iterator ptsIt(m_pvpTrackStates->begin()),ptsEnd(m_pvpTrackStates->end());
+  std::vector<TrkTrackState*>::iterator ptsIt(m_pvpTrackStates->begin()),
+    ptsEnd(m_pvpTrackStates->end());
   for(;ptsIt!=ptsEnd;++ptsIt) delete (*ptsIt);
   m_pvpTrackStates->clear();
 }

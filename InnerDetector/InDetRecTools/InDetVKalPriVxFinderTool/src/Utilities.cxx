@@ -18,43 +18,63 @@
 
 namespace InDet {
 
-
-   void InDetVKalPriVxFinderTool::inpSelector(std::vector<const Trk::TrackParticleBase*>   & ListParticles,
-                                              std::vector<const Trk::Track*>               & ListTracks,
-	                                      Amg::Vector3D                                   & IniVertex,
-                                              std::vector<const Trk::TrackParticleBase*>   & SelectedParticles,
-                                              std::vector<const Trk::Track*>               & SelectedTracks)
-   {
-     int Selector=2;   // Initial choice
-     int NTrkInList = 0;
-     SelectedParticles.clear(); SelectedTracks.clear();
-     if( ListParticles.empty() && ListTracks.empty() ) return;
-     if( (not ListParticles.empty()) && ListTracks.empty() ){ Selector =1; NTrkInList=ListParticles.size(); }
-     if( ListParticles.empty() && (not ListTracks.empty()) ){ Selector =2; NTrkInList=ListTracks.size();}
-//
-//  track selection for given vertex candidates
-     std::vector<double>  Impact, ImpactError;
-     double Signif=0.;
-     for(int i=0; i < NTrkInList; i++) {
-        if(Selector==1)Signif=m_fitSvc->VKalGetImpact( ListParticles[i], IniVertex, 1, Impact, ImpactError);
-        if(Selector==2)Signif=m_fitSvc->VKalGetImpact( ListTracks[i],    IniVertex, 1, Impact, ImpactError);
-        if ( std::fabs(Impact[0])/std::sqrt(ImpactError[0])  > m_RImpSelCut)   continue;
-        if ( std::fabs(Impact[1])/std::sqrt(ImpactError[2])  > m_ZImpSelCut)   continue;
-        if (  Signif                               > m_SignifSelCut) continue;
-        if ( std::fabs(Impact[0])                 > m_RDistSelCut)       continue;
-        if ( std::fabs(Impact[1]*sin(Impact[2]))  > m_ZDistSelCut)       continue;
-        if(Selector==1)SelectedParticles.push_back( ListParticles[i] );
-        if(Selector==2)SelectedTracks.push_back( ListTracks[i] );
-      }
-      if(Selector==1) ATH_MSG_DEBUG( "Chosen for vertex fit="<<SelectedParticles.size());
-      if(Selector==2) ATH_MSG_DEBUG( "Chosen for vertex fit="<<SelectedTracks.size());
-      return;
+void
+InDetVKalPriVxFinderTool::inpSelector(
+  std::vector<const Trk::TrackParticleBase*>& ListParticles,
+  std::vector<const Trk::Track*>& ListTracks,
+  Amg::Vector3D& IniVertex,
+  std::vector<const Trk::TrackParticleBase*>& SelectedParticles,
+  std::vector<const Trk::Track*>& SelectedTracks) const
+{
+  int Selector = 2; // Initial choice
+  int NTrkInList = 0;
+  SelectedParticles.clear();
+  SelectedTracks.clear();
+  if (ListParticles.empty() && ListTracks.empty())
+    return;
+  if ((not ListParticles.empty()) && ListTracks.empty()) {
+    Selector = 1;
+    NTrkInList = ListParticles.size();
+  }
+  if (ListParticles.empty() && (not ListTracks.empty())) {
+    Selector = 2;
+    NTrkInList = ListTracks.size();
+  }
+  //
+  //  track selection for given vertex candidates
+  std::vector<double> Impact, ImpactError;
+  double Signif = 0.;
+  for (int i = 0; i < NTrkInList; i++) {
+    if (Selector == 1)
+      Signif = m_fitSvc->VKalGetImpact(
+        ListParticles[i], IniVertex, 1, Impact, ImpactError);
+    if (Selector == 2)
+      Signif = m_fitSvc->VKalGetImpact(
+        ListTracks[i], IniVertex, 1, Impact, ImpactError);
+    if (std::fabs(Impact[0]) / std::sqrt(ImpactError[0]) > m_RImpSelCut)
+      continue;
+    if (std::fabs(Impact[1]) / std::sqrt(ImpactError[2]) > m_ZImpSelCut)
+      continue;
+    if (Signif > m_SignifSelCut)
+      continue;
+    if (std::fabs(Impact[0]) > m_RDistSelCut)
+      continue;
+    if (std::fabs(Impact[1] * sin(Impact[2])) > m_ZDistSelCut)
+      continue;
+    if (Selector == 1)
+      SelectedParticles.push_back(ListParticles[i]);
+    if (Selector == 2)
+      SelectedTracks.push_back(ListTracks[i]);
+  }
+  if (Selector == 1)
+    ATH_MSG_DEBUG("Chosen for vertex fit=" << SelectedParticles.size());
+  if (Selector == 2)
+    ATH_MSG_DEBUG("Chosen for vertex fit=" << SelectedTracks.size());
+  return;
    }
 
-
-
-
-   int InDetVKalPriVxFinderTool::FindMin( std::vector<double>& Chi2PerTrk)
+   int
+   InDetVKalPriVxFinderTool::FindMin(std::vector<double>& Chi2PerTrk) const
    { 
       double Chi2Ref=1.e12;
       int Position=0;
@@ -63,8 +83,9 @@ namespace InDet {
          if( Chi2PerTrk[i] < Chi2Ref) { Chi2Ref=Chi2PerTrk[i]; Position=i;}
       }
       return Position;
-   }      
-   int InDetVKalPriVxFinderTool::FindMax( std::vector<double>& Chi2PerTrk)
+   }
+   int
+   InDetVKalPriVxFinderTool::FindMax(std::vector<double>& Chi2PerTrk) const
    { 
       double Chi2Ref=0.;
       int Position=0;
@@ -74,7 +95,7 @@ namespace InDet {
       }
       return Position;
    }      
-   int InDetVKalPriVxFinderTool::FindMaxSecond( std::vector<double>& Chi2PerTrk)
+   int InDetVKalPriVxFinderTool::FindMaxSecond( std::vector<double>& Chi2PerTrk) const
    { 
       double Chi2Ref=0.,Chi2RefS=0.;
       int Position=0;
@@ -87,37 +108,42 @@ namespace InDet {
          if( Chi2PerTrk[i] > Chi2RefS ) { Chi2RefS=Chi2PerTrk[i]; Position=i;}
       }
       return Position;
-   }      
-  
- 
+   }
 
-
-  const Trk::Perigee* InDetVKalPriVxFinderTool::GetPerigee( const Trk::TrackParticleBase* i_ntrk) 
-  {
-//
-//-- Perigee in TrackParticle
-//
+   const Trk::Perigee*
+   InDetVKalPriVxFinderTool::GetPerigee(const Trk::TrackParticleBase* i_ntrk) const
+   {
+     //
+     //-- Perigee in TrackParticle
+     //
      const Trk::Perigee* mPer;
      mPer = dynamic_cast<const Trk::Perigee*>( &(i_ntrk->definingParameters()) );
      return mPer;
   }
 
-  const Trk::Perigee* InDetVKalPriVxFinderTool::GetPerigee( const Trk::Track* i_ntrk) 
+  const Trk::Perigee*
+  InDetVKalPriVxFinderTool::GetPerigee(const Trk::Track* i_ntrk) const
   {
      return i_ntrk->perigeeParameters();
 
   }
 //-----------------------------------------------------------------------------------------------
-  void InDetVKalPriVxFinderTool::RemoveEntryInList(std::vector<const Trk::Track*>& ListTracks, int Outlier)
+  void
+  InDetVKalPriVxFinderTool::RemoveEntryInList(
+    std::vector<const Trk::Track*>& ListTracks,
+    int Outlier) const
   {
     if(Outlier < 0 ) return;
     if(Outlier >= (int)ListTracks.size() ) return;
     std::vector<const Trk::Track*>::iterator   TransfEnd;
     TransfEnd = remove( ListTracks.begin(), ListTracks.end(), ListTracks[Outlier]);
     ListTracks.erase( TransfEnd,ListTracks.end());
-  }     
+  }
 
-  void InDetVKalPriVxFinderTool::RemoveEntryInList(std::vector<const Trk::TrackParticleBase*>& ListTracks, int Outlier)
+  void
+  InDetVKalPriVxFinderTool::RemoveEntryInList(
+    std::vector<const Trk::TrackParticleBase*>& ListTracks,
+    int Outlier) const
   {
     if(Outlier < 0 ) return;
     if(Outlier >= (int)ListTracks.size() ) return;
@@ -126,7 +152,7 @@ namespace InDet {
     ListTracks.erase( TransfEnd,ListTracks.end());
   }     
 
-  void InDetVKalPriVxFinderTool::RemoveEntryInList(std::vector<double>& List, int Outlier)
+  void InDetVKalPriVxFinderTool::RemoveEntryInList(std::vector<double>& List, int Outlier) const
   {
     if(Outlier < 0 ) return;
     if(Outlier >= (int)List.size() ) return;
@@ -136,9 +162,11 @@ namespace InDet {
   }     
 //-----------------------------------------------------------------------------------------------
 
-  void InDetVKalPriVxFinderTool::RemoveUsedEntry(std::vector<const Trk::Track*>& List, 
-                                       std::vector<const Trk::Track*>& ListUsed,
-				       std::vector<double> & TrkWeights)
+  void
+  InDetVKalPriVxFinderTool::RemoveUsedEntry(
+    std::vector<const Trk::Track*>& List,
+    std::vector<const Trk::Track*>& ListUsed,
+    std::vector<double>& TrkWeights) const
   {
     int UseWgt=0;
     if(ListUsed.size()   == 0 ) return;
@@ -152,9 +180,11 @@ namespace InDet {
     List.erase( TransfEnd,List.end());
   }
 
-  void InDetVKalPriVxFinderTool::RemoveUsedEntry(std::vector<const Trk::TrackParticleBase*>& List, 
-                                       std::vector<const Trk::TrackParticleBase*>& ListUsed,
-				       std::vector<double> & TrkWeights)
+  void
+  InDetVKalPriVxFinderTool::RemoveUsedEntry(
+    std::vector<const Trk::TrackParticleBase*>& List,
+    std::vector<const Trk::TrackParticleBase*>& ListUsed,
+    std::vector<double>& TrkWeights) const
   {
     int UseWgt=0;
     if(ListUsed.size() == 0 ) return;
@@ -168,7 +198,7 @@ namespace InDet {
     List.erase( TransfEnd,List.end());
   }
 
-  double InDetVKalPriVxFinderTool::GetLimitAngle(double Phi){
+  double InDetVKalPriVxFinderTool::GetLimitAngle(double Phi) const {
   constexpr double twoPi (2.*M_PI);
   while ( Phi < 0.) { Phi += twoPi;}
   while ( Phi > twoPi) {Phi -=twoPi;}
@@ -177,15 +207,17 @@ namespace InDet {
 
 //  Track list cleaning
 
-
-  void InDetVKalPriVxFinderTool::UniqList(std::vector<const Trk::Track*> & List)
+  void
+  InDetVKalPriVxFinderTool::UniqList(std::vector<const Trk::Track*>& List) const
   {
       std::vector<const Trk::Track*>::iterator   TransfEnd ;
       sort(List.begin(),List.end());
       TransfEnd =  unique(List.begin(),List.end());
       List.erase( TransfEnd, List.end());
   }
-  void InDetVKalPriVxFinderTool::UniqList(std::vector<const Trk::TrackParticleBase*> & List)
+  void
+  InDetVKalPriVxFinderTool::UniqList(
+    std::vector<const Trk::TrackParticleBase*>& List) const
   {
       std::vector<const Trk::TrackParticleBase*>::iterator   TransfEnd ;
       sort(List.begin(),List.end());
@@ -193,20 +225,27 @@ namespace InDet {
       List.erase( TransfEnd, List.end());
   }
 
-  double** InDetVKalPriVxFinderTool::getWorkArr2(long int dim1,long int dim2)
+  double**
+  InDetVKalPriVxFinderTool::getWorkArr2(long int dim1, long int dim2) const
   { 
      double **ppArr = new double*[dim1];
      for (int i = 0; i < dim1; i++) ppArr[i] = new double[dim2];
      return ppArr;
   }
 
-  void InDetVKalPriVxFinderTool::removeWorkArr2(double **ppArr, long int dim1,long int )
+  void
+  InDetVKalPriVxFinderTool::removeWorkArr2(double** ppArr,
+                                           long int dim1,
+                                           long int) const
   {  
      for (int i = 0; i < dim1; i++) delete[] ppArr[i];
      delete[] ppArr;
   }
 
-  double*** InDetVKalPriVxFinderTool::getWorkArr3(long int dim1,long int dim2,long int dim3)
+  double***
+  InDetVKalPriVxFinderTool::getWorkArr3(long int dim1,
+                                        long int dim2,
+                                        long int dim3) const
   { 
      int i,j; 
      double ***ppArr = new double**[dim1];
@@ -215,7 +254,11 @@ namespace InDet {
      return ppArr;
   }
 
-  void InDetVKalPriVxFinderTool::removeWorkArr3(double ***ppArr, long int dim1,long int dim2,long int )
+  void
+  InDetVKalPriVxFinderTool::removeWorkArr3(double*** ppArr,
+                                           long int dim1,
+                                           long int dim2,
+                                           long int) const
   {  
      int i,j; 
      for (i = 0; i < dim1; i++){ for (j = 0; j < dim2; j++) delete[]ppArr[i][j]; }
@@ -225,8 +268,10 @@ namespace InDet {
 
 
 // Fills 5x5 matrix.  Input Matrix is a full covariance
-  AmgSymMatrix(5)  InDetVKalPriVxFinderTool::FillCovMatrix(int iTrk, std::vector<double> & Matrix)
- {
+  AmgSymMatrix(5)
+    InDetVKalPriVxFinderTool::FillCovMatrix(int iTrk,
+                                            std::vector<double>& Matrix) const
+  {
     int iTmp=(iTrk+1)*3;
     int NContent = Matrix.size();
     AmgSymMatrix(5) CovMtx; CovMtx.setZero(); CovMtx(2,2)=1.; CovMtx(3,3)=1.; CovMtx(4,4)=1.;
@@ -242,10 +287,9 @@ namespace InDet {
     return CovMtx;
   }
 
-
-
-  Amg::Vector3D 
-  InDetVKalPriVxFinderTool::findIniXY(const TrackCollection* trackTES){
+  Amg::Vector3D
+  InDetVKalPriVxFinderTool::findIniXY(const TrackCollection* trackTES) const
+  {
     //.............................................
     AmgVector(5) VectPerig; 
     VectPerig<<0.,0.,0.,0.,0.;
@@ -284,11 +328,11 @@ namespace InDet {
       if(sc.isFailure()) Vertex<<0.,0.,0.;
     }
     return Vertex;
-  } 
+  }
 
-
-
-  Amg::Vector3D InDetVKalPriVxFinderTool::findIniXY(const Trk::TrackParticleBaseCollection* newPrtCol)
+  Amg::Vector3D
+  InDetVKalPriVxFinderTool::findIniXY(
+    const Trk::TrackParticleBaseCollection* newPrtCol) const
   {
     //.............................................
     AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
@@ -322,6 +366,4 @@ namespace InDet {
     }
     return Vertex;
   } 
-
-
 }

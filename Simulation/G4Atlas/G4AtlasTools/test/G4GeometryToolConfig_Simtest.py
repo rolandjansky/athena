@@ -8,7 +8,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
 if __name__ == '__main__':
-  from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+  from AthenaConfiguration.MainServicesConfig import MainServicesCfg
   import os
 
   # Set up logging and config behaviour
@@ -61,34 +61,33 @@ if __name__ == '__main__':
   ## Initialize a new component accumulator
   cfg = ComponentAccumulator()
 
-  acc, tool  = BeamPipeGeoDetectorToolCfg(ConfigFlags)
-  cfg.merge(acc)
+  acc  = BeamPipeGeoDetectorToolCfg(ConfigFlags)
+  tool = cfg.popToolsAndMerge(acc)
   cfg.addPublicTool(tool)
 
-  acc1, tool1  = PixelGeoDetectorToolCfg(ConfigFlags)
-  cfg.merge(acc1)
-  cfg.addPublicTool(tool1)
-
-  acc2, tool2  = SCTGeoDetectorToolCfg(ConfigFlags)
-  cfg.merge(acc2)
-  cfg.addPublicTool(tool2)
-
-  acc3, tool3  = TRTGeoDetectorToolCfg(ConfigFlags)
-  cfg.merge(acc3)
-  cfg.addPublicTool(tool3)
-
-  acc4, tool4  = IDETEnvelopeCfg(ConfigFlags)
-  cfg.merge(acc4)
-  cfg.addPublicTool(tool4)
-
-  acc6,tool6 = CALOEnvelopeCfg(ConfigFlags)
-  cfg.merge(acc6)
-  cfg.addPublicTool(tool6)
+  acc  = PixelGeoDetectorToolCfg(ConfigFlags)
+  tool = cfg.popToolsAndMerge(acc)
+  cfg.addPublicTool(tool)
   
+  acc  = SCTGeoDetectorToolCfg(ConfigFlags)
+  tool = cfg.popToolsAndMerge(acc)
+  cfg.addPublicTool(tool)
+  
+  acc  = SCTGeoDetectorToolCfg(ConfigFlags)
+  tool = cfg.popToolsAndMerge(acc)
+  cfg.addPublicTool(tool)
+  
+  acc  = IDETEnvelopeCfg(ConfigFlags)
+  tool = cfg.popToolsAndMerge(acc)
+  cfg.addPublicTool(tool)
+  
+  acc  = CALOEnvelopeCfg(ConfigFlags)
+  tool = cfg.popToolsAndMerge(acc)
+  cfg.addPublicTool(tool)
 
-  accATLAS,toolATLAS = ATLASEnvelopeCfg(ConfigFlags)
-  cfg.merge(accATLAS)
-  cfg.addPublicTool(toolATLAS)
+  acc  = ATLASEnvelopeCfg(ConfigFlags)
+  tool = cfg.popToolsAndMerge(acc)
+  cfg.addPublicTool(tool)
 
   cfg.printConfig(withDetails=True, summariseProps = True)
   ConfigFlags.dump()
@@ -96,5 +95,7 @@ if __name__ == '__main__':
   f=open("test.pkl","wb")
   cfg.store(f) 
   f.close()
+
+  print(cfg._publicTools)
 
   print ("-----------------finished----------------------")

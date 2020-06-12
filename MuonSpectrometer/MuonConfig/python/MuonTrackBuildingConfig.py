@@ -146,8 +146,6 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", **kwargs):
     kwargs.setdefault("ChamberHoleRecoveryTool", hole_recovery_tool) # FIXME? Remove duplicate from cxx?
         
     acc  = MagneticFieldSvcCfg(flags) 
-    magfieldsvc = acc.getPrimary()
-    kwargs.setdefault( "MagFieldSvc", magfieldsvc )
     result.merge(acc)
     
     acc = MuonTrackToSegmentToolCfg(flags)
@@ -207,7 +205,7 @@ def MooCandidateMatchingToolCfg(flags, name="MooCandidateMatchingTool", doSegmen
     
     result = ComponentAccumulator()
 
-    # Won't explicitly configure MuonIdHelperTool, MuonEDMHelperSvc, MuonEDMPrinterTool
+    # Won't explicitly configure MuonEDMHelperSvc, MuonEDMPrinterTool
     
     acc = MuonExtrapolatorCfg(flags, name="MuonStraightLineExtrapolator")
     slextrap = acc.getPrimary()
@@ -519,7 +517,7 @@ if __name__=="__main__":
     itemsToRecord = ["TrackCollection#MuonSpectrometerTracks"] 
     SetupMuonStandaloneOutput(cfg, ConfigFlags, itemsToRecord)
     
-    cfg.printConfig(withDetails = True, summariseProps = True)
+    cfg.printConfig(withDetails = True)
               
     f=open("MuonTrackBuilding.pkl","wb")
     cfg.store(f)

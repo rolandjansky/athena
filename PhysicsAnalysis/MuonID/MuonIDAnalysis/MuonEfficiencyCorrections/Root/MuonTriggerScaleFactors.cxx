@@ -20,6 +20,7 @@
 #include "PATInterfaces/SystematicVariation.h"
 #include "FourMomUtils/xAODP4Helpers.h"
 #include "PathResolver/PathResolver.h"
+#include "AsgDataHandles/ReadHandle.h"
 
 #include <iostream>
 #include <functional>

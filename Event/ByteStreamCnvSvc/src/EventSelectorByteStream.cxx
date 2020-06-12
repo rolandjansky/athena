@@ -17,7 +17,6 @@
 #include "GaudiKernel/FileIncident.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/IIoComponentMgr.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 
 #include "AthenaKernel/IAthenaIPCTool.h"
 #include "EventInfo/EventInfo.h"
@@ -76,44 +75,8 @@ StatusCode EventSelectorByteStream::initialize() {
 
    // Check for input setting
    if (m_filebased && m_inputCollectionsProp.value().empty()) {
-      ATH_MSG_WARNING("InputCollections not properly set, checking EventStorageInputSvc properties");
-      ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc", name());
-      bool retrieve(false);
-      if (!joSvc.retrieve().isSuccess()) {
-         ATH_MSG_FATAL("Cannot get JobOptionsSvc.");
-      } else {
-         // Check if FullFileName is set in the InputSvc
-         typedef std::vector<const Property*> Properties_t;
-         const Properties_t* esProps = joSvc->getProperties("ByteStreamInputSvc");
-         std::vector<const Property*>::const_iterator ii = esProps->begin();
-         if (esProps != 0) {
-            while (ii != esProps->end()) {
-               if ((*ii)->name() == "FullFileName") {
-                  StringArrayProperty temp;
-                  if ((*ii)->load(temp)) {
-                     retrieve = true;
-                     m_inputCollectionsProp.assign(temp);
-                     m_inputCollectionsFromIS = true;
-                     ATH_MSG_INFO("Retrieved InputCollections from InputSvc");
-                  }
-               }
-               if ((*ii)->name() == "EventStore") {
-                  StringProperty temp2;
-                  if ((*ii)->load(temp2)) {
-                     m_evtStore = ServiceHandle<StoreGateSvc>(temp2.value(),this->name());
-                     ATH_MSG_INFO("Retrieved StoreGateSvc name of " << temp2);
-                  }
-               }
-               ++ii;
-            }
-         } else {
-            ATH_MSG_WARNING("Did not find InputSvc jobOptions properties");
-         }
-      }
-      if (!retrieve) {
-         ATH_MSG_FATAL("Unable to retrieve valid input list");
-         return(StatusCode::FAILURE);
-      }
+     ATH_MSG_FATAL("Unable to retrieve valid input list");
+     return(StatusCode::FAILURE);
    }
    m_skipEventSequence = m_skipEventSequenceProp.value();
    std::sort(m_skipEventSequence.begin(), m_skipEventSequence.end());
@@ -181,41 +144,6 @@ StatusCode EventSelectorByteStream::initialize() {
       return(StatusCode::FAILURE);
    }
 
-   // For backward compatibility, check InputSvc properties for bad events
-   ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc", name());
-   if (!joSvc.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get JobOptionsSvc.");
-      return(StatusCode::FAILURE);
-   }
-   typedef std::vector<const Property*> Properties_t;
-   const Properties_t* esProps = joSvc->getProperties("ByteStreamInputSvc");
-   if (esProps != 0) {
-      std::vector<const Property*>::const_iterator ii = esProps->begin();
-      while (ii != esProps->end()) {
-         IntegerProperty temp;
-         if ((*ii)->name() == "MaxBadEvents") {     // find it
-            if ((*ii)->load(temp)) {                // load it
-               if (temp.value() != -1) {            // check if it is set
-                  m_maxBadEvts = temp.value();
-                  ATH_MSG_INFO("Retrieved MaxBadEvents=" << m_maxBadEvts << " from ByteStreamInputSvc");
-               }
-            }
-         }
-         BooleanProperty temp2;
-         if ((*ii)->name() == "ProcessBadEvents") {     // find it
-            if ((*ii)->load(temp)) {                // load it
-               if (temp.value()) {            // check if it is set
-                  m_procBadEvent = temp.value();
-                  ATH_MSG_INFO("Retrieved ProcessBadEvents=" << m_procBadEvent << " from ByteStreamInputSvc");
-               }
-            }
-         }
-         ++ii;
-      }
-   } else {
-      ATH_MSG_WARNING("Did not find ByteStreamInputSvc jobOptions properties");
-   }
-   
    // Must happen before trying to open a file
    StatusCode risc = this->reinit();
 

@@ -110,10 +110,6 @@ else: include( "RecExCommon/RecExCommon_topOptions.py" )
 
 
 if TriggerFlags.doMT():
-  doBeamspotSlice=False
-  doStreamingSlice=False
-  doMonitorSlice=False
-  doMinBiasSlice=False
   doWriteRDOTrigger = False
   doWriteBS        = False
   include("TriggerJobOpts/runHLT_standalone.py")
@@ -260,6 +256,10 @@ StreamRDO.ItemList += [ "PixelRDO_Container#PixelRDOs" ]
 StreamRDO.ItemList +=["2721#*"]
 StreamRDO.ItemList +=["2927#*"]
 StreamRDO.ItemList +=["2934#*"]
+StreamRDO.ItemList += [ "xAOD::EventInfo#*", "xAOD::EventAuxInfo#*" ]
+condSeq = AthSequencer("AthCondSeq")
+if not hasattr( condSeq, "LumiBlockMuWriter" ):
+    include ("LumiBlockComps/LumiBlockMuWriter_jobOptions.py")
 
 rec.OutputFileNameForRecoStep="RDOtoRDO_TRIG"
 

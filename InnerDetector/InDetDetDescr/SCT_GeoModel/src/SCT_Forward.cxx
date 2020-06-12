@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_Forward.h"
@@ -49,8 +49,6 @@ SCT_Forward::SCT_Forward(const std::string & name, int ec,
 
 SCT_Forward::~SCT_Forward()
 {
-  for (size_t i = 0; i < m_wheels.size(); i++) delete m_wheels[i];
-  for (size_t i = 0; i < m_modules.size(); i++) delete m_modules[i];
 }
 
 void 
@@ -99,17 +97,19 @@ SCT_Forward::preBuild()
   // Create the elements we need for the forward
 
   // We make all the module types here. There is a outer, middle, truncated middle and inner type module.
+  std::vector<SCT_FwdModule*> modules;
   for (int iModuleType = 0; iModuleType < m_numModuleTypes; iModuleType++){
-    m_modules.push_back(new SCT_FwdModule("FwdModule"+intToString(iModuleType), iModuleType,
-                                          m_detectorManager, m_geometryManager, m_materials));
+    std::unique_ptr<SCT_FwdModule> module = std::make_unique<SCT_FwdModule>("FwdModule"+intToString(iModuleType), iModuleType,
+                                                                            m_detectorManager, m_geometryManager, m_materials);
+    modules.push_back(module.get());
+    m_modules.push_back(std::move(module));
   }
 
   for (int iWheel = 0; iWheel < m_numWheels; iWheel++){
     // Build Wheels
     std::ostringstream name; name << "Wheel" << iWheel << ((m_endcap > 0) ? "A" : "C");
-    SCT_FwdWheel * wheel = new SCT_FwdWheel(name.str(), iWheel, m_modules, m_endcap,
-                                            m_detectorManager, m_geometryManager, m_materials);
-    m_wheels.push_back(wheel);
+    m_wheels.push_back(std::make_unique<SCT_FwdWheel>(name.str(), iWheel, modules, m_endcap,
+                                                      m_detectorManager, m_geometryManager, m_materials));
   }
 
 
@@ -129,7 +129,7 @@ SCT_Forward::build(SCT_Identifier id)
 
   for (int iWheel = 0; iWheel < m_numWheels; iWheel++){
 
-    SCT_FwdWheel * wheel = m_wheels[iWheel];
+    SCT_FwdWheel * wheel = m_wheels[iWheel].get();
     std::ostringstream wheelName; wheelName << "Wheel#" << iWheel;
     double zpos = wheel->zPosition() - zCenter();
     forward->add(new GeoNameTag(wheelName.str()));

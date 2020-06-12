@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -33,8 +33,8 @@ Trk::MeasRecalibSteeringTool::MeasRecalibSteeringTool(const std::string& t,
   m_trtTubeHitCreator("InDet::TRT_DriftCircleOnTrackNoDriftTimeTool/TRT_StrawTubeOnTrackTool"),
   m_haveInDetTools(true),
   //m_haveMuonTools(false),
-  m_idHelper(0),
-  m_mbHelper(0)
+  m_idHelper(nullptr),
+  m_mbHelper(nullptr)
 {
   declareInterface<IMeasurementRecalibrator>(this);
 
@@ -69,7 +69,7 @@ StatusCode Trk::MeasRecalibSteeringTool::initialize()
   if (m_rotCreator.retrieve().isFailure()) {
     ATH_MSG_ERROR ("can not retrieve ROT creator of type " << m_rotCreator.typeAndName());
     return StatusCode::FAILURE;
-  } else ATH_MSG_INFO ("retrieved tool " << m_rotCreator.typeAndName());
+  } ATH_MSG_INFO ("retrieved tool " << m_rotCreator.typeAndName());
 
   // FIXME replace this zoo of tools with something smart, like flags through RC interface
 
@@ -78,22 +78,22 @@ StatusCode Trk::MeasRecalibSteeringTool::initialize()
       ATH_MSG_ERROR ("can not retrieve ROT creator for broad Pixel clusters " <<
                      m_broadPixelClusterCreator.typeAndName() );
       return StatusCode::FAILURE;
-    } else ATH_MSG_INFO ("retrieved " << m_broadPixelClusterCreator.typeAndName());
+    } ATH_MSG_INFO ("retrieved " << m_broadPixelClusterCreator.typeAndName());
     if (m_broadSctClusterCreator.retrieve().isFailure()) {
       ATH_MSG_ERROR ("can not retrieve ROT creator for broad SCT clusters " <<
                      m_broadSctClusterCreator.typeAndName() );
       return StatusCode::FAILURE;
-    } else ATH_MSG_INFO ("retrieved " << m_broadSctClusterCreator.typeAndName());
+    } ATH_MSG_INFO ("retrieved " << m_broadSctClusterCreator.typeAndName());
     if (m_trtDriftCircleCreator.retrieve().isFailure()) {
       ATH_MSG_ERROR ("can not retrieve ROT creator for full drift-time hits of type " <<
                      m_trtDriftCircleCreator.typeAndName() );
       return StatusCode::FAILURE;
-    } else ATH_MSG_INFO ("retrieved tool " << m_trtDriftCircleCreator.typeAndName());
+    } ATH_MSG_INFO ("retrieved tool " << m_trtDriftCircleCreator.typeAndName());
     if (m_trtTubeHitCreator.retrieve().isFailure()) {
       ATH_MSG_ERROR ("can not retrieve ROT creator for straw tube hits of type " <<
                      m_trtTubeHitCreator.typeAndName() );
       return StatusCode::FAILURE;
-    } else ATH_MSG_INFO ("retrieved tool " << m_trtTubeHitCreator.typeAndName());
+    } ATH_MSG_INFO ("retrieved tool " << m_trtTubeHitCreator.typeAndName());
   }
 
   // if (m_haveMuonTools) ...
@@ -119,16 +119,16 @@ Trk::MeasRecalibSteeringTool::makePreciseMeasurement
  const MeasurementType  inputMtype) const
 {
   // prepare guaranteed input
-  const Trk::RIO_OnTrack* rot = 0; 
+  const Trk::RIO_OnTrack* rot = nullptr; 
   Trk::RoT_Extractor::extract( rot, &meas); // std and competing ROTs
-  if (rot==NULL) {
+  if (rot==nullptr) {
     ATH_MSG_WARNING ("Misconfigured fitters: no recalibration input!" );
-    return 0;
+    return nullptr;
   }
-  if (rot->prepRawData() == NULL) {
+  if (rot->prepRawData() == nullptr) {
     ATH_MSG_WARNING ("Misconfigured fitters: re-calibration called " <<
                      "on data without PrepRawData objects available." );
-    return 0;
+    return nullptr;
   }
   MeasurementType mType = inputMtype;
   if (inputMtype == unidentified) mType = m_mbHelper->defineType(&meas);
@@ -162,10 +162,10 @@ Trk::MeasRecalibSteeringTool::makePreciseMeasurement
         return newrot;
         //      }
     }
-    return 0;
-  } else {
+    return nullptr;
+  } 
     return m_rotCreator->correct(*(rot->prepRawData()), trkPar);
-  }
+  
 }
 
 Trk::TrackState::CalibrationType
@@ -204,16 +204,16 @@ Trk::MeasRecalibSteeringTool::makeBroadMeasurement(const MeasurementBase& meas,
   const {
 
   // prepare guaranteed input
-  const Trk::RIO_OnTrack* rot = 0; 
+  const Trk::RIO_OnTrack* rot = nullptr; 
   Trk::RoT_Extractor::extract( rot, &meas); // std and competing ROTs
-  if (rot==NULL) {
+  if (rot==nullptr) {
     ATH_MSG_WARNING ("Misconfigured fitters: no recalibration input!" );
-    return 0;
+    return nullptr;
   }
-  if (rot->prepRawData() == NULL) {
+  if (rot->prepRawData() == nullptr) {
     ATH_MSG_WARNING ("Misconfigured fitters: re-calibration called " <<
                      "on data without PrepRawData objects available." );
-    return 0;
+    return nullptr;
   }
   MeasurementType mType = inputMtype;
   if (inputMtype == unidentified) mType = m_mbHelper->defineType(&meas);
@@ -232,7 +232,7 @@ Trk::MeasRecalibSteeringTool::makeBroadMeasurement(const MeasurementBase& meas,
     return m_trtTubeHitCreator->correct(*rot->prepRawData(), trkPar);
   }
 
-  return 0;
+  return nullptr;
 }
 
 //================================================================================

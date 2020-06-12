@@ -21,7 +21,8 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
+// For magneticfield
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
 #include "MuidInterfaces/IMuidCaloEnergy.h"
 #include "MuidInterfaces/IMuidCaloTrackStateOnSurface.h"
@@ -91,7 +92,13 @@ class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuon
     Trk::Track* standaloneRefit(const Trk::Track& combinedTrack, float bs_x, float bs_y, float bs_z) const;
 
     /** ITrackFitter interface:
-        refit a track */
+     *    
+     * Bring in default impl with
+     * EventContext for now
+     */
+    using ICombinedMuonTrackBuilder::fit;
+
+    /*refit a track */
     Trk::Track* fit(const Trk::Track& track, const Trk::RunOutlierRemoval runOutlier = false,
                     const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const;
 
@@ -151,7 +158,7 @@ class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuon
                                         const std::vector<const Trk::TrackStateOnSurface*>& trackStateOnSurfaces,
                                         const Trk::RecVertex* vertex, const Trk::RecVertex* mbeamAxis,
                                         const Trk::PerigeeSurface* mperigeeSurface,
-                                        const Trk::Perigee*        seedParameter = 0) const;
+                                        const Trk::Perigee*        seedParameter = nullptr) const;
 
     Trk::Track* createIndetTrack(const Trk::TrackInfo&                                      info,
                                  DataVector<const Trk::TrackStateOnSurface>::const_iterator begin,
@@ -214,10 +221,10 @@ class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuon
     ToolHandle<Trk::ITrackSummaryTool>              m_trackSummary;
     ToolHandle<Trk::ITrkMaterialProviderTool>       m_materialUpdator;
 
-    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc",
-                                                        "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-    ServiceHandle<MagField::IMagFieldSvc>    m_magFieldSvc;
+    // Read handle for conditions object to get the field cache
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
     ServiceHandle<Trk::ITrackingGeometrySvc> m_trackingGeometrySvc;  // init with callback
     ServiceHandle<Trk::ITrackingVolumesSvc>  m_trackingVolumesSvc;
 
@@ -257,9 +264,7 @@ class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuon
     // constants
     const Trk::Volume* m_calorimeterVolume;
     const Trk::Volume* m_indetVolume;
-
-    // constant initialized the first time it's needed
-    mutable std::atomic<const Trk::TrackingVolume*> m_spectrometerEntrance{0};
+    const Trk::TrackingVolume* m_spectrometerEntrance;
 
     // vertex region and phi modularity for pseudo-measurement constraints
     Trk::RecVertex*      m_beamAxis;

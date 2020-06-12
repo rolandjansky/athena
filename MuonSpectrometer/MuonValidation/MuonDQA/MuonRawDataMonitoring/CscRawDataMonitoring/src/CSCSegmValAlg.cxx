@@ -17,11 +17,6 @@
 #include "MuonPrepRawData/CscStripPrepDataContainer.h"
 #include "MuonPrepRawData/CscPrepData.h"
 
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"  
-#include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-
 // Track
 #include "TrkTrack/TrackCollection.h"
 #include "TrkEventPrimitives/PropDirection.h"
@@ -31,11 +26,6 @@
 
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
-
-// Gaudi Tools
-#include "GaudiKernel/SmartDataPtr.h"
-#include "GaudiKernel/INTupleSvc.h"
-#include "AthenaMonitoring/AthenaMonManager.h"
 
 // ROOT
 #include "TH1F.h"
@@ -53,7 +43,6 @@ CSCSegmValAlg::CSCSegmValAlg( const std::string & type, const std::string & name
     m_debuglevel(false),
     m_bookedhistos(false) {
 
-  //declareProperty( "UseCollections", m_segmCollectionFlag);
   declareProperty( "SegmentSlopeCut",  m_segmSlope);
   declareProperty( "ClusterStatus",  m_clusStatWord);
     
@@ -64,34 +53,21 @@ CSCSegmValAlg::CSCSegmValAlg( const std::string & type, const std::string & name
   ATH_MSG_INFO( " in CSCSegmValAlg::CSCSegmValAlg() " );
 }
 
-
-//________________________________________________________________________________________________________
-CSCSegmValAlg::~CSCSegmValAlg() {
-  ATH_MSG_INFO( " in CSCSegmValAlg::~CSCSegmValAlg() " );
-}
-
-
-
 //________________________________________________________________________________________________________
 StatusCode CSCSegmValAlg::initialize() {
 
   m_bookedhistos=false;
 
-  StatusCode sc = ManagedMonitorToolBase::initialize();
-  if(!sc.isSuccess()) return sc;
+  ATH_CHECK(ManagedMonitorToolBase::initialize());
 
   ATH_MSG_INFO( "in CSCSegmValAlg::init()" );
-
   if( m_doEvtSel ) {
-    sc = m_trigDec.retrieve();
-    if ( sc.isFailure() ) {
+    if (m_trigDec.retrieve().isFailure()) {
       ATH_MSG_WARNING ( "CSCSegmValAlg: Unable to retrieve trigger decision tool");
       m_doEvtSel = false;
-      //return sc;
     } else {
       ATH_MSG_INFO ( "TrigDecisionTool    : " << "Using TDT \"" << m_trigDec->name() << "\"" );
     }
-    //m_doEvtSel = false;
   }
 
   if(m_sampSelTriggers.empty() && m_doEvtSel) {
@@ -120,37 +96,12 @@ StatusCode CSCSegmValAlg::initialize() {
   m_NClusWord.push_back("123");
   m_NClusWord.push_back("All");
 
-
-  //initializing tools
-
-  // Initialize the IdHelper
-  StoreGateSvc* detStore = 0;
-  sc = service("DetectorStore", detStore);
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL( "DetectorStore service not found !" );
-    return sc;
-  }   
-  if (m_debuglevel) ATH_MSG_DEBUG(  "Defined DetectorStore" );
-
-
-  // Retrieve helper tools
-  sc = m_edmHelperSvc.retrieve();
-  if (sc.isFailure()){
-    ATH_MSG_FATAL("Could not get " << m_edmHelperSvc ); 
-    return sc;
-  }
-  if (m_debuglevel) ATH_MSG_DEBUG( "Retrieved " << m_edmHelperSvc );
-
-  sc = m_muonIdHelperTool.retrieve();
-  if (sc.isFailure()){
-    ATH_MSG_FATAL( "Could not get " << m_muonIdHelperTool ); 
-    return sc;
-  }
-  if (m_debuglevel) ATH_MSG_DEBUG( "Retrieved " << m_muonIdHelperTool );
-
+  StoreGateSvc* detStore = nullptr;
+  ATH_CHECK(service("DetectorStore", detStore));
+  ATH_CHECK(m_edmHelperSvc.retrieve());
+  ATH_CHECK(m_idHelperSvc.retrieve());
   ATH_CHECK(m_segmKey.initialize());
-
-  return sc;
+  return StatusCode::SUCCESS;
 }  
 
 
@@ -413,10 +364,7 @@ void CSCSegmValAlg::bookSegmentHistograms() {
 							      "Endcap A: #phi-cluster vs. good #eta-cluster;good #eta-cluster counts;good #phi-cluster counts", nqbins,nqmin,nqmax, nqbins,nqmin,nqmax);
   regCSCHist(m_h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EA, m_segmDetail_EA.get());
   regCSCHist(m_h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EC, m_segmDetail_EC.get());
-  
-  //m_h2csc_clus_r_vs_z_hitmap = new TH2F("h2csc_clus_r_vs_z_hitmap", "R vs. Z Cluster hitmap;z(CLHEP::mm);R(CLHEP::mm)",200, -10000., 10000., 40, 0., 4000);
-  //m_h2csc_clus_y_vs_x_hitmap = new TH2F("h2csc_clus_y_vs_x_hitmap", "Y vs. X Cluster hitmap;x(CLHEP::mm);y(CLHEP::mm)",100, -5000., 5000., 100, -5000., 5000);
-  
+
   m_bookedhistos=true;
 }
 
@@ -429,15 +377,10 @@ StatusCode CSCSegmValAlg::bookHistograms() {
 
   if( m_environment == AthenaMonManager::tier0 || m_environment == AthenaMonManager::tier0ESD ) {
 
-    //if(newEventsBlock){}
-    //if(newLumiBlock){}
-    //if(newRun) {
     if(!m_bookedhistos) bookSegmentHistograms();
-    //} // if NewRun
 
   } // environment if  
   return sc;
-
 }
 
 
@@ -457,8 +400,6 @@ StatusCode CSCSegmValAlg::fillHistograms() {
     // arrays to hold cluster-count  
     // 32 chambers and 8 layers (each has one extra - index '0' is not counted)
     int clusCount[33][9];
-    //, m_sigclusCount[33][9];
-    //unsigned int m_nEtaClusWidthCnt = 0, m_nPhiClusWidthCnt = 0;
     for(unsigned int kl = 0; kl < 33; kl++ ) {
       for(unsigned int cm3 = 0; cm3 < 9; cm3++ ) {
         clusCount[kl][cm3] = 0;
@@ -538,7 +479,6 @@ StatusCode CSCSegmValAlg::fillHistograms() {
 	  chi2 = fq->chiSquared();
 	  ndof = fq->numberDoF();
 	  ATH_MSG_DEBUG( "Chi2 " << chi2 );
-	  //chi2_histo->Fill(chi2);
 	  ATH_MSG_DEBUG( "Ndof " << ndof );
 	}
 	
@@ -550,7 +490,6 @@ StatusCode CSCSegmValAlg::fillHistograms() {
 	bool segmAngle_cut = segmSlopeCut(segm_ly, segm_ayz, segm_cut);
 	ATH_MSG_DEBUG(" local_pos: " << segm_ly << 
 		      "\tangle_yz: " << segm_ayz << "\tcut: " << segm_cut << "\t pass = " << segmAngle_cut );
-	//if(!segmAngle_cut) continue; //already in the new reconstruction
 	
 	
 	ATH_MSG_DEBUG( "R " << segm->globalPosition().perp() );
@@ -579,10 +518,10 @@ StatusCode CSCSegmValAlg::fillHistograms() {
 	const Trk::MeasurementBase* rio = meas.at(0);
 	Identifier segmId = m_edmHelperSvc->getIdentifier(*rio);
 	
-	int segm_stationPhi  = m_muonIdHelperTool->cscIdHelper().stationPhi(segmId);
-	int segm_stationEta  = m_muonIdHelperTool->cscIdHelper().stationEta(segmId);
-	int segm_stationName = m_muonIdHelperTool->cscIdHelper().stationName(segmId);
-	std::string segm_stationString = m_muonIdHelperTool->cscIdHelper().stationNameString(segm_stationName);
+	int segm_stationPhi  = m_idHelperSvc->cscIdHelper().stationPhi(segmId);
+	int segm_stationEta  = m_idHelperSvc->cscIdHelper().stationEta(segmId);
+	int segm_stationName = m_idHelperSvc->cscIdHelper().stationName(segmId);
+	std::string segm_stationString = m_idHelperSvc->cscIdHelper().stationNameString(segm_stationName);
 	int segm_chamberType = segm_stationString == "CSS" ? 0 : 1;
 	int segm_sectorNo  = segm_stationEta * (2 * segm_stationPhi - segm_chamberType); // [-16 -> -1] and [+1 -> +16]
 	int segm_isec = segm_sectorNo < 0 ? segm_sectorNo*(-1) : segm_sectorNo+16; // [-16 -> -1] shifted to [1 -> 16] and [+1 -> +16] shifted to [+17 -> +32]
@@ -591,13 +530,11 @@ StatusCode CSCSegmValAlg::fillHistograms() {
 	else m_h2CSC_Segm_NumOfSegs_EC->Fill(n_clust, segm_sectorNo);
 	
 	// Loop over clusters
-	// [i][j] {i == 0(EA), 1(EC) }
 	float clus_kiloele = 1.0e-3; // multiply # of electrons by this number to get kiloElectrons (1 ke = 1 ADC)
 	int eta_clus_count[2][2] = {{0},{0}}, phi_clus_count[2][2] = {{0},{0}}; // no. of prec/trans hits per segment
 	float eta_clus_qsum[2][5] = {{-1.}, {-1.}},  phi_clus_qsum[2][5] = {{-1.}, {-1.}}; // qsum over each prec/trans. layer on segment
 	float eta_clus_time[2][5] = {{-1.}, {-1.}},  phi_clus_time[2][5] = {{-1.}, {-1.}}; // time over each prec/trans. layer on segment
 	int eta_clus_use[2][5] = {{0},{0}}, phi_clus_use[2][5] = {{0}, {0}};
-	//int eta_clus_status[5] = {-1}, phi_clus_status[5] = {-1};
 	
 	layerindex = 0;
         
@@ -608,24 +545,21 @@ StatusCode CSCSegmValAlg::fillHistograms() {
 	    Identifier clusId = m_edmHelperSvc->getIdentifier(*clust_rot);
 	    
 	    // get the cluster coordinates
-	    int clus_stationName = m_muonIdHelperTool->cscIdHelper().stationName(clusId);
-	    std::string clus_stationString = m_muonIdHelperTool->cscIdHelper().stationNameString(clus_stationName);
+	    int clus_stationName = m_idHelperSvc->cscIdHelper().stationName(clusId);
+	    std::string clus_stationString = m_idHelperSvc->cscIdHelper().stationNameString(clus_stationName);
 	    int clus_chamberType = clus_stationString == "CSS" ? 0 : 1;
-	    int clus_stationEta  = m_muonIdHelperTool->cscIdHelper().stationEta(clusId);
-	    int clus_stationPhi  = m_muonIdHelperTool->cscIdHelper().stationPhi(clusId);
-	    int clus_wireLayer = m_muonIdHelperTool->cscIdHelper().wireLayer(clusId);
-	    int clus_measuresPhi = m_muonIdHelperTool->cscIdHelper().measuresPhi(clusId);
+	    int clus_stationEta  = m_idHelperSvc->cscIdHelper().stationEta(clusId);
+	    int clus_stationPhi  = m_idHelperSvc->cscIdHelper().stationPhi(clusId);
+	    int clus_wireLayer = m_idHelperSvc->cscIdHelper().wireLayer(clusId);
+	    int clus_measuresPhi = m_idHelperSvc->cscIdHelper().measuresPhi(clusId);
 	    
 	    // convert to my coordinates
 	    int clus_sectorNo  = clus_stationEta * (2 * clus_stationPhi - clus_chamberType);   // [-16 -> -1] and [+1 -> +16]
 	    float clus_secLayer = clus_sectorNo + 0.2 * (clus_wireLayer - 1) + 0.1;
-	    //int xfac = clus_measuresPhi ? -1 : 1;        // [-1 -> -48] / [+1 -> +192]
 	    int clus_isec = clus_sectorNo < 0 ? clus_sectorNo*(-1) : clus_sectorNo+16; // [-16 -> -1] shifted to [1 -> 16] and [+1 -> +16] shifted to [+17 -> +32]
 	    int clus_ilay = (clus_measuresPhi ? clus_wireLayer : clus_wireLayer+4);
 	    
 	    // check the cluster status; probably need to read status info from jobOptions - not done for the moment
-	    // status = Muon::CscStatusUnspoiled (i.e 0) or Muon::CscStatusSplitUnspoiled (i.e 10) are considered good for precision clusters
-	    // status = Muon::CscStatusSimple (i.e 1) could be good for non-precision clusters (i.e for phi-layers)
 	    Muon::CscClusterStatus status = clust_rot->status();
 	    if(segm_stationEta == 1) {
 	      if(clus_measuresPhi == 0) m_h1CSC_Segm_StatOfClus_Eta_EA->Fill(status);
@@ -634,10 +568,7 @@ StatusCode CSCSegmValAlg::fillHistograms() {
 	      if(clus_measuresPhi == 0) m_h1CSC_Segm_StatOfClus_Eta_EC->Fill(status);
 	      else m_h1CSC_Segm_StatOfClus_Phi_EC->Fill(status);
 	    }
-	    
-	    //if(clus_measuresPhi == 0) eta_clus_status[clus_wireLayer] = status;
-	    //else phi_clus_status[clus_wireLayer] = status;
-	    
+
 	    std::string clus_stat = Muon::toString(status);
 	    bool clus_status = ( (clus_stat == "unspoiled")                 ||
 				 (clus_stat == "unspoiled with split")                       ||
@@ -649,16 +580,11 @@ StatusCode CSCSegmValAlg::fillHistograms() {
 	    // get cluster
 	    const Muon::CscPrepData* theClus = clust_rot->prepRawData();
 	    float clus_qsum = 0, clus_time = -1.;
-	    //float clus_globx = 0., clus_globy = 0., clus_globz = 0., clus_globr = 0.;
 	    
 	    if(theClus) {
 	      clus_qsum = theClus->charge() * clus_kiloele;
 	      clus_time = theClus->time();
-	      //clus_globx = theClus->globalPosition().x();
-	      //clus_globy = theClus->globalPosition().y();
-	      //clus_globz = theClus->globalPosition().z();
-	      //clus_globr = theClus->globalPosition().perp();
-              
+
 	      if(clus_measuresPhi == 0) { 
 		if(clus_stationEta == 1) eta_clus_count[0][0]++;
 		else eta_clus_count[1][0]++;
@@ -687,13 +613,13 @@ StatusCode CSCSegmValAlg::fillHistograms() {
 		eta_clus_time[0][clus_wireLayer] = clus_time;
 		eta_clus_use[0][clus_wireLayer] = 1;
 		m_h2CSC_Segm_QsumOfGoodClusMap_Eta_EA->Fill(clus_qsum, clus_secLayer);
-		if(fabs(clus_time) <= 200) m_h2CSC_Segm_TimeOfGoodClusMap_Eta_EA->Fill(clus_time, clus_secLayer);
+		if(std::abs(clus_time) <= 200) m_h2CSC_Segm_TimeOfGoodClusMap_Eta_EA->Fill(clus_time, clus_secLayer);
 	      } else {
 		eta_clus_qsum[1][clus_wireLayer] = clus_qsum;
 		eta_clus_time[1][clus_wireLayer] = clus_time;
 		eta_clus_use[1][clus_wireLayer] = 1;
 		m_h2CSC_Segm_QsumOfGoodClusMap_Eta_EC->Fill(clus_qsum, clus_secLayer);
-		if(fabs(clus_time) <= 200) m_h2CSC_Segm_TimeOfGoodClusMap_Eta_EC->Fill(clus_time, clus_secLayer);
+		if(std::abs(clus_time) <= 200) m_h2CSC_Segm_TimeOfGoodClusMap_Eta_EC->Fill(clus_time, clus_secLayer);
 	      }
 	    }
 
@@ -706,14 +632,14 @@ StatusCode CSCSegmValAlg::fillHistograms() {
 		phi_clus_use[0][clus_wireLayer] = 1;
 		phi_clus_count[0][1]++;
 		m_h2CSC_Segm_QsumOfGoodClusMap_Phi_EA->Fill(clus_qsum, clus_secLayer);
-		if(fabs(clus_time) <= 200) m_h2CSC_Segm_TimeOfGoodClusMap_Phi_EA->Fill(clus_time, clus_secLayer);
+		if(std::abs(clus_time) <= 200) m_h2CSC_Segm_TimeOfGoodClusMap_Phi_EA->Fill(clus_time, clus_secLayer);
 	      } else {
 		phi_clus_qsum[1][clus_wireLayer] = clus_qsum;
 		phi_clus_time[1][clus_wireLayer] = clus_time;
 		phi_clus_use[1][clus_wireLayer] = 1;
 		phi_clus_count[1][1]++;
 		m_h2CSC_Segm_QsumOfGoodClusMap_Phi_EC->Fill(clus_qsum, clus_secLayer);
-		if(fabs(clus_time) <= 200) m_h2CSC_Segm_TimeOfGoodClusMap_Phi_EC->Fill(clus_time, clus_secLayer);
+		if(std::abs(clus_time) <= 200) m_h2CSC_Segm_TimeOfGoodClusMap_Phi_EC->Fill(clus_time, clus_secLayer);
 	      }
 	    }
 	    
@@ -770,32 +696,28 @@ StatusCode CSCSegmValAlg::fillHistograms() {
 	    if(i==1) m_h1CSC_Segm_QsumOfClus_Eta_EC->Fill(eta_clus_qsum[i][j]);
 	    if(i==0) m_h1CSC_Segm_QsumOfClus_Phi_EA->Fill(phi_clus_qsum[i][j]);
 	    if(i==1) m_h1CSC_Segm_QsumOfClus_Phi_EC->Fill(phi_clus_qsum[i][j]);
-	    if(i==0 && fabs(eta_clus_time[i][j]) <= 200) m_h1CSC_Segm_TimeOfClus_Eta_EA->Fill(eta_clus_time[i][j]);
-	    if(i==1 && fabs(eta_clus_time[i][j]) <= 200) m_h1CSC_Segm_TimeOfClus_Eta_EC->Fill(eta_clus_time[i][j]);
-	    if(i==0 && fabs(phi_clus_time[i][j]) <= 200) m_h1CSC_Segm_TimeOfClus_Phi_EA->Fill(phi_clus_time[i][j]);
-	    if(i==1 && fabs(phi_clus_time[i][j]) <= 200) m_h1CSC_Segm_TimeOfClus_Phi_EC->Fill(phi_clus_time[i][j]);
+	    if(i==0 && std::abs(eta_clus_time[i][j]) <= 200) m_h1CSC_Segm_TimeOfClus_Eta_EA->Fill(eta_clus_time[i][j]);
+	    if(i==1 && std::abs(eta_clus_time[i][j]) <= 200) m_h1CSC_Segm_TimeOfClus_Eta_EC->Fill(eta_clus_time[i][j]);
+	    if(i==0 && std::abs(phi_clus_time[i][j]) <= 200) m_h1CSC_Segm_TimeOfClus_Phi_EA->Fill(phi_clus_time[i][j]);
+	    if(i==1 && std::abs(phi_clus_time[i][j]) <= 200) m_h1CSC_Segm_TimeOfClus_Phi_EC->Fill(phi_clus_time[i][j]);
 	    if(phi_clus_use[i][j] && eta_clus_use[i][j]) {
 	      eta_clus_qsum_tot += eta_clus_qsum[i][j];
 	      if(i==0) m_h1CSC_Segm_QsumOfGoodClus_Eta_EA->Fill(eta_clus_qsum[i][j]);
 	      if(i==1) m_h1CSC_Segm_QsumOfGoodClus_Eta_EC->Fill(eta_clus_qsum[i][j]);
-	      if(i==0 && fabs(eta_clus_time[i][j]) <= 200) m_h1CSC_Segm_TimeOfGoodClus_Eta_EA->Fill(eta_clus_time[i][j]);
-	      if(i==1 && fabs(eta_clus_time[i][j]) <= 200) m_h1CSC_Segm_TimeOfGoodClus_Eta_EC->Fill(eta_clus_time[i][j]);
+	      if(i==0 && std::abs(eta_clus_time[i][j]) <= 200) m_h1CSC_Segm_TimeOfGoodClus_Eta_EA->Fill(eta_clus_time[i][j]);
+	      if(i==1 && std::abs(eta_clus_time[i][j]) <= 200) m_h1CSC_Segm_TimeOfGoodClus_Eta_EC->Fill(eta_clus_time[i][j]);
 	      phi_clus_qsum_tot += phi_clus_qsum[i][j];
 	      if(i==0) m_h1CSC_Segm_QsumOfGoodClus_Phi_EA->Fill(phi_clus_qsum[i][j]);
 	      if(i==1) m_h1CSC_Segm_QsumOfGoodClus_Phi_EC->Fill(phi_clus_qsum[i][j]);
-	      if(i==0 && fabs(phi_clus_time[i][j]) <= 200) m_h1CSC_Segm_TimeOfGoodClus_Phi_EA->Fill(phi_clus_time[i][j]);
-	      if(i==1 && fabs(phi_clus_time[i][j]) <= 200) m_h1CSC_Segm_TimeOfGoodClus_Phi_EC->Fill(phi_clus_time[i][j]);
+	      if(i==0 && std::abs(phi_clus_time[i][j]) <= 200) m_h1CSC_Segm_TimeOfGoodClus_Phi_EA->Fill(phi_clus_time[i][j]);
+	      if(i==1 && std::abs(phi_clus_time[i][j]) <= 200) m_h1CSC_Segm_TimeOfGoodClus_Phi_EC->Fill(phi_clus_time[i][j]);
 	    }
-	    //ATH_MSG_VERBOSE("phi charge = " << phi_clus_qsum[i][j] << "\tphi time = " << phi_clus_time[i][j]);
-	    //ATH_MSG_VERBOSE("eta charge = " << eta_clus_qsum[i][j] << "\teta time = " << eta_clus_time[i][j]);
 	  }
 	  if(i==0) m_h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EA->Fill(eta_clus_qsum_tot,phi_clus_qsum_tot);
 	  if(i==1) m_h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EC->Fill(eta_clus_qsum_tot,phi_clus_qsum_tot);
-	  //ATH_MSG_VERBOSE("eta_qsum_tot = " << eta_clus_qsum_tot << "\tphi_qsum = " << phi_clus_qsum_tot);
 	}
 	
       } // if is csc segment
-        // } // loop over ROTs
       
     } // loop over segms
 
@@ -834,15 +756,6 @@ bool CSCSegmValAlg::evtSelTriggersPassed() {
 } // end evtSelTriggersPassed 
 
 //________________________________________________________________________________________________________
-StatusCode CSCSegmValAlg::finalize() {
-  StatusCode sc = ManagedMonitorToolBase::finalize();
-  if(!sc.isSuccess()) return sc;
-  return sc;
-
-}
-
-
-//________________________________________________________________________________________________________
 bool CSCSegmValAlg::isCscSegment( const Muon::MuonSegment* seg ) const {
   bool isCsc(false);
 
@@ -857,7 +770,7 @@ bool CSCSegmValAlg::isCscSegment( const Muon::MuonSegment* seg ) const {
     if( !rot ) {
       continue;
     }
-    if( m_muonIdHelperTool->cscIdHelper().is_csc( rot->identify() ) ) isCsc=true;
+    if( m_idHelperSvc->isCsc( rot->identify() ) ) isCsc=true;
   }
 
   return isCsc;
@@ -880,7 +793,7 @@ unsigned int CSCSegmValAlg::cscHits( const Muon::MuonSegment* seg ) const {
     if( !rot ) {
       continue;
     }
-    if( m_muonIdHelperTool->cscIdHelper().is_csc( rot->identify() ) ) ++nrHits;
+    if( m_idHelperSvc->isCsc( rot->identify() ) ) ++nrHits;
   }
 
   return nrHits ;
@@ -940,7 +853,7 @@ bool CSCSegmValAlg::segmSlopeCut(float& csc_x, float& csc_ax, float& cut ) {
   float s0 = csc_x;
   float s1 = -tan(csc_ax);
   float s1corr = s1 - 0.000119 * s0;
-  bool good_segm = fabs(s1corr)<cut ? true : false;
+  bool good_segm = std::abs(s1corr)<cut ? true : false;
   return good_segm;
 }
 

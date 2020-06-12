@@ -1,22 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-////////////////////////////////////////////////////////////////////////////////
-//-----------------------------------------------------
-// sTgcDigitMaker.cxx
-//-----------------------------------------------------
-//
-// Authors:  Nectarios Benekos  <nectarios.benekos@cern.ch>
-//           Jiaming Yu  <jiaming.yu@cern.ch>  
-////////////////////////////////////////////////////////////////////////////////
-
-
- 
 #include "sTGC_Digitization/sTgcDigitMaker.h"
-
-#include <iostream>
-#include <fstream>
 
 #include "MuonDigitContainer/sTgcDigitCollection.h"
 #include "MuonSimEvent/sTGCSimHit.h"
@@ -27,10 +13,8 @@
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "TrkSurfaces/Surface.h"
-
 #include "GaudiKernel/MsgStream.h"
 #include "PathResolver/PathResolver.h"
-
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandFlat.h"
@@ -40,6 +24,8 @@
 
 #include "TF1.h" 
 #include <cmath>
+#include <iostream>
+#include <fstream>
 
 //---------------------------------------------------
 //  Constructor and Destructor
@@ -133,7 +119,7 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const sTGCSimHit* hit, const fl
   if(energyDeposit==0.) return 0;
 
   //////////  convert ID for this digitizer system 
-  sTgcSimIdToOfflineId simToOffline(*m_idHelper);  
+  sTgcSimIdToOfflineId simToOffline(m_idHelper);  
   int simId = hit->sTGCId();
   Identifier layid = simToOffline.convert(simId);
   ATH_MSG_VERBOSE("sTgc hit:  time " << hit->globalTime() << " position " << hit->globalPosition().x() << "  " << hit->globalPosition().y() << "  " << hit->globalPosition().z() << " mclink " << hit->particleLink() << " PDG ID " << hit->particleEncoding() );

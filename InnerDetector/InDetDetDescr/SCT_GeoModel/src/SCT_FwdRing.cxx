@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_FwdRing.h"
@@ -80,10 +80,6 @@ SCT_FwdRing::getParameters()
 
 SCT_FwdRing::~SCT_FwdRing()
 {
-  delete m_coolingBlockHiMain;
-  delete m_coolingBlockHiSec;
-  delete m_coolingBlockLoMain;
-  delete m_coolingBlockLoSec;
 }
 
 const GeoLogVol * 
@@ -282,14 +278,14 @@ SCT_FwdRing::makeModuleServices()
   // to add more things to it later. We call it module services.
   
   // Cooling blocks for the upper Modules
-  m_coolingBlockHiMain = new SCT_FwdCoolingBlock("CoolingBlkHiMain",SCT_FwdCoolingBlock::UPPER, SCT_FwdCoolingBlock::MAIN,
+  m_coolingBlockHiMain = std::make_unique<SCT_FwdCoolingBlock>("CoolingBlkHiMain",SCT_FwdCoolingBlock::UPPER, SCT_FwdCoolingBlock::MAIN,
                                                  m_detectorManager, m_geometryManager, m_materials);
-  m_coolingBlockHiSec  = new SCT_FwdCoolingBlock("CoolingBlkHiSec", SCT_FwdCoolingBlock::UPPER, SCT_FwdCoolingBlock::SECONDARY,
+  m_coolingBlockHiSec  = std::make_unique<SCT_FwdCoolingBlock>("CoolingBlkHiSec", SCT_FwdCoolingBlock::UPPER, SCT_FwdCoolingBlock::SECONDARY,
                                                  m_detectorManager, m_geometryManager, m_materials);
   // Cooling blocks for the lower Modules
-  m_coolingBlockLoMain = new SCT_FwdCoolingBlock("CoolingBlkLoMain",SCT_FwdCoolingBlock::LOWER, SCT_FwdCoolingBlock::MAIN,
+  m_coolingBlockLoMain = std::make_unique<SCT_FwdCoolingBlock>("CoolingBlkLoMain",SCT_FwdCoolingBlock::LOWER, SCT_FwdCoolingBlock::MAIN,
                                                  m_detectorManager, m_geometryManager, m_materials);
-  m_coolingBlockLoSec  = new SCT_FwdCoolingBlock("CoolingBlkLoSec", SCT_FwdCoolingBlock::LOWER, SCT_FwdCoolingBlock::SECONDARY,
+  m_coolingBlockLoSec  = std::make_unique<SCT_FwdCoolingBlock>("CoolingBlkLoSec", SCT_FwdCoolingBlock::LOWER, SCT_FwdCoolingBlock::SECONDARY,
                                                  m_detectorManager, m_geometryManager, m_materials);
   
   double coolingBlkMainR = m_module->mainMountPointRadius();

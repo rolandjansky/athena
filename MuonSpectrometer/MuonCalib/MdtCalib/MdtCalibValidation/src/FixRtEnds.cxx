@@ -1,25 +1,23 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//this
 #include "MdtCalibValidation/FixRtEnds.h"
-
-//MuonCalibMath
 #include "MuonCalibMath/SamplePoint.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
-//root
 #include "TGraph.h"
 #include "TF1.h"
 
 namespace MuonCalib {
 
 int FixRtEnds::FixEnds(std::vector<SamplePoint> & points) {
-  std::cout<<"FixRtEnds::FixEnds"<<std::endl;
 //check monotony
   bool fix_begin, fix_end;
   if(!checkMono(points, fix_begin, fix_end)) {
-    std::cerr<<"Monotonic check failed!"<<std::endl;
+    MsgStream log(Athena::getMessageSvc(),"FixRtEnds");
+    log<<MSG::WARNING<<"Monotonic check failed!"<<endmsg;
     return FIX_FAILED;
   }
   if(fix_begin || fix_end) {
@@ -28,23 +26,23 @@ int FixRtEnds::FixEnds(std::vector<SamplePoint> & points) {
       gr->SetPoint(i, points[i].x1(), points[i].x2());
     }
     gr->Write("bevor_fix");
-    std::cout<<"Fix needed"<<std::endl;
   }
   if(!fix_begin && !fix_end) {
-    std::cout<<"Rt relation is monotonic. Ok."<<std::endl;
+    MsgStream log(Athena::getMessageSvc(),"FixRtEnds");
+    log<<MSG::DEBUG<<"Rt relation is monotonic. Ok."<<endmsg;
     return NO_FIX_NEEDED;
   }
   if(fix_begin)	{
-    std::cerr<<"Fixing start"<<std::endl;
     if(!fixBegin(points)) {
-      std::cerr<<"Fix failed!"<<std::endl;
+      MsgStream log(Athena::getMessageSvc(),"FixRtEnds");
+      log<<MSG::WARNING<<"Fix failed!"<<endmsg;
       return FIX_FAILED;
     }
   }
   if(fix_end) {
-    std::cerr<<"Fixing end."<<std::endl;
     if(!fixEnd(points))	{
-      std::cerr<<"Fix failed!"<<std::endl;
+      MsgStream log(Athena::getMessageSvc(),"FixRtEnds");
+      log<<MSG::WARNING<<"Fix failed!"<<endmsg;
       return FIX_FAILED;
     }
   }
@@ -53,13 +51,14 @@ int FixRtEnds::FixEnds(std::vector<SamplePoint> & points) {
     gr->SetPoint(i, points[i].x1(), points[i].x2());
   }
   gr->Write("after_fix");
-  std::cout<<"Fix needed"<<std::endl;
   if(!checkMono(points, fix_begin, fix_end)) {
-    std::cerr<<"Monotonic check failed!"<<std::endl;
+    MsgStream log(Athena::getMessageSvc(),"FixRtEnds");
+    log<<MSG::WARNING<<"Monotonic check failed!"<<endmsg;
     return FIX_FAILED;
   }
   if(fix_begin || fix_end) {
-    std::cerr<<"Still not monotonic"<<std::endl;		
+    MsgStream log(Athena::getMessageSvc(),"FixRtEnds");
+    log<<MSG::WARNING<<"Still not monotonic"<<endmsg;
     return FIX_FAILED;
   }
   return FIX_APPLIED;
@@ -69,14 +68,10 @@ bool FixRtEnds::checkMono(const std::vector<SamplePoint> & points, bool & fix_be
   double last_r(-9e9);
   fix_begin=false; fix_end=false;
   for(std::vector<SamplePoint>::const_iterator it=points.begin(); it!=points.end(); it++) {
-//		std::cout<<last_r<<"<"<<it->x2()<<std::endl;
     if(it->x2()<last_r)	{
-//			std::cout<<"*"<<std::endl;
       if(it->x2()<2.0) {
-//				std::cout<<"*k"<<std::endl;
 	fix_begin=true;
       } else if(it->x2()>13) {
-//				std::cout<<"*l"<<std::endl;
 	fix_end=true;
       }	else { //cannot fic if it is in the middle
 	return false;
@@ -111,7 +106,7 @@ inline bool FixRtEnds::fixBegin(std::vector<SamplePoint> & points) {
   fit_gr->Fit("pol2");
   fit_gr->Write("fix_begin");
   TF1 * fun=fit_gr->GetFunction("pol2");
-  if(fun == NULL) return false;
+  if(!fun) return false;
   for(int i=0; i<=i_max; i++) {
     points[i].set_x2(fun->Eval(points[i].x1()));
   }
@@ -123,7 +118,6 @@ inline bool FixRtEnds::fixEnd(std::vector<SamplePoint> & points) {
   int i_min(10000);
   for(unsigned int i=0; i<points.size(); i++) {
     if(points[i].x2()>12 && points[i].x2() <13)	{
-//			std::cout<<"p=("<<points[i].x1()<<", "<<points[i].x2()<<")"<<std::endl;
       t.push_back(points[i].x1());
       r.push_back(points[i].x2());
     }
@@ -139,11 +133,9 @@ inline bool FixRtEnds::fixEnd(std::vector<SamplePoint> & points) {
   fit_gr->Fit("pol2");
   fit_gr->Write("fix_end");	
   TF1 * fun=fit_gr->GetFunction("pol2");
-  if(fun == NULL) return false;
-//	std::cout<<i_min<<" "<<points.size()<<std::endl;
+  if(!fun) return false;
   for(unsigned int i=i_min; i<points.size(); i++) {
     points[i].set_x2(fun->Eval(points[i].x1()));
-//		std::cout<<i<<": ("<<points[i].x1()<<", "<<points[i].x2()<<")"<<std::endl;
   }
   return true;
 }

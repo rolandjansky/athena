@@ -46,43 +46,22 @@ void
 TgcRawDataValAlg::tgcchamberId(){
   ATH_MSG_DEBUG( "in TGC ChambersIDvector"  );
 
-  //std::vector<Identifier>::const_iterator  idfirst = m_muonIdHelperTool->tgcIdHelper().module_begin();
-  std::vector<Identifier>::const_iterator  idlast =  m_muonIdHelperTool->tgcIdHelper().module_end();
+  std::vector<Identifier>::const_iterator  idlast =  m_idHelperSvc->tgcIdHelper().module_end();
 
-  IdContext tgcModuleContext = m_muonIdHelperTool->tgcIdHelper().module_context();
+  IdContext tgcModuleContext = m_idHelperSvc->tgcIdHelper().module_context();
   Identifier Id;
-  IdentifierHash Idhash;
 
-  for(std::vector<Identifier>::const_iterator i = m_muonIdHelperTool->tgcIdHelper().module_begin(); 
+  for(std::vector<Identifier>::const_iterator i = m_idHelperSvc->tgcIdHelper().module_begin(); 
       i != idlast; i++){
       Id=*i;
-      //int gethash_code = m_muonIdHelperTool->tgcIdHelper().get_hash(Id, Idhash, &tgcModuleContext);
-      std::string extid = m_muonIdHelperTool->tgcIdHelper().show_to_string(Id);
+      std::string extid = m_idHelperSvc->tgcIdHelper().show_to_string(Id);
 
-      int stationName = int(m_muonIdHelperTool->tgcIdHelper().stationName(Id)); //unsigned integer 41:T1F 42:T1E 43:T2F 44:T2E 45:T3F 46:T3E 47:T4F 48:T4E (T4 means inner small wheel TGCs, EI/FI)
-      int stationEta  = int(m_muonIdHelperTool->tgcIdHelper().stationEta(Id));  //backward:[-5,-1], forward:[1,5], (1 or -1 at lowest R)
-      int stationPhi  = int(m_muonIdHelperTool->tgcIdHelper().stationPhi(Id));  //forward:[1:24], endcap:[1:48], EI:[1:21], FI:[1:24]
-      //int itgcGasGap  = int(m_muonIdHelperTool->tgcIdHelper().gasGap(tgc_id));  //increase with |Z|, doublet:[1:2], triplet:[1:3]
+      int stationName = int(m_idHelperSvc->tgcIdHelper().stationName(Id)); //unsigned integer 41:T1F 42:T1E 43:T2F 44:T2E 45:T3F 46:T3E 47:T4F 48:T4E (T4 means inner small wheel TGCs, EI/FI)
+      int stationEta  = int(m_idHelperSvc->tgcIdHelper().stationEta(Id));  //backward:[-5,-1], forward:[1,5], (1 or -1 at lowest R)
+      int stationPhi  = int(m_idHelperSvc->tgcIdHelper().stationPhi(Id));  //forward:[1:24], endcap:[1:48], EI:[1:21], FI:[1:24]
 
       std::string type = "TGC";
       std::string hardware_name=convertChamberName(stationName, stationEta, stationPhi, type) ;
-
-
-      //m_log << MSG::DEBUG << "Adding the chamber Identifier: " << extid << endmsg;}
-      //m_log << MSG::DEBUG << "Adding the chamber Identifier: " << extid <<" ";
-      /*
-      m_log << MSG::DEBUG << "Adding the chamber " << hardware_name <<" ";
-      if (gethash_code == 0) {
-        if (m_debuglevel) m_log << MSG::DEBUG <<" its Id is ";
-        if (m_debuglevel) m_log.setf( std::ios::showbase );
-        if (m_debuglevel) m_log.setf( std::ios::hex, std::ios::basefield );
-        if (m_debuglevel) m_log << Id;
-        //if (m_debuglevel) m_log.setf( std::ios::dec, std::ios::basefield );
-        if (m_debuglevel) m_log << MSG::DEBUG <<" its hash Id is "<< Idhash << endmsg;
-      }else{
-        if (m_debuglevel) m_log << MSG::DEBUG<<"  hash Id NOT computed "<< Idhash << endmsg;
-      }
-      */
     } 
   return;
 }
@@ -260,19 +239,18 @@ TgcRawDataValAlg::getNumberOfWires( const int istationName, const int layer, con
 //wire number in phi48
 int 
 TgcRawDataValAlg::getWireNumberPerPhi48(Identifier id) const{
-  int stationName=m_muonIdHelperTool->tgcIdHelper().stationName(id);//41:T1F 42:T1E 43:T2F 44:T2E 45:T3F 46:T3E 47:T3F 48:T4E (T4 means inner small wheel TGCs, EI/FI)
+  int stationName=m_idHelperSvc->tgcIdHelper().stationName(id);//41:T1F 42:T1E 43:T2F 44:T2E 45:T3F 46:T3E 47:T3F 48:T4E (T4 means inner small wheel TGCs, EI/FI)
   
   if(stationName==47||stationName==48){
     ATH_MSG_WARNING( "getWireNumberPerPhi48 is not implemented yet for EIFI"  );
     return -1;
   }
   
-  int GasGap=m_muonIdHelperTool->tgcIdHelper().gasGap(id);//[1-3]
-  int stationPhi=m_muonIdHelperTool->tgcIdHelper().stationPhi(id);//[1:24], [1:48]
-  int stationEta=m_muonIdHelperTool->tgcIdHelper().stationEta(id);//[-5:-1][1:5]
-  //int absstationEta=abs(stationEta);//[1-5]
-  int channel=m_muonIdHelperTool->tgcIdHelper().channel(id);//channel
-  int isStrip=m_muonIdHelperTool->tgcIdHelper().isStrip(id);//channel
+  int GasGap=m_idHelperSvc->tgcIdHelper().gasGap(id);//[1-3]
+  int stationPhi=m_idHelperSvc->tgcIdHelper().stationPhi(id);//[1:24], [1:48]
+  int stationEta=m_idHelperSvc->tgcIdHelper().stationEta(id);//[-5:-1][1:5]
+  int channel=m_idHelperSvc->tgcIdHelper().channel(id);//channel
+  int isStrip=m_idHelperSvc->tgcIdHelper().isStrip(id);//channel
   
   int tgc, gasgap, eta, phi;
   getEtaPhiBasedNumbering(stationName, GasGap, stationEta, stationPhi,
@@ -321,7 +299,7 @@ TgcRawDataValAlg::getSectorBasedNumbering(int StationName, int GasGap, int Stati
   // etaIndex[0:5], 0 is Forward, [1:5] are Endcap
   // phiIndex[0:3], Endcap has [0:3] chambers per sector, Forward has [0:1]
   if(StationName==42||StationName==44||StationName==46){//Endcap
-    eta=abs(StationEta);
+    eta=std::abs(StationEta);
     phi=StationPhi+1;// offset +2, StationPhi is 1-based, phi is 0-based
     sector=phi/4;
     phi%=4;// convert to index inside sector (phi[0:3])
@@ -392,7 +370,7 @@ TgcRawDataValAlg::getEtaPhiBasedNumbering(int StationName, int GasGap, int Stati
   // Eta [0:5]
   eta=0;
   if(StationName==42||StationName==44||StationName==46||StationName==48){//Endcap
-    eta=abs(StationEta);
+    eta=std::abs(StationEta);
   }else if(StationName==41||StationName==43||StationName==45||StationName==47){//Forward
     eta=0;
   }else{

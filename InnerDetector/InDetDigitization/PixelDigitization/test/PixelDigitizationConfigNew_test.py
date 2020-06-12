@@ -9,7 +9,7 @@ from AthenaCommon.Constants import DEBUG
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
@@ -34,7 +34,7 @@ ConfigFlags.GeoModel.Type = "BrlIncl4.0_ref"
 ConfigFlags.Beam.NumberOfCollisions = 0.
 ConfigFlags.lock()
 # Construct our accumulator to run
-acc = MainServicesSerialCfg()
+acc = MainServicesCfg(ConfigFlags)
 acc.merge(PoolReadCfg(ConfigFlags))
 acc.merge(PixelDigitizationHSCfg(ConfigFlags))
 # Dump config

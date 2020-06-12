@@ -5,7 +5,7 @@
 # ReadCellNoiseFromCoolCompare.py
 # based on ReadCellNoiseFromCool.py and ReadFromCoolCompare.py
 # Yuri Smirnov 2015-03-19
-# 
+#
 
 from __future__ import print_function
 
@@ -37,7 +37,7 @@ def usage():
     print ("-w, --wide      wide format - print all values per cell in one line")
     print ("-b, --brief     print only numbers without character names")
     print ("-d, --double    print values with double precision")
-    
+
 letters = "hs:t:f:r:l:s2:t2:f2:r2:l2:m:m2:n:c:g:i:z:wbd"
 keywords = ["help","schema=","tag=","folder=","run=","lumi=","schema2=","tag2=","folder2=","run2=","lumi2=","maxdiff=","maxdiffpercent=","channel=","cell=","gain=","index=","zero=","wide","brief","double"]
 
@@ -48,7 +48,7 @@ except getopt.GetoptError as err:
     usage()
     sys.exit(2)
 
-# defaults 
+# defaults
 run    = 2147483647
 run2   = 0      # will be set to "run" if not on command line
 lumi   = 0
@@ -130,7 +130,7 @@ if tag2=="none":
     tag2=tag
 if schema2=="none":
     schema2=schema
-        
+
 tile=(chan==48)
 
 import cppyy
@@ -172,7 +172,7 @@ elif schema=='OFL2': # shortcut for COOLOFL_TILE/CONDBR2 or COOLOFL_LAR/CONDBR2
     else:
         schema='COOLOFL_TILE/CONDBR2'
         folderPath='/TILE/OFL02/NOISE/CELL'
-elif schema=='ONLMC': # shortcut for COOLONL_CALO/OFLP200 
+elif schema=='ONLMC': # shortcut for COOLONL_CALO/OFLP200
     schema='COOLONL_CALO/OFLP200'
     folderPath='/CALO/Noise/CellNoise'
     if tag=='UPD4':
@@ -214,57 +214,57 @@ elif folderPath.startswith('/CALO'):
 elif folderPath.startswith('/LAR'):
     folderTag = 'LARNoiseOflCellNoise-'+tag
 
-#=== Read from COOL server 2:                                                                                                                                                  
+#=== Read from COOL server 2:
 
-if schema2=='ONL': # shortcut for COOLONL_CALO/COMP200                                                                                                                          
+if schema2=='ONL': # shortcut for COOLONL_CALO/COMP200
     schema2='COOLONL_CALO/COMP200'
     folderPath2='/CALO/Noise/CellNoise'
     if tag2=='UPD4':
-        tag2='UPD1-00' # change default to latest RUN1 tag                                                                                                          
-elif schema2=='ONL2': # shortcut for COOLONL_CALO/CONDBR2                                                                                                                       
+        tag2='UPD1-00' # change default to latest RUN1 tag
+elif schema2=='ONL2': # shortcut for COOLONL_CALO/CONDBR2
     schema2='COOLONL_CALO/CONDBR2'
     folderPath2='/CALO/Noise/CellNoise'
     if tag2=='UPD4':
-        tag2='RUN2-UPD1-00' # change default to latest RUN2 tag                                                                                                     
-elif schema2=='OFL': # shortcut for COOLOFL_TILE/COMP200 or COOLOFL_LAR/COMP200                                                                                                 
+        tag2='RUN2-UPD1-00' # change default to latest RUN2 tag
+elif schema2=='OFL': # shortcut for COOLOFL_TILE/COMP200 or COOLOFL_LAR/COMP200
     if chan!=48:
         schema2='COOLOFL_LAR/COMP200'
         folderPath2='/LAR/NoiseOfl/CellNoise'
         if tag2=='UPD4':
-            tag2='UPD4-02' # change default to latest RUN1 tag                                                                                                      
+            tag2='UPD4-02' # change default to latest RUN1 tag
     else:
         schema2='COOLOFL_TILE/COMP200'
         folderPath='/TILE/OFL02/NOISE/CELL'
         if tag2=='UPD4':
-            tag2='UPD4-10' # change default to latest RUN1 tag                                                                                                      
-elif schema2=='OFL2': # shortcut for COOLOFL_TILE/CONDBR2 or COOLOFL_LAR/CONDBR2                                                                                                
+            tag2='UPD4-10' # change default to latest RUN1 tag
+elif schema2=='OFL2': # shortcut for COOLOFL_TILE/CONDBR2 or COOLOFL_LAR/CONDBR2
     if chan!=48:
         schema2='COOLOFL_LAR/CONDBR2'
         folderPath2='/LAR/NoiseOfl/CellNoise'
     else:
         schema2='COOLOFL_TILE/CONDBR2'
         folderPath2='/TILE/OFL02/NOISE/CELL'
-elif schema2=='ONLMC': # shortcut for COOLONL_CALO/OFLP200                                                                                                                      
+elif schema2=='ONLMC': # shortcut for COOLONL_CALO/OFLP200
     schema2='COOLONL_CALO/OFLP200'
     folderPath2='/CALO/Noise/CellNoise'
     if tag2=='UPD4':
-        tag2='IOVDEP-10' # change default to tag used in DC14                                                                                                       
-elif schema2=='OFLMC': # shortcut for COOLOFL_CALO/OFLP200                                                                                                                      
+        tag2='IOVDEP-10' # change default to tag used in DC14
+elif schema2=='OFLMC': # shortcut for COOLOFL_CALO/OFLP200
     schema2='COOLOFL_CALO/OFLP200'
     folderPath2='/CALO/Ofl/Noise/CellNoise'
     if tag2=='UPD4':
-        tag2='IOVDEP-10' # change default to tag used in DC14                                                                                                       
-elif schema2=='MC': # shortcut for COOLOFL_TILE/OFLP200 or COOLOFL_LAR/OFLP200                                                                                                  
+        tag2='IOVDEP-10' # change default to tag used in DC14
+elif schema2=='MC': # shortcut for COOLOFL_TILE/OFLP200 or COOLOFL_LAR/OFLP200
     if chan!=48:
         schema2='COOLOFL_LAR/OFLP200'
         folderPath2='/LAR/NoiseOfl/CellNoise'
         if tag2=='UPD4':
-            tag2='IOVDEP-00' # change default to tag used in DC14                                                                                                   
+            tag2='IOVDEP-00' # change default to tag used in DC14
     else:
         schema2='COOLOFL_TILE/OFLP200'
         folderPath2='/TILE/OFL02/NOISE/CELL'
         if tag2=='UPD4':
-            tag2='IOVDEP-02' # change default to tag used in DC14                                                                                                   
+            tag2='IOVDEP-02' # change default to tag used in DC14
 
 db2 = CaloCondTools.openDbConn(schema2, "READONLY")
 
@@ -331,53 +331,53 @@ else:
 log.info("From DB:  ncell: %d ngain %d index nval %d", ncell, ngain, nval)
 
 if brief or doubl:
-  name1 = ["","","0.0     "]
-  names = ["S0 ", "Pl ", "S1 ", "S2 ", "Ra "]
-  dm=" "
+    name1 = ["","","0.0     "]
+    names = ["S0 ", "Pl ", "S1 ", "S2 ", "Ra "]
+    dm=" "
 else:
-  name1 = ["Noise cell ", "gain ","0.00    "]
-  names = ["   RMS ", "pileup ", "  RMS1 ", "  RMS2 ", " Ratio "]
-  for i in range(len(names),indexmax):
-      names += ["c"+str(i)+" "]
-  dm="\t"
+    name1 = ["Noise cell ", "gain ","0.00    "]
+    names = ["   RMS ", "pileup ", "  RMS1 ", "  RMS2 ", " Ratio "]
+    for i in range(len(names),indexmax):
+        names += ["c"+str(i)+" "]
+    dm="\t"
 for cell in range(cellmin,cellmax):
-  if tile and len(name1[0]):
-    name1[0] = "%s %6s hash " % hashMgr.getNames(cell) 
-  for gain in range(gainmin,gainmax):
-    msg="%s%4d %s%d\t" % ( name1[0], cell, name1[1], gain)
-    l0=len(msg)
-    if multi:
-        dm="\n"+msg
-    for index in range(indexmin,indexmax):
-      v=blobFlt.getData(cell, gain, index)
-      v2=blobFlt2.getData(cell, gain, index)
-      dv12 = v - v2
-      if abs(dv12)<zthr:
-          dv12 = 0
-      if v2 == 0:
-          if v==0:
-              dp12=0
-          else:
-              dp12=100
-      else:
-          dp12=dv12*100/v2
+    if tile and len(name1[0]):
+        name1[0] = "%s %6s hash " % hashMgr.getNames(cell)
+    for gain in range(gainmin,gainmax):
+        msg="%s%4d %s%d\t" % ( name1[0], cell, name1[1], gain)
+        l0=len(msg)
+        if multi:
+            dm="\n"+msg
+        for index in range(indexmin,indexmax):
+            v=blobFlt.getData(cell, gain, index)
+            v2=blobFlt2.getData(cell, gain, index)
+            dv12 = v - v2
+            if abs(dv12)<zthr:
+                dv12 = 0
+            if v2 == 0:
+                if v==0:
+                    dp12=0
+                else:
+                    dp12=100
+            else:
+                dp12=dv12*100./v2
 
-      if abs(dv12) > maxdiff and abs(dp12) > maxdiffpercent:
-         if doubl:
-             s1 = "{0:<14.9g}".format(v)    if    v<0 else "{0:<15.10g}".format(v)
-             s2 = "{0:<14.9g}".format(v2)   if   v2<0 else "{0:<15.10g}".format(v2)
-             s3 = "{0:<14.9g}".format(dv12) if dv12<0 else "{0:<15.10g}".format(dv12)
-             s4 = "{0:<14.9g}".format(dp12) if dp12<0 else "{0:<15.10g}".format(dp12)
-             msg += "%s v1 %s v2 %s diff %s diffpercent %s%s" % (names[index],s1.ljust(15),s2.ljust(15),s3.ljust(15),s4.ljust(15),dm)
-         else:
-             s1 = name1[2] if    abs(v)<zthr else "%8.6f" %    v if    abs(v)<1 else "{0:<8.7g}".format(v).ljust(8)
-             s2 = name1[2] if   abs(v2)<zthr else "%8.6f" %   v2 if   abs(v2)<1 else "{0:<8.7g}".format(v2).ljust(8)
-             s3 = name1[2] if abs(dv12)<zthr else "%8.6f" % dv12 if abs(dv12)<1 else "{0:<8.7g}".format(dv12).ljust(8)
-             s4 = name1[2] if abs(dp12)<zthr else "%8.6f" % dp12 if abs(dp12)<1 else "{0:<8.7g}".format(dp12).ljust(8)
-             msg += "%s v1 %s v2 %s diff %s diffpercent %s%s" % (names[index],s1[:8],s2[:8],s3[:8],s4[:8],dm)
+            if abs(dv12) > maxdiff and abs(dp12) > maxdiffpercent:
+                if doubl:
+                    s1 = "{0:<14.9g}".format(v)    if    v<0 else "{0:<15.10g}".format(v)
+                    s2 = "{0:<14.9g}".format(v2)   if   v2<0 else "{0:<15.10g}".format(v2)
+                    s3 = "{0:<14.9g}".format(dv12) if dv12<0 else "{0:<15.10g}".format(dv12)
+                    s4 = "{0:<14.9g}".format(dp12) if dp12<0 else "{0:<15.10g}".format(dp12)
+                    msg += "%s v1 %s v2 %s diff %s diffpercent %s%s" % (names[index],s1.ljust(15),s2.ljust(15),s3.ljust(15),s4.ljust(15),dm)
+                else:
+                    s1 = name1[2] if    abs(v)<zthr else "%8.6f" %    v if    abs(v)<1 else "{0:<8.7g}".format(v).ljust(8)
+                    s2 = name1[2] if   abs(v2)<zthr else "%8.6f" %   v2 if   abs(v2)<1 else "{0:<8.7g}".format(v2).ljust(8)
+                    s3 = name1[2] if abs(dv12)<zthr else "%8.6f" % dv12 if abs(dv12)<1 else "{0:<8.7g}".format(dv12).ljust(8)
+                    s4 = name1[2] if abs(dp12)<zthr else "%8.6f" % dp12 if abs(dp12)<1 else "{0:<8.7g}".format(dp12).ljust(8)
+                    msg += "%s v1 %s v2 %s diff %s diffpercent %s%s" % (names[index],s1[:8],s2[:8],s3[:8],s4[:8],dm)
 
-    if len(msg)>l0:
-        print (msg[:len(msg)-len(dm)])
+        if len(msg)>l0:
+            print (msg[:len(msg)-len(dm)])
 
 #=== close DB
 db.closeDatabase()

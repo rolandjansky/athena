@@ -78,7 +78,7 @@ StatusCode Trk::SimpleAmbiguityProcessorTool::initialize()
       msg(MSG::FATAL) << "Failed to retrieve tool " << m_scoringTool << endmsg;
       return StatusCode::FAILURE;
     } 
-  else 
+  
     msg(MSG::INFO) << "Retrieved tool " << m_scoringTool << endmsg;
 
   sc = m_selectionTool.retrieve();
@@ -87,7 +87,7 @@ StatusCode Trk::SimpleAmbiguityProcessorTool::initialize()
       msg(MSG::FATAL) << "Failed to retrieve tool " << m_selectionTool << endmsg;
       return StatusCode::FAILURE;
     } 
-  else 
+  
     msg(MSG::INFO) << "Retrieved tool " << m_selectionTool << endmsg;
   
   sc = m_fitterTool.retrieve();
@@ -96,7 +96,7 @@ StatusCode Trk::SimpleAmbiguityProcessorTool::initialize()
       msg(MSG::FATAL) << "Failed to retrieve tool " << m_fitterTool << endmsg;
       return sc;
     } 
-  else 
+  
     msg(MSG::INFO) << "Retrieved tool " << m_fitterTool << endmsg;
   
   // suppress refit overwrites force refit
@@ -144,23 +144,35 @@ void Trk::SimpleAmbiguityProcessorTool::statistics()
 
   if (msgLvl(MSG::INFO)) {
      MsgStream &out=msg(MSG::INFO);
-     out << " -- statistics:" << std::endl;
+     out << " -- statistics:" << "\n";
      dumpStat(out);
      out << endmsg;
   }
 }
 
 void Trk::SimpleAmbiguityProcessorTool::dumpStat(MsgStream &out) const {
-    std::lock_guard<std::mutex> lock( m_statMutex );
-    std::streamsize ss = out.precision();
-    out <<             "---------------------------------------------------------------------------------" << std::endl;
-    out <<             "  Number of events processed      :   "<< m_Nevents << std::endl;
-    out <<             "  statistics by eta range          ------All---Barrel---Trans.--- Endcap---DBM---" << std::endl;
-    out <<             "---------------------------------------------------------------------------------" << std::endl;
+   std::lock_guard<std::mutex> lock( m_statMutex );
+    auto parseFileName=[](const std::string & fullname){
+      auto dotPosition = fullname.rfind('.');
+      auto slashPosition = fullname.rfind('/');
+      auto stringLength = dotPosition - slashPosition;
+    return fullname.substr(slashPosition, stringLength);
+   };
+   // @TODO restore ios
+    std::streamsize ss = std::cout.precision();
+    out << "Output from ";
+    out << parseFileName(__FILE__);
+    out << "::";
+    out << __func__;
+    out << "\n";
+    out <<             "---------------------------------------------------------------------------------" << "\n";
+    out <<             "  Number of events processed      :   "<< m_Nevents << "\n";
+    out <<             "  statistics by eta range          ------All---Barrel---Trans.--- Endcap---DBM---" << "\n";
+    out <<             "---------------------------------------------------------------------------------" << "\n";
     dumpRegions(out,   "  Number of candidates at input   :", Trk::SimpleAmbiguityProcessorTool::Counter::kNcandidates);
     dumpRegions(out,   "  - candidates rejected score 0   :", Trk::SimpleAmbiguityProcessorTool::Counter::kNcandScoreZero);
     dumpRegions(out,   "  - candidates rejected as double :", Trk::SimpleAmbiguityProcessorTool::Counter::kNcandDouble);
-    out <<             "---------------------------------------------------------------------------------" << std::endl;
+    out <<             "---------------------------------------------------------------------------------" << "\n";
     dumpRegions(out,   "  candidates with good score      :", Trk::SimpleAmbiguityProcessorTool::Counter::kNscoreOk);
     if (m_tryBremFit) {
        dumpRegions(out,"  + recovered after brem refit    :", Trk::SimpleAmbiguityProcessorTool::Counter::kNscoreZeroBremRefit);
@@ -169,28 +181,28 @@ void Trk::SimpleAmbiguityProcessorTool::dumpStat(MsgStream &out) const {
     if (m_tryBremFit) {
        dumpRegions(out,"  + rejected failed brem refit    :", Trk::SimpleAmbiguityProcessorTool::Counter::kNscoreZeroBremRefitFailed);
     }
-    out <<             "---------------------------------------------------------------------------------" << std::endl;
+    out <<             "---------------------------------------------------------------------------------" << "\n";
     dumpRegions(out,   "  number of normal fits           :", Trk::SimpleAmbiguityProcessorTool::Counter::kNfits);
     if (m_tryBremFit) {
        dumpRegions(out,"  + 2nd brem fit for failed fit   :", Trk::SimpleAmbiguityProcessorTool::Counter::kNrecoveryBremFits);
        dumpRegions(out,"  normal brem fits for electrons  :", Trk::SimpleAmbiguityProcessorTool::Counter::kNbremFits);
     }
-    out <<             "---------------------------------------------------------------------------------" << std::endl;
+    out <<             "---------------------------------------------------------------------------------" << "\n";
     dumpRegions(out,   "  sum of succesful fits           :", Trk::SimpleAmbiguityProcessorTool::Counter::kNgoodFits);
     dumpRegions(out,   "  sum of failed fits              :", Trk::SimpleAmbiguityProcessorTool::Counter::kNfailedFits);
-    out <<             "---------------------------------------------------------------------------------" << std::endl;
+    out <<             "---------------------------------------------------------------------------------" << "\n";
     dumpRegions(out,   "  Number of subtracks created     :", Trk::SimpleAmbiguityProcessorTool::Counter::kNsubTrack);
     dumpRegions(out,   "  Number of candidates excluded   :", Trk::SimpleAmbiguityProcessorTool::Counter::kNnoSubTrack);
-    out <<             "---------------------------------------------------------------------------------" << std::endl;
+    out <<             "---------------------------------------------------------------------------------" << "\n";
     dumpRegions(out,   "  Number of tracks accepted       :", Trk::SimpleAmbiguityProcessorTool::Counter::kNaccepted);
     if (m_tryBremFit) {
        dumpRegions(out,"  including number of brem fits   :", Trk::SimpleAmbiguityProcessorTool::Counter::kNacceptedBrem);
     }
-    out <<             "---------------------------------------------------------------------------------" << std::endl;
+    out <<             "---------------------------------------------------------------------------------" << "\n";
     out << std::setiosflags(std::ios::fixed | std::ios::showpoint) << std::setprecision(2)
         <<             "    definition: ( 0.0 < Barrel < " << m_etabounds[iBarrel-1] << " < Transition < " << m_etabounds[iTransi-1]
-        <<             " < Endcap < " << m_etabounds[iEndcap-1] << " DBM )" << std::endl;
-    out <<             "-------------------------------------------------------------------------------" << std::endl;
+        <<             " < Endcap < " << m_etabounds[iEndcap-1] << " DBM )" << "\n";
+    out <<             "-------------------------------------------------------------------------------" << "\n";
     out.precision (ss);
 }
 
@@ -202,7 +214,7 @@ void Trk::SimpleAmbiguityProcessorTool::missingTrackOrParameters(const Track* tr
      ATH_MSG_ERROR ("track pointer zero, should not happen!");
      return;
   }
-  else if (!track->trackParameters()) {
+  if (!track->trackParameters()) {
      ATH_MSG_WARNING ("No track parameters, needed for statistics code in Trk::SimpleAmbiguityProcessorTool!");
   }
 }
@@ -276,81 +288,54 @@ void Trk::SimpleAmbiguityProcessorTool::addNewTracks(const std::vector<const Tra
                                                      Trk::SimpleAmbiguityProcessorTool::Counter &stat) const
 {
   using namespace std;
-
   DEBUG_CODE( findTrueTracks(&tracks) );
- 
   ATH_MSG_DEBUG ("Number of tracks at Input: "<<tracks.size());
-
   /** signature map to drop double track. */
   PrdSignatureSet prdSigSet;
-
   for(const Track *a_track : tracks) {
-
-      DEBUG_CODE( resetTrackOutliers() );
-
-      ATH_MSG_DEBUG ("Processing track candidate "<<a_track);
-      // statistics
-      increment_by_eta(Counter::kNcandidates,stat,a_track);
-    
-      bool reject = false;
-    
-      // only fitted tracks get hole search, input is not fitted
-      TrackScore score = m_scoringTool->score( *a_track, true);
-
-      DEBUG_CODE( setBarcodeStats(a_track,score) );
-      // veto tracks with score 0
-      if (score==0) { 
-	ATH_MSG_DEBUG ("Candidate score is zero, reject it");
-	// statistic
-	increment_by_eta(Counter::kNcandScoreZero,stat,a_track);
-	
-	reject = true;
-
-        DEBUG_CODE(fillBadTrack(a_track,prd_to_track_map) );
-
-      } else {
-
-	ATH_MSG_DEBUG ("Track Score is "<< score);
-	
-	// double track rejection
-	if (m_dropDouble) {
-          std::vector<const Trk::PrepRawData*> prds = m_assoTool->getPrdsOnTrack(prd_to_track_map, *a_track);
-
-	  // unfortunately PrepRawDataSet is not a set !
-	  PrdSignature prdSig;
-	  prdSig.insert( prds.begin(),prds.end() );
-
-	  // we try to insert it into the set, if we fail (pair.second), it then exits already
-	  if ( !(prdSigSet.insert(prdSig)).second ) {
-
-	    ATH_MSG_DEBUG ("Double track, reject it !");
-	    // statistic
-	    increment_by_eta(Counter::kNcandDouble,stat,a_track);
-
-	    reject = true;
-
-            DEBUG_CODE(fillDuplicateTrack(a_track) );
-	  } else {
-	    ATH_MSG_DEBUG ("Insert new track in PrdSignatureSet");
-	  }
-	}
-      }
- 
-      if (!reject) {
-
-         // DEBUG_CODE( associateToOrig ( new_track, a_track) );
-
-	// add track to map, map is sorted small to big ! set if fitted
-	ATH_MSG_VERBOSE ("Track  ("<< a_track <<") has score "<<score);
-        TrackPtr ptr(a_track);
-        if (!m_forceRefit) ptr.forceFitted();
-	trackScoreTrackMap.insert( make_pair(-score,std::move(ptr)) );
-
-	// DEBUG_CODE(  keepTrackOfTracks(a_track,new_track) );
-
+    DEBUG_CODE( resetTrackOutliers() );
+    ATH_MSG_DEBUG ("Processing track candidate "<<a_track);
+    // statistics
+    increment_by_eta(Counter::kNcandidates,stat,a_track);
+    bool reject = false;
+    // only fitted tracks get hole search, input is not fitted
+    TrackScore score = m_scoringTool->score( *a_track, true);
+    DEBUG_CODE( setBarcodeStats(a_track,score) );
+    // veto tracks with score 0
+    if (score==0) { 
+      ATH_MSG_DEBUG ("Candidate score is zero, reject it");
+      // statistic
+      increment_by_eta(Counter::kNcandScoreZero,stat,a_track);
+      reject = true;
+      DEBUG_CODE(fillBadTrack(a_track,prd_to_track_map) );
+    } else {
+      ATH_MSG_DEBUG ("Track Score is "<< score);
+      // double track rejection
+      if (m_dropDouble) {
+        std::vector<const Trk::PrepRawData*> prds = m_assoTool->getPrdsOnTrack(prd_to_track_map, *a_track);
+        // unfortunately PrepRawDataSet is not a set !
+        PrdSignature prdSig;
+        prdSig.insert( prds.begin(),prds.end() );
+        // we try to insert it into the set, if we fail (pair.second), it then exits already
+        if ( !(prdSigSet.insert(prdSig)).second ) {
+          ATH_MSG_DEBUG ("Double track, reject it !");
+          // statistic
+          increment_by_eta(Counter::kNcandDouble,stat,a_track);
+          reject = true;
+          DEBUG_CODE(fillDuplicateTrack(a_track) );
+        } else {
+          ATH_MSG_DEBUG ("Insert new track in PrdSignatureSet");
+        }
       }
     }
-  
+    if (!reject) {
+      // add track to map, map is sorted small to big ! set if fitted
+      ATH_MSG_VERBOSE ("Track  ("<< a_track <<") has score "<<score);
+      TrackPtr ptr(a_track);
+      if (!m_forceRefit) ptr.forceFitted();
+      trackScoreTrackMap.insert( make_pair(-score,std::move(ptr)) );
+    }
+  }
   ATH_MSG_DEBUG ("Number of tracks in map:"<<trackScoreTrackMap.size());
   DEBUG_CODE( countTrueTracksInMap( trackScoreTrackMap ) );
 }
@@ -378,81 +363,58 @@ void Trk::SimpleAmbiguityProcessorTool::addTrack(Trk::Track* in_track,
   score = m_scoringTool->score( *atrack, suppressHoleSearch );
 
   // do we accept the track ?
-  if (score!=0)
-    {
-      ATH_MSG_DEBUG ("Track  ("<< atrack.get() <<") has score "<<score);
-      // statistic
-      increment_by_eta(Counter::kNscoreOk,stat,atrack.get());
-
-      // add track to map, map is sorted small to big !
-      trackScoreTrackMap.insert( make_pair(-score, TrackPtr(atrack.release(), fitted)) );
-
-      return;
-    }
-
+  if (score!=0){
+    ATH_MSG_DEBUG ("Track  ("<< atrack.get() <<") has score "<<score);
+    // statistic
+    increment_by_eta(Counter::kNscoreOk,stat,atrack.get());
+    // add track to map, map is sorted small to big !
+    trackScoreTrackMap.insert( make_pair(-score, TrackPtr(atrack.release(), fitted)) );
+    return;
+  }
+  //track score is zero here...
   // do we try to recover the track ?
-  if (score==0 && fitted && m_tryBremFit &&
-      !atrack->info().trackProperties(Trk::TrackInfo::BremFit) &&
-      atrack->trackParameters()->front()->pT() > m_pTminBrem &&
-      (!m_caloSeededBrem || atrack->info().patternRecoInfo(Trk::TrackInfo::TrackInCaloROI)))
-    {
-
-      ATH_MSG_DEBUG ("Track score is zero, try to recover it via brem fit");
-
-      // run track fit using electron hypothesis
-      std::unique_ptr<Trk::Track> bremTrack( m_fitterTool->fit(*atrack,true,Trk::electron) );
-
-      if (!bremTrack)
-	{
-	  ATH_MSG_DEBUG ("Brem refit failed, drop track");
+  if (fitted && m_tryBremFit &&
+    !atrack->info().trackProperties(Trk::TrackInfo::BremFit) &&
+    atrack->trackParameters()->front()->pT() > m_pTminBrem &&
+    (!m_caloSeededBrem || atrack->info().patternRecoInfo(Trk::TrackInfo::TrackInCaloROI))){
+    ATH_MSG_DEBUG ("Track score is zero, try to recover it via brem fit");
+    // run track fit using electron hypothesis
+    std::unique_ptr<Trk::Track> bremTrack( m_fitterTool->fit(*atrack,true,Trk::electron) );
+    if (!bremTrack){
+      ATH_MSG_DEBUG ("Brem refit failed, drop track");
+      // statistic
+      increment_by_eta(Counter::kNscoreZeroBremRefitFailed,stat,atrack.get());
+      increment_by_eta(Counter::kNfailedFits,stat,atrack.get());
+      // clean up
+      cleanup_tracks.push_back(std::move(atrack));
+	} else {
 	  // statistic
-	  increment_by_eta(Counter::kNscoreZeroBremRefitFailed,stat,atrack.get());
-	  increment_by_eta(Counter::kNfailedFits,stat,atrack.get());
-
-	  // clean up
-          cleanup_tracks.push_back(std::move(atrack));
-
-	}
-      else
-	{
-
-	  // statistic
-          increment_by_eta(Counter::kNgoodFits,stat,bremTrack.get());
-
+    increment_by_eta(Counter::kNgoodFits,stat,bremTrack.get());
 	  // rerun score
 	  score = m_scoringTool->score( *bremTrack, suppressHoleSearch );
-
 	  // do we accept the track ?
-	  if (score!=0)
-	    {
-              ATH_MSG_DEBUG ("Brem refit successful, recovered track  ("<< atrack.get() <<") has score "<<score);
+	  if (score!=0){
+        ATH_MSG_DEBUG ("Brem refit successful, recovered track  ("<< atrack.get() <<") has score "<<score);
 	      // statistics
 	      increment_by_eta(Counter::kNscoreZeroBremRefit,stat,bremTrack.get());
-
 	      // add track to map, map is sorted small to big !
 	      trackScoreTrackMap.insert( make_pair(-score, TrackPtr(bremTrack.release(), fitted)) );
 	      return;
-	    }
-	  else
-	    {
+	    } 
 	      ATH_MSG_DEBUG ("Brem refit gave still track score zero, reject it");
 	      // statistic
 	      increment_by_eta(Counter::kNscoreZeroBremRefitScoreZero,stat,bremTrack.get());
-
-	    }
-          cleanup_tracks.push_back(std::move(atrack));
-	}
-    }
-  else
-    {
-      ATH_MSG_DEBUG ("Track score is zero, reject it");
-      // statistic
-      increment_by_eta(Counter::kNscoreZero,stat,atrack.get());
-
-      DEBUG_CODE( rejectedTrack(atrack.get(), prd_to_track_map) );
+	    
       cleanup_tracks.push_back(std::move(atrack));
-    }
+	  }
+  } else {
+    ATH_MSG_DEBUG ("Track score is zero, reject it");
+    // statistic
+    increment_by_eta(Counter::kNscoreZero,stat,atrack.get());
+    DEBUG_CODE( rejectedTrack(atrack.get(), prd_to_track_map) );
+    cleanup_tracks.push_back(std::move(atrack));
   }
+}
 //==================================================================================================
 
 TrackCollection *Trk::SimpleAmbiguityProcessorTool::solveTracks(TrackScoreMap& trackScoreTrackMap,
@@ -547,19 +509,15 @@ TrackCollection *Trk::SimpleAmbiguityProcessorTool::solveTracks(TrackScoreMap& t
 	  ATH_MSG_DEBUG ("Track "<< atrack.track() << " is excluded, no subtrack, reject");
 	  // statistic
 	  increment_by_eta(Counter::kNnoSubTrack,stat,atrack.track());
-
-          if (atrack.newTrack()) {
-             cleanup_tracks.push_back(  std::unique_ptr<Trk::Track>(atrack.release()) );
-          }
+    if (atrack.newTrack()) {
+       cleanup_tracks.push_back(  std::unique_ptr<Trk::Track>(atrack.release()) );
+    }
 	  // don't forget to drop track from map
 	}
     }
   
   ATH_MSG_DEBUG ("Finished, number of track on output: "<<final_tracks->size());
-  
-
   DEBUG_CODE( eventSummary(final_tracks) );
-
   return final_tracks.release();
 }
 

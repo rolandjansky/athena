@@ -46,12 +46,16 @@ namespace SG {
     bool isValid(EventIDRange& range) const;
     bool isValid(const EventIDBase& t, EventIDRange& range) const;
 
+    void addDependency(const EventIDRange& range);
+
     template <typename R>
     void addDependency(SG::ReadCondHandle<R>& rch);
 
     template <typename R, typename... Args>
     void addDependency(ReadCondHandle<R>& rch, Args... args);
     
+
+
     /**
      * @brief record handle, with explicit range   DEPRECATED
      * @param range IOVRange of handle
@@ -272,17 +276,22 @@ namespace SG {
 
   //---------------------------------------------------------------------------
 
+  template <typename T>
+  void WriteCondHandle<T>::addDependency(const EventIDRange& range) {
+    if ( !m_rangeSet ) {
+      m_range = range;
+    } else {
+      m_range = EventIDRange::intersect(m_range, range);
+    }
+    m_rangeSet = true;
+  }
+
   // Can't take a const RCH, as RCH.range() can load the ptr.
   template <typename T>
   template< typename R>
   void
   WriteCondHandle<T>::addDependency(SG::ReadCondHandle<R>& rch) {
-    if ( !m_rangeSet ) {
-      m_range = rch.getRange();
-    } else {
-      m_range = EventIDRange::intersect(m_range, rch.getRange());
-    }
-    m_rangeSet = true;
+    return addDependency(rch.getRange());
   }
 
   template< typename T>

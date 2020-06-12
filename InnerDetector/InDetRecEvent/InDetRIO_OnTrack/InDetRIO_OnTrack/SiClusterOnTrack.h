@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -76,28 +76,31 @@ namespace InDet {
 	
       /** returns global position (gathered through Surface constraint)
       - fullfills Trk::MeasurementBase interface */
-      virtual const Amg::Vector3D& globalPosition() const;
-    	  
+      virtual const Amg::Vector3D& globalPosition() const override;
+
+      virtual bool rioType(Trk::RIO_OnTrackType::Type type) const override = 0;
+
       /** returns the DE hashID* 
       - fullfills Trk::RIO_OnTrack interface*/
-      IdentifierHash idDE() const;
+      virtual IdentifierHash idDE() const override;
         
       bool isBroadCluster() const;
 
 	    /**returns some information about this RIO_OnTrack.
       - fullfills Trk::RIO_OnTrack interface*/
-      virtual MsgStream&    dump( MsgStream& out ) const;	
+      virtual MsgStream&    dump( MsgStream& out ) const override;	
 	
 	    /**returns some information about this RIO_OnTrack.
       - fullfills Trk::RIO_OnTrack interface*/
-      virtual std::ostream& dump( std::ostream& out ) const;
+      virtual std::ostream& dump( std::ostream& out ) const override;
 
     protected:
       friend class ::SiClusterOnTrackCnv_p1;
 
       /** ONLY for use in custom convertor
       Allows the custom convertor to reset values when persistying/reading back RoTs*/
-      virtual void setValues(const Trk::TrkDetElementBase* detEl, const Trk::PrepRawData* prd)=0;
+      virtual void setValues(const Trk::TrkDetElementBase* detEl,
+                             const Trk::PrepRawData* prd) override = 0;
 
       /** The IdentifierHash - probably not used*/
       IdentifierHash                      m_idDE;

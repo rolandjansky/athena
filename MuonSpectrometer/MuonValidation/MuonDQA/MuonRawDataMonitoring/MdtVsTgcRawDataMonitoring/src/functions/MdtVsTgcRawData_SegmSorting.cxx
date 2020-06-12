@@ -16,12 +16,10 @@
 #include "TrkEventPrimitives/TrkEventPrimitivesDict.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "muonEvent/MuonContainer.h"
-//use new MDT segment container 
 #include "xAODMuon/MuonSegmentContainer.h"
 #include "xAODMuon/MuonSegment.h"
 
 #include <inttypes.h>
-
 #include <sstream>
 #include <algorithm>
 #include <fstream>
@@ -56,10 +54,10 @@ MdtVsTgcRawDataValAlg::SortMDTSegments(const xAOD::MuonSegmentContainer *newsegm
       Identifier id = rio->identify();
       
       // Identify MDT Endcap Segments
-      if(m_muonIdHelperTool->mdtIdHelper().is_mdt(id))isMdt=true;
-      if(m_muonIdHelperTool->mdtIdHelper().isEndcap(id))isEndcap=true;
+      if(m_idHelperSvc->isMdt(id))isMdt=true;
+      if(m_idHelperSvc->isEndcap(id))isEndcap=true;
       
-      int stationName = int(m_muonIdHelperTool->mdtIdHelper().stationName(id));
+      int stationName = int(m_idHelperSvc->mdtIdHelper().stationName(id));
       // Large (L) = odd, greater r, Small (S) = even, lower r
       // 13=EIL 49=EIS 14=EEL 15=EES 17=EML 18=EMS 20=EOL 21=EOS
       if((stationName==13)||(stationName==49))nMdtMeas[0]++;// MDT

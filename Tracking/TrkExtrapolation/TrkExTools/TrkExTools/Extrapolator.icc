@@ -1,0 +1,100 @@
+/*
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ */
+namespace Trk {
+
+inline const TrackingGeometry*
+Extrapolator::trackingGeometry() const
+{
+  if (m_navigator)
+    return m_navigator->trackingGeometry();
+  return nullptr;
+}
+
+inline const IPropagator*
+Extrapolator::subPropagator(const Trk::TrackingVolume& tvol) const
+{
+  const IPropagator* currentPropagator =
+    (tvol.geometrySignature() < m_subPropagators.size())
+      ? m_subPropagators[tvol.geometrySignature()]
+      : nullptr;
+
+  if (tvol.geometrySignature() == Trk::Calo && m_useDenseVolumeDescription) {
+    currentPropagator =
+      (Trk::MS < m_subPropagators.size()) ? m_subPropagators[Trk::MS] : nullptr;
+  }
+  if (!currentPropagator) {
+    ATH_MSG_ERROR(
+      "[!] Configuration problem: no Propagator found for volumeSignature: "
+      << tvol.geometrySignature());
+  }
+  return currentPropagator;
+}
+
+inline const IMaterialEffectsUpdator*
+Extrapolator::subMaterialEffectsUpdator(const Trk::TrackingVolume& tvol) const
+{
+  return (tvol.geometrySignature() < m_subupdaters.size())
+           ? m_subupdaters[tvol.geometrySignature()]
+           : nullptr;
+}
+
+inline IMaterialEffectsUpdator::ICache&
+Extrapolator::subMaterialEffectsUpdatorCache(Cache& cache,
+                                             const TrackingVolume& tvol) const
+{
+  return *(cache.m_MaterialUpCache[tvol.geometrySignature()]);
+}
+
+inline void
+Extrapolator::populateMatEffUpdatorCache(Cache& cache) const
+{
+  size_t numUpdaters = m_subupdaters.size();
+  cache.m_MaterialUpCache.reserve(numUpdaters);
+  for (size_t i = 0; i < numUpdaters; ++i) {
+    cache.m_MaterialUpCache.emplace_back(m_subupdaters[i]->getCache());
+  }
+}
+
+inline void
+Extrapolator::setRecallInformation(Cache& cache,
+                                   const Surface& rsf,
+                                   const Layer& rlay,
+                                   const TrackingVolume& rvol) const
+{
+  cache.m_recall = true;
+  cache.m_recallSurface = &rsf;
+  cache.m_recallLayer = &rlay;
+  cache.m_recallTrackingVolume = &rvol;
+}
+
+inline void
+Extrapolator::resetRecallInformation(Cache& cache) const
+{
+  cache.m_recall = false;
+  cache.m_recallSurface = nullptr;
+  cache.m_recallLayer = nullptr;
+  cache.m_recallTrackingVolume = nullptr;
+}
+
+inline void
+Extrapolator::throwIntoGarbageBin(Cache& cache,
+                                  const Trk::TrackParameters* pars) const
+{
+  if (pars)
+    cache.m_garbageBin[pars] = true;
+}
+
+inline const Trk::TrackParameters*
+Extrapolator::returnResult(Cache& cache,
+                           const Trk::TrackParameters* result) const
+{
+  (void)cache;
+  // call the model action on the material effect updaters
+  for (unsigned int imueot = 0; imueot < m_subupdaters.size(); ++imueot) {
+    m_subupdaters[imueot]->modelAction();
+  }
+  // return the result
+  return result;
+}
+}

@@ -21,6 +21,7 @@
 #include <atomic>
 #include <cstdint>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 class IdentifierHash;
@@ -74,6 +75,15 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
  private:
 
   /**
+   * @enum SCT_DecoderNumbers
+   * @brief Define frequently used magic numbers
+   */
+  enum SCT_DecoderNumbers { N_SIDES = 2,
+                            N_CHIPS_PER_SIDE = 6,
+                            N_STRIPS_PER_CHIP = 128,
+                            N_STRIPS_PER_SIDE = N_CHIPS_PER_SIDE*N_STRIPS_PER_CHIP,
+  };
+  /**
    * @brief Builds RawData RDO and adds to RDO container
    *
    * Method that builds the RawData RDO and add it to the collection rdoIdc and cache are 
@@ -83,20 +93,23 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
    *   0 if collection was deliberately skipped (for trigger)
    *  -1 if there was an error in the decoding - will be passed on as StatusCode::RECOVERABLE by fillCollection()
    *
-   * @param strip Strip number info from the RDO.
-   * @param groupSize Group size info from the RDO.
+   * @param strip Strip number info for the RDO.
+   * @param groupSize Group size info for the RDO.
    * @param timeBin Time bin info for RDO.
-   * @param onlineID Online Identifier from the RDO.
+   * @param collIDHash IdentifierHash for the wafer/side/FE-link where the RDO exists
    * @param errors Error info.
    * @param rdoIDCont RDO ID Container to be filled.
    * @param cache Cache.
    * @param errorHit Hit error info.
+   * @param errorsCache - the cache to be filled for a given ID
    */
   int makeRDO(int strip, int groupSize, int timeBin,
-              uint32_t onlineID, int errors,
+              const IdentifierHash& collIDHash,
+              int errors,
               ISCT_RDO_Container& rdoIDCont,
               CacheHelper& cache,
-              const std::vector<int>& errorHit) const;
+              const std::vector<int>& errorHit,
+	      SCT_RodDecoderErrorsHelper& errorsCache) const;
 
   /**
    * @brief Add an error for each wafer in the problematic ROD
@@ -104,9 +117,11 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
    * @param rodID Identifer of ROD.
    * @param errorType Error type info.
    * @param errs Byte stream error container.
+   * @param foundHashes FE-links whose headers are found. Used only for MissingLinkHeaderError.
    */
   StatusCode addRODError(uint32_t rodID, SCT_ByteStreamErrors::ErrorType error,
-			 SCT_RodDecoderErrorsHelper& errs) const;
+                         SCT_RodDecoderErrorsHelper& errs,
+                         const std::unordered_set<IdentifierHash>* foundHashes=nullptr) const;
   /**
    * @brief Add single eror
    *
@@ -115,8 +130,8 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
    * @param errs Byte stream error container.
    */
   StatusCode addSingleError(const IdentifierHash& hashID,
-			    SCT_ByteStreamErrors::ErrorType error,
-			    SCT_RodDecoderErrorsHelper& errs) const;
+                            SCT_ByteStreamErrors::ErrorType error,
+                            SCT_RodDecoderErrorsHelper& errs) const;
 
   /**
    * @brief Set first temporarily masked chip information from byte stream trailer
@@ -126,8 +141,8 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
    * @param errs Byte stream error container.
    */
   StatusCode setFirstTempMaskedChip(const IdentifierHash& hashID, 
-				    unsigned int firstTempMaskedChip, 
-				    SCT_RodDecoderErrorsHelper& errs) const;
+                                    unsigned int firstTempMaskedChip, 
+                                    SCT_RodDecoderErrorsHelper& errs) const;
 
   /** Identifier helper class for the SCT subdetector that creates compact Identifier objects and 
       IdentifierHash or hash IDs. Also allows decoding of these IDs. */
@@ -232,9 +247,6 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
   
   /** Total number of missing link headers */
   mutable std::atomic_uint m_numMissingLinkHeader{0};
-  
-  /** Total number of SCT unknown online IDs */
-  mutable std::atomic_uint m_numUnknownOfflineID{0};
   
   /** Swap phi readout direction */
   std::vector<bool> m_swapPhiReadoutDirection{};

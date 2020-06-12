@@ -34,7 +34,7 @@ find_package( ROOT COMPONENTS Core RIO )
 atlas_add_library( TrigConfxAODLib
    TrigConfxAOD/*.h Root/*.cxx
    PUBLIC_HEADERS TrigConfxAOD
-   LINK_LIBRARIES AsgTools xAODTrigger TrigConfL1Data TrigConfHLTData TrigConfData
+   LINK_LIBRARIES AsgTools xAODTrigger TrigConfL1Data TrigConfHLTData
    TrigConfInterfaces )
 
 if( NOT XAOD_STANDALONE )

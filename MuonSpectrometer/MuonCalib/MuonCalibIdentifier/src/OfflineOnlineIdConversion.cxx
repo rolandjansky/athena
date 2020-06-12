@@ -1,27 +1,32 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibIdentifier/OfflineOnlineIdConversion.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
+
 #include "cstdlib"
+
 namespace MuonCalib {
 
 MuonFixedId OnlineToOffline(const std::string online_id)
 	{
-	std::cout<<online_id<<std::endl;
 	MuonFixedId ret(0), invalid;
 	ret.set_mdt();
 //minimum size of idenifier is 7
 	if (online_id.size()!=7 && online_id.size()!=9)
 		{
-		std::cout<<"WARNING: Wrong length"<<std::endl;
+		MsgStream log(Athena::getMessageSvc(),"OnlineToOffline");
+		log<<MSG::WARNING<<"Wrong length for online_id="<<online_id<<endmsg;
 		return invalid;
 		}
 //check for A/C side
 	bool c_side(false);
 	if(online_id[4]!='A' && online_id[4]!='C' && online_id[4]!='B')
 		{
-		std::cout<<"WARNING: Invalid side"<<std::endl;
+		MsgStream log(Athena::getMessageSvc(),"OnlineToOffline");
+		log<<MSG::WARNING<<"Invalid side for online_id="<<online_id<<endmsg;
 		return invalid;
 		}
 	if(online_id[4]=='C')
@@ -33,7 +38,8 @@ MuonFixedId OnlineToOffline(const std::string online_id)
 	int station_mm = MuonFixedId::stationStringToFixedStationNumber(station_nm_string);
 	if (station_mm<0)
 		{
-		std::cout<<"WARNING: Invalid station name"<<std::endl;
+		MsgStream log(Athena::getMessageSvc(),"OnlineToOffline");
+		log<<MSG::WARNING<<"Invalid station name for online_id="<<online_id<<endmsg;
 		return invalid;
 		}
 //set eta
@@ -45,7 +51,8 @@ MuonFixedId OnlineToOffline(const std::string online_id)
 	long int eta=strtol(eta_str, &endptr, 10);
 	if(endptr!=&(eta_str[1]))
 		{
-		std::cout<<"WARNING: eta is not a number"<<std::endl;
+		MsgStream log(Athena::getMessageSvc(),"OnlineToOffline");
+		log<<MSG::WARNING<<"eta is not a number for online_id="<<online_id<<endmsg;
 		return invalid;
 		}
 //set phi
@@ -56,7 +63,8 @@ MuonFixedId OnlineToOffline(const std::string online_id)
 	long int phi=strtol(phi_str, &endptr, 10);
 	if(endptr!=&(phi_str[2]))
 		{
-		std::cout<<"WARNING: phi is not a number: "<<phi_str<<std::endl;
+		MsgStream log(Athena::getMessageSvc(),"OnlineToOffline");
+		log<<MSG::WARNING<<"phi is not a number for online_id="<<online_id<<endmsg;
 		return invalid;
 		}
 //treat special cases
@@ -97,7 +105,8 @@ MuonFixedId OnlineToOffline(const std::string online_id)
 				ret.setMdtMultilayer(2);
 				break;
 			default:
-				std::cout<<"WARNING: Multilayer is neither 1 or 2"<<std::endl;
+				MsgStream log(Athena::getMessageSvc(),"OnlineToOffline");
+				log<<MSG::WARNING<<"Multilayer is neither 1 or 2 for online_id="<<online_id<<endmsg;
 				return invalid;
 			}
 		return ret.mdtMultilayerId();

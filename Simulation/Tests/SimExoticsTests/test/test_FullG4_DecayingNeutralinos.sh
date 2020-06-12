@@ -8,6 +8,7 @@
 # art-include: 21.9/Athena
 # art-include: master/Athena
 # art-include: master/AthSimulation
+# art-output: *.root
 
 # MC16 setup
 # ATLAS-R2-2016-01-00-01 and OFLCOND-MC16-SDR-14
@@ -21,7 +22,7 @@ Sim_tf.py \
 --DataRunNumber '284500' \
 --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
 --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/mc15_13TeV.448168.MGPy8EG_A14NNPDF23LO_GG_qqn1_2400_850_rpvLF_p01ns.evgen.EVNT.e7245.EVNT.17092338._000002.pool.root.1" \
---outputHITSFile "Hits.pool.root" \
+--outputHITSFile "HITS.pool.root" \
 --maxEvents 10 \
 --imf False
 
@@ -32,7 +33,7 @@ if [ $rc -eq 0 ]
 then
     ArtPackage=$1
     ArtJobName=$2
-    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
+    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=semi-detailed
     rc2=$?
 fi
 echo  "art-result: $rc2 regression"

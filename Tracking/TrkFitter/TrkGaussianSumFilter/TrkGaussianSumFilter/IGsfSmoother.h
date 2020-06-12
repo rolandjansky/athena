@@ -2,14 +2,12 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/* *******************************************************************************
-      IGsfSmoother.h  -  description
-      -----------------------------
-created              : Thursday 8th January 2009
-author               : amorley
-email                : Anthony.Morley@cern.ch
-decription           : Abstract interface for the GSF smoother
-********************************************************************************** */
+/**
+ * @file   IGsfSmoother.h 
+ * @date   Thursday 8th January 2009
+ * @author Anthony Morley, Christos Anastopoulos
+ * @brief  Abstract interface for the GSF smoother
+ */
 
 #ifndef TrkIGsfSmoother_H
 #define TrkIGsfSmoother_H
@@ -18,6 +16,7 @@ decription           : Abstract interface for the GSF smoother
 #include "TrkFitterUtils/FitterTypes.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 
+#include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -42,13 +41,16 @@ public:
   /** Configure the GSF smoother
       - Configure the extrapolator
       - Configure the measurement updator */
-  virtual StatusCode configureTools(const ToolHandle<IMultiStateExtrapolator>&,
-                                    const ToolHandle<IMultiStateMeasurementUpdator>&) = 0;
+  virtual StatusCode configureTools(
+    const ToolHandle<IMultiStateExtrapolator>&,
+    const ToolHandle<IMultiStateMeasurementUpdator>&) = 0;
 
   /** Gsf smoother method */
-  virtual SmoothedTrajectory* fit(const ForwardTrajectory&,
-                                  const ParticleHypothesis particleHypothesis = nonInteracting,
-                                  const CaloCluster_OnTrack* ccot = nullptr) const = 0;
+  virtual SmoothedTrajectory* fit(
+    const EventContext& ctx,
+    const ForwardTrajectory&,
+    const ParticleHypothesis particleHypothesis = nonInteracting,
+    const CaloCluster_OnTrack* ccot = nullptr) const = 0;
 };
 
 } // end Trk namespace

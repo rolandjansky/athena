@@ -100,7 +100,7 @@ IOVDbSvc.OutputLevel = WARNING
 # Set input byte stream file (from q431 test)
 inputBSFiles = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data17_13TeV.00330470.physics_Main.daq.RAW._lb0310._SFO-1._0001.data"]
 include("ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py")
-ServiceMgr.ByteStreamInputSvc.FullFileName = inputBSFiles
+ServiceMgr.EventSelector.Input = inputBSFiles
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 athenaCommonFlags.FilesInput = inputBSFiles
 

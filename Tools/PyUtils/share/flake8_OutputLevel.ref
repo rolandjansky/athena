@@ -1,3 +1,0 @@
-flake8_OutputLevel.py:10:7: ATL900: Do not assign an explicit OutputLevel
-flake8_OutputLevel.py:14:1: ATL900: Do not assign an explicit OutputLevel
-flake8_OutputLevel.py:16:1: ATL900: Do not assign an explicit OutputLevel

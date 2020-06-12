@@ -93,9 +93,9 @@ void compare (const Muon::CscClusterOnTrack& p1,
   assert (p2.time() == p2.time());
   assert (p1.status() == p2.status());
   assert (p1.timeStatus() == p2.timeStatus());
-  assert (p1.prepRawDataLink().key() == p2.prepRawDataLink().key());
+  // Link key gets modified during writing.
+  assert (p2.prepRawDataLink().key() == 682318842);
   assert (p1.prepRawDataLink().index() == p2.prepRawDataLink().index());
-  
 }
 
 

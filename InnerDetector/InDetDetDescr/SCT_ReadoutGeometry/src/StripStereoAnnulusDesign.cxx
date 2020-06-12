@@ -2,17 +2,13 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "SCT_ReadoutGeometry/StripStereoAnnulusDesign.h"
+#include "Identifier/Identifier.h"
+
 #include <stdexcept>
 #include <algorithm> // For upper_bound
 #include <iterator>  // for std::distance()
 #include <cmath>
-#include "SCT_ReadoutGeometry/StripStereoAnnulusDesign.h"
-#include "Identifier/Identifier.h"
-#include "TrkSurfaces/AnnulusBounds.h"
-
-using namespace std;
-using std::cos;
-using std::sin;
 
 namespace InDetDD {
 StripStereoAnnulusDesign::StripStereoAnnulusDesign(const SiDetectorDesign::Axis &stripDirection,
@@ -21,10 +17,10 @@ StripStereoAnnulusDesign::StripStereoAnnulusDesign(const SiDetectorDesign::Axis 
                                const int &readoutSide,
                                const InDetDD::CarrierType &carrier,
                                const int &nRows,
-                               const vector<int> &nStrips,
-                               const vector<double> &pitch,
-                               const vector<double> &stripStartRadius,
-                               const vector<double> &stripEndRadius,
+                               const std::vector<int> &nStrips,
+                               const std::vector<double> &pitch,
+                               const std::vector<double> &stripStartRadius,
+                               const std::vector<double> &stripEndRadius,
                                const double &stereoAngle,
                                const double &centreR) :
     SCT_ModuleSideDesign(thickness, false, false, true, 1, 0, 0, 0, false, carrier,
@@ -36,9 +32,9 @@ StripStereoAnnulusDesign::StripStereoAnnulusDesign(const SiDetectorDesign::Axis 
   m_stripEndRadius(stripEndRadius),
   m_stereo(stereoAngle),
   m_R(centreR),
-  m_lengthBF(2. * centreR * sin(stereoAngle*0.5)),// Eq. 5 p. 7
-  m_sinStereo(sin(-m_stereo)),
-  m_cosStereo(cos(-m_stereo))
+  m_lengthBF(2. * centreR * std::sin(stereoAngle*0.5)),// Eq. 5 p. 7
+  m_sinStereo(std::sin(-m_stereo)),
+  m_cosStereo(std::cos(-m_stereo))
 {
     if (nRows < 0) {
         throw std::runtime_error(
@@ -72,12 +68,8 @@ StripStereoAnnulusDesign::StripStereoAnnulusDesign(const SiDetectorDesign::Axis 
     m_scheme.setDiodes(totalStrips);
 
 // AnnulusBounds(double minR, double maxR, double R, double phi, double phiS)
-    m_bounds = new Trk::AnnulusBounds(m_stripStartRadius[0], m_stripEndRadius.back(), m_R, m_nStrips[0] * m_pitch[0], m_stereo);
+    m_bounds = Trk::AnnulusBounds(m_stripStartRadius[0], m_stripEndRadius.back(), m_R, m_nStrips[0] * m_pitch[0], m_stereo);
 
-}
-
-StripStereoAnnulusDesign::~StripStereoAnnulusDesign() {
-    delete m_bounds;
 }
 
 HepGeom::Point3D<double> StripStereoAnnulusDesign::sensorCenter() const {
@@ -93,11 +85,11 @@ double StripStereoAnnulusDesign::sinStripAngleReco(double phiCoord, double etaCo
     
     double xSF = m_cosStereo * (x - m_R) - m_sinStereo * y + m_R;
     double ySF = m_sinStereo * (x - m_R) + m_cosStereo * y;
-    double phiPrime = atan2(ySF, xSF);
+    double phiPrime = std::atan2(ySF, xSF);
 
     // The minus sign below is because this routine is called by tracking software, which swaps x and y, then measures angles from y 
     // to x
-    return -sin(phiPrime + m_stereo);
+    return -std::sin(phiPrime + m_stereo);
 }
 
 
@@ -140,7 +132,7 @@ void StripStereoAnnulusDesign::neighboursOfCell(const SiCellId &cellId, std::vec
 
 const Trk::SurfaceBounds &StripStereoAnnulusDesign::bounds() const {
 
-    return *m_bounds;
+    return m_bounds;
 }
 
 SiCellId StripStereoAnnulusDesign::cellIdOfPosition(SiLocalPosition const &pos) const {
@@ -152,11 +144,11 @@ SiCellId StripStereoAnnulusDesign::cellIdOfPosition(SiLocalPosition const &pos) 
         return SiCellId(); // return an invalid id
     }
 
-    vector<double>::const_iterator endPtr = upper_bound(m_stripStartRadius.begin(), m_stripStartRadius.end(), r);
+    std::vector<double>::const_iterator endPtr = upper_bound(m_stripStartRadius.begin(), m_stripStartRadius.end(), r);
     int row = distance(m_stripStartRadius.begin(), endPtr) - 1;
     // Following should never happen, check is done on r above
     if (row < 0 || row >= m_nRows) {
-        cout << "ERROR! cellIdOfPosition: bad row = " << row << " for r = " << r << endl;
+        std::cout << "ERROR! cellIdOfPosition: bad row = " << row << " for r = " << r << std::endl;
         return SiCellId(); // return an invalid id
     }
 //
@@ -169,8 +161,8 @@ SiCellId StripStereoAnnulusDesign::cellIdOfPosition(SiLocalPosition const &pos) 
 //
     double xSF = m_cosStereo * (x - m_R) - m_sinStereo * y + m_R;
     double ySF = m_sinStereo * (x - m_R) + m_cosStereo * y;
-    double phiPrime = atan2(ySF, xSF); 
-    int strip = floor(phiPrime / m_pitch[row]) + m_nStrips[row] *0.5;
+    double phiPrime = std::atan2(ySF, xSF); 
+    int strip = std::floor(phiPrime / m_pitch[row]) + m_nStrips[row] *0.5;
     if (strip < 0) { // Outside
         return SiCellId(); // return an invalid id
     }
@@ -193,12 +185,12 @@ SiLocalPosition StripStereoAnnulusDesign::stripPosAtR(int strip, int row, double
 
     double phiPrime = (strip - m_nStrips[row]*0.5 + 0.5) * m_pitch[row];
 
-    double b = -2. * m_lengthBF * sin(m_stereo*0.5 + phiPrime);
+    double b = -2. * m_lengthBF * std::sin(m_stereo*0.5 + phiPrime);
     double c = m_lengthBF * m_lengthBF - r * r;
-    double rPrime = (-b + sqrt(b * b - 4. * c))*0.5;
+    double rPrime = (-b + std::sqrt(b * b - 4. * c))*0.5;
 
-    double xPrime = rPrime * cos(phiPrime);
-    double yPrime = rPrime * sin(phiPrime);
+    double xPrime = rPrime * std::cos(phiPrime);
+    double yPrime = rPrime * std::sin(phiPrime);
    
     double x = m_cosStereo * (xPrime - m_R) - m_sinStereo * yPrime + m_R;
     double y = m_sinStereo * (xPrime - m_R) + m_cosStereo * yPrime;
@@ -236,10 +228,10 @@ SiLocalPosition StripStereoAnnulusDesign::localPositionOfCellPC(SiCellId const &
     // get phi of strip in the strip system
     double phiPrime = (strip - m_nStrips[row]*0.5 + 0.5) * m_pitch[row];
 
-    double b = -2. * m_lengthBF * sin(m_stereo*0.5 + phiPrime);
+    double b = -2. * m_lengthBF * std::sin(m_stereo*0.5 + phiPrime);
     double c = m_lengthBF * m_lengthBF - r * r;
     // this is the radius in the strip system
-    double rPrime = (-b + sqrt(b * b - 4. * c))*0.5;
+    double rPrime = (-b + std::sqrt(b * b - 4. * c))*0.5;
 
     // flip this, since coordinate system is defined the other way round
     double phi = -1*phiPrime;
@@ -276,7 +268,7 @@ std::pair<SiLocalPosition, SiLocalPosition> StripStereoAnnulusDesign::endsOfStri
 
     SiLocalPosition outerEnd = stripPosAtR(strip, row, m_stripEndRadius[row]);
 
-    return pair<SiLocalPosition, SiLocalPosition>(innerEnd, outerEnd);
+    return std::pair<SiLocalPosition, SiLocalPosition>(innerEnd, outerEnd);
 }
 
 bool StripStereoAnnulusDesign::inActiveArea(SiLocalPosition const &pos, bool /*checkBondGap*/) const {
@@ -295,7 +287,7 @@ double StripStereoAnnulusDesign::scaledDistanceToNearestDiode(SiLocalPosition co
 //
   double posxP = m_cosStereo * (pos.xEta() - m_R) - m_sinStereo * pos.xPhi() + m_R;
   double posyP = m_sinStereo * (pos.xEta() - m_R) + m_cosStereo * pos.xPhi();
-  double posphiP = atan2(posyP, posxP);
+  double posphiP = std::atan2(posyP, posxP);
   //
   //    Get phiPrime of strip
   //
@@ -303,10 +295,10 @@ double StripStereoAnnulusDesign::scaledDistanceToNearestDiode(SiLocalPosition co
   SiLocalPosition posStrip = localPositionOfCell(cellId);
   double posStripxP = m_cosStereo * (posStrip.xEta() - m_R) - m_sinStereo * posStrip.xPhi() + m_R;
   double posStripyP = m_sinStereo * (posStrip.xEta() - m_R) + m_cosStereo * posStrip.xPhi();
-  double posStripphiP = atan2(posStripyP, posStripxP);
+  double posStripphiP = std::atan2(posStripyP, posStripxP);
   int strip, row;
   getStripRow(cellId, &strip, &row);
-  return fabs(posphiP - posStripphiP) / m_pitch[row];
+  return std::abs(posphiP - posStripphiP) / m_pitch[row];
 }
 
 /// Return strip width, centre, length etc. Hard to find if this is used or not.
@@ -382,20 +374,20 @@ void StripStereoAnnulusDesign::distanceToDetectorEdge(SiLocalPosition const & po
   double rOuter = m_stripEndRadius[m_nRows - 1];
   double xEta = pos.xEta();
   double xPhi = pos.xPhi();
-  double r = sqrt(xEta * xEta + xPhi * xPhi);
+  double r = std::sqrt(xEta * xEta + xPhi * xPhi);
   if (r < rInner)
     etaDist = r - rInner;
   else if (r > rOuter)
     etaDist = rOuter - r;
   else
-    etaDist = min(rOuter - r, r - rInner);
+    etaDist = std::min(rOuter - r, r - rInner);
  
 // For phi, we use the Strip frame. Transform to Strip-frame:
   double etaStrip = m_cosStereo * (xEta - m_R) - m_sinStereo * xPhi + m_R;
   double phiStrip = m_sinStereo * (xEta - m_R) + m_cosStereo * xPhi;
 // Put these into polar coordinates
-  double rStrip = sqrt(etaStrip * etaStrip + phiStrip * phiStrip);
-  double phiAngleStrip = atan2(phiStrip, etaStrip);
+  double rStrip = std::sqrt(etaStrip * etaStrip + phiStrip * phiStrip);
+  double phiAngleStrip = std::atan2(phiStrip, etaStrip);
 
   double phiAngleMax = m_pitch[0] * m_nStrips[0]*0.5;
   double phiAngleMin = -phiAngleMax;
@@ -405,7 +397,7 @@ void StripStereoAnnulusDesign::distanceToDetectorEdge(SiLocalPosition const & po
   else if (phiAngleStrip > phiAngleMax)
     phiDist = rStrip * (phiAngleMax - phiAngleStrip);
   else
-    phiDist = rStrip * min(phiAngleMax - phiAngleStrip, phiAngleStrip - phiAngleMin);
+    phiDist = rStrip * std::min(phiAngleMax - phiAngleStrip, phiAngleStrip - phiAngleMin);
 
   return;
 }
@@ -425,7 +417,7 @@ double StripStereoAnnulusDesign::stripLength(const InDetDD::SiCellId &cellId) co
   std::pair<SiLocalPosition, SiLocalPosition> end = endsOfStrip(lpoc);
   double dx = end.second.xEta() - end.first.xEta();
   double dy = end.second.xPhi() - end.first.xPhi();
-  return sqrt(dx * dx + dy * dy);
+  return std::sqrt(dx * dx + dy * dy);
 }
 
 

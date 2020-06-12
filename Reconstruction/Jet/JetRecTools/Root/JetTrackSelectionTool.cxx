@@ -20,8 +20,10 @@ StatusCode JetTrackSelectionTool::initialize() {
   StatusCode sc = m_hidselector.retrieve();
   if (sc.isFailure()) {ATH_MSG_ERROR("Can't retrieve ITrackSelectorTool "<< m_hidselector.name() ); return sc;}
 
-  ATH_CHECK(m_inCont_key.initialize());
-  ATH_CHECK(m_outCont_key.initialize());
+  if(!(m_inCont_key.key().empty() && m_outCont_key.key().empty())) {
+    ATH_CHECK(m_inCont_key.initialize());
+    ATH_CHECK(m_outCont_key.initialize());
+  }
 
   return StatusCode::SUCCESS;
 }

@@ -1,24 +1,22 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/MsgStream.h"
+#include "MuonCondTool/CSC_DCSConditionsTool.h"
 
 #include "SGTools/TransientAddress.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeListSpecification.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-
 #include "PathResolver/PathResolver.h"
+#include "MuonCondSvc/MdtStringUtils.h"
+
 #include <fstream>
 #include <string>
 #include <algorithm>
 #include <stdio.h>
 #include <map>
-
-#include "MuonCondTool/CSC_DCSConditionsTool.h"
-#include "MuonCondSvc/MdtStringUtils.h"
 
 //**********************************************************
 //* Author Monica Verducci monica.verducci@cern.ch
@@ -27,159 +25,77 @@
 //* retrieving of tables from DB
 //*********************************************************
 
-
-CSC_DCSConditionsTool::CSC_DCSConditionsTool (const std::string& type,
-				    const std::string& name,
-				    const IInterface* parent)
-	  : AthAlgTool(type, name, parent), 
-	    m_IOVSvc(0),
-	    m_muonIdHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-	    m_chronoSvc(0),
-	    m_log( msgSvc(), name ),
-	    m_debug(true),
-	    m_verbose(false) 
-{
-  
+CSC_DCSConditionsTool::CSC_DCSConditionsTool (const std::string& type, const std::string& name, const IInterface* parent) :
+    AthAlgTool(type, name, parent), 
+    m_IOVSvc(nullptr),
+    m_chronoSvc(nullptr) {
   declareInterface< ICSC_DCSConditionsTool >(this);
-  
-  
   m_DataLocation="keyCSCDCS";
   declareProperty("HVFolder",     m_hvFolder="/CSC/DCS/LAYERSTATE");
   declareProperty("ChamberFolder",     m_chamberFolder="/CSC/DCS/ENABLEDCHAMBERS");
 }
 
-
-//StatusCode CSC_DCSConditionsTool::updateAddress(SG::TransientAddress* /*tad*/)
 StatusCode CSC_DCSConditionsTool::updateAddress(StoreID::type /*storeID*/,
                                                 SG::TransientAddress* /*tad*/,
-                                                const EventContext& /*ctx*/)
-{
+                                                const EventContext& /*ctx*/) {
   return StatusCode::FAILURE;
 }
-	
 
-
-StatusCode CSC_DCSConditionsTool::initialize()
-{
-
-  m_log.setLevel(msgLevel());
-  m_debug = m_log.level() <= MSG::DEBUG;
-  m_verbose = m_log.level() <= MSG::VERBOSE;
-  
-  m_log << MSG::INFO << "Initializing - folders names are: ChamberDropped "<<m_chamberFolder << " Hv " << m_hvFolder<< endmsg;
-  
+StatusCode CSC_DCSConditionsTool::initialize() {
+  ATH_MSG_INFO("Initializing - folders names are: ChamberDropped "<<m_chamberFolder << " Hv " << m_hvFolder);
   // Get interface to IOVSvc
-  m_IOVSvc = 0;
   bool CREATEIF(true);
-  StatusCode sc = service( "IOVSvc", m_IOVSvc, CREATEIF );
-  if ( sc.isFailure() )
-    {
-      m_log << MSG::ERROR << "Unable to get the IOVSvc" << endmsg;
-      return StatusCode::FAILURE;
-    }
-  
-  if(sc.isFailure()) return StatusCode::FAILURE;
-  
-  
-  
+  ATH_CHECK(service( "IOVSvc", m_IOVSvc, CREATEIF));
   // initialize the chrono service
-  sc = service("ChronoStatSvc",m_chronoSvc);
-  if (sc != StatusCode::SUCCESS) {
-    m_log << MSG::ERROR << "Could not find the ChronoSvc" << endmsg;
-    return sc;
-  }
-	
- 
-  
-  if(sc.isFailure()) return StatusCode::FAILURE;
-  
-  return m_muonIdHelperTool.retrieve();
+  ATH_CHECK(service("ChronoStatSvc",m_chronoSvc));
+  ATH_CHECK(m_idHelperSvc.retrieve());
+  return StatusCode::SUCCESS;
 }
 
-
-StatusCode CSC_DCSConditionsTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
-{
- 
-  m_log.setLevel(msgLevel());
-  m_debug = m_log.level() <= MSG::DEBUG;
-  m_verbose = m_log.level() <= MSG::VERBOSE;	 
- 
+StatusCode CSC_DCSConditionsTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys)) {
   std::list<std::string>::const_iterator itr;
   for (itr=keys.begin(); itr!=keys.end(); ++itr) {
-    m_log << MSG::INFO <<"LoadParameters "<< *itr << " I="<<I<<" "<<endmsg;
+    ATH_MSG_INFO("LoadParameters "<< *itr << " I="<<I<<" ");
     if (*itr==m_hvFolder) {
-      StatusCode sc = loadHV(I,keys);
-      if (sc.isFailure())
-	{
-	  return sc;
-	}
+      ATH_CHECK(loadHV(I,keys));
     }else if(*itr==m_chamberFolder) {
-      StatusCode sc = loadchamber(I,keys);
-      if (sc.isFailure())
-	{
-	  return sc;
-	}
+      ATH_CHECK(loadchamber(I,keys));
     }
-    
   }
-  
-	  return StatusCode::SUCCESS;
+	return StatusCode::SUCCESS;
 }
 
-
-
-StatusCode CSC_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
-{
-  m_log.setLevel(msgLevel());
-  m_debug = m_log.level() <= MSG::DEBUG;
-  m_verbose = m_log.level() <= MSG::VERBOSE;
-
-  StatusCode sc=StatusCode::SUCCESS;
-  m_log << MSG::INFO << "Load HV from DCS DB" << endmsg;
-  const CondAttrListCollection * atrc;
-  m_log << MSG::INFO << "Try to read from folder <"<<m_hvFolder<<">"<<endmsg;
-
+StatusCode CSC_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys)) {
+  ATH_MSG_INFO("Load HV from DCS DB");
+  const CondAttrListCollection* atrc=nullptr;
+  ATH_MSG_INFO("Try to read from folder <"<<m_hvFolder<<">");
   // Print out callback information
-   if( m_debug ) m_log << MSG::DEBUG << "Level " << I << " Keys: ";
+  if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Level " << I << " Keys: ");
   std::list<std::string>::const_iterator keyIt = keys.begin();
-  for (; keyIt != keys.end(); ++ keyIt)  if( m_debug ) m_log << MSG::DEBUG << *keyIt << " ";
-   if( m_debug ) m_log << MSG::DEBUG << endmsg;
-  
+  for (; keyIt != keys.end(); ++ keyIt)  if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG(*keyIt << " ");  
 
-  sc=detStore()->retrieve(atrc,m_hvFolder);
-  
-  if(sc.isFailure())  {
-    m_log << MSG::ERROR
-	<< "could not retreive the CondAttrListCollection from DB folder " 
-	<<  m_hvFolder << endmsg;
-    return sc;
-  }
-  
-  else
-    m_log<<MSG::INFO<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endmsg;
+  ATH_CHECK(detStore()->retrieve(atrc,m_hvFolder));
+  ATH_MSG_INFO("CondAttrListCollection from DB folder have been obtained with size "<< atrc->size());
   
   CondAttrListCollection::const_iterator itr;
   Identifier ChamberId;
-  unsigned int layer_index=0; 
-  unsigned int chan_index=0; 
-  //Identifier name_control;
-  
+  unsigned int layer_index=0;
+  unsigned int chan_index=0;
   std::map<Identifier,int>::const_iterator it;
   std::pair<std::map<Identifier,int>::const_iterator,bool> ret;
   
   int hv_state, lv_state, hv_setpoint0, hv_setpoint1;
   for (itr = atrc->begin(); itr != atrc->end(); ++itr){
     
-    if( m_debug ) m_log<<MSG::DEBUG<<"index "<<chan_index<< "  chanNum :" <<atrc->chanNum(chan_index)<< endmsg;
+    if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("index "<<chan_index<< "  chanNum :" <<atrc->chanNum(chan_index));
     unsigned int chanNum=atrc->chanNum(chan_index);
     
     
     std::string csc_chan_name=atrc->chanName(chanNum);
     itr=atrc-> chanAttrListPair(chanNum);
     const coral::AttributeList& atr=itr->second;
-    if( m_debug ) m_log<<MSG::DEBUG<<" CondAttrListCollection ChanNum : "<<chanNum<<" AttributeList  size : " << atr.size()<< " Channel Name = "<< csc_chan_name <<endmsg;
+    if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG(" CondAttrListCollection ChanNum : "<<chanNum<<" AttributeList  size : " << atr.size()<< " Channel Name = "<< csc_chan_name);
     
-    //if(atr.size()==1){
     if(atr.size()){
     
     hv_state=*(static_cast<const int*>((atr["HVState"]).addressOfData()));
@@ -192,12 +108,11 @@ StatusCode CSC_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
     std::string delimiter = "_";
     std::vector<std::string> tokens;
     MuonCalib::MdtStringUtils::tokenize(csc_chan_name,tokens,delimiter);
-    //  if( m_debug ) m_log<<MSG::DEBUG<<" CondAttrListCollection ChanNum : "<<chanNum<<" ChanName : " << atrc->chanName(chanNum) << " tokens[0] "<<tokens[0] <<endmsg;
 
     for (unsigned int i=0; i<tokens.size(); i++) {
       
       if(tokens[i]!="0"){
-	 if( m_debug ) m_log << MSG::DEBUG << "Sequence for name string load is \n" << tokens[i]<< endmsg; 
+	 if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Sequence for name string load is \n" << tokens[i]); 
       }
       
     }
@@ -206,7 +121,7 @@ StatusCode CSC_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
 
     if((hv_state!=1 or lv_state!=1 or hv_setpoint0 <1000 or hv_setpoint1 <1000) && tokens.size()!=0){
       
-      if( m_debug ) m_log << MSG::DEBUG << "NOT 0 HV : " << hv_state << " ChamberName : "<<tokens[0] << "wirelayer" << tokens[1]<<endmsg;	
+      if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("NOT 0 HV : " << hv_state << " ChamberName : "<<tokens[0] << "wirelayer" << tokens[1]);
       int eta=0; int phi=0;
       //std::string chamber_name;
       std::string layer = tokens[1];
@@ -231,22 +146,20 @@ StatusCode CSC_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
       if (sector_side == "13" || sector_side == "14") phi=7;
       if (sector_side == "15" || sector_side == "16") phi=8;
       
-      ChamberId = m_muonIdHelperTool->cscIdHelper().elementID(chamber_name, eta, phi);
-      Identifier WireLayerId = m_muonIdHelperTool->cscIdHelper().channelID(ChamberId, 1, wirelayer,1,1);
-      if( m_debug ) m_log<<MSG::DEBUG<< "chamber Name = " <<chamber_name<< endmsg;
+      ChamberId = m_idHelperSvc->cscIdHelper().elementID(chamber_name, eta, phi);
+      Identifier WireLayerId = m_idHelperSvc->cscIdHelper().channelID(ChamberId, 1, wirelayer,1,1);
+      if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("chamber Name = " <<chamber_name);
       std::string WireLayerstring = chamber_name+"_"+eta_side+"_"+sector_side+"_"+layer;  
       m_cachedDeadWireLayers.push_back(WireLayerstring);
-       if( m_debug ) m_log<<MSG::DEBUG<< "Layers Off = " <<WireLayerstring<< endmsg;
+       if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Layers Off = " <<WireLayerstring);
       m_cachedDeadWireLayersId.push_back(WireLayerId);
-      
-      //m_CSC_LayerMap.insert(std::make_pair(ChamberId,wirelayer));
-      //ret= m_CSC_LayerMap.insert(std::make_pair(ChamberId,wirelayer));
-      //if (ret.second==false)
+
       if(m_CSC_LayerMap.count(ChamberId))
 	{
-	  if( m_debug ) m_log<<MSG::DEBUG<< "element 'ChamberId' already existed";
-	  //if( m_debug ) m_log<<MSG::DEBUG<< " with a value of " << ret.first->second << endmsg;
-	  if( m_debug ) m_log<<MSG::DEBUG<< " with a value of " << m_CSC_LayerMap[ChamberId] << endmsg;
+	  if (msgLvl(MSG::DEBUG)) {
+      ATH_MSG_DEBUG("element 'ChamberId' already existed");
+      ATH_MSG_DEBUG(" with a value of " << m_CSC_LayerMap[ChamberId]);
+    }
 	  layer_index++;
 	}
       m_CSC_LayerMap[ChamberId]=wirelayer;
@@ -258,59 +171,34 @@ StatusCode CSC_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
     if(layer_index==3) {
       m_cachedDeadStations.push_back(ChamberId);
       
-      if( m_debug ) m_log << MSG::DEBUG << "layers " << layer_index << " ChamberId : "<<ChamberId <<endmsg;	
+      if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("layers " << layer_index << " ChamberId : "<<ChamberId);	
       layer_index=0;
     }
   
     chan_index++;
     
   }
-  
-
-  
-  
   return StatusCode::SUCCESS;
-  
-  }
+
+}
 
 
 
 
-StatusCode CSC_DCSConditionsTool::loadchamber(IOVSVC_CALLBACK_ARGS_P(I,keys))
-{
- 
-
-  m_log.setLevel(msgLevel());
-  m_debug = m_log.level() <= MSG::DEBUG;
-  m_verbose = m_log.level() <= MSG::VERBOSE;
-
-  StatusCode sc=StatusCode::SUCCESS;
-  m_log << MSG::INFO << "Load chamber from DCS DB" << endmsg;
-
+StatusCode CSC_DCSConditionsTool::loadchamber(IOVSVC_CALLBACK_ARGS_P(I,keys)) {
+  ATH_MSG_INFO("Load chamber from DCS DB");
   // Print out callback information
-   if( m_debug ) m_log << MSG::DEBUG << "Level " << I << " Keys: ";
+  if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Level " << I << " Keys: ");
   std::list<std::string>::const_iterator keyIt = keys.begin();
-  for (; keyIt != keys.end(); ++ keyIt)  if( m_debug ) m_log << MSG::DEBUG << *keyIt << " ";
-  if( m_debug ) m_log << MSG::DEBUG << endmsg;
-  
+  for (; keyIt != keys.end(); ++ keyIt)  if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG(*keyIt << " ");
  
-  const CondAttrListCollection * atrc;
-  m_log << MSG::INFO << "Try to read from folder <"<<m_chamberFolder<<">"<<endmsg;
+  const CondAttrListCollection* atrc=nullptr;
+  ATH_MSG_INFO("Try to read from folder <"<<m_chamberFolder<<">");
 
-  sc=detStore()->retrieve(atrc,m_chamberFolder);
-  
-  if(sc.isFailure())  {
-    m_log << MSG::ERROR
-	<< "could not retreive the CondAttrListCollection from DB folder " 
-	<<  m_chamberFolder << endmsg;
-    return sc;
-  }
-  
-  else
-    m_log<<MSG::INFO<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endmsg;
+  ATH_CHECK(detStore()->retrieve(atrc,m_chamberFolder));
+  ATH_MSG_INFO(" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size());
   
   CondAttrListCollection::const_iterator itr;
-  Identifier ChamberId;
   
   std::map<Identifier,int>::const_iterator it;
 
@@ -321,7 +209,7 @@ StatusCode CSC_DCSConditionsTool::loadchamber(IOVSVC_CALLBACK_ARGS_P(I,keys))
   for (itr = atrc->begin(); itr != atrc->end(); ++itr){
     
     const coral::AttributeList& atr=itr->second;
-     if( m_debug ) m_log<<MSG::DEBUG<<"AttributeList  size : " << atr.size() <<endmsg;
+     if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("AttributeList  size : " << atr.size());
     
     std::string chamber_enabled=*(static_cast<const std::string*>((atr["enabledChambers"]).addressOfData()));
     
@@ -342,10 +230,9 @@ StatusCode CSC_DCSConditionsTool::loadchamber(IOVSVC_CALLBACK_ARGS_P(I,keys))
   for(unsigned int count=0; count<chamber_good.size(); count++){
    
     if (binary_search (chamber_v.begin(), chamber_v.end(),chamber_good[count])){
-      if( m_debug ) m_log<<MSG::DEBUG<< "found chamber good!\n" 
-		       <<chamber_v[count] <<endmsg; 
+      if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("found chamber good!\n" <<chamber_v[count]); 
     }else {
-      if( m_debug ) m_log<<MSG::DEBUG << " not found = " << chamber_good[count] << endmsg;
+      if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG(" not found = " << chamber_good[count]);
       m_cachedDeadStationsStr.push_back(chamber_good[count]);
     }
     
@@ -372,7 +259,7 @@ StatusCode CSC_DCSConditionsTool::loadchamber(IOVSVC_CALLBACK_ARGS_P(I,keys))
     if (sector_side == "02" || sector_side == "04" || sector_side == "06"|| sector_side == "08" || sector_side == "10"|| sector_side == "12"|| sector_side == "14"|| sector_side == "16") chamber_name = "CSS";
 
     
-    Identifier ChamberId = m_muonIdHelperTool->cscIdHelper().elementID(chamber_name, eta, phi);
+    Identifier ChamberId = m_idHelperSvc->cscIdHelper().elementID(chamber_name, eta, phi);
     m_cachedDeadStationsId_chamber.push_back(ChamberId);
     
         
@@ -380,21 +267,13 @@ StatusCode CSC_DCSConditionsTool::loadchamber(IOVSVC_CALLBACK_ARGS_P(I,keys))
   
   //merge deadStationsId with deadWireStationsId, then sort the vector elements and
   //finally remove duplicates
-
-  if( m_verbose ) m_log << MSG::VERBOSE << "Now merging the  DeadStationsId with DeadWireStationsId" <<  endmsg;
+  if (msgLvl(MSG::VERBOSE)) ATH_MSG_VERBOSE("Now merging the  DeadStationsId with DeadWireStationsId");
   m_cachedDeadStationsId.insert( m_cachedDeadStationsId.end(),
 				 m_cachedDeadStationsId_chamber.begin(),m_cachedDeadStationsId_chamber.end());
   std::sort(m_cachedDeadStationsId.begin(),m_cachedDeadStationsId.end(),compareId);  
   std::vector<Identifier>::const_iterator itId;
   itId= std::unique(m_cachedDeadStationsId.begin(),m_cachedDeadStationsId.end());
   m_cachedDeadStationsId.resize(itId -m_cachedDeadStationsId.begin());
-  
-      
 
-  
-   
   return StatusCode::SUCCESS;
- 
-
- 
 }

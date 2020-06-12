@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@
 ///////////////////////////////////////////////////////////////////
 
 
-#include "TRT_DriftFunctionTool/TRT_DriftFunctionTool.h"
+#include "TRT_DriftFunctionTool.h"
 
 #include "GaudiKernel/IToolSvc.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
@@ -34,7 +34,7 @@
 TRT_DriftFunctionTool::TRT_DriftFunctionTool(const std::string& type,
 				     const std::string& name,
 				     const IInterface* parent)
-  : AthAlgTool(type, name, parent),
+  : base_class(type, name, parent),
     m_TRTCalDbTool("TRT_CalDbTool",this),
     m_TRTCalDbTool2("",this),
     m_drifttimeperbin(3.125 * CLHEP::ns),
@@ -65,7 +65,6 @@ TRT_DriftFunctionTool::TRT_DriftFunctionTool(const std::string& type,
     m_tot_corrections_barrel_Ar(20, 0.), // initialised from python
     m_tot_corrections_endcap_Ar(20, 0.) // initialised from python
 {
-  declareInterface<ITRT_DriftFunctionTool>(this);
   m_drifttimeperhalfbin = m_drifttimeperbin/2.;
   declareProperty("IsMC",m_ismc);
   declareProperty("AllowDigiVersionOverride",m_allow_digi_version_override);
@@ -124,9 +123,6 @@ TRT_DriftFunctionTool::TRT_DriftFunctionTool(const std::string& type,
 //
 // Destructor--------------------------------------------------
 TRT_DriftFunctionTool::~TRT_DriftFunctionTool(){}
-
-const InterfaceID& TRT_DriftFunctionTool::interfaceID( )
-{ return IID_ITRT_DriftFunctionTool; }
 
 //
 // Initialize--------------------------------------------------

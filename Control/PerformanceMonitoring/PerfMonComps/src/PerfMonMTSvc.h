@@ -11,6 +11,7 @@
 
 // Framework includes
 #include "AthenaBaseComps/AthService.h"
+#include "GaudiKernel/IIncidentListener.h"
 
 // PerfMonKernel includes
 #include "PerfMonKernel/IPerfMonMTSvc.h"
@@ -34,7 +35,7 @@
 #include <cmath>
 #include <functional>
 
-class PerfMonMTSvc : virtual public IPerfMonMTSvc, public AthService {
+class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListener, public AthService {
  public:
   /// Standard Gaudi Service constructor
   PerfMonMTSvc(const std::string& name, ISvcLocator* pSvcLocator);
@@ -44,6 +45,9 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, public AthService {
 
   /// Function declaring the interface(s) implemented by the service
   virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
+
+  /// Incident service handle for post-finalize
+  virtual void handle( const Incident& incident ) override;
 
   /// Standard Gaudi Service initialization
   virtual StatusCode initialize() override;
@@ -74,7 +78,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, public AthService {
   /// Report the results
   void report();
 
-  /// Report to stdout
+  /// Report to log
   void report2Log();
   void report2Log_Description() const;
   void report2Log_ComponentLevel();
@@ -86,10 +90,8 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, public AthService {
   /// Report to the JSON File
   void report2JsonFile();
   void report2JsonFile_Summary(nlohmann::json& j) const;
-  void report2JsonFile_ComponentLevel_Time(nlohmann::json& j) const;
-  void report2JsonFile_EventLevel_Time(nlohmann::json& j) const;
-  void report2JsonFile_ComponentLevel_Mem(nlohmann::json& j) const;
-  void report2JsonFile_EventLevel_Mem(nlohmann::json& j);
+  void report2JsonFile_ComponentLevel(nlohmann::json& j) const;
+  void report2JsonFile_EventLevel(nlohmann::json& j) const;
 
   /// A few helper functions
   bool isPower(uint64_t input, uint64_t base);  // check if input is power of base or not
@@ -125,7 +127,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, public AthService {
       "True if component level monitoring is enabled, false o/w. Component monitoring may cause a decrease in the "
       "performance due to the usage of locks."};
   /// Report results to JSON
-  Gaudi::Property<bool> m_reportResultsToJSON{this, "reportResultsToJSON", false, "Report results into the json file."};
+  Gaudi::Property<bool> m_reportResultsToJSON{this, "reportResultsToJSON", true, "Report results into the json file."};
   /// Name of the JSON file
   Gaudi::Property<std::string> m_jsonFileName{this, "jsonFileName", "PerfMonMTSvc_result.json",
                                               "Name of the JSON file that contains the results."};
@@ -138,7 +140,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, public AthService {
       "Type of the check point sequence: Arithmetic(0, k, 2k...) or Geometric(0,k,k^2...)."};
   /// Frequency of event level monitoring
   Gaudi::Property<uint64_t> m_checkPointFactor{
-      this, "checkPointFactor", 10,
+      this, "checkPointFactor", 50,
       "Common difference if check point sequence is arithmetic, Common ratio if it is Geometric."};
   /// Offset for the wall-time, comes from configuration
   Gaudi::Property<double> m_wallTimeOffset{this, "wallTimeOffset", 0, "Job start wall time in miliseconds."};
@@ -149,6 +151,8 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, public AthService {
   Gaudi::Property<int> m_numberOfThreads{this, "numberOfThreads", 1, "Number of threads in the job."};
   /// Get the number of slots
   Gaudi::Property<int> m_numberOfSlots{this, "numberOfSlots", 1, "Number of slots in the job."};
+  /// Set the number of messages for the event-level report
+  Gaudi::Property<unsigned long> m_eventLoopMsgLimit{this, "eventLoopMsgLimit", 10, "Maximum number of event-level messages."};
 
   /// Snapshots data
   std::vector<PMonMT::MeasurementData> m_snapshotData;
@@ -163,6 +167,9 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, public AthService {
 
   // Count the number of events processed
   std::atomic<unsigned long long> m_eventCounter;
+
+  // Instant event-loop report counter
+  std::atomic<unsigned long> m_eventLoopMsgCounter;
 
   /* 
    * Data structure  to store component level measurements

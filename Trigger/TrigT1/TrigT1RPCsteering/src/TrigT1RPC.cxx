@@ -65,7 +65,7 @@ StatusCode TrigT1RPC::execute() {
 
     ATH_MSG_DEBUG ("in execute()");
 
-    SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey};
+    SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey, Gaudi::Hive::currentContext()};
     const RpcCablingCondData* readCdo{*readHandle};
     
     RPCsimuData data;         // instanciate the container for the RPC digits
@@ -290,7 +290,7 @@ StatusCode TrigT1RPC::fill_RPCdata(RPCsimuData& data, const RpcCablingCondData* 
  
         Identifier moduleId = rpcCollection->identify();
 
-	if (m_idHelperSvc->rpcIdHelper().is_rpc(moduleId))
+	if (m_idHelperSvc->isRpc(moduleId))
         {
             digit_iterator it1_digit = rpcCollection->begin();
             digit_iterator it2_digit = rpcCollection->end();

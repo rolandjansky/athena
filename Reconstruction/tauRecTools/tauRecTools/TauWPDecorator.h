@@ -6,9 +6,11 @@
 #define TAUREC_TAUWPDECORATOR_H
 
 #include "tauRecTools/TauRecToolBase.h"
+
 #include "xAODTau/TauDefs.h"
-#include "xAODTau/TauJet.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "AsgDataHandles/ReadHandleKey.h"
+
 #include <map>
 
 class TH2;
@@ -34,11 +36,11 @@ public:
 
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
-    virtual StatusCode execute(xAOD::TauJet& pTau) override;
+    virtual StatusCode execute(xAOD::TauJet& pTau) const override;
 
     virtual StatusCode retrieveHistos(int nProng);
     virtual StatusCode storeLimits(int nProng);
-    virtual double transformScore(double score, double cut_lo, double eff_lo, double cut_hi, double eff_hi);
+    virtual double transformScore(double score, double cut_lo, double eff_lo, double cut_hi, double eff_hi) const;
 
 private:
     std::string m_file0P;

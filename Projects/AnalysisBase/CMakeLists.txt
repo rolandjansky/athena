@@ -19,6 +19,11 @@ set( AnalysisBaseReleaseEnvironment_DIR ${CMAKE_SOURCE_DIR}/cmake CACHE PATH
    "Path to AnalysisBaseReleaseEnvironmentConfig.cmake" )
 find_package( AnalysisBaseReleaseEnvironment REQUIRED )
 
+# Set up where to find the xAODUtilities CMake code.
+set( xAODUtilities_DIR
+   "${CMAKE_SOURCE_DIR}/../../Event/xAOD/xAODCore/cmake"
+   CACHE PATH "Directory holding the xAODUtilities module" )
+
 # Make the local CMake files visible to AtlasCMake.
 list( INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake )
 
@@ -29,10 +34,19 @@ atlas_ctest_setup()
 atlas_project( USE AnalysisBaseExternals ${AnalysisBaseExternals_VERSION}
    PROJECT_ROOT ${CMAKE_SOURCE_DIR}/../../ )
 
-# Configure and install the post-configuration file:
+# Configure flake8:
+set( ATLAS_FLAKE8 true   # <- this is the shell builtin `true`
+   CACHE STRING "Default flake8 command" )
+set( ATLAS_PYTHON_CHECKER ""
+   CACHE STRING "Python checker command to run during Python module compilation" )
+
+# Configure and install the pre/post-configuration files:
+configure_file( ${CMAKE_SOURCE_DIR}/cmake/PreConfig.cmake.in
+   ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PreConfig.cmake @ONLY )
 configure_file( ${CMAKE_SOURCE_DIR}/cmake/PostConfig.cmake.in
    ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake @ONLY )
-install( FILES ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake
+install( FILES ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PreConfig.cmake
+               ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake
    DESTINATION ${CMAKE_INSTALL_CMAKEDIR} )
 
 # Generate replacement rules for the installed paths:
@@ -50,6 +64,10 @@ lcg_generate_env(
    REPLACE ${_replacements} )
 install( FILES ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/env_setup_install.sh
    DESTINATION . RENAME env_setup.sh )
+
+# Install graphviz output if available:
+install( FILES ${CMAKE_BINARY_DIR}/packages.dot
+   DESTINATION . OPTIONAL )
 
 # Set up the release packaging:
 atlas_cpack_setup()

@@ -49,6 +49,10 @@ xbinstotz= [    3,    3,  13,  13,  13,   20,     3,     3]
 xminstotz= [ -0.5, -0.5,-0.5,-0.5,-0.5, -0.5,  -0.5,  -0.5]
 ztotbinsy= [   20,   20,  20,  20,  20,   20,    20,    20]
 ztotminsy= [ 19.5, 19.5, 7.5,19.5,19.5, -0.5,  -0.5,  -0.5]
+errbbinsy= [   32,   32,  32,  32,  32,   40,    40,    40]
+errbminsy= [    0,    0,   0,   0,   0,    0,     0,     0]
+errbbsizy= [    1,    1,   1,   1,   1,    1,     1,     1]
+errtbinsy= [    7,    7,   7,   7,   7,    7,     7,     7]
 
 pp0layers= ["ECA","ECC","B0","B1","B2","IBLA","IBLC"]
 pp0xbins = [   24,   24,  22,  38,  52,   14,     14]
@@ -138,6 +142,112 @@ PP0sEC = [
     "D3_B01_S2", "D3_B02_S1", "D3_B02_S2", "D3_B03_S1", "D3_B03_S2", "D3_B04_S1", "D3_B04_S2", "D3_B01_S1"]
 
 PP0LabelX = [PP0sEC, PP0sEC, StavesL0, StavesL1, StavesL2, StavesIBL, StavesIBL]
+
+#Errors
+ErrBitsFEI3 = [
+    "ROD Overflow Trunc",        "ROD H/T Limit Trunc",       "2",                     "3",
+    "FE/MCC EoC Trunc",          "SEU Hit Parity",            "SEU Register Parity",   "SEU Hamming Code",
+    "FE Warning (Bit Flip)",     "9",                         "10",                    "11",
+    "FE/MCC Hit Overflow Trunc", "FE/MCC EoE Overflow Trunc", "FE/MCC BCID1 Sync",     "FE/MCC BCID2 Sync",
+    "FE/MCC LVL1ID Sync",        "17",                        "18",                    "19",
+    "ROD BCID Sync",             "ROD LVL1ID Sync",           "ROD Formatter Timeout", "Preamble/Header",
+    "24",                        "25",                        "26",                    "27",
+    "28",                        "29",                        "30",                    "31"]
+
+ErrBitsFEI4 = [
+    "Row/ Column Error",         "Limit Error",          "Trailer Error",        "BCID Error",
+    "LVL1ID Error",              "Preamble Error",       "Masked Link",          "Timeout Error",
+    "BCID counter",              "Hamming code 0",       "Hamming code 1",       "Hamming code 2",
+    "L1_in counter",             "L1 request counter",   "L1 register",          "L1 Trigger ID",
+    "Readout processor",         "17",                   "18",                   "19",
+    "20",                        "21",                   "22",                   "Skipped trig counter",
+    "Truncated event flag",      "25",                   "26",                   "27",
+    "28",                        "29",                   "30"                    "31"
+    "Triple redundant CNFGMEM",  "Write reg data",       "Address error",        "Other CMD decoder",
+    "CMD decoder bit flip",      "CMD decoder SEU",      "Data bus address",     "Triple redundant EFUSE"]
+
+ErrBitLabels = [ErrBitsFEI3, ErrBitsFEI3, ErrBitsFEI3, ErrBitsFEI3, ErrBitsFEI3, ErrBitsFEI4, ErrBitsFEI4, ErrBitsFEI4]
+
+ErrStateLabelsFEI3 = [
+      ("Mod_Sync_BCID1_errors", "FE/MCC BCID1 Sync Errors"),
+      ("Mod_Sync_BCID2_errors", "FE/MCC BCID2 Sync Errors"),
+      ("Mod_Sync_LVL1ID_errors", "FE/MCC LVL1ID Sync Errors"),
+      ("ROD_Sync_BCID_errors", "ROD BCID Sync Errors"),
+      ("ROD_Sync_LVL1ID_errors", "ROD LVL1ID Sync Errors"),
+      ("Mod_Trunc_EOC_errors", "FE/MCC EoC Trunc Errors"),
+      ("Mod_Trunc_Hit_Overflow_errors", "FE/MCC Hit Overflow Trunc Errors"),
+      ("Mod_Trunc_EoE_Overflow_errors", "FE/MCC EoE Overflow Trunc Errors"),
+      ("ROD_Trunc_HT_Limit_errors", "ROD H/T Limit Trunc Errors"),
+      ("ROD_Trunc_ROD_OF_errors", "ROD Overflow Trunc Errors"),
+      ("Optical_Errors", "Preamble/Header Errors"),
+      ("SEU_Hit_Parity", "SEU Hit Parity Errors"),
+      ("SEU_Register_Parity", "SEU Register Parity Errors"),
+      ("SEU_Hamming", "SEU Hamming Code Errors"),
+      ("ROD_Timeout", "ROD Formatter Timeout Errors"),
+      ("FE_Warning", "FE Warning Errors"),
+]
+ErrStateLabelsFEI4 = [
+      ("ROD_BCID_errors", "ROD BCID synchronization errors"),
+      ("ROD_LVL1ID_errors", "ROD LVL1ID synchronization errors"),
+      ("SR_BCID_counter_errors", "SR BCID counter errors"),
+      ("SR_L1_in_counter_errors", "SR L1 in counter errors"),
+      ("SR_L1_request_counter_errors", "SR L1 request counter errors"),
+      ("SR_L1_register_errors", "SR L1 register errors"),
+      ("SR_L1_Trigger_ID_errors", "SR L1 trigger ID errors"),
+      ("SR_Skippped_trig_count_errors", "SR Skipped trigger counter errors"),
+      ("SR_Row-Column_errors", "SR row-column errors"),
+      ("SR_Limit_errors", "SR Header Trailer limit errors"),
+      ("SR_Truncated_event_flag_errors", "SR Truncated event errors"),
+      ("ROD_Preamble_errors", "ROD Preamble errors"),
+      ("SR_Hamming_code_0_errors", "SR Hamming code in word 0 errors"),
+      ("SR_Hamming_code_1_errors", "SR Hamming code in word 1 errors"),
+      ("SR_Hamming_code_2_errors", "SR Hamming code in word 2 errors"),
+      ("SR_Triple_redundant_errors_CNFGMEM", "SR Triple redundant errors CNFGMEM"),
+      ("SR_CMD_decoder_bitflip_errors", "SR CMD decoder bit flip errors"),
+      ("SR_Triple_redundant_errors_CMD", "SR Triple redundant errors CMD"),
+      ("SR_Triple_redundant_errors_EFUSE", "SR Triple redundant errors EFUSE"),
+      ("ROD_Trailer_errors", "ROD Trailer errors"),
+      ("ROD_Timeout_errors", "ROD Timeout errors"),
+      ("SR_Masked_link", "SR Masked link errors"),
+      ("SR_FE_readout_process_errors", "SR FE readout process errors"),
+      ("SR_Write_reg_data_errors", "SR Write register data errors"),
+      ("SR Address_errors", "SR Address errors"),
+      ("SR_Other_CMD_decoder_errors", "SR CMD decoder errors"),
+      ("SR_Data_bus_address_errors", "SR Data bus address errors")
+]
+
+ErrCatRODModLabels = [
+      ("SyncErrors_Mod", "FE/MCC Sync Errors"),
+      ("SyncErrors_ROD", "ROD Sync Errors"),
+      ("TruncErrors_Mod", "FE/MCC Trunc Errors"),
+      ("TruncErrors_ROD", "ROD Trunc Errors"),
+      ("OpticalErrors_RODMod", "Preamble/Header Errors"),
+      ("SEUErrors_RODMod", "SEU Errors"),
+      ("TimeoutErrors_RODMod", "Timeout Errors")
+]
+
+ErrCatRODModLabelsNorm = [
+      "SyncErrors_Mod_Frac_per_event",
+      "SyncErrors_ROD_Frac_per_event",
+      "TruncErrors_Mod_Frac_per_event",
+      "TruncErrors_ROD_Frac_per_event"
+]
+
+ErrCatLabels = [
+      ("SyncErrors", "Sync Errors (FE/MCC & ROD)"),
+      ("TruncErrors", "Trunc Errors (FE/MCC & ROD)"),
+      ("OpticalErrors", "Preamble/Header Errors"),
+      ("SEUErrors", "SEU Errors"),
+      ("TimeoutErrors", "Timeout Errors")
+]
+
+ErrCatLabelsNorm = [
+      "SyncErrorsFrac_per_event", 
+      "TruncationErrorsFrac_per_event", 
+      "OpticalErrorsFrac_per_event", 
+      "SEUErrorsFrac_per_event", 
+      "TimeoutErrorsFrac_per_event"
+]
 
 layergroups = {}
 def getLayerGroup(helper, alg, layer):
@@ -247,7 +357,7 @@ def define1DProfLumiLayers(helper, alg, name, title, path, yaxistext, type='TPro
                                     type=type, path=path, title=fulltitle,
                                     xbins=lumibinsx, xmin=-0.5, xmax=-0.5+lumibinsx)
 
-def defineMapVsLumiLayers(helper, alg, name, title, path, xaxistext, yaxistext, ybins, ymins, binsizes=[1.0], type='TH2F', histname=None):
+def defineMapVsLumiLayers(helper, alg, name, title, path, xaxistext, yaxistext, ybins, ymins, binsizes=[1.0], ylabels=None, type='TH2F', histname=None):
     '''
     This function configures 2D histograms vs lumi for Pixel layers.
 
@@ -259,7 +369,7 @@ def defineMapVsLumiLayers(helper, alg, name, title, path, xaxistext, yaxistext, 
          path    -- Path in ouput file for histogram
          ybins, ymin, ymax, yaxistext
                  -- Configure Y-axis
-         type    -- Type of TH2 histogram (TH2I, TH2F)
+         type    -- Type of histogram (TH2I, TH2F, TProfile2D)
          histname-- alternative root name of the histogram (to be filled with the same variables defined by 'name' above)  
     '''
 
@@ -269,6 +379,7 @@ def defineMapVsLumiLayers(helper, alg, name, title, path, xaxistext, yaxistext, 
         fulltitle   = title + ' {0}'.format(layer) + runtext + lumitext + yaxistext
         layerGroup = getLayerGroup(helper, alg, layer)
         fullvarstring = '{0}_{1}'.format(name,'lb')
+        if 'Profile' in type: fullvarstring += ',{0}_{1}'.format(name, 'cat')
         fullvarstring += ',{0}_{1}'.format(name, 'val')
         fullvarstring += ';' + histname  + '_{0}'.format(layer)
         if ( len(ybins)==1 and len(ymins)==1 and len(binsizes)==1):
@@ -276,11 +387,11 @@ def defineMapVsLumiLayers(helper, alg, name, title, path, xaxistext, yaxistext, 
                                        type=type, path=path, title=fulltitle,
                                        xbins=lumibinsx, xmin=-0.5, xmax=-0.5+lumibinsx,
                                        ybins=ybins[0], ymin=ymins[0], ymax=ymins[0]+binsizes[0]*ybins[0])
-        elif (len(ybins)==len(layers) and len(ymins)==len(layers) and len(binsizes)==len(layers)):
+        elif (len(ybins)==len(layers) and len(ymins)==len(layers) and len(binsizes)==len(layers) and len(ylabels)==len(layers)):
             layerGroup.defineHistogram(fullvarstring, 
                                        type=type, path=path, title=fulltitle,
                                        xbins=lumibinsx, xmin=-0.5, xmax=-0.5+lumibinsx,
-                                       ybins=ybins[idx], ymin=ymins[idx], ymax=ymins[idx]+binsizes[idx]*ybins[idx])
+                                       ybins=ybins[idx], ymin=ymins[idx], ymax=ymins[idx]+binsizes[idx]*ybins[idx], ylabels=ylabels[idx])
 
 
 def define1DLayers(helper, alg, name, title, path, xaxistext, yaxistext, xbins, xmins, binsizes=[1.0], type='TH1F', histname=None):

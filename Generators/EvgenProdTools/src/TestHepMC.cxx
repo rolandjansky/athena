@@ -278,9 +278,9 @@ StatusCode TestHepMC::execute() {
     vector<int> undisplaceds;
 
     // Check beams and work out per-event beam energy
-    const pair<HepMC::GenParticle*, HepMC::GenParticle*> beams = evt->beam_particles();
+    const pair<HepMC::GenParticlePtr, HepMC::GenParticlePtr> beams = evt->beam_particles();
     double cmenergy = m_cm_energy;
-    if (!evt->valid_beam_particles()) {
+    if (!HepMC::valid_beam_particles(evt)) {
       ATH_MSG_WARNING("Invalid beam particle pointers -- this generator interface should be fixed");
       if (cmenergy < 0) ATH_MSG_WARNING("Invalid expected beam energy: " << cmenergy << " MeV");
       ++m_invalidBeamParticlesCheckRate;
@@ -321,7 +321,7 @@ StatusCode TestHepMC::execute() {
         ATH_MSG_WARNING("NaN (Not A Number) or inf found in the event record vertex positions");
         
         ++m_vtxNANandINFCheckRate;
-        if (m_dumpEvent) (*itr)->print();
+        if (m_dumpEvent) HepMC::Print::line(std::cout,**itr);
         if (m_vtxNaNTest) {
           filter_pass = false;
         }
@@ -344,18 +344,16 @@ StatusCode TestHepMC::execute() {
       if (dist_trans2 > m_max_dist_trans*m_max_dist_trans) {
         ATH_MSG_WARNING("Found vertex position displaced by more than " << m_max_dist_trans << "mm in transverse distance: " << dist_trans << "mm");
 
-        HepMC::GenVertex::particle_iterator par = (*vitr)->particles_begin(HepMC::parents);
-        for (; par != (*vitr)->particles_end(HepMC::parents); ++par) {
+        for (auto par = vtx->particles_in_const_begin(); par != vtx->particles_in_const_end(); ++par) {
           ATH_MSG_WARNING("Outgoing particle : ");
-          if (m_dumpEvent) (*par)->print();
+          if (m_dumpEvent) HepMC::Print::line(std::cout,*par);
           ATH_MSG_WARNING("production vertex = " << (*par)->production_vertex()->position().x() << ", " << (*par)->production_vertex()->position().y() << ", " << (*par)->production_vertex()->position().z());
           ATH_MSG_WARNING("end vertex        = " << (*par)->end_vertex()->position().x() << ", " << (*par)->end_vertex()->position().y() << ", " << (*par)->end_vertex()->position().z());
           ATH_MSG_WARNING("parents info: ");
           if ((*par)->production_vertex()) {
-            HepMC::GenVertex::particle_iterator p_parents = (*par)->production_vertex()->particles_begin(HepMC::parents);
-            for(; p_parents != (*par)->production_vertex()->particles_end(HepMC::parents); ++p_parents) {
+            for(auto p_parents = (*par)->production_vertex()->particles_in_const_begin(); p_parents != (*par)->production_vertex()->particles_in_const_end(); ++p_parents) {
               // cout << "\t";
-              if (m_dumpEvent) (*p_parents)->print();
+              if (m_dumpEvent) HepMC::Print::line(std::cout,*p_parents);
               ATH_MSG_WARNING("\t");
             }
           } // Done with fancy print
@@ -400,13 +398,13 @@ StatusCode TestHepMC::execute() {
     if (vtxDisplacedstatuscodenot12CheckRateCnt>0) ++m_vtxDisplacedstatuscodenot12CheckRate;
 
     // Check particles
-    for (HepMC::GenEvent::particle_const_iterator pitr = evt->particles_begin(); pitr != evt->particles_end(); ++pitr ) {
+    for (auto pitr = evt->particles_begin(); pitr != evt->particles_end(); ++pitr ) {
 
       // Local loop variables to clean up the check code
       const HepMC::FourVector pmom = (*pitr)->momentum();
       const int pstatus = (*pitr)->status();
       const int ppdgid = (*pitr)->pdg_id();
-      const int pbarcode = (*pitr)->barcode();
+      const int pbarcode = HepMC::barcode(*pitr);
 
       // Check for NaNs and infs in momentum components
       if ( std::isnan(pmom.px()) || std::isinf(pmom.px()) ||
@@ -416,7 +414,7 @@ StatusCode TestHepMC::execute() {
         ATH_MSG_WARNING("NaN (Not A Number) or inf found in the event record momenta");
         ++m_partMomentumNANandINFCheckRate;
         
-        if (m_dumpEvent) (*pitr)->print();
+        if (m_dumpEvent) HepMC::Print::line(std::cout,*pitr);
         if (m_momNaNTest) {
           filter_pass = false;
         }
@@ -437,7 +435,7 @@ StatusCode TestHepMC::execute() {
           double plifetime = pd->lifetime()*1e+12;  // why lifetime doesn't come in common units???
           if (plifetime != 0 && plifetime < m_min_tau) { // particles with infinite lifetime get a 0 in the PDT
             ATH_MSG_WARNING("Stable particle found with lifetime = " << plifetime << "~ns!!");
-            if (m_dumpEvent) (*pitr)->print();
+            if (m_dumpEvent) HepMC::Print::line(std::cout,*pitr);
 
             ++m_Status1ShortLifetime;
             
@@ -458,7 +456,7 @@ StatusCode TestHepMC::execute() {
           } // Look through the SUSY table to see if this one should be counted
           if (susyPart==0){
             ATH_MSG_WARNING("Stable particle not found in PDT, no lifetime check done");
-            if (m_dumpEvent) (*pitr)->print();
+            if (m_dumpEvent) HepMC::Print::line(std::cout,*pitr);
           } // It's a SUSY particle -- skip the lifetime check
         } // The particle has no data table
       } // Test if the particle is stable
@@ -520,11 +518,10 @@ StatusCode TestHepMC::execute() {
       int tau_child = 0;
       if (abs(ppdgid) == m_pdg && (pstatus == 1 || pstatus == 2)) {
         ++m_TotalTaus;
-        HepMC::GenVertex* vtx = (*pitr)->end_vertex();
+        auto vtx = (*pitr)->end_vertex();
         if (vtx) {
           double p_energy = 0;
-          HepMC::GenVertex::particle_iterator desc = vtx->particles_begin(HepMC::descendants);
-          for ( ; desc != vtx->particles_end(HepMC::descendants); ++desc) {
+          for (auto  desc = vtx->particles_begin(HepMC::descendants); desc != vtx->particles_end(HepMC::descendants); ++desc) {
             if (abs((*desc)->pdg_id()) == m_pdg) tau_child = 1;
             if ((*desc)->status() == 1) p_energy += (*desc)->momentum().e();
           }
@@ -534,7 +531,7 @@ StatusCode TestHepMC::execute() {
                             << "Event #" << evt->event_number() << ", "
                             << "Barcode of the original particle = " << pbarcode);
             ++m_decayCheckRate;
-            if (m_dumpEvent) (*itr)->print();
+            if (m_dumpEvent) HepMC::Print::line(std::cout,**itr);
           }
           //most taus should not decay immediately
           const HepMC::FourVector tau_decaypos = vtx->position();
@@ -544,13 +541,13 @@ StatusCode TestHepMC::execute() {
         } else {
           ATH_MSG_WARNING("UNDECAYED PARTICLE WITH PDG_ID = " << m_pdg);
           ++m_decayCheckRate;
-          if (m_dumpEvent) (*itr)->print();
+          if (m_dumpEvent) HepMC::Print::line(std::cout,**itr);
         }
       } // End of checks for specific particle (tau by default)
 
       // Check for undisplaced decay daughters from long-lived hadrons
       if ((*pitr)->end_vertex()) {
-        HepMC::GenVertex* decayvtx = (*pitr)->end_vertex();
+        auto decayvtx = (*pitr)->end_vertex();
         const HepMC::FourVector decaypos = decayvtx->position();
         const double displacement = decaypos.x()*decaypos.x() + decaypos.y()*decaypos.y() + decaypos.z()*decaypos.z();
         if (displacement > 1e-6) {
@@ -560,12 +557,12 @@ StatusCode TestHepMC::execute() {
             const HepMC::FourVector pos2 = (*ip)->production_vertex()->position();
             const double displacement2 = pos2.x()*pos2.x() + pos2.y()*pos2.y() + pos2.z()*pos2.z();
             if (displacement2 < 1e-6) {
-              const int pbarcode2 = (*ip)->barcode();
-              const int vbarcode2 = (*ip)->production_vertex()->barcode();
+              const int pbarcode2 = HepMC::barcode(*ip);
+              const int vbarcode2 = HepMC::barcode((*ip)->production_vertex());
               ATH_MSG_WARNING("Decay child " << pbarcode2 << " from " << pbarcode
                               << " has undisplaced vertex (" << vbarcode2
                               << " @ " << displacement2 << "mm) "
-                              << " but parent vertex is displaced (" << decayvtx->barcode()
+                              << " but parent vertex is displaced (" << HepMC::barcode(decayvtx)
                               << " @ " << displacement << "mm)");
               undisplaceds.push_back(pbarcode2);
               ++m_undisplacedLLHdaughtersCheckRate;
@@ -605,7 +602,7 @@ StatusCode TestHepMC::execute() {
       if (m_doHist){
         m_h_energyImbalance->Fill(lostE*1.E-03);
       }
-      if (m_dumpEvent) (*itr)->print();
+      if (m_dumpEvent) HepMC::Print::line(std::cout,**itr);
       if (m_energyImbalanceTest) {
         filter_pass = false;
       }
@@ -620,7 +617,7 @@ StatusCode TestHepMC::execute() {
         m_h_momentumImbalance_py->Fill(fabs(totalPy)*1.E-03);
         m_h_momentumImbalance_pz->Fill(fabs(totalPz)*1.E-03);
       }
-      if (m_dumpEvent) (*itr)->print();
+      if (m_dumpEvent) HepMC::Print::line(std::cout,**itr);
       if (m_momImbalanceTest) {
         filter_pass = false;
       }
@@ -635,7 +632,7 @@ StatusCode TestHepMC::execute() {
         ss << " " << *b;
       }
       ATH_MSG_WARNING(ss.str());
-      if (m_dumpEvent) (*itr)->print();
+      if (m_dumpEvent) HepMC::Print::line(std::cout,**itr);
       if (m_negativeEnergyTest) {
         filter_pass = false;
       }
@@ -650,7 +647,7 @@ StatusCode TestHepMC::execute() {
         ss << " " << *b;
       }
       ATH_MSG_WARNING(ss.str());
-      if (m_dumpEvent) (*itr)->print();
+      if (m_dumpEvent) HepMC::Print::line(std::cout,**itr);
       if (m_tachyonsTest) {
         filter_pass = false;
       }
@@ -665,7 +662,7 @@ StatusCode TestHepMC::execute() {
         ss << " " << *b;
       }
       ATH_MSG_WARNING(ss.str());
-      if (m_dumpEvent) (*itr)->print();
+      if (m_dumpEvent) HepMC::Print::line(std::cout,**itr);
       if (m_unstableNoVtxTest) {
         filter_pass = false;
       }
@@ -680,7 +677,7 @@ StatusCode TestHepMC::execute() {
         ss << " " << *b;
       }
       ATH_MSG_WARNING(ss.str());
-      if (m_dumpEvent) (*itr)->print();
+      if (m_dumpEvent) HepMC::Print::line(std::cout,**itr);
       if (m_pi0NoVtxTest) {
         filter_pass = false;
       }
@@ -695,7 +692,7 @@ StatusCode TestHepMC::execute() {
         ss << " " << *b;
       }
       ATH_MSG_WARNING(ss.str());
-      if (m_dumpEvent) (*itr)->print();
+      if (m_dumpEvent) HepMC::Print::line(std::cout,**itr);
       if (m_undisplacedDaughtersTest) {
         filter_pass = false;
       }

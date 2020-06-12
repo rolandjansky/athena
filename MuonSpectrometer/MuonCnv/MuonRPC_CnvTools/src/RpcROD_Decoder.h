@@ -8,7 +8,6 @@
 #include "TrigT1RPChardware/RPCRODDecode.h"
 #include "TrigT1RPChardware/RPCRXRODDecode.h"
 #include "TrigT1RPChardware/RPCRODStructure.h"
-#include "RPCcablingInterface/IRPCcablingSvc.h"
 
 #include "MuonRPC_CnvTools/IRpcROD_Decoder.h"
 
@@ -19,7 +18,8 @@
 #include "MuonRDO/RpcFiredChannel.h"
 #include "MuonRDO/RpcSectorLogicContainer.h"
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include "eformat/Issue.h"
 #include "eformat/SourceIdentifier.h"
@@ -27,16 +27,12 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/GaudiException.h"
+#include "RPC_CondCabling/RpcCablingCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include <atomic>
 #include <cassert>
 #include <stdint.h>
-
-// start preparing for BS errors 
-//#include "MuonByteStreamErrors/RpcByteStreamErrorContainer.h"
-//#include "RpcByteStreamAccess/IRPC_ByteStreamErrorSvc.h"
-
-// #include "minibench.h"
 
 namespace Muon
 {
@@ -62,7 +58,7 @@ namespace Muon
                    const std::string& name,
                    const IInterface* p) ;
     
-    virtual ~RpcROD_Decoder(); 
+    virtual ~RpcROD_Decoder()=default; 
     
     
     
@@ -125,20 +121,14 @@ namespace Muon
     void printcheckformat() const;
     
   private:
-    
-    //RpcPadIdHash*                      m_hashfunc;
-    const IRPCcablingSvc*              m_cabling;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+    SG::ReadCondHandleKey<RpcCablingCondData> m_rpcReadKey{this, "RpcCablingKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
     
     // re-define the ROB number
     IntegerProperty m_specialROBNumber;
     // flag to read old sector 13 data
     BooleanProperty m_sector13Data;
-
-    //RpcByteStreamErrorContainer *m_bsErrCont;
-    //std::string m_bsErrContainerName; 
   }; 
   
   inline StatusCode Muon::RpcROD_Decoder::checkdataformat(std::vector<uint16_t>* pdata, int ini, int end) const
@@ -428,6 +418,9 @@ namespace Muon
     
     StatusCode cnv_sc;
 
+    SG::ReadCondHandle<RpcCablingCondData> cablingCondData{m_rpcReadKey, Gaudi::Hive::currentContext()};
+    const RpcCablingCondData* rpcCabling{*cablingCondData};
+
     // here optimize decoding of ROB fragment (for data only type==2)
     if (type==2)
     {
@@ -449,7 +442,7 @@ namespace Muon
           ATH_MSG_DEBUG ( "Created new Pad Collection Hash ID = " << static_cast<unsigned int>(it) );
 
 		      // create new collection - I should be doing this with unique_ptr but it requires changing downstream functions
-          RpcPad* coll = new RpcPad((m_cabling->padHashFunction())->identifier(it), it);
+          RpcPad* coll = new RpcPad(rpcCabling->identifier(it), it);
           mapOfCollections[coll->identify()]=coll;
           
 	      }// endif collection not found in the container 
@@ -511,7 +504,7 @@ namespace Muon
         ATH_MSG_VERBOSE(" Created new Pad Collection Hash ID = " << static_cast<unsigned int>(it) );
 
         // create new collection - I should be doing this with unique_ptr but it requires changing downstream functions
-        RpcPad* coll = new RpcPad((m_cabling->padHashFunction())->identifier(it), it);
+        RpcPad* coll = new RpcPad(rpcCabling->identifier(it), it);
         
         //convert collection - note case3 will never be used due to statement above
         switch(type)
@@ -630,7 +623,7 @@ namespace Muon
     
     if (msgLvl(MSG::VERBOSE ) )
       msg(MSG::VERBOSE) << "The offline ID request for conversion is "
-      << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId) << endmsg;
+      << m_idHelperSvc->rpcIdHelper().show_to_string(thisPadOfflineId) << endmsg;
     
     bool isSLHeader    =false;
     bool isSLSubHeader =false;
@@ -741,7 +734,9 @@ namespace Muon
         isSLFragment  = false;
         isSLFooter    = false;
       }
-      
+
+      SG::ReadCondHandle<RpcCablingCondData> cablingCondData{m_rpcReadKey, Gaudi::Hive::currentContext()};
+      const RpcCablingCondData* rpcCabling{*cablingCondData};
       
       if (msgLvl(MSG::VERBOSE) ) {
         char decoded_char[256] ;
@@ -1008,7 +1003,7 @@ namespace Muon
           uint16_t sectorLogic = sector-side*32;
           
           // get the offline ID of the pad
-          if(!m_cabling->giveOffflineID(side,sectorLogic,PadID,padOfflineId))
+          if(!rpcCabling->giveOfflineId(side,sectorLogic,PadID,padOfflineId))
           {
             if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
             << "Cannot retrieve the OfflineID for the PAD n. " 
@@ -1016,7 +1011,7 @@ namespace Muon
             << sectorLogic << endmsg;
           } else {
             if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
-            << "ID " << m_muonIdHelperTool->rpcIdHelper().show_to_string(padOfflineId)
+            << "ID " << m_idHelperSvc->rpcIdHelper().show_to_string(padOfflineId)
             << " associated to PAD n. " << PadID << " at side " 
             << side << " and  sector " << sectorLogic << endmsg; 
           }
@@ -1026,7 +1021,7 @@ namespace Muon
             
             if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
             << " match found with ID " 
-            << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId)
+            << m_idHelperSvc->rpcIdHelper().show_to_string(thisPadOfflineId)
             << " requested for the conversion; return this collection" 
             << endmsg; 
             
@@ -1043,7 +1038,7 @@ namespace Muon
           {
             if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
             << " match NOT found with ID "  
-            << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId)
+            << m_idHelperSvc->rpcIdHelper().show_to_string(thisPadOfflineId)
             << " requested for the conversion" << endmsg;  
           }
           
@@ -1507,8 +1502,12 @@ namespace Muon
 #ifndef NVERBOSE
           msg(MSG::VERBOSE) <<" Pad Identifier= "<<PadID<< " Status: " << status << endmsg;
 #endif
+
+          SG::ReadCondHandle<RpcCablingCondData> cablingCondData{m_rpcReadKey, Gaudi::Hive::currentContext()};
+          const RpcCablingCondData* rpcCabling{*cablingCondData};
+
           // get the offline ID of the pad
-          if(!m_cabling->giveOffflineID(side,sectorLogic,PadID,padOfflineId))
+          if(!rpcCabling->giveOfflineId(side,sectorLogic,PadID,padOfflineId))
           {
             if (msgLvl(MSG::VERBOSE) ) 
               msg(MSG::VERBOSE) 
@@ -1519,7 +1518,7 @@ namespace Muon
           else 
             if (msgLvl(MSG::VERBOSE) ) 
               msg(MSG::VERBOSE) 
-              << "ID " << m_muonIdHelperTool->rpcIdHelper().show_to_string(padOfflineId)
+              << "ID " << m_idHelperSvc->rpcIdHelper().show_to_string(padOfflineId)
               << " associated to PAD n. " << PadID << " at side " 
               << side << " and  sector " << sectorLogic << endmsg;
           
@@ -1528,7 +1527,7 @@ namespace Muon
             if (msgLvl(MSG::VERBOSE) ) 
               msg(MSG::VERBOSE) 
               << " match found with ID " 
-              << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId)
+              << m_idHelperSvc->rpcIdHelper().show_to_string(thisPadOfflineId)
               << " requested for the conversion; return this collection" 
               << endmsg; 
             
@@ -1549,7 +1548,7 @@ namespace Muon
             if (msgLvl(MSG::VERBOSE) ) 
               msg(MSG::VERBOSE) 
               << " match NOT found with ID " 
-              << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId)
+              << m_idHelperSvc->rpcIdHelper().show_to_string(thisPadOfflineId)
               << " requested for the conversion" << endmsg;
           } 
         }
@@ -1696,7 +1695,7 @@ namespace Muon
     
     if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
       << "The offline ID request for conversion is " 
-      << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId) 
+      << m_idHelperSvc->rpcIdHelper().show_to_string(thisPadOfflineId) 
       << endmsg;
     
     // remove the rod header and footer then
@@ -1776,11 +1775,13 @@ namespace Muon
       while (padHeader == 'H') {
         uint16_t padId = padReadout.padid();
         
-        // uint16_t status = padReadout.status();
         uint16_t status = 0;
+
+        SG::ReadCondHandle<RpcCablingCondData> cablingCondData{m_rpcReadKey, Gaudi::Hive::currentContext()};
+        const RpcCablingCondData* rpcCabling{*cablingCondData};
         
         Identifier padOfflineId;
-        if(!m_cabling->giveOffflineID(side,slogic,padId,padOfflineId))
+        if(!rpcCabling->giveOfflineId(side,slogic,padId,padOfflineId))
         {
           if (msgLvl(MSG::VERBOSE) ) 
             msg(MSG::VERBOSE) 
@@ -1791,7 +1792,7 @@ namespace Muon
         else 
           if (msgLvl(MSG::VERBOSE) ) 
             msg(MSG::VERBOSE) 
-            << "ID " << m_muonIdHelperTool->rpcIdHelper().show_to_string(padOfflineId)
+            << "ID " << m_idHelperSvc->rpcIdHelper().show_to_string(padOfflineId)
             << " associated to PAD n. " << padId << " at side " 
             << side << " and  sector " << slogic << endmsg;
         
@@ -1803,15 +1804,15 @@ namespace Muon
         if (thisPadOfflineId == padOfflineId) {
           if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
             << "Found the collection to return " 
-            << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId) 
+            << m_idHelperSvc->rpcIdHelper().show_to_string(thisPadOfflineId) 
             << endmsg;
           v.setOnlineId(padId);
           v.setStatus(status);
           v.setSector(sectorID);
         } else {
           if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
-            << m_muonIdHelperTool->rpcIdHelper().show_to_string(thisPadOfflineId) 
-            << "!=" << m_muonIdHelperTool->rpcIdHelper().show_to_string(padOfflineId)
+            << m_idHelperSvc->rpcIdHelper().show_to_string(thisPadOfflineId) 
+            << "!=" << m_idHelperSvc->rpcIdHelper().show_to_string(padOfflineId)
             << endmsg;
         } 
         char cmaHeader    = 'U';

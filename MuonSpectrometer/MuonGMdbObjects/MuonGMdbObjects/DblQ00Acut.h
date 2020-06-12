@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************
@@ -14,15 +14,18 @@
 #define DBLQ00_ACUT_H
 
 #include "RDBAccessSvc/IRDBQuery.h"
-#include <memory>
-namespace MuonGM
-{
-class DblQ00Acut {
 
+#include <memory>
+
+class AmdcDb;
+
+namespace MuonGM {
+class DblQ00Acut {
 public:
     DblQ00Acut(){};
     ~DblQ00Acut();
     DblQ00Acut(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Acut(AmdcDb* acut);
 
     // data members for DblQ00/ACUT fields
     struct ACUT {

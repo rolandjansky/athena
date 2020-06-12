@@ -2,26 +2,21 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-
 /***************************************************************************
  test MuonGeoModel from digits to pos. in space
  ----------------------------------------------
  ***************************************************************************/
 
-//<doc><file>	$Id: MuonGMCheck.h,v 1.15 2009-03-28 10:59:00 stefspa Exp $
-//<version>	$Name: not supported by cvs2svn $
-
 #ifndef MUONGEOMODEL_MUONGMCHECK_H
 # define MUONGEOMODEL_MUONGMCHECK_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonCalibITools/IIdToFixedIdTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include <cmath>
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
-class Identifier;
+#include <cmath>
 
 namespace MuonGM
 {    
@@ -35,11 +30,10 @@ class MuonGMCheck: public AthAlgorithm
 public:
     
     MuonGMCheck(const std::string& name, ISvcLocator* pSvcLocator);
-    ~MuonGMCheck();
+    ~MuonGMCheck()=default;
     
     StatusCode	initialize();
     StatusCode 	execute();
-    StatusCode 	finalize();
     void clearCache() const;
 
 private:
@@ -86,8 +80,7 @@ private:
     MuonGM::MuonDetectorManager*	p_MuonMgr;
 
     ToolHandle<MuonCalib::IIdToFixedIdTool> m_fixedIdTool;
-    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     int m_mem; //<! counter for memory allocated VmSize values read from /proc/<pid>/status 
     int m_cpu[2]; //<! counter for cpu time read from /proc/<pid>/cpu

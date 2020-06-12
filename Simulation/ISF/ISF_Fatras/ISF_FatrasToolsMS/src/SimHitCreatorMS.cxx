@@ -2,7 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// class header
 #include "SimHitCreatorMS.h"
 
 // ISF includes
@@ -20,13 +19,11 @@
 #include "MuonReadoutGeometry/MMReadoutElement.h"
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonSimEvent/MdtHitIdHelper.h"
 #include "MuonSimEvent/RpcHitIdHelper.h"
 #include "MuonSimEvent/CscHitIdHelper.h"
 #include "MuonSimEvent/TgcHitIdHelper.h"
 #include "MuonSimEvent/sTgcHitIdHelper.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonSimEvent/MicromegasHitIdHelper.h"
 #include "MuonSimEvent/MM_SimIdToOfflineId.h"
 #include "MuonSimEvent/sTgcSimIdToOfflineId.h"
@@ -103,8 +100,8 @@ StatusCode iFatras::SimHitCreatorMS::initialize()
 
   ATH_CHECK(detStore()->retrieve(m_muonMgr));
 
-  m_mmOffToSimId = new MM_SimIdToOfflineId(*(m_muonMgr->mmIdHelper())); 
-  m_stgcOffToSimId = new sTgcSimIdToOfflineId(*(m_muonMgr->stgcIdHelper())); 
+  m_mmOffToSimId = new MM_SimIdToOfflineId(&m_idHelperSvc->mmIdHelper());
+  m_stgcOffToSimId = new sTgcSimIdToOfflineId(&m_idHelperSvc->stgcIdHelper());
   
   // get measurement tool
   ATH_CHECK(m_measTool.retrieve());
@@ -230,8 +227,6 @@ void iFatras::SimHitCreatorMS::handle( const Incident& inc ) {
 //================ Track Creation Interface  =====================================
 void iFatras::SimHitCreatorMS::createHits(const ISF::ISFParticle& isp,
 					  const std::vector<Trk::HitInfo>& hits) const {
-
-  //std::cout <<"creating MS hits"<< hits.size()<< std::endl;
     
   // iterate and assign as well the layer
   std::vector<Trk::HitInfo>::const_iterator plIter    = hits.begin();
@@ -241,20 +236,16 @@ void iFatras::SimHitCreatorMS::createHits(const ISF::ISFParticle& isp,
     const Trk::TrackParameters* parm = (*plIter).trackParms;
     double timeInfo = (*plIter).time;
     const Trk::Layer*        currLay = m_extrapolator->trackingGeometry()->associatedLayer( parm->position() );
-    //std::cout <<"hit position:"<<parm->position()<<","<<currLay <<":"<<parm->position().mag()<< std::endl; 
-    //std::cout <<"hit timing:"<< timeInfo << std::endl;
 
     if (!currLay) continue;
 
     Identifier id(currLay->layerType());
  
     // NSW hits
-    if ( m_idHelperSvc->mdtIdHelper().is_mm(id) ||  m_idHelperSvc->mdtIdHelper().is_stgc(id) ) {   
+    if ( m_idHelperSvc->isMM(id) ||  m_idHelperSvc->issTgc(id) ) {   
       // hit ID
       int simID = offIdToSimId(id);
       // local position : at MTG layer ( corresponds to the middle of the gas gap ) 
-      //Trk::GlobalPosition locPosRot = HepGeom::RotateY3D(M_PI)*HepGeom::RotateZ3D(+M_PI/2.)*currLay->surfaceRepresentation().transform().inverse()*parm->position();
-      //std::cout << "local rotated:" << locPosRot << std::endl;
       // generating particle info
       double mom  = parm->momentum().mag();
       double mass = isp.mass();
@@ -271,12 +262,12 @@ void iFatras::SimHitCreatorMS::createHits(const ISF::ISFParticle& isp,
 				     isp.pdgCode(), unitMom, 
 				     energyDeposit, isp.barcode()) ;
       
-      if ( m_muonMgr->mmIdHelper()->is_mm(id) )  m_mmSimHitCollection->Insert(nswMMHit); 
+      if ( m_idHelperSvc->isMM(id) )  m_mmSimHitCollection->Insert(nswMMHit); 
       else  m_stgcSimHitCollection->Insert(nswsTGCHit); 
 
       ATH_MSG_VERBOSE("[ muhit ] NSW hit created.");           
 
-    }  else if (m_idHelperSvc->mdtIdHelper().is_mdt(id)) {    // (A) special treatment for MDTs to find closest channel and nearby hits
+    }  else if (m_idHelperSvc->isMdt(id)) {    // (A) special treatment for MDTs to find closest channel and nearby hits
       double pitch = 0.;
       // get the identifier 
       Identifier hid = m_measTool->nearestDetEl(currLay,parm,false,pitch);
@@ -340,7 +331,7 @@ bool iFatras::SimHitCreatorMS::createHit(const ISF::ISFParticle& isp,
 					 const Trk::Layer* lay,const Trk::TrackParameters* parm, Identifier id, double globalTimeEstimate, double /* pitch */, bool /* smear */) const
 {
    // MDT SECTION 
-   if (m_idHelperSvc->mdtIdHelper().is_mdt(id)) {
+   if (m_idHelperSvc->isMdt(id)) {
             
      int simId = m_mdtHitIdHelper->BuildMdtHitId(m_idHelperSvc->mdtIdHelper().stationNameString(m_idHelperSvc->mdtIdHelper().stationName(id)),
 						 m_idHelperSvc->mdtIdHelper().stationPhi(id), m_idHelperSvc->mdtIdHelper().stationEta(id),
@@ -381,7 +372,7 @@ bool iFatras::SimHitCreatorMS::createHit(const ISF::ISFParticle& isp,
      } else {
        return false;
      }
-  } else if (m_idHelperSvc->rpcIdHelper().is_rpc(id)) { 
+  } else if (m_idHelperSvc->isRpc(id)) { 
     // local position from the rpc's
     const Amg::Vector3D localPos = m_muonMgr->getRpcReadoutElement(id)->globalToLocalCoords(parm->position(),id);
     int simId = m_rpcHitIdHelper->BuildRpcHitId(m_idHelperSvc->rpcIdHelper().stationNameString(m_idHelperSvc->rpcIdHelper().stationName(id)),
@@ -399,7 +390,7 @@ bool iFatras::SimHitCreatorMS::createHit(const ISF::ISFParticle& isp,
     RPCSimHit rpcHit = RPCSimHit(simId,globalTimeEstimate, localPos, isp.barcode(), localPos, energyDeposit,1.,isp.pdgCode(),isp.momentum().mag() ) ; 
     m_rpcSimHitCollection->Insert(rpcHit); 
 
-  } else if (m_idHelperSvc->tgcIdHelper().is_tgc(id) && !m_idHelperSvc->tgcIdHelper().isStrip(id) ) { 
+  } else if (m_idHelperSvc->isTgc(id) && !m_idHelperSvc->tgcIdHelper().isStrip(id) ) { 
     
     // take eta hits only
     // local position
@@ -421,7 +412,7 @@ bool iFatras::SimHitCreatorMS::createHit(const ISF::ISFParticle& isp,
     // a new simhit
     TGCSimHit tgcHit = TGCSimHit(simId,globalTimeEstimate, localPos, localDir, isp.barcode(), energyDeposit, stepLength ) ;
     m_tgcSimHitCollection->Insert(tgcHit); 
-  } else if (m_idHelperSvc->cscIdHelper().is_csc(id)) { 
+  } else if (m_idHelperSvc->isCsc(id)) { 
     // one of eta/phi hits only
     
     Amg::Vector3D dir(parm->momentum().normalized());
@@ -465,7 +456,7 @@ bool iFatras::SimHitCreatorMS::createHit(const ISF::ISFParticle& isp,
 
 int iFatras::SimHitCreatorMS::offIdToSimId(Identifier id) const{
 
-  if ( m_muonMgr->mmIdHelper()->is_mm(id) ) {
+  if (m_idHelperSvc->isMM(id)) {
   
     int simID = m_mmOffToSimId->convert(id);
 
@@ -475,15 +466,13 @@ int iFatras::SimHitCreatorMS::offIdToSimId(Identifier id) const{
     if ( check_id != id ) {
 
       ATH_MSG_WARNING("MM Id conversion error!");
-      ATH_MSG_WARNING(m_muonMgr->mmIdHelper()->print_to_string(id));
-      ATH_MSG_WARNING(m_muonMgr->mmIdHelper()->print_to_string(check_id));
+      ATH_MSG_WARNING(m_idHelperSvc->mmIdHelper().print_to_string(id));
+      ATH_MSG_WARNING(m_idHelperSvc->mmIdHelper().print_to_string(check_id));
 
     }
 
     return simID;
-  }
-
-  if ( m_muonMgr->stgcIdHelper()->is_stgc(id) ) {
+  } else if (m_idHelperSvc->issTgc(id)) {
       
     int simID = m_stgcOffToSimId->convert(id);
 
@@ -493,8 +482,8 @@ int iFatras::SimHitCreatorMS::offIdToSimId(Identifier id) const{
     if ( check_id != id ) {
 
       ATH_MSG_WARNING("sTGC Id conversion error!");
-      ATH_MSG_WARNING(m_muonMgr->stgcIdHelper()->print_to_string(id));
-      ATH_MSG_WARNING(m_muonMgr->stgcIdHelper()->print_to_string(check_id));
+      ATH_MSG_WARNING(m_idHelperSvc->stgcIdHelper().print_to_string(id));
+      ATH_MSG_WARNING(m_idHelperSvc->stgcIdHelper().print_to_string(check_id));
 
     }
 

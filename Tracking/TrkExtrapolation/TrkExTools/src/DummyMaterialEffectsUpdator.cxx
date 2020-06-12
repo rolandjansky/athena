@@ -44,9 +44,9 @@ Trk::DummyMaterialEffectsUpdator::initialize() {
   if (m_materialMapper.retrieve().isFailure()) {
     ATH_MSG_FATAL("Failed to retrieve tool " << m_materialMapper);
     return StatusCode::FAILURE;
-  } else {
+  } 
     ATH_MSG_INFO("Retrieved tool " << m_materialMapper);
-  }
+  
 
   // set the validation switch
   m_validationDirection = (m_validationDirectionSwitch == 1) ? Trk::alongMomentum : Trk::oppositeMomentum;

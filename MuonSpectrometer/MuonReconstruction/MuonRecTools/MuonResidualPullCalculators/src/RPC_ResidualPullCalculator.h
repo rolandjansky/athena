@@ -1,27 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// RPC_ResidualPullCalculator.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-// W. Liebig <http://consult.cern.ch/xwho/people/54608>
-// muon version adapted from S. Fleischmann's SCT tool
-///////////////////////////////////////////////////////////////////
 
 #ifndef MUONRPC_RESIDUALPULLCALCULATOR_H
 #define MUONRPC_RESIDUALPULLCALCULATOR_H
 
-// interfaces
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 
-// edm
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkEventPrimitives/ResidualPull.h"
-
-namespace Muon {  class MuonIdHelperTool;}
 
 namespace Muon 
 {
@@ -37,16 +27,11 @@ namespace Muon
   class RPC_ResidualPullCalculator : virtual public Trk::IResidualPullCalculator, public AthAlgTool
     {
     public:
-      //! standard AlgTool constructor
       RPC_ResidualPullCalculator(const std::string&,const std::string&,const IInterface*);
 
-      //! default destructor
-      virtual ~RPC_ResidualPullCalculator ();
+      virtual ~RPC_ResidualPullCalculator()=default;
       
-      //! standard Athena-Algorithm method
       virtual StatusCode initialize() override;
-      //! standard Athena-Algorithm method
-      virtual StatusCode finalize  () override;
 
       using IResidualPullCalculator::residualPull;
     /**
@@ -77,8 +62,7 @@ namespace Muon
 
     private:
       
-    //! MuonIdHelper
-    ToolHandle<Muon::MuonIdHelperTool>  m_idHelper;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
       //! internal structuring: common method to calculate the hit pull.
       double calcPull(const double residual,

@@ -13,8 +13,8 @@
 
 void InDet::TRT_TrajectoryElement_xk::set
 (const TRT_ID                           *    m,
- const Trk::IPatternParametersPropagator*   pr, 
- const Trk::IPatternParametersUpdator   *   up, 
+ const Trk::IPatternParametersPropagator*   pr,
+ const Trk::IPatternParametersUpdator   *   up,
  const Trk::IRIO_OnTrackCreator               * riod,
  const Trk::IRIO_OnTrackCreator               * rion,
  double scale)
@@ -28,10 +28,9 @@ void InDet::TRT_TrajectoryElement_xk::set
 }
 
 void InDet::TRT_TrajectoryElement_xk::set
-(const Trk::MagneticFieldProperties &  mf, const MagField::IMagFieldSvc* ms, const AtlasFieldCacheCondObj* fieldCondObj)
+(const Trk::MagneticFieldProperties &  mf, const AtlasFieldCacheCondObj* fieldCondObj)
 {
   m_fieldprop    = mf;
-  m_fieldService = ms;
   fieldCondObj->getInitializedCache (m_fieldCache);
 }
 
@@ -107,7 +106,7 @@ bool InDet::TRT_TrajectoryElement_xk::boundaryTest
   if     ((rb=dynamic_cast<const Trk::RectangleBounds*>(&m_detelement->bounds()))) {
 
     // Barrel
-    //    
+    //
     m_barrel = true                   ;
     m_z      = z                      ;
     m_zMin   = C.z()-rb->halflengthY();
@@ -115,16 +114,16 @@ bool InDet::TRT_TrajectoryElement_xk::boundaryTest
     double d = fabs(z - C.z()); if( d > rb->halflengthY()+dw) return false;
   }
   else if((db=dynamic_cast<const Trk::DiscBounds*>     (&m_detelement->bounds()))) {
-   
+
     // Endcap
-    //    
+    //
     m_barrel    = false        ;
     m_radius    = sqrt(x*x+y*y);
     m_z         = z            ;
     m_radiusMin = db->rMin()   ;
     m_radiusMax = db->rMax()   ;
 
-    double d = m_radius-m_radiusMin;  if(d < -dw) return false; 
+    double d = m_radius-m_radiusMin;  if(d < -dw) return false;
     d        = m_radiusMax-m_radius;  if(d < -dw) return false;
   }
   return true;
@@ -134,7 +133,7 @@ bool InDet::TRT_TrajectoryElement_xk::boundaryTest
 // Initiate trajectory element links to straws for precision  seed
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TRT_TrajectoryElement_xk::initiateLinksForPrecisionSeed 
+void InDet::TRT_TrajectoryElement_xk::initiateLinksForPrecisionSeed
 (InDet::TRT_DriftCircleCollection::const_iterator& sb,
  InDet::TRT_DriftCircleCollection::const_iterator& se,
  std::pair<Amg::Vector3D,double>&                  gp,
@@ -186,9 +185,9 @@ void InDet::TRT_TrajectoryElement_xk::initiateLinksForPrecisionSeed
       double Bz    = Az[0]*dir[1]-Az[1]*dir[0];
       double im    =(dx*Bx+dy*By+dz*Bz)/sqrt(Bx*Bx+By*By+Bz*Bz);
       double zl    = dx*Az[0]+dy*Az[1]+dz*Az[2];
-      S           +=gp.second; 
+      S           +=gp.second;
       d            = fabs(im); if(y*xs-x*ys > 0.) d=-d;
-      m_link[m_nlinks].set(ns,d,im,zl,S); 
+      m_link[m_nlinks].set(ns,d,im,zl,S);
       if(++m_nlinks==24) break;
     }
   }
@@ -222,9 +221,9 @@ void InDet::TRT_TrajectoryElement_xk::initiateLinksForPrecisionSeed
       double Bz    = Az[0]*dir[1]-Az[1]*dir[0];
       double im    =(dx*Bx+dy*By+dz*Bz)/sqrt(Bx*Bx+By*By+Bz*Bz);
       double zl    = dx*Az[0]+dy*Az[1]+dz*Az[2];
-      S           +=gp.second; 
+      S           +=gp.second;
       d            = fabs(im); if(y*xs-x*ys > 0.) d=-d;
-      m_link[m_nlinks].set(ns,d,im,zl,S); 
+      m_link[m_nlinks].set(ns,d,im,zl,S);
       if(++m_nlinks==24) break;
     }
   }
@@ -232,7 +231,7 @@ void InDet::TRT_TrajectoryElement_xk::initiateLinksForPrecisionSeed
   m_dnegative =-1000.;
   if(m_isCluster && m_nlinks) {
 
-    bool nl = false; 
+    bool nl = false;
     for(; sb!=se; ++sb) {
 
       int  ns = m_trtid->straw((*sb)->identify());
@@ -240,7 +239,7 @@ void InDet::TRT_TrajectoryElement_xk::initiateLinksForPrecisionSeed
       for(int l=0; l!=m_nlinks; ++l) {
 	if(ns!=m_link[l].number()) continue;
 	nl=true; m_link[l].set((*sb));
- 
+
 	double d = m_link[l].distance();
 	if(d >= 0.) {if(d < m_dpositive) m_dpositive = d;}
 	else        {if(d > m_dnegative) m_dnegative = d;}
@@ -255,7 +254,7 @@ void InDet::TRT_TrajectoryElement_xk::initiateLinksForPrecisionSeed
 // Initiate trajectory element links to straws for TRT seed
 ///////////////////////////////////////////////////////////////////
 
-void InDet::TRT_TrajectoryElement_xk::initiateLinksForTRTSeed 
+void InDet::TRT_TrajectoryElement_xk::initiateLinksForTRTSeed
 (InDet::TRT_DriftCircleCollection::const_iterator& sb,
  InDet::TRT_DriftCircleCollection::const_iterator& se,
  std::pair<Amg::Vector3D,double>&                  gp,
@@ -306,9 +305,9 @@ void InDet::TRT_TrajectoryElement_xk::initiateLinksForTRTSeed
       double Bz    = Az[0]*dir[1]-Az[1]*dir[0];
       double im    =(dx*Bx+dy*By+dz*Bz)/sqrt(Bx*Bx+By*By+Bz*Bz);
       double zl    = dx*Az[0]+dy*Az[1]+dz*Az[2];
-      S           +=gp.second; 
+      S           +=gp.second;
       d            = fabs(im); if(y*xs-x*ys > 0.) d=-d;
-      m_link[m_nlinks].set(ns,d,im,zl,S); 
+      m_link[m_nlinks].set(ns,d,im,zl,S);
       if(++m_nlinks==24) break;
     }
   }
@@ -357,7 +356,7 @@ void InDet::TRT_TrajectoryElement_xk::initiateLinksForTRTSeed
       double sy    = ay+dir[1]*dS     ;
       double sd    =(sx*Bx+sy*By)*B   ;
       double sz    = sx*Az[0]+sy*Az[1];
-      S           +=gp.second; 
+      S           +=gp.second;
       if( y*xs-x*ys > 0.) {d =-fabs(im); sd =-fabs(im+sd)-d;}
       else                {d = fabs(im); sd = fabs(im+sd)-d;}
 
@@ -370,14 +369,14 @@ void InDet::TRT_TrajectoryElement_xk::initiateLinksForTRTSeed
   m_dnegative =-1000.;
   if(m_isCluster && m_nlinks) {
 
-    bool nl = false; 
+    bool nl = false;
     for(; sb!=se; ++sb) {
 
       int  ns = m_trtid->straw((*sb)->identify());
 
       for(int l=0; l!=m_nlinks; ++l) {
 	if(ns!=m_link[l].number()) continue;
-	nl=true; m_link[l].set((*sb)); 
+	nl=true; m_link[l].set((*sb));
 
 	double d = m_link[l].distance();
 	if(d >= 0.) {if(d < m_dpositive) m_dpositive = d;}
@@ -423,11 +422,11 @@ bool InDet::TRT_TrajectoryElement_xk::buildForPrecisionSeed
     double r = m_link[l].cluster()->localPosition()[Trk::driftRadius];
     double e = m_scale_error*sqrt(m_link[l].cluster()->localCovariance()(0,0));
 
-    if(r > 2.05) r = 2.05; 
+    if(r > 2.05) r = 2.05;
     double r2 = r+e; if(r2 > 2.05) r2 = 2.05;
     double r1 = r-e; if(r1 >= r2) r1 = r2-2.*e;
 
-    if(ad < r1 || ad > r2) useDriftTime = false; else m_status = 2; 
+    if(ad < r1 || ad > r2) useDriftTime = false; else m_status = 2;
 
     return true;
   }
@@ -450,7 +449,7 @@ bool InDet::TRT_TrajectoryElement_xk::buildForTRTSeed
   double v  = (a*m_link[l].way()+b)*m_link[l].way();
   double d  = m_link[l].distance()-v;
   double ad = fabs(d);
-  
+
   if(ad > 2.05) return false;
 
   if(!m_link[l].cluster()) {
@@ -462,14 +461,14 @@ bool InDet::TRT_TrajectoryElement_xk::buildForTRTSeed
   }
   m_status  = 1; m_link[l].newImpactParameter(d);
   if(!useDriftTime) return true;
-  
+
   double r = m_link[l].cluster()->localPosition()[Trk::driftRadius];
   double e = m_scale_error*sqrt(m_link[l].cluster()->localCovariance()(0,0));
-  
-  if(r > 2.05) r = 2.05; 
+
+  if(r > 2.05) r = 2.05;
   double r2 = r+e; if(r2 > 2.05) r2 = 2.05;
   double r1 = r-e; if(r1 >= r2) r1 = r2-2.*e;
-  if(ad < r1 || ad > r2) useDriftTime = false; else m_status = 2; 
+  if(ad < r1 || ad > r2) useDriftTime = false; else m_status = 2;
   return true;
 }
 
@@ -480,7 +479,7 @@ bool InDet::TRT_TrajectoryElement_xk::buildForTRTSeed
 double InDet::TRT_TrajectoryElement_xk::findCloseLink
 (double a,double b)
 {
-  m_bestlink =    -1; 
+  m_bestlink =    -1;
   double dm = 10000.;
 
   for(int l=0; l < m_nlinks; ++l) {
@@ -488,7 +487,7 @@ double InDet::TRT_TrajectoryElement_xk::findCloseLink
     double v  = (a*m_link[l].way()+b)*m_link[l].way();
     double d  = fabs(m_link[l].distance()-v);
 
-    if(d < dm) {dm=d;  m_bestlink=l;} 
+    if(d < dm) {dm=d;  m_bestlink=l;}
   }
   return dm;
 }
@@ -499,7 +498,7 @@ double InDet::TRT_TrajectoryElement_xk::findCloseLink
 
 const Trk::RIO_OnTrack* InDet::TRT_TrajectoryElement_xk::rioOnTrack()
 {
-  if(m_bestlink < 0 || m_status<=0) return 0; 
+  if(m_bestlink < 0 || m_status<=0) return 0;
 
   int l = m_bestlink;
 
@@ -518,8 +517,8 @@ const Trk::RIO_OnTrack* InDet::TRT_TrajectoryElement_xk::rioOnTrack()
 
 const Trk::RIO_OnTrack* InDet::TRT_TrajectoryElement_xk::rioOnTrackSimple()
 {
-  if(m_bestlink < 0 || m_status<=0) return 0; 
-  
+  if(m_bestlink < 0 || m_status<=0) return 0;
+
   int l = m_bestlink;
   Amg::Vector3D dir(1.,0.,0.);
   Trk::DefinedParameter radius(0.,Trk::locX);
@@ -545,7 +544,7 @@ bool InDet::TRT_TrajectoryElement_xk::propagate
 }
 
 ///////////////////////////////////////////////////////////////////
-// Add drift circles information to track parameters             
+// Add drift circles information to track parameters
 ///////////////////////////////////////////////////////////////////
 
 bool InDet::TRT_TrajectoryElement_xk::addCluster
@@ -559,7 +558,7 @@ bool InDet::TRT_TrajectoryElement_xk::addCluster
 
     const TRT_DriftCircle* DS = m_link[m_bestlink].cluster();
     double dr = DS->localPosition().x(); if(m_link[m_bestlink].impact() < 0.) dr=-dr;
-    
+
     Trk::DefinedParameter radius(dr,Trk::locX);
     Trk::LocalParameters  lp(radius);
 
@@ -577,7 +576,7 @@ bool InDet::TRT_TrajectoryElement_xk::addCluster
 }
 
 ///////////////////////////////////////////////////////////////////
-// Global trajectory coordinates calculation            
+// Global trajectory coordinates calculation
 ///////////////////////////////////////////////////////////////////
 
 bool InDet::TRT_TrajectoryElement_xk::trajectoryGlobalPosition
@@ -601,7 +600,7 @@ bool InDet::TRT_TrajectoryElement_xk::trajectoryGlobalPosition
   else if(Rc[2] > 0. ) {             // Positive endcap
 
     Bx = Az[1];          By =-Az[0];
-  } 
+  }
   else                 {             // Negative endcap
 
     Bx =-Az[1];          By = Az[0];
@@ -609,9 +608,9 @@ bool InDet::TRT_TrajectoryElement_xk::trajectoryGlobalPosition
   double zl = m_link[l].zlocal();
   double im = m_link[l].impact();
   G[0]      = zl*Az[0]+Bx*im+Rc[0];
-  G[1]      = zl*Az[1]+By*im+Rc[1]; 
-  G[2]      = zl*Az[2]      +Rc[2]; 
-  WAY       = m_link[l].way()     ; 
+  G[1]      = zl*Az[1]+By*im+Rc[1];
+  G[2]      = zl*Az[2]      +Rc[2];
+  WAY       = m_link[l].way()     ;
   return true;
 }
 
@@ -623,15 +622,15 @@ bool  InDet::TRT_TrajectoryElement_xk::trackParametersEstimation
 (TRT_TrajectoryElement_xk* E1,TRT_TrajectoryElement_xk* E2,Trk::PatternTrackParameters& Tp,
  double ZvHW)
 {
-  
+
   if(!E1) return false;
 
-  Amg::Vector3D Gp[3];  
-  double     Wa[3];  
+  Amg::Vector3D Gp[3];
+  double     Wa[3];
 
   if   (!    trajectoryGlobalPosition(Gp[0],Wa[0])) return false;
   if   (!E1->trajectoryGlobalPosition(Gp[1],Wa[1])) return false;
-  
+
   int mode; Wa[0] > Wa[1] ? mode=0 : mode=1;
 
   if(E2) {
@@ -650,7 +649,7 @@ bool  InDet::TRT_TrajectoryElement_xk::trackParametersEstimation
   double x0 = Gp[0][0]               ;
   double y0 = Gp[0][1]               ;
   double x1 = Gp[1][0]-x0            ;
-  double y1 = Gp[1][1]-y0            ; 
+  double y1 = Gp[1][1]-y0            ;
   double x2 = Gp[2][0]-x0            ;
   double y2 = Gp[2][1]-y0            ;
   double r1 = sqrt(x1*x1+y1*y1)      ;
@@ -669,9 +668,9 @@ bool  InDet::TRT_TrajectoryElement_xk::trackParametersEstimation
   if(mode==0) {
     f = atan2(-b-a*A,-a+b*A); C=-C; polarAngleEstimation(E2,Gp[0],Gp[2],C,ZvHW,TP);
   }
-  else if(mode==1) { 
-    f = atan2( b+a*A, a-b*A);       polarAngleEstimation(E2,Gp[0],Gp[2],C,ZvHW,TP); 
-  }  
+  else if(mode==1) {
+    f = atan2( b+a*A, a-b*A);       polarAngleEstimation(E2,Gp[0],Gp[2],C,ZvHW,TP);
+  }
   else             {
     f = atan2( b+a*A, a-b*A);       polarAngleEstimation(E1,Gp[0],Gp[1],C,ZvHW,TP);
   }
@@ -679,26 +678,17 @@ bool  InDet::TRT_TrajectoryElement_xk::trackParametersEstimation
   // Track parameters estimation
   //
   double P[5] = {m_link[m_bestlink].impact(),m_link[m_bestlink].zlocal(),f,atan2(1.,TP[0]),.0001};
-  
+
   double pos0[3]; pos0[0]=Gp[0][0]; pos0[1]=Gp[0][1]; pos0[2]=Gp[0][2];
   double pos1[3]; pos1[0]=Gp[1][0]; pos1[1]=Gp[1][1]; pos1[2]=Gp[1][2];
   double pos2[3]; pos2[0]=Gp[2][0]; pos2[1]=Gp[2][1]; pos2[2]=Gp[2][2];
-  double H0  [3]; 
-  double H1  [3]; 
-  double H2  [3]; 
-  // MT version uses cache, temporarily keep old version
-  if (m_fieldCache.useNewBfieldCache()) {
-      m_fieldCache.getFieldZR    (pos0,H0);
-      m_fieldCache.getFieldZR    (pos1,H1);
-      m_fieldCache.getFieldZR    (pos2,H2);
-  }
-  else {
-      m_fieldService->getFieldZR (pos0,H0);
-      m_fieldService->getFieldZR (pos1,H1);
-      m_fieldService->getFieldZR (pos2,H2);      
-  }
-  
-  
+  double H0  [3];
+  double H1  [3];
+  double H2  [3];
+  m_fieldCache.getFieldZR    (pos0,H0);
+  m_fieldCache.getFieldZR    (pos1,H1);
+  m_fieldCache.getFieldZR    (pos2,H2);
+
   double Hz = .333333*(H0[2]+H1[2]+H2[2]);
 
   // If magnetic field exist
@@ -716,7 +706,7 @@ bool  InDet::TRT_TrajectoryElement_xk::trackParametersEstimation
   double dp       = 8.*df*wa*Cm  ;
   double c0       = 4.           ;
   double c1       = TP[1]        ;
-  double c2       = df*df*(1.+T2); 
+  double c2       = df*df*(1.+T2);
   double c3       = TP[2]        ;
   double c4       = dp*dp        ;
   double V[15] ={c0,
@@ -724,7 +714,7 @@ bool  InDet::TRT_TrajectoryElement_xk::trackParametersEstimation
 		 0.,0.,c2,
 		 0.,0.,0.,c3,
 		 0.,0.,0.,0.,c4};
-  
+
   Tp.setParametersWithCovariance(&m_link[m_bestlink].surface(),P,V);
   return true;
 }
@@ -736,11 +726,11 @@ bool  InDet::TRT_TrajectoryElement_xk::trackParametersEstimation
 bool  InDet::TRT_TrajectoryElement_xk::trackParametersEstimation
 (TRT_TrajectoryElement_xk* E1,Trk::PatternTrackParameters& Tp,double ZvHW)
 {
-  
+
   if(!E1) return false;
 
-  Amg::Vector3D Gp[3];  
-  double     Wa[3];  
+  Amg::Vector3D Gp[3];
+  double     Wa[3];
   if   (!    trajectoryGlobalPosition(Gp[1],Wa[1])) return false;
   if   (!E1->trajectoryGlobalPosition(Gp[2],Wa[2])) return false;
 
@@ -754,7 +744,7 @@ bool  InDet::TRT_TrajectoryElement_xk::trackParametersEstimation
   double x0 = Gp[0][0]               ;
   double y0 = Gp[0][1]               ;
   double x1 = Gp[1][0]-x0            ;
-  double y1 = Gp[1][1]-y0            ; 
+  double y1 = Gp[1][1]-y0            ;
   double x2 = Gp[2][0]-x0            ;
   double y2 = Gp[2][1]-y0            ;
   double r1 = sqrt(x1*x1+y1*y1)      ;
@@ -779,21 +769,13 @@ bool  InDet::TRT_TrajectoryElement_xk::trackParametersEstimation
   double pos0[3]; pos0[0]=Gp[0][0]; pos0[1]=Gp[0][1]; pos0[2]=Gp[0][2];
   double pos1[3]; pos1[0]=Gp[1][0]; pos1[1]=Gp[1][1]; pos1[2]=Gp[1][2];
   double pos2[3]; pos2[0]=Gp[2][0]; pos2[1]=Gp[2][1]; pos2[2]=Gp[2][2];
-  double H0  [3]; 
-  double H1  [3]; 
-  double H2  [3]; 
-  // MT version uses cache, temporarily keep old version
-  if (m_fieldCache.useNewBfieldCache()) {
-      m_fieldCache.getFieldZR    (pos0,H0);
-      m_fieldCache.getFieldZR    (pos1,H1);
-      m_fieldCache.getFieldZR    (pos2,H2);
-  }
-  else {
-      m_fieldService->getFieldZR (pos0,H0);
-      m_fieldService->getFieldZR (pos1,H1);
-      m_fieldService->getFieldZR (pos2,H2);      
-  }
-  
+  double H0  [3];
+  double H1  [3];
+  double H2  [3];
+  m_fieldCache.getFieldZR    (pos0,H0);
+  m_fieldCache.getFieldZR    (pos1,H1);
+  m_fieldCache.getFieldZR    (pos2,H2);
+
   double Hz = .333333*(H0[2]+H1[2]+H2[2]);
 
   // If magnetic field exist
@@ -811,7 +793,7 @@ bool  InDet::TRT_TrajectoryElement_xk::trackParametersEstimation
   double dp       = 8.*df*wa*Cm  ;
   double c0       = .1           ;
   double c1       = ZvHW*ZvHW*.1 ;
-  double c2       = df*df*(1.+T2); 
+  double c2       = df*df*(1.+T2);
   double c3       = TP[2]        ;
   double c4       = dp*dp        ;
   double V[15] ={c0,
@@ -819,7 +801,7 @@ bool  InDet::TRT_TrajectoryElement_xk::trackParametersEstimation
 		 0.,0.,c2,
 		 0.,0.,0.,c3,
 		 0.,0.,0.,0.,c4};
-  
+
   Tp.setParametersWithCovariance(0,P,V);
   return true;
 }
@@ -851,19 +833,19 @@ void InDet::TRT_TrajectoryElement_xk::polarAngleEstimation
     if     (  m_barrel )   { //---------------------------->BB
 
       double dZ = m_zMax-m_zMin              ;
-      double dT = (dZ+2.*VZ)                 ;  
+      double dT = (dZ+2.*VZ)                 ;
       Tp[1]     = dZ*dZ*.1                   ;
       Tp[2]     = dT*dT*.1/r0                ;
     }
     else if(E->m_barrel)   { //---------------------------->EB
 
-      double T2 = Tp[0]*Tp[0]                ; 
+      double T2 = Tp[0]*Tp[0]                ;
       Tp[1]     = 400.                       ;
       Tp[2]     = (VZ*VZ)/((1.+T2)*r0)       ;
     }
     else                   { //---------------------------->EE
 
-      double T2 = Tp[0]*Tp[0]                ; 
+      double T2 = Tp[0]*Tp[0]                ;
       Tp[1]     = 400.                       ;
       Tp[2]     = (VZ*VZ)/((1.+T2)*r0)       ;
     }
@@ -871,8 +853,8 @@ void InDet::TRT_TrajectoryElement_xk::polarAngleEstimation
   else {
     if     (E->m_barrel)   { //---------------------------->BB
 
-      double dZ = m_zMax-m_zMin              ; 
-      double dT = (E->m_zMax-E->m_zMin+2.*VZ);  
+      double dZ = m_zMax-m_zMin              ;
+      double dT = (E->m_zMax-E->m_zMin+2.*VZ);
       Tp[1]     = dZ*dZ*.1                   ;
       Tp[2]     = dT*dT*.1/r1                ;
     }
@@ -881,14 +863,14 @@ void InDet::TRT_TrajectoryElement_xk::polarAngleEstimation
       double T2 = Tp[0]*Tp[0]                ;
       double dr = sqrt(r1)-sqrt(r0)          ;
       Tp[1]     = dr*dr*VZ*VZ/r1             ;
-      Tp[2]     = (VZ*VZ)/((1.+T2)*r1)       ;      
+      Tp[2]     = (VZ*VZ)/((1.+T2)*r1)       ;
 
-    }             
-    else                   { //---------------------------->EE 
+    }
+    else                   { //---------------------------->EE
 
-      double T2 = Tp[0]*Tp[0]                ; 
+      double T2 = Tp[0]*Tp[0]                ;
       Tp[1]     = 400.                       ;
       Tp[2]     = (VZ*VZ)/((1.+T2)*r1)       ;
-    } 
+    }
   }
 }

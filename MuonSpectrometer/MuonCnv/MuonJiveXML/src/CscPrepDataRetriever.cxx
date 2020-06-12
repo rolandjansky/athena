@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonJiveXML/CscPrepDataRetriever.h"
 
 #include "MuonJiveXML/MuonFullIDHelper.h"
-
 #include "MuonReadoutGeometry/CscReadoutElement.h"
-#include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 
 namespace JiveXML {
@@ -28,9 +26,9 @@ namespace JiveXML {
 
   StatusCode CscPrepDataRetriever::initialize(){
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initializing retriever for " << dataTypeName() << endmsg; 
+    if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Initializing retriever for " << dataTypeName()); 
     
-    ATH_CHECK( m_muonIdHelperTool.retrieve() );
+    ATH_CHECK( m_idHelperSvc.retrieve() );
 
     return StatusCode::SUCCESS;
   }        
@@ -40,11 +38,11 @@ namespace JiveXML {
   StatusCode CscPrepDataRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     //be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() << endmsg; 
+    if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Retrieving " << dataTypeName()); 
 
-    const Muon::CscPrepDataContainer *cscContainer;
+    const Muon::CscPrepDataContainer *cscContainer=nullptr;
     if ( evtStore()->retrieve(cscContainer, m_sgKey).isFailure() ) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Muon::CscPrepDataContainer '" << m_sgKey << "' was not retrieved." << endmsg;
+      if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Muon::CscPrepDataContainer '" << m_sgKey << "' was not retrieved.");
       return StatusCode::SUCCESS;
     }
 
@@ -75,7 +73,7 @@ namespace JiveXML {
         Identifier id = data->identify();
           
         if (!element) {
-           if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No MuonGM::CscReadoutElement for hit " << id << endmsg;
+           if (msgLvl(MSG::WARNING)) ATH_MSG_WARNING("No MuonGM::CscReadoutElement for hit " << id);
           continue;
         }
 
@@ -88,7 +86,7 @@ namespace JiveXML {
         z.push_back(DataType(globalPos.z()/CLHEP::cm));
         lengthVec.push_back(DataType(length/CLHEP::cm));
         chargeVec.push_back(DataType(charge));
-        identifierVec.push_back(DataType(MuonFullIDHelper::getFullID(id, m_muonIdHelperTool->cscIdHelper())));
+        identifierVec.push_back(DataType(MuonFullIDHelper::getFullID(id, m_idHelperSvc->cscIdHelper())));
         idVec.push_back(DataType( id.get_compact() ));
         barcode.push_back(DataType(0));
       }
@@ -105,7 +103,7 @@ namespace JiveXML {
     myDataMap["barcode"] = barcode;
 
     //Be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< x.size() << endmsg;
+    if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG(dataTypeName() << ": "<< x.size());
 
     //forward data to formating tool
     //return FormatTool->AddToEvent(dataTypeName(), m_sgKey, &myDataMap);

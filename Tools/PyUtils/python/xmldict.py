@@ -1,11 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils/python/xmldict.py
 # @purpose converts an XML file into a python dict, back and forth
 # @author http://code.activestate.com/recipes/573463
 #         slightly adapted to follow PEP8 conventions
 
-__version__ = "$Revision$"
 __doc__ = """\
 functions to convert an XML file into a python dict, back and forth
 """
@@ -23,7 +22,7 @@ def import_etree():
     except ImportError:
         pass
     # do it by hook or by crook...
-    import sys, os, imp
+    import os, imp
     xml_site_package = os.path.join(os.path.dirname(os.__file__), 'xml')
     m = imp.find_module('etree', [xml_site_package])
 
@@ -58,12 +57,12 @@ class XmlDictObject(dict):
     
     ## def __getitem__(self, item):
     ##     o = dict.__getitem__(self, item)
-    ##     if isinstance(o, basestring):
+    ##     if isinstance(o, str):
     ##         return _xml_unescape(o)
     ##     return o
 
     ## def __setitem__(self, item, value):
-    ##     if isinstance(value, basestring):
+    ##     if isinstance(value, str):
     ##         value = _xml_unescape(value)
     ##     dict.__setitem__(self, item, value)
         
@@ -101,7 +100,7 @@ def _dict2xml_recurse(parent, dictitem):
 
     if isinstance(dictitem, dict):
         for (tag, child) in dictitem.iteritems():
-            if isinstance(child, basestring):
+            if isinstance(child, str):
                 child = _xml_escape(child)
             if str(tag) == '_text':
                 parent.text = str(child)
@@ -129,15 +128,15 @@ def _xml2dict_recurse (node, dictclass):
     
     if len(node.items()) > 0:
         # if we have attributes, set them
-        nodedict.update(dict((k, _xml_unescape(v) if isinstance(v, basestring) else v)
+        nodedict.update(dict((k, _xml_unescape(v) if isinstance(v, str) else v)
                              for k,v in node.items()))
     
     for child in node:
         # recursively add the element's children
         newitem = _xml2dict_recurse (child, dictclass)
-        if isinstance(newitem, basestring):
+        if isinstance(newitem, str):
             newitem = _xml_unescape(newitem)
-        if nodedict.has_key(child.tag):
+        if child.tag in nodedict:
             # found duplicate tag, force a list
             if isinstance(nodedict[child.tag], list):
                 # append to existing list

@@ -29,16 +29,11 @@ so that he can determine the validity of the constants
 #include <map>
 #include <set>
 
-#include "TH1.h"
-
-
+class TH1I;
 class TProfile;
 class CscICoolStrSvc;
 class ICscCalibTool;
-class cscIdHelper;
-class CscCalibResultCollection;
 class TGraphErrors;
-class CscCondDbData;
 
 namespace MuonCalib{
   /** 

@@ -81,7 +81,7 @@ namespace InDet {
       msg(MSG::INFO) << "Retrieved tool " << m_cablingTool << endmsg;
 
     //RDO Container
-    m_container = new SCT_RDO_Container(m_id->wafer_hash_max()); 
+    m_container = new SCT_RDO_Container(m_id->wafer_hash_max(), EventContainers::Mode::OfflineFast); 
     m_container ->addRef();   // make sure it is never deleted
     
     IIncidentSvc* pIncsvc;

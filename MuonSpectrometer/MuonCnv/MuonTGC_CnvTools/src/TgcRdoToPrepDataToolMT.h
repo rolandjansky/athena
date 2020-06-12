@@ -29,12 +29,10 @@ namespace Muon
       TgcRdoToPrepDataToolMT(const std::string& t, const std::string& n, const IInterface* p);
       
       /** Destructor */
-      virtual ~TgcRdoToPrepDataToolMT();
+      virtual ~TgcRdoToPrepDataToolMT()=default;
       
       /** Standard AthAlgTool initialize method */
       virtual StatusCode initialize() override;
-      /** Standard AthAlgTool finalize method */
-      virtual StatusCode finalize() override;
     
       using TgcRdoToPrepDataToolCore::decode; // To prevent the decode below from hiding the superclass decode methods
       virtual StatusCode decode(std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& idWithDataVect) override;

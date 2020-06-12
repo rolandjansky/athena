@@ -13,9 +13,6 @@ af.EvtMax=-1 # number of event to process
 # add LumiBlockMetaDataTool to ToolSvc and configure
 from LumiBlockComps.LumiBlockCompsConf import LumiBlockMetaDataTool
 ToolSvc += LumiBlockMetaDataTool( "LumiBlockMetaDataTool" )
-LumiBlockMetaDataTool.calcLumi = True # False by default
-LumiBlockMetaDataTool.storeXMLFiles = True
-LumiBlockMetaDataTool.applyDQCuts = True
 LumiBlockMetaDataTool.OutputLevel = INFO
 
 # add ToolSvc.LumiBlockMetaDataTool to MetaDataSvc
@@ -29,18 +26,6 @@ ToolSvc += GoodRunsListSelectorTool()
 GoodRunsListSelectorTool.OutputLevel = INFO
 GoodRunsListSelectorTool.GoodRunsListVec = [ 'top_noveto_muchannel_7TeV.xml' ]  # <<<<--- Edit this line!
 GoodRunsListSelectorTool.PassThrough = False
-
-# add LumiCalcSvc to ServiceMgr and configure
-from LumiBlockComps.LumiBlockCompsConf import LumiCalcSvc
-LumiCalcSvc = LumiCalcSvc()
-LumiCalcSvc.Triggers = ["EF_mu10"]
-LumiCalcSvc.UseMC = False
-LumiCalcSvc.LBCollNames = ["LumiBlocks", "IncompleteLumiBlocks"]
-LumiCalcSvc.Verbose = False
-LumiCalcSvc.UseLumiTag = "OflLumi-7TeV-002"
-LumiCalcSvc.LumiEstFolder = "/TRIGGER/OFLLUMI/LBLESTOFL"
-svcMgr += LumiCalcSvc
-#======================================================================================
 
 from RecExConfig.RecFlags import rec
 rec.AutoConfiguration = ['everything']

@@ -26,7 +26,7 @@ folder = TileCalibTools.getTilePrefix(ofl=False)+"STATUS/ADC"
 
 #=== no tag for online folder
 folderTag = ""
-    
+
 #=== create bad channel manager
 mgr = TileBchTools.TileBchMgr()
 mgr.setLogLvl(logging.DEBUG)
@@ -59,45 +59,45 @@ emptyChannelSpecialExtendedBarrel = (0, 1, 2, 3, 24, 25, 26, 27, 28, 29, 33, 34,
 #=== Add Online masked channels
 # LBA
 for i in range(30, 36):
-   if i not in emptyChannelLongBarrel: # LBA11 DMU10-11
-      mgr.addAdcProblem(1, 10, i, 0, TileBchPrbs.IgnoredInHlt)
-      mgr.addAdcProblem(1, 10, i, 1, TileBchPrbs.IgnoredInHlt)
+    if i not in emptyChannelLongBarrel: # LBA11 DMU10-11
+        mgr.addAdcProblem(1, 10, i, 0, TileBchPrbs.IgnoredInHlt)
+        mgr.addAdcProblem(1, 10, i, 1, TileBchPrbs.IgnoredInHlt)
 mgr.addAdcProblem(1, 17, 38, 0, TileBchPrbs.IgnoredInHlt)
 for i in range(0, 48):
-   if i not in emptyChannelLongBarrel:
-      mgr.addAdcProblem(1, 52, i, 0, TileBchPrbs.IgnoredInHlt)
-      mgr.addAdcProblem(1, 52, i, 1, TileBchPrbs.IgnoredInHlt)
+    if i not in emptyChannelLongBarrel:
+        mgr.addAdcProblem(1, 52, i, 0, TileBchPrbs.IgnoredInHlt)
+        mgr.addAdcProblem(1, 52, i, 1, TileBchPrbs.IgnoredInHlt)
 mgr.addAdcProblem(1, 56, 21, 0, TileBchPrbs.IgnoredInHlt)
 mgr.addAdcProblem(1, 56, 21, 1, TileBchPrbs.IgnoredInHlt)
 
 # LBC
 # We don't mask this case yet, as it doesn't pose reconstruction problems
 #for i in range(30, 36):
-#   if i not in emptyChannelLongBarrel:
-#      mgr.addAdcProblem(2, 2, i, 1, TileBchPrbs.DataCorruption)
+#    if i not in emptyChannelLongBarrel:
+#        mgr.addAdcProblem(2, 2, i, 1, TileBchPrbs.DataCorruption)
 mgr.addAdcProblem(2, 14, 19, 0, TileBchPrbs.IgnoredInHlt)
 mgr.addAdcProblem(2, 14, 19, 1, TileBchPrbs.IgnoredInHlt)
 for i in range(42, 48):
-   if i not in emptyChannelLongBarrel:
-      mgr.addAdcProblem(2, 19, i, 0, TileBchPrbs.IgnoredInHlt)
-      mgr.addAdcProblem(2, 19, i, 1, TileBchPrbs.IgnoredInHlt)
+    if i not in emptyChannelLongBarrel:
+        mgr.addAdcProblem(2, 19, i, 0, TileBchPrbs.IgnoredInHlt)
+        mgr.addAdcProblem(2, 19, i, 1, TileBchPrbs.IgnoredInHlt)
 mgr.addAdcProblem(2, 23, 42, 0, TileBchPrbs.IgnoredInHlt)
 mgr.addAdcProblem(2, 23, 42, 1, TileBchPrbs.IgnoredInHlt)
 mgr.addAdcProblem(2, 26, 46, 0, TileBchPrbs.IgnoredInHlt)
 mgr.addAdcProblem(2, 46, 44, 0, TileBchPrbs.IgnoredInHlt)
 for i in range(15, 18):
-   if i not in emptyChannelLongBarrel:
-      mgr.addAdcProblem(2, 63, i, 0, TileBchPrbs.IgnoredInHlt)
-      mgr.addAdcProblem(2, 63, i, 1, TileBchPrbs.IgnoredInHlt)
+    if i not in emptyChannelLongBarrel:
+        mgr.addAdcProblem(2, 63, i, 0, TileBchPrbs.IgnoredInHlt)
+        mgr.addAdcProblem(2, 63, i, 1, TileBchPrbs.IgnoredInHlt)
 
 
 # EBA
 mgr.addAdcProblem(3, 24, 15, 0, TileBchPrbs.IgnoredInHlt)
 mgr.addAdcProblem(3, 24, 15, 1, TileBchPrbs.IgnoredInHlt)
 for i in range(21, 24):
-   if i not in emptyChannelExtendedBarrel:
-      mgr.addAdcProblem(3, 43,  i, 0, TileBchPrbs.IgnoredInHlt)
-      mgr.addAdcProblem(3, 43,  i, 1, TileBchPrbs.IgnoredInHlt)
+    if i not in emptyChannelExtendedBarrel:
+        mgr.addAdcProblem(3, 43,  i, 0, TileBchPrbs.IgnoredInHlt)
+        mgr.addAdcProblem(3, 43,  i, 1, TileBchPrbs.IgnoredInHlt)
 
 mgr.addAdcProblem(3, 54, 14, 0, TileBchPrbs.IgnoredInHlt)
 mgr.addAdcProblem(3, 54, 14, 1, TileBchPrbs.IgnoredInHlt)
@@ -115,16 +115,16 @@ mgr.addAdcProblem(4, 36, 40, 0, TileBchPrbs.IgnoredInHlt)
 mgr.addAdcProblem(4, 36, 40, 1, TileBchPrbs.IgnoredInHlt)
 #DataCorrption is not enough to justify the masking
 #for i in range(0, 48):
-#   if i not in emptyChannelExtendedBarrel:
-#      mgr.addAdcProblem(4, 41, i, 0, TileBchPrbs.DataCorruption)
-#      mgr.addAdcProblem(4, 41, i, 1, TileBchPrbs.DataCorruption)
+#    if i not in emptyChannelExtendedBarrel:
+#        mgr.addAdcProblem(4, 41, i, 0, TileBchPrbs.DataCorruption)
+#        mgr.addAdcProblem(4, 41, i, 1, TileBchPrbs.DataCorruption)
 mgr.addAdcProblem(4, 47, 35, 0, TileBchPrbs.IgnoredInHlt)
 mgr.addAdcProblem(4, 47, 35, 1, TileBchPrbs.IgnoredInHlt)
 #DataCorrption is not enough to justify the masking
 #for i in range(30, 33):
-#   if i not in emptyChannelExtendedBarrel:
-#      mgr.addAdcProblem(4, 62, i, 0, TileBchPrbs.DataCorruption)
-#      mgr.addAdcProblem(4, 62, i, 1, TileBchPrbs.DataCorruption)
+#    if i not in emptyChannelExtendedBarrel:
+#        mgr.addAdcProblem(4, 62, i, 0, TileBchPrbs.DataCorruption)
+#        mgr.addAdcProblem(4, 62, i, 1, TileBchPrbs.DataCorruption)
 
 #=== print bad channels
 log.info("bad channels after update")
@@ -135,4 +135,3 @@ mgr.commitToDb(db, folder, folderTag, TileBchDecoder.BitPat_onl01, "lfiorini", "
 
 #=== close DB
 db.closeDatabase()
-

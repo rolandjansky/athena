@@ -4,11 +4,12 @@
 # art-input: user.keli.mc16_13TeV.422032.ParticleGun_single_mu_Pt1.recon.RDO.e7967_e5984_s3126_r11774_tid20254908_00
 # art-input-nfiles: 10
 # art-cores: 4
+# art-memory: 4096
 # art-include: master/Athena
 # art-output: *.root
 # art-output: *.xml 
 # art-output: art_core_*
-# art-output: dcube
+# art-output: dcube*
 
 set -x
 
@@ -34,7 +35,7 @@ case $ArtProcess in
       postProcessIDPVMHistos physval.root
 
       dcubeXml="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPhysValMonitoring/dcube/config/IDPVMPlots_R22.xml"
-      dcubeRef="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPhysValMonitoring/ReferenceHistograms/physval_mu1GeV.root"
+      dcubeRef="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPhysValMonitoring/ReferenceHistograms/physval_mu1GeV_reco_r22.root"
       echo "compare with R21"
       $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
 	   -p -x dcube \
@@ -83,6 +84,7 @@ case $ArtProcess in
       InDetPhysValFlags.doValidateTightPrimaryTracks.set_Value_and_Lock(True); \
       InDetPhysValFlags.doValidateTracksInJets.set_Value_and_Lock(False); \
       InDetPhysValFlags.doValidateGSFTracks.set_Value_and_Lock(False); \
+      InDetPhysValFlags.doPhysValOutput.set_Value_and_Lock(True); \
       rec.doDumpProperties=True; rec.doCalo=False; rec.doEgamma=False; \
       rec.doForwardDet=False; rec.doInDet=True; rec.doJetMissingETTag=False; \
       rec.doLArg=False; rec.doLucid=False; rec.doMuon=False; rec.doMuonCombined=False; \
@@ -92,9 +94,10 @@ case $ArtProcess in
       AODFlags.ThinNegativeEnergyCaloClusters.set_Value_and_Lock(False); \
       AODFlags.ThinNegativeEnergyNeutralPFOs.set_Value_and_Lock(False);\
       AODFlags.ThinInDetForwardTrackParticles.set_Value_and_Lock(False) '
-    echo  "art-result: $? reco_${ArtInFile}"
-    if [ $? -ne 0 ]  ;then
-      success_run=$?
+    rec_tf_exit_code=$?
+    echo "art-result: $rec_tf_exit_code reco_${file}"
+    if [ $rec_tf_exit_code -ne 0 ]  ;then
+       success_run=$rec_tf_exit_code 
     fi
     ls -lR
     ;;

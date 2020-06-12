@@ -6,7 +6,6 @@
 #include "TrackScoringTool.h"
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "TrkTrack/TrackCollection.h"
-#include "GaudiKernel/MsgStream.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkTrack/TrackInfo.h"
@@ -14,7 +13,6 @@
 #include "TrkTrackSummary/TrackSummary.h"
 
 #include <map>
-#include <ext/functional>
 #include <iterator>
 #include "TString.h"
 
@@ -88,7 +86,7 @@ StatusCode Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::finalize()
 void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::statistics() {
    if (msgLvl(MSG::INFO)) {
       MsgStream &out=msg(MSG::INFO);
-      out << " -- statistics " << std::endl;
+      out << " -- statistics " << "\n";
       std::lock_guard<std::mutex> lock( m_statMutex );
       m_stat.dump(out);
       out << endmsg;
@@ -97,27 +95,37 @@ void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::statistics() {
 
 void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::TrackStat::dump(MsgStream &out) const
 {
-   // @TODO restore ios
+   auto parseFileName=[](const std::string & fullname){
+     auto dotPosition = fullname.rfind('.');
+     auto slashPosition = fullname.rfind('/');
+     auto stringLength = dotPosition - slashPosition;
+     return fullname.substr(slashPosition, stringLength);
+   };
    std::streamsize ss = out.precision();
    int iw=9;
-   out << "------------------------------------------------------------------------------------" << std::endl;
-   out << "  Number of events processed      :   "<< m_globalCounter[kNevents].value() << std::endl;
+   out << "Output from ";
+   out << parseFileName(__FILE__);
+   out << "::";
+   out << __func__;
+   out << "\n";
+   out << "------------------------------------------------------------------------------------" << "\n";
+   out << "  Number of events processed      :   "<< m_globalCounter[kNevents].value() << "\n";
    if (m_globalCounter[kNInvalidTracks]>0) {
-      out << "  Number of invalid tracks        :   "<< m_globalCounter[kNInvalidTracks].value() << std::endl;
+      out << "  Number of invalid tracks        :   "<< m_globalCounter[kNInvalidTracks].value() << "\n";
    }
    if (m_globalCounter[kNTracksWithoutParam]>0) {
-      out << "  Tracks without parameters       :   "<< m_globalCounter[kNTracksWithoutParam].value() << std::endl;
+      out << "  Tracks without parameters       :   "<< m_globalCounter[kNTracksWithoutParam].value() << "\n";
    }
-   out << "  statistics by eta range          ------All---Barrel---Trans.-- Endcap-- Forwrd-- " << std::endl;
-   out << "------------------------------------------------------------------------------------" << std::endl;
+   out << "  statistics by eta range          ------All---Barrel---Trans.-- Endcap-- Forwrd-- " << "\n";
+   out << "------------------------------------------------------------------------------------" << "\n";
    dumpStatType(out, "  Number of candidates at input   :",    kNcandidates,iw);
    dumpStatType(out, "  - candidates rejected score 0   :",    kNcandScoreZero,iw);
    dumpStatType(out, "  - candidates rejected as double :",    kNcandDouble,iw);
-   out << "------------------------------------------------------------------------------------" << std::endl;
+   out << "------------------------------------------------------------------------------------" << "\n";
    out << std::setiosflags(std::ios::fixed | std::ios::showpoint) << std::setprecision(2)
        << "    definition: ( 0.0 < Barrel < " << (*m_etabounds)[iBarrel-1] << " < Transition < " << (*m_etabounds)[iTransi-1]
-       << " < Endcap < " << (*m_etabounds)[iEndcap-1] << " < Forward < " << (*m_etabounds)[iForwrd-1] << " )" << std::endl;
-   out << "------------------------------------------------------------------------------------" << std::endl;
+       << " < Endcap < " << (*m_etabounds)[iEndcap-1] << " < Forward < " << (*m_etabounds)[iForwrd-1] << " )" << "\n";
+   out << "------------------------------------------------------------------------------------" << "\n";
    out << std::setprecision(ss);
 }
 
@@ -184,16 +192,15 @@ void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::addNewTracks(std::vector
   for(const Track* a_track : *tracks) {
     ATH_MSG_DEBUG ("Processing track candidate "<<a_track);
     stat.increment_by_eta(TrackStat::kNcandidates,a_track); // @TODO should go to the score processor
-
+    
     // only fitted tracks get hole search, input is not fitted
     float score = m_scoringTool->score( *a_track, true);
     ATH_MSG_DEBUG ("Track Score is "<< score);
     // veto tracks with score 0
     bool reject = score==0;      
-    
-    // double track rejection
-    if (!reject) {
+    if (reject){
       stat.increment_by_eta(TrackStat::kNcandScoreZero,a_track);
+    } else {// double track rejection
       std::vector<const Trk::PrepRawData*> prds = m_assoTool->getPrdsOnTrack(*prd_to_track_map, *a_track);
       // convert to set
       PrdSignature prdSig( prds.begin(),prds.end() );
@@ -209,7 +216,6 @@ void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::addNewTracks(std::vector
 
     if (!reject) {
       // add track to map, map is sorted small to big ! set if fitted
-
       ATH_MSG_VERBOSE ("Track ("<< a_track <<" --> "<< *a_track << ") has score "<<score);
       trackScoreTrackMap->push_back( std::make_pair(a_track, -score));
     }
@@ -238,9 +244,9 @@ void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::updatePixelSplitInformat
   ATH_MSG_DEBUG (  "---- "<< pixelCluster->globalPosition().perp() 
                              <<" Updating split probs 1:  Old " << pixelCluster->splitProbability1() << "  New " << splitProb.splitProbability(2) 
                              <<" Probs 2:  Old " << pixelCluster->splitProbability2() << "  New " << splitProb.splitProbability(3) 
-                             << std::endl
+                             << "\n"
                              << " --- pixelCluster: " <<  *pixelCluster
-                             << std::endl
+                             << "\n"
                              << " --- trk params: " << *clusterTrkPara.second  );
 
   if ( splitProb.splitProbability(2)  < 0 ){

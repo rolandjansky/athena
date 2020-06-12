@@ -55,7 +55,6 @@ bool MTT0PatternRecognition::estimate_background(TH1F* hist, double scale_min)
 	double back_squared=0.0;
 	double n_bins=0.0;
 	double referece_chi2=0.0;
-	std::cout<<"UUUuuuUUU ";
 	for(int i=min; i<max; i++)
 		{
 		n_bins++;
@@ -65,17 +64,14 @@ bool MTT0PatternRecognition::estimate_background(TH1F* hist, double scale_min)
 			{
 			double bac=m_background/n_bins;
 			referece_chi2 = 2 * (back_squared/n_bins - bac*bac);
-			std::cout<<referece_chi2<<" ";
 			}
 		if (n_bins>m_settings->MinBackgroundBins())
 			{
 			double bac=m_background/n_bins;
 			double chi2=2 * (back_squared/n_bins - bac*bac);
-			std::cout<<chi2<<" ";
 			if (chi2>5*referece_chi2) break;
 			}
 		}
-	std::cout<<std::endl;
 	m_background/=n_bins;
 //store lower edge of fit range
 	m_fit_min=hist->GetBinCenter(min);

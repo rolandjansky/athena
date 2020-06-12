@@ -374,7 +374,9 @@ namespace Muon {
     entry.nrpcHitsPhi = nrpcHitsPhi;
     entry.ntgcHitsEta = ntgcHitsEta;
     entry.ntgcHitsPhi = ntgcHitsPhi;
+    if (!triggerHitsEta.empty() && etaHits.size()==0) ATH_MSG_WARNING("did not find any eta hits");
     entry.setEtaHits(etaHits);
+    if (!triggerHitsPhi.empty() && phiHits.size()==0) ATH_MSG_WARNING("did not find any phi hits");
     entry.setPhiHits(phiHits);
     entry.setFakePhiHits(fakePhiHits);
     entry.setAllHits(allHits);
@@ -462,7 +464,7 @@ namespace Muon {
         if (prd){ 
           prds.push_back( prd );
         } else {
-          ATH_MSG_ERROR("MuonClusterOnTrack has no PRD.");
+          ATH_MSG_WARNING("MuonClusterOnTrack has no PRD.");
         }
       }
 

@@ -1,28 +1,28 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CscClusterValAlg_H
 #define CscClusterValAlg_H
 
+#include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
 #include "MuonPrepRawData/CscPrepDataContainer.h"
 #include "MuonPrepRawData/CscStripPrepDataContainer.h"
-
-#include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
-
 #include "StoreGate/ReadHandleKey.h"
-
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "CscClusterization/ICscStripFitter.h"
+#include "CscCalibTools/ICscCalibTool.h"
+
+#include <vector>
+#include <string>
 
 class TH1;
 class TH1F;
 class TH2F;
-
-class ICscStripFitter;
-class ICscCalibTool;
 
 class CscClusterValAlg : public ManagedMonitorToolBase {
 
@@ -44,13 +44,12 @@ class CscClusterValAlg : public ManagedMonitorToolBase {
     virtual StatusCode fillHistograms(); 
 
     // finalize
-    virtual StatusCode procHistograms(); 
+    virtual StatusCode procHistograms(){return StatusCode::SUCCESS;}
 
     float stripsSum_EA;
     float stripsSum_EAtest;
     float stripsSum_EC;
     float stripsSum_ECtest;
-
 
   private:
 
@@ -72,9 +71,7 @@ class CscClusterValAlg : public ManagedMonitorToolBase {
     std::string m_cscClusterPath, m_cscGenPath;
     unsigned int m_qmaxADCCut;
 
-    // Id helper
-    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     // Strip fitter.
     ToolHandle<ICscStripFitter> m_stripFitter;
@@ -111,11 +108,9 @@ class CscClusterValAlg : public ManagedMonitorToolBase {
     
     TH2F *m_h2csc_clus_qmax_signal_EA;
     TH1F *m_h1csc_clus_qmax_signal_EA_count;
-    //TH1F *m_h1csc_clus_qmax_signal_EA_occupancy;
     
     TH2F *m_h2csc_clus_qmax_signal_EC;
     TH1F *m_h1csc_clus_qmax_signal_EC_count;
-    //TH1F *m_h1csc_clus_qmax_signal_EC_occupancy;
 
     // q_sum = q_max + q_left + q_right of cluster
     TH2F *m_h2csc_clus_qsum;
@@ -124,12 +119,10 @@ class CscClusterValAlg : public ManagedMonitorToolBase {
     
     TH2F *m_h2csc_clus_qsum_signal_EA;
     TH1F *m_h1csc_clus_qsum_signal_EA_count;
-    //TH1F *m_h1csc_clus_qsum_signal_EA_occupancy;
     TH1F *m_h1csc_clus_qsum_signal_EA_lfitmean;
     
     TH2F *m_h2csc_clus_qsum_signal_EC;
     TH1F *m_h1csc_clus_qsum_signal_EC_count;
-    //TH1F *m_h1csc_clus_qsum_signal_EC_occupancy;
     TH1F *m_h1csc_clus_qsum_signal_EC_lfitmean;
 
     // sampling time - eta cluster

@@ -377,13 +377,14 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
     for (Muon::MdtPrepDataCollection::const_iterator mdtCollection=(*MdtcontainerIt)->begin(); mdtCollection!=(*MdtcontainerIt)->end(); ++mdtCollection )
     {
       ++Nhitsmdt ;
-    }}
+    }
+  }
 
   if(Nhitsmdt > m_HighOccThreshold) isNoiseBurstCandidate = true;
   std::string type="MDT";
   std::string hardware_name;
 
-  std::map<std::string,float> evnt_hitsperchamber_map;
+  std::map<std::string,int> evnt_hitsperchamber_map;
   std::set<std::string>  chambers_from_tracks;
 
   if (m_doMdtESD==true) { 
@@ -416,7 +417,7 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
 	  if(ntri_eta+n_phi==0) continue;
 	}
       }
-      
+
       MDTOverviewHistogramStruct overviewPlots;
       MDTSummaryHistogramStruct summaryPlots[4][4][16][4][4]; // [region][layer][phi][crate_region][crate]
       //loop in MdtPrepDataContainer
@@ -430,13 +431,18 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
         {
           nPrd++;
 
-	  hardware_name = getChamberName(*mdtCollection);
+
           float adc = (*mdtCollection)->adc();
+	  hardware_name = getChamberName(*mdtCollection);
           if(hardware_name.substr(0,3) == "BMG") adc /= 4.;
           if( adc > m_ADCCut ) 
           {
             nPrdcut++;
             isHit_above_ADCCut = true;
+	    std::string phi=hardware_name.substr( hardware_name.length() - 2); 
+	    auto hit_in_chamber = Monitored::Scalar<std::string>("hits_phi_"+phi,hardware_name); 
+	    auto hit_in_chamber_allphi = Monitored::Scalar<std::string>("hits_allphi",hardware_name); 
+	    fill("MdtMonitor",hit_in_chamber,hit_in_chamber_allphi);                                                                                   
           }
           fillMDTOverviewVects(*mdtCollection, isNoiseBurstCandidate, overviewPlots);
 	  //=======================================================================
@@ -451,25 +457,14 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
 	  if(m_doChamberHists){
 	    ATH_CHECK(fillMDTHistograms(*mdtCollection));
 	  }      
- 
-          std::map<std::string,float>::iterator iter_hitsperchamber = evnt_hitsperchamber_map.find(hardware_name);
+
+          std::map<std::string,int>::iterator iter_hitsperchamber = evnt_hitsperchamber_map.find(hardware_name);
           if ( iter_hitsperchamber == evnt_hitsperchamber_map.end() ) { 
             evnt_hitsperchamber_map.insert( make_pair( hardware_name, 1 ) );
           } 
           else {
             iter_hitsperchamber->second += 1;
           }     
-
-	  std::map<std::string,float> hitsperchamber_map;
-	  if( adc >m_ADCCut) {
-	    std::map<std::string,float>::iterator iter_hitsperchamber = hitsperchamber_map.find(hardware_name);
-            if ( iter_hitsperchamber == hitsperchamber_map.end() ) { 
-              hitsperchamber_map.insert( make_pair( hardware_name, 1 ) );
-            } 
-            else {
-             iter_hitsperchamber->second += 1;
-            }                
-          }       
 
         } // for loop over hits mdtcollection
         if( isHit_above_ADCCut ) 
@@ -480,22 +475,20 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
 
       ATH_CHECK( fillMDTSummaryHistograms(summaryPlots, lumiblock) );
       
-      
       int nHighOccChambers = 0;
       for(const auto iterstat: evnt_hitsperchamber_map) {
-          const auto iter_tubesperchamber = m_tubesperchamber_map.find(iterstat.first);
-          if (ATH_UNLIKELY(iter_tubesperchamber == m_tubesperchamber_map.end())) { // indicates software error
-            ATH_MSG_ERROR("Unable to find chamber " << iterstat.first);
-            continue;
-          }
-          float nTubes = iter_tubesperchamber->second;
-          float hits = iterstat.second;
-          float occ = hits/nTubes;
-          if ( occ > 0.1 ) nHighOccChambers++;
+	const auto iter_tubesperchamber = m_tubesperchamber_map.find(iterstat.first);
+	if (ATH_UNLIKELY(iter_tubesperchamber == m_tubesperchamber_map.end())) { // indicates software error
+	  ATH_MSG_ERROR("Unable to find chamber " << iterstat.first);
+	  continue;
+	}
+	float nTubes = iter_tubesperchamber->second;
+	float hits = iterstat.second;
+	float occ = hits/nTubes;
+	if ( occ > 0.1 ) nHighOccChambers++;
       }
-
+      
       auto nHighOccChambers_mon = Monitored::Scalar<float>("nHighOccChambers_mon", nHighOccChambers);
-           
 
       auto nPrd_mon = Monitored::Scalar<int>("nPrd_mon", nPrd);
       auto nPrdcut_mon = Monitored::Scalar<int>("nPrdcut_mon", nPrdcut);
@@ -552,21 +545,21 @@ void MdtRawDataMonAlg::fillMDTOverviewVects( const Muon::MdtPrepData* mdtCollect
 
   if( adc>m_ADCCut ) {
     //barrel
-    if(fabs(mdt_tube_eta)>0. && fabs(mdt_tube_eta)<0.9) {
+    if(std::abs(mdt_tube_eta)>0. && std::abs(mdt_tube_eta)<0.9) {
       vects.mdt_tube_x_barrel.push_back(mdtgPos.x());
       vects.mdt_tube_y_barrel.push_back(mdtgPos.y());
       vects.mdt_tube_z_barrel.push_back(mdtgPos.z());
       vects.mdt_tube_perp_barrel.push_back(mdtgPos.perp());
     }   
     //OverLap -->Fill MDT Global RZ and YX
-    if(fabs(mdt_tube_eta)>0.9 && fabs(mdt_tube_eta)<1.2) {
+    if(std::abs(mdt_tube_eta)>0.9 && std::abs(mdt_tube_eta)<1.2) {
       vects.mdt_tube_x_ovl.push_back(mdtgPos.x());
       vects.mdt_tube_y_ovl.push_back(mdtgPos.y());
       vects.mdt_tube_z_ovl.push_back(mdtgPos.z());
       vects.mdt_tube_perp_ovl.push_back(mdtgPos.perp());
     }
     //EndCap -->Fill MDT Global RZ and YX
-    if(fabs(mdt_tube_eta)>1.2 && fabs(mdt_tube_eta)<2.7){
+    if(std::abs(mdt_tube_eta)>1.2 && std::abs(mdt_tube_eta)<2.7){
       vects.mdt_tube_x_endcap.push_back(mdtgPos.x());
       vects.mdt_tube_y_endcap.push_back(mdtgPos.y());
       vects.mdt_tube_z_endcap.push_back(mdtgPos.z());
@@ -1176,8 +1169,8 @@ StatusCode MdtRawDataMonAlg::handleEvent_effCalc_fillVects(const Trk::SegmentCol
       std::vector<float> traversed_distance;    
       for( unsigned i_chamber=0; i_chamber<unique_chambers.size(); i_chamber++) {
         Identifier station_id = unique_chambers.at(i_chamber);
-        if( !m_idHelperSvc->mdtIdHelper().is_mdt( station_id ) ) {
-          ATH_MSG_DEBUG("is_mdt() returned false in segm-based mdt eff calc" );
+        if( !m_idHelperSvc->isMdt( station_id ) ) {
+          ATH_MSG_DEBUG("Non-MDT station Identifier in segm-based mdt eff calc" );
         }
         std::string hardware_name = getChamberName(station_id); 
 

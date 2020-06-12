@@ -88,7 +88,7 @@ class tauRecRNNTrackClassificationConfig(JobProperty):
     """
     statusOn=True
     allowedTypes=['string']
-    StoredValue=["TauTrackRNN_offline_BLSTM_v1.json"]
+    StoredValue=["TauTrackRNN_LSTM_L40_Sum_v0.json"]
 
 class tauRecSeedMaxEta(JobProperty):
     """ max allowed abs_eta of jet seed
@@ -193,7 +193,7 @@ class useOldVertexFitterAPI(JobProperty):
 class useShowerSubClusters(JobProperty):
     """ switch on use of shower subtracted clusters
     """
-    statusOn=False
+    statusOn=True
     allowedTypes=['bool']
     StoredValue=False
 

@@ -100,7 +100,7 @@ namespace InDet {
   }
 
 
-  StatusCode InDetTrackTruthFilterTool::finalize() {
+  InDetTrackTruthFilterTool::~InDetTrackTruthFilterTool() {
     
     delete m_fPrimHistogram;
     delete m_fSecHistogram;
@@ -133,8 +133,6 @@ namespace InDet {
     m_trkEffHistTightIBL = nullptr;
     m_trkEffHistTightPP0 = nullptr;
     m_trkEffHistTightPhysModel = nullptr;
-
-    return StatusCode::SUCCESS;
   }
 
   bool InDetTrackTruthFilterTool::accept(const xAOD::TrackParticle* track) const {

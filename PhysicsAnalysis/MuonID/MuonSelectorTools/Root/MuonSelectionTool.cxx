@@ -2,6 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "AsgDataHandles/ReadHandle.h"
 #include "MuonSelectorTools/MuonSelectionTool.h"
 #include "xAODTracking/TrackingPrimitives.h"
 #include "PathResolver/PathResolver.h"

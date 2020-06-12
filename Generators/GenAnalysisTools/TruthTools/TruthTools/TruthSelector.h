@@ -49,8 +49,8 @@ public:
     const std::vector<int>&	reconstructableSecondaries(double minPt);
 
 private:
-    bool			selectParticle (const HepMC::GenParticle& particle, double minPt);
-    
+    bool			selectParticle (const HepMC::GenParticle* particle, double minPt);
+    bool			selectParticle (const HepMC::GenParticle& particle, double minPt){ return selectParticle(&particle,minPt);  };
     std::vector<int>			m_barcodes;
     std::map<int,int>			m_indetKineMap;
     double				m_maxEta;

@@ -1,0 +1,66 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+namespace Trk {
+inline void
+TrackParticleCreatorTool::setFitQuality(xAOD::TrackParticle& tp, const FitQuality& fq) const
+{
+  tp.setFitQuality(fq.chiSquared(), static_cast<float>(fq.doubleNumberDoF()));
+}
+
+inline void
+TrackParticleCreatorTool::setTrackInfo(xAOD::TrackParticle& tp,
+                                       const TrackInfo& trackInfo,
+                                       xAOD::ParticleHypothesis prtOrigin) const
+{
+  unsigned int properties = 0;
+  for (unsigned int i = 0; i < Trk::TrackInfo::NumberOfTrackProperties; i++) {
+    if (trackInfo.trackProperties(static_cast<Trk::TrackInfo::TrackProperties>(i)))
+      properties |= (1 << i);
+  }
+  tp.setTrackProperties(static_cast<xAOD::TrackProperties>(properties));
+  uint64_t patternReco = 0;
+  const uint64_t c1 = 1;
+
+  for (unsigned int i = 0; i < xAOD::NumberOfTrackRecoInfo; i++) {
+    if (trackInfo.patternRecoInfo(static_cast<Trk::TrackInfo::TrackPatternRecoInfo>(i))){
+      patternReco |= c1 << i;
+    }
+  }
+
+  tp.setPatternRecognitionInfo(patternReco);
+
+  if (prtOrigin == xAOD::noHypothesis){
+    tp.setParticleHypothesis(static_cast<xAOD::ParticleHypothesis>(trackInfo.particleHypothesis()));
+  }
+  else{
+    tp.setParticleHypothesis(prtOrigin);
+  }
+  tp.setTrackFitter(static_cast<xAOD::TrackFitter>(trackInfo.trackFitter()));
+}
+
+inline void
+TrackParticleCreatorTool::setDefiningParameters(xAOD::TrackParticle& tp,
+                                                const Perigee& perigee) const
+{
+  tp.setDefiningParameters(perigee.parameters()[Trk::d0],
+                           perigee.parameters()[Trk::z0],
+                           perigee.parameters()[Trk::phi0],
+                           perigee.parameters()[Trk::theta],
+                           perigee.parameters()[Trk::qOverP]);
+  const AmgSymMatrix(5)* covMatrix = perigee.covariance();
+  // see https://its.cern.ch/jira/browse/ATLASRECTS-645 for justification to
+  // comment out the following line assert(covMatrix && covMatrix->rows()==5&&
+  // covMatrix->cols()==5);
+  std::vector<float> covMatrixVec;
+  if (!covMatrix)
+    ATH_MSG_WARNING("Setting Defining parameters without error matrix");
+  else
+    Amg::compress(*covMatrix, covMatrixVec);
+  tp.setDefiningParametersCovMatrixVec(covMatrixVec);
+  const Amg::Vector3D& surfaceCenter = perigee.associatedSurface().center();
+  tp.setParametersOrigin(surfaceCenter.x(), surfaceCenter.y(), surfaceCenter.z());
+}
+}
+

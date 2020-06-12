@@ -7,10 +7,11 @@
 #
 # 2014-07-14 - Sasha, based on update_noise_bulk.py from Carlos,Gui,Blake,Yuri
 # 2016-12-14 - Yuri Smirnov, change for PyCintex->cppyy for ROOT6
+# 2020-06-06 - Sasha - introducing --end and --endlumi parameters
 
 from __future__ import print_function
 
-import getopt,sys,os,re
+import getopt,sys,os,re,bisect
 os.environ['TERM'] = 'linux'
 
 def usage():
@@ -20,22 +21,26 @@ def usage():
     print ("-h, --help      shows this help")
     print ("-i, --infile=   specify the input sqlite file or full schema string")
     print ("-o, --outfile=  specify the output sqlite file")
-    print ("-a, --intag=    specify the input tag")
-    print ("-g, --outtag=   specify the output tag")
+    print ("-t, --intag=    specify the input tag")
+    print ("-T, --outtag=   specify the output tag")
     print ("-f, --folder=   specify status folder to use e.g. /TILE/OFL02/NOISE/CELL ")
     print ("-d, --dbname=   specify the database name e.g. OFLP200")
-    print ("-t, --txtfile=  specify the text file with the new noise constants")
+    print ("-x, --txtfile=  specify the text file with the new noise constants")
     print ("-r, --run=      specify run number for start of IOV")
-    print ("-l, --lumi=     specify lumiblock number for start of IOV")
-    print ("-b, --begin=    make IOV in output file from (begin,0) to infinity")
+    print ("-l, --lumi=     specify lumiblock number for start of IOV, default is 0")
+    print ("-b, --begin=    specify run number of first iov in multi-iov mode, by default uses very first iov")
+    print ("-e, --end=      specify run number of last iov in multi-iov mode, by default uses latest iov")
+    print ("-L, --endlumi=  specify lumi block number for last iov in multi-iov mode, default is 0")
+    print ("-A, --adjust    in multi-iov mode adjust iov boundaries to nearest iov available in DB, default is False")
     print ("-n, --channel=  specify cool channel to use (48 by defalt)")
     print ("-s, --scale=    specify scale factor for all the fields except ratio field")
+    print ("-u  --update    set this flag if output sqlite file should be updated, otherwise it'll be recreated")
     print ("--scaleElec=    specify separate scale factor for all electronic noise fields except ratio field")
     print ("if run number and lumiblock number are omitted - all IOVs from input file are updated")
 
-letters = "hi:o:a:g:f:d:t:r:l:b:n:s:"
-keywords = ["help","infile=","outfile=","intag=","outtag=","folder=","dbname=","txtfile=","run=","lumi=","begin=","channel=",
-            "scale=","scaleA=","scaleB=","scaleD=","scaleE=","scaleD4=","scaleC10=","scaleD4sp=","scaleC10sp=","scaleElec="]
+letters = "hi:o:t:T:f:d:x:r:l:b:e:L:A:n:s:u"
+keywords = ["help","infile=","outfile=","intag=","outtag=","folder=","dbname=","txtfile=","run=","lumi=","begin=","end=","endlumi=","adjust",
+            "channel=","scale=","scaleA=","scaleB=","scaleD=","scaleE=","scaleD4=","scaleC10=","scaleD4sp=","scaleC10sp=","scaleElec=","update"]
 
 try:
     opts, extraparams = getopt.getopt(sys.argv[1:],letters,keywords)
@@ -54,7 +59,12 @@ dbName      = ''
 txtFile     = ''
 run         = -1
 lumi        = 0
-begin       = -1
+beg         = -1
+end         = 2147483647
+endlumi     = 0
+iov         = True
+adjust      = False
+update      = False
 chan        = 48 # represents Tile
 scale       = 0.0 # means do not scale
 scaleA      = 0.0 # scale for pileup term in A cells
@@ -65,16 +75,16 @@ scaleD4     = 0.0 # scale for pileup term in D4
 scaleC10    = 0.0 # scale for pileup term in C10
 scaleD4sp   = 0.0 # scale for pileup term in D4 special
 scaleC10sp  = 0.0 # scale for pileup term in C10 special
-scaleElec   = 0.0 # scale for electronic noise 
+scaleElec   = 0.0 # scale for electronic noise
 
 for o, a in opts:
     if o in ("-i","--infile"):
         inFile = a
     elif o in ("-o","--outfile"):
         outFile = a
-    elif o in ("-a","--intag"):
+    elif o in ("-t","--intag"):
         inTag = a
-    elif o in ("-g","--outtag"):
+    elif o in ("-T","--outtag"):
         outTag = a
     elif o in ("-f","--folder"):
         folderPath = a
@@ -82,10 +92,21 @@ for o, a in opts:
         dbName = a
     elif o in ("-r","--run"):
         run = int(a)
+        if run>=0:
+            iov = False
     elif o in ("-l","--lumi"):
         lumi = int(a)
     elif o in ("-b","--begin"):
-        begin = int(a)
+        beg = int(a)
+        iov = True
+    elif o in ("-e","--end"):
+        end = int(a)
+    elif o in ("-L","--endlumi"):
+        endlumi = int(a)
+    elif o in ("-A","--adjust"):
+        adjust = True
+    elif o in ("-u","--update"):
+        update = True
     elif o in ("-n","--channel"):
         chan = int(a)
     elif o in ("-s","--scale"):
@@ -108,7 +129,7 @@ for o, a in opts:
         scaleC10sp = float(a)
     elif o in ("-s","--scaleElec"):
         scaleElec = float(a)
-    elif o in ("-t","--txtfile"):
+    elif o in ("-x","--txtfile"):
         txtFile = a
     elif o in ("-h","--help"):
         usage()
@@ -173,33 +194,43 @@ if len(folderPath)<1:
 if len(dbName)<1:
     raise Exception("Please, provide dbname (e.g. --dbname=OFLP200 or --dbname=CONDBR2)")
 
+import cppyy
+
+from CaloCondBlobAlgs import CaloCondTools, CaloCondLogger
+from TileCalibBlobPython import TileCalibTools
+from TileCalibBlobPython import TileCellTools
+
+# get a logger
+log = CaloCondLogger.getLogger("WriteCellNoise")
+import logging
+if iov:
+    log.setLevel(logging.INFO)
+else:
+    log.setLevel(logging.DEBUG)
+
+
 if inTag=="HEAD":
     inTag=""
 if outTag=="HEAD":
     outTag=""
 
 if os.path.isfile(inFile):
-  ischema = 'sqlite://;schema='+inFile+';dbname='+dbName
+    ischema = 'sqlite://;schema='+inFile+';dbname='+dbName
 else:
-  print ("File %s was not found, assuming it's full schema string" % inFile)
-  ischema = inFile
-  # possible strings for inFile:
-  # "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_CALO;dbname=OFLP200"
-  # "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_TILE;dbname=OFLP200"
-  # COOLOFL_TILE/OFLP200 COOLOFL_TILE/COMP200 COOLOFL_TILE/CONDBR2
+    log.info("File %s was not found, assuming it's full schema string" , inFile)
+    ischema = inFile
+    # possible strings for inFile:
+    # "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_CALO;dbname=OFLP200"
+    # "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_TILE;dbname=OFLP200"
+    # COOLOFL_TILE/OFLP200 COOLOFL_TILE/COMP200 COOLOFL_TILE/CONDBR2
 
-
-import cppyy
-
-from CaloCondBlobAlgs import CaloCondTools
-from TileCalibBlobPython import TileCalibTools
-from TileCalibBlobPython import TileCellTools
+rb = max(run,beg)
 if run<0:
     cabling = 'RUN2a'
 elif run<222222 or 'COMP200' in ischema:
     cabling = 'RUN1'
 else:
-    if ('OFLP200' in ischema and run>=310000) or run>=343000:
+    if ('OFLP200' in ischema and rb>=310000) or rb>=343000:
         cabling = 'RUN2a'
     else:
         cabling = 'RUN2'
@@ -209,48 +240,84 @@ hashMgrA=TileCellTools.TileCellHashMgr("UpgradeA")
 hashMgrBC=TileCellTools.TileCellHashMgr("UpgradeBC")
 hashMgrABC=TileCellTools.TileCellHashMgr("UpgradeABC")
 
-#=== Get list of IOVs by tricking TileCalibTools to read a Calo blob
-idb = TileCalibTools.openDbConn(ischema,'READONLY')
 iovList = []
-try:
-  blobReader = TileCalibTools.TileBlobReader(idb,folderPath, inTag)
-  dbobjs = blobReader.getDBobjsWithinRange(-1, chan)
-  if (dbobjs is None):
-      raise Exception("No DB objects retrieved when building IOV list!")
-  while dbobjs.goToNext():
-    obj = dbobjs.currentRef()
-    objsince = obj.since()
-    sinceRun = objsince >> 32
-    sinceLum = objsince & 0xFFFFFFFF
-    since    = (sinceRun, sinceLum)
-    objuntil = obj.until()
-    untilRun = objuntil >> 32
-    untilLum = objuntil & 0xFFFFFFFF
-    until    = (untilRun, untilLum)
+iovUntil = []
+until = (TileCalibTools.MAXRUN,TileCalibTools.MAXLBK)
+if end >= TileCalibTools.MAXRUN:
+    end = TileCalibTools.MAXRUN
+    endlumi = TileCalibTools.MAXLBK
 
-    iov = (since, until)
-    iovList.append(iov)
-except Exception:
-  print ("Warning: can not read IOVs from input DB file")
-  if run<0:
-    raise Exception("Please, provide run number at command line")
-  else:
-    print ("Using IOV starting run run %d" %run)
-    since = (run, lumi)
-    until = (0xFFFFFFFF, 0xFFFFFFFF)
-    iov = (since, until)
-    iovList.append(iov)
-idb.closeDatabase()
+if iov:
+    #=== Get list of IOVs by tricking TileCalibTools to read a Calo blob
+    idb = TileCalibTools.openDbConn(ischema,'READONLY')
+    try:
+        blobReader = TileCalibTools.TileBlobReader(idb,folderPath, inTag)
+        iovList = blobReader.getIOVsWithinRange(-1,chan)
+    except Exception:
+        log.warning("Can not read IOVs from input DB file")
+    idb.closeDatabase()
+
+    iovList += [until]
+    if beg<0:
+        since = iovList[0]
+    else:
+        since = (beg, lumi)
+    ib=bisect.bisect(iovList,since)-1
+    if ib<0:
+        ib=0
+    if iovList[ib] != since:
+        if adjust:
+            since = iovList[ib]
+            log.info( "Moving beginning of first IOV with new cell noise from (%d,%d) to (%d,%d)" , beg,lumi,since[0],since[1])
+        else:
+            iovList[ib] = since
+            log.info( "Creating new IOV starting from (%d,%d) with new cell noise" , beg,lumi)
+
+    if end<0:
+        ie=ib+1
+        if ie>=len(iovList):
+            ie=ib
+        until=iovList[ie]
+        log.info( "Next IOV with old cell noise starts from (%d,%d)" , until[0],until[1])
+    else:
+        until=(end,endlumi)
+        ie=bisect.bisect_left(iovList,until)
+        if ie>=len(iovList):
+            ie=len(iovList)-1
+
+        if iovList[ie] != until:
+            if adjust:
+                until=iovList[ie]
+                log.info( "Moving end of last IOV from (%d,%d) to (%d,%d)" , end,endlumi,until[0],until[1])
+            else:
+                log.info( "Keeping end of last IOV at (%d,%d) - new IOV is shorter than IOV in input DB" , end,endlumi)
+                iovList[ie] = until
+
+    iovList = iovList[ib:ie]
+    iovUntil = iovList[1:] + [until]
+    run = since[0]
+    lumi = since[1]
+    log.info( "IOVs: %s" , str(iovList))
+    log.info( "%d IOVs in total, end of last IOV is %s" , ie-ib,str(until))
+
+if len(iovList)==0:
+    if run<0:
+        raise Exception("Please, provide run number at command line")
+    else:
+        log.info( "Creating single IOV starting from run,lumi %d,%d" , run,lumi)
+        since = (run, lumi)
+        until = (end, endlumi)
+        iovList = [since]
+        iovUntil = [until]
 
 #=== Open DB connections
 oschema = 'sqlite://;schema='+outFile+';dbname='+dbName
 dbr = CaloCondTools.openDbConn(ischema,'READONLY')
-#dbw = CaloCondTools.openDbConn(oschema,'RECREATE')
-dbw = CaloCondTools.openDbConn(oschema,'UPDATE')
+update = update or (inFile==outFile)
+dbw = CaloCondTools.openDbConn(oschema,('UPDATE' if update else 'RECREATE'))
 reader = CaloCondTools.CaloBlobReader(dbr,folderPath,inTag)
 writer = CaloCondTools.CaloBlobWriter(dbw,folderPath,'Flt',(outTag!="" and outTag!="HEAD"))
 
-from TileCalibBlobPython.TileCalibTools import MAXRUN, MAXLBK
 
 #== read input file
 cellData = {}
@@ -265,311 +332,262 @@ useGain=None
 if len(txtFile):
 #  try:
     with open(txtFile,"r") as f:
-      cellDataText = f.readlines()
+        cellDataText = f.readlines()
 
     for line in cellDataText:
-      fields = line.strip().split()
-      #=== ignore empty and comment lines
-      if not len(fields)          :
-          continue
-      if fields[0].startswith("#"):
-          continue 
+        fields = line.strip().split()
+        #=== ignore empty and comment lines
+        if not len(fields)          :
+            continue
+        if fields[0].startswith("#"):
+            continue
 
-      if fields[0][:1].isalpha():
-          print (fields)
-          if useNames is not None and not useNames:
-              raise Exception("Mixture of formats in inpyt file %s - useNames" % (txtFile))
-          useNames=True
-          if fields[0]=='Cell':
-              if useModuleNames is not None and useModuleNames:
-                  raise Exception("Mixture of formats in inpyt file %s - useModuleNames" % (txtFile))
-              useModuleNames=False
-              modName=''
-              cellName=fields[1]
-          else:
-              if useModuleNames is not None and not useModuleNames:
-                  raise Exception("Mixture of formats in inpyt file %s - useModuleNames" % (txtFile))
-              useModuleNames=True
-              modName=fields[0]
-              cellName=fields[1]
-          if fields[2].isdigit():
-              if useGain is not None and not useGain:
-                  raise Exception("Mixture of formats in inpyt file %s - useGain" % (txtFile))
-              useGain=True
-              gain=int(fields[2])
-              noise = fields[3:]
-              if ival<len(noise):
-                  ival=len(noise)
-              if igain<gain:
-                  igain=gain
-          else:
-              if useGain is not None and useGain:
-                  raise Exception("Mixture of formats in inpyt file %s - useGain" % (txtFile))
-              if len(fields)>3:
-                  raise Exception("Too many fields in input file %s" % (txtFile))
-              useGain=False
-              gain=-1
-              noise = [-1]+fields[2:]
-              ival=1
-          if cellName=='D0':
-              cellName='D*0'
-          if cellName.startswith('BC'):
-              cellName='B'+cellName[2:]
-          if not ('+' in cellName or '-' in cellName or '*' in cellName):
-              p = re.search("\\d", cellName).start()
-              cellPos = modName+cellName[:p] + '+' + cellName[p:]
-              cellNeg = modName+cellName[:p] + '-' + cellName[p:]
-              dictKey  = (cellPos,gain)
-              cellData[dictKey] = noise
-              dictKey  = (cellNeg,gain)
-              cellData[dictKey] = noise
-              if (cellName=='spE1'):
-                  for cellNm in ['mbE+1','mbE-1','e4E+1','e4E-1']:
-                      cellN = modName+cellNm
-                      dictKey  = (cellN,gain)
-                      if dictKey not in cellData:
-                          cellData[dictKey] = noise
-          else:
-              cellN = modName+cellName
-              dictKey  = (cellN,gain)
-              cellData[dictKey] = noise
-              if (cellName=='spE+1'):
-                  for cellNm in ['mbE+1','e4E+1']:
-                      cellN = modName+cellNm
-                      dictKey  = (cellN,gain)
-                      if dictKey not in cellData:
-                          cellData[dictKey] = noise
-              if (cellName=='spE-1'):
-                  for cellNm in ['mbE-1','e4E-1']:
-                      cellN = modName+cellNm
-                      dictKey  = (cellN,gain)
-                      if dictKey not in cellData:
-                          cellData[dictKey] = noise
-          icell[gain]+=1
-      else:
-          if useNames is not None and useNames:
-              raise Exception("Mixture of formats in inpyt file %s - useNames" % (txtFile))
-          useNames=False
-          cellHash = int(fields[0])
-          cellGain = int(fields[1])
-          noise    = fields[2:]
-          dictKey  = (cellHash,cellGain)
-          cellData[dictKey] = noise
-          if icell<cellHash:
-              icell=cellHash
-          if igain<cellGain:
-              igain=cellGain
-          if ival<len(noise):
-              ival=len(noise)
+        if fields[0][:1].isalpha():
+            print (fields)
+            if useNames is not None and not useNames:
+                raise Exception("Mixture of formats in inpyt file %s - useNames" % (txtFile))
+            useNames=True
+            if fields[0]=='Cell':
+                if useModuleNames is not None and useModuleNames:
+                    raise Exception("Mixture of formats in inpyt file %s - useModuleNames" % (txtFile))
+                useModuleNames=False
+                modName=''
+                cellName=fields[1]
+            else:
+                if useModuleNames is not None and not useModuleNames:
+                    raise Exception("Mixture of formats in inpyt file %s - useModuleNames" % (txtFile))
+                useModuleNames=True
+                modName=fields[0]
+                cellName=fields[1]
+            if fields[2].isdigit():
+                if useGain is not None and not useGain:
+                    raise Exception("Mixture of formats in inpyt file %s - useGain" % (txtFile))
+                useGain=True
+                gain=int(fields[2])
+                noise = fields[3:]
+                if ival<len(noise):
+                    ival=len(noise)
+                if igain<gain:
+                    igain=gain
+            else:
+                if useGain is not None and useGain:
+                    raise Exception("Mixture of formats in inpyt file %s - useGain" % (txtFile))
+                if len(fields)>3:
+                    raise Exception("Too many fields in input file %s" % (txtFile))
+                useGain=False
+                gain=-1
+                noise = [-1]+fields[2:]
+                ival=1
+            if cellName=='D0':
+                cellName='D*0'
+            if cellName.startswith('BC'):
+                cellName='B'+cellName[2:]
+            if not ('+' in cellName or '-' in cellName or '*' in cellName):
+                p = re.search("\\d", cellName).start()
+                cellPos = modName+cellName[:p] + '+' + cellName[p:]
+                cellNeg = modName+cellName[:p] + '-' + cellName[p:]
+                dictKey  = (cellPos,gain)
+                cellData[dictKey] = noise
+                dictKey  = (cellNeg,gain)
+                cellData[dictKey] = noise
+                if (cellName=='spE1'):
+                    for cellNm in ['mbE+1','mbE-1','e4E+1','e4E-1']:
+                        cellN = modName+cellNm
+                        dictKey  = (cellN,gain)
+                        if dictKey not in cellData:
+                            cellData[dictKey] = noise
+            else:
+                cellN = modName+cellName
+                dictKey  = (cellN,gain)
+                cellData[dictKey] = noise
+                if (cellName=='spE+1'):
+                    for cellNm in ['mbE+1','e4E+1']:
+                        cellN = modName+cellNm
+                        dictKey  = (cellN,gain)
+                        if dictKey not in cellData:
+                            cellData[dictKey] = noise
+                if (cellName=='spE-1'):
+                    for cellNm in ['mbE-1','e4E-1']:
+                        cellN = modName+cellNm
+                        dictKey  = (cellN,gain)
+                        if dictKey not in cellData:
+                            cellData[dictKey] = noise
+            icell[gain]+=1
+        else:
+            if useNames is not None and useNames:
+                raise Exception("Mixture of formats in inpyt file %s - useNames" % (txtFile))
+            useNames=False
+            cellHash = int(fields[0])
+            cellGain = int(fields[1])
+            noise    = fields[2:]
+            dictKey  = (cellHash,cellGain)
+            cellData[dictKey] = noise
+            if icell[gain]<cellHash:
+                icell[gain]=cellHash
+            if igain<cellGain:
+                igain=cellGain
+            if ival<len(noise):
+                ival=len(noise)
     if not useNames:
-        icell=icell+1
+        icell[gain]+=1
     else:
         print (cellData)
     igain=igain+1
 #  except:
 #    raise Exception("Can not read input file %s" % (txtFile))
 else:
-  print ("No input txt file provided, making copy from input DB to output DB")
+    log.info("No input txt file provided, making copy from input DB to output DB")
 
 nval=ival
 ngain=igain
 ncell=max(icell)
 
-print ("IOV list in input DB:", iovList)
-
-#== update only IOVs starting from given run number
-if run>=0 and len(iovList)>0:
-  if begin>=0:
-      print ("Updating only one IOV which contains run %d lb %d" % (run,lumi))
-  else:
-      print ("Updating only IOVs starting from run %d lumi %d " % (run,lumi))
-  start=0
-  for iov in iovList:
-    until    = iov[1]
-    untilRun = until[0]
-    if untilRun<run: 
-      start+=1
-    elif untilRun==run:
-      untilLumi = until[1]
-      if untilLumi<=lumi:
-        start+=1
-  if start>0:
-      iovList = iovList[start:]
-  if begin>=0:
-      iovList = iovList[:1]
-#== update only one IOV from input DB if we are reading numbers from file
-if (ncell>0 and nval>2):
-  if (run>0):
-    if begin<-1:
-      iovList=iovList[0:-begin]
-      print ("Updating",len(iovList),"IOVs")
-    else:
-      if (len(iovList)>1):
-        print ("Updating only single IOV")
-        iovList = iovList[0:1]
-      iov=iovList[0]
-      since = (run, lumi)
-      until = iov[1]
-      iov = (since, until)
-      iovList = [ iov ]
-  else:
-    if (len(iovList)>1): 
-      print ("Updating only last IOV")
-      iovList = iovList[len(iovList)-1:]
-
-if begin>=0 and len(iovList)>1:
-    raise Exception("-begin flag can not be used with multiple IOVs, please provide run number inside one IOV")
-
 if not tile:
-  modName="LAr %2d" % chan
-  cellName=""
-  fullName=modName
+    modName="LAr %2d" % chan
+    cellName=""
+    fullName=modName
 
 #=== loop over all iovs
-for iov in iovList:
-  
-  since    = iov[0]
-  sinceRun = since[0]
-  sinceLum = since[1]
-  
-  until    = iov[1]
-  untilRun = until[0]
-  untilLum = until[1]
-  
-  print ("IOV in input DB [%d,%d]-[%d,%d)" % (sinceRun, sinceLum, untilRun, untilLum))
+for io,since in enumerate(iovList):
 
-  blobR = reader.getCells(chan,(sinceRun,sinceLum))
-  mcell=blobR.getNChans()
-  mgain=blobR.getNGains()
-  mval=blobR.getObjSizeUint32()
+    sinceRun = since[0]
+    sinceLum = since[1]
 
-  print ("input file: ncell: %d ngain %d nval %d" % (max(icell), igain, ival))
-  print ("input db:   ncell: %d ngain %d nval %d" % (mcell, mgain, mval))
-  if mcell>ncell:
-      ncell=mcell
-  if mgain>ngain:
-      ngain=mgain
-  if mval>nval:
-      nval=mval
+    until=iovUntil[io]
+    untilRun = until[0]
+    untilLum = until[1]
 
-  print ("output db:  ncell: %d ngain %d nval %d" % (ncell, ngain, nval))
+    log.info("")
+    log.info("Updating IOV [%d,%d] - [%d,%d)" , sinceRun, sinceLum, untilRun, untilLum)
 
-  if ncell>hashMgrA.getHashMax():
-    hashMgr=hashMgrABC
-  elif ncell>hashMgrBC.getHashMax():
-    hashMgr=hashMgrA
-  elif ncell>hashMgrDef.getHashMax():
-    hashMgr=hashMgrBC
-  else:
-    hashMgr=hashMgrDef
-  print ("Using %s CellMgr with hashMax %d" % (hashMgr.getGeometry(),hashMgr.getHashMax()))
+    blobR = reader.getCells(chan,(sinceRun,sinceLum))
+    if blobR is None:
+        continue
+    mcell=blobR.getNChans()
+    mgain=blobR.getNGains()
+    mval=blobR.getObjSizeUint32()
 
-  GainDefVec = cppyy.gbl.std.vector('float')()
-  for val in range(nval):
-    GainDefVec.push_back(0.0)
-  defVec = cppyy.gbl.std.vector('std::vector<float>')()
-  for gain in range(ngain):
-    defVec.push_back(GainDefVec)
-  blobW = writer.getCells(chan)
-  blobW.init(defVec,ncell,1)
+    log.info("input file: ncell: %d ngain %d nval %d" , max(icell), igain, ival)
+    log.info("input db:   ncell: %d ngain %d nval %d" , mcell, mgain, mval)
+    if mcell>ncell:
+        ncell=mcell
+    if mgain>ngain:
+        ngain=mgain
+    if mval>nval:
+        nval=mval
 
-  src = ['Default','DB','File','Scale']
-  FullName=None
-  cell=None
-  gain=None
-  field=None
-  strval=None
-  noise=None
+    log.info("output db:  ncell: %d ngain %d nval %d" , ncell, ngain, nval)
 
-  try:
-    for cell in range(ncell):
-      exist0 = (cell<mcell)
-      if tile: 
-        (modName,cellName)=hashMgr.getNames(cell)
-        fullName="%s %6s" % (modName,cellName)
-      for gain in range(ngain):
-        exist1 = (exist0 and (gain<mgain))
-        if useNames:
-            if useGain:
-                gn=gain
-            else:
-                gn=-1
-            if useModuleNames:
-                dictKey = (modName+cellName,gn)
-            else:
-                dictKey = (cellName,gn)
-        else:
-            dictKey = (cell, gain)
-        noise = cellData.get(dictKey,[])
-        nF = len(noise)
-        for field in range(nval):
-          exist = (exist1 and (field<mval))
-          value = GainDefVec[field]
-          if field<nF:
-            strval=str(noise[field])
-            if strval.startswith("*"):
-              coef=float(strval[1:])
-              value = blobR.getData(cell,gain,field)*coef
-            elif strval.startswith("++") or strval.startswith("+-") :
-              coef=float(strval[1:])
-              value = blobR.getData(cell,gain,field)+coef
-            elif strval=="keep" or strval=="None":
-              value = None
-            else:
-              value = float(strval)
-            if (value is None or value<0) and exist: # negative value means that we don't want to update this field
-              value = blobR.getData(cell,gain,field)
-            elif exist:
-              exist = 2
-          elif exist:
-            value = blobR.getData(cell,gain,field)
-            if rescale:
-              if field==1 or field>4:
-                  if 'spC' in cellName:
-                      sc = scaleC10sp
-                  elif 'spD' in cellName:
-                      sc = scaleD4sp
-                  elif 'C' in cellName and '10' in cellName:
-                      sc = scaleC10
-                  elif 'D' in cellName and '4'  in cellName:
-                      sc = scaleD4
-                  elif 'E' in cellName:
-                      sc = scaleE
-                  elif 'D' in cellName:
-                      sc = scaleD
-                  elif 'B' in cellName:
-                      sc = scaleB
-                  elif 'A' in cellName:
-                      sc = scaleA
-                  else:
-                      sc = scale
-                  if sc>0.0:
-                      exist = 3
-                      value *= sc
-                      src[exist] = "ScalePileUp %s" % str(sc)
-              elif field<4 and scaleElec>0.0:
-                  exist = 3
-                  value *= scaleElec
-                  src[exist] = "ScaleElec %s" % str(scaleElec)
+    if ncell>hashMgrA.getHashMax():
+        hashMgr=hashMgrABC
+    elif ncell>hashMgrBC.getHashMax():
+        hashMgr=hashMgrA
+    elif ncell>hashMgrDef.getHashMax():
+        hashMgr=hashMgrBC
+    else:
+        hashMgr=hashMgrDef
+    log.info("Using %s CellMgr with hashMax %d" , hashMgr.getGeometry(),hashMgr.getHashMax())
 
-          blobW.setData( cell, gain, field, value )
-          if rescale or exist>1:
-            print ("%s hash %4d gain %d field %d value %f Source %s" % (fullName, cell, gain, field, value, src[exist]))
-  except Exception as e:
-    print ("Exception on IOV [%d,%d]-[%d,%d)" % (sinceRun, sinceLum, untilRun, untilLum))
-    print (FullName,"Cell",cell,"gain",gain,"field",field,"value",strval,"noise vector",noise)
-    #e = sys.exc_info()[0]
-    print (e)
+    GainDefVec = cppyy.gbl.std.vector('float')()
+    for val in range(nval):
+        GainDefVec.push_back(0.0)
+    defVec = cppyy.gbl.std.vector('std::vector<float>')()
+    for gain in range(ngain):
+        defVec.push_back(GainDefVec)
+    blobW = writer.getCells(chan)
+    blobW.init(defVec,ncell,1)
 
-  if begin>=0:
-      print ("IOV in output DB [%d,%d]-[%d,%d)" % (begin, 0, MAXRUN, MAXLBK))
-      writer.register((begin,0), (MAXRUN, MAXLBK), outTag)
-  else:
-      print ("IOV in output DB [%d,%d]-[%d,%d)" % (sinceRun, sinceLum, untilRun, untilLum))
-      writer.register((sinceRun,sinceLum), (untilRun,untilLum), outTag)
+    src = ['Default','DB','File','Scale']
+    FullName=None
+    cell=None
+    gain=None
+    field=None
+    strval=None
+    noise=None
 
-print ("Using %s CellMgr with hashMax %d" % (hashMgr.getGeometry(),hashMgr.getHashMax()))
+    try:
+        for cell in range(ncell):
+            exist0 = (cell<mcell)
+            if tile:
+                (modName,cellName)=hashMgr.getNames(cell)
+                fullName="%s %6s" % (modName,cellName)
+            for gain in range(ngain):
+                exist1 = (exist0 and (gain<mgain))
+                if useNames:
+                    if useGain:
+                        gn=gain
+                    else:
+                        gn=-1
+                    if useModuleNames:
+                        dictKey = (modName+cellName,gn)
+                    else:
+                        dictKey = (cellName,gn)
+                else:
+                    dictKey = (cell, gain)
+                noise = cellData.get(dictKey,[])
+                nF = len(noise)
+                for field in range(nval):
+                    exist = (exist1 and (field<mval))
+                    value = GainDefVec[field]
+                    if field<nF:
+                        strval=str(noise[field])
+                        if strval.startswith("*"):
+                            coef=float(strval[1:])
+                            value = blobR.getData(cell,gain,field)*coef
+                        elif strval.startswith("++") or strval.startswith("+-") :
+                            coef=float(strval[1:])
+                            value = blobR.getData(cell,gain,field)+coef
+                        elif strval=="keep" or strval=="None":
+                            value = None
+                        else:
+                            value = float(strval)
+                        if (value is None or value<0) and exist: # negative value means that we don't want to update this field
+                            value = blobR.getData(cell,gain,field)
+                        elif exist:
+                            exist = 2
+                    elif exist:
+                        value = blobR.getData(cell,gain,field)
+                        if rescale:
+                            if field==1 or field>4:
+                                if 'spC' in cellName:
+                                    sc = scaleC10sp
+                                elif 'spD' in cellName:
+                                    sc = scaleD4sp
+                                elif 'C' in cellName and '10' in cellName:
+                                    sc = scaleC10
+                                elif 'D' in cellName and '4'  in cellName:
+                                    sc = scaleD4
+                                elif 'E' in cellName:
+                                    sc = scaleE
+                                elif 'D' in cellName:
+                                    sc = scaleD
+                                elif 'B' in cellName:
+                                    sc = scaleB
+                                elif 'A' in cellName:
+                                    sc = scaleA
+                                else:
+                                    sc = scale
+                                if sc>0.0:
+                                    exist = 3
+                                    value *= sc
+                                    src[exist] = "ScalePileUp %s" % str(sc)
+                            elif field<4 and scaleElec>0.0:
+                                exist = 3
+                                value *= scaleElec
+                                src[exist] = "ScaleElec %s" % str(scaleElec)
+
+                    blobW.setData( cell, gain, field, value )
+                    if rescale or exist>1:
+                        print ("%s hash %4d gain %d field %d value %f Source %s" % (fullName, cell, gain, field, value, src[exist]))
+    except Exception as e:
+        log.warning("Exception on IOV [%d,%d]-[%d,%d)" , sinceRun, sinceLum, untilRun, untilLum)
+        print (FullName,"Cell",cell,"gain",gain,"field",field,"value",strval,"noise vector",noise)
+        #e = sys.exc_info()[0]
+        print (e)
+
+    writer.register((sinceRun,sinceLum), (untilRun,untilLum), outTag)
+
+log.info("Using %s CellMgr with hashMax %d" , hashMgr.getGeometry(),hashMgr.getHashMax())
 #=== Cleanup
 dbw.closeDatabase()
 dbr.closeDatabase()
-

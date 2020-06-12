@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // HIJetClusterSubtractorTool.h
@@ -22,6 +22,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "HIJetRec/HIJetSubtractorToolBase.h"
+#include <map>
 #include "AsgTools/AsgTool.h"
 
 
@@ -30,39 +31,42 @@ class TH3F;
 class HIJetClusterSubtractorTool : public HIJetSubtractorToolBase
 {
   ASG_TOOL_CLASS(HIJetClusterSubtractorTool, IHISubtractorTool);
-  
+
   // FIX
   //needs lookup for static geometric factors!
-  
+
 public:
   /// \brief Implements method defined in base
   /// First argument is reference to four vector that is updated to reflect
   /// the subtracted kinematics of the IParticle passed in the second arg
   /// Method expects cl_in to be a cluster
   HIJetClusterSubtractorTool(const std::string& myname);
-  virtual void Subtract(xAOD::IParticle::FourMom_t&, const xAOD::IParticle*, const xAOD::HIEventShapeContainer*, const HIEventShapeIndex*, const ToolHandle<IHIUEModulatorTool>&, const xAOD::HIEventShape* eshape) const override;
-  virtual void SubtractWithMoments(xAOD::CaloCluster*, const xAOD::HIEventShapeContainer*, const HIEventShapeIndex* index, const ToolHandle<IHIUEModulatorTool>&, const xAOD::HIEventShape* eshape ) const override;  
-  virtual void UpdateUsingCluster(xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const xAOD::CaloCluster* cl) const override;
+  virtual void subtract(xAOD::IParticle::FourMom_t&, const xAOD::IParticle*, const xAOD::HIEventShapeContainer*, const HIEventShapeIndex*, const ToolHandle<IHIUEModulatorTool>&, const xAOD::HIEventShape* eshape) const override;
+  virtual void subtractWithMoments(xAOD::CaloCluster*, const xAOD::HIEventShapeContainer*, const HIEventShapeIndex* index, const ToolHandle<IHIUEModulatorTool>&, const xAOD::HIEventShape* eshape ) const override;
+  virtual void updateUsingCluster(xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const xAOD::CaloCluster* cl) const override;
 
   virtual StatusCode initialize() override;
-  
+  virtual StatusCode initializeTool();
 
-private:
+  private:
 
   bool m_init;
-  StatusCode initializeTool();
+
   float getWeight(float eta, float phi, int sample) const;
   float getWeightEta(float eta, float phi, int sample) const;
   float getWeightPhi(float eta, float phi, int sample) const;
+  void updateSlice(xAOD::HIEventShape* slice, float ET, float phi0, float area_cluster) const;
 
-  std::string m_input_file;
-  std::string m_config_dir;
-  TH3F* m_h3_w;
-  TH3F* m_h3_eta;
-  TH3F* m_h3_phi;
-  
+  Gaudi::Property< std::string > m_inputFile { this, "InputFile", "cluster.geo.root", "File containing cluster geometric moments." };
+
+  Gaudi::Property< std::string > m_configDir { this, "ConfigDir", "HIEventUtils/", "Directory containing configuration file." };
+
+  TH3F* m_h3W;
+  TH3F* m_h3Eta;
+  TH3F* m_h3Phi;
+
+  Gaudi::Property< bool > m_useSamplings { this, "UseSamplings", true, "Boolean for samplings use" };
+
 };
 
 #endif
-
-

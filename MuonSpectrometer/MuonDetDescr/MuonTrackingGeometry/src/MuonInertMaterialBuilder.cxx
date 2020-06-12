@@ -2,16 +2,11 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// MuonInertMaterialBuilder.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-
 // Muon
 #include "MuonTrackingGeometry/MuonInertMaterialBuilder.h"
 #include "MuonTrackingGeometry/MuonStationTypeBuilder.h"
 //MuonSpectrometer include
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonIdHelpers/MuonIdHelper.h"
 // Amg
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
@@ -41,9 +36,6 @@
 #include "TrkGeometry/SubtractedCylinderLayer.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/TrackingGeometry.h"
-//#include "TrkGeometry/HomogeneousLayerMaterial.h"
-
-//#include "PathResolver/PathResolver.h"
 
 // STD
 #include <map>

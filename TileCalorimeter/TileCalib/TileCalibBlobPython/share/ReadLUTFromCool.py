@@ -24,7 +24,7 @@ def usage():
     print ("-c, --channel=  specify channel number, default is 0")
     print ("-g, -a, --adc=  specify gain (adc number), default is 0")
     print ("-s, --schema=   specify schema to use, like 'COOLOFL_TILE/CONDBR2' or 'sqlite://;schema=tileSqlite.db;dbname=CONDBR2'")
-    
+
 letters = "hr:l:s:t:f:p:d:c:a:g:"
 keywords = ["help","run=","lumi=","schema=","tag=","folder=","ros=","drawer=","channel=","adc=","gain="]
 
@@ -35,7 +35,7 @@ except getopt.GetoptError as err:
     usage()
     sys.exit(2)
 
-# defaults 
+# defaults
 run = 2147483647
 lumi = 0
 schema = 'COOLOFL_TILE/CONDBR2'
@@ -76,12 +76,12 @@ if schema=='COOLONL_TILE/COMP200':
     if '/TILE/ONL01' not in folderPath and '/TILE/OFL01' not in folderPath:
         print ("Folder %s doesn't exist in schema %s " % (folderPath,schema) )
         sys.exit(2)
-        
+
 if schema=='COOLONL_TILE/CONDBR2':
     if '/TILE/ONL01' not in folderPath:
         print ("Folder %s doesn't exist in schema %s " % (folderPath,schema) )
         sys.exit(2)
-        
+
 if schema=='COOLOFL_TILE/COMP200' or schema=='COOLOFL_TILE/CONDBR2':
     if '/TILE/OFL02' not in folderPath:
         print ("Folder %s doesn't exist in schema %s " % (folderPath,schema) )
@@ -122,4 +122,3 @@ for idx in range(0,maxidx):
 
 #=== close DB
 db.closeDatabase()
-

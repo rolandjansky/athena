@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -84,7 +84,7 @@ namespace DerivationFramework {
 	    Warning("addBranches()","Current photon has no valid fudge factors due to out-of-range");
 	}
 	else {
-	    Warning("addBranches()",Form("Unknown correction code %d from ElectronPhotonShowerShapeFudgeTool",(int) correctionCode));
+	    Warning("addBranches()","Unknown correction code %d from ElectronPhotonShowerShapeFudgeTool",(int) correctionCode);
 	}
 	delete ph;
       }

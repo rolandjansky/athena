@@ -69,13 +69,8 @@ current = resolveAlias.getCurrent()
 nexttag = resolveAlias.getNext()
 #--------------------------------
 from TileCalibBlobPython.TileCalibLogger import getLogger
-#import logging
-#TileCalibTools.setLevel(logging.WARNING)
 log = getLogger("TileCalibTools")
 import logging
-log.setLevel(logging.WARNING)
-#log = getLogger("resolve_Tag")
-# import logging
 log.setLevel(logging.WARNING)
 
 
@@ -83,7 +78,7 @@ log.setLevel(logging.WARNING)
 print ("alias CURRENT = %s alias NEXT = %s" % (current, nexttag))
 
 if folder == '':
-        sys.exit()
+    sys.exit()
 
 #=================================================
 connStr=schema+'/'+instance
@@ -92,7 +87,7 @@ connStr=schema+'/'+instance
 db = TileCalibTools.openDbConn(connStr, 'READONLY')
 
 if localtag == "" :
-#    === resolve folder tag from global tag
+    #=== resolve folder tag from global tag
     if globaltag != "":
         foldertag = TileCalibTools.getFolderTag(db, folder, globaltag)
         print ("global tag %s associated to leaf TAG %s" % (globaltag,foldertag))
@@ -105,13 +100,12 @@ if localtag == "" :
 else:
     rfolder=db.getFolderSet('/')
     taglist=rfolder.listTags()
-#    print (taglist)
+    #print (taglist)
     for tag in taglist:
-        try: 
+        try:
             foldertag = TileCalibTools.getFolderTag(db, folder, tag)
             if localtag == foldertag:
                 print (" leaf tag %s linked to global tag %s " % (localtag, tag))
         except Exception:
             print (" ")
-#            print (" WARNING !, existing global tag %s is not linked to local tag %s " % (tag,localtag))
-                 
+            #print (" WARNING !, existing global tag %s is not linked to local tag %s " % (tag,localtag))

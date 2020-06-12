@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -26,10 +26,6 @@
 #include "CxxUtils/CachedUniquePtr.h"
 
 class MdtPrepDataContainerCnv;
-
-namespace MuonGM {
-  class MdtReadoutElement;
-}
 
 namespace Muon
 {

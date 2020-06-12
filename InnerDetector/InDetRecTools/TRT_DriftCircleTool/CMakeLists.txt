@@ -27,13 +27,17 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( Eigen )
 
+atlas_add_library( TRT_DriftCircleToolLib
+                   TRT_DriftCircleTool/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS TRT_DriftCircleTool
+                   LINK_LIBRARIES GaudiKernel InDetPrepRawData InDetRawData TrkPrepRawData AthenaBaseComps TRT_ConditionsServicesLib TRT_ReadoutGeometry CommissionEvent StoreGateLib LumiBlockData )
+
 # Component(s) in the package:
 atlas_add_component( TRT_DriftCircleTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GaudiKernel TRT_ConditionsServicesLib InDetRawData InDetPrepRawData TrkPrepRawData CommissionEvent GeoPrimitives EventPrimitives xAODEventInfo InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry LumiBlockData)
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} TRT_DriftCircleToolLib  GeoPrimitives EventPrimitives xAODEventInfo InDetIdentifier InDetReadoutGeometry  TRT_DriftFunctionToolLib )
 
-# Install files from the package:
-atlas_install_headers( TRT_DriftCircleTool )
 
