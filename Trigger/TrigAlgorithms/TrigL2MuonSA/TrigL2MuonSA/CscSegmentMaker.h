@@ -119,7 +119,6 @@ namespace TrigL2MuonSA{
   public:
 
     CscSegment();
-    ~CscSegment();
 
     double x(){ return m_x; }
     double y(){ return m_y; }

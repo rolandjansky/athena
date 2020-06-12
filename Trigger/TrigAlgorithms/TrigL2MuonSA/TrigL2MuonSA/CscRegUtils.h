@@ -26,7 +26,6 @@ class UtilTools{
 
 public:
   UtilTools(){}
-  ~UtilTools(){}
 
   double calc_theta(double eta){ return 2*atan(exp((-1)*eta)); }
   double calc_theta(double x, double y, double z){ return acos(z/sqrt(x*x+y*y+z*z)); } // for position not for direction theta in [0,pi]

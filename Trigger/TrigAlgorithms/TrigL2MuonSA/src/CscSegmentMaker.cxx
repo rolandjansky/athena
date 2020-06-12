@@ -681,10 +681,6 @@ CscSegment :: CscSegment(){
   m_chisquare_phi=0.;
 }
 
-CscSegment :: ~CscSegment(){}
-
-
-
 ReturnCode CscSegment :: set(double x, double y, double z, double px, double py, double pz, double chisquare, double chisquare_phi)
 {
   
