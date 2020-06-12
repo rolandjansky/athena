@@ -89,5 +89,8 @@ void mm_readoutHandler::ElementHandle()
     MM->roParameters.tStrips             = getAttributeAsInt    ("totalStrips", ret);
     if (! ret) std::cout << "WARNING: totalStrips is missing" << std::endl;
 
+    MM->roParameters.offset             = getAttributeAsDouble    ("offset", ret);
+    if (! ret) std::cout << "WARNING: offset is missing" << std::endl;
+
 
 }
