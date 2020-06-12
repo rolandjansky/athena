@@ -44,8 +44,8 @@ inline bool isDBM( uint32_t robId ) { return ((robId>>16) & 0xFF)==0x15; }
 PixelRodDecoder::PixelRodDecoder
 ( const std::string& type, const std::string& name,const IInterface* parent )
   :  AthAlgTool(type,name,parent),
-     m_is_ibl_present(false),
-     m_pixelCabling("PixelCablingSvc",name)
+     m_pixelCabling("PixelCablingSvc",name),
+     m_is_ibl_present(false)
 {
   declareInterface< IPixelRodDecoder  >( this );
 }
@@ -111,7 +111,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
   ATH_MSG_DEBUG("Entering PixelRodDecoder");
 #endif
 
-  Identifier invalidPixelId = Identifier(); // used by Cabling for an invalid entry
+  const Identifier invalidPixelId = Identifier(); // used by Cabling for an invalid entry
   Identifier pixelId;
   uint64_t onlineId(0);
 
@@ -327,9 +327,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
 	// Count number of headers received
 	if (mLink < 0x8) ++nFragmentsPerFE[mLink];
 
-      }
-
-      else { // decode Pixel header word. Data format: 001PtlbxdnnnnnnnMMMMLLLLBBBBBBBB
+      } else { // decode Pixel header word. Data format: 001PtlbxdnnnnnnnMMMMLLLLBBBBBBBB (NOT IBL OR PIXEL)
 
 	ATH_MSG_VERBOSE( "Decoding Pixel header word: 0x" << std::hex << rawDataWord << std::dec );
 
@@ -367,30 +365,13 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
 	prevStartingBCID = mBCID;
 	}
 	*/
-
-	uint32_t headererror = decodeHeaderErrors(rawDataWord);   // get link (module) header errors
-	if (headererror != 0) { // only treatment for header errors now, FIXME
+	const uint32_t headerError = decodeHeaderErrors(rawDataWord);   // get link (module) header errors
+	if ( headerError != 0 )  {
 	  sc = StatusCode::RECOVERABLE;
-	  errorcode = errorcode | (headererror << 20); //encode error as HHHHMMMMMMMMFFFFFFFFTTTT for header, flagword, trailer errors
-	  if (headererror & (1 << 3)) {
-	    m_errors->addPreambleError();
-	    PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Preamble );
-	  }
-	  if (headererror & (1 << 2)) {
-	    m_errors->addTimeOutError();
-	    PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::TimeOut );
-	  }
-	  if (headererror & (1 << 1)) {
-	    m_errors->addLVL1IDError();
-	    PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::LVL1ID );
-	  }
-	  if (headererror & (1 << 0)) {
-	    m_errors->addBCIDError();
-	    PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::BCID );
-	  }
+	  errorcode = errorcode | (headerError << 20); //encode error as HHHHMMMMMMMMFFFFFFFFTTTT for header, flagword, trailer errors
+	  checkHeaderErrors( bsErrCode, headerError );
 	}
       }
-
 
       // Get onlineId
       onlineId = pixCabling->getOnlineIdFromRobId(robId, mLink);
@@ -1072,44 +1053,12 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
     } // end of switch
   }   // end of loop over ROD
 
-  if (corruptionError) {
-    //Set EventInfo error
-    const xAOD::EventInfo* eventInfo=nullptr;
-    ATH_CHECK(evtStore()->retrieve(eventInfo));
-    if (!eventInfo->updateErrorState(xAOD::EventInfo::Pixel,xAOD::EventInfo::Error)) {
-      ATH_MSG_WARNING(" cannot set EventInfo error state for Pixel " );
-    }
-    if (!eventInfo->updateEventFlagBit(xAOD::EventInfo::Pixel,0x1)) { //FIXME an enum at some appropriate place to indicating 0x1 as
-      ATH_MSG_WARNING(" cannot set flag bit for Pixel " );
-    }
-  } // end if corruption error
+  ATH_CHECK( updateEventInfoIfEventCorruted( corruptionError ) );
 
 
-    // Verify that all active IBL FEs sent the same number of headers
+  // Verify that all active IBL FEs sent the same number of headers
   if (isIBLModule || isDBMModule) {
-    unsigned int nFrags = 0;
-    for (unsigned int i = 0; i < 8; ++i) {
-      if (nFrags == 0) {
-	if (nFragmentsPerFE[i] != 0) nFrags = nFragmentsPerFE[i];    // set nFrags on first non-zero occurence
-      }
-      else {
-	if (nFragmentsPerFE[i] != 0 && nFragmentsPerFE[i] != nFrags) {
-	  // Got unequal number of headers per FE for same ROD, this means trouble.
-	  // Print value for each FE
-	  char tempstr[20];
-	  std::string errmsg;
-	  for (unsigned int j = 0; j < 8; ++j) {
-	    if (nFragmentsPerFE[j] != 0) {
-	      sprintf(tempstr, "FE %d: %d   ", j, nFragmentsPerFE[j]);
-	      errmsg.append(tempstr);
-	    }
-	  }
-	  generalwarning("In ROB 0x" << std::hex << robId << ": got unequal number of headers per FE" << std::dec);
-	  generalwarning("[FE number] : [# headers] - " << errmsg);
-	  break;
-	}
-      }
-    }
+    checkUnequalNumberOfHeaders( nFragmentsPerFE, robId );
   }
 
   if (sc == StatusCode::RECOVERABLE) {
@@ -1849,4 +1798,70 @@ uint32_t PixelRodDecoder::treatmentFEFlagInfo(unsigned int serviceCode, unsigned
   return code;
 }
 
+
+void PixelRodDecoder::checkHeaderErrors( uint64_t& bsErrCode, uint32_t headerError ) const {
+  if (headerError != 0) { // only treatment for header errors now, FIXME
+    if (headerError & (1 << 3)) {
+      m_errors->addPreambleError();
+      PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Preamble );
+    }
+    if (headerError & (1 << 2)) {
+      m_errors->addTimeOutError();
+      PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::TimeOut );
+    }
+    if (headerError & (1 << 1)) {
+      m_errors->addLVL1IDError();
+      PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::LVL1ID );
+    }
+    if (headerError & (1 << 0)) {
+      m_errors->addBCIDError();
+      PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::BCID );
+    }
+  }
+}
+
+
+StatusCode PixelRodDecoder::updateEventInfoIfEventCorruted( bool isCorrupted ) const {
+  if ( not isCorrupted )
+    return StatusCode::SUCCESS;
+  //Set EventInfo error
+  const xAOD::EventInfo* eventInfo=nullptr;
+  ATH_CHECK(evtStore()->retrieve(eventInfo));
+  if (!eventInfo->updateErrorState(xAOD::EventInfo::Pixel,xAOD::EventInfo::Error)) {
+    ATH_MSG_WARNING(" cannot set EventInfo error state for Pixel " );
+  }
+  if (!eventInfo->updateEventFlagBit(xAOD::EventInfo::Pixel,0x1)) { //FIXME an enum at some appropriate place to indicating 0x1 as
+    ATH_MSG_WARNING(" cannot set flag bit for Pixel " );
+  }
+  return StatusCode::SUCCESS;
+}
+
+
+void PixelRodDecoder::checkUnequalNumberOfHeaders( const unsigned int nFragmentsPerFE[8], uint32_t robId ) const {
+  unsigned int nFrags = 0;
+  bool foundIssue = false;
+  for (unsigned int i = 0; i < 8; ++i) {
+    if (nFrags == 0) {
+      if (nFragmentsPerFE[i] != 0)
+	nFrags = nFragmentsPerFE[i];    // set nFrags on first non-zero occurence
+    } else {
+      if (nFragmentsPerFE[i] != 0 && nFragmentsPerFE[i] != nFrags) {
+	foundIssue = true;
+      }
+    }
+  }
+  if ( not foundIssue )
+    return;
+
+  // Got unequal number of headers per FE for same ROD, this means trouble.
+  // Print value for each FE
+  std::string errmsg;
+  for (unsigned int j = 0; j < 8; ++j) {
+    if (nFragmentsPerFE[j] != 0) {
+      errmsg += "FE "+ std::to_string(j) + " " +std::to_string(nFragmentsPerFE[j]) + "  ";
+    }
+  }
+  generalwarning("In ROB 0x" << std::hex << robId << ": got unequal number of headers per FE" << std::dec);
+  generalwarning("[FE number] : [# headers] - " << errmsg);
+}
 
