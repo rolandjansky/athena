@@ -35,9 +35,7 @@ StatusCode DiLeptonMassFilter::filterEvent() {
   for (itr = events()->begin(); itr!=events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
     // Loop over all particles in the event
-    HepMC::GenEvent::particle_const_iterator genEvt_particles_begin=genEvt->particles_begin();
-    HepMC::GenEvent::particle_const_iterator genEvt_particles_end=genEvt->particles_end();
-    for (auto pitr1 = genEvt_particles_begin; pitr1 != genEvt_particles_end; ++pitr1 ){
+    for (auto pitr1 = HepMC::begin(*genEvt);  pitr1!=HepMC::end(*genEvt); ++pitr1 ){
       int pdgId1((*pitr1)->pdg_id());
       if((*pitr1)->status()!=1) continue;
 
@@ -49,7 +47,7 @@ StatusCode DiLeptonMassFilter::filterEvent() {
           auto pitr2 = pitr1;
           pitr2++;
 
-          for(; pitr2 != genEvt_particles_end; ++pitr2){
+          for(; pitr2 != HepMC::end(*genEvt); ++pitr2){
             int pdgId2((*pitr2)->pdg_id());
             //if((*pitr2)->status()!=1 && pitr1 != pitr2) continue;
             if((*pitr2)->status()!=1 || pitr1 == pitr2) continue;

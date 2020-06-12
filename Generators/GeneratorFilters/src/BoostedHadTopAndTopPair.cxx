@@ -47,11 +47,7 @@ StatusCode BoostedHadTopAndTopPair::filterEvent() {
     const HepMC::GenEvent* genEvt = *itr;
 
     
-    // Loop over all truth particles in the event
-    HepMC::GenEvent::particle_const_iterator pitr;
-    for (pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr ) {
-
-      HepMC::GenParticle* part = (*pitr);
+  for (auto part: *genEvt){
       int pdgId = part->pdg_id();
   
       // pdgId t quark = 6
