@@ -9,7 +9,8 @@
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
-// --------------------------------------------------------------------------------                 // --------------------------------------------------------------------------------                  
+// --------------------------------------------------------------------------------                 
+// --------------------------------------------------------------------------------                  
 static const InterfaceID IID_RpcRoadDefiner("IID_RpcRoadDefiner", 1, 0);
 
 const InterfaceID& TrigL2MuonSA::RpcRoadDefiner::interfaceID() { return IID_RpcRoadDefiner; }
