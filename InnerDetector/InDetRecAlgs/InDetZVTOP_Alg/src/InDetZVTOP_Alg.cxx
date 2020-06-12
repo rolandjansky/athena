@@ -80,27 +80,16 @@ StatusCode InDet::InDetZVTOP_Alg::execute()
     {
       const TrackCollection *trackTES(0);
       if (evtStore()->retrieve(trackTES, m_tracksName).isFailure())
-	{
-	  if(msgLvl(MSG::DEBUG)) msg() << "Could not find TrackCollection " << m_tracksName << " in StoreGate." << endmsg;
-	  return StatusCode::SUCCESS;
-	} else if (msgLvl(MSG::VERBOSE)) msg() << "Find TrackCollection " << m_tracksName << " in StoreGate." << endmsg;
+      {
+        if(msgLvl(MSG::DEBUG)) msg() << "Could not find TrackCollection " << m_tracksName << " in StoreGate." << endmsg;
+        return StatusCode::SUCCESS;
+      } else if (msgLvl(MSG::VERBOSE)) msg() << "Find TrackCollection " << m_tracksName << " in StoreGate." << endmsg;
       if (msgLvl(MSG::VERBOSE)) msg() << "Number of tracks  = " << trackTES->size() << endmsg;
       //theVxContainer = m_VertexFinderTool->findVertex(trackTES); --David S.
       theXAODContainers = m_VertexFinderTool->findVertex(trackTES);
     }
-  else if(evtStore()->contains<Trk::TrackParticleBaseCollection>(m_tracksName))
-    {
-      const Trk::TrackParticleBaseCollection *trackParticleBaseCollection(0);
-      if(evtStore()->retrieve(trackParticleBaseCollection, m_tracksName).isFailure())
-	{
-	  if(msgLvl(MSG::DEBUG)) msg() << "Could not find Trk::TrackParticleBaseCollection" << m_tracksName << " in StoreGate." << endmsg;
-	  return StatusCode::SUCCESS;
-	}
-      //theVxContainer = m_VertexFinderTool->findVertex(trackParticleBaseCollection); --David S.
-      theXAODContainers = m_VertexFinderTool->findVertex(trackParticleBaseCollection);
-    }
   else {
-    if (msgLvl(MSG::DEBUG)) msg() << "Neither a TrackCollection nor a TrackParticleBaseCollection with key " << m_tracksName << " exist." << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg() << "Not TrackCollection  with key " << m_tracksName << " exist." << endmsg;
     //add check for xAOD::TrackParticleContainer --David S.
     if(evtStore()->contains<xAOD::TrackParticleContainer>(m_tracksName))
     {
