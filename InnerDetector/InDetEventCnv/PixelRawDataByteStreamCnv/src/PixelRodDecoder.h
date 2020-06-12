@@ -164,6 +164,10 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
     //!< if there are errors in the header, save info in error word and (for now) report to BS error tool
     void checkHeaderErrors( uint64_t& bsErrorWord, uint32_t headerWord ) const;
 
+    //!< if there are errors in the trailer, save info in error word and (for now) report to BS error tool
+    void checkTrailerErrors( uint64_t& bsErrorWord, uint32_t headerWord ) const;
+    void checkTrailerErrorsIBL( uint64_t& bsErrorWord, uint32_t headerWord ) const;
+
     //!< if the flag is set to true appropriate bits are set in event info
     StatusCode updateEventInfoIfEventCorruted( bool isCorrupted ) const;
 
