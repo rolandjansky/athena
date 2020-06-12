@@ -716,7 +716,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   // -- the el iso points are those which have (or will have) SFs available
   m_el_iso_support = {
      "FCLoose", "FCTight",             // current WPs
-     "FCHighPtCaloOnly"                // current HighPtCaloOnly WPs
+     "FCHighPtCaloOnly",               // current HighPtCaloOnly WPs
+     "Gradient"                        // 
   };
   // -- the muon iso points are those which have SFs available
   // -- more details https://indico.cern.ch/event/878781/contributions/3721998/attachments/1976194/3289315/20200127_IFFshort_2.pdf
@@ -1257,7 +1258,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_elePt, "Ele.Et", rEnv, 25000.);
   configFromFile(m_eleEta, "Ele.Eta", rEnv, 2.47);
   configFromFile(m_eleCrackVeto, "Ele.CrackVeto", rEnv, false);
-  configFromFile(m_eleIso_WP, "Ele.Iso", rEnv, "Gradient");
+  configFromFile(m_eleIso_WP, "Ele.Iso", rEnv, "FCLoose");
   configFromFile(m_eleIsoHighPt_WP, "Ele.IsoHighPt", rEnv, "FCHighPtCaloOnly");
   configFromFile(m_eleIsoHighPtThresh, "Ele.IsoHighPtThresh", rEnv, 200e3);
   configFromFile(m_eleChID_WP, "Ele.CFT", rEnv, "None"); // Loose is the only one supported for the moment, and not many clients yet.
