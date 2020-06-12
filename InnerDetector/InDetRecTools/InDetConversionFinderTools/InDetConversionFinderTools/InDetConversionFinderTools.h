@@ -44,7 +44,7 @@
 
    InDet::InDetConversionFinderTools is a tool which reconstructs conversion
    vertex candidates in the form of xAOD::Vertex using Trk::Track (no longer
-   available) or Trk::TrackParticleBase (default) as an input
+   available) or xAOD::TrackParticle  (default) as an input
 */
 
 namespace InDet {
@@ -73,9 +73,6 @@ public:
   //!< Conversion candidate reconstruction for Trk::Tracks.
   virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
   findVertex(const TrackCollection* trk_coll) const override;
-
-  virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-  findVertex(const Trk::TrackParticleBaseCollection* trk_coll) const override;
 
   /** Conversion candidate reconstruction for Trk::TrackParticle (default)  */
   virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>

@@ -16,7 +16,6 @@
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "AthLinks/ElementLink.h"
 #include "TrkTrack/LinkToTrack.h"
-#include "TrkParticleBase/LinkToTrackParticleBase.h"
 
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/Vertex.h"
@@ -121,21 +120,6 @@ InDetConversionFinderTools::InDetConversionFinderTools(const std::string& t,
     return StatusCode::SUCCESS;
   }
 
-  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-  InDetConversionFinderTools::findVertex(
-    const Trk::TrackParticleBaseCollection* /*trk_coll*/) const
-  {
-
-    ATH_MSG_ERROR("Using old TrackParticle Container no longer supported returning an empty conatiner");
-
-    // Make collection for conversions.
-    xAOD::VertexContainer* InDetConversionContainer = new xAOD::VertexContainer();
-    xAOD::VertexAuxContainer* InDetConversionContainerAux = new xAOD::VertexAuxContainer();
-    InDetConversionContainer->setStore( InDetConversionContainerAux ); 
-
-    return std::make_pair(InDetConversionContainer,InDetConversionContainerAux);
-  }
-
   //TrackCollection
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
   InDetConversionFinderTools::findVertex(const TrackCollection* /*trk_coll*/) const
@@ -151,7 +135,7 @@ InDetConversionFinderTools::InDetConversionFinderTools(const std::string& t,
     return std::make_pair(InDetConversionContainer,InDetConversionContainerAux); 
   }
 
-  // TrackParticleBaseCollection
+  // TrackParticle Collection
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
   InDetConversionFinderTools::findVertex(
     const xAOD::TrackParticleContainer* trk_coll) const
