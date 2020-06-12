@@ -482,8 +482,6 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(const LVL1::RecMuo
   unsigned int sector = (sectorAddress & 0x0000003e) >> 1;
   unsigned int roiNumber =  sectorRoIOvl & 0x0000001F;  
 
-  Identifier padId;
-  
   // retrieve the pad container
   const RpcPadContainer* rpcPadContainer=nullptr; 
   ATH_CHECK(evtStore()->retrieve(rpcPadContainer,"RPCPAD"));
