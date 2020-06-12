@@ -19,6 +19,7 @@ Muon::ClusterTimeProjectionMMClusterBuilderTool::ClusterTimeProjectionMMClusterB
                     const std::string& n, const IInterface* p):
                     AthAlgTool(t, n, p) {
     declareInterface<IMMClusterBuilderTool>(this);
+    declareProperty("writeStripProperties", m_writeStripProperties = true ); // true  for debugging; needs to become false for large productions
     declareProperty("maxHoleSize", m_maxHoleSize = 1);
 }
 
@@ -196,19 +197,30 @@ StatusCode Muon::ClusterTimeProjectionMMClusterBuilderTool::writeClusterPrd(
     std::vector<int> stripCharges;
     std::vector<short int> stripTimes;
     std::vector<uint16_t> stripNumbers;
+    std::vector<float> stripDriftDists;
+    std::vector<Amg::MatrixX> stripDriftDistErrors;
 
     rdoList.reserve(idxCluster.size());
-    stripCharges.reserve(idxCluster.size());
-    stripTimes.reserve(idxCluster.size());
-    stripNumbers.reserve(idxCluster.size());
+    if(m_writeStripProperties) {
+        stripCharges.reserve(idxCluster.size());
+        stripTimes.reserve(idxCluster.size());
+        stripNumbers.reserve(idxCluster.size());
+    }
+    stripDriftDists.reserve(idxCluster.size());
+    stripDriftDistErrors.reserve(idxCluster.size());
 
     for (auto &idx : idxCluster) {
         Identifier id = MMPrdsOfLayer.at(idx).identify();
         rdoList.push_back(id);
-        stripCharges.push_back(MMPrdsOfLayer.at(idx).charge());
-        stripTimes.push_back(MMPrdsOfLayer.at(idx).time());
-        stripNumbers.push_back(channel(id));
+        if(m_writeStripProperties) {
+            stripCharges.push_back(MMPrdsOfLayer.at(idx).charge());
+            stripTimes.push_back(MMPrdsOfLayer.at(idx).time());
+            stripNumbers.push_back(channel(id));
+        }
+        stripDriftDists.push_back(MMPrdsOfLayer.at(idx).driftDist());
+        stripDriftDistErrors.push_back(MMPrdsOfLayer.at(idx).localCovariance());
     }
+
     Amg::MatrixX* covN = new Amg::MatrixX(1, 1);
     covN -> coeffRef(0, 0) = clusterPositionErrorSq;
     Amg::Vector2D localClusterPositionV(clusterPosition,
@@ -223,6 +235,9 @@ StatusCode Muon::ClusterTimeProjectionMMClusterBuilderTool::writeClusterPrd(
                    std::accumulate(stripCharges.begin(), stripCharges.end(), 0),
                    0.0/*drift dist*/,
                    stripNumbers, stripTimes, stripCharges);
+
+    prdN->setDriftDist(stripDriftDists, stripDriftDistErrors);
+    prdN->setAuthor(Muon::MMPrepData::Author::ClusterTimeProjectionClusterBuilder);
 
     clustersVec.push_back(prdN);
     return StatusCode::SUCCESS;

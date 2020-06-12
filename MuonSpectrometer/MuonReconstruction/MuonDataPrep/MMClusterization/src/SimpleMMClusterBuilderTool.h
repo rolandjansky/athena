@@ -33,7 +33,8 @@ namespace Muon
 
   private: 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-    
+    bool m_writeStripProperties;
+
     bool m_useErrorParametrization;
     uint m_maxHoleSize;
     

@@ -32,6 +32,7 @@ class ClusterTimeProjectionMMClusterBuilderTool :
     /// Muon Detector Descriptor
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
+    bool m_writeStripProperties;
     uint m_maxHoleSize;
 
 
