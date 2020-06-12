@@ -96,12 +96,11 @@ _knownHistos = [
     HistoSpec('Width15', (50, 0, 1.5), title='Jet Width;Width;', xvar='Width'),
     HistoSpec('Mu12', (100, 0, 1.0), title='Mu12;Mu12;', ),
 
-    HistoSpec('NumTrkPt500[0]', (100, 0, 100), title='Number of tracks from PV0 above 0.5 GeV:N_{tracks}(p_{T}>0.5 GeV);', ),
-    HistoSpec('NumTrkPt1000[0]', (100, 0, 100), title='Number of all tracks above 1 GeV:N_{tracks}(p_{T}>1 GeV);', ),
-    HistoSpec('SumPtTrkPt500:GeV', (100, 0, 200), title='Sum Pt of all tracks above 0.5 GeV:SumPtTrk(p_{T}>0.5 GeV);', ),
-    HistoSpec('SumPtTrkPt500[0]:GeV', (100, 0, 200), title='Sum Pt of all tracks above 0.5 GeV[0]:SumPtTrk(p_{T}>0.5 GeV)[0];', ),
-    HistoSpec('SumPtChargedPFOPt500:GeV', (100, 0, 200), title='Sum Pt of all charged PFO above 0.5 GeV:SumPtChargedPFO(p_{T}>0.5 GeV);', ),
-    HistoSpec('SumPtChargedPFOPt500[0]:GeV', (100, 0, 200), title='Sum Pt of all charged PFO above 0.5 GeV[0]:SumPtChargedPFO(p_{T}>0.5 GeV)[0];', ),
+    HistoSpec('NumTrkPt500[0]', (100, 0, 100), title='Number of tracks from PV0 above 0.5 GeV:N_{tracks}(p_{T}>0.5 GeV);NumTrkPt500;Entries', ),
+    HistoSpec('NumTrkPt1000[0]', (100, 0, 100), title='Number of all tracks above 1 GeV:N_{tracks}(p_{T}>1 GeV);NumTrkPt1000;Entries', ),
+    HistoSpec('SumPtTrkPt500[0]:GeV', (100, 0, 200), title='Sum Pt of all tracks above 0.5 GeV:SumPtTrk(p_{T}>0.5 GeV);SumPtTrkPt500 [GeV];Entries', ),
+    HistoSpec('SumPtChargedPFOPt500[0]:GeV', (100, 0, 200), title='Sum Pt of all charged PFO above 0.5 GeV:SumPtChargedPFO(p_{T}>0.5 GeV);SumPtChargedPFOPt500 [GeV];Entries', ),
+    HistoSpec('fCharge', (100, 0, 2), title='Normalised sum Pt of all charged PFO above 0.5 GeV:fCharge(p_{T}>0.5 GeV);fCharge;Entries', ),
 
     HistoSpec('FoxWolfram4', (100, -1, 1), title='FoxWolfram0;FoxWolfram4;', ),
     HistoSpec('FoxWolfram0', (100, -1, 1), title='FoxWolfram0;FoxWolfram0;', ),

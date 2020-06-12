@@ -1,5 +1,4 @@
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 
 from PyUtils.MetaReaderPeeker import convert_itemList
 inputObjects = convert_itemList(layout=None)

@@ -75,7 +75,6 @@ StatusCode sTGCDigitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
       const MuonGM::sTgcReadoutElement* rdoEl = MuonDetMgr->getsTgcRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet);
       if (!rdoEl) throw std::runtime_error(Form("File: %s, Line: %d\nsTGCDigitVariables::fillVariables() - Failed to retrieve sTgcReadoutElement for isSmall=%d, stationEta=%d, stationPhi=%d, multiplet=%d", __FILE__, __LINE__, isSmall, stationEta, stationPhi, multiplet));
       int channelNumber = 0;
-      const Identifier phiId, etaId;
       Amg::Vector3D gpos(0.,0.,0.);
       Amg::Vector2D lpos(0.,0.);
 

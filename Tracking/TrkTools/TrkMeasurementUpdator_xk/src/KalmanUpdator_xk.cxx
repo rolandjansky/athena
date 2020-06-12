@@ -439,9 +439,9 @@ bool                        Trk::KalmanUpdator_xk::combineStates
     }
     return false;
   }
-  else if(q1) {T3=T1; return true;}
-  else if(q2) {T3=T2; return true;}
-  else return false;
+  if(q1) {T3=T1; return true;}
+  if(q2) {T3=T2; return true;}
+  return false;
 }
 
 
@@ -496,9 +496,9 @@ bool                        Trk::KalmanUpdator_xk::combineStates
     }
     return false;
   }
-  else if(q1) {T3=T1; Q=0; return true;}
-  else if(q2) {T3=T2; Q=0; return true;}
-  else return false;
+  if(q1) {T3=T1; Q=0; return true;}
+  if(q2) {T3=T2; Q=0; return true;}
+  return false;
 }
 
 ///////////////////////////////////////////////////////////////////

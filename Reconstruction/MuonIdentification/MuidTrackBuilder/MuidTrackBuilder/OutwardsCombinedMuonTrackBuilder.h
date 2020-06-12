@@ -86,7 +86,7 @@ class OutwardsCombinedMuonTrackBuilder : public AthAlgTool, virtual public IComb
      * EventContext for now
      */
   
-    using ITrackFitter::fit;
+    using ICombinedMuonTrackBuilder::fit;
     /** refit a track */
     Trk::Track* fit(const Trk::Track& track, const Trk::RunOutlierRemoval runOutlier = false,
                     const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const;

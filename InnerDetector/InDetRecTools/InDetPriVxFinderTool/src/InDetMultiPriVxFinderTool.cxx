@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 /***************************************************************************
@@ -97,7 +97,7 @@ namespace InDet
   StatusCode
   InDetMultiPriVxFinderTool::initialize() {
     
-    if (m_createSplitVertices == true && m_useBeamConstraint == true) {
+    if (m_createSplitVertices && m_useBeamConstraint) {
       msg(MSG::FATAL) << " Split vertices cannot be obtained if beam spot constraint is true! Change settings..." <<
       endmsg;
       return StatusCode::FAILURE;
@@ -137,7 +137,8 @@ namespace InDet
 
 //Find vertex from TrackCollection
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-  InDetMultiPriVxFinderTool::findVertex(const TrackCollection* trackTES) {
+  InDetMultiPriVxFinderTool::findVertex(const TrackCollection* trackTES) const
+  {
     if (msgLvl(MSG::DEBUG)) msg() << " Number of input tracks before track selection: " << trackTES->size() << endmsg;
 
     std::vector<Trk::ITrackLink*> selectedTracks;
@@ -182,53 +183,9 @@ namespace InDet
   }
 
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-  InDetMultiPriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection* trackTES) {
-    if (msgLvl(MSG::DEBUG)) msg() << " Number of input tracks before track selection: " << trackTES->size() << endmsg;
-
-    std::vector<Trk::ITrackLink*> selectedTracks;
-
-    typedef DataVector<Trk::TrackParticleBase>::const_iterator TrackParticleDataVecIter;
-
-    bool  selectionPassed{false};
-    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
-    const InDet::BeamSpotData* beamdata = nullptr;
-    if(m_useBeamConstraint && beamSpotHandle.isValid()) beamdata = beamSpotHandle.retrieve();
-    
-    for (TrackParticleDataVecIter itr = (*trackTES).begin(); itr != (*trackTES).end(); itr++) {
-      if (m_useBeamConstraint) {
-        // TODO: change trkFilter to allow for this replacement
-        /*
-           xAOD::Vertex beamposition;
-           beamposition.makePrivateStore();
-           beamposition.setPosition(beamdata->beamVtx().position());
-           beamposition.setCovariancePosition(beamdata->beamVtx().covariancePosition());
-         */
-        Trk::RecVertex beamposition(beamdata->beamVtx());
-        selectionPassed = static_cast<bool>(m_trkFilter->accept(*((*itr)->originalTrack()), &beamposition));
-      } else {
-        Trk::Vertex null(Amg::Vector3D(0, 0, 0));
-        selectionPassed = static_cast<bool>(m_trkFilter->accept(*((*itr)->originalTrack()), &null));
-      }
-
-      if (selectionPassed) {
-        ElementLink<Trk::TrackParticleBaseCollection> link;
-        link.setElement(const_cast<Trk::TrackParticleBase*>(*itr));
-        Trk::LinkToTrackParticleBase* linkTT = new Trk::LinkToTrackParticleBase(link);
-        linkTT->setStorableObject(*trackTES);
-        selectedTracks.push_back(linkTT);
-      }
-    }
-
-    if (msgLvl(MSG::DEBUG)) msg() << "Of " << trackTES->size() << " tracks "
-                                  << selectedTracks.size() << " survived the preselection." << endmsg;
-
-    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = findVertex(selectedTracks);
-
-    return returnContainers;
-  }
-
-  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-  InDetMultiPriVxFinderTool::findVertex(const xAOD::TrackParticleContainer* trackParticles) {
+  InDetMultiPriVxFinderTool::findVertex(
+    const xAOD::TrackParticleContainer* trackParticles) const
+  {
     ATH_MSG_DEBUG(" Number of input tracks before track selection: " << trackParticles->size());
 
     std::vector<Trk::ITrackLink*> selectedTracks;
@@ -274,7 +231,9 @@ namespace InDet
   }
 
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-  InDetMultiPriVxFinderTool::findVertex(const std::vector<Trk::ITrackLink*>& trackVector) const {
+  InDetMultiPriVxFinderTool::findVertex(
+    const std::vector<Trk::ITrackLink*>& trackVector) const
+  {
     //copy the input vector.  will drop used tracks from here as they are added to vertices
     // then what is left is used to then delete all unused ITrackLink objects at the end.
     std::vector<Trk::ITrackLink*> seedTracks = trackVector;
@@ -380,7 +339,7 @@ namespace InDet
           //add to list of tracks for new vertex if the new vertex already has a track.
           //then erase from this collection in case another track gets moved here we don't want to have the same track
           // in 2 places
-          if (closestSeedIndex != seedVertices.size() && tracksToFitCollection[closestSeedIndex].size() > 0) {
+          if (closestSeedIndex != seedVertices.size() && !tracksToFitCollection[closestSeedIndex].empty()) {
             tracksToFitCollection[closestSeedIndex].push_back(tracksToFitCollection[i][0]);
             tracksToFitCollection[i].clear();
           } //if didn't find another one to attach to, just leave it there.  if nothing else gets added here will be
@@ -413,7 +372,7 @@ namespace InDet
       }
 
 
-      xAOD::Vertex* myxAODVertex = 0;
+      xAOD::Vertex* myxAODVertex = nullptr;
       if (m_useBeamConstraint) {
         myxAODVertex = m_iVertexFitter->fit(perigeesToFit, theconstraint);
       } else {
@@ -426,7 +385,7 @@ namespace InDet
       countTracksAndNdf(myxAODVertex, ndf, ntracks);
 
       bool goodVertex =
-        myxAODVertex != 0 &&
+        myxAODVertex != nullptr &&
         ((!m_useBeamConstraint && ndf > 0 && ntracks >= 2) ||
          (m_useBeamConstraint && ndf > 3 && ntracks >= 2));
 
@@ -459,8 +418,7 @@ namespace InDet
                 // If track is an xAOD::TrackParticle, set directly in xAOD::Vertex
                 if (linkToXAODTP) {
                   myxAODVertex->addTrackAtVertex(*linkToXAODTP, (*tracksIter).weight());
-                } //TODO: else write in a warning? (if tracks were Trk::Tracks or Trk::TrackParticleBase)
-
+                } 
                 cit->erase(linkit);
                 break; //done looking for that link
               }
@@ -477,7 +435,7 @@ namespace InDet
       } else {
         if (myxAODVertex) {
           delete myxAODVertex;
-          myxAODVertex = 0;
+          myxAODVertex = nullptr;
         }
       }
 
@@ -505,9 +463,9 @@ namespace InDet
     }
 
     //This bit was done in iterative finder -- not sure why but will copy it here too
-    if (theVertexContainer->size() >= 1) {
+    if (!theVertexContainer->empty()) {
       xAOD::Vertex* primaryVtx = theVertexContainer->front();
-      if (primaryVtx->vxTrackAtVertex().size() > 0) {
+      if (!primaryVtx->vxTrackAtVertex().empty()) {
         primaryVtx->setVertexType((xAOD::VxType::VertexType) Trk::PriVtx);
         xAOD::Vertex* dummyxAODVertex = new xAOD::Vertex;
         theVertexContainer->push_back(dummyxAODVertex); // have to add vertex to container here first so it can use its
@@ -519,7 +477,7 @@ namespace InDet
       } else {
         primaryVtx->setVertexType(xAOD::VxType::NoVtx);
       }
-    } else if (theVertexContainer->size() == 0) {  //---- if no vertex is there let dummy be at beam spot
+    } else if (theVertexContainer->empty()) {  //---- if no vertex is there let dummy be at beam spot
       xAOD::Vertex* dummyxAODVertex = new xAOD::Vertex;
       theVertexContainer->push_back(dummyxAODVertex); // have to add vertex to container here first so it can use its
                                                       // aux store
@@ -585,10 +543,9 @@ namespace InDet
   }
 
   void
-  InDetMultiPriVxFinderTool::SGError(std::string errService) {
+  InDetMultiPriVxFinderTool::SGError(const std::string& errService) {
     msg(MSG::FATAL) << errService << " not found. Exiting !" << endmsg;
-    return;
-  }
+ }
 
   void
   InDetMultiPriVxFinderTool::countTracksAndNdf(xAOD::Vertex* myxAODVertex,

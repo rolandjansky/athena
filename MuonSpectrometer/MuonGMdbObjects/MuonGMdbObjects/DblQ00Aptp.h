@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************
@@ -14,17 +14,18 @@
 #define DBLQ00_APTP_H
 
 #include "RDBAccessSvc/IRDBQuery.h"
+
 #include <memory>
 
-namespace MuonGM
-{
+class AmdcDb;
 
+namespace MuonGM {
 class DblQ00Aptp {
-
 public:
     DblQ00Aptp(){};
     ~DblQ00Aptp();
     DblQ00Aptp(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Aptp(AmdcDb* aptp);
 
     // data members for DblQ00/APTP fields
     struct APTP {

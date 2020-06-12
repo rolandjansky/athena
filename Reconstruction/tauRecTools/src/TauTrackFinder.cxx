@@ -47,15 +47,7 @@ StatusCode TauTrackFinder::finalize() {
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, const xAOD::TrackParticleContainer* trackContainer) {
-
-  ElementLink< xAOD::TauTrackContainer > link = pTau.allTauTrackLinksNonConst().at(0);//we don't care about this specific link, just the container
-  xAOD::TauTrackContainer* tauTrackCon = link.getDataNonConstPtr();
-  
-  // Added an empty track and link in the processor alg, required so that the above will work for the very first tau
-  // Does that once per tau in the processor alg, so remove the last track and link once per tau here
-  (&(pTau.allTauTrackLinksNonConst()) )->pop_back();
-  tauTrackCon->pop_back();
+StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrackContainer& tauTrackCon, const xAOD::TrackParticleContainer* trackContainer) {
   
   std::vector<const xAOD::TrackParticle*> tauTracks;
   std::vector<const xAOD::TrackParticle*> wideTracks;
@@ -99,7 +91,7 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, const xAOD::Tr
       {
 	alreadyUsed = false;
 	//loop over all up-to-now core tracks	
-	for( const xAOD::TauTrack* tau_trk : (*tauTrackCon) ) {
+	for( const xAOD::TauTrack* tau_trk : (tauTrackCon) ) {
 	  if(! tau_trk->flagWithMask( (1<<xAOD::TauJetParameters::TauTrackFlag::coreTrack) | (1<<xAOD::TauJetParameters::TauTrackFlag::passTrkSelector))) continue; //originally it was coreTrack&passTrkSelector
 	  if( (*track_it) == tau_trk->track()) alreadyUsed = true;
 	}
@@ -123,7 +115,7 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, const xAOD::Tr
     charge += trackParticle->charge();
 
     xAOD::TauTrack* track = new xAOD::TauTrack();
-    tauTrackCon->push_back(track);
+    tauTrackCon.push_back(track);
 
     ElementLink<xAOD::TrackParticleContainer> linkToTrackParticle;
     linkToTrackParticle.toContainedElement(*trackParticleCont, trackParticle);
@@ -137,7 +129,7 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, const xAOD::Tr
     track->setFlag(xAOD::TauJetParameters::TauTrackFlag::unclassified, true);
     
     ElementLink<xAOD::TauTrackContainer> linkToTauTrack;
-    linkToTauTrack.toContainedElement(*tauTrackCon, track);
+    linkToTauTrack.toContainedElement(tauTrackCon, track);
     pTau.addTauTrackLink(linkToTauTrack);
 
     ATH_MSG_VERBOSE(name()     << " added core track nr: " << i
@@ -157,7 +149,7 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, const xAOD::Tr
 		    );
 
     xAOD::TauTrack* track = new xAOD::TauTrack();
-    tauTrackCon->push_back(track);
+    tauTrackCon.push_back(track);
 
     ElementLink<xAOD::TrackParticleContainer> linkToTrackParticle;
     linkToTrackParticle.toContainedElement(*trackParticleCont, trackParticle);
@@ -172,7 +164,7 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, const xAOD::Tr
     track->setFlag(xAOD::TauJetParameters::TauTrackFlag::unclassified, true);
 
     ElementLink<xAOD::TauTrackContainer> linkToTauTrack;
-    linkToTauTrack.toContainedElement(*tauTrackCon, track);
+    linkToTauTrack.toContainedElement(tauTrackCon, track);
     pTau.addTauTrackLink(linkToTauTrack);
 
   }
@@ -190,7 +182,7 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, const xAOD::Tr
 		    );
 
     xAOD::TauTrack* track = new xAOD::TauTrack();
-    tauTrackCon->push_back(track);
+    tauTrackCon.push_back(track);
 
     ElementLink<xAOD::TrackParticleContainer> linkToTrackParticle;
     linkToTrackParticle.toContainedElement(*trackParticleCont, trackParticle);
@@ -203,7 +195,7 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, const xAOD::Tr
     track->setFlag(xAOD::TauJetParameters::TauTrackFlag::unclassified, true);
 
     ElementLink<xAOD::TauTrackContainer> linkToTauTrack;
-    linkToTauTrack.toContainedElement(*tauTrackCon, track);
+    linkToTauTrack.toContainedElement(tauTrackCon, track);
     pTau.addTauTrackLink(linkToTauTrack);
 
   }

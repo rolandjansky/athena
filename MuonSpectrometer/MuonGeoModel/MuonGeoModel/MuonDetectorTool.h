@@ -39,7 +39,7 @@ private:
   std::string m_layout;
   int m_accessCondDb;
   int m_asciiCondData;
-  int m_nova;  
+  Gaudi::Property<int> m_amdcDb { this, "BuildFromAmdcDb", 0, "Build the geometry from AMDB file (expert only!)" };
   int m_includeCutouts;
   int m_includeCutoutsBog;
   int m_includeCtbBis;

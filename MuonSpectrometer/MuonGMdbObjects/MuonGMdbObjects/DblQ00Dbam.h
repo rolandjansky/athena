@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************
@@ -14,15 +14,18 @@
 #define DBLQ00_DBAM_H
 
 #include "RDBAccessSvc/IRDBQuery.h"
-#include <memory>
-namespace MuonGM
-{
-class DblQ00Dbam {
 
+#include <memory>
+
+class AmdcDb;
+
+namespace MuonGM {
+class DblQ00Dbam {
 public:
     DblQ00Dbam(){};
     ~DblQ00Dbam();
     DblQ00Dbam(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Dbam(AmdcDb* dbam);
 
     // data members for DblQ00/DBAM fields
     struct DBAM {

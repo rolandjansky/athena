@@ -776,8 +776,6 @@ namespace Muon {
     std::vector< std::pair<bool,const Trk::TrackStateOnSurface* > > newStates;
     newStates.reserve(states->size()+5);
      
-    Identifier currentMdtChId;
-
     const Trk::TrackParameters* startPars = 0;
     std::map<int,std::set<MuonStationIndex::StIndex> > stationsPerSector;
 
@@ -1167,8 +1165,6 @@ namespace Muon {
     std::vector< std::pair<bool,const Trk::TrackStateOnSurface* > > newStates;
     newStates.reserve(states->size()+5);
      
-    Identifier currentMdtChId;
-
     const Trk::TrackParameters* startPars = 0;
 
     // loop over TSOSs and find start parameters

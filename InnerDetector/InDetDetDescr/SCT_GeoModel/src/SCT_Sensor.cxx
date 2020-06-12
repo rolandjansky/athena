@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_Sensor.h"
@@ -104,6 +104,7 @@ SCT_Sensor::makeDesign()
   // The readout side is at the +ve depth direction
   int readoutSide = +1;
 
+  // m_design will be owned and deleted by SCT_DetectorManager
   m_design = new SCT_BarrelModuleSideDesign(m_thickness,
                                             crystals,
                                             diodes,
@@ -148,6 +149,8 @@ SCT_Sensor::build(SCT_Identifier id)
 
     SiDetectorElement * detElement;
 
+    // detElement will be owned by SCT_DetectorManager
+    // and will be deleted in destructor of SiDetectorElementCollection in SCT_DetectorManager
     detElement =  new SiDetectorElement(id.getWaferId(), 
                                         m_design, 
                                         sensor,  

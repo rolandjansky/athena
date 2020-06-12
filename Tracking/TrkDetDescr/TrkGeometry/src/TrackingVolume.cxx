@@ -853,7 +853,7 @@ const Trk::BoundarySurface<Trk::TrackingVolume>* Trk::TrackingVolume::boundarySu
   return (m_boundarySurfaces->operator[](oa)).get();
 }
 
-void Trk::TrackingVolume::createBoundarySurfaces()
+void Trk::TrackingVolume::createBoundarySurfaces ATLAS_NOT_THREAD_SAFE ()
 {
   // prepare the BoundarySurfaces
   m_boundarySurfaces = new std::vector< Trk::SharedObject<const Trk::BoundarySurface<Trk::TrackingVolume> > >;
@@ -1219,7 +1219,7 @@ void  Trk::TrackingVolume::moveTV ATLAS_NOT_THREAD_SAFE (Amg::Transform3D& trans
 }
 
 
-void Trk::TrackingVolume::synchronizeLayers(MsgStream& msgstream, double envelope) const {
+void Trk::TrackingVolume::synchronizeLayers ATLAS_NOT_THREAD_SAFE (MsgStream& msgstream, double envelope) const {
 
   // case a : Layers exist
   const Trk::BinnedArray< Trk::Layer >* confLayers = confinedLayers();

@@ -30,15 +30,11 @@
 MuonPhiHitSelector::MuonPhiHitSelector(const std::string& type,const std::string& name,const IInterface* parent) :
     AthAlgTool(type,name,parent),
     m_competingRIOsOnTrackTool("Muon::MuonCompetingClustersOnTrackCreator/MuonCompetingClustersOnTrackCreator"),
-    m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
-    m_phi(0) {
+    m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator") {
   declareInterface<IMuonHitSelector>(this);
 
   m_cosmics = false;
   declareProperty("DoCosmics",m_cosmics);
-
-  m_debug = false; 
-  declareProperty("DoDebug",m_debug);
 
   m_summary = false;  
   declareProperty("DoSummary",m_summary);
@@ -53,10 +49,10 @@ MuonPhiHitSelector::MuonPhiHitSelector(const std::string& type,const std::string
 
 StatusCode MuonPhiHitSelector::initialize()
 {
-  ATH_MSG_VERBOSE(" MuonPhiHitSelector::Initializing ");
-  ATH_CHECK( m_competingRIOsOnTrackTool.retrieve() );
-  ATH_CHECK( m_clusterCreator.retrieve() );
-  ATH_CHECK( m_idHelperSvc.retrieve() );
+  ATH_MSG_VERBOSE("MuonPhiHitSelector::Initializing");
+  ATH_CHECK(m_competingRIOsOnTrackTool.retrieve());
+  ATH_CHECK(m_clusterCreator.retrieve());
+  ATH_CHECK(m_idHelperSvc.retrieve());
   ATH_MSG_VERBOSE("End of Initializing");
   return StatusCode::SUCCESS;
 }
@@ -70,12 +66,11 @@ std::vector<const Trk::MeasurementBase*>* MuonPhiHitSelector::select_rio( const 
   std::vector<const Trk::MeasurementBase*>* selectedHits = new std::vector<const Trk::MeasurementBase*>() ;
   std::vector<const Trk::MeasurementBase*>* selectedClusters = new std::vector<const Trk::MeasurementBase*>() ;
 
-  ATH_MSG_VERBOSE(" Executing MuonPhiHitSelectorTool select_rio ");
+  ATH_MSG_VERBOSE("Executing MuonPhiHitSelectorTool select_rio ");
 
-  m_phi =0.; 
   int nhits = associatedHits.size() + unassociatedHits.size();
 
-  if (m_debug) std::cout << " Executing MuonPhiHitSelectorTool nhits select_rio " << nhits << std::endl;  
+  if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Executing MuonPhiHitSelectorTool nhits select_rio " << nhits);
 
   std::vector<double> phiHitx(nhits);
   std::vector<double> phiHity(nhits);
@@ -95,6 +90,10 @@ std::vector<const Trk::MeasurementBase*>* MuonPhiHitSelector::select_rio( const 
 
   for(; it != it_end ; ++it )  {
     const Trk::PrepRawData* prd = (*it)->prepRawData();
+    if (!prd) {
+      ATH_MSG_WARNING("prepRawData of associatedHits is nullptr, continuing...");
+      continue;
+    }
     Identifier id = prd->identify(); 
     phiId[nphi] = id;  
     Amg::Vector3D gHitPos = (*it)->globalPosition();
@@ -122,7 +121,7 @@ std::vector<const Trk::MeasurementBase*>* MuonPhiHitSelector::select_rio( const 
       Er(1,1) = cov(1,1);
       Er(1,0) = Er(0,1);   
      
-      double chi = Er(0,0) != Er(1,1) ? atan(-2*Er(0,1)/(Er(0,0)-Er(1,1)))/2. : 0.;
+      double chi = Er(0,0) != Er(1,1) ? std::atan(-2*Er(0,1)/(Er(0,0)-Er(1,1)))/2. : 0.;
 
       CxxUtils::sincos scchi(chi);
 
@@ -132,15 +131,15 @@ std::vector<const Trk::MeasurementBase*>* MuonPhiHitSelector::select_rio( const 
       Rot(0,1) = scchi.sn;
       Rot(1,0) = -Rot(0,1);
       AmgMatrix(2,2) D = Rot.transpose()*Er*Rot;
-      if (m_debug) std::cout << " Diagonalized error matrix " << D << std::endl; 
+      if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Diagonalized error matrix " << D);
       error = D(0,0) < D(1,1) ? D(0,0) : D(1,1);
     }
-    phiError[nphi] = sqrt(error);
+    phiError[nphi] = std::sqrt(error);
     quality[nphi] = 1000;
     phiMapId[id] = 1;
     phiPrep[nphi] = prd;
-    double phipos = atan2(phiHity[nphi],phiHitx[nphi]);
-    if (m_debug) std::cout << " phi Segment Hit " << nphi << " det " << phiSelect[nphi] << " phi " << phipos << std::endl;
+    double phipos = std::atan2(phiHity[nphi],phiHitx[nphi]);
+    if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("phi Segment Hit " << nphi << " det " << phiSelect[nphi] << " phi " << phipos);
     nphi++;
   }
   int nphiseg = nphi;
@@ -165,16 +164,17 @@ std::vector<const Trk::MeasurementBase*>* MuonPhiHitSelector::select_rio( const 
     phiError[nphi] = (*itu)->localCovariance()(Trk::locX);
     quality[nphi] = 10;
     phiPrep[nphi] = *itu;
-    double phipos = atan2(phiHity[nphi],phiHitx[nphi]);
-    if (m_debug) std::cout << " phi Pattern Hit " << nphi << " phi " << phipos << std::endl;
+    double phipos = std::atan2(phiHity[nphi],phiHitx[nphi]);
+    if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("phi Pattern Hit " << nphi << " phi " << phipos);
     nphi++;
   }
 
-  double chi2,r0;
+  double chi2(0);
+  double r0(0);
   int nfit;
   std::vector<double> errorM(4);
-
-  fitRecPhi( pmom, phiId, phiHitx, phiHity, phiHitz, phiError, quality, nphi, phiPull, phiMult, phiSelect, chi2, r0, m_phi, errorM, nfit);
+  double phi(DBL_MAX);
+  fitRecPhi( pmom, phiId, phiHitx, phiHity, phiHitz, phiError, quality, nphi, phiPull, phiMult, phiSelect, chi2, r0, phi, errorM, nfit);
   
   // Define global track parameters (not used 27-8 JS)
 
@@ -199,11 +199,11 @@ std::vector<const Trk::MeasurementBase*>* MuonPhiHitSelector::select_rio( const 
 	if (rio) selectedHits->push_back(rio);
       }
 
-      if (m_debug) std::cout << " Make ONE rio per PrepData " << std::endl;
+      if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Make ONE rio per PrepData");
     }
   } 
-  if (m_debug||m_summary) { 
-    std::cout << " Fit hit results phi " << m_phi << " chi2 " << chi2 <<  " segment hits  " << nphiseg << " pattern hits " << nphi-nphiseg << " nfit " << nfit << " rio size " << selectedHits->size() << std::endl;
+  if (msgLvl(MSG::DEBUG)||m_summary) {
+    ATH_MSG_DEBUG("Fit hit results phi " << phi << " chi2 " << chi2 <<  " segment hits  " << nphiseg << " pattern hits " << nphi-nphiseg << " nfit " << nfit << " rio size " << selectedHits->size());
   } 
 
   std::vector<double> clusterX(nphi);
@@ -239,24 +239,24 @@ std::vector<const Trk::MeasurementBase*>* MuonPhiHitSelector::select_rio( const 
       }
     }
     if (iic > -1) {
-      if (m_debug) std::cout << " Phi cluster found np " << np << " ip " << ip << std::endl;
+      if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Phi cluster found np " << np << " ip " << ip);
       if (np ==1) {
 	// Only one PrepData: create RIO on Track
 	const Amg::Vector3D globalpos(clusterX[ic],clusterY[ic],clusterZ[ic]);
 	if (phiSelect[ip] == 1) {
-	  if (m_debug) std::cout << " Phi RPC rio " << std::endl;
+	  if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Phi RPC rio");
 	  const Muon::RpcPrepData* prd = dynamic_cast <const Muon::RpcPrepData*> (phiPrep[ip]);
 	  const Muon::MuonClusterOnTrack* rio = m_clusterCreator->createRIO_OnTrack(*prd,globalpos);
 	  if (rio) selectedClusters->push_back(rio);
         }
         else if (phiSelect[ip] == 2) {
-	  if (m_debug) std::cout << " Phi TGC rio " << std::endl;
+	  if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Phi TGC rio");
 	  const Muon::TgcPrepData* prd = dynamic_cast <const Muon::TgcPrepData*> (phiPrep[ip]);
 	  const Muon::MuonClusterOnTrack* rio = m_clusterCreator->createRIO_OnTrack(*prd,globalpos);
 	  if (rio) selectedClusters->push_back(rio);
         }
         else if (phiSelect[ip] == 3) {
-	  if (m_debug) std::cout << " Phi CSC rio " << std::endl;
+	  if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Phi CSC rio");
 	  const Muon::CscPrepData* prd = dynamic_cast <const Muon::CscPrepData*> (phiPrep[ip]);
 	  const Muon::MuonClusterOnTrack* rio = m_clusterCreator->createRIO_OnTrack(*prd,globalpos);
 	  if (rio) selectedClusters->push_back(rio);
@@ -265,29 +265,29 @@ std::vector<const Trk::MeasurementBase*>* MuonPhiHitSelector::select_rio( const 
 
         if (m_competingRios) {
 	  // More PrepData's: create Competing RIOs on Track
-	  avError = sqrt(1./avError);
+	  avError = std::sqrt(1./avError);
 	  double scaleFactor = clusterError[ic]/avError;
 	  const Trk::CompetingRIOsOnTrack*  rio = m_competingRIOsOnTrackTool->createBroadCluster(prdList,scaleFactor);
 	  if (rio) selectedClusters->push_back(rio);
-	  if (m_debug) std::cout << " Make competing rio/cluster " << " scale factor " << scaleFactor << " number of rios " << prdList.size() << std::endl;
+	  if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Make competing rio/cluster " << " scale factor " << scaleFactor << " number of rios " << prdList.size());
         } else {
 	  // Make one Rio for central cluster
           ip = iic;
           const Amg::Vector3D globalpos(clusterX[ic],clusterY[ic],clusterZ[ic]);
           if (phiSelect[ip] == 1) {
-            if (m_debug) std::cout << " Phi RPC rio central cluster" << std::endl;
+            if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Phi RPC rio central cluster");
             const Muon::RpcPrepData* prd = dynamic_cast <const Muon::RpcPrepData*> (phiPrep[ip]);
             const Muon::MuonClusterOnTrack* rio = m_clusterCreator->createRIO_OnTrack(*prd,globalpos);
             if (rio) selectedClusters->push_back(rio);
 	  }
 	  else if (phiSelect[ip] == 2) {
-            if (m_debug) std::cout << " Phi TGC rio central cluster" << std::endl;
+            if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Phi TGC rio central cluster");
             const Muon::TgcPrepData* prd = dynamic_cast <const Muon::TgcPrepData*> (phiPrep[ip]);
             const Muon::MuonClusterOnTrack* rio = m_clusterCreator->createRIO_OnTrack(*prd,globalpos);
             if (rio) selectedClusters->push_back(rio);
 	  }
 	  else if (phiSelect[ip] == 3) {
-            if (m_debug) std::cout << " Phi CSC rio central cluster" << std::endl;
+            if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Phi CSC rio central cluster");
             const Muon::CscPrepData* prd = dynamic_cast <const Muon::CscPrepData*> (phiPrep[ip]);
             const Muon::MuonClusterOnTrack* rio = m_clusterCreator->createRIO_OnTrack(*prd,globalpos);
             if (rio) selectedClusters->push_back(rio);
@@ -295,20 +295,18 @@ std::vector<const Trk::MeasurementBase*>* MuonPhiHitSelector::select_rio( const 
         }
       }
     }else {
-      if (m_debug) std::cout << " Phi cluster NOT found " << std::endl;
+      if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Phi cluster NOT found ");
     }
   }      
 
   fitPhiSL(pmom, clusterId, clusterX, clusterY, clusterZ, clusterError, clusterSelect, ncl, clusterPull, imax, chi2cl, r0cl, phicl, errorMcl , false );
 
 
-  if (m_debug||m_summary) { 
-    std::cout << " PhiHitSelector Time spent "  << std::clock()/1000-time_start << " nhits " << nhits << " segment hits " << associatedHits.size() << " nfit " << nfit << " nclusters " << ncl << std::endl;
-    std::cout << " Fit cluster results phi " << phicl << " chi2 " << chi2cl <<  " number of clusters  " << ncl << " size cluster Hits " << selectedClusters->size() << std::endl;
+  if (msgLvl(MSG::DEBUG)||m_summary) {
+    ATH_MSG_DEBUG("PhiHitSelector Time spent "  << std::clock()/1000-time_start << " nhits " << nhits << " segment hits " << associatedHits.size() << " nfit " << nfit << " nclusters " << ncl);
+    ATH_MSG_DEBUG("Fit cluster results phi " << phicl << " chi2 " << chi2cl <<  " number of clusters  " << ncl << " size cluster Hits " << selectedClusters->size());
   }
   if (m_makeClusters) {
-    m_phi = phicl;
-
     std::vector<const Trk::MeasurementBase*>::iterator mit = selectedHits->begin();
     for (;mit!=selectedHits->end();++mit){
       delete *mit;
@@ -351,7 +349,7 @@ void MuonPhiHitSelector::clusterPhi( const std::vector<Identifier> & id,  const 
   //         phi           = azimuthal angle of fit at perigee
 
 
-  if (m_debug) std::cout << " Start phi clustering " << std::endl;
+  if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Start phi clustering");
 
   ncl = 0;
   if (n ==0) return;
@@ -422,7 +420,7 @@ void MuonPhiHitSelector::clusterPhi( const std::vector<Identifier> & id,  const 
 	  clusterY[ic]+= hity[i]*w; 
 	  clusterZ[ic]+= hitz[i]*w; 
 	  clusterError[ic]+= w; 
-	  if ( fabs(pull[i]) < fabs(pullMax)) {
+	  if ( std::abs(pull[i]) < std::abs(pullMax)) {
 	    pullMax = pull[i];
 	    clusterId[ic] = id[i];
 	    clusterCode[ic] = scode[i];
@@ -437,9 +435,9 @@ void MuonPhiHitSelector::clusterPhi( const std::vector<Identifier> & id,  const 
     clusterY[ic] = clusterY[ic]/clusterError[ic]; 
     clusterZ[ic] = clusterZ[ic]/clusterError[ic]; 
 // Don't assume improvement on errors due to clustering 
-    clusterError[ic]= sqrt(clusterHits[ic])/sqrt(clusterError[ic]); 
-    if (m_debug) {
-      std::cout << " cluster phi " << ic << " x " << clusterX[ic] << " y " << clusterY[ic] << " z " << clusterZ[ic] << " error " << clusterError[ic] << " hits " << clusterHits[ic] <<  " select " << clusterSelect[ic] << " Code " << clusterCode[ic] << std::endl;  
+    clusterError[ic]= std::sqrt(clusterHits[ic])/std::sqrt(clusterError[ic]);
+    if (msgLvl(MSG::DEBUG)) {
+      ATH_MSG_DEBUG("cluster phi " << ic << " x " << clusterX[ic] << " y " << clusterY[ic] << " z " << clusterZ[ic] << " error " << clusterError[ic] << " hits " << clusterHits[ic] <<  " select " << clusterSelect[ic] << " Code " << clusterCode[ic]);
     }
   }
   
@@ -450,7 +448,7 @@ void MuonPhiHitSelector::fitRecPhi( const double pmom, const std::vector<Identif
   // Use reconstructed hits to perform fit for phi
   //
 
-  if (m_debug) std::cout << " Start phi fit reconstruction " << std::endl;
+  if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Start phi fit reconstruction");
 
   chi2 =0.;
   r0 = 0.;
@@ -528,7 +526,7 @@ void MuonPhiHitSelector::fitRecPhi( const double pmom, const std::vector<Identif
   }
 
   // Assign errors according to multiplicities
-    if(m_debug) std::cout << " phi hits " << nphi << " segment clusters " << clusters.size() << " pattern clusters " << clusterspat.size() << std::endl;
+  if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("phi hits " << nphi << " segment clusters " << clusters.size() << " pattern clusters " << clusterspat.size());
 
   for(int i = 0; i < nphi  ; ++i )  {
     error0[i] = 0;
@@ -558,14 +556,14 @@ void MuonPhiHitSelector::fitRecPhi( const double pmom, const std::vector<Identif
       else if (m_idHelperSvc->isTgc(id)) n = 1;
       else if (m_idHelperSvc->isCsc(id)) n = 1;
            
-      error0[i]=phiError[i]*sqrt(n)*fact;  
-      error[i]=phiError[i]*sqrt(n)*fact;  
-      double phiHit = atan2 ( phiHity[i], phiHitx[i] );
-      if (m_debug) {
-	std::cout << i << " Station " << int(scode[i]/1000000) << " Hit x " << phiHitx[i] << " Hit y " << phiHity[i] << " Hit z " << phiHitz[i] << " error " << phiError[i] << " phi Hit " << phiHit << std::endl; 
-	std::cout << " station " << phiSelect[i] << std::endl;
-	std::cout << " code " << scode[i] << " multiplicity " << n << " error " << error0[i] << " quality " << quality[i] << std::endl;
-	if ( error0[i] < 1. ) std::cout << " TOO small error " << std::endl;
+      error0[i]=phiError[i]*std::sqrt(n)*fact;
+      error[i]=phiError[i]*std::sqrt(n)*fact;
+      double phiHit = std::atan2 ( phiHity[i], phiHitx[i] );
+      if (msgLvl(MSG::DEBUG)) {
+	ATH_MSG_DEBUG(i << " Station " << int(scode[i]/1000000) << " Hit x " << phiHitx[i] << " Hit y " << phiHity[i] << " Hit z " << phiHitz[i] << " error " << phiError[i] << " phi Hit " << phiHit);
+	ATH_MSG_DEBUG("station " << phiSelect[i]);
+	ATH_MSG_DEBUG("code " << scode[i] << " multiplicity " << n << " error " << error0[i] << " quality " << quality[i]);
+	if ( error0[i] < 1. ) ATH_MSG_DEBUG("TOO small error ");
       }
     }
   }
@@ -591,7 +589,7 @@ void MuonPhiHitSelector::fitRecPhi( const double pmom, const std::vector<Identif
       pfit = pmom;
     } 
 
-    if (m_debug) std::cout << " Quality loop " << iqua << " quality cut " << quacut << std::endl;
+    if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Quality loop " << iqua << " quality cut " << quacut);
     int nsel = 0;
     int nselseg = 0;   
     for(int i = 0; i < nphi  ; ++i )  {
@@ -605,7 +603,7 @@ void MuonPhiHitSelector::fitRecPhi( const double pmom, const std::vector<Identif
       } else {
 	phiSelect[i] = 0;
       }
-      if (m_debug) std::cout << " index i " << i << " phiSelect " <<  phiSelect[i] << " Quality " << quality[i] << " error " << error[i]  << std::endl;
+      if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("index i " << i << " phiSelect " <<  phiSelect[i] << " Quality " << quality[i] << " error " << error[i]);
     }
 
     int imax = -1;
@@ -619,22 +617,21 @@ void MuonPhiHitSelector::fitRecPhi( const double pmom, const std::vector<Identif
           phiPatSelect[i] = 1;
           error[i] = errorScaleFactor*error[i];
         }
-        if (m_debug) std::cout << " select " << phiSelect[i] << " quality " << quality[i] << " error " << error[i] << std::endl;
+        if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("select " << phiSelect[i] << " quality " << quality[i] << " error " << error[i]);
       }
-      if (m_debug) std::cout << " performing outlier removal for pattern hits " << std::endl; 
+      if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("performing outlier removal for pattern hits ");
       fitPhiSL(pfit, phiId,  phiHitx,  phiHity,  phiHitz, error, phiSelect, nphi, phiPull, imax, chi2, r0, phi, errorM , false);
       for(int i = 0; i < nphi  ; ++i )  {
         if(phiPatSelect[i] == 1) {
           error[i] = error[i]/errorScaleFactor;
 	  double rescaledPull = phiPull[i]*errorScaleFactor;
 	  // 3 sigma cut  
-          if (fabs(rescaledPull) < 3.) {
+          if (std::abs(rescaledPull) < 3.) {
             phiSelect[i] = phiSelectKeep[i];
           } else {
             phiSelect[i] = 0;
             phiSelectKeep[i] = 0;
-       	    if (m_debug) std::cout << " Drop Pattern Hits with Quality == 1 " << i << " quality " << quality[i] 
-				   << " Pull " << rescaledPull << " phiSelect " << phiSelect[i] << std::endl;
+       	    if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Drop Pattern Hits with Quality == 1 " << i << " quality " << quality[i] << " Pull " << rescaledPull << " phiSelect " << phiSelect[i]);
 	  }
         }
       }
@@ -647,7 +644,7 @@ void MuonPhiHitSelector::fitRecPhi( const double pmom, const std::vector<Identif
       // low momentum fit with scaled error (factor 10) for dropped segment hits 
       std::vector<int> phiReSelect(nphi);
       for(int i = 0; i < nphi  ; ++i )  {
-        if (m_debug) std::cout << " select " << phiSelect[i] << " quality " << quality[i] << std::endl;
+        if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("select " << phiSelect[i] << " quality " << quality[i]);
         phiReSelect[i] = 0;
         if(phiSelect[i] == 0 && quality[i] > 99) {
           phiReSelect[i] = 1;
@@ -660,16 +657,16 @@ void MuonPhiHitSelector::fitRecPhi( const double pmom, const std::vector<Identif
         if(phiReSelect[i] == 1) {
           error[i] = error[i]/10.;
 	  // 10 sigma cut (error rescale = 10) 
-          if (fabs(phiPull[i]) < 1) {
+          if (std::abs(phiPull[i]) < 1) {
             phiSelect[i] = phiSelectKeep[i];
           } else {
             phiSelect[i] = 0;
           } 
-          if (m_debug) std::cout << " Low momentum Quality == 2 add hit  nr " << i << " quality " << quality[i] << " Pull " << phiPull[i] << " phiSelect " << phiSelect[i] << std::endl;
+          if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Low momentum Quality == 2 add hit  nr " << i << " quality " << quality[i] << " Pull " << phiPull[i] << " phiSelect " << phiSelect[i]);
         }
       }
     }
-    if (iqua == 1 && m_debug) std::cout << " Quality loop " << std::endl;
+    if (iqua == 1 && msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Quality loop ");
     nsel = 0;
     for(int i = 0; i < nphi  ; ++i )  {
       errorf[i] = error[i];
@@ -683,7 +680,7 @@ void MuonPhiHitSelector::fitRecPhi( const double pmom, const std::vector<Identif
       }
     } 
 
-    if(m_debug) std::cout << " Selected PHI hits in fit " << nsel << " iqua " << iqua << std::endl; 
+    if(msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Selected PHI hits in fit " << nsel << " iqua " << iqua);
     if (nsel == 0) continue;
 
     int niter = -1;
@@ -698,7 +695,7 @@ void MuonPhiHitSelector::fitRecPhi( const double pmom, const std::vector<Identif
       if (iter > 10) {
 // Shower treatment inflate errors with multiplicity
         for(int i = 0; i < nphi  ; ++i )  {
-         errorf[i] = error[i]*pow(phiMult[i],power);
+         errorf[i] = error[i]*std::pow(phiMult[i],power);
         }
       } 
       fitPhiSL(pfitc, phiId,  phiHitx,  phiHity,  phiHitz, errorf, phiSelect, nphi, phiPull, imax, chi2, r0, phi, errorM, false );
@@ -716,7 +713,7 @@ void MuonPhiHitSelector::fitRecPhi( const double pmom, const std::vector<Identif
 	if ( error[i] == 0 || quality[i] < quacut) phiSelect[i] = 0;
 	if ( error[i] != 0 && quality[i] > quacut) {
 	  layersRecoHit[srcode[i]]++;
-	  if (m_debug) {
+	  if (msgLvl(MSG::DEBUG)) {
 	    if (m_idHelperSvc->isRpc(id)) nrpc++;
 	    else if (m_idHelperSvc->isTgc(id)) ntgc++;
 	    else if (m_idHelperSvc->isCsc(id)) ncsc++;
@@ -730,26 +727,26 @@ void MuonPhiHitSelector::fitRecPhi( const double pmom, const std::vector<Identif
       if (nfit == 1) break;
 
       if (imax < 0 || imax > nphi ) {
-	if (m_debug) std::cout << " Fitphi imax " << imax << std::endl;
+	if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Fitphi imax " << imax);
 	break;
       }
 
-      if (chi2 < 5*(nfit+1) || fabs(phiPull[imax]) < 3.0 ) {
+      if (chi2 < 5*(nfit+1) || std::abs(phiPull[imax]) < 3.0 ) {
  
-	if (m_debug) std::cout << " Final phi " << phi << " frac " << frac << " chi2 " << chi2 << std::endl; 
+	if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Final phi " << phi << " frac " << frac << " chi2 " << chi2);
 	break;
       } 
 
       phiSelect[imax] = 0;
 
-      if (m_debug) { 
-	std::cout << " = Start hit dropping " << imax << " pullmax " << phiPull[imax] << " phi " << phi << " chi2 " << chi2 << std::endl; 
+      if (msgLvl(MSG::DEBUG)) {
+	ATH_MSG_DEBUG("Start hit dropping " << imax << " pullmax " << phiPull[imax] << " phi " << phi << " chi2 " << chi2);
       }
     }
 
-    if (m_debug) { 
-      std::cout << " Fit results phi " << phi << " chi2 " << chi2 <<  " ndof " << nfit << std::endl;
-      std::cout << " Reco RPC " << nrpc << " TGC " << ntgc << " CSC " << ncsc << std::endl;
+    if (msgLvl(MSG::DEBUG)) {
+      ATH_MSG_DEBUG("Fit results phi " << phi << " chi2 " << chi2 <<  " ndof " << nfit);
+      ATH_MSG_DEBUG("Reco RPC " << nrpc << " TGC " << ntgc << " CSC " << ncsc);
     }
 
     
@@ -758,16 +755,16 @@ void MuonPhiHitSelector::fitRecPhi( const double pmom, const std::vector<Identif
     for(int i = 0; i < nphi  ; ++i )  {
       double power = (niter - 10)/20.;
       if (power< 0.) power = 0.;
-      double pull = phiPull[i]*pow(phiMult[i],power);
-      if (niter > 10 && fabs(pull) > 3.0 && phiSelect[i] > 0 ) {
+      double pull = phiPull[i]*std::pow(phiMult[i],power);
+      if (niter > 10 && std::abs(pull) > 3.0 && phiSelect[i] > 0 ) {
         phiSelect[i] = 0;
         quality[i] = 0;
         nshowerdrop++;
-        if (m_debug) std::cout << " Drop shower hit i " << i << " with pull " << pull << " iterations " << niter  << " power " << power << std::endl;  
+        if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Drop shower hit i " << i << " with pull " << pull << " iterations " << niter  << " power " << power);
       }
       if( phiSelect[i] != 0) nacc++;
     }
-    if(m_debug) std::cout << " phi hits " << nphi << " selected for fit " << nfit << " iqua " << iqua << " iterations " << niter << " accepted hits " << nacc << " nshower drop " << nshowerdrop << std::endl; 
+    if(msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("phi hits " << nphi << " selected for fit " << nfit << " iqua " << iqua << " iterations " << niter << " accepted hits " << nacc << " nshower drop " << nshowerdrop);
   }
 }
 
@@ -812,7 +809,7 @@ void MuonPhiHitSelector::fitPhiSL(const double pmom, const std::vector<Identifie
       double inver2 = 1./(error[i]*error[i]); 
       xm +=  hitx[i]*inver2;
       ym +=  hity[i]*inver2;
-      dtot +=  sqrt (hitx[i]*hitx[i] + hity[i]*hity[i] + hitz[i]*hitz[i] )*inver2 ;
+      dtot +=  std::sqrt (hitx[i]*hitx[i] + hity[i]*hity[i] + hitz[i]*hitz[i] )*inver2 ;
       em +=  inver2;
     }
   }
@@ -826,7 +823,7 @@ void MuonPhiHitSelector::fitPhiSL(const double pmom, const std::vector<Identifie
   double ebs = 0.1;
   if (m_cosmics) ebs = 10000.;
 
-  if (m_debug) std::cout << " pmom " << pmom << " error beam " << ebs << std::endl;
+  if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("pmom " << pmom << " error beam " << ebs);
   double ebs2 = ebs*ebs;
   double invebs2 = 1./ebs2;
   double xmc = xm / ( em + invebs2); 
@@ -858,14 +855,14 @@ void MuonPhiHitSelector::fitPhiSL(const double pmom, const std::vector<Identifie
     }
   }
     
-  if (em>0) phi = atan2(ycc,xcc);
+  if (em>0) phi = std::atan2(ycc,xcc);
   CxxUtils::sincos scphi(phi);
 
   r0 = xmc*scphi.sn - ymc*scphi.cs; 
   double x0 = r0*scphi.sn;
   double y0 = -r0*scphi.cs; 
 
-  if(m_debug) std::cout << " Constraint r0 " << r0 << " xpos " << xmc << " ypos " << ymc << " phi " << phi << std::endl; 
+  if(msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Constraint r0 " << r0 << " xpos " << xmc << " ypos " << ymc << " phi " << phi);
   // assume 0,0
   std::vector<double> d(n);       
   std::vector<double> dist(n);       
@@ -877,11 +874,11 @@ void MuonPhiHitSelector::fitPhiSL(const double pmom, const std::vector<Identifie
       double ydiff = hity[i]-y0;
       double xdiff2 = xdiff*xdiff;
       double ydiff2 = ydiff*ydiff;
-      d[i] = sqrt(xdiff2 + ydiff2);
-      dist[i] = sqrt(xdiff2 + ydiff2 + hitz[i]*hitz[i]);
+      d[i] = std::sqrt(xdiff2 + ydiff2);
+      dist[i] = std::sqrt(xdiff2 + ydiff2 + hitz[i]*hitz[i]);
       distanceSort[dist[i]] = i;
       pull[i] = hitx[i]*scphi.sn - hity[i]*scphi.cs - r0;
-      if (fabs(pull[i])> fabs(pullmax)) {
+      if (std::abs(pull[i])> std::abs(pullmax)) {
        pullmax = pull[i];
        imax = i;
       } 
@@ -934,7 +931,7 @@ void MuonPhiHitSelector::fitPhiSL(const double pmom, const std::vector<Identifie
   Amg::MatrixX v(nfit+1,1);
   v.setIdentity();
 
-  if (m_debug) std::cout << "  fitPhiSL " << " nfit " << nfit << std::endl;
+  if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("fitPhiSL " << " nfit " << nfit);
 
   for(int i = 0; i < nfit+1 ; ++i )  {
     v(i,0) = 0.;
@@ -996,10 +993,10 @@ void MuonPhiHitSelector::fitPhiSL(const double pmom, const std::vector<Identifie
   // Solution for Track parameters
   t = covTI*v;
    
-  if (m_debug && fabs(t(1,0))> 0.2 ) {
-    std::cout << " Don't trust fit result " << t(1,0) << " Keep Old result "  << std::endl;
+  if (msgLvl(MSG::DEBUG) && std::abs(t(1,0))> 0.2 ) {
+    ATH_MSG_DEBUG("Don't trust fit result " << t(1,0) << " Keep Old result");
   }
-  if (fabs(t(1,0))> 0.2) return;
+  if (std::abs(t(1,0))> 0.2) return;
     
   // calculate residuals and chi2
   std::vector <double> resi(2*nfit); 
@@ -1023,9 +1020,11 @@ void MuonPhiHitSelector::fitPhiSL(const double pmom, const std::vector<Identifie
      }
   }
 
-  if(m_debug) {
-    if (nfit>=3) {  std::cout << " Error angle " << covTI(3,3) << std::endl;} // covTI has dim nfit+1
-    std::cout << " errorM[3] " << errorM[3] << std::endl;
+  if(msgLvl(MSG::DEBUG)) {
+    if (nfit>=3) {
+     ATH_MSG_DEBUG("Error angle " << covTI(3,3));
+     } // covTI has dim nfit+1
+    ATH_MSG_DEBUG("errorM[3] " << errorM[3]);
   }
 
   for(int i = 0; i < 2*nfit ; ++i )  {
@@ -1035,8 +1034,8 @@ void MuonPhiHitSelector::fitPhiSL(const double pmom, const std::vector<Identifie
     double error2 = 0.;
     double ypred = 0.;
     for(int j = 0; j < nfit+1 ; ++j )  {
-      if(m_debug && i == 0) std::cout << " Parameter j " << j << " t(j,0) " << t(j,0) << std::endl;
-      if(m_debug && model(j,i) != 0) std::cout << " i " << i << " model ij " << model(j,i) << std::endl;
+      if(msgLvl(MSG::DEBUG) && i == 0) ATH_MSG_DEBUG("Parameter j " << j << " t(j,0) " << t(j,0));
+      if(msgLvl(MSG::DEBUG) && model(j,i) != 0) ATH_MSG_DEBUG("i " << i << " model ij " << model(j,i));
       ypred += model(j,i)*t(j,0);
       for(int k = 0; k < nfit+1 ; ++k )  {
 	error2 += model(j,i)*covTI(j,k)*model(k,i);
@@ -1049,20 +1048,18 @@ void MuonPhiHitSelector::fitPhiSL(const double pmom, const std::vector<Identifie
     pulli[i] = resi[i]/ef[i];
 
     // errf propagated error and pullf
-    errf[i] = sqrt(error2);
+    errf[i] = std::sqrt(error2);
     pullf[i] = resi[i]/errf[i];
 
     // calculate residual without hit and error without hit
     //    Think of Kalmanm method to exclude hit and error
     double err2invOut = 1./error2 - inv_ef_i2;
     if (err2invOut > 0) {
-      //        double errinvOut = sqrt(err2invOut);
       resiOut[i] = (ypred/error2 - yf[i]*inv_ef_i2)/err2invOut - yf[i];
-      //        pullOut[i] = resiOut[i]*errinvOut;
-      pullOut[i] = resiOut[i]/sqrt(1./err2invOut+ef_i2);
+      pullOut[i] = resiOut[i]/std::sqrt(1./err2invOut+ef_i2);
     }
 
-    if (fabs(pullOut[i]) > fabs(pullmax) && i < nfit ) {
+    if (std::abs(pullOut[i]) > std::abs(pullmax) && i < nfit ) {
       imax = indexf[i];
       jmax = i;
       pullmax = pullOut[i];
@@ -1072,16 +1069,16 @@ void MuonPhiHitSelector::fitPhiSL(const double pmom, const std::vector<Identifie
     if (i < nfit ) {
       pull[indexf[i]] = pullOut[i];
     }
-    if (m_debug&& i < nfit) std::cout << " i " << i << " index " << indexf[i] << " det " << select[indexf[i]] << " ypred " << ypred << " mst " << yf[i] << " residual " <<  resi[i] << " error " << ef[i] << " dist " << dist[i] << " hitz " << hitz[i] << " Pull " << pulli[i] << " Pullf " << pullf[i] << " resi out " << resiOut[i] << " pull out " << pullOut[i] << std::endl;   
-    if (m_debug&& i > nfit) std::cout << " i " << i <<  " ypred " << ypred << " mst " << yf[i] << " residual " <<  resi[i] << " error " << ef[i] << std::endl;   
+    if (msgLvl(MSG::DEBUG)&& i < nfit) ATH_MSG_DEBUG("i " << i << " index " << indexf[i] << " det " << select[indexf[i]] << " ypred " << ypred << " mst " << yf[i] << " residual " <<  resi[i] << " error " << ef[i] << " dist " << dist[i] << " hitz " << hitz[i] << " Pull " << pulli[i] << " Pullf " << pullf[i] << " resi out " << resiOut[i] << " pull out " << pullOut[i]);
+    if (msgLvl(MSG::DEBUG)&& i > nfit) ATH_MSG_DEBUG("i " << i <<  " ypred " << ypred << " mst " << yf[i] << " residual " <<  resi[i] << " error " << ef[i]);
   }   
   r0 = r0 + t(0,0);
   phi = phi + t(1,0);
 
-  if (m_debug ) std::cout << " delta phi " << t(1,0) << std::endl;
-  if (m_debug && fabs(t(1,0))> 0.1 ) std::cout << " ALARM delta phi " << t(1,0) << std::endl;
+  if (msgLvl(MSG::DEBUG) ) ATH_MSG_DEBUG("delta phi " << t(1,0));
+  if (msgLvl(MSG::DEBUG) && std::abs(t(1,0))> 0.1 ) ATH_MSG_DEBUG("ALARM delta phi " << t(1,0));
  
-  if(m_debug) std:: cout<< " Track parameters r0 " << r0 << " phi " << phi  <<   " chi2 " << chi2 << " jmax " << jmax << " imax " << imax << " pullmax " << pullmax << std::endl;     
+  if(msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Track parameters r0 " << r0 << " phi " << phi  <<   " chi2 " << chi2 << " jmax " << jmax << " imax " << imax << " pullmax " << pullmax);
       
 }
   

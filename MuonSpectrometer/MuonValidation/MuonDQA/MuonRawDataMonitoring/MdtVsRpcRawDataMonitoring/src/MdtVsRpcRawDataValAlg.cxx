@@ -119,7 +119,6 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
   
     //mdt stuff begin     
     int nPrdmdt  = 0;
-    Identifier ch_idmdt;
     Identifier dig_idmdt;
   
     SG::ReadHandle<Muon::MdtPrepDataContainer> mdt_container(m_key_mdt);
@@ -136,7 +135,6 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
   
   
     int nPrd = 0;
-    Identifier ch_id;
     Identifier dig_id;
   
     std::string type="RPC";

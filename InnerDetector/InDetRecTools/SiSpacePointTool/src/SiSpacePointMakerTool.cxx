@@ -181,7 +181,7 @@ namespace InDet {
       const std::pair<IdentifierHash,IdentifierHash> elementIdList( element1->identifyHash() , element2->identifyHash() ); 
       const std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>*
         clusList = new std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>(&cluster1, &cluster2);
-      return new InDet::SCT_SpacePoint(elementIdList, new Amg::Vector3D(point), clusList);
+      return new InDet::SCT_SpacePoint(elementIdList, point, clusList);
     }
 
     return nullptr;
@@ -746,7 +746,7 @@ namespace InDet {
     const std::pair<IdentifierHash,IdentifierHash> elementIdList(ID0,ID1); 
     const std::pair<const Trk::PrepRawData*,const Trk::PrepRawData*>* 
       clusList = new std::pair<const Trk::PrepRawData*,const Trk::PrepRawData*>(In0.cluster(),In1.cluster());
-    return new InDet::SCT_SpacePoint(elementIdList,new Amg::Vector3D(point),clusList);
+    return new InDet::SCT_SpacePoint(elementIdList, point, clusList);
   }
  
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -246,9 +246,9 @@ Trk::PlaneSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, const 
   if (A == 0.) {               // direction parallel to surface
     if (fabs(d) < tol) {
       return Trk::DistanceSolution(1, 0., true, 0.);
-    } else {
+    } 
       return Trk::DistanceSolution(0, d, true, 0.);
-    }
+    
   }
 
   return Trk::DistanceSolution(1, d, true, -d / A);

@@ -430,6 +430,10 @@ class SelectSpec(ToolSpec):
             self.Selector.topLevelDir = self.topLevelDir
             self.Selector.bottomLevelDir = self.bottomLevelDir
             selTool.Selector = self.Selector.toTool()
+        if hasattr(self,'EventSelector'):
+            self.EventSelector.topLevelDir = self.topLevelDir
+            self.EventSelector.bottomLevelDir = self.bottomLevelDir
+            selTool.EventSelector = self.EventSelector.toTool()
         if hasattr(self, 'SortVariable'):
             selTool.SortVariable = retrieveVarToolConf(self.SortVariable)
         suffix = '_'+self.name
@@ -456,6 +460,9 @@ class SelectSpec(ToolSpec):
         if hasattr(self, 'Selector' ):
             write('  Selector=','')
             self.Selector._dump( write2)
+        if hasattr(self, 'EventSelector' ):
+            write('  EventSelector=','')
+            self.EventSelector._dump( write2)
         write('FillerTools= [')
         for hspec in self.FillerTools:
             hspec._dump(write2)
@@ -545,7 +552,7 @@ def retrieveEventVarToolConf(alias):
     if isinstance(alias, str):
         conf = knownEventVar.get(alias,None)
         if conf is None:
-          conf = ToolSpec('EventHistoVarTool', name=alias, Variable=alias)
+          conf = ToolSpec('EventHistoVarTool', alias, Variable=alias)
     else: # assume it's a config dict
         conf = alias
     return conf

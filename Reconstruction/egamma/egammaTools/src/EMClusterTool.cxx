@@ -54,9 +54,9 @@ StatusCode EMClusterTool::initialize() {
     ATH_MSG_ERROR("Failed to retrieve " << m_clusterCorrectionTool);
     return StatusCode::SUCCESS;
   } 
-  else {
+  
     ATH_MSG_DEBUG("Retrieved tool " << m_clusterCorrectionTool);   
-  }
+  
 
 
   // Get the cluster correction tool
@@ -64,9 +64,9 @@ StatusCode EMClusterTool::initialize() {
     ATH_MSG_ERROR("Failed to retrieve " << m_MVACalibSvc);
     return StatusCode::SUCCESS;
   } 
-  else {
+  
     ATH_MSG_DEBUG("Retrieved tool " << m_MVACalibSvc);   
-  }
+  
 
   ATH_MSG_DEBUG("Initialization successful");
 

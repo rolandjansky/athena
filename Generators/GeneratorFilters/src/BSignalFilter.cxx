@@ -116,12 +116,12 @@ StatusCode BSignalFilter::filterEvent()
       if ( m_localLVL1MuonCutOn )
         {
 	  //
-	  for(auto pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr ){
-	      bool LVL1Result = LVL1_Mu_Trigger( (*pitr) );
+	  for(auto part: *genEvt){
+	      bool LVL1Result = LVL1_Mu_Trigger( part );
 	      if ( LVL1Result )
                 {
 		  LVL1Passed = true;
-		  LVL1MuonBarcode = HepMC::barcode(*pitr);  // Remember the muon for LVL2 testing
+		  LVL1MuonBarcode = HepMC::barcode(part);  // Remember the muon for LVL2 testing
 		  break;
                 }
             }
@@ -133,12 +133,12 @@ StatusCode BSignalFilter::filterEvent()
       //
       if ( LVL1Passed && (m_localLVL2MuonCutOn || m_localLVL2ElectronCutOn) )
         {
-	  for(auto pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr )
+	  for(auto part: *genEvt)
             {
-	      bool LVL2Result = LVL2_eMu_Trigger( (*pitr) );
+	      bool LVL2Result = LVL2_eMu_Trigger( part );
 	      if ( LVL2Result )
                 {
-		  if ( HepMC::barcode(*pitr) != LVL1MuonBarcode ) // Check the particle triggering LVL2 isn't
+		  if ( HepMC::barcode(part) != LVL1MuonBarcode ) // Check the particle triggering LVL2 isn't
 		    LVL2Passed = true;	                       // the muon that triggered LVL1 --> Artificial,
 		                                               // since, effectively, LVL2 trigger is not applied.
                                                                // This is needed to "trigger" the 2nd muon!
@@ -172,14 +172,14 @@ StatusCode BSignalFilter::filterEvent()
 
       // ** Reject event if an undecayed quark is found **
       //
-      for(auto pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr )
+      for(auto part: *genEvt)
         {
-	  if ( abs((*pitr)->pdg_id()) <= 6 && (*pitr)->status() == 1 )
+	  if ( abs(part->pdg_id()) <= 6 && part->status() == 1 )
             {
 	      acceptEvent = false;
-	      const int pID = (*pitr)->pdg_id();
+	      const int pID = part->pdg_id();
 	      ATH_MSG_WARNING(" Undecayed quark " << pID << " found"
-			      << " , status = " << (*pitr)->status());
+			      << " , status = " << part->status());
             }
         }
 
@@ -189,23 +189,23 @@ StatusCode BSignalFilter::filterEvent()
       if ( LVL1Passed && LVL2Passed )
         {
 	  // ** Loop on all particles **
-	  for(auto pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr )
+	  for(auto part: *genEvt)
             {
-	      const int particleID = (*pitr)->pdg_id();
+	      const int particleID = part->pdg_id();
 	      //
 	      bool motherIsB = false;
 	      bool newBChain = false;
 
 	      if( ( MC::PID::isBottomMeson(particleID) || MC::PID::isBottomBaryon(particleID) )
-		  && (*pitr)->status()!=3 ) // p->status()!=3 excludes the partons
+		  && part->status()!=3 ) // p->status()!=3 excludes the partons
 		                            // including immediate decays of resonances.
                 {
 		  // ** Reject whole event if any of B-hadrons in the event is not decayed **
-		  if( (*pitr)->status() == 1 || (*pitr)->status() == 899 ) { acceptEvent = false; }
+		  if( part->status() == 1 || part->status() == 899 ) { acceptEvent = false; }
 
 		  HepMC::GenVertex::particle_iterator firstParent, lastParent, thisParent;
-		  firstParent = (*pitr)->production_vertex()->particles_begin(HepMC::parents);
-		  lastParent  = (*pitr)->production_vertex()->particles_end(HepMC::parents);
+		  firstParent = part->production_vertex()->particles_begin(HepMC::parents);
+		  lastParent  = part->production_vertex()->particles_end(HepMC::parents);
 
 		  for( thisParent = firstParent; thisParent != lastParent++; ++thisParent )
                     {
@@ -234,7 +234,7 @@ StatusCode BSignalFilter::filterEvent()
 		  ATH_MSG_DEBUG(" *** BSignalFilter.cxx: B-signal found ***  ");
 		  ATH_MSG_DEBUG(" ------------------------------------------ ");
 		  ATH_MSG_DEBUG("");
-		  ATH_MSG_DEBUG(" Event " << m_EventCnt << " --> B-hadron/B-meson id " << particleID << " (" << HadronName << ") , status " << (*pitr)->status());
+		  ATH_MSG_DEBUG(" Event " << m_EventCnt << " --> B-hadron/B-meson id " << particleID << " (" << HadronName << ") , status " << part->status());
 		  ATH_MSG_DEBUG("");
 
 		  // ** Looping on all children checking if they have passed the selection cuts defined by the user **
@@ -251,7 +251,7 @@ StatusCode BSignalFilter::filterEvent()
 		      bool havePassedCuts=true;
 		      TLorentzVector CandPart1, CandPart2;
 		      //
-		      FindAllChildren((*pitr),"",false,isSignal,havePassedCuts,CandPart1,CandPart2,false);
+		      FindAllChildren(part,"",false,isSignal,havePassedCuts,CandPart1,CandPart2,false);
 		      //
 		      ATH_MSG_DEBUG("");
 		      ATH_MSG_DEBUG(" ------------------------------- ");
@@ -361,7 +361,7 @@ bool BSignalFilter::test_cuts(const double myPT, const double testPT,
 }
 
 
-bool BSignalFilter::LVL1_Mu_Trigger(const HepMC::GenParticlePtr child) const
+bool BSignalFilter::LVL1_Mu_Trigger(HepMC::ConstGenParticlePtr child) const
 {
   bool accept = false;
   int pID = child->pdg_id();
@@ -376,7 +376,7 @@ bool BSignalFilter::LVL1_Mu_Trigger(const HepMC::GenParticlePtr child) const
 }
 
 
-bool BSignalFilter::LVL2_eMu_Trigger(const HepMC::GenParticlePtr child) const
+bool BSignalFilter::LVL2_eMu_Trigger(HepMC::ConstGenParticlePtr child) const
 {
   bool accept = false;
   int pID = child->pdg_id();
@@ -392,7 +392,7 @@ bool BSignalFilter::LVL2_eMu_Trigger(const HepMC::GenParticlePtr child) const
 }
 
 
-void BSignalFilter::FindAllChildren(const HepMC::GenParticlePtr mother,std::string treeIDStr,
+void BSignalFilter::FindAllChildren(HepMC::ConstGenParticlePtr mother,std::string treeIDStr,
 				    bool fromFinalB, bool &foundSignal, bool &passedAllCuts,
 				    TLorentzVector &p1, TLorentzVector &p2, bool fromSelectedB) const
 {
@@ -460,7 +460,7 @@ void BSignalFilter::FindAllChildren(const HepMC::GenParticlePtr mother,std::stri
 }
 
 
-bool BSignalFilter::FinalStatePassedCuts(const HepMC::GenParticlePtr child) const
+bool BSignalFilter::FinalStatePassedCuts(HepMC::ConstGenParticlePtr child) const
 {
   bool accept = true;
 
@@ -593,7 +593,7 @@ bool BSignalFilter::FinalStatePassedCuts(const HepMC::GenParticlePtr child) cons
 }
 
 
-void BSignalFilter::PrintChild(const HepMC::GenParticlePtr child,
+void BSignalFilter::PrintChild(HepMC::ConstGenParticlePtr child,
 			       const std::string treeIDStr, const bool fromFinalB) const
 {
   int pID = child->pdg_id();

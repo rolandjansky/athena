@@ -100,4 +100,3 @@ for ros in range(1, util.max_ros()):
 
 #=== close DB
 db.closeDatabase()
-

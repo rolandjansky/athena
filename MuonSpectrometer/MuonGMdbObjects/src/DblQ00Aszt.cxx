@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -7,27 +7,15 @@
  -----------------------------------------
  ***************************************************************************/
 
-//<doc><file>	$Id: DblQ00Aszt.cxx,v 1.8 2009-03-30 18:13:51 roberth Exp $
-//<version>	$Name: not supported by cvs2svn $
-
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include "MuonGMdbObjects/DblQ00Aszt.h"
+#include "RDBAccessSvc/IRDBRecordset.h"
+#include "AmdcDb/AmdcDb.h"
+#include "AmdcDb/AmdcDbRecord.h"
+
 #include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
-//#include <stdio>
-
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
 namespace MuonGM
 {
@@ -36,9 +24,8 @@ DblQ00Aszt::DblQ00Aszt() : m_d(NULL)
     m_nObj = 0;
 }
     
-DblQ00Aszt::DblQ00Aszt(std::unique_ptr<IRDBQuery>&& aszt)
- : m_nObj(0)
-{
+DblQ00Aszt::DblQ00Aszt(std::unique_ptr<IRDBQuery>&& aszt) :
+    m_nObj(0) {
   if(aszt) {
     aszt->execute();
     m_nObj = aszt->size();
@@ -70,9 +57,56 @@ DblQ00Aszt::DblQ00Aszt(std::unique_ptr<IRDBQuery>&& aszt)
     std::cerr<<"NO Aszt banks in the MuonDD Database"<<std::endl;
   }
 }
+
+DblQ00Aszt::DblQ00Aszt(AmdcDb* aszt) :
+    m_nObj(0) {
+  IRDBRecordset_ptr pIRDBRecordset = aszt->getRecordsetPtr(std::string(getObjName()),"Amdc");
+  std::vector<IRDBRecord*>::const_iterator it = pIRDBRecordset->begin();
+
+  m_nObj = pIRDBRecordset->size();
+  m_d = new ASZT[m_nObj];
+  if (m_nObj == 0) std::cerr<<"NO Aszt banks in the AmdcDbRecord"<<std::endl;
+
+  const AmdcDbRecord* pAmdcDbRecord = dynamic_cast<const AmdcDbRecord*>((*it));
+  if (pAmdcDbRecord == 0){
+    std::cerr << "No way to cast in AmdcDbRecord for " << getObjName() << std::endl;
+    return;
+  }
   
-DblQ00Aszt::DblQ00Aszt(std::string asciiFileName)
-{
+  std::vector< std::string> VariableList = pAmdcDbRecord->getVariableList();
+  int ItemTot = VariableList.size() ;
+  for(int Item=0 ; Item<ItemTot ; Item++){
+    std::string DbVar = VariableList[Item];
+  }
+
+  int i = -1;
+  it = pIRDBRecordset->begin();
+  for( ; it<pIRDBRecordset->end(); it++){
+     pAmdcDbRecord = dynamic_cast<const AmdcDbRecord*>((*it));
+     if(pAmdcDbRecord == 0){
+       std::cerr << "No way to cast in AmdcDbRecord for " << getObjName() << std::endl;
+       return;
+     }
+
+     i = i + 1;
+
+     m_d[i].version = (*it)->getInt("VERS");    
+     m_d[i].line = (*it)->getInt("LINE");          
+     m_d[i].jff = (*it)->getInt("JFF");
+     m_d[i].jzz = (*it)->getInt("JZZ");
+     m_d[i].job = (*it)->getInt("JOB");
+     m_d[i].tras = (*it)->getFloat("TRAS");
+     m_d[i].traz = (*it)->getFloat("TRAZ");
+     m_d[i].trat = (*it)->getFloat("TRAT");
+     m_d[i].rots = (*it)->getFloat("ROTS");
+     m_d[i].rotz = (*it)->getFloat("ROTZ");
+     m_d[i].rott = (*it)->getFloat("ROTT");
+     m_d[i].i = (*it)->getInt("I");
+     sprintf(m_d[i].type,"%s",(*it)->getString("TYP").c_str());
+  }
+}
+
+DblQ00Aszt::DblQ00Aszt(std::string asciiFileName) {
 
   std::cerr<<"Aszt with asciiFileName = : <"<<asciiFileName<<"> "<<std::endl;
   // open file and count number of lines
@@ -91,7 +125,6 @@ DblQ00Aszt::DblQ00Aszt(std::string asciiFileName)
   if (m_nObj == 0) std::cerr<<"NO Aszt banks in "<<asciiFileName<<std::endl;
   
   int j=0;
-  //int index;
 
   // close and reopen file for input
   asztFile.close();
@@ -99,9 +132,6 @@ DblQ00Aszt::DblQ00Aszt(std::string asciiFileName)
 
   char AlineMarker;
   while ( asztFile 
-          //	  >> index 
-          //	  >> m_d[j].version 
-          //	  >> m_d[j].line
           >> AlineMarker 
 	  >> m_d[j].type
 	  >> m_d[j].jff
@@ -115,7 +145,6 @@ DblQ00Aszt::DblQ00Aszt(std::string asciiFileName)
 	  >> m_d[j].rott
 	  )
   {  
-    //std::cout<<" Aszt:: line "<<j+1<<" --- jtyp, jff, jzz "<<m_d[j].type<<" "<<m_d[j].jff<<" "<<m_d[j].jzz  <<std::endl;
       m_d[j].line = j+1;
       m_d[j].tras = 0.1*m_d[j].tras; // ProcessAlignments expects cm !
       m_d[j].traz = 0.1*m_d[j].traz; // ProcessAlignments expects cm !
@@ -126,11 +155,9 @@ DblQ00Aszt::DblQ00Aszt(std::string asciiFileName)
 
   if (j!=(int)m_nObj) { 
     std::cerr<<"problem with DblQ00Aszt: j="<<j<<" m_nObj="<<(int)m_nObj<<std::endl; 
-    //exit(3); 
-  }  
-
+  }
 }
-  
+
 DblQ00Aszt::~DblQ00Aszt()
 {
     if  (m_nObj > 0) delete [] m_d;
@@ -142,9 +169,6 @@ void DblQ00Aszt::WriteAsztToAsciiFile(std::string filename)
   asztFile.open(filename.c_str());
   for (int j=0;j<(int)m_nObj;j++) {
     asztFile
-        //        <<j<<" "
-        //        <<m_d[j].version<<" " 
-        //        << m_d[j].line  <<" "
         <<"A "
         << m_d[j].type  <<" " 
         << m_d[j].jff   <<" " 
@@ -156,7 +180,6 @@ void DblQ00Aszt::WriteAsztToAsciiFile(std::string filename)
         << m_d[j].rots  <<" " 
         << m_d[j].rotz  <<" " 
         << m_d[j].rott  <<" " 
-        //	    << m_d[j].i 
         << "\n";
   }
   asztFile.close();  

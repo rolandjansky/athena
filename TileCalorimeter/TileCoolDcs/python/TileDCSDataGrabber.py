@@ -829,5 +829,3 @@ class TileDCSDataGrabber:
                     evhistNames["ATLAS_PVSSTIL.EVENTHISTORY_"+evhistNum] = validityRange
 
         return evhistNames
-
-

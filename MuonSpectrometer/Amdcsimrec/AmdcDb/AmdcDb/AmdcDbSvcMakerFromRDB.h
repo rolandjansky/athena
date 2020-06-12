@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AmdcDbSvcMakerFromRDB_H
@@ -27,7 +27,7 @@ namespace AmdcDb_detail {
 class AmdcDbSvcMakerFromRDB{
 public:
     AmdcDbSvcMakerFromRDB();
-    virtual ~AmdcDbSvcMakerFromRDB();
+    virtual ~AmdcDbSvcMakerFromRDB()=default;
 
 public:
 ///////////////////////////////////
@@ -62,10 +62,9 @@ private:
    int GetEpsAngle   (std::string NameOfTheSet) ;
    
    void AMDC(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcDbSvc);
-
+   void AGDD(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcDbSvc);
    void ATYP(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcDbSvc);
    void ACUT(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcDbSvc);
-
    void WRPC(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcDbSvc);
    void AWLN(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcDbSvc);
    void WTGC(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcDbSvc);
@@ -85,9 +84,10 @@ private:
    void ALIN(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcDbSvc);
    void ALMN(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcDbSvc);
    void APTP(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcDbSvc);
-
    void ASZT(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcDbSvc);
    void ISZT(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcDbSvc);
+ 
+   void AgddXMLVariables(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcDbSvc);
 
    void HwSwIdMapping(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcDbSvc);
    

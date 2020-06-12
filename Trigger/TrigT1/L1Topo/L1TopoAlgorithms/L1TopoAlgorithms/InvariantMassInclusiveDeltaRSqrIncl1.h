@@ -1,22 +1,24 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-//  InvariantMassInclusive1DeltaRSqrIncl1.h
+//  InvariantMassInclusiveDeltaRSqrIncl1.h
 //  TopoCore
 //  Based on InvariantMassInclusive1 and DeltaRSqrIncl1 created by Joerg Stelzer and V Sorin. 01/03/2019.
 //  For questions contact atlas-trig-l1topo-algcom@cern.ch. 
 
-#ifndef __TopoCore__InvariantMassInclusive1DeltaRSqrIncl1__
-#define __TopoCore__InvariantMassInclusive1DeltaRSqrIncl1__
+#ifndef __TopoCore__InvariantMassInclusiveDeltaRSqrIncl1__
+#define __TopoCore__InvariantMassInclusiveDeltaRSqrIncl1__
 
 #include "L1TopoInterfaces/DecisionAlg.h"
 
+class TH2;
+
 namespace TCS {
    
-   class InvariantMassInclusive1DeltaRSqrIncl1 : public DecisionAlg {
+   class InvariantMassInclusiveDeltaRSqrIncl1 : public DecisionAlg {
    public:
-      InvariantMassInclusive1DeltaRSqrIncl1(const std::string & name);
-      virtual ~InvariantMassInclusive1DeltaRSqrIncl1();
+      InvariantMassInclusiveDeltaRSqrIncl1(const std::string & name);
+      virtual ~InvariantMassInclusiveDeltaRSqrIncl1();
 
       virtual StatusCode initialize() override final;
 
@@ -41,10 +43,8 @@ namespace TCS {
       parType_t      p_DeltaRMin[6] = { 0,0,0,0,0,0 };
       parType_t      p_DeltaRMax[6] = { 0,0,0,0,0,0 };
 
-      TH1 * m_histAcceptM[6] = {};
-      TH1 * m_histRejectM[6] = {};
-      TH1 * m_histAcceptDR[6] = {};
-      TH1 * m_histRejectDR[6] = {};
+      TH2 * m_histAcceptM[6] = {};
+      TH2 * m_histRejectM[6] = {};
 
    };
    
