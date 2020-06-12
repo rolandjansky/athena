@@ -63,7 +63,7 @@ namespace TrigL2MuonSA{
     CscSegmentMaker(const std::string& type, const std::string &name, const IInterface* parent);
 
 
-    StatusCode initialize() override;
+    virtual StatusCode initialize() override;
 
 
     ReturnCode	FindSuperPointCsc( const TrigL2MuonSA::CscHits &cscHits, std::vector<TrigL2MuonSA::TrackPattern> &v_trackPatterns, const TrigL2MuonSA::TgcFitResult &tgcFitResult, const TrigL2MuonSA::MuonRoad &muroad);

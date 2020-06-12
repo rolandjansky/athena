@@ -63,7 +63,7 @@ class CscRegDict: public AthAlgTool{
 
   CscRegDict(const std::string &type, const std::string &name, const IInterface *parent);
 
-  StatusCode initialize() override;
+  virtual StatusCode initialize() override;
 
   double phiCen(int module){ return m_reg_dict[module].phiCen; }
   double phiMod(int module){ return m_reg_dict[module].phiMod; }
