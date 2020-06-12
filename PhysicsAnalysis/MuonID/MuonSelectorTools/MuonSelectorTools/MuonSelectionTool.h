@@ -9,8 +9,8 @@
 #include "AsgTools/AsgTool.h"
 #include "PATCore/IAsgSelectionTool.h"
 #include "TFile.h"
+#include "TF1.h"
 #include "TH2D.h"
-#include "TRandom3.h"
 #include "TSystem.h" // Replace with PathResolver
 #include "TMVA/Reader.h"
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
@@ -146,8 +146,6 @@ namespace CP {
      bool m_useMVALowPt;
      bool m_doBadMuonVetoMimic;
 
-     TRandom3* m_random;
-     
      std::string m_eventInfoContName;
 
      std::string m_MVAreaderFile_EVEN_MuidCB;
@@ -155,7 +153,7 @@ namespace CP {
      std::string m_MVAreaderFile_EVEN_MuGirl;
      std::string m_MVAreaderFile_ODD_MuGirl;
 
-     std::string m_BMVefficiencyFile;
+     std::string m_BMVcutFile;
 
      /// Checks for each histogram  
      StatusCode getHist( TFile* file, const char* histName, TH2D*& hist );
@@ -166,8 +164,8 @@ namespace CP {
      TH2D* m_tightWP_mediumPt_rhoCuts;
      TH2D* m_tightWP_highPt_rhoCuts;
      //
-     TH2D* m_BMVefficiency_barrel;
-     TH2D* m_BMVefficiency_endcap;
+     TF1* m_BMVcutFunction_barrel;
+     TF1* m_BMVcutFunction_endcap;
 
      // subfolder to load from the calibration db
      std::string m_calibration_version;
