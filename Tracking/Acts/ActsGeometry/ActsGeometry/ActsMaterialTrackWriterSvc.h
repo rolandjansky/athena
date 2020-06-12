@@ -28,7 +28,7 @@ public:
 
   ActsMaterialTrackWriterSvc( const std::string& name, ISvcLocator* svc );
 
-  void
+  virtual void
   write(const Acts::RecordedMaterialTrack& mTrack) override;
 
 private:
