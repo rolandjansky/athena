@@ -88,4 +88,15 @@ if __name__ == "__main__":
         sys.exit(1)
 
     print ('INFO: All fine with file %s'%Options.inputFile)
+    print ('INFO: Number of found MM hits:\t\t%i'%nHitsMM)
+    print ('INFO: Number of found STGC hits:\t%i'%nHitsSTGC)
+    print ('INFO: Number of found MM digits:\t%i'%nDigitsMM)
+    print ('INFO: Number of found STGC digits:\t%i'%nDigitsSTGC)
+    print ('INFO: Number of found MM SDOs:\t\t%i'%nSDOMM)
+    print ('INFO: Number of found STGC SDOs:\t%i'%nSDOSTGC)
+    print ('INFO: Number of found MM RDOs:\t\t%i'%nRDOMM)
+    print ('INFO: Number of found STGC RDOs:\t%i'%nRDOSTGC)
+    if Options.checkPRD:
+        print ('INFO: Number of found MM PRDs:\t\t%i'%nPRDMM)
+        print ('INFO: Number of found STGC PRDs:\t%i'%nPRDSTGC)
 
