@@ -219,12 +219,13 @@ namespace MuonGM {
       m_etaDesign[il].maxYPhi = roParam.maxYPhi;
       m_etaDesign[il].totalStrips = roParam.tStrips;
       m_etaDesign[il].sAngle = (roParam.stereoAngle).at(il);
+      m_etaDesign[il].offset = roParam.offset;
       if (m_ml < 1 || m_ml > 2)
         reLog()<<MSG::WARNING <<"MMReadoutElement -- Unexpected Multilayer: m_ml= " << m_ml <<endmsg;
       
       if (m_etaDesign[il].sAngle == 0.) {    // eta layers
 
-        m_etaDesign[il].firstPos = -0.5*m_etaDesign[il].xSize;
+        m_etaDesign[il].firstPos = -0.5*m_etaDesign[il].xSize + m_etaDesign[il].offset;
         m_etaDesign[il].signY  = 1 ;
         m_etaDesign[il].nch = ((int) std::round( (m_etaDesign[il].xSize/pitch))) + 1; // Total number of active strips
 	
@@ -249,11 +250,11 @@ namespace MuonGM {
 
         m_etaDesign[il].nch = ((int)std::round( (lPos - fPos)/pitch )) + 1;
 
-        m_etaDesign[il].firstPos = ( -0.5*m_etaDesign[il].xSize + (m_etaDesign[il].nMissedBottomStereo - m_etaDesign[il].nMissedBottomEta)*pitch);
+        m_etaDesign[il].firstPos = ( -0.5*m_etaDesign[il].xSize + (m_etaDesign[il].nMissedBottomStereo - m_etaDesign[il].nMissedBottomEta)*pitch) + m_etaDesign[il].offset;
 
       }
       m_nStrips.push_back(m_etaDesign[il].totalStrips);
-        
+
       reLog()<<MSG::DEBUG
 	     <<"initDesign:" << getStationName()<< " layer " << il << ", strip pitch " << m_etaDesign[il].inputPitch << ", nstrips " << m_etaDesign[il].nch << " stereo " <<  m_etaDesign[il].sAngle << endmsg;
 
@@ -316,7 +317,6 @@ namespace MuonGM {
     Amg::Vector3D  locP = (m_Xlg[gg-1])*locPos;
     reLog()<<MSG::DEBUG<<"locPos in the gg      r.f. "<<locPos<<endmsg;
     reLog()<<MSG::DEBUG<<"locP in the multilayer r.f. "<<locP<<endmsg;
-    
     return absTransform()*locP;
   }
 
