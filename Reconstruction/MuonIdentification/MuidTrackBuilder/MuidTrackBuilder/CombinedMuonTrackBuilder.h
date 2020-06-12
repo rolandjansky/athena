@@ -96,7 +96,7 @@ class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuon
      * Bring in default impl with
      * EventContext for now
      */
-    using ITrackFitter::fit;
+    using ICombinedMuonTrackBuilder::fit;
 
     /*refit a track */
     Trk::Track* fit(const Trk::Track& track, const Trk::RunOutlierRemoval runOutlier = false,
