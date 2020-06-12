@@ -105,9 +105,6 @@ if jtm.haveParticleJetTools:
   from ParticleJetTools.ParticleJetToolsConf import ParticleJetDeltaRLabelTool
 
 
-ghostScaleFactor = 1e-40
-
-
 #--------------------------------------------------------------
 # Track selection.
 #--------------------------------------------------------------
@@ -218,9 +215,7 @@ jtm += JetConstituentsRetriever(
   UsePseudojet = True,
   UseJetConstituents = True,
   PseudojetRetriever = jtm.jpjretriever,
-  GhostLabels = labs,
-  GhostScale = ghostScaleFactor
-)
+  GhostLabels = labs)
 
 #--------------------------------------------------------------
 # Pseudojet builders.
@@ -244,7 +239,6 @@ jtm += PseudoJetAlgorithm(
   Label = "LCTopoOrigin",
   OutputContainer = "PseudoJetLCTopoOrigin",
   SkipNegativeEnergy = True,
-  GhostScale = 0.0
 )
 
 jtm += PseudoJetAlgorithm(
@@ -253,7 +247,6 @@ jtm += PseudoJetAlgorithm(
   Label = "EMTopoOrigin",
   OutputContainer = "PseudoJetEMTopoOrigin",
   SkipNegativeEnergy = True,
-  GhostScale = 0.0
 )
 
 # Clusters.
@@ -263,7 +256,6 @@ jtm += PseudoJetAlgorithm(
   Label = "LCTopo",
   OutputContainer = "PseudoJetLCTopo",
   SkipNegativeEnergy = True,
-  GhostScale = 0.0
 )
 
 # EM clusters.
@@ -273,7 +265,6 @@ jtm += PseudoJetAlgorithm(
   Label = "EMTopo",
   OutputContainer = "PseudoJetEMTopo",
   SkipNegativeEnergy = True,
-  GhostScale = 0.0
 )
 
 # Tracks.
@@ -283,7 +274,6 @@ jtm += PseudoJetAlgorithm(
   Label = "Track",
   OutputContainer = "PseudoJetTrack",
   SkipNegativeEnergy = True,
-  GhostScale = 0.0
 )
 
 # Ghost tracks.
@@ -293,7 +283,6 @@ jtm += PseudoJetAlgorithm(
   Label = "GhostTrack",
   OutputContainer = "PseudoJetGhostTrack",
   SkipNegativeEnergy = True,
-  GhostScale = ghostScaleFactor
 )
 
 # Muon segments
@@ -366,7 +355,6 @@ jtm += PseudoJetAlgorithm(
   InputContainer = "CHSParticleFlowObjects",
   OutputContainer = "PseudoJetEMPFlow",
   SkipNegativeEnergy = True,
-  GhostScale = 0.0
 )
 
 # AntiKt2 track jets.
@@ -376,7 +364,6 @@ jtm += PseudoJetAlgorithm(
   Label = "GhostAntiKt2TrackJet",   # this is the name you'll use to retrieve associated ghosts
   OutputContainer = "PseudoJetGhostAntiKt2TrackJet",
   SkipNegativeEnergy = True,
-  GhostScale = ghostScaleFactor,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
 )
 
 # AntiKt4 track jets.
@@ -386,7 +373,6 @@ jtm += PseudoJetAlgorithm(
   Label = "GhostAntiKt4TrackJet",   # this is the name you'll use to retrieve associated ghosts
   OutputContainer = "PseudoJetGhostAntiKt4TrackJet",
   SkipNegativeEnergy = True,
-  GhostScale = ghostScaleFactor,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
 )
 
 # Truth.
@@ -396,7 +382,6 @@ if jetFlags.useTruth and jtm.haveParticleJetTools:
     Label = "Truth",
     InputContainer = jtm.truthpartcopy.OutputName,
     OutputContainer = "PseudoJetTruth",
-    GhostScale = 0.0,
     SkipNegativeEnergy = True,
 
   )
@@ -405,7 +390,6 @@ if jetFlags.useTruth and jtm.haveParticleJetTools:
     Label = "TruthWZ",
     InputContainer = jtm.truthpartcopywz.OutputName,
     OutputContainer = "PseudoJetTruthWZ",
-    GhostScale = 0.0,
     SkipNegativeEnergy = True,
     
   )
@@ -414,7 +398,6 @@ if jetFlags.useTruth and jtm.haveParticleJetTools:
     Label = "GhostTruth",
     InputContainer = jtm.truthpartcopy.OutputName,
     OutputContainer = "PseudoJetGhostTruth",
-    GhostScale = ghostScaleFactor,
     SkipNegativeEnergy = True,
   )
 
@@ -426,7 +409,6 @@ if jetFlags.useTruth and jtm.haveParticleJetTools:
       Label = "Ghost" + ptype,
       OutputContainer = "PseudoJetGhost" + ptype,
       SkipNegativeEnergy = True,
-      GhostScale = ghostScaleFactor,
     )
 
   # ParticleJetTools tools may be omitted in analysi releases.

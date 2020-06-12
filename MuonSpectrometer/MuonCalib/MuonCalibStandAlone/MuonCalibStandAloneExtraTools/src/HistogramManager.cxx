@@ -5,7 +5,6 @@
 #include "MuonCalibStandAloneExtraTools/HistogramManager.h"
 #include "MuonCalibStandAloneExtraTools/MDTName.h"
 
-#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include <array>
 
@@ -1354,16 +1353,16 @@ void HistogramManager::buildChamberHistos(MDTName chamb) {
   tubeNumberOffsetML[1] = 0;
 
   if ( m_idHelper ) {
-    Identifier  station_id = m_idHelper->mdtIdHelper().elementID(chamberType, eta_id, phi_id);
-    numML = m_idHelper->mdtIdHelper().numberOfMultilayers(station_id);
-    Identifier  MdtML1_id = m_idHelper->mdtIdHelper().multilayerID(station_id,1);
+    Identifier  station_id = m_mdtIdHelper->elementID(chamberType, eta_id, phi_id);
+    numML = m_mdtIdHelper->numberOfMultilayers(station_id);
+    Identifier  MdtML1_id = m_mdtIdHelper->multilayerID(station_id,1);
     Identifier  MdtML2_id;
-    if ( numML>1) MdtML2_id = m_idHelper->mdtIdHelper().multilayerID(station_id,2);
-    numLayersPerML = m_idHelper->mdtIdHelper().tubeLayerMax(MdtML1_id) - m_idHelper->mdtIdHelper().tubeLayerMin(MdtML1_id) + 1; 
+    if ( numML>1) MdtML2_id = m_mdtIdHelper->multilayerID(station_id,2);
+    numLayersPerML = m_mdtIdHelper->tubeLayerMax(MdtML1_id) - m_mdtIdHelper->tubeLayerMin(MdtML1_id) + 1; 
     if (chamberName.substr(0,4)=="BIS8") numLayersPerML=3; // PATCH TO MdtIdHelper BUG (should be fixed in next release)
-    numTubesPerLayer[0] = m_idHelper->mdtIdHelper().tubeMax(MdtML1_id) - m_idHelper->mdtIdHelper().tubeMin(MdtML1_id) + 1;
+    numTubesPerLayer[0] = m_mdtIdHelper->tubeMax(MdtML1_id) - m_mdtIdHelper->tubeMin(MdtML1_id) + 1;
 
-    if ( numML>1 ) numTubesPerLayer[1] = m_idHelper->mdtIdHelper().tubeMax(MdtML2_id) - m_idHelper->mdtIdHelper().tubeMin(MdtML2_id) + 1;
+    if ( numML>1 ) numTubesPerLayer[1] = m_mdtIdHelper->tubeMax(MdtML2_id) - m_mdtIdHelper->tubeMin(MdtML2_id) + 1;
 
     numMaxTubesPerLayer = numTubesPerLayer[0];
     if (numTubesPerLayer[1]>numTubesPerLayer[0]) numMaxTubesPerLayer = numTubesPerLayer[1];
@@ -1909,16 +1908,16 @@ std::vector<MDTName> HistogramManager::GetChamberList(std::string region, std::s
   //ToString ts;
   std::vector<MDTName> chamberList;
 
-    if ( m_idHelper ) {
-      MdtIdHelper::const_id_iterator it     = m_idHelper->mdtIdHelper().module_begin();
-      MdtIdHelper::const_id_iterator it_end = m_idHelper->mdtIdHelper().module_end();
+    if ( m_mdtIdHelper ) {
+      MdtIdHelper::const_id_iterator it     = m_mdtIdHelper->module_begin();
+      MdtIdHelper::const_id_iterator it_end = m_mdtIdHelper->module_end();
       for(; it!=it_end;++it ) {
 
-	if  ( !m_idHelper->mdtIdHelper().is_mdt(*it) ) continue;
-	int station_index = m_idHelper->mdtIdHelper().stationName(*it);
-	std::string stationName = m_idHelper->mdtIdHelper().stationNameString(station_index);
-	int phi_id = m_idHelper->mdtIdHelper().stationPhi(*it);
-	int eta_id = m_idHelper->mdtIdHelper().stationEta(*it);
+	if  ( !m_mdtIdHelper->is_mdt(*it) ) continue;
+	int station_index = m_mdtIdHelper->stationName(*it);
+	std::string stationName = m_mdtIdHelper->stationNameString(station_index);
+	int phi_id = m_mdtIdHelper->stationPhi(*it);
+	int eta_id = m_mdtIdHelper->stationEta(*it);
                 
 	MDTName chamber(stationName,phi_id,eta_id);
 

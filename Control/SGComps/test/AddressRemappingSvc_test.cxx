@@ -74,13 +74,13 @@ public:
 
   virtual StatusCode initialize() override;
 
-  virtual StatusCode acquireAlgorithm(const std::string& /*name*/,IAlgorithm*& /*algo*/, bool /*blocking*/ = false) override { std::abort(); }
-  virtual StatusCode releaseAlgorithm(const std::string& /*name*/, IAlgorithm*& /*algo*/) override { std::abort(); }
+  virtual StatusCode acquireAlgorithm(const std::string_view /*name*/,IAlgorithm*& /*algo*/, bool /*blocking*/ = false) override { std::abort(); }
+  virtual StatusCode releaseAlgorithm(const std::string_view /*name*/, IAlgorithm*& /*algo*/) override { std::abort(); }
   virtual std::list<IAlgorithm*> getTopAlgList() override { std::abort(); }
   // virtual StatusCode beginRun() override { std::abort(); }
   // virtual StatusCode endRun()  override { std::abort(); }
-  virtual StatusCode acquireResource(const std::string& /*name*/) override { std::abort(); }
-  virtual StatusCode releaseResource(const std::string& /*name*/) override { std::abort(); }
+  virtual StatusCode acquireResource(const std::string_view /*name*/) override { std::abort(); }
+  virtual StatusCode releaseResource(const std::string_view /*name*/) override { std::abort(); }
 
   virtual std::list<IAlgorithm*> getFlatAlgList() override;
 

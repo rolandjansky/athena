@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.scripts.check_sg
 # @purpose read a POOL file and dump the DataHeader's content
@@ -7,7 +7,6 @@
 
 from __future__ import print_function
 
-__version__ = "$Revision: 276362 $"
 __doc__ = "read a POOL file and dump the DataHeader's content"
 __author__ = "Sebastien Binet"
 
@@ -36,12 +35,14 @@ def main(args):
      $ check-sg LFN:ttbar.pool
     """
     files = args.files
-    if isinstance(files, basestring):
+    if isinstance(files, str):
         files = [files]
 
-    import os.path as osp
+    import os
+    import sys
+
     for i,f in enumerate(files):
-        files[i] = osp.expandvars(osp.expanduser(f))
+        files[i] = os.path.expandvars(os.path.expanduser(f))
 
     exitcode = 0
     for fname in files:
@@ -49,7 +50,7 @@ def main(args):
             import AthenaCommon.KeyStore as acks
             print ("## checking [%s]..." % (fname,))
             ks = acks.loadKeyStoreFromPoolFile(
-                keyStore=osp.basename(fname),
+                keyStore=os.path.basename(fname),
                 pool_file=fname,
                 label='inputFile')
 
@@ -61,13 +62,13 @@ def main(args):
             print ("="*80)
             if args.output:
                 outFileName = args.output
-                outFileName = osp.expanduser(outFileName)
-                outFileName = osp.expandvars(outFileName)
+                outFileName = os.path.expanduser(outFileName)
+                outFileName = os.path.expandvars(outFileName)
                 print ("## saving report into [%s]..." % (outFileName,))
-                if osp.splitext(outFileName)[1] in ('.pkl', '.dat'):
+                if os.path.splitext(outFileName)[1] in ('.pkl', '.dat'):
                     # we explicitely import 'bsddb' to try to always
                     # get that particular backend for the shelve...
-                    import bsddb
+                    import bsddb   # noqa: F401
                     import shelve
                     if os.path.exists(outFileName):
                         os.remove(outFileName)
@@ -86,7 +87,7 @@ def main(args):
             exitcode = 1
             pass
 
-        except :
+        except Exception:
             print ("## Caught something !! (don't know what)")
             print (sys.exc_info()[0])
             print (sys.exc_info()[1])

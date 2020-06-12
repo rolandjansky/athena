@@ -11,6 +11,7 @@
 
 
 #include "GaudiKernel/SystemOfUnits.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include "TrkiPatFitterUtils/ExtrapolationType.h"
 #include "TrkiPatFitterUtils/FitMeasurement.h"
 #include "TrkiPatFitterUtils/FitParameters.h"
@@ -48,9 +49,10 @@ namespace Trk
     }
   	alignCache.m_fullCovarianceMatrix =  nullptr;
     alignCache.m_iterationsOfLastFit = 0;
-  
-    auto [refittedTrack, fitState] = fitWithState(trk, runOutlier, matEffects);
-  
+
+    auto [refittedTrack, fitState] =
+      fitWithState(Gaudi::Hive::currentContext(), trk, runOutlier, matEffects);
+
     if(refittedTrack){
   		alignCache.m_derivMatrix = derivMatrix(*fitState).release();
   	  alignCache.m_fullCovarianceMatrix = fullCovarianceMatrix(*fitState).release();

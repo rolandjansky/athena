@@ -3,7 +3,7 @@
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CAMenuSequence, ChainStep, Chain, getChainStepName, createStepView
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-from TrigL2MuonSA.TrigL2MuonSAConfig_newJO import l2MuFastRecoCfg, l2MuFastHypoCfg
+from TrigL2MuonSA.TrigL2MuonSAConfig_newJO import l2MuFastAlgCfg, l2MuFastHypoCfg
 from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolFromDict
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
@@ -21,14 +21,82 @@ def fakeHypoAlgCfg(flags, name="FakeHypoForMuon"):
 def generateChains( flags, chainDict ):
     chainDict = splitChainDict(chainDict)[0]
     
+    # Step 1 (L2MuonSA)
     stepName = getChainStepName('Muon', 1)
     stepReco, stepView = createStepView(stepName)
 
     acc = ComponentAccumulator()
     acc.addSequence(stepView)
 
-    l2muFastReco = l2MuFastRecoCfg(flags)
-    acc.merge( l2muFastReco, sequenceName=stepReco.getName() )
+    # Set EventViews for L2MuonSA step
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
+    reco = InViewReco("L2MuFastReco")
+
+
+
+    # decoding
+    # Get RPC BS decoder 
+    from MuonConfig.MuonBytestreamDecodeConfig import RpcBytestreamDecodeCfg
+    rpcAcc = RpcBytestreamDecodeCfg( flags, forTrigger=True )
+    rpcAcc.getEventAlgo("RpcRawDataProvider").RoIs = reco.name+"RoIs"
+    reco.mergeReco( rpcAcc )
+
+    # Get RPC BS->RDO convertor
+    from MuonConfig.MuonRdoDecodeConfig import RpcRDODecodeCfg    
+    rpcAcc = RpcRDODecodeCfg( flags, forTrigger=True )
+    rpcAcc.getEventAlgo("RpcRdoToRpcPrepData").RoIs = reco.name+"RoIs"
+    reco.mergeReco( rpcAcc )
+
+    # Get TGC BS decoder 
+    from MuonConfig.MuonBytestreamDecodeConfig import TgcBytestreamDecodeCfg
+    tgcAcc = TgcBytestreamDecodeCfg( flags, forTrigger=True )
+    tgcAcc.getEventAlgo("TgcRawDataProvider").RoIs = reco.name+"RoIs"
+    reco.mergeReco( tgcAcc )
+
+    # Get TGC BS->RDO convertor
+    from MuonConfig.MuonRdoDecodeConfig import TgcRDODecodeCfg    
+    tgcAcc = TgcRDODecodeCfg( flags, forTrigger=True )
+    tgcAcc.getEventAlgo("TgcRdoToTgcPrepData").RoIs = reco.name+"RoIs"
+    reco.mergeReco( tgcAcc )
+
+    # Get MDT BS decoder 
+    from MuonConfig.MuonBytestreamDecodeConfig import MdtBytestreamDecodeCfg
+    mdtAcc = MdtBytestreamDecodeCfg( flags, forTrigger=True )
+    mdtAcc.getEventAlgo("MdtRawDataProvider").RoIs = reco.name+"RoIs"
+    reco.mergeReco( mdtAcc )
+
+    # Get MDT BS->RDO convertor
+    from MuonConfig.MuonRdoDecodeConfig import MdtRDODecodeCfg    
+    mdtAcc = MdtRDODecodeCfg( flags, forTrigger=True )
+    mdtAcc.getEventAlgo("MdtRdoToMdtPrepData").RoIs = reco.name+"RoIs"
+    reco.mergeReco( mdtAcc )
+
+    # Get CSC BS decoder 
+    from MuonConfig.MuonBytestreamDecodeConfig import CscBytestreamDecodeCfg
+    cscAcc = CscBytestreamDecodeCfg( flags, forTrigger=True )
+    cscAcc.getEventAlgo("CscRawDataProvider").RoIs = reco.name+"RoIs"
+    reco.mergeReco( cscAcc )
+
+    # Get CSC BS->RDO convertor
+    from MuonConfig.MuonRdoDecodeConfig import CscRDODecodeCfg    
+    cscAcc = CscRDODecodeCfg( flags, forTrigger=True )
+    cscAcc.getEventAlgo("CscRdoToCscPrepData").RoIs = reco.name+"RoIs"
+    reco.mergeReco( cscAcc )
+
+    # Get CSC cluster builder
+    from MuonConfig.MuonRdoDecodeConfig import CscClusterBuildCfg
+    cscAcc = CscClusterBuildCfg( flags, forTrigger=True )
+    reco.mergeReco( cscAcc )
+
+
+
+    # Get Reco alg of muFast Step in order to set into the view
+    algAcc, alg = l2MuFastAlgCfg( flags, roisKey=reco.name+"RoIs")
+
+    reco.addRecoAlg( alg )
+    reco.merge( algAcc )
+    #    l2muFastReco = l2MuFastRecoCfg(flags)
+    acc.merge( reco, sequenceName=stepReco.getName() )
 
     ### Set muon step1 ###
     l2muFastHypo = l2MuFastHypoCfg( flags,
@@ -37,8 +105,8 @@ def generateChains( flags, chainDict ):
 
     acc.addEventAlgo(l2muFastHypo, sequenceName=stepView.getName())
 
-    l2muFastSequence = CAMenuSequence( Sequence = l2muFastReco.sequence(),
-                                     Maker = l2muFastReco.inputMaker(),
+    l2muFastSequence = CAMenuSequence( Sequence = reco.sequence(),
+                                     Maker = reco.inputMaker(),
                                      Hypo = l2muFastHypo,
                                      HypoToolGen = TrigMufastHypoToolFromDict,
                                      CA = acc )
@@ -67,6 +135,15 @@ def generateChains( flags, chainDict ):
 
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
     recoMS = InViewReco("EFMuMSReco")
+    recoMS.inputMaker().RequireParentView = True
+    EFMuonViewDataVerifier =  CompFactory.getComp("AthViews::ViewDataVerifier")("EFMuonViewDataVerifier")
+    EFMuonViewDataVerifier.DataObjects = [( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),
+                                          ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' ),
+                                          ( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
+                                          ( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),
+                                          ( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' )]
+
+    recoMS.addRecoAlg(EFMuonViewDataVerifier)
 
     from MuonConfig.MuonSegmentFindingConfig import MooSegmentFinderAlgCfg
     segCfg = MooSegmentFinderAlgCfg(muonflags,name="TrigMooSegmentFinder",UseTGCNextBC=False, UseTGCPriorBC=False)

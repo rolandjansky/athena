@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 //
 // InDetTrkInJetType.h - Description
@@ -88,7 +88,8 @@ namespace InDet {
     float m_Z0_limLow{};
     float m_Z0_limUpp{};
     std::string m_calibFileName;
-    ToolHandle < Trk::IVertexFitter >  m_fitterSvc;
+    ToolHandle < Trk::IVertexFitter >  m_fitterSvc
+       {this, "VertexFitterTool", "Trk::TrkVKalVrtFitter/VertexFitterTool",""};
     Trk::TrkVKalVrtFitter*   m_fitSvc{};
 
     int m_initialised{};

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -76,19 +76,19 @@ StatusCode InDet::ZVTOP_Tool::initialize()
   if ( m_iSpatialPointFinder.retrieve().isFailure() ) {
       msg (MSG::FATAL) << "Failed to retrieve tool " << m_iSpatialPointFinder << endmsg;
       return StatusCode::FAILURE;
-  } else msg (MSG::INFO) << "Retrieved tool " << m_iSpatialPointFinder << endmsg;
+  } msg (MSG::INFO) << "Retrieved tool " << m_iSpatialPointFinder << endmsg;
 
   //Gaussian Probability Tube for the Track Trajectory
   if ( m_iTrkProbTubeCalc.retrieve().isFailure() ) {
       msg (MSG::FATAL) << "Failed to retrieve tool " << m_iTrkProbTubeCalc<< endmsg;
       return StatusCode::FAILURE;
-  } else msg (MSG::INFO) << "Retrieved tool " << m_iTrkProbTubeCalc << endmsg;
+  } msg (MSG::INFO) << "Retrieved tool " << m_iTrkProbTubeCalc << endmsg;
 
   //Vertex Probability Function
   if ( m_iVtxProbCalc.retrieve().isFailure() ) {
       msg (MSG::FATAL) << "Failed to retrieve tool " << m_iVtxProbCalc<< endmsg;
       return StatusCode::FAILURE;
-  } else msg (MSG::INFO) << "Retrieved tool " << m_iVtxProbCalc << endmsg;
+  } msg (MSG::INFO) << "Retrieved tool " << m_iVtxProbCalc << endmsg;
 
   //Beam Spot
   sc = m_iBeamCondSvc.retrieve();
@@ -101,7 +101,7 @@ StatusCode InDet::ZVTOP_Tool::initialize()
   if ( m_iVertexFitter.retrieve().isFailure() ) {
       msg (MSG::FATAL) << "Failed to retrieve tool " << m_iVertexFitter << endmsg;
       return StatusCode::FAILURE;
-  } else msg (MSG::INFO) << "Retrieved tool " << m_iVertexFitter << endmsg;
+  } msg (MSG::INFO) << "Retrieved tool " << m_iVertexFitter << endmsg;
   msg (MSG::INFO) << "initialize() successful in " << name() << endmsg;
   return StatusCode::SUCCESS;
 }
@@ -116,13 +116,14 @@ StatusCode InDet::ZVTOP_Tool::finalize()
 
 //============================================================================================
 //VxContainer* InDet::ZVTOP_Tool::findVertex(const TrackCollection* trackTES) --David S.
-std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDet::ZVTOP_Tool::findVertex(const TrackCollection* trackTES)
+std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
+InDet::ZVTOP_Tool::findVertex(const TrackCollection* trackTES) const
 {
 //VxContainer* newVxContainer = new VxContainer; --David S.
 xAOD::VertexContainer* newVertexContainer = new xAOD::VertexContainer;
 xAOD::VertexAuxContainer* newVertexAuxContainer = new xAOD::VertexAuxContainer;
 newVertexContainer->setStore( newVertexAuxContainer );
-if (trackTES->size() != 0) {
+if (!trackTES->empty()) {
   //some variables
   typedef DataVector<Trk::Track>::const_iterator TrackDataVecIter;
   const Trk::RecVertex beam_spot = m_iBeamCondSvc->beamVtx();
@@ -153,7 +154,7 @@ if (trackTES->size() != 0) {
     {
       Trk::Vertex* spatialPoint;
       spatialPoint = m_iSpatialPointFinder->findSpatialPoint((*itr_1),(*itr_2));
-      if (spatialPoint != 0) 
+      if (spatialPoint != nullptr) 
       {
          double TrkProbTube_1 = m_iTrkProbTubeCalc->calcProbTube(*(*itr_1),*spatialPoint);
          double TrkProbTube_2 = m_iTrkProbTubeCalc->calcProbTube(*(*itr_2),*spatialPoint);
@@ -172,9 +173,9 @@ if (trackTES->size() != 0) {
       delete spatialPoint;
     }
     //trk-IP combination
-    Trk::Vertex* spatialPoint = 0;
+    Trk::Vertex* spatialPoint = nullptr;
     spatialPoint = m_iSpatialPointFinder->findSpatialPoint(beam_spot,(*itr_1));
-    if (spatialPoint != 0) 
+    if (spatialPoint != nullptr) 
     {
       double BeamProbTube = m_iTrkProbTubeCalc->calcProbTube(beam_spot,*spatialPoint);
       double TrkProbTube = m_iTrkProbTubeCalc->calcProbTube(*(*itr_1),*spatialPoint);
@@ -198,7 +199,7 @@ if (trackTES->size() != 0) {
   for (Sp_Iter itr1 = vtxState_org.begin(); itr1 != vtxState_org.end(); itr1++)
   {
 
-     if (vtxState.size() == 0) vtxState.push_back(*itr1);
+     if (vtxState.empty()) vtxState.push_back(*itr1);
      else {
          Trk::Vertex vtx_new = (*itr1)->vertex();
          bool can_be_resolved = false;
@@ -227,7 +228,7 @@ if (trackTES->size() != 0) {
 //------------------------------------------------------------------------------//
 
 
-  if (vtxState.size() != 0 ){
+  if (!vtxState.empty() ){
     if (msgLvl(MSG::DEBUG)) msg() << " step TWO vertex clustering, number of reduced vertices = "<<vtxState.size()<< endmsg;
     //sort the vtxState collection, starting with a highest vtx probability
     std::vector<InDet::ZVTOP_VertexState*> vtxState_sorted;
@@ -268,7 +269,7 @@ if (trackTES->size() != 0) {
                  break; // break inner loop if found
               }
             }
-            if (vtx_is_stored == true) break; // break outer loop if found
+            if (vtx_is_stored) break; // break outer loop if found
          }
          if (!vtx_is_stored) {
                  //if not stored
@@ -344,7 +345,7 @@ if (trackTES->size() != 0) {
        }
        //call the fitter
        //Trk::VxCandidate * myVxCandidate(0); --David S.
-       xAOD::Vertex * myxAODVertex(0);
+       xAOD::Vertex * myxAODVertex(nullptr);
        //if (with_beam_spot) myVxCandidate = m_iVertexFitter->fit(trk_coll,beam_spot); --David S.
        if (with_beam_spot) myxAODVertex = m_iVertexFitter->fit(trk_coll,theconstraint);
        //else myVxCandidate = m_iVertexFitter->fit(trk_coll); --David S.
@@ -373,26 +374,26 @@ if (trackTES->size() != 0) {
              if (largest_chi2 > m_trk_chi2_cut)
              {
                if (trk_coll.size() < 3) break;
-               else {
+               
                   trk_coll.erase(index);
                   if (trk_coll.size() >= 2) {
                     //if (myVxCandidate!=0) { delete myVxCandidate; myVxCandidate=0; } --David S.
-                    if (myxAODVertex!=0) { delete myxAODVertex; myxAODVertex=0; }
+                    if (myxAODVertex!=nullptr) { delete myxAODVertex; myxAODVertex=nullptr; }
                     //if (with_beam_spot) myVxCandidate = m_iVertexFitter->fit(trk_coll, beam_spot); --David S.
                     if (with_beam_spot) myxAODVertex = m_iVertexFitter->fit(trk_coll, theconstraint);
                     //else myVxCandidate = m_iVertexFitter->fit(trk_coll); --David S.
                     else myxAODVertex = m_iVertexFitter->fit(trk_coll);
                   }
                   //if (myVxCandidate == 0) break; --David S.
-                  if (myxAODVertex == 0) break;
-               }
+                  if (myxAODVertex == nullptr) break;
+               
              } else bad_chi2 = false;
            }
       }
       //if (myVxCandidate && bad_chi2 == false && with_beam_spot) newVxContainer->push_back(myVxCandidate); --David S.
-      if (myxAODVertex && bad_chi2 == false && with_beam_spot) newVertexContainer->push_back(myxAODVertex);
+      if (myxAODVertex && !bad_chi2 && with_beam_spot) newVertexContainer->push_back(myxAODVertex);
       //if (myVxCandidate && bad_chi2 == false && !with_beam_spot) theVxContainer.push_back(myVxCandidate); --David S.
-      if (myxAODVertex && bad_chi2 == false && !with_beam_spot) theVertexContainer.push_back(myxAODVertex);
+      if (myxAODVertex && !bad_chi2 && !with_beam_spot) theVertexContainer.push_back(myxAODVertex);
     }
     //if (msgLvl(MSG::DEBUG)) msg() <<"vertex container size = "<<theVxContainer.size()<<endmsg; --David S.
     if (msgLvl(MSG::DEBUG)) msg() << "vertex container size = " << theVertexContainer.size() << endmsg;
@@ -459,7 +460,7 @@ if (trackTES->size() != 0) {
         }
      }
      //if (first_found==false && second_found==false) newVxContainer->push_back(*twoTrk_itr); --David S.
-     if (first_found==false && second_found==false) newVertexContainer->push_back(*twoTrk_itr);
+     if (!first_found && !second_found) newVertexContainer->push_back(*twoTrk_itr);
      else delete *twoTrk_itr;
    //}//end loop over two track Vx Candidates --David S.
    }//end loop over two track Vertices
@@ -477,13 +478,15 @@ return std::make_pair(newVertexContainer, newVertexAuxContainer);
 ///run on AOD
 /////////////////////////////////////////////////
 //VxContainer* InDet::ZVTOP_Tool::findVertex(const Trk::TrackParticleBaseCollection* trackTES) --David S.
-std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDet::ZVTOP_Tool::findVertex(const Trk::TrackParticleBaseCollection* trackTES)
+std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
+InDet::ZVTOP_Tool::findVertex(
+  const Trk::TrackParticleBaseCollection* trackTES) const
 {
 //VxContainer* newVxContainer = new VxContainer; --David S.
 xAOD::VertexContainer* newVertexContainer = new xAOD::VertexContainer;
 xAOD::VertexAuxContainer* newVertexAuxContainer = new xAOD::VertexAuxContainer;
 newVertexContainer->setStore( newVertexAuxContainer );
-if (trackTES->size() != 0) {
+if (!trackTES->empty()) {
   //some variables
   typedef Trk::TrackParticleBaseCollection::const_iterator TrackDataVecIter;
   const Trk::RecVertex beam_spot = m_iBeamCondSvc->beamVtx();
@@ -514,7 +517,7 @@ if (trackTES->size() != 0) {
     {
       Trk::Vertex* spatialPoint;
       spatialPoint = m_iSpatialPointFinder->findSpatialPoint((*itr_1),(*itr_2));
-      if (spatialPoint != 0) 
+      if (spatialPoint != nullptr) 
       {
          double TrkProbTube_1 = m_iTrkProbTubeCalc->calcProbTube(*(*itr_1),*spatialPoint);
          double TrkProbTube_2 = m_iTrkProbTubeCalc->calcProbTube(*(*itr_2),*spatialPoint);
@@ -533,9 +536,9 @@ if (trackTES->size() != 0) {
       delete spatialPoint;
     }
     //trk-IP combination
-    Trk::Vertex* spatialPoint = 0;
+    Trk::Vertex* spatialPoint = nullptr;
     spatialPoint = m_iSpatialPointFinder->findSpatialPoint(beam_spot,(*itr_1));
-    if (spatialPoint != 0) 
+    if (spatialPoint != nullptr) 
     {
       double BeamProbTube = m_iTrkProbTubeCalc->calcProbTube(beam_spot,*spatialPoint);
       double TrkProbTube = m_iTrkProbTubeCalc->calcProbTube(*(*itr_1),*spatialPoint);
@@ -559,7 +562,7 @@ if (trackTES->size() != 0) {
   for (Sp_Iter itr1 = vtxState_org.begin(); itr1 != vtxState_org.end(); itr1++)
   {
 
-     if (vtxState.size() == 0) vtxState.push_back(*itr1);
+     if (vtxState.empty()) vtxState.push_back(*itr1);
      else {
          Trk::Vertex vtx_new = (*itr1)->vertex();
          bool can_be_resolved = false;
@@ -588,7 +591,7 @@ if (trackTES->size() != 0) {
 //------------------------------------------------------------------------------//
 
 
-  if (vtxState.size() != 0 ){
+  if (!vtxState.empty() ){
     if (msgLvl(MSG::DEBUG)) msg() << " step TWO vertex clustering, number of reduced vertices = "<<vtxState.size()<< endmsg;
     //sort the vtxState collection, starting with a highest vtx probability
     std::vector<InDet::ZVTOP_TrkPartBaseVertexState*> vtxState_sorted;
@@ -629,7 +632,7 @@ if (trackTES->size() != 0) {
                  break; // break inner loop if found
               }
             }
-            if (vtx_is_stored == true) break; // break outer loop if found
+            if (vtx_is_stored) break; // break outer loop if found
          }
          if (!vtx_is_stored) {
                  //if not stored
@@ -705,7 +708,7 @@ if (trackTES->size() != 0) {
        }
        //call the fitter
        //Trk::VxCandidate * myVxCandidate(0); --David S.
-       xAOD::Vertex * myxAODVertex(0);
+       xAOD::Vertex * myxAODVertex(nullptr);
        //const Amg::Vector3D p(0.,0.,0.); --David S.
        const Amg::Vector3D startingPoint(0.,0.,0.);
        //Trk::Vertex startingPoint(p); --David S.
@@ -738,26 +741,26 @@ if (trackTES->size() != 0) {
              if (largest_chi2 > m_trk_chi2_cut)
              {
                if (trk_coll.size() < 3) break;
-               else {
+               
                   trk_coll.erase(index);
                   if (trk_coll.size() >= 2) {
                     //if (myVxCandidate!=0) { delete myVxCandidate; myVxCandidate=0; } --David S.
-                    if (myxAODVertex!=0) { delete myxAODVertex; myxAODVertex=0; }
+                    if (myxAODVertex!=nullptr) { delete myxAODVertex; myxAODVertex=nullptr; }
                     //if (with_beam_spot) myVxCandidate = m_iVertexFitter->fit(trk_coll, beam_spot); --David S.
                     if (with_beam_spot) myxAODVertex = m_iVertexFitter->fit(trk_coll, theconstraint);
                     //else myVxCandidate = m_iVertexFitter->fit(trk_coll,startingPoint); --David S.
                     else myxAODVertex = m_iVertexFitter->fit(trk_coll,startingPoint);
                   }
                   //if (myVxCandidate == 0) break; --David S.
-                  if (myxAODVertex == 0) break;
-               }
+                  if (myxAODVertex == nullptr) break;
+               
              } else bad_chi2 = false;
            }
       }
       //if (myVxCandidate && bad_chi2 == false && with_beam_spot) newVxContainer->push_back(myVxCandidate); --David S.
-      if (myxAODVertex && bad_chi2 == false && with_beam_spot) newVertexContainer->push_back(myxAODVertex);
+      if (myxAODVertex && !bad_chi2 && with_beam_spot) newVertexContainer->push_back(myxAODVertex);
       //if (myVxCandidate && bad_chi2 == false && !with_beam_spot) theVxContainer.push_back(myVxCandidate); --David S.
-      if (myxAODVertex && bad_chi2 == false && !with_beam_spot) theVertexContainer.push_back(myxAODVertex);
+      if (myxAODVertex && !bad_chi2 && !with_beam_spot) theVertexContainer.push_back(myxAODVertex);
     }
     //if (msgLvl(MSG::DEBUG)) msg() <<"vertex container size = "<<theVxContainer.size()<<endmsg; --David S.
     if (msgLvl(MSG::DEBUG)) msg() << "vertex container size = " << theVertexContainer.size() << endmsg;
@@ -824,7 +827,7 @@ if (trackTES->size() != 0) {
         }
      }
      //if (first_found==false && second_found==false) newVxContainer->push_back(*twoTrk_itr); --David S.
-     if (first_found == false && second_found == false) newVertexContainer->push_back(*twoTrk_itr);
+     if (!first_found && !second_found) newVertexContainer->push_back(*twoTrk_itr);
      else delete *twoTrk_itr;
    //}//end loop over two track Vx Candidates --David S.
    }//end loop over two track Vertices
@@ -839,15 +842,18 @@ if (trackTES->size() != 0) {
 return std::make_pair(newVertexContainer, newVertexAuxContainer);
 }
 
-
-std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>  InDet::ZVTOP_Tool::findVertex(const xAOD::TrackParticleContainer* trackParticles)
+std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
+InDet::ZVTOP_Tool::findVertex(
+  const xAOD::TrackParticleContainer* trackParticles) const
 {
-     if(msgLvl(MSG::DEBUG)){ 
- 	msg(MSG::DEBUG) << "N="<<trackParticles->size()<<" xAOD::TrackParticles found" << endmsg; 
- 	msg(MSG::DEBUG) << "No ZVTOP_Tool implementation for xAOD::TrackParticle" << endmsg; 
+     if(msgLvl(MSG::DEBUG)){
+       msg(MSG::DEBUG) << "N=" << trackParticles->size()
+                       << " xAOD::TrackParticles found" << endmsg;
+       msg(MSG::DEBUG) << "No ZVTOP_Tool implementation for xAOD::TrackParticle"
+                       << endmsg; 
      } 
-     xAOD::VertexContainer *xAODContainer(0);
-     xAOD::VertexAuxContainer *xAODAuxContainer(0);   
+     xAOD::VertexContainer *xAODContainer(nullptr);
+     xAOD::VertexAuxContainer *xAODAuxContainer(nullptr);   
      return std::make_pair(xAODContainer, xAODAuxContainer); 
 }
 

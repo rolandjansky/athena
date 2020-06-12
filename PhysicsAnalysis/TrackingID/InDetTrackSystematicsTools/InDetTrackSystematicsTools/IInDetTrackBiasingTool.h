@@ -28,7 +28,6 @@ namespace InDet {
   public:
     virtual StatusCode initialize() = 0;
     virtual void prepare() = 0;
-    virtual StatusCode finalize() = 0;
     
     /** Computes the tracks origin */
     virtual CP::CorrectionCode applyCorrection(xAOD::TrackParticle& track) = 0;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -78,10 +78,7 @@ namespace InDet {
       - fullfills Trk::MeasurementBase interface */
       virtual const Amg::Vector3D& globalPosition() const override;
 
-      virtual bool rioType(Trk::RIO_OnTrackType::Type type) const override
-      {
-        return (type == Trk::RIO_OnTrackType::SiCluster);
-      }
+      virtual bool rioType(Trk::RIO_OnTrackType::Type type) const override = 0;
 
       /** returns the DE hashID* 
       - fullfills Trk::RIO_OnTrack interface*/

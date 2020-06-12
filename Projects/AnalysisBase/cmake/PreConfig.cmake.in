@@ -4,6 +4,12 @@
 # @CMAKE_PROJECT_NAME@.
 #
 
+# Set up the project's flake8 usage.
+set( ATLAS_FLAKE8 @ATLAS_FLAKE8@
+   CACHE STRING "Default flake8 command" )
+set( ATLAS_PYTHON_CHECKER @ATLAS_PYTHON_CHECKER@
+   CACHE STRING "Python checker command to run during Python module compilation" )
+
 # Figure out whether to use QUIET in the find_package call(s).
 set( _quietFlag )
 if( @CMAKE_PROJECT_NAME@_FIND_QUIETLY )

@@ -242,10 +242,10 @@ asg::AcceptData AsgElectronMultiLeptonSelector::accept(const xAOD::IParticle* pa
     const xAOD::Electron* eg =static_cast<const xAOD::Electron*> (part);
     return accept(eg);
   }
-  else{
+  
     ATH_MSG_ERROR("AsgElectronMultiLeptonSelector::could not convert argument to accept");
     return m_rootTool->accept();
-  }
+  
 }
 
 //=============================================================================

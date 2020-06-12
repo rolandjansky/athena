@@ -9,7 +9,6 @@ from __future__ import print_function
 
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobObjs.Classes import TileCalibUtils
-import ROOT
 
 
 #=== specify which time to read
@@ -58,4 +57,3 @@ for ros in range(TileCalibUtils.max_ros()):
 
 #=== close the database connection
 db.closeDatabase()
-

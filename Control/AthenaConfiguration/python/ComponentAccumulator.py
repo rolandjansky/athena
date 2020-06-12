@@ -34,7 +34,8 @@ def printProperties(msg, c, nestLevel = 0):
             continue
         propval=getattr(c,propname)
         # Ignore empty lists
-        if isinstance(propval,GaudiConfig2.semantics._ListHelper) and propval.data is None:
+        
+        if isinstance(propval,(GaudiConfig2.semantics._ListHelper,GaudiConfig2.semantics._DictHelper)) and propval.data is None:
             continue
         # Printing EvtStore could be relevant for Views?
         if propname in ["DetStore","EvtStore"]:
@@ -156,7 +157,7 @@ class ComponentAccumulator(object):
         self._msg.info( "Event Algorithm Sequences" )
 
 
-        if False: #withDetails: The WithDetails option does work with GaudiConfi2 (for now) 
+        if withDetails:# The WithDetails option does work with GaudiConfi2 (for now) 
             self._msg.info( self._sequence )
         else:
             def printSeqAndAlgs(seq, nestLevel = 0,
@@ -216,10 +217,10 @@ class ComponentAccumulator(object):
         """ Adds new sequence. If second argument is present then it is added under another sequence  """
         from AthenaCommon.AlgSequence import AthSequencer as LegacySequence
         if isinstance( newseq, LegacySequence ):
-            raise TypeError('{} is not the Conf2 Sequence, ComponentAccumulator handles only the former'.format(newseq.name()))
+            raise ConfigurationError('{} is not the Conf2 Sequence, ComponentAccumulator handles only the former'.format(newseq.name()))
 
         if not isSequence(newseq):
-            raise TypeError('{} is not a sequence'.format(newseq.name))
+            raise TypeError('%s is not a sequence' % newseq.name)
 
         if parentName is None:
             parent=self._sequence
@@ -822,6 +823,8 @@ def __setProperties( destConfigurableInstance, sourceConf2Instance, indent="" ):
             _log.debug( "{}Set the property {}  that is private tool {} ".format( indent,  pname, destConfigurableInstance.name() ) )
             setattr( destConfigurableInstance, pname, conf2toConfigurable( pvalue, indent=__indent( indent ) ) )
         else: # plain data
+            if isinstance(pvalue,(GaudiConfig2.semantics._ListHelper,GaudiConfig2.semantics._DictHelper)):
+                pvalue=pvalue.data
             try: #sometimes values are not printable
                 _log.debug( "{}Setting property {} to value {}".format( indent, pname, pvalue ) )
             except Exception:
@@ -874,6 +877,8 @@ def conf2toConfigurable( comp, indent="" ):
                 if instance:
                     setattr( destConf2Instance, prop, __configurableToConf2(instance, __indent(indent)) )
             else:
+                if isinstance(value,(GaudiConfig2.semantics._ListHelper,GaudiConfig2.semantics._DictHelper)):
+                    value=value.data
                 setattr( destConf2Instance, prop, value )
 
     def __findConfigurableClass( name ):
@@ -913,12 +918,17 @@ def conf2toConfigurable( comp, indent="" ):
                 _log.debug( "{} {}".format( indent, dir(pvalue) ) )
                 __areSettingsSame( getattr(existingConfigurableInstance, pname), pvalue, __indent(indent))
             else:
+                if isinstance(pvalue,(GaudiConfig2.semantics._ListHelper,GaudiConfig2.semantics._DictHelper)):
+                    pvalue=pvalue.data
+
                 if alreadySetProperties[pname] != pvalue:
                     _log.info("{}Merging property: {} for {}".format(__indent(indent), pname, newConf2Instance.getName() ))
                     # create surrogate
                     clone = newConf2Instance.getInstance("Clone")
                     setattr(clone, pname, alreadySetProperties[pname])
                     updatedPropValue = newConf2Instance._descriptors[pname].semantics.merge( getattr(newConf2Instance, pname), getattr(clone, pname))
+                    if isinstance(updatedPropValue,(GaudiConfig2.semantics._ListHelper,GaudiConfig2.semantics._DictHelper)):
+                        updatedPropValue=updatedPropValue.data
                     setattr(existingConfigurable, pname, updatedPropValue)
                     del clone
                     _log.info("{} invoked GaudiConf2 semantics to merge the {} and the {} to {} for property {} of {}".format(

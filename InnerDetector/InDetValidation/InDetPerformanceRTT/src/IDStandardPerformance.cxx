@@ -4158,8 +4158,6 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 	  }
 	  */
 
-	  Identifier TrkSurfaceID;
-
 
 	  //iterate over pixel hits on tracks
 	  //make vectors of eta, phi and disk layer coord. of hits

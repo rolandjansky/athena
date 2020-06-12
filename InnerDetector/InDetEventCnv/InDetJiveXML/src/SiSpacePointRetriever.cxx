@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetJiveXML/SiSpacePointRetriever.h"
@@ -28,8 +28,8 @@ namespace JiveXML
    **/
   SiSpacePointRetriever::SiSpacePointRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    m_typeName("S3D"),
-    m_geo("JiveXML::InDetGeoModelTool/InDetGeoModelTool",this){
+    m_typeName("S3D")
+  {
 
     //Declare the interface
     declareInterface<IDataRetriever>(this);

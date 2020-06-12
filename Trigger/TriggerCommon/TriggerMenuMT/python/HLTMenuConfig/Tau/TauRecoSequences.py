@@ -140,9 +140,11 @@ def tauCaloSequence(ConfigFlags):
 
     tauCaloRecoVDV = CfgMgr.AthViews__ViewDataVerifier( "tauCaloRecoVDV" )
     tauCaloRecoVDV.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+TAUCaloRoIs' ),
-                                     ( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' ),
-                                     ( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' ),
-                                     ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+                                  ( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' ),
+                                  ( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' ),
+                                  ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
+                                  ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.ActIntPerXDecor' ),
+                                  ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.AveIntPerXDecor' )]
     tauCaloInViewSequence += tauCaloRecoVDV
 
     # Make sure the required objects are still available at whole-event level
@@ -174,7 +176,9 @@ def tauCaloMVASequence(ConfigFlags):
     tauCaloMVARecoVDV.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+TAUCaloRoIs' ),
                                      ( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' ),
                                      ( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' ),
-                                     ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+                                     ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
+                                     ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.ActIntPerXDecor' ),
+                                     ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.AveIntPerXDecor' )]
     tauCaloMVAInViewSequence += tauCaloMVARecoVDV
 
     # Make sure the required objects are still available at whole-event level
@@ -222,6 +226,8 @@ def tauIdTrackSequence( RoIs , name):
     viewVerify.DataObjects += [( 'xAOD::TauTrackContainer' , 'StoreGateSvc+HLT_tautrack_dummy' ),
                                ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+' + RoIs ),
                                ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
+                               ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.AveIntPerXDecor' ),
+                               ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.ActIntPerXDecor' ),
                                ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+TAUCaloRoIs' ),
                                ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnly' )]
 

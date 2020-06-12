@@ -14,7 +14,6 @@
 #include "MuonSimEvent/MicromegasHitIdHelper.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MMReadoutElement.h"
-#include "MuonIdHelpers/MmIdHelper.h"
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "MuonAGDDDescription/MMDetectorDescription.h"
 #include "MuonAGDDDescription/MMDetectorHelper.h"

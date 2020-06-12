@@ -38,13 +38,13 @@ namespace Trk
 
     /** @brief run DAF on the full trajectory, starting from first fittable state and
                parameters therein, do not do last smoother */
-    virtual const FitterStatusCode
+    virtual FitterStatusCode
       filterTrajectory (Trajectory& trajectory,
                         const ParticleHypothesis& ) const =0;
 
     /** @brief run DAT on a piece of the current trajectory, starting from start and
                until size is reached, modifying the pred/upd parameters, do not do last smoother  */
-    virtual const FitterStatusCode
+    virtual FitterStatusCode
       filterTrajectoryPiece (Trajectory& trajectory,
                              Trajectory::iterator&,
                              const TrackParameters*&,

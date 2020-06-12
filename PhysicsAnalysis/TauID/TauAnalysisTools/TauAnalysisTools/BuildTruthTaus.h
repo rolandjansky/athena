@@ -102,8 +102,6 @@ private:
   void printDecay(const xAOD::TruthParticle& xTruthParticle, int depth = 0) const;
 
 protected:
-  bool isData();
-  int m_bIsData;
 
   // steering variables
   bool m_bWriteTruthTaus;

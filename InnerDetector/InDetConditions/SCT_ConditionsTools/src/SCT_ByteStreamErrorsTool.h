@@ -109,7 +109,8 @@ private:
     // infomations in granularity of Chips
     // misisng value mean that the map need updating
     // 0 as the value denotes no error
-    // bit 0 is for chip 0 on side 0, bit 1 is for chip 1 on side 0, ..., and bit 11 is for chip 5 on side 1
+    // error encoding is as follows: pattern for a module has length of 6 bits, side 0 is encoded in bits 0-5, side 1 in bits 6-11
+    // so bit 0 is for chip 0 on side 0, bit 1 is for chip 1 on side 0, ..., and bit 11 is for chip 5 on side 1
     std::map<Identifier, unsigned int> tempMaskedChips;
     std::map<Identifier, unsigned int> abcdErrorChips;
 

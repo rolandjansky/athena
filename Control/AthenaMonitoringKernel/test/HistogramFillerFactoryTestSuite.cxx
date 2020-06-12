@@ -90,6 +90,7 @@ class HistogramFillerFactoryTestSuite {
     }
 
     void test_shouldCreateStaticHistogramFiller1D() {
+      m_histDef->type = "TH1F";
       performCreateFillerAndVerify<HistogramFiller1D, StaticHistogramProvider>();
     }
 
@@ -105,6 +106,7 @@ class HistogramFillerFactoryTestSuite {
 
     void test_shouldCreateStaticHistogramFillerRebinable1D() {
       m_histDef->kAddBinsDynamically = true;
+      m_histDef->type = "TH1F";
       performCreateFillerAndVerify<HistogramFillerRebinable1D, StaticHistogramProvider>();
     }
 

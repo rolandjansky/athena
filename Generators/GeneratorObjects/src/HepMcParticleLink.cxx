@@ -258,7 +258,7 @@ HepMcParticleLink::index_type HepMcParticleLink::eventIndex() const
         }
         if(event_number>-1) {
           index = static_cast<index_type>(event_number);
-          m_extBarcode.makeIndex (index, HepMcParticleLink::IS_INDEX);
+          m_extBarcode.makeIndex (index, position);
           return index;
         }
       }

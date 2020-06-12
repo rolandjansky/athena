@@ -1,24 +1,16 @@
+// Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: RingSet_v1.h 670601 2015-05-28 14:22:49Z wsfreund $
 #ifndef XAODCALORINGS_VERSIONS_RINGSET_V1_H
 #define XAODCALORINGS_VERSIONS_RINGSET_V1_H
 
 // std includes:
 #include <vector>
-#include <memory>
-#include <ostream>
-#include <algorithm>
-
-// Athena framework includes:
-#include "AsgTools/MsgStream.h"
+#include <iosfwd>
 
 // EDM include(s):
 #include "AthContainers/AuxElement.h"
-#include "xAODCore/AuxStoreAccessorMacros.h"
-
 #include "xAODCaloRings/CaloRingsDefs.h"
 
 namespace xAOD {
@@ -35,8 +27,6 @@ namespace xAOD {
  * @author Danilo Enoque Ferreira de Lima
  *             (first implementation)
  *
- * $Revision: 670601 $
- * $Date: 2015-05-28 16:22:49 +0200 (Thu, 28 May 2015) $
  **/
 class RingSet_v1 : public SG::AuxElement {
 
@@ -143,10 +133,6 @@ class RingSet_v1 : public SG::AuxElement {
     /// @}
 
     /// @{ Print @name RingSet_v1 methods:
-    /**
-     * @brief Print @name RingSet_v1 using AsgTool MsgStream:
-     **/
-    void print( MsgStream &stream, MSG::Level level = MSG::DEBUG ) const;
     /**
      * @brief Print @name RingSet_v1 using ostream:
      **/

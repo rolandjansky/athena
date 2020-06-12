@@ -56,7 +56,7 @@ def plotLineChart(params):
   ax.set_xlabel(params['xlabel'])
   ax.set_ylabel(params['ylabel'])
 
-  ax.set_xticklabels(params['xVals'])
+  ax.set_xticklabels(params['xVals'], rotation='vertical')
   ax.tick_params(axis='both', which='major', labelsize=10)
   ax.set_title(params['title'])
   ax.legend()

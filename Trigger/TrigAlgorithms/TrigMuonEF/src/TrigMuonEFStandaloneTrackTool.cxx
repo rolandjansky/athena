@@ -2548,7 +2548,7 @@ int TrigMuonEFStandaloneTrackTool::segmentMonitoring(const std::vector< const Mu
       Trk::RIO_OnTrack* rio = const_cast<Trk::RIO_OnTrack*> ((*segment)->rioOnTrack(irio));
       if(!rio) continue;
       Identifier rioId = rio->identify();
-      if(m_idHelperSvc->mdtIdHelper().is_mdt(rioId)) {
+      if(m_idHelperSvc->isMdt(rioId)) {
 	nMdt++;
 	const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(rio);
 	if(mdt!=0){

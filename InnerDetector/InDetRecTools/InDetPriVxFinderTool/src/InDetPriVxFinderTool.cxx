@@ -99,7 +99,7 @@ namespace InDet
   StatusCode
   InDetPriVxFinderTool::initialize() {
     //check if the split was requested and it is still possible to make it
-    if (m_createSplitVertices == true && m_useBeamConstraint == true) {
+    if (m_createSplitVertices && m_useBeamConstraint) {
       ATH_MSG_FATAL(" Split vertices cannot be obtained if beam spot constraint is true! Change settings..." );
       return StatusCode::FAILURE;
     }
@@ -118,7 +118,7 @@ namespace InDet
   }
 
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-  InDetPriVxFinderTool::findVertex(const TrackCollection* trackTES) {
+  InDetPriVxFinderTool::findVertex(const TrackCollection* trackTES) const {
     //    std::cout<<" find vertex called "<<std::endl;
 
     // TODO: change trkFilter to allow for this replacement
@@ -209,7 +209,7 @@ namespace InDet
       std::vector<Trk::VxTrackAtVertex>* tmpVxTAVtx = &(*vxContItr)->vxTrackAtVertex();
       for (std::vector<Trk::VxTrackAtVertex>::iterator itr = tmpVxTAVtx->begin(); itr != tmpVxTAVtx->end(); itr++) {
         const Trk::TrackParameters* initialPerigee = (*itr).initialPerigee();
-        const Trk::Track* correspondingTrack(0);
+        const Trk::Track* correspondingTrack(nullptr);
         // find the track to that perigee ...
         for (TrackCollection::const_iterator itr1 = trackTES->begin(); itr1 != trackTES->end(); itr1++) {
           if (initialPerigee == (*itr1)->perigeeParameters()) {
@@ -219,7 +219,7 @@ namespace InDet
         }
 
         // validate the track link
-        if (correspondingTrack != 0) {
+        if (correspondingTrack != nullptr) {
           Trk::LinkToTrack* link = new Trk::LinkToTrack;
           link->setStorableObject(*trackTES);
           link->setElement(correspondingTrack);
@@ -235,7 +235,7 @@ namespace InDet
   }
 
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-  InDetPriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection* trackTES) {
+  InDetPriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection* trackTES) const {
     //    std::cout<<"Calling find vertex from trackparticles "<<std::endl;
 
     // TODO: change trkFilter to allow for this replacement
@@ -285,7 +285,7 @@ namespace InDet
           --rem_size;
         }//end of loop over all the pre-selected tracks
 
-        if (right_seed.size() && left_seed.size()) {
+        if (!right_seed.empty() && !left_seed.empty()) {
           seedsVector.push_back(right_seed);
           seedsVector.push_back(left_seed);
 
@@ -330,7 +330,7 @@ namespace InDet
       std::vector<Trk::VxTrackAtVertex>* tmpVxTAVtx = &(*vxContItr)->vxTrackAtVertex();
       for (std::vector<Trk::VxTrackAtVertex>::iterator itr = tmpVxTAVtx->begin(); itr != tmpVxTAVtx->end(); itr++) {
         const Trk::TrackParameters* initialPerigee = (*itr).initialPerigee();
-        const Trk::TrackParticleBase* correspondingTrack(0);
+        const Trk::TrackParticleBase* correspondingTrack(nullptr);
         // find the track to that perigee ...
         for (Trk::TrackParticleBaseCollection::const_iterator itr1 = trackTES->begin(); itr1 != trackTES->end();
         itr1++) {
@@ -342,12 +342,15 @@ namespace InDet
           }
         }
 
-        if (correspondingTrack != 0) {
+        if (correspondingTrack != nullptr) {
           Trk::LinkToTrackParticleBase* link = new Trk::LinkToTrackParticleBase;
           link->setStorableObject(*trackTES);
           link->setElement(correspondingTrack);
           (*itr).setOrigTrack(link);
-        } else if (msgLvl(MSG::WARNING)) msg() << "No corresponding track found for this initial perigee! Vertex will have no link to the track." << endmsg;
+        } else if (msgLvl(MSG::WARNING))
+          msg() << "No corresponding track found for this initial perigee! "
+                   "Vertex will have no link to the track."
+                << endmsg;
         // TODO: also mention that links stored directly in xAOD::Vertices are not set because a
         // TrackParticleBaseCollection was given as input
       }
@@ -358,7 +361,9 @@ namespace InDet
   }
 
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-  InDetPriVxFinderTool::findVertex(const xAOD::TrackParticleContainer* trackParticles) {
+  InDetPriVxFinderTool::findVertex(
+    const xAOD::TrackParticleContainer* trackParticles) const
+  {
     ATH_MSG_DEBUG(" Number of input tracks before track selection: " << trackParticles->size());
     SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
     
@@ -425,7 +430,7 @@ namespace InDet
       //assigning the input tracks to the fitted vertices through VxTrackAtVertices
       for (std::vector<Trk::VxTrackAtVertex>::iterator itr = tmpVxTAVtx->begin(); itr != tmpVxTAVtx->end(); itr++) {
         const Trk::TrackParameters* initialPerigee = (*itr).initialPerigee();
-        const xAOD::TrackParticle* correspondingTrack(0);
+        const xAOD::TrackParticle* correspondingTrack(nullptr);
         // find the track to that perigee ...
         for (TrackParticleDataVecIter itr1 = trackParticles->begin(); itr1 != trackParticles->end(); ++itr1) {
           if (initialPerigee == &(*itr1)->perigeeParameters()) {
@@ -434,7 +439,7 @@ namespace InDet
           }
         }
         // validate the track link
-        if (correspondingTrack != 0) {
+        if (correspondingTrack != nullptr) {
           Trk::LinkToXAODTrackParticle* link = new Trk::LinkToXAODTrackParticle;
           link->setStorableObject(*trackParticles);
           link->setElement(correspondingTrack);
@@ -469,7 +474,9 @@ namespace InDet
   }
 
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-  InDetPriVxFinderTool::findVertex(std::vector< std::vector<const Trk::TrackParameters*> >& zTrackColl) {
+  InDetPriVxFinderTool::findVertex(
+    std::vector<std::vector<const Trk::TrackParameters*>>& zTrackColl) const
+  {
     //---- Constraint vertex section: if enabled in jobOptions a constraint is assigned --//
     Amg::Vector3D vertex = Amg::Vector3D(0., 0., 0.); //for fit() we need Amg::Vector3D or Trk::RecVertex
     std::vector<Trk::VxTrackAtVertex>* trkAtVtx = nullptr;
@@ -483,12 +490,12 @@ namespace InDet
     std::map<double, xAOD::Vertex*> vertexMap;
     std::vector<xAOD::Vertex*> splitVtxVector;
     double vertexPt;
-    xAOD::Vertex* myxAODVertex = 0;
+    xAOD::Vertex* myxAODVertex = nullptr;
     SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
     for (unsigned int i = 0; i < zTrackColl.size(); i++) {
       // std::cout<<"Inside the loop"<<std::endl;
       if (msgLvl(MSG::DEBUG)) msg() << "Fitting vertex of Z-Cluster " << i << " with " << zTrackColl[i].size() << " Tracks" << endmsg;
-      myxAODVertex = 0;
+      myxAODVertex = nullptr;
       std::vector<const Trk::TrackParameters*> origParameters;
       origParameters.clear();
       origParameters = zTrackColl[i];
@@ -553,7 +560,7 @@ namespace InDet
             // delete old xAOD::Vertex first
             if (myxAODVertex) {
               delete myxAODVertex;
-              myxAODVertex = 0;
+              myxAODVertex = nullptr;
             }
             if (msgLvl(MSG::VERBOSE)) msg() << "Second call of fitting tool!" << endmsg;
             if (m_useBeamConstraint) {
@@ -586,7 +593,7 @@ namespace InDet
 
               // delete old xAOD::Vertex first
               delete myxAODVertex;
-              myxAODVertex = 0;
+              myxAODVertex = nullptr;
 
 
               if (msgLvl(MSG::VERBOSE)) msg() << "Second call of fitting tool!" << endmsg;
@@ -644,7 +651,7 @@ namespace InDet
         }//end of successful reconstruction check
       } else if (myxAODVertex) {
         delete myxAODVertex;
-        myxAODVertex = 0;
+        myxAODVertex = nullptr;
       }
     }//end of loop over the pre-defined seeds
     //no sorting for the split vertices  -otherwise, why splitting at all?
@@ -668,7 +675,7 @@ namespace InDet
         theVertexContainer->push_back(*l_vt);
     //---- add dummy vertex at the end ------------------------------------------------------//
     //---- if one or more vertices are already there: let dummy have same position as primary vertex
-    if (theVertexContainer->size() >= 1 && !m_createSplitVertices) {
+    if (!theVertexContainer->empty() && !m_createSplitVertices) {
       xAOD::Vertex* primaryVtx = theVertexContainer->front();
       primaryVtx->setVertexType(xAOD::VxType::PriVtx);
       xAOD::Vertex* dummyxAODVertex = new xAOD::Vertex;
@@ -689,7 +696,7 @@ namespace InDet
       dummyxAODVertex->setVertexType(xAOD::VxType::NoVtx);
     }
     //---- if no vertex is there let dummy be at beam spot
-    else if (theVertexContainer->size() == 0) {
+    else if (theVertexContainer->empty()) {
       // std::cout<<"Zero size vx container! "<<std::endl;
       xAOD::Vertex* dummyxAODVertex = new xAOD::Vertex;
       theVertexContainer->push_back(dummyxAODVertex); // have to add vertex to container here first so it can use its
@@ -716,7 +723,7 @@ namespace InDet
       }
     }
     return std::make_pair(theVertexContainer, theVertexAuxContainer);
-  }//end m_find vertex ethod
+  } // end m_find vertex ethod
 
   StatusCode
   InDetPriVxFinderTool::finalize() {
@@ -724,7 +731,9 @@ namespace InDet
   }
 
   void
-  InDetPriVxFinderTool::sortTracksInChi2(std::vector<int>& indexOfSortedChi2, xAOD::Vertex* myxAODVertex) {
+  InDetPriVxFinderTool::sortTracksInChi2(std::vector<int>& indexOfSortedChi2,
+                                         xAOD::Vertex* myxAODVertex) const
+  {
     // we need an index vector here which tells us the right order from smallest to
     // largest of the chi2PerTrack vector
     // then loop over the index vector and replace all iRP with iRP = index[i]
@@ -753,10 +762,13 @@ namespace InDet
       indexOfSortedChi2.push_back((*mItr).second);
     }
     // std::cout<<"Sorting performed "<<std::endl;
-  }//end of sort method
+  } // end of sort method
 
   void
-  InDetPriVxFinderTool::sortTracksInZ0(std::vector<const Trk::TrackParameters*> tv, std::vector<int>& indexOfSortedZ0) {
+  InDetPriVxFinderTool::sortTracksInZ0(
+    std::vector<const Trk::TrackParameters*> tv,
+    std::vector<int>& indexOfSortedZ0) const
+  {
     // we need an index vector here which tells us the right order from smallest to
     // largest of the z0 vector
     // then loop over the index vector and replace all iRP with iRP = index[i]

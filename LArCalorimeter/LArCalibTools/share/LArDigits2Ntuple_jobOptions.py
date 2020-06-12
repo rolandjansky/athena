@@ -137,7 +137,7 @@ if not 'FullFileName' in dir():
    theApp.exit(-1)
 
 else :   
-   theByteStreamInputSvc.FullFileName=FullFileName
+   svcMgr.EventSelector.Input=FullFileName
    
 scvMgr.EventSelector.MaxBadEvents = 0
 svcMgr.ByteStreamCnvSvc.InitCnvs += [ "EventInfo"]

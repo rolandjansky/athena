@@ -17,117 +17,212 @@
 //
 namespace InDet {
 
-  void InDetVKalPriVxFinderTool::CleanTrkSet(std::vector<const Trk::TrackParticleBase*>& ListParticles,
-                                             std::vector<const Trk::Track*>& ListTracks,
-                                             Amg::Vector3D  &FitVertex,
-                                             std::vector<double> &Chi2PerTrk,
-                                             std::vector<const Trk::TrackParticleBase*>& badPart,
-                                             std::vector<const Trk::Track*>& badTrk)
-  {
-      int Selector=2;   // Initial choice
-      int NTracksVrt = 0;
-      badPart.clear(); badTrk.clear();
-      const bool particlesExist{!ListParticles.empty()};
-      const bool tracksExist{!ListTracks.empty()};
-      if( (not particlesExist) and (not tracksExist))return;
-      if( particlesExist and (not tracksExist)){ Selector =1; NTracksVrt=ListParticles.size(); }
-      if( (not particlesExist) and tracksExist){ Selector =2; NTracksVrt=ListTracks.size();}
-      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "CleanTrkSet() called. Total tracks= " << NTracksVrt<< endmsg;
-      if( NTracksVrt<10 ) return;  //nothing to do
-//
-//
-// Cleaning
-//
-      int it,jt;
-      std::vector<int> setOfBadTrk;
-      std::vector<const Trk::TrackParticleBase*> ListP(2);
-      std::vector<const Trk::Track*>             ListT(2);
-      std::vector<double> trkChi2,ErrorMatrix;
-      std::vector< std::vector<double> > tmpAtV; 
-      Amg::Vector3D  tmpFV;
-      double tmpChi2;
-      std::unique_ptr<Trk::IVKalState> state = m_fitSvc->makeState();
-      for(it=0; it<NTracksVrt-1; it++){
-        if(Chi2PerTrk[it]< 2.) continue;  
-        for(jt=it+1; jt<NTracksVrt; jt++){
-           if(Chi2PerTrk[jt]< 2.) continue;  
-           if(Chi2PerTrk[it]+Chi2PerTrk[jt] < 10.) continue;   //too close pair
-           if(Selector==1){ ListP[0]=ListParticles[it]; ListP[1]=ListParticles[jt];
-              m_sc=m_fitSvc->VKalVrtFit(ListP,tmpFV, m_Momentum,m_Charge,ErrorMatrix,trkChi2,tmpAtV,tmpChi2,*state);}
-           if(Selector==2){ ListT[0]=ListTracks[it]; ListT[1]=ListTracks[jt];
-              m_sc=m_fitSvc->VKalVrtFit(ListT,tmpFV, m_Momentum,m_Charge,ErrorMatrix,trkChi2,tmpAtV,tmpChi2,*state);}
-           if(tmpChi2<1.0) {                                           // Good pair away from primary vertex found
-             double direction = (tmpFV.x()-FitVertex.x())*m_Momentum.Px()+
-                               +(tmpFV.y()-FitVertex.y())*m_Momentum.Py()+
-                               +(tmpFV.z()-FitVertex.z())*m_Momentum.Pz();
-             double det=ErrorMatrix[0]*ErrorMatrix[2]-ErrorMatrix[1]*ErrorMatrix[1];
-	     double wgt11 = ErrorMatrix[2]/det;
-	     double wgt22 = ErrorMatrix[0]/det;
-	     double wgt12 =-ErrorMatrix[1]/det;
-             double distR =sqrt(    (tmpFV.x()-FitVertex.x())*(tmpFV.x()-FitVertex.x())*wgt11
-                                +   (tmpFV.y()-FitVertex.y())*(tmpFV.y()-FitVertex.y())*wgt22
-				+2.*(tmpFV.x()-FitVertex.x())*(tmpFV.y()-FitVertex.y())*wgt12 );
-             double distZ =fabs(tmpFV.z()-FitVertex.z())/sqrt(ErrorMatrix[5]);
-	     if(distR<6.0)continue;
-	     if(direction<0)continue;
-	     if(distZ<4.0)continue;
+void
+InDetVKalPriVxFinderTool::CleanTrkSet(
+  Cache& cache,
+  std::vector<const Trk::TrackParticleBase*>& ListParticles,
+  std::vector<const Trk::Track*>& ListTracks,
+  Amg::Vector3D& FitVertex,
+  std::vector<double>& Chi2PerTrk,
+  std::vector<const Trk::TrackParticleBase*>& badPart,
+  std::vector<const Trk::Track*>& badTrk) const
+{
+  int Selector = 2; // Initial choice
+  int NTracksVrt = 0;
+  badPart.clear();
+  badTrk.clear();
+  const bool particlesExist{ !ListParticles.empty() };
+  const bool tracksExist{ !ListTracks.empty() };
+  if ((not particlesExist) and (not tracksExist))
+    return;
+  if (particlesExist and (not tracksExist)) {
+    Selector = 1;
+    NTracksVrt = ListParticles.size();
+  }
+  if ((not particlesExist) and tracksExist) {
+    Selector = 2;
+    NTracksVrt = ListTracks.size();
+  }
+  if (msgLvl(MSG::DEBUG))
+    msg(MSG::DEBUG) << "CleanTrkSet() called. Total tracks= " << NTracksVrt
+                    << endmsg;
+  if (NTracksVrt < 10)
+    return; // nothing to do
+  //
+  //
+  // Cleaning
+  //
+  int it, jt;
+  std::vector<int> setOfBadTrk;
+  std::vector<const Trk::TrackParticleBase*> ListP(2);
+  std::vector<const Trk::Track*> ListT(2);
+  std::vector<double> trkChi2, ErrorMatrix;
+  std::vector<std::vector<double>> tmpAtV;
+  Amg::Vector3D tmpFV;
+  double tmpChi2;
+  std::unique_ptr<Trk::IVKalState> state = m_fitSvc->makeState();
+  for (it = 0; it < NTracksVrt - 1; it++) {
+    if (Chi2PerTrk[it] < 2.)
+      continue;
+    for (jt = it + 1; jt < NTracksVrt; jt++) {
+      if (Chi2PerTrk[jt] < 2.)
+        continue;
+      if (Chi2PerTrk[it] + Chi2PerTrk[jt] < 10.)
+        continue; // too close pair
+      if (Selector == 1) {
+        ListP[0] = ListParticles[it];
+        ListP[1] = ListParticles[jt];
+        cache.m_sc = m_fitSvc->VKalVrtFit(ListP,
+                                    tmpFV,
+                                    cache.m_Momentum,
+                                    cache.m_Charge,
+                                    ErrorMatrix,
+                                    trkChi2,
+                                    tmpAtV,
+                                    tmpChi2,
+                                    *state);
+      }
+      if (Selector == 2) {
+        ListT[0] = ListTracks[it];
+        ListT[1] = ListTracks[jt];
+        cache.m_sc = m_fitSvc->VKalVrtFit(ListT,
+                                    tmpFV,
+                                    cache.m_Momentum,
+                                    cache.m_Charge,
+                                    ErrorMatrix,
+                                    trkChi2,
+                                    tmpAtV,
+                                    tmpChi2,
+                                    *state);
+      }
+      if (tmpChi2 < 1.0) { // Good pair away from primary vertex found
+        double direction = (tmpFV.x() - FitVertex.x()) * cache.m_Momentum.Px() +
+                           +(tmpFV.y() - FitVertex.y()) * cache.m_Momentum.Py() +
+                           +(tmpFV.z() - FitVertex.z()) * cache.m_Momentum.Pz();
+        double det =
+          ErrorMatrix[0] * ErrorMatrix[2] - ErrorMatrix[1] * ErrorMatrix[1];
+        double wgt11 = ErrorMatrix[2] / det;
+        double wgt22 = ErrorMatrix[0] / det;
+        double wgt12 = -ErrorMatrix[1] / det;
+        double distR = sqrt(
+          (tmpFV.x() - FitVertex.x()) * (tmpFV.x() - FitVertex.x()) * wgt11 +
+          (tmpFV.y() - FitVertex.y()) * (tmpFV.y() - FitVertex.y()) * wgt22 +
+          2. * (tmpFV.x() - FitVertex.x()) * (tmpFV.y() - FitVertex.y()) *
+            wgt12);
+        double distZ = fabs(tmpFV.z() - FitVertex.z()) / sqrt(ErrorMatrix[5]);
+        if (distR < 6.0)
+          continue;
+        if (direction < 0)
+          continue;
+        if (distZ < 4.0)
+          continue;
 
-	     setOfBadTrk.push_back(it); setOfBadTrk.push_back(jt);
-	   }
-         }
+        setOfBadTrk.push_back(it);
+        setOfBadTrk.push_back(jt);
       }
-      m_fitSvc->setVertexForConstraint(m_BeamCnst[0],m_BeamCnst[1], FitVertex.z(),*state);
-      m_fitSvc->setCovVrtForConstraint(m_BeamCnstWid[0]*m_BeamCnstWid[0], 0., m_BeamCnstWid[1]*m_BeamCnstWid[1], 0., 0., 56.*56., *state);
-      m_fitSvc->setCnstType(6, *state);
-      ListP.resize(1); ListT.resize(1);
-      for(it=0; it<NTracksVrt; it++){
-         if(Chi2PerTrk[it] < 4.) continue;
-         if(Selector==1){ ListP[0]=ListParticles[it];
-            m_sc=m_fitSvc->VKalVrtFit(ListP,tmpFV, m_Momentum,m_Charge,ErrorMatrix,trkChi2,tmpAtV,tmpChi2,*state);}
-         if(Selector==2){ ListT[0]=ListTracks[it]; 
-            m_sc=m_fitSvc->VKalVrtFit(ListT,tmpFV, m_Momentum,m_Charge,ErrorMatrix,trkChi2,tmpAtV,tmpChi2,*state);}
-         if(tmpChi2<0.5)setOfBadTrk.push_back(it);
-       }
-//
-// Bad track removal      
-//
-      ListP.clear(); ListT.clear(); badPart.clear(); badTrk.clear();
-      if( setOfBadTrk.empty()) return;   //nothing found
-//
-      for(it=0; it<NTracksVrt; it++){
-        std::vector<int>::iterator found = find(setOfBadTrk.begin(), setOfBadTrk.end(), it);
-        if(found != setOfBadTrk.end()){
-	  if(Selector==1)badPart.push_back(ListParticles[it]);
-	  if(Selector==2)badTrk.push_back(ListTracks[it]);
-        }else{
-	  if(Selector==1)ListP.push_back(ListParticles[it]);
-	  if(Selector==2)ListT.push_back(ListTracks[it]);
-        }
-      }
-//
-      if(Selector==1) if(ListP.size()<badPart.size()) return; //protection
-      if(Selector==2) if(ListT.size()<badTrk.size()) return; //protection
-//
-      if(Selector==1){ 
-         ListParticles.resize(ListP.size()); copy(ListP.begin(),ListP.end(),ListParticles.begin());
-         std::vector<const Trk::TrackParticleBase*>::iterator last=unique(badPart.begin(),badPart.end()); 
-         badPart.erase(last,badPart.end());
-      }
-      if(Selector==2){ 
-         ListTracks.resize(ListT.size());    copy(ListT.begin(),ListT.end(),ListTracks.begin());
-         std::vector<const Trk::Track*>::iterator last=unique(badTrk.begin(),badTrk.end()); 
-         badTrk.erase(last,badTrk.end());
-      }
-      return;
+    }
+  }
+  m_fitSvc->setVertexForConstraint(
+    cache.m_BeamCnst[0], cache.m_BeamCnst[1], FitVertex.z(), *state);
+  m_fitSvc->setCovVrtForConstraint(cache.m_BeamCnstWid[0] * cache.m_BeamCnstWid[0],
+                                   0.,
+                                   cache.m_BeamCnstWid[1] * cache.m_BeamCnstWid[1],
+                                   0.,
+                                   0.,
+                                   56. * 56.,
+                                   *state);
+  m_fitSvc->setCnstType(6, *state);
+  ListP.resize(1);
+  ListT.resize(1);
+  for (it = 0; it < NTracksVrt; it++) {
+    if (Chi2PerTrk[it] < 4.)
+      continue;
+    if (Selector == 1) {
+      ListP[0] = ListParticles[it];
+      cache.m_sc = m_fitSvc->VKalVrtFit(ListP,
+                                  tmpFV,
+                                  cache.m_Momentum,
+                                  cache.m_Charge,
+                                  ErrorMatrix,
+                                  trkChi2,
+                                  tmpAtV,
+                                  tmpChi2,
+                                  *state);
+    }
+    if (Selector == 2) {
+      ListT[0] = ListTracks[it];
+      cache.m_sc = m_fitSvc->VKalVrtFit(ListT,
+                                  tmpFV,
+                                  cache.m_Momentum,
+                                  cache.m_Charge,
+                                  ErrorMatrix,
+                                  trkChi2,
+                                  tmpAtV,
+                                  tmpChi2,
+                                  *state);
+    }
+    if (tmpChi2 < 0.5)
+      setOfBadTrk.push_back(it);
+  }
+  //
+  // Bad track removal
+  //
+  ListP.clear();
+  ListT.clear();
+  badPart.clear();
+  badTrk.clear();
+  if (setOfBadTrk.empty())
+    return; // nothing found
+  //
+  for (it = 0; it < NTracksVrt; it++) {
+    std::vector<int>::iterator found =
+      find(setOfBadTrk.begin(), setOfBadTrk.end(), it);
+    if (found != setOfBadTrk.end()) {
+      if (Selector == 1)
+        badPart.push_back(ListParticles[it]);
+      if (Selector == 2)
+        badTrk.push_back(ListTracks[it]);
+    } else {
+      if (Selector == 1)
+        ListP.push_back(ListParticles[it]);
+      if (Selector == 2)
+        ListT.push_back(ListTracks[it]);
+    }
+  }
+  //
+  if (Selector == 1)
+    if (ListP.size() < badPart.size())
+      return; // protection
+  if (Selector == 2)
+    if (ListT.size() < badTrk.size())
+      return; // protection
+  //
+  if (Selector == 1) {
+    ListParticles.resize(ListP.size());
+    copy(ListP.begin(), ListP.end(), ListParticles.begin());
+    std::vector<const Trk::TrackParticleBase*>::iterator last =
+      unique(badPart.begin(), badPart.end());
+    badPart.erase(last, badPart.end());
+  }
+  if (Selector == 2) {
+    ListTracks.resize(ListT.size());
+    copy(ListT.begin(), ListT.end(), ListTracks.begin());
+    std::vector<const Trk::Track*>::iterator last =
+      unique(badTrk.begin(), badTrk.end());
+    badTrk.erase(last, badTrk.end());
+  }
+  return;
   }
 
-
-  double InDetVKalPriVxFinderTool::FitCommonVrt(std::vector<const Trk::TrackParticleBase*>& ListParticles,
-                                                std::vector<const Trk::Track*>& ListTracks,
-			                        double ZEstimation,
-	                                        Amg::Vector3D           & FitVertex,
-                                                std::vector<double>  & ErrorMatrix,
-				                std::vector<double>  & TrkWeights)
+  double
+  InDetVKalPriVxFinderTool::FitCommonVrt(
+    Cache& cache,
+    std::vector<const Trk::TrackParticleBase*>& ListParticles,
+    std::vector<const Trk::Track*>& ListTracks,
+    double ZEstimation,
+    Amg::Vector3D& FitVertex,
+    std::vector<double>& ErrorMatrix,
+    std::vector<double>& TrkWeights) const
   {
       int Selector=2;   // Initial choice
       int NTracksVrt = 0;
@@ -146,10 +241,10 @@ namespace InDet {
 // Start of fit
 //
       std::unique_ptr<Trk::IVKalState> state = m_fitSvc->makeState();
-      m_fitSvc->setApproximateVertex(m_BeamCnst[0],m_BeamCnst[1],ZEstimation, *state);  /* Use as starting point */
+      m_fitSvc->setApproximateVertex(cache.m_BeamCnst[0],cache.m_BeamCnst[1],ZEstimation, *state);  /* Use as starting point */
       if(m_BeamConstraint) {
-         m_fitSvc->setVertexForConstraint(m_BeamCnst[0],m_BeamCnst[1],ZEstimation,*state);
-         m_fitSvc->setCovVrtForConstraint(m_BeamCnstWid[0]*m_BeamCnstWid[0], 0., m_BeamCnstWid[1]*m_BeamCnstWid[1], 0., 0., 56.*56., *state);
+         m_fitSvc->setVertexForConstraint(cache.m_BeamCnst[0],cache.m_BeamCnst[1],ZEstimation,*state);
+         m_fitSvc->setCovVrtForConstraint(cache.m_BeamCnstWid[0]*cache.m_BeamCnstWid[0], 0., cache.m_BeamCnstWid[1]*cache.m_BeamCnstWid[1], 0., 0., 56.*56., *state);
 	 m_fitSvc->setCnstType(6, *state);
       }
       //m_fitSvc->setRobustness(m_TypeRobust);
@@ -160,22 +255,22 @@ namespace InDet {
 //
       int IterationLimit=NTracksVrt-1; if(IterationLimit<1)IterationLimit=1;
       for (i=0; i < IterationLimit; i++) {
-         if(Selector==1){ m_sc=m_fitSvc->VKalVrtFit(ListParticles,FitVertex, m_Momentum,m_Charge,
+         if(Selector==1){ cache.m_sc=m_fitSvc->VKalVrtFit(ListParticles,FitVertex, cache.m_Momentum,cache.m_Charge,
                                          ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2,
                                          *state);
              NTracksVrt=ListParticles.size();
 	 }	
-         if(Selector==2){ m_sc=m_fitSvc->VKalVrtFit(ListTracks,FitVertex, m_Momentum,m_Charge,
+         if(Selector==2){ cache.m_sc=m_fitSvc->VKalVrtFit(ListTracks,FitVertex, cache.m_Momentum,cache.m_Charge,
                                          ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2,
                                          *state);
              NTracksVrt=ListTracks.size();
          }
 	 if(NTracksVrt <= 2 )                  break;                     // Only <2 tracks left
-         if(m_sc.isFailure() ||  Chi2 > 1000000. ) { return -10000.;}     // No fit
+         if(cache.m_sc.isFailure() ||  Chi2 > 1000000. ) { return -10000.;}     // No fit
          Outlier = FindMax( Chi2PerTrk ); OutlierNext=FindMaxSecond( Chi2PerTrk );
 	 PtF=fabs(sin(TrkAtVrt[Outlier][0])/TrkAtVrt[Outlier][2]); PtS=fabs(sin(TrkAtVrt[OutlierNext][0])/TrkAtVrt[OutlierNext][2]);
          TrkWeights.clear();
-         m_sc=m_fitSvc->VKalGetTrkWeights(TrkWeights, *state);  if(m_sc.isFailure() ) return -10000.;  // problem
+         cache.m_sc=m_fitSvc->VKalGetTrkWeights(TrkWeights, *state);  if(cache.m_sc.isFailure() ) return -10000.;  // problem
          double dof=0.; for(int itk=0; itk<NTracksVrt; itk++)dof += TrkWeights[itk]; 
 	 long int nDoF=(long int)(5.*dof-3.*NTracksVrt-3.); if(m_BeamConstraint)nDoF += 2; if(nDoF<1)nDoF=1;
          float vrtProb=TMath::Prob(Chi2,nDoF);
@@ -204,8 +299,8 @@ if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Out1="<< Chi2PerTrk[Outlier]<<", Wei="<
 // Prepare next iteration
          m_fitSvc->setApproximateVertex(FitVertex.x(),FitVertex.y(),FitVertex.z(), *state); /*Use as starting point*/
          if(m_BeamConstraint) {
-           m_fitSvc->setVertexForConstraint(m_BeamCnst[0],m_BeamCnst[1],FitVertex.z(), *state);
-           m_fitSvc->setCovVrtForConstraint(m_BeamCnstWid[0]*m_BeamCnstWid[0],0.,m_BeamCnstWid[1]*m_BeamCnstWid[1],0.,0., 56.*56., *state);
+           m_fitSvc->setVertexForConstraint(cache.m_BeamCnst[0],cache.m_BeamCnst[1],FitVertex.z(), *state);
+           m_fitSvc->setCovVrtForConstraint(cache.m_BeamCnstWid[0]*cache.m_BeamCnstWid[0],0.,cache.m_BeamCnstWid[1]*cache.m_BeamCnstWid[1],0.,0., 56.*56., *state);
          }
       }
 //----------------------------------------------------------------------------
@@ -214,15 +309,15 @@ if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Out1="<< Chi2PerTrk[Outlier]<<", Wei="<
 
       state = m_fitSvc->makeState();
       if(m_BeamConstraint) {
-         m_fitSvc->setVertexForConstraint(m_BeamCnst[0],m_BeamCnst[1],FitVertex.z(), *state);
-         m_fitSvc->setCovVrtForConstraint(m_BeamCnstWid[0]*m_BeamCnstWid[0], 0., m_BeamCnstWid[1]*m_BeamCnstWid[1], 0., 0., 56.*56., *state);
+         m_fitSvc->setVertexForConstraint(cache.m_BeamCnst[0],cache.m_BeamCnst[1],FitVertex.z(), *state);
+         m_fitSvc->setCovVrtForConstraint(cache.m_BeamCnstWid[0]*cache.m_BeamCnstWid[0], 0., cache.m_BeamCnstWid[1]*cache.m_BeamCnstWid[1], 0., 0., 56.*56., *state);
 	 m_fitSvc->setCnstType(6, *state);
       }
       m_fitSvc->setRobustness(m_TypeRobust, *state);
       m_fitSvc->setRobustScale(m_RobustScale, *state);
-      if(Selector==1)m_sc=m_fitSvc->VKalVrtFit(ListParticles,FitVertex,m_Momentum,m_Charge,ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2,*state,true);
-      if(Selector==2)m_sc=m_fitSvc->VKalVrtFit(ListTracks,   FitVertex,m_Momentum,m_Charge,ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2,*state,true);
-      if(m_sc.isFailure()) return -10000.;     // Problem
+      if(Selector==1)cache.m_sc=m_fitSvc->VKalVrtFit(ListParticles,FitVertex,cache.m_Momentum,cache.m_Charge,ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2,*state,true);
+      if(Selector==2)cache.m_sc=m_fitSvc->VKalVrtFit(ListTracks,   FitVertex,cache.m_Momentum,cache.m_Charge,ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2,*state,true);
+      if(cache.m_sc.isFailure()) return -10000.;     // Problem
 //
 //
       Outlier = FindMax( Chi2PerTrk );
@@ -237,8 +332,8 @@ if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Out1="<< Chi2PerTrk[Outlier]<<", Wei="<
 //          TMath::Prob( Chi2,2*NTracksVrt-3)<1.e-3 )
       {   return -10000.;  }  
       TrkWeights.clear();
-      m_sc=m_fitSvc->VKalGetTrkWeights(TrkWeights, *state);
-      if(m_sc.isFailure()) return -10000.;     // Problem
+      cache.m_sc=m_fitSvc->VKalGetTrkWeights(TrkWeights, *state);
+      if(cache.m_sc.isFailure()) return -10000.;     // Problem
 //
 //--   Create array on HEAP to store fitted track parameters. Should be removed in  SaveResults
 //
@@ -249,7 +344,7 @@ if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Out1="<< Chi2PerTrk[Outlier]<<", Wei="<
                  pntTracks[i][2]=TrkAtVrt[i][2];
       }
 //
-      m_savedTrkFittedPerigees.push_back(pntTracks);
+      cache.m_savedTrkFittedPerigees.push_back(pntTracks);
 //
       std::vector <double> CovFull;
       StatusCode sc = m_fitSvc->VKalGetFullCov( (long int) NTracksVrt, CovFull,
@@ -261,36 +356,37 @@ if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Out1="<< Chi2PerTrk[Outlier]<<", Wei="<
         if(covarExist) {  tmpTrkCov.push_back( FillCovMatrix( i,CovFull ) );}
         else{             tmpTrkCov.push_back( One ); }
       }
-      m_fittedTrkCov.push_back(tmpTrkCov);
+      cache.m_fittedTrkCov.push_back(tmpTrkCov);
 //
       return Chi2;
    }
 
-
-
-
-
-                    /* Basic primary Z finder */
-
+   /* Basic primary Z finder */
 
 #define SigmaZBeam 156.
 #define NMesh      140
 
-  double InDetVKalPriVxFinderTool::FindZPosTrk(std::vector<const Trk::Track*>& ListTracks,
-                               double & ControlVariable)
-  {
-    std::vector<double> PtTrk,PxTrk,PyTrk;
-    std::vector<double> ZTrk,PhiTrk;
-    SetTrkParamVectors(ListTracks,ZTrk,PtTrk,PxTrk,PyTrk,PhiTrk);
-    return FindZPos( ZTrk, PtTrk, PxTrk, PyTrk, PhiTrk, ControlVariable);
+   double
+   InDetVKalPriVxFinderTool::FindZPosTrk(
+     Cache& cache,
+     std::vector<const Trk::Track*>& ListTracks,
+     double& ControlVariable) const
+   {
+     std::vector<double> PtTrk, PxTrk, PyTrk;
+     std::vector<double> ZTrk, PhiTrk;
+     SetTrkParamVectors(cache,ListTracks, ZTrk, PtTrk, PxTrk, PyTrk, PhiTrk);
+     return FindZPos(ZTrk, PtTrk, PxTrk, PyTrk, PhiTrk, ControlVariable);
   }
 
-  double InDetVKalPriVxFinderTool::FindZPosTrk(std::vector<const Trk::TrackParticleBase*>& ListTracks,
-                                     double & ControlVariable)
+  double
+  InDetVKalPriVxFinderTool::FindZPosTrk(
+    Cache& cache,
+    std::vector<const Trk::TrackParticleBase*>& ListTracks,
+    double& ControlVariable) const
   {
     std::vector<double> PtTrk,PxTrk,PyTrk;
     std::vector<double> ZTrk,PhiTrk;
-    SetTrkParamVectors(ListTracks,ZTrk,PtTrk,PxTrk,PyTrk,PhiTrk);
+    SetTrkParamVectors(cache,ListTracks,ZTrk,PtTrk,PxTrk,PyTrk,PhiTrk);
     return FindZPos( ZTrk, PtTrk, PxTrk, PyTrk, PhiTrk, ControlVariable);
   }
 
@@ -300,12 +396,13 @@ if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Out1="<< Chi2PerTrk[Outlier]<<", Wei="<
  
 //  Unified program for Z position estimation
 //
-   double InDetVKalPriVxFinderTool::FindZPos( std::vector<double>   &ZTrk,
-                                    std::vector<double>   &PtTrk,
-                                    std::vector<double>   &PxTrk,
-                                    std::vector<double>   &PyTrk,
-                                    std::vector<double>   &PhiTrk,
-				    double & ControlVariable)
+  double
+  InDetVKalPriVxFinderTool::FindZPos(std::vector<double>& ZTrk,
+                                     std::vector<double>& PtTrk,
+                                     std::vector<double>& PxTrk,
+                                     std::vector<double>& PyTrk,
+                                     std::vector<double>& PhiTrk,
+                                     double& ControlVariable) const
   {
     double Step, LowLim, HighLim, Angle;
     int NTracks =ZTrk.size();
@@ -368,15 +465,15 @@ if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Out1="<< Chi2PerTrk[Outlier]<<", Wei="<
     
   }
 
-
-
-  
-  void InDetVKalPriVxFinderTool::SetTrkParamVectors(std::vector<const Trk::Track*>& ListTracks,
-                                          std::vector<double>   &ZTrk,
-                                          std::vector<double>   &PtTrk,
-                                          std::vector<double>   &PxTrk,
-                                          std::vector<double>   &PyTrk,
-                                          std::vector<double>   &PhiTrk)
+  void
+  InDetVKalPriVxFinderTool::SetTrkParamVectors(
+    Cache& cache,
+    std::vector<const Trk::Track*>& ListTracks,
+    std::vector<double>& ZTrk,
+    std::vector<double>& PtTrk,
+    std::vector<double>& PxTrk,
+    std::vector<double>& PyTrk,
+    std::vector<double>& PhiTrk) const
 
   {    std::vector<const Trk::Track*>::const_iterator i_ntrk;
        AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
@@ -395,21 +492,24 @@ if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Out1="<< Chi2PerTrk[Outlier]<<", Wei="<
 	  PxTrk.push_back(std::sin(VectPerig[3])*std::cos(VectPerig[2])/InverseP);
 	  PyTrk.push_back(std::sin(VectPerig[3])*std::sin(VectPerig[2])/InverseP);
 	  PhiTrk.push_back(GetLimitAngle(VectPerig[2]));
-	  if( m_BeamCnst[0] == 0. && m_BeamCnst[1] == 0.) {
+	  if( cache.m_BeamCnst[0] == 0. && cache.m_BeamCnst[1] == 0.) {
 	    ZTrk.push_back(VectPerig[1]);
           } else {
-	    m_fitSvc->VKalGetImpact((*i_ntrk),m_BeamCnst,1,Impact,ImpError);
+	    m_fitSvc->VKalGetImpact((*i_ntrk),cache.m_BeamCnst,1,Impact,ImpError);
 	    ZTrk.push_back(Impact[1]);
 	  }
        }
   }
 
-  void InDetVKalPriVxFinderTool::SetTrkParamVectors(std::vector<const Trk::TrackParticleBase*>& ListTracks,
-                                          std::vector<double>   &ZTrk,
-                                          std::vector<double>   &PtTrk,
-                                          std::vector<double>   &PxTrk,
-                                          std::vector<double>   &PyTrk,
-			  	          std::vector<double>   &PhiTrk)
+  void
+  InDetVKalPriVxFinderTool::SetTrkParamVectors(
+    Cache& cache,
+    std::vector<const Trk::TrackParticleBase*>& ListTracks,
+    std::vector<double>& ZTrk,
+    std::vector<double>& PtTrk,
+    std::vector<double>& PxTrk,
+    std::vector<double>& PyTrk,
+    std::vector<double>& PhiTrk) const
 
   {    std::vector<const Trk::TrackParticleBase*>::const_iterator i_ntrk;
        AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
@@ -428,10 +528,10 @@ if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Out1="<< Chi2PerTrk[Outlier]<<", Wei="<
 	  PxTrk.push_back(std::sin(VectPerig[3])*cos(VectPerig[2])/InverseP);
 	  PyTrk.push_back(std::sin(VectPerig[3])*sin(VectPerig[2])/InverseP);
 	  PhiTrk.push_back(GetLimitAngle(VectPerig[2]));
-	  if( m_BeamCnst[0] == 0. && m_BeamCnst[1] == 0.) {
+	  if( cache.m_BeamCnst[0] == 0. && cache.m_BeamCnst[1] == 0.) {
 	    ZTrk.push_back(VectPerig[1]);
           } else {
-            Amg::Vector3D refVrt(m_BeamCnst.x(),m_BeamCnst.y(),0.);             // Z==0 is needed for initial Z finder
+            Amg::Vector3D refVrt(cache.m_BeamCnst.x(),cache.m_BeamCnst.y(),0.);             // Z==0 is needed for initial Z finder
 	    m_fitSvc->VKalGetImpact((*i_ntrk),refVrt,1,Impact,ImpError); // 
 	    ZTrk.push_back(Impact[1]);
 	  }

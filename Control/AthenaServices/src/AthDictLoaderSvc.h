@@ -98,13 +98,13 @@ class ATLAS_CHECK_THREAD_SAFETY AthDictLoaderSvc
    *         succeed *IF* the dictionary for that type has been generated.
    */
   virtual
-  const RootType load_type (const std::type_info& typeinfo);
+  const RootType load_type ATLAS_NOT_THREAD_SAFE (const std::type_info& typeinfo);
 
   /** @brief retrieve a @c Reflex::Type by name (auto)loading the dictionary
    *         by any necessary means.
    */
   virtual
-  const RootType load_type (CLID clid);
+  const RootType load_type ATLAS_NOT_THREAD_SAFE (CLID clid);
 
   /////////////////////////////////////////////////////////////////// 
   // Private data: 

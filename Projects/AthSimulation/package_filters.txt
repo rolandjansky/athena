@@ -239,6 +239,10 @@
 + MagneticField/MagFieldUtils
 + MagneticField/MagFieldConditions
 + MagneticField/MagFieldElements
++ MuonSpectrometer/Amdcsimrec/AmdcAth
++ MuonSpectrometer/Amdcsimrec/AmdcCore
++ MuonSpectrometer/Amdcsimrec/AmdcDb
++ MuonSpectrometer/Amdcsimrec/AmdcStand
 + MuonSpectrometer/MuonAlignment/MuonAlignmentData
 + MuonSpectrometer/MuonCnv/MuonIdCnv
 + MuonSpectrometer/MuonCnv/MuonSimEventAthenaPool

@@ -15,7 +15,7 @@ Description: Electron selector tool to select objects in pure ROOT using the mul
 // This class header
 #include "TElectronMultiLeptonSelector.h"
 // STL includes
-#include <math.h>
+#include <cmath>
 
 //=============================================================================
 // Constructor
@@ -536,13 +536,4 @@ bool Root::TElectronMultiLeptonSelector::passTightDeltaPhi(double deltaPhiRes, b
 
   return true;
 }
-
-//============================================================================================================================================
-
-
-
-
-
-
-
 

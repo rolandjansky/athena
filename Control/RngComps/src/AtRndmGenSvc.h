@@ -118,7 +118,7 @@ private:
 	"seeds for the engines, this is a vector of strings of the form ['SequenceName [OFFSET num] Seed1 Seed2', ...] "\
 	  "where OFFSET is an optional integer that allows to change the sequence of randoms for a given run/event no "	\
 	  "and SequenceName combination. Notice that Seed1/Seed2 are dummy when EventReseeding is used",
-	  "Set<std::string>"};
+	  "OrderedSet<std::string>"};
 
 
       Gaudi::Property<bool> m_read_from_file{this,"ReadFromFile",false,"set/restore the status of the engine from file"};  ///< read engine status from file

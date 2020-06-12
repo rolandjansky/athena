@@ -127,7 +127,3 @@ fillTripsProbs(fileName, folderPath, tag, (runfrom,0))
 
 #=== close the database connection
 db.closeDatabase()
-
-
-
-

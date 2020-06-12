@@ -141,7 +141,7 @@ ExcBadContextlessRetrieve::ExcBadContextlessRetrieve
  * @param toolName Name of the tool being used.
  * @param constName Name of the constant being retrieved.
  */
-void throwBadExcContextlessRetrieve (const std::string& toolName,
+void throwExcBadContextlessRetrieve (const std::string& toolName,
                                      const std::string& constName)
 {
   throw ExcBadContextlessRetrieve (toolName, constName);

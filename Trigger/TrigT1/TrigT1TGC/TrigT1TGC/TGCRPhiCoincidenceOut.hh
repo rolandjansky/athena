@@ -32,6 +32,7 @@ public:
   void setHit(int ptIn){ m_hit[ptIn]=true;};
   void clearHit(int ptIn) { m_hit[ptIn] = false;};
   int  getPtLevel() const; // for Run2 Algo
+  int  getRoI() const{ return m_RoI; }
 
   void setIdSSC(int idSSCIn){ m_idSSC = idSSCIn;};
   void setpT(int pTIn){ m_pT=pTIn;};

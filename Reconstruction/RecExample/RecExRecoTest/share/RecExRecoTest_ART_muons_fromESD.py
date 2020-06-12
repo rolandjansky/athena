@@ -23,7 +23,6 @@ import MuonRecExample.MuonRecStandaloneOnlySetup
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 
 from MuonRecExample import MuonRecUtils
-from MuonRecExample.MuonRecUtils import assertCastorStager,hasJobPropertyBeenSet
 
 #Need the beam spot for the TrackParticleCreator
 if not ('conddb' in dir()):

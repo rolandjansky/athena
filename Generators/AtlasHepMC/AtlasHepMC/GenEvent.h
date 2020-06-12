@@ -7,6 +7,10 @@
 #include "HepMC/GenVertex.h"
 #include "AtlasHepMC/GenVertex.h"
 namespace HepMC {
+inline GenEvent::particle_iterator  begin(HepMC::GenEvent& e){ return e.particles_begin(); }
+inline GenEvent::particle_iterator  end(HepMC::GenEvent& e){ return e.particles_end(); }
+inline GenEvent::particle_const_iterator  begin(const HepMC::GenEvent& e){ return e.particles_begin(); }
+inline GenEvent::particle_const_iterator  end(const HepMC::GenEvent& e){ return e.particles_end(); }
 inline GenEvent* newGenEvent(const int a, const int b ){ return new GenEvent(a,b); }
 inline GenVertex* signal_process_vertex(const GenEvent* e) { return e->signal_process_vertex(); }
 inline GenVertex* barcode_to_vertex(const GenEvent* e, int id ){return  e->barcode_to_vertex(id);}
@@ -26,6 +30,11 @@ template <class T> void set_random_states(GenEvent* e, std::vector<T> a) {
 template <class T> void set_signal_process_vertex(GenEvent* e, T v) {
     e->set_signal_process_vertex(v);
 }
+namespace Print {
+inline void line(std::ostream& os,const GenEvent& e){e.print(os);}
+inline void line(std::ostream& os,const GenEvent* e){e->print(os);}
+}
+inline bool valid_beam_particles(const GenEvent* e){return e->valid_beam_particles();}
 }
 #include "AtlasHepMC/SimpleVector.h"
 #endif

@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
@@ -274,7 +274,8 @@ def configure_hlt_result(hypo_algs):
     # Configure the HLT result maker to use the above tools
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     hltResultMaker = svcMgr.HltEventLoopMgr.ResultMaker
-    hltResultMaker.MakerTools = [conf2toConfigurable(tool) for tool in [stmaker, bitsmaker, serialiser]]
+    hltResultMaker.StreamTagMaker = conf2toConfigurable(stmaker)
+    hltResultMaker.MakerTools = [conf2toConfigurable(tool) for tool in [bitsmaker, serialiser]]
 
 
 def make_summary_algs(hypo_algs):

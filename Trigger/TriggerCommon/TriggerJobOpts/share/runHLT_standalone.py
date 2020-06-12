@@ -61,6 +61,7 @@ class opt:
     filterViews       = False
     enabledSignatures = []
     disabledSignatures = []
+    selectChains      = []
 
 
 #
@@ -491,6 +492,9 @@ if not opt.createHLTMenuExternally:
 
     menu.overwriteSignaturesWith(signaturesToGenerate)
 
+    if (opt.selectChains):
+        menu.selectChainsForTesting = opt.selectChains
+
     # generating the HLT structure requires 
     # the L1Decoder to be defined in the topSequence
     menu.generateMT()
@@ -498,6 +502,12 @@ if not opt.createHLTMenuExternally:
     if opt.endJobAfterGenerate:
         import sys
         sys.exit(0)
+
+
+
+#Needed to get full output from TrigSignatureMoniMT with a large menu: see ATR-21487
+#Can be removed once chainDump.py is used instead of log file parsing
+svcMgr.MessageSvc.infoLimit=10000
 
 
 

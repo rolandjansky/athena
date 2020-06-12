@@ -82,8 +82,7 @@ def getInDetxAODParticleCreatorTool(prd_to_track_map=None, suffix="") :
                                                                  BadClusterID            = InDetFlags.pixelClusterBadClusterID(),
                                                                  KeepParameters          = True,
                                                                  KeepFirstParameters     = InDetFlags.KeepFirstParameters(),
-                                                                 PerigeeExpression       = _perigee_expression,
-                                                                 UpdateTrack             = False)
+                                                                 PerigeeExpression       = _perigee_expression)
 
     ToolSvc += InDetxAODParticleCreatorTool
     if InDetFlags.doPrintConfigurables():

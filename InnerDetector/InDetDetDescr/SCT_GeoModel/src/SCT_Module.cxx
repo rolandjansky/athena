@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_Module.h"
@@ -34,7 +34,6 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoDefinitions.h"
 #include "GaudiKernel/SystemOfUnits.h"
-// 8th Aug 2005 S.Mima modified.
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 
 #include <cmath>
@@ -43,11 +42,7 @@ SCT_Module::SCT_Module(const std::string & name,
                        InDetDD::SCT_DetectorManager* detectorManager,
                        const SCT_GeometryManager* geometryManager,
                        SCT_MaterialManager* materials)
-: SCT_UniqueComponentFactory(name, detectorManager, geometryManager, materials),
-    m_innerSide(0),
-    m_outerSide(0),
-    m_baseBoard(0)
-
+: SCT_UniqueComponentFactory(name, detectorManager, geometryManager, materials)
 {
   getParameters();
   m_logVolume = preBuild();
@@ -56,17 +51,6 @@ SCT_Module::SCT_Module(const std::string & name,
 
 SCT_Module::~SCT_Module()
 {
-  // Clean up
-  delete m_baseBoardPos; // 6th Apr 2005 S.Mima modified.
-  delete m_innerSidePos;
-  delete m_outerSidePos;
-
-  delete m_innerSide;
-  delete m_outerSide;
-  delete m_baseBoard;
-
-  delete m_env1RefPointVector;
-  delete m_env2RefPointVector;
 }
 
 
@@ -95,9 +79,9 @@ const GeoLogVol *
 SCT_Module::preBuild()
 {
   // Create child components
-  m_outerSide = new SCT_OuterSide("OuterSide", m_detectorManager, m_geometryManager, m_materials);
-  m_baseBoard = new SCT_BaseBoard("BaseBoard", m_detectorManager, m_geometryManager, m_materials);
-  m_innerSide = new SCT_InnerSide("InnerSide", m_detectorManager, m_geometryManager, m_materials);
+  m_outerSide = std::make_unique<SCT_OuterSide>("OuterSide", m_detectorManager, m_geometryManager, m_materials);
+  m_baseBoard = std::make_unique<SCT_BaseBoard>("BaseBoard", m_detectorManager, m_geometryManager, m_materials);
+  m_innerSide = std::make_unique<SCT_InnerSide>("InnerSide", m_detectorManager, m_geometryManager, m_materials);
 
   //
   // We have 2 envelopes.
@@ -213,7 +197,7 @@ SCT_Module::preBuild()
   const double yCenterEnv1 = yminEnv1 + 0.5*widthEnv1;
   const double zCenterEnv1 = zmaxEnv1 - 0.5*lengthEnv1;
 
-  m_env1RefPointVector = new GeoTrf::Vector3D(-xCenterEnv1, -yCenterEnv1, -zCenterEnv1);
+  m_env1RefPointVector = std::make_unique<GeoTrf::Vector3D>(-xCenterEnv1, -yCenterEnv1, -zCenterEnv1);
 
   // Calculate demension of envelope2.
   const double z_ikl = std::max(i.z(), l.z());
@@ -244,9 +228,8 @@ SCT_Module::preBuild()
   const double yCenterEnv2 = ymaxEnv2 - 0.5*widthEnv2;
   const double zCenterEnv2 = zmaxEnv2 - 0.5*lengthEnv2;
 
-  m_env2RefPointVector = new GeoTrf::Vector3D(-xCenterEnv2, -yCenterEnv2, -zCenterEnv2);
+  m_env2RefPointVector = std::make_unique<GeoTrf::Vector3D>(-xCenterEnv2, -yCenterEnv2, -zCenterEnv2);
 
-  // 8th Aug 2005 S.Mima modified.
   // Calculate dimension of subbox 
   const double xmaxSubBox = - 0.5*m_baseBoard->thickness() - m_safety;
   const double xminSubBox = - 0.5*thicknessEnv2 - 2.0*m_safety;
@@ -289,11 +272,9 @@ SCT_Module::preBuild()
   //
   // Make an envelope for the whole module.
   //
-  // 6th Feb 2005 D.Naito modified.
   const GeoBox * envelope1 = new GeoBox(0.5*m_env1Thickness, 0.5*m_env1Width, 0.5*m_env1Length);
   const GeoBox * envelope2 = new GeoBox(0.5*m_env2Thickness, 0.5*m_env2Width, 0.5*m_env2Length);
 
-  // 8th Aug 2005 S.Mima modified.
   const GeoBox * subBox = new GeoBox(0.5*thicknessSubBox, 0.5*widthSubBox, 0.6*lengthSubBox);
 
   // In the following, envelope1 and envelope2 are added and SUBBOX is pulled. 
@@ -307,21 +288,20 @@ SCT_Module::preBuild()
   // inner side
   //
   GeoTrf::Transform3D rotInner = GeoTrf::RotateX3D(m_stereoInner) * GeoTrf::RotateZ3D(180*Gaudi::Units::deg);
-  m_innerSidePos = new GeoTrf::Transform3D(GeoTrf::Transform3D(GeoTrf::Translation3D(ISPosX, 0.0, 0.0)*rotInner));
+  m_innerSidePos = std::make_unique<GeoTrf::Transform3D>(GeoTrf::Transform3D(GeoTrf::Translation3D(ISPosX, 0.0, 0.0)*rotInner));
 
   //
   // outer side
   //
   GeoTrf::RotateX3D rotOuter(m_stereoOuter);
-  m_outerSidePos = new GeoTrf::Transform3D(GeoTrf::Transform3D(GeoTrf::Translation3D(OSPosX, 0.0, 0.0)*rotOuter));
+  m_outerSidePos = std::make_unique<GeoTrf::Transform3D>(GeoTrf::Transform3D(GeoTrf::Translation3D(OSPosX, 0.0, 0.0)*rotOuter));
 
   //
   // base board
-  // 6th Apr 2005 S.Mima modified.
   //
   const double baseBoardPosY = m_baseBoardOffsetY;
   const double baseBoardPosZ = m_baseBoardOffsetZ;
-  m_baseBoardPos = new GeoTrf::Translate3D(0.0, baseBoardPosY, baseBoardPosZ);
+  m_baseBoardPos = std::make_unique<GeoTrf::Translate3D>(0.0, baseBoardPosY, baseBoardPosZ);
 
 
   return moduleLog;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -96,7 +96,7 @@ double InDet::ZVTOP_TrkProbTubeCalc::calcProbTube(const Trk::TrackParticleBase& 
 double InDet::ZVTOP_TrkProbTubeCalc::calcProbTube(const Trk::Perigee* trkPer, Trk::Vertex& vec) const {
 
   double probTube = 0.;
-  Amg::Vector3D lp =vec.position();
+  const Amg::Vector3D& lp =vec.position();
   Trk::PerigeeSurface perigeeSurface(lp);
   double f_phi0 = trkPer->parameters()[Trk::phi0];
   double f_theta = trkPer->parameters()[Trk::theta];
@@ -109,7 +109,7 @@ double InDet::ZVTOP_TrkProbTubeCalc::calcProbTube(const Trk::Perigee* trkPer, Tr
     diff[2]= extrapolatedPerigee->parameters()[Trk::phi0] - f_phi0;
     diff[3]= extrapolatedPerigee->parameters()[Trk::theta] - f_theta;
     diff[4]= extrapolatedPerigee->parameters()[Trk::qOverP] - f_qOverP;
-    if (extrapolatedPerigee->covariance() != 0) {
+    if (extrapolatedPerigee->covariance() != nullptr) {
       AmgMatrix(5,5) exp_perigee_weight = (*extrapolatedPerigee->covariance()).inverse();
       probTube = std::exp(-0.5*diff.transpose()*exp_perigee_weight*diff);
     } else {

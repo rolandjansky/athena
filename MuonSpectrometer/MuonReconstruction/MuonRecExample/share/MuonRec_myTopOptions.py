@@ -20,7 +20,6 @@ import MuonRecExample.MuonRecStandaloneOnlySetup
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 
 from MuonRecExample import MuonRecUtils
-from MuonRecExample.MuonRecUtils import assertCastorStager,hasJobPropertyBeenSet
 
 #Need the beam spot for the TrackParticleCreator
 if not ('conddb' in dir()):
@@ -41,11 +40,6 @@ if not hasattr(condSeq, "BeamSpotCondAlg"):
 if not 'InputRdoFile' in dir():
     InputRdoFile="root://eosatlas//eos/atlas/atlasgroupdisk/det-muon/dq2/rucio/user/zhidong/14/a2/user.zhidong.12100112.EXT0._000001.RDO.pool.root"
 athenaCommonFlags.FilesInput = [InputRdoFile]
-
-if not hasJobPropertyBeenSet(athenaCommonFlags.FilesInput):
-    athenaCommonFlags.FilesInput = MuonRecUtils.FileList.readDirectory("root://castoratlas//castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/Zmumu_15616/")
-#    assertCastorStager("castoratlast3","atlascerngroupdisk")
-#    athenaCommonFlags.FilesInput = MuonRecUtils.FileList.readDirectory("rfio:/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/Zmumu_15616/")
 
 #--------------------------------------------------------------------------------
 # Output

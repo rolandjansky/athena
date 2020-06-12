@@ -71,5 +71,6 @@ atlas_add_test( CaloEstimatedGainToolConfig_test
 
 atlas_add_test( CaloEstimatedGainTool_test
                 SCRIPT python -m CaloTools.CaloEstimatedGainTool_test
+                PROPERTIES TIMEOUT 300
                 LOG_SELECT_PATTERN "ERROR|error|WARNING [^U]|FATAL|processing|TestAlg" )
 

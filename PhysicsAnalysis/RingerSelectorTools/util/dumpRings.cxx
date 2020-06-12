@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 //
 // Print out the rings information and its metadata.
@@ -48,7 +48,7 @@ int main( int argc, char* argv[] ) {
     return 1;
   }
 
-  auto* ringsReader = getCaloRingsReader();
+  const auto& ringsReader = getCaloRingsReader();
 
   //
   // Add initialization code for tools here
@@ -83,11 +83,11 @@ int main( int argc, char* argv[] ) {
       std::cout << "The electron size is : " << electronCont->size() << std::endl;
       for ( const xAOD::Electron *electron : *electronCont ){
         std::cout << "----------------- CaloRings info ------------------- " << std::endl;
-        std::cout << "isAvailable is : " << ringsReader->isAvailable(*electron) << std::endl;
+        std::cout << "isAvailable is : " << ringsReader.isAvailable(*electron) << std::endl;
         std::cout << "(eta,phi) is : (" << electron->eta() << "," << electron->phi() << ") | cluster pt is : " << electron->caloCluster()->pt() << std::endl;
-        if ( ringsReader->isAvailable(*electron) ) {
+        if ( ringsReader.isAvailable(*electron) ) {
           //std::cout << "isAvailableWritable is : " << ringsReader->isAvailableWritable(*electron) << std::endl;
-          const xAOD::CaloRingsLinks &caloRingsELVec = ringsReader->operator()(*electron);
+          const xAOD::CaloRingsLinks &caloRingsELVec = ringsReader(*electron);
           std::cout << "The vectorEL size is : " << caloRingsELVec.size() << std::endl;
           for ( const ElementLink<xAOD::CaloRingsContainer> &clRingsEL : caloRingsELVec ){
             if ( clRingsEL.isValid() ) {

@@ -2,27 +2,25 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonGeoModel/MuonDetectorTool.h" 
-// #include "MuonGeoModel/MuonDetectorFactory001.h"
+#include "MuonGeoModel/MuonDetectorTool.h"
+
 #include "MuonGeoModel/StationSelector.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 #include "MuonDetDescrUtils/MuonSectorMapping.h"
-
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoPerfUtils.h"
-
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
-
+#include "AmdcDb/AmdcDb.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "AthenaKernel/ClassID_traits.h"
 
 #include <fstream>
-#include "AthenaKernel/ClassID_traits.h"
 
 using namespace MuonGM;
 
@@ -34,7 +32,6 @@ MuonDetectorTool::MuonDetectorTool( const std::string& type, const std::string& 
       m_layout("R.08"),
       m_accessCondDb(1),
       m_asciiCondData(0),
-      m_nova(0),
       m_includeCutouts(0),
       m_includeCutoutsBog(0),
       m_includeCtbBis(0),
@@ -63,7 +60,6 @@ MuonDetectorTool::MuonDetectorTool( const std::string& type, const std::string& 
     declareProperty("LayoutName"			, m_layout );
     declareProperty("UseConditionDb"			, m_accessCondDb);
     declareProperty("UseAsciiConditionData"		, m_asciiCondData);
-    declareProperty("BuildFromNova",m_nova);
     declareProperty("IncludeCutouts"			, m_includeCutouts);
     declareProperty("IncludeCutoutsBog"			, m_includeCutoutsBog);
     declareProperty("IncludeCtbBis"			, m_includeCtbBis);
@@ -320,22 +316,31 @@ MuonDetectorTool::createFactory(MuonDetectorFactory001& theFactory) const
   
   if ( 0 == m_detector ) {
     IRDBAccessSvc* access = 0;
-    ATH_CHECK(service("RDBAccessSvc",access));
-    
-    // MuonDetectorFactory001 theFactory(detStore().operator->());
-    
+    if(m_amdcDb) ATH_CHECK(service("AmdcDb",access));
+    else ATH_CHECK(service("RDBAccessSvc",access));
+ 
+    bool isAmdcDb = false;
+    if( dynamic_cast<AmdcDb*>(access) && m_amdcDb) {
+      ATH_MSG_INFO("AmdcDb is used instead of RDBAccessSvc");
+      AmdcDb* p_access = dynamic_cast<AmdcDb*>(access);
+      isAmdcDb = true;
+      if (p_access->InitializedSvc()) {
+        ATH_MSG_INFO("AmdcDb->InitializedSvc() is true") ;
+      }else{
+        ATH_MSG_INFO("AmdcDb->InitializedSvc() is false");
+        if(p_access->initialize()) ATH_MSG_INFO("Now it's initialized. Go ahead and use it!");
+        ATH_MSG_INFO("\t\t BUT PAY ATTENTION THE HARD WIRED ENVELOPE IS USED (see MuonDetectorFactory001.cxx)!!");
+      }
+    }
+
     theFactory.setDBAtlasVersion(AtlasVersion);
     theFactory.setDBMuonVersion(MuonVersion);
     theFactory.setDBkey( detectorKey );
     theFactory.setDBnode(detectorNode);
     theFactory.setABLinesAsciiSideA(m_NSWABLinesAsciiSideA);
     theFactory.setABLinesAsciiSideC(m_NSWABLinesAsciiSideC);
-    
-    // theFactory.setLayout(m_layout);
+    theFactory.setAmdcDb(isAmdcDb);
     theFactory.setLayout(tempLayout);
-    //theFactory.setIncludeInertMats(m_includeInertMaterials);
-    //theFactory.setIdhFromCnv(m_idhfromconverters);
-    //theFactory.setMinimalGeoFlag(m_minimalgeo);
     theFactory.setCutoutsFlag(m_includeCutouts);
     theFactory.setCutoutsBogFlag(m_includeCutoutsBog);
     theFactory.setCtbBisFlag(m_includeCtbBis);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigOutputHandling/HLTResultMTMaker.h"
@@ -64,6 +64,7 @@ HLTResultMTMaker::~HLTResultMTMaker() {}
 // =============================================================================
 StatusCode HLTResultMTMaker::initialize() {
   ATH_CHECK(m_hltResultWHKey.initialize());
+  ATH_CHECK(m_streamTagMaker.retrieve(DisableTool{m_streamTagMaker.name().empty()}));
   ATH_CHECK(m_makerTools.retrieve());
   ATH_CHECK(m_monTool.retrieve());
   ATH_CHECK(m_jobOptionsSvc.retrieve());
@@ -126,40 +127,39 @@ StatusCode HLTResultMTMaker::finalize() {
 // The main method of the tool
 // =============================================================================
 StatusCode HLTResultMTMaker::makeResult(const EventContext& eventContext) const {
+  auto monTime =  Monitored::Timer<std::chrono::duration<float, std::milli>>("TIME_makeResult");
 
   // Create and record the HLTResultMT object
   auto hltResult = SG::makeHandle(m_hltResultWHKey,eventContext);
   ATH_CHECK( hltResult.record(std::make_unique<HLT::HLTResultMT>()) );
   ATH_MSG_DEBUG("Recorded HLTResultMT with key " << m_hltResultWHKey.key());
 
-  // Fill the object using the result maker tools
-  auto time =  Monitored::Timer("TIME_build" );
+  // Fill the stream tags
   StatusCode finalStatus = StatusCode::SUCCESS;
-  for (auto& maker: m_makerTools) {
-    if (StatusCode sc = maker->fill(*hltResult, eventContext); sc.isFailure()) {
-      ATH_MSG_ERROR(maker->name() << " failed");
-      finalStatus = sc;
-    }
+  if (m_streamTagMaker.isEnabled() && m_streamTagMaker->fill(*hltResult, eventContext).isFailure()) {
+    ATH_MSG_ERROR(m_streamTagMaker->name() << " failed");
+    finalStatus = StatusCode::FAILURE;
   }
-  time.stop();
 
-  if (!m_skipValidatePEBInfo) validatePEBInfo(*hltResult);
+  // Fill the result using all other tools if the event was accepted
+  if (hltResult->isAccepted()) {
+    for (auto& maker: m_makerTools) {
+      ATH_MSG_DEBUG("Calling " << maker->name() << " for accepted event");
+      if (StatusCode sc = maker->fill(*hltResult, eventContext); sc.isFailure()) {
+        ATH_MSG_ERROR(maker->name() << " failed");
+        finalStatus = sc;
+      }
+    }
+
+    if (!m_skipValidatePEBInfo) validatePEBInfo(*hltResult);
+  }
+  else {
+    ATH_MSG_DEBUG("Rejected event, further result filling skipped after stream tag maker");
+  }
 
   ATH_MSG_DEBUG(*hltResult);
 
-  // Fill monitoring histograms
-  auto nstreams = Monitored::Scalar("nstreams", hltResult->getStreamTags().size());
-  auto bitWords = Monitored::Scalar("bitWords", hltResult->getHltPassRawBits().size() 
-    + hltResult->getHltPrescaledBits().size()
-    + hltResult->getHltRerunBits().size() );
-  auto nfrags   = Monitored::Scalar("nfrags",   hltResult->getSerialisedData().size());
-  auto sizeMain = Monitored::Scalar("sizeMain", -1.);
-  auto iter = hltResult->getSerialisedData().find(0); // this is the main fragment of the HLT result
-  if (iter != hltResult->getSerialisedData().end())
-    sizeMain = double(iter->second.size()*sizeof(uint32_t))/1024;
-
-  Monitored::Group(m_monTool, time, nstreams, nfrags, sizeMain, bitWords);
-
+  Monitored::Group(m_monTool, monTime);
   return finalStatus;
 }
 
