@@ -133,9 +133,8 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
    std::vector<float> ov_dphi;
    ov_dphi.clear();
    for( const Muon::TgcPrepDataCollection* wi : *tgcPrepContainer ) { // loop over collections
-     const Muon::TgcPrepDataCollection* colwi = wi;
-     if( !colwi ) continue;
-     for( const Muon::TgcPrepData* cwi : *colwi ){ // loop over data in the collection
+     if( !wi ) continue;
+     for( const Muon::TgcPrepData* cwi : *wi ){ // loop over data in the collection
        if( !cwi ) continue;
        const Muon::TgcPrepData& prepDataWi = *cwi;
        if (!m_idHelperSvc->tgcIdHelper().isStrip(prepDataWi.identify())) {//wire
@@ -164,9 +163,8 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
    int num_min_hits=0;
    int num_second_hits=0;
    for( const Muon::TgcPrepDataCollection* hit : *tgcPrepContainer ) { // loop over collections
-     const Muon::TgcPrepDataCollection* colhit = hit;
-     if( !colhit ) continue;
-     for( const Muon::TgcPrepData* chit : *colhit ){ // loop over data in the collection
+     if( !hit ) continue;
+     for( const Muon::TgcPrepData* chit : *hit ){ // loop over data in the collection
        if( !chit ) continue;
        const Muon::TgcPrepData& prepDataHit = *chit;
        if (!m_idHelperSvc->tgcIdHelper().isStrip(prepDataHit.identify())) {//strip
@@ -188,12 +186,10 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
      else useDefault=true;
    }
 
-   for( const Muon::TgcPrepDataCollection* it : *tgcPrepContainer ) { // loop over collections
-     const Muon::TgcPrepDataCollection* col = it;
+   for( const Muon::TgcPrepDataCollection* col : *tgcPrepContainer ) { // loop over collections
      if( !col ) continue;
      for( const Muon::TgcPrepData* cit : *col ){ // loop over data in the collection
        if( !cit ) continue;
-       
        const Muon::TgcPrepData& prepData = *cit;
        
        bool isInRoad = false;

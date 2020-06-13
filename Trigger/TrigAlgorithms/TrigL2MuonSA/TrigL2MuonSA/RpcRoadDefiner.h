@@ -36,7 +36,6 @@ class RpcRoadDefiner: public AthAlgTool
                  const IInterface*  parent);
 
   virtual StatusCode initialize() override;
-  virtual StatusCode finalize  () override;
   
  public:
   StatusCode defineRoad(const LVL1::RecMuonRoI*      p_roi,
@@ -58,8 +57,6 @@ class RpcRoadDefiner: public AthAlgTool
   float fp(float x, float c33, float c22, float c1) const;
 
  private:
-  const BarrelRoadData*  m_roadData{nullptr};
-
   double m_rWidth_RPC_Failed{0};
   bool m_use_rpc{true};
 

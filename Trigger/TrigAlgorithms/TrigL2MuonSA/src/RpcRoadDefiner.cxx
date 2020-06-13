@@ -42,8 +42,6 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
                                                     double                       roiEtaMaxHigh)
 {
 
-  if (!m_roadData) m_roadData = new BarrelRoadData();
-  
   const double ZERO_LIMIT = 1e-5;
   
   const int N_LAYER = 5; // 0: inner, 1: middle, 2: outer 4: BME 5: BMG
@@ -216,14 +214,5 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
   return StatusCode::SUCCESS;
 }
 
-// --------------------------------------------------------------------------------                  
-// --------------------------------------------------------------------------------                  
-
-StatusCode TrigL2MuonSA::RpcRoadDefiner::finalize()
-{
-  if (m_roadData) delete m_roadData;
-  return StatusCode::SUCCESS;
-}
-
-// --------------------------------------------------------------------------------                  
+// --------------------------------------------------------------------------------  
 // --------------------------------------------------------------------------------                  
