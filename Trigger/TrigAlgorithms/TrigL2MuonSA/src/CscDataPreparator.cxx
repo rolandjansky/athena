@@ -5,21 +5,14 @@
 #include "TrigL2MuonSA/CscDataPreparator.h"
 
 #include "StoreGate/ActiveStoreSvc.h"
-#include "CLHEP/Units/PhysicalConstants.h"
 #include "xAODTrigMuon/TrigMuonDefs.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
-using namespace Muon;
-
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-static const InterfaceID IID_CscDataPreparator("IID_CscDataPreparator", 1, 0);
 bool IsUnspoiled ( Muon::CscClusterStatus status );
-
-
-const InterfaceID& TrigL2MuonSA::CscDataPreparator::interfaceID() { return IID_CscDataPreparator; }
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -28,15 +21,8 @@ TrigL2MuonSA::CscDataPreparator::CscDataPreparator(const std::string& type,
 						   const std::string& name,
 						   const IInterface*  parent): 
    AthAlgTool(type,name,parent),
-   m_regionSelector( "RegSelSvc", name ),
-   m_rawDataProviderTool("Muon::CSC_RawDataProviderTool/CSC_RawDataProviderTool"),
-   m_cscPrepDataProvider("Muon::CscRdoToCscPrepDataTool/CscPrepDataProviderTool"),
-   m_cscClusterProvider("CscThresholdClusterBuilderTool")
+   m_regionSelector( "RegSelSvc", name )
 {
-   declareInterface<TrigL2MuonSA::CscDataPreparator>(this);
-   declareProperty("CscRawDataProvider",  m_rawDataProviderTool);
-   declareProperty("CscPrepDataProvider", m_cscPrepDataProvider);
-   declareProperty("CscClusterProvider",  m_cscClusterProvider);
 }
 
 // --------------------------------------------------------------------------------
@@ -77,17 +63,8 @@ StatusCode TrigL2MuonSA::CscDataPreparator::initialize()
 
    ATH_CHECK(m_cscPrepContainerKey.initialize(!m_cscPrepContainerKey.empty()));
 
-   // 
+   //
    return StatusCode::SUCCESS; 
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-void TrigL2MuonSA::CscDataPreparator::setRoIBasedDataAccess(bool use_RoIBasedDataAccess)
-{
-  m_use_RoIBasedDataAccess = use_RoIBasedDataAccess;
-  return;
 }
 
 // --------------------------------------------------------------------------------
@@ -152,26 +129,19 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const TrigRoiDescriptor*
   // Get CSC container
   if(!m_cscPrepContainerKey.empty() &&(!m_doDecoding || to_full_decode || !cscHashIDs.empty() )){
     auto cscPrepContainerHandle = SG::makeHandle(m_cscPrepContainerKey);
-    const CscPrepDataContainer* cscPrepContainer = cscPrepContainerHandle.cptr();
+    const Muon::CscPrepDataContainer* cscPrepContainer = cscPrepContainerHandle.cptr();
     if (!cscPrepContainerHandle.isValid()) {
       ATH_MSG_ERROR("Cannot retrieve CSC PRD Container key: " << m_cscPrepContainerKey.key());
       return StatusCode::FAILURE;
     }    
+
     // Loop over collections
-    CscPrepDataContainer::const_iterator it = cscPrepContainer->begin();
-    CscPrepDataContainer::const_iterator it_end = cscPrepContainer->end();
-    for( ; it != it_end; ++it ){
-      const Muon::CscPrepDataCollection* col = *it;
-      if( !col ) continue;
-
+    for( const Muon::CscPrepDataCollection* cscCol : *cscPrepContainer ){
+      if( cscCol==nullptr ) continue;
+      cscHits.reserve( cscHits.size() + cscCol->size() );
       // Loop over data in the collection
-      Muon::CscPrepDataCollection::const_iterator cit = col->begin();
-      Muon::CscPrepDataCollection::const_iterator cit_end = col->end();
-      for( ; cit != cit_end; ++cit ){
-	if( !*cit ) continue;
-
-	// Data in the collection
-	const Muon::CscPrepData& prepData = **cit;
+      for( const Muon::CscPrepData* prepData : *cscCol ) {
+    	if( prepData==nullptr ) continue;
 
 	// Road info
 	int chamber = xAOD::L2MuonParameters::Chamber::CSC;
@@ -181,29 +151,29 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const TrigRoiDescriptor*
 	double phiw = muonRoad.phi[4][0];//roi_descriptor->phi(); //muonRoad.phi[chamber][0];
 
 	//cluster status
-	bool isunspoiled = IsUnspoiled (prepData.status());
+	bool isunspoiled = IsUnspoiled (prepData->status());
 
 
 	// Create new digit
 	TrigL2MuonSA::CscHitData cscHit;
-	cscHit.StationName  = m_idHelperSvc->cscIdHelper().stationName( prepData.identify() );
-	cscHit.StationEta   = m_idHelperSvc->cscIdHelper().stationEta( prepData.identify() );
-	cscHit.StationPhi   = m_idHelperSvc->cscIdHelper().stationPhi( prepData.identify() );
+	cscHit.StationName  = m_idHelperSvc->cscIdHelper().stationName( prepData->identify() );
+	cscHit.StationEta   = m_idHelperSvc->cscIdHelper().stationEta( prepData->identify() );
+	cscHit.StationPhi   = m_idHelperSvc->cscIdHelper().stationPhi( prepData->identify() );
 	cscHit.ChamberLayer = (true==isunspoiled) ? 1 : 0;
-	cscHit.WireLayer    = m_idHelperSvc->cscIdHelper().wireLayer( prepData.identify() );
-	cscHit.MeasuresPhi  = m_idHelperSvc->cscIdHelper().measuresPhi( prepData.identify() );
-	cscHit.Strip        = m_idHelperSvc->cscIdHelper().strip( prepData.identify() );
+	cscHit.WireLayer    = m_idHelperSvc->cscIdHelper().wireLayer( prepData->identify() );
+	cscHit.MeasuresPhi  = m_idHelperSvc->cscIdHelper().measuresPhi( prepData->identify() );
+	cscHit.Strip        = m_idHelperSvc->cscIdHelper().strip( prepData->identify() );
 	cscHit.Chamber      = chamber;
 	cscHit.StripId = (cscHit.StationName << 18)
 	  | ((cscHit.StationEta + 2) << 16) | (cscHit.StationPhi << 12)
 	  | (cscHit.WireLayer << 9) | (cscHit.MeasuresPhi << 8) | (cscHit.Strip);
-	cscHit.eta = prepData.globalPosition().eta();
-	cscHit.phi = prepData.globalPosition().phi();
-	cscHit.r   = prepData.globalPosition().perp();
-	cscHit.z   = prepData.globalPosition().z();
-	cscHit.charge = prepData.charge();
-	cscHit.time   = prepData.time();
-	cscHit.resolution = sqrt( prepData.localCovariance()(0,0) );
+	cscHit.eta = prepData->globalPosition().eta();
+	cscHit.phi = prepData->globalPosition().phi();
+	cscHit.r   = prepData->globalPosition().perp();
+	cscHit.z   = prepData->globalPosition().z();
+	cscHit.charge = prepData->charge();
+	cscHit.time   = prepData->time();
+	cscHit.resolution = sqrt( prepData->localCovariance()(0,0) );
 	cscHit.Residual =  ( cscHit.MeasuresPhi==0 ) ? calc_residual( aw, bw, cscHit.z, cscHit.r ) : calc_residual_phi( aw,bw,phiw, cscHit.phi, cscHit.z);
 	cscHit.isOutlier = 0;
 	/*if( fabs(cscHit.Residual) > rWidth ) {
