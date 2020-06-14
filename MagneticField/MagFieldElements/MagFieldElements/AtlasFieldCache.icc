@@ -9,17 +9,14 @@ MagField::AtlasFieldCache::fillFieldCache(double z, double r, double phi)
   // search for the zone
   const BFieldZone* zone =
     m_fieldMap ? m_fieldMap->findBFieldZone(z, r, phi) : nullptr;
-  if (zone == nullptr) {
+
+  if (!zone) {
     // outsize all zones
     return false;
   }
 
   // set scale for field
-  if (zone->id() == m_solZoneId) {
-    m_scaleToUse = m_solScale;
-  } else {
-    m_scaleToUse = m_torScale;
-  }
+  m_scaleToUse = (zone->id() == m_solZoneId) ? m_solScale : m_torScale;
 
   // fill the cache, pass in current scale factor
   zone->getCache(z, r, phi, m_cache3d, m_scaleToUse);
@@ -34,14 +31,17 @@ MagField::AtlasFieldCache::fillFieldCache(double z, double r, double phi)
 inline bool
 MagField::AtlasFieldCache::fillFieldCacheZR(double z, double r)
 {
-  // is it inside the solenoid zone?
-  if (m_meshZR && m_meshZR->inside(z, r)) {
-    // fill the cache, pass in current scale factor
-    m_meshZR->getCache(z, r, m_cacheZR, m_solScale);
-    return true;
+  // No mesh available
+  if (!m_meshZR) {
+    return false;
   }
-  // outside solenoid
-  return false;
+  // Not inside the solenoid zone?
+  if (!m_meshZR->inside(z, r)) {
+    return false;
+  }
+  // fill the cache, pass in current scale factor
+  m_meshZR->getCache(z, r, m_cacheZR, m_solScale);
+  return true;
 }
 
 inline void
@@ -49,18 +49,18 @@ MagField::AtlasFieldCache::getField(const double* ATH_RESTRICT xyz,
                                     double* ATH_RESTRICT bxyz,
                                     double* ATH_RESTRICT deriv)
 {
-    // Allow for the case of no map for testing
-  if ( m_fieldMap == nullptr ) {
-      // constant ATLAS magnetic field if no map has been set - for testing
-      constexpr double TEST_BFIELD = 1.997;      
-      bxyz[0] = bxyz[1] = 0;
-      bxyz[2] = TEST_BFIELD;
-      if (deriv) {
-        for (int i = 0; i < 9; i++) {
-          deriv[i] = 0.;
-        }
+  // Allow for the case of no map for testing
+  if (m_fieldMap == nullptr) {
+    // constant ATLAS magnetic field if no map has been set - for testing
+    constexpr double TEST_BFIELD = 1.997;
+    bxyz[0] = bxyz[1] = 0;
+    bxyz[2] = TEST_BFIELD;
+    if (deriv) {
+      for (int i = 0; i < 9; i++) {
+        deriv[i] = 0.;
       }
-      return;
+    }
+    return;
   }
 
   const double x = xyz[0];
@@ -89,13 +89,15 @@ MagField::AtlasFieldCache::getField(const double* ATH_RESTRICT xyz,
 
   // do interpolation (cache3d has correct scale factor)
   m_cache3d.getB(xyz, r, phi, bxyz, deriv);
+
+  if (!m_cond) {
+    return;
+  }
   // add biot savart component - must add in scale factor to avoid changing
   // conductor SF since the conductor is part of the static magnetic field model
-  if (m_cond) {
-    const size_t condSize = m_cond->size();
-    for (size_t i = 0; i < condSize; i++) {
-      (*m_cond)[i].addBiotSavart(m_scaleToUse, xyz, bxyz, deriv);
-    }
+  const size_t condSize = m_cond->size();
+  for (size_t i = 0; i < condSize; i++) {
+    (*m_cond)[i].addBiotSavart(m_scaleToUse, xyz, bxyz, deriv);
   }
 }
 
@@ -106,17 +108,17 @@ MagField::AtlasFieldCache::getFieldZR(const double* ATH_RESTRICT xyz,
 {
 
   // Allow for the case of no map for testing
-  if ( m_fieldMap == nullptr ) {
-      // constant ATLAS magnetic field if no map has been set - for testing
-      constexpr double TEST_BFIELD = 1.997;
-      bxyz[0] = bxyz[1] = 0;
-      bxyz[2] = TEST_BFIELD;
-      if (deriv) {
-        for (int i = 0; i < 9; i++) {
-          deriv[i] = 0.;
-        }
+  if (m_fieldMap == nullptr) {
+    // constant ATLAS magnetic field if no map has been set - for testing
+    constexpr double TEST_BFIELD = 1.997;
+    bxyz[0] = bxyz[1] = 0;
+    bxyz[2] = TEST_BFIELD;
+    if (deriv) {
+      for (int i = 0; i < 9; i++) {
+        deriv[i] = 0.;
       }
-      return;
+    }
+    return;
   }
 
   const double x = xyz[0];
@@ -141,13 +143,14 @@ MagField::AtlasFieldCache::getFieldZR(const double* ATH_RESTRICT xyz,
   m_cacheZR.getB(xyz, r, bxyz, deriv);
 }
 
-
 inline bool
-MagField::AtlasFieldCache::solenoidOn() const {
-    return m_fieldMap ? m_fieldMap->solenoidOn() : false;
+MagField::AtlasFieldCache::solenoidOn() const
+{
+  return m_fieldMap ? m_fieldMap->solenoidOn() : false;
 }
 
 inline bool
-MagField::AtlasFieldCache::toroidOn() const {
-    return m_fieldMap ? m_fieldMap->toroidOn() : false;
+MagField::AtlasFieldCache::toroidOn() const
+{
+  return m_fieldMap ? m_fieldMap->toroidOn() : false;
 }
