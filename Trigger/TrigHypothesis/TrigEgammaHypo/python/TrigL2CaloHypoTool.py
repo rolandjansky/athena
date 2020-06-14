@@ -8,8 +8,35 @@ from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from TrigEgammaHypo.TrigL2CaloHypoCutDefs import L2CaloCutMaps
 
+import re
+_pattern = "(?P<mult>\d*)(e(?P<threshold1>\d+))(e(?P<threshold2>\d+))*"
+_cpattern = re.compile( _pattern )
+_possibleSel  = { 'tight':'Tight', 'medium':'Medium', 'loose':'Loose', 'vloose':'VeryLoose',
+                  'lhtight':'Tight', 'lhmedium':'Medium', 'lhloose':'Loose', 'lhvloose':'VeryLoose'}
+
+
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TrigL2CaloHypoTool')
+
+def _GetPath( cand, sel, basepath = 'RingerSelectorTools/TrigL2_20180903_v9' ):
+    
+    logger = logging.getLogger("TrigMultiVarHypo.GetPath")
+    from TriggerMenu.egamma.EgammaSliceFlags import EgammaSliceFlags
+    if EgammaSliceFlags.ringerVersion():
+       basepath = EgammaSliceFlags.ringerVersion()
+    logger.info('TrigMultiVarHypo version: %s', basepath)
+    if not sel in _possibleSel.keys():
+       raise RuntimeError( "Bad selection name: %s" % sel )
+    if 'e' in cand:
+       constant = basepath+'/'+ 'TrigL2CaloRingerElectron{SEL}Constants.root'.format(SEL=_possibleSel[sel])
+       threshold = basepath+'/'+ 'TrigL2CaloRingerElectron{SEL}Thresholds.root'.format(SEL=_possibleSel[sel])
+    elif 'g' in cand:
+       constant = basepath+'/'+ 'TrigL2CaloRingerPhoton{SEL}Constants.root'.format(SEL=_possibleSel[sel])
+       threshold = basepath+'/'+ 'TrigL2CaloRingerPhoton{SEL}Thresholds.root'.format(SEL=_possibleSel[sel])
+    else:
+       raise RuntimeError( "Bad signature %s" % cand )
+    return constant, threshold
+
 
 def _IncTool(name, threshold, sel):
 
@@ -17,6 +44,7 @@ def _IncTool(name, threshold, sel):
     from AthenaConfiguration.ComponentFactory import CompFactory
     tool = CompFactory.TrigL2CaloHypoToolInc( name )
     tool.AcceptAll = False
+    
 
     if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in  TriggerFlags.enableMonitoring():
         monTool = GenericMonitoringTool("MonTool_"+name)
@@ -65,6 +93,7 @@ def _IncTool(name, threshold, sel):
 
     if sel == 'nocut' or 'idperf' in name:
         tool.AcceptAll = True
+        tool.UseRinger = False
         tool.ETthr          = same( float( threshold )*GeV )
         tool.dETACLUSTERthr = 9999.
         tool.dPHICLUSTERthr = 9999.
@@ -73,7 +102,8 @@ def _IncTool(name, threshold, sel):
         tool.CARCOREthr     = same( -9999. )
         tool.CAERATIOthr    = same( -9999. )
 
-    elif "etcut" in sel: # stcut is part of the name, it can as well be etcut1step (test chains)
+    elif "etcut" or "noringer" in sel: # stcut is part of the name, it can as well be etcut1step (test chains)
+        tool.UseRinger = False
         tool.ETthr          = same( ( float( threshold ) -  3 )*GeV )
         # No other cuts applied
         tool.dETACLUSTERthr = 9999.
@@ -84,12 +114,41 @@ def _IncTool(name, threshold, sel):
         tool.CAERATIOthr    = same( -9999. )
 
     elif sel in possibleSel: # real selection
+        tool.UseRinger = False
         tool.ETthr       = same( ( float( threshold ) - 3 )*GeV )
         tool.HADETthr    = L2CaloCutMaps( threshold ).MapsHADETthr[sel]
         tool.CARCOREthr  = L2CaloCutMaps( threshold ).MapsCARCOREthr[sel]
         tool.CAERATIOthr = L2CaloCutMaps( threshold ).MapsCAERATIOthr[sel]
+    
+    elif sel in _possibleSel.keys():
+        tool.UseRinger = True
+        pconstants, pthresholds = _GetPath( "e", sel )
+        tool.ConstantsCalibPath = pconstants
+        tool.ThresholdsCalibPath = pthresholds
+        tool.MonTool = ""
+        tool.EtCut = (float(threshold)-3.)*GeV
+
+        # monitoring part  
+    
+        if (('Validation' in TriggerFlags.enableMonitoring()) or
+        ('Online' in  TriggerFlags.enableMonitoring())    or 
+        (athenaCommonFlags.isOnline)):
+            monTool = GenericMonitoringTool('MonTool'+name)
+            monTool.Histograms = [
+                defineHistogram( "TIME_total", path='EXPERT',title="Total Time;time[ms]",xbins=50, xmin=0,xmax=5,type='TH1F'),
+                defineHistogram( "TIME_preproc", path='EXPERT',title="Total Time;time[ms]",xbins=50, xmin=0,xmax=5,type='TH1F'),
+                defineHistogram( "TIME_propagate",path='EXPERT', title="Total Time;time[ms]",xbins=50, xmin=0,xmax=5,type='TH1F'),
+                defineHistogram('Eta', type='TH1F', path='EXPERT',title="#eta of Clusters; #eta; number of RoIs", xbins=50,xmin=-2.5,xmax=2.5),
+                defineHistogram('Phi',type='TH1F', path='EXPERT',title="#phi of Clusters; #phi; number of RoIs", xbins=64,xmin=-3.2,xmax=3.2),
+                defineHistogram('Et',type='TH1F', path='EXPERT',title="E_{T} of Clusters; E_{T} [MeV]; number of RoIs", xbins=60,xmin=0,xmax=5e4),
+                defineHistogram('RnnOut',type='TH1F', path='EXPERT',title="Neural Network output; NN output; number of RoIs", xbins=100,xmin=-10,xmax=10),
+            ]
+    
+        monTool.HistPath='L2CaloHypo_Ringer/'+monTool.name()
+        tool.MonTool=monTool
 
 
+    
     etaBinsLen = len( tool.EtaBins ) - 1
     for prop in "ETthr HADETthr CARCOREthr CARCOREthr F1thr F3thr WSTOTthr WETA2thr HADETthr HADETthr ET2thr".split():
         propLen = len( getattr( tool, prop ) )

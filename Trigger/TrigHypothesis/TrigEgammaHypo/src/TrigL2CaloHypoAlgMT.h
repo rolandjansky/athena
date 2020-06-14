@@ -12,6 +12,9 @@
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "DecisionHandling/HypoBase.h"
+#include "xAODTrigRinger/TrigRingerRings.h"
+#include "xAODTrigRinger/TrigRingerRingsContainer.h"
+
 
 #include "ITrigL2CaloHypoTool.h"
 
@@ -31,6 +34,7 @@ class TrigL2CaloHypoAlgMT : public ::HypoBase {
   ToolHandleArray< ITrigL2CaloHypoTool > m_hypoTools { this, "HypoTools", {}, "Hypo tools" };
      
   SG::ReadHandleKey< xAOD::TrigEMClusterContainer > m_clustersKey { this, "CaloClusters", "CaloClusters", "CaloClusters in view" };
+  SG::ReadHandleKey<xAOD::TrigRingerRingsContainer> m_ringsKey { this, "RingerKey","HLT_FastCaloRinger","Point to RingerKey"};
 }; 
 
 #endif //> !TRIGEGAMMAHYPO_TESTTRIGL2CALOHYPOALG_H

@@ -7,6 +7,11 @@
 //#include "GaudiKernel/IAlgTool.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
+
+#include "xAODTrigRinger/TrigRingerRings.h"
+#include "TrigMultiVarHypo/tools/RingerSelectorTool.h"
+#include "LumiBlockComps/ILumiBlockMuTool.h"
+
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
@@ -34,7 +39,11 @@ class TrigL2CaloHypoToolInc : public extends<AthAlgTool, ITrigL2CaloHypoTool> {
 
  private:
   HLT::Identifier m_decisionId;
-  
+  Ringer::RingerSelectorTool        m_selectorTool;
+  ToolHandle<ILumiBlockMuTool>      m_lumiBlockMuTool;
+  Gaudi::Property<std::string>      m_constantsCalibPath{this, "ConstantsCalibPath", "", "Constants Calib Path"};  
+  Gaudi::Property<std::string>      m_thresholdsCalibPath{this, "ThresholdsCalibPath", "", "Thresholds Calib Path"};  
+
   //Calorimeter electron ID  cuts
   Gaudi::Property< std::vector<float> > m_etabin { this, "EtaBins", {} , "Bins of eta" }; //!<  selection variable for L2 calo selection:eta bins
   Gaudi::Property< std::vector<float> > m_eTthr { this, "ETthr", {}, "ET Threshold" };
@@ -50,7 +59,9 @@ class TrigL2CaloHypoToolInc : public extends<AthAlgTool, ITrigL2CaloHypoTool> {
   Gaudi::Property< float > m_detacluster { this, "dETACLUSTERthr", 0. , "" };
   Gaudi::Property< float > m_dphicluster { this, "dPHICLUSTERthr", 0. , "" };  
   Gaudi::Property< bool > m_acceptAll { this, "AcceptAll", false , "Ignore selection" };
-  
+  Gaudi::Property< bool > m_useRinger { this, "UseRinger", false , "Use Ringer Selection" };
+  Gaudi::Property<double>           m_emEtCut{this,"EtCut", 0.0, "Et threshold"};  
+
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
   
   int findCutIndex( float eta ) const;

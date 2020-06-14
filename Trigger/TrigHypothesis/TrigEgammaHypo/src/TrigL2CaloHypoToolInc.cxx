@@ -6,6 +6,7 @@
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/Combinators.h"
 #include "AthenaMonitoringKernel/Monitored.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include "TrigL2CaloHypoToolInc.h"
 
@@ -16,9 +17,28 @@ TrigL2CaloHypoToolInc::TrigL2CaloHypoToolInc( const std::string& type,
 		    const std::string& name, 
 		    const IInterface* parent ) 
   : base_class( type, name, parent ),
-    m_decisionId( HLT::Identifier::fromToolName( name ) ) {}
+    m_selectorTool(),
+    m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool"),
+    m_decisionId( HLT::Identifier::fromToolName( name ) ) 
+{
+declareProperty("LumiBlockMuTool", m_lumiBlockMuTool, "Luminosity Tool" );
+}
 
 StatusCode TrigL2CaloHypoToolInc::initialize()  {
+
+if (m_useRinger){ 
+  m_selectorTool.setConstantsCalibPath( m_constantsCalibPath ); 
+  m_selectorTool.setThresholdsCalibPath( m_thresholdsCalibPath ); 
+
+  if(m_selectorTool.initialize().isFailure())
+    return StatusCode::FAILURE;
+  
+  if (m_lumiBlockMuTool.retrieve().isFailure())
+    return StatusCode::FAILURE;
+  
+  ATH_MSG_INFO("TrigL2CaloRingerHypo initialization completed successfully.");
+ 
+}
   ATH_MSG_DEBUG( "Initialization completed successfully"   );   
   ATH_MSG_DEBUG( "AcceptAll           = " << ( m_acceptAll==true ? "True" : "False" ) ); 
   ATH_MSG_DEBUG( "EtaBins        = " << m_etabin      );
@@ -52,8 +72,6 @@ StatusCode TrigL2CaloHypoToolInc::initialize()  {
   CHECK_SIZE( F3thr );
 #undef CHECK_SIZE
 
-
-
   ATH_MSG_DEBUG( "Tool configured for chain/id: " << m_decisionId );
 
   if ( not m_monTool.name().empty() ) 
@@ -70,31 +88,7 @@ TrigL2CaloHypoToolInc::~TrigL2CaloHypoToolInc(){}
 bool TrigL2CaloHypoToolInc::decide( const ITrigL2CaloHypoTool::ClusterInfo& input ) const {
 
   bool pass = false;
-
-  // TB Not sure if anything else than the CutCounter should monitored it in every cut tool, 
-  // Should  quantitities be filled only after the succesful selection?
-
-  auto dEta         = Monitored::Scalar( "dEta", -1. ); 
-  auto dPhi         = Monitored::Scalar( "dPhi", -1. );
-  auto eT_T2Calo    = Monitored::Scalar( "Et_em"   , -1.0 );
-  auto hadET_T2Calo = Monitored::Scalar( "Et_had", -1.0 );
-  auto rCore        = Monitored::Scalar( "RCore"       , -1.0 );
-  auto energyRatio  = Monitored::Scalar( "ERatio" , -1.0 );
-  auto etaBin       = Monitored::Scalar( "EtaBin", -1. );
-  auto monEta       = Monitored::Scalar( "Eta", -99. ); 
-  auto monPhi       = Monitored::Scalar( "Phi", -99. );
-  auto F1           = Monitored::Scalar( "F1"          , -1.0 );  
-  auto Weta2        = Monitored::Scalar( "Weta2"       , -1.0 );
-  auto Wstot        = Monitored::Scalar( "Wstot"       , -1.0 );
-  auto F3           = Monitored::Scalar( "F3"          , -1.0 );
-  auto PassedCuts   = Monitored::Scalar<int>( "CutCounter", -1 );  
-  auto monitorIt    = Monitored::Group( m_monTool, 
-					       dEta, dPhi, eT_T2Calo, hadET_T2Calo,
-					       rCore, energyRatio, etaBin, monEta,
-					       monPhi, F1, Weta2, Wstot, F3, PassedCuts );
-  // when leaving scope it will ship data to monTool
-  PassedCuts = PassedCuts + 1; //got called (data in place)
-
+  
   if ( m_acceptAll ) {
     pass = true;
     ATH_MSG_DEBUG( "AcceptAll property is set: taking all events" );
@@ -102,6 +96,95 @@ bool TrigL2CaloHypoToolInc::decide( const ITrigL2CaloHypoTool::ClusterInfo& inpu
     pass = false;
     ATH_MSG_DEBUG( "AcceptAll property not set: applying selection" );
   }
+   
+  // TB Not sure if anything else than the CutCounter should monitored it in every cut tool, 
+  // Should  quantitities be filled only after the succesful selection?
+
+  auto monEta     =  Monitored::Scalar("Eta",-100);
+  auto monPhi     =  Monitored::Scalar("Phi",-100); 
+ 
+  if(m_useRinger){
+    auto etMon      =  Monitored::Scalar("Et",-100);
+    auto rnnOutMon  =  Monitored::Scalar("RnnOut",-100);
+    auto total_time     = Monitored::Timer("TIME_total");
+    auto propagate_time = Monitored::Timer("TIME_propagate");
+    auto preproc_time   = Monitored::Timer("TIME_preproc");
+    auto decide_time    = Monitored::Timer("TIME_decide");
+    auto mon = Monitored::Group(m_monTool,etMon,monEta,monPhi,rnnOutMon,total_time,propagate_time,preproc_time,decide_time);
+    
+    total_time.start();
+    auto ringerShape = input.ringerShape;
+    const xAOD::TrigEMCluster *emCluster = 0;
+    if(ringerShape){
+    	emCluster = ringerShape->emCluster();
+    	//emCluster= input.cluster;
+        if(!emCluster){
+      		ATH_MSG_WARNING( "There is no link to xAOD::TrigEMCluster into the Ringer object.");
+      		return false;
+    	}
+    }
+    else{
+    	ATH_MSG_WARNING( "There is no xAOD::TrigRingerRings link into the rnnOutput object.");
+    	return false;
+    }
+
+    float eta     = std::fabs(emCluster->eta());
+    float et      = emCluster->et() / Gaudi::Units::GeV;
+    float avgmu   = m_lumiBlockMuTool->averageInteractionsPerCrossing();
+  
+    if(eta>2.50) eta=2.50;///fix for events out of the ranger
+
+    // make sure that monitoring histogram will plotting only the events of chain.
+    ///Et threshold
+    if(et < m_emEtCut/Gaudi::Units::GeV){
+    	ATH_MSG_DEBUG( "Event reproved by Et threshold. Et = " << et << ", EtCut = " << m_emEtCut/Gaudi::Units::GeV);
+    	return false;
+    }
+
+   monEta = emCluster->eta();
+   etMon  = emCluster->et();
+   monPhi = emCluster->phi();
+  
+   const std::vector<float> rings = ringerShape->rings();
+   std::vector<float> refRings(rings.size());
+   refRings.assign(rings.begin(), rings.end());
+  
+   ATH_MSG_DEBUG("Et = "<< et << " Eta = "<<eta << " mu = " << avgmu << "rsize = "<< refRings.size()); 
+
+   auto output = m_selectorTool.calculate( refRings, et, eta, avgmu, propagate_time, preproc_time );
+   rnnOutMon = output;
+   ATH_MSG_DEBUG(name()<< " generate as NN output " <<  output );
+  
+   decide_time.start();
+   bool accept = m_selectorTool.accept(output, et,eta,avgmu);
+   decide_time.stop();
+
+   total_time.stop();
+   return accept;
+  }
+
+  else{
+    auto dEta         = Monitored::Scalar( "dEta", -1. ); 
+    auto dPhi         = Monitored::Scalar( "dPhi", -1. );
+    auto eT_T2Calo    = Monitored::Scalar( "Et_em"   , -1.0 );
+    auto hadET_T2Calo = Monitored::Scalar( "Et_had", -1.0 );
+    auto rCore        = Monitored::Scalar( "RCore"       , -1.0 );
+    auto energyRatio  = Monitored::Scalar( "ERatio" , -1.0 );
+    auto etaBin       = Monitored::Scalar( "EtaBin", -1. );
+    auto monEta       = Monitored::Scalar( "Eta", -99. ); 
+    auto monPhi       = Monitored::Scalar( "Phi", -99. );
+    auto F1           = Monitored::Scalar( "F1"          , -1.0 );  
+    auto Weta2        = Monitored::Scalar( "Weta2"       , -1.0 );
+    auto Wstot        = Monitored::Scalar( "Wstot"       , -1.0 );
+    auto F3           = Monitored::Scalar( "F3"          , -1.0 );
+    auto PassedCuts   = Monitored::Scalar<int>( "CutCounter", -1 );  
+    auto monitorIt    = Monitored::Group( m_monTool, 
+					       dEta, dPhi, eT_T2Calo, hadET_T2Calo,
+					       rCore, energyRatio, etaBin, monEta,
+					       monPhi, F1, Weta2, Wstot, F3, PassedCuts );
+  // when leaving scope it will ship data to monTool
+  PassedCuts = PassedCuts + 1; //got called (data in place)
+
   auto roiDescriptor = input.roi;
 
 
@@ -289,6 +372,7 @@ bool TrigL2CaloHypoToolInc::decide( const ITrigL2CaloHypoTool::ClusterInfo& inpu
   ATH_MSG_DEBUG( "pass = " << pass );
 
   return pass;
+}
 }
 
 int TrigL2CaloHypoToolInc::findCutIndex( float eta ) const {

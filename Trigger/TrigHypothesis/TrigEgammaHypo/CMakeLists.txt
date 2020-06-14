@@ -18,8 +18,10 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTrigCalo
                           Event/xAOD/xAODTrigEgamma
                           Event/xAOD/xAODTrigger
+                          Event/xAOD/xAODTrigRinger
                           GaudiKernel
                           LumiBlock/LumiBlockComps
+                          Tools/PathResolver
                           PhysicsAnalysis/AnalysisCommon/PATCore
                           PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
                           Reconstruction/egamma/egammaInterfaces
@@ -32,6 +34,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigSteer/TrigInterfaces
                           Trigger/TrigT1/TrigT1Interfaces
                           Trigger/TrigTools/TrigTimeAlgs
+                          Trigger/TrigHypothesis/TrigMultiVarHypo
                           PRIVATE
                           Calorimeter/CaloEvent
                           Control/CxxUtils
@@ -58,7 +61,7 @@ atlas_add_component( TrigEgammaHypo
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloUtilsLib AthLinks AthenaBaseComps StoreGateLib SGtests AthenaMonitoringKernelLib xAODCaloEvent xAODEgamma xAODTracking xAODTrigCalo xAODTrigEgamma GaudiKernel LumiBlockCompsLib PATCoreLib EgammaAnalysisInterfacesLib TrkSurfaces VxVertex TrigCaloEvent TrigInDetEvent TrigParticle TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigTimeAlgsLib CaloEvent CxxUtils ITrackToVertex RecoToolInterfaces egammaEvent egammaMVACalibLib TrkCaloExtension TrigCaloRecLib TrigMissingEtEvent TrigNavigationLib DecisionHandlingLib AthViews TrigCompositeUtilsLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloUtilsLib AthLinks AthenaBaseComps StoreGateLib SGtests AthenaMonitoringKernelLib TrigMultiVarHypoLib xAODTrigRinger xAODCaloEvent xAODEgamma xAODTracking xAODTrigCalo xAODTrigEgamma GaudiKernel LumiBlockCompsLib PathResolver PATCoreLib EgammaAnalysisInterfacesLib TrkSurfaces VxVertex TrigCaloEvent TrigInDetEvent TrigParticle TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigTimeAlgsLib CaloEvent CxxUtils ITrackToVertex RecoToolInterfaces egammaEvent egammaMVACalibLib TrkCaloExtension TrigCaloRecLib TrigMissingEtEvent TrigNavigationLib DecisionHandlingLib AthViews TrigCompositeUtilsLib )
 
 # Install files from the package:
 atlas_install_headers( TrigEgammaHypo )

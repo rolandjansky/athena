@@ -5,6 +5,11 @@
 #define TRIGEGAMMAHYPO_ITRIGL2CALOHYPOTOOL_H 1
 
 #include "GaudiKernel/IAlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "DecisionHandling/HLTIdentifier.h"
+#include "DecisionHandling/TrigCompositeUtils.h"
+#include "xAODTrigRinger/TrigRingerRings.h"
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 
 
@@ -24,18 +29,23 @@ class ITrigL2CaloHypoTool
   virtual ~ITrigL2CaloHypoTool(){}
 
   struct ClusterInfo {
-  ClusterInfo( TrigCompositeUtils::Decision* d, const TrigRoiDescriptor* r, const xAOD::TrigEMCluster* c,
-	       const TrigCompositeUtils::Decision* previousDecision )
+  ClusterInfo( TrigCompositeUtils::Decision* d, 
+               const TrigRoiDescriptor* r, 
+               const xAOD::TrigEMCluster* c,
+	       const xAOD::TrigRingerRings* ring,
+               const TrigCompositeUtils::Decision* previousDecision )
   : decision( d ), 
-      roi( r ), 
-      cluster(c), 
-      previousDecisionIDs( TrigCompositeUtils::decisionIDs( previousDecision ).begin(), 
+    roi( r ), 
+    cluster(c), 
+    ringerShape(ring),
+    previousDecisionIDs( TrigCompositeUtils::decisionIDs( previousDecision ).begin(), 
 			   TrigCompositeUtils::decisionIDs( previousDecision ).end() )
     {}
     
     TrigCompositeUtils::Decision* decision;
     const TrigRoiDescriptor* roi;
     const xAOD::TrigEMCluster* cluster;
+    const xAOD::TrigRingerRings* ringerShape;
     const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
   };
   
