@@ -33,7 +33,7 @@ MagField::AtlasFieldMapCondAlg::AtlasFieldMapCondAlg(const std::string& name,
     :AthReentrantAlgorithm(name, pSvcLocator){ 
 }
 
-MagField::AtlasFieldMapCondAlg::~AtlasFieldMapCondAlg(){ }
+MagField::AtlasFieldMapCondAlg::~AtlasFieldMapCondAlg()= default;
 
 StatusCode
 MagField::AtlasFieldMapCondAlg::initialize() {
@@ -213,7 +213,7 @@ MagField::AtlasFieldMapCondAlg::updateFieldMap(const EventContext& ctx, Cache& c
             ATH_MSG_INFO("updateFieldMap: tagInfoH " << tagInfoH.fullKey() << " is valid. ");
             int i = 0;
             bool resetCurrentsFromTagInfo = false;
-            for ( auto tag : tagInfoH->getTags() ) {
+            for ( const auto& tag : tagInfoH->getTags() ) {
                 ATH_MSG_DEBUG("updateFieldMap: i, tags: " << i << " " << tag.first << " " << tag.second);
                 ++i;
                 if (tag.first == "MapSoleCurrent") {

@@ -2,7 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-
 /** fill given magnetic field zone */
 inline bool
 MagField::AtlasFieldCache::fillFieldCache(double z, double r, double phi)
@@ -37,15 +36,12 @@ MagField::AtlasFieldCache::fillFieldCacheZR(double z, double r)
 {
   // is it inside the solenoid zone?
   if (m_meshZR && m_meshZR->inside(z, r)) {
-
     // fill the cache, pass in current scale factor
     m_meshZR->getCache(z, r, m_cacheZR, m_solScale);
-
-  } else {
-    // outside solenoid
-    return false;
+    return true;
   }
-  return true;
+  // outside solenoid
+  return false;
 }
 
 inline void
@@ -59,15 +55,19 @@ MagField::AtlasFieldCache::getField(const double* ATH_RESTRICT xyz,
       constexpr double TEST_BFIELD = 1.997;      
       bxyz[0] = bxyz[1] = 0;
       bxyz[2] = TEST_BFIELD;
-      if (deriv) for (int i = 0; i < 9; i++) deriv[i] = 0.;
+      if (deriv) {
+        for (int i = 0; i < 9; i++) {
+          deriv[i] = 0.;
+        }
+      }
       return;
   }
-    
-  const double& x(xyz[0]);
-  const double& y(xyz[1]);
-  const double& z(xyz[2]);
-  double r = std::sqrt(x * x + y * y);
-  double phi = std::atan2(y, x);
+
+  const double x = xyz[0];
+  const double y = xyz[1];
+  const double z = xyz[2];
+  const double r = std::sqrt(x * x + y * y);
+  const double phi = std::atan2(y, x);
 
   // test if initialised and the cache is valid
   if (!m_cache3d.inside(z, r, phi)) {
@@ -108,17 +108,21 @@ MagField::AtlasFieldCache::getFieldZR(const double* ATH_RESTRICT xyz,
   // Allow for the case of no map for testing
   if ( m_fieldMap == nullptr ) {
       // constant ATLAS magnetic field if no map has been set - for testing
-      constexpr double TEST_BFIELD = 1.997;      
+      constexpr double TEST_BFIELD = 1.997;
       bxyz[0] = bxyz[1] = 0;
       bxyz[2] = TEST_BFIELD;
-      if (deriv) for (int i = 0; i < 9; i++) deriv[i] = 0.;
+      if (deriv) {
+        for (int i = 0; i < 9; i++) {
+          deriv[i] = 0.;
+        }
+      }
       return;
   }
-    
-  const double& x(xyz[0]);
-  const double& y(xyz[1]);
-  const double& z(xyz[2]);
-  double r = sqrt(x * x + y * y);
+
+  const double x = xyz[0];
+  const double y = xyz[1];
+  const double z = xyz[2];
+  const double r = sqrt(x * x + y * y);
 
   // test if the cache was initialized and the ZR cache is valid for current
   // position
