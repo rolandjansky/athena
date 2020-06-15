@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -271,7 +271,7 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
 //---------------------------------------------------------
             long int PixelHits = 3, SctHits = 9, SharedHits = 0, BLayHits = 1;
 	    if(m_SummaryToolExist) {
-              const Trk::TrackSummary* testSum = m_sumSvc->createSummary(*(*i_ntrk));
+              std::unique_ptr<const Trk::TrackSummary> testSum = m_sumSvc->summary(*(*i_ntrk));
               PixelHits = (long int) testSum->get(Trk::numberOfPixelHits);
               SctHits   = (long int) testSum->get(Trk::numberOfSCTHits);
               BLayHits  = (long int) testSum->get(Trk::numberOfInnermostPixelLayerHits);
@@ -279,7 +279,6 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
 	      if(PixelHits<0)PixelHits=0;
               if(SctHits<0)SctHits=0;
               if(BLayHits<0)BLayHits=0; 
-              delete testSum;
             }
 //---------------------------------------------------------	
             //double ImpactSignif = m_fitSvc->VKalGetImpact((*i_ntrk), cache.m_BeamCnst, 1, Impact, ImpactError);  //VK ImpactSignif not needed
@@ -309,7 +308,7 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
 //---------------------------------------------------------
              long int PixelHits = 3, SctHits = 9, SharedHits = 0, BLayHits = 1;
 	     if(m_SummaryToolExist) {
-               const Trk::TrackSummary* testSum = m_sumSvc->createSummary(*(*i_ntrk));
+               std::unique_ptr<const Trk::TrackSummary> testSum = m_sumSvc->summary(*(*i_ntrk));
                PixelHits = (long int) testSum->get(Trk::numberOfPixelHits);
                SctHits   = (long int) testSum->get(Trk::numberOfSCTHits);
                BLayHits  = (long int) testSum->get(Trk::numberOfInnermostPixelLayerHits);
@@ -317,7 +316,6 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
 	       if(PixelHits<0)PixelHits=0;
                if(SctHits<0)SctHits=0;
                if(BLayHits<0)BLayHits=0; 
-               delete testSum;
              }
 //---------------------------------------------------------	
 	     if(SharedHits>0) SharedHits--;
