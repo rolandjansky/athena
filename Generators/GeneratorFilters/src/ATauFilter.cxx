@@ -74,60 +74,59 @@ StatusCode ATauFilter::filterEvent() {
   for (itr = events()->begin(); itr!=events()->end(); ++itr) {
     // Loop over all particles in the event
     const HepMC::GenEvent* genEvt = (*itr);
-    for (HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin(); pitr!=genEvt->particles_end(); ++pitr ) {
+  for (auto part: *genEvt){
       // Look for the first tau with genstat != 3 which has not a tau as daughter
       fsr = 0;
-      if ( (*pitr)->end_vertex()!= 0 ) {
-        HepMC::GenVertex::particles_out_const_iterator  itr = (*pitr)->end_vertex()->particles_out_const_begin();
-        for ( ; itr != (*pitr)->end_vertex()->particles_out_const_end(); itr++ ) {
-          if ( (*pitr)->pdg_id() == (*itr)->pdg_id() ) fsr = 1;
+      if ( part->end_vertex()!= 0 ) {
+        for ( auto itr = part->end_vertex()->particles_out_const_begin(); itr != part->end_vertex()->particles_out_const_end(); itr++ ) {
+          if ( part->pdg_id() == (*itr)->pdg_id() ) fsr = 1;
         }
       }
 
-      if ( ( (*pitr)->pdg_id() == 15 ) && ( tau == 0 ) && ( (*pitr)->status() != 3 ) && ( fsr == 0 ) ) {
-        tau = (*pitr);
-        ATH_MSG_DEBUG("Found tau with barcode " << tau->barcode() << " status " << (*pitr)->status());
+      if ( ( part->pdg_id() == 15 ) && ( tau == 0 ) && ( part->status() != 3 ) && ( fsr == 0 ) ) {
+        tau = part;
+        ATH_MSG_DEBUG("Found tau with barcode " << tau->barcode() << " status " << part->status());
       }
 
       // Look for the first atau with genstat != 3 which has not a tau as daughter
-      if ( ( (*pitr)->pdg_id() == -15 ) && ( atau == 0 ) && ( (*pitr)->status() != 3 ) && ( fsr == 0 ) ) {
-        atau = (*pitr);
-        ATH_MSG_DEBUG("Found atau with barcode " << atau->barcode() << " status " << (*pitr)->status());
+      if ( ( part->pdg_id() == -15 ) && ( atau == 0 ) && ( part->status() != 3 ) && ( fsr == 0 ) ) {
+        atau = part;
+        ATH_MSG_DEBUG("Found atau with barcode " << atau->barcode() << " status " << part->status());
       }
 
       // If tau was already found look for his nu
-      if ( ( tau != 0 ) && ( (*pitr)->pdg_id() == 16 ) ) {
-        if ( tau->end_vertex() == (*pitr)->production_vertex() ) {
-          ATH_MSG_DEBUG("Found nutau with barcode " << HepMC::barcode(*pitr) << " and pdg_id " <<
-                        (*pitr)->pdg_id() << " pt=" << (*pitr)->momentum().perp());
-          nutau = (*pitr);
+      if ( ( tau != 0 ) && ( part->pdg_id() == 16 ) ) {
+        if ( tau->end_vertex() == part->production_vertex() ) {
+          ATH_MSG_DEBUG("Found nutau with barcode " << HepMC::barcode(part) << " and pdg_id " <<
+                        part->pdg_id() << " pt=" << part->momentum().perp());
+          nutau = part;
         }
       }
 
       // If atau was already found look for his anu
-      if ( ( atau != 0 ) && ( (*pitr)->pdg_id() == -16 ) ) {
-        if ( atau->end_vertex() == (*pitr)->production_vertex() ) {
-          ATH_MSG_DEBUG("Found anutau with barcode " << HepMC::barcode(*pitr) << " and pdg_id " <<
-                        (*pitr)->pdg_id() << " pt=" << (*pitr)->momentum().perp());
-          anutau = (*pitr);
+      if ( ( atau != 0 ) && ( part->pdg_id() == -16 ) ) {
+        if ( atau->end_vertex() == part->production_vertex() ) {
+          ATH_MSG_DEBUG("Found anutau with barcode " << HepMC::barcode(part) << " and pdg_id " <<
+                        part->pdg_id() << " pt=" << part->momentum().perp());
+          anutau = part;
         }
       }
 
       // if tau was already found look for his lepton
-      if ( ( tau != 0 ) && ( ( (*pitr)->pdg_id() == 13 ) || ( (*pitr)->pdg_id() == 11 ) ) ) {
-        if ( tau->end_vertex() == (*pitr)->production_vertex() ) {
-          ATH_MSG_DEBUG("Found tau-lepton with barcode " << HepMC::barcode(*pitr) << " and pdg_id " <<
-                        (*pitr)->pdg_id() << " pt=" << (*pitr)->momentum().perp());
-          taulep = (*pitr);
+      if ( ( tau != 0 ) && ( ( part->pdg_id() == 13 ) || ( part->pdg_id() == 11 ) ) ) {
+        if ( tau->end_vertex() == part->production_vertex() ) {
+          ATH_MSG_DEBUG("Found tau-lepton with barcode " <<HepMC::barcode(part) << " and pdg_id " <<
+                        part->pdg_id() << " pt=" << part->momentum().perp());
+          taulep = part;
         }
       }
 
       // If atau was already found look for his alepton
-      if ( ( atau != 0 ) && ( ( (*pitr)->pdg_id() == -13 ) || ( (*pitr)->pdg_id() == -11 ) ) ) {
-        if ( atau->end_vertex() == (*pitr)->production_vertex() ) {
-          ATH_MSG_DEBUG("Found atau-lepton with barcode "  << HepMC::barcode(*pitr) << " and pdg_id " <<
-                        (*pitr)->pdg_id() << " pt=" << (*pitr)->momentum().perp());
-          ataulep = (*pitr);
+      if ( ( atau != 0 ) && ( ( part->pdg_id() == -13 ) || ( part->pdg_id() == -11 ) ) ) {
+        if ( atau->end_vertex() == part->production_vertex() ) {
+          ATH_MSG_DEBUG("Found atau-lepton with barcode "  << HepMC::barcode(part) << " and pdg_id " <<
+                        part->pdg_id() << " pt=" << part->momentum().perp());
+          ataulep = part;
         }
       }
     }
