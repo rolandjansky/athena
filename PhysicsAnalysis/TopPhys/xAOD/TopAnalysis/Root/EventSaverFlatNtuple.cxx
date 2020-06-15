@@ -2737,11 +2737,11 @@ namespace top {
         }
 
         m_jet_fjvt[i] = -1;
-        if (jetPtr->isAvailable<float>("fJvt")){// && (jetPtr->eta() < -2.5 || jetPtr->eta() > 2.5) && jetPtr->pt() < 60000) {
+        if (jetPtr->isAvailable<float>("fJvt")){
           m_jet_fjvt[i] = jetPtr->auxdataConst<float>("fJvt");
         }
         m_jet_passfjvt[i] = -1;
-	if (jetPtr->isAvailable<char>("AnalysisTop_fJVTdecision")){// && (jetPtr->eta() < -2.5 || jetPtr->eta() > 2.5) && jetPtr->pt() < 60000) {
+	if (jetPtr->isAvailable<char>("AnalysisTop_fJVTdecision")){
           m_jet_passfjvt[i] = jetPtr->getAttribute<char>("AnalysisTop_fJVTdecision");
 	}
 
@@ -2890,7 +2890,7 @@ namespace top {
         }
 
         m_failJvt_jet_fjvt[i] = -1;
-        if (jetPtr->isAvailable<float>("fJvt")) { // && (jetPtr->eta() < -2.5 || jetPtr->eta() > 2.5) && jetPtr->pt() < 60000) {
+        if (jetPtr->isAvailable<float>("fJvt")) {
 	  m_failJvt_jet_fjvt[i] = jetPtr->auxdataConst<float>("fJvt");
         }
         m_failJvt_jet_passfjvt[i] = -1;
