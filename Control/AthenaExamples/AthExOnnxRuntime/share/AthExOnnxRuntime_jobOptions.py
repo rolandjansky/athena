@@ -12,7 +12,7 @@ job.options().setDouble( ROOT.EL.Job.optMaxEvents, 10 )
 
 # Create the algorithm's configuration.
 from AnaAlgorithm.DualUseConfig import createAlgorithm
-alg = createAlgorithm ( 'AthONNX__CxxApiAlgorithm', 'AthONNX' )
+alg = createAlgorithm ('AthExOnnxRuntime', 'AthONNX__CxxApiAlgorithm')
 
 # later on we'll add some configuration options for our algorithm that go here
 

@@ -69,7 +69,7 @@ namespace AthONNX {
 
       // Access the service.
       // ATH_CHECK( m_svc.retrieve() );
-
+      ANA_MSG_INFO ("in initialize");
       // Find the model file.
       const std::string modelFileName =
          PathResolverFindCalibFile( m_modelFileName );
@@ -77,9 +77,9 @@ namespace AthONNX {
          PathResolverFindCalibFile( m_pixelFileName );
       const std::string labelFileName =
          PathResolverFindCalibFile( m_labelFileName );
-      ATH_MSG_INFO( "Using model file: " << modelFileName );
-      ATH_MSG_INFO( "Using pixel file: " << pixelFileName );
-      ATH_MSG_INFO( "Using pixel file: " << labelFileName );
+      ANA_MSG_INFO( "Using model file: " << modelFileName );
+      ANA_MSG_INFO( "Using pixel file: " << pixelFileName );
+      ANA_MSG_INFO( "Using pixel file: " << labelFileName );
       // Set up the ONNX Runtime session.
       Ort::SessionOptions sessionOptions;
       sessionOptions.SetIntraOpNumThreads( 1 );
@@ -89,24 +89,24 @@ namespace AthONNX {
       m_session = std::make_unique< Ort::Session >( env,
                                                     modelFileName.c_str(),
                                                     sessionOptions );
-      ATH_MSG_INFO( "Created the ONNX Runtime session" );
+      ANA_MSG_INFO( "Created the ONNX Runtime session" );
       std::vector<int64_t> input_node_dims;
       size_t num_input_nodes = m_session->GetInputCount();
       std::vector<const char*> input_node_names(num_input_nodes);
       for( std::size_t i = 0; i < num_input_nodes; i++ ) {
         // print input node names
         char* input_name = m_session->GetInputName(i, allocator);
-        ATH_MSG_DEBUG("Input "<<i<<" : "<<" name= "<<input_name);
+        ANA_MSG_DEBUG("Input "<<i<<" : "<<" name= "<<input_name);
         input_node_names[i] = input_name;
         // print input node types
         Ort::TypeInfo type_info = m_session->GetInputTypeInfo(i);
         auto tensor_info = type_info.GetTensorTypeAndShapeInfo();
         ONNXTensorElementDataType type = tensor_info.GetElementType();
-        ATH_MSG_DEBUG("Input "<<i<<" : "<<" type= "<<type);
+        ANA_MSG_DEBUG("Input "<<i<<" : "<<" type= "<<type);
 
         // print input shapes/dims
         input_node_dims = tensor_info.GetShape();
-        ATH_MSG_DEBUG("Input "<<i<<" : num_dims= "<<input_node_dims.size());
+        ANA_MSG_DEBUG("Input "<<i<<" : num_dims= "<<input_node_dims.size());
         for (std::size_t j = 0; j < input_node_dims.size(); j++){
            if(input_node_dims[j]<0)
              input_node_dims[j] =1;
@@ -122,7 +122,7 @@ namespace AthONNX {
      for( std::size_t i = 0; i < num_output_nodes; i++ ) {
      // print output node names
         char* output_name = m_session->GetOutputName(i, allocator);
-        ATH_MSG_DEBUG("Output "<<i<<" : "<<" name= "<<output_name);
+        ANA_MSG_DEBUG("Output "<<i<<" : "<<" name= "<<output_name);
         output_node_names[i] = output_name;
 
         Ort::TypeInfo type_info = m_session->GetOutputTypeInfo(i);
