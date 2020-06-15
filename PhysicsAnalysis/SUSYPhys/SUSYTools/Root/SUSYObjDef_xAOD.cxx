@@ -712,41 +712,29 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   m_tau_id_support.push_back("Tight");
 
   // Iso WPs
+  // -- see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/RecommendedIsolationWPs#Current_official_working_points
   // -- the el iso points are those which have (or will have) SFs available
-  m_el_iso_support.push_back("FCHighPtCaloOnly");
-  m_el_iso_support.push_back("Gradient");
-  m_el_iso_support.push_back("FCLoose");
-  m_el_iso_support.push_back("FCTight");
+  m_el_iso_support = {
+     "FCLoose", "FCTight",             // current WPs
+     "FCHighPtCaloOnly",               // current HighPtCaloOnly WPs
+     "Gradient"                        // 
+  };
   // -- the muon iso points are those which have SFs available
-  m_mu_iso_support.push_back("FCTightTrackOnly_FixedRad");
-  m_mu_iso_support.push_back("FCLoose_FixedRad");
-  m_mu_iso_support.push_back("FCTight_FixedRad");
-  m_mu_iso_support.push_back("FixedCutPflowTight");
-  m_mu_iso_support.push_back("FixedCutPflowLoose");
-  m_mu_iso_support.push_back("FixedCutHighPtTrackOnly");
-  m_mu_iso_support.push_back("FCTightTrackOnly");
-  m_mu_iso_support.push_back("FCTight");
-  m_mu_iso_support.push_back("FCLoose");
-  m_mu_iso_support.push_back("PLVTight");
-  m_mu_iso_support.push_back("PLVLoose");
-
-  // Construct electron fallback WPs for SFs (no more fallback as of 2019.02.13 KY)
-  m_el_iso_fallback = {
-    { "FCHighPtCaloOnly" , "FCHighPtCaloOnly" },
-    { "Gradient"         , "Gradient"         },
-    { "FCLoose"          , "FCLoose"          },
-    { "FCTight"          , "FCTight"          },
-    { "PLVTight"         , "FCTight"          },
-    { "PLVLoose"         , "FCLoose"          }
+  // -- more details https://indico.cern.ch/event/878781/contributions/3721998/attachments/1976194/3289315/20200127_IFFshort_2.pdf
+  m_mu_iso_support = {
+     "PflowLoose_FixedRad", "PflowLoose_VarRad", "PflowTight_FixedRad", "PflowTight_VarRad",  // PFlow (new naming) recommended WPs
+     "TightTrackOnly_FixedRad", "TightTrackOnly_VarRad", "HighPtTrackOnly",                   // TrackOnly (new naming) recommended WPs
+     "PLVLoose", "PLVTight",                                                                  // PLV recommended WPs 
+     "Loose_VarRad", "Loose_FixedRad", "Tight_VarRad", "Tight_FixedRad",                      // Other WPs (new naming)
   };
 
-  // Construct muon fallback WPs for SFs (no more fallback as of 2019.02.13 KY)
-  m_mu_iso_fallback = {
-    { "FCTightTrackOnly" , "FCTightTrackOnly" },
-    { "FCLoose"          , "FCLoose"          },
-    { "FCTight"          , "FCTight"          }
-  };
+  // Construct electron fallback WPs for SFs
+  for (auto x : m_el_iso_support) { m_el_iso_fallback[x] = x; } // all current WPs
+  m_el_iso_fallback["PLVTight"] = "FCTight";                    // plus actual fallback
+  m_el_iso_fallback["PLVLoose"] = "FCLoose";
 
+  // Construct muon fallback WPs for SFs
+  m_mu_iso_fallback = {};
 }
 
 #define CHECK_TOOL_RETRIEVE( TOOLHANDLE )         \
@@ -1270,7 +1258,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_elePt, "Ele.Et", rEnv, 25000.);
   configFromFile(m_eleEta, "Ele.Eta", rEnv, 2.47);
   configFromFile(m_eleCrackVeto, "Ele.CrackVeto", rEnv, false);
-  configFromFile(m_eleIso_WP, "Ele.Iso", rEnv, "Gradient");
+  configFromFile(m_eleIso_WP, "Ele.Iso", rEnv, "FCLoose");
   configFromFile(m_eleIsoHighPt_WP, "Ele.IsoHighPt", rEnv, "FCHighPtCaloOnly");
   configFromFile(m_eleIsoHighPtThresh, "Ele.IsoHighPtThresh", rEnv, 200e3);
   configFromFile(m_eleChID_WP, "Ele.CFT", rEnv, "None"); // Loose is the only one supported for the moment, and not many clients yet.
@@ -1313,8 +1301,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   //
   configFromFile(m_muPt, "Muon.Pt", rEnv, 25000.);
   configFromFile(m_muEta, "Muon.Eta", rEnv, 2.7);
-  configFromFile(m_muIso_WP, "Muon.Iso", rEnv, "FCLoose");
-  configFromFile(m_muIsoHighPt_WP, "Muon.IsoHighPt", rEnv, "FCLoose");
+  configFromFile(m_muIso_WP, "Muon.Iso", rEnv, "Loose_VarRad");
+  configFromFile(m_muIsoHighPt_WP, "Muon.IsoHighPt", rEnv, "Loose_VarRad");
   configFromFile(m_muIsoHighPtThresh, "Muon.IsoHighPtThresh", rEnv, 200e3);
   configFromFile(m_mud0sig, "Muon.d0sig", rEnv, 3.);
   configFromFile(m_muz0, "Muon.z0", rEnv, 0.5);
