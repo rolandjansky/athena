@@ -69,6 +69,7 @@ atlas_add_library( LArCafJobsLib
                    src/SimpleShape.cxx
                    src/LArNoiseBursts.cxx
                    src/LArHECNoise.cxx
+                   src/LArReadCells.cxx
                    PUBLIC_HEADERS LArCafJobs
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} 
                    LINK_LIBRARIES CaloIdentifier AthenaBaseComps AthenaKernel GaudiKernel LArIdentifier LArRawConditions LArRawEvent egammaEvent TrigSteeringEvent McParticleEvent StoreGateLib SGtests LArToolsLib TrigDecisionToolLib CaloDetDescrLib
