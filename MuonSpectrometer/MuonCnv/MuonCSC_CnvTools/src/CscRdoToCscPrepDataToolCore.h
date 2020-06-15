@@ -5,6 +5,13 @@
 #ifndef MUONCSC_CNVTOOLS_CSCRDOTOCSCPREPDATATOOLCORE_H
 #define MUONCSC_CNVTOOLS_CSCRDOTOCSCPREPDATATOOLCORE_H 
 
+/// This code is only used in the single-thread setup        
+/// CscRdoToCscPrepDataToolMT.cxx has the same functions but 
+/// defined for a thread-safe environment                    
+/// As such, deactivating the check in this file             
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
