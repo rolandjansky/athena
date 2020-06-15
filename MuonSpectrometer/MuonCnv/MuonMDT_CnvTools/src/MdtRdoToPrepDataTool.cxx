@@ -2,6 +2,13 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+/// This code is only used in the single-thread setup       
+/// As such, deactivating the check in this file            
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
+
+
 #include "MdtRdoToPrepDataTool.h"
 
 Muon::MdtRdoToPrepDataTool::MdtRdoToPrepDataTool(const std::string& t, const std::string& n, const IInterface*  p)
