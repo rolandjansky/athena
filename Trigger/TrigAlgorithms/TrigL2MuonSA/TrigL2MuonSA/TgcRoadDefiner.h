@@ -30,40 +30,38 @@ namespace TrigL2MuonSA {
 class TgcRoadDefiner: public AthAlgTool
 {
  public:
-  static const InterfaceID& interfaceID();
-
   TgcRoadDefiner(const std::string& type, 
 		 const std::string& name,
 		 const IInterface*  parent);
-
-  ~TgcRoadDefiner()=default;
   
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   StatusCode defineRoad(const LVL1::RecMuonRoI*      p_roi,
                         const TrigL2MuonSA::TgcHits& tgcHits,
                         TrigL2MuonSA::MuonRoad&      muonRoad,
                         TrigL2MuonSA::TgcFitResult&  tgcFitResult);
 
-  void setMdtGeometry(const ServiceHandle<IRegSelSvc>& regionSelector);
-  void setPtLUT(const TrigL2MuonSA::PtEndcapLUTSvc* ptEndcapLUTSvc);
-  void setRoadWidthForFailure(double rWidth_TGC_Failed);
-  void setExtrapolatorTool(ToolHandle<ITrigMuonBackExtrapolator>* backExtrapolator);
+  void setMdtGeometry(const ServiceHandle<IRegSelSvc>& regionSelector) { m_regionSelector = regionSelector; };
+  void setPtLUT(const TrigL2MuonSA::PtEndcapLUTSvc* ptEndcapLUTSvc) { m_ptEndcapLUT = ptEndcapLUTSvc->ptEndcapLUT(); };
+  void setRoadWidthForFailure(double rWidth_TGC_Failed) { m_rWidth_TGC_Failed = rWidth_TGC_Failed; };
+  void setExtrapolatorTool(ToolHandle<ITrigMuonBackExtrapolator>* backExtrapolator) { m_backExtrapolatorTool = backExtrapolator; };
 
   bool prepareTgcPoints(const TrigL2MuonSA::TgcHits& tgcHits);
   
  private:
-  ToolHandle<ITrigMuonBackExtrapolator>* m_backExtrapolatorTool;
-  const ToolHandle<PtEndcapLUT>*         m_ptEndcapLUT;
+  // setted in MuFastSteering::hltInitialize, setExtrapolatorTool
+  ToolHandle<ITrigMuonBackExtrapolator>* m_backExtrapolatorTool {nullptr};
+  // setted in MuFastSteering::hltInitialize, setMCFlag  
+  const ToolHandle<PtEndcapLUT>*         m_ptEndcapLUT {nullptr};
 
-  ToolHandle<TgcFit>                     m_tgcFit;
+  ToolHandle<TgcFit>                     m_tgcFit {"TrigL2MuonSA::TgcFit"};
 
   TrigL2MuonSA::TgcFit::PointArray m_tgcStripMidPoints;  // List of TGC strip middle station points.
   TrigL2MuonSA::TgcFit::PointArray m_tgcWireMidPoints;   // List of TGC wire middle station points.
   TrigL2MuonSA::TgcFit::PointArray m_tgcStripInnPoints;  // List of TGC strip inner station points.
   TrigL2MuonSA::TgcFit::PointArray m_tgcWireInnPoints;   // List of TGC wire inner station points.
 
-  double m_rWidth_TGC_Failed;
+  double m_rWidth_TGC_Failed {0};
   
   ServiceHandle<IRegSelSvc> m_regionSelector;
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
