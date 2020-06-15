@@ -472,10 +472,6 @@ def MooSegmentFinderCfg(flags, name='MooSegmentFinder', **kwargs):
 
     result=ComponentAccumulator()
 
-    # Need muon geometry to work!
-    from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg 
-    result.merge( MuonGeoModelCfg(flags) )    
-
     muon_curved_segment_combiner_tool = MuonCurvedSegmentCombiner(flags)
     result.addPublicTool(muon_curved_segment_combiner_tool)
     
