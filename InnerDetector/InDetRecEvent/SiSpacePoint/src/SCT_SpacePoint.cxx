@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkPrepRawData/PrepRawData.h"
@@ -8,6 +8,8 @@
 #include "TrkSurfaces/Surface.h"
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
 #include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
+
+#include <memory>
 
 namespace InDet
 {
@@ -43,10 +45,9 @@ namespace InDet
     m_elemIdList.second = elementIdList.second ;
     assert( (clusList->first!=0) && (clusList->second!=0) );
     assert(clusList->first->detectorElement()) ;
-    const Amg::Vector2D* locpos = (clusList->first->detectorElement()->surface().globalToLocal(position)) ;  
+    std::unique_ptr<const Amg::Vector2D> locpos{clusList->first->detectorElement()->surface().globalToLocal(position)};
     assert(locpos);
     Trk::MeasurementBase::m_localParams = Trk::LocalParameters(*locpos ) ;
-    delete locpos ;
 
   }
 
