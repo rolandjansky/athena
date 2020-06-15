@@ -1,43 +1,12 @@
-################################################################################
-# Package: TrigHIHypo
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigHIHypo )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Trigger/TrigEvent/TrigCaloEvent
-                          Trigger/TrigEvent/TrigInDetEvent
-                          Trigger/TrigEvent/TrigSteeringEvent
-                          PRIVATE
-                          Calorimeter/CaloEvent
-                          Calorimeter/CaloInterface
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Event/xAOD/xAODHIEvent
-                          Event/xAOD/xAODMuon
-                          Event/xAOD/xAODTracking
-                          GaudiKernel
-                          Reconstruction/HeavyIonRec/HIGlobal
-                          Reconstruction/Particle
-                          Tracking/TrkEvent/TrkParameters
-                          Trigger/TrigEvent/TrigMissingEtEvent
-                          Trigger/TrigEvent/TrigMuonEvent
-                          Trigger/TrigEvent/TrigParticle
-                          Trigger/TrigSteer/TrigInterfaces
-                          Trigger/TrigT1/TrigT1Interfaces )
-
-# External dependencies:
-find_package( CLHEP )
-
 # Component(s) in the package:
 atlas_add_component( TrigHIHypo
-                     src/*.cxx
-                     src/components/*.cxx
-                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} TrigCaloEvent TrigInDetEvent TrigSteeringEvent CaloEvent AthenaBaseComps xAODHIEvent xAODMuon xAODTracking GaudiKernel Particle TrkParameters TrigMissingEtEvent TrigMuonEvent TrigParticle TrigInterfacesLib TrigT1Interfaces )
+                     src/*.cxx src/components/*.cxx
+                     LINK_LIBRARIES AthenaBaseComps AthenaKernel CaloEvent CaloInterfaceLib GaudiKernel HIGlobalLib Particle StoreGateLib TrigCaloEvent TrigInDetEvent TrigInterfacesLib TrigMissingEtEvent TrigSteeringEvent TrigT1Interfaces TrigTimeAlgsLib TrkParameters xAODHIEvent xAODMuon xAODTracking )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
-
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
