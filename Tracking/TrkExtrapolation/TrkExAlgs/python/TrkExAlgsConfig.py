@@ -38,7 +38,7 @@ if __name__=="__main__":
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import VERBOSE
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg    
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg    
     
     #log.setLevel(VERBOSE)
     
@@ -69,7 +69,7 @@ if __name__=="__main__":
     
     ConfigFlags.dump()
 
-    cfg=MainServicesThreadedCfg(ConfigFlags)
+    cfg=MainServicesCfg(ConfigFlags)
 
     from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg     
     cfg.merge(InDetGeometryCfg(ConfigFlags))
