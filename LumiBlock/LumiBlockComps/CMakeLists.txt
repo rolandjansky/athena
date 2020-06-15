@@ -20,7 +20,7 @@ if( NOT XAOD_ANALYSIS )
 endif()
 atlas_add_library( LumiBlockCompsLib
    LumiBlockComps/*.h src/*.h Root/*.cxx
-   src/CreateLumiBlockCollectionFromFile.cxx src/xAOD2NtupLumiSvc.cxx
+   src/CreateLumiBlockCollectionFromFile.cxx 
    ${extra_srcs}
    PUBLIC_HEADERS LumiBlockComps
    INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
