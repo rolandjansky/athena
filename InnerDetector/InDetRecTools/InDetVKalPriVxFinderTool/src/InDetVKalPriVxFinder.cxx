@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -110,14 +110,6 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
   { 
     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"InDetVKalVrtPriVxTool initialize()" << endmsg;
     m_SummaryToolExist = 0;
-//       ---------------
-/* Tool Service initialisation.  NOT NEEDED now*/
-//    IToolSvc* toolSvc;
-//    StatusCode sc = service("ToolSvc", toolSvc);
-//    if (sc.isFailure()) {
-//      if(msgLvl(MSG::ERROR))msg(MSG::ERROR) << "Could not find ToolSvc" << endmsg;
-//      return StatusCode::SUCCESS; 
-//    }
 
 
     if (m_fitSvc.retrieve().isFailure()) {
@@ -134,14 +126,6 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
 //
 //  Data for beam spot constraint
 //
-    m_BeamCnst[0]=m_BeamPositionX;
-    m_BeamCnst[1]=m_BeamPositionY;
-    m_BeamCnst[2]=0.;
-    m_BeamCnstWid.resize(3);
-    m_BeamCnstWid[0]=0.015;
-    m_BeamCnstWid[1]=0.015;
-    m_BeamCnstWid[2]=56.;
-
 
     ATH_CHECK(m_beamSpotKey.initialize(m_BeamConstraint));
 
@@ -175,80 +159,97 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) <<"InDetVKalPriVxFinderTool finalize()" << endmsg;
     return StatusCode::SUCCESS; 
   }
-  
 
-
-
-   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetVKalPriVxFinderTool::findVertex(const xAOD::TrackParticleContainer* trackTES) 
-   {  
-        if(msgLvl(MSG::DEBUG)){
-        msg(MSG::DEBUG) << "N="<<trackTES->size()<<" xAOD::TrackParticles found" << endmsg;
-        msg(MSG::DEBUG) << "No InDetVKalPriVxFinderTool implementation for xAOD::TrackParticle" << endmsg;
-     }
-     return std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> (0,0);
+  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
+  InDetVKalPriVxFinderTool::findVertex (
+    const xAOD::TrackParticleContainer* trackTES) const
+  {
+    if (msgLvl(MSG::DEBUG)) {
+      msg(MSG::DEBUG) << "N=" << trackTES->size()
+                      << " xAOD::TrackParticles found" << endmsg;
+      msg(MSG::DEBUG)
+        << "No InDetVKalPriVxFinderTool implementation for xAOD::TrackParticle"
+        << endmsg;
+    }
+    return std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>(0, 0);
    }
 
 
 //__________________________________________________________________________
-  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetVKalPriVxFinderTool::findVertex(const TrackCollection* trackTES)
-  {
-    //.............................................
-    
-    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Primary vertex with InDetVKalPriVxFinderTool starts" << endmsg;
-//
-//
-    m_savedTrkFittedPerigees.clear();
-    m_fittedTrkCov.clear();
-//------------------------------------------------------------------------------------------
-//  Creating the necessary vectors
+   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
+   InDetVKalPriVxFinderTool::findVertex(const TrackCollection* trackTES) const
+   {
+     //.............................................
 
-    std::vector<const Trk::Track*>              SelectedTrkTracks;
-    std::vector<const Trk::TrackParticleBase*>  SelectedTrackParticles;
-    std::vector<Amg::Vector3D>                  PrimVrtList;
-    std::vector< AmgSymMatrix(3) >              ErrorMatrixPerVrt;
-    std::vector<double>                         Chi2PerVrt;
-    std::vector<double>                         ControlVariablePerVrt;
-    std::vector< std::vector<const Trk::Track*> >              TrkPerVrt;
-    std::vector< std::vector<const Trk::TrackParticleBase*> >  PrtPerVrt;
-    std::vector< std::vector<double> >                         TrkWgtPerVrt;
-    std::vector<int> NTrkPerVrt;
-//
-    int  NFoundVrt=0;
-    SelectedTrkTracks.clear(); SelectedTrackParticles.clear(); NTrkPerVrt.clear();
-    TrkPerVrt.clear(); PrtPerVrt.clear();
+     if (msgLvl(MSG::DEBUG))
+       msg(MSG::DEBUG) << "Primary vertex with InDetVKalPriVxFinderTool starts"
+                       << endmsg;
+     //
+     //
+     Cache cache{};
+     cache.m_BeamCnst[0] = m_BeamPositionX;
+     cache.m_BeamCnst[1] = m_BeamPositionY;
+     cache.m_BeamCnst[2] = 0.;
+     cache.m_BeamCnstWid.resize(3);
+     cache.m_BeamCnstWid[0] = 0.015;
+     cache.m_BeamCnstWid[1] = 0.015;
+     cache.m_BeamCnstWid[2] = 56.;
+     cache.m_savedTrkFittedPerigees.clear();
+     cache.m_fittedTrkCov.clear();
+     //------------------------------------------------------------------------------------------
+     //  Creating the necessary vectors
 
-    const Trk::Perigee* mPer=NULL;
-    AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
-    const Trk::FitQuality*  TrkQual=0;
-    std::vector<double> Impact,ImpactError;
+     std::vector<const Trk::Track*> SelectedTrkTracks;
+     std::vector<const Trk::TrackParticleBase*> SelectedTrackParticles;
+     std::vector<Amg::Vector3D> PrimVrtList;
+     std::vector<AmgSymMatrix(3)> ErrorMatrixPerVrt;
+     std::vector<double> Chi2PerVrt;
+     std::vector<double> ControlVariablePerVrt;
+     std::vector<std::vector<const Trk::Track*>> TrkPerVrt;
+     std::vector<std::vector<const Trk::TrackParticleBase*>> PrtPerVrt;
+     std::vector<std::vector<double>> TrkWgtPerVrt;
+     std::vector<int> NTrkPerVrt;
+     //
+     int NFoundVrt = 0;
+     SelectedTrkTracks.clear();
+     SelectedTrackParticles.clear();
+     NTrkPerVrt.clear();
+     TrkPerVrt.clear();
+     PrtPerVrt.clear();
 
-//
-//   Now we start a work.
-//
-    const DataVector<Trk::Track>*    newTrkCol = trackTES;
+     const Trk::Perigee* mPer = NULL;
+     AmgVector(5) VectPerig;
+     VectPerig << 0., 0., 0., 0., 0.;
+     const Trk::FitQuality* TrkQual = 0;
+     std::vector<double> Impact, ImpactError;
 
-    if(m_BeamConstraint){
-      SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
-      if(beamSpotHandle.isValid()){
+     //
+     //   Now we start a work.
+     //
+     const DataVector<Trk::Track>* newTrkCol = trackTES;
+
+     if (m_BeamConstraint) {
+       SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle{ m_beamSpotKey };
+       if (beamSpotHandle.isValid()) {
          const Amg::Vector3D &beam=beamSpotHandle->beamPos();
-         m_BeamCnst[0]=beam.x();
-         m_BeamCnst[1]=beam.y();
-         m_BeamCnst[2]=beam.z();
-         m_BeamCnstWid[0]=beamSpotHandle->beamSigma(0);
-         m_BeamCnstWid[1]=beamSpotHandle->beamSigma(1);
-         if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "BeamSpot from SVC="<<m_BeamCnst[0]<<", "<<m_BeamCnst[1]<<
-	               ", "<<m_BeamCnst[2]<<" wid="<<m_BeamCnstWid[0]<<", "<<m_BeamCnstWid[1]<<endmsg;
-         if(msgLvl(MSG::DEBUG) && m_BeamCnst[2]!=0.)msg(MSG::DEBUG) << "BeamSpot Z must be 0 in finder!!! Make Z=0."<<endmsg;
-         m_BeamCnst[2]=0.;
+         cache.m_BeamCnst[0]=beam.x();
+         cache.m_BeamCnst[1]=beam.y();
+         cache.m_BeamCnst[2]=beam.z();
+         cache.m_BeamCnstWid[0]=beamSpotHandle->beamSigma(0);
+         cache.m_BeamCnstWid[1]=beamSpotHandle->beamSigma(1);
+         if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "BeamSpot from SVC="<<cache.m_BeamCnst[0]<<", "<<cache.m_BeamCnst[1]<<
+	               ", "<<cache.m_BeamCnst[2]<<" wid="<<cache.m_BeamCnstWid[0]<<", "<<cache.m_BeamCnstWid[1]<<endmsg;
+         if(msgLvl(MSG::DEBUG) && cache.m_BeamCnst[2]!=0.)msg(MSG::DEBUG) << "BeamSpot Z must be 0 in finder!!! Make Z=0."<<endmsg;
+         cache.m_BeamCnst[2]=0.;
       }
     }else{
        Amg::Vector3D approx_beam=findIniXY(newTrkCol);
-       m_BeamCnst[0]=approx_beam.x();
-       m_BeamCnst[1]=approx_beam.y();
-       m_BeamCnst[2]=0.;
-       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Approx. BeamSpot="<<m_BeamCnst[0]<<", "<<m_BeamCnst[1]<<endmsg;
+       cache.m_BeamCnst[0]=approx_beam.x();
+       cache.m_BeamCnst[1]=approx_beam.y();
+       cache.m_BeamCnst[2]=0.;
+       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Approx. BeamSpot="<<cache.m_BeamCnst[0]<<", "<<cache.m_BeamCnst[1]<<endmsg;
     }
-    Trk::Vertex selectionVertex(m_BeamCnst);
+    Trk::Vertex selectionVertex(cache.m_BeamCnst);
 
        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Trk::Track number=" <<newTrkCol->size()<< endmsg;
        DataVector<Trk::Track>::const_iterator    i_ntrk;
@@ -270,7 +271,7 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
 //---------------------------------------------------------
             long int PixelHits = 3, SctHits = 9, SharedHits = 0, BLayHits = 1;
 	    if(m_SummaryToolExist) {
-              const Trk::TrackSummary* testSum = m_sumSvc->createSummary(*(*i_ntrk));
+              std::unique_ptr<const Trk::TrackSummary> testSum = m_sumSvc->summary(*(*i_ntrk));
               PixelHits = (long int) testSum->get(Trk::numberOfPixelHits);
               SctHits   = (long int) testSum->get(Trk::numberOfSCTHits);
               BLayHits  = (long int) testSum->get(Trk::numberOfInnermostPixelLayerHits);
@@ -278,11 +279,10 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
 	      if(PixelHits<0)PixelHits=0;
               if(SctHits<0)SctHits=0;
               if(BLayHits<0)BLayHits=0; 
-              delete testSum;
             }
 //---------------------------------------------------------	
-            //double ImpactSignif = m_fitSvc->VKalGetImpact((*i_ntrk), m_BeamCnst, 1, Impact, ImpactError);  //VK ImpactSignif not needed
-            m_fitSvc->VKalGetImpact((*i_ntrk), m_BeamCnst, 1, Impact, ImpactError);
+            //double ImpactSignif = m_fitSvc->VKalGetImpact((*i_ntrk), cache.m_BeamCnst, 1, Impact, ImpactError);  //VK ImpactSignif not needed
+            m_fitSvc->VKalGetImpact((*i_ntrk), cache.m_BeamCnst, 1, Impact, ImpactError);
 	    double ImpactA0=VectPerig[0]; //double ImpactZ=VectPerig[1];   // Temporary
 	    ImpactA0=Impact[0];           //ImpactZ=Impact[1];   
 
@@ -308,7 +308,7 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
 //---------------------------------------------------------
              long int PixelHits = 3, SctHits = 9, SharedHits = 0, BLayHits = 1;
 	     if(m_SummaryToolExist) {
-               const Trk::TrackSummary* testSum = m_sumSvc->createSummary(*(*i_ntrk));
+               std::unique_ptr<const Trk::TrackSummary> testSum = m_sumSvc->summary(*(*i_ntrk));
                PixelHits = (long int) testSum->get(Trk::numberOfPixelHits);
                SctHits   = (long int) testSum->get(Trk::numberOfSCTHits);
                BLayHits  = (long int) testSum->get(Trk::numberOfInnermostPixelLayerHits);
@@ -316,13 +316,12 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
 	       if(PixelHits<0)PixelHits=0;
                if(SctHits<0)SctHits=0;
                if(BLayHits<0)BLayHits=0; 
-               delete testSum;
              }
 //---------------------------------------------------------	
 	     if(SharedHits>0) SharedHits--;
              BLayHits++;
              PixelHits++;
-             m_fitSvc->VKalGetImpact((*i_ntrk), m_BeamCnst, 1, Impact, ImpactError);
+             m_fitSvc->VKalGetImpact((*i_ntrk), cache.m_BeamCnst, 1, Impact, ImpactError);
 	     double ImpactA0=Impact[0]; 
              StatusCode sc = CutTrk( VectPerig[4] , VectPerig[3] , ImpactA0 , 
 		          TrkQual->chiSquared() / TrkQual->numberDoF(),
@@ -340,12 +339,16 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
         UniqList(SelectedTrkTracks);
                       /* And now primary vertex search itself*/
 
-        NFoundVrt =  PVrtListFind( SelectedTrackParticles, SelectedTrkTracks,
-                                   PrimVrtList,
-				   ErrorMatrixPerVrt,
-				   Chi2PerVrt,
-		                   ControlVariablePerVrt,
-				   PrtPerVrt, TrkPerVrt, TrkWgtPerVrt );
+        NFoundVrt = PVrtListFind(cache,
+                                 SelectedTrackParticles,
+                                 SelectedTrkTracks,
+                                 PrimVrtList,
+                                 ErrorMatrixPerVrt,
+                                 Chi2PerVrt,
+                                 ControlVariablePerVrt,
+                                 PrtPerVrt,
+                                 TrkPerVrt,
+                                 TrkWgtPerVrt);
 
         for (int i=0; i<NFoundVrt; i++) NTrkPerVrt.push_back((int)TrkPerVrt[i].size()); 
      
@@ -362,29 +365,40 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
 //
 //---- Save vertices 
 //
-    return  SaveResults( NFoundVrt, PrimVrtList,ErrorMatrixPerVrt, Chi2PerVrt,
-                                         NTrkPerVrt,PrtPerVrt,TrkPerVrt,TrkWgtPerVrt,trackTES);
+    return SaveResults(cache,
+                       NFoundVrt,
+                       PrimVrtList,
+                       ErrorMatrixPerVrt,
+                       Chi2PerVrt,
+                       NTrkPerVrt,
+                       PrtPerVrt,
+                       TrkPerVrt,
+                       TrkWgtPerVrt,
+                       trackTES);
   }
-
-
-
-
-
-
-
 
 
 //__________________________________________________________________________
 
-  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetVKalPriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection* newPrtCol)
+  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
+  InDetVKalPriVxFinderTool::findVertex(
+    const Trk::TrackParticleBaseCollection* newPrtCol) const
   {
     //.............................................
     
     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Primary vertex with InDetVKalPriVxFinderTool starts" << endmsg;
 //
 //
-    m_savedTrkFittedPerigees.clear();
-    m_fittedTrkCov.clear();
+     Cache cache{};
+     cache.m_BeamCnst[0] = m_BeamPositionX;
+     cache.m_BeamCnst[1] = m_BeamPositionY;
+     cache.m_BeamCnst[2] = 0.;
+     cache.m_BeamCnstWid.resize(3);
+     cache.m_BeamCnstWid[0] = 0.015;
+     cache.m_BeamCnstWid[1] = 0.015;
+     cache.m_BeamCnstWid[2] = 56.;
+     cache.m_savedTrkFittedPerigees.clear();
+     cache.m_fittedTrkCov.clear();
 //------------------------------------------------------------------------------------------
 //  Creating the necessary vectors
 
@@ -412,22 +426,22 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
       SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
       if(beamSpotHandle.isValid()){
          const Amg::Vector3D &beam=beamSpotHandle->beamPos();
-         m_BeamCnst[0]=beam.x();
-         m_BeamCnst[1]=beam.y();
-         m_BeamCnst[2]=beam.z();
-         m_BeamCnstWid[0]=beamSpotHandle->beamSigma(0);
-         m_BeamCnstWid[1]=beamSpotHandle->beamSigma(1);
-         if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "BeamSpot from SVC="<<m_BeamCnst[0]<<", "<<m_BeamCnst[1]<<
-	               ", "<<m_BeamCnst[2]<<" wid="<<m_BeamCnstWid[0]<<", "<<m_BeamCnstWid[1]<<endmsg;
+         cache.m_BeamCnst[0]=beam.x();
+         cache.m_BeamCnst[1]=beam.y();
+         cache.m_BeamCnst[2]=beam.z();
+         cache.m_BeamCnstWid[0]=beamSpotHandle->beamSigma(0);
+         cache.m_BeamCnstWid[1]=beamSpotHandle->beamSigma(1);
+         if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "BeamSpot from SVC="<<cache.m_BeamCnst[0]<<", "<<cache.m_BeamCnst[1]<<
+	               ", "<<cache.m_BeamCnst[2]<<" wid="<<cache.m_BeamCnstWid[0]<<", "<<cache.m_BeamCnstWid[1]<<endmsg;
       }
     }else{
        Amg::Vector3D approx_beam=findIniXY(newPrtCol);
-       m_BeamCnst[0]=approx_beam.x();
-       m_BeamCnst[1]=approx_beam.y();
-       m_BeamCnst[2]=0.;
-       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Approx. BeamSpot="<<m_BeamCnst[0]<<", "<<m_BeamCnst[1]<<endmsg;
+       cache.m_BeamCnst[0]=approx_beam.x();
+       cache.m_BeamCnst[1]=approx_beam.y();
+       cache.m_BeamCnst[2]=0.;
+       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Approx. BeamSpot="<<cache.m_BeamCnst[0]<<", "<<cache.m_BeamCnst[1]<<endmsg;
     }
-    Trk::Vertex selectionVertex(m_BeamCnst);
+    Trk::Vertex selectionVertex(cache.m_BeamCnst);
 
           if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Trk::TrackParticleBase number=" <<newPrtCol->size()<< endmsg;
           Trk::TrackParticleBaseCollection::const_iterator i_nprt  = newPrtCol->begin();
@@ -452,7 +466,7 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
 	         if(PixelHits<0)PixelHits=0;
                  if(SctHits<0)SctHits=0;
                  if(BLayHits<0)BLayHits=0; 
-                 m_fitSvc->VKalGetImpact((*i_nprt), m_BeamCnst, 1, Impact, ImpactError);
+                 m_fitSvc->VKalGetImpact((*i_nprt), cache.m_BeamCnst, 1, Impact, ImpactError);
 	         double ImpactA0=VectPerig[0]; //double ImpactZ=VectPerig[1];   // Temporary
 	         ImpactA0=Impact[0];           //ImpactZ=Impact[1];   
 
@@ -488,7 +502,7 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
 	         if(SharedHits>0) SharedHits--;
                  BLayHits++;
                  PixelHits++;
-                 m_fitSvc->VKalGetImpact((*i_nprt), m_BeamCnst, 1, Impact, ImpactError);
+                 m_fitSvc->VKalGetImpact((*i_nprt), cache.m_BeamCnst, 1, Impact, ImpactError);
 	         double ImpactA0=Impact[0];  
                  StatusCode sc = CutTrk( VectPerig[4] , VectPerig[3] , ImpactA0 ,
 		              TrkQual->chiSquared() / TrkQual->numberDoF(),
@@ -505,13 +519,17 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
           UniqList(SelectedTrackParticles);
                       /* And now primary vertex search itself*/
 
-          NFoundVrt =  PVrtListFind( SelectedTrackParticles, SelectedTrkTracks,
-                                     PrimVrtList,
-	  	 		     ErrorMatrixPerVrt,
-				     Chi2PerVrt,
-		                     ControlVariablePerVrt,
-				     PrtPerVrt, TrkPerVrt, TrkWgtPerVrt );
-	  for (int i=0; i<NFoundVrt; i++) NTrkPerVrt.push_back((int) PrtPerVrt[i].size()); 
+          NFoundVrt = PVrtListFind(cache,
+                                   SelectedTrackParticles,
+                                   SelectedTrkTracks,
+                                   PrimVrtList,
+                                   ErrorMatrixPerVrt,
+                                   Chi2PerVrt,
+                                   ControlVariablePerVrt,
+                                   PrtPerVrt,
+                                   TrkPerVrt,
+                                   TrkWgtPerVrt);
+          for (int i=0; i<NFoundVrt; i++) NTrkPerVrt.push_back((int) PrtPerVrt[i].size()); 
        
 
 //--------------------------------------------------------------------
@@ -526,14 +544,24 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
 //
 //---- Save vertices 
 //
-   return  SaveResults( NFoundVrt, PrimVrtList,ErrorMatrixPerVrt, Chi2PerVrt,
-                                         NTrkPerVrt,PrtPerVrt,TrkPerVrt,TrkWgtPerVrt,0,newPrtCol);
+    return SaveResults(cache,
+                       NFoundVrt,
+                       PrimVrtList,
+                       ErrorMatrixPerVrt,
+                       Chi2PerVrt,
+                       NTrkPerVrt,
+                       PrtPerVrt,
+                       TrkPerVrt,
+                       TrkWgtPerVrt,
+                       0,
+                       newPrtCol);
   }
 
 
 
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>  
-  InDetVKalPriVxFinderTool::SaveResults( int NFoundVrt,
+  InDetVKalPriVxFinderTool::SaveResults(Cache& cache,
+   int NFoundVrt,
 	 std::vector< Amg::Vector3D >                & PrimVrtList,
    std::vector< AmgSymMatrix(3) >              & ErrorMatrixPerVrt,
 	 std::vector<double>                         & Chi2PerVrt,
@@ -542,7 +570,7 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
 	 std::vector< std::vector<const Trk::Track*> >             & TrkPerVrt,
 	 std::vector< std::vector<double> >                        & TrkWgtPerVrt,
    const TrackCollection* trackTES,
-	 const Trk::TrackParticleBaseCollection* partTES){
+	 const Trk::TrackParticleBaseCollection* partTES) const{
 	 
      xAOD::VertexContainer  *  vrtCont    = new xAOD::VertexContainer;
      xAOD::VertexAuxContainer *vrtAuxCont = new xAOD::VertexAuxContainer;
@@ -560,11 +588,11 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
        std::vector<Trk::VxTrackAtVertex> & tmpVTAV=tmpVertex->vxTrackAtVertex();    
        tmpVTAV.clear();
        for(ii=0; ii<NTrkPerVrt[i]; ii++) {
-         AmgSymMatrix(5) * tmpCovMatr=new AmgSymMatrix(5)(m_fittedTrkCov.at(i).at(ii));
+         AmgSymMatrix(5) * tmpCovMatr=new AmgSymMatrix(5)(cache.m_fittedTrkCov.at(i).at(ii));
          Trk::Perigee * tmpMeasPer = new Trk::Perigee( 0.,0.,
-		           m_savedTrkFittedPerigees[i][ii][0] ,        /* Phi   */
-		           m_savedTrkFittedPerigees[i][ii][1] ,        /* Theta */
-		           m_savedTrkFittedPerigees[i][ii][2] ,        /* 1/p   */
+		           cache.m_savedTrkFittedPerigees[i][ii][0] ,        /* Phi   */
+		           cache.m_savedTrkFittedPerigees[i][ii][1] ,        /* Theta */
+		           cache.m_savedTrkFittedPerigees[i][ii][2] ,        /* 1/p   */
 	             Trk::PerigeeSurface(PrimVrtList[i]),
 		           tmpCovMatr );
          Trk::VxTrackAtVertex * tmpPointer = new Trk::VxTrackAtVertex( 1., tmpMeasPer ) ;
@@ -601,11 +629,11 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
       //-Remove refitted track parameters from HEAP
       //
      for( i=0; i< NFoundVrt; i++){ 
-       double** pntTracks=m_savedTrkFittedPerigees[i];
+       double** pntTracks=cache.m_savedTrkFittedPerigees[i];
        removeWorkArr2(pntTracks,(long int)NTrkPerVrt[i],3);
      }
-     m_savedTrkFittedPerigees.clear();
-     m_fittedTrkCov.clear();
+     cache.m_savedTrkFittedPerigees.clear();
+     cache.m_fittedTrkCov.clear();
      return std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> (vrtCont,vrtAuxCont);
    }
  

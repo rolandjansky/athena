@@ -106,10 +106,6 @@ private:
   ToolHandle<Trk::ITrackSummaryTool>   m_summaryTool {this,
     "TrackSummaryTool", "InDetTrackSummaryTool", "Track summary tool"};
 
-  /** @brief Tool for extrapolation */
-  ToolHandle<IEMExtrapolationTools> m_extrapolationTool {this,
-    "ExtrapolationTool", "EMExtrapolationTools", "Extrapolation tool"};
-
   /** @brief Option to do truth*/
   Gaudi::Property<bool> m_doTruth {this, "DoTruth", false, "do truth"};
 

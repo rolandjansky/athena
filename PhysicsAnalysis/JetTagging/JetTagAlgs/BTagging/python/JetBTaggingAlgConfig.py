@@ -6,8 +6,7 @@ from BTagging.BTagToolConfig import BTagToolCfg
 from BTagging.BTagLightSecVertexingConfig import BTagLightSecVtxToolCfg
 
 # import the JetBTaggingAlg configurable
-#from BTagging.BTaggingConf import Analysis__JetBTaggingAlg as JetBTaggingAlg
-Analysis__JetBTaggingAlg=CompFactory.Analysis.JetBTaggingAlg
+Analysis__JetBTaggingAlg = CompFactory.Analysis.JetBTaggingAlg
 
 
 def JetBTaggingAlgCfg(ConfigFlags, JetCollection="", PrimaryVertexCollectionName="", TaggerList=[], SetupScheme="", SVandAssoc={""}, TimeStamp = "", **options):

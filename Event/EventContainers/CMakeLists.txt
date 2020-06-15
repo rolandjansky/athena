@@ -23,8 +23,7 @@ atlas_add_library( EventContainers
 atlas_add_dictionary( EventContainersDict
                       EventContainers/EventContainersDict.h
                       EventContainers/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} EventContainers )
+                      LINK_LIBRARIES EventContainers )
 
 
 atlas_add_test( IdCont SOURCES test/ID_ContainerTest.cxx

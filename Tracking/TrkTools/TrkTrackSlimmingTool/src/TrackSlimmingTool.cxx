@@ -53,9 +53,9 @@ StatusCode Trk::TrackSlimmingTool::initialize()
   if (sc.isFailure()) {
     ATH_MSG_FATAL ("Could not get AtlasDetectorID ");
     return sc;
-  }else{
-    ATH_MSG_DEBUG ("Found AtlasDetectorID");
   }
+    ATH_MSG_DEBUG ("Found AtlasDetectorID");
+  
 
   ATH_MSG_INFO("initialize() successful in " << name());
   return StatusCode::SUCCESS;
@@ -292,7 +292,7 @@ void Trk::TrackSlimmingTool::findLastValidTSoS(const DataVector<const Trk::Track
       if (m_detID->is_indet((*rItTSoS)->trackParameters()->associatedSurface().associatedDetectorElementIdentifier())) {
         lastValidIDTSOS = (*rItTSoS);
         break;
-      } else if(m_detID->is_muon((*rItTSoS)->trackParameters()->associatedSurface().associatedDetectorElementIdentifier())){
+      } if(m_detID->is_muon((*rItTSoS)->trackParameters()->associatedSurface().associatedDetectorElementIdentifier())){
         lastValidMSTSOS = (*rItTSoS);
         break;
       }

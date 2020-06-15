@@ -113,4 +113,3 @@ print ( "%s ch %i gn %i :  PED = %f  HFN = %f  LFN = %f    OF_RMS = %f  PILEUP =
 
 #=== close DB
 db.closeDatabase()
-

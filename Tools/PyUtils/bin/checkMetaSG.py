@@ -15,7 +15,6 @@
 
 from __future__ import print_function
 
-__version__ = "$Revision: 724150 $"
 __author__  = "Will Buttinger <will@cern.ch>"
 
 import sys
@@ -44,7 +43,7 @@ if __name__ == "__main__":
         fileNames = [ arg for arg in args if arg[0] != "-" ]
         pass
 
-    if options.fileName == None and len(fileNames) == 0:
+    if options.fileName is None and len(fileNames) == 0:
         str(parser.print_help() or "")
         sys.exit(1)
 
@@ -114,7 +113,7 @@ if __name__ == "__main__":
             sc = 1
             pass
 
-        except :
+        except Exception:
             print ("## Caught something !! (don't know what)")
             print (sys.exc_info()[0])
             print (sys.exc_info()[1])

@@ -500,9 +500,9 @@ def _extract_fields_iovpc(value):
         elif type_idx == 8:
             attr_value = int(value.m_unsignedLong[obj_idx])
         elif type_idx == 9:
-            attr_value = long(value.m_longLong[obj_idx])
+            attr_value = int(value.m_longLong[obj_idx])
         elif type_idx == 10:
-            attr_value = long(value.m_unsignedLongLong[obj_idx])
+            attr_value = int(value.m_unsignedLongLong[obj_idx])
         elif type_idx == 11:
             attr_value = float(value.m_float[obj_idx])
         elif type_idx == 12:
@@ -519,9 +519,9 @@ def _extract_fields_iovpc(value):
                 attr_value = attr_value.replace('_', '/')
             # Now it is clean
         elif type_idx == 15:
-            attr_value = long(value.m_date[obj_idx])
+            attr_value = int(value.m_date[obj_idx])
         elif type_idx == 16:
-            attr_value = long(value.m_timeStamp[obj_idx])
+            attr_value = int(value.m_timeStamp[obj_idx])
         else:
             raise ValueError('Unknown type id {0} for attribute {1}'.format(type_idx, attr_name))
 

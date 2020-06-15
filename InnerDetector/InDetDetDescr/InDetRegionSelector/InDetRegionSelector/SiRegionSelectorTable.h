@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
  
 #ifndef InDetRegionSelector_SiRegionSelectorTable_h
@@ -48,7 +48,8 @@ private:
   bool m_noDBM;
 
   // cablings
-  ToolHandle<ISCT_CablingTool>  m_sctCablingToolInc; // This class accesses SCT cabling during initialization.
+  PublicToolHandle<ISCT_CablingTool>  m_sctCablingToolInc // This class accesses SCT cabling during initialization.
+    {this, "SCT_CablingTool", "SCT_CablingToolInc", "Tool to retrieve SCT Cabling"};
 
   SG::ReadCondHandleKey<PixelCablingCondData> m_condCablingKey
     {this, "PixelCablingCondData", "PixelCablingCondData", "Pixel cabling key"};

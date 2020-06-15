@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JIVEXML_SICLUSTERRETRIEVER_H
@@ -59,8 +59,9 @@ namespace JiveXML
       const std::string m_typeName;
 
       /// A tool handle to the geo model tool
-      const ToolHandle<IInDetGeoModelTool> m_geo;
-   
+      const ToolHandle<IInDetGeoModelTool> m_geo
+         {this,"GeoModelTool", "JiveXML::InDetGeoModelTool/InDetGeoModelTool",""};
+
       /// The StoreGate key for the SiClusterCollection to retrieve
       std::string m_SiClusterCollName;
       /// The StoreGate key for the PRD MultiTruthMap with the track associations

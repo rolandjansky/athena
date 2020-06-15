@@ -26,6 +26,7 @@ void AmdcDb2Sql::SetUseKeysOn(int UseKeysOn){ m_UseKeysOn  = UseKeysOn ;}
 void AmdcDb2Sql::DoIt(std::string TagFileName,std::string tag,IRDBAccessSvc* pIRDBAccessSvc){
 
   DoSql(TagFileName,"AMDC",tag,pIRDBAccessSvc);
+  DoSql(TagFileName,"AGDD",tag,pIRDBAccessSvc);
   DoSql(TagFileName,"ATYP",tag,pIRDBAccessSvc);
   DoSql(TagFileName,"ACUT",tag,pIRDBAccessSvc);
   DoSql(TagFileName,"WRPC",tag,pIRDBAccessSvc);

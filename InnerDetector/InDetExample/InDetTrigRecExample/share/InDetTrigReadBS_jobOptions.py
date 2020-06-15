@@ -8,14 +8,14 @@ from AthenaCommon.AppMgr import ToolSvc
 
 # InputSvc
 from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamEventStorageInputSvc
-ByteStreamInputSvc = ByteStreamEventStorageInputSvc("ByteStreamInputSvc",
-                                                FullFileName = ["RawEvent.re"])
+ByteStreamInputSvc = ByteStreamEventStorageInputSvc("ByteStreamInputSvc")
 ServiceMgr            += ByteStreamInputSvc
 print                    ByteStreamInputSvc
 
 # get EventSelector
 from ByteStreamCnvSvc.ByteStreamCnvSvcConf import EventSelectorByteStream
 EventSelector  = EventSelectorByteStream("EventSelector",
+                                         Input = ["RawEvent.re"],
                                          ByteStreamInputSvc = "ByteStreamInputSvc")
 ServiceMgr    += EventSelector
 # declare EventSelector to theApp

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@ StatusCode InDet::ZVTOP_SlowSpatialPointFinder::initialize()
     {
       msg (MSG::ERROR) <<"Could not find ToolSvc."<<endmsg;
       return sc;
-    } else msg (MSG::INFO) << "Retrieved tool " << m_linFactory << endmsg;
+    } msg (MSG::INFO) << "Retrieved tool " << m_linFactory << endmsg;
   
   msg (MSG::INFO) << "initialize() successful in " << name() << endmsg;
   return StatusCode::SUCCESS;
@@ -64,11 +64,11 @@ Trk::Vertex* InDet::ZVTOP_SlowSpatialPointFinder::findSpatialPoint(const Trk::Tr
   const Trk::TrackParameters* perigee_2(dynamic_cast<const Trk::TrackParameters*>(trk_2->perigeeParameters()));
   if (!perigee_1 | !perigee_2) {
     if (msgLvl(MSG::VERBOSE)) msg() << "Dynamic cast to MeasuredPerigee failed. Skipping this pair" << endmsg;
-    return 0;
-  } else {
+    return nullptr;
+  } 
 		Trk::Vertex* vertex = findSpatialPoint(perigee_1, perigee_2);
 		return vertex;
-  }//if measured perigee
+  //if measured perigee
 }
 
 //============================================================================================
@@ -78,12 +78,12 @@ Trk::Vertex* InDet::ZVTOP_SlowSpatialPointFinder::findSpatialPoint(const Trk::Re
   const Trk::TrackParameters *perigee_1(dynamic_cast<const Trk::TrackParameters*>(trk_1->perigeeParameters()));
   if (!perigee_1) {
     if (msgLvl(MSG::VERBOSE)) msg() << "Dynamic cast to MeasuredPerigee failed. Skipping this pair" << endmsg;
-    return 0;
-  } else {
+    return nullptr;
+  } 
     //we need Trk::Vertex
     Trk::Vertex* vertex = findSpatialPoint(vtx, perigee_1);
     return vertex;
-  }
+  
 }
 
 //============================================================================================
@@ -93,12 +93,12 @@ Trk::Vertex* InDet::ZVTOP_SlowSpatialPointFinder::findSpatialPoint(const Rec::Tr
   const Trk::TrackParameters* perigee_2(trk_2->measuredPerigee());
   if (!perigee_1 | !perigee_2) {
     if (msgLvl(MSG::VERBOSE)) msg() << "Dynamic cast to MeasuredPerigee failed. Skipping this pair" << endmsg;
-    return 0;
-  } else {
+    return nullptr;
+  } 
     //we need Trk::Vertex
     Trk::Vertex* vertex = findSpatialPoint(perigee_1, perigee_2);
     return vertex;
-  }//if measured perigee
+  //if measured perigee
 }
 
 //============================================================================================
@@ -107,11 +107,11 @@ Trk::Vertex* InDet::ZVTOP_SlowSpatialPointFinder::findSpatialPoint(const Trk::Re
   const Trk::TrackParameters* perigee_1(trk_1->measuredPerigee());
   if (!perigee_1) {
     if (msgLvl(MSG::VERBOSE)) msg() << "Dynamic cast to MeasuredPerigee failed. Skipping this pair" << endmsg;
-    return 0;
-  } else {
+    return nullptr;
+  } 
     Trk::Vertex* vertex = findSpatialPoint(vtx, perigee_1);
     return vertex;
-  }
+  
 }
 
 //============================================================================================
@@ -121,12 +121,12 @@ Trk::Vertex* InDet::ZVTOP_SlowSpatialPointFinder::findSpatialPoint(const Trk::Tr
   const Trk::TrackParameters* perigee_2 = dynamic_cast<const Trk::TrackParameters*>(&(trk_2)->definingParameters());
   if (!perigee_1 | !perigee_2) {
     if (msgLvl(MSG::VERBOSE)) msg() << "Dynamic cast to MeasuredPerigee failed. Skipping this pair" << endmsg;
-    return 0;
-  } else {
+    return nullptr;
+  } 
     //we need Trk::Vertex
     Trk::Vertex* vertex = findSpatialPoint(perigee_1, perigee_2);
     return vertex;
-  }//if measured perigee
+  //if measured perigee
 }
 //============================================================================================
 Trk::Vertex* InDet::ZVTOP_SlowSpatialPointFinder::findSpatialPoint(const Trk::RecVertex vtx, const Trk::TrackParticleBase* trk_1) const
@@ -134,11 +134,11 @@ Trk::Vertex* InDet::ZVTOP_SlowSpatialPointFinder::findSpatialPoint(const Trk::Re
   const Trk::TrackParameters* perigee_1 = dynamic_cast<const Trk::TrackParameters*>(&(trk_1)->definingParameters());
   if (!perigee_1) {
     if (msgLvl(MSG::VERBOSE)) msg() << "Dynamic cast to MeasuredPerigee failed. Skipping this pair" << endmsg;
-    return 0;
-  } else {
+    return nullptr;
+  } 
     Trk::Vertex* vertex = findSpatialPoint(vtx, perigee_1);
     return vertex;
-  }
+  
 }
 
 //=============================================================================================
@@ -193,13 +193,13 @@ Trk::Vertex* InDet::ZVTOP_SlowSpatialPointFinder::findSpatialPoint(const Trk::Tr
 	if (msgLvl(MSG::VERBOSE)) msg() <<"chi2 = "<<chi2<<endmsg;
 	linPoint = Trk::Vertex(spatialPoint);
       }	
-    delete linTrack1; linTrack1=0; delete linTrack2; linTrack2=0;
+    delete linTrack1; linTrack1=nullptr; delete linTrack2; linTrack2=nullptr;
   }// two iterations
   if (chi2 <= m_chi2) return new Trk::Vertex(spatialPoint);
-  else {
+  
     if (msgLvl(MSG::VERBOSE)) msg() <<"found spatial point candidate doesn't pass chi2_cut" << endmsg;
-    return 0;
-  }
+    return nullptr;
+  
 }
 
 //========================================================================================================
@@ -245,11 +245,11 @@ Trk::Vertex* InDet::ZVTOP_SlowSpatialPointFinder::findSpatialPoint(const Trk::Re
 	if (msgLvl(MSG::VERBOSE)) msg() <<"chi2 = "<<chi2<<endmsg;
 	linPoint = Trk::Vertex (spatialPoint);
       }
-    delete linTrack1; linTrack1=0; 
+    delete linTrack1; linTrack1=nullptr; 
   }
   if (chi2 <= m_chi2) return new Trk::Vertex(spatialPoint);
-  else {
+  
     if (msgLvl(MSG::VERBOSE)) msg() <<"found spatial point candidate doesn't pass chi2_cut" << endmsg;
-    return 0;
-  }
+    return nullptr;
+  
 }

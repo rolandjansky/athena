@@ -17,8 +17,7 @@ tgcLv1RawMonMan = AthenaMonManager(name="TgcLv1RawMonManager",
                                    OutputLevel         = muonOutputLevel)
 ############## TgcRawDataValAlg #############
 from TgcRawDataMonitoring.TgcRawDataMonitoringConf import TgcRawDataValAlg
-tgcRawDataValAlg = TgcRawDataValAlg(name='tgcRawDataValAlg',
-                                    TgcPrepDataContainer="TGC_Measurements")
+tgcRawDataValAlg = TgcRawDataValAlg(name='tgcRawDataValAlg')
 #ToolSvc += tgcRawDataValAlg
 tgcRawMonMan.AthenaMonTools += [ tgcRawDataValAlg ]
 topSequence += tgcRawMonMan

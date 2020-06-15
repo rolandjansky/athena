@@ -158,9 +158,9 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t, const s
         if ( m_trackSummaryTool.retrieve().isFailure() ) {
           ATH_MSG_FATAL("Failed to retrieve tool " << m_trackSummaryTool );
           return StatusCode::FAILURE;
-        } else {
+        } 
           ATH_MSG_DEBUG( "Retrieved tool " << m_trackSummaryTool );
-        }
+        
       }
     else {
       m_trackSummaryTool.disable();
@@ -170,9 +170,9 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t, const s
     if ( m_extrapolator.retrieve().isFailure() ) {
       ATH_MSG_FATAL( "Failed to retrieve tool " << m_extrapolator );
       return StatusCode::FAILURE;
-    } else {
+    } 
       ATH_MSG_DEBUG( "Retrieved tool " << m_extrapolator );
-    }
+    
 
     if (detStore()->retrieve(m_detID, "AtlasID" ).isFailure()) {
       ATH_MSG_FATAL ("Could not get AtlasDetectorID ");
@@ -187,9 +187,9 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t, const s
     if (m_IBLParameterSvc.retrieve().isFailure()) {
       ATH_MSG_FATAL( "Could not retrieve IBLParameterSvc" );
       return StatusCode::FAILURE;
-    } else {
+    } 
       ATH_MSG_INFO( "Retrieved tool " << m_IBLParameterSvc );
-    }
+    
 
     m_doIBL = m_IBLParameterSvc->containsIBL();
     ATH_MSG_INFO( "doIBL set to "<<m_doIBL );
@@ -202,18 +202,18 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t, const s
     if ( m_trackToVertex.retrieve().isFailure() ) {
       ATH_MSG_FATAL( "Failed to retrieve tool " << m_trackToVertex );
       return StatusCode::FAILURE;
-    } else {
+    } 
       ATH_MSG_DEBUG( "Retrieved tool " << m_trackToVertex );
-    }
+    
 
     if (m_useMuonSummaryTool){
       /* Retrieve hit summary tool from ToolService */
       if ( m_hitSummaryTool.retrieve().isFailure() ) {
         ATH_MSG_FATAL("Failed to retrieve tool " << m_hitSummaryTool );
         return StatusCode::FAILURE;
-      } else {
+      } 
         ATH_MSG_DEBUG( "Retrieved tool " << m_hitSummaryTool);
-      }
+      
     }
     else{
       m_hitSummaryTool.disable();
@@ -499,10 +499,10 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t, const s
       if (!result){
         ATH_MSG_WARNING("Failed to extrapolate to first Beamspot - No TrackParticle created.");
         return nullptr;
-      }else{
+      }
         parsToBeDeleted = result;
         aPer = result;
-      }
+      
     } else if (m_perigeeExpression == "Vertex"){  // the non default way, express the perigee wrt. the vertex position
       if (vxCandidate != nullptr) {
         const Trk::Perigee* result =  m_trackToVertex->perigeeAtVertex(track, vxCandidate->position());
@@ -525,10 +525,10 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t, const s
         ATH_MSG_WARNING("Failed to extrapolate to Beamline - No TrackParticle created.");
         return nullptr;
       }
-      else{
+      
         parsToBeDeleted = result;
         aPer = result;
-      }
+      
     }
     /*
      * We start from the existing summary

@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration 
 from __future__ import print_function
 
-from ConfigUtils import serviceFactory,toolFactory
+from InDetPhysValMonitoring.ConfigUtils import serviceFactory,toolFactory
 from InDetRecExample.TrackingCommon import setDefaults
 
 import InDetPhysValMonitoring.InDetPhysValMonitoringConf

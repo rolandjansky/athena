@@ -30,7 +30,7 @@ MagField::AtlasFieldCacheCondAlg::AtlasFieldCacheCondAlg(const std::string& name
     :AthReentrantAlgorithm(name, pSvcLocator){ 
 }
 
-MagField::AtlasFieldCacheCondAlg::~AtlasFieldCacheCondAlg(){ }
+MagField::AtlasFieldCacheCondAlg::~AtlasFieldCacheCondAlg()= default;
 
 StatusCode
 MagField::AtlasFieldCacheCondAlg::initialize() {

@@ -19,6 +19,5 @@ class TrigL1JetMonitorAlgorithm : public AthMonitorAlgorithm {
 
   // Name of the L1 jet collection to be monitored
   SG::ReadHandleKey<xAOD::JetRoIContainer> m_l1jetContainerkey;
-  std::string                              m_chain;
 };
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDALGS_MUONCOMBINEDMUONCANDIDATEALG_H
@@ -13,22 +13,18 @@
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
 #include "MuonCombinedToolInterfaces/IMuonCandidateTool.h"
 #include "TrkTrack/TrackCollection.h"
-#include <string>
 
-namespace MuonCombined {
-  class IMuonCandidateTool;
-}
+#include <string>
 
 class MuonCombinedMuonCandidateAlg : public AthAlgorithm
 {
  public:
   MuonCombinedMuonCandidateAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
-  ~MuonCombinedMuonCandidateAlg();
+  ~MuonCombinedMuonCandidateAlg()=default;
 
   StatusCode initialize();
   StatusCode execute();
-  StatusCode finalize();
 
  private:
   ToolHandle<MuonCombined::IMuonCandidateTool> m_muonCandidateTool;

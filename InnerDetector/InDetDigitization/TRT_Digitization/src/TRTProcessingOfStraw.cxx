@@ -780,8 +780,6 @@ void TRTProcessingOfStraw::ClustersToDeposits (MagField::AtlasFieldCache& fieldC
 //________________________________________________________________________________
 Amg::Vector3D TRTProcessingOfStraw::getGlobalPosition (  int hitID, const TimedHitPtr<TRTUncompressedHit> *theHit ) {
 
-  Identifier IdStraw;
-
   const int mask(0x0000001F);
   int word_shift(5);
   int trtID, ringID, moduleID, layerID, strawID;

@@ -48,7 +48,6 @@ ByteStreamEventStorageInputSvc::ByteStreamEventStorageInputSvc(
   , m_storeGate    ("StoreGateSvc", name)
   , m_inputMetadata("StoreGateSvc/InputMetaDataStore", name)
   , m_robProvider  ("ROBDataProviderSvc", name)
-  , m_vExplicitFile(this, "FullFileName",          {}, "")
   , m_sequential   (this, "EnableSequential",   false, "")
   , m_dump         (this, "DumpFlag",           false, "Dump fragments")
   , m_wait         (this, "WaitSecs",              0., "Seconds to wait if input is in wait state")

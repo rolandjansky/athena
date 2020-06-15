@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -12,11 +12,11 @@
 // D.Emeliyanov@rl.ac.uk
 ///////////////////////////////////////////////////////////////////
 
-#include<stdio.h>
-#include<stdlib.h>
-#include<math.h>
-#include "TrkSurfaces/Surface.h"
 #include"TrkDistributedKalmanFilter/TrkPlanarSurface.h"
+#include "TrkSurfaces/Surface.h"
+#include<cmath>
+#include<cstdio>
+#include<cstdlib>
 
 namespace Trk
 {

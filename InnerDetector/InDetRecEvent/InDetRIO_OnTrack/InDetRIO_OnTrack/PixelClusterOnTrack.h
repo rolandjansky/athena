@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -105,47 +105,53 @@ namespace InDet {
       virtual ~PixelClusterOnTrack();
 	
       /** Pseudo-constructor : needed to avoid excessive RTTI*/
-      virtual PixelClusterOnTrack* clone() const;
+      virtual PixelClusterOnTrack* clone() const override;
     
     /** returns the surface for the local to global transformation 
       - fullfills Trk::MeasurementBase interface*/
-      const Trk::Surface& associatedSurface() const;
+      virtual const Trk::Surface& associatedSurface() const override;
+
+      virtual bool rioType(Trk::RIO_OnTrackType::Type type) const override
+      {
+        return (type == Trk::RIO_OnTrackType::PixelCluster);
+      }
+
 
     /** returns the PrepRawData - is a SiCluster in this scope
       - fullfills Trk::RIO_OnTrack interface*/
-      const PixelCluster* prepRawData() const;
+      virtual const PixelCluster* prepRawData() const override;
 
       const ElementLinkToIDCPixelClusterContainer& prepRawDataLink() const;
        
     /** returns the detector element, assoicated with the PRD of this class
       - fullfills Trk::RIO_OnTrack interface*/
-      const InDetDD::SiDetectorElement* detectorElement() const;
+      virtual const InDetDD::SiDetectorElement* detectorElement() const override;
    
       
 	  /** returns whether there was an ambiguity associated with this pixel cluster.
       - extends the Trk::RIO_OnTrack interface*/
       bool hasClusterAmbiguity() const;
-      /** returns whether this cluster is likely to be the fake mirror 
-	  image of a ganged pixel.
-	  Is it set if the cluster is a single hit cluster and the ganged
-	  pixel instead is part of a bigger cluster.*/
+      /** returns whether this cluster is likely to be the fake mirror
+          image of a ganged pixel.
+          Is it set if the cluster is a single hit cluster and the ganged
+          pixel instead is part of a bigger cluster.*/
       bool isFake() const;
       /** returns the energy loss in MeV associated to this cluster.
 	  It is 0 if no calibration data is used in clusterization*/
       float energyLoss() const;
 		
       /**returns some information about this RIO_OnTrack.*/
-      MsgStream&  dump( MsgStream& out ) const;	
+      virtual MsgStream&  dump( MsgStream& out ) const override;	
 	
       /**returns some information about this RIO_OnTrack.*/
-      std::ostream& dump( std::ostream& out ) const;
+      virtual std::ostream& dump( std::ostream& out ) const override;
 
     private:
       friend class PixelClusterOnTrackCnv_p1;
       friend class ::FakeTrackBuilder;
       /** ONLY for use in custom convertor
       Allows the custom convertor to reset values when persistying/reading back RoTs*/
-      virtual void setValues(const Trk::TrkDetElementBase* detEl, const Trk::PrepRawData* prd);
+      virtual void setValues(const Trk::TrkDetElementBase* detEl, const Trk::PrepRawData* prd) override;
 
       /** PixelCluster - the RIO (PRD, PrepRawData)*/
       ElementLinkToIDCPixelClusterContainer m_rio;

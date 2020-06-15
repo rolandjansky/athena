@@ -299,7 +299,8 @@ void SCT_PrepDataToxAOD::addSiHitInformation(xAOD::TrackMeasurementValidation* x
                                              const InDet::SCT_Cluster* prd,
                                              const std::vector<const SiHit*>* siHits) const
 {
-  std::vector<SiHit*> matchingHits{findAllHitsCompatibleWithCluster(prd, siHits)};
+  std::vector<SiHit> matchingHits;
+  findAllHitsCompatibleWithCluster(prd, siHits, matchingHits);
 
   long unsigned int numHits{matchingHits.size()};
 
@@ -318,27 +319,25 @@ void SCT_PrepDataToxAOD::addSiHitInformation(xAOD::TrackMeasurementValidation* x
   int hitNumber{0};
   const InDetDD::SiDetectorElement* de{prd->detectorElement()};
   if (de) {
-    for (auto& sihit: matchingHits) {
-      sihit_energyDeposit[hitNumber] = sihit->energyLoss();
-      sihit_meanTime[hitNumber] = sihit->meanTime();
-      sihit_barcode[hitNumber] = sihit->particleLink().barcode();
+    for (const SiHit& sihit : matchingHits) {
+      sihit_energyDeposit[hitNumber] = sihit.energyLoss();
+      sihit_meanTime[hitNumber] = sihit.meanTime();
+      sihit_barcode[hitNumber] = sihit.particleLink().barcode();
     
       // Convert Simulation frame into reco frame
-      const HepGeom::Point3D<double>& startPos{sihit->localStartPosition()};
+      const HepGeom::Point3D<double>& startPos{sihit.localStartPosition()};
 
       Amg::Vector2D pos{de->hitLocalToLocal(startPos.z(), startPos.y())};
       sihit_startPosX[hitNumber] = pos[0];
       sihit_startPosY[hitNumber] = pos[1];
       sihit_startPosZ[hitNumber] = startPos.x();
 
-      const HepGeom::Point3D<double>& endPos{sihit->localEndPosition()};
+      const HepGeom::Point3D<double>& endPos{sihit.localEndPosition()};
       pos= de->hitLocalToLocal(endPos.z(), endPos.y());
       sihit_endPosX[hitNumber] = pos[0];
       sihit_endPosY[hitNumber] = pos[1];
       sihit_endPosZ[hitNumber] = endPos.x();
       ++hitNumber;
-      delete sihit;
-      sihit = nullptr;
     }
   }
 
@@ -355,15 +354,15 @@ void SCT_PrepDataToxAOD::addSiHitInformation(xAOD::TrackMeasurementValidation* x
   AUXDATA(xprd, std::vector<float>, sihit_endPosZ) = sihit_endPosZ;
 }
 
-std::vector<SiHit*> SCT_PrepDataToxAOD::findAllHitsCompatibleWithCluster(const InDet::SCT_Cluster* prd, 
-                                                                         const std::vector<const SiHit*>* siHits) const
+void SCT_PrepDataToxAOD::findAllHitsCompatibleWithCluster(const InDet::SCT_Cluster* prd, 
+                                                          const std::vector<const SiHit*>* siHits,
+                                                          std::vector<SiHit>& matchingHits) const
 {
   ATH_MSG_VERBOSE("Got " << siHits->size() << " SiHits to look through");
-  std::vector<SiHit*> matchingHits;
 
   // Check if we have detector element  --  needed to find the local position of the SiHits
   const InDetDD::SiDetectorElement* de{prd->detectorElement()};
-  if (de==nullptr) return matchingHits;
+  if (de==nullptr) return;
 
   std::vector<const SiHit*> multiMatchingHits;
 
@@ -433,7 +432,7 @@ std::vector<SiHit*> SCT_PrepDataToxAOD::findAllHitsCompatibleWithCluster(const I
       continue;
     } else if (ajoiningHits.size()==1) {
       // Copy Si Hit ready to return
-      matchingHits.push_back(new SiHit(*ajoiningHits[0]));
+      matchingHits.push_back(SiHit(*ajoiningHits[0]));
       continue;
     } else {
       //  Build new SiHit and merge information together.
@@ -445,7 +444,7 @@ std::vector<SiHit*> SCT_PrepDataToxAOD::findAllHitsCompatibleWithCluster(const I
         time += siHit->meanTime();
       }
       time /= static_cast<float>(ajoiningHits.size());
-      matchingHits.push_back(new SiHit{lowestXPos->localStartPosition(), 
+      matchingHits.push_back(SiHit{lowestXPos->localStartPosition(), 
             highestXPos->localEndPosition(),
             energyDep,
             time,
@@ -458,8 +457,6 @@ std::vector<SiHit*> SCT_PrepDataToxAOD::findAllHitsCompatibleWithCluster(const I
             (*siHitIter)->getSide()});
     }
   }
-
-  return matchingHits;
 }
 
 void SCT_PrepDataToxAOD::addRDOInformation(xAOD::TrackMeasurementValidation* xprd, 

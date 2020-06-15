@@ -201,6 +201,9 @@ class ByteStreamUnpackGetterRun2(Configured):
         # BS unpacking
         from TrigBSExtraction.TrigBSExtractionConf import TrigBSExtraction
         extr = TrigBSExtraction()
+
+        # Add fictional output to ensure data dependency in AthenaMT
+        extr.ExtraOutputs += [("TrigBSExtractionOutput", "StoreGateSvc+TrigBSExtractionOutput")]
         
         if hasHLT:
             from TrigNavigation.TrigNavigationConfig import HLTNavigationOffline
@@ -440,7 +443,10 @@ class HLTTriggerResultGetter(Configured):
         if rec.doAOD() or rec.doWriteAOD():
             # schedule the RoiDescriptorStore conversion
             # log.warning( "HLTTriggerResultGetter - setting up RoiWriter" )
-            topSequence += RoiWriter()
+            roiWriter = RoiWriter()
+            # Add fictional input to ensure data dependency in AthenaMT
+            roiWriter.ExtraInputs += [("TrigBSExtractionOutput", "StoreGateSvc+TrigBSExtractionOutput")]
+            topSequence += roiWriter
             # write out the RoiDescriptorStores
             from TrigEDMConfig.TriggerEDMRun2 import TriggerRoiList
             objKeyStore.addManyTypesStreamAOD( TriggerRoiList )

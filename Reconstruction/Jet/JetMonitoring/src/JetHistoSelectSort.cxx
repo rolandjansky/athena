@@ -8,6 +8,7 @@ JetHistoSelectSort::JetHistoSelectSort( const std::string& type,  const std::str
   AthAlgTool( type, name, parent )
   , m_jetFillerTools(this)
   , m_selectTool(this)
+  , m_eventSelTool(this)
   , m_sortVar(this)
   
 

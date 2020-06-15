@@ -52,8 +52,6 @@ StatusCode EMBremCollectionBuilder::initialize() {
   ATH_CHECK(m_slimTool.retrieve());
   /* Get the track summary tool */
   ATH_CHECK(m_summaryTool.retrieve());
-  /* the extrapolation tool*/
-  ATH_CHECK(m_extrapolationTool.retrieve());
   
   return StatusCode::SUCCESS;
 }  

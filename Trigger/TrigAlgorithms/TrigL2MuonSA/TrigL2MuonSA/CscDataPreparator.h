@@ -31,29 +31,23 @@ namespace TrigL2MuonSA {
   class CscDataPreparator: public AthAlgTool
   {
   public:
-    
-    static const InterfaceID& interfaceID();
-    
-  public:
-    
-    CscDataPreparator(const std::string& type, 
+
+    CscDataPreparator(const std::string& type,
 		      const std::string& name,
 		      const IInterface*  parent);
-    
-    ~CscDataPreparator()=default;
-    
-    virtual StatusCode initialize();
+
+    virtual StatusCode initialize() override;
     
   public:
-    
+
     StatusCode prepareData(const TrigRoiDescriptor* p_roids,
 			   TrigL2MuonSA::MuonRoad&  muonRoad,
 			   TrigL2MuonSA::CscHits&   cscHits);
 
-    void setRoIBasedDataAccess(bool use_RoIBasedDataAccess);
+    void setRoIBasedDataAccess(bool use_RoIBasedDataAccess) {m_use_RoIBasedDataAccess = use_RoIBasedDataAccess;};
 
   private:
-    
+
     double calc_residual(double aw,
 			 double bw,
 			 double x,
@@ -69,11 +63,14 @@ namespace TrigL2MuonSA {
     ServiceHandle<IRegSelSvc>  m_regionSelector;
 
     // Tool handles for BS conversion and Rdo to Prep Data conversion
-    ToolHandle<Muon::IMuonRawDataProviderTool> m_rawDataProviderTool;
-    
+    ToolHandle<Muon::IMuonRawDataProviderTool> m_rawDataProviderTool{
+      this, "CscRawDataProvider", "Muon::CSC_RawDataProviderTool/CSC_RawDataProviderTool"};
+
     // CSC PrepDataProvider
-    ToolHandle<Muon::IMuonRdoToPrepDataTool> m_cscPrepDataProvider;
-    ToolHandle<ICscClusterBuilder> m_cscClusterProvider;
+    ToolHandle<Muon::IMuonRdoToPrepDataTool> m_cscPrepDataProvider{
+      this, "CscPrepDataProvider", "Muon::CscRdoToCscPrepDataTool/CscPrepDataProviderTool"};
+    ToolHandle<ICscClusterBuilder> m_cscClusterProvider{
+      this, "CscClusterProvider", "CscThresholdClusterBuilderTool"};
 
     SG::ReadHandleKey<Muon::CscPrepDataContainer> m_cscPrepContainerKey{ this, "CSCPrepDataContainer", "CSC_Clusters", "Name of the CSCContainer to read in"};
 
@@ -82,10 +79,10 @@ namespace TrigL2MuonSA {
 
     // Flag to decide whether or not to run BS decoding
     Gaudi::Property< bool > m_decodeBS { this, "DecodeBS", true, "Flag to decide whether or not to run BS->RDO decoding" };
-    
+
     bool m_use_RoIBasedDataAccess;
   };
-  
+
 } // namespace TrigL2MuonSA
 
-#endif  // 
+#endif

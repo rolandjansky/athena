@@ -157,7 +157,8 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
     }, *m_varProp);
 
   if (!res.ok()) {
-    ATH_MSG_ERROR("Got error during propagation:" << res.error()
+    ATH_MSG_ERROR("Got error during propagation: " 
+		  << res.error() << " " << res.error().message()
                   << ". Returning empty step vector.");
     return {};
   }
@@ -168,6 +169,10 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
   }
 
   ATH_MSG_VERBOSE("Collected " << steps.size() << " steps");
+  if(steps.size() == 0) {
+    ATH_MSG_WARNING("ZERO steps returned by stepper, that is not typically a good sign");
+  }
+
   ATH_MSG_VERBOSE(name() << "::" << __FUNCTION__ << " end");
 
   return steps;

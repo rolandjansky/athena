@@ -1,16 +1,21 @@
+#!/bin/env python
+
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import os,psutil
+import os,psutil,sys
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger('L1TopoSimStandAlone.py')
+log = logging.getLogger('L1TopoSimulationTest.py')
+         
+fmenu ,fTOBs = 'L1Topoconfig_MC_pp_v8_NewNaming.xml','eventdump_new.txt'
 
+print ('File for menu :',fmenu)
+print ('File for TOBs :',fTOBs)
+   
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr, theApp
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
-from AthenaCommon.AlgSequence import AthSequencer 
-condSeq = AthSequencer("AthCondSeq") 
 
 #---------------------------------------------------------------------------------#
 # MT-specific code
@@ -28,29 +33,22 @@ if nThreads >=1 :
 
    # Support for the MT-MP hybrid mode
    if (nProc > 0) :
-
       from AthenaCommon.Logging import log as msg
       if (theApp.EvtMax == -1) : 
          msg.fatal('EvtMax must be >0 for hybrid configuration')
          sys.exit(AthenaCommon.ExitCodes.CONFIGURATION_ERROR)
-
          if ( theApp.EvtMax % nProc != 0 ) :
             msg.warning('EvtMax[%s] is not divisible by nProcs[%s]: MP Workers will not process all requested events',theApp.EvtMax,nProc)
-
          chunkSize = int (theApp.EvtMax / nProc)
-
          from AthenaMP.AthenaMPFlags import jobproperties as jps 
          jps.AthenaMPFlags.ChunkSize= chunkSize
-         
          msg.info('AthenaMP workers will process %s events each',chunkSize)
-
+            
    ## force loading of data. make sure this alg is at the front of the
    ## AlgSequence
    #
    from SGComps.SGCompsConf import SGInputLoader
    topSequence+=SGInputLoader(OutputLevel=DEBUG, ShowEventDump=False)
-
-   
    # ThreadPoolService thread local initialization
    from GaudiHive.GaudiHiveConf import ThreadPoolSvc
    svcMgr += ThreadPoolSvc("ThreadPoolSvc")
@@ -58,13 +56,11 @@ if nThreads >=1 :
 
 # MT-specific code
 #---------------------------------------------------------------------------------#
-
 from L1TopoSimulation.L1TopoSimulationTestConfig import L1TopoSimulationTest
 
 topSequence += L1TopoSimulationTest()
-topSequence.L1TopoSimulationTest.InputASCIIFile = 'eventdump_new.txt'
-topSequence.L1TopoSimulationTest.InputXMLFile = 'L1Topoconfig_MC_pp_v8_recent.xml'
-
+topSequence.L1TopoSimulationTest.InputASCIIFile = fTOBs
+topSequence.L1TopoSimulationTest.InputXMLFile = fmenu
 
 from GaudiSvc.GaudiSvcConf import THistSvc
 svcMgr += THistSvc()

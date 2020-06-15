@@ -82,7 +82,7 @@ svcMgr += StoreGateSvc("BSStoreGate")
 svcMgr += ByteStreamEventStorageInputSvc("ByteStreamInputSvc")
 svcMgr.ByteStreamInputSvc.EventStore        = svcMgr.BSStoreGate
 svcMgr.ByteStreamInputSvc.MetaDataStore     = svcMgr.BSMetaDataStore
-svcMgr.ByteStreamInputSvc.FullFileName      = athenaCommonFlags.BSRDOInput()
+svcMgr.EventSelector.Input      = athenaCommonFlags.BSRDOInput()
 
 svcMgr += EventSelectorByteStream("BSEventSelector")
 svcMgr.BSEventSelector.ByteStreamInputSvc = "ByteStreamInputSvc"

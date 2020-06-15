@@ -50,4 +50,3 @@ defaultWriter.writeMuid()
 
 #=== close the database connection
 db.closeDatabase()
-

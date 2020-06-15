@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/PixelServMatFactory.h"
@@ -34,8 +34,6 @@ PixelServMatFactory::PixelServMatFactory(const InDetDD::AthenaComps * athenaComp
 
 PixelServMatFactory::~PixelServMatFactory()
 {
-  // It owns the material manager
-  delete m_materialManager;
 }
 
 
@@ -56,7 +54,8 @@ void PixelServMatFactory::create(GeoPhysVol *mother)
 
   // Get the InDet material manager. This is a wrapper around the geomodel one with some extra functionality to deal
   // with weights table if it exists
-  m_materialManager = new InDetMaterialManager("PixelMaterialManager", getAthenaComps());
+  m_materialManagerUnique = std::make_unique<InDetMaterialManager>("PixelMaterialManager", getAthenaComps());
+  m_materialManager = m_materialManagerUnique.get();
   m_materialManager->addWeightTable(weightTable, "pix");
   m_materialManager->addScalingTable(scalingTable);
   

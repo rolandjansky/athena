@@ -263,7 +263,7 @@ if not 'FullFileName' in dir():
    DelayLog.info( "No FullFileName! Please give a FullFileName list.")
    theApp.exit(-1)
 else :   
-   theByteStreamInputSvc.FullFileName=FullFileName
+   svcMgr.EventSelector.Input=FullFileName
    
 svcMgr.EventSelector.MaxBadEvents = 0
 

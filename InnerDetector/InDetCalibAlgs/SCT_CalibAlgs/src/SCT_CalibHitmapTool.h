@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -56,9 +56,9 @@ class SCT_CalibHitmapTool : public extends<AthAlgTool, ISCT_CalibHistoTool>
       SCT_ID::const_id_iterator m_waferItrBegin;
       SCT_ID::const_id_iterator m_waferItrEnd;
       typedef std::vector<int> VecInt;
-      VecInt* m_sct_waferHash{nullptr};
-      VecInt* m_sct_firstStrip{nullptr};
-      VecInt* m_sct_rdoGroupSize{nullptr};
+      VecInt m_sct_waferHash;
+      VecInt m_sct_firstStrip;
+      VecInt m_sct_rdoGroupSize;
 
       SG::ReadHandleKey<SCT_RDO_Container> m_rdoContainerKey{this, "RDOContainer", "SCT_RDOs"};
 

@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-
-# info
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 __all__ = ['metadata', 'metadata_all_files', 'convert_itemList', 'convert_metadata_items']
 
@@ -9,7 +8,6 @@ metadata_all_files = {}
 
 
 def _setup():
-    
     from PyUtils.MetaReader import read_metadata
 
     from AthenaCommon.Logging import logging

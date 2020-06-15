@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
   
 #include "InDetRegionSelector/SiRegionSelectorTable.h"
@@ -38,8 +38,7 @@ SiRegionSelectorTable::SiRegionSelectorTable(const std::string& type,
      m_roiFileName("RoITable.txt"),
      m_printHashId(true),
      m_printTable(false),
-     m_noDBM(true),
-     m_sctCablingToolInc("SCT_CablingToolInc")
+     m_noDBM(true)
 {
   declareInterface<IRegionIDLUT_Creator>(this);
   declareProperty("ManagerName", m_managerName);
@@ -121,12 +120,7 @@ SiRegionSelectorTable::createTable()
     if ( msgLvl(MSG::DEBUG) )  msg(MSG::DEBUG) << "Manager found" << endmsg;
   }
 
-  if (!manager->isPixel()) { // SCT
-    if (m_sctCablingToolInc.retrieve().isFailure()) {
-      msg(MSG::ERROR) << "Can't get the SCT_CablingToolInc." << endmsg;
-      return StatusCode::FAILURE;
-    }
-  }
+  ATH_CHECK(m_sctCablingToolInc.retrieve( DisableTool{manager->isPixel()} ));
 
   // Create RegionSelectorLUT pointers for Pixel or Sct
   //  RegionSelectorLUT*  rslut = new RegionSelectorLUT;

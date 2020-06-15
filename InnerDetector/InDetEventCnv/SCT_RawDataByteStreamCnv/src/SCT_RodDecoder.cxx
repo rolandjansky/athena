@@ -172,7 +172,8 @@ StatusCode SCT_RodDecoder::finalize()
  * To be sure that all of the errors are saved this helper class provides add method allowing to update/accumulate erorr.
  * The IDC, for a very good reasons (MT safety) do not allow for that.
  **/
-struct SCT_RodDecoderErrorsHelper {
+class SCT_RodDecoderErrorsHelper {
+public:
   SCT_RodDecoderErrorsHelper( IDCInDetBSErrContainer& idcContainer )
     : errorsIDC{ idcContainer } {}
   ~SCT_RodDecoderErrorsHelper() {

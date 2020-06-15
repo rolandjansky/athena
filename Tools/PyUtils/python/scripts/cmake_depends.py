@@ -20,7 +20,10 @@ import argparse
 try:
    import pygraphviz
 except ImportError:
-   sys.path.append('/cvmfs/sft.cern.ch/lcg/nightlies/dev4/Tue/pygraphviz/1.5/x86_64-centos7-gcc8-opt/lib/python2.7/site-packages/')
+   if sys.version_info[0]==2:
+      sys.path.append('/cvmfs/sft.cern.ch/lcg/nightlies/dev4/Tue/pygraphviz/1.5/x86_64-centos7-gcc8-opt/lib/python2.7/site-packages/')
+   else:
+      sys.path.append('/cvmfs/sft.cern.ch/lcg/nightlies/dev3python3/Tue/pygraphviz/1.5/x86_64-centos7-gcc8-opt/lib/python3.7/site-packages')
    import pygraphviz
 
 #
@@ -183,6 +186,7 @@ class AthGraph:
 @acmdlib.argument('--cmakedot', help=argparse.SUPPRESS)
 
 def main(args):
+   """Inspect cmake build dependencies"""
 
    # Find packages.dot:
    if not args.cmakedot:

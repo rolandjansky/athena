@@ -58,6 +58,7 @@ namespace ORUtils
     if(flags.doMuPFJetOR && tbox.muPFJetORT.empty()) {
       tbox.muPFJetORT.setTypeAndName("ORUtils::MuPFJetOverlapTool/" +
                                    flags.masterName + ".MuPFJetORT");
+      ORT_CHECK( tbox.muPFJetORT.setProperty("BJetLabel", flags.bJetLabel) );
     }
 
     // El-el

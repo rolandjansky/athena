@@ -64,8 +64,8 @@ MdtVsTgcRawDataValAlg::maphists(const xAOD::MuonSegmentContainer *newsegment,
       Identifier id = rio->identify();
       stationName = int(m_idHelperSvc->mdtIdHelper().stationName(id));
       // Flag Segments with ROTs in the MDT & Endcap
-      if(m_idHelperSvc->mdtIdHelper().is_mdt(id))isMdt=true;
-      if(m_idHelperSvc->mdtIdHelper().isEndcap(id))isEndcap=true;
+      if(m_idHelperSvc->isMdt(id))isMdt=true;
+      if(m_idHelperSvc->isEndcap(id))isEndcap=true;
       // If ROT is MDT
       if((stationName==13)||(stationName==49)){nMdtMeas[0]++;}
       if((stationName==14)||(stationName==15)){nMdtMeas[1]++;}

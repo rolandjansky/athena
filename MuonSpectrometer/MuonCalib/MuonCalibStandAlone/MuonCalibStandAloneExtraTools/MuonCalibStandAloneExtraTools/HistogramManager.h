@@ -22,12 +22,9 @@
 
 #include "MuonCalibStandAloneExtraTools/StringUtil.h"
 #include "MuonCalibStandAloneExtraTools/MDTName.h"
+#include "MuonIdHelpers/MdtIdHelper.h"
 
 #define UPDATETIME 2000
-
-namespace Muon {
-  class IMuonIdHelperSvc;
-}
 
 class MdtChamber {
 public:
@@ -132,7 +129,7 @@ public:
 
  private:
   TObjArray m_hList;
-  const Muon::IMuonIdHelperSvc* m_idHelper;
+  const MdtIdHelper* m_mdtIdHelper;
 
   bool m_doTracks;
   

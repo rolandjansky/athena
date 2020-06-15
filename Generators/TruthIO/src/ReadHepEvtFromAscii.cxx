@@ -131,14 +131,14 @@ StatusCode ReadHepEvtFromAscii::execute() {
   hepio.fill_next_event(evt);
  
   // Convert GeV to MeV 
-  for ( HepMC::GenEvent::particle_iterator p = evt->particles_begin(); p != evt->particles_end(); ++p )
-      {
+  for ( auto ip = evt->particles_begin(); ip != evt->particles_end(); ++ip ){
+      auto p=*ip;
 	  HepMC::FourVector newMomentum(0.,0.,0.,0.);
-	  newMomentum.setPx( (*p)->momentum().px() * 1000. );
-	  newMomentum.setPy( (*p)->momentum().py() * 1000. );
-	  newMomentum.setPz( (*p)->momentum().pz() * 1000. );
-	  newMomentum.setE( (*p)->momentum().e() * 1000. );
-	  (*p)->set_momentum(newMomentum);
+	  newMomentum.setPx( p->momentum().px() * 1000. );
+	  newMomentum.setPy( p->momentum().py() * 1000. );
+	  newMomentum.setPz( p->momentum().pz() * 1000. );
+	  newMomentum.setE( p->momentum().e() * 1000. );
+	  p->set_momentum(newMomentum);
 
       }
   mcEvtColl->push_back(evt);

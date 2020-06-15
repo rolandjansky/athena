@@ -33,9 +33,6 @@ class MuonPhiHitSelector : public AthAlgTool, virtual public Muon::IMuonHitSelec
   virtual std::vector<const Trk::MeasurementBase*>* select_rio( const double pmom, const std::vector<const Trk::RIO_OnTrack*>& associatedHits,
 								const std::vector<const Trk::PrepRawData*>& unassociatedHits ) const;
 
-  /** return fitted phi */
-  virtual double getPhi()const;
-
  private:
   ServiceHandle<Muon::IMuonIdHelperSvc>     m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
@@ -44,8 +41,6 @@ class MuonPhiHitSelector : public AthAlgTool, virtual public Muon::IMuonHitSelec
   /** Toolhandle to ClusterOnTrackTool creator */
   ToolHandle<Muon::IMuonClusterOnTrackCreator>                   m_clusterCreator;
 
-  /** flag to print out debugging information */
-  bool m_debug;
   /** flag to print out a summary of what comes in and what comes out */
   bool m_summary; 
   /** flag for use of cosmics, straight line model will be used, no interaction point constraint */
@@ -54,9 +49,6 @@ class MuonPhiHitSelector : public AthAlgTool, virtual public Muon::IMuonHitSelec
   bool m_makeClusters;
   /** flag that build competing rios on track for amibguous trigger hits (default: false) */
   bool m_competingRios;
-
-  /** fitted phi value */
-  mutable double m_phi;
 
   /** fit method curved track model */
   void fitRecPhi( const double pmom, const std::vector<Identifier> & phiId,  const std::vector<double> & phiHitx,  const std::vector<double> & phiHity,  const std::vector<double> & phiHitz, const std::vector<double> & phiError, std::vector<int> & quality, const int nphi, std::vector<double> & phiPull, std::vector<int> & phiMult, std::vector<int> & phiSelect, double & chi2, double & r0, double & phi,  std::vector<double> & errorM, int & nfit) const;
@@ -92,6 +84,5 @@ class MuonPhiHitSelector : public AthAlgTool, virtual public Muon::IMuonHitSelec
 void clusterPhi( const std::vector<Identifier> & id,  const std::vector<double> & hitx,  const std::vector<double> & hity,  const std::vector<double> & hitz, const std::vector<double> & error, const std::vector<double> & pull, std::vector<int> & select, const int n, std::vector<double> & clusterX , std::vector<double> & clusterY ,std::vector<double> & clusterZ , std::vector<double> & clusterError , std::vector<Identifier> & clusterId, std::vector<int> & clusterHits, std::vector<int> & clusterSelect, std::vector<int> & clusterInt, int & ncl ) const;
 
 };
-inline double MuonPhiHitSelector::getPhi()const{ return m_phi; }
 
 #endif // MuonSegmentCleaner_MuonPhiHitSelector_H
