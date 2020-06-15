@@ -3,7 +3,14 @@
 */
 #ifndef ATLASHEPMC_GENEVENTFWD_H
 #define ATLASHEPMC_GENEVENTFWD_H
+#ifdef HEPMC3
+namespace HepMC3 { class GenEvent; }
+namespace HepMC {
+using GenEvent=HepMC3::GenEvent;
+}
+#else
 namespace HepMC {
 class GenEvent;
 }
+#endif
 #endif
