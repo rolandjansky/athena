@@ -38,7 +38,6 @@ namespace
     operator < (const VertexAndSignalComp& other) const
     {return second > other.second;}
   };
-
   } //anonymous namespace
 
   ActsAdaptiveMultiPriVtxFinderTool::ActsAdaptiveMultiPriVtxFinderTool(const std::string& type, const std::string& name,
@@ -194,19 +193,19 @@ ActsAdaptiveMultiPriVtxFinderTool::initialize()
 }
 
 std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-ActsAdaptiveMultiPriVtxFinderTool::findVertex(const TrackCollection* trackTES,  const EventContext& ctx) const
+ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, const TrackCollection* trackTES) const
 {
-    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx};
-    const Trk::RecVertex& beamposition(beamSpotHandle->beamVtx());
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx};
+  const Trk::RecVertex& beamposition(beamSpotHandle->beamVtx());
 
-    std::vector<const Trk::ITrackLink*> selectedTracks;
+  std::vector<const Trk::ITrackLink*> selectedTracks;
 
-    typedef DataVector<Trk::Track>::const_iterator TrackDataVecIter;
+  typedef DataVector<Trk::Track>::const_iterator TrackDataVecIter;
 
-    bool selectionPassed;
-    for (TrackDataVecIter itr = (*trackTES).begin(); itr != (*trackTES).end(); itr++) {
-      if (m_useBeamConstraint) {
-        selectionPassed = static_cast<bool>(m_trkFilter->accept(**itr, &beamposition));
+  bool selectionPassed;
+  for (TrackDataVecIter itr = (*trackTES).begin(); itr != (*trackTES).end(); itr++) {
+    if (m_useBeamConstraint) {
+      selectionPassed = static_cast<bool>(m_trkFilter->accept(**itr, &beamposition));
     } else {
         Trk::Vertex null(Amg::Vector3D(0, 0, 0));
         selectionPassed = static_cast<bool>(m_trkFilter->accept(**itr, &null));
@@ -218,73 +217,34 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const TrackCollection* trackTES,  
         linkTT->setStorableObject(*trackTES);
         selectedTracks.push_back(linkTT);
     }
-}
+  }
 
-std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = findVertex(selectedTracks, ctx);
+  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = findVertex(ctx, selectedTracks);
 
-for(auto& trk : selectedTracks){
-  delete trk;
-}
+  for(auto& trk : selectedTracks){
+    delete trk;
+  }
 
-return returnContainers;
-}
-
-std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-ActsAdaptiveMultiPriVtxFinderTool::findVertex(const Trk::TrackParticleBaseCollection* trackTES, const EventContext& ctx) const
-{
-
-
-    std::vector<const Trk::ITrackLink*> selectedTracks;
-
-    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx};
-    const Trk::RecVertex &beamposition(beamSpotHandle->beamVtx());
-
-    typedef DataVector<Trk::TrackParticleBase>::const_iterator TrackParticleDataVecIter;
-
-    bool  selectionPassed;
-    for (TrackParticleDataVecIter itr = (*trackTES).begin(); itr != (*trackTES).end(); itr++) {
-      if (m_useBeamConstraint) {
-        selectionPassed = static_cast<bool>(m_trkFilter->accept(*((*itr)->originalTrack()), &beamposition));
-    } else {
-        Trk::Vertex null(Amg::Vector3D(0, 0, 0));
-        selectionPassed = static_cast<bool>(m_trkFilter->accept(*((*itr)->originalTrack()), &null)); // TODO: change trkFilter?
-    }
-
-    if (selectionPassed) {
-        ElementLink<Trk::TrackParticleBaseCollection> link;
-        link.setElement(const_cast<Trk::TrackParticleBase*>(*itr));
-        Trk::LinkToTrackParticleBase* linkTT = new Trk::LinkToTrackParticleBase(link);
-        linkTT->setStorableObject(*trackTES);
-        selectedTracks.push_back(linkTT);
-    }
-}
-
-std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = findVertex(selectedTracks, ctx);
-
-for(auto& trk : selectedTracks){
-  delete trk;
-}
-
-return returnContainers;
+  return returnContainers;
 }
 
 std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-ActsAdaptiveMultiPriVtxFinderTool::findVertex(const xAOD::TrackParticleContainer* trackParticles, const EventContext& ctx) const
+ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, const xAOD::TrackParticleContainer* trackParticles) const
 {
 
-    std::vector<const Trk::ITrackLink*> selectedTracks;
-    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx};
-    xAOD::Vertex beamposition;
-    beamposition.makePrivateStore();
-    beamposition.setPosition(beamSpotHandle->beamVtx().position());
-    beamposition.setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
+  std::vector<const Trk::ITrackLink*> selectedTracks;
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx};
+  xAOD::Vertex beamposition;
+  beamposition.makePrivateStore();
+  beamposition.setPosition(beamSpotHandle->beamVtx().position());
+  beamposition.setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
 
-    typedef DataVector<xAOD::TrackParticle>::const_iterator TrackParticleDataVecIter;
+  typedef DataVector<xAOD::TrackParticle>::const_iterator TrackParticleDataVecIter;
 
-    bool selectionPassed;
-    for (TrackParticleDataVecIter itr = (*trackParticles).begin(); itr != (*trackParticles).end(); itr++) {
-      if (m_useBeamConstraint) {
-        selectionPassed = static_cast<bool>(m_trkFilter->accept(**itr, &beamposition));
+  bool selectionPassed;
+  for (TrackParticleDataVecIter itr = (*trackParticles).begin(); itr != (*trackParticles).end(); itr++) {
+    if (m_useBeamConstraint) {
+      selectionPassed = static_cast<bool>(m_trkFilter->accept(**itr, &beamposition));
     } else {
         xAOD::Vertex null;
         null.makePrivateStore();
@@ -302,16 +262,16 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const xAOD::TrackParticleContainer
         linkTT->setStorableObject(*trackParticles);
         selectedTracks.push_back(linkTT);
     }
-}
+  }
 
-std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = findVertex(selectedTracks, ctx);
+  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = findVertex(ctx, selectedTracks);
 
-return returnContainers;
+  return returnContainers;
 }
 
 
 std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> 
-ActsAdaptiveMultiPriVtxFinderTool::findVertex(const std::vector<const Trk::ITrackLink*>& trackVector, const EventContext& ctx) const
+ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, const std::vector<const Trk::ITrackLink*>& trackVector) const
 {
     using namespace Acts::UnitLiterals;
 
@@ -357,22 +317,22 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const std::vector<const Trk::ITrac
     , 0. , 0. , 0. , 0., 0., 1.;
 
     allTracks.emplace_back((*trkiter),Acts::BoundParameters(geoContext, covMat, actsParams, perigeeSurface));
-}
+  }
 
-std::vector<const TrackWrapper*> allTrackPtrs;
-for(const auto& trk : allTracks){
-  allTrackPtrs.push_back(&trk);
-}
+  std::vector<const TrackWrapper*> allTrackPtrs;
+  for(const auto& trk : allTracks){
+    allTrackPtrs.push_back(&trk);
+  }
 
-Acts::VertexingOptions<TrackWrapper> vertexingOptions(geoContext,
-   magFieldContext);
+  Acts::VertexingOptions<TrackWrapper> vertexingOptions(geoContext,
+     magFieldContext);
 
-if(!m_useBeamConstraint){
-  beamSpotConstraintVtx.setPosition(Acts::Vector3D::Zero());
-  beamSpotConstraintVtx.setCovariance(Acts::ActsSymMatrixD<3>::Zero());
-}
+  if(!m_useBeamConstraint){
+    beamSpotConstraintVtx.setPosition(Acts::Vector3D::Zero());
+    beamSpotConstraintVtx.setCovariance(Acts::ActsSymMatrixD<3>::Zero());
+  }
 
-vertexingOptions.vertexConstraint = beamSpotConstraintVtx;
+  vertexingOptions.vertexConstraint = beamSpotConstraintVtx;
 
     // TODO: change when available
     //VertexFinder::State finderState;
@@ -442,10 +402,6 @@ vertexingOptions.vertexConstraint = beamSpotConstraintVtx;
   }
 
 for(unsigned int i = 0; i < vtxList.size(); i++){
-      // TODO: can I add the vertex here to the container and the aux store
-      // is still filled with all needed data? 
-      // See example below for dummy vertex where it's different, but I made private
-      // store above...?
     auto vtx = vtxList[i].first;
     theVertexContainer->push_back(vtx);
     if(i == 0){

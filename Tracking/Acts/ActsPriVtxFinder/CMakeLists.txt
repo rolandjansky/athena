@@ -22,7 +22,6 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           MagneticField/MagFieldInterfaces
                           Calorimeter/CaloDetDescr
-                          Tracking/Acts/ActsPriVtxFinderInterfaces
                           Tracking/Acts/ActsInterop
                           Tracking/TrkEvent/TrkTrackLink
                           Tracking/TrkEvent/TrkLinks 
@@ -34,7 +33,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/VxVertex
                           Tracking/TrkVertexFitter/TrkVertexFitterInterfaces
-                          Tracking/ActsPriVtxFinderInterfaces)
+                          InnerDetector/InDetRecTools/InDetRecToolInterfaces )
 
 # External dependencies:
 find_package( CLHEP )
@@ -69,7 +68,7 @@ atlas_add_library( ActsPriVtxFinderLib
                    VxVertex
                    TrkVertexFitterInterfaces
                    AthenaMonitoringKernelLib
-                   ActsPriVtxFinderInterfacesLib)
+                   InDetRecToolInterfaces )
 
 atlas_add_component( ActsPriVtxFinder
                      src/*.cxx
@@ -95,7 +94,7 @@ atlas_add_component( ActsPriVtxFinder
                      VxVertex
                      TrkVertexFitterInterfaces 
                      AthenaMonitoringKernelLib
-                     ActsPriVtxFinderInterfacesLib)
+                     InDetRecToolInterfaces )
 
 # Install files from the package:
 atlas_install_headers( ActsPriVtxFinder )

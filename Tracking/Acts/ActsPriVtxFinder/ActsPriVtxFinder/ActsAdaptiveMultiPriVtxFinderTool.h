@@ -15,9 +15,9 @@
 #include "TrkTrackLink/ITrackLink.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "TrkTrack/LinkToTrack.h"
+#include "InDetRecToolInterfaces/IVertexFinder.h"
 
 // PACKAGE
-#include "ActsPriVtxFinderInterfaces/IActsPriVtxFinderTool.h"
 #include "ActsGeometryInterfaces/IActsTrackingGeometryTool.h"
 #include "ActsGeometry/ActsGeometryContext.h"
 #include "ActsGeometry/ATLASMagneticFieldWrapper.h"
@@ -53,7 +53,7 @@ class BoundaryCheck;
 }
 
 
-class ActsAdaptiveMultiPriVtxFinderTool : public extends<AthAlgTool, IActsPriVtxFinderTool>
+class ActsAdaptiveMultiPriVtxFinderTool : public extends<AthAlgTool, InDet::IVertexFinder>
 {
 
 // Track wrapper input for the Acts vertexing
@@ -81,19 +81,16 @@ public:
 	           const IInterface* parent);
 
   virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-     findVertex(const TrackCollection* trackTES, const EventContext& ctx) const override;
+     findVertex(const EventContext& ctx, const TrackCollection* trackTES) const override;
 
   virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-     findVertex(const Trk::TrackParticleBaseCollection* trackTES, const EventContext& ctx) const override;
-
-  virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-     findVertex(const xAOD::TrackParticleContainer* trackParticles, const EventContext& ctx) const override;
+     findVertex(const EventContext& ctx, const xAOD::TrackParticleContainer* trackParticles) const override;
 
 
 private:
 
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> 
-  findVertex(const std::vector<const Trk::ITrackLink*>& trackVector, const EventContext& ctx) const;
+  findVertex(const EventContext& ctx, const std::vector<const Trk::ITrackLink*>& trackVector) const;
 
   Trk::Perigee* actsBoundToTrkPerigee(
   const Acts::BoundParameters& bound, const Acts::Vector3D& surfCenter) const;
