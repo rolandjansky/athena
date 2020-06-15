@@ -156,12 +156,18 @@ def get_quarks( y ):
 
 
 def is_baryon( x ):
-    if '009' in str(x): return 0 # gluino meson
-    elif '09' in str(x): return 1 # gluino baryon
-    elif '006' in str(x): return 1 # stop baryon
-    elif '005' in str(x): return 1 # sbottom baryon
-    # Otherwise it's a meson
-    return 0
+    # 1000993, gluinoball, is also not a baryon
+    b_n = 0
+    if '009' in str(x): b_n=0 # gluino meson
+    elif '09' in str(x): b_n=1 # gluino baryon
+    elif '0006' in str(x): b_n=0 # stop meson
+    elif '0005' in str(x): b_n=0 # sbottom meson
+    elif '006' in str(x): b_n=1 # stop baryon
+    elif '005' in str(x): b_n=1 # sbottom baryon
+    else: # Otherwise, what on earth was this??
+        raise RuntimeError('is_baryon   ERROR Unknown PDG ID: '+str(x))
+    if int(x)<0: return -b_n
+    return b_n
 
 
 def anti_name( x ):
@@ -390,26 +396,34 @@ def get_interaction_list(input_file, interaction_file='ProcessList.txt', mass_sp
         if '3' in my_q or '4' in my_q or '5' in my_q:
             if len(my_q)>2:
                 # Gluino R-baryons
-                s_number = -(my_q.count('3')+my_q.count('4')+my_q.count('5')) if pid>0 else my_q.count('3')+my_q.count('4')+my_q.count('5')
-            elif len(my_q)>1:
-                # Squark R-baryons or Gluino R-mesons
-                if my_q.count('3') + my_q.count('4') + my_q.count('5')>1: s_number=0
+                s_number = -(my_q.count('3')-my_q.count('4')+my_q.count('5')) if pid>0 else my_q.count('3')-my_q.count('4')+my_q.count('5')
+            elif len(my_q)>1 and '9' in str(pid):
+                # Gluino R-mesons
+                if my_q in ['33','44','55','35']: s_number=0 # 33, 44, 55, 35 - one is anti-quark, so they cancel
+                # By convention both 43 and 53 have charge +1, which means c-sbar or c-bbar
+                elif my_q in ['43','53']: s_number = 2 if pid>0 else -2
+                # Only one of bottom / charm / strange. Deal with neutral convention first
                 elif offset_options[abs(pid)][3]==0 and ('3' in my_q or '5' in my_q): s_number=1 if pid>0 else -1
                 elif offset_options[abs(pid)][3]==0 and '4' in my_q: s_number=1 if pid<0 else -1
+                # Now charged convention
                 elif '3' in my_q or '5' in my_q: s_number=offset_options[abs(pid)][3]
                 elif '4' in my_q: s_number=-offset_options[abs(pid)][3]
+            elif len(my_q)>1:
+                # Squark R-baryons
+                s_number = -(my_q.count('3')-my_q.count('4')+my_q.count('5')) if pid>0 else my_q.count('3')-my_q.count('4')+my_q.count('5')
             else:
                 # Squark R-mesons
-                s_number = my_q.count('3') + my_q.count('4') + my_q.count('5')
+                s_number = my_q.count('3') - my_q.count('4') + my_q.count('5')
                 s_number = s_number if pid>0 else -s_number
         else: s_number=0
         # Build the dictionary
         pid_name = offset_options[pid][2].strip() if pid>0 else anti_name(offset_options[abs(pid)][2]).strip()
-        incoming_rhadrons[pid_name] = [ offset_options[abs(pid)][3] , is_baryon(pid) , s_number ]
+        charge = offset_options[abs(pid)][3] if pid>0 else -offset_options[abs(pid)][3]
+        incoming_rhadrons[pid_name] = [ charge , is_baryon(pid) , s_number ]
         # Smaller list of outgoing rhadrons.
         # No charm or bottom
         if '4' in my_q or '5' in my_q: continue
-        outgoing_rhadrons[pid_name] = [ offset_options[abs(pid)][3] , is_baryon(pid) , s_number ]
+        outgoing_rhadrons[pid_name] = [ charge , is_baryon(pid) , s_number ]
 
     # Add all our R-hadrons to the table
     for proj in incoming_rhadrons:

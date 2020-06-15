@@ -38,15 +38,22 @@ if [ "${ATH_RETURN}" -ne "0" ] && [ -n "${gitlabTargetBranch}" ]; then
   cat ${JOB_LOG}
 fi
 
-echo $(date "+%FT%H:%M %Z")"     Running checklog"
-timeout 5m check_log.pl --config checklogTriggerTest.conf --showexcludestats ${JOB_LOG} 2>&1 | tee checklog.log
-
+echo $(date "+%FT%H:%M %Z")"     Running checklog for errors"
+timeout 5m check_log.py --errors --config checklogTriggerTest.conf --showexcludestats ${JOB_LOG} 2>&1 | tee checklog.log
 echo "art-result: ${PIPESTATUS[0]} CheckLog"
+
+echo $(date "+%FT%H:%M %Z")"     Running checklog for warnings"
+timeout 5m check_log.py --warnings --config checklogTriggerTest.conf --showexcludestats ${JOB_LOG} >warnings.log 2>&1
 
 ### PERFMON
 
+echo $(date "+%FT%H:%M %Z")"     Running perfmon"
 timeout 5m perfmon.py -f 0.90 ntuple.pmon.gz
-timeout 5m convert -density 300 -trim ntuple.perfmon.pdf -quality 100 -resize 50% ntuple.perfmon.png
+
+### HISTOGRAM COUNT
+
+echo $(date "+%FT%H:%M %Z")"     Running histSizes"
+timeout 5m histSizes.py -t expert-monitoring.root >histSizes.log 2>&1
 
 ### CHAINDUMP
 
@@ -75,7 +82,7 @@ mv athena.regtest athena.regtest.new
 
 if [ -f ${REF_FOLDER}/expert-monitoring.root ]; then
   echo $(date "+%FT%H:%M %Z")"     Running rootcomp"
-  timeout 10m rootcomp.py ${REF_FOLDER}/expert-monitoring.root expert-monitoring.root 2>&1 | tee rootcompout.log
+  timeout 10m rootcomp.py ${REF_FOLDER}/expert-monitoring.root expert-monitoring.root >rootcompout.log 2>&1
   echo "art-result: ${PIPESTATUS[0]} RootComp"
   echo $(date "+%FT%H:%M %Z")"     Running checkcounts"
   timeout 10m trigtest_checkcounts.sh 0 expert-monitoring.root ${REF_FOLDER}/expert-monitoring.root HLT 2>&1 | tee checkcountout.log
@@ -142,6 +149,12 @@ if [ -f AOD.pool.root ]; then
 else 
   echo $(date "+%FT%H:%M %Z")"     No AOD.pool.root to check"
 fi
+
+### GENERATE JSON WITH POST-PROCESSING INFORMATION
+
+echo $(date "+%FT%H:%M %Z")"     Running trig-test-json.py"
+timeout 5m trig-test-json.py
+cat extra-results.json && echo
 
 ### SUMMARY
 

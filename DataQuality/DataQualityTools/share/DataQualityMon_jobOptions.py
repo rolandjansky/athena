@@ -271,23 +271,25 @@ if isBeam==True and (DQMonFlags.monManEnvironment != 'tier0Raw') and rec.doInDet
     from TrigMuonMatching.TrigMuonMatchingConf import Trig__TrigMuonMatching
     ToolSvc += Trig__TrigMuonMatching("MatchingTool");
 
+    from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
     from DataQualityTools.DataQualityToolsConf import DQTGlobalWZFinderTool
     MyDQTGlobalWZFinderTool = DQTGlobalWZFinderTool(
-        name  = 'DQTGlobalWZFinderTool',
-        doTrigger = rec.doTrigger(),
-        JetCollectionName = JetCollectionKey,
-        MuonPtCut = 27,
-        MuonMaxEta = ToolSvc.DQTMuonSelectionTool.MaxEta,
-        MuonSelectionTool = ToolSvc.DQTMuonSelectionTool,
-        IsolationSelectionTool = ToolSvc.DQTIsoGradientTool,
-        MuonTrigMatchingTool = ToolSvc.MatchingTool,
+        name                    = 'DQTGlobalWZFinderTool',
+        doTrigger               = rec.doTrigger(),
+        JetCollectionName       = JetCollectionKey,
+        MuonPtCut               = 27,
+        MuonMaxEta              = ToolSvc.DQTMuonSelectionTool.MaxEta,
+        MuonSelectionTool       = ToolSvc.DQTMuonSelectionTool,
+        IsolationSelectionTool  = ToolSvc.DQTIsoGradientTool,
+        MuonTrigMatchingTool    = ToolSvc.MatchingTool,
+        BCTool                  = BunchCrossingTool(), 
+        FillBCIDTrees           = False,
     )
     ToolSvc += MyDQTGlobalWZFinderTool;
     ManagedAthenaGlobalPhysMon.AthenaMonTools += [ MyDQTGlobalWZFinderTool ];
 
     #from TrigBunchCrossingTool.TrigBunchCrossingToolConf import Trig__TrigConfBunchCrossingTool
     #ToolSvc += Trig__TrigConfBunchCrossingTool("DQTBunchCrossingTool")
-    from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
     #ToolSvc += BunchCrossingTool("DQTBunchCrossingTool")
     DontUseBunchCrossingTool = False
     if (rec.triggerStream() == 'CosmicCalo'

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -30,7 +30,7 @@ inline void CscIdHelper::create_mlog() const
 /// Constructor/Destructor
 
 CscIdHelper::CscIdHelper() : MuonIdHelper(), m_CHAMBERLAYER_INDEX(0),
-  m_WIRELAYER_INDEX(0), m_MEASURESPHI_INDEX(0), m_etaStripMax(0), m_phiStripMax(0) {}
+  m_WIRELAYER_INDEX(0), m_MEASURESPHI_INDEX(0), m_etaStripMax(0), m_phiStripMax(0), m_sorted_channel_vec() {}
 
 /// Destructor
 
@@ -340,6 +340,10 @@ int CscIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 	   << "Initializing CSC hash indices for finding neighbors ... " << endmsg;
   status = init_neighbors();
 
+  // now copy all CSC channel identifiers into m_sorted_channel_vec to sort it (for the positional hash retrieval)
+  // Using assignment operator to copy one vector to other 
+  m_sorted_channel_vec = m_channel_vec;
+  std::sort(m_sorted_channel_vec.begin(), m_sorted_channel_vec.end());
   return (status);
 }
 
@@ -394,6 +398,38 @@ int CscIdHelper::get_detectorElement_hash(const Identifier& id,
 int CscIdHelper::get_channel_hash(const Identifier& id, IdentifierHash& hash_id) const {
   const IdContext context=this->channel_context();
   return get_hash_calc(id,hash_id,&context);
+}
+
+int CscIdHelper::get_pos_channel_hash(const Identifier& id, IdentifierHash& hash_id) const {
+  hash_id = UINT_MAX;
+  const IdContext context=this->channel_context();
+  if (0 == context.begin_index()) { // No hashes yet for ids with prefixes
+    if (m_CHANNEL_INDEX == context.end_index()) {
+      id_vec_it it = std::lower_bound(m_sorted_channel_vec.begin(), m_sorted_channel_vec.end(), id);
+      if ((it != m_sorted_channel_vec.end())&&(*it==id)) {
+        hash_id = it - m_sorted_channel_vec.begin();
+        return 0;
+      }
+    }
+  }
+  create_mlog();
+  (*m_Log) << MSG::WARNING << "CscIdHelper::get_pos_channel_hash(): Could not determine hash for identifier " << id.get_compact() << endmsg;
+  return 1;
+}
+
+int CscIdHelper::get_id_fromPosHash(const IdentifierHash& hash_id, Identifier& id) const {
+  int result = 1;
+  id.clear();
+  const IdContext context=this->channel_context();
+  if (0 == context.begin_index()) { // No hashes yet for ids with prefixes
+    if (m_CHANNEL_INDEX == context.end_index()) {
+      if (hash_id < (unsigned int)(m_sorted_channel_vec.end() - m_sorted_channel_vec.begin())) {
+        id = m_sorted_channel_vec[hash_id];
+        result = 0;
+      }
+    }
+  }
+  return result;
 }
 
 void CscIdHelper::idChannels (const Identifier& id, std::vector<Identifier>& vect) const {

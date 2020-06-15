@@ -135,6 +135,7 @@
 + Event/EventContainers
 + Event/EventInfo
 + Event/EventInfoMgt
++ Event/EventInfoUtils
 + Event/EventKernel
 + Event/EventPTCnv
 + Event/EventPrimitives
@@ -217,7 +218,6 @@
 + LArCalorimeter/LArG4/LArG4RunControl
 + LArCalorimeter/LArG4/LArG4SD
 + LArCalorimeter/LArG4/LArG4ShowerLib
-+ LArCalorimeter/LArG4/LArG4ShowerLibData
 + LArCalorimeter/LArG4/LArG4ShowerLibSvc
 + LArCalorimeter/LArGeoModel/LArGeoAlgsNV
 + LArCalorimeter/LArGeoModel/LArGeoBarrel

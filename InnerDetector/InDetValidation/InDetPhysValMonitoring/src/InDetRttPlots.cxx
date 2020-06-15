@@ -188,7 +188,7 @@ InDetRttPlots::algoEfficiency(double radius, int SiSPweight, int TRTSeededweight
 }
 
 void
-InDetRttPlots::track_author(std::bitset<52> authorset){
+InDetRttPlots::track_author(std::bitset<xAOD::NumberOfTrackRecoInfo> authorset){
   m_dumPlots.track_author(authorset);
 }
 

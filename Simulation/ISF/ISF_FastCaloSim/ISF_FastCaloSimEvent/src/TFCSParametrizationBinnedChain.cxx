@@ -1,8 +1,9 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/TFCSParametrizationBinnedChain.h"
+#include "ISF_FastCaloSimEvent/TFCSInvisibleParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
 #include "ISF_FastCaloSimEvent/TFCSTruthState.h"
 #include "ISF_FastCaloSimEvent/TFCSExtrapolationState.h"
@@ -57,35 +58,69 @@ const std::string TFCSParametrizationBinnedChain::get_bin_text(int bin) const
   return std::string(Form("bin %d",bin));
 }
 
-FCSReturnCode TFCSParametrizationBinnedChain::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
+FCSReturnCode TFCSParametrizationBinnedChain::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const
 {
-  for(unsigned int ichain=0;ichain<m_bin_start[0];++ichain) {
-    ATH_MSG_DEBUG("now run for all bins: "<<chain()[ichain]->GetName());
-    if (simulate_and_retry(chain()[ichain], simulstate, truth, extrapol) != FCSSuccess) {
-      return FCSFatal;
+  Int_t retry=0;
+  Int_t retry_warning=1;
+
+  FCSReturnCode status = FCSSuccess;
+  for (int i = 0; i <= retry; i++) {
+    if (i >= retry_warning) ATH_MSG_WARNING("TFCSParametrizationBinnedChain::simulate(): Retry simulate call " << i << "/" << retry);
+    
+    for(unsigned int ichain=0;ichain<m_bin_start[0];++ichain) {
+      ATH_MSG_DEBUG("now run for all bins: "<<chain()[ichain]->GetName());
+      status = simulate_and_retry(chain()[ichain], simulstate, truth, extrapol);
+      if (status >= FCSRetry) {
+        retry=status-FCSRetry;
+        retry_warning=retry>>1;
+        if(retry_warning<1) retry_warning=1;
+        break;
+      }
+      if (status == FCSFatal) return FCSFatal;
     }
-  }
-  if(get_number_of_bins()>0) {
-    int bin=get_bin(simulstate,truth,extrapol);
-    if(bin>=0 && bin<(int)get_number_of_bins()) {
-      for(unsigned int ichain=m_bin_start[bin];ichain<m_bin_start[bin+1];++ichain) {
-        ATH_MSG_DEBUG("for "<<get_variable_text(simulstate,truth,extrapol)<<" run "<<get_bin_text(bin)<<": "<<chain()[ichain]->GetName());
-        if (simulate_and_retry(chain()[ichain], simulstate, truth, extrapol) != FCSSuccess) {
-          return FCSFatal;
+    if (status >= FCSRetry) continue;
+    
+    if(get_number_of_bins()>0) {
+      const int bin=get_bin(simulstate,truth,extrapol);
+      if(bin>=0 && bin<(int)get_number_of_bins()) {
+        for(unsigned int ichain=m_bin_start[bin];ichain<m_bin_start[bin+1];++ichain) {
+          ATH_MSG_DEBUG("for "<<get_variable_text(simulstate,truth,extrapol)<<" run "<<get_bin_text(bin)<<": "<<chain()[ichain]->GetName());
+          status = simulate_and_retry(chain()[ichain], simulstate, truth, extrapol);
+          if (status >= FCSRetry) {
+            retry=status-FCSRetry;
+            retry_warning=retry>>1;
+            if(retry_warning<1) retry_warning=1;
+            break;
+          }
+          if (status == FCSFatal) return FCSFatal;
         }
+      } else {
+        ATH_MSG_WARNING("for "<<get_variable_text(simulstate,truth,extrapol)<<": "<<get_bin_text(bin));
       }
     } else {
-      ATH_MSG_WARNING("for "<<get_variable_text(simulstate,truth,extrapol)<<": "<<get_bin_text(bin));
+      ATH_MSG_WARNING("no bins defined, is this intended?");
+    }  
+    if (status >= FCSRetry) continue;
+
+    for(unsigned int ichain=m_bin_start.back();ichain<size();++ichain) {
+      ATH_MSG_DEBUG("now run for all bins: "<<chain()[ichain]->GetName());
+      status = simulate_and_retry(chain()[ichain], simulstate, truth, extrapol);
+      if (status >= FCSRetry) {
+        retry=status-FCSRetry;
+        retry_warning=retry>>1;
+        if(retry_warning<1) retry_warning=1;
+        break;
+      }
+      if (status == FCSFatal) return FCSFatal;
     }
-  } else {
-    ATH_MSG_WARNING("no bins defined, is this intended?");
+
+    if(status==FCSSuccess) break;
   }  
-  for(unsigned int ichain=m_bin_start.back();ichain<size();++ichain) {
-    ATH_MSG_DEBUG("now run for all bins: "<<chain()[ichain]->GetName());
-    if (simulate_and_retry(chain()[ichain], simulstate, truth, extrapol) != FCSSuccess) {
-      return FCSFatal;
-    }
-  }
+
+  if(status != FCSSuccess) {
+    ATH_MSG_FATAL("TFCSParametrizationBinnedChain::simulate(): Simulate call failed after " << retry << " retries");
+    return FCSFatal;
+  }  
 
   return FCSSuccess;
 }
@@ -135,8 +170,8 @@ void TFCSParametrizationBinnedChain::unit_test(TFCSSimulationState* simulstate,c
   std::cout<<"==================================="<<std::endl<<std::endl;
 
   TFCSParametrizationBase* param;
-  param=new TFCSParametrization("A begin all","A begin all");
-  param->setLevel(MSG::DEBUG);
+  param=new TFCSInvisibleParametrization("A begin all","A begin all");
+  param->setLevel(MSG::VERBOSE);
   chain.push_before_first_bin(param);
   param=new TFCSParametrization("A end all","A end all");
   param->setLevel(MSG::DEBUG);
@@ -146,29 +181,37 @@ void TFCSParametrizationBinnedChain::unit_test(TFCSSimulationState* simulstate,c
   chain.Print();
   std::cout<<"==== Simulate only begin/end all ===="<<std::endl;
   chain.simulate(*simulstate,truth,extrapol);
+  std::cout<<"==== Simulate only begin/end all with chain retry===="<<std::endl;
+  chain.set_RetryChainFromStart();
+  chain.simulate(*simulstate,truth,extrapol);
+  chain.reset_RetryChainFromStart();
   std::cout<<"==================================="<<std::endl<<std::endl;
 
   for(int i=0;i<3;++i) {
-    TFCSParametrizationBase* param=new TFCSParametrization(Form("A%d",i),Form("A %d",i));
+    TFCSParametrizationBase* param=new TFCSInvisibleParametrization(Form("A%d",i),Form("A %d",i));
     param->setLevel(MSG::DEBUG);
     chain.push_back_in_bin(param,i);
   }
 
   for(int i=3;i>0;--i) {
-    TFCSParametrizationBase* param=new TFCSParametrization(Form("B%d",i),Form("B %d",i));
+    TFCSParametrizationBase* param=new TFCSInvisibleParametrization(Form("B%d",i),Form("B %d",i));
     param->setLevel(MSG::DEBUG);
     chain.push_back_in_bin(param,i);
   }
   param=new TFCSParametrization("B end all","B end all");
   param->setLevel(MSG::DEBUG);
   chain.push_back(param);
-  param=new TFCSParametrization("B begin all","B begin all");
-  param->setLevel(MSG::DEBUG);
+  param=new TFCSInvisibleParametrization("B begin all","B begin all");
+  param->setLevel(MSG::VERBOSE);
   chain.push_before_first_bin(param);
   
   std::cout<<"====         Chain setup       ===="<<std::endl;
   chain.Print();
   std::cout<<"==== Simulate with full chain  ===="<<std::endl;
   chain.simulate(*simulstate,truth,extrapol);
+  std::cout<<"==== Simulate with full chain with chain retry ===="<<std::endl;
+  chain.set_RetryChainFromStart();
+  chain.simulate(*simulstate,truth,extrapol);
+  chain.reset_RetryChainFromStart();
   std::cout<<"==================================="<<std::endl<<std::endl;
 }

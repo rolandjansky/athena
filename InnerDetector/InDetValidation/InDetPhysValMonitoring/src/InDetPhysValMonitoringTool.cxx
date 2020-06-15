@@ -440,7 +440,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
       bool addsToEfficiency(true); // weight for the trackeff histos
       
       if(truth_count <= 1){
-        std::bitset<52> base_bits;
+        std::bitset< xAOD::NumberOfTrackRecoInfo > base_bits;
         std::vector< const xAOD::TrackParticle* > bestTrack;
         int SiSPweight(0), TRTSeededweight(0), TRTStandaloneweight(0), other_weight(0);
         double truth_charge = thisTruth->charge();

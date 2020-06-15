@@ -7,7 +7,6 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "LongLivedParticleDPDMaker/VHLowTrackJetFilterTool.h"
-
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODJet/JetContainer.h"
@@ -37,11 +36,11 @@ m_jetEtaCut(2.1),
 m_TrackMinPt(400.0),
 m_TrackZ0Max(0.3),
 m_TrackD0Max(0.5),
-m_AlphaMaxCut(0.03),
-m_CHFCut(0.3),
+m_AlphaMaxCut(0.05),
+m_CHFCut(0.045),
 m_nJetsReq(0),
 m_electronSGKey("Electrons"),
-m_electronIDKey("Medium"),
+m_electronIDKey("LHMedium"),
 m_electronPtCut(0),
 m_muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool"),
 m_muonSGKey("Muons"),
@@ -74,7 +73,6 @@ m_muonPtCut(0)
 }
 
 // Athena finalize
-
 StatusCode DerivationFramework::VHLowTrackJetFilterTool::finalize()
 {
   ATH_MSG_VERBOSE("finalize() ...");
@@ -92,7 +90,6 @@ StatusCode DerivationFramework::VHLowTrackJetFilterTool::finalize()
 // The filter itself
 bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
 {
-
   typedef std::vector<const xAOD::TrackParticle*> Particles;
   typedef ElementLink<xAOD::TrackParticleContainer> TrackLink;
   typedef std::vector<TrackLink> TrackLinks;
@@ -115,7 +112,8 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
   }
   
   //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  
+
+
   //electron portion
   const xAOD::ElectronContainer* electrons(0);
   sc = evtStore()->retrieve(electrons,m_electronSGKey);
@@ -124,12 +122,14 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
     return false;
   }
   
+
   // loop over the electrons in the container
   for (auto electron : *electrons){
-    
+
     if(electron->pt()<m_electronPtCut) continue;
-    if( (fabs(electron->caloCluster()->etaBE(2))>1.37 && fabs(electron->caloCluster()->etaBE(2)<1.52))
+    if( (fabs(electron->caloCluster()->etaBE(2))>1.37 && fabs(electron->caloCluster()->etaBE(2))<1.52)
        || fabs(electron->caloCluster()->etaBE(2))>2.47 ) continue;
+
     if(electron->isolation(xAOD::Iso::topoetcone20)/electron->pt()>0.2) continue;
     
     bool passID=false;
@@ -147,7 +147,7 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
         double delta_z0 = tp->z0() + tp->vz() - vertex->z();
         double theta = tp->theta();
         float z0sintheta = fabs(delta_z0 * sin(theta));
-        
+
         if (sigd0>5) continue;
         if (z0sintheta>0.5) continue;
         
@@ -155,6 +155,7 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
         break;
       }
     }
+
     if (passesEl){
       m_nEventsPassElectron++;
       break;
@@ -165,31 +166,21 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
   //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   
   //muon portion
-  int qflag=0;
-  if (m_muonIDKey == "VeryLoose") {
-    qflag = xAOD::Muon::VeryLoose;
-  } else if (m_muonIDKey == "Loose") {
-    qflag = xAOD::Muon::Loose;
-  } else if (m_muonIDKey == "Medium") {
-    qflag = xAOD::Muon::Medium;
-  } else if (m_muonIDKey == "Tight") {
-    qflag = xAOD::Muon::Tight;
-  } else {
-    ATH_MSG_FATAL("Cannot find the muon quality flag " << m_muonIDKey << ".");
-    return false;
-  }
-  
+
   const xAOD::MuonContainer* muons(0);
   sc = evtStore()->retrieve(muons,m_muonSGKey);
   if (sc.isFailure()) {
     ATH_MSG_FATAL("No muon collection with name " << m_muonSGKey << " found in StoreGate!");
     return false;
   }
+
   
   for(auto muon : *muons){
+
     if (muon->pt()<m_muonPtCut) continue;
     if (fabs(muon->eta())>2.5) continue;
-    if (!(m_muonSelectionTool->getQuality(*muon) <= qflag)) continue;
+    if (!(m_muonSelectionTool->passedMuonCuts(*muon))) continue;
+    if (muon->muonType()!=xAOD::Muon::Combined) continue;
     if (muon->isolation(xAOD::Iso::topoetcone20)/muon->pt()>0.3) continue;
     
     for (auto vertex : *vertices) {	// Select good primary vertex
@@ -197,17 +188,20 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
         const xAOD::TrackParticle* tp = muon->primaryTrackParticle() ; //your input track particle from the electron
         
         double d0sig = xAOD::TrackingHelpers::d0significance( tp, eventInfo->beamPosSigmaX(), eventInfo->beamPosSigmaY(), eventInfo->beamPosSigmaXY() );
+
         if (fabs(d0sig)>3) continue;
           
 	float delta_z0 = tp->z0() + tp->vz() - vertex->z();
         float theta = tp->theta();
         double z0sintheta = delta_z0 * sin(theta);
+
         if (fabs(z0sintheta)>0.5) continue;
-        
+       
         passesMu = true;
         break;
       }
     }
+
     if (passesMu) {
       m_nEventsPassMuon++;
       break;
@@ -228,18 +222,37 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
   
   std::vector<const xAOD::Jet*> goodJets;
   for (auto jet : *jets) {
+
+    if (jet->pt() < m_jetPtCut) continue;
+    if (fabs(jet->eta()) > m_jetEtaCut) continue;
+
     TLorentzVector VJet = TLorentzVector(0.0,0.0,0.0,0.0);
     VJet.SetPtEtaPhiE(jet->pt(), jet->eta(), jet->phi(), jet->e());
-    
+
     float minDeltaR = 100;
+
     for (auto electron : *electrons ){
-      if (!electron->passSelection("Loose")) continue;
+
+      if (electron->pt()<20000) continue;
+      if (fabs(electron->eta())>2.47) continue;
+
+      bool passLoose=false;
+      if (!electron->passSelection(passLoose, "LHLoose")){
+	ATH_MSG_WARNING("Cannot find the LHLoose electron quality flag");
+	continue;
+      }
+      if (!passLoose) continue;
+
       TLorentzVector VElec=electron->p4();
       float deltaR = VJet.DeltaR(VElec);
+
       if (deltaR<minDeltaR) minDeltaR=deltaR;
     }
+    
     if (minDeltaR<0.2) continue;
+
     goodJets.push_back(jet);
+
   }
   
   
@@ -247,9 +260,6 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
   for (auto jet : goodJets){
     jetNo++;
     if (jetNo>=3) break;  //Only consider two leading jets
-    
-    if (jet->pt() < m_jetPtCut) continue;
-    if (fabs(jet->eta()) > m_jetEtaCut) continue;
     
     TLorentzVector CHFNum = TLorentzVector(0.0,0.0,0.0,0.0);
     const xAOD::BTagging *bjet(nullptr);
@@ -274,7 +284,7 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
         TLorentzVector VTrack = TLorentzVector(0.0,0.0,0.0,0.0);
         VTrack.SetPtEtaPhiE(track->pt(),track->eta(), track->phi(), track->e());
         alphaDen=alphaDen+VTrack;
-        if (track->d0() > m_TrackD0Max) continue;
+        if (fabs(track->d0()) > m_TrackD0Max) continue;
         
         float z0 = track->z0() + track->vz() - vertex->z();
         float theta = track->theta();
@@ -291,19 +301,23 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
     CHFNum = TLorentzVector(0.0,0.0,0.0,0.0);
     for(auto track : goodTracks) {
       if (track->pt() < m_TrackMinPt) continue;
-      if (track->d0() > m_TrackD0Max) continue;
+      if (fabs(track->d0()) > m_TrackD0Max) continue;
       
       TLorentzVector VTrack = TLorentzVector(0.0,0.0,0.0,0.0);
       VTrack.SetPtEtaPhiE(track->pt(),track->eta(), track->phi(), track->e());
       CHFNum=CHFNum+VTrack;
+
     }
+
     float chf = CHFNum.Pt()/jet->pt();
     
     if (alpha_max < m_AlphaMaxCut) m_nJetsPassAlphaMax++;
     if (chf < m_CHFCut) m_nJetsPassCHF++;
     
     if (chf > m_CHFCut && alpha_max > m_AlphaMaxCut) continue;
+
     nJetsPassed++;
+
   }
   
   if (nJetsPassed >= m_nJetsReq){
@@ -312,7 +326,7 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
   }
   
   //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  
+
   if (passesJet && (passesEl || passesMu)){
     m_nEventsPass++;
     return true;

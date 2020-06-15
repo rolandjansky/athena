@@ -17,7 +17,7 @@ else:
     print "DataQualityConfigurations data directory not found, using $PWD instead."
 print "Looking for collisions_*.hcfg files in %s" % (hcfg_dir)
 
-dqconfig.hcfg           = "%s/heavyions_run.hcfg"       % (hcfg_dir)
+dqconfig.hcfg           = "%s/collisions_run.hcfg"       % (hcfg_dir)
 dqconfig.hcfg_min10     = "%s/collisions_minutes10.hcfg" % (hcfg_dir)
 dqconfig.hcfg_min30     = "%s/collisions_minutes30.hcfg" % (hcfg_dir)
 

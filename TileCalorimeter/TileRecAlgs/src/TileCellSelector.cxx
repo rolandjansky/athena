@@ -48,6 +48,8 @@ TileCellSelector::TileCellSelector(const std::string& name, ISvcLocator* pSvcLoc
   , m_const(0)
   , m_overLG(0)
   , m_overHG(0)
+  , m_underLG(0)
+  , m_underHG(0)
   , m_dqerr(0)
   , m_dmuerr(0)
   , m_warnerr(0)
@@ -94,6 +96,10 @@ TileCellSelector::TileCellSelector(const std::string& name, ISvcLocator* pSvcLoc
   declareProperty( "MaxTimeMBTS", m_maxTimeChan[2] =  100.);  // cut on channel time
   declareProperty( "PtnTimeMBTS", m_ptnTimeChan[2] =  10);  // channel time pattern
 
+  declareProperty( "SelectGain",  m_selectGain = 2); // 0 - select LG only,  1 - HG only, 2 - both gains
+  m_skipGain[TileID::LOWGAIN] = false;
+  m_skipGain[TileID::HIGHGAIN] = false;
+
   // pattern - decimal number with up to 5 digits
   // only values 1(=true) and 0(=false) for every digit are used
   // digit 0 set to 1  - accept event if value < min
@@ -125,6 +131,12 @@ TileCellSelector::TileCellSelector(const std::string& name, ISvcLocator* pSvcLoc
   declareProperty( "CheckDMUs",    m_checkDMUs  = true);   // global flag which allows to swithc on/off DMU checks
   declareProperty( "CheckOverLG"  ,m_checkOverLG = true);  // select events with overflow in low gain
   declareProperty( "CheckOverHG",  m_checkOverHG = false); // select events with overflow in high gain
+  declareProperty( "CheckUnderLG", m_checkUnderLG = false); // select events with underflow in low gain
+  declareProperty( "CheckUnderHG", m_checkUnderHG = false); // select events with underflow in high gain
+  declareProperty( "OverflowLG",   m_overflowLG  = 1021.9); // threshold for overflow in low gain
+  declareProperty( "OverflowHG",   m_overflowHG  = 1021.9); // threshold for overflow in high gain
+  declareProperty( "UnderflowLG",  m_underflowLG = 2.1);    // threshold for underflow in low gain
+  declareProperty( "UnderflowHG",  m_underflowHG = 2.1);    // threshold for underflow in high gain
 
   declareProperty( "CheckWarning", m_checkWarning = false); // select events with warning status in TileCal status word
   declareProperty( "CheckError",   m_checkError = false);   // select events with error status in TileCal status word
@@ -167,6 +179,12 @@ StatusCode TileCellSelector::initialize() {
   ATH_MSG_INFO( "CheckDMUs " << ((m_checkDMUs) ? "true" : "false"));
   ATH_MSG_INFO( "CheckOverLG " << ((m_checkOverLG) ? "true" : "false"));
   ATH_MSG_INFO( "CheckOverHG " << ((m_checkOverHG) ? "true" : "false"));
+  ATH_MSG_INFO( "CheckUnderLG " << ((m_checkUnderLG) ? "true" : "false"));
+  ATH_MSG_INFO( "CheckUnderHG " << ((m_checkUnderHG) ? "true" : "false"));
+  ATH_MSG_INFO( "OverflowLG " << m_overflowLG);
+  ATH_MSG_INFO( "OverflowHG " << m_overflowHG);
+  ATH_MSG_INFO( "UnderflowLG " << m_underflowLG);
+  ATH_MSG_INFO( "UnderflowHG " << m_underflowHG);
 
   ATH_MSG_INFO( "SkipEmpty " << ((m_skipEmpty) ? "true" : "false"));
   ATH_MSG_INFO( "SkipMasked " << ((m_skipMasked) ? "true" : "false"));
@@ -204,6 +222,22 @@ StatusCode TileCellSelector::initialize() {
     ATH_MSG_INFO( "MinTimeMBTS < " << m_minTimeChan[2]);
     ATH_MSG_INFO( "MaxTimeMBTS > " << m_maxTimeChan[2]);
     ATH_MSG_INFO( "PtnTimeMBTS = " << m_ptnTimeChan[2]);
+  }
+
+  switch (m_selectGain) {
+    case 0:
+      ATH_MSG_INFO( "Select Low gain channels only");
+      m_skipGain[TileID::LOWGAIN] = false;
+      m_skipGain[TileID::HIGHGAIN] = true;
+      break;
+    case 1:
+      ATH_MSG_INFO( "Select High gain channels only");
+      m_skipGain[TileID::LOWGAIN] = true;
+      m_skipGain[TileID::HIGHGAIN] = false;
+      break;
+    default:
+      ATH_MSG_INFO( "Select both gains");
+      break;
   }
 
   if (m_digitsContName.size() > 0 && m_checkJumps) {
@@ -633,7 +667,7 @@ StatusCode TileCellSelector::execute() {
             bool ene1Ok = false;
             bool time1Ok = false;
 
-            if (!bad1) {
+            if ( !(bad1 || m_skipGain[tile_cell->gain1()]) ) {
               if (time1 < m_minTimeChan[ch_type] ) {
                 time1Ok = m_bitTimeChan[ch_type][0];
               } else if (time1 > m_maxTimeChan[ch_type] ) {
@@ -666,7 +700,7 @@ StatusCode TileCellSelector::execute() {
             bool ene2Ok = false;
             bool time2Ok = false;
 
-            if (!bad2) {
+            if ( !(bad2 || m_skipGain[tile_cell->gain2()]) ) {
               if (ene2 < m_minEneChan[ch_type] ) {
                 ene2Ok = m_bitEneChan[ch_type][0];
               } else if (ene2 > m_maxEneChan[ch_type] ) {
@@ -700,7 +734,7 @@ StatusCode TileCellSelector::execute() {
             bool over2=false;
             if (checkOver) {
               over1 = ( (!bad1) && (tile_cell->qbit1() & TileCell::MASK_OVER) && tile_cell->gain1()==TileID::LOWGAIN);
-              over2 = ( (!bad2) && (tile_cell->qbit2() & TileCell::MASK_OVER) && tile_cell->gain1()==TileID::LOWGAIN);
+              over2 = ( (!bad2) && (tile_cell->qbit2() & TileCell::MASK_OVER) && tile_cell->gain2()==TileID::LOWGAIN);
             }
             
             if ((ene1Ok && time1Ok) || over1) {
@@ -1178,6 +1212,7 @@ StatusCode TileCellSelector::execute() {
             HWIdentifier chId = m_tileHWID->channel_id(adcId);
             m_tileHWID->get_hash(chId, hash, &chan_context);
             if ( m_chanToSkip[hash] ) continue;
+            int adc = m_tileHWID->adc(adcId);
             int channel = m_tileHWID->channel(adcId);
             int ch_type = 0;
             if (channel == chMBTS) {
@@ -1187,7 +1222,6 @@ StatusCode TileCellSelector::execute() {
               ch_type = 1;
             }
             if (emptyBad  && !m_chanBad[hash] ) {
-              int adc = m_tileHWID->adc(adcId);
               m_chanBad[hash] = m_tileBadChanTool->getAdcStatus(drawerIdx,channel,adc).isBad() ||
                 (DQstatus && !DQstatus->isAdcDQgood(ros,drawer,channel,adc)) ||
                 (m_checkDCS && m_tileDCSSvc->getDCSSTATUS(ros,drawer,channel) > TileDCSSvc::WARNING);
@@ -1208,7 +1242,8 @@ StatusCode TileCellSelector::execute() {
 
               if ( (m_skipMasked && m_chanBad[hash]) ||
                    (m_skipMBTS && channel == chMBTS) ||
-                   (m_skipEmpty && TileDQstatus::isChEmpty(ros, drawer, channel) > 0) )
+                   (m_skipEmpty && TileDQstatus::isChEmpty(ros, drawer, channel) > 0) ||
+                   m_skipGain[adc] )
                 continue;
 
               bool ampOk = false;
@@ -1357,6 +1392,8 @@ StatusCode TileCellSelector::execute() {
       int nDmuErr = 0;
       int nOverLG = 0;
       int nOverHG = 0;
+      int nUnderLG = 0;
+      int nUnderHG = 0;
 
       TileDigitsContainer::const_iterator collItr=digits_container->begin();
       TileDigitsContainer::const_iterator lastColl=digits_container->end();
@@ -1515,20 +1552,39 @@ StatusCode TileCellSelector::execute() {
               }
             }
 
-            if (dmax > 1022.99 && (!err)  // overflow without bad patterns
+            if ((!err)  // channel without bad patterns
                 && (useCh)                // normal connected channel
                 && (badname[0] == 0 || badname[1] == 'w' // no digital error
                 || (badname[4] == 'Q' && !m_skipMasked))) { // error from TileCell but it is ignored
 
-              m_chanSel[hash] = true; // always print overflows
+              if (adc) { // HG
 
-              if (adc) {
-                if (m_checkOverHG){
-                  ++nOverHG;
+                if (dmax > m_overflowHG) {
+                  m_chanSel[hash] = true; // always print overflows
+                  if (m_checkOverHG){
+                    ++nOverHG;
+                  }
                 }
-              } else {
-                if (m_checkOverLG) {
-                  ++nOverLG;
+                if (dmin < m_underflowHG) {
+                  m_chanSel[hash] = true; // always print underflows
+                  if (m_checkUnderHG){
+                    ++nUnderHG;
+                  }
+                }
+
+              } else { // LG
+
+                if (dmax > m_overflowLG) {
+                  m_chanSel[hash] = true; // always print overflows
+                  if (m_checkOverLG){
+                    ++nOverLG;
+                  }
+                }
+                if (dmin < m_underflowLG) {
+                  m_chanSel[hash] = true; // always print underflows
+                  if (m_checkUnderLG){
+                    ++nUnderLG;
+                  }
                 }
               }
             }
@@ -1717,7 +1773,8 @@ StatusCode TileCellSelector::execute() {
             } else if (m_chanSel[hash]) {
               bool accEmin = (m_chanEne[hash] < m_minEneChan[ch_type]);
               bool accEmax = (m_chanEne[hash] > m_maxEneChan[ch_type]);
-              bool jumpOve = (dmax>1022.9);
+              bool jumpOve = (dmax > 1022.9);
+              bool jumpZer = (dmin < 0.1);
               ATH_MSG_VERBOSE(evtnum.str()
                               << " chan " << std::left << std::setw(14) << m_tileHWID->to_string(adcId)
                               << enename << m_chanEne[hash] << "  samp = " << fdigits[0]
@@ -1728,6 +1785,7 @@ StatusCode TileCellSelector::execute() {
                               << cellname << badname
                               << ((accEmin) ? " neg_e" : "")
                               << ((accEmax) ? " pos_e" : "")
+                              <<((jumpZer) ? " underflow" : "")
                               <<((jumpOve) ? " overflow" : "") );
             }
 
@@ -1851,6 +1909,7 @@ StatusCode TileCellSelector::execute() {
                 bool accEmin = (m_chanEne[hash]<m_minEneChan[ch_type]);
                 bool accEmax = (m_chanEne[hash]>m_maxEneChan[ch_type]);
                 bool jumpOve = (dmax > 1022.9);
+                bool jumpZer = (dmin < 0.1);
 
                 ATH_MSG_VERBOSE(evtnum.str()
                                 << " chan " << std::left << std::setw(14) << m_tileHWID->to_string(adcId)
@@ -1862,6 +1921,7 @@ StatusCode TileCellSelector::execute() {
                                 << cellname << badname
                                 << ((accEmin) ? " neg_e" : "")
                                 << ((accEmax) ? " pos_e" : "")
+                                << ((jumpZer) ? " underflow" : "")
                                 << ((jumpOve) ? " overflow" : "") );
 
               }
@@ -1907,6 +1967,20 @@ StatusCode TileCellSelector::execute() {
         statusOk = true;
         ATH_MSG_DEBUG(nevtnum.str()
                       << " n_overflow_HG = " << nOverHG
+                      << " accepted");
+      }
+      if (nUnderLG) {
+        ++m_underLG;
+        statusOk = true;
+        ATH_MSG_DEBUG( nevtnum.str()
+                      << " n_underflow_LG = " << nUnderLG
+                      << " accepted");
+      }
+      if (nUnderHG) {
+        ++m_underHG;
+        statusOk = true;
+        ATH_MSG_DEBUG(nevtnum.str()
+                      << " n_underflow_HG = " << nUnderHG
                       << " accepted");
       }
       if (nDmuErr) {
@@ -2020,6 +2094,7 @@ StatusCode TileCellSelector::finalize() {
                 << "," << m_maxCell << "/" << m_maxChan
                 << "," << m_jump << "/" << m_const
                 << "," << m_overLG << "/" << m_overHG
+                << "," << m_underLG << "/" << m_underHG
                 << "," << m_dqerr << "/" << m_dmuerr
                 << "," << m_warnerr << ") events.");
 

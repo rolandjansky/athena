@@ -49,13 +49,18 @@ do
   physval_make_web_display.py --ratio --drawopt HISTPE --refdrawopt HIST --reffile Ref:${refdir}/NTUP_PHYSVAL.pool.root --title Test  --outdir PHYSVAL_WEB/${slice} --startpath run_1/HLT/${slice} NTUP_PHYSVAL.pool.root
 done
 
-
 echo  "art-result: $? web"
 
 
 echo "ls PHYSVAL_WEB"
 ls PHYSVAL_WEB
 
+for slice in ${domains}
+do
+  grep Red PHYSVAL_WEB/${slice}/index.html > ${slice}_redhists.txt
+  SIZE=( $(ls -nl ${slice}_redhists.txt | awk '{print $5}') )
+  echo "art-result: ${SIZE}  ${slice}"
+done
 
 
 

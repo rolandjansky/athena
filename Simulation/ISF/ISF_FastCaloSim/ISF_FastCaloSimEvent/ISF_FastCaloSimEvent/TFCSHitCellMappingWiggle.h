@@ -26,7 +26,7 @@ public:
   inline double get_bin_low_edge(int bin) const {return m_bin_low_edge[bin];};
   inline double get_bin_up_edge(int bin) const {return m_bin_low_edge[bin+1];};
   
-  inline const TFCS1DFunction* get_function(int bin) {return m_functions[bin];};
+  inline const TFCS1DFunction* get_function(int bin) const {return m_functions[bin];};
   const std::vector< const TFCS1DFunction* > get_functions() {return m_functions;};
   const std::vector< float > get_bin_low_edges() {return m_bin_low_edge;};
 
@@ -46,9 +46,5 @@ private:
 
   ClassDefOverride(TFCSHitCellMappingWiggle,1)  //TFCSHitCellMappingWiggle
 };
-
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSHitCellMappingWiggle+;
-#endif
 
 #endif

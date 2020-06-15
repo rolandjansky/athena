@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #
 ## purpose Python module to hold common flags to configure the InDetPhysValMonitoring 
@@ -67,6 +67,12 @@ class doValidateTracksInJets(InDetPhysValFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
 
+class validateExtraTrackCollections(InDetPhysValFlagsJobProperty) :
+    """List of extra track collection names to be validated in addition to Tracks."""
+    statusOn     = True
+    allowedTypes = ['list']
+    StoredValue  = []
+
 from InDetRecExample.InDetJobProperties import Enabled
 
 ##-----------------------------------------------------------------------------
@@ -122,10 +128,11 @@ jobproperties.add_Container(InDetPhysValJobProperties)
 _list_InDetPhysValJobProperties = [
     Enabled,
     doValidateDBMTracks,
-    doValidateGSFTracks,    
+    doValidateGSFTracks,
     doValidateLooseTracks,
     doValidateTightPrimaryTracks,
-    doValidateTracksInJets
+    doValidateTracksInJets,
+    validateExtraTrackCollections
 ]
 
 for j in _list_InDetPhysValJobProperties:

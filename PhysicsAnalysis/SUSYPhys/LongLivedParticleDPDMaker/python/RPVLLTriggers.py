@@ -1,28 +1,28 @@
 from TriggerMenu.api.TriggerAPI import TriggerAPI
 from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
 
+from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
+from AthenaCommon.JobProperties import jobproperties
+
+import AthenaCommon.SystemOfUnits as Units
+
 
 # general function to get current menu unprescaled triggers for given trigger type
 #def getTriggerList( trigger_type, matching_pattern="", rejection_pattern="", test=[] ):
-def getTriggerList( trigger_type, matching_pattern="", reject_list=[] ):
-        
+def getTriggerList( trigger_type, matching_pattern="", reject_list=[] ):     
     # Gets list of unprescaled triggers from the current/future menu
     # -- uses "list_unprescaled1p8e34" + "list_unprescaled2e34" generated during build
     # Loops through retrieved trigger list to search for given type/pattern
     # -- trigger_type format = TriggerType.(physics object + _ + single/multi)
     # -- physics objects: el, mu, j, bj, tau, g [also xe, ht, exotics]
-
     triggerList = []
-    
     lowestUnprescaled = TriggerAPI.getLowestUnprescaled(
         TriggerPeriod.future, trigger_type, matchPattern=matching_pattern )
     lowestUnprescaledAny = TriggerAPI.getLowestUnprescaledAnyPeriod(
         TriggerPeriod.future, trigger_type, matchPattern=matching_pattern )
     unprescaled = TriggerAPI.getUnprescaled(
         TriggerPeriod.future, trigger_type, matchPattern=matching_pattern )
-    
     unprescaled_triggers = lowestUnprescaled + lowestUnprescaledAny + unprescaled
-
     for trigger in unprescaled_triggers:
         if trigger in triggerList: continue
         isRejected = False
@@ -32,8 +32,7 @@ def getTriggerList( trigger_type, matching_pattern="", reject_list=[] ):
         triggerList.append( trigger )
 
     return triggerList
-
-
+    
 
 # RPVLLTriggers class to call filter-specific functions
 class RPVLLTriggers:
@@ -101,11 +100,32 @@ class RPVLLTriggers:
         EmergingList = getTriggerList( TriggerType.j_multi, "HLT_4j", ["boffperf_split"] )
         return EmergingList
 
-    # HNL
-    def getHNLTriggers(self):
-        #HnlFilterTool.Triggers
-        HNLList = getTriggerList( TriggerType.mu_single, "ivarmedium" )
-        return HNLList
+    # HNL (single prompt muon)
+    def getHNLSingleMuonTriggers(self):
+        #HnlSkimmingTool.Triggers
+        HNLSingleMuonList = getTriggerList( TriggerType.mu_single, "ivarmedium" )
+        return HNLSingleMuonList
+
+    # HNL (single prompt electron)
+    def getHNLSingleElectronTriggers(self):
+        #HnlSkimmingTool.Triggers
+        HNLSingleElectronList = getTriggerList( TriggerType.el_single, "",
+            ["etcut", "lhloose", "noringer"] ) # Copied from getKinkedTrackZeeTriggers
+        return HNLSingleElectronList
+
+    # HNL (multi muons)
+    def getHNLMultiMuonTriggers(self):
+        #HnlSkimmingTool.Triggers
+        HNLMultiMuonList = getTriggerList( TriggerType.mu_multi, "" )
+        # We may need to restrict di-muon triggers.
+        return HNLMultiMuonList
+
+    # HNL (multi electrons)
+    def getHNLMultiElectronTriggers(self):
+        #HnlSkimmingTool.Triggers
+        HNLMultiElectronList = getTriggerList( TriggerType.el_multi, "" )
+        # We may need to restrict di-electron triggers.
+        return HNLMultiElectronList
 
     # HV Muvtx
     def getHVMuvtxTriggers(self):
@@ -155,5 +175,33 @@ class RPVLLTriggers:
         HIPsList = getTriggerList( TriggerType.exotics, "hiptrt" )
         return HIPsList
 
-    # on / off switch
-    doTriggerAPI = True
+    def getTauSingleTriggers(self):
+        #DV_METFilterFlags.triggers
+        SingleRNNTauList = getTriggerList( TriggerType.tau_single )
+        return SingleRNNTauList
+    
+    def getTauDiTriggers(self):
+        #DV_METFilterFlags.triggers
+        SingleRNNTauList = getTriggerList( TriggerType.tau_multi )
+        return SingleRNNTauList
+
+    def getTauMETTriggers(self):
+        #DV_METFilterFlags.triggers
+        SingleRNNTauList = getTriggerList(  TriggerType.ALL, matching_pattern="HLT_tau.*xe.*" )
+        return SingleRNNTauList
+
+    
+# Flags to turn RPVLL TriggerAPI implementation on/off
+class RPVLLTriggerAPIFlags(JobPropertyContainer):
+    """ RPV/LL TriggerAPI flag container """
+
+jobproperties.add_Container(RPVLLTriggerAPIFlags)
+
+rpvllTrig=jobproperties.RPVLLTriggerAPIFlags
+
+class doRPVLLTriggerAPI(JobProperty):
+    statusOn = True
+    allowedTypes = ["bool"]
+    StoredValue = False # TriggerAPI is not correctly working now. See DATREP-183
+    pass
+rpvllTrig.add_JobProperty(doRPVLLTriggerAPI)

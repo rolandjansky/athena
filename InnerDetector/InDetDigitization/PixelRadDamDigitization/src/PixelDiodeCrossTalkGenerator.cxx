@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -20,9 +20,11 @@ using namespace RadDam;
 
 PixelDiodeCrossTalkGenerator::PixelDiodeCrossTalkGenerator(const std::string& type, const std::string& name,const IInterface* parent):
   PixelProcessorTool(type,name,parent),
-  m_diodeCrossTalk(.06)
+  m_diodeCrossTalk(.06),
+  m_diodeCrossTalkIBL(.30)
 {  
   declareProperty("DiodeCrossTalk",m_diodeCrossTalk,"Diode cross talk factor");
+  declareProperty("DiodeCrossTalkIBL",m_diodeCrossTalkIBL,"Diode cross talk factor");
 }
 
 PixelDiodeCrossTalkGenerator::~PixelDiodeCrossTalkGenerator() {}
@@ -46,6 +48,9 @@ void PixelDiodeCrossTalkGenerator::process(SiChargedDiodeCollection &collection)
   // get pixel module design and check it
   const PixelModuleDesign *p_design= static_cast<const PixelModuleDesign *>(&(collection.design()));
   if (!p_design) return;
+
+  double xsecFactor = m_diodeCrossTalk;
+  if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI4) { xsecFactor = m_diodeCrossTalkIBL; }
 
   // create a local copy of the current collection
   // (cross-talk must be added only to the current SiChargedDiodes)
@@ -86,7 +91,7 @@ void PixelDiodeCrossTalkGenerator::process(SiChargedDiodeCollection &collection)
         //
         const SiChargedDiode & chargedDiode = (*p_chargedDiode).second;
 
-        SiCharge charge(chargedDiode.charge()*intersection*m_diodeCrossTalk, chargedDiode.totalCharge().time(), SiCharge::diodeX_Talk, chargedDiode.totalCharge().particleLink());
+        SiCharge charge(chargedDiode.charge()*intersection*xsecFactor, chargedDiode.totalCharge().time(), SiCharge::diodeX_Talk, chargedDiode.totalCharge().particleLink());
         // add this new charge
         collection.add(*p_neighbour,charge);
       }

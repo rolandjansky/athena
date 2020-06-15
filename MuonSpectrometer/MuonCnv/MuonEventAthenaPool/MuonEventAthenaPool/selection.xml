@@ -1,9 +1,4 @@
 <lcgdict>
-  <class name="CscRawData_p2" />
-  <class name="std::vector<CscRawData_p2>" />
-  <class name="CscRawDataCollection_p2" />
-  <class name="std::vector<CscRawDataCollection_p2>" />
-  <class name="CscRawDataContainer_p2" id="19221A0D-4167-4A1C-BE2A-EE335D7C9D5F" />
 
   <class name="CscRawData_p1" />
   <class name="std::vector<CscRawData_p1>" />
@@ -11,11 +6,23 @@
   <class name="std::vector<CscRawDataCollection_p1>" />
   <class name="CscRawDataContainer_p1" id="3586FE6B-0504-4E78-BD9F-AF839C50F931" />
 
+  <class name="CscRawData_p2" />
+  <class name="std::vector<CscRawData_p2>" />
+  <class name="CscRawDataCollection_p2" />
+  <class name="std::vector<CscRawDataCollection_p2>" />
+  <class name="CscRawDataContainer_p2" id="19221A0D-4167-4A1C-BE2A-EE335D7C9D5F" />
+
   <class name="CscRawData_p3" />
   <class name="std::vector<CscRawData_p3>" />
   <class name="CscRawDataCollection_p3" />
   <class name="std::vector<CscRawDataCollection_p3>" />
   <class name="CscRawDataContainer_p3" id="A77330FB-BD12-4E50-829C-DADFBF556119" />
+
+  <class name="CscRawData_p4" />
+  <class name="std::vector<CscRawData_p4>" />
+  <class name="CscRawDataCollection_p4" />
+  <class name="std::vector<CscRawDataCollection_p4>" />
+  <class name="CscRawDataContainer_p4" id="F94905BF-D474-4453-B9D0-80ECB7BA4041" />
 
   <class name="TgcRawData_p1" />
   <class name="std::vector<TgcRawData_p1>" />

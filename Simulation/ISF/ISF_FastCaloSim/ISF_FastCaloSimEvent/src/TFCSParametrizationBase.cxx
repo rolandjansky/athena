@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/TFCSParametrizationBase.h"
@@ -39,10 +39,11 @@ void TFCSParametrizationBase::set_geometry(ICaloGeometry* geo)
 ///Result should be returned in simulstate.
 ///Simulate all energies in calo layers for energy parametrizations.
 ///Simulate cells for shape simulation.
-FCSReturnCode TFCSParametrizationBase::simulate(TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/)
+FCSReturnCode TFCSParametrizationBase::simulate(TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/) const
 {
   ATH_MSG_ERROR("now in TFCSParametrizationBase::simulate(). This should normally not happen");
-  return FCSFatal;
+  //Force one retry to issue a printout from the chain causing the call to this method
+  return (FCSReturnCode)(FCSRetry+1);
 }
 
 ///If called with argument "short", only a one line summary will be printed

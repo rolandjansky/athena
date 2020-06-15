@@ -6,6 +6,7 @@
 #define ISF_FASTCALOSIMEVENT_TFCS2DFunction_h
 
 #include "ISF_FastCaloSimEvent/TFCSFunction.h"
+#include <vector>
 
 class TH2;
 
@@ -20,13 +21,13 @@ class TFCS2DFunction:public TFCSFunction
     virtual void rnd_to_fct(float& valuex,float& valuey,float rnd0,float rnd1) const = 0;
     virtual void rnd_to_fct(float value[],const float rnd[]) const;
 
+  	static double CheckAndIntegrate2DHistogram(const TH2* hist, std::vector<double>& integral_vec,int& first,int& last);
+
+    static void unit_test(TH2* hist=nullptr,TFCS2DFunction* rtof=nullptr,const char* outfilename="TFCS2DFunction_unit_test.root",int nrnd=10000000);
+    static void unit_tests(TH2* hist=nullptr,const char* outfilename="TFCS2DFunction_unit_test.root",int nrnd=10000000);
   private:
 
   ClassDef(TFCS2DFunction,1)  //TFCS2DFunction
 };
-
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCS2DFunction+;
-#endif
 
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DerivationFrameworkInDet/PixelNtupleMaker.h"
@@ -84,8 +84,8 @@ bool DerivationFramework::PixelNtupleMaker::eventPassesFilter() const {
       tp->makePrivateStore(**trk);
       tp->setDefiningParametersCovMatrixVec(tmpCov);
 
-      std::vector<int> holeIndex;
-      std::vector<int> outlierIndex;
+      std::vector<uint64_t> holeIndex;
+      std::vector<uint64_t> outlierIndex;
       std::vector<int> clusterLayer;
       std::vector<int> clusterBEC;
       std::vector<int> clusterModulePhi;
@@ -117,6 +117,8 @@ bool DerivationFramework::PixelNtupleMaker::eventPassesFilter() const {
       std::vector<int> clusterIsolation20x4;
       std::vector<int> numTotalClustersPerModule;
       std::vector<int> numTotalPixelsPerModule;
+      std::vector<int>   moduleBSerr;
+      std::vector<int>   moduleDCSstate;
       std::vector<float> moduleBiasVoltage;
       std::vector<float> moduleTemperature;
       std::vector<float> moduleLorentzShift;
@@ -142,10 +144,10 @@ bool DerivationFramework::PixelNtupleMaker::eventPassesFilter() const {
 
         if (msos->detType()==1) { // its a pixel 
           if (msos->type()==6) { 
-            holeIndex.push_back(msos->detElementId());
+            holeIndex.push_back((uint64_t)msos->detElementId());
           }
           if (msos->type()==5) { 
-            outlierIndex.push_back(msos->detElementId());
+            outlierIndex.push_back((uint64_t)msos->detElementId());
           }
 
           if (msos->trackMeasurementValidationLink().isValid() && *(msos->trackMeasurementValidationLink())) {
@@ -179,6 +181,16 @@ bool DerivationFramework::PixelNtupleMaker::eventPassesFilter() const {
               unbiasedResidualY.push_back(msos->unbiasedResidualY());
               unbiasedPullX.push_back(msos->auxdata<float>("unbiasedPullX"));
               unbiasedPullY.push_back(msos->auxdata<float>("unbiasedPullY"));
+
+              moduleBSerr.push_back((*clus_itr)->auxdata<int>("isBSError"));
+
+              if ((*clus_itr)->auxdata<std::string>("DCSState")=="ON" || (*clus_itr)->auxdata<std::string>("DCSState")=="READY") {
+                moduleDCSstate.push_back(0);
+              }
+              else {
+                moduleDCSstate.push_back(1);
+              }
+
               moduleBiasVoltage.push_back((*clus_itr)->auxdata<float>("BiasVoltage"));
               moduleTemperature.push_back((*clus_itr)->auxdata<float>("Temperature"));
               moduleLorentzShift.push_back((*clus_itr)->auxdata<float>("LorentzShift"));
@@ -372,8 +384,8 @@ bool DerivationFramework::PixelNtupleMaker::eventPassesFilter() const {
       static SG::AuxElement::Decorator<float> d0err("d0err");
       static SG::AuxElement::Decorator<float> z0err("z0err");
       static SG::AuxElement::Decorator<float> qOverPerr("qOverPerr");
-      static SG::AuxElement::Decorator<std::vector<int>>   HoleIndex("HoleIndex");
-      static SG::AuxElement::Decorator<std::vector<int>>   OutlierIndex("OutlierIndex");
+      static SG::AuxElement::Decorator<std::vector<uint64_t>>   HoleIndex("HoleIndex");
+      static SG::AuxElement::Decorator<std::vector<uint64_t>>   OutlierIndex("OutlierIndex");
       static SG::AuxElement::Decorator<std::vector<int>>   ClusterLayer("ClusterLayer");
       static SG::AuxElement::Decorator<std::vector<int>>   ClusterBEC("ClusterBEC");
       static SG::AuxElement::Decorator<std::vector<int>>   ClusterModulePhi("ClusterModulePhi");
@@ -405,6 +417,8 @@ bool DerivationFramework::PixelNtupleMaker::eventPassesFilter() const {
       static SG::AuxElement::Decorator<std::vector<int>>   ClusterIsolation20x4("ClusterIsolation20x4");
       static SG::AuxElement::Decorator<std::vector<int>>   NumTotalClustersPerModule("NumTotalClustersPerModule");
       static SG::AuxElement::Decorator<std::vector<int>>   NumTotalPixelsPerModule("NumTotalPixelsPerModule");
+      static SG::AuxElement::Decorator<std::vector<int>>   ModuleBSError("ModuleBSError");
+      static SG::AuxElement::Decorator<std::vector<int>>   ModuleDCSState("ModuleDCSState");
       static SG::AuxElement::Decorator<std::vector<float>> ModuleBiasVoltage("ModuleBiasVoltage");
       static SG::AuxElement::Decorator<std::vector<float>> ModuleTemperature("ModuleTemperature");
       static SG::AuxElement::Decorator<std::vector<float>> ModuleLorentzShift("ModuleLorentzShift");
@@ -421,8 +435,8 @@ bool DerivationFramework::PixelNtupleMaker::eventPassesFilter() const {
       static SG::AuxElement::Decorator<std::vector<std::vector<float>>> SiHitEndPosY("SiHitEndPosY");
       static SG::AuxElement::Decorator<std::vector<std::vector<float>>> SiHitEnergyDeposit("SiHitEnergyDeposit");
 
-      d0err(*tp)             = (*trk)->definingParametersCovMatrixVec().at(0);
-      z0err(*tp)             = (*trk)->definingParametersCovMatrixVec().at(2);
+      d0err(*tp)             = TMath::Sqrt((*trk)->definingParametersCovMatrix()(0,0));
+      z0err(*tp)             = TMath::Sqrt((*trk)->definingParametersCovMatrix()(1,1));
       qOverPerr(*tp)         = TMath::Sqrt((*trk)->definingParametersCovMatrix()(4,4));
 
       HoleIndex(*tp)         = holeIndex;
@@ -458,6 +472,8 @@ bool DerivationFramework::PixelNtupleMaker::eventPassesFilter() const {
       ClusterIsolation20x4(*tp) = clusterIsolation20x4;
       NumTotalClustersPerModule(*tp) = numTotalClustersPerModule;
       NumTotalPixelsPerModule(*tp)   = numTotalPixelsPerModule;
+      ModuleBSError(*tp)      = moduleBSerr;
+      ModuleDCSState(*tp)     = moduleDCSstate;
       ModuleBiasVoltage(*tp)  = moduleBiasVoltage;
       ModuleTemperature(*tp)  = moduleTemperature;
       ModuleLorentzShift(*tp) = moduleLorentzShift;

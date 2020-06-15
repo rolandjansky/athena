@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
 
 # +++++++++++++++++++ beginning of InDetRec_jobOptions.py
 # jobOptions Fragment for ID software
@@ -443,7 +445,7 @@ else:
     #     after standard reconstruction...?
     #
     # ------------------------------------------------------------
-    if InDetFlags.doLargeD0() or InDetFlags.doLowPtLargeD0():
+    if InDetFlags.doLargeD0() or InDetFlags.doR3LargeD0() or InDetFlags.doLowPtLargeD0():
       #
       # --- run Si pattern for high-d0
       #
@@ -455,6 +457,8 @@ else:
         from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
         if InDetFlags.doLowPtLargeD0():
           InDetNewTrackingCutsLargeD0 = ConfiguredNewTrackingCuts("LowPtLargeD0")
+        elif InDetFlags.doR3LargeD0():
+          InDetNewTrackingCutsLargeD0 = ConfiguredNewTrackingCuts("R3LargeD0")
         else:
           InDetNewTrackingCutsLargeD0 = ConfiguredNewTrackingCuts("LargeD0")
       InDetNewTrackingCutsLargeD0.printInfo()
@@ -771,7 +775,7 @@ else:
 
     # ------------------------------------------------------------
     #
-    # --- Pixel Stublets (3 layer tracks) on all PRDs
+    # --- Pixel Stublets (3 layer tracks) on unassociated PRDs
     #
     # ------------------------------------------------------------
     
@@ -828,8 +832,8 @@ else:
       if InDetFlags.useExistingTracksAsInput():
           InputCombinedInDetTracks += [ InDetKeys.ProcessedESDTracks() ]
       InDetDisplacedSoftPionSiPattern = ConfiguredNewTrackingSiPattern(InputCombinedInDetTracks,
-                                                                       InDetKeys.ResolvedLargeD0Tracks(),
-                                                                       InDetKeys.SiSpSeededLargeD0Tracks(),
+                                                                       InDetKeys.ResolvedDSPTracks(), #ResolvedLargeD0Tracks(),
+                                                                       InDetKeys.SiSpSeededDSPTracks(), #SiSpSeededLargeD0Tracks(),
                                                                        InDetNewTrackingCutsDisplacedSoftPion,
                                                                        TrackCollectionKeys,
                                                                        TrackCollectionTruthKeys)    
@@ -839,8 +843,8 @@ else:
       include ("InDetRecExample/ConfiguredNewTrackingTRTExtension.py")
       InDetDisplacedSoftPionTRTExtension = ConfiguredNewTrackingTRTExtension(InDetNewTrackingCutsDisplacedSoftPion,
                                                                              InDetDisplacedSoftPionSiPattern.SiTrackCollection(),
-                                                                             InDetKeys.ExtendedLargeD0Tracks(),
-                                                                             InDetKeys.ExtendedTracksMapLargeD0(),
+                                                                             InDetKeys.ExtendedDSPTracks(), #ExtendedLargeD0Tracks(),
+                                                                             InDetKeys.ExtendedTracksMapDSP(), #ExtendedTracksMapLargeD0(),
                                                                              TrackCollectionKeys,
                                                                              TrackCollectionTruthKeys,
                                                                              False)

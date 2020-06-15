@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TFCSLateralShapeParametrizationHitChain_h
@@ -14,7 +14,7 @@ public:
   TFCSLateralShapeParametrizationHitChain(const char* name=nullptr, const char* title=nullptr);
   TFCSLateralShapeParametrizationHitChain(TFCSLateralShapeParametrizationHitBase* hitsim);
 
-  virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) override;
+  virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
 
   virtual void set_geometry(ICaloGeometry* geo) override;
 
@@ -25,11 +25,26 @@ public:
   const Chain_t& chain() const {return m_chain;};
   Chain_t& chain() {return m_chain;};
   void push_back( const Chain_t::value_type& value ) {m_chain.push_back(value);};
-  
+  //TODO: add generic functionality to determine the number of hits or center position only once
+  // and not for every iteration of the hit chain
+
+  /// set which instance should determine the number of hits
   virtual void set_number_of_hits_simul(TFCSLateralShapeParametrizationHitBase* sim) {m_number_of_hits_simul=sim;};
   
   /// Call get_number_of_hits() only once, as it could contain a random number
   virtual int get_number_of_hits(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const;
+  
+  ///Get hit energy from layer energy and number of hits
+  virtual float get_E_hit(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const;
+
+  ///Give the effective size sigma^2 of the fluctuations that should be generated.
+  virtual float get_sigma2_fluctuation(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const;
+  
+  ///Get minimum and maximum value of weight for hit energy reweighting
+  virtual float getMinWeight() const;
+  virtual float getMaxWeight() const;
+
+  static constexpr float s_max_sigma2_fluctuation=1000;//! Do not persistify!
 
   void Print(Option_t *option = "") const override;
 
@@ -42,14 +57,12 @@ public:
 #endif
 
 
-private:
+protected:
   Chain_t m_chain;
+  
+private:
   TFCSLateralShapeParametrizationHitBase* m_number_of_hits_simul;
   ClassDefOverride(TFCSLateralShapeParametrizationHitChain,1)  //TFCSLateralShapeParametrizationHitChain
 };
-
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSLateralShapeParametrizationHitChain+;
-#endif
 
 #endif

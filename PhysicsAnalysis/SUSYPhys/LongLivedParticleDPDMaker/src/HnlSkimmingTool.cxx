@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -10,61 +10,70 @@
 // and DerivationFramework/DerivationFrameworkMuons/src/dimuonTaggingTool.cxx
 
 #include "LongLivedParticleDPDMaker/HnlSkimmingTool.h"
-#include "AthenaKernel/errorcheck.h"
-#include <vector>
-#include <string>
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
-#include "xAODEventInfo/EventInfo.h"
-#include "xAODTracking/TrackingPrimitives.h"
-#include "xAODTracking/TrackParticleContainer.h"
-
-#include "TrigDecisionTool/ChainGroup.h"
-#include "TrigDecisionTool/FeatureContainer.h"
-#include "TrigDecisionTool/Feature.h"
-
 // Constructor
 DerivationFramework::HnlSkimmingTool::HnlSkimmingTool(const std::string& t,
-						      const std::string& n,
-						      const IInterface* p):
+                                                      const std::string& n,
+                                                      const IInterface* p):
   AthAlgTool(t, n, p),
   m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool")
 {
   declareInterface<DerivationFramework::ISkimmingTool>(this);
+
+  // Lepton types
+  declareProperty("IsPromptMuon", m_isPromptMuon=true);
+  declareProperty("IsDisplacedMuon", m_isDisplacedMuon=true);
+
+  // Triggers
   declareProperty("TrigDecisionTool", m_trigDecisionTool, "Tool to access the trigger decision");
-  declareProperty("Triggers", m_triggers=std::vector< std::string >());
+  declareProperty("Triggers", m_triggers=std::vector<std::string>());
 
+  // Muons
   declareProperty("MuonContainerKey", m_muonSGKey="Muons");
-  declareProperty("Mu1PtMin", m_mu1PtMin=-1);
+  // Prompt muons
+  declareProperty("Mu1PtMin", m_mu1PtMin=-1.);
   declareProperty("Mu1AbsEtaMax", m_mu1AbsEtaMax=2.5);
-  declareProperty("Mu1Types", m_mu1Types=std::vector< int >());
-  declareProperty("Mu1IsoType", m_mu1IsoType=14); //ptcone30
-  declareProperty("Mu1IsoCutIsRel", m_mu1IsoCutIsRel=1); //Cut is on relative isolation
+  declareProperty("Mu1Types", m_mu1Types=std::vector<int>());
+  declareProperty("Mu1IsoType", m_mu1IsoType=xAOD::Iso::ptcone30);
+  declareProperty("Mu1IsoCutIsRel", m_mu1IsoCutIsRel=true, "Cut is on relative isolation");
   declareProperty("Mu1IsoCut", m_mu1IsoCut=0.05);
-
-  declareProperty("Mu2PtMin", m_mu2PtMin=-1);
+  // Displaced muons
+  declareProperty("Mu2PtMin", m_mu2PtMin=-1.);
   declareProperty("Mu2AbsEtaMax", m_mu2AbsEtaMax=2.5);
-  declareProperty("Mu2Types", m_mu2Types=std::vector< int >());
-  declareProperty("Mu2IsoType", m_mu2IsoType=14); //ptcone30
-  declareProperty("Mu2IsoCutIsRel", m_mu2IsoCutIsRel=1); //Cut is on relative isolation
+  declareProperty("Mu2Types", m_mu2Types=std::vector<int>());
+  declareProperty("Mu2IsoType", m_mu2IsoType=xAOD::Iso::ptcone30);
+  declareProperty("Mu2IsoCutIsRel", m_mu2IsoCutIsRel=true, "Cut is on relative isolation");
   declareProperty("Mu2IsoCut", m_mu2IsoCut=1.);
-  declareProperty("Mu2d0Min", m_mu2d0Min=0.1);
+  declareProperty("Mu2d0Min", m_mu2d0Min=0.1, "Unit is mm");
+
+  // Electrons
+  declareProperty("ElectronContainerKey", m_electronSGKey="Electrons");
+  // Prompt electrons
+  declareProperty("El1PtMin", m_el1PtMin=-1.);
+  declareProperty("El1AbsEtaMax", m_el1AbsEtaMax=2.5);
+  declareProperty("El1ID", m_el1IDKey="LHLoose");
+  declareProperty("El1IsoType", m_el1IsoType=xAOD::Iso::ptcone30);
+  declareProperty("El1IsoCutIsRel", m_el1IsoCutIsRel=true, "Cut is on relative isolation");
+  declareProperty("El1IsoCut", m_el1IsoCut=0.05);
+  // Displaced electrons
+  declareProperty("El2PtMin", m_el2PtMin=-1.);
+  declareProperty("El2AbsEtaMax", m_el2AbsEtaMax=2.5);
+  declareProperty("El2IsoType", m_el2IsoType=xAOD::Iso::ptcone30);
+  declareProperty("El2IsoCutIsRel", m_el2IsoCutIsRel=true, "Cut is on relative isolation");
+  declareProperty("El2IsoCut", m_el2IsoCut=1.);
+  declareProperty("El2d0Min", m_el2d0Min=1.0, "Unit is mm");
+
+  declareProperty("dPhiMin", m_dPhiMin=0.0, "Unit is radian");
 }
-  
-// Destructor
-DerivationFramework::HnlSkimmingTool::~HnlSkimmingTool() {
-}  
 
 // Athena initialize and finalize
 StatusCode DerivationFramework::HnlSkimmingTool::initialize()
 {
   ATH_MSG_VERBOSE("HnlSkimmingTool initialize() ...");
 
-  if(m_trigDecisionTool.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Failed to retrieve tool: " << m_trigDecisionTool);
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_trigDecisionTool.retrieve());
   ATH_MSG_INFO("Retrieved tool: " << m_trigDecisionTool);
 
   return StatusCode::SUCCESS;
@@ -73,112 +82,301 @@ StatusCode DerivationFramework::HnlSkimmingTool::initialize()
 StatusCode DerivationFramework::HnlSkimmingTool::finalize()
 {
   ATH_MSG_VERBOSE("HnlSkimmingTool finalize() ...");
+
   return StatusCode::SUCCESS;
 }
 
 // The filter itself
-//Add of the chi2 cut
-bool DerivationFramework::HnlSkimmingTool::IsGood(const xAOD::Muon& mu) const
+
+// Check for the chi2 cut
+bool DerivationFramework::HnlSkimmingTool::isGood(const xAOD::Muon& mu) const
 {
-  if(mu.muonType() != xAOD::Muon::Combined) return false;
+  if (mu.muonType() != xAOD::Muon::Combined) return false;
 
   float chi2 = 0.;
-  if(!mu.parameter(chi2, xAOD::Muon::msInnerMatchChi2)) return false;
+  if (not mu.parameter(chi2, xAOD::Muon::msInnerMatchChi2)) return false;
 
   int dof = 1;
-  if(!mu.parameter(dof, xAOD::Muon::msInnerMatchDOF)) return false;
-  if(dof == 0) dof = 1;
+  if (not mu.parameter(dof, xAOD::Muon::msInnerMatchDOF)) return false;
+  if (dof == 0) dof = 1;
 
-  return (chi2 / static_cast<float>(dof)) < 5.;
+  return ((chi2 / static_cast<float>(dof)) < 5.);
 }
-/////////////////////End of add of the chi2 cut
+/////////////////////End of check for the chi2 cut
+
 bool DerivationFramework::HnlSkimmingTool::eventPassesFilter() const
 {
-  bool acceptEvent(false);
+  bool acceptEvent = false;
 
-  bool passedTrigger(true);
-  if(m_triggers.size()>0){
+  // Trigger check
+  bool passedTrigger = true;
+  if (m_triggers.size() > 0) {
     passedTrigger = false;
-    for(unsigned int i=0; i<m_triggers.size(); i++){
-      int decision = m_trigDecisionTool->isPassed(m_triggers.at(i));
-      if(decision == 1){
-	passedTrigger = true;
-	break;
+    for (const std::string& trigger : m_triggers) {
+      bool decision = m_trigDecisionTool->isPassed(trigger);
+      if (decision) {
+        passedTrigger = true;
+        break;
+      }
+    }
+  }
+  if (not passedTrigger) return acceptEvent;
+
+  // Retrieve muon container 
+  const xAOD::MuonContainer* muons = nullptr;
+  if (m_isPromptMuon or m_isDisplacedMuon) {
+    StatusCode sc = evtStore()->retrieve(muons, m_muonSGKey);
+    if (sc.isFailure()) {
+      ATH_MSG_FATAL("No muon collection with name " << m_muonSGKey << " found in StoreGate!");
+      return acceptEvent;
+    }
+  }
+
+  // Retrieve electron container
+  const xAOD::ElectronContainer* electrons = nullptr;
+  if ((not m_isPromptMuon) or (not m_isDisplacedMuon)) {
+    StatusCode sc = evtStore()->retrieve(electrons, m_electronSGKey);
+    if (sc.isFailure()) {
+      ATH_MSG_FATAL("No electron collection with name " << m_electronSGKey << " found in StoreGate!");
+      return acceptEvent;
+    }
+  }
+
+  // Prompt leptons
+  std::vector<const xAOD::Muon*> promptMuonCandidates;
+  std::vector<const xAOD::Electron*> promptElectronCandidates;
+  if (m_isPromptMuon) {
+    getPromptMuonCandidates(muons, promptMuonCandidates);
+    if (promptMuonCandidates.empty()) return acceptEvent;
+  } else {
+    getPromptElectronCandidates(electrons, promptElectronCandidates);
+    if (promptElectronCandidates.empty()) return acceptEvent;
+  }
+
+  // Displaced leptons
+  std::vector<const xAOD::Muon*> displacedMuonCandidates;
+  std::vector<const xAOD::Electron*> displacedElectronCandidates;
+  if (m_isDisplacedMuon) {
+    getDisplacedMuonCandidates(muons, displacedMuonCandidates);
+    if (displacedMuonCandidates.empty()) return acceptEvent;
+  } else {
+    getDisplacedElectronCandidates(electrons, displacedElectronCandidates);
+    if (displacedElectronCandidates.empty()) return acceptEvent;
+  }
+
+  // Final check: at least one pair of a prompt lepton candidate and
+  // a displaced lepton candidate, which is different from the prompt lepton candidate
+  if (m_isPromptMuon and m_isDisplacedMuon) {
+    // mu-mu
+    for (const xAOD::Muon* promptMuonCandidate : promptMuonCandidates) {
+      for (const xAOD::Muon* displacedMuonCandidate : displacedMuonCandidates) {
+        if (promptMuonCandidate!=displacedMuonCandidate) {
+          double dPhi = promptMuonCandidate->phi() - displacedMuonCandidate->phi();
+          while (dPhi>=+M_PI) dPhi -= 2.*M_PI;
+          while (dPhi<=-M_PI) dPhi += 2.*M_PI;
+          dPhi = std::abs(dPhi);
+          if (dPhi>=m_dPhiMin) {
+            acceptEvent = true;
+            break;
+          }
+        }
+      }
+    }
+  } else if (m_isPromptMuon and (not m_isDisplacedMuon)) {
+    // mu-e
+    for (const xAOD::Muon* promptMuonCandidate : promptMuonCandidates) {
+      for (const xAOD::Electron* displacedElectronCandidate : displacedElectronCandidates) {
+        double dPhi = promptMuonCandidate->phi() - displacedElectronCandidate->phi();
+        while (dPhi>=+M_PI) dPhi -= 2.*M_PI;
+        while (dPhi<=-M_PI) dPhi += 2.*M_PI;
+        dPhi = std::abs(dPhi);
+        if (dPhi>=m_dPhiMin) {
+          acceptEvent = true;
+          break;
+        }
+      }
+    }
+  } else if ((not m_isPromptMuon) and m_isDisplacedMuon) {
+    // e-mu
+    for (const xAOD::Electron* promptElectronCandidate : promptElectronCandidates) {
+      for (const xAOD::Muon* displacedMuonCandidate : displacedMuonCandidates) {
+        double dPhi = promptElectronCandidate->phi() - displacedMuonCandidate->phi();
+        while (dPhi>=+M_PI) dPhi -= 2.*M_PI;
+        while (dPhi<=-M_PI) dPhi += 2.*M_PI;
+        dPhi = std::abs(dPhi);
+        if (dPhi>=m_dPhiMin) {
+          acceptEvent = true;
+          break;
+        }
+      }
+    }
+  } else if ((not m_isPromptMuon) and (not m_isDisplacedMuon)) {
+    // e-e
+    for (const xAOD::Electron* promptElectronCandidate : promptElectronCandidates) {
+      for (const xAOD::Electron* displacedElectronCandidate : displacedElectronCandidates) {
+        if (promptElectronCandidate!=displacedElectronCandidate) {
+          double dPhi = promptElectronCandidate->phi() - displacedElectronCandidate->phi();
+          while (dPhi>=+M_PI) dPhi -= 2.*M_PI;
+          while (dPhi<=-M_PI) dPhi += 2.*M_PI;
+          dPhi = std::abs(dPhi);
+          if (dPhi>=m_dPhiMin) {
+            acceptEvent = true;
+            break;
+          }
+        }
       }
     }
   }
 
-  if(!passedTrigger) return acceptEvent;
- 
-  // Retrieve muon container	
-  const xAOD::MuonContainer* muons(0);
-  StatusCode sc = evtStore()->retrieve(muons,m_muonSGKey);	
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL("No muon collection with name " << m_muonSGKey << " found in StoreGate!");
-    return StatusCode::FAILURE;
-  }
-  
-  bool muon1passed(false);
-  xAOD::MuonContainer::const_iterator mu_itr1;
-  for(mu_itr1=muons->begin(); mu_itr1!=muons->end(); mu_itr1++) {
-    bool passTypeCut = true;
-    if(m_mu1Types.size()>0){
-      passTypeCut = false;
-      int type = (*mu_itr1)->muonType();
-      for(unsigned int i=0; i<m_mu1Types.size(); ++i) {if(m_mu1Types[i]==type) {passTypeCut=true; break;}}
-    }
-    bool isIso=false; float isoValue = 0.;
-    const xAOD::Iso::IsolationType isoType = static_cast<xAOD::Iso::IsolationType>(m_mu1IsoType);
-    if(m_mu1IsoCutIsRel==0){
-      if((*mu_itr1)->isolation(isoValue, isoType) && isoValue < m_mu1IsoCut) isIso = true;
-    }else{
-      if((*mu_itr1)->isolation(isoValue, isoType) && isoValue/(*mu_itr1)->pt() < m_mu1IsoCut) isIso = true;
-    }
-    if((*mu_itr1)->pt()>m_mu1PtMin && fabs((*mu_itr1)->eta())<m_mu1AbsEtaMax && passTypeCut && isIso){
-      muon1passed = true;
-      break;
-    }
-  }
-  
-  if(!muon1passed) return acceptEvent;
-
-  bool muon2passed(false);
-  xAOD::MuonContainer::const_iterator mu_itr2;
-  for(mu_itr2=muons->begin(); mu_itr2!=muons->end(); mu_itr2++) {
-    if(mu_itr2==mu_itr1) continue;
-    bool passTypeCut = true;
-    if(m_mu2Types.size()>0){
-      passTypeCut = false;
-      int type = (*mu_itr2)->muonType();
-      for(unsigned int i=0; i<m_mu2Types.size(); ++i) {if(m_mu2Types[i]==type) {passTypeCut=true; break;}}
-    }
-    bool isIso=false; float isoValue = 0.;
-    const xAOD::Iso::IsolationType isoType = static_cast<xAOD::Iso::IsolationType>(m_mu2IsoType);
-    if(m_mu2IsoCutIsRel==0){
-      if((*mu_itr2)->isolation(isoValue, isoType) && isoValue < m_mu2IsoCut) isIso = true;
-    }else{
-      if((*mu_itr2)->isolation(isoValue, isoType) && isoValue/(*mu_itr2)->pt() < m_mu2IsoCut) isIso = true;
-    }
-    bool passD0cut = true;
-    int type = (*mu_itr2)->muonType();
-    const xAOD::Muon *mu = (*mu_itr2);
-
-    if(type==0){ //d0 cut is for combined muons only
-      passD0cut = false;
-      if(IsGood(*mu)){//if muon has a good chi2/dof
-        if(fabs((*mu_itr2)->primaryTrackParticle()->d0())>m_mu2d0Min) passD0cut = true;
-      }
-      else{passD0cut = true;}
-    }
-    if((*mu_itr2)->pt()>m_mu2PtMin && fabs((*mu_itr2)->eta())<m_mu2AbsEtaMax && passTypeCut && isIso && passD0cut){
-      muon2passed = true;
-      break;
-    }
-  }
- 
-  
-  if(muon2passed) acceptEvent = true;
-  
-  return acceptEvent; 
+  return acceptEvent;
 }
 
+void DerivationFramework::HnlSkimmingTool::getPromptMuonCandidates(const xAOD::MuonContainer* muons,
+                                                                   std::vector<const xAOD::Muon*>& promptMuonCandidates) const
+{
+  for (const xAOD::Muon* muon : *muons) {
+    // pT cut
+    if (not (muon->pt() > m_mu1PtMin)) continue;
+
+    // eta cut
+    if (not (std::abs(muon->eta()) < m_mu1AbsEtaMax)) continue;
+
+    // type cut
+    bool passTypeCut = true;
+    if (m_mu1Types.size() > 0) {
+      passTypeCut = false;
+      int type = muon->muonType();
+      for (const int& allowedType : m_mu1Types) {
+        if (allowedType==type) {
+          passTypeCut = true;
+          break;
+        }
+      }
+    }
+    if (not passTypeCut) continue;
+
+    // isolation cut
+    bool isIso = false;
+    float isoValue = 0.;
+    const xAOD::Iso::IsolationType isoType = static_cast<xAOD::Iso::IsolationType>(m_mu1IsoType);
+    if (not m_mu1IsoCutIsRel) {
+      if (muon->isolation(isoValue, isoType) and (isoValue < m_mu1IsoCut)) isIso = true;
+    } else {
+      if (muon->isolation(isoValue, isoType) and (isoValue/muon->pt() < m_mu1IsoCut)) isIso = true;
+    }
+    if (not isIso) continue;
+
+    promptMuonCandidates.push_back(muon);
+  }
+}
+
+void DerivationFramework::HnlSkimmingTool::getDisplacedMuonCandidates(const xAOD::MuonContainer* muons,
+                                                                      std::vector<const xAOD::Muon*>& displacedMuonCandidates) const
+{
+  for (const xAOD::Muon* muon : *muons) {
+    // pT cut
+    if (not (muon->pt() > m_mu2PtMin)) continue;
+
+    // eta cut
+    if (not (std::abs(muon->eta()) < m_mu2AbsEtaMax)) continue;
+
+    // type cut
+    bool passTypeCut = true;
+    int type = muon->muonType();
+    if (m_mu2Types.size() > 0) {
+      passTypeCut = false;
+      for (const int& allowedType : m_mu2Types) {
+        if (type==allowedType) {
+          passTypeCut = true;
+          break;
+        }
+      }
+    }
+    if (not passTypeCut) continue;
+
+    // isolation cut
+    bool isIso = false;
+    float isoValue = 0.;
+    const xAOD::Iso::IsolationType isoType = static_cast<xAOD::Iso::IsolationType>(m_mu2IsoType);
+    if (not m_mu2IsoCutIsRel) {
+      if (muon->isolation(isoValue, isoType) and (isoValue < m_mu2IsoCut)) isIso = true;
+    } else {
+      if (muon->isolation(isoValue, isoType) and isoValue/muon->pt() < m_mu2IsoCut) isIso = true;
+    }
+    if (not isIso) continue;
+
+    // d0 cut
+    bool passD0cut = true;
+    if (type==xAOD::Muon::Combined) { // d0 cut is for combined muons only
+      passD0cut = false;
+      if (isGood(*muon)) { // if muon has a good chi2/dof
+        if (std::abs(muon->primaryTrackParticle()->d0()) > m_mu2d0Min) passD0cut = true;
+      } else {
+        passD0cut = true;
+      }
+    }
+    if (not passD0cut) continue;
+
+    displacedMuonCandidates.push_back(muon);
+  }
+}
+
+void DerivationFramework::HnlSkimmingTool::getPromptElectronCandidates(const xAOD::ElectronContainer* electrons,
+                                                                       std::vector<const xAOD::Electron*>& promptElectronCandidates) const
+{
+  for (const xAOD::Electron* electron : *electrons) {
+    // pT cut
+    if (not (electron->pt() > m_el1PtMin)) continue;
+
+    // eta cut
+    if (not (std::abs(electron->eta()) < m_el1AbsEtaMax)) continue;
+
+    // eID cut
+    bool passEID = false;
+    if (not electron->passSelection(passEID, m_el1IDKey)) continue;
+    if (not passEID) continue;
+
+    // isolation cut
+    bool isIso = false;
+    float isoValue = 0.;
+    const xAOD::Iso::IsolationType isoType = static_cast<xAOD::Iso::IsolationType>(m_el1IsoType);
+    if (not m_el1IsoCutIsRel) {
+      if (electron->isolation(isoValue, isoType) and (isoValue < m_el1IsoCut)) isIso = true;
+    } else {
+      if (electron->isolation(isoValue, isoType) and (isoValue/electron->pt() < m_el1IsoCut)) isIso = true;
+    }
+    if (not isIso) continue;
+
+    promptElectronCandidates.push_back(electron);
+  }
+}
+
+void DerivationFramework::HnlSkimmingTool::getDisplacedElectronCandidates(const xAOD::ElectronContainer* electrons,
+                                                                          std::vector<const xAOD::Electron*>& displacedElectronCandidates) const
+{
+  for (const xAOD::Electron* electron : *electrons) {
+    // pT cut
+    if (not (electron->pt() > m_el2PtMin)) continue;
+
+    // eta cut
+    if (not (std::abs(electron->eta()) < m_el2AbsEtaMax)) continue;
+
+    // isolation cut
+    bool isIso = false;
+    float isoValue = 0.;
+    const xAOD::Iso::IsolationType isoType = static_cast<xAOD::Iso::IsolationType>(m_el2IsoType);
+    if (not m_el2IsoCutIsRel) {
+      if (electron->isolation(isoValue, isoType) and (isoValue < m_el2IsoCut)) isIso = true;
+    } else {
+      if (electron->isolation(isoValue, isoType) and isoValue/electron->pt() < m_el2IsoCut) isIso = true;
+    }
+    if (not isIso) continue;
+
+    // d0 cut
+    bool passD0cut = false;
+    if (std::abs(electron->trackParticle()->d0()) > m_el2d0Min) passD0cut = true;
+    if (not passD0cut) continue;
+
+    displacedElectronCandidates.push_back(electron);
+  }
+}

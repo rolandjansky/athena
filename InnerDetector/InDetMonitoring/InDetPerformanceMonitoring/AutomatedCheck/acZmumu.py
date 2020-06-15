@@ -4,10 +4,11 @@ m_storingFolder = ""
 m_recordsFileName = ""
 m_athenaVersion = ""
 m_testArea = ""
+m_packagePath = ""
 m_theUser = ""
-m_scriptName = "runzmumu_UserConstants.py"
 m_savingFile = "acZmumu_history.txt"
-m_reconmerge = "merge" #"%"
+m_reconmerge = "merge" # "deriv" "merge" "%"
+m_workDirPlatform = ""
 
 # options
 m_minEvents = 10000
@@ -19,25 +20,24 @@ m_userRun = 0
 m_dataType = "DESDM_MCP"
 m_dataProject = "data17_13TeV"
 m_userFiles = 0 # this means all the files
+m_userFilesPerJob = 0 #this means let panda distribute the files
 m_amitag = "%"
 m_physicsType = "physics_Main"
-m_usingMC = False
 m_mcDataSetName = "mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.ESD.e3601_s3126_r10201"
+m_scriptName = "runzmumu_UserConstants.py"
+m_userDataSet = "NONE"
 
 ###################################################################################################
 def findListOfDataSets():
     import os
+    import sys
 
     listOfDataSets = []
-    #ami list datasets data18_13TeV.%.physics_Main.merge.DESDM_ZMUMU%
-    #theAMIsearchCommand = "ami list datasets %s.%%.physics_Main.%s.%s.%s --order run_number --fields events,nfiles"  %(m_dataProject, m_reconmerge, m_dataType, m_amitag)
-    #theAMIsearchCommand = "ami list datasets %s.%%.%s.%s.%s.%s --order run_number --fields events,nfiles"  %(m_dataProject, m_physicsType, m_reconmerge, m_dataType, m_amitag)
     theAMIsearchCommand = "ami list datasets %s.%%.%s.%s.%s.%s --order run_number --fields events,nfiles"  %(m_dataProject, m_physicsType, m_reconmerge, m_dataType, m_amitag)
-    #theAMIsearchCommand = "ami list datasets %s.%%.physics_HardProbes.%s.%s.%s --order run_number --fields events,nfiles"  %(m_dataProject, m_reconmerge, m_dataType, m_amitag)
     
-    # case of using MC 
-    if (m_usingMC):
-        theAMIsearchCommand = "ami list datasets %s --order run_number --fields events,nfiles"  %(m_mcDataSetName)
+    # case of using data set provided by the user
+    if ("NONE" not in m_userDataSet):
+        theAMIsearchCommand = "ami list datasets %s --fields events,nfiles"  %(m_userDataSet)
 
     print (" <acZmumu> AMI data set search command: \n  -->  %s" %(theAMIsearchCommand))
     amiReturn = os.popen(theAMIsearchCommand).readlines()
@@ -50,10 +50,20 @@ def findListOfDataSets():
         if ("events" in theLine):
             lineWithContent = False # remove the header
 
-        if (lineWithContent):
+        if (lineWithContent and "NONE" in m_userDataSet):
             theLine.rstrip() # remove trailing blank spaces
             listOfDataSets.append(theLine) # add this data set
+        
+        if ("NONE" not in m_userDataSet):
+            tempstring = str(m_userDataSet[0:30])
+            if (tempstring in theLine):
+                listOfDataSets.append(m_userDataSet)
     
+    # if user provides the data set name, it may happen (if errors) the data set is not found or does not exist
+    if (len(listOfDataSets) == 0 and "NONE" not in m_userDataSet):
+        print " <acZmumu> ** WARNING ** user data set: %s not found " %m_userDataSet
+        sys.exit(" >> STOP excution")
+
     return listOfDataSets
 
 ###################################################################################################
@@ -85,6 +95,12 @@ def checkOnFolder (folderName):
 def getYear ():
     theYear = m_year
     
+    if ('data16' in m_dataProject):
+        theYear = 2016
+
+    if ('data17' in m_dataProject):
+        theYear = 2017
+
     if ('data18' in m_dataProject):
         theYear = 2018
 
@@ -98,8 +114,10 @@ def preliminaries ():
     global m_athenaVersion
     global m_testArea
     global m_theUser
+    global m_packagePath
+    global m_workDirPlatform
 
-    m_athenaVersion, m_testArea, m_theUser = getAthenaBasics () 
+    m_athenaVersion, m_testArea, m_theUser, m_packagePath, m_workDirPlatform = getAthenaBasics () 
     m_year = getYear ()
 
     # reports folder
@@ -133,11 +151,13 @@ def extractRunsAndProperties (listOfDataSets):
     # the list of data sets can contain dummy lines
     infoFromAMI = {}
 
-    if (len(listOfDataSets)>0):
+    if (len(listOfDataSets)>0 and ("NONE" in m_userDataSet)):
         print (" <acZmumu> #data sets= %d" %(len(listOfDataSets)))
         # extract data set name
         # first is the data project
+        lineindex = 0 # init line 
         for theLine in listOfDataSets: 
+            lineindex += 1
             # lines with the main data (warning: there could be lines with left over content
             # Warning: there could be some dataset name left over in the next line
             if(m_dataProject in theLine):
@@ -145,7 +165,19 @@ def extractRunsAndProperties (listOfDataSets):
                 tempString = theLine[1:] # already remove the first "|"
                 theDataSet = tempString[1:tempString.find("|")] # start from character 1 to avoid blank space
                 theDataSet.rstrip()
-                print " Data set: ", theDataSet
+                # check if the dataset name spilled over the next line
+                if ("--------" not in listOfDataSets[lineindex]):
+                    # retrieve the remainings of the dataset name
+                    theNextLine = listOfDataSets[lineindex]
+                    tempString2 = theNextLine[1:]
+                    tempString2 = tempString2[1:tempString2.find("|")]
+                    tempString2.strip()
+                    print " --> dataset name spilled in next line: \"%s\"" %tempString2
+                    print " --> original: \"%s\"" %theDataSet
+                    theDataSet = "%s%s" %(theDataSet[:-1],tempString2)
+                    theDataSet.strip()
+
+                print " Data set: \"%s\"" %theDataSet
                 # remove the data project and the point behind
                 tempString = tempString[tempString.find(m_dataProject) + len(m_dataProject) +1:]
                 theRunNumber = int(tempString[:tempString.find(".")])
@@ -153,28 +185,32 @@ def extractRunsAndProperties (listOfDataSets):
                 # finding number events
                 tempString = tempString[tempString.find("|")+1:]
                 theNumberOfEvents = int(tempString[:tempString.find("|")])
-                print " Number of events: ", theNumberOfEvents
                 # finding number of files
                 tempString = tempString[tempString.find("|")+1:]
                 theNumberOfFiles = int(tempString[:tempString.find("|")])
-                print " Number of files: ", theNumberOfFiles
-                print ("")
-                infoFromAMI[theRunNumber] = {}
-                infoFromAMI[theRunNumber]["dataset"] = theDataSet[:len(theDataSet)-1] # trick to remove a trailing blank space
-                infoFromAMI[theRunNumber]["events"] = theNumberOfEvents
-                infoFromAMI[theRunNumber]["nfiles"] = theNumberOfFiles
-                if (m_userFiles > 0): infoFromAMI[theRunNumber]["nfiles"] = m_userFiles
+                # only store runs with some events and files
+                if (theNumberOfEvents > 1 and theNumberOfFiles > 0):
+                    infoFromAMI[theRunNumber] = {}
+                    infoFromAMI[theRunNumber]["dataset"] = theDataSet[:len(theDataSet)-1] # trick to remove a trailing blank space
+                    infoFromAMI[theRunNumber]["events"] = theNumberOfEvents
+                    infoFromAMI[theRunNumber]["nfiles"] = theNumberOfFiles
+                    if (m_userFiles > 0): infoFromAMI[theRunNumber]["nfiles"] = m_userFiles
+                    print "     --> run: %d stored in infoFromAMI with %d events and %d files " %(theRunNumber, infoFromAMI[theRunNumber]["events"], infoFromAMI[theRunNumber]["nfiles"]) 
+                print (" ")
 
-            if (m_dataProject not in theLine):
-                # this means this line has leftover content
-                tempString = theLine[1:] # already remove the first "|"
-                theDataSet = tempString[1:tempString.find("|")] # start from character 1 to avoid blank space
-                theDataSet = theDataSet[:theDataSet.find(" ")] # remove trailing blanks
-                infoFromAMI[theRunNumber]["dataset"] = "%s%s" %(infoFromAMI[theRunNumber]["dataset"],theDataSet)
-                continue
+                if (m_dataProject not in theLine and theRunNumber in dict):
+                    # this means this line has leftover content
+                    tempString = theLine[1:] # already remove the first "|"
+                    theDataSet = tempString[1:tempString.find("|")] # start from character 1 to avoid blank space
+                    theDataSet = theDataSet[:theDataSet.find(" ")] # remove trailing blanks
+                    infoFromAMI[theRunNumber]["dataset"] = "%s%s" %(infoFromAMI[theRunNumber]["dataset"],theDataSet)
+                    continue
     else:
-        print (" <acZmumu> ERROR ** list of data sets is empty. Stop Execution")
-        exit ()
+        if ("NONE" in m_userDataSet):
+            print (" <acZmumu> ERROR ** list of data sets is empty. Stop Execution")
+            exit ()
+
+    print (" <acZmumu> extractRunsAndProperties completed ")
 
     return infoFromAMI
 
@@ -248,28 +284,82 @@ def crossCheckInfo(infoFromAMI, infoFromRecordsFile):
                 #listOfPendingRuns.append(runInAMI)
 
     print (" <acZmumu> List of new runs has: %d items " %len(listOfNewRuns)) 
+    
+    # sort run lists
+    listOfNewRuns.sort()
+    listOfPendingRuns.sort()
 
     return (listOfNewRuns, listOfPendingRuns)
 
 ###################################################################################################                                                                                
 def submitGridJobs (infoFromAMI, listOfNewRuns, listOfPendingRuns):
+    
+    # submitting jobs with real data -> listOfNewRuns must be filled
+    if (len(listOfNewRuns) > 0):
+        submitGridJobsListOfRuns (infoFromAMI, listOfNewRuns, listOfPendingRuns)
+    
+    # submitting job when the user provides the data set
+    if ("NONE" not in m_userDataSet):
+        submitGridJobsUserDataSet () 
+
+    return
+
+###################################################################################################                                                                                
+def submitGridJobsUserDataSet ():
+    import os
+
+    print " <acZmumu> submitting grid job when user provides the data set name "
+    theCommand = getGridSubmissionCommand(0, infoFromAMI)
+    if type(theCommand) is tuple:
+        tempCommand = theCommand[0]
+        theCommand = tempCommand
+
+    if (m_submitExec): 
+        print (" <acZmumu> m_submitExec = True --> job to be submmited");
+        # move to the submission folder
+        submissionPath = "%s/run" %(m_testArea)
+        if (not os.path.exists(submissionPath)):
+            print (" <acZmumu> \"run\" folder (submission path: %s) does not exist " %submissionPath)
+            print ("          making the path available for you ;) ")
+            theMkdirCommand = "mkdir %s" %submissionPath
+            os.system(theMkdirCommand)
+            
+        os.chdir(submissionPath)
+        print (" <acZmumu> path: %s" %(submissionPath))
+        os.system(theCommand)
+
+    return
+
+###################################################################################################                                                                                
+def submitGridJobsListOfRuns (infoFromAMI, listOfNewRuns, listOfPendingRuns):
     import os
 
     listOfSubmittedRuns = []
+    listOfSubmittedDatasets = []
+
     # lets merge both list: new and pending
     listOfRunsToSubmit = [] 
+
     for runNumber in listOfNewRuns:
         listOfRunsToSubmit.append(runNumber)
     for runNumber in listOfPendingRuns:
         listOfRunsToSubmit.append(runNumber)
 
+    # sort list
+    listOfRunsToSubmit.sort()
+    print (" <acZmumu> sorted list of runs to submit (%d)" %len(listOfRunsToSubmit))
+    print listOfRunsToSubmit
+
+    runcount = 0
     for runNumber in listOfRunsToSubmit:
-        print (" <acZmumu> dealing with new run: %d" %(runNumber))
+        runcount += 1
+        print ("\n <acZmumu> dealing with new run: %d  [%d/%d]" %(runNumber, runcount,len(listOfRunsToSubmit)))
         readyForSubmission = True
         theRunProperties = infoFromAMI[runNumber]
         runEvents = int(theRunProperties["events"])
         runEvents = int(infoFromAMI[runNumber]["events"])
         # check stats
+        print " Run number: %d, events: %d, min req: %d " %(runNumber, runEvents, m_minEvents)
         if (runEvents < m_minEvents):
             readyForSubmission = False
             infoFromAMI[runNumber]["status"] = "LOW_STATS"
@@ -293,10 +383,12 @@ def submitGridJobs (infoFromAMI, listOfNewRuns, listOfPendingRuns):
             infoFromAMI[runNumber]["status"] = "NEW"
             infoFromAMI[runNumber]["attempt"] = 0
             infoFromAMI[runNumber]["jeditaskid"] = 0
-            theCommand = getGridSubmissionCommand(runNumber, infoFromAMI)
+            theCommand, theDataset = getGridSubmissionCommand(runNumber, infoFromAMI)
             print  (" <acZmumu> GRID submission command: \n %s" %(theCommand))
             listOfSubmittedRuns.append(runNumber)
-            print (" <acZmumu> testArea: %s" %(m_testArea))
+            listOfSubmittedDatasets.append(theDataset)
+
+            print (" <acZmumu> submiting job number %d" %(len(listOfSubmittedRuns)))
             if (m_submitExec): 
                 print (" <acZmumu> m_submitExec = True --> job to be submmited");
                 # move to the submission folder
@@ -307,6 +399,23 @@ def submitGridJobs (infoFromAMI, listOfNewRuns, listOfPendingRuns):
                 infoFromAMI[runNumber]["status"] = "SUBMITTED"
                 infoFromAMI[runNumber]["jeditaskid"] = 1
                 infoFromAMI[runNumber]["attempt"] = infoFromAMI[runNumber]["attempt"] + 1
+            else:
+                print (" <acZmumu> dry test for run %d" %runNumber);
+
+    print (" <acZmumu> list of submitted runs has %d elements" %(len(listOfSubmittedRuns)))
+
+    import simplejson
+    listOfSubmittedRuns.sort()
+    filewithrunlist = open('acZmumu_listofsubmittedruns.txt', 'wb')
+    simplejson.dump(listOfSubmittedRuns, filewithrunlist)        
+    print " size of submitted runs: ",len(listOfSubmittedRuns)
+
+    listOfSubmittedDatasets.sort()
+    print " size of submitted datasets: ",len(listOfSubmittedDatasets)
+    filewithdatasets= open("acZmumu_listofsubmitteddatasets.txt","wb")
+    for thedataset in listOfSubmittedDatasets:
+        filewithdatasets.write("%s\n" %thedataset)
+    filewithdatasets.close()
 
     return listOfSubmittedRuns
 
@@ -318,18 +427,14 @@ def getAthenaBasics ():
     try:
         testArea = os.getenv("TestArea","")
         # make sure this points to the athena folder
-        if ("athena" not in testArea.split()[-1]):
+        if ("athena" not in testArea.split("/")[-1]):
             tempTestArea = testArea.split("/")
-            #print "tempTestArea = ", tempTestArea
-            #print "  old last = ", tempTestArea[-1]
             tempTestArea[-1] = "athena"
             # reform the string
-            #print "  new last = ", tempTestArea[-1]
             newTestArea = ""
             for tempword in tempTestArea:
                 if (len(tempword)>0):
                     newTestArea = "%s/%s" %(newTestArea, tempword)
-                    #print " newTestArea: %s" %newTestArea
             testArea = newTestArea
     except:
         print (" <acZmumu> ERROR ** no Athena TestArea defined --> job submission is not possible. STOP execution")
@@ -349,6 +454,26 @@ def getAthenaBasics ():
         print (" <acZmumu> ERROR ** no Athena TestArea defined --> job submission is not possible. STOP execution")
         exit()
 
+    workdirplatform = ""
+    try:
+        workdirplatform = os.getenv("WorkDir_PLATFORM","")
+    except:
+        print (" <acZmumu> ERROR ** no WorkDir_PLATFORM defined --> job submission is not possible. STOP execution")
+        exit()
+
+    print " == athenabasics == workdirplatform = %s" %workdirplatform
+
+    packagePath = ""
+    try:
+        thepwd = os.getcwd()
+        thisfoldername = os.path.basename(thepwd)
+        tempList = thepwd.split("athena")
+        tempword = tempList[-1]
+        tempList = tempword.split(thisfoldername)
+        packagePath = tempList[0]
+    except:
+        packagePath = ""
+
     # voms proxy must be initiated
     goodVoms = True
     vomsInfoReturn = os.popen("voms-proxy-info").readlines()
@@ -365,7 +490,7 @@ def getAthenaBasics ():
         print (" <acZmumu> ERROR ** no voms initiated --> It is not possible to consult AMI. Stop execution")
         exit()
 
-    return (athenaVersion, testArea, theUser)
+    return (athenaVersion, testArea, theUser, packagePath, workdirplatform)
 
 ###################################################################################################                                                                                
 def getGridSubmissionCommand(runNumber, infoFromAMI):
@@ -373,27 +498,74 @@ def getGridSubmissionCommand(runNumber, infoFromAMI):
     # build the command for submission
 
     #theScript = "%s/InnerDetector/InDetMonitoring/InDetPerformanceMonitoring/share/runzmumu_run2paper.py" %(m_testArea)
-    theScript = "%s/InnerDetector/InDetMonitoring/InDetPerformanceMonitoring/share/%s" %(m_testArea, m_scriptName)
-    theInput = "--inDS=%s" %(infoFromAMI[runNumber]["dataset"])
-    theOutput = "--outDS=user.%s.%s_%s_%d_Zmumu_%s_%d " %(m_theUser, m_athenaVersion, m_dataProject, runNumber, m_userLabel, infoFromAMI[runNumber]["attempt"])
-    #theOptions = "--nfiles %d --useShortLivedReplicas  --forceStaged --nFilesPerJob %d" %(infoFromAMI[runNumber]["nfiles"], 20)
-    theOptions = "--nfiles %d --useShortLivedReplicas  --forceStaged  --excludedSite=ANALY_HPC2N" %(infoFromAMI[runNumber]["nfiles"])
-    
-    theCommand = "pathena %s %s %s %s" %(theScript, theInput, theOutput, theOptions)
+    #theScript = "%s/InnerDetector/InDetMonitoring/InDetPerformanceMonitoring/share/%s" %(m_testArea, m_scriptName)
+    theScript = "%s%sshare/%s" %(m_testArea, m_packagePath, m_scriptName)
+
+    theInput = "NONE"
+    theDataSet = "NONE"
+    if (runNumber>0):
+        theDataSet = "%s" %(infoFromAMI[runNumber]["dataset"])
+        theInput = "--inDS=%s" %(theDataSet)
+    else:
+        if ("NONE" not in m_userDataSet):
+            theDataSet = "%s" %m_userDataSet
+            theInput = "--inDS=%s" %m_userDataSet
+    if ("NONE" in theInput):
+        sys.exit(" <acZmumu> ** ERROR ** no input available for the grid submission command. ** STOP execution **")
+
+    theOuput = "NONE"
+    if (runNumber>0):
+        theOutput = "--outDS=user.%s.%s_%s_%d_Zmumu_%s_%d " %(m_theUser, m_athenaVersion, m_dataProject, runNumber, m_userLabel, infoFromAMI[runNumber]["attempt"])
+    else: 
+        if ("NONE" not in m_userDataSet):
+            theOutput = "--outDS=user.%s.%s_Zmumu_%s" %(m_theUser, m_athenaVersion, m_userLabel)
+    if ("NONE" in theOutput):
+        sys.exit(" <acZmumu> ** ERROR ** no output available for the grid submission command. ** STOP execution **")
+
+    # warning: if one wants to limit the number of files per job just add to the options: --nFilesPerJob Nfiles
+
+    theOptions = "NONE"
+    if (runNumber>0):
+        theOptions = "--nfiles %d --forceStaged" %(infoFromAMI[runNumber]["nfiles"])
+    else: 
+        if ("NONE" not in m_userDataSet):
+            theOptions = " --forceStaged" # "--useShortLivedReplicas"
+            
+    if (m_userFilesPerJob > 0 ):
+        theOptions = "%s --nFilesPerJob %d" % (theOptions, m_userFilesPerJob)
+
+    theExtraOptions = "" 
+    if (len(m_workDirPlatform)>0): 
+        theExtraOptions = "--cmtConfig %s --excludedSite=ANALY_HPC2N,ANALY_RHUL_SL6,ANALY_JINR_MIG,ANALY_IHEP,ANALY_JINR,ANALY_CSCS-HPC" %m_workDirPlatform 
+    else:
+        theExtraOptions = "--excludedSite=ANALY_HPC2N,ANALY_RHUL_SL6,ANALY_JINR_MIG,ANALY_IHEP,ANALY_JINR,ANALY_CSCS-HPC"
+    theExtraOptions = " " 
+
+    theCommand = "pathena %s %s %s %s %s" %(theScript, theInput, theOutput, theOptions, theExtraOptions)
     print "%s " %theCommand
 
-    return theCommand
+    return theCommand,theDataSet
 
 ###################################################################################################                                                                                
 def updateRecordsFile(listOfSubmittedRuns, infoFromAMI):
 
-    print (" <acZmumu> updateRecordsFile --> %s " %(m_recordsFileName))
-    fileToUpdate = open(m_recordsFileName, "a");
-    fileToUpdate.write("\n")
-    for runNumber in listOfSubmittedRuns:
-        fileToUpdate.write("%d:%s\n" %(runNumber, infoFromAMI[runNumber]))
+    import pickle
+
+    print " listOfSubmittedRuns: dimension:", len(listOfSubmittedRuns), "  list: ", listOfSubmittedRuns 
+
+    if ("NONE" in m_userDataSet):
+        print (" <acZmumu> updateRecordsFile --> %s " %(m_recordsFileName))
+        fileToUpdate = open(m_recordsFileName, "a");
+        fileToUpdate.write("\n")
+        for runNumber in listOfSubmittedRuns:
+            fileToUpdate.write("%d:%s\n" %(runNumber, infoFromAMI[runNumber]))
     
-    fileToUpdate.close()
+        fileToUpdate.close()
+
+        # alternative method
+        with open('acZmumu_listofsubmittedruns.txt', 'wb') as fp:
+            pickle.dump(listOfSubmittedRuns, fp)
+        
 
     return
 
@@ -407,20 +579,23 @@ def welcomeBanner ():
     print ("\n")
     print ("  config:")
     print ("  ** Exec: %r" %m_submitExec)
-    print ("  ** using MC? %r" %m_usingMC)
-    if (m_usingMC):
-        print ("  ** mc data set %s" %m_mcDataSetName)
     print ("  ** data project: %s " %m_dataProject)
     print ("  ** min events: %d"  %m_minEvents)
     print ("  ** min Run: %d"  %m_firstRun)
     print ("  ** max Run: %d"  %m_lastRun)
     print ("  ** physics type: %s" %m_physicsType)
     print ("  ** data type: %s"  %m_dataType)
+    print ("  ** set type: %s"  %m_reconmerge)
     if (m_userFiles == 0):
         print ("  ** use all available files ")
     if (m_userFiles > 0):
         print ("  ** user requested files: %d" %m_userFiles)
+    if (m_userFilesPerJob > 0):
+        print ("  ** user requested files per job: %d" %m_userFilesPerJob)
     print ("  ** AMI tag: %s" %m_amitag) 
+    print "  ** script: %s" %m_scriptName
+    if ("NONE" not in m_userDataSet):
+        print "  ** user data set: %s" %m_userDataSet
     print ("\n")
 
     return
@@ -443,25 +618,29 @@ def optParsing():
     p_userRun = m_userRun
     p_dataType = m_dataType 
     p_userFiles = m_userFiles
+    p_userFilesPerJob = m_userFilesPerJob
     p_amitag = m_amitag
     p_dataProject = m_dataProject
     p_physicsType = m_physicsType
-    p_usingMC = m_usingMC
-    p_mcDataSetName = m_mcDataSetName
+    p_reconmerge = m_reconmerge
+    p_scriptName = m_scriptName
+    p_userDataSet = m_userDataSet
 
     parser = OptionParser()
     parser.add_option("--amiTag", dest="p_amitag", help="Name of the requested AMI tag (example: r10258_r10258_p3399). Wild card is also possible. Default %s" %(p_amitag), default = p_amitag)
     parser.add_option("--dataProject", dest="p_dataProject", help="data project of the data sets (examples: data17_13TeV). Default %s" %(p_dataProject), default = p_dataProject)
+    parser.add_option("--dataSet", dest="p_userDataSet", help="User defined data set. Default %s" %(p_userDataSet), default = p_userDataSet)
     parser.add_option("--dataType", dest="p_dataType", help="User defined data type (examples: DAOD_ZMUMU, DESDM_MCP). Default %s" %(p_dataType), default = p_dataType)
-    parser.add_option("--dataSet", dest="p_mcDataSetName", help="User defined full data set name", default = p_mcDataSetName)
     parser.add_option("--EXEC", dest="p_submitExec", help="Submit the Grid jobs. Default: no submission", action="store_true", default = False)
     parser.add_option("--firstRun", dest="p_firstRun", help="First run number (inclusive). Default %s" %(p_firstRun), default = p_firstRun)    
     parser.add_option("--lastRun", dest="p_lastRun", help="Last run number (inclusive). Default %s" %(p_lastRun), default = p_lastRun)
-    parser.add_option("--MC", dest="p_usingMC", help="Use MC. The data set must be provided in full. Default: no MC", action="store_true", default = p_usingMC)
     parser.add_option("--minEvents", dest="p_minEvents", help="Minimum number of events. Default %s" %(p_minEvents), default = p_minEvents)
     parser.add_option("--nFiles", dest="p_userFiles", help="User defined number of files. Default %s = all the available files" %(p_userFiles), default = p_userFiles)
-    parser.add_option("--run", dest="p_userRun", help="Run number in case of targetting a single run. Default %s" %(p_userRun), default = p_userRun)
+    parser.add_option("--nFilesPerJob", dest="p_userFilesPerJob", help="User defined number of files per job. Default %s = -> Panda decides" %(p_userFilesPerJob), default = p_userFilesPerJob)
+    parser.add_option("--run", dest="p_userRun", help="Run number in case of targetting a single run. Default: %s" %(p_userRun), default = p_userRun)
     parser.add_option("--physicsType", dest="p_physicsType", help="Physics type to use (physics_Main, Hardprobes...) Default %s" %(p_physicsType), default = p_physicsType)
+    parser.add_option("--script", dest="p_scriptName", help="Name of the python script to be executed. Default: %s" %p_scriptName, default = p_scriptName)
+    parser.add_option("--setType", dest="p_reconmerge", help="Set type: recon, merge, deriv. Default: %s" %p_reconmerge, default = p_reconmerge)
     parser.add_option("--userLabel", dest="p_userLabel", help="User defined label. Default %s" %(p_userLabel), default = p_userLabel)
 
     (config, sys.argv[1:]) = parser.parse_args(sys.argv[1:])
@@ -514,11 +693,13 @@ if __name__ == '__main__':
         m_firstRun = m_userRun
         m_lastRun = m_userRun
     m_userFiles = int(config.p_userFiles)
+    m_userFilesPerJob = int(config.p_userFilesPerJob)
     m_amitag = config.p_amitag
     m_dataProject = config.p_dataProject
     m_physicsType = config.p_physicsType
-    m_usingMC = config.p_usingMC
-    m_mcDataSetName = config.p_mcDataSetName
+    m_scriptName = config.p_scriptName
+    m_userDataSet = config.p_userDataSet
+    m_reconmerge = config.p_reconmerge
 
     welcomeBanner ()
     preliminaries ()
@@ -532,10 +713,11 @@ if __name__ == '__main__':
     (listOfNewRuns, listOfPendingRuns) = crossCheckInfo(infoFromAMI, infoFromRecordsFile)
 
     # submit the necessary jobs
-    listOfSubmitedRuns = submitGridJobs (infoFromAMI, listOfNewRuns, listOfPendingRuns)
+    listOfSubmittedRuns = submitGridJobs (infoFromAMI, listOfNewRuns, listOfPendingRuns)
+    #print (" <acZmumu> main returned a list of submitted runs with %d elements" %(len(listOfSubmittedRuns)))
 
     # store new status
-    updateRecordsFile(listOfSubmitedRuns, infoFromAMI)
+    #updateRecordsFile(listOfUsedRuns, infoFromAMI)
 
     endBanner ()
 #
