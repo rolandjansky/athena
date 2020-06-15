@@ -88,8 +88,8 @@ inline double BSubstruct::deltaR(const xAOD::Jet* jet1, const xAOD::Jet* jet2) c
 }
 
 
-inline Particles BSubstruct::ancestorCBs(HepMC::ConstGenParticlePtr  p) const {
-  Particles parentBs;
+inline std::vector<HepMC::ConstGenParticlePtr> BSubstruct::ancestorCBs(HepMC::ConstGenParticlePtr  p) const {
+  std::vector<HepMC::ConstGenParticlePtr> parentBs;
   auto vtx = p->production_vertex();
 
   // If the particle has no production vertex then can only assume it is beam or similar
@@ -102,7 +102,7 @@ inline Particles BSubstruct::ancestorCBs(HepMC::ConstGenParticlePtr  p) const {
   for (HepMC::GenVertex::particles_in_const_iterator parent = vtx->particles_in_const_begin();
        parent != vtx->particles_in_const_end(); ++parent) {
     if (hasCBQuark((*parent)->pdg_id())) parentBs.push_back(*parent);
-    Particles ancestors = ancestorCBs(*parent);
+    std::vector<HepMC::ConstGenParticlePtr> ancestors = ancestorCBs(*parent);
     parentBs.insert(parentBs.end(), ancestors.begin(), ancestors.end());
   }
   return parentBs;
@@ -110,14 +110,14 @@ inline Particles BSubstruct::ancestorCBs(HepMC::ConstGenParticlePtr  p) const {
 
 
 void BSubstruct::fillHistos(TH1* phiHisto, TH1* rHisto, TH1* nHisto, TH1* bHisto,
-                            const Particles& bHadrons, double weight) {
+                            const std::vector<HepMC::ConstGenParticlePtr>& bHadrons, double weight) {
   if (!m_doHistos) return;
 
-  for (Particles::const_iterator bHad1 = bHadrons.begin(); bHad1 != bHadrons.end(); ++bHad1) {
+  for (auto bHad1 = bHadrons.begin(); bHad1 != bHadrons.end(); ++bHad1) {
     if (bHisto != 0) {
       bHisto->Fill((*bHad1)->momentum().phi(), weight);
     }
-    Particles::const_iterator bHad2 = bHad1;
+    auto bHad2 = bHad1;
     ++bHad2;
     while (bHad2 != bHadrons.end()) {
       const double dPhi = deltaPhi((*bHad1)->momentum().phi(), (*bHad2)->momentum().phi());
@@ -179,11 +179,11 @@ StatusCode BSubstruct::filterEvent() {
   }
 
   // Look for c or b-hadrons that are in the same decay chain as each other and remove the first one
-  for (Particles::reverse_iterator bHad = bHadrons.rbegin(); bHad != bHadrons.rend(); ++bHad) {
+  for (auto bHad = bHadrons.rbegin(); bHad != bHadrons.rend(); ++bHad) {
     if ((*bHad) == 0) continue;
-    Particles ancestors = ancestorCBs(*bHad);
-    for (Particles::const_iterator ancestor = ancestors.begin(); ancestor != ancestors.end(); ++ancestor) {
-      for (Particles::iterator p = bHadrons.begin(); p != bHadrons.end(); ++p) {
+    std::vector<HepMC::ConstGenParticlePtr> ancestors = ancestorCBs(*bHad);
+    for (auto ancestor = ancestors.begin(); ancestor != ancestors.end(); ++ancestor) {
+      for (auto p = bHadrons.begin(); p != bHadrons.end(); ++p) {
         if((*p)==0 || (*p)==(*bHad)) continue;
         if((*ancestor) == (*p)) (*p) = 0;
       }
@@ -191,12 +191,12 @@ StatusCode BSubstruct::filterEvent() {
   }
 
   // Remove the null pointers and any duplicates
-  Particles::iterator p = bHadrons.begin();
+  auto p = bHadrons.begin();
   while (p != bHadrons.end()) {
     if ((*p)==0) {
       p = bHadrons.erase(p);
     } else {
-      Particles::iterator p2 = p;
+      auto p2 = p;
       ++p2;
       while (p2 != bHadrons.end()) {
         if ((*p)==(*p2)) {
@@ -232,7 +232,7 @@ StatusCode BSubstruct::filterEvent() {
     gotJet = true;
 
     size_t nBs = 0;
-    for (Particles::const_iterator bHad = bHadrons.begin(); bHad != bHadrons.end(); ++bHad) {
+    for (auto bHad = bHadrons.begin(); bHad != bHadrons.end(); ++bHad) {
       if (deltaR(*bHad, *jet) < m_drMatch) ++nBs;
     }
 
