@@ -300,7 +300,6 @@ def defineMenu():
         '0MATCH-4AJ20.ETA31-4AJj15.ETA31',
         '100RATIO-0MATCH-TAU30si2-EMall',
         'NOT-0MATCH-TAU30si1-EMall',
-        '0DR28-MU10ab-TAU12abi',
         '1DISAMB-TAU12abi-J25ab',
         '1DISAMB-EM15his2-TAU12abi-J25ab',
         'DISAMB-0DR28-EM15his2-TAU12abi',
