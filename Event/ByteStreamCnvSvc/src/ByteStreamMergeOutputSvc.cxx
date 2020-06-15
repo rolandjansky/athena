@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ByteStreamMergeOutputSvc.h"
@@ -171,6 +171,11 @@ bool  ByteStreamMergeOutputSvc::putEvent(RawEvent* newEvent) {
       ATH_MSG_ERROR("Failed to put RawEvent");
    }
    return(true);
+}
+
+bool ByteStreamMergeOutputSvc::putEvent(RawEvent* /*re*/, const EventContext& /*ctx*/) {
+  ATH_MSG_FATAL(name() << " does not implement the context-aware putEvent method");
+  return false;
 }
 
 StatusCode ByteStreamMergeOutputSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
