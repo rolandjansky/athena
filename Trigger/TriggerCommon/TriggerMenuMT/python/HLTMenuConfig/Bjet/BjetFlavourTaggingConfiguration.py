@@ -35,9 +35,9 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks ):
     acc.merge(JetParticleAssociationAlgCfg(ConfigFlags, inputJets.replace("Jets",""), inputTracks, 'BTagTrackToJetAssociatorBB', **kwargs))
     del kwargs['Release'] 
 
-    btagname = "HLT_BTagging_AntiKt4EMTopo"
-    btagname_JFVtx = btagname + "JFVtx"
-    btagname_SecVtx = btagname + "SecVtx"
+    btagname = "HLT_BTagging"
+    btagname_JFVtx = btagname + "_JFVtx"
+    btagname_SecVtx = btagname + "_SecVtx"
     btagname_jetLink = btagname + ".jetLink"
 
     SecVertexingAndAssociators = {'JetFitter':'BTagTrackToJetAssociator','SV1':'BTagTrackToJetAssociator'}
@@ -46,7 +46,7 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks ):
             raise RuntimeError( v + ' is not configured')
         acc.merge(JetSecVtxFindingAlgCfg(ConfigFlags, inputJets.replace("Jets",""), inputVertex, k, v))
         JetSecVertexingAlg = JetSecVertexingAlgCfg(ConfigFlags, inputJets.replace("Jets",""), inputVertex, k, v)
-        SecVertexingAlg = JetSecVertexingAlg.getEventAlgo(inputJets.replace("Jets","").lower() + "_" + k.lower() + "_secvtx") #If inputJets.replace("Jets","") is used in JetSecVertexingAlgCfg; Have to change it here aswell
+        SecVertexingAlg = JetSecVertexingAlg.getEventAlgo(inputJets.replace("Jets","").lower() + "_" + k.lower() + "_secvtx")
         if k == "JetFitter":
             SecVertexingAlg.BTagJFVtxCollectionName = recordable( btagname_JFVtx )
         elif k == "SV1":
@@ -54,31 +54,12 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks ):
         acc.merge(JetSecVertexingAlg)
     
     JetBTaggingAlg = JetBTaggingAlgCfg(ConfigFlags, JetCollection = inputJets.replace("Jets",""), PrimaryVertexCollectionName=inputVertex, TaggerList = ConfigFlags.BTagging.TrigTaggersList, SetupScheme = "Trig", SVandAssoc = SecVertexingAndAssociators, **kwargs)
-    BTaggingAlg = JetBTaggingAlg.getEventAlgo((ConfigFlags.BTagging.OutputFiles.Prefix + inputJets.replace("Jets","") + ConfigFlags.BTagging.GeneralToolSuffix).lower()) #Defined in JetBTaggingAlgConfig.py; Ends up to be "btagging_hlt_inview"
+    BTaggingAlg = JetBTaggingAlg.getEventAlgo((ConfigFlags.BTagging.OutputFiles.Prefix + inputJets.replace("Jets","") + ConfigFlags.BTagging.GeneralToolSuffix).lower()) #Defined in JetBTaggingAlgConfig.py; Ends up to be "btagging_hlt_bjets"
     BTaggingAlg.BTaggingCollectionName = recordable( btagname )
     BTaggingAlg.BTagJFVtxCollectionName = btagname_JFVtx
     BTaggingAlg.BTagSVCollectionName = btagname_SecVtx
     BTaggingAlg.JetLinkName = btagname_jetLink
     acc.merge(JetBTaggingAlg)
-
-
-    #from TrigBjetHypo.TrigBjetHypoConf import TrigBtagFexMT
-    #Analysis__TrigBtagFexMT=CompFactory.Analysis.TrigBtagFexMT
-    #bTagFex = Analysis__TrigBtagFexMT( "TrigBtagFexMT" )
-    #bTagFex.JetKey = inputJets
-    #bTagFex.PriVtxKey = inputVertex
-    #bTagFex.TracksKey = inputTracks
-    #bTagFex.d0Key = inputTracks + ".btagIp_d0"
-    #bTagFex.z0SinThetaKey = inputTracks + ".btagIp_d0Uncertainty"
-    #bTagFex.d0UncertaintyKey = inputTracks + ".btagIp_z0SinTheta"
-    #bTagFex.z0SinThetaUncertaintyKey = inputTracks + ".btagIp_z0SinThetaUncertainty"
-    #bTagFex.trackposKey = inputTracks + ".btagIp_trackDisplacement"
-    #bTagFex.trackmomKey = inputTracks + ".btagIp_trackMomentum"
-    #bTagFex.BTaggingKey = "HLT_BTagging_AntiKt4EMTopo"
-
-    #from TrigBjetHypo.TrigBtagFexMTConfig import TrigBtagFexMT_OnlineMonitoring
-    #bTagFex.MonTool = TrigBtagFexMT_OnlineMonitoring()
-    #acc.addEventAlgo(bTagFex)
 
 
     return [acc,btagname]

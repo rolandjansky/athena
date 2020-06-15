@@ -6,7 +6,6 @@ from AthenaCommon.CFElements import seqAND
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, InViewReco
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
 
 #from AthenaCommon.Constants import DEBUG
 
@@ -33,10 +32,8 @@ def bJetStep2Sequence():
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
     from ViewAlgs.ViewAlgsConf import ViewCreatorCentredOnJetWithPVConstraintROITool
     InputMakerAlg = EventViewCreatorAlgorithm( "IMBJet_step2" )
-    #InputMakerAlg = CompFactory.EventViewCreatorAlgorithm( "IMBJet_step2" )
     #
     newRoITool = ViewCreatorCentredOnJetWithPVConstraintROITool()
-    #newRoITool = CompFactory.ViewCreatorCentredOnJetWithPVConstraintROITool()
     newRoITool.RoisWriteHandleKey = recordable( outputRoIName )
     newRoITool.VertexReadHandleKey = prmVtxKey
     newRoITool.PrmVtxLink = prmVtxKey.replace( "HLT_","" )
@@ -51,7 +48,7 @@ def bJetStep2Sequence():
     InputMakerAlg.ViewFallThrough = True
     # BJet specific
     InputMakerAlg.PlaceJetInView = True
-    InputMakerAlg.InViewJets = recordable( "HLT_GSCJet" ) # Temporary name, To converge on this in the next future
+    InputMakerAlg.InViewJets = recordable( "HLT_bJets" )
     #
     InputMakerAlg.ViewNodeName = "bJetBtagSequence"
 
@@ -72,15 +69,30 @@ def bJetStep2Sequence():
     from TriggerMenuMT.HLTMenuConfig.Bjet.BjetFlavourTaggingConfiguration import getFlavourTagging
     acc_flavourTaggingAlgs,bTaggingContainerName = getFlavourTagging( inputJets=InputMakerAlg.InViewJets, inputVertex=prmVtxKey, inputTracks=PTTrackParticles[0] )
     
-    inViewReco = InViewReco("bJetBtagSequence", viewMaker= InputMakerAlg)
-    #inViewReco = InViewReco("bJetBtagSequence")
-    #inViewReco = InViewReco("bJetBtagSequence", viewMaker= conf2toConfigurable(InputMakerAlg))
-    inViewReco.addRecoAlg(secondStageAlgs)
-    inViewReco.mergeReco(acc_flavourTaggingAlgs)
-    acc_flavourTaggingAlgs.wasMerged()
-    inViewReco.wasMerged()
+#======================This is running on Release 22.0.11, but not after Gaudi2 updates===================
+#    inViewReco = InViewReco("bJetBtagSequence", viewMaker=InputMakerAlg)
+#    inViewReco.addRecoAlg(secondStageAlgs)
+#    inViewReco.mergeReco(acc_flavourTaggingAlgs)
+#    acc_flavourTaggingAlgs.wasMerged()
+#    inViewReco.wasMerged()
 
+#    Configurable.configurableRun3Behavior=0
+
+#======================This is a new idea, since the function "conf2toConfigurable" was added recently, but is crashing when converting ATLASExtrapolator=====
     Configurable.configurableRun3Behavior=0
+
+    from AthenaCommon.CFElements import findAllAlgorithms
+    from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
+    AllFlavourTaggingAlgs = []
+    for alg in findAllAlgorithms(acc_flavourTaggingAlgs.getSequence("AthAlgSeq")):
+        AllFlavourTaggingAlgs.append(conf2toConfigurable(alg))
+
+    bJetBtagSequence = seqAND( "bJetBtagSequence", secondStageAlgs + AllFlavourTaggingAlgs )
+    InputMakerAlg.ViewNodeName = "bJetBtagSequence"
+
+    # Sequence
+    BjetAthSequence = seqAND( "BjetAthSequence_step2",[InputMakerAlg,bJetBtagSequence] )
+#=============================================================================================================
 
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetBtagHypoAlgMT
     hypo = TrigBjetBtagHypoAlgMT( "TrigBjetBtagHypoAlg" )
@@ -97,8 +109,14 @@ def bJetStep2Sequence():
     hypo.MonTool = TrigBjetOnlineMonitoring()
 
     from TrigBjetHypo.TrigBjetBtagHypoTool import TrigBjetBtagHypoToolFromDict
-    return MenuSequence( Sequence    = inViewReco.sequence(),
-                         Maker       = inViewReco.inputMaker(),
+#    return MenuSequence( Sequence    = inViewReco.sequence(),
+#                         Maker       = inViewReco.inputMaker(),
+    return MenuSequence( Sequence    = BjetAthSequence,
+                         Maker       = InputMakerAlg,
                          Hypo        = hypo,
                          HypoToolGen = TrigBjetBtagHypoToolFromDict)
 
+
+
+
+ 
