@@ -1,10 +1,10 @@
 
 //
-//  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+//  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 //
 
 // MyPackage includes
-#include "AthAsgExUnittest/MyPackageTool.h"
+#include "../src/MyPackageTool.h"
 
 MyPackageTool::MyPackageTool( const std::string& name ) : asg::AsgTool( name ) {
   //example property declarations with default values
