@@ -1682,6 +1682,20 @@ def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=M
             if decayEdit and blockName == 'DECAY':
                 decayEdit = False # Start a new DECAY block
             pos = 0 if line.strip().startswith('DECAY') else 1
+            if blockName=='MASS' and 'MASS' in params:
+                # Any residual masses to set?
+                leftOvers = [ x for x in params['MASS'] if x not in doneParams['MASS'] ]
+                for pdg_id in leftOvers:
+                    mglog.warning('Adding mass line for '+str(pdg_id)+' = '+str(params['MASS'][pdg_id])+' which was not in original param card')
+                    newcard.write('   '+str(pdg_id)+'  '+str(params['MASS'][pdg_id])+'\n')
+                    doneParams['MASS'][pdg_id]=True
+            if blockName=='DECAY' and 'DECAY' not in line.strip().upper() and 'DECAY' in params:
+                # Any residual decays to include?
+                leftOvers = [ x for x in params['DECAY'] if x not in doneParams['DECAY'] ]
+                for pdg_id in leftOvers:
+                    mglog.warning('Adding decay for pdg id '+str(pdg_id)+' which was not in the original param card')
+                    newcard.write( params['DECAY'][pdg_id].strip()+'\n' )
+                    doneParams['DECAY'][pdg_id]=True
             blockName = line.strip().upper().split()[pos]
         if decayEdit:
             continue #skipping these lines because we are in an edit of the DECAY BR
