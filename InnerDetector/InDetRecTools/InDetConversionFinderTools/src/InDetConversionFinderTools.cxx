@@ -122,7 +122,8 @@ InDetConversionFinderTools::InDetConversionFinderTools(const std::string& t,
 
   //TrackCollection
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-  InDetConversionFinderTools::findVertex(const TrackCollection* /*trk_coll*/) const
+  InDetConversionFinderTools::findVertex(const EventContext& /*ctx*/,
+                                         const TrackCollection* /*trk_coll*/) const
   {
     
     ATH_MSG_ERROR("Using Track Container not currently supported returning an empty conatiner");
@@ -137,8 +138,8 @@ InDetConversionFinderTools::InDetConversionFinderTools(const std::string& t,
 
   // TrackParticle Collection
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-  InDetConversionFinderTools::findVertex(
-    const xAOD::TrackParticleContainer* trk_coll) const
+  InDetConversionFinderTools::findVertex(const EventContext& ctx, 
+                                         const xAOD::TrackParticleContainer* trk_coll) const
   {
     // Make collection for conversions.
     xAOD::VertexContainer* InDetConversionContainer =
@@ -229,7 +230,7 @@ InDetConversionFinderTools::InDetConversionFinderTools(const std::string& t,
         trackParticleList.push_back(*iter_neg);
 
         xAOD::Vertex* myVertex = nullptr;
-        myVertex = m_iVertexFitter->fit(trackParticleList, initPos);
+        myVertex = m_iVertexFitter->fit(ctx, trackParticleList, initPos);
         trackParticleList.clear();
         if (myVertex) {
           ATH_MSG_DEBUG("VertexFit successful!");

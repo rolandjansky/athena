@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKADAPTIVEFITTERTOOLS_ADAPTIVEVERTEXFITTER_H
@@ -84,6 +84,9 @@ namespace Trk
   class AdaptiveVertexFitter : public extends<AthAlgTool, IVertexFitter>
   {
   public:
+    // The following 'using' can be removed when IVertexFitter::fit has been fully migrated to the one with the EventContext
+    using Trk::IVertexFitter::fit;
+  
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
     
