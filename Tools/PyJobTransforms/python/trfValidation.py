@@ -285,11 +285,14 @@ class athenaLogFileReport(logFileReport):
         return linesList
 
     def scanLogFile(self, resetReport=False):
+        nonStandardErrorsList = self.knowledgeFileHandler('nonStandardErrors.db')
+
         if resetReport:
             self.resetReport()
 
         for log in self._logfile:
             msg.debug('Now scanning logfile {0}'.format(log))
+            seenNonStandardError = ''
             # N.B. Use the generator so that lines can be grabbed by subroutines, e.g., core dump svc reporter
             try:
                 myGen = trfUtils.lineByLine(log, substepName=self._substepName)
@@ -340,6 +343,10 @@ class athenaLogFileReport(logFileReport):
                     if 'SysError in <TFile::WriteBuffer>' in line:
                         self.rootSysErrorParser(myGen, line, lineCounter)
                         continue
+                    # Check if the line is among the non-standard logging errors from the knowledge file
+                    if any(line in l for l in nonStandardErrorsList):
+                        seenNonStandardError = line
+                        continue
 
                     msg.debug('Non-standard line in %s: %s' % (log, line))
                     self._levelCounter['UNKNOWN'] += 1
@@ -377,6 +384,11 @@ class athenaLogFileReport(logFileReport):
                     # jobs that run out of memory
                     if 'std::bad_alloc' in fields['message']:
                         fields['level'] = 'CATASTROPHE'
+
+                # concatenate the seen non-standard logging error to the FATAL
+                if fields['level'] == 'FATAL':
+                    if seenNonStandardError:
+                        line += '; ' + seenNonStandardError
 
                 # Count this error
                 self._levelCounter[fields['level']] += 1

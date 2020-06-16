@@ -577,6 +577,21 @@ class athenaLogFileReportTests(unittest.TestCase):
 18:16:06 Caught signal 11(Segmentation fault). Details:
         '''
 
+        testKnowledgeFile = '''
+10:38:58  PYTHIA Abort from Pythia::next: reached end of Les Houches Events File
+10:38:58 Pythia8              INFO Event generation failed - re-trying.
+10:38:58 Pythia8              INFO Event generation failed - re-trying.
+10:38:58 Pythia8              INFO Event generation failed - re-trying.
+10:38:58 Pythia8              INFO Event generation failed - re-trying.
+10:38:58 Pythia8              INFO Event generation failed - re-trying.
+10:38:58 Pythia8              INFO Event generation failed - re-trying.
+10:38:58 Pythia8              INFO Event generation failed - re-trying.
+10:38:58 Pythia8              INFO Event generation failed - re-trying.
+10:38:58 Pythia8              INFO Event generation failed - re-trying.
+10:38:58 Pythia8             ERROR Exceeded the max number of consecutive event failures.
+10:38:58 Pythia8             FATAL /build/atnight/localbuilds/nightlies/21.6/athena/Generators/GeneratorModules/src/GenModule.cxx:56 (StatusCode GenModule::execute()): code 0: this->callGenerator()
+        '''
+
         with open('file1', 'w') as f1:
             print >> f1, 'This is test file 1 w/o meaning'
         with open('file2', 'w') as f2:
@@ -603,6 +618,8 @@ class athenaLogFileReportTests(unittest.TestCase):
             print >> f11, testCoreDumpAbNormalLine
         with open('file12', 'w') as f12:
             print >> f12, testCoreDumpAbnormalPattern
+        with open('file13', 'w') as f13:
+            print >> f13, testKnowledgeFile
 
         self.myFileReport1 = athenaLogFileReport('file1')
         self.myFileReport2 = athenaLogFileReport('file2')
@@ -616,9 +633,10 @@ class athenaLogFileReportTests(unittest.TestCase):
         self.myFileReport10 = athenaLogFileReport('file10')
         self.myFileReport11 = athenaLogFileReport('file11')
         self.myFileReport12 = athenaLogFileReport('file12')
+        self.myFileReport13 = athenaLogFileReport('file13')
 
     def tearDown(self):
-        for f in 'file1', 'file2', 'file3', 'file4', 'file5', 'file6', 'file7', 'file8', 'file9', 'file10', 'file11', 'file12',\
+        for f in 'file1', 'file2', 'file3', 'file4', 'file5', 'file6', 'file7', 'file8', 'file9', 'file10', 'file11', 'file12', 'file13',\
                  'logWithSubstepNameSerial', 'logWithSubstepNameMP':
             try:
                 os.unlink(f)
@@ -709,6 +727,10 @@ ManagedAthenaTileMon reported an ERROR, but returned a StatusCode "SUCCESS"'''
                                                             'firstError': {'moreDetails': {'abnormalLine(s) before CoreDump': {'message0': 'warn  [frontier.c:1114]: Trying next proxy lcgsquid.shef.ac.uk with same server lcgft-atlas.gridpp.rl.ac.uk', 'firstLine0': 8, 'count0': 2}, 'lastNormalLine before CoreDump': {'message': 'IOVDbSvc             INFO HVS tag OFLCOND-MC16-SDR-16 resolved to PixDCSFSMState-SIM-RUN124-000-00 for folder /PIXEL/DCS/FSMSTATE', 'firstLine': 6, 'count': 1}}, 'message': 'Segmentation fault: Event counter: 0; Run: unknown; Evt: unknown; Current algorithm: <NONE>; Current Function: frontierHttpClnt_usinglastproxyingroup; Abnormal line(s) seen just before core dump: warn  [frontier.c:1114]: Tryin...[truncated] (see the jobReport)', 'firstLine': 10, 'count': 1}})
         self.assertEqual(self.myFileReport12.worstError(), {'level': 'FATAL', 'nLevel': logging.FATAL,
                                                             'firstError': {'moreDetails': {'abnormalLine(s) before CoreDump': {'message0': 'TBufferFile::CheckObject:0: RuntimeWarning: reference to object of unavailable class TObject, offset=980837731 pointer will be 0', 'firstLine0': 7, 'count0': 2, 'message1': 'Error in <TExMap::Remove>: key 980837731 not found at 306', 'firstLine1': 6, 'count1': 2}, 'lastNormalLine before CoreDump': {'message': 'Error in <CreateRealData>: Cannot find data member # 0 of class Identifier for parent TileTrigger!', 'firstLine': 3, 'count': 1}}, 'message': 'Segmentation fault: Event counter: unknown; Run: unknown; Evt: unknown; Current algorithm: unknown; Current Function: unknown; Abnormal line(s) seen just before core dump: TBufferFile::CheckObject:0: Ru...[truncated] (see the jobReport)', 'firstLine': 9, 'count': 1}})
+
+    def test_knowledgeFile(self):
+        self.assertEqual(self.myFileReport13.worstError(), {'level': 'FATAL', 'nLevel': logging.FATAL,
+                                                            'firstError': {'count': 1, 'firstLine': 13, 'message': 'Pythia8             FATAL /build/atnight/localbuilds/nightlies/21.6/athena/Generators/GeneratorModules/src/GenModule.cxx:56 (StatusCode GenModule::execute()): code 0: this->callGenerator(); PYTHIA Abort from Pythia::next: reached end of Les Houches Events File'}})
 
     def test_dbMonitor(self):
         print self.myFileReport9 
