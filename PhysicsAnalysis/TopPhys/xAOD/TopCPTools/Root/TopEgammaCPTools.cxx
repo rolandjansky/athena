@@ -286,12 +286,10 @@ namespace top {
     std::vector<std::string> inPLViso;
     if (electronIsolation == "PLVTight" ||
 	electronIsolation == "PLVLoose") {
-      std::cout << " BAPTISTE - PLV isolation!" << std::endl;
       m_electronEffSFIsoFile = electronSFFilePath("PLV", electronID, electronIsolation);
       inPLViso.push_back(m_electronEffSFIsoFile);
     }
     else {
-      std::cout << " BAPTISTE - isolation is " << electronIsolation << std::endl;
       m_electronEffSFIsoFile = electronSFMapFilePath("isolation");
     }
     // - Loose
@@ -301,7 +299,6 @@ namespace top {
     std::vector<std::string> inPLVisoLoose;
     if (electronIsolationLoose == "PLVTight" ||
 	electronIsolationLoose == "PLVLoose") {
-      std::cout << " BAPTISTE - PLV isolation!" << std::endl;
       m_electronEffSFIsoLooseFile = electronSFFilePath("PLV", electronID, electronIsolationLoose);
       inPLVisoLoose.push_back(m_electronEffSFIsoLooseFile);
     }
@@ -350,7 +347,6 @@ namespace top {
     // Isolation SFs
     if (electronIsolation == "PLVTight" ||
 	electronIsolation == "PLVLoose") {
-            std::cout << " BAPTISTE - PLV isolation!" << std::endl;
       m_electronEffSFIso = setupElectronSFTool(elSFPrefix + "Iso", inPLViso, dataType);
       m_electronEffSFIsoLoose = setupElectronSFTool(elSFPrefix + "IsoLoose", inPLVisoLoose, dataType);
     }
