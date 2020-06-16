@@ -1051,11 +1051,18 @@ namespace top {
         m_jetPtGhostTracks = pt;
       }
     }
+    
+    inline virtual void jetEtaGhostTracks(const float eta) {
+      if (!m_configFixed) {
+        m_jetEtaGhostTracks = eta;
+      }
+    }
 
     inline virtual float jetPtcut()  const {return m_jetPtcut;}
     inline virtual float jetEtacut() const {return m_jetEtacut;}
     inline virtual const std::string& fwdJetAndMET() const {return m_fwdJetAndMET;}
     inline virtual float jetPtGhostTracks()  const {return m_jetPtGhostTracks;}
+    inline virtual float jetEtaGhostTracks()  const {return m_jetEtaGhostTracks;}
 
     inline virtual void largeRJetPtcut(const float pt) {
       if (!m_configFixed) {
@@ -1110,6 +1117,8 @@ namespace top {
 
     inline virtual float RCJetPtcut() const {return m_RCJetPtcut;}
     inline virtual float RCJetEtacut() const {return m_RCJetEtacut;}
+    inline virtual float RCInputJetPtMin() const {return m_RCInputJetPtMin;}
+    inline virtual float RCInputJetEtaMax() const {return m_RCInputJetEtaMax;}
     inline virtual float RCJetTrimcut() const {return m_RCJetTrimcut;}
     inline virtual float RCJetRadius() const {return m_RCJetRadius;}
     inline virtual bool useRCJetSubstructure() const {return m_useRCJetSubstructure;}
@@ -1124,6 +1133,18 @@ namespace top {
     inline virtual void RCJetEtacut(const float eta) {
       if (!m_configFixed) {
         m_RCJetEtacut = eta;
+      }
+    }
+
+    inline virtual void RCInputJetPtMin(const float pt) {
+      if (!m_configFixed) {
+        m_RCInputJetPtMin = pt;
+      }
+    }
+
+    inline virtual void RCInputJetEtaMax(const float eta) {
+      if (!m_configFixed) {
+        m_RCInputJetEtaMax = eta;
       }
     }
 
@@ -2083,6 +2104,7 @@ namespace top {
     float m_jetEtacut; // jet object selection (abs) eta cut
     std::string m_fwdJetAndMET; // type of treatment of forward jets, including for MET calculation
     float m_jetPtGhostTracks; // jet pt threshold for ghost track systematic variations calculation
+    float m_jetEtaGhostTracks; // jet eta threshold for ghost track systematic variations calculation
     std::string m_jetUncertainties_NPModel; // AllNuisanceParameters, 19NP or 3NP
     std::string m_jetUncertainties_QGFracFile; // to improve Flavour composition and response
     std::vector<std::string> m_jetUncertainties_QGHistPatterns; // to improve Flavour composition and response, with
@@ -2111,6 +2133,8 @@ namespace top {
     // Jet configuration for reclustered jets
     float m_RCJetPtcut;
     float m_RCJetEtacut;
+    float m_RCInputJetPtMin;
+    float m_RCInputJetEtaMax;
     float m_RCJetTrimcut;
     float m_RCJetRadius;
     bool m_useRCJetSubstructure;
