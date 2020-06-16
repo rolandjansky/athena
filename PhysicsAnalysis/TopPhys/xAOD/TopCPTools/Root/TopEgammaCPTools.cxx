@@ -348,13 +348,18 @@ namespace top {
     if (electronIsolation == "PLVTight" ||
 	electronIsolation == "PLVLoose") {
       m_electronEffSFIso = setupElectronSFTool(elSFPrefix + "Iso", inPLViso, dataType);
-      m_electronEffSFIsoLoose = setupElectronSFTool(elSFPrefix + "IsoLoose", inPLVisoLoose, dataType);
     }
     else {
       m_electronEffSFIso = setupElectronSFToolWithMap(elSFPrefix + "Iso", m_electronEffSFIsoFile, "", electronID,
 						      electronIsolation, "", dataType, "TOTAL", "", "");
+    }
+    if (electronIsolationLoose == "PLVTight" ||
+	electronIsolationLoose == "PLVLoose") {
+      m_electronEffSFIsoLoose = setupElectronSFTool(elSFPrefix + "IsoLoose", inPLVisoLoose, dataType);
+    }
+    else {
       m_electronEffSFIsoLoose = setupElectronSFToolWithMap(elSFPrefix + "IsoLoose", m_electronEffSFIsoLooseFile, "",
-							   electronID, electronIsolationLoose, "", dataType, "TOTAL", "",
+							   electronIDLoose, electronIsolationLoose, "", dataType, "TOTAL", "",
 							   "");
     }
 
@@ -412,17 +417,36 @@ namespace top {
                                                                       m_config->electronEfficiencySystematicModelEtaBinning(),
                                                                       m_config->electronEfficiencySystematicModelEtBinning());
       // Isolation SFs
-      m_electronEffSFIsoCorrModel = setupElectronSFToolWithMap(elSFPrefixCorrModel + "Iso", m_electronEffSFIsoFile, "",
-                                                               electronID, electronIsolation, "", dataType,
-                                                               m_config->electronEfficiencySystematicModel(),
-                                                               m_config->electronEfficiencySystematicModelEtaBinning(),
-                                                               m_config->electronEfficiencySystematicModelEtBinning());
-      m_electronEffSFIsoLooseCorrModel = setupElectronSFToolWithMap(elSFPrefixCorrModel + "IsoLoose",
-                                                                    m_electronEffSFIsoLooseFile, "", electronID,
-                                                                    electronIsolationLoose, "", dataType,
-                                                                    m_config->electronEfficiencySystematicModel(),
-                                                                    m_config->electronEfficiencySystematicModelEtaBinning(),
-                                                                    m_config->electronEfficiencySystematicModelEtBinning());
+      if (electronIsolation == "PLVTight" ||
+	  electronIsolation == "PLVLoose") {
+	m_electronEffSFIsoCorrModel = setupElectronSFTool(elSFPrefixCorrModel + "Iso", inPLViso, dataType,
+							  m_config->electronEfficiencySystematicModel(),
+							  m_config->electronEfficiencySystematicModelEtaBinning(),
+							  m_config->electronEfficiencySystematicModelEtBinning());
+      }
+      else {
+	m_electronEffSFIsoCorrModel = setupElectronSFToolWithMap(elSFPrefixCorrModel + "Iso", m_electronEffSFIsoFile, "",
+								 electronID, electronIsolation, "", dataType,
+								 m_config->electronEfficiencySystematicModel(),
+								 m_config->electronEfficiencySystematicModelEtaBinning(),
+								 m_config->electronEfficiencySystematicModelEtBinning());
+      }
+      if (electronIsolationLoose == "PLVTight" ||
+	  electronIsolationLoose == "PLVLoose") {
+	m_electronEffSFIsoLooseCorrModel = setupElectronSFTool(elSFPrefixCorrModel + "IsoLoose", inPLVisoLoose, dataType,
+							       m_config->electronEfficiencySystematicModel(),
+							       m_config->electronEfficiencySystematicModelEtaBinning(),
+							       m_config->electronEfficiencySystematicModelEtBinning());
+
+      }
+      else {
+	m_electronEffSFIsoLooseCorrModel = setupElectronSFToolWithMap(elSFPrefixCorrModel + "IsoLoose",
+								      m_electronEffSFIsoLooseFile, "", electronIDLoose,
+								      electronIsolationLoose, "", dataType,
+								      m_config->electronEfficiencySystematicModel(),
+								      m_config->electronEfficiencySystematicModelEtaBinning(),
+								      m_config->electronEfficiencySystematicModelEtBinning());
+      }
     }
 
     if (m_config->useFwdElectrons()) {
@@ -486,7 +510,10 @@ namespace top {
 
   IAsgElectronEfficiencyCorrectionTool*
   EgammaCPTools::setupElectronSFTool(const std::string& name, const std::vector<std::string>& file_list,
-                                     const int& data_type) {
+                                     const int& data_type,
+				     const std::string& correlation_model,
+				     const std::string& correlationModelEtaBinning,
+				     const std::string& correlationModelEtBinning) {
     IAsgElectronEfficiencyCorrectionTool* tool = nullptr;
 
     if (asg::ToolStore::contains<IAsgElectronEfficiencyCorrectionTool>(name)) {
@@ -498,8 +525,10 @@ namespace top {
                    "Failed to set CorrectionFileNameList to " + name);
         top::check(asg::setProperty(tool, "ForceDataType", data_type),
                    "Failed to set ForceDataType to " + name);
-        top::check(asg::setProperty(tool, "CorrelationModel", "TOTAL"),
+        top::check(asg::setProperty(tool, "CorrelationModel", correlation_model),
                    "Failed to set CorrelationModel to " + name);
+	if (correlationModelEtaBinning != "" && correlationModelEtaBinning != "default") this->setCorrelationModelBinning(tool, "UncorrEtaBinsUser", correlationModelEtaBinning);
+	if (correlationModelEtBinning != "" && correlationModelEtBinning != "default") this->setCorrelationModelBinning(tool, "UncorrEtBinsUser", correlationModelEtBinning);
         top::check(tool->initialize(), "Failed to initialize " + name);
       }
     }

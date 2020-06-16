@@ -98,8 +98,12 @@ namespace top {
     StatusCode setupCalibration();
     StatusCode setupScaleFactors();
 
-    IAsgElectronEfficiencyCorrectionTool*
-    setupElectronSFTool(const std::string& name, const std::vector<std::string>& file_list, const int& data_type);
+    IAsgElectronEfficiencyCorrectionTool* setupElectronSFTool(const std::string& name,
+							      const std::vector<std::string>& file_list,
+							      const int& data_type,
+							      const std::string& correlation_model="TOTAL",
+							      const std::string& correlationModelEtaBinning="",
+							      const std::string& correlationModelEtBinning="");
 
     // Helper function to deal with path resolving the
     // egamma groups very long file names for SFs and efficiencies.
