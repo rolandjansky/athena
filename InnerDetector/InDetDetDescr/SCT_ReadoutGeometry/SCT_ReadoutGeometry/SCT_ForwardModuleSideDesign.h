@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -17,10 +17,10 @@
 //Data member classes
 #include "SCT_ReadoutGeometry/SCT_ForwardFrameTransformation.h"
 #include "SCT_ReadoutGeometry/SCT_ForwardModuleSideGeometry.h"
+#include "TrkSurfaces/TrapezoidBounds.h"
 
 namespace Trk{
- class TrapezoidBounds;
- class SurfaceBounds;
+  class SurfaceBounds;
 }
 
 
@@ -68,7 +68,7 @@ namespace InDetDD {
 			      int readoutSide = -1);
 
       /** Destructor: */
-      virtual ~SCT_ForwardModuleSideDesign();
+      virtual ~SCT_ForwardModuleSideDesign() = default;
 
       ///////////////////////////////////////////////////////////////////
       // Const methods:
@@ -171,7 +171,7 @@ namespace InDetDD {
     private:
        SCT_ForwardModuleSideGeometry m_geometry; //!< geometry of module side
        SCT_ForwardFrameTransformation m_frame; //!< polar / cartesian frame transformation
-       Trk::TrapezoidBounds * m_bounds;
+       Trk::TrapezoidBounds m_bounds;
     };
     
   

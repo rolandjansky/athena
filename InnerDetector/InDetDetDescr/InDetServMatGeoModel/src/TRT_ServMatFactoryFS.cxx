@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/TRT_ServMatFactoryFS.h"
@@ -34,7 +34,6 @@
 TRT_ServMatFactoryFS::TRT_ServMatFactoryFS(StoreGateSvc *detStore,ServiceHandle<IRDBAccessSvc> pRDBAccess) :
   m_detStore(detStore),
   m_rdbAccess(pRDBAccess),
-  m_materialManager(0),
   m_msg("TRT_ServMatFactoryFS")
 {
   
@@ -43,7 +42,6 @@ TRT_ServMatFactoryFS::TRT_ServMatFactoryFS(StoreGateSvc *detStore,ServiceHandle<
 
 TRT_ServMatFactoryFS::~TRT_ServMatFactoryFS()
 {
-  delete m_materialManager;
 }
 
 
@@ -70,7 +68,7 @@ void TRT_ServMatFactoryFS::create(GeoPhysVol *motherP, GeoPhysVol *motherM)
 
   // Get the InDet material manager. This is a wrapper around the geomodel one with some extra functionality to deal
   // with weights table if it exists
-  m_materialManager = new InDetMaterialManager("TRT_MaterialManager", m_detStore, weightTable, "trt");
+  m_materialManager = std::make_unique<InDetMaterialManager>("TRT_MaterialManager", m_detStore, weightTable, "trt");
 
 
 //VK  10/09/2005 Construct a gap for rails

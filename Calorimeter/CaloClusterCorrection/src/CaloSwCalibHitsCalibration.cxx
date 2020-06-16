@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -30,37 +30,10 @@ Updated:  January 17, 2008 (LC)
 using xAOD::CaloCluster;
 using CLHEP::TeV;
 
-// -------------------------------------------------------------
-// Constructor
-// -------------------------------------------------------------
-
-CaloSwCalibHitsCalibration::CaloSwCalibHitsCalibration
-  (const std::string& type,
-   const std::string& name,
-   const IInterface* parent)
-    : CaloClusterCorrectionCommon(type, name, parent),
-      m_showerDepth (m_sampling_depth,
-                     m_eta_start_crack,
-                     m_eta_end_crack,
-                     m_etamax)
-{
-   declareConstant("correction"      , m_correction);
-   declareConstant("sampling_depth"  , m_sampling_depth);
-   declareConstant("eta_start_crack" , m_eta_start_crack);
-   declareConstant("eta_end_crack"   , m_eta_end_crack);
-   declareConstant("etamax"          , m_etamax);
-   declareConstant("use_raw_eta"     , m_use_raw_eta);
-   declareConstant("fix_v6_pathologies", m_fix_v6_pathologies, true);
-   declareConstant("update_sampling_energies", m_updateSamplingEnergies, true);
-   m_fix_v6_pathologies = true;
-   m_updateSamplingEnergies = false;
-
-}
-
 
 /**
   * @brief Virtual function for the correction-specific code.
-  * @param ctx     The event context.
+  * @param myctx   ToolWithConstants context.
   * @param cluster The cluster to correct.
   *                It is updated in place.
   * @param elt     The detector description element corresponding
@@ -81,7 +54,7 @@ CaloSwCalibHitsCalibration::CaloSwCalibHitsCalibration
 
 
 void CaloSwCalibHitsCalibration::makeTheCorrection
-(const EventContext& /*ctx*/,
+(const Context& myctx,
     CaloCluster* cluster,
     const CaloDetDescrElement* /*elt*/,
     float eta,
@@ -94,22 +67,27 @@ void CaloSwCalibHitsCalibration::makeTheCorrection
    //     and range checks.  However, the v2 corrections were derived
    //     using regular eta instead.
    float the_aeta;
-   if (m_use_raw_eta)
+   if (m_use_raw_eta (myctx))
      the_aeta = std::abs (adj_eta);
    else
      the_aeta = std::abs (eta);
 
-   if (the_aeta >= m_etamax) return;
+   const float etamax = m_etamax (myctx);
+   if (the_aeta >= etamax) return;
 
+   const float eta_start_crack = m_eta_start_crack (myctx);
+   const float eta_end_crack = m_eta_end_crack (myctx);
    int si;
-   if (the_aeta < m_eta_start_crack)
+   if (the_aeta < eta_start_crack)
      si = 0;
-   else if (the_aeta > m_eta_end_crack)
+   else if (the_aeta > eta_end_crack)
      si = 1;
    else {
      // No corrections are applied for the crack region.
      return;
    }
+
+   const CxxUtils::Array<3> correction = m_correction (myctx);
 
 //   the_aeta = std::abs (cluster->eta() );
 
@@ -121,26 +99,26 @@ void CaloSwCalibHitsCalibration::makeTheCorrection
 
    unsigned int shape[] = {2};
    CaloRec::WritableArrayData<1> interp_barriers (shape);
-   interp_barriers[0] = m_eta_start_crack;
-   interp_barriers[1] = m_eta_end_crack;
+   interp_barriers[0] = eta_start_crack;
+   interp_barriers[1] = eta_end_crack;
 
-   int ibin = (static_cast<int> (the_aeta / m_etamax * 100)) ;
+   int ibin = (static_cast<int> (the_aeta / etamax * 100)) ;
 
    int ibin_frontCorr = ibin;
-   if (m_fix_v6_pathologies) {
-     if (the_aeta>2.35) ibin_frontCorr = (static_cast<int> (2.35 / m_etamax * 100)) ;
+   if (m_fix_v6_pathologies (myctx)) {
+     if (the_aeta>2.35) ibin_frontCorr = (static_cast<int> (2.35 / etamax * 100)) ;
    }
 
 // -------------------------------------------------------------
 // Load calibration coefficients
 // -------------------------------------------------------------
 
-   CaloRec::Array<1> acc      = m_correction[0][ibin];
-   CaloRec::Array<1> ooc      = m_correction[1][ibin];
-   CaloRec::Array<1> lleak    = m_correction[2][ibin];
-   CaloRec::Array<1> froffset = m_correction[3][ibin_frontCorr];	
-   CaloRec::Array<1> frslope  = m_correction[4][ibin_frontCorr];
-   CaloRec::Array<1> sec      = m_correction[5][ibin_frontCorr];
+   CaloRec::Array<1> acc      = correction[0][ibin];
+   CaloRec::Array<1> ooc      = correction[1][ibin];
+   CaloRec::Array<1> lleak    = correction[2][ibin];
+   CaloRec::Array<1> froffset = correction[3][ibin_frontCorr];	
+   CaloRec::Array<1> frslope  = correction[4][ibin_frontCorr];
+   CaloRec::Array<1> sec      = correction[5][ibin_frontCorr];
 
    ATH_MSG_DEBUG( "Check etas -------------------------------------------------------------------"<< endmsg);
    ATH_MSG_DEBUG( "Eta --> " << the_aeta << "  Bin --> " << ibin <<" Cluster eta = " << cluster->eta() << endmsg);
@@ -173,7 +151,12 @@ void CaloSwCalibHitsCalibration::makeTheCorrection
 
    // Compute longitudinal barycenter: this is a very old and approximate
    // parametrization that needs to be updated.
-double shower_lbary = m_showerDepth.depth (the_aeta, cluster, msg() );
+   double shower_lbary = m_showerDepth.depth (the_aeta,
+                                              eta_start_crack,
+                                              eta_end_crack,
+                                              m_sampling_depth(myctx),
+                                              etamax,
+                                              cluster, msg() );
    if (shower_lbary == 0) return;
 
    if (shower_lbary < 5. || shower_lbary > 25.) {
@@ -219,10 +202,10 @@ double shower_lbary = m_showerDepth.depth (the_aeta, cluster, msg() );
      acc[1] + acc[2] * shower_lbary + acc[3] * shower_lbary * shower_lbary ;
  
    double e_out_perc = 0;
-   if (the_aeta < m_eta_start_crack) {
+   if (the_aeta < eta_start_crack) {
        e_out_perc = ooc[1] + ooc[2] * shower_lbary + ooc[3] * shower_lbary * shower_lbary ;
    }
-   else if (the_aeta > m_eta_end_crack) {
+   else if (the_aeta > eta_end_crack) {
        e_out_perc = ooc[1] + ooc[2] * shower_lbary + ooc[3] / shower_lbary ;
    }   
 
@@ -234,9 +217,9 @@ double shower_lbary = m_showerDepth.depth (the_aeta, cluster, msg() );
 
    double e_leak_perc = 0;
 /*
-   if (the_aeta < m_eta_start_crack) { 
+   if (the_aeta < eta_start_crack) { 
        e_leak_perc = lleak[1] + lleak[2] * shower_lbary + lleak[3] * exp(shower_lbary);
-   } else if (the_aeta > m_eta_end_crack) {
+   } else if (the_aeta > eta_end_crack) {
        e_leak_perc = lleak[1] * shower_lbary + lleak[2] * exp(shower_lbary);
    }
 */
@@ -261,7 +244,7 @@ double shower_lbary = m_showerDepth.depth (the_aeta, cluster, msg() );
    }
    else if (the_aeta < 1.8) {
 
-     if (the_aeta < m_eta_start_crack) {
+     if (the_aeta < eta_start_crack) {
        double WpsOff      = froffset[1] + froffset[2]     * raw_energy + 
                             froffset[3] * raw_energy * raw_energy;
        double WpsSlo      = frslope[1]  * pow(log(raw_energy),
@@ -348,7 +331,7 @@ double shower_lbary = m_showerDepth.depth (the_aeta, cluster, msg() );
  Please note that E != E0+E1+E2+E3 
   -------------------------------------------------------------
 */
-   if (m_updateSamplingEnergies)
+   if (m_updateSamplingEnergies (myctx))
    {
        // presampler
 

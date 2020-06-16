@@ -129,4 +129,3 @@ for iphase in range(abs(nphases)):
 
 #=== close DB
 db.closeDatabase()
-

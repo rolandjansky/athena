@@ -757,7 +757,7 @@ void LArFCalSamplingFraction::TruthImpactPosition(McEventCollection::const_itera
         HepMC::FourVector HMCmom = theParticle->momentum();
         CLHEP::HepLorentzVector momentum(CLHEP::Hep3Vector(HMCmom.px(), HMCmom.py(), HMCmom.pz()), HMCmom.e());
 
-        HepMC::ThreeVector HMC3vec = theParticle->production_vertex()->point3d();
+        HepMC::FourVector HMC3vec = theParticle->production_vertex()->position();
         HepGeom::Point3D<double> origin = HepGeom::Point3D<double>(HMC3vec.x(), HMC3vec.y(), HMC3vec.z());
 
         // Put VEta and VPhi into the Ntuple
@@ -775,9 +775,9 @@ void LArFCalSamplingFraction::TruthImpactPosition(McEventCollection::const_itera
 
         m_E = momentum.e();
 
-        m_vertx = theParticle->production_vertex()->point3d().x();
-        m_verty = theParticle->production_vertex()->point3d().y();
-        m_vertz = theParticle->production_vertex()->point3d().z();
+        m_vertx = theParticle->production_vertex()->position().x();
+        m_verty = theParticle->production_vertex()->position().y();
+        m_vertz = theParticle->production_vertex()->position().z();
 
         // Must get x-offset depending on TB position. The 90.0 mm is from the
         // initial x-offset of FCal in cryostat. The -15.0 mm is from the

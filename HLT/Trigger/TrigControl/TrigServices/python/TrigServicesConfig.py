@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file: TrigServicesConfig.py
 # @purpose: customized configurables
@@ -139,4 +139,7 @@ class HltEventLoopMgr(_HltEventLoopMgr):
       self.MonTool.defineHistogram('TotalTimeRejected', path='EXPERT', type='TH1F',
                                    title='Total event processing time (rejected events);Time [ms];Events',
                                    xbins=200, xmin=0, xmax=10000)
+      self.MonTool.defineHistogram('SlotIdleTime', path='EXPERT', type='TH1F',
+                                   title='Time between freeing and assigning a scheduler slot;Time [ms];Events',
+                                   xbins=200, xmin=0, xmax=200)
       return

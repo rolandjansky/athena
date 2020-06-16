@@ -2,7 +2,6 @@
 
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id: magnifyPoolFile.py,v 1.5 2008-06-27 17:24:13 binet Exp $
 # @file:    magnifyPoolFile.py
 # @purpose: produce a new POOL file with N times the content of an input one.
 # @author:  Sebastien Binet <binet@cern.ch>
@@ -16,7 +15,6 @@
 
 from __future__ import print_function
 
-__version__ = "$Revision: 1.5 $"
 __author__  = "Sebastien Binet <binet@cern.ch>"
 
 import sys
@@ -99,7 +97,7 @@ if __name__ == "__main__":
     print ("## importing ROOT...")
     import ROOT
     print ("## importing ROOT... [DONE]")
-    import RootUtils.PyROOTFixes
+    import RootUtils.PyROOTFixes  # noqa: F401
 
     sys.argv = oldArgs
     

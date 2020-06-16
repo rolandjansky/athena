@@ -35,19 +35,16 @@ def precisionElectronRecoSequence(RoIs):
                                  ( 'xAOD::CaloClusterContainer' , 'StoreGateSvc+' + precisionCaloMenuDefs.precisionCaloClusters ),
                                  ( 'CaloAffectedRegionInfoVec' , 'ConditionStore+LArAffectedRegionInfo' ),
                                  ( 'CaloCellContainer' , 'StoreGateSvc+CaloCells' ),
+                                 ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.AveIntPerXDecor' ),
                                  ( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
-                                 ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+precisionElectron' )]
+                                 ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+precisionElectron' ),
+                                 ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )] # the load below doesn't always work
 
-    # Make sure the required objects are still available at whole-event level
+    # These objects must be loaded from SGIL if not from CondInputLoader
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
     topSequence.SGInputLoader.Load += [( 'CaloAffectedRegionInfoVec' , 'ConditionStore+LArAffectedRegionInfo' )]
-
-    # This object must be loaded from SG if it's not loaded in conddb (algs request it but ignore)
     from IOVDbSvc.CondDB import conddb
-    if not conddb.folderRequested( "Cond/StatusHT" ):
-      ViewVerifyTrk.DataObjects += [( 'TRTCond::StrawStatusMultChanContainer' , 'ConditionStore+/TRT/Cond/StatusHT' )]
-      topSequence.SGInputLoader.Load += [( 'TRTCond::StrawStatusMultChanContainer' , 'ConditionStore+/TRT/Cond/StatusHT' )]
     if not conddb.folderRequested( "PixelClustering/PixelClusNNCalib" ):
       ViewVerifyTrk.DataObjects += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
                                     ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
@@ -56,7 +53,7 @@ def precisionElectronRecoSequence(RoIs):
     
     if globalflags.InputFormat.is_bytestream():
       ViewVerifyTrk.DataObjects += [( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
-                                    ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ) ]
+                                    ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )]
     else:
       topSequence.SGInputLoader.Load += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
       ViewVerifyTrk.DataObjects += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]

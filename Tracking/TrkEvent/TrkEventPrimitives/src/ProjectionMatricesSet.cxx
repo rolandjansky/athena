@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "TrkEventPrimitives/ProjectionMatricesSet.h"
-#include <math.h>
+#include <cmath>
 
 Trk::ProjectionMatricesSet::ProjectionMatricesSet(int maxdim) :
     m_maxdim(maxdim)

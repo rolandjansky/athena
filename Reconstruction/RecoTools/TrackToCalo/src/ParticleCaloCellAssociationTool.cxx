@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ParticleCaloCellAssociationTool.h"
@@ -18,7 +18,7 @@
 #include "CaloUtils/CaloCellList.h"
 
 #include "xAODTracking/TrackingPrimitives.h"
-#include <math.h>
+#include <cmath>
 #include <memory>
 
 namespace Rec {
@@ -96,7 +96,7 @@ ParticleCaloCellAssociationTool::particleCellAssociation( const xAOD::IParticle&
 
   /*if not there , default ctor for unique_ptr (nullptr)*/
   std::unique_ptr<ParticleCellAssociation>& association= cache[particle.index()];
-  if (association.get()==nullptr){   
+  if (association==nullptr){   
     association=particleCellAssociation(particle,dr,container);
   }
   return association.get();
@@ -180,7 +180,7 @@ void ParticleCaloCellAssociationTool::getCellIntersections( const Trk::CaloExten
         double drMin = 100000.;
         int dscut = 1;
         if(!barrel) dscut = 0;
-        const CaloCell* cellFound = 0;
+        const CaloCell* cellFound = nullptr;
         for( auto celln : cells ){
           if(cell==celln) continue;
           if(cell->caloDDE()->getSubCalo() == celln->caloDDE()->getSubCalo()) {
@@ -225,7 +225,7 @@ void ParticleCaloCellAssociationTool::getCellIntersections( const Trk::CaloExten
         double dzMin = 100000.;
         int dscut = 1;
         if(barrel) dscut = 0;
-        const CaloCell* cellFound = 0;
+        const CaloCell* cellFound = nullptr;
         for( auto celln : cells ){
           if(cell==celln) continue;
           if(cell->caloDDE()->getSubCalo() == celln->caloDDE()->getSubCalo()) {

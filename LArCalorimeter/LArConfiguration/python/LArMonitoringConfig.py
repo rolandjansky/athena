@@ -23,9 +23,10 @@ def LArMonitoringConfig(inputFlags):
 
     # algos which can run in ESD but not AOD:
     if inputFlags.DQ.Environment != 'AOD':
-        from LumiBlockComps.BunchCrossingCondAlgConfig import BunchCrossingCondAlgCfg
-        acc.merge(BunchCrossingCondAlgCfg(inputFlags))
-        acc.merge(LArCollisionTimeMonConfig(inputFlags))
+        if inputFlags.DQ.DataType != 'cosmics':
+            from LumiBlockComps.BunchCrossingCondAlgConfig import BunchCrossingCondAlgCfg
+            acc.merge(BunchCrossingCondAlgCfg(inputFlags))
+            acc.merge(LArCollisionTimeMonConfig(inputFlags))
 
     # and others on RAW data only
     if inputFlags.DQ.Environment in ('online', 'tier0', 'tier0Raw'):

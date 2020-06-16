@@ -12,6 +12,7 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheNames
 from MuonConfig.MuonRdoDecodeConfig import MuonPrdCacheNames
 
+
 TrackParticlesName = recordable("HLT_IDTrack_Muon_FTF")
 theFTF_name = "FTFTracks_Muons"
 CBTPname = recordable("HLT_CBCombinedMuon_RoITrackParticles")
@@ -99,7 +100,7 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
     ToolSvc += sTgcRdoToPrepDataTool
 
     from MuonRdoToPrepData.MuonRdoToPrepDataConf import StgcRdoToStgcPrepData
-    StgcRdoToStgcPrepData = StgcRdoToStgcPrepData(name                    = "StgcRdoToStgcPrepData")
+    StgcRdoToStgcPrepData = StgcRdoToStgcPrepData(name                    = "StgcRdoToStgcPrepData" + postFix)
 
     viewAlgs_MuonPRD.append( StgcRdoToStgcPrepData )
 
@@ -115,7 +116,7 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
     ToolSvc += MmRdoToPrepDataTool
 
     from MuonRdoToPrepData.MuonRdoToPrepDataConf import MM_RdoToMM_PrepData
-    MM_RdoToMM_PrepData = MM_RdoToMM_PrepData(name                    = "MM_RdoToMM_PrepData",
+    MM_RdoToMM_PrepData = MM_RdoToMM_PrepData(name                    = "MMRdoToMMPrepData" + postFix,
                                             PrintInputRdo = True  )
 
     viewAlgs_MuonPRD.append(  MM_RdoToMM_PrepData )
@@ -228,18 +229,16 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
   from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RPC_RawDataProviderToolMT
   MuonRpcRawDataProviderTool = Muon__RPC_RawDataProviderToolMT(name    = "RPC_RawDataProviderToolMT",
                                                                RpcContainerCacheKey = MuonCacheNames.RpcCache,
-                                                               WriteOutRpcSectorLogic = False, # we don't need the RPC sector logic when running the trigger and can't write it out if we want to use the IDC cache for the RDOs
+                                                               WriteOutRpcSectorLogic = False, 
+                                                               # we don't need the RPC sector logic when running the trigger and 
+                                                               #can't write it out if we want to use the IDC cache for the RDOs
                                                                Decoder = RPCRodDecoder )
   ToolSvc += MuonRpcRawDataProviderTool
 
-  from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
-  RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name                = "RpcRdoToPrepDataTool")
-
-  #from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataToolMT
-  #RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataToolMT(name                = "RpcRdoToPrepDataTool",
-  #                                                       RpcPrdContainerCacheKey = MuonPrdCacheNames.RpcCache,
-  #                                                       RpcCoinContainerCacheKey = MuonPrdCacheNames.RpcCoinCache)
-  #RpcRdoToRpcPrepDataTool.OutputLevel = DEBUG
+  from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataToolMT
+  RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataToolMT(name                         = "RpcRdoToPrepDataTool",
+                                                         RpcPrdContainerCacheKey      = MuonPrdCacheNames.RpcCache,
+                                                         RpcCoinDataContainerCacheKey = MuonPrdCacheNames.RpcCoinCache)
 
   if athenaCommonFlags.isOnline: 
       RpcRdoToRpcPrepDataTool.ReadKey = ""
@@ -323,7 +322,7 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
   return muDecodeRecoSequence
 
 
-def muFastRecoSequence( RoIs ):
+def muFastRecoSequence( RoIs, doFullScanID = False ):
 
   from AthenaCommon.AppMgr import ToolSvc
   from AthenaCommon.CFElements import parOR
@@ -405,6 +404,7 @@ def muFastRecoSequence( RoIs ):
   muFastAlg.MuonCalibrationStream = "MuonCalibrationStream"
   muFastAlg.forID = muNames.L2forIDName
   muFastAlg.forMS = "forMS" 
+  muFastAlg.FILL_FSIDRoI = doFullScanID
 
   muFastRecoSequence += muFastAlg
   sequenceOut = muFastAlg.MuonL2SAInfo
@@ -429,8 +429,8 @@ def muonIDFastTrackingSequence( RoIs, name ):
   ### and Define EventViewNodes to run the algorithms ###
   from TrigInDetConfig.InDetSetup import makeInDetAlgs
   viewAlgs, viewVerify = makeInDetAlgs(whichSignature="Muon"+name, rois = RoIs)
-  viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+MUIDRoIs' )]
-
+  viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+MUIDRoIs' ),
+                             ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+HLTNav_IMl2muComb__out' )]
 
   for viewAlg in viewAlgs:
       muonIDFastTrackingSequence += viewAlg
@@ -665,15 +665,9 @@ def muEFCBRecoSequence( RoIs, name ):
                                  ( 'xAOD::IParticleContainer' , 'StoreGateSvc+'+TrackParticlesName ),
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )] #seems to be necessary, despite the load below
 
-    # This object must be loaded from SG if it's not loaded in conddb (algs request it but ignore)
-    from IOVDbSvc.CondDB import conddb
-    if not conddb.folderRequested( "Cond/StatusHT" ):
-      ViewVerifyTrk.DataObjects += [( 'TRTCond::StrawStatusMultChanContainer' , 'ConditionStore+/TRT/Cond/StatusHT' )]
-      topSequence.SGInputLoader.Load += [( 'TRTCond::StrawStatusMultChanContainer' , 'ConditionStore+/TRT/Cond/StatusHT' )]
-
     if globalflags.InputFormat.is_bytestream():
       ViewVerifyTrk.DataObjects += [( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
-                                    ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ) ]
+                                    ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )]
     muEFCBRecoSequence += ViewVerifyTrk
 
 

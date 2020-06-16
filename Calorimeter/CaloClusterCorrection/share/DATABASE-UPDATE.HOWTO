@@ -123,16 +123,16 @@ tt = AthenaROOTAccess.transientTree.makeTree(f)
 
 
 def dumpcl_list (tt, name):
-    print 'clus ' + name
+    print ('clus ' + name)
     ll = list (getattr (tt, name))
     ll.sort (lambda a,b: cmp(b.pt(),a.pt()))
     for cl in ll:
-        print cl.e(), cl.eta(), cl.phi()
+        print (cl.e(), cl.eta(), cl.phi())
     return
 
 for i in range(tt.GetEntries()):
     tt.GetEntry(i)
-    print 'ev', i
+    print ('ev', i)
     dumpcl_list (tt, 'HLT_CaloCl')
     dumpcl_list (tt, 'LArClusterEMFrwd')
     dumpcl_list (tt, 'egClusterCollection')

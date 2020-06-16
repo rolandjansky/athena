@@ -33,6 +33,11 @@
 #include "TLegend.h"
 #include "TrigInDetAnalysis/Efficiency.h"
 
+
+extern bool LINEF;
+extern bool LINES;
+
+
 void ATLASFORAPP_LABEL( double x, double y, int color, double size=0.06 ); 
 
 void myText( Double_t x, Double_t y, Color_t color, const std::string& text, Double_t tsize);
@@ -79,6 +84,13 @@ std::string findrun( TFile *f );
 double plotable( TH1* h ); // , double xlo=-999, double xhi=-999 );
 
 
+class data_mismatch : public std::exception { 
+public:
+  data_mismatch(const std::string& s) { std::cerr << "exception:" << what() << " " << s << std::endl; }; 
+  virtual const char* what() const throw() { return "data don't match"; }
+};
+
+
 
 template<typename T>
 std::ostream& operator<<( std::ostream& s, std::vector<T>& v) { 
@@ -90,6 +102,10 @@ std::ostream& operator<<( std::ostream& s, std::vector<T>& v) {
 /// automatically set the xrange on a histogram
 std::vector<int>    findxrange(TH1* h, bool symmetric=false );
 std::vector<double> findxrangeuser(TH1* h, bool symmetric=false );
+
+
+
+void trim_tgraph( TH1* h, TGraphAsymmErrors* t );  
 
 
 void xrange(TH1* h, bool symmetric=true );
@@ -115,7 +131,9 @@ public:
     m_hi(0),
     m_norm(false),
     m_refnorm(false),
-    m_binwidth(false)
+    m_binwidth(false),
+    m_offset(0),
+    m_trim(false)
   { 
     //    std::cout << "AxisInfo::info" << m_info << std::endl;
 
@@ -137,6 +155,18 @@ public:
       else if  ( keys[i]=="refn" )  m_refnorm   = true;
       else if  ( keys[i]=="width" ) m_binwidth  = true;
       else if  ( keys[i]=="auto" )  m_autoset   = true;
+      else if  ( keys[i]=="trim" )  m_trim      = true;
+      else if  ( keys[i].find("offset")==0  )  { 
+
+	std::cout << "offset:" << std::endl;
+	std::cout << "\tkey: " << keys[i] << std::endl;
+	std::cout << "\tpos: " << keys[i].find("offset") << std::endl;
+
+	std::string offset = keys[i];
+	m_offset=std::atof(offset.substr(6,offset.size()-6).c_str());
+
+	std::cout << "m_offset: " << m_offset << std::endl;
+      }
       else if  ( keys[i]=="auton" )  {
 	m_autoset = true;
 	m_norm    = true;
@@ -198,12 +228,19 @@ public:
 
   bool   rangeset() const { return m_rangeset; }
 
+  bool   trim() const { return m_trim; }
+
+
+  double offset() const { return m_offset; }
+
+
   double lo() const { return m_lo; } 
   double hi() const { return m_hi; } 
   
   double binwidth() const { return m_binwidth; }
 
   std::string c_str() const { return m_info; }
+
 
 public:
 
@@ -239,11 +276,15 @@ public:
   double m_lo; 
   double m_hi;
 
-  bool m_norm;
-  bool m_refnorm;
+  bool   m_norm;
+  bool   m_refnorm;
   
-  bool m_binwidth;
+  bool   m_binwidth;
   
+  double m_offset;
+
+  bool   m_trim;
+
 };
 
 
@@ -301,8 +342,8 @@ private:
 }; 
 
 
-static const int colours[6] = { 1, 2, kBlue-4, 6, kCyan-2, kGreen+2 };
-static const int markers[6] = { 20, 24, 25, 26, 21, 22 };
+static const int colours[6] = {  1,  2, kBlue-4,  6, kCyan-2,  kMagenta+2 };
+static const int markers[6] = { 20, 24,      25, 26,      25,          22 };
 
 
 template<typename T>
@@ -331,11 +372,15 @@ template<typename T>
 class tPlotter { 
 
 public: 
-
+  
   tPlotter(T* _htest=0, T* _href=0, const std::string& s="", TGraphAsymmErrors* _tgtest=0, TGraphAsymmErrors* _tgref=0 ) : 
     m_htest(_htest), m_href(_href),
     m_tgtest(_tgtest), m_tgref(_tgref),
-    m_plotfilename(s) {
+    m_plotfilename(s),
+    m_max_entries(2),
+    m_entries(0), 
+    m_trim_errors(false)
+  {
     // plotref = true;
   }
 
@@ -343,9 +388,13 @@ public:
   tPlotter(const tPlotter& p) : 
     m_htest(p.m_htest),   m_href(p.m_href), 
     m_tgtest(p.m_tgtest), m_tgref(p.m_tgref), 
-    m_plotfilename(p.m_plotfilename) {     
+    m_plotfilename(p.m_plotfilename),
+    m_max_entries(p.m_max_entries),
+    m_entries(0),
+    m_trim_errors(p.m_trim_errors) {     
   }
 
+  
 
   /// sadly, root manages all the histograms (does it really? 
   /// who can tell) so we mustn't delete anything just in case
@@ -356,7 +405,10 @@ public:
 
   std::string plotfilename() const { return m_plotfilename; }
 
-  //  void Draw(const std::string& chain, unsigned int i, Legend& leg ) { 
+  void trim_errors(bool b) { m_trim_errors=b; } 
+
+  bool  trim_errors() const { return m_trim_errors; } 
+
   void Draw( int i, Legend& _leg, bool mean=false, bool first=true ) { 
 
     Legend leg = _leg;
@@ -369,61 +421,34 @@ public:
 	href()->SetLineColor(colours[i%6]);
 	href()->SetLineStyle(2);
 	href()->SetMarkerStyle(0);
-        href()->GetYaxis()->SetMoreLogLabels(true);
       }
-      //      href()->SetMarkerColor(href()->GetLineColor());
-      htest()->SetLineColor(colours[i%6]);
-      htest()->SetLineStyle(1);
-      htest()->SetMarkerColor(htest()->GetLineColor());
-      htest()->SetMarkerStyle(markers[i%6]);
-      htest()->GetYaxis()->SetMoreLogLabels(true);
 
-      //      std::cout << "Draw() href() " << href() << "\thtest() " << htest() << "\ttgtest() " << tgtest();
+      if ( LINEF ) htest()->SetLineColor(colours[i%6]);
+      htest()->SetLineStyle(1);
+      if ( LINEF ) htest()->SetMarkerColor(htest()->GetLineColor());
+      if ( LINEF ) htest()->SetMarkerStyle(markers[i%6]);
+
       if ( htest() ) std::cout << "\tentries " << plotable( htest() );
       std::cout << std::endl;
 
       if(first)  {
-#if 0 
-	if ( plotref && href() ) {
-	  href()->GetXaxis()->SetMoreLogLabels(true);
-	  href()->Draw("hist][");
-	  //	  if ( tgref() ) { 
-	  //	    setParameters( href(), tgref() );
-	  //	  }
-	}
-	else
-#endif
-        {
-	  if ( tgtest() ) { 
+
+	if ( tgtest() ) { 
 	    zeroErrors(htest());
 	    htest()->GetXaxis()->SetMoreLogLabels(true);
-	    htest()->GetYaxis()->SetMoreLogLabels(true);
+	    if ( trim_errors() ) trim_tgraph( htest(), tgtest() );
 	    htest()->Draw("ep");
+	    if ( LINES ) htest()->Draw("lhistsame");
 	    setParameters( htest(), tgtest() );
-	    // tgtest()->Draw("p1same");
 	    tgtest()->Draw("esame");
-	  }
-	  else { 
-	    htest()->GetXaxis()->SetMoreLogLabels(true);
-	    htest()->GetYaxis()->SetMoreLogLabels(true);
-	    htest()->Draw("ep");
-	  }
 	}
+	else { 
+	    htest()->GetXaxis()->SetMoreLogLabels(true);
+	    htest()->Draw("ep");
+	    if ( LINES ) htest()->Draw("lhistsame");
+	}
+       
       }
-
-#if 0
-      static bool _dbg = true;
-
-      if ( _dbg && htest() && tgtest() ) { 
-	TFile f("dbg.root","recreate");
-	htest()->Write();
-	tgtest()->Write();
-	f.Close();
-	
-	_dbg = false;
-      }
-#endif
-
 
       if ( plotref && href() ) { 
 	if ( contains(href()->GetName(),"_vs_")  || 
@@ -438,8 +463,12 @@ public:
 
       if ( tgtest() ) { 
 	zeroErrors(htest());
+
+	if ( trim_errors() ) trim_tgraph( htest(), tgtest() );
 	setParameters( htest(), tgtest() );
 	tgtest()->Draw("e1same");
+	if ( LINES ) tgtest()->Draw("lsame");
+
       }
       
 #if 0
@@ -459,6 +488,7 @@ public:
 #endif
 
       htest()->Draw("ep same");
+      if ( LINES ) htest()->Draw("lhist same");
 
       // href()->Draw("lhistsame");
       // htest()->Draw("lhistsame");
@@ -497,20 +527,25 @@ public:
 
 	std::string rkey = key;
 	
-	key += std::string(" : ");
-	leg->AddEntry( htest(), key.c_str(), "p" );
-	leg->AddEntry( hnull, _mean, "p" );
-
-	if ( displayref ) { 
-	  rkey += std::string(" : ");
-	  leg->AddEntry( hnull, "", "l" );
-	  leg->AddEntry( href(), rkey.c_str(), "l" );
-	  leg->AddEntry( hnull, _meanref, "l" );
+	if ( LINEF || leg.size() < m_max_entries ) { 
+	  key += std::string(" : ");
+	  leg->AddEntry( htest(), key.c_str(), "p" );
+	  leg->AddEntry( hnull, _mean, "p" );
+	  
+	  if ( displayref ) { 
+	    rkey += std::string(" : ");
+	    leg->AddEntry( hnull, "", "l" );
+	    leg->AddEntry( href(), rkey.c_str(), "l" );
+	    leg->AddEntry( hnull, _meanref, "l" );
+	  }
 	}
 
-
       }
-      else leg->AddEntry( htest(), key.c_str(), "p" );
+      else { 
+	if ( LINEF || leg.size()<m_max_entries ) leg->AddEntry( htest(), key.c_str(), "p" );
+      }
+
+      m_entries++;
 
       leg->Draw();
 
@@ -532,6 +567,8 @@ public:
   TGraphAsymmErrors* tgref()  { return m_tgref; }
 
 
+  void max_entries( int i ) { m_max_entries = i; } 
+
 public:
 
   static void setplotref( bool b )     { plotref=meanplotref=b; }
@@ -550,6 +587,11 @@ private:
 
   static bool plotref;
   static bool meanplotref;
+
+  size_t  m_max_entries;
+  size_t  m_entries;
+
+  bool m_trim_errors;
 
 };
 
@@ -587,12 +629,13 @@ class Plots : public std::vector<Plotter> {
   
 public:
   
-  Plots(const std::string& s="") : 
+  Plots(const std::string& s="", bool errors=false ) : 
     m_name(s), 
     m_logx(false), m_logy(false), 
     m_maxset(false), m_max(0),
     m_minset(false), m_min(0),
-    m_rangeset(false) 
+    m_rangeset(false), 
+    m_trim_errors(errors)
   { }
 
   double realmin( double lo=0, double hi=0 ) {
@@ -809,29 +852,36 @@ public:
     }
   }
 
+
    
   void Draw( Legend& leg, bool means=false ) {  
-    //   Max();
+    Draw_i( leg, means );
+    if ( LINES ) { 
+      LINES=false;
+      Draw_i( leg, means );
+      LINES=true;
+    }
+  }
 
-    //    std::cout << "\thref() " << href() << "\thtest() " << htest() << std::endl;  
-
-    ///  plotting range options etc  
-    //   std::cout << "Plotter::Draw() " << m_name << "\tsize " << size() << "\txaxis: log: " << m_logx;
-
-    //   if ( m_rangeset ) std::cout << "\trange: " << m_lo << " - " << m_hi;
-
-    //   std::cout << "\tyaxis: log:" << m_logy;
-    //   if ( m_minset )   std::cout << "\tymin: " << m_min;
-    //   if ( m_maxset )   std::cout << "\tymax: " << m_max;
-    //   std::cout << std::endl;
+  void Draw_i( Legend& leg, bool means=false ) {  
     
     bool first = true;
 
-    //  for ( unsigned i=size() ; i-- ; first=false ) at(i).Draw( i, leg, means, first );
+    if ( m_logy ) {
+      /// increase the number of log labels if only a few decades
+      for ( unsigned i=0 ; i<size() ; i++, first=false ) { 
+	double ymax = at(i).htest()->GetMaximum();
+	double ymin = at(i).htest()->GetMinimum();
+	at(i).htest()->GetYaxis()->SetMoreLogLabels(true);
+	if ( ymax/ymin>1e6 ) at(i).htest()->GetYaxis()->SetMoreLogLabels(false);
+	break;
+      }
+    }
+
+    for ( unsigned i=0 ; i<size() ; i++ ) at(i).trim_errors( m_trim_errors );
+
     for ( unsigned i=0 ; i<size() ; i++, first=false ) at(i).Draw( i, leg, means, first );
     if ( watermark ) DrawLabel(0.1, 0.02, "built on "+stime()+release, kBlack, 0.03 );
-
-    ///    std::cout << "\txlimits : " << m_lo << " " << m_hi << std::endl; 
 
     gPad->SetLogy(m_logy);
     gPad->SetLogx(m_logx);
@@ -888,6 +938,8 @@ private:
   bool   m_rangeset;
   double m_lo;
   double m_hi;
+
+  bool m_trim_errors;
 
 private:
 

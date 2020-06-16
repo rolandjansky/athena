@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETSERVMATGEOMODEL_PIXELSERVMATFACTORYFS_H
@@ -39,7 +39,7 @@ class PixelServMatFactoryFS   {
   // private data
   StoreGateSvc                    *m_detStore;
   ServiceHandle<IRDBAccessSvc>     m_rdbAccess;
-  InDetMaterialManager            *m_materialManager;
+  std::unique_ptr<InDetMaterialManager> m_materialManager;
   mutable Athena::MsgStreamMember  m_msg;
 
 };

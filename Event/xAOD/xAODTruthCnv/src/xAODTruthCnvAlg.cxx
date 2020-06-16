@@ -185,7 +185,7 @@ namespace xAODMaker {
 	  if (isSignalProcess) {
 	    xTruthEventContainer->push_back( xTruthEvent );
 	    // Cross-section
-	    const HepMC::GenCrossSection* const crossSection = genEvt->cross_section();
+	    auto crossSection = genEvt->cross_section();
 	    xTruthEvent->setCrossSection(crossSection ? (float)crossSection->cross_section() : -1);
 	    xTruthEvent->setCrossSectionError(crossSection ? (float)crossSection->cross_section_error() : -1);
                     
@@ -209,7 +209,7 @@ namespace xAODMaker {
 	    xTruthEvent->setWeights(weights);
                     
 	    // Heavy ion info
-	    const HepMC::HeavyIon* const hiInfo = genEvt->heavy_ion();
+	    auto const hiInfo = genEvt->heavy_ion();
 	    if (hiInfo) {
 	      xTruthEvent->setHeavyIonParameter(hiInfo->Ncoll_hard(), xAOD::TruthEvent::NCOLLHARD);
 	      xTruthEvent->setHeavyIonParameter(hiInfo->Npart_proj(), xAOD::TruthEvent::NPARTPROJ);
@@ -230,7 +230,7 @@ namespace xAODMaker {
                     
 	    // Parton density info
 	    // This will exist 99% of the time, except for e.g. cosmic or particle gun simulation
-	    const HepMC::PdfInfo* const pdfInfo = genEvt->pdf_info();
+	    auto const pdfInfo = genEvt->pdf_info();
 	    if (pdfInfo) {
 	      xTruthEvent->setPdfInfoParameter(pdfInfo->id1(), xAOD::TruthEvent::PDGID1);
 	      xTruthEvent->setPdfInfoParameter(pdfInfo->id2(), xAOD::TruthEvent::PDGID2);
@@ -269,7 +269,9 @@ namespace xAODMaker {
                 
 	  // Get the beam particles
 	  pair<HepMC::GenParticlePtr,HepMC::GenParticlePtr> beamParticles;
-	  if ( genEvt->valid_beam_particles() ) beamParticles = genEvt->beam_particles();
+	  bool genEvt_valid_beam_particles=false;
+          genEvt_valid_beam_particles=genEvt->valid_beam_particles();
+	  if ( genEvt_valid_beam_particles ) beamParticles = genEvt->beam_particles();
 	  for (HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin(); pitr!=genEvt->particles_end(); ++pitr) {
 	    // (a) create TruthParticle
 	    xAOD::TruthParticle* xTruthParticle = new xAOD::TruthParticle();
@@ -285,7 +287,7 @@ namespace xAODMaker {
 	    if (!isSignalProcess) truthLinkVec->push_back(new xAODTruthParticleLink(HepMcParticleLink((*pitr),genEvt->event_number()), eltp));
                     
 	    // Is this one of the beam particles?
-	    if (genEvt->valid_beam_particles()) {
+	    if (genEvt_valid_beam_particles) {
 	      if (isSignalProcess) {
 		if (*pitr == beamParticles.first) xTruthEvent->setBeamParticle1Link(eltp);
 		if (*pitr == beamParticles.second) xTruthEvent->setBeamParticle2Link(eltp);
@@ -425,8 +427,7 @@ namespace xAODMaker {
         // FIXME: class member protection violation here.
         // This appears to be because WeightContainer has no public methods
         // to get information about the weight names.
-        const std::map<std::string,HepMC::WeightContainer::size_type>& weightNameMap =
-          genEvt.weights().m_names;
+        const auto& weightNameMap = genEvt.weights().m_names;
         std::vector<std::string> orderedWeightNameVec;
         orderedWeightNameVec.reserve( weightNameMap.size() );
         for (const auto& entry: weightNameMap) {

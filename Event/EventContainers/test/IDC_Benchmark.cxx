@@ -17,6 +17,17 @@ void timedelete(std::string name, T* ptr){
    std::cout << name  << " delete time " << time.count() << std::endl;
 }
 
+void timebackwardsfill(std::string name, IdentifiableContainerMT<long unsigned int> *ptr){
+   auto start1 = std::chrono::steady_clock::now();
+   for(size_t i =50000-2;i>=3;i-=3){
+      ptr->addCollection(new long unsigned int(i) ,i).ignore();
+   }
+   auto end1 = std::chrono::steady_clock::now();
+   std::chrono::duration<double> time = end1-start1;
+   std::cout << name  << " backwardsfill time " << time.count() << std::endl;
+}
+
+
 void accessTime(std::string name, IdentifiableContainerMT<long unsigned int>& container){
 
    auto start3 = std::chrono::steady_clock::now();
@@ -77,6 +88,18 @@ int main(){
    timedelete("onlineCache ", cache);
    timedelete("offline ", offline);
    timedelete("offlinefast ", offlinefast);
+
+   auto offlinefast2 = new IdentifiableContainerMT<long unsigned int>(50000, EventContainers::Mode::OfflineFast);
+   auto cache2  = new IdentifiableCache<long unsigned int>(50000, nullptr);
+   auto online2 = new IdentifiableContainerMT<long unsigned int>(cache2);
+   auto offline2 = new IdentifiableContainerMT<long unsigned int>(50000);
+   timebackwardsfill("offlinefast", offlinefast2);
+   timebackwardsfill("offline", offline2);
+   timebackwardsfill("online", online2);
+   delete offline2;
+   delete online2;
+   delete cache2;
+   delete offlinefast2;
    std::cout << "Test Successful" << std::endl;
    return 0;
 }

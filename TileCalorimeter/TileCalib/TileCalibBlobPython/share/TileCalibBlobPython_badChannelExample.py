@@ -74,5 +74,3 @@ comment = "testing bad channels in LBA01, EBC64"
 since= (222222 , 0)
 mgr.commitToDb(db, folder, tag, TileBchDecoder.BitPat_ofl01, author, comment, since)
 db.closeDatabase()
-
-

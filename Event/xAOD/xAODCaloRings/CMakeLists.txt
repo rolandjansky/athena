@@ -10,7 +10,7 @@ find_package( xAODUtilities )
 atlas_add_library( xAODCaloRings
    xAODCaloRings/*.h xAODCaloRings/versions/*.h Root/*.cxx
    PUBLIC_HEADERS xAODCaloRings
-   LINK_LIBRARIES CaloGeoHelpers AthContainers AthLinks AsgTools xAODCore )
+   LINK_LIBRARIES CaloGeoHelpers AthContainers AthLinks xAODCore )
 
 atlas_add_xaod_smart_pointer_dicts(
    INPUT xAODCaloRings/selection.xml
@@ -23,3 +23,6 @@ atlas_add_dictionary( xAODCaloRingsDict
    ${_selectionFile}
    LINK_LIBRARIES xAODCore xAODCaloRings
    EXTRA_FILES Root/dict/*.cxx )
+
+# Generate CLIDs for the library explicitly.
+atlas_generate_cliddb( xAODCaloRings )

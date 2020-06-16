@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 //
 // Create a histogram with offline rings information
@@ -51,7 +51,7 @@ int main( int argc, char* argv[] ) {
     return 1;
   }
 
-  auto* ringsReader = getCaloRingsReader();
+  const auto& ringsReader = getCaloRingsReader();
 
   //
   // Add initialization code for tools here
@@ -95,7 +95,7 @@ int main( int argc, char* argv[] ) {
 
     if ( event.retrieve(electronCont, "Electrons").isSuccess() ){
       for ( const Electron *electron : *electronCont ){
-        const xAOD::CaloRingsLinks &caloRingsELVec = ringsReader->operator()(*electron);
+        const xAOD::CaloRingsLinks &caloRingsELVec = ringsReader(*electron);
         for ( const ElementLink<xAOD::CaloRingsContainer> &clRingsEL : caloRingsELVec ){
           (*clRingsEL)->exportRingsTo(ringsE);
           for ( auto ringE : ringsE ){

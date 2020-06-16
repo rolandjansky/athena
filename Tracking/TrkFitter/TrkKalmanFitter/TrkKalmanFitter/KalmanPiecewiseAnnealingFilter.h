@@ -58,12 +58,12 @@ namespace Trk
 
       /** @brief the main method: run DAF on the full trajectory, starting from first fittable
                  state and from parameters therein, do not do last smoother */
-      virtual const FitterStatusCode
+      virtual FitterStatusCode
         filterTrajectory (Trajectory& trajectory, const ParticleHypothesis&) const;
 
       /** @brief the main method: run DAF on a piece of the current trajectory, starting at iterator
                  and using upd/predPar, do not do last smoother */
-      virtual const FitterStatusCode
+      virtual FitterStatusCode
         filterTrajectoryPiece (Trajectory& trajectory,
                                Trajectory::iterator&,
                                const TrackParameters*&,

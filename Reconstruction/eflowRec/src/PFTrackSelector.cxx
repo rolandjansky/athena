@@ -33,11 +33,16 @@ StatusCode PFTrackSelector::initialize(){
 
   ATH_CHECK(m_eflowRecTracksWriteHandleKey.initialize());
   
+  if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
+
   return StatusCode::SUCCESS;
 
 }
 
 StatusCode PFTrackSelector::execute(){
+  // Monitor the time taken to execute the alg
+  auto t_exec = Monitored::Timer<std::chrono::milliseconds>( "TIME_execute" );
+  auto N_tracks = Monitored::Scalar( "N_tracks", 0 );
 
   SG::WriteHandle<eflowRecTrackContainer> eflowRecTracksWriteHandle(m_eflowRecTracksWriteHandleKey);  
   ATH_CHECK(eflowRecTracksWriteHandle.record(std::make_unique<eflowRecTrackContainer>()));
@@ -70,16 +75,22 @@ StatusCode PFTrackSelector::execute(){
     ATH_MSG_DEBUG("rejectTrack is " << rejectTrack);
     
     if (!rejectTrack) {
+      // Monitor the time per selected track
+      auto t_track = Monitored::Timer<std::chrono::milliseconds>( "TIME_track" );
       /* Create the eflowRecCluster and put it in the container */
       std::unique_ptr<eflowRecTrack> thisEFRecTrack  = std::make_unique<eflowRecTrack>(ElementLink<xAOD::TrackParticleContainer>(*tracksReadHandle, trackIndex), m_theTrackExtrapolatorTool);
       thisEFRecTrack->setTrackId(trackIndex);
       eflowRecTracksWriteHandle->push_back(std::move(thisEFRecTrack));
+      // Fill histogram
+      auto mon_trktime = Monitored::Group(m_monTool, t_track);
     }
     trackIndex++;
   }
 
   std::sort(eflowRecTracksWriteHandle->begin(), eflowRecTracksWriteHandle->end(), eflowRecTrack::SortDescendingPt());
 
+  N_tracks = eflowRecTracksWriteHandle->size();
+  auto mon_exectime = Monitored::Group(m_monTool, t_exec, N_tracks);
   return StatusCode::SUCCESS;
 }
 

@@ -68,7 +68,7 @@ const std::vector< Trk::SharedObject<const Trk::BoundarySurface<Trk::AbstractVol
 { return (*m_boundarySurfaces); }
 
 
-void Trk::AbstractVolume::createBoundarySurfaces()
+void Trk::AbstractVolume::createBoundarySurfaces ATLAS_NOT_THREAD_SAFE ()
 {
   // prepare the BoundarySurfaces
   m_boundarySurfaces = new std::vector< Trk::SharedObject<const Trk::BoundarySurface<Trk::AbstractVolume> > >;

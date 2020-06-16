@@ -40,8 +40,6 @@ namespace InDet {
     declareProperty("isSimulation", m_isSimulation);
   }
 
-  InDetTrackBiasingTool::~InDetTrackBiasingTool() = default;
-
   StatusCode InDetTrackBiasingTool::initialize()
   {
     
@@ -68,7 +66,7 @@ namespace InDet {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode InDetTrackBiasingTool::finalize() {
+  InDetTrackBiasingTool::~InDetTrackBiasingTool() {
     m_runNumber = -1;
     delete m_biasD0Histogram; m_biasD0Histogram = nullptr;
     delete m_biasZ0Histogram; m_biasZ0Histogram = nullptr;
@@ -76,7 +74,6 @@ namespace InDet {
     delete m_biasD0HistError; m_biasD0HistError = nullptr;
     delete m_biasZ0HistError; m_biasZ0HistError = nullptr;
     delete m_biasQoverPsagittaHistError; m_biasQoverPsagittaHistError = nullptr;
-    return StatusCode::SUCCESS;
   }
 
   CP::CorrectionCode InDetTrackBiasingTool::applyCorrection(xAOD::TrackParticle& track) {

@@ -203,7 +203,7 @@ private: // properties
    ///	default = "" (use POOL default).
    StringProperty m_writeCatalog{this,"WriteCatalog","xmlcatalog_file:PoolFileCatalog.xml"};
    /// ReadCatalog, the list of additional POOL input file catalogs to consult: default = empty vector.
-   StringArrayProperty m_readCatalog{this,"ReadCatalog",{},"List of catalog files to read from","Set<std::string>"};
+   StringArrayProperty m_readCatalog{this,"ReadCatalog",{},"List of catalog files to read from","OrderedSet<std::string>"};
    /// Use ROOT Implicit MultiThreading, default = true.
    BooleanProperty m_useROOTIMT{this,"UseROOTImplicitMT",true};
    /// AttemptCatalogPatch, option to create catalog: default = false.

@@ -87,7 +87,7 @@ if globalflags.InputFormat()=='bytestream':
     if not hasattr(svcMgr,"ByteStreamCnvSvc"):
         from ByteStreamCnvSvc import ReadByteStream
         # Define the input
-        svcMgr.ByteStreamInputSvc.FullFileName = athenaCommonFlags.BSRDOInput()
+        svcMgr.EventSelector.Input = athenaCommonFlags.BSRDOInput()
         theApp.ExtSvc += [ "ByteStreamCnvSvc"]
 
 

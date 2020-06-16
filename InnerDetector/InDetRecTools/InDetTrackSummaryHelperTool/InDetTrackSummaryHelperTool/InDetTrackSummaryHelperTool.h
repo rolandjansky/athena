@@ -126,13 +126,30 @@ namespace InDet {
     /**ID TRT helper*/
     const TRT_ID* m_trtId{nullptr};
 
-    /**Association tool - used to work out which (if any) PRDs are shared between 
-       tracks*/
-    PublicToolHandle<Trk::IPRD_AssociationTool> m_assoTool{this, "AssoTool", "InDet::InDetPRD_AssociationToolGangedPixels"};
-    PublicToolHandle<Trk::IPixelToTPIDTool> m_pixeldedxtool{this, "PixelToTPIDTool", ""};
-    PublicToolHandle<Trk::ITrackHoleSearchTool> m_holeSearchTool{this, "HoleSearch", "InDet::InDetTrackHoleSearchTool"};
-    PublicToolHandle<InDet::IInDetTestBLayerTool> m_testBLayerTool{this, "TestBLayerTool", ""};
-    ToolHandle<ITRT_StrawStatusSummaryTool> m_TRTStrawSummaryTool{this, "TRTStrawSummarySvc", "TRT_StrawStatusSummaryTool", "The ConditionsSummaryTool"};
+    /**Association tool - used to work out which (if any)
+     * PRDs are shared between tracks*/
+    PublicToolHandle<Trk::IPRD_AssociationTool> m_assoTool{
+      this,
+      "AssoTool",
+      "InDet::InDetPRD_AssociationToolGangedPixels"
+    };
+    PublicToolHandle<Trk::ITrackHoleSearchTool> m_holeSearchTool{
+      this,
+      "HoleSearch",
+      "InDet::InDetTrackHoleSearchTool"
+    };
+    ToolHandle<Trk::IPixelToTPIDTool> m_pixeldedxtool{ this,
+                                                       "PixelToTPIDTool",
+                                                       "" };
+    ToolHandle<InDet::IInDetTestBLayerTool> m_testBLayerTool{ this,
+                                                              "TestBLayerTool",
+                                                              "" };
+    ToolHandle<ITRT_StrawStatusSummaryTool> m_TRTStrawSummaryTool{
+      this,
+      "TRTStrawSummarySvc",
+      "TRT_StrawStatusSummaryTool",
+      "The ConditionsSummaryTool"
+    };
 
     BooleanProperty m_usePixel{this, "usePixel", true};
     BooleanProperty m_useSCT{this, "useSCT", true};

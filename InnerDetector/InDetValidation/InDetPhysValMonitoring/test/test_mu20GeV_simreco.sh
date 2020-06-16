@@ -56,13 +56,12 @@ lastref_dir=last_results
     --physicsList     FTFP_BERT_ATL_VALIDATION \
     --truthStrategy   MC15aPlus \
     --simulator       FullG4 \
-    --DBRelease       all:'current' \
-    --conditionsTag   default:'OFLCOND-MC16-SDR-14' \
-    --geometryVersion default:'ATLAS-R2-2016-01-00-01_VALIDATION' \
+    --conditionsTag   'default:OFLCOND-MC16-SDR-14' \
+    --geometryVersion 'default:ATLAS-R2-2016-01-00-01_VALIDATION' \
     --preExec         EVNTtoHITS:'simFlags.SimBarcodeOffset.set_Value_and_Lock(200000)' \
                       EVNTtoHITS:'simFlags.TRTRangeCut=30.0; simFlags.TightMuonStepping=True' \
-    --preInclude      EVNTtoHITS:'SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' \
-    --postInclude     default:'RecJobTransforms/UseFrontier.py,InDetPhysValMonitoring/postInclude.SiHitAnalysis.py'
+    --preInclude      EVNTtoHITS:'SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' \
+    --postInclude     'default:PyJobTransforms/UseFrontier.py,InDetPhysValMonitoring/postInclude.SiHitAnalysis.py'
 sim_tf_exit_code=$?
 echo "art-result: $sim_tf_exit_code sim"
 

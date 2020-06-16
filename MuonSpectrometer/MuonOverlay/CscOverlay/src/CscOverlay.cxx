@@ -82,25 +82,22 @@ StatusCode CscOverlay::overlayContainer(const CscRawDataContainer *bkgContainer,
 {
   ATH_MSG_DEBUG("overlayContainer() begin");
 
-  // Get all the hashes for the signal and background containers
-  const std::vector<IdentifierHash> bkgHashes = bkgContainer->GetAllCurrentHashes();
-  const std::vector<IdentifierHash> signalHashes = signalContainer->GetAllCurrentHashes();
-
   // The MC signal container should typically be smaller than bkgContainer,
   // because the latter contains all the noise, minimum bias and pile up.
   // Thus we firstly iterate over signal hashes and store them in a map.
-  std::map<IdentifierHash, bool> overlapMap;
-  for (const IdentifierHash &hashId : signalHashes) {
-    overlapMap.emplace(hashId, false);
+  std::vector < std::pair<IdentifierHash, bool> > overlapMap;
+  overlapMap.reserve(signalContainer->numberOfCollections());
+  for (const auto &[hashId, ptr] : signalContainer->GetAllHashPtrPair()) {
+    overlapMap.emplace_back(hashId, false);
   }
 
   // Now loop through the background hashes and copy unique ones over
-  for (const IdentifierHash &hashId : bkgHashes) {
-    auto search = overlapMap.find(hashId);
-    if (search == overlapMap.end()) {
+  for (const auto &[hashId, ptr] : bkgContainer->GetAllHashPtrPair()) {
+    auto search = std::lower_bound( overlapMap.begin(), overlapMap.end(), hashId,
+     [](const std::pair<IdentifierHash, bool> &lhs,  IdentifierHash rhs) -> bool { return lhs.first < rhs; } );
+    if (search == overlapMap.end() || search->first != hashId) {
       // Copy the background collection
-      std::unique_ptr<CscRawDataCollection> bkgCollection
-        = copyCollection(bkgContainer->indexFindPtr(hashId));
+      std::unique_ptr<CscRawDataCollection> bkgCollection  = copyCollection(ptr);
 
       if (outputContainer->addCollection(bkgCollection.get(), hashId).isFailure()) {
         ATH_MSG_ERROR("Adding background Collection with hashId " << hashId << " failed");

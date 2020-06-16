@@ -63,7 +63,11 @@ def RpcRDODecodeCfg(flags, forTrigger=False):
     RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataToolMT(name = "RpcRdoToRpcPrepDataTool")
     if flags.Common.isOnline: 
         RpcRdoToRpcPrepDataTool.ReadKey = "" ## cond data not needed online
-    
+
+    if forTrigger:
+        RpcRdoToRpcPrepDataTool.RpcPrdContainerCacheKey      = MuonPrdCacheNames.RpcCache
+        RpcRdoToRpcPrepDataTool.RpcCoinDataContainerCacheKey = MuonPrdCacheNames.RpcCoinCache
+
     # Get the RDO -> PRD alorithm
     RpcRdoToRpcPrepData=CompFactory.RpcRdoToRpcPrepData
     RpcRdoToRpcPrepData = RpcRdoToRpcPrepData(name          = "RpcRdoToRpcPrepData",
@@ -75,7 +79,6 @@ def RpcRDODecodeCfg(flags, forTrigger=False):
         RpcRdoToRpcPrepData.DoSeededDecoding = True
         from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
         RpcRdoToRpcPrepData.RoIs = mapThresholdToL1RoICollection("MU")
-
 
     acc.addEventAlgo(RpcRdoToRpcPrepData)
     return acc
@@ -134,8 +137,8 @@ def MdtRDODecodeCfg(flags, forTrigger=False):
                                               DecodingTool  = MdtRdoToMdtPrepDataTool,
                                               PrintPrepData = False )
     # add RegSelTool
-    from RegionSelector.RegSelToolConfig import makeRegSelTool_MDT
-    MdtRdoToMdtPrepData.RegSel_MDT = makeRegSelTool_MDT()
+    from RegionSelector.RegSelToolConfig import regSelToolMDTCfg
+    MdtRdoToMdtPrepData.RegSel_MDT = acc.popToolsAndMerge( regSelToolMDTCfg( flags ) )
 
     if forTrigger:
         # Set the algorithm to RoI mode
@@ -143,8 +146,9 @@ def MdtRDODecodeCfg(flags, forTrigger=False):
         from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
         MdtRdoToMdtPrepData.RoIs = mapThresholdToL1RoICollection("MU")
 
-    #acc.addEventAlgo(MdtRdoToMdtPrepData) #commented to pass test_trig_data_newJO_build.py after using makeRegSelTool_MDT
+    acc.addEventAlgo(MdtRdoToMdtPrepData) 
     return acc
+
 
 def CscRDODecodeCfg(flags, forTrigger=False):
     acc = ComponentAccumulator()

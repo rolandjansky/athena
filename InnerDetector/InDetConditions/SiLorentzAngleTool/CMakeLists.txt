@@ -36,7 +36,7 @@ atlas_add_component( SiLorentzAngleTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests GeoPrimitives GaudiKernel SiPropertiesToolLib AthenaPoolUtilities Identifier InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry MagFieldElements MagFieldConditions)
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests GeoPrimitives GaudiKernel SiPropertiesToolLib AthenaPoolUtilities Identifier InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry MagFieldElements MagFieldConditions InDetConditionsSummaryService )
 
 # Run tests:
 atlas_add_test( TestSCTLorentzAngle

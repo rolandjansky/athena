@@ -105,9 +105,9 @@ def createTriggerFlags():
 
     # Enables collection and export of detailed monitoring data of the HLT execution
     flags.addFlag('Trigger.CostMonitoring.doCostMonitoring', False)
-    flags.addFlag('Trigger.CostMonitoring.chain', 'HLT_costmonitor')
+    flags.addFlag('Trigger.CostMonitoring.chain', 'HLT_costmonitor_CostMonDS_L1All')
     flags.addFlag('Trigger.CostMonitoring.outputCollection', 'HLT_TrigCostContainer')
-    flags.addFlag('Trigger.CostMonitoring.monitorAllEvents', True) # Defaulting to "True" is temporary
+    flags.addFlag('Trigger.CostMonitoring.monitorAllEvents', False)
 
 
     # enable Bcm inputs simulation

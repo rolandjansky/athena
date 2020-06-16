@@ -7,6 +7,7 @@
  */
 
 // Framework includes
+#include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 
 // PerfMonComps includes
@@ -16,13 +17,11 @@
 // STD includes
 #include <algorithm>
 
-using json = nlohmann::json;  // for convenience
-
 /*
  * Constructor
  */
 PerfMonMTSvc::PerfMonMTSvc(const std::string& name, ISvcLocator* pSvcLocator)
-    : AthService(name, pSvcLocator), m_eventCounter{0} {
+    : AthService(name, pSvcLocator), m_eventCounter{0}, m_eventLoopMsgCounter{0} {
   // Four main snapshots : Configure, Initialize, Execute, and Finalize
   m_snapshotData.resize(NSNAPSHOTS); // Default construct
 
@@ -60,6 +59,17 @@ StatusCode PerfMonMTSvc::initialize() {
   // Print where we are
   ATH_MSG_INFO("Initializing " << name());
 
+  // Set to be listener to SvcPostFinalize
+  ServiceHandle<IIncidentSvc> incSvc("IncidentSvc/IncidentSvc", name());
+  ATH_CHECK(incSvc.retrieve());
+  incSvc->addListener(this, IncidentType::SvcPostFinalize);
+
+  // Check if /proc exists, if not memory statistics are not available
+  const bool procExists = PMonMT::doesDirectoryExist("/proc");
+  if(!procExists) {
+    ATH_MSG_INFO("The system doesn't support /proc. Therefore, memory measurements are not available");
+  }
+
   // Print some information minimal information about our configuration
   ATH_MSG_INFO("Service is configured for [" << m_numberOfThreads.toString() << "] threads " <<
                "analyzing [" << m_numberOfSlots.toString() << "] events concurrently");
@@ -92,16 +102,23 @@ StatusCode PerfMonMTSvc::finalize() {
   // Print where we are
   ATH_MSG_INFO("Finalizing " << name());
 
-  // Final capture upon finalization
-  m_measurement_snapshots.capture_snapshot();
-  m_snapshotData[FINALIZE].addPointStop_snapshot(m_measurement_snapshots);
-
-  // Report everything
-  report();
-
   return StatusCode::SUCCESS;
 }
 
+/*
+ * Capture finalizations and report in SvcPostFinalize
+ */
+void PerfMonMTSvc::handle(const Incident& inc) {
+  if (inc.type() == IncidentType::SvcPostFinalize) {
+    // Final capture upon post-finalization
+    m_measurement_snapshots.capture_snapshot();
+    m_snapshotData[FINALIZE].addPointStop_snapshot(m_measurement_snapshots);
+
+    // Report everything
+    report();
+  }
+  return;
+}
 /*
  * Start Auditing
  */
@@ -248,17 +265,20 @@ void PerfMonMTSvc::eventLevelMon() {
   // Lock for data integrity
   std::lock_guard<std::mutex> lock(m_mutex_capture);
 
-  // If enabled, do event level monitoring
-  if (m_doEventLoopMonitoring) {
-    if (isCheckPoint()) {
-      // Capture
-      m_measurement_events.capture_event(m_eventCounter);
-      m_eventLevelData.record_event(m_measurement_events, m_eventCounter);
-      // Report instantly
+  // Increment the internal counter
+  incrementEventCounter();
+
+  // Monitor
+  if (m_doEventLoopMonitoring && isCheckPoint()) {
+    // Capture
+    m_measurement_events.capture_event();
+    m_eventLevelData.record_event(m_measurement_events, m_eventCounter);
+    // Report instantly - no more than m_eventLoopMsgLimit times
+    if(m_eventLoopMsgCounter < m_eventLoopMsgLimit) {
       report2Log_EventLevel_instant();
+      m_eventLoopMsgCounter++;
     }
   }
-  incrementEventCounter();
 }
 
 /*
@@ -271,10 +291,17 @@ void PerfMonMTSvc::incrementEventCounter() { m_eventCounter++; }
  * Is it event-level monitoring check point yet?
  */
 bool PerfMonMTSvc::isCheckPoint() {
+  // Always check 1, 10, 25 for short tests
+  if (m_eventCounter == 1 || m_eventCounter == 10 || m_eventCounter == 25)
+    return true;
+
+  // Check the user settings
   if (m_checkPointType == "Arithmetic")
     return (m_eventCounter % m_checkPointFactor == 0);
-  else
+  else if (m_checkPointType == "Geometric")
     return isPower(m_eventCounter, m_checkPointFactor);
+  else
+    return false;
 }
 
 /*
@@ -305,19 +332,13 @@ void PerfMonMTSvc::report2Log() {
   // Header
   report2Log_Description();
 
-  // Detailed tables
-  const bool procExists = doesDirectoryExist("/proc");
-  if (!procExists) {
-    ATH_MSG_INFO("There is no /proc directory in this system, therefore memory monitoring has failed!");
-  }
-
   // Component-level
-  if (m_printDetailedTables && procExists && m_doComponentLevelMonitoring) {
+  if (m_printDetailedTables && m_doComponentLevelMonitoring) {
     report2Log_ComponentLevel();
   }
 
   // Event-level
-  if (m_printDetailedTables && procExists && m_doEventLoopMonitoring) {
+  if (m_printDetailedTables && m_doEventLoopMonitoring) {
     report2Log_EventLevel();
   }
 
@@ -333,12 +354,13 @@ void PerfMonMTSvc::report2Log_Description() const {
   ATH_MSG_INFO("=======================================================================================");
   ATH_MSG_INFO("                                 PerfMonMTSvc Report                                   ");
   ATH_MSG_INFO("=======================================================================================");
-  ATH_MSG_INFO("!!! PLEASE NOTE THAT THIS SERVICE IS CURRENTLY IN R&D PHASE");
+  ATH_MSG_INFO("IMPORTANT : PLEASE NOTE THAT THIS SERVICE IS CURRENTLY IN R&D PHASE.");
+  ATH_MSG_INFO("            FOR FURTHER INFORMATION/QUERIES PLEASE GET IN TOUCH WITH THE SPOT TEAM.");
   ATH_MSG_INFO("=======================================================================================");
   if (m_reportResultsToJSON) {
     ATH_MSG_INFO("*** Full set of information can also be found in: " << m_jsonFileName.toString());
     ATH_MSG_INFO("*** In order to make plots using the results run the following commands:");
-    ATH_MSG_INFO("*** $ perfmonmt-plotter --pathToJsonResultFile /path_to_my_file/name.json");
+    ATH_MSG_INFO("*** $ perfmonmt-plotter -i " << m_jsonFileName.toString());
     ATH_MSG_INFO("=======================================================================================");
   }
 }
@@ -414,6 +436,8 @@ void PerfMonMTSvc::report2Log_EventLevel() {
   using boost::format;
 
   ATH_MSG_INFO("                                Event Level Monitoring                                 ");
+  ATH_MSG_INFO("                 (Only first " << m_eventLoopMsgLimit.toString() <<
+               " measurements are explicitly printed)");
   ATH_MSG_INFO("=======================================================================================");
 
   ATH_MSG_INFO(format("%1% %|16t|%2$.2f %|28t|%3$.2f %|40t|%4% %|52t|%5% %|64t|%6% %|76t|%7%") % "Event" % "CPU [s]" %
@@ -421,12 +445,17 @@ void PerfMonMTSvc::report2Log_EventLevel() {
 
   ATH_MSG_INFO("---------------------------------------------------------------------------------------");
 
+  m_eventLoopMsgCounter = 0; // reset counter
+
   for (const auto& it : m_eventLevelData.getEventLevelData()) {
-    ATH_MSG_INFO(format("%1% %|16t|%2$.2f %|28t|%3$.2f %|40t|%4% %|52t|%5% %|64t|%6% %|76t|%7%") % it.first %
-                 (it.second.cpu_time * 0.001) % (it.second.wall_time * 0.001) % it.second.mem_stats.at("vmem") %
-                 it.second.mem_stats.at("rss") % it.second.mem_stats.at("pss") % it.second.mem_stats.at("swap"));
+    if(m_eventLoopMsgCounter < m_eventLoopMsgLimit) {
+      ATH_MSG_INFO(format("%1% %|16t|%2$.2f %|28t|%3$.2f %|40t|%4% %|52t|%5% %|64t|%6% %|76t|%7%") % it.first %
+                   (it.second.cpu_time * 0.001) % (it.second.wall_time * 0.001) % it.second.mem_stats.at("vmem") %
+                   it.second.mem_stats.at("rss") % it.second.mem_stats.at("pss") % it.second.mem_stats.at("swap"));
+      m_eventLoopMsgCounter++;
+    }
     // Add to leak estimate
-    if (it.first >= std::max(uint64_t(10), uint64_t(m_checkPointFactor))) {
+    if (it.first >= 25) {
       m_fit_vmem.addPoint(it.first, it.second.mem_stats.at("vmem"));
       m_fit_pss.addPoint(it.first, it.second.mem_stats.at("pss"));
     }
@@ -475,6 +504,7 @@ void PerfMonMTSvc::report2Log_Summary() {
     ATH_MSG_INFO(format("%1% %|35t|%2% ") % "Leak estimate per event Pss: " % scaleMem(m_fit_pss.slope()));
     ATH_MSG_INFO("  >> Estimated using the last " << m_fit_vmem.nPoints()
                                                   << " measurements from the Event Level Monitoring");
+    ATH_MSG_INFO("  >> Events prior to the first 25 are omitted...");
   }
 
   ATH_MSG_INFO("=======================================================================================");
@@ -499,21 +529,17 @@ void PerfMonMTSvc::report2Log_CpuInfo() const {
  * Report data to JSON
  */
 void PerfMonMTSvc::report2JsonFile() {
-  json j;
+  nlohmann::json j;
 
   // CPU and Wall-time
   report2JsonFile_Summary(j);  // Snapshots
 
   // Memory
-  const bool procExists = doesDirectoryExist("/proc");
-
-  if (procExists) {
-    if (m_doComponentLevelMonitoring) {
-      report2JsonFile_ComponentLevel(j);  // Component-level
-    }
-    if (m_doEventLoopMonitoring) {
-      report2JsonFile_EventLevel(j);  // Event-level
-    }
+  if (m_doComponentLevelMonitoring) {
+    report2JsonFile_ComponentLevel(j);  // Component-level
+  }
+  if (m_doEventLoopMonitoring) {
+    report2JsonFile_EventLevel(j);  // Event-level
   }
 
   // Write
@@ -738,6 +764,9 @@ std::string PerfMonMTSvc::scaleMem(long memMeas) const {
   return stringObj;
 }
 
+/*
+ * Collect some hardware information
+ */
 std::string PerfMonMTSvc::get_cpu_model_info() const {
   std::string cpu_model;
 

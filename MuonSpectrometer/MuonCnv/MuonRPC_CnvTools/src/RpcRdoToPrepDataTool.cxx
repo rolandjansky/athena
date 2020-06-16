@@ -77,3 +77,41 @@ StatusCode Muon::RpcRdoToPrepDataTool::manageOutputContainers(bool& firstTimeInT
   }
   return StatusCode::SUCCESS;
 }
+
+StatusCode Muon::RpcRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect ){
+  ATH_MSG_DEBUG("Calling Core decode function from Legacy decode function (hash vector)");
+  StatusCode status = Muon::RpcRdoToPrepDataToolCore::decode( idVect, selectedIdVect );
+  if (status.isFailure()){
+    ATH_MSG_FATAL("Error processing Core decode from Legacy (hash vector)");
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_DEBUG("Core decode processed in Legacy decode (hash vector)");
+  if (msgLvl(MSG::DEBUG)){
+     for (const auto &[hash, ptr] : m_rpcPrepDataContainer->GetAllHashPtrPair()){
+       ATH_MSG_DEBUG("Contents of CONTAINER in this view : " << hash);
+     }
+  }
+  // For additional information on container contents, this function can be used 
+  //  Muon::RpcRdoToPrepDataToolCore::printPrepData();
+
+  return StatusCode::SUCCESS;
+}
+
+StatusCode Muon::RpcRdoToPrepDataTool::decode( const std::vector<uint32_t>& robIds ){
+  ATH_MSG_DEBUG("Calling Core decode function from Legacy decode function (ROB vector)");
+  StatusCode status = Muon::RpcRdoToPrepDataToolCore::decode( robIds );
+  if (status.isFailure()){
+    ATH_MSG_FATAL("Error processing Core decode from Legacy (ROB vector)");
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_DEBUG("Core decode processed in Legacy decode (ROB vector)");
+  if (msgLvl(MSG::DEBUG)){
+     for (const auto &[hash, ptr] : m_rpcPrepDataContainer->GetAllHashPtrPair()){
+       ATH_MSG_DEBUG("Contents of CONTAINER in this view : " << hash);
+     }
+  }
+  // For additional information on container contents, this function can be used
+  //  Muon::RpcRdoToPrepDataToolCore::printPrepData();
+
+  return StatusCode::SUCCESS;
+}

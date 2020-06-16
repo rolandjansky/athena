@@ -159,8 +159,8 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::statistics()
 void Trk::DenseEnvironmentsAmbiguityProcessorTool::TrackStat::dump(MsgStream &out, bool try_brem_fit) const
 {
    auto parseFileName=[](const std::string & fullname){
-    auto dotPosition = fullname.rfind(".");
-    auto slashPosition = fullname.rfind("/");
+    auto dotPosition = fullname.rfind('.');
+    auto slashPosition = fullname.rfind('/');
     auto stringLength = dotPosition - slashPosition;
     return fullname.substr(slashPosition, stringLength);
    };
@@ -331,12 +331,12 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::addTrack(Trk::Track* track, c
         // add track to map, map is sorted small to big !
         scoreTrackFitflagMap.emplace( -score, TrackPtr(bremTrack, true) );
         return;
-      } else {
+      } 
         ATH_MSG_DEBUG ("Brem refit gave still track score zero, reject it");
         stat.increment_by_eta(TrackStat::kNscoreZeroBremRefitScoreZero,bremTrack);
         // clean up
         cleanup_tracks.push_back(std::unique_ptr<const Trk::Track>(bremTrack) );
-      }
+      
     }
   } else {
     ATH_MSG_DEBUG ("Track score is zero, reject it");
@@ -768,9 +768,9 @@ bool Trk::DenseEnvironmentsAmbiguityProcessorTool::decideIfInHighPtBROI(const Tr
       bool inROI  = m_useHClusSeed && isHadCaloCompatible(*ptrTrack->trackParameters()->front());
       return inROI;
     }
-    else
+    
       return false;
-  } else
+  } 
     return false;
 }
 
@@ -842,11 +842,11 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::removeInnerHits(std::vector<c
           measurements.erase(measurements.begin()+i);
           break;
         }
-        else{
+        
           break;
-        }
+        
       }
-      else 
+      
         break;
     }
   }

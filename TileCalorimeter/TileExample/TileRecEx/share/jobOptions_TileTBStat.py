@@ -311,7 +311,7 @@ printfunc (tileInfoConfigurator)
 include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
 include( "ByteStreamCnvSvcBase/BSAddProvSvc_RDO_jobOptions.py" )
 theApp.ExtSvc += [ "ByteStreamCnvSvc" ] 
-svcMgr.ByteStreamInputSvc.FullFileName += FileNameVec
+svcMgr.EventSelector.Input += FileNameVec
 svcMgr.ByteStreamCnvSvc.ROD2ROBmap = [ "-1" ]
 svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["TileBeamElemContainer/TileBeamElemCnt",
                                                   "TileRawChannelContainer/TileRawChannelCnt",

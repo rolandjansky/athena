@@ -376,8 +376,7 @@ def getConstitPJGAlg(basedef):
         InputContainer = basedef.inputname,
         OutputContainer = "PseudoJet"+full_label,
         Label = full_label,
-        SkipNegativeEnergy=True,
-        GhostScale=0.
+        SkipNegativeEnergy=True
         )
     return pjgalg
 
@@ -386,8 +385,7 @@ def getGhostPJGAlg(ghostdef):
     kwargs = {
         "OutputContainer":    "PseudoJet"+label,
         "Label":              label,
-        "SkipNegativeEnergy": True,
-        "GhostScale":         1e-40
+        "SkipNegativeEnergy": True
         }
 
     pjaclass = CompFactory.PseudoJetAlgorithm

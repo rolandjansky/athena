@@ -65,7 +65,7 @@ int main() {
   auto t1 = std::chrono::high_resolution_clock::now();
   auto td = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0);
   msgsvc.reportMessage("Benchmark", 3, std::string("Time: ").append(std::to_string(td.count()).append(" ms")));
-  assert(td.count() < 3000);
+  assert(td.count() < 6000);
 
   //--------------------------------------------------
   // Stop and finalise the services

@@ -1,14 +1,14 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
  * @file SCT_ByteStreamErrorsTool.h
  * header file for tool that keeps track of errors in the bytestream.
  * @author Susumu.Oda@cern.ch
-**/
+ **/
 
 #ifndef SCT_ByteStreamErrorsTool_h
 #define SCT_ByteStreamErrorsTool_h
@@ -35,10 +35,10 @@
 ///STL includes
 #include <array>
 #include <atomic>
+#include <functional>
 #include <map>
 #include <mutex>
 #include <vector>
-#include <functional>
 
 /** forward declarations */
 class SCT_ID;
@@ -81,8 +81,8 @@ public:
   virtual bool isGood(const IdentifierHash& elementIdHash) const override;
   virtual bool isGood(const IdentifierHash& elementIdHash, const EventContext& ctx) const override;
   
-  std::set<IdentifierHash> getErrorSet(int errorType, const EventContext& ctx) const override; // Used by SCTRawDataProviderTool and others
-  std::set<IdentifierHash> getErrorSet(int errorType) const override; // Used by SCTRawDataProviderTool and others
+  virtual std::set<IdentifierHash> getErrorSet(int errorType, const EventContext& ctx) const override; // Used by SCTRawDataProviderTool and others
+  virtual std::set<IdentifierHash> getErrorSet(int errorType) const override; // Used by SCTRawDataProviderTool and others
 
   virtual unsigned int tempMaskedChips(const Identifier& moduleId, const EventContext& ctx) const override; // Internally used
   virtual unsigned int tempMaskedChips(const Identifier& moduleId) const override;
@@ -90,35 +90,37 @@ public:
   virtual unsigned int abcdErrorChips(const Identifier& moduleId, const EventContext& ctx) const override; // Internally used
 
 private:
+  enum N_ELEMENTS { N_CHIPS_PER_SIDE = 6, N_SIDES = 2, N_STRIPS_PER_CHIP = 128, N_STRIPS_PER_SIDE = N_STRIPS_PER_CHIP*N_CHIPS_PER_SIDE };
 
   ToolHandle<ISCT_ConfigurationConditionsTool> m_config{this, "ConfigTool",
       "SCT_ConfigurationConditionsTool/InDetSCT_ConfigurationConditionsTool", "Tool to retrieve SCT Configuration Tool"};
 
-  const SCT_ID* m_sct_id{nullptr};
-  IdContext m_cntx_sct;
-
   SG::ReadHandleKey<IDCInDetBSErrContainer> m_bsIDCErrContainerName{this, "IDCByteStreamErrContainer", "SCT_ByteStreamErrs", "SCT BS error key for IDC variant"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
+  const SCT_ID* m_sct_id{nullptr};
+  IdContext m_cntx_sct;
 
   mutable std::mutex m_cacheMutex{};
   struct IDCCacheEntry {
-    EventContext::ContextEvt_t eventId = EventContext::INVALID_CONTEXT_EVT; // invalid event ID for the start
-    const IDCInDetBSErrContainer_Cache* IDCCache = nullptr;
+    EventContext::ContextEvt_t eventId{EventContext::INVALID_CONTEXT_EVT}; // invalid event ID for the start
+    const IDCInDetBSErrContainer_Cache* IDCCache{nullptr};
     // infomations in granularity of Chips
     // misisng value mean that the map need updating
     // 0 as the value denotes no error
+    // error encoding is as follows: pattern for a module has length of 6 bits, side 0 is encoded in bits 0-5, side 1 in bits 6-11
+    // so bit 0 is for chip 0 on side 0, bit 1 is for chip 1 on side 0, ..., and bit 11 is for chip 5 on side 1
     std::map<Identifier, unsigned int> tempMaskedChips;
     std::map<Identifier, unsigned int> abcdErrorChips;
 
-    void reset( EventContext::ContextEvt_t evtId, const IDCInDetBSErrContainer_Cache* cache) {
+    void reset(EventContext::ContextEvt_t evtId, const IDCInDetBSErrContainer_Cache* cache) {
       eventId = evtId;
-      IDCCache   = cache;
+      IDCCache = cache;
       tempMaskedChips.clear();
       abcdErrorChips.clear();
     }
 
-    bool needsUpdate( const EventContext& ctx) const {
+    bool needsUpdate(const EventContext& ctx) const {
       return eventId != ctx.evt() or eventId == EventContext::INVALID_CONTEXT_EVT;
     }
     
@@ -153,7 +155,7 @@ private:
    * Method that returns BS Error code from the map passed @rag where-Expected
    * If the information is initially missing, the cache update is triggered
    **/
-  std::pair<StatusCode, unsigned int> getErrorCodeWithCacheUpdate( const Identifier& id, const EventContext& ctx, std::map<Identifier, unsigned int>& whereExected ) const;
+  std::pair<StatusCode, unsigned int> getErrorCodeWithCacheUpdate(const Identifier& id, const EventContext& ctx, std::map<Identifier, unsigned int>& whereExected) const;
 
 };
 

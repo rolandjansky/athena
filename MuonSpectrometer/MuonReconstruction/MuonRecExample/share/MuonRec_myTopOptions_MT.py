@@ -19,18 +19,12 @@ import MuonRecExample.MuonRecStandaloneOnlySetup
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 
 from MuonRecExample import MuonRecUtils
-from MuonRecExample.MuonRecUtils import assertCastorStager,hasJobPropertyBeenSet
 #--------------------------------------------------------------------------------
 # Input
 #--------------------------------------------------------------------------------
 athenaCommonFlags.FilesInput = [
 "/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2578_r6699_10evt.pool.root"
 ]
-
-if not hasJobPropertyBeenSet(athenaCommonFlags.FilesInput):
-    athenaCommonFlags.FilesInput = MuonRecUtils.FileList.readDirectory("root://castoratlas//castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/Zmumu_15616/")
-#    assertCastorStager("castoratlast3","atlascerngroupdisk")
-#    athenaCommonFlags.FilesInput = MuonRecUtils.FileList.readDirectory("rfio:/castor/cern.ch/atlas/atlascerngroupdisk/det-muon/ReferenceDatasets/Digitization/Zmumu_15616/")
 
 #--------------------------------------------------------------------------------
 # Output

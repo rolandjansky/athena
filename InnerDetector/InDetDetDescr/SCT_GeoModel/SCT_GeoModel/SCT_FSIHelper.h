@@ -1,13 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GEOMODEL_SCT_FSIHELPER_H
 #define SCT_GEOMODEL_SCT_FSIHELPER_H
 
-#include <vector>
 #include <map>
+#include <memory>
 #include <string>
+#include <vector>
 
 class SCT_DataBase;
 
@@ -69,8 +70,9 @@ public:
 private:
   void fill();
 
-  std::vector<std::vector<const FSIDetails *> * > m_wheelLocMap;
-  std::map<std::string, FSILocation *> m_locationTypes;
+  std::vector<std::vector<std::unique_ptr<FSIDetails>>> m_wheelLocMap;
+  std::vector<std::vector<const FSIDetails *>> m_wheelLocMapConst;
+  std::map<std::string, std::unique_ptr<FSILocation>> m_locationTypes;
 
   SCT_DataBase * m_rdb;
   

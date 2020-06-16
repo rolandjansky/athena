@@ -79,7 +79,7 @@ def recommended_tools(masterName='OverlapRemovalTool',
 
     # Muon-PFlow fake-jet
     if doMuPFJetOR:
-        orTool.MuPFJetORT = MuPFJetOverlapTool('MuPFJetORT', **common_args)
+        orTool.MuPFJetORT = MuPFJetOverlapTool('MuPFJetORT', BJetLabel=bJetLabel, **common_args)
 
     # Electron-electron
     if doElectrons and doEleEleOR:

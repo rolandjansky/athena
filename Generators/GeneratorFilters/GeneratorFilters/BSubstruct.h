@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GENERATORFILTERS_BSUBSTRUCTURE_H
@@ -8,8 +8,6 @@
 #include "GeneratorModules/GenFilter.h"
 #include "xAODJet/Jet.h"
 class TH1;
-
-typedef std::vector<const HepMC::GenParticle*> Particles;
 
 class BSubstruct : public GenFilter{
 public:
@@ -31,21 +29,21 @@ private:
    *  Recursively calls itself to return a list of all particles earlier in the
    *  decay chain that are c or b-flavoured.
    */
-  Particles ancestorCBs(const HepMC::GenParticle* p)const;
+  std::vector<HepMC::ConstGenParticlePtr> ancestorCBs(HepMC::ConstGenParticlePtr p)const;
 
   /// the delta-r between two vectors at y, phi
   double deltaR(double y1, double phi1, double y2, double phi2)const;
   /// the delta-r between a jet an a hadron
-  double deltaR(const HepMC::GenParticle *particle, const xAOD::Jet *jet)const;
+  double deltaR(HepMC::ConstGenParticlePtr particle, const xAOD::Jet *jet)const;
   /// the delta-r between two hadrons
-  double deltaR(const HepMC::GenParticle *particle1, const HepMC::GenParticle *particle2)const;
+  double deltaR(HepMC::ConstGenParticlePtr particle1, HepMC::ConstGenParticlePtr particle2)const;
   /// the delta-r between two jets
   double deltaR(const xAOD::Jet*, const xAOD::Jet*)const;
   // the delta-phi of two angles, returned in the range 0-Pi
   double deltaPhi(double phi1, double phi2)const;
 
   void fillHistos(TH1 *phihisto, TH1 *rHisto, TH1 *nHisto, TH1 *bHisto,
-                  const Particles &bHadrons, double weight);
+                  const std::vector<HepMC::ConstGenParticlePtr> &bHadrons, double weight);
 
   /// Count of events input for filtering
   size_t m_nEvents;
@@ -85,7 +83,6 @@ private:
   // Do we store histograms
   bool m_doHistos;
 
-  const static double TWOPI;
 
   TH1 *m_h_nBPass;
   TH1 *m_h_nBAll;

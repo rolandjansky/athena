@@ -63,7 +63,7 @@ egDetailContainer* egDetailContainerCnv::createTransient()
     // regular object from before the T/P separation
     return poolReadObject<egDetailContainer>();
 
-  } else if ( compareClassGuid(p1_guid) ) {
+  } if ( compareClassGuid(p1_guid) ) {
 
     // using unique_ptr ensures deletion of the persistent object
     std::unique_ptr<egDetailContainer_p1> persObj( poolReadObject<egDetailContainer_p1>() );

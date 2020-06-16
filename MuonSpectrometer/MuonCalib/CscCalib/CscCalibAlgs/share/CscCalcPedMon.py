@@ -153,8 +153,8 @@ include ( "MuonEventAthenaPool/MuonEventAthenaPool_joboptions.py" )
 printfunc ('File list is')
 printfunc (myInputFiles)
 
-ServiceMgr.ByteStreamInputSvc.FullFileName = myInputFiles
-#ServiceMgr.ByteStreamInputSvc.FullFileName = myTestFiles
+ServiceMgr.EventSelector.Input = myInputFiles
+#ServiceMgr.EventSelector.Input = myTestFiles
 
 #---------------------------------------------------------------
 # CSC Calibration from DB

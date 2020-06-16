@@ -15,7 +15,7 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 if ConfigFlags.Trigger.CostMonitoring.doCostMonitoring:
   trigCostService = TrigCostMTSvc()
-  trigCostService.MonitorAllEvents = True
+  trigCostService.MonitorAllEvents = ConfigFlags.Trigger.CostMonitoring.monitorAllEvents
   trigCostService.SaveHashes = True # This option will go away once the TrigConfigSvc is fully up & running
   ServiceMgr += trigCostService
   

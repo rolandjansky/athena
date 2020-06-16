@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -38,9 +38,9 @@ class ISCT_ReadoutTool : virtual public IAlgTool {
   DeclareInterfaceID(ISCT_ReadoutTool, 1, 0);
   
   /** Determine which chips are in the readout for a module of a particular type by Identifier*/
-  virtual StatusCode determineReadout(const Identifier& moduleId, std::vector<SCT_Chip*>& chips, bool link0ok, bool link1ok) const =0;
+  virtual StatusCode determineReadout(const Identifier& moduleId, std::vector<SCT_Chip>& chips, bool link0ok, bool link1ok) const =0;
   /** Determine which chips are in the readout for a module of a particular type by truncated serial number*/
-  virtual StatusCode determineReadout(const int truncatedSerialNumber, std::vector<SCT_Chip*>& chips, bool link0ok, bool link1ok) const =0;
+  virtual StatusCode determineReadout(const int truncatedSerialNumber, std::vector<SCT_Chip>& chips, bool link0ok, bool link1ok) const =0;
 };
 
 #endif // SCT_ConditionTools_ISCT_ReadoutTool_h

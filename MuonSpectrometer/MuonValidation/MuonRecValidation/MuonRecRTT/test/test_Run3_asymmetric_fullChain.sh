@@ -9,8 +9,10 @@
 # art-output: OUT_HITS.root
 # art-output: OUT_RDO.root
 # art-output: NSWPRDValAlg.digi.ntuple.root
+# art-output: NSWDigiCheck.txt
 # art-output: OUT_ESD.root
 # art-output: NSWPRDValAlg.reco.ntuple.root
+# art-output: NSWRecoCheck.txt
 
 #####################################################################
 # run simulation on 25 events using the asymmetric Run3 layout
@@ -57,6 +59,15 @@ NERROR="$(cat ${LOG_DIGI} | grep ERROR | wc -l)"
 NFATAL="$(cat ${LOG_DIGI} | grep FATAL | wc -l)"
 echo "Found ${NWARNING} WARNING, ${NERROR} ERROR and ${NFATAL} FATAL messages in ${LOG_DIGI}"
 #####################################################################
+# check the NSW validation ntuple
+python $Athena_DIR/bin/checkNSWValTree.py -i NSWPRDValAlg.digi.ntuple.root &> NSWDigiCheck.txt
+exit_code=$?
+echo  "art-result: ${exit_code} NSWDigiCheck"
+if [ ${exit_code} -ne 0 ]
+then
+    exit ${exit_code}
+fi
+#####################################################################
 
 #####################################################################
 # now use the produced RDO file and run reconstruction
@@ -80,6 +91,15 @@ NWARNING="$(cat ${LOG_RECO} | grep WARNING | wc -l)"
 NERROR="$(cat ${LOG_RECO} | grep ERROR | wc -l)"
 NFATAL="$(cat ${LOG_RECO} | grep FATAL | wc -l)"
 echo "Found ${NWARNING} WARNING, ${NERROR} ERROR and ${NFATAL} FATAL messages in ${LOG_RECO}"
+#####################################################################
+# check the NSW validation ntuple
+python $Athena_DIR/bin/checkNSWValTree.py -i NSWPRDValAlg.reco.ntuple.root --checkPRD &> NSWRecoCheck.txt
+exit_code=$?
+echo  "art-result: ${exit_code} NSWRecoCheck"
+if [ ${exit_code} -ne 0 ]
+then
+    exit ${exit_code}
+fi
 #####################################################################
 
 echo "art-result: $?"

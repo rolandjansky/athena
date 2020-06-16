@@ -56,7 +56,7 @@ if globalflags.InputFormat() == 'bytestream':
   # configure converters, including cabling
   include("InDetRecExample/InDetReadBS_jobOptions.py")
   if 'athenaCommonFlags' in dir() and athenaCommonFlags.FilesInput():
-    ServiceMgr.ByteStreamInputSvc.FullFileName  = athenaCommonFlags.FilesInput()
+    ServiceMgr.EventSelector.Input  = athenaCommonFlags.FilesInput()
 else:
   # set up pool reading
   import AthenaPoolCnvSvc.ReadAthenaPool

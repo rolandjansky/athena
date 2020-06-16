@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # $Id: CaloClusterSwGetterBase.py,v 1.3 2007/05/26 03:14:56 ssnyder Exp $
@@ -90,7 +90,7 @@ class CaloClusterSwGetterBase (CaloClusterGetterBase):
     # Create the correction tool list for SW clustering.
     def makeCorrectionTools (self):
         corrargs = self._corrargs.copy()
-        if not self._corrargs.has_key ('cells_name'):
+        if 'cells_name' not in  self._corrargs:
             cells = self.getInputGetter(jp.CaloRecFlags.clusterCellGetterName())
             corrargs['cells_name'] = cells.outputKey()
         return make_CaloSwCorrections (self._clusterKey,
