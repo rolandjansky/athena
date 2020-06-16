@@ -5,17 +5,12 @@
 # Skipping art-output which has no effect for build tests.
 # If you create a grid version, check art-output in existing grid tests.
 
-export EVENTS=2000
+export EVENTS=20
 export THREADS=1
 export SLOTS=1
 export JOBOPTION="TrigUpgradeTest/full_menu_cf.py"
 export REGTESTEXP="TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*"
-#export EXTRA="doWriteBS=False;doWriteRDOTrigger=True;"
-#export EXTRA="doWriteBS=False;doWriteRDOTrigger=True;forceEnableAllChains=True;"
-export EXTRA="doWriteBS=False;doWriteRDOTrigger=True;forceEnableAllChains=True;doEmptyMenu=True;doBjetSlice=True;"
-#ex.args = '-c "isOnline=True;doWriteBS=False;doWriteRDOTrigger=True;"'
-#ex.args = '-c "doEmptyMenu=True;doBjetSlice=True;isOnline=True;doWriteBS=False;doWriteRDOTrigger=True;"'
-#ex.args = '-c "doEmptyMenu=True;forceEnableAllChais=True;isOnline=True;doWriteBS=False;doWriteRDOTrigger=True;"'
+export EXTRA="doWriteBS=False;doWriteRDOTrigger=True;"
 
 # Find the regtest reference installed with the release
 export REGTESTREF=`find_data.py TrigUpgradeTest/full_menu_cf_build.ref`

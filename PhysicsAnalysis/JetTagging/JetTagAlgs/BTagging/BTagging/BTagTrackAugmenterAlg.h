@@ -56,4 +56,3 @@ namespace Analysis {
 }
 
 #endif
-
