@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGL2MUONSA_PTENDCAPLUTSVC_H
@@ -7,7 +7,6 @@
 
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IInterface.h"
-#include "GaudiKernel/StatusCode.h"
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -34,8 +33,7 @@ class PtEndcapLUTSvc : public AthService, virtual public IInterface
     
     virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIF);
 
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
+    virtual StatusCode initialize() override;
 
   private:
     Gaudi::Property< std::string >    m_lut_fileNameRun2 {
@@ -47,7 +45,7 @@ class PtEndcapLUTSvc : public AthService, virtual public IInterface
     Gaudi::Property< std::string >    m_lut_sigma {
 	this, "ESigmaLUT", "pt_comb_sigma.lut", ""};
 
-    ToolHandle<PtEndcapLUT>      m_ptEndcapLUT;
+    ToolHandle<PtEndcapLUT>      m_ptEndcapLUT{"TrigL2MuonSA::PtEndcapLUT"};
 
   public:
     const ToolHandle<PtEndcapLUT>* ptEndcapLUT(void) const
