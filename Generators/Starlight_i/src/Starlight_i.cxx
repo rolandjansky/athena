@@ -46,7 +46,7 @@ namespace{
 #include "starlightparticlecodes.h"
 
 Starlight_i::Starlight_i(const std::string& name, ISvcLocator* pSvcLocator): 
-             GenModule(name,pSvcLocator), m_events(0), 
+             GenModule(name,pSvcLocator), m_lheOutput(1),m_events(0), 
 	     m_starlight(),
 	     m_inputParameters(),
 	     m_randomGenerator(),
@@ -151,13 +151,21 @@ StatusCode Starlight_i::genInitialize()
     
     // and initialize
     m_starlight->init();
-
+    
+    // dump events to lhef (needed for QED showering with Pythia8
+    if(m_lheOutput){
+        log << MSG::INFO
+      << "===> dumping starlight events to lhef format. \n"  << endreq;
+        if(!starlight2lhef()) return StatusCode::FAILURE;
+    }
 
     return StatusCode::SUCCESS;
 }
 
 StatusCode Starlight_i::callGenerator()
 {
+    if(m_lheOutput) return StatusCode::SUCCESS;
+ 
     MsgStream log(messageService(), name());
     log << MSG::DEBUG
 	<< " STARLIGHT generating. \n"  << endreq;
@@ -212,6 +220,9 @@ Starlight_i::genFinalize()
 StatusCode
 Starlight_i::fillEvt(HepMC::GenEvent* evt)
 {
+
+   if(m_lheOutput) return StatusCode::SUCCESS;
+   
    MsgStream log(messageService(), name());
    log << MSG::DEBUG
        << "  STARLIGHT Filing.  \n"  << endreq;
@@ -270,6 +281,82 @@ Starlight_i::fillEvt(HepMC::GenEvent* evt)
     GeVToMeV(evt);
     
     return StatusCode::SUCCESS;
+}
+
+bool
+Starlight_i::starlight2lhef()
+{
+        
+    std::string lheFilename    = "events.lhe";
+    std::ofstream lheStream;
+    lheStream.open(lheFilename.c_str(), std::ofstream::trunc);
+    if(!lheStream) { 
+      ATH_MSG_ERROR("error: Failed to open  file "+lheFilename);
+      return false;
+    }
+   
+    lheStream << "<LesHouchesEvents version=\"1.0\">\n";
+    lheStream << "<!--\n";
+    lheStream << "File generated using Starlight \n";
+    lheStream << "-->\n";
+ 
+    lheStream << "<init>\n";
+    lheStream << "  11  -11  2.510000e+03  2.510000e+03  0  0  0  0  3  1\n";
+    lheStream << "  1.000000e+00  0.000000e+00  1.000000e+00   9999\n";
+    lheStream << "</init>\n";
+
+    m_event = new upcEvent; 
+
+    while(++m_events<10) {
+      lheStream << "<event>\n";
+      (*m_event) = m_starlight->produceEvent();
+      int ipart = 0;
+      CLHEP::HepLorentzVector photon_system(0);
+      double ptscale =0;
+      std::vector<starlightParticle>::const_iterator part = (m_event->getParticles())->begin();
+      for (part = m_event->getParticles()->begin(); part != m_event->getParticles()->end(); part++, ipart++)
+      {
+         CLHEP::HepLorentzVector particle_sl((*part).GetPx(), (*part).GetPy(), (*part).GetPz(), (*part).GetE());
+         photon_system += particle_sl;
+         // pt is the correct scale here
+         ptscale = sqrt((*part).GetPx()*(*part).GetPx() + (*part).GetPy()*(*part).GetPy()); 
+      }
+      lheStream << "     4  9999  1.000000e+00  "<<ptscale<<"  7.297e-03  2.569093e-01\n";
+      lheStream << " 22    -1     0     0     0     0  0.0000000000e+00  0.0000000000e+00  "
+                << photon_system.m()/2.*exp(photon_system.rapidity())<<"  "<<photon_system.m()/2.*exp(photon_system.rapidity())<<"  0.0000000000e+00 0. 9.\n";
+      lheStream << " 22    -1     0     0     0     0  0.0000000000e+00  0.0000000000e+00  "
+                << -photon_system.m()/2.*exp(-photon_system.rapidity())<<"  "<<photon_system.m()/2.*exp(-photon_system.rapidity())<<"  0.0000000000e+00 0. 9.\n";
+      
+      for (part = m_event->getParticles()->begin(); part != m_event->getParticles()->end(); part++, ipart++) 
+      {
+	int pid = (*part).getPdgCode();
+	int charge = (*part).getCharge();
+        //AO special for pid sign stored in charge
+        int pidsign = pid/abs(pid);
+        int chsign = charge/abs(charge);
+        if( chsign != pidsign ) pid = -pid;
+
+	double px = (*part).GetPx();
+	double py = (*part).GetPy();
+	double pz = (*part).GetPz();
+	double e  = (*part).GetE();
+        double mass  = (*part).getMass();
+        if(abs(pid)==11) mass = m_inputParameters.mel();
+        if(abs(pid)==13) mass = m_inputParameters.muonMass();
+        if(abs(pid)==15) mass = m_inputParameters.tauMass();
+
+        lheStream << pid<<"     1     1     2     0     0  "<<px<<"  "<<py<<"  "<<pz<<"  "<<e<<"  "<<mass<<"  0. 9.\n";
+      
+       }    
+    lheStream << "</event>\n";
+    }
+
+
+    lheStream << "</LesHouchesEvents>";
+    lheStream.close();
+
+    return true;
+
 }
 
 bool Starlight_i::set_user_params()

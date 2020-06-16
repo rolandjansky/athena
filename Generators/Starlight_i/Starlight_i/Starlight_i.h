@@ -89,6 +89,9 @@ protected:
     bool         m_xsecMethod;
     int          m_nThreads;
     bool         m_pythFullRec;
+    bool         m_lheOutput;
+    
+    bool starlight2lhef();
 
     // Commands to setup starlight
     CommandVector m_InitializeVector;
