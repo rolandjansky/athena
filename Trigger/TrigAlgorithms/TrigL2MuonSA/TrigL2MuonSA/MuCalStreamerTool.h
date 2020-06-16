@@ -112,8 +112,8 @@ namespace TrigL2MuonSA {
     ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
 
     // id of the circular buffer
-    int m_cid;
-    int m_calibEvent;
+    int m_cid {-1};
+    int m_calibEvent {0};
 
     // local buffer for the TrigComposite object
     int m_localBufferSize;

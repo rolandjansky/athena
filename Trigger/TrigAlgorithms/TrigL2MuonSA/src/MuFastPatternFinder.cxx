@@ -5,7 +5,6 @@
 #include "TrigL2MuonSA/MuFastPatternFinder.h"
 
 #include "MuonCalibEvent/MdtCalibHit.h"
-#include "CLHEP/Units/PhysicalConstants.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "xAODTrigMuon/TrigMuonDefs.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
@@ -13,21 +12,11 @@
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-static const InterfaceID IID_MuFastPatternFinder("IID_MuFastPatternFinder", 1, 0);
-
-const InterfaceID& TrigL2MuonSA::MuFastPatternFinder::interfaceID() { return IID_MuFastPatternFinder; }
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
 TrigL2MuonSA::MuFastPatternFinder::MuFastPatternFinder(const std::string& type, 
 						     const std::string& name,
 						     const IInterface*  parent): 
-   AthAlgTool(type,name,parent),
-   m_mdtCalibrationTool("MdtCalibrationTool",this)
+   AthAlgTool(type,name,parent)
 {
-   declareInterface<TrigL2MuonSA::MuFastPatternFinder>(this);
-   declareProperty("CalibrationTool",m_mdtCalibrationTool);
 }
 
 // --------------------------------------------------------------------------------
@@ -35,8 +24,8 @@ TrigL2MuonSA::MuFastPatternFinder::MuFastPatternFinder(const std::string& type,
 
 StatusCode TrigL2MuonSA::MuFastPatternFinder::initialize()
 {
-   ATH_CHECK( m_idHelperSvc.retrieve() );                                 
-   return StatusCode::SUCCESS; 
+   ATH_CHECK( m_idHelperSvc.retrieve() );
+   return StatusCode::SUCCESS;
 }
 
 // --------------------------------------------------------------------------------
@@ -63,7 +52,7 @@ void TrigL2MuonSA::MuFastPatternFinder::doMdtCalibration(TrigL2MuonSA::MdtHitDat
 
    double R    = mdtHit.R;
    //   double InCo = mdtHit.cInCo;
-   double InCo = cos(std::abs(track_phi - phi0))!=0 ? 1./(cos(std::abs(track_phi - phi0))): 0; 
+   double InCo = cos(std::abs(track_phi - phi0))!=0 ? 1./(cos(std::abs(track_phi - phi0))): 0;
    double X    = (isEndcap)? R*cos(track_phi): R*InCo*cos(track_phi);
    double Y    = (isEndcap)? R*sin(track_phi): R*InCo*sin(track_phi);
    double Z    = mdtHit.Z;
@@ -264,7 +253,7 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
 	      i_hit_max = i_hit;
 	    }
 	  }
-	  ATH_MSG_DEBUG("ResMax=" << ResMax << ": i_hit_max=" << i_hit_max); 
+	  ATH_MSG_DEBUG("ResMax=" << ResMax << ": i_hit_max=" << i_hit_max);
 	  if( i_hit_max == 999999 ) break;
 	  v_mdtLayerHits[chamber][0].ResSum = v_mdtLayerHits[chamber][0].ResSum - ResMax;
 	  v_mdtLayerHits[chamber][0].ntot--;
@@ -290,7 +279,7 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
    
    v_trackPatterns.push_back(trackPattern);
    
-   return StatusCode::SUCCESS; 
+   return StatusCode::SUCCESS;
 }
 
 // --------------------------------------------------------------------------------

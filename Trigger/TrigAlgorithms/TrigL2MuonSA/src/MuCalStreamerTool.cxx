@@ -29,9 +29,7 @@ TrigL2MuonSA::MuCalStreamerTool::MuCalStreamerTool(const std::string& type,
 						   const IInterface*  parent): 
    AthAlgTool(type,name,parent),
    m_regionSelector( "RegSelSvc", name ),
-   m_robDataProvider( "ROBDataProviderSvc", name ),
-   m_cid(-1),
-   m_calibEvent(0)
+   m_robDataProvider( "ROBDataProviderSvc", name )
 {
 }
 

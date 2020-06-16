@@ -4,8 +4,6 @@
 
 #include "TrigL2MuonSA/MuFastDataPreparator.h"
 
-#include "CLHEP/Units/PhysicalConstants.h"
-
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 // --------------------------------------------------------------------------------
