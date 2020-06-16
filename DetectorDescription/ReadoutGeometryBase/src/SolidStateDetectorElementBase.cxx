@@ -419,7 +419,7 @@ void SolidStateDetectorElementBase::getExtent(double &rMin, double &rMax,
     HepGeom::Point3D<double> sensorCenter = m_design->sensorCenter();
     double radialShift = sensorCenter[0];
 
-    const HepGeom::Transform3D rShift = HepGeom::TranslateX3D(radialShift);//in local frame, radius is x
+    const HepGeom::Transform3D rShift = HepGeom::TranslateY3D(radialShift);//in local frame, radius is y=distEta
 
     for (int i = 0; i < 4; i++) {
         corners[i].transform(rShift);
