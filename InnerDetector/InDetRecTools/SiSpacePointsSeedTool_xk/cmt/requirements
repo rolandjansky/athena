@@ -6,11 +6,11 @@ private
 
 use xAODEventInfo                xAODEventInfo-*          Event/xAOD
 use TrkToolInterfaces      TrkToolInterfaces-*      Tracking/TrkTools   
+use AtlasCLHEP                  AtlasCLHEP-*            External
 
 public
 
 use AtlasPolicy            AtlasPolicy-*
-use AtlasCLHEP                  AtlasCLHEP-*            External
 use GaudiInterface         GaudiInterface-*         External 
 use AthenaBaseComps        AthenaBaseComps-*        Control
 use MagFieldInterfaces *   MagneticField
