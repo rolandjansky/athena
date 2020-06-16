@@ -287,6 +287,7 @@ def jetChainMonitoringConfig(inputFlags,jetcoll,chain,athenaMT):
            "m",
            "eta",
            "et",
+           "phi",
            # we pass directly the ToolSpec
            ToolSpec('JetHistoTriggEfficiency', chain,
                     # below we pass the Properties of this JetHistoTriggEfficiency tool :
