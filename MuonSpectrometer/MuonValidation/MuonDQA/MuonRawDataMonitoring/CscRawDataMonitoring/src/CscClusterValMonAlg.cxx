@@ -102,8 +102,6 @@ StatusCode CscClusterValMonAlg::fillHistograms( const EventContext& ctx ) const 
   ATH_MSG_DEBUG ( " Size of Cluster Collection : " << cscCluster->size() );
   ATH_MSG_DEBUG ( " Size of Strip Collection : " << cscStrip->size() );
 
-  std::cout<<" Size of Cluster Collection : " << cscCluster->size() << " Size of Strip Collection : " << cscStrip->size() <<std::endl;
-
   for ( CscPrepDataContainer::const_iterator Icol = cscCluster->begin(); Icol != cscCluster->end(); ++Icol )
   {
     const CscPrepDataCollection& clus = **Icol;
@@ -159,6 +157,8 @@ StatusCode CscClusterValMonAlg::fillHistograms( const EventContext& ctx ) const 
       // convert to my coordinates
       int sectorNo  = stationEta * (2 * stationPhi - chamberType);   // [-16 -> -1] and [+1 -> +16]
       auto secLayer = Monitored::Scalar<float> ("secLayer", (sectorNo + 0.2 * (wireLayer - 1) + 0.1) );
+      auto secLayerPhi = Monitored::Scalar<float> ("secLayerPhi", (sectorNo + 0.2 * (wireLayer - 1) + 0.1) );
+      auto secLayerEta = Monitored::Scalar<float> ("secLayerEta", (sectorNo + 0.2 * (wireLayer - 1) + 0.1) );
       int xfac = measuresPhi ? -1 : 1;        // [-1 -> -48] / [+1 -> +192]
 
       //total cluster width (EA and EC) calculation
@@ -220,10 +220,10 @@ StatusCode CscClusterValMonAlg::fillHistograms( const EventContext& ctx ) const 
 
       // fill cluster width (no. of strips per cluster) 
         if(measuresPhi) {
-          fill("CscClusMonitor",noStrips,secLayer);  // fill phi-cluster width
+          fill("CscClusMonitor",noStrips,secLayerPhi);  // fill phi-cluster width
           nPhiClusWidthCnt++;
         } else {
-          fill("CscClusMonitor",noStrips,secLayer);  // fill eta-cluster width
+          fill("CscClusMonitor",noStrips,secLayerEta);  // fill eta-cluster width
           nEtaClusWidthCnt++;
         }
 
@@ -271,7 +271,6 @@ StatusCode CscClusterValMonAlg::fillHistograms( const EventContext& ctx ) const 
         }
          ATH_MSG_DEBUG ( " Max Strip charge = " << maxStripCharge  << " and strip Id = " << maxStipId << " and index = " << mxIdx);
          float qmax = 0., qleft = 0., qright = 0., qsum = 0.;
-         std::cout<<" Max Strip charge = " << maxStripCharge  << " and strip Id = " << maxStipId << " and index = " << mxIdx<<std::endl;
         // if we are here and loop over strips is successful we should have found_id = true
         // and the size of strip-ID-vector == size of strips-vector
         bool size_ids_coll = (noStrips == (int)stripVec.size() ? true : false) ;
