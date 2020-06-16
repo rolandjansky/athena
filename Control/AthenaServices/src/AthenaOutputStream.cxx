@@ -83,6 +83,13 @@ namespace {
     {
       addRef();
     }
+    // Extra constructor to create a temporary proxy without aliases, for objects in MetaContainers
+    AltDataBucket(void* ptr, CLID clid, const std::type_info& tinfo, const std::string name) :
+       m_proxy(this, new SG::TransientAddress(clid, name) ),
+       m_ptr(ptr), m_clid(clid), m_tinfo(tinfo)
+    {
+      addRef();
+    }
 
     virtual const CLID& clID() const override { return m_clid; }
     virtual void* object() override { return m_ptr; }
@@ -859,7 +866,7 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
                      if( metaCont ) {
                         void* obj = metaCont->getAsVoid( m_outSeqSvc->currentRangeID() );
                         auto altbucket = std::make_unique<AltDataBucket>(
-                           obj, item_id, *CLIDRegistry::CLIDToTypeinfo(item_id), *itemProxy );
+                           obj, item_id, *CLIDRegistry::CLIDToTypeinfo(item_id), itemProxy->name() );
                         m_objects.push_back( altbucket.get() );
                         m_ownedObjects.push_back( std::move(altbucket) );
                         m_altObjects.push_back( itemProxy->object() ); // only for duplicate prevention
