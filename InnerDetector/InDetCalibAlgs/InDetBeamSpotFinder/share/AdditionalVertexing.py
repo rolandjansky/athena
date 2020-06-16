@@ -231,17 +231,6 @@ def GeneralVertexer(system='Combined', setup=None,tracksName=None, suffix=""):
                                                                             selectiontype     = 0,
                                                                             do3dSplitting     = InDetFlags.doPrimaryVertex3DFinding())
   
-    elif vxSetup == 'DefaultVKalVrtFinding':
-        #
-        # --- load vkal vertex finder tool
-        #
-        from InDetVKalPriVxFinderTool.InDetVKalPriVxFinderTool import InDet__InDetVKalPriVxFinderTool
-        InDetPriVxFinderTool_vx = InDet__InDetVKalPriVxFinderTool(name                   = "InDetVKalPriVxFinder_"+system+"_"+vxSetup+suffix,
-                                                                   TrackSummaryTool       = InDetTrackSummaryTool,
-                                                                   FitterTool             = InDetVxFitterTool,
-                                                                   BeamConstraint         = 0)
-        if InDetFlags.useBeamConstraint():
-            InDetPriVxFinderTool_vx.BeamConstraint = 1
 
     #Add additional finder tools
     elif vxSetup == 'InDetPriVxFinderFastFinder':# not the official name
