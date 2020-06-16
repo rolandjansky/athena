@@ -11,14 +11,8 @@ def LArCoverageConfigOld(inputFlags):
     from AthenaMonitoring import AthMonitorCfgHelperOld
     from LArMonitoring.LArMonitoringConf import LArCoverageAlg
 
-    from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
-    theLArRCBMasker=LArBadChannelMasker("BadLArRawChannelMask")
-    theLArRCBMasker.DoMasking=True
-    theLArRCBMasker.ProblemsToMask=["deadReadout","deadPhys","highNoiseHG","highNoiseMG","highNoiseLG"]
-
     helper = AthMonitorCfgHelperOld(inputFlags, 'LArCoverageAlgOldCfg')
     LArCoverageConfigCore(helper,LArCoverageAlg,inputFlags)
-    helper.monSeq.LArCoverageAlg.LArBadChannelMask=theLArRCBMasker
 
     return helper.result()
 
@@ -33,20 +27,27 @@ def LArCoverageConfig(inputFlags):
     from AthenaConfiguration.ComponentFactory import CompFactory
     LArCoverageConfigCore(helper, CompFactory.LArCoverageAlg,inputFlags)
 
-    # adding BadChan masker private tool
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    cfg=ComponentAccumulator()
-    from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg#,LArBadChannelCfg
-    acc= LArBadChannelMaskerCfg(inputFlags,problemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"],ToolName="BadLArRawChannelMask")
-    CompFactory.LArCoverageAlg.LArBadChannelMask=acc.popPrivateTools()
-    cfg.merge(acc)
-
     cfg.merge(helper.result())
     return cfg
 
 def LArCoverageConfigCore(helper, algoinstance,inputFlags):
 
     larCoverageAlg = helper.addAlgorithm(algoinstance,'LArCoverageAlg')
+
+    # adding BadChan masker private tool
+    from AthenaConfiguration.ComponentFactory import isRun3Cfg
+    if isRun3Cfg():
+       from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg#,LArBadChannelCfg
+       acc= LArBadChannelMaskerCfg(inputFlags,problemsToMask=["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"],ToolName="BadLArRawChannelMask")
+       larCoverageAlg.LArBadChannelMask=acc.popPrivateTools()
+       helper.resobj.merge(acc)
+    else:   
+       from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
+       theLArRCBMasker=LArBadChannelMasker("BadLArRawChannelMask")
+       theLArRCBMasker.DoMasking=True
+       theLArRCBMasker.ProblemsToMask=["deadReadout","deadPhys","highNoiseHG","highNoiseMG","highNoiseLG"]
+       larCoverageAlg.LArBadChannelMask=theLArRCBMasker
+
 
     from LArMonitoring.GlobalVariables import lArDQGlobals
 
