@@ -10,6 +10,7 @@ use TrkToolInterfaces      TrkToolInterfaces-*      Tracking/TrkTools
 public
 
 use AtlasPolicy            AtlasPolicy-*
+use AtlasCLHEP                  AtlasCLHEP-*            External
 use GaudiInterface         GaudiInterface-*         External 
 use AthenaBaseComps        AthenaBaseComps-*        Control
 use MagFieldInterfaces *   MagneticField
