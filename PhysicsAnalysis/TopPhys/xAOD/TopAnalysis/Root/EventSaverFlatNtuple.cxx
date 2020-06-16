@@ -1011,16 +1011,15 @@ namespace top {
       }
 
       // fail-FJVT jets
-      if ((m_config->doForwardJVTinMET() || m_config->getfJVTWP() != "None") && m_config->saveFailForwardJVTJets()) {
+      if (m_config->getfJVTWP() != "None" && m_config->saveFailForwardJVTJets()) {
         systematicTree->makeOutputVariable(m_failFJvt_jet_pt, "failforwardJvt_jet_pt");
         systematicTree->makeOutputVariable(m_failFJvt_jet_eta, "failforwardJvt_jet_eta");
         systematicTree->makeOutputVariable(m_failFJvt_jet_phi, "failforwardJvt_jet_phi");
         systematicTree->makeOutputVariable(m_failFJvt_jet_e, "failforwardJvt_jet_e");
         systematicTree->makeOutputVariable(m_failFJvt_jet_jvt, "failforwardJvt_jet_jvt");
-	if (m_config->doForwardJVTinMET() || m_config->getfJVTWP() != "None") {
-	  systematicTree->makeOutputVariable(m_failFJvt_jet_fjvt, "failforwardJvt_jet_forwardjvt");
-	}
+	systematicTree->makeOutputVariable(m_failFJvt_jet_fjvt, "failforwardJvt_jet_forwardjvt");
         systematicTree->makeOutputVariable(m_failFJvt_jet_passjvt, "failforwardJvt_jet_passjvt");
+
         if (m_config->isMC() && m_config->jetStoreTruthLabels()) {
           systematicTree->makeOutputVariable(m_failFJvt_jet_truthflav, "failforwardJvt_jet_truthflav");
           systematicTree->makeOutputVariable(m_failFJvt_jet_truthPartonLabel, "failforwardJvt_jet_truthPartonLabel");
@@ -2806,13 +2805,6 @@ namespace top {
       // ghost tracks
       // fail-JVT jet could still have some ghost tracks, so these variables are kept
       if (m_config->useJetGhostTrack()) {
-        m_failJvt_jet_ghostTrack_pt.clear();
-        m_failJvt_jet_ghostTrack_eta.clear();
-        m_failJvt_jet_ghostTrack_phi.clear();
-        m_failJvt_jet_ghostTrack_e.clear();
-        m_failJvt_jet_ghostTrack_d0.clear();
-        m_failJvt_jet_ghostTrack_z0.clear();
-        m_failJvt_jet_ghostTrack_qOverP.clear();
 
         m_failJvt_jet_ghostTrack_pt.resize(event.m_failJvt_jets.size());
         m_failJvt_jet_ghostTrack_eta.resize(event.m_failJvt_jets.size());
@@ -2904,7 +2896,7 @@ namespace top {
       	
     // fail-FJVT jets
     // btagging info removed as this is only looking at forward jets
-    if (m_config->saveFailForwardJVTJets()) {
+    if (m_config->getfJVTWP() != "None" && m_config->saveFailForwardJVTJets()) {
       unsigned int i(0);
       m_failFJvt_jet_pt.resize(event.m_failFJvt_jets.size());
       m_failFJvt_jet_eta.resize(event.m_failFJvt_jets.size());
@@ -2917,13 +2909,6 @@ namespace top {
       // ghost tracks
       // fail-FJVT jet could still have some ghost tracks, so these variables are kept
       if (m_config->useJetGhostTrack()) {
-        m_failFJvt_jet_ghostTrack_pt.clear();
-        m_failFJvt_jet_ghostTrack_eta.clear();
-        m_failFJvt_jet_ghostTrack_phi.clear();
-        m_failFJvt_jet_ghostTrack_e.clear();
-        m_failFJvt_jet_ghostTrack_d0.clear();
-        m_failFJvt_jet_ghostTrack_z0.clear();
-        m_failFJvt_jet_ghostTrack_qOverP.clear();
 
         m_failFJvt_jet_ghostTrack_pt.resize(event.m_failFJvt_jets.size());
         m_failFJvt_jet_ghostTrack_eta.resize(event.m_failFJvt_jets.size());

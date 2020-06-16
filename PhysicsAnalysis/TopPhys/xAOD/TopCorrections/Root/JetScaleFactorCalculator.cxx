@@ -96,7 +96,7 @@ namespace top {
           }
 
           int passes_jvt = jetPtr->auxdataConst< char >("passJVT");
-          if (!(passes_jvt >= 0)) continue;
+          if (passes_jvt < 0) continue;
 
           if (passes_jvt) top::check(m_jvt_tool->getEfficiencyScaleFactor(*jetPtr, jvtSF),
                                      "Failed to getEfficiencyScaleFactor for JVT");
@@ -148,7 +148,7 @@ namespace top {
 	      return StatusCode::FAILURE;
 	    }
 	    int passes_fjvt = jetPtr->auxdataConst< char >("AnalysisTop_fJVTdecision");
-	    if (!(passes_fjvt >= 0)) continue;
+	    if (passes_fjvt < 0) continue;
 	    if (passes_fjvt) top::check(m_fjvt_tool->getEfficiencyScaleFactor(*jetPtr, fjvtSF),
 				       "Failed to getEfficiencyScaleFactor for fJVT");
 	    else {

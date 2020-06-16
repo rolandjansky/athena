@@ -720,7 +720,7 @@ namespace top {
             }
           }
 	  // check derivation version due to fJVT info needed at derivation level for PFlow
-	  if (this->useParticleFlowJets() && (settings->value("ForwardJVTinMETCalculation") == "True" || settings->value("ForwardJVTWP") != "None")){ //fJVT requested for PFlow
+	  if (this->useParticleFlowJets() && (settings->retrieve("ForwardJVTinMETCalculation") || settings->value("ForwardJVTWP") != "None")){ //fJVT requested for PFlow
 	    if (deriv_rel_name < "21.2.97.0") { 
 	      throw std::runtime_error(
 			"TopConfig: You are using derivation with release 21.2.96.0 or older and requested fJVT for particle-flow jets. The necessary information for PFlow fjvt is only present from release 21.2.97.0 and newer, you will need to switch to newer derivations or turn off fJVT (ForwardJVTWP = \"None\" && ForwardJVTinMETCalculation = \"False\")");
@@ -1238,13 +1238,13 @@ namespace top {
     this->jetUncertainties_QGHistPatterns(settings->value("JetUncertainties_QGHistPatterns"));
     this->jetJERSmearingModel(settings->value("JetJERSmearingModel"));
     this->jetCalibSequence(settings->value("JetCalibSequence"));
-    this->doJVTinMET((settings->value("JVTinMETCalculation") == "True" ? true : false));
-    this->saveFailJVTJets((settings->value("SaveFailJVTJets") == "True" ? true : false));
+    this->doJVTinMET(settings->retrieve("JVTinMETCalculation"));
+    this->saveFailJVTJets(settings->retrieve("SaveFailJVTJets"));
     this->setJVTWP(settings->value("JVTWP"));
-    this->doForwardJVTinMET((settings->value("ForwardJVTinMETCalculation") == "True" ? true : false));
-    this->saveFailForwardJVTJets((settings->value("SaveFailForwardJVTJets") == "True" ? true : false));
+    this->doForwardJVTinMET(settings->retrieve("ForwardJVTinMETCalculation"));
+    this->saveFailForwardJVTJets(settings->retrieve("SaveFailForwardJVTJets"));
     this->setfJVTWP(settings->value("ForwardJVTWP"));
-    if (settings->value("ForwardJVTWP") == "Medium" && settings->value("ForwardJVTinMETCalculation") == "True"){
+    if (settings->value("ForwardJVTWP") == "Medium" && settings->retrieve("ForwardJVTinMETCalculation")){
       ATH_MSG_WARNING("TopConfig::setConfigSettings: fJVT WP set to Medium and fJVT in MET requested, MET working point will be changed to Tenacious to maintain compatibility with fJVT!!!");
     }
 
