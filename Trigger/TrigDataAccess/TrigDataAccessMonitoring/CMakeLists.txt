@@ -1,23 +1,10 @@
-################################################################################
-# Package: TrigDataAccessMonitoring
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigDataAccessMonitoring )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Control/AthContainers
-                          Event/ByteStreamCnvSvcBase
-                          Event/ByteStreamData
-                          GaudiKernel
-                          PRIVATE
-                          AtlasTest/TestTools
-                          Control/StoreGate )
-
 # External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( ROOT COMPONENTS Hist )
 find_package( tdaq-common )
 
 # Component(s) in the package:
@@ -26,21 +13,19 @@ atlas_add_library( TrigDataAccessMonitoringLib
                    PUBLIC_HEADERS TrigDataAccessMonitoring
                    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthContainers ByteStreamData GaudiKernel ByteStreamCnvSvcBaseLib ByteStreamData_test StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools )
+                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthContainers AthenaKernel ByteStreamCnvSvcBaseLib ByteStreamData GaudiKernel
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} StoreGateLib )
 
 atlas_add_component( TrigDataAccessMonitoring
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthContainers ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test GaudiKernel TestTools StoreGateLib SGtests TrigDataAccessMonitoringLib )
-
-atlas_add_test( Methods_test
-                SOURCES
-                test/Methods_test.cxx
-                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthContainers ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test GaudiKernel TestTools StoreGateLib SGtests TrigDataAccessMonitoringLib
-                POST_EXEC_SCRIPT nopost.sh )
+                     LINK_LIBRARIES TrigDataAccessMonitoringLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
 
+# Tests in the package:
+atlas_add_test( Methods_test
+                SOURCES
+                test/Methods_test.cxx
+                LINK_LIBRARIES TrigDataAccessMonitoringLib
+                POST_EXEC_SCRIPT nopost.sh )
