@@ -5,6 +5,11 @@
 #ifndef MUONMDTCNVTOOLS_MUONMDTRAWDATAPROVIDERTOOL_H
 #define MUONMDTCNVTOOLS_MUONMDTRAWDATAPROVIDERTOOL_H
 
+/// This code is only used in the single-thread setup
+/// As such, deactivating the check in this file     
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"

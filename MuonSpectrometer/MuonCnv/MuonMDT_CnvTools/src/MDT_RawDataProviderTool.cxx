@@ -2,6 +2,11 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
+/// This code is only used in the single-thread setup
+/// As such, deactivating the check in this file     
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
 #include "MDT_RawDataProviderTool.h"
 #include "MuonRDO/MdtCsmContainer.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
