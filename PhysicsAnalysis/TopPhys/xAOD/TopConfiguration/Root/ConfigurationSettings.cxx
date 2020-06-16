@@ -68,7 +68,7 @@ namespace top {
                       "Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, PLVTight, PLVLoose, (EXPERIMENTAL: HighPtCaloOnly, Loose, Tight, TightTrackOnly, TightTrackOnly_FixedRad), (DANGEROUS: PflowTight, PflowLoose), None",
                       "FCTight");
     registerParameter("ElectronIsolationLoose",
-                      "Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, PLVTight, PLVLoose, (EXPERIMENTAL: HighPtCaloOnly, Loose, Tight, TightTrackOnly, TightTrackOnly_FixedRad, PLVTight, PLVLoose), (DANGEROUS: PflowTight, PflowLoose), None",
+                      "Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, PLVTight, PLVLoose, (EXPERIMENTAL: HighPtCaloOnly, Loose, Tight, TightTrackOnly, TightTrackOnly_FixedRad), (DANGEROUS: PflowTight, PflowLoose), None",
                       "None");
     registerParameter("ElectronIsolationSF", "Force electron isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("ElectronIsolationSFLoose", "Force electron isolation SF (e.g. None). EXPERIMENTAL!", " ");
