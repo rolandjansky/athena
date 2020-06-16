@@ -55,18 +55,11 @@ namespace TrigL2MuonSA {
   {
   public:
     
-    static const InterfaceID& interfaceID();
-    
-  public:
-    
     MuCalStreamerTool(const std::string& type, 
 		      const std::string& name,
 		      const IInterface*  parent);
-    
-    ~MuCalStreamerTool()=default;
-    
-    virtual StatusCode initialize();
-    virtual StatusCode finalize  ();
+
+    virtual StatusCode initialize() override;
 
     std::string instanceName() const {return m_algInstanceName;}
     void setInstanceName(std::string name) { m_algInstanceName = name; }
@@ -74,8 +67,8 @@ namespace TrigL2MuonSA {
     // set the properties
     void setBufferName(std::string buffName) {m_calBufferName=buffName;}
 
-    std::vector<int>* getLocalBuffer()   {return m_localBuffer;}
-    int getLocalBufferSize() {return m_localBuffer->size();}
+    std::vector<int>* getLocalBuffer()   {return &m_localBuffer;}
+    int getLocalBufferSize() {return m_localBuffer.size();}
     void clearLocalBuffer();
 
     //
@@ -95,7 +88,7 @@ namespace TrigL2MuonSA {
 				 TrigL2MuonSA::TgcHits& tgcHits,
 				 int calBufferSize,
 				 bool doDataScouting,
-                                 bool& updateTriggerElement);                                                              
+                                 bool& updateTriggerElement);
 
   private:
 
@@ -104,11 +97,11 @@ namespace TrigL2MuonSA {
 
     // name of the calibration buffer or of the 
     // output file
-    std::string  m_calBufferName;
+    std::string m_calBufferName;
     std::string m_algInstanceName;
 
     // output file 
-    std::ofstream* m_outputFile;
+    std::ofstream m_outputFile;
 
     // the region selector
     ServiceHandle<IRegSelSvc>  m_regionSelector;
@@ -124,15 +117,10 @@ namespace TrigL2MuonSA {
 
     // local buffer for the TrigComposite object
     int m_localBufferSize;
-    //    int m_maxLocalBufferSize;
-    std::vector<int>* m_localBuffer;
+    std::vector<int> m_localBuffer;
 
     // pointer to the muon roi
-    const LVL1::RecMuonRoI* m_roi;
-    
-    // TGC raw data provider
-    //    ToolHandle<Muon::IMuonRawDataProviderTool>  m_tgcRawDataProvider;
-
+    const LVL1::RecMuonRoI* m_roi {nullptr};
     
     //
     // create the MDT fragment
