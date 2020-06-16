@@ -196,7 +196,7 @@ SiRegionSelectorTable::createTable()
 	  barrelEC  = sctId->barrel_ec(element->identify());
 	  layerDisk = sctId->layer_disk(element->identify());
 	  if(m_useCabling) robId=m_sctCablingSvc->getRobIdFromOfflineId(element->identify());       
-	  else robId = hashId;
+	  else robId = 0;
 	}
 	else { 
 	  msg(MSG::ERROR) << " could not get SCT_ID for " << element->getIdHelper() << endmsg;
