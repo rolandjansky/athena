@@ -1,10 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: CaloSwEtaoff_v3.h,v 1.4 2008-01-25 04:14:21 ssnyder Exp $
 /**
  * @file  CaloSwEtaoff_v3.h
  * @author scott snyder <snyder@bnl.gov>
@@ -134,21 +131,13 @@ class CaloSwEtaoff_v3
   : public CaloClusterCorrectionCommon
 {
 public:
-
-  /**
-   * @brief Constructor.
-   * @param type The type of the tool.
-   * @param name The name of the tool.
-   * @param parent The parent algorithm of the tool.
-   */
-  CaloSwEtaoff_v3 (const std::string& type,
-                   const std::string& name,
-                   const IInterface* parent);
+  /// Inherit constructor.
+  using CaloClusterCorrectionCommon::CaloClusterCorrectionCommon;
   
 
   /**
    * @brief Virtual function for the correction-specific code.
-   * @param ctx     The event context.
+   * @param myctx   ToolWithConstants context.
    * @param cluster The cluster to correct.
    *                It is updated in place.
    * @param elt     The detector description element corresponding
@@ -166,7 +155,7 @@ public:
    *                @c CaloSampling::CaloSample; i.e., it has both
    *                the calorimeter region and sampling encoded.
    */
-  virtual void makeTheCorrection (const EventContext& ctx,
+  virtual void makeTheCorrection (const Context& myctx,
                                   xAOD::CaloCluster* cluster,
                                   const CaloDetDescrElement* elt,
                                   float eta,
@@ -184,12 +173,14 @@ private:
     : public TableBuilder
   {
   public:
-    /// Constructor.  Gets the parent correction object,
+    /// Constructor.  Gets correction information,
     /// the abs(eta) at which the correction is being
     /// evaluated (in cal-local coordinates), the fractional
     /// cell offset u, and the index of the region for this
     /// correction.
-    Builder (const CaloSwEtaoff_v3& corr,
+    Builder (const CxxUtils::Array<4>& correction,
+             const CxxUtils::Array<2>& regions,
+             const CxxUtils::Array<2>& forms,
              float aeta,
              float u,
              int region_ndx);
@@ -219,8 +210,14 @@ private:
     /// Evaluate the function Form 13.
     float calc13 (float aeta, float u, const CaloRec::Array<2>& coef, float xlo, float xhi) const;
 
-    /// The parent correction object.
-    const CaloSwEtaoff_v3& m_corr;
+    // Tabulated arrays of function parameters.
+    const CxxUtils::Array<4>& m_correction;
+
+    /// Table of regions.
+    const CxxUtils::Array<2>& m_regions;
+
+    /// Functional form per region.
+    const CxxUtils::Array<2>& m_forms;
 
     /// The index of the region in which we're evaluating the correction.
     int m_region_ndx;
@@ -238,7 +235,8 @@ private:
   friend class Builder;
 
   /// Find the index of the region containing a given @f$\eta@f$ value.
-  int find_region (float aeta) const;
+  int find_region (const CxxUtils::Array<2>& regions,
+                   float aeta) const;
 
   /// Calibration constant: tabulated arrays of function parameters.
   /// Index 0: energy
@@ -250,7 +248,8 @@ private:
   /// is exactly 0, for any e and r, then this energy/region is skipped.
   /// (This is usually because insufficient statistics were available
   /// to get a good fit.)
-  CaloRec::Array<4> m_correction;
+  Constant<CxxUtils::Array<4> > m_correction
+  { this, "correction", "Tabulated arrays of function parameters." };
 
   /// Calibration constant: table of regions.  For each region, we have:
   ///  - Lower @f$|\eta|@f$ for the region.
@@ -262,7 +261,9 @@ private:
   ///
   /// If the forms variable is provided, then the functional form is
   /// taken from there instead of from here.
-  CaloRec::Array<2> m_regions;
+  Constant<CxxUtils::Array<2> > m_regions
+  { this, "regions", "Table of regions." };
+
   enum {
     REG_LO = 0,
     REG_HI = 1,
@@ -274,15 +275,18 @@ private:
 
   /// Calibration constant: table of energies at which the correction
   /// was tabulated.
-  CaloRec::Array<1> m_energies;
+  Constant<CxxUtils::Array<1> > m_energies
+  { this, "energies", "Table of energies at which the correction was tabulated." };
 
   /// Calibration constant: degree of the polynomial interpolation in energy.
-  int               m_energy_degree;
+  Constant<int> m_energy_degree
+  { this, "energy_degree", "Degree of the polynomial interpolation in energy." };
 
   /// Calibration constant: Functional form to use per region per energy.
   /// If this is empty, the form is taken instead from the region table
   /// (and is thus same for  all energies).
-  CaloRec::Array<2> m_forms;
+  Constant<CxxUtils::Array<2> > m_forms
+  { this, "forms", "Functional form to use per region per energy." };
 };
 
 

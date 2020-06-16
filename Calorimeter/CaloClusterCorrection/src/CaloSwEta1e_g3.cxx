@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -39,34 +39,17 @@ using CaloClusterCorr::interpolate;
 
   const float CaloSwEta1e_g3::s_middle_layer_granularity = 0.025;
 
-// -------------------------------------------------------------
-// Constructor 
-// -------------------------------------------------------------
-CaloSwEta1e_g3::CaloSwEta1e_g3(const std::string& type,
-                               const std::string& name,
-                               const IInterface* parent)
-  : CaloClusterCorrection(type,name,parent,
-                          "CaloSwEta${LAYER}${BE}_g3")
-{
-  declareConstant ("correction",        m_correction);
-  declareConstant ("correction_coef",   m_correction_coef);
-  declareConstant ("correction_degree", m_correction_degree);
-  declareConstant ("region",            m_region, true/*temp*/);
-}
-
-// -------------------------------------------------------------
-// Destructor 
-// -------------------------------------------------------------
-CaloSwEta1e_g3::~CaloSwEta1e_g3()
-{ }
-
 // make correction to one cluster 
-void CaloSwEta1e_g3::makeCorrection(const EventContext& /*ctx*/,
-                                    CaloCluster* cluster) const
+void CaloSwEta1e_g3::makeCorrection (const Context& myctx,
+                                     CaloCluster* cluster) const
 {
   // Only for endcap
   if (!cluster->inEndcap())
     return;
+
+  const CxxUtils::Array<3> correction = m_correction (myctx);
+  const float correction_coef = m_correction_coef (myctx);
+  const int correction_degree = m_correction_degree (myctx);
 
   float eta = cluster->etaSample(CaloSampling::EME1);
   if (eta == -999.) return;
@@ -99,9 +82,9 @@ void CaloSwEta1e_g3::makeCorrection(const EventContext& /*ctx*/,
   float u = fmod(eta-etamax, ufrac/2.);
   u += ufrac/2.;
   if (eta < 0.) u = ufrac-u;
-  float deta = m_correction_coef * interpolate (m_correction[corrndx],
-						u,
-						m_correction_degree);
+  float deta = correction_coef * interpolate (correction[corrndx],
+                                              u,
+                                              correction_degree);
   if (eta < 0)
     deta = -deta;
 
