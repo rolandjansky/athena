@@ -72,23 +72,36 @@ def CscMonitoringConfig(inputFlags):
 
     ### STEP 5 ###
     # Configure histograms
+    #Cluster
     cscClusGroup.defineHistogram('z,r',type='TH2F',title='R vs. Z Cluster hitmap;z(mm);R(mm)',
                                  path='Clusters/Shift',xbins=200,xmin=-10000.,xmax=10000., ybins=40, ymin=0., ymax=4000.)
 
     cscClusGroup.defineHistogram('y,x',type='TH2F',title='X vs. Y Cluster hitmap;y(mm);x(mm)',
                                  path='Clusters/Shift',xbins=100,xmin=-5000.,xmax=5000.,ybins=100,ymin=-5000,ymax=5000)
 
-    cscClusGroup.defineHistogram('noStrips,secLayer',type='TH2F',title='Phi-Cluster width;# strips;[sector] + [0.2 times layer]',
+    cscClusGroup.defineHistogram('noStrips,secLayer',type='TH2F',title='Phi-Cluster width;# strips;[sector] + [0.2 #times layer]',
                                  path='Clusters/Expert',xbins=48,xmin=0,xmax=48,ybins=175,ymin=-17,ymax=18)
 
-    cscClusGroup.defineHistogram('noStrips,secLayer',type='TH2F',title='Eta-Cluster width;# strips;[sector] + [0.2 times layer]',
+    cscClusGroup.defineHistogram('noStrips,secLayer',type='TH2F',title='Eta-Cluster width;# strips;[sector] + [0.2 #times layer]',
                                   path='Clusters/Expert',xbins=192, xmin=0, xmax=192, ybins=175, ymin=-17, ymax=18)
 
-    cscClusGroup.defineHistogram('stripid,secLayer',type='TH2F',title='Cluster occupancy;channel;[sector]+[0.2 times layer]',
+    cscClusGroup.defineHistogram('stripid,secLayer',type='TH2F',title='Cluster occupancy;channel;[sector]+[0.2 #times layer]',
                                   path='Clusters/Expert',xbins=242,xmin=-49.,xmax=193.,ybins=175,ymin=-17.,ymax=18.)
 
-    cscPrdGroup.defineHistogram('z,r',type='TH2F',title='Prd R vs. Z hitmap;z(mm);R(mm)',
-                                path='PRD/Shift',xbins=200,xmin=-10000.,xmax=10000., ybins=40, ymin=0., ymax=4000.)
+    #PRD
+    cscPrdGroup.defineHistogram('spid, secLayer', type='TH2F', title='Hit Occupancy; channel; [sector] + [0.2 #times layer]',
+                                 path='PRD/Expert',xbins=242,xmin=-49.,xmax=193.,ybins=175,ymin=-17.,ymax=18.)
+    cscPrdGroup.defineHistogram('noStrips, secLayerPhi',type='TH2F',title='PRD precision-cluster width;no.of strips;[sector] + [0.2 #times layer]',
+                                 path='PRD/Expert',xbins=48,xmin=0,xmax=48, ybins=175,ymin=-17.,ymax=18.)
+    cscPrdGroup.defineHistogram('noStrips, secLayerEta',type='TH2F',title='PRD precision-cluster width;no.of strips;[sector] + [0.2 #times layer]',
+                                 path='PRD/Expert',xbins=192,xmin=0,xmax=192, ybins=175,ymin=-17.,ymax=18.)
+    #maybe no needed
+    cscPrdGroup.defineHistogram('z,r',type='TH2F',title='R vs. Z Cluster hitmap;z(mm);R(mm)',
+                                path='PRD/Shift',xbins=200,xmin=-10000.,xmax=10000., ybins=40, ymin=0., ymax=4000.) 
+    cscPrdGroup.defineHistogram('y,x',type='TH2F',title='Y vs. X Cluster hitmap;x(mm);y(mm)',
+                                path='PRD/Shift',xbins=100,xmin=-5000.,xmax=5000., ybins=100, ymin=-5000., ymax=5000.) 
+
+
 
 
     #myGroup.defineHistogram('lb', title='Luminosity Block;lb;Events',
