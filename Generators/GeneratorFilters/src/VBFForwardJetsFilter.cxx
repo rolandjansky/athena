@@ -92,8 +92,8 @@ StatusCode VBFForwardJetsFilter::filterEvent() {
   ATH_MSG_DEBUG("xAOD::JetContainer size = " << truthjetTES->size());
 
   // Get MCTruth Photon/Electon/Tau(HadronicDecay)
-  std::vector<HepMC::GenParticle*> MCTruthPhotonList;
-  std::vector<HepMC::GenParticle*> MCTruthElectronList;
+  std::vector<HepMC::GenParticlePtr> MCTruthPhotonList;
+  std::vector<HepMC::GenParticlePtr> MCTruthElectronList;
   std::vector<CLHEP::HepLorentzVector*>   MCTruthTauList;
   McEventCollection::const_iterator itr;
   for (itr = events()->begin(); itr!=events()->end(); ++itr) {
@@ -237,7 +237,7 @@ StatusCode VBFForwardJetsFilter::filterEvent() {
 }
 
 
-CLHEP::HepLorentzVector VBFForwardJetsFilter::sumDaughterNeutrinos( HepMC::GenParticle *part ) {
+CLHEP::HepLorentzVector VBFForwardJetsFilter::sumDaughterNeutrinos( HepMC::GenParticlePtr part ) {
   CLHEP::HepLorentzVector nu( 0, 0, 0, 0);
 
   if ( ( abs( part->pdg_id() ) == 12 ) || ( abs( part->pdg_id() ) == 14 ) || ( abs( part->pdg_id() ) == 16 ) ) {
@@ -257,7 +257,7 @@ CLHEP::HepLorentzVector VBFForwardJetsFilter::sumDaughterNeutrinos( HepMC::GenPa
 }
 
 
-double VBFForwardJetsFilter::getMinDeltaR(const xAOD::Jet *jet, std::vector<HepMC::GenParticle*> &list) {
+double VBFForwardJetsFilter::getMinDeltaR(const xAOD::Jet *jet, std::vector<HepMC::GenParticlePtr> &list) {
   double minDR = 999.;
   for (unsigned i=0;i<list.size();++i) {
     if (list[i]->momentum().perp() != 0.) {
@@ -292,8 +292,8 @@ double VBFForwardJetsFilter::getMinDeltaR(const xAOD::Jet *jet, std::vector<CLHE
 
 
 void VBFForwardJetsFilter::removePseudoJets( std::vector<const xAOD::Jet*> &jetList,
-                                             std::vector<HepMC::GenParticle*> &MCTruthPhotonList,
-                                             std::vector<HepMC::GenParticle*> &MCTruthElectronList,
+                                             std::vector<HepMC::GenParticlePtr> &MCTruthPhotonList,
+                                             std::vector<HepMC::GenParticlePtr> &MCTruthElectronList,
                                              std::vector<CLHEP::HepLorentzVector*>   &MCTruthTauList) {
   std::vector<const xAOD::Jet*> orgJetList = jetList;
   jetList.clear();

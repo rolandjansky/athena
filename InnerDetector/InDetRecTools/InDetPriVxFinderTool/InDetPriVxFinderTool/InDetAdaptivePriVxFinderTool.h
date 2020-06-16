@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -9,27 +9,26 @@
  * @author Giacinto Piacquadio (Freiburg University)
  *
  *
- * This class provides an implementation for a primary 
- * vertex finding tool, which uses the Adaptive Vertex 
- * Fitter to reject outliers not belonging to the primary 
+ * This class provides an implementation for a primary
+ * vertex finding tool, which uses the Adaptive Vertex
+ * Fitter to reject outliers not belonging to the primary
  * vertex interaction.
  *
  * The steps done are simply;
  * - Tracks are selected according to the specified cuts
  * - The Adaptive Vertex Finder is used to fit them
  *
- * Contrary to the InDetPriVxFinderTool, the outlier 
+ * Contrary to the InDetPriVxFinderTool, the outlier
  * rejection is done by the fitter and not by the finder.
  *
- * One only vertex can be fit, so it is not suited (as a 
+ * One only vertex can be fit, so it is not suited (as a
  * finder) when many minimum bias vertices can be expected.
  * In this case please use the <i>InDetPriVxFinderTool</i>.
  *
  *
- * (this is a modified verson of InDetPriVxFinderTool.h of A. Wildauer & F. Akesson)
- *  changes :
- *      06/12/2006   Kirill.Prokofiev@cern.ch 
- *      EDM cleanup and switching to the FitQuality use 
+ * (this is a modified verson of InDetPriVxFinderTool.h of A. Wildauer & F.
+ *Akesson) changes : 06/12/2006   Kirill.Prokofiev@cern.ch EDM cleanup and
+ *switching to the FitQuality use
  *
  *      2016-04-26   David Shope <david.richard.shope@cern.ch>
  *      EDM Migration to xAOD - from Trk::VxCandidate to xAOD::Vertex
@@ -40,91 +39,102 @@
  *
  ***************************************************************************/
 
-//implemented using as template the InDetPriVxFinderTool class of A. Wildauer and F. Akesson
+// implemented using as template the InDetPriVxFinderTool class of A. Wildauer
+// and F. Akesson
 
 #ifndef INDETPRIVXFINDERTOOL_INDETADAPTIVEPRIVXFINDERTOOL_H
 #define INDETPRIVXFINDERTOOL_INDETADAPTIVEPRIVXFINDERTOOL_H
 
-#include "InDetRecToolInterfaces/IVertexFinder.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "TrkTrack/TrackCollection.h" // type def ...
-#include "TrkParticleBase/TrackParticleBaseCollection.h" // type def ...
+#include "GaudiKernel/ToolHandle.h"
+#include "InDetRecToolInterfaces/IVertexFinder.h"
 #include "TrkParameters/TrackParameters.h"
+#include "TrkParticleBase/TrackParticleBaseCollection.h" // type def ...
+#include "TrkTrack/TrackCollection.h"                    // type def ...
 /**
- * Forward declarations 
+ * Forward declarations
  */
- 
+
 #include "BeamSpotConditionsData/BeamSpotData.h"
-#include "xAODTracking/VertexFwd.h"
+#include "xAODTracking/TrackParticleContainerFwd.h"
 #include "xAODTracking/TrackParticleFwd.h"
 #include "xAODTracking/VertexContainerFwd.h"
-#include "xAODTracking/TrackParticleContainerFwd.h"
+#include "xAODTracking/VertexFwd.h"
 
-namespace Trk
-{
- class IVertexFitter;
- class Track;
- class TrackParticleBase;
- class IVxCandidateXAODVertex;
+namespace Trk {
+class IVertexFitter;
+class Track;
+class TrackParticleBase;
+class IVxCandidateXAODVertex;
 }
 
-namespace InDet
+namespace InDet {
+class IInDetTrackSelectionTool;
+
+class InDetAdaptivePriVxFinderTool
+  : public AthAlgTool
+  , virtual public IVertexFinder
 {
-  class IInDetTrackSelectionTool;
-  
- class InDetAdaptivePriVxFinderTool : public AthAlgTool, virtual public IVertexFinder
- {
 
 public:
+  /**
+   * Constructor
+   */
 
-   /**
-    * Constructor
-    */
-   
-   InDetAdaptivePriVxFinderTool(const std::string& t, const std::string& n, const IInterface*  p);
-   
-   /**
-    * Destructor
-    */
-   
-   virtual ~InDetAdaptivePriVxFinderTool();
-    
-   StatusCode initialize();
+  InDetAdaptivePriVxFinderTool(const std::string& t,
+                               const std::string& n,
+                               const IInterface* p);
 
-   /** 
-    * Finding method.
-    * Has as input a track collection and as output 
-    * a VxContainer.
-    */
+  /**
+   * Destructor
+   */
 
-   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const TrackCollection* trackTES);
-   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const Trk::TrackParticleBaseCollection* trackTES);
-   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const xAOD::TrackParticleContainer* trackParticles);
-   
-   StatusCode finalize();
-   
- private:
-   
-   /** the common finding code (regardless of Track or TrackParticle(Base) is here */
-   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(std::vector<const Trk::TrackParameters*>& origParameters);
+  virtual ~InDetAdaptivePriVxFinderTool();
 
-   ToolHandle< Trk::IVertexFitter > m_iVertexFitter;
-   ToolHandle< InDet::IInDetTrackSelectionTool > m_trkFilter;
-   
-    SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
-   
+  virtual StatusCode initialize() override;
 
-   void SGError(std::string errService);
+  /**
+   * Finding method.
+   * Has as input a track collection and as output
+   * a VxContainer.
+   */
 
-   /**
-    * Internal method to print the parameters setting
-    */
+  using IVertexFinder::findVertex;
 
-   virtual void printParameterSettings();
+  virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(
+    const TrackCollection* trackTES) const override;
  
- };//end of class definitions
-}//end of namespace definitions
+  virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(
+    const xAOD::TrackParticleContainer* trackParticles) const override;
+
+  virtual StatusCode finalize() override;
+
+private:
+  /** the common finding code (regardless of Track or TrackParticle(Base) is
+   * here */
+  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(
+    std::vector<const Trk::TrackParameters*>& origParameters) const;
+
+  ToolHandle<Trk::IVertexFitter> m_iVertexFitter;
+  ToolHandle<InDet::IInDetTrackSelectionTool> m_trkFilter;
+
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey{
+    this,
+    "BeamSpotKey",
+    "BeamSpotData",
+    "SG key for beam spot"
+  };
+
+  void SGError(const std::string& errService);
+
+  /**
+   * Internal method to print the parameters setting
+   */
+
+  virtual void printParameterSettings();
+
+}; // end of class definitions
+} // end of namespace definitions
 #endif
-                                                                                                             
+

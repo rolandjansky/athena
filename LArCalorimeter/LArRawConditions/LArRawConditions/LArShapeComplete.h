@@ -61,25 +61,10 @@ class LArShapeComplete: public ILArShape,
 	   const std::vector<std::vector<float> >& vShapeDer,
 	   float timeOffset=0, float timeBinWidth=25./24.);
 
-  //Overload the const-get method of the underlying LArConditionsContainer
-  //for speed improvment
-  CONTAINER::ConstReference get(const HWIdentifier id, int gain) const;
-
  protected: 
 
  private: 
   static const std::vector<float> m_empty;
-
-  //In a typical application of this class, the methods Shape, ShapeDer, timeBinWidht, etc., 
-  //are called consecutivly for the same cell and gain. Therefore it makes sense to 
-  //cache a pointer to the LArShapeP1 object.
-  //Used by tthe overloaded const-get method
-  struct cache_t {
-    HWIdentifier id;
-    int gain;
-    CONTAINER::ConstReference obj;
-  };
-  mutable cache_t m_cache;
 
 };
 
@@ -87,15 +72,5 @@ class LArShapeComplete: public ILArShape,
 CLASS_DEF( LArShapeComplete, 249350685, 1 )
 CONDCONT_DEF( LArShapeComplete, 55610575, ILArShape );
 
-inline
-LArShapeComplete::CONTAINER::ConstReference
-LArShapeComplete::get(const HWIdentifier id, int gain) const {  
-  if (m_cache.id!=id || m_cache.gain!=gain) {
-    m_cache.obj=LArConditionsContainer<LArShapeP2>::get(id,gain);
-    m_cache.id=id;
-    m_cache.gain=gain;
-  }
-  return m_cache.obj;
-}
 
 #endif 

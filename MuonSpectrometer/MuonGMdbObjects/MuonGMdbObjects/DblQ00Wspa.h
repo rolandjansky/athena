@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************
@@ -15,14 +15,16 @@
 
 #include "RDBAccessSvc/IRDBQuery.h"
 #include <memory>
-namespace MuonGM
-{
-class DblQ00Wspa {
 
+class AmdcDb;
+
+namespace MuonGM {
+class DblQ00Wspa {
 public:
     DblQ00Wspa(){};
     ~DblQ00Wspa();
     DblQ00Wspa(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Wspa(AmdcDb* wspa);
 
     // data members for DblQ00/WSPA fields
     struct WSPA {

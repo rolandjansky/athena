@@ -6,5 +6,5 @@ from chainDict2jetLabel import chainDict2jetLabel
 
 cds = testChainDictMaker()
 for cd in cds:
-    print cd[0]
-    print chainDict2jetLabel(cd[1])
+    print(cd[0])
+    print(chainDict2jetLabel(cd[1]))

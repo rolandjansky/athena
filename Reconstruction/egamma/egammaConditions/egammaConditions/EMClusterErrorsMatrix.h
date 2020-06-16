@@ -33,7 +33,7 @@ public:
   /** Constructor with std::vector of axes to define dimensions and binnging of this matrix
       @param axes: std::vector of APMatrixAxis objects
   */
-  EMClusterErrorsMatrix(const std::vector<EMAPMatrixAxis> &axes, std::string textDescription);
+  EMClusterErrorsMatrix(const std::vector<EMAPMatrixAxis> &axes, const std::string& textDescription);
   /** Default destructor*/
   ~EMClusterErrorsMatrix() {};
 

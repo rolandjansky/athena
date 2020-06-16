@@ -172,14 +172,9 @@ StatusCode EventBoost::AnalyseGenEvent(const HepMC::GenEvent* genEvt) {
 
   msg(MSG::VERBOSE) << "EventBoost begin AnalyseGenEvent()" << endmsg;
 
-  HepMC::GenEvent::particle_const_iterator p = genEvt->particles_begin();
-  HepMC::GenEvent::particle_const_iterator pEnd = genEvt->particles_end();
-
   std::vector<HepMC::GenParticlePtr> particles_needing_modification;
 
-  for(; p != pEnd; ++p ) {
-    particles_needing_modification.push_back(*p);
-  }
+  for(auto p: *genEvt)  particles_needing_modification.push_back(p);
 
   m_pxsum=0.;
   for (auto it: particles_needing_modification) {

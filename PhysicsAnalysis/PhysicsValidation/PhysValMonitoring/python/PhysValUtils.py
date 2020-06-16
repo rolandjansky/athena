@@ -61,7 +61,7 @@ def addAntiKt4TruthJets(algseq):
     algseq += CfgMgr.JetAlgorithm("jetalgTruthPartCopy",Tools=truthtools)
 
     for getter in jtm.gettersMap["truth"]:
-        algseq += CfgMgr.PseudoJetAlgorithm("pjalg_"+getter.Label,PJGetter=getter)
+        algseq += getter
 
     from JetRec.JetRecStandard import jtm
     return [ jtm.addJetFinder("AntiKt4TruthJets", "AntiKt", 0.4, "truth", ptmin= 5000) ]

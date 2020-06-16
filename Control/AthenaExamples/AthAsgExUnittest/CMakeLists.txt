@@ -1,6 +1,6 @@
 
 #
-#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 ################################################################################
@@ -37,7 +37,7 @@ atlas_add_test( gt_AthAsgExUnittest
 
 atlas_add_test( gt_AthExUnittest
   SOURCES test/gt_AthExUnittest.cxx
-  LINK_LIBRARIES GaudiKernel GoogleTestTools AthenaBaseComps )
+  LINK_LIBRARIES GaudiKernel GoogleTestTools AthenaBaseComps AsgTools )
 
 atlas_add_test( gt_MockxAODJet
   SOURCES test/gt_MockxAODJet.cxx

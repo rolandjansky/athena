@@ -74,6 +74,7 @@ Muon::ConstraintAngleMMClusterBuilderTool::ConstraintAngleMMClusterBuilderTool(c
                     AthAlgTool(t,n,p)
 {
     declareInterface<IMMClusterBuilderTool>(this);
+    declareProperty("writeStripProperties", m_writeStripProperties = true ); // true  for debugging; needs to become false for large productions
     declareProperty("nSigmaSelection",m_nSigmaSelection = 3);
     declareProperty("sTheta",m_sigmaTheta = 3);
     declareProperty("fitAngleCut",m_fitAngleCut = 10);  //degree 
@@ -254,12 +255,20 @@ const{
     std::vector<int> stripsOfClusterCharges;
     std::vector<short int> stripsOfClusterTimes;
     std::vector<uint16_t> stripsOfClusterChannels;
+    std::vector<float> stripDriftDists;
+    std::vector<Amg::MatrixX> stripDriftDistErrors;
 
     uint nStrips = idxCluster.size();
+
     stripsOfCluster.reserve(nStrips);
-    stripsOfClusterCharges.reserve(nStrips);
-    stripsOfClusterTimes.reserve(nStrips);
-    stripsOfClusterChannels.reserve(nStrips);
+
+    if (m_writeStripProperties) {
+        stripsOfClusterCharges.reserve(nStrips);
+        stripsOfClusterTimes.reserve(nStrips);
+        stripsOfClusterChannels.reserve(nStrips);
+    }
+    stripDriftDists.reserve(nStrips);
+    stripDriftDistErrors.reserve(nStrips);
 
     
     for(uint i_strip=0; i_strip < idxCluster.size(); i_strip++){
@@ -272,9 +281,13 @@ const{
         fitFunc.addPoint(x,y,xerror,yerror);
 
         stripsOfCluster.push_back(prdPerLayer.at(idxCluster.at(i_strip)).identify());
-        stripsOfClusterCharges.push_back(prdPerLayer.at(idxCluster.at(i_strip)).charge());
-        stripsOfClusterChannels.push_back(m_idHelperSvc->mmIdHelper().channel(prdPerLayer.at(idxCluster.at(i_strip)).identify()));
-        stripsOfClusterTimes.push_back(prdPerLayer.at(idxCluster.at(i_strip)).time());
+        if (m_writeStripProperties) {
+            stripsOfClusterCharges.push_back(prdPerLayer.at(idxCluster.at(i_strip)).charge());
+            stripsOfClusterTimes.push_back(prdPerLayer.at(idxCluster.at(i_strip)).time());
+            stripsOfClusterChannels.push_back(m_idHelperSvc->mmIdHelper().channel(prdPerLayer.at(idxCluster.at(i_strip)).identify()));
+        }
+        stripDriftDists.push_back(prdPerLayer.at(i_strip).driftDist());
+        stripDriftDistErrors.push_back(prdPerLayer.at(i_strip).localCovariance());
     }
     if(std::abs(ffit->GetParameter(0)-clusterTheta)> m_fitAngleCut * Gaudi::Units::degree){return StatusCode::FAILURE;}; // very loose cut for now
 
@@ -309,9 +322,12 @@ const{
 		  stripsOfClusterCharges.end(),0),
 		driftDist,
 		stripsOfClusterChannels,stripsOfClusterTimes,stripsOfClusterCharges);
-	    
+
+
+     prdN->setDriftDist(stripDriftDists, stripDriftDistErrors);
+     prdN->setAuthor(Muon::MMPrepData::Author::ConstraintuTPCClusterBuilder);
      ATH_MSG_DEBUG("Did create new prd");
-     
+
      ATH_MSG_DEBUG("Setting prd angle: "<< fitResults[0] <<" chi2 Prob: "<<0);
 
      prdN->setMicroTPC(fitResults[0],0);

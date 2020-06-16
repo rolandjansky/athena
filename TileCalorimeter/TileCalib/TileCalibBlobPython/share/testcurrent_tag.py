@@ -53,7 +53,7 @@ if instance == 'CONDBR2' :
     log.info("alias CURRENT = %s alias NEXT = %s", current, nexttag)
 
 if folder == '':
-        sys.exit()
+    sys.exit()
 
 #=================================================
 connStr='COOLOFL_TILE/'+instance

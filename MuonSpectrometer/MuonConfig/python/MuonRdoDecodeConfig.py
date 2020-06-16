@@ -137,8 +137,8 @@ def MdtRDODecodeCfg(flags, forTrigger=False):
                                               DecodingTool  = MdtRdoToMdtPrepDataTool,
                                               PrintPrepData = False )
     # add RegSelTool
-    from RegionSelector.RegSelToolConfig import makeRegSelTool_MDT
-    MdtRdoToMdtPrepData.RegSel_MDT = makeRegSelTool_MDT()
+    from RegionSelector.RegSelToolConfig import regSelToolMDTCfg
+    MdtRdoToMdtPrepData.RegSel_MDT = acc.popToolsAndMerge( regSelToolMDTCfg( flags ) )
 
     if forTrigger:
         # Set the algorithm to RoI mode
@@ -146,8 +146,9 @@ def MdtRDODecodeCfg(flags, forTrigger=False):
         from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
         MdtRdoToMdtPrepData.RoIs = mapThresholdToL1RoICollection("MU")
 
-    #acc.addEventAlgo(MdtRdoToMdtPrepData) #commented to pass test_trig_data_newJO_build.py after using makeRegSelTool_MDT
+    acc.addEventAlgo(MdtRdoToMdtPrepData) 
     return acc
+
 
 def CscRDODecodeCfg(flags, forTrigger=False):
     acc = ComponentAccumulator()

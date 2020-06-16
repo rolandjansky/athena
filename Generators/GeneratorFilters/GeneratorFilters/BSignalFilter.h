@@ -65,23 +65,23 @@ class BSignalFilter : public GenFilter
   // ** Private member functions **
 
   // Find child
-  void FindAllChildren(const HepMC::GenParticle* mother,std::string treeIDStr,  
+  void FindAllChildren(HepMC::ConstGenParticlePtr mother,std::string treeIDStr,  
 		       bool fromFinalB, bool &foundSignal, bool &passedAllCuts,
 		       TLorentzVector &p1, TLorentzVector &p2, bool fromSelectedB) const;
 
   // Check whether child has pass cuts
-  bool FinalStatePassedCuts(const HepMC::GenParticle* child) const; 
+  bool FinalStatePassedCuts(HepMC::ConstGenParticlePtr child) const; 
 
   // Test whether final states pass cuts
    bool test_cuts(const double myPT, const double testPT,
 		 const double myEta, const double testEta) const;
   
   // LVL1 and LVL2 cuts
-  bool LVL1_Mu_Trigger(const HepMC::GenParticle* child) const;
-  bool LVL2_eMu_Trigger(const HepMC::GenParticle* child) const;
+  bool LVL1_Mu_Trigger(HepMC::ConstGenParticlePtr child) const;
+  bool LVL2_eMu_Trigger(HepMC::ConstGenParticlePtr child) const;
   
   // Print child (for debug)
-  void PrintChild(const HepMC::GenParticle* child, const std::string treeIDStr, const bool fromFinalB) const; 
+  void PrintChild(HepMC::ConstGenParticlePtr child, const std::string treeIDStr, const bool fromFinalB) const; 
   
 };
 

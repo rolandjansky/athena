@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ByteStreamEventStorageOutputSvc.h"
@@ -352,6 +352,11 @@ ByteStreamEventStorageOutputSvc::putEvent(RawEvent* re)
   ++m_totalEventCounter;
   if (deleteBuffer) delete [] st;
   return(true);
+}
+
+bool ByteStreamEventStorageOutputSvc::putEvent(RawEvent* /*re*/, const EventContext& /*ctx*/) {
+  ATH_MSG_FATAL(name() << " does not implement the context-aware putEvent method");
+  return false;
 }
 
 

@@ -120,6 +120,22 @@ T ToolConstant<T>::operator() (const Context& c) const
 }
 
 
+/** 
+ * @brief Retrieve the value of a constant.
+ *
+ * This variant may only be used if the constant was initialized via JO.
+ */
+template <class T>
+inline
+T ToolConstant<T>::operator()() const
+{
+  if (!m_prop.m_setFromJO) {
+    CaloUtils::throwExcBadContextlessRetrieve (m_prop.m_impl.m_toolName, m_prop.name());
+  }
+  return static_cast<T> (m_prop);
+}
+
+
 /**
  * @brief Return the name of this constant.
  */

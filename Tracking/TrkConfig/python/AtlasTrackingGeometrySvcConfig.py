@@ -147,7 +147,8 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
   # helpers for the InDetTrackingGeometry Builder : cylinder volume creator
   Trk__CylinderVolumeCreator=CompFactory.Trk.CylinderVolumeCreator
   InDetCylinderVolumeCreator = Trk__CylinderVolumeCreator(name = 'InDetCylinderVolumeCreator')
-  # give it the layer array creator - assume defaults
+  # give it the layer array creator
+  InDetCylinderVolumeCreator.LayerArrayCreator = InDetLayerArrayCreator
   # specifiy the binning, passive layers, entry layers - assume defaults
   # add to ToolSvc
   result.addPublicTool(InDetCylinderVolumeCreator)  

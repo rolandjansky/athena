@@ -21,6 +21,7 @@ atlas_depends_on_subdirs( PUBLIC
                           LArCalorimeter/LArIdentifier
                           LArCalorimeter/LArRecUtils
                           LArCalorimeter/LArTools
+                          LArCalorimeter/LArRawConditions
                           Trigger/TrigAnalysis/TrigDecisionTool
                           PRIVATE
                           Calorimeter/CaloConditions
@@ -46,7 +47,7 @@ atlas_add_component( CaloCondPhysAlgs
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} ${COOL_LIBRARIES} ${CLHEP_LIBRARIES} CaloCondBlobObjs CaloDetDescrLib CaloGeoHelpers 
-		     CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib SGtests GaudiKernel LArCablingLib LArIdentifier TrigDecisionToolLib 
+		     CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib SGtests GaudiKernel LArCablingLib LArIdentifier TrigDecisionToolLib LArRawConditions
 		     CaloConditions CaloEvent CaloUtilsLib AthenaPoolUtilities Identifier xAODEventInfo LArHV LArReadoutGeometry LArSimEvent CxxUtils)
 
 # Install files from the package:

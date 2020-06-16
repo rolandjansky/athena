@@ -205,7 +205,7 @@ def MooCandidateMatchingToolCfg(flags, name="MooCandidateMatchingTool", doSegmen
     
     result = ComponentAccumulator()
 
-    # Won't explicitly configure MuonIdHelperTool, MuonEDMHelperSvc, MuonEDMPrinterTool
+    # Won't explicitly configure MuonEDMHelperSvc, MuonEDMPrinterTool
     
     acc = MuonExtrapolatorCfg(flags, name="MuonStraightLineExtrapolator")
     slextrap = acc.getPrimary()
@@ -517,7 +517,7 @@ if __name__=="__main__":
     itemsToRecord = ["TrackCollection#MuonSpectrometerTracks"] 
     SetupMuonStandaloneOutput(cfg, ConfigFlags, itemsToRecord)
     
-    cfg.printConfig(withDetails = True, summariseProps = True)
+    cfg.printConfig(withDetails = True)
               
     f=open("MuonTrackBuilding.pkl","wb")
     cfg.store(f)

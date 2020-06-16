@@ -1169,8 +1169,8 @@ StatusCode MdtRawDataMonAlg::handleEvent_effCalc_fillVects(const Trk::SegmentCol
       std::vector<float> traversed_distance;    
       for( unsigned i_chamber=0; i_chamber<unique_chambers.size(); i_chamber++) {
         Identifier station_id = unique_chambers.at(i_chamber);
-        if( !m_idHelperSvc->mdtIdHelper().is_mdt( station_id ) ) {
-          ATH_MSG_DEBUG("is_mdt() returned false in segm-based mdt eff calc" );
+        if( !m_idHelperSvc->isMdt( station_id ) ) {
+          ATH_MSG_DEBUG("Non-MDT station Identifier in segm-based mdt eff calc" );
         }
         std::string hardware_name = getChamberName(station_id); 
 

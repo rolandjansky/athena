@@ -34,7 +34,8 @@ UPDATE : 25/06/2018
 #include <stdexcept>
 #include <vector>
 
-egammaSelectedTrackCopy::egammaSelectedTrackCopy(const std::string& name, ISvcLocator* pSvcLocator)
+egammaSelectedTrackCopy::egammaSelectedTrackCopy(const std::string& name,
+                                                 ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
   , m_AllClusters{}
   , m_SelectedClusters{}
@@ -84,26 +85,34 @@ egammaSelectedTrackCopy::egammaSelectedTrackCopy::finalize()
 }
 
 StatusCode
-egammaSelectedTrackCopy::execute()
+egammaSelectedTrackCopy::execute_r(const EventContext& ctx) const
 {
-  SG::ReadHandle<xAOD::CaloClusterContainer> clusterTES(m_clusterContainerKey);
+  SG::ReadHandle<xAOD::CaloClusterContainer> clusterTES(m_clusterContainerKey,
+                                                        ctx);
   if (!clusterTES.isValid()) {
-    ATH_MSG_FATAL("Failed to retrieve cluster container: " << m_clusterContainerKey.key());
+    ATH_MSG_FATAL(
+      "Failed to retrieve cluster container: " << m_clusterContainerKey.key());
     return StatusCode::FAILURE;
   }
-  SG::ReadHandle<xAOD::TrackParticleContainer> trackTES(m_trackParticleContainerKey);
+  SG::ReadHandle<xAOD::TrackParticleContainer> trackTES(
+    m_trackParticleContainerKey, ctx);
+ 
   if (!trackTES.isValid()) {
-    ATH_MSG_FATAL("Failed to retrieve TrackParticle container: " << m_trackParticleContainerKey.key());
+    ATH_MSG_FATAL("Failed to retrieve TrackParticle container: "
+                  << m_trackParticleContainerKey.key());
     return StatusCode::FAILURE;
   }
 
-  SG::WriteHandle<ConstDataVector<xAOD::TrackParticleContainer>> outputTrkPartContainer(m_OutputTrkPartContainerKey);
+  SG::WriteHandle<ConstDataVector<xAOD::TrackParticleContainer>>
+    outputTrkPartContainer(m_OutputTrkPartContainerKey,ctx);
   /*
    * Here it just needs to be a view copy ,
    * i.e the collection of selected trackParticles
    * we create does not really own its elements
    */
-  auto viewCopy = std::make_unique<ConstDataVector<xAOD::TrackParticleContainer>>(SG::VIEW_ELEMENTS);
+  auto viewCopy =
+    std::make_unique<ConstDataVector<xAOD::TrackParticleContainer>>(
+      SG::VIEW_ELEMENTS);
 
   // Local counters
   auto allClusters = m_AllClusters.buffer();
@@ -154,7 +163,7 @@ egammaSelectedTrackCopy::execute()
          check if it the track is selected due to this cluster.
          If not continue to next cluster
          */
-      if (!Select(Gaudi::Hive::currentContext(), cluster, track, cache, isTRT)) {
+      if (!Select(ctx, cluster, track, cache, isTRT)) {
         continue;
       }
       viewCopy->push_back(track);

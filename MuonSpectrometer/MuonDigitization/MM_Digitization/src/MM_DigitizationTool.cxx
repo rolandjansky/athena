@@ -730,7 +730,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       //
       // Sanity Checks
       //      
-      if( !m_idHelperSvc->mmIdHelper().is_mm(layerID) ){
+      if( !m_idHelperSvc->isMM(layerID) ){
 	ATH_MSG_WARNING("layerID does not represent a valid MM layer: "
 			<< m_idHelperSvc->mmIdHelper().stationNameString(m_idHelperSvc->mmIdHelper().stationName(layerID)) );
 	continue;
@@ -739,11 +739,11 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       std::string stName = m_idHelperSvc->mmIdHelper().stationNameString(m_idHelperSvc->mmIdHelper().stationName(layerID));
       int isSmall = stName[2] == 'S';
       
-      if( m_idHelperSvc->mmIdHelper().is_mdt(layerID)
-	  || m_idHelperSvc->mmIdHelper().is_rpc(layerID)
-	  || m_idHelperSvc->mmIdHelper().is_tgc(layerID)
-	  || m_idHelperSvc->mmIdHelper().is_csc(layerID)
-	  || m_idHelperSvc->mmIdHelper().is_stgc(layerID)
+      if( m_idHelperSvc->isMdt(layerID)
+	  || m_idHelperSvc->isRpc(layerID)
+	  || m_idHelperSvc->isTgc(layerID)
+	  || m_idHelperSvc->isCsc(layerID)
+	  || m_idHelperSvc->issTgc(layerID)
 	  ){
 	ATH_MSG_WARNING("MM id has wrong technology type! ");
 	m_exitcode = 9;

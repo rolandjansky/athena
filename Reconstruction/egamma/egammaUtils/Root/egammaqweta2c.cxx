@@ -5,20 +5,20 @@
 #include "egammaUtils/egammaqweta2c.h"
 #include "xAODCaloEvent/CaloCluster.h"
 
-#include <math.h>
+#include <cmath>
 
 namespace {
-const float P0A[3] = {0.0045, 0.005375, -0.0562};
-const float P1A[3] = {-0.0016, -0.0215, 0.114};
-const float P2A[3] = {-0.0866, 0.0215, -0.053};
+constexpr float P0A[3] = {0.0045, 0.005375, -0.0562};
+constexpr float P1A[3] = {-0.0016, -0.0215, 0.114};
+constexpr float P2A[3] = {-0.0866, 0.0215, -0.053};
 
-const float P0B[3] = {0.0039, 0.005075, -0.0324};
-const float P1B[3] = {0.00816, -0.0203, 0.0653};
-const float P2B[3] = {-0.145, 0.0203, -0.0286};
+constexpr float P0B[3] = {0.0039, 0.005075, -0.0324};
+constexpr float P1B[3] = {0.00816, -0.0203, 0.0653};
+constexpr float P2B[3] = {-0.145, 0.0203, -0.0286};
 
-const float P0C[3] = {0.0047, 0.0035, 0.0};
-const float P1C[3] = {-0.0184, -0.0139, 0.0};
-const float P2C[3] = {0.0180, 0.0137, 0.0};
+constexpr float P0C[3] = {0.0047, 0.0035, 0.0};
+constexpr float P1C[3] = {-0.0184, -0.0139, 0.0};
+constexpr float P2C[3] = {0.0180, 0.0137, 0.0};
 } // namespace
 
 float egammaqweta2c::Correct(const float eta, const float etacell, const float weta2) {
@@ -29,31 +29,38 @@ float egammaqweta2c::Correct(const float eta, const float etacell, const float w
   if (aeta < 0.8) {
     if (etarel < 0.1) {
       return (weta2 - (P0A[0] + P1A[0] * etarel + P2A[0] * etarel * etarel));
-    } else if (etarel < 0.9) {
+    }
+    if (etarel < 0.9) {
       return (weta2 - (P0A[1] + P1A[1] * etarel + P2A[1] * etarel * etarel));
-    } else {
-      return (weta2 - (P0A[2] + P1A[2] * etarel + P2A[2] * etarel * etarel));
     }
-  } else if (aeta < 1.5) {
-    if (etarel < 0.1) {
-      return (weta2 - (P0B[0] + P1B[0] * etarel + P2B[0] * etarel * etarel));
-    } else if (etarel < 0.9) {
-      return (weta2 - (P0B[1] + P1B[1] * etarel + P2B[1] * etarel * etarel));
-    } else {
-      return (weta2 - (P0B[2] + P1B[2] * etarel + P2B[2] * etarel * etarel));
-    }
+    return (weta2 - (P0A[2] + P1A[2] * etarel + P2A[2] * etarel * etarel));
+  }
 
-  } else if (aeta < 1.8) {
+  if (aeta < 1.5) {
     if (etarel < 0.1) {
       return (weta2 - (P0B[0] + P1B[0] * etarel + P2B[0] * etarel * etarel));
-    } else if (etarel < 0.9) {
-      return (weta2 - (P0B[1] + P1B[1] * etarel + P2B[1] * etarel * etarel));
-    } else {
-      return (weta2 - (P0B[2] + P1B[2] * etarel + P2B[2] * etarel * etarel));
     }
-  } else if (aeta < 2.0) {
+    if (etarel < 0.9) {
+      return (weta2 - (P0B[1] + P1B[1] * etarel + P2B[1] * etarel * etarel));
+    }
+    return (weta2 - (P0B[2] + P1B[2] * etarel + P2B[2] * etarel * etarel));
+  }
+
+  if (aeta < 1.8) {
+    if (etarel < 0.1) {
+      return (weta2 - (P0B[0] + P1B[0] * etarel + P2B[0] * etarel * etarel));
+    }
+    if (etarel < 0.9) {
+      return (weta2 - (P0B[1] + P1B[1] * etarel + P2B[1] * etarel * etarel));
+    }
+    return (weta2 - (P0B[2] + P1B[2] * etarel + P2B[2] * etarel * etarel));
+  }
+
+  if (aeta < 2.0) {
     return (weta2 - (P0C[0] + P1C[0] * etarel + P2C[0] * etarel * etarel));
-  } else if (aeta < 2.5) {
+  }
+
+  if (aeta < 2.5) {
     return (weta2 - (P0C[1] + P1C[1] * etarel + P2C[1] * etarel * etarel));
   }
   return weta2;

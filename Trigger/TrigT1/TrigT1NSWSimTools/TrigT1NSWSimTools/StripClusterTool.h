@@ -1,29 +1,24 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STRIPCLUSTERTOOL_H
 #define STRIPCLUSTERTOOL_H
 
-//basic includes
+#include "TrigT1NSWSimTools/IStripClusterTool.h"
+#include "GaudiKernel/IIncidentListener.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
 
-#include "GaudiKernel/Property.h"
-
-//local includes
-#include "TrigT1NSWSimTools/IStripClusterTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "StripClusterOfflineData.h"
 #include "TrigT1NSWSimTools/PadTrigger.h"
 #include "TrigT1NSWSimTools/StripTdsOfflineTool.h"
 #include "TrigT1NSWSimTools/TriggerTypes.h"
 
-
 //forward declarations
 class IIncidentSvc;
 class IAtRndmGenSvc;
-class sTgcIdHelper;
 class sTgcDigit;
 class TTree;
 
@@ -61,7 +56,7 @@ namespace NSWL1 {
     StripClusterTool(const std::string& type, 
                       const std::string& name,
                       const IInterface* parent);
-    virtual ~StripClusterTool();
+    virtual ~StripClusterTool()=default;
     virtual StatusCode initialize() override;
     virtual void handle (const Incident& inc) override;
     virtual
@@ -79,7 +74,7 @@ namespace NSWL1 {
     ServiceHandle< IIncidentSvc >      m_incidentSvc;       //!< Athena/Gaudi incident Service
     ServiceHandle< IAtRndmGenSvc >     m_rndmSvc;           //!< Athena random number service
     const MuonGM::MuonDetectorManager* m_detManager;        //!< MuonDetectorManager
-    const sTgcIdHelper*                m_sTgcIdHelper;      //!< sTgc offline Id helper
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     // analysis ntuple
     TTree* m_tree;                                          //!< ntuple for analysis

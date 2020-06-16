@@ -290,7 +290,7 @@ StatusCode TrigT1RPC::fill_RPCdata(RPCsimuData& data, const RpcCablingCondData* 
  
         Identifier moduleId = rpcCollection->identify();
 
-	if (m_idHelperSvc->rpcIdHelper().is_rpc(moduleId))
+	if (m_idHelperSvc->isRpc(moduleId))
         {
             digit_iterator it1_digit = rpcCollection->begin();
             digit_iterator it2_digit = rpcCollection->end();

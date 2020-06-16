@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GEOMODEL_SCT_SKIAUX_H
@@ -10,7 +10,6 @@
 #include <string>
 
 class SCT_Ski;
-// 14th Aug 2005 S.Mima modified.
 class SCT_Bracket;
 class SCT_Harness;
 class SCT_SkiPowerTape;
@@ -50,8 +49,6 @@ public:
 
   // Retrieve child elements
   const SCT_Ski *         ski()          const {return m_ski;}
-  // 14th Aug 2005 S.Mima modified.
-  //  const SCT_Bracket *     bracket()      const {return m_bracket;}
   const SCT_Bracket *     bracket()      const {return m_bracket;}
   const SCT_Harness *     harness()      const {return m_harness;}
   const SCT_SkiPowerTape* skiPowerTape() const {return m_skiPowerTape;}

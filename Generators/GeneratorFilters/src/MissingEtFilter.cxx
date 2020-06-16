@@ -21,22 +21,13 @@ StatusCode MissingEtFilter::filterEvent() {
   McEventCollection::const_iterator itr;
   for (itr = events()->begin(); itr != events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
-    for (HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
-      if (!MC::isGenStable(*pitr)) continue;
-
-      // Consider all non-interacting particles
-      // We want Missing Transverse Momentum, not "Missing Transverse Energy"
-      if (MC::isNonInteracting(*pitr)) {
-	bool addpart = true;
-	if(!m_useHadronicNu && MC::isNeutrino(*pitr) && !(fromWZ(*pitr) || fromTau(*pitr)) ) {
-	  addpart = false; // ignore neutrinos from hadron decays
-	}
-	if(addpart) {
-	  ATH_MSG_VERBOSE("Found noninteracting particle: ID = " << (*pitr)->pdg_id() << " PX = " << (*pitr)->momentum().px() << " PY = "<< (*pitr)->momentum().py());
-	  sumx += (*pitr)->momentum().px();
-	  sumy += (*pitr)->momentum().py();
-	}
-      }
+    for (auto pitr: *genEvt) {
+      if (!MC::isGenStable(pitr)) continue;
+      if (!MC::isNonInteracting(pitr)) continue;
+      if(!m_useHadronicNu && MC::isNeutrino(pitr) && !(fromWZ(pitr) || fromTau(pitr)) ) continue;
+      ATH_MSG_VERBOSE("Found noninteracting particle: ID = " << pitr->pdg_id() << " PX = " << pitr->momentum().px() << " PY = "<< pitr->momentum().py());
+      sumx += pitr->momentum().px();
+      sumy += pitr->momentum().py();
     }
   }
 
@@ -47,7 +38,7 @@ StatusCode MissingEtFilter::filterEvent() {
   return StatusCode::SUCCESS;
 }
 
-bool MissingEtFilter::fromWZ( const HepMC::GenParticle* part ) const
+bool MissingEtFilter::fromWZ( HepMC::ConstGenParticlePtr part ) const
 {
   // !!! IMPORTANT !!! This is a TEMPORARY function
   //  it's used in place of code in MCTruthClassifier as long as this package is not dual-use
@@ -72,7 +63,7 @@ bool MissingEtFilter::fromWZ( const HepMC::GenParticle* part ) const
   return false;
 }
 
-bool MissingEtFilter::fromTau( const HepMC::GenParticle* part ) const
+bool MissingEtFilter::fromTau( HepMC::ConstGenParticlePtr part ) const
 {
   // !!! IMPORTANT !!! This is a TEMPORARY function
   //  it's used in place of code in MCTruthClassifier as long as this package is not dual-use

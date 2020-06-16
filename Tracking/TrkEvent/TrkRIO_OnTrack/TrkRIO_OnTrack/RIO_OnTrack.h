@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -50,11 +50,12 @@ namespace Trk {
 
   namespace RIO_OnTrackType{
     enum Type{
-        SiCluster=0,
-        TRT_DriftCircle=1,
-        MdtDriftCircle=2,
-        MuonCluster=3,
-        PlanarCluster=4
+        PixelCluster=0,
+        SCTCluster=1,
+        TRT_DriftCircle=2,
+        MdtDriftCircle=3,
+        MuonCluster=4,
+        PlanarCluster=5
     };
   }
 

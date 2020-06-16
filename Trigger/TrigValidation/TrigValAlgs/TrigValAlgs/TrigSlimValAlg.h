@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CLASS_TRIG_SLIM_VALIDATION_H
@@ -10,7 +10,6 @@
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigNavigation/TriggerElement.h"
-#include "TrigNavTools/TrigNavigationSlimmingTool.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include <iostream>
 
@@ -250,7 +249,6 @@ class TrigSlimValAlg : public AthAlgorithm {
 
     // tools
     ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool; //<! TrigDecisionTool
-    ToolHandle<HLT::TrigNavigationSlimmingTool> m_slimmingTool; //<! Navigation Slimming Tool
     
     // internal data
     std::vector<std::string> m_configuredGroups; //<! cache group->chain map

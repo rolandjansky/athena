@@ -14,8 +14,6 @@
 #include "MuonPrepRawData/MMPrepData.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "MuonIdHelpers/MuonIdHelperSvc.h"
-
 namespace Muon {
 class ClusterTimeProjectionMMClusterBuilderTool :
   virtual public IMMClusterBuilderTool,
@@ -34,6 +32,7 @@ class ClusterTimeProjectionMMClusterBuilderTool :
     /// Muon Detector Descriptor
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
+    bool m_writeStripProperties;
     uint m_maxHoleSize;
 
 

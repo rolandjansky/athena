@@ -71,9 +71,6 @@ namespace HLT {
 	 StatusCode doSlimming( std::vector<uint32_t>& slimmed_and_serialized ) const;
 
 
-         std::map<std::string, int>* getFeatureOccurrences(HLT::NavigationCore* navigation);
-
-	 	 
    private:
 	 ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
 	 
@@ -250,12 +247,6 @@ namespace HLT {
              std::vector<std::string> *exclusionList);
          bool toBeIncluded(State& state, TriggerElement *te, std::vector<TriggerElement*> *inclusionList, 
              std::vector<TriggerElement*> *exclusionList);
-
-         /**
-          * @brief Returns the label for the given feature
-          */
-         std::string getLabel(const HLT::NavigationCore& navigation,
-                              const TriggerElement::FeatureAccessHelper &fah) const;
 
          /**
           * @brief Propagates the features on given TE to its children

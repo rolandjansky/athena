@@ -27,7 +27,7 @@ from AthenaCommon.AppMgr import ServiceMgr
 # Set up the reading of the BS file:
 #
 include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
-svcMgr.ByteStreamInputSvc.FullFileName = [
+svcMgr.EventSelector.Input = [
   "daq.lvl1test.0000000.Single.Stream.LB0000.Athena._0001.data"
 ]
 

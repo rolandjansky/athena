@@ -110,10 +110,6 @@ else: include( "RecExCommon/RecExCommon_topOptions.py" )
 
 
 if TriggerFlags.doMT():
-  doBeamspotSlice=False
-  doStreamingSlice=False
-  doMonitorSlice=False
-  doMinBiasSlice=False
   doWriteRDOTrigger = False
   doWriteBS        = False
   include("TriggerJobOpts/runHLT_standalone.py")

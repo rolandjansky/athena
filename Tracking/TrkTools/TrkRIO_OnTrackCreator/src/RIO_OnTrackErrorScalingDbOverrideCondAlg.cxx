@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkRIO_OnTrack/RIO_OnTrackErrorScaling.h"
@@ -28,11 +28,11 @@ StatusCode RIO_OnTrackErrorScalingDbOverrideCondAlg::initialize ATLAS_NOT_THREAD
         ATH_MSG_FATAL("PrametersPerSet must either be empty or match the number of parameters of the error scaling class " << m_errorScalingTypeName);
         return StatusCode::FAILURE;
       }
-      else {
+      
         for (unsigned int n_parameters : m_nParameterPerSet) {
           n_parameters_total += n_parameters;
         }
-      }
+      
       m_useNParametersPerSet = m_nParameterPerSet;
     }
     else {
@@ -115,9 +115,9 @@ StatusCode RIO_OnTrackErrorScalingDbOverrideCondAlg::execute() {
           ATH_MSG_FATAL("No error scaling parameters for " << write_handle.key() << " " << m_errorScalingDataKit->paramNames()[param_i] << ".");
           return StatusCode::FAILURE;
         }
-        else {
+        
           ATH_MSG_VERBOSE("Parameters for " << write_handle.key() << " " << m_errorScalingDataKit->paramNames()[param_i] << error_scaling->params()[param_i] );
-        }
+        
       }
     }
 

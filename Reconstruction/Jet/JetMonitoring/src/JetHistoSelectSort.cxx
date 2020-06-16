@@ -1,13 +1,14 @@
 #include <list>
 #include "AthContainers/ConstDataVector.h"
 #include "JetMonitoring/JetHistoSelectSort.h"
-
+#include "JetMonitoring/JetMonitoringAlg.h" 
 
 
 JetHistoSelectSort::JetHistoSelectSort( const std::string& type,  const std::string & name ,const IInterface* parent):
   AthAlgTool( type, name, parent )
   , m_jetFillerTools(this)
   , m_selectTool(this)
+  , m_eventSelTool(this)
   , m_sortVar(this)
   
 
@@ -16,6 +17,7 @@ JetHistoSelectSort::JetHistoSelectSort( const std::string& type,  const std::str
 
   declareProperty("FillerTools",m_jetFillerTools);
   declareProperty("Selector",m_selectTool);
+  declareProperty("EventSelector",m_eventSelTool);
   declareProperty("SortVariable",m_sortVar);
   
 }
@@ -35,6 +37,11 @@ StatusCode JetHistoSelectSort::initialize() {
   if(m_selectTool.isEnabled()){
     ATH_CHECK(m_selectTool.retrieve());
     ATH_MSG_INFO( " Selecting with "<< m_selectTool->name() );
+  }
+
+  if(m_eventSelTool.isEnabled()){
+    ATH_CHECK(m_eventSelTool.retrieve());
+    ATH_MSG_INFO( " Selecting with "<< m_eventSelTool->name() );
   }
   
   if( m_sortVar.isEnabled() ){
@@ -70,6 +77,10 @@ StatusCode JetHistoSelectSort::processJetContainer(const JetMonitoringAlg& paren
     tmpList.remove_if( sel );
   }
 
+  if(m_eventSelTool.isEnabled()){
+    auto eventInfo = parentAlg.GetEventInfo(ctx);
+    if ( ! m_eventSelTool->keep(*eventInfo) ) tmpList.clear();
+  }
 
 
   ConstDataVector< xAOD::JetContainer > tmpCont(SG::VIEW_ELEMENTS);

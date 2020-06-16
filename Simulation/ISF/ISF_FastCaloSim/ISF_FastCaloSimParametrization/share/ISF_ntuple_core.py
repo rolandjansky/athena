@@ -41,7 +41,7 @@ ISF_HitAnalysis.GeoFileName = 'ISF_Geometry'
 ISF_HitAnalysis.CaloBoundaryR = 1148.0
 ISF_HitAnalysis.CaloBoundaryZ = 3550.0 #before: 3475.0
 ISF_HitAnalysis.CaloMargin=100 #=10cm
-ISF_HitAnalysis.NTruthParticles = 1 # Copy only one truth particle to the ntuples for now
+ISF_HitAnalysis.NTruthParticles = NTruthParticles 
 ISF_HitAnalysis.SaveAllBranches = saveAllBranches
 ISF_HitAnalysis.DoAllCells = False
 ISF_HitAnalysis.DoLayers = True

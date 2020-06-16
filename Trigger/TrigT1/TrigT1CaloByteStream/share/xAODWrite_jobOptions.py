@@ -31,7 +31,7 @@ InputFiles = [
 from ByteStreamCnvSvc import ReadByteStream
 
 
-svcMgr.ByteStreamInputSvc.FullFileName = InputFiles
+svcMgr.EventSelector.Input = InputFiles
 include("TrigT1CaloByteStream/ReadLVL1CaloBSRun2_jobOptions.py")
 svcMgr.MessageSvc.defaultLimit = 1000000
 

@@ -344,7 +344,7 @@ include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
 include( "ByteStreamCnvSvcBase/BSAddProvSvc_RDO_jobOptions.py" )
 theApp.ExtSvc += [ "ByteStreamCnvSvc" ] 
 ByteStreamInputSvc = svcMgr.ByteStreamInputSvc
-ByteStreamInputSvc.FullFileName += FileNameVec
+EventSelector.Input += FileNameVec
 
 # read ByteStream and reconstruct data
 include( "TileTBRec/TileTBRec_jobOptions.py" )

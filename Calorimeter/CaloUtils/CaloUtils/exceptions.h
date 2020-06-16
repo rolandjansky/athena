@@ -83,6 +83,37 @@ public:
 };
 
 
+/**
+ * @brief Exception --- Bad contextless retrieve.
+ *
+ * The Constant::operator() overload that does not take a Context argument
+ * may be used only for constants that were initialzed from job options.
+ */
+class ExcBadContextlessRetrieve
+  : public std::runtime_error
+{
+public:
+  /**
+   * @brief Constructor
+   * @param toolName Name of the tool being used.
+   * @param constName Name of the constant being retrieved.
+   */
+  ExcBadContextlessRetrieve (const std::string& toolName,
+                             const std::string& constName);
+};
+
+
+
+/**
+ * @brief Throw a CaloUtils::ExcBadContextlessRetrieve exception.
+ * @param toolName Name of the tool being used.
+ * @param constName Name of the constant being retrieved.
+ */
+[[noreturn]]
+void throwExcBadContextlessRetrieve (const std::string& toolName,
+                                     const std::string& constName);
+
+
 } // namespace CaloUtils
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -82,9 +82,9 @@ namespace egammaMVAFunctions
 	auto ph = static_cast<const xAOD::Photon*>(eg);
 	if (compute_ptconv(ph) > 3*GeV) { 
 	  return xAOD::EgammaHelpers::conversionRadius(ph);
-	} else {
+	} 
 	  return 799.0;
-	}
+	
       };
     funcLibrary["ph_zconv"] = [](const xAOD::Egamma* eg, const xAOD::CaloCluster*)
       { return static_cast<const xAOD::Photon*>(eg)->vertex()->position().z(); };
@@ -102,9 +102,9 @@ namespace egammaMVAFunctions
 	  auto pt1 = compute_pt1conv(ph);
 	  auto pt2 = compute_pt2conv(ph);
 	  return std::max(pt1, pt2)/(pt1+pt2);
-	} else {
+	} 
 	  return 1.0f;
-	}
+	
       };
     
     if (useLayerCorrected) {

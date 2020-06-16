@@ -173,9 +173,6 @@ StatusCode TauProcessorAlg::execute() {
       xAOD::TauJet* pTau = new xAOD::TauJet();
       pContainer->push_back( pTau );
       pTau->setJet(pSeedContainer, pSeed);
-
-      // This sets one track and link. Need to have at least 1 track linked to retrieve track container
-      setEmptyTauTrack(pTau, pTauTrackCont);
       
       //-----------------------------------------------------------------
       // Loop stops when Failure indicated by one of the tools
@@ -184,16 +181,22 @@ StatusCode TauProcessorAlg::execute() {
       for (ToolHandle<ITauToolBase>& tool : m_tools) {
 	ATH_MSG_DEBUG("ProcessorAlg Invoking tool " << tool->name());
 
-        if (tool->type() == "TauVertexFinder" ) { 
-          sc = tool->executeVertexFinder(*pTau);
-        }
-        else if ( tool->type() == "TauTrackFinder") { 
-          sc = tool->executeTrackFinder(*pTau);
-        }
-        else if ( tool->name().find("ShotFinder") != std::string::npos){
+	if (tool->type() == "TauVertexFinder" ) {
+	  sc = tool->executeVertexFinder(*pTau);
+	}
+	else if ( tool->type() == "TauTrackFinder") {
+	  sc = tool->executeTrackFinder(*pTau, *pTauTrackCont);
+	}
+	else if ( tool->type() == "tauRecTools::TauTrackClassifier") {
+	  sc = tool->executeTrackClassifier(*pTau, *pTauTrackCont);
+	}
+	else if ( tool->type() == "tauRecTools::TauTrackRNNClassifier") {
+	  sc = tool->executeRNNTrackClassifier(*pTau, *pTauTrackCont);
+	}
+	else if ( tool->type() == "TauShotFinder"){
 	  sc = tool->executeShotFinder(*pTau, *tauShotClusContainer, *tauShotPFOContainer);
 	}
-	else if ( tool->name().find("Pi0ClusterFinder") != std::string::npos){
+	else if ( tool->type() == "TauPi0CreateROI"){
 	  sc = tool->executePi0CreateROI(*pTau, *Pi0CellContainer, addedCellsMap);
 	}
 	else {
@@ -227,15 +230,3 @@ StatusCode TauProcessorAlg::execute() {
   return StatusCode::SUCCESS;
 }
 
-void TauProcessorAlg::setEmptyTauTrack(xAOD::TauJet* &pTau, 
-				       xAOD::TauTrackContainer* tauTrackContainer)
-{  
-  // Make a new tau track, add to container
-  xAOD::TauTrack* pTrack = new xAOD::TauTrack();
-  tauTrackContainer->push_back(pTrack);
-    
-  // Create an element link for that track
-  ElementLink<xAOD::TauTrackContainer> linkToTauTrack;
-  linkToTauTrack.toContainedElement(*tauTrackContainer, pTrack);
-  pTau->addTauTrackLink(linkToTauTrack);
-}

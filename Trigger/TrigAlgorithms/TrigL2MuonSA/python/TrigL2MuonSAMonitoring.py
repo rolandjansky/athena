@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
@@ -34,7 +34,7 @@ class TrigL2MuonSAMonitoring(GenericMonitoringTool):
 
 
 from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, TrigGenericMonitoringToolConfig
-	
+
 class TrigL2MuonSAValidationMonitoring(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="TrigL2MuonSAValidationMonitoring"):
         super(TrigL2MuonSAValidationMonitoring, self).__init__(name)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -337,10 +337,6 @@ int ZdcRecChannelToolV2::makeWaveformFromDigits(xAOD::ZdcModule& module) const
 //==================================================================================================
 int  ZdcRecChannelToolV2::makeRawFromDigits(xAOD::ZdcModuleContainer&  ChannelCollection) const
 {
-
-	Identifier id;
-
-	
 	msg(MSG::DEBUG) << "--> ZDC : ZdcRecChannelToolV2 ChannelCollection size " << ChannelCollection.size() << endmsg ;
 	return 0;
 }

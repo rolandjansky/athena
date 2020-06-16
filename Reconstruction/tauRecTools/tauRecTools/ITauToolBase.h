@@ -6,12 +6,17 @@
 #define ITOOLBASE_TAU_H
 
 #include "AsgTools/IAsgTool.h"
-#include "xAODParticleEvent/Particle.h"
-#include "xAODParticleEvent/ParticleContainer.h"
-#include "xAODParticleEvent/ParticleAuxContainer.h"
 
-#include "xAODTau/TauJetContainer.h"
-#include "xAODTau/TauJetAuxContainer.h"
+#include "xAODTau/TauJet.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODPFlow/PFOContainer.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODParticleEvent/ParticleContainer.h"
+
+#ifndef XAOD_ANALYSIS
+#include "CaloEvent/CaloCellContainer.h"
+#endif
 
 /**
  * @brief The base class for all tau tools.
@@ -46,7 +51,9 @@ class ITauToolBase : virtual public asg::IAsgTool
   virtual StatusCode executeVertexFinder(xAOD::TauJet& pTau, 
                                          const xAOD::VertexContainer* vertexContainer = nullptr, 
                                          const xAOD::TrackParticleContainer* trackContainer = nullptr) = 0;
-  virtual StatusCode executeTrackFinder(xAOD::TauJet& pTau, const xAOD::TrackParticleContainer* trackContainer = nullptr) = 0;  
+  virtual StatusCode executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrackContainer& tauTrackContainer, const xAOD::TrackParticleContainer* trackContainer = nullptr) = 0;
+  virtual StatusCode executeTrackClassifier(xAOD::TauJet& pTau, xAOD::TauTrackContainer& tauTrackContainer) const = 0;
+  virtual StatusCode executeRNNTrackClassifier(xAOD::TauJet& pTau, xAOD::TauTrackContainer& tauTrackContainer) = 0;
   virtual StatusCode executeShotFinder(xAOD::TauJet& pTau, xAOD::CaloClusterContainer& shotClusterContainer, xAOD::PFOContainer& PFOContainer ) = 0;
 #ifndef XAOD_ANALYSIS
   virtual StatusCode executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& caloCellContainer, std::vector<CaloCell*>& map ) = 0;

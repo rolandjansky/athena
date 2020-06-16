@@ -22,6 +22,7 @@
 
 #include "TrigInDetEvent/TrigVertex.h"
 #include "TrigInDetEvent/TrigVertexCollection.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTrack/Track.h"
@@ -312,9 +313,9 @@ namespace InDet {
   class ExtendedSiTrackMakerEventData_xk : public InDet::SiTrackMakerEventData_xk
   {
   public:
-    ExtendedSiTrackMakerEventData_xk(const SG::ReadHandleKey<Trk::PRDtoTrackMap> &key) { 
+    ExtendedSiTrackMakerEventData_xk(const SG::ReadHandleKey<Trk::PRDtoTrackMap> &key, const EventContext& ctx) { 
       if (!key.key().empty()) {
-        m_prdToTrackMap = SG::ReadHandle<Trk::PRDtoTrackMap>(key);
+        m_prdToTrackMap = SG::ReadHandle<Trk::PRDtoTrackMap>(key, ctx);
         if (!m_prdToTrackMap.isValid()) {
           throw std::runtime_error(std::string("Failed to get PRD to track map:") + key.key());
         }
@@ -356,8 +357,9 @@ namespace InDet {
 }
 
 StatusCode TrigFastTrackFinder::execute() {
+  auto ctx = getContext();
   //RoI preparation/update 
-  SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection(m_roiCollectionKey);
+  SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection(m_roiCollectionKey, ctx);
   ATH_CHECK(roiCollection.isValid());
   TrigRoiDescriptorCollection::const_iterator roi = roiCollection->begin();
   TrigRoiDescriptorCollection::const_iterator roiE = roiCollection->end();
@@ -368,11 +370,11 @@ StatusCode TrigFastTrackFinder::execute() {
   internalRoI.manageConstituents(false);//Don't try to delete RoIs at the end
   m_countTotalRoI++;
 
-  SG::WriteHandle<TrackCollection> outputTracks(m_outputTracksKey);
+  SG::WriteHandle<TrackCollection> outputTracks(m_outputTracksKey, ctx);
   outputTracks = std::make_unique<TrackCollection>();
 
-  InDet::ExtendedSiTrackMakerEventData_xk trackEventData(m_prdToTrackMap);
-  ATH_CHECK(findTracks(trackEventData, internalRoI, *outputTracks));
+  InDet::ExtendedSiTrackMakerEventData_xk trackEventData(m_prdToTrackMap, ctx);
+  ATH_CHECK(findTracks(trackEventData, internalRoI, *outputTracks, ctx));
   
   return StatusCode::SUCCESS;
 }
@@ -388,7 +390,8 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement*,
   }
   TrackCollection* outputTracks = new TrackCollection(SG::OWN_ELEMENTS);
   InDet::FexSiTrackMakerEventData_xk trackEventData(*this, outputTE, m_prdToTrackMap.key());
-  StatusCode sc = findTracks(trackEventData, *internalRoI, *outputTracks);
+
+  StatusCode sc = findTracks(trackEventData, *internalRoI, *outputTracks, getContext());
   HLT::ErrorCode code = HLT::OK;
   if (sc != StatusCode::SUCCESS) {
     delete outputTracks;
@@ -407,7 +410,8 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement*,
 
 StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trackEventData,
                                            const TrigRoiDescriptor& roi,
-                                           TrackCollection& outputTracks) const {
+                                           TrackCollection& outputTracks,
+                                           const EventContext& ctx) const {
   // Run3 monitoring ---------->
   auto mnt_roi_nTracks = Monitored::Scalar<int>("roi_nTracks", 0);
   auto mnt_roi_nSPs    = Monitored::Scalar<int>("roi_nSPs",    0);
@@ -433,7 +437,7 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
 
   std::vector<TrigSiSpacePointBase> convertedSpacePoints;
   convertedSpacePoints.reserve(5000);
-  ATH_CHECK(m_spacePointTool->getSpacePoints( roi, convertedSpacePoints, mnt_roi_nSPsPIX, mnt_roi_nSPsSCT));
+  ATH_CHECK(m_spacePointTool->getSpacePoints(roi, convertedSpacePoints, mnt_roi_nSPsPIX, mnt_roi_nSPsSCT, ctx));
 
   mnt_timer_SpacePointConversion.stop();
   mnt_roi_nSPs    = mnt_roi_nSPsPIX + mnt_roi_nSPsSCT;
@@ -541,7 +545,7 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
 
   bool PIX = true;
   bool SCT = true;
-  m_trackMaker->newTrigEvent(Gaudi::Hive::currentContext(), trackEventData, PIX, SCT);
+  m_trackMaker->newTrigEvent(ctx, trackEventData, PIX, SCT);
 
   for(unsigned int tripletIdx=0;tripletIdx!=triplets.size();tripletIdx++) {
 
@@ -566,7 +570,7 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
 
     ++mnt_roi_nSeeds;
 
-    std::list<Trk::Track*> tracks = m_trackMaker->getTracks(Gaudi::Hive::currentContext(), trackEventData, spVec);
+    std::list<Trk::Track*> tracks = m_trackMaker->getTracks(ctx, trackEventData, spVec);
 
     for(std::list<Trk::Track*>::const_iterator t=tracks.begin(); t!=tracks.end(); ++t) {
       if((*t)) {
@@ -665,7 +669,7 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
     m_countRoIwithTracks++;
 
   ///////////// fill vectors of quantities to be monitored
-  fillMon(outputTracks, *vertices, roi);
+  fillMon(outputTracks, *vertices, roi, ctx);
 
   mnt_roi_lastStageExecuted = 7; // Run3 monitoring
 
@@ -794,8 +798,8 @@ bool TrigFastTrackFinder::usedByAnyTrack(const std::vector<Identifier>& vIds, st
   return !xSection.empty();
 }
 
-void TrigFastTrackFinder::getBeamSpot(float& shift_x, float& shift_y) const {
-  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+void TrigFastTrackFinder::getBeamSpot(float& shift_x, float& shift_y, const EventContext& ctx) const {
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
   Amg::Vector3D vertex = beamSpotHandle->beamPos();
   ATH_MSG_VERBOSE("Beam spot position " << vertex);
   double xVTX = vertex.x();
@@ -830,11 +834,11 @@ HLT::ErrorCode TrigFastTrackFinder::getRoI(const HLT::TriggerElement* outputTE, 
 }
 
 void TrigFastTrackFinder::fillMon(const TrackCollection& tracks, const TrigVertexCollection& vertices, 
-                                  const TrigRoiDescriptor& roi) const {
+                                  const TrigRoiDescriptor& roi, const EventContext& ctx) const {
   float shift_x = 0;
   float shift_y = 0;
   if(m_useBeamSpot) {
-    getBeamSpot(shift_x, shift_y);
+    getBeamSpot(shift_x, shift_y, ctx);
   }
   auto mnt_roi_eta      = Monitored::Scalar<float>("roi_eta",      0.0);
   auto mnt_roi_phi      = Monitored::Scalar<float>("roi_phi",      0.0);

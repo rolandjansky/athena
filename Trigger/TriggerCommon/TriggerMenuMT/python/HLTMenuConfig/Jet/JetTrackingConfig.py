@@ -61,8 +61,7 @@ def JetTrackingSequence(dummyFlags,trkopt,RoIs):
         InputContainer=tracksname,
         OutputContainer=ghosttracksname,
         Label=label,
-        SkipNegativeEnergy=True,
-        GhostScale=1e-40
+        SkipNegativeEnergy=True
         )
     jetTrkSeq += conf2toConfigurable( pjgalg )
 

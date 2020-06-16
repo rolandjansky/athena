@@ -225,7 +225,7 @@ StatusCode Rivet_i::finalize() {
 
 /// Helper function to sort GenParticles by descending energy
 /// @todo Move into GeneratorUtils (with many friends)
-bool cmpGenParticleByEDesc(const HepMC::GenParticle* a, const HepMC::GenParticle* b) {
+bool cmpGenParticleByEDesc(const HepMC::GenParticlePtr a, const HepMC::GenParticlePtr b) {
   return a->momentum().e() > b->momentum().e();
 }
 
@@ -239,7 +239,7 @@ inline std::vector<std::string> split(const std::string& input, const std::strin
 }
 
 const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
-  std::vector<HepMC::GenParticle*> beams;
+  std::vector<HepMC::GenParticlePtr> beams;
   HepMC::GenEvent* modEvent = new HepMC::GenEvent(*event);
 
   // overwrite the HEPMC dummy event number with the proper ATLAS event number

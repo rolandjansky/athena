@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.scripts.ath_dump
 # @purpose entry point for ath-dump command, the dump-athfile cousin
@@ -7,7 +7,6 @@
 
 from __future__ import print_function
 
-__version__ = "$Revision: 279982 $"
 __author__ = "Sebastien Binet"
 __doc__ = "entry point for ath-dump command, the dump-athfile cousin"
 
@@ -32,7 +31,7 @@ def main(args):
     """
     exitcode = 0
     fnames = args.files
-    if isinstance(fnames, basestring):
+    if isinstance(fnames, str):
         fnames = [fnames]
 
     import sys
@@ -80,7 +79,7 @@ def main(args):
             exitcode = 1
             pass
 
-        except :
+        except Exception:
             msg.error("Caught something !! (don't know what)")
             msg.error("\n%s\n%s",sys.exc_info()[0], sys.exc_info()[1])
             exitcode = 10
@@ -91,7 +90,7 @@ def main(args):
     
     if args.output:
         oname = args.output
-        msg.info("saving report into [%s]..." % oname)
+        msg.info("saving report into [%s]...", oname)
         if osp.exists(oname):
             os.rename(oname, oname+'.bak')
         af.server.save_cache(oname)

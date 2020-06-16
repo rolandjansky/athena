@@ -5,6 +5,9 @@ from AthenaCommon.CfgGetter import addAlgorithm
 addAlgorithm("InDetOverlay.InDetOverlayConfig.getPixelOverlay", "PixelOverlay")
 addAlgorithm("InDetOverlay.InDetOverlayConfig.getPixelSDOOverlay", "PixelSDOOverlay")
 
+addAlgorithm("InDetOverlay.InDetOverlayConfig.getBCMOverlay", "BCMOverlay")
+addAlgorithm("InDetOverlay.InDetOverlayConfig.getBCMSDOOverlay", "BCMSDOOverlay")
+
 addAlgorithm("InDetOverlay.InDetOverlayConfig.getSCTOverlay", "SCTOverlay")
 addAlgorithm("InDetOverlay.InDetOverlayConfig.getSCTSDOOverlay", "SCTSDOOverlay")
 

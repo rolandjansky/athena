@@ -1,25 +1,19 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRK_ISF_PRDtoTrackMapTool_H
 #define TRK_ISF_PRDtoTrackMapTool_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
+
 #include <set>
 #include <map>
-
-class AtlasDetectorID;
-class Identifier;
-
-namespace Muon{
-  class MuonIdHelperTool;
-}
+#include <string>
 
 namespace Trk {
-
   class Track;
   class PrepRawData;
 }
@@ -32,9 +26,7 @@ namespace iFatras {
 
   public:
     ISF_PRDtoTrackMapTool(const std::string&,const std::string&,const IInterface*);
-    virtual ~ISF_PRDtoTrackMapTool() override;
-    virtual StatusCode initialize() override;
-    virtual StatusCode finalize  () override;
+    virtual ~ISF_PRDtoTrackMapTool() override=default;
 
     virtual
     std::unique_ptr<Trk::PRDtoTrackMap> createPRDtoTrackMap() const override;

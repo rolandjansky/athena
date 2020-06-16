@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -73,17 +73,21 @@ SCT_DetectorFactory::SCT_DetectorFactory(const SCT_GeoModelAthenaComps * athenaC
   m_detectorManager = new SCT_DetectorManager(detStore());
 
   // Create the database
-  m_db = new SCT_DataBase{athenaComps};
+  m_db = std::make_unique<SCT_DataBase>(athenaComps);
 
   // Create the material manager
-  m_materials = new SCT_MaterialManager{m_db};
+  m_materials = std::make_unique<SCT_MaterialManager>(m_db.get());
+
+  // Create the Si common items
+  std::unique_ptr<InDetDD::SiCommonItems> commonItems{std::make_unique<InDetDD::SiCommonItems>(athenaComps->getIdHelper())};
 
   // Create the geometry manager.
-  m_geometryManager = new SCT_GeometryManager{m_db};
+  m_geometryManager = std::make_unique<SCT_GeometryManager>(m_db.get());
   m_geometryManager->setOptions(options);
+  m_geometryManager->setCommonItems(commonItems.get());
 
   // Add SiCommonItems to SCT_DetectorManager to hold and delete it.
-  m_detectorManager->setCommonItems(m_geometryManager->commonItems());
+  m_detectorManager->setCommonItems(std::move(commonItems));
 
   m_useDynamicAlignFolders = options.dynamicAlignFolders();
  
@@ -124,9 +128,6 @@ SCT_DetectorFactory::~SCT_DetectorFactory()
 { 
   // NB the detector manager (m_detectorManager)is stored in the detector store by the
   // Tool and so we don't delete it.
-  delete m_db;
-  delete m_materials;
-  delete m_geometryManager;
 } 
 
 void SCT_DetectorFactory::create(GeoPhysVol *world) 
@@ -165,7 +166,7 @@ void SCT_DetectorFactory::create(GeoPhysVol *world)
     m_detectorManager->numerology().addBarrel(0);
 
     // Create the SCT Barrel
-    SCT_Barrel sctBarrel("SCT_Barrel", m_detectorManager, m_geometryManager, m_materials);
+    SCT_Barrel sctBarrel("SCT_Barrel", m_detectorManager, m_geometryManager.get(), m_materials.get());
   
     SCT_Identifier id{m_geometryManager->athenaComps()->getIdHelper()};
     id.setBarrelEC(0);
@@ -196,7 +197,7 @@ void SCT_DetectorFactory::create(GeoPhysVol *world)
     m_detectorManager->numerology().addEndcap(2);
 
     // Create the Forward
-    SCT_Forward sctForwardPlus("SCT_ForwardA", +2, m_detectorManager, m_geometryManager, m_materials);
+    SCT_Forward sctForwardPlus("SCT_ForwardA", +2, m_detectorManager, m_geometryManager.get(), m_materials.get());
     
     SCT_Identifier idFwdPlus{m_geometryManager->athenaComps()->getIdHelper()};
     idFwdPlus.setBarrelEC(2);
@@ -229,7 +230,7 @@ void SCT_DetectorFactory::create(GeoPhysVol *world)
 
     m_detectorManager->numerology().addEndcap(-2);
     
-    SCT_Forward sctForwardMinus("SCT_ForwardC", -2, m_detectorManager, m_geometryManager, m_materials);
+    SCT_Forward sctForwardMinus("SCT_ForwardC", -2, m_detectorManager, m_geometryManager.get(), m_materials.get());
 
     SCT_Identifier idFwdMinus{m_geometryManager->athenaComps()->getIdHelper()};
     idFwdMinus.setBarrelEC(-2);

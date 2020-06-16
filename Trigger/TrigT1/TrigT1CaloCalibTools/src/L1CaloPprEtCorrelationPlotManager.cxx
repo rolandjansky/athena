@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibTools/L1CaloPprEtCorrelationPlotManager.h"
@@ -101,7 +101,6 @@ StatusCode L1CaloPprEtCorrelationPlotManager::getCaloCells()
 
 double L1CaloPprEtCorrelationPlotManager::getMonitoringValue(const xAOD::TriggerTower* trigTower, CalLayerEnum /*theLayer*/)
 {
-    Identifier id;
     std::vector<float> CaloEnergyLayers;
     std::vector<float> CaloETLayers;
     float caloEnergy = 0.;

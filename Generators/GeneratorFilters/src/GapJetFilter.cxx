@@ -250,13 +250,10 @@ GapJetFilter::filterEvent()
   for (HepMC::GenEvent* genEvt : *events()) {
 
     // Loop over all particles in event
-    HepMC::GenEvent::particle_const_iterator pitr;
-    for (pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr ) {
-
-//particles must be stable 
-      ptpart = (*pitr)->momentum().perp();
-      etapart = (*pitr)->momentum().pseudoRapidity();
-      if((*pitr)->status()==1 && ptpart >m_PtCut && fabs(etapart) < m_EtaCut){
+    for (auto pitr: *genEvt ) {
+      ptpart = pitr->momentum().perp();
+      etapart = pitr->momentum().pseudoRapidity();
+      if(pitr->status()==1 && ptpart >m_PtCut && std::abs(etapart) < m_EtaCut){
 	Clustag=1; 
       if (etapart>cl_maxeta) cl_maxeta=etapart;
       if (etapart<cl_mineta) cl_mineta=etapart;

@@ -96,8 +96,8 @@ void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::statistics() {
 void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::TrackStat::dump(MsgStream &out) const
 {
    auto parseFileName=[](const std::string & fullname){
-     auto dotPosition = fullname.rfind(".");
-     auto slashPosition = fullname.rfind("/");
+     auto dotPosition = fullname.rfind('.');
+     auto slashPosition = fullname.rfind('/');
      auto stringLength = dotPosition - slashPosition;
      return fullname.substr(slashPosition, stringLength);
    };

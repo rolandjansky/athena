@@ -16,7 +16,7 @@
 #include "TrkEventPrimitives/DefinedParameter.h"
 #include "TrkEventPrimitives/ProjectionMatricesSet.h"
 // maths
-#include <math.h>
+#include <cmath>
 
 class MsgStream;
 

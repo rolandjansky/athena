@@ -24,7 +24,6 @@ using namespace TauAnalysisTools;
 //______________________________________________________________________________
 BuildTruthTaus::BuildTruthTaus( const std::string& name )
   : AsgMetadataTool(name)
-  , m_bIsData(-1) // Unknown
   , m_bTruthTauAvailable(true)
   , m_sNewTruthTauContainerNameAux("TruthTausAux.")
   , m_bTruthMuonAvailable(true)
@@ -67,8 +66,6 @@ StatusCode BuildTruthTaus::initialize()
 //______________________________________________________________________________
 xAOD::TruthParticleContainer* BuildTruthTaus::getTruthTauContainer()
 {
-  if (isData())
-    return nullptr;
   if (!m_bTruthTauAvailable)
     return m_truthTausEvent.m_xTruthTauContainer;
   else
@@ -81,8 +78,6 @@ xAOD::TruthParticleContainer* BuildTruthTaus::getTruthTauContainer()
 //______________________________________________________________________________
 xAOD::TruthParticleAuxContainer* BuildTruthTaus::getTruthTauAuxContainer()
 {
-  if (isData())
-    return nullptr;
   if (!m_bTruthTauAvailable)
     return m_truthTausEvent.m_xTruthTauAuxContainer;
   else
@@ -100,18 +95,6 @@ StatusCode BuildTruthTaus::beginEvent()
   return StatusCode::SUCCESS;
 }
 
-bool BuildTruthTaus::isData()
-{
-  if (m_bIsData<0) {
-    const xAOD::EventInfo* xEventInfo = nullptr;
-    if (evtStore()->retrieve(xEventInfo,"EventInfo").isFailure()) {
-      ATH_MSG_ERROR("Could not retrieve EventInfo for setting metadata; assuming not data");
-      return false;
-    }
-    m_bIsData = xEventInfo->eventType( xAOD::EventInfo::IS_SIMULATION) ? 0 : 1;
-  }
-  return m_bIsData>0;
-}
 
 StatusCode BuildTruthTaus::retrieveTruthTaus()
 {
