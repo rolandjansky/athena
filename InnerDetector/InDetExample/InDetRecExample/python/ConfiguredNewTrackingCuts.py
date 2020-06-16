@@ -432,7 +432,7 @@ class ConfiguredNewTrackingCuts :
       self.__minClusters      = 5
       self.__minSiNotShared   = 4
       self.__maxShared        = 1   # cut is now on number of shared modules
-      self.__minPixel         = 2   # At least one pixel hit for low-pt (ass seeded on pixels!)                
+      self.__minPixel         = 2   # At least two pixel hit for low-pt (association seeded on pixels!)                
       self.__maxHoles         = 2
       self.__maxPixelHoles    = 1
       self.__maxSctHoles      = 2
@@ -454,7 +454,7 @@ class ConfiguredNewTrackingCuts :
       self.__minClusters      = 5
       self.__minSiNotShared   = 4
       self.__maxShared        = 1   # cut is now on number of shared modules
-      self.__minPixel         = 2   # At least one pixel hit for low-pt (ass seeded on pixels!)                
+      self.__minPixel         = 2   # At least two pixel hit for low-pt (association seeded on pixels!)                
       self.__maxHoles         = 2
       self.__maxPixelHoles    = 1
       self.__maxSctHoles      = 2
@@ -500,7 +500,7 @@ class ConfiguredNewTrackingCuts :
       self.__minClusters      = 3
       self.__minSiNotShared   = 3
       self.__maxShared        = 1   # cut is now on number of shared modules
-      self.__minPixel         = 3   # At least one pixel hit for low-pt (ass seeded on pixels!)                
+      self.__minPixel         = 3   # At least three pixel hit for low-pt (association seeded on pixels!)                
       self.__maxHoles         = 1
       self.__maxPixelHoles    = 1
       self.__maxSctHoles      = 1

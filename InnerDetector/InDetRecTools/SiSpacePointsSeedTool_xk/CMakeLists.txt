@@ -32,7 +32,7 @@ atlas_add_component( SiSpacePointsSeedTool_xk
                      src/*.cxx
                      src/components/*.cxx
 		     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaServices AthenaBaseComps GaudiKernel InDetReadoutGeometry InDetPrepRawData SiSpacePointsSeed 
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel InDetReadoutGeometry InDetPrepRawData SiSpacePointsSeed 
                      InDetRecToolInterfaces MagFieldInterfaces TrkSurfaces TrkPseudoMeasurementOnTrack TrkSpacePoint 
 		     TrkToolInterfaces xAODTruth ITrackToVertex xAODEventInfo )
 
