@@ -242,7 +242,7 @@ namespace top {
     m_jetPtcut(25000.),
     m_jetEtacut(2.5),
     m_fwdJetAndMET("Default"),
-    m_jetPtGhostTracks(25000.),
+    m_jetPtGhostTracks(30000.),
     m_jetEtaGhostTracks(2.5),
     m_jetUncertainties_NPModel("AllNuisanceParameters"),
     m_jetUncertainties_QGFracFile("None"),
