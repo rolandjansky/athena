@@ -26,7 +26,7 @@ atlas_add_library( EvgenProdToolsLib
                    src/*.cxx
                    PUBLIC_HEADERS EvgenProdTools
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} AtlasHepMCLib AthenaBaseComps TruthHelper GeneratorModulesLib
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} AtlasHepMCLib AthenaBaseComps TruthHelper GeneratorModulesLib GenInterfacesLib
                    PRIVATE_LINK_LIBRARIES AthenaKernel EventInfo GaudiKernel TruthUtils )
 
 atlas_add_component( EvgenProdTools
