@@ -80,7 +80,7 @@ StatusCode TrigL2CaloHypoAlgMT::execute( const EventContext& context ) const {
     {
       auto el = ViewHelper::makeLink( *viewEL, ringerShapeHandle, 0 );
       ATH_CHECK( el.isValid() );
-      d->setObjectLink( featureString(),  el );
+      d->setObjectLink( "ringer",  el );
     }
     // link the cluster
     { 
