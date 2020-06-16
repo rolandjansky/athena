@@ -48,18 +48,6 @@ namespace InDet {
     return StatusCode::SUCCESS;
   }
   //--------------------------------------------------------------------------
-  void SiSpacePointMakerTool::newEvent() const {
-    const EventContext& ctx{Gaudi::Hive::currentContext()};
-    std::lock_guard<std::mutex> lock{m_mutex};
-    CacheEntry* ent{m_cache.get(ctx)};
-    if (ent->m_evt!=ctx.evt()) { // New event in this slot
-      ent->clear();
-      ent->m_evt = ctx.evt();
-    } else {
-      ent->m_elementOLD = nullptr;
-    }
-  }    
-  //--------------------------------------------------------------------------
   Trk::SpacePoint* SiSpacePointMakerTool::makeSCT_SpacePoint(const InDet::SiCluster& cluster1, 
                                                              const InDet::SiCluster& cluster2,
                                                              const Amg::Vector3D& vertexVec, 
