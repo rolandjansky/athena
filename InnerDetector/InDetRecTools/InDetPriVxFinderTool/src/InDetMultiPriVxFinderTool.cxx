@@ -92,7 +92,7 @@ namespace InDet
   }
 
   InDetMultiPriVxFinderTool::~InDetMultiPriVxFinderTool()
-  {}
+  = default;
 
   StatusCode
   InDetMultiPriVxFinderTool::initialize() {
