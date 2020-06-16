@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOREC_CALOCLUSTERCORRDUMPER
@@ -9,48 +9,31 @@
  * @class CaloClusterCorrDumper
  * @author Walter Lampl <walter.lampl@cern.ch>
  * @date March, 28th 2006
+ *   Reworked Jun 2020 sss
  *
- * This algorithm has only an @c initialize() and a @c finalize() method.
- * It instantiates all ClusterCorrection Tools given by jobOptions. The
- * cluster correction constants (@c ToolConstants) are expected to be
- * initialized by job options. In the @c finalize method, this algorithm
- * records these objects to the detector store so that they can be 
- * streamed out to a POOL file. 
+ * Dump out a set of @c ToolConstants objects from the conditions store.
  */
 
 
-
-#include "AthenaBaseComps/AthAlgorithm.h"
-#include "CaloRec/ToolWithConstantsMixin.h"
+#include "CaloConditions/ToolConstants.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "StoreGate/CondHandleKeyArray.h"
 #include <vector>
 #include <string>
 
-class CaloClusterCorrDumper : public AthAlgorithm
+
+class CaloClusterCorrDumper : public AthReentrantAlgorithm
 {
+public:
+  using AthReentrantAlgorithm::AthReentrantAlgorithm;
 
- public:
-
-  CaloClusterCorrDumper(const std::string& name, ISvcLocator* pSvcLocator);
-  virtual ~CaloClusterCorrDumper();
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
-  
- private:
-
-  //std::string m_inlineFolder;
-
-  /** @brief The list of tool names (jobOptions)*/
-  std::vector<std::string> m_correctionToolNames;
-
-  /** @brief the actual list of tools corresponding to above names */
-  std::vector<CaloRec::ToolWithConstantsMixin*>  m_correctionTools; 
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute (const EventContext& ctx) const override;
 
 
-  /** @brief Name of the text file where to store the constants
-   */
-  std::string m_fileName;
-
+private:
+  SG::ReadCondHandleKeyArray<CaloRec::ToolConstants> m_constants
+  { this, "Constants", {}, "List of constants to dump." };
 };
 
 #endif // CALOREC_CALOCLUSTERCORRDUMPER
