@@ -40,7 +40,6 @@ namespace met {
   {
     declareProperty( "InputCollection", m_input_data_key      );
     declareProperty( "MissingETKey",    m_output_met_key      );
-    declareProperty( "SignalState",     m_signalstate = 0     );
     declareProperty( "UseRapidity",     m_useRapidity = false );
     declareProperty( "ModifiedClusKey", m_mod_clus_key = ""   );
   }

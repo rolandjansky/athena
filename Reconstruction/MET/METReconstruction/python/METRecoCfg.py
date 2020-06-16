@@ -5,11 +5,6 @@ from AthenaCommon import CfgMgr
 #################################################################################
 # Define some default values
 
-clusterSigStates = {
-    'EMScale':0,
-    'LocHad':1,
-    'Mod':1
-}
 
 defaultSelection = {
     'Ele':'Medium',
@@ -65,38 +60,12 @@ class BuildConfig:
 def getBuilder(config,suffix,doTracks,doCells,doTriggerMET,doOriginCorrClus):
     tool = None
     # Construct tool and set defaults for case-specific configuration
-    if config.objType == 'Ele':
-        tool = CfgMgr.met__METElectronTool('MET_ElectronTool_'+suffix)
-        tool.PIDSel = defaultSelection['Ele']
-        tool.AuthorSel = defaultAuthor['Ele']
-        tool.DoTracks = doTracks
-    if config.objType == 'Gamma':
-        tool = CfgMgr.met__METPhotonTool('MET_PhotonTool_'+suffix)
-        tool.PIDSel = defaultSelection['Gamma']
-        tool.AuthorSel = defaultAuthor['Gamma']
-        tool.DoTracks = doTracks
-    if config.objType == 'Tau':
-        tool = CfgMgr.met__METTauTool('MET_TauTool_'+suffix)
-        tool.DoTracks = doTracks
-    if config.objType == 'Jet':
-        tool = CfgMgr.met__METJetTool('MET_JetTool_'+suffix)
-        tool.DoTracks = doTracks
-        if "EMTopo" in suffix:
-            tool.SignalState = clusterSigStates['EMScale']
-        else:
-            tool.SignalState = clusterSigStates['LocHad']
-    if config.objType == 'Muon':
-        tool = CfgMgr.met__METMuonTool('MET_MuonTool_'+suffix)
     if config.objType == 'SoftTrk':
         tool = CfgMgr.met__METSoftTermsTool('MET_SoftTrkTool_'+suffix)
         tool.InputComposition = 'Tracks'
     if config.objType.endswith('SoftClus'):
         tool = CfgMgr.met__METSoftTermsTool('MET_SoftClusTool_'+suffix)
         tool.InputComposition = 'Clusters'
-        if doOriginCorrClus:
-            tool.SignalState = clusterSigStates['Mod']
-        else:
-            tool.SignalState = clusterSigStates['LocHad']
     if config.objType == 'SoftPFlow':
         tool = CfgMgr.met__METSoftTermsTool('MET_SoftPFlowTool_'+suffix)
         tool.InputComposition = 'PFlow'
@@ -158,11 +127,6 @@ def getRefiner(config,suffix,trkseltool=None,trkvxtool=None,trkisotool=None,calo
         from METReconstruction.METRecoFlags import metFlags
         tool.DoPVSel = metFlags.UseTracks()
         tool.DoVxSep = metFlags.UseTracks()
-
-    if config.type == 'JetFilter':
-        tool = CfgMgr.met__METJetFilterTool('MET_JetFilterTool_'+suffix)
-    if config.type == 'MuonEloss':
-        tool = CfgMgr.met__METMuonElossTool('MET_MuonElossTool_'+suffix)
     tool.MissingETKey = config.outputKey
     return tool
 

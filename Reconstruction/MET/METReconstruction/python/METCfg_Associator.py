@@ -3,7 +3,6 @@
 #from METReconstruction.METRecoFlags import metFlags
 from METReconstruction.METAssocCfg import AssocConfig, METAssocConfig,getMETAssocTool,getMETAssocAlg
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaCommon import CfgMgr
 from METUtilities.METMakerConfig import getMETMakerAlg
 
 #attempt at migrating to the new configuration system
@@ -88,6 +87,6 @@ def getAssocCA(config,sequencename='METAssociation',METName=''):
     assocAlg = getMETAssocAlg(algName='METAssociation_LCJets',tools=[assoctool])
     components.addEventAlgo(assocAlg,sequencename)
     if not METName=='':
-    	makerAlg=getMETMakerAlg(METName)
+        makerAlg=getMETMakerAlg(METName)
         components.addEventAlgo(makerAlg,sequencename)
     return components
