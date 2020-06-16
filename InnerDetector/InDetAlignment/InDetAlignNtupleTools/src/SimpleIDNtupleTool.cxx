@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TrkEventPrimitives/FitQuality.h"
@@ -255,7 +255,8 @@ namespace InDet {
       m_xvtx = aMeasPer->position().x();
       m_yvtx = aMeasPer->position().y();
       m_zvtx = aMeasPer->position().z();
-      const Trk::TrackSummary* summary = m_trackSumTool->createSummary((*alignTrack));
+      std::unique_ptr<const Trk::TrackSummary> summary = 
+        m_trackSumTool->summary((*alignTrack));
       if (not summary) ATH_MSG_ERROR("Could not get Trk::TrackSummary");
       else {
         // hits
@@ -309,7 +310,6 @@ namespace InDet {
           ATH_MSG_DEBUG("  - chi2 propability : " << m_chi2prob);
         }
       }
-      delete summary;
     }
 
     // store information for all hits on this track, including

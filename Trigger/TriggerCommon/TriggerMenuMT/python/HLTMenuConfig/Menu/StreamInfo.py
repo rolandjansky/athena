@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from future.moves.collections import UserList
+from six.moves import UserList
+
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
 

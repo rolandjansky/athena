@@ -1,10 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: CaloSwEtaoff_v2.h,v 1.3 2006-03-27 21:05:38 wlampl Exp $
 /**
  * @file  CaloSwEtaoff_v2.h
  * @author scott snyder <snyder@bnl.gov>
@@ -74,21 +71,13 @@ class CaloSwEtaoff_v2
   : public CaloClusterCorrectionCommon
 {
 public:
-
-  /**
-   * @brief Constructor.
-   * @param type The type of the tool.
-   * @param name The name of the tool.
-   * @param parent The parent algorithm of the tool.
-   */
-  CaloSwEtaoff_v2 (const std::string& type,
-                   const std::string& name,
-                   const IInterface* parent);
+  /// Inherit constructor.
+  using CaloClusterCorrectionCommon::CaloClusterCorrectionCommon;
   
 
   /**
    * @brief Virtual function for the correction-specific code.
-   * @param ctx     The event context.
+   * @param myctx   ToolWithConstants context.
    * @param cluster The cluster to correct.
    *                It is updated in place.
    * @param elt     The detector description element corresponding
@@ -106,7 +95,7 @@ public:
    *                @c CaloSampling::CaloSample; i.e., it has both
    *                the calorimeter region and sampling encoded.
    */
-  virtual void makeTheCorrection (const EventContext& ctx,
+  virtual void makeTheCorrection (const Context& myctx,
                                   xAOD::CaloCluster* cluster,
                                   const CaloDetDescrElement* elt,
                                   float eta,
@@ -117,21 +106,26 @@ public:
 
 private:
   /// Calibration constant: tabulated arrays of function parameters.
-  CaloRec::Array<3> m_correction;
+  Constant<CxxUtils::Array<3> > m_correction
+  { this, "correction", "Tabulated arrays of function parameters." };
 
   /// Calibration constant: allow breaking up the interpolation into
   /// independent regions.
-  CaloRec::Array<1> m_interp_barriers;
+  Constant<CxxUtils::Array<1> > m_interp_barriers
+  { this, "interp_barriers", "Allow breaking up the interpolation into independent regions." };
 
   /// Calibration constant: degree of the polynomial interpolation.
-  int               m_degree;
+  Constant<int> m_degree
+  { this, "degree", "Degree of the polynomial interpolation." };
 
   /// Calibration constant: table of energies at which the correction
   /// was tabulated.
-  CaloRec::Array<1> m_energies;
+  Constant<CxxUtils::Array<1> > m_energies
+  { this, "energies", "Table of energies at which the correction was tabulated." };
 
   /// Calibration constant: degree of the polynomial interpolation in energy.
-  int               m_energy_degree;
+  Constant<int> m_energy_degree
+  { this, "energy_degree", "Degree of the polynomial interpolation in energy." };
 };
 
 

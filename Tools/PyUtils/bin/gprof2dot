@@ -17,6 +17,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+# flake8: noqa
+
 """Generate a dot graph from the output of several profilers."""
 
 __author__ = "Jose Fonseca et al"

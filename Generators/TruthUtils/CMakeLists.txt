@@ -15,6 +15,7 @@ atlas_depends_on_subdirs(
 find_package( Boost )
 find_package( HEPUtils )
 find_package( MCUtils )
+find_package( HepMC )
 
 # Extra include directories and libraries, based on which externals were found:
 set( extra_includes )

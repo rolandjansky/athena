@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -110,10 +110,10 @@ TrkVKalVrtFitter::~TrkVKalVrtFitter(){
 }
 
 
-std::unique_ptr<IVKalState> TrkVKalVrtFitter::makeState() const
+std::unique_ptr<IVKalState> TrkVKalVrtFitter::makeState(const EventContext& ctx) const
 {
   auto state = std::make_unique<State>();
-  initState (*state);
+  initState (ctx, *state);
   return state;
 }
 
@@ -220,13 +220,20 @@ StatusCode TrkVKalVrtFitter::initialize()
 
 void TrkVKalVrtFitter::initState (State& state) const
 {
+    initState(Gaudi::Hive::currentContext(), state);
+}
+
+
+void TrkVKalVrtFitter::initState (const EventContext& ctx, State& state) const 
+    
+{
   //----------------------------------------------------------------------
   //  New magnetic field object is created. It's provided to VKalVrtCore.
   //  VKalVrtFitter must set up Core BEFORE any call required propagation!!!
   //
   if (m_isAtlasField) {
      // For the moment, use Gaudi Hive for the event context - would need to be passed in from clients
-     SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, Gaudi::Hive::currentContext()};
+     SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
      const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
      if (fieldCondObj == nullptr) {
         ATH_MSG_ERROR("Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
@@ -642,13 +649,15 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*>  
 
 
      /** Interface for xAOD::TrackParticle with starting point */
-xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle*> & xtpListC,
+xAOD::Vertex * TrkVKalVrtFitter::fit(const EventContext& ctx,
+                                     const std::vector<const xAOD::TrackParticle*> & xtpListC,
                                      const Amg::Vector3D & startingPoint) const
 {
   State state;
-  initState (state);
+  initState (ctx, state);
   return fit (xtpListC, startingPoint, state);
 }
+
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle*> & xtpListC,
                                      const Amg::Vector3D & startingPoint,
                                      IVKalState& istate) const

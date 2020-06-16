@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVGENPRODTOOLS_HEPMCWEIGHTSVC_H
@@ -20,6 +20,8 @@
 ///  author: will buttinger , NLAA
 /// 
 ///
+/// not thread-safe but it should be ok since it's only used in TPconverter and run in serial mode,
+/// need further investigation together with TPConverter in future
 class HepMCWeightSvc : public AthService , public IHepMCWeightSvc, virtual public IIncidentListener  {
 public:
 
@@ -31,7 +33,7 @@ public:
   ~HepMCWeightSvc() {;}
 
   ///checks for any changes to weightnames ... none are allowed. Then records to metadata
-  virtual StatusCode setWeightNames(const std::map<std::string, std::size_t>& weightNames);
+  virtual StatusCode setWeightNames (const std::map<std::string, std::size_t>& weightNames);
 
    ///returns the current weight names ... will only change at file boudaries, it is assumed all events in a given file will have same weights in SAME ORDER
    virtual const std::map<std::string, std::size_t>& weightNames();

@@ -56,13 +56,13 @@ StatusCode XtoVVDecayFilterExtended::filterEvent() {
   for (itr = events()->begin(); itr != events()->end(); ++itr) {
     // Loop over all particles in the event
     const HepMC::GenEvent* genEvt = (*itr);
-    for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
-      if ( abs((*pitr)->pdg_id()) == m_PDGParent && (*pitr)->status() == m_StatusParent) {
-        bool isGrandParentOK = RunHistory(*pitr);
+    for (auto  pitr: *genEvt) {
+      if ( std::abs(pitr->pdg_id()) == m_PDGParent && pitr->status() == m_StatusParent) {
+        bool isGrandParentOK = RunHistory(pitr);
 	ATH_MSG_DEBUG(" Grand Parent is OK? " << isGrandParentOK);
         if (!isGrandParentOK) continue;
         ++nGoodParent;
-        FindAncestor((*pitr)->end_vertex(), m_PDGParent, okPDGChild1, okPDGChild2);
+        FindAncestor(pitr->end_vertex(), m_PDGParent, okPDGChild1, okPDGChild2);
       }
     }
   }

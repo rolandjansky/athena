@@ -183,8 +183,14 @@ if rec.doPersistencyOptimization() and hasattr(svcMgr, 'AthenaPoolCnvSvc'):
 #  - don't overwrite blindly with the default
 if not rec.OutputLevel.isDefault():
     ServiceMgr.MessageSvc.OutputLevel = rec.OutputLevel()
-#increase the number of letter reserved to the alg/tool name from 18 to 30
-ServiceMgr.MessageSvc.Format = "% F%50W%S%7W%R%T %0W%M" 
+
+#Adjust the message format for threaded vs serial jobs
+if jobproperties.ConcurrencyFlags.NumThreads() > 0:
+    ServiceMgr.MessageSvc.Format = "% F%50W%S%4W%R%e%s%8W%R%T %0W%M"
+else:
+    ServiceMgr.MessageSvc.Format = "% F%50W%S%7W%R%T %0W%M" 
+
+
 #ServiceMgr.MessageSvc.defaultLimit = 9999999  # all messages
 ServiceMgr.MessageSvc.useColors = False
 ServiceMgr.MessageSvc.defaultLimit=500

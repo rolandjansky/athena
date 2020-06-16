@@ -16,8 +16,7 @@
               EDM Migration to xAOD - from Trk::VxCandidate to xAOD::Vertex
 
                 findVertex will now always return an xAOD::VertexContainer,
-                even when using a TrackCollection or a TrackParticleBaseCollection
-                as input.
+                even when using a TrackCollection.
 
 ***************************************************************************/
 #include "InDetPriVxFinderTool/InDetPriVxFinderTool.h"
@@ -30,7 +29,6 @@
 #include "TrkTrack/LinkToTrack.h"
 #include "TrkTrack/Track.h"
 #include "TrkParameters/TrackParameters.h"
-#include "TrkParticleBase/TrackParticleBase.h"
 
 #include "VxVertex/VxContainer.h"
 #include "VxVertex/VxCandidate.h"
@@ -40,7 +38,6 @@
 #include "TrkVertexFitterInterfaces/IVertexFitter.h"
 #include "InDetRecToolInterfaces/IMultiPVSeedFinder.h"
 
-#include "TrkParticleBase/LinkToTrackParticleBase.h"
 #include "TrkLinks/LinkToXAODTrackParticle.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -233,133 +230,7 @@ namespace InDet
 
     return returnContainers;
   }
-
-  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-  InDetPriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection* trackTES) const {
-    //    std::cout<<"Calling find vertex from trackparticles "<<std::endl;
-
-    // TODO: change trkFilter to allow for this replacement
-    /*
-       xAOD::Vertex beamposition;
-       beamposition.makePrivateStore();
-       beamposition.setPosition(beamSpotHandle->beamVtx().position());
-       beamposition.setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
-     */
-    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
-    const Trk::RecVertex &beamposition(beamSpotHandle->beamVtx());
-
-    //---- create a vector of track particle base objects ---------------//
-    std::vector<const Trk::TrackParticleBase*> origTrackParticles;
-    origTrackParticles.clear();
-    for (Trk::TrackParticleBaseCollection::const_iterator itr = trackTES->begin(); itr != trackTES->end(); itr++) {
-      // if it should not look for multiple vertices it needs to do the track cuts here
-      if (!m_enableMultipleVertices) {
-        if (!m_trkFilter->accept(*((*itr)->originalTrack()), &beamposition)) continue;
-      }
-      origTrackParticles.push_back(*itr);
-    }//endo of loop over all available trajectories
-
-    std::vector< std::vector<const Trk::TrackParticleBase*> > seedsVector;
-
-    // put all trackparticles in one seed if no seeding is wanted
-    if (!m_enableMultipleVertices) {
-      // std::cout<<"single vertex mode called "<<std::endl;
-
-      //in the case of the split vertices, we should make the splitting first.
-      //well, off we go
-      if (m_createSplitVertices) {
-        // std::cout<<"Split mode called "<<std::endl;
-
-        //checking that we can actually split it at all
-        std::vector<const Trk::TrackParticleBase*> right_seed;
-        std::vector<const Trk::TrackParticleBase*> left_seed;
-        unsigned int rem_size = origTrackParticles.size();
-
-        // std::cout<<"Size of the original vector is: "<<rem_size <<std::endl;
-
-        //loop over all pre-selected tracks
-        for (std::vector<const Trk::TrackParticleBase*>::const_iterator i = origTrackParticles.begin();
-             i != origTrackParticles.end(); ++i) {
-          if (rem_size % m_splitVerticesTrkInvFraction == 0) right_seed.push_back(*i);
-          else left_seed.push_back(*i);
-          --rem_size;
-        }//end of loop over all the pre-selected tracks
-
-        if (!right_seed.empty() && !left_seed.empty()) {
-          seedsVector.push_back(right_seed);
-          seedsVector.push_back(left_seed);
-
-          //       std::cout<<"First seed size: "<< right_seed.size()<<std::endl;
-          //       std::cout<<"Second seed size: "<< left_seed.size()<<std::endl;
-        }
-      } else seedsVector.push_back(origTrackParticles); //pushing back all the trajectories - single vertes
-    } else { // if not enabling multiple vertices
-      // find vertex seeds
-      seedsVector = m_iPriVxSeedFinder->seeds(origTrackParticles);
-    }
-    //     if (msgLvl(MSG::DEBUG)) msg() << "Seed vector has " << seedsVector.size() << " seeds." << endmsg;
-    // fill track particle seeds into a track parameter base format
-    //    std::cout<<"Seeds produced "<<std::endl;
-
-    std::vector< std::vector<const Trk::TrackParameters*> > origParameters;
-    origParameters.clear();
-    for (unsigned int icluster = 0; icluster < seedsVector.size(); icluster++) {
-      //       if (msgLvl(MSG::DEBUG)) msg() << "Seed vector " << icluster << " has " << seedsVector[icluster].size() <<
-      // " tracks." << endmsg;
-      std::vector<const Trk::TrackParameters*> tmpVector;
-      for (unsigned int itrack = 0; itrack < seedsVector[icluster].size(); itrack++) {
-        tmpVector.push_back(&(seedsVector[icluster].at(itrack)->definingParameters()));
-      }
-      //       if (msgLvl(MSG::DEBUG)) msg() << "Orig parameters " << icluster << " has " << tmpVector.size() << "
-      // tracks." << endmsg;
-      origParameters.push_back(tmpVector);
-    }
-
-    //     if (msgLvl(MSG::DEBUG)) msg() << "Orig parameters has " << origParameters.size() << " seeds." << endmsg;
-
-    // find vertices from the seeds
-
-    //    std::cout<<"Calling parameters based find vertices "<<std::endl;
-    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = findVertex(origParameters);
-
-    // now we have to make the link to the original track ...
-    //     unsigned int count ( 1 );
-    for (xAOD::VertexContainer::iterator vxContItr = returnContainers.first->begin();
-    vxContItr != returnContainers.first->end(); vxContItr++) {
-      // std::cout << "Check vertex " << count << std::endl; count++;
-      std::vector<Trk::VxTrackAtVertex>* tmpVxTAVtx = &(*vxContItr)->vxTrackAtVertex();
-      for (std::vector<Trk::VxTrackAtVertex>::iterator itr = tmpVxTAVtx->begin(); itr != tmpVxTAVtx->end(); itr++) {
-        const Trk::TrackParameters* initialPerigee = (*itr).initialPerigee();
-        const Trk::TrackParticleBase* correspondingTrack(nullptr);
-        // find the track to that perigee ...
-        for (Trk::TrackParticleBaseCollection::const_iterator itr1 = trackTES->begin(); itr1 != trackTES->end();
-        itr1++) {
-          if (initialPerigee == &((*itr1)->definingParameters())) {
-            // std::cout << "vxtrack has perigee " << *initialPerigee << std::endl;
-            // std::cout << "track has perigee " << *((*itr1)->perigeeParameters()) << std::endl;
-            correspondingTrack = (*itr1);
-            continue;
-          }
-        }
-
-        if (correspondingTrack != nullptr) {
-          Trk::LinkToTrackParticleBase* link = new Trk::LinkToTrackParticleBase;
-          link->setStorableObject(*trackTES);
-          link->setElement(correspondingTrack);
-          (*itr).setOrigTrack(link);
-        } else if (msgLvl(MSG::WARNING))
-          msg() << "No corresponding track found for this initial perigee! "
-                   "Vertex will have no link to the track."
-                << endmsg;
-        // TODO: also mention that links stored directly in xAOD::Vertices are not set because a
-        // TrackParticleBaseCollection was given as input
-      }
-    }
-
-    // std::cout<<"returning the container back to the user "<<std::endl;
-    return returnContainers;
-  }
-
+  
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
   InDetPriVxFinderTool::findVertex(
     const xAOD::TrackParticleContainer* trackParticles) const

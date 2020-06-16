@@ -31,7 +31,7 @@ def main(args):
     """
     exitcode = 0
     fnames = args.files
-    if isinstance(fnames, basestring):
+    if isinstance(fnames, str):
         fnames = [fnames]
 
     import sys

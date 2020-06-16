@@ -92,39 +92,33 @@ def _MultTool(name):
 
 
 def TrigL2CaloRingerHypoToolFromDict( d ):
-    """ Use menu decoded chain dictionary to configure the tool """
-    cparts = [i for i in d['chainParts'] if ((i['signature']=='Electron') or (i['signature']=='Photon'))]
+  """ Use menu decoded chain dictionary to configure the tool """
+  cparts = [i for i in d['chainParts'] if ((i['signature']=='Electron') or (i['signature']=='Photon'))]
     
-    from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgOnlineDefault
-    LuminosityCondAlgOnlineDefault()
+  from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgOnlineDefault
+  LuminosityCondAlgOnlineDefault()
     
-    def __mult(cpart):
-        return int( cpart['multiplicity'] )
+  def __mult(cpart):
+    return int( cpart['multiplicity'] )
 
-    def __th(cpart):
-        return cpart['threshold']
+  def __th(cpart):
+    return cpart['threshold']
     
-    def __sel(cpart):
-        return cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
+  def __sel(cpart):
+    return cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
     
-    def __cand(cpart):
-        return cpart['trigType']
+  def __cand(cpart):
+    return cpart['trigType']
 
-    name = d['chainName']
+  name = d['chainName']
 
-    
-    # do we need to configure high multiplicity selection, either NeX or ex_ey_ez etc...?
-    if len(cparts) > 1 or __mult(cparts[0]) > 1:
-        tool = _MultTool(name)
-        for cpart in cparts:
-            for cutNumber in range( __mult( cpart ) ):
-                tool.SubTools += [ _IncTool( cpart['chainPartName']+"_"+str(cutNumber), __cand(cpart), __th(cpart), __sel(cpart) ) ]
-
-        return tool
-    else:        
-        return _IncTool( name, __cand(cparts[0]), __th(cparts[0]), __sel(cparts[0]) )
-
-
-
-
-
+  # do we need to configure high multiplicity selection, either NeX or ex_ey_ez etc...?
+  if len(cparts) > 1 or __mult(cparts[0]) > 1:
+    tool = _MultTool(name)
+    for cpart in cparts:
+      for cutNumber in range( __mult( cpart ) ):
+        tool.SubTools += [ _IncTool( cpart['chainPartName']+"_"+str(cutNumber), __cand(cpart), __th(cpart), __sel(cpart) ) ]
+    # return the tool with all subtools
+    return tool
+  else:        
+    return _IncTool( name, __cand(cparts[0]), __th(cparts[0]), __sel(cparts[0]) )

@@ -1,34 +1,15 @@
-################################################################################
-# Package: TrigSerializeCnvSvc
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigSerializeCnvSvc )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthContainers
-                          Control/AthenaBaseComps
-                          Control/StoreGate
-                          GaudiKernel
-                          PRIVATE
-                          Control/CxxUtils
-                          Control/AthenaKernel
-                          Control/DataModelRoot
-                          Database/APR/StorageSvc
-                          Database/PersistentDataModel
-                          Trigger/TrigDataAccess/TrigSerializeResult
-                          Trigger/TrigDataAccess/TrigSerializeTP )
-
 
 # Component(s) in the package:
 atlas_add_library( TrigSerializeCnvSvcLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigSerializeCnvSvc
-                   LINK_LIBRARIES AthContainers AthenaBaseComps GaudiKernel StoreGateLib SGtests TrigSerializeResultLib TrigSerializeTPLib
-                   PRIVATE_LINK_LIBRARIES AthenaKernel DataModelRoot StorageSvc PersistentDataModel )
+                   LINK_LIBRARIES AthContainers AthenaBaseComps AthenaKernel CxxUtils GaudiKernel StoreGateLib
+                   PRIVATE_LINK_LIBRARIES DataModelRoot PersistentDataModel StorageSvc TrigSerializeResultLib TrigSerializeTPLib )
 
 atlas_add_component( TrigSerializeCnvSvc
                      src/components/*.cxx
-                     LINK_LIBRARIES AthContainers AthenaBaseComps StoreGateLib SGtests GaudiKernel AthenaKernel DataModelRoot StorageSvc PersistentDataModel TrigSerializeResultLib TrigSerializeTPLib TrigSerializeCnvSvcLib )
-
+                     LINK_LIBRARIES TrigSerializeCnvSvcLib )

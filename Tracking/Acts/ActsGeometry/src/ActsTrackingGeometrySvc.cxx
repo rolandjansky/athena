@@ -138,7 +138,7 @@ ActsTrackingGeometrySvc::initialize()
           cvbConfig.buildToRadiusZero = false;
 
           Acts::CylinderVolumeBuilder cvb(cvbConfig,
-              makeActsAthenaLogger(this, "CylVolBldr", "ActsTGSvc"));
+              makeActsAthenaLogger(this, "SCTCylVolBldr", "ActsTGSvc"));
 
           return cvb.trackingVolume(gctx, inner);
         });
@@ -156,7 +156,7 @@ ActsTrackingGeometrySvc::initialize()
           cvbConfig.buildToRadiusZero = false;
 
           Acts::CylinderVolumeBuilder cvb(cvbConfig,
-              makeActsAthenaLogger(this, "CylVolBldr", "ActsTGSvc"));
+              makeActsAthenaLogger(this, "TRTCylVolBldr", "ActsTGSvc"));
 
           return cvb.trackingVolume(gctx, inner);
         });
@@ -170,7 +170,8 @@ ActsTrackingGeometrySvc::initialize()
       });
     }
   }
-  catch (const std::invalid_argument& e) {
+  catch (const std::exception& e) {
+    ATH_MSG_ERROR("Encountered error when building Acts tracking geometry");
     ATH_MSG_ERROR(e.what());
     return StatusCode::FAILURE;
   }
@@ -185,8 +186,10 @@ ActsTrackingGeometrySvc::initialize()
   ActsGeometryContext constructionContext;
   constructionContext.construction = true;
 
+  ATH_MSG_VERBOSE("Begin building process");
   m_trackingGeometry = trackingGeometryBuilder
     ->trackingGeometry(constructionContext.any());
+  ATH_MSG_VERBOSE("Building process completed");
 
   ATH_MSG_VERBOSE("Building nominal alignment store");
   ActsAlignmentStore* nominalAlignmentStore = new ActsAlignmentStore();
@@ -226,11 +229,11 @@ ActsTrackingGeometrySvc::makeLayerBuilder(const InDetDD::InDetDetectorManager* m
 
     auto surfaceArrayCreator = std::make_shared<Acts::SurfaceArrayCreator>(
         sacCfg,
-        makeActsAthenaLogger(this, "SrfArrCrtr", "ActsTGSvc"));
+        makeActsAthenaLogger(this, managerName+"SrfArrCrtr", "ActsTGSvc"));
     Acts::LayerCreator::Config lcCfg;
     lcCfg.surfaceArrayCreator = surfaceArrayCreator;
     auto layerCreator = std::make_shared<Acts::LayerCreator>(
-        lcCfg, makeActsAthenaLogger(this, "LayCrtr", "ActsTGSvc"));
+        lcCfg, makeActsAthenaLogger(this, managerName+"LayCrtr", "ActsTGSvc"));
 
     ActsStrawLayerBuilder::Config cfg;
     cfg.mng = static_cast<const InDetDD::TRT_DetectorManager*>(manager);
@@ -238,7 +241,7 @@ ActsTrackingGeometrySvc::makeLayerBuilder(const InDetDD::InDetDetectorManager* m
     cfg.layerCreator = layerCreator;
     cfg.idHelper = m_TRT_idHelper;
     gmLayerBuilder = std::make_shared<const ActsStrawLayerBuilder>(cfg,
-      makeActsAthenaLogger(this, "GMSLayBldr", "ActsTGSvc"));
+      makeActsAthenaLogger(this, managerName+"GMSLayBldr", "ActsTGSvc"));
 
     //gmLayerBuilder->centralLayers();
     //gmLayerBuilder->negativeLayers();
@@ -286,11 +289,11 @@ ActsTrackingGeometrySvc::makeLayerBuilder(const InDetDD::InDetDetectorManager* m
 
     auto surfaceArrayCreator = std::make_shared<Acts::SurfaceArrayCreator>(
         sacCfg,
-        makeActsAthenaLogger(this, "SrfArrCrtr", "ActsTGSvc"));
+        makeActsAthenaLogger(this, managerName+"SrfArrCrtr", "ActsTGSvc"));
     Acts::LayerCreator::Config lcCfg;
     lcCfg.surfaceArrayCreator = surfaceArrayCreator;
     auto layerCreator = std::make_shared<Acts::LayerCreator>(
-        lcCfg, makeActsAthenaLogger(this, "LayCrtr", "ActsTGSvc"));
+        lcCfg, makeActsAthenaLogger(this, managerName+"LayCrtr", "ActsTGSvc"));
 
 
 
@@ -324,7 +327,7 @@ ActsTrackingGeometrySvc::makeLayerBuilder(const InDetDD::InDetDetectorManager* m
     cfg.layerCreator = layerCreator;
 
     gmLayerBuilder = std::make_shared<const ActsLayerBuilder>(cfg,
-      makeActsAthenaLogger(this, "GMLayBldr", "ActsTGSvc"));
+      makeActsAthenaLogger(this, managerName+"GMLayBldr", "ActsTGSvc"));
   }
 
 
@@ -342,13 +345,19 @@ ActsTrackingGeometrySvc::makeSCTTRTAssembly(const Acts::GeometryContext& gctx,
   Acts::CylinderVolumeBuilder::Config cvbCfg;
   Acts::CylinderVolumeBuilder cvb(cvbCfg, makeActsAthenaLogger(this, "SCTTRTCVB", "ActsTGSvc"));
 
+  ATH_MSG_VERBOSE("Making SCT negative layers: ");
   Acts::VolumeConfig sctNegEC = cvb.analyzeContent(gctx, sct_lb.negativeLayers(gctx), {});
+  ATH_MSG_VERBOSE("Making SCT positive layers: ");
   Acts::VolumeConfig sctPosEC = cvb.analyzeContent(gctx, sct_lb.positiveLayers(gctx), {});
+  ATH_MSG_VERBOSE("Making SCT central layers: ");
   Acts::VolumeConfig sctBrl = cvb.analyzeContent(gctx, sct_lb.centralLayers(gctx), {});
 
 
+  ATH_MSG_VERBOSE("Making TRT negative layers: ");
   Acts::VolumeConfig trtNegEC = cvb.analyzeContent(gctx, trt_lb.negativeLayers(gctx), {});
+  ATH_MSG_VERBOSE("Making TRT positive layers: ");
   Acts::VolumeConfig trtPosEC = cvb.analyzeContent(gctx, trt_lb.positiveLayers(gctx), {});
+  ATH_MSG_VERBOSE("Making TRT central layers: ");
   Acts::VolumeConfig trtBrl = cvb.analyzeContent(gctx, trt_lb.centralLayers(gctx), {});
   
 
@@ -373,6 +382,9 @@ ActsTrackingGeometrySvc::makeSCTTRTAssembly(const Acts::GeometryContext& gctx,
     sctPosEC.rMin = pixelBounds->get(CVBBV::eMaxR);
     sctBrl.rMin = pixelBounds->get(CVBBV::eMaxR);
   }
+  else {
+    ATH_MSG_VERBOSE("Pixel is not configured, not wrapping");
+  }
 
 
   ATH_MSG_VERBOSE("SCT Volume Configuration:");
@@ -384,6 +396,10 @@ ActsTrackingGeometrySvc::makeSCTTRTAssembly(const Acts::GeometryContext& gctx,
   ATH_MSG_VERBOSE("- TRT::NegativeEndcap: " << trtNegEC.layers.size() << " layers, " << trtNegEC.toString());
   ATH_MSG_VERBOSE("- TRT::Barrel: " << trtBrl.layers.size() << " layers, " << trtBrl.toString());
   ATH_MSG_VERBOSE("- TRT::PositiveEncap: " << trtPosEC.layers.size() << " layers, " << trtPosEC.toString());
+
+  // harmonize SCT BRL <-> EC, normally the CVB does this, but we're skipping that
+  sctBrl.zMax = (sctBrl.zMax + sctPosEC.zMin)/2.;
+  sctBrl.zMin = -sctBrl.zMax;
   
   // and now harmonize everything
   // inflate TRT Barrel to match SCT

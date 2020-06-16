@@ -1,11 +1,12 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.BTaggingFlags import BTaggingFlags
 from JetTagTools.JetFitterVariablesFactoryConfig import JetFitterVariablesFactoryCfg
 #from BTagging.MSVVariablesFactoryConfig import MSVVariablesFactoryCfg
 
-from BTagging.BTaggingConf import Analysis__BTagLightSecVertexing
+Analysis__BTagLightSecVertexing=CompFactory.Analysis.BTagLightSecVertexing
 
 def BTagLightSecVtxToolCfg(flags, Name, JetCollection, SVandAssoc = {""}, TimeStamp = "", **options):
     """Adds a SecVtxTool instance and registers it.

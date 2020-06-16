@@ -446,7 +446,7 @@ if len(onlSuffix) and not onl and "sqlite" in outSchema:
     log.info("creating DB with ONLINE status")
 
     #if dbw:
-    #  mgr.updateFromDb(dbw, folderPath, folderTag, since, -1)
+    #    mgr.updateFromDb(dbw, folderPath, folderTag, since, -1)
 
     #--- create online bad channel manager
     folderOnl = "/TILE/ONL01/STATUS/ADC"

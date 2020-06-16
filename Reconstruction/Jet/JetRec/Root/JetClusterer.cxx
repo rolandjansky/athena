@@ -85,6 +85,7 @@ std::pair<std::unique_ptr<xAOD::JetContainer>, std::unique_ptr<SG::IAuxStore> > 
   jets->setStore(auxCont.get());
 
   const PseudoJetVector* pseudoJetVector = pjContHandle->casVectorPseudoJet();
+  ATH_MSG_DEBUG("Pseudojet input container has size " << pseudoJetVector->size());
 
   // -----------------------
   // Build the cluster sequence
@@ -110,6 +111,11 @@ std::pair<std::unique_ptr<xAOD::JetContainer>, std::unique_ptr<SG::IAuxStore> > 
   // Thus the contained PseudoJet will be kept frozen there and we can safely use pointer to them from the xAOD::Jet objects
   auto pjVector = std::make_unique<PseudoJetVector>(fastjet::sorted_by_pt(clSequence->inclusive_jets(m_ptmin)) );
   ATH_MSG_DEBUG("Found jet count: " << pjVector->size());
+  if(msgLevel(MSG::VERBOSE)) {
+    for(const auto& pj : *pjVector) {
+      msg() << "  Pseudojet with pt " << std::setprecision(4) << pj.Et()*1e-3 << " has " << pj.constituents().size() << " constituents" << endmsg;
+    }
+  }
   
   // Let fastjet deal with deletion of ClusterSequence, so we don't need to also put it in the EventStore.
   clSequence->delete_self_when_unused();
@@ -117,6 +123,7 @@ std::pair<std::unique_ptr<xAOD::JetContainer>, std::unique_ptr<SG::IAuxStore> > 
 
   // -------------------------------------
   // translate to xAOD::Jet
+  ATH_MSG_DEBUG("Converting pseudojets to xAOD::Jet");
   static SG::AuxElement::Accessor<const fastjet::PseudoJet*> pjAccessor("PseudoJet");
   PseudoJetTranslator pjTranslator(useArea, useArea);
   for (const fastjet::PseudoJet &  pj: *pjVector ) {
@@ -131,6 +138,9 @@ std::pair<std::unique_ptr<xAOD::JetContainer>, std::unique_ptr<SG::IAuxStore> > 
     jet->setAlgorithmType(ialg);
     jet->setSizeParameter((float)m_jetrad);
     if(useArea) jet->setAttribute(xAOD::JetAttribute::JetGhostArea, (float)m_ghostarea);
+    
+    ATH_MSG_VERBOSE( "  xAOD::Jet with pt " << std::setprecision(4) << jet->pt()*1e-3 << " has " << jet->getConstituents().size() << " constituents" );
+    ATH_MSG_VERBOSE( "  Leading constituent is of type " << jet->getConstituents()[0].rawConstituent()->type());
   }
 
   // -------------------------------------

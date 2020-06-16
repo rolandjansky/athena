@@ -42,7 +42,6 @@
 #include "InDetRecToolInterfaces/IVertexFinder.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "TrkParameters/TrackParameters.h"
-#include "TrkParticleBase/TrackParticleBaseCollection.h" // type def ...
 #include "TrkTrack/TrackCollection.h"                    // type def ...
 /**
  * Forward declarations
@@ -56,7 +55,6 @@
 namespace Trk {
 class IVertexFitter;
 class Track;
-class TrackParticleBase;
 class ITrackLink;
 class IVertexSeedFinder;
 class IImpactPoint3dEstimator;
@@ -101,8 +99,7 @@ public:
   using IVertexFinder::findVertex;
   virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(
     const TrackCollection* trackTES) const override;
-  virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(
-    const Trk::TrackParticleBaseCollection* trackTES) const override;
+ 
   virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(
     const xAOD::TrackParticleContainer* trackParticles) const override;
 

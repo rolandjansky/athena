@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/SCT_ServMatFactoryFS.h"
@@ -39,7 +39,6 @@
 SCT_ServMatFactoryFS::SCT_ServMatFactoryFS(StoreGateSvc *detStore,ServiceHandle<IRDBAccessSvc>& pRDBAccess) :
   m_detStore(detStore),
   m_rdbAccess(pRDBAccess),
-  m_materialManager(0),
   m_msg("SCT_ServMatFactoryFS")
 {
 }
@@ -47,7 +46,6 @@ SCT_ServMatFactoryFS::SCT_ServMatFactoryFS(StoreGateSvc *detStore,ServiceHandle<
 
 SCT_ServMatFactoryFS::~SCT_ServMatFactoryFS()
 {
-  delete m_materialManager;
 }
 
 
@@ -70,7 +68,7 @@ void SCT_ServMatFactoryFS::create(GeoPhysVol *motherP,GeoPhysVol *motherM)
  
   // Get the InDet material manager. This is a wrapper around the geomodel one with some extra functionality to deal
   // with weights table.
-  m_materialManager = new InDetMaterialManager("SCT_MaterialManager", m_detStore, weightTable, "sct");
+  m_materialManager = std::make_unique<InDetMaterialManager>("SCT_MaterialManager", m_detStore, weightTable, "sct");
   
 
   //------------------------------------------

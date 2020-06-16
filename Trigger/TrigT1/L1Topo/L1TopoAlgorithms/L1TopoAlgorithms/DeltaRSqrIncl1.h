@@ -11,6 +11,8 @@
 #include <iostream>
 #include "L1TopoInterfaces/DecisionAlg.h"
 
+class TH2;
+
 namespace TCS {
    
    class DeltaRSqrIncl1 : public DecisionAlg {
@@ -39,7 +41,9 @@ namespace TCS {
       parType_t      p_MinET1 = { 0 };
       parType_t      p_MinET2 = { 0 };
       parType_t      p_OneBarrel = { 0 };
-
+     
+      TH1 * m_histAccept[3] = {};
+      TH1 * m_histReject[3] = {};
    };
    
 }

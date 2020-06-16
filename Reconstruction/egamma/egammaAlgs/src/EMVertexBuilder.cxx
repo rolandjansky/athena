@@ -64,10 +64,9 @@ StatusCode EMVertexBuilder::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode EMVertexBuilder::execute()
+StatusCode EMVertexBuilder::execute_r(const EventContext& ctx) const
 {   
   
-  const EventContext& ctx =Algorithm::getContext();
   //retrieve TrackParticleContainer
   SG::ReadHandle<xAOD::TrackParticleContainer> TPCol(m_inputTrackParticleContainerKey,ctx);
 

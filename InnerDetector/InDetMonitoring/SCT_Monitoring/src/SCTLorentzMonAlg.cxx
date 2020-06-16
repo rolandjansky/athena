@@ -12,6 +12,7 @@
 #include "TrkTrackSummary/TrackSummary.h"
 
 #include <cmath>
+#include <memory>
 #include <vector>
 
 SCTLorentzMonAlg::SCTLorentzMonAlg(const std::string& name, ISvcLocator* pSvcLocator)
@@ -78,14 +79,13 @@ StatusCode SCTLorentzMonAlg::fillHistograms(const EventContext& ctx) const {
     }
 
     const Trk::TrackSummary* summary{track->trackSummary()};
-    bool ownSummary{false};
+    std::unique_ptr<Trk::TrackSummary> mySummary;
     if (summary==nullptr) {
-      summary = m_trackSummaryTool->createSummary(*track);
+      mySummary = m_trackSummaryTool->summary(*track);
+      summary = mySummary.get();
       if (summary==nullptr) {
         ATH_MSG_WARNING("Trk::TrackSummary is null and cannot be created by " << m_trackSummaryTool.name());
         continue;
-      } else {
-        ownSummary = true;
       }
     }
 
@@ -187,11 +187,6 @@ StatusCode SCTLorentzMonAlg::fillHistograms(const EventContext& ctx) const {
         } // end if (clus)
       } // if (tsos->type(Trk::TrackStateOnSurface::Measurement)) {
     }// end of loop on TrackStatesonSurface (they can be SiClusters, TRTHits,..)
-
-    if (ownSummary) {
-      delete summary;
-      summary = nullptr;
-    }
   } // end of loop on tracks
 
     

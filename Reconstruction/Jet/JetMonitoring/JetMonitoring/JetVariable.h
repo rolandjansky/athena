@@ -167,6 +167,20 @@ namespace JetVar {
     using Variable::Variable;
     virtual float value(const xAOD::Jet & j) const { return j.p4().Et()*m_scale;}
   };
+
+  struct FChargeVar : public Variable {
+    using Variable::Variable;
+    virtual float value(const xAOD::Jet & j) const { 
+      bool status = false;
+      float constScalePt = 0.; 
+      std::vector<float> SumPtChargedPFOPt500;
+      status = j.getAttribute<float>("JetConstitScaleMomentum_pt", constScalePt ); // Jet pT at the constituent scale
+      if (!status) return 0;
+      status = j.getAttribute<std::vector<float> >("SumPtChargedPFOPt500", SumPtChargedPFOPt500 ); //Vector over all vertices in the event, each element contains the sum pT of all charged PFO with a pT > 0.5 GeV associated to the vertex.
+      if (!status) return 0;
+      return SumPtChargedPFOPt500.at(0)/=constScalePt; //definition of "fCharge", index 0 points to the primary vertex
+    }
+  };
   
   struct EM3FracVar : public Variable {
     using Variable::Variable;

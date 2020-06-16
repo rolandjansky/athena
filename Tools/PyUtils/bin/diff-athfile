@@ -1,11 +1,11 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file:    diff-athfile.py
 # @purpose: simple command-line utility to diff metadata in two files.
 #           Uses PyUtils.AthFile.fopen. Based on dump-athfile.py.
 # @author:  Graeme Stewart <graeme.andrew.stewart@cern.ch>
 # @date:    Jan 2012
-# @version: $Id: diff-athfile 493697 2012-04-02 17:30:56Z binet $
 #
 # @example:
 # @code
@@ -16,9 +16,6 @@
 import sys
 import os
 
-try:                import cPickle as pickle
-except ImportError: import pickle
-    
 from optparse import OptionParser
 
 if __name__ == "__main__":
@@ -65,7 +62,7 @@ if __name__ == "__main__":
         for fname in fnames:
             fhandles[fname] = af.fopen(fname, evtmax=options.evtmax)
             msg.info(':'*80)
-            msg.info('Opened file %s.' % fname)
+            msg.info('Opened file %s.', fname)
             
 
         # Ignore the following keys, which are bound to be different:
@@ -77,10 +74,10 @@ if __name__ == "__main__":
     
         for k in simpleCompKeys:
             if fhandles[fnames[0]].infos[k] == fhandles[fnames[1]].infos[k]:
-                msg.info('%s equal in %s and %s: %s' % (k, fnames[0], fnames[1], fhandles[fnames[0]].infos[k]))
+                msg.info('%s equal in %s and %s: %s', k, fnames[0], fnames[1], fhandles[fnames[0]].infos[k])
             else:
-                msg.warning('%s not equal in %s and %s: %s != %s' % 
-                            (k, fnames[0], fnames[1], fhandles[fnames[0]].infos[k], fhandles[fnames[1]].infos[k]))
+                msg.warning('%s not equal in %s and %s: %s != %s',
+                            k, fnames[0], fnames[1], fhandles[fnames[0]].infos[k], fhandles[fnames[1]].infos[k])
                 sc = 1
 
         for k in bitByBitKeys:
@@ -90,21 +87,21 @@ if __name__ == "__main__":
             skeys.sort()
             skeys1.sort()
             if skeys != skeys1:
-                msg.warning('%s keys not equal for %s and %s: %s != %s' % 
-                            (k, fnames[0], fnames[1], skeys, skeys1))
+                msg.warning('%s keys not equal for %s and %s: %s != %s',
+                            k, fnames[0], fnames[1], skeys, skeys1)
                 sc = 1
             else:
-                msg.info('%s keys are equal for %s and %s: %s' % 
-                         (k, fnames[0], fnames[1], skeys))
+                msg.info('%s keys are equal for %s and %s: %s',
+                         k, fnames[0], fnames[1], skeys)
                 for subk in skeys:
                     if fhandles[fnames[0]].infos[k][subk] == fhandles[fnames[1]].infos[k][subk]:
                         # Here suppress the very long value output
-                        msg.info('%s element %s values are equal for %s and %s: (value suppressed)' % 
-                                 (k, subk, fnames[0], fnames[1]))
+                        msg.info('%s element %s values are equal for %s and %s: (value suppressed)',
+                                 k, subk, fnames[0], fnames[1])
                     else:
-                        msg.warning('%s element %s values are not equal for %s and %s: %s != %s' % 
-                                 (k, subk, fnames[0], fnames[1], fhandles[fnames[0]].infos[k][subk], 
-                                  fhandles[fnames[1]].infos[k][subk]))
+                        msg.warning('%s element %s values are not equal for %s and %s: %s != %s',
+                                    k, subk, fnames[0], fnames[1], fhandles[fnames[0]].infos[k][subk],
+                                    fhandles[fnames[1]].infos[k][subk])
                         sc = 1
                         
                 
@@ -119,7 +116,7 @@ if __name__ == "__main__":
         sc = 2
         pass
 
-    except :
+    except Exception:
         msg.error("Caught something !! (don't know what)")
         msg.error("\n%s\n%s",sys.exc_info()[0], sys.exc_info()[1])
         sc = 2
@@ -128,7 +125,7 @@ if __name__ == "__main__":
     
     if options.oname:
         oname = options.oname
-        msg.info("saving report into [%s]..." % oname)
+        msg.info("saving report into [%s]...", oname)
         if os.path.exists(oname):
             os.rename(oname, oname+'.bak')
         af.server.save_cache(oname)

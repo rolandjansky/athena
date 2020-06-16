@@ -15,13 +15,12 @@ TTbarPhotonWhizardHwgFilter::TTbarPhotonWhizardHwgFilter(const std::string& name
 StatusCode TTbarPhotonWhizardHwgFilter::filterEvent() {
   for (McEventCollection::const_iterator itr = events()->begin(); itr != events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
-	for (HepMC::GenEvent::particle_const_iterator pit = genEvt->particles_begin();pit != genEvt->particles_end(); ++pit) {
-      if ((*pit)->pdg_id() == 22 && (*pit)->status() == 124 &&
-          (*pit)->momentum().perp() >= m_Ptmin && fabs((*pit)->momentum().pseudoRapidity()) < m_Etamax) {
-        setFilterPassed(true);
-        return StatusCode::SUCCESS;
-      }
-	}
+    for (auto  pit: *genEvt) {
+      if (pit->pdg_id() != 22 || pit->status() != 124 ) continue;
+      if (  pit->momentum().perp() < m_Ptmin || std::abs(pit->momentum().pseudoRapidity()) > m_Etamax) continue;
+      setFilterPassed(true);
+      return StatusCode::SUCCESS; 
+    }
   }
   setFilterPassed(false);
   return StatusCode::SUCCESS;

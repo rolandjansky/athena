@@ -414,10 +414,6 @@ StatusCode TrigTauRecMergedMT::execute()
     }
   }
 
-  // This sets one track and link. Need to have at least 1 track linked to retrieve track container
-  // Can't we instead implement in the EDM a function to retrieve the track container of a tau?
-  if(!m_clustersKey.key().empty() || pTrackContainer->size()==0) setEmptyTauTrack(p_tau, pTrackContainer);
-
   ATH_MSG_DEBUG(" roidescriptor roiword " << roiDescriptor->roiWord() << " saved " << p_tau->ROIWord() );
 
   StatusCode processStatus    = StatusCode::SUCCESS;
@@ -459,7 +455,7 @@ StatusCode TrigTauRecMergedMT::execute()
       processStatus = (*firstTool)->executeVertexFinder(*p_tau);
     }
     else if ( (*firstTool)->type() == "TauTrackFinder") {
-      processStatus = (*firstTool)->executeTrackFinder(*p_tau);
+      processStatus = (*firstTool)->executeTrackFinder(*p_tau, *pTrackContainer);
     }
     else if ( (*firstTool)->type() == "TauVertexVariables" ) {
       processStatus = (*firstTool)->executeVertexVariables(*p_tau, dummyVxCont);
@@ -614,18 +610,5 @@ StatusCode TrigTauRecMergedMT::execute()
                        std::unique_ptr<xAOD::TauJetAuxContainer>(pAuxContainer)));
   
   return StatusCode::SUCCESS;
-}
-
-void TrigTauRecMergedMT::setEmptyTauTrack(xAOD::TauJet*pTau,
-					  xAOD::TauTrackContainer* tauTrackContainer)
-{
-  // Make a new tau track, add to container
-  xAOD::TauTrack* pTrack = new xAOD::TauTrack();
-  tauTrackContainer->push_back(pTrack);
-
-  // Create an element link for that track
-  ElementLink<xAOD::TauTrackContainer> linkToTauTrack;
-  linkToTauTrack.toContainedElement(*tauTrackContainer, pTrack);
-  pTau->addTauTrackLink(linkToTauTrack);
 }
 

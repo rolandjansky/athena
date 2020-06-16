@@ -66,15 +66,12 @@ private:
   /// Flag indicating to skip objects with E<0.
   Gaudi::Property<bool> m_skipNegativeEnergy{this, "SkipNegativeEnergy", false, "Whether to skip negative energy inputs"};
 
-  /// Ghost scale factor.
-  Gaudi::Property<double> m_ghostscale{this, "GhostScale", 0.0, "Scale factor to convert PJs into ghosts that don't affect jet kinematics"};
-
   /// Flag indicating to treat objects with E<0 as ghosts  (useful for HI)
   Gaudi::Property<bool> m_negEnergyAsGhosts{this, "TreatNegativeEnergyAsGhost", false, "Whether to convert negative energy inputs into ghosts"};
 
   /// Internal steering flags
   /// Set in initialize()
-  bool m_isGhost{false}; /// Determinines whether the PJs should be made ghosts
+  bool m_isGhost{false}; /// Determines whether the PJs should be made ghosts
   bool m_emtopo{false};  /// True if inputs are EM-scale topo clusters.
   bool m_pflow{false};   /// True if inputs are PFlow
 

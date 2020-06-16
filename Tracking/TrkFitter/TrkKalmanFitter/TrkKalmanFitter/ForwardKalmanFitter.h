@@ -129,7 +129,7 @@ private:
                                   ProtoTrackStateOnSurface*) const;
 
     //! internal method printing the current state
-    void printGlobalParams(int istate, std::string ptype,
+    void printGlobalParams(int istate, const std::string& ptype,
                            const TrackParameters*,
                            const DNA_MaterialEffects* = nullptr) const;
 

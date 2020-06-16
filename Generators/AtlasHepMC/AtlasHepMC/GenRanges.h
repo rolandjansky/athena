@@ -3,5 +3,9 @@
 */
 #ifndef ATLASHEPMC_GENRANGES_H
 #define ATLASHEPMC_GENRANGES_H
+#ifdef HEPMC3
+#include "HepMC3/Version.h"
+#else
 #include "HepMC/GenRanges.h"
+#endif
 #endif

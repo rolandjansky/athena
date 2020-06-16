@@ -12,7 +12,7 @@
               EDM Migration to xAOD - from Trk::VxCandidate to xAOD::Vertex
 
                 findVertex will now always return an xAOD::VertexContainer,
-                even when using a TrackCollection or a TrackParticleBaseCollection
+                even when using a TrackCollection.
                 as input.
 ***************************************************************************/
 #include "InDetPriVxFinderTool/InDetIterativePriVxFinderTool.h"
@@ -22,7 +22,6 @@
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkParameters/TrackParameters.h"
-#include "TrkParticleBase/TrackParticleBase.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 #include <map>
 #include <vector>
@@ -44,7 +43,6 @@
 
 #include "TrkTrackLink/ITrackLink.h"
 #include "TrkTrack/LinkToTrack.h"
-#include "TrkParticleBase/LinkToTrackParticleBase.h"
 #include "TrkLinks/LinkToXAODTrackParticle.h"
 #include "TrkVertexFitterInterfaces/IVertexLinearizedTrackFactory.h"
 
@@ -200,48 +198,6 @@ InDetIterativePriVxFinderTool::findVertex(const TrackCollection* trackTES) const
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = findVertex(selectedTracks);
 
   return returnContainers;
-}
-
-std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-InDetIterativePriVxFinderTool::findVertex(
-  const Trk::TrackParticleBaseCollection* trackTES) const
-{
-
-  ATH_MSG_DEBUG(" Number of input tracks before track selection: " << trackTES->size());
-
-  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
-  const InDet::BeamSpotData* beamSpot = *beamSpotHandle;
-
-  std::vector<Trk::ITrackLink*> selectedTracks;
-
-    typedef DataVector<Trk::TrackParticleBase>::const_iterator TrackParticleDataVecIter;
-
-    bool selectionPassed;
-    for (TrackParticleDataVecIter itr = (*trackTES).begin(); itr != (*trackTES).end(); itr++) {
-      if (m_useBeamConstraint && beamSpot != nullptr) {
-        Trk::RecVertex beamPosition { beamSpot->beamVtx() };
-        selectionPassed = static_cast<bool>(m_trkFilter->accept(*((*itr)->originalTrack()), &beamPosition));
-      } else {
-        Trk::Vertex null(Amg::Vector3D(0, 0, 0));
-        selectionPassed = static_cast<bool>(m_trkFilter->accept(*((*itr)->originalTrack()), &null));
-      }
-
-      if (selectionPassed) {
-        ElementLink<Trk::TrackParticleBaseCollection> link;
-        link.setElement(*itr);
-        Trk::LinkToTrackParticleBase* linkTT = new Trk::LinkToTrackParticleBase(link);
-        linkTT->setStorableObject(*trackTES);
-        selectedTracks.push_back(linkTT);
-      }
-    }
-
-
-    ATH_MSG_DEBUG("Of " << trackTES->size() << " tracks "
-		<< selectedTracks.size() << " survived the preselection.");
-
-    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = findVertex(selectedTracks);
-
-    return returnContainers;
 }
 
 std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>

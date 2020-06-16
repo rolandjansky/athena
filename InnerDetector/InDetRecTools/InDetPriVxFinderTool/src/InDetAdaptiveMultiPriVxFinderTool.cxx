@@ -43,7 +43,6 @@
 #include "TrkVertexFitters/AdaptiveMultiVertexFitter.h"
 #include "TrkVertexFitterInterfaces/IVertexAnalyticSeedFinder.h"
 #include "TrkTrack/LinkToTrack.h"
-#include "TrkParticleBase/LinkToTrackParticleBase.h"
 #include "TrkLinks/LinkToXAODTrackParticle.h"
 
 #include "xAODTracking/Vertex.h"
@@ -190,50 +189,6 @@ namespace InDet
     return returnContainers;
   }
 
-  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-  InDetAdaptiveMultiPriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection* trackTES) const{
-    std::vector<const Trk::ITrackLink*> selectedTracks;
-
-    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
-    const Trk::RecVertex &beamposition(beamSpotHandle->beamVtx());
-
-    typedef DataVector<Trk::TrackParticleBase>::const_iterator TrackParticleDataVecIter;
-
-    bool  selectionPassed;
-    for (TrackParticleDataVecIter itr = (*trackTES).begin(); itr != (*trackTES).end(); itr++) {
-      if (m_useBeamConstraint) {
-        selectionPassed = static_cast<bool>(m_trkFilter->accept(*((*itr)->originalTrack()), &beamposition));
-      } else {
-        Trk::Vertex null(Amg::Vector3D(0, 0, 0));
-        selectionPassed = static_cast<bool>(m_trkFilter->accept(*((*itr)->originalTrack()), &null)); // TODO: change trkFilter?
-      }
-
-      if (selectionPassed) {
-        ElementLink<Trk::TrackParticleBaseCollection> link;
-        link.setElement(const_cast<Trk::TrackParticleBase*>(*itr));
-        Trk::LinkToTrackParticleBase* linkTT = new Trk::LinkToTrackParticleBase(link);
-        linkTT->setStorableObject(*trackTES);
-        selectedTracks.push_back(linkTT);
-      }
-    }
-
-    ATH_MSG_DEBUG("Of " << trackTES->size() << " tracks "
-                        << selectedTracks.size() << " survived the preselection.");
-
-    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = findVertex(selectedTracks);
-
-    std::vector<const Trk::ITrackLink*>::iterator ibegin = selectedTracks.begin();
-    std::vector<const Trk::ITrackLink*>::iterator iend = selectedTracks.end();
-
-    for (std::vector<const Trk::ITrackLink*>::iterator iiter = ibegin; iiter != iend; ++iiter) {
-      if ((*iiter) != 0) {
-        delete *iiter;
-        *iiter = 0;
-      }
-    }
-
-    return returnContainers;
-  }
 
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
   InDetAdaptiveMultiPriVxFinderTool::findVertex(const xAOD::TrackParticleContainer* trackParticles) const {
@@ -837,7 +792,8 @@ namespace InDet
       delete MvfFitInfo(*cand);
       std::vector<Trk::VxTrackAtVertex>::iterator trkAtVtxBegin = cand->vxTrackAtVertex().begin();
       std::vector<Trk::VxTrackAtVertex>::iterator trkAtVtxEnd = cand->vxTrackAtVertex().end();
-      for (std::vector<Trk::VxTrackAtVertex>::iterator trkAtVtxIter = trkAtVtxBegin; trkAtVtxIter != trkAtVtxEnd; ) {//++trkAtVtxIter)                                                                                            // {
+      for (std::vector<Trk::VxTrackAtVertex>::iterator trkAtVtxIter = trkAtVtxBegin; trkAtVtxIter != trkAtVtxEnd; ) 
+      {
         //cleaning up incompatible vertices
         if (((*trkAtVtxIter).vtxCompatibility() > m_maxVertexChi2 && m_useFastCompatibility) ||
             (((*trkAtVtxIter).weight() < m_minweight
@@ -868,8 +824,7 @@ namespace InDet
         if (linkToXAODTP) {
           ATH_MSG_VERBOSE("Iterating over new vertex in fixing xAOD::TrackParticle links... ");
           (*vxIter)->addTrackAtVertex(*linkToXAODTP, (*tracksIter).weight());
-        } // TODO: esle write in a warning? (if tracks were TrkTracks or Trk::TrackParticleBase) - sorting tool expects
-          // there to be xAOD::TrackParticleLinks!
+        } 
       }
     }
     std::vector<Trk::TrackToVtxLink*>::iterator begin = myTrackToVtxLinks.begin();

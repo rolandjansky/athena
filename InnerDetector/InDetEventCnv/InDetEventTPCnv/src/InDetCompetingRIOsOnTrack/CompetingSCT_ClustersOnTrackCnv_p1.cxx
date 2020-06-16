@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetCompetingRIOsOnTrack/CompetingSCT_ClustersOnTrack.h"
@@ -17,15 +17,15 @@ CompetingSCT_ClustersOnTrackCnv_p1::persToTrans( const InDet::CompetingSCT_Clust
    std::vector< TPObjRef >::const_iterator  it = persObj->m_containedChildRots.begin(), 
                                             itE = persObj->m_containedChildRots.end();
                                             
-   auto containedChildRots = new std::vector< const InDet::SCT_ClusterOnTrack * >;
+   std::vector< const InDet::SCT_ClusterOnTrack * > containedChildRots;
    
    for (; it!=itE;it++) {
        ITPConverterFor<Trk::MeasurementBase>  *rotCnv = 0;
        const InDet::SCT_ClusterOnTrack* mcot = dynamic_cast<const InDet::SCT_ClusterOnTrack*>(createTransFromPStore(&rotCnv, *it, log));
-       containedChildRots->push_back( mcot );
+       containedChildRots.push_back( mcot );
    }
 
-   *transObj = InDet::CompetingSCT_ClustersOnTrack (containedChildRots,
+   *transObj = InDet::CompetingSCT_ClustersOnTrack (std::move(containedChildRots),
                                                     nullptr);
    fillTransFromPStore( &m_cRotCnv, persObj->m_competingROT, transObj, log );
 }

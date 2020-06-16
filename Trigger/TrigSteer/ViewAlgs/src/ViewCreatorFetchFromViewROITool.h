@@ -42,6 +42,9 @@ public:
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_inViewRoIKey{this,"InViewRoIs","",
     "Name of the ROI collection within the most recent EventView of the input Decision objects"};
 
+  Gaudi::Property< std::string > m_viewToFetchFrom {this,"ViewToFetchFrom","", 
+      "Optional name of EventView to fetch ROI from. Must be in the history of the DecisionObject. If not supplied, the most recent EventView will be used."};
+
 };
 
 #endif //> !VIEWALGS_VIEWCREATORFETCHFROMVIEWROITOOL_H

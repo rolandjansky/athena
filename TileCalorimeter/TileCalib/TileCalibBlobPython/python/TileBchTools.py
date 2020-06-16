@@ -4,10 +4,8 @@
 # TileBchTools.py
 # Nils Gollub <nils.gollub@cern.ch>, 2007-12-17
 #
-#
-# Edition:
-# Andrey Kamenshchikov, 23-10-2013 (akamensh@cern.ch)
-# Yuri Smirnov, 24-12-2014 (iouri.smirnov@cern.ch)
+# Andrey Kamenshchikov <akamensh@cern.ch>, 2013-10-23
+# Yuri Smirnov <iouri.smirnov@cern.ch>, 2014-12-24
 ################################################################
 """
 Python module for managing TileCal ADC status words.
@@ -504,13 +502,13 @@ class TileBchMgr(TileCalibLogger):
                             drawer.setData(chn,2,0, chBits)
                             #=== synchronizing channel status in low and high gain
                             if wordsLo[0] != chBits:
-                               self.log().info("Drawer %s ch %2d - sync LG status with HG ", modName,chn)
-                               status = TileBchStatus( bchDecoder.decode(chBits,loBits) )
-                               self.setAdcStatus(ros,mod,chn,0,status)
+                                self.log().info("Drawer %s ch %2d - sync LG status with HG ", modName,chn)
+                                status = TileBchStatus( bchDecoder.decode(chBits,loBits) )
+                                self.setAdcStatus(ros,mod,chn,0,status)
                             if wordsHi[0] != chBits:
-                               self.log().info("Drawer %s ch %2d - sync HG status with LG ", modName,chn)
-                               status = TileBchStatus( bchDecoder.decode(chBits,hiBits) )
-                               self.setAdcStatus(ros,mod,chn,1,status)
+                                self.log().info("Drawer %s ch %2d - sync HG status with LG ", modName,chn)
+                                status = TileBchStatus( bchDecoder.decode(chBits,hiBits) )
+                                self.setAdcStatus(ros,mod,chn,1,status)
 
         #=== register
         if nUpdates>0 or moduleList==['CMT']:

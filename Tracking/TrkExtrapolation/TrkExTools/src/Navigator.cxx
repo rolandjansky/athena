@@ -271,11 +271,11 @@ Trk::Navigator::nextTrackingVolume(const EventContext& ctx,
                                << surface_id << " of Volume: '"
                                << vol.volumeName() << "' NOT FOUND.");
       continue;
-    } else {
+    } 
       ATH_MSG_VERBOSE("  [N] " << tryBoundary << ". try - BoundarySurface "
                                << surface_id << " of Volume: '"
                                << vol.volumeName() << "'.");
-    }
+    
 
     const Trk::Surface& currentSurface =
       currentBoundary->surfaceRepresentation();

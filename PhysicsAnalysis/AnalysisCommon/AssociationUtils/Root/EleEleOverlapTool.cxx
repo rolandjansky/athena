@@ -168,8 +168,11 @@ namespace ORUtils
         throw DummyValError();
       }
 
-      if( std::abs(clus1.etaBE(layer) - clus2.etaBE(layer)) < m_clusterDeltaEta &&
-          deltaPhi(clus1.phiBE(layer),  clus2.phiBE(layer)) < m_clusterDeltaPhi )
+      const float dEta = clus1.etaBE(layer) - clus2.etaBE(layer);
+      const float dPhi = deltaPhi(clus1.phiBE(layer), clus2.phiBE(layer));
+
+      if( std::abs(dEta) < m_clusterDeltaEta &&
+          std::abs(dPhi) < m_clusterDeltaPhi )
       {
         return true;
       }

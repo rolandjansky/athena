@@ -106,9 +106,6 @@ public:
     const TrackCollection* trackTES) const override;
  
   virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(
-    const Trk::TrackParticleBaseCollection* trackTES) const override;
- 
-  virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(
     const xAOD::TrackParticleContainer* trackParticles) const override;
 
   virtual StatusCode finalize() override;
