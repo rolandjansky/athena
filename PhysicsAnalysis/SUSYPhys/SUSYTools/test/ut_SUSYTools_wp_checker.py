@@ -193,7 +193,7 @@ class TestSUSYTools(unittest.TestCase):
     EL_ID_WP  = ['LooseAndBLayerLLH', 'MediumLLH', 'TightLLH']
     EL_ISO_WP = ['FCHighPtCaloOnly','FCLoose','FCTight']
     MU_ID_WP  = ['1']
-    MU_ISO_WP = ['FCLoose']
+    MU_ISO_WP = ['Loose_VarRad']
     PH_ID_WP  = ['Loose','Tight']
     PH_ISO_WP = ['FixedCutTight','FixedCutLoose']
     BTAG_WP   = ['FixedCutBEff_77']
@@ -205,7 +205,7 @@ class TestSUSYTools(unittest.TestCase):
                      'el_iso'     : 'FCLoose',
                      'mu_id_base' : '1',
                      'mu_id'      : '1',
-                     'mu_iso'     : 'FCLoose',
+                     'mu_iso'     : 'Loose_VarRad',
                      'ph_id_base' : 'Tight',
                      'ph_id'      : 'Tight',
                      'ph_iso'     : 'FixedCutTight',

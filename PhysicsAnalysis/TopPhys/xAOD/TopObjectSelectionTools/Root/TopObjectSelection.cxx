@@ -439,7 +439,7 @@ namespace top {
         ATH_MSG_DEBUG(" Cut on Jets with key = " << currentSystematic.second);
 
         for (auto jetPtr : *jets) {
-          char decoration = m_jetSelection->passSelection(*jetPtr);
+          bool decoration = m_jetSelection->passSelection(*jetPtr);
 
 	  //Forward jets always get JVT=1, Central jets always get fJVT=1 
 	  bool passedJVT_and_fJVT = true;
@@ -455,20 +455,14 @@ namespace top {
 	    passedJVT_and_fJVT = jetPtr->auxdataConst<char>("AnalysisTop_fJVTdecision");
 	  }
 
-          // if JVT or fJVT cut enabled: jets that pass (f)JVT get passPreORSelection+1, jets which fail get the same as passPreORSelection
+          // if JVT or fJVT cut enabled: jets that pass (f)JVT get passPreORSelection*2, jets which fail get the same as passPreORSelection
           // if no JVT cut and central jet, or no fJVT cut and forward jet, jet gets: passPreORSelection * 2
-	  // Don't know intricacies of looselepton+ElectronInJetSubtraction is there a reason for the slightly different passPreORSelection treatment?
-	  // Also char+bool is horrid here, if this can be changed to decoration*passedJVT_and_fJVT then should use bool ? 2:1:0 style as above
           jetPtr->auxdecor<char>(m_passPreORSelection) = decoration;
           jetPtr->auxdecor<char>(m_passPreORSelectionLoose) = decoration;
 
-          if (jetPtr->isAvailable<char>("passJVT") || jetPtr->isAvailable<char>("AnalysisTop_fJVTdecision")) {
-            jetPtr->auxdecor<char>(m_ORToolDecoration) = decoration + passedJVT_and_fJVT;
-	    jetPtr->auxdecor<char>(m_ORToolDecorationLoose) = decoration + passedJVT_and_fJVT;
-          } else {
-            jetPtr->auxdecor<char>(m_ORToolDecoration) = decoration * 2;
-	    jetPtr->auxdecor<char>(m_ORToolDecorationLoose) = decoration * 2; 
-          }
+	  jetPtr->auxdecor<char>(m_ORToolDecoration) = (decoration ? (passedJVT_and_fJVT ? 2 : 1) : 0);
+	  jetPtr->auxdecor<char>(m_ORToolDecorationLoose) = (decoration ? (passedJVT_and_fJVT ? 2 : 1) : 0);;
+
           //decorate with b-tagging flags
           std::vector<std::string> availableWPs = m_config->bTagWP_available();
           for (auto& WP : availableWPs) {

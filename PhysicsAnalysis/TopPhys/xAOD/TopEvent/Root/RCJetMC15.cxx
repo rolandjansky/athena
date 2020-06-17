@@ -41,6 +41,8 @@ RCJetMC15::RCJetMC15(const std::string& name) :
   m_config(nullptr),
   m_ptcut(0.),
   m_etamax(0.),
+  m_inputJetPtMin(0.),
+  m_inputJetEtaMax(999.),
   m_trim(0.),
   m_radius(0.),
   m_minradius(0.),
@@ -118,6 +120,10 @@ StatusCode RCJetMC15::initialize() {
     m_useAdditionalJSS = m_config->useRCJetAdditionalSubstructure();
   }
 
+  m_inputJetPtMin = std::stof(configSettings->value("RCInputJetPtMin"));
+  m_inputJetEtaMax = std::stof(configSettings->value("RCInputJetEtaMax"));
+
+
   if (m_useJSS || m_useAdditionalJSS) {
     ATH_MSG_INFO("Calculating RCJet Substructure");
 
@@ -194,6 +200,7 @@ StatusCode RCJetMC15::initialize() {
       top::check(tool->setProperty("ReclusterRadius",
                                    m_radius), "Failed re-clustering radius initialize reclustering tool");
       top::check(tool->setProperty("RCJetPtMin", m_ptcut * 1e-3), "Failed ptmin [GeV] initialize reclustering tool");
+      top::check(tool->setProperty("InputJetPtMin", m_inputJetPtMin * 1e-3), "Failed InputJetPtMin [GeV] initialize reclustering tool");
       top::check(tool->setProperty("TrimPtFrac", m_trim), "Failed pT fraction initialize reclustering tool");
       top::check(tool->setProperty("VariableRMinRadius",
                                    m_minradius), "Failed VarRC min radius initialize reclustering tool");
@@ -221,6 +228,7 @@ StatusCode RCJetMC15::initialize() {
         top::check(tool_loose->setProperty("ReclusterRadius",
                                            m_radius), "Failed re-clustering radius initialize reclustering tool");
         top::check(tool_loose->setProperty("RCJetPtMin", m_ptcut * 1e-3), "Failed ptmin [GeV] reclustering tool");
+	top::check(tool->setProperty("InputJetPtMin", m_inputJetPtMin * 1e-3), "Failed InputJetPtMin [GeV] initialize reclustering tool");
         top::check(tool_loose->setProperty("TrimPtFrac", m_trim), "Failed pT fraction initialize reclustering tool");
         top::check(tool_loose->setProperty("VariableRMinRadius",
                                            m_minradius), "Failed VarRC min radius initialize reclustering tool");
@@ -248,6 +256,7 @@ StatusCode RCJetMC15::initialize() {
         m_outputContainerNames.insert({treeName.first, m_OutputJetContainer});
       }
     }
+    
   } // end for loop over systematics
 
   ATH_MSG_INFO(" Re-clustered jets initialized ");
@@ -272,10 +281,12 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
     // 22 Feb 2016:
     //   Code significantly shortened to make this container
     //   thanks to email exchange between Davide Gerbaudo & Attila Krasznahorkay
-    typedef ConstDataVector< xAOD::JetContainer > CJets;
-    std::unique_ptr< CJets > rcjets(new CJets(event.m_jets.begin(), event.m_jets.end(), SG::VIEW_ELEMENTS));
-    top::check(evtStore()->tds()->record(std::move(
-                                           rcjets), m_InputJetContainer),
+    auto rcJetInputs = std::make_unique< ConstDataVector< xAOD::JetContainer >>(SG::VIEW_ELEMENTS);
+    for(const xAOD::Jet* jet : event.m_jets) {
+      if(jet->pt() < m_inputJetPtMin || std::abs(jet->eta()) > m_inputJetEtaMax) continue;
+      rcJetInputs->push_back(jet);
+    }
+    top::check(evtStore()->tds()->record(std::move(rcJetInputs), m_InputJetContainer),
                "Failed to put jets in TStore for re-clustering");
   } // end if jet container exists
 
@@ -310,15 +321,13 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
 
 
         if (m_config->sgKeyJetsTDS(hash_factor * m_config->nominalHashValue(),
-                                   false).find("AntiKt4EMTopoJets") != std::string::npos) getEMTopoClusters(clusters,
-                                                                                                            rcjet); // //
-                                                                                                                    //  //
-                                                                                                                    // use
-                                                                                                                    // subjet
-                                                                                                                    // constituents
+                                   false).find("AntiKt4EMTopoJets") != std::string::npos) {
+	  getEMTopoClusters(clusters,rcjet); // use subjet constituents
+	}
         else if (m_config->sgKeyJetsTDS(hash_factor * m_config->nominalHashValue(),
-                                        false).find("AntiKt4EMPFlowJets") != std::string::npos) getPflowConstituent(
-            clusters, rcjet, event); // use ghost-matche tracks
+                                        false).find("AntiKt4EMPFlowJets") != std::string::npos) {
+	  getPflowConstituent(clusters, rcjet, event); // use ghost-matched tracks
+	}
         else getLCTopoClusters(clusters, rcjet); //  // use LCTOPO CLUSTERS matched to subjet
 
         if (m_config->sgKeyJetsTDS(hash_factor * m_config->nominalHashValue(),
@@ -615,10 +624,12 @@ void RCJetMC15::getPflowConstituent(std::vector<fastjet::PseudoJet>& clusters, c
 
   for (auto subjet : rcjet->getConstituents()) {
     const xAOD::Jet* subjet_raw = static_cast<const xAOD::Jet*>(subjet->rawConstituent());
+    
+    if(subjet->pt() < m_config->jetPtGhostTracks() || std::abs(subjet->eta()) > m_config->jetEtaGhostTracks()) continue;
+    
 
     jetTracks.clear();
-    jetTracks =
-      subjet_raw->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(event.m_hashValue));
+    jetTracks = subjet_raw->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(event.m_hashValue));
     bool haveJetTracks = jetTracks.size() != 0;
 
     if (haveJetTracks) {
