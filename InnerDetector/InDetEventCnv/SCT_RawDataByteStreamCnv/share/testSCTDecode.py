@@ -124,6 +124,7 @@ InDetClusterMakerTool = InDet__ClusterMakerTool(name = "InDetClusterMakerTool",
                                                 PixelCablingSvc = None,
                                                 PixelModuleData = "",
                                                 PixelChargeCalibCondData = "",
+                                                PixelOfflineCalibData = '',
                                                 PixelLorentzAngleTool = None,
                                                 SCTLorentzAngleTool = sctLorentzAngleToolSetup.SCTLorentzAngleTool)
 # SCT conditions setups
