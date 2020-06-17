@@ -639,16 +639,21 @@ namespace ST {
     double m_jetPt;
     double m_jetEta;
     double m_jetJvt;
-    std::string m_JVT_WP;
+    std::string m_JvtWP;
     double m_JvtPtMax;
+    std::string m_JvtConfig;
+    std::string m_JvtConfig_SFFile;
 
     double m_trkJetPt;
     double m_trkJetEta;
 
     bool   m_doFwdJVT;
-    double m_fwdjetEtaMin;
-    double m_fwdjetPtMax;
-    std::string m_fwdjetOp;
+    std::string m_fJvtWP;
+    double m_fJvtPtMax;
+    double m_fJvtEtaMin;
+    std::string m_fJvtConfig;
+    std::string m_fJvtConfig_SFFile;
+    bool m_fJvt_useTightOP;
 
     bool m_JMScalib;
 
@@ -727,7 +732,7 @@ namespace ST {
     asg::AnaToolHandle<IJetUpdateJvt> m_jetJvtUpdateTool;
     asg::AnaToolHandle<IJetModifier> m_jetFwdJvtTool;
     asg::AnaToolHandle<CP::IJetJvtEfficiency> m_jetJvtEfficiencyTool;
-    asg::AnaToolHandle<CP::IJetJvtEfficiency> m_jetFJvtEfficiencyTool;
+    asg::AnaToolHandle<CP::IJetJvtEfficiency> m_jetFwdJvtEfficiencyTool;
 
     asg::AnaToolHandle<IJetSelectorTool> m_WTaggerTool;
     asg::AnaToolHandle<IJetSelectorTool> m_ZTaggerTool;

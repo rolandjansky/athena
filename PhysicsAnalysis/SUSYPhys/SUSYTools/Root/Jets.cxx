@@ -41,6 +41,8 @@ namespace ST {
 
   const static SG::AuxElement::Decorator<float> dec_jvt("Jvt");
   const static SG::AuxElement::ConstAccessor<float> acc_jvt("Jvt");
+  const static SG::AuxElement::Decorator<float> dec_fjvt("fJvt");
+  const static SG::AuxElement::ConstAccessor<float> acc_fjvt("fJvt");
 
   const static SG::AuxElement::Decorator<char> dec_bjet("bjet");
   const static SG::AuxElement::ConstAccessor<char> acc_bjet("bjet");
@@ -134,8 +136,9 @@ namespace ST {
 
     for (const auto& jet : *copy) {
       // Update the JVT decorations if needed
-      if( m_doFwdJVT && fabs(acc_DetEta(*jet)) > m_fwdjetEtaMin ){
+      if( m_doFwdJVT && fabs(acc_DetEta(*jet)) > m_fJvtEtaMin ){
         dec_passJvt(*jet) = acc_passFJvt(*jet) && acc_passJvt(*jet);
+        dec_fjvt(*jet) = acc_fjvt(*jet);
 
         //new state for OR   .  0=non-baseline objects, 1=for baseline jets not passing JVT, 2=for any other baseline object
         if ( acc_baseline(*jet) ){
@@ -365,7 +368,7 @@ namespace ST {
 
     for (const auto& jet : *copy) {
       // Update the JVT decorations if needed
-      if( m_doFwdJVT && fabs(acc_DetEta(*jet)) > m_fwdjetEtaMin ){
+      if( m_doFwdJVT && fabs(acc_DetEta(*jet)) > m_fJvtEtaMin ){
         dec_passJvt(*jet) = acc_passFJvt(*jet) && acc_passJvt(*jet);
 
         //new state for OR   .  0=non-baseline objects, 1=for baseline jets not passing JVT, 2=for any other baseline object
@@ -966,12 +969,12 @@ namespace ST {
     ConstDataVector<xAOD::JetContainer> fjvtjets(SG::VIEW_ELEMENTS);
     for (const xAOD::Jet* jet : *jets) {
       // Only jets that were good for every cut except JVT
-      if (acc_signal_less_JVT(*jet) && acc_passOR(*jet) && fabs(acc_DetEta(*jet))>m_fwdjetEtaMin) {
+      if (acc_signal_less_JVT(*jet) && acc_passOR(*jet) && fabs(acc_DetEta(*jet))>m_fJvtEtaMin) {
         fjvtjets.push_back(jet);
       }
     }
 
-    CP::CorrectionCode ret = m_jetFJvtEfficiencyTool->applyAllEfficiencyScaleFactor( fjvtjets.asDataVector() , totalSF );
+    CP::CorrectionCode ret = m_jetFwdJvtEfficiencyTool->applyAllEfficiencyScaleFactor( fjvtjets.asDataVector() , totalSF );
 
     switch (ret) {
     case CP::CorrectionCode::Error:
@@ -996,7 +999,7 @@ namespace ST {
     float totalSF = 1.;
 
     //Set the new systematic variation
-    CP::SystematicCode ret = m_jetFJvtEfficiencyTool->applySystematicVariation(systConfig);
+    CP::SystematicCode ret = m_jetFwdJvtEfficiencyTool->applySystematicVariation(systConfig);
     if ( ret != CP::SystematicCode::Ok) {
       ATH_MSG_ERROR("Cannot configure FJVTEfficiencyTool for systematic var. " << systConfig.name() );
     }
@@ -1005,7 +1008,7 @@ namespace ST {
     totalSF = SUSYObjDef_xAOD::FJVT_SF( jets );
 
     if (m_applyJVTCut) {
-      ret = m_jetFJvtEfficiencyTool->applySystematicVariation(m_currentSyst);
+      ret = m_jetFwdJvtEfficiencyTool->applySystematicVariation(m_currentSyst);
       if ( ret != CP::SystematicCode::Ok) {
         ATH_MSG_ERROR("Cannot configure FJVTEfficiencyTool for systematic var. " << systConfig.name() );
       }

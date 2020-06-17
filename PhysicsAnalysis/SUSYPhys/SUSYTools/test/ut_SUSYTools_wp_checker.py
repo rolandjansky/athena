@@ -78,13 +78,14 @@ Tau.Id: Medium
 #
 Jet.Pt: 20000.
 Jet.Eta: 2.8
-Jet.InputType: 1 # EMTopo
-Jet.JVT_WP: Default
+Jet.InputType: 9 # EMPFlow
+Jet.JvtWP: Default
+Jet.JvtPtMax: 60.0
 #
 FwdJet.doJVT: false
+FwdJet.JvtPtMax: 120e3
 FwdJet.JvtEtaMin: 2.5
-FwdJet.JvtPtMax: 50e3
-FwdJet.JvtOp: Loose
+FwdJet.JvtWP: Tight
 #
 Jet.LargeRcollection: AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
 Jet.LargeRuncConfig: rel21/Spring2019/R10_GlobalReduction.config
