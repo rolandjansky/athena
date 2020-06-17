@@ -450,7 +450,6 @@ class ConfiguredNewTrackingCuts :
       self.__extension        = "LowPtRoI" # this runs parallel to NewTracking
       self.__minPT            = 0.050 * Units.GeV
       self.__maxPT            = self.__minPT + 0.8 * Units.GeV # some overlap
-      self.__minPT            = 0.050 * Units.GeV
       self.__minClusters      = 5
       self.__minSiNotShared   = 4
       self.__maxShared        = 1   # cut is now on number of shared modules
