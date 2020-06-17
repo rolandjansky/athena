@@ -11,7 +11,6 @@
 SCT_FastDigitization::SCT_FastDigitization(const std::string &name, ISvcLocator *pSvcLocator) :
     AthAlgorithm(name, pSvcLocator)
 {
-  declareProperty("DigitizationTool", m_digTool, "AthAlgTool which performs the SCT digitization");
 }
 
 //----------------------------------------------------------------------
