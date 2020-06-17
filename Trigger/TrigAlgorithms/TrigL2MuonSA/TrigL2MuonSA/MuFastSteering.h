@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUFASTSTEERING_H
@@ -61,7 +61,6 @@ class MuFastSteering : public HLT::FexAlgo,
   
   /** Constructor */
   MuFastSteering(const std::string& name, ISvcLocator* svc);
-  ~MuFastSteering();
   
   /** hltStop() */
   HLT::ErrorCode hltStop();
@@ -87,9 +86,6 @@ class MuFastSteering : public HLT::FexAlgo,
 			       DataVector<xAOD::TrigComposite>&			outputComposite );
 
   int L2MuonAlgoMap(const std::string& name);
-  
-  /** A function which clears internal data for a new event */
-  void clearEvent();
 
   // handler for "UpdateAfterFork" actions
   void handle(const Incident& incident);
