@@ -6,6 +6,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 
 #FIXME
 GeV = 1000
@@ -93,6 +94,16 @@ def MuonCombinedInDetDetailedTrackSelectorToolCfg(flags, name="MuonCombinedInDet
     kwargs.setdefault("TrackSummaryTool", acc.popPrivateTools() )
     result.merge(acc)
 
+    # Has two CondKeys
+    # SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
+
+    # FIXME - let's put this someplace central?
+    result.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/Beampos","/Indet/Beampos", className='AthenaAttributeList'))
+    result.addCondAlgo(CompFactory.BeamSpotCondAlg("BeamSpotCondAlg"))
+
+    # SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
+    # FIXME - handle this ^
+    
     tool = CompFactory.InDet.InDetDetailedTrackSelectorTool(name,**kwargs)
     result.addPublicTool(tool)
     result.setPrivateTools(tool)
