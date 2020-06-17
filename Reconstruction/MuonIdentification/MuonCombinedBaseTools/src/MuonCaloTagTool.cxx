@@ -13,7 +13,6 @@
 //  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
-//<<<<<< INCLUDES                                                       >>>>>>
 
 #include "MuonCombinedToolInterfaces/IMuonCombinedTagTool.h"
 #include "MuonCombinedEvent/InDetCandidate.h"
@@ -42,7 +41,6 @@
 
 namespace MuonCombined {
  
-  //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
   MuonCaloTagTool::MuonCaloTagTool (const std::string& type, const std::string& name, const IInterface* parent)
     :	AthAlgTool(type, name, parent),
@@ -92,7 +90,6 @@ namespace MuonCombined {
   MuonCaloTagTool::~MuonCaloTagTool()
   {}
 
-  //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
   StatusCode MuonCaloTagTool::initialize() {
     
