@@ -201,10 +201,7 @@ StatusCode MuonBackgroundConverter::callGenerator()
              //std::cout  <<  evt  <<  std::endl;
  
              // polarisation 
-             double polX, polY, polZ;
-             polX = polY = polZ = 0.0;
-             HepMC::Polarization pol;
-             pol.set_normal3d( HepGeom::Normal3D<double>( polX, polY, polZ ) );
+             HepMC::Polarization pol(0.0,0.0);
              m_polarization.push_back( pol );
           
              // PDG id, vertex, kinematic variables

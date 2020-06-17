@@ -160,8 +160,7 @@ StatusCode TrackRecordGenerator::callGenerator() {
     m_fourMom.push_back( particle4Momentum );
 
     m_pdgCode.push_back(iterTTR.GetPDGCode());
-    HepMC::Polarization thePolarization;
-    thePolarization.set_normal3d(HepGeom::Normal3D<double>(0,0,0));
+    HepMC::Polarization thePolarization(0.0,0.0);
     m_polarization.push_back(thePolarization);
 
     if (m_stopParticles){
