@@ -308,6 +308,7 @@ HIGG5Common.addAntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub(higg2d4Seq)
 
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
 addVRJets(higg2d4Seq)
+addVRJets(higg2d4Seq, training='201903') #new trackjet training!
 # Also add Hbb Tagger
 addRecommendedXbbTaggers(higg2d4Seq, ToolSvc)
 
@@ -349,6 +350,7 @@ DerivationFrameworkJob += higg2d4Seq
 
 # QGTaggerTool ###
 addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=higg2d4Seq, algname="QGTaggerToolAlg")
+addQGTaggerTool(jetalg="AntiKt4EMPFlow", sequence=higg2d4Seq, algname="QGTaggerToolPFAlg")
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
