@@ -183,7 +183,7 @@ private: // data
    ServiceHandle<IChronoStatSvc> m_chronoStatSvc{this,"ChronoStatSvc","ChronoStatSvc"};
    ServiceHandle<IClassIDSvc>    m_clidSvc{this,"ClassIDSvc","ClassIDSvc"};
    ServiceHandle<IAthenaSerializeSvc> m_serializeSvc{this,"AthenaRootSerializeSvc","AthenaRootSerializeSvc"};
-   ToolHandle<IAthenaIPCTool>    m_inputStreamingTool{this,"InputStreamingTool"};
+   ToolHandle<IAthenaIPCTool>    m_inputStreamingTool{this,"InputStreamingTool",{}};
    ToolHandleArray<IAthenaIPCTool>    m_outputStreamingTool;
    //The following doesn't work because of Gaudi issue #122
    //ToolHandleArray<IAthenaIPCTool>    m_outputStreamingTool{this,"OutputStreamingTool", {} };
