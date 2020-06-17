@@ -194,9 +194,9 @@ EMBremCollectionBuilder::refitTracks(
 
 StatusCode
 EMBremCollectionBuilder::createCollections(
-  const std::vector<TrackWithIndex>& refitted,
-  const std::vector<TrackWithIndex>& failedfit,
-  const std::vector<TrackWithIndex>& trtAlone,
+  std::vector<TrackWithIndex>& refitted,
+  std::vector<TrackWithIndex>& failedfit,
+  std::vector<TrackWithIndex>& trtAlone,
   TrackCollection* finalTracks,
   xAOD::TrackParticleContainer* finalTrkPartContainer,
   const xAOD::TrackParticleContainer* AllTracks) const
@@ -225,87 +225,83 @@ EMBremCollectionBuilder::createCollections(
 
 StatusCode
 EMBremCollectionBuilder::createNew(
-  const TrackWithIndex& Info,
+  TrackWithIndex& Info,
   TrackCollection* finalTracks,
   xAOD::TrackParticleContainer* finalTrkPartContainer,
   const xAOD::TrackParticleContainer* AllTracks) const
 {
 
-  Trk::Track* track= Info.track.get();
-  size_t origIndex = Info.origIndex; 
+  size_t origIndex = Info.origIndex;
   const xAOD::TrackParticle* original = AllTracks->at(origIndex);
   /*
    * Create TrackParticle it should be now owned by finalTrkPartContainer
    */
   xAOD::TrackParticle* aParticle = m_particleCreatorTool->createParticle(
-    *track, finalTrkPartContainer, nullptr, xAOD::electron);
+    *(Info.track), finalTrkPartContainer, nullptr, xAOD::electron);
 
-  if (!aParticle){
-    ATH_MSG_WARNING("Could not create TrackParticle!!! for Track: " << *track);
+  if (!aParticle) {
+    ATH_MSG_WARNING(
+      "Could not create TrackParticle!!! for Track: " << *(Info.track));
     return StatusCode::SUCCESS;
   }
 
-  //Add an element link back to original Track Particle collection
+  // Add an element link back to original Track Particle collection
   static const SG::AuxElement::Accessor<
     ElementLink<xAOD::TrackParticleContainer>>
     tP("originalTrackParticle");
-  ElementLink<xAOD::TrackParticleContainer> linkToOriginal(*AllTracks,origIndex);   	  
-  tP(*aParticle) = linkToOriginal;	      
+  ElementLink<xAOD::TrackParticleContainer> linkToOriginal(*AllTracks,
+                                                           origIndex);
+  tP(*aParticle) = linkToOriginal;
 
-  if(m_doTruth){
-    //Add Truth decorations. Copy from the original.
+  if (m_doTruth) {
+    // Add Truth decorations. Copy from the original.
     static const SG::AuxElement::Accessor<
       ElementLink<xAOD::TruthParticleContainer>>
       tPL("truthParticleLink");
-    if(tPL.isAvailable(*original)){
-      ElementLink<xAOD::TruthParticleContainer> linkToTruth= tPL(*original);
-      tPL(*aParticle) = linkToTruth;	      
-    }	 
-    static const SG::AuxElement::Accessor<float >  tMP ("truthMatchProbability");
-    if(tMP.isAvailable(*original)){
+    if (tPL.isAvailable(*original)) {
+      ElementLink<xAOD::TruthParticleContainer> linkToTruth = tPL(*original);
+      tPL(*aParticle) = linkToTruth;
+    }
+    static const SG::AuxElement::Accessor<float> tMP("truthMatchProbability");
+    if (tMP.isAvailable(*original)) {
       float originalProbability = tMP(*original);
-      tMP(*aParticle)= originalProbability ;
+      tMP(*aParticle) = originalProbability;
     }
-    static const SG::AuxElement::Accessor<int> tT("truthType") ;
-    if(tT.isAvailable(*original)){
+    static const SG::AuxElement::Accessor<int> tT("truthType");
+    if (tT.isAvailable(*original)) {
       int truthType = tT(*original);
-      tT(*aParticle) = truthType ;
+      tT(*aParticle) = truthType;
     }
-    static const SG::AuxElement::Accessor<int> tO("truthOrigin") ;
-    if(tO.isAvailable(*original)){
+    static const SG::AuxElement::Accessor<int> tO("truthOrigin");
+    if (tO.isAvailable(*original)) {
       int truthOrigin = tO(*original);
-      tO(*aParticle) = truthOrigin ;
-    } 
-  }//End truth
+      tO(*aParticle) = truthOrigin;
+    }
+  } // End truth
 
   /*
    * Add qoverP from the last measurement
    */
-  static const SG::AuxElement::Accessor<float > QoverPLM  ("QoverPLM");
+  static const SG::AuxElement::Accessor<float> QoverPLM("QoverPLM");
   float QoverPLast(0);
-  auto rtsos = track->trackStateOnSurfaces()->rbegin();
-  for (;rtsos != track->trackStateOnSurfaces()->rend(); ++rtsos){
-    if ((*rtsos)->type(Trk::TrackStateOnSurface::Measurement) 
-        && (*rtsos)->trackParameters()!=nullptr
-        &&(*rtsos)->measurementOnTrack()!=nullptr
-        && !(*rtsos)->measurementOnTrack()->type(Trk::MeasurementBaseType::PseudoMeasurementOnTrack)) {
-      QoverPLast  = (*rtsos)->trackParameters()->parameters()[Trk::qOverP];
+  auto rtsos = Info.track->trackStateOnSurfaces()->rbegin();
+  for (; rtsos != Info.track->trackStateOnSurfaces()->rend(); ++rtsos) {
+    if ((*rtsos)->type(Trk::TrackStateOnSurface::Measurement) &&
+        (*rtsos)->trackParameters() != nullptr &&
+        (*rtsos)->measurementOnTrack() != nullptr &&
+        !(*rtsos)->measurementOnTrack()->type(
+          Trk::MeasurementBaseType::PseudoMeasurementOnTrack)) {
+      QoverPLast = (*rtsos)->trackParameters()->parameters()[Trk::qOverP];
       break;
     }
   }
   QoverPLM(*aParticle) = QoverPLast;
 
-  //Now  Slim the TrK::Track for writing to disk   
-  std::unique_ptr<Trk::Track> slimmed = m_slimTool->slimCopy(*track);
-  if(!slimmed){
-    ATH_MSG_WARNING ("TrackSlimming failed");
-    ElementLink<TrackCollection> dummy;
-    aParticle->setTrackLink(dummy);     
-  }else{
-    finalTracks->push_back(std::move(slimmed));
-    ElementLink<TrackCollection> trackLink(*finalTracks,finalTracks->size()-1);
-    aParticle->setTrackLink( trackLink );     
-  }
+  // Now  Slim the Trk::Track for writing to disk
+  m_slimTool->slimTrack(*(Info.track));
+  finalTracks->push_back(std::move(Info.track));
+  ElementLink<TrackCollection> trackLink(*finalTracks,finalTracks->size()-1);
+  aParticle->setTrackLink( trackLink );     
   return StatusCode::SUCCESS;
 }
 
