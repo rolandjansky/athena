@@ -45,12 +45,23 @@ public:
   virtual bool isActive(const IdentifierHash& elementHash) const override;
   virtual bool isActive(const IdentifierHash& elementHash, const Identifier& elementId) const override;
   virtual double activeFraction(const IdentifierHash& elementHash, const Identifier& idStart, const Identifier& idEnd) const override;
+
+  virtual bool isActive(const Identifier& elementId, const InDetConditions::Hierarchy h, const EventContext& ctx) const override;
+  virtual bool isActive(const IdentifierHash& elementHash, const EventContext& ctx) const override;
+  virtual bool isActive(const IdentifierHash& elementHash, const Identifier& elementId, const EventContext& ctx) const override;
+
   virtual bool isGood(const Identifier& elementId, const InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   virtual bool isGood(const IdentifierHash& elementHash) const override;
   virtual bool isGood(const IdentifierHash& elementHash, const Identifier& elementId) const override;
   virtual double goodFraction(const IdentifierHash& elementHash, const Identifier& idStart, const Identifier& idEnd) const override;
-  virtual bool isBSActive(const IdentifierHash& elementHash) const override;
-  virtual bool isBSError(const IdentifierHash& elementHash) const override;
+
+  virtual bool isGood(const Identifier& elementId, const InDetConditions::Hierarchy h, const EventContext& ctx) const override;
+  virtual bool isGood(const IdentifierHash& elementHash, const EventContext& ctx) const override;
+  virtual bool isGood(const IdentifierHash& elementHash, const Identifier& elementId, const EventContext& ctx) const override;
+
+  virtual bool isBSActive(const IdentifierHash& moduleHash, const EventContext& ctx) const override;
+  virtual bool hasBSError(const IdentifierHash& moduleHash, const EventContext& ctx) const  override;
+  virtual uint64_t getBSErrorWord(const IdentifierHash& moduleHash, const EventContext& ctx) const  override;
   //@}
 private:
   StringArrayProperty m_reportingTools; //!< list of tools to be used

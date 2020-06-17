@@ -11,6 +11,7 @@
 #include "PixelByteStreamModuleMask.h"
 #include "ByteStreamData/RawEvent.h"
 #include "eformat/SourceIdentifier.h"
+#include "PixelConditionsData/PixelByteStreamErrors.h"
 #include "xAODEventInfo/EventInfo.h"
 
 #include <fstream>
@@ -96,45 +97,32 @@ StatusCode PixelRodDecoder::finalize() {
   ATH_MSG_INFO("General (corruption / illegal value)\t" << m_numGenWarnings << " (" << m_maxNumGenWarnings << ")");
   ATH_MSG_INFO("Unexpected BCID / LVL1ID            \t" << m_numBCIDWarnings << " (" << m_maxNumBCIDWarnings << ")");
 
+  ATH_MSG_INFO(" --- Summary from PixelRodDecoder --- ");
+  ATH_MSG_INFO(" - Number of invalid Identifiers Errors: " << m_numInvalidIdentifiers);
+  ATH_MSG_INFO(" - Number of Preamble Errors: " << m_numPreambleErrors);
+  ATH_MSG_INFO(" - Number of TimeOut Errors: " << m_numTimeOutErrors);
+  ATH_MSG_INFO(" - Number of LVL1ID Errors: " << m_numLVL1IDErrors);
+  ATH_MSG_INFO(" - Number of BCID Errors: " << m_numBCIDErrors);
+  ATH_MSG_INFO(" - Number of Flagged Errors: " << m_numFlaggedErrors);
+  ATH_MSG_INFO(" - Number of Trailer Errors: " << m_numTrailerErrors);
+  ATH_MSG_INFO(" - Number of Disabled FE Errors: " << m_numDisabledFEErrors);
+  ATH_MSG_INFO(" - Number of ROD Errors: " << m_numRODErrors);
+  ATH_MSG_INFO(" - Number of links masked by PPC: " << m_numLinkMaskedByPPC);
+  ATH_MSG_INFO(" - Number of header/trailer limit errors: " << m_numLimitError);
+  ATH_MSG_INFO(" - Number of Unknown word Errors: " << m_numDecodingErrors);
+  ATH_MSG_INFO(" --------------------------------------------- ");
+
   return StatusCode::SUCCESS;
 }
 
-/**
- * @brief allows to accumulate errors in one fillColection call
- *
- * Errors information is scattered across this code.
- * To be sure that all of the errors are saved this helper class provides add method allowing to update/accumulate erorr.
- * The IDC, for a very good reasons (MT safety) do not allow for that.
- **/
-class PixelRodDecoderErrorsHelper {
-  public:
-    PixelRodDecoderErrorsHelper( IDCInDetBSErrContainer& idcContainer )
-      : m_errorsIDC{ idcContainer } {}
-    ~PixelRodDecoderErrorsHelper() {
-      for ( auto [id, err]: m_accumulatedErrors ) {
-        m_errorsIDC.setOrDrop( id, err );
-      }
-    }
-    void add(const IdentifierHash id, PixelByteStreamErrors::PixelErrorsEnum etype) {
-      PixelByteStreamErrors::addError(m_accumulatedErrors[id], etype);
-    }
-
-  private:
-    std::map<IdentifierHash, IDCInDetBSErrContainer::ErrorCode> m_accumulatedErrors;
-    IDCInDetBSErrContainer& m_errorsIDC;
-};
 
 //---------------------------------------------------------------------------------------------------- fillCixollection
-StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRDO_Container* rdoIdc,
-					    IDCInDetBSErrContainer& decodingErrors,
-                                            std::vector<IdentifierHash>* vecHash) const
-{
+StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRDO_Container* rdoIdc, IDCInDetBSErrContainer& decodingErrors, std::vector<IdentifierHash>* vecHash) const {
 #ifdef PIXEL_DEBUG
   ATH_MSG_VERBOSE( "-------------------------------------------------------------------------------------------------------------");
   ATH_MSG_DEBUG("Entering PixelRodDecoder");
 #endif
 
-  PixelRodDecoderErrorsHelper errs(decodingErrors); // on destruction will fill the IDC
   Identifier invalidPixelId = Identifier(); // used by Cabling for an invalid entry
   Identifier pixelId;
   uint64_t onlineId(0);
@@ -150,46 +138,47 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
   }
 
   SG::ReadCondHandle<PixelCablingCondData> pixCabling(m_condCablingKey);
-  std::unique_ptr<SG::ReadCondHandle<PixelHitDiscCnfgData>> pixHitDiscCnfg;
+  std::unique_ptr<SG::ReadCondHandle<PixelHitDiscCnfgData> > pixHitDiscCnfg;
 
-// STSTST ==============================================================
+  unsigned int errorcode = 0;
+  uint64_t bsErrCode = 0; // new BS Errors handling
 
-// STSTST   {
-// STSTST     StatusCode sc = checkRODStatus( robFrag, decodingErrors );
-// STSTST     if ( not sc.isSuccess() )
-// STSTST       return sc;
-// STSTST   }
-
-  // check the ROD status for truncation
-  if (robFrag->nstatus() != 0) {
+  // Check ROD status
+  if (robFrag->nstatus()!=0) {
     const uint32_t* rob_status;
     robFrag->status(rob_status);
-    if (ATH_UNLIKELY((*rob_status)!= 0)) {
-      addRODError(robId,*rob_status);
-
+    // check the ROD status for truncation
+    if (ATH_UNLIKELY((*rob_status)!=0)) {
       ATH_MSG_DEBUG( "ROB status word for robid 0x"<< std::hex << robId << " is non-zero 0x" << (*rob_status) << std::dec);
 
       if (((*rob_status) >> 27) & 0x1) { // TODO: find source of thse constants
-        addRODError(robId, PixelByteStreamErrors::TruncatedROB, errs);
+        const std::deque<Identifier> offlineIdList = pixCabling->find_entry_offlineList(robId);
+        for (const Identifier& id: offlineIdList) {
+          PixelByteStreamErrors::addError(bsErrCode,PixelByteStreamErrors::TruncatedROB);
+          IdentifierHash idHash = m_pixel_id->wafer_hash(id);
+          decodingErrors.setOrDrop(idHash,bsErrCode);
+        }
         ATH_MSG_DEBUG("ROB status word for robid 0x"<< std::hex << robId << std::dec <<" indicates data truncation.");
         return StatusCode::RECOVERABLE;
       }
 
       if (((*rob_status) >> 31) & 0x1) {
-        addRODError(robId, PixelByteStreamErrors::MaskedROB, errs);
+        const std::deque<Identifier> offlineIdList = pixCabling->find_entry_offlineList(robId);
+        for (const Identifier& id: offlineIdList) {
+          PixelByteStreamErrors::addError(bsErrCode,PixelByteStreamErrors::MaskedROB);
+          IdentifierHash idHash = m_pixel_id->wafer_hash(id);
+          decodingErrors.setOrDrop(idHash,bsErrCode);
+        }
         ATH_MSG_DEBUG( "ROB status word for robid 0x"<< std::hex << robId<< std::dec <<" indicates resource was masked off.");
         return StatusCode::RECOVERABLE;
       }
+
     }
   }
 
-// STSTST ==============================================================
-
-  unsigned int errorcode = 0;
-  uint64_t bsErrCode = 0; // new BS Errors handling
-  // m_errors->reset(); // reset the collection of errors
 
   StatusCode sc = StatusCode::SUCCESS;
+
 
   // Fill the Collections for this ROB.
   unsigned int mBCID           = 0x3FFF;   // create module BCID variable
@@ -255,8 +244,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
   eformat::helper::SourceIdentifier sid_rob(robId);
   sLinkSourceId = (sid_rob.module_id()) & 0x000F; // retrieve S-Link number from the source Identifier (0xRRRL, L = Slink number)
   if ( isIBL( robId ) && sLinkSourceId>0x3) { // Check if SLink number for the IBL is correct!
-    generalwarning("In ROB 0x" << std::hex << robId <<  ": IBL/DBM SLink number not in correct range (0-3): SLink = "
-		   << std::dec << sLinkSourceId);
+    generalwarning("In ROB 0x" << std::hex << robId <<  ": IBL/DBM SLink number not in correct range (0-3): SLink = " << std::dec << sLinkSourceId);
   }
 
   // Store length of module fragments, for monitoring
@@ -269,6 +257,9 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
 
   // ============== ============== ============== ============== ============== ============== ============== ============== //
   // loop over the data in the fragment
+
+  std::cout << "STSTST PixelRodDecoder start loop" << std::endl;
+
   for (uint32_t dataword_it = 0, nwords = robFrag->rod_ndata(); dataword_it < nwords; ++dataword_it) {
     const uint32_t rawDataWord = vint[dataword_it];
     corruptionError = corruptionError || checkDataWordsCorruption( rawDataWord );
@@ -276,21 +267,21 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
 
     ++nwords_in_module_fragment;
 
+    std::cout << "STSTST PixelRodDecoder WORD " << word_type << std::endl;
+
     switch (word_type) { // depending on type of word call the right decoding method
 
       //-------------------------------------------------------------------------------------------- HEADER WORD FOUND
       case PRB_LINKHEADER:   // link (module) header found
 
+        std::cout << "STSTST PRB_LINKHEADER " << PRB_LINKHEADER << std::endl;
+
         ATH_MSG_DEBUG("Header word found");
 
         if (link_start) {    // if header found before last header was closed by a trailer -> error
-          generalwarning("In ROB 0x" << std::hex << robId << ": Unexpected link header found: 0x" << std::hex << rawDataWord
-              << ", data corruption" << std::dec);
-          m_errors->addDecodingError();
+          generalwarning("In ROB 0x" << std::hex << robId << ": Unexpected link header found: 0x" << std::hex << rawDataWord << ", data corruption" << std::dec);
+          m_numDecodingErrors++;
           PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Decoding );
-
-// STSTST          addRODError(robId, PixelByteStreamErrors::TruncatedROB, errs);
-
         }
         else {
           ATH_MSG_DEBUG( "Header decoding starts" );
@@ -327,10 +318,12 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
           mLVL1ID = decodeL1ID_IBL(rawDataWord);   // decode IBL LVL1ID: L
           linkNum_IBLheader = decodeModule_IBL(rawDataWord);   // decode IBL FE number on the S-Link (range [0,7], as 8 FEs are connected to 1 S-Link in IBL) and the S-Link number itself: n
 
+
           if (decodeFeI4Bflag_IBL(rawDataWord)) {
-            m_errors->addFlaggedError(); // decode FeI4B flag bit: F
+            m_numFlaggedErrors++;
             PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Flagged );
           }
+
 
           fe_IBLheader = extractFefromLinkNum(linkNum_IBLheader);
           mLink = fe_IBLheader; // this is used to retrieve the onlineId. It contains only the 3 LSBs of the nnnnn, indicating the number of FE w.r.t. the SLink
@@ -421,19 +414,19 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
             sc = StatusCode::RECOVERABLE;
             errorcode = errorcode | (headererror << 20); //encode error as HHHHMMMMMMMMFFFFFFFFTTTT for header, flagword, trailer errors
             if (headererror & (1 << 3)) {
-              m_errors->addPreambleError();
+              m_numPreambleErrors++;
               PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Preamble );
             }
             if (headererror & (1 << 2)) {
-              m_errors->addTimeOutError();
+              m_numTimeOutErrors++;
               PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::TimeOut );
             }
             if (headererror & (1 << 1)) {
-              m_errors->addLVL1IDError();
+              m_numLVL1IDErrors++;
               PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::LVL1ID );
             }
             if (headererror & (1 << 0)) {
-              m_errors->addBCIDError();
+              m_numBCIDErrors++;
               PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::BCID );
             }
           }
@@ -443,8 +436,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
         onlineId = pixCabling->getOnlineIdFromRobId(robId, mLink);
 
         if (onlineId == 0) {
-          generalwarning("In ROB 0x" << std::hex << robId << ", FE: 0x" << mLink
-              << ": Got invalid onlineId (= 0) in FE header - dataword = 0x" << rawDataWord);
+          generalwarning("In ROB 0x" << std::hex << robId << ", FE: 0x" << mLink << ": Got invalid onlineId (= 0) in FE header - dataword = 0x" << rawDataWord);
         }
 
 #ifdef PIXEL_DEBUG
@@ -454,7 +446,6 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
         offlineIdHash = m_pixel_id->wafer_hash(pixCabling->find_entry_onoff(onlineId));
 
         if (offlineIdHash != previous_offlineIdHash) {
-          m_errors->addRead(offlineIdHash); // TODO: understand this better, it seems like an additiona, transient flag denoting that the module wasdecoded for this event
           mBCID_offset = mBCID;   // set BCID offset if this is first LVL1A
         }
         mLVL1A = mBCID - mBCID_offset;   // calculate the LVL1A
@@ -469,9 +460,8 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
 #endif
 
         if (offlineIdHash == 0xffffffff) {   // if link (module) online identifier (ROBID and link number) not found by mapping
-          generalwarning("In ROB 0x" << std::hex << robId << ", FE: 0x" << mLink
-              << ": Unknown OnlineId identifier in FE header - not found by mapping" << std::dec);
-          m_errors->addDecodingError();  // TODO Decoding error not associated wiht any hashID. Handle that somehow
+          generalwarning("In ROB 0x" << std::hex << robId << ", FE: 0x" << mLink << ": Unknown OnlineId identifier in FE header - not found by mapping" << std::dec);
+          m_numDecodingErrors++;
           link_start = false;   // resetting link (module) header found flag
           continue;   // skip this word and process next one
         }
@@ -479,6 +469,8 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
 
         //-------------------------------------------------------------------------------------------- HIT DATA WORD FOUND
       case PRB_DATAWORD: // hit data found
+
+        std::cout << "STSTST PRB_DATAWORD " << PRB_DATAWORD << std::endl;
 
         if (link_start) {   // if header found before hit -> expected
 
@@ -554,12 +546,12 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
               // fe_IBLword = fe_IBLheader;
               // sLinkWord = sLinkHeader;
             } // end of the condensed hit words (IBL)
+
+
             else if ((rawDataWord & PRB_DATAMASK) == PRB_DATAWORD) { // it's a IBL not-condensed hit word
               if (countHitCondensedWords != 0) { // I received some IBL words, but less than 4, there was an error in the rod transmission
-                generalwarning("In ROB 0x" << std::hex << robId << ", link 0x" << mLink
-                    << ": Interruption of IBL condensed words - hit(s) ignored (current dataword: 0x"
-                    << std::hex << rawDataWord << std::dec << ")");
-                m_errors->addDecodingError();
+                generalwarning("In ROB 0x" << std::hex << robId << ", link 0x" << mLink << ": Interruption of IBL condensed words - hit(s) ignored (current dataword: 0x" << std::hex << rawDataWord << std::dec << ")");
+                m_numDecodingErrors++;
                 PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Decoding );
                 countHitCondensedWords = 0;
               }
@@ -574,19 +566,16 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
               //                        fe_IBLword = extractFefromLinkNum(linkNum_IBLword);
               //                        sLinkWord = extractSLinkfromLinkNum(linkNum_IBLword);
               if (linkNum_IBLword != linkNum_IBLheader) {
-                generalwarning("In ROB 0x" << std::hex << robId << ": Link number mismatch - nnnnn (hit word) = 0x" << linkNum_IBLword
-                    << ", nnnnn (header) = 0x" << linkNum_IBLheader << std::dec);
+                generalwarning("In ROB 0x" << std::hex << robId << ": Link number mismatch - nnnnn (hit word) = 0x" << linkNum_IBLword << ", nnnnn (header) = 0x" << linkNum_IBLheader << std::dec);
               }
 
 #ifdef PIXEL_DEBUG
-              ATH_MSG_DEBUG("hit dataword found for module offlineIDHash: " << offlineIdHash << " Row: 0x"
-                  << std::hex << mRow << " Col: 0x" <<  mColumn  << " Tot: 0x" << mToT << std::dec);
+              ATH_MSG_DEBUG("hit dataword found for module offlineIDHash: " << offlineIdHash << " Row: 0x" << std::hex << mRow << " Col: 0x" <<  mColumn  << " Tot: 0x" << mToT << std::dec);
 #endif
             }
             else { // it is an IBL/DBM hit word, but it hasn't been recognised
-              generalwarning("In ROB 0x" << std::hex << robId << ", FE: 0x" << mLink
-                  << ": IBL/DBM hit word 0x" << rawDataWord << " not recognised" << std::dec);
-              m_errors->addDecodingError();
+              generalwarning("In ROB 0x" << std::hex << robId << ", FE: 0x" << mLink << ": IBL/DBM hit word 0x" << rawDataWord << " not recognised" << std::dec);
+              m_numDecodingErrors++;
               PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Decoding );
               continue;
             }
@@ -607,8 +596,9 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
               generalwarning("In ROB 0x" << std::hex << robId << ", link 0x" << mLink
                   << ": Interruption of IBL condensed words - hit(s) ignored (current dataword: 0x"
                   << std::hex << rawDataWord << std::dec << ")");
-              m_errors->addDecodingError();
+              m_numDecodingErrors++;
               PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Decoding );
+              std::cout << "STSTST LINKHEADER HIT 4 " << PixelByteStreamErrors::Decoding << std::endl;
               countHitCondensedWords = 0;
             }
             //Pixel Hit Words decoding:
@@ -630,6 +620,8 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
           // Decode only modules in provided list of hashes (i.e. not doing full scan)
           // Disabled for now.
           if (offlineIdHash == skipHash) continue;
+
+
 
           if(offlineIdHash != lastHash){
             lastHash = offlineIdHash;
@@ -715,7 +707,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
                         << ": Illegal pixelId - hit word 0x" << rawDataWord << " decodes to ToT1 = 0"
                         << (tot[i] >> 4) << ", ToT2 = 0x" << (tot[i] & 0xF) << ", row = "
                         << std::dec << row[i] << " col = " << col[i] << std::dec);
-                    m_errors->addInvalidIdentifier();
+                    m_numInvalidIdentifiers++;
                     PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Invalid );
                     continue;
                   }
@@ -747,6 +739,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
                     previousPixelId = pixelId;
                   }
 
+
 #ifdef PIXEL_DEBUG
                   ATH_MSG_VERBOSE( "Collection filled with pixelId: " << pixelId << " TOT = 0x" << std::hex << IBLtot[0] << std::dec << " mBCID = " << mBCID << " mLVL1ID = " << mLVL1ID << "  mLVL1A = " << mLVL1A );
 #endif
@@ -764,7 +757,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
                           << rawDataWord << " decodes to row = " << std::dec << row[i]+1 << " col = " << col[i]
                           << " (ToT1 = 0x" << std::hex << IBLtot[0] << " ToT2 = 0x" << IBLtot[1] << ")");
                       PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Invalid );
-                      m_errors->addInvalidIdentifier();
+                      m_numInvalidIdentifiers++;
                       continue;
                     }
                     else {
@@ -786,7 +779,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
                             << ": Illegal pixelId - hit word 0x" << rawDataWord << " decodes to ToT1 = 0"
                             << (tot[i] >> 4) << ", ToT2 = 0x" << (tot[i] & 0xF) << ", row = "
                             << std::dec << row[i] << " col = " << col[i] << std::dec);
-                        m_errors->addInvalidIdentifier();
+                        m_numInvalidIdentifiers++;
                         PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Invalid );
                         continue;
                       }
@@ -808,7 +801,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
                       << ": Illegal IBL row/col number, hit word 0x"
                       << rawDataWord << " decodes to row = " << std::dec << row[i] << " col = " << col[i]
                       << " (ToT1 = 0x" << std::hex << (tot[i] >> 4) << " ToT2 = 0x" << (tot[i] & 0xF) << ")");
-                  m_errors->addInvalidIdentifier();
+                  m_numInvalidIdentifiers++;
                   PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Invalid );
                   continue;
                 }
@@ -823,7 +816,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
               ATH_MSG_DEBUG("In ROB = 0x" << std::hex << robId << ", link 0x" << mLink
                   << ": Illegal pixelId - row = " << std::dec << mRow << ", col = " << mColumn
                   << ", dataword = 0x" << std::hex << rawDataWord << std::dec);
-              m_errors->addInvalidIdentifier();
+              m_numInvalidIdentifiers++;
               PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Invalid );
               continue;
             }
@@ -841,23 +834,26 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
         } // end of the if (link_start)
 
         else { // no header found before hit -> error
-          generalwarning("In ROB = 0x" << std::hex << robId << ", link 0x" << mLink
-              << ": Unexpected hit dataword: " << rawDataWord << " - hit ignored");
-          m_errors->addDecodingError();
+          generalwarning("In ROB = 0x" << std::hex << robId << ", link 0x" << mLink << ": Unexpected hit dataword: " << rawDataWord << " - hit ignored");
+          m_numDecodingErrors++;
           PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Decoding );
           continue;
         }
         break;
 
+
+
         //-------------------------------------------------------------------------------------------- TRAILER WORD FOUND
       case PRB_LINKTRAILER:  // link (module) trailer found
+
+        std::cout << "STSTST PRB_LINKTRAILER " << PRB_LINKTRAILER << std::endl;
+
         if (link_start) {   // if header found before trailer -> expected
           ATH_MSG_DEBUG( "link trailer found" );   // trailer found debug message
         }
         else {   // no header found before trailer -> error
-          generalwarning("In ROB = 0x" << std::hex << robId << ", link 0x" << mLink
-              << ": Unexpected trailer found: 0x" << std::hex << rawDataWord << ", data corruption");
-          m_errors->addDecodingError();
+          generalwarning("In ROB = 0x" << std::hex << robId << ", link 0x" << mLink << ": Unexpected trailer found: 0x" << std::hex << rawDataWord << ", data corruption");
+          m_numDecodingErrors++;
           PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Decoding );
           continue;
         }
@@ -885,54 +881,67 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
 
           // Add errors to errorsvc
           if (trailererror & (1 << 8)) { // time out error bit => E
-            m_errors->addTimeOutError();
+            m_numTimeOutErrors++;
             PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::TimeOut );
-            addRODError(robId, PixelByteStreamErrors::TimeOut, errs);
           }
-          if (trailererror & (1 << 7))  // condensed mode bit => W
+          if (trailererror & (1 << 7)) { // condensed mode bit => W
             if (!receivedCondensedWords) {
-              generalwarning("In ROB 0x" << std::hex << robId << ", link 0x" << mLink
-                  << ": condensed mode bit is set, but no condensed words received" << std::dec);
+              generalwarning("In ROB 0x" << std::hex << robId << ", link 0x" << mLink << ": condensed mode bit is set, but no condensed words received" << std::dec);
             }
+          }
           if (trailererror & (1 << 6)) {// link masked by PPC => P
-            m_errors->addLinkMaskedByPPC();
+            m_numLinkMaskedByPPC++;
             PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::LinkMaskedByPPC );
-            addRODError(robId, PixelByteStreamErrors::LinkMaskedByPPC, errs);
           }
           if (trailererror & (1 << 5)) { // preamble error bit => p
-            m_errors->addPreambleError();
+            m_numPreambleErrors++;
             PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Preamble );
-            addRODError(robId, PixelByteStreamErrors::Preamble, errs);
           }
           if (trailererror & (1 << 4)) { // LVL1 error bit => l
-            m_errors->addLVL1IDError();
+            m_numLVL1IDErrors++;
             PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::LVL1ID );
-            addRODError(robId, PixelByteStreamErrors::LVL1ID, errs);
           }
           if (trailererror & (1 << 3)) {// BCID error bit => b
-            m_errors->addBCIDError();
+            m_numBCIDErrors++;
             PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::BCID );
-            addRODError(robId, PixelByteStreamErrors::BCID, errs);
           }
           if (trailererror & (1 << 2)) { // trailer error bit => z
-            m_errors->addTrailerError();
+            m_numTrailerErrors++;
             PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Trailer );
-            addRODError(robId, PixelByteStreamErrors::Trailer, errs);
           }
           if (trailererror & (1 << 1)) { // header/trailer limit error=> h
-            m_errors->addLimitError();
+            m_numLimitError++;
             PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Limit );
-            addRODError(robId, PixelByteStreamErrors::Limit, errs);
           }
           if (trailererror & (1 << 0)) { // data overflow error=> v
-            m_errors->addInvalidIdentifier();
+            m_numInvalidIdentifiers++;
             PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Invalid );
-            addRODError(robId, PixelByteStreamErrors::Invalid, errs);
           }
 
           // Write the error word to the service
           if (offlineIdHash != 0xffffffff && errorcode) {
             m_errors->setFeErrorCode(offlineIdHash, (mLink & 0x1), errorcode);
+
+            int chFE = (mLink & 0x1);
+            int indexFE = (1+chFE)*m_pixel_id->wafer_hash_max()+(int)offlineIdHash;
+            uint64_t bsErrCodeFE = 0;
+            if (PixelByteStreamErrors::hasError(errorcode,PixelByteStreamErrors::TimeOut        )) { PixelByteStreamErrors::addError( bsErrCodeFE, PixelByteStreamErrors::TimeOut        ); }
+            if (PixelByteStreamErrors::hasError(errorcode,PixelByteStreamErrors::BCID           )) { PixelByteStreamErrors::addError( bsErrCodeFE, PixelByteStreamErrors::BCID           ); }
+            if (PixelByteStreamErrors::hasError(errorcode,PixelByteStreamErrors::LVL1ID         )) { PixelByteStreamErrors::addError( bsErrCodeFE, PixelByteStreamErrors::LVL1ID         ); }
+            if (PixelByteStreamErrors::hasError(errorcode,PixelByteStreamErrors::Preamble       )) { PixelByteStreamErrors::addError( bsErrCodeFE, PixelByteStreamErrors::Preamble       ); }
+            if (PixelByteStreamErrors::hasError(errorcode,PixelByteStreamErrors::Trailer        )) { PixelByteStreamErrors::addError( bsErrCodeFE, PixelByteStreamErrors::Trailer        ); }
+            if (PixelByteStreamErrors::hasError(errorcode,PixelByteStreamErrors::Flagged        )) { PixelByteStreamErrors::addError( bsErrCodeFE, PixelByteStreamErrors::Flagged        ); }
+            if (PixelByteStreamErrors::hasError(errorcode,PixelByteStreamErrors::DisableFE      )) { PixelByteStreamErrors::addError( bsErrCodeFE, PixelByteStreamErrors::DisableFE      ); }
+            if (PixelByteStreamErrors::hasError(errorcode,PixelByteStreamErrors::BadFE          )) { PixelByteStreamErrors::addError( bsErrCodeFE, PixelByteStreamErrors::BadFE          ); }
+            if (PixelByteStreamErrors::hasError(errorcode,PixelByteStreamErrors::ROD            )) { PixelByteStreamErrors::addError( bsErrCodeFE, PixelByteStreamErrors::ROD            ); }
+            if (PixelByteStreamErrors::hasError(errorcode,PixelByteStreamErrors::Decoding       )) { PixelByteStreamErrors::addError( bsErrCodeFE, PixelByteStreamErrors::Decoding       ); }
+            if (PixelByteStreamErrors::hasError(errorcode,PixelByteStreamErrors::Invalid        )) { PixelByteStreamErrors::addError( bsErrCodeFE, PixelByteStreamErrors::Invalid        ); }
+            if (PixelByteStreamErrors::hasError(errorcode,PixelByteStreamErrors::LinkMaskedByPPC)) { PixelByteStreamErrors::addError( bsErrCodeFE, PixelByteStreamErrors::LinkMaskedByPPC); }
+            if (PixelByteStreamErrors::hasError(errorcode,PixelByteStreamErrors::Limit          )) { PixelByteStreamErrors::addError( bsErrCodeFE, PixelByteStreamErrors::Limit          ); }
+            if (PixelByteStreamErrors::hasError(errorcode,PixelByteStreamErrors::TruncatedROB   )) { PixelByteStreamErrors::addError( bsErrCodeFE, PixelByteStreamErrors::TruncatedROB   ); }
+            if (PixelByteStreamErrors::hasError(errorcode,PixelByteStreamErrors::MaskedROB      )) { PixelByteStreamErrors::addError( bsErrCodeFE, PixelByteStreamErrors::MaskedROB      ); }
+
+//AAAAAAAAAAAAA
 
             // Check if error code is already set for this wafer
             uint32_t existing_code = m_errors->getModuleErrors(offlineIdHash); // TODO Verify if this ever happens
@@ -940,7 +949,11 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
               errorcode = existing_code | errorcode;
             }
             m_errors->setModuleErrors(offlineIdHash, errorcode);
-// STSTST            decodingErrors.setOrDrop( offlineIdHash, bsErrCode );
+
+            std::cout << "STSTST check ROD " << bsErrCodeFE << " " << chFE << " " << errorcode << std::endl;
+
+            decodingErrors.setOrDrop( offlineIdHash, bsErrCode );
+            decodingErrors.setOrDrop( indexFE, bsErrCodeFE );
           }
 
 
@@ -952,170 +965,188 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
 
           // Do checks on info in trailer vs header
           if (linkNum_IBLword != linkNum_IBLheader) {
-            generalwarning("In ROB 0x" << std::hex << robId << ", link 0x" << mLink
-                <<  ": Link number mismatch - nnnnn (trailer) = 0x" << linkNum_IBLword
-                << ", nnnnn (header) = 0x" << linkNum_IBLheader << std::dec);
+            generalwarning("In ROB 0x" << std::hex << robId << ", link 0x" << mLink <<  ": Link number mismatch - nnnnn (trailer) = 0x" << linkNum_IBLword << ", nnnnn (header) = 0x" << linkNum_IBLheader << std::dec);
           }
 
           if (decodeBcidTrailer_IBL(rawDataWord) != (mBCID & PRB_BCIDSKIPTRAILERmask_IBL)) {
-            generalwarning("In ROB 0x" << std::hex << robId << ", link 0x" << mLink
-                << ": Trailer BCID does not match header (trailer BCID = 0x"
-                << decodeBcidTrailer_IBL(rawDataWord) << ", 5LSB of header BCID = 0x"
-                << (mBCID & PRB_BCIDSKIPTRAILERmask_IBL) << ")" << std::dec);
+            generalwarning("In ROB 0x" << std::hex << robId << ", link 0x" << mLink << ": Trailer BCID does not match header (trailer BCID = 0x" << decodeBcidTrailer_IBL(rawDataWord) << ", 5LSB of header BCID = 0x" << (mBCID & PRB_BCIDSKIPTRAILERmask_IBL) << ")" << std::dec);
           }
         }
 
         else { // decode Pixel trailer word
 
-	ATH_MSG_VERBOSE( "Decoding Pixel trailer word: 0x" << std::hex << rawDataWord << std::dec );
+          ATH_MSG_VERBOSE( "Decoding Pixel trailer word: 0x" << std::hex << rawDataWord << std::dec );
 
-	uint32_t trailererror = decodeTrailerErrors(rawDataWord);   // creating link (module) trailer error variable
-	//mBitFlips = decodeTrailerBitflips(rawDataWord);   -- temporarily removed
+          uint32_t trailererror = decodeTrailerErrors(rawDataWord);   // creating link (module) trailer error variable
+          //mBitFlips = decodeTrailerBitflips(rawDataWord);   -- temporarily removed
 
-	if (trailererror != 0) {
-	  sc = StatusCode ::RECOVERABLE;
-	  errorcode = errorcode | trailererror; //encode error as HHHHMMMMMMMMFFFFFFFFTTTT for header, flagword, trailer errors
-	  //for now just sum all trailer errors
-	  if (trailererror & (1 << 3))
-	    m_errors->addTrailerError();
-	  if (trailererror & (1 << 2))
-	    m_errors->addTrailerError();
-	  if (trailererror & (1 << 1))
-	    m_errors->addTrailerError();
-	  if (trailererror & (1 << 0))
-	    m_errors->addTrailerError();
-	  // TODO, above looks like a bug, compared to previous meaning of trailer error bits. For the sake of consistency reproduce it.
-	  if ( trailererror & 0xf ) {
-	    PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Trailer );
-	  }
-
-	}
-      }
-      if ( offlineIdHash != 0xffffffff ) { // now write the error word to the service
-	m_errors->setModuleErrors(offlineIdHash, errorcode);
-	decodingErrors.setOrDrop( offlineIdHash, bsErrCode );
-      }
-      break;
-
-
-      //-------------------------------------------------------------------------------------------- FE ERROR TYPE 2 WORD FOUND
-    case PRB_FEERROR2 :    // type 2 flag found
-
-      are_4condensed_words = false;
-      if (isIBLModule || isDBMModule) { // IBL flag found
-
-	ATH_MSG_VERBOSE( "Decoding IBL/DBM FEflag word: 0x" << std::hex << rawDataWord << std::dec);
+          if (trailererror != 0) {
+            sc = StatusCode ::RECOVERABLE;
+            errorcode = errorcode | trailererror; //encode error as HHHHMMMMMMMMFFFFFFFFTTTT for header, flagword, trailer errors
+            //for now just sum all trailer errors
+            if (trailererror & (1 << 3)) {
+              m_numTrailerErrors++;
+            }
+            if (trailererror & (1 << 2)) {
+              m_numTrailerErrors++;
+            }
+            if (trailererror & (1 << 1)) {
+              m_numTrailerErrors++;
+            }
+            if (trailererror & (1 << 0)) {
+              m_numTrailerErrors++;
+            }
+            // TODO, above looks like a bug, compared to previous meaning of trailer error bits. For the sake of consistency reproduce it.
+            if ( trailererror & 0xf ) {
+              PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Trailer );
+            }
+          }
+        }
+        if ( offlineIdHash != 0xffffffff ) { // now write the error word to the service
+          m_errors->setModuleErrors(offlineIdHash, errorcode);
+          decodingErrors.setOrDrop( offlineIdHash, bsErrCode );
+        }
+        break;
 
 
-	linkNum_IBLword = decodeLinkNumFEFlag_IBL(rawDataWord);
-	//                fe_IBLword = extractFefromLinkNum(linkNum_IBLword);
-	//                sLinkWord = extractSLinkfromLinkNum(linkNum_IBLword);
-	//                if ((sLinkWord != sLinkHeader) || (fe_IBLword != fe_IBLheader))
-	if (linkNum_IBLword != linkNum_IBLheader) {
-	  generalwarning("In ROB 0x" << std::hex << robId << ", link 0x" << mLink
-			 << ": Link number mismatch - nnnnn (error word) = 0x" << linkNum_IBLword
-			 << ", nnnnn (header) = 0x" << linkNum_IBLheader << std::dec);
-	}
+        //-------------------------------------------------------------------------------------------- FE ERROR TYPE 2 WORD FOUND
+      case PRB_FEERROR2 :    // type 2 flag found
 
-	uint32_t serviceCodeCounter = decodeServiceCodeCounter_IBL(rawDataWord); // frequency of the serviceCode (with the exceptions of serviceCode = 14,15 or 16)
-	uint32_t serviceCode = decodeServiceCode_IBL(rawDataWord); // is a code. the corresponding meaning is listed in the table in the FE-I4 manual, pag. 105
+        std::cout << "STSTST PRB_FEERROR2 " << PRB_FEERROR2 << std::endl;
 
-	// Treat the service code only if its meaning is valid (i.e. value < 31)
-	if (serviceCode < 32) {
+        are_4condensed_words = false;
+        if (isIBLModule || isDBMModule) { // IBL flag found
 
-	  // Treatment of the FE flag serviceCode and serviceCodeCounter
-	  // Returns encoded uint32_t to be added to errorcode
-	  uint32_t encodedServiceCodes = treatmentFEFlagInfo(serviceCode, serviceCodeCounter);
-
-	  // Insert service codes into errorcode
-	  // CCC CCCC CCCC CCCC CCCC EPpl bzhv
-	  errorcode = errorcode | (encodedServiceCodes << 8);
-	}
-	else {
-	  generalwarning("In ROB 0x" << std::hex << robId << ", link 0x" << mLink
-			 << ": Got out-of-bounds service code: " << std::dec << serviceCode << " (counter: "
-			 << serviceCodeCounter << "), ignored");
-	}
+          ATH_MSG_VERBOSE( "Decoding IBL/DBM FEflag word: 0x" << std::hex << rawDataWord << std::dec);
 
 
-	// Temporarily removed, as the data format is not clear yet (Franconi, 08.07.2014)
-	//	  mBitFlips = decodeFEFlagBitFlips_IBL(rawDataWord);
-	//	  if (mBitFlips != 0)
-	//	    msg(MSG::WARNING) << "IBL Fe Flag error word has some bitflips: the word is 0x" << std::hex << rawDataWord << std::dec  << endmsg;
+          linkNum_IBLword = decodeLinkNumFEFlag_IBL(rawDataWord);
+          //                fe_IBLword = extractFefromLinkNum(linkNum_IBLword);
+          //                sLinkWord = extractSLinkfromLinkNum(linkNum_IBLword);
+          //                if ((sLinkWord != sLinkHeader) || (fe_IBLword != fe_IBLheader))
+          if (linkNum_IBLword != linkNum_IBLheader) {
+            generalwarning("In ROB 0x" << std::hex << robId << ", link 0x" << mLink << ": Link number mismatch - nnnnn (error word) = 0x" << linkNum_IBLword << ", nnnnn (header) = 0x" << linkNum_IBLheader << std::dec);
+          }
+
+          uint32_t serviceCodeCounter = decodeServiceCodeCounter_IBL(rawDataWord); // frequency of the serviceCode (with the exceptions of serviceCode = 14,15 or 16)
+          uint32_t serviceCode = decodeServiceCode_IBL(rawDataWord); // is a code. the corresponding meaning is listed in the table in the FE-I4 manual, pag. 105
+
+          // Treat the service code only if its meaning is valid (i.e. value < 31)
+          if (serviceCode < 32) {
+
+            // Treatment of the FE flag serviceCode and serviceCodeCounter
+            // Returns encoded uint32_t to be added to errorcode
+            uint32_t encodedServiceCodes = treatmentFEFlagInfo(serviceCode, serviceCodeCounter);
+
+            // Insert service codes into errorcode
+            // CCC CCCC CCCC CCCC CCCC EPpl bzhv
+            errorcode = errorcode | (encodedServiceCodes << 8);
+          }
+          else {
+            generalwarning("In ROB 0x" << std::hex << robId << ", link 0x" << mLink
+                << ": Got out-of-bounds service code: " << std::dec << serviceCode << " (counter: "
+                << serviceCodeCounter << "), ignored");
+          }
 
 
-      }
-      else { // Pixel type2 flag found
+          // Temporarily removed, as the data format is not clear yet (Franconi, 08.07.2014)
+          //	  mBitFlips = decodeFEFlagBitFlips_IBL(rawDataWord);
+          //	  if (mBitFlips != 0)
+          //	    msg(MSG::WARNING) << "IBL Fe Flag error word has some bitflips: the word is 0x" << std::hex << rawDataWord << std::dec  << endmsg;
 
-	ATH_MSG_VERBOSE( "Decoding Pixel FEflag word: 0x" << std::hex << rawDataWord << std::dec );
 
-	uint32_t FEFlags = decodeFEFlags2(rawDataWord);   // get FE flags
-	uint32_t MCCFlags = decodeMCCFlags(rawDataWord);   // get MCC flags
-	uint32_t fe_number = (rawDataWord & 0x0F000000) >> 24;
+        }
+        else { // Pixel type2 flag found
 
-	FEFlags = FEFlags & 0xF3; // mask out the parity bits, they don't work
-	if ((MCCFlags | FEFlags) != 0) {
-	  sc = StatusCode::RECOVERABLE;
-	  errorcode = errorcode | (MCCFlags << 12) | (FEFlags << 4); //encode error as HHHHMMMMMMMMFFFFFFFFTTTT for header, flagword, trailer errors
-	  //for now just sum all flagged errors
-	  if (MCCFlags & (1 << 7))
-	    m_errors->addFlaggedError();
-	  if (MCCFlags & (1 << 6))
-	    m_errors->addFlaggedError();
-	  if (MCCFlags & (1 << 5))
-	    m_errors->addFlaggedError();
-	  if (MCCFlags & (1 << 4))
-	    m_errors->addFlaggedError();
-	  if (MCCFlags & (1 << 3))
-	    m_errors->addFlaggedError();
-	  if (MCCFlags & (1 << 2))
-	    m_errors->addFlaggedError();
-	  if (MCCFlags & (1 << 1))
-	    m_errors->addFlaggedError();
-	  if (MCCFlags & (1 << 0))
-	    m_errors->addFlaggedError();
-	  if (FEFlags & (1 << 7))
-	    m_errors->addFlaggedError();
-	  if (FEFlags & (1 << 6))
-	    m_errors->addFlaggedError();
-	  if (FEFlags & (1 << 5))
-	    m_errors->addFlaggedError();
-	  if (FEFlags & (1 << 4))
-	    m_errors->addFlaggedError();
-	  if (FEFlags & (1 << 3))
-	    m_errors->addFlaggedError();
-	  if (FEFlags & (1 << 2))
-	    m_errors->addFlaggedError();
-	  if (FEFlags & (1 << 1))
-	    m_errors->addFlaggedError();
-	  if (FEFlags & (1 << 0))
-	    m_errors->addFlaggedError();
-	  if ( MCCFlags & 0xff or FEFlags & 0xff )
-	    PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Flagged );
-	  m_errors->setFeErrorCode(offlineIdHash, fe_number, errorcode);
+          ATH_MSG_VERBOSE( "Decoding Pixel FEflag word: 0x" << std::hex << rawDataWord << std::dec );
 
-	} else {
-	  m_errors->addDisabledFEError();
-	  m_errors->addBadFE(offlineIdHash,(rawDataWord & 0x0F000000) >> 24); // TODO check what is this needed for
-	  PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::BadFE );
-	  ATH_MSG_DEBUG( "Disabled Pixel chip " << ((rawDataWord & 0x0F000000) >> 24) );
+          uint32_t FEFlags = decodeFEFlags2(rawDataWord);   // get FE flags
+          uint32_t MCCFlags = decodeMCCFlags(rawDataWord);   // get MCC flags
+          uint32_t fe_number = (rawDataWord & 0x0F000000) >> 24;
 
-	}
-      }
-      break;
+          FEFlags = FEFlags & 0xF3; // mask out the parity bits, they don't work
+          if ((MCCFlags | FEFlags) != 0) {
+            sc = StatusCode::RECOVERABLE;
+            errorcode = errorcode | (MCCFlags << 12) | (FEFlags << 4); //encode error as HHHHMMMMMMMMFFFFFFFFTTTT for header, flagword, trailer errors
+            //for now just sum all flagged errors
+            if (MCCFlags & (1 << 7)) { m_numFlaggedErrors++; }
+            if (MCCFlags & (1 << 6)) { m_numFlaggedErrors++; }
+            if (MCCFlags & (1 << 5)) { m_numFlaggedErrors++; }
+            if (MCCFlags & (1 << 4)) { m_numFlaggedErrors++; }
+            if (MCCFlags & (1 << 3)) { m_numFlaggedErrors++; }
+            if (MCCFlags & (1 << 2)) { m_numFlaggedErrors++; }
+            if (MCCFlags & (1 << 1)) { m_numFlaggedErrors++; }
+            if (MCCFlags & (1 << 0)) { m_numFlaggedErrors++; }
+            if (FEFlags & (1 << 7)) { m_numFlaggedErrors++; }
+            if (FEFlags & (1 << 6)) { m_numFlaggedErrors++; }
+            if (FEFlags & (1 << 5)) { m_numFlaggedErrors++; }
+            if (FEFlags & (1 << 4)) { m_numFlaggedErrors++; }
+            if (FEFlags & (1 << 3)) { m_numFlaggedErrors++; }
+            if (FEFlags & (1 << 2)) { m_numFlaggedErrors++; }
+            if (FEFlags & (1 << 1)) { m_numFlaggedErrors++; }
+            if (FEFlags & (1 << 0)) { m_numFlaggedErrors++; }
 
-      //-------------------------------------------------------------------------------------------- RAWDATA WORD FOUND
-    case PRB_RAWDATA : // add treatment for raw data word here!
-      are_4condensed_words = false;
+            if ( MCCFlags & 0xff or FEFlags & 0xff ) {
+              PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Flagged );
+            }
+            m_errors->setFeErrorCode(offlineIdHash, fe_number, errorcode);
 
-      break;
+            int indexFE = (1+fe_number)*m_pixel_id->wafer_hash_max()+(int)offlineIdHash;
+            uint64_t bsErrCodeFE = 0;
 
-      //-------------------------------------------------------------------------------------------- UNKNOWN WORD
-    default:
-      generalwarning("In ROB 0x" << std::hex << robId << ", FE 0x" << mLink
-		     << ": Unknown word type found, 0x" << std::hex << rawDataWord << std::dec << ", ignoring");
-      m_errors->addDecodingError();
-      PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Decoding );
+            if (PixelByteStreamErrors::hasError(errorcode,PixelByteStreamErrors::TimeOut        )) { PixelByteStreamErrors::addError( bsErrCodeFE, PixelByteStreamErrors::TimeOut        ); }
+            if (PixelByteStreamErrors::hasError(errorcode,PixelByteStreamErrors::BCID           )) { PixelByteStreamErrors::addError( bsErrCodeFE, PixelByteStreamErrors::BCID           ); }
+            if (PixelByteStreamErrors::hasError(errorcode,PixelByteStreamErrors::LVL1ID         )) { PixelByteStreamErrors::addError( bsErrCodeFE, PixelByteStreamErrors::LVL1ID         ); }
+            if (PixelByteStreamErrors::hasError(errorcode,PixelByteStreamErrors::Preamble       )) { PixelByteStreamErrors::addError( bsErrCodeFE, PixelByteStreamErrors::Preamble       ); }
+            if (PixelByteStreamErrors::hasError(errorcode,PixelByteStreamErrors::Trailer        )) { PixelByteStreamErrors::addError( bsErrCodeFE, PixelByteStreamErrors::Trailer        ); }
+            if (PixelByteStreamErrors::hasError(errorcode,PixelByteStreamErrors::Flagged        )) { PixelByteStreamErrors::addError( bsErrCodeFE, PixelByteStreamErrors::Flagged        ); }
+            if (PixelByteStreamErrors::hasError(errorcode,PixelByteStreamErrors::DisableFE      )) { PixelByteStreamErrors::addError( bsErrCodeFE, PixelByteStreamErrors::DisableFE      ); }
+            if (PixelByteStreamErrors::hasError(errorcode,PixelByteStreamErrors::BadFE          )) { PixelByteStreamErrors::addError( bsErrCodeFE, PixelByteStreamErrors::BadFE          ); }
+            if (PixelByteStreamErrors::hasError(errorcode,PixelByteStreamErrors::ROD            )) { PixelByteStreamErrors::addError( bsErrCodeFE, PixelByteStreamErrors::ROD            ); }
+            if (PixelByteStreamErrors::hasError(errorcode,PixelByteStreamErrors::Decoding       )) { PixelByteStreamErrors::addError( bsErrCodeFE, PixelByteStreamErrors::Decoding       ); }
+            if (PixelByteStreamErrors::hasError(errorcode,PixelByteStreamErrors::Invalid        )) { PixelByteStreamErrors::addError( bsErrCodeFE, PixelByteStreamErrors::Invalid        ); }
+            if (PixelByteStreamErrors::hasError(errorcode,PixelByteStreamErrors::LinkMaskedByPPC)) { PixelByteStreamErrors::addError( bsErrCodeFE, PixelByteStreamErrors::LinkMaskedByPPC); }
+            if (PixelByteStreamErrors::hasError(errorcode,PixelByteStreamErrors::Limit          )) { PixelByteStreamErrors::addError( bsErrCodeFE, PixelByteStreamErrors::Limit          ); }
+            if (PixelByteStreamErrors::hasError(errorcode,PixelByteStreamErrors::TruncatedROB   )) { PixelByteStreamErrors::addError( bsErrCodeFE, PixelByteStreamErrors::TruncatedROB   ); }
+            if (PixelByteStreamErrors::hasError(errorcode,PixelByteStreamErrors::MaskedROB      )) { PixelByteStreamErrors::addError( bsErrCodeFE, PixelByteStreamErrors::MaskedROB      ); }
+
+            std::cout << "STSTST CHECK FE error code " << offlineIdHash << " " << fe_number << " " << errorcode << " " << bsErrCodeFE << " " << m_pixel_id->wafer_hash_max() << std::endl;
+
+//            PixelByteStreamErrors::addServiceRecords( bsErrCodeFE, 124522623 );
+
+            decodingErrors.setOrDrop( offlineIdHash, bsErrCode );
+            decodingErrors.setOrDrop( indexFE, bsErrCodeFE );
+
+          } else {
+// STSTST            m_errors->addDisabledFEError();
+            m_numDisabledFEErrors++;
+            m_errors->addBadFE(offlineIdHash,(rawDataWord & 0x0F000000) >> 24); // TODO check what is this needed for
+            PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::BadFE );
+ 
+            ATH_MSG_DEBUG( "Disabled Pixel chip " << ((rawDataWord & 0x0F000000) >> 24) );
+
+          }
+        }
+        break;
+
+        //-------------------------------------------------------------------------------------------- RAWDATA WORD FOUND
+      case PRB_RAWDATA : // add treatment for raw data word here!
+
+        std::cout << "STSTST PRB_RAWDATA " << PRB_RAWDATA << std::endl;
+
+        are_4condensed_words = false;
+
+        break;
+
+        //-------------------------------------------------------------------------------------------- UNKNOWN WORD
+      default:
+
+        std::cout << "STSTST default" << std::endl;
+
+        generalwarning("In ROB 0x" << std::hex << robId << ", FE 0x" << mLink << ": Unknown word type found, 0x" << std::hex << rawDataWord << std::dec << ", ignoring");
+// STSTST        m_errors->addDecodingError();
+        m_numDecodingErrors++;
+        PixelByteStreamErrors::addError( bsErrCode, PixelByteStreamErrors::Decoding );
 
     } // end of switch
   }   // end of loop over ROD
@@ -1133,29 +1164,29 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
   } // end if corruption error
 
 
-    // Verify that all active IBL FEs sent the same number of headers
+  // Verify that all active IBL FEs sent the same number of headers
   if (isIBLModule || isDBMModule) {
     unsigned int nFrags = 0;
     for (unsigned int i = 0; i < 8; ++i) {
       if (nFrags == 0) {
-	if (nFragmentsPerFE[i] != 0) nFrags = nFragmentsPerFE[i];    // set nFrags on first non-zero occurence
+        if (nFragmentsPerFE[i] != 0) nFrags = nFragmentsPerFE[i];    // set nFrags on first non-zero occurence
       }
       else {
-	if (nFragmentsPerFE[i] != 0 && nFragmentsPerFE[i] != nFrags) {
-	  // Got unequal number of headers per FE for same ROD, this means trouble.
-	  // Print value for each FE
-	  char tempstr[20];
-	  std::string errmsg;
-	  for (unsigned int j = 0; j < 8; ++j) {
-	    if (nFragmentsPerFE[j] != 0) {
-	      sprintf(tempstr, "FE %d: %d   ", j, nFragmentsPerFE[j]);
-	      errmsg.append(tempstr);
-	    }
-	  }
-	  generalwarning("In ROB 0x" << std::hex << robId << ": got unequal number of headers per FE" << std::dec);
-	  generalwarning("[FE number] : [# headers] - " << errmsg);
-	  break;
-	}
+        if (nFragmentsPerFE[i] != 0 && nFragmentsPerFE[i] != nFrags) {
+          // Got unequal number of headers per FE for same ROD, this means trouble.
+          // Print value for each FE
+          char tempstr[20];
+          std::string errmsg;
+          for (unsigned int j = 0; j < 8; ++j) {
+            if (nFragmentsPerFE[j] != 0) {
+              sprintf(tempstr, "FE %d: %d   ", j, nFragmentsPerFE[j]);
+              errmsg.append(tempstr);
+            }
+          }
+          generalwarning("In ROB 0x" << std::hex << robId << ": got unequal number of headers per FE" << std::dec);
+          generalwarning("[FE number] : [# headers] - " << errmsg);
+          break;
+        }
       }
     }
   }
@@ -1655,74 +1686,6 @@ uint32_t PixelRodDecoder::getDataType(unsigned int rawDataWord, bool link_start)
   return PRB_UNKNOWNWORD;   // unknown word found
 }
 
-
-////////////////////////
-// add a ROD Errors (truncation)
-////////////////////////
-
-void PixelRodDecoder::addRODError(uint32_t robid, uint32_t robStatus) const {
-  std::vector<IdentifierHash> idHashes;
-
-  const std::deque<Identifier> offlineIdList = SG::ReadCondHandle<PixelCablingCondData>(m_condCablingKey)->find_entry_offlineList(robid);
-  std::deque<Identifier>::const_iterator it1 = offlineIdList.begin();
-  std::deque<Identifier>::const_iterator it2 = offlineIdList.end();
-  for (; it1!=it2;++it1) {
-    idHashes.push_back(m_pixel_id->wafer_hash(*it1));
-  }
-
-  std::vector<IdentifierHash>::iterator hashIt = idHashes.begin();
-  std::vector<IdentifierHash>::iterator hashEnd = idHashes.end();
-  for (; hashIt != hashEnd; ++hashIt) {
-    m_errors->addRODError();
-    m_errors->setModuleRODErrors(*hashIt,robStatus);
-    std::cout << "STSTST PixelRodDecoder::addRODError " << robid << " " << (*hashIt) << " " << robStatus << std::endl;
-  }
-  return;
-}
-
-void PixelRodDecoder::addRODError(const uint32_t robid, const IDCInDetBSErrContainer::ErrorCode ec, IDCInDetBSErrContainer& errorsCollection) const {
-  const std::deque<Identifier> offlineIdList = SG::ReadCondHandle<PixelCablingCondData>( m_condCablingKey )->find_entry_offlineList( robid );
-  for ( const Identifier& id: offlineIdList ) {
-    IdentifierHash idHash = m_pixel_id->wafer_hash(id);
-    errorsCollection.setOrDrop(idHash, ec);
-  }
-}
-
-void PixelRodDecoder::addRODError(const uint32_t robid, const PixelByteStreamErrors::PixelErrorsEnum ec, PixelRodDecoderErrorsHelper& errorsCollection) const {
-  const std::deque<Identifier> offlineIdList = SG::ReadCondHandle<PixelCablingCondData>(m_condCablingKey)->find_entry_offlineList(robid);
-  for (const Identifier& id: offlineIdList) {
-    IdentifierHash idHash = m_pixel_id->wafer_hash(id);
-    errorsCollection.add(idHash, ec);
-  }
-}
-
-// STSTST StatusCode PixelRodDecoder::checkRODStatus( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, IDCInDetBSErrContainer& decodingErrors ) const {
-// STSTST   // check the ROD status for truncation
-// STSTST   if (robFrag->nstatus() != 0) {
-// STSTST     const uint32_t* rob_status;
-// STSTST     robFrag->status(rob_status);
-// STSTST     uint32_t robId = robFrag->rob_source_id();
-// STSTST     if ( ATH_UNLIKELY( (*rob_status) != 0) ) {
-// STSTST       addRODError(robId,*rob_status);
-// STSTST 
-// STSTST       ATH_MSG_DEBUG( "ROB status word for robid 0x"<< std::hex << robId << " is non-zero 0x"
-// STSTST           << (*rob_status) << std::dec);
-// STSTST 
-// STSTST       if (((*rob_status) >> 27) & 0x1) { // TODO: find source of thse constants
-// STSTST         addRODError( robId, PixelByteStreamErrors::TruncatedROB, decodingErrors );
-// STSTST         ATH_MSG_DEBUG("ROB status word for robid 0x"<< std::hex << robId << std::dec <<" indicates data truncation.");
-// STSTST         return StatusCode::RECOVERABLE;
-// STSTST       }
-// STSTST 
-// STSTST       if (((*rob_status) >> 31) & 0x1) {
-// STSTST         addRODError( robId, PixelByteStreamErrors::MaskedROB, decodingErrors );
-// STSTST         ATH_MSG_DEBUG( "ROB status word for robid 0x"<< std::hex << robId<< std::dec <<" indicates resource was masked off.");
-// STSTST         return StatusCode::RECOVERABLE;
-// STSTST       }
-// STSTST     }
-// STSTST   }
-// STSTST   return StatusCode::SUCCESS;
-// STSTST }
 
 bool PixelRodDecoder::checkDataWordsCorruption( uint32_t rawDataWord) const {
     if ( ATH_UNLIKELY( rawDataWord==0xaa1234aa )) {

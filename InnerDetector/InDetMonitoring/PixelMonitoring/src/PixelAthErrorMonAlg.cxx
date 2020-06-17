@@ -9,7 +9,7 @@ PixelAthErrorMonAlg::PixelAthErrorMonAlg( const std::string& name, ISvcLocator* 
   m_pixelid(nullptr)
 {
   //jo flags
-// STSTST  declareProperty("ErrorsTool", m_pixelErrorTool);
+  // declareProperty("ErrorsTool", m_pixelErrorTool);
   declareProperty("doOnline", m_doOnline = false);
   declareProperty("doModules", m_doModules = false);
   declareProperty("doLumiBlock", m_doLumiBlock = false);
@@ -33,6 +33,113 @@ StatusCode PixelAthErrorMonAlg::initialize() {
 
 
 StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const {
+
+  //====================================================================================
+  // This is an example how to read the Error informaiton.
+  //
+  // The Error word is defined in 
+  //    InDetConditions/PixelConditionsData/PixelConditionsData/PixelByteStreamErrors.h
+  //
+  // The IDCInDetBSErrContainer can be accessed through 
+  //    m_pixelCondSummaryTool->getBSErrorWord(i,ctx) 
+  // where
+  //    i= [    0,  2047] : module error
+  //
+  //  for PIXEL(FEI3):
+  //     = [ 2048,  4095] :   FE-0 error
+  //     = [ 4096,  6143] :   FE-1 error
+  //     = [ 6144,  8192] :   FE-2 error
+  //          ...    ...      ...
+  //          ...    ...      ...
+  //     = [30720, 32767] :  FE-14 error
+  //     = [32768, 34815] :  FE-15 error
+  //
+  //  for IBL(FEI4):
+  //     = [ 2048,  4095] :   FE-0 error
+  //     = [ 4096,  6143] :   FE-1 error
+  //     = [ 6144,  8192] :  ServiceRecords
+  //
+  //    
+  //====================================================================================
+  //
+  // Print all Module/FE errors
+  int maxHash = m_pixelid->wafer_hash_max();
+  for (int i=0; i<maxHash; i++) {
+    // Get accumulated errors (Module)
+    uint64_t kErrorWord = m_pixelCondSummaryTool->getBSErrorWord(i,ctx);
+
+    std::cout << "Module hash=" << i << " has";
+    if      (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::TimeOut        )) { std::cout << "      TimeOut         state..." << std::endl; }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::BCID           )) { std::cout << "      BCID            state..." << std::endl; }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::LVL1ID         )) { std::cout << "      LVL1ID          state..." << std::endl; }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Preamble       )) { std::cout << "      Preamble        state..." << std::endl; }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Trailer        )) { std::cout << "      Trailer         state..." << std::endl; }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Flagged        )) { std::cout << "      Flagged         state..." << std::endl; }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::DisableFE      )) { std::cout << "      DisableFE       state..." << std::endl; }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::BadFE          )) { std::cout << "      BadFE           state..." << std::endl; }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::ROD            )) { std::cout << "      ROD             state..." << std::endl; }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Decoding       )) { std::cout << "      Decoding        state..." << std::endl; }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Invalid        )) { std::cout << "      Invalid         state..." << std::endl; }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::LinkMaskedByPPC)) { std::cout << "      LinkMaskedByPPC state..." << std::endl; }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Limit          )) { std::cout << "      Limit           state..." << std::endl; }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::TruncatedROB   )) { std::cout << "      TruncatedROB    state..." << std::endl; }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::MaskedROB      )) { std::cout << "      MaskedROB       state..." << std::endl; }
+    else                                                                                         { std::cout << "      no entry             ..." << std::endl; }
+
+    // Loop over all FE
+    int nFE = 16;
+    if (i<12 || i>2035) { nFE=2; }  // for DBM
+    if (i>155 && i<436) { nFE=2; }  // for FEI4
+
+    for (int j=0; j<nFE; j++) {
+      int channelFE = (1+j)*maxHash+i;    // (FE_channel+1)*2048 + moduleHash
+      uint64_t kErrorFEWord = m_pixelCondSummaryTool->getBSErrorWord(channelFE,ctx);
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::TimeOut        )) { std::cout << "  FE ch.=" << j << "      TimeOut         state..." << std::endl; }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::BCID           )) { std::cout << "  FE ch.=" << j << "      BCID            state..." << std::endl; }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::LVL1ID         )) { std::cout << "  FE ch.=" << j << "      LVL1ID          state..." << std::endl; }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Preamble       )) { std::cout << "  FE ch.=" << j << "      Preamble        state..." << std::endl; }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Trailer        )) { std::cout << "  FE ch.=" << j << "      Trailer         state..." << std::endl; }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Flagged        )) { std::cout << "  FE ch.=" << j << "      Flagged         state..." << std::endl; }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::DisableFE      )) { std::cout << "  FE ch.=" << j << "      DisableFE       state..." << std::endl; }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::BadFE          )) { std::cout << "  FE ch.=" << j << "      BadFE           state..." << std::endl; }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::ROD            )) { std::cout << "  FE ch.=" << j << "      ROD             state..." << std::endl; }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Decoding       )) { std::cout << "  FE ch.=" << j << "      Decoding        state..." << std::endl; }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Invalid        )) { std::cout << "  FE ch.=" << j << "      Invalid         state..." << std::endl; }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::LinkMaskedByPPC)) { std::cout << "  FE ch.=" << j << "      LinkMaskedByPPC state..." << std::endl; }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Limit          )) { std::cout << "  FE ch.=" << j << "      Limit           state..." << std::endl; }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::TruncatedROB   )) { std::cout << "  FE ch.=" << j << "      TruncatedROB    state..." << std::endl; }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::MaskedROB      )) { std::cout << "  FE ch.=" << j << "      MaskedROB       state..." << std::endl; }
+    }
+
+    // Get IBL SearviceRecords : IBL hashID[156-435]
+    if (i>155 && i<436) {
+      for (int j=2; j<3; j++) {
+        int channelFE = (1+j)*maxHash+i+1;     // (FE_channel+1)*2048 + moduleHash
+        uint64_t kErrorFEWord = m_pixelCondSummaryTool->getBSErrorWord(channelFE,ctx);
+        if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::TimeOut        )) { std::cout << "  IBL SearviceRecords FE ch.=" << j << "      TimeOut         state..." << std::endl; }
+        if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::BCID           )) { std::cout << "  IBL SearviceRecords FE ch.=" << j << "      BCID            state..." << std::endl; }
+        if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::LVL1ID         )) { std::cout << "  IBL SearviceRecords FE ch.=" << j << "      LVL1ID          state..." << std::endl; }
+        if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Preamble       )) { std::cout << "  IBL SearviceRecords FE ch.=" << j << "      Preamble        state..." << std::endl; }
+        if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Trailer        )) { std::cout << "  IBL SearviceRecords FE ch.=" << j << "      Trailer         state..." << std::endl; }
+        if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Flagged        )) { std::cout << "  IBL SearviceRecords FE ch.=" << j << "      Flagged         state..." << std::endl; }
+        if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::DisableFE      )) { std::cout << "  IBL SearviceRecords FE ch.=" << j << "      DisableFE       state..." << std::endl; }
+        if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::BadFE          )) { std::cout << "  IBL SearviceRecords FE ch.=" << j << "      BadFE           state..." << std::endl; }
+        if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::ROD            )) { std::cout << "  IBL SearviceRecords FE ch.=" << j << "      ROD             state..." << std::endl; }
+        if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Decoding       )) { std::cout << "  IBL SearviceRecords FE ch.=" << j << "      Decoding        state..." << std::endl; }
+        if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Invalid        )) { std::cout << "  IBL SearviceRecords FE ch.=" << j << "      Invalid         state..." << std::endl; }
+        if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::LinkMaskedByPPC)) { std::cout << "  IBL SearviceRecords FE ch.=" << j << "      LinkMaskedByPPC state..." << std::endl; }
+        if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Limit          )) { std::cout << "  IBL SearviceRecords FE ch.=" << j << "      Limit           state..." << std::endl; }
+        if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::TruncatedROB   )) { std::cout << "  IBL SearviceRecords FE ch.=" << j << "      TruncatedROB    state..." << std::endl; }
+        if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::MaskedROB      )) { std::cout << "  IBL SearviceRecords FE ch.=" << j << "      MaskedROB       state..." << std::endl; }
+      }
+    }
+  }
+
+
+
+//===================================================================
+// Here I let Pixel DQ people refill the Error word with new method.
+/* 
   using namespace Monitored;
 
   int lb = GetEventInfo(ctx)->lumiBlock();
@@ -52,8 +159,7 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
   float num_errormodules_per_cat[ErrorCategory::COUNT][PixLayers::COUNT] = {{0}};
   float num_errormodules_per_cat_rodmod[ErrorCategoryRODMOD::COUNT][PixLayers::COUNT] = {{0}};
 
-// STSTST  std::cout << "STSTST PixelAthErrorMonAlg::fillHistograms 1" << std::endl;
-// STSTST  const auto& kFeErrorWords = m_pixelErrorTool->getAllFeErrors();
+  const auto& kFeErrorWords = m_pixelErrorTool->getAllFeErrors();
 
   // const auto& kFeSvcRecord  = m_pixelErrorTool->getAllServiceCodes(); //REVIEW n.y. implemented
   // temporary kFeSvcRecord
@@ -96,14 +202,12 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
   for (; idIt != idItEnd; ++idIt) {
     Identifier waferID = *idIt;
     IdentifierHash id_hash = m_pixelid->wafer_hash(waferID);
-// STSTST    std::cout << "STSTST PixelAthErrorMonAlg::fillHistograms 2" << std::endl;
-// STSTST    const auto& kErrorWord = m_pixelErrorTool->getModuleErrors(id_hash);
+    const auto& kErrorWord = m_pixelErrorTool->getModuleErrors(id_hash);
 
     bool is_fei4 = false;
-// STSTST    std::cout << "STSTST PixelAthErrorMonAlg::fillHistograms 3" << std::endl;
-// STSTST    if (m_pixelErrorTool->isActive(id_hash) &&  // isActive from PixelBytestreamErrorTool to REVIEW
-// STSTST	( (m_pixelid->barrel_ec(waferID) == 0 && m_pixelid->layer_disk(waferID) == 0) ||
-// STSTST	  abs(m_pixelid->barrel_ec(waferID)) == 4) ) is_fei4 = true;
+    if (m_pixelErrorTool->isActive(id_hash) &&  // isActive from PixelBytestreamErrorTool to REVIEW
+	( (m_pixelid->barrel_ec(waferID) == 0 && m_pixelid->layer_disk(waferID) == 0) ||
+	  abs(m_pixelid->barrel_ec(waferID)) == 4) ) is_fei4 = true;
 
     int pixlayer = getPixLayersID(m_pixelid->barrel_ec(waferID), m_pixelid->layer_disk(waferID) );
 
@@ -111,87 +215,87 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
     bool has_err_cat[ErrorCategory::COUNT] = {false};
     bool has_err_cat_rodmod[ErrorCategoryRODMOD::COUNT] = {false};
 
-// STSTST    if (!is_fei4) {
-// STSTST      // Bit-shifting over module errors, only for ROD-type errors for FE-I3
-// STSTST      for (unsigned int bit = 0; bit < kNumErrorBitsFEI3; bit++) {
-// STSTST	if ((kErrorWord & (static_cast<uint64_t>(1) << bit)) != 0) {
-// STSTST	  if (bit >=4 && bit <=16) continue;
-// STSTST	  num_errors[pixlayer]++;
-// STSTST	  num_errors_per_bit[bit][pixlayer]++;
-// STSTST	  
-// STSTST	  int error_cat_rodmod = 0;
-// STSTST	  if (bit == 20 || bit == 21)              error_cat_rodmod = 2;  // ROD synchronization errors      (20: BCID, 21: LVL1ID)
-// STSTST	  if (bit == 0  || bit == 1)               error_cat_rodmod = 4;  // ROD truncation errors           (0: FIFO Overflow, 1: H/T Limit)
-// STSTST	  if (bit == 23)                           error_cat_rodmod = 5;  // optical errors                  (23: preamble (bitflip))
-// STSTST	  if (bit == 22)                           error_cat_rodmod = 7;  // timeout errors                  (22: timeout on ROD formatter)
-// STSTST	  if (error_cat_rodmod) {
-// STSTST	    has_err_cat_rodmod[error_cat_rodmod - 1] = true;
-// STSTST	    if (!m_doOnline) {
-// STSTST	      all_errors_maps.add(pixlayer, waferID, m_pixelid, 1.0);
-// STSTST	    }
-// STSTST	    if (getErrorCategory(error_cat_rodmod)!=99) has_err_cat[getErrorCategory(error_cat_rodmod)] = true;
-// STSTST	  }
-// STSTST	  if (getErrorState(bit, is_fei4) != 99) {
-// STSTST	    num_errors_per_state[getErrorState(bit, is_fei4)][pixlayer]++;
-// STSTST	    error_maps_per_state[getErrorState(bit, is_fei4)].add(pixlayer, waferID, m_pixelid, 1.0);
-// STSTST	  }
-// STSTST	}
-// STSTST      }
-// STSTST    } //end of FEI3-only part
-// STSTST     
-// STSTST    // Bit-shifting over FE errors, kFeErrorWords are common to both FEI3 and FEI4
-// STSTST    // but bits are different, see 
-// STSTST    // InnerDetector/InDetEventCnv/PixelRawDataByteStreamCnv/src/PixelRodDecoder.cxx
+    if (!is_fei4) {
+      // Bit-shifting over module errors, only for ROD-type errors for FE-I3
+      for (unsigned int bit = 0; bit < kNumErrorBitsFEI3; bit++) {
+	if ((kErrorWord & (static_cast<uint64_t>(1) << bit)) != 0) {
+	  if (bit >=4 && bit <=16) continue;
+	  num_errors[pixlayer]++;
+	  num_errors_per_bit[bit][pixlayer]++;
+	  
+	  int error_cat_rodmod = 0;
+	  if (bit == 20 || bit == 21)              error_cat_rodmod = 2;  // ROD synchronization errors      (20: BCID, 21: LVL1ID)
+	  if (bit == 0  || bit == 1)               error_cat_rodmod = 4;  // ROD truncation errors           (0: FIFO Overflow, 1: H/T Limit)
+	  if (bit == 23)                           error_cat_rodmod = 5;  // optical errors                  (23: preamble (bitflip))
+	  if (bit == 22)                           error_cat_rodmod = 7;  // timeout errors                  (22: timeout on ROD formatter)
+	  if (error_cat_rodmod) {
+	    has_err_cat_rodmod[error_cat_rodmod - 1] = true;
+	    if (!m_doOnline) {
+	      all_errors_maps.add(pixlayer, waferID, m_pixelid, 1.0);
+	    }
+	    if (getErrorCategory(error_cat_rodmod)!=99) has_err_cat[getErrorCategory(error_cat_rodmod)] = true;
+	  }
+	  if (getErrorState(bit, is_fei4) != 99) {
+	    num_errors_per_state[getErrorState(bit, is_fei4)][pixlayer]++;
+	    error_maps_per_state[getErrorState(bit, is_fei4)].add(pixlayer, waferID, m_pixelid, 1.0);
+	  }
+	}
+      }
+    } //end of FEI3-only part
+     
+    // Bit-shifting over FE errors, kFeErrorWords are common to both FEI3 and FEI4
+    // but bits are different, see 
+    // InnerDetector/InDetEventCnv/PixelRawDataByteStreamCnv/src/PixelRodDecoder.cxx
     unsigned int num_femcc_errwords = 0;
-// STSTST    if (kFeErrorWords.find(id_hash) != kFeErrorWords.end()) {
-// STSTST      // Collection of: FE ID, associated error word
-// STSTST      std::map<unsigned int, unsigned int> fe_errorword_map = kFeErrorWords.find(id_hash)->second;
-// STSTST      
-// STSTST      for (const auto& [fe_id, fe_errorword] : fe_errorword_map) {
-// STSTST	bool has_femcc_errbits(false);
-// STSTST	
-// STSTST	for (unsigned int bit = 0; bit < kNumErrorBitsFEI3; bit++) {
-// STSTST	  if ((fe_errorword & (static_cast<uint64_t>(1) << bit)) != 0) {
-// STSTST            if (is_fei4 && bit > 7) continue; // For FE-I4 we are interested only in trailer errors, which are the first 8 bits, service records are taken separately
-// STSTST	    // For FE-I3, no double-counting w/ other bits? REVIEW
-// STSTST	    
-// STSTST	    num_errors[pixlayer]++;
-// STSTST	    num_errors_per_bit[bit][pixlayer]++;
-// STSTST	    // This error word contains FE/MCC related errors. 
-// STSTST	    if (bit >=4 && bit <=16) has_femcc_errbits = true;
-// STSTST	    
-// STSTST	    int error_cat_rodmod = 0;
-// STSTST	    if (!is_fei4) {
-// STSTST	      if (bit == 14 || bit == 15 || bit == 16) error_cat_rodmod = 1;  // module synchronization errors   (14: BCID, 15: BCID. 16: LVL1ID)
-// STSTST	      if (bit == 4  || bit == 12 || bit == 13) error_cat_rodmod = 3;  // module truncation errors        (4: EOC, 12: hit overflow, 13: EoE overflow)
-// STSTST	      if (bit >= 5  && bit <= 7)               error_cat_rodmod = 6;  // SEU (single event upset) errors (5,6,7: hit parity, register parity, hammingcode)
-// STSTST	    } else {
-// STSTST              if (bit == 3 || bit == 4)                error_cat_rodmod = 2;  // synchronization error   (3:LVL1ID, 4:BCID)
-// STSTST              if (bit == 0 || bit == 1)                error_cat_rodmod = 4;  // ROD truncation error    (0:Row/Column error, 1:Limit error)
-// STSTST              if (bit == 5)                            error_cat_rodmod = 5;  // optical error           (5:Preable error)
-// STSTST              if (bit == 2 || bit == 7)                error_cat_rodmod = 7;  // Timeout error           (2:Trailer timeout error, 7:Timeout error)
-// STSTST	    }
-// STSTST	    if (error_cat_rodmod) {
-// STSTST	      has_err_cat_rodmod[error_cat_rodmod - 1] = true;
-// STSTST	      if (!m_doOnline) {
-// STSTST		all_errors_maps.add(pixlayer, waferID, m_pixelid, 1.0);
-// STSTST	      }
-// STSTST	      if (getErrorCategory(error_cat_rodmod)!=99) has_err_cat[getErrorCategory(error_cat_rodmod)] = true;
-// STSTST	    }
-// STSTST	    if (getErrorState(bit, is_fei4) != 99) {
-// STSTST	      if (!is_fei4) {
-// STSTST		num_errors_per_state[getErrorState(bit, is_fei4)][pixlayer]++;
-// STSTST	      } else {
-// STSTST		num_errors_per_state[getErrorState(bit, is_fei4)-error_names_stateFEI3.size()][pixlayer]++;
-// STSTST	      }
-// STSTST	      error_maps_per_state[getErrorState(bit, is_fei4)].add(pixlayer, waferID, m_pixelid, 1.0);
-// STSTST	    }
-// STSTST	  }
-// STSTST	}
-// STSTST	// If we have bits generated by FE/MCC, count this error word.
-// STSTST	if (has_femcc_errbits) num_femcc_errwords++;
-// STSTST      }
-// STSTST    }
+    if (kFeErrorWords.find(id_hash) != kFeErrorWords.end()) {
+      // Collection of: FE ID, associated error word
+      std::map<unsigned int, unsigned int> fe_errorword_map = kFeErrorWords.find(id_hash)->second;
+      
+      for (const auto& [fe_id, fe_errorword] : fe_errorword_map) {
+	bool has_femcc_errbits(false);
+	
+	for (unsigned int bit = 0; bit < kNumErrorBitsFEI3; bit++) {
+	  if ((fe_errorword & (static_cast<uint64_t>(1) << bit)) != 0) {
+            if (is_fei4 && bit > 7) continue; // For FE-I4 we are interested only in trailer errors, which are the first 8 bits, service records are taken separately
+	    // For FE-I3, no double-counting w/ other bits? REVIEW
+	    
+	    num_errors[pixlayer]++;
+	    num_errors_per_bit[bit][pixlayer]++;
+	    // This error word contains FE/MCC related errors. 
+	    if (bit >=4 && bit <=16) has_femcc_errbits = true;
+	    
+	    int error_cat_rodmod = 0;
+	    if (!is_fei4) {
+	      if (bit == 14 || bit == 15 || bit == 16) error_cat_rodmod = 1;  // module synchronization errors   (14: BCID, 15: BCID. 16: LVL1ID)
+	      if (bit == 4  || bit == 12 || bit == 13) error_cat_rodmod = 3;  // module truncation errors        (4: EOC, 12: hit overflow, 13: EoE overflow)
+	      if (bit >= 5  && bit <= 7)               error_cat_rodmod = 6;  // SEU (single event upset) errors (5,6,7: hit parity, register parity, hammingcode)
+	    } else {
+              if (bit == 3 || bit == 4)                error_cat_rodmod = 2;  // synchronization error   (3:LVL1ID, 4:BCID)
+              if (bit == 0 || bit == 1)                error_cat_rodmod = 4;  // ROD truncation error    (0:Row/Column error, 1:Limit error)
+              if (bit == 5)                            error_cat_rodmod = 5;  // optical error           (5:Preable error)
+              if (bit == 2 || bit == 7)                error_cat_rodmod = 7;  // Timeout error           (2:Trailer timeout error, 7:Timeout error)
+	    }
+	    if (error_cat_rodmod) {
+	      has_err_cat_rodmod[error_cat_rodmod - 1] = true;
+	      if (!m_doOnline) {
+		all_errors_maps.add(pixlayer, waferID, m_pixelid, 1.0);
+	      }
+	      if (getErrorCategory(error_cat_rodmod)!=99) has_err_cat[getErrorCategory(error_cat_rodmod)] = true;
+	    }
+	    if (getErrorState(bit, is_fei4) != 99) {
+	      if (!is_fei4) {
+		num_errors_per_state[getErrorState(bit, is_fei4)][pixlayer]++;
+	      } else {
+		num_errors_per_state[getErrorState(bit, is_fei4)-error_names_stateFEI3.size()][pixlayer]++;
+	      }
+	      error_maps_per_state[getErrorState(bit, is_fei4)].add(pixlayer, waferID, m_pixelid, 1.0);
+	    }
+	  }
+	}
+	// If we have bits generated by FE/MCC, count this error word.
+	if (has_femcc_errbits) num_femcc_errwords++;
+      }
+    }
 
     // Loop over IBL service records, FE-I4 only
     if (is_fei4 && kFeSvcRecord.find(id_hash) != kFeSvcRecord.end()) {
@@ -333,7 +437,9 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
   for (unsigned int cat = 0; cat < ErrorCategory::COUNT; ++cat) {
     fill1DProfLumiLayers(error_names_cat_norm[cat], lb, num_errormodules_per_cat[cat]);
   }
-  
+
+  */
+
   return StatusCode::SUCCESS;
 }
 

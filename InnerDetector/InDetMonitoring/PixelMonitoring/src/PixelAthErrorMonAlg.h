@@ -6,11 +6,12 @@
 #define PIXELATHERRORMONTOOL_H
 
 #include "PixelAthMonitoringBase.h"
-#include "PixelConditionsTools/IPixelByteStreamErrorsTool.h"
+// STSTST #include "PixelConditionsTools/IPixelByteStreamErrorsTool.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
+#include "PixelConditionsData/PixelByteStreamErrors.h"
 
 class PixelID;
-class IPixelByteStreamErrorsTool;
+// STSTST class IPixelByteStreamErrorsTool;
 
 class ErrorCategory {
  public:

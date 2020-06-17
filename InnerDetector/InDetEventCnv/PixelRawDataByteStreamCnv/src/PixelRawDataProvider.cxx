@@ -47,9 +47,12 @@ StatusCode PixelRawDataProvider::initialize() {
 
   ATH_CHECK(detStore()->retrieve(m_pixel_id, "PixelID"));
   ATH_CHECK( m_rdoContainerKey.initialize() );
+
   ATH_CHECK( m_rdoCacheKey.initialize( SG::AllowEmpty ) );
+
   ATH_CHECK( m_bsErrorsKey.initialize() );
   ATH_CHECK( m_bsErrorsCacheKey.initialize( SG::AllowEmpty ) );
+
 
   if (m_roiSeeded) {
     ATH_CHECK( m_roiCollectionKey.initialize() );
@@ -89,18 +92,6 @@ StatusCode PixelRawDataProvider::execute(const EventContext& ctx) const {
     ATH_MSG_DEBUG("Created container " << m_rdoContainerKey.key() << " using external cache " << m_rdoCacheKey.key());
   }
   ATH_CHECK(rdoContainer.isValid());
-
-  SG::WriteHandle<IDCInDetBSErrContainer> bsErrorsHandle(m_bsErrorsKey, ctx);
-  if (m_bsErrorsCacheKey.empty()) {
-    ATH_CHECK(bsErrorsHandle.record(std::make_unique<IDCInDetBSErrContainer>(m_pixel_id->wafer_hash_max(),std::numeric_limits<int>::min())));
-    ATH_MSG_DEBUG("Created IDCInDetBSErrContainer w/o using external cache");
-  } 
-  else { // use cache
-    SG::UpdateHandle<IDCInDetBSErrContainer_Cache> cacheHandle(m_bsErrorsCacheKey,ctx);
-    ATH_CHECK(cacheHandle.isValid());
-    ATH_CHECK(bsErrorsHandle.record(std::make_unique<IDCInDetBSErrContainer>(cacheHandle.ptr())));
-    ATH_MSG_DEBUG("Created Pixel IDCInDetBSErrContainer using external cache");
-  }
 
   // Print ROB map in m_robDataProvider
   //m_robDataProvider->print_robmap();
@@ -144,27 +135,24 @@ StatusCode PixelRawDataProvider::execute(const EventContext& ctx) const {
   IPixelRDO_Container *containerInterface = tempcont ? static_cast< IPixelRDO_Container* >(tempcont.get()) :
          static_cast< IPixelRDO_Container* >(rdoContainer.ptr());
 
-// STSTST  std::unique_ptr<IDCInDetBSErrContainer> decodingErrors;
-// STSTST  if ( not m_bsErrorsCacheKey.empty() ) {
-// STSTST    SG::UpdateHandle<IDCInDetBSErrContainer_Cache> bsErrorsCacheHandle( m_bsErrorsCacheKey, ctx);
-// STSTST    decodingErrors = std::make_unique<IDCInDetBSErrContainer>( bsErrorsCacheHandle.ptr() );
-// STSTST  } else {
-// STSTST    decodingErrors = std::make_unique<IDCInDetBSErrContainer>( m_pixel_id->wafer_hash_max(), std::numeric_limits<int>::min() );
-// STSTST  }
-// STSTST
-// STSTST  // ask PixelRawDataProviderTool to decode it and to fill the IDC
-// STSTST  if (m_rawDataTool->convert(listOfRobf,  containerInterface, *decodingErrors).isFailure())
-// STSTST    ATH_MSG_ERROR("BS conversion into RDOs failed");
+  std::unique_ptr<IDCInDetBSErrContainer> decodingErrors;
+  if ( not m_bsErrorsCacheKey.empty() ) {
+    SG::UpdateHandle<IDCInDetBSErrContainer_Cache> bsErrorsCacheHandle( m_bsErrorsCacheKey, ctx);
+    decodingErrors = std::make_unique<IDCInDetBSErrContainer>( bsErrorsCacheHandle.ptr() );
+  } else {
+    decodingErrors = std::make_unique<IDCInDetBSErrContainer>( m_pixel_id->wafer_hash_max()*17, std::numeric_limits<int>::min() );
+  }
 
   // ask PixelRawDataProviderTool to decode it and to fill the IDC
-  if (m_rawDataTool->convert(listOfRobf,containerInterface,*bsErrorsHandle).isFailure()) {
+  if (m_rawDataTool->convert(listOfRobf,  containerInterface, *decodingErrors).isFailure())
     ATH_MSG_ERROR("BS conversion into RDOs failed");
-  }
+
+
 
   if(tempcont) ATH_CHECK(tempcont->MergeToRealContainer(rdoContainer.ptr()));
 
-// STSTST  SG::WriteHandle<IDCInDetBSErrContainer> bsErrorsHandle(m_bsErrorsKey, ctx);
-// STSTST  ATH_CHECK( bsErrorsHandle.record( std::move( decodingErrors ) ) );
+  SG::WriteHandle<IDCInDetBSErrContainer> bsErrorsHandle(m_bsErrorsKey, ctx);
+  ATH_CHECK( bsErrorsHandle.record( std::move( decodingErrors ) ) );
 
 #ifdef PIXEL_DEBUG
     ATH_MSG_DEBUG("Number of Collections in IDC " << rdoContainer->numberOfCollections());

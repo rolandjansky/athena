@@ -13,14 +13,13 @@
 #include "eformat/SourceIdentifier.h"
 
 #include "PixelConditionsTools/IPixelByteStreamErrorsTool.h"
-#include "PixelConditionsData/PixelByteStreamErrors.h"
+
 #include "PixelConditionsData/PixelCablingCondData.h"
 #include "PixelConditionsData/PixelHitDiscCnfgData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 class IPixelCablingSvc;
 class PixelID;
-class PixelRodDecoderErrorsHelper;
 
 class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
 
@@ -122,7 +121,7 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
     uint32_t extractFefromLinkNum (const uint32_t linkNum) const;
     uint32_t extractSLinkfromLinkNum (const uint32_t linkNum) const;
 
-    void addRODError(uint32_t rodid, uint32_t robStatus) const;
+// STSTST    void addRODError(uint32_t rodid, uint32_t robStatus) const;
 
 
 
@@ -139,6 +138,19 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
     unsigned m_maxNumBCIDWarnings{50};    // Maximum number of BCID and LVL1ID warnings to print
     BooleanProperty m_checkDuplicatedPixel{this, "CheckDuplicatedPixel", true, "Check duplicated pixels in fillCollection method"};
 
+    mutable std::atomic_uint m_numInvalidIdentifiers{0};
+    mutable std::atomic_uint m_numPreambleErrors{0};
+    mutable std::atomic_uint m_numTimeOutErrors{0};
+    mutable std::atomic_uint m_numLVL1IDErrors{0};
+    mutable std::atomic_uint m_numBCIDErrors{0};
+    mutable std::atomic_uint m_numFlaggedErrors{0};
+    mutable std::atomic_uint m_numTrailerErrors{0};
+    mutable std::atomic_uint m_numDisabledFEErrors{0};
+    mutable std::atomic_uint m_numDecodingErrors{0};
+    mutable std::atomic_uint m_numRODErrors{0};
+    mutable std::atomic_uint m_numLinkMaskedByPPC{0};
+    mutable std::atomic_uint m_numLimitError{0};
+
     ServiceHandle<IPixelCablingSvc>  m_pixelCabling;
 
     const PixelID*              m_pixel_id=nullptr;
@@ -153,12 +165,10 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
     SG::ReadCondHandleKey<PixelHitDiscCnfgData> m_condHitDiscCnfgKey
     {this, "PixelHitDiscCnfgData", "PixelHitDiscCnfgData", "Pixel FEI4 HitDiscConfig key"};
 
-    //!< adds given ErrorCode to all hasIDs for given ROB
-    void addRODError(uint32_t robid, IDCInDetBSErrContainer::ErrorCode, IDCInDetBSErrContainer& errorsCollection) const;
+// STSTST    //!< adds given ErrorCode to all hasIDs for given ROB
+// STSTST    void addRODError(uint32_t robid, IDCInDetBSErrContainer::ErrorCode, IDCInDetBSErrContainer& errorsCollection) const;
 
-    void addRODError(uint32_t robid, PixelByteStreamErrors::PixelErrorsEnum, PixelRodDecoderErrorsHelper& errorsCollection) const;
-
-    //! checks status word in ROD for truncations and similar, returns success or recoverable errors, fills errors container at the same time
+// STSTST    //! checks status word in ROD for truncations and similar, returns success or recoverable errors, fills errors container at the same time
 // STSTST    StatusCode checkRODStatus( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, IDCInDetBSErrContainer& decodingErrors ) const;
 
     //! checks if data words do not look like header & trailer markers, return true if so, this is sign of data corruption

@@ -22,6 +22,8 @@ atlas_depends_on_subdirs(
    Event/EventPrimitives
    InnerDetector/InDetConditions/InDetConditionsSummaryService
    InnerDetector/InDetConditions/PixelConditionsTools
+   InnerDetector/InDetConditions/PixelConditionsData
+   InnerDetector/InDetConditions/InDetByteStreamErrors
    InnerDetector/InDetDetDescr/InDetIdentifier
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
    InnerDetector/InDetDetDescr/PixelCabling
@@ -45,7 +47,7 @@ atlas_add_component( PixelMonitoring
    GaudiKernel InDetRawData InDetPrepRawData TrkTrack 
    AthenaPoolUtilities GeoPrimitives xAODEventInfo EventPrimitives InDetIdentifier
    InDetReadoutGeometry InDetRIO_OnTrack LWHists TrkParameters TrkSpacePoint
-   TrkTrackSummary TrkToolInterfaces PixelCablingLib PixelGeoModelLib PathResolver 
-   InDetTrackSelectionToolLib )
+   TrkTrackSummary TrkToolInterfaces PixelCablingLib PixelConditionsData PixelGeoModelLib PathResolver 
+   InDetTrackSelectionToolLib InDetByteStreamErrors )
 
 atlas_install_python_modules( python/*.py )
