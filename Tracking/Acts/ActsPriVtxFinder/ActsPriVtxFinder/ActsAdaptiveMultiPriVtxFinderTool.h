@@ -80,6 +80,8 @@ public:
   ActsAdaptiveMultiPriVtxFinderTool(const std::string& type, const std::string& name,
 	           const IInterface* parent);
 
+  using InDet::IVertexFinder::findVertex;
+
   virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
      findVertex(const EventContext& ctx, const TrackCollection* trackTES) const override;
 
@@ -113,47 +115,46 @@ private:
   std::shared_ptr<VertexFinder> m_vertexFinder = nullptr;
 
   ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle;
-  ToolHandle<IActsTrackingGeometryTool> m_trackingGeometryTool{this, "TrackingGeometryTool", "ActsTrackingGeometryTool"};
-  ToolHandle< InDet::IInDetTrackSelectionTool > m_trkFilter;
-
-  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
+  ToolHandle<IActsTrackingGeometryTool> m_trackingGeometryTool{this, "TrackingGeometryTool", "", "ActsTrackingGeometryTool"};
+  ToolHandle<InDet::IInDetTrackSelectionTool> m_trkFilter{this, "InDetTrackSelection", "", "InDetTrackSelectionTool"};
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey {this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot"};
 
   // Configuration variables
   // For details check ACTS documentation
   //
   // Annealing tool config
-  std::vector<double> m_annealingTemps;
-  double m_annealingCutOff;
+  DoubleArrayProperty m_annealingTemps{this, "annealingTemps", {8.0, 4.0, 2.0, 1.4142136, 1.2247449, 1.0}, "Annealing temperatures"};
+  DoubleProperty m_annealingCutOff{this, "annealingCutOff", 9., "Annealing cut-off value"};
   // Fitter config variables
-  unsigned int m_fitterMaxIterations;
-  double m_fitterMaxDistToLinPoint;
-  double m_fitterMaxRelativeShift;
-  bool m_fitterDoSmoothing;
+  UnsignedIntegerProperty m_fitterMaxIterations{this, "fitterMaxIterations", 30, "Vertex fitter max. iterations"};
+  DoubleProperty m_fitterMaxDistToLinPoint{this, "fitterMaxDistToLinPoint", 0.5, "Vertex fitter max. distance to LinPoint"};
+  DoubleProperty m_fitterMaxRelativeShift{this, "fitterMaxRelativeShift", 0.01, "Vertex fitter max. relative shift"};
+  BooleanProperty m_fitterDoSmoothing{this, "fitterDoSmoothing", true, "Vertex fitter doSmoothing"};
   // Finder config variables
-  bool m_useBeamConstraint;
-  double m_tracksMaxZinterval;
-  double m_tracksMaxSignificance;
-  double m_maxVertexChi2;
-  bool m_doRealMultiVertex;
-  bool m_useFastCompatibility;
-  double m_maxMergeVertexSignificance;
-  double m_minWeight;
-  int m_maxIterations;
-  bool m_addSingleTrackVertices;
-  bool m_do3dSplitting;
-  double m_maximumVertexContamination;
-  double m_looseConstrValue;
-  bool m_refitAfterBadVertex;
-  bool m_useVertexCovForIPEstimation;
-  bool m_useSeedConstraint;
+  BooleanProperty m_useBeamConstraint{this, "useBeamConstraint", true, "Use beam constraint"};
+  DoubleProperty m_tracksMaxZinterval{this, "tracksMaxZinterval", 1., "Tracks max. Z-interval"};
+  DoubleProperty m_tracksMaxSignificance{this, "tracksMaxSignificance", 5., "Tracks max. significance"};
+  DoubleProperty m_maxVertexChi2{this, "maxVertexChi2", 18.42, "Max vertex chi2"};
+  BooleanProperty m_doRealMultiVertex{this, "doRealMultiVertex", true, "Do real multivertex fit"};
+  BooleanProperty m_useFastCompatibility{this, "useFastCompatibility", true, "Use fast compatibility estimation"};
+  DoubleProperty m_maxMergeVertexSignificance{this, "maxMergeVertexSignificance", 3., "Max merge vertex significance"};
+  DoubleProperty m_minWeight{this, "minWeight", 0.0001, "Min track weight for finder and fitter"};
+  UnsignedIntegerProperty m_maxIterations{this, "maxIterations", 100, "Vertex finder max. iterations"};
+  BooleanProperty m_addSingleTrackVertices{this, "addSingleTrackVertices", false, "Add single-track vertices"};
+  BooleanProperty m_do3dSplitting{this, "do3dSplitting", false, "Do 3d-splitting"};
+  DoubleProperty m_maximumVertexContamination{this, "maximumVertexContamination", 0.5, "Max. vertex contamination"};
+  DoubleProperty m_looseConstrValue{this, "looseConstrValue", 1e+8, "Loose constraint value"};
+  BooleanProperty m_refitAfterBadVertex{this, "refitAfterBadVertex", true, "Run multivertex refit after bad vertex"};
+  BooleanProperty m_useVertexCovForIPEstimation{this, "useVertexCovForIPEstimation", false, "Use seed vertex cov for IPEstimation"};
+  BooleanProperty m_useSeedConstraint{this, "useSeedConstraint", true, "Use seed constraint in fit"};
   // Final vertex selection variables
-  double m_finalCutMaxVertexChi2;
+  DoubleProperty m_finalCutMaxVertexChi2{this, "finalCutMaxVertexChi2", 18.42, "Final cut max. vertex chi2"};
   // Gaussian seed finder variables
-  double m_gaussianMaxD0Significance;
-  double m_gaussianMaxZ0Significance;
+  DoubleProperty m_gaussianMaxD0Significance{this, "gaussianMaxD0Significance", 3.5, "Gaussian seeder max d0 track significance"};
+  DoubleProperty m_gaussianMaxZ0Significance{this, "gaussianMaxDZSignificance", 12.0, "Gaussian seeder max z0 track significance"};
   // IP Estimator config
-  int m_ipEstMaxIterations;
-  double m_ipEstPrecision;
+  UnsignedIntegerProperty m_ipEstMaxIterations{this, "ipEstMaxIterations", 20, "IpEstimator max. iterations"};
+  DoubleProperty m_ipEstPrecision{this, "ipEstPrecision", 1e-10, "IpEstimator precision"};
 
 };
 

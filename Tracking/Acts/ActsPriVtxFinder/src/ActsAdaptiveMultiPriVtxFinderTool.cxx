@@ -43,65 +43,8 @@ namespace
   ActsAdaptiveMultiPriVtxFinderTool::ActsAdaptiveMultiPriVtxFinderTool(const std::string& type, const std::string& name,
     const IInterface* parent)
   : base_class(type, name, parent),
-  m_fieldServiceHandle("AtlasFieldSvc", name),
-  m_trkFilter("InDet::InDetTrackSelection"),
-  m_annealingTemps({8.0, 4.0, 2.0, 1.4142136, 1.2247449, 1.0}),
-  m_annealingCutOff(9.),
-  m_fitterMaxIterations(30),
-  m_fitterMaxDistToLinPoint(0.5),
-  m_fitterMaxRelativeShift(0.01),
-  m_fitterDoSmoothing(true),
-  m_useBeamConstraint(true),
-  m_tracksMaxZinterval(1.),
-  m_tracksMaxSignificance(5.),
-  m_maxVertexChi2(18.42),
-  m_doRealMultiVertex(true),
-  m_useFastCompatibility(true),
-  m_maxMergeVertexSignificance(3.),
-  m_minWeight(0.0001),
-  m_maxIterations(100),
-  m_addSingleTrackVertices(false),
-  m_do3dSplitting(false),
-  m_maximumVertexContamination(0.5),
-  m_looseConstrValue(1e+8),
-  m_refitAfterBadVertex(true),
-  m_useVertexCovForIPEstimation(false),
-  m_useSeedConstraint(true),
-  m_finalCutMaxVertexChi2(18.42),
-  m_gaussianMaxD0Significance(3.5),
-  m_gaussianMaxZ0Significance(12.0),
-  m_ipEstMaxIterations(20),
-  m_ipEstPrecision(1e-10)
-  {
-    declareProperty("TrackSelector", m_trkFilter);
-    declareProperty("annealingTemps", m_annealingTemps);
-    declareProperty("annealingCutOff", m_annealingCutOff);
-    declareProperty("fitterMaxIterations", m_fitterMaxIterations);
-    declareProperty("fitterMaxDistToLinPoint", m_fitterMaxDistToLinPoint);
-    declareProperty("fitterMaxRelativeShift", m_fitterMaxRelativeShift);
-    declareProperty("fitterDoSmoothing", m_fitterDoSmoothing);
-    declareProperty("useBeamConstraint", m_useBeamConstraint);
-    declareProperty("tracksMaxZinterval", m_tracksMaxZinterval);
-    declareProperty("tracksMaxSignificance", m_tracksMaxSignificance);
-    declareProperty("maxVertexChi2", m_maxVertexChi2);
-    declareProperty("doRealMultiVertex", m_doRealMultiVertex);
-    declareProperty("useFastCompatibility", m_useFastCompatibility);
-    declareProperty("maxMergeVertexSignificance", m_maxMergeVertexSignificance);
-    declareProperty("minWeight", m_minWeight);
-    declareProperty("maxIterations", m_maxIterations);
-    declareProperty("addSingleTrackVertices", m_addSingleTrackVertices);
-    declareProperty("do3dSplitting", m_do3dSplitting);
-    declareProperty("maximumVertexContamination", m_maximumVertexContamination);
-    declareProperty("looseConstrValue", m_looseConstrValue);
-    declareProperty("refitAfterBadVertex", m_refitAfterBadVertex);
-    declareProperty("useVertexCovForIPEstimation", m_useVertexCovForIPEstimation);
-    declareProperty("useSeedConstraint", m_useSeedConstraint);
-    declareProperty("finalCutMaxVertexChi2", m_finalCutMaxVertexChi2);
-    declareProperty("gaussianMaxD0Significance", m_gaussianMaxD0Significance);
-    declareProperty("gaussianMaxZ0Significance", m_gaussianMaxZ0Significance);
-    declareProperty("ipEstMaxIterations", m_ipEstMaxIterations);
-    declareProperty("ipEstPrecision", m_ipEstPrecision);
-}
+  m_fieldServiceHandle("AtlasFieldSvc", name)
+  {}
 
 StatusCode
 ActsAdaptiveMultiPriVtxFinderTool::initialize()
