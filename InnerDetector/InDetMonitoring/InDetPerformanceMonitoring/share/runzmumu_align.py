@@ -1,12 +1,13 @@
+##############################
+#
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 #############################
-# Rel 21
-###############################
 import commands
 import os
 #
 print ' == runzmumu == START == TestArea = ',os.getenv("TestArea")
 print ' == runzmumu == CHECK if the TestArea is setup such that the setup.sh is sourced '
-#theCommand = "source %s/build/x86_64-slc6-gcc62-opt/setup.sh" %(os.getenv("TestArea"))
 theCommand = "source %s/x86_64-slc6-gcc62-opt/setup.sh" %(os.getenv("TestArea"))
 theOutput =  commands.getoutput(theCommand)
 print ' == runzmumu == Rel21 init command: ',theCommand
@@ -22,10 +23,11 @@ try:
     Athena_VERSION = os.getenv("Athena_VERSION")
 except:
     Athena_VERSION = "21.0.69"
+
 ###############################
 # enable outputs
 zmumuval = True
-globalAlignmentMon = False #no refitting for extracting the recommendations, only bulk as it comes out
+globalAlignmentMon = True #no refitting for extracting the recommendations, only bulk as it comes out
 dimuonmon = False
 monitoringAllTracks = True
 
@@ -33,7 +35,7 @@ monitoringAllTracks = True
 useGRL = False
 
 # MC
-MC_bool = True
+MC_bool = False
 
 # do Trigger
 DoTrigger = False
@@ -41,15 +43,19 @@ DoTrigger = False
 # where to run
 grid_bool = True
 
-# handle input constants
-readPool = False # default True
-readLocalDynamicDB = False # default False
+# run alignment
+run_alignment = True
 
-#inputConstants = "ReAlign_2018_L6_Step28_L3.root"
-inputConstants = "step29_358395_AlignmentConstants_Iter0_Block00.root"
-#inputConstants = "MisalignmentSet11_p01.pool.root"
+# handle input constants
+readPool = False  
+readLocalDynamicDB = False 
+AlignYear = 2018
+
+inputConstants = "step06_ConfigID_2_310634_AlignmentConstants_Iter0_Block00.root"
+if (AlignYear == 2018): 
+    inputConstants = "step_17_ConfigID_2_352448_AlignmentConstants_Iter0_Block00.root"
+
 inputdb = "Javi_Test_mycool.db"
-#inputdb = "step8_Iter1_mycool.db"
 
 if (readPool):
     print " readPool = True file: %s" %(inputConstants)
@@ -58,12 +64,15 @@ if (readPool):
     if ("lxplus" not in socket.gethostname()):
         inputConstants = "usr/WorkDir/%s/InstallArea/%s/src/InnerDetector/InDetMonitoring/InDetPerformanceMonitoring/share/%s" % (Athena_VERSION, WorkDir_PLATFORM, inputConstants)
         inputdb = "usr/WorkDir/%s/InstallArea/%s/src/InnerDetector/InDetMonitoring/InDetPerformanceMonitoring/share/%s" % (Athena_VERSION, WorkDir_PLATFORM, inputdb)
+else:
+    inputConstants = ""
+    inputdb = ""
 
 # weight file for IDAlignment monitoring
 useWeightInMonitoring = False
 
 # use configuration for conditions (True) or autoconfigured (False)
-useConfigConditions = True
+useConfigConditions = False
 
 # use IDAlignment dynamic folders for 2016 data
 useIDADynamicFolders = True
@@ -77,6 +86,8 @@ print ' == useConfigConditions = ', useConfigConditions
 print ' == useWeightInMonitoring =', useWeightInMonitoring
 print ' == useIDADynamicFolders =', useIDADynamicFolders
 print ' == useGRL =', useGRL
+print ' == runAlignment =', run_alignment
+print ' == AlignYear =', AlignYear
 print ' == readPool =',readPool
 if (readPool): 
     print ' == inputConstants =',inputConstants
@@ -88,16 +99,11 @@ print ' ========= runzmumu === config == end == '
 #include("InDetSimpleVisual/GetDetectorPositions.py")
 
 if (grid_bool):
-    #PoolInput = ["/eos/user/m/martis/data/InputFileForGridJobs/data18_13TeV.00352436.physics_Main.merge.DAOD_ZMUMU.f938_m1831_f938_m1982._0027.1"]
-    PoolInput = ["/eos/user/m/martis/data/InputFileForGridJobs/DAOD_HIGG2D1.14773488._000014.pool.root.1"]
+    PoolInput = ["/eos/user/m/martis/data/InputFileForGridJobs/data18_13TeV.00352436.physics_Main.merge.DAOD_ZMUMU.f938_m1831_f938_m1982._0027.1"]
 if (MC_bool): 
-    PoolInput = ["/eos/user/m/martis/data/InputFileForGridJobs/ggH400NW_ZZ4lep_AOD.16564460._000001.pool.root.1"]
-    #PoolInput = ["/eos/user/m/martis/data/InputFileForGridJobs/ZmumuMC16_AOD.18379878._000123.pool.root.1"]
-    #PoolInput = ["/eos/user/m/martis/data/InputFileForGridJobs/mc16_13TeV_361603.PowhegPy8EG_CT10nloME_AZNLOCTEQ6L1_ZZllll_mll4.deriv.DAOD_HIGG2D1_file11.pool.root.1"]
-    #PoolInput = ["/eos/user/m/martis/data/InputFileForGridJobs/mc16_13TeV.361603.PowhegPy8EG_CT10nloME_AZNLOCTEQ6L1_ZZllll_mll4.AOD.file01.pool.root.1"]
-
+    PoolInput =["/eos/user/m/martis/data/mc16_13TeV/folder_mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.ESD.e3601_s3126_r10201/ESD.13642341._000503.pool.root.1"]
 EvtMax= -1
-EvtMax = 5000 #2000
+EvtMax = 20000 
 SkipEvents = 0
 
 from AthenaCommon.AlgSequence import AlgSequence
@@ -117,10 +123,6 @@ if useGRL:
 # END GRL
 ###############
 
-# DetFlags modifications are best set here (uncomment RecExCommon_flags first)
-#from PerfMonComps.PerfMonFlags import jobproperties as pmjp
-#pmjp.PerfMonFlags.doFastMon=True
-
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = PoolInput
 athenaCommonFlags.EvtMax = EvtMax
@@ -128,13 +130,12 @@ athenaCommonFlags.SkipEvents = SkipEvents
 
 from AthenaCommon.GlobalFlags import globalflags
 
-myConditionsTag = "auto-configured" #"CONDBR2-BLKPA-2018-10"
+myConditionsTag = "auto-configured"
 if (useConfigConditions):
     if MC_bool: # -> MC
-        #myConditionsTag = "OFLCOND-MC15c-SDR-05" # mc15
         myConditionsTag = "OFLCOND-MC16-SDR-25"
     if not MC_bool: # --> real data 
-        myConditionsTag = "CONDBR2-BLKPA-2018-10" # RD
+        myConditionsTag = "CONDBR2-BLKPA-2018-15" # RD
 
     print " == runzmumu == globalflags.ConditionsTag -> manually configured to ", myConditionsTag
     globalflags.ConditionsTag.set_Value_and_Lock(myConditionsTag)
@@ -142,7 +143,7 @@ if (useConfigConditions):
 else: 
     print " == runzmumu == globalflags.ConditionsTag -> use default: ", myConditionsTag 
 
-myDetDescr = "auto-configured" #ATLAS-R2-2015-04-00-00  ATLAS-R2-2016-00-01-00
+myDetDescr = "auto-configured" 
 if (useConfigConditions):
     myDetDescr = "ATLAS-R2-2016-01-00-01"
     print " == runzmumu == globalflags.DetDescrVersion -> manually configured to ", myDetDescr
@@ -176,14 +177,9 @@ rec.doTau.set_Value_and_Lock(False)
 rec.doTrigger.set_Value_and_Lock(DoTrigger)
 rec.doTruth.set_Value_and_Lock(False)
 
-#rec.doMonitoring.set_Value_and_Lock(True)
-#from AthenaMonitoring.DQMonFlags import DQMonFlags
-#DQMonFlags.doInDetPerfMon.set_Value_and_Lock(True)
-
 #use dynamic alignment 
 from InDetRecExample.InDetJobProperties import InDetFlags 
 InDetFlags.useDynamicAlignFolders.set_Value_and_Lock(useIDADynamicFolders)
-
 
 
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -198,43 +194,39 @@ DetFlags.Muon_setOn()
 print " == runzmumu == user may define his favourite alignment == start == "
 from IOVDbSvc.CondDB import conddb
 if (useIDADynamicFolders):
-    if (False):
-        print (" == runzmumu == configuring 2018 ReAlign family ") 
-        conddb.addOverride("/Indet/AlignL1/ID" ,"IndetAlignL1ID-R2dynamic_2018_ReAlign_Initial")
-        conddb.addOverride("/Indet/AlignL2/PIX" ,"IndetAlignL2PIX-R2dynamic_2018_ReAlign_Initial")
-        conddb.addOverride("/Indet/AlignL2/SCT" ,"IndetAlignL2SCT-R2dynamic_2018_ReAlign_Initial")
-        conddb.addOverride("/Indet/AlignL3" ,"IndetAlignL3-R2dynamic_2018_ReAlign_Initial")
-        conddb.addOverride("/Indet/IBLDist", "IndetAlignL3-R2dynamic_2018_ReAlign_Initial")
-        conddb.addOverride("/TRT/AlignL1/TRT", "TRTAlignL1-R2dynamic_2018_ReAlign_Initial")
-        conddb.addOverride("/TRT/AlignL2", "TRTAlignL2-R2dynamic_2018_ReAlign_Initial")
-    if (False):
+    print " == runzmumu == in useIDADynamicFolders with AlignYear = ", AlignYear
+    if (AlignYear == 2018): # --> ReAlign 2018 default True
+        print (" == runzmumu == 2018 part 1 -- initial tags + SiL3 + TRTL2.... ") 
+        conddb.addOverride("/Indet/AlignL1/ID",  "IndetAlignL1ID-R2dynamic_2018_Part1_ReAlign_Initial")
+        conddb.addOverride("/Indet/AlignL2/PIX", "IndetAlignL2PIX-R2dynamic_2018_Part1_ReAlign_Initial")
+        conddb.addOverride("/Indet/AlignL2/SCT", "IndetAlignL2SCT-R2dynamic_2018_Part1_ReAlign_Initial")
+        conddb.addOverride("/Indet/IBLDist",     "IndetIBLDist-R2dynamic_2018_Part1_ReAlign_Initial")
+        conddb.addOverride("/TRT/AlignL1/TRT",   "TRTAlignL1-R2dynamic_2018_Part1_ReAlign_Initial")
+        #
         if readPool :
             conddb.blockFolder("/Indet/AlignL3")
             conddb.blockFolder("/TRT/AlignL2")
-        if readLocalDynamicDB :
-            conddb.blockFolder("/Indet/AlignL1/ID")
-            conddb.blockFolder("/Indet/AlignL2/PIX")
-            conddb.blockFolder("/Indet/AlignL2/SCT")
-            conddb.blockFolder("/TRT/AlignL1/TRT")
-            conddb.blockFolder("/Indet/IBLDist")
-
-            conddb.addFolderWithTag('','<dbConnection>sqlite://X;schema='+inputdb+';dbname=CONDBR2</dbConnection>/Indet/AlignL1/ID','IndetL1Test',True);
-            conddb.addFolderWithTag('','<dbConnection>sqlite://X;schema='+inputdb+';dbname=CONDBR2</dbConnection>/Indet/AlignL2/PIX','IndetL2PIXTest',True);
-            conddb.addFolderWithTag('','<dbConnection>sqlite://X;schema='+inputdb+';dbname=CONDBR2</dbConnection>/Indet/AlignL2/SCT','IndetL2SCTTest',True);
-            conddb.addFolderWithTag('','<dbConnection>sqlite://X;schema='+inputdb+';dbname=CONDBR2</dbConnection>/TRT/AlignL1/TRT','IndetL1TRTTest',True);
-            conddb.addFolderWithTag('','<dbConnection>sqlite://X;schema='+inputdb+';dbname=CONDBR2</dbConnection>/Indet/IBLDist','IndetIBLDist',True); 
-
-    if (False): # --> ReAlign 2018 default True
-        print (" == runzmumu == tags + SiL3 + TRTL2.... ") 
-        conddb.addOverride("/Indet/AlignL1/ID",  "IndetAlignL1ID-R2dynamic_2018_ReAlign_Initial")
-        conddb.addOverride("/Indet/AlignL2/PIX", "IndetAlignL2PIX-R2dynamic_2018_ReAlign_Initial")
-        conddb.addOverride("/Indet/AlignL2/SCT", "IndetAlignL2SCT-R2dynamic_2018_ReAlign_Initial")
-        conddb.addOverride("/Indet/IBLDist",     "IndetIBLDist-R2dynamic_2018_ReAlign_Initial")
-        conddb.addOverride("/TRT/AlignL1/TRT",   "TRTAlignL1-R2dynamic_2018_ReAlign_Initial")
-        if readPool :
-            conddb.blockFolder("/Indet/AlignL3")
-            conddb.blockFolder("/TRT/AlignL2")
+        else:
+            conddb.addOverride("/Indet/AlignL3",     "IndetAlignL3-R2dynamic_2018_Part1_ReAlign_Initial")
+            conddb.addOverride("/TRT/AlignL2",       "TRTAlignL2-R2dynamic_2018_Part1_ReAlign_Initial")
         
+    if (AlignYear == 2016): # --> ReAlign 2016 default True
+        print (" == runzmumu == 2016 part 1 --  Initial tags. Use family: IndetAlignL1ID_2016_ReAlign_April2020_Initial ") 
+        conddb.addOverride("/Indet/AlignL1/ID",  "IndetAlignL1ID_2016_ReAlign_April2020_Initial")
+        conddb.addOverride("/Indet/AlignL2/PIX", "IndetAlignL2PIX_2016_ReAlign_April2020_Initial")
+        conddb.addOverride("/Indet/AlignL2/SCT", "IndetAlignL2SCT_2016_ReAlign_April2020_Initial")
+        conddb.addOverride("/Indet/IBLDist",     "IndetIBLDist_2016_ReAlign_April2020_Initial")
+        conddb.addOverride("/TRT/AlignL1/TRT",   "TRTAlignL1_2016_ReAlign_April2020_Initial")
+        #
+        if readPool :
+            print (" == runzmumu == 2016 part 1 -- reading pool file for Silicon L3: %s" %inputConstants)
+            conddb.blockFolder("/Indet/AlignL3")
+            conddb.blockFolder("/TRT/AlignL2")
+        else:
+            print (" == runzmumu == 2016 part 1 -- using silicon L3 tag: Repro-Rel21-UPD3-00")
+            conddb.addOverride("/Indet/AlignL3", "IndetAlignL3-Repro-Rel21-UPD3-00")
+            conddb.addOverride("/TRT/AlignL2",   "TRTAlignL2-Repro-Rel21-UPD3-00")
+
 print " == runzmumu == user may define his favourite alignment == completed == "
 ##
 
@@ -309,23 +301,24 @@ if zmumuval == True:
                                     doIPextrToPV = False, # True for IP resolution studies, extrapolates IP parameters to primary vertex
                                     UseTrackSelectionTool = False, # If set to True, it will use the specified TrackSelectionTool in the next Line
                                     TrackSelectionTool = m_TrackSelectorTool_TightPrimary,
-                                    TrackParticleName = 'InnerDetectorTrackParticles', # Currently does not do anything, code fills IndetTrackParticles and CombinedTrackParticles Trees
+                                    TrackParticleName = "combined", #'InnerDetectorTrackParticles', # Currently does not do anything, code fills IndetTrackParticles and CombinedTrackParticles Trees
                                     defaultTreeFolder = "/ZmumuValidationUserSel/default",#always filled with information retrieved from TrackParticle associated to selected muon
                                     truthTreeFolder = "/ZmumuValidationUserSel/truth", # Only filled if isMC is set to True
                                     refit1TreeFolder = "/ZmumuValidationUserSel/refit1",# Only filled if doRefit is set to True
                                     refit2TreeFolder = "/ZmumuValidationUserSel/refit2",# Only filled if doRefit is set to True
                                     combTreeFolder = "/ZmumuValidationUserSel/comb",#always filled with information retrieved from TrackParticle associated to selected muon
+                                    IDTreeFolder = "/ZmumuValidationUserSel/ID",#always filled with information retrieved from TrackParticle associated to selected muon
                                     FourMuTreeFolder = "/ZmumuValidationUserSel/fourmu",# Only filled if doFourMuAnalysis is set to true
                                     doIsoSelection = True,
                                     doIPSelection = True,
                                     doMCPSelection = True, # Medium 
-                                    doFourMuAnalysis = True,
-                                    StoreZmumuNtuple = False,
+                                    doFourMuAnalysis = False,
+                                    StoreZmumuNtuple = True,
                                     #loose selection to keep Z and JPsi events in the ntuple
                                     MassWindowLow = 2.,
                                     MassWindowHigh = 2000.,
-                                    PtLeadingMuon = 5., #10 #4 #15.,
-                                    PtSecondMuon =  5., #10 #4 #15.,
+                                    PtLeadingMuon = 2., #10 #4 #15.,
+                                    PtSecondMuon =  2., #10 #4 #15.,
                                     OpeningAngle = 0.01, # in radians. 1 radian ~60 deg
                                     Z0Gap = 5.0, # in mm
                                     OutputLevel = INFO)
@@ -390,8 +383,11 @@ if (monitoringAllTracks):
 if (zmumuval and globalAlignmentMon):
     trackCollections = ["SelectedMuonsRefit1", "SelectedMuonsRefit2", "Tracks"]
     if (monitoringAllTracks): trackCollections.append("CombinedInDetTracks")
-#   trackCollections = ["SelectedMuonsDefault"]
     StoreGateSvc = Service("StoreGateSvc")
     StoreGateSvc.Dump = False # True in case of debug ** WARNING ** very large output
     include("InDetPerformanceMonitoring/TrackMonitoring.py")
-    #include("TrackMonitoring.py")
+
+### try ID alignment
+##-------- Load Alignment --------------------
+if (run_alignment):
+    include("InDetPerformanceMonitoring/InDetAlign_Setup.py")
