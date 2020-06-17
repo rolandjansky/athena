@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUFASTTRACKFITTER_H
@@ -29,18 +29,11 @@ namespace TrigL2MuonSA {
   {
   public:
     
-    static const InterfaceID& interfaceID();
-    
-  public:
-    
     MuFastTrackFitter(const std::string& type, 
 		      const std::string& name,
 		      const IInterface*  parent);
     
-    ~MuFastTrackFitter();
-    
-    virtual StatusCode initialize();
-    virtual StatusCode finalize  ();
+    virtual StatusCode initialize() override;
     
   public:
     
@@ -55,23 +48,21 @@ namespace TrigL2MuonSA {
     
     StatusCode setMCFlag(BooleanProperty  use_mcLUT);
 
-    void setUseEIFromBarrel( BooleanProperty use_endcapInnerFromBarrel );
+    void setUseEIFromBarrel( BooleanProperty use_endcapInnerFromBarrel ) {m_use_endcapInnerFromBarrel = use_endcapInnerFromBarrel;};
 
   private:
-    BooleanProperty  m_use_mcLUT;
+    BooleanProperty  m_use_mcLUT {true};
+    BooleanProperty  m_use_endcapInnerFromBarrel {false};
 
-    //const PtEndcapLUTSvc*                  m_ptEndcapLUTSvc;
-    //const PtBarrelLUTSvc*                  m_ptBarrelLUTSvc;
+    ToolHandle<SagittaRadiusEstimate> m_sagittaRadiusEstimate
+      {this, "SagittaRadiusEstimate", "TrigL2MuonSA::SagittaRadiusEstimate"};
+    ToolHandle<AlphaBetaEstimate> m_alphaBetaEstimate
+      {this, "AlphaBetaEstimate", "TrigL2MuonSA::AlphaBetaEstimate"};
     
-    //const AlignmentBarrelLUTSvc*           m_alignmentBarrelLUTSvc;
-    
-    BooleanProperty  m_use_endcapInnerFromBarrel;
-
-    ToolHandle<SagittaRadiusEstimate>      m_sagittaRadiusEstimate;
-    ToolHandle<AlphaBetaEstimate>          m_alphaBetaEstimate;
-    
-    ToolHandle<PtFromRadius>               m_ptFromRadius;
-    ToolHandle<PtFromAlphaBeta>            m_ptFromAlphaBeta;
+    ToolHandle<PtFromRadius> m_ptFromRadius
+      {this, "PtFromRadius", "TrigL2MuonSA::PtFromRadius"};
+    ToolHandle<PtFromAlphaBeta> m_ptFromAlphaBeta
+      {this, "PtFromAlphaBeta", "TrigL2MuonSA::PtFromAlphaBeta"};
   };
 
 } // namespace TrigL2MuonSA
