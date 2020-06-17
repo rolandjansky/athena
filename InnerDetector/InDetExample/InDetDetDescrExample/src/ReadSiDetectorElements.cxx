@@ -60,7 +60,9 @@ ReadSiDetectorElements::ReadSiDetectorElements(const std::string& name, ISvcLoca
   m_idHelper(0),
   m_pixelIdHelper(0),
   m_sctIdHelper(0),
-  m_first(true)
+  m_first(true),
+  m_useSiProperties(true),
+  m_testNegativeStrips(true)
 {  
   // Get parameter values from jobOptions file
   declareProperty("ManagerName", m_managerName);
@@ -71,6 +73,8 @@ ReadSiDetectorElements::ReadSiDetectorElements(const std::string& name, ISvcLoca
   declareProperty("SiLorentzAngleSvc", m_siLorentzAngleSvc);
   declareProperty("SiConditionsSvc", m_siConditionsSvc);
   declareProperty("SiPropertiesSvc", m_siPropertiesSvc);
+  declareProperty("UseSiProperties", m_useSiProperties);
+  declareProperty("TestNegativeStrips", m_testNegativeStrips);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -225,11 +229,14 @@ void ReadSiDetectorElements::printAllElements() {
         //     << m_siLorentzAngleSvc->getTanLorentzAngle(hashId) << endl;
   
         // These are no longer accessed through the detector element.
-        const InDet::SiliconProperties & siProperties =  m_siPropertiesSvc->getSiProperties(hashId);
-        cout << " Hall Mobility (cm2/volt/s), Drift mobility (cm2/volt/s), diffusion constant (cm2/s) = " 
-             << siProperties.hallMobility(element->carrierType()) /(CLHEP::cm2/CLHEP::volt/CLHEP::s) << " " 
-             << siProperties.driftMobility(element->carrierType()) /(CLHEP::cm2/CLHEP::volt/CLHEP::s) << " " 
-             << siProperties.diffusionConstant(element->carrierType()) /(CLHEP::cm2/CLHEP::s) << endl;
+	if(m_useSiProperties){
+	  const InDet::SiliconProperties & siProperties =  m_siPropertiesSvc->getSiProperties(hashId);
+	  cout << " Hall Mobility (cm2/volt/s), Drift mobility (cm2/volt/s), diffusion constant (cm2/s) = " 
+	       << siProperties.hallMobility(element->carrierType()) /(CLHEP::cm2/CLHEP::volt/CLHEP::s) << " " 
+	       << siProperties.driftMobility(element->carrierType()) /(CLHEP::cm2/CLHEP::volt/CLHEP::s) << " " 
+	       << siProperties.diffusionConstant(element->carrierType()) /(CLHEP::cm2/CLHEP::s) << endl;
+	}
+	//Assuming these are left here for future refefence...
         //cout << element->hitDepthDirection() << " "
         //   << element->hitPhiDirection() << " "
         //   << element->hitEtaDirection() << " "
@@ -260,7 +267,7 @@ void ReadSiDetectorElements::printAllElements() {
         if (elementtest2 != element) {cout << " Id test 4 FAILED!" << endl; idOK = false;}
         if (idOK) cout << " ID tests OK" << std::endl;
       } else {
-        //  cout << "Missing element!!!!!!!!!!!" << endl;
+	cout << "Missing element!!!!!!!!!!!" << endl;
       }
     }
   }
@@ -440,9 +447,11 @@ void ReadSiDetectorElements::printRandomAccess() {
       cellIds.push_back(SiCellId(32)); // phi,eta
       cellIds.push_back(SiCellId(1)); // phi,eta
       cellIds.push_back(SiCellId(0)); // phi,eta
-      cellIds.push_back(SiCellId(-1)); // phi,eta
-      cellIds.push_back(SiCellId(-2)); // phi,eta
-      cellIds.push_back(SiCellId(-3)); // phi,eta
+      if(m_testNegativeStrips){//These cause exceptions for Itk, so give option to not do it...
+	cellIds.push_back(SiCellId(-1)); // phi,eta
+	cellIds.push_back(SiCellId(-2)); // phi,eta
+	cellIds.push_back(SiCellId(-3)); // phi,eta
+      }
       cellIds.push_back(SiCellId(767)); // phi,eta
       cellIds.push_back(SiCellId(768)); // phi,eta
       positions.push_back(Amg::Vector2D(12.727*CLHEP::mm, 4.534*CLHEP::mm)); // eta,phi
@@ -468,7 +477,7 @@ void ReadSiDetectorElements::printRandomAccess() {
       positions.clear();
       cellIds.push_back(SiCellId(532)); // phi,eta
       cellIds.push_back(SiCellId(0)); // phi,eta
-      cellIds.push_back(SiCellId(-1)); // phi,eta
+      if(m_testNegativeStrips) cellIds.push_back(SiCellId(-1)); // phi,eta
       cellIds.push_back(SiCellId(767)); // phi,eta
       cellIds.push_back(SiCellId(768)); // phi,eta
       positions.push_back(Amg::Vector2D(12.727*CLHEP::mm, 20.534*CLHEP::mm)); // eta,phi
@@ -559,11 +568,13 @@ ReadSiDetectorElements::testElement(const Identifier & id,
    << endl;
     cout << " center: r (mm) = " <<  element->center().perp()/CLHEP::mm 
    << ", phi (deg) = " <<  element->center().phi()/CLHEP::deg << endl;
-    const InDet::SiliconProperties & siProperties =  m_siPropertiesSvc->getSiProperties(hashId);
-    cout << " Lorentz correction (mm), mobility (cm2/V/s), tanLorentzPhi = "
-   << element->getLorentzCorrection()/CLHEP::mm << " " 
-   << siProperties.hallMobility(element->carrierType()) /(CLHEP::cm2/CLHEP::volt/CLHEP::s) << " " 
-   << element->getTanLorentzAnglePhi() << endl;
+    if(m_useSiProperties){
+      const InDet::SiliconProperties & siProperties =  m_siPropertiesSvc->getSiProperties(hashId);
+      cout << " Lorentz correction (mm), mobility (cm2/V/s), tanLorentzPhi = "
+	   << element->getLorentzCorrection()/CLHEP::mm << " " 
+	   << siProperties.hallMobility(element->carrierType()) /(CLHEP::cm2/CLHEP::volt/CLHEP::s) << " " 
+	   << element->getTanLorentzAnglePhi() << endl;
+    }
     cout << " Temperature (C), bias voltage, depletion voltage: " 
    << m_siConditionsSvc->temperature(hashId) << " "
    << m_siConditionsSvc->biasVoltage(hashId) << " "
