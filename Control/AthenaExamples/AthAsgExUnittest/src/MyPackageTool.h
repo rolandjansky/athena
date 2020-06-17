@@ -1,12 +1,12 @@
 // -*- mode: c++ -*-
 //
-//  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+//  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 //
 #ifndef ATHASGEXUNITTEST_MYPACKAGETOOL_H
 #define ATHASGEXUNITTEST_MYPACKAGETOOL_H 1
 
 #include "AsgTools/AsgTool.h"
-#include "AthAsgExUnittest/IMyPackageTool.h"
+#include "IMyPackageTool.h"
 
 class MyPackageTool: public asg::AsgTool, public virtual IMyPackageTool { 
 public: 
