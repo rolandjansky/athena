@@ -6,6 +6,7 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkCore.WeightMetadata import *
 from DerivationFrameworkFlavourTag.HbbCommon import *
 from DerivationFrameworkFlavourTag.HbbCommon import (
   addRecommendedXbbTaggers, xbbTaggerExtraVariables
@@ -310,6 +311,7 @@ HIGG5Common.addAntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub(higg5d2Seq)
 
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
 addVRJets(higg5d2Seq)
+addVRJets(higg5d2Seq, training='201903') #new trackjet training!
 # Also add Hbb Tagger
 addRecommendedXbbTaggers(higg5d2Seq, ToolSvc)
 
@@ -369,6 +371,7 @@ DerivationFrameworkJob += higg5d2Seq
 
 # QGTaggerTool ###
 addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=higg5d2Seq, algname="QGTaggerToolAlg")
+addQGTaggerTool(jetalg="AntiKt4EMPFlow", sequence=higg5d2Seq, algname="QGTaggerToolPFAlg")
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -382,7 +385,7 @@ HIGG5D2SlimmingHelper.AppendToDictionary = HIGG5Common.getHIGG5CommonDictionExti
 HIGG5D2SlimmingHelper.SmartCollections =   HIGG5Common.getHIGG5CommonSmartCollections()
 
 HIGG5D2SlimmingHelper.ExtraVariables = ExtraContent
-HIGG5D2SlimmingHelper.ExtraVariables = xbbTaggerExtraVariables
+HIGG5D2SlimmingHelper.ExtraVariables += xbbTaggerExtraVariables
 HIGG5D2SlimmingHelper.AllVariables = ExtraContainers
 # HIGG5D2SlimmingHelper.AllVariables += ["AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810", "BTagging_AntiKtVR30Rmax4Rmin02Track_201810"]
 if DerivationFrameworkIsMonteCarlo :
@@ -412,6 +415,6 @@ HIGG5D2SlimmingHelper.IncludeEGammaTriggerContent       = True
 HIGG5D2SlimmingHelper.IncludeEtMissTriggerContent       = True
 HIGG5D2SlimmingHelper.IncludeJetTriggerContent          = True
 # if globalflags.DataSource()!='geant4': # for very early data
-#   HIGG5D2SlimmingHelper.IncludeBJetTriggerContent       = True
+HIGG5D2SlimmingHelper.IncludeBJetTriggerContent       = True
 
 HIGG5D2SlimmingHelper.AppendContentToStream(HIGG5D2Stream)
