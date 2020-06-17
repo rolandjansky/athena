@@ -9,15 +9,19 @@
 #--------------------------------------------------------------
 # ATLAS default Application Configuration options
 #--------------------------------------------------------------
-
 from __future__ import print_function
 
+# input parameters:
+class opt:
+    doMenu          = False # use either menu or manual chain building
+
+
+
+from AthenaCommon.Logging import logging
 from TriggerJobOpts.TriggerFlags import TriggerFlags
-TriggerFlags.triggerMenuSetup = "LS2_emu_v1"
-TriggerFlags.generateMenuDiagnostics=True
-
-
-from TrigUpgradeTest.EmuStepProcessingConfig import generateL1DecoderAndChains
+from TrigUpgradeTest.EmuStepProcessingConfig import generateL1DecoderAndChainsManually, generateL1DecoderAndChainsByMenu
+from AthenaCommon.AlgSequence import AlgSequence
+from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
 
 # signatures
 # steps: sequential AND of 1=Filter 2=Processing
@@ -26,16 +30,24 @@ from TrigUpgradeTest.EmuStepProcessingConfig import generateL1DecoderAndChains
 # filters: one SeqFilter per step, per chain
 # inputMakers: one per each first RecoAlg in a step (so one per step), one input per chain that needs that step
 
-from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
-l1Decoder, HLTChains = generateL1DecoderAndChains()
-topSequence += l1Decoder
-##### Make all HLT #######
-from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
-from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
-makeHLTTree( triggerConfigHLT=TriggerConfigHLT )
+log = logging.getLogger('EmuStepProcessingTest.py')
+log.info('Setup options:')
+defaultOptions = [a for a in dir(opt)]
+for option in defaultOptions:
+    if option in globals():
+        setattr(opt, option, globals()[option])
+        print(' %20s = %s' % (option, getattr(opt, option)))
+    else:        
+        print(' %20s = (Default) %s' % (option, getattr(opt, option)))
 
-from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
+
+
+topSequence = AlgSequence()
+if opt.doMenu is True:
+    generateL1DecoderAndChainsByMenu(topSequence)
+else:
+    generateL1DecoderAndChainsManually(topSequence)
+
 generateJSON()
 
 from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc, getL1ConfigSvc
@@ -58,3 +70,4 @@ dumpSequence( topSequence )
 
 theApp.EvtMax = 4
 
+TriggerFlags.generateMenuDiagnostics=True
