@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUFASTSTATIONFITTER_H
@@ -26,27 +26,20 @@ namespace TrigL2MuonSA {
 class MuFastStationFitter: public AthAlgTool
 {
    public:
-      
-      static const InterfaceID& interfaceID();
-
-   public:
 
       MuFastStationFitter(const std::string& type, 
                           const std::string& name,
                           const IInterface*  parent);
     
-      ~MuFastStationFitter();
-    
-      virtual StatusCode initialize();
-      virtual StatusCode finalize  ();
+      virtual StatusCode initialize() override;
     
    public:
       StatusCode findSuperPoints(const LVL1::RecMuonRoI*    p_roi,
-      TrigL2MuonSA::RpcFitResult& rpcFitResult,
-      std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns);
+				 TrigL2MuonSA::RpcFitResult& rpcFitResult,
+				 std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns);
       StatusCode findSuperPoints(const LVL1::RecMuonRoI*    p_roi,
-      TrigL2MuonSA::TgcFitResult& tgcFitResult,
-      std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns);
+				 TrigL2MuonSA::TgcFitResult& tgcFitResult,
+				 std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns);
 
       StatusCode findSuperPoints(const LVL1::RecMuonRoI*    p_roi,
                                  const TrigL2MuonSA::MuonRoad& muonRoad,
@@ -62,33 +55,33 @@ class MuFastStationFitter: public AthAlgTool
 
    private:
 
-      BooleanProperty m_use_mcLUT;
+      BooleanProperty m_use_mcLUT {true};
 		
       Gaudi::Property< double > m_endcapinn_mdt_chi2_limit {
-	this, "ENDCAPINN_MDT_CHI2_LIMIT", 20., ""};    
+	this, "ENDCAPINN_MDT_CHI2_LIMIT", 20., ""};
       Gaudi::Property< double > m_endcapmid_mdt_chi2_limit {
-	this, "ENDCAPMID_MDT_CHI2_LIMIT", 20., ""};   
+	this, "ENDCAPMID_MDT_CHI2_LIMIT", 20., ""};
       Gaudi::Property< double > m_endcapout_mdt_chi2_limit {
-	this, "ENDCAPOUT_MDT_CHI2_LIMIT", 20., ""};   
+	this, "ENDCAPOUT_MDT_CHI2_LIMIT", 20., ""};
       Gaudi::Property< double > m_endcapee_mdt_chi2_limit {
-	this, "ENDCAPEE_MDT_CHI2_LIMIT",  20., ""};    
+	this, "ENDCAPEE_MDT_CHI2_LIMIT",  20., ""};
 
       Gaudi::Property< double > m_rwidth_Endcapinn_first {
-	this, "RWIDTH_EndcapINN_FIRST",  150., ""};  
+	this, "RWIDTH_EndcapINN_FIRST",  150., ""};
       Gaudi::Property< double > m_rwidth_Endcapinn_second {
-	this, "RWIDTH_EndcapINN_SECOND", 80., ""};  
+	this, "RWIDTH_EndcapINN_SECOND", 80., ""};
       Gaudi::Property< double > m_rwidth_Endcapmid_first {
-	this, "RWIDTH_EndcapMID_FIRST", 150., ""}; 
+	this, "RWIDTH_EndcapMID_FIRST", 150., ""};
       Gaudi::Property< double > m_rwidth_Endcapmid_second {
-	this, "RWIDTH_EndcapMID_SECOND", 100., ""}; 
+	this, "RWIDTH_EndcapMID_SECOND", 100., ""};
       Gaudi::Property< double > m_rwidth_Endcapout_first {
-	this, "RWIDTH_EndcapOUT_FIRST", 120., ""}; 
+	this, "RWIDTH_EndcapOUT_FIRST", 120., ""};
       Gaudi::Property< double > m_rwidth_Endcapout_second {
-	this, "RWIDTH_EndcapOUT_SECOND", 60., ""}; 
+	this, "RWIDTH_EndcapOUT_SECOND", 60., ""};
       Gaudi::Property< double > m_rwidth_Endcapee_first {
-	this, "RWIDTH_EndcapEE_FIRST", 150., ""};   
+	this, "RWIDTH_EndcapEE_FIRST", 150., ""};
       Gaudi::Property< double > m_rwidth_Endcapee_second {
-	this, "RWIDTH_EndcapEE_SECOND", 100., ""};  
+	this, "RWIDTH_EndcapEE_SECOND", 100., ""};
 
       Gaudi::Property< double > m_mdt_driftspace_uplimit {
 	this, "MDT_DRFITSPACE_UPLIMIT", 14.8, ""};
@@ -110,11 +103,10 @@ class MuFastStationFitter: public AthAlgTool
                      float *, float *, float DAB[2][2], float *, float *);
       int   Evlfit (int, TrigL2MuonSA::PBFitResult& fitres);
 
-      StringProperty                         m_lut_fileName;
-      ToolHandle<AlphaBetaEstimate>          m_alphaBetaEstimate;
+      ToolHandle<AlphaBetaEstimate>          m_alphaBetaEstimate {
+	this, "AlphaBetaEstimate", "TrigL2MuonSA::AlphaBetaEstimate"};
       ToolHandle<PtFromAlphaBeta>            m_ptFromAlphaBeta {
 	this, "PtFromAlphaBeta", "TrigL2MuonSA::PtFromAlphaBeta", ""};
-      //const TrigL2MuonSA::PtEndcapLUTSvc*    m_ptEndcapLUTSvc;
 
       void findLayerCombination(std::vector<unsigned int> &a, int n, int r,std::vector<std::vector<unsigned int> > &c, int &nr);
       void findSubLayerCombination(std::vector<unsigned int> &a, int n,int r, std::vector<unsigned int> &b, int index ,int num,
