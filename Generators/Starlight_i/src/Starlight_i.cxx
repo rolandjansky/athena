@@ -46,7 +46,9 @@ namespace{
 #include "starlightparticlecodes.h"
 
 Starlight_i::Starlight_i(const std::string& name, ISvcLocator* pSvcLocator): 
-             GenModule(name,pSvcLocator), m_lheOutput(1),m_events(0), 
+             GenModule(name,pSvcLocator), m_lheOutput(false),
+             m_events(0),
+             m_maxevents(5500), 
 	     m_starlight(),
 	     m_inputParameters(),
 	     m_randomGenerator(),
@@ -89,7 +91,8 @@ Starlight_i::Starlight_i(const std::string& name, ISvcLocator* pSvcLocator):
 {
   declareProperty("Initialize",	m_InitializeVector);
   declareProperty("ConfigFileName", m_configFileName);
-  
+  declareProperty("lheOutput",	m_lheOutput);
+  declareProperty("maxevents",	m_maxevents);
 }
 
 Starlight_i::~Starlight_i()
@@ -307,7 +310,7 @@ Starlight_i::starlight2lhef()
 
     m_event = new upcEvent; 
 
-    while(++m_events<10) {
+    for(unsigned int i=0; i<m_maxevents; i++) {
       lheStream << "<event>\n";
       (*m_event) = m_starlight->produceEvent();
       int ipart = 0;

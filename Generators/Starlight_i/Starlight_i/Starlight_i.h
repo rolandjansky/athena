@@ -43,7 +43,9 @@ public:
     virtual StatusCode 	fillEvt		(HepMC::GenEvent* evt);
 
 protected:
-
+    
+    bool         m_lheOutput;
+    int          m_maxevents;
     // event counter
     int m_events;
 
@@ -89,7 +91,6 @@ protected:
     bool         m_xsecMethod;
     int          m_nThreads;
     bool         m_pythFullRec;
-    bool         m_lheOutput;
     
     bool starlight2lhef();
 
