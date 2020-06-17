@@ -1,41 +1,31 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon.AppMgr import ToolSvc
 
-
-def slimmingTool( config ):
-  from TrigNavTools.TrigNavToolsConf import HLT__TrigNavigationSlimmingTool
-  global ToolSvc
+def navigationThinningSvc (config):
   assert 'name' in config, 'name of the configuration is missing'
   assert 'mode' in config, 'mode of slimming has to be configured'
 
-  SlimTool=HLT__TrigNavigationSlimmingTool( config['name']+'Slim' )  
+  from TrigNavTools.TrigNavToolsConf import TrigNavigationThinningSvc
+  svc = TrigNavigationThinningSvc (config['name'] + 'ThinSvc')
+
   if 'chains' in  config:
-    SlimTool.ChainsRegex = config['chains']
+    svc.ChainsRegex = config['chains']
   if 'features' in config:
-    SlimTool.FeatureInclusionList=config['features']  
+    svc.FeatureInclusionList=config['features']  
 
   if config['mode'] == 'drop':    
-    SlimTool.Actions = [ 'Drop' ]
+    svc.Actions = [ 'Drop' ]
   if config['mode'] == 'slimming':    
-    SlimTool.Actions = [  'DropFeatures', 'Squeeze', 'Reload', 'SyncThinning', 'DropChains', 'Save', 'Restore']
+    svc.Actions = [  'DropFeatures', 'Squeeze', 'Reload', 'SyncThinning', 'DropChains', 'Save', 'Restore']
   if config['mode'] == 'trigger':    
-    SlimTool.Actions = [ 'DropFeatures', 'Reload', 'SyncThinning', 'DropChains', 'Save', 'Restore']
+    svc.Actions = [ 'DropFeatures', 'Reload', 'SyncThinning', 'DropChains', 'Save', 'Restore']
   if config['mode'] == 'cleanup':    
-    SlimTool.Actions = [ 'DropFeatures', 'Reload', 'SyncThinning', 'Save']
+    svc.Actions = [ 'DropFeatures', 'Reload', 'SyncThinning', 'Save']
 
-  if 'Print' in SlimTool.Actions:
+  if 'Print' in svc.Actions:
     from AthenaCommon.Constants import DEBUG
-    SlimTool.OutputLevel=DEBUG
-  ToolSvc += SlimTool
-  return SlimTool
+    svc.OutputLevel=DEBUG
 
-
-def navigationThinningSvc (config):
-  from TrigNavTools.TrigNavToolsConf import TrigNavigationThinningSvc
-  slimTool = slimmingTool (config)
-  svc = TrigNavigationThinningSvc (config['name'] + 'ThinSvc',
-                                   SlimmingTool = slimTool)
   from AthenaCommon.AppMgr import ServiceMgr
   ServiceMgr += svc
   return svc
