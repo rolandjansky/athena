@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
    */
 
 #ifndef BYTESTREAMEVENTSTORAGEOUTPUTSVC_H
@@ -42,19 +42,20 @@ public:
   virtual ~ByteStreamEventStorageOutputSvc();
 
   /// Required of all Gaudi Services
-  virtual StatusCode initialize();
-  virtual StatusCode stop      ();
-  virtual StatusCode finalize  ();
+  virtual StatusCode initialize() override;
+  virtual StatusCode stop      () override;
+  virtual StatusCode finalize  () override;
 
   /// Required of all Gaudi services:  see Gaudi documentation for details
-  StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
+  StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
 
   /// Implementation of the ByteStreamOutputSvc interface method putEvent.
-  virtual bool putEvent(RawEvent* re);
+  virtual bool putEvent(RawEvent* re) override;
+  virtual bool putEvent(RawEvent* re, const EventContext& ctx) override;
 
   // Callback method to reinitialize the internal state of the component
   // for I/O purposes (e.g. upon @c fork(2))
-  virtual StatusCode io_reinit();
+  virtual StatusCode io_reinit() override;
 
 
 private: // internal member functions

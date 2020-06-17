@@ -50,6 +50,7 @@ namespace Muon
 
     /// Muon Detector Descriptor
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+    bool m_writeStripProperties;
 
     // params for the hough trafo
     double m_alphaMin,m_alphaMax,m_alphaResolution,m_selectionCut;

@@ -69,7 +69,7 @@ StatusCode Trk::MeasRecalibSteeringTool::initialize()
   if (m_rotCreator.retrieve().isFailure()) {
     ATH_MSG_ERROR ("can not retrieve ROT creator of type " << m_rotCreator.typeAndName());
     return StatusCode::FAILURE;
-  } else ATH_MSG_INFO ("retrieved tool " << m_rotCreator.typeAndName());
+  } ATH_MSG_INFO ("retrieved tool " << m_rotCreator.typeAndName());
 
   // FIXME replace this zoo of tools with something smart, like flags through RC interface
 
@@ -78,22 +78,22 @@ StatusCode Trk::MeasRecalibSteeringTool::initialize()
       ATH_MSG_ERROR ("can not retrieve ROT creator for broad Pixel clusters " <<
                      m_broadPixelClusterCreator.typeAndName() );
       return StatusCode::FAILURE;
-    } else ATH_MSG_INFO ("retrieved " << m_broadPixelClusterCreator.typeAndName());
+    } ATH_MSG_INFO ("retrieved " << m_broadPixelClusterCreator.typeAndName());
     if (m_broadSctClusterCreator.retrieve().isFailure()) {
       ATH_MSG_ERROR ("can not retrieve ROT creator for broad SCT clusters " <<
                      m_broadSctClusterCreator.typeAndName() );
       return StatusCode::FAILURE;
-    } else ATH_MSG_INFO ("retrieved " << m_broadSctClusterCreator.typeAndName());
+    } ATH_MSG_INFO ("retrieved " << m_broadSctClusterCreator.typeAndName());
     if (m_trtDriftCircleCreator.retrieve().isFailure()) {
       ATH_MSG_ERROR ("can not retrieve ROT creator for full drift-time hits of type " <<
                      m_trtDriftCircleCreator.typeAndName() );
       return StatusCode::FAILURE;
-    } else ATH_MSG_INFO ("retrieved tool " << m_trtDriftCircleCreator.typeAndName());
+    } ATH_MSG_INFO ("retrieved tool " << m_trtDriftCircleCreator.typeAndName());
     if (m_trtTubeHitCreator.retrieve().isFailure()) {
       ATH_MSG_ERROR ("can not retrieve ROT creator for straw tube hits of type " <<
                      m_trtTubeHitCreator.typeAndName() );
       return StatusCode::FAILURE;
-    } else ATH_MSG_INFO ("retrieved tool " << m_trtTubeHitCreator.typeAndName());
+    } ATH_MSG_INFO ("retrieved tool " << m_trtTubeHitCreator.typeAndName());
   }
 
   // if (m_haveMuonTools) ...
@@ -163,9 +163,9 @@ Trk::MeasRecalibSteeringTool::makePreciseMeasurement
         //      }
     }
     return nullptr;
-  } else {
+  } 
     return m_rotCreator->correct(*(rot->prepRawData()), trkPar);
-  }
+  
 }
 
 Trk::TrackState::CalibrationType

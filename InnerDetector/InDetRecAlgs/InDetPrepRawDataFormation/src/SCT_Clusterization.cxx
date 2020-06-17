@@ -119,7 +119,7 @@ namespace InDet {
           const InDetRawDataCollection<SCT_RDORawData>* rd{*rdoCollections};
           ATH_MSG_DEBUG("RDO collection size=" << rd->size() << ", Hash=" << rd->identifyHash());
           SCT_ClusterContainer::IDC_WriteHandle lock{clusterContainer->getWriteHandle(rdoCollections.hashId())};
-          if (lock.alreadyPresent()) {
+          if (lock.OnlineAndPresentInAnotherView()) {
             ATH_MSG_DEBUG("Item already in cache , Hash=" << rd->identifyHash());
             continue;
           }
@@ -187,7 +187,7 @@ namespace InDet {
 
 
             SCT_ClusterContainer::IDC_WriteHandle lock{clusterContainer->getWriteHandle(listOfSCTIds[i])};
-            if (lock.alreadyPresent()) {
+            if (lock.OnlineAndPresentInAnotherView()) {
 	      ATH_MSG_DEBUG("Item already in cache , Hash=" << listOfSCTIds[i]);
               continue;
             }

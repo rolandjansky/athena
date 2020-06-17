@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ---------------------------------------------------------------------- 
@@ -260,22 +260,6 @@ StatusCode Epos::callGenerator()
   crmc_f_( m_iout, m_ievent ,nParticles, impactParameter, m_partID[0], m_partPx[0], m_partPy[0], m_partPz[0], 
 	   m_partEnergy[0], m_partMass[0], m_partStat[0]  );
 
-  // std::cout << "events " << m_events << " " << m_ievent << std::endl;
-  //  HepMC::HEPEVT_Wrapper::print_hepevt();
-
-  /* for (int i=1;i<=50;++i){
-   std::cout << "wrapper gen " << i <<  " " << HepMC::HEPEVT_Wrapper::number_entries() << " " << HepMC::HEPEVT_Wrapper::px(i)<<" " <<
-     HepMC::HEPEVT_Wrapper::py(i) << " " << HepMC::HEPEVT_Wrapper::pz(i) << " " << HepMC::HEPEVT_Wrapper::e(i) << " " << HepMC::HEPEVT_Wrapper::m(i) << " " << HepMC::HEPEVT_Wrapper::id(i) << " " << HepMC::HEPEVT_Wrapper::status(i) << std::endl;
-     }*/
-
-
-    // debug printout
-  /* std::cout << "parameters "<< m_iout << " " << m_ievent << " " << impactParameter << std::endl;  
- std::cout << "n particles " << nParticles << std::endl;
- for (int i=0; i<nParticles; i++){
-   std::cout << "part " << i << " " << m_partID[i] << " " << m_partStat[i] << std::endl;
-   std::cout << "part x " << m_partPx[i]<< " " << m_partPy[i] << " " << m_partPz[i] << " " << m_partEnergy[i] <<" " <<  m_partMass[i] << std::endl;
-   }*/
 
 
 

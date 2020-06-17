@@ -30,7 +30,7 @@ import PyUtils.acmdlib as acmdlib
                   action='store_true',
                   default=False,
                   help="""Enable fast mode.
-                  Memory szie will not be accurate AT ALL""")
+                  Memory size will not be accurate AT ALL""")
 @acmdlib.argument('-o', '--output',
                   default=None,
                   help="""name of the output file which will contain the
@@ -43,7 +43,7 @@ def main(args):
     """read a POOL file and dump its content.
     """
     files = args.files
-    if isinstance(files, basestring):
+    if isinstance(files, str):
         files=[files]
 
     import sys

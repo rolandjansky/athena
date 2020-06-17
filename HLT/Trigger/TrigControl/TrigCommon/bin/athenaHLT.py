@@ -16,12 +16,12 @@ export USEIMF=1
 for a in ${@}
 do
     case "$a" in
-	--leak-check*)   USETCMALLOC=0;;
-	--stdcmalloc)    USETCMALLOC=0;;
-	--tcmalloc)      USETCMALLOC=1;;
-	--stdcmath)      USEIMF=0;;
-	--imf)           USEIMF=1;;
-	--preloadlib*)   export ATHENA_ADD_PRELOAD=${a#*=};;
+        --leak-check*)   USETCMALLOC=0;;
+        --stdcmalloc)    USETCMALLOC=0;;
+        --tcmalloc)      USETCMALLOC=1;;
+        --stdcmath)      USEIMF=0;;
+        --imf)           USEIMF=1;;
+        --preloadlib*)   export ATHENA_ADD_PRELOAD=${a#*=};;
         --no-ers-signal-handlers)  export TDAQ_ERS_NO_SIGNAL_HANDLERS=1;;
     esac
 done

@@ -41,7 +41,7 @@ find_package( AthenaPoolUtilitiesTest )
 
 if( ATHENAPOOLUTILITIESTEST_FOUND )
   set( XAODTRACKINGATHENAPOOL_REFERENCE_TAG
-       xAODTrackingAthenaPoolReference-01-00-00 )
+       xAODTrackingAthenaPoolReference-02-00-00 )
   run_tpcnv_legacy_test( xAODTrackingAthenaPool_20.1.7.2   AOD-20.1.7.2-full
                    REQUIRED_LIBRARIES xAODTrackingAthenaPoolPoolCnv
                    REFERENCE_TAG ${XAODTRACKINGATHENAPOOL_REFERENCE_TAG} )

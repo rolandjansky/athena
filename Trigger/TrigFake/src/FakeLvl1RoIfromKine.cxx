@@ -33,9 +33,9 @@ Modified :
 #include "GeneratorObjects/McEventCollection.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigFake/FakeLvl1RoIfromKine.h"
-#include "TrigFake/FakeRoI.h"
-#include "TrigFake/Trajectory.h"
+#include "FakeLvl1RoIfromKine.h"
+#include "FakeRoI.h"
+#include "Trajectory.h"
 
 
 #include "TrigInterfaces/AlgoConfig.h"

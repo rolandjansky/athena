@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -19,7 +19,7 @@
  * EDM Migration to xAOD - from Trk::VxCandidate to xAOD::Vertex
  *
  *   findVertex will now always return an xAOD::VertexContainer,
- *   even when using a TrackCollection or a TrackParticleBaseCollection
+ *   even when using a TrackCollection .
  *   as input.
  *
  ***************************************************************************/
@@ -32,7 +32,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrkTrack/TrackCollection.h" // type def ...
-#include "TrkParticleBase/TrackParticleBaseCollection.h" // type def ...
 #include "TrkParameters/TrackParameters.h"
 
 /**
@@ -48,7 +47,6 @@ namespace Trk
 {
  class IVertexFitter;
  class Track;
- class TrackParticleBase;
  class ITrackLink;
  class IVertexSeedFinder;
  class IImpactPoint3dEstimator;
@@ -79,23 +77,27 @@ public:
    
    virtual ~InDetMultiPriVxFinderTool();
     
-   StatusCode initialize();
+   virtual StatusCode initialize() override;
 
    /** 
     * Finding method.
     * Has as input a track collection and as output 
     * a VxContainer.
     */
+   using IVertexFinder::findVertex;
 
-   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const TrackCollection* trackTES);
-   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const Trk::TrackParticleBaseCollection* trackTES);
-   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const xAOD::TrackParticleContainer* trackParticles);
+   virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(
+     const TrackCollection* trackTES) const override;
 
-   StatusCode finalize();
+   
+   virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(
+     const xAOD::TrackParticleContainer* trackParticles) const override;
+
+   virtual StatusCode finalize() override;
    
  private:
-   
-   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const std::vector<Trk::ITrackLink*> & trackVector) const;
+   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(
+     const std::vector<Trk::ITrackLink*>& trackVector) const;
 
    void removeCompatibleTracks(xAOD::Vertex * myxAODVertex,
                                std::vector<const Trk::TrackParameters*> & perigeesToFit,
@@ -110,15 +112,21 @@ public:
    void countTracksAndNdf(xAOD::Vertex * myxAODVertex,
                           double & ndf, int & ntracks) const;
 
-   double distanceAndError(const Trk::TrackParameters* params, const Amg::Vector3D * vertex, double & err) const;
-
+   double distanceAndError(const Trk::TrackParameters* params,
+                           const Amg::Vector3D* vertex,
+                           double& err) const;
 
    ToolHandle< Trk::IVertexFitter > m_iVertexFitter;
    ToolHandle< InDet::IInDetTrackSelectionTool > m_trkFilter;
    ToolHandle< Trk::IVertexSeedFinder > m_SeedFinder;
    ToolHandle< Trk::IImpactPoint3dEstimator > m_ImpactPoint3dEstimator;
 
-   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
+   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey{
+     this,
+     "BeamSpotKey",
+     "BeamSpotData",
+     "SG key for beam spot"
+   };
 
    bool m_useBeamConstraint;
    double m_significanceCutSeeding;
@@ -133,7 +141,7 @@ public:
    /// enable merging of vertices after finding
    //   bool m_doRemerging;
    
-   void SGError(std::string errService);
+   void SGError(const std::string& errService);
 
    /**
     * Internal method to print the parameters setting

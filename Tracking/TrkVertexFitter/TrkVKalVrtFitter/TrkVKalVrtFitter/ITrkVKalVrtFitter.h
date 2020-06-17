@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ITrkVKalVrtFitter.h  - old VKalVrtInterface
@@ -17,6 +17,7 @@
 // Gaudi includes
 #include "AthenaBaseComps/AthAlgTool.h"
 //#include "GaudiKernel/IToolSvc.h"
+#include "GaudiKernel/EventContext.h"
 //
 #include  "TrkVKalVrtFitter/IVKalState.h"
 #include  "TrkTrack/Track.h"
@@ -45,7 +46,19 @@ namespace Trk{
 //---------------------------------------------------------------------------
 //Interface itself
 
-      virtual std::unique_ptr<IVKalState> makeState() const = 0;
+     /*
+      * Context aware method
+      */
+      virtual std::unique_ptr<IVKalState> makeState(const EventContext& ctx) const = 0;
+      
+     /*
+      * For non-migrated clients whcih should always use the context aware method
+      */
+      virtual std::unique_ptr<IVKalState> makeState() const 
+          {
+              return makeState(Gaudi::Hive::currentContext());
+          }
+      
 
       virtual StatusCode VKalVrtFit(const  std::vector<const xAOD::TrackParticle*>   & listC,
                                     const  std::vector<const xAOD::NeutralParticle*> & listN,

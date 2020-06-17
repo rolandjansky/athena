@@ -107,6 +107,7 @@ CombinedMuonTrackBuilder::CombinedMuonTrackBuilder(const std::string& type, cons
       m_inputSlimming(false),
       m_calorimeterVolume(nullptr),
       m_indetVolume(nullptr),
+      m_spectrometerEntrance(nullptr),
       m_beamAxis(nullptr),
       m_perigeeSurface(nullptr),
       m_sigmaPhiSector(0),
@@ -365,6 +366,15 @@ CombinedMuonTrackBuilder::initialize()
     ATH_MSG_DEBUG(" vertex region: ");
     m_vertex->dump(msg(MSG::DEBUG));
 #endif
+
+    if (!m_trackingGeometrySvc) {
+        m_perigeeAtSpectrometerEntranceLocal = false;
+        // missing TrackingGeometrySvc - no perigee will be added at MS entrance
+        m_messageHelper->printWarning(41);
+    } else {
+      const Trk::TrackingGeometry* trkGeo = m_trackingGeometrySvc->trackingGeometry();
+      if (trkGeo) m_spectrometerEntrance = trkGeo->trackingVolume("MuonSpectrometerEntrance");
+    }
 
     return StatusCode::SUCCESS;
 }
@@ -3916,27 +3926,14 @@ CombinedMuonTrackBuilder::entrancePerigee(const Trk::TrackParameters* parameters
     // make sure the spectrometer entrance volume is available
     if (!parameters) return nullptr;
 
-    if (!m_spectrometerEntrance.load()) {
-        if (!m_trackingGeometrySvc) {
-            m_perigeeAtSpectrometerEntranceLocal = false;
-            // missing TrackingGeometrySvc - no perigee will be added at MS entrance
-            m_messageHelper->printWarning(41);
-        } else {
-            m_spectrometerEntrance.store(
-                m_trackingGeometrySvc->trackingGeometry()->trackingVolume("MuonSpectrometerEntrance"));
-        }
-    }
-
-    if (!m_spectrometerEntrance.load()) {
-        return nullptr;
-    }
+    if (!m_spectrometerEntrance) return nullptr;
 
     const Trk::TrackParameters* entranceParameters = m_extrapolator->extrapolateToVolume(
-        *parameters, *m_spectrometerEntrance.load(), Trk::anyDirection, Trk::nonInteracting);
+        *parameters, *m_spectrometerEntrance, Trk::anyDirection, Trk::nonInteracting);
 
     if (!entranceParameters) return nullptr;
 
-    Trk::PerigeeSurface         surface(entranceParameters->position());
+    Trk::PerigeeSurface surface(entranceParameters->position());
     const Trk::TrackParameters* trackParameters = m_extrapolator->extrapolateDirectly(*entranceParameters, surface);
     delete entranceParameters;
 

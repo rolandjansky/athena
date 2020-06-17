@@ -46,10 +46,6 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
 
     StatusCode StoreBSError() const override;
 
-    inline void setDet( const eformat::SubDetector det );
-    bool m_is_ibl_present;
-    bool m_is_ibl_module;
-    bool m_is_dbm_module;
 
     uint32_t getDataType(unsigned int rawDataWord, bool link_start) const;   // determine module word type
 
@@ -133,9 +129,9 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
   private:
     mutable std::atomic_uint m_masked_errors{};
     mutable std::atomic_uint m_numGenWarnings{};
-    unsigned m_maxNumGenWarnings{200};     // Maximum number of general warnings to print
+    const unsigned m_maxNumGenWarnings{200};     // Maximum number of general warnings to print
     mutable std::atomic_uint m_numBCIDWarnings{};
-    unsigned m_maxNumBCIDWarnings{50};    // Maximum number of BCID and LVL1ID warnings to print
+    const unsigned m_maxNumBCIDWarnings{50};    // Maximum number of BCID and LVL1ID warnings to print
     BooleanProperty m_checkDuplicatedPixel{this, "CheckDuplicatedPixel", true, "Check duplicated pixels in fillCollection method"};
 
     mutable std::atomic_uint m_numInvalidIdentifiers{0};
@@ -154,7 +150,6 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
     ServiceHandle<IPixelCablingSvc>  m_pixelCabling;
 
     const PixelID*              m_pixel_id=nullptr;
-    eformat::SubDetector        m_det{eformat::SubDetector()};
 
     ToolHandle<IPixelByteStreamErrorsTool> m_errors
     {this, "PixelByteStreamErrorsTool", "PixelByteStreamErrorsTool", "Tool for PixelByteStreamError"};
@@ -173,11 +168,25 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
 
     //! checks if data words do not look like header & trailer markers, return true if so, this is sign of data corruption
     bool checkDataWordsCorruption( uint32_t word ) const;
+
+    //!< flags concerning the detector configuration; set at config time
+    bool m_is_ibl_present;
+    bool m_is_ibl_module;
+    bool m_is_dbm_module;
+
+    //!< if there are errors in the header, save info in error word and (for now) report to BS error tool
+    void checkHeaderErrors( uint64_t& bsErrorWord, uint32_t headerWord ) const;
+
+    //!< if there are errors in the trailer, save info in error word and (for now) report to BS error tool
+    void checkTrailerErrors( uint64_t& bsErrorWord, uint32_t headerWord ) const;
+    void checkTrailerErrorsIBL( uint64_t& bsErrorWord, uint32_t headerWord ) const;
+
+    //!< if the flag is set to true appropriate bits are set in event info
+    StatusCode updateEventInfoIfEventCorruted( bool isCorrupted ) const;
+
+    //!< checks if all FEs have sent the same number of headers, if not, generate warning message
+    void checkUnequalNumberOfHeaders( const unsigned int nFragmentsPerFE[8], uint32_t robId ) const;
 };
 
-inline void PixelRodDecoder::setDet( const eformat::SubDetector det )
-{
-  m_det = det;
-}
 
 #endif

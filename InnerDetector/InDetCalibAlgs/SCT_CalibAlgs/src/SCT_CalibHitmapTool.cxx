@@ -56,10 +56,6 @@ StatusCode
 SCT_CalibHitmapTool::finalize() {
    ATH_MSG_VERBOSE("SCT_CalibHitmapSvc::finalize()");
 
-   delete m_sct_waferHash;
-   delete m_sct_rdoGroupSize;
-   delete m_sct_firstStrip;
-
    return StatusCode::SUCCESS;
 }
 
@@ -142,11 +138,11 @@ SCT_CalibHitmapTool::fill(const bool fromData) {
    m_numberOfEventsHisto->Fill(1);
 
    //--- Fill hitmap
-   const int MaxEntry{static_cast<int>(m_sct_waferHash->size())};
+   const int MaxEntry{static_cast<int>(m_sct_waferHash.size())};
    for (int i{0}; i != MaxEntry; ++i) {
-      const int theFirstStrip{(*m_sct_firstStrip)[i]};
-      const int endStrip{(*m_sct_rdoGroupSize)[i] + theFirstStrip};
-      const int index{(*m_sct_waferHash)[i]};
+      const int theFirstStrip{m_sct_firstStrip[i]};
+      const int endStrip{m_sct_rdoGroupSize[i] + theFirstStrip};
+      const int index{m_sct_waferHash[i]};
       TH1F* pThisHisto{m_phistoVector[index]};
       for (int strip{theFirstStrip}; strip!=endStrip; ++strip) {
          pThisHisto->Fill(strip);

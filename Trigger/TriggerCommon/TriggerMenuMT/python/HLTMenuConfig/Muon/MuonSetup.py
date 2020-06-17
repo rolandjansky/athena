@@ -100,7 +100,7 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
     ToolSvc += sTgcRdoToPrepDataTool
 
     from MuonRdoToPrepData.MuonRdoToPrepDataConf import StgcRdoToStgcPrepData
-    StgcRdoToStgcPrepData = StgcRdoToStgcPrepData(name                    = "StgcRdoToStgcPrepData")
+    StgcRdoToStgcPrepData = StgcRdoToStgcPrepData(name                    = "StgcRdoToStgcPrepData" + postFix)
 
     viewAlgs_MuonPRD.append( StgcRdoToStgcPrepData )
 
@@ -116,7 +116,7 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
     ToolSvc += MmRdoToPrepDataTool
 
     from MuonRdoToPrepData.MuonRdoToPrepDataConf import MM_RdoToMM_PrepData
-    MM_RdoToMM_PrepData = MM_RdoToMM_PrepData(name                    = "MM_RdoToMM_PrepData",
+    MM_RdoToMM_PrepData = MM_RdoToMM_PrepData(name                    = "MMRdoToMMPrepData" + postFix,
                                             PrintInputRdo = True  )
 
     viewAlgs_MuonPRD.append(  MM_RdoToMM_PrepData )
@@ -429,8 +429,8 @@ def muonIDFastTrackingSequence( RoIs, name ):
   ### and Define EventViewNodes to run the algorithms ###
   from TrigInDetConfig.InDetSetup import makeInDetAlgs
   viewAlgs, viewVerify = makeInDetAlgs(whichSignature="Muon"+name, rois = RoIs)
-  viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+MUIDRoIs' )]
-
+  viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+MUIDRoIs' ),
+                             ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+HLTNav_IMl2muComb__out' )]
 
   for viewAlg in viewAlgs:
       muonIDFastTrackingSequence += viewAlg
@@ -665,15 +665,9 @@ def muEFCBRecoSequence( RoIs, name ):
                                  ( 'xAOD::IParticleContainer' , 'StoreGateSvc+'+TrackParticlesName ),
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )] #seems to be necessary, despite the load below
 
-    # This object must be loaded from SG if it's not loaded in conddb (algs request it but ignore)
-    from IOVDbSvc.CondDB import conddb
-    if not conddb.folderRequested( "Cond/StatusHT" ):
-      ViewVerifyTrk.DataObjects += [( 'TRTCond::StrawStatusMultChanContainer' , 'ConditionStore+/TRT/Cond/StatusHT' )]
-      topSequence.SGInputLoader.Load += [( 'TRTCond::StrawStatusMultChanContainer' , 'ConditionStore+/TRT/Cond/StatusHT' )]
-
     if globalflags.InputFormat.is_bytestream():
       ViewVerifyTrk.DataObjects += [( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
-                                    ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ) ]
+                                    ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )]
     muEFCBRecoSequence += ViewVerifyTrk
 
 

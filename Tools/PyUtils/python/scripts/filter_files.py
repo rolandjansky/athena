@@ -7,12 +7,13 @@
 # @date March 2010
 from __future__ import with_statement
 
-__doc__ = "take a bunch of input (pool/bs) files and produce a filtered one"
+__doc__ = "filter multiple input (pool/bs) files"
 __author__ = "Sebastien Binet"
 
 
 ### imports -------------------------------------------------------------------
 import PyUtils.acmdlib as acmdlib
+import six
 
 @acmdlib.command(
     name='filter-files'
@@ -33,8 +34,8 @@ import PyUtils.acmdlib as acmdlib
     help='comma separated list of tuples (run,event) numbers to select or an ascii file containg a list of such run+event numbers to select'
     )
 def main(args):
-    """take a bunch of input (pool/bs) files and produce a filtered one
-    """
+    """filter multiple input (pool/bs) files"""
+
     exitcode = 0
 
     import PyUtils.Logging as L
@@ -62,9 +63,9 @@ def main(args):
                     continue
                 l = line.strip().split()
                 if len(l)==1: # assume this is only the event number
-                    runnbr, evtnbr = None, long(l[0])
+                    runnbr, evtnbr = None, int(l[0])
                 elif len(l)==2: # a pair (run,evt) number
-                    runnbr, evtnbr = long(l[0]), long(l[1])
+                    runnbr, evtnbr = int(l[0]), int(l[1])
                 else:
                     raise RuntimeError(
                         'file [%s] has invalid format at line:\n%r' %
@@ -83,21 +84,21 @@ def main(args):
         
         selection = []
         for item in args.selection:
-            if not isinstance(item, (tuple, list, int, long)):
+            if not isinstance(item, (tuple, list) + six.integer_types):
                 raise TypeError('type: %r' % type(item))
 
             if isinstance(item, (tuple, list)):
                 if len(item) == 1:
-                    runnbr, evtnbr = None, long(item[0])
+                    runnbr, evtnbr = None, int(item[0])
                 elif len(item) == 2:
-                    runnbr, evtnbr = long(item[0]), long(item[1])
+                    runnbr, evtnbr = int(item[0]), int(item[1])
                 else:
                     raise RuntimeError(
                         'item [%s] has invalid arity (%s)' %
                         (item, len(item))
                         )
             else:
-                runnbr, evtnbr = None, long(item)
+                runnbr, evtnbr = None, int(item)
             selection.append((runnbr, evtnbr))
 
     # put back the massaged selection into our workspace

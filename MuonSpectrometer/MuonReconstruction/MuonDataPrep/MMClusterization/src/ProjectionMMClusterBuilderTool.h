@@ -46,9 +46,10 @@ namespace Muon
   private: 
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+    bool m_writeStripProperties;
 
     double m_tmin,m_tmax,m_tOffset;
-    double m_p0,m_p1,m_p2; //correction factors for charge dependence
+    double m_p0, m_p1, m_p2;
 
     int m_t0;
 

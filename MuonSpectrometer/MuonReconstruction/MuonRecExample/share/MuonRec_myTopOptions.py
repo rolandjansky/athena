@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 from MuonRecExample.MuonRecFlags import muonRecFlags
 from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
@@ -16,11 +18,9 @@ athenaCommonFlags.AllowIgnoreConfigError = False
 # configure flags so that only Muon Standalone reco is run
 import MuonRecExample.MuonRecStandaloneOnlySetup
 
-#import MuonCombinedRecExample.MuonCombinedRecOnlySetup 
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 
 from MuonRecExample import MuonRecUtils
-from MuonRecExample.MuonRecUtils import assertCastorStager,hasJobPropertyBeenSet
 
 #Need the beam spot for the TrackParticleCreator
 if not ('conddb' in dir()):
@@ -45,30 +45,15 @@ athenaCommonFlags.FilesInput = [InputRdoFile]
 #--------------------------------------------------------------------------------
 # Output
 #--------------------------------------------------------------------------------
-#rec.doPerfMon = True
-#rec.doDetailedAuditor = True
-#rec.doWriteESD = True
-muonRecFlags.doCalibNtuple = False # write calibration ntuple?
-#muonRecFlags.calibNtupleSegments = False # write segments to ntuple?
-#muonRecFlags.calibNtupleTracks = False # write tracks to ntuple?
-#muonRecFlags.calibNtupleTrigger = False # write trigger info to ntuple?
-###
-
-#rec.doNameAuditor = True
-#muonRecFlags.doVP1 = True    # Decide whether to run Virtual Point1 graphical event display
 rec.doTruth=True
-
-#rec.doTrigger = True
-
-# Read geometry alignment corrections from DB
-#muonRecFlags.useAlignmentCorrections = True
 rec.doTrigger = False
-#recFlags.doTruth.set_Value_and_Lock(False)
+
 muonRecFlags.doStandalone.set_Value_and_Lock(True)
 muonRecFlags.doTrackPerformance    = True
 muonRecFlags.TrackPerfSummaryLevel = 2
 muonRecFlags.TrackPerfDebugLevel   = 5
 muonRecFlags.doCSCs                = True
+muonRecFlags.doCalibNtuple = False # do not write calibration ntuples
 
 # flags to tweak standalone muon reconstruction
 if doMig5:
@@ -87,27 +72,15 @@ try:
     include("MuonRecExample/MuonRec_topOptions.py")
     ###### put any user finetuning after this line #####
 
-    #from MuonTestEDM.MuonTestEDMConf import MuonTestEDM
-    #MyEDMTester = MuonTestEDM(DoDumpPRDs=True, DoDumpTracks=False, DoDumpRDOs=True, DoDumpSegments=False)
-    #topSequence += MyEDMTester
-        
-    #if not 'DumpFileName' in dir():
-    #  DumpFileName="ReadBS"
-    
-    #MyEDMTester.RdoDumpFileName    = DumpFileName+".rdo.log"
-    #MyEDMTester.PrdDumpFileName    = DumpFileName+".prd.log"
-    #MyEDMTester.TrackDumpFileName  = DumpFileName+".track.log"
-    #MyEDMTester.TrackParticleDumpFileName  = DumpFileName+".trackParticle.log"
-    #MyEDMTester.SegmentDumpFileName= DumpFileName+".segment.log"
-    #MyEDMTester.SummaryDumpFileName= DumpFileName+".summary.log" 
-
     ###### put any user finetuning before this line #####
 
 ##### DO NOT ADD ANYTHING AFTER THIS LINE #####
 except:
     # print the stacktrace (saving could fail, and would then obscure the real problem)
     import traceback
-    print traceback.format_exc().rstrip()
+    from __future__ import print_function
+    print ('INFO: MuonRec_myTopOptions.py - stack trace:')
+    print (traceback.format_exc().rstrip())
     
     # always write config so far for debugging
     from AthenaCommon.ConfigurationShelve import saveToAscii

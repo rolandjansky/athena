@@ -374,7 +374,7 @@ if len(execFile):
         else:
             if comment=="None":
                 comment = comments[io]
-            elif comments[io] not in comment:
+            elif iov and comments[io] not in comment:
                 comment += "  //  " + comments[io]
             if io>0 and since!=until and 'ALL' not in moduleList:
                 author=commentsSplit[io]
@@ -446,7 +446,7 @@ if len(onlSuffix) and not onl and "sqlite" in outSchema:
     log.info("creating DB with ONLINE status")
 
     #if dbw:
-    #  mgr.updateFromDb(dbw, folderPath, folderTag, since, -1)
+    #    mgr.updateFromDb(dbw, folderPath, folderTag, since, -1)
 
     #--- create online bad channel manager
     folderOnl = "/TILE/ONL01/STATUS/ADC"

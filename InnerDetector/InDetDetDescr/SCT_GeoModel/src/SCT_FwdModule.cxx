@@ -55,20 +55,17 @@ SCT_FwdModule::SCT_FwdModule(const std::string & name, int ringType,
 
   getParameters();
 
-  m_hybrid = new SCT_FwdHybrid("SCT_FwdHybrid"+intToString(ringType), m_ringType, m_detectorManager, m_geometryManager, materials);
-  m_spine  = new SCT_FwdSpine("SCT_FwdSpine"+intToString(ringType), m_ringType, m_detectorManager, m_geometryManager, materials);
-  m_subspineL  = new SCT_FwdSubSpine("SCT_FwdSubSpineL"+intToString(ringType), m_ringType, SUBSPINE_LEFT,
+  m_hybrid = std::make_unique<SCT_FwdHybrid>("SCT_FwdHybrid"+intToString(ringType), m_ringType, m_detectorManager, m_geometryManager, materials);
+  m_spine  = std::make_unique<SCT_FwdSpine>("SCT_FwdSpine"+intToString(ringType), m_ringType, m_detectorManager, m_geometryManager, materials);
+  m_subspineL  = std::make_unique<SCT_FwdSubSpine>("SCT_FwdSubSpineL"+intToString(ringType), m_ringType, SUBSPINE_LEFT,
                                      m_detectorManager, m_geometryManager, materials);
-  m_subspineR  = new SCT_FwdSubSpine("SCT_FwdSubSpineR"+intToString(ringType), m_ringType, SUBSPINE_RIGHT,
+  m_subspineR  = std::make_unique<SCT_FwdSubSpine>("SCT_FwdSubSpineR"+intToString(ringType), m_ringType, SUBSPINE_RIGHT,
                                      m_detectorManager, m_geometryManager, materials);
-  m_sensor = new SCT_FwdSensor("ECSensor"+intToString(ringType), m_ringType,
+  m_sensor = std::make_unique<SCT_FwdSensor>("ECSensor"+intToString(ringType), m_ringType,
                                m_detectorManager, m_geometryManager, materials);
   if (m_connectorPresent) {
-    m_connector = new SCT_FwdModuleConnector("SCT_FwdModuleConnector"+intToString(ringType), m_ringType,
+    m_connector = std::make_unique<SCT_FwdModuleConnector>("SCT_FwdModuleConnector"+intToString(ringType), m_ringType,
                                              m_detectorManager, m_geometryManager, materials);
-  }
-  else {
-    m_connector = nullptr;
   }
 
   m_logVolume = preBuild();
@@ -77,12 +74,6 @@ SCT_FwdModule::SCT_FwdModule(const std::string & name, int ringType,
 
 SCT_FwdModule::~SCT_FwdModule()
 {
-  delete m_connector;
-  delete m_hybrid;
-  delete m_spine;
-  delete m_subspineL;
-  delete m_subspineR;
-  delete m_sensor;
 }
   
 

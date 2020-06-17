@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -25,41 +25,9 @@ Updated:  March 12, 2005   (MB)
 
 using CLHEP::GeV;
 
-// -------------------------------------------------------------
-// Constructor 
-// -------------------------------------------------------------
-CaloTopoEMphioff::CaloTopoEMphioff(const std::string& type, const std::string& name, const IInterface* parent) 
-  : CaloClusterCorrectionCommon(type, name, parent)
-{ 
-  declareConstant("EdepA",                     m_EdepA);
-  declareConstant("EdepB",                     m_EdepB);
-  declareConstant("Granularity",               m_Granularity);
-  declareConstant("EtaFrontier",               m_EtaFrontier);
-  declareConstant("FlipPhi",                   m_FlipPhi);
-  declareConstant("EndcapOffset",              m_EndcapOffset);
-}
-
-// -------------------------------------------------------------
-// Destructor 
-// -------------------------------------------------------------
-CaloTopoEMphioff::~CaloTopoEMphioff()
-{ }
-
-// Initialization
-/*StatusCode CaloTopoEMphioff::initialize()
-{
-  ATH_MSG_DEBUG( " Phi offset parameters : " << endmsg);
-  ATH_MSG_DEBUG( "   EdepA =          " << m_EdepA << endmsg);
-  ATH_MSG_DEBUG( "   EdepB =          " << m_EdepB << endmsg);
-  ATH_MSG_DEBUG( "   Granularity =    " << m_Granularity << endmsg);
-  ATH_MSG_DEBUG( "   EtaFrontier =    " << m_EtaFrontier << endmsg);
-  ATH_MSG_DEBUG( "   FlipPhi =        " << m_FlipPhi << endmsg);
-  ATH_MSG_DEBUG( "   EndcapOffset =   " << m_EndcapOffset << endmsg);
-  return StatusCode::SUCCESS;
-}*/
 
 // make correction to one cluster 
-void CaloTopoEMphioff::makeTheCorrection(const EventContext& /*ctx*/,
+void CaloTopoEMphioff::makeTheCorrection(const Context& myctx,
                                          xAOD::CaloCluster* cluster,
 					 const CaloDetDescrElement* elt,
 					 float /*eta*/,
@@ -71,7 +39,7 @@ void CaloTopoEMphioff::makeTheCorrection(const EventContext& /*ctx*/,
   float qphioff = 0.;
   float aeta = fabs(adj_eta);
   float eclus = cluster->e() * (1./GeV);
-  int iEtaBin = (int)(aeta/m_Granularity);
+  int iEtaBin = (int)(aeta/m_Granularity(myctx));
   // compute CaloSampling
   CaloSampling::CaloSample samp = (CaloSampling::CaloSample)elt->getSampling();
 
@@ -81,21 +49,23 @@ void CaloTopoEMphioff::makeTheCorrection(const EventContext& /*ctx*/,
   ATH_MSG_DEBUG( " ... phi-off BEGIN" << endmsg);
   ATH_MSG_DEBUG( " ... e, eta, phi " << cluster->e() << " " << cluster->eta() << " " << cluster->phi() << " " << samp << endmsg);
 
+  const CxxUtils::Array<1> EtaFrontier = m_EtaFrontier (myctx);
+
   // Compute the correction
-  if (aeta < m_EtaFrontier[0]) 
+  if (aeta < EtaFrontier[0]) 
     { 
-      qphioff = m_EdepA[iEtaBin]/sqrt(eclus) + m_EdepB[iEtaBin];
+      qphioff = m_EdepA(myctx)[iEtaBin]/sqrt(eclus) + m_EdepB(myctx)[iEtaBin];
     }
-  else if (aeta < m_EtaFrontier[2])
+  else if (aeta < EtaFrontier[2])
     {
-      qphioff = m_EdepA[iEtaBin]/eclus + m_EdepB[iEtaBin];
+      qphioff = m_EdepA(myctx)[iEtaBin]/eclus + m_EdepB(myctx)[iEtaBin];
       qphioff = -qphioff;
-      if (aeta > m_EtaFrontier[1]) qphioff -= m_EndcapOffset;
+      if (aeta > EtaFrontier[1]) qphioff -= m_EndcapOffset(myctx);
     }
-  else if (aeta < m_EtaFrontier[3]) 
+  else if (aeta < EtaFrontier[3]) 
     {
-      qphioff = m_EdepA[iEtaBin]*eclus + m_EdepB[iEtaBin];
-      qphioff -= m_EndcapOffset;
+      qphioff = m_EdepA(myctx)[iEtaBin]*eclus + m_EdepB(myctx)[iEtaBin];
+      qphioff -= m_EndcapOffset(myctx);
     }
   else // wrong eta value
     {
@@ -103,7 +73,7 @@ void CaloTopoEMphioff::makeTheCorrection(const EventContext& /*ctx*/,
     }
   
   // Flip the sign, if needed.
-  if (m_FlipPhi && elt->eta_raw() < 0)
+  if (m_FlipPhi(myctx) && elt->eta_raw() < 0)
     qphioff = -qphioff;
 
   // Print out the function for debugging

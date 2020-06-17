@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MM_DIGITIZATION_MM_DIGITTOOLOUTPUT_H
@@ -19,6 +19,8 @@ Class to store output produced by MDT_Digitization tools:
 - first strip time [for Trigger study]
 
 -----------------------------------------------*/
+
+#include <vector>
 
 class MM_DigitToolOutput {
  public:

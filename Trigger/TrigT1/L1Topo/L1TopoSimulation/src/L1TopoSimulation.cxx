@@ -3,7 +3,7 @@
 */
 
 #include "./L1TopoSimulation.h"
-#include "L1TopoSimulation/AthenaL1TopoHistSvc.h"
+#include "./AthenaL1TopoHistSvc.h"
 //#include "./getAthenaTopoHistSvc.h"
 
 #include "TH1F.h"

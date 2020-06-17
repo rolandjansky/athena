@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCLUSTERCORRECTION_CALOTOPOEMPHIMOD_H
@@ -24,16 +24,12 @@ class CaloCluster;
 
 class CaloTopoEMphimod : public CaloClusterCorrectionCommon
 {
+public:
+  /// Inherit constructor.
+  using CaloClusterCorrectionCommon::CaloClusterCorrectionCommon;
 
- public:   
-  // constructor 
-  CaloTopoEMphimod(const std::string& type, const std::string& name, const IInterface* parent);
-  // destructor 
-  ~CaloTopoEMphimod();
-  // initialization
-  //  virtual StatusCode initialize();
   // virtual method in CaloClusterCorrection
-  virtual void makeTheCorrection(const EventContext& ctx,
+  virtual void makeTheCorrection(const Context& myctx,
                                  xAOD::CaloCluster* cluster,
 				 const CaloDetDescrElement* elt,
 				 float eta,
@@ -51,18 +47,17 @@ class CaloTopoEMphimod : public CaloClusterCorrectionCommon
   // with the constraint P0=1 (no modification of the overall scale at this stage).
   // x is the phi position in the cell (0<x<1)
   // Tuned on 100 GeV electrons, no energy dependence
-  CaloRec::Array<1> m_P1b;
-  CaloRec::Array<1> m_P2b;
-  CaloRec::Array<1> m_P3b;
-  CaloRec::Array<1> m_P4b;
-  CaloRec::Array<1> m_P1e;
-  CaloRec::Array<1> m_P2e;
-  CaloRec::Array<1> m_P3e;
-  CaloRec::Array<1> m_P4e;
-  CaloRec::Array<1> m_EtaFrontier;
-  float m_BarrelGranularity;
-  float m_EndcapGranularity;
-
+  Constant<CxxUtils::Array<1> > m_P1b { this, "P1b", "" };
+  Constant<CxxUtils::Array<1> > m_P2b { this, "P2b", "" };
+  Constant<CxxUtils::Array<1> > m_P3b { this, "P3b", "" };
+  Constant<CxxUtils::Array<1> > m_P4b { this, "P4b", "" };
+  Constant<CxxUtils::Array<1> > m_P1e { this, "P1e", "" };
+  Constant<CxxUtils::Array<1> > m_P2e { this, "P2e", "" };
+  Constant<CxxUtils::Array<1> > m_P3e { this, "P3e", "" };
+  Constant<CxxUtils::Array<1> > m_P4e { this, "P4e", "" };
+  Constant<CxxUtils::Array<1> > m_EtaFrontier { this, "EtaFrontier", "" };
+  Constant<float> m_BarrelGranularity { this, "BarrelGranularity", "" };
+  Constant<float> m_EndcapGranularity { this, "EndcapGranularity", "" };
 };
 
 #endif

@@ -1,10 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file egammaD3PDAnalysis/src/egammaShowerDepthAlg.h
  * @author scott snyder <snyder@bnl.gov>
@@ -19,7 +16,7 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "CaloClusterCorrection/CaloSwCalibHitsShowerDepth.h"
-#include "CaloRec/ToolWithConstantsMixin.h"
+#include "CaloUtils/ToolWithConstants.h"
 #include "GaudiKernel/ToolHandle.h"
 
 
@@ -33,65 +30,49 @@ class ICollectionGetterTool;
  * @brief Store in UserData the shower depth for an egamma object.
  */
 class egammaShowerDepthAlg
-  : public AthAlgorithm,
-    public CaloRec::ToolWithConstantsMixin
+  : public CaloUtils::ToolWithConstants<AthAlgorithm>
 {
 public:
-  /**
-   * @brief Standard Gaudi algorithm constructor.
-   * @param name The algorithm name.
-   * @param svcloc The service locator.
-   */
-  egammaShowerDepthAlg (const std::string& name,
-                        ISvcLocator* svcloc);
+  /// Inherit constructor.
+  using base_class::base_class;
 
 
   /// Standard Gaudi @c initialize method.
-  virtual StatusCode initialize();
-
-
-  /**
-   * @brief Method to set a property value.
-   * @param p The property name/value to set.
-   * @return Gaudi status code.
-   *
-   * Required by @c ToolWithConstantsMixin.
-   */
-  using AthAlgorithm::setProperty;
-  StatusCode setProperty (const Property& p);
-  StatusCode setProperty (const std::string& propname,
-                          const std::string& value);
+  virtual StatusCode initialize() override;
 
 
   /// Standard Gaudi @c execute method.
-  virtual StatusCode execute();
+  virtual StatusCode execute() override;
 
 
 private:
   /// Property: Prefix to add to aux data items.
-  std::string m_auxPrefix;
+  StringProperty m_auxPrefix
+  { this, "AuxPrefix", "", "Prefix to add to aux data items." };
 
   /// Property: Getter for input egamma objects.
-  ToolHandle<ICollectionGetterTool> m_getter;
+  ToolHandle<ICollectionGetterTool> m_getter
+  { this, "Getter", "", "Getter instance for the input egamma objects." };
 
   /// Property: If true, don't complain if input objects are missing.
-  bool m_allowMissing;
+  BooleanProperty m_allowMissing
+  { this, "AllowMissing", false, "If true, don't complain if input objects are missing." };
 
   /// Property: Table of sampling depth weights.
-  CaloRec::Array<2> m_sampling_depth;
+  Constant<CxxUtils::Array<2> > m_sampling_depth { this, "sampling_depth" };
 
   /// Property: Eta of the start of the crack.
-  float m_eta_start_crack;
+  Constant<float> m_eta_start_crack { this, "eta_start_crack" };
 
   /// Property: Eta of the end of the crack.
-  float m_eta_end_crack;
+  Constant<float> m_eta_end_crack { this, "eta_end_crack" };
 
   /// Property: Maximum eta range of the depth weight table.
-  float m_etamax;
+  Constant<float> m_etamax { this, "etamax" };
 
   /// Property: Use raw eta value for region comparisons?
   // FIXME: The false setting of this is not implemented.
-  bool m_use_raw_eta;
+  Constant<bool> m_use_raw_eta { this, "use_raw_eta" };
 
   /// Depth calculator.
   CaloClusterCorr::CaloSwCalibHitsShowerDepth m_depthCalc;

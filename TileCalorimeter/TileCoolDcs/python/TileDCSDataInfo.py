@@ -135,19 +135,19 @@ class TileDCSDataInfo:
         filename=self.find_data_file("cool_channel_id.dat")
         lines = open(filename,"r").readlines()
         for line in lines:
-                line = line.strip()
-                folder, drawer, channel, oracleId = line.split()
+            line = line.strip()
+            folder, drawer, channel, oracleId = line.split()
 
-                keyFolderDrawer = ( folder , drawer)
-                if keyFolderDrawer in self.folderDrawer_to_channel:
-                    raise Exception ("trying to generate key twice: ", keyFolderDrawer)
-                self.folderDrawer_to_channel[ keyFolderDrawer] = int(channel)
-                self.folderDrawer_to_oracleId[keyFolderDrawer] = oracleId
+            keyFolderDrawer = ( folder , drawer)
+            if keyFolderDrawer in self.folderDrawer_to_channel:
+                raise Exception ("trying to generate key twice: ", keyFolderDrawer)
+            self.folderDrawer_to_channel[ keyFolderDrawer] = int(channel)
+            self.folderDrawer_to_oracleId[keyFolderDrawer] = oracleId
 
-                keyFolderChannel = ( folder , int(channel))
-                if keyFolderChannel in self.folderChannel_to_drawer:
-                    raise Exception ("trying to generate key twice: ", keyFolderChannel)
-                self.folderChannel_to_drawer[keyFolderChannel] = drawer
+            keyFolderChannel = ( folder , int(channel))
+            if keyFolderChannel in self.folderChannel_to_drawer:
+                raise Exception ("trying to generate key twice: ", keyFolderChannel)
+            self.folderChannel_to_drawer[keyFolderChannel] = drawer
 
         self.dbstring = {"DEFAULT":[],"COOL":[],"ORACLE":[],"TESTBEAM":[]}
         self.dbstring['DEFAULT'] += [dbstring]*3

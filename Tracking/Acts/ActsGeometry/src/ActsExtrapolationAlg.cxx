@@ -115,6 +115,9 @@ StatusCode ActsExtrapolationAlg::execute(const EventContext &ctx) const {
       Acts::BoundParameters startParameters(
           anygctx, std::move(cov), std::move(pars), std::move(surface));
       steps = m_extrapolationTool->propagationSteps(ctx, startParameters);
+      if(steps.size() == 0) {
+	ATH_MSG_WARNING("Got ZERO steps from the extrapolation tool");
+      }
       m_propStepWriterSvc->write(steps);
     }
 

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 /***************************************************************************
@@ -112,7 +112,9 @@ namespace InDet
   }
 
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-  InDetAdaptivePriVxFinderTool::findVertex(const TrackCollection* trackTES) {
+  InDetAdaptivePriVxFinderTool::findVertex(
+    const TrackCollection* trackTES) const
+  {
     // TODO: change trkFilter to allow for this replacement
     /*
        xAOD::Vertex beamposition;
@@ -127,7 +129,7 @@ namespace InDet
     std::vector<const Trk::TrackParameters*> origParameters;
     origParameters.clear();
     for (TrackCollection::const_iterator itr = trackTES->begin(); itr != trackTES->end(); itr++) {
-      if (static_cast<bool>(m_trkFilter->accept(**itr, &beamposition)) == false) continue;
+      if (!static_cast<bool>(m_trkFilter->accept(**itr, &beamposition))) continue;
       origParameters.push_back((*itr)->perigeeParameters());
     }
     if (msgLvl(MSG::DEBUG)) msg() << "Of " << trackTES->size() << " tracks " << origParameters.size() <<
@@ -142,7 +144,7 @@ namespace InDet
       std::vector<Trk::VxTrackAtVertex>* tmpVxTAVtx = &(*vxContItr)->vxTrackAtVertex();
       for (std::vector<Trk::VxTrackAtVertex>::iterator itr = tmpVxTAVtx->begin(); itr != tmpVxTAVtx->end(); itr++) {
         const Trk::TrackParameters* initialPerigee = (*itr).initialPerigee();
-        const Trk::Track* correspondingTrack(0);
+        const Trk::Track* correspondingTrack(nullptr);
         // find the track to that perigee ...
         for (TrackCollection::const_iterator itr1 = trackTES->begin(); itr1 != trackTES->end(); itr1++) {
           if (initialPerigee == (*itr1)->perigeeParameters()) {
@@ -152,7 +154,7 @@ namespace InDet
         }
 
         // validate the track link
-        if (correspondingTrack != 0) {
+        if (correspondingTrack != nullptr) {
           Trk::LinkToTrack* link = new Trk::LinkToTrack;
           link->setStorableObject(*trackTES);
           link->setElement(correspondingTrack);
@@ -168,74 +170,9 @@ namespace InDet
   }
 
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-  InDetAdaptivePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection* trackTES) {
-    // TODO: change trkFilter to allow for this replacement
-    /*
-       xAOD::Vertex beamposition;
-       beamposition.makePrivateStore();
-       beamposition.setPosition(beamSpotHandle->beamVtx().position());
-       beamposition.setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
-     */
-
-    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
-    const Trk::RecVertex &beamposition(beamSpotHandle->beamVtx());
-
-    //---- Start of preselection of tracks ---------------//
-    std::vector<const Trk::TrackParameters*> origParameters;
-    origParameters.clear();
-
-    // unsigned int size = trackTES->size();
-    // if (msgLvl(MSG::VERBOSE)) msg() << "TrackParticleBaseContainer @ " << trackTES << endmsg;
-    // if (msgLvl(MSG::VERBOSE)) msg() << "Size of the container: " << size << endmsg;
-    for (Trk::TrackParticleBaseCollection::const_iterator itr = trackTES->begin(); itr != trackTES->end(); itr++) {
-      if (static_cast<bool> (m_trkFilter->accept(*((*itr)->originalTrack()), &beamposition)) == false) continue;
-      origParameters.push_back(&(*itr)->definingParameters());
-      // std::cout << "originalPerigee at " << & ( *itr )->definingParameters() << std::endl;
-    }
-
-    if (msgLvl(MSG::DEBUG)) msg() << "Of " << trackTES->size() << " tracks "
-                                  << origParameters.size() << " survived the preselection." << endmsg;
-
-    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = findVertex(origParameters);
-
-    // now we have to make the link to the original track ...
-    //     unsigned int count ( 1 );
-    for (xAOD::VertexContainer::iterator vxContItr = returnContainers.first->begin();
-         vxContItr != returnContainers.first->end(); vxContItr++) {
-      // std::cout << "Check vertex " << count << std::endl; count++;
-      std::vector<Trk::VxTrackAtVertex>* tmpVxTAVtx = &(*vxContItr)->vxTrackAtVertex();
-      for (std::vector<Trk::VxTrackAtVertex>::iterator itr = tmpVxTAVtx->begin(); itr != tmpVxTAVtx->end(); itr++) {
-        const Trk::TrackParameters* initialPerigee = (*itr).initialPerigee();
-        const Trk::TrackParticleBase* correspondingTrack(0);
-        // find the track to that perigee ...
-        for (Trk::TrackParticleBaseCollection::const_iterator itr1 = trackTES->begin(); itr1 != trackTES->end();
-             itr1++) {
-          if (initialPerigee == &((*itr1)->definingParameters())) {
-            // std::cout << "vxtrack has perigee " << *initialPerigee << std::endl;
-            // std::cout << "track has perigee " << *((*itr1)->perigeeParameters()) << std::endl;
-            correspondingTrack = (*itr1);
-            continue;
-          }
-        }
-
-        if (correspondingTrack != 0) {
-          Trk::LinkToTrackParticleBase* link = new Trk::LinkToTrackParticleBase;
-          link->setStorableObject(*trackTES);
-          link->setElement(correspondingTrack);
-          (*itr).setOrigTrack(link);
-        } else if (msgLvl(MSG::WARNING)) msg() <<
-          "No corresponding track found for this initial perigee! Vertex will have no link to the track." << endmsg;
-        // TODO: also mention that links stored directly in xAOD::Vertices are not set because a
-        // TrackParticleBaseCollection was given as input
-      }
-    }
-
-    // log << MSG::VERBOSE << "... end findVertex(const Trk::TrackParticleBaseCollection* )" << endmsg;
-    return returnContainers;
-  }
-
-  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-  InDetAdaptivePriVxFinderTool::findVertex(const xAOD::TrackParticleContainer* trackParticles) {
+  InDetAdaptivePriVxFinderTool::findVertex(
+    const xAOD::TrackParticleContainer* trackParticles) const
+  {
     ATH_MSG_DEBUG(" Number of input tracks before track selection: " << trackParticles->size());
     SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
 
@@ -251,7 +188,7 @@ namespace InDet
 
     typedef DataVector<xAOD::TrackParticle>::const_iterator TrackParticleDataVecIter;
     for (TrackParticleDataVecIter itr = trackParticles->begin(); itr != trackParticles->end(); ++itr) {
-      if (static_cast<bool>(m_trkFilter->accept(**itr, &beamposition)) == false) continue;
+      if (!static_cast<bool>(m_trkFilter->accept(**itr, &beamposition))) continue;
       origParameters.push_back(&(*itr)->perigeeParameters());
       ATH_MSG_DEBUG("originalPerigee at " << &(*itr)->perigeeParameters());
     }
@@ -270,7 +207,7 @@ namespace InDet
       //assigning the input tracks to the fitted vertices through VxTrackAtVertices
       for (std::vector<Trk::VxTrackAtVertex>::iterator itr = tmpVxTAVtx->begin(); itr != tmpVxTAVtx->end(); itr++) {
         const Trk::TrackParameters* initialPerigee = (*itr).initialPerigee();
-        const xAOD::TrackParticle* correspondingTrack(0);
+        const xAOD::TrackParticle* correspondingTrack(nullptr);
         // find the track to that perigee ...
         for (TrackParticleDataVecIter itr1 = trackParticles->begin(); itr1 != trackParticles->end(); ++itr1) {
           if (initialPerigee == &((*itr1)->perigeeParameters())) {
@@ -278,7 +215,7 @@ namespace InDet
             continue;
           }
         }
-        if (correspondingTrack != 0) {
+        if (correspondingTrack != nullptr) {
           Trk::LinkToXAODTrackParticle* link = new Trk::LinkToXAODTrackParticle;
           link->setStorableObject(*trackParticles);
           link->setElement(correspondingTrack);
@@ -313,7 +250,7 @@ namespace InDet
   }
 
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-  InDetAdaptivePriVxFinderTool::findVertex(std::vector<const Trk::TrackParameters*>& origParameters) {
+  InDetAdaptivePriVxFinderTool::findVertex(std::vector<const Trk::TrackParameters*>& origParameters) const{
     std::vector<Trk::VxTrackAtVertex>* trkAtVtx;
 
     double vertexPt = 0.;
@@ -321,10 +258,10 @@ namespace InDet
     xAOD::VertexAuxContainer* theVertexAuxContainer = new xAOD::VertexAuxContainer;
     theVertexContainer->setStore(theVertexAuxContainer);
 
-    xAOD::Vertex* myxAODVertex = 0;
+    xAOD::Vertex* myxAODVertex = nullptr;
 
     //---- Start of fitting section ------------------------------------------------------//
-    if (origParameters.size() >= 1) {
+    if (!origParameters.empty()) {
       SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
       xAOD::Vertex beamposition;
       beamposition.makePrivateStore();
@@ -337,7 +274,7 @@ namespace InDet
     } else if (msgLvl(MSG::DEBUG)) msg() << "Less than two tracks or fitting without constraint - drop candidate vertex." << endmsg;
     // end if preselection for first iteration
 
-    if (origParameters.size() >= 1) {
+    if (!origParameters.empty()) {
       /* Store the primary vertex */
       trkAtVtx = &(myxAODVertex->vxTrackAtVertex());
       // do a loop through the element links to tracks in myVxCandidate.vxTrackAtVertex[]
@@ -349,14 +286,14 @@ namespace InDet
         if (tmpTP) vertexPt += tmpTP->pT();
       }
     } else {
-      if (myxAODVertex != 0) {
+      if (myxAODVertex != nullptr) {
         delete myxAODVertex;
-        myxAODVertex = 0;
+        myxAODVertex = nullptr;
       }
     }
 
 
-    if (myxAODVertex != 0) {
+    if (myxAODVertex != nullptr) {
       theVertexContainer->push_back(myxAODVertex);
       if (msgLvl(MSG::DEBUG)) { /* Print info only if requested */
         double xVtxError = Amg::error(myxAODVertex->covariancePosition(), 0);
@@ -373,9 +310,9 @@ namespace InDet
 
     //---- add dummy vertex at the end ------------------------------------------------------//
     //---- if one or more vertices are already there: let dummy have same position as primary vertex
-    if (theVertexContainer->size() >= 1) {
+    if (!theVertexContainer->empty()) {
       xAOD::Vertex* primaryVtx = theVertexContainer->front();
-      if (primaryVtx->vxTrackAtVertex().size() > 0) {
+      if (!primaryVtx->vxTrackAtVertex().empty()) {
         primaryVtx->setVertexType(xAOD::VxType::PriVtx);
         xAOD::Vertex* dummyxAODVertex = new xAOD::Vertex;
         theVertexContainer->push_back(dummyxAODVertex); // have to add vertex to container here first so it can use its
@@ -389,7 +326,7 @@ namespace InDet
       }
     }
     //---- if no vertex is there let dummy be at beam spot
-    else if (theVertexContainer->size() == 0) {
+    else if (theVertexContainer->empty()) {
       SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
       xAOD::Vertex* dummyxAODVertex = new xAOD::Vertex;
       theVertexContainer->push_back(dummyxAODVertex); // have to add vertex to container here first so it can use its
@@ -421,8 +358,7 @@ namespace InDet
   }
 
   void
-  InDetAdaptivePriVxFinderTool::SGError(std::string errService) {
+  InDetAdaptivePriVxFinderTool::SGError(const std::string& errService) {
     msg(MSG::FATAL) << errService << " not found. Exiting !" << endmsg;
-    return;
-  }
+ }
 } // end namespace InDet

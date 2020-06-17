@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BoostAfterburner/BoostEvent.h"
@@ -60,25 +60,24 @@ StatusCode BoostEvent::execute()
 
   for (McEventCollection::iterator itr = output_collection->begin(); itr!=output_collection->end(); itr++)
   {
-    for ( HepMC::GenEvent::particle_iterator particleItr = (*itr)->particles_begin();
-	  particleItr != (*itr)->particles_end(); particleItr++ ) {
-      CLHEP::HepLorentzVector momentum((*particleItr)->momentum().px(),
-				(*particleItr)->momentum().py(),
-				(*particleItr)->momentum().pz(),
-				(*particleItr)->momentum().e());
+    for ( auto particle: **itr){
+      CLHEP::HepLorentzVector momentum(particle->momentum().px(),
+				particle->momentum().py(),
+				particle->momentum().pz(),
+				particle->momentum().e());
 
       momentum.boost(m_beta_x,m_beta_y,m_beta_z);
-      msg(MSG::VERBOSE) << std::setw(10) << (*particleItr)->momentum().perp()
-			<< std::setw(10) << (*particleItr)->momentum().e()
-			<< std::setw(10) << (*particleItr)->momentum().eta()
-			<< std::setw(10) << (*particleItr)->momentum().phi()
+      msg(MSG::VERBOSE) << std::setw(10) << particle->momentum().perp()
+			<< std::setw(10) << particle->momentum().e()
+			<< std::setw(10) << particle->momentum().eta()
+			<< std::setw(10) << particle->momentum().phi()
 			<< std::setw(10) << momentum.perp()
 			<< std::setw(10) << momentum.e()
 			<< std::setw(10) << momentum.eta()
 			<< std::setw(10) << momentum.phi()
 			<< endmsg;
 
-      (*particleItr)->set_momentum( HepMC::FourVector(momentum.px(),momentum.py(),momentum.pz(),momentum.e()) );
+      particle->set_momentum( HepMC::FourVector(momentum.px(),momentum.py(),momentum.pz(),momentum.e()) );
     }
   }
 

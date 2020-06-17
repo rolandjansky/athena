@@ -175,11 +175,16 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(const MM_RawDataColl
     localPos.x() += calibStrip.dx;
 
     if(!merge) {
-      prdColl->push_back(new MMPrepData(prdId, hash, localPos, rdoList, cov, detEl, calibStrip.time, calibStrip.charge, calibStrip.distDrift));
+       	// storage will be handeled by Store Gate
+	      MMPrepData *mpd = new MMPrepData(prdId, hash, localPos, rdoList, cov, detEl, calibStrip.time, calibStrip.charge, calibStrip.distDrift);
+	      mpd->setAuthor(Muon::MMPrepData::Author::RDOTOPRDConverter);
+	      prdColl->push_back(mpd);
+
     } else {
        MMPrepData mpd = MMPrepData(prdId, hash, localPos, rdoList, cov, detEl, calibStrip.time, calibStrip.charge, calibStrip.distDrift);
        // set the hash of the MMPrepData such that it contains the correct value in case it gets used in SimpleMMClusterBuilderTool::getClusters
        mpd.setHashAndIndex(hash,0);
+       mpd.setAuthor(Muon::MMPrepData::Author::RDOTOPRDConverter);
        MMprds.push_back(mpd);
     } 
   }

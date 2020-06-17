@@ -199,7 +199,6 @@ StatusCode CSC_DCSConditionsTool::loadchamber(IOVSVC_CALLBACK_ARGS_P(I,keys)) {
   ATH_MSG_INFO(" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size());
   
   CondAttrListCollection::const_iterator itr;
-  Identifier ChamberId;
   
   std::map<Identifier,int>::const_iterator it;
 

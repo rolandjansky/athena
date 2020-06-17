@@ -51,10 +51,8 @@ namespace TruthHelper {
         // Access the HepMC record which is wrapped within McEvent
         const HepMC::GenEvent* genEvt = (*itr);
         if (genEvt == 0) return StatusCode::FAILURE;
-        HepMC::GenEvent::particle_const_iterator it = genEvt->particles_begin();
-        HepMC::GenEvent::particle_const_iterator en = genEvt->particles_end();
-        for (; it != en; ++it) {
-          if ((*selector)(*it)) mcParticles.push_back(*it);
+        for (auto it: *genEvt) {
+          if ((*selector)(it)) mcParticles.push_back(it);
         }
       }
     }

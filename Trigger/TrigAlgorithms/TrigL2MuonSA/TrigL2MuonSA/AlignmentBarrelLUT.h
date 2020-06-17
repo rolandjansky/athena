@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGL2MUONSA_ALIGNMENTBARRELLUT_H
@@ -10,8 +10,6 @@
 #include "TMath.h"
 
 #include "GaudiKernel/Service.h"
-#include "GaudiKernel/IInterface.h"
-#include "GaudiKernel/StatusCode.h"
 
 #include <string>
 
@@ -21,15 +19,10 @@ class AlignmentBarrelLUT: public AthAlgTool
 {
 
   public:
-    static const InterfaceID& interfaceID();
 
     AlignmentBarrelLUT(const std::string& type, 
                        const std::string& name,
                        const IInterface*  parent);
-    ~AlignmentBarrelLUT(void);
-
-    virtual StatusCode initialize();
-    virtual StatusCode finalize  ();
 
     StatusCode readLUT(std::string lut_fileName);
 
@@ -38,16 +31,23 @@ class AlignmentBarrelLUT: public AthAlgTool
     std::pair<int, int> GetBinNumber(int saddress, int innerR, double etaMap, double phiMap) const;
 
   private:
-    double m_dZ[4][2][15][30][2]; // [s_address][innerR][eta][phi][etaQ]
 
-    int m_NbinEta[4][2]; // [s_address][innerR]
-    float m_EtaMin[4][2];
-    float m_EtaMax[4][2];
-    float m_EtaStep[4][2];
-    int m_NbinPhi[4][2];
-    float m_PhiMin[4][2];
-    float m_PhiMax[4][2];
-    float m_PhiStep[4][2];
+    static const int s_saddress = 4;
+    static const int s_innerR = 2;
+    static const int s_eta = 15;
+    static const int s_phi = 30;
+    static const int s_etaQ = 2;
+
+    double m_dZ[s_saddress][s_innerR][s_eta][s_phi][s_etaQ];
+
+    int m_NbinEta[s_saddress][s_innerR];
+    float m_EtaMin[s_saddress][s_innerR];
+    float m_EtaMax[s_saddress][s_innerR];
+    float m_EtaStep[s_saddress][s_innerR];
+    int m_NbinPhi[s_saddress][s_innerR];
+    float m_PhiMin[s_saddress][s_innerR];
+    float m_PhiMax[s_saddress][s_innerR];
+    float m_PhiStep[s_saddress][s_innerR];
 
   };
 

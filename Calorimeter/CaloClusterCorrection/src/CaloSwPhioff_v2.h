@@ -1,10 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: CaloSwPhioff_v2.h,v 1.5 2008-01-25 04:14:21 ssnyder Exp $
 /**
  * @file  CaloSwPhioff_v2.h
  * @author scott snyder <snyder@bnl.gov>
@@ -57,22 +54,14 @@
 class CaloSwPhioff_v2
   : public CaloClusterCorrectionCommon
 {
- public: 
+public:
+  /// Inherit constructor.
+  using CaloClusterCorrectionCommon::CaloClusterCorrectionCommon;
   
-  /**
-   * @brief Constructor.
-   * @param type The type of the tool.
-   * @param name The name of the tool.
-   * @param parent The parent algorithm of the tool.
-   */
-  CaloSwPhioff_v2 (const std::string& type,
-                   const std::string& name,
-                   const IInterface* parent);
-
 
   /**
    * @brief Virtual function for the correction-specific code.
-   * @param ctx     The event context.
+   * @param myctx   ToolWithConstants context.
    * @param cluster The cluster to correct.
    *                It is updated in place.
    * @param elt     The detector description element corresponding
@@ -90,7 +79,7 @@ class CaloSwPhioff_v2
    *                @c CaloSampling::CaloSample; i.e., it has both
    *                the calorimeter region and sampling encoded.
    */
-  virtual void makeTheCorrection (const EventContext& ctx,
+  virtual void makeTheCorrection (const Context& myctx,
                                   xAOD::CaloCluster* cluster,
                                   const CaloDetDescrElement* elt,
                                   float eta,
@@ -109,48 +98,63 @@ private:
     : public TableBuilder
   {
   public:
-    /// Constructor.  Gets the parent correction object,
+    /// Constructor.  Gets the correction information,
     /// and the abs(eta) at which the correction is being
     /// evaluated (in cal-local coordinates).
-    Builder (const CaloSwPhioff_v2& corr, float aeta);
+    Builder (const CxxUtils::Array<3>& correction,
+             const CxxUtils::Array<1>& interp_barriers,
+             int degree,
+             float aeta);
 
     /// Calculate the correction for tabulated energy ENERGY_NDX.
     virtual float calculate (int energy_ndx, bool& good) const;
 
   private:
-    /// The parent correction object.
-    const CaloSwPhioff_v2& m_corr;
+    /// Tabulated arrays of function parameters.
+    const CxxUtils::Array<3> m_correction;
+
+    /// Allow breaking up the interpolation into independent regions.
+    const CxxUtils::Array<1> m_interp_barriers;
+
+    /// Degree of the polynomial interpolation.
+    int m_degree;
 
     /// The abs(eta) at which the correction is being
     /// evaluated (in cal-local coordinates).
     float m_aeta;
   };
-  friend class Builder;
 
   /// Calibration constant: tabulated arrays of function parameters.
-  CaloRec::Array<3> m_correction;
+  Constant<CaloRec::Array<3> > m_correction
+  { this, "correction", "Tabulated arrays of function parameters." };
 
   /// Calibration constant: allow breaking up the interpolation into
   /// independent regions.
-  CaloRec::Array<1> m_interp_barriers;
+  Constant<CxxUtils::Array<1> > m_interp_barriers
+  { this, "interp_barriers", "Allow breaking up the interpolation into independent regions." };
 
   /// Calibration constant: degree of the polynomial interpolation.
-  int               m_degree;
+  Constant<int> m_degree
+  { this, "degree", "Degree of the polynomial interpolation." };
 
   /// Calibration constant: coefficient by which to scale the
   /// entire correction.
-  float             m_correction_coef;
+  Constant<float> m_correction_coef
+  { this, "correction_coef", "Coefficient by which to scale the entire correction." };
 
   /// Calibration constant: if true, the correction gets an opposite
   /// sign if eta < 0.
-  bool              m_flip_phi;
+  Constant<bool> m_flip_phi
+  { this, "flip_phi", "If true, the correction gets an opposite sign if eta < 0." };
 
   /// Calibration constant: table of energies at which the correction
   /// was tabulated.
-  CaloRec::Array<1> m_energies;
+  Constant<CxxUtils::Array<1> > m_energies
+  { this, "energies", "Table of energies at which the correction was tabulated." };
 
   /// Calibration constant: degree of the polynomial interpolation in energy.
-  int               m_energy_degree;
+  Constant<int> m_energy_degree
+  { this, "energy_degree", "Degree of the polynomial interpolation in energy." };
 };
 
 

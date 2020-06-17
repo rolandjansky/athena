@@ -44,8 +44,6 @@ class IEMConversionBuilder : virtual public IAlgTool
   virtual StatusCode executeRec(const EventContext& ctx,egammaRec* egRec) const =  0;
   /** @brief execute method*/
   virtual StatusCode hltExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions) const =0;
-  /** @brief execute method*/
-  virtual StatusCode vertexExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions) const =0;
   /** @brief finalize method*/
   virtual StatusCode finalize() = 0;
   

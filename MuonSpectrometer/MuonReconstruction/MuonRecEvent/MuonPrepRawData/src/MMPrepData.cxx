@@ -163,6 +163,10 @@ namespace Muon
     m_stripDriftErrors = driftDistErrors;
   }
 
+  void MMPrepData::setAuthor(MMPrepData::Author author){
+    m_author = author;
+  }
+
   //assignment operator
   MMPrepData&
   MMPrepData::operator=(const MMPrepData& RIO)

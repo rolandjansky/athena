@@ -5,7 +5,7 @@
 # @author Sebastien Binet
 # @date February 2010
 
-__doc__ = "check that 2 ROOT files have same content (containers and sizes)."
+__doc__ = "diff two ROOT files (containers and sizes)"
 __author__ = "Sebastien Binet"
 
 ### imports -------------------------------------------------------------------
@@ -96,8 +96,8 @@ allowed: %(choices)s
                   help="""Compare nan as equal to nan""")
 
 def main(args):
-    """check that 2 ROOT files have same content (containers and sizes)
-    """
+    """diff two ROOT files (containers and sizes)"""
+
     global g_args
     g_args = args
     

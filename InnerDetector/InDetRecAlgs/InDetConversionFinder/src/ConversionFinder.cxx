@@ -16,7 +16,7 @@
 #include "InDetRecToolInterfaces/IVertexFinder.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "GaudiKernel/MsgStream.h"
-
+#include "GaudiKernel/EventContext.h"
 
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/Vertex.h"
@@ -102,7 +102,10 @@ namespace InDet
   class cleanup_pair : public std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
   {
   public:
-    cleanup_pair(const std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> &a_pair) : std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>(a_pair) {}
+    cleanup_pair(const std::pair<xAOD::VertexContainer*,
+                                 xAOD::VertexAuxContainer*>& a_pair)
+      : std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>(a_pair)
+    {}
     ~cleanup_pair() {
       delete this->first;
       delete this->second;
@@ -123,9 +126,10 @@ namespace InDet
   StatusCode ConversionFinder::execute()
   {
 
+    const EventContext& ctx =Algorithm::getContext();
     m_events_processed++;
 
-    SG::ReadHandle<xAOD::TrackParticleContainer> trackParticleCollection(m_tracksName);
+    SG::ReadHandle<xAOD::TrackParticleContainer> trackParticleCollection(m_tracksName,ctx);
     if ( !trackParticleCollection.isValid())
     {
       ATH_MSG_WARNING( "Could not find xAOD::TrackParticleContainer " << m_tracksName << " in StoreGate.");
@@ -154,14 +158,14 @@ namespace InDet
 
         Amg::Vector3D momentum(0., 0., 0.);
         for (unsigned int i = 0; i < vertex->nTrackParticles(); ++i){
-          momentum += m_EMExtrapolationTool->getMomentumAtVertex(*vertex, i);
+          momentum += m_EMExtrapolationTool->getMomentumAtVertex(ctx,*vertex, i);
         }
 
         vertex->auxdata<float>("px") = momentum.x();
         vertex->auxdata<float>("py") = momentum.y();
         vertex->auxdata<float>("pz") = momentum.z();
 
-        if (!m_EMExtrapolationTool->getEtaPhiAtCalo(vertex, &etaAtCalo, &phiAtCalo))
+        if (!m_EMExtrapolationTool->getEtaPhiAtCalo(ctx,vertex, &etaAtCalo, &phiAtCalo))
         {
           ATH_MSG_DEBUG("getEtaPhiAtCalo failed!");
         }
@@ -174,7 +178,7 @@ namespace InDet
 
     analyzeResults(conversions.first);
 
-    SG::WriteHandle<xAOD::VertexContainer> output(m_InDetConversionOutputName );
+    SG::WriteHandle<xAOD::VertexContainer> output(m_InDetConversionOutputName,ctx);
     if (output.record( std::unique_ptr<xAOD::VertexContainer>(conversions.releaseFirst()) ,
                        std::unique_ptr<xAOD::VertexAuxContainer>(conversions.releaseSecond())).isFailure()) {
       ATH_MSG_ERROR("Failed to record conversion vertices " << m_InDetConversionOutputName.key());

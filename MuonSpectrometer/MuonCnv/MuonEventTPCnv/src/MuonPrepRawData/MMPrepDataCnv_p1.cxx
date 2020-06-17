@@ -46,6 +46,7 @@ createMMPrepData ( const Muon::MMPrepData_p1 *persObj,
   data.setMicroTPC(persObj->m_angle, persObj->m_chisqProb);
   // set the drift distances
   data.setDriftDist(persObj->m_stripDriftDist,persObj->m_stripDriftErrors);
+  data.setAuthor(static_cast<Muon::MMPrepData::Author>(persObj->m_author));
 
   return data;
 }
@@ -78,6 +79,8 @@ transToPers( const Muon::MMPrepData *transObj, Muon::MMPrepData_p1 *persObj, Msg
 
     persObj->m_stripDriftDist   = transObj->stripDriftDist();
     persObj->m_stripDriftErrors = transObj->stripDriftErrors();
+
+    persObj->m_author = static_cast<int>(transObj->author());
 
     /// store the rdoList in a vector with the difference with respect to the 32-bit cluster identifier
     Identifier32::value_type clusIdCompact = transObj->identify().get_identifier32().get_compact(); // unsigned int

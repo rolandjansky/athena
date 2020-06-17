@@ -217,10 +217,10 @@ class ComponentAccumulator(object):
         """ Adds new sequence. If second argument is present then it is added under another sequence  """
         from AthenaCommon.AlgSequence import AthSequencer as LegacySequence
         if isinstance( newseq, LegacySequence ):
-            raise TypeError('{} is not the Conf2 Sequence, ComponentAccumulator handles only the former'.format(newseq.name()))
+            raise ConfigurationError('{} is not the Conf2 Sequence, ComponentAccumulator handles only the former'.format(newseq.name()))
 
         if not isSequence(newseq):
-            raise TypeError('{} is not a sequence'.format(newseq.name))
+            raise TypeError('%s is not a sequence' % newseq.name)
 
         if parentName is None:
             parent=self._sequence

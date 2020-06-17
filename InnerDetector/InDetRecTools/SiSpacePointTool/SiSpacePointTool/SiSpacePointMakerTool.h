@@ -7,14 +7,12 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "AthenaKernel/SlotSpecificObj.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "InDetPrepRawData/PixelClusterCollection.h"
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
 #include "SiSpacePointTool/SCTinformation.h"
 #include "TrkSpacePoint/SpacePoint.h"
 
-#include <mutex>
 #include <string>
 
 class SCT_ID;
@@ -57,9 +55,6 @@ namespace InDet {
 
     /// Finalize
     virtual StatusCode finalize() override;
-
-    /// To trigger cleanup for new event
-    void newEvent() const;
 
     /// Convert clusters to space points: SCT_Clusters -> SCT_SpacePoints
     Trk::SpacePoint* makeSCT_SpacePoint(const InDet::SiCluster& cluster1, const InDet::SiCluster& cluster2, 
@@ -114,41 +109,6 @@ namespace InDet {
     //@{
     const SCT_ID* m_idHelper{nullptr};
     //@}
-
-    /// @name Mutex to protect data members in const methods
-    //@{
-    mutable std::mutex m_mutex;
-    //@}
-
-    /// @class CacheEntry
-    /// To hold event dependent data
-    struct CacheEntry {
-      EventContext::ContextEvt_t m_evt{EventContext::INVALID_CONTEXT_EVT}; //!< Event number, slot number, used to check if already processed event or not.
-      std::vector<Trk::SpacePoint*> m_tmpSpacePoints{}; //!< SpacePoint cache
-      std::vector<SCTinformation> m_SCT0{}; //!< SCTinformation vector for 0-th element (side 0)
-      std::vector<SCTinformation> m_SCT1{}; //!< SCTinformation vector for 1-st element (side 1)
-      const InDetDD::SiDetectorElement* m_element0{nullptr}; //!< SiDetectorElement for 0-th element (side 0)
-      const InDetDD::SiDetectorElement* m_element1{nullptr}; //!< SiDetectorElement for 1-st element (side 1)
-      const InDetDD::SiDetectorElement* m_elementOLD{nullptr}; //!< SiDetectorElement cache
-      /// Clear all members of event dependent data
-      void clear() {
-        if (m_tmpSpacePoints.size()) {
-          for (Trk::SpacePoint* sp : m_tmpSpacePoints) {
-            delete sp;
-          }
-        }
-        m_tmpSpacePoints.clear();
-        m_SCT0.clear();
-        m_SCT1.clear();
-        m_element0 = nullptr;
-        m_element1 = nullptr;
-        m_elementOLD = nullptr;
-      };
-    };
-
-    /// SG::SlotSpecificObj is used to hold event dependent data cache.
-    /// Guarded by m_mutex in const methods.
-    mutable SG::SlotSpecificObj<CacheEntry> m_cache ATLAS_THREAD_SAFE;
 
     /// update range accordingly to the gap between the stereo modules
     void updateRange(const InDetDD::SiDetectorElement* element1, 

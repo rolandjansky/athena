@@ -1,8 +1,6 @@
-#--------------------------------------------------------------
-# FPE check
-#--------------------------------------------------------------
-from AthenaCommon.AppMgr import theApp
-### !!!!theApp.CreateSvc += ["FPEControlSvc"]
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 #--------------------------------------------------------------------------------
 # configure required detector flags for combined reco of simulated muons 
@@ -85,25 +83,23 @@ from MuonRecExample.MuonRecFlags import muonRecFlags
 muonRecFlags.doCalibNtuple                         = False
 muonRecFlags.doMSVertex                            = False
 muonRecFlags.doTrackPerformance                    = False
-# muonRecFlags.enableErrorTuning                     = False
 
-print 'muonRecFlags:::'
-print muonRecFlags
+print ('INFO: MooPerformance_topOptions.py - muonRecFlags:')
+print (muonRecFlags)
 
 #--------------------------------------------------------------------------------
 # combined muon reco flags (non-default values)
 #--------------------------------------------------------------------------------
 
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
-#muonCombinedRecFlags.doCaloMuonCollection          = False
 muonCombinedRecFlags.doMuGirlLowBetaMuonCollection = False
-#muonCombinedRecFlags.doMuGirl                      = False
 muonCombinedRecFlags.printConfigurables            = True
 muonCombinedRecFlags.doTrackPerformance            = False
-print 'muonCombinedRecFlags:::'
-print muonCombinedRecFlags
+print ('INFO: MooPerformance_topOptions.py - muonCombinedRecFlags:')
+print (muonCombinedRecFlags)
 
 # eliminate annoying messages from StoreGateSvc (clogging up log file)
+from AthenaCommon.AppMgr import ServiceMgr
 ServiceMgr.MessageSvc.setError +=  [ "StoreGateSvc"]
 
 ##### no more flags after this line #####
@@ -119,12 +115,6 @@ try:
 
     ## configure MuidStatistics for new unified chain (but no longer in release)
     from MuonCombinedRecExample.MuonCombinedKeys import MuonCombinedKeys as MuonCbKeys
-    #from MuidStatistics.MuidStatisticsConf import MuidStatistics
-    #MuidStatistics = MuidStatistics()
-    #MuidStatistics.HistSvc              = ServiceMgr.THistSvc
-    #MuidStatistics.CombinedMuonLocation = MuonCbKeys.FinalMuons() ## "Muons"
-    #MuidStatistics.OutputLevel          = DEBUG
-    #topSequence += MuidStatistics
 
     from MuonTrackPerformance.MuonTrackPerformanceConf import MuonTrackStatisticsTool
     MuonTrackStatisticsTool = MuonTrackStatisticsTool("MuonTrackStatisticsTool")
@@ -150,20 +140,17 @@ try:
     topSequence += MuonTrackPerformanceAlg("MuidExtrapolatedPerformanceAlg",
                                            TrackInputLocation = "ExtrapolatedMuonTracks",
                                            IsCombined   = True )
-    # MuGirl off for now
-    #topSequence += MuonTrackPerformanceAlg("MuGirlPerformanceAlg",
-    #                                       TrackInputLocation = "MuGirlTracksFromMuidStatistics",
-    #                                       DoTruth      = True,
-    #                                       IsCombined   = True )
 
-    print MuonTrackStatistics,ToolSvc.MuonTrackStatisticsTool
-    print 'MooPerformance_topOptions: finished '
-    
+    print ('INFO: MooPerformance_topOptions.py - MuonTrackStatistics: %s'%MuonTrackStatistics)
+    print ('INFO: MooPerformance_topOptions.py - MuonTrackStatisticsTool: %s'%ToolSvc.MuonTrackStatisticsTool)
+    print ('INFO: MooPerformance_topOptions.py - finished')
+
     ###### put any user finetuning before this line #####
 except:
     # print the stacktrace (saving could fail, and would then obscure the real problem)
     import traceback
-    print traceback.format_exc().rstrip()
+    print ('WARNING: MooPerformance_topOptions.py - stack trace:')
+    print (traceback.format_exc().rstrip())
 
     # always write config so far for debugging
     from AthenaCommon.ConfigurationShelve import saveToAscii
@@ -174,12 +161,5 @@ except:
     # but still exit with error
     import sys
     sys.exit(10)
-#else:
-    # and write config to include user changes after topOptions
-    #from AthenaCommon.ConfigurationShelve import saveToAscii
-    #saveToAscii("config.txt")
-    # add DetFlags
-    #from MuonRecExample.MuonRecUtils import dumpDetFlags
-    #dumpDetFlags("config.txt")
 
 ServiceMgr.GeoModelSvc.SupportedGeometry=20

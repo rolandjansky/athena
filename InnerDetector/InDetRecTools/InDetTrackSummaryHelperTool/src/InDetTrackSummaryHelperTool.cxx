@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSummaryHelperTool/InDetTrackSummaryHelperTool.h"
@@ -145,17 +145,26 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
         information[Trk::numberOfDBMHits]++;
       } else {
         information[Trk::numberOfPixelHits]++;
-        if (m_pixelId->layer_disk(id)==0 and m_pixelId->is_barrel(id)) information[Trk::numberOfInnermostPixelLayerHits]++;
-        if (m_pixelId->layer_disk(id)==1 and m_pixelId->is_barrel(id)) information[Trk::numberOfNextToInnermostPixelLayerHits]++;
+        if (m_pixelId->layer_disk(id) == 0 and m_pixelId->is_barrel(id))
+          information[Trk::numberOfInnermostPixelLayerHits]++;
+        if (m_pixelId->layer_disk(id) == 1 and m_pixelId->is_barrel(id))
+          information[Trk::numberOfNextToInnermostPixelLayerHits]++;
         // check to see if there's an ambiguity with the ganged cluster.
-        const PixelClusterOnTrack* pix = dynamic_cast<const PixelClusterOnTrack*>(rot);
+        const PixelClusterOnTrack* pix = nullptr;
+        if (rot->rioType(Trk::RIO_OnTrackType::PixelCluster)) {
+          pix = static_cast<const PixelClusterOnTrack*>(rot);
+        }
         if ( not pix ) {
           ATH_MSG_ERROR("Could not cast pixel RoT to PixelClusterOnTrack!");
         } else {
           const InDet::PixelCluster* pixPrd = pix->prepRawData();
           if ( pixPrd and pixPrd->isSplit() ) { information[Trk::numberOfPixelSplitHits]++; hitIsSplit=true; }
-          if ( pixPrd and m_pixelId->is_barrel(id) and m_pixelId->layer_disk(id)==0 and pixPrd->isSplit() ) information[Trk::numberOfInnermostLayerSplitHits]++;
-          if ( pixPrd and m_pixelId->is_barrel(id) and m_pixelId->layer_disk(id)==1 and pixPrd->isSplit() ) information[Trk::numberOfNextToInnermostLayerSplitHits]++;
+          if (pixPrd and m_pixelId->is_barrel(id) and
+              m_pixelId->layer_disk(id) == 0 and pixPrd->isSplit())
+            information[Trk::numberOfInnermostLayerSplitHits]++;
+          if (pixPrd and m_pixelId->is_barrel(id) and
+              m_pixelId->layer_disk(id) == 1 and pixPrd->isSplit())
+            information[Trk::numberOfNextToInnermostLayerSplitHits]++;
           if ( pix->isBroadCluster() ) information[Trk::numberOfPixelSpoiltHits]++;
           if ( pix->hasClusterAmbiguity() ) {
             information[Trk::numberOfGangedPixels]++;
@@ -205,7 +214,11 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
 
     } else {
       information[Trk::numberOfSCTHits]++;
-      const InDet::SCT_ClusterOnTrack *sctclus=dynamic_cast<const InDet::SCT_ClusterOnTrack *>(rot);
+
+      const InDet::SCT_ClusterOnTrack* sctclus = nullptr;
+      if (rot->rioType(Trk::RIO_OnTrackType::SCTCluster)) {
+        sctclus = static_cast<const InDet::SCT_ClusterOnTrack*>(rot);
+      }
       if ( not sctclus ) {
         ATH_MSG_ERROR("Could not cast SCT RoT to SCT_ClusterOnTrack!");
       } else {
@@ -246,29 +259,38 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
       information[Trk::numberOfTRTXenonHits]++;
     }
 
-    if (isOutlier and not ispatterntrack ) { // ME: outliers on pattern tracks may be reintegrated by fitter, so count them as hits    
+    if (isOutlier and not ispatterntrack) {
+      // ME: outliers on pattern tracks may be
+      // reintegrated by fitter, so count them as hits
       information[Trk::numberOfTRTOutliers]++;
 
-      const InDet::TRT_DriftCircleOnTrack* trtDriftCircle 
-        = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(  rot  );
-      if ( not trtDriftCircle ) {
+      const InDet::TRT_DriftCircleOnTrack* trtDriftCircle = nullptr;
+      if (rot->rioType(Trk::RIO_OnTrackType::TRT_DriftCircle)) {
+        trtDriftCircle = static_cast<const InDet::TRT_DriftCircleOnTrack*>(rot);
+      }
+      if (not trtDriftCircle) {
         ATH_MSG_ERROR("Could not cast TRT RoT to TRT_DriftCircleOnTracknot ");
       } else {
-        if ( trtDriftCircle->highLevel()==true and not isArgonStraw and not isKryptonStraw ) information[Trk::numberOfTRTHighThresholdOutliers]++;
+        if (trtDriftCircle->highLevel() == true and not isArgonStraw and
+            not isKryptonStraw)
+          information[Trk::numberOfTRTHighThresholdOutliers]++;
       }
     } else {
       information[Trk::numberOfTRTHits]++;
       double error2=rot->localCovariance()(0,0);
       if (error2>1) information[Trk::numberOfTRTTubeHits]++;
 
-      const InDet::TRT_DriftCircleOnTrack* trtDriftCircle
-        = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(  rot  );
-      if ( not trtDriftCircle ) {
+      const InDet::TRT_DriftCircleOnTrack* trtDriftCircle = nullptr;
+      if (rot->rioType(Trk::RIO_OnTrackType::TRT_DriftCircle)) {
+        trtDriftCircle = static_cast<const InDet::TRT_DriftCircleOnTrack*>(rot);
+      }
+      if (not trtDriftCircle) {
         ATH_MSG_ERROR("Could not cast TRT RoT to TRT_DriftCircleOnTracknot ");
       } else {
-        if ( trtDriftCircle->highLevel()==true ) {
-          if ( not isArgonStraw and not isKryptonStraw ) information[Trk::numberOfTRTHighThresholdHits]++;
-          assert (Trk::numberOfTRTHighThresholdHitsTotal<information.size());
+        if (trtDriftCircle->highLevel() == true) {
+          if (not isArgonStraw and not isKryptonStraw)
+            information[Trk::numberOfTRTHighThresholdHits]++;
+          assert(Trk::numberOfTRTHighThresholdHitsTotal < information.size());
           information[Trk::numberOfTRTHighThresholdHitsTotal]++;
         }
       }
@@ -362,15 +384,21 @@ void InDet::InDetTrackSummaryHelperTool::updateSharedHitCount(const Trk::Track &
   const DataVector<const Trk::MeasurementBase>* measurements = track.measurementsOnTrack();
   if (measurements){
     for (const auto& ms : *measurements){
-      const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(ms);
       // check if it's a rot
+      const Trk::RIO_OnTrack* rot = nullptr;
+      if (ms->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
+        rot = static_cast<const Trk::RIO_OnTrack*>(ms);
+      }
       if (rot){
         const Identifier& id = rot->identify();
         if ( m_doSharedHits and m_usePixel and m_pixelId->is_pixel(id) ) {
           // check if shared 
           bool hitIsSplit(false);
-          if (m_runningTIDE_Ambi){
-            const PixelClusterOnTrack* pix = dynamic_cast<const PixelClusterOnTrack*>(rot);
+          if (m_runningTIDE_Ambi) {
+            const PixelClusterOnTrack* pix =nullptr;
+            if (rot->rioType(Trk::RIO_OnTrackType::PixelCluster)) {
+              pix = static_cast<const PixelClusterOnTrack*>(rot);
+            }
             if (pix) {
               const InDet::PixelCluster* pixPrd = pix->prepRawData();
               if (pixPrd and pixPrd->isSplit()) { 
@@ -383,7 +411,7 @@ void InDet::InDetTrackSummaryHelperTool::updateSharedHitCount(const Trk::Track &
           }
           // If we are running the TIDE ambi don't count split hits as shared 
           if ( not (m_runningTIDE_Ambi and hitIsSplit) ){
-            if ( isShared(prd_to_track_map, m_assoTool, *(rot->prepRawData())) ) {
+            if (isShared(prd_to_track_map, m_assoTool, *(rot->prepRawData()))) {
               ATH_MSG_DEBUG("shared Pixel hit found");
               summary.m_information[Trk::numberOfPixelSharedHits]++;
               if ( (m_pixelId->is_barrel(id) and m_pixelId->layer_disk(id)==0) ) {

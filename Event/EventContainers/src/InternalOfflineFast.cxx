@@ -27,7 +27,8 @@ void InternalOfflineFast::wait() const {
    for(size_t i=0 ;i < m_fullMap.size(); ++i){
     if(m_fullMap[i]) m_map.emplace_back(i, m_fullMap[i]);
    }
-   m_needsupdate.store(true);
+   m_map.shrink_to_fit();
+   m_needsupdate.store(false);
 }
 
 std::vector<IdentifierHash> InternalOfflineFast::getAllCurrentHashes() const {
@@ -70,7 +71,15 @@ size_t InternalOfflineFast::numberOfCollections() const {
 }
 
 void InternalOfflineFast::cleanUp(deleter_f* deleter) noexcept {
-    for(const auto& x : m_map) { deleter(x.second); m_fullMap[x.first] = nullptr; }
+    if(!m_needsupdate) {
+        for(const auto& x : m_map) { deleter(x.second); m_fullMap[x.first] = nullptr; }
+        if(!m_map.empty()) m_needsupdate.store(true, std::memory_order_relaxed);
+    }
+    else {
+      for(size_t i=0 ;i < m_fullMap.size(); ++i){
+         if(m_fullMap[i]) deleter(m_fullMap[i]);
+      }
+    }
     m_map.clear();
 }
 
@@ -114,5 +123,10 @@ StatusCode InternalOfflineFast::fetchOrCreate(const std::vector<IdentifierHash>&
 }
 
 void InternalOfflineFast::destructor(deleter_f* deleter) noexcept {
-    for(const auto& x : m_map)  deleter(x.second);
+    if(!m_needsupdate) for(const auto& x : m_map)  deleter(x.second);
+    else {
+      for(size_t i=0 ;i < m_fullMap.size(); ++i){
+         if(m_fullMap[i]) deleter(m_fullMap[i]);
+      }
+    }
 }

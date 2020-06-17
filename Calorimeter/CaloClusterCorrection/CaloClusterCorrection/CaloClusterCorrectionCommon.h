@@ -1,10 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: CaloClusterCorrectionCommon.h,v 1.7 2008-01-25 04:14:20 ssnyder Exp $
 /* @file  CaloClusterCorrectionCommon.h
  * @author scott snyder <snyder@bnl.gov>
  * @date December, 2004
@@ -45,43 +42,30 @@ class CaloClusterCorrectionCommon
   : public CaloClusterCorrection
 {
 public:
-
-  /**
-   * @brief Constructor.
-   * @param type The type of the tool.
-   * @param name The name of the tool.
-   * @param parent The parent algorithm of the tool.
-   */
+  /// Inherit constructor.
+  //using CaloClusterCorrection::CaloClusterCorrection;
   CaloClusterCorrectionCommon (const std::string& type,
-			       const std::string& name,
-			       const IInterface* parent);
+                               const std::string& name,
+                               const IInterface* parent);
 
 
-  /**
-   * @brief Destructor.
-   */
-  virtual ~CaloClusterCorrectionCommon () override;
-
-
-  /**
-   * @brief Initialization.
-   */
-  virtual StatusCode initialize() override;
+  /// Destructor.
+  virtual ~CaloClusterCorrectionCommon();
 
 
   /**
    * @brief Perform the correction.  Called by the tool
-   * @param ctx     The event context.
+   * @param myctx   ToolWithConstants context.
    * @param cluster The cluster to correct.
    *                It is updated in place.
    */
-  virtual void makeCorrection(const EventContext& ctx,
-                              xAOD::CaloCluster* cluster) const override;
+  virtual void makeCorrection (const Context& myctx,
+                               xAOD::CaloCluster* cluster) const override;
 
 
   /**
    * @brief Virtual function for the correction-specific code.
-   * @param ctx     The event context.
+   * @param myctx   ToolWithConstants context.
    * @param cluster The cluster to correct.
    *                It is updated in place.
    * @param elt     The detector description element corresponding
@@ -101,7 +85,7 @@ public:
    *                the calorimeter region and sampling encoded.
    *                Otherwise, this is Unknown.
    */
-  virtual void makeTheCorrection (const EventContext& ctx,
+  virtual void makeTheCorrection (const Context& myctx,
                                   xAOD::CaloCluster* cluster,
                                   const CaloDetDescrElement* elt,
                                   float eta,
@@ -175,7 +159,8 @@ private:
   /// is intended.  This should be one of the constants above.
   /// This affects the meaning of the @c eta and @c phi arguments
   /// passed to @c makeTheCorrection, as well as the @c samp argument.
-  int m_region;
+  Constant<int> m_region
+  { this, "region", "Calorimeter region" };
 
   /// Helper for detector description lookup.
   CxxUtils::CachedUniquePtr<const CaloClusterCorr::DDHelper> m_ddhelper;

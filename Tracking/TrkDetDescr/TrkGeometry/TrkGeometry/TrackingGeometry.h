@@ -22,6 +22,7 @@
 #include "AthenaKernel/MsgStreamMember.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
+#include "CxxUtils/checker_macros.h"
 
 class MsgStream;
 
@@ -124,7 +125,7 @@ namespace Trk {
       
       /**  Geometry Builder busineess:
            synchronize all layers to enclosed volume dimensions */
-      void synchronizeLayers(MsgStream& msgstream, const TrackingVolume* vol=nullptr) const;
+      void synchronizeLayers ATLAS_NOT_THREAD_SAFE (MsgStream& msgstream, const TrackingVolume* vol=nullptr) const;
            
     
       /** private method the Navigation Level */

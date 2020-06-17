@@ -11,7 +11,8 @@ def makeFTagAnalysisSequence( seq, dataType, jetCollection,
                               kinematicSelection = False,
                               noEfficiency = False,
                               legacyRecommendations = False,
-                              enableCutflow = False ):
+                              enableCutflow = False,
+                              minPt = None ):
     """Create a ftag analysis algorithm sequence
 
     for now the sequence is passed in, I'm unsure if I can concatenate
@@ -26,7 +27,18 @@ def makeFTagAnalysisSequence( seq, dataType, jetCollection,
       noEfficiency -- Wether to run efficiencies calculation
       legacyRecommendations -- Use legacy recommendations without shallow copied containers
       enableCutflow -- Whether or not to dump the cutflow
+      minPt -- Kinematic selection for jet calibration validity (depending on jet collection)
     """
+
+    # Kinematic selection depending on validity of the calibration
+    # https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BTagCalibrationRecommendationsRelease21
+    if minPt == None:
+        if "EMPFlow" in jetCollection:
+            minPt = 20e3
+        elif "EMTopo" in jetCollection:
+            minPt = 20e3
+        elif "VRTrack" in jetCollection:
+            minPt = 10e3
 
     if dataType not in ["data", "mc", "afii"] :
         raise ValueError ("invalid data type: " + dataType)
@@ -48,7 +60,7 @@ def makeFTagAnalysisSequence( seq, dataType, jetCollection,
         # Set up the ftag kinematic selection algorithm(s):
         alg = createAlgorithm( 'CP::AsgSelectionAlg', 'FTagKinSelectionAlg'+postfix )
         addPrivateTool( alg, 'selectionTool', 'CP::AsgPtEtaSelectionTool' )
-        alg.selectionTool.minPt = 20e3
+        alg.selectionTool.minPt = minPt
         alg.selectionTool.maxEta = 2.5
         alg.selectionDecoration = 'ftag_kin_select'
         seq.append( alg, inputPropName = 'particles',
@@ -69,6 +81,7 @@ def makeFTagAnalysisSequence( seq, dataType, jetCollection,
     alg.selectionTool.OperatingPoint = btagWP
     alg.selectionTool.JetAuthor = jetCollection
     alg.selectionTool.FlvTagCutDefinitionsFileName = bTagCalibFile
+    alg.selectionTool.MinPt = minPt
     if preselection is not None:
         alg.preselection = preselection
     alg.selectionDecoration = 'ftag_select_' + btagger + '_' + btagWP + ',as_char'
@@ -87,6 +100,7 @@ def makeFTagAnalysisSequence( seq, dataType, jetCollection,
         alg.efficiencyTool.JetAuthor = jetCollection
         alg.efficiencyTool.ScaleFactorFileName = bTagCalibFile
         alg.efficiencyTool.SystematicsStrategy = "Envelope"
+        alg.efficiencyTool.MinPt = minPt
         alg.scaleFactorDecoration = 'ftag_effSF_' + btagger + '_' + btagWP + '_%SYS%'
         alg.scaleFactorDecorationRegex = '(^FT_EFF_.*)'
         alg.selectionDecoration = 'ftag_select_' + btagger + '_' + btagWP + ',as_char'

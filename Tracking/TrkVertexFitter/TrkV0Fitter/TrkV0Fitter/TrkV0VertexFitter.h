@@ -43,6 +43,8 @@ namespace Trk
   class TrkV0VertexFitter : public extends<AthAlgTool, IVertexFitter>
   {
   public:
+    // The following 'using' can be removed when IVertexFitter::fit has been fully migrated to the one with the EventContext
+    using Trk::IVertexFitter::fit;
   
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;

@@ -14,19 +14,6 @@
  */
 
 
-/*************************************************************************************
-      IMultiStateMaterialEffects.h  -  description
-      --------------------------------------------
-begin                : Thursday 17th February 2005
-author               : atkinson
-email                : Tom.Atkinson@cern.ch
-decription           : (Non-pure) abstract base class for defining material
-                       effects including energy loss and multiple scattering for
-                       use in the multi-component state environment. These
-                       material effects will produce multi-component state
-outputs
-************************************************************************************/
-
 #ifndef Trk_IMultiStateMaterialEffects_H
 #define Trk_IMultiStateMaterialEffects_H
 
@@ -36,8 +23,6 @@ outputs
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
-
-#include "TrkExInterfaces/IMaterialEffectsUpdator.h"
 
 #include <Eigen/StdVector>
 #include <memory>

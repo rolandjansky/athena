@@ -61,9 +61,9 @@ StatusCode
         ATH_MSG_ERROR ("Failed to retrieve InDet helper tool "<< m_idTool);
         ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
         return StatusCode::FAILURE;
-    } else {
+    } 
         if ( !m_idTool.empty()) msg(MSG::INFO) << "Retrieved tool " << m_idTool << endmsg;
-    }
+    
 
   // Troels.Petersen@cern.ch:
     if ( !m_eProbabilityTool.empty() && m_eProbabilityTool.retrieve().isFailure() ) 
@@ -71,9 +71,9 @@ StatusCode
         ATH_MSG_ERROR ("Failed to retrieve electron probability tool " << m_eProbabilityTool);
         ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
         return StatusCode::FAILURE;
-    } else { 
+    } 
        if ( !m_eProbabilityTool.empty()) msg(MSG::INFO) << "Retrieved tool " << m_eProbabilityTool << endmsg;
-    }
+    
 
     if (!m_trt_dEdxTool.empty()) {
       ATH_CHECK( m_trt_dEdxTool.retrieve() );
@@ -85,9 +85,9 @@ StatusCode
         ATH_MSG_ERROR ("Failed to retrieve pixel dEdx tool " << m_dedxtool);
         ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
         return StatusCode::FAILURE;
-    } else {
+    } 
        if ( !m_dedxtool.empty()) msg(MSG::INFO) << "Retrieved tool " << m_dedxtool << endmsg;
-    }
+    
 
     if ( !m_muonTool.empty() && m_muonTool.retrieve().isFailure() ) 
     {
@@ -503,15 +503,15 @@ Trk::TrackSummaryTool::getTool(const Identifier& id)
   if (m_detID->is_indet(id)){
     if (!m_idTool.empty()){
       return &*m_idTool;
-    } else { 
+    } 
       ATH_MSG_WARNING("getTool: Identifier is from ID but have no ID tool");
-    }
+    
   } else if(m_detID->is_muon(id)) {
     if (!m_muonTool.empty()) {
       return &*m_muonTool;
-    } else {
+    } 
       ATH_MSG_WARNING("getTool: Identifier is from Muon but have no Muon tool");
-    }
+    
   } else {
     ATH_MSG_WARNING("getTool: Identifier is of unknown type! id: "<<id.getString());
   }
@@ -524,15 +524,15 @@ Trk::TrackSummaryTool::getTool(const Identifier& id) const
   if (m_detID->is_indet(id)){
     if (!m_idTool.empty()){
       return &*m_idTool;
-    } else { 
+    } 
       ATH_MSG_WARNING("getTool: Identifier is from ID but have no ID tool");
-    }
+    
   } else if(m_detID->is_muon(id)) {
     if (!m_muonTool.empty()) {
       return &*m_muonTool;
-    } else {
+    } 
       ATH_MSG_WARNING("getTool: Identifier is from Muon but have no Muon tool");
-    }
+    
   } else {
     ATH_MSG_WARNING("getTool: Identifier is of unknown type! id: "<<id.getString());
   }
@@ -570,8 +570,8 @@ void Trk::TrackSummaryTool::searchHolesStepWise( const Trk::Track& track,
     information [numberOfMmHoles]              = -1;
     return;
   }
-  else
-  {
+  
+  
     if (doHolesInDet)
     {
       // -------- perform the InDet hole search
@@ -603,6 +603,6 @@ void Trk::TrackSummaryTool::searchHolesStepWise( const Trk::Track& track,
       information [numberOfMmHoles] = 0;        
       m_muonTool->searchForHoles(track,information,Trk::muon) ;
     }
-  }
+  
   }
 

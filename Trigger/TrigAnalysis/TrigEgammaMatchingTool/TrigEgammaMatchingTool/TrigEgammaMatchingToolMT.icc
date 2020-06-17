@@ -3,8 +3,6 @@
 */
 
 
-using namespace TrigCompositeUtils;
-
 
 // L2Calo, L2Electron, L2Photon, EFCalo, Electron and Photon trigger passed access
 template<class T>
@@ -77,10 +75,10 @@ inline bool TrigEgammaMatchingToolMT::closestObject( const xAOD::Egamma *eg, con
 
 
 template<class T>
-inline std::vector<LinkInfo<T>> TrigEgammaMatchingToolMT::getFeatures( const TrigCompositeUtils::Decision *dec , std::string trigger, std::string key)
+inline std::vector<TrigCompositeUtils::LinkInfo<T>> TrigEgammaMatchingToolMT::getFeatures( const TrigCompositeUtils::Decision *dec , std::string trigger, std::string key)
 const 
 {
-  std::vector<LinkInfo<T>> vec;
+  std::vector<TrigCompositeUtils::LinkInfo<T>> vec;
   auto initRoi = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(dec, "initialRoI"); 
   if( !initRoi.link.isValid() ) return vec;
 
@@ -117,7 +115,7 @@ inline const xAOD::EmTauRoI* TrigEgammaMatchingToolMT::getL1Feature( const TrigC
 
 // L1Calo
 template<>
-inline LinkInfo<TrigRoiDescriptorCollection> TrigEgammaMatchingToolMT::getFeature<TrigRoiDescriptorCollection>( const TrigCompositeUtils::Decision *dec , 
+inline TrigCompositeUtils::LinkInfo<TrigRoiDescriptorCollection> TrigEgammaMatchingToolMT::getFeature<TrigRoiDescriptorCollection>( const TrigCompositeUtils::Decision *dec , 
                                                                                                                 std::string trigger)
 const
 {
@@ -130,24 +128,24 @@ const
       if( (*featLinkInfo.link)->roiWord() == (*initRoi.link)->roiWord() )  return featLinkInfo; 
     }                                                               
   }
-  return LinkInfo<TrigRoiDescriptorCollection>();
+  return TrigCompositeUtils::LinkInfo<TrigRoiDescriptorCollection>();
 }
 
 
 // L2Calo
 template<>
-inline LinkInfo<xAOD::TrigEMClusterContainer> TrigEgammaMatchingToolMT::getFeature<xAOD::TrigEMClusterContainer>( const TrigCompositeUtils::Decision *dec , 
+inline TrigCompositeUtils::LinkInfo<xAOD::TrigEMClusterContainer> TrigEgammaMatchingToolMT::getFeature<xAOD::TrigEMClusterContainer>( const TrigCompositeUtils::Decision *dec , 
                                                                                                                   std::string trigger)
 const
 {
-  std::vector<LinkInfo<xAOD::TrigEMClusterContainer>> vec = getFeatures<xAOD::TrigEMClusterContainer>(dec, trigger, key("L2Calo") );
-  return !vec.empty() ? vec.front() : LinkInfo<xAOD::TrigEMClusterContainer>();
+  std::vector<TrigCompositeUtils::LinkInfo<xAOD::TrigEMClusterContainer>> vec = getFeatures<xAOD::TrigEMClusterContainer>(dec, trigger, key("L2Calo") );
+  return !vec.empty() ? vec.front() : TrigCompositeUtils::LinkInfo<xAOD::TrigEMClusterContainer>();
 }
 
 
 // L2Electron
 template<>
-inline std::vector<LinkInfo<xAOD::TrigElectronContainer>> TrigEgammaMatchingToolMT::getFeatures<xAOD::TrigElectronContainer>( const TrigCompositeUtils::Decision *dec , 
+inline std::vector<TrigCompositeUtils::LinkInfo<xAOD::TrigElectronContainer>> TrigEgammaMatchingToolMT::getFeatures<xAOD::TrigElectronContainer>( const TrigCompositeUtils::Decision *dec , 
                                                                                                                               std::string trigger)
 const
 {
@@ -157,7 +155,7 @@ const
 
 // L2Photon
 template<>
-inline std::vector<LinkInfo<xAOD::TrigPhotonContainer>> TrigEgammaMatchingToolMT::getFeatures<xAOD::TrigPhotonContainer>( const TrigCompositeUtils::Decision *dec , 
+inline std::vector<TrigCompositeUtils::LinkInfo<xAOD::TrigPhotonContainer>> TrigEgammaMatchingToolMT::getFeatures<xAOD::TrigPhotonContainer>( const TrigCompositeUtils::Decision *dec , 
                                                                                                                           std::string trigger)
 const
 {
@@ -167,7 +165,7 @@ const
 
 // EFCalo
 template<>
-inline std::vector<LinkInfo<xAOD::CaloClusterContainer>> TrigEgammaMatchingToolMT::getFeatures<xAOD::CaloClusterContainer>( const TrigCompositeUtils::Decision *dec , 
+inline std::vector<TrigCompositeUtils::LinkInfo<xAOD::CaloClusterContainer>> TrigEgammaMatchingToolMT::getFeatures<xAOD::CaloClusterContainer>( const TrigCompositeUtils::Decision *dec , 
                                                                                                                             std::string trigger)
 const
 {
@@ -177,7 +175,7 @@ const
 
 // Electron
 template<>
-inline std::vector<LinkInfo<xAOD::ElectronContainer>> TrigEgammaMatchingToolMT::getFeatures<xAOD::ElectronContainer>( const TrigCompositeUtils::Decision *dec , 
+inline std::vector<TrigCompositeUtils::LinkInfo<xAOD::ElectronContainer>> TrigEgammaMatchingToolMT::getFeatures<xAOD::ElectronContainer>( const TrigCompositeUtils::Decision *dec , 
                                                                                                                       std::string trigger)
 const
 {
@@ -187,7 +185,7 @@ const
 
 // Photon
 template<>
-inline std::vector<LinkInfo<xAOD::PhotonContainer>> TrigEgammaMatchingToolMT::getFeatures<xAOD::PhotonContainer>( const TrigCompositeUtils::Decision *dec , 
+inline std::vector<TrigCompositeUtils::LinkInfo<xAOD::PhotonContainer>> TrigEgammaMatchingToolMT::getFeatures<xAOD::PhotonContainer>( const TrigCompositeUtils::Decision *dec , 
                                                                                                                   std::string trigger)
 const
 {
