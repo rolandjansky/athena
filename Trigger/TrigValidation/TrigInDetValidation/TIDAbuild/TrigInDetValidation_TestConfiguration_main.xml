@@ -106,13 +106,6 @@
 <!-- #     include   "TrigInDetValidation_minBias_pileUp.xml" -->
 
 
-#     include   "TrigInDetValidation_FTK_mu_ttbar.xml"
-#     include   "TrigInDetValidation_FTK_tau_tautau.xml"
-#     include   "TrigInDetValidation_FTK_bjet_ttbar.xml"
-#     include   "TrigInDetValidation_FTK_beamspot_ttbar.xml"
-#     include   "TrigInDetValidation_FTK_mu_ttbar_offline.xml"
-#     include   "TrigInDetValidation_FTK_bjet_ttbar_offline.xml"
-
       </jobList>
 
       <jobGroups>
