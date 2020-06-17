@@ -10,7 +10,8 @@ EXOT9AllVariables = [
     "ExtrapolatedMuonTrackParticles",
     "CombinedMuonTrackParticles",
     "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht",
-    "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl_PUC"
+    "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl_PUC",
+    "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET"
 ]
 
 EXOT9SmartCollections = [
@@ -34,5 +35,5 @@ EXOT9SmartCollections = [
 
 EXOT9Extravariables = [
     "Muons.rpcHitTime.meanDeltaADCCountsMDT.MeasEnergyLoss",
-    "InDetTrackParticles.numberOfIBLOverflowsdEdx.TRTdEdxUsedHits.TRTdEdx.numberOfTRTHighThresholdHitsTotal.numberOfTRTXenonHits.numberOfUsedHitsdEdx.pixeldEdx"
+    "InDetTrackParticles.numberOfIBLOverflowsdEdx.TRTdEdxUsedHits.TRTdEdx.numberOfTRTHighThresholdHitsTotal.numberOfTRTXenonHits.numberOfUsedHitsdEdx.pixeldEdx.eProbabilityHT"
 ]
