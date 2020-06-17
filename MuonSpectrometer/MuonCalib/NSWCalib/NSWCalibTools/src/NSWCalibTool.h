@@ -35,7 +35,6 @@ namespace Muon {
 
     virtual ~NSWCalibTool() = default;
     
-    StatusCode calibrate( const Muon::MM_RawData* mmRawData, const Amg::Vector3D& globalPos, NSWCalib::CalibratedStrip& calibStrip) const;
     StatusCode calibrateClus(const Muon::MMPrepData* prepData, const Amg::Vector3D& globalPos, std::vector<NSWCalib::CalibratedStrip>& calibClus) const;
     StatusCode calibrateStrip(const double time,  const double charge, const Amg::Vector3D& globalPos, const double lorentzAngle, NSWCalib::CalibratedStrip& calibStrip) const;
 
