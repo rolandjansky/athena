@@ -148,15 +148,14 @@ StatusCode CscPrdValMonAlg::fillHistograms( const EventContext& ctx ) const  {
       // sector# +2 layer 3 maps to +2 + 0.2*(3-1) + 0.1 = +2.5
       // sector# +2 layer 4 maps to +2 + 0.2*(4-1) + 0.1 = +2.7
       auto secLayer = Monitored::Scalar<float>("secLayer", (sectorNo + 0.2 * (wireLayer - 1) + 0.1));
-      auto secLayerPhi = Monitored::Scalar<float>("secLayerPhi", (sectorNo + 0.2 * (wireLayer - 1) + 0.1));
-      auto secLayerEta = Monitored::Scalar<float>("secLayerEta", (sectorNo + 0.2 * (wireLayer - 1) + 0.1));
       int xfac = measuresPhi ? -1 : 1;        // [-1 -> -48] / [+1 -> +192]
 
       // x-axis fill value
       auto spid = Monitored::Scalar<float>("spid", (stripId * xfac) );
+      auto measphi = Monitored::Scalar<int>("measphi", (int)measuresPhi);
+      auto measeta = Monitored::Scalar<int>("measeta", (int)!(measuresPhi));
      
-      fill("CscPrdMonitor",spid, secLayer);
-      measuresPhi ? fill("CscPrdMonitor",noStrips, secLayerPhi) : fill("CscPrdMonitor",noStrips, secLayerEta);
+      fill("CscPrdMonitor",spid, secLayer, noStrips, measphi, measeta);
         
       if(m_mapxyrz) {
           
@@ -168,18 +167,16 @@ StatusCode CscPrdValMonAlg::fillHistograms( const EventContext& ctx ) const  {
         fill("CscPrdMonitor",z,r);
         fill("CscPrdMonitor",y,x);
         ATH_MSG_DEBUG(" prd x = " << x << "\t y = " << y << "\t z = " << z );
-      }
+      } // end if(m_mapxyrz)
      
       // Fit this strip and get Charge (in units of: # of electrons)
- /*     ICscStripFitter::Result res;
+      ICscStripFitter::Result res;
       res = m_stripFitter->fit(praw);
 
       ATH_MSG_DEBUG ( "Strip q +- dq = " << res.charge  << " +- " << res.dcharge << "\t t +- dt = "
           << res.time << " +- " <<  res.dtime << "\t w +- dw = " << res.width << " +- "
           << res.dwidth << "\t status= " << res.status << "\t chisq= " << res.chsq);
-   */
-
-
+   
       // determine of the cluster is a noise/signal cluster Max_Delta_ADC > NoiseCut
      // float kiloele = 1.0e-3; // multiply # of electrons by this number to get kiloElectrons (1 ke = 1 ADC)
     //  float qstripADC = res.charge * kiloele;
@@ -231,10 +228,10 @@ StatusCode CscPrdValMonAlg::fillHistograms( const EventContext& ctx ) const  {
   /*  for(size_t lcnt = 1; lcnt < 5; lcnt++ ) {
       m_h2csc_prd_eta_vs_phi_cluswidth->Fill(nPhiClusWidthCnt[lcnt],nEtaClusWidthCnt[lcnt]);
     } // end loop over lcnt*/
-
+/*
     int numeta = 0, numphi = 0;
     int numetasignal = 0, numphisignal = 0;
-  /*  for(int kl = 1; kl < 33; kl++ ) {
+    for(int kl = 1; kl < 33; kl++ ) {
 
       for(int km = 1; km < 9; km++ ) {
         int lay = (km > 4 && km < 9) ? km-4 : km;  // 1,2,3,4 (phi-layers)     5-4, 6-4, 7-4, 8-4 (eta-layers)
@@ -289,16 +286,7 @@ StatusCode CscPrdValMonAlg::fillHistograms( const EventContext& ctx ) const  {
   return sc;
 } // end CscPrdValAlg::fillHistograms()
 
-  //
-  // checkHists ----------------------------------------------------------------
-  //
-//  StatusCode CscPrdValMonAlg::checkHists(bool /* fromFinalize */) {
-//
-//    ATH_MSG_DEBUG( "CscPrdValMonAlg: in checkHists" );
-//
-//    return StatusCode::SUCCESS;
-//  }
-
+ 
   //
   // fillLumiBlock ----------------------------------------------------------------
   //
