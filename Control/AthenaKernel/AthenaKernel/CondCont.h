@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthenaKernel/CondCont.h
@@ -918,6 +918,17 @@ public:
              EventIDRange const** r = nullptr) const;
 
 
+  /** 
+   * @brief Look up a conditions object for a given time.
+   * @param t IOV time to find.
+   *
+   * Returns the found object, or nullptr.
+   *
+   * This variant may be more convenient to call from python.
+   */
+  const T* find (const EventIDBase& t) const;
+
+
 protected:
   /**
    * @brief Internal constructor.
@@ -1225,6 +1236,17 @@ public:
   bool find (const EventIDBase& t,
              T const*& obj,
              EventIDRange const** r = nullptr) const;
+
+
+  /**
+   * @brief Look up a conditions object for a given time.
+   * @param t IOV time to find.
+   *
+   * Returns the found object, or nullptr.
+   *
+   * This variant may be more convenient to call from python.
+   */
+  const T* find (const EventIDBase& t) const;
 
 
 protected:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthenaKernel/CondCont.icc
@@ -283,6 +283,28 @@ bool CondCont<T>::find (const EventIDBase& t,
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 
+/** 
+ * @brief Look up a conditions object for a given time.
+ * @param t IOV time to find.
+ *
+ * Returns the found object, or nullptr.
+ *
+ * This variant may be more convenient to call from python.
+ */
+template <typename T>
+const T* CondCont<T>::find (const EventIDBase& t) const
+{
+  const T* obj = nullptr;
+  if (this->find (t, obj)) {
+    return obj;
+  }
+  return nullptr;
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
 /**
  * @brief Do pointer conversion for the payload type.
  * @param clid CLID for the desired pointer type.
@@ -444,6 +466,27 @@ bool CondContMixed<T>::find (const EventIDBase& t,
   return obj != nullptr;
 }
 
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/** 
+ * @brief Look up a conditions object for a given time.
+ * @param t IOV time to find.
+ *
+ * Returns the found object, or nullptr.
+ *
+ * This variant may be more convenient to call from python.
+ */
+template <typename T>
+const T* CondContMixed<T>::find (const EventIDBase& t) const
+{
+  const T* obj = nullptr;
+  if (this->find (t, obj)) {
+    return obj;
+  }
+  return nullptr;
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
