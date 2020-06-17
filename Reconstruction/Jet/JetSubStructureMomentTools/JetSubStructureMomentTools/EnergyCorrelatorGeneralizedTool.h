@@ -22,9 +22,6 @@
 #include "JetSubStructureMomentTools/JetSubStructureMomentToolsBase.h"
 #include "JetSubStructureMomentTools/ECFHelper.h"
 
-#include "JetSubStructureUtils/EnergyCorrelatorGeneralized.h"
-#include "JetSubStructureUtils/EnergyCorrelator.h"
-
 class EnergyCorrelatorGeneralizedTool :
   public JetSubStructureMomentToolsBase {
     ASG_TOOL_CLASS(EnergyCorrelatorGeneralizedTool, IJetModifier)
@@ -34,9 +31,9 @@ class EnergyCorrelatorGeneralizedTool :
       /// Constructor
       EnergyCorrelatorGeneralizedTool(std::string name);
 
-      StatusCode initialize();
+      virtual StatusCode initialize() override;
 
-      int modifyJet(xAOD::Jet &injet) const;
+      int modifyJet(xAOD::Jet &injet) const override;
 
     private:
 

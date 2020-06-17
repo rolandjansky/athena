@@ -3,6 +3,8 @@
 */
 
 #include "JetSubStructureMomentTools/EnergyCorrelatorGeneralizedTool.h"
+#include "JetSubStructureUtils/EnergyCorrelatorGeneralized.h"
+#include "JetSubStructureUtils/EnergyCorrelator.h"
 
 EnergyCorrelatorGeneralizedTool::EnergyCorrelatorGeneralizedTool(std::string name) : 
   JetSubStructureMomentToolsBase(name)

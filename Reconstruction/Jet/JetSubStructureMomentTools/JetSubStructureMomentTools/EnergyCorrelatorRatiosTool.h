@@ -31,9 +31,9 @@ class EnergyCorrelatorRatiosTool :
       /// Constructor
       EnergyCorrelatorRatiosTool(std::string name);
 
-      StatusCode initialize();
+      virtual StatusCode initialize() override;
 
-      int modifyJet(xAOD::Jet &jet) const;
+      int modifyJet(xAOD::Jet &jet) const override;
 
     private:
 
