@@ -154,8 +154,6 @@ StatusCode CscClusterValMonAlg::fillHistograms( const EventContext& ctx ) const 
       // convert to my coordinates
       int sectorNo  = stationEta * (2 * stationPhi - chamberType);   // [-16 -> -1] and [+1 -> +16]
       auto secLayer = Monitored::Scalar<float> ("secLayer", (sectorNo + 0.2 * (wireLayer - 1) + 0.1) );
-      auto secLayerPhi = Monitored::Scalar<float> ("secLayerPhi", (sectorNo + 0.2 * (wireLayer - 1) + 0.1) );
-      auto secLayerEta = Monitored::Scalar<float> ("secLayerEta", (sectorNo + 0.2 * (wireLayer - 1) + 0.1) );
       int xfac = measuresPhi ? -1 : 1;        // [-1 -> -48] / [+1 -> +192]
 
       //total cluster width (EA and EC) calculation
