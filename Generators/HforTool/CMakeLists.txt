@@ -26,7 +26,7 @@ atlas_add_component( HforTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AtlasHepMCLib AthenaBaseComps EventInfo GaudiKernel JetEvent StoreGateLib SGtests GeneratorObjects TruthUtils )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AtlasHepMCLib AthenaBaseComps EventInfo GaudiKernel JetEvent StoreGateLib SGtests GeneratorObjects TruthUtils GenInterfacesLib )
 
 # Install files from the package:
 atlas_install_headers( HforTool )
