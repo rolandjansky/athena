@@ -93,7 +93,42 @@ def GetConditionsFromMetaData() :
         if HIDerivationFlags.isPP.is_locked() and not HIDerivationFlags.isPP :
           print 'WARNING: Can not change locked project tag to pp' 
         HIDerivationFlags.isPP = True
-        print "Dataset Type: pp 2017"   
+        print "Dataset Type: pp 2017"  
+      elif project_tag=='data12_7TeV':
+        if HIDerivationFlags.isPP.is_locked() and not HIDerivationFlags.isPP :
+          print 'WARNING: Can not change locked project tag to pp'
+        HIDerivationFlags.isPP = True
+        print "Dataset Type: pp 7 TeV 2012"
+      elif project_tag=='data12_8TeV':
+        if HIDerivationFlags.isPP.is_locked() and not HIDerivationFlags.isPP :
+          print 'WARNING: Can not change locked project tag to pp'
+        HIDerivationFlags.isPP = True
+        print "Dataset Type: pp 8 TeV 2012"
+      elif project_tag=='data13_8TeV':
+        if HIDerivationFlags.isPP.is_locked() and not HIDerivationFlags.isPP :
+          print 'WARNING: Can not change locked project tag to pp'
+        HIDerivationFlags.isPP = True
+        print "Dataset Type: pp 8 TeV 2013"
+      elif project_tag=='data15_13TeV':
+        if HIDerivationFlags.isPP.is_locked() and not HIDerivationFlags.isPP :
+          print 'WARNING: Can not change locked project tag to pp'
+        HIDerivationFlags.isPP = True
+        print "Dataset Type: pp 13 TeV 2015"
+      elif project_tag=='data16_13TeV':
+        if HIDerivationFlags.isPP.is_locked() and not HIDerivationFlags.isPP :
+          print 'WARNING: Can not change locked project tag to pp'
+        HIDerivationFlags.isPP = True
+        print "Dataset Type: pp 13 TeV 2016"
+      elif project_tag=='data17_13TeV':
+        if HIDerivationFlags.isPP.is_locked() and not HIDerivationFlags.isPP :
+          print 'WARNING: Can not change locked project tag to pp'
+        HIDerivationFlags.isPP = True
+        print "Dataset Type: pp 13 TeV 2017"
+      elif project_tag=='data18_13TeV':
+        if HIDerivationFlags.isPP.is_locked() and not HIDerivationFlags.isPP :
+          print 'WARNING: Can not change locked project tag to pp'
+        HIDerivationFlags.isPP = True
+        print "Dataset Type: pp 13 TeV 2018"
       elif project_tag=='data17_hi':
         if HIDerivationFlags.isPP.is_locked() and HIDerivationFlags.isPP :
           print 'WARNING: Can not change locked project tag to HI'  
