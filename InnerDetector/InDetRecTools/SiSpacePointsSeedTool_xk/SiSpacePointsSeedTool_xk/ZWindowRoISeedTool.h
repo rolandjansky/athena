@@ -15,7 +15,8 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkTrack/Track.h"
 
-class MsgStream;
+#include <vector>
+#include <string>
 
 namespace Reco 
 { 
@@ -67,21 +68,21 @@ namespace InDet {
     /** defgroup kinematic-selections 
      * @{ */
 
-    float m_trk_leading_pt; ///< min. p_{T} of leading track
-    float m_trk_subleading_pt; ///< min. p_{T} of sub-leading track
-    float m_trk_eta_max; ///< max |eta| for tracks consideration
-    float m_trk_d0_max; ///< max |d0| for tracks consideration
-    float m_max_delta_z; ///< maximum delta z0 between leading tracks pair
-    float m_z0_window; /// width of z0 window
+    float m_trkLeadingPt; ///< min. p_{T} of leading track
+    float m_trkSubLeadingPt; ///< min. p_{T} of sub-leading track
+    float m_trkEtaMax; ///< max |eta| for tracks consideration
+    float m_trkD0Max; ///< max |d0| for tracks consideration
+    float m_maxDeltaZ; ///< maximum delta z0 between leading tracks pair
+    float m_z0Window; /// width of z0 window
     
     /** @} */
 	
-    static bool tracks_pt_greater_than(const Trk::Track* const &track1, const Trk::Track* const &track2)
+    static bool tracksPtGreaterThan(const Trk::Track* const &track1, const Trk::Track* const &track2)
       {
 	float theta1 = track1->perigeeParameters()->parameters()[Trk::theta];
-	float ptinv1 = fabs(track1->perigeeParameters()->parameters()[Trk::qOverP]) / sin(theta1);
+	float ptinv1 = std::abs(track1->perigeeParameters()->parameters()[Trk::qOverP]) / std::sin(theta1);
 	float theta2 = track2->perigeeParameters()->parameters()[Trk::theta];
-	float ptinv2 = fabs(track2->perigeeParameters()->parameters()[Trk::qOverP]) / sin(theta2);
+	float ptinv2 = std::abs(track2->perigeeParameters()->parameters()[Trk::qOverP]) / std::sin(theta2);
 	//return less than of inverse 
 	return (ptinv1 < ptinv2);
       }

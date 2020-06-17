@@ -28,17 +28,17 @@ namespace InDet
     class ZWindow {
     public:
       //* Lower and Upper z bound of the window */
-      float z_window[2];
+      float zWindow[2];
       //* Reference z-position (if any) */
-      float z_reference;
+      float zReference;
       //* The perigee z-positions of the tracks (if any) */
-      float z_perigee_pos[2];
+      float zPerigeePos[2];
 
       //* Constructor setting default values */
       ZWindow() { 
-	z_reference = -999.;
-	z_window[0]=z_window[1]=-999.; 
-	z_perigee_pos[0]=z_perigee_pos[1]=-999.; 
+	zReference = -999.;
+	zWindow[0]=zWindow[1]=-999.; 
+	zPerigeePos[0]=zPerigeePos[1]=-999.; 
       }
 
       ~ZWindow() {};

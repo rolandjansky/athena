@@ -13,13 +13,12 @@
 
 #include "InDetRecToolInterfaces/IZWindowRoISeedTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "TrkTrack/Track.h"
-#include "TRandom3.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
+#include <vector>
 
-class MsgStream;
+class TRandom3;
 
 namespace CLHEP {
   class RandGauss;
@@ -63,7 +62,7 @@ namespace InDet {
     // Protected data and methods
     ///////////////////////////////////////////////////////////////////
   
-    float m_z0_window; ///< width of z0 window
+    float m_z0Window; ///< width of z0 window
 
     ServiceHandle<IAtRndmGenSvc> m_atRndmSvc;
     StringProperty m_randomStreamName;

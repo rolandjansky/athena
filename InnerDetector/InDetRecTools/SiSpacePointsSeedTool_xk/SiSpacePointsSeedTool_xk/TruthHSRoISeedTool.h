@@ -13,9 +13,8 @@
 
 #include "InDetRecToolInterfaces/IZWindowRoISeedTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "TrkTrack/Track.h"
 
-class MsgStream;
+#include <vector>
 
 namespace InDet {
 
@@ -53,8 +52,8 @@ namespace InDet {
     ///////////////////////////////////////////////////////////////////
   
     //* Input track collection *//
-    std::string m_input_truth_events; ///< input truth events collection name
-    float m_z0_window; ///< width of z0 window
+    std::string m_inputTruthEvents; ///< input truth events collection name
+    float m_z0Window; ///< width of z0 window
     
   }; // TruthHSRoISeedTool
 } //InDet namespace

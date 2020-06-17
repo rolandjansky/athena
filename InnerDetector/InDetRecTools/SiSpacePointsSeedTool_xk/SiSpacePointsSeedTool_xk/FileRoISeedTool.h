@@ -13,11 +13,9 @@
 
 #include "InDetRecToolInterfaces/IZWindowRoISeedTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "TrkTrack/Track.h"
 
 #include <string>
-
-class MsgStream;
+#include <vector>
 
 
 namespace InDet {
@@ -56,7 +54,7 @@ namespace InDet {
     ///////////////////////////////////////////////////////////////////
  
     std::string m_filename; //name of file
-    float m_z0_window; /// width of z0 window
+    float m_z0Window; /// width of z0 window
     
   }; // FileRoISeedTool
 } //InDet namespace

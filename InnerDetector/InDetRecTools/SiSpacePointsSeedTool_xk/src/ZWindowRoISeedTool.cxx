@@ -16,6 +16,7 @@
 #include "ITrackToVertex/ITrackToVertex.h"
 #include "TVector2.h"
 #include <map>
+#include <cmath>
 
 
 ///////////////////////////////////////////////////////////////////
@@ -34,12 +35,12 @@ InDet::ZWindowRoISeedTool::ZWindowRoISeedTool
 
   //
   declareProperty("InputTracksCollection", m_input_tracks_collection );  
-  declareProperty("LeadingMinTrackPt", m_trk_leading_pt = 18000.); 
-  declareProperty("SubleadingMinTrackPt", m_trk_subleading_pt = 12500.); 
-  declareProperty("TracksMaxEta", m_trk_eta_max = 2.5);
-  declareProperty("TracksMaxD0", m_trk_d0_max = 9999.);
-  declareProperty("MaxDeltaZTracksPair", m_max_delta_z = 2.0);
-  declareProperty("TrackZ0Window", m_z0_window = 1.0);
+  declareProperty("LeadingMinTrackPt", m_trkLeadingPt = 18000.); 
+  declareProperty("SubleadingMinTrackPt", m_trkSubLeadingPt = 12500.); 
+  declareProperty("TracksMaxEta", m_trkEtaMax = 2.5);
+  declareProperty("TracksMaxD0", m_trkD0Max = 9999.);
+  declareProperty("MaxDeltaZTracksPair", m_maxDeltaZ = 2.0);
+  declareProperty("TrackZ0Window", m_z0Window = 1.0);
   declareProperty("TrackToVertex",            m_trackToVertex );
 
 }
@@ -60,13 +61,9 @@ StatusCode InDet::ZWindowRoISeedTool::initialize()
 {
   StatusCode sc = AlgTool::initialize();   
   
-    if ( m_trackToVertex.retrieve().isFailure() ) { 
-    ATH_MSG_FATAL( "Failed to retrieve tool " << m_trackToVertex );
-    return StatusCode::FAILURE; 
-  } else { 
-    ATH_MSG_DEBUG( "Retrieved tool " << m_trackToVertex ); 
-    } 
-
+  ATH_CHECK( m_trackToVertex.retrieve() );
+  ATH_MSG_DEBUG( "Retrieved tool " << m_trackToVertex );
+  
   return sc;
 }
 
@@ -102,91 +99,90 @@ std::vector<InDet::IZWindowRoISeedTool::ZWindow> InDet::ZWindowRoISeedTool::getR
   ATH_MSG_DEBUG("Input track collection size "<<tracks->size());
   for ( Trk::Track* trk : tracks->stdcont() ) {
     float theta = trk->perigeeParameters()->parameters()[Trk::theta];
-    float ptinv = fabs(trk->perigeeParameters()->parameters()[Trk::qOverP]) / sin(theta);    
+    float ptinv = std::abs(trk->perigeeParameters()->parameters()[Trk::qOverP]) / std::sin(theta);    
     if (ptinv < 0.001) //1 GeV tracks
       ATH_MSG_VERBOSE("Examining track");
     if (ptinv != 0) {
       float pt = 1. / ptinv;      
       if (pt > 1000.) //1 GeV tracks for printout
 	ATH_MSG_VERBOSE("- pT = " << pt << " MeV");
-      if ( pt < m_trk_subleading_pt ) continue;
+      if ( pt < m_trkSubLeadingPt ) continue;
     }
-    float eta = -log( tan( theta/2 ) );
+    float eta = -std::log( std::tan( 0.5*theta ) );
     ATH_MSG_VERBOSE("- eta = " << eta);
-    if ( fabs(eta) > m_trk_eta_max ) continue;
+    if ( std::abs(eta) > m_trkEtaMax ) continue;
     float d0 = trk->perigeeParameters()->parameters()[Trk::d0];
     ATH_MSG_VERBOSE("- d0 = " << d0 << "mm");
-    if ( fabs(d0) > m_trk_d0_max ) continue;
+    if ( std::abs(d0) > m_trkD0Max ) continue;
     ATH_MSG_VERBOSE("- Passed all selections");
     selectedTracks.push_back(trk);
   }
-  std::sort(selectedTracks.begin(), selectedTracks.end(), tracks_pt_greater_than);
+  std::sort(selectedTracks.begin(), selectedTracks.end(), tracksPtGreaterThan);
   ATH_MSG_DEBUG("Selected track collection size "<<selectedTracks.size());
   //create all pairs that satisfy leading pT and delta z0 requirements
-  typedef std::vector<Trk::Track*>::iterator iterator_tracks;
-  for ( iterator_tracks trk_itr_leading = selectedTracks.begin(); trk_itr_leading != selectedTracks.end(); ++trk_itr_leading ) {
-    Trk::Track *trk_leading = *trk_itr_leading;
+  typedef std::vector<Trk::Track*>::iterator iteratorTracks;
+  for ( iteratorTracks trkItrLeading = selectedTracks.begin(); trkItrLeading != selectedTracks.end(); ++trkItrLeading ) {
+    Trk::Track *trkLeading = *trkItrLeading;
     //kinematic requirements
-    float theta_leading = trk_leading->perigeeParameters()->parameters()[Trk::theta];
-    float ptinv_leading = fabs(trk_leading->perigeeParameters()->parameters()[Trk::qOverP]) / sin(theta_leading);
+    float thetaLeading = trkLeading->perigeeParameters()->parameters()[Trk::theta];
+    float ptInvLeading = std::abs(trkLeading->perigeeParameters()->parameters()[Trk::qOverP]) / std::sin(thetaLeading);
     ATH_MSG_VERBOSE("Examining selected track pairs");
-    if (ptinv_leading != 0) {
-      float pt = 1. / ptinv_leading;
+    if (ptInvLeading != 0) {
+      float pt = 1. / ptInvLeading;
       ATH_MSG_VERBOSE("- pT_leading = " << pt << " MeV");
-      if ( pt < m_trk_leading_pt ) break; //tracks ordered by pT
+      if ( pt < m_trkLeadingPt ) break; //tracks ordered by pT
     }
     //loop over sub-leading track
-    for ( iterator_tracks trk_itr = (trk_itr_leading + 1); trk_itr != selectedTracks.end(); ++trk_itr ) {
-      Trk::Track *trk = *trk_itr;
+    for ( iteratorTracks trkItr = (trkItrLeading + 1); trkItr != selectedTracks.end(); ++trkItr ) {
+      Trk::Track *trk = *trkItr;
       //kinematic requirements
-      float z0_leading = trk_leading->perigeeParameters()->parameters()[Trk::z0];
+      float z0Leading = trkLeading->perigeeParameters()->parameters()[Trk::z0];
       float z0 = trk->perigeeParameters()->parameters()[Trk::z0];
-      ATH_MSG_VERBOSE("- z0_leading = " << z0_leading << " mm");
+      ATH_MSG_VERBOSE("- z0Leading = " << z0Leading << " mm");
       ATH_MSG_VERBOSE("- z0_sublead = " << z0 << " mm");
 
-      const Trk::Perigee* lead_atbeam = m_trackToVertex->perigeeAtBeamline(*trk_leading);
-      const Trk::Perigee* sublead_atbeam = m_trackToVertex->perigeeAtBeamline(*trk);
-      float z0_leading_beam = lead_atbeam->parameters()[Trk::z0];
-      float z0_beam = sublead_atbeam->parameters()[Trk::z0];
+      const Trk::Perigee* leadAtBeam = m_trackToVertex->perigeeAtBeamline(*trkLeading);
+      const Trk::Perigee* subleadAtBeam = m_trackToVertex->perigeeAtBeamline(*trk);
+      float z0LeadingBeam = leadAtBeam->parameters()[Trk::z0];
+      float z0Beam = subleadAtBeam->parameters()[Trk::z0];
 
-      if ( fabs(z0_leading_beam - z0_beam) > m_max_delta_z ) continue;
+      if ( std::abs(z0LeadingBeam - z0Beam) > m_maxDeltaZ ) continue;
       //create the pair in global coordinates 
-      float z0_trk_reference = sublead_atbeam->associatedSurface().center().z();
-      float z0_trk_leading_reference = lead_atbeam->associatedSurface().center().z();
-      RoI.z_reference = (z0_beam + z0_trk_reference + z0_leading_beam + z0_trk_leading_reference) / 2;
-      RoI.z_window[0] = RoI.z_reference - m_z0_window; 
-      RoI.z_window[1] = RoI.z_reference + m_z0_window; 
-      RoI.z_perigee_pos[0] = z0_leading_beam; 
-      RoI.z_perigee_pos[1] = z0_beam; 
-      ATH_MSG_DEBUG("New RoI created [mm]: " << RoI.z_window[0] << " - " << RoI.z_window[1] << " (z-ref: " << RoI.z_reference << ")");
+      float z0TrkReference = subleadAtBeam->associatedSurface().center().z();
+      float z0TrkLeadingReference = leadAtBeam->associatedSurface().center().z();
+      RoI.zReference = (z0Beam + z0TrkReference + z0LeadingBeam + z0TrkLeadingReference) / 2;
+      RoI.zWindow[0] = RoI.zReference - m_z0Window; 
+      RoI.zWindow[1] = RoI.zReference + m_z0Window; 
+      RoI.zPerigeePos[0] = z0LeadingBeam; 
+      RoI.zPerigeePos[1] = z0Beam; 
+      ATH_MSG_DEBUG("New RoI created [mm]: " << RoI.zWindow[0] << " - " << RoI.zWindow[1] << " (z-ref: " << RoI.zReference << ")");
       listRoIs.push_back(RoI);
     }
   }
 
 
-  if( listRoIs.size() == 0 ){
-    typedef std::vector<Trk::Track*>::iterator iterator_tracks2;
-    for ( iterator_tracks2 trk_itr_leading2 = selectedTracks.begin(); trk_itr_leading2 != selectedTracks.end(); ++trk_itr_leading2 ) {
-      Trk::Track *trk_leading = *trk_itr_leading2;
+  if( listRoIs.empty() ){
+    for( Trk::Track* trkItrLeading2 : selectedTracks ){
+      Trk::Track *trkLeading = trkItrLeading2;
       //kinematic requirements
-      float theta_leading = trk_leading->perigeeParameters()->parameters()[Trk::theta];
-      float ptinv_leading = fabs(trk_leading->perigeeParameters()->parameters()[Trk::qOverP]) / sin(theta_leading);
+      float thetaLeading = trkLeading->perigeeParameters()->parameters()[Trk::theta];
+      float ptInvLeading = std::abs(trkLeading->perigeeParameters()->parameters()[Trk::qOverP]) / std::sin(thetaLeading);
       ATH_MSG_VERBOSE("Examining selected track pairs");
-      if (ptinv_leading != 0) {
-	float pt = 1. / ptinv_leading;
+      if (ptInvLeading != 0) {
+	float pt = 1. / ptInvLeading;
 	ATH_MSG_VERBOSE("- pT_leading = " << pt << " MeV");
-	if ( pt < m_trk_leading_pt ) break; //tracks ordered by pT
+	if ( pt < m_trkLeadingPt ) break; //tracks ordered by pT
 	
-	const Trk::Perigee* lead_atbeam = m_trackToVertex->perigeeAtBeamline(*trk_leading);
-	float z0_leading_beam = lead_atbeam->parameters()[Trk::z0];
+	const Trk::Perigee* leadAtBeam = m_trackToVertex->perigeeAtBeamline(*trkLeading);
+	float z0LeadingBeam = leadAtBeam->parameters()[Trk::z0];
 	
 	//create the pair in global coordinates 
-	float z0_trk_leading_reference = lead_atbeam->associatedSurface().center().z();
-	RoI.z_reference = z0_leading_beam + z0_trk_leading_reference;
-	RoI.z_window[0] = RoI.z_reference - m_z0_window; 
-	RoI.z_window[1] = RoI.z_reference + m_z0_window; 
-	RoI.z_perigee_pos[0] = z0_leading_beam; 
-	ATH_MSG_DEBUG("New RoI created [mm]: " << RoI.z_window[0] << " - " << RoI.z_window[1] << " (z-ref: " << RoI.z_reference << ")");
+	float z0TrkLeadingReference = leadAtBeam->associatedSurface().center().z();
+	RoI.zReference = z0LeadingBeam + z0TrkLeadingReference;
+	RoI.zWindow[0] = RoI.zReference - m_z0Window; 
+	RoI.zWindow[1] = RoI.zReference + m_z0Window; 
+	RoI.zPerigeePos[0] = z0LeadingBeam; 
+	ATH_MSG_DEBUG("New RoI created [mm]: " << RoI.zWindow[0] << " - " << RoI.zWindow[1] << " (z-ref: " << RoI.zReference << ")");
 	listRoIs.push_back(RoI);
 	
       }

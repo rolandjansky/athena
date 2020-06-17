@@ -23,15 +23,15 @@
 InDet::TruthHSRoISeedTool::TruthHSRoISeedTool
 (const std::string& t,const std::string& n,const IInterface* p)
   : AthAlgTool(t,n,p),
-    m_input_truth_events("TruthEvents")
+    m_inputTruthEvents("TruthEvents")
 {
 
   //
   declareInterface<IZWindowRoISeedTool>(this);
 
   //
-  declareProperty("InputTruthEventsCollection", m_input_truth_events );  
-  declareProperty("TrackZ0Window", m_z0_window = 1.0);
+  declareProperty("InputTruthEventsCollection", m_inputTruthEvents );  
+  declareProperty("TrackZ0Window", m_z0Window = 1.0);
 
 }
 
@@ -76,7 +76,7 @@ std::vector<InDet::IZWindowRoISeedTool::ZWindow> InDet::TruthHSRoISeedTool::getR
 
   //retrieve truth collection
   xAOD::TruthEventContainer *truthEvents;
-  if (evtStore()->retrieve(truthEvents, m_input_truth_events).isFailure()) {
+  if (evtStore()->retrieve(truthEvents, m_inputTruthEvents).isFailure()) {
     ATH_MSG_WARNING("Cannot retrieve xAOD truth information. Bailing out with empty RoI list.");
     return listRoIs;
   }
@@ -84,17 +84,17 @@ std::vector<InDet::IZWindowRoISeedTool::ZWindow> InDet::TruthHSRoISeedTool::getR
 
   //get HS position
   for (xAOD::TruthEvent *evt : *truthEvents) {
-    const xAOD::TruthVertex *hs_pos = evt->signalProcessVertex();
-    if (hs_pos == nullptr) {
+    const xAOD::TruthVertex *hsPos = evt->signalProcessVertex();
+    if (hsPos == nullptr) {
       ATH_MSG_DEBUG("Invalid signal process vertex! Trying next TruthEvent.");
       continue;
     }
     InDet::IZWindowRoISeedTool::ZWindow RoI;
-    RoI.z_reference = hs_pos->z();
-    RoI.z_window[0] = RoI.z_reference - m_z0_window; 
-    RoI.z_window[1] = RoI.z_reference + m_z0_window;
+    RoI.zReference = hsPos->z();
+    RoI.zWindow[0] = RoI.zReference - m_z0Window; 
+    RoI.zWindow[1] = RoI.zReference + m_z0Window;
     listRoIs.push_back(RoI);
-    ATH_MSG_DEBUG("Found RoI: " << RoI.z_reference << " [" << RoI.z_window[0] << ", " << RoI.z_window[1] << "]");
+    ATH_MSG_DEBUG("Found RoI: " << RoI.zReference << " [" << RoI.zWindow[0] << ", " << RoI.zWindow[1] << "]");
     //use only the first one
     break;
   }

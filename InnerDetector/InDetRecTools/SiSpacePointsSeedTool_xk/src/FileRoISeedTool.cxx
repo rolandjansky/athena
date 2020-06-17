@@ -33,7 +33,7 @@ InDet::FileRoISeedTool::FileRoISeedTool
 
   //
   declareProperty("InputFileName", m_filename, "Input file MUST be specified with LowPtRoIFile job option" );  
-  declareProperty("TrackZ0Window", m_z0_window = 30.0);
+  declareProperty("TrackZ0Window", m_z0Window = 30.0);
 
 }
 
@@ -114,9 +114,9 @@ std::vector<InDet::IZWindowRoISeedTool::ZWindow> InDet::FileRoISeedTool::getRoIs
 
       if(runnum == runN && eventnum == evtN){ //No need to fill if there isn't an ROI
 	InDet::IZWindowRoISeedTool::ZWindow readinref;
-	readinref.z_reference = zref;
-	readinref.z_window[0] = zref -m_z0_window;
-	readinref.z_window[1] = zref + m_z0_window;
+	readinref.zReference = zref;
+	readinref.zWindow[0] = zref -m_z0Window;
+	readinref.zWindow[1] = zref + m_z0Window;
 	listRoIs.push_back(readinref);
       }
       

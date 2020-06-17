@@ -17,6 +17,8 @@
 #define SiSpacePointsSeedMaker_LowMomentum_H
 
 #include <list>
+#include <set>
+#include <cmath>
 #include "GaudiKernel/ServiceHandle.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -292,9 +294,9 @@ namespace InDet {
 
       std::set<float>::iterator v=l_vertex.begin(),ve=l_vertex.end(); 
 
-      float dZmin = fabs((*v)-Zv); 
+      float dZmin = std::abs((*v)-Zv); 
       for(++v; v!=ve; ++v) {
-	float dZ = fabs((*v)-Zv); if(dZ >= dZmin) break; dZmin=dZ;
+	float dZ = std::abs((*v)-Zv); if(dZ >= dZmin) break; dZmin=dZ;
       }
       return dZmin < (m_dzver+m_dzdrver*R)*sqrt(1.+T*T);
     }

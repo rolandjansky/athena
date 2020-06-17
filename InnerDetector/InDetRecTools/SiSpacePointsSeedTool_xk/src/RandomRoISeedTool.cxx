@@ -24,7 +24,7 @@
 InDet::RandomRoISeedTool::RandomRoISeedTool
 (const std::string& t,const std::string& n,const IInterface* p)
   : AthAlgTool(t,n,p),
-    m_z0_window(1.0),
+    m_z0Window(1.0),
   m_atRndmSvc("AtRndmGenSvc", n),
   m_randomStreamName("MixingEventSelectorStream"),
   m_chooseRandGauss(nullptr)
@@ -35,7 +35,7 @@ InDet::RandomRoISeedTool::RandomRoISeedTool
   declareInterface<IZWindowRoISeedTool>(this);
 
   //
-  declareProperty("TrackZ0Window", m_z0_window = 1.0);
+  declareProperty("TrackZ0Window", m_z0Window = 1.0);
   declareProperty("RndmGenSvc", m_atRndmSvc, "IAtRndmGenSvc controlling the order with which events are takes from streams");
   declareProperty("RndmStreamName", m_randomStreamName, "IAtRndmGenSvc stream used as engine for our random distributions");   
 
@@ -91,31 +91,31 @@ std::vector<InDet::IZWindowRoISeedTool::ZWindow> InDet::RandomRoISeedTool::getRo
   // Retrieve beamspot information
   // -----------------------------------
 
-  float BS_sigz = 0.0;
+  float bsSigZ = 0.0;
 
   IBeamCondSvc* iBeamCondSvc; 
-  StatusCode sc_bcs = service("BeamCondSvc", iBeamCondSvc);
+  StatusCode scBCS = service("BeamCondSvc", iBeamCondSvc);
 
-  if (sc_bcs.isFailure() || iBeamCondSvc == 0) {
+  if (scBCS.isFailure() || iBeamCondSvc == 0) {
     iBeamCondSvc = 0;
     ATH_MSG_ERROR ("Could not retrieve Beam Conditions Service.");
   } else{
-    BS_sigz = iBeamCondSvc->beamSigma(2);
+    bsSigZ = iBeamCondSvc->beamSigma(2);
   }
 
-  float z_val;
-  z_val = m_chooseRandGauss->fire() * BS_sigz; //This effectively samples from a beamspot with the correct beamspot sigma_z
+  float zVal;
+  zVal = m_chooseRandGauss->fire() * bsSigZ; //This effectively samples from a beamspot with the correct beamspot sigma_z
   
   // prepare output
   std::vector<InDet::IZWindowRoISeedTool::ZWindow> listRoIs;  
   listRoIs.clear();
   
   InDet::IZWindowRoISeedTool::ZWindow RoI;
-  RoI.z_reference = z_val;
-  RoI.z_window[0] = RoI.z_reference - m_z0_window; 
-  RoI.z_window[1] = RoI.z_reference + m_z0_window;
+  RoI.zReference = zVal;
+  RoI.zWindow[0] = RoI.zReference - m_z0Window; 
+  RoI.zWindow[1] = RoI.zReference + m_z0Window;
   listRoIs.push_back(RoI);
-  ATH_MSG_DEBUG("Random RoI: " << RoI.z_reference << " [" << RoI.z_window[0] << ", " << RoI.z_window[1] << "]");
+  ATH_MSG_DEBUG("Random RoI: " << RoI.zReference << " [" << RoI.zWindow[0] << ", " << RoI.zWindow[1] << "]");
   
   return listRoIs;
   
