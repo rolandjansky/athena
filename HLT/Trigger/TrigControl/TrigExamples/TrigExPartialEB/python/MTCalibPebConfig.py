@@ -68,18 +68,18 @@ rob_list = [
 ]
 
 rob_access_dict = {
-  '01 :GET:RND20: Retrieve ': rob_list,
-  '02 :GET:RND10: Retrieve ': rob_list,
-  '03 :GET:RND5:  Retrieve ': rob_list,
-  '04 :GET:RND10: Retrieve ': rob_list,
-  '05 :GET:RND20: Retrieve ': rob_list,
-  '06 :GET:RND50: Retrieve ': rob_list,
-  '07 :GET:RND10: Retrieve ': rob_list,
-  '08 :GET:RND5:  Retrieve ': rob_list,
-  '09 :GET:RND20: Retrieve ': rob_list,
-  '10 :GET:RND20: Retrieve ': rob_list,
-  '11 :GET:RND10: Retrieve ': rob_list,
-  '12 :GET:RND10: Retrieve ': rob_list
+  '01 :ADDGET:RND20:': rob_list,  # Prefetch+Retrieve  20 random ROBs from rob_list
+  '02 :GET:RND10:   ': rob_list,  # Retrieve           10 random ROBs from rob_list
+  '03 :GET:RND5:    ': rob_list,  # Retrieve            5 random ROBs from rob_list
+  '04 :ADD:RND10:   ': rob_list,  # Prefetch           10 random ROBs from rob_list
+  '05 :ADD:RND20:   ': rob_list,  # Prefetch           20 random ROBs from rob_list
+  '06 :ADDGET:RND50:': rob_list,  # Prefetch+Retrieve  50 random ROBs from rob_list
+  '07 :ADDGET:RND10:': rob_list,  # Prefetch+Retrieve  10 random ROBs from rob_list
+  '08 :ADDGET:RND5: ': rob_list,  # Prefetch+Retrieve   5 random ROBs from rob_list
+  '09 :GET:RND20:   ': rob_list,  # Retrieve           20 random ROBs from rob_list
+  '10 :ADDGET:RND20:': rob_list,  # Prefetch+Retrieve  20 random ROBs from rob_list
+  '11 :GET:RND10:   ': rob_list,  # Retrieve           10 random ROBs from rob_list
+  '12 :ADDGET:RND10:': rob_list   # Prefetch+Retrieve  10 random ROBs from rob_list
 }
 
 class MTCalibPebHypoOptions:
