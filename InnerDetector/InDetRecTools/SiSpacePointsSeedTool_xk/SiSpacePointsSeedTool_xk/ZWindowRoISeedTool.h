@@ -63,7 +63,7 @@ namespace InDet {
     ///////////////////////////////////////////////////////////////////
   
     //* Input track collection *//
-    std::string m_input_tracks_collection; ///< input tracks collection name
+    std::string m_inputTracksCollection; ///< input tracks collection name
 
     /** defgroup kinematic-selections 
      * @{ */

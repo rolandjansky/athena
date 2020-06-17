@@ -181,7 +181,7 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::execute()
 
   double ZBoundary[2];
   //if no RoI found; no need to go further
-  if (m_listRoIs.size() == 0) {
+  if ( m_listRoIs.empty() ) {
     ATH_MSG_DEBUG("no selectedRoIs " );
     if (!evtStore()->contains<xAOD::VertexContainer>(m_vxOutputName)){
       CHECK(evtStore()->record(theVertexContainer, m_vxOutputName));

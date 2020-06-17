@@ -27,14 +27,14 @@ InDet::ZWindowRoISeedTool::ZWindowRoISeedTool
 (const std::string& t,const std::string& n,const IInterface* p)
   : AthAlgTool(t,n,p),
     m_trackToVertex       ("Reco::TrackToVertex/TrackToVertex"),
-    m_input_tracks_collection("Tracks")
+    m_inputTracksCollection("Tracks")
 {
 
   //
   declareInterface<IZWindowRoISeedTool>(this);
 
   //
-  declareProperty("InputTracksCollection", m_input_tracks_collection );  
+  declareProperty("InputTracksCollection", m_inputTracksCollection );  
   declareProperty("LeadingMinTrackPt", m_trkLeadingPt = 18000.); 
   declareProperty("SubleadingMinTrackPt", m_trkSubLeadingPt = 12500.); 
   declareProperty("TracksMaxEta", m_trkEtaMax = 2.5);
@@ -83,6 +83,8 @@ StatusCode InDet::ZWindowRoISeedTool::finalize()
 
 std::vector<InDet::IZWindowRoISeedTool::ZWindow> InDet::ZWindowRoISeedTool::getRoIs()
 {
+
+  static const float nonZeroInvP = 1e-9;
   
   // prepare output
   std::vector<InDet::IZWindowRoISeedTool::ZWindow> listRoIs;
@@ -92,8 +94,8 @@ std::vector<InDet::IZWindowRoISeedTool::ZWindow> InDet::ZWindowRoISeedTool::getR
   //select tracks, then order by pT
   const TrackCollection* tracks = 0;
   std::vector<Trk::Track*> selectedTracks;
-  if ( evtStore()->retrieve(tracks, m_input_tracks_collection).isFailure() ) {
-    ATH_MSG_DEBUG("Could not find TrackCollection " << m_input_tracks_collection << " in StoreGate.");
+  if ( evtStore()->retrieve(tracks, m_inputTracksCollection).isFailure() ) {
+    ATH_MSG_DEBUG("Could not find TrackCollection " << m_inputTracksCollection << " in StoreGate.");
     return listRoIs;    
   }
   ATH_MSG_DEBUG("Input track collection size "<<tracks->size());
@@ -102,7 +104,7 @@ std::vector<InDet::IZWindowRoISeedTool::ZWindow> InDet::ZWindowRoISeedTool::getR
     float ptinv = std::abs(trk->perigeeParameters()->parameters()[Trk::qOverP]) / std::sin(theta);    
     if (ptinv < 0.001) //1 GeV tracks
       ATH_MSG_VERBOSE("Examining track");
-    if (ptinv != 0) {
+    if ( std::abs(ptinv) > nonZeroInvP ) {
       float pt = 1. / ptinv;      
       if (pt > 1000.) //1 GeV tracks for printout
 	ATH_MSG_VERBOSE("- pT = " << pt << " MeV");
@@ -127,7 +129,7 @@ std::vector<InDet::IZWindowRoISeedTool::ZWindow> InDet::ZWindowRoISeedTool::getR
     float thetaLeading = trkLeading->perigeeParameters()->parameters()[Trk::theta];
     float ptInvLeading = std::abs(trkLeading->perigeeParameters()->parameters()[Trk::qOverP]) / std::sin(thetaLeading);
     ATH_MSG_VERBOSE("Examining selected track pairs");
-    if (ptInvLeading != 0) {
+    if (std::abs(ptInvLeading) > nonZeroInvP) {
       float pt = 1. / ptInvLeading;
       ATH_MSG_VERBOSE("- pT_leading = " << pt << " MeV");
       if ( pt < m_trkLeadingPt ) break; //tracks ordered by pT
@@ -168,7 +170,7 @@ std::vector<InDet::IZWindowRoISeedTool::ZWindow> InDet::ZWindowRoISeedTool::getR
       float thetaLeading = trkLeading->perigeeParameters()->parameters()[Trk::theta];
       float ptInvLeading = std::abs(trkLeading->perigeeParameters()->parameters()[Trk::qOverP]) / std::sin(thetaLeading);
       ATH_MSG_VERBOSE("Examining selected track pairs");
-      if (ptInvLeading != 0) {
+      if (std::abs(ptInvLeading) > nonZeroInvP) {
 	float pt = 1. / ptInvLeading;
 	ATH_MSG_VERBOSE("- pT_leading = " << pt << " MeV");
 	if ( pt < m_trkLeadingPt ) break; //tracks ordered by pT
