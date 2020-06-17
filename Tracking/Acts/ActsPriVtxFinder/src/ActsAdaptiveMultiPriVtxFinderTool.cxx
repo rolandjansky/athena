@@ -303,41 +303,40 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, const std
       Acts::BoundVector actsParams;
       actsParams << params(0), params(1), params(2), params(3), params(4)*1./(1_MeV), 0.;
 
-    if(trkParams->covariance() == nullptr){
-        continue;
+      if(trkParams->covariance() == nullptr){
+          continue;
+      }
+      auto cov = *(trkParams->covariance());
+      
+      Acts::BoundSymMatrix covMat;
+      covMat << cov(0,0) , cov(0,1) , cov(0,2) , cov(0,3) , cov(0,4) *1./(1_MeV), 0      
+      , cov(1,0) , cov(1,1) , cov(1,2) , cov(1,3) , cov(1,4) *1./(1_MeV) , 0
+      , cov(2,0) , cov(2,1) , cov(2,2) , cov(2,3) , cov(2,4) *1./(1_MeV) , 0
+      , cov(3,0) , cov(3,1) , cov(3,2) , cov(3,3) , cov(3,4) *1./(1_MeV) , 0 
+      , cov(4,0) *1./(1_MeV) , cov(4,1) *1./(1_MeV) , cov(4,2) *1./(1_MeV) , cov(4,3) *1./(1_MeV) , cov(4,4) *1./(1_MeV*1_MeV), 0
+      , 0. , 0. , 0. , 0., 0., 1.;
+
+      allTracks.emplace_back((*trkiter),Acts::BoundParameters(geoContext, covMat, actsParams, perigeeSurface));
     }
-    auto cov = *(trkParams->covariance());
-    
-    Acts::BoundSymMatrix covMat;
-    covMat << cov(0,0) , cov(0,1) , cov(0,2) , cov(0,3) , cov(0,4) *1./(1_MeV), 0      
-    , cov(1,0) , cov(1,1) , cov(1,2) , cov(1,3) , cov(1,4) *1./(1_MeV) , 0
-    , cov(2,0) , cov(2,1) , cov(2,2) , cov(2,3) , cov(2,4) *1./(1_MeV) , 0
-    , cov(3,0) , cov(3,1) , cov(3,2) , cov(3,3) , cov(3,4) *1./(1_MeV) , 0 
-    , cov(4,0) *1./(1_MeV) , cov(4,1) *1./(1_MeV) , cov(4,2) *1./(1_MeV) , cov(4,3) *1./(1_MeV) , cov(4,4) *1./(1_MeV*1_MeV), 0
-    , 0. , 0. , 0. , 0., 0., 1.;
 
-    allTracks.emplace_back((*trkiter),Acts::BoundParameters(geoContext, covMat, actsParams, perigeeSurface));
-  }
+    std::vector<const TrackWrapper*> allTrackPtrs;
+    for(const auto& trk : allTracks){
+      allTrackPtrs.push_back(&trk);
+    }
 
-  std::vector<const TrackWrapper*> allTrackPtrs;
-  for(const auto& trk : allTracks){
-    allTrackPtrs.push_back(&trk);
-  }
+    Acts::VertexingOptions<TrackWrapper> vertexingOptions(geoContext,
+       magFieldContext);
 
-  Acts::VertexingOptions<TrackWrapper> vertexingOptions(geoContext,
-     magFieldContext);
+    if(!m_useBeamConstraint){
+      beamSpotConstraintVtx.setPosition(Acts::Vector3D::Zero());
+      beamSpotConstraintVtx.setCovariance(Acts::ActsSymMatrixD<3>::Zero());
+    }
 
-  if(!m_useBeamConstraint){
-    beamSpotConstraintVtx.setPosition(Acts::Vector3D::Zero());
-    beamSpotConstraintVtx.setCovariance(Acts::ActsSymMatrixD<3>::Zero());
-  }
+    vertexingOptions.vertexConstraint = beamSpotConstraintVtx;
 
-  vertexingOptions.vertexConstraint = beamSpotConstraintVtx;
+    VertexFinder::State finderState;
 
-    // TODO: change when available
-    //VertexFinder::State finderState;
-
-    auto findResult = m_vertexFinder->find(allTrackPtrs, vertexingOptions);
+    auto findResult = m_vertexFinder->find(allTrackPtrs, vertexingOptions, finderState);
 
     xAOD::VertexContainer* theVertexContainer = new xAOD::VertexContainer;
     xAOD::VertexAuxContainer* theVertexAuxContainer = new xAOD::VertexAuxContainer;
@@ -365,7 +364,11 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, const std
       xAODVtx->setPosition(vtx.position());
       xAODVtx->setCovariancePosition(vtx.covariance());
       // TODO: remove this 1.e9 subtraction once acts bug fix is in.
-      xAODVtx->setFitQuality(vtx.fitQuality().first-1.e9, vtx.fitQuality().second);
+      double tempChi2 = vtx.fitQuality().first;
+      if(tempChi2 >= 1.e9){
+        tempChi2 -= 1.e9;
+      }
+      xAODVtx->setFitQuality(tempChi2, vtx.fitQuality().second);
 
       const auto& tracks = vtx.tracks();
       std::vector<Trk::VxTrackAtVertex>* trkAtVtxVec = &(xAODVtx->vxTrackAtVertex());
