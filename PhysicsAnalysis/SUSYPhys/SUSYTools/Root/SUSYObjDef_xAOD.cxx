@@ -229,14 +229,16 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_jetPt(-99.),
     m_jetEta(-99.),
     m_jetJvt(-99.),
-    m_JVT_WP(""),
+    m_JvtWP(""),
     m_JvtPtMax(-99.),
+    m_JvtConfig(""),
     m_trkJetPt(-99.),
     m_trkJetEta(-99.),
     m_doFwdJVT(false),
-    m_fwdjetEtaMin(-99.),
-    m_fwdjetPtMax(-99.),
-    m_fwdjetOp(""),
+    m_fJvtWP(""),
+    m_fJvtPtMax(-99.),
+    m_fJvtEtaMin(-99.),
+    m_fJvtConfig(""),
     m_JMScalib(false),
     //
     m_orDoTau(false),
@@ -300,7 +302,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_jetJvtUpdateTool(""),
     m_jetFwdJvtTool(""),
     m_jetJvtEfficiencyTool(""),
-    m_jetFJvtEfficiencyTool(""),
+    m_jetFwdJvtEfficiencyTool(""),
     //
     m_WTaggerTool(""),
     m_ZTaggerTool(""),
@@ -613,8 +615,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   m_jetCleaningTool.declarePropertyFor( this, "JetCleaningTool", "The JetCleaningTool" );
   m_jetJvtUpdateTool.declarePropertyFor( this, "JetJvtUpdateTool", "The JetJvtUpdateTool" );
   m_jetJvtEfficiencyTool.declarePropertyFor( this, "JetJvtEfficiencyTool", "The JetJvtEfficiencyTool" );
-  m_jetFJvtEfficiencyTool.declarePropertyFor( this, "JetFJvtEfficiencyTool", "The JetFJvtEfficiencyTool" );
-  m_jetFwdJvtTool.declarePropertyFor( this, "JetFwdJvtEfficiencyTool", "The JetFwdJvtTool" );
+  m_jetFwdJvtTool.declarePropertyFor( this, "JetFwdJvtTool", "The JetFwdJvtTool" );
+  m_jetFwdJvtEfficiencyTool.declarePropertyFor( this, "JetFwdJvtEfficiencyTool", "The JetFwdJvtEfficiencyTool" );
   //
   m_WTaggerTool.declarePropertyFor( this, "WTaggerTool", "The SmoothedWZTaggerTool" );
   m_ZTaggerTool.declarePropertyFor( this, "ZTaggerTool", "The SmoothedWZTaggerTool" );
@@ -1194,6 +1196,14 @@ StatusCode SUSYObjDef_xAOD::readConfig()
     rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject("MuonBaseline.Id") );
   }
 
+  // Deprecation warning
+  std::string prop = rEnv.GetValue("Jet.JVT_WP", "");
+  if ( !prop.empty() ) {
+     ATH_MSG_WARNING("readConfig(): Found deprecated property name Jet.JVT_WP. Please move to using Jet.JvtWP. Propagating for now.");
+     rEnv.SetValue("Jet.JvtWP", prop.c_str());
+     rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject("Jet.JVT_WP") );
+  }
+
   //load config file to Properties map  (only booleans for now)
   m_conf_to_prop["StrictConfigCheck"] = "StrictConfigCheck";
   m_conf_to_prop["Btag.enable"] = "UseBtagging";
@@ -1342,8 +1352,9 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   //
   configFromFile(m_jetPt, "Jet.Pt", rEnv, 20000.);
   configFromFile(m_jetEta, "Jet.Eta", rEnv, 2.8);
-  configFromFile(m_JVT_WP, "Jet.JVT_WP", rEnv, "Default");
-  configFromFile(m_JvtPtMax, "Jet.JvtPtMax", rEnv, 120.0e3);
+  configFromFile(m_JvtWP, "Jet.JvtWP", rEnv, "Default"); // https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/PileupJetRecommendations
+  configFromFile(m_JvtPtMax, "Jet.JvtPtMax", rEnv, 60.0e3);
+  configFromFile(m_JvtConfig, "Jet.JvtConfig", rEnv, "Moriond2018/");
   configFromFile(m_jetUncertaintiesConfig, "Jet.UncertConfig", rEnv, "rel21/Summer2019/R4_SR_Scenario1_SimpleJER.config"); // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2018SmallR
   configFromFile(m_jetUncertaintiesCalibArea, "Jet.UncertCalibArea", rEnv, "default"); // Defaults to default area set by tool
   configFromFile(m_jetUncertaintiesPDsmearing, "Jet.UncertPDsmearing", rEnv, false); // for non "SimpleJER" config, run MC twice with IsData on/off, see twiki above
@@ -1373,10 +1384,11 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   //
   configFromFile(m_badJetCut, "BadJet.Cut", rEnv, "LooseBad");
   //
-  configFromFile(m_doFwdJVT, "FwdJet.doJVT", rEnv, false); // Tight and Tenacious MET WPs can be used with fJVT by default
-  configFromFile(m_fwdjetEtaMin, "FwdJet.JvtEtaMin", rEnv, 2.5);
-  configFromFile(m_fwdjetPtMax, "FwdJet.JvtPtMax", rEnv, 50e3);
-  configFromFile(m_fwdjetOp, "FwdJet.JvtOp", rEnv, "Loose");
+  configFromFile(m_doFwdJVT, "FwdJet.doJVT", rEnv, false); // https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/PileupJetRecommendations
+  configFromFile(m_fJvtWP, "FwdJet.JvtWP", rEnv, "Tight"); 
+  configFromFile(m_fJvtPtMax, "FwdJet.JvtPtMax", rEnv, 120e3);
+  configFromFile(m_fJvtEtaMin, "FwdJet.JvtEtaMin", rEnv, 2.5);
+  configFromFile(m_fJvtConfig, "FwdJet.JvtConfig", rEnv, "May2020/");
   configFromFile(m_JMScalib, "Jet.JMSCalib", rEnv, false);
   //
   configFromFile(m_useBtagging, "Btag.enable", rEnv, true);
@@ -1887,8 +1899,8 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
       ATH_MSG_VERBOSE("Configured JVTEfficiency for systematic var. " << systConfig.name() );
     }
   }
-  if (!m_jetFJvtEfficiencyTool.empty()) {
-    CP::SystematicCode ret = m_jetFJvtEfficiencyTool->applySystematicVariation(systConfig);
+  if (!m_jetFwdJvtEfficiencyTool.empty()) {
+    CP::SystematicCode ret = m_jetFwdJvtEfficiencyTool->applySystematicVariation(systConfig);
     if ( ret != CP::SystematicCode::Ok) {
       ATH_MSG_VERBOSE("Cannot configure FJVTEfficiency for systematic var. " << systConfig.name() );
     } else {
@@ -2235,8 +2247,8 @@ ST::SystInfo SUSYObjDef_xAOD::getSystInfo(const CP::SystematicVariation& sys) co
       sysInfo.affectedWeights.insert(ST::Weights::Jet::JVT);
     }
   }
-  if (!m_jetFJvtEfficiencyTool.empty()) {
-    if ( m_jetFJvtEfficiencyTool->isAffectedBySystematic( sys ) ) {
+  if (!m_jetFwdJvtEfficiencyTool.empty()) {
+    if ( m_jetFwdJvtEfficiencyTool->isAffectedBySystematic( sys ) ) {
       sysInfo.affectsWeights = true;
       sysInfo.affectsType = SystObjType::Jet;
       sysInfo.affectedWeights.insert(ST::Weights::Jet::FJVT);

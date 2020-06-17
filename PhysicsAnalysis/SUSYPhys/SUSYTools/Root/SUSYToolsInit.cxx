@@ -384,51 +384,31 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
  
 
   ///////////////////////////////////////////////////////////////////////////////////////////
-  // Initialise jet JVT efficiency tool
+  // Initialise jet JVT efficiency tool (scale factors)
 
-  m_applyJVTCut = m_JVT_WP!="";
+  m_applyJVTCut = !m_JvtWP.empty();
   if (!m_jetJvtEfficiencyTool.isUserConfigured() && m_applyJVTCut) {
     toolName = "JVTEfficiencyTool";
     m_jetJvtEfficiencyTool.setTypeAndName("CP::JetJvtEfficiency/"+toolName);
-    ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("WorkingPoint",m_JVT_WP) );
-    ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("MaxPtForJvt",m_JvtPtMax) );
-    // Set the decoration to the name we used to use
-    ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("ScaleFactorDecorationName","jvtscalefact") );
-    // Set the jvt moment (the one we update!)
-    //    ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("JetJvtMomentName", "Jvt") ); //default!
 
-    if (m_jetInputType == xAOD::JetInput::EMTopo){
-      ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("SFFile","JetJvtEfficiency/Moriond2018/JvtSFFile_EMTopoJets.root") );
-    } else if (m_jetInputType == xAOD::JetInput::LCTopo){
-      ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("SFFile","JetJvtEfficiency/Moriond2018/JvtSFFile_LC.root") );
-    } else if (m_jetInputType == xAOD::JetInput::EMPFlow){
-      ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("SFFile","JetJvtEfficiency/Moriond2018/JvtSFFile_EMPFlow.root") );
-    } else {
+    // build SFFile path with folder name from config
+    m_JvtConfig_SFFile = "JetJvtEfficiency/" + m_JvtConfig; 
+    if (m_jetInputType == xAOD::JetInput::EMTopo) { m_JvtConfig_SFFile += "JvtSFFile_EMTopoJets.root"; }
+    else if (m_jetInputType == xAOD::JetInput::LCTopo) { m_JvtConfig_SFFile += "JvtSFFile_LC.root"; }
+    else if (m_jetInputType == xAOD::JetInput::EMPFlow) { m_JvtConfig_SFFile += "JvtSFFile_EMPFlowJets.root"; }
+    else {
       ATH_MSG_ERROR("Cannot configure JVT uncertainties for unsupported jet input type (neither EM nor LC)");
       return StatusCode::FAILURE;
     }
-
+    
+    ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("WorkingPoint", m_JvtWP) );
+    ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("MaxPtForJvt", m_JvtPtMax) );
+    ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("ScaleFactorDecorationName", "jvtscalefact") ); // set decoration name
+    ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("SFFile", m_JvtConfig_SFFile) );
     ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_jetJvtEfficiencyTool.retrieve() );
   } else if (m_jetJvtEfficiencyTool.isUserConfigured())ATH_CHECK( m_jetJvtEfficiencyTool.retrieve() );
  
-  ///////////////////////////////////////////////////////////////////////////////////////////
-  // Initialise jet f-JVT efficiency tool for scale factors
-
-  if (!m_jetFJvtEfficiencyTool.isUserConfigured()) {
-    toolName = m_doFwdJVT ? m_metJetSelection+"_fJVT" : m_metJetSelection+"_NOfJVT";
-    m_jetFJvtEfficiencyTool.setTypeAndName("CP::JetJvtEfficiency/FJVTEfficiencyTool_"+toolName);
-    ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("WorkingPoint",m_fwdjetOp) );
-    ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("MaxPtForJvt",m_fwdjetPtMax) );
-    ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("JetfJvtMomentName","passFJvt") );
-    // Set the decoration to the name we used to use
-    ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("ScaleFactorDecorationName","fJVTSF") );
-    ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("UseMuSFFormat",true) );
-    ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("SFFile","JetJvtEfficiency/Nov2019/fJvtSFFile.EMtopo.root"));
-    ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("OutputLevel", this->msg().level()) );
-    ATH_CHECK( m_jetFJvtEfficiencyTool.retrieve() );
-  } else  ATH_CHECK( m_jetFJvtEfficiencyTool.retrieve() );
-  
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   // Initialise FwdJVT tool
@@ -436,21 +416,51 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   if (!m_jetFwdJvtTool.isUserConfigured()) {
     toolName = m_doFwdJVT ? m_metJetSelection+"_fJVT" : m_metJetSelection+"_NOfJVT";
     m_jetFwdJvtTool.setTypeAndName("JetForwardJvtTool/FJVTTool_"+toolName);
-    ATH_CHECK( m_jetFwdJvtTool.setProperty("OutputDec", "passFJvt") ); //Output decoration
+
     // fJVT WPs depend on the MET WP, see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EtmissRecommendationsRel21p2#fJVT_and_MET
-    if (m_doFwdJVT && m_metJetSelection == "Tight") {
-      ATH_CHECK( m_jetFwdJvtTool.setProperty("UseTightOP", true) ); // Tight
-    } else if (m_doFwdJVT && (m_metJetSelection == "Tenacious" || m_metJetSelection == "TenaciousJVT641")) {
-      ATH_CHECK( m_jetFwdJvtTool.setProperty("UseTightOP", false) ); // Loose
-    } else {
-      ATH_CHECK( m_jetFwdJvtTool.setProperty("UseTightOP", (m_fwdjetOp=="Tight")) ); // Tight or Loose
+    // Tenacious MET --> Medium JVT WP
+    // Tight MET --> Tight JVT WP
+    m_fJvt_useTightOP = (m_fJvtWP=="Tight");
+    if (m_doFwdJVT && ( (m_metJetSelection == "Tight" && m_fJvtWP != "Tight") || ((m_metJetSelection == "Tenacious" || m_metJetSelection == "TenaciousJVT641") && m_fJvtWP != "Loose") ) ) {
+       ATH_MSG_ERROR( "Tight (Tenacious) MET WP should be used with Tight (Loose) fJvt WP. Please reconfigure." );
+       return StatusCode::FAILURE;
     }
-    ATH_CHECK( m_jetFwdJvtTool.setProperty("EtaThresh", m_fwdjetEtaMin) );   //Eta dividing central from forward jets
-    ATH_CHECK( m_jetFwdJvtTool.setProperty("ForwardMaxPt", m_fwdjetPtMax) ); //Max Pt to define fwdJets for JVT
+
+    ATH_CHECK( m_jetFwdJvtTool.setProperty("OutputDec", "passFJvt") ); //Output decoration
+    ATH_CHECK( m_jetFwdJvtTool.setProperty("UseTightOP", m_fJvt_useTightOP) );
+    ATH_CHECK( m_jetFwdJvtTool.setProperty("ForwardMaxPt", m_fJvtPtMax) ); // Max Pt to define fwdJets for JVT
+    ATH_CHECK( m_jetFwdJvtTool.setProperty("EtaThresh", m_fJvtEtaMin) );   // Eta dividing central from forward jets
     ATH_CHECK( m_jetFwdJvtTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_jetFwdJvtTool.retrieve() );
   } else ATH_CHECK( m_jetFwdJvtTool.retrieve() );
  
+
+  ///////////////////////////////////////////////////////////////////////////////////////////
+  // Initialise jet FwdJVT efficiency tool for scale factors
+
+  if (!m_jetFwdJvtEfficiencyTool.isUserConfigured()) {
+    toolName = m_doFwdJVT ? m_metJetSelection+"_fJVT" : m_metJetSelection+"_NOfJVT";
+    m_jetFwdJvtEfficiencyTool.setTypeAndName("CP::JetJvtEfficiency/FJVTEfficiencyTool_"+toolName);
+
+    // build SFFile path with folder name from config
+    m_fJvtConfig_SFFile = "JetJvtEfficiency/" + m_fJvtConfig; 
+    if (m_jetInputType == xAOD::JetInput::EMTopo) { m_fJvtConfig_SFFile += "fJvtSFFile.EMtopo.root"; }
+    else if (m_jetInputType == xAOD::JetInput::EMPFlow) { m_fJvtConfig_SFFile += "fJvtSFFile.EMPFlow.root"; }
+    else {
+      ATH_MSG_ERROR("Cannot configure fJVT uncertainties for unsupported jet input type (neither EMTopo nor EMPFlow)");
+      return StatusCode::FAILURE;
+    }
+
+    ATH_CHECK( m_jetFwdJvtEfficiencyTool.setProperty("JetfJvtMomentName", "passFJvt") );
+    ATH_CHECK( m_jetFwdJvtEfficiencyTool.setProperty("ScaleFactorDecorationName", "fJVTSF") ); // set decoration name
+    ATH_CHECK( m_jetFwdJvtEfficiencyTool.setProperty("WorkingPoint", m_fJvtWP) );
+    ATH_CHECK( m_jetFwdJvtEfficiencyTool.setProperty("MaxPtForJvt", m_fJvtPtMax) );
+    ATH_CHECK( m_jetFwdJvtEfficiencyTool.setProperty("UseMuSFFormat", true) );
+    ATH_CHECK( m_jetFwdJvtEfficiencyTool.setProperty("SFFile", m_fJvtConfig_SFFile) );
+    ATH_CHECK( m_jetFwdJvtEfficiencyTool.setProperty("OutputLevel", this->msg().level()) );
+    ATH_CHECK( m_jetFwdJvtEfficiencyTool.retrieve() );
+  } else  ATH_CHECK( m_jetFwdJvtEfficiencyTool.retrieve() );
+  
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   // Initialise muon calibration tool

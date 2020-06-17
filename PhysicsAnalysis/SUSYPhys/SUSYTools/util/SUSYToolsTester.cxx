@@ -218,12 +218,10 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
   std::map<std::string, std::string> containers = getFileContainers(ifile);
   bool hasTrkJets(false), hasFatJets(false), timestampedJets(false), timestampedTrkJets(false);
   for (auto x : containers) {
-    if (x.first.find("AntiKtVR30Rmax4Rmin02TrackJets")!=std::string::npos) {
-       hasTrkJets = true;
-       if (x.first.find("AntiKtVR30Rmax4Rmin02TrackJets_20")!=std::string::npos) timestampedTrkJets = true;
-    }
+    if (x.first.find("AntiKtVR30Rmax4Rmin02TrackJets")!=std::string::npos) hasTrkJets = true;
     if (x.first.find("AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets")!=std::string::npos) hasFatJets = true;
     if (x.first.find("BTagging_AntiKt4EMTopo_20")!=std::string::npos || x.first.find("BTagging_AntiKt4EMPFlow_20")!=std::string::npos) timestampedJets = true;
+    if (hasTrkJets && x.first.find("BTagging_AntiKtVR30Rmax4Rmin02Track_20")!=std::string::npos) timestampedTrkJets = true;
   }
   if (debug) {
     ANA_MSG_INFO("Checking file contents (containers):");
