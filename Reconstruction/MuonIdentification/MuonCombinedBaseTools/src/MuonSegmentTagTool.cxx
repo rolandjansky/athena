@@ -55,7 +55,7 @@ namespace MuonCombined {
 	m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
 	p_MuTagMatchingTool("MuTagMatchingTool/MuTagMatchingTool") ,
 	p_MuTagAmbiguitySolverTool("MuTagAmbiguitySolverTool/MuTagAmbiguitySolverTool") ,
-  m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", this),
+  	m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", this),
 	m_segmentSelector("Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool"),
 	m_hitSummaryTool("Muon::MuonSegmentHitSummaryTool/MuonSegmentHitSummaryTool"),
 	m_surfaces(0),
@@ -119,38 +119,44 @@ namespace MuonCombined {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode MuonSegmentTagTool::finalize() {
-    delete m_surfaces;
-    ATH_MSG_INFO( "Total number of considered ID tracks         " << m_ntotTracks);
-    ATH_MSG_INFO( "Total number of ID tracks with angular match " << m_nangleMatch);
-    ATH_MSG_INFO( "Total number of preselected ID tracks        " << m_npmatch);
-    ATH_MSG_INFO( "Total number of ID tracks at MS entry        " << m_natMSEntrance);
-    ATH_MSG_INFO( "Total number of accepted ID tracks           " << m_naccepted);
-    for( unsigned int i=0;i<12;++i ){
-      double ratio = m_extrapolated[i] == 0 ? 0 : m_goodExtrapolated[i]/(double)m_extrapolated[i];
-      ATH_MSG_INFO( "Layer " << i << " extrap " << m_extrapolated[i] << " good " << m_goodExtrapolated[i] << " ratio " << ratio );
-    }
-    return StatusCode::SUCCESS;
+  StatusCode MuonSegmentTagTool::finalize()
+  {
+	  delete m_surfaces;
+	  ATH_MSG_INFO("Total number of considered ID tracks         " << m_ntotTracks);
+	  ATH_MSG_INFO("Total number of ID tracks with angular match " << m_nangleMatch);
+	  ATH_MSG_INFO("Total number of preselected ID tracks        " << m_npmatch);
+	  ATH_MSG_INFO("Total number of ID tracks at MS entry        " << m_natMSEntrance);
+	  ATH_MSG_INFO("Total number of accepted ID tracks           " << m_naccepted);
+	  for (unsigned int i = 0; i < 12; ++i)
+	  {
+		  double ratio = m_extrapolated[i] == 0 ? 0 : m_goodExtrapolated[i] / (double)m_extrapolated[i];
+		  ATH_MSG_INFO("Layer " << i << " extrap " << m_extrapolated[i] << " good " << m_goodExtrapolated[i] << " ratio " << ratio);
+	  }
+	  return StatusCode::SUCCESS;
   }
 
-  void MuonSegmentTagTool::tag( const InDetCandidateCollection& inDetCandidates, const xAOD::MuonSegmentContainer& xaodSegments, InDetCandidateToTagMap* tagMap ) const {
+  void MuonSegmentTagTool::tag(const InDetCandidateCollection &inDetCandidates, const xAOD::MuonSegmentContainer &xaodSegments, InDetCandidateToTagMap *tagMap) const
+  {
 
-    // loop over segments are extract MuonSegments + create links between segments and xAOD segments
-    std::map< const Muon::MuonSegment*, ElementLink<xAOD::MuonSegmentContainer> > segmentToxAODSegmentMap;
-    std::vector< const Muon::MuonSegment* > segments;
-    segments.reserve(xaodSegments.size());
-    unsigned int index = 0;
-    for( auto it = xaodSegments.begin();it!=xaodSegments.end();++it,++index ){
-      if( !(*it)->muonSegment().isValid() ) continue;
-      const Muon::MuonSegment* mseg = dynamic_cast<const Muon::MuonSegment*>(*(*it)->muonSegment());
-      ElementLink<xAOD::MuonSegmentContainer> link(xaodSegments,index);
-      link.toPersistent();
-      if( mseg ) {
-        segments.push_back(mseg);
-        segmentToxAODSegmentMap[mseg] = link;
-      }
-    }
-    tag(inDetCandidates, segments, &segmentToxAODSegmentMap, tagMap);
+	  // loop over segments are extract MuonSegments + create links between segments and xAOD segments
+	  std::map<const Muon::MuonSegment *, ElementLink<xAOD::MuonSegmentContainer>> segmentToxAODSegmentMap;
+	  std::vector<const Muon::MuonSegment *> segments;
+	  segments.reserve(xaodSegments.size());
+	  unsigned int index = 0;
+	  for (auto it = xaodSegments.begin(); it != xaodSegments.end(); ++it, ++index)
+	  {
+		  if (!(*it)->muonSegment().isValid())
+			  continue;
+		  const Muon::MuonSegment *mseg = dynamic_cast<const Muon::MuonSegment *>(*(*it)->muonSegment());
+		  ElementLink<xAOD::MuonSegmentContainer> link(xaodSegments, index);
+		  link.toPersistent();
+		  if (mseg)
+		  {
+			  segments.push_back(mseg);
+			  segmentToxAODSegmentMap[mseg] = link;
+		  }
+	  }
+	  tag(inDetCandidates, segments, &segmentToxAODSegmentMap, tagMap);
   }
   //todo: fix segmentToxAODSegmentMap
   void MuonSegmentTagTool::tag( const InDetCandidateCollection& inDetCandidates, const std::vector<const Muon::MuonSegment*>& segments, 
@@ -266,15 +272,15 @@ namespace MuonCombined {
       ATH_MSG_VERBOSE( "========================== dumping the full track =========================" );
       ATH_MSG_VERBOSE( *track );
 
-      const Trk::TrackSummary* summary =  track->trackSummary() ; // Summary retrieved from TrackParticle (not from Track: it might be absent there)
       bool trkEtaInfo(false);
-      if( !summary ) {
-	ATH_MSG_WARNING( "Track has no trackSummary ! No ID eta information retrieved !" );
-      } else {
-	unsigned int nrIDetaHits = summary->get( Trk::numberOfSCTHits ) +  summary->get( Trk::numberOfPixelHits ) ;
-	if( nrIDetaHits >=5 ) trkEtaInfo = true;
-	if( !trkEtaInfo ) ATH_MSG_DEBUG( "Track has no ID eta information! (" << nrIDetaHits << " etaHits)" );
-      }
+	  uint8_t numSCTHits = 0; uint8_t numPixelHits=0;
+	  if (!idTP->indetTrackParticle().summaryValue( numSCTHits, xAOD::numberOfSCTHits ) ) ATH_MSG_DEBUG("TrackParticle missing numberOfSCTHits");
+	  if (!idTP->indetTrackParticle().summaryValue( numPixelHits, xAOD::numberOfPixelHits ) )  ATH_MSG_DEBUG("TrackParticle missing numberOfPixelHits");
+	  
+	  unsigned int nrIDetaHits = numSCTHits +  numPixelHits;
+	  if( nrIDetaHits >=5 ) trkEtaInfo = true;
+	  if( !trkEtaInfo ) ATH_MSG_DEBUG( "Track has no ID eta information! (" << nrIDetaHits << " etaHits)" );
+      
       ++m_ntotTracks;
       bool hasMatch = m_doBidirectional;
       if( !m_doBidirectional ){
@@ -605,7 +611,7 @@ namespace MuonCombined {
 
 	      MuonCombined::MuonSegmentInfo info = p_MuTagMatchingTool->muTagSegmentInfo(track,*itSeg,atSegSurface) ;
 	      if(segmentToxAODSegmentMap)
-		info.link = (*segmentToxAODSegmentMap)[*itSeg];
+			info.link = (*segmentToxAODSegmentMap)[*itSeg];
 		//              ATH_MSG_DEBUG( " MuTagSegmentInfo  matchPosition  pullY " <<  info.pullY << " pullX " << info.pullX << " resY " <<  info.resY << " resX " << info.resX << " exErrorY " <<  info.exErrorY << " ex errorX " << info.exErrorX << " seg errorY " << info.segErrorY << " seg errorX " << info.segErrorX );
 	      //              ATH_MSG_DEBUG( " MuTagSegmentInfo matchDirection pullYZ " <<  info.pullYZ << " pullXZ " << info.pullXZ << " resYZ " <<  info.dangleYZ << " resXZ " << info.dangleXZ << " exErrorYZ " <<  info.exErrorYZ << " ex errorXZ " << info.exErrorXZ << " seg errorYZ " << info.segErrorYZ << " seg errorXZ " << info.segErrorXZ );
 	      //              ATH_MSG_DEBUG( " MuTagSegmentInfo matchDistance hasPhi " << info.hasPhi << " resX " << info.resX << " dangleXZ " << info.dangleXZ << " maximumResidualAlongTube " << info.maximumResidualAlongTube << " resY " << info.resY << " dangleYZ " << info.dangleYZ );    
@@ -614,15 +620,19 @@ namespace MuonCombined {
 
 	      isMatched =  p_MuTagMatchingTool->matchSegmentPosition( &info,trkEtaInfo);
 
-	      if( !isMatched ){  
-		if( m_doTable ){
-		  if( !trkEtaInfo ) segVsSurf[segmentCount] = "posPhi" ;
-		  else segVsSurf[segmentCount] = "pos" ;
-		}
-		delete atSegSurface;
-		continue;	
-	      } 
-	      isMatched =  p_MuTagMatchingTool->matchSegmentDirection( &info,trkEtaInfo);
+		  if (!isMatched)
+		  {
+			  if (m_doTable)
+			  {
+				  if (!trkEtaInfo)
+					  segVsSurf[segmentCount] = "posPhi";
+				  else
+					  segVsSurf[segmentCount] = "pos";
+			  }
+			  delete atSegSurface;
+			  continue;
+		  }
+		  isMatched =  p_MuTagMatchingTool->matchSegmentDirection( &info,trkEtaInfo);
 
 	      if( !isMatched ){ 
 		if( m_doTable ){
@@ -780,7 +790,6 @@ namespace MuonCombined {
 	tagMap->addEntry(tagCandidate,tag);
       } 
     }   
-
 
 
 
