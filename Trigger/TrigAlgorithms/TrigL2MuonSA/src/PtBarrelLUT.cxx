@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigL2MuonSA/PtBarrelLUT.h"
@@ -11,44 +11,11 @@
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-static const InterfaceID IID_PtBarrelLUT("IID_PtBarrelLUT", 1, 0);
-
-const InterfaceID& TrigL2MuonSA::PtBarrelLUT::interfaceID() { return IID_PtBarrelLUT; }
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
 TrigL2MuonSA::PtBarrelLUT::PtBarrelLUT(const std::string& type,
 				       const std::string& name,
 				       const IInterface*  parent):
   AthAlgTool(type, name, parent)
 {
-  declareInterface<TrigL2MuonSA::PtBarrelLUT>(this);
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-TrigL2MuonSA::PtBarrelLUT::~PtBarrelLUT()
-{
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigL2MuonSA::PtBarrelLUT::initialize()
-{
-  ATH_MSG_DEBUG("Initializing PtBarrelLUT - package version " << PACKAGE_VERSION) ;
-   
-  StatusCode sc;
-  sc = AthAlgTool::initialize();
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
-    return sc;
-  }
-
-  // 
-  return StatusCode::SUCCESS; 
 }
 
 // --------------------------------------------------------------------------------
@@ -108,10 +75,10 @@ StatusCode TrigL2MuonSA::PtBarrelLUT::readLUT(std::string lut_fileName,
 	file >> A1 >> A0;
 
 	m_lut.table[chamber][charge][i][j][0] = A1;
-	m_lut.table[chamber][charge][i][j][1] = A0; 
+	m_lut.table[chamber][charge][i][j][1] = A0;
       }
     }
-  }	
+  }
   
   file.close();
 
@@ -130,17 +97,6 @@ StatusCode TrigL2MuonSA::PtBarrelLUT::readLUT(std::string lut_fileName,
   }
 
   return StatusCode::SUCCESS;
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigL2MuonSA::PtBarrelLUT::finalize()
-{
-  ATH_MSG_DEBUG("Finalizing TgcRoadDefiner - package version " << PACKAGE_VERSION);
-   
-  StatusCode sc = AthAlgTool::finalize(); 
-  return sc;
 }
 
 // --------------------------------------------------------------------------------
