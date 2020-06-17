@@ -59,14 +59,11 @@ StatusCode CscClusterValMonAlg::initialize() {
   ATH_MSG_INFO ( "CSCClusterKey       : " << m_cscClusterKey );
   ATH_MSG_INFO ( "CSCPrepRawDataKey   : " << m_cscPRDKey );
 
-  StatusCode sc;
   ATH_CHECK(m_idHelperSvc.retrieve());
   ATH_MSG_DEBUG ("CSCIdHelper         : " << "Using CscIdhelper " );
 
   ATH_CHECK(m_stripFitter.retrieve());
   ATH_MSG_INFO ( "CSCStripFitter      : " << "Using Fitter with name \"" << m_stripFitter->name() << "\"" );
-
-  //ATH_CHECK(m_cscCalibTool.retrieve());
 
   if( m_doEvtSel ) ATH_CHECK(m_trigDec.retrieve());
 
@@ -128,7 +125,7 @@ StatusCode CscClusterValMonAlg::fillHistograms( const EventContext& ctx ) const 
       const CscPrepData& iClus = **Itclu;
       const std::vector<Identifier>& stripIds = iClus.rdoList();    
       float clu_charge = iClus.charge();
-      float clu_time = iClus.time();
+      auto clu_time = Monitored::Scalar<float>("clu_time", (iClus.time()));
 
       ATH_MSG_DEBUG(" cluster charge = " << clu_charge << "\t cluster time = " << clu_time );
 
@@ -214,16 +211,18 @@ StatusCode CscClusterValMonAlg::fillHistograms( const EventContext& ctx ) const 
         bool found_id = true;
         std::vector <const CscStripPrepData*> stripVec;
         std::vector <float> fStripIDs;
+      //  auto fStripIDs = Monitored::Collection("fStripIDs",fStripIDs);
         float maxStripCharge = 0., maxStipId = 0.;
         int sIdx = 0, mxIdx = 0; // index-counter and index of max strip in the vector of Id's
 
+        auto clus_phi = Monitored::Scalar<int>("clus_phi", (int)measuresPhi);
+        auto clus_eta = Monitored::Scalar<int>("clus_eta", (int)(!measuresPhi));
+        fill("CscClusMonitor",noStrips, secLayer,clus_phi, clus_eta);
 
       // fill cluster width (no. of strips per cluster) 
         if(measuresPhi) {
-          fill("CscClusMonitor",noStrips,secLayerPhi);  // fill phi-cluster width
           nPhiClusWidthCnt++;
         } else {
-          fill("CscClusMonitor",noStrips,secLayerEta);  // fill eta-cluster width
           nEtaClusWidthCnt++;
         }
 
@@ -231,9 +230,9 @@ StatusCode CscClusterValMonAlg::fillHistograms( const EventContext& ctx ) const 
         for ( std::vector<Identifier>::const_iterator sId = stripIds.begin(); sId != stripIds.end(); ++sId, sIdx++ ) {
           Identifier id = *sId; // for strip Id's
           int thisStrip = m_idHelperSvc->cscIdHelper().strip(id);
-          auto stripid = Monitored::Scalar<int> ("stripid", thisStrip*xfac);
-        //  float stripid = thisStrip * xfac;         // x-axis fill value
+          auto stripid = Monitored::Scalar<int> ("stripid", thisStrip*xfac);// x-axis fill value
           fStripIDs.push_back(stripid);
+          
           fill("CscClusMonitor",stripid, secLayer);
 
           if(!pcol) {
@@ -269,6 +268,8 @@ StatusCode CscClusterValMonAlg::fillHistograms( const EventContext& ctx ) const 
             ATH_MSG_DEBUG ( " " << (found_strip? "FoundStrip " : "NoStripFound ") << " with max sampling = " << maxsampChVal);
           } // end if found_id
         }
+
+         auto fStripIDs_col = Monitored::Collection("fStripIDs_col",fStripIDs);
          ATH_MSG_DEBUG ( " Max Strip charge = " << maxStripCharge  << " and strip Id = " << maxStipId << " and index = " << mxIdx);
          float qmax = 0., qleft = 0., qright = 0., qsum = 0.;
         // if we are here and loop over strips is successful we should have found_id = true
@@ -286,21 +287,199 @@ StatusCode CscClusterValMonAlg::fillHistograms( const EventContext& ctx ) const 
 
           if( range_check ) {
             // fit Q_left fit
-            //if(stripVec.size()>0) res[0] = m_stripFitter->fit(*stripVec[mxIdx-1]);
-            
-            if(mxIdx-1 >= 0  ) {
-             
-            //  res[0] = m_stripFitter->fit(*stripVec[mxIdx-1]);  //python crashes 
+            if(mxIdx-1 >= 0  ) { 
+              res[0] = m_stripFitter->fit(*stripVec[mxIdx-1]); 
+              qleft = res[0].charge;
+              qsum += qleft;
+              ATH_MSG_DEBUG ( " Left Strip q +- dq = " << res[0].charge  << " +- " << res[0].dcharge << "\t t +- dt = " 
+                  << res[0].time << " +- " <<  res[0].dtime << "\t w +- dw = " << res[0].width << " +- " 
+                  << res[0].dwidth << "\t status= " << res[0].status << "\t chisq= " << res[0].chsq);
+            }// end if q_left
+            // fit Q_max strip
+            res[1] = m_stripFitter->fit(*stripVec[mxIdx]);
+            qmax = res[1].charge;
+            qsum += qmax; 
+            ATH_MSG_DEBUG ( " Peak Strip q +- dq = " << res[1].charge  << " +- " << res[1].dcharge << "\t t +- dt = " 
+                << res[1].time << " +- " <<  res[1].dtime << "\t w +- dw = " << res[1].width << " +- " 
+                << res[1].dwidth << "\t status= " << res[1].status << "\t chisq= " << res[1].chsq);
+            // fit Q_right strip
+            if(mxIdx+1 < int(noStrips)) {
+              res[2] = m_stripFitter->fit(*stripVec[mxIdx+1]);
+              qright = res[2].charge;
+              qsum += qright;
+              ATH_MSG_DEBUG ( " Right Strip q +- dq = " << res[2].charge  << " +- " << res[2].dcharge << "\t t +- dt = " 
+                  << res[2].time << " +- " <<  res[2].dtime << "\t w +- dw = " << res[2].width << " +- " 
+                  << res[2].dwidth << "\t status= " << res[2].status << "\t chisq= " << res[2].chsq);
+            } // end if q_right
+          } // end if range_check
+
+          // not used at the moment
+          // 1 e = 1.602176487 10^{-19} C = 1.6022 x 10^{-4} fC
+          // float m_fCperElectron = 1.6022e-4; // multiply # of electrons by this number to get fC
+
+          float kiloele = 1.0e-3; // multiply # of electrons by this number to get kiloElectrons (1 ke = 1 ADC)
+
+
+          // Assume 1000 e = 1 ADC for now = 1000 x 1.6022 x 10^{-4} fC = 0.16022 fC
+          // convert qmax, qleft, qright into ADC 
+          
+          auto QmaxADC = Monitored::Scalar<float>("QmaxADC", (qmax * kiloele));
+          auto QsumADC = Monitored::Scalar<float>("QsumADC", (qsum * kiloele));
+          
+
+          // check if signal or noise
+          // QmaxADC > m_qmaxADCCut is signal
+          bool signal = QmaxADC > m_qmaxADCCut;
+
+          // fill signal/noise histograms
+          auto signal_mon = Monitored::Scalar<int>("signal_mon",(int)signal);
+          auto noise_mon = Monitored::Scalar<int>("noise_mon",(int)!(signal));
+          for(unsigned int j =0; j < fStripIDs.size(); j++)
+          {
+            fill("CscClusMonitor",fStripIDs_col, secLayer, signal_mon, noise_mon);
+          }
+          auto clus_phi = Monitored::Scalar<int>("clus_phi", (int)measuresPhi );
+          auto clus_eta = Monitored::Scalar<int>("clus_eta", (int)(!measuresPhi) );
+          auto clus_phiSig = Monitored::Scalar<int>("clus_phiSig", (int)measuresPhi && (signal));
+          auto clus_etaSig = Monitored::Scalar<int>("clus_etaSig", (int)(!measuresPhi) && (signal));
+          auto clus_phiNoise = Monitored::Scalar<int>("clus_phiNoise", (int)measuresPhi && !(signal));
+          auto clus_etaNoise = Monitored::Scalar<int>("clus_etaNoise", (int)(!measuresPhi) && !(signal));
+        //  fill("CscClusMonitor",noStrips, secLayer,clus_phiSig, clus_etaSig, clus_phiNoise, clus_etaNoise );
+
+          auto sideA = Monitored::Scalar<int>("sideA",(int)(stationEta==1) && (signal));
+          auto sideC = Monitored::Scalar<int>("sideC",(int)(stationEta==-1) && (signal));
+          fill("CscClusMonitor",secLayer,sideA,sideC);
+
+          if(signal)  sigclusCount[ns][nl]++;
+
+          auto clu_charge_kiloele = Monitored::Scalar<float>("clu_charge_kiloele", (iClus.charge()*kiloele));
+
+          fill("CscClusMonitor",QmaxADC, secLayer, noStrips, secLayer, QsumADC, clu_time, clu_charge_kiloele, clus_phi, clus_eta, clus_phiSig, clus_etaSig, clus_phiNoise, clus_etaNoise, signal_mon, noise_mon, sideA, sideC);
+
+          ATH_MSG_DEBUG ( " End of strip fits " ); 
+
+        } // if found_id
+      } // end if cluster_status
+
+      auto stripsSum_EA_mon = Monitored::Scalar<float> ("stripsSum_EA_mon",stripsSum_EA);
+      auto stripsSum_EC_mon = Monitored::Scalar<float> ("stripsSum_EC_mon",stripsSum_EC);
+      fill("CscClusMonitor",stripsSum_EA_mon, stripsSum_EC_mon);
+
+    } // end for loop over prep-data collection
+    ATH_MSG_DEBUG ( " End loop over clusters ============================");
+    auto nPhiClusWidthCnt_mon = Monitored::Scalar<int> ("nPhiClusWidthCnt_mon",nPhiClusWidthCnt);
+    auto nEtaClusWidthCnt_mon = Monitored::Scalar<int> ("nEtaClusWidthCnt_mon",nEtaClusWidthCnt);
+    fill("CscClusMonitor",nPhiClusWidthCnt_mon,nEtaClusWidthCnt_mon);
+
+    // Fill cluster counts
+    int numeta = 0, numphi = 0;
+    int numetasignal = 0, numphisignal = 0;
+
+    //loop over chambers
+    for(int kl = 1; kl < 33; kl++ ) {
+
+      // loop over layers
+      int eta_hits[4] = {0,0,0,0};
+      bool chamber_empty = true;  
+      int sec = kl < 17 ? kl*(-1) : kl; // [1->16](-side)  [17-32] (+side)
+      for(int km = 1; km < 9; km++ ) {
+        int lay = (km > 4 && km < 9) ? km-4 : km;  // 1,2,3,4 (phi-layers)     5-4, 6-4, 7-4, 8-4 (eta-layers)
+        bool mphi = (km > 0 && km < 5) ? true : false; // 1,2,3,4 (phi-layers) 5,6,7,8 (eta-layers)
+        std::string wlay = mphi ? "Phi-Layer " : "Eta-Layer: ";
+        int count = clusCount[kl][km];
+        auto count_mon = Monitored::Scalar<int>("count_mon",count);
+        int scount = sigclusCount[kl][km];
+        auto scount_mon = Monitored::Scalar<int>("scount_mon",scount);
+        auto count_diff = Monitored::Scalar<int>("count_diff",(count-scount));
+
+        auto mphi_true = Monitored::Scalar<int>("mphi_true",(int)mphi);
+        auto mphi_false = Monitored::Scalar<int>("mphi_false",(int)!(mphi));
+
+        auto scount_phi_true = Monitored::Scalar<int>("scount_phi_true", (int)mphi && scount == 1);
+        auto scount_phi_false = Monitored::Scalar<int>("scount_phi_false", (int)mphi && scount == 0);
+
+        auto scount_eta_true = Monitored::Scalar<int>("scount_eta_true", (int)!(mphi) && scount == 1);
+        auto scount_eta_false = Monitored::Scalar<int>("scount_eta_false", (int)!(mphi) && scount == 0);
+
+        auto secLayer = Monitored::Scalar<float>("secLayer",(sec + 0.2 * (lay - 1) + 0.1));
+
+        if(count){
+          ATH_MSG_DEBUG ("sec[" << sec << "]\t" << wlay << "[" << lay << "] = " << secLayer << "= " << "\tNsig = " << scount << ", Ntot = " << count);
+          if(mphi){
+            numphi += count;
+            if(scount){
+              chamber_empty = false;
+              numphisignal += scount;
             }
           }
-
+          else{
+            numeta += count;
+            if(scount){
+              eta_hits[lay-1]++;
+              chamber_empty = false;
+              numetasignal +=scount;
+            }
+          }
+          ATH_MSG_DEBUG ( wlay << "Counts sec: [" << kl-16 << "]\tlayer: [" << km << "] = " << secLayer << "\t = " << count << "\t" << scount);
         }
+
+        fill("CscClusMonitor", count_mon, scount_mon, count_diff, secLayer, mphi_true, mphi_false, scount_phi_true, scount_phi_false, scount_eta_true, scount_eta_false);
+
+      }// end loop over layers
+
+      int segNum_new = -999.;
+      if(!chamber_empty){
+        std::ostringstream nseglist;
+        std::bitset<4> segNum;
+        for(unsigned int mm = 0; mm < 4; mm++) {
+          bool set = (eta_hits[mm] > 0 ? true : false);
+          if(set) segNum.set(mm);
+          nseglist << (set ? "1" : "0");
+        }
+        segNum_new = segNum.to_ulong();
+        ATH_MSG_DEBUG("segments= " << nseglist.str() << "\t = " << segNum.to_ulong());  
       }
-    }
-  }
+      auto segNum_mon = Monitored::Scalar<int>("segNum_mon", segNum_new);
+      auto sec_mon = Monitored::Scalar<float>("sec_mon",sec+0.3);
+      fill("CscClusMonitor", segNum_mon, sec_mon);
+    } // end loop over chambers
+
+    ATH_MSG_DEBUG(" numphi = " << numphi << "\t numeta = " << numeta << "\tm_sphi = " << numphisignal << "\t m_seta = " << numetasignal);
+    auto numphi_mon = Monitored::Scalar<int>("numphi_mon", numphi);
+    auto numeta_mon = Monitored::Scalar<int>("numeta_mon", numeta);
+    auto numphi_sig_mon = Monitored::Scalar<int>("numphi_sig_mon", numphisignal);
+    auto numeta_sig_mon = Monitored::Scalar<int>("numeta_sig_mon", numetasignal);
+    auto numphi_numeta_mon = Monitored::Scalar<int>("numphi_numeta_mon", numphi+numeta);
+    auto numphi_numeta_sig_mon = Monitored::Scalar<int>("numphi_numeta_sig_mon", numphisignal+numetasignal);
+    auto num_num_noise_mon = Monitored::Scalar<int>("num_num_noise_mon", (numphi-numphisignal)+(numeta-numetasignal));
+    auto numphi_diff_mon = Monitored::Scalar<int>("numphi_diff_mon", numphi-numphisignal);
+    auto numeta_diff_mon = Monitored::Scalar<int>("numeta_diff_mon", numeta-numetasignal);
+
+    fill("CscClusMonitor",numphi_mon,numeta_mon,numphi_sig_mon,numeta_sig_mon,numphi_numeta_mon,numphi_numeta_sig_mon,num_num_noise_mon,numphi_diff_mon,numeta_diff_mon);
+
+  } // end for loop over prep-data container
+
+  ATH_MSG_DEBUG ( " END EVENT ============================");
 
   return sc; 
 
 }
+/*
+//
+//  evtSelTriggersPassed ----------------------------------------------------------------
+//
+bool CscClusterValMonAlg::evtSelTriggersPassed() {
 
+  if(!m_doEvtSel) return true;
+  std::vector<std::string>::const_iterator 
+    it = m_sampSelTriggers.begin(), itE = m_sampSelTriggers.end();
+  for ( ; it != itE; it++ ) {
+    if (m_trigDec->isPassed(*it, TrigDefs::eventAccepted)) {
+      return true;
+    }
+  }
+  return false;
 
+} // end evtSelTriggersPassed 
+
+*/

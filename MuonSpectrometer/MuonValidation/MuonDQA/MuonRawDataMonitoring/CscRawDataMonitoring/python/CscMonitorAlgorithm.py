@@ -1,8 +1,11 @@
 #
-#  Copyright (C) 2020 CERN for the benefit of the ATLAS collaboration
+#Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.ComponentFactory import CompFactory
+from MuonConfig.MuonSegmentFindingConfig import CalibCscStripFitterCfg
+
+from .CscMonUtils import getCSCLabelx
 
 def CscMonitoringConfigOld(inputFlags):
     from AthenaMonitoring import AthMonitorCfgHelperOld
@@ -26,6 +29,15 @@ def CscMonitoringConfig(inputFlags):
 
        # Temporary, until we move to services/private tools-- from MuonSpectrometer/MuonConfig
    # result.addPublicTool( CompFactory.Muon__MuonIdHelperTool() )
+    strp = CalibCscStripFitterCfg(inputFlags)
+    strp.popPrivateTools()
+    result.merge(strp)
+
+   # CalibCscStripFitter = CompFactory.CalibCscStripFitter
+  #  result.addPublicTool(CompFactory.Calib__CalibCscStripFitterTool())
+   # res = CalibCscStripFitter()
+   # result.addPublicTool(CompFactory.CalibCscStripFitter())
+    
 
 
     # The following class will make a sequence, configure algorithms, and link
@@ -43,6 +55,7 @@ def CscMonitoringConfig(inputFlags):
     # This uses the new Configurables object system.
     cscClusMonAlg = helper.addAlgorithm(CompFactory.CscClusterValMonAlg,'CscClusMonAlg')
     cscPrdMonAlg = helper.addAlgorithm(CompFactory.CscPrdValMonAlg,'CscPrdMonAlg')
+   # cscSegmMonAlg = helper.addAlgorithm(CompFactory.CscSegmValMonAlg,'CscSegmValMonAlg')
 
 
     ### STEP 3 ###
@@ -66,30 +79,213 @@ def CscMonitoringConfig(inputFlags):
     # object here is the standard GenericMonitoringTool.
     cscClusGroup = helper.addGroup(cscClusMonAlg,'CscClusMonitor','Muon/MuonRawDataMonitoring/CSC/')
     cscPrdGroup = helper.addGroup(cscPrdMonAlg,'CscPrdMonitor','Muon/MuonRawDataMonitoring/CSC/')
-
+  #  cscSegmGroup = helper.addGroup(cscSegmMonAlg,'CscSegmMonitor','Muon/MuonRawDataMonitoring/CSC/')
 
 
 
     ### STEP 5 ###
     # Configure histograms
     #Cluster
-    cscClusGroup.defineHistogram('z,r',type='TH2F',title='R vs. Z Cluster hitmap;z(mm);R(mm)',
+    cscClusGroup.defineHistogram('z,r;h2csc_clus_r_vs_z_hitmap',type='TH2F',title='R vs. Z Cluster hitmap;z(mm);R(mm)',
                                  path='Clusters/Shift',xbins=200,xmin=-10000.,xmax=10000., ybins=40, ymin=0., ymax=4000.)
 
-    cscClusGroup.defineHistogram('y,x',type='TH2F',title='X vs. Y Cluster hitmap;y(mm);x(mm)',
+    cscClusGroup.defineHistogram('y,x;h2csc_clus_y_vs_x_hitmap',type='TH2F',title='X vs. Y Cluster hitmap;y(mm);x(mm)',
                                  path='Clusters/Shift',xbins=100,xmin=-5000.,xmax=5000.,ybins=100,ymin=-5000,ymax=5000)
 
-    cscClusGroup.defineHistogram('noStrips,secLayerPhi',type='TH2F',title='Phi-Cluster width;# strips;[sector] + [0.2 #times layer]',
+    cscClusGroup.defineHistogram('noStrips,secLayer;h2csc_clus_phicluswidth',type='TH2F',cutmask='clus_phi',title='Phi-Cluster width;# strips;[sector] + [0.2 #times layer]',
                                  path='Clusters/Expert',xbins=48,xmin=0,xmax=48,ybins=175,ymin=-17,ymax=18)
 
-    cscClusGroup.defineHistogram('noStrips,secLayerEta',type='TH2F',title='Eta-Cluster width;# strips;[sector] + [0.2 #times layer]',
+    cscClusGroup.defineHistogram('noStrips,secLayer;h2csc_clus_etacluswidth',type='TH2F',cutmask='clus_eta',title='Eta-Cluster width;# strips;[sector] + [0.2 #times layer]',
                                   path='Clusters/Expert',xbins=192, xmin=0, xmax=192, ybins=175, ymin=-17, ymax=18)
 
-    cscClusGroup.defineHistogram('stripid,secLayer',type='TH2F',title='Cluster occupancy;channel;[sector]+[0.2 #times layer]',
+    cscClusGroup.defineHistogram('stripid,secLayer;h2csc_clus_hitmap',type='TH2F',title='Cluster occupancy;channel;[sector]+[0.2 #times layer]',
                                   path='Clusters/Expert',xbins=242,xmin=-49.,xmax=193.,ybins=175,ymin=-17.,ymax=18.)
 
+    cscClusGroup.defineHistogram('fStripIDs_col,secLayer;h2csc_clus_hitmap_signal',cutmask='signal_mon',type='TH2F',title='Cluster occupancy, Qmax > 100 counts;channel;[sector] + [0.2 #times layer]',
+                                  path='Clusters/Shift',xbins=242,xmin=-49.,xmax=193.,ybins=175,ymin=-17.,ymax=18.)
+
+    cscClusGroup.defineHistogram('noStrips,secLayer;h2csc_clus_phicluswidth_signal',type='TH2F',cutmask='clus_phiSig',title='#phi-cluster width, Qmax > 100 counts;# strips;[sector] + [0.2 #times layer]',
+                                 path='Clusters/Expert',xbins=48,xmin=0,xmax=48,ybins=175,ymin=-17,ymax=18)
+
+    cscClusGroup.defineHistogram('noStrips,secLayer;h2csc_clus_etacluswidth_signal',type='TH2F',cutmask='clus_etaSig',title='#eta-cluster width, Qmax > 100 counts;# strips;[sector] + [0.2 #times layer]',
+                                 path='Clusters/Expert',xbins=192,xmin=0,xmax=192,ybins=175,ymin=-17,ymax=18)
+
+    thisLabelx=getCSCLabelx("labels_clus_occupancy_signal_EA")
+    cscClusGroup.defineHistogram('secLayer;h1csc_clus_occupancy_signal_EA',type='TH1F',cutmask='sideA',title='EndCap A: Layer occupancy, Qmax > 100 counts;;entries/layer',
+                                 path='Overview/CSCEA/Cluster',xbins=90,xmin=0,xmax=18, xlabels=thisLabelx)
+
+    thisLabelx=getCSCLabelx("labels_clus_occupancy_signal_EC")
+    cscClusGroup.defineHistogram('secLayer;h1csc_clus_occupancy_signal_EC',type='TH1F',cutmask='sideC',title='EndCap C: Layer occupancy, Qmax > 100 counts;;entries/layer',
+                                 path='Overview/CSCEC/Cluster',xbins=85,xmin=-17.,xmax=0., xlabels=thisLabelx) 
+
+    cscClusGroup.defineHistogram('fStripIDs_col,secLayer;h2csc_clus_hitmap_noise',cutmask='noise_mon',type='TH2F',title='Cluster occupancy, Qmax #leq 100 counts;channel;[sector] + [0.2 #times layer]',
+                                  path='Clusters/Expert',xbins=242,xmin=-49.,xmax=193.,ybins=175,ymin=-17.,ymax=18.)
+
+    cscClusGroup.defineHistogram('noStrips,secLayer;h2csc_clus_phicluswidth_noise',type='TH2F',cutmask='clus_phiNoise',title='#phi-cluster width, Qmax #leq 100 counts;# strips;[sector] + [0.2 #times layer]',
+                                 path='Clusters/Expert',xbins=48,xmin=0,xmax=48,ybins=175,ymin=-17,ymax=18)
+
+    cscClusGroup.defineHistogram('noStrips,secLayer;h2csc_clus_etacluswidth_noise',type='TH2F',cutmask='clus_etaNoise',title='#eta-cluster width, Qmax #leq 100 counts;# strips;[sector] + [0.2 #times layer]',
+                                 path='Clusters/Expert',xbins=192,xmin=0,xmax=192,ybins=175,ymin=-17,ymax=18)
+
+    cscClusGroup.defineHistogram('QmaxADC,secLayer;h2csc_clus_qmax',type='TH2F',title='Cluster peak-strip charge, Qmax;counts;[sector] + [0.2 #times layer]',
+                                 path='Clusters/Expert',xbins=400,xmin=0,xmax=8000,ybins=175,ymin=-17,ymax=18)
+
+    cscClusGroup.defineHistogram('QmaxADC,secLayer;h2csc_clus_qmax_signal',cutmask='signal_mon',type='TH2F',title='Cluster peak-strip charge, Qmax > 100 counts;counts;[sector] + [0.2 #times layer]',
+                                 path='Clusters/Shift',xbins=400,xmin=0,xmax=8000,ybins=175,ymin=-17,ymax=18)
+
+    cscClusGroup.defineHistogram('QmaxADC,secLayer;h2csc_clus_qmax_noise',cutmask='noise_mon',type='TH2F',title='Cluster peak-strip charge, Qmax #leq 100 counts;counts;[sector] + [0.2 #times layer]',
+                                 path='Clusters/Expert',xbins=400,xmin=0,xmax=8000,ybins=175,ymin=-17,ymax=18)
+
+    cscClusGroup.defineHistogram('QmaxADC,secLayer;h2csc_clus_qmax_signal_EA',cutmask='sideA',type='TH2F',title='EndCap A: Cluster peak-strip charge, Qmax > 100 counts;counts;[sector] + [0.2 #times layer]',
+                                 path='Overview/CSCEA/Cluster',xbins=400,xmin=0,xmax=8000,ybins=90,ymin=0,ymax=18)
+
+    cscClusGroup.defineHistogram('QmaxADC;h1csc_clus_qmax_signal_EA_count',cutmask='sideA',type='TH1F',title='EndCap A: Cluster peak-strip charge, Qmax > 100 counts;counts;entries/20 counts;',
+                                 path='Overview/CSCEA/Cluster',xbins=400,xmin=0,xmax=8000)
+
+    cscClusGroup.defineHistogram('QmaxADC,secLayer;h2csc_clus_qmax_signal_EC',cutmask='sideC',type='TH2F',title='EndCap C: Cluster peak-strip charge, Qmax > 100 counts;counts;[sector] + [0.2 #times layer]',
+                                 path='Overview/CSCEC/Cluster',xbins=400,xmin=0,xmax=8000,ybins=90,ymin=0,ymax=18)
+
+    cscClusGroup.defineHistogram('QmaxADC;h1csc_clus_qmax_signal_EC_count',cutmask='sideC',type='TH1F',title='EndCap C: Cluster peak-strip charge, Qmax > 100 counts;counts;entries/20 counts;',
+                                 path='Overview/CSCEC/Cluster',xbins=400,xmin=0,xmax=8000)
+
+    cscClusGroup.defineHistogram('QsumADC,secLayer;h2csc_clus_qsum',type='TH2F',title='Cluster charge (Qsum);counts;[sector] + [0.2 #times layer]',
+                                 path='Clusters/Expert',xbins=400,xmin=0,xmax=8000,ybins=175,ymin=-17,ymax=18)
+
+    cscClusGroup.defineHistogram('QsumADC,secLayer;h2csc_clus_qsum_signal',cutmask='signal_mon',type='TH2F',title='Cluster charge(Qsum), Qmax > 100 counts;counts;[sector] + [0.2 #times layer]',
+                                 path='Clusters/Shift',xbins=400,xmin=0,xmax=8000,ybins=175,ymin=-17,ymax=18)
+
+    cscClusGroup.defineHistogram('QsumADC,secLayer;h2csc_clus_qsum_signal_EA',cutmask='sideA',type='TH2F',title='EndCap A: Cluster charge(Qsum), Qmax > 100 counts;counts;[sector] + [0.2 #times layer]',
+                                 path='Overview/CSCEA/Cluster',xbins=400,xmin=0,xmax=8000,ybins=90,ymin=0,ymax=18)
+
+    cscClusGroup.defineHistogram('QsumADC;h1csc_clus_qsum_signal_EA_count',cutmask='sideA',type='TH1F',title='EndCap A: Cluster charge(Qsum), Qmax > 100 counts;counts;entries/20 counts;',
+                                 path='Overview/CSCEA/Cluster',xbins=400,xmin=0,xmax=8000)
+
+    cscClusGroup.defineHistogram('QsumADC;h2csc_clus_qsum_signal_EC',cutmask='sideC',type='TH1F',title='EndCap C: Cluster charge(Qsum), Qmax > 100 counts;counts;[sector] + [0.2 #times layer]',
+                                 path='Overview/CSCEC/Cluster',xbins=400,xmin=0,xmax=8000)
+
+    cscClusGroup.defineHistogram('QsumADC;h1csc_clus_qsum_signal_EC_count',cutmask='sideC',type='TH1F',title='EndCap C: Cluster charge(Qsum), Qmax > 100 counts;counts;entries/20 counts;',
+                                 path='Overview/CSCEC/Cluster',xbins=400,xmin=0,xmax=8000)
+
+    cscClusGroup.defineHistogram('QsumADC,secLayer;h2csc_clus_qsum_noise',cutmask='noise_mon',type='TH2F',title='Cluster charge(Qsum), Qmax #leq 100 counts;counts;[sector] + [0.2 #times layer]',
+                                 path='Clusters/Expert',xbins=400,xmin=0,xmax=8000,ybins=175,ymin=-17,ymax=18)
+
+    cscClusGroup.defineHistogram('clu_time;h1csc_clus_transverse_time',cutmask='clus_phi',type='TH1F',title='#phi-cluster sampling time;ns;entries/ns',
+                                 path='Clusters/Expert',xbins=260,xmin=-60,xmax=200)
+
+    cscClusGroup.defineHistogram('clu_charge_kiloele;h1csc_clus_transverse_charge',cutmask='clus_phi',type='TH1F',title='#phi-cluster charge;counts;entries/count',
+                                 path='Clusters/Expert',xbins=400,xmin=0,xmax=8000)
+
+    cscClusGroup.defineHistogram('clu_time;h1csc_clus_transverse_time_signal',cutmask='clus_phiSig',type='TH1F',title='#phi-cluster sampling time, Qmax > 100 counts;ns;entries/ns',
+                                 path='Clusters/Expert',xbins=260,xmin=-60,xmax=200)
+
+    cscClusGroup.defineHistogram('clu_charge_kiloele;h1csc_clus_transverse_charge_signal',cutmask='clus_phiSig',type='TH1F',title='#phi-cluster charge, Qmax > 100 counts;counts;entries/count',
+                                 path='Clusters/Expert',xbins=400,xmin=0,xmax=8000)
+
+    cscClusGroup.defineHistogram('clu_time;h1csc_clus_transverse_time_noise',cutmask='clus_phiNoise',type='TH1F',title='#phi-cluster sampling time, Qmax #leq 100 counts;ns;entries/ns',
+                                 path='Clusters/Expert',xbins=260,xmin=-60,xmax=200)
+
+    cscClusGroup.defineHistogram('clu_charge_kiloele;h1csc_clus_transverse_charge_noise',cutmask='clus_phiNoise',type='TH1F',title='#phi-cluster charge, Qmax #leq 100 counts;counts;entries/count',
+                                 path='Clusters/Expert',xbins=400,xmin=0,xmax=8000)
+
+    cscClusGroup.defineHistogram('clu_time;h1csc_clus_precision_time',cutmask='clus_eta',type='TH1F',title='#eta-cluster sampling time;ns;entries/ns',
+                                 path='Clusters/Expert',xbins=260,xmin=-60,xmax=200)
+
+    cscClusGroup.defineHistogram('clu_charge_kiloele;h1csc_clus_precision_charge',cutmask='clus_eta',type='TH1F',title='eta-cluster charge;counts;entries/count',
+                                 path='Clusters/Expert',xbins=400,xmin=0,xmax=8000)
+
+    cscClusGroup.defineHistogram('clu_time;h1csc_clus_precision_time_signal',cutmask='clus_etaSig',type='TH1F',title='#eta-cluster sampling time, Qmax > 100 counts;ns;entries/ns',
+                                 path='Clusters/Shift',xbins=260,xmin=-60,xmax=200)
+
+    cscClusGroup.defineHistogram('clu_charge_kiloele;h1csc_clus_precision_charge_signal',cutmask='clus_etaSig',type='TH1F',title='#eta-cluster charge, Qmax > 100 counts;counts;entries/count',
+                                 path='Clusters/Expert',xbins=400,xmin=0,xmax=8000)
+
+    cscClusGroup.defineHistogram('clu_time;h1csc_clus_precision_time_signal_EA',cutmask='sideA',type='TH1F',title='EndCap A: #eta-cluster sampling time, Qmax > 100 counts;ns;entries/ns',
+                                 path='Overview/CSCEA/Cluster',xbins=260,xmin=-60,xmax=200)
+
+    cscClusGroup.defineHistogram('clu_time;h1csc_clus_precision_time_signal_EC',cutmask='sideC',type='TH1F',title='EndCap C: #eta-cluster sampling time, Qmax > 100 counts;ns;entries/ns',
+                                 path='Overview/CSCEC/Cluster',xbins=260,xmin=-60,xmax=200)
+
+    cscClusGroup.defineHistogram('clu_time;h1csc_clus_precision_time_noise',cutmask='clus_etaNoise',type='TH1F',title='#eta-cluster sampling time, Qmax #leq 100 counts;ns;entries/ns',
+                                 path='Clusters/Expert',xbins=260,xmin=-60,xmax=200)
+
+    cscClusGroup.defineHistogram('clu_charge_kiloele;h1csc_clus_precision_charge_noise',cutmask='clus_etaNoise',type='TH1F',title='#eta-cluster charge, Qmax #leq 100 counts;counts;entries/count',
+                                 path='Clusters/Expert',xbins=400,xmin=0,xmax=8000)
+
+    cscClusGroup.defineHistogram('stripsSum_EA_mon;h1csc_clus_totalWidth_EA',type='TH1F',title='EndCap A: Cluster hits in all EA eta(#eta) & phi(#phi) strips;strips;cluster hits',
+                                 path='Overview/CSCEA/Cluster',xbins=15360,xmin=1.,xmax=15361.)
+
+    cscClusGroup.defineHistogram('stripsSum_EC_mon;h1csc_clus_totalWidth_EC',type='TH1F',title='EndCap C: Cluster hits in all EC eta(#eta) & phi(#phi) strips;strips;cluster hits',
+                                 path='Overview/CSCEC/Cluster',xbins=15360,xmin=1.,xmax=15361.)
+
+    cscClusGroup.defineHistogram('nPhiClusWidthCnt_mon,nEtaClusWidthCnt_mon;h2csc_clus_eta_vs_phi_cluswidth',type='TH2F',title='Eta vs. Phi Cluster width correlation;#varphi-cluster width;#eta-cluster width',
+                                 path='Clusters/Expert',xbins=100,xmin=0,xmax=100,ybins=100,ymin=0,ymax=100)
+
+    cscClusGroup.defineHistogram('count_mon,secLayer;h2csc_clus_phicluscount',cutmask='mphi_true',type='TH2F',title='#phi-cluster count;# clusters;[sector] + [0.2 #times layer]',
+                                 path='Clusters/Expert',xbins=20,xmin=0,xmax=20,ybins=175,ymin=-17.,ymax=18.)
+
+    cscClusGroup.defineHistogram('scount_mon,secLayer;h2csc_clus_phicluscount_signal',cutmask='scount_phi_true',type='TH2F',title='#phi-cluster count;# clusters;[sector] + [0.2 #times layer]',
+                                 path='Clusters/Expert',xbins=20,xmin=0,xmax=20,ybins=175,ymin=-17.,ymax=18.)
+
+    cscClusGroup.defineHistogram('count_diff,secLayer;h2csc_clus_phicluscount_noise',cutmask='scount_phi_false',type='TH2F',title='#phi-cluster count, Qmax #leq 100 counts;# clusters;[sector] + [0.2 #times layer]',
+                                 path='Clusters/Expert',xbins=20,xmin=0,xmax=20,ybins=175,ymin=-17.,ymax=18.)
+
+    cscClusGroup.defineHistogram('count_mon,secLayer;h2csc_clus_etacluscount',cutmask='mphi_false',type='TH2F',title='#eta-cluster count;# clusters;[sector] + [0.2 #times layer]',
+                                 path='Clusters/Expert',xbins=20,xmin=0,xmax=20,ybins=175,ymin=-17.,ymax=18.)
+
+    cscClusGroup.defineHistogram('scount_mon,secLayer;h2csc_clus_etacluscount_signal',cutmask='scount_eta_true',type='TH2F',title='#eta-cluster count;# clusters;[sector] + [0.2 #times layer]',
+                                 path='Clusters/Expert',xbins=20,xmin=0,xmax=20,ybins=175,ymin=-17.,ymax=18.)
+
+    cscClusGroup.defineHistogram('count_diff,secLayer;h2csc_clus_etacluscount_noise',cutmask='scount_eta_false',type='TH2F',title='#eta-cluster count, Qmax #leq 100 counts;# clusters;[sector] + [0.2 #times layer]',
+                                 path='Clusters/Expert',xbins=20,xmin=0,xmax=20,ybins=175,ymin=-17.,ymax=18.)
+
+    cscClusGroup.defineHistogram('segNum_mon,sec_mon;h2csc_clus_segmap_signal',type='TH2F',title='Segment occupancy, Qmax > 100 counts;segment;[sector] + [0.2 #times layer]',
+                                 path='Clusters/Expert',xbins=16,xmin=-0.5,xmax=15.5,ybins=175,ymin=-17.,ymax=18.)
+
+    cscClusGroup.defineHistogram('numphi_numeta_mon;h1csc_clus_count',type='TH1F',title='Clusters per event;no.of clusters;entries',
+                                 path='Clusters/Expert',xbins=26,xmin=-1,xmax=25)
+
+    cscClusGroup.defineHistogram('numphi_numeta_sig_mon;h1csc_clus_count_signal',type='TH1F',title='Clusters per event, Qmax > 100 counts;no.of clusters;entries',
+                                 path='Clusters/Expert',xbins=26,xmin=-1,xmax=25)
+
+    cscClusGroup.defineHistogram('num_num_noise_mon;h1csc_clus_count_noise',type='TH1F',title='Clusters per event, Qmax #leq 100 counts;no.of clusters;entries',
+                                 path='Clusters/Expert',xbins=26,xmin=-1,xmax=25)
+
+    cscClusGroup.defineHistogram('numphi_mon,numeta_mon;h2csc_clus_eta_vs_phi_cluscount',type='TH2F',title='Eta vs. Phi Cluster count correlation;#varphi-cluster count;#eta-cluster count',
+                                 path='Clusters/Expert',xbins=100,xmin=0,xmax=100,ybins=100,ymin=0,ymax=100)
+
+    cscClusGroup.defineHistogram('numphi_sig_mon,numeta_sig_mon;h2csc_clus_eta_vs_phi_cluscount_signal',type='TH2F',title='Eta vs. Phi Signal-Cluster count correlation;#varphi-cluster count;#eta-cluster count',
+                                 path='Clusters/Expert',xbins=100,xmin=0,xmax=100,ybins=100,ymin=0,ymax=100)
+
+    cscClusGroup.defineHistogram('numphi_diff_mon,numeta_diff_mon;h2csc_clus_eta_vs_phi_cluscount_noise',type='TH2F',title='Eta vs. Phi Noise-Cluster count correlation;#varphi-cluster count;#eta-cluster count',
+                                 path='Clusters/Expert',xbins=100,xmin=0,xmax=100,ybins=100,ymin=0,ymax=100)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     #PRD
-    cscPrdGroup.defineHistogram('spid, secLayer', type='TH2F', title='Hit Occupancy; channel; [sector] + [0.2 #times layer]',
+    cscPrdGroup.defineHistogram('spid, secLayer;Hit Occupancy', type='TH2F', title='Hit Occupancy; channel; [sector] + [0.2 #times layer]',
                                  path='PRD/Expert',xbins=242,xmin=-49.,xmax=193.,ybins=175,ymin=-17.,ymax=18.)
     cscPrdGroup.defineHistogram('noStrips,secLayerPhi',type='TH2F',title='PRD precision-cluster width;no.of strips;[sector] + [0.2 #times layer]',
                                  path='PRD/Expert',xbins=48,xmin=0,xmax=48, ybins=175,ymin=-17.,ymax=18.)
@@ -100,9 +296,6 @@ def CscMonitoringConfig(inputFlags):
                                 path='PRD/Shift',xbins=200,xmin=-10000.,xmax=10000., ybins=40, ymin=0., ymax=4000.) 
     cscPrdGroup.defineHistogram('y,x',type='TH2F',title='Y vs. X Cluster hitmap;x(mm);y(mm)',
                                 path='PRD/Shift',xbins=100,xmin=-5000.,xmax=5000., ybins=100, ymin=-5000., ymax=5000.) 
-
-
-
 
     #myGroup.defineHistogram('lb', title='Luminosity Block;lb;Events',
     #                       path='ToFindThem',xbins=1000,xmin=-0.5,xmax=999.5,weight='testweight')
@@ -221,4 +414,4 @@ if __name__=='__main__':
     # exampleMonitorAcc.getEventAlgo('ExampleMonAlg').OutputLevel = 2 # DEBUG
     cfg.printConfig(withDetails=True) # set True for exhaustive info
 
-    cfg.run(20) #use cfg.run(20) to only run on first 20 events
+    cfg.run(400) #use cfg.run(20) to only run on first 20 events

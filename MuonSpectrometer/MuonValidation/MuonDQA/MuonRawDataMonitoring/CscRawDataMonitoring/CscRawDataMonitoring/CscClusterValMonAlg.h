@@ -53,8 +53,7 @@ private:
     // Properties.
     SG::ReadHandleKey<Muon::CscPrepDataContainer> m_cscClusterKey{this,"CSCClusterKey","CSC_Clusters","CSC clusters"};
     SG::ReadHandleKey<Muon::CscStripPrepDataContainer> m_cscPRDKey{this,"CSCPrepRawDataKey", "CSC_Measurements","CSC PRDs"};
-   // SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","event info"};
-    std::string m_cscClusterPath, m_cscGenPath;
+
     unsigned int m_qmaxADCCut;
 
     bool m_doEvtSel;
