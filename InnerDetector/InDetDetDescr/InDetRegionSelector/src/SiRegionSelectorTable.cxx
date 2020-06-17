@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
   
 #include "InDetRegionSelector/SiRegionSelectorTable.h"
@@ -52,7 +52,7 @@ SiRegionSelectorTable::SiRegionSelectorTable(const std::string& type,
   declareProperty("PrintHashId", m_printHashId);
   declareProperty("PrintTable",  m_printTable);
   declareProperty("NoDBM",       m_noDBM=true);
-
+  declareProperty("UseCabling", m_useCabling);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -122,17 +122,22 @@ SiRegionSelectorTable::createTable()
     if ( msgLvl(MSG::DEBUG) )  msg(MSG::DEBUG) << "Manager found" << endmsg;
   }
 
-  if (manager->isPixel()) {
-    if (m_pixIdMapping.retrieve().isFailure()) {
-      msg(MSG::ERROR) << "Can't get the Pixel Mapping tool." << endmsg;
-      return StatusCode::FAILURE;
-    }
-  } else { // SCT
-    if (m_sctCablingSvc.retrieve().isFailure()) {
-      msg(MSG::ERROR) << "Can't get the SCT cabling service." << endmsg;
-      return StatusCode::FAILURE;
+  if(m_useCabling){
+    if (manager->isPixel()) {
+      if (m_pixIdMapping.retrieve().isFailure()) {
+	msg(MSG::ERROR) << "Can't get the Pixel Mapping tool." << endmsg;
+	return StatusCode::FAILURE;
+      }
+    } else { // SCT
+      if (m_sctCablingSvc.retrieve().isFailure()) {
+	msg(MSG::ERROR) << "Can't get the SCT cabling service." << endmsg;
+	return StatusCode::FAILURE;
+      }
     }
   }
+  else msg(MSG::INFO)<<"No cabling serices - ROBID will be always 0"<<endmsg;
+  //Skipping use of cabling Intended for ITk use
+  //NB this should be handled differently/better in r22 by fixing cabling itself
 
   // Create RegionSelectorLUT pointers for Pixel or Sct
   //  RegionSelectorLUT*  rslut = new RegionSelectorLUT;
@@ -152,7 +157,7 @@ SiRegionSelectorTable::createTable()
 
       IdentifierHash hashId = element->identifyHash();    
       
-      if ( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "Found element with HashId = " << hashId << endmsg;
+      if ( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "Found element with HashId = " << hashId << endmsg;
    
       // new region selector detector element extent.
       double rMin, rMax, zMin, zMax, phiMin, phiMax;
@@ -178,7 +183,8 @@ SiRegionSelectorTable::createTable()
 	  if ( m_noDBM && std::fabs(barrelEC)>3 ) continue; // skip DBM modules
 
 	  layerDisk = pixelId->layer_disk(element->identify());
-	  robId=m_pixIdMapping->getRobID(element->identify());
+	  if(m_useCabling) robId=m_pixIdMapping->getRobID(element->identify());
+	  else robId = 0;
 	}
 	else { 
 	  msg(MSG::ERROR) << " could not get PixelID for " << element->getIdHelper() << endmsg;
@@ -189,7 +195,8 @@ SiRegionSelectorTable::createTable()
 	if ( sctId!=0 ) {      
 	  barrelEC  = sctId->barrel_ec(element->identify());
 	  layerDisk = sctId->layer_disk(element->identify());
-	  robId=m_sctCablingSvc->getRobIdFromOfflineId(element->identify());       
+	  if(m_useCabling) robId=m_sctCablingSvc->getRobIdFromOfflineId(element->identify());       
+	  else robId = 0;
 	}
 	else { 
 	  msg(MSG::ERROR) << " could not get SCT_ID for " << element->getIdHelper() << endmsg;
@@ -200,7 +207,7 @@ SiRegionSelectorTable::createTable()
       // create module      
       RegSelModule smod(zMin,zMax,rMin,rMax,phiMin,phiMax,layerDisk,barrelEC,robId,hashId);
 	
-      if ( robId ) {
+      if ( robId || !m_useCabling) {
 	// add to the new RegionSelector map     
 	rd->addModule(smod);
       }

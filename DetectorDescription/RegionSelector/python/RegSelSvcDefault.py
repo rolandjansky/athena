@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # default configuration of RegSelSvc
 # example of a configuration in class deriving from a Configurable
@@ -40,7 +40,12 @@ class RegSelSvcDefault ( RegSelSvc )  :
         mmTable   = None
         stgcTable = None
         ftkTable  = None       
-      
+
+        self.useCabling = True 
+        from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+        if (CommonGeometryFlags.Run() == "RUN4"):
+         self.useCabling = False
+         #No sensible cablings maps for ITK, so just use Hash as a placeholder 
 
         from AthenaCommon.AppMgr import ToolSvc
         from AthenaCommon.DetFlags import DetFlags
@@ -65,7 +70,8 @@ class RegSelSvcDefault ( RegSelSvc )  :
                                                  ManagerName = "Pixel",
                                                  OutputFile  = "RoITablePixel.txt",
                                                  PrintHashId = True,
-                                                 PrintTable  = False)
+                                                 PrintTable  = False,
+                                                 UseCabling = self.useCabling)
                 ToolSvc += pixTable
                 mlog.debug(pixTable)
         
@@ -75,7 +81,8 @@ class RegSelSvcDefault ( RegSelSvc )  :
                                                  ManagerName = "SCT",
                                                  OutputFile  = "RoITableSCT.txt",
                                                  PrintHashId = True,
-                                                 PrintTable  = False)
+                                                 PrintTable  = False,
+                                                 UseCabling = self.useCabling)
                 ToolSvc += sctTable
                 mlog.debug(sctTable)
 

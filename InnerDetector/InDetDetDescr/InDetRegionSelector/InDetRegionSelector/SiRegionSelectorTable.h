@@ -2,7 +2,7 @@
 //
 //   @file    SiRegionSelectorTable.h
 //                    
-//  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+//  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
  
 #ifndef InDetRegionSelector_SiRegionSelectorTable_h
@@ -48,7 +48,8 @@ private:
   bool m_printHashId;
   bool m_printTable;
   bool m_noDBM;
-
+  bool m_useCabling;
+  
   // cablings
   ServiceHandle<IPixelCablingSvc> m_pixIdMapping;
   ServiceHandle<ISCT_CablingSvc>  m_sctCablingSvc;

@@ -291,6 +291,16 @@ class  ConfiguredNewTrackingSiPattern:
 
          if NewTrackingCuts.mode() == "ROIConv":
 
+            from AthenaCommon.AppMgr import ServiceMgr
+            from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
+            InDetRegSelSvc             = RegSelSvcDefault()
+            InDetRegSelSvc.enablePixel = DetFlags.pixel_on()
+            InDetRegSelSvc.enableSCT   = DetFlags.SCT_on()
+            ServiceMgr += InDetRegSelSvc
+            if (InDetFlags.doPrintConfigurables()):
+               print InDetRegSelSvc
+
+
             InDetSiSPSeededTrackFinder = InDet__SiSPSeededTrackFinder(name           = 'InDetSiSpTrackFinder'+NewTrackingCuts.extension(),
                                                                       TrackTool      = InDetSiTrackMaker,
                                                                       TracksLocation = self.__SiTrackCollection,
@@ -299,7 +309,8 @@ class  ConfiguredNewTrackingSiPattern:
                                                                       ZvertexTool    = InDetZvertexMaker,
                                                                       useConvSeeded = True,
                                                                       useMBTSTimeDiff = InDetFlags.useMBTSTimeDiff(),
-                                                                      useZBoundFinding = True)
+                                                                      useZBoundFinding = True,
+                                                                      RegSelSvc        = InDetRegSelSvc)
 
 
          elif NewTrackingCuts.mode() == "ForwardTracks":

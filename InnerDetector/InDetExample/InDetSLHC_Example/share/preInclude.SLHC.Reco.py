@@ -52,6 +52,9 @@ InDetFlags.doLowBetaFinder=False # This should be False.
 # InDetFlags.doStandardPlots=True 
 # InDetFlags.doPrintConfigurables = True
 
+if DetFlags.detdescr.Calo_on() and DetFlags.detdescr.SCT_on():
+  InDetFlags.doROIConv = True   
+
 if rec.OutputFileNameForRecoStep() == 'RAWtoESD':
     InDetFlags.writeRDOs = True
 
