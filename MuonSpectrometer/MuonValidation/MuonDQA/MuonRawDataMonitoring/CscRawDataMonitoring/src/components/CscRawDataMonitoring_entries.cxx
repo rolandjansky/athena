@@ -4,6 +4,7 @@
 #include "CscRawDataMonitoring/CSCSegmValAlg.h"
 #include "CscRawDataMonitoring/CscClusterValMonAlg.h"
 #include "CscRawDataMonitoring/CscPrdValMonAlg.h"
+
   
 DECLARE_COMPONENT( CscRdoValAlg )
 DECLARE_COMPONENT( CscPrdValAlg )
