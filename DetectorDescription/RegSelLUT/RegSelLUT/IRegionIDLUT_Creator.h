@@ -34,7 +34,7 @@ public:
   virtual StatusCode finalize()=0;       /// standard AlgTool method
 
   /// abstract base method for retrieving the table
-  virtual RegSelSiLUT* getLUT() const = 0;
+  virtual RegSelSiLUT* getLUT() = 0;
 
 };
 

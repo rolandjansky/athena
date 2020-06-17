@@ -30,7 +30,7 @@ public:
   StatusCode initialize();
   StatusCode execute();
   StatusCode finalize();
-  virtual RegSelSiLUT* getLUT() const;
+  virtual RegSelSiLUT* getLUT();
 
   
 private:

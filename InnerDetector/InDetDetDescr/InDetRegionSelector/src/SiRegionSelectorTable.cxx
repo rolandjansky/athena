@@ -92,7 +92,7 @@ SiRegionSelectorTable::~SiRegionSelectorTable()
 
 
 // Get the lookup table.
-RegSelSiLUT* SiRegionSelectorTable::getLUT() const
+RegSelSiLUT* SiRegionSelectorTable::getLUT()
 {
   return m_regionLUT;
 }

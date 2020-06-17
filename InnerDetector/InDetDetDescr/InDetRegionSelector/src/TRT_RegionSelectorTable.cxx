@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetRegionSelector/TRT_RegionSelectorTable.h"
@@ -94,7 +94,7 @@ TRT_RegionSelectorTable::~TRT_RegionSelectorTable()
 }
 
 // Get the lookup table.
-RegSelSiLUT* TRT_RegionSelectorTable::getLUT() const
+RegSelSiLUT* TRT_RegionSelectorTable::getLUT()
 {
   return m_regionLUT;
 }
