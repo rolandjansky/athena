@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.Include import Include 
@@ -8,9 +8,6 @@ from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from TrigEgammaHypo.TrigL2CaloHypoCutDefs import L2CaloCutMaps
 
-import re
-_pattern = "(?P<mult>\d*)(e(?P<threshold1>\d+))(e(?P<threshold2>\d+))*"
-_cpattern = re.compile( _pattern )
 _possibleSel  = { 'tight':'Tight', 'medium':'Medium', 'loose':'Loose', 'vloose':'VeryLoose',
                   'lhtight':'Tight', 'lhmedium':'Medium', 'lhloose':'Loose', 'lhvloose':'VeryLoose'}
 
@@ -38,7 +35,7 @@ def _GetPath( cand, sel, basepath = 'RingerSelectorTools/TrigL2_20180903_v9' ):
     return constant, threshold
 
 
-def _IncTool(name, threshold, sel):
+def _IncTool(name, cand, threshold, sel):
 
     possibleSel = L2CaloCutMaps( threshold ).MapsHADETthr.keys()
     from AthenaConfiguration.ComponentFactory import CompFactory
@@ -113,16 +110,16 @@ def _IncTool(name, threshold, sel):
         tool.CARCOREthr     = same( -9999. )
         tool.CAERATIOthr    = same( -9999. )
 
-    elif sel in possibleSel: # real selection
+    elif sel in possibleSel and "noringer" in sel: # real selection
         tool.UseRinger = False
         tool.ETthr       = same( ( float( threshold ) - 3 )*GeV )
         tool.HADETthr    = L2CaloCutMaps( threshold ).MapsHADETthr[sel]
         tool.CARCOREthr  = L2CaloCutMaps( threshold ).MapsCARCOREthr[sel]
         tool.CAERATIOthr = L2CaloCutMaps( threshold ).MapsCAERATIOthr[sel]
     
-    elif sel in _possibleSel.keys():
+    elif sel in _possibleSel.keys() and "noringer" in sel and "e" in cand:
         tool.UseRinger = True
-        pconstants, pthresholds = _GetPath( "e", sel )
+        pconstants, pthresholds = _GetPath( cand, sel )
         tool.ConstantsCalibPath = pconstants
         tool.ThresholdsCalibPath = pthresholds
         tool.MonTool = ""
@@ -154,8 +151,6 @@ def _IncTool(name, threshold, sel):
         propLen = len( getattr( tool, prop ) )
         assert propLen == etaBinsLen , "In " + name + " " + prop + " has length " + str( propLen ) + " which is different from EtaBins which has length " + str( etaBinsLen )
 
-        #    assert  _l( EtaBins, tool.ETthr, tool.HADETthr, tool.CARCOREthr, tool.CARCOREthr ) , "All list properties should have equal length ( as EtaBins )"
-    #print tool
     return tool
 
 
@@ -178,6 +173,9 @@ def TrigL2CaloHypoToolFromDict( d ):
     def __sel(cpart):
         return cpart['addInfo'][0] if cpart['addInfo'] else cpart['IDinfo']
 
+    def __cand(cpart):
+        return cpart['trigType']
+
     name = d['chainName']
 
 
@@ -186,11 +184,11 @@ def TrigL2CaloHypoToolFromDict( d ):
         tool = _MultTool(name)
         for cpart in cparts:
             for cutNumber in range( __mult( cpart ) ):
-                tool.SubTools += [ _IncTool( cpart['chainPartName']+"_"+str(cutNumber), __th( cpart ), __sel( cpart) ) ]
+                tool.SubTools += [ _IncTool( cpart['chainPartName']+"_"+str(cutNumber), __cand(cpart), __th( cpart ), __sel( cpart) ) ]
 
         return tool
     else:
-        return _IncTool( name, __th( cparts[0]),  __sel( cparts[0] ) )
+        return _IncTool( name, __cand( cparts[0]), __th( cparts[0]),  __sel( cparts[0]))
 
 
 def TrigL2CaloHypoToolFromName( name, conf ):

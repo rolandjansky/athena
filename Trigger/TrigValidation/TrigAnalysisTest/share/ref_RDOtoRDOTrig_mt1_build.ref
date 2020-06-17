@@ -2,23 +2,23 @@ TrigSignatureMoniMT                                INFO HLT_2e17_etcut_L12EM15VH
 TrigSignatureMoniMT                                INFO -- #3136730292 Events         2          2          2          2          2          -          -          -          2
 TrigSignatureMoniMT                                INFO -- #3136730292 Features                             12         298        14         -          -          -
 TrigSignatureMoniMT                                INFO HLT_2e17_lhvloose_L12EM15VH #2280638160
-TrigSignatureMoniMT                                INFO -- #2280638160 Events         2          2          0          0          0          0          -          -          0
-TrigSignatureMoniMT                                INFO -- #2280638160 Features                             0          0          0          0          -          -
+TrigSignatureMoniMT                                INFO -- #2280638160 Events         2          2          2          2          2          0          -          -          0
+TrigSignatureMoniMT                                INFO -- #2280638160 Features                             12         298        34         0          -          -
 TrigSignatureMoniMT                                INFO HLT_2e17_lhvloose_L12EM3 #1767768251
-TrigSignatureMoniMT                                INFO -- #1767768251 Events         20         20         0          0          0          0          -          -          0
-TrigSignatureMoniMT                                INFO -- #1767768251 Features                             0          0          0          0          -          -
+TrigSignatureMoniMT                                INFO -- #1767768251 Events         20         20         6          6          6          0          -          -          0
+TrigSignatureMoniMT                                INFO -- #1767768251 Features                             36         708        90         0          -          -
 TrigSignatureMoniMT                                INFO HLT_2e3_etcut_L12EM3 #2613484113
 TrigSignatureMoniMT                                INFO -- #2613484113 Events         20         20         20         20         20         -          -          -          20
 TrigSignatureMoniMT                                INFO -- #2613484113 Features                             342        3696       780        -          -          -
 TrigSignatureMoniMT                                INFO HLT_2g20_tight_L12EM20VH #2426612258
-TrigSignatureMoniMT                                INFO -- #2426612258 Events         2          2          0          0          0          0          -          -          0
-TrigSignatureMoniMT                                INFO -- #2426612258 Features                             0          0          0          0          -          -
+TrigSignatureMoniMT                                INFO -- #2426612258 Events         2          2          2          2          2          0          -          -          0
+TrigSignatureMoniMT                                INFO -- #2426612258 Features                             12         12         34         0          -          -
 TrigSignatureMoniMT                                INFO HLT_2g35_etcut_L12EM20VH #58053304
 TrigSignatureMoniMT                                INFO -- #58053304 Events           2          2          1          1          0          -          -          -          0
 TrigSignatureMoniMT                                INFO -- #58053304 Features                               4          4          0          -          -          -
 TrigSignatureMoniMT                                INFO HLT_2g35_medium_L12EM20VH #3965466087
-TrigSignatureMoniMT                                INFO -- #3965466087 Events         2          2          0          0          0          0          -          -          0
-TrigSignatureMoniMT                                INFO -- #3965466087 Features                             0          0          0          0          -          -
+TrigSignatureMoniMT                                INFO -- #3965466087 Events         2          2          1          1          1          0          -          -          0
+TrigSignatureMoniMT                                INFO -- #3965466087 Features                             4          4          12         0          -          -
 TrigSignatureMoniMT                                INFO HLT_2j330_a10t_lcw_jes_35smcINF_L1J100 #1295975955
 TrigSignatureMoniMT                                INFO -- #1295975955 Events         3          3          0          -          -          -          -          -          0
 TrigSignatureMoniMT                                INFO -- #1295975955 Features                             0          -          -          -          -          -
@@ -101,23 +101,23 @@ TrigSignatureMoniMT                                INFO HLT_e140_lhloose_nod0_L1
 TrigSignatureMoniMT                                INFO -- #4128870680 Events         6          6          0          0          0          0          -          -          0
 TrigSignatureMoniMT                                INFO -- #4128870680 Features                             0          0          0          0          -          -
 TrigSignatureMoniMT                                INFO HLT_e17_lhloose_mu14_L1EM15VH_MU10 #899946230
-TrigSignatureMoniMT                                INFO -- #899946230 Events          3          3          2          2          2          2          -          -          2
-TrigSignatureMoniMT                                INFO -- #899946230 Features                              2          46         4          2          -          -
+TrigSignatureMoniMT                                INFO -- #899946230 Events          3          3          3          2          2          2          -          -          2
+TrigSignatureMoniMT                                INFO -- #899946230 Features                              3          46         4          2          -          -
 TrigSignatureMoniMT                                INFO HLT_e17_lhvloose_nod0_L1EM15VH #140779220
-TrigSignatureMoniMT                                INFO -- #140779220 Events          8          8          6          6          6          5          -          -          5
-TrigSignatureMoniMT                                INFO -- #140779220 Features                              6          79         10         5          -          -
+TrigSignatureMoniMT                                INFO -- #140779220 Events          8          8          8          8          8          5          -          -          5
+TrigSignatureMoniMT                                INFO -- #140779220 Features                              12         235        30         5          -          -
 TrigSignatureMoniMT                                INFO HLT_e26_etcut_L1EM22VHI #1703681121
 TrigSignatureMoniMT                                INFO -- #1703681121 Events         6          6          6          6          6          -          -          -          6
 TrigSignatureMoniMT                                INFO -- #1703681121 Features                             7          134        7          -          -          -
 TrigSignatureMoniMT                                INFO HLT_e26_lhtight_L1EM22VHI #1995263521
-TrigSignatureMoniMT                                INFO -- #1995263521 Events         6          6          5          5          5          3          -          -          3
-TrigSignatureMoniMT                                INFO -- #1995263521 Features                             5          65         8          3          -          -
+TrigSignatureMoniMT                                INFO -- #1995263521 Events         6          6          6          6          6          3          -          -          3
+TrigSignatureMoniMT                                INFO -- #1995263521 Features                             7          134        16         3          -          -
 TrigSignatureMoniMT                                INFO HLT_e26_lhtight_nod0_L1EM22VHI #939763520
-TrigSignatureMoniMT                                INFO -- #939763520 Events          6          6          5          5          5          3          -          -          3
-TrigSignatureMoniMT                                INFO -- #939763520 Features                              5          65         8          3          -          -
+TrigSignatureMoniMT                                INFO -- #939763520 Events          6          6          6          6          6          3          -          -          3
+TrigSignatureMoniMT                                INFO -- #939763520 Features                              7          134        16         3          -          -
 TrigSignatureMoniMT                                INFO HLT_e26_lhtight_nod0_L1EM24VHI #4227411116
-TrigSignatureMoniMT                                INFO -- #4227411116 Events         6          6          5          5          5          3          -          -          3
-TrigSignatureMoniMT                                INFO -- #4227411116 Features                             5          65         8          3          -          -
+TrigSignatureMoniMT                                INFO -- #4227411116 Events         6          6          6          6          6          3          -          -          3
+TrigSignatureMoniMT                                INFO -- #4227411116 Features                             7          134        16         3          -          -
 TrigSignatureMoniMT                                INFO HLT_e300_etcut_L1EM22VHI #2128128255
 TrigSignatureMoniMT                                INFO -- #2128128255 Events         6          6          0          0          0          -          -          -          0
 TrigSignatureMoniMT                                INFO -- #2128128255 Features                             0          0          0          -          -          -
@@ -134,29 +134,29 @@ TrigSignatureMoniMT                                INFO HLT_e5_etcut_L1EM3 #3249
 TrigSignatureMoniMT                                INFO -- #324908483 Events          20         20         20         20         20         -          -          -          20
 TrigSignatureMoniMT                                INFO -- #324908483 Features                              137        1657       190        -          -          -
 TrigSignatureMoniMT                                INFO HLT_e5_lhloose_noringer_L1EM3 #1053337356
-TrigSignatureMoniMT                                INFO -- #1053337356 Events         20         20         17         17         17         4          -          -          4
-TrigSignatureMoniMT                                INFO -- #1053337356 Features                             56         656        116        5          -          -
+TrigSignatureMoniMT                                INFO -- #1053337356 Events         20         20         20         20         20         6          -          -          6
+TrigSignatureMoniMT                                INFO -- #1053337356 Features                             137        1657       326        7          -          -
 TrigSignatureMoniMT                                INFO HLT_e5_lhmedium_noringer_L1EM3 #176627878
-TrigSignatureMoniMT                                INFO -- #176627878 Events          20         20         16         16         16         4          -          -          4
-TrigSignatureMoniMT                                INFO -- #176627878 Features                              48         534        93         5          -          -
+TrigSignatureMoniMT                                INFO -- #176627878 Events          20         20         20         20         20         5          -          -          5
+TrigSignatureMoniMT                                INFO -- #176627878 Features                              137        1657       326        6          -          -
 TrigSignatureMoniMT                                INFO HLT_e5_lhtight_noringer_L1EM3 #2758326765
-TrigSignatureMoniMT                                INFO -- #2758326765 Events         20         20         16         16         16         3          -          -          3
-TrigSignatureMoniMT                                INFO -- #2758326765 Features                             45         516        84         4          -          -
+TrigSignatureMoniMT                                INFO -- #2758326765 Events         20         20         20         20         20         3          -          -          3
+TrigSignatureMoniMT                                INFO -- #2758326765 Features                             137        1657       326        4          -          -
 TrigSignatureMoniMT                                INFO HLT_e5_lhtight_noringer_nod0_L1EM3 #1690619419
-TrigSignatureMoniMT                                INFO -- #1690619419 Events         20         20         16         16         16         3          -          -          3
-TrigSignatureMoniMT                                INFO -- #1690619419 Features                             45         516        84         4          -          -
+TrigSignatureMoniMT                                INFO -- #1690619419 Events         20         20         20         20         20         3          -          -          3
+TrigSignatureMoniMT                                INFO -- #1690619419 Features                             137        1657       326        4          -          -
 TrigSignatureMoniMT                                INFO HLT_e60_lhmedium_L1EM22VHI #298591874
-TrigSignatureMoniMT                                INFO -- #298591874 Events          6          6          2          2          2          2          -          -          2
-TrigSignatureMoniMT                                INFO -- #298591874 Features                              2          34         4          2          -          -
+TrigSignatureMoniMT                                INFO -- #298591874 Events          6          6          3          3          3          2          -          -          2
+TrigSignatureMoniMT                                INFO -- #298591874 Features                              3          79         7          2          -          -
 TrigSignatureMoniMT                                INFO HLT_e60_lhmedium_nod0_L1EM22VHI #4115486024
-TrigSignatureMoniMT                                INFO -- #4115486024 Events         6          6          2          2          2          2          -          -          2
-TrigSignatureMoniMT                                INFO -- #4115486024 Features                             2          34         4          2          -          -
+TrigSignatureMoniMT                                INFO -- #4115486024 Events         6          6          3          3          3          2          -          -          2
+TrigSignatureMoniMT                                INFO -- #4115486024 Features                             3          79         7          2          -          -
 TrigSignatureMoniMT                                INFO HLT_e7_etcut_L1EM3 #1959043579
 TrigSignatureMoniMT                                INFO -- #1959043579 Events         20         20         20         20         20         -          -          -          20
 TrigSignatureMoniMT                                INFO -- #1959043579 Features                             89         1136       112        -          -          -
 TrigSignatureMoniMT                                INFO HLT_e7_lhmedium_mu24_L1MU20 #2970063918
-TrigSignatureMoniMT                                INFO -- #2970063918 Events         8          8          7          5          5          1          -          -          1
-TrigSignatureMoniMT                                INFO -- #2970063918 Features                             9          72         14         1          -          -
+TrigSignatureMoniMT                                INFO -- #2970063918 Events         8          8          8          5          5          1          -          -          1
+TrigSignatureMoniMT                                INFO -- #2970063918 Features                             29         216        47         1          -          -
 TrigSignatureMoniMT                                INFO HLT_g140_etcut_L1EM22VHI #3879926061
 TrigSignatureMoniMT                                INFO -- #3879926061 Events         6          6          0          0          0          -          -          -          0
 TrigSignatureMoniMT                                INFO -- #3879926061 Features                             0          0          0          -          -          -
@@ -173,8 +173,8 @@ TrigSignatureMoniMT                                INFO HLT_g25_medium_mu24_ivar
 TrigSignatureMoniMT                                INFO -- #1007052793 Events         8          8          2          1          1          1          0          -          0
 TrigSignatureMoniMT                                INFO -- #1007052793 Features                             2          1          3          1          0          -
 TrigSignatureMoniMT                                INFO HLT_g35_medium_g25_medium_L12EM20VH #1158879722
-TrigSignatureMoniMT                                INFO -- #1158879722 Events         2          2          0          0          0          0          -          -          0
-TrigSignatureMoniMT                                INFO -- #1158879722 Features                             0          0          0          0          -          -
+TrigSignatureMoniMT                                INFO -- #1158879722 Events         2          2          2          2          2          1          -          -          1
+TrigSignatureMoniMT                                INFO -- #1158879722 Features                             6          6          17         2          -          -
 TrigSignatureMoniMT                                INFO HLT_g5_etcut_L1EM3 #471243435
 TrigSignatureMoniMT                                INFO -- #471243435 Events          20         20         20         20         20         -          -          -          20
 TrigSignatureMoniMT                                INFO -- #471243435 Features                              137        137        190        -          -          -
@@ -182,14 +182,14 @@ TrigSignatureMoniMT                                INFO HLT_g5_etcut_LArPEB_L1EM
 TrigSignatureMoniMT                                INFO -- #3486231698 Events         20         20         20         20         20         20         -          -          20
 TrigSignatureMoniMT                                INFO -- #3486231698 Features                             137        137        190        118        -          -
 TrigSignatureMoniMT                                INFO HLT_g5_loose_L1EM3 #3230088967
-TrigSignatureMoniMT                                INFO -- #3230088967 Events         20         20         17         17         17         9          -          -          9
-TrigSignatureMoniMT                                INFO -- #3230088967 Features                             56         56         116        12         -          -
+TrigSignatureMoniMT                                INFO -- #3230088967 Events         20         20         20         20         20         10         -          -          10
+TrigSignatureMoniMT                                INFO -- #3230088967 Features                             137        137        329        16         -          -
 TrigSignatureMoniMT                                INFO HLT_g5_medium_L1EM3 #385248610
-TrigSignatureMoniMT                                INFO -- #385248610 Events          20         20         16         16         16         9          -          -          9
-TrigSignatureMoniMT                                INFO -- #385248610 Features                              48         48         93         12         -          -
+TrigSignatureMoniMT                                INFO -- #385248610 Events          20         20         20         20         20         10         -          -          10
+TrigSignatureMoniMT                                INFO -- #385248610 Features                              137        137        329        16         -          -
 TrigSignatureMoniMT                                INFO HLT_g5_tight_L1EM3 #3280865118
-TrigSignatureMoniMT                                INFO -- #3280865118 Events         20         20         16         16         16         9          -          -          9
-TrigSignatureMoniMT                                INFO -- #3280865118 Features                             45         45         84         9          -          -
+TrigSignatureMoniMT                                INFO -- #3280865118 Events         20         20         20         20         20         10         -          -          10
+TrigSignatureMoniMT                                INFO -- #3280865118 Features                             137        137        329        10         -          -
 TrigSignatureMoniMT                                INFO HLT_j0_perf_L1J12_EMPTY #1341875780
 TrigSignatureMoniMT                                INFO -- #1341875780 Events         0          0          0          -          -          -          -          -          0
 TrigSignatureMoniMT                                INFO -- #1341875780 Features                             0          -          -          -          -          -

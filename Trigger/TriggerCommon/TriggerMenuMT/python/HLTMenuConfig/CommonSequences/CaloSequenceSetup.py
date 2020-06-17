@@ -33,21 +33,8 @@ def fastCaloMenuSequence(name, doRinger):
     The doRinger flag is to use or not the Ringer hypo
     """
     (sequence, fastCaloViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(fastCaloSequence, {'doRinger' : doRinger})
-    # check if use Ringer and are electron because there aren't ringer for photons yet
-    #if doRinger:
-      # Ringer hypo
-      #from TrigMultiVarHypo.TrigMultiVarHypoConf import TrigL2CaloRingerHypoAlgMT
-      #theFastCaloHypo = TrigL2CaloRingerHypoAlgMT( name + "L2CaloRingerHypo")
-      #theFastCaloHypo.ClustersKey = sequenceOut
-      #CaloMenuDefs.L2CaloClusters = sequenceOut
-
-      #from TrigMultiVarHypo.TrigL2CaloRingerHypoTool import TrigL2CaloRingerHypoToolFromDict
-      #return MenuSequence( Sequence    = sequence,
-       #                    Maker       = fastCaloViewsMaker,
-       #                    Hypo        = theFastCaloHypo,
-       #                    HypoToolGen = TrigL2CaloRingerHypoToolFromDict )
-    #else:
-      # hypo
+    # check if use Ringer and are electron because there aren't ringer for photons yet:
+    # hypo
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlgMT
     theFastCaloHypo = TrigL2CaloHypoAlgMT(name+"L2CaloHypo")
     theFastCaloHypo.CaloClusters = sequenceOut
