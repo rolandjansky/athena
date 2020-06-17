@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file AthenaServices/test/AthenaEventLoopMgr_test.cxx
  * @author scott snyder
@@ -350,7 +348,7 @@ int main()
 {
   errorcheck::ReportMessage::hideErrorLocus();
   ISvcLocator* svcloc = nullptr;
-  if (!Athena_test::initGaudi("AthenaEventLoopMgr_test.txt", svcloc)) {
+  if (!Athena_test::initGaudi("AthenaServices/AthenaEventLoopMgr_test.txt", svcloc)) {
     std::cerr << "This test can not be run" << std::endl;
     return 0;
   }  
