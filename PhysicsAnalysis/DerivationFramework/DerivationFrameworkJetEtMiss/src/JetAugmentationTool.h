@@ -19,8 +19,15 @@
 
 #include "JetInterface/IJetModifier.h"
 #include "JetInterface/IJetUpdateJvt.h"
+#include "JetInterface/IJetDecorator.h"
+#include "JetAnalysisInterfaces/IJetJvtEfficiency.h"
 #include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
 #include "xAODJet/JetContainer.h"
+
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
+#include "TrackVertexAssociationTool/ITrackVertexAssociationTool.h"
+
+#include "ParticleJetTools/JetTruthLabelingTool.h"
 
 namespace DerivationFramework {
 
@@ -39,19 +46,27 @@ namespace DerivationFramework {
     // implement augmentations explicitly to avoid need to parse lists of moments to copy
     //
     // calibration
-    SG::AuxElement::Decorator<float>* m_dec_calibpt;
-    SG::AuxElement::Decorator<float>* m_dec_calibeta;
-    SG::AuxElement::Decorator<float>* m_dec_calibphi;
-    SG::AuxElement::Decorator<float>* m_dec_calibm;
+
+    std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_calibpt;
+    std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_calibeta;
+    std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_calibphi;
+    std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_calibm;
     ToolHandle<IJetModifier> m_jetCalibTool;
     std::string m_calibMomentKey;
     bool m_docalib;
 
     // JVT
-    SG::AuxElement::Decorator<float>* m_dec_jvt;
+    std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_jvt;
+    std::unique_ptr< SG::AuxElement::Decorator<char> > m_dec_passJvt;
     ToolHandle<IJetUpdateJvt> m_jvtTool;
+    ToolHandle<CP::IJetJvtEfficiency> m_jetJvtEfficiencyTool;
     std::string m_jvtMomentKey;
     bool m_dojvt;
+
+    //PFlow fJVT
+    std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_fjvt;
+    std::string m_fjvtMomentKey;
+    bool m_dofjvt;
 
     // b-tagging       @author tripiana@cern.ch
     std::vector<SG::AuxElement::Decorator<float>*> m_dec_btag;
@@ -64,8 +79,39 @@ namespace DerivationFramework {
     //@author: nurfikri.bin.norjoharuddeen@cern.ch
     ToolHandle<IJetModifier> m_jetTrackSumMomentsTool;
     bool m_decoratetracksum;
-    SG::AuxElement::Decorator<float>* m_dec_tracksummass;
-    SG::AuxElement::Decorator<float>* m_dec_tracksumpt;
+    std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_tracksummass;
+    std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_tracksumpt;
+
+    // GhostTruthAssociation for derivations, @author jeff.dandoy@cern.ch
+    ToolHandle<IJetModifier> m_jetPtAssociationTool;
+    bool m_decorateptassociation;
+    std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_GhostTruthAssociationFraction;
+    std::unique_ptr< SG::AuxElement::Decorator< ElementLink<xAOD::JetContainer> > > m_dec_GhostTruthAssociationLink;
+
+    // Ntracks for QGTaggerTool --- 
+    ToolHandle<InDet::IInDetTrackSelectionTool> m_trkSelectionTool;
+    ToolHandle<CP::ITrackVertexAssociationTool> m_trkVtxAssociationTool;
+    ToolHandle<IJetDecorator> m_qgTool;
+    bool m_decorateQGVariables;
+    std::unique_ptr< SG::AuxElement::Decorator<int> > m_dec_AssociatedNTracks;
+    std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_AssociatedTracksWidth;
+    std::unique_ptr< SG::AuxElement::Decorator<float>  >m_dec_AssociatedTracksC1;
+    std::unique_ptr< SG::AuxElement::Decorator<int> > m_dec_Associated_truthjet_nCharged;
+    std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_Associated_truthjet_pt;
+    std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_Associated_truthjet_eta;
+
+    //// Large-R jet truth labeling @author jveatch@cern.ch and tnobe@cern.ch
+    ToolHandle<JetTruthLabelingTool> m_jetTruthLabelingTool;
+    bool m_decoratetruthlabel;
+    std::unique_ptr< SG::AuxElement::Decorator<int> > m_dec_Label;
+    std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_dRW;
+    std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_dRZ;
+    std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_dRH;
+    std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_dRTop;
+    std::unique_ptr< SG::AuxElement::Decorator<int> > m_dec_NB;
+    std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_TruthJetMass;
+    std::string m_truthLabelName;
+
   }; 
 }
 
