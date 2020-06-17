@@ -43,7 +43,7 @@ namespace top {
     m_electronInJetSubtractor(nullptr),
     m_passPreORSelection("passPreORSelection"),
     m_passPreORSelectionLoose("passPreORSelectionLoose"),
-    // the following two are used to give failing JVT jets a lower priority in the OR
+    // the following two are used to give failing JVT and failing fJVT jets a lower priority in the OR
     m_ORToolDecoration("ORToolDecoration"),
     m_ORToolDecorationLoose("ORToolDecorationLoose"),
     m_doLooseCuts(false),
@@ -375,17 +375,33 @@ namespace top {
       for (auto jetPtr : *jets) {
         ATH_MSG_DEBUG("   Jet pt = " << (jetPtr)->pt());
         bool passed = m_jetSelection->passSelection(*jetPtr);
+
+	//Forward jets always get JVT=1, Central jets always get fJVT=1
+	bool passedJVT_and_fJVT = true;
+	if (jetPtr->isAvailable<char>("passJVT")) {
+	  if (jetPtr->isAvailable<char>("AnalysisTop_fJVTdecision")) {
+	    passedJVT_and_fJVT = jetPtr->auxdataConst<char>("passJVT") && jetPtr->auxdataConst<char>("AnalysisTop_fJVTdecision"); 
+	  }
+	  else {
+	    passedJVT_and_fJVT = jetPtr->auxdataConst<char>("passJVT");
+	  } 
+	}
+	else if (jetPtr->isAvailable<char>("AnalysisTop_fJVTdecision")) { //Possibly redundant, fJVT shouldn't really be able to run if passJVT isn't avaliable
+	  passedJVT_and_fJVT = jetPtr->auxdataConst<char>("AnalysisTop_fJVTdecision");
+	}
+
         if (m_config->applyElectronInJetSubtraction()) {
           if (jetPtr->isAvailable<char>("passesFancyOR")) {
             if (!jetPtr->auxdecor<char>("passesFancyOR")) passed = false;
           }
         }
+	// if JVT or fJVT cut enabled and valid: jets that pass (f)JVT get passPreORSelection * 2, jets that fail get the same as passPreORSelection
+	// if no JVT cut and central jet, or no fJVT and forward jet, jet gets: passPreORSelection * 2
         jetPtr->auxdecor<char>(m_passPreORSelection) = passed;
-        jetPtr->auxdecor<char>(m_ORToolDecoration) = (passed ? (jetPtr->auxdataConst<char>("passJVT") ? 2 : 1) : 0);
+        jetPtr->auxdecor<char>(m_ORToolDecoration) = (passed ? (passedJVT_and_fJVT ? 2 : 1) : 0);
         if (m_doLooseCuts) {
           jetPtr->auxdecor<char>(m_passPreORSelectionLoose) = passed;
-          jetPtr->auxdecor<char>(m_ORToolDecorationLoose) =
-            (passed ? (jetPtr->auxdataConst<char>("passJVT") ? 2 : 1) : 0);
+          jetPtr->auxdecor<char>(m_ORToolDecorationLoose) = (passed ? (passedJVT_and_fJVT ? 2 : 1) : 0);
         }
         //decorate with b-tagging flags
         std::vector<std::string> availableWPs = m_config->bTagWP_available();
@@ -423,23 +439,30 @@ namespace top {
         ATH_MSG_DEBUG(" Cut on Jets with key = " << currentSystematic.second);
 
         for (auto jetPtr : *jets) {
-          char decoration = m_jetSelection->passSelection(*jetPtr);
+          bool decoration = m_jetSelection->passSelection(*jetPtr);
+
+	  //Forward jets always get JVT=1, Central jets always get fJVT=1 
+	  bool passedJVT_and_fJVT = true;
+	  if (jetPtr->isAvailable<char>("passJVT")) {
+	    if (jetPtr->isAvailable<char>("AnalysisTop_fJVTdecision")) {
+	      passedJVT_and_fJVT = jetPtr->auxdataConst<char>("passJVT") && jetPtr->auxdataConst<char>("AnalysisTop_fJVTdecision");
+	    }
+	    else {
+	      passedJVT_and_fJVT = jetPtr->auxdataConst<char>("passJVT");
+	    } 
+	  }
+	  else if (jetPtr->isAvailable<char>("AnalysisTop_fJVTdecision")) { //Possibly redundant, fJVT shouldn't really be able to run if passJVT isn't avaliable
+	    passedJVT_and_fJVT = jetPtr->auxdataConst<char>("AnalysisTop_fJVTdecision");
+	  }
+
+          // if JVT or fJVT cut enabled: jets that pass (f)JVT get passPreORSelection*2, jets which fail get the same as passPreORSelection
+          // if no JVT cut and central jet, or no fJVT cut and forward jet, jet gets: passPreORSelection * 2
           jetPtr->auxdecor<char>(m_passPreORSelection) = decoration;
-          // if JVT cut enabled: jets that pass JVT get a 2, otherwise the same as passPreORSelection
-          // if not, passPreORSelection * 2
-          if (jetPtr->isAvailable<char>("passJVT")) {
-            jetPtr->auxdecor<char>(m_ORToolDecoration) = decoration + jetPtr->auxdataConst<char>("passJVT");
-          } else {
-            jetPtr->auxdecor<char>(m_ORToolDecoration) = decoration * 2;
-          }
-          if (m_doLooseCuts) {
-            jetPtr->auxdecor<char>(m_passPreORSelectionLoose) = decoration;
-            if (jetPtr->isAvailable<char>("passJVT")) {
-              jetPtr->auxdecor<char>(m_ORToolDecorationLoose) = decoration + jetPtr->auxdataConst<char>("passJVT");
-            } else {
-              jetPtr->auxdecor<char>(m_ORToolDecorationLoose) = decoration * 2;
-            }
-          }
+          jetPtr->auxdecor<char>(m_passPreORSelectionLoose) = decoration;
+
+	  jetPtr->auxdecor<char>(m_ORToolDecoration) = (decoration ? (passedJVT_and_fJVT ? 2 : 1) : 0);
+	  jetPtr->auxdecor<char>(m_ORToolDecorationLoose) = (decoration ? (passedJVT_and_fJVT ? 2 : 1) : 0);;
+
           //decorate with b-tagging flags
           std::vector<std::string> availableWPs = m_config->bTagWP_available();
           for (auto& WP : availableWPs) {

@@ -25,9 +25,8 @@ namespace top {
      * @param ptcut The minimum pT to accept good jets.
      * @param etamax The maximum eta cut.
      * @param doJVTCut To perform JVT cut - should be false for small-R jets
-     * @param fwdJetSel Scenario for treating forward jets.
      */
-    JetMC15(const double ptcut, const double etamax, const bool doJVTCut, const std::string fwdJetSel = "default");
+    JetMC15(const double ptcut, const double etamax, const bool doJVTCut);
 
     /**
      * @brief A tool to select some jets for MC15 based on the pT and eta cuts.
@@ -36,9 +35,19 @@ namespace top {
      *
      * @param ptcut The minimum pT to accept good jets.
      * @param etamax The maximum eta cut.
+     */
+    JetMC15(const double ptcut, const double etamax);
+
+    /**
+     * @brief A tool to select some jets for MC15 based on the pT and eta cuts.
+     *
+     * DEPRECIATED - Only kept for backwards compatibility, to stop external extensions from crashing, please use above forms
+     *
+     * @param ptcut The minimum pT to accept good jets.
+     * @param etamax The maximum eta cut.
      * @param fwdJetSel Scenario for treating forward jets.
      */
-    JetMC15(const double ptcut, const double etamax, const std::string fwdJetSel = "default");
+    JetMC15(const double ptcut, const double etamax, const std::string);
 
     /**
      * @brief A tool to select some jets for MC15 based on the pT and eta cuts.
@@ -76,9 +85,6 @@ namespace top {
 
     // To do JVT cut - should be false for large-R jets
     bool m_applyJVTCut;
-
-    // Scenario for treating forward jets
-    std::string m_fwdJetSel;
 
     ToolHandle<CP::IJetJvtEfficiency> m_jvt_tool;
   };

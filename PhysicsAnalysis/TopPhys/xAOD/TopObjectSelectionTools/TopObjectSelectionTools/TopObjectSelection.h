@@ -287,7 +287,7 @@ namespace top {
     // Pass selection strings
     const std::string m_passPreORSelection;
     const std::string m_passPreORSelectionLoose;
-    // the following two are used to give failing JVT jets a lower priority in the OR
+    // the following two are used to give failing JVT and failing fJVT jets a lower priority in the OR
     const std::string m_ORToolDecoration;
     const std::string m_ORToolDecorationLoose;
 
