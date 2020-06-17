@@ -38,11 +38,11 @@ class TrigL2CaloHypoToolInc : public extends<AthAlgTool, ITrigL2CaloHypoTool> {
   virtual bool decide( const ITrigL2CaloHypoTool::ClusterInfo& i ) const override;
 
  private:
-  HLT::Identifier m_decisionId;
   Ringer::RingerSelectorTool        m_selectorTool;
   ToolHandle<ILumiBlockMuTool>      m_lumiBlockMuTool;
   Gaudi::Property<std::string>      m_constantsCalibPath{this, "ConstantsCalibPath", "", "Constants Calib Path"};  
   Gaudi::Property<std::string>      m_thresholdsCalibPath{this, "ThresholdsCalibPath", "", "Thresholds Calib Path"};  
+  HLT::Identifier m_decisionId;
 
   //Calorimeter electron ID  cuts
   Gaudi::Property< std::vector<float> > m_etabin { this, "EtaBins", {} , "Bins of eta" }; //!<  selection variable for L2 calo selection:eta bins
