@@ -83,6 +83,17 @@ StatusCode CscClusterValMonAlg::fillHistograms( const EventContext& ctx ) const 
   // check if event passed sample-selection triggers
   //if(m_doEvtSel) { if(!evtSelTriggersPassed()) return sc; }
 
+  bool check = false;
+
+  if(!m_doEvtSel) check = true;
+  std::vector<std::string>::const_iterator 
+  it = m_sampSelTriggers.begin(), itE = m_sampSelTriggers.end();
+  for ( ; it != itE; it++ ) {
+    if (m_trigDec->isPassed(*it, TrigDefs::eventAccepted)) check = true;
+  }
+
+  if(m_doEvtSel) { if(!check) return sc; }
+  
   // retrieve cluster / strip collection
   SG::ReadHandle<CscPrepDataContainer> cscCluster(m_cscClusterKey, ctx);
   SG::ReadHandle<CscStripPrepDataContainer> cscStrip(m_cscPRDKey, ctx);
@@ -461,22 +472,3 @@ StatusCode CscClusterValMonAlg::fillHistograms( const EventContext& ctx ) const 
   return sc; 
 
 }
-/*
-//
-//  evtSelTriggersPassed ----------------------------------------------------------------
-//
-bool CscClusterValMonAlg::evtSelTriggersPassed() {
-
-  if(!m_doEvtSel) return true;
-  std::vector<std::string>::const_iterator 
-    it = m_sampSelTriggers.begin(), itE = m_sampSelTriggers.end();
-  for ( ; it != itE; it++ ) {
-    if (m_trigDec->isPassed(*it, TrigDefs::eventAccepted)) {
-      return true;
-    }
-  }
-  return false;
-
-} // end evtSelTriggersPassed 
-
-*/
