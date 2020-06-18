@@ -41,7 +41,6 @@ StatusCode CscPrdValMonAlg::initialize() {
   ATH_CHECK(m_stripFitter.retrieve());
   ATH_MSG_INFO( "CscPrdValMonAlg " << name() << ": retrieved " << m_stripFitter );
   ATH_CHECK(m_cscPrdKey.initialize());
-  ATH_CHECK(m_EventInfoKey.initialize());
 
   return AthMonitorAlgorithm::initialize();
   
