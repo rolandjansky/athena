@@ -32,7 +32,6 @@
 
 #include "TrigMuonBackExtrapolator/ITrigMuonBackExtrapolator.h"
 #include "TrigL2MuonSA/PtEndcapLUTSvc.h"
-#include "RegionSelector/IRegSelSvc.h"
 
 #include "RPC_CondCabling/RpcCablingCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"

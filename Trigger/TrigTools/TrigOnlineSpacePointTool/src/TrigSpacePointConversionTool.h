@@ -21,7 +21,6 @@
 class AtlasDetectorID;
 class SCT_ID;
 class PixelID;
-class IRegSelSvc;
 
 
 class ITrigL2LayerNumberTool;
@@ -48,9 +47,6 @@ class TrigSpacePointConversionTool : virtual public ITrigSpacePointConversionToo
   const AtlasDetectorID* m_atlasId;
   const SCT_ID*  m_sctId;
   const PixelID* m_pixelId;
-
-  //  std::string    m_regionSelectorName;
-  //  IRegSelSvc*    m_regionSelector;
 
   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 

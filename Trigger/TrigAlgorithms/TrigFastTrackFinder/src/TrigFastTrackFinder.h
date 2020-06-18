@@ -39,7 +39,6 @@ class ITrigSpacePointConversionTool;
 class ITrigL2ResidualCalculator;
 class ITrigInDetTrackFitter;
 class ITrigZFinder;
-class IRegSelSvc;
 class TrigRoiDescriptor;
 class TrigSiSpacePointBase;
 class Identifier;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -12,7 +12,6 @@
 #include "EventInfo/TriggerInfo.h"
 #include "EventInfo/EventInfo.h"
 
-#include "RegionSelector/IRegSelSvc.h"
 #include "PathResolver/PathResolver.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"

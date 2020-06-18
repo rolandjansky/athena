@@ -38,8 +38,6 @@
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 
-#include "IRegionSelector/IRegSelSvc.h"
-
 #include "TrigInDetEvent/TrigSiSpacePointBase.h"
 
 #include "InDetIdentifier/SCT_ID.h"
