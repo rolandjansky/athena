@@ -9,6 +9,7 @@ atlas_subdir( InDetServMatGeoModel )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
+                          Control/CxxUtils
                           Database/RDBAccessSvc
                           DetectorDescription/GeoPrimitives
                           DetectorDescription/GeoModel/GeoModelUtilities
@@ -31,7 +32,7 @@ atlas_add_component( InDetServMatGeoModel
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CORAL_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaBaseComps AthenaKernel GeoModelUtilities GaudiKernel InDetGeoModelUtils SGTools StoreGateLib SGtests GeometryDBSvcLib )
+                     LINK_LIBRARIES ${CORAL_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils GeoModelUtilities GaudiKernel InDetGeoModelUtils SGTools StoreGateLib SGtests GeometryDBSvcLib )
 
 # Install files from the package:
 atlas_install_headers( InDetServMatGeoModel )

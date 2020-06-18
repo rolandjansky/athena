@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef Route_H
@@ -33,7 +33,7 @@ public:
 
   //virtual int direction() = 0;
 
-  virtual Route* nextRoute() const = 0;
+  virtual Route* nextRoute() = 0;
 
   virtual const VolumeContainer& volumes() const = 0;
 

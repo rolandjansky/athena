@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetServMatBuilderToolSLHC_H
@@ -62,7 +62,7 @@ public:
   virtual StatusCode finalize();  
 
   /// Get the services
-  virtual const std::vector<const InDetDD::ServiceVolume *> & getServices();
+  virtual const std::vector<const InDetDD::ServiceVolume *> & getServices() const;
   
   /// General service adding method.
   void addService(InDetDD::ServiceVolume * param);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ServiceVolume_H
@@ -77,7 +77,7 @@ public:
 
   LayerContainer layers() const {return m_layers;}
 
-  ServiceVolume* next() const {return m_next;}
+  ServiceVolume* next() {return m_next;}
 
   void addPrevious( ServiceVolume* prev) { m_previous.push_back(prev);}
 

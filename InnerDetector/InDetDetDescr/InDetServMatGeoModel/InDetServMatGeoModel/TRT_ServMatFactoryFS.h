@@ -6,6 +6,7 @@
 #define INDETSERVMATGEOMODEL_TRT_SERVMATFACTORYFS_H
 
 #include "AthenaKernel/MsgStreamMember.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 class StoreGateSvc;
@@ -42,7 +43,7 @@ class TRT_ServMatFactoryFS   {
   StoreGateSvc                    *m_detStore;
   ServiceHandle<IRDBAccessSvc>     m_rdbAccess;
   std::unique_ptr<InDetMaterialManager> m_materialManager;
-  mutable Athena::MsgStreamMember  m_msg;
+  mutable Athena::MsgStreamMember  m_msg ATLAS_THREAD_SAFE;
 };
 
 #endif 
