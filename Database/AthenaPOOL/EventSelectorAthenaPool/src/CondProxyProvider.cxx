@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file CondProxyProvider.cxx
@@ -33,7 +33,6 @@ CondProxyProvider::CondProxyProvider(const std::string& name, ISvcLocator* pSvcL
 	m_athenaPoolCnvSvc("AthenaPoolCnvSvc", name),
 	m_poolCollectionConverter(0),
 	m_headerIterator(0) {
-   declareProperty("InputCollections", m_inputCollectionsProp);
 }
 //________________________________________________________________________________
 CondProxyProvider::~CondProxyProvider() {
