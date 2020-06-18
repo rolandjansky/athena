@@ -39,9 +39,16 @@ namespace ISF
     /** all following is used to set up the class */
     void addPar(TH1 *hist) { m_par.push_back(hist); };             //!< get the function's parameter from the given histogram
     void setRange( TH1 *min, TH1 *max) { m_randmin = min; m_randmax = max; }; //!< get the function's range from the given histograms
+    void setName( std::string PDFname ){ m_name = PDFname; }; //get the pdf's name
+    void addToSliceHistMap(std::vector<double> energyEtaMinEtaMax, TH1 *hist) { m_energyEtaMinEtaMax_hists.insert( {energyEtaMinEtaMax, hist} ); }; 
+    void addToEnergyEtaRangeHistMap(double energy, std::vector<double> etaMinEtaMax, TH1 *hist) { std::map<std::vector<double>, TH1*> inner; inner.insert(std::make_pair(etaMinEtaMax, hist)); m_energy_etaRange_hists.insert(std::make_pair(energy, inner)); }; //add entry to map linking energy, eta window and histogram
 
     /** get the random value with this methode, by providing the input parameters */
     double getRand( std::vector<double> inputPar, bool discrete = false, double randMin = 0., double randMax = 0.);
+    std::string getName(){return m_name;};
+    static bool maxEnergyCompare(const std::pair<std::vector<double>, TH1*>& p1, const std::pair<std::vector<double>, TH1*>& p2){ return p1.first.at(0) < p2.first.at(0); };
+    static bool compareEnergy(std::pair< double , std::map< std::vector<double>, TH1*> > map, double value){ return map.first < value; };
+    static bool compareEtaMax(std::pair< std::vector<double>, TH1*> map, double value){ return map.first.at(1) < value; };
 
   private:
     CLHEP::HepRandomEngine             *m_randomEngine;       //!< Random Engine
@@ -50,6 +57,11 @@ namespace ISF
     TH1                                *m_randmax;            //!< the fit-functions maximum values
     std::vector<TH1*>                   m_par;                /*!< the 'histograms' which hold the parameters
                                                                 for the above PDF */
+    std::string                         m_name;               //!< Give pdf a name for debug purposes 
+    std::map< std::vector<double>, TH1*>          m_energyEtaMinEtaMax_hists; //!< map to store eta and energy slice values linked with corresponding histogram dists.
+    std::map< double , std::map< std::vector<double>, TH1*> > m_energy_etaRange_hists; //!< map of energies to map of eta ranges to histograms
+
+
   };
 }
 

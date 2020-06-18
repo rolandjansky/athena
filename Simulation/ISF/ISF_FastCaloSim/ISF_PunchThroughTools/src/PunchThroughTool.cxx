@@ -41,6 +41,9 @@
 #include "TAxis.h"
 #include "TH1.h"
 #include "TMath.h"
+#include "TROOT.h"
+#include "TKey.h"
+#include "TClass.h"
 
 // PathResolver
 #include "PathResolver/PathResolver.h"
@@ -464,6 +467,14 @@ const ISF::ISFParticleContainer* ISF::PunchThroughTool::computePunchThroughParti
 
   if (m_isfpCont->size() > 0)  ATH_MSG_DEBUG( "[ punchthrough ] returning ISFparticle vector , size: "<<m_isfpCont->size() );
 
+  for (ISF::ISFParticle *particle : *m_isfpCont) {
+    ATH_MSG_DEBUG("codes of produced punch through particle: pdg = "<< particle->pdgCode());
+    Amg::Vector3D position = particle->position();
+    ATH_MSG_DEBUG("position of produced punch-through particle: x = "<< position.x() <<" y = "<< position.y() <<" z = "<< position.z());
+    Amg::Vector3D momentum = particle->momentum();
+    ATH_MSG_DEBUG("momentum of produced punch-through particle: px = "<< momentum.x() <<" py = "<< momentum.x() <<" pz = "<< momentum.x() <<" e = "<< particle->ekin() << " mass = " << particle->mass());
+  }
+
   return m_isfpCont;
 }
 
@@ -507,6 +518,7 @@ int ISF::PunchThroughTool::getAllParticles(int pdg, int numParticles) const
   // now create the exact number of particles which was just computed before
   double energyRest = m_initEnergy;
   double minEnergy = p->getMinEnergy();
+  std::cout << "min energy " << minEnergy << std::endl;
   int numCreated = 0;
 
   for ( numCreated = 0; (numCreated < numParticles) && (energyRest > minEnergy); numCreated++ )
@@ -645,6 +657,9 @@ ISF::ISFParticle *ISF::PunchThroughTool::getOneParticle(int pdg, double maxEnerg
   parExitEnergyInitEta.push_back( energy );
   parExitEnergyInitEta.push_back( fabs(m_initEta) );
 
+  parExitEnergyInitEta = parInitEnergyEta; //using this for now to check new param structure
+
+
   // (2.2) get the particles delta theta relative to the incoming particle
   double theta = 0;
   // loop to keep theta within range [0,PI]
@@ -677,6 +692,8 @@ ISF::ISFParticle *ISF::PunchThroughTool::getOneParticle(int pdg, double maxEnerg
   std::vector<double> parExitEnergyExitEta;
   parExitEnergyExitEta.push_back( energy );
   parExitEnergyExitEta.push_back( -log(tan(theta/2.)) );
+
+  parExitEnergyExitEta = parInitEnergyEta; //using this for now to check new param structure
 
   // (2.4) get the particle momentum delta theta, relative to its position
   //
@@ -713,6 +730,9 @@ ISF::ISFParticle *ISF::PunchThroughTool::getOneParticle(int pdg, double maxEnerg
   m_secBC = m_barcodeSvc->newSecondary( m_primBC, m_processCode);
 
   // (**) finally create the punch-through particle as a ISFParticle
+
+  ATH_MSG_DEBUG("createExitPs input parameters: doAnti? = "<< pdg*anti <<" energy = "<< energy <<" theta = "<< theta <<" phi = "<< phi <<" momTheta = "<< momTheta << " momPhi " << momPhi );
+
 
   ISF::ISFParticle *par = createExitPs( pdg*anti, energy, theta, phi, momTheta, momPhi);
 
@@ -863,7 +883,8 @@ StatusCode ISF::PunchThroughTool::registerCorrelation(int pdgID1, int pdgID2,
  *======================================================================*/
 
 ISF::PDFcreator *ISF::PunchThroughTool::readLookuptablePDF(int pdg, std::string folderName)
-{
+{ 
+
   // will hold the PDFcreator class which will be returned at the end
   // this will store the probability density functions for the number of punch-through particles
   // (as functions of energy & eta of the incoming particle)
@@ -920,6 +941,73 @@ ISF::PDFcreator *ISF::PunchThroughTool::readLookuptablePDF(int pdg, std::string 
       pdf->addPar( hist );
     }
 
+
+    bool newParam = true;
+    if(newParam){
+
+      //Get directory object
+      std::stringstream dirName;
+      dirName << folderName << pdg;
+      pdf->setName(dirName.str().c_str());
+
+      TDirectory * dir = (TDirectory*)m_fileLookupTable->Get(dirName.str().c_str());
+      if(! dir)
+      {
+        ATH_MSG_ERROR( "[ punchthrough ] unable to retrieve directory object ("<< folderName << pdg << ")" );
+        delete pdf;
+        return 0;
+      }
+
+
+      //Get list of all objects in directory
+      TIter keyList(dir->GetListOfKeys());
+      TKey *key;
+
+      while ((key = (TKey*)keyList())) {
+
+        //Check that key is a histogram
+        TClass *cl = gROOT->GetClass(key->GetClassName());
+        if (!cl->InheritsFrom("TH1")) continue;
+
+        //Get histogram object from key to store in pdf
+        TH1* hist = (TH1*)key->ReadObj();
+
+        //Get histogam name to extract eta and energy slice
+        std::string histName = hist->GetName();
+
+        //temporary solition to skip old param
+        if(histName.find("param") != std::string::npos){continue;}
+        if(histName.find("rand") != std::string::npos){continue;}
+
+        //extract energy and eta from hist name 6 and 1 to position delimeters correctly 
+        std::string strEnergy = histName.substr( histName.find_first_of("E") + 1, histName.find_first_of("_")-histName.find_first_of("E") - 1 );
+        histName.erase(0, histName.find_first_of("_") + 1);
+        std::string strEtaMin = histName.substr( histName.find("etaMin") + 6, histName.find_first_of("_") - histName.find("etaMin") - 6 );
+        histName.erase(0, histName.find("_") + 1);
+        std::string strEtaMax = histName.substr( histName.find("etaMax") + 6, histName.length());
+
+        //debug printer
+        //std::cout << strEnergy << " " << strEtaMin << " " << strEtaMax << std::endl;
+        
+        //convert string slice information to int and push back to vector
+        std::vector<double> energyEtaMinEtaMax;
+        energyEtaMinEtaMax.push_back(std::stod(strEnergy));
+        energyEtaMinEtaMax.push_back(std::stod(strEtaMin));
+        energyEtaMinEtaMax.push_back(std::stod(strEtaMax));
+
+        //create vector with just eta range and energy double
+        double energy = std::stod(strEnergy);
+        std::vector<double> etaMinEtaMax;
+        etaMinEtaMax.push_back(std::stod(strEtaMin));
+        etaMinEtaMax.push_back(std::stod(strEtaMax));
+
+        //Add entry to pdf map 
+        pdf->addToSliceHistMap(energyEtaMinEtaMax, hist);
+        pdf->addToEnergyEtaRangeHistMap(energy, etaMinEtaMax, hist);
+      }
+
+    }
+
   return pdf;
 }
 
@@ -943,6 +1031,9 @@ ISF::ISFParticle* ISF::PunchThroughTool::createExitPs( int pdg,
   Amg::Vector3D mom;
   double mass = m_particleDataTable->particle(abs(pdg))->mass();
   Amg::setRThetaPhi( mom, sqrt(energy*energy - mass*mass), momTheta, momPhi);
+  ATH_MSG_DEBUG("setRThetaPhi pre input parameters: energy = "<< energy <<" mass = "<< mass);
+  ATH_MSG_DEBUG("setRThetaPhi input parameters: sqrt(energy*energy - mass*mass) = "<< sqrt(energy*energy - mass*mass) <<" momTheta = "<< momTheta <<" momPhi = "<< momPhi);
+
 
   double charge = m_particleDataTable->particle(abs(pdg))->charge();
   // since the PDT table only has abs(PID) values for the charge

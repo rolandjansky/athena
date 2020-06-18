@@ -16,13 +16,133 @@
 #include "TFile.h"
 #include "TH2F.h"
 #include "TAxis.h"
+#include "TF1.h"
+
 
 /*=========================================================================
  *  DESCRIPTION OF FUNCTION:
  *  ==> see headerfile
  *=======================================================================*/
 double ISF::PDFcreator::getRand(std::vector<double> inputParameters, bool discrete, double randMin, double randMax)
-{
+{  
+
+
+  //testing new param code
+  bool newParam = true;
+  if(newParam){ 
+    std::cout << "testing new getRand code" << std::endl;
+    std::cout << "looking at pdf " << getName() << std::endl;
+    std::cout << "input parameters " << std::endl;
+    for (unsigned int i = 0; i < inputParameters.size(); i++ ){
+      std::cout << inputParameters.at(i) << " ";
+    }
+    std::cout << std::endl;
+
+
+    ////try looping through map of maps
+    //std::map< double , std::map< std::vector<double>, TH1*> >::iterator it1;
+    //for ( it1 = m_energy_etaRange_hists.begin(); it1 != m_energy_etaRange_hists.end(); it1++ )
+    //{
+    //  std::cout << "map map " << it1->first << std::endl;
+//
+//    //  std::map< std::vector<double>, TH1*>::iterator it2;
+//    //  for ( it2 = it1->second.begin(); it2 != it1->second.end(); it2++ )
+//    //  {
+//    //    std::cout << it2->first.at(0) << " " << it2->first.at(1) <<std::endl;
+//    //    std::cout << it2->second->GetName() << std::endl;
+//    //    
+//    //  }
+    //}
+
+    //Select energy values neighbouring input energy
+    std::map< double , std::map< std::vector<double>, TH1*> >::iterator itUpperEnergy, itPrevEnergy, selectedEnergy, secondSelectedEnergy;
+
+    //selects first energy that is not less than input energy
+    itUpperEnergy = std::lower_bound(m_energy_etaRange_hists.begin(), m_energy_etaRange_hists.end(), inputParameters.at(0), compareEnergy);
+
+    if (itUpperEnergy == m_energy_etaRange_hists.end()) {
+      //select final iterator in map
+      selectedEnergy = m_energy_etaRange_hists.end();
+    } 
+    else if (itUpperEnergy == m_energy_etaRange_hists.begin()) {
+      //choose first iterator in map
+      selectedEnergy = m_energy_etaRange_hists.begin();
+      //do some sort of interpolation in this case to zero with log energy
+    } else {
+      //Check if iterator input energy is closer to previous iterator energy, if yes choose this instead
+      itPrevEnergy = std::prev(itUpperEnergy);
+      if (abs(inputParameters.at(0) - itPrevEnergy->first) < abs(itUpperEnergy->first - inputParameters.at(0))){
+        selectedEnergy = itPrevEnergy;
+        secondSelectedEnergy = itUpperEnergy;
+      }
+      else{
+        selectedEnergy = itUpperEnergy;
+        secondSelectedEnergy = itPrevEnergy;
+      }
+    }
+
+    //next interpolate between energy values
+    //only interpolate if we haven't chosen an edge case
+    if( selectedEnergy->first < m_energy_etaRange_hists.end()->first && selectedEnergy != m_energy_etaRange_hists.begin() ){
+      std::cout << std::to_string(selectedEnergy->first) << " " << std::to_string(secondSelectedEnergy->first) << std::endl;  
+
+      //select the smaller of the two energies to find the bin edge between them (energy bands are logarithmic)
+      double binEdge;
+      if(selectedEnergy->first < secondSelectedEnergy->first){
+        binEdge = selectedEnergy->first*pow(2,0.5);
+      }
+      else{
+        binEdge = secondSelectedEnergy->first*pow(2,0.5);
+      }
+
+      //calculate a distance of the input energy to the bin edge
+      double distance = fabs(binEdge - inputParameters.at(0))/fabs(selectedEnergy->first - binEdge);
+
+      //if we get a random number larger than the distance then choose other energy.
+      double rand = CLHEP::RandFlat::shoot(m_randomEngine);
+      if(rand > distance){
+        selectedEnergy = secondSelectedEnergy;
+      }
+
+    }
+
+    std::cout << "selected energy " << std::to_string(selectedEnergy->first) << std::endl;
+
+    //Now move on to selecting the correct eta window
+    //first get the map of eta windows to hists.
+    std::map< std::vector<double>, TH1*> etaMinEtaMax_hists = selectedEnergy->second;
+
+    //choose first max eta that is not less than input eta
+    std::map< std::vector<double>, TH1*>::iterator etaWindow;
+    etaWindow = std::lower_bound(etaMinEtaMax_hists.begin(), etaMinEtaMax_hists.end(), inputParameters.at(1), compareEtaMax);
+
+    if(etaWindow == etaMinEtaMax_hists.end()){
+      //need to do some sort of catch in this case
+    }
+
+    std::cout << "selected etaWindow " << etaWindow->first.at(1) << std::endl;
+
+    //do the same interpolation for eta
+
+
+    //get the chosen histogram from the map
+    TH1* hist = etaWindow->second;
+
+    //Draw randomly from the histogram distribution.
+
+    double random = hist->GetRandom();
+    while (random < randMin){
+      random = hist->GetRandom();
+    }
+
+    std::cout << "random " << random << std::endl; 
+
+    return random;
+
+  }
+
+
+
   // Since the histograms which hold the function's fit parameters are binned
   // we have to choose which bin we use for the current energy & eta regime.
   // It's very unlikely to exactly hit a bin's center, therefore we randomly
