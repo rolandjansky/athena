@@ -116,7 +116,7 @@ private:
 
   ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle;
   ToolHandle<IActsTrackingGeometryTool> m_trackingGeometryTool{this, "TrackingGeometryTool", "", "ActsTrackingGeometryTool"};
-  ToolHandle<InDet::IInDetTrackSelectionTool> m_trkFilter{this, "InDetTrackSelection", "", "InDetTrackSelectionTool"};
+  ToolHandle<InDet::IInDetTrackSelectionTool> m_trkFilter{this, "TrackSelector", "", "InDetTrackSelectionTool"};
   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey {this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot"};
 
   // Configuration variables
@@ -144,7 +144,7 @@ private:
   BooleanProperty m_do3dSplitting{this, "do3dSplitting", false, "Do 3d-splitting"};
   DoubleProperty m_maximumVertexContamination{this, "maximumVertexContamination", 0.5, "Max. vertex contamination"};
   DoubleProperty m_looseConstrValue{this, "looseConstrValue", 1e+8, "Loose constraint value"};
-  BooleanProperty m_refitAfterBadVertex{this, "refitAfterBadVertex", true, "Run multivertex refit after bad vertex"};
+  BooleanProperty m_refitAfterBadVertex{this, "refitAfterBadVertex", false, "Run multivertex refit after bad vertex"};
   BooleanProperty m_useVertexCovForIPEstimation{this, "useVertexCovForIPEstimation", false, "Use seed vertex cov for IPEstimation"};
   BooleanProperty m_useSeedConstraint{this, "useSeedConstraint", true, "Use seed constraint in fit"};
   // Final vertex selection variables
