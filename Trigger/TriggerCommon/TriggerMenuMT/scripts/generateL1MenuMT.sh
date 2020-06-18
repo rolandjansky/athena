@@ -36,6 +36,8 @@ menu=$1
 dest=$2
 if [ -z "$dest" ]; then
     dest=$PWD
+else
+    mkdir -p $dest
 fi
 
 # Get absolute path name
