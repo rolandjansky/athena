@@ -342,7 +342,6 @@ StatusCode CscClusterValMonAlg::fillHistograms( const EventContext& ctx ) const 
           auto clus_etaSig = Monitored::Scalar<int>("clus_etaSig", (int)(!measuresPhi) && (signal));
           auto clus_phiNoise = Monitored::Scalar<int>("clus_phiNoise", (int)measuresPhi && !(signal));
           auto clus_etaNoise = Monitored::Scalar<int>("clus_etaNoise", (int)(!measuresPhi) && !(signal));
-        //  fill("CscClusMonitor",noStrips, secLayer,clus_phiSig, clus_etaSig, clus_phiNoise, clus_etaNoise );
 
           auto sideA = Monitored::Scalar<int>("sideA",(int)(stationEta==1) && (signal));
           auto sideC = Monitored::Scalar<int>("sideC",(int)(stationEta==-1) && (signal));
@@ -390,14 +389,14 @@ StatusCode CscClusterValMonAlg::fillHistograms( const EventContext& ctx ) const 
         auto scount_mon = Monitored::Scalar<int>("scount_mon",scount);
         auto count_diff = Monitored::Scalar<int>("count_diff",(count-scount));
 
-        auto mphi_true = Monitored::Scalar<int>("mphi_true",(int)mphi);
-        auto mphi_false = Monitored::Scalar<int>("mphi_false",(int)!(mphi));
+        auto mphi_true = Monitored::Scalar<int>("mphi_true",(int)mphi && count == 1);
+        auto mphi_false = Monitored::Scalar<int>("mphi_false",(int)!(mphi) && count == 1);
 
-        auto scount_phi_true = Monitored::Scalar<int>("scount_phi_true", (int)mphi && scount == 1);
-        auto scount_phi_false = Monitored::Scalar<int>("scount_phi_false", (int)mphi && scount == 0);
+        auto scount_phi_true = Monitored::Scalar<int>("scount_phi_true", (int)mphi && count == 1 && scount == 1);
+        auto scount_phi_false = Monitored::Scalar<int>("scount_phi_false", (int)mphi && count == 1 && scount == 0);
 
-        auto scount_eta_true = Monitored::Scalar<int>("scount_eta_true", (int)!(mphi) && scount == 1);
-        auto scount_eta_false = Monitored::Scalar<int>("scount_eta_false", (int)!(mphi) && scount == 0);
+        auto scount_eta_true = Monitored::Scalar<int>("scount_eta_true", (int)!(mphi) && count == 1 && scount == 1);
+        auto scount_eta_false = Monitored::Scalar<int>("scount_eta_false", (int)!(mphi) && count == 1 && scount == 0);
 
         auto secLayer = Monitored::Scalar<float>("secLayer",(sec + 0.2 * (lay - 1) + 0.1));
 
