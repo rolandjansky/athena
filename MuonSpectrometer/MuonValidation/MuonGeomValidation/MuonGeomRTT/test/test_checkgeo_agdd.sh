@@ -8,7 +8,7 @@
 #
 # art-output: *.txt
 
-# art.py createpoolfile
+art.py createpoolfile
 
 set -x
 
