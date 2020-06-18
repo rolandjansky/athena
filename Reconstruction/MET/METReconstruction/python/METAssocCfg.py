@@ -1,18 +1,13 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
-from AthenaCommon import CfgMgr
+from AthenaConfiguration.ComponentFactory import CompFactory
 from GaudiKernel.Constants import INFO
 import six
 
 #################################################################################
 # Define some default values
 
-clusterSigStates = {
-    'EMScale':0,
-    'LocHad':1,
-    'Mod':1
-}
 
 defaultInputKey = {
    'Ele'       :'Electrons',
@@ -58,28 +53,28 @@ def getAssociator(config,suffix,doPFlow=False,
     # Construct tool and set defaults for case-specific configuration
     if config.objType == 'Ele':
         from ROOT import met
-        tool = CfgMgr.met__METElectronAssociator('MET_ElectronAssociator_'+suffix,TCMatchMethod=met.ClusterLink)
+        tool = CompFactory.getComp("met::METElectronAssociator")('MET_ElectronAssociator_'+suffix,TCMatchMethod=met.ClusterLink)
     if config.objType == 'Gamma':
         from ROOT import met
-        tool = CfgMgr.met__METPhotonAssociator('MET_PhotonAssociator_'+suffix,TCMatchMethod=met.ClusterLink)
+        tool = CompFactory.getComp("met::METPhotonAssociator")('MET_PhotonAssociator_'+suffix,TCMatchMethod=met.ClusterLink)
     if config.objType == 'Tau':
-        tool = CfgMgr.met__METTauAssociator('MET_TauAssociator_'+suffix)
+        tool = CompFactory.getComp("met::METTauAssociator")('MET_TauAssociator_'+suffix)
     if config.objType == 'LCJet':
-        tool = CfgMgr.met__METJetAssocTool('MET_LCJetAssocTool_'+suffix)
+        tool = CompFactory.getComp("met::METJetAssocTool")('MET_LCJetAssocTool_'+suffix)
     if config.objType == 'EMJet':
-        tool = CfgMgr.met__METJetAssocTool('MET_EMJetAssocTool_'+suffix)
+        tool = CompFactory.getComp("met::METJetAssocTool")('MET_EMJetAssocTool_'+suffix)
     if config.objType == 'PFlowJet':
-        tool = CfgMgr.met__METJetAssocTool('MET_PFlowJetAssocTool_'+suffix)
+        tool = CompFactory.getComp("met::METJetAssocTool")('MET_PFlowJetAssocTool_'+suffix)
     if config.objType == 'Muon':
-        tool = CfgMgr.met__METMuonAssociator('MET_MuonAssociator_'+suffix)
+        tool = CompFactory.getComp("met::METMuonAssociator")('MET_MuonAssociator_'+suffix)
     if config.objType == 'Soft':
-        tool = CfgMgr.met__METSoftAssociator('MET_SoftAssociator_'+suffix)
+        tool = CompFactory.getComp("met::METSoftAssociator")('MET_SoftAssociator_'+suffix)
         tool.DecorateSoftConst = True
         if doModClus:
             tool.LCModClusterKey = modLCClus
             tool.EMModClusterKey = modEMClus
     if config.objType == 'Truth':
-        tool = CfgMgr.met__METTruthAssociator('MET_TruthAssociator_'+suffix)
+        tool = CompFactory.getComp("met::METTruthAssociator")('MET_TruthAssociator_'+suffix)
         tool.RecoJetKey = config.inputKey
     if doPFlow:
         tool.PFlow = True
@@ -141,9 +136,9 @@ class METAssocConfig:
                     associator.DecorateSoftConst = True
                 self.associators[config.objType] = associator
                 self.assoclist.append(associator)
-                print (prefix, '  Added '+config.objType+' tool named '+associator.name())
+                print (prefix, '  Added '+config.objType+' tool named '+associator.name)
     #
-    def __init__(self,suffix,buildconfigs=[],
+    def __init__(self,suffix,inputFlags,buildconfigs=[],
                  doPFlow=False,doTruth=False,
                  trksel=None,
                  modConstKey="",
@@ -167,11 +162,10 @@ class METAssocConfig:
         self.modConstKey=modConstKey_tmp
         self.modClusColls=modClusColls_tmp
         self.doTruth = doTruth
-        from AthenaCommon.AppMgr import ToolSvc
         if trksel:
             self.trkseltool = trksel
         else:
-            self.trkseltool=CfgMgr.InDet__InDetTrackSelectionTool("IDTrkSel_METAssoc",
+            self.trkseltool=CompFactory.getComp("InDet::InDetTrackSelectionTool")("IDTrkSel_METAssoc",
                                                                   CutLevel="TightPrimary",
                                                                   maxZ0SinTheta=3,
                                                                   maxD0=2,
@@ -179,16 +173,13 @@ class METAssocConfig:
             #if not hasattr(ToolSvc,self.trkseltool.name()):
             #    ToolSvc += self.trkseltool
 
-        self.trkisotool = CfgMgr.xAOD__TrackIsolationTool("TrackIsolationTool_MET")
+        self.trkisotool = CompFactory.getComp("xAOD::TrackIsolationTool")("TrackIsolationTool_MET")
         self.trkisotool.TrackSelectionTool = self.trkseltool # As configured above
-        #if not hasattr(ToolSvc,self.trkisotool.name()):
-        #    ToolSvc += self.trkisotool
-
-        from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool, Rec__ParticleCaloCellAssociationTool            
-        from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
-        CaloExtensionTool= Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
-        CaloCellAssocTool =  Rec__ParticleCaloCellAssociationTool(ParticleCaloExtensionTool = CaloExtensionTool)
-        self.caloisotool = CfgMgr.xAOD__CaloIsolationTool("CaloIsolationTool_MET",
+	from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg  
+	extrapCfg = AtlasExtrapolatorCfg(inputFlags)
+        CaloExtensionTool= CompFactory.getComp("Trk::ParticleCaloExtensionTool")(Extrapolator = extrapCfg.popPrivateTools())
+        CaloCellAssocTool =  CompFactory.getComp("Rec::ParticleCaloCellAssociationTool")(ParticleCaloExtensionTool = CaloExtensionTool)
+        self.caloisotool = CompFactory.getComp("xAOD::CaloIsolationTool")("CaloIsolationTool_MET",
                                                           saveOnlyRequestedCorrections=True,
                                                           addCaloExtensionDecoration=False,
                                                           ParticleCaloExtensionTool = CaloExtensionTool,
@@ -206,18 +197,13 @@ def getMETAssocTool(topconfig,msglvl=INFO):
     assocTool = None
     from METReconstruction.METRecoFlags import metFlags
     if topconfig.doTruth:
-        assocTool = CfgMgr.met__METAssociationTool('MET_TruthAssociationTool_'+topconfig.suffix,
+        assocTool = CompFactory.getComp("met::METAssociationTool")('MET_TruthAssociationTool_'+topconfig.suffix,
                                                    METAssociators = topconfig.assoclist,
                                                    METSuffix = topconfig.suffix)
     else:
-        tcstate = clusterSigStates['LocHad']
-        if 'EMTopo' in topconfig.suffix: tcstate = clusterSigStates['EMScale']
-        if topconfig.modConstKey!="":
-            tcstate = clusterSigStates['Mod']
-        assocTool = CfgMgr.met__METAssociationTool('MET_AssociationTool_'+topconfig.suffix,
+        assocTool = CompFactory.getComp("met::METAssociationTool")('MET_AssociationTool_'+topconfig.suffix,
                                                    METAssociators = topconfig.assoclist,
                                                    METSuffix = topconfig.suffix,
-                                                   TCSignalState=tcstate,
                                                    TimingDetail=0,
                                                    OutputLevel=msglvl)
         if metFlags.AllowOverwrite:
@@ -242,9 +228,9 @@ def getMETAssocAlg(algName='METAssociation',configs={},tools=[],msglvl=INFO):
         #metFlags.METAssocTools()[key] = assoctool
 
     for tool in assocTools:
-        print (prefix, 'Added METAssocTool \''+tool.name()+'\' to alg '+algName)
+        print (prefix, 'Added METAssocTool \''+tool.name+'\' to alg '+algName)
 
-    assocAlg = CfgMgr.met__METRecoAlg(name=algName,
+    assocAlg = CompFactory.getComp("met::METRecoAlg")(name=algName,
                                       RecoTools=assocTools)
 #    assocAlg.OutputLevel=DEBUG
     return assocAlg

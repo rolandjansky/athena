@@ -5,12 +5,14 @@ from METReconstruction.METAssocCfg import AssocConfig, METAssocConfig,getMETAsso
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from METUtilities.METMakerConfig import getMETMakerAlg
 
+
 #attempt at migrating to the new configuration system
 def METAssociator_Cfg(configFlags):
     sequencename = "METAssociation"
 
     components = ComponentAccumulator()
-    from AthenaCommon.AlgSequence import AthSequencer
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    AthSequencer=CompFactory.AthSequencer
     components.addSequence( AthSequencer(sequencename) )
 
     modConstKey = ""
@@ -32,7 +34,8 @@ def METAssociator_Cfg(configFlags):
                    AssocConfig('Tau'),
                    AssocConfig('Soft')]
     cfg_akt4lc = METAssocConfig('AntiKt4LCTopo',
-                                associators,
+                                configFlags,
+				associators,
                                 doPFlow=False,
                                 modConstKey=modConstKey,
                                 modClusColls=modClusColls
@@ -51,6 +54,7 @@ def METAssociator_Cfg(configFlags):
                    AssocConfig('Tau'),
                    AssocConfig('Soft')]
     cfg_akt4em = METAssocConfig('AntiKt4EMTopo',
+                                configFlags,
                                 associators,
                                 doPFlow=False,
                                 modConstKey=modConstKey,
@@ -71,6 +75,7 @@ def METAssociator_Cfg(configFlags):
                        AssocConfig('Tau'),
                        AssocConfig('Soft')]
         cfg_akt4pf = METAssocConfig('AntiKt4EMPFlow',
+                                    configFlags,
                                     associators,
                                     doPFlow=True
                                     )
@@ -81,7 +86,8 @@ def METAssociator_Cfg(configFlags):
     
 def getAssocCA(config,sequencename='METAssociation',METName=''):
     components = ComponentAccumulator()
-    from AthenaCommon.AlgSequence import AthSequencer
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    AthSequencer=CompFactory.AthSequencer
     components.addSequence( AthSequencer(sequencename) )
     assoctool = getMETAssocTool(config)
     assocAlg = getMETAssocAlg(algName='METAssociation_LCJets',tools=[assoctool])

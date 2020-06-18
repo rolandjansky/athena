@@ -48,7 +48,6 @@ namespace met {
   {
     declareProperty( "METAssociators", m_metassociators              );
     declareProperty( "METSuffix",      m_metsuffix = "AntiKt4LCTopo" );
-    declareProperty( "TCSignalState",  m_signalstate = 1             );
     declareProperty( "AllowOverwrite", m_overwrite = false           );
     declareProperty( "TimingDetail",   m_timedetail = 0      );
 
