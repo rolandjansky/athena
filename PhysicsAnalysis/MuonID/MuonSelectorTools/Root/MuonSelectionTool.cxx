@@ -242,7 +242,7 @@ namespace CP {
     //Read bad muon veto efficiency histograms
     std::string BMVcutFile_fullPath = PathResolverFindCalibFile(m_BMVcutFile);
 
-    //ATH_MSG_INFO( "Reading bad muon veto cut functions from " << BMVcutFile_fullPath  );
+    ATH_MSG_INFO( "Reading bad muon veto cut functions from " << BMVcutFile_fullPath  );
     // 
     std::unique_ptr<TFile> BMVfile ( TFile::Open( BMVcutFile_fullPath.c_str() ,"READ"));
 
