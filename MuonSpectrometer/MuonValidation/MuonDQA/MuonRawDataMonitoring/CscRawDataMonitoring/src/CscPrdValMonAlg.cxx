@@ -61,17 +61,17 @@ StatusCode CscPrdValMonAlg::initialize() {
 //
 StatusCode CscPrdValMonAlg::fillHistograms( const EventContext& ctx ) const  {
 
+  int lumiblock = -1;
+  SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfo, ctx);
+  lumiblock = evt->lumiBlock();
+  auto lumiblock_mon = Monitored::Scalar<int>("lumiblock_mon",lumiblock);
+  if(lumiblock < 0 ) return StatusCode::FAILURE;
+  
+
   // Part 1: Get the messaging service, print where you are
   ATH_MSG_DEBUG( "CscPrdValMonAlg: in fillHistograms" );
 
   SG::ReadHandle<CscStripPrepDataContainer> CscPRD(m_cscPrdKey, ctx);
-  StatusCode sc = StatusCode::SUCCESS;
-  //Get lumiblock info
-/*  StatusCode sc = fillLumiBlock();
-  if( sc.isFailure() ){
-    ATH_MSG_ERROR( "Could Not Get LumiBlock Info" );
-    return sc;
-  }*/
 
   // ==============================================================================
   // Field           Range               Notes
@@ -178,59 +178,47 @@ StatusCode CscPrdValMonAlg::fillHistograms( const EventContext& ctx ) const  {
           << res.dwidth << "\t status= " << res.status << "\t chisq= " << res.chsq);
    
       // determine of the cluster is a noise/signal cluster Max_Delta_ADC > NoiseCut
-     // float kiloele = 1.0e-3; // multiply # of electrons by this number to get kiloElectrons (1 ke = 1 ADC)
-    //  float qstripADC = res.charge * kiloele;
+      float kiloele = 1.0e-3; // multiply # of electrons by this number to get kiloElectrons (1 ke = 1 ADC)
+      float qstripADC = res.charge * kiloele;
 
       // By default res.status = -1
       // if strip fit is success res.status = 0
       // If fit fails use the peak sample. In this case res.status = 1
 
-    //  bool signal = ((qstripADC > m_cscNoiseCut) && (res.status >= 0)) ? true : false;
+      bool signal = ((qstripADC > m_cscNoiseCut) && (res.status >= 0)) ? true : false;
+
+      auto signal_mon = Monitored::Scalar<int>("signal_mon", (int)signal);
+      auto noise_mon = Monitored::Scalar<int>("noise_mon", (int)!(signal));
+      auto clus_phiSig = Monitored::Scalar<int>("clus_phiSig", (int)measuresPhi && (signal));
+      auto clus_etaSig = Monitored::Scalar<int>("clus_etaSig", (int)(!measuresPhi) && (signal));
+      auto clus_phiNoise = Monitored::Scalar<int>("clus_phiNoise", (int)measuresPhi && !(signal));
+      auto clus_etaNoise = Monitored::Scalar<int>("clus_etaNoise", (int)(!measuresPhi) && !(signal));
+      auto sideA = Monitored::Scalar<int>("sideA",(int)(stationEta==1) && (signal));
+      auto sideC = Monitored::Scalar<int>("sideC",(int)(stationEta==-1) && (signal));
 
       // increment the signal-cluster count
-  /*    if(signal) {
+      if(signal){
         sigclusCount[ns][nl]++;
         measuresPhi ? nPhiClusWidthCnt[wireLayer]++ : nEtaClusWidthCnt[wireLayer]++ ;
-        m_h2csc_prd_hitmap_signal->Fill(spid,secLayer);
-        if(stationEta == -1) {
-         m_h2csc_prd_hitmap_signal_EC->Fill(spid,secLayer);
-          m_h1csc_prd_hitmap_signal_EC_count->Fill(spid);
-          m_h1csc_prd_hitmap_signal_EC_occupancy->Fill(secLayer);
-          m_h2csc_prd_occvslb_EC->Fill(m_lumiblock,secLayer);
-        } // end if(stationEta == -1)
-        else {
-          m_h2csc_prd_hitmap_signal_EA->Fill(spid,secLayer);
-          m_h1csc_prd_hitmap_signal_EA_count->Fill(spid);
-          m_h1csc_prd_hitmap_signal_EA_occupancy->Fill(secLayer);
-          m_h2csc_prd_occvslb_EA->Fill(m_lumiblock,secLayer);
-        } // end else if(stationEta == -1)
-   /   if(!measuresPhi) {
-          m_h2csc_prd_etacluswidth_signal->Fill(noStrips,secLayer);
-        } // end if(!measuresPhi)
-        else {
-          m_h2csc_prd_phicluswidth_signal->Fill(noStrips,secLayer);
-        } // end else if(!measuresPhi)
-      } // end if(signal)
-      else {
-        m_h2csc_prd_hitmap_noise->Fill(spid,secLayer);
-        if(!measuresPhi) {
-          m_h2csc_prd_etacluswidth_noise->Fill(noStrips,secLayer);
-        } // end if(!measuresPhi)
-        else {
-          m_h2csc_prd_phicluswidth_noise->Fill(noStrips,secLayer);
-        } // end else if(!measuresPhi)
-      } // end else if(signal)*/
+      } 
 
+      fill("CscPrdMonitor", spid, secLayer, lumiblock_mon, noStrips, signal_mon, noise_mon, clus_phiSig, clus_etaSig, clus_etaNoise, clus_etaNoise, sideC, sideA);
 
     } // end for-loop over PRD collection
     ATH_MSG_DEBUG ( " End loop over PRD collection======================" );
 
-  /*  for(size_t lcnt = 1; lcnt < 5; lcnt++ ) {
-      m_h2csc_prd_eta_vs_phi_cluswidth->Fill(nPhiClusWidthCnt[lcnt],nEtaClusWidthCnt[lcnt]);
-    } // end loop over lcnt*/
-/*
+    for(size_t lcnt = 1; lcnt < 5; lcnt++ ) {
+      int tmp_phiClus = nPhiClusWidthCnt[lcnt];
+      int tmp_etaClus = nEtaClusWidthCnt[lcnt];
+      auto nPhiClusWidthCnt_mon = Monitored::Scalar<int>("nPhiClusWidthCnt_mon",tmp_phiClus);
+      auto nEtaClusWidthCnt_mon = Monitored::Scalar<int>("nEtaClusWidthCnt_mon",tmp_etaClus);
+      fill("CscPrdMonitor", nPhiClusWidthCnt_mon, nEtaClusWidthCnt_mon);
+     // m_h2csc_prd_eta_vs_phi_cluswidth->Fill(nPhiClusWidthCnt[lcnt],nEtaClusWidthCnt[lcnt]);
+    } // end loop over lcnt
+
     int numeta = 0, numphi = 0;
     int numetasignal = 0, numphisignal = 0;
+    int tmp_val = 0;
     for(int kl = 1; kl < 33; kl++ ) {
 
       for(int km = 1; km < 9; km++ ) {
@@ -239,65 +227,58 @@ StatusCode CscPrdValMonAlg::fillHistograms( const EventContext& ctx ) const  {
         std::string wlay = mphi ? "Phi-Layer " : "Eta-Layer: ";
 
         int count = clusCount[kl][km];
+        auto count_mon = Monitored::Scalar<int>("count_mon",count);
         int scount = sigclusCount[kl][km];
+        auto scount_mon = Monitored::Scalar<int>("scount_mon",scount);
 
+        auto mphi_true = Monitored::Scalar<int>("mphi_true",(int)mphi && count == 1);
+        auto mphi_false = Monitored::Scalar<int>("mphi_false",(int)!(mphi) && count == 1 );
+
+        auto scount_phi_true = Monitored::Scalar<int>("scount_phi_true", (int)mphi && count == 1 && scount == 1 );
+        auto scount_phi_false = Monitored::Scalar<int>("scount_phi_false", (int)mphi && count == 1 && scount == 0 );
+
+        auto scount_eta_true = Monitored::Scalar<int>("scount_eta_true", (int)!(mphi) && count == 1 && scount == 1 );
+        auto scount_eta_false = Monitored::Scalar<int>("scount_eta_false", (int)!(mphi) && count == 1 && scount == 0 );
+
+        auto secLayer = Monitored::Scalar<float>("secLayer",(kl-16 + 0.2 * (lay - 1) + 0.1));
+
+        
+        auto tmp_val_mon = Monitored::Scalar<int>("tmp_val_mon", tmp_val);
 
         if(count) {
-          float secLayer = kl-16 + 0.2 * (lay - 1) + 0.1;
-          if(mphi) {
-            m_h2csc_prd_phicluscount->Fill(count,secLayer); // all phi-cluster counts
+          if(mphi){
             numphi += count;
-            if(scount) {
+            if(scount){
               numphisignal += scount;
-              m_h2csc_prd_phicluscount_signal->Fill(scount,secLayer); // signal phi-cluster count
-              m_h2csc_prd_phicluscount_noise->Fill((count-scount),secLayer); // noise phi-cluster count
-            } // end if(scount) 
-            else {
-              m_h2csc_prd_phicluscount_noise->Fill(count,secLayer); // noise phi-cluster count
-            } // end else if(scount)
-          } // end if(mphi)
-          else {
-            m_h2csc_prd_etacluscount->Fill(count,secLayer);
+              tmp_val = count - scount;
+            } else tmp_val = count;
+          } else{
             numeta += count;
-            if(scount) {
+            if(scount){
               numetasignal += scount;
-              m_h2csc_prd_etacluscount_signal->Fill(scount,secLayer); // signal eta-cluster count
-              m_h2csc_prd_etacluscount_noise->Fill((count-scount),secLayer); // noise eta-cluster count
-            } // end if(scount)
-            else {
-              m_h2csc_prd_etacluscount_noise->Fill(count,secLayer); // noise eta-cluster count
-            } // end else if(scount)
-          } // end else if(mphi)
+              tmp_val = count - scount;
+            } else tmp_val = count;
+          }
           ATH_MSG_DEBUG ( wlay << "Counts sec: [" << kl-16 << "]\tlayer: [" << km << "] = " <<
               secLayer << "\t = " << count << "\t" << scount);
-        } // end if(count)
-      } // end for km
-    } // end for kl*/
+        }//end count
+        fill("CscPrdMonitor", count_mon, scount_mon, tmp_val_mon, secLayer, mphi_true, mphi_false, scount_phi_false, scount_phi_true, scount_eta_false, scount_eta_true );
+      } //end for km
+    } //end for kl
+    auto numphi_mon = Monitored::Scalar<int>("numphi_mon", numphi);
+    auto numeta_mon = Monitored::Scalar<int>("numeta_mon", numeta);
+    auto numphi_sig_mon = Monitored::Scalar<int>("numphi_sig_mon", numphisignal);
+    auto numeta_sig_mon = Monitored::Scalar<int>("numeta_sig_mon", numetasignal);
+    auto numphi_diff_mon = Monitored::Scalar<int>("numphi_diff_mon", numphi-numphisignal);
+    auto numeta_diff_mon = Monitored::Scalar<int>("numeta_diff_mon", numeta-numetasignal);
 
-  //  m_h2csc_prd_eta_vs_phi_cluscount->Fill(numphi,numeta);
-  //  m_h2csc_prd_eta_vs_phi_cluscount_signal->Fill(numphisignal,numetasignal);
-  //  m_h2csc_prd_eta_vs_phi_cluscount_noise->Fill(numphi-numphisignal, numeta-numetasignal);
+    fill("CscPrdMonitor", numphi_mon, numeta_mon, numphi_sig_mon, numeta_sig_mon, numphi_diff_mon, numeta_diff_mon );
 
   } // end for-loop over container
+  
   ATH_MSG_DEBUG ( " End EVENT======================" );
 
   ATH_MSG_DEBUG( "CscPrdValMonAlg: fillHistograms reports success" );
 
-  return sc;
-} // end CscPrdValAlg::fillHistograms()
-
- 
-  //
-  // fillLumiBlock ----------------------------------------------------------------
-  //
-/*  StatusCode CscPrdValMonAlg::fillLumiBlock(){
-
-    m_lumiblock = -1;
-
-    SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfo);
-
-    m_lumiblock = evt->lumiBlock();
-
-    return StatusCode::SUCCESS;
-
-  }*/
+  return StatusCode::SUCCESS;
+} // end CscPrdValMonAlg::fillHistograms()

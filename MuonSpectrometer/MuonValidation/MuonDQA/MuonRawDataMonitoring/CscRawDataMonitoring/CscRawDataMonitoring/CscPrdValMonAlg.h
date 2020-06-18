@@ -36,24 +36,16 @@ public:
   //  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper",
     //    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
     
-    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     
   size_t m_cscNoiseCut;
   SG::ReadHandleKey<Muon::CscStripPrepDataContainer> m_cscPrdKey{this,"CSCPrepRawDataKey","CSC_Measurements","CSC PRDs"};
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","event info"};
   std::string m_cscPRDPath, m_cscGenPath;
   bool m_mapxyrz;
-    
-    
-    
+        
   // Strip fitter
-   ToolHandle<ICscStripFitter> m_stripFitter;
-    
-
- // StatusCode fillLumiBlock();
- // int m_lumiblock;
-
-  
+  ToolHandle<ICscStripFitter> m_stripFitter;
 
 };
 

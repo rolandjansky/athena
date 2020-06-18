@@ -268,12 +268,88 @@ def CscMonitoringConfig(inputFlags):
 
     cscPrdGroup.defineHistogram('noStrips,secLayer;h2csc_prd_etacluswidth',type='TH2F',cutmask='measeta',title='PRD precision-cluster width;no.of strips;[sector] + [0.2 #times layer]',
                                  path='PRD/Expert',xbins=192,xmin=0,xmax=192, ybins=175,ymin=-17.,ymax=18.)
-    #maybe no needed
+   
     cscPrdGroup.defineHistogram('z,r;h2csc_prd_r_vs_z_hitmap',type='TH2F',title='R vs. Z Cluster hitmap;z(mm);R(mm)',
                                 path='PRD/Shift',xbins=200,xmin=-10000.,xmax=10000., ybins=40, ymin=0., ymax=4000.) 
 
     cscPrdGroup.defineHistogram('y,x;h2csc_prd_y_vs_x_hitmap',type='TH2F',title='Y vs. X Cluster hitmap;x(mm);y(mm)',
                                 path='PRD/Shift',xbins=100,xmin=-5000.,xmax=5000., ybins=100, ymin=-5000., ymax=5000.) 
+
+    cscPrdGroup.defineHistogram('spid,secLayer;h2csc_prd_hitmap_signal',cutmask='signal_mon',type='TH2F',title='Signal Occupancy;channel;[sector] + [0.2 #times layer]',
+                                path='PRD/Shift',xbins=242,xmin=-49.,xmax=193., ybins=175, ymin=-17., ymax=18.) 
+
+    cscPrdGroup.defineHistogram('spid,secLayer;h2csc_prd_hitmap_signal_EC',cutmask='sideC',type='TH2F',title='EndCap C: Signal Occupancy;channel;[sector] + [0.2 #times layer]',
+                                path='Overview/CSCEC/PRD',xbins=242,xmin=-49.,xmax=193., ybins=85, ymin=-17., ymax=0.)
+
+    cscPrdGroup.defineHistogram('spid;h1csc_prd_hitmap_signal_EC_count',cutmask='sideC',type='TH1F',title='EndCap C: Signal Occupancy;channel;entries/channel;',
+                                path='Overview/CSCEC/PRD',xbins=242,xmin=-49.,xmax=193.)
+
+    thisLabelx=getCSCLabelx("labels_clus_occupancy_signal_EC")
+    cscPrdGroup.defineHistogram('secLayer;h1csc_prd_hitmap_signal_EC_occupancy',cutmask='sideC',type='TH1F',title='EndCap C: Signal Occupancy;;entries/layer',
+                                path='Overview/CSCEC/PRD',xbins=85,xmin=-17.,xmax=0., xlabels=thisLabelx) #labels
+
+    cscPrdGroup.defineHistogram('lumiblock_mon,secLayer;h2csc_prd_occvslb_EC',cutmask='sideC',type='TH2F',title='EndCap C: Layer Signal Occupancy Per LB;LB;[sector] + [0.2 #times layer]',
+                                path='Overview/CSCEC/PRD',xbins=2510,xmin=-10.,xmax=2500., ybins=85, ymin=-17., ymax=0.) 
+#ksekinw
+    cscPrdGroup.defineHistogram('spid,secLayer;h2csc_prd_hitmap_signal_EA',cutmask='sideA',type='TH2F',title='EndCap A: Signal Occupancy;channel;[sector] + [0.2 #times layer]',
+                                path='Overview/CSCEA/PRD',xbins=242,xmin=-49.,xmax=193., ybins=90, ymin=0., ymax=18.)
+
+    cscPrdGroup.defineHistogram('spid;h1csc_prd_hitmap_signal_EA_count',cutmask='sideA',type='TH1F',title='EndCap A: Signal Occupancy;channel;entries/channel;',
+                                path='Overview/CSCEA/PRD',xbins=242,xmin=-49.,xmax=193.)
+    
+    thisLabelx=getCSCLabelx("labels_clus_occupancy_signal_EA")
+    cscPrdGroup.defineHistogram('secLayer;h1csc_prd_hitmap_signal_EA_occupancy',cutmask='sideA',type='TH1F',title='EndCap A: Signal Occupancy;;entries/layer',
+                                path='Overview/CSCEA/PRD',xbins=90,xmin=0.,xmax=18., xlabels=thisLabelx) #labels
+
+    cscPrdGroup.defineHistogram('lumiblock_mon,secLayer;h2csc_prd_occvslb_EA',cutmask='sideA',type='TH2F',title='EndCap A: Layer Signal Occupancy Per LB;LB;[sector] + [0.2 #times layer]',
+                                path='Overview/CSCEA/PRD',xbins=2510,xmin=-10.,xmax=2500., ybins=90, ymin=0., ymax=18.) 
+
+    cscPrdGroup.defineHistogram('noStrips,secLayer;h2csc_prd_etacluswidth_signal',cutmask='clus_etaSig',type='TH2F',title='PRD precision-cluster width;no.of strips;[sector] + [0.2 #times layer]',
+                                path='PRD/Expert',xbins=192,xmin=0.,xmax=192., ybins=175, ymin=-17., ymax=18.) 
+
+    cscPrdGroup.defineHistogram('noStrips,secLayer;h2csc_prd_phicluswidth_signal',cutmask='clus_phiSig',type='TH2F',title='PRD precision-cluster width;no.of strips;[sector] + [0.2 #times layer]',
+                                path='PRD/Expert',xbins=48,xmin=0.,xmax=48., ybins=175, ymin=-17., ymax=18.) 
+
+    cscPrdGroup.defineHistogram('spid,secLayer;h2csc_prd_hitmap_noise',cutmask='noise_mon',type='TH2F',title='Noise Occupancy;channel;[sector] + [0.2 #times layer]',
+                                path='PRD/Expert',xbins=242,xmin=-49.,xmax=193., ybins=175, ymin=-17., ymax=18.)
+
+    cscPrdGroup.defineHistogram('noStrips,secLayer;h2csc_prd_etacluswidth_noise',cutmask='clus_etaNoise',type='TH2F',title='PRD precision-cluster width;no.of strips;[sector] + [0.2 #times layer]',
+                                path='PRD/Expert',xbins=192,xmin=0.,xmax=192., ybins=175, ymin=-17., ymax=18.)
+
+    cscPrdGroup.defineHistogram('noStrips,secLayer;h2csc_prd_phicluswidth_noise',cutmask='clus_phiNoise',type='TH2F',title='PRD precision-cluster width;no.of strips;[sector] + [0.2 #times layer]',
+                                path='PRD/Expert',xbins=48,xmin=0.,xmax=48., ybins=175, ymin=-17., ymax=18.)
+
+    cscPrdGroup.defineHistogram('count_mon,secLayer;h2csc_prd_phicluscount',cutmask='mphi_true',type='TH2F',title='PRD transverse-cluster count;no.of clusters;[sector] + [0.2 #times layer]',
+                                path='PRD/Expert',xbins=20,xmin=0.,xmax=20., ybins=175, ymin=-17., ymax=18.)
+
+    cscPrdGroup.defineHistogram('scount_mon,secLayer;h2csc_prd_phicluscount_signal',cutmask='scount_phi_true',type='TH2F',title='PRD transverse-cluster count;no.of clusters;[sector] + [0.2 #times layer]',
+                                path='PRD/Shift',xbins=20,xmin=0.,xmax=20., ybins=175, ymin=-17., ymax=18.)
+
+    cscPrdGroup.defineHistogram('tmp_val_mon,secLayer;h2csc_prd_phicluscount_noise',cutmask='mphi_true',type='TH2F',title='PRD transverse-cluster count;no.of clusters;[sector] + [0.2 #times layer]',
+                                path='PRD/Expert',xbins=20,xmin=0.,xmax=20., ybins=175, ymin=-17., ymax=18.)
+
+    cscPrdGroup.defineHistogram('count_mon,secLayer;h2csc_prd_etacluscount',cutmask='mphi_false',type='TH2F',title='PRD precision-cluster count;no.of clusters;[sector] + [0.2 #times layer]',
+                                path='PRD/Expert',xbins=20,xmin=0.,xmax=20., ybins=175, ymin=-17., ymax=18.)
+
+    cscPrdGroup.defineHistogram('scount_mon,secLayer;h2csc_prd_etacluscount_signal',cutmask='scount_eta_true',type='TH2F',title='PRD precision-cluster count;no.of clusters;[sector] + [0.2 #times layer]',
+                                path='PRD/Shift',xbins=20,xmin=0.,xmax=20., ybins=175, ymin=-17., ymax=18.)    
+
+    cscPrdGroup.defineHistogram('tmp_val_mon,secLayer;h2csc_prd_etacluscount_noise',cutmask='mphi_false',type='TH2F',title='PRD precision-cluster count;no.of clusters;[sector] + [0.2 #times layer]',
+                                path='PRD/Expert',xbins=20,xmin=0.,xmax=20., ybins=175, ymin=-17., ymax=18.)
+
+    cscPrdGroup.defineHistogram('numphi_mon,numeta_mon;h2csc_prd_eta_vs_phi_cluscount',type='TH2F',title='Eta vs. Phi Cluster count correlation;#varphi-cluster count;#eta-cluster count',
+                                path='PRD/Expert',xbins=100,xmin=0,xmax=100, ybins=100, ymin=0, ymax=100)
+
+    cscPrdGroup.defineHistogram('numphi_sig_mon,numeta_sig_mon;h2csc_prd_eta_vs_phi_cluscount_signal',type='TH2F',title='Eta vs. Phi Signal-Cluster count correlation;#varphi-cluster count;#eta-cluster count',
+                                path='PRD/Expert',xbins=100,xmin=0,xmax=100, ybins=100, ymin=0, ymax=100)
+
+    cscPrdGroup.defineHistogram('numphi_diff_mon,numeta_diff_mon;h2csc_prd_eta_vs_phi_cluscount_noise',type='TH2F',title='Eta vs. Phi Noise-Cluster count correlation;#varphi-cluster count;#eta-cluster count',
+                                path='PRD/Expert',xbins=100,xmin=0,xmax=100, ybins=100, ymin=0, ymax=100)
+
+    cscClusGroup.defineHistogram('nPhiClusWidthCnt_mon,nEtaClusWidthCnt_mon;h2csc_prd_eta_vs_phi_cluswidth',type='TH2F',title='Eta vs. Phi Cluster width correlation;#varphi-cluster width;#eta-cluster width',
+                                 path='PRD/Expert',xbins=100,xmin=0,xmax=100,ybins=100,ymin=0,ymax=100)
+
+
 
     #myGroup.defineHistogram('lb', title='Luminosity Block;lb;Events',
     #                       path='ToFindThem',xbins=1000,xmin=-0.5,xmax=999.5,weight='testweight')
