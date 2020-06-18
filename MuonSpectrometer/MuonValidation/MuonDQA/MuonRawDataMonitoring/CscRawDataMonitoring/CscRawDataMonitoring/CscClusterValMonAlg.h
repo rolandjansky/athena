@@ -37,9 +37,6 @@ private:
     // calibration tool
     ToolHandle<ICscCalibTool> m_cscCalibTool{this, "CscCalibTool", "CscCalib", "Calib Tool"};
 
-    //!< TDT handle
-    ToolHandle<Trig::TrigDecisionTool> m_trigDec{this, "TrigDecisionTool", "TrigDecision","Trigger Decision Tool"}; 
-
     // Properties.
     SG::ReadHandleKey<Muon::CscPrepDataContainer> m_cscClusterKey{this,"CSCClusterKey","CSC_Clusters","CSC clusters"};
     SG::ReadHandleKey<Muon::CscStripPrepDataContainer> m_cscPRDKey{this,"CSCPrepRawDataKey", "CSC_Measurements","CSC PRDs"};
