@@ -39,10 +39,10 @@ StatusCode eflowCellEOverPTool_mc12_LC::initialize(){
   return StatusCode::SUCCESS;
 }
 
-StatusCode eflowCellEOverPTool_mc12_LC::execute(eflowEEtaBinnedParameters *binnedParameters){
+StatusCode eflowCellEOverPTool_mc12_LC::fillBinnedParameters(eflowEEtaBinnedParameters *binnedParameters) const {
 
   if (binnedParameters) {
-    
+
     binnedParameters->initialise(m_eBinValues, m_etaBinBounds);
 
     ////////////////////////////
