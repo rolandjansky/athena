@@ -19,7 +19,7 @@
 class TRT_ID;
 class StoreGateSvc;
 
-class TRT_StrawNeighbourSvc: public AthService,
+class ATLAS_CHECK_THREAD_SAFETY TRT_StrawNeighbourSvc: public AthService,
   virtual public ITRT_StrawNeighbourSvc
 {
  public:
