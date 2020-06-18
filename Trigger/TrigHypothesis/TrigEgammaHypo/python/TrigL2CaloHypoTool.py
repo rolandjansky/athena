@@ -3,10 +3,10 @@
 from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.Include import Include 
 # flake8: noqa 
-from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
-
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from TrigEgammaHypo.TrigL2CaloHypoCutDefs import L2CaloCutMaps
+from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
 
 _possibleSel  = { 'tight':'Tight', 'medium':'Medium', 'loose':'Loose', 'vloose':'VeryLoose',
                   'lhtight':'Tight', 'lhmedium':'Medium', 'lhloose':'Loose', 'lhvloose':'VeryLoose'}
@@ -41,6 +41,7 @@ def _IncTool(name, cand, threshold, sel):
     from AthenaConfiguration.ComponentFactory import CompFactory
     tool = CompFactory.TrigL2CaloHypoToolInc( name )
     tool.AcceptAll = False
+    tool.UseRinger = False
     
 
     if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in  TriggerFlags.enableMonitoring():
@@ -99,7 +100,7 @@ def _IncTool(name, cand, threshold, sel):
         tool.CARCOREthr     = same( -9999. )
         tool.CAERATIOthr    = same( -9999. )
 
-    elif "etcut" or "noringer" in sel: # stcut is part of the name, it can as well be etcut1step (test chains)
+    elif sel == "etcut": # stcut is part of the name, it can as well be etcut1step (test chains)
         tool.UseRinger = False
         tool.ETthr          = same( ( float( threshold ) -  3 )*GeV )
         # No other cuts applied
@@ -110,20 +111,27 @@ def _IncTool(name, cand, threshold, sel):
         tool.CARCOREthr     = same( -9999. )
         tool.CAERATIOthr    = same( -9999. )
 
-    elif sel in possibleSel and "noringer" in sel: # real selection
+    elif sel in possibleSel and "noringer" in name: # real selection
         tool.UseRinger = False
         tool.ETthr       = same( ( float( threshold ) - 3 )*GeV )
         tool.HADETthr    = L2CaloCutMaps( threshold ).MapsHADETthr[sel]
         tool.CARCOREthr  = L2CaloCutMaps( threshold ).MapsCARCOREthr[sel]
         tool.CAERATIOthr = L2CaloCutMaps( threshold ).MapsCAERATIOthr[sel]
-    
-    elif sel in _possibleSel.keys() and "noringer" in sel and "e" in cand:
+
+    elif sel in possibleSel and cand=="g": # real selection
+        tool.UseRinger = False
+        tool.ETthr	  = same( ( float( threshold ) - 3 )*GeV )
+        tool.HADETthr    = L2CaloCutMaps( threshold ).MapsHADETthr[sel]
+        tool.CARCOREthr  = L2CaloCutMaps( threshold ).MapsCARCOREthr[sel]
+        tool.CAERATIOthr = L2CaloCutMaps( threshold ).MapsCAERATIOthr[sel]    
+
+    elif sel in _possibleSel.keys() and not "noringer" in name and cand=="e":
         tool.UseRinger = True
         pconstants, pthresholds = _GetPath( cand, sel )
         tool.ConstantsCalibPath = pconstants
         tool.ThresholdsCalibPath = pthresholds
         tool.MonTool = ""
-        tool.EtCut = (float(threshold)-3.)*GeV
+        tool.EtCut = (float(threshold)-3.)*GeV        
 
         # monitoring part  
     

@@ -26,6 +26,8 @@ declareProperty("LumiBlockMuTool", m_lumiBlockMuTool, "Luminosity Tool" );
 
 StatusCode TrigL2CaloHypoToolInc::initialize()  {
 
+ATH_MSG_DEBUG("Name: "<<name()<<" UseRinger: "<<m_useRinger);
+
 if (m_useRinger){ 
   m_selectorTool.setConstantsCalibPath( m_constantsCalibPath ); 
   m_selectorTool.setThresholdsCalibPath( m_thresholdsCalibPath ); 
