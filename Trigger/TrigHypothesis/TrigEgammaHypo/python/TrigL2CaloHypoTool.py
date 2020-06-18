@@ -149,8 +149,8 @@ def _IncTool(name, cand, threshold, sel):
                 defineHistogram('RnnOut',type='TH1F', path='EXPERT',title="Neural Network output; NN output; number of RoIs", xbins=100,xmin=-10,xmax=10),
             ]
     
-        monTool.HistPath='L2CaloHypo_Ringer/'+monTool.name()
-        tool.MonTool=monTool
+            monTool.HistPath='L2CaloHypo_Ringer/'+monTool.name()
+            tool.MonTool=monTool
 
 
     
