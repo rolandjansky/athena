@@ -461,10 +461,7 @@ class ConfiguredNewTrackingCuts :
       self.__radMax           = 600. * Units.mm
       self.__nHolesMax        = self.__maxHoles
       self.__nHolesGapMax     = self.__maxHoles # not as tight as 2*maxDoubleHoles
-      #remove MinBias
-      #if self.__indetflags.doMinBias():
-        #self.__maxPT            = 1000000 * Units.GeV # Won't accept None *NEEDS FIXING*
-        #self.__maxPrimaryImpact = 100.0 * Units.mm
+
  
     if mode == "SLHCConversionFinding":
       self.__extension        = "SLHCConversionFinding" # this runs parallel to NewTracking

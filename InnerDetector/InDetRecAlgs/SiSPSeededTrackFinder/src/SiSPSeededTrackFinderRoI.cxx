@@ -39,7 +39,6 @@ InDet::SiSPSeededTrackFinderRoI::SiSPSeededTrackFinderRoI
   m_SpacePointsPixel("PixelSpacePoints"),
   m_outputTracks("SiSPSeededTracks"),
   m_vxOutputName ( "LowPtRoIVertices" ),
-  //m_vxOutputNameAuxPostfix ( "Aux." ),
   m_seedsmaker("InDet::SiSpacePointsSeedMaker_ATLxk/InDetSpSeedsMaker"),
   m_trackmaker("InDet::SiTrackMaker_xk/InDetSiTrackMaker")             ,
   m_fieldmode("MapSolenoid")                                           ,
@@ -84,55 +83,33 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::initialize()
 {
 
   // Get the ZWindowRoI seed tool
-  if( m_ZWindowRoISeedTool.retrieve().isFailure() ){
-    ATH_MSG_FATAL("Failed to retrieve tool "<< m_ZWindowRoISeedTool);
-    return StatusCode::FAILURE;
-  }
-  else{
-    ATH_MSG_DEBUG("Retrieved tool " << m_ZWindowRoISeedTool);
-  }
-
+  ATH_CHECK( m_ZWindowRoISeedTool.retrieve() );
+  ATH_MSG_DEBUG("Retrieved tool " << m_ZWindowRoISeedTool);
 
   if(m_doRandomSpot){ //see comment proceding line with "double RandZBoundary[2];"
-    if( m_RandomRoISeedTool.retrieve().isFailure() ){
-      ATH_MSG_FATAL("Failed to retrieve tool "<< m_RandomRoISeedTool);
-      return StatusCode::FAILURE;
-    }
-    else{
-      ATH_MSG_DEBUG("Retrieved tool " << m_RandomRoISeedTool);
-    }
+    ATH_CHECK( m_RandomRoISeedTool.retrieve() );
+    ATH_MSG_DEBUG("Retrieved tool " << m_RandomRoISeedTool);
   }
 
 
   // Get tool for space points seed maker
   //
-  if ( m_seedsmaker.retrieve().isFailure() ) {
-    ATH_MSG_FATAL("Failed to retrieve tool " << m_seedsmaker );
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG( "Retrieved tool " << m_seedsmaker );
-  }
+  ATH_CHECK( m_seedsmaker.retrieve() );
+  ATH_MSG_DEBUG( "Retrieved tool " << m_seedsmaker );
+
 
   // Get track-finding tool
   //
-  if ( m_trackmaker.retrieve().isFailure() ) {
-    ATH_MSG_FATAL( "Failed to retrieve tool " << m_trackmaker );
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG("Retrieved tool " << m_trackmaker );
-  }
+  ATH_CHECK( m_trackmaker.retrieve() );
+  ATH_MSG_DEBUG("Retrieved tool " << m_trackmaker );
 
   // Get beam condition service and propagator (SP: check if we really need propagator..)
   // 
   if(m_beamconditions!="") {service(m_beamconditions,m_beam);} 
   if(m_beam) {    
     // Get RungeKutta propagator tool
-    if ( m_proptool.retrieve().isFailure() ) {
-      ATH_MSG_FATAL("Failed to retrieve tool " << m_proptool );
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_DEBUG("Retrieved tool " << m_proptool );
-    }      
+    ATH_CHECK( m_proptool.retrieve() );
+    ATH_MSG_DEBUG("Retrieved tool " << m_proptool );
     // Setup for magnetic field
     magneticFieldInit();      
   }
@@ -171,9 +148,6 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::execute()
   xAOD::VertexContainer* theVertexContainer = new xAOD::VertexContainer;
   xAOD::VertexAuxContainer* theVertexAuxContainer = new xAOD::VertexAuxContainer;
   theVertexContainer->setStore( theVertexAuxContainer );
-
-  //xAOD::Vertex * dummyxAODVertex = new xAOD::Vertex;
-  //theVertexContainer->push_back( dummyxAODVertex );
 
   // Find reference point of the event and create z boundary region
   //
@@ -227,25 +201,24 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::execute()
       m_listRandRoIs =  m_RandomRoISeedTool->getRoIs();
     }
 
-    //double RandZBoundary[2];
     RandZBoundary[0] = m_listRandRoIs[0].zWindow[0];
     RandZBoundary[1] = m_listRandRoIs[0].zWindow[1];
-    std::vector<xAOD::Vertex *> dummyxAODVerticesVector_rand;
+    std::vector<xAOD::Vertex *> dummyxAODVerticesVectorRand;
     for( int r = 0; r < m_listRandRoIs.size(); r++ ){
 
       xAOD::Vertex * dummyxAODVertex = new xAOD::Vertex;
 
-      dummyxAODVerticesVector_rand.push_back(dummyxAODVertex);
+      dummyxAODVerticesVectorRand.push_back(dummyxAODVertex);
 
-      theVertexContainer->push_back( dummyxAODVerticesVector_rand.at(r) );
+      theVertexContainer->push_back( dummyxAODVerticesVectorRand.at(r) );
 
-      dummyxAODVerticesVector_rand.at(r)->setZ( m_listRandRoIs[r].zReference );
-      dummyxAODVerticesVector_rand.at(r)->auxdecor<double>("boundaryLow") = m_listRandRoIs[r].zWindow[0];
-      dummyxAODVerticesVector_rand.at(r)->auxdecor<double>("boundaryHigh") = m_listRandRoIs[r].zWindow[1];
+      dummyxAODVerticesVectorRand.at(r)->setZ( m_listRandRoIs[r].zReference );
+      dummyxAODVerticesVectorRand.at(r)->auxdecor<double>("boundaryLow") = m_listRandRoIs[r].zWindow[0];
+      dummyxAODVerticesVectorRand.at(r)->auxdecor<double>("boundaryHigh") = m_listRandRoIs[r].zWindow[1];
 
-      dummyxAODVerticesVector_rand.at(r)->auxdecor<double>("perigeeZ0Lead") = m_listRandRoIs[r].zPerigeePos[0];
-      dummyxAODVerticesVector_rand.at(r)->auxdecor<double>("perigeeZ0Sublead") = m_listRandRoIs[r].zPerigeePos[1];
-      dummyxAODVerticesVector_rand.at(r)->auxdecor<int>("IsHS") = 0;
+      dummyxAODVerticesVectorRand.at(r)->auxdecor<double>("perigeeZ0Lead") = m_listRandRoIs[r].zPerigeePos[0];
+      dummyxAODVerticesVectorRand.at(r)->auxdecor<double>("perigeeZ0Sublead") = m_listRandRoIs[r].zPerigeePos[1];
+      dummyxAODVerticesVectorRand.at(r)->auxdecor<int>("IsHS") = 0;
 
     }
   }

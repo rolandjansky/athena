@@ -186,8 +186,8 @@ class  ConfiguredNewTrackingSiPattern:
                from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__ZWindowRoISeedTool
                ZWindowRoISeedTool = InDet__ZWindowRoISeedTool (name  = 'InDetZWindowRoISeedTool',
                                                                InputTracksCollection     = InputZWindowTracks,
-                                                               LeadingMinTrackPt         = 18000.0,
-                                                               SubleadingMinTrackPt      = 12500.0,
+                                                               LeadingMinTrackPt         = 18.*Units.GeV,
+                                                               SubleadingMinTrackPt      = 12.5*Units.GeV,
                                                                TracksMaxEta              = 2.5,
                                                                TracksMaxD0               = 9999.,
                                                                MaxDeltaZTracksPair       = 1.0,

@@ -1447,31 +1447,6 @@ class InDetJobProperties(JobPropertyContainer):
     elif (self.doIBL()):
        print "----> InDetJobProperties for IBL"
        print "----> DEPRECATED! This should now be the default settings"
-       #self.checkThenSet(self.doNewTracking          , True )
-       #self.checkThenSet(self.doLowPt                , False)
-       #self.checkThenSet(self.doVeryLowPt            , False)
-       #self.checkThenSet(self.doLowPtRoI             , False)
-       #self.checkThenSet(self.doBeamGas              , False)
-       #self.checkThenSet(self.doBeamHalo             , False)
-       #self.checkThenSet(self.doxKalman              , False)
-       #self.checkThenSet(self.doiPatRec              , False)
-       #self.checkThenSet(self.doBackTracking         , False)
-       #self.checkThenSet(self.doTRTStandalone        , False)
-       #self.checkThenSet(self.doForwardTracks        , False)
-       #self.checkThenSet(self.doVertexFinding        , True)
-       #self.checkThenSet(self.primaryVertexSetup     , "IterativeFinding") 
-       #self.checkThenSet(self.primaryVertexCutSetup  , "IBL") 
-       #self.checkThenSet(self.secondaryVertexCutSetup, "PileUp") 
-       #self.checkThenSet(self.vertexSeedFinder       , "SlidingWindowMultiSeedFinder")
-       #self.checkThenSet(self.doV0Finder             , False)
-       #self.checkThenSet(self.doSimpleV0Finder       , False)      
-       #self.checkThenSet(self.doConversions          , False )        
-       #self.checkThenSet(self.doStatistics           , False) 
-       #self.checkThenSet(self.doTrackSegmentsPixel   , False )
-       #self.checkThenSet(self.doTrackSegmentsSCT     , False )
-       #self.checkThenSet(self.doTrackSegmentsTRT     , False )
-       #self.checkThenSet(self.doSlimming             , False )
-       #self.checkThenSet(self.doSGDeletion           , True )
  
     elif (self.doHighPileup()):
        print "----> InDetJobProperties for high pilep"
