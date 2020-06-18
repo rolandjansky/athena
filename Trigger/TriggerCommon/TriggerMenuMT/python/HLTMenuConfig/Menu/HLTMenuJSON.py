@@ -92,7 +92,7 @@ def __generateJSON( chainDicts, chainConfigs, HLTAllSteps, menuName, fileName ):
                 continue
             # Add stream to the chain
             chainStreamTags.append(streamName)
-            # If not already listed, add stream details to SteamDict
+            # If not already listed, add stream details to stream dictionary
             if streamName not in menuDict["streams"]:
                 menuDict["streams"][streamName] = odict([
                     ("name", streamName),
