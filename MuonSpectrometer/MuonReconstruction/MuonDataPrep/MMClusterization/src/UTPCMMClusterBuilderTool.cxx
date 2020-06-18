@@ -71,7 +71,7 @@ StatusCode Muon::UTPCMMClusterBuilderTool::initialize(){
 
 
 StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepData>& MMprds,
-                                             std::vector<Muon::MMPrepData*>& clustersVect)const {
+                                             std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVect)const {
     std::vector<std::vector<Muon::MMPrepData>> MMprdsPerLayer(8,std::vector<Muon::MMPrepData>(0));
     for (const auto& MMprd:MMprds){
         Identifier id = MMprd.identify();
@@ -186,7 +186,7 @@ StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepD
 
 	    float driftDist = 0.0;
 
-            MMPrepData* prdN=new MMPrepData(MMprdsOfLayer.at(idx).identify(),
+            std::unique_ptr<Muon::MMPrepData> prdN = std::make_unique<MMPrepData>(MMprdsOfLayer.at(idx).identify(),
 					    MMprdsOfLayer.at(idx).collectionHash(),
 					    localClusterPositionV,stripsOfCluster,
 					    covN,MMprdsOfLayer.at(idx).detectorElement(),
@@ -205,7 +205,7 @@ StatusCode Muon::UTPCMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepD
 
             prdN->setMicroTPC(finalFitAngle,finalFitChiSqProb);
             ATH_MSG_DEBUG("Reading back prd angle: "<< prdN->angle() <<" chi2 Prob: "<<prdN->chisqProb());
-            clustersVect.push_back(prdN);
+            clustersVect.push_back(std::move(prdN));
             ATH_MSG_DEBUG("pushedBack  prdN");
             int leftOverStrips=0;
             for(auto f:flag){if(f==0) leftOverStrips++;}

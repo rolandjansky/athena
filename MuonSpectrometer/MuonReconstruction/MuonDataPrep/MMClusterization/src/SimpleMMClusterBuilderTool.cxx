@@ -58,7 +58,7 @@ StatusCode Muon::SimpleMMClusterBuilderTool::finalize()
 }
 
 StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepData>& MMprds, 
-							 std::vector<Muon::MMPrepData*>& clustersVect) const 
+							 std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVect) const 
 
 {
   ATH_MSG_DEBUG("Size of the input vector: " << MMprds.size()); 
@@ -222,7 +222,7 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
     ///
     /// memory allocated dynamically for the PrepRawData is managed by Event Store
     ///
-    MMPrepData* prdN = new MMPrepData(MMprds[j].identify(), hash, clusterLocalPosition,
+    std::unique_ptr<Muon::MMPrepData> prdN = std::make_unique<MMPrepData>(MMprds[j].identify(), hash, clusterLocalPosition,
               rdoList, covN, MMprds[j].detectorElement(),
               static_cast<short int> (0), static_cast<int>(totalCharge), static_cast<float>(0.0),
               (m_writeStripProperties ? mergeStrips : std::vector<uint16_t>(0) ),
@@ -231,7 +231,7 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
     prdN->setAuthor(Muon::MMPrepData::Author::SimpleClusterBuilder);
 
 
-    clustersVect.push_back(prdN);
+    clustersVect.push_back(std::move(prdN));
   } // end loop MMprds[i]
   //clear vector and delete elements
   MMflag.clear();

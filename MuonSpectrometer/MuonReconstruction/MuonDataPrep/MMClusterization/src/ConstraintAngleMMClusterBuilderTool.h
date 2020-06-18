@@ -31,7 +31,7 @@ namespace Muon{
 
 
             StatusCode getClusters(std::vector<Muon::MMPrepData>& MMprds, 
-			   std::vector<Muon::MMPrepData*>& clustersVec) const;
+			   std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVec) const;
 
             
         private:
@@ -40,7 +40,7 @@ namespace Muon{
 
             StatusCode sortHitsToLayer(const std::vector<Muon::MMPrepData>& MMprds, std::vector<std::vector<Muon::MMPrepData>>& prdsPerLayer) const ;
             StatusCode scanLayer(const std::vector<Muon::MMPrepData> &mmPrdsPerLayer,std::vector<std::vector<uint>> &idxClusters, std::vector<double> &clusterTheta)const ;
-            StatusCode fitCluster(const std::vector<Muon::MMPrepData> &prdPerLayer,const std::vector<uint>& idxCluster,const double &clusterTheta,std::vector<Muon::MMPrepData*>& clustersVec) const;
+            StatusCode fitCluster(const std::vector<Muon::MMPrepData> &prdPerLayer,const std::vector<uint>& idxCluster,const double &clusterTheta,std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVec) const;
 
             int m_nSigmaSelection;
             double m_sigmaTheta;
