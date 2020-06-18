@@ -40,6 +40,7 @@ StatusCode StreamTagMakerTool::initialize() {
   std::vector<TrigConf::DataStructure> allStreams = hltMenu->streams();
   ATH_MSG_INFO("Menu has " << allStreams.size() << " streams defined");
   std::map<std::string, StreamTagInfo> streamDictionary;
+  ATH_MSG_DEBUG("StreamTags [Name,type,obeyLB,forceFullEventBuilding]:");
   for (const TrigConf::DataStructure& stream : allStreams) {
     try {
       std::string stream_name         = stream.getAttribute("name");
@@ -52,6 +53,7 @@ StatusCode StreamTagMakerTool::initialize() {
         obeyLB == "true",
         fullEventBuild == "true"
       };
+      ATH_MSG_DEBUG("-- " << streamTag);
       streamDictionary.insert(std::pair<std::string, StreamTagInfo>(stream.getAttribute("name"),streamTag));
     } catch (const std::exception& ex) {
       ATH_MSG_ERROR("Failure reading stream tag configuration from JSON: " << ex.what());
@@ -68,18 +70,12 @@ StatusCode StreamTagMakerTool::initialize() {
     ATH_MSG_DEBUG("Chain " << chain.name() << " is assigned to " << streams.size() << " streams");
     m_mapping[ HLT::Identifier( chain.name() ) ] = {};
     for (const std::string& stream : streams) {
-      try {
-        if(streamDictionary.find(stream) != streamDictionary.end()){
-           StreamTagInfo streamTag = streamDictionary.find(stream)->second;
-           m_mapping[ HLT::Identifier(chain.name()).numeric() ].push_back(streamTag);
-           ATH_MSG_DEBUG("StreamTag [Name,type,obeyLB,forceFullEventBuilding] " << streamTag);
-        }else{
-           ATH_MSG_ERROR("Failure reading stream tag configuration for stream: " << stream);
-           return StatusCode::FAILURE;
-        }
-      } catch (const std::exception& ex) {
-        ATH_MSG_ERROR("Failure reading stream tag configuration from JSON: " << ex.what());
-        return StatusCode::FAILURE;
+      ATH_MSG_DEBUG("-- " << stream);
+      if (const auto streamIt = streamDictionary.find(stream); streamIt != streamDictionary.end()) {
+         m_mapping[ HLT::Identifier(chain.name()).numeric() ].push_back(streamIt->second);
+      }else{
+         ATH_MSG_ERROR("Failure reading stream tag configuration for stream: " << stream);
+         return StatusCode::FAILURE;
       }
     }
   }
