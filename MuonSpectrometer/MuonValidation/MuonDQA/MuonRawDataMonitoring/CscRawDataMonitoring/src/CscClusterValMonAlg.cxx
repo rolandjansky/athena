@@ -21,22 +21,20 @@
 
 // STL include(s)
 #include <bitset>
-#include <math.h>
+#include <cmath>
 
 using namespace Muon;
 
 CscClusterValMonAlg::CscClusterValMonAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthMonitorAlgorithm(name,pSvcLocator),
   m_stripFitter("CalibCscStripFitter/CalibCscStripFitter"),
-  m_cscCalibTool("CscCalibTool/CscCalibTool"),
-  m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool")
+  m_cscCalibTool("CscCalibTool/CscCalibTool")
   {
     declareProperty("CSCQmaxCutADC", m_qmaxADCCut = 100);
     declareProperty("CSCStripFitter", m_stripFitter);
     declareProperty("CSCCalibTool", m_cscCalibTool);
 
   //trigger aware monitoring
-    declareProperty("CSCTrigDecisionTool", m_trigDec );
     declareProperty("CSCDoEventSelection",   m_doEvtSel = false );
     declareProperty("CSCEventSelTriggers", m_sampSelTriggers );
   }
@@ -54,7 +52,7 @@ StatusCode CscClusterValMonAlg::initialize() {
   ATH_CHECK(m_stripFitter.retrieve());
   ATH_MSG_INFO ( "CSCStripFitter      : " << "Using Fitter with name \"" << m_stripFitter->name() << "\"" );
 
-  if( m_doEvtSel ) ATH_CHECK(m_trigDec.retrieve());
+  if( m_doEvtSel ) ATH_CHECK(m_trigDecTool.retrieve());
 
   ATH_CHECK(m_cscCalibTool.retrieve());
   ATH_CHECK(m_cscClusterKey.initialize((m_idHelperSvc->hasCSC())));
@@ -78,7 +76,7 @@ StatusCode CscClusterValMonAlg::fillHistograms( const EventContext& ctx ) const 
   std::vector<std::string>::const_iterator 
   it = m_sampSelTriggers.begin(), itE = m_sampSelTriggers.end();
   for ( ; it != itE; it++ ) {
-    if (m_trigDec->isPassed(*it, TrigDefs::eventAccepted)) check = true;
+    if (m_trigDecTool->isPassed(*it, TrigDefs::eventAccepted)) check = true;
   }
 
   if(m_doEvtSel) { if(!check) return sc; }
