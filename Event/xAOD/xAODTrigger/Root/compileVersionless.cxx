@@ -4,3 +4,6 @@
 
 #include "xAODTrigger/TriggerMenuAuxContainer.h"
 #include "xAODTrigger/TriggerMenuContainer.h"
+
+#include "xAODTrigger/TriggerMenuJsonAuxContainer.h"
+#include "xAODTrigger/TriggerMenuJsonContainer.h"

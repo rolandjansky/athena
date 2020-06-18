@@ -126,6 +126,18 @@
           id="B8614CC5-8696-4170-8CCC-496DA7671246" />
    <typedef name="xAOD::TriggerMenuAuxContainer" />
 
+   <!-- xAOD::TriggerMenuJson interface type(s). -->
+   <class name="xAOD::TriggerMenuJson_v1" />
+   <class name="xAOD::TriggerMenuJsonContainer_v1"
+          id="EB93A327-042C-706C-9690-A3F419DCCFEB" />
+   <typedef name="xAOD::TriggerMenuJson" />
+   <typedef name="xAOD::TriggerMenuJsonContainer" />
+
+   <!-- xAOD::TriggerMenuJson auxiliary type(s). -->
+   <class name="xAOD::TriggerMenuJsonAuxContainer_v1"
+          id="27A79C63-7809-7F7F-DB5A-998EF07CD154" />
+   <typedef name="xAOD::TriggerMenuJsonAuxContainer" />
+
    <!-- xAOD::TrigDecision interface type(s). -->
    <class name="xAOD::TrigDecision_v1"
           id="092BCB2D-9630-4689-BE86-7B93466420DA" />

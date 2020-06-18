@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TriggerMenuMetaDataTool.h 683395 2015-07-16 11:11:56Z krasznaa $
@@ -21,6 +21,10 @@
 // EDM include(s):
 #include "xAODTrigger/TriggerMenuContainer.h"
 #include "xAODTrigger/TriggerMenuAuxContainer.h"
+
+#include "xAODTrigger/TriggerMenuJsonContainer.h"
+#include "xAODTrigger/TriggerMenuJsonAuxContainer.h"
+#include "xAODTrigger/TriggerMenuJson.h"
 
 namespace xAODMaker {
 
@@ -80,6 +84,29 @@ namespace xAODMaker {
       /// @}
 
    private:
+
+      /// Perform the R2 data copy
+      StatusCode checkxAODTriggerMenu();
+      StatusCode endxAODTriggerMenu();
+
+      /// Perform the R3 data copy
+      StatusCode checkxAODTriggerMenuJson();
+      StatusCode endxAODTriggerMenuJson();
+
+      /// Helper function to do the R3 data copy to the internal store
+      StatusCode checkCopyJSON(const std::string& inputMetaSGKey,
+         std::unique_ptr< xAOD::TriggerMenuJsonContainer >& outContainer,
+         std::unique_ptr< xAOD::TriggerMenuJsonAuxContainer >& outAuxContainer);
+
+      // Helper function to move the internal store to the output file
+      StatusCode checkExportJSON(const std::string& outputMetaSGKey,
+         std::unique_ptr< xAOD::TriggerMenuJsonContainer >& outContainer,
+         std::unique_ptr< xAOD::TriggerMenuJsonAuxContainer >& outAuxContainer);
+
+
+      /// @name Runs 1, 2 data propagation
+      /// @{
+
       /// The key of the trigger menu in the input file
       std::string m_inputKey;
       /// The key of the trigger menu for the output file
@@ -89,6 +116,45 @@ namespace xAODMaker {
       std::unique_ptr< xAOD::TriggerMenuContainer > m_menu;
       /// The merged trigger menu auxiliary container
       std::unique_ptr< xAOD::TriggerMenuAuxContainer > m_menuAux;
+
+      /// @}
+
+      /// @name Run 3 data propagation
+      /// @{
+
+      std::string m_inputKeyJSON_HLT;
+      std::string m_outputKeyJSON_HLT;
+
+      std::string m_inputKeyJSON_L1;
+      std::string m_outputKeyJSON_L1;
+
+      std::string m_inputKeyJSON_HLTPS;
+      std::string m_outputKeyJSON_HLTPS;
+
+      std::string m_inputKeyJSON_L1PS;
+      std::string m_outputKeyJSON_L1PS;
+
+      // TODO
+      // Gaudi::Property<std::string> m_inputKeyJSON_BG {this, "InputKeyJSON_BG", "TriggerMenuJson_BG"};
+      // Gaudi::Property<std::string> m_outputKeyJSON_BG {this, "OutputKeyJSON_BG", "TriggerMenuJson_BG"};
+
+      std::unique_ptr< xAOD::TriggerMenuJsonContainer > m_menuJSON_hlt;
+      std::unique_ptr< xAOD::TriggerMenuJsonAuxContainer > m_menuJSON_hltAux;
+
+      std::unique_ptr< xAOD::TriggerMenuJsonContainer > m_menuJSON_l1;
+      std::unique_ptr< xAOD::TriggerMenuJsonAuxContainer > m_menuJSON_l1Aux;
+
+      std::unique_ptr< xAOD::TriggerMenuJsonContainer > m_menuJSON_hltps;
+      std::unique_ptr< xAOD::TriggerMenuJsonAuxContainer > m_menuJSON_hltpsAux;
+
+      std::unique_ptr< xAOD::TriggerMenuJsonContainer > m_menuJSON_l1ps;
+      std::unique_ptr< xAOD::TriggerMenuJsonAuxContainer > m_menuJSON_l1psAux;
+
+      // TODO
+      // std::unique_ptr< xAOD::TriggerMenuJsonContainer > m_menuJSON_bg;
+      // std::unique_ptr< xAOD::TriggerMenuJsonAuxContainer > m_menuJSON_bgAux;
+
+      /// @} 
 
       /// Internal status flag showing whether a BeginInputFile incident was
       /// seen already
