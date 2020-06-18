@@ -83,28 +83,31 @@
 #define INDETPRIVXFINDERTOOL_INDETADAPTIVEMULTIPRIVXFINDERTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "CxxUtils/checker_macros.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "InDetRecToolInterfaces/IVertexFinder.h"
+#include "GaudiKernel/EventContext.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkParticleBase/TrackParticleBaseCollection.h"
 #include "TrkTrack/TrackCollection.h" // type def ...
-#include <utility>
+
+#include "BeamSpotConditionsData/BeamSpotData.h"
+#include "InDetRecToolInterfaces/IVertexFinder.h"
+#include "TrkVertexFitters/AdaptiveMultiVertexFitter.h"
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
+#include "TrkVertexFitterInterfaces/IVertexAnalyticSeedFinder.h"
+#include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
 /**
  * Forward declarations
  */
-#include "BeamSpotConditionsData/BeamSpotData.h"
-#include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
 #include "xAODTracking/TrackParticleContainerFwd.h"
 #include "xAODTracking/TrackParticleFwd.h"
 #include "xAODTracking/VertexContainerFwd.h"
 #include "xAODTracking/VertexFwd.h"
+
+#include <utility>
+
 class TrackToVtxLinkContainer;
 
 namespace Trk {
-class IVertexAnalyticSeedFinder;
-class AdaptiveMultiVertexFitter;
 class Track;
 class ITrackLink;
 class TrkQuality;
@@ -112,7 +115,6 @@ class IVxCandidateXAODVertex;
 }
 
 namespace InDet {
-class IInDetTrackSelectionTool;
 
 class InDetAdaptiveMultiPriVxFinderTool
   : public AthAlgTool
@@ -123,7 +125,8 @@ public:
   InDetAdaptiveMultiPriVxFinderTool(const std::string& t,
                                     const std::string& n,
                                     const IInterface* p);
-  virtual ~InDetAdaptiveMultiPriVxFinderTool();
+
+  virtual ~InDetAdaptiveMultiPriVxFinderTool() = default;
 
   virtual StatusCode initialize() override;
 
@@ -140,23 +143,51 @@ public:
   using IVertexFinder::findVertex;
 
   virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-  findVertex(const TrackCollection* trackTES) const override;
+  findVertex(const EventContext& ctx,
+             const TrackCollection* trackTES) const override;
 
   virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-  findVertex(const xAOD::TrackParticleContainer* trackParticles) const override;
+  findVertex(const EventContext& ctx,
+             const xAOD::TrackParticleContainer* trackParticles) const override;
 
   virtual StatusCode finalize() override;
 
 private:
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(
+    const EventContext& ctx,
     const std::vector<const Trk::ITrackLink*>& trackVector) const;
 
   void SGError(const std::string& errService);
-  virtual void printParameterSettings();
+  void printParameterSettings();
+ 
+  ToolHandle<Trk::AdaptiveMultiVertexFitter> m_MultiVertexFitter{
+    this,
+    "VertexFitterTool",
+    "Trk::AdaptiveMultiVertexFitter",
+    "Multi Vertex Fitter"
+  };
+  ToolHandle<Trk::IVertexAnalyticSeedFinder> m_analyticSeedFinder{
+    this,
+    "SeedFinder",
+    "Trk::TrackDensitySeedFinder",
+    " Seed Finder"
+  };
+  ToolHandle<InDet::IInDetTrackSelectionTool> m_trkFilter{
+    this,
+    "TrackSelector",
+    "InDet::InDetTrackSelection",
+    "Track Selection Tool"
+  };
 
-  ToolHandle<Trk::AdaptiveMultiVertexFitter> m_MultiVertexFitter;
-  ToolHandle<Trk::IVertexAnalyticSeedFinder> m_analyticSeedFinder;
-  ToolHandle<InDet::IInDetTrackSelectionTool> m_trkFilter;
+  /*
+   * Impact parameter estimator used to calculate significance
+   */
+  ToolHandle<Trk::ITrackToVertexIPEstimator> m_ipEstimator{
+    this,
+    "IPEstimator",
+    "Trk::TrackToVertexIPEstimator",
+    "IP estimator"
+  };
 
   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey{
     this,
@@ -256,13 +287,6 @@ private:
    */
 
   double m_minweight;
-
-  /*
-   * Impact parameter estimator used to calculate significance
-   */
-  ToolHandle<Trk::ITrackToVertexIPEstimator> m_ipEstimator{
-    "Trk::TrackToVertexIPEstimator"
-  };
 
   /*
    * Maximum amount of iterations allowed for vertex finding.

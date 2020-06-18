@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # TrigEgammaPidTools
 # Add all pid selectors to ToolSvc
@@ -11,18 +11,13 @@
 ###############################################################
 
 from AthenaCommon import CfgMgr
-from AthenaCommon.AppMgr import ToolSvc
 
 import PyUtils.RootUtils as ru
 ROOT = ru.import_root()
 import cppyy
 cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
-from ROOT import LikeEnum
-from ROOT import egammaPID
 
 from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefElectron
-from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AsgElectronIsEMSelector
-from ElectronPhotonSelectorTools.ElectronIsEMSelectorMapping import ElectronIsEMMap,electronPIDmenu
 
 ###################################################################################################
 
@@ -44,7 +39,11 @@ def getEgammaIsEMSelectorCaloOnly( calibPath ):
   for idx, config in enumerate(configList):
     name = config.split('/')[-1].replace('.conf','_EFCalo_'+calibname)
     asg = CfgMgr.AsgElectronIsEMSelector(name)
-    asg.caloOnly=True; asg.isEMMask=mask[idx];  asg.ConfigFile=config; ToolSvc+=asg; asgTools.append(asg)
+    asg.caloOnly=True
+    asg.isEMMask=mask[idx]
+    asg.ConfigFile=config
+    ToolSvc+=asg
+    asgTools.append(asg)
   return asgTools
 
 
@@ -66,14 +65,17 @@ def getElectronIsEMSelector( calibPath ):
   for idx, config in enumerate(configList):
     name = config.split('/')[-1].replace('.conf','_HLT_'+calibname)
     asg = CfgMgr.AsgElectronIsEMSelector(name)
-    asg.isEMMask=mask[idx];  asg.ConfigFile=config; ToolSvc+=asg; asgTools.append(asg)
+    asg.isEMMask=mask[idx]
+    asg.ConfigFile=config
+    ToolSvc+=asg
+    asgTools.append(asg)
   return asgTools
 
 # http://atlas.web.cern.ch/Atlas/GROUPS/DATABASE/GroupData/ElectronPhotonSelectorTools/trigger/rel21_20170214/
 # http://atlas.web.cern.ch/Atlas/GROUPS/DATABASE/GroupData/ElectronPhotonSelectorTools/trigger/rel21_20170217/
 # http://atlas.web.cern.ch/Atlas/GROUPS/DATABASE/GroupData/ElectronPhotonSelectorTools/trigger/rel21_20170217_mc16a/
 def getEgammaLikelihoodSelectorCaloOnly( calibPath ):
-  
+
   from AthenaCommon.AppMgr import ToolSvc
   calibname = calibPath.split('/')[-1]
   configList = [
@@ -86,14 +88,18 @@ def getEgammaLikelihoodSelectorCaloOnly( calibPath ):
   for idx, config in enumerate(configList):
     name = config.split('/')[-1].replace('.conf','_EFCalo_'+calibname)
     asg = CfgMgr.AsgElectronLikelihoodTool(name)
-    asg.usePVContainer = False;  asg.ConfigFile=config; asg.caloOnly = True; ToolSvc+=asg; asgTools.append(asg)
+    asg.usePVContainer = False
+    asg.ConfigFile=config
+    asg.caloOnly = True
+    ToolSvc+=asg
+    asgTools.append(asg)
   return asgTools
 
 # http://atlas.web.cern.ch/Atlas/GROUPS/DATABASE/GroupData/ElectronPhotonSelectorTools/trigger/rel21_20170214/
 # http://atlas.web.cern.ch/Atlas/GROUPS/DATABASE/GroupData/ElectronPhotonSelectorTools/trigger/rel21_20170217/
 # http://atlas.web.cern.ch/Atlas/GROUPS/DATABASE/GroupData/ElectronPhotonSelectorTools/trigger/rel21_20170217_mc16a/
 def getElectronLikelihoodSelector2015( calibPath ):
-  
+
   from AthenaCommon.AppMgr import ToolSvc
   calibname = calibPath.split('/')[-1]
   configList = [
@@ -106,14 +112,18 @@ def getElectronLikelihoodSelector2015( calibPath ):
   for idx, config in enumerate(configList):
     name = config.split('/')[-1].replace('.conf','_HLT_'+calibname)
     asg = CfgMgr.AsgElectronLikelihoodTool(name)
-    asg.usePVContainer = False;  asg.ConfigFile=config; asg.caloOnly = True; ToolSvc+=asg; asgTools.append(asg)
+    asg.usePVContainer = False
+    asg.ConfigFile=config
+    asg.caloOnly = True
+    ToolSvc+=asg
+    asgTools.append(asg)
   return asgTools
 
 # http://atlas.web.cern.ch/Atlas/GROUPS/DATABASE/GroupData/ElectronPhotonSelectorTools/trigger/rel21_20170214/
 # http://atlas.web.cern.ch/Atlas/GROUPS/DATABASE/GroupData/ElectronPhotonSelectorTools/trigger/rel21_20170217/
 # http://atlas.web.cern.ch/Atlas/GROUPS/DATABASE/GroupData/ElectronPhotonSelectorTools/trigger/rel21_20170217_mc16a/
 def getElectronLikelihoodSelectorNoD0( calibPath ):
-  
+
   from AthenaCommon.AppMgr import ToolSvc
   calibname = calibPath.split('/')[-1]
   configList = [
@@ -126,7 +136,11 @@ def getElectronLikelihoodSelectorNoD0( calibPath ):
   for idx, config in enumerate(configList):
     name = config.split('/')[-1].replace('.conf','_HLT_'+calibname)
     asg = CfgMgr.AsgElectronLikelihoodTool(name)
-    asg.usePVContainer = False;  asg.ConfigFile=config; asg.caloOnly = True; ToolSvc+=asg; asgTools.append(asg)
+    asg.usePVContainer = False
+    asg.ConfigFile=config
+    asg.caloOnly = True
+    ToolSvc+=asg
+    asgTools.append(asg)
   return asgTools
 
 #####################################################################################################

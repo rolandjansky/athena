@@ -19,18 +19,10 @@ __all__ = [
 import os
 import re
 import six
-from array import array
 
 from .Decorators import memoize
 
 ### functions -----------------------------------------------------------------
-# Set buffer size, in bytes.
-# The argument to reshape is in elements, not bytes.
-def _set_byte_size (buf, sz):
-    eltsz = array(buf.typecode).itemsize
-    buf.reshape ((sz // eltsz,))
-    return
-
 def import_root(batch=True):
     """a helper method to wrap the 'import ROOT' statement to prevent ROOT
     from screwing up the display or loading graphics libraries when in batch
@@ -158,19 +150,17 @@ def _pythonize_tfile():
         """
         SZ = 4096
 
+        # FIXME: Once we drop py2, we can simplify this by using a bytes
+        # object directly instead of PyBytes.
         if size>=0:
             #size = _adjust_sz(size)
             #print ("-->0",self.tell(),size)
             c_buf = read_root_file(self, size)
             if c_buf and c_buf.sz:
-                #print ("-->1",self.tell(),c_buf.sz)
-                #self.seek(c_buf.sz+self.tell())
-                #print ("-->2",self.tell())
-                buf = c_buf.buffer()
-                _set_byte_size (buf, c_buf.sz)
+                v = c_buf.buf
                 if six.PY3:
-                    return buf.tobytes()
-                return str(buf[:])
+                    return bytes([ord(v[i]) for i in range(v.size())])
+                return ''.join([v[i] for i in range(v.size())])
             return ''
         else:
             size = SZ
@@ -179,12 +169,18 @@ def _pythonize_tfile():
                 #size = _adjust_sz(size)
                 c_buf = read_root_file(self, size)
                 if c_buf and c_buf.sz:
-                    buf = c_buf.buffer()
-                    _set_byte_size (buf, c_buf.sz)
-                    out.append(str(buf[:]))
+                    v = c_buf.buf
+                    if six.PY3:
+                        chunk = bytes([ord(v[i]) for i in range(v.size())])
+                    else:
+                        chunk = ''.join([v[i] for i in range(v.size())])
+                    out.append(chunk)
                 else:
                     break
+            if six.PY3:
+                return b''.join(out)
             return ''.join(out)
+            
     root.TFile.read = read
     del read
     

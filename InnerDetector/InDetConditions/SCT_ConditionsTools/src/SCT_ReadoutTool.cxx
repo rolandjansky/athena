@@ -21,7 +21,9 @@ SCT_ReadoutTool::SCT_ReadoutTool(const std::string& type, const std::string& nam
 StatusCode SCT_ReadoutTool::initialize() {
   ATH_MSG_DEBUG("Initialize SCT_ReadoutTool");
   // Retrieve cabling
-  ATH_CHECK(m_cablingTool.retrieve());
+  if (!m_cablingTool.empty()) {
+    ATH_CHECK(m_cablingTool.retrieve());
+  }
   // Retrieve SCT helper
   ATH_CHECK(detStore()->retrieve(m_sctId, "SCT_ID"));
   // Get MessageSvc for SCT_ReadoutData
