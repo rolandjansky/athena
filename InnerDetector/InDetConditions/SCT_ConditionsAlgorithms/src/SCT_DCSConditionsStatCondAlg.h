@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */ 
 
 #ifndef SCT_DCSCONDITIONSSTATCONDALG
@@ -30,6 +30,25 @@ class SCT_DCSConditionsStatCondAlg : public AthReentrantAlgorithm
   virtual bool isClonable() const override { return true; }
 
  private:
+  // Meaning of state word is found at
+  // https://twiki.cern.ch/twiki/bin/view/Atlas/SctDCSSoftware#Decoding_Status_words
+  enum StateWord {OFF=0x0,
+                  ON=0x1,
+                  STANDBY=0x2,
+                  MANUAL=0x3,
+                  MASK_OFF=0x4,
+                  MASK_ON=0x5,
+                  HARD_RESET=0x6,
+                  DISABLED=0x7,
+                  RAMPING=0x8,
+                  INTERLOCKED=0x9,
+                  TRIP_HW=0xA,
+                  TRIP_SW=0xB,
+                  LVCARD_LATCH=0xC,
+                  NO_MATCH=0xD,
+                  UNKNOWN=0xE,
+                  ANY=0xF};
+
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyHV{this, "ReadKeyHV", "/SCT/DCS/HV", "Key of input (raw) HV conditions folder"};
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyState{this, "ReadKeyState", "/SCT/DCS/CHANSTAT", "Key of input (raw) State conditions folder"};
   SG::WriteCondHandleKey<SCT_DCSStatCondData> m_writeKeyState{this, "WriteKeyState", "SCT_DCSStatCondData", "Key of output (derived) State conditions data"};
