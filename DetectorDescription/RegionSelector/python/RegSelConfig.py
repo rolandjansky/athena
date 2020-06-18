@@ -136,8 +136,8 @@ if __name__ == "__main__":
     #    cfg.merge( PoolReadCfg( ConfigFlags ) )
 
     
-    from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
-    cfg.merge(TrigBSReadCfg( ConfigFlags ))
+    from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+    cfg.merge(ByteStreamReadCfg( ConfigFlags ))
     
     
     acc = regSelCfg( ConfigFlags )
