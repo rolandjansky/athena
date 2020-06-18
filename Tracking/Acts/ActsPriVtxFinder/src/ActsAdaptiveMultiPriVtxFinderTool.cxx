@@ -141,7 +141,7 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, const Tra
   SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx};
   const Trk::RecVertex& beamposition(beamSpotHandle->beamVtx());
 
-  std::vector<const Trk::ITrackLink*> selectedTracks;
+  std::vector<std::unique_ptr<Trk::ITrackLink>> selectedTracks;
 
   typedef DataVector<Trk::Track>::const_iterator TrackDataVecIter;
 
@@ -156,17 +156,13 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, const Tra
     if (selectionPassed) {
         ElementLink<TrackCollection> link;
         link.setElement(const_cast<Trk::Track*>(*itr));
-        Trk::LinkToTrack* linkTT = new Trk::LinkToTrack(link);
-        linkTT->setStorableObject(*trackTES);
-        selectedTracks.push_back(linkTT);
+        auto trkPtr = std::make_unique<Trk::LinkToTrack>(link);
+        trkPtr->setStorableObject(*trackTES);
+        selectedTracks.push_back(std::move(trkPtr));
     }
   }
 
-  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = findVertex(ctx, selectedTracks);
-
-  for(auto& trk : selectedTracks){
-    delete trk;
-  }
+  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = findVertex(ctx, std::move(selectedTracks));
 
   return returnContainers;
 }
@@ -174,8 +170,7 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, const Tra
 std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
 ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, const xAOD::TrackParticleContainer* trackParticles) const
 {
-
-  std::vector<const Trk::ITrackLink*> selectedTracks;
+  std::vector<std::unique_ptr<Trk::ITrackLink>> selectedTracks;
   SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx};
   xAOD::Vertex beamposition;
   beamposition.makePrivateStore();
@@ -201,20 +196,20 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, const xAO
     if (selectionPassed) {
         ElementLink<xAOD::TrackParticleContainer> link;
         link.setElement(const_cast<xAOD::TrackParticle*>(*itr));
-        Trk::LinkToXAODTrackParticle* linkTT = new Trk::LinkToXAODTrackParticle(link);
-        linkTT->setStorableObject(*trackParticles);
-        selectedTracks.push_back(linkTT);
+        auto trkPtr = std::make_unique<Trk::LinkToXAODTrackParticle>(link);
+        trkPtr->setStorableObject(*trackParticles);
+        selectedTracks.push_back(std::move(trkPtr));
     }
   }
 
-  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = findVertex(ctx, selectedTracks);
+  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = findVertex(ctx, std::move(selectedTracks));
 
   return returnContainers;
 }
 
 
 std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> 
-ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, const std::vector<const Trk::ITrackLink*>& trackVector) const
+ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, std::vector<std::unique_ptr<Trk::ITrackLink>> trackVector) const
 {
     using namespace Acts::UnitLiterals;
 
@@ -232,15 +227,12 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, const std
     const auto& geoContext
     = m_trackingGeometryTool->getGeometryContext(ctx).any();
 
-    std::vector<const Trk::ITrackLink*>::const_iterator mytrkB = trackVector.begin();
-    std::vector<const Trk::ITrackLink*>::const_iterator myTrkE = trackVector.end();
-
     // Convert tracks to Acts::BoundParameters
     std::vector<TrackWrapper> allTracks;
 
-    for (std::vector<const Trk::ITrackLink*>::const_iterator trkiter = mytrkB; trkiter != myTrkE; ++trkiter) {
+    for (const auto& trk : trackVector) {
 
-      const auto& trkParams = (*trkiter)->parameters();
+      const auto& trkParams = trk->parameters();
       const auto& params = trkParams->parameters();
 
       Acts::BoundVector actsParams;
@@ -251,6 +243,9 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, const std
       }
       auto cov = *(trkParams->covariance());
       
+      // TODO: check if the following works as well:
+      // cov->col(4) *= 1./1_MeV;
+      // cov->row(4) *= 1./1_MeV;
       Acts::BoundSymMatrix covMat;
       covMat << cov(0,0) , cov(0,1) , cov(0,2) , cov(0,3) , cov(0,4) *1./(1_MeV), 0      
       , cov(1,0) , cov(1,1) , cov(1,2) , cov(1,3) , cov(1,4) *1./(1_MeV) , 0
@@ -259,7 +254,7 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, const std
       , cov(4,0) *1./(1_MeV) , cov(4,1) *1./(1_MeV) , cov(4,2) *1./(1_MeV) , cov(4,3) *1./(1_MeV) , cov(4,4) *1./(1_MeV*1_MeV), 0
       , 0. , 0. , 0. , 0., 0., 1.;
 
-      allTracks.emplace_back((*trkiter),Acts::BoundParameters(geoContext, covMat, actsParams, perigeeSurface));
+      allTracks.emplace_back(trk.get(),Acts::BoundParameters(geoContext, covMat, actsParams, perigeeSurface));
     }
 
     std::vector<const TrackWrapper*> allTrackPtrs;

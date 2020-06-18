@@ -92,7 +92,7 @@ public:
 private:
 
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> 
-  findVertex(const EventContext& ctx, const std::vector<const Trk::ITrackLink*>& trackVector) const;
+  findVertex(const EventContext& ctx, std::vector<std::unique_ptr<Trk::ITrackLink>> trackVector) const;
 
   Trk::Perigee* actsBoundToTrkPerigee(
   const Acts::BoundParameters& bound, const Acts::Vector3D& surfCenter) const;
