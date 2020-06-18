@@ -621,16 +621,20 @@ void RCJetMC15::getPflowConstituent(std::vector<fastjet::PseudoJet>& clusters, c
       subjet_raw->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(event.m_hashValue));
     bool haveJetTracks = jetTracks.size() != 0;
 
+    
+    
     if (haveJetTracks) {
+      
       for (std::vector<const xAOD::TrackParticle*>::iterator jetTrIt = jetTracks.begin(); jetTrIt != jetTracks.end(); ++jetTrIt) {
         TLorentzVector temp_p4;
       
         if (*jetTrIt != nullptr) {
           
-          // Select on track quality and match to vertex  
-          if((*jetTrIt)->auxdataConst< char >("passPreORSelection") != 1)
+          // Select on track quality, pt, eta and match to vertex  
+          if((*jetTrIt)->auxdataConst< char >("passPreORSelection") != 1){
             continue;
-          
+          }
+         
           temp_p4.SetPtEtaPhiE((*jetTrIt)->pt(), (*jetTrIt)->eta(), (*jetTrIt)->phi(), (*jetTrIt)->e());
           clusters.push_back(fastjet::PseudoJet(temp_p4.Px(), temp_p4.Py(), temp_p4.Pz(), temp_p4.E()));
     

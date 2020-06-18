@@ -1054,15 +1054,15 @@ namespace top {
     }
     
     inline virtual void ghostTrackspT(const float pt) {
-     if (!m_configFixed) {
+      if (!m_configFixed) {
         m_ghostTrackspT = pt;
-     }
+      }
     }
     
     inline virtual void ghostTracksVertexAssociation(const std::string& vertexassociation) {
-     if (!m_configFixed) {
+      if (!m_configFixed) {
         m_ghostTracksVertexAssociation = vertexassociation;
-     }
+      }
     }
     
     inline virtual void ghostTracksQuality(const std::string& ghostTracksQuality) {
