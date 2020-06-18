@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file: PyAthenaComps.py
 # @purpose: a set of Python classes for PyAthena
@@ -77,6 +77,7 @@ class Alg( CfgPyAlgorithm ):
         super(Alg, self).__init__(name, **kw)
         self._pyath_evtstore = None # handle to the evt store
         self._pyath_detstore = None # handle to the det store
+        self._pyath_condstore = None # handle to the cond store
         self._ctx = None
         self.__component_type__="Algorithm"
         self.__cpp_type__=self.__class__.__name__
@@ -96,6 +97,13 @@ class Alg( CfgPyAlgorithm ):
             import AthenaPython.PyAthena as PyAthena
             self._pyath_detstore = PyAthena.py_svc('StoreGateSvc/DetectorStore')
         return self._pyath_detstore
+    
+    @property
+    def condStore(self):
+        if not self._pyath_condstore:
+            import AthenaPython.PyAthena as PyAthena
+            self._pyath_condtstore = PyAthena.py_svc('StoreGateSvc/ConditionStore')
+        return self._pyath_condstore
     
     def sysInitialize(self):
         self.msg.setLevel(_get_prop_value(self,'OutputLevel'))
@@ -225,6 +233,7 @@ class AlgTool( CfgPyAlgTool ):
         self.__dict__['msg']  = logging.getLogger( self.getJobOptName() )
         self._pyath_evtstore = None # handle to the evt store
         self._pyath_detstore = None # handle to the det store
+        self._pyath_condstore = None # handle to the cond store
         self.__component_type__ = "AlgTool"
         self.__cpp_type__=self.__class__.__name__
         return
@@ -242,6 +251,13 @@ class AlgTool( CfgPyAlgTool ):
             import AthenaPython.PyAthena as PyAthena
             self._pyath_detstore = PyAthena.py_svc('StoreGateSvc/DetectorStore')
         return self._pyath_detstore
+    
+    @property
+    def condStore(self):
+        if not self._pyath_condstore:
+            import AthenaPython.PyAthena as PyAthena
+            self._pyath_condstore = PyAthena.py_svc('StoreGateSvc/ConditionStore')
+        return self._pyath_condstore
     
     def sysInitialize(self):
         self.msg.setLevel(_get_prop_value(self,'OutputLevel'))
