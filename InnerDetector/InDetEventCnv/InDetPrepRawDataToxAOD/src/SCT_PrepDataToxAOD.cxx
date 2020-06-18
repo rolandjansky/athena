@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -27,6 +27,7 @@
 
 #include "CLHEP/Geometry/Point3D.h"
 
+#include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
 
 
 /////////////////////////////////////////////////////////////////////
@@ -74,7 +75,6 @@ StatusCode SCT_PrepDataToxAOD::initialize()
     m_writeSDOs = false;
     m_writeSiHits = false;
   }
-
   return StatusCode::SUCCESS;
 }
 
@@ -439,13 +439,19 @@ std::vector<SiHit> SCT_PrepDataToxAOD::findAllHitsCompatibleWithCluster( const I
     averagePosition *= 0.5;
     Amg::Vector2D pos = de->hitLocalToLocal( averagePosition.z(), averagePosition.y() );
     InDetDD::SiCellId diode = de->cellIdOfPosition(pos);
-   
+    const InDetDD::SCT_ModuleSideDesign * sideDesign =  dynamic_cast<const InDetDD::SCT_ModuleSideDesign*>(&(de->design()));
+    int strip1d = diode.phiIndex(); //strip1d is number on a sensor going over all rows (if present)
+    int strip2d = strip1d; //strip2d is number on a given row on a sensor (so you need strip2d plus row to fully address)
+    if(sideDesign && strip1d>-1) strip2d = sideDesign->strip(strip1d); //assuming the dynamic_cast works, which it should, use the strip() method to allow rows to be taken into account (if present, otherwise strip1d and strip2d are anyway the same)                           
+      else{
+	ATH_MSG_DEBUG("Unable to convert strip1d "<<strip1d<<" for element "<<m_SCTHelper->show_to_string(clusterId)<<" at position (x,y) "<<pos.x()<<","<<pos.y()<<" - this is OK if it is a dead area, otherwise suspicious");
+	ATH_MSG_DEBUG("Element has extent (rmin,rmax,zmin,zmax,phimin,phimax) "<<de->rMin()<<","<<de->rMax()<<","<<de->zMin()<<","<<de->zMax()<<","<<de->phiMin()<<","<<de->phiMax());
+      }
+    
     for( const auto &hitIdentifier : prd->rdoList() ){
-      //if( abs( int(diode.etaIndex()) - m_SCTHelper->eta_index( hitIdentifier ) ) <=1 ) 
-      //if( abs( int(diode.phiIndex() - m_SCTHelper->phi_index( hitIdentifier ) ) <=1 ) 
-      ATH_MSG_DEBUG("Truth Strip " <<  diode.phiIndex() << " Cluster Strip " <<   m_SCTHelper->strip( hitIdentifier ) );
+      ATH_MSG_DEBUG("Truth Strip " <<  strip2d << " Cluster Strip " <<   m_SCTHelper->strip(hitIdentifier) );
 
-      if( abs( int(diode.phiIndex()) -  m_SCTHelper->strip( hitIdentifier ) ) <=1)
+      if( abs(strip2d -  m_SCTHelper->strip( hitIdentifier ) ) <=1)
       {
         multiMatchingHits.push_back(&siHit);   
         break;   
