@@ -45,7 +45,7 @@ class PtEndcapLUTSvc : public AthService, virtual public IInterface
     Gaudi::Property< std::string >    m_lut_sigma {
 	this, "ESigmaLUT", "pt_comb_sigma.lut", ""};
 
-    ToolHandle<PtEndcapLUT>      m_ptEndcapLUT{"TrigL2MuonSA::PtEndcapLUT"};
+    ToolHandle<PtEndcapLUT> m_ptEndcapLUT{this, "PtEndcapLUT", "TrigL2MuonSA::PtEndcapLUT"};
 
   public:
     const ToolHandle<PtEndcapLUT>* ptEndcapLUT(void) const
