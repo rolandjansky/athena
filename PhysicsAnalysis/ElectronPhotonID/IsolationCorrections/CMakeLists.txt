@@ -38,7 +38,7 @@ atlas_add_library( IsolationCorrectionsLib
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma xAODEventInfo
    xAODPrimitives xAODTracking PATInterfaces PATCoreLib
-   PRIVATE_LINK_LIBRARIES PathResolver xAODMetaData)
+   PRIVATE_LINK_LIBRARIES PathResolver xAODMetaData AthAnalysisBaseCompsLib )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( IsolationCorrections
