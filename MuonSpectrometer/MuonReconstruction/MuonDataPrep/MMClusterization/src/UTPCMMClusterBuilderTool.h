@@ -44,7 +44,7 @@ namespace Muon
 
     virtual
     StatusCode getClusters(std::vector<Muon::MMPrepData>& MMprds, 
-			   std::vector<Muon::MMPrepData*>& clustersVec) const override;
+	 		   std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVec)const override ;
 
   private:
 
