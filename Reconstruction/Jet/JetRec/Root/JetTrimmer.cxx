@@ -73,8 +73,8 @@ int JetTrimmer::groom(const xAOD::Jet& jin,
   // Add jet to collection.
   xAOD::Jet* pjet = m_bld->add(pjtrim, pjContainer, jets, &jin);
   pjet->setAttribute<int>("TransformType", xAOD::JetTransform::Trim);
-  pjet->setAttribute("RClus", m_rclus);
-  pjet->setAttribute("PtFrac", m_ptfrac);
+  pjet->setAttribute("RClus", float(m_rclus));
+  pjet->setAttribute("PtFrac", float(m_ptfrac));
   pjet->setAttribute<int>("NTrimSubjets", nptrim);
   ATH_MSG_DEBUG("Properties after trimming:");
   ATH_MSG_DEBUG("   ncon: " << pjtrim.constituents().size() << "/"

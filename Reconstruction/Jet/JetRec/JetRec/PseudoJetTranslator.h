@@ -15,14 +15,14 @@ public:
 
   PseudoJetTranslator(bool saveArea, bool saveArea4Vec) : m_saveArea(saveArea), m_saveArea4Vec(saveArea4Vec) {}
   
-  xAOD::Jet * translate(const fastjet::PseudoJet& pj,
-			const PseudoJetContainer& pjCont,
-			xAOD::JetContainer& jetCont) const ;
+  xAOD::Jet& translate(const fastjet::PseudoJet& pj,
+		       const PseudoJetContainer& pjCont,
+		       xAOD::JetContainer& jetCont) const ;
 
-  xAOD::Jet * translate(const fastjet::PseudoJet& pj,
-			const PseudoJetContainer& pjCont,
-			xAOD::JetContainer& jetCont,
-			const xAOD::Jet &parent) const ;
+  xAOD::Jet& translate(const fastjet::PseudoJet& pj,
+		       const PseudoJetContainer& pjCont,
+		       xAOD::JetContainer& jetCont,
+		       const xAOD::Jet &parent) const ;
 
   
   
