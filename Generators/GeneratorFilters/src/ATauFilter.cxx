@@ -78,7 +78,11 @@ StatusCode ATauFilter::filterEvent() {
       // Look for the first tau with genstat != 3 which has not a tau as daughter
       fsr = 0;
       if ( part->end_vertex()!= 0 ) {
+#ifdef HEPMC3
+        for ( auto itr = part->end_vertex()->particles_out().begin(); itr != part->end_vertex()->particles_out().end(); itr++ ) {
+#else
         for ( auto itr = part->end_vertex()->particles_out_const_begin(); itr != part->end_vertex()->particles_out_const_end(); itr++ ) {
+#endif
           if ( part->pdg_id() == (*itr)->pdg_id() ) fsr = 1;
         }
       }

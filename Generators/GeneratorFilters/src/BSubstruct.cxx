@@ -98,6 +98,13 @@ inline std::vector<HepMC::ConstGenParticlePtr> BSubstruct::ancestorCBs(HepMC::Co
 
   // If the production vertex is the first one then there's nothing more to do
   if (vtx->id() == 1) return parentBs;
+#ifdef HEPMC3
+  for (auto parent: vtx->particles_in()) {
+    if (hasCBQuark(parent->pdg_id())) parentBs.push_back(parent);
+    std::vector<HepMC::ConstGenParticlePtr> ancestors = ancestorCBs(parent);
+    parentBs.insert(parentBs.end(), ancestors.begin(), ancestors.end());
+  }
+#else
 
   for (HepMC::GenVertex::particles_in_const_iterator parent = vtx->particles_in_const_begin();
        parent != vtx->particles_in_const_end(); ++parent) {
@@ -105,6 +112,7 @@ inline std::vector<HepMC::ConstGenParticlePtr> BSubstruct::ancestorCBs(HepMC::Co
     std::vector<HepMC::ConstGenParticlePtr> ancestors = ancestorCBs(*parent);
     parentBs.insert(parentBs.end(), ancestors.begin(), ancestors.end());
   }
+#endif  
   return parentBs;
 }
 
