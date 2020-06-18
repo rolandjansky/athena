@@ -39,17 +39,18 @@ def JetTagCalibCfg(ConfigFlags, scheme="", TaggerList = [], ChannelAlias = ""):
 
     CalibrationChannelAliases += ChannelAlias
 
-    #JetTagCalibCondAlg,=CompFactory.getComps("Analysis__JetTagCalibCondAlg",)
-    #JetTagCalibCondAlg = CompFactory.Analysis.JetTagCalibCondAlg
-    #jettagcalibcondalg = "JetTagCalibCondAlg"
 
     if scheme == "Trig":
         JetTagCalibCondAlg,=CompFactory.getComps("Analysis__JetTagCalibCondAlg",)
         jettagcalibcondalg = "JetTagCalibCondAlg"
-        readkeycalibpath = "/GLOBAL/Onl/TrigBTagCalib/RUN12"
         histoskey = "JetTagTrigCalibHistosKey"
+        readkeycalibpath = "/GLOBAL/TrigBTagCalib/RUN12"
+        connSchema = "GLOBAL_OFL"
+        if not ConfigFlags.Input.isMC:
+            readkeycalibpath = readkeycalibpath.replace("/GLOBAL/","/GLOBAL/Onl/")
+            connSchema = connSchema.replace("OFL","ONL")
         from IOVDbSvc.CondDB import conddb
-        conddb.addFolder("GLOBAL_ONL", "/GLOBAL/Onl/TrigBTagCalib/RUN12", className='CondAttrListCollection')
+        conddb.addFolder(connSchema, readkeycalibpath, className='CondAttrListCollection')
         #if conddb.dbdata == 'COMP200':
         #  conddb.addFolder("GLOBAL_ONL", "/GLOBAL/Onl/BTagCalib/RUN12", className='CondAttrListCollection')
         #  if globalflags.DataSource()!='data':
@@ -66,17 +67,16 @@ def JetTagCalibCfg(ConfigFlags, scheme="", TaggerList = [], ChannelAlias = ""):
         result=ComponentAccumulator()
         JetTagCalibCondAlg = CompFactory.Analysis.JetTagCalibCondAlg
         jettagcalibcondalg = "JetTagCalibCondAlg"
-        readkeycalibpath = "/GLOBAL/BTagCalib/RUN12"
         histoskey = "JetTagCalibHistosKey"
+        readkeycalibpath = "/GLOBAL/BTagCalib/RUN12"
         connSchema = "GLOBAL_OFL"
         if not ConfigFlags.Input.isMC:
-            readkeycalibpath = readkeycalibpath.replace("/GLOBAL/BTagCalib","/GLOBAL/Onl/BTagCalib")
-            connSchema = "GLOBAL"
+            readkeycalibpath = readkeycalibpath.replace("/GLOBAL/","/GLOBAL/Onl/")
+            connSchema = connSchema.replace("_OFL","")
         from IOVDbSvc.IOVDbSvcConfig import addFolders
         result.merge(addFolders(ConfigFlags,[readkeycalibpath], connSchema, className='CondAttrListCollection'))
 
         JetTagCalib = JetTagCalibCondAlg(jettagcalibcondalg, ReadKeyCalibPath=readkeycalibpath, HistosKey = histoskey, taggers = TaggerList, channelAliases = BTaggingFlags.CalibrationChannelAliases, IP2D_TrackGradePartitions = grades, RNNIP_NetworkConfig = BTaggingFlags.RNNIPConfig)
         result.addCondAlgo(JetTagCalib)
         return result
-
 

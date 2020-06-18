@@ -573,7 +573,10 @@ if opt.doWriteBS:
     ConfigFlags.Trigger.writeBS = True  # new JO flag
 
 ConfigFlags.Input.Files = athenaCommonFlags.FilesInput()
-ConfigFlags.Input.isMC = False
+if globalflags.DataSource == 'data':
+    ConfigFlags.Input.isMC = False
+else:
+    ConfigFlags.Input.isMC = True
 # ID Cache Creators
 ConfigFlags.lock()
 from TriggerJobOpts.TriggerConfig import triggerIDCCacheCreatorsCfg
