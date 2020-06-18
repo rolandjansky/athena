@@ -221,7 +221,7 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
       // Create SpacePointCollection
       IdentifierHash idHash = colNext->identifyHash();
       SpacePointContainer::IDC_WriteHandle lock = spacePointContainer_SCT->getWriteHandle(idHash);
-      if(lock.alreadyPresent()){
+      if(lock.OnlineAndPresentInAnotherView()){
           ATH_MSG_DEBUG("SCT Hash " << idHash << " is already in cache");
           ++sctCacheCount;
           continue; //Skip if already present in cache
@@ -277,7 +277,7 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
       nReceivedClustersPIX = (*colNext)->size();
       IdentifierHash idHash = (*colNext)->identifyHash();
       SpacePointContainer::IDC_WriteHandle lock = spacePointContainerPixel->getWriteHandle(idHash);
-      if(lock.alreadyPresent()){
+      if(lock.OnlineAndPresentInAnotherView()){
           ATH_MSG_DEBUG("pixel Hash " << idHash << " is already in cache");
           ++pixCacheCount;
           continue;

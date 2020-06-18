@@ -35,6 +35,7 @@ find_package( HepPDT )
 atlas_add_library(   TrkAmbiguityProcessorLib
                      src/DenseEnvironmentsAmbiguityProcessorTool.cxx
                      src/DenseEnvironmentsAmbiguityScoreProcessorTool.cxx
+                   
                      PUBLIC_HEADERS TrkAmbiguityProcessor
                      PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel AthenaBaseComps AtlasDetDescr GaudiKernel InDetPrepRawData InDetRecToolInterfaces TrkDetElementBase TrkEventPrimitives TrkParameters TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkTruthData TrkFitterInterfaces TrkToolInterfaces TrkValInterfaces TrkExInterfaces TrkCaloClusterROI)

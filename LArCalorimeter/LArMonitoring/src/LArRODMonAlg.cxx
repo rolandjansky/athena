@@ -146,6 +146,7 @@ StatusCode LArRODMonAlg::fillHistograms(const EventContext& ctx) const {
   auto numT = Monitored::Scalar<int>("numT",1.);
   auto gain = Monitored::Scalar<int>("gain",-1);
   auto partition = Monitored::Scalar<int>("partition",-1);
+  auto partitionI = Monitored::Scalar<int>("partitionI",-1);
   auto lb = Monitored::Scalar<int>("LBN",0);
   auto sweetc = Monitored::Scalar<float>("Sweetc",1.);
 
@@ -397,10 +398,10 @@ StatusCode LArRODMonAlg::fillHistograms(const EventContext& ctx) const {
     unsigned allErrsPartE=0;
     unsigned allErrsPartT=0;
     unsigned allErrsPartQ=0;
+    partition = p;
     for (unsigned g=0;g<3;++g) {
       
       gain = g;
-      partition = p;
       weight_e = (float)errcounters[p].errors_E[g];
       weight_q = (float)errcounters[p].errors_Q[g];
       weight_t = (float)errcounters[p].errors_T[g];
@@ -411,10 +412,11 @@ StatusCode LArRODMonAlg::fillHistograms(const EventContext& ctx) const {
       allErrsPartT+=errcounters[p].errors_T[g];
       allErrsPartQ+=errcounters[p].errors_Q[g];
     }
+    partitionI = p;
     numE = (float)allErrsPartE;
     numT = (float)allErrsPartT;
     numQ = (float)allErrsPartQ;
-    fill(m_MonGroupName, lb, partition, numE, numT, numQ); 
+    fill(m_MonGroupName, lb, partitionI, numE, numT, numQ); 
   }
 
   for(int str = 0; str < nStreams + 1; str++) {

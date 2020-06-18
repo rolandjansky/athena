@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file CaloClusterCorrection/src/CaloSwCalibHitsShowerDepth.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -18,50 +16,40 @@
 namespace CaloClusterCorr {
 
 
-/**
- * @brief Constructor.
- * @param sampling_depth Array of sampling depths per bin/sampling in the EC.
- * @param start_crack Eta of the start of the crack.
- * @param end_crack Eta of the end of the crack.
- * @param etamax Maximum eta value in @a sampling_depth.
- *
- * Note that the sampling depth is used only in the endcap.
- * Parameters for the barrel are hardcoded. (FIXME!)
- * Parameters are passed by reference to allow them to be changed.
- */
 using xAOD::CaloCluster;
-CaloSwCalibHitsShowerDepth::CaloSwCalibHitsShowerDepth
-  (const CaloRec::Array<2>& sampling_depth,
-   const float& start_crack,
-   const float& end_crack,
-   const float& etamax)
-    : m_sampling_depth (sampling_depth),
-      m_start_crack (start_crack),
-      m_end_crack (end_crack),
-      m_etamax (etamax)
-{
-}
 
 
 /**
  * @brief Calculate the depth of the cluster.
  * @param aeta abs(eta) of the cluster.
+ * @param start_crack Eta of the start of the crack.
+ * @param end_crack Eta of the end of the crack.
+ * @param sampling_depth Array of sampling depths per bin/sampling in the EC.
+ * @param etamax Maximum eta value in @a sampling_depth.
  * @param cluster Cluster for which to calculate the depth.
  * @param log Stream for debug messages.
+ *
+ * Note that the sampling depth is used only in the endcap.
+ * Parameters for the barrel are hardcoded. (FIXME!)
+ * Parameters are passed by reference to allow them to be changed.
  */
-double CaloSwCalibHitsShowerDepth::depth (float aeta,
+double CaloSwCalibHitsShowerDepth::depth (const float aeta,
+                                          const float start_crack,
+                                          const float end_crack,
+                                          const CaloRec::Array<2>& sampling_depth,
+                                          const float etamax,
                                           const xAOD::CaloCluster* cluster,
                                           MsgStream& log) const
 {
   float R[4];
   int si;
 
-  if (aeta < m_start_crack) {
+  if (aeta < start_crack) {
     barrelCoefs (aeta, R);
     si = 0;
   }
-  else if (aeta > m_end_crack) {
-    if (!endcapCoefs (aeta, R))
+  else if (aeta > end_crack) {
+    if (!endcapCoefs (aeta, sampling_depth, etamax, R))
       return 0;
     si = 1;
   }
@@ -103,7 +91,8 @@ double CaloSwCalibHitsShowerDepth::depth (float aeta,
  * @param aeta abs(eta) of the cluster.
  * @param R[out] The set of coefficients per layer.
  */
-void CaloSwCalibHitsShowerDepth::barrelCoefs (float aeta, float R[4]) const
+void CaloSwCalibHitsShowerDepth::barrelCoefs (const float aeta,
+                                              float R[4]) const
 {
 //----------------------------------------------------------------------
 //     APPROXIMATE Longitudinal segmentation of the EM Barrel
@@ -172,16 +161,21 @@ void CaloSwCalibHitsShowerDepth::barrelCoefs (float aeta, float R[4]) const
 /**
  * @brief Calculate the sampling depth coefficients for the endcap.
  * @param aeta abs(eta) of the cluster.
+ * @param etamax Maximum eta value in @a sampling_depth.
+ * @param etamax Maximum eta value in @a sampling_depth.
  * @param R[out] The set of coefficients per layer.
  */
-bool CaloSwCalibHitsShowerDepth::endcapCoefs (float aeta, float R[4]) const
+bool CaloSwCalibHitsShowerDepth::endcapCoefs (const float aeta,
+                                              const CaloRec::Array<2>& sampling_depth,
+                                              const float etamax,
+                                              float R[4]) const
 {
-  unsigned int ibin = (static_cast<unsigned int> (aeta / m_etamax * 100)) ;
-  if (ibin >= m_sampling_depth.size())
+  unsigned int ibin = (static_cast<unsigned int> (aeta / etamax * 100)) ;
+  if (ibin >= sampling_depth.size())
     return false;
 
   for (int i=0; i < 4; i++)
-    R[i] = m_sampling_depth[ibin][i+1];
+    R[i] = sampling_depth[ibin][i+1];
   return true;
 }
 

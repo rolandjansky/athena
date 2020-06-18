@@ -45,5 +45,5 @@ atlas_add_component( PixelRawDataByteStreamCnv
    LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ByteStreamData
    GaudiKernel InDetRawData AthenaBaseComps AthContainers  StoreGateLib
    ByteStreamCnvSvcBaseLib InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry IRegionSelector
-   xAODEventInfo TrigSteeringEvent InDetByteStreamErrors PixelConditionsData PixelRawDataByteStreamCnvLib )
+   xAODEventInfo TrigSteeringEvent InDetByteStreamErrors PixelConditionsData PixelRawDataByteStreamCnvLib PixelCablingLib PixelConditionsToolsLib )
 

@@ -1,16 +1,7 @@
-################################################################################
-# Package: AthExMonitored
-################################################################################
+# Copyright (C) 20022020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthExMonitored )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Control/AthenaMonitoringKernel )
 
 # Component(s) in the package:
 atlas_add_component( AthExMonitored
@@ -20,4 +11,4 @@ atlas_add_component( AthExMonitored
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

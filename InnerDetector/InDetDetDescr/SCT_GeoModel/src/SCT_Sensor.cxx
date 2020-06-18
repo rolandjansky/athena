@@ -64,8 +64,6 @@ SCT_Sensor::preBuild()
   // Make the moduleside design for this sensor
   makeDesign();
 
-  m_detectorManager->addDesign(m_design);
-  
   return sensorLog;
 }
 
@@ -105,7 +103,7 @@ SCT_Sensor::makeDesign()
   int readoutSide = +1;
 
   // m_design will be owned and deleted by SCT_DetectorManager
-  m_design = new SCT_BarrelModuleSideDesign(m_thickness,
+  std::unique_ptr<SCT_BarrelModuleSideDesign> design = std::make_unique<SCT_BarrelModuleSideDesign>(m_thickness,
                                             crystals,
                                             diodes,
                                             cells,
@@ -118,6 +116,9 @@ SCT_Sensor::makeDesign()
                                             xPhiStripPatternCenter,
                                             totalDeadLength,
                                             readoutSide);
+  m_design = design.get();
+  m_detectorManager->addDesign(std::move(design));
+
   //
   // Flags to signal if axis can be swapped.
   // For rectangular detector these are all true.

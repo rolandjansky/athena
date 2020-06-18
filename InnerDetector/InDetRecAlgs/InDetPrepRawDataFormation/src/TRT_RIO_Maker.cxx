@@ -96,7 +96,7 @@ namespace InDet {
       for(const auto& rdoCollections : *rdoContainer) {
         const InDetRawDataCollection<TRT_RDORawData>* currentCollection(rdoCollections);
         InDet::TRT_DriftCircleContainer::IDC_WriteHandle lock = rioContainer->getWriteHandle(currentCollection->identifyHash());
-        if( lock.alreadyPresent() ) continue;
+        if( lock.OnlineAndPresentInAnotherView() ) continue;
         std::unique_ptr<TRT_DriftCircleCollection> p_rio(m_driftcircle_tool->convert(m_mode_rio_production,
           currentCollection, ctx, m_trtBadChannels));
         if(p_rio && !p_rio->empty()) {
@@ -120,7 +120,7 @@ namespace InDet {
             const InDetRawDataCollection<TRT_RDORawData>* RDO_Collection (rdoContainer->indexFindPtr(id));
             if (!RDO_Collection) continue;
             InDet::TRT_DriftCircleContainer::IDC_WriteHandle lock = rioContainer->getWriteHandle(id);
-            if( lock.alreadyPresent() ) continue;
+            if( lock.OnlineAndPresentInAnotherView() ) continue;
 
             // Use one of the specific clustering AlgTools to make clusters
             std::unique_ptr<TRT_DriftCircleCollection> p_rio(m_driftcircle_tool->convert(m_mode_rio_production,

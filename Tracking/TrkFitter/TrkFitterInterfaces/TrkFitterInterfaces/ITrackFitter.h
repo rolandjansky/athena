@@ -61,10 +61,8 @@ public:
   }
 
   /*
-   * First the context aware retun unique_ptr
-   * methods.
-   * If this set is not overloaded , it
-   * will call the methods without EventContext
+   * Event context aware  methods
+   * returning unique_ptr
    */
 
   /** Event context aware (Athena MT) RE-FIT A TRACK. */
@@ -134,10 +132,12 @@ public:
     const ParticleHypothesis matEffects = Trk::nonInteracting) const = 0;
 
   /*
-   * Then the context unaware methods.
+   * Context unaware methods.
    * These are here for client compatibility.
    * They just call the EventContext aware
    * methods.
+   * They can be removed if all clients are
+   * updated
    * Implementations do not need to provide them.
    */
 

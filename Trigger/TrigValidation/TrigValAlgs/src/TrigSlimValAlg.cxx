@@ -1,20 +1,19 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigNavigation/Navigation.h"
 
 #include "TrigValAlgs/TrigSlimValAlg.h"
+#include "TrigNavTools/getFeatureOccurrences.h"
 
 TrigSlimValAlg::TrigSlimValAlg(const std::string& name, ISvcLocator *pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"),
-  m_slimmingTool("HLT::TrigNavigationSlimmingTool/TrigNavigationSlimmingTool"),
   m_eventSeen(0)
 {
 
   declareProperty("TrigDecisionTool", m_trigDecisionTool);
-  declareProperty("SlimmingTool", m_slimmingTool);
 
 }
 
@@ -26,15 +25,6 @@ StatusCode TrigSlimValAlg::initialize() {
   }
   else {
     ATH_MSG_ERROR ("Could not retrive the TrigDecisionTool as it was not specified!" );
-    return StatusCode::FAILURE;
-  }
-  
-  // load the slimming tool
-  if( !m_slimmingTool.empty() ) {
-    ATH_CHECK( m_slimmingTool.retrieve() );
-  }
-  else {
-    ATH_MSG_ERROR ("Could not retrive the TrigNavigationSlimmingTool as it was not specified!" );
     return StatusCode::FAILURE;
   }
   
@@ -73,7 +63,7 @@ StatusCode TrigSlimValAlg::execute() {
   ATH_MSG_INFO ("REGTEST  " << "======== START of TrigSlimValidation DUMP ========" );
 
   // store some needed information from the navigation structure
-  std::map<std::string, int> *featureOccurrences = m_slimmingTool->getFeatureOccurrences(navigation);
+  std::map<std::string, int> featureOccurrences = HLT::TrigNavTools::getFeatureOccurrences(navigation);
   TrigSlimValAlg::elementSet *allTriggerElements = this->getAllTriggerElements(navigation);
 
   // Print the aggregate navigation structure information
@@ -97,7 +87,7 @@ StatusCode TrigSlimValAlg::execute() {
   ATH_MSG_INFO ("REGTEST  " << "Number of trigger elements: " 
                 << recursiveCount( navigation, numberCounter, sumUpdate ) );
   ATH_MSG_INFO ("REGTEST  " << "Number of distinct features: "
-                << featureOccurrences->size() );
+                << featureOccurrences.size() );
   ATH_MSG_INFO ("REGTEST  " << "Number of intermediate trigger elements: " 
                 << recursiveCount( navigation, intermediateCounter, sumUpdate ) );
   ATH_MSG_INFO ("REGTEST  " << "Number of featureless trigger elements: " 
@@ -136,8 +126,8 @@ StatusCode TrigSlimValAlg::execute() {
 
 
   // print the feature information
-  for(std::map<std::string, int>::const_iterator iter = featureOccurrences->begin();
-      iter != featureOccurrences->end(); ++iter)
+  for(std::map<std::string, int>::const_iterator iter = featureOccurrences.begin();
+      iter != featureOccurrences.end(); ++iter)
     ATH_MSG_INFO ("REGTEST  " << "Occurrences of feature " << (*iter).first
                   << ": " << (*iter).second );
 
@@ -188,7 +178,6 @@ StatusCode TrigSlimValAlg::execute() {
   
   // clean up and finish
   delete allTriggerElements; allTriggerElements = 0;
-  delete featureOccurrences; featureOccurrences = 0;
   
   // print the TrigSlimValidation footer
   ATH_MSG_INFO ("REGTEST  " << "======== END of TrigSlimValidation DUMP ========" );

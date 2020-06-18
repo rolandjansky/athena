@@ -12,7 +12,7 @@
 #include "AsgTools/AnaToolHandle.h" //use asg::AnaToolHandle instead of regular ToolHandles for full dual-use experience!
 #endif
 
-#include "AthAsgExUnittest/IMyPackageTool.h"
+#include "IMyPackageTool.h"
 
 
 class MyPackageAlg: public ::AthAnalysisAlgorithm { 

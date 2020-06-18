@@ -470,15 +470,6 @@ elif InDetFlags.primaryVertexSetup() == 'AdaptiveMultiFinding':
                                                                   selectiontype     = 0,
                                                                   do3dSplitting     = InDetFlags.doPrimaryVertex3DFinding())
 
-elif InDetFlags.primaryVertexSetup() == 'DefaultVKalVrtFinding':
-  #
-  # load vkal vertex finder tool
-  #
-  from InDetVKalPriVxFinderTool.InDetVKalPriVxFinderTool import InDet__InDetVKalPriVxFinderTool
-  InDetPriVxFinderTool = InDet__InDetVKalPriVxFinderTool(name                   = "InDetVKalPriVxFinder",
-                                                         TrackSummaryTool       = InDetTrackSummaryTool,
-                                                         FitterTool             = InDetVxFitterTool,
-                                                         BeamConstraint         = InDetFlags.useBeamConstraint())
 
 ToolSvc += InDetPriVxFinderTool
 if InDetFlags.doPrintConfigurables:

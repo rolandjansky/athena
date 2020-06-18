@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCLUSTERCORRECTION_CALOSWCLCON_G3_H
@@ -41,20 +41,16 @@ class CaloSwClcon_g3 : public CaloClusterCorrection
 {
 
  public:
+  /// Inherit contructor.
+  using CaloClusterCorrection::CaloClusterCorrection;
 
-  // constructor 
-  CaloSwClcon_g3(const std::string& type,
-                 const std::string& name,
-                 const IInterface* parent);
-  // Destructor 
-  virtual ~CaloSwClcon_g3() override;
-  
+
   // CaloClusterCorrection virtual method
-  virtual void makeCorrection(const EventContext& ctx,
-                              xAOD::CaloCluster* cluster) const override;
+  virtual void makeCorrection (const Context& myctx,
+                               xAOD::CaloCluster* cluster) const override;
 
   /// Currently at version==1.
-  virtual int version() const override;
+  virtual int version() const;
   
  private:
   
@@ -63,9 +59,9 @@ class CaloSwClcon_g3 : public CaloClusterCorrection
   // constants : etamin and etamax are the eta range covered
   //             by the fitted corrections => nothing to do with
   //             DetectorDescription.
-  float             m_etamin;
-  float             m_etamax;
-  CaloRec::Array<1> m_correction;
+  Constant<float>               m_etamin     { this, "etamin",     "" };
+  Constant<float>               m_etamax     { this, "etamax",     "" };
+  Constant<CxxUtils::Array<1> > m_correction { this, "correction", "" };
 };
 
 
