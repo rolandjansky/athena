@@ -91,7 +91,7 @@ StatusCode Muon::ConstraintAngleMMClusterBuilderTool::initialize(){
 
 
 StatusCode Muon::ConstraintAngleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepData>& MMprds,
-                                                     std::vector<Muon::MMPrepData*>& clustersVec) const
+                                                     std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVec) const
 {
     ATH_MSG_DEBUG("Running constraint angle MM cluster builder with: "<< MMprds.size() <<" MMprds");
     std::vector<std::vector<Muon::MMPrepData>> prdsPerLayer(8,std::vector<Muon::MMPrepData>(0));
@@ -238,7 +238,7 @@ const{
 } // end of scan layer
 
 
-StatusCode Muon::ConstraintAngleMMClusterBuilderTool::fitCluster(const std::vector<Muon::MMPrepData> &prdPerLayer, const std::vector<uint>& idxCluster,const double &clusterTheta,std::vector<Muon::MMPrepData*>& clustersVec)
+StatusCode Muon::ConstraintAngleMMClusterBuilderTool::fitCluster(const std::vector<Muon::MMPrepData> &prdPerLayer, const std::vector<uint>& idxCluster,const double &clusterTheta,std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVec)
 const{
     std::vector<std::vector<double>> pts;
     std::unique_ptr<TGraphErrors> fitGraph = std::unique_ptr<TGraphErrors>(new TGraphErrors());
@@ -319,7 +319,7 @@ const{
     covN->coeffRef(0,0)=0.3*0.3;
     Amg::Vector2D localClusterPositionV(clusterPos,prdPerLayer.at(idxCluster.at(0)).localPosition().y()); // y position is the same for all strips
 
-    MMPrepData* prdN=new MMPrepData(prdPerLayer.at(idxCluster.at(0)).identify(),
+    std::unique_ptr<MMPrepData> prdN=std::make_unique<MMPrepData>(prdPerLayer.at(idxCluster.at(0)).identify(),
 		prdPerLayer.at(idxCluster.at(0)).collectionHash(),
 		localClusterPositionV,stripsOfCluster,
 		covN,prdPerLayer.at(0).detectorElement(),
@@ -338,7 +338,7 @@ const{
 
      prdN->setMicroTPC(fitResults[0],0);
      ATH_MSG_DEBUG("Reading back prd angle: "<< prdN->angle() <<" chi2 Prob: "<<prdN->chisqProb());
-     clustersVec.push_back(prdN);
+     clustersVec.push_back(std::move(prdN));
      ATH_MSG_DEBUG("pushedBack  prdN");
 
 

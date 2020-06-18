@@ -58,7 +58,7 @@ StatusCode Muon::ProjectionMMClusterBuilderTool::initialize()
 
 
 StatusCode Muon::ProjectionMMClusterBuilderTool::getClusters(std::vector<Muon::MMPrepData>& MMprds, 
-							 std::vector<Muon::MMPrepData*>& clustersVect) const 
+							 std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVect) const 
 {
 
 std::vector<std::vector<Muon::MMPrepData>> prdsPerLayer(8,std::vector<Muon::MMPrepData>(0));
@@ -207,7 +207,7 @@ StatusCode  Muon::ProjectionMMClusterBuilderTool::doPositionCalculation(std::vec
   }
 
 
-StatusCode Muon::ProjectionMMClusterBuilderTool::writeNewPrd(std::vector<Muon::MMPrepData*>& clustersVect,double xmean, double xerr,double qtot,const std::vector<int>& idx_selected,const std::vector<Muon::MMPrepData>& prdsOfLayer)const {
+StatusCode Muon::ProjectionMMClusterBuilderTool::writeNewPrd(std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVect,double xmean, double xerr,double qtot,const std::vector<int>& idx_selected,const std::vector<MMPrepData>& prdsOfLayer)const {
       Amg::MatrixX* covN = new Amg::MatrixX(1,1);
       covN->coeffRef(0,0)=xerr; // TODO set proper uncertainty
       ATH_MSG_VERBOSE("Did set covN Matrix");
@@ -253,7 +253,7 @@ StatusCode Muon::ProjectionMMClusterBuilderTool::writeNewPrd(std::vector<Muon::M
 
       float driftDist = 0.0;
 
-      MMPrepData* prdN=new MMPrepData(prdsOfLayer.at(idx).identify(),prdsOfLayer.at(idx).collectionHash(),
+      std::unique_ptr<Muon::MMPrepData> prdN =  std::make_unique<MMPrepData>(prdsOfLayer.at(idx).identify(),prdsOfLayer.at(idx).collectionHash(),
 				      localClusterPositionV,stripsOfCluster,
 				      covN,prdsOfLayer.at(idx).detectorElement(),
 				      (short int) int(meanTime),int(qtot), driftDist,
@@ -261,7 +261,7 @@ StatusCode Muon::ProjectionMMClusterBuilderTool::writeNewPrd(std::vector<Muon::M
 
       prdN->setAuthor(Muon::MMPrepData::Author::ProjectionClusterBuilder);
 
-      clustersVect.push_back(prdN);
+      clustersVect.push_back(std::move(prdN));
       ATH_MSG_VERBOSE("pushedBack  prdN");
       ATH_MSG_VERBOSE("pushedBack PRDs: stationEta: "<< m_mmIdHelper->stationEta(prdN->identify())
                        <<" stationPhi "<< m_mmIdHelper->stationPhi(prdN->identify()) 
