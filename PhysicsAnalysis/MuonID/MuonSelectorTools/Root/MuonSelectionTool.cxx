@@ -1258,7 +1258,7 @@ namespace CP {
       }
     }
     // :: 
-    if( m_doBadMuonVetoMimic && nprecisionLayers == 2) {
+    if( m_use2stationMuonsHighPt && m_doBadMuonVetoMimic && nprecisionLayers == 2) {
       
       const xAOD::EventInfo* info = nullptr;
       if (!evtStore()->contains<xAOD::EventInfo>(m_eventInfoContName) || !evtStore()->retrieve(info, m_eventInfoContName).isSuccess()) {
@@ -1280,27 +1280,24 @@ namespace CP {
   bool MuonSelectionTool::passedBMVmimicCut( const xAOD::Muon& mu ) const {
 
     TF1* cutFunction;
-    if (std::abs(mu.eta()) < 1.05)
-      cutFunction = m_BMVcutFunction_barrel;
-    else
-      cutFunction = m_BMVcutFunction_endcap;
-
     double p1,p2;
     if (std::abs(mu.eta()) < 1.05) {
+      cutFunction = m_BMVcutFunction_barrel;
       p1 = 0.066265;
       p2 = 0.000210047;
     }
     else {
+      cutFunction = m_BMVcutFunction_endcap;
       p1 = 0.0629747;
       p2 = 0.000196466;
     }
 
     double qOpRelResolution = sqrt( pow(p1,2) + pow(p2*mu.primaryTrackParticle()->pt()/1000.,2) );
 
-    double qOverP_unsmeared = std::abs(mu.primaryTrackParticle()->definingParameters()[4]);
-    double qOverP_smeared = 1.0 / (mu.pt() * TMath::CosH(mu.eta()));
+    double qOverPabs_unsmeared = std::abs(mu.primaryTrackParticle()->definingParameters()[4]);
+    double qOverPabs_smeared = 1.0 / (mu.pt() * TMath::CosH(mu.eta()));
 
-    if ( (qOverP_smeared - qOverP_unsmeared) / (qOpRelResolution*qOverP_unsmeared) < cutFunction->Eval(mu.primaryTrackParticle()->pt()/1000.) )
+    if ( (qOverPabs_smeared - qOverPabs_unsmeared) / (qOpRelResolution*qOverPabs_unsmeared) < cutFunction->Eval(mu.primaryTrackParticle()->pt()/1000.) )
       return false;
     else
       return true;
