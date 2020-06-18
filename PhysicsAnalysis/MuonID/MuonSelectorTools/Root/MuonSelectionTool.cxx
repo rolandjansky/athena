@@ -44,7 +44,7 @@ namespace CP {
     declareProperty( "DoBadMuonVetoMimic", m_doBadMuonVetoMimic = false );
 
     //file for bad muon veto efficiencies from misaligned MC
-    declareProperty( "BMVcutFile", m_BMVcutFile = "/mn/kvant/u2/magnarkb/xAODanalysis_MCPwork_smearAnalysis/data/fitFunc.root");
+    declareProperty( "BMVcutFile", m_BMVcutFile = "/mn/kvant/u2/magnarkb/xAODanalysis_MCPwork_smearAnalysis/data/BMVcutFunctions.root");
 
 
     // DEVELOPEMENT MODE: EXPERTS ONLY!!! 
@@ -251,8 +251,8 @@ namespace CP {
       return StatusCode::FAILURE;
     }
 
-    m_BMVcutFunction_barrel = (TF1*)BMVfile->Get("PrevFitTMP;1");
-    m_BMVcutFunction_endcap = (TF1*)BMVfile->Get("PrevFitTMP_endcap");
+    m_BMVcutFunction_barrel = (TF1*)BMVfile->Get("BMVcutFunction_barrel");
+    m_BMVcutFunction_endcap = (TF1*)BMVfile->Get("BMVcutFunction_endcap");
 
     BMVfile->Close();
 
