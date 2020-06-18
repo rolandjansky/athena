@@ -36,10 +36,10 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::initialize(){
   return StatusCode::SUCCESS;
 }
 
-StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *binnedParameters){
+StatusCode eflowCellEOverPTool_mc12_HLLHC::fillBinnedParameters(eflowEEtaBinnedParameters *binnedParameters) const {
 
   if (binnedParameters) {
-    
+
     binnedParameters->initialise(m_eBinValues, m_etaBinBounds);
 
     ////////////////////////////
@@ -47,8 +47,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
     ////////////////////////////
 
    // j1st = EMB1
-    binnedParameters->setFudgeMean( E001bin, eta050bin, eflowFirstIntRegions::EMB1, 0.321000 ); 
-    binnedParameters->setFudgeStdDev( E001bin, eta050bin, eflowFirstIntRegions::EMB1, 0.299000 ); 
+    binnedParameters->setFudgeMean( E001bin, eta050bin, eflowFirstIntRegions::EMB1, 0.321000 );
+    binnedParameters->setFudgeStdDev( E001bin, eta050bin, eflowFirstIntRegions::EMB1, 0.299000 );
 
 
     binnedParameters->setShapeParam( E001bin, eta050bin, eflowFirstIntRegions::EMB1, eflowCalo::EMB1, NORM1,1.58218);
@@ -74,8 +74,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB2
-    binnedParameters->setFudgeMean( E001bin, eta050bin, eflowFirstIntRegions::EMB2, 0.465000 ); 
-    binnedParameters->setFudgeStdDev( E001bin, eta050bin, eflowFirstIntRegions::EMB2, 0.304000 ); 
+    binnedParameters->setFudgeMean( E001bin, eta050bin, eflowFirstIntRegions::EMB2, 0.465000 );
+    binnedParameters->setFudgeStdDev( E001bin, eta050bin, eflowFirstIntRegions::EMB2, 0.304000 );
 
 
     binnedParameters->setShapeParam( E001bin, eta050bin, eflowFirstIntRegions::EMB2, eflowCalo::EMB1, NORM1,0.292708);
@@ -97,8 +97,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB3
-    binnedParameters->setFudgeMean( E001bin, eta050bin, eflowFirstIntRegions::EMB3, 0.300000 ); 
-    binnedParameters->setFudgeStdDev( E001bin, eta050bin, eflowFirstIntRegions::EMB3, 0.288000 ); 
+    binnedParameters->setFudgeMean( E001bin, eta050bin, eflowFirstIntRegions::EMB3, 0.300000 );
+    binnedParameters->setFudgeStdDev( E001bin, eta050bin, eflowFirstIntRegions::EMB3, 0.288000 );
 
 
     binnedParameters->setShapeParam( E001bin, eta050bin, eflowFirstIntRegions::EMB3, eflowCalo::EMB1, NORM1,0.332119);
@@ -148,8 +148,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = Tile
-    binnedParameters->setFudgeMean( E001bin, eta050bin, eflowFirstIntRegions::Tile, 0.308000 ); 
-    binnedParameters->setFudgeStdDev( E001bin, eta050bin, eflowFirstIntRegions::Tile, 0.542000 ); 
+    binnedParameters->setFudgeMean( E001bin, eta050bin, eflowFirstIntRegions::Tile, 0.308000 );
+    binnedParameters->setFudgeStdDev( E001bin, eta050bin, eflowFirstIntRegions::Tile, 0.542000 );
 
 
     binnedParameters->setShapeParam( E001bin, eta050bin, eflowFirstIntRegions::Tile, eflowCalo::EMB1, NORM1,0.0698781);
@@ -181,8 +181,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
     ////////////////////////////
 
    // j1st = EMB1
-    binnedParameters->setFudgeMean( E001bin, eta100bin, eflowFirstIntRegions::EMB1, 0.304000 ); 
-    binnedParameters->setFudgeStdDev( E001bin, eta100bin, eflowFirstIntRegions::EMB1, 0.312000 ); 
+    binnedParameters->setFudgeMean( E001bin, eta100bin, eflowFirstIntRegions::EMB1, 0.304000 );
+    binnedParameters->setFudgeStdDev( E001bin, eta100bin, eflowFirstIntRegions::EMB1, 0.312000 );
 
 
     binnedParameters->setShapeParam( E001bin, eta100bin, eflowFirstIntRegions::EMB1, eflowCalo::EMB1, NORM1,1.0613);
@@ -204,8 +204,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB2
-    binnedParameters->setFudgeMean( E001bin, eta100bin, eflowFirstIntRegions::EMB2, 0.457000 ); 
-    binnedParameters->setFudgeStdDev( E001bin, eta100bin, eflowFirstIntRegions::EMB2, 0.285000 ); 
+    binnedParameters->setFudgeMean( E001bin, eta100bin, eflowFirstIntRegions::EMB2, 0.457000 );
+    binnedParameters->setFudgeStdDev( E001bin, eta100bin, eflowFirstIntRegions::EMB2, 0.285000 );
 
 
     binnedParameters->setShapeParam( E001bin, eta100bin, eflowFirstIntRegions::EMB2, eflowCalo::EMB1, NORM1,0.201064);
@@ -227,8 +227,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB3
-    binnedParameters->setFudgeMean( E001bin, eta100bin, eflowFirstIntRegions::EMB3, 0.300000 ); 
-    binnedParameters->setFudgeStdDev( E001bin, eta100bin, eflowFirstIntRegions::EMB3, 0.509000 ); 
+    binnedParameters->setFudgeMean( E001bin, eta100bin, eflowFirstIntRegions::EMB3, 0.300000 );
+    binnedParameters->setFudgeStdDev( E001bin, eta100bin, eflowFirstIntRegions::EMB3, 0.509000 );
 
 
     binnedParameters->setShapeParam( E001bin, eta100bin, eflowFirstIntRegions::EMB3, eflowCalo::EMB1, NORM1,0.233052);
@@ -274,8 +274,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = Tile
-    binnedParameters->setFudgeMean( E001bin, eta100bin, eflowFirstIntRegions::Tile, 0.515000 ); 
-    binnedParameters->setFudgeStdDev( E001bin, eta100bin, eflowFirstIntRegions::Tile, 1.039000 ); 
+    binnedParameters->setFudgeMean( E001bin, eta100bin, eflowFirstIntRegions::Tile, 0.515000 );
+    binnedParameters->setFudgeStdDev( E001bin, eta100bin, eflowFirstIntRegions::Tile, 1.039000 );
 
 
     binnedParameters->setShapeParam( E001bin, eta100bin, eflowFirstIntRegions::Tile, eflowCalo::Tile1, NORM1,0.393702);
@@ -291,8 +291,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
     ////////////////////////////
 
    // j1st = EMB1
-    binnedParameters->setFudgeMean( E001bin, eta150bin, eflowFirstIntRegions::EMB1, 0.316000 ); 
-    binnedParameters->setFudgeStdDev( E001bin, eta150bin, eflowFirstIntRegions::EMB1, 0.229000 ); 
+    binnedParameters->setFudgeMean( E001bin, eta150bin, eflowFirstIntRegions::EMB1, 0.316000 );
+    binnedParameters->setFudgeStdDev( E001bin, eta150bin, eflowFirstIntRegions::EMB1, 0.229000 );
 
 
     binnedParameters->setShapeParam( E001bin, eta150bin, eflowFirstIntRegions::EMB1, eflowCalo::EMB1, NORM1,0.711413);
@@ -314,8 +314,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB2
-    binnedParameters->setFudgeMean( E001bin, eta150bin, eflowFirstIntRegions::EMB2, 0.444000 ); 
-    binnedParameters->setFudgeStdDev( E001bin, eta150bin, eflowFirstIntRegions::EMB2, 0.255000 ); 
+    binnedParameters->setFudgeMean( E001bin, eta150bin, eflowFirstIntRegions::EMB2, 0.444000 );
+    binnedParameters->setFudgeStdDev( E001bin, eta150bin, eflowFirstIntRegions::EMB2, 0.255000 );
 
 
     binnedParameters->setShapeParam( E001bin, eta150bin, eflowFirstIntRegions::EMB2, eflowCalo::EMB1, NORM1,0.168614);
@@ -337,8 +337,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB3
-    binnedParameters->setFudgeMean( E001bin, eta150bin, eflowFirstIntRegions::EMB3, 0.300000 ); 
-    binnedParameters->setFudgeStdDev( E001bin, eta150bin, eflowFirstIntRegions::EMB3, 0.583000 ); 
+    binnedParameters->setFudgeMean( E001bin, eta150bin, eflowFirstIntRegions::EMB3, 0.300000 );
+    binnedParameters->setFudgeStdDev( E001bin, eta150bin, eflowFirstIntRegions::EMB3, 0.583000 );
 
 
     binnedParameters->setShapeParam( E001bin, eta150bin, eflowFirstIntRegions::EMB3, eflowCalo::EMB1, NORM1,0.297088);
@@ -360,15 +360,15 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EME1
-    binnedParameters->setFudgeMean( E001bin, eta150bin, eflowFirstIntRegions::EME1, 0.591000 ); 
-    binnedParameters->setFudgeStdDev( E001bin, eta150bin, eflowFirstIntRegions::EME1, 0.343000 ); 
+    binnedParameters->setFudgeMean( E001bin, eta150bin, eflowFirstIntRegions::EME1, 0.591000 );
+    binnedParameters->setFudgeStdDev( E001bin, eta150bin, eflowFirstIntRegions::EME1, 0.343000 );
 
 
 
 
    // j1st = EME2
-    binnedParameters->setFudgeMean( E001bin, eta150bin, eflowFirstIntRegions::EME2, 0.651000 ); 
-    binnedParameters->setFudgeStdDev( E001bin, eta150bin, eflowFirstIntRegions::EME2, 0.811000 ); 
+    binnedParameters->setFudgeMean( E001bin, eta150bin, eflowFirstIntRegions::EME2, 0.651000 );
+    binnedParameters->setFudgeStdDev( E001bin, eta150bin, eflowFirstIntRegions::EME2, 0.811000 );
 
 
 
@@ -384,8 +384,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = Tile
-    binnedParameters->setFudgeMean( E001bin, eta150bin, eflowFirstIntRegions::Tile, 0.332000 ); 
-    binnedParameters->setFudgeStdDev( E001bin, eta150bin, eflowFirstIntRegions::Tile, 0.472000 ); 
+    binnedParameters->setFudgeMean( E001bin, eta150bin, eflowFirstIntRegions::Tile, 0.332000 );
+    binnedParameters->setFudgeStdDev( E001bin, eta150bin, eflowFirstIntRegions::Tile, 0.472000 );
 
 
     binnedParameters->setShapeParam( E001bin, eta150bin, eflowFirstIntRegions::Tile, eflowCalo::Tile1, NORM1,0.0810416);
@@ -428,8 +428,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EME1
-    binnedParameters->setFudgeMean( E001bin, eta250bin, eflowFirstIntRegions::EME1, 0.000000 ); 
-    binnedParameters->setFudgeStdDev( E001bin, eta250bin, eflowFirstIntRegions::EME1, 0.000000 ); 
+    binnedParameters->setFudgeMean( E001bin, eta250bin, eflowFirstIntRegions::EME1, 0.000000 );
+    binnedParameters->setFudgeStdDev( E001bin, eta250bin, eflowFirstIntRegions::EME1, 0.000000 );
 
 
     binnedParameters->setShapeParam( E001bin, eta250bin, eflowFirstIntRegions::EME1, eflowCalo::EME1, NORM1,1.74282);
@@ -451,8 +451,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EME2
-    binnedParameters->setFudgeMean( E001bin, eta250bin, eflowFirstIntRegions::EME2, 0.000000 ); 
-    binnedParameters->setFudgeStdDev( E001bin, eta250bin, eflowFirstIntRegions::EME2, 0.000000 ); 
+    binnedParameters->setFudgeMean( E001bin, eta250bin, eflowFirstIntRegions::EME2, 0.000000 );
+    binnedParameters->setFudgeStdDev( E001bin, eta250bin, eflowFirstIntRegions::EME2, 0.000000 );
 
 
     binnedParameters->setShapeParam( E001bin, eta250bin, eflowFirstIntRegions::EME2, eflowCalo::EME1, NORM1,0.364715);
@@ -474,8 +474,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EME3
-    binnedParameters->setFudgeMean( E001bin, eta250bin, eflowFirstIntRegions::EME3, 0.000000 ); 
-    binnedParameters->setFudgeStdDev( E001bin, eta250bin, eflowFirstIntRegions::EME3, 0.000000 ); 
+    binnedParameters->setFudgeMean( E001bin, eta250bin, eflowFirstIntRegions::EME3, 0.000000 );
+    binnedParameters->setFudgeStdDev( E001bin, eta250bin, eflowFirstIntRegions::EME3, 0.000000 );
 
 
     binnedParameters->setShapeParam( E001bin, eta250bin, eflowFirstIntRegions::EME3, eflowCalo::HEC1, NORM1,0.667073);
@@ -489,8 +489,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = HEC
-    binnedParameters->setFudgeMean( E001bin, eta250bin, eflowFirstIntRegions::HEC, 0.000000 ); 
-    binnedParameters->setFudgeStdDev( E001bin, eta250bin, eflowFirstIntRegions::HEC, 0.000000 ); 
+    binnedParameters->setFudgeMean( E001bin, eta250bin, eflowFirstIntRegions::HEC, 0.000000 );
+    binnedParameters->setFudgeStdDev( E001bin, eta250bin, eflowFirstIntRegions::HEC, 0.000000 );
 
 
 
@@ -503,8 +503,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
     ////////////////////////////
 
    // j1st = EMB1
-    binnedParameters->setFudgeMean( E003point5bin, eta050bin, eflowFirstIntRegions::EMB1, 0.406000 ); 
-    binnedParameters->setFudgeStdDev( E003point5bin, eta050bin, eflowFirstIntRegions::EMB1, 0.312000 ); 
+    binnedParameters->setFudgeMean( E003point5bin, eta050bin, eflowFirstIntRegions::EMB1, 0.406000 );
+    binnedParameters->setFudgeStdDev( E003point5bin, eta050bin, eflowFirstIntRegions::EMB1, 0.312000 );
 
 
     binnedParameters->setShapeParam( E003point5bin, eta050bin, eflowFirstIntRegions::EMB1, eflowCalo::EMB1, NORM1,1.43156);
@@ -534,8 +534,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB2
-    binnedParameters->setFudgeMean( E003point5bin, eta050bin, eflowFirstIntRegions::EMB2, 0.499000 ); 
-    binnedParameters->setFudgeStdDev( E003point5bin, eta050bin, eflowFirstIntRegions::EMB2, 0.198000 ); 
+    binnedParameters->setFudgeMean( E003point5bin, eta050bin, eflowFirstIntRegions::EMB2, 0.499000 );
+    binnedParameters->setFudgeStdDev( E003point5bin, eta050bin, eflowFirstIntRegions::EMB2, 0.198000 );
 
 
     binnedParameters->setShapeParam( E003point5bin, eta050bin, eflowFirstIntRegions::EMB2, eflowCalo::EMB1, NORM1,0.248212);
@@ -565,8 +565,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB3
-    binnedParameters->setFudgeMean( E003point5bin, eta050bin, eflowFirstIntRegions::EMB3, 0.334000 ); 
-    binnedParameters->setFudgeStdDev( E003point5bin, eta050bin, eflowFirstIntRegions::EMB3, 0.316000 ); 
+    binnedParameters->setFudgeMean( E003point5bin, eta050bin, eflowFirstIntRegions::EMB3, 0.334000 );
+    binnedParameters->setFudgeStdDev( E003point5bin, eta050bin, eflowFirstIntRegions::EMB3, 0.316000 );
 
 
     binnedParameters->setShapeParam( E003point5bin, eta050bin, eflowFirstIntRegions::EMB3, eflowCalo::EMB1, NORM1,0.148983);
@@ -616,8 +616,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = Tile
-    binnedParameters->setFudgeMean( E003point5bin, eta050bin, eflowFirstIntRegions::Tile, 0.740000 ); 
-    binnedParameters->setFudgeStdDev( E003point5bin, eta050bin, eflowFirstIntRegions::Tile, 0.230000 ); 
+    binnedParameters->setFudgeMean( E003point5bin, eta050bin, eflowFirstIntRegions::Tile, 0.740000 );
+    binnedParameters->setFudgeStdDev( E003point5bin, eta050bin, eflowFirstIntRegions::Tile, 0.230000 );
 
 
     binnedParameters->setShapeParam( E003point5bin, eta050bin, eflowFirstIntRegions::Tile, eflowCalo::EMB1, NORM1,0.11613);
@@ -649,8 +649,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
     ////////////////////////////
 
    // j1st = EMB1
-    binnedParameters->setFudgeMean( E003point5bin, eta100bin, eflowFirstIntRegions::EMB1, 0.357000 ); 
-    binnedParameters->setFudgeStdDev( E003point5bin, eta100bin, eflowFirstIntRegions::EMB1, 0.285000 ); 
+    binnedParameters->setFudgeMean( E003point5bin, eta100bin, eflowFirstIntRegions::EMB1, 0.357000 );
+    binnedParameters->setFudgeStdDev( E003point5bin, eta100bin, eflowFirstIntRegions::EMB1, 0.285000 );
 
 
     binnedParameters->setShapeParam( E003point5bin, eta100bin, eflowFirstIntRegions::EMB1, eflowCalo::EMB1, NORM1,0.951874);
@@ -680,8 +680,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB2
-    binnedParameters->setFudgeMean( E003point5bin, eta100bin, eflowFirstIntRegions::EMB2, 0.482000 ); 
-    binnedParameters->setFudgeStdDev( E003point5bin, eta100bin, eflowFirstIntRegions::EMB2, 0.214000 ); 
+    binnedParameters->setFudgeMean( E003point5bin, eta100bin, eflowFirstIntRegions::EMB2, 0.482000 );
+    binnedParameters->setFudgeStdDev( E003point5bin, eta100bin, eflowFirstIntRegions::EMB2, 0.214000 );
 
 
     binnedParameters->setShapeParam( E003point5bin, eta100bin, eflowFirstIntRegions::EMB2, eflowCalo::EMB1, NORM1,0.162365);
@@ -707,8 +707,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB3
-    binnedParameters->setFudgeMean( E003point5bin, eta100bin, eflowFirstIntRegions::EMB3, 0.367000 ); 
-    binnedParameters->setFudgeStdDev( E003point5bin, eta100bin, eflowFirstIntRegions::EMB3, 0.232000 ); 
+    binnedParameters->setFudgeMean( E003point5bin, eta100bin, eflowFirstIntRegions::EMB3, 0.367000 );
+    binnedParameters->setFudgeStdDev( E003point5bin, eta100bin, eflowFirstIntRegions::EMB3, 0.232000 );
 
 
     binnedParameters->setShapeParam( E003point5bin, eta100bin, eflowFirstIntRegions::EMB3, eflowCalo::EMB1, NORM1,0.124101);
@@ -758,8 +758,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = Tile
-    binnedParameters->setFudgeMean( E003point5bin, eta100bin, eflowFirstIntRegions::Tile, 0.755000 ); 
-    binnedParameters->setFudgeStdDev( E003point5bin, eta100bin, eflowFirstIntRegions::Tile, 0.293000 ); 
+    binnedParameters->setFudgeMean( E003point5bin, eta100bin, eflowFirstIntRegions::Tile, 0.755000 );
+    binnedParameters->setFudgeStdDev( E003point5bin, eta100bin, eflowFirstIntRegions::Tile, 0.293000 );
 
 
     binnedParameters->setShapeParam( E003point5bin, eta100bin, eflowFirstIntRegions::Tile, eflowCalo::EMB1, NORM1,0.0778484);
@@ -791,8 +791,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
     ////////////////////////////
 
    // j1st = EMB1
-    binnedParameters->setFudgeMean( E003point5bin, eta150bin, eflowFirstIntRegions::EMB1, 0.300000 ); 
-    binnedParameters->setFudgeStdDev( E003point5bin, eta150bin, eflowFirstIntRegions::EMB1, 0.275000 ); 
+    binnedParameters->setFudgeMean( E003point5bin, eta150bin, eflowFirstIntRegions::EMB1, 0.300000 );
+    binnedParameters->setFudgeStdDev( E003point5bin, eta150bin, eflowFirstIntRegions::EMB1, 0.275000 );
 
 
     binnedParameters->setShapeParam( E003point5bin, eta150bin, eflowFirstIntRegions::EMB1, eflowCalo::EMB1, NORM1,0.618127);
@@ -830,8 +830,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB2
-    binnedParameters->setFudgeMean( E003point5bin, eta150bin, eflowFirstIntRegions::EMB2, 0.414000 ); 
-    binnedParameters->setFudgeStdDev( E003point5bin, eta150bin, eflowFirstIntRegions::EMB2, 0.250000 ); 
+    binnedParameters->setFudgeMean( E003point5bin, eta150bin, eflowFirstIntRegions::EMB2, 0.414000 );
+    binnedParameters->setFudgeStdDev( E003point5bin, eta150bin, eflowFirstIntRegions::EMB2, 0.250000 );
 
 
     binnedParameters->setShapeParam( E003point5bin, eta150bin, eflowFirstIntRegions::EMB2, eflowCalo::EMB1, NORM1,0.135475);
@@ -857,8 +857,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB3
-    binnedParameters->setFudgeMean( E003point5bin, eta150bin, eflowFirstIntRegions::EMB3, 0.373000 ); 
-    binnedParameters->setFudgeStdDev( E003point5bin, eta150bin, eflowFirstIntRegions::EMB3, 0.218000 ); 
+    binnedParameters->setFudgeMean( E003point5bin, eta150bin, eflowFirstIntRegions::EMB3, 0.373000 );
+    binnedParameters->setFudgeStdDev( E003point5bin, eta150bin, eflowFirstIntRegions::EMB3, 0.218000 );
 
 
     binnedParameters->setShapeParam( E003point5bin, eta150bin, eflowFirstIntRegions::EMB3, eflowCalo::EMB1, NORM1,0.125619);
@@ -900,15 +900,15 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EME1
-    binnedParameters->setFudgeMean( E003point5bin, eta150bin, eflowFirstIntRegions::EME1, 0.300000 ); 
-    binnedParameters->setFudgeStdDev( E003point5bin, eta150bin, eflowFirstIntRegions::EME1, 0.262000 ); 
+    binnedParameters->setFudgeMean( E003point5bin, eta150bin, eflowFirstIntRegions::EME1, 0.300000 );
+    binnedParameters->setFudgeStdDev( E003point5bin, eta150bin, eflowFirstIntRegions::EME1, 0.262000 );
 
 
 
 
    // j1st = EME2
-    binnedParameters->setFudgeMean( E003point5bin, eta150bin, eflowFirstIntRegions::EME2, 0.339000 ); 
-    binnedParameters->setFudgeStdDev( E003point5bin, eta150bin, eflowFirstIntRegions::EME2, 0.223000 ); 
+    binnedParameters->setFudgeMean( E003point5bin, eta150bin, eflowFirstIntRegions::EME2, 0.339000 );
+    binnedParameters->setFudgeStdDev( E003point5bin, eta150bin, eflowFirstIntRegions::EME2, 0.223000 );
 
 
 
@@ -924,8 +924,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = Tile
-    binnedParameters->setFudgeMean( E003point5bin, eta150bin, eflowFirstIntRegions::Tile, 0.300000 ); 
-    binnedParameters->setFudgeStdDev( E003point5bin, eta150bin, eflowFirstIntRegions::Tile, 0.672000 ); 
+    binnedParameters->setFudgeMean( E003point5bin, eta150bin, eflowFirstIntRegions::Tile, 0.300000 );
+    binnedParameters->setFudgeStdDev( E003point5bin, eta150bin, eflowFirstIntRegions::Tile, 0.672000 );
 
 
     binnedParameters->setShapeParam( E003point5bin, eta150bin, eflowFirstIntRegions::Tile, eflowCalo::EMB1, NORM1,0.0276654);
@@ -985,8 +985,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EME1
-    binnedParameters->setFudgeMean( E003point5bin, eta250bin, eflowFirstIntRegions::EME1, 0.300000 ); 
-    binnedParameters->setFudgeStdDev( E003point5bin, eta250bin, eflowFirstIntRegions::EME1, 0.279000 ); 
+    binnedParameters->setFudgeMean( E003point5bin, eta250bin, eflowFirstIntRegions::EME1, 0.300000 );
+    binnedParameters->setFudgeStdDev( E003point5bin, eta250bin, eflowFirstIntRegions::EME1, 0.279000 );
 
 
     binnedParameters->setShapeParam( E003point5bin, eta250bin, eflowFirstIntRegions::EME1, eflowCalo::EME1, NORM1,2.80389);
@@ -1020,8 +1020,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EME2
-    binnedParameters->setFudgeMean( E003point5bin, eta250bin, eflowFirstIntRegions::EME2, 0.415000 ); 
-    binnedParameters->setFudgeStdDev( E003point5bin, eta250bin, eflowFirstIntRegions::EME2, 0.244000 ); 
+    binnedParameters->setFudgeMean( E003point5bin, eta250bin, eflowFirstIntRegions::EME2, 0.415000 );
+    binnedParameters->setFudgeStdDev( E003point5bin, eta250bin, eflowFirstIntRegions::EME2, 0.244000 );
 
 
     binnedParameters->setShapeParam( E003point5bin, eta250bin, eflowFirstIntRegions::EME2, eflowCalo::EME1, NORM1,0.411762);
@@ -1055,8 +1055,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EME3
-    binnedParameters->setFudgeMean( E003point5bin, eta250bin, eflowFirstIntRegions::EME3, 0.360000 ); 
-    binnedParameters->setFudgeStdDev( E003point5bin, eta250bin, eflowFirstIntRegions::EME3, 0.264000 ); 
+    binnedParameters->setFudgeMean( E003point5bin, eta250bin, eflowFirstIntRegions::EME3, 0.360000 );
+    binnedParameters->setFudgeStdDev( E003point5bin, eta250bin, eflowFirstIntRegions::EME3, 0.264000 );
 
 
     binnedParameters->setShapeParam( E003point5bin, eta250bin, eflowFirstIntRegions::EME3, eflowCalo::EME1, NORM1,0.221942);
@@ -1090,8 +1090,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = HEC
-    binnedParameters->setFudgeMean( E003point5bin, eta250bin, eflowFirstIntRegions::HEC, 0.582000 ); 
-    binnedParameters->setFudgeStdDev( E003point5bin, eta250bin, eflowFirstIntRegions::HEC, 0.334000 ); 
+    binnedParameters->setFudgeMean( E003point5bin, eta250bin, eflowFirstIntRegions::HEC, 0.582000 );
+    binnedParameters->setFudgeStdDev( E003point5bin, eta250bin, eflowFirstIntRegions::HEC, 0.334000 );
 
 
     binnedParameters->setShapeParam( E003point5bin, eta250bin, eflowFirstIntRegions::HEC, eflowCalo::EME1, NORM1,0.284158);
@@ -1156,8 +1156,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
     ////////////////////////////
 
    // j1st = EMB1
-    binnedParameters->setFudgeMean( E010bin, eta050bin, eflowFirstIntRegions::EMB1, 0.576000 ); 
-    binnedParameters->setFudgeStdDev( E010bin, eta050bin, eflowFirstIntRegions::EMB1, 0.180000 ); 
+    binnedParameters->setFudgeMean( E010bin, eta050bin, eflowFirstIntRegions::EMB1, 0.576000 );
+    binnedParameters->setFudgeStdDev( E010bin, eta050bin, eflowFirstIntRegions::EMB1, 0.180000 );
 
 
     binnedParameters->setShapeParam( E010bin, eta050bin, eflowFirstIntRegions::EMB1, eflowCalo::EMB1, NORM1,2.43176);
@@ -1187,8 +1187,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB2
-    binnedParameters->setFudgeMean( E010bin, eta050bin, eflowFirstIntRegions::EMB2, 0.608000 ); 
-    binnedParameters->setFudgeStdDev( E010bin, eta050bin, eflowFirstIntRegions::EMB2, 0.154000 ); 
+    binnedParameters->setFudgeMean( E010bin, eta050bin, eflowFirstIntRegions::EMB2, 0.608000 );
+    binnedParameters->setFudgeStdDev( E010bin, eta050bin, eflowFirstIntRegions::EMB2, 0.154000 );
 
 
     binnedParameters->setShapeParam( E010bin, eta050bin, eflowFirstIntRegions::EMB2, eflowCalo::EMB1, NORM1,0.406566);
@@ -1218,8 +1218,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB3
-    binnedParameters->setFudgeMean( E010bin, eta050bin, eflowFirstIntRegions::EMB3, 0.524000 ); 
-    binnedParameters->setFudgeStdDev( E010bin, eta050bin, eflowFirstIntRegions::EMB3, 0.154000 ); 
+    binnedParameters->setFudgeMean( E010bin, eta050bin, eflowFirstIntRegions::EMB3, 0.524000 );
+    binnedParameters->setFudgeStdDev( E010bin, eta050bin, eflowFirstIntRegions::EMB3, 0.154000 );
 
 
     binnedParameters->setShapeParam( E010bin, eta050bin, eflowFirstIntRegions::EMB3, eflowCalo::EMB1, NORM1,0.14787);
@@ -1269,8 +1269,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = Tile
-    binnedParameters->setFudgeMean( E010bin, eta050bin, eflowFirstIntRegions::Tile, 0.722000 ); 
-    binnedParameters->setFudgeStdDev( E010bin, eta050bin, eflowFirstIntRegions::Tile, 0.154000 ); 
+    binnedParameters->setFudgeMean( E010bin, eta050bin, eflowFirstIntRegions::Tile, 0.722000 );
+    binnedParameters->setFudgeStdDev( E010bin, eta050bin, eflowFirstIntRegions::Tile, 0.154000 );
 
 
     binnedParameters->setShapeParam( E010bin, eta050bin, eflowFirstIntRegions::Tile, eflowCalo::EMB1, NORM1,0.128433);
@@ -1303,8 +1303,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB1
-    binnedParameters->setFudgeMean( E010bin, eta100bin, eflowFirstIntRegions::EMB1, 0.543000 ); 
-    binnedParameters->setFudgeStdDev( E010bin, eta100bin, eflowFirstIntRegions::EMB1, 0.190000 ); 
+    binnedParameters->setFudgeMean( E010bin, eta100bin, eflowFirstIntRegions::EMB1, 0.543000 );
+    binnedParameters->setFudgeStdDev( E010bin, eta100bin, eflowFirstIntRegions::EMB1, 0.190000 );
 
 
     binnedParameters->setShapeParam( E010bin, eta100bin, eflowFirstIntRegions::EMB1, eflowCalo::EMB1, NORM1,1.52832);
@@ -1334,8 +1334,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB2
-    binnedParameters->setFudgeMean( E010bin, eta100bin, eflowFirstIntRegions::EMB2, 0.590000 ); 
-    binnedParameters->setFudgeStdDev( E010bin, eta100bin, eflowFirstIntRegions::EMB2, 0.157000 ); 
+    binnedParameters->setFudgeMean( E010bin, eta100bin, eflowFirstIntRegions::EMB2, 0.590000 );
+    binnedParameters->setFudgeStdDev( E010bin, eta100bin, eflowFirstIntRegions::EMB2, 0.157000 );
 
 
     binnedParameters->setShapeParam( E010bin, eta100bin, eflowFirstIntRegions::EMB2, eflowCalo::EMB1, NORM1,0.186236);
@@ -1361,8 +1361,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB3
-    binnedParameters->setFudgeMean( E010bin, eta100bin, eflowFirstIntRegions::EMB3, 0.510000 ); 
-    binnedParameters->setFudgeStdDev( E010bin, eta100bin, eflowFirstIntRegions::EMB3, 0.155000 ); 
+    binnedParameters->setFudgeMean( E010bin, eta100bin, eflowFirstIntRegions::EMB3, 0.510000 );
+    binnedParameters->setFudgeStdDev( E010bin, eta100bin, eflowFirstIntRegions::EMB3, 0.155000 );
 
 
     binnedParameters->setShapeParam( E010bin, eta100bin, eflowFirstIntRegions::EMB3, eflowCalo::EMB1, NORM1,0.109028);
@@ -1412,8 +1412,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = Tile
-    binnedParameters->setFudgeMean( E010bin, eta100bin, eflowFirstIntRegions::Tile, 0.721000 ); 
-    binnedParameters->setFudgeStdDev( E010bin, eta100bin, eflowFirstIntRegions::Tile, 0.144000 ); 
+    binnedParameters->setFudgeMean( E010bin, eta100bin, eflowFirstIntRegions::Tile, 0.721000 );
+    binnedParameters->setFudgeStdDev( E010bin, eta100bin, eflowFirstIntRegions::Tile, 0.144000 );
 
 
     binnedParameters->setShapeParam( E010bin, eta100bin, eflowFirstIntRegions::Tile, eflowCalo::EMB1, NORM1,0.107734);
@@ -1445,8 +1445,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
     ////////////////////////////
 
    // j1st = EMB1
-    binnedParameters->setFudgeMean( E010bin, eta150bin, eflowFirstIntRegions::EMB1, 0.489000 ); 
-    binnedParameters->setFudgeStdDev( E010bin, eta150bin, eflowFirstIntRegions::EMB1, 0.226000 ); 
+    binnedParameters->setFudgeMean( E010bin, eta150bin, eflowFirstIntRegions::EMB1, 0.489000 );
+    binnedParameters->setFudgeStdDev( E010bin, eta150bin, eflowFirstIntRegions::EMB1, 0.226000 );
 
 
     binnedParameters->setShapeParam( E010bin, eta150bin, eflowFirstIntRegions::EMB1, eflowCalo::EMB1, NORM1,0.79114);
@@ -1484,8 +1484,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB2
-    binnedParameters->setFudgeMean( E010bin, eta150bin, eflowFirstIntRegions::EMB2, 0.550000 ); 
-    binnedParameters->setFudgeStdDev( E010bin, eta150bin, eflowFirstIntRegions::EMB2, 0.191000 ); 
+    binnedParameters->setFudgeMean( E010bin, eta150bin, eflowFirstIntRegions::EMB2, 0.550000 );
+    binnedParameters->setFudgeStdDev( E010bin, eta150bin, eflowFirstIntRegions::EMB2, 0.191000 );
 
 
     binnedParameters->setShapeParam( E010bin, eta150bin, eflowFirstIntRegions::EMB2, eflowCalo::EMB1, NORM1,0.175507);
@@ -1523,8 +1523,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB3
-    binnedParameters->setFudgeMean( E010bin, eta150bin, eflowFirstIntRegions::EMB3, 0.535000 ); 
-    binnedParameters->setFudgeStdDev( E010bin, eta150bin, eflowFirstIntRegions::EMB3, 0.198000 ); 
+    binnedParameters->setFudgeMean( E010bin, eta150bin, eflowFirstIntRegions::EMB3, 0.535000 );
+    binnedParameters->setFudgeStdDev( E010bin, eta150bin, eflowFirstIntRegions::EMB3, 0.198000 );
 
 
     binnedParameters->setShapeParam( E010bin, eta150bin, eflowFirstIntRegions::EMB3, eflowCalo::EMB1, NORM1,0.0852493);
@@ -1562,15 +1562,15 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EME1
-    binnedParameters->setFudgeMean( E010bin, eta150bin, eflowFirstIntRegions::EME1, 0.402000 ); 
-    binnedParameters->setFudgeStdDev( E010bin, eta150bin, eflowFirstIntRegions::EME1, 0.233000 ); 
+    binnedParameters->setFudgeMean( E010bin, eta150bin, eflowFirstIntRegions::EME1, 0.402000 );
+    binnedParameters->setFudgeStdDev( E010bin, eta150bin, eflowFirstIntRegions::EME1, 0.233000 );
 
 
 
 
    // j1st = EME2
-    binnedParameters->setFudgeMean( E010bin, eta150bin, eflowFirstIntRegions::EME2, 0.459000 ); 
-    binnedParameters->setFudgeStdDev( E010bin, eta150bin, eflowFirstIntRegions::EME2, 0.168000 ); 
+    binnedParameters->setFudgeMean( E010bin, eta150bin, eflowFirstIntRegions::EME2, 0.459000 );
+    binnedParameters->setFudgeStdDev( E010bin, eta150bin, eflowFirstIntRegions::EME2, 0.168000 );
 
 
 
@@ -1614,8 +1614,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = Tile
-    binnedParameters->setFudgeMean( E010bin, eta150bin, eflowFirstIntRegions::Tile, 0.795000 ); 
-    binnedParameters->setFudgeStdDev( E010bin, eta150bin, eflowFirstIntRegions::Tile, 0.169000 ); 
+    binnedParameters->setFudgeMean( E010bin, eta150bin, eflowFirstIntRegions::Tile, 0.795000 );
+    binnedParameters->setFudgeStdDev( E010bin, eta150bin, eflowFirstIntRegions::Tile, 0.169000 );
 
 
     binnedParameters->setShapeParam( E010bin, eta150bin, eflowFirstIntRegions::Tile, eflowCalo::EMB1, NORM1,0.10351);
@@ -1694,8 +1694,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EME1
-    binnedParameters->setFudgeMean( E010bin, eta250bin, eflowFirstIntRegions::EME1, 0.483000 ); 
-    binnedParameters->setFudgeStdDev( E010bin, eta250bin, eflowFirstIntRegions::EME1, 0.239000 ); 
+    binnedParameters->setFudgeMean( E010bin, eta250bin, eflowFirstIntRegions::EME1, 0.483000 );
+    binnedParameters->setFudgeStdDev( E010bin, eta250bin, eflowFirstIntRegions::EME1, 0.239000 );
 
 
     binnedParameters->setShapeParam( E010bin, eta250bin, eflowFirstIntRegions::EME1, eflowCalo::EME1, NORM1,4.15008);
@@ -1729,8 +1729,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EME2
-    binnedParameters->setFudgeMean( E010bin, eta250bin, eflowFirstIntRegions::EME2, 0.547000 ); 
-    binnedParameters->setFudgeStdDev( E010bin, eta250bin, eflowFirstIntRegions::EME2, 0.192000 ); 
+    binnedParameters->setFudgeMean( E010bin, eta250bin, eflowFirstIntRegions::EME2, 0.547000 );
+    binnedParameters->setFudgeStdDev( E010bin, eta250bin, eflowFirstIntRegions::EME2, 0.192000 );
 
 
     binnedParameters->setShapeParam( E010bin, eta250bin, eflowFirstIntRegions::EME2, eflowCalo::EME1, NORM1,0.587762);
@@ -1764,8 +1764,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EME3
-    binnedParameters->setFudgeMean( E010bin, eta250bin, eflowFirstIntRegions::EME3, 0.572000 ); 
-    binnedParameters->setFudgeStdDev( E010bin, eta250bin, eflowFirstIntRegions::EME3, 0.220000 ); 
+    binnedParameters->setFudgeMean( E010bin, eta250bin, eflowFirstIntRegions::EME3, 0.572000 );
+    binnedParameters->setFudgeStdDev( E010bin, eta250bin, eflowFirstIntRegions::EME3, 0.220000 );
 
 
     binnedParameters->setShapeParam( E010bin, eta250bin, eflowFirstIntRegions::EME3, eflowCalo::EME1, NORM1,0.300834);
@@ -1799,8 +1799,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = HEC
-    binnedParameters->setFudgeMean( E010bin, eta250bin, eflowFirstIntRegions::HEC, 0.679000 ); 
-    binnedParameters->setFudgeStdDev( E010bin, eta250bin, eflowFirstIntRegions::HEC, 0.230000 ); 
+    binnedParameters->setFudgeMean( E010bin, eta250bin, eflowFirstIntRegions::HEC, 0.679000 );
+    binnedParameters->setFudgeStdDev( E010bin, eta250bin, eflowFirstIntRegions::HEC, 0.230000 );
 
 
     binnedParameters->setShapeParam( E010bin, eta250bin, eflowFirstIntRegions::HEC, eflowCalo::EMB1, NORM1,0.0796651);
@@ -1885,8 +1885,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
     ////////////////////////////
 
    // j1st = EMB1
-    binnedParameters->setFudgeMean( E020bin, eta050bin, eflowFirstIntRegions::EMB1, 0.658000 ); 
-    binnedParameters->setFudgeStdDev( E020bin, eta050bin, eflowFirstIntRegions::EMB1, 0.127000 ); 
+    binnedParameters->setFudgeMean( E020bin, eta050bin, eflowFirstIntRegions::EMB1, 0.658000 );
+    binnedParameters->setFudgeStdDev( E020bin, eta050bin, eflowFirstIntRegions::EMB1, 0.127000 );
 
 
     binnedParameters->setShapeParam( E020bin, eta050bin, eflowFirstIntRegions::EMB1, eflowCalo::EMB1, NORM1,3.26847);
@@ -1916,8 +1916,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB2
-    binnedParameters->setFudgeMean( E020bin, eta050bin, eflowFirstIntRegions::EMB2, 0.669000 ); 
-    binnedParameters->setFudgeStdDev( E020bin, eta050bin, eflowFirstIntRegions::EMB2, 0.126000 ); 
+    binnedParameters->setFudgeMean( E020bin, eta050bin, eflowFirstIntRegions::EMB2, 0.669000 );
+    binnedParameters->setFudgeStdDev( E020bin, eta050bin, eflowFirstIntRegions::EMB2, 0.126000 );
 
 
     binnedParameters->setShapeParam( E020bin, eta050bin, eflowFirstIntRegions::EMB2, eflowCalo::EMB1, NORM1,0.397084);
@@ -1947,8 +1947,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB3
-    binnedParameters->setFudgeMean( E020bin, eta050bin, eflowFirstIntRegions::EMB3, 0.583000 ); 
-    binnedParameters->setFudgeStdDev( E020bin, eta050bin, eflowFirstIntRegions::EMB3, 0.123000 ); 
+    binnedParameters->setFudgeMean( E020bin, eta050bin, eflowFirstIntRegions::EMB3, 0.583000 );
+    binnedParameters->setFudgeStdDev( E020bin, eta050bin, eflowFirstIntRegions::EMB3, 0.123000 );
 
 
     binnedParameters->setShapeParam( E020bin, eta050bin, eflowFirstIntRegions::EMB3, eflowCalo::EMB1, NORM1,0.107883);
@@ -1998,8 +1998,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = Tile
-    binnedParameters->setFudgeMean( E020bin, eta050bin, eflowFirstIntRegions::Tile, 0.760000 ); 
-    binnedParameters->setFudgeStdDev( E020bin, eta050bin, eflowFirstIntRegions::Tile, 0.134000 ); 
+    binnedParameters->setFudgeMean( E020bin, eta050bin, eflowFirstIntRegions::Tile, 0.760000 );
+    binnedParameters->setFudgeStdDev( E020bin, eta050bin, eflowFirstIntRegions::Tile, 0.134000 );
 
 
     binnedParameters->setShapeParam( E020bin, eta050bin, eflowFirstIntRegions::Tile, eflowCalo::EMB1, NORM1,0.112534);
@@ -2031,8 +2031,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
     ////////////////////////////
 
    // j1st = EMB1
-    binnedParameters->setFudgeMean( E020bin, eta100bin, eflowFirstIntRegions::EMB1, 0.620000 ); 
-    binnedParameters->setFudgeStdDev( E020bin, eta100bin, eflowFirstIntRegions::EMB1, 0.139000 ); 
+    binnedParameters->setFudgeMean( E020bin, eta100bin, eflowFirstIntRegions::EMB1, 0.620000 );
+    binnedParameters->setFudgeStdDev( E020bin, eta100bin, eflowFirstIntRegions::EMB1, 0.139000 );
 
 
     binnedParameters->setShapeParam( E020bin, eta100bin, eflowFirstIntRegions::EMB1, eflowCalo::EMB1, NORM1,1.45897);
@@ -2062,8 +2062,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB2
-    binnedParameters->setFudgeMean( E020bin, eta100bin, eflowFirstIntRegions::EMB2, 0.654000 ); 
-    binnedParameters->setFudgeStdDev( E020bin, eta100bin, eflowFirstIntRegions::EMB2, 0.126000 ); 
+    binnedParameters->setFudgeMean( E020bin, eta100bin, eflowFirstIntRegions::EMB2, 0.654000 );
+    binnedParameters->setFudgeStdDev( E020bin, eta100bin, eflowFirstIntRegions::EMB2, 0.126000 );
 
 
     binnedParameters->setShapeParam( E020bin, eta100bin, eflowFirstIntRegions::EMB2, eflowCalo::EMB1, NORM1,0.23826);
@@ -2093,8 +2093,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB3
-    binnedParameters->setFudgeMean( E020bin, eta100bin, eflowFirstIntRegions::EMB3, 0.556000 ); 
-    binnedParameters->setFudgeStdDev( E020bin, eta100bin, eflowFirstIntRegions::EMB3, 0.107000 ); 
+    binnedParameters->setFudgeMean( E020bin, eta100bin, eflowFirstIntRegions::EMB3, 0.556000 );
+    binnedParameters->setFudgeStdDev( E020bin, eta100bin, eflowFirstIntRegions::EMB3, 0.107000 );
 
 
     binnedParameters->setShapeParam( E020bin, eta100bin, eflowFirstIntRegions::EMB3, eflowCalo::EMB1, NORM1,0.080015);
@@ -2144,8 +2144,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = Tile
-    binnedParameters->setFudgeMean( E020bin, eta100bin, eflowFirstIntRegions::Tile, 0.738000 ); 
-    binnedParameters->setFudgeStdDev( E020bin, eta100bin, eflowFirstIntRegions::Tile, 0.128000 ); 
+    binnedParameters->setFudgeMean( E020bin, eta100bin, eflowFirstIntRegions::Tile, 0.738000 );
+    binnedParameters->setFudgeStdDev( E020bin, eta100bin, eflowFirstIntRegions::Tile, 0.128000 );
 
 
     binnedParameters->setShapeParam( E020bin, eta100bin, eflowFirstIntRegions::Tile, eflowCalo::EMB1, NORM1,0.0456492);
@@ -2177,8 +2177,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
     ////////////////////////////
 
    // j1st = EMB1
-    binnedParameters->setFudgeMean( E020bin, eta150bin, eflowFirstIntRegions::EMB1, 0.581000 ); 
-    binnedParameters->setFudgeStdDev( E020bin, eta150bin, eflowFirstIntRegions::EMB1, 0.166000 ); 
+    binnedParameters->setFudgeMean( E020bin, eta150bin, eflowFirstIntRegions::EMB1, 0.581000 );
+    binnedParameters->setFudgeStdDev( E020bin, eta150bin, eflowFirstIntRegions::EMB1, 0.166000 );
 
 
     binnedParameters->setShapeParam( E020bin, eta150bin, eflowFirstIntRegions::EMB1, eflowCalo::EMB1, NORM1,1.30745);
@@ -2212,8 +2212,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB2
-    binnedParameters->setFudgeMean( E020bin, eta150bin, eflowFirstIntRegions::EMB2, 0.629000 ); 
-    binnedParameters->setFudgeStdDev( E020bin, eta150bin, eflowFirstIntRegions::EMB2, 0.159000 ); 
+    binnedParameters->setFudgeMean( E020bin, eta150bin, eflowFirstIntRegions::EMB2, 0.629000 );
+    binnedParameters->setFudgeStdDev( E020bin, eta150bin, eflowFirstIntRegions::EMB2, 0.159000 );
 
 
     binnedParameters->setShapeParam( E020bin, eta150bin, eflowFirstIntRegions::EMB2, eflowCalo::EMB1, NORM1,0.338733);
@@ -2247,8 +2247,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB3
-    binnedParameters->setFudgeMean( E020bin, eta150bin, eflowFirstIntRegions::EMB3, 0.618000 ); 
-    binnedParameters->setFudgeStdDev( E020bin, eta150bin, eflowFirstIntRegions::EMB3, 0.155000 ); 
+    binnedParameters->setFudgeMean( E020bin, eta150bin, eflowFirstIntRegions::EMB3, 0.618000 );
+    binnedParameters->setFudgeStdDev( E020bin, eta150bin, eflowFirstIntRegions::EMB3, 0.155000 );
 
 
     binnedParameters->setShapeParam( E020bin, eta150bin, eflowFirstIntRegions::EMB3, eflowCalo::EMB1, NORM1,0.09757);
@@ -2294,15 +2294,15 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EME1
-    binnedParameters->setFudgeMean( E020bin, eta150bin, eflowFirstIntRegions::EME1, 0.474000 ); 
-    binnedParameters->setFudgeStdDev( E020bin, eta150bin, eflowFirstIntRegions::EME1, 0.167000 ); 
+    binnedParameters->setFudgeMean( E020bin, eta150bin, eflowFirstIntRegions::EME1, 0.474000 );
+    binnedParameters->setFudgeStdDev( E020bin, eta150bin, eflowFirstIntRegions::EME1, 0.167000 );
 
 
 
 
    // j1st = EME2
-    binnedParameters->setFudgeMean( E020bin, eta150bin, eflowFirstIntRegions::EME2, 0.538000 ); 
-    binnedParameters->setFudgeStdDev( E020bin, eta150bin, eflowFirstIntRegions::EME2, 0.140000 ); 
+    binnedParameters->setFudgeMean( E020bin, eta150bin, eflowFirstIntRegions::EME2, 0.538000 );
+    binnedParameters->setFudgeStdDev( E020bin, eta150bin, eflowFirstIntRegions::EME2, 0.140000 );
 
 
 
@@ -2346,8 +2346,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = Tile
-    binnedParameters->setFudgeMean( E020bin, eta150bin, eflowFirstIntRegions::Tile, 0.816000 ); 
-    binnedParameters->setFudgeStdDev( E020bin, eta150bin, eflowFirstIntRegions::Tile, 0.129000 ); 
+    binnedParameters->setFudgeMean( E020bin, eta150bin, eflowFirstIntRegions::Tile, 0.816000 );
+    binnedParameters->setFudgeStdDev( E020bin, eta150bin, eflowFirstIntRegions::Tile, 0.129000 );
 
 
     binnedParameters->setShapeParam( E020bin, eta150bin, eflowFirstIntRegions::Tile, eflowCalo::EMB1, NORM1,0.0877375);
@@ -2411,8 +2411,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EME1
-    binnedParameters->setFudgeMean( E020bin, eta250bin, eflowFirstIntRegions::EME1, 0.580000 ); 
-    binnedParameters->setFudgeStdDev( E020bin, eta250bin, eflowFirstIntRegions::EME1, 0.175000 ); 
+    binnedParameters->setFudgeMean( E020bin, eta250bin, eflowFirstIntRegions::EME1, 0.580000 );
+    binnedParameters->setFudgeStdDev( E020bin, eta250bin, eflowFirstIntRegions::EME1, 0.175000 );
 
 
     binnedParameters->setShapeParam( E020bin, eta250bin, eflowFirstIntRegions::EME1, eflowCalo::EME1, NORM1,5.29384);
@@ -2446,8 +2446,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EME2
-    binnedParameters->setFudgeMean( E020bin, eta250bin, eflowFirstIntRegions::EME2, 0.638000 ); 
-    binnedParameters->setFudgeStdDev( E020bin, eta250bin, eflowFirstIntRegions::EME2, 0.145000 ); 
+    binnedParameters->setFudgeMean( E020bin, eta250bin, eflowFirstIntRegions::EME2, 0.638000 );
+    binnedParameters->setFudgeStdDev( E020bin, eta250bin, eflowFirstIntRegions::EME2, 0.145000 );
 
 
     binnedParameters->setShapeParam( E020bin, eta250bin, eflowFirstIntRegions::EME2, eflowCalo::EME1, NORM1,0.929508);
@@ -2481,8 +2481,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EME3
-    binnedParameters->setFudgeMean( E020bin, eta250bin, eflowFirstIntRegions::EME3, 0.661000 ); 
-    binnedParameters->setFudgeStdDev( E020bin, eta250bin, eflowFirstIntRegions::EME3, 0.157000 ); 
+    binnedParameters->setFudgeMean( E020bin, eta250bin, eflowFirstIntRegions::EME3, 0.661000 );
+    binnedParameters->setFudgeStdDev( E020bin, eta250bin, eflowFirstIntRegions::EME3, 0.157000 );
 
 
     binnedParameters->setShapeParam( E020bin, eta250bin, eflowFirstIntRegions::EME3, eflowCalo::EME1, NORM1,0.359184);
@@ -2516,8 +2516,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = HEC
-    binnedParameters->setFudgeMean( E020bin, eta250bin, eflowFirstIntRegions::HEC, 0.722000 ); 
-    binnedParameters->setFudgeStdDev( E020bin, eta250bin, eflowFirstIntRegions::HEC, 0.175000 ); 
+    binnedParameters->setFudgeMean( E020bin, eta250bin, eflowFirstIntRegions::HEC, 0.722000 );
+    binnedParameters->setFudgeStdDev( E020bin, eta250bin, eflowFirstIntRegions::HEC, 0.175000 );
 
 
     binnedParameters->setShapeParam( E020bin, eta250bin, eflowFirstIntRegions::HEC, eflowCalo::EMB1, NORM1,0.0129383);
@@ -2594,8 +2594,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
     ////////////////////////////
 
    // j1st = EMB1
-    binnedParameters->setFudgeMean( E032point5bin, eta050bin, eflowFirstIntRegions::EMB1, 0.691000 ); 
-    binnedParameters->setFudgeStdDev( E032point5bin, eta050bin, eflowFirstIntRegions::EMB1, 0.099000 ); 
+    binnedParameters->setFudgeMean( E032point5bin, eta050bin, eflowFirstIntRegions::EMB1, 0.691000 );
+    binnedParameters->setFudgeStdDev( E032point5bin, eta050bin, eflowFirstIntRegions::EMB1, 0.099000 );
 
 
     binnedParameters->setShapeParam( E032point5bin, eta050bin, eflowFirstIntRegions::EMB1, eflowCalo::EMB1, NORM1,3.22286);
@@ -2625,8 +2625,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB2
-    binnedParameters->setFudgeMean( E032point5bin, eta050bin, eflowFirstIntRegions::EMB2, 0.694000 ); 
-    binnedParameters->setFudgeStdDev( E032point5bin, eta050bin, eflowFirstIntRegions::EMB2, 0.103000 ); 
+    binnedParameters->setFudgeMean( E032point5bin, eta050bin, eflowFirstIntRegions::EMB2, 0.694000 );
+    binnedParameters->setFudgeStdDev( E032point5bin, eta050bin, eflowFirstIntRegions::EMB2, 0.103000 );
 
 
     binnedParameters->setShapeParam( E032point5bin, eta050bin, eflowFirstIntRegions::EMB2, eflowCalo::EMB1, NORM1,0.793048);
@@ -2656,8 +2656,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB3
-    binnedParameters->setFudgeMean( E032point5bin, eta050bin, eflowFirstIntRegions::EMB3, 0.600000 ); 
-    binnedParameters->setFudgeStdDev( E032point5bin, eta050bin, eflowFirstIntRegions::EMB3, 0.110000 ); 
+    binnedParameters->setFudgeMean( E032point5bin, eta050bin, eflowFirstIntRegions::EMB3, 0.600000 );
+    binnedParameters->setFudgeStdDev( E032point5bin, eta050bin, eflowFirstIntRegions::EMB3, 0.110000 );
 
 
     binnedParameters->setShapeParam( E032point5bin, eta050bin, eflowFirstIntRegions::EMB3, eflowCalo::EMB1, NORM1,0.104622);
@@ -2707,8 +2707,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = Tile
-    binnedParameters->setFudgeMean( E032point5bin, eta050bin, eflowFirstIntRegions::Tile, 0.783000 ); 
-    binnedParameters->setFudgeStdDev( E032point5bin, eta050bin, eflowFirstIntRegions::Tile, 0.102000 ); 
+    binnedParameters->setFudgeMean( E032point5bin, eta050bin, eflowFirstIntRegions::Tile, 0.783000 );
+    binnedParameters->setFudgeStdDev( E032point5bin, eta050bin, eflowFirstIntRegions::Tile, 0.102000 );
 
 
     binnedParameters->setShapeParam( E032point5bin, eta050bin, eflowFirstIntRegions::Tile, eflowCalo::EMB1, NORM1,0.0682025);
@@ -2740,8 +2740,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
     ////////////////////////////
 
    // j1st = EMB1
-    binnedParameters->setFudgeMean( E032point5bin, eta100bin, eflowFirstIntRegions::EMB1, 0.663000 ); 
-    binnedParameters->setFudgeStdDev( E032point5bin, eta100bin, eflowFirstIntRegions::EMB1, 0.114000 ); 
+    binnedParameters->setFudgeMean( E032point5bin, eta100bin, eflowFirstIntRegions::EMB1, 0.663000 );
+    binnedParameters->setFudgeStdDev( E032point5bin, eta100bin, eflowFirstIntRegions::EMB1, 0.114000 );
 
 
     binnedParameters->setShapeParam( E032point5bin, eta100bin, eflowFirstIntRegions::EMB1, eflowCalo::EMB1, NORM1,1.51378);
@@ -2771,8 +2771,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB2
-    binnedParameters->setFudgeMean( E032point5bin, eta100bin, eflowFirstIntRegions::EMB2, 0.681000 ); 
-    binnedParameters->setFudgeStdDev( E032point5bin, eta100bin, eflowFirstIntRegions::EMB2, 0.108000 ); 
+    binnedParameters->setFudgeMean( E032point5bin, eta100bin, eflowFirstIntRegions::EMB2, 0.681000 );
+    binnedParameters->setFudgeStdDev( E032point5bin, eta100bin, eflowFirstIntRegions::EMB2, 0.108000 );
 
 
     binnedParameters->setShapeParam( E032point5bin, eta100bin, eflowFirstIntRegions::EMB2, eflowCalo::EMB1, NORM1,0.490985);
@@ -2802,8 +2802,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB3
-    binnedParameters->setFudgeMean( E032point5bin, eta100bin, eflowFirstIntRegions::EMB3, 0.584000 ); 
-    binnedParameters->setFudgeStdDev( E032point5bin, eta100bin, eflowFirstIntRegions::EMB3, 0.089000 ); 
+    binnedParameters->setFudgeMean( E032point5bin, eta100bin, eflowFirstIntRegions::EMB3, 0.584000 );
+    binnedParameters->setFudgeStdDev( E032point5bin, eta100bin, eflowFirstIntRegions::EMB3, 0.089000 );
 
 
     binnedParameters->setShapeParam( E032point5bin, eta100bin, eflowFirstIntRegions::EMB3, eflowCalo::EMB1, NORM1,0.0759035);
@@ -2853,8 +2853,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = Tile
-    binnedParameters->setFudgeMean( E032point5bin, eta100bin, eflowFirstIntRegions::Tile, 0.761000 ); 
-    binnedParameters->setFudgeStdDev( E032point5bin, eta100bin, eflowFirstIntRegions::Tile, 0.110000 ); 
+    binnedParameters->setFudgeMean( E032point5bin, eta100bin, eflowFirstIntRegions::Tile, 0.761000 );
+    binnedParameters->setFudgeStdDev( E032point5bin, eta100bin, eflowFirstIntRegions::Tile, 0.110000 );
 
 
     binnedParameters->setShapeParam( E032point5bin, eta100bin, eflowFirstIntRegions::Tile, eflowCalo::EMB1, NORM1,0.0554494);
@@ -2886,8 +2886,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
     ////////////////////////////
 
    // j1st = EMB1
-    binnedParameters->setFudgeMean( E032point5bin, eta150bin, eflowFirstIntRegions::EMB1, 0.632000 ); 
-    binnedParameters->setFudgeStdDev( E032point5bin, eta150bin, eflowFirstIntRegions::EMB1, 0.138000 ); 
+    binnedParameters->setFudgeMean( E032point5bin, eta150bin, eflowFirstIntRegions::EMB1, 0.632000 );
+    binnedParameters->setFudgeStdDev( E032point5bin, eta150bin, eflowFirstIntRegions::EMB1, 0.138000 );
 
 
     binnedParameters->setShapeParam( E032point5bin, eta150bin, eflowFirstIntRegions::EMB1, eflowCalo::EMB1, NORM1,0.923022);
@@ -2929,8 +2929,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB2
-    binnedParameters->setFudgeMean( E032point5bin, eta150bin, eflowFirstIntRegions::EMB2, 0.674000 ); 
-    binnedParameters->setFudgeStdDev( E032point5bin, eta150bin, eflowFirstIntRegions::EMB2, 0.141000 ); 
+    binnedParameters->setFudgeMean( E032point5bin, eta150bin, eflowFirstIntRegions::EMB2, 0.674000 );
+    binnedParameters->setFudgeStdDev( E032point5bin, eta150bin, eflowFirstIntRegions::EMB2, 0.141000 );
 
 
     binnedParameters->setShapeParam( E032point5bin, eta150bin, eflowFirstIntRegions::EMB2, eflowCalo::EMB1, NORM1,0.481914);
@@ -2964,8 +2964,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB3
-    binnedParameters->setFudgeMean( E032point5bin, eta150bin, eflowFirstIntRegions::EMB3, 0.670000 ); 
-    binnedParameters->setFudgeStdDev( E032point5bin, eta150bin, eflowFirstIntRegions::EMB3, 0.124000 ); 
+    binnedParameters->setFudgeMean( E032point5bin, eta150bin, eflowFirstIntRegions::EMB3, 0.670000 );
+    binnedParameters->setFudgeStdDev( E032point5bin, eta150bin, eflowFirstIntRegions::EMB3, 0.124000 );
 
 
     binnedParameters->setShapeParam( E032point5bin, eta150bin, eflowFirstIntRegions::EMB3, eflowCalo::EMB1, NORM1,0.0896502);
@@ -3003,15 +3003,15 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EME1
-    binnedParameters->setFudgeMean( E032point5bin, eta150bin, eflowFirstIntRegions::EME1, 0.519000 ); 
-    binnedParameters->setFudgeStdDev( E032point5bin, eta150bin, eflowFirstIntRegions::EME1, 0.149000 ); 
+    binnedParameters->setFudgeMean( E032point5bin, eta150bin, eflowFirstIntRegions::EME1, 0.519000 );
+    binnedParameters->setFudgeStdDev( E032point5bin, eta150bin, eflowFirstIntRegions::EME1, 0.149000 );
 
 
 
 
    // j1st = EME2
-    binnedParameters->setFudgeMean( E032point5bin, eta150bin, eflowFirstIntRegions::EME2, 0.576000 ); 
-    binnedParameters->setFudgeStdDev( E032point5bin, eta150bin, eflowFirstIntRegions::EME2, 0.103000 ); 
+    binnedParameters->setFudgeMean( E032point5bin, eta150bin, eflowFirstIntRegions::EME2, 0.576000 );
+    binnedParameters->setFudgeStdDev( E032point5bin, eta150bin, eflowFirstIntRegions::EME2, 0.103000 );
 
 
 
@@ -3055,8 +3055,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = Tile
-    binnedParameters->setFudgeMean( E032point5bin, eta150bin, eflowFirstIntRegions::Tile, 0.805000 ); 
-    binnedParameters->setFudgeStdDev( E032point5bin, eta150bin, eflowFirstIntRegions::Tile, 0.120000 ); 
+    binnedParameters->setFudgeMean( E032point5bin, eta150bin, eflowFirstIntRegions::Tile, 0.805000 );
+    binnedParameters->setFudgeStdDev( E032point5bin, eta150bin, eflowFirstIntRegions::Tile, 0.120000 );
 
 
     binnedParameters->setShapeParam( E032point5bin, eta150bin, eflowFirstIntRegions::Tile, eflowCalo::EMB1, NORM1,0.0728621);
@@ -3119,8 +3119,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EME1
-    binnedParameters->setFudgeMean( E032point5bin, eta250bin, eflowFirstIntRegions::EME1, 0.635000 ); 
-    binnedParameters->setFudgeStdDev( E032point5bin, eta250bin, eflowFirstIntRegions::EME1, 0.141000 ); 
+    binnedParameters->setFudgeMean( E032point5bin, eta250bin, eflowFirstIntRegions::EME1, 0.635000 );
+    binnedParameters->setFudgeStdDev( E032point5bin, eta250bin, eflowFirstIntRegions::EME1, 0.141000 );
 
 
     binnedParameters->setShapeParam( E032point5bin, eta250bin, eflowFirstIntRegions::EME1, eflowCalo::EME1, NORM1,6.19746);
@@ -3154,8 +3154,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EME2
-    binnedParameters->setFudgeMean( E032point5bin, eta250bin, eflowFirstIntRegions::EME2, 0.690000 ); 
-    binnedParameters->setFudgeStdDev( E032point5bin, eta250bin, eflowFirstIntRegions::EME2, 0.127000 ); 
+    binnedParameters->setFudgeMean( E032point5bin, eta250bin, eflowFirstIntRegions::EME2, 0.690000 );
+    binnedParameters->setFudgeStdDev( E032point5bin, eta250bin, eflowFirstIntRegions::EME2, 0.127000 );
 
 
     binnedParameters->setShapeParam( E032point5bin, eta250bin, eflowFirstIntRegions::EME2, eflowCalo::EME1, NORM1,1.20666);
@@ -3189,8 +3189,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EME3
-    binnedParameters->setFudgeMean( E032point5bin, eta250bin, eflowFirstIntRegions::EME3, 0.692000 ); 
-    binnedParameters->setFudgeStdDev( E032point5bin, eta250bin, eflowFirstIntRegions::EME3, 0.119000 ); 
+    binnedParameters->setFudgeMean( E032point5bin, eta250bin, eflowFirstIntRegions::EME3, 0.692000 );
+    binnedParameters->setFudgeStdDev( E032point5bin, eta250bin, eflowFirstIntRegions::EME3, 0.119000 );
 
 
     binnedParameters->setShapeParam( E032point5bin, eta250bin, eflowFirstIntRegions::EME3, eflowCalo::EME1, NORM1,0.446582);
@@ -3224,8 +3224,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = HEC
-    binnedParameters->setFudgeMean( E032point5bin, eta250bin, eflowFirstIntRegions::HEC, 0.739000 ); 
-    binnedParameters->setFudgeStdDev( E032point5bin, eta250bin, eflowFirstIntRegions::HEC, 0.136000 ); 
+    binnedParameters->setFudgeMean( E032point5bin, eta250bin, eflowFirstIntRegions::HEC, 0.739000 );
+    binnedParameters->setFudgeStdDev( E032point5bin, eta250bin, eflowFirstIntRegions::HEC, 0.136000 );
 
 
     binnedParameters->setShapeParam( E032point5bin, eta250bin, eflowFirstIntRegions::HEC, eflowCalo::EMB1, NORM1,0.0153596);
@@ -3306,8 +3306,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
     ////////////////////////////
 
    // j1st = EMB1
-    binnedParameters->setFudgeMean( E040bin, eta050bin, eflowFirstIntRegions::EMB1, 0.730000 ); 
-    binnedParameters->setFudgeStdDev( E040bin, eta050bin, eflowFirstIntRegions::EMB1, 0.083000 ); 
+    binnedParameters->setFudgeMean( E040bin, eta050bin, eflowFirstIntRegions::EMB1, 0.730000 );
+    binnedParameters->setFudgeStdDev( E040bin, eta050bin, eflowFirstIntRegions::EMB1, 0.083000 );
 
 
     binnedParameters->setShapeParam( E040bin, eta050bin, eflowFirstIntRegions::EMB1, eflowCalo::EMB1, NORM1,2.17614);
@@ -3333,8 +3333,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB2
-    binnedParameters->setFudgeMean( E040bin, eta050bin, eflowFirstIntRegions::EMB2, 0.729000 ); 
-    binnedParameters->setFudgeStdDev( E040bin, eta050bin, eflowFirstIntRegions::EMB2, 0.084000 ); 
+    binnedParameters->setFudgeMean( E040bin, eta050bin, eflowFirstIntRegions::EMB2, 0.729000 );
+    binnedParameters->setFudgeStdDev( E040bin, eta050bin, eflowFirstIntRegions::EMB2, 0.084000 );
 
 
     binnedParameters->setShapeParam( E040bin, eta050bin, eflowFirstIntRegions::EMB2, eflowCalo::EMB1, NORM1,0.67587);
@@ -3360,8 +3360,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB3
-    binnedParameters->setFudgeMean( E040bin, eta050bin, eflowFirstIntRegions::EMB3, 0.646000 ); 
-    binnedParameters->setFudgeStdDev( E040bin, eta050bin, eflowFirstIntRegions::EMB3, 0.080000 ); 
+    binnedParameters->setFudgeMean( E040bin, eta050bin, eflowFirstIntRegions::EMB3, 0.646000 );
+    binnedParameters->setFudgeStdDev( E040bin, eta050bin, eflowFirstIntRegions::EMB3, 0.080000 );
 
 
     binnedParameters->setShapeParam( E040bin, eta050bin, eflowFirstIntRegions::EMB3, eflowCalo::EMB1, NORM1,0.120833);
@@ -3403,8 +3403,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = Tile
-    binnedParameters->setFudgeMean( E040bin, eta050bin, eflowFirstIntRegions::Tile, 0.801000 ); 
-    binnedParameters->setFudgeStdDev( E040bin, eta050bin, eflowFirstIntRegions::Tile, 0.089000 ); 
+    binnedParameters->setFudgeMean( E040bin, eta050bin, eflowFirstIntRegions::Tile, 0.801000 );
+    binnedParameters->setFudgeStdDev( E040bin, eta050bin, eflowFirstIntRegions::Tile, 0.089000 );
 
 
     binnedParameters->setShapeParam( E040bin, eta050bin, eflowFirstIntRegions::Tile, eflowCalo::EMB1, NORM1,0.0661352);
@@ -3428,8 +3428,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
     ////////////////////////////
 
    // j1st = EMB1
-    binnedParameters->setFudgeMean( E040bin, eta100bin, eflowFirstIntRegions::EMB1, 0.708000 ); 
-    binnedParameters->setFudgeStdDev( E040bin, eta100bin, eflowFirstIntRegions::EMB1, 0.091000 ); 
+    binnedParameters->setFudgeMean( E040bin, eta100bin, eflowFirstIntRegions::EMB1, 0.708000 );
+    binnedParameters->setFudgeStdDev( E040bin, eta100bin, eflowFirstIntRegions::EMB1, 0.091000 );
 
 
     binnedParameters->setShapeParam( E040bin, eta100bin, eflowFirstIntRegions::EMB1, eflowCalo::EMB1, NORM1,1.56119);
@@ -3459,8 +3459,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB2
-    binnedParameters->setFudgeMean( E040bin, eta100bin, eflowFirstIntRegions::EMB2, 0.717000 ); 
-    binnedParameters->setFudgeStdDev( E040bin, eta100bin, eflowFirstIntRegions::EMB2, 0.085000 ); 
+    binnedParameters->setFudgeMean( E040bin, eta100bin, eflowFirstIntRegions::EMB2, 0.717000 );
+    binnedParameters->setFudgeStdDev( E040bin, eta100bin, eflowFirstIntRegions::EMB2, 0.085000 );
 
 
     binnedParameters->setShapeParam( E040bin, eta100bin, eflowFirstIntRegions::EMB2, eflowCalo::EMB1, NORM1,0.392916);
@@ -3490,8 +3490,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB3
-    binnedParameters->setFudgeMean( E040bin, eta100bin, eflowFirstIntRegions::EMB3, 0.617000 ); 
-    binnedParameters->setFudgeStdDev( E040bin, eta100bin, eflowFirstIntRegions::EMB3, 0.089000 ); 
+    binnedParameters->setFudgeMean( E040bin, eta100bin, eflowFirstIntRegions::EMB3, 0.617000 );
+    binnedParameters->setFudgeStdDev( E040bin, eta100bin, eflowFirstIntRegions::EMB3, 0.089000 );
 
 
     binnedParameters->setShapeParam( E040bin, eta100bin, eflowFirstIntRegions::EMB3, eflowCalo::EMB1, NORM1,0.0779037);
@@ -3541,8 +3541,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = Tile
-    binnedParameters->setFudgeMean( E040bin, eta100bin, eflowFirstIntRegions::Tile, 0.787000 ); 
-    binnedParameters->setFudgeStdDev( E040bin, eta100bin, eflowFirstIntRegions::Tile, 0.106000 ); 
+    binnedParameters->setFudgeMean( E040bin, eta100bin, eflowFirstIntRegions::Tile, 0.787000 );
+    binnedParameters->setFudgeStdDev( E040bin, eta100bin, eflowFirstIntRegions::Tile, 0.106000 );
 
 
     binnedParameters->setShapeParam( E040bin, eta100bin, eflowFirstIntRegions::Tile, eflowCalo::EMB1, NORM1,0.0522344);
@@ -3574,8 +3574,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
     ////////////////////////////
 
    // j1st = EMB1
-    binnedParameters->setFudgeMean( E040bin, eta150bin, eflowFirstIntRegions::EMB1, 0.693000 ); 
-    binnedParameters->setFudgeStdDev( E040bin, eta150bin, eflowFirstIntRegions::EMB1, 0.112000 ); 
+    binnedParameters->setFudgeMean( E040bin, eta150bin, eflowFirstIntRegions::EMB1, 0.693000 );
+    binnedParameters->setFudgeStdDev( E040bin, eta150bin, eflowFirstIntRegions::EMB1, 0.112000 );
 
 
     binnedParameters->setShapeParam( E040bin, eta150bin, eflowFirstIntRegions::EMB1, eflowCalo::EMB1, NORM1,1.04058);
@@ -3613,8 +3613,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB2
-    binnedParameters->setFudgeMean( E040bin, eta150bin, eflowFirstIntRegions::EMB2, 0.721000 ); 
-    binnedParameters->setFudgeStdDev( E040bin, eta150bin, eflowFirstIntRegions::EMB2, 0.126000 ); 
+    binnedParameters->setFudgeMean( E040bin, eta150bin, eflowFirstIntRegions::EMB2, 0.721000 );
+    binnedParameters->setFudgeStdDev( E040bin, eta150bin, eflowFirstIntRegions::EMB2, 0.126000 );
 
 
     binnedParameters->setShapeParam( E040bin, eta150bin, eflowFirstIntRegions::EMB2, eflowCalo::EMB1, NORM1,0.417358);
@@ -3652,8 +3652,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EMB3
-    binnedParameters->setFudgeMean( E040bin, eta150bin, eflowFirstIntRegions::EMB3, 0.720000 ); 
-    binnedParameters->setFudgeStdDev( E040bin, eta150bin, eflowFirstIntRegions::EMB3, 0.108000 ); 
+    binnedParameters->setFudgeMean( E040bin, eta150bin, eflowFirstIntRegions::EMB3, 0.720000 );
+    binnedParameters->setFudgeStdDev( E040bin, eta150bin, eflowFirstIntRegions::EMB3, 0.108000 );
 
 
     binnedParameters->setShapeParam( E040bin, eta150bin, eflowFirstIntRegions::EMB3, eflowCalo::EMB1, NORM1,0.0769331);
@@ -3695,15 +3695,15 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EME1
-    binnedParameters->setFudgeMean( E040bin, eta150bin, eflowFirstIntRegions::EME1, 0.563000 ); 
-    binnedParameters->setFudgeStdDev( E040bin, eta150bin, eflowFirstIntRegions::EME1, 0.140000 ); 
+    binnedParameters->setFudgeMean( E040bin, eta150bin, eflowFirstIntRegions::EME1, 0.563000 );
+    binnedParameters->setFudgeStdDev( E040bin, eta150bin, eflowFirstIntRegions::EME1, 0.140000 );
 
 
 
 
    // j1st = EME2
-    binnedParameters->setFudgeMean( E040bin, eta150bin, eflowFirstIntRegions::EME2, 0.627000 ); 
-    binnedParameters->setFudgeStdDev( E040bin, eta150bin, eflowFirstIntRegions::EME2, 0.127000 ); 
+    binnedParameters->setFudgeMean( E040bin, eta150bin, eflowFirstIntRegions::EME2, 0.627000 );
+    binnedParameters->setFudgeStdDev( E040bin, eta150bin, eflowFirstIntRegions::EME2, 0.127000 );
 
 
 
@@ -3751,8 +3751,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = Tile
-    binnedParameters->setFudgeMean( E040bin, eta150bin, eflowFirstIntRegions::Tile, 0.822000 ); 
-    binnedParameters->setFudgeStdDev( E040bin, eta150bin, eflowFirstIntRegions::Tile, 0.110000 ); 
+    binnedParameters->setFudgeMean( E040bin, eta150bin, eflowFirstIntRegions::Tile, 0.822000 );
+    binnedParameters->setFudgeStdDev( E040bin, eta150bin, eflowFirstIntRegions::Tile, 0.110000 );
 
 
     binnedParameters->setShapeParam( E040bin, eta150bin, eflowFirstIntRegions::Tile, eflowCalo::EMB1, NORM1,0.0641832);
@@ -3831,8 +3831,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EME1
-    binnedParameters->setFudgeMean( E040bin, eta250bin, eflowFirstIntRegions::EME1, 0.697000 ); 
-    binnedParameters->setFudgeStdDev( E040bin, eta250bin, eflowFirstIntRegions::EME1, 0.123000 ); 
+    binnedParameters->setFudgeMean( E040bin, eta250bin, eflowFirstIntRegions::EME1, 0.697000 );
+    binnedParameters->setFudgeStdDev( E040bin, eta250bin, eflowFirstIntRegions::EME1, 0.123000 );
 
 
     binnedParameters->setShapeParam( E040bin, eta250bin, eflowFirstIntRegions::EME1, eflowCalo::EME1, NORM1,6.5128);
@@ -3866,8 +3866,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EME2
-    binnedParameters->setFudgeMean( E040bin, eta250bin, eflowFirstIntRegions::EME2, 0.736000 ); 
-    binnedParameters->setFudgeStdDev( E040bin, eta250bin, eflowFirstIntRegions::EME2, 0.100000 ); 
+    binnedParameters->setFudgeMean( E040bin, eta250bin, eflowFirstIntRegions::EME2, 0.736000 );
+    binnedParameters->setFudgeStdDev( E040bin, eta250bin, eflowFirstIntRegions::EME2, 0.100000 );
 
 
     binnedParameters->setShapeParam( E040bin, eta250bin, eflowFirstIntRegions::EME2, eflowCalo::EME1, NORM1,1.73191);
@@ -3901,8 +3901,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = EME3
-    binnedParameters->setFudgeMean( E040bin, eta250bin, eflowFirstIntRegions::EME3, 0.729000 ); 
-    binnedParameters->setFudgeStdDev( E040bin, eta250bin, eflowFirstIntRegions::EME3, 0.095000 ); 
+    binnedParameters->setFudgeMean( E040bin, eta250bin, eflowFirstIntRegions::EME3, 0.729000 );
+    binnedParameters->setFudgeStdDev( E040bin, eta250bin, eflowFirstIntRegions::EME3, 0.095000 );
 
 
     binnedParameters->setShapeParam( E040bin, eta250bin, eflowFirstIntRegions::EME3, eflowCalo::EME1, NORM1,0.323704);
@@ -3936,8 +3936,8 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
 
 
    // j1st = HEC
-    binnedParameters->setFudgeMean( E040bin, eta250bin, eflowFirstIntRegions::HEC, 0.763000 ); 
-    binnedParameters->setFudgeStdDev( E040bin, eta250bin, eflowFirstIntRegions::HEC, 0.111000 ); 
+    binnedParameters->setFudgeMean( E040bin, eta250bin, eflowFirstIntRegions::HEC, 0.763000 );
+    binnedParameters->setFudgeStdDev( E040bin, eta250bin, eflowFirstIntRegions::HEC, 0.111000 );
 
 
     binnedParameters->setShapeParam( E040bin, eta250bin, eflowFirstIntRegions::HEC, eflowCalo::EMB1, NORM1,0.0236786);
@@ -4022,109 +4022,109 @@ StatusCode eflowCellEOverPTool_mc12_HLLHC::execute(eflowEEtaBinnedParameters *bi
     binnedParameters->setShapeParam( E040bin, eta250bin, eflowFirstIntRegions::Tile, eflowCalo::Tile2, NORM2,0.00138243);
     binnedParameters->setShapeParam( E040bin, eta250bin, eflowFirstIntRegions::Tile, eflowCalo::Tile2, WIDTH2,0.0876664);
 
-    binnedParameters->setFudgeMean( E001bin, eta350bin, eflowFirstIntRegions::EME1, 0.000000 ); 
-    binnedParameters->setFudgeStdDev( E001bin, eta350bin, eflowFirstIntRegions::EME1, 0.000000 ); 
-    binnedParameters->setFudgeMean( E003point5bin, eta350bin, eflowFirstIntRegions::EME1, 0.000000 ); 
-    binnedParameters->setFudgeStdDev( E003point5bin, eta350bin, eflowFirstIntRegions::EME1, 0.000000 ); 
-    binnedParameters->setFudgeMean( E010bin, eta350bin, eflowFirstIntRegions::EME1, 0.619000 ); 
-    binnedParameters->setFudgeStdDev( E010bin, eta350bin, eflowFirstIntRegions::EME1, 0.613000 ); 
-    binnedParameters->setFudgeMean( E020bin, eta350bin, eflowFirstIntRegions::EME1, 0.532000 ); 
-    binnedParameters->setFudgeStdDev( E020bin, eta350bin, eflowFirstIntRegions::EME1, 0.233000 ); 
-    binnedParameters->setFudgeMean( E032point5bin, eta350bin, eflowFirstIntRegions::EME1, 0.572000 ); 
-    binnedParameters->setFudgeStdDev( E032point5bin, eta350bin, eflowFirstIntRegions::EME1, 0.130000 ); 
-    binnedParameters->setFudgeMean( E040bin, eta350bin, eflowFirstIntRegions::EME1, 0.639000 ); 
-    binnedParameters->setFudgeStdDev( E040bin, eta350bin, eflowFirstIntRegions::EME1, 0.195000 ); 
+    binnedParameters->setFudgeMean( E001bin, eta350bin, eflowFirstIntRegions::EME1, 0.000000 );
+    binnedParameters->setFudgeStdDev( E001bin, eta350bin, eflowFirstIntRegions::EME1, 0.000000 );
+    binnedParameters->setFudgeMean( E003point5bin, eta350bin, eflowFirstIntRegions::EME1, 0.000000 );
+    binnedParameters->setFudgeStdDev( E003point5bin, eta350bin, eflowFirstIntRegions::EME1, 0.000000 );
+    binnedParameters->setFudgeMean( E010bin, eta350bin, eflowFirstIntRegions::EME1, 0.619000 );
+    binnedParameters->setFudgeStdDev( E010bin, eta350bin, eflowFirstIntRegions::EME1, 0.613000 );
+    binnedParameters->setFudgeMean( E020bin, eta350bin, eflowFirstIntRegions::EME1, 0.532000 );
+    binnedParameters->setFudgeStdDev( E020bin, eta350bin, eflowFirstIntRegions::EME1, 0.233000 );
+    binnedParameters->setFudgeMean( E032point5bin, eta350bin, eflowFirstIntRegions::EME1, 0.572000 );
+    binnedParameters->setFudgeStdDev( E032point5bin, eta350bin, eflowFirstIntRegions::EME1, 0.130000 );
+    binnedParameters->setFudgeMean( E040bin, eta350bin, eflowFirstIntRegions::EME1, 0.639000 );
+    binnedParameters->setFudgeStdDev( E040bin, eta350bin, eflowFirstIntRegions::EME1, 0.195000 );
 
-    binnedParameters->setFudgeMean( E001bin, eta450bin, eflowFirstIntRegions::EME1, 0.000000 ); 
-    binnedParameters->setFudgeStdDev( E001bin, eta450bin, eflowFirstIntRegions::EME1, 0.000000 ); 
-    binnedParameters->setFudgeMean( E003point5bin, eta450bin, eflowFirstIntRegions::EME1, 0.000000 ); 
-    binnedParameters->setFudgeStdDev( E003point5bin, eta450bin, eflowFirstIntRegions::EME1, 0.000000 ); 
-    binnedParameters->setFudgeMean( E010bin, eta450bin, eflowFirstIntRegions::EME1, 0.000000 ); 
-    binnedParameters->setFudgeStdDev( E010bin, eta450bin, eflowFirstIntRegions::EME1, 0.000000 ); 
-    binnedParameters->setFudgeMean( E020bin, eta450bin, eflowFirstIntRegions::EME1, 0.000000 ); 
-    binnedParameters->setFudgeStdDev( E020bin, eta450bin, eflowFirstIntRegions::EME1, 0.000000 ); 
-    binnedParameters->setFudgeMean( E032point5bin, eta450bin, eflowFirstIntRegions::EME1, 0.000000 ); 
-    binnedParameters->setFudgeStdDev( E032point5bin, eta450bin, eflowFirstIntRegions::EME1, 0.000000 ); 
-    binnedParameters->setFudgeMean( E040bin, eta450bin, eflowFirstIntRegions::EME1, 0.000000 ); 
-    binnedParameters->setFudgeStdDev( E040bin, eta450bin, eflowFirstIntRegions::EME1, 0.000000 ); 
+    binnedParameters->setFudgeMean( E001bin, eta450bin, eflowFirstIntRegions::EME1, 0.000000 );
+    binnedParameters->setFudgeStdDev( E001bin, eta450bin, eflowFirstIntRegions::EME1, 0.000000 );
+    binnedParameters->setFudgeMean( E003point5bin, eta450bin, eflowFirstIntRegions::EME1, 0.000000 );
+    binnedParameters->setFudgeStdDev( E003point5bin, eta450bin, eflowFirstIntRegions::EME1, 0.000000 );
+    binnedParameters->setFudgeMean( E010bin, eta450bin, eflowFirstIntRegions::EME1, 0.000000 );
+    binnedParameters->setFudgeStdDev( E010bin, eta450bin, eflowFirstIntRegions::EME1, 0.000000 );
+    binnedParameters->setFudgeMean( E020bin, eta450bin, eflowFirstIntRegions::EME1, 0.000000 );
+    binnedParameters->setFudgeStdDev( E020bin, eta450bin, eflowFirstIntRegions::EME1, 0.000000 );
+    binnedParameters->setFudgeMean( E032point5bin, eta450bin, eflowFirstIntRegions::EME1, 0.000000 );
+    binnedParameters->setFudgeStdDev( E032point5bin, eta450bin, eflowFirstIntRegions::EME1, 0.000000 );
+    binnedParameters->setFudgeMean( E040bin, eta450bin, eflowFirstIntRegions::EME1, 0.000000 );
+    binnedParameters->setFudgeStdDev( E040bin, eta450bin, eflowFirstIntRegions::EME1, 0.000000 );
 
-    binnedParameters->setFudgeMean( E001bin, eta350bin, eflowFirstIntRegions::EME2, 0.000000 ); 
-    binnedParameters->setFudgeStdDev( E001bin, eta350bin, eflowFirstIntRegions::EME2, 0.000000 ); 
-    binnedParameters->setFudgeMean( E003point5bin, eta350bin, eflowFirstIntRegions::EME2, 0.300000 ); 
-    binnedParameters->setFudgeStdDev( E003point5bin, eta350bin, eflowFirstIntRegions::EME2, 1.837000 ); 
-    binnedParameters->setFudgeMean( E010bin, eta350bin, eflowFirstIntRegions::EME2, 0.515000 ); 
-    binnedParameters->setFudgeStdDev( E010bin, eta350bin, eflowFirstIntRegions::EME2, 0.203000 ); 
-    binnedParameters->setFudgeMean( E020bin, eta350bin, eflowFirstIntRegions::EME2, 0.594000 ); 
-    binnedParameters->setFudgeStdDev( E020bin, eta350bin, eflowFirstIntRegions::EME2, 0.186000 ); 
-    binnedParameters->setFudgeMean( E032point5bin, eta350bin, eflowFirstIntRegions::EME2, 0.636000 ); 
-    binnedParameters->setFudgeStdDev( E032point5bin, eta350bin, eflowFirstIntRegions::EME2, 0.148000 ); 
-    binnedParameters->setFudgeMean( E040bin, eta350bin, eflowFirstIntRegions::EME2, 0.693000 ); 
-    binnedParameters->setFudgeStdDev( E040bin, eta350bin, eflowFirstIntRegions::EME2, 0.131000 ); 
+    binnedParameters->setFudgeMean( E001bin, eta350bin, eflowFirstIntRegions::EME2, 0.000000 );
+    binnedParameters->setFudgeStdDev( E001bin, eta350bin, eflowFirstIntRegions::EME2, 0.000000 );
+    binnedParameters->setFudgeMean( E003point5bin, eta350bin, eflowFirstIntRegions::EME2, 0.300000 );
+    binnedParameters->setFudgeStdDev( E003point5bin, eta350bin, eflowFirstIntRegions::EME2, 1.837000 );
+    binnedParameters->setFudgeMean( E010bin, eta350bin, eflowFirstIntRegions::EME2, 0.515000 );
+    binnedParameters->setFudgeStdDev( E010bin, eta350bin, eflowFirstIntRegions::EME2, 0.203000 );
+    binnedParameters->setFudgeMean( E020bin, eta350bin, eflowFirstIntRegions::EME2, 0.594000 );
+    binnedParameters->setFudgeStdDev( E020bin, eta350bin, eflowFirstIntRegions::EME2, 0.186000 );
+    binnedParameters->setFudgeMean( E032point5bin, eta350bin, eflowFirstIntRegions::EME2, 0.636000 );
+    binnedParameters->setFudgeStdDev( E032point5bin, eta350bin, eflowFirstIntRegions::EME2, 0.148000 );
+    binnedParameters->setFudgeMean( E040bin, eta350bin, eflowFirstIntRegions::EME2, 0.693000 );
+    binnedParameters->setFudgeStdDev( E040bin, eta350bin, eflowFirstIntRegions::EME2, 0.131000 );
 
-    binnedParameters->setFudgeMean( E001bin, eta450bin, eflowFirstIntRegions::EME2, 0.000000 ); 
-    binnedParameters->setFudgeStdDev( E001bin, eta450bin, eflowFirstIntRegions::EME2, 0.000000 ); 
-    binnedParameters->setFudgeMean( E003point5bin, eta450bin, eflowFirstIntRegions::EME2, 0.000000 ); 
-    binnedParameters->setFudgeStdDev( E003point5bin, eta450bin, eflowFirstIntRegions::EME2, 0.000000 ); 
-    binnedParameters->setFudgeMean( E010bin, eta450bin, eflowFirstIntRegions::EME2, 0.000000 ); 
-    binnedParameters->setFudgeStdDev( E010bin, eta450bin, eflowFirstIntRegions::EME2, 0.000000 ); 
-    binnedParameters->setFudgeMean( E020bin, eta450bin, eflowFirstIntRegions::EME2, 0.000000 ); 
-    binnedParameters->setFudgeStdDev( E020bin, eta450bin, eflowFirstIntRegions::EME2, 0.000000 ); 
-    binnedParameters->setFudgeMean( E032point5bin, eta450bin, eflowFirstIntRegions::EME2, 0.000000 ); 
-    binnedParameters->setFudgeStdDev( E032point5bin, eta450bin, eflowFirstIntRegions::EME2, 0.000000 ); 
-    binnedParameters->setFudgeMean( E040bin, eta450bin, eflowFirstIntRegions::EME2, 0.000000 ); 
-    binnedParameters->setFudgeStdDev( E040bin, eta450bin, eflowFirstIntRegions::EME2, 0.000000 ); 
+    binnedParameters->setFudgeMean( E001bin, eta450bin, eflowFirstIntRegions::EME2, 0.000000 );
+    binnedParameters->setFudgeStdDev( E001bin, eta450bin, eflowFirstIntRegions::EME2, 0.000000 );
+    binnedParameters->setFudgeMean( E003point5bin, eta450bin, eflowFirstIntRegions::EME2, 0.000000 );
+    binnedParameters->setFudgeStdDev( E003point5bin, eta450bin, eflowFirstIntRegions::EME2, 0.000000 );
+    binnedParameters->setFudgeMean( E010bin, eta450bin, eflowFirstIntRegions::EME2, 0.000000 );
+    binnedParameters->setFudgeStdDev( E010bin, eta450bin, eflowFirstIntRegions::EME2, 0.000000 );
+    binnedParameters->setFudgeMean( E020bin, eta450bin, eflowFirstIntRegions::EME2, 0.000000 );
+    binnedParameters->setFudgeStdDev( E020bin, eta450bin, eflowFirstIntRegions::EME2, 0.000000 );
+    binnedParameters->setFudgeMean( E032point5bin, eta450bin, eflowFirstIntRegions::EME2, 0.000000 );
+    binnedParameters->setFudgeStdDev( E032point5bin, eta450bin, eflowFirstIntRegions::EME2, 0.000000 );
+    binnedParameters->setFudgeMean( E040bin, eta450bin, eflowFirstIntRegions::EME2, 0.000000 );
+    binnedParameters->setFudgeStdDev( E040bin, eta450bin, eflowFirstIntRegions::EME2, 0.000000 );
 
-    binnedParameters->setFudgeMean( E001bin, eta350bin, eflowFirstIntRegions::EME3, 0.000000 ); 
-    binnedParameters->setFudgeStdDev( E001bin, eta350bin, eflowFirstIntRegions::EME3, 0.000000 ); 
-    binnedParameters->setFudgeMean( E003point5bin, eta350bin, eflowFirstIntRegions::EME3, 0.424000 ); 
-    binnedParameters->setFudgeStdDev( E003point5bin, eta350bin, eflowFirstIntRegions::EME3, 0.253000 ); 
-    binnedParameters->setFudgeMean( E010bin, eta350bin, eflowFirstIntRegions::EME3, 0.549000 ); 
-    binnedParameters->setFudgeStdDev( E010bin, eta350bin, eflowFirstIntRegions::EME3, 0.230000 ); 
-    binnedParameters->setFudgeMean( E020bin, eta350bin, eflowFirstIntRegions::EME3, 0.612000 ); 
-    binnedParameters->setFudgeStdDev( E020bin, eta350bin, eflowFirstIntRegions::EME3, 0.166000 ); 
-    binnedParameters->setFudgeMean( E032point5bin, eta350bin, eflowFirstIntRegions::EME3, 0.642000 ); 
-    binnedParameters->setFudgeStdDev( E032point5bin, eta350bin, eflowFirstIntRegions::EME3, 0.139000 ); 
-    binnedParameters->setFudgeMean( E040bin, eta350bin, eflowFirstIntRegions::EME3, 0.687000 ); 
-    binnedParameters->setFudgeStdDev( E040bin, eta350bin, eflowFirstIntRegions::EME3, 0.120000 ); 
+    binnedParameters->setFudgeMean( E001bin, eta350bin, eflowFirstIntRegions::EME3, 0.000000 );
+    binnedParameters->setFudgeStdDev( E001bin, eta350bin, eflowFirstIntRegions::EME3, 0.000000 );
+    binnedParameters->setFudgeMean( E003point5bin, eta350bin, eflowFirstIntRegions::EME3, 0.424000 );
+    binnedParameters->setFudgeStdDev( E003point5bin, eta350bin, eflowFirstIntRegions::EME3, 0.253000 );
+    binnedParameters->setFudgeMean( E010bin, eta350bin, eflowFirstIntRegions::EME3, 0.549000 );
+    binnedParameters->setFudgeStdDev( E010bin, eta350bin, eflowFirstIntRegions::EME3, 0.230000 );
+    binnedParameters->setFudgeMean( E020bin, eta350bin, eflowFirstIntRegions::EME3, 0.612000 );
+    binnedParameters->setFudgeStdDev( E020bin, eta350bin, eflowFirstIntRegions::EME3, 0.166000 );
+    binnedParameters->setFudgeMean( E032point5bin, eta350bin, eflowFirstIntRegions::EME3, 0.642000 );
+    binnedParameters->setFudgeStdDev( E032point5bin, eta350bin, eflowFirstIntRegions::EME3, 0.139000 );
+    binnedParameters->setFudgeMean( E040bin, eta350bin, eflowFirstIntRegions::EME3, 0.687000 );
+    binnedParameters->setFudgeStdDev( E040bin, eta350bin, eflowFirstIntRegions::EME3, 0.120000 );
 
-    binnedParameters->setFudgeMean( E001bin, eta450bin, eflowFirstIntRegions::EME3, 0.000000 ); 
-    binnedParameters->setFudgeStdDev( E001bin, eta450bin, eflowFirstIntRegions::EME3, 0.000000 ); 
-    binnedParameters->setFudgeMean( E003point5bin, eta450bin, eflowFirstIntRegions::EME3, 0.000000 ); 
-    binnedParameters->setFudgeStdDev( E003point5bin, eta450bin, eflowFirstIntRegions::EME3, 0.000000 ); 
-    binnedParameters->setFudgeMean( E010bin, eta450bin, eflowFirstIntRegions::EME3, 0.000000 ); 
-    binnedParameters->setFudgeStdDev( E010bin, eta450bin, eflowFirstIntRegions::EME3, 0.000000 ); 
-    binnedParameters->setFudgeMean( E020bin, eta450bin, eflowFirstIntRegions::EME3, 0.000000 ); 
-    binnedParameters->setFudgeStdDev( E020bin, eta450bin, eflowFirstIntRegions::EME3, 0.000000 ); 
-    binnedParameters->setFudgeMean( E032point5bin, eta450bin, eflowFirstIntRegions::EME3, 0.000000 ); 
-    binnedParameters->setFudgeStdDev( E032point5bin, eta450bin, eflowFirstIntRegions::EME3, 0.000000 ); 
-    binnedParameters->setFudgeMean( E040bin, eta450bin, eflowFirstIntRegions::EME3, 0.000000 ); 
-    binnedParameters->setFudgeStdDev( E040bin, eta450bin, eflowFirstIntRegions::EME3, 0.000000 ); 
+    binnedParameters->setFudgeMean( E001bin, eta450bin, eflowFirstIntRegions::EME3, 0.000000 );
+    binnedParameters->setFudgeStdDev( E001bin, eta450bin, eflowFirstIntRegions::EME3, 0.000000 );
+    binnedParameters->setFudgeMean( E003point5bin, eta450bin, eflowFirstIntRegions::EME3, 0.000000 );
+    binnedParameters->setFudgeStdDev( E003point5bin, eta450bin, eflowFirstIntRegions::EME3, 0.000000 );
+    binnedParameters->setFudgeMean( E010bin, eta450bin, eflowFirstIntRegions::EME3, 0.000000 );
+    binnedParameters->setFudgeStdDev( E010bin, eta450bin, eflowFirstIntRegions::EME3, 0.000000 );
+    binnedParameters->setFudgeMean( E020bin, eta450bin, eflowFirstIntRegions::EME3, 0.000000 );
+    binnedParameters->setFudgeStdDev( E020bin, eta450bin, eflowFirstIntRegions::EME3, 0.000000 );
+    binnedParameters->setFudgeMean( E032point5bin, eta450bin, eflowFirstIntRegions::EME3, 0.000000 );
+    binnedParameters->setFudgeStdDev( E032point5bin, eta450bin, eflowFirstIntRegions::EME3, 0.000000 );
+    binnedParameters->setFudgeMean( E040bin, eta450bin, eflowFirstIntRegions::EME3, 0.000000 );
+    binnedParameters->setFudgeStdDev( E040bin, eta450bin, eflowFirstIntRegions::EME3, 0.000000 );
 
-    binnedParameters->setFudgeMean( E001bin, eta350bin, eflowFirstIntRegions::HEC, 0.000000 ); 
-    binnedParameters->setFudgeStdDev( E001bin, eta350bin, eflowFirstIntRegions::HEC, 0.000000 ); 
-    binnedParameters->setFudgeMean( E003point5bin, eta350bin, eflowFirstIntRegions::HEC, 0.971000 ); 
-    binnedParameters->setFudgeStdDev( E003point5bin, eta350bin, eflowFirstIntRegions::HEC, 0.500000 ); 
-    binnedParameters->setFudgeMean( E010bin, eta350bin, eflowFirstIntRegions::HEC, 0.636000 ); 
-    binnedParameters->setFudgeStdDev( E010bin, eta350bin, eflowFirstIntRegions::HEC, 0.220000 ); 
-    binnedParameters->setFudgeMean( E020bin, eta350bin, eflowFirstIntRegions::HEC, 0.682000 ); 
-    binnedParameters->setFudgeStdDev( E020bin, eta350bin, eflowFirstIntRegions::HEC, 0.180000 ); 
-    binnedParameters->setFudgeMean( E032point5bin, eta350bin, eflowFirstIntRegions::HEC, 0.705000 ); 
-    binnedParameters->setFudgeStdDev( E032point5bin, eta350bin, eflowFirstIntRegions::HEC, 0.145000 ); 
-    binnedParameters->setFudgeMean( E040bin, eta350bin, eflowFirstIntRegions::HEC, 0.732000 ); 
-    binnedParameters->setFudgeStdDev( E040bin, eta350bin, eflowFirstIntRegions::HEC, 0.130000 ); 
+    binnedParameters->setFudgeMean( E001bin, eta350bin, eflowFirstIntRegions::HEC, 0.000000 );
+    binnedParameters->setFudgeStdDev( E001bin, eta350bin, eflowFirstIntRegions::HEC, 0.000000 );
+    binnedParameters->setFudgeMean( E003point5bin, eta350bin, eflowFirstIntRegions::HEC, 0.971000 );
+    binnedParameters->setFudgeStdDev( E003point5bin, eta350bin, eflowFirstIntRegions::HEC, 0.500000 );
+    binnedParameters->setFudgeMean( E010bin, eta350bin, eflowFirstIntRegions::HEC, 0.636000 );
+    binnedParameters->setFudgeStdDev( E010bin, eta350bin, eflowFirstIntRegions::HEC, 0.220000 );
+    binnedParameters->setFudgeMean( E020bin, eta350bin, eflowFirstIntRegions::HEC, 0.682000 );
+    binnedParameters->setFudgeStdDev( E020bin, eta350bin, eflowFirstIntRegions::HEC, 0.180000 );
+    binnedParameters->setFudgeMean( E032point5bin, eta350bin, eflowFirstIntRegions::HEC, 0.705000 );
+    binnedParameters->setFudgeStdDev( E032point5bin, eta350bin, eflowFirstIntRegions::HEC, 0.145000 );
+    binnedParameters->setFudgeMean( E040bin, eta350bin, eflowFirstIntRegions::HEC, 0.732000 );
+    binnedParameters->setFudgeStdDev( E040bin, eta350bin, eflowFirstIntRegions::HEC, 0.130000 );
 
-    binnedParameters->setFudgeMean( E001bin, eta450bin, eflowFirstIntRegions::HEC, 0.000000 ); 
-    binnedParameters->setFudgeStdDev( E001bin, eta450bin, eflowFirstIntRegions::HEC, 0.000000 ); 
-    binnedParameters->setFudgeMean( E003point5bin, eta450bin, eflowFirstIntRegions::HEC, 0.000000 ); 
-    binnedParameters->setFudgeStdDev( E003point5bin, eta450bin, eflowFirstIntRegions::HEC, 0.000000 ); 
-    binnedParameters->setFudgeMean( E010bin, eta450bin, eflowFirstIntRegions::HEC, 0.000000 ); 
-    binnedParameters->setFudgeStdDev( E010bin, eta450bin, eflowFirstIntRegions::HEC, 0.000000 ); 
-    binnedParameters->setFudgeMean( E020bin, eta450bin, eflowFirstIntRegions::HEC, 0.000000 ); 
-    binnedParameters->setFudgeStdDev( E020bin, eta450bin, eflowFirstIntRegions::HEC, 0.000000 ); 
-    binnedParameters->setFudgeMean( E032point5bin, eta450bin, eflowFirstIntRegions::HEC, 0.000000 ); 
-    binnedParameters->setFudgeStdDev( E032point5bin, eta450bin, eflowFirstIntRegions::HEC, 0.000000 ); 
-    binnedParameters->setFudgeMean( E040bin, eta450bin, eflowFirstIntRegions::HEC, 0.000000 ); 
-    binnedParameters->setFudgeStdDev( E040bin, eta450bin, eflowFirstIntRegions::HEC, 0.000000 ); 
+    binnedParameters->setFudgeMean( E001bin, eta450bin, eflowFirstIntRegions::HEC, 0.000000 );
+    binnedParameters->setFudgeStdDev( E001bin, eta450bin, eflowFirstIntRegions::HEC, 0.000000 );
+    binnedParameters->setFudgeMean( E003point5bin, eta450bin, eflowFirstIntRegions::HEC, 0.000000 );
+    binnedParameters->setFudgeStdDev( E003point5bin, eta450bin, eflowFirstIntRegions::HEC, 0.000000 );
+    binnedParameters->setFudgeMean( E010bin, eta450bin, eflowFirstIntRegions::HEC, 0.000000 );
+    binnedParameters->setFudgeStdDev( E010bin, eta450bin, eflowFirstIntRegions::HEC, 0.000000 );
+    binnedParameters->setFudgeMean( E020bin, eta450bin, eflowFirstIntRegions::HEC, 0.000000 );
+    binnedParameters->setFudgeStdDev( E020bin, eta450bin, eflowFirstIntRegions::HEC, 0.000000 );
+    binnedParameters->setFudgeMean( E032point5bin, eta450bin, eflowFirstIntRegions::HEC, 0.000000 );
+    binnedParameters->setFudgeStdDev( E032point5bin, eta450bin, eflowFirstIntRegions::HEC, 0.000000 );
+    binnedParameters->setFudgeMean( E040bin, eta450bin, eflowFirstIntRegions::HEC, 0.000000 );
+    binnedParameters->setFudgeStdDev( E040bin, eta450bin, eflowFirstIntRegions::HEC, 0.000000 );
 
     binnedParameters->setFudgeMean( E001bin, eta350bin, eflowFirstIntRegions::FCAL, 0.000000 );
     binnedParameters->setFudgeStdDev( E001bin, eta350bin, eflowFirstIntRegions::FCAL, 0.000000 );
