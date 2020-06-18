@@ -7,6 +7,7 @@ from MuonConfig.MuonSegmentFindingConfig import CalibCscStripFitterCfg
 
 from .CscMonUtils import getCSCLabelx
 
+
 def CscMonitoringConfigOld(inputFlags):
     from AthenaMonitoring import AthMonitorCfgHelperOld
     helper = AthMonitorCfgHelperOld(inputFlags,'CscAthMonitorCfg')
@@ -26,20 +27,7 @@ def CscMonitoringConfig(inputFlags):
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
     result.merge(MuonGeoModelCfg(inputFlags))
 
-
-       # Temporary, until we move to services/private tools-- from MuonSpectrometer/MuonConfig
-   # result.addPublicTool( CompFactory.Muon__MuonIdHelperTool() )
-    strp = CalibCscStripFitterCfg(inputFlags)
-    strp.popPrivateTools()
-    result.merge(strp)
-
-   # CalibCscStripFitter = CompFactory.CalibCscStripFitter
-  #  result.addPublicTool(CompFactory.Calib__CalibCscStripFitterTool())
-   # res = CalibCscStripFitter()
-   # result.addPublicTool(CompFactory.CalibCscStripFitter())
     
-
-
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools
     from AthenaMonitoring import AthMonitorCfgHelper
@@ -62,8 +50,11 @@ def CscMonitoringConfig(inputFlags):
     # Edit properties of a algorithm
     # some generic property
     # exampleMonAlg.RandomHist = True
+   # cscPrdMonAlg.NoiseCutADC = 50 
+   # cscPrdMonAlg.MapYXandRZ = True
     # to enable a trigger filter, for example:
     #exampleMonAlg.TriggerChain = 'HLT_mu26_ivarmedium'
+
 
     ### STEP 4 ###
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the
@@ -73,6 +64,13 @@ def CscMonitoringConfig(inputFlags):
     # # this example, no accumulator is returned, so no merge is necessary.
     # from MyDomainPackage.MyDomainPackageConf import MyDomainTool
     # exampleMonAlg.MyDomainTool = MyDomainTool()
+   # cscClusMonAlg.CSCStripFitter = strp
+   # cscPrdMonAlg.CSCStripFitter = strp
+
+    strp = CalibCscStripFitterCfg(inputFlags)
+    strp.popPrivateTools()
+    result.merge(strp)
+
     
  
     # Add a generic monitoring tool (a "group" in old language). The returned 
