@@ -7,6 +7,8 @@
 #include "InDetEtaDependentCuts/InDetEtaDependentCutsSvc.h"
 
 #include <cmath>
+#include <functional>
+#include <variant>
 
 namespace InDet {
   
@@ -44,34 +46,63 @@ namespace InDet {
       
       ATH_MSG_INFO ("Initializing " << name() << "...");
       
-      std::vector < std::vector <double>* > setsOfCutsD = { &m_etaWidthBrem.value()        , 
-                                                            &m_maxdImpactSSSSeeds.value()  ,
-                                                            &m_maxPrimaryImpact.value()    ,
-                                                            &m_maxZImpact.value()          ,
-                                                            &m_minPT.value()               ,
-                                                            &m_minPTBrem.value()           ,
-                                                            &m_phiWidthBrem.value()        ,
-                                                            &m_Xi2max.value()              ,
-                                                            &m_Xi2maxNoAdd.value()         };
-                                            
-      std::vector < std::vector <int>* > setsOfCutsI    = { &m_maxDoubleHoles.value()      ,
-                                                            &m_maxHoles.value()            ,
-                                                            &m_maxPixelHoles.value()       ,
-                                                            &m_maxSctHoles.value()         ,
-                                                            &m_maxShared.value()           ,
-                                                            &m_minClusters.value()         ,
-                                                            &m_minPixelHits.value()        ,
-                                                            &m_minSiNotShared.value()      ,
-                                                            &m_maxHolesGapPattern.value()  ,
-                                                            &m_maxHolesPattern.value()     ,
-                                                            &m_nWeightedClustersMin.value()};
+      if ((m_etaBins.size()-1) <= 0) {
+        ATH_MSG_ERROR( "Wrong inizialisation of eta bins. Check the eta bin values in " << name() );
+        return StatusCode::FAILURE;
+      }
+      
+      // expecting eta bins in ascending order
+      if (not std::is_sorted(m_etaBins.value().begin(), m_etaBins.value().end())) {
+        ATH_MSG_ERROR( "Wrong inizialisation of eta bins in " << name() << ". Values are not sorted!" );
+        return StatusCode::FAILURE;
+      }          
+      
+      using setOfCuts = std::variant< std::reference_wrapper<std::vector <double>>, std::reference_wrapper<std::vector <int>> >;
+      
+      std::vector < setOfCuts > allCuts = { m_etaWidthBrem.value()        , 
+                                            m_maxdImpactSSSSeeds.value()  ,
+                                            m_maxPrimaryImpact.value()    ,
+                                            m_maxZImpact.value()          ,
+                                            m_minPT.value()               ,
+                                            m_minPTBrem.value()           ,
+                                            m_phiWidthBrem.value()        ,
+                                            m_Xi2max.value()              ,
+                                            m_Xi2maxNoAdd.value()         ,
+                                            m_maxDoubleHoles.value()      ,
+                                            m_maxHoles.value()            ,
+                                            m_maxPixelHoles.value()       ,
+                                            m_maxSctHoles.value()         ,
+                                            m_maxShared.value()           ,
+                                            m_minClusters.value()         ,
+                                            m_minPixelHits.value()        ,
+                                            m_minSiNotShared.value()      ,
+                                            m_maxHolesGapPattern.value()  ,
+                                            m_maxHolesPattern.value()     ,
+                                            m_nWeightedClustersMin.value()};
       
       // checking if the set of cuts makes sense
-      if (checkSize(setsOfCutsD).isFailure())
-        ATH_MSG_ERROR( "Check the cut values used in " << name() );
-      
-      if (checkSize(setsOfCutsI).isFailure())
-        ATH_MSG_ERROR( "Check the cut values used in " << name() );
+      size_t noOfEtaBins = m_etaBins.size()-1;
+                                            
+      for (setOfCuts& cuts : allCuts) {
+        auto sCode = std::visit([noOfEtaBins] (auto & testingCuts) -> StatusCode { 
+         
+          if (testingCuts.get().size() == noOfEtaBins) 
+            return StatusCode::SUCCESS;
+                                 
+          if (testingCuts.get().size() > noOfEtaBins)
+            return StatusCode::FAILURE;
+          
+          if (testingCuts.get().size() < noOfEtaBins)
+            testingCuts.get().resize(noOfEtaBins, testingCuts.get().back());
+                    
+          return StatusCode::SUCCESS;
+        } , cuts);
+        
+        if (sCode.isFailure()) {
+          ATH_MSG_ERROR( "No. of cut values bigger than eta bins");
+          return sCode;
+        }
+      }
       
       // printing all the cuts
       ATH_MSG_DEBUG ("--- Dynamic cuts ---");
@@ -95,8 +126,7 @@ namespace InDet {
       ATH_MSG_DEBUG ("nWeightedClustersMin: " << m_nWeightedClustersMin);
       ATH_MSG_DEBUG ("phiWidthBrem: " << m_phiWidthBrem);
       ATH_MSG_DEBUG ("Xi2max: " << m_Xi2max);
-      ATH_MSG_DEBUG ("Xi2maxNoAdd: " << m_Xi2maxNoAdd);                
-      
+      ATH_MSG_DEBUG ("Xi2maxNoAdd: " << m_Xi2maxNoAdd);   
 
       return StatusCode::SUCCESS;
     }
@@ -106,27 +136,6 @@ namespace InDet {
     ///////////////
     StatusCode InDetEtaDependentCutsSvc::finalize() {
       ATH_MSG_INFO ("Finalizing " << name() << "...");
-      return StatusCode::SUCCESS;
-    }
-    
-    template <class T>
-    StatusCode InDetEtaDependentCutsSvc::checkSize(T& cuts) {
-      // getting the number of eta bins
-      size_t noOfEtaBins = m_etaBins.size()-1;
-      for (auto *cut : cuts) {
-        if (cut->size() == noOfEtaBins) continue;
-        
-        if (cut->size() > noOfEtaBins){
-          ATH_MSG_ERROR( "No. of cut values bigger than eta bins");
-          return StatusCode::FAILURE;
-        }
-        
-        if (cut->size() < noOfEtaBins){
-          ATH_MSG_DEBUG( "No. of cut values smaller than eta bins. Extending size..." );
-          cut->resize(noOfEtaBins, cut->back());
-          ATH_MSG_DEBUG( "... updated sets of cuts: " << cut );
-        }
-      }
       return StatusCode::SUCCESS;
     }
 

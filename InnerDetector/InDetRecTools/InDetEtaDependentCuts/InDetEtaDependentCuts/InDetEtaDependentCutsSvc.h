@@ -67,9 +67,6 @@ namespace InDet {
       
       int getIndexByEta(const double eta) const;
       
-      template <class T>
-      StatusCode checkSize(T& cuts);
-      
       DoubleArrayProperty   m_etaBins              {this, "etaBins"             , {0.0, 4.0}, "eta bins (highest eta is maxEta)"         };
       DoubleArrayProperty   m_minPT                {this, "minPT"               , {900.0}   , "min pT [MeV]"                             };
       DoubleArrayProperty   m_maxPrimaryImpact     {this, "maxPrimaryImpact"    , {2.0}     , "max Rphi IP (primaries) [mm]"             };
