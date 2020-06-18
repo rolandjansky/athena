@@ -102,6 +102,8 @@ namespace Muon
 
     ToolHandle<IMMClusterBuilderTool> m_clusterBuilderTool;
     ToolHandle<INSWCalibTool> m_calibTool;
+
+    float m_singleStripChargeCut;
   }; 
 } // end of namespace
 
