@@ -1107,10 +1107,10 @@ if (m_useMdtData>0) {
       msg()<< MSG::DEBUG << " RPC PRD Container retrieved" << endmsg;
     }
     // Get RPC collections
-    RpcPrepDataContainer::const_iterator RPCcoll;
+    const Muon::RpcPrepDataCollection* RPCcoll = nullptr;
     for(std::vector<IdentifierHash>::const_iterator idit = rpc_hash_ids.begin(); idit != rpc_hash_ids.end(); ++idit) {
-      RPCcoll = rpcPrds->indexFind(*idit);
-      if( RPCcoll == rpcPrds->end() ) {
+      RPCcoll = rpcPrds->indexFindPtr(*idit);
+      if( RPCcoll == nullptr ) {
         if (msgLvl(MSG::VERBOSE)) {
 	       Identifier idColl;
           IdContext rpcContext = m_idHelperSvc->rpcIdHelper().module_context();
@@ -1121,7 +1121,7 @@ if (m_useMdtData>0) {
         }
         continue;
       }
-      if( (*RPCcoll)->size() == 0)    {
+      if( RPCcoll->size() == 0)    {
         if (msgLvl(MSG::VERBOSE)) {
           Identifier idColl;
           IdContext rpcContext = m_idHelperSvc->rpcIdHelper().module_context();
@@ -1135,18 +1135,18 @@ if (m_useMdtData>0) {
       
       rpc_hash_ids_cache.push_back(*idit);
       
-      nRpcHits+=(*RPCcoll)->size(); // count hits for TrigMuonEFInfo
-      rpcCols.push_back(*RPCcoll);
+      nRpcHits+=RPCcoll->size(); // count hits for TrigMuonEFInfo
+      rpcCols.push_back(RPCcoll);
       if (msgLvl(MSG::DEBUG)) 
         ATH_MSG_DEBUG("Selected Rpc Collection: "
-              << m_idHelperSvc->rpcIdHelper().show_to_string((*RPCcoll)->identify())
+              << m_idHelperSvc->rpcIdHelper().show_to_string(RPCcoll->identify())
               << " (hash = " << (int)*idit
-              << ") with size " << (*RPCcoll)->size());
+              << ") with size " << RPCcoll->size());
       else if (testRoiDrivenMode) 
         ATH_MSG_INFO("Selected Rpc Collection: "
-				  << m_idHelperSvc->rpcIdHelper().show_to_string((*RPCcoll)->identify())
+				  << m_idHelperSvc->rpcIdHelper().show_to_string(RPCcoll->identify())
               << " (hash = " << (int)*idit
-				  << "), with size " << (*RPCcoll)->size());
+				  << "), with size " << RPCcoll->size());
 
     }
     if (rpcCols.empty()) {
@@ -1169,11 +1169,11 @@ if (m_useMdtData>0) {
     }
     
     // Get MDT collections
-    MdtPrepDataContainer::const_iterator MDTcoll;
+    const Muon::MdtPrepDataCollection* MDTcoll = nullptr;
     for(std::vector<IdentifierHash>::const_iterator idit = mdt_hash_ids.begin();
 	idit != mdt_hash_ids.end(); ++idit) {
-      MDTcoll = mdtPrds->indexFind(*idit);
-      if( MDTcoll == mdtPrds->end() ) {
+      MDTcoll = mdtPrds->indexFindPtr(*idit);
+      if( MDTcoll == nullptr ) {
 	if (msgLvl(MSG::VERBOSE)) {
 	  Identifier idColl;
 	  IdContext mdtContext = m_idHelperSvc->mdtIdHelper().module_context();
@@ -1184,7 +1184,7 @@ if (m_useMdtData>0) {
 	}
 	continue;
       }
-      if( (*MDTcoll)->size() == 0)    {
+      if( MDTcoll->size() == 0)    {
 	if (msgLvl(MSG::VERBOSE)) {
 	  Identifier idColl;
 	  IdContext mdtContext = m_idHelperSvc->mdtIdHelper().module_context();
@@ -1200,8 +1200,8 @@ if (m_useMdtData>0) {
 	Muon::MdtPrepDataCollection *mdtcollection=new Muon::MdtPrepDataCollection();
 	addElement( m_mdtcollCache, mdtcollection );
 
-      	Muon::MdtPrepDataCollection::const_iterator cit_begin = (*MDTcoll)->begin();
-      	Muon::MdtPrepDataCollection::const_iterator cit_end = (*MDTcoll)->end();
+      	Muon::MdtPrepDataCollection::const_iterator cit_begin = MDTcoll->begin();
+      	Muon::MdtPrepDataCollection::const_iterator cit_end   = MDTcoll->end();
       	Muon::MdtPrepDataCollection::const_iterator cit = cit_begin;   
       	for( ; cit!=cit_end;++cit ) // first
       	  {
@@ -1229,24 +1229,24 @@ if (m_useMdtData>0) {
       	    }
       	  }
 
-      	mdtcollection->setIdentifier((*MDTcoll)->identify());
+      	mdtcollection->setIdentifier(MDTcoll->identify());
       	nMdtHits+=mdtcollection->size(); // count hits for TrigMuonEFInfo
       	mdtCols2.push_back(mdtcollection);      
       }
       else{
-	nMdtHits+=(*MDTcoll)->size(); 
+	nMdtHits+=MDTcoll->size(); 
       }
 
       
       mdt_hash_ids_cache.push_back(*idit);
-      mdtCols.push_back(*MDTcoll);
+      mdtCols.push_back(MDTcoll);
       if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Selected Mdt Collection: "
-			 << m_idHelperSvc->mdtIdHelper().show_to_string((*MDTcoll)->identify())
-			 << " with size " << (*MDTcoll)->size());
+			 << m_idHelperSvc->mdtIdHelper().show_to_string(MDTcoll->identify())
+			 << " with size " << MDTcoll->size());
       else
 	if (testRoiDrivenMode) ATH_MSG_INFO("Selected Mdt Collection: "
-				     << m_idHelperSvc->mdtIdHelper().show_to_string((*MDTcoll)->identify())
-				     << " with size " << (*MDTcoll)->size());
+				     << m_idHelperSvc->mdtIdHelper().show_to_string(MDTcoll->identify())
+				     << " with size " << MDTcoll->size());
     }
     if (mdtCols.empty()) {
       ATH_MSG_DEBUG("No Mdt data collections selected");
@@ -1269,11 +1269,11 @@ if (m_useMdtData>0) {
     }
 
     // Get TGC collections
-    TgcPrepDataContainer::const_iterator TGCcoll;
+    const Muon::TgcPrepDataCollection* TGCcoll;
     for(std::vector<IdentifierHash>::const_iterator idit = tgc_hash_ids.begin();
 	idit != tgc_hash_ids.end(); ++idit) {
-      TGCcoll = tgcPrds->indexFind(*idit);
-      if( TGCcoll == tgcPrds->end() ) {
+      TGCcoll = tgcPrds->indexFindPtr(*idit);
+      if( TGCcoll == nullptr ) {
 	if (msgLvl(MSG::VERBOSE)) {
 	  Identifier idColl;
 	  IdContext tgcContext = m_idHelperSvc->tgcIdHelper().module_context();
@@ -1284,7 +1284,7 @@ if (m_useMdtData>0) {
 	}
 	continue;
       }
-      if( (*TGCcoll)->size() == 0)    {
+      if( TGCcoll->size() == 0)    {
 	if (msgLvl(MSG::VERBOSE)) {
 	  Identifier idColl;
 	  IdContext tgcContext = m_idHelperSvc->tgcIdHelper().module_context();
@@ -1297,15 +1297,15 @@ if (m_useMdtData>0) {
       }
       
       tgc_hash_ids_cache.push_back(*idit);
-      nTgcHits+=(*TGCcoll)->size(); // count hits for TrigMuonEFInfo
-      tgcCols.push_back(*TGCcoll);
+      nTgcHits+=TGCcoll->size(); // count hits for TrigMuonEFInfo
+      tgcCols.push_back(TGCcoll);
       if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Selected Tgc Collection: "
-			 << m_idHelperSvc->tgcIdHelper().show_to_string((*TGCcoll)->identify())
-			 << " with size " << (*TGCcoll)->size());
+			 << m_idHelperSvc->tgcIdHelper().show_to_string(TGCcoll->identify())
+			 << " with size " << TGCcoll->size());
       else
 	if (testRoiDrivenMode) ATH_MSG_INFO("Selected Tgc Collection: "
-				     << m_idHelperSvc->tgcIdHelper().show_to_string((*TGCcoll)->identify())
-				     << " with size " << (*TGCcoll)->size());
+				     << m_idHelperSvc->tgcIdHelper().show_to_string(TGCcoll->identify())
+				     << " with size " << TGCcoll->size());
     }
     
     if(m_useTGCInPriorNextBC){
@@ -1313,8 +1313,8 @@ if (m_useMdtData>0) {
       
       for(std::vector<IdentifierHash>::const_iterator idit = tgc_hash_ids.begin();
 	  idit != tgc_hash_ids.end(); ++idit) {
-	TGCcoll = tgcPrdsPriorBC->indexFind(*idit);
-	if( TGCcoll == tgcPrdsPriorBC->end() ) {
+	TGCcoll = tgcPrdsPriorBC->indexFindPtr(*idit);
+	if( TGCcoll == nullptr ) {
 	  if (msgLvl(MSG::VERBOSE)) {
 	    Identifier idColl;
 	    IdContext tgcContext = m_idHelperSvc->tgcIdHelper().module_context();
@@ -1325,7 +1325,7 @@ if (m_useMdtData>0) {
 	  }
 	  continue;
 	}
-	if( (*TGCcoll)->size() == 0)    {
+	if( TGCcoll->size() == 0)    {
 	  if (msgLvl(MSG::VERBOSE)) {
 	    Identifier idColl;
 	    IdContext tgcContext = m_idHelperSvc->tgcIdHelper().module_context();
@@ -1336,11 +1336,11 @@ if (m_useMdtData>0) {
 	  }
 	  continue;
 	}
-	nTgcHits+=(*TGCcoll)->size(); // count hits for TrigMuonEFInfo
-	tgcCols.push_back(*TGCcoll);
+	nTgcHits+=TGCcoll->size(); // count hits for TrigMuonEFInfo
+	tgcCols.push_back(TGCcoll);
 	if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Selected Tgc Collection: "
-			   << m_idHelperSvc->tgcIdHelper().show_to_string((*TGCcoll)->identify())
-			   << " with size " << (*TGCcoll)->size());
+			   << m_idHelperSvc->tgcIdHelper().show_to_string(TGCcoll->identify())
+			   << " with size " << TGCcoll->size());
       }
       const TgcPrepDataContainer* tgcPrdsNextBC = 0;
       SG::ReadHandle<Muon::TgcPrepDataContainer> TgcCont(m_tgcKeyNextBC);
@@ -1355,8 +1355,8 @@ if (m_useMdtData>0) {
 
       for(std::vector<IdentifierHash>::const_iterator idit = tgc_hash_ids.begin();
 	  idit != tgc_hash_ids.end(); ++idit) {
-	TGCcoll = tgcPrdsNextBC->indexFind(*idit);
-	if( TGCcoll == tgcPrdsNextBC->end() ) {
+	TGCcoll = tgcPrdsNextBC->indexFindPtr(*idit);
+	if( TGCcoll == nullptr ) {
 	  if (msgLvl(MSG::VERBOSE)) {
 	    Identifier idColl;
 	    IdContext tgcContext = m_idHelperSvc->tgcIdHelper().module_context();
@@ -1367,7 +1367,7 @@ if (m_useMdtData>0) {
 	  }
 	  continue;
 				}
-	if( (*TGCcoll)->size() == 0)    {
+	if( TGCcoll->size() == 0)    {
 	  if (msgLvl(MSG::VERBOSE)) {
 	    Identifier idColl;
 	    IdContext tgcContext = m_idHelperSvc->tgcIdHelper().module_context();
@@ -1378,11 +1378,11 @@ if (m_useMdtData>0) {
 	  }
 	  continue;
 	}
-	nTgcHits+=(*TGCcoll)->size(); // count hits for TrigMuonEFInfo
-	tgcCols.push_back(*TGCcoll);
+	nTgcHits+=TGCcoll->size(); // count hits for TrigMuonEFInfo
+	tgcCols.push_back(TGCcoll);
 	ATH_MSG_DEBUG("Selected Tgc Collection: "
-			   << m_idHelperSvc->tgcIdHelper().show_to_string((*TGCcoll)->identify())
-			   << " with size " << (*TGCcoll)->size());
+			   << m_idHelperSvc->tgcIdHelper().show_to_string(TGCcoll->identify())
+			   << " with size " << TGCcoll->size());
       }
     }
     
@@ -1407,27 +1407,27 @@ if (m_useMdtData>0) {
     }
 
     // Get CSC collections
-    CscPrepDataContainer::const_iterator CSCcoll;
+    const Muon::CscPrepDataCollection* CSCcoll = nullptr;
     for(std::vector<IdentifierHash>::const_iterator idit = csc_hash_ids.begin();
 	idit != csc_hash_ids.end(); ++idit) {
       if(m_ignoreCSC && (*idit==16 || *idit==17)){
 	ATH_MSG_DEBUG("Skipping misaligned chamber with hashid "<<*idit);
 	continue;
       }
-      CSCcoll = cscPrds->indexFind(*idit);
-      if( CSCcoll == cscPrds->end() ) continue;
-      if( (*CSCcoll)->size() == 0)    continue;
+      CSCcoll = cscPrds->indexFindPtr(*idit);
+      if( CSCcoll == nullptr ) continue;
+      if( CSCcoll->size() == 0)    continue;
       
       csc_hash_ids_cache.push_back(*idit);
-      nCscHits+=(*CSCcoll)->size(); // count hits for TrigMuonEFInfo
-      cscCols.push_back(*CSCcoll);
+      nCscHits+=CSCcoll->size(); // count hits for TrigMuonEFInfo
+      cscCols.push_back(CSCcoll);
       if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG("Selected Csc Collection: "
-			 << m_idHelperSvc->cscIdHelper().show_to_string((*CSCcoll)->identify())
-			 << " with size " << (*CSCcoll)->size());
+			 << m_idHelperSvc->cscIdHelper().show_to_string(CSCcoll->identify())
+			 << " with size " << CSCcoll->size());
       else
 	if (testRoiDrivenMode) ATH_MSG_INFO("Selected Csc Collection: "
-				     << m_idHelperSvc->cscIdHelper().show_to_string((*CSCcoll)->identify())
-				     << " with size " << (*CSCcoll)->size());
+				     << m_idHelperSvc->cscIdHelper().show_to_string(CSCcoll->identify())
+				     << " with size " << CSCcoll->size());
     }
     if (cscCols.empty()) {
       ATH_MSG_DEBUG("No Csc data collections selected");

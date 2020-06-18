@@ -182,19 +182,19 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
      // Get RPC collections
      for(const IdentifierHash& id : rpcHashList) {
 
-       Muon::RpcPrepDataContainer::const_iterator RPCcoll = rpcPrds->indexFind(id);
+       auto RPCcoll = rpcPrds->indexFindPtr(id);
 
-       if( RPCcoll == rpcPrds->end() ) {
+       if( RPCcoll == nullptr ) {
          continue;
        }
 
-       if( (*RPCcoll)->size() == 0) {
+       if( RPCcoll->size() == 0) {
          ATH_MSG_DEBUG("Empty RPC list");
          continue;
        }
 
        rpcHashList_cache.push_back(id);
-       rpcCols.push_back(*RPCcoll);
+       rpcCols.push_back(RPCcoll);
      }
    }
 

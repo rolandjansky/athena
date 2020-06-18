@@ -146,15 +146,15 @@ namespace FTF {//FastTrackFinder
     void operator() (const IdentifierHash& id) {
 
       if (m_pIDC) {
-        SpacePointContainer::const_iterator collIt = m_pIDC->indexFind(id);
-        if(collIt!=m_pIDC->end()) {
-          if(m_hash2layer ==  nullptr) m_filter.setLayer((*collIt)->identify());
+        auto collIt = m_pIDC->indexFindPtr(id);
+        if(collIt!=nullptr) {
+          if(m_hash2layer ==  nullptr) m_filter.setLayer(collIt->identify());
 	  else {
-	    int layerId = m_hash2layer->at((int)(*collIt)->identifyHash());
+	    int layerId = m_hash2layer->at((int)collIt->identifyHash());
 	    if(layerId<0) return;
-	    m_filter.setLayer(layerId,(*collIt)->identify());
+	    m_filter.setLayer(layerId,collIt->identify());
 	  }
-          std::for_each((*collIt)->begin(),(*collIt)->end(),m_filter);
+          std::for_each(collIt->begin(),collIt->end(),m_filter);
         }
       }
     }
