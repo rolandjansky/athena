@@ -16,19 +16,22 @@ from collections import deque
 import PyUtils.acmdlib as acmdlib
 import argparse
 
-# Hack until we have pygraphviz in LCG (SPI-1633):
+# Hack until we switched to LCG>=97a:
 try:
    import pygraphviz
 except ImportError:
    if sys.version_info[0]==2:
-      sys.path.append('/cvmfs/sft.cern.ch/lcg/nightlies/dev4/Tue/pygraphviz/1.5/x86_64-centos7-gcc8-opt/lib/python2.7/site-packages/')
+      sys.path.append('/cvmfs/sft.cern.ch/lcg/releases/LCG_97a/pygraphviz/1.5/'+os.getenv('BINARY_TAG')+'/lib/python2.7/site-packages/')
    else:
-      sys.path.append('/cvmfs/sft.cern.ch/lcg/nightlies/dev3python3/Tue/pygraphviz/1.5/x86_64-centos7-gcc8-opt/lib/python3.7/site-packages')
+      sys.path.append('/cvmfs/sft.cern.ch/lcg/releases/LCG_97apython3/pygraphviz/1.5/'+os.getenv('BINARY_TAG')+'/lib/python3.7/site-packages')
    import pygraphviz
 
-#
-# Some helper functions
-#
+
+# Targets ending in those strings are ignored:
+custom_targets = ['Pkg', 'PkgPrivate', 'ClidGen', 'ComponentsList', 'Configurables',
+                  'JobOptInstall', 'PythonBytecodeInstall', 'PythonInstall']
+
+
 def read_package_list(package_file):
    """Read packages.txt as a source for the full package path"""
 
@@ -52,9 +55,13 @@ def externals_name(lib):
 
 def ignore_target(t):
    """Check if target should be ignored"""
-   if t.startswith('__MUST_NOT_LINK_AGAINST') or t.startswith('-') or \
-      t.endswith('Pkg') or t.endswith('PkgPrivate'): return True
-   else: return False
+   if t.startswith('__MUST_NOT_LINK_AGAINST') or t.startswith('-'):
+      return True
+
+   for s in custom_targets:
+      if t.endswith(s): return True
+
+   return False
 
 
 def lrstrip(s, prefix, postfix):
@@ -85,6 +92,9 @@ def traverse(graph, root, reverse=False, maxdepth=None, nodegetter=lambda n:n):
 
       if node not in visited_nodes:
          visited_nodes.add(node)
+         if ignore_target(node.attr['label']):
+            continue
+
          # Add edges to neighbors into queue:
          if maxdepth is None or level < maxdepth:
             queue.extend((node,n,level+1) for n in neighbors(node))
@@ -104,7 +114,7 @@ def subgraph(graph, sources, reverse=False, maxdepth=None, nodegetter=lambda n :
    g = pygraphviz.AGraph(directed=True)
    for root in sources:
       for a,b in traverse(graph, root, reverse=reverse, maxdepth=maxdepth, nodegetter=nodegetter):
-         if a and b and a!=b and not ignore_target(a) and not ignore_target(b):
+         if a and b and a!=b:
             if reverse: g.add_edge(b,a)
             else: g.add_edge(a,b)
 
@@ -230,7 +240,6 @@ def main(args):
          # within that package. First find all targets within the package:
          if args.clients and not args.target:
             sources.extend([b for a,b in traverse(d.graph, d.get_node(l), maxdepth=1)])
-            l
          else:
             sources.extend([d.get_node(l)])
 
