@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+
 from MuonRecExample.MuonRecFlags import muonRecFlags
 from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
@@ -78,7 +80,6 @@ try:
 except:
     # print the stacktrace (saving could fail, and would then obscure the real problem)
     import traceback
-    from __future__ import print_function
     print ('INFO: MuonRec_myTopOptions.py - stack trace:')
     print (traceback.format_exc().rstrip())
     
