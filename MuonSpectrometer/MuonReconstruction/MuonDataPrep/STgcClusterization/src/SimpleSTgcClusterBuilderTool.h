@@ -50,6 +50,7 @@ namespace Muon
 
     double m_chargeCut;
     unsigned int m_maxHoleSize;
+    double m_addError;
 
     /// Muon detector manager and helper
     const MuonGM::MuonDetectorManager* m_muonMgr;
