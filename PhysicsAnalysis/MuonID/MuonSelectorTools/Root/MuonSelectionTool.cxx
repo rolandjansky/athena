@@ -43,7 +43,7 @@ namespace CP {
     //switch to cut away the tail of very large smearing in MC to mimic the effect of the bad muon veto for 2-station muons in the high-pT selection
     declareProperty( "DoBadMuonVetoMimic", m_doBadMuonVetoMimic = false );
 
-    //file for bad muon veto efficiencies from misaligned MC
+    //file for bad muon veto mimic cut functions
     declareProperty( "BMVcutFile", m_BMVcutFile = "MuonSelectorTools/180620_BMVmimicCutFunctions/BMVmimicCutFunctions.root");
 
 
