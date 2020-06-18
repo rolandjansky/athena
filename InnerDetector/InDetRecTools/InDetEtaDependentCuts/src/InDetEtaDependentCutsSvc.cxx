@@ -6,6 +6,8 @@
 // InDetEtaDependentCutsSvc includes
 #include "InDetEtaDependentCuts/InDetEtaDependentCutsSvc.h"
 
+#include <cmath>
+
 namespace InDet {
   
   ////////////////
@@ -42,33 +44,33 @@ namespace InDet {
       
       ATH_MSG_INFO ("Initializing " << name() << "...");
       
-      std::vector < std::vector <double>* > sets_of_cuts_d = { &m_etaWidthBrem.value()        ,
-                                                               &m_maxdImpactSSSSeeds.value()  ,
-                                                               &m_maxPrimaryImpact.value()    ,
-                                                               &m_maxZImpact.value()          ,
-                                                               &m_minPT.value()               ,
-                                                               &m_minPTBrem.value()           ,
-                                                               &m_phiWidthBrem.value()        ,
-                                                               &m_Xi2max.value()              ,
-                                                               &m_Xi2maxNoAdd.value()         };
+      std::vector < std::vector <double>* > setsOfCutsD = { &m_etaWidthBrem.value()        , 
+                                                            &m_maxdImpactSSSSeeds.value()  ,
+                                                            &m_maxPrimaryImpact.value()    ,
+                                                            &m_maxZImpact.value()          ,
+                                                            &m_minPT.value()               ,
+                                                            &m_minPTBrem.value()           ,
+                                                            &m_phiWidthBrem.value()        ,
+                                                            &m_Xi2max.value()              ,
+                                                            &m_Xi2maxNoAdd.value()         };
                                             
-      std::vector < std::vector <int>* > sets_of_cuts_i    = { &m_maxDoubleHoles.value()      ,
-                                                               &m_maxHoles.value()            ,
-                                                               &m_maxPixelHoles.value()       ,
-                                                               &m_maxSctHoles.value()         ,
-                                                               &m_maxShared.value()           ,
-                                                               &m_minClusters.value()         ,
-                                                               &m_minPixelHits.value()        ,
-                                                               &m_minSiNotShared.value()      ,
-                                                               &m_maxHolesGapPattern.value()  ,
-                                                               &m_maxHolesPattern.value()     ,
-                                                               &m_nWeightedClustersMin.value()};
+      std::vector < std::vector <int>* > setsOfCutsI    = { &m_maxDoubleHoles.value()      ,
+                                                            &m_maxHoles.value()            ,
+                                                            &m_maxPixelHoles.value()       ,
+                                                            &m_maxSctHoles.value()         ,
+                                                            &m_maxShared.value()           ,
+                                                            &m_minClusters.value()         ,
+                                                            &m_minPixelHits.value()        ,
+                                                            &m_minSiNotShared.value()      ,
+                                                            &m_maxHolesGapPattern.value()  ,
+                                                            &m_maxHolesPattern.value()     ,
+                                                            &m_nWeightedClustersMin.value()};
       
       // checking if the set of cuts makes sense
-      if (checkSize(sets_of_cuts_d).isFailure())
+      if (checkSize(setsOfCutsD).isFailure())
         ATH_MSG_ERROR( "Check the cut values used in " << name() );
       
-      if (checkSize(sets_of_cuts_i).isFailure())
+      if (checkSize(setsOfCutsI).isFailure())
         ATH_MSG_ERROR( "Check the cut values used in " << name() );
       
       // printing all the cuts
@@ -122,79 +124,72 @@ namespace InDet {
         if (cut->size() < noOfEtaBins){
           ATH_MSG_DEBUG( "No. of cut values smaller than eta bins. Extending size..." );
           cut->resize(noOfEtaBins, cut->back());
+          ATH_MSG_DEBUG( "... updated sets of cuts: " << cut );
         }
       }
       return StatusCode::SUCCESS;
     }
 
-    void InDetEtaDependentCutsSvc::getIndexByEta(double eta, int& bin) {
-      // getting the number of eta bins
-      size_t noOfEtaBins = m_etaBins.size()-1;
-      
-      // setting the default value in case the bin is not found
-      bin = -1;
-      
-      // getting the bin corresponding to the given eta value
-      double absEta = fabs(eta);
-      for (int i = int(noOfEtaBins-1); i >= 0; i--) {
-        if (absEta > m_etaBins.value().at(i)) {
-          bin = i;
-          return;
-        }
+    int InDetEtaDependentCutsSvc::getIndexByEta(const double eta) const {
+      double absEta = std::abs(eta);
+      if (absEta > m_etaBins.value().back()) {
+        ATH_MSG_ERROR("Requesting cut value for eta outside expected range!! ");
+        return -1;
       }
       
-      // in case you didn't return yet, then the bin is not found!
-      ATH_MSG_ERROR( "Eta bin not found! Check the eta bin values in " << name() );
-      return;
+      auto pVal =  std::lower_bound(m_etaBins.value().begin(), m_etaBins.value().end(), absEta);
+      int bin = std::distance(m_etaBins.value().begin(), pVal) - 1;
+      ATH_MSG_DEBUG("Checking (abs(eta)/bin) = (" << absEta << "," << bin << ")");
+      return bin;
     }
 
 
-    void InDetEtaDependentCutsSvc::getValue(InDet::CutName cutName, std::vector < double >& cut) {
+    void InDetEtaDependentCutsSvc::getValue(const InDet::CutName cutName, std::vector < double >& cuts) {
       // getting the number of eta bins
       size_t noOfEtaBins = m_etaBins.size()-1;
       
-      // resize the cut vector before setting it
-      cut.resize(noOfEtaBins);
+      // resize the cuts vector before setting it
+      cuts.resize(noOfEtaBins);
       
       switch (cutName) {
         case InDet::CutName::etaBins:
-          cut = m_etaBins;
+          cuts = m_etaBins;
           break;
         
         case InDet::CutName::minPT:
-          cut = m_minPT;
+          cuts = m_minPT;
           break;
           
         case InDet::CutName::maxPrimaryImpact:
-          cut = m_maxPrimaryImpact;
+          cuts = m_maxPrimaryImpact;
           break;
           
         case InDet::CutName::maxZImpact:
-          cut = m_maxZImpact;
+          cuts = m_maxZImpact;
           
           break;
         case InDet::CutName::Xi2max:
-          cut = m_Xi2max;
+          cuts = m_Xi2max;
           break;
           
         case InDet::CutName::Xi2maxNoAdd:
-          cut = m_Xi2maxNoAdd;
+          cuts = m_Xi2maxNoAdd;
           break;
           
         case InDet::CutName::maxdImpactSSSSeeds:
-          cut = m_maxdImpactSSSSeeds;
+          cuts = m_maxdImpactSSSSeeds;
           break;
         
         case InDet::CutName::minPTBrem:
-          cut = m_minPTBrem;
+          cuts = m_minPTBrem;
           break;
           
         case InDet::CutName::etaWidthBrem:
-          cut = m_etaWidthBrem;
+          cuts = m_etaWidthBrem;
           break;
           
         case InDet::CutName::phiWidthBrem:
-          cut = m_phiWidthBrem;
+          cuts = m_phiWidthBrem;
           break;
         
         default:
@@ -203,57 +198,57 @@ namespace InDet {
       }
     }
     
-    void InDetEtaDependentCutsSvc::getValue(InDet::CutName cutName,    std::vector < int >& cut) {
+    void InDetEtaDependentCutsSvc::getValue(const InDet::CutName cutName,    std::vector < int >& cuts) {
 
       // getting the number of eta bins
       size_t noOfEtaBins = m_etaBins.size()-1;
       
-      // resize the cut vector before setting it
-      cut.resize(noOfEtaBins);
+      // resize the cuts vector before setting it
+      cuts.resize(noOfEtaBins);
 
       switch (cutName) {
         case InDet::CutName::minClusters:
-          cut = m_minClusters;
+          cuts = m_minClusters;
           break;
         
         case InDet::CutName::minSiNotShared:
-          cut = m_minSiNotShared;
+          cuts = m_minSiNotShared;
           break;
           
         case InDet::CutName::maxShared:
-          cut = m_maxShared;
+          cuts = m_maxShared;
           break;
           
         case InDet::CutName::minPixelHits:
-          cut = m_minPixelHits;
+          cuts = m_minPixelHits;
           
           break;
         case InDet::CutName::maxHoles:
-          cut = m_maxHoles;
+          cuts = m_maxHoles;
           break;
           
         case InDet::CutName::maxPixelHoles:
-          cut = m_maxPixelHoles;
+          cuts = m_maxPixelHoles;
           break;
           
         case InDet::CutName::maxSctHoles:
-          cut = m_maxSctHoles;
+          cuts = m_maxSctHoles;
           break;
         
         case InDet::CutName::maxDoubleHoles:
-          cut = m_maxDoubleHoles;
+          cuts = m_maxDoubleHoles;
           break;
           
         case InDet::CutName::maxHolesPattern:
-          cut = m_maxHolesPattern;
+          cuts = m_maxHolesPattern;
           break;
           
         case InDet::CutName::maxHolesGapPattern:
-          cut = m_maxHolesGapPattern;
+          cuts = m_maxHolesGapPattern;
           break;
           
         case InDet::CutName::nWeightedClustersMin:
-          cut = m_nWeightedClustersMin;
+          cuts = m_nWeightedClustersMin;
           break;
         
         default:
@@ -263,64 +258,62 @@ namespace InDet {
     }
   
     template <class T>
-    T InDetEtaDependentCutsSvc::getValueAtEta(std::vector< T > cuts, double eta) {
-     int bin;
-     getIndexByEta(eta, bin);
-     return cuts.at(bin);
+    T InDetEtaDependentCutsSvc::getValueAtEta(const std::vector< T > cuts, const double eta) const {
+     return cuts.at(getIndexByEta(eta));
     }
     
     template <class T>
     void InDetEtaDependentCutsSvc::getValue(InDet::CutName cutName, T& cut, double eta) {
       std::vector < T > cuts; 
-      getValue (cutName, cut);
+      getValue(cutName, cuts);
       cut = getValueAtEta< T >(cuts, eta);
     }
     
-    double  InDetEtaDependentCutsSvc::getMaxEta() {
+    double  InDetEtaDependentCutsSvc::getMaxEta() const {
       return m_etaBins.value().back();
     }
     
-    double InDetEtaDependentCutsSvc::getMinPtAtEta(double eta) {
+    double InDetEtaDependentCutsSvc::getMinPtAtEta(const double eta) const {
       return getValueAtEta<double>(m_minPT,eta);
     }
     
-    double  InDetEtaDependentCutsSvc::getMaxZImpactAtEta      (double eta) {
+    double  InDetEtaDependentCutsSvc::getMaxZImpactAtEta      (const double eta) const {
       return getValueAtEta<double>(m_maxZImpact, eta);
     }
     
-    double  InDetEtaDependentCutsSvc::getMaxPrimaryImpactAtEta(double eta) {
+    double  InDetEtaDependentCutsSvc::getMaxPrimaryImpactAtEta(const double eta) const {
       return getValueAtEta<double>(m_maxPrimaryImpact, eta);
     }
       
-    int     InDetEtaDependentCutsSvc::getMinSiHitsAtEta       (double eta) {
+    int     InDetEtaDependentCutsSvc::getMinSiHitsAtEta       (const double eta) const {
       return getValueAtEta<int>(m_minClusters, eta);
     }
     
-    int     InDetEtaDependentCutsSvc::getMinPixelHitsAtEta    (double eta) {
+    int     InDetEtaDependentCutsSvc::getMinPixelHitsAtEta    (const double eta) const {
       return getValueAtEta<int>(m_minPixelHits, eta);
     }
     
-    int     InDetEtaDependentCutsSvc::getMaxSiHolesAtEta      (double eta) {
+    int     InDetEtaDependentCutsSvc::getMaxSiHolesAtEta      (const double eta) const {
       return getValueAtEta<int>(m_maxHoles, eta);
     }
     
-    int     InDetEtaDependentCutsSvc::getMaxPixelHolesAtEta   (double eta) {
+    int     InDetEtaDependentCutsSvc::getMaxPixelHolesAtEta   (const double eta) const {
       return getValueAtEta<int>(m_maxPixelHoles, eta);
     }
     
-    int     InDetEtaDependentCutsSvc::getMaxSctHolesAtEta     (double eta) {
+    int     InDetEtaDependentCutsSvc::getMaxSctHolesAtEta     (const double eta) const {
       return getValueAtEta<int>(m_maxSctHoles, eta);
     }
     
-    int     InDetEtaDependentCutsSvc::getMaxDoubleHolesAtEta  (double eta) {
+    int     InDetEtaDependentCutsSvc::getMaxDoubleHolesAtEta  (const double eta) const {
       return getValueAtEta<int>(m_maxDoubleHoles, eta);
     }
     
-    int     InDetEtaDependentCutsSvc::getMinSiNotSharedAtEta  (double eta) {
+    int     InDetEtaDependentCutsSvc::getMinSiNotSharedAtEta  (const double eta) const {
       return getValueAtEta<int>(m_minSiNotShared, eta);
     }
     
-    int     InDetEtaDependentCutsSvc::getMaxSharedAtEta  (double eta) {
+    int     InDetEtaDependentCutsSvc::getMaxSharedAtEta  (const double eta) const {
       return getValueAtEta<int>(m_maxShared, eta);
     }
       

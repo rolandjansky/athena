@@ -32,24 +32,24 @@ namespace InDet {
     
     virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIF)=0;
     
-    virtual void getValue(InDet::CutName cutName, std::vector < double >& cut) = 0;
-    virtual void getValue(InDet::CutName cutName,    std::vector < int >& cut) = 0;
+    virtual void getValue(const InDet::CutName cutName, std::vector < double >& cut) = 0;
+    virtual void getValue(const InDet::CutName cutName,    std::vector < int >& cut) = 0;
 
     template <class T>    
-    void getValue(InDet::CutName cutName, T& cut, double eta) {}
+    void getValue(const InDet::CutName cutName, T& cut, const double eta) {}
     
-    virtual double  getMaxEta()                          = 0;
-    virtual double  getMinPtAtEta           (double eta) = 0;
-    virtual double  getMaxZImpactAtEta      (double eta) = 0;
-    virtual double  getMaxPrimaryImpactAtEta(double eta) = 0;
-    virtual int     getMinSiHitsAtEta       (double eta) = 0;
-    virtual int     getMinSiNotSharedAtEta  (double eta) = 0;
-    virtual int     getMaxSharedAtEta       (double eta) = 0;
-    virtual int     getMinPixelHitsAtEta    (double eta) = 0;
-    virtual int     getMaxSiHolesAtEta      (double eta) = 0;
-    virtual int     getMaxPixelHolesAtEta   (double eta) = 0;
-    virtual int     getMaxSctHolesAtEta     (double eta) = 0;
-    virtual int     getMaxDoubleHolesAtEta  (double eta) = 0;
+    virtual double  getMaxEta() const                         = 0;
+    virtual double  getMinPtAtEta           (const double eta) const = 0;
+    virtual double  getMaxZImpactAtEta      (const double eta) const = 0;
+    virtual double  getMaxPrimaryImpactAtEta(const double eta) const = 0;
+    virtual int     getMinSiHitsAtEta       (const double eta) const = 0;
+    virtual int     getMinSiNotSharedAtEta  (const double eta) const = 0;
+    virtual int     getMaxSharedAtEta       (const double eta) const = 0;
+    virtual int     getMinPixelHitsAtEta    (const double eta) const = 0;
+    virtual int     getMaxSiHolesAtEta      (const double eta) const = 0;
+    virtual int     getMaxPixelHolesAtEta   (const double eta) const = 0;
+    virtual int     getMaxSctHolesAtEta     (const double eta) const = 0;
+    virtual int     getMaxDoubleHolesAtEta  (const double eta) const = 0;
       
   };
   

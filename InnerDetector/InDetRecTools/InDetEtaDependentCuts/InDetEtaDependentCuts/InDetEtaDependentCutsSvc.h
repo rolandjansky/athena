@@ -6,7 +6,8 @@
 
 // STL includes
 #include <string>
-#include <map>
+#include <vector>
+
 
 // FrameWork includes
 #include "AthenaBaseComps/AthService.h"
@@ -36,29 +37,27 @@ namespace InDet {
       StatusCode  initialize();
       StatusCode  finalize();
       
-      void getValue(InDet::CutName cutName, std::vector < double >& cut) ;
-      void getValue(InDet::CutName cutName,    std::vector < int >& cut) ;
+      void getValue(const InDet::CutName cutName, std::vector < double >& cut);
+      void getValue(const InDet::CutName cutName,    std::vector < int >& cut);
       
       template <class T>
-      T getValueAtEta(std::vector< T > cuts, double eta);
+      T getValueAtEta(const std::vector< T > cuts, const double eta) const;
     
       template <class T>    
-      void getValue(InDet::CutName cutName, T& cut, double eta);
+      void getValue(const InDet::CutName cutName, T& cut, const double eta);
       
-      double  getMaxEta();
-      double  getMinPtAtEta           (double eta);
-      double  getMaxZImpactAtEta      (double eta);
-      double  getMaxPrimaryImpactAtEta(double eta);
-      
-      
-      int     getMinSiHitsAtEta       (double eta);
-      int     getMinSiNotSharedAtEta  (double eta);
-      int     getMaxSharedAtEta       (double eta);
-      int     getMinPixelHitsAtEta    (double eta);
-      int     getMaxSiHolesAtEta      (double eta);
-      int     getMaxPixelHolesAtEta   (double eta);
-      int     getMaxSctHolesAtEta     (double eta);
-      int     getMaxDoubleHolesAtEta  (double eta);
+      double  getMaxEta() const;
+      double  getMinPtAtEta           (const double eta) const;
+      double  getMaxZImpactAtEta      (const double eta) const;
+      double  getMaxPrimaryImpactAtEta(const double eta) const;
+      int     getMinSiHitsAtEta       (const double eta) const;
+      int     getMinSiNotSharedAtEta  (const double eta) const;
+      int     getMaxSharedAtEta       (const double eta) const;
+      int     getMinPixelHitsAtEta    (const double eta) const;
+      int     getMaxSiHolesAtEta      (const double eta) const;
+      int     getMaxPixelHolesAtEta   (const double eta) const;
+      int     getMaxSctHolesAtEta     (const double eta) const;
+      int     getMaxDoubleHolesAtEta  (const double eta) const;
       
       
     /////////////////////////////////////////////////////////////////// 
@@ -66,12 +65,10 @@ namespace InDet {
     /////////////////////////////////////////////////////////////////// 
     private: 
       
-      void getIndexByEta(double eta, int& bin);
+      int getIndexByEta(const double eta) const;
       
       template <class T>
       StatusCode checkSize(T& cuts);
-      
-          BooleanProperty m_emulateSplitter{this, "EmulateSplitting", false, "don't split - only emulate the split"};
       
       DoubleArrayProperty   m_etaBins              {this, "etaBins"             , {0.0, 4.0}, "eta bins (highest eta is maxEta)"         };
       DoubleArrayProperty   m_minPT                {this, "minPT"               , {900.0}   , "min pT [MeV]"                             };
