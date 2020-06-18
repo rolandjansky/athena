@@ -33,7 +33,6 @@ public:
     
   size_t m_cscNoiseCut;
   SG::ReadHandleKey<Muon::CscStripPrepDataContainer> m_cscPrdKey{this,"CSCPrepRawDataKey","CSC_Measurements","CSC PRDs"};
-  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","event info"};
   bool m_mapxyrz;
         
   // Strip fitter
