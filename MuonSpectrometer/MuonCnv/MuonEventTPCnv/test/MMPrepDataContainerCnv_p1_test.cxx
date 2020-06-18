@@ -42,6 +42,7 @@ void compare (const Muon::MuonCluster& p1,
 void compare (const Muon::MMPrepData& p1,
               const Muon::MMPrepData& p2)
 {
+  assert (p1.author() == p2.author());
   assert (p1.identify() == p2.identify());
   compare (static_cast<const Muon::MuonCluster&>(p1),
            static_cast<const Muon::MuonCluster&>(p2));
@@ -117,6 +118,7 @@ makeclusts (const MuonGM::MuonDetectorManager& muo_dd)
          rdoList,
          new Amg::MatrixX(cov),
          muo_dd.getMMReadoutElement (clusId));
+      cl->setAuthor (Muon::MMPrepData::ProjectionClusterBuilder);
       coll->push_back (std::move (cl));
     }
     assert(cont->addCollection (coll.release(), hash));
