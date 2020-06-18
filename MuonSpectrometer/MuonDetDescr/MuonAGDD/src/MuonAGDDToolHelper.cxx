@@ -123,9 +123,9 @@ std::string MuonAGDDToolHelper::GetAGDD(const bool dumpIt, const std::string& ta
    std::ofstream  GeneratedFile;
    if (dumpIt) 
    {
-	 	std::ofstream  GeneratedFile;
+	 	std::ofstream GeneratedFile;
 	 	GeneratedFile.open(outFileName);
-		GeneratedFile<<AgddString<<std::endl;
+		GeneratedFile<<AgddString;
 		GeneratedFile.close();
    }
 
