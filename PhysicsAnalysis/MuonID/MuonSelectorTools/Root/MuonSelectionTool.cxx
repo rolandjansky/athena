@@ -1425,7 +1425,8 @@ namespace CP {
   bool MuonSelectionTool::passTight( const xAOD::Muon& mu, float rho, float oneOverPSig ) const
   {
     float symmetric_eta = std::abs( mu.eta() );
-    float pt = mu.pt()*MeVtoGeV; // GeV                                                                                                                                                                                                                                                                                                                                     
+    float pt = mu.pt()*MeVtoGeV; // GeV
+
     // Impose pT and eta cuts; the bounds of the cut maps  
     if( pt < 4.0 || symmetric_eta>2.5 ) return false;
     ATH_MSG_VERBOSE( "Muon is passing tight WP kinematic cuts with pT,eta " << mu.pt() << "  ,  " << mu.eta()  );
