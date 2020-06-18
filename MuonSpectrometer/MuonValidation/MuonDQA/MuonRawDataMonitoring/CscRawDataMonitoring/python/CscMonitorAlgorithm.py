@@ -290,7 +290,7 @@ def CscMonitoringConfig(inputFlags):
 
     cscPrdGroup.defineHistogram('lumiblock_mon,secLayer;h2csc_prd_occvslb_EC',cutmask='sideC',type='TH2F',title='EndCap C: Layer Signal Occupancy Per LB;LB;[sector] + [0.2 #times layer]',
                                 path='Overview/CSCEC/PRD',xbins=2510,xmin=-10.,xmax=2500., ybins=85, ymin=-17., ymax=0.) 
-#ksekinw
+
     cscPrdGroup.defineHistogram('spid,secLayer;h2csc_prd_hitmap_signal_EA',cutmask='sideA',type='TH2F',title='EndCap A: Signal Occupancy;channel;[sector] + [0.2 #times layer]',
                                 path='Overview/CSCEA/PRD',xbins=242,xmin=-49.,xmax=193., ybins=90, ymin=0., ymax=18.)
 
