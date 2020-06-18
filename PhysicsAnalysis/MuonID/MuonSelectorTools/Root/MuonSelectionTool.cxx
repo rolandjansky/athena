@@ -8,6 +8,10 @@
 #include "PathResolver/PathResolver.h"
 #include "xAODEventInfo/EventInfo.h"
 
+namespace {
+  static constexpr double const MeVtoGeV = 1./1000.;
+}
+
 namespace CP {
   
   MuonSelectionTool::MuonSelectionTool( const std::string& name )
@@ -367,7 +371,7 @@ namespace CP {
       ATH_MSG_VERBOSE( "Muon type: calorimeter-tagged" );
     else if(mu.muonType() == xAOD::Muon::SiliconAssociatedForwardMuon)
       ATH_MSG_VERBOSE( "Muon type: silicon-associated forward" );
-    ATH_MSG_VERBOSE( "Muon pT [GeV]: " << mu.pt()/1000. );
+    ATH_MSG_VERBOSE( "Muon pT [GeV]: " << mu.pt()*MeVtoGeV );
     ATH_MSG_VERBOSE( "Muon eta: " << mu.eta() );
     ATH_MSG_VERBOSE( "Muon phi: " << mu.phi() );
 
@@ -554,7 +558,7 @@ namespace CP {
       }
 
       // Improvement for Loose targeting low-pT muons (pt<7 GeV)
-      if ( mu.pt()/1000.<7. && std::abs(mu.eta())<1.3 && nprecisionLayers>0 && (mu.author()==xAOD::Muon::MuGirl && mu.isAuthor(xAOD::Muon::MuTagIMO)) ) {
+      if ( mu.pt()*MeVtoGeV<7. && std::abs(mu.eta())<1.3 && nprecisionLayers>0 && (mu.author()==xAOD::Muon::MuGirl && mu.isAuthor(xAOD::Muon::MuTagIMO)) ) {
 	ATH_MSG_VERBOSE( "Muon passed selection for loose working point at low pT" );
 	return xAOD::Muon::Loose;
       }
@@ -815,7 +819,7 @@ namespace CP {
     }
 
     // applying Medium selection above pT = 18 GeV 
-    if( mu.pt()/1000.>18. ) {
+    if( mu.pt()*MeVtoGeV>18. ) {
       ATH_MSG_VERBOSE( "pT > 18 GeV - apply medium selection" );
       if( thisMu_quality <= xAOD::Muon::Medium ) {
 	ATH_MSG_VERBOSE( "Muon passed low-pT selection" );
@@ -1240,7 +1244,7 @@ namespace CP {
     const xAOD::TrackParticle* cbtrack = mu.trackParticle( xAOD::Muon::CombinedTrackParticle );
     if( cbtrack ) {
       // ::
-      double pt_CB = (cbtrack->pt() / 1000. < 5000.) ? cbtrack->pt() / 1000. : 5000.; // GeV
+      double pt_CB = (cbtrack->pt()*MeVtoGeV < 5000.) ? cbtrack->pt()*MeVtoGeV : 5000.; // GeV
       double qOverP_CB = cbtrack->qOverP();
       double qOverPerr_CB = sqrt( cbtrack->definingParametersCovMatrix()(4,4) );
       // sigma represents the average expected error at the muon's pt/eta 
@@ -1292,12 +1296,12 @@ namespace CP {
       p2 = 0.000196466;
     }
 
-    double qOpRelResolution = sqrt( pow(p1,2) + pow(p2*mu.primaryTrackParticle()->pt()/1000.,2) );
+    double qOpRelResolution = std::hypot(p1,p2*mu.primaryTrackParticle()->pt()*MeVtoGeV);
 
     double qOverPabs_unsmeared = std::abs(mu.primaryTrackParticle()->definingParameters()[4]);
-    double qOverPabs_smeared = 1.0 / (mu.pt() * TMath::CosH(mu.eta()));
+    double qOverPabs_smeared = 1.0 / (mu.pt() * std::cosh(mu.eta()));
 
-    if ( (qOverPabs_smeared - qOverPabs_unsmeared) / (qOpRelResolution*qOverPabs_unsmeared) < cutFunction->Eval(mu.primaryTrackParticle()->pt()/1000.) )
+    if ( (qOverPabs_smeared - qOverPabs_unsmeared) / (qOpRelResolution*qOverPabs_unsmeared) < cutFunction->Eval(mu.primaryTrackParticle()->pt()*MeVtoGeV) )
       return false;
     else
       return true;
@@ -1421,7 +1425,7 @@ namespace CP {
   bool MuonSelectionTool::passTight( const xAOD::Muon& mu, float rho, float oneOverPSig ) const
   {
     float symmetric_eta = std::abs( mu.eta() );
-    float pt = mu.pt() / 1000.0; // GeV                                                                                                                                                                                                                                                                                                                                     
+    float pt = mu.pt()*MeVtoGeV; // GeV                                                                                                                                                                                                                                                                                                                                     
     // Impose pT and eta cuts; the bounds of the cut maps  
     if( pt < 4.0 || symmetric_eta>2.5 ) return false;
     ATH_MSG_VERBOSE( "Muon is passing tight WP kinematic cuts with pT,eta " << mu.pt() << "  ,  " << mu.eta()  );
