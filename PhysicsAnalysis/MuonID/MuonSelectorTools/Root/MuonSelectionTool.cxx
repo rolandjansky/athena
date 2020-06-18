@@ -40,11 +40,11 @@ namespace CP {
     declareProperty( "MVAreaderFile_ODD_MuGirl", m_MVAreaderFile_ODD_MuGirl =
 		     "MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuGirl_ODD.weights.xml");
 
-    //switch to force the effect of the bad muon veto in perfectly aligned MC to match misaligned MC
+    //switch to cut away the tail of very large smearing in MC to mimic the effect of the bad muon veto for 2-station muons in the high-pT selection
     declareProperty( "DoBadMuonVetoMimic", m_doBadMuonVetoMimic = false );
 
     //file for bad muon veto efficiencies from misaligned MC
-    declareProperty( "BMVcutFile", m_BMVcutFile = "/mn/kvant/u2/magnarkb/xAODanalysis_MCPwork_smearAnalysis/data/BMVcutFunctions.root");
+    declareProperty( "BMVcutFile", m_BMVcutFile = "MuonSelectorTools/180620_BMVmimicCutFunctions/BMVmimicCutFunctions.root");
 
 
     // DEVELOPEMENT MODE: EXPERTS ONLY!!! 
@@ -240,7 +240,7 @@ namespace CP {
 
     
     //Read bad muon veto efficiency histograms
-    std::string BMVcutFile_fullPath = m_BMVcutFile; //PathResolverFindCalibFile(m_BMVcutFile);
+    std::string BMVcutFile_fullPath = PathResolverFindCalibFile(m_BMVcutFile);
 
     //ATH_MSG_INFO( "Reading bad muon veto cut functions from " << BMVcutFile_fullPath  );
     // 
