@@ -41,7 +41,7 @@ StatusCode CscPrdValMonAlg::initialize() {
   ATH_CHECK(m_stripFitter.retrieve());
   ATH_MSG_INFO( "CscPrdValMonAlg " << name() << ": retrieved " << m_stripFitter );
   ATH_CHECK(m_cscPrdKey.initialize());
-  ATH_CHECK(m_eventInfo.initialize());
+  ATH_CHECK(m_EventInfoKey.initialize());
 
   return AthMonitorAlgorithm::initialize();
   
@@ -53,7 +53,7 @@ StatusCode CscPrdValMonAlg::initialize() {
 StatusCode CscPrdValMonAlg::fillHistograms( const EventContext& ctx ) const  {
 
   int lumiblock = -1;
-  SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfo, ctx);
+  SG::ReadHandle<xAOD::EventInfo> evt(m_EventInfoKey, ctx);
   lumiblock = evt->lumiBlock();
   auto lumiblock_mon = Monitored::Scalar<int>("lumiblock_mon",lumiblock);
   if(lumiblock < 0 ) return StatusCode::FAILURE;
