@@ -120,6 +120,7 @@ PHYSVALSlimmingHelper.AllVariables = [ "Electrons", "ForwardElectrons", "Photons
                                        "MuonSpectrometerTrackParticles",
                                        "MSOnlyExtrapolatedMuonTrackParticles",
                                        "InDetForwardTrackParticles",
+                                       "MuonSegments",
                                        "MuonTruthSegments",
                                        "MET_Truth","MET_TruthRegions",
                                        "TruthElectrons","TruthMuons","TruthPhotons","TruthTaus","TruthNeutrinos","TruthBSM","TruthTop","TruthBoson"
