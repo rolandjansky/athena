@@ -87,6 +87,7 @@ def bJetStep2Sequence():
     for alg in findAllAlgorithms(acc_flavourTaggingAlgs.getSequence("AthAlgSeq")):
         AllFlavourTaggingAlgs.append(conf2toConfigurable(alg))
 
+    acc_flavourTaggingAlgs.wasMerged()
     bJetBtagSequence = seqAND( "bJetBtagSequence", secondStageAlgs + AllFlavourTaggingAlgs )
     InputMakerAlg.ViewNodeName = "bJetBtagSequence"
 

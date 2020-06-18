@@ -10,7 +10,8 @@ export THREADS=1
 export SLOTS=1
 export JOBOPTION="TrigUpgradeTest/full_menu_cf.py"
 export REGTESTEXP="TriggerSummaryStep.*HLT_.*|TriggerMonitorFinal.*HLT_.*|TrigSignatureMoniMT.*HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*"
-export EXTRA="doWriteBS=False;doWriteRDOTrigger=True;"
+#export EXTRA="doWriteBS=False;doWriteRDOTrigger=True;"
+export EXTRA="doWriteBS=False;doWriteRDOTrigger=True;forceEnableAllChains=True;doEmptyMenu=True;doBjetSlice=True;"
 
 # Find the regtest reference installed with the release
 export REGTESTREF=`find_data.py TrigUpgradeTest/full_menu_cf_build.ref`
