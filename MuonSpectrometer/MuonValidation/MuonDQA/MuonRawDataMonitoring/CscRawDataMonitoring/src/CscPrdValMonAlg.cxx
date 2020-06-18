@@ -19,15 +19,9 @@
 #include "AthenaMonitoring/AthenaMonManager.h"
 
 // Athena include(s)
-#include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonPrepRawData/CscStripPrepDataCollection.h"
 #include "MuonPrepRawData/CscStripPrepData.h"
 #include "CscRawDataMonitoring/CscPrdValMonAlg.h"
-
-// ROOT include(s)
-#include "TClass.h"
-#include "TH1F.h"
-#include "TH2F.h"
 
 using namespace Muon;
 
@@ -40,7 +34,6 @@ CscPrdValMonAlg::CscPrdValMonAlg( const std::string& name, ISvcLocator* pSvcLoca
     declareProperty("MapYXandRZ", m_mapxyrz = false);
   }
 
-CscPrdValMonAlg::~CscPrdValMonAlg() {}
 
 StatusCode CscPrdValMonAlg::initialize() {
   ATH_MSG_INFO( "CscPrdValMonAlg: in initialize" );
@@ -53,8 +46,6 @@ StatusCode CscPrdValMonAlg::initialize() {
   return AthMonitorAlgorithm::initialize();
   
 }
-
-
 
 //
 // fillHistograms ----------------------------------------------------------------
@@ -162,7 +153,7 @@ StatusCode CscPrdValMonAlg::fillHistograms( const EventContext& ctx ) const  {
         auto x = Monitored::Scalar<float>("x",praw.globalPosition().x());
         auto y = Monitored::Scalar<float>("y",praw.globalPosition().y());
         auto z = Monitored::Scalar<float>("z",praw.globalPosition().z());
-        auto r = Monitored::Scalar<float>("r",sqrt(x*x + y*y));
+        auto r = Monitored::Scalar<float>("r",std::hypot(x,y));
     
         fill("CscPrdMonitor",z,r);
         fill("CscPrdMonitor",y,x);

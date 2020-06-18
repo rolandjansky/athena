@@ -15,15 +15,9 @@
 #include "AthenaMonitoring/AthenaMonManager.h"
 
 // Athena include(s)
-#include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonPrepRawData/CscClusterStatus.h"
 #include "MuonPrepRawData/CscStripPrepDataCollection.h"
 #include "CscRawDataMonitoring/CscClusterValMonAlg.h"
-
-// ROOT include(s)
-#include "TH1F.h"
-#include "TH2F.h"
-#include "TClass.h"
 
 // STL include(s)
 #include <bitset>
@@ -46,11 +40,6 @@ CscClusterValMonAlg::CscClusterValMonAlg( const std::string& name, ISvcLocator* 
     declareProperty("CSCDoEventSelection",   m_doEvtSel = false );
     declareProperty("CSCEventSelTriggers", m_sampSelTriggers );
   }
-
-
-
-CscClusterValMonAlg::~CscClusterValMonAlg() {}
-
 
 StatusCode CscClusterValMonAlg::initialize() {
     
@@ -157,7 +146,7 @@ StatusCode CscClusterValMonAlg::fillHistograms( const EventContext& ctx ) const 
       auto x = Monitored::Scalar<float> ("x",iClus.globalPosition().x());
       auto y = Monitored::Scalar<float> ("y",iClus.globalPosition().y());
       auto z = Monitored::Scalar<float> ("z",iClus.globalPosition().z());
-      auto r = Monitored::Scalar<float> ("r",sqrt(x*x + y*y));
+      auto r = Monitored::Scalar<float> ("r",std::hypot(x,y));
 
       fill("CscClusMonitor",z,r);
       fill("CscClusMonitor",y,x);

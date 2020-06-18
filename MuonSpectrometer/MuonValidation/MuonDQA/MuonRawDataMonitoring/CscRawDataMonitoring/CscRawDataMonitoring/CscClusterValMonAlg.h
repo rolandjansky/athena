@@ -19,36 +19,26 @@
 #include "CscClusterization/ICscStripFitter.h"
 #include "CscCalibTools/ICscCalibTool.h"
 
-
-class ICscStripFitter;
-class ICscCalibTool;
-class CscPrepRawData;
-
 class CscClusterValMonAlg : public AthMonitorAlgorithm {
 
 public:
     CscClusterValMonAlg( const std::string& name, ISvcLocator* pSvcLocator );
-    virtual ~CscClusterValMonAlg();
+    virtual ~CscClusterValMonAlg() = default;
     virtual StatusCode initialize() override;
     virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
 
 private:
 
-    //Trigger aware monitoring
-    bool evtSelTriggersPassed();
 
-    // Id helper
-  //   ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-  //   "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     // Strip fitter.
-    ToolHandle<ICscStripFitter> m_stripFitter;//{this, "CSCStripFitter", "CSCStripFitter", "Strip fitter Tool"};
+    ToolHandle<ICscStripFitter> m_stripFitter{this, "CSCStripFitter", "CSCStripFitter", "Strip fitter Tool"};
 
     // calibration tool
-    ToolHandle<ICscCalibTool> m_cscCalibTool;//{this, "CscCalibTool", "CscCalib", "Calib Tool"};
+    ToolHandle<ICscCalibTool> m_cscCalibTool{this, "CscCalibTool", "CscCalib", "Calib Tool"};
 
     //!< TDT handle
-    ToolHandle<Trig::TrigDecisionTool> m_trigDec;//{this, "TrigDecisionTool", "TrigDecision","Trigger Decision Tool"}; 
+    ToolHandle<Trig::TrigDecisionTool> m_trigDec{this, "TrigDecisionTool", "TrigDecision","Trigger Decision Tool"}; 
 
     // Properties.
     SG::ReadHandleKey<Muon::CscPrepDataContainer> m_cscClusterKey{this,"CSCClusterKey","CSC_Clusters","CSC clusters"};
@@ -58,9 +48,6 @@ private:
 
     bool m_doEvtSel;
     std::vector<std::string> m_sampSelTriggers;
-
-    
-
 
 };
 #endif
