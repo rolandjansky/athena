@@ -47,7 +47,8 @@ argdict = {'runArgs'        : runArgs,
            'run_settings'   : run_settings, # All goes into the run card
            'writeGridpack'  : writeGridpack,
            'syst_mod'       : syst_mod,
-           'param_card'     : param_card # Only set if you *can't* modify the default param card to get your settings
+           'param_card'     : param_card, # Only set if you *can't* modify the default param card to get your settings
+            'add_lifetimes_lhe' : add_lifetimes_lhe
            }
 
 # First the standard case: No input LHE file

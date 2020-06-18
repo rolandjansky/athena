@@ -1477,7 +1477,7 @@ output -f
 
 def SUSY_Generation(runArgs = None, process=None,\
                     syst_mod=None, keepOutput=False, param_card=None, writeGridpack=False,\
-                    madspin_card=None, run_settings={}, params={}, fixEventWeightsForBridgeMode=False):
+                    madspin_card=None, run_settings={}, params={}, fixEventWeightsForBridgeMode=False, add_lifetimes_lhe=False):
 
     ktdurham = run_settings['ktdurham'] if 'ktdurham' in run_settings else None
     ktdurham , alpsfact , scalefact = get_SUSY_variations( params['MASS'] , syst_mod , ktdurham=ktdurham )
@@ -1510,6 +1510,12 @@ def SUSY_Generation(runArgs = None, process=None,\
     else:
         # Grab the run card and move it into place
         generate(runArgs=runArgs,process_dir=process_dir,grid_pack=writeGridpack)
+
+    # Add lifetimes to LHE before arranging output if requested
+    if add_lifetimes_lhe :
+        mglog.info('Requested addition of lifetimes to LHE files: doing so now.')
+        if is_gen_from_gridpack() : add_lifetimes()
+        else: add_lifetimes(process_dir=process_dir)
 
     # Move output files into the appropriate place, with the appropriate name
     arrange_output(process_dir=process_dir,saveProcDir=keepOutput,runArgs=runArgs,fixEventWeightsForBridgeMode=fixEventWeightsForBridgeMode)
