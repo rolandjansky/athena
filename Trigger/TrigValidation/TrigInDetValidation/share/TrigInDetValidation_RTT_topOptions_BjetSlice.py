@@ -32,6 +32,8 @@ if 'doFTK' in dir() and doFTK==True:
   TriggerFlags.doFTK=True
   rFTK=True
 
+
+
 (idtrigChainlist, tidaAnalysischains) = bjetChains(rID,rFTK,rBperf)
 
 
@@ -84,6 +86,11 @@ if 'bjetDynamicNJetsMax' in dir():
 
 if 'bjetDynamicEtFactor' in dir():
     theSuperRoi.DynamicEtFactor = bjetDynamicEtFactor
+
+if 'useFullScan' in dir():
+    theSuperRoi.UseFullScan = useFullScan
+
+
 
 #####################################################
 ## b-tagging optimisations

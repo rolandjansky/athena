@@ -58,14 +58,7 @@ JOBS =  \
 	TrigInDetValidation_mu_bphys_IBL.xml                          \
                                                                       \
 	TrigInDetValidation_minBias.xml                               \
-	TrigInDetValidation_minBias_offline.xml                       \
-                                                                      \
-	TrigInDetValidation_FTK_mu_ttbar.xml                          \
-	TrigInDetValidation_FTK_tau_tautau.xml                        \
-	TrigInDetValidation_FTK_bjet_ttbar.xml                        \
-	TrigInDetValidation_FTK_beamspot_ttbar.xml                    \
-	TrigInDetValidation_FTK_mu_ttbar_offline.xml                  \
-	TrigInDetValidation_FTK_bjet_ttbar_offline.xml                
+	TrigInDetValidation_minBias_offline.xml
 
 
 
