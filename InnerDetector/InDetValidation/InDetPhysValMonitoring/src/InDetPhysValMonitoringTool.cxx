@@ -556,7 +556,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
           }
           if (!duplicate || i == deg_count - 1) {
             if (nduplicates > 1) {
-	       (*(matchedEProbs[min(deg_count,4)]))++;
+	       (*(matchedEProbs[std::min(deg_count,4)]))++;
             }
             nduplicates = 0;
             prev = matches[i].first;
