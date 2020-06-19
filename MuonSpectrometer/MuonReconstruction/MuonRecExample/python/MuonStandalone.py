@@ -99,6 +99,7 @@ class MuonStandalone(ConfiguredMuonRec):
                 Cleaner = getPublicToolClone("MuonTrackCleaner_seg","MuonTrackCleaner")
                 Cleaner.PullCut = 3
                 Cleaner.PullCutPhi = 3
+                Cleaner.UseSLFit = True
                 SegmentFinder.TrackCleaner = Cleaner
             # for test purposes allow parallel running of truth segment finding and new segment finder
                 MuonSegmentFinderAlg = CfgMgr.MuonSegmentFinderAlg( "MuonSegmentMaker",SegmentCollectionName=SegmentLocation, 

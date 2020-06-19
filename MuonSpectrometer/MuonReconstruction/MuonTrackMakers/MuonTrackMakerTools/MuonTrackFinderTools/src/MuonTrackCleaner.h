@@ -232,6 +232,7 @@ namespace Muon {
     ToolHandle<Muon::MuonIdHelperTool>               m_idHelper;
     ServiceHandle<MagField::IMagFieldSvc>            m_magFieldSvc; 
     ToolHandle<Trk::IExtrapolator>                   m_extrapolator;
+    ToolHandle<Trk::IExtrapolator>                   m_slextrapolator;
 
     bool   m_useMdtResiCut;
     double m_chi2Cut;
@@ -274,6 +275,7 @@ namespace Muon {
     mutable unsigned int m_nIdHits;
     mutable unsigned int m_nPseudoMeasurements;
     mutable unsigned int m_nPhiConstraints;
+    bool                 m_use_slFit;
     
     struct ChamberPullInfo {
       ChamberPullInfo() : pullSum(0.),maxPull(0.),nhits(0) {}

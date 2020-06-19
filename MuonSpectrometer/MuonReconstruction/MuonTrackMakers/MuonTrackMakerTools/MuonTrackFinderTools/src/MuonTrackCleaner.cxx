@@ -74,7 +74,9 @@ namespace Muon {
       m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
       m_magFieldSvc("AtlasFieldSvc",na),
       m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"), 
-      m_slFit(false) {
+      m_slextrapolator("Trk::Extrapolator/MuonStraightLineExtrapolator"), 
+      m_slFit(false), 
+      m_use_slFit(false) {
     declareInterface<IMuonTrackCleaner>(this);
 
     declareProperty("IdHelper",m_idHelper);
@@ -102,6 +104,7 @@ namespace Muon {
     declareProperty("OnlyUseHitErrorInRecovery", m_onlyUseHitErrorInRecovery = true );
     declareProperty("AdcCut", m_adcCut = 50 );
     declareProperty("Iterate", m_iterate = true );
+    declareProperty("UseSLFit", m_use_slFit = false); // if true always use the SLFit (whatever the field etc. says) 
   }
 
 
@@ -117,6 +120,7 @@ namespace Muon {
     ATH_CHECK( m_helper.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
     ATH_CHECK( m_extrapolator.retrieve() );
+    ATH_CHECK( m_slextrapolator.retrieve() );
     ATH_CHECK( m_pullCalculator.retrieve() );
     ATH_CHECK( m_mdtRotCreator.retrieve() );
     ATH_CHECK( m_compRotCreator.retrieve() );
@@ -1120,6 +1124,8 @@ namespace Muon {
     cleanUp();
     
     m_slFit =  !m_magFieldSvc->toroidOn() || m_helper->isSLTrack( track );
+// if joboption says to use SL fit always use it
+    if(m_use_slFit) m_slFit = true;
     m_fitter = m_slFit ? &*m_slTrackFitter : &*m_trackFitter; 
 
     // init
@@ -1455,7 +1461,7 @@ namespace Muon {
       if( updatedCompRot ){
 	info.cleanedCompROT = updatedCompRot;
 	if( updatedCompRot->associatedSurface() != meas->associatedSurface() ){
-	  const Trk::TrackParameters* exPars = m_extrapolator->extrapolate(*pars,updatedCompRot->associatedSurface(),Trk::anyDirection,false,Trk::muon);
+	  const Trk::TrackParameters* exPars  = m_slFit ? m_slextrapolator->extrapolate(*pars,updatedCompRot->associatedSurface(),Trk::anyDirection,false,Trk::muon)  : m_extrapolator->extrapolate(*pars,updatedCompRot->associatedSurface(),Trk::anyDirection,false,Trk::muon);
 	  if( !exPars ){
 	    ATH_MSG_WARNING("Update of comp rot parameters failed, keeping old ones" );
 	    info.cleanedCompROT = 0;
@@ -1597,7 +1603,7 @@ namespace Muon {
     }
 
     // update sl fit configuration if track has ID hits or vertex constraint
-    if( m_slFit && (m_hasVertexConstraint || m_nIdHits > 0 ) && m_magFieldSvc->solenoidOn() ) {
+    if( !m_use_slFit && m_slFit && (m_hasVertexConstraint || m_nIdHits > 0 ) && m_magFieldSvc->solenoidOn() ) {
       m_slFit = false;
       m_fitter = &*m_trackFitter; 
     }
