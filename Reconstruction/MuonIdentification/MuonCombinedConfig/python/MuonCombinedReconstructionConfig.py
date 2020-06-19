@@ -137,6 +137,10 @@ def MuonCombinedMuonCandidateAlgCfg(flags, name="MuonCombinedMuonCandidateAlg", 
 
     result = ComponentAccumulator()
 
+    # EJWM - not completely sure where this comes from. Perhaps should be retrieved by a sub-tool?
+    from CaloTools.CaloNoiseCondAlgConfig import CaloNoiseCondAlgCfg
+    result.merge(CaloNoiseCondAlgCfg(flags,"totalNoise"))
+
     tool_kwargs={}
     if flags.Beam.Type == 'cosmics':
         tool_kwargs.setdefault("ExtrapolationStrategy", 1 )
@@ -172,8 +176,7 @@ def MuonCombinedInDetCandidateAlg(flags, name="MuonCombinedInDetCandidateAlg",**
 
     muon_ext_tool = CompFactory.Muon.MuonSystemExtensionTool(ParticleCaloExtensionTool = muon_particle_extension_tool, Extrapolator = extrapolator)
     kwargs.setdefault("MuonSystemExtensionTool", muon_ext_tool)
-    
-    alg = CompFactory.MuonCombinedInDetCandidateAlg(name,**kwargs)
+    alg = CompFactory.MuonCombinedInDetCandidateAlg(name, **kwargs)
     result.addEventAlgo( alg, primary=True )
     return result
 
@@ -261,7 +264,6 @@ def MuonCombinedReconstructionCfg(flags):
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
     result.merge( GeoModelCfg(flags) )
 
-    # FIXME - this appears necessary, but it really shouldn't be given the above.
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg 
     result.merge( MuonGeoModelCfg(flags) )
 
@@ -276,8 +278,10 @@ def MuonCombinedReconstructionCfg(flags):
 
     from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
     result.merge(PixelGeometryCfg(flags))
+
     from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
     result.merge(SCT_GeometryCfg(flags))
+
     from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
     result.merge(TRT_GeometryCfg(flags))
 
@@ -286,6 +290,11 @@ def MuonCombinedReconstructionCfg(flags):
 
     muon_edm_helper_svc = CompFactory.Muon.MuonEDMHelperSvc("MuonEDMHelperSvc")
     result.addService( muon_edm_helper_svc )
+
+
+    # Set up to read Tracks.
+    from TrkConfig.TrackCollectionReadConfig import TrackCollectionReadCfg
+    result.merge (TrackCollectionReadCfg (flags, 'Tracks'))
 
     result.merge( MuonCombinedInDetCandidateAlg(flags) )
     result.merge( MuonCombinedMuonCandidateAlgCfg(flags) )
@@ -305,8 +314,8 @@ def MuonCombinedReconstructionCfg(flags):
         result.merge( MuonSegmentTagAlgCfg(flags) )
 
     # runs over outputs and create xAODMuon collection
-    acc = MuonCreatorAlgCfg(flags)
-    result.merge(acc)
+    # acc = MuonCreatorAlgCfg(flags)
+    # result.merge(acc)
     
     if flags.MuonCombined.doMuGirl and flags.MuonCombined.doMuGirlLowBeta:
         # Has to be at end if not using sequencer. If we drop this requirement, can be moved above
@@ -323,7 +332,9 @@ if __name__=="__main__":
     args = SetupMuonStandaloneArguments()
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-    ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/ESD.16747874._000011_100events.pool.root']
+    ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.0/v2/myESD.pool.root']
+    # Keep this comment in, for easy local debugging.
+    # ConfigFlags.Input.Files = ['../q221/myESD.pool.root']
     
     ConfigFlags.Concurrency.NumThreads=args.threads
     ConfigFlags.Concurrency.NumConcurrentEvents=args.threads # Might change this later, but good enough for the moment.
@@ -337,20 +348,34 @@ if __name__=="__main__":
     ConfigFlags.Detector.GeometryLAr   = True 
     ConfigFlags.Detector.GeometryPixel = True 
     ConfigFlags.Detector.GeometrySCT   = True 
-    ConfigFlags.Detector.GeometryTRT   = True 
+    ConfigFlags.Detector.GeometryTRT   = True  
 
     ConfigFlags.Output.ESDFileName=args.output
     
-    ConfigFlags.Input.isMC = True
+    # Temporarily disable non-functional parts
+    ConfigFlags.MuonCombined.doCaloTrkMuId = True
+
     ConfigFlags.lock()
 
     ConfigFlags.dump()
 
     cfg = SetupMuonStandaloneCA(args,ConfigFlags)
 
+    #Configure topocluster algorithmsm, and associated conditions
+    from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
+    cfg.merge(CaloTopoClusterCfg(ConfigFlags,doLCCalib=True))
+    from AthenaCommon.Constants import VERBOSE
+
+    cfg.getEventAlgo("CaloTopoClusters").OutputLevel=VERBOSE 
+
     acc = MuonCombinedReconstructionCfg(ConfigFlags)
     cfg.merge(acc)
     
+    # Keep this in, since it makes debugging easier to simply uncomment and change Algo name,
+    # from AthenaCommon.Constants import VERBOSE
+    # tmp = cfg.getEventAlgo("MuonCombinedMuonCandidateAlg")
+    # tmp.OutputLevel=VERBOSE
+
     if args.threads>1 and args.forceclone:
         from AthenaCommon.Logging import log
         log.info('Forcing track building cardinality to be equal to '+str(args.threads))
@@ -360,25 +385,25 @@ if __name__=="__main__":
         track_builder = acc.getPrimary()
         track_builder.Cardinality=args.threads
             
-    # This is a temporary fix - it should go someplace central as it replaces the functionality of addInputRename from here:
-    # https://gitlab.cern.ch/atlas/athena/blob/master/Control/SGComps/python/AddressRemappingSvc.py
-    AddressRemappingSvc, ProxyProviderSvc=CompFactory.getComps("AddressRemappingSvc","ProxyProviderSvc",)
-    pps = ProxyProviderSvc()
-    ars=AddressRemappingSvc()
-    pps.ProviderNames += [ 'AddressRemappingSvc' ]
-    ars.TypeKeyRenameMaps += [ '%s#%s->%s' % ("TrackCollection", "MuonSpectrometerTracks", "MuonSpectrometerTracks_old") ]
-    
-    cfg.addService(pps)
-    cfg.addService(ars)
-    
-    itemsToRecord = ["xAOD::MuonContainer#Muons", "xAOD::MuonAuxContainer#MuonsAux.-DFCommonMuonsTight.-DFCommonGoodMuon.-DFCommonMuonsMedium.-DFCommonMuonsLoose"]
-    SetupMuonStandaloneOutput(cfg, ConfigFlags, itemsToRecord)
-  
- 
+    # Need to make it possible to write Muons ... so rename read containers
+    from SGComps.AddressRemappingConfig import AddressRemappingCfg
+
+    rename_maps = [ '%s#%s->%s' % ("xAOD::MuonContainer", "Muons", "old_Muons"), 
+                    '%s#%s->%s' % ("xAOD::MuonAuxContainer", "MuonsAux.", "old_MuonsAux."),
+                    '%s#%s->%s' % ("xAOD::MuonAuxContainer", "MuonsAux.rpcHitIdentifier", "old_MuonsAux.rpcHitIdentifier")]
+                    # '%s#%s->%s' % ("Muon::TgcPrepDataContainer", "TGC_MeasurementsAllBCs", "TGC_Measurements")] 
+    cfg.merge( AddressRemappingCfg(rename_maps) )
+    tmp = cfg.getService("AddressRemappingSvc")
+    tmp.OutputLevel=VERBOSE
+
+    # itemsToRecord = ["xAOD::MuonContainer#Muons", "xAOD::MuonAuxContainer#MuonsAux.-DFCommonMuonsTight.-DFCommonGoodMuon.-DFCommonMuonsMedium.-DFCommonMuonsLoose"]
+    # SetupMuonStandaloneOutput(cfg, ConfigFlags, itemsToRecord)
+    # import pdb ; pdb.set_trace()
     cfg.printConfig(withDetails = True)
-    f=open("MuonCombinedReconstruction.pkl","wb")
-    cfg.store(f)
-    f.close()
+    # import pdb ; pdb.set_trace()
+    # f=open("MuonCombinedReconstruction.pkl","wb")
+    # cfg.store(f)
+    # f.close()
     
     if args.run:
         cfg.run(20)
