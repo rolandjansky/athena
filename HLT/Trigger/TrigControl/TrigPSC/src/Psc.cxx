@@ -44,6 +44,8 @@
 
 #include <boost/property_tree/xml_parser.hpp>
 
+#include "CxxUtils/checker_macros.h"
+
 using namespace boost::property_tree;
 
 namespace
@@ -523,7 +525,20 @@ bool psc::Psc::prepareForRun (const ptree& args)
   }
 
   // bind args to prepareForRun
-  auto prep = [&args](ITrigEventLoopMgr* mgr){return mgr->prepareForRun(args);};
+  auto prep = [&args](ITrigEventLoopMgr* mgr) {
+    // FIXME: ITrigEventLookMgr::prepareForRun is declared NOT_THREAD_SAFE.
+    // Probably this method shoud also be NOT_THREAD_SAFE, but that's
+    // awkward because it implements a tdaq interface from hltinterface.
+    StatusCode ret ATLAS_THREAD_SAFE = mgr->prepareForRun (args);
+
+    // This dance is needed to prevent RV optimization.
+    // Otherwise, the optimizer loses the ATLAS_THREAD_SAFE attribute
+e    // on RET before the thread-safety checker gets to see the code.
+    if (ret.isSuccess()) {
+      return StatusCode (StatusCode::SUCCESS);
+    }
+    return ret;
+  };
   if(!callOnEventLoopMgr<ITrigEventLoopMgr>(prep, "prepareForRun").isSuccess())
   {
     ERS_PSC_ERROR("Error preparing the EventLoopMgr");
