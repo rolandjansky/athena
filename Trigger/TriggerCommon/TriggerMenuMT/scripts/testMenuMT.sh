@@ -1,9 +1,7 @@
 #!/usr/bin/env sh
-# Script to generate the trigger LVL1 & L1Topo menu XML files
-# Based on TriggerMenuXML/XMLDumperFromAthena.sh
 
 help() {
-    echo "Syntax: generateL1MenuMT.sh [-r VERSION] MENU [DEST]"
+    echo "Syntax: testMenuMT.sh [-r VERSION] MENU [DEST]"
 }
 
 if [ $# -lt 1 ]; then
@@ -30,8 +28,6 @@ while true; do
     esac
 done
 
-#if [ -z ${PYTHONDONTWRITEBYTE+x} ]; then export PYTHONDONTWRITEBYTECODE=1; fi # don't write .pyc files, keep source directory clean
-
 menu=$1
 dest=$2
 if [ -z "$dest" ]; then
@@ -47,7 +43,6 @@ fi
 
 # Temporary run directroy and cleanup traps in case of termination
 rundir=`mktemp -t -d tmxml.${menu}.XXXXXXXXXX`
-
 TRAPINT() {
     rm -rf $rundir
     return 130 # 128+SIGINT
@@ -59,31 +54,27 @@ TRAPTERM() {
 
 
 ## menu generation starts here
-echo "generateL1MenuMT: Building menu: ${menu} for ${release}"
-
-logfiletopo=topo_${menu}.log
-logfilelvl1=lvl1_${menu}.log
-logfilel1r3=l1R3_${menu}.log
-
+echo "generateHLTMenuMT: Building menu: ${menu} for ${release}"
+logfiletopo=topo${menu}.log
+logfilelvl1=lvl1${menu}.log
+logfilehlt=hlt${menu}.log
 cd $rundir
 
-generateLVL1MenuMT.py   $menu 2>&1 >> $logfilelvl1 
-generateL1TopoMenuMT.py $menu 2>&1 >> $logfiletopo 
-generateL1MenuRun3.py $menu 2>&1 >> $logfilel1r3 
+generateLVL1MenuMT.py $menu &> $logfiletopo 
+generateL1TopoMenuMT.py $menu &> $logfilelvl1 
+generateMenuMT.py $menu &> $logfilehlt
 
-cp -v L*.xml ${dest}
-find . -maxdepth 1 -name 'L*.json' -exec cp -v {} ${dest} \;
-cp $logfilelvl1 ${dest}
-cp $logfiletopo ${dest}
-cp $logfilel1r3 ${dest}
+cp L1Topoconfig_*.xml ${dest}
+cp LVL1config_*.xml ${dest}
+#cp $logfilelvl1 $logfiletopo ${dest}
 
 if [[ -e outputLVL1config.xml ]]; then
     cp outputLVL1config.xml ${dest}/LVL1config_${menu}_${release}.xml
 fi
 
 #this gives some more sensitivity to hidden problems
-grep --colour ERROR ${dest}/$logfile/*.log
-grep --colour -A 100 "Shortened traceback" ${dest}/$logfile/*.log
+grep --colour ERROR ${dest}/$logfile
+grep --colour -A 100 "Shortened traceback" ${dest}/$logfile
 
 rm -rf $rundir
 
