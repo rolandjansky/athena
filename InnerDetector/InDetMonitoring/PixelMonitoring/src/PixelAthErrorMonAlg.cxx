@@ -66,8 +66,10 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
   //
   // Print all Module/FE errors
   int maxHash = m_pixelid->wafer_hash_max();
+
   for (int i=0; i<maxHash; i++) {
     // Get accumulated errors (Module)
+    
     uint64_t kErrorWord = m_pixelCondSummaryTool->getBSErrorWord(i,ctx);
 
     ATH_MSG_DEBUG("Module hash=" << i << " has");

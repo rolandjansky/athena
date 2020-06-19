@@ -98,6 +98,8 @@ PixelConditionsSummaryTool::IDCCacheEntry* PixelConditionsSummaryTool::getCacheE
 }
 
 uint64_t PixelConditionsSummaryTool::getBSErrorWord(const IdentifierHash& moduleHash, const EventContext& ctx) const {
+  if (!m_useByteStream) { return 0; }
+
   std::lock_guard<std::mutex> lock{m_cacheMutex};
   auto idcCachePtr = getCacheEntry(ctx)->IDCCache;
   if (idcCachePtr==nullptr) {
