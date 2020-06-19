@@ -215,7 +215,12 @@ StatusCode Herwig7::fillEvt(HepMC::GenEvent* evt) {
   double pdf1 = pdfs.first.xfx(sub->incoming().first ->dataPtr(), scale, x1);
   double pdf2 = pdfs.first.xfx(sub->incoming().second->dataPtr(), scale, x2);
   // Create the PDFinfo object
+#ifdef HEPMC3
+  HepMC3::GenPdfInfoPtr pdfi = std::shared_ptr<HepMC3::GenPdfInfo>();
+  pdfi->set(id1, id2, x1, x2, Q, pdf1, pdf2);
+#else
   HepMC::PdfInfo pdfi(id1, id2, x1, x2, Q, pdf1, pdf2);
+#endif
   evt->set_pdf_info(pdfi);
   ATH_MSG_DEBUG("Added PDF info to HepMC");
 

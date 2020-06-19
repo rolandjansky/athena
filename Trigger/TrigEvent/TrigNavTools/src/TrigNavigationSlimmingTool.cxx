@@ -14,11 +14,14 @@
 //#include "TrigNavigation/TriggerElementFactory.h"
 #include "TrigNavigation/Holder.h"
 #include "GaudiKernel/ThreadLocalContext.h"
+#include "getLabel.h"
 
 
 #include "TrigNavTools/TrigNavigationSlimmingTool.h"
 
 #include <iostream>
+
+using HLT::TrigNavTools::SlimmingHelper;
 
 /**********************************************************************
  *
@@ -320,40 +323,6 @@ StatusCode HLT::TrigNavigationSlimmingTool::finalize() {
 
 
 
-std::map<std::string, int> *HLT::TrigNavigationSlimmingTool::getFeatureOccurrences(HLT::NavigationCore* navigation) {
-  if(!navigation)
-    return 0;
-  
-  if (navigation->getInitialNode() == 0 )
-    return 0;
-  
-  std::map<std::string, int> *featureOccurrences = new std::map<std::string, int>;
-
-
-  for ( auto te : navigation->getAllTEs() ) {
-    for ( const auto& fea: te->getFeatureAccessHelpers() ) {
-      (*featureOccurrences)[getLabel(*navigation, fea)] += 1;
-    }
-  }
-
-  return featureOccurrences;
-}
-
-std::string HLT::TrigNavigationSlimmingTool::getLabel(const HLT::NavigationCore& navigation,
-                                                      const TriggerElement::FeatureAccessHelper &fah) const {
-
-  CLID clid = fah.getCLID();
-  std::string label;
-  HLTNavDetails::IHolder *h = navigation.getHolder(clid, fah.getIndex().subTypeIndex());
-  if(h) label = h->label();
-
-  return label;
-}
-
-
-
-
-
 StatusCode
 HLT::TrigNavigationSlimmingTool::lateFillConfiguration(State& state) const {
   // remember the configured chain names, as they will be useful later  
@@ -534,11 +503,11 @@ bool HLT::TrigNavigationSlimmingTool::toBeIncluded(State& state,
 	  te->getFeatureAccessHelpers().begin();
         iter != te->getFeatureAccessHelpers().end(); ++iter) {
       // grab the label and check if it was found in the inclusion list
-      if(std::find(inclusionList->begin(), inclusionList->end(), this->getLabel(state.navigation, *iter )) != inclusionList->end())
+      if(std::find(inclusionList->begin(), inclusionList->end(), SlimmingHelper::getLabel(state.navigation, *iter )) != inclusionList->end())
         return true;
       // now find if its in the exclusion list
       if(exclusionList && std::find(exclusionList->begin(), exclusionList->end(), 
-				    this->getLabel( state.navigation, *iter )) != exclusionList->end())
+				    SlimmingHelper::getLabel( state.navigation, *iter )) != exclusionList->end())
         onExclusionList = 1;
     }
 
@@ -562,7 +531,7 @@ bool HLT::TrigNavigationSlimmingTool::toBeIncluded(State& state,
 	te->getFeatureAccessHelpers().begin();
       iter != te->getFeatureAccessHelpers().end(); ++iter) {
     // grab the label and check if it was found in the exclusion list
-    if(std::find(exclusionList->begin(), exclusionList->end(), this->getLabel(state.navigation, *iter )) != exclusionList->end())
+    if(std::find(exclusionList->begin(), exclusionList->end(), SlimmingHelper::getLabel(state.navigation, *iter )) != exclusionList->end())
       return false;
   }
 

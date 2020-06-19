@@ -7,7 +7,6 @@
 #include "../SimplePOSIXTimeKeeperSvc.h"
 #include "../MixingEventSelector.h"
 #include "../ThinningSvc.h"
-#include "../ThinningOutputTool.h"
 #include "../ThinningCacheTool.h"
 //#include "../EventDumperSvc.h"
 #include "../MemoryRescueSvc.h"
@@ -68,7 +67,6 @@ DECLARE_COMPONENT( EvtIdModifierSvc )
 DECLARE_COMPONENT( MetaDataSvc )
 DECLARE_COMPONENT( OutputStreamSequencerSvc )
 DECLARE_COMPONENT( AthenaOutputStreamTool )
-DECLARE_COMPONENT( ThinningOutputTool )
 DECLARE_COMPONENT( Athena::ThinningCacheTool )
 DECLARE_COMPONENT( AthenaStopperAlg )
 DECLARE_COMPONENT( AthIncFirerAlg )

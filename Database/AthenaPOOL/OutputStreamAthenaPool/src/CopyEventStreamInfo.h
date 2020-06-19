@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef COPYEVENTSTREAMINFO_H
@@ -15,6 +15,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "AthenaKernel/IMetaDataTool.h"
+#include "AthenaKernel/IMetaDataSvc.h"
 
 #include <string>
 
@@ -48,8 +49,9 @@ private:
    /// Key, the StoreGate key for the EventStreamInfo object.
    StringProperty m_key;
 
-   /// Pointer to the metadata stores
-   ServiceHandle<StoreGateSvc> m_metaDataStore;
+   /// Access to output MetaDataStore through MetaDataSvc (using MetaContainers)
+   ServiceHandle<IMetaDataSvc> m_metaDataSvc;
+   /// MetaDataStore for input 
    ServiceHandle<StoreGateSvc> m_inputMetaDataStore;
 };
 #endif

@@ -15,7 +15,6 @@
 
 from __future__ import print_function
 
-__version__ = "$Revision: 724150 $"
 __author__  = "Will Buttinger <will@cern.ch>"
 
 import sys

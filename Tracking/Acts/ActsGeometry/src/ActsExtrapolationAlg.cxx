@@ -124,6 +124,9 @@ StatusCode ActsExtrapolationAlg::execute(const EventContext &ctx) const {
       Acts::BoundParameters startParameters(
           anygctx, std::move(cov), std::move(pars), std::move(surface));
       output = m_extrapolationTool->propagationSteps(ctx, startParameters);
+      if(output.first.size() == 0) {
+        ATH_MSG_WARNING("Got ZERO steps from the extrapolation tool");
+      }
       m_propStepWriterSvc->write(output.first);
       if(m_writeMaterialTracks){
         Acts::RecordedMaterialTrack track;

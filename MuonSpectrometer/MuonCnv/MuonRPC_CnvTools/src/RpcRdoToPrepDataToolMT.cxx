@@ -179,7 +179,7 @@ StatusCode Muon::RpcRdoToPrepDataToolMT::transferOutputToCache(){
   ATH_MSG_DEBUG("Transferring local decoding from Core to cache container inside MT");
 
   // Take m_rpcPrepDataContainer and transfer contents to m_rpcPrepDataContainerFromCache
-  auto prd_hashes = m_rpcPrepDataContainer->GetAllCurrentHashes();
+  auto prd_hashes = m_rpcPrepDataContainer->GetAllCurrentHashes(); //deliberately GetAllCurrentHashes
   for (auto hash : prd_hashes) {
     // Remove collection from local-thread container and place into unique_ptr to move to cache
     std::unique_ptr<Muon::RpcPrepDataCollection> coll ( m_rpcPrepDataContainer->removeCollection(hash) );
@@ -200,7 +200,7 @@ StatusCode Muon::RpcRdoToPrepDataToolMT::transferOutputToCache(){
   }
 
   // Take m_rpcCoinDataContainer and transfer contents to m_rpcCoinDataContainerFromCache
-  auto coin_hashes = m_rpcCoinDataContainer->GetAllCurrentHashes();
+  auto coin_hashes = m_rpcCoinDataContainer->GetAllCurrentHashes(); //deliberately GetAllCurrentHashes
   for (auto hash : coin_hashes) {
     // Remove collection from local-thread container and place into unique_ptr to move to cache
     std::unique_ptr<Muon::RpcCoinDataCollection> coll ( m_rpcCoinDataContainer->removeCollection(hash) );
@@ -220,17 +220,14 @@ StatusCode Muon::RpcRdoToPrepDataToolMT::transferOutputToCache(){
     ATH_MSG_DEBUG("Coin hash " << hash << " has been moved to cache container");
   }
 
-  
-  auto prd_hashes_cache_check = m_rpcPrepDataContainerFromCache->GetAllCurrentHashes();
-  for (auto hash : prd_hashes_cache_check){
-    ATH_MSG_DEBUG("Contents of CONTAINER in this view : " << hash);
+  if (msgLvl(MSG::DEBUG)){
+     for (const auto &[hash, ptr] : m_rpcPrepDataContainerFromCache->GetAllHashPtrPair()){
+       ATH_MSG_DEBUG("Contents of CONTAINER in this view : " << hash);
+     }
+     for (const auto &[hash, ptr] : m_rpcPrepDataContainer->GetAllHashPtrPair()){
+       ATH_MSG_DEBUG("Contents of LOCAL in this view : " << hash);
+     }
   }
-
-  auto prd_hashes_local_check = m_rpcPrepDataContainer->GetAllCurrentHashes();
-  for (auto hash : prd_hashes_local_check){
-    ATH_MSG_DEBUG("Contents of LOCAL in this view : " << hash);
-  }
-  
   // For additional information on the contents of the cache-based container, this function can be used
   //printMT();
 

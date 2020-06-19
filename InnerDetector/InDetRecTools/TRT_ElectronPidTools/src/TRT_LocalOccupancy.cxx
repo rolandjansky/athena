@@ -60,8 +60,7 @@ TRT_LocalOccupancy::TRT_LocalOccupancy(const std::string& t,
 
 // =======================================================================
 TRT_LocalOccupancy::~TRT_LocalOccupancy()
-{
-}
+= default;
 
 // =======================================================================
 StatusCode TRT_LocalOccupancy::initialize()
@@ -118,7 +117,12 @@ std::vector<float> TRT_LocalOccupancy::GlobalOccupancy( ) const {
   output.push_back(	data->m_occ_total[5]*1.e-2	)	;	//	EndcapA A
   output.push_back(	data->m_occ_total[6]*1.e-2	)	;	//	EndcapB A
 
-  ATH_MSG_DEBUG("Compute Global Occupancy: whole TRT: "  << output.at(0) << "\t Barrel C: " <<  output.at(1) << "\t EndcapA C: " << output.at(2) << "\t EndcapB C: " << output.at(3) << "\t Barrel A: " << output.at(4) << "\t EndcapA A: " << output.at(5) << "\t EndcapB A: " << output.at(6));
+  ATH_MSG_DEBUG("Compute Global Occupancy: whole TRT: "
+                << output.at(0) << "\t Barrel C: " << output.at(1)
+                << "\t EndcapA C: " << output.at(2) << "\t EndcapB C: "
+                << output.at(3) << "\t Barrel A: " << output.at(4)
+                << "\t EndcapA A: " << output.at(5)
+                << "\t EndcapB A: " << output.at(6));
   return output;
 }
 
@@ -132,10 +136,22 @@ float TRT_LocalOccupancy::LocalOccupancy(const Trk::Track& track ) const {
   DataVector<const Trk::TrackStateOnSurface>::const_iterator	tsos		=trackStates->begin();
   DataVector<const Trk::TrackStateOnSurface>::const_iterator	tsosEnd		=trackStates->end();
   for (;tsos!=tsosEnd;++tsos) {
-    const Trk::MeasurementBase* mesb=(*tsos)->measurementOnTrack();
-    if (!mesb) continue;
-    const InDet::TRT_DriftCircleOnTrack *driftcircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(mesb);
-    if(!driftcircle)  continue;
+    const Trk::MeasurementBase* mesb = (*tsos)->measurementOnTrack();
+    if (!mesb) {
+      continue;
+    }
+    const InDet::TRT_DriftCircleOnTrack* driftcircle = nullptr;
+    if (mesb->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
+      const Trk::RIO_OnTrack* tmpRio = static_cast<const Trk::RIO_OnTrack*>(mesb);
+      if (tmpRio->rioType(Trk::RIO_OnTrackType::TRT_DriftCircle)) {
+        driftcircle = static_cast<const InDet::TRT_DriftCircleOnTrack*>(tmpRio);
+      }
+    }
+
+    if(!driftcircle) { 
+      continue;
+    }
+
     Identifier id=driftcircle->identify();
     int det = m_TRTHelper->barrel_ec(         id)     ;
     int lay = m_TRTHelper->layer_or_wheel(    id)     ;
@@ -202,7 +218,7 @@ std::map<int, double>  TRT_LocalOccupancy::getDetectorOccupancy( const TRT_RDO_C
   for ( ; RDO_collection_iter!= RDO_collection_end; ++RDO_collection_iter) {
     const InDetRawDataCollection<TRT_RDORawData>* RDO_Collection(*RDO_collection_iter);
     if (!RDO_Collection) continue;
-    if (RDO_Collection->size() != 0){
+    if (!RDO_Collection->empty()){
       DataVector<TRT_RDORawData>::const_iterator r,rb=RDO_Collection->begin(),re=RDO_Collection->end(); 
       
       for(r=rb; r!=re; ++r) {
@@ -229,7 +245,7 @@ std::map<int, double>  TRT_LocalOccupancy::getDetectorOccupancy( const TRT_RDO_C
           for(tdcvalue=0;tdcvalue<24;++tdcvalue) 
           { 
             if      (  (word & mask) && SawZero) break; 
-            else if ( !(word & mask) ) SawZero = true; 
+            if ( !(word & mask) ) SawZero = true; 
             mask>>=1; 
             if(tdcvalue==7 || tdcvalue==15) mask>>=1; 
           } 
@@ -285,7 +301,7 @@ TRT_LocalOccupancy::countHitsNearTrack (OccupancyData& data,
 	for ( ; RDO_collection_iter!= RDO_collection_end; ++RDO_collection_iter) {
 	  const InDetRawDataCollection<TRT_RDORawData>* RDO_Collection(*RDO_collection_iter);
 	  if (!RDO_Collection) return;
-	  if (RDO_Collection->size() != 0){
+	  if (!RDO_Collection->empty()){
 	    DataVector<TRT_RDORawData>::const_iterator r,rb=RDO_Collection->begin(),re=RDO_Collection->end(); 
 	    
 	    for(r=rb; r!=re; ++r) {
@@ -313,7 +329,7 @@ TRT_LocalOccupancy::countHitsNearTrack (OccupancyData& data,
 		int tdcvalue; 
 		for(tdcvalue=0;tdcvalue<24;++tdcvalue) 
 		  { if      (  (word & mask) && SawZero) break; 
-		    else if ( !(word & mask) ) SawZero = true; 
+		    if ( !(word & mask) ) SawZero = true; 
 		    mask>>=1; 
 		    if(tdcvalue==7 || tdcvalue==15) mask>>=1; 
 		  } 
@@ -361,8 +377,7 @@ TRT_LocalOccupancy::countHitsNearTrack (OccupancyData& data,
       }
     }
     
-    return;
-}
+    }
 
   float TRT_LocalOccupancy::LocalOccupancy(const double t_eta, const double t_phi) const {
     // take eta, phi of track, RoI, ... what have you

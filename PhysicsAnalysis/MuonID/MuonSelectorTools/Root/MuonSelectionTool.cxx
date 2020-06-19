@@ -1262,11 +1262,11 @@ namespace CP {
     float symmetric_eta = std::abs( mu.eta() );
     float pt = mu.pt() / 1000.0; // GeV                                                                                                                                                                                                                                                                                                                                     
     // Impose pT and eta cuts; the bounds of the cut maps  
-    if( pt < 4.0 || symmetric_eta>2.5 ) return false;
+    if( pt < 4.0 || symmetric_eta >= 2.5 ) return false;
     ATH_MSG_VERBOSE( "Muon is passing tight WP kinematic cuts with pT,eta " << mu.pt() << "  ,  " << mu.eta()  );
 
     // ** Low pT specific cuts ** //  
-    if( pt > 4.0 && pt <= 20.0 ){
+    if( pt < 20.0 ){
 
       double rhoCut    = m_tightWP_lowPt_rhoCuts->Interpolate( pt, symmetric_eta );
       double qOverPCut = m_tightWP_lowPt_qOverPCuts->Interpolate( pt , symmetric_eta );
@@ -1287,7 +1287,7 @@ namespace CP {
     }
 
     // ** Medium pT specific cuts ** //  
-    else if ( pt > 20.0 && pt <= 100.0 ) {
+    else if ( pt < 100.0 ) {
       double rhoCut = m_tightWP_mediumPt_rhoCuts->Interpolate( pt , symmetric_eta );
       // 
       ATH_MSG_VERBOSE( "Applying tight WP cuts to a medium pt muon with (pt,eta) (" << pt << "," << mu.eta() << ")" );
@@ -1302,7 +1302,7 @@ namespace CP {
     }
 
     // ** High pT specific cuts  
-    else if ( pt > 100.0 && pt <= 500.0 ){
+    else if ( pt < 500.0 ){
       // 
       ATH_MSG_VERBOSE( "Applying tight WP cuts to a high pt muon with (pt,eta) (" << pt << "," << mu.eta() << ")" );
       // No interpolation, since bins with -1 mean we should cut really loose       

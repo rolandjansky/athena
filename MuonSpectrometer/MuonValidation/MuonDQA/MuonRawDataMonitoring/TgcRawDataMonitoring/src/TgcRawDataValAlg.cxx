@@ -61,8 +61,6 @@ TgcRawDataValAlg::initialize(){
   m_mon_profile=true;
 
   ATH_CHECK(m_tgcPrepDataContainerName.initialize());
-  ATH_CHECK(m_tgcPrepDataPreviousContainerName.initialize());
-  ATH_CHECK(m_tgcPrepDataNextContainerName.initialize());
   ATH_CHECK(m_outputCoinCollectionLocation.initialize());
   ATH_CHECK(m_eventInfo.initialize());
   
@@ -121,20 +119,9 @@ TgcRawDataValAlg::fillHistograms(){
   
   /////////////////////////////////////
   // Get TGC Hit PRD Containers
-  SG::ReadHandle<Muon::TgcPrepDataContainer> tgc_previous_prd_container(m_tgcPrepDataContainerName);
-  SG::ReadHandle<Muon::TgcPrepDataContainer> tgc_current_prd_container(m_tgcPrepDataPreviousContainerName);
-  SG::ReadHandle<Muon::TgcPrepDataContainer> tgc_next_prd_container(m_tgcPrepDataNextContainerName);
-  
-  // Previous
-  ATH_MSG_DEBUG( "****** tgc previous prd container size() : " << tgc_previous_prd_container->size()  );
-  
-  // Current
-  ATH_MSG_DEBUG( "****** tgc current prd container size() : " << tgc_current_prd_container->size()  );
-  
-  // Next
-  ATH_MSG_DEBUG( "****** tgc next prd container size() : " << tgc_next_prd_container->size()  );
-  
-  
+  SG::ReadHandle<Muon::TgcPrepDataContainer> tgc_prd_container(m_tgcPrepDataContainerName);
+  ATH_MSG_DEBUG( "****** tgc prd container size() : " << tgc_prd_container->size()  );
+
   // Increment event counter
   m_nEvent++;
   ATH_MSG_DEBUG("event : " << m_nEvent  );
@@ -144,9 +131,7 @@ TgcRawDataValAlg::fillHistograms(){
   // Get Data from TGC Containers
   clearVectorsArrays();
   // fill vectors and arrays from TgcPrepData
-  readTgcPrepDataContainer(tgc_previous_prd_container.cptr(), PREV);
-  readTgcPrepDataContainer( tgc_current_prd_container.cptr(), CURR);
-  readTgcPrepDataContainer(    tgc_next_prd_container.cptr(), NEXT);
+  readTgcPrepDataContainer(tgc_prd_container.cptr());
   
   
   ///////////////////////////////////////////////////////////////////////////

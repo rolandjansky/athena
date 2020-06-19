@@ -186,6 +186,7 @@ class AthGraph:
 @acmdlib.argument('--cmakedot', help=argparse.SUPPRESS)
 
 def main(args):
+   """Inspect cmake build dependencies"""
 
    # Find packages.dot:
    if not args.cmakedot:

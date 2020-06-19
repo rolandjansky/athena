@@ -29,10 +29,9 @@ namespace Acts {
   }
 }
 
+
 class IActsMaterialTrackWriterSvc;
 
-template<typename>
-class RootExCellWriter;
 class EventContext;
 class IAthRNGSvc;
 class IActsExtrapolationTool;
@@ -51,7 +50,6 @@ private:
 
   ToolHandle<IActsExtrapolationTool> m_extrapolationTool{this, "ExtrapolationTool", "ActsExtrapolationTool"};
 
-  std::shared_ptr<RootExCellWriter<Acts::TrackParameters>> m_rootEccWriter;
 
   // poor-mans Particle Gun is included here right now
   Gaudi::Property<std::vector<double>> m_etaRange{this, "EtaRange", {-3, 3}, "The eta range for particles"};

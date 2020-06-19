@@ -86,12 +86,11 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVe
     return StatusCode::FAILURE;
   }
   ATH_MSG_DEBUG("Core decode processed in Legacy decode (hash vector)");
-
-  auto prd_hashes = m_rpcPrepDataContainer->GetAllCurrentHashes();
-  for (auto hash : prd_hashes){
-    ATH_MSG_DEBUG("Contents of CONTAINER in this view : " << hash);
+  if (msgLvl(MSG::DEBUG)){
+     for (const auto &[hash, ptr] : m_rpcPrepDataContainer->GetAllHashPtrPair()){
+       ATH_MSG_DEBUG("Contents of CONTAINER in this view : " << hash);
+     }
   }
-
   // For additional information on container contents, this function can be used 
   //  Muon::RpcRdoToPrepDataToolCore::printPrepData();
 
@@ -106,12 +105,11 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( const std::vector<uint32_t>& robI
     return StatusCode::FAILURE;
   }
   ATH_MSG_DEBUG("Core decode processed in Legacy decode (ROB vector)");
-  
-  auto prd_hashes = m_rpcPrepDataContainer->GetAllCurrentHashes();
-  for (auto hash : prd_hashes){
-    ATH_MSG_DEBUG("Contents of CONTAINER in this view : " << hash);
+  if (msgLvl(MSG::DEBUG)){
+     for (const auto &[hash, ptr] : m_rpcPrepDataContainer->GetAllHashPtrPair()){
+       ATH_MSG_DEBUG("Contents of CONTAINER in this view : " << hash);
+     }
   }
-
   // For additional information on container contents, this function can be used
   //  Muon::RpcRdoToPrepDataToolCore::printPrepData();
 

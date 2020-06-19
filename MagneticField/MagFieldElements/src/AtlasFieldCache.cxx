@@ -12,7 +12,7 @@
 #include "MagFieldElements/AtlasFieldCache.h"
 
 /// Constructor
-MagField::AtlasFieldCache::AtlasFieldCache() {}
+MagField::AtlasFieldCache::AtlasFieldCache() = default;
 
 MagField::AtlasFieldCache::AtlasFieldCache(double solFieldScale,
                                            double torFieldScale,

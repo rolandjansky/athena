@@ -1,10 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: CaloSwGap_v2.h,v 1.6 2009-04-25 17:57:00 ssnyder Exp $
 /**
  * @file  CaloSwGap_v2.h
  * @author scott snyder <snyder@bnl.gov>
@@ -76,17 +73,9 @@ class CaloSwGap_v2
     public ISetCaloCellContainerName
 {
 public:
+  /// Inherit constructor.
+  using CaloClusterCorrectionCommon::CaloClusterCorrectionCommon;
  
-  /**
-   * @brief Constructor.
-   * @param type The type of the tool.
-   * @param name The name of the tool.
-   * @param parent The parent algorithm of the tool.
-   */
-  CaloSwGap_v2(const std::string& type,
-               const std::string& name,
-               const IInterface* parent);
-
 
   /**
    * @brief Standard Gaudi initialize method.
@@ -96,7 +85,7 @@ public:
 
   /**
    * @brief Virtual function for the correction-specific code.
-   * @param ctx     The event context.
+   * @param myctx   ToolWithConstants context.
    * @param cluster The cluster to correct.
    *                It is updated in place.
    * @param elt     The detector description element corresponding
@@ -114,7 +103,7 @@ public:
    *                @c CaloSampling::CaloSample; i.e., it has both
    *                the calorimeter region and sampling encoded.
    */
-  virtual void makeTheCorrection (const EventContext& ctx,
+  virtual void makeTheCorrection (const Context& myctx,
                                   xAOD::CaloCluster* cluster,
                                   const CaloDetDescrElement* elt,
                                   float eta,
@@ -134,22 +123,28 @@ public:
 
 private:
   /// Calibration constants: The range over which this correction is defined.
-  float             m_etamin_crack;
-  float             m_etamax_crack;
+  Constant<float> m_etamin_crack
+  { this, "etamin_crack", "Lower end of range over which this correction is defined." };
+  Constant<float> m_etamax_crack
+  { this, "etamax_crack", "Upper end of range over which this correction is defined." };
 
   /// Calibration constant: The interpolation degree.
-  int               m_degree;
+  Constant<int> m_degree
+  { this, "degree", "Interpolation degree." };
 
   /// Calibration constant: The tabulated array of correction weights,
   /// A and alpha.
-  CaloRec::Array<2> m_correction;
+  Constant<CxxUtils::Array<2> > m_correction
+  { this, "correction", "The tabulated array of correction weights, A and alpha." };
 
   /// Calibration constant: If true, tabulated values are in terms of
   /// raw (local) eta.
-  bool m_use_raw_eta;
+  Constant<bool> m_use_raw_eta
+  { this, "use_raw_eta", "If true, tabulated values are in terms of raw (local) eta." };
 
   /// Property: The name of the container in which to look to find tile cells.
-  SG::ReadHandleKey<CaloCellContainer> m_cells_name;
+  SG::ReadHandleKey<CaloCellContainer> m_cells_name
+  { this, "cells_name", "AllCalo", "The name of the container in which to look to find tile cells." };
 };
 
 

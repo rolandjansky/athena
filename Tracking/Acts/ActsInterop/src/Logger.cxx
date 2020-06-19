@@ -17,26 +17,7 @@
 #include <iostream>
 #include <string>
 
-void
-ActsAthenaPrintPolicy::flush(const Acts::Logging::Level& lvl, const std::ostringstream& input)
-{
-  const std::vector<MSG::Level> athLevelVector{
-    MSG::VERBOSE, 
-    MSG::DEBUG,
-    MSG::INFO, 
-    MSG::WARNING, 
-    MSG::ERROR, 
-    MSG::FATAL
-  };
-
-  MSG::Level athLevel = athLevelVector[lvl];
-  (*m_msg) << athLevel << input.str() << endmsg;
-}
-  
-
-bool
-ActsAthenaFilterPolicy::doPrint(const Acts::Logging::Level& lvl) const 
-{
+namespace {
   const std::array<MSG::Level, 6> athLevelVector{
     MSG::VERBOSE, 
     MSG::DEBUG,
@@ -45,6 +26,19 @@ ActsAthenaFilterPolicy::doPrint(const Acts::Logging::Level& lvl) const
     MSG::ERROR, 
     MSG::FATAL
   };
+}
+
+void
+ActsAthenaPrintPolicy::flush(const Acts::Logging::Level& lvl, const std::ostringstream& input)
+{
+  MSG::Level athLevel = athLevelVector[lvl];
+  (*m_msg) << athLevel << input.str() << endmsg;
+}
+  
+
+bool
+ActsAthenaFilterPolicy::doPrint(const Acts::Logging::Level& lvl) const 
+{
 
   MSG::Level athLevel = athLevelVector[lvl];
   return m_msg->level() <= athLevel;
@@ -88,7 +82,7 @@ makeActsAthenaLogger(const CommonMessagingBase* parent, const std::string& name,
   int level = 0;
   const INamedInterface *inamed = dynamic_cast<const INamedInterface*>(parent);
   if (inamed != nullptr) {
-    level = parent->msgSvc()->outputLevel(inamed->name());
+    level = parent->msg().level();
   }
   return makeActsAthenaLogger(parent->msgSvc().get(), name, level, parent_name);
 }

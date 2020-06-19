@@ -8,7 +8,7 @@
 
 #include "MuonRDO/MdtCsmContainer.h"
 
-#include "CLHEP/Units/PhysicalConstants.h"
+#include <cmath>
 
 #include "Identifier/IdentifierHash.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
@@ -36,16 +36,6 @@
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
-using namespace Muon;
-using namespace MuonGM;
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-static const InterfaceID IID_MdtDataPreparator("IID_MdtDataPreparator", 1, 0);
-
-const InterfaceID& TrigL2MuonSA::MdtDataPreparator::interfaceID() { return IID_MdtDataPreparator; }
-
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
@@ -53,21 +43,13 @@ TrigL2MuonSA::MdtDataPreparator::MdtDataPreparator(const std::string& type,
 						   const std::string& name,
 						   const IInterface*  parent): 
    AthAlgTool(type,name,parent),
-   m_activeStore( "ActiveStoreSvc", name ), 
-   m_mdtRawDataProvider("Muon::MDT_RawDataProviderTool"), 
    m_regionSelector("RegSelSvc", name ), 
    m_robDataProvider("ROBDataProviderSvc", name), 
    m_recMuonRoIUtils(),
-   m_mdtRegionDefiner("TrigL2MuonSA::MdtRegionDefiner"),
-   m_mdtPrepDataProvider("Muon::MdtRdoToPrepDataTool/MdtPrepDataProviderTool"), 
    m_use_mdtcsm(true),
    m_BMGpresent(false),
    m_BMGid(-1)
 {
-   declareInterface<TrigL2MuonSA::MdtDataPreparator>(this);
-
-   declareProperty("MDT_RawDataProvider", m_mdtRawDataProvider);
-   declareProperty("MdtPrepDataProvider", m_mdtPrepDataProvider);
 }
 
 // --------------------------------------------------------------------------------
@@ -75,113 +57,66 @@ TrigL2MuonSA::MdtDataPreparator::MdtDataPreparator(const std::string& type,
 
 StatusCode TrigL2MuonSA::MdtDataPreparator::initialize()
 {
-   // Get a message stream instance
-  ATH_MSG_DEBUG("Initializing MdtDataPreparator - package version " << PACKAGE_VERSION);
-   
-   StatusCode sc;
-   sc = AthAlgTool::initialize();
-   if (!sc.isSuccess()) {
-     ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
-      return sc;
-   }
 
-   // consistency check for decoding flag settings
-   if(m_decodeBS && !m_doDecoding) {
-     ATH_MSG_FATAL("Inconsistent setup, you tried to enable BS decoding but disable all decoding. Please fix the configuration");
-     return StatusCode::FAILURE;
-   }
+  // consistency check for decoding flag settings
+  if(m_decodeBS && !m_doDecoding) {
+    ATH_MSG_FATAL("Inconsistent setup, you tried to enable BS decoding but disable all decoding. Please fix the configuration");
+    return StatusCode::FAILURE;
+  }
 
-   ATH_MSG_DEBUG("Decode BS set to" << m_decodeBS );
-   // disable MDT Raw data provider if we either don't decode BS or don't decode MDTs
-   if ( m_mdtRawDataProvider.retrieve(DisableTool{ !m_decodeBS || !m_doDecoding }).isFailure()) {
-     ATH_MSG_ERROR("Failed to retrieve " << m_mdtRawDataProvider );
-     return StatusCode::FAILURE;
-   } else {
-     ATH_MSG_DEBUG("Retrieved tool " << m_mdtRawDataProvider);
-   }
-   //
-   std::string serviceName;
+  ATH_MSG_DEBUG("Decode BS set to" << m_decodeBS );
+  // disable MDT Raw data provider if we either don't decode BS or don't decode MDTs
+  ATH_CHECK( m_mdtRawDataProvider.retrieve(DisableTool{ !m_decodeBS || !m_doDecoding }) );
+  std::string serviceName;
 
-   // Locate RegionSelector
-   ATH_CHECK( m_regionSelector.retrieve());
-   ATH_MSG_DEBUG("Retrieved service " << m_regionSelector.name());
+  // Locate RegionSelector
+  ATH_CHECK( m_regionSelector.retrieve());
+  ATH_MSG_DEBUG("Retrieved service " << m_regionSelector.name());
 
-   // Locate ROBDataProvider
-   ATH_CHECK( m_robDataProvider.retrieve() );
-   ATH_MSG_DEBUG("Retrieved service " << m_robDataProvider.name());
-   
+  // Locate ROBDataProvider
+  ATH_CHECK( m_robDataProvider.retrieve() );
+  ATH_MSG_DEBUG("Retrieved service " << m_robDataProvider.name());
 
-   ATH_CHECK( m_mdtRegionDefiner.retrieve() );
-   ATH_MSG_DEBUG("Retrieved service " << m_mdtRegionDefiner);
 
-   ATH_CHECK( m_readKey.initialize() );
-   
-   // retrieve the mdtidhelper
-   ATH_CHECK( detStore()->retrieve(m_muonMgr,"Muon") );
-   ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore.");
-   ATH_CHECK( m_idHelperSvc.retrieve() );
+  ATH_CHECK( m_mdtRegionDefiner.retrieve() );
+  ATH_MSG_DEBUG("Retrieved service " << m_mdtRegionDefiner);
 
-   // Disable MDT PRD converter if we don't do the MDT data decoding
-   ATH_CHECK( m_mdtPrepDataProvider.retrieve(DisableTool{!m_doDecoding}) );
-   ATH_MSG_DEBUG("Retrieved " << m_mdtPrepDataProvider);
+  ATH_CHECK( m_readKey.initialize() );
 
-   // Retrieve ActiveStore
-   ATH_CHECK( m_activeStore.retrieve() ); 
-   ATH_MSG_DEBUG("Retrieved ActiveStoreSvc."); 
+  // retrieve the mdtidhelper
+  ATH_CHECK( detStore()->retrieve(m_muonMgr,"Muon") );
+  ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore.");
+  ATH_CHECK( m_idHelperSvc.retrieve() );
 
-   m_BMGpresent = m_idHelperSvc->mdtIdHelper().stationNameIndex("BMG") != -1;
-   if(m_BMGpresent){
-     ATH_MSG_INFO("Processing configuration for layouts with BMG chambers.");
-     m_BMGid = m_idHelperSvc->mdtIdHelper().stationNameIndex("BMG");
-     for(int phi=6; phi<8; phi++) { // phi sectors - BMGs are ony in (6 aka 12) and (7 aka 14)
-       for(int eta=1; eta<4; eta++) { // eta sectors - BMGs are in eta 1 to 3
-         for(int side=-1; side<2; side+=2) { // side - both sides have BMGs
-           if( !m_muonMgr->getMuonStation("BMG", side*eta, phi) ) continue;
-           for(int roe=1; roe<=( m_muonMgr->getMuonStation("BMG", side*eta, phi) )->nMuonReadoutElements(); roe++) { // iterate on readout elemets
-             const MuonGM::MdtReadoutElement* mdtRE =
-                   dynamic_cast<const MuonGM::MdtReadoutElement*> ( ( m_muonMgr->getMuonStation("BMG", side*eta, phi) )->getMuonReadoutElement(roe) ); // has to be an MDT
-             if(mdtRE) initDeadChannels(mdtRE);
-           }
-         }
-       }
-     }
-   }
+  // Disable MDT PRD converter if we don't do the MDT data decoding
+  ATH_CHECK( m_mdtPrepDataProvider.retrieve(DisableTool{!m_doDecoding}) );
+  ATH_MSG_DEBUG("Retrieved " << m_mdtPrepDataProvider);
 
-   
-   // pass the flags that determine if we run the actual decoding here so we don't create a data dependency if it is not needed
-   ATH_CHECK(m_mdtCsmContainerKey.initialize(m_decodeBS && m_doDecoding));
+  m_BMGpresent = m_idHelperSvc->mdtIdHelper().stationNameIndex("BMG") != -1;
+  if(m_BMGpresent){
+    ATH_MSG_INFO("Processing configuration for layouts with BMG chambers.");
+    m_BMGid = m_idHelperSvc->mdtIdHelper().stationNameIndex("BMG");
+    for(int phi=6; phi<8; phi++) { // phi sectors - BMGs are ony in (6 aka 12) and (7 aka 14)
+      for(int eta=1; eta<4; eta++) { // eta sectors - BMGs are in eta 1 to 3
+	for(int side=-1; side<2; side+=2) { // side - both sides have BMGs
+	  if( !m_muonMgr->getMuonStation("BMG", side*eta, phi) ) continue;
+	  for(int roe=1; roe<=( m_muonMgr->getMuonStation("BMG", side*eta, phi) )->nMuonReadoutElements(); roe++) { // iterate on readout elemets
+	    const MuonGM::MdtReadoutElement* mdtRE =
+	      dynamic_cast<const MuonGM::MdtReadoutElement*> ( ( m_muonMgr->getMuonStation("BMG", side*eta, phi) )->getMuonReadoutElement(roe) ); // has to be an MDT
+	    if(mdtRE) initDeadChannels(mdtRE);
+	  }
+	}
+      }
+    }
+  }
 
-   ATH_CHECK(m_mdtPrepContainerKey.initialize());
-   
-   // 
-   return StatusCode::SUCCESS; 
-}
 
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
+  // pass the flags that determine if we run the actual decoding here so we don't create a data dependency if it is not needed
+  ATH_CHECK(m_mdtCsmContainerKey.initialize(m_decodeBS && m_doDecoding));
 
-void TrigL2MuonSA::MdtDataPreparator::setRpcGeometry(bool use_rpc)
-{
-  m_mdtRegionDefiner->setRpcGeometry(use_rpc);
-  return;
-}
+  ATH_CHECK(m_mdtPrepContainerKey.initialize());
 
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-void TrigL2MuonSA::MdtDataPreparator::setMdtDataCollection(bool use_mdtcsm)
-{
-  m_use_mdtcsm = use_mdtcsm;
-  return;
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-void TrigL2MuonSA::MdtDataPreparator::setRoIBasedDataAccess(bool use_RoIBasedDataAccess)
-{
-  m_use_RoIBasedDataAccess = use_RoIBasedDataAccess;
-  return;
+  return StatusCode::SUCCESS;
 }
 
 // --------------------------------------------------------------------------------
@@ -195,25 +130,15 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::prepareData(const LVL1::RecMuonRoI* 
 							TrigL2MuonSA::MdtHits&   mdtHits_normal,
 							TrigL2MuonSA::MdtHits&   mdtHits_overlap)
 {
-  StatusCode sc;
 
   m_mdtRegionDefiner->setMdtGeometry(m_muonMgr);
 
   // define regions
-  sc = m_mdtRegionDefiner->getMdtRegions(p_roi, rpcFitResult, muonRoad, mdtRegion);
-  if( sc!= StatusCode::SUCCESS ) {
-    ATH_MSG_WARNING("Error in getting MDT region");
-    return sc;
-  }
+  ATH_CHECK( m_mdtRegionDefiner->getMdtRegions(p_roi, rpcFitResult, muonRoad, mdtRegion) );
 
-  sc = getMdtHits(p_roi, p_roids, mdtRegion, muonRoad, mdtHits_normal, mdtHits_overlap);
-  if( sc!= StatusCode::SUCCESS ) {
-    ATH_MSG_WARNING("Error in getting MDT hits");
-    return sc;
-  }
+  ATH_CHECK( getMdtHits(p_roi, p_roids, mdtRegion, muonRoad, mdtHits_normal, mdtHits_overlap) );
 
   return StatusCode::SUCCESS;
-
 }
 
 // --------------------------------------------------------------------------------
@@ -227,22 +152,13 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::prepareData(const LVL1::RecMuonRoI* 
 							TrigL2MuonSA::MdtHits&            mdtHits_normal,
 							TrigL2MuonSA::MdtHits&            mdtHits_overlap)
 {
-  StatusCode sc;
 
   m_mdtRegionDefiner->setMdtGeometry(m_muonMgr);
   
   // define regions
-  sc = m_mdtRegionDefiner->getMdtRegions(p_roi, tgcFitResult, muonRoad, mdtRegion);
-  if( sc!= StatusCode::SUCCESS ) {
-    ATH_MSG_WARNING("Error in getting MDT region");
-    return sc;
-  }
+  ATH_CHECK( m_mdtRegionDefiner->getMdtRegions(p_roi, tgcFitResult, muonRoad, mdtRegion) );
 
-  sc = getMdtHits(p_roi, p_roids, mdtRegion, muonRoad, mdtHits_normal, mdtHits_overlap);
-  if( sc!= StatusCode::SUCCESS ) {
-    ATH_MSG_WARNING("Error in getting MDT hits");
-    return sc;
-  }
+  ATH_CHECK( getMdtHits(p_roi, p_roids, mdtRegion, muonRoad, mdtHits_normal, mdtHits_overlap) );
 
   return StatusCode::SUCCESS;
 }
@@ -267,11 +183,11 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtHits(const LVL1::RecMuonRoI*  
     double phi = p_roi->phi();
     double phiMin = p_roi->phi() - 0.1;
     double phiMax = p_roi->phi() + 0.1;
-    if( phi < 0 ) phi += 2*CLHEP::pi;
-    if( phiMin < 0 ) phiMin += 2*CLHEP::pi;
-    if( phiMax < 0 ) phiMax += 2*CLHEP::pi;
+    if( phi < 0 ) phi += 2*M_PI;
+    if( phiMin < 0 ) phiMin += 2*M_PI;
+    if( phiMax < 0 ) phiMax += 2*M_PI;
     
-    TrigRoiDescriptor* roi = new TrigRoiDescriptor( p_roi->eta(), etaMin, etaMax, phi, phiMin, phiMax ); 
+    TrigRoiDescriptor* roi = new TrigRoiDescriptor( p_roi->eta(), etaMin, etaMax, phi, phiMin, phiMax );
     
     const IRoiDescriptor* iroi = (IRoiDescriptor*) roi;
     
@@ -407,14 +323,10 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtHits(const LVL1::RecMuonRoI*  
       m_regionSelector->DetROBIDListUint(MDT, v_robIds);
     }
 
-    StatusCode sc = collectMdtHitsFromPrepData(mdtHashList, v_robIds, mdtHits_normal, muonRoad);
-    if( sc!= StatusCode::SUCCESS ) {
-      ATH_MSG_WARNING("Error in getting collection of MDT hit from prep data");
-      return sc;
-    }
+    ATH_CHECK( collectMdtHitsFromPrepData(mdtHashList, v_robIds, mdtHits_normal, muonRoad) );
 
   }
-  //
+
   return StatusCode::SUCCESS;
 }
 
@@ -449,7 +361,7 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtCsm(const MdtCsmContainer* pMd
     if(std::find(v_robIds.begin(), v_robIds.end(), newROBId) != v_robIds.end())
       redundant = true;
     if(!redundant)
-      v_robIds.push_back(newROBId); 
+      v_robIds.push_back(newROBId);
     else if(processingDetEl != 2){
       ++i;
       continue;
@@ -563,7 +475,7 @@ bool TrigL2MuonSA::MdtDataPreparator::decodeMdtCsm(const MdtCsm* csm,
      // even though the total TDC is 17 bits (19 bits for HPTDC) it's ok to use
      // unsigned short int (16 bit) as no more than 2000 tics are delivered by
      // the DAQ and therefore hte leading bits of coarse can be lost
-     unsigned short int drift     = (*amt)->fine() | ( (*amt)->coarse() << 5);  
+     unsigned short int drift     = (*amt)->fine() | ( (*amt)->coarse() << 5);
      
      int StationPhi;
      int StationName;
@@ -574,7 +486,7 @@ bool TrigL2MuonSA::MdtDataPreparator::decodeMdtCsm(const MdtCsm* csm,
      double cXmid;
      double cYmid;
      double cAmid = 0;
-     double cPhip;   
+     double cPhip;
      MdtAmtMap* amtMap = csmMap->getTdcMap(TdcId);
      
      if (!amtMap) {
@@ -582,7 +494,7 @@ bool TrigL2MuonSA::MdtDataPreparator::decodeMdtCsm(const MdtCsm* csm,
        ++amt;
        continue;
      }
-     bool offlineID = amtMap->offlineId(ChannelId, StationName, StationEta, StationPhi, MultiLayer, Layer, Tube);	   
+     bool offlineID = amtMap->offlineId(ChannelId, StationName, StationEta, StationPhi, MultiLayer, Layer, Tube);
      
      if(!offlineID) {
        ATH_MSG_WARNING("problem getting info from amtMap");
@@ -661,10 +573,10 @@ bool TrigL2MuonSA::MdtDataPreparator::decodeMdtCsm(const MdtCsm* csm,
      double cphi  = muonRoad.phi[chamber][0];
      if( cPhip*cphi>0 ) dphi = std::abs(cPhip - cphi);
      else {
-       if(fabs(cphi) > CLHEP::pi/2.) {
-	 double phi1 = (cPhip>0.)? cPhip-CLHEP::pi : cPhip+CLHEP::pi;
-	 double phi2 = (cphi >0.)? cphi -CLHEP::pi : cphi +CLHEP::pi;
-	 dphi = std::abs(phi1) + std::abs(phi2); 
+       if(fabs(cphi) > M_PI/2.) {
+	 double phi1 = (cPhip>0.)? cPhip-M_PI : cPhip+M_PI;
+	 double phi2 = (cphi >0.)? cphi -M_PI : cphi +M_PI;
+	 dphi = std::abs(phi1) + std::abs(phi2);
        }
        else {
 	 dphi = std::abs(cPhip) + std::abs(cphi);
@@ -675,13 +587,13 @@ bool TrigL2MuonSA::MdtDataPreparator::decodeMdtCsm(const MdtCsm* csm,
        R = sqrt(R*R+R*R*tan(dphi)*tan(dphi));
      
      Amg::Vector3D OrigOfMdtInAmdbFrame = 
-       Amg::Hep3VectorToEigen( m_muonStation->getBlineFixedPointInAmdbLRS() );	    
-     double Rmin =(trans*OrigOfMdtInAmdbFrame).perp();	
+       Amg::Hep3VectorToEigen( m_muonStation->getBlineFixedPointInAmdbLRS() );
+     double Rmin =(trans*OrigOfMdtInAmdbFrame).perp();
 
      float cInCo = 1./cos(std::abs(atan(OrtoRadialPos/Rmin)));
      float cPhi0 = cPhip - atan(OrtoRadialPos/Rmin);
-     if(cPhi0 > CLHEP::pi) cPhip -= 2*CLHEP::pi;
-     if(cPhip<0. && (fabs(CLHEP::pi+cPhip) < 0.05) ) cPhip = acos(0.)*2.;
+     if(cPhi0 > M_PI) cPhip -= 2*M_PI;
+     if(cPhip<0. && (fabs(M_PI+cPhip) < 0.05) ) cPhip = acos(0.)*2.;
      
      uint32_t OnlineId = ChannelId | (TdcId << 5) |
        (LinkId << 10) | (get_system_id(SubsystemId) << 13) | (MrodId <<16);
@@ -768,7 +680,7 @@ void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesBarrel(const TrigL2MuonSA::M
    //combine regions of sector and type
    for(int j_station=0; j_station<6; j_station++) {
      int cha=0;
-     if (j_station==0) cha = xAOD::L2MuonParameters::Chamber::BarrelInner; 
+     if (j_station==0) cha = xAOD::L2MuonParameters::Chamber::BarrelInner;
      if (j_station==1) cha = xAOD::L2MuonParameters::Chamber::BarrelMiddle;
      if (j_station==2) cha = xAOD::L2MuonParameters::Chamber::BarrelOuter;
      if (j_station==3) cha = xAOD::L2MuonParameters::Chamber::BME;
@@ -789,7 +701,7 @@ void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesBarrel(const TrigL2MuonSA::M
    // get hashIdlist by using region selector
    for(int i_station=0; i_station<6; i_station++) {
      int chamber=0;
-     if (i_station==0) chamber = xAOD::L2MuonParameters::Chamber::BarrelInner; 
+     if (i_station==0) chamber = xAOD::L2MuonParameters::Chamber::BarrelInner;
      if (i_station==1) chamber = xAOD::L2MuonParameters::Chamber::BarrelMiddle;
      if (i_station==2) chamber = xAOD::L2MuonParameters::Chamber::BarrelOuter;
      if (i_station==3) chamber = xAOD::L2MuonParameters::Chamber::BME;
@@ -838,7 +750,7 @@ void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesEndcap(const TrigL2MuonSA::M
    //combine regions of sector and type
    for(int j_station=0; j_station<6; j_station++) {
      int cha=0;
-     if (j_station==0) cha = xAOD::L2MuonParameters::Chamber::EndcapInner; 
+     if (j_station==0) cha = xAOD::L2MuonParameters::Chamber::EndcapInner;
      if (j_station==1) cha = xAOD::L2MuonParameters::Chamber::EndcapMiddle;
      if (j_station==2) cha = xAOD::L2MuonParameters::Chamber::EndcapOuter;
      if (j_station==3) cha = xAOD::L2MuonParameters::Chamber::EndcapExtra;
@@ -859,7 +771,7 @@ void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesEndcap(const TrigL2MuonSA::M
    // get hashIdlist by using region selector
    for(int i_station=0; i_station<6; i_station++) {
      int chamber = 0;
-     if (i_station==0) chamber = xAOD::L2MuonParameters::Chamber::EndcapInner; 
+     if (i_station==0) chamber = xAOD::L2MuonParameters::Chamber::EndcapInner;
      if (i_station==1) chamber = xAOD::L2MuonParameters::Chamber::EndcapMiddle;
      if (i_station==2) chamber = xAOD::L2MuonParameters::Chamber::EndcapOuter;
      if (i_station==3) chamber = xAOD::L2MuonParameters::Chamber::EndcapExtra;
@@ -904,110 +816,89 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std
 								       std::vector<uint32_t>& v_robIds,
 								       TrigL2MuonSA::MdtHits& mdtHits,
 								       const TrigL2MuonSA::MuonRoad& muonRoad)
-{    
+{
   if(m_doDecoding) {
     if(m_decodeBS) {
       if ( m_mdtRawDataProvider->convert(v_robIds).isFailure()) {
         ATH_MSG_WARNING("Conversion of BS for decoding of MDTs failed");
       }
     }
-    if (m_mdtPrepDataProvider->decode(v_robIds).isSuccess()) {
-      ATH_MSG_DEBUG("Calling ROB based decoding with "<< v_robIds.size() << " ROB's");
-    }
-    else{
-      ATH_MSG_WARNING("Error in ROB based decoding");
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( m_mdtPrepDataProvider->decode(v_robIds) );
+    ATH_MSG_DEBUG("Calling ROB based decoding with "<< v_robIds.size() << " ROB's");
   }
-  
-  // Get MDT container                                                                                                                                    
+
+  // Get MDT container
   if (v_idHash.empty()) {
     ATH_MSG_DEBUG("Hash list is empty");
     return StatusCode::SUCCESS;
   }
-  
-  const MdtPrepDataContainer* mdtPrds;
-  if (m_activeStore) {
-    auto mdtPrepContainerHandle = SG::makeHandle(m_mdtPrepContainerKey);
-    mdtPrds = mdtPrepContainerHandle.cptr();
-    if (!mdtPrepContainerHandle.isValid()) {    
-      ATH_MSG_ERROR(" Cannot retrieve MDT PRD Container " << m_mdtPrepContainerKey.key());
-      return StatusCode::FAILURE;
-    }
-  } else {
-    ATH_MSG_ERROR("Null pointer to ActiveStore");
+
+  const Muon::MdtPrepDataContainer* mdtPrds;
+  auto mdtPrepContainerHandle = SG::makeHandle(m_mdtPrepContainerKey);
+  mdtPrds = mdtPrepContainerHandle.cptr();
+  if (!mdtPrepContainerHandle.isValid()) {
+    ATH_MSG_ERROR(" Cannot retrieve MDT PRD Container " << m_mdtPrepContainerKey.key());
     return StatusCode::FAILURE;
   }
-  
-  // Get MDT collections                                                                                                                                
+
+  // Get MDT collections
   ///// Vectors of prep data collections
   std::vector<const Muon::MdtPrepDataCollection*> mdtCols;
-  
-  MdtPrepDataContainer::const_iterator MDTcoll;
-  for(std::vector<IdentifierHash>::const_iterator idit = v_idHash.begin(); idit != v_idHash.end(); ++idit) {
-    
-    MDTcoll = mdtPrds->indexFind(*idit);
-    
+
+  for(const IdentifierHash& id : v_idHash) {
+
+    Muon::MdtPrepDataContainer::const_iterator MDTcoll = mdtPrds->indexFind(id);
+
     if( MDTcoll == mdtPrds->end() ) {
-      ATH_MSG_DEBUG("MDT prep data collection not found in Hash ID" << (int)*idit);
+      ATH_MSG_DEBUG("MDT prep data collection not found in Hash ID" << (int)id);
       continue;
     }
-    
+
     if( (*MDTcoll)->size() == 0 ) {
-      ATH_MSG_DEBUG("MDT prep data collection is empty in Hash ID" << (int)*idit);
+      ATH_MSG_DEBUG("MDT prep data collection is empty in Hash ID" << (int)id);
       continue;
     }
-    
+
     mdtCols.push_back(*MDTcoll);
-    
+
     ATH_MSG_DEBUG("Selected Mdt Collection: "
 		  << m_idHelperSvc->mdtIdHelper().show_to_string((*MDTcoll)->identify())
 		  << " with size " << (*MDTcoll)->size()
-		  << "in Hash ID" << (int)*idit);
+		  << "in Hash ID" << (int)id);
   }
-  
-  std::vector< const MdtPrepDataCollection*>::const_iterator it = mdtCols.begin();
-  std::vector< const MdtPrepDataCollection*>::const_iterator it_end = mdtCols.end();
-  
-  for( ;it!=it_end;++it ){
-    
-    Muon::MdtPrepDataCollection::const_iterator cit_begin = (*it)->begin();
-    Muon::MdtPrepDataCollection::const_iterator cit_end = (*it)->end();
-    
-    if (cit_begin == cit_end) return StatusCode::SUCCESS;
-    
-    Muon::MdtPrepDataCollection::const_iterator cit = cit_begin;   
-    for( ; cit!=cit_end;++cit ) {
-      
-      const Muon::MdtPrepData* mdt = (*cit);
-      
+
+  for( const Muon::MdtPrepDataCollection* mdtCol : mdtCols ){
+
+    mdtHits.reserve( mdtHits.size() + mdtCol->size() );
+    for( const Muon::MdtPrepData* mdt : *mdtCol ) {
+
       m_mdtReadout = mdt->detectorElement();
-      if (!m_mdtReadout) continue;	
-      
+      if (!m_mdtReadout) continue;
+
       m_muonStation = m_mdtReadout->parentMuonStation();
-      
+
       int StationPhi = m_mdtReadout->getStationPhi();
       int StationEta = m_mdtReadout->getStationEta();
       int MultiLayer = m_mdtReadout->getMultilayer();
       double cXmid;
       double cYmid;
       double cAmid = 0;
-      double cPhip;   
-      
+      double cPhip;
+
       Identifier id = mdt->identify();
       int adc       = mdt->adc();
       int drift     = mdt->tdc();
-      
+
       int TubeLayers = m_mdtReadout->getNLayers();
       int TubeLayer = m_idHelperSvc->mdtIdHelper().tubeLayer(id);
       if(TubeLayer > TubeLayers) TubeLayer -= TubeLayers;
       int Layer = (MultiLayer-1)*TubeLayers + TubeLayer;
       int Tube = m_idHelperSvc->mdtIdHelper().tube(id);
-      
+
       double OrtoRadialPos = m_mdtReadout->getStationS();
       std::string chamberType = m_mdtReadout->getStationType();
       char st = chamberType[1];
-      
+
       int chamber = 0;
       if (chamberType[0]=='E') {
 	/// Endcap
@@ -1020,9 +911,9 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std
 	if (st=='I') chamber = xAOD::L2MuonParameters::Chamber::BarrelInner;
 	if (st=='M') chamber = xAOD::L2MuonParameters::Chamber::BarrelMiddle;
 	if (st=='O') chamber = xAOD::L2MuonParameters::Chamber::BarrelOuter;
-  if (st=='E' && chamberType[2]=='E') chamber = xAOD::L2MuonParameters::Chamber::BEE;
-  if (st=='M' && chamberType[2]=='E') chamber = xAOD::L2MuonParameters::Chamber::BME;
-  if (st=='M' && chamberType[2]=='G') chamber = xAOD::L2MuonParameters::Chamber::Backup;
+	if (st=='E' && chamberType[2]=='E') chamber = xAOD::L2MuonParameters::Chamber::BEE;
+	if (st=='M' && chamberType[2]=='E') chamber = xAOD::L2MuonParameters::Chamber::BME;
+	if (st=='M' && chamberType[2]=='G') chamber = xAOD::L2MuonParameters::Chamber::Backup;
       }
 
       double R = -99999., Z = -99999.;
@@ -1037,7 +928,7 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std
       }
       R = m_mdtReadout->center(TubeLayer, Tube).perp();
       Z = m_mdtReadout->center(TubeLayer, Tube).z();
-      
+
       Amg::Transform3D trans = Amg::CLHEPTransformToEigen(*m_muonStation->getNominalAmdbLRSToGlobal());
       if(m_muonStation->endcap()==0){
 	cXmid = (trans*Amg::Vector3D(0.,0.,0.)).z();
@@ -1052,42 +943,42 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std
 	else cYmid -= halfZThicknessOfMultilayer;
       }
       cPhip = (trans*Amg::Vector3D(0.,0.,0.)).phi();
-      
+
       double dphi  = 0;
       double cphi  = muonRoad.phi[chamber][0];
       if( cPhip*cphi>0 ) {
 	dphi = std::abs(cPhip - cphi);
       } else {
-	if(fabs(cphi) > CLHEP::pi/2.) {
-	  double phi1 = (cPhip>0.)? cPhip-CLHEP::pi : cPhip+CLHEP::pi;
-	  double phi2 = (cphi >0.)? cphi -CLHEP::pi : cphi +CLHEP::pi;
-	  dphi = std::abs(phi1) + std::abs(phi2); 
+	if(fabs(cphi) > M_PI/2.) {
+	  double phi1 = (cPhip>0.)? cPhip-M_PI : cPhip+M_PI;
+	  double phi2 = (cphi >0.)? cphi -M_PI : cphi +M_PI;
+	  dphi = std::abs(phi1) + std::abs(phi2);
 	}
 	else {
 	  dphi = std::abs(cPhip) + std::abs(cphi);
 	}
       }
-      
+
       if(m_muonStation->endcap()==1)
 	R = sqrt(R*R+R*R*tan(dphi)*tan(dphi));
-      
-      Amg::Vector3D OrigOfMdtInAmdbFrame = 
-	Amg::Hep3VectorToEigen( m_muonStation->getBlineFixedPointInAmdbLRS() );      
-      double Rmin =(trans*OrigOfMdtInAmdbFrame).perp();  
-      
+
+      Amg::Vector3D OrigOfMdtInAmdbFrame =
+	Amg::Hep3VectorToEigen( m_muonStation->getBlineFixedPointInAmdbLRS() );
+      double Rmin =(trans*OrigOfMdtInAmdbFrame).perp();
+
       float cInCo = 1./cos(std::abs(atan(OrtoRadialPos/Rmin)));
       float cPhi0 = cPhip - atan(OrtoRadialPos/Rmin);
-      if(cPhi0 > CLHEP::pi) cPhip -= 2*CLHEP::pi;
-      if(cPhip<0. && (fabs(CLHEP::pi+cPhip) < 0.05) ) cPhip = acos(0.)*2.;
-      
+      if(cPhi0 > M_PI) cPhip -= 2*M_PI;
+      if(cPhip<0. && (fabs(M_PI+cPhip) < 0.05) ) cPhip = acos(0.)*2.;
+
       ATH_MSG_DEBUG(" ...MDT hit Z/R/chamber/MultiLater/TubeLayer/Tube/Layer/adc/tdc = "
 		    << Z << "/" << R << "/" << chamber << "/" << MultiLayer << "/" << TubeLayer << "/" 
 		    << Tube << "/" << Layer << "/" << adc << "/" << drift);
-      
+
       // no residual check for the moment
       // (residual check at pattern finder)
       if(Layer!=0 && Tube !=0) {
-	
+
 	// create the new digit
 	TrigL2MuonSA::MdtHitData tmp;
 	tmp.name       = 0;
@@ -1118,10 +1009,10 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std
 	tmp.Residual  = 0;
 	tmp.isOutlier = 0;
 	tmp.Chamber = chamber;
-  tmp.Id = id;
-        
+	tmp.Id = id;
+
 	mdtHits.push_back(tmp);
-      }	  
+      }
     } // end of MdtPrepDataCollection loop
   } // end of MdtPrepDataCollection vector loop
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -39,29 +39,10 @@ using CaloClusterCorr::interpolate;
 
   const float CaloSwEta2e_g3::s_middle_layer_granularity = 0.025;
 
-// ----------
-// Constructor 
-// -----------
-CaloSwEta2e_g3::CaloSwEta2e_g3(const std::string& type,
-                               const std::string& name,
-                               const IInterface* parent)
-  : CaloClusterCorrection(type,name,parent,
-                          "CaloSwEta${LAYER}${BE}_g3")
-{
-  declareConstant ("correction",        m_correction);
-  declareConstant ("correction_degree", m_correction_degree);
-  declareConstant ("region",            m_region, true/*temp*/);
-}
-
-// ----------
-// Destructor 
-// -----------
-CaloSwEta2e_g3::~CaloSwEta2e_g3()
-{ }
 
 // make correction to one cluster 
-void CaloSwEta2e_g3::makeCorrection(const EventContext& /*ctx*/,
-                                    CaloCluster* cluster) const
+void CaloSwEta2e_g3::makeCorrection (const Context& myctx,
+                                     CaloCluster* cluster) const
 {
   // Only for endcap
   if (!cluster->inEndcap())
@@ -79,7 +60,9 @@ void CaloSwEta2e_g3::makeCorrection(const EventContext& /*ctx*/,
   if (eta < 0.) u2 = s_middle_layer_granularity-u2;
 
   //   First order (average) S-shape correction
-  float etc2 = aeta - interpolate (m_correction, u2, m_correction_degree);
+  float etc2 = aeta - interpolate (m_correction(myctx),
+                                   u2,
+                                   m_correction_degree(myctx));
 
   if (eta < 0.)
     etc2 = -etc2;

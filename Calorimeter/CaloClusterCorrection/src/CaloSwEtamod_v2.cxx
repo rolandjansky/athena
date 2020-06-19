@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: CaloSwEtamod_v2.cxx,v 1.4 2008-01-25 04:14:22 ssnyder Exp $
 /**
  * @file  CaloSwEtamod_v2.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -45,27 +43,8 @@ using std::abs;
 
 
 /**
- * @brief Constructor.
- * @param type The type of the tool.
- * @param name The name of the tool.
- * @param parent The parent algorithm of the tool.
- */
-CaloSwEtamod_v2::CaloSwEtamod_v2 (const std::string& type,
-                                  const std::string& name,
-                                  const IInterface* parent)
-  : CaloClusterCorrectionCommon (type,name,parent)
-{ 
-  declareConstant ("correction",       m_correction);
-  declareConstant ("rfac",             m_rfac);
-  declareConstant ("rfac_degree",      m_rfac_degree);
-  declareConstant ("energies",         m_energies);
-  declareConstant ("energy_degree",    m_energy_degree);
-}
-
-
-/**
  * @brief Virtual function for the correction-specific code.
- * @param ctx     The event context.
+ * @param myctx   ToolWithConstants context.
  * @param cluster The cluster to correct.
  *                It is updated in place.
  * @param elt     The detector description element corresponding
@@ -83,7 +62,7 @@ CaloSwEtamod_v2::CaloSwEtamod_v2 (const std::string& type,
  *                @c CaloSampling::CaloSample; i.e., it has both
  *                the calorimeter region and sampling encoded.
  */
-void CaloSwEtamod_v2::makeTheCorrection (const EventContext& /*ctx*/,
+void CaloSwEtamod_v2::makeTheCorrection (const Context& myctx,
                                          CaloCluster* cluster,
                                          const CaloDetDescrElement* elt,
                                          float eta,
@@ -121,14 +100,14 @@ void CaloSwEtamod_v2::makeTheCorrection (const EventContext& /*ctx*/,
   // of the energy.  This is needed since the corrections are tabulated
   // using the true cluster energies.
   float energy = cluster->e();
-  float rfac = interpolate (m_rfac, adj_aeta, m_rfac_degree);
+  float rfac = interpolate (m_rfac(myctx), adj_aeta, m_rfac_degree(myctx));
   energy /= rfac;
 
   // Calculate the correction.
   float corr = energy_interpolation (energy,
-                                     Builder (*this, etamod),
-                                     m_energies,
-                                     m_energy_degree);
+                                     Builder (m_correction(myctx), etamod),
+                                     m_energies(myctx),
+                                     m_energy_degree(myctx));
 
   // set energy, and rescale each sampling
   setenergy (cluster, cluster->e() / corr);
@@ -137,11 +116,12 @@ void CaloSwEtamod_v2::makeTheCorrection (const EventContext& /*ctx*/,
 
 /**
  * @brief Constructor for energy interpolation table helper class.
- * @param corr The parent correction object.
+ * @param correction The array of correction parameters.
  * @param etamod The eta offset within the cell.
  */
-CaloSwEtamod_v2::Builder::Builder (const CaloSwEtamod_v2& corr, float etamod)
-  : m_corr (corr),
+CaloSwEtamod_v2::Builder::Builder (const CxxUtils::Array<2>& correction,
+                                   float etamod)
+  : m_correction (correction),
     m_etamod (etamod)
 {
 }
@@ -156,7 +136,7 @@ CaloSwEtamod_v2::Builder::Builder (const CaloSwEtamod_v2& corr, float etamod)
 float CaloSwEtamod_v2::Builder::calculate (int energy_ndx, bool& good) const
 {
   good = true;
-  return m_corr.m_correction[energy_ndx][0] 
-    + m_etamod*m_corr.m_correction[energy_ndx][1]
-    + m_etamod*m_etamod*m_corr.m_correction[energy_ndx][2];
+  return m_correction[energy_ndx][0] 
+    + m_etamod*m_correction[energy_ndx][1]
+    + m_etamod*m_etamod*m_correction[energy_ndx][2];
 }
