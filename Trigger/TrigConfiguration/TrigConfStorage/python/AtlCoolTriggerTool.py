@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -82,8 +82,6 @@ class AtlCoolTriggerTool:
         runs = runKeys.keys()
         runs.sort()
 
-        exceptions = [ 135256, 135302, 136181, 136182, 136207, 136251, 136306, 136307, 136308, 136309, 136409, 136459 ]
-
         for r in runs:
             keys = runKeys[r]
             timestr=""
@@ -122,10 +120,6 @@ class AtlCoolTriggerTool:
             if r > 127453 and "HLTPSK2" in keys and "HLTPSK" in keys and keys["HLTPSK"] != keys["HLTPSK2"][0][0]:
                 msg = "WARNING: Menu folder shows different HLT prescale for SOR: %i" % keys["HLTPSK"]
                 print (msg)
-                #if r in exceptions:
-                #    print msg
-                #else:
-                #    raise RuntimeError, msg
             else: print()
 
     def printMenu(self, run):

@@ -1,17 +1,14 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
 import sys
 
 from xml.dom import minidom
-from xml.sax import parse
 from xml.dom import expatbuilder
-
-from optparse import OptionParser
-
+from past.builtins import cmp
 
 class CompareMenuXML(object):
     def __init__(self, **args):
@@ -151,7 +148,7 @@ class CompareMenuXML(object):
             while parNode.nodeName in self.needParentInfo:
                 parNode = parNode.parentNode
 
-            if not eNode.nodeName in self.uniqID:
+            if eNode.nodeName not in self.uniqID:
                 print ("Don't know how to compare two items of type %s , will abort" % eNode.nodeName, file=self)
                 sys.exit(0)
 
@@ -174,7 +171,6 @@ class CompareMenuXML(object):
         equal = data1==data2
         if not equal:
             par1 = node1.parentNode
-            par2 = node2.parentNode
             print ("DIFF DATA: %s with %s %s: different (%s != %s)" % (par1.nodeName, self.uniqID[par1.nodeName], par1.attributes[self.uniqID[par1.nodeName]].value, data1, data2), file=self)
         return equal
 
@@ -191,16 +187,16 @@ class CompareMenuXML(object):
         allAttr = []
         ignorelist = []
         if node1.nodeName in self.ignoreAttr: ignorelist = self.ignoreAttr[nodeName]
-        if node1.attributes: allAttr += [x for x in node1.attributes.keys() if not x in ignorelist]
+        if node1.attributes: allAttr += [x for x in node1.attributes.keys() if x not in ignorelist]
         if node2.attributes: allAttr += [x for x in node2.attributes.keys() if not (x in allAttr or x in ignorelist)]
         if self.verboseLevel>1:
             print ("Attributes of %s:" % node1.nodeName, allAttr, file=self)
         for a in allAttr:
-            if (node1.attributes==None) or (not a in node1.attributes.keys()):
+            if (node1.attributes is None) or (a not in node1.attributes.keys()):
                 print ("DIFF ATTR: %s: attribute '%s' exists only in document file 2 (%s)" % (nodeName, str(a), node2.attributes[a].value), file=self)
                 equal=False
                 continue
-            if (node2.attributes==None) or (not a in node2.attributes.keys()):
+            if (node2.attributes is None) or (a not in node2.attributes.keys()):
                 print ("DIFF ATTR: %s: attribute '%s' exists only in document file 1 (%s)" % (nodeName, str(a), node1.attributes[a].value), file=self)
                 equal=False
                 continue
@@ -221,14 +217,13 @@ class CompareMenuXML(object):
         """takes two list of childrens, sorts them, and builds matching pairs. If a child appears
         in only one of the lists a pair (x,None) or (None,x) will be created. A list of all pairs
         is returned"""
-        red1 = [e for e in children1 if e.nodeType==childrenType and not e.nodeName in self.exclFromCmpList]
+        red1 = [e for e in children1 if e.nodeType==childrenType and e.nodeName not in self.exclFromCmpList]
         red1.sort(self.cmpNode)
-        red2 = [e for e in children2 if e.nodeType==childrenType and not e.nodeName in self.exclFromCmpList]
+        red2 = [e for e in children2 if e.nodeType==childrenType and e.nodeName not in self.exclFromCmpList]
         red2.sort(self.cmpNode)
         c1 = c2 = 0
         merged = []
         while c1<len(red1) and c2<len(red2):
-            inc1 = inc2 = False
             cmpnodes = self.cmpNode(red1[c1],red2[c2])
             if cmpnodes==0 or childrenType==minidom.Node.TEXT_NODE:
                 merged += [(red1[c1],red2[c2])]

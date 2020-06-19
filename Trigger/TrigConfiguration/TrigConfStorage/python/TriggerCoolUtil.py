@@ -1,9 +1,10 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
 
-import copy, sys
+import copy
+import sys
 import subprocess
 from re import match
 from time import ctime
@@ -72,7 +73,7 @@ class TriggerCoolUtil:
     @staticmethod
     def GetConnection(dbconn,verbosity=0):
         connection = None
-        m = match(".*?([^/.]+)\.db",dbconn)
+        m = match(r".*?([^/.]+)\.db",dbconn)
         if dbconn=="COMP":
             connection = 'COOLONL_TRIGGER/COMP200'
         elif dbconn=="OFLP":
@@ -225,7 +226,7 @@ class TriggerCoolUtil:
                 runNr  = obj.since()>>32
                 if runNr==latestRunNr: continue
                 latestRunNr=runNr
-                if not runNr in runs: continue
+                if runNr not in runs: continue
                 payload=obj.payload()
                 starttime = payload['StartTime']
                 startTime[runNr] = { "STARTTIME" : ctime(starttime/1E9).replace(' ','_') }
@@ -320,8 +321,8 @@ class TriggerCoolUtil:
             print ("%s %4i: %-*s" % (c[0], c[1], sizeName, name),)
             if verbosity>0:
                 (version, prescale, passthr, stream, lower) = chainExtraInfo[(name,c[0])]
-                print ("[V %1s, PS %*i, PT %*i, by %-*s , => %-*s ]" % \
-                      (version, sizePS, prescale, sizePT, passthr, sizeLow, lower, sizeStr, stream), end='')
+                print ("[V %1s, PS %*i, PT %*i, by %-*s , => %-*s ]" %
+                       (version, sizePS, prescale, sizePT, passthr, sizeLow, lower, sizeStr, stream), end='')
             print()
 
     @staticmethod

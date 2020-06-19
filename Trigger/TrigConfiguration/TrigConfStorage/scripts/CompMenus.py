@@ -1,8 +1,8 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import user, sys
+import sys
 from optparse import OptionParser
 from xml.dom import expatbuilder
 
@@ -22,7 +22,7 @@ def getFileLvl(filename):
             return 'HLT'
         if str(x.nodeName).lower() == 'setup':
             return 'SETUP'
-    raise RuntimeError, "%s is neither L1 nor HLT menu, nor a SETUP file" % filename
+    raise RuntimeError("%s is neither L1 nor HLT menu, nor a SETUP file" % filename)
 
 
 
@@ -60,9 +60,9 @@ if __name__ == '__main__':
     filetype = [getFileLvl(x) for x in args]
 
     if filetype[0] != filetype[1]:
-        print "ERROR: Comparing apples and oranges:"
-        print "  First  file:",filetype[0]
-        print "  Second file:",filetype[1]
+        print("ERROR: Comparing apples and oranges:")
+        print("  First  file: %s" % filetype[0])
+        print("  Second file: %s" % filetype[1])
         sys.exit(0)
 
     if filetype[0] == 'L1Topo':
@@ -78,5 +78,4 @@ if __name__ == '__main__':
         from TrigConfStorage.CompSetup import CompareSetupXML
         compator = CompareSetupXML(tuple(args), excl=options.excl, verbose=options.verbose)
         
-    print compator.diff()
-
+    print(compator.diff())

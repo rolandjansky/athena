@@ -1,10 +1,12 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
 
 from xml.dom import minidom
 import os, re, sys
+from builtins import range
+from past.builtins import cmp
 
 from CoolConvUtilities.AtlCoolLib import indirectOpen
 from PyCool import cool
@@ -20,7 +22,7 @@ class CurrentMapping:
             self.l2map    = {}
             self.efmap    = {}
         else:
-            m = re.match('%sChainTagMap_(\d*)-(\d*).xml$' % self.levels,fn)
+            m = re.match(r'%sChainTagMap_(\d*)-(\d*).xml$' % self.levels,fn)
             self.firstrun = int(m.group(1))
             self.lastrun  = int(m.group(2))
             self.readFromFile(fn)
@@ -45,7 +47,7 @@ class CurrentMapping:
             lvlname = ['L1','L2','EF']
             lvlmap  = [self.l1map,self.l2map,self.efmap]
             
-        for l in xrange(len(lvlname)):
+        for l in range(len(lvlname)):
             lvl = doc.createElement('LEVEL')
             tagmap.appendChild(lvl)
             lvl.setAttribute('level',lvlname[l])
@@ -86,7 +88,6 @@ class ChainTagMapTool:
     @staticmethod
     def GetConnection(dbconn,verbosity=0):
         connection = None
-        m = re.match(".*?([^/.]+)\.db",dbconn)
         if dbconn=="COMP":   connection = 'COOLONL_TRIGGER/COMP200'
         elif dbconn=="OFLP": connection = 'COOLONL_TRIGGER/OFLP200'
         else: raise RuntimeError ("Can't connect to COOL db %s" % dbconn)
@@ -109,7 +110,7 @@ class ChainTagMapTool:
         while objs.goToNext():
             obj=objs.currentRef()
             runNr = obj.since()>>32
-            if not runNr in l1map: l1map[runNr] = {}
+            if runNr not in l1map: l1map[runNr] = {}
             itemname = obj.payload()['ItemName']
             l1map[runNr][itemname] = obj.channelId()
         return l1map
@@ -128,8 +129,8 @@ class ChainTagMapTool:
             chainCounter = pl['ChainCounter']
             if chainCounter>1023: continue
             runNr = obj.since()>>32
-            if not runNr in l2map: l2map[runNr] = {}
-            if not runNr in efmap: efmap[runNr] = {}
+            if runNr not in l2map: l2map[runNr] = {}
+            if runNr not in efmap: efmap[runNr] = {}
             itemname = pl['ChainName']
             if pl['TriggerLevel'] == 'L2':
                 l2map[runNr][itemname] = chainCounter
@@ -139,7 +140,7 @@ class ChainTagMapTool:
 
     @staticmethod
     def mergelists(l1,l2):
-        l = l1 + [x for x in l2 if not x in l1]
+        l = l1 + [x for x in l2 if x not in l1]
         l.sort()
         return l
 
@@ -232,8 +233,8 @@ class ChainTagMapTool:
             for name,counter in newmap.items():
                 samecounter = [(c,n,name) for n,c in oldmap.items() if (c==counter and n!=name)]
                 if samecounter:
-                    print ("Need to close current map '%i-%i', because counter %i has changed trigger (%s -> %s)" % \
-                          ((self.currentMapping.firstrun,self.currentMapping.lastrun) + samecounter[0]))
+                    print ("Need to close current map '%i-%i', because counter %i has changed trigger (%s -> %s)" %
+                           ((self.currentMapping.firstrun,self.currentMapping.lastrun) + samecounter[0]))
                     return False
             return True
         return True
@@ -258,7 +259,7 @@ class ChainTagMapTool:
         lastrun = 0
         lastfile = None
         for fn in files:
-            m = re.match('%sChainTagMap_\d*-(\d*).xml$' % levels,fn)
+            m = re.match(r'%sChainTagMap_\d*-(\d*).xml$' % levels,fn)
             if not m: continue
             endrun = int(m.group(1))
             if endrun>lastrun:
