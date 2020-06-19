@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonPrepRawData/MMPrepData.h"
@@ -31,7 +31,8 @@ namespace Muon
     m_stripTimes(stripTimes),
     m_stripCharges(stripCharges),
     m_stripDriftDist(),
-    m_stripDriftErrors()
+    m_stripDriftErrors(),
+    m_author (SimpleClusterBuilder)
   { }
 
   MMPrepData::MMPrepData( const Identifier& RDOId,
@@ -51,7 +52,8 @@ namespace Muon
     m_chisqProb(0.0),
     m_stripNumbers(),
     m_stripTimes(),
-    m_stripCharges()
+    m_stripCharges(),
+    m_author (SimpleClusterBuilder)
   { }
 
   MMPrepData::MMPrepData( const Identifier& RDOId,
@@ -72,7 +74,8 @@ namespace Muon
     m_chisqProb(0.0),
     m_stripNumbers(),
     m_stripTimes(),
-    m_stripCharges()
+    m_stripCharges(),
+    m_author (SimpleClusterBuilder)
   { }
 
   MMPrepData::MMPrepData( const Identifier& RDOId,
@@ -92,7 +95,8 @@ namespace Muon
     m_stripTimes(),
     m_stripCharges(),
     m_stripDriftDist(),
-    m_stripDriftErrors()
+    m_stripDriftErrors(),
+    m_author (SimpleClusterBuilder)
   { }
 
   // Destructor:
@@ -114,7 +118,8 @@ namespace Muon
     m_stripTimes(),
     m_stripCharges(),
     m_stripDriftDist(),
-    m_stripDriftErrors()    
+    m_stripDriftErrors(),
+    m_author (SimpleClusterBuilder)
   { }
 
   //copy constructor:
@@ -130,7 +135,8 @@ namespace Muon
     m_stripTimes(RIO.m_stripTimes),
     m_stripCharges(RIO.m_stripCharges),
     m_stripDriftDist(RIO.m_stripDriftDist),
-    m_stripDriftErrors(RIO.m_stripDriftErrors)
+    m_stripDriftErrors(RIO.m_stripDriftErrors),
+    m_author(RIO.m_author)
   { }
 
   //move constructor:
@@ -146,7 +152,8 @@ namespace Muon
     m_stripTimes(RIO.m_stripTimes),
     m_stripCharges(RIO.m_stripCharges),
     m_stripDriftDist(RIO.m_stripDriftDist),
-    m_stripDriftErrors(RIO.m_stripDriftErrors)
+    m_stripDriftErrors(RIO.m_stripDriftErrors),
+    m_author(RIO.m_author)
   { }
 
   /// set the micro-tpc quantities
@@ -201,6 +208,7 @@ namespace Muon
 	m_stripCharges = RIO.m_stripCharges;
 	m_stripDriftDist = RIO.m_stripDriftDist;
 	m_stripDriftErrors = RIO.m_stripDriftErrors;
+	m_author = RIO.m_author;
       }
     return *this;
 
@@ -223,6 +231,7 @@ namespace Muon
 	m_stripCharges = RIO.m_stripCharges;
 	m_stripDriftDist = RIO.m_stripDriftDist;
 	m_stripDriftErrors = RIO.m_stripDriftErrors;
+	m_author = RIO.m_author;
       }
     return *this;
 
