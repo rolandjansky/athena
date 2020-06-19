@@ -1,5 +1,7 @@
 #!/bin/env python
 
+from __future__ import print_function
+
 #Import datasets from RTT--------------------------------------------------------------------------                                                   
 def importRTTdatasets(jobID):
     from AthenaCommon.Utils.unixtools import find_datafile
@@ -20,7 +22,7 @@ def importRTTdatasets(jobID):
 def main(argv):
     for x in argv[1:]:
         for ds in importRTTdatasets( x ):
-            print ds
+            print (ds)
 
 if __name__ == "__main__":
     import sys
