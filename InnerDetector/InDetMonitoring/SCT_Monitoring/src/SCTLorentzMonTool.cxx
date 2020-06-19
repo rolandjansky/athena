@@ -260,7 +260,7 @@ SCTLorentzMonTool::fillHistograms() {
             if (bec != 0) {
               continue; // We only care about the barrel
             }
-            // wtf is this?
+            
             for (unsigned int i = 0; i < layer100_n; i++) {
               if (layer100[i] == layer && eta100[i] == eta && phi100[i] == phi) {
                 in100 = true;
