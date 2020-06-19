@@ -3,5 +3,13 @@
 */
 #ifndef ATLASHEPMC_HEPEVTWRAPPER_H
 #define ATLASHEPMC_HEPEVTWRAPPER_H
+#ifdef HEPMC3
+#include "HepMC3/HEPEVT_Wrapper.h"
+namespace HepMC
+{
+typedef HepMC3::HEPEVT_Wrapper HEPEVT_Wrapper;
+}
+#else
 #include "HepMC/HEPEVT_Wrapper.h"
+#endif
 #endif

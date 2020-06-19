@@ -172,8 +172,6 @@ const GeoLogVol * SCT_FwdSensor::preBuild()
   // Make the moduleside design for this sensor
   makeDesign();
 
-  m_detectorManager->addDesign(m_design);
-
   return sensorLog;
 }
 
@@ -279,7 +277,7 @@ void SCT_FwdSensor::makeDesign()
   int readoutSide = +1;
 
   // m_design will be owned and deleted by SCT_DetectorManager
-  m_design = new SCT_ForwardModuleSideDesign(m_thicknessN,    
+  std::unique_ptr<SCT_ForwardModuleSideDesign> design = std::make_unique<SCT_ForwardModuleSideDesign>(m_thicknessN,
                                              crystals, 
                                              diodes, 
                                              cells, 
@@ -294,6 +292,8 @@ void SCT_FwdSensor::makeDesign()
                                              etaCenter, 
                                              phiCenter,
                                              readoutSide);
+  m_design = design.get();
+  m_detectorManager->addDesign(std::move(design));
 
   //
   // Flags to signal if axis can be swapped.

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # JetRecStandardToolManager.py
 #
@@ -249,6 +249,9 @@ pflow_groomed_modifiers = []
 pflow_groomed_modifiers += [jtm.constitfourmom_pflow]
 pflow_groomed_modifiers += groomed_modifiers
 
+# For truth jets, don't add track moments
+truth_groomed_modifiers = filterout(["trksummoms"], groomed_modifiers)
+
 # Here add tools to be run for topo jets and NOT for pflow.
 
 # Cluster moments.
@@ -324,6 +327,7 @@ jtm.modifiersMap["pflow_reduced"]         =        list(pflow_reduced_modifiers)
 
 if jetFlags.useTruth():
   jtm.modifiersMap["truth_ungroomed"]     =      list(truth_ungroomed_modifiers)
+  jtm.modifiersMap["truth_groomed"]       =      list(truth_groomed_modifiers)
 jtm.modifiersMap["track_ungroomed"]       =      list(track_ungroomed_modifiers)
 
 # Also index modifier type names by input type name.

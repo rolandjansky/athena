@@ -58,7 +58,7 @@ foreach( name
 
    atlas_add_test( ${name}
       SOURCES test/${name}.cxx
-      LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES}
+      LINK_LIBRARIES
       AtlasHepMCLib IdDict IdDictParser InDetEventAthenaPool TestTools
       ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
       PROPERTIES TIMEOUT 300 )

@@ -15,7 +15,7 @@ import sys
 import argparse
 
 from AthenaCommon.Logging import logging
-from menu_config_tests import TriggerLevel, menu_tests
+from TriggerMenuMT.menu_config_tests import TriggerLevel, menu_tests
 
 log = logging.getLogger("TriggerMenuConfigTest")
 

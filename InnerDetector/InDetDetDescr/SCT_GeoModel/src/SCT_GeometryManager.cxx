@@ -17,11 +17,10 @@
 
 SCT_GeometryManager::SCT_GeometryManager(SCT_DataBase* rdb)
   : m_athenaComps{rdb->athenaComps()},
+    m_commonItems{nullptr},
     m_rdb{rdb}
 {
   // This class uses reference counting. Should not be delete'd in destructor.
-  m_commonItems = new InDetDD::SiCommonItems(m_athenaComps->getIdHelper());
-
   m_barrelParameters = std::make_unique<SCT_BarrelParameters>(m_rdb);
   m_barrelModuleParameters = std::make_unique<SCT_BarrelModuleParameters>(m_rdb);
   m_forwardParameters = std::make_unique<SCT_ForwardParameters>(m_rdb);
@@ -63,6 +62,12 @@ const InDetDD::SiCommonItems *
 SCT_GeometryManager::commonItems() const
 {
   return m_commonItems;
+}
+
+void
+SCT_GeometryManager::setCommonItems(const InDetDD::SiCommonItems* commonItems)
+{
+  m_commonItems = commonItems;
 }
 
 const SCT_BarrelParameters * 

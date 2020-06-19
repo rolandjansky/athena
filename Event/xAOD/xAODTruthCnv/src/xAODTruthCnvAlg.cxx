@@ -269,7 +269,9 @@ namespace xAODMaker {
                 
 	  // Get the beam particles
 	  pair<HepMC::GenParticlePtr,HepMC::GenParticlePtr> beamParticles;
-	  if ( genEvt->valid_beam_particles() ) beamParticles = genEvt->beam_particles();
+	  bool genEvt_valid_beam_particles=false;
+          genEvt_valid_beam_particles=genEvt->valid_beam_particles();
+	  if ( genEvt_valid_beam_particles ) beamParticles = genEvt->beam_particles();
 	  for (HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin(); pitr!=genEvt->particles_end(); ++pitr) {
 	    // (a) create TruthParticle
 	    xAOD::TruthParticle* xTruthParticle = new xAOD::TruthParticle();
@@ -285,7 +287,7 @@ namespace xAODMaker {
 	    if (!isSignalProcess) truthLinkVec->push_back(new xAODTruthParticleLink(HepMcParticleLink((*pitr),genEvt->event_number()), eltp));
                     
 	    // Is this one of the beam particles?
-	    if (genEvt->valid_beam_particles()) {
+	    if (genEvt_valid_beam_particles) {
 	      if (isSignalProcess) {
 		if (*pitr == beamParticles.first) xTruthEvent->setBeamParticle1Link(eltp);
 		if (*pitr == beamParticles.second) xTruthEvent->setBeamParticle2Link(eltp);

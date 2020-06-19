@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCLUSTERCORRECTION_CALOTOPOEMPHIOFF_H
@@ -25,16 +25,13 @@ class CaloCluster;
 
 class CaloTopoEMphioff : public CaloClusterCorrectionCommon
 {
+public:
+  /// Inherit constructor.
+  using CaloClusterCorrectionCommon::CaloClusterCorrectionCommon;
 
- public: 
-  // constructor 
-  CaloTopoEMphioff(const std::string& type, const std::string& name, const IInterface* parent);
-  // destructor 
-  ~CaloTopoEMphioff();
-  // initialization
-  //  virtual StatusCode initialize();
+
   // virtual method in CaloClusterCorrection
-  virtual void makeTheCorrection(const EventContext& ctx,
+  virtual void makeTheCorrection(const Context& myctx,
                                  xAOD::CaloCluster* cluster,
 				 const CaloDetDescrElement* elt,
 				 float eta,
@@ -56,17 +53,13 @@ class CaloTopoEMphioff : public CaloClusterCorrectionCommon
   // EdepB is B in 25 eta bins
   // Granularity is the Granularity
   // EtaFrontier[i] is 0.8, 2.3, 2.5 for i=0,1,2
-  CaloRec::Array<1> m_EdepA;
-  CaloRec::Array<1> m_EdepB;
-  CaloRec::Array<1> m_EtaFrontier;
+  Constant<CxxUtils::Array<1> > m_EdepA        { this, "EdepA", "" };
+  Constant<CxxUtils::Array<1> > m_EdepB        { this, "EdepB", "" };
+  Constant<CxxUtils::Array<1> > m_EtaFrontier  { this, "EtaFrontier", "" };
 
-  //std::vector<float> m_EdepA;
-  //std::vector<float> m_EdepB;
-  //std::vector<float> m_EtaFrontier;
-  float m_Granularity;
-  int m_FlipPhi;
-  float m_EndcapOffset;
-
+  Constant<float> m_Granularity    { this, "Granularity",  "" };
+  Constant<int> m_FlipPhi          { this, "FlipPhi",      "" };
+  Constant<float> m_EndcapOffset   { this, "EndcapOffset", "" };
 };
 
 #endif

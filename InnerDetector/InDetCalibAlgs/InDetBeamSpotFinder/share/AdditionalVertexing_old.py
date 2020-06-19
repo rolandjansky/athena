@@ -80,13 +80,9 @@ if (not (InDetFlags.primaryVertexSetup() == 'AdaptiveFinding') and
       InDetPriVxFinderTool_Pix.maxChi2PerTrack = 15.
     
 elif InDetFlags.primaryVertexSetup() == 'AdaptiveFinding':
+    #
     # --- load adaptive primary vertex finder
     #
-    #from InDetPriVxFinderTool.InDetPriVxFinderToolConf import InDet__InDetAdaptivePriVxFinderTool
-    #InDetPriVxFinderTool_Si = InDet__InDetAdaptivePriVxFinderTool(name             = "InDetAdaptivePriVxFinderTool_Si",
-    #                                                              VertexFitterTool = InDetVxFitterTool,
-    #                                                              TrackSelector    = InDetTrackSelectorTool_Si
-    #                                                              )
 
     from InDetPriVxFinderTool.InDetPriVxFinderToolConf import InDet__InDetIterativePriVxFinderTool
     InDetPriVxFinderTool_Pix = InDet__InDetIterativePriVxFinderTool(name             = "InDetIterativePriVxFinderTool_Pix",
@@ -256,17 +252,6 @@ elif InDetFlags.primaryVertexSetup() == 'AdaptiveMultiFinding':
                                                                     selectiontype     = 0,
                                                                     do3dSplitting     = InDetFlags.doPrimaryVertex3DFinding())
   
-elif InDetFlags.primaryVertexSetup() == 'DefaultVKalVrtFinding':
-    #
-    # --- load vkal vertex finder tool
-    #
-    from InDetVKalPriVxFinderTool.InDetVKalPriVxFinderTool import InDet__InDetVKalPriVxFinderTool
-    InDetPriVxFinderTool_SCT = InDet__InDetVKalPriVxFinderTool(name                   = "InDetVKalPriVxFinder_SCT",
-                                                           TrackSummaryTool       = InDetTrackSummaryTool,
-                                                           FitterTool             = InDetVxFitterTool,
-                                                           BeamConstraint         = 0)
-    if InDetFlags.useBeamConstraint():
-      InDetPriVxFinderTool_SCT.BeamConstraint = 1
 
 ToolSvc += InDetPriVxFinderTool_SCT
 if (InDetFlags.doPrintConfigurables()):

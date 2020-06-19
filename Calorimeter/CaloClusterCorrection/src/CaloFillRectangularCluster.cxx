@@ -1067,11 +1067,11 @@ CaloFillRectangularCluster::makeCorrection2 (const EventContext& ctx,
 
 /**
  * @brief CaloClusterCorrection virtual method
- * @param ctx     The event context.
+ * @param myctx   ToolWithConstants context.
  * @param cluster The cluster on which to operate.
  */
-void CaloFillRectangularCluster::makeCorrection(const EventContext& ctx,
-                                                CaloCluster* cluster) const
+void CaloFillRectangularCluster::makeCorrection (const Context& myctx,
+                                                 CaloCluster* cluster) const
 {
   ATH_MSG_DEBUG( "Executing CaloFillRectangularCluster" << endmsg) ;
   
@@ -1099,7 +1099,7 @@ void CaloFillRectangularCluster::makeCorrection(const EventContext& ctx,
  
     //Leave the option to use a different cell container 
     if (!m_cellsName.key().empty()) {
-      SG::ReadHandle<CaloCellContainer> cchand (m_cellsName, ctx);
+      SG::ReadHandle<CaloCellContainer> cchand (m_cellsName, myctx.ctx());
       if (!cchand.isValid()) {
         REPORT_ERROR(StatusCode::FAILURE)
           << "Can't retrieve cell container " << m_cellsName.key();
@@ -1126,12 +1126,12 @@ void CaloFillRectangularCluster::makeCorrection(const EventContext& ctx,
                                                          cluster,
                                                          cell_list,
                                                          cell_container);
-    makeCorrection2 (ctx,*calodetdescrmgr, helper);
+    makeCorrection2 (myctx.ctx(), *calodetdescrmgr, helper);
   }
   else {
     // We're recalculating a cluster using the existing cells.
     CaloClusterCorr::SamplingHelper_Cluster helper (*this, windows, cluster);
-    makeCorrection2 (ctx, *calodetdescrmgr,helper);
+    makeCorrection2 (myctx.ctx(), *calodetdescrmgr,helper);
   }
 }
 

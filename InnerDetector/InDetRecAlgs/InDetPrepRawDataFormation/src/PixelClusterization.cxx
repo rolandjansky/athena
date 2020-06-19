@@ -138,7 +138,7 @@ namespace InDet{
         const COLLECTION* RDO_Collection(*rdoCollections);
         if (!RDO_Collection || RDO_Collection->empty()) continue;
         PixelClusterContainer::IDC_WriteHandle lock = clusterContainer->getWriteHandle(rdoCollections.hashId());
-        if( lock.alreadyPresent() ) continue;
+        if( lock.OnlineAndPresentInAnotherView() ) continue;
 
         // Use one of the specific clustering AlgTools to make clusters
         std::unique_ptr<PixelClusterCollection> clusterCollection (m_clusteringTool->clusterize(*RDO_Collection, *m_idHelper));
@@ -172,7 +172,7 @@ namespace InDet{
 
           if (!RDO_Collection) continue;
           PixelClusterContainer::IDC_WriteHandle lock = clusterContainer->getWriteHandle(listOfPixIds[i]);
-          if( lock.alreadyPresent() ) continue;
+          if( lock.OnlineAndPresentInAnotherView() ) continue;
 
           // Use one of the specific clustering AlgTools to make clusters
           std::unique_ptr<PixelClusterCollection> clusterCollection (m_clusteringTool->clusterize(*RDO_Collection, *m_idHelper));

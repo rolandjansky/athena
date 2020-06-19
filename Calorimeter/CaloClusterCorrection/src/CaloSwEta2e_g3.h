@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCLUSTERCORRECTION_CALOSWETA2E_G3_H
@@ -35,29 +35,23 @@ Updated:  June, 2004    (sss)
 
 class CaloSwEta2e_g3 : public CaloClusterCorrection
 {
+public:
+  /// Inherit constructor.
+  using CaloClusterCorrection::CaloClusterCorrection;
 
- public:
-
-  // constructor 
-  CaloSwEta2e_g3(const std::string& type,
-                 const std::string& name,
-                 const IInterface* parent);
-  // destructor 
-  virtual ~CaloSwEta2e_g3() override;
   
   // Virtual function in CaloClusterCorrection
-  virtual void makeCorrection(const EventContext& ctx,
-                              xAOD::CaloCluster* cluster) const override;
+  virtual void makeCorrection (const Context& myctx,
+                               xAOD::CaloCluster* cluster) const override;
 
  private:
-
   CaloSwEta2e_g3() = delete;
-  CaloRec::Array<2> m_correction;
-  int               m_correction_degree;
-  int               m_region;
+
+  Constant<CxxUtils::Array<2> > m_correction { this, "correction", "" };
+  Constant<int>        m_correction_degree { this, "correction_degree", "" };
+  Constant<int>        m_region { this, "region", 1, "" };
 
   static const float s_middle_layer_granularity;
-
 };
 
 

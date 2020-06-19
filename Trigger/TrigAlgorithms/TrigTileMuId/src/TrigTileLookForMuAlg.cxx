@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //---------------------------------------------------------------------------
@@ -472,7 +472,7 @@ HLT::ErrorCode TrigTileLookForMuAlg::hltExecute(std::vector<std::vector<HLT::Tri
           OK_HighThr = true;
           if (!m_LooseSelection && (m0[k1][j1]>=m_thres0[k1]) ) OK_HighThr=false;
 
-          if ( ( ( (k1!=4 || k1!=25) && m0[k1][j1]>m_th0d ) || ( (k1==4 || k1==25) && m0[k1][j1]>m_thitcd ) ) && OK_HighThr ) { 
+          if ( ( ( (k1!=4 && k1!=25) && m0[k1][j1]>m_th0d ) || ( (k1==4 || k1==25) && m0[k1][j1]>m_thitcd ) ) && OK_HighThr ) { 
 
 	    enedp1[ci3] = m0[k1][j1];
 	    aquality[ci3]=(m0[k1][j1] < m_thres0[k1] ? 0:1);  

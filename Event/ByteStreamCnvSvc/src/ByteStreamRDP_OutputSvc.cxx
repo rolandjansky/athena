@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //===================================================================
@@ -15,15 +15,8 @@
 
 // Constructor.
 ByteStreamRDP_OutputSvc::ByteStreamRDP_OutputSvc(const std::string& name, ISvcLocator* svcloc)
-	: ByteStreamOutputSvc(name, svcloc),
-	m_totalEventCounter(0), m_re(0), m_buf(0), m_robProvider("ROBDataProviderSvc", name) {
-   declareProperty("BSOutputStreamName", m_bsOutputStreamName = name);
-}
-
-// Destructor.
-ByteStreamRDP_OutputSvc::~ByteStreamRDP_OutputSvc() {
-   delete [] m_buf;
-   delete m_re; m_re = 0;
+	: ByteStreamOutputSvc(name, svcloc) {
+      if (m_bsOutputStreamName.empty()) m_bsOutputStreamName = name;
 }
 
 // Open the first input file and read the first event.
@@ -42,23 +35,27 @@ StatusCode ByteStreamRDP_OutputSvc::initialize() {
    return(StatusCode::SUCCESS);
 }
 
-// Receive the next event.
-bool  ByteStreamRDP_OutputSvc::putEvent(RawEvent* re) {
-  delete [] m_buf;
-  delete m_re; m_re = 0;
-  // Keep a local copy
-  uint32_t reSize = re->fragment_size_word();
-  OFFLINE_FRAGMENTS_NAMESPACE::PointerType reStart;
-  re->start(reStart);
-  m_buf = new OFFLINE_FRAGMENTS_NAMESPACE::DataType[reSize];
-  memcpy (reinterpret_cast<void *>(m_buf), reinterpret_cast<const void *>(reStart), reSize*sizeof(reStart[0]));
-  m_re = new RawEvent(m_buf);
-  // Give RawEvent to RDP 
-  m_robProvider->setNextEvent(m_re); 
-  // Event Count 
-  ++m_totalEventCounter; 
-  ATH_MSG_DEBUG("Number of Events in ByteStreamRDP_OutputSvc: " << m_totalEventCounter); 
-  return(true); 
+// Receive the next event without explicit context
+bool ByteStreamRDP_OutputSvc::putEvent(RawEvent* re) {
+   return putEvent(re, Gaudi::Hive::currentContext());
+}
+
+// Receive the next event
+bool ByteStreamRDP_OutputSvc::putEvent(RawEvent* re, const EventContext& ctx) {
+   EventCache* cache = m_eventsCache.get(ctx);
+   cache->releaseEvent();
+   const uint32_t reSize = re->fragment_size_word();
+   const uint32_t* reStart = re->start();
+   cache->dataBuffer = std::make_unique<uint32_t[]>(reSize);
+   std::copy(reStart, reStart+reSize, cache->dataBuffer.get());
+
+   // Create a cached RawEvent object from the cached data buffer
+   cache->rawEvent = std::make_unique<RawEvent>(cache->dataBuffer.get());
+
+   // Give the RawEvent to ROBDataProvider
+   m_robProvider->setNextEvent(ctx, cache->rawEvent.get());
+
+   return true;
 }
 
 StatusCode ByteStreamRDP_OutputSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {

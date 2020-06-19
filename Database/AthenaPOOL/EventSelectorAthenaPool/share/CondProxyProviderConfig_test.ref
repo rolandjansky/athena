@@ -1,0 +1,16 @@
+Py:Athena            INFO using release [WorkDir-22.0.15] [x86_64-centos7-gcc8-opt] [config.EventSelectorAthenaPool-20200617/24fa4eb1a41] -- built on [2020-06-17T2014]
+Py:ComponentAccumulator    INFO Event Inputs
+Py:ComponentAccumulator    INFO Event Algorithm Sequences
+Py:ComponentAccumulator    INFO Top sequence 0
+Py:ComponentAccumulator    INFO \__ AthAlgSeq (seq: SEQ AND)
+Py:ComponentAccumulator    INFO Condition Algorithms
+Py:ComponentAccumulator    INFO Services
+Py:ComponentAccumulator    INFO ['ProxyProviderSvc', 'CondProxyProvider']
+Py:ComponentAccumulator    INFO Public Tools
+Py:ComponentAccumulator    INFO [
+Py:ComponentAccumulator    INFO ]
+Py:ComponentAccumulator    INFO Private Tools
+Py:ComponentAccumulator    INFO [
+Py:ComponentAccumulator    INFO ]
+Py:ComponentAccumulator    INFO TheApp properties
+CondProxyProvider: CondProxyProvider('CondProxyProvider', InputCollections=['file1', 'file2', 'file3'])

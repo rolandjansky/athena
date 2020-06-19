@@ -9,17 +9,12 @@
 
 #include "PathResolver/PathResolver.h"
 
-#include "AthenaKernel/IAtRndmGenSvc.h"
 #include "AthenaKernel/Units.h"
-#include "CLHEP/Random/RandomEngine.h"
-#include "CLHEP/Random/RandGauss.h"
-
-
 
 #include <sstream>
 #include "TFile.h"
 #include "TTree.h"
-
+#include "Randomize.hh"
 
 namespace Units = Athena::Units;
 
@@ -27,14 +22,9 @@ namespace Units = Athena::Units;
 LArG4ShowerLibSvc::LArG4ShowerLibSvc(const std::string& name,ISvcLocator* svc)
   : base_class(name,svc)
   , m_fileNameList()
-  , m_rndmEngineName("FROZENSHOWERS")
-  , m_rndmGenSvc("AtDSFMTGenSvc", name)
-  , m_rndmEngine(nullptr)
 {
   declareProperty( "FileNameList",    m_fileNameList,   "List of filenames for direct reading" );
-  declareProperty( "RndmEngineName",  m_rndmEngineName, "Name of athena RNG engine" );
-  declareProperty( "RndmGenSvc",      m_rndmGenSvc, "Athena RNG service" );
-
+  
   /* BE SURE THIS ONE IS THE SAME AS IN LArG4FastSimSvc!!! */
   enum DETECTOR {EMB=100000,EMEC=200000,FCAL1=300000,FCAL2=400000,FCAL3=500000,HECLOC=600000,HEC=700000};
 
@@ -115,22 +105,9 @@ StatusCode LArG4ShowerLibSvc::initialize()
     libmap::const_iterator it;
     for(it = m_libraryMap.begin();it != m_libraryMap.end(); it++) {
       ATH_MSG_INFO("      " << m_locations[(*it).first] << ": " << (*it).second->comment());
+#ifdef DEBUG_FrozenShowers
       m_statisticsMap[(*it).second] = (*it).second->createStatistics();
-    }
-    // we have loaded some libs, so there is a point in RNG service
-    if (m_rndmEngineName.value().length() > 0) {
-      if (m_rndmGenSvc.retrieve().isSuccess()) {
-        m_rndmEngine = m_rndmGenSvc->GetEngine(m_rndmEngineName.value());
-        if (m_rndmEngine)
-          ATH_MSG_INFO("Successfully retrieved random number stream " << m_rndmEngineName.value());
-        else
-          ATH_MSG_WARNING("Couldn't retrieve random number stream " << m_rndmEngineName.value() << ". The simulation result may be biased.");
-      }
-      else {
-        ATH_MSG_WARNING("Couldn't retrieve random number service. The simulation result may be biased.");
-      }
-    } else {
-      ATH_MSG_WARNING("Empty name for random stream. No randomization will be applied.");
+#endif
     }
   }
 
@@ -164,7 +141,7 @@ StatusCode LArG4ShowerLibSvc::finalize()
  * Returns library from internal map based on the particle. Returns nullptr if there
  * is no library for needed particle/detector.
  */
-const ShowerLib::IShowerLib* LArG4ShowerLibSvc::getShowerLib(G4int particleCode, int detectorTag)
+const ShowerLib::IShowerLib* LArG4ShowerLibSvc::getShowerLib(G4int particleCode, int detectorTag) const
 {
   int location;
 
@@ -191,8 +168,14 @@ LArG4ShowerLibSvc::checkLibrary(G4int particleCode, int detectorTag)
  * Returns a shower based on the particle. Return empty shower if there is no
  * appropriate showers in the libraries.
  */
+
+#ifdef DEBUG_FrozenShowers
 std::vector<EnergySpot>
 LArG4ShowerLibSvc::getShower(const G4FastTrack& track, int detectorTag)
+#else
+std::vector<EnergySpot>
+LArG4ShowerLibSvc::getShower(const G4FastTrack& track, int detectorTag) const
+#endif
 {
   // get shower lib from the map
   const ShowerLib::IShowerLib* library = getShowerLib(track.GetPrimaryTrack()->GetDefinition()->GetPDGEncoding(), detectorTag);
@@ -208,10 +191,14 @@ LArG4ShowerLibSvc::getShower(const G4FastTrack& track, int detectorTag)
 
   // get a shower from the library
   int randomShift = 0;
-  if (m_rndmEngine) {
-    randomShift = (int)(CLHEP::RandGauss::shoot(m_rndmEngine, 0., 2.5)+0.5);
-  }
+  randomShift = (int)(CLHEP::RandGaussZiggurat::shoot(G4Random::getTheEngine(), 0., 2.5)+0.5);
+
+#ifdef DEBUG_FrozenShowers
   std::vector<EnergySpot>* shower = library->getShower(track.GetPrimaryTrack(), m_statisticsMap[library], randomShift);
+#else
+  std::vector<EnergySpot>* shower = library->getShower(track.GetPrimaryTrack(), nullptr, randomShift);
+#endif
+
 
   if (shower == nullptr) {
     return std::vector<EnergySpot>();

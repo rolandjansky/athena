@@ -130,7 +130,6 @@ class ThinningSvc( _ThinningSvc ):
         ## list of streams we know we will apply thinning on
         outstreams = []
         
-        ## connect @c ThinningOutputTool into the HelperTools slot
         AthenaOutputStream = CfgMgr.AthenaOutputStream
 
         ## first loop over TopAlg (as output stream can be located
@@ -173,27 +172,11 @@ class ThinningSvc( _ThinningSvc ):
         if _lvl == handle.propertyNoValue:
             _lvl = handle.getDefaultProperty('OutputLevel')
             pass
-        ## get and install the ThinningOutputTool configurable
-        from AthenaServices.AthenaServicesConf import ThinningOutputTool
-        toolName = "ThinningTool_%s" % handle.name()
-        tool = ThinningOutputTool (toolName,
-                                   OutputLevel=_lvl,
-                                   ThinningSvc=handle)
-        tool.Proxies = []
-        for o in outstreams:
-            tool.Proxies += _build_proxy_list(o)
-            o.HelperTools.insert(0, tool)
-            ## XXX FIXME XXX
-            ## see https://savannah.cern.ch/bugs/index.php?40823
-            o.HelperTools += [] # just to work-around bug #40823
-        ##
         return
     pass # class ThinningSvc
 
 def createThinningSvc(svcName = "ThinningSvc", outStreams = []):
     """Helper method to create a completely configured ThinningSvc.
-    It will take care of adding the helper ThinningOutputTool to the list of
-    'outStreams' it has been given.
     Note that 'outStreams' elements have to be AthenaOutputStreams !
     """
     from AthenaCommon.Logging import logging

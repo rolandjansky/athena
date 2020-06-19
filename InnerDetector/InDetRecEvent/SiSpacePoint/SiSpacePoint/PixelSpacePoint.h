@@ -46,16 +46,6 @@ namespace InDet
     PixelSpacePoint( IdentifierHash elementId, 
                      const Trk::PrepRawData* clus);
     
-    /** Parametrised constructor with Covariance Matrix pointer so for L2 at the moment */
-    PixelSpacePoint( IdentifierHash elementId,  
-                     const Trk::PrepRawData* clus, 
-                     const Amg::MatrixX* globcov);
-    
-    /** Parametrised constructor with Covariance Matrix reference so for L2 at the moment */
-    PixelSpacePoint( IdentifierHash elementId,  
-                     const Trk::PrepRawData* clus, 
-                     const Amg::MatrixX& globcov);
-    
     /** add Covariance Matrix and global position directly */
     PixelSpacePoint( IdentifierHash elementId,
                      const Trk::PrepRawData* clus,

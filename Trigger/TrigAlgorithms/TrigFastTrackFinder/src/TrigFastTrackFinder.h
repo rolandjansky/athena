@@ -84,6 +84,9 @@ class TrigFastTrackFinder : public HLT::FexAlgo {
   double trackQuality(const Trk::Track* Tr) const;
   void filterSharedTracks(std::vector<std::tuple<bool, double, Trk::Track*>>& QT) const;
 
+  virtual bool isClonable() const override { return true; }
+  virtual unsigned int cardinality() const override { return 0; }//Mark as re-entrant
+
 protected: 
 
   void updateClusterMap(long int, const Trk::Track*, std::map<Identifier, std::vector<long int> >&) const;

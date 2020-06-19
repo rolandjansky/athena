@@ -30,7 +30,7 @@ public:
   eflowCaloObjectMaker() { }
 
   int makeTrkCluCaloObjects(eflowRecTrackContainer* eflowTrackContainer, eflowRecClusterContainer* eflowClusterContainer, eflowCaloObjectContainer* caloObjectContainer);
-  int makeTrkCluCaloObjects(std::vector<eflowRecTrack*> m_tracksToRecover, std::vector<eflowRecCluster*> m_clustersToConsider, eflowCaloObjectContainer* caloObjectContainer);
+  int makeTrkCluCaloObjects(std::vector<eflowRecTrack*>& tracksToRecover, std::vector<eflowRecCluster*>& clustersToConsider, eflowCaloObjectContainer* caloObjectContainer);
 
 private:
 

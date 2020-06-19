@@ -200,35 +200,31 @@ StatusCode MTCalibPebHypoTool::decide(const MTCalibPebHypoTool::Input& input) co
     else robs = robVec;
 
     // Execute the ROB requests
-    switch (instr.type) {
-      case ROBRequestInstruction::Type::ADD: {
-        // Prefetch ROBs
-        ATH_MSG_DEBUG("Preloading ROBs: " << idsToString(robs));
-        m_robDataProviderSvc->addROBData(input.eventContext, robs, name()+"-ADD");
-        break;
-      }
-      case ROBRequestInstruction::Type::GET: {
-        // Retrieve ROBs
-        ATH_MSG_DEBUG("Retrieving ROBs: " << idsToString(robs));
-        // VROBFRAG is a typedef for std::vector<const eformat::ROBFragment<const uint32_t*>*>
-        IROBDataProviderSvc::VROBFRAG robFragments;
-        m_robDataProviderSvc->getROBData(input.eventContext, robs, robFragments, name()+"-GET");
-        ATH_MSG_DEBUG("Number of ROBs retrieved: " << robFragments.size());
-        if (!robFragments.empty())
-          ATH_MSG_DEBUG("List of ROBs found: " << std::endl << format(robFragments));
-        break;
-      }
-      case ROBRequestInstruction::Type::COL: {
-        // Event building
-        ATH_MSG_DEBUG("Requesting full event ROBs");
-        int nrobs = m_robDataProviderSvc->collectCompleteEventData(input.eventContext, name()+"-COL");
-        ATH_MSG_DEBUG("Number of ROBs retrieved: " << nrobs);
-        break;
-      }
-      default: {
-        ATH_MSG_ERROR("Invalid ROB request instruction " << instr.toString());
-        return StatusCode::FAILURE;
-      }
+    using ReqType = ROBRequestInstruction::Type;
+    if (instr.type == ReqType::ADD || instr.type == ReqType::ADDGET) {
+      // Prefetch ROBs
+      ATH_MSG_DEBUG("Preloading ROBs: " << idsToString(robs));
+      m_robDataProviderSvc->addROBData(input.eventContext, robs, name()+"-ADD");
+    }
+    if (instr.type == ReqType::GET || instr.type == ReqType::ADDGET) {
+      // Retrieve ROBs
+      ATH_MSG_DEBUG("Retrieving ROBs: " << idsToString(robs));
+      // VROBFRAG is a typedef for std::vector<const eformat::ROBFragment<const uint32_t*>*>
+      IROBDataProviderSvc::VROBFRAG robFragments;
+      m_robDataProviderSvc->getROBData(input.eventContext, robs, robFragments, name()+"-GET");
+      ATH_MSG_DEBUG("Number of ROBs retrieved: " << robFragments.size());
+      if (!robFragments.empty())
+        ATH_MSG_DEBUG("List of ROBs found: " << std::endl << format(robFragments));
+    }
+    if (instr.type == ReqType::COL) {
+      // Event building
+      ATH_MSG_DEBUG("Requesting full event ROBs");
+      int nrobs = m_robDataProviderSvc->collectCompleteEventData(input.eventContext, name()+"-COL");
+      ATH_MSG_DEBUG("Number of ROBs retrieved: " << nrobs);
+    }
+    if (instr.type == ReqType::INVALID) {
+      ATH_MSG_ERROR("Invalid ROB request instruction " << instr.toString());
+      return StatusCode::FAILURE;
     }
 
     // Sleep between ROB requests
@@ -290,6 +286,7 @@ MTCalibPebHypoTool::ROBRequestInstruction::ROBRequestInstruction(std::string_vie
 #endif
   if (str.find(":ADD:")!=std::string_view::npos) type = ROBRequestInstruction::ADD;
   else if (str.find(":GET:")!=std::string_view::npos) type = ROBRequestInstruction::GET;
+  else if (str.find(":ADDGET:")!=std::string_view::npos) type = ROBRequestInstruction::ADDGET;
   else if (str.find(":COL:")!=std::string_view::npos) type = ROBRequestInstruction::COL;
   if (size_t pos=str.find(":RND"); pos!=std::string_view::npos) {
     size_t firstDigit=pos+4;
@@ -307,6 +304,7 @@ const std::string MTCalibPebHypoTool::ROBRequestInstruction::toString() const {
   if (type==INVALID) s+="INVALID";
   else if (type==ADD) s+="ADD";
   else if (type==GET) s+="GET";
+  else if (type==ADDGET) s+="ADDGET";
   else if (type==COL) s+="COL";
   s += ", isRandom=";
   s += isRandom ? "true" : "false";
