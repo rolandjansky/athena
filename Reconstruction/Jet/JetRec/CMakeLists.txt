@@ -17,6 +17,7 @@ atlas_depends_on_subdirs(
   PUBLIC
   Control/AthLinks
   Control/AthContainers
+  Control/AthenaMonitoringKernel
   Control/AthToolSupport/AsgTools
   Event/xAOD/xAODCaloEvent
   Event/xAOD/xAODJet
@@ -49,12 +50,12 @@ atlas_add_library( JetRecLib
   xAODCaloEvent xAODJet xAODMuon EventShapeInterface JetEDM
   JetInterface
   PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} CxxUtils xAODBase xAODCore
-  xAODEventInfo xAODTracking )
+  xAODEventInfo xAODTracking AthenaMonitoringKernelLib)
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( JetRec
       src/*.h src/*.cxx src/components/*.cxx
-      LINK_LIBRARIES GaudiKernel AthenaBaseComps JetInterface JetRecLib )
+      LINK_LIBRARIES GaudiKernel AthenaBaseComps JetInterface JetRecLib AthenaMonitoringKernelLib )
 endif()
 
 atlas_add_dictionary( JetRecDict

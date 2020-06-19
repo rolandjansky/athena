@@ -181,9 +181,13 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
         calibMods = JetRecoConfiguration.defineCalibFilterMods(jetRecoDict,dataSource, rhoKey)
         jetModList += calibMods
 
+        # Get online monitoring tool
+        from JetRec import JetOnlineMon
+        monTool = JetOnlineMon.getMonTool_TrigJetAlgorithm("HLTJets/"+jetsFullName+"/")
+
         # Generate a JetAlgorithm to run the jet finding and modifiers
         # (via a JetRecTool instance).
-        jetRecAlg = JetRecConfig.getJetAlgorithm(jetsFullName, jetDef, pjs, jetModList)
+        jetRecAlg = JetRecConfig.getJetAlgorithm(jetsFullName, jetDef, pjs, jetModList, monTool)
         recoSeq += conf2toConfigurable( jetRecAlg )
         # End of basic jet reco
         pass
