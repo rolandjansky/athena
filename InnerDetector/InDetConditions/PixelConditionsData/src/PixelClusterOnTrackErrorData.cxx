@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelConditionsData/PixelClusterOnTrackErrorData.h"
@@ -124,7 +124,7 @@ int PixelClusterOnTrackErrorData::getNumberOfEtaIBLBins() const{
 }
 
 double PixelClusterOnTrackErrorData::getPixelBarrelPhiError(double ang, 
-                                                    int deltax){ 
+                                                    int deltax) const { 
    double errphi=50*CLHEP::micrometer/pow(12,0.5);
    // error on phi coordinate
     if(deltax == 1){
@@ -159,39 +159,35 @@ double PixelClusterOnTrackErrorData::getPixelBarrelPhiError(double ang,
     return errphi; 
 }
 
-float PixelClusterOnTrackErrorData::getPixelBarrelEtaError(int ibin){
+float PixelClusterOnTrackErrorData::getPixelBarrelEtaError(int ibin) const {
   if(ibin < 0) return -1;
   if(static_cast<unsigned int>(ibin) >= m_barreletaerror.size()) return -2;
   return m_barreletaerror[ibin];
 }
 
-float PixelClusterOnTrackErrorData::getPixelBarrelPhiError(int ibin){
+float PixelClusterOnTrackErrorData::getPixelBarrelPhiError(int ibin) const {
   if(ibin < 0){ return -1; }
   if(static_cast<unsigned int>(ibin) >= m_barrelphierror.size()){ return -2;}
   return m_barrelphierror[ibin];
 }
 
-float PixelClusterOnTrackErrorData::getPixelIBLEtaError(int ibin){
+float PixelClusterOnTrackErrorData::getPixelIBLEtaError(int ibin) const {
     if(ibin < 0||m_version>-2) return -1;
     if(static_cast<unsigned int>(ibin) >= m_ibletaerror.size()) return -2;
     return m_ibletaerror[ibin];
 }
 
-float PixelClusterOnTrackErrorData::getPixelIBLPhiError(int ibin){
+float PixelClusterOnTrackErrorData::getPixelIBLPhiError(int ibin) const {
     if(ibin < 0||m_version>-2){ return -1; }
     if(static_cast<unsigned int>(ibin) >= m_iblphierror.size()){ return -2;}
     return m_iblphierror[ibin];
 }
 
 int PixelClusterOnTrackErrorData::getBarrelBinPhi(double angle, 
-                                   int phiClusterSize){
+                                   int phiClusterSize) const {
 
   int iang =0;
   int nang = m_phibins.size();
-  if(nang == 0) {
-    Initialize();
-    nang = m_phibins.size();
-  }
   for(int i=0; i<nang; i++){  
     if(angle > m_phibins[i]) iang=i;  
   } 
@@ -205,14 +201,10 @@ int PixelClusterOnTrackErrorData::getBarrelBinPhi(double angle,
 }
 
 int PixelClusterOnTrackErrorData::getBarrelBinEta(double eta, int etaClusterSize, 
-    int phiClusterSize){
+    int phiClusterSize) const {
 
   int ieta=0;
   int neta = m_etaref.size();
-  if(neta == 0) {
-    Initialize();
-    neta = m_etaref.size();
-  }
   for(int i=0; i<neta; i++){  
     if(eta>m_etaref[i]) ieta=i;  
   } 
@@ -232,7 +224,7 @@ int PixelClusterOnTrackErrorData::getBarrelBinEta(double eta, int etaClusterSize
 }
 
 int PixelClusterOnTrackErrorData::getIBLBinPhi(double angle,
-						    int phiClusterSize){
+						    int phiClusterSize) const {
     if(m_version>-2) return -1;
     int iang =0;
     int nang = m_iblphibins.size();
@@ -246,7 +238,7 @@ int PixelClusterOnTrackErrorData::getIBLBinPhi(double angle,
     return m_csxbinsibl*iang+iphi;
 }
 
-int PixelClusterOnTrackErrorData::getIBLBinEta(double eta, int etaClusterSize){
+int PixelClusterOnTrackErrorData::getIBLBinEta(double eta, int etaClusterSize) const {
 
     if(m_version>-2) return -1;
     int ieta=0;
