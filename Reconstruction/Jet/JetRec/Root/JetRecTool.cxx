@@ -22,7 +22,9 @@
 
 #include "StoreGate/ReadHandle.h"
 
-#include "AthenaMonitoringKernel/Monitored.h"
+#ifndef GENERATIONBASE
+  #include "AthenaMonitoringKernel/Monitored.h"
+#endif
 
 typedef ToolHandleArray<IJetModifier> ModifierArray;
 typedef ToolHandleArray<IJetConsumer> ConsumerArray;
@@ -407,6 +409,8 @@ const JetContainer* JetRecTool::build() const {
     m_conclock.Stop();
   }
 
+
+#ifndef GENERATIONBASE
   // monitor jet multiplicity and basic jet kinematics
   auto njets = Monitored::Scalar<int>("nJets");
   auto pt    = Monitored::Collection("pt",  *jetsHandle, [c=m_mevtogev]( const xAOD::Jet* jet ) { return jet->pt()*c; });
@@ -415,6 +419,7 @@ const JetContainer* JetRecTool::build() const {
   auto phi   = Monitored::Collection("phi", *jetsHandle, []( const xAOD::Jet* jet ) { return jet->phi(); });
   auto mon   = Monitored::Group(m_monTool,njets,pt,et,eta,phi);
   njets      = jetsHandle->size();
+#endif
 
   m_totclock.Stop();
 
