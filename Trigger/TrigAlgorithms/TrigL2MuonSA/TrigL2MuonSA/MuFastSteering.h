@@ -35,7 +35,6 @@
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
-//using namespace TrigL2MuonSA;
 
 class IRegSelSvc;
 class Incident;
@@ -226,7 +225,6 @@ class MuFastSteering : public HLT::FexAlgo,
   Gaudi::Property< float > m_dPhisurrRoI { this, "dPhisurrRoI", 99, "phi range to find surrounding L1 RoIs" };
   Gaudi::Property< float > m_dEtasurrRoI { this, "dEtasurrRoI", 99, "eta range to find surrounding L1 RoIs" };
 
-  //ECRegions whichECRegion(const float eta, const float phi) const;
   float getRoiSizeForID(bool isEta, const xAOD::L2StandAloneMuon* muonSA);
 
   Gaudi::Property< bool > m_allowOksConfig { this, "AllowOksConfig", true, ""};
