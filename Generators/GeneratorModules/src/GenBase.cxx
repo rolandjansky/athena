@@ -52,6 +52,12 @@ McEventCollection* GenBase::events() {
 
 /// @todo Add HepMC units awareness and do it differently when HepMC provides
 ///       this functionality directly (and reference-based FourVector accessors)
+#ifdef HEPMC3
+void GenBase::GeVToMeV(HepMC::GenEvent* evt) { for (auto p: evt->particles()) { p->set_momentum(p->momentum()*1000); p->set_generated_mass(1000* p->generated_mass());}}
+void GenBase::MeVToGeV(HepMC::GenEvent* evt) { for (auto p: evt->particles()) { p->set_momentum(p->momentum()*1.0/1000); p->set_generated_mass(1.0/1000* p->generated_mass());} }
+void GenBase::cmTomm(HepMC::GenEvent* evt)   { for (auto v: evt->vertices())     v->set_position(v->position()*10);}
+void GenBase::mmTocm(HepMC::GenEvent* evt)   { for (auto v: evt->vertices())     v->set_position(v->position()*1.0/10);}
+#else
 void GenBase::GeVToMeV(HepMC::GenEvent* evt) {
   for (HepMC::GenEvent::particle_iterator p = evt->particles_begin(); p != evt->particles_end(); ++p) {
     const HepMC::FourVector fv((*p)->momentum().px() * 1000,
@@ -90,3 +96,4 @@ void GenBase::mmTocm(HepMC::GenEvent* evt) {
     (*vtx)->set_position(fv);
   }
 }
+#endif
