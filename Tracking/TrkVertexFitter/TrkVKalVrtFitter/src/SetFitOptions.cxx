@@ -40,7 +40,7 @@ namespace Trk{
     // Add global mass constraint if present
     if(state.m_massForConstraint >= 0.) state.m_vkalFitControl.setMassCnstData(NTRK,state.m_massForConstraint);
     // Add partial mass constraints if present
-    if(state.m_partMassCnst.size() > 0) {
+    if(!state.m_partMassCnst.empty()) {
       for(int ic=0; ic<(int)state.m_partMassCnst.size(); ic++){
         state.m_vkalFitControl.setMassCnstData(NTRK, state.m_partMassCnstTrk[ic],state.m_partMassCnst[ic]);
       }
@@ -59,8 +59,7 @@ namespace Trk{
 
     if(m_IterationPrecision>0.) state.m_vkalFitControl.setIterationPrec(m_IterationPrecision);
     if(m_IterationNumber)  state.m_vkalFitControl.setIterationNum(m_IterationNumber);
-    return;
-  }
+ }
 
 /* 
   void TrkVKalVrtFitter::initCnstList()

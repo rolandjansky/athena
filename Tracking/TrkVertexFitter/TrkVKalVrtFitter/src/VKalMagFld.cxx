@@ -41,7 +41,7 @@ namespace Trk{
      m_magFrameZ(0.)
      {}
 
-  VKalAtlasMagFld::~VKalAtlasMagFld(){}
+  VKalAtlasMagFld::~VKalAtlasMagFld()= default;
 //
 //  Setting of parameters
 //

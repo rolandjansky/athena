@@ -80,7 +80,7 @@ namespace InDet {
   }
 
   // ----------------------------------
-  VertexPointEstimator::~VertexPointEstimator() {}
+  VertexPointEstimator::~VertexPointEstimator() = default;
 
   // ----------------------------------
   const InterfaceID& VertexPointEstimator::interfaceID() {

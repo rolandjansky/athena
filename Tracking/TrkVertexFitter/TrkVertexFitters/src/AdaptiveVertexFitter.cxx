@@ -64,7 +64,7 @@ namespace Trk
     declareInterface<IVertexFitter>(this);
   }
 
-  AdaptiveVertexFitter::~AdaptiveVertexFitter() {}
+  AdaptiveVertexFitter::~AdaptiveVertexFitter() = default;
 
   StatusCode AdaptiveVertexFitter::initialize()
   {
@@ -77,37 +77,37 @@ namespace Trk
     if ( m_SeedFinder.retrieve().isFailure() ) {
       msg(MSG::FATAL) << "Failed to retrieve tool " << m_SeedFinder << endmsg;
       return StatusCode::FAILURE;
-    } else {
+    } 
       msg(MSG::INFO) << "Retrieved tool " << m_SeedFinder << endmsg;
-    }
+    
 
     if ( m_LinearizedTrackFactory.retrieve().isFailure() ) {
       msg(MSG::FATAL) << "Failed to retrieve tool " << m_LinearizedTrackFactory << endmsg;
       return StatusCode::FAILURE;
-    } else {
+    } 
       msg(MSG::INFO) << "Retrieved tool " << m_LinearizedTrackFactory << endmsg;
-    }
+    
 
     if ( m_TrackCompatibilityEstimator.retrieve().isFailure() ) {
       msg(MSG::FATAL) << "Failed to retrieve tool " << m_TrackCompatibilityEstimator << endmsg;
       return StatusCode::FAILURE;
-    } else {
+    } 
       msg(MSG::INFO) << "Retrieved tool " << m_TrackCompatibilityEstimator << endmsg;
-    }
+    
     
     if ( m_ImpactPoint3dEstimator.retrieve().isFailure() ) {
       msg(MSG::FATAL) << "Failed to retrieve tool " << m_ImpactPoint3dEstimator << endmsg;
       return StatusCode::FAILURE;
-    } else {
+    } 
       msg(MSG::INFO) << "Retrieved tool " << m_ImpactPoint3dEstimator << endmsg;
-    }
+    
     
     if ( m_VertexUpdator.retrieve().isFailure() ) {
       msg(MSG::FATAL) << "Failed to retrieve tool " << m_VertexUpdator << endmsg;
       return StatusCode::FAILURE;
-    } else {
+    } 
       msg(MSG::INFO) << "Retrieved tool " << m_VertexUpdator << endmsg;
-    }
+    
     
    //loading smoother in case required   
    if(m_doSmoothing)
@@ -115,17 +115,17 @@ namespace Trk
     if ( m_VertexSmoother.retrieve().isFailure() ) {
       msg(MSG::FATAL) << "Failed to retrieve tool " << m_VertexSmoother << endmsg;
       return StatusCode::FAILURE;
-    } else {
+    } 
       msg(MSG::INFO) << "Retrieved tool " << m_VertexSmoother << endmsg;
-    }
+    
    }//end of smoothing options
    
   if ( m_AnnealingMaker.retrieve().isFailure() ) {
     msg(MSG::FATAL) << "Failed to retrieve tool " << m_AnnealingMaker << endmsg;
     return StatusCode::FAILURE;
-  } else {
+  } 
     msg(MSG::INFO) << "Retrieved tool " << m_AnnealingMaker << endmsg;
-  }
+  
   
     msg(MSG::INFO)  << "Initialize successful" << endmsg;
     return StatusCode::SUCCESS;
@@ -148,13 +148,13 @@ namespace Trk
   {
 
     //check the number of tracks
-    if ( (perigeeList.size() + neutralPerigeeList.size())<2 && IsConstraint==false ) {
+    if ( (perigeeList.size() + neutralPerigeeList.size())<2 && !IsConstraint ) {
       msg(MSG::WARNING) << "Not enough tracks (>2) to fit in this event (without constraint)." << endmsg;
-      return 0;
+      return nullptr;
     }
-    if ((perigeeList.size() + neutralPerigeeList.size())<1 && IsConstraint==true) {
+    if ((perigeeList.size() + neutralPerigeeList.size())<1 && IsConstraint) {
       msg(MSG::WARNING) << "Not enough tracks (>1) to fit in this event (with constraint)." << endmsg;
-      return 0;
+      return nullptr;
     }
 
 
@@ -206,7 +206,7 @@ namespace Trk
 
       ATH_MSG_DEBUG("Track #" << myDebugNTrk++ << ". TrackParameters: x = "  << (*perigeesIter)->position().x() << ", y = "<< (*perigeesIter)->position().y() <<", z = "<< (*perigeesIter)->position().z() << ". Covariance: " << *(*perigeesIter)->covariance());
      
-      VxTrackAtVertex* LinTrackToAdd = new VxTrackAtVertex(0., 0, NULL, (*perigeesIter), NULL); //TODO: Must think now about when to delete this memory! -David S.
+      VxTrackAtVertex* LinTrackToAdd = new VxTrackAtVertex(0., nullptr, nullptr, (*perigeesIter), nullptr); //TODO: Must think now about when to delete this memory! -David S.
       
       //m_LinearizedTrackFactory->linearize(*LinTrackToAdd,SeedPoint); why linearize it? maybe you don't need it at all!!!!! <19-05-2006>
       bool success=m_ImpactPoint3dEstimator->addIP3dAtaPlane(*LinTrackToAdd,SeedPoint);
@@ -233,7 +233,7 @@ namespace Trk
       ATH_MSG_DEBUG("     Covariance: " << *(*neutralPerigeesIter)->covariance());
       ATH_MSG_DEBUG("     Momentum: x = "  << (*neutralPerigeesIter)->momentum().x() << ", y = "<< (*neutralPerigeesIter)->momentum().y() <<", z = "<< (*neutralPerigeesIter)->momentum().z());
 
-      VxTrackAtVertex* LinTrackToAdd = new VxTrackAtVertex(0., 0, NULL, NULL, (*neutralPerigeesIter) ); //TODO: Must think now about when to delete this memory! -David S.
+      VxTrackAtVertex* LinTrackToAdd = new VxTrackAtVertex(0., nullptr, nullptr, nullptr, (*neutralPerigeesIter) ); //TODO: Must think now about when to delete this memory! -David S.
      
       bool success = m_ImpactPoint3dEstimator->addIP3dAtaPlane(*LinTrackToAdd,SeedPoint);
       if (!success)
@@ -303,7 +303,7 @@ namespace Trk
 
     xAOD::Vertex * FittedVertex = _fit(perigeeList,constraint,startingPoint,IsConstraint,IsStartingPoint);
 
-    if (FittedVertex==0) {
+    if (FittedVertex==nullptr) {
       return FittedVertex;
     }
 
@@ -361,7 +361,7 @@ namespace Trk
 
     xAOD::Vertex * FittedVertex = _fit(perigeeList,constraint,startingPoint,IsConstraint,IsStartingPoint);
 
-    if (FittedVertex==0) {
+    if (FittedVertex==nullptr) {
       return FittedVertex;
     }
 
@@ -519,7 +519,7 @@ namespace Trk
           if ( iter->weight() > 1e-3 ) {
             //now take care if linearization has been done at least once 
             //or if vertex has changed so much so that you need relinearization!
-            if ( iter->linState() == 0) {
+            if ( iter->linState() == nullptr) {
               //linearization has not been done so far: do it now!
               if(msgLvl(MSG::VERBOSE))
               {
@@ -528,7 +528,7 @@ namespace Trk
 
               m_LinearizedTrackFactory->linearize( *iter, ActualVertex->position() );
               ATH_MSG_DEBUG( "Linearized track to Seed Point. " << *iter );
-            } else if (relinearization==true) {
+            } else if (relinearization) {
               //do it again in case of updated vertex too far from previous one 
               if(msgLvl(MSG::VERBOSE))
               {
@@ -699,12 +699,12 @@ namespace Trk
     const Amg::Vector3D& startingPoint) const
   {
 
-    if (vectorTrk.size() == 0) {
+    if (vectorTrk.empty()) {
       msg(MSG::INFO) << "Empty vector of tracks passed" << endmsg;
-      return 0;
+      return nullptr;
     }
 
-    if (vectorNeut.size() == 0) {
+    if (vectorNeut.empty()) {
       msg(MSG::VERBOSE) << "Empty vector of neutrals passed" << endmsg;
     }
 
@@ -717,7 +717,7 @@ namespace Trk
          ++i) {
       const Trk::TrackParameters* tmpMeasPer = &((*i)->perigeeParameters());
 
-      if (tmpMeasPer != 0)
+      if (tmpMeasPer != nullptr)
         measuredPerigees.push_back(tmpMeasPer);
       else
         msg(MSG::INFO)
@@ -735,7 +735,7 @@ namespace Trk
          ++i) {
       const Trk::NeutralParameters* tmpMeasPer = &((*i)->perigeeParameters());
 
-      if (tmpMeasPer != 0)
+      if (tmpMeasPer != nullptr)
         measuredNeutralPerigees.push_back(tmpMeasPer);
       else
         msg(MSG::INFO)
@@ -752,7 +752,7 @@ namespace Trk
                                       true);
 
     // assigning the input tracks to the fitted vertex through VxTrackAtVertices
-    if (fittedVertex == 0) {
+    if (fittedVertex == nullptr) {
       return fittedVertex;
     }
 
@@ -761,7 +761,7 @@ namespace Trk
                                         // vxTrackAtVertexAvailable() does the
                                         // same thing as a null pointer check!
     {
-      if (fittedVertex->vxTrackAtVertex().size() != 0) {
+      if (!fittedVertex->vxTrackAtVertex().empty()) {
         for (unsigned int i = 0; i < vectorTrk.size(); ++i) {
 
           LinkToXAODTrackParticle* linkTT = new LinkToXAODTrackParticle();
@@ -855,13 +855,13 @@ namespace Trk
    const xAOD::Vertex& constraint) const
  {
 
-   if(vectorTrk.size() == 0)
+   if(vectorTrk.empty())
    {
      msg(MSG::INFO)<<"Empty vector of tracks passed"<<endmsg;
-     return 0;
+     return nullptr;
    }
 
-   if(vectorNeut.size() == 0)
+   if(vectorNeut.empty())
    {
      msg(MSG::INFO)<<"Empty vector of neutrals passed"<<endmsg;
    }
@@ -873,7 +873,7 @@ namespace Trk
    {
      const Trk::TrackParameters * tmpMeasPer = &((*i)->perigeeParameters());
   
-     if(tmpMeasPer!=0) measuredPerigees.push_back(tmpMeasPer);
+     if(tmpMeasPer!=nullptr) measuredPerigees.push_back(tmpMeasPer);
      else  msg(MSG::INFO)<<"Failed to dynamic_cast this track parameters to perigee"<<endmsg; //TODO: Failed to implicit cast the perigee parameters to track parameters?
    }
 
@@ -884,7 +884,7 @@ namespace Trk
    {
      const Trk::NeutralParameters * tmpMeasPer = &((*i)->perigeeParameters());
   
-     if(tmpMeasPer!=0) measuredNeutralPerigees.push_back(tmpMeasPer);
+     if(tmpMeasPer!=nullptr) measuredNeutralPerigees.push_back(tmpMeasPer);
      else  msg(MSG::INFO)<<"Failed to dynamic_cast this neutral parameters to perigee"<<endmsg; //TODO: Failed to implicit cast the perigee parameters to neutral parameters?
    }
    
@@ -893,11 +893,11 @@ namespace Trk
 
 
    //assigning the input tracks to the fitted vertex through VxTrackAtVertices
-   if(fittedVertex !=0)
+   if(fittedVertex !=nullptr)
    {
      if( fittedVertex->vxTrackAtVertexAvailable() ) // TODO: I don't think vxTrackAtVertexAvailable() does the same thing as a null pointer check
      {
-       if(fittedVertex->vxTrackAtVertex().size() !=0)
+       if(!fittedVertex->vxTrackAtVertex().empty())
        {
          for(unsigned int i = 0; i <vectorTrk.size(); ++i)
          {

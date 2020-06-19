@@ -53,7 +53,7 @@ namespace Trk{
     Amg::Vector3D perGlobalVrt,perGlobalPos;
     state.m_trkControl.clear();
     for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) {
-       mPer = (*i_ntrk)->perigeeParameters(); if( mPer == 0 ){ continue; } 
+       mPer = (*i_ntrk)->perigeeParameters(); if( mPer == nullptr ){ continue; } 
        perGlobalPos =  mPer->position(); //Global position of perigee point
        if(fabs(perGlobalPos.z())   > m_IDsizeZ)return StatusCode::FAILURE;   // Crazy user protection
        if(     perGlobalPos.perp() > m_IDsizeR)return StatusCode::FAILURE;
@@ -90,7 +90,7 @@ namespace Trk{
 //
     for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) {
        long int TrkID=ntrk;
-       mPer = (*i_ntrk)->perigeeParameters(); if( mPer == 0 ){ continue; } 
+       mPer = (*i_ntrk)->perigeeParameters(); if( mPer == nullptr ){ continue; } 
        VectPerig = mPer->parameters(); 
        perGlobalPos =  mPer->position();    //Global position of perigee point
        //VK//perGlobalVrt =  mPer->vertex();      //Global position of reference point
@@ -148,7 +148,7 @@ namespace Trk{
     DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces 
 	= new DataVector<const Trk::TrackStateOnSurface>;
     const Trk::TrackStateOnSurface* trackSOS =
-	    new Trk::TrackStateOnSurface(0, perigee, 0,  0);
+	    new Trk::TrackStateOnSurface(nullptr, perigee, nullptr,  nullptr);
 	trackStateOnSurfaces->push_back(trackSOS);
 	
 //    Trk::Track::TrackAuthor author = Trk::Track::unknown;

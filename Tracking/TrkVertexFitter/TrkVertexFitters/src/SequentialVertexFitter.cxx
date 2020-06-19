@@ -90,7 +90,7 @@ namespace Trk{
  }
 
 //destructor
- SequentialVertexFitter::~SequentialVertexFitter(){}
+ SequentialVertexFitter::~SequentialVertexFitter()= default;
  
    
   //conversion from the perigeeList and starting point   
@@ -109,11 +109,11 @@ namespace Trk{
     xAOD::Vertex * FittedVertex  = fit(perigeeList, neutralPerigeeList, constraint);
    
     //setting the initial perigees  
-    if(FittedVertex !=0 )
+    if(FittedVertex !=nullptr )
     {
       if(FittedVertex->vxTrackAtVertexAvailable())
       {
-        if(FittedVertex->vxTrackAtVertex().size() !=0)
+        if(!FittedVertex->vxTrackAtVertex().empty())
         {
           for(unsigned int i = 0; i <perigeeList.size(); ++i)
           {
@@ -156,13 +156,13 @@ namespace Trk{
     if(perigeeList.empty())
     {
       ATH_MSG_INFO( "Empty vector of tracks passed, returning 0" );
-      return 0;
+      return nullptr;
     }
 
     //identifying the input parameters of the fit
     //and making initial xAOD::Vertex to be updated with tracks
-    Amg::Vector3D priorVertexPosition = constraint.position();
-    AmgSymMatrix(3) initialVertexError = constraint.covariancePosition();
+    const Amg::Vector3D& priorVertexPosition = constraint.position();
+    const AmgSymMatrix(3)& initialVertexError = constraint.covariancePosition();
     AmgSymMatrix(3) priorErrorMatrix;
 
     double in_chi = 0.;
@@ -287,8 +287,8 @@ namespace Trk{
                      " error z " << sqrt(returnVertex->covariancePosition()[2][2])  << std::endl;
       */
     } while ( (n_iter != m_maxStep) &&
-              ( ( (previousPosition - newPosition).perp() > m_maxShift && m_useLooseConvergence == true )
-                || ( m_useLooseConvergence == false && fabs((newChi2-previousChi2)*2./(newChi2+previousChi2+2.)) > m_maxDeltaChi2 ) ) );
+              ( ( (previousPosition - newPosition).perp() > m_maxShift && m_useLooseConvergence )
+                || ( !m_useLooseConvergence && fabs((newChi2-previousChi2)*2./(newChi2+previousChi2+2.)) > m_maxDeltaChi2 ) ) );
 
     if (n_iter==m_maxStep) 
     {    
@@ -325,11 +325,11 @@ namespace Trk{
     {
       ATH_MSG_DEBUG( " Fit failed. " );
       returnVertex.reset();
-      return 0;
+      return nullptr;
     }
 
     //smoothing and related
-    if(returnVertex !=0)
+    if(returnVertex !=nullptr)
     {
       if(m_doSmoothing)m_Smoother->smooth(*returnVertex);
       //std::cout << " after smoothing: " << *returnVertex << std::endl; //TODO: operator << not defined for xAOD::Vertex
@@ -377,12 +377,12 @@ namespace Trk{
       //creating new meas perigees, since the will be deleted 
       //by VxTrackAtVertex in destructor
       const Trk::Perigee * loc_per = dynamic_cast<const Trk::Perigee *>(*i);
-      if( loc_per != 0)
+      if( loc_per != nullptr)
       {
         Trk::Perigee * mPer = new Trk::Perigee(*loc_per);
         const Trk::Perigee * inPer = loc_per;
         //new MeasuredPerigee(*loc_per);
-        Trk::VxTrackAtVertex * vTrack = new Trk::VxTrackAtVertex(0., mPer, NULL, inPer, NULL);
+        Trk::VxTrackAtVertex * vTrack = new Trk::VxTrackAtVertex(0., mPer, nullptr, inPer, nullptr);
 
         //linearization itself
         m_LinTrkFactory->linearize( *vTrack, vrt.position() );
@@ -404,11 +404,11 @@ namespace Trk{
       //creating new meas perigees, since the will be deleted
       //by VxTrackAtVertex in destructor
       const Trk::NeutralPerigee * loc_per = dynamic_cast<const Trk::NeutralPerigee *>(*i);
-      if( loc_per != 0)
+      if( loc_per != nullptr)
       {
         Trk::NeutralPerigee * mPer  = new Trk::NeutralPerigee(*loc_per);
         const Trk::NeutralPerigee * inPer = loc_per;
-        Trk::VxTrackAtVertex * vTrack = new Trk::VxTrackAtVertex(0., NULL, mPer, NULL, inPer);
+        Trk::VxTrackAtVertex * vTrack = new Trk::VxTrackAtVertex(0., nullptr, mPer, nullptr, inPer);
 
         //linearization itself
         m_LinTrkFactory->linearize( *vTrack, vrt.position() );
@@ -467,7 +467,7 @@ namespace Trk{
    if(vectorTrk.empty())
    {
      ATH_MSG_INFO( "Empty vector of tracks passed" );
-     return 0;
+     return nullptr;
    }
 
    if(vectorNeut.empty())
@@ -497,7 +497,7 @@ namespace Trk{
 
      const Trk::TrackParameters * tmpMeasPer = &((*i)->perigeeParameters());
   
-     if(tmpMeasPer!=0) {
+     if(tmpMeasPer!=nullptr) {
        trkToFit.push_back(*i);
        measuredPerigees.push_back(tmpMeasPer);
      } else {
@@ -523,7 +523,7 @@ namespace Trk{
 
      const Trk::NeutralParameters * tmpMeasPer = &((*i)->perigeeParameters());
   
-     if(tmpMeasPer!=0) {
+     if(tmpMeasPer!=nullptr) {
        neutToFit.push_back(*i);
        measuredNeutralPerigees.push_back(tmpMeasPer);
      } else {
@@ -536,14 +536,14 @@ namespace Trk{
 
 
    //assigning the input tracks to the fitted vertex through vxTrackAtVertices
-   if(fittedVertex ==0)
+   if(fittedVertex ==nullptr)
    {
      return fittedVertex;
    }
 
      if( fittedVertex->vxTrackAtVertexAvailable() ) // TODO: I don't think vxTrackAtVertexAvailable() does the same thing as a null pointer check!
      {
-       if(fittedVertex->vxTrackAtVertex().size() !=0)
+       if(!fittedVertex->vxTrackAtVertex().empty())
        {
          for(unsigned int i = 0; i <trkToFit.size(); ++i)
          {

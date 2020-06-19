@@ -32,8 +32,8 @@ namespace
 {
   struct V0FitterTrack
   {
-    V0FitterTrack() : originalPerigee(0), chi2(-1.) {}
-    virtual ~V0FitterTrack() {}
+    V0FitterTrack() : originalPerigee(nullptr), chi2(-1.) {}
+    virtual ~V0FitterTrack() = default;
     const Trk::TrackParameters * originalPerigee;
     double chi2;
     AmgVector(5) TrkPar;
@@ -62,16 +62,16 @@ namespace Trk
     declareInterface<IVertexFitter>(this);
   }
 
-  TrkV0VertexFitter::~TrkV0VertexFitter() {}
+  TrkV0VertexFitter::~TrkV0VertexFitter() = default;
 
   StatusCode TrkV0VertexFitter::initialize()
   {
     if ( m_extrapolator.retrieve().isFailure() ) {
       ATH_MSG_FATAL("Failed to retrieve tool " << m_extrapolator);
       return StatusCode::FAILURE;
-    } else {
+    } 
       ATH_MSG_INFO( "Retrieved tool " << m_extrapolator );
-    }
+    
 
     ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
 
@@ -92,7 +92,7 @@ namespace Trk
   {
     std::vector<double> masses;
     double constraintMass = -9999.;
-    xAOD::Vertex * pointingVertex = 0;
+    xAOD::Vertex * pointingVertex = nullptr;
     return fit(vectorTrk, masses, constraintMass, pointingVertex, firstStartingPoint);
   }
 
@@ -102,8 +102,8 @@ namespace Trk
   {
     std::vector<double> masses;
     double constraintMass = -9999.;
-    xAOD::Vertex * pointingVertex = 0;
-    const Amg::Vector3D startingPoint = firstStartingPoint.position();
+    xAOD::Vertex * pointingVertex = nullptr;
+    const Amg::Vector3D& startingPoint = firstStartingPoint.position();
     return fit(vectorTrk, masses, constraintMass, pointingVertex, startingPoint);
   }
 
@@ -138,15 +138,15 @@ namespace Trk
           Trk::CylinderSurface estimationCylinder(CylTrf, p->radiusOfFirstHit(), 10e10);
           const Trk::TrackParameters* chargeParameters = &p->perigeeParameters();
           MaterialUpdateMode mode = Trk::removeNoise;
-          const Trk::TrackParameters* extrapolatedPerigee(0);
+          const Trk::TrackParameters* extrapolatedPerigee(nullptr);
           extrapolatedPerigee = m_extrapolator->extrapolate(*chargeParameters, estimationCylinder, Trk::alongMomentum, true, Trk::pion, mode);
-          if (extrapolatedPerigee!=0) {
+          if (extrapolatedPerigee!=nullptr) {
             msg(MSG::DEBUG) << "extrapolated to first measurement" << endmsg;
             measuredPerigees.push_back (extrapolatedPerigee);
             measuredPerigees_delete.push_back (extrapolatedPerigee);
           } else {
             extrapolatedPerigee = m_extrapolator->extrapolateDirectly(*chargeParameters, estimationCylinder, Trk::alongMomentum, true, Trk::pion);
-            if (extrapolatedPerigee!=0) {
+            if (extrapolatedPerigee!=nullptr) {
               msg(MSG::DEBUG) << "extrapolated (direct) to first measurement" << endmsg;
               measuredPerigees.push_back (extrapolatedPerigee);
               measuredPerigees_delete.push_back (extrapolatedPerigee);
@@ -186,7 +186,7 @@ namespace Trk
   {
     std::vector<double> masses;
     double constraintMass = -9999.;
-    xAOD::Vertex * pointingVertex = 0;
+    xAOD::Vertex * pointingVertex = nullptr;
     return fit(originalPerigees, masses, constraintMass, pointingVertex, firstStartingPoint);
   }
 
@@ -196,8 +196,8 @@ namespace Trk
   {
     std::vector<double> masses;
     double constraintMass = -9999.;
-    xAOD::Vertex * pointingVertex = 0;
-    const Amg::Vector3D startingPoint = firstStartingPoint.position();
+    xAOD::Vertex * pointingVertex = nullptr;
+    const Amg::Vector3D& startingPoint = firstStartingPoint.position();
     return fit(originalPerigees, masses, constraintMass, pointingVertex, startingPoint);
   }
 
@@ -219,7 +219,7 @@ namespace Trk
     if ( originalPerigees.empty() )
     {
       ATH_MSG_DEBUG("No tracks to fit in this event.");
-      return 0;
+      return nullptr;
     }
  
     // Initialisation of variables
@@ -230,7 +230,7 @@ namespace Trk
     if(constraintMass == 0. && originalPerigees.size() == 2) conversion = true;
     double x_point=0., y_point=0., z_point=0.;
     AmgSymMatrix(3) pointingVertexCov; pointingVertexCov.setIdentity();
-    if (pointingVertex != 0) {
+    if (pointingVertex != nullptr) {
       if (pointingVertex->covariancePosition().trace() != 0.) {
         pointingConstraint = true;
         Amg::Vector3D pv = pointingVertex->position();
@@ -244,7 +244,7 @@ namespace Trk
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << "massConstraint " << massConstraint << " pointingConstraint " << pointingConstraint << " conversion " << conversion << endmsg;
       msg(MSG::DEBUG) << "V0Fitter called with: " << endmsg;
-      if (massConstraint && masses.size() != 0) msg(MSG::DEBUG) << "mass constraint, V0Mass = " << constraintMass << " particle masses " << masses << endmsg;
+      if (massConstraint && !masses.empty()) msg(MSG::DEBUG) << "mass constraint, V0Mass = " << constraintMass << " particle masses " << masses << endmsg;
       if (pointingConstraint) msg(MSG::DEBUG) << "pointing constraint, x = " << x_point << " y = " << y_point << " z = " << z_point << endmsg;
     }
 
@@ -309,7 +309,7 @@ namespace Trk
 
     const Amg::Vector3D * globalPosition = &(firstStartingPoint);
     ATH_MSG_DEBUG("globalPosition of starting point: " << (*globalPosition)[0] << ", " << (*globalPosition)[1] << ", " << (*globalPosition)[2]);
-    if (globalPosition->perp() > m_maxR && globalPosition->z() > m_maxZ) return 0;
+    if (globalPosition->perp() > m_maxR && globalPosition->z() > m_maxZ) return nullptr;
 
     SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, Gaudi::Hive::currentContext()};
     if (!readHandle.isValid()) {
@@ -341,9 +341,9 @@ namespace Trk
     std::vector<const Trk::TrackParameters*>::const_iterator iter(originalPerigees.begin());
     for (; iter != originalPerigees.end() ; ++iter)
     {
-      const Trk::TrackParameters* chargeParameters(0);
+      const Trk::TrackParameters* chargeParameters(nullptr);
       chargeParameters = dynamic_cast<const Trk::TrackParameters*> (*iter);
-      if (chargeParameters != 0)
+      if (chargeParameters != nullptr)
       {
         // Correct material changes
         const Amg::Vector3D gMomentum  = chargeParameters->momentum();
@@ -351,14 +351,14 @@ namespace Trk
         const double extrapolationDirection = gMomentum.dot( gDirection );
         MaterialUpdateMode mode = Trk::removeNoise;
         if(extrapolationDirection > 0) mode = Trk::addNoise;
-        const Trk::Perigee* extrapolatedPerigee(0);
+        const Trk::Perigee* extrapolatedPerigee(nullptr);
         extrapolatedPerigee = dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolate(*chargeParameters, perigeeSurface, Trk::anyDirection, true, Trk::pion, mode));
-        if (extrapolatedPerigee==0)
+        if (extrapolatedPerigee==nullptr)
         {
           ATH_MSG_DEBUG("Perigee was not extrapolated! Taking original one!");
           const Trk::Perigee* tmpPerigee = dynamic_cast<const Trk::Perigee*>(chargeParameters);
-          if (tmpPerigee!=0) extrapolatedPerigee = new Trk::Perigee(*tmpPerigee);
-          else return 0;
+          if (tmpPerigee!=nullptr) extrapolatedPerigee = new Trk::Perigee(*tmpPerigee);
+          else return nullptr;
         }
 
         // store track parameters at starting point
@@ -374,7 +374,7 @@ namespace Trk
         delete extrapolatedPerigee;
       } else {
         ATH_MSG_DEBUG("Track parameters are not charged tracks ... fit aborted");
-        return 0;
+        return nullptr;
       }
     }
 
@@ -421,7 +421,7 @@ namespace Trk
       // check theta and phi ranges
       for (unsigned int i=0; i<nTrk; ++i) 
       {
-        if ( fabs ( Y_vec(2+5*i) ) > 100. || fabs ( Y_vec(3+5*i) ) > 100. ) { return 0; }
+        if ( fabs ( Y_vec(2+5*i) ) > 100. || fabs ( Y_vec(3+5*i) ) > 100. ) { return nullptr; }
         while ( fabs ( Y_vec(2+5*i) ) > M_PI ) Y_vec(2+5*i) += ( Y_vec(2+5*i) > 0 ) ? -2*M_PI : 2*M_PI;
         while ( Y_vec(3+5*i) > 2*M_PI ) Y_vec(3+5*i) -= 2*M_PI;
         while ( Y_vec(3+5*i) < -M_PI ) Y_vec(3+5*i) += M_PI;
@@ -450,13 +450,13 @@ namespace Trk
         rho[i] = sin(Y_vec(3+5*i))/(B_z*Y_vec(4+5*i));
         xcphiplusysphi[i]  = A_vec(0)*cos(Y_vec(2+5*i))+A_vec(1)*sin(Y_vec(2+5*i));
         xsphiminusycphi[i] = A_vec(0)*sin(Y_vec(2+5*i))-A_vec(1)*cos(Y_vec(2+5*i));
-        if(fabs(-xcphiplusysphi[i]/rho[i]) > 1.) return 0;
+        if(fabs(-xcphiplusysphi[i]/rho[i]) > 1.) return nullptr;
         d0Cor[i] = 0.5*asin(-xcphiplusysphi[i]/rho[i]);
         double d0Facsq = 1. - xcphiplusysphi[i]*xcphiplusysphi[i]/(rho[i]*rho[i]);
         d0Fac[i] = (d0Facsq>0.) ? sqrt(d0Facsq) : 0;
         Phi[i] = Y_vec(2+5*i) + 2.*d0Cor[i];
 
-        if(massConstraint && masses.size() != 0 && masses[i] != 0.){
+        if(massConstraint && !masses.empty() && masses[i] != 0.){
           SigE  += sqrt(1./(Y_vec(4+5*i)*Y_vec(4+5*i)) + masses[i]*masses[i]);
           SigPx += sin(Y_vec(3+5*i))*cos(Y_vec(2+5*i))*charge[i]/Y_vec(4+5*i);
           SigPy += sin(Y_vec(3+5*i))*sin(Y_vec(2+5*i))*charge[i]/Y_vec(4+5*i);
@@ -549,7 +549,7 @@ namespace Trk
         dPhidxs[i]     = -cos(Y_vec(2+5*i))/(d0Fac[i]*rho[i]);
         dPhidys[i]     = -sin(Y_vec(2+5*i))/(d0Fac[i]*rho[i]);
 
-        if (massConstraint && masses.size() != 0 && masses[i] != 0.){
+        if (massConstraint && !masses.empty() && masses[i] != 0.){
           if (conversion) {
             dFMassdphi[i]    = conv_sign[i]*dPhidphi0[i];
             dFMassdtheta[i]  = conv_sign[i]*dPhidtheta[i];
@@ -614,7 +614,7 @@ namespace Trk
       {
         sumConstr += F_fac_vec[i]*fabs(F_vec[i]);
       }
-      if ( std::isnan(sumConstr) ) { return 0; }
+      if ( std::isnan(sumConstr) ) { return nullptr; }
       if (sumConstr < 0.001) { onConstr = true; }
       ATH_MSG_DEBUG("sumConstr " << sumConstr);
 
@@ -744,7 +744,7 @@ namespace Trk
       }
 
       const Amg::Vector3D * globalPositionItr = &frameOriginItr;
-      if (globalPositionItr->perp() > m_maxR && globalPositionItr->z() > m_maxZ) return 0;
+      if (globalPositionItr->perp() > m_maxR && globalPositionItr->z() > m_maxZ) return nullptr;
 
       if (onConstr && fabs(chi2Old-chi2New) < 0.1) { break; }
 
@@ -776,9 +776,9 @@ namespace Trk
         std::vector<const Trk::TrackParameters*>::const_iterator iter(originalPerigees.begin());
         for (; iter != originalPerigees.end() ; ++iter)
         {
-          const Trk::TrackParameters* chargeParameters(0);
+          const Trk::TrackParameters* chargeParameters(nullptr);
           chargeParameters = dynamic_cast<const Trk::TrackParameters*> (*iter);
-          if (chargeParameters != 0)
+          if (chargeParameters != nullptr)
           {
             // Correct material changes
             const Amg::Vector3D gMomentum  = chargeParameters->momentum();
@@ -786,14 +786,14 @@ namespace Trk
             const double extrapolationDirection = gMomentum .dot( gDirection );
             MaterialUpdateMode mode = Trk::removeNoise;
             if(extrapolationDirection > 0) mode = Trk::addNoise;
-            const Trk::Perigee* extrapolatedPerigee(0);
+            const Trk::Perigee* extrapolatedPerigee(nullptr);
             extrapolatedPerigee = dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolate(*chargeParameters, perigeeSurfaceItr, Trk::anyDirection, true, Trk::pion, mode));
-            if (extrapolatedPerigee==0)
+            if (extrapolatedPerigee==nullptr)
             {
               ATH_MSG_DEBUG("Perigee was not extrapolated! Taking original one!");
               const Trk::Perigee* tmpPerigee = dynamic_cast<const Trk::Perigee*>(chargeParameters);
-              if (tmpPerigee!=0) extrapolatedPerigee = new Trk::Perigee(*tmpPerigee);
-              else return 0;
+              if (tmpPerigee!=nullptr) extrapolatedPerigee = new Trk::Perigee(*tmpPerigee);
+              else return nullptr;
             }
 
             // store track parameters at new starting point
@@ -809,7 +809,7 @@ namespace Trk
             delete extrapolatedPerigee;
           } else {
             ATH_MSG_DEBUG("Track parameters are not charged tracks ... fit aborted");
-            return 0;
+            return nullptr;
           }
         }
         frameOrigin = frameOriginItr;
@@ -832,14 +832,14 @@ namespace Trk
     frameOrigin[0] += DeltaA_vec(0);
     frameOrigin[1] += DeltaA_vec(1);
     frameOrigin[2] += DeltaA_vec(2);
-    if ( std::isnan(frameOrigin[0]) || std::isnan(frameOrigin[1]) || std::isnan(frameOrigin[2]) ) return 0;
+    if ( std::isnan(frameOrigin[0]) || std::isnan(frameOrigin[1]) || std::isnan(frameOrigin[2]) ) return nullptr;
 
     Y_vec = Y0_vec + DeltaY_vec;
 
     // check theta and phi ranges
     for (unsigned int i=0; i<nTrk; ++i) 
     {
-      if ( fabs ( Y_vec(2+5*i) ) > 100. || fabs ( Y_vec(3+5*i) ) > 100. ) { return 0; }
+      if ( fabs ( Y_vec(2+5*i) ) > 100. || fabs ( Y_vec(3+5*i) ) > 100. ) { return nullptr; }
       while ( fabs ( Y_vec(2+5*i) ) > M_PI ) Y_vec(2+5*i) += ( Y_vec(2+5*i) > 0 ) ? -2*M_PI : 2*M_PI;
       while ( Y_vec(3+5*i) > 2*M_PI ) Y_vec(3+5*i) -= 2*M_PI;
       while ( Y_vec(3+5*i) < -M_PI ) Y_vec(3+5*i) += M_PI;
@@ -895,7 +895,7 @@ namespace Trk
     std::vector<VxTrackAtVertex> & tracksAtVertex = vx->vxTrackAtVertex(); tracksAtVertex.clear();
     Amg::Vector3D Vertex(frameOrigin[0],frameOrigin[1],frameOrigin[2]);
     const Trk::PerigeeSurface Surface(Vertex);
-    Trk::Perigee * refittedPerigee(0);
+    Trk::Perigee * refittedPerigee(nullptr);
     unsigned int iterf=0;
     std::vector<V0FitterTrack>::iterator BTIterf;
     for (BTIterf = v0FitterTracks.begin(); BTIterf != v0FitterTracks.end() ; ++BTIterf)
