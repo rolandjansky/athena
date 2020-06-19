@@ -156,9 +156,9 @@ std::vector<int> PixelRingSupportXMLHelper::getNbShellSupportIndex(int layer)
   
   if(!m_bXMLfileExist) return shells;
 
-  int layerIndex = getChildValue_Index("PixelLayerSupport", "Layer", layer);
+  int layerIndex = getChildValue_Index("PixelLayerSupportShell", "Layer", layer);
   if ( layerIndex < 0 ) return shells;
-  std::string ringGeoName = getString("PixelLayerSupport", layerIndex, "LayerSupportGeo");
+  std::string ringGeoName = getString("PixelLayerSupport", layerIndex, "LayerSupportShell");
    
   // using the first name support to get the layer index
   std::stringstream ss(ringGeoName);

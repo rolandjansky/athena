@@ -584,82 +584,23 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
     }
 
     // Place the shell supports
-    std::vector<double> zShell; zShell.push_back(m_layerZMin);  zShell.push_back(m_layerZMax); 
     std::vector<double> rShell = ringHelper.getLayerShellRadius(m_layer);
     if (!rShell.size()) return ecPhys;    // no shell defined
-    double sTh =  ringHelper.getLayerShellThickness(m_layer);
-    if (sTh<=0 && rShell.size()>1) sTh=fabs(rShell[1]-rShell[0]);  
+    double sTh =  rShell.size()<2 ? ringHelper.getLayerShellThickness(m_layer) :  rShell[1]-rShell[0];  
     if (sTh<=0) ATH_MSG_WARNING("shell support wrongly defined for layer "<<m_layer<<", thickness ="<<sTh);
+    std::vector<double> zShell = ringHelper.getLayerShellZBounds(m_layer);
+    if (!zShell.size()) { zShell.push_back(m_layerZMin);  zShell.push_back(m_layerZMax); }
     std::string shellMatName = ringHelper.getLayerShellMaterial(m_layer);
- 
-    std::vector<double> z_corr = ringHelper.getCorrugatedShellZClearance(m_layer);
-    if (!z_corr.size()) { // simple shell
-      const GeoTube* supTube = new GeoTube(rShell[0]-0.5*sTh,rShell[0]+0.5*sTh,(zShell[1]-zShell[0])*.5);
-      const GeoMaterial* supMat = basics->matMgr()->getMaterial(shellMatName);
-      GeoLogVol* _supLog = new GeoLogVol("supLog",supTube,supMat);
-      GeoPhysVol* supPhys = new GeoPhysVol(_supLog);      
-      GeoTransform* xform = new GeoTransform( HepGeom::Translate3D(0., 0., (zShell[0]+zShell[1])*0.5-zMiddle));
-      ecPhys->add(xform);
-      ecPhys->add(supPhys);
+       
+    const GeoTube* supTube = new GeoTube(rShell[0]-0.5*sTh,rShell[0]+0.5*sTh,(zShell[1]-zShell[0])*.5);
+    const GeoMaterial* supMat = basics->matMgr()->getMaterialForVolume(shellMatName,supTube->volume());
+    GeoLogVol* _supLog = new GeoLogVol("supLog",supTube,supMat);
+    GeoPhysVol* supPhys = new GeoPhysVol(_supLog);      
+    GeoTransform* xform = new GeoTransform( HepGeom::Translate3D(0., 0., (zShell[0]+zShell[1])*0.5-zMiddle));
+    ecPhys->add(xform);
+    ecPhys->add(supPhys);
 
-      ATH_MSG_DEBUG("placing simple shell support for layer:"<<m_layer<<":"<<rShell[0]<<","<<rShell[1]<<":"<<zShell[0]<<":"<<zShell[1]<<":"<<shellMatName);       
-   } else {
-      double zLow = zShell[0];
-      const GeoMaterial* shellMat = basics->matMgr()->getMaterial(shellMatName);
-
-      ATH_MSG_DEBUG("placing corrugated shell support for layer:"<<m_layer<<":"<<rShell[0]<<","<<rShell[1]<<":"<<zShell[0]<<":"<<zShell[1]<<":"<<shellMat);
-
-      double d =  ringHelper.getCorrugatedShellDepth(m_layer);
-      for (unsigned int ir=0; ir<v_ringPosition.size(); ir++) {
-        double ringPos = v_ringPosition[ir];
-        if (ir>0) {
-	  const GeoTube* botTube=new GeoTube(rShell[0]-0.5*sTh+d,rShell[0]+0.5*sTh+d,(ringPos+z_corr[0]-zLow+sTh)*.5);
-	  std::ostringstream shellstrBot;
-	  shellstrBot << "shellBotLog_L"<<m_layer;
-	  GeoLogVol* _botLog = new GeoLogVol(shellstrBot.str(),botTube,shellMat);
-	  GeoPhysVol* botPhys = new GeoPhysVol(_botLog);      
-	  GeoTransform* xform = new GeoTransform( HepGeom::Translate3D(0., 0., (zLow+ringPos+z_corr[0])*0.5-zMiddle));
-	  ecPhys->add(xform);
-	  ecPhys->add(botPhys);
-	  zLow = ringPos+z_corr[0];
-	  const GeoTube* w2=new GeoTube(rShell[0]+0.5*sTh+d,rShell[0]-0.5*sTh,sTh*.5);
-	  std::ostringstream shellstrWall;
-	  shellstrWall << "shellWallLog_L"<<m_layer;
-	  GeoLogVol* _w2Log = new GeoLogVol(shellstrWall.str(),w2,shellMat);
-	  GeoPhysVol* w2Phys = new GeoPhysVol(_w2Log);      
-	  xform = new GeoTransform( HepGeom::Translate3D(0., 0., zLow-zMiddle));
-	  ecPhys->add(xform);
-	  ecPhys->add(w2Phys);
-	}
-	const GeoTube* supTube=new GeoTube(rShell[0]-0.5*sTh,rShell[0]+0.5*sTh,(ringPos+z_corr[1]-zLow+sTh)*.5);
-	std::ostringstream shellstrSup;
-	shellstrSup << "shellSupLog_L"<<m_layer;
-	GeoLogVol* _supLog = new GeoLogVol(shellstrSup.str(),supTube,shellMat);
-	GeoPhysVol* supPhys = new GeoPhysVol(_supLog);      
-	GeoTransform* xform = new GeoTransform( HepGeom::Translate3D(0., 0., (zLow+ringPos+z_corr[1])*0.5-zMiddle));
-	ecPhys->add(xform);
-	ecPhys->add(supPhys);
-        zLow = ringPos+z_corr[1];
-	const GeoTube* w1=new GeoTube(rShell[0]+0.5*sTh+d,rShell[0]-0.5*sTh,sTh*.5);
-	std::ostringstream shellstrW;
-	shellstrW << "shellWallLog_L"<<m_layer;
-	GeoLogVol* _w1Log = new GeoLogVol(shellstrW.str(),w1,shellMat);
-	GeoPhysVol* w1Phys = new GeoPhysVol(_w1Log);      
-	xform = new GeoTransform( HepGeom::Translate3D(0., 0., zLow-zMiddle));
-	ecPhys->add(xform);
-	ecPhys->add(w1Phys);
-       }
-      if (zLow < zShell[1]) {
-	const GeoTube* botTube=new GeoTube(rShell[0]-0.5*sTh+d,rShell[0]+0.5*sTh+d,(zShell[1]-zLow)*.5);
-	std::ostringstream shellstrB;
-	shellstrB << "shellBotLog_L"<<m_layer;
-	GeoLogVol* _botLog = new GeoLogVol(shellstrB.str(),botTube,shellMat);
-	GeoPhysVol* botPhys = new GeoPhysVol(_botLog);      
-	GeoTransform* xform = new GeoTransform( HepGeom::Translate3D(0., 0., (zLow+zShell[1])*0.5-zMiddle));
-	ecPhys->add(xform);
-	ecPhys->add(botPhys);
-      }
-    }
+    ATH_MSG_DEBUG("placing simple shell support for layer:"<<m_layer<<":"<<rShell[0]<<","<<rShell[1]<<":"<<zShell[0]<<":"<<zShell[1]<<":"<<shellMatName);       
      
     ATH_MSG_DEBUG("Layer minmax global : "<<m_layerZMin<<" "<<m_layerZMax<<" / "<<m_layerZMin<<" "<<m_layerZMax);
     return ecPhys;
