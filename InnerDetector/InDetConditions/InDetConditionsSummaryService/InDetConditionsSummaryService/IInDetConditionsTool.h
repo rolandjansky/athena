@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -36,6 +36,7 @@ public:
   virtual bool isActive(const Identifier& elementId, const InDetConditions::Hierarchy h, const EventContext& ctx) const =0;
   virtual bool isActive(const IdentifierHash& elementHash, const EventContext& ctx) const =0;
   virtual bool isActive(const IdentifierHash& elementHash, const Identifier& elementId, const EventContext& ctx) const =0;
+  virtual double activeFraction(const IdentifierHash& elementHash, const Identifier& idStart, const Identifier& idEnd, const EventContext& ctx) const =0;  
 
   virtual bool isGood(const Identifier& elementId, const InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const =0;
   virtual bool isGood(const IdentifierHash& elementHash) const =0;
@@ -45,9 +46,10 @@ public:
   virtual bool isGood(const Identifier& elementId, const InDetConditions::Hierarchy h, const EventContext& ctx) const =0;
   virtual bool isGood(const IdentifierHash& elementHash, const EventContext& ctx) const =0;
   virtual bool isGood(const IdentifierHash& elementHash, const Identifier& elementId, const EventContext& ctx) const =0;
+  virtual double goodFraction(const IdentifierHash& elementHash, const Identifier& idStart, const Identifier& idEnd, const EventContext& ctx) const =0;
 
+  virtual bool isBSActive(const IdentifierHash& moduleHash) const =0;
   virtual bool isBSActive(const IdentifierHash& moduleHash, const EventContext& ctx) const =0;
-  virtual bool hasBSError(const IdentifierHash& moduleHash, const EventContext& ctx) const =0;
   virtual uint64_t getBSErrorWord(const IdentifierHash& moduleHash, const EventContext& ctx) const =0;
 
 };

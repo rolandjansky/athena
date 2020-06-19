@@ -18,7 +18,6 @@
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "AthenaKernel/SlotSpecificObj.h"
 
-// STSTST #include "InDetByteStreamErrors/InDetBSErrContainer.h"
 #include "InDetByteStreamErrors/IDCInDetBSErrContainer.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
@@ -49,6 +48,7 @@ class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool
     virtual bool isActive(const Identifier& elementId, const InDetConditions::Hierarchy h, const EventContext& ctx) const override final;
     virtual bool isActive(const IdentifierHash& moduleHash, const EventContext& ctx) const override final;
     virtual bool isActive(const IdentifierHash& moduleHash, const Identifier& elementId, const EventContext& ctx)  const override final;
+    virtual double activeFraction(const IdentifierHash& moduleHash, const Identifier & idStart, const Identifier & idEnd, const EventContext& ctx)  const override final;
 
     virtual bool isGood(const Identifier & elementId, const InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override final;
     virtual bool isGood(const IdentifierHash & moduleHash) const override final;
@@ -58,12 +58,17 @@ class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool
     virtual bool isGood(const Identifier& elementId, const InDetConditions::Hierarchy h, const EventContext& ctx) const override final;
     virtual bool isGood(const IdentifierHash& moduleHash, const EventContext& ctx) const override final;
     virtual bool isGood(const IdentifierHash& moduleHash, const Identifier& elementId, const EventContext& ctx) const override final;
+    virtual double goodFraction(const IdentifierHash & moduleHash, const Identifier & idStart, const Identifier & idEnd, const EventContext& ctx) const override final;
 
+    virtual bool isBSActive(const IdentifierHash& moduleHash) const override final;
     virtual bool isBSActive(const IdentifierHash& moduleHash, const EventContext& ctx) const override final;
-    virtual bool hasBSError(const IdentifierHash& moduleHash, const EventContext& ctx) const override final;
     virtual uint64_t getBSErrorWord(const IdentifierHash& moduleHash, const EventContext& ctx) const override final;
 
+    bool hasBSError(const IdentifierHash& moduleHash, const EventContext& ctx) const;
+    bool hasBSError(const IdentifierHash& moduleHash, Identifier pixid, const EventContext& ctx) const;
+
     bool checkChipStatus(IdentifierHash moduleHash, Identifier pixid) const;
+    bool checkChipStatus(IdentifierHash moduleHash, Identifier pixid, const EventContext& ctx) const;
 
   private:
     const PixelID* m_pixelID;
@@ -92,9 +97,6 @@ class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool
 
     ServiceHandle<IPixelCablingSvc> m_pixelCabling
     {this,  "PixelCablingSvc", "PixelCablingSvc", "Pixel cabling service"};
-
-// STSTST    SG::ReadHandleKey<InDetBSErrContainer>  m_BSErrContReadKey
-// STSTST    {this, "PixelByteStreamErrs", "PixelByteStreamErrs", "PixelByteStreamErrs container key"};
 
     SG::ReadHandleKey<IDCInDetBSErrContainer>  m_BSErrContReadKey
     {this, "PixelByteStreamErrs", "PixBSErr", "PixelByteStreamErrs container key"};
@@ -138,42 +140,6 @@ class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool
      **/
     [[nodiscard]] IDCCacheEntry* getCacheEntry(const EventContext& ctx) const;
 
-
-
-
-
-  /**
-   * Updates information per module & ABCD chip
-   **/
-//  StatusCode fillData(const EventContext& ctx) const;
-
-//  bool isGoodChip(const Identifier& stripId, const EventContext& ctx) const;
-//  int getChip(const Identifier& stripId, const EventContext& ctx) const;
-
-  // For isRODSimulatedData, HVisOn and isCondensedReadout
-//  const InDetDD::SiDetectorElement* getDetectorElement(const IdentifierHash& waferHash, const EventContext& ctx) const;
-
-  /**
-   * Method that returns BS Error code from the map passed @rag where-Expected
-   * If the information is initially missing, the cache update is triggered
-   **/
-//  std::pair<StatusCode, unsigned int> getErrorCodeWithCacheUpdate( const Identifier& id, const EventContext& ctx, std::map<Identifier, unsigned int>& whereExected ) const;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 };
 
 inline InterfaceID& PixelConditionsSummaryTool::interfaceID(){
@@ -181,8 +147,8 @@ inline InterfaceID& PixelConditionsSummaryTool::interfaceID(){
   return IID_PixelConditionsSummaryTool;
 }
 
-inline bool PixelConditionsSummaryTool::checkChipStatus(IdentifierHash moduleHash, Identifier pixid) const {
-  std::bitset<16> chipStatus(SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey)->getChipStatus(moduleHash));
+inline bool PixelConditionsSummaryTool::checkChipStatus(IdentifierHash moduleHash, Identifier pixid, const EventContext& ctx) const {
+  std::bitset<16> chipStatus(SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey, ctx)->getChipStatus(moduleHash));
   if (chipStatus.any()) {
     Identifier moduleID = m_pixelID->wafer_id(pixid);
     std::bitset<16> circ; circ.set(m_pixelCabling->getFE(&pixid,moduleID));

@@ -103,7 +103,8 @@ uint64_t PixelConditionsSummaryTool::getBSErrorWord(const IdentifierHash& module
   if (idcCachePtr==nullptr) {
     ATH_MSG_ERROR("PixelConditionsSummaryTool No cache! " );
   }
-  return (uint64_t)idcCachePtr->retrieve(moduleHash);
+  uint64_t word = (uint64_t)idcCachePtr->retrieve(moduleHash);
+  return word<std::numeric_limits<uint64_t>::max()-3000000000 ? word : 0;
 }
 
 bool PixelConditionsSummaryTool::hasBSError(const IdentifierHash& moduleHash, const EventContext& ctx) const {
@@ -121,33 +122,37 @@ bool PixelConditionsSummaryTool::hasBSError(const IdentifierHash& moduleHash, co
   if (PixelByteStreamErrors::hasError(getBSErrorWord(moduleHash,ctx),PixelByteStreamErrors::TruncatedROB))    { return true; }
   if (PixelByteStreamErrors::hasError(getBSErrorWord(moduleHash,ctx),PixelByteStreamErrors::MaskedROB))       { return true; }
 
-// STSTST  if (m_pixelID->wafer_hash_max()==2048) {   // RUN-2 setup
-// STSTST    if ((m_pixelID->barrel_ec(m_pixelID->wafer_id(moduleHash))==0 && m_pixelID->layer_disk(m_pixelID->wafer_id(moduleHash))==0) 
-// STSTST        || m_pixelID->is_dbm(m_pixelID->wafer_id(moduleHash))) {
-// STSTST      for (const auto* elt : *errCont) {
-// STSTST        IdentifierHash myHash=elt->first;
-// STSTST        if (myHash-m_pixelID->wafer_hash_max()==moduleHash) { return false; }
-// STSTST      }
-// STSTST      return true;
-// STSTST    }
-// STSTST  }
-// STSTST
-// STSTST  int errorcode = 0;
-// STSTST  for (const auto* elt : *errCont) {
-// STSTST    IdentifierHash myHash=elt->first;
-// STSTST    if (myHash==moduleHash) { errorcode = elt->second; break; }
-// STSTST  }
-// STSTST  if ((errorcode & 0xFFF1F00F) == 0) { // Mask FE errors
-// STSTST    for (const auto* elt : *errCont) {
-// STSTST      IdentifierHash myHash=elt->first;
-// STSTST      if (myHash-m_pixelID->wafer_hash_max()==moduleHash) { return false; }
-// STSTST    }
-// STSTST    return true;
-// STSTST  }
-// STSTST  else if (errorcode) {
-// STSTST    return false;
-// STSTST  }
   return false;
+}
+
+bool PixelConditionsSummaryTool::hasBSError(const IdentifierHash& moduleHash, Identifier pixid, const EventContext& ctx) const {
+  if (!m_useByteStream) { return false; }
+
+  if (hasBSError(moduleHash, ctx)) { return true; }
+
+  int maxHash = m_pixelID->wafer_hash_max();
+  Identifier moduleID = m_pixelID->wafer_id(pixid);
+  int chFE = m_pixelCabling->getFE(&pixid,moduleID);
+
+  int indexFE = (1+chFE)*maxHash+(int)moduleHash;    // (FE_channel+1)*2048 + moduleHash
+  if (PixelByteStreamErrors::hasError(getBSErrorWord(indexFE,ctx),PixelByteStreamErrors::TimeOut))         { return true; }
+  if (PixelByteStreamErrors::hasError(getBSErrorWord(indexFE,ctx),PixelByteStreamErrors::BCID))            { return true; }
+  if (PixelByteStreamErrors::hasError(getBSErrorWord(indexFE,ctx),PixelByteStreamErrors::LVL1ID))          { return true; }
+  if (PixelByteStreamErrors::hasError(getBSErrorWord(indexFE,ctx),PixelByteStreamErrors::Preamble))        { return true; }
+  if (PixelByteStreamErrors::hasError(getBSErrorWord(indexFE,ctx),PixelByteStreamErrors::Trailer))         { return true; }
+  if (PixelByteStreamErrors::hasError(getBSErrorWord(indexFE,ctx),PixelByteStreamErrors::Decoding))        { return true; }
+  if (PixelByteStreamErrors::hasError(getBSErrorWord(indexFE,ctx),PixelByteStreamErrors::Invalid))         { return true; }
+  if (PixelByteStreamErrors::hasError(getBSErrorWord(indexFE,ctx),PixelByteStreamErrors::LinkMaskedByPPC)) { return true; }
+  if (PixelByteStreamErrors::hasError(getBSErrorWord(indexFE,ctx),PixelByteStreamErrors::Limit))           { return true; }
+  if (PixelByteStreamErrors::hasError(getBSErrorWord(indexFE,ctx),PixelByteStreamErrors::TruncatedROB))    { return true; }
+  if (PixelByteStreamErrors::hasError(getBSErrorWord(indexFE,ctx),PixelByteStreamErrors::MaskedROB))       { return true; }
+
+  return false;
+}
+
+bool PixelConditionsSummaryTool::isBSActive(const IdentifierHash & moduleHash) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return isBSActive(moduleHash, ctx);
 }
 
 bool PixelConditionsSummaryTool::isBSActive(const IdentifierHash & moduleHash, const EventContext& ctx) const {
@@ -214,6 +219,10 @@ double PixelConditionsSummaryTool::activeFraction(const IdentifierHash & /*modul
   return 1.0;
 }
 
+double PixelConditionsSummaryTool::activeFraction(const IdentifierHash & /*moduleHash*/, const Identifier & /*idStart*/, const Identifier & /*idEnd*/, const EventContext& /*ctx*/) const {
+  return 1.0;
+}
+
 bool PixelConditionsSummaryTool::isGood(const IdentifierHash & moduleHash) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   return isGood(moduleHash, ctx);
@@ -254,7 +263,8 @@ bool PixelConditionsSummaryTool::isGood(const Identifier& elementId, const InDet
   if (SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey, ctx)->getModuleStatus(moduleHash)) { return false; }
 
   if (h==InDetConditions::PIXEL_CHIP) {
-    return checkChipStatus(moduleHash, elementId);
+    if (!checkChipStatus(moduleHash, elementId)) { return false; }
+    if (m_useByteStream && hasBSError(moduleHash, elementId, ctx)) { return false; }
   }
 
   return true;
@@ -307,12 +317,26 @@ bool PixelConditionsSummaryTool::isGood(const IdentifierHash & moduleHash, const
 
   if (SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey, ctx)->getModuleStatus(moduleHash)) { return false; }
 
-  return checkChipStatus(moduleHash, elementId);
+  if (!checkChipStatus(moduleHash, elementId)) { return false; }
+
+  if (m_useByteStream && hasBSError(moduleHash, elementId, ctx)) { return false; }
+
+  return true;
+}
+
+bool PixelConditionsSummaryTool::checkChipStatus(IdentifierHash moduleHash, Identifier pixid) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return checkChipStatus(moduleHash, pixid, ctx);
 }
 
 double PixelConditionsSummaryTool::goodFraction(const IdentifierHash & moduleHash, const Identifier & idStart, const Identifier & idEnd) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return goodFraction(moduleHash, idStart, idEnd, ctx);
+}
 
-  if (!isGood(moduleHash)) { return 0.0; }
+double PixelConditionsSummaryTool::goodFraction(const IdentifierHash & moduleHash, const Identifier & idStart, const Identifier & idEnd, const EventContext& ctx) const {
+
+  if (!isGood(moduleHash, ctx)) { return 0.0; }
 
   Identifier moduleID = m_pixelID->wafer_id(moduleHash);
 
@@ -327,7 +351,14 @@ double PixelConditionsSummaryTool::goodFraction(const IdentifierHash & moduleHas
   double nGood = 0.0;
   for (int i=std::min(phiStart,phiEnd); i<=std::max(phiStart,phiEnd); i++) {
     for (int j=std::min(etaStart,etaEnd); j<=std::max(etaStart,etaEnd); j++) {
-      if (checkChipStatus(moduleHash, m_pixelID->pixel_id(moduleID,i,j))) { nGood++; }
+      if (checkChipStatus(moduleHash, m_pixelID->pixel_id(moduleID,i,j), ctx)) { 
+        if (m_useByteStream) {
+          if (!hasBSError(moduleHash, m_pixelID->pixel_id(moduleID,i,j), ctx)) { nGood++; }
+        }
+        else {
+          nGood++; 
+        }
+      }
     }
   }
   return nGood/nTotal;

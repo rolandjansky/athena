@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -265,7 +265,7 @@ StatusCode PixelPrepDataToxAOD::execute()
       // Add information for each contributing hit
       if(m_writeRDOinformation) {
         IdentifierHash moduleHash = clusterCollection->identifyHash();
-        AUXDATA(xprd,int,isBSError) = (int)m_pixelSummary->hasBSError(moduleHash);
+        AUXDATA(xprd,int,isBSActive) = (int)m_pixelSummary->isBSActive(moduleHash);
         AUXDATA(xprd,int,DCSState) = dcsState->getModuleStatus(moduleHash);
 
         float deplVoltage = 0.0;

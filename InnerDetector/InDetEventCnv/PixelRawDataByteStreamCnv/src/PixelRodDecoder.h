@@ -117,10 +117,6 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
     uint32_t extractFefromLinkNum (const uint32_t linkNum) const;
     uint32_t extractSLinkfromLinkNum (const uint32_t linkNum) const;
 
-// STSTST    void addRODError(uint32_t rodid, uint32_t robStatus) const;
-
-
-
     bool CheckLinkStart(const bool Link_start, const int rodId, const unsigned int mLink, const unsigned int mBCID, const unsigned int mLVL1ID, const int LVL1A);
 
     uint32_t treatmentFEFlagInfo(unsigned int serviceCode, unsigned int serviceCodeCounter) const;
@@ -151,20 +147,11 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
 
     const PixelID*              m_pixel_id=nullptr;
 
-    ToolHandle<IPixelByteStreamErrorsTool> m_errors
-    {this, "PixelByteStreamErrorsTool", "PixelByteStreamErrorsTool", "Tool for PixelByteStreamError"};
-
     SG::ReadCondHandleKey<PixelCablingCondData> m_condCablingKey
     {this, "PixelCablingCondData", "PixelCablingCondData", "Pixel cabling key"};
 
     SG::ReadCondHandleKey<PixelHitDiscCnfgData> m_condHitDiscCnfgKey
     {this, "PixelHitDiscCnfgData", "PixelHitDiscCnfgData", "Pixel FEI4 HitDiscConfig key"};
-
-// STSTST    //!< adds given ErrorCode to all hasIDs for given ROB
-// STSTST    void addRODError(uint32_t robid, IDCInDetBSErrContainer::ErrorCode, IDCInDetBSErrContainer& errorsCollection) const;
-
-// STSTST    //! checks status word in ROD for truncations and similar, returns success or recoverable errors, fills errors container at the same time
-// STSTST    StatusCode checkRODStatus( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, IDCInDetBSErrContainer& decodingErrors ) const;
 
     //! checks if data words do not look like header & trailer markers, return true if so, this is sign of data corruption
     bool checkDataWordsCorruption( uint32_t word ) const;

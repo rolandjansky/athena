@@ -60,6 +60,11 @@ SCT_ConditionsSummaryTool::activeFraction(const IdentifierHash& elementHash, con
   return goodFraction(elementHash, idStart, idEnd);
 }
 
+double
+SCT_ConditionsSummaryTool::activeFraction(const IdentifierHash& elementHash, const Identifier& idStart, const Identifier& idEnd, const EventContext& ctx) const {
+  return goodFraction(elementHash, idStart, idEnd, ctx);
+}
+
 bool 
 SCT_ConditionsSummaryTool::isActive(const Identifier& elementId, const InDetConditions::Hierarchy h, const EventContext& ctx) const {
   return isGood(elementId, h, ctx);
@@ -153,16 +158,23 @@ SCT_ConditionsSummaryTool::goodFraction(const IdentifierHash& /*elementHash*/, c
   return result;
 }
 
+double 
+SCT_ConditionsSummaryTool::goodFraction(const IdentifierHash& /*elementHash*/, const Identifier& /*idStart*/, const Identifier& /*idEnd*/, const EventContext& /*ctx*/) const {
+  double result{1.0};
+  ATH_MSG_WARNING("goodFraction is a deprecated function always returning 1.0 ");
+  return result;
+}
+
 bool
-SCT_ConditionsSummaryTool::isBSActive(const IdentifierHash& /*elementHash*/, const EventContext& /*ctx*/) const {
+SCT_ConditionsSummaryTool::isBSActive(const IdentifierHash& /*elementHash*/) const {
   ATH_MSG_WARNING("isBSActive() is not implemented for SCT_ConditionsSummaryTool");
   return true;
 }
 
 bool
-SCT_ConditionsSummaryTool::hasBSError(const IdentifierHash& /*elementHash*/, const EventContext& /*ctx*/) const {
-  ATH_MSG_WARNING("hasBSError() is not implemented for SCT_ConditionsSummaryTool");
-  return false;
+SCT_ConditionsSummaryTool::isBSActive(const IdentifierHash& /*elementHash*/, const EventContext& /*ctx*/) const {
+  ATH_MSG_WARNING("isBSActive() is not implemented for SCT_ConditionsSummaryTool");
+  return true;
 }
 
 uint64_t

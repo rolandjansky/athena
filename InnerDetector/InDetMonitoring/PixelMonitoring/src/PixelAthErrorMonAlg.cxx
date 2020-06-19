@@ -26,7 +26,6 @@ StatusCode PixelAthErrorMonAlg::initialize() {
 
   ATH_CHECK( detStore()->retrieve(m_pixelid, "PixelID") );
   ATH_CHECK( m_pixelCondSummaryTool.retrieve() );
-// STSTST  if ( !m_pixelErrorTool.empty() ) ATH_CHECK( m_pixelErrorTool.retrieve() );
 
   return AthMonitorAlgorithm::initialize();
 }
@@ -48,7 +47,7 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
   //  for PIXEL(FEI3):
   //     = [ 2048,  4095] :   FE-0 error
   //     = [ 4096,  6143] :   FE-1 error
-  //     = [ 6144,  8192] :   FE-2 error
+  //     = [ 6144,  8191] :   FE-2 error
   //          ...    ...      ...
   //          ...    ...      ...
   //     = [30720, 32767] :  FE-14 error
@@ -57,9 +56,12 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
   //  for IBL(FEI4):
   //     = [ 2048,  4095] :   FE-0 error
   //     = [ 4096,  6143] :   FE-1 error
-  //     = [ 6144,  8192] :  ServiceRecords
+  //     = [34816, 35095] :  Error counter in bit#=1 from ServiceRecords
+  //     = [35096, 35375] :  Error counter in bit#=2 from ServiceRecords
+  //          ...    ...      ...
+  //          ...    ...      ...
+  //     = [43496, 43776] :  Error counter in bit#=32 from ServiceRecords
   //
-  //    
   //====================================================================================
   //
   // Print all Module/FE errors
@@ -68,23 +70,23 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
     // Get accumulated errors (Module)
     uint64_t kErrorWord = m_pixelCondSummaryTool->getBSErrorWord(i,ctx);
 
-    std::cout << "Module hash=" << i << " has";
-    if      (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::TimeOut        )) { std::cout << "      TimeOut         state..." << std::endl; }
-    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::BCID           )) { std::cout << "      BCID            state..." << std::endl; }
-    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::LVL1ID         )) { std::cout << "      LVL1ID          state..." << std::endl; }
-    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Preamble       )) { std::cout << "      Preamble        state..." << std::endl; }
-    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Trailer        )) { std::cout << "      Trailer         state..." << std::endl; }
-    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Flagged        )) { std::cout << "      Flagged         state..." << std::endl; }
-    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::DisableFE      )) { std::cout << "      DisableFE       state..." << std::endl; }
-    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::BadFE          )) { std::cout << "      BadFE           state..." << std::endl; }
-    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::ROD            )) { std::cout << "      ROD             state..." << std::endl; }
-    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Decoding       )) { std::cout << "      Decoding        state..." << std::endl; }
-    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Invalid        )) { std::cout << "      Invalid         state..." << std::endl; }
-    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::LinkMaskedByPPC)) { std::cout << "      LinkMaskedByPPC state..." << std::endl; }
-    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Limit          )) { std::cout << "      Limit           state..." << std::endl; }
-    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::TruncatedROB   )) { std::cout << "      TruncatedROB    state..." << std::endl; }
-    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::MaskedROB      )) { std::cout << "      MaskedROB       state..." << std::endl; }
-    else                                                                                         { std::cout << "      no entry             ..." << std::endl; }
+    ATH_MSG_DEBUG("Module hash=" << i << " has");
+    if      (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::TimeOut        )) { ATH_MSG_DEBUG("      TimeOut         state..."); }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::BCID           )) { ATH_MSG_DEBUG("      BCID            state..."); }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::LVL1ID         )) { ATH_MSG_DEBUG("      LVL1ID          state..."); }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Preamble       )) { ATH_MSG_DEBUG("      Preamble        state..."); }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Trailer        )) { ATH_MSG_DEBUG("      Trailer         state..."); }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Flagged        )) { ATH_MSG_DEBUG("      Flagged         state..."); }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::DisableFE      )) { ATH_MSG_DEBUG("      DisableFE       state..."); }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::BadFE          )) { ATH_MSG_DEBUG("      BadFE           state..."); }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::ROD            )) { ATH_MSG_DEBUG("      ROD             state..."); }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Decoding       )) { ATH_MSG_DEBUG("      Decoding        state..."); }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Invalid        )) { ATH_MSG_DEBUG("      Invalid         state..."); }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::LinkMaskedByPPC)) { ATH_MSG_DEBUG("      LinkMaskedByPPC state..."); }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Limit          )) { ATH_MSG_DEBUG("      Limit           state..."); }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::TruncatedROB   )) { ATH_MSG_DEBUG("      TruncatedROB    state..."); }
+    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::MaskedROB      )) { ATH_MSG_DEBUG("      MaskedROB       state..."); }
+    else                                                                                         { ATH_MSG_DEBUG("      no entry             ..."); }
 
     // Loop over all FE
     int nFE = 16;
@@ -94,43 +96,30 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
     for (int j=0; j<nFE; j++) {
       int channelFE = (1+j)*maxHash+i;    // (FE_channel+1)*2048 + moduleHash
       uint64_t kErrorFEWord = m_pixelCondSummaryTool->getBSErrorWord(channelFE,ctx);
-      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::TimeOut        )) { std::cout << "  FE ch.=" << j << "      TimeOut         state..." << std::endl; }
-      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::BCID           )) { std::cout << "  FE ch.=" << j << "      BCID            state..." << std::endl; }
-      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::LVL1ID         )) { std::cout << "  FE ch.=" << j << "      LVL1ID          state..." << std::endl; }
-      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Preamble       )) { std::cout << "  FE ch.=" << j << "      Preamble        state..." << std::endl; }
-      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Trailer        )) { std::cout << "  FE ch.=" << j << "      Trailer         state..." << std::endl; }
-      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Flagged        )) { std::cout << "  FE ch.=" << j << "      Flagged         state..." << std::endl; }
-      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::DisableFE      )) { std::cout << "  FE ch.=" << j << "      DisableFE       state..." << std::endl; }
-      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::BadFE          )) { std::cout << "  FE ch.=" << j << "      BadFE           state..." << std::endl; }
-      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::ROD            )) { std::cout << "  FE ch.=" << j << "      ROD             state..." << std::endl; }
-      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Decoding       )) { std::cout << "  FE ch.=" << j << "      Decoding        state..." << std::endl; }
-      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Invalid        )) { std::cout << "  FE ch.=" << j << "      Invalid         state..." << std::endl; }
-      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::LinkMaskedByPPC)) { std::cout << "  FE ch.=" << j << "      LinkMaskedByPPC state..." << std::endl; }
-      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Limit          )) { std::cout << "  FE ch.=" << j << "      Limit           state..." << std::endl; }
-      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::TruncatedROB   )) { std::cout << "  FE ch.=" << j << "      TruncatedROB    state..." << std::endl; }
-      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::MaskedROB      )) { std::cout << "  FE ch.=" << j << "      MaskedROB       state..." << std::endl; }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::TimeOut        )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      TimeOut         state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::BCID           )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      BCID            state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::LVL1ID         )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      LVL1ID          state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Preamble       )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      Preamble        state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Trailer        )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      Trailer         state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Flagged        )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      Flagged         state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::DisableFE      )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      DisableFE       state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::BadFE          )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      BadFE           state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::ROD            )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      ROD             state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Decoding       )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      Decoding        state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Invalid        )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      Invalid         state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::LinkMaskedByPPC)) { ATH_MSG_DEBUG("  FE ch.=" << j << "      LinkMaskedByPPC state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Limit          )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      Limit           state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::TruncatedROB   )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      TruncatedROB    state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::MaskedROB      )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      MaskedROB       state..."); }
     }
 
     // Get IBL SearviceRecords : IBL hashID[156-435]
     if (i>155 && i<436) {
-      for (int j=2; j<3; j++) {
-        int channelFE = (1+j)*maxHash+i+1;     // (FE_channel+1)*2048 + moduleHash
-        uint64_t kErrorFEWord = m_pixelCondSummaryTool->getBSErrorWord(channelFE,ctx);
-        if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::TimeOut        )) { std::cout << "  IBL SearviceRecords FE ch.=" << j << "      TimeOut         state..." << std::endl; }
-        if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::BCID           )) { std::cout << "  IBL SearviceRecords FE ch.=" << j << "      BCID            state..." << std::endl; }
-        if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::LVL1ID         )) { std::cout << "  IBL SearviceRecords FE ch.=" << j << "      LVL1ID          state..." << std::endl; }
-        if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Preamble       )) { std::cout << "  IBL SearviceRecords FE ch.=" << j << "      Preamble        state..." << std::endl; }
-        if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Trailer        )) { std::cout << "  IBL SearviceRecords FE ch.=" << j << "      Trailer         state..." << std::endl; }
-        if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Flagged        )) { std::cout << "  IBL SearviceRecords FE ch.=" << j << "      Flagged         state..." << std::endl; }
-        if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::DisableFE      )) { std::cout << "  IBL SearviceRecords FE ch.=" << j << "      DisableFE       state..." << std::endl; }
-        if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::BadFE          )) { std::cout << "  IBL SearviceRecords FE ch.=" << j << "      BadFE           state..." << std::endl; }
-        if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::ROD            )) { std::cout << "  IBL SearviceRecords FE ch.=" << j << "      ROD             state..." << std::endl; }
-        if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Decoding       )) { std::cout << "  IBL SearviceRecords FE ch.=" << j << "      Decoding        state..." << std::endl; }
-        if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Invalid        )) { std::cout << "  IBL SearviceRecords FE ch.=" << j << "      Invalid         state..." << std::endl; }
-        if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::LinkMaskedByPPC)) { std::cout << "  IBL SearviceRecords FE ch.=" << j << "      LinkMaskedByPPC state..." << std::endl; }
-        if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Limit          )) { std::cout << "  IBL SearviceRecords FE ch.=" << j << "      Limit           state..." << std::endl; }
-        if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::TruncatedROB   )) { std::cout << "  IBL SearviceRecords FE ch.=" << j << "      TruncatedROB    state..." << std::endl; }
-        if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::MaskedROB      )) { std::cout << "  IBL SearviceRecords FE ch.=" << j << "      MaskedROB       state..." << std::endl; }
+      for (int j=1; j<32; j++) {
+        int indexOffset = 17*maxHash;
+        int channelFE = indexOffset+(j-1)*280+i-156;     // offset+(ServiceCode)*(#IBL) + moduleHash-156
+        uint64_t serviceCounter = m_pixelCondSummaryTool->getBSErrorWord(channelFE,ctx);
+        ATH_MSG_DEBUG("   IBL SearviceRecords bit=" << j << "  " << serviceCounter);
       }
     }
   }

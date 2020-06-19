@@ -6,12 +6,10 @@
 #define PIXELATHERRORMONTOOL_H
 
 #include "PixelAthMonitoringBase.h"
-// STSTST #include "PixelConditionsTools/IPixelByteStreamErrorsTool.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "PixelConditionsData/PixelByteStreamErrors.h"
 
 class PixelID;
-// STSTST class IPixelByteStreamErrorsTool;
 
 class ErrorCategory {
  public:
@@ -135,7 +133,6 @@ class PixelAthErrorMonAlg : public PixelAthMonitoringBase {
 
  private:
 
-// STSTST  ToolHandle<IPixelByteStreamErrorsTool> m_pixelErrorTool{this, "PixelByteStreamErrorsTool", "PixelByteStreamErrorsTool", "Tool to retrieve PixelByteStreamErrors"};
   ToolHandle<IInDetConditionsTool> m_pixelCondSummaryTool{this, "PixelConditionsSummaryTool", "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
 
   const PixelID* m_pixelid;
