@@ -172,7 +172,7 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::execute()
   
   //VERTEX
   std::vector<xAOD::Vertex *> dummyxAODVerticesVector;
-  for( int r = 0; r < m_listRoIs.size(); r++ ){
+  for( size_t r = 0; r < m_listRoIs.size(); r++ ){
 
     xAOD::Vertex * dummyxAODVertex = new xAOD::Vertex;
 
@@ -204,7 +204,7 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::execute()
     RandZBoundary[0] = m_listRandRoIs[0].zWindow[0];
     RandZBoundary[1] = m_listRandRoIs[0].zWindow[1];
     std::vector<xAOD::Vertex *> dummyxAODVerticesVectorRand;
-    for( int r = 0; r < m_listRandRoIs.size(); r++ ){
+    for( size_t r = 0; r < m_listRandRoIs.size(); r++ ){
 
       xAOD::Vertex * dummyxAODVertex = new xAOD::Vertex;
 
