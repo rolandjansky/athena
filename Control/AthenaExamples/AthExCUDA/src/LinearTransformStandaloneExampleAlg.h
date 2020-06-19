@@ -2,13 +2,13 @@
 //
 // Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 //
-#ifndef ATHEXCUDA_LINEARTRANSFORMEXAMPLEALG_H
-#define ATHEXCUDA_LINEARTRANSFORMEXAMPLEALG_H
+#ifndef ATHEXCUDA_LINEARTRANSFORMSTANDALONEEXAMPLEALG_H
+#define ATHEXCUDA_LINEARTRANSFORMSTANDALONEEXAMPLEALG_H
 
 // Framework include(s).
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
-namespace AthCUDA {
+namespace AthCUDAExamples {
 
    /// Example algorithm running a very simple operation using CUDA
    ///
@@ -17,17 +17,17 @@ namespace AthCUDA {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   class LinearTransformExampleAlg : public AthReentrantAlgorithm {
+   class LinearTransformStandaloneExampleAlg : public AthReentrantAlgorithm {
 
    public:
       /// Inherit the base class's constructor
       using AthReentrantAlgorithm::AthReentrantAlgorithm;
 
       /// The function executing this algorithm
-      StatusCode execute( const EventContext& ctx ) const;
+      virtual StatusCode execute( const EventContext& ctx ) const override;
 
-   }; // class LinearTransformExampleAlg
+   }; // class LinearTransformStandaloneExampleAlg
 
-} // namespace AthCUDA
+} // namespace AthCUDAExamples
 
-#endif // ATHEXCUDA_LINEARTRANSFORMEXAMPLEALG_H
+#endif // ATHEXCUDA_LINEARTRANSFORMSTANDALONEEXAMPLEALG_H

@@ -8,11 +8,11 @@
 // System include(s).
 #include <vector>
 
-namespace AthCUDA {
+namespace AthCUDAExamples {
 
    /// Function used to multiple a vector of variables by some amount
    void cudaMultiply( std::vector< float >& array, float multiplier );
 
-} // namespace AthCUDA
+} // namespace AthCUDAExamples
 
 #endif // ATHEXCUDA_CUDAMULTIPLY_H

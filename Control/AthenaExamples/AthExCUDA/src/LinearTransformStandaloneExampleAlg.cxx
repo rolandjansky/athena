@@ -3,17 +3,17 @@
 //
 
 // Local include(s).
-#include "LinearTransformExampleAlg.h"
+#include "LinearTransformStandaloneExampleAlg.h"
 #include "cudaMultiply.h"
 
 // System include(s).
 #include <cmath>
 #include <vector>
 
-namespace AthCUDA {
+namespace AthCUDAExamples {
 
    StatusCode
-   LinearTransformExampleAlg::execute( const EventContext& ) const {
+   LinearTransformStandaloneExampleAlg::execute( const EventContext& ) const {
 
       // Create a dummy array variable that will be multiplied by some amount.
       static const std::size_t ARRAY_SIZE = 10000;
@@ -42,4 +42,4 @@ namespace AthCUDA {
       return StatusCode::SUCCESS;
    }
 
-} // namespace AthCUDA
+} // namespace AthCUDAExamples
