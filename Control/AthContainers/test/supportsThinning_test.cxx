@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file AthContainers/test/supportsThinning_test.cxx
@@ -21,6 +21,7 @@ struct A {};
 struct B : public DataVector<int> {};
 struct B0 : public DataVector<int> { static bool constexpr supportsThinning = false; };
 struct C : public SG::AuxElement {};
+// cppcheck-suppress duplInheritedMember
 struct C0 : public SG::AuxElement { static bool constexpr supportsThinning = false; };
 struct D : public SG::AuxStoreInternal {};
 struct D0 : public SG::AuxStoreInternal { static bool constexpr supportsThinning = false; };

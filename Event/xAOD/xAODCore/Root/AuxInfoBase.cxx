@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: AuxInfoBase.cxx 793737 2017-01-24 20:11:10Z ssnyder $
@@ -55,6 +55,7 @@ namespace xAOD {
 
       // Unfortunately the dynamic variables can not be copied this easily...
       if( parent.m_store ) {
+         // cppcheck-suppress copyCtorPointerCopying
          m_store = parent.m_store;
          m_ownsStore = false;
          m_storeIO = dynamic_cast< SG::IAuxStoreIO* >( m_store );
