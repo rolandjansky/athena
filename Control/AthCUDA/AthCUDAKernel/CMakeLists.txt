@@ -16,5 +16,3 @@ set_target_properties( AthCUDAKernelLib PROPERTIES
 atlas_add_test( ArrayKernelTask
    SOURCES test/test_ArrayKernelTask.cu
    LINK_LIBRARIES AthCUDAKernelLib )
-set_target_properties( AthCUDAKernel_ArrayKernelTask PROPERTIES
-   CUDA_SEPARABLE_COMPILATION ON )
