@@ -25,7 +25,6 @@ StatusCode HIJetConstituentSubtractionTool::initialize()
 {
    ATH_MSG_VERBOSE("HIJetConstituentSubtractionTool initialize");
    ATH_CHECK( m_eventShapeKey.initialize( !m_eventShapeKey.key().empty()) );
-   ATH_CHECK( m_vertexContainer.initialize( !m_vertexContainer.key().empty()) );
    return StatusCode::SUCCESS;
 }
 
@@ -74,29 +73,22 @@ StatusCode HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) con
     return StatusCode::FAILURE;
   }
 
-  bool needsUnsubMoment=false;
-  if(jets.size() > 0){
-     xAOD::JetFourMom_t tmp;
-     needsUnsubMoment = !((*jets.begin())->getAttribute<xAOD::JetFourMom_t>(HIJetRec::unsubtractedJetState(),tmp));
-  }
-
-  //check to see if unsubtracted moment has been stored
   for ( xAOD::JetContainer::iterator ijet=jets.begin(); ijet!=jets.end(); ++ijet)
   {
 
     xAOD::IParticle::FourMom_t p4_cl;
     xAOD::IParticle::FourMom_t p4_subtr;
     xAOD::IParticle::FourMom_t p4_unsubtr;
-
     const xAOD::JetConstituentVector constituents = (*ijet)->getConstituents();
     for (xAOD::JetConstituentVector::iterator itr = constituents.begin(); itr != constituents.end(); ++itr)
     {
       m_subtractorTool->subtract(p4_cl,itr->rawConstituent(),shape,es_index,m_modulatorTool, eshape); //modifies p4_cl to be constituent 4-vector AFTER subtraction
-
       p4_subtr+=p4_cl;
+
       if( msgLvl(MSG::DEBUG) )
       {
       	const xAOD::CaloCluster* cl=static_cast<const xAOD::CaloCluster*>(itr->rawConstituent());
+        //here we can still keep cl->p4 because it's taking the unsubtracted state - moreover is debug 
       	p4_unsubtr+=cl->p4(HIJetRec::unsubtractedClusterState());
       }
     }
@@ -125,21 +117,15 @@ StatusCode HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) con
     }
     jet4vec.SetCoordinates(p4_subtr.Pt(),p4_subtr.Eta(),p4_subtr.Phi(),p4_subtr.M());
 
-
     (*ijet)->setJetP4(momentName(),jet4vec);
 
-    xAOD::JetFourMom_t tmp;
-    //if(! (*ijet)->getAttribute<xAOD::JetFourMom_t>(HIJetRec::unsubtractedJetState(),tmp) ){
-    if(needsUnsubMoment)
-       (*ijet)->setJetP4(HIJetRec::unsubtractedJetState(), (*ijet)->jetP4());
-//    }
     if(!momentOnly())
     {
       //hack for now to allow use of pp calib tool skipping pileup subtraction
       //can be skipped in future if custom HI calibration configuration file exists
       (*ijet)->setJetP4("JetPileupScaleMomentum", jet4vec );
       (*ijet)->setJetP4(xAOD::JetEMScaleMomentum, jet4vec);
-      (*ijet)->setJetP4(jet4vec);
+
       (*ijet)->setConstituentsSignalState(HIJetRec::subtractedConstitState());
     }
   }
