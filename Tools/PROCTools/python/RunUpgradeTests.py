@@ -106,7 +106,7 @@ def RunPatchedSTest(stest,input_file,pwd,release,extraArg,nosetup=False):
 def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID):
     q=qtest
     trfcmd="echo \"NO VALID CONFIGURATION SELECTED!\""
-    inputfile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetSLHC_Example/inputs/s3547.HITS.pool.root" 
+    inputfile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetSLHC_Example/inputs/s3551.pool.root" 
     
     if q == "reco_updated":
         geotag = "ATLAS-P2-ITK-22-00-00"
@@ -117,7 +117,9 @@ def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID):
         trfcmd = " Reco_tf.py --inputHITSFile "+inputfile+" --outputRDOFile myRDO.pool.root --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputDAOD_IDTRKVALIDFile myIDTRKVALID.pool.root --maxEvents 10 --digiSteeringConf StandardInTimeOnlyTruth --geometryVersion "+geotag+" --conditionsTag OFLCOND-MC15c-SDR-14-03 --DataRunNumber 242000 --postInclude all:'InDetSLHC_Example/postInclude.SLHC_Setup_ITK.py' HITtoRDO:'InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py' RAWtoESD:'InDetSLHC_Example/postInclude.DigitalClustering.py' --preExec all:'from AthenaCommon.GlobalFlags import globalflags; globalflags.DataSource.set_Value_and_Lock(\"geant4\"); from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags; SLHC_Flags.doGMX.set_Value_and_Lock(True);SLHC_Flags.UseLocalGeometry.set_Value_and_Lock(True)' HITtoRDO:'from Digitization.DigitizationFlags import digitizationFlags; digitizationFlags.doInDetNoise.set_Value_and_Lock(False); digitizationFlags.overrideMetadata+=[\"SimLayout\",\"PhysicsList\"];' ESDtoDPD:'rec.DPDMakerScripts.set_Value_and_Lock([\"InDetPrepRawDataToxAOD/InDetDxAOD.py\",\"PrimaryDPDMaker/PrimaryDPDMaker.py\"]);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.useDCS.set_Value_and_Lock(True);from PixelConditionsServices.PixelConditionsServicesConf import PixelCalibSvc;ServiceMgr +=PixelCalibSvc();ServiceMgr.PixelCalibSvc.DisableDB=True' --preInclude  all:'InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.SLHC_Setup.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py,InDetSLHC_Example/preInclude.SLHC_Calorimeter_mu0.py' HITtoRDO:'InDetSLHC_Example/preInclude.SLHC.py' default:'InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Reco.py,InDetSLHC_Example/SLHC_Setup_Reco_TrackingGeometry_GMX.py' RDOMergeAthenaMP:'InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.SLHC.py' POOLMergeAthenaMPAOD0:'InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Ana.py' POOLMergeAthenaMPDAODIDTRKVALID0:'InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Ana.py' --postExec HITtoRDO:'CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"];' RAWtoESD:'ToolSvc.InDetSCT_ClusteringTool.useRowInformation=True; from AthenaCommon.AppMgr import ToolSvc; ToolSvc.InDetTrackSummaryTool.OutputLevel=INFO' --imf False"
         
     else:
-        inputfile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetSLHC_Example/inputs/s3547.HITS.pool.root" 
+        if q == 'r11838':
+         inputfile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetSLHC_Example/inputs/s3547.HITS.pool.root" 
+        
         trfcmd = " Reco_tf.py --inputHITSFile "+inputfile+" --outputRDOFile myRDO.pool.root --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputDAOD_IDTRKVALIDFile myIDTRKVALID.pool.root --maxEvents 10 --AMI "+q
 
         logging.info("Running clean "+q+" \"Reco_tf.py --AMI "+q+"--imf False "+extraArg+"\"")
@@ -140,7 +142,7 @@ def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID):
 
 def RunPatchedQTest(qtest,pwd,release,extraArg, nosetup=False):
     q=qtest
-    inputfile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetSLHC_Example/inputs/s3547.HITS.pool.root" 
+    inputfile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetSLHC_Example/inputs/s3551.pool.root" 
     trfcmd = "echo \"NO VALID CONFIGURATION SELECTED!\""
 
     if q == "reco_updated":
@@ -153,9 +155,8 @@ def RunPatchedQTest(qtest,pwd,release,extraArg, nosetup=False):
         trfcmd = " Reco_tf.py --inputHITSFile "+inputfile+" --outputRDOFile myRDO.pool.root --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputDAOD_IDTRKVALIDFile myIDTRKVALID.pool.root --maxEvents 10 --digiSteeringConf StandardInTimeOnlyTruth --geometryVersion "+geotag+" --conditionsTag OFLCOND-MC15c-SDR-14-03 --DataRunNumber 242000 --postInclude all:'InDetSLHC_Example/postInclude.SLHC_Setup_ITK.py' HITtoRDO:'InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py' RAWtoESD:'InDetSLHC_Example/postInclude.DigitalClustering.py' --preExec all:'from AthenaCommon.GlobalFlags import globalflags; globalflags.DataSource.set_Value_and_Lock(\"geant4\"); from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags; SLHC_Flags.doGMX.set_Value_and_Lock(True);SLHC_Flags.UseLocalGeometry.set_Value_and_Lock(True)' HITtoRDO:'from Digitization.DigitizationFlags import digitizationFlags; digitizationFlags.doInDetNoise.set_Value_and_Lock(False); digitizationFlags.overrideMetadata+=[\"SimLayout\",\"PhysicsList\"];' ESDtoDPD:'rec.DPDMakerScripts.set_Value_and_Lock([\"InDetPrepRawDataToxAOD/InDetDxAOD.py\",\"PrimaryDPDMaker/PrimaryDPDMaker.py\"]);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.useDCS.set_Value_and_Lock(True);from PixelConditionsServices.PixelConditionsServicesConf import PixelCalibSvc;ServiceMgr +=PixelCalibSvc();ServiceMgr.PixelCalibSvc.DisableDB=True' --preInclude  all:'InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.SLHC_Setup.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py,InDetSLHC_Example/preInclude.SLHC_Calorimeter_mu0.py' HITtoRDO:'InDetSLHC_Example/preInclude.SLHC.py' default:'InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Reco.py,InDetSLHC_Example/SLHC_Setup_Reco_TrackingGeometry_GMX.py' RDOMergeAthenaMP:'InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.SLHC.py' POOLMergeAthenaMPAOD0:'InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Ana.py' POOLMergeAthenaMPDAODIDTRKVALID0:'InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Ana.py' --postExec HITtoRDO:'CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"];' RAWtoESD:'ToolSvc.InDetSCT_ClusteringTool.useRowInformation=True; from AthenaCommon.AppMgr import ToolSvc; ToolSvc.InDetTrackSummaryTool.OutputLevel=INFO' --imf False"
   
     else:
-        
-
-        inputfile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetSLHC_Example/inputs/s3547.HITS.pool.root"
+        if q == 'r11838':
+         inputfile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetSLHC_Example/inputs/s3547.HITS.pool.root"
 
         trfcmd = " Reco_tf.py --inputHITSFile "+inputfile+" --outputRDOFile myRDO.pool.root --outputESDFile myESD.pool.root --outputAODFile myAOD.pool.root --outputDAOD_IDTRKVALIDFile myIDTRKVALID.pool.root --maxEvents 10 --AMI "+q
 
@@ -581,6 +582,13 @@ def main():
                       default=False,
                       help="Run newest development version tests")
 
+    
+    parser.add_option("-o",
+                      "--old-test",
+                      action="store_true",
+                      dest="oldtest_flag",
+                      default=False,
+                      help="Run older version tests")
 
     (options,args)=parser.parse_args()
 
@@ -597,6 +605,7 @@ def main():
     ciMode          = options.ci_flag
     NoCheck         = options.nocheck_flag
     RunUpdated      = options.updatedtest_flag
+    RunOld          = options.oldtest_flag
 
 #        tct_ESD = "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/rtt/prod/tct/"+latest_nightly+"/"+release+"/"+platform+"/offline/Tier0ChainTests/"+q+"/myESD.pool.root"          
 
@@ -659,6 +668,11 @@ def main():
             logging.warning("Please be aware that you are running a release which seems to not be a Tier0 release, where in general q-tests are not guaranteed to work.")
 
 ########### Define which q-tests to run
+        sTestTag = 's3551'
+        rTestTag = 'r11851'
+        if RunOld:
+         sTestTag = 's3547'
+         rTestTag = 'r11838'   
 
         qTestsToRun = {}
         if RunUpdated:
@@ -673,11 +687,11 @@ def main():
                 }
         elif RunSim:
             qTestsToRun = {
-            's3547':['EVNTtoHITS']
+            sTestTag:['EVNTtoHITS']
             }
         else:
             qTestsToRun = {
-            'r11838':[ 'HITtoRDO','RAWtoESD','ESDtoAOD']
+            rTestTag:[ 'HITtoRDO','RAWtoESD','ESDtoAOD']
             }          
             
         
