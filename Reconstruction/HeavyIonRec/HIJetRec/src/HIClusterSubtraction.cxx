@@ -191,14 +191,14 @@ int HIClusterSubtraction::execute() const
 			CHECK((*toolIt)->execute(Gaudi::Hive::currentContext(), copyClusters), 1);
     }//End loop over correction tools
 
-	if(missingMoment) ATH_MSG_WARNING("No origin correction applied, CENTERMAG missing");
+		if(missingMoment) ATH_MSG_WARNING("No origin correction applied, CENTERMAG missing");
 
   // Make sure that memory is managed safely
   std::unique_ptr<xAOD::CaloClusterContainer> outClusters(copyClusters);
   std::unique_ptr<xAOD::AuxContainerBase> deepAux(copyClustersAux);
 
 	if(writeHandleDeepCopyClusters.record ( std::move(outClusters), std::move(deepAux)).isFailure() ){
-			ATH_MSG_ERROR("Unable to write DeepCopy Copy containers for event shape with key: " << m_outClusterKey.key());
+			ATH_MSG_ERROR("Unable to write DeepCopy Copy containers for subtracted clusters with key: " << m_outClusterKey.key());
 			return 1;
 	}
   return 0;
