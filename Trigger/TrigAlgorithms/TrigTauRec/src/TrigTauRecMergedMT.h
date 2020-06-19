@@ -25,12 +25,6 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
-namespace HLT {
-  class TriggerElement;
-}
-
-class ILumiBlockMuTool;
-
 class TrigTauRecMergedMT: public AthAlgorithm {
 
  public:
@@ -74,15 +68,6 @@ class TrigTauRecMergedMT: public AthAlgorithm {
 
   /** internal tool store */
   ToolHandleArray<ITauToolBase>  m_endtools;
-
-  /** Luminosity Tool */
-  ToolHandle<ILumiBlockMuTool> m_lumiBlockMuTool;
-
-  /** Beam spot Object */
-  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
-
-  /** vector of Timers */
-  std::vector<TrigTimer* > m_mytimers;
 
   // Monitoring tool
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
