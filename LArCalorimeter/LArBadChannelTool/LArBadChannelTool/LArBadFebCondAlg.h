@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARBADFEBCONDALG_H
@@ -18,11 +18,11 @@ class LArBadFebCondAlg: public AthAlgorithm {
  public:
   //Delegate to base-class ctor
   using AthAlgorithm::AthAlgorithm;
-  ~LArBadFebCondAlg()=default;
+  virtual ~LArBadFebCondAlg()=default;
 
-  StatusCode initialize() override;
-  StatusCode execute() override;
-  StatusCode finalize() {return StatusCode::SUCCESS;}
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override {return StatusCode::SUCCESS;}
 
  private:
   SG::ReadCondHandleKey<AthenaAttributeList> m_BCInputKey{this,"ReadKey","/LAR/BadFebsOfl/BadFebs",
