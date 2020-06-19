@@ -70,9 +70,6 @@ if len(globalflags.ConditionsTag())!=0:
 #--------------------------------------------------------------
 import AthenaPoolCnvSvc.WriteAthenaPool
 
-# Check the dictionary in memory for completeness
-svcMgr.AthenaSealSvc.CheckDictionary = True
-
 #--------------------------------------------------------------
 # Event related parameters
 #--------------------------------------------------------------

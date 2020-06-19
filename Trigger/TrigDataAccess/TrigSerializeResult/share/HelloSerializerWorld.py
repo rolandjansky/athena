@@ -27,16 +27,8 @@ include( "AthenaCommon/Atlas_Gen.UnixStandardJob.py" )
 #--------------------------------------------------------------
 # Private Application Configuration options
 #--------------------------------------------------------------
-AthenaSealSvc = Service( "AthenaSealSvc" )
-
-# Set up service
-include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-AthenaSealSvc.DictNames += [ "HelloSerializerWorldDictDict" ]
-theApp.CreateSvc += [ "AthenaSealSvc" ]
-AthenaSealSvc.CheckDictAtInit = TRUE
-
-
 #load relevant libraries
+#AthenaSealSvc.DictNames += [ "HelloSerializerWorldDictDict" ]
 theApp.Dlls += [ "TrigSerializeResult" ]
 
 #top algorithms to be run

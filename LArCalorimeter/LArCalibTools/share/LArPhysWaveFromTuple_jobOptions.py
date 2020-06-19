@@ -64,10 +64,6 @@ MessageSvc.OutputLevel  = INFO
 ###########################################################################
 
 if ( writePOOLfile ) :
-	include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-	include ("LArRawConditions/LArRawConditionsDict_joboptions.py")
-	AthenaSealSvc.CheckDictionary = True 
-
 	include( "AthenaPoolCnvSvc/AthenaPool_jobOptions.py" )
         include( "LArAthenaPool/LArAthenaPool_joboptions.py" )
         include( "LArCondAthenaPool/LArCondAthenaPool_joboptions.py" )

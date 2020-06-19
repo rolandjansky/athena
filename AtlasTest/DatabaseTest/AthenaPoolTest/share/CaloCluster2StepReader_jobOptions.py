@@ -46,14 +46,7 @@ theApp.EvtMax = 20
 #--------------------------------------------------------------
 theApp.Dlls     += [ "AthenaPoolTest" ]
 theApp.TopAlg   += [ "CaloClusterFakeReader" ]
-#--------------------------------------------------------------
-# JobOptions for the loading of the AthenaSealSvc
-#--------------------------------------------------------------
-include( "AthenaServices/AthenaSealSvc_joboptions.py" )
 
-
-# Check the dictionary in memory for completeness
-#AthenaSealSvc.CheckDictionary = true;
 #--------------------------------------------------------------
 # Input options
 #--------------------------------------------------------------

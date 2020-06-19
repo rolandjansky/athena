@@ -37,14 +37,6 @@ include( "ByteStreamCnvSvcBase/BSAddProvSvc_RIO_jobOptions.py" )
 log.info( "Set input BS file" )
 
 #
-# Force-load AthenaSealSvc (to have all the dictionaries for CBNT
-# writing):
-#
-include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-from AthenaCommon.AppMgr import theApp
-theApp.CreateSvc += [ ServiceMgr.AthenaSealSvc.getFullName() ]
-
-#
 # Set up writing of the AANT file:
 #
 from GaudiSvc.GaudiSvcConf import THistSvc
