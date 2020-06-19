@@ -13,7 +13,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Control/StoreGate
                           DetectorDescription/Identifier
                           GaudiKernel
-                          Trigger/TrigT1/TrigT1CaloMappingToolInterfaces )
+                          Trigger/TrigT1/TrigT1CaloToolInterfaces )
 
 # Component(s) in the package:
 atlas_add_component( TrigT1CaloMappingTools

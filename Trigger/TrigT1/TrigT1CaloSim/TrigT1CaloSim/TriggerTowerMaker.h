@@ -67,7 +67,7 @@
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloTTIdTools.h"
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloCells2TriggerTowers.h"
 #include "TrigT1CaloToolInterfaces/IL1TriggerTowerTool.h"
-#include "TrigT1CaloMappingToolInterfaces/IL1CaloMappingTool.h"
+#include "TrigT1CaloToolInterfaces/IL1CaloMappingTool.h"
 #include "TrigT1CaloCalibConditions/L1CaloCoolChannelId.h"
 
 // Include for the configuration service:

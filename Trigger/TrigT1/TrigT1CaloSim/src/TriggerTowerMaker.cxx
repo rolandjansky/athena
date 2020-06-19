@@ -24,7 +24,6 @@
 #include <CLHEP/Random/Randomize.h>
 
 #include "TrigConfL1Data/ThresholdConfig.h"
-//#include "TrigT1CaloByteStream/IL1CaloMappingTool.h"
 #include "TrigT1CaloUtils/InternalTriggerTower_ClassDEF.h"
 #include "TrigT1CaloCalibConditions/L1CaloModuleType.h"
 #include "AthContainers/ConstDataVector.h"

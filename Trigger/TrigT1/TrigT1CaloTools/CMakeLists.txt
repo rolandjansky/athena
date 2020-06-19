@@ -28,7 +28,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigT1/TrigT1CaloCalibConditions
                           Trigger/TrigT1/TrigT1CaloCalibToolInterfaces
                           Trigger/TrigT1/TrigT1CaloCondSvc
-                          Trigger/TrigT1/TrigT1CaloMappingToolInterfaces )
+                          Trigger/TrigT1/TrigT1CaloToolInterfaces )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )

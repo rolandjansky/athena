@@ -42,7 +42,7 @@
 #include "TrigT1CaloCalibConditions/L1CaloRunParametersContainer.h"
 
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloTTIdTools.h"
-#include "TrigT1CaloMappingToolInterfaces/IL1CaloMappingTool.h"
+#include "TrigT1CaloToolInterfaces/IL1CaloMappingTool.h"
 #include "TrigT1CaloToolInterfaces/IL1DynamicPedestalProvider.h"
 
 #include "StoreGate/ReadHandle.h"

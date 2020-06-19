@@ -21,7 +21,7 @@
 #include "TrigT1CaloEvent/JetElement.h"
 #include "TrigT1CaloUtils/DataError.h"
 #include "TrigT1CaloUtils/JetElementKey.h"
-#include "TrigT1CaloMappingToolInterfaces/IL1CaloMappingTool.h"
+#include "TrigT1CaloToolInterfaces/IL1CaloMappingTool.h"
 
 #include "CmmEnergySubBlock.h"
 #include "CmmJetSubBlock.h"

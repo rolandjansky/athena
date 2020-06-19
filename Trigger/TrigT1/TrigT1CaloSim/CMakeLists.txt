@@ -27,7 +27,7 @@ atlas_depends_on_subdirs(
    Trigger/TrigT1/TrigT1CaloCalibConditions
    Trigger/TrigT1/TrigT1CaloCalibToolInterfaces
    Trigger/TrigT1/TrigT1CaloEvent
-   Trigger/TrigT1/TrigT1CaloMappingToolInterfaces
+   Trigger/TrigT1/TrigT1CaloToolInterfaces
    Trigger/TrigT1/TrigT1CaloToolInterfaces
    Trigger/TrigT1/TrigT1CaloUtils
    Trigger/TrigT1/TrigT1Interfaces

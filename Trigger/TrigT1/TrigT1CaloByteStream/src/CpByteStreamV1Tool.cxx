@@ -19,7 +19,7 @@
 #include "TrigT1CaloEvent/CPBSCollectionV1.h"
 #include "TrigT1CaloUtils/DataError.h"
 #include "TrigT1CaloUtils/TriggerTowerKey.h"
-#include "TrigT1CaloMappingToolInterfaces/IL1CaloMappingTool.h"
+#include "TrigT1CaloToolInterfaces/IL1CaloMappingTool.h"
 
 #include "CmmCpSubBlock.h"
 #include "CmmSubBlock.h"
