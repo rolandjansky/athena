@@ -1,8 +1,8 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import sys, time, os, re, argparse
+import sys, argparse
 from TrigConfMuctpi.XMLReader import MioctGeometryXMLReader
 
 
@@ -23,11 +23,11 @@ def validate(geometry):
         stats['decodes'] += len(mioct.Decodes)
         for decode in mioct.Decodes:
             stats['topocells'] += len(decode.TopoCells)
-    print "#MIOCTs    : %i" % stats['miocts']
-    print "#Sectors   : %i" % stats['sectors']
-    print "#ROIs      : %i" % stats['rois']
-    print "#Decodes   : %i" % stats['decodes']
-    print "#TopoCells : %i" % stats['topocells']
+    print("#MIOCTs    : %i" % stats['miocts'])
+    print("#Sectors   : %i" % stats['sectors'])
+    print("#ROIs      : %i" % stats['rois'])
+    print("#Decodes   : %i" % stats['decodes'])
+    print("#TopoCells : %i" % stats['topocells'])
 
 
 
@@ -35,7 +35,7 @@ def validate(geometry):
 
 def main(args):
 
-    print "Using input %s" % args.infile
+    print("Using input %s" % args.infile)
     geometry = readXML( args.infile )
 
     validate(geometry)

@@ -1,13 +1,7 @@
-################################################################################
-# Package: TrigConfMuctpi
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigConfMuctpi )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Trigger/TrigConfiguration/TrigConfStorage )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
@@ -17,18 +11,15 @@ find_package( XercesC )
 atlas_add_library( TrigConfMuctpi
                    src/*.cxx
                    PUBLIC_HEADERS TrigConfMuctpi
-                   INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS}
-                   PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${XERCESC_LIBRARIES} TrigConfStorage
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} )
+                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${XERCESC_LIBRARIES} )
 
 atlas_add_executable( TrigConfReadWriteMuCTPiGeometry
                       src/test/ReadWriteMuCTPiGeometry.cxx
-                      INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${XERCESC_LIBRARIES} ${Boost_LIBRARIES} TrigConfStorage TrigConfMuctpi )
+                      LINK_LIBRARIES TrigConfMuctpi )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
-atlas_install_scripts( scripts/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
+atlas_install_scripts( scripts/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_xmls( data/*.dtd )
 

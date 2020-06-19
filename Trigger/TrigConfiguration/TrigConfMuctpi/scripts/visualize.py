@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import sys, argparse
+import argparse
 from TrigConfMuctpi.XMLReader import MioctGeometryXMLReader
-from math import pi as PI
 import math
 
 global box, c, h, leg
@@ -56,7 +55,7 @@ def drawROIGeometry(geometry, is2016):
     h = TH2F("h","Muon Geometry %s" % "2016" if is2016 else "2015",10,-2.6,2.6,10,-0.15,6.4)
     h.SetXTitle("#eta")
     h.SetYTitle("#phi")
-    h.Draw();
+    h.Draw()
 
     box = TBox()
     box.SetFillStyle(0)
@@ -133,7 +132,7 @@ def drawTopoGeometry(geometry, is2016):
     h = TH2F("h","Muon Topo Geometry %s" % "2016" if is2016 else "2015",10,-2.6,2.6,10,-0.15,6.4)
     h.SetXTitle("#eta")
     h.SetYTitle("#phi")
-    h.Draw();
+    h.Draw()
 
     box = TBox()
     box.SetFillStyle(0)
@@ -201,7 +200,7 @@ def drawTopoGeometryEtaPhi(geometry, colorBy, is2016):
     h = TH2F("h","Muon Topo Geometry %i" % (2016 if is2016 else 2015),10,-2.6,2.6,10,-0.15,6.4)
     h.SetXTitle("#eta")
     h.SetYTitle("#phi")
-    h.Draw();
+    h.Draw()
 
     box = TBox()
     box.SetFillStyle(0)
@@ -265,7 +264,7 @@ def drawTopoGeometryEtaPhi(geometry, colorBy, is2016):
             circle.DrawArc(c_x/10.,c_y/10.,0.02)
 
 
-            if not code in codeInLegend:
+            if code not in codeInLegend:
                 codeInLegend += [code]
                 if colorBy==ETACODE:
                     leg.AddEntry(b,"etacode %i" % code,"lf")
@@ -306,7 +305,7 @@ def drawCodeValues(geometry, is2016):
     h = TH2F("h","Muon Topo encoding %i" % (2016 if is2016 else 2015),8,0,8,8,0,8)
     h.SetXTitle("#eta")
     h.SetYTitle("#phi")
-    h.Draw();
+    h.Draw()
 
     for MioctID in drawOrder:
     #for MioctID in [3,4,5,6,7]:
@@ -332,7 +331,7 @@ def drawIValues(geometry, is2016):
     h = TH2F("h","Muon Topo encoding %i" % (2016 if is2016 else 2015),48,-24,24,64,0,64)
     h.SetXTitle("#eta_{index}")
     h.SetYTitle("#phi_{index}")
-    h.Draw();
+    h.Draw()
 
     for MioctID in drawOrder:
         MIOCT = geometry.getMIOCT(MioctID)
@@ -351,7 +350,7 @@ def drawRoiDeltaR(geometry, is2016):
         global mioctTCmap
         mioctTCmap = {}
         mioctid = mioct['id']
-        if not mioctid in mioctTCmap:
+        if mioctid not in mioctTCmap:
             d = {}
             for tc in mioct.Decode.TopoCells:
                 key = ( int(tc['etacode'],16), int(tc['phicode'],16))
@@ -428,7 +427,7 @@ def main():
 
     is2016 = '2016' in args.filename
 
-    print "Using input %s" % args.filename
+    print("Using input %s" % args.filename)
 
     geometry = readXML(args.filename)
 
