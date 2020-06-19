@@ -13,8 +13,6 @@ atlas_add_component( AthExCUDA
 atlas_install_joboptions( share/*.py )
 
 # Test(s) in the package.
-atlas_add_test( LinearTransformStandalone
-   SCRIPT athena.py AthExCUDA/LinearTransformStandaloneExample_jobOptions.py )
 atlas_add_test( LinearTransformTask
    SCRIPT athena.py AthExCUDA/LinearTransformTaskExample_jobOptions.py )
 atlas_add_test( LinearTransformTaskMT

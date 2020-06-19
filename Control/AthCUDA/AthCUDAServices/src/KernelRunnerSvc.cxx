@@ -89,8 +89,11 @@ namespace AthCUDA {
          // If so, let's just execute the task in the current thread.
          ATH_MSG_VERBOSE( "Executing a task on the CPU" );
          StreamHolder dummy;
-         ATH_CHECK( task->finished( task->execute( dummy ),
-                                    IKernelTask::Synchronous ) );
+         if( task->finished( task->execute( dummy ),
+                             IKernelTask::Synchronous ) != 0 ) {
+            ATH_MSG_ERROR( "Failed to execute task in the caller thread!" );
+            return StatusCode::FAILURE;
+         }
 
          // Return gracefully.
          return StatusCode::SUCCESS;
