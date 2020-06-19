@@ -12,24 +12,36 @@ particle=$1
 energy=$2
 geometry=$3
 script=$4
-echo 'Particle type: '$particle', energy: '$energy', geometry: '${geometry}', script name: ',${script}
+clustering=$5
 
-if [ $particle == "muons" ]; then
+
+echo 'Particle type: '${particle}', energy: '${energy}', geometry: '${geometry}', script name: '${script}', clustering: '${clustering}
+
+if [ ${particle} == "muons" ]; then
   particle1="mu"
-elif [ $particle == "electrons" ]; then
+elif [ ${particle} == "electrons" ]; then
   particle1="e"
 fi
-if [ $energy == "1GeV" ]; then
+if [ ${energy} == "1GeV" ]; then
   energy1="Pt1"
-elif [ $energy == "10GeV" ]; then
+elif [ ${energy} == "10GeV" ]; then
   energy1="Pt10"
-elif [ $energy == "100GeV" ]; then
+elif [ ${energy} == "100GeV" ]; then
   energy1="Pt100"
 fi
 
+# Set analogue clustering by default
+if [ ${clustering} != 'digital' ]; then
+  clustering="analogue"
+fi
 
+if [ ${clustering} == 'digital' ]; then
+  clustering_type='InDetSLHC_Example/postInclude.DigitalClustering.py'
+elif [ ${clustering} == 'analogue' ]; then
+  clustering_type='InDetSLHC_Example/postInclude.AnalogueClustering.py'
+fi
 
-
+echo "Clustering: "${clustering_type}
 
 # Fix ordering of output in logfile
 exec 2>&1
@@ -99,9 +111,13 @@ dcubecfg_digi_strip=${artdata}/InDetSLHC_Example/dcube/config/ITk_SCT_RDOAnalysi
 dcubecfg_rec=${artdata}/InDetSLHC_Example/dcube/config/ITk_IDPVM.xml
 
 
+if [ ${clustering} == 'digital' ]; then
+  dcuberef_rec=${artdata}/InDetSLHC_Example/ReferenceHistograms/physval.ATLAS-P2-ITK-17-04-02_single_${particle1}_${energy1}_digi.root
+elif [ ${clustering} == 'analogue' ]; then
+  dcuberef_rec=${artdata}/InDetSLHC_Example/ReferenceHistograms/physval.ATLAS-P2-ITK-17-04-02_single_${particle1}_${energy1}_ana.root
+fi
 
 dcuberef_sim=${artdata}/InDetSLHC_Example/ReferenceHistograms/SiHit_ATLAS-P2-ITK-17-04-02_single_${particle1}_${energy1}.root
-dcuberef_rec=${artdata}/InDetSLHC_Example/ReferenceHistograms/physval.ATLAS-P2-ITK-17-04-02_single_${particle1}_${energy1}_digi.root
 dcuberef_digi_pixel=${artdata}/InDetSLHC_Example/ReferenceHistograms/PixelRDOAnalysis.ATLAS-P2-ITK-17-04-02_single_${particle1}_${energy1}.root
 dcuberef_digi_strip=${artdata}/InDetSLHC_Example/ReferenceHistograms/SCT_RDOAnalysis.ATLAS-P2-ITK-17-04-02_single_${particle1}_${energy1}.root
 
@@ -207,7 +223,7 @@ if [ $dorec -ne 0 ]; then
       --conditionsTag    OFLCOND-MC15c-SDR-14-03 \
       --DataRunNumber    242000 \
       --steering doRAWtoALL \
-      --postInclude 'all:InDetSLHC_Example/postInclude.SLHC_Setup_ITK.py,InDetSLHC_Example/postInclude.SLHC_Setup.py' 'HITtoRDO:InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py' 'RAWtoALL:InDetSLHC_Example/postInclude.DigitalClustering.py,InDetSLHC_Example/postInclude.RDOAnalysis.py'\
+      --postInclude 'all:InDetSLHC_Example/postInclude.SLHC_Setup_ITK.py,InDetSLHC_Example/postInclude.SLHC_Setup.py' 'HITtoRDO:InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py' 'RAWtoALL:'${clustering_type}',InDetSLHC_Example/postInclude.RDOAnalysis.py'\
  --preExec 'all:from AthenaCommon.GlobalFlags import globalflags; globalflags.DataSource.set_Value_and_Lock("geant4"); from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags; SLHC_Flags.doGMX.set_Value_and_Lock(True)' 'HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags; digitizationFlags.doInDetNoise.set_Value_and_Lock(False); digitizationFlags.overrideMetadata+=["SimLayout","PhysicsList"]'\
  'RAWtoALL:from InDetRecExample.InDetJobProperties import InDetFlags;from PixelConditionsServices.PixelConditionsServicesConf import PixelCalibSvc;ServiceMgr +=PixelCalibSvc();InDetFlags.useDCS.set_Value_and_Lock(True);ServiceMgr.PixelCalibSvc.DisableDB=True; from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags; InDetDxAODFlags.DumpLArCollisionTime.set_Value_and_Lock(False);InDetDxAODFlags.DumpSctInfo.set_Value_and_Lock(True); InDetDxAODFlags.ThinHitsOnTrack.set_Value_and_Lock(False)'\
  --preInclude  'all:InDetSLHC_Example/preInclude.SLHC_Setup.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py' 'HITtoRDO:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py' 'default:InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Reco.py,InDetSLHC_Example/SLHC_Setup_Reco_TrackingGeometry_GMX.py'\

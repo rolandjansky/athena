@@ -11,12 +11,12 @@
 #
 
 
-file=test_ITk_single_particle_ana.sh
+file=test_ITk_single_particle.sh
 script="`basename \"$0\"`"
 
 echo "Executing script ${file}"
 echo " "
-"$file" muons 100GeV  ATLAS-P2-ITK-22-02-00 ${script}
+"$file" muons 100GeV  ATLAS-P2-ITK-22-02-00 ${script} analogue
 
 
 
