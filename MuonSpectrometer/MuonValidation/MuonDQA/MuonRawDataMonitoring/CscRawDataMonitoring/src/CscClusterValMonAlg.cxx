@@ -26,14 +26,10 @@
 using namespace Muon;
 
 CscClusterValMonAlg::CscClusterValMonAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
-  AthMonitorAlgorithm(name,pSvcLocator),
-  m_stripFitter("CalibCscStripFitter/CalibCscStripFitter"),
-  m_cscCalibTool("CscCalibTool/CscCalibTool")
+  AthMonitorAlgorithm(name,pSvcLocator)
   {
     declareProperty("CSCQmaxCutADC", m_qmaxADCCut = 100);
-    declareProperty("CSCStripFitter", m_stripFitter);
-    declareProperty("CSCCalibTool", m_cscCalibTool);
-
+ 
   //trigger aware monitoring
     declareProperty("CSCDoEventSelection",   m_doEvtSel = false );
     declareProperty("CSCEventSelTriggers", m_sampSelTriggers );

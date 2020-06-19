@@ -3,7 +3,7 @@
 #
 
 from AthenaConfiguration.ComponentFactory import CompFactory
-from MuonConfig.MuonSegmentFindingConfig import CalibCscStripFitterCfg
+#from MuonConfig.MuonSegmentFindingConfig import CalibCscStripFitterCfg
 
 from .CscMonUtils import getCSCLabelx
 
@@ -67,12 +67,16 @@ def CscMonitoringConfig(inputFlags):
     # # this example, no accumulator is returned, so no merge is necessary.
     # from MyDomainPackage.MyDomainPackageConf import MyDomainTool
     # exampleMonAlg.MyDomainTool = MyDomainTool()
-   # cscClusMonAlg.CSCStripFitter = strp
-   # cscPrdMonAlg.CSCStripFitter = strp
+    from MuonConfig.MuonCalibConfig import CscCalibToolCfg
+    cscClusMonAlg.CscCalibTool = CscCalibToolCfg(inputFlags).popPrivateTools()
 
-    strp = CalibCscStripFitterCfg(inputFlags)
-    strp.popPrivateTools()
-    result.merge(strp)
+    from MuonConfig.MuonSegmentFindingConfig import CalibCscStripFitterCfg
+    cscClusMonAlg.CSCStripFitter = CalibCscStripFitterCfg(inputFlags).popPrivateTools()
+    cscPrdMonAlg.CSCStripFitter = CalibCscStripFitterCfg(inputFlags).popPrivateTools()
+
+    #strp = CalibCscStripFitterCfg(inputFlags)
+    #strp.popPrivateTools()
+    #result.merge(strp)
 
     
  
