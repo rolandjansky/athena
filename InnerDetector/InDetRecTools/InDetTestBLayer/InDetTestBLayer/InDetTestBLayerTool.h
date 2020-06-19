@@ -165,7 +165,7 @@ namespace InDet {
     double m_etaRegionSize;
     double m_goodFracCut;
     bool m_checkAtLeastNearestNeighbors;
-    static const char *s_layerNames[2];
+    static const std::string s_layerNames[2];
   };
   
   

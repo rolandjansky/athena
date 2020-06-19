@@ -30,7 +30,7 @@ using Amg::Transform3D;
 // don't want to include TrackSummary in the header
 // therefore anonymous "static" definition in the implementation file
 //namespace {
-  Trk::SummaryType s_layerSummaryTypeExpectHit[2] {
+  static const Trk::SummaryType s_layerSummaryTypeExpectHit[2] {
     Trk::expectInnermostPixelLayerHit,
     Trk::expectNextToInnermostPixelLayerHit
   };
@@ -38,7 +38,7 @@ using Amg::Transform3D;
 
 
 namespace InDet {
-  const char *InDetTestBLayerTool::s_layerNames[2] {
+  const std::string InDetTestBLayerTool::s_layerNames[2] {
     "innermost pixel layer",
     "next to innermost pixel layer"
   };
@@ -346,7 +346,7 @@ namespace InDet {
   bool InDet::InDetTestBLayerTool::expectHitInPixelLayer(const Trk::TrackParameters* trackpar,int layer) const
   {
     assert( layer >=0 && layer<=1);
-    const char *layer_name=s_layerNames[layer];
+    const std::string layer_name=s_layerNames[layer];
 
     if(!m_configured){
       ATH_MSG_WARNING("Unconfigured tool, unable to compute expected hit in the " << layer_name << ".");
