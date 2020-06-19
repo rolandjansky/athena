@@ -24,7 +24,7 @@ Muon__MuonClusterSegmentFinder=CompFactory.getComp("Muon::MuonClusterSegmentFind
 
 #Local
 from MuonConfig.MuonCalibConfig import MdtCalibDbAlgCfg
-from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MuonAmbiProcessorCfg, MuonStationIntersectSvcCfg, MuonTrackCleanerCfg, MuonTrackSummaryToolCfg
+from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MuonAmbiProcessorCfg, MuonStationIntersectSvcCfg, MuonTrackCleanerCfg, MuonTrackSummaryToolCfg, MuonEDMPrinterTool
 from MuonConfig.MuonRIO_OnTrackCreatorConfig import MdtCalibWindowNumber
 
 def MuonHoughPatternFinderTool(flags, **kwargs):
@@ -228,6 +228,8 @@ def DCMathSegmentMakerCfg(flags, **kwargs):
     segment_fitter=acc.getPrimary()
     result.addPublicTool(segment_fitter)
     
+    kwargs.setdefault("EDMPrinter", MuonEDMPrinterTool(flags) )
+
     result.merge(acc)    
     kwargs.setdefault("SegmentFitter", segment_fitter)
     
@@ -441,7 +443,9 @@ def Csc2dSegmentMakerCfg(flags, name= "Csc2dSegmentMaker", **kwargs):
         result.addPublicTool(csc_segment_util_tool)
         kwargs.setdefault('segmentTool', csc_segment_util_tool)
         result.merge(acc)
-        
+    
+    kwargs.setdefault("printerTool", MuonEDMPrinterTool(flags) )
+
     csc_segment_maker = Csc2dSegmentMaker(name=name, **kwargs)
     result.setPrivateTools(csc_segment_maker)
     

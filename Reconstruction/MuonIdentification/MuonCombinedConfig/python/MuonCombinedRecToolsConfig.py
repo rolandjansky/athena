@@ -7,6 +7,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
+from MuonConfig.MuonRecToolsConfig import MuonEDMPrinterTool
 
 #FIXME
 GeV = 1000
@@ -234,6 +235,9 @@ def ExtrapolateMuonToIPToolCfg(flags, name="ExtrapolateMuonToIPTool", **kwargs):
 
 def MuonCandidateToolCfg(flags, name="MuonCandidateTool",**kwargs):
     from MuonConfig.MuonRecToolsConfig import MuonAmbiProcessorCfg
+
+    kwargs.setdefault("Printer", MuonEDMPrinterTool(flags) )
+
     result = CombinedMuonTrackBuilderCfg(flags, name="CombinedMuonTrackBuilder")
     kwargs.setdefault("TrackBuilder", result.popPrivateTools() )
 #   Why was this dependent on cosmics? will now always create this 
@@ -307,7 +311,8 @@ def MuonCombinedFitTagToolCfg(flags, name="MuonCombinedFitTagTool",**kwargs):
 def MuonCombinedStacoTagToolCfg(flags, name="MuonCombinedStacoTagTool",**kwargs):
     from TrackToCalo.TrackToCaloConfig import ParticleCaloExtensionToolCfg
     result = ParticleCaloExtensionToolCfg(flags)
-    kwargs.setdefault("ParticleCaloExtensionTool", result.getPrimary() )    
+    kwargs.setdefault("ParticleCaloExtensionTool", result.getPrimary() )  
+    kwargs.setdefault("Printer", MuonEDMPrinterTool(flags) )
     tool = CompFactory.MuonCombined.MuonCombinedStacoTagTool(name,**kwargs)
     result.setPrivateTools(tool)
     return result 
@@ -367,7 +372,9 @@ def MuidTrackCleanerCfg(flags, name='MuidTrackCleaner', **kwargs ):
     kwargs.setdefault("SLFitter"    , acc.popPrivateTools() )
     result.merge(acc)
   
-    tool = CompFactory.Muon.MuonTrackCleaner(name,**kwargs)
+    kwargs.setdefault("Printer", MuonEDMPrinterTool(flags) )
+
+    tool = CompFactory.Muon.MuonTrackCleaner(name,**kwargs) #FIXME this is also in MuonConfig - check to see whether we can just use this.
     result.setPrivateTools(tool)
     return result
     
@@ -810,7 +817,7 @@ def MuonLayerSegmentFinderToolCfg(flags, name="MuonLayerSegmentFinderTool", **kw
     kwargs.setdefault("Csc2DSegmentMaker",               csc2d )
     kwargs.setdefault("Csc4DSegmentMaker",               csc4d )
 
-    acc = DCMathSegmentMakerCfg(flags, name = "DCMathSegmentMakerEJWM")
+    acc = DCMathSegmentMakerCfg(flags, name = "DCMathSegmentMaker")
     segmentmaker = acc.popPrivateTools()
     kwargs.setdefault("SegmentMaker",               segmentmaker )
     result.addPublicTool(segmentmaker)
