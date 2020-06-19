@@ -1,0 +1,169 @@
+// Dear emacs, this is -*- c++ -*-
+//
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+//
+#ifndef ATHCUDACORE_MEMORY_ICC
+#define ATHCUDACORE_MEMORY_ICC
+
+// System include(s).
+#include <cstring>
+
+namespace AthCUDA {
+
+   namespace details {
+
+      /// Helper function for allocating a primitive array in managed memory
+      template< typename T >
+      T* managedMallocHelper( std::size_t size );
+
+      /// Helper function for allocating a primitive array in device memory
+      template< typename T >
+      T* deviceMallocHelper( std::size_t size );
+
+      /// Helper function for allocating a primitive array in host memory
+      template< typename T >
+      T* hostMallocHelper( std::size_t size );
+
+   } // namespace details
+
+   template< typename T >
+   managed_array< T >
+   make_managed_array( std::size_t size ) {
+
+      return managed_array< T >( details::managedMallocHelper< T >( size ) );
+   }
+
+   template< typename T >
+   device_array< T >
+   make_device_array( std::size_t size ) {
+
+      return device_array< T >( details::deviceMallocHelper< T >( size ) );
+   }
+
+   template< typename T >
+   host_array< T >
+   make_host_array( std::size_t size ) {
+
+      return host_array< T >( details::hostMallocHelper< T >( size ) );
+   }
+
+   template< typename T >
+   ATHCUDA_HOST_AND_DEVICE
+   array< T >::array()
+      : m_ptr( nullptr ), m_size( 0 ) {
+
+   }
+
+   template< typename T >
+   ATHCUDA_HOST_AND_DEVICE
+   array< T >::array( std::size_t size )
+      : m_ptr( new T[ size ] ),
+        m_size( size ) {
+
+   }
+
+   template< typename T >
+   ATHCUDA_HOST_AND_DEVICE
+   array< T >::array( array< T >&& parent )
+      : m_ptr( parent.m_ptr ), m_size( parent.m_size ) {
+
+      parent.m_ptr = nullptr;
+      parent.m_size = 0;
+   }
+
+   template< typename T >
+   ATHCUDA_HOST_AND_DEVICE
+   array< T >::~array() {
+
+      if( m_ptr ) {
+         delete[] m_ptr;
+      }
+   }
+
+   template< typename T >
+   ATHCUDA_HOST_AND_DEVICE
+   array< T >& array< T >::operator=( array< T >&& rhs ) {
+
+      if( &rhs == this ) {
+         return *this;
+      }
+
+      m_ptr  = rhs.m_ptr;
+      m_size = rhs.m_size;
+      rhs.m_ptr  = nullptr;
+      rhs.m_size = 0;
+
+      return *this;
+   }
+
+   template< typename T >
+   ATHCUDA_HOST_AND_DEVICE
+   std::size_t array< T >::size() const {
+
+      return m_size;
+   }
+
+   template< typename T >
+   ATHCUDA_HOST_AND_DEVICE
+   T* array< T >::get() {
+
+      return m_ptr;
+   }
+
+   template< typename T >
+   ATHCUDA_HOST_AND_DEVICE
+   const T* array< T >::get() const {
+
+      return m_ptr;
+   }
+
+   template< typename T >
+   ATHCUDA_HOST_AND_DEVICE
+   T& array< T >::operator[]( std::size_t index ) {
+
+      return m_ptr[ index ];
+   }
+
+   template< typename T >
+   ATHCUDA_HOST_AND_DEVICE
+   const T& array< T >::operator[]( std::size_t index ) const {
+
+      return m_ptr[ index ];
+   }
+
+   template< typename T >
+   ATHCUDA_HOST_AND_DEVICE
+   bool array< T >::resize( std::size_t size ) {
+
+      // If no size change is requested, return right away.
+      if( size == m_size ) {
+         return false;
+      }
+
+      // Remember the old array.
+      T* old_ptr = m_ptr;
+      const std::size_t old_size = m_size;
+
+      // Create the new array.
+      m_ptr = new T[ size ];
+      m_size = size;
+
+      // Copy the contents of the old array into the new one.
+      if( old_ptr ) {
+         const std::size_t copy_size = ( old_size <= m_size ?
+                                         old_size : m_size );
+         memcpy( m_ptr, old_ptr, copy_size * sizeof( T ) );
+      }
+
+      // Remove the old array.
+      if( old_ptr ) {
+         delete[] old_ptr;
+      }
+
+      // Show that a resize actually took place.
+      return true;
+   }
+
+} // namespace AthCUDA
+
+#endif // ATHCUDACORE_MEMORY_ICC
