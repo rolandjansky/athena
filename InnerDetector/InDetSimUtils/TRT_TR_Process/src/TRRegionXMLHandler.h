@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRREGIONXMLHANDLER_H
@@ -8,6 +8,7 @@
 #include <string>
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/MsgStreamMember.h"
+#include "CxxUtils/checker_macros.h"
 
 class TRTTransitionRadiation;
 
@@ -22,7 +23,7 @@ private:
   TRTTransitionRadiation * m_theProcess;
   StoreGateSvc* m_storeGate;
   bool m_initialLayoutIdDict;
-  mutable Athena::MsgStreamMember m_msg;
+  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
 };
 
 #endif
