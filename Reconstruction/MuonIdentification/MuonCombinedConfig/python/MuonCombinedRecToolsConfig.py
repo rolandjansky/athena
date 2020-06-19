@@ -609,6 +609,11 @@ def CombinedMuonTrackBuilderCfg(flags, name='CombinedMuonTrackBuilder', **kwargs
     else:
         kwargs.setdefault("MuonErrorOptimizer", "")
 
+    from MuonConfig.MuonTrackBuildingConfig import MuonChamberHoleRecoveryToolCfg
+    acc = MuonChamberHoleRecoveryToolCfg(flags)
+    kwargs.setdefault("MuonHoleRecovery"                 , acc.popPrivateTools())
+    result.merge(acc)
+
     if flags.Muon.doSegmentT0Fit:
         kwargs.setdefault("MdtRotCreator"                 , "" )
 
