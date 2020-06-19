@@ -314,15 +314,16 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
   // Number of module services to take into account for each module
   std::vector<int> nbModuleSvc;
   int vecSize=(m_transitionModuleNumber==0)?2:3;
+  if (m_endcapModuleNumber==0) vecSize--;
   nbModuleSvc.resize(vecSize);
   int brlModuleIndex=0;
-  int transModuleIndex=(m_transitionModuleNumber>0)?1:-1;
-  int endcapModuleIndex=(m_transitionModuleNumber>0)?2:1;
+  int transModuleIndex=(m_transitionModuleNumber>0)?brlModuleIndex+1:-1;
+  int endcapModuleIndex=(m_endcapModuleNumber>0)?vecSize-1:-1;
 
   int brlModuleCmpt=-1;
   nbModuleSvc[brlModuleIndex]=m_barrelModuleNumber/2+m_barrelModuleNumber%2;
   if(transModuleIndex>0)nbModuleSvc[transModuleIndex]=m_transitionModuleNumber/2;
-  nbModuleSvc[endcapModuleIndex]=m_endcapModuleNumber;  
+  if(endcapModuleIndex)nbModuleSvc[endcapModuleIndex]=m_endcapModuleNumber;  
 
   if(bVerbose){
     std::cout<<"MODULE SERVICES init for layer  "<<m_layer <<" : ";  for(int i=0; i<(int)nbModuleSvc.size(); i++) std::cout<<nbModuleSvc[i]<<" "; std::cout<<std::endl;
@@ -1094,19 +1095,19 @@ GeoPhysVol* GeoPixelLadderInclRef::createServiceVolume(double length, double thi
 
   GeoMaterial* svcMat = 0;  // do not redefine material if already done
 
-  if ( m_ladderType>0 ) {
-    std::string matNameStave = m_IDserviceTool->getLayerStaveModuleMaterialName(m_layer, m_ladderType, nModuleSvc);   // material name stored in PixelServicesTool
-    msg(MSG::DEBUG) <<"Barrel module service material  : "<<matNameStave<<"  "<<endmsg;  
-    std::ostringstream wg_matNameStave;  
-    wg_matNameStave<<matNameStave<<"_"<<m_svcMaterialCmpt;  
-    msg(MSG::DEBUG) <<"Barrel module weighted service material : "<<matNameStave<<"  "<<wg_matNameStave.str()<<"   / sector : "<<m_sector<<endmsg;
-    if(matNameStave!="None") {
-      if(matMgr()->hasMaterial(wg_matNameStave.str()))
-	svcMat = const_cast < GeoMaterial* > (matMgr()->getMaterial(wg_matNameStave.str())); // material already defined
-      else
-	svcMat = const_cast<GeoMaterial*>(matMgr()->getMaterialForVolumeLength(matNameStave, svcBox->volume(), 2*length, wg_matNameStave.str()));  // define material
-    }
+  //if ( m_ladderType>0 ) {
+  std::string matNameStave = m_IDserviceTool->getLayerStaveModuleMaterialName(m_layer, m_ladderType, nModuleSvc);   // material name stored in PixelServicesTool
+  msg(MSG::DEBUG) <<"Barrel module service material  : "<<matNameStave<<"  "<<endmsg;  
+  std::ostringstream wg_matNameStave;  
+  wg_matNameStave<<matNameStave<<"_"<<m_svcMaterialCmpt;  
+  msg(MSG::DEBUG) <<"Barrel module weighted service material : "<<matNameStave<<"  "<<wg_matNameStave.str()<<"   / sector : "<<m_sector<<endmsg;
+  if(matNameStave!="None") {
+    if(matMgr()->hasMaterial(wg_matNameStave.str()))
+      svcMat = const_cast < GeoMaterial* > (matMgr()->getMaterial(wg_matNameStave.str())); // material already defined
+    else
+      svcMat = const_cast<GeoMaterial*>(matMgr()->getMaterialForVolumeLength(matNameStave, svcBox->volume(), 2*length, wg_matNameStave.str()));  // define material
   }
+  //}
 
   if (!svcMat) {
     std::string matName = m_IDserviceTool->getLayerModuleMaterialName(m_layer ,nModuleSvc);   // material name stored in PixelServicesTool (material are built there)
