@@ -135,104 +135,6 @@ namespace Trk
 
 	FullVertexFitter::~FullVertexFitter() {}
 
-	/** Interface for Track with starting point */
-	xAOD::Vertex * FullVertexFitter::fit ( const std::vector<const Trk::Track*> & vectorTrk,
-	                                       const Amg::Vector3D& firstStartingPoint ) const
-	{
-                xAOD::Vertex constraint;
-                constraint.makePrivateStore();
-                constraint.setPosition( firstStartingPoint );
-                constraint.setCovariancePosition( AmgSymMatrix(3)(3,3) );
-                constraint.setFitQuality( 0.,0.);
-		return fit ( vectorTrk, constraint );
-	}
-
-	/** Interface for Track with vertex constraint */
-	/** the position of the constraint is ALWAYS the starting point */
-	xAOD::Vertex * FullVertexFitter::fit ( const std::vector<const Trk::Track*>& vectorTrk,
-	                                       const xAOD::Vertex& firstStartingPoint ) const
-	{
-		// push_back measured perigees of track into vector<const Trk::ParametersBase*>
-		std::vector<const Trk::TrackParameters*> measuredPerigees;
-		for ( std::vector<const Trk::Track*>::const_iterator trItr = vectorTrk.begin();
-		        trItr != vectorTrk.end() ; ++trItr )
-		{
-			measuredPerigees.push_back ( ( *trItr )->perigeeParameters() );
-		}
-
-		xAOD::Vertex * FittedVertex = fit ( measuredPerigees, firstStartingPoint );
-
-		if ( FittedVertex == 0 ) return FittedVertex;
-
-		// assign the used tracks to the fitted vertex through VxTrackAtVertices
-		for ( unsigned int k = 0 ; k < vectorTrk.size() ; ++k )
-		{
-			LinkToTrack* link = new LinkToTrack;
-			link->setElement ( vectorTrk[k] );
-			// vxtrackatvertex takes ownership!!
-			( FittedVertex->vxTrackAtVertex() ) [k].setOrigTrack ( link );
-		}
-
-                //*******************************************************************
-                // TODO: Starting from a vector of Trk::Tracks, can't currently store
-                // separately from the vxTrackAtVertex vector the links to the
-                // original tracks (only links to xAOD::TrackParticles and
-                // xAOD::NeutralParticles can be stored)
-                // TODO: look at VxCandidateXAODVertex.cxx line 205
-                //*******************************************************************
-
-		return FittedVertex;
-	}
-
-	/** Interface for TrackParticleBase with starting point */
-	xAOD::Vertex * FullVertexFitter::fit ( const std::vector<const Trk::TrackParticleBase*> & vectorTrk,
-	                                       const Amg::Vector3D& firstStartingPoint ) const
-	{
-                xAOD::Vertex constraint;
-                constraint.makePrivateStore();
-                constraint.setPosition( firstStartingPoint );
-                constraint.setCovariancePosition( AmgSymMatrix(3)(3,3) );
-                constraint.setFitQuality( 0.,0.);
-		return fit ( vectorTrk, constraint );
-	}
-
-	/** Interface for TrackParticleBase with vertex constraint */
-	/** the position of the constraint is ALWAYS the starting point */
-	xAOD::Vertex * FullVertexFitter::fit ( const std::vector<const Trk::TrackParticleBase*>& vectorTrk,
-	                                       const xAOD::Vertex& firstStartingPoint ) const
-	{
-		// push_back measured perigees of track into vector<const Trk::ParametersBase*>
-		std::vector<const Trk::TrackParameters*> measuredPerigees;
-		for ( std::vector<const Trk::TrackParticleBase*>::const_iterator trItr = vectorTrk.begin();
-		        trItr != vectorTrk.end() ; ++trItr )
-		{
-			measuredPerigees.push_back ( & ( ( *trItr )->definingParameters() ) );
-		}
-
-		xAOD::Vertex * FittedVertex = fit ( measuredPerigees, firstStartingPoint );
-
-		if ( FittedVertex == 0 ) return FittedVertex;
-
-		// assign the used tracks to the VxCandidate
-		for ( unsigned int k = 0 ; k < vectorTrk.size() ; ++k )
-		{
-			LinkToTrackParticleBase* link = new LinkToTrackParticleBase;
-			link->setElement ( vectorTrk[k] );
-			// vxtrackatvertex takes ownership!!
-			( FittedVertex->vxTrackAtVertex() ) [k].setOrigTrack ( link );
-		}
-
-                //*******************************************************************
-                // TODO: Starting from a vector of Trk::Tracks, can't currently store
-                // separately from the vxTrackAtVertex vector the links to the
-                // original tracks (only links to xAOD::TrackParticles and
-                // xAOD::NeutralParticles can be stored)
-                // TODO: look at VxCandidateXAODVertex.cxx line 205
-                //*******************************************************************
-
-		return FittedVertex;
-	}
-
 	/** Interface for ParametersBase with starting point */
 	xAOD::Vertex * FullVertexFitter::fit ( const std::vector<const Trk::TrackParameters*> & originalPerigees,
 	                                       const Amg::Vector3D& firstStartingPoint ) const
@@ -596,11 +498,6 @@ namespace Trk
                 return fit ( perigeeList, tmpVtx );
 	}
 
-	xAOD::Vertex * FullVertexFitter::fit ( const std::vector<const Trk::Track*>& vectorTrk ) const
-	{
-		Amg::Vector3D tmpVtx(0.,0.,0.);
-		return fit ( vectorTrk, tmpVtx );
-	}
 
  		//xAOD interfaced methods. Required to un-block the current situation  
  		// with the xAOD tracking design. 
