@@ -592,7 +592,6 @@ SCTLorentzMonTool::bookLorentzHistos() {                                        
   if (success == 0) {
     return StatusCode::FAILURE;
   }                                                                                                                 //
-  // hidetoshi 14.01.22
   return StatusCode::SUCCESS;
 }
 
