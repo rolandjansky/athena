@@ -91,10 +91,10 @@ StatusCode GetDetectorLocalFrames::execute() {
   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "execute() check global position" << endmsg;
   
     StatusCode sc = StatusCode::SUCCESS;
-    static int eventCount(-1); eventCount++;
+    m_eventCount++;
     
     /** run only for one event */
-    if (eventCount!=0) 
+    if (m_eventCount!=0) 
       return sc; 
     
     std::cout << "========================================================================================" <<std::endl;
