@@ -847,6 +847,16 @@ IOVSvc::createCondObj(CondContBase* ccb, const DataObjID& id,
     dobj = 0;
   }
 
+  // Some data objects may be reference counted by the address.
+  // CondCont will take ownership of the object, but doesn't
+  // do refcounting.  We'll have gotten a reference via the Storable_cast
+  // above, so it should be ok ... unless CondCont deletes
+  // the new object immediately instead of inserting.
+  // In that case, when we delete the address, it will
+  // follow an invalid pointer.  So be sure to delete
+  // the address before the object is added to CondCont.
+  ioa.release();
+
   // DataObject *d2 = static_cast<DataObject*>(v);
   
   ATH_MSG_DEBUG( " SG::Storable_cast to obj: " << v );
