@@ -1,15 +1,12 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 def createIsoToolElectronSelector():
 
   from AthenaCommon.AppMgr import ToolSvc
-  from AthenaCommon import CfgMgr
-  from egammaRec.Factories                                          import ToolFactory
   from TrigEgammaEmulationTool.TrigEgammaEmulationToolConf import Trig__TrigEgammaIsolationSelectorTool
   from TrigEgammaEmulationTool.TrigEgammaEmulationToolConfig        import OutputLevel
   
   from TrigEgammaHypo.TrigEFElectronHypoConfig import isolation_dict, caloisolation_dict
-  from TrigEgammaHypo.TrigEFPhotonHypoConfig   import TrigEFPhotonIsoCutDefs
 
   # Track isolation -- remember to add TrackIsolation as a property of the class
   from IsolationTool.IsolationToolConf import xAOD__TrackIsolationTool
@@ -37,7 +34,7 @@ def createIsoToolElectronSelector():
   for wp in isolations:
 
     caloiso = True if 'icalo' in wp else False
-    trkiso = True if not 'icalo' in wp else False
+    trkiso = True if 'icalo' not in wp else False
     
     tool = Trig__TrigEgammaIsolationSelectorTool( 'IsolationTool_'+wp,
                                           RelEtConeCut = caloisolation_dict[wp] if caloiso else [-1,-1,-1,-1,-1,-1],
@@ -52,10 +49,4 @@ def createIsoToolElectronSelector():
     ToolSvc += tool
     IsoToolSelectors.append( tool )
 
-    #Just to see WTF!
-    _toolname='IsolationTool_'+wp
-    RelEtConeCut = caloisolation_dict[wp] if caloiso else [-1,-1,-1,-1,-1,-1],
-    RelPtConeCut = isolation_dict[wp] if trkiso else [-1,-1,-1,-1,-1,-1],
-
   return IsoToolSelectors
-

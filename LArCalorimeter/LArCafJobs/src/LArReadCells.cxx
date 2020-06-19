@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2028 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCafJobs/LArReadCells.h"
@@ -44,16 +44,16 @@ StatusCode LArReadCells::initialize() {
   m_tree->Branch("BCID",&m_bcid,"BCID/I");
   m_tree->Branch("LArError",&m_error,"LArError/I");
   m_tree->Branch("ncells",&m_ncells,"ncells/I");
-  m_tree->Branch("ECell",m_ECell,"eCell[ncells]/F");
-  m_tree->Branch("TCell",m_TCell,"tCell[ncells]/F");
-  m_tree->Branch("EtaCell",m_EtaCell,"etaCell[ncells]/F");
-  m_tree->Branch("PhiCell",m_PhiCell,"phiCell[ncells]/F");
-  m_tree->Branch("LayerCell",m_LayerCell,"layerCell[ncells]/I");
-  m_tree->Branch("ProvCell", m_ProvCell,"provCell[ncells]/I");
-  m_tree->Branch("QuaCell", m_QuaCell,"quaCell[ncells]/I");
-  m_tree->Branch("GainCell", m_GainCell,"gainCell[ncells]/I");
-  m_tree->Branch("HwidCell", m_HwidCell,"hwidCell[ncells]/I");
-  m_tree->Branch("ADC",m_ADC,"ADC[ncells][32]/I");
+  m_tree->Branch("ECell",m_ECell.data(),"eCell[ncells]/F");
+  m_tree->Branch("TCell",m_TCell.data(),"tCell[ncells]/F");
+  m_tree->Branch("EtaCell",m_EtaCell.data(),"etaCell[ncells]/F");
+  m_tree->Branch("PhiCell",m_PhiCell.data(),"phiCell[ncells]/F");
+  m_tree->Branch("LayerCell",m_LayerCell.data(),"layerCell[ncells]/I");
+  m_tree->Branch("ProvCell", m_ProvCell.data(),"provCell[ncells]/I");
+  m_tree->Branch("QuaCell", m_QuaCell.data(),"quaCell[ncells]/I");
+  m_tree->Branch("GainCell", m_GainCell.data(),"gainCell[ncells]/I");
+  m_tree->Branch("HwidCell", m_HwidCell.data(),"hwidCell[ncells]/I");
+  m_tree->Branch("ADC",m_ADC.data(),"ADC[ncells][32]/I");
 
   ATH_CHECK(detStore()->retrieve(m_caloIdMgr));
   m_calo_id      = m_caloIdMgr->getCaloCell_ID();

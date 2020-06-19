@@ -819,9 +819,14 @@ def __setProperties( destConfigurableInstance, sourceConf2Instance, indent="" ):
             setattr( destConfigurableInstance, pname, [conf2toConfigurable( tool, __indent( indent ) ) for tool in pvalue] )
             _log.debug( "{}Set the private tools array {} of {}".format( indent, pname,  destConfigurableInstance.name() ) )
         elif "PrivateToolHandle" in propType or "GaudiConfig2.Configurables" in propType or "ServiceHandle" in propType:
-            #_log.info( "{} {}  {}".format( indent, pname, dir(pvalue) ) )
             _log.debug( "{}Set the property {}  that is private tool {} ".format( indent,  pname, destConfigurableInstance.name() ) )
-            setattr( destConfigurableInstance, pname, conf2toConfigurable( pvalue, indent=__indent( indent ) ) )
+            try: #sometimes it is not printable
+                _log.debug("{}Tool: {}".format(indent, pvalue))
+            except Exception:
+                _log.debug("{}Could not print it".format(indent))
+                pass
+            if pvalue is not None:
+                setattr( destConfigurableInstance, pname, conf2toConfigurable( pvalue, indent=__indent( indent ) ) )
         else: # plain data
             if isinstance(pvalue,(GaudiConfig2.semantics._ListHelper,GaudiConfig2.semantics._DictHelper)):
                 pvalue=pvalue.data
@@ -899,7 +904,7 @@ def conf2toConfigurable( comp, indent="" ):
 
 
     def __areSettingsSame( existingConfigurableInstance, newConf2Instance, indent="" ):
-        _log.debug( "{}Checking if setting is the same {}".format( indent, compName(existingConfigurableInstance) ) )
+        _log.debug( "{}Checking if setting is the same {}".format( indent, existingConfigurableInstance.getFullName() ) )
         alreadySetProperties = dict([ (pname, pvalue) for pname,pvalue
                                       in six.iteritems(existingConfigurableInstance.getValuedProperties()) ])
         for pname, pvalue in six.iteritems( newConf2Instance._properties ): # six.iteritems(comp._properties):
@@ -914,15 +919,18 @@ def conf2toConfigurable( comp, indent="" ):
                 for oldC, newC in zip( alreadySetProperties[pname], pvalue):
                     __areSettingsSame( oldC, newC, __indent(indent))
             elif "PrivateToolHandle" in propType or "GaudiConfig2.Configurables" in propType or "ServiceHandle" in propType:
-                #__areSettingsSame( alreadySetProperties[pname], pvalue, __indent(indent))
-                _log.debug( "{} {}".format( indent, dir(pvalue) ) )
-                __areSettingsSame( getattr(existingConfigurableInstance, pname), pvalue, __indent(indent))
+                exisitngVal = getattr(existingConfigurableInstance, pname)
+                if isinstance( pvalue, str ):
+                    _log.warning("{}The handle {} of component {}.{} is just a string {}, skipping deeper checks, configuration may be incorrect".format(indent, propType, newConf2Instance.name, pname, pvalue))
+                else:
+                    _log.debug( "{}Some kind of handle  and, object type {} existing {}".format( indent, type(pvalue), type(exisitngVal) ) )
+                    __areSettingsSame( exisitngVal, pvalue, indent)
             else:
                 if isinstance(pvalue,(GaudiConfig2.semantics._ListHelper,GaudiConfig2.semantics._DictHelper)):
                     pvalue=pvalue.data
 
                 if alreadySetProperties[pname] != pvalue:
-                    _log.info("{}Merging property: {} for {}".format(__indent(indent), pname, newConf2Instance.getName() ))
+                    _log.info("{}Merging property: {} for {}".format(indent, pname, newConf2Instance.getName() ))
                     # create surrogate
                     clone = newConf2Instance.getInstance("Clone")
                     setattr(clone, pname, alreadySetProperties[pname])
@@ -932,15 +940,16 @@ def conf2toConfigurable( comp, indent="" ):
                     setattr(existingConfigurable, pname, updatedPropValue)
                     del clone
                     _log.info("{} invoked GaudiConf2 semantics to merge the {} and the {} to {} for property {} of {}".format(
-                        __indent(indent), alreadySetProperties[pname], pvalue, pname,  updatedPropValue, existingConfigurable.getName()))
+                        indent, alreadySetProperties[pname], pvalue, pname,  updatedPropValue, existingConfigurable.getFullName()))
 
     existingConfigurable = __alreadyConfigured( comp.name )
     if existingConfigurable: # if configurable exists we try to merge with it
+        _log.debug( "{}Pre-existing configurable {} was found, checking if has the same properties".format( indent, comp.getName() ) )
         __areSettingsSame( existingConfigurable, comp )
         _log.debug( "{}Pre-existing configurable was found to have the same properties".format( indent, comp.name ) )
         instance = existingConfigurable
     else: # create new configurable
-        _log.debug( "{}Creating component configurable {}".format( indent, comp.name ) )
+        _log.debug( "{}Creating component configurable {}".format( indent, comp.getFullJobOptName() ) )
         configurableClass = __findConfigurableClass( comp.getFullJobOptName().split( "/" )[0] )
         instance = configurableClass( comp.name )
         __setProperties( instance, comp, __indent( indent ) )

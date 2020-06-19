@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -71,7 +71,7 @@ class GetDetectorLocalFrames:public AthAlgorithm {
     const TRT_ID *m_TRTHelper;
     const InDetDD::TRT_DetectorManager *m_TRTDetectorManager;
     
-    
-    
+    /** Counter */
+    int m_eventCount{-1};
     
 };

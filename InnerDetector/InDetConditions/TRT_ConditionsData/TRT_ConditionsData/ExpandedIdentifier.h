@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRTConditionsData_TRTCondIdentifier_h
 #define TRTConditionsData_TRTCondIdentifier_h
 
 #include <iostream>
+#include <string>
 
 namespace TRTCond
 {
@@ -63,8 +64,8 @@ namespace TRTCond
     size_t level() const { return m_level ; }
     
     /** returns level name */
-    static const char* name(size_t l) { 
-      static const char* names[] = {"detector","barrelec","layer_or_wheel","module","straw_layer","straw"} ;
+    const std::string name(size_t l) const { 
+      static const std::string names[] = {"detector","barrelec","layer_or_wheel","module","straw_layer","straw"} ;
       return names[l] ;
     }
     

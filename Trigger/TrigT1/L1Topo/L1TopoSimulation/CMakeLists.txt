@@ -33,7 +33,7 @@ atlas_disable_as_needed()
 
 # Component(s) in the package:
 atlas_add_library( L1TopoSimulationLib
-   L1TopoSimulation/*.h Root/*.cxx
+   L1TopoSimulation/*.h
    INTERFACE
    PUBLIC_HEADERS L1TopoSimulation
    LINK_LIBRARIES GaudiKernel )

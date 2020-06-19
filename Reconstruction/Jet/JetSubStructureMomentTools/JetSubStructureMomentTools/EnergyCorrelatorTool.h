@@ -25,9 +25,10 @@
 class EnergyCorrelatorTool :
   public JetSubStructureMomentToolsBase {
     ASG_TOOL_CLASS(EnergyCorrelatorTool, IJetModifier)
-    
+
     public:
-      // Constructor and destructor
+      
+      /// Constructor
       EnergyCorrelatorTool(std::string name);
      
       virtual StatusCode initialize() override;
@@ -35,12 +36,71 @@ class EnergyCorrelatorTool :
       int modifyJet(xAOD::Jet &injet) const override;
 
     private:
+
+      /// ECF moments structure
+      struct moments_t;
+
+      /// Configurable as properties
       float m_Beta;
       bool m_doC3;
       bool m_doC4;
       std::vector<float> m_rawBetaVals; /// Vector of input values before cleaning
-      std::vector<float> m_betaVals; /// Local vector for cleaned up inputs
       bool m_doDichroic;
+      
+      /// Map of moment calculators and decorators using beta as the key
+      std::map< float, moments_t > m_moments;
+
+  };
+
+/**
+ * --------------------------------------------------------------------------------
+ * Structure to hold all of the necessary moment information for a single set of
+ * EnergyCorrelator calculations. This includes the prefix and suffix, beta, and
+ * the necessary decorators.
+ * --------------------------------------------------------------------------------
+ **/
+
+struct EnergyCorrelatorTool::moments_t {
+
+  /// Prefix for decorations
+  std::string prefix;
+
+  /// Suffix for decorations
+  std::string suffix;
+
+  /// Beta value for calculations
+  float beta;
+
+  /// ECF decorators
+  std::unique_ptr< SG::AuxElement::Decorator<float> > dec_ECF1;
+  std::unique_ptr< SG::AuxElement::Decorator<float> > dec_ECF2;
+  std::unique_ptr< SG::AuxElement::Decorator<float> > dec_ECF3;
+  std::unique_ptr< SG::AuxElement::Decorator<float> > dec_ECF4;
+  std::unique_ptr< SG::AuxElement::Decorator<float> > dec_ECF5;
+
+  /// ECF ungroomed decorators
+  std::unique_ptr< SG::AuxElement::Decorator<float> > dec_ECF1_ungroomed;
+  std::unique_ptr< SG::AuxElement::Decorator<float> > dec_ECF2_ungroomed;
+  std::unique_ptr< SG::AuxElement::Decorator<float> > dec_ECF3_ungroomed;
+
+  moments_t (float Beta, std::string Prefix) {
+
+    prefix = Prefix;
+    beta = Beta;
+
+    suffix = GetBetaSuffix(beta);
+
+    dec_ECF1 = std::make_unique< SG::AuxElement::Decorator<float> >(prefix+"ECF1"+suffix);
+    dec_ECF2 = std::make_unique< SG::AuxElement::Decorator<float> >(prefix+"ECF2"+suffix);
+    dec_ECF3 = std::make_unique< SG::AuxElement::Decorator<float> >(prefix+"ECF3"+suffix);
+    dec_ECF4 = std::make_unique< SG::AuxElement::Decorator<float> >(prefix+"ECF4"+suffix);
+    dec_ECF5 = std::make_unique< SG::AuxElement::Decorator<float> >(prefix+"ECF5"+suffix);
+
+    dec_ECF1_ungroomed = std::make_unique< SG::AuxElement::Decorator<float> >(prefix+"ECF1_ungroomed"+suffix);
+    dec_ECF2_ungroomed = std::make_unique< SG::AuxElement::Decorator<float> >(prefix+"ECF2_ungroomed"+suffix);
+    dec_ECF3_ungroomed = std::make_unique< SG::AuxElement::Decorator<float> >(prefix+"ECF3_ungroomed"+suffix);
+
+  }
 
 };
 

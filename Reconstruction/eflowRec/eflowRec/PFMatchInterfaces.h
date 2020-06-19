@@ -131,8 +131,11 @@ public:
   DistanceProvider(std::unique_ptr<IPositionProvider> trackPosition,
                    std::unique_ptr<IPositionProvider> clusterPosition,
                    std::unique_ptr<DistanceCalculator<TrackPositionType, ClusterPositionType> > distanceCalculator):
-    m_trackPosition(std::move(trackPosition)), m_clusterPosition(std::move(clusterPosition)), m_distanceCalculator(std::move(distanceCalculator)) {
-    //in debug builds we check the pointer validity here to catch a problem early on
+    // dynamic_cast to ensure that the right distance provider classes are received
+    m_trackPosition(dynamic_cast<TrackPositionProvider<TrackPositionType>*>(trackPosition.release())),
+    m_clusterPosition(dynamic_cast<ClusterPositionProvider<ClusterPositionType>*>(clusterPosition.release())),
+    m_distanceCalculator(std::move(distanceCalculator)) {
+    // in debug builds we check the pointer validity here to catch a problem early on
     assert(m_trackPosition.get());
     assert(m_clusterPosition.get());
     assert(m_distanceCalculator.get());
@@ -140,33 +143,14 @@ public:
   virtual ~DistanceProvider() {}
 
   double distanceBetween(const ITrack* track, const ICluster* cluster) {
-    //if anything is not valid we return 10000 to indicate no match, in addition to error messages.
-    if (m_trackPosition.get()){
-      TrackPositionProvider<TrackPositionType>* trackPositionProvider = dynamic_cast<TrackPositionProvider<TrackPositionType>*>(m_trackPosition.get());
-      if (m_clusterPosition.get()){
-	ClusterPositionProvider<ClusterPositionType>* clusterPositionProvider = dynamic_cast<ClusterPositionProvider<ClusterPositionType>*>(m_clusterPosition.get());
-	if (m_distanceCalculator.get()){
-	  return m_distanceCalculator->distanceBetween(trackPositionProvider->getPosition(track),clusterPositionProvider->getPosition(cluster));
-	}
-	else{
-	  std::cerr << "ERROR: DistanceProvider has invalid std::unique_ptr<DistanceCalculator>" << std::endl;
-	return 10000;
-	}
-      }
-      else{
-	std::cerr << "ERROR: DistanceProvider has invalid std::unique_ptr<IPositionProvider> clusters" << std::endl;
-	return 10000;
-      }
-    }
-    else{
-      std::cerr << "ERROR: DistanceProvider has invalid std::unique_ptr<IPositionProvider> for tracks" << std::endl;
-      return 10000;
-    }
+    TrackPositionProvider<TrackPositionType>* trackPositionProvider = m_trackPosition.get();
+    ClusterPositionProvider<ClusterPositionType>* clusterPositionProvider = m_clusterPosition.get();
+    return m_distanceCalculator->distanceBetween(trackPositionProvider->getPosition(track),clusterPositionProvider->getPosition(cluster));
   }
 
 private:
-  std::unique_ptr<IPositionProvider> m_trackPosition;
-  std::unique_ptr<IPositionProvider> m_clusterPosition;
+  std::unique_ptr<TrackPositionProvider<TrackPositionType> > m_trackPosition;
+  std::unique_ptr<ClusterPositionProvider<ClusterPositionType> > m_clusterPosition;
   std::unique_ptr<DistanceCalculator<TrackPositionType, ClusterPositionType> > m_distanceCalculator;
 };
 

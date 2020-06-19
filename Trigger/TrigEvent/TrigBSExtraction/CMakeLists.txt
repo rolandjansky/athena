@@ -56,7 +56,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( TrigBSExtraction
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps StoreGateLib SGtests GaudiKernel TrigSerializeCnvSvcLib TrigNavigationLib TrigSteeringEvent xAODJet xAODMuon xAODTracking xAODTrigBphys xAODTrigCalo xAODTrigMinBias xAODTrigMissingET xAODTrigMuon xAODTau xAODEgamma xAODCaloEvent xAODTrigger xAODBTagging JetEvent Particle tauEvent egammaEvent CaloEvent TrkTrack TrigCaloEvent TrigInDetEvent TrigMissingEtEvent TrigMuonEvent TrigParticle TrigStorageDefinitions )
+                     LINK_LIBRARIES AthenaBaseComps StoreGateLib SGtests GaudiKernel TrigSerializeCnvSvcLib TrigNavigationLib TrigSteeringEvent xAODJet xAODMuon xAODTracking xAODTrigBphys xAODTrigCalo xAODTrigMinBias xAODTrigMissingET xAODTrigMuon xAODTau xAODEgamma xAODCaloEvent xAODTrigger xAODBTagging JetEvent Particle tauEvent egammaEvent CaloEvent TrkTrack TrigCaloEvent TrigInDetEvent TrigMissingEtEvent TrigMuonEvent TrigParticle TrigStorageDefinitions xAODTauCnvLib xAODTrigMuonCnvLib xAODJetCnvLib xAODTrigCaloCnvLib xAODBTaggingCnvLib xAODTrigBphysCnvLib xAODTrigMissingETCnvLib xAODTrigMinBiasCnvLib xAODEgammaCnvLib xAODCaloEventCnvLib xAODTriggerCnvLib )
 
 # Install files from the package:
 atlas_install_headers( TrigBSExtraction )

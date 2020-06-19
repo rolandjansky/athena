@@ -20,11 +20,11 @@ class LArBadChannelCondAlg: public AthAlgorithm {
   //Delegate to base-class ctor
   using AthAlgorithm::AthAlgorithm;
 
-  ~LArBadChannelCondAlg()=default;
+  virtual ~LArBadChannelCondAlg()=default;
 
-  StatusCode initialize() override;
-  StatusCode execute() override;
-  StatusCode finalize() {return StatusCode::SUCCESS;}
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override {return StatusCode::SUCCESS;}
 
  private:
   SG::ReadCondHandleKey<CondAttrListCollection> m_BCInputKey{this,"ReadKey","/LAR/BadChannelsOfl/BadChannels",

@@ -91,7 +91,7 @@ namespace InDet
   }
 
   InDetPriVxFinderTool::~InDetPriVxFinderTool()
-  {}
+  = default;
 
   StatusCode
   InDetPriVxFinderTool::initialize() {

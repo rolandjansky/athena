@@ -41,27 +41,27 @@ namespace MagField {
       @author Elmar.Ritsch -at- cern.ch
     */
 
-  class AtlasFieldSvc : public extends<AthService, IMagFieldSvc, IIncidentListener> {
+  class ATLAS_NOT_THREAD_SAFE AtlasFieldSvc : public extends<AthService, IMagFieldSvc, IIncidentListener> {
     public:
 
       //** Constructor with parameters */
-      AtlasFieldSvc( const std::string& name, ISvcLocator* pSvcLocator )  ATLAS_CTORDTOR_NOT_THREAD_SAFE;
+      AtlasFieldSvc( const std::string& name, ISvcLocator* pSvcLocator );
 
       /** Destructor */
-      virtual ~AtlasFieldSvc()  ATLAS_CTORDTOR_NOT_THREAD_SAFE ;
+      virtual ~AtlasFieldSvc();
 
       /** Athena algorithm's interface methods */
-      virtual StatusCode  initialize  ATLAS_NOT_THREAD_SAFE () override;
+      virtual StatusCode  initialize() override;
       virtual StatusCode  finalize() override;
 
       /** Read **/
       virtual void handle(const Incident& runIncident) override;
 
       /** Call back for possible magnet current update **/
-      StatusCode updateCurrent ATLAS_NOT_THREAD_SAFE (IOVSVC_CALLBACK_ARGS);
+      StatusCode updateCurrent(IOVSVC_CALLBACK_ARGS);
 
       /** Call back for possible magnet filename update **/
-      StatusCode updateMapFilenames ATLAS_NOT_THREAD_SAFE (IOVSVC_CALLBACK_ARGS);
+      StatusCode updateMapFilenames(IOVSVC_CALLBACK_ARGS);
 
       /** get B field value at given position */
       /** xyz[3] is in mm, bxyz[3] is in kT */

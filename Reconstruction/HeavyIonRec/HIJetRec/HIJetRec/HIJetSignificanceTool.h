@@ -29,7 +29,7 @@ class HIJetSignificanceTool: public asg::AsgTool,
  public:
   HIJetSignificanceTool(const std::string & name);
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   //The modifyJet function has to be replaced by decorate
   //virtual int modifyJet(xAOD::Jet& ) const ;

@@ -93,8 +93,6 @@ PixelFastDigitizationTool::PixelFastDigitizationTool(const std::string &type, co
   m_pixEmulateSurfaceCharge(true),
   m_pixSmearPathLength(0.01),
   m_pixSmearLandau(true),
-  m_siDeltaPhiCut(0),
-  m_siDeltaEtaCut(0),
   m_pixMinimalPathCut(0.06),// Optimized choice of threshold (old 0.02)
   m_pixPathLengthTotConv(125.),
   m_pixModuleDistortion(true), // default: false

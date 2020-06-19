@@ -27,7 +27,6 @@
 #include "JetRec/JetConstitRemover.h"
 #include "JetRec/JetClusterer.h"
 #include "JetRec/JetCopier.h"
-#include "JetRec/JetGroomer.h"
 
 DECLARE_COMPONENT( JetToolRunner )
 DECLARE_COMPONENT( JetRecTool )
@@ -48,7 +47,6 @@ DECLARE_COMPONENT( JetPseudojetCopier )
 DECLARE_COMPONENT( JetConstitRemover )
 DECLARE_COMPONENT( JetClusterer )
 DECLARE_COMPONENT( JetCopier )
-DECLARE_COMPONENT( JetGroomer )
 DECLARE_COMPONENT( PseudoJetMerger )
 
 DECLARE_COMPONENT( JetAlgorithm )

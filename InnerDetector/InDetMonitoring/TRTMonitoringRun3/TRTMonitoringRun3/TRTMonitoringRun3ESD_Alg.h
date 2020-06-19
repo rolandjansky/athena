@@ -65,7 +65,7 @@ public:
     virtual StatusCode initialize() override;
     virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
 private:
-    bool m_ArgonXenonSplitter;
+    BooleanProperty m_ArgonXenonSplitter{this, "doArgonXenonSeparation", true};
     enum GasType{ Xe = 0, Ar = 1, Kr = 2 };
 
     const AtlasDetectorID * m_idHelper;

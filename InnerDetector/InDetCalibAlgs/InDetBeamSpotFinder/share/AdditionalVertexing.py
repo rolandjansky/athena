@@ -196,13 +196,9 @@ def GeneralVertexer(system='Combined', setup=None,tracksName=None, suffix=""):
             InDetPriVxFinderTool_vx.maxChi2PerTrack = 15.
     
     elif vxSetup == 'AdaptiveFinding':
+        #
         # --- load adaptive primary vertex finder
         #
-        # from InDetPriVxFinderTool.InDetPriVxFinderToolConf import InDet__InDetAdaptivePriVxFinderTool
-        # InDetPriVxFinderTool_Si = InDet__InDetAdaptivePriVxFinderTool(name             = "InDetAdaptivePriVxFinderTool_Si",
-        #                                                              VertexFitterTool = InDetVxFitterTool,
-        #                                                              TrackSelector    = InDetTrackSelectorTool_Si
-        #                                                              )
         
         from InDetPriVxFinderTool.InDetPriVxFinderToolConf import InDet__InDetIterativePriVxFinderTool
         InDetPriVxFinderTool_vx = InDet__InDetIterativePriVxFinderTool(name             = "InDetIterativePriVxFinderTool_"+system+"_"+vxSetup+suffix,

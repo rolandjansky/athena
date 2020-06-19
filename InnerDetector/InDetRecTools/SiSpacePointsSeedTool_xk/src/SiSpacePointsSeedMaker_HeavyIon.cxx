@@ -208,14 +208,13 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::newRegion
 
     SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel, ctx};
     if (spacepointsPixel.isValid()) {
-      SpacePointContainer::const_iterator spce = spacepointsPixel->end();
 
       // Loop through all trigger collections
       //
       for (const IdentifierHash& l: vPixel) {
-	SpacePointContainer::const_iterator w = spacepointsPixel->indexFind(l);
-	if (w==spce) continue;
-        for (const Trk::SpacePoint* sp: **w) {
+	auto w = spacepointsPixel->indexFindPtr(l);
+	if (w==nullptr) continue;
+        for (const Trk::SpacePoint* sp: *w) {
 	  float r = sp->r();
           if (r<0. || r>=m_r_rmax) continue;
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint(data, sp);
@@ -236,14 +235,13 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::newRegion
 
     SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT, ctx};
     if (spacepointsSCT.isValid()) {
-      SpacePointContainer::const_iterator spce = spacepointsSCT->end();
 
       // Loop through all trigger collections
       //
       for (const IdentifierHash& l: vSCT) {
-	SpacePointContainer::const_iterator w = spacepointsSCT->indexFind(l);
-	if (w==spce) continue;
-        for (const Trk::SpacePoint* sp: **w) {
+	auto w = spacepointsSCT->indexFindPtr(l);
+	if (w==nullptr) continue;
+        for (const Trk::SpacePoint* sp: *w) {
 	  float r = sp->r();
           if (r<0. || r>=m_r_rmax) continue;
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint(data, sp);
