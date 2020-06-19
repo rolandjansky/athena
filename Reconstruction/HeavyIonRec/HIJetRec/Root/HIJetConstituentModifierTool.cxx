@@ -18,7 +18,7 @@ HIJetConstituentModifierTool::HIJetConstituentModifierTool(const std::string& my
 
 StatusCode HIJetConstituentModifierTool::initialize(){
 
-  ATH_MSG_INFO("Initializing HIJetConstituentModifierTool");
+  ATH_MSG_INFO("Initializing HIJetConstituentModifierTool w/ Cluster Key " << m_clusterKey.key() );
   ATH_CHECK( m_clusterKey.initialize() );
   return StatusCode::SUCCESS;
 
@@ -30,6 +30,7 @@ int HIJetConstituentModifierTool::modifyJet(xAOD::Jet& jet) const {
     const xAOD::JetConstituentVector constituents = jet.getConstituents();
     std::vector<size_t> cluster_indices;
     cluster_indices.reserve(constituents.size());
+
     for (auto citer = constituents.begin(); citer != constituents.end(); ++citer)
     {
       cluster_indices.push_back(citer->rawConstituent()->index());
@@ -53,18 +54,30 @@ int HIJetConstituentModifierTool::modifyJet(xAOD::Jet& jet) const {
    xAOD::IParticle::FourMom_t subtractedOriginCorrP4;
    xAOD::JetFourMom_t subtractedJet4vec;
    xAOD::JetFourMom_t subtractedOriginCorrJet4vec;
-   //need to add usual safety checks on cluster container access
+   //Cluster container access (from the e-gamma + cluster subtracted deep copy)
    SG::ReadHandle<xAOD::CaloClusterContainer> readHandleSubtractedClusters ( m_clusterKey );
 
    const xAOD::CaloClusterContainer* ccl=readHandleSubtractedClusters.get();
 
    for(auto index : cluster_indices)
    {
-     auto cl=ccl->at(index);
+     const xAOD::CaloCluster* cl=static_cast<const xAOD::CaloCluster*>(ccl->at(index));
+
      jet.addConstituent(cl);
-     subtractedP4+=cl->p4(HIJetRec::subtractedClusterState());
-     if( m_originCorrection ) subtractedOriginCorrP4+=cl->p4(HIJetRec::subtractedOriginCorrectedClusterState());
+     xAOD::IParticle::FourMom_t subtractedClusterP4;
+     subtractedClusterP4=HIJetRec::getClusterP4( cl, HIJetRec::subtractedClusterState());
+     subtractedP4+=subtractedClusterP4;
+     ATH_MSG_DEBUG("Subracted Cluster #: " << cl->index() << " :: E: " << subtractedClusterP4.E() << " :: Eta: " << subtractedClusterP4.Eta() << " :: Phi: " << subtractedClusterP4.Phi());
+
+     if( m_originCorrection ){
+       xAOD::IParticle::FourMom_t subtractedOriginCorrClusterP4;
+       subtractedOriginCorrClusterP4=HIJetRec::getClusterP4( cl, HIJetRec::subtractedOriginCorrectedClusterState());
+       subtractedOriginCorrP4+=subtractedOriginCorrClusterP4;
+       ATH_MSG_DEBUG("Subrtracted OC Cluster #: " << cl->index() << " :: E: " << subtractedOriginCorrClusterP4.E() << " :: Eta: " << subtractedOriginCorrClusterP4.Eta() << " :: Phi: " << subtractedOriginCorrClusterP4.Phi());
+     }
+
    }
+
    //Check for subtracted Kinematics
    if(subtractedP4.E()/std::cosh(subtractedP4.Eta()) < E_min)
    {
@@ -88,10 +101,11 @@ int HIJetConstituentModifierTool::modifyJet(xAOD::Jet& jet) const {
      jet.setJetP4(HIJetRec::subtractedOriginCorrectedJetState(), subtractedOriginCorrJet4vec);
      jet.setJetP4(subtractedOriginCorrJet4vec);
      jet.setConstituentsSignalState(HIJetRec::subtractedOriginCorrectedConstitState());
+
    }
    else {
-     jet.setConstituentsSignalState(HIJetRec::subtractedConstitState());
      jet.setJetP4(subtractedJet4vec);
+     jet.setConstituentsSignalState(HIJetRec::subtractedConstitState());
    }
 
    return 0;
