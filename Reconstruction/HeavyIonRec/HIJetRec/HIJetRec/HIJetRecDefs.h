@@ -9,6 +9,7 @@
 #include "xAODJet/JetTypes.h"
 #include "HIEventUtils/HIEventDefs.h"
 #include "FourMomUtils/xAODP4Helpers.h"
+#include "TLorentzVector.h"
 
 
 namespace HIJetRec{
@@ -66,5 +67,23 @@ namespace HIJetRec{
     }
   }
 
+/// \brief : getClusterP4 Added during Rel22 migration. We should never use CaloCluster_v1::p4() because this four vector can
+/// never have a negative energy. Therefore, if one tries to use setClusterP4 and then retrieve the cluster four momenta,
+/// must use this new method that keeps the cluster information as set in setClusterP4 (negative E and flipped eta phi)
+  inline TLorentzVector getClusterP4( const xAOD::CaloCluster* cl, xAOD::CaloCluster::State s ){
+    TLorentzVector correct_clusP4;
+    float energy=cl->e(s);
+    float eta=cl->eta(s);
+    float phi=cl->phi(s);
+    if(energy < 0.)
+    {
+      eta*=-1.;
+      if(phi > 0.) phi-=M_PI;
+      else phi+=M_PI;
+    }
+    float pt=energy/std::cosh(eta);
+    correct_clusP4.SetPtEtaPhiE(pt, eta,phi ,energy);
+    return correct_clusP4;
+  }
 }
 #endif
