@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -94,7 +94,6 @@ StatusCode SiTrackerSpacePointFinder::initialize()
   // create containers (requires the Identifier Helpers)
   if (m_selectPixels){
     ATH_CHECK(detStore()->retrieve(m_idHelperPixel,"PixelID"));
-    ATH_CHECK(m_pixelDetEleCollKey.initialize());
   }
 
   if (m_selectSCTs) {
