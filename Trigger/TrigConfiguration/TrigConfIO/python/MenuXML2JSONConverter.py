@@ -166,7 +166,7 @@ class XML2JsonConverter(object):
                 if (node.tag, element.tag) in self.rules['asMultiArray']:
                     # list of multiple identical elements (e.g. CHAINs)
                     key = self.renameKey(element.tag) 
-                    if not key in d: d[key] = list()
+                    if key not in d: d[key] = list()
                     d[key] += [ self.createJsonStruct(element) ]
                 else:
                     # single element (e.g. CHAIN_LIST)

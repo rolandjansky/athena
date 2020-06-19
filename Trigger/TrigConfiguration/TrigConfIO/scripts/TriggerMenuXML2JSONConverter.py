@@ -1,13 +1,13 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import sys
 
 def main():
     if len(sys.argv)<=1:
-        print "please use this format:"
-        print "%s inputfile.xml [outputfile.json]   ... menu file conversion" % sys.argv[0].rsplit('/')[-1]
-        print "%s inputfile.json                    ... json conformity check of any json file" % sys.argv[0].rsplit('/')[-1]
+        print("please use this format:")
+        print("%s inputfile.xml [outputfile.json]   ... menu file conversion" % sys.argv[0].rsplit('/')[-1])
+        print("%s inputfile.json                    ... json conformity check of any json file" % sys.argv[0].rsplit('/')[-1])
         return 1
 
     inputfile = sys.argv[1]
