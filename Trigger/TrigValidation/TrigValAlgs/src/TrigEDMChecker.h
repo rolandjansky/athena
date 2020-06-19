@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIG_EDM_CHECKER_H
@@ -7,7 +7,6 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ObjectVector.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 
 #include "AthAnalysisBaseComps/AthAnalysisAlgorithm.h"
 
