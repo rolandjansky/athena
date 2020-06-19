@@ -51,7 +51,7 @@ namespace Muon
     //virtual StatusCode finalize();
 
     StatusCode getClusters(std::vector<Muon::MMPrepData>& MMprds, 
-	 		   std::vector<Muon::MMPrepData*>& clustersVec)const ;
+	 		   std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVec)const ;
 
   private: 
 
