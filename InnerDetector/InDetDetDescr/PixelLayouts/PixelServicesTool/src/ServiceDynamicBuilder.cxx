@@ -18,6 +18,7 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #include "PixelServicesTool/ServiceDynVolume.h"
 
 #include "GeoModelKernel/GeoMaterial.h"
+#include "GeoModelKernel/GeoTubs.h"
 
 #include "PathResolver/PathResolver.h"
 
@@ -137,75 +138,187 @@ void ServiceDynamicBuilder::addServiceDynVolume( const ServiceDynVolume& vol, co
     return;
   }
 
-  param->setVolName(vol.name());
   param->setRmin(vol.rMin());
   param->setRmax(vol.rMax());
   param->setZmin(vol.zMin());
   param->setZmax(vol.zMax());
   param->setZsymm(true);
 
-  for (std::vector<ServiceDynMaterial>::const_iterator ism=vol.materials().begin(); ism!=vol.materials().end(); ++ism) {
-    for ( ServiceDynMaterial::EntryIter ient= ism->components().begin(); ient!=ism->components().end(); ient++) {
+  int nSectors = vol.getNumSectors();
+  double phiRef = vol.getRefPhiSector();
+  double sectorWidth = vol.getSectorWidth();
+  bool splitLayers = vol.splitLayersInPhi();
+  double splitMat = splitLayers ? 1. : 1./nSectors;
 
-      msgRouting<<MSG::DEBUG << "Inside components loop, comp = " << ient->name 
-		     << " number " << ient->number 
-		     << " weight " << ient->weight 
-		     << " linear " << ient->linear 
-		     << endreq;
-
-      //      if (ient->weight*ient->number > 0.00001) {
-      //std::string pre = "pix::";
-      std::string prefix = "indet::";
-      std::string prename = addPrefix( prefix, ient->name);
-
-      if (ient->linear) {
-	std::vector<std::string>::iterator it=std::find(linearComponents.begin(), linearComponents.end(), prename);
-	if(it!=linearComponents.end()){
-	  int index = std::distance(linearComponents.begin(),it);
-	  linWeights[index] += fabs( ient->number * ient->weight);
-	}
-	else{
-	  linearComponents.push_back( prename);
-	  linWeights.push_back( fabs( ient->number * ient->weight));
-	}
-      }
-      else {
-	linearComponents.push_back( prename);      // the distiction between linear and not is done in the
-	linWeights.push_back( fabs( ient->weight*ient->number));  // InDetMaterialmanager, based on the weight table flag
-      }
+  // check is split of layers feasible
+  if (splitLayers) {
+    if ( vol.layers().size()>nSectors) {
+      msg(MSG::WARNING)<<"not enough sectors ("<<nSectors<<") for layer split in svc volume "<<vol.name()<<": number of layers :"<<vol.layers().size()<<endreq;
+      splitLayers = false;
     }
   }
 
-  if ( !linearComponents.empty()) {
+  if (!splitLayers) { 
 
-    for(int i=0; i<(int)linearComponents.size(); i++)
-      msgRouting<<"* "<<linearComponents[i]<<" "<<linWeights[i]<<endreq;
+    if (nSectors>1) {
+      // ST: setGeoShape makes the volume unsplittable, this may create problems (multiple versions of the same volume added) 
+      //param->setGeoShape( new GeoTubs(vol.rMin(),vol.rMax(),0.5*(vol.zMax()-vol.zMin()),phiRef-0.5*sectorWidth,sectorWidth));
+      param->setShapeType("TUBS");
+      param->setPhiLoc( phiRef-0.5*sectorWidth );
+      param->setPhiWidth( sectorWidth );
+      param->setNCopies( nSectors );
+    }
 
-    msgRouting <<MSG::DEBUG << "build material for volume " << vol.name() 
-	                    <<"  shape volume : " << param->volume()/(CLHEP::cm3)<<" [cm3]" 
-	                    <<"   service length : " <<vol.length()/(CLHEP::mm)<<" [mm]"
-	                    <<endreq;
+    std::string sectName = vol.name();
 
-    const GeoMaterial * newMat = matMgr()->getMaterialForVolumeLength( vol.name(), 
-								       linearComponents, linWeights, 
-								       param->volume(), vol.length(),
-								       fudgeFactor);
+    param->setVolName(sectName);
 
+    msgRouting<<MSG::DEBUG<<"building service dyn volume:"<<vol.name()<<":number of layers, materials:"<<vol.layers().size()<<":"<<vol.materials().size()<<endreq;
+
+    for (std::vector<ServiceDynMaterial>::const_iterator ism=vol.materials().begin(); ism!=vol.materials().end(); ++ism) {
+      msgRouting<<MSG::DEBUG<<"loop over materials:"<<ism->name()<< endreq;
+      for ( ServiceDynMaterial::EntryIter ient= ism->components().begin(); ient!=ism->components().end(); ient++) {
+	
+	msgRouting<<MSG::DEBUG << "Inside components loop, comp = " << ient->name 
+		  << " number " << ient->number 
+		  << " weight " << ient->weight 
+		  << " linear " << ient->linear 
+		  << endreq;
+	if (nSectors>1 && !splitLayers) msgRouting <<MSG::DEBUG<<"(divided into "<< nSectors <<" sectors)"<< endreq;
+	
+	//      if (ient->weight*ient->number > 0.00001) {
+	//std::string pre = "pix::";
+	std::string prefix = "indet::";
+	std::string prename = addPrefix( prefix, ient->name);
+	
+	if (ient->linear) {
+	  std::vector<std::string>::iterator it=std::find(linearComponents.begin(), linearComponents.end(), prename);
+	  if(it!=linearComponents.end()){
+	    int index = std::distance(linearComponents.begin(),it);
+	    linWeights[index] += fabs( ient->number * ient->weight * splitMat);
+	  }
+	  else{
+	    linearComponents.push_back( prename);
+	    linWeights.push_back( fabs( ient->number * ient->weight * splitMat));
+	  }
+	}
+	else {
+	  linearComponents.push_back( prename);      // the distiction between linear and not is done in the
+	  linWeights.push_back( fabs( ient->weight*ient->number * splitMat));  // InDetMaterialmanager, based on the weight table flag
+	}
+      }
+    }
     
-    msgRouting<<MSG::DEBUG << "  => final material    " << newMat->getName()
-	                   <<"   density : " << newMat->getDensity()/(CLHEP::g/CLHEP::cm3) << " g/cm3"
-          	           <<"     X0 : " << newMat->getRadLength()/CLHEP::mm << "mm" 
-	                   << endreq;
-    msgRouting<<MSG::DEBUG << "  dataMat ("<<(vol.zMin()+vol.zMax())*.5<<","<<(vol.rMin()+vol.rMax())*.5<<","<<newMat->getRadLength()/CLHEP::mm<<"),"<<endreq;
+    if ( !linearComponents.empty()) {
 
-    param->setMaterial(newMat);
-    
-    addService(param);
-    if (msgLvl(MSG::DEBUG)) param->print();
-    printNewVolume( vol, *newMat, *param);
-    //    addService(param.release()); 
-  }
-  else delete param;
+      for(int i=0; i<(int)linearComponents.size(); i++)
+	msgRouting<<"* "<<linearComponents[i]<<" "<<linWeights[i]<<endreq;
+      
+      msgRouting <<MSG::DEBUG << "build material for volume " << sectName 
+		 <<"  shape volume : " << param->volume()/(CLHEP::cm3)<<" [cm3]" 
+		 <<"   service length : " <<vol.length()/(CLHEP::mm)<<" [mm]"
+		 <<endreq;
+      
+      const GeoMaterial * newMat = matMgr()->getMaterialForVolumeLength( sectName, 
+									 linearComponents, linWeights, 
+									 param->volume(), vol.length(),
+									 fudgeFactor);
+      
+      
+      msgRouting<<MSG::DEBUG << "  => final material    " << newMat->getName()
+		<<"   density : " << newMat->getDensity()/(CLHEP::g/CLHEP::cm3) << " g/cm3"
+		<<"     X0 : " << newMat->getRadLength()/CLHEP::mm << " mm" 
+                <<"    weight :"<< param->volume()/(CLHEP::cm3)*newMat->getDensity()/(CLHEP::g/CLHEP::cm3) << " g "
+		<< endreq;
+      msgRouting<<MSG::DEBUG << "  dataMat ("<<(vol.zMin()+vol.zMax())*.5<<","<<(vol.rMin()+vol.rMax())*.5<<","<<newMat->getRadLength()/CLHEP::mm<<"),"<<endreq;
+      
+      param->setMaterial(newMat);
+      
+      addService(param);
+      if (msgLvl(MSG::DEBUG)) param->print();
+      printNewVolume( vol, *newMat, *param);
+ 
+    }  else delete param;
+  } // end no split section
+    else {    // layer split : 1 per section, empty sections not built
+      // assume material coming from a single layer
+      int isector =0;
+      for (std::vector<ServiceDynMaterial>::const_iterator ism=vol.materials().begin(); ism!=vol.materials().end(); ++ism) {
+	msgRouting<<MSG::DEBUG<<"loop over materials:"<<ism->name()<< endreq;
+
+	InDetDD::ServiceVolume * pSect = new InDetDD::ServiceVolume;
+	std::ostringstream os;
+	os << vol.name()<<"_sector"<<isector;
+	std::string sectName = os.str();
+	pSect->setVolName(sectName);
+	pSect->setRmin(vol.rMin());
+	pSect->setRmax(vol.rMax());
+	pSect->setZmin(vol.zMin());
+	pSect->setZmax(vol.zMax());
+	pSect->setZsymm(true);
+	pSect->setGeoShape( new GeoTubs(vol.rMin(),vol.rMax(),0.5*(vol.zMax()-vol.zMin()),phiRef-0.5*sectorWidth+2*acos(-1.)/nSectors*isector,sectorWidth));
+
+        // calculate layer material for this volume
+        linWeights.clear(); linearComponents.clear();
+	for ( ServiceDynMaterial::EntryIter ient= ism->components().begin(); ient!=ism->components().end(); ient++) {
+	
+	  msgRouting<<MSG::DEBUG << "Inside components loop, comp = " << ient->name 
+		    << " number " << ient->number 
+		    << " weight " << ient->weight 
+		    << " linear " << ient->linear 
+		    << endreq;
+	  msgRouting <<MSG::DEBUG<<"(placed in sector number "<< isector <<")"<< endreq;
+	
+	  std::string prefix = "indet::";
+	  std::string prename = addPrefix( prefix, ient->name);
+	  
+	  if (ient->linear) {
+	    std::vector<std::string>::iterator it=std::find(linearComponents.begin(), linearComponents.end(), prename);
+	    if(it!=linearComponents.end()){
+	      int index = std::distance(linearComponents.begin(),it);
+	      linWeights[index] += fabs( ient->number * ient->weight);
+	    }
+	    else{
+	    linearComponents.push_back( prename);
+	    linWeights.push_back( fabs( ient->number * ient->weight));
+	    }
+	  }
+	  else {
+	    linearComponents.push_back( prename);      // the distiction between linear and not is done in the
+	    linWeights.push_back( fabs( ient->weight*ient->number));  // InDetMaterialmanager, based on the weight table flag
+	  }
+	}
+	
+	if ( !linearComponents.empty()) {
+	  
+	  for(int i=0; i<(int)linearComponents.size(); i++)
+	    msgRouting<<"* "<<linearComponents[i]<<" "<<linWeights[i]<<endreq;
+	  
+	  msgRouting <<MSG::DEBUG << "build material for volume " << sectName 
+		     <<"  shape volume : " << pSect->volume()/(CLHEP::cm3)<<" [cm3]" 
+		     <<"   service length : " <<vol.length()/(CLHEP::mm)<<" [mm] "
+		     <<endreq;
+	  
+	  const GeoMaterial * newMat = matMgr()->getMaterialForVolumeLength( sectName, 
+									   linearComponents, linWeights, 
+									     pSect->volume(), vol.length(),
+									     fudgeFactor);
+	  
+	  
+	  msgRouting<<MSG::DEBUG << "  => final material    " << newMat->getName()
+		    <<"   density : " << newMat->getDensity()/(CLHEP::g/CLHEP::cm3) << " g/cm3"
+		    <<"     X0 : " << newMat->getRadLength()/CLHEP::mm << "mm" 
+		    << endreq;
+	  
+	  
+	  pSect->setMaterial(newMat);
+	  addService(pSect);
+	} else delete pSect;
+	//
+	isector++;
+      } // end loop over materials/layers
+
+    }  // end split layer section
 }
 
 
