@@ -31,8 +31,6 @@
 #include "xAODTau/TauTrackContainer.h"
 #include "xAODTau/TauTrackAuxContainer.h"
 
-#include "LumiBlockComps/ILumiBlockMuTool.h"
-
 #include "TrigTauRecMergedMT.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 
@@ -46,12 +44,10 @@
 TrigTauRecMergedMT::TrigTauRecMergedMT(const std::string& name,ISvcLocator* pSvcLocator)
   :AthAlgorithm(name, pSvcLocator),
    m_tools(this),
-   m_endtools(this),
-   m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool")
+   m_endtools(this)
 {
   declareProperty("Tools", m_tools, "List of ITauToolBase tools" );
   declareProperty("EndTools", m_endtools, "List of End ITauToolBase tools" );
-  declareProperty("LumiBlockMuTool", m_lumiBlockMuTool, "Luminosity Tool" );
 }
 
 TrigTauRecMergedMT::~TrigTauRecMergedMT()
@@ -105,16 +101,6 @@ StatusCode TrigTauRecMergedMT::initialize()
       ATH_MSG_DEBUG(" Add time for end tool "<< ( *p_itTe )->type() <<" "<< ( *p_itTe )->name());
     }
   }
-
-  if (m_lumiBlockMuTool.retrieve().isFailure()) {
-    ATH_MSG_WARNING("Unable to retrieve LumiBlockMuTool");
-  } 
-  else {
-    ATH_MSG_DEBUG("Successfully retrieved LumiBlockMuTool");
-  }
-
-  // Retrieve beam conditions
-  CHECK(m_beamSpotKey.initialize());
 
   if ( not m_monTool.name().empty() ) {
     ATH_CHECK( m_monTool.retrieve() );
@@ -178,11 +164,6 @@ StatusCode TrigTauRecMergedMT::execute()
   auto SumPtTrkFrac       = Monitored::Scalar<float>("SumPtTrkFrac",-999.9);
   auto innerTrkAvgDist    = Monitored::Scalar<float>("innerTrkAvgDist",-1.0);
   auto Ncand              = Monitored::Scalar<int>("nCand",0);
-  auto ActualInteractions = Monitored::Scalar<float>("ActualInteractions",-999.9);
-  auto AvgInteractions    = Monitored::Scalar<float>("AvgInteractions",-999.9);
-  auto beamspot_x         = Monitored::Scalar<float>("beamspot_x",-999.9);
-  auto beamspot_y         = Monitored::Scalar<float>("beamspot_y",-999.9);
-  auto beamspot_z         = Monitored::Scalar<float>("beamspot_z",-999.9);
   auto EtaL1              = Monitored::Scalar<float>("EtaL1",-99.9);
   auto PhiL1              = Monitored::Scalar<float>("PhiL1",-99.9);
   auto EtaEF              = Monitored::Scalar<float>("EtaEF",-99.9);
@@ -194,8 +175,7 @@ StatusCode TrigTauRecMergedMT::execute()
   auto monitorIt = Monitored::Group( m_monTool, nCells, nTracks, dEta, dPhi, emRadius, hadRadius,
                                      EtFinal, Et, EtHad, EtEm, EMFrac, IsoFrac, centFrac, nWideTrk, ipSigLeadTrk, trFlightPathSig, massTrkSys,
                                      dRmax, numTrack, trkAvgDist, etovPtLead, PSSFraction, EMPOverTrkSysP, ChPiEMEOverCaloEME, SumPtTrkFrac,
-                                     innerTrkAvgDist, Ncand, ActualInteractions, AvgInteractions, beamspot_x, beamspot_y, beamspot_z, EtaL1,
-                                     PhiL1, EtaEF, PhiEF );
+                                     innerTrkAvgDist, Ncand, EtaL1, PhiL1, EtaEF, PhiEF );
 
   // Retrieve store.
   ATH_MSG_DEBUG("Executing TrigTauRecMergedMT");
@@ -220,41 +200,6 @@ StatusCode TrigTauRecMergedMT::execute()
     ATH_MSG_DEBUG("Failed to find RoiDescriptor ");
     calo_errors.push_back(NoROIDescr);
     return StatusCode::SUCCESS;
-  }
-
-  double mu = 0.0;
-  double avg_mu = 0.0;
-  if(m_lumiBlockMuTool){
-    mu     = m_lumiBlockMuTool->actualInteractionsPerCrossing(); // (retrieve mu for the current BCID)
-    avg_mu = m_lumiBlockMuTool->averageInteractionsPerCrossing();
-    ActualInteractions = mu;
-    AvgInteractions    = avg_mu;
-    ATH_MSG_DEBUG(" Retrieved Mu Value : " << mu);
-    ATH_MSG_DEBUG(" Average Mu Value   : " << avg_mu);
-  }
-	
-
-  //-------------------------------------------------------------------------
-  // Get beamspot
-  //-------------------------------------------------------------------------
-
-  // Copy the first vertex from a const object
-  xAOD::Vertex theBeamspot;
-  theBeamspot.makePrivateStore();
-
-  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
-  if(beamSpotHandle.isValid()){
-	
-    // Alter the position of the vertex
-    theBeamspot.setPosition(beamSpotHandle->beamPos());
-	
-    beamspot_x=theBeamspot.x();
-    beamspot_y=theBeamspot.y();
-    beamspot_z=theBeamspot.z();
-
-    // Create a AmgSymMatrix to alter the vertex covariance mat.
-    const auto& cov = beamSpotHandle->beamVtx().covariancePosition();
-    theBeamspot.setCovariancePosition(cov);
   }
 
   // get TauJetContainer from SG
