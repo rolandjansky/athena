@@ -20,6 +20,7 @@ Muon::SimpleSTgcClusterBuilderTool::SimpleSTgcClusterBuilderTool(const std::stri
 {
   declareProperty("ChargeCut", m_chargeCut=0.0);
   declareProperty("maxHoleSize",m_maxHoleSize=1);
+  declareProperty("addError",m_addError=0);
 }
 
 Muon::SimpleSTgcClusterBuilderTool::~SimpleSTgcClusterBuilderTool()
@@ -57,12 +58,13 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
   IdentifierHash hash;
 
   double resolution=0.;
-  bool isWire = false;
+  bool isStrip = false;
   if ( stripsVect.size()>0 ) {
     resolution = stripsVect.at(0).localCovariance()(0,0);
     Identifier chanId = stripsVect.at(0).identify();
-    if ( m_stgcIdHelper->channelType(chanId)==2 ) isWire = true;
-    ATH_MSG_DEBUG("isWire: " << isWire << "Single channel resolution: " << resolution);
+    if ( m_stgcIdHelper->channelType(chanId)==1 ) isStrip = true;
+    ATH_MSG_DEBUG(" channelType " << m_stgcIdHelper->channelType(chanId));
+    ATH_MSG_DEBUG("isStrip: " << isStrip << "Single channel resolution: " << resolution);
   }
   else {
     ATH_MSG_DEBUG("Size of the channel vectors is zero");
@@ -111,8 +113,8 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
           elementsTime.push_back(it.time());
           elementsChannel.push_back(m_stgcIdHelper->channel(it.identify()));
           double weight = 0.0;
-          isWire ? weight = 1.0 : weight = it.charge(); 
-          ATH_MSG_DEBUG("isWire: " << isWire << " weight: " << weight);
+          isStrip ? weight = it.charge() : weight = 1.0; 
+          ATH_MSG_DEBUG("isStrip: " << isStrip << " weight: " << weight);
           weightedPosX += it.localPosition().x()*weight;
           totalCharge += weight;
           ATH_MSG_DEBUG("Channel local position and charge: " << it.localPosition().x() << " " 
@@ -120,11 +122,11 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
           //
           // Set the cluster identifier to the max charge strip
           //
-          if ( isWire ) {
+          if ( isStrip && it.charge()>maxCharge ) {
+            maxCharge = it.charge();
             clusterId = it.identify();
           }
-          if ( !isWire && it.charge()>maxCharge ) {
-            maxCharge = it.charge();
+          if ( !isStrip) {
             clusterId = it.identify();
           } 
         } 
@@ -138,8 +140,8 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
         if ( cluster.size() > 1 ) {
           double weight = 0.0;
           for ( auto it : cluster ) {
-            isWire ? weight = 1.0 : weight = it.charge(); 
-            ATH_MSG_DEBUG("isWire: " << isWire << " weight: " << weight);
+            isStrip ? weight = it.charge() : weight = 1.0; 
+            ATH_MSG_DEBUG("isStrip: " << isStrip << " weight: " << weight);
             //sigmaSq += weight*(it.localPosition().x()-weightedPosX)*(it.localPosition().x()-weightedPosX);
             sigmaSq += weight*weight*resolution;
             ATH_MSG_DEBUG(">>>> posX: " << it.localPosition().x() << " weightedPosX: " << weightedPosX); 
@@ -151,11 +153,13 @@ StatusCode Muon::SimpleSTgcClusterBuilderTool::getClusters(std::vector<Muon::sTg
         sigmaSq = sigmaSq/(totalCharge*totalCharge*12);
         ATH_MSG_DEBUG("Uncertainty on cluster position is: " << sqrt(sigmaSq));         
         Amg::MatrixX* covN = new Amg::MatrixX(1,1);
-        (*covN)(0,0) = sigmaSq;
+        (*covN)(0,0) = sigmaSq + m_addError*m_addError;
 
         //
         // memory allocated dynamically for the PrepRawData is managed by Event Store in the converters
         //
+        ATH_MSG_INFO("error on cluster " << sqrt((*covN)(0,0)) << " added error " <<  m_addError); 
+        
         sTgcPrepData* prdN = new sTgcPrepData(clusterId,hash,localPosition,
             rdoList, covN, cluster.at(0).detectorElement(),
             std::accumulate(elementsCharge.begin(),elementsCharge.end(),0),(short int)0,(uint16_t) 0,elementsChannel,elementsTime,elementsCharge);

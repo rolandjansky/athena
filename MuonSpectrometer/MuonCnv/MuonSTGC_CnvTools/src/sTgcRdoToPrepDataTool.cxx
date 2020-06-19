@@ -280,6 +280,7 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
     // merge the eta and phi prds that fire closeby strips or wires
     vector<Muon::sTgcPrepData*> sTgcStripClusters;
     vector<Muon::sTgcPrepData*> sTgcWireClusters;
+    vector<Muon::sTgcPrepData*> sTgcPadClusters;
     //
     // Clusterize strips
     //
@@ -289,6 +290,9 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
     //
     ATH_CHECK(m_clusterBuilderTool->getClusters(sTgcWirePrds,sTgcWireClusters));
     //
+    // Clusterize pads
+    //
+    ATH_CHECK(m_clusterBuilderTool->getClusters(sTgcPadPrds,sTgcPadClusters));
     // Add the clusters to the event store ( do not clusterize wires for now )
     //
     for ( auto it : sTgcStripClusters ) {
@@ -296,6 +300,10 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
       prdColl->push_back(it);
     } 
     for ( auto it : sTgcWireClusters ) {
+      it->setHashAndIndex(prdColl->identifyHash(), prdColl->size());
+      prdColl->push_back(it);
+    } 
+    for ( auto it : sTgcPadClusters ) {
       it->setHashAndIndex(prdColl->identifyHash(), prdColl->size());
       prdColl->push_back(it);
     } 
