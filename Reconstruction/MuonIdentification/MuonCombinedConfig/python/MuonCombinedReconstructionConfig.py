@@ -314,8 +314,8 @@ def MuonCombinedReconstructionCfg(flags):
         result.merge( MuonSegmentTagAlgCfg(flags) )
 
     # runs over outputs and create xAODMuon collection
-    # acc = MuonCreatorAlgCfg(flags)
-    # result.merge(acc)
+    acc = MuonCreatorAlgCfg(flags)
+    result.merge(acc)
     
     if flags.MuonCombined.doMuGirl and flags.MuonCombined.doMuGirlLowBeta:
         # Has to be at end if not using sequencer. If we drop this requirement, can be moved above
@@ -327,7 +327,7 @@ if __name__=="__main__":
     # To run this, do e.g. 
     # python -m MuonCombinedConfig.MuonCombinedReconstructionConfig --run --threads=1
     
-    from MuonConfig.MuonConfigUtils import SetupMuonStandaloneArguments, SetupMuonStandaloneCA, SetupMuonStandaloneOutput
+    from MuonConfig.MuonConfigUtils import SetupMuonStandaloneArguments, SetupMuonStandaloneCA
 
     args = SetupMuonStandaloneArguments()
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -351,9 +351,6 @@ if __name__=="__main__":
     ConfigFlags.Detector.GeometryTRT   = True  
 
     ConfigFlags.Output.ESDFileName=args.output
-    
-    # Temporarily disable non-functional parts
-    ConfigFlags.MuonCombined.doCaloTrkMuId = True
 
     ConfigFlags.lock()
 
@@ -390,7 +387,7 @@ if __name__=="__main__":
 
     rename_maps = [ '%s#%s->%s' % ("xAOD::MuonContainer", "Muons", "old_Muons"), 
                     '%s#%s->%s' % ("xAOD::MuonAuxContainer", "MuonsAux.", "old_MuonsAux."),
-                    '%s#%s->%s' % ("xAOD::MuonAuxContainer", "MuonsAux.rpcHitIdentifier", "old_MuonsAux.rpcHitIdentifier")]
+                    '%s#%s->%s' % ("xAOD::MuonContainer", "Muons.rpcHitIdentifier", "old_Muons.rpcHitIdentifier")]
                     # '%s#%s->%s' % ("Muon::TgcPrepDataContainer", "TGC_MeasurementsAllBCs", "TGC_Measurements")] 
     cfg.merge( AddressRemappingCfg(rename_maps) )
     tmp = cfg.getService("AddressRemappingSvc")
