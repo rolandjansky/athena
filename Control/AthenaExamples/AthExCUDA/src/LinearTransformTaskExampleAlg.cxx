@@ -21,7 +21,7 @@ namespace AthCUDAExamples {
    }
 
    StatusCode
-   LinearTransformTaskExampleAlg::execute( const EventContext& ctx ) const {
+   LinearTransformTaskExampleAlg::execute( const EventContext& ) const {
 
       // Create a dummy array variable that will be multiplied by some amount.
       static const std::size_t ARRAY_SIZE = 10000;
