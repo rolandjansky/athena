@@ -306,8 +306,8 @@ SCTLorentzMonTool::fillHistograms() {
               /// d0 < 1 mm, pT > 500 MeV, N_hit(SCT in any region) >=7 , N_hit(Pixel) >= 2
 
               else if ((track->perigeeParameters()->parameters()[Trk::qOverP] < 0.) && // use negative track only
-                       (fabs(perigee->parameters()[Trk::d0]) < 1.) && // d0 < 1mm
-		       //(fabs( perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta]) ) < 1.) // another way to implement d0 < 1mm
+                       (std::abs(perigee->parameters()[Trk::d0]) < 1.) && // d0 < 1mm
+		       //(std::abs( perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta]) ) < 1.) // another way to implement d0 < 1mm
 		       (trkp->momentum().perp() > 500.) &&   // Pt > 500MeV
                        (summary->get(Trk::numberOfSCTHits) > 6)// // SCTHits >6
                        ) {
@@ -402,8 +402,8 @@ SCTLorentzMonTool::fillHistograms() {
 	    passesCuts=true;
 	  }
 	  else if( (track->perigeeParameters()->parameters()[Trk::qOverP] < 0.) && // use negative track only
-		   (fabs( perigee->parameters()[Trk::d0] ) < 1.) &&  // d0 < 1mm
-		   //(fabs( perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta]) ) < 1.)  // another way to implement d0 < 1mm
+		   (std::abs( perigee->parameters()[Trk::d0] ) < 1.) &&  // d0 < 1mm
+		   //(std::abs( perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta]) ) < 1.)  // another way to implement d0 < 1mm
 		   (trkp->momentum().perp() > 500.) &&   // Pt > 500MeV
 		   (summary->get(Trk::numberOfSCTHits) > 6 )// && // SCTHits >6
 		   ){
