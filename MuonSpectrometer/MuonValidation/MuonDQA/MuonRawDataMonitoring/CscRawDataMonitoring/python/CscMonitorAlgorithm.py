@@ -436,10 +436,7 @@ if __name__=='__main__':
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.ESD
 
-
-    # ConfigFlags.Input.isMC = False
     ConfigFlags.Output.HISTFileName = 'CscMonitorOutput.root'
-    #ConfigFlags.fillFromArgs(sys.argv[1:])
     ConfigFlags.Muon.doCSCs = True
     ConfigFlags.Muon.doRPCs = False
     ConfigFlags.Muon.doTGCs = False
