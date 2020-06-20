@@ -98,8 +98,8 @@ public:
   /** Returns true if Charged or false if Neutral
    */
   constexpr bool isCharged () const;
-  /** Returns charge of concrete type (i.e. must be implemented in inheriting
-   * classes) */
+  /** Returns the charge
+   * */
   double charge() const;
 
   /** Access method for the local coordinates, \f$(loc1,loc2)\f$
@@ -107,7 +107,7 @@ public:
   Amg::Vector2D localPosition() const;
 
   /** Update parameters and covariance.
-   * Uses NVI: Derived classes can override the
+   * Uses NVI: Derived classes override the
    * implementation via updateParametersHelper
    */
   void updateParameters(const AmgVector(DIM) &, AmgSymMatrix(DIM) * = nullptr);
@@ -115,7 +115,7 @@ public:
   /** Update parameters  and covariance , passing covariance by ref. A
    * covariance is created if one does not exist.  Otherwise in place update
    * occurs via assignment.
-   * Uses NVI: Derived classes can override the
+   * Uses NVI: Derived classes override the
    * implementation via updateParametersHelper
    */
   void updateParameters(const AmgVector(DIM) &, const AmgSymMatrix(DIM) &);
