@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelConditionsData/SpecialPixelMap.h"
@@ -20,7 +20,7 @@
 
 //***** DetectorSpecialPixelMap *****//
 const int nmtype(5);
-static unsigned int columnsPerFEIX[5]={18,80,132,80,132}; // number of columns per FEI3, 4, 50, 51, 52 
+static const unsigned int columnsPerFEIX[5]={18,80,132,80,132}; // number of columns per FEI3, 4, 50, 51, 52 
 //static unsigned int rowsPerFEIX[5]={164, 336, 672, 339, 678}; // number of rows per FEI3, 4, 50, 51, 52
 //static unsigned int rowsRdoPerFEIX[5]={160, 336, 672, 336, 672}; // number of rows readout per FEI3, 4, 50, 51, 52
 

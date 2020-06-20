@@ -314,34 +314,44 @@ def make_hlt_seq(num_chains, concurrent=False):
 
 def write_dummy_menu_json(chains, chain_to_streams):
     import json
+    from collections import OrderedDict as odict
     from TrigConfHLTData.HLTUtils import string2hash
     menu_name = 'MTCalibPeb'
-    menu_dict = {
-        'name': menu_name,
-        'chains': []
-    }
+    menu_dict = odict([ ("filetype", "hltmenu"), ("name", menu_name), ("chains", odict()), ("streams", odict()), ("sequencers", odict()) ])
     counter = 0
     for chain in chains:
-        chain_dict = {}
+        # Prepare information for stream list and fill separate dictionary
+        chain_streams = []
+        for stream in chain_to_streams[chain]:
+            stream_name = stream['name']
+            chain_streams.append(stream_name)
+            # If not already listed, add stream details to stream dictionary
+            if stream_name not in menu_dict["streams"]:
+                menu_dict["streams"][stream_name] = odict([
+                    ("name", stream_name),
+                    ("type", stream['type']),
+                    ("obeyLB", stream['obeyLB']),
+                    ("forceFullEventBuilding", stream['forceFullEventBuilding'])
+                ])
 
-        # Relevant attributes
-        chain_dict['counter'] = counter
-        chain_dict['name'] = chain
-        chain_dict['streams'] = chain_to_streams[chain]
-        chain_dict['nameHash'] = string2hash(chain)
+        # Attributes not filled are not used in MTCalibPeb
+        menu_dict["chains"][chain] = odict([
+            ("counter", counter),
+            ("name", chain),
+            ("nameHash", string2hash(chain)),
+            ("l1item", ''),
+            ("l1thresholds", []),
+            ("groups", []),
+            ("streams", chain_streams),
+            ("sequencers", [] )
+        ])
 
-        # Other attributes not used in MTCalibPeb
-        chain_dict['groups'] = []
-        chain_dict['l1item'] = ''
-        chain_dict['l1thresholds'] = []
-
-        menu_dict['chains'].append(chain_dict)
         counter += 1
 
     file_name = 'HLTMenu_{:s}.json'.format(menu_name)
 
     log.info('Writing trigger menu to %s', file_name)
     with open(file_name, 'w') as json_file:
-        json.dump(menu_dict, json_file, indent=4, sort_keys=True)
+        json.dump(menu_dict, json_file, indent=4, sort_keys=False)
 
     return file_name

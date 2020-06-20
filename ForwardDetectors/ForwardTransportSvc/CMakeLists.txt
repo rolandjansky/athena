@@ -20,15 +20,21 @@ find_package( Geant4 )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 find_package( XercesC )
 
+atlas_add_library( ForwardTransportSvcLib
+                   ForwardTransportSvc/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS ForwardTransportSvc
+                   INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS}
+                   LINK_LIBRARIES GaudiKernel AtlasHepMCLib ForwardTracker )
+
 # Component(s) in the package:
 atlas_add_component( ForwardTransportSvc
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib ForwardTracker GaudiKernel AthenaBaseComps GeneratorObjects ForwardTracker )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} ForwardTransportSvcLib AthenaBaseComps GeneratorObjects ForwardTracker )
 
 # Install files from the package:
-atlas_install_headers( ForwardTransportSvc )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 

@@ -1,7 +1,7 @@
 ////////////////////-*- C++ -*-////////////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetAugmentationTool.h, (c) ATLAS Detector software
@@ -66,7 +66,6 @@ namespace DerivationFramework {
     //PFlow fJVT
     std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_fjvt;
     std::string m_fjvtMomentKey;
-    bool m_dofjvt;
 
     // b-tagging       @author tripiana@cern.ch
     std::vector<SG::AuxElement::Decorator<float>*> m_dec_btag;
