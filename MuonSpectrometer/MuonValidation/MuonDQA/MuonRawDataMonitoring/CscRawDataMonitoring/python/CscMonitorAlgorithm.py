@@ -3,7 +3,6 @@
 #
 
 from AthenaConfiguration.ComponentFactory import CompFactory
-#from MuonConfig.MuonSegmentFindingConfig import CalibCscStripFitterCfg
 
 from .CscMonUtils import getCSCLabelx
 
@@ -441,17 +440,16 @@ if __name__=='__main__':
     # ConfigFlags.Input.isMC = False
     ConfigFlags.Output.HISTFileName = 'CscMonitorOutput.root'
     #ConfigFlags.fillFromArgs(sys.argv[1:])
-    # ConfigFlags.GeoModel.AtlasVersion="ATLAS-R2-2016-00-01-00"
     ConfigFlags.Muon.doCSCs = True
     ConfigFlags.Muon.doRPCs = False
     ConfigFlags.Muon.doTGCs = False
+    ConfigFlags.Muon.doMicromegas = False
     ConfigFlags.Detector.GeometryMuon=False
     ConfigFlags.Detector.GeometryCSC=True
     ConfigFlags.Detector.GeometryRPC=False
     ConfigFlags.Detector.GeometryTGC=False
     ConfigFlags.Detector.GeometryMM=False
     ConfigFlags.Detector.GeometryMDT=False
-    ConfigFlags.Muon.doMicromegas = False
     #ConfigFlags.Muon.useAlignmentCorrections=False
     ConfigFlags.Muon.Align.UseILines = False
     #ConfigFlags.Muon.Align.UseAsBuilt = True

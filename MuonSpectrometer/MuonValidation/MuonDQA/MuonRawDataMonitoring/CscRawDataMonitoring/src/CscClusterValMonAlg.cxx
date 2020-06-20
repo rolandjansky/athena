@@ -43,7 +43,6 @@ StatusCode CscClusterValMonAlg::initialize() {
   ATH_MSG_INFO ( "CSCPrepRawDataKey   : " << m_cscPRDKey );
 
   ATH_CHECK(m_idHelperSvc.retrieve());
-  ATH_MSG_DEBUG ("CSCIdHelper         : " << "Using CscIdhelper " );
 
   ATH_CHECK(m_stripFitter.retrieve());
   ATH_MSG_INFO ( "CSCStripFitter      : " << "Using Fitter with name \"" << m_stripFitter->name() << "\"" );
