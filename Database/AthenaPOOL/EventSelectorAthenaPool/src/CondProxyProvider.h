@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CONDPROXYPROVIDER_H
@@ -63,7 +63,8 @@ private: // data
 
 private: // properties
    /// InputCollections, vector with names of the input collections.
-   StringArrayProperty m_inputCollectionsProp;
+   StringArrayProperty m_inputCollectionsProp
+   { this, "InputCollections", {}, "Files to read", "OrderedSet<std::string>" };
    mutable std::vector<std::string>::const_iterator m_inputCollectionsIterator;
 
 private: // internal helper functions

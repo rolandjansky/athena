@@ -64,7 +64,7 @@ StatusCode sTGC_RegionSelectorTable::finalize() {
 }
 
 
-RegSelSiLUT* sTGC_RegionSelectorTable::getLUT() const {
+RegSelSiLUT* sTGC_RegionSelectorTable::getLUT() {
   return m_regionLUT;
 } 
 

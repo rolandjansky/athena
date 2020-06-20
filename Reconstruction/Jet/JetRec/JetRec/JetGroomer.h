@@ -9,16 +9,23 @@
 ///
 /// \class JetGroomer
 ///
-/// Creates a new JetContainer by grooming an input jet collection
+/// Base class for tools that create a new JetContainer by grooming an input jet collection
 ///
-/// This tool implements the IJetProvider interface. The JetContainer it returns is built by
-/// running an IJetGroomer tool (e.g. JetTrimmer) on the input jets.
+/// This tool implements the IJetProvider interface. Children should override (only)
+/// the initialize and insertGroomedJet methods, to implement a specific instance of
+/// jet grooming.
 ///
 
 #include "AsgTools/AsgTool.h"
+
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+
 #include "JetInterface/IJetProvider.h"
-#include "JetInterface/IJetGroomer.h"
+
+#include "JetEDM/PseudoJetVector.h"
+#include "JetRec/PseudoJetContainer.h"
+
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetAuxContainer.h"
 
@@ -32,17 +39,23 @@ class JetGroomer
     using asg::AsgTool::AsgTool;
 
     virtual StatusCode initialize() override;
-    virtual std::pair<std::unique_ptr<xAOD::JetContainer>, std::unique_ptr<SG::IAuxStore> > getJets() const override;
 
-  private:
-    // Handle Input JetContainer
-    SG::ReadHandleKey<xAOD::JetContainer> m_inputJetsKey {this, "UngroomedJets", "", "Jet collection to be groomed"};
+    // From IJetProvider
+    virtual std::pair<std::unique_ptr<xAOD::JetContainer>, std::unique_ptr<SG::IAuxStore> > getJets() const override final;
 
-    // Handle Input PseudoJetContainer
-    // Needed to extract the constituents
-    SG::ReadHandleKey<PseudoJetContainer> m_inputPseudoJetsKey {this, "ParentPseudoJets", "", "Input constituents"};
+    // Implementation of grooming goes here
+    // The jet is inserted into the output container, which is necessary for speed
+    // in the xAOD container paradigm
+  virtual void insertGroomedJet(const xAOD::Jet&, const PseudoJetContainer&, xAOD::JetContainer&, PseudoJetVector&) const = 0;
 
-    ToolHandle<IJetGroomer> m_groomer ={this , "Groomer" , {} , "Tool grooming the jets (trim, prune, softdrop etc)"};
+  protected:
+  /// Handle Input JetContainer (this contains the parent ungroomed jets to be trimmed)
+  SG::ReadHandleKey<xAOD::JetContainer> m_inputJetContainer {this, "UngroomedJets", "ungroomedinput", "Input ungroomed jet container"};
+
+  /// This is the input to the parent JetContainer. It is needed in order to re-assign the ghost constituents from the final groomed PJ to the xAOD::Jet
+  SG::ReadHandleKey<PseudoJetContainer> m_inputPseudoJets {this, "ParentPseudoJets", "inputpseudojet", "input constituents of parent JetContainer"};
+
+   SG::WriteHandleKey<PseudoJetVector> m_finalPseudoJets {this, "FinalPseudoJets_DONOTSET", "", "output pseudojets -- autoconfigured name"};
 
 };
 

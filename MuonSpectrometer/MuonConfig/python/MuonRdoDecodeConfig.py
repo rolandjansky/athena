@@ -224,8 +224,8 @@ def muonRdoDecodeTestData( forTrigger = False ):
     cfg=ComponentAccumulator()
 
     # Seem to need this to read BS properly
-    from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
-    cfg.merge(TrigBSReadCfg(ConfigFlags ))
+    from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+    cfg.merge(ByteStreamReadCfg(ConfigFlags ))
 
     # Add the MuonCache to ComponentAccumulator for trigger/RoI testing mode
     if forTrigger:

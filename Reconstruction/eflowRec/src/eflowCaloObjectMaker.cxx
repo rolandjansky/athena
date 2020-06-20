@@ -38,7 +38,7 @@ int eflowCaloObjectMaker::makeTrkCluCaloObjects(eflowRecTrackContainer* eflowTra
 
 }
 
-int eflowCaloObjectMaker::makeTrkCluCaloObjects(std::vector<eflowRecTrack*> tracksToRecover, std::vector<eflowRecCluster*> clustersToConsider, eflowCaloObjectContainer* caloObjectContainer) {
+int eflowCaloObjectMaker::makeTrkCluCaloObjects(std::vector<eflowRecTrack*>& tracksToRecover, std::vector<eflowRecCluster*>& clustersToConsider, eflowCaloObjectContainer* caloObjectContainer) {
   int result(0);
 
   /* Create all eflowCaloObjects that contain only eflowRecTracks and cache eflowRecTracks matched with cluster */

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # $Id: common.py,v 1.39 2009-05-20 20:48:52 ssnyder Exp $
@@ -1120,7 +1120,7 @@ from AthenaCommon.Configurable import Configurable
 def _calocorr_setup (self):
     save_properties = {}
     try:
-        for (k, v) in self._properties.items():
+        for (k, v) in list(self._properties.items()):
             if self in v.history and len (v.history[self]) >= 1:
                 pass
             else:

@@ -79,78 +79,78 @@ StatusCode SCT_RodDecoder::finalize()
                << m_lastExpHitNumber    << " last consecutive strips with hit in expanded mode");
 
   if (m_headErrorBCID > 0) {
-     ATH_MSG_INFO("SCT BytestreamCnv summary: header-> "
-                  << m_headErrorLvl1ID    << " LVL1d errors found");
+    ATH_MSG_INFO("SCT BytestreamCnv summary: header-> "
+                 << m_headErrorLvl1ID    << " LVL1d errors found");
   }
   if (m_headErrorTimeout > 0) {
-     ATH_MSG_INFO("SCT BytestreamCnv summary: header-> "
-                  << m_headErrorTimeout   << " timeout errors found");
+    ATH_MSG_INFO("SCT BytestreamCnv summary: header-> "
+                 << m_headErrorTimeout   << " timeout errors found");
   }
   if (m_headErrorFormatter > 0) {
-     ATH_MSG_INFO("SCT BytestreamCnv summary: header-> "
-                  << m_headErrorFormatter << " formatter errors found");
+    ATH_MSG_INFO("SCT BytestreamCnv summary: header-> "
+                 << m_headErrorFormatter << " formatter errors found");
   }
   if (m_headErrorPreamble > 0) {
-     ATH_MSG_INFO("SCT BytestreamCnv summary: header-> "
-                  << m_headErrorPreamble  << " preamble errors found");
+    ATH_MSG_INFO("SCT BytestreamCnv summary: header-> "
+                 << m_headErrorPreamble  << " preamble errors found");
   }
   if (m_maskedLinkNumber > 0) {
-     ATH_MSG_INFO("SCT BytestreamCnv summary: header-> "
-                  << m_maskedLinkNumber   << " masked links found");
+    ATH_MSG_INFO("SCT BytestreamCnv summary: header-> "
+                 << m_maskedLinkNumber   << " masked links found");
   }
 
   if (m_trailerErrorOverflow > 0) {
-     ATH_MSG_INFO("SCT BytestreamCnv summary: trailer-> "
-                  << m_trailerErrorOverflow << " trailer data overflow errors found");
+    ATH_MSG_INFO("SCT BytestreamCnv summary: trailer-> "
+                 << m_trailerErrorOverflow << " trailer data overflow errors found");
   }
   if (m_trailerErrorLimit > 0) {
-     ATH_MSG_INFO("SCT BytestreamCnv summary: trailer-> "
-                  << m_trailerErrorLimit    << " header trailer limit errors found");
+    ATH_MSG_INFO("SCT BytestreamCnv summary: trailer-> "
+                 << m_trailerErrorLimit    << " header trailer limit errors found");
   }
   if (m_trailerErrorBit > 0) {
-     ATH_MSG_INFO("SCT BytestreamCnv summary: trailer-> "
-                  << m_trailerErrorBit      << " trailer bit errors found");
+    ATH_MSG_INFO("SCT BytestreamCnv summary: trailer-> "
+                 << m_trailerErrorBit      << " trailer bit errors found");
   }
 
   if (m_configDataBit > 0) {
-     ATH_MSG_INFO("SCT BytestreamCnv summary: raw Data-> "
-                  << m_configDataBit << " raw data found: Config data mode");
+    ATH_MSG_INFO("SCT BytestreamCnv summary: raw Data-> "
+                 << m_configDataBit << " raw data found: Config data mode");
   }
 
   if (m_flagErrorBit > 0) {
-     ATH_MSG_INFO("SCT BytestreamCnv summary: flag-> "
-                  << m_flagErrorBit << " module link flag bit errors found");
+    ATH_MSG_INFO("SCT BytestreamCnv summary: flag-> "
+                 << m_flagErrorBit << " module link flag bit errors found");
   }
 
   if (m_condHit1Error > 0) {
-     ATH_MSG_INFO("SCT BytestreamCnv summary: hit-> "
-                  << m_condHit1Error   << " 1st hit error found in condensed mode");
+    ATH_MSG_INFO("SCT BytestreamCnv summary: hit-> "
+                 << m_condHit1Error   << " 1st hit error found in condensed mode");
   }
   if (m_condHit2Error > 0) {
-     ATH_MSG_INFO("SCT BytestreamCnv summary: hit-> "
-                  << m_condHit2Error   << " 2nd hit error found in condensed mode");
+    ATH_MSG_INFO("SCT BytestreamCnv summary: hit-> "
+                 << m_condHit2Error   << " 2nd hit error found in condensed mode");
   }
   if (m_chipNumberError > 0) {
-     ATH_MSG_INFO("SCT BytestreamCnv summary: hit-> "
-                  << m_chipNumberError << " Chip number > 5 error found");
+    ATH_MSG_INFO("SCT BytestreamCnv summary: hit-> "
+                 << m_chipNumberError << " Chip number > 5 error found");
   }
 
   if (m_unknownDataFormat > 0) {
-     ATH_MSG_INFO("SCT BytestreamCnv summary: unknown data-> "
-                  << m_unknownDataFormat << " Unknown data format found");
+    ATH_MSG_INFO("SCT BytestreamCnv summary: unknown data-> "
+                 << m_unknownDataFormat << " Unknown data format found");
   }
 
   if (m_rodClockErrorNumber > 0) {
-     ATH_MSG_INFO("SCT BytestreamCnv summary: ROD status word-> "
-                  << m_rodClockErrorNumber << " ROD clock errors found");
+    ATH_MSG_INFO("SCT BytestreamCnv summary: ROD status word-> "
+                 << m_rodClockErrorNumber << " ROD clock errors found");
   }
   if (m_maskedRODNumber > 0) {
-     ATH_MSG_INFO("SCT BytestreamCnv summary: ROB status word-> "
-                  << m_maskedRODNumber     << " masked RODs found");
+    ATH_MSG_INFO("SCT BytestreamCnv summary: ROB status word-> "
+                 << m_maskedRODNumber     << " masked RODs found");
   }
   if (m_truncatedRODNumber > 0) {
-     ATH_MSG_INFO("SCT BytestreamCnv summary: ROB status word-> "
-                  << m_truncatedRODNumber  << " truncated ROBFragments");
+    ATH_MSG_INFO("SCT BytestreamCnv summary: ROB status word-> "
+                 << m_truncatedRODNumber  << " truncated ROBFragments");
   }
 
   ATH_MSG_INFO("Number of SCT hits in ByteStream-> " << m_nHits);
@@ -174,11 +174,11 @@ StatusCode SCT_RodDecoder::finalize()
  **/
 class SCT_RodDecoderErrorsHelper {
 public:
-  SCT_RodDecoderErrorsHelper( IDCInDetBSErrContainer& idcContainer )
+  SCT_RodDecoderErrorsHelper(IDCInDetBSErrContainer& idcContainer)
     : errorsIDC{ idcContainer } {}
   ~SCT_RodDecoderErrorsHelper() {
-    for ( auto [id, err]: accumulatedErrors ) {
-      errorsIDC.setOrDrop( id, err );
+    for (auto [id, err]: accumulatedErrors) {
+      errorsIDC.setOrDrop(id, err);
     }
   }
   void noerror(const IdentifierHash id) {
@@ -200,7 +200,7 @@ StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
                                           IDCInDetBSErrContainer& errorsIDC,
                                           const std::vector<IdentifierHash>* vecHash) const
 {
-  SCT_RodDecoderErrorsHelper errs( errorsIDC ); // on destruction will fill the IDC
+  SCT_RodDecoderErrorsHelper errs{errorsIDC}; // on destruction will fill the IDC
   const uint32_t robID{robFrag.rod_source_id()};
   // Determine whether this data was generated using the ROD simulator
   const uint32_t rodDataType{robFrag.rod_detev_type()};
@@ -774,7 +774,7 @@ StatusCode SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROB
             ATH_MSG_DEBUG("ABCD error and online ID have different side information for hash " << currentLinkIDHash << ". "
                           << sideABCDError << " from ABCD error and " << currentLinkIDHash.value()%2 << " from online ID");
             currentLinkIDHash = (currentLinkIDHash.value()/2)*2+sideABCDError;
-	    errs.noerror(currentLinkIDHash);
+            errs.noerror(currentLinkIDHash);
           }
           // Chip should be 0-5 or 8-13.
           if (chip%8>=N_CHIPS_PER_SIDE) {
@@ -915,7 +915,7 @@ int SCT_RodDecoder::makeRDO(int strip, int groupSize, int timeBin,
                             ISCT_RDO_Container& rdoIDCont,
                             CacheHelper& cache,
                             const std::vector<int>& errorHit,
-			    SCT_RodDecoderErrorsHelper & errs) const
+                            SCT_RodDecoderErrorsHelper& errs) const
 {
   if (((strip & 0x7f) + (groupSize-1) >= N_STRIPS_PER_CHIP) or (strip<0) or (strip>=N_STRIPS_PER_SIDE)) {
     ATH_MSG_WARNING("Cluster with " << groupSize << " strips, starting at strip " << strip
@@ -944,7 +944,7 @@ int SCT_RodDecoder::makeRDO(int strip, int groupSize, int timeBin,
     }
   }
 
-  if(rdoIDCont.hasExternalCache() and rdoIDCont.tryAddFromCache(collIDHash)){
+  if (rdoIDCont.hasExternalCache() and rdoIDCont.tryAddFromCache(collIDHash)) {
     ATH_MSG_DEBUG("Hash already in collection - cache hit " << collIDHash);
     return 0;
   }
@@ -977,7 +977,7 @@ int SCT_RodDecoder::makeRDO(int strip, int groupSize, int timeBin,
     ATH_MSG_DEBUG(" Collection ID = " << collIDHash << " does not exist, create it ");
     // Create new collection
     sctRDOColl = new SCT_RDO_Collection(collIDHash);
-    errs.noerror( collIDHash ); // make sure the error information is filled for this ID
+    errs.noerror(collIDHash); // make sure the error information is filled for this ID
     sctRDOColl->setIdentifier(collID);
     StatusCode sc{rdoIDCont.addCollection(sctRDOColl, collIDHash)};
     ATH_MSG_DEBUG("Adding " << collIDHash);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef NSWAGDDTool_H
@@ -17,8 +17,7 @@ namespace MuonGM
 class NSWAGDDTool: public AGDDToolBase
 {
 public:
-	NSWAGDDTool(const std::string& type, const std::string& name, 
-				 const IInterface* parent);
+	NSWAGDDTool(const std::string& type, const std::string& name, const IInterface* parent);
 	virtual StatusCode construct();
 	
 	virtual StatusCode initialize();
@@ -36,6 +35,8 @@ private:
 
 	std::string m_outFileType;
 	std::string m_outPREsqlName;
+	std::string m_DBFileName;
+	std::string m_agdd2GeoSvcName;
 
 	bool m_readAGDD;
 	bool m_dumpAGDD;

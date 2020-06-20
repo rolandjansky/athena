@@ -226,9 +226,14 @@ StatusCode Epos::genInitialize()
   epos_rndm_stream = "EPOS";
 
     // setup HepMC
+#ifdef HEPMC3
+     /* This ifdef is used for consistency */
+     /* HepMC3 does not need this setup */
+#else    
     HepMC::HEPEVT_Wrapper::set_sizeof_int(sizeof( int ));
     HepMC::HEPEVT_Wrapper::set_sizeof_real( 8 );
     HepMC::HEPEVT_Wrapper::set_max_number_entries(10000);    // as used in crmc-aaa.f!!!
+#endif
 
   m_events = 0;
 
@@ -305,12 +310,16 @@ StatusCode Epos::fillEvt( HepMC::GenEvent* evt )
 
 
   HepMC::HEPEVT_Wrapper::set_event_number(m_events);
+#ifdef HEPMC3
+  HepMC::HEPEVT_Wrapper::HEPEVT_to_GenEvent(evt);
+#else  
   HepMC::IO_HEPEVT hepio;
 
  
   hepio.set_trust_mothers_before_daughters(0);
   hepio.set_print_inconsistency_errors(0);
   hepio.fill_next_event(evt);
+#endif
   // evt->print();
  
 
@@ -321,16 +330,34 @@ StatusCode Epos::fillEvt( HepMC::GenEvent* evt )
   
   std::vector<HepMC::GenParticlePtr> beams;
 
-  for (HepMC::GenEvent::particle_const_iterator p = evt->particles_begin(); p != evt->particles_end(); ++p) {
-    if ((*p)->status() == 4) {
-      beams.push_back(*p);
-    }
-  } 
+  for (auto p: *evt) {
+    if (p->status() == 4) {
+      beams.push_back(p);
+   }
+  }
 
+  if (beams.size()>=2) {
   evt->set_beam_particles(beams[0], beams[1]); 
+  }
 
   // Heavy Ion and Signal ID from Epos to HepMC
 
+#ifdef HEPMC3
+     HepMC::GenHeavyIonPtr ion= std::make_shared<HepMC::GenHeavyIon>();
+                      ion->Ncoll_hard=cevt_.kohevt;
+                      ion->Npart_proj=cevt_.npjevt;
+                      ion->Npart_targ=cevt_.ntgevt;
+                      ion->Ncoll=cevt_.kolevt;
+                      ion->spectator_neutrons=cevt_.npnevt + cevt_.ntnevt;
+                      ion->spectator_protons=cevt_.nppevt + cevt_.ntpevt;
+                      ion->N_Nwounded_collisions=-1;
+                      ion->Nwounded_N_collisions=-1;
+                      ion->Nwounded_Nwounded_collisions=-1;
+                      ion->impact_parameter= cevt_.bimevt;
+                      ion->event_plane_angle=cevt_.phievt;
+                      ion->eccentricity=-1;  //c2evt_.fglevt,  //correct name but not defined
+                      ion->sigma_inel_NN=1e9*hadr5_.sigine;
+#else
      HepMC::HeavyIon ion(cevt_.kohevt,
                       cevt_.npjevt,
                       cevt_.ntgevt,
@@ -344,6 +371,7 @@ StatusCode Epos::fillEvt( HepMC::GenEvent* evt )
                       cevt_.phievt,
                       -1,  //c2evt_.fglevt,  //correct name but not defined
                       1e9*hadr5_.sigine);
+#endif
 
 		      evt->set_heavy_ion(ion);  
 

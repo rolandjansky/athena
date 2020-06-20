@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // -------------------------------------------------------------
@@ -303,11 +303,7 @@ StatusCode CosmicGenerator::callGenerator() {
 
           ATH_MSG_VERBOSE( evt );
 
-          double polx = 0;
-          double poly = 0;
-          double polz = 0;
-          HepMC::Polarization thePolarization;
-          thePolarization.set_normal3d(HepGeom::Normal3D<double>(polx,poly,polz));
+          HepMC::Polarization thePolarization(0.0,0.0);
           m_polarization.push_back(thePolarization);
 
           //
@@ -555,26 +551,8 @@ StatusCode CosmicGenerator::callGenerator() {
         m_fourPos.push_back(CLHEP::HepLorentzVector(x,z,y,t));
 
       // Set the polarization.  Realistically, this is going to be zero
-      // for most studies, but you never know...
-      double polx = 0;
-      double poly = 0;
-      double polz = 0;
-      //m_polarization.set_normal3d(HepGeom::Normal3D<double>(polx,poly,polz));
-      HepMC::Polarization thePolarization;
-
-      // Do we need to swap Y- and Z-axis for the PixelEndCap C Cosmic test ?
-      // if not...do nothing...if so, invert position of y- and z- coordinate
-      //
-      // well and don't forget about the direction of the incoming cosmic muon(s) either
-      // that means:  y -> -y
-      //
-      if(!m_swapYZAxis){
-        // thePolarization.set_normal3d(HepGeom::Normal3D<double>(polx,-poly,polz));
-        thePolarization.set_normal3d(HepGeom::Normal3D<double>(polx,poly,polz));
-      }
-      else
-        thePolarization.set_normal3d(HepGeom::Normal3D<double>(polx,polz,-poly));
-
+      // for most studies.
+      HepMC::Polarization thePolarization(0.0);
       m_polarization.push_back(thePolarization);
 
 
@@ -627,10 +605,7 @@ StatusCode CosmicGenerator::callGenerator() {
           << m_fourMom.back().e()  << ")" );
       ATH_MSG_DEBUG(
              "  (theta,phi) = (" << theta << "," << phi << "), "
-          << "polarization(x,y,z) = ("
-          << m_polarization.back().normal3d().x() << ","
-          << m_polarization.back().normal3d().y() << ","
-          << m_polarization.back().normal3d().z() << ")" );
+          << "polarization(theta,phi) = ("<< m_polarization.back().theta() << ","<< m_polarization.back().phi()  << ")" );
     }
   return StatusCode::SUCCESS;
 

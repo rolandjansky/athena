@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // TruthParticleContainer.h 
@@ -220,7 +220,7 @@ inline
 std::ostream& TruthParticleContainer::dump( std::ostream& out ) const 
 {
   if ( m_genEvent.isValid() ) {
-    (*m_genEvent)->print( out );
+    HepMC::Print::line(out,*m_genEvent);
   }
   return out;
 }

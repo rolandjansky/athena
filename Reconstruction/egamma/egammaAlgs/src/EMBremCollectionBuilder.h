@@ -73,14 +73,14 @@ private:
                          std::vector<TrackWithIndex>& failedfit) const;
 
   StatusCode createCollections(
-    const std::vector<TrackWithIndex>& refitted,
-    const std::vector<TrackWithIndex>& failedfit,
-    const std::vector<TrackWithIndex>& trtAlone,
+    std::vector<TrackWithIndex>& refitted,
+    std::vector<TrackWithIndex>& failedfit,
+    std::vector<TrackWithIndex>& trtAlone,
     TrackCollection* finalTracks,
     xAOD::TrackParticleContainer* finalTrkPartContainer,
     const xAOD::TrackParticleContainer* AllTracks) const;
 
-  StatusCode createNew(const TrackWithIndex& Info,
+  StatusCode createNew(TrackWithIndex& Info,
                        TrackCollection* finalTracks,
                        xAOD::TrackParticleContainer* finalTrkPartContainer,
                        const xAOD::TrackParticleContainer* AllTracks) const;
