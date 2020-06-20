@@ -225,7 +225,7 @@ def recordMuonCreatorAlgObjs (kw):
 
 def MuonCreatorAlgCfg( flags, name="MuonCreatorAlg",**kwargs ):
     from MuonCombinedRecToolsConfig import MuonCreatorToolCfg
-    result = MuonCreatorToolCfg(flags)
+    result = MuonCreatorToolCfg(flags, FillTimingInformation=False)
     kwargs.setdefault("MuonCreatorTool",result.popPrivateTools())
     # recordMuonCreatorAlgObjs (kwargs)
     # if muGirl is off, remove "muGirlTagMap" from "TagMaps"
@@ -361,9 +361,6 @@ if __name__=="__main__":
     #Configure topocluster algorithmsm, and associated conditions
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
     cfg.merge(CaloTopoClusterCfg(ConfigFlags,doLCCalib=True))
-    from AthenaCommon.Constants import VERBOSE
-
-    cfg.getEventAlgo("CaloTopoClusters").OutputLevel=VERBOSE 
 
     acc = MuonCombinedReconstructionCfg(ConfigFlags)
     cfg.merge(acc)
@@ -388,7 +385,6 @@ if __name__=="__main__":
     rename_maps = [ '%s#%s->%s' % ("xAOD::MuonContainer", "Muons", "old_Muons"), 
                     '%s#%s->%s' % ("xAOD::MuonAuxContainer", "MuonsAux.", "old_MuonsAux."),
                     '%s#%s->%s' % ("xAOD::MuonContainer", "Muons.rpcHitIdentifier", "old_Muons.rpcHitIdentifier")]
-                    # '%s#%s->%s' % ("Muon::TgcPrepDataContainer", "TGC_MeasurementsAllBCs", "TGC_Measurements")] 
     cfg.merge( AddressRemappingCfg(rename_maps) )
     tmp = cfg.getService("AddressRemappingSvc")
     tmp.OutputLevel=VERBOSE
