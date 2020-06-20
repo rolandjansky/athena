@@ -101,6 +101,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_upstreamTriggerMatching(false),
     m_trigMatchingPrefix(""),
     m_useBtagging(false),
+    m_useBtagging_trkJet(false),
     m_debug(false),
     m_strictConfigCheck(false),
     m_badJetCut(""),
@@ -417,6 +418,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "DoMuBjetOR",    m_orDoMuBjet );
   declareProperty( "DoTauBjetOR",    m_orDoTauBjet );
   declareProperty( "UseBtagging",   m_useBtagging );
+  declareProperty( "UseBtaggingTrkJet",   m_useBtagging_trkJet );
   declareProperty( "DoBoostedElectronOR", m_orDoBoostedElectron );
   declareProperty( "BoostedElectronORC1", m_orBoostedElectronC1 );
   declareProperty( "BoostedElectronORC2", m_orBoostedElectronC2 );
@@ -964,7 +966,7 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfile
 	  std::string NoMetadataButPropertyOK("");
 	  NoMetadataButPropertyOK += "autoconfigurePileupRWTool(): 'mcCampaign' is used and passed to SUSYTools as '";
 	  NoMetadataButPropertyOK += m_mcCampaign;
-	  NoMetadataButPropertyOK += "'. Autocongiguring PRW accordingly.";
+	  NoMetadataButPropertyOK += "'. Autoconfiguring PRW accordingly.";
 	  ATH_MSG_WARNING( NoMetadataButPropertyOK );
 	  mcCampaignMD = m_mcCampaign;
 	}
@@ -978,26 +980,26 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfile
     // Retrieve the input file
     int DSID_INT = (int) dsid;
     prwConfigFile += "DSID" + std::to_string(DSID_INT/1000) + "xxx/pileup_" + mcCampaignMD + "_dsid" + std::to_string(DSID_INT) + "_" + simType + ".root";
-    
+
     if (RPVLLmode) prwConfigFile = TString(prwConfigFile).ReplaceAll(".root","_rpvll.root").Data();
 
-    // PRW file specified by user 
+    // PRW file specified by user
     // e.g. DSID407xxx/pileup_mc16a_dsid407352_FS.root
     if (!PRWfileName.empty()) {
-      prwConfigFile = PRWfilesDir + PRWfileName;   
+      prwConfigFile = PRWfilesDir + PRWfileName;
       ATH_MSG_INFO( "autoconfigurePileupRWTool(): PRW file was specifed by user: " << prwConfigFile.data() );
     }
 
     // Patch for MC16 Znunu metadata bug  (updated 2019.05.30)
     if (!HFFilter.empty() && dsid>=366001 && dsid<= 366008) {
       ATH_MSG_WARNING ("Samples metadata for Znunu samples is corrupted! Remapping to grab the correct RPW file. Only MC16e is supported for now.");
-      if (HFFilter == "BFilter") { 
+      if (HFFilter == "BFilter") {
         prwConfigFile = TString(prwConfigFile).ReplaceAll(std::to_string(DSID_INT),std::to_string(DSID_INT+9)).Data();
-      } else if (HFFilter == "CFilterBVeto") { 
+      } else if (HFFilter == "CFilterBVeto") {
         prwConfigFile = TString(prwConfigFile).ReplaceAll(std::to_string(DSID_INT),std::to_string(DSID_INT+18)).Data();
-      } else if (HFFilter == "CVetoBVeto") { 
+      } else if (HFFilter == "CVetoBVeto") {
         prwConfigFile = TString(prwConfigFile).ReplaceAll(std::to_string(DSID_INT),std::to_string(DSID_INT+27)).Data();
-      } else { 
+      } else {
         ATH_MSG_ERROR ("Heavy flavor filter naming is wrong and cannot re-map dsid! SHould be BFilter, CFilterBVeto, or CVetoBVeto.");
         return StatusCode::FAILURE;
       }
@@ -1207,6 +1209,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   //load config file to Properties map  (only booleans for now)
   m_conf_to_prop["StrictConfigCheck"] = "StrictConfigCheck";
   m_conf_to_prop["Btag.enable"] = "UseBtagging";
+  m_conf_to_prop["BtagTrkJet.enable"] = "UseBtaggingTrkJet";
   m_conf_to_prop["Ele.CrackVeto"] = "EleCrackVeto";
   m_conf_to_prop["EleBaseline.CrackVeto"] = "EleBaselineCrackVeto";
   m_conf_to_prop["Ele.ForceNoId"] = "EleForceNoId";
@@ -1400,10 +1403,12 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   //configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2020-21-13TeV-MC16-CDI-2020-03-11_v1.root");
   configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2019-21-13TeV-MC16-CDI-2019-10-07_v1.root");
   configFromFile(m_BtagSystStrategy, "Btag.SystStrategy", rEnv, "Envelope");
+
+  configFromFile(m_useBtagging_trkJet, "BtagTrkJet.enable", rEnv, true);
   configFromFile(m_BtagTagger_trkJet, "BtagTrkJet.Tagger", rEnv, "MV2c10");
   configFromFile(m_BtagWP_trkJet, "BtagTrkJet.WP", rEnv, "FixedCutBEff_77");
-  configFromFile(m_BtagTimeStamp_trkJet, "BtagTrkJet.TimeStamp", rEnv, "None", true);
   configFromFile(m_BtagMinPt_trkJet, "BtagTrkJet.MinPt", rEnv, -1.); // Not calibrated below 10
+  configFromFile(m_BtagTimeStamp_trkJet, "BtagTrkJet.TimeStamp", rEnv, "None", true);
   configFromFile(m_BtagKeyOverride, "Btag.KeyOverride", rEnv, "", true);
   //
   configFromFile(m_orDoBoostedElectron, "OR.DoBoostedElectron", rEnv, true);

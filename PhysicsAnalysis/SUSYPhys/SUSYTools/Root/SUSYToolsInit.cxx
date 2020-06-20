@@ -407,7 +407,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("SFFile", m_JvtConfig_SFFile) );
     ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_jetJvtEfficiencyTool.retrieve() );
-  } else if (m_jetJvtEfficiencyTool.isUserConfigured())ATH_CHECK( m_jetJvtEfficiencyTool.retrieve() );
+  } else if (m_jetJvtEfficiencyTool.isUserConfigured()) ATH_CHECK( m_jetJvtEfficiencyTool.retrieve() );
  
 
   ///////////////////////////////////////////////////////////////////////////////////////////
@@ -707,7 +707,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_elecSelLikelihood.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_elecSelLikelihood.retrieve() );
   } else  ATH_CHECK( m_elecSelLikelihood.retrieve() );
- 
 
   // Baseline Electrons
   if (!m_elecSelLikelihoodBaseline.isUserConfigured()) {
@@ -727,7 +726,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_elecSelLikelihoodBaseline.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_elecSelLikelihoodBaseline.retrieve() );
   } else ATH_CHECK( m_elecSelLikelihoodBaseline.retrieve() );
-
+ 
 
 
   // /////////////////////////////////////////////////////////////////////////////////////////
@@ -746,7 +745,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_photonSelIsEM.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_photonSelIsEM.retrieve() );
   } else ATH_CHECK( m_photonSelIsEM.retrieve() );
- 
 
   if (!m_photonSelIsEMBaseline.isUserConfigured()) {
     toolName = "PhotonSelIsEMBaseline_" + m_photonIdBaseline;
@@ -761,7 +759,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_photonSelIsEMBaseline.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_photonSelIsEMBaseline.retrieve() );
   } else  ATH_CHECK( m_photonSelIsEMBaseline.retrieve() );
- 
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   // Initialise electron efficiency tool
@@ -840,7 +837,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       CONFIG_EG_EFF_TOOL( m_elecEfficiencySFTool_isoHighPt, toolName, corrFNList[m_eleIsoHighPt_WP] );
     } 
     // can't do the iso tool via the macro, it needs two properties set
-    else {                                                                                               // default: use map file
+    else {                                                                                                     // default: use map file
       if ( !m_elecEfficiencySFTool_isoHighPt.isUserConfigured() ) {
   
         if ( !check_isOption(m_el_iso_fallback[m_eleIsoHighPt_WP], m_el_iso_support) ) { //check if supported
@@ -1347,22 +1344,37 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_tauElORdecorator.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_tauElORdecorator.retrieve() );
   } else  ATH_CHECK( m_tauElORdecorator.retrieve() );
- 
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 // Initialise B-tagging tools
 
   // Warnings for invalid timestamps, or timestamped containers with old CDI file & vice versa
-  if (!m_BtagTimeStamp.empty() && !(m_BtagTimeStamp.compare("201810")==0||m_BtagTimeStamp.compare("201903")==0)) {
+  int cdiYear = atoi(m_bTaggingCalibrationFilePath.substr(m_bTaggingCalibrationFilePath.find("13TeV/")+6,4).c_str());
+  // Regular Jets
+  if (m_useBtagging && (!m_BtagTimeStamp.empty() && !(m_BtagTimeStamp.compare("201810")==0||m_BtagTimeStamp.compare("201903")==0))) {
     ATH_MSG_ERROR("Only 201810 & 201903 are valid BTag container timestamps. Current = " << m_BtagTimeStamp);
     return StatusCode::FAILURE;
   }
-  if (!m_BtagTimeStamp.empty() && m_bTaggingCalibrationFilePath.find("13TeV/2017")!=std::string::npos) {
-    ATH_MSG_ERROR("Shouldn't use timestamped collection (" << m_BtagTimeStamp << ") with older CDI file (" << m_bTaggingCalibrationFilePath << ")");
+  if (m_useBtagging && (!m_BtagTimeStamp.empty() && cdiYear<2019)) {
+    ATH_MSG_ERROR("Shouldn't use timestamped Jet collection (" << m_BtagTimeStamp << ") with older CDI file (" << m_bTaggingCalibrationFilePath << ")");
     return StatusCode::FAILURE;
   }
-  if (m_BtagTimeStamp.empty() && (m_bTaggingCalibrationFilePath.find("13TeV/2019")!=std::string::npos || m_bTaggingCalibrationFilePath.find("13TeV/2020")!=std::string::npos)) {
-     ATH_MSG_ERROR("Should provide a BTag container timestamp (default = Btag.TimeStamp: 201810) to use with with newer CDI files (" << m_bTaggingCalibrationFilePath << ")");
+  if (m_useBtagging && (m_BtagTimeStamp.empty() && cdiYear>2017)) {
+     ATH_MSG_ERROR("Should provide a BTag container timestamp (default = Btag.TimeStamp: 201810) to use with Jets and newer CDI files (" << m_bTaggingCalibrationFilePath << ")");
+     return StatusCode::FAILURE;
+  }
+  // TrackJets
+  if (m_useBtagging_trkJet && (!m_BtagTimeStamp_trkJet.empty() && !(m_BtagTimeStamp_trkJet.compare("201810")==0||m_BtagTimeStamp_trkJet.compare("201903")==0))) {
+    ATH_MSG_ERROR("Only 201810 & 201903 are valid BTag container timestamps for TrackJets. Current = " << m_BtagTimeStamp_trkJet);
+    return StatusCode::FAILURE;
+  }
+  if (m_useBtagging_trkJet && (!m_BtagTimeStamp_trkJet.empty() && cdiYear<2020)) {
+    ATH_MSG_ERROR("Shouldn't use timestamped TrackJet collection (" << m_BtagTimeStamp_trkJet << ") with older CDI file (" << m_bTaggingCalibrationFilePath << ")");
+    return StatusCode::FAILURE;
+  }
+  if (m_useBtagging_trkJet && (m_BtagTimeStamp_trkJet.empty() && cdiYear>2019)) {
+     ATH_MSG_ERROR("Should provide a BTag container timestamp (default = Btag.TimeStamp_trkJet: 201903) to use with TrackJets and newer CDI files (" << m_bTaggingCalibrationFilePath << ")");
      return StatusCode::FAILURE;
   }
 
@@ -1374,7 +1386,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   }
   if (!m_BtagTimeStamp.empty()) jetcollBTag += "_BTagging" + m_BtagTimeStamp;
 
-  if (!m_btagSelTool.isUserConfigured() && !m_BtagWP.empty()) {
+  if (m_useBtagging && !m_btagSelTool.isUserConfigured() && !m_BtagWP.empty()) {
     if (jetcollBTag.find("AntiKt4EMTopoJets") == std::string::npos && jetcollBTag.find("AntiKt4EMPFlowJets")==std::string::npos) {
       ATH_MSG_WARNING("** Only AntiKt4EMTopoJets and AntiKt4EMPFlowJets are supported with FTAG scale factors!");
         return StatusCode::FAILURE;
@@ -1393,7 +1405,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   } else if (m_btagSelTool.isUserConfigured()) ATH_CHECK( m_btagSelTool.retrieve() );
  
 
-  if (!m_btagSelTool_OR.isUserConfigured() && !m_orBtagWP.empty()) {
+  if (m_useBtagging && !m_btagSelTool_OR.isUserConfigured() && !m_orBtagWP.empty()) {
     if (jetcoll != "AntiKt4EMTopoJets" && jetcoll != "AntiKt4EMPFlowJets") {
       ATH_MSG_WARNING("** Only AntiKt4EMTopoJets and AntiKt4EMPFlowJets are supported with FTAG scale factors!");
         return StatusCode::FAILURE;
@@ -1415,7 +1427,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   std::string BTagColl_TrkJet = trkjetcoll;
   if (!m_BtagTimeStamp_trkJet.empty()) BTagColl_TrkJet += "_BTagging"+m_BtagTimeStamp_trkJet;
   
-  if (!m_btagSelTool_trkJet.isUserConfigured() && !m_BtagWP_trkJet.empty()) {
+  if (m_useBtagging_trkJet && !m_btagSelTool_trkJet.isUserConfigured() && !m_BtagWP_trkJet.empty()) {
     if (trkjetcoll.find("AntiKt2PV0TrackJets")==std::string::npos && trkjetcoll.find("AntiKtVR30Rmax4Rmin02TrackJets")==std::string::npos) {
       ATH_MSG_WARNING("** Only AntiKt2PV0TrackJets and AntiKtVR30Rmax4Rmin02TrackJets are supported with FTAG scale factors!");
         return StatusCode::FAILURE;
@@ -1443,7 +1455,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   else if (m_showerType == 4) MCshowerID = "410464"; // aMC@NLO+Pythia8
 
   // btagEfficiencyTool
-  if (!m_btagEffTool.isUserConfigured() && !m_BtagWP.empty()) {
+  if (m_useBtagging && !m_btagEffTool.isUserConfigured() && !m_BtagWP.empty()) {
     if (jetcoll != "AntiKt4EMTopoJets" && jetcoll != "AntiKt4EMPFlowJets") {
       ATH_MSG_WARNING("** Only AntiKt4EMTopoJets and AntiKt4EMPFlowJets are supported with FTAG scale factors!");
         return StatusCode::FAILURE;
@@ -1472,7 +1484,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   } else ATH_CHECK( m_btagEffTool.retrieve() );
   
 
-  if (!m_btagEffTool_trkJet.isUserConfigured() && !m_BtagWP_trkJet.empty()) {
+  if (m_useBtagging_trkJet && !m_btagEffTool_trkJet.isUserConfigured() && !m_BtagWP_trkJet.empty()) {
     if (trkjetcoll.find("AntiKt2PV0TrackJets")==std::string::npos && trkjetcoll.find("AntiKtVR30Rmax4Rmin02TrackJets")==std::string::npos) {
       ATH_MSG_WARNING("** Only AntiKt2PV0TrackJets and AntiKtVR30Rmax4Rmin02TrackJets are supported with FTAG scale factors!");
         return StatusCode::FAILURE;
