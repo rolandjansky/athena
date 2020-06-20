@@ -533,7 +533,7 @@ bool psc::Psc::prepareForRun (const ptree& args)
 
     // This dance is needed to prevent RV optimization.
     // Otherwise, the optimizer loses the ATLAS_THREAD_SAFE attribute
-e    // on RET before the thread-safety checker gets to see the code.
+    // on RET before the thread-safety checker gets to see the code.
     if (ret.isSuccess()) {
       return StatusCode (StatusCode::SUCCESS);
     }
