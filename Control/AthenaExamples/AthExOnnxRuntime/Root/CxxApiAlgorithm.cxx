@@ -63,13 +63,19 @@ namespace AthONNX {
       return output_tensor_values;
     }
    
-   CxxApiAlgorithm :: CxxApiAlgorithm (const std::string& name,ISvcLocator *pSvcLocator): EL::AnaAlgorithm (name, pSvcLocator)
-   {}
+   CxxApiAlgorithm :: CxxApiAlgorithm (const std::string& name,ISvcLocator *pSvcLocator):
+   EL::AnaAlgorithm (name, pSvcLocator),
+   m_modelFileName("dev/MLTest/2020-03-02/MNIST_testModel.onnx"),
+   m_pixelFileName("dev/MLTest/2020-03-31/t10k-images-idx3-ubyte"),
+   m_labelFileName("dev/MLTest/2020-03-31/t10k-labels-idx1-ubyte")
+   {
+    declareProperty("TestSample", m_testSample);
+   }
    StatusCode CxxApiAlgorithm::initialize() {
 
       // Access the service.
       // ATH_CHECK( m_svc.retrieve() );
-      ANA_MSG_INFO ("in initialize");
+      std::cout<<"in initialize"<<std::endl;
       // Find the model file.
       const std::string modelFileName =
          PathResolverFindCalibFile( m_modelFileName );
