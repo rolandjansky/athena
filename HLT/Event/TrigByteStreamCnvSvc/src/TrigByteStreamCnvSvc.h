@@ -74,6 +74,7 @@ private:
   TH1F* m_histResultSizeTotal{nullptr}; //< Histogram of total HLT result size (all modules)
   TH1F* m_histResultSizeFullEvFrag{nullptr}; //< Histogram of the size of FullEventFragment sent from HLT to DataCollector
   TH1F* m_histEventDoneTime{nullptr}; //< Histogram of the time taken by the eventDone call
+  TH1F* m_histEventDoneTimeER{nullptr}; //< Histogram of the time taken by the eventDone call (extended range)
 };
 
 #endif // TRIGBYTESTREAMCNVSVC_H
