@@ -294,7 +294,7 @@ Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::overlappingTracks(const Track
         
         //Update the pixel split information if the element is unique (The second element of the pair indiciates if the element was inserted into the map)
         auto ret =  setOfPixelClustersOnTrack.insert(std::make_pair( pixel, (*tsos)->trackParameters() ));
-        if (ret.second) {
+        if (ret.second && m_splitProbTool.isEnabled()) {
           updatePixelSplitInformationForCluster( *(ret.first), splitClusterMap);
         }
         

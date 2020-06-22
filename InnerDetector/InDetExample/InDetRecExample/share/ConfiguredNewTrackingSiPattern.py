@@ -504,10 +504,11 @@ class  ConfiguredNewTrackingSiPattern:
                                                    doHadCaloSeed      = InDetFlags.doCaloSeededRefit(),
                                                    InputHadClusterContainerName = InDetKeys.HadCaloClusterROIContainer()+"Bjet")
 
-            # DenseEnvironmentsAmbiguityScoreProcessorTool
+           # DenseEnvironmentsAmbiguityScoreProcessorTool
            from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__DenseEnvironmentsAmbiguityScoreProcessorTool as ScoreProcessorTool
            InDetAmbiguityScoreProcessor = ScoreProcessorTool(name               = 'InDetAmbiguityScoreProcessor'+NewTrackingCuts.extension(),
                                                              ScoringTool        = InDetAmbiScoringTool,
+                                                             SplitProbTool      = NnPixelClusterSplitProbTool if InDetFlags.doPixelClusterSplitting() and 'NnPixelClusterSplitProbTool' in globals() else None,
                                                              AssociationTool    = TrackingCommon.getInDetPRDtoTrackMapToolGangedPixels(),
                                                              AssociationToolNotGanged  = TrackingCommon.getPRDtoTrackMapTool(),
                                                              AssociationMapName = 'PRDToTrackMap'+NewTrackingCuts.extension(),
@@ -529,9 +530,8 @@ class  ConfiguredNewTrackingSiPattern:
                                                  RefitPrds          = True)
            InDetAmbiguityScoreProcessor = None
 
-         if InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "DBM")  and 'NnPixelClusterSplitProbTool' in globals():
-           if InDetAmbiguityScoreProcessor : 
-              InDetAmbiguityScoreProcessor.SplitProbTool             = NnPixelClusterSplitProbTool
+         if InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "DBM") and 'NnPixelClusterSplitProbTool' in globals() :
+           if InDetAmbiguityScoreProcessor is not None :
               InDetAmbiguityScoreProcessor.sharedProbCut             = prob1
               InDetAmbiguityScoreProcessor.sharedProbCut2            = prob2
               if NewTrackingCuts.extension() == "":
@@ -564,7 +564,7 @@ class  ConfiguredNewTrackingSiPattern:
             printfunc (InDetAmbiguityProcessor)
 
          # add InDetAmbiguityScoreProcessor
-         if InDetAmbiguityScoreProcessor :
+         if InDetAmbiguityScoreProcessor is not None :
             ToolSvc += InDetAmbiguityScoreProcessor
 
          #
