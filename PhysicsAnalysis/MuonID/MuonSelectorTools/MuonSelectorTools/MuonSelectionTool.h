@@ -164,8 +164,8 @@ namespace CP {
      TH2D* m_tightWP_mediumPt_rhoCuts;
      TH2D* m_tightWP_highPt_rhoCuts;
      //
-     TF1* m_BMVcutFunction_barrel;
-     TF1* m_BMVcutFunction_endcap;
+     std::unique_ptr<TF1> m_BMVcutFunction_barrel;
+     std::unique_ptr<TF1> m_BMVcutFunction_endcap;
 
      // subfolder to load from the calibration db
      std::string m_calibration_version;

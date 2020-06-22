@@ -66,9 +66,6 @@ namespace CP {
     m_tightWP_mediumPt_rhoCuts = 0;
     m_tightWP_highPt_rhoCuts = 0;
     //
-    m_BMVcutFunction_barrel = 0;
-    m_BMVcutFunction_endcap = 0;
-    //
     readerE_MUID = 0;
     readerO_MUID = 0;
     readerE_MUGIRL = 0;
@@ -105,9 +102,6 @@ namespace CP {
     m_tightWP_mediumPt_rhoCuts = 0;
     m_tightWP_highPt_rhoCuts = 0;
     //
-    m_BMVcutFunction_barrel = 0;
-    m_BMVcutFunction_endcap = 0;
-    //
     readerE_MUID = 0;
     readerO_MUID = 0;
     readerE_MUGIRL = 0;
@@ -139,15 +133,6 @@ namespace CP {
     if( m_tightWP_highPt_rhoCuts ){
       delete m_tightWP_highPt_rhoCuts;
       m_tightWP_highPt_rhoCuts = 0;
-    }
-    //
-    if( m_BMVcutFunction_barrel ){
-      delete m_BMVcutFunction_barrel;
-      m_BMVcutFunction_barrel = 0;
-    }
-    if( m_BMVcutFunction_endcap ){
-      delete m_BMVcutFunction_endcap;
-      m_BMVcutFunction_endcap = 0;
     }
     //
     if( readerE_MUID ){
@@ -255,8 +240,8 @@ namespace CP {
       return StatusCode::FAILURE;
     }
 
-    m_BMVcutFunction_barrel = (TF1*)BMVfile->Get("BMVcutFunction_barrel");
-    m_BMVcutFunction_endcap = (TF1*)BMVfile->Get("BMVcutFunction_endcap");
+    m_BMVcutFunction_barrel = std::unique_ptr<TF1>( (TF1*)BMVfile->Get("BMVcutFunction_barrel") );
+    m_BMVcutFunction_endcap = std::unique_ptr<TF1>( (TF1*)BMVfile->Get("BMVcutFunction_endcap") );
 
     BMVfile->Close();
 
@@ -1286,12 +1271,12 @@ namespace CP {
     TF1* cutFunction;
     double p1,p2;
     if (std::abs(mu.eta()) < 1.05) {
-      cutFunction = m_BMVcutFunction_barrel;
+      cutFunction = m_BMVcutFunction_barrel.get();
       p1 = 0.066265;
       p2 = 0.000210047;
     }
     else {
-      cutFunction = m_BMVcutFunction_endcap;
+      cutFunction = m_BMVcutFunction_endcap.get();
       p1 = 0.0629747;
       p2 = 0.000196466;
     }
