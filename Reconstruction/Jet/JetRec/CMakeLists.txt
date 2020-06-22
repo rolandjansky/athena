@@ -12,12 +12,19 @@ if( NOT XAOD_STANDALONE )
    set( extra_deps Control/AthenaBaseComps GaudiKernel )
 endif()
 
+set( mon_deps )
+set( mon_lib )
+if( NOT GENERATIONBASE )
+   set( mon_deps Control/AthenaMonitoringKernel )
+   set( mon_lib AthenaMonitoringKernelLib )
+endif()
+
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
   PUBLIC
   Control/AthLinks
   Control/AthContainers
-  Control/AthenaMonitoringKernel
+  ${mon_deps}
   Control/AthToolSupport/AsgTools
   Event/xAOD/xAODCaloEvent
   Event/xAOD/xAODJet
@@ -50,12 +57,12 @@ atlas_add_library( JetRecLib
   xAODCaloEvent xAODJet xAODMuon EventShapeInterface JetEDM
   JetInterface
   PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} CxxUtils xAODBase xAODCore
-  xAODEventInfo xAODTracking AthenaMonitoringKernelLib)
+  xAODEventInfo xAODTracking ${mon_lib})
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( JetRec
       src/*.h src/*.cxx src/components/*.cxx
-      LINK_LIBRARIES GaudiKernel AthenaBaseComps JetInterface JetRecLib AthenaMonitoringKernelLib )
+      LINK_LIBRARIES GaudiKernel AthenaBaseComps JetInterface JetRecLib ${mon_lib} )
 endif()
 
 atlas_add_dictionary( JetRecDict
