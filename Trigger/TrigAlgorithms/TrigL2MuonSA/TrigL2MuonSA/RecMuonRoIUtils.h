@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_RECMUONROIUTILS_H
@@ -16,9 +16,15 @@ class RecMuonRoIUtils
       ~RecMuonRoIUtils() {};
 
    public:
-      bool isBarrel(const LVL1::RecMuonRoI* p_roi);
-      bool isLowPt(const LVL1::RecMuonRoI* p_roi);
-      bool isHighPt(const LVL1::RecMuonRoI* p_roi);
+      bool isBarrel(const LVL1::RecMuonRoI* p_roi){
+        return (p_roi->sysID()==0) ? true : false; 
+      };
+      bool isLowPt(const LVL1::RecMuonRoI* p_roi){
+        return (p_roi->getThresholdNumber() <4) ? true : false;
+      };
+      bool isHighPt(const LVL1::RecMuonRoI* p_roi){
+        return (p_roi->getThresholdNumber()>=4) ? true : false;
+      };
 };
 
 }
