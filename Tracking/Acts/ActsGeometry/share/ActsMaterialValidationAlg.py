@@ -1,3 +1,8 @@
+"""
+This job options file will run an example extrapolation using the
+Acts tracking geometry, the material map and the Acts extrapolation toolchain.
+"""
+
 import os
 import logging
 
@@ -22,7 +27,7 @@ import AthenaPoolCnvSvc.ReadAthenaPool
 
 # build GeoModel
 import AthenaPython.ConfigLib as apcl
-cfg = apcl.AutoCfg(name = 'TrackingGeometryTest', input_files=athenaCommonFlags.FilesInput())
+cfg = apcl.AutoCfg(name = 'MaterialMapValidation', input_files=athenaCommonFlags.FilesInput())
 
 cfg.configure_job()
 
@@ -38,11 +43,11 @@ InDetGeometryFlags.useDynamicAlignFolders=True
 DetFlags.ID_setOn()
 DetFlags.Calo_setOn()
 
+
+# Initialize geometry
+# THIS ACTUALLY DOES STUFF!!
 from AtlasGeoModel import GeoModelInit
 from AtlasGeoModel import SetGeometryVersion
-from SubDetectorEnvelopes.SubDetectorEnvelopesConfig import getEnvelopeDefSvc
-svcMgr += getEnvelopeDefSvc()
-
 
 from AthenaCommon.AlgScheduler import AlgScheduler
 AlgScheduler.OutputLevel( INFO )
@@ -58,15 +63,23 @@ from ActsGeometry import ActsGeometryConf
 from AthenaCommon.AlgSequence import AthSequencer
 condSeq = AthSequencer("AthCondSeq")
 
-condSeq += ActsGeometryConf.ActsAlignmentCondAlg("ActsAlignCondAlg",
-                                                 OutputLevel=VERBOSE)
-## END OF CONDITIONS SETUP
+# nominal alignment: all deltas are identity
+# condSeq += ActsGeometryConf.NominalAlignmentCondAlg("NominalAlignmentCondAlg",
+                                                     # OutputLevel=VERBOSE)
 
+condSeq += ActsGeometryConf.ActsAlignmentCondAlg("ActsAlignCondAlg",
+                                                 OutputLevel=INFO)
+# periodic shift alignment. Configurable z-shift per lumiblock.
+# (currently pixel only)
+# condSeq+=ActsGeometryConf.GeomShiftCondAlg("GeomShiftCondAlg_1",
+                                            # ZShiftPerLB=0.5,
+                                            # OutputLevel=VERBOSE)
+## END OF CONDITIONS SETUP
 
 from AthenaCommon.AppMgr import ServiceMgr
 
 # set up and configure the acts geometry construction
-from ActsGeometry.ActsGeometryConfig import ActsTrackingGeometrySvc
+from ActsGeometry.ActsGeometryConf import ActsTrackingGeometrySvc
 trkGeomSvc = ActsTrackingGeometrySvc()
 # used for the proxies during material mapping
 trkGeomSvc.BarrelMaterialBins = [40, 60] # phi z
@@ -78,41 +91,58 @@ trkGeomSvc.BuildSubDetectors = [
   # "TRT",
   # "Calo",
 ]
+trkGeomSvc.UseMaterialMap = True
+trkGeomSvc.MaterialMapInputFile = "material-maps.json"
 ServiceMgr += trkGeomSvc
 
+# We need the Magnetic fiels
 import MagFieldServices.SetupField
 
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 
+# This is the main extrapolation demo algorithm
+from ActsGeometry.ActsGeometryConf import ActsExtrapolationAlg
+alg = ActsExtrapolationAlg()
+alg.EtaRange = [-2.4, 2.4]
+alg.OutputLevel = INFO
+alg.NParticlesPerEvent = int(1e4)
+
+
+# Record the material track for material map validation
+alg.WriteMaterialTracks = True
+# we only need this if the extrap alg is set up to write mat tracks
+if alg.WriteMaterialTracks == True:
+  mTrackWriterSvc = CfgMgr.ActsMaterialTrackWriterSvc("ActsMaterialTrackWriterSvc")
+  mTrackWriterSvc.OutputLevel = INFO
+  mTrackWriterSvc.FilePath = "MaterialTracks_mapped.root"
+  ServiceMgr += mTrackWriterSvc
+
+# sets up the extrapolation tool
+# this sets up the tracking geometry svc through the tracking geometry tool
+exTool = CfgMgr.ActsExtrapolationTool("ActsExtrapolationTool")
+exTool.OutputLevel = INFO
+exTool.FieldMode = "ATLAS"
+exTool.InteractionMultiScatering = True
+exTool.InteractionEloss = True
+exTool.InteractionRecord = True
+# The extrapolation tool accesses the trackinggeometry service
+# through this tool. This tool has the conditions dependencies
+# on the alignment GeoAlignmentStores (pseudo-alignment only right now).
+# For each event, the GAS for the IOV needs to be set from the algorithm.
 trkGeomTool = CfgMgr.ActsTrackingGeometryTool("ActsTrackingGeometryTool")
 trkGeomTool.OutputLevel = INFO;
+exTool.TrackingGeometryTool = trkGeomTool
 
-# from ActsGeometry.ActsGeometryConf import ActsWriteTrackingGeometryTransforms
-# alg = ActsWriteTrackingGeometryTransforms(OutputLevel = VERBOSE)
-# alg.TrackingGeometryTool = trkGeomTool
-# job += alg
-
-mActsMaterialJsonWriterTool = CfgMgr.ActsMaterialJsonWriterTool("ActsMaterialJsonWriterTool")
-mActsMaterialJsonWriterTool.OutputLevel = VERBOSE
-mActsMaterialJsonWriterTool.FilePath = "geometry-maps.json"
-
-from ActsGeometry.ActsGeometryConf import ActsWriteTrackingGeometry
-alg = ActsWriteTrackingGeometry(OutputLevel = VERBOSE)
-alg.TrackingGeometryTool = trkGeomTool
-alg.ObjWriterTool.OutputDirectory = "obj"
-alg.ObjWriterTool.SubDetectors = ["Pixel", "SCT"]
-alg.MaterialJsonWriterTool = mActsMaterialJsonWriterTool
-
-job += alg
-
+alg.ExtrapolationTool = exTool
 
 # Make the event heardbeat output a bit nicer
-eventPrintFrequency = 100
+eventPrintFrequency = 10000
 if hasattr(ServiceMgr,"AthenaEventLoopMgr"):
     ServiceMgr.AthenaEventLoopMgr.EventPrintoutInterval = eventPrintFrequency
 if hasattr(ServiceMgr,"AthenaHiveEventLoopMgr"):
     ServiceMgr.AthenaHiveEventLoopMgr.EventPrintoutInterval = eventPrintFrequency
 
+job += alg
 
-theApp.EvtMax = 1
+theApp.EvtMax = 10000

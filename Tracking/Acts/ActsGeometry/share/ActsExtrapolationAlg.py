@@ -5,7 +5,7 @@ Acts tracking geometry and the Acts extrapolation toolchain.
 
 # start from scratch with component accumulator
 
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator 
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 from ActsGeometry.ActsGeometryConfig import ActsExtrapolationToolCfg
@@ -33,7 +33,7 @@ if "__main__" == __name__:
   from AthenaCommon.Logging import log
   from AthenaCommon.Constants import VERBOSE
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
-  from AthenaConfiguration.MainServicesConfig import MainServicesCfg    
+  from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 
   Configurable.configurableRun3Behavior = True
 
@@ -43,7 +43,7 @@ if "__main__" == __name__:
   ConfigFlags.GeoModel.AtlasVersion  = "ATLAS-R2-2016-01-00-01"
   ConfigFlags.IOVDb.GlobalTag        = "OFLCOND-SIM-00-00-00"
   ConfigFlags.Detector.SimulateBpipe = True
-  ConfigFlags.Detector.SimulateID    = True    
+  ConfigFlags.Detector.SimulateID    = True
   ConfigFlags.Detector.GeometryBpipe = True
   ConfigFlags.Detector.GeometryID    = True
   ConfigFlags.Detector.GeometryPixel = True
@@ -81,6 +81,3 @@ if "__main__" == __name__:
   log.info("CONFIG DONE")
 
   cfg.run(1)
-
-
-

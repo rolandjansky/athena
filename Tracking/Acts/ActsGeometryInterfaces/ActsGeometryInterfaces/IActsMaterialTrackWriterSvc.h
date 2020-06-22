@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ACTSGEOMETRY_IACTSMATERIALTRACKWRITERSVC_H
@@ -8,21 +8,19 @@
 #include "GaudiKernel/IInterface.h"
 #include "Acts/EventData/TrackParameters.hpp"
 
-namespace Acts {
-class MaterialTrack;
-}
+#include "Acts/Propagator/MaterialInteractor.hpp"
 
 class IActsMaterialTrackWriterSvc : virtual public IInterface {
 public:
-    
+
   DeclareInterfaceID(IActsMaterialTrackWriterSvc, 1, 0);
 
   IActsMaterialTrackWriterSvc() {;}
-    
+
   void
   virtual
-  write(const Acts::MaterialTrack& mTrack) = 0;
+  write(const Acts::RecordedMaterialTrack& mTrack) = 0;
 
 };
 
-#endif 
+#endif

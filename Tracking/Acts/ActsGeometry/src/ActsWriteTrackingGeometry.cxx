@@ -12,6 +12,7 @@
 
 // PACKAGE
 #include "ActsGeometryInterfaces/IActsTrackingGeometrySvc.h"
+#include "ActsGeometryInterfaces/IActsMaterialJsonWriterTool.h"
 #include "ActsGeometry/ActsGeometryContext.h"
 
 // STL
@@ -28,7 +29,7 @@ StatusCode ActsWriteTrackingGeometry::initialize() {
 
   ATH_CHECK(m_objWriterTool.retrieve());
   ATH_CHECK(m_trackingGeometryTool.retrieve());
-
+  ATH_CHECK(m_materialJsonWriterTool.retrieve() );
 
 
   return StatusCode::SUCCESS;
@@ -42,6 +43,7 @@ StatusCode ActsWriteTrackingGeometry::execute(const EventContext& ctx) const {
   const ActsGeometryContext& gctx = m_trackingGeometryTool->getGeometryContext(ctx);
 
   m_objWriterTool->write(gctx, *trackingGeometry);
+  m_materialJsonWriterTool->write(*trackingGeometry);
   return StatusCode::SUCCESS;
 }
 
