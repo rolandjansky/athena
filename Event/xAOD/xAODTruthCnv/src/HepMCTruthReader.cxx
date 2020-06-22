@@ -217,7 +217,7 @@ void HepMCTruthReader::printParticle(const HepMC::GenParticlePtr particle) {
   cout << particle->momentum().e() << " ";
   cout.setf(ios::fmtflags(0), ios::floatfield);
   cout.unsetf(ios_base::showpos);
-  if ( particle->has_decayed() ) {
+  if ( particle->status()==2 ) {
     if ( HepMC::barcode(particle->end_vertex())!=0 ) {
       cout.width(3);
       cout << particle->status() << " ";

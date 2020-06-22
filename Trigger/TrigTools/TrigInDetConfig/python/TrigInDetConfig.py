@@ -417,8 +417,8 @@ if __name__ == "__main__":
     l1DecoderAcc, l1DecoderAlg = L1DecoderCfg( ConfigFlags )
     acc.addEventAlgo(l1DecoderAlg)
     acc.merge(l1DecoderAcc)
-    from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
-    acc.merge(TrigBSReadCfg(ConfigFlags))
+    from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+    acc.merge(ByteStreamReadCfg(ConfigFlags))
 
     acc.merge( TrigInDetConfig( ConfigFlags ) )
     from RegionSelector.RegSelConfig import regSelCfg

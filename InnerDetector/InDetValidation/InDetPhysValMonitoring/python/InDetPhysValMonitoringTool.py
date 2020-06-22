@@ -8,7 +8,7 @@ import InDetPhysValMonitoring.InDetPhysValMonitoringConf
 
 def removePhysValExample() :
    print ('DEBUG no AntiKt4EMTopoJets in input file.')
-   from InDetPhysValDecoration import findMonMan
+   from InDetPhysValMonitoring.InDetPhysValDecoration import findMonMan
    mon_index = findMonMan()
    if mon_index is not None :
      import re

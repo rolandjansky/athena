@@ -137,9 +137,8 @@ def MdtRDODecodeCfg(flags, forTrigger=False):
                                               DecodingTool  = MdtRdoToMdtPrepDataTool,
                                               PrintPrepData = False )
     # add RegSelTool
-    # Comented out since this needs to be replaced by new config for region selector
-    #from RegionSelector.RegSelToolConfig import makeRegSelTool_MDT
-    #MdtRdoToMdtPrepData.RegSel_MDT = makeRegSelTool_MDT()
+    from RegionSelector.RegSelToolConfig import regSelToolMDTCfg
+    MdtRdoToMdtPrepData.RegSel_MDT = acc.popToolsAndMerge( regSelToolMDTCfg( flags ) )
 
     if forTrigger:
         # Set the algorithm to RoI mode
@@ -225,8 +224,8 @@ def muonRdoDecodeTestData( forTrigger = False ):
     cfg=ComponentAccumulator()
 
     # Seem to need this to read BS properly
-    from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
-    cfg.merge(TrigBSReadCfg(ConfigFlags ))
+    from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+    cfg.merge(ByteStreamReadCfg(ConfigFlags ))
 
     # Add the MuonCache to ComponentAccumulator for trigger/RoI testing mode
     if forTrigger:

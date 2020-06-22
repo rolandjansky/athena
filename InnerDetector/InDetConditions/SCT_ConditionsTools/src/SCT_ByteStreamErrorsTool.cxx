@@ -25,24 +25,16 @@ SCT_ByteStreamErrorsTool::SCT_ByteStreamErrorsTool(const std::string& type, cons
 /** Initialize */
 StatusCode
 SCT_ByteStreamErrorsTool::initialize() {
-  StatusCode sc = detStore()->retrieve(m_sct_id, "SCT_ID") ;
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL("Cannot retrieve SCT ID helper!");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(detStore()->retrieve(m_sct_id, "SCT_ID"));
   m_cntx_sct = m_sct_id->wafer_context();
 
-  sc = m_config.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL("Cannot retrieve ConfigurationConditionsTool!");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_config.retrieve());
 
   // Read (Cond)Handle Keys
   ATH_CHECK(m_bsIDCErrContainerName.initialize());
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 /** Finalize */
@@ -76,29 +68,29 @@ const IDCInDetBSErrContainer* SCT_ByteStreamErrorsTool::getContainer(const Event
     m_nRetrievalFailure++;
     if (m_nRetrievalFailure<=3) {
       ATH_MSG_INFO("SCT_ByteStreamErrorsTool Failed to retrieve BS error container "
-		   << m_bsIDCErrContainerName.key()
+                   << m_bsIDCErrContainerName.key()
                    << " from StoreGate.");
       if (m_nRetrievalFailure==3) {
-	ATH_MSG_INFO("SCT_ByteStreamErrorsTool This message on retrieval failure of " << m_bsIDCErrContainerName.key() << " is suppressed.");
+        ATH_MSG_INFO("SCT_ByteStreamErrorsTool This message on retrieval failure of " << m_bsIDCErrContainerName.key() << " is suppressed.");
       }
     }
     return nullptr;
   }
-  ATH_MSG_VERBOSE( "SCT_ByteStreamErrorsTool IDC Container fetched " << m_bsIDCErrContainerName.key() );
+  ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool IDC Container fetched " << m_bsIDCErrContainerName.key());
   return idcErrCont.cptr();
 }
 
 ///////////////////////////////////////////////////////////////////////////
 SCT_ByteStreamErrorsTool::IDCCacheEntry* SCT_ByteStreamErrorsTool::getCacheEntry(const EventContext& ctx) const {
-  IDCCacheEntry* cacheEntry = m_eventCache.get( ctx );
-  if( cacheEntry->needsUpdate( ctx ) ) {
-    auto idcErrContPtr = getContainer( ctx );
-    if ( idcErrContPtr == nullptr ) {     // missing or not, the cache needs to be reset
-      cacheEntry->reset( ctx.evt(), nullptr );
+  IDCCacheEntry* cacheEntry{m_eventCache.get(ctx)};
+  if (cacheEntry->needsUpdate(ctx)) {
+    auto idcErrContPtr{getContainer(ctx)};
+    if (idcErrContPtr == nullptr) { // missing or not, the cache needs to be reset
+      cacheEntry->reset(ctx.evt(), nullptr);
     } else {
-      cacheEntry->reset( ctx.evt(), idcErrContPtr->cache() );
+      cacheEntry->reset(ctx.evt(), idcErrContPtr->cache());
     }
-    ATH_MSG_VERBOSE( "SCT_ByteStreamErrorsTool Cache for the event reset " << cacheEntry->eventId  << " with IDC container" << idcErrContPtr );
+    ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool Cache for the event reset " << cacheEntry->eventId  << " with IDC container" << idcErrContPtr);
   }
   return cacheEntry;
 }
@@ -111,19 +103,19 @@ bool
 SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash, const EventContext& ctx) const {
   {
     std::lock_guard<std::mutex> lock{m_cacheMutex};
-    ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool isGood called for " << elementIdHash );
-    auto idcCachePtr = getCacheEntry(ctx)->IDCCache;
-    if ( idcCachePtr == nullptr ) {
-      ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool No cache! " );
+    ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool isGood called for " << elementIdHash);
+    auto idcCachePtr{getCacheEntry(ctx)->IDCCache};
+    if (idcCachePtr == nullptr) {
+      ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool No cache! ");
       return true;
     }
 
-    auto errorCode = idcCachePtr->retrieve(elementIdHash);
+    auto errorCode{idcCachePtr->retrieve(elementIdHash)};
 
-    for(auto badError : SCT_ByteStreamErrors::BadErrors) {
-      if(errorCode == badError) {
-	ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool Bad Error " << errorCode  << " for ID " << elementIdHash );
-	return false;
+    for (auto badError : SCT_ByteStreamErrors::BadErrors) {
+      if (errorCode == badError) {
+        ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool Bad Error " << errorCode  << " for ID " << elementIdHash);
+        return false;
       }
     }
   } // end of cache operations protection via m_cacheMutex, following code has own protection
@@ -270,16 +262,16 @@ SCT_ByteStreamErrorsTool::getChip(const Identifier& stripId, const EventContext&
 
 std::set<IdentifierHash>
 SCT_ByteStreamErrorsTool::getErrorSet(int errorType, const EventContext& ctx) const {
-  ATH_MSG_VERBOSE( "SCT_ByteStreamErrorsTool getErrorSet  " << errorType );
+  ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool getErrorSet " << errorType);
   std::set<IdentifierHash> result;
   if (errorType>=0 and errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES) {
-    auto idcErrCont = getContainer( ctx );
-    if ( idcErrCont != nullptr  ) {
-      const std::vector<std::pair<size_t, uint64_t>> errorcodesforView = idcErrCont->getAll();
+    auto idcErrCont{getContainer(ctx)};
+    if (idcErrCont != nullptr) {
+      const std::vector<std::pair<size_t, uint64_t>> errorcodesforView{idcErrCont->getAll()};
       for (const auto& [hashId, errCode] : errorcodesforView) {
-	if (  SCT_ByteStreamErrors::hasError( errCode, static_cast<SCT_ByteStreamErrors::ErrorType>( errorType ) ) ) {
-	  result.insert(hashId);
-	}
+        if (SCT_ByteStreamErrors::hasError(errCode, static_cast<SCT_ByteStreamErrors::ErrorType>(errorType))) {
+          result.insert(hashId);
+        }
       }
     }
   }
@@ -300,27 +292,26 @@ SCT_ByteStreamErrorsTool::getErrorSet(int errorType) const {
 
 StatusCode
 SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
+  ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool fillData");
 
-  ATH_MSG_VERBOSE( "SCT_ByteStreamErrorsTool fillData  ");
-
-  const IDCInDetBSErrContainer* idcErrCont = getContainer( ctx );
-  if ( idcErrCont == nullptr ) {
+  const IDCInDetBSErrContainer* idcErrCont{getContainer(ctx)};
+  if (idcErrCont == nullptr) {
     return StatusCode::SUCCESS;
   }
 
-  auto cacheEntry = getCacheEntry( ctx );
+  auto cacheEntry{getCacheEntry(ctx)};
 
   /** OK, so we found the StoreGate container, now lets iterate
    * over it to populate the sets of errors owned by this Tool.
    */
   ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool size of error container is " << idcErrCont->maxSize());
-  const std::vector<std::pair<size_t, uint64_t>> errorcodesforView = idcErrCont->getAll();
+  const std::vector<std::pair<size_t, uint64_t>> errorcodesforView{idcErrCont->getAll()};
 
   for (const auto& [ hashId, errCode ] : errorcodesforView) {
 
     Identifier wafer_id{m_sct_id->wafer_id(hashId)};
     Identifier module_id{m_sct_id->module_id(wafer_id)};
-    if ( errCode == uint64_t{0} ) {
+    if (errCode == uint64_t{0}) {
       // That means this hashId was decoded but had no error
       // In such case we want to fill the cache also with zero so we do not have to fill the cache again for a given view
       // (see logic in: getErrorCodeWithCacheUpdate)
@@ -331,7 +322,7 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
     }
 
 
-    ATH_MSG_VERBOSE( "SCT_ByteStreamErrorsTool filling event cache for module " << module_id << " ec " << errCode );
+    ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool filling event cache for module " << module_id << " ec " << errCode);
 
     const int side{m_sct_id->side(m_sct_id->wafer_id(hashId))};
     // Each bit of errCode represents each SCT_ByteStreamErrors for one wafer
@@ -359,13 +350,13 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 unsigned int SCT_ByteStreamErrorsTool::tempMaskedChips(const Identifier& moduleId, const EventContext& ctx) const {
-  ATH_MSG_VERBOSE( "SCT_ByteStreamErrorsTool tempMaskedChips  ");
+  ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool tempMaskedChips");
   std::lock_guard<std::mutex> lock{m_cacheMutex};
-  auto cacheEntry = getCacheEntry(ctx);
-  if ( cacheEntry->IDCCache == nullptr ) return 0;
+  auto cacheEntry{getCacheEntry(ctx)};
+  if (cacheEntry->IDCCache == nullptr) return 0;
 
   auto [status, v_tempMaskedChips] = getErrorCodeWithCacheUpdate(moduleId, ctx, cacheEntry->tempMaskedChips);
-  if ( status.isFailure() ) {
+  if (status.isFailure()) {
     ATH_MSG_ERROR("SCT_ByteStreamErrorsTool Failure getting temp masked chip errors");
   }
   return v_tempMaskedChips; // 12 bits are used.
@@ -378,13 +369,13 @@ unsigned int SCT_ByteStreamErrorsTool::tempMaskedChips(const Identifier& moduleI
 }
 
 unsigned int SCT_ByteStreamErrorsTool::abcdErrorChips(const Identifier& moduleId, const EventContext& ctx) const {
-  ATH_MSG_VERBOSE( "SCT_ByteStreamErrorsTool abcdErrorChips  ");
+  ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool abcdErrorChips");
   std::lock_guard<std::mutex> lock{m_cacheMutex};
-  auto cacheEntry = getCacheEntry(ctx);
-  if ( cacheEntry->IDCCache == nullptr ) return 0;
+  auto cacheEntry{getCacheEntry(ctx)};
+  if (cacheEntry->IDCCache == nullptr) return 0;
 
   auto [status, v_abcdErrorChips] = getErrorCodeWithCacheUpdate(moduleId, ctx, cacheEntry->abcdErrorChips);
-  if ( status.isFailure() ) {
+  if (status.isFailure()) {
     ATH_MSG_ERROR("SCT_ByteStreamErrorsTool Failure getting ABCD chip errors");
   }
   return v_abcdErrorChips; // 12 bits are used.
@@ -396,11 +387,11 @@ unsigned int SCT_ByteStreamErrorsTool::abcdErrorChips(const Identifier& moduleId
   return abcdErrorChips(moduleId, ctx);
 }
 
-std::pair<StatusCode, unsigned int> SCT_ByteStreamErrorsTool::getErrorCodeWithCacheUpdate( const Identifier& moduleId, const EventContext& ctx,
-											   std::map<Identifier, unsigned int>& whereExected ) const {
-  ATH_MSG_VERBOSE( "SCT_ByteStreamErrorsTool getErrorCodeWithCacheUpdate  " << moduleId );
-  auto it{ whereExected.find( moduleId ) };
-  if ( it != whereExected.end() ) return std::make_pair(StatusCode::SUCCESS, it->second);
+std::pair<StatusCode, unsigned int> SCT_ByteStreamErrorsTool::getErrorCodeWithCacheUpdate(const Identifier& moduleId, const EventContext& ctx,
+                                                                                          std::map<Identifier, unsigned int>& whereExected) const {
+  ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool getErrorCodeWithCacheUpdate " << moduleId);
+  auto it{whereExected.find(moduleId)};
+  if (it != whereExected.end()) return std::make_pair(StatusCode::SUCCESS, it->second);
 
   // even if there are no errors for this module at all filled
   // we want the entry of value 0 so we know we walked over it and do not need to invoke filling again
@@ -413,8 +404,8 @@ std::pair<StatusCode, unsigned int> SCT_ByteStreamErrorsTool::getErrorCodeWithCa
     return std::make_pair(StatusCode::FAILURE, 0);
   }
   // handle situation when the cache does not contain desired datum after the update
-  it = whereExected.find( moduleId );
-  if ( it == whereExected.end() ) {
+  it = whereExected.find(moduleId);
+  if (it == whereExected.end()) {
     ATH_MSG_ERROR("After fillData in abcdErrorChips, cache does not have an infomation about the " << moduleId);
     ATH_MSG_ERROR("Likely cause is a request for for different region");
     std::make_pair(StatusCode::FAILURE, 0);

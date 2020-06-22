@@ -1,15 +1,7 @@
-################################################################################
-# Package: AthExHistNtup
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthExHistNtup )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Control/AthenaBaseComps
-                          Event/xAOD/xAODEventInfo
-                          GaudiKernel )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
@@ -22,5 +14,4 @@ atlas_add_component( AthExHistNtup
                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps xAODEventInfo GaudiKernel )
 
 # Install files from the package:
-atlas_install_joboptions( share/HistNtupOptions.txt share/HistNtupOptions.py )
-
+atlas_install_joboptions( share/HistNtupOptions.py )

@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+
 #--------------------------------------------------------------------------------
 # configure required detector flags for combined reco of simulated muons 
 #--------------------------------------------------------------------------------
@@ -82,7 +84,6 @@ muonRecFlags.doCalibNtuple                         = False
 muonRecFlags.doMSVertex                            = False
 muonRecFlags.doTrackPerformance                    = False
 
-from __future__ import print_function
 print ('INFO: MooPerformance_topOptions.py - muonRecFlags:')
 print (muonRecFlags)
 

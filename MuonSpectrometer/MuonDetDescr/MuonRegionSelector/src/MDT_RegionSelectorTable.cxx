@@ -56,7 +56,7 @@ StatusCode MDT_RegionSelectorTable::finalize() {
 }
 
 
-RegSelSiLUT* MDT_RegionSelectorTable::getLUT() const {
+RegSelSiLUT* MDT_RegionSelectorTable::getLUT() {
   return m_regionLUT;
 } 
 

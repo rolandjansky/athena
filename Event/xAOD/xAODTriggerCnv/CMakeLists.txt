@@ -9,8 +9,10 @@ atlas_subdir( xAODTriggerCnv )
 # Extra dependencies, based on the build environment:
 if( XAOD_STANDALONE )
    set( extra_deps PRIVATE Control/xAODRootAccess )
+   set( interface_extra_libs )
 elseif( XAOD_ANALYSIS )
    set( extra_deps GaudiKernel Control/AthenaKernel )
+   set( interface_extra_libs GaudiKernel )
 else()
    set( extra_deps GaudiKernel
       PRIVATE
@@ -25,7 +27,9 @@ else()
       Trigger/TrigEvent/TrigDecisionEvent
       Trigger/TrigEvent/TrigDecisionInterface
       Trigger/TrigEvent/TrigSteeringEvent )
+   set( interface_extra_libs GaudiKernel )
 endif()
+
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
@@ -34,6 +38,13 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODTrigger
    ${extra_deps} )
 
+atlas_add_library( xAODTriggerCnvLib
+                   xAODTriggerCnv/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS xAODTriggerCnv
+                   LINK_LIBRARIES ${interface_extra_libs} xAODTrigger AsgTools )
+
+
 # Build the package differently in standalone and Athena modes:
 if( XAOD_STANDALONE )
 
@@ -41,7 +52,7 @@ if( XAOD_STANDALONE )
    atlas_add_library( xAODTriggerCnv
       xAODTriggerCnv/*.h Root/*.cxx
       PUBLIC_HEADERS xAODTriggerCnv
-      LINK_LIBRARIES AsgTools xAODTrigger )
+      LINK_LIBRARIES xAODTriggerCnvLib AsgTools xAODTrigger )
 
    # Plus we also build a dictionary:
    atlas_add_dictionary( xAODTriggerCnvDict
@@ -64,20 +75,19 @@ elseif( XAOD_ANALYSIS )
    # The main library is a component one in this case:
    atlas_add_component( xAODTriggerCnv
       xAODTriggerCnv/*.h Root/*.cxx src/components/*.cxx
-      LINK_LIBRARIES AsgTools xAODTrigger GaudiKernel )
+      LINK_LIBRARIES xAODTriggerCnvLib AsgTools xAODTrigger GaudiKernel )
 
 else()
 
    # The main library is a component one in this case:
    atlas_add_component( xAODTriggerCnv
       xAODTriggerCnv/*.h src/*.cxx Root/*.cxx src/components/*.cxx
-      LINK_LIBRARIES AsgTools xAODTrigger GaudiKernel AthenaBaseComps
+      LINK_LIBRARIES xAODTriggerCnvLib AsgTools xAODTrigger GaudiKernel AthenaBaseComps
       AthenaKernel StoreGateLib SGtests EventInfo AnalysisTriggerEvent
-      TrigConfHLTData TrigDecisionEvent TrigSteeringEvent )
+      TrigConfHLTData TrigDecisionEvent TrigSteeringEvent TrigConfInterfaces TrigDecisionInterface TrigAnalysisInterfaces )
 
 endif()
 
 # Install files from the package:
-atlas_install_headers( xAODTriggerCnv )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )

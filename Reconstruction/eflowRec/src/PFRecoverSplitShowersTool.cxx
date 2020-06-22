@@ -48,7 +48,7 @@ StatusCode PFRecoverSplitShowersTool::initialize(){
     return StatusCode::SUCCESS;
   }
 
-  if (m_theEOverPTool->execute(m_binnedParameters.get()).isFailure()){
+  if (m_theEOverPTool->fillBinnedParameters(m_binnedParameters.get()).isFailure()){
     ATH_MSG_WARNING("Could not execute eflowCellEOverPTool");
     return StatusCode::SUCCESS;
   }

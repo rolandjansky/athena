@@ -2,7 +2,7 @@
 
 MET_Reference_AntiKt4EMTopoCPContent  = [
 "AntiKt4EMTopoJets",
-"AntiKt4EMTopoJetsAux.pt.eta.phi.m.JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m.GhostTrack.JetLCScaleMomentum_pt.JetLCScaleMomentum_eta.JetLCScaleMomentum_phi.JetLCScaleMomentum_m.NumTrkPt500.SumPtTrkPt500.Width.EMFrac.EnergyPerSampling",
+"AntiKt4EMTopoJetsAux.pt.eta.phi.m.JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m.GhostTrack.NumTrkPt500.SumPtTrkPt500.Width.EMFrac.EnergyPerSampling",
 "Electrons",
 "InDetTrackParticles",
 "METAssoc_AntiKt4EMTopo",

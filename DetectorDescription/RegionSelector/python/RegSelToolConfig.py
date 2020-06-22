@@ -10,54 +10,66 @@
 #   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration#                 
 #
 
-from AthenaCommon.Constants import INFO,ERROR,FALSE,TRUE,DEBUG,VERBOSE
+from AthenaConfiguration.ComponentFactory import CompFactory # CompFactory creates old or new configs depending on the enva
 
-def _makeRegSelTool( detector, enable, CondAlgConstructor ) :
-                
-    from RegionSelector.RegionSelectorConf import RegSelTool
+def _condAlgName(detector):
+    return "RegSelCondAlg_"+detector
 
-    tool = RegSelTool(name="RegSelTool_"+detector)
+def _createRegSelCondAlg( detector,  CondAlgConstructor ):
+    """
+    Cretes conditions alg that provides dat to a RegSel Tool
+    """
+    condAlg = CondAlgConstructor( name = _condAlgName( detector ),
+                                  ManagerName = detector,
+                                  PrintTable  = False,
+                                  RegSelLUT = ("RegSelLUTCondData_"+detector) )
+
+    if detector == "Pixel":
+        condAlg.DetEleCollKey = "PixelDetectorElementCollection"
+    elif detector == "SCT":
+        condAlg.DetEleCollKey = "SCT_DetectorElementCollection"
+    return condAlg
+
+def _createRegSelTool( detector, enable ):
+    """
+    Creates RegSelTool and corresponding cond tool that is needed for its function
+
+    If the enable flag is set - the tool is properly configured, else it is configured NOT to provide the data.
+
+    """
+
     
+    tool = CompFactory.RegSelTool(name="RegSelTool_"+detector)
+
     # should we enable the look up table access for this subsystem ?
 
-    if ( enable ) :
-        
-        # add the lookup table to retrieve
-        
-        tool.RegSelLUT = "RegSelLUTCondData_"+detector
-
-        tool.Initialised = True
-
-        # add the conditions algorithm to create the lookup table
-
-        from AthenaCommon.AlgSequence import AthSequencer
-        condseq = AthSequencer('AthCondSeq')
-        
-        if not hasattr( condseq, 'RegSelCondAlg_'+detector ) :
-            CondAlg = CondAlgConstructor( name = ("RegSelCondAlg_"+detector),
-                                          ManagerName = detector,
-                                          PrintTable  = False,
-                                          RegSelLUT = ("RegSelLUTCondData_"+detector) )
-
-            if detector == "Pixel":
-                CondAlg.DetEleCollKey = "PixelDetectorElementCollection"
-            elif detector == "SCT":
-                CondAlg.DetEleCollKey = "SCT_DetectorElementCollection"
-
-            condseq += CondAlg
-
-    else:
-        # detector not configured so don't enable 
+    if not enable:
+        # detector not configured so don't enable
         # lookup table access
-
         tool.Initialised = False
-    
+        return tool
+        
+    # add the lookup table to retrieve
+        
+    tool.RegSelLUT = "RegSelLUTCondData_"+detector # has to match wiht appropriate RegSelCondAlg
+    tool.Initialised = True
     return tool
 
 
 
-# inner detector toold
+def _makeRegSelTool( detector, enable, CondAlgConstructor ):
 
+    from AthenaCommon.AlgSequence import AthSequencer
+    condseq = AthSequencer('AthCondSeq')
+
+    if enable and not hasattr( condseq, _condAlgName( detector ) ):
+        condseq += _createRegSelCondAlg( detector, CondAlgConstructor )
+
+    return _createRegSelTool( detector, enable )
+
+
+
+# inner detector toold
 def makeRegSelTool_Pixel() :
     from AthenaCommon.DetFlags import DetFlags
     enabled = DetFlags.detdescr.pixel_on()
@@ -160,3 +172,12 @@ def makeRegSelTool_TILE() :
     from TileRawUtils.TileRawUtilsConf import RegSelCondAlg_Tile
     return _makeRegSelTool( "TILE", enabled, RegSelCondAlg_Tile )
 
+
+##### new JO counterparts
+
+def regSelToolMDTCfg(flags):
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    ca = ComponentAccumulator()
+    ca.setPrivateTools( _createRegSelTool( "MDT", True ) )
+    ca.addCondAlgo( _createRegSelCondAlg( "MDT", CompFactory.MDT_RegSelCondAlg ) )
+    return ca

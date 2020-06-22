@@ -1,4 +1,4 @@
-#include "AthExFortranAlgorithm/FortranAlgorithm.h"
+#include "../FortranAlgorithm.h"
 
 DECLARE_COMPONENT( FortranAlgorithm )
 

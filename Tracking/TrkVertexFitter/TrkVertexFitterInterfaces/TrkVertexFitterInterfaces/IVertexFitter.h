@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -62,6 +62,28 @@ namespace Trk
 	*/
        virtual ~IVertexFitter() = default;
 
+
+      /*
+       * First the context aware methods.
+       * If this set is not overloaded , it 
+       * will call the methods without EventContext
+       */
+
+
+       /** 
+        *Interface for xAOD::TrackParticle with starting point 
+        */
+       virtual xAOD::Vertex * fit(
+           const EventContext& ctx,
+           const std::vector<const xAOD::TrackParticle*>& vectorTrk,
+           const Amg::Vector3D& startingPoint) const 
+          {
+              (void)(ctx);
+              return fit(vectorTrk, startingPoint);
+          }
+      
+
+      
        /** 
         *Interface for Track with starting point 
         */
@@ -99,7 +121,10 @@ namespace Trk
         *Interface for xAOD::TrackParticle with starting point 
         */
        virtual xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,
-				  const Amg::Vector3D& startingPoint) const = 0;
+				  const Amg::Vector3D& startingPoint) const
+          {
+              return fit(Gaudi::Hive::currentContext(), vectorTrk, startingPoint);
+          }
 
        /** 
         * Interface for xAOD::TrackParticle and xAOD::NeutralParticle with vertex constraint 

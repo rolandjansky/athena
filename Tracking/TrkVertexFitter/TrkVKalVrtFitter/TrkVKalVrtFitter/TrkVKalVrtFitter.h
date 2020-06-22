@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // TrkVKalVrtFitter.h
@@ -78,6 +78,10 @@ namespace Trk{
     friend class VKalExtPropagator;
     public:
 
+      // The following 'using' can be removed when IVertexFitter::fit has been fully migrated to the one with the EventContext
+      using Trk::IVertexFitter::fit;
+      using Trk::ITrkVKalVrtFitter::makeState;
+      
         virtual StatusCode initialize() override;
         virtual StatusCode finalize() override;
 
@@ -108,7 +112,8 @@ namespace Trk{
                                    const xAOD::Vertex& constraint) const override;
 
         /*--------------   Interface for xAOD    -------------*/ 
-        virtual xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, 
+        virtual xAOD::Vertex * fit(const EventContext& ctx,
+                                   const std::vector<const xAOD::TrackParticle*>& vectorTrk, 
                                    const Amg::Vector3D& startingPoint) const override;
         virtual xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, 
                                    const xAOD::Vertex& constraint) const override;
@@ -166,7 +171,7 @@ namespace Trk{
 
 //------ Personal VKalVrt staff
 
-        virtual std::unique_ptr<IVKalState> makeState() const override;
+        virtual std::unique_ptr<IVKalState> makeState(const EventContext& ctx) const override;
 
         virtual
         StatusCode VKalVrtFit(const std::vector<const xAOD::TrackParticle*>&,
@@ -435,7 +440,12 @@ namespace Trk{
 //  Private technical functions
 //
         void setAthenaPropagator(const Trk::IExtrapolator*);
+        // context-aware init of state
+        void initState (const EventContext& ctx, State& state) const;
+        // init of state for backwards compartibility - calls context-aware version. Can be removed
+        // when fully migrated to EventContext
         void initState (State& state) const;
+      
 //
 //
         void FillMatrixP(AmgSymMatrix(5)& , std::vector<double>& ) const;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BCM_DigitizationTool.h"
@@ -440,12 +440,12 @@ void BCM_DigitizationTool::fillRDO(unsigned int chan, int p1x, int p1w, int p2x,
   BCM_RDO_Collection *RDOColl = 0;
   // Check if collection for this channel already exists
   bool collExists = false;
-  BCM_RDO_Container::const_iterator it_coll = m_rdoContainer->begin();
-  BCM_RDO_Container::const_iterator it_collE= m_rdoContainer->end();
+  BCM_RDO_Container::iterator it_coll = m_rdoContainer->begin();
+  BCM_RDO_Container::iterator it_collE= m_rdoContainer->end();
   for (; it_coll!=it_collE; ++it_coll) {
     if ((*it_coll)->getChannel()==chan) {
       collExists = true;
-      RDOColl = const_cast<BCM_RDO_Collection*>(&**it_coll);
+      RDOColl = *it_coll;
     }
   }
   // Create the RDO collection if needed
