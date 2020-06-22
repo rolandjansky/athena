@@ -182,7 +182,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx )
   for(auto mymuon : mymuons){
     mymuon.probeOK_any = false;
     mymuon.probeOK_Z = false;
-    for(const auto mu2 : mymuons){
+    for(const auto& mu2 : mymuons){
       if( mymuon.muon == mu2.muon )continue;
       if( !mu2.tagged )continue;
       mymuon.probeOK_any = true;
