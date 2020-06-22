@@ -365,10 +365,12 @@ if __name__=="__main__":
     acc = MuonCombinedReconstructionCfg(ConfigFlags)
     cfg.merge(acc)
     
-    # Keep this in, since it makes debugging easier to simply uncomment and change Algo name,
+    # Keep this in, since it makes debugging easier to simply uncomment and change Algo/Service name,
     # from AthenaCommon.Constants import VERBOSE
     # tmp = cfg.getEventAlgo("MuonCombinedMuonCandidateAlg")
     # tmp.OutputLevel=VERBOSE
+    # tmp = cfg.getService("StoreGateSvc")
+    # tmp.OutpuDumptLevel=True
 
     if args.threads>1 and args.forceclone:
         from AthenaCommon.Logging import log
@@ -386,14 +388,11 @@ if __name__=="__main__":
                     '%s#%s->%s' % ("xAOD::MuonAuxContainer", "MuonsAux.", "old_MuonsAux."),
                     '%s#%s->%s' % ("xAOD::MuonContainer", "Muons.rpcHitIdentifier", "old_Muons.rpcHitIdentifier")]
     cfg.merge( AddressRemappingCfg(rename_maps) )
-    tmp = cfg.getService("AddressRemappingSvc")
-    tmp.OutputLevel=VERBOSE
 
+    # Commented, because it should be added back in very soon.
     # itemsToRecord = ["xAOD::MuonContainer#Muons", "xAOD::MuonAuxContainer#MuonsAux.-DFCommonMuonsTight.-DFCommonGoodMuon.-DFCommonMuonsMedium.-DFCommonMuonsLoose"]
     # SetupMuonStandaloneOutput(cfg, ConfigFlags, itemsToRecord)
-    # import pdb ; pdb.set_trace()
     cfg.printConfig(withDetails = True)
-    # import pdb ; pdb.set_trace()
     # f=open("MuonCombinedReconstruction.pkl","wb")
     # cfg.store(f)
     # f.close()
