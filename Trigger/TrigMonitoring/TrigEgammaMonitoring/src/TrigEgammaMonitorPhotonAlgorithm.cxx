@@ -69,6 +69,7 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::fillHistograms( const EventContext&
 
         fillDistributions( pairObjs, info );
         fillEfficiencies( pairObjs, info );
+        fillResolutions( pairObjs, info );
 
 
         ATH_MSG_DEBUG("End Chain Analysis ============================= " << trigger);

@@ -687,9 +687,680 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillTracking(const std::string &trigger
     fill( monGroup, deta1_col, deta1_EMECA_col, deta1_EMECC_col, deta1_EMEBA_col, deta1_EMEBC_col, deta2_col, dphi2_col,
       dphiresc_col, eprobht_col, npixhits_col, nscthits_col, charge_col, ptcone20_col, ptvarcone20_col, d0_col, d0sig_col,
       pt_col, ptcone20_rel_col, ptvarcone20_rel_col);
+}
+
+
+
+//!***********************************************************************************************************************8
+//
+//
+
+
+void TrigEgammaMonitorAnalysisAlgorithm::fillResolutions( std::vector< std::pair< const xAOD::Egamma*, const TrigCompositeUtils::Decision * >> pairObjs,
+                                                          const TrigInfo info ) const
+{
+
+  std::vector< std::pair< const xAOD::Egamma*, const xAOD::EmTauRoI * >> pair_l1_vec;
+  std::vector< std::pair< const xAOD::Egamma*, const TrigCompositeUtils::Decision * >> pair_eg_vec;
+  const std::string trigger = info.trigName;
+  bool filliso=false;
+  if(boost::contains(info.trigName,"iloose") || boost::contains(info.trigName,"ivarloose")) filliso=true;
+  if(boost::contains(info.trigName,"icaloloose") || boost::contains(info.trigName,"icalovloose") || boost::contains(info.trigName,"icalotight")) filliso=true;
+
+
+  for( auto pairObj : pairObjs ){
+
+    const xAOD::Egamma* eg = pairObj.first;
+    const auto *feat = pairObj.second;
+
+    if (feat){
+      if (info.trigL1){
+        // Get l1 for all level one objects found for each off object
+        auto l1 = match()->getL1Feature( feat );
+        if(l1){
+          pair_l1_vec.push_back( std::make_pair(eg,l1) );
+        }
+      }else{
+        //
+        // Get only off and l1 where the offline object passed by the offline pid selector
+        //
+        auto l1 = match()->getL1Feature( feat  );
+        if(eg->type()==xAOD::Type::Electron){
+          const xAOD::Electron* el = static_cast<const xAOD::Electron*>(eg);
+          float et = getEt(el)/1e3;
+          if( et < info.trigThrHLT-5.0) continue;
+          if(!eg->auxdecor<bool>(info.trigPidDecorator)) continue;
+          pair_eg_vec.push_back(std::make_pair(el,feat));
+          if(l1)  pair_l1_vec.push_back( std::make_pair(eg,l1) );
+        }
+        else if(eg->type()==xAOD::Type::Photon){
+          float et = getCluster_et(eg)/1e3;
+          if( et < info.trigThrHLT-5.0) continue;
+          pair_eg_vec.push_back(std::make_pair(eg,feat));
+          if(l1)  pair_l1_vec.push_back( std::make_pair(eg,l1) );
+        }
+      }
+
+    }
+  }
+
+
+  if (info.trigL1){
+    //fillL1CaloResolution( trigger, pair_l1_vec );
+    //fillL1CaloAbsResolution( trigger, pair_l1_vec );
+  }else{
+   
+    // Fill L1Calo for all level 1 objects found
+    //fillL1CaloResolution( trigger, pair_l1_vec );
+    //fillL1CaloAbsResolution( trigger, pair_l1_vec );
+    
+    // Fill HLT electron for all onl objects found
+    if ( info.trigType=="electron"){
+      fillHLTElectronResolution( trigger, pair_eg_vec, filliso ); 
+    }
+
+    else if ( info.trigType=="photon"){
+      fillHLTPhotonResolution( trigger, pair_eg_vec, filliso );
+    }
+
+
+  }
+
+}
+
+
+
+
+void TrigEgammaMonitorAnalysisAlgorithm::fillL1CaloResolution(const std::string &trigger,
+                                                              std::vector< std::pair< const xAOD::Egamma*, const xAOD::EmTauRoI * >> pairObjs ) const
+{
+    auto monGroup = getGroup( trigger + "_Resolutions_L1Calo" );
+    
+    std::vector<float> eta_vec, res_et_vec;
+
+    auto eta_col    = Monitored::Collection( "eta"      , eta_vec        );
+    auto res_et_col = Monitored::Collection( "res_et"   , res_et_vec     );
+ 
+
+    for (auto& pairObj : pairObjs){
+      auto off = pairObj.first;
+      auto l1 = pairObj.second;
+      ATH_MSG_DEBUG("Fill L1CaloResolution");
+      if(off->type()==xAOD::Type::Electron){
+        const xAOD::Electron* eloff =static_cast<const xAOD::Electron*> (off);
+        eta_vec.push_back( l1->eta() );
+        res_et_vec.push_back( (l1->emClus()-getEt(eloff))/getEt(eloff) ) ;
+
+      }
+    }
+
+    fill( monGroup, eta_col, res_et_col );
+}
+
+
+
+
+
+void TrigEgammaMonitorAnalysisAlgorithm::fillL1CaloAbsResolution(const std::string &trigger,
+                                                                 std::vector< std::pair< const xAOD::Egamma*, const xAOD::EmTauRoI * >> pairObjs ) const
+{
+    auto monGroup = getGroup( trigger + "_AbsResolutions_L1Calo" );
+    
+    std::vector<float> eta_vec, res_et_vec;
+
+    auto eta_col    = Monitored::Collection( "eta"      , eta_vec        );
+    auto res_et_col = Monitored::Collection( "res_et"   , res_et_vec     );
+ 
+
+    for (auto& pairObj : pairObjs){
+      auto off = pairObj.first;
+      auto l1 = pairObj.second;
+      ATH_MSG_DEBUG("Fill L1CaloResolution");
+      if(off->type()==xAOD::Type::Electron){
+        const xAOD::Electron* eloff =static_cast<const xAOD::Electron*> (off);
+        eta_vec.push_back( l1->eta() );
+        res_et_vec.push_back( 0.001*(l1->emClus()-getEt(eloff)) ) ;
+      }
+    }
+
+    fill( monGroup, eta_col, res_et_col );
+}
+
+
+
+
+void TrigEgammaMonitorAnalysisAlgorithm::fillHLTElectronResolution(const std::string &trigger,
+                                                        std::vector< std::pair< const xAOD::Egamma*, const TrigCompositeUtils::Decision * >> pairObjs,
+                                                        bool filliso) const
+{
+
+    auto monGroup = getGroup( trigger + "_Resolutions_HLT" );
+
+    std::vector<float> res_pt_vec, res_et_vec, res_phi_vec, res_eta_vec, res_deta1_vec, res_deta2_vec, res_dphi2_vec, res_dphiresc_vec,
+    res_d0_vec, res_d0sig_vec, res_eprobht_vec, res_npixhits_vec, res_nscthits_vec, res_Rhad_vec, res_Rhad1_vec, res_Reta_vec,
+    res_Rphi_vec, res_weta1_vec, res_weta2_vec, res_wtots1_vec, res_f1_vec, res_f3_vec, res_eratio_vec, res_ethad_vec, res_ethad1_vec;
+    std::vector<float> res_ptcone20_vec, res_ptcone20_rel_vec, res_ptvarcone20_vec, res_ptvarcone20_rel_vec;
+    std::vector<float> res_etInEta0_vec, res_etInEta1_vec, res_etInEta2_vec, res_etInEta3_vec;
+
+    // For calo
+    auto res_et_col       = Monitored::Collection( "res_et"         , res_et_vec            );
+    auto res_eta_col      = Monitored::Collection( "res_eta"        , res_eta_vec           );
+    auto res_phi_col      = Monitored::Collection( "res_phi"        , res_phi_vec           );
+    auto res_ethad_col    = Monitored::Collection( "res_ethad"      , res_ethad_vec         );
+    auto res_ethad1_col   = Monitored::Collection( "res_ethad1"     , res_ethad1_vec        );
+    auto res_Rhad_col     = Monitored::Collection( "res_Rhad"       , res_Rhad_vec          );
+    auto res_Rhad1_col    = Monitored::Collection( "res_Rhad1"      , res_Rhad1_vec         );
+    auto res_Reta_col     = Monitored::Collection( "res_Reta"       , res_Reta_vec          );
+    auto res_Rphi_col     = Monitored::Collection( "res_Rphi"       , res_Rphi_vec          );
+    auto res_weta1_col    = Monitored::Collection( "res_weta1"      , res_weta1_vec         );
+    auto res_weta2_col    = Monitored::Collection( "res_weta2"      , res_weta2_vec         );
+    auto res_wtots1_col   = Monitored::Collection( "res_wtots1"     , res_wtots1_vec        );
+    auto res_f1_col       = Monitored::Collection( "res_f1"         , res_f1_vec            );
+    auto res_f3_col       = Monitored::Collection( "res_f3"         , res_f3_vec            );
+    auto res_eratio_col   = Monitored::Collection( "res_eratio"     , res_eratio_vec        );
+
+    auto res_etInEta0_col       = Monitored::Collection( "res_etInEta0"         , res_etInEta0_vec      );
+    auto res_etInEta1_col       = Monitored::Collection( "res_etInEta1"         , res_etInEta1_vec      );
+    auto res_etInEta2_col       = Monitored::Collection( "res_etInEta2"         , res_etInEta2_vec      );
+    auto res_etInEta3_col       = Monitored::Collection( "res_etInEta3"         , res_etInEta3_vec      );
+ 
+    // For electron 
+    auto res_pt_col               = Monitored::Collection( "res_pt"                   , res_pt_vec                  );
+    auto res_deta1_col            = Monitored::Collection( "res_deta1"                , res_deta1_vec               );
+    auto res_deta2_col            = Monitored::Collection( "res_deta2"                , res_deta2_vec               );
+    auto res_dphi2_col            = Monitored::Collection( "res_dphi2"                , res_dphi2_vec               );
+    auto res_dphiresc_col         = Monitored::Collection( "res_dphiresc"             , res_dphiresc_vec            );
+    auto res_d0_col               = Monitored::Collection( "res_d0"                   , res_d0_vec                  );
+    auto res_d0sig_col            = Monitored::Collection( "res_d0sig"                , res_d0sig_vec               );
+    auto res_eprobht_col          = Monitored::Collection( "res_eprobht"              , res_eprobht_vec             );
+    auto res_npixhits_col         = Monitored::Collection( "res_npixhits"             , res_npixhits_vec            );
+    auto res_nscthits_col         = Monitored::Collection( "res_nscthits"             , res_nscthits_vec            );
+    auto res_ptcone20_col         = Monitored::Collection( "res_ptcone20"             , res_ptcone20_vec            );
+    auto res_ptcone20_rel_col     = Monitored::Collection( "res_ptcone20_rel"         , res_ptcone20_rel_vec        );
+    auto res_ptvarcone20_col      = Monitored::Collection( "res_ptvarcone20"          , res_ptvarcone20_vec         );
+    auto res_ptvarcone20_rel_col  = Monitored::Collection( "res_ptvarcone20_rel"      , res_ptvarcone20_rel_vec     );
+
+
+
+
+    // Check for zero before filling
+    ATH_MSG_DEBUG("Fill Resolution");
+
+
+
+    for ( auto& pairObj : pairObjs ){
+
+      const xAOD::Electron *off = static_cast<const xAOD::Electron*>(pairObj.first);
+      const xAOD::Electron *onl=nullptr;
+
+
+      { // Get the closest electron object from the trigger starting with deltaR = 0.15
+        float maxDeltaR=0.05;
+        auto vec =  tdt()->features<xAOD::ElectronContainer>(trigger,TrigDefs::Physics ,match()->key("Electron") );      
+        for(auto &featLinkInfo : vec ){                                             
+          if(! featLinkInfo.isValid() ) continue;
+          const auto *feat = *(featLinkInfo.link);                   
+          if(!feat) continue;
+          float deltaR = dR( off->eta(), off->phi(), feat->eta(), feat->phi() );
+          if( deltaR < maxDeltaR){
+            maxDeltaR=deltaR;
+            onl=feat;
+          }
+        } 
+      }
+      
+      if(!onl)  continue;
+
+      float val_off=0.;
+      const float onl_eta=onl->eta();
+      const float feta = abs(onl_eta);
+
+      val_off=getTrack_pt(off);
+      if(val_off!=0.){
+          res_pt_vec.push_back( (getTrack_pt(off)-val_off)/val_off );
+      }     
+      val_off=getEt(off);
+      if(val_off!=0.){
+          res_et_vec.push_back( (getEt(onl)-val_off)/val_off  );
+          if( feta < 1.37 )
+              res_etInEta0_vec.push_back((getEt(onl)-val_off)/val_off);
+          else if( feta >=1.37 && feta <= 1.52 )
+              res_etInEta1_vec.push_back((getEt(onl)-val_off)/val_off);
+          else if( feta >= 1.55 && feta < 1.8 )
+              res_etInEta2_vec.push_back((getEt(onl)-val_off)/val_off);
+          else if( feta >= 1.8 && feta < 2.45 )
+              res_etInEta3_vec.push_back((getEt(onl)-val_off)/val_off);
+      }
+      val_off=off->eta();
+      if(val_off!=0.){
+          res_eta_vec.push_back( (onl_eta-val_off)/val_off );
+      }
+      val_off=off->phi();
+      if(val_off!=0.){ 
+          res_phi_vec.push_back(  (onl->phi()-val_off)/val_off );
+      }
+      val_off=getShowerShape_ethad(off);
+      if(val_off!=0.) {
+          res_ethad_vec.push_back((getShowerShape_ethad(onl)-val_off)/val_off);
+      }
+      val_off=getShowerShape_ethad1(off);
+      if(val_off!=0){
+          res_ethad1_vec.push_back((getShowerShape_ethad1(onl)-val_off)/val_off);
+      }
+      val_off=getShowerShape_Rhad(off);
+      if(val_off!=0.){
+          res_Rhad_vec.push_back(  (getShowerShape_Rhad(onl)-val_off)/val_off );
+      }
+      val_off=getShowerShape_Rhad1(off);
+      if(val_off!=0.){
+          res_Rhad1_vec.push_back(  (getShowerShape_Rhad1(onl)-val_off)/val_off );
+      }
+      val_off=getShowerShape_Reta(off);
+      if(val_off!=0.){
+          res_Reta_vec.push_back(  (getShowerShape_Reta(onl)-val_off)/val_off );
+      }
+      val_off=getShowerShape_Rphi(off);
+      if(val_off!=0.){
+          res_Rphi_vec.push_back(  (getShowerShape_Rphi(onl)-val_off)/val_off );
+      }
+      val_off=getShowerShape_weta1(off);
+      if(val_off!=0.){
+          res_weta1_vec.push_back( (getShowerShape_weta1(onl)-val_off)/val_off );
+      }
+      val_off=getShowerShape_weta2(off);
+      if(val_off!=0.){
+          res_weta2_vec.push_back( (getShowerShape_weta2(onl)-val_off)/val_off );
+      }
+      val_off=getShowerShape_wtots1(off);
+      if(val_off!=0.){
+          res_wtots1_vec.push_back( (getShowerShape_wtots1(onl)-val_off)/val_off );
+      }
+      val_off=getShowerShape_f1(off);
+      if(val_off!=0.){
+          res_f1_vec.push_back(  (getShowerShape_f1(onl)-val_off)/val_off );
+      }
+      val_off=getShowerShape_f3(off);
+      if(val_off!=0.){
+          res_f3_vec.push_back( (getShowerShape_f3(onl)-val_off)/val_off );
+      }
+      val_off=getShowerShape_Eratio(off);
+      if(val_off!=0.){
+          res_eratio_vec.push_back(  (getShowerShape_Eratio(onl)-val_off)/val_off );
+      }
+
+
+      //
+      // Track variables
+      //
+
+      val_off=getTrack_pt(off);
+      if(val_off!=0.) 
+        res_pt_vec.push_back(  (getTrack_pt(onl)-val_off)/val_off );
+      val_off=getEt(off);
+      if(val_off!=0.) 
+        res_et_vec.push_back(  (getEt(onl)-val_off)/val_off );
+      val_off=getCaloTrackMatch_deltaEta1(off);
+      if(val_off!=0.) 
+        res_deta1_vec.push_back( (getCaloTrackMatch_deltaEta1(onl)-val_off)/val_off );
+      val_off=getCaloTrackMatch_deltaEta2(off);
+      res_deta2_vec.push_back( (getCaloTrackMatch_deltaEta2(onl)-val_off)/val_off );
+      val_off=getCaloTrackMatch_deltaPhi2(off);
+      if(val_off!=0.) 
+        res_dphi2_vec.push_back(  (getCaloTrackMatch_deltaPhi2(onl)-val_off)/val_off );
+      val_off=getCaloTrackMatch_deltaPhiRescaled2(off);
+      res_dphiresc_vec.push_back( (getCaloTrackMatch_deltaPhiRescaled2(onl)-val_off)/val_off );
+      // Absolute resolution for impact parameter
+      val_off=getTrack_d0(off);
+      if(val_off!=0.) 
+        res_d0_vec.push_back(  getTrack_d0(onl)-val_off );
+      val_off=getD0sig(off);
+      if(val_off!=0.) 
+        res_d0sig_vec.push_back(  getD0sig(onl)-val_off );
+      // Absolute resolution on track summary ints/floats 
+      val_off=getTrackSummaryFloat_eProbabilityHT(off);
+      res_eprobht_vec.push_back( (getTrackSummaryFloat_eProbabilityHT(onl)-val_off) );
+      res_npixhits_vec.push_back( getTrackSummary_numberOfPixelHits(onl)-getTrackSummary_numberOfPixelHits(onl) );
+      res_nscthits_vec.push_back( getTrackSummary_numberOfSCTHits(onl)-getTrackSummary_numberOfSCTHits(onl) );
+
+
+
+      
+      if(filliso){
+
+        float val_off=getIsolation_ptcone20(off);
+        if (getEt(onl) > 0. && getEt(off) > 0.){ 
+          // Fill 2D here
+        }
+        if (val_off > 0.) {
+            res_ptcone20_vec.push_back((getIsolation_ptcone20(onl)-val_off)/val_off);
+            if (getEt(onl) > 0. && getEt(off) > 0.) {
+                const float reliso_onl=getIsolation_ptcone20(onl)/getEt(onl);
+                const float reliso_off=getIsolation_ptcone20(off)/getEt(off);
+                res_ptcone20_rel_vec.push_back((reliso_onl-reliso_off)/reliso_off);
+            }
+        }
+
+        // ptvarcone20 isolation
+        val_off=getIsolation_ptvarcone20(off);
+        if (val_off > 0.) {
+            if (getEt(onl) > 0. && getEt(off) > 0.) {
+                res_ptvarcone20_vec.push_back((getIsolation_ptvarcone20(onl)-val_off)/val_off);
+                const float reliso_onl=getIsolation_ptvarcone20(onl)/getEt(onl);
+                const float reliso_off=getIsolation_ptvarcone20(off)/getEt(off);
+                res_ptvarcone20_rel_vec.push_back((reliso_onl-reliso_off)/reliso_off);
+            }
+        }
+
+      }
+
+
+
+
+
+    } // Loop over all offline objects
+
+    // Fill everything
+    fill( monGroup        ,
+          res_pt_col      , 
+          res_et_col      , 
+          res_eta_col     , 
+          res_phi_col     , 
+          res_deta1_col   , 
+          res_deta2_col   , 
+          res_dphi2_col   , 
+          res_dphiresc_col, 
+          res_d0_col      , 
+          res_d0sig_col   , 
+          res_eprobht_col , 
+          res_npixhits_col, 
+          res_nscthits_col, 
+          res_ethad_col   , 
+          res_ethad1_col  , 
+          res_Rhad_col    , 
+          res_Rhad1_col   , 
+          res_Reta_col    , 
+          res_Rphi_col    , 
+          res_weta1_col   , 
+          res_weta2_col   , 
+          res_wtots1_col  , 
+          res_f1_col      , 
+          res_f3_col      , 
+          res_eratio_col  , 
+          res_ptcone20_col        , 
+          res_ptcone20_rel_col    , 
+          res_ptvarcone20_col     , 
+          res_ptvarcone20_rel_col ,
+          res_etInEta0_col,
+          res_etInEta1_col,
+          res_etInEta2_col,
+          res_etInEta3_col ); 
 
 
 
 }
+
+
+
+
+
+void TrigEgammaMonitorAnalysisAlgorithm::fillHLTPhotonResolution(const std::string &trigger,
+                                                        std::vector< std::pair< const xAOD::Egamma*, const TrigCompositeUtils::Decision * >> pairObjs, 
+                                                        bool filliso) const
+{
+
+    auto monGroup = getGroup( trigger + "_Resolutions_HLT" );
+
+    std::vector<float> res_phi_vec, res_eta_vec, res_Rhad_vec, res_Rhad1_vec, res_Reta_vec, res_ethad_vec, res_ethad1_vec,
+    res_Rphi_vec, res_weta1_vec, res_weta2_vec, res_wtots1_vec, res_f1_vec, res_f3_vec, res_eratio_vec;
+    
+    std::vector<float> res_et_vec, res_et_cnv_vec, res_et_uncnv_vec;
+    std::vector<float> res_etInEta0_vec, res_etInEta1_vec, res_etInEta2_vec, res_etInEta3_vec;
+    std::vector<float> res_cnv_etInEta0_vec, res_cnv_etInEta1_vec, res_cnv_etInEta2_vec, res_cnv_etInEta3_vec;
+    std::vector<float> res_uncnv_etInEta0_vec, res_uncnv_etInEta1_vec, res_uncnv_etInEta2_vec, res_uncnv_etInEta3_vec;
+
+
+
+    std::vector<float> res_topoetcone20_vec, res_topoetcone20_rel_vec;
+
+    // For calo
+
+    auto res_eta_col      = Monitored::Collection( "res_eta"        , res_eta_vec           );
+    auto res_phi_col      = Monitored::Collection( "res_phi"        , res_phi_vec           );
+    auto res_ethad_col    = Monitored::Collection( "res_ethad"      , res_ethad_vec         );
+    auto res_ethad1_col   = Monitored::Collection( "res_ethad1"     , res_ethad1_vec        );
+    auto res_Rhad_col     = Monitored::Collection( "res_Rhad"       , res_Rhad_vec          );
+    auto res_Rhad1_col    = Monitored::Collection( "res_Rhad1"      , res_Rhad1_vec         );
+    auto res_Reta_col     = Monitored::Collection( "res_Reta"       , res_Reta_vec          );
+    auto res_Rphi_col     = Monitored::Collection( "res_Rphi"       , res_Rphi_vec          );
+    auto res_weta1_col    = Monitored::Collection( "res_weta1"      , res_weta1_vec         );
+    auto res_weta2_col    = Monitored::Collection( "res_weta2"      , res_weta2_vec         );
+    auto res_wtots1_col   = Monitored::Collection( "res_wtots1"     , res_wtots1_vec        );
+    auto res_f1_col       = Monitored::Collection( "res_f1"         , res_f1_vec            );
+    auto res_f3_col       = Monitored::Collection( "res_f3"         , res_f3_vec            );
+    auto res_eratio_col   = Monitored::Collection( "res_eratio"     , res_eratio_vec        );
+
+
+    auto res_et_col             = Monitored::Collection( "res_et"               , res_et_vec            );
+    auto res_et_cnv_col         = Monitored::Collection( "res_et_cnv"           , res_et_cnv_vec        );
+    auto res_et_uncnv_col       = Monitored::Collection( "res_et_uncnv"         , res_et_uncnv_vec      );
+    auto res_etInEta0_col       = Monitored::Collection( "res_etInEta0"         , res_etInEta0_vec      );
+    auto res_etInEta1_col       = Monitored::Collection( "res_etInEta1"         , res_etInEta1_vec      );
+    auto res_etInEta2_col       = Monitored::Collection( "res_etInEta2"         , res_etInEta2_vec      );
+    auto res_etInEta3_col       = Monitored::Collection( "res_etInEta3"         , res_etInEta3_vec      );
+    auto res_cnv_etInEta0_col   = Monitored::Collection( "res_cnv_etInEta0"     , res_cnv_etInEta0_vec  );
+    auto res_cnv_etInEta1_col   = Monitored::Collection( "res_cnv_etInEta1"     , res_cnv_etInEta1_vec  );
+    auto res_cnv_etInEta2_col   = Monitored::Collection( "res_cnv_etInEta2"     , res_cnv_etInEta2_vec  );
+    auto res_cnv_etInEta3_col   = Monitored::Collection( "res_cnv_etInEta3"     , res_cnv_etInEta3_vec  );
+    auto res_uncnv_etInEta0_col = Monitored::Collection( "res_uncnv_etInEta0"   , res_uncnv_etInEta0_vec);
+    auto res_uncnv_etInEta1_col = Monitored::Collection( "res_uncnv_etInEta1"   , res_uncnv_etInEta1_vec);
+    auto res_uncnv_etInEta2_col = Monitored::Collection( "res_uncnv_etInEta2"   , res_uncnv_etInEta2_vec);
+    auto res_uncnv_etInEta3_col = Monitored::Collection( "res_uncnv_etInEta3"   , res_uncnv_etInEta3_vec);
+ 
+    // For photon
+    auto res_topoetcone20_col         = Monitored::Collection( "res_topoetcone20"            , res_topoetcone20_vec             );
+    auto res_topoetcone20_rel_col     = Monitored::Collection( "res_topoetcone20_rel"        , res_topoetcone20_rel_vec         );
+
+
+
+
+    // Check for zero before filling
+    ATH_MSG_DEBUG("Fill Resolution");
+
+
+
+    for ( auto& pairObj : pairObjs ){
+
+      const xAOD::Photon *off = static_cast<const xAOD::Photon*>(pairObj.first);
+      const xAOD::Photon *onl=nullptr;
+
+
+      { // Get the closest electron object from the trigger starting with deltaR = 0.15
+        float maxDeltaR=0.05;
+        auto vec =  tdt()->features<xAOD::PhotonContainer>(trigger,TrigDefs::Physics ,match()->key("Photon") );      
+        for(auto &featLinkInfo : vec ){                                             
+          if(! featLinkInfo.isValid() ) continue;
+          const auto *feat = *(featLinkInfo.link);                   
+          if(!feat) continue;
+          float deltaR = dR( off->eta(), off->phi(), feat->eta(), feat->phi() );
+          if( deltaR < maxDeltaR){
+            maxDeltaR=deltaR;
+            onl=feat;
+          }
+        } 
+      }
+    
+      // If not found, skip this off object!
+      if(!onl)  continue;
+
+      float val_off=0.;
+      const float onl_eta=onl->eta();
+      const float feta = abs(onl_eta);
+
+
+      val_off=getCluster_et(off);
+      if(val_off!=0.){
+          res_et_vec.push_back( (getCluster_et(onl)-val_off)/val_off  );
+          if( feta < 1.37 )
+              res_etInEta0_vec.push_back((getCluster_et(onl)-val_off)/val_off);
+          else if( feta >=1.37 && feta <= 1.52 )
+              res_etInEta1_vec.push_back((getCluster_et(onl)-val_off)/val_off);
+          else if( feta >= 1.55 && feta < 1.8 )
+              res_etInEta2_vec.push_back((getCluster_et(onl)-val_off)/val_off);
+          else if( feta >= 1.8 && feta < 2.45 )
+              res_etInEta3_vec.push_back((getCluster_et(onl)-val_off)/val_off);
+      
+
+          if(xAOD::EgammaHelpers::isConvertedPhoton(off)){
+
+              res_et_cnv_vec.push_back((getCluster_et(onl)-val_off)/val_off);
+              if( feta < 1.37 )
+                  res_cnv_etInEta0_vec.push_back((getCluster_et(onl)-val_off)/val_off);
+              else if( feta >=1.37 && feta <= 1.52 )
+                  res_cnv_etInEta1_vec.push_back((getCluster_et(onl)-val_off)/val_off);
+              else if( feta >= 1.55 && feta < 1.8 )
+                  res_cnv_etInEta2_vec.push_back((getCluster_et(onl)-val_off)/val_off);
+              else if( feta >= 1.8 && feta < 2.45 )
+                  res_cnv_etInEta3_vec.push_back((getCluster_et(onl)-val_off)/val_off);
+
+          }else{
+              res_et_uncnv_vec.push_back((getCluster_et(onl)-val_off)/val_off);
+              if( feta < 1.37 )
+                  res_uncnv_etInEta0_vec.push_back((getCluster_et(onl)-val_off)/val_off);
+              else if( feta >=1.37 && feta <= 1.52 )
+                  res_uncnv_etInEta1_vec.push_back((getCluster_et(onl)-val_off)/val_off);
+              else if( feta >= 1.55 && feta < 1.8 )
+                  res_uncnv_etInEta2_vec.push_back((getCluster_et(onl)-val_off)/val_off);
+              else if( feta >= 1.8 && feta < 2.45 )
+                  res_uncnv_etInEta3_vec.push_back((getCluster_et(onl)-val_off)/val_off);
+
+          }
+      }
+      val_off=off->eta();
+      if(val_off!=0.){
+          res_eta_vec.push_back( (onl_eta-val_off)/val_off ) ;
+      }
+      val_off=off->phi();
+      if(val_off!=0.){ 
+          res_phi_vec.push_back(  (onl->phi()-val_off)/val_off );
+      }
+      val_off=getShowerShape_ethad(off);
+      if(val_off!=0.) {
+          res_ethad_vec.push_back((getShowerShape_ethad(onl)-val_off)/val_off);
+      }
+      val_off=getShowerShape_ethad1(off);
+      if(val_off!=0){
+          res_ethad1_vec.push_back((getShowerShape_ethad1(onl)-val_off)/val_off);
+      }
+      val_off=getShowerShape_Rhad(off);
+      if(val_off!=0.){
+          res_Rhad_vec.push_back(  (getShowerShape_Rhad(onl)-val_off)/val_off );
+      }
+      val_off=getShowerShape_Rhad1(off);
+      if(val_off!=0.){
+          res_Rhad1_vec.push_back(  (getShowerShape_Rhad1(onl)-val_off)/val_off );
+      }
+      val_off=getShowerShape_Reta(off);
+      if(val_off!=0.){
+          res_Reta_vec.push_back(  (getShowerShape_Reta(onl)-val_off)/val_off );
+      }
+      val_off=getShowerShape_Rphi(off);
+      if(val_off!=0.){
+          res_Rphi_vec.push_back(  (getShowerShape_Rphi(onl)-val_off)/val_off );
+      }
+      val_off=getShowerShape_weta1(off);
+      if(val_off!=0.){
+          res_weta1_vec.push_back( (getShowerShape_weta1(onl)-val_off)/val_off );
+      }
+      val_off=getShowerShape_weta2(off);
+      if(val_off!=0.){
+          res_weta2_vec.push_back( (getShowerShape_weta2(onl)-val_off)/val_off );
+      }
+      val_off=getShowerShape_wtots1(off);
+      if(val_off!=0.){
+          res_wtots1_vec.push_back( (getShowerShape_wtots1(onl)-val_off)/val_off );
+      }
+      val_off=getShowerShape_f1(off);
+      if(val_off!=0.){
+          res_f1_vec.push_back(  (getShowerShape_f1(onl)-val_off)/val_off );
+      }
+      val_off=getShowerShape_f3(off);
+      if(val_off!=0.){
+          res_f3_vec.push_back( (getShowerShape_f3(onl)-val_off)/val_off );
+      }
+      val_off=getShowerShape_Eratio(off);
+      if(val_off!=0.){
+          res_eratio_vec.push_back(  (getShowerShape_Eratio(onl)-val_off)/val_off);
+      }
+   
+
+
+
+
+
+
+
+
+      if( filliso ){
+        // topoetcone20 isolation
+        float val_off=getIsolation_topoetcone20(off);
+        float etonl=onl->pt();
+        float etoff=off->pt();
+        if (val_off > 0.) {
+            res_topoetcone20_vec.push_back((getIsolation_topoetcone20(onl)-val_off)/val_off);
+            if (etonl > 0. && etoff > 0.) {
+                const float reliso_onl=getIsolation_topoetcone20(onl)/etonl;
+                const float reliso_off=getIsolation_topoetcone20(off)/etoff;
+                res_topoetcone20_rel_vec.push_back((reliso_onl-reliso_off)/reliso_off);
+            }
+        }
+        if (etonl > 0. && etoff > 0.) {
+        }
+      }
+
+
+    
+    } // Loop over all offline objects
+
+    // Fill everything
+    fill( monGroup        ,
+          res_et_col      , 
+          res_eta_col     , 
+          res_phi_col     , 
+          res_ethad_col   , 
+          res_ethad1_col  , 
+          res_Rhad_col    , 
+          res_Rhad1_col   , 
+          res_Reta_col    , 
+          res_Rphi_col    , 
+          res_weta1_col   , 
+          res_weta2_col   , 
+          res_wtots1_col  , 
+          res_f1_col      , 
+          res_f3_col      , 
+          res_eratio_col  ,
+          res_topoetcone20_col    , 
+          res_topoetcone20_rel_col ,
+          res_etInEta0_col,
+          res_etInEta1_col,
+          res_etInEta2_col,
+          res_etInEta3_col,
+          res_et_uncnv_col,
+          res_cnv_etInEta0_col,
+          res_cnv_etInEta1_col,
+          res_cnv_etInEta2_col,
+          res_cnv_etInEta3_col,
+          res_et_cnv_col,
+          res_uncnv_etInEta0_col,
+          res_uncnv_etInEta1_col,
+          res_uncnv_etInEta2_col,
+          res_uncnv_etInEta3_col
+          );
+     
+
+
+}
+
+
+
 
 

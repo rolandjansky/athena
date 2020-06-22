@@ -114,6 +114,7 @@ StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::fillHistograms( const EventCon
 
         fillDistributions( pairObjs, info );
         fillEfficiencies( pairObjs, info );
+        fillResolutions( pairObjs, info );
 
 
 
