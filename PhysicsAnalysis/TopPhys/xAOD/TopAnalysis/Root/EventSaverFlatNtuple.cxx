@@ -2661,35 +2661,37 @@ namespace top {
           }
         }
 
-        if (m_config->useJetGhostTrack()) {
+        if (m_config->useJetGhostTrack() && m_jet_pt[i] > m_config->jetPtGhostTracks() && std::abs(m_jet_eta[i])<m_config->jetEtaGhostTracks()) {
           static const SG::AuxElement::Accessor< float > accD0("d0");
           static const SG::AuxElement::Accessor< float > accZ0("z0");
           static const SG::AuxElement::Accessor< float > accQOverP("qOverP");
 
-          const auto& ghostTracks = jetPtr->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(event.m_hashValue));
+	  std::vector<const xAOD::TrackParticle*> ghostTracks;
+          if(jetPtr->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(event.m_hashValue),ghostTracks)) {
 
-          const unsigned int nghostTracks = ghostTracks.size();
-
-          m_jet_ghostTrack_pt[i].resize(nghostTracks);
-          m_jet_ghostTrack_eta[i].resize(nghostTracks);
-          m_jet_ghostTrack_phi[i].resize(nghostTracks);
-          m_jet_ghostTrack_e[i].resize(nghostTracks);
-          m_jet_ghostTrack_d0[i].resize(nghostTracks);
-          m_jet_ghostTrack_z0[i].resize(nghostTracks);
-          m_jet_ghostTrack_qOverP[i].resize(nghostTracks);
-
-          for (unsigned int iGhost = 0; iGhost < nghostTracks; ++iGhost) {
-            top::check(ghostTracks.at(iGhost), "Error in EventSaverFlatNtuple: Found jet with null pointer in ghost track vector.");
-
-            m_jet_ghostTrack_pt[i][iGhost] = ghostTracks.at(iGhost)->pt();
-            m_jet_ghostTrack_eta[i][iGhost] = ghostTracks.at(iGhost)->eta();
-            m_jet_ghostTrack_phi[i][iGhost] = ghostTracks.at(iGhost)->phi();
-            m_jet_ghostTrack_e[i][iGhost] = ghostTracks.at(iGhost)->e();
-            m_jet_ghostTrack_d0[i][iGhost] = accD0(*ghostTracks.at(iGhost));
-            m_jet_ghostTrack_z0[i][iGhost] = accZ0(*ghostTracks.at(iGhost));
-            m_jet_ghostTrack_qOverP[i][iGhost] = accQOverP(*ghostTracks.at(iGhost));
-          }
-        }
+	    const unsigned int nghostTracks = ghostTracks.size();
+  
+	    m_jet_ghostTrack_pt[i].resize(nghostTracks);
+	    m_jet_ghostTrack_eta[i].resize(nghostTracks);
+	    m_jet_ghostTrack_phi[i].resize(nghostTracks);
+	    m_jet_ghostTrack_e[i].resize(nghostTracks);
+	    m_jet_ghostTrack_d0[i].resize(nghostTracks);
+	    m_jet_ghostTrack_z0[i].resize(nghostTracks);
+	    m_jet_ghostTrack_qOverP[i].resize(nghostTracks);
+  
+	    for (unsigned int iGhost = 0; iGhost < nghostTracks; ++iGhost) {
+	      top::check(ghostTracks.at(iGhost), "Error in EventSaverFlatNtuple: Found jet with null pointer in ghost track vector.");
+  
+	      m_jet_ghostTrack_pt[i][iGhost] = ghostTracks.at(iGhost)->pt();
+	      m_jet_ghostTrack_eta[i][iGhost] = ghostTracks.at(iGhost)->eta();
+	      m_jet_ghostTrack_phi[i][iGhost] = ghostTracks.at(iGhost)->phi();
+	      m_jet_ghostTrack_e[i][iGhost] = ghostTracks.at(iGhost)->e();
+	      m_jet_ghostTrack_d0[i][iGhost] = accD0(*ghostTracks.at(iGhost));
+	      m_jet_ghostTrack_z0[i][iGhost] = accZ0(*ghostTracks.at(iGhost));
+	      m_jet_ghostTrack_qOverP[i][iGhost] = accQOverP(*ghostTracks.at(iGhost));
+	    }
+	  }
+	}
 
 
         for (auto& tagWP : m_config->bTagWP_available()) {
@@ -2846,35 +2848,37 @@ namespace top {
           }
         }
 
-        if (m_config->useJetGhostTrack()) {
+        if (m_config->useJetGhostTrack() && m_failJvt_jet_pt[i] > m_config->jetPtGhostTracks() && std::abs(m_failJvt_jet_eta[i])<m_config->jetEtaGhostTracks()) {
           static const SG::AuxElement::Accessor< float > accD0("d0");
           static const SG::AuxElement::Accessor< float > accZ0("z0");
           static const SG::AuxElement::Accessor< float > accQOverP("qOverP");
 
-          const auto& ghostTracks = jetPtr->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(event.m_hashValue));
+          std::vector<const xAOD::TrackParticle*> ghostTracks;
+          if(jetPtr->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(event.m_hashValue),ghostTracks)) {
 
-          const unsigned int nghostTracks = ghostTracks.size();
-
-          m_failJvt_jet_ghostTrack_pt[i].resize(nghostTracks);
-          m_failJvt_jet_ghostTrack_eta[i].resize(nghostTracks);
-          m_failJvt_jet_ghostTrack_phi[i].resize(nghostTracks);
-          m_failJvt_jet_ghostTrack_e[i].resize(nghostTracks);
-          m_failJvt_jet_ghostTrack_d0[i].resize(nghostTracks);
-          m_failJvt_jet_ghostTrack_z0[i].resize(nghostTracks);
-          m_failJvt_jet_ghostTrack_qOverP[i].resize(nghostTracks);
-
-          for (unsigned int iGhost = 0; iGhost < nghostTracks; ++iGhost) {
-            top::check(ghostTracks.at(iGhost), "Error in EventSaverFlatNtuple: Found jet with null pointer in ghost track vector.");
-
-            m_failJvt_jet_ghostTrack_pt[i][iGhost] = ghostTracks.at(iGhost)->pt();
-            m_failJvt_jet_ghostTrack_eta[i][iGhost] = ghostTracks.at(iGhost)->eta();
-            m_failJvt_jet_ghostTrack_phi[i][iGhost] = ghostTracks.at(iGhost)->phi();
-            m_failJvt_jet_ghostTrack_e[i][iGhost] = ghostTracks.at(iGhost)->e();
-            m_failJvt_jet_ghostTrack_d0[i][iGhost] = accD0(*ghostTracks.at(iGhost));
-            m_failJvt_jet_ghostTrack_z0[i][iGhost] = accZ0(*ghostTracks.at(iGhost));
-            m_failJvt_jet_ghostTrack_qOverP[i][iGhost] = accQOverP(*ghostTracks.at(iGhost));
-          }
-        }
+	    const unsigned int nghostTracks = ghostTracks.size();
+  
+	    m_failJvt_jet_ghostTrack_pt[i].resize(nghostTracks);
+	    m_failJvt_jet_ghostTrack_eta[i].resize(nghostTracks);
+	    m_failJvt_jet_ghostTrack_phi[i].resize(nghostTracks);
+	    m_failJvt_jet_ghostTrack_e[i].resize(nghostTracks);
+	    m_failJvt_jet_ghostTrack_d0[i].resize(nghostTracks);
+	    m_failJvt_jet_ghostTrack_z0[i].resize(nghostTracks);
+	    m_failJvt_jet_ghostTrack_qOverP[i].resize(nghostTracks);
+  
+	    for (unsigned int iGhost = 0; iGhost < nghostTracks; ++iGhost) {
+	      top::check(ghostTracks.at(iGhost), "Error in EventSaverFlatNtuple: Found jet with null pointer in ghost track vector.");
+  
+	      m_failJvt_jet_ghostTrack_pt[i][iGhost] = ghostTracks.at(iGhost)->pt();
+	      m_failJvt_jet_ghostTrack_eta[i][iGhost] = ghostTracks.at(iGhost)->eta();
+	      m_failJvt_jet_ghostTrack_phi[i][iGhost] = ghostTracks.at(iGhost)->phi();
+	      m_failJvt_jet_ghostTrack_e[i][iGhost] = ghostTracks.at(iGhost)->e();
+	      m_failJvt_jet_ghostTrack_d0[i][iGhost] = accD0(*ghostTracks.at(iGhost));
+	      m_failJvt_jet_ghostTrack_z0[i][iGhost] = accZ0(*ghostTracks.at(iGhost));
+	      m_failJvt_jet_ghostTrack_qOverP[i][iGhost] = accQOverP(*ghostTracks.at(iGhost));
+	    }
+	  }
+	}
 
         m_failJvt_jet_jvt[i] = -1;
         if (jetPtr->isAvailable<float>("AnalysisTop_JVT")) {
@@ -2950,35 +2954,37 @@ namespace top {
           }
         }
 
-        if (m_config->useJetGhostTrack()) {
+        if (m_config->useJetGhostTrack() && m_failFJvt_jet_pt[i] > m_config->jetPtGhostTracks() && std::abs(m_failFJvt_jet_eta[i])<m_config->jetEtaGhostTracks()) {
           static const SG::AuxElement::Accessor< float > accD0("d0");
           static const SG::AuxElement::Accessor< float > accZ0("z0");
           static const SG::AuxElement::Accessor< float > accQOverP("qOverP");
 
-          const auto& ghostTracks = jetPtr->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(event.m_hashValue));
+          std::vector<const xAOD::TrackParticle*> ghostTracks;
+          if(jetPtr->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(event.m_hashValue),ghostTracks)) {
 
-          const unsigned int nghostTracks = ghostTracks.size();
-
-          m_failFJvt_jet_ghostTrack_pt[i].resize(nghostTracks);
-          m_failFJvt_jet_ghostTrack_eta[i].resize(nghostTracks);
-          m_failFJvt_jet_ghostTrack_phi[i].resize(nghostTracks);
-          m_failFJvt_jet_ghostTrack_e[i].resize(nghostTracks);
-          m_failFJvt_jet_ghostTrack_d0[i].resize(nghostTracks);
-          m_failFJvt_jet_ghostTrack_z0[i].resize(nghostTracks);
-          m_failFJvt_jet_ghostTrack_qOverP[i].resize(nghostTracks);
-
-          for (unsigned int iGhost = 0; iGhost < nghostTracks; ++iGhost) {
-            top::check(ghostTracks.at(iGhost), "Error in EventSaverFlatNtuple: Found jet with null pointer in ghost track vector.");
-
-            m_failFJvt_jet_ghostTrack_pt[i][iGhost] = ghostTracks.at(iGhost)->pt();
-            m_failFJvt_jet_ghostTrack_eta[i][iGhost] = ghostTracks.at(iGhost)->eta();
-            m_failFJvt_jet_ghostTrack_phi[i][iGhost] = ghostTracks.at(iGhost)->phi();
-            m_failFJvt_jet_ghostTrack_e[i][iGhost] = ghostTracks.at(iGhost)->e();
-            m_failFJvt_jet_ghostTrack_d0[i][iGhost] = accD0(*ghostTracks.at(iGhost));
-            m_failFJvt_jet_ghostTrack_z0[i][iGhost] = accZ0(*ghostTracks.at(iGhost));
-            m_failFJvt_jet_ghostTrack_qOverP[i][iGhost] = accQOverP(*ghostTracks.at(iGhost));
-          }
-        }
+	    const unsigned int nghostTracks = ghostTracks.size();
+  
+	    m_failFJvt_jet_ghostTrack_pt[i].resize(nghostTracks);
+	    m_failFJvt_jet_ghostTrack_eta[i].resize(nghostTracks);
+	    m_failFJvt_jet_ghostTrack_phi[i].resize(nghostTracks);
+	    m_failFJvt_jet_ghostTrack_e[i].resize(nghostTracks);
+	    m_failFJvt_jet_ghostTrack_d0[i].resize(nghostTracks);
+	    m_failFJvt_jet_ghostTrack_z0[i].resize(nghostTracks);
+	    m_failFJvt_jet_ghostTrack_qOverP[i].resize(nghostTracks);
+  
+	    for (unsigned int iGhost = 0; iGhost < nghostTracks; ++iGhost) {
+	      top::check(ghostTracks.at(iGhost), "Error in EventSaverFlatNtuple: Found jet with null pointer in ghost track vector.");
+  
+	      m_failFJvt_jet_ghostTrack_pt[i][iGhost] = ghostTracks.at(iGhost)->pt();
+	      m_failFJvt_jet_ghostTrack_eta[i][iGhost] = ghostTracks.at(iGhost)->eta();
+	      m_failFJvt_jet_ghostTrack_phi[i][iGhost] = ghostTracks.at(iGhost)->phi();
+	      m_failFJvt_jet_ghostTrack_e[i][iGhost] = ghostTracks.at(iGhost)->e();
+	      m_failFJvt_jet_ghostTrack_d0[i][iGhost] = accD0(*ghostTracks.at(iGhost));
+	      m_failFJvt_jet_ghostTrack_z0[i][iGhost] = accZ0(*ghostTracks.at(iGhost));
+	      m_failFJvt_jet_ghostTrack_qOverP[i][iGhost] = accQOverP(*ghostTracks.at(iGhost));
+	    }
+	  }
+	}
 
         m_failFJvt_jet_jvt[i] = -1;
         if (jetPtr->isAvailable<float>("AnalysisTop_JVT")) {
