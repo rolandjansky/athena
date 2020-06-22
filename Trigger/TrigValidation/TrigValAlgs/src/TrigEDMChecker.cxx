@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** Adapted from code by A.Hamilton to check trigger EDM; R.Goncalo 21/11/07 */
@@ -4202,7 +4202,7 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
 
   // First retrieve them all (this should not be needed in future)
   const DecisionContainer* container = nullptr;
-  for (const std::string key : keys) ATH_CHECK( evtStore()->retrieve( container, key ) );
+  for (const std::string& key : keys) ATH_CHECK( evtStore()->retrieve( container, key ) );
 
   std::stringstream ss;
   ss << "digraph {" << std::endl;
