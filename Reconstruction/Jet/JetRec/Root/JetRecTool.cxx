@@ -225,7 +225,9 @@ StatusCode JetRecTool::initialize() {
   m_conclock.Reset();
   m_nevt = 0;
 
+#ifndef GENERATIONBASE
   if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
+#endif
 
   ATH_MSG_INFO("Timing detail: " << m_timer);
   return rstat;
