@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
@@ -559,8 +559,8 @@ bool SGImplSvc::isSymLinked(const CLID& linkID, DataProxy* dp)
 
 
 StatusCode 
-SGImplSvc::regFcn( const CallBackID c1,
-                   const CallBackID c2,
+SGImplSvc::regFcn( const CallBackID& c1,
+                   const CallBackID& c2,
                    const IOVSvcCallBackFcn& fcn,
                    bool trigger)
 {
@@ -571,7 +571,7 @@ SGImplSvc::regFcn( const CallBackID c1,
 
 StatusCode 
 SGImplSvc::regFcn( const std::string& toolName,
-                   const CallBackID c2,
+                   const CallBackID& c2,
                    const IOVSvcCallBackFcn& fcn,
                    bool trigger)
 {
@@ -1449,7 +1449,7 @@ bool SGImplSvc::bindHandleToProxyAndRegister (const CLID& id, const std::string&
 
 bool SGImplSvc::bindHandleToProxyAndRegister (const CLID& id, const std::string& key,
                                               IResetable* ir, SG::DataProxy *&dp,
-                                              const CallBackID c,
+                                              const CallBackID& c,
                                               const IOVSvcCallBackFcn& fcn,
                                               bool trigger)
 {
