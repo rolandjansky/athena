@@ -16,8 +16,19 @@
 # art-output: *.json
 # art-output: *.root
 # art-output: *.check*
+# art-output: HLTEF-plots
+# art-output: HLTL2-plots
+# art-output: times
+# art-output: times-FTF
+# art-output: cost-perCall
+# art-output: cost-perEvent
+# art-output: cost-perCall-chain
+# art-output: cost-perEvent-chain
+# art-output: *.dat 
+
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
+from TrigInDetValidation.TrigInDetArtSteps import TrigInDetAna, TrigInDetdictStep, TrigInDetCompStep
 
 chains = [
     'HLT_mu6_idperf_L1MU6',
@@ -60,6 +71,25 @@ test = Test.Test()
 test.art_type = 'grid'
 test.exec_steps = [rdo2aod]
 test.check_steps = CheckSteps.default_check_steps(test)
+
+# Run analysis to produce TrkNtuple
+test.exec_steps.append(TrigInDetAna())
+ 
+# Run Tidardict
+test.check_steps.append(TrigInDetdictStep())
+ 
+# Now the comparitor steps
+comp=TrigInDetCompStep('CompareStep1')
+comp.chains = 'HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF'
+comp.output_dir = 'HLT-plots-FTF'
+test.check_steps.append(comp)
+ 
+ 
+comp2=TrigInDetCompStep('CompareStep2')
+comp2.chains='HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig'
+comp2.output_dir = 'HLT-plots-IDTrig'
+test.check_steps.append(comp2)
+
 
 import sys
 sys.exit(test.run())

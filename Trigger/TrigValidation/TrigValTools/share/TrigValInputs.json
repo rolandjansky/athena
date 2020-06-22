@@ -119,5 +119,12 @@
         "paths": [
             "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/mc16_13TeV.310772.CosmicRays_CollisionSetup.recon.RDO.s3513_s3519_r11737_tid20237005_00/RDO.20237005._004484.pool.root.1"
         ]
+    },
+    "id_Zmumu_pu40": {
+        "source": "mc",
+        "format": "RDO",
+        "paths": [
+            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigInDetValidation/mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143/RDO.06718162._000013.pool.root.1"
+        ]
     }
 }
