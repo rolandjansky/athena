@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -23,48 +23,42 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/Property.h"
 
-#include "CaloRec/ToolWithConstantsMixin.h"
+#include "CaloUtils/ToolWithConstants.h"
 
 #include "TrigT2CaloCalibration/IT2HadCalibTool.h"
 
 #include <vector>
 #include <math.h>
 
-class T2JESCalibTool : virtual public IT2HadCalibTool, 
-                               public AthAlgTool,
-                               public CaloRec::ToolWithConstantsMixin 
+class T2JESCalibTool :
+  public extends<CaloUtils::ToolWithConstants<AthAlgTool>,
+                 IT2HadCalibTool>
 {
  public:
    /** Constructor */
    T2JESCalibTool(const std::string&,const std::string&,const IInterface*); 
    /** Destructor */
-   ~T2JESCalibTool();
+   virtual ~T2JESCalibTool();
    /** athena initialize method */
-   StatusCode initialize();
+   virtual StatusCode initialize() override;
    /** athena finalize method */
-   StatusCode finalize(); 
+   virtual StatusCode finalize() override; 
    
-   // These ones must be redefined for ToolWithConstantsMixin
-   using AthAlgTool::setProperty;
-   virtual StatusCode setProperty (const std::string& propname,
-                                   const std::string& value);  
-   virtual StatusCode setProperty (const Property& p); 
-
    // both energy arguments must be transverse energy in MeV   
    /** @brief Returns a calibrated energy using JES correction 
    * @param[in] Sum of energy for all EM samplings (except sampling 3)
    * @param[in] Sum of energy for all HAD samplings (+ EM sampling 3)
    * @param[in] Eta position of the cluster
    */
-   double c_energy(double EMenergy,double HADenergy,double eta);
-   double c_febenergy(double EMenergy,double HADenergy,double eta);
+   virtual double c_energy(double EMenergy,double HADenergy,double eta) override;
+   virtual double c_febenergy(double EMenergy,double HADenergy,double eta) override;
    
  private:
    
    MsgStream m_log;
 
-   CaloRec::Array<2> m_EnergyCorrConstants;
-   double m_etcut;
+   Constant<CxxUtils::Array<2> > m_EnergyCorrConstants { this, "JES_Factors" };
+   FloatProperty m_etcut { this, "MinEtCut", 10 }; // Non-standard... in GeV!
 
    int GetEtaBin(double jet_eta);
    double PolLogE(const CaloRec::Array<2> &constants, unsigned bin, double E);
