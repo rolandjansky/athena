@@ -35,7 +35,7 @@ atlas_add_component( LArG4FastSimulation
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}  ${GEOMODELCORE_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib ${GEOMODELCORE_LIBRARIES} GaudiKernel StoreGateLib SGtests GeoSpecialShapes LArG4Code LArReadoutGeometry LArSimEvent G4AtlasToolsLib GeoPrimitives )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib ${GEOMODELCORE_LIBRARIES} GaudiKernel StoreGateLib SGtests GeoSpecialShapes LArG4Code LArReadoutGeometry LArSimEvent G4AtlasToolsLib GeoPrimitives LArG4ShowerLibSvcLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
