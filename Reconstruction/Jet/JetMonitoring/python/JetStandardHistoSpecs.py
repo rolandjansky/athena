@@ -19,6 +19,7 @@ knownVar = dict(
 
     # this variable has an index specified. It will thus has only 1 value per jet : the JVF at pos 0
     JVF0 = VarSpec('JVF', 'vecfloat', 0),
+
 )
 
 
@@ -26,6 +27,8 @@ knownEventVar = dict(
     # These always are of type 'float'
     avgMu = ToolSpec('EventHistoVarTool', 'avgMu', Variable='averageInteractionsPerCrossing'),
     actMu = ToolSpec('EventHistoVarTool', 'actMu', Variable='actualInteractionsPerCrossing'),
+    njets = ToolSpec('NumJetVarTool', 'njets0', ),
+    njets50 = ToolSpec('NumJetVarTool', 'njets50', JetMinPtCut = 50.),
 )
 
 # ***************************************
@@ -38,12 +41,11 @@ knownEventVar = dict(
 # See various commented examples below for optional arguments.
 
 _knownHistos = [
-
     # Simple form : histogram of variable 'eta' (the name of spec is the same as the name of variable)
     #        As in TH1 ctor, ';' in the title is interpreted as in "Main Title;Title xAxis;Title yAxis"
     HistoSpec( 'eta',  (50,-5,5) , title='#eta;#eta;Entries'),
     HistoSpec( 'phi',  (50,-3.3,3.3) , title='#phi;#phi;Entries'),
-
+    HistoSpec( 'njets', (20,0,20) , title='Jet multiplicity;NJets;Entries'),
     # Same but we indicate that the variable is to be plotted in GeV by appending ':GeV'
     HistoSpec( 'pt:GeV',  (100,0,200) , title='p_{T};p_{T} [GeV];'),    
     HistoSpec( 'm:GeV',  (100,0,300) , title='mass;mass [GeV];'),
@@ -100,7 +102,7 @@ _knownHistos = [
     HistoSpec('NumTrkPt1000[0]', (100, 0, 100), title='Number of all tracks above 1 GeV:N_{tracks}(p_{T}>1 GeV);NumTrkPt1000;Entries', ),
     HistoSpec('SumPtTrkPt500[0]:GeV', (100, 0, 200), title='Sum Pt of all tracks above 0.5 GeV:SumPtTrk(p_{T}>0.5 GeV);SumPtTrkPt500 [GeV];Entries', ),
     HistoSpec('SumPtChargedPFOPt500[0]:GeV', (100, 0, 200), title='Sum Pt of all charged PFO above 0.5 GeV:SumPtChargedPFO(p_{T}>0.5 GeV);SumPtChargedPFOPt500 [GeV];Entries', ),
-    HistoSpec('fCharge', (100, 0, 2), title='Normalised sum Pt of all charged PFO above 0.5 GeV:fCharge(p_{T}>0.5 GeV);fCharge;Entries', ),
+    HistoSpec('fCharged', (100, 0, 2), title='Normalised sum Pt of all charged PFO above 0.5 GeV:fCharged(p_{T}>0.5 GeV);fCharged;Entries', ),
 
     HistoSpec('FoxWolfram4', (100, -1, 1), title='FoxWolfram0;FoxWolfram4;', ),
     HistoSpec('FoxWolfram0', (100, -1, 1), title='FoxWolfram0;FoxWolfram0;', ),

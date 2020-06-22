@@ -157,6 +157,8 @@ def basicJetMonAlgSpec(jetcoll,isOnline,athenaMT):
     SelectSpec( 'forward', '3.2<|eta|', path, FillerTools = ["pt","et","m"] ),
     SelectSpec( 'lowmu', 'avgMu<30', path, isEventVariable=True, FillerTools = ["pt","et","m","phi","eta"]),
     SelectSpec( 'highmu', '30<avgMu', path, isEventVariable=True, FillerTools = ["pt","et","m","phi","eta"]),
+    SelectSpec( 'njets50', '0<njets50', path, isEventVariable=True, FillerTools = ["pt"]),
+    #SelectSpec( 'njets20', '', path, isEventVariable=True, FillerTools = [] ),
     # TProfile2D : just use 3 variables. For now the sytem will automatically
     #  interpret it as a TProfile2D (the 3rd variable being profiled)
     #"phi;eta;e", # --> Average Energy vs pt and eta
@@ -235,7 +237,7 @@ def jetMonitoringConfig(inputFlags,jetcoll,athenaMT):
      for hist in ExtraOfflineHists: conf.appendHistos(hist)
      if 'pf' in jetcoll or 'PF' in jetcoll:
        conf.appendHistos("SumPtChargedPFOPt500[0]")
-       conf.appendHistos("fCharge")
+       conf.appendHistos("fCharged")
 
    return conf
 
