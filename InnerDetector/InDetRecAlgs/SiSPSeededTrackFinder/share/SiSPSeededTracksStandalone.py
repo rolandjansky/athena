@@ -453,6 +453,7 @@ else:
     InDetClusterMakerTool.PixelModuleData = ""
     InDetClusterMakerTool.PixelChargeCalibCondData = ""
     InDetClusterMakerTool.PixelLorentzAngleTool = None
+    InDetClusterMakerTool.PixelOfflineCalibData = ""
 
 # Set up Pixel neutral network tools
 clusterSplitProbTool = None
