@@ -13,7 +13,6 @@
 #include "TrigInDetToolInterfaces/ITrigL2LayerNumberTool.h"
 
 #include "SpacePointConversionUtils.h"
-#include "IRegionSelector/IRegSelSvc.h"
 
 #include "IRegionSelector/IRegSelTool.h"
 

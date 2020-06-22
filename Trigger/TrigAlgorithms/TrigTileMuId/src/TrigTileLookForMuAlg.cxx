@@ -13,7 +13,6 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "RegionSelector/IRegSelSvc.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "CaloIdentifier/TileID.h"
 #include "ByteStreamData/ROBData.h"
