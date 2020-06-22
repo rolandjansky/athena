@@ -40,7 +40,6 @@ def MdtMonitoringConfig(inputFlags):
     # helper. Then, the helper will instantiate an instance and set up the 
     # base class configuration following the inputFlags. The returned object 
     # is the algorithm.
-    #MdtRawDataMonAlg.DoMdtEsd = True
     mdtMonAlg = helper.addAlgorithm(CompFactory.MdtRawDataMonAlg,'MdtMonAlg')
     mdtMonAlg.DoMdtEsd = True
     mdtMonAlg.DoChamberHist=True
