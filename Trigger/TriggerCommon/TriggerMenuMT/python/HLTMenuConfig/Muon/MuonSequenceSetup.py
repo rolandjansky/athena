@@ -200,7 +200,7 @@ def muEFSAAlgSequence(ConfigFlags):
 
     newRoITool = ViewCreatorFetchFromViewROITool()
     newRoITool.RoisWriteHandleKey = recordable("HLT_Roi_L2SAMuonForEF") #RoI collection recorded to EDM
-    newRoITool.InViewRoIs = muNames.L2forIDName #input RoIs from L2 SA views
+    newRoITool.InViewRoIs = "forMS" #input RoIs from L2 SA views
     newRoITool.ViewToFetchFrom = "MUViewRoIs"
     efsaViewsMaker.RoITool = newRoITool # Create a new ROI centred on the L2 SA muon from Step 1 
     #
