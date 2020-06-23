@@ -360,6 +360,22 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
 
   acc.addEventAlgo(InDetSiTrackerSpacePointFinder)
 
+  acc.addPublicTool( CompFactory.TrigL2LayerNumberTool( "TrigL2LayerNumberTool_FTF" ) )
+  acc.addPublicTool( CompFactory.Trk.TrackSummaryTool( "InDetTrigFastTrackSummaryTool" ) )
+  acc.addPublicTool( CompFactory.TrigL2ResidualCalculator( "TrigL2ResidualCalculator" ) )
+  acc.addPublicTool( CompFactory.InDet.SiTrackMaker_xk( "InDetTrigSiTrackMaker_FTF" + signature ) )
+  acc.addPublicTool( CompFactory.TrigInDetTrackFitter( "TrigInDetTrackFitter" ) )
+  acc.addPublicTool( CompFactory.TrigSpacePointConversionTool( "TrigSpacePointConversionTool" + signature ) )
+
+  ftf = CompFactory.TrigFastTrackFinder( name = "TrigFastTrackFinder" + signature,
+                                         LayerNumberTool          = acc.getPublicTool( "TrigL2LayerNumberTool_FTF" ),
+                                         SpacePointProviderTool   = acc.getPublicTool( "TrigSpacePointConversionTool" + signature ),
+                                         TrackSummaryTool         = acc.getPublicTool( "InDetTrigFastTrackSummaryTool" ),
+                                         TrigL2ResidualCalculator = acc.getPublicTool( "TrigL2ResidualCalculator" ),
+                                         initialTrackMaker        = acc.getPublicTool( "InDetTrigSiTrackMaker_FTF" + signature ),
+                                         trigInDetTrackFitter     = acc.getPublicTool( "TrigInDetTrackFitter" ),
+                                         trigZFinder = CompFactory.TrigZFinder(), )
+  acc.addEventAlgo( ftf )
 
   #CondSvc=CompFactory.CondSvc
   #acc.addService(CondSvc())
