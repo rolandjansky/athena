@@ -175,9 +175,34 @@ def makeRegSelTool_TILE() :
 
 ##### new JO counterparts
 
-def regSelToolMDTCfg(flags):
+# muon spectrometer
+
+def regSelToolCfg(flags, detector, CondAlg, CablingConfigCfg=0):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     ca = ComponentAccumulator()
-    ca.setPrivateTools( _createRegSelTool( "MDT", True ) )
-    ca.addCondAlgo( _createRegSelCondAlg( "MDT", CompFactory.MDT_RegSelCondAlg ) )
+    if(CablingConfigCfg != 0):
+        ca.merge(CablingConfigCfg(flags))
+    ca.setPrivateTools(_createRegSelTool(detector, True))
+    ca.addCondAlgo(_createRegSelCondAlg(detector, CondAlg))
     return ca
+
+def regSelTool_MDT_Cfg(flags):
+    from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg
+    return regSelToolCfg(flags, "MDT", CompFactory.MDT_RegSelCondAlg, MDTCablingConfigCfg)
+
+def regSelTool_RPC_Cfg(flags):
+    from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg
+    return regSelToolCfg(flags, "RPC", CompFactory.RPC_RegSelCondAlg, RPCCablingConfigCfg)
+
+def regSelTool_TGC_Cfg(flags):
+    from MuonConfig.MuonCablingConfig import TGCCablingConfigCfg
+    return regSelToolCfg(flags, "TGC", CompFactory.TGC_RegSelCondAlg, TGCCablingConfigCfg)
+
+def regSelTool_CSC_Cfg(flags):
+    return regSelToolCfg(flags, "CSC", CompFactory.CSC_RegSelCondAlg)
+
+def regSelTool_STGC_Cfg(flags):
+    return regSelToolCfg(flags, "STGC", CompFactory.STGC_RegSelCondAlg)
+
+def regSelTool_MM_Cfg(flags):
+    return regSelToolCfg(flags, "MM", CompFactory.MM_RegSelCondAlg)

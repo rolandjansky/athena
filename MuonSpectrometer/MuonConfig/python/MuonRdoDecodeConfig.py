@@ -137,8 +137,8 @@ def MdtRDODecodeCfg(flags, forTrigger=False):
                                               DecodingTool  = MdtRdoToMdtPrepDataTool,
                                               PrintPrepData = False )
     # add RegSelTool
-    from RegionSelector.RegSelToolConfig import regSelToolMDTCfg
-    MdtRdoToMdtPrepData.RegSel_MDT = acc.popToolsAndMerge( regSelToolMDTCfg( flags ) )
+    from RegionSelector.RegSelToolConfig import regSelTool_MDT_Cfg
+    MdtRdoToMdtPrepData.RegSel_MDT = acc.popToolsAndMerge( regSelTool_MDT_Cfg( flags ) )
 
     if forTrigger:
         # Set the algorithm to RoI mode
