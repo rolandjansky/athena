@@ -95,8 +95,7 @@ def getPFAlg(clustersin,tracktype):
     # cluster is needed to recover the full track expected energy
     # Reuse the default E/P subtraction tool
     PFRecoverSplitShowersTool = eflowRecConf.PFRecoverSplitShowersTool("PFRecoverSplitShowersTool",
-        eflowCellEOverPTool = CellEOverPTool,
-        PFTrackClusterMatchingTool = getPFMatchingTool("MatchingTool_RecoverSS",0.2)
+        eflowCellEOverPTool = CellEOverPTool
         )
 
     # Configure moment calculation using topocluster moment calculator

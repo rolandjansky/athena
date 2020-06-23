@@ -36,11 +36,6 @@ PFRecoverSplitShowersTool::~PFRecoverSplitShowersTool() {}
 
 StatusCode PFRecoverSplitShowersTool::initialize(){
 
-  if (m_matchingTool.retrieve().isFailure()){
-    ATH_MSG_WARNING("Couldn't retrieve PFTrackClusterMatchingTool");
-    return StatusCode::SUCCESS;
-  }
-
   if (m_theEOverPTool.retrieve().isFailure()){
     ATH_MSG_WARNING("Cannot find eflowEOverPTool");
     return StatusCode::SUCCESS;
@@ -54,12 +49,15 @@ StatusCode PFRecoverSplitShowersTool::initialize(){
   return StatusCode::SUCCESS;
 }
 
-void PFRecoverSplitShowersTool::execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer*, eflowRecClusterContainer*) const {
+void PFRecoverSplitShowersTool::execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer* eflowRecTracks, eflowRecClusterContainer* eflowRecClusters) const {
 
   ATH_MSG_DEBUG("Executing");
 
   eflowData data;
   data.caloObjects = theEflowCaloObjectContainer;
+  data.tracksToRecover.resize(eflowRecTracks->size());
+  data.clustersToConsider.resize(eflowRecClusters->size());
+  data.considerThisCluster.resize(eflowRecClusters->size(),false);
 
   fillTracksToRecover(data);
   fillClustersToConsider(data);
@@ -92,6 +90,8 @@ void PFRecoverSplitShowersTool::fillClustersToConsider(eflowData& data) const {
 
         thisEflowCaloObject->efRecCluster(i)->clearTrackMatches();
         data.clustersToConsider.push_back(thisEflowCaloObject->efRecCluster(i));
+	// efRecCluster indices are parallel to topoclusters(?)
+	data.considerThisCluster[thisEflowCaloObject->efRecCluster(i)->getCluster()->index()] = true;
         thisEflowCaloObject->clearClusters();
     }
   }
@@ -163,20 +163,26 @@ unsigned int PFRecoverSplitShowersTool::matchAndCreateEflowCaloObj(eflowData& da
       const xAOD::TrackParticle* track = thisEfRecTrack->getTrack();
       ATH_MSG_DEBUG("Recovering charged EFO with e,pt, eta and phi " << track->e() << ", " << track->pt() << ", " << track->eta() << " and " << track->phi());
     }
-    /* Get list of matched clusters */
-    std::vector<eflowRecCluster*> matchedClusters = m_matchingTool->doMatches(thisEfRecTrack, data.clustersToConsider, -1);
+    // Get list of matched clusters in the dR<0.2 cone -- already identified
+    const std::vector<eflowTrackClusterLink*>& matchedClusters_02 = *thisEfRecTrack->getAlternativeClusterMatches("cone_02");
 
     if (msgLvl(MSG::DEBUG)){
-      for (auto thisEFRecCluster : matchedClusters) ATH_MSG_DEBUG("Have matched cluster with e, pt, eta, phi of " << thisEFRecCluster->getCluster()->e() << ", " <<  thisEFRecCluster->getCluster()->eta() << ", " << thisEFRecCluster->getCluster()->eta() << " and " << thisEFRecCluster->getCluster()->phi());
+      for (auto trkClusLink : matchedClusters_02) {
+	const eflowRecCluster* thisEFRecCluster = trkClusLink->getCluster();
+	ATH_MSG_DEBUG("Have matched cluster with e, pt, eta, phi of " << thisEFRecCluster->getCluster()->e() << ", " <<  thisEFRecCluster->getCluster()->eta() << ", " << thisEFRecCluster->getCluster()->eta() << " and " << thisEFRecCluster->getCluster()->phi());
+      }
     }
 
-    if (matchedClusters.empty()) { continue; }
+    if (matchedClusters_02.empty()) { continue; }
 
     /* Matched cluster: create TrackClusterLink and add it to both the track and the cluster (eflowCaloObject will be created later) */
-    for (auto efRecCluster : matchedClusters){
-      eflowTrackClusterLink* trackClusterLink = eflowTrackClusterLink::getInstance(thisEfRecTrack,efRecCluster);
+    for (auto trkClusLink : matchedClusters_02){
+      eflowRecCluster* thisEFRecCluster = trkClusLink->getCluster();
+      // Look up whether this cluster is intended for recovery
+      if( !data.considerThisCluster[trkClusLink->getCluster()->getCluster()->index()] ) {continue;}
+      eflowTrackClusterLink* trackClusterLink = eflowTrackClusterLink::getInstance(thisEfRecTrack,thisEFRecCluster);
       thisEfRecTrack->addClusterMatch(trackClusterLink);
-      efRecCluster->addTrackMatch(trackClusterLink);
+      thisEFRecCluster->addTrackMatch(trackClusterLink);
     }
   }
 
