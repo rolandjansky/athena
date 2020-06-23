@@ -55,6 +55,9 @@ keepOutput = False
 # fixing LHE files after madspin?  do that here.
 fixEventWeightsForBridgeMode=False
 
+# In case you want to keep lifetimes in the LHE files
+add_lifetimes_lhe = False
+
 from MadGraphControl.MadGraphUtilsHelpers import get_physics_short
 phys_short = get_physics_short()
 if 'py1up' in phys_short:
