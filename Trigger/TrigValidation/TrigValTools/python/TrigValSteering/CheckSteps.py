@@ -14,7 +14,7 @@ import json
 import six
 import glob
 
-from TrigValTools.TrigValSteering.Step import Step
+from TrigValTools.TrigValSteering.Step import Step, get_step_from_list
 from TrigValTools.TrigValSteering.Common import art_input_eos, art_input_cvmfs
 
 class RefComparisonStep(Step):
@@ -741,13 +741,16 @@ def default_check_steps(test):
         log_to_zip = check_steps[-1].merged_name
 
     # Reco_tf log merging
-    step_types = [step.type for step in test.exec_steps]
-    if 'Reco_tf' in step_types:
+    reco_tf_steps = [step for step in test.exec_steps if step.type=='Reco_tf']
+    if len(reco_tf_steps) > 0:
         reco_tf_logmerge = LogMergeStep('LogMerge_Reco_tf')
         reco_tf_logmerge.warn_if_missing = False
         tf_names = ['HITtoRDO', 'RDOtoRDOTrigger', 'RAWtoESD', 'ESDtoAOD',
                     'PhysicsValidation', 'RAWtoALL']
         reco_tf_logmerge.log_files = ['log.'+tf_name for tf_name in tf_names]
+        if not get_step_from_list('LogMerge', check_steps):
+            for step in reco_tf_steps:
+                reco_tf_logmerge.log_files.append(step.get_log_file_name())
         reco_tf_logmerge.extra_log_regex = r'athfile-.*\.log\.txt'
         reco_tf_logmerge.merged_name = 'athena.merged.log'
         log_to_zip = reco_tf_logmerge.merged_name
