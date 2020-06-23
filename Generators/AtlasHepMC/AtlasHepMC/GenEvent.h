@@ -69,12 +69,6 @@ inline int signal_process_id(const GenEvent* evt) {
 std::shared_ptr<HepMC3::IntAttribute> A_signal_process_id=evt->attribute<HepMC3::IntAttribute>("signal_process_id");
  return A_signal_process_id?(A_signal_process_id->value()):0;
 }
-namespace Print {
-inline void line(std::ostream& os,const GenEvent& e){e.print(os);}
-inline void line(std::ostream& os,const GenEvent* e){e->print(os);}
-}
-inline bool valid_beam_particles(const GenEvent* e){return e->valid_beam_particles();}
-
 inline void set_signal_process_id(GenEvent* e, const int i=0) {     std::shared_ptr<HepMC3::IntAttribute> signal_process_id = std::make_shared<HepMC3::IntAttribute>(i);
                                                                     e->add_attribute("signal_process_id",signal_process_id);  }
 inline void set_random_states(GenEvent* e, std::vector<long int>& a)  { 
