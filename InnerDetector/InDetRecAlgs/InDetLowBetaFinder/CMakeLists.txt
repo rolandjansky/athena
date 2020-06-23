@@ -33,7 +33,7 @@ atlas_add_component( InDetLowBetaFinder
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel TRT_ConditionsServicesLib StoreGateLib SGtests TRT_ConditionsData InDetIdentifier InDetLowBetaInfo InDetRIO_OnTrack TrkParameters xAODTracking TrkRIO_OnTrack TrkTrack MagFieldElements MagFieldConditions )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel TRT_ConditionsServicesLib StoreGateLib SGtests TRT_ConditionsData InDetIdentifier InDetLowBetaInfo InDetRIO_OnTrack TrkParameters xAODTracking TrkRIO_OnTrack TrkTrack MagFieldElements MagFieldConditions TRT_ElectronPidToolsLib )
 
 # Install files from the package:
 atlas_install_headers( InDetLowBetaFinder )
