@@ -37,11 +37,11 @@ run_settings = {'event_norm':'sum',
                 'drjj':0.0,
                 'lhe_version':'3.0',
                 'cut_decays':'F',
-                'pdlabel':"'lhapdf'",
-                'lhaid':247000,
                 'pdgs_for_merging_cut': '1, 2, 3, 4, 21', # Terrible default in MG
                 'ickkw':0,
                 'xqcut':0} # use CKKW-L merging (yes, this is a weird setting)
+# Set up default PDF and systematic settings (note: action in import module)
+from MadGraphControl.MadGraph_NNPDF30NLO_Base_Fragment import *
 
 # Setting for writing out a gridpack
 writeGridpack = False

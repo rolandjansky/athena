@@ -302,7 +302,6 @@ def do_MadSpin_DRX(DRmode, msdirname):
     my_ms_dir=msdirname
     pdir=my_ms_dir+'/production_me/SubProcesses/'
     fdir=my_ms_dir+'/full_me/SubProcesses/'
-    allfiles=os.listdir(pdir)
     full_files=os.listdir(fdir)
     mfiles = find_matrix_files(pdir)
 
@@ -346,6 +345,5 @@ def do_MadSpin_DRX(DRmode, msdirname):
                         do_DR2_hack(full_file_matrix_prod, "mytmp.txt","_PROD",to_replace,0) #do not put top propagator on shell
                         do_driver_hacks(fdir+f_file+"/driver.f")
 
-    os.remove("the_process.txt")
     drlog.info("finished do_MadSpin_DRX")
     sys.stdout.flush()

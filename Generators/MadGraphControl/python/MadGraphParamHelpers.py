@@ -80,18 +80,18 @@ def set_higgs_params(process_dir):
     https://twiki.cern.ch/twiki/pub/LHCPhysics/LHCHXSWGBRs/BR.central.dat
     """
     param_card_settings = {
-      'MASS' : { '25': "1.250000e+02" },
-      'DECAY': { '25': """DECAY  25   6.382339e-03
-5.767E-01 2   5  -5 # H->bb
-6.319E-02 2  15 -15 # H->tautau
-2.192E-04 2  13 -13 # H->mumu
-2.462E-04 2   3  -3 # H->ss
-2.911E-02 2   4  -4 # H->cc
-8.569E-02 2  21  21 # H->gg
-2.277E-03 2  22  22 # H->gammagamma
-1.539E-03 2  22  23 # H->Zgamma
-2.146E-01 2  24 -24 # H->WW
-2.641E-02 2  23  23 # H->ZZ""" }
+     'MASS' : { '25': "1.250000e+02" },
+     'DECAY': { '25': """DECAY  25   6.382339e-03
+     5.767E-01 2   5  -5 # H->bb
+     6.319E-02 2  15 -15 # H->tautau
+     2.192E-04 2  13 -13 # H->mumu
+     2.462E-04 2   3  -3 # H->ss
+     2.911E-02 2   4  -4 # H->cc
+     8.569E-02 2  21  21 # H->gg
+     2.277E-03 2  22  22 # H->gammagamma
+     1.539E-03 2  22  23 # H->Zgamma
+     2.146E-01 2  24 -24 # H->WW
+     2.641E-02 2  23  23 # H->ZZ""" }
      }
     from MadGraphControl.MadGraphUtils import modify_param_card
     modify_param_card(process_dir=process_dir,params=param_card_settings)
