@@ -53,7 +53,6 @@ OutwardsCombinedMuonTrackBuilder::OutwardsCombinedMuonTrackBuilder(const std::st
       m_addIDMSerrors(true)
 {
     declareInterface<ICombinedMuonTrackBuilder>(this);
-    declareInterface<Trk::ITrackFitter>(this);
     declareProperty("AllowCleanerVeto", m_allowCleanerVeto);
     declareProperty("CleanCombined", m_cleanCombined);
     declareProperty("RecoverCombined", m_recoverCombined);
@@ -363,9 +362,9 @@ OutwardsCombinedMuonTrackBuilder::standaloneRefit(const Trk::Track& combinedTrac
 }
 
 
-/** ITrackFitter interface: refit a track */
+/** refit a track */
 Trk::Track*
-OutwardsCombinedMuonTrackBuilder::fit(const Trk::Track& track, const Trk::RunOutlierRemoval runOutlier,
+OutwardsCombinedMuonTrackBuilder::fit(Trk::Track& track, const Trk::RunOutlierRemoval runOutlier,
                                       const Trk::ParticleHypothesis particleHypothesis) const
 {
     // check valid particleHypothesis

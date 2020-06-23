@@ -460,7 +460,7 @@ def MuonTrackQueryCfg(flags, name="MuonTrackQuery", **kwargs ):
 
 def MuidSegmentRegionRecoveryToolCfg(flags, name ='MuidSegmentRegionRecoveryTool', **kwargs ):
     result = CombinedMuonTrackBuilderFitCfg(flags)
-    kwargs.setdefault("Fitter",  result.popPrivateTools() )
+    kwargs.setdefault("Builder",  result.popPrivateTools() )
     tool = CompFactory.Muon.MuonSegmentRegionRecoveryTool(name,**kwargs)
     result.setPrivateTools(tool)
     return result
