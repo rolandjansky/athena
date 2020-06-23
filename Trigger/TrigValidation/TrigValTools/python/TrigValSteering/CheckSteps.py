@@ -624,7 +624,7 @@ class MessageCountStep(Step):
     def __init__(self, name='MessageCount'):
         super(MessageCountStep, self).__init__(name)
         self.executable = 'messageCounter.py'
-        self.log_regex = r'(athena\..*log$|athenaHLT:.*\.out$|^log\..*to.*)'
+        self.log_regex = r'(athena\.(?!.*tail).*log$|athenaHLT:.*\.out$|^log\..*to.*)'
         self.skip_logs = []
         self.start_pattern = r'(HltEventLoopMgr|AthenaHiveEventLoopMgr).*INFO Starting loop on events'
         self.end_pattern = r'(HltEventLoopMgr.*INFO All events processed|AthenaHiveEventLoopMgr.*INFO.*Loop Finished)'
@@ -679,10 +679,10 @@ class MessageCountStep(Step):
                     if summary[level] > threshold:
                         self.result += 1
                         self.log.info(
-                            '%s Number of %s messages %s is higher than threshold %s',
-                            self.name, level, summary[level], threshold)
+                            '%s Number of %s messages %s in %s is higher than threshold %s',
+                            self.name, level, summary[level], log_file, threshold)
                         if self.print_on_fail:
-                            self.log.info('%s Printing all %s messages', self.name, level)
+                            self.log.info('%s Printing all %s messages from %s', self.name, level, log_file)
                             with open(all_json_file) as af:
                                 all_msg = json.load(af)
                                 for msg in all_msg[level]:
