@@ -26,7 +26,6 @@ public:
 
 private:
   /** Create the charged PFO */ 
-  void addVertexLinksToChargedPFO(const xAOD::VertexContainer* theVertexContainer, SG::WriteHandle<xAOD::PFOContainer>& chargedPFOContainerWriteHandle);
   void createChargedPFO(const eflowCaloObject& energyFlowCaloObject, bool addClusters, SG::WriteHandle<xAOD::PFOContainer>& chargedPFOContainerWriteHandle) const;
 
   /** Toggle EOverP algorithm mode, whereby no charged shower subtraction is performed */
