@@ -2,6 +2,7 @@
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
 from TriggerMenuMT.HLTMenuConfig.Test.TestDef import TestChainConfiguration as TestChainConfiguration
+from TriggerMenuMT.HLTMenuConfig.Menu.ChainMerging import mergeChainDefs
 
 import pprint
 from AthenaCommon.Logging import logging
@@ -18,22 +19,16 @@ def generateChainConfigs( chainDict ):
     listOfChainDefs = []
 
     for subChainDict in listOfChainDicts:
-        
+        log.debug('Assembling subChainsDict %s for chain %s', len(listOfChainDefs), subChainDict['chainName'] )
         Test = TestChainConfiguration(subChainDict).assembleChain() 
 
         listOfChainDefs += [Test]
-        log.debug('length of chaindefs %s', len(listOfChainDefs) )
         
 
     if len(listOfChainDefs)>1:
-        log.warning("Implement case for multiplicity >1  test chain!!") 
-        theChainDef = listOfChainDefs[0] #needs to be implemented properly
+        theChainDef = mergeChainDefs(listOfChainDefs, chainDict)
     else:
         theChainDef = listOfChainDefs[0]
-
-    log.debug("theChainDef.name: %s" , theChainDef.name)
-    log.debug("theChainDef.seed: %s" , theChainDef.seed)
-    log.debug("theChainDef.ChainSteps: %s" , theChainDef.steps)
 
     return theChainDef
 
