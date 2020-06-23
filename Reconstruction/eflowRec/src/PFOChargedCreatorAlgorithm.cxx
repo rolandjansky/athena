@@ -1,8 +1,10 @@
 /*                                                                                                                                                                                                                                        
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration                                                                                                                                                                
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "eflowRec/PFOChargedCreatorAlgorithm.h"
+
+#include <algorithm>
 
 #include "eflowRec/eflowRecCluster.h"
 #include "eflowRec/eflowRecTrack.h"
@@ -34,6 +36,8 @@ StatusCode  PFOChargedCreatorAlgorithm::execute(const EventContext& ctx) const {
   /* Create Charged PFOs from all eflowCaloObjects */
   SG::ReadHandle<eflowCaloObjectContainer> eflowCaloObjectContainerReadHandle(m_eflowCaloObjectContainerReadHandleKey,ctx);
   for (auto thisEflowCaloObject : *eflowCaloObjectContainerReadHandle) createChargedPFO(*thisEflowCaloObject,true,chargedPFOContainerWriteHandle);
+
+  std::sort(chargedPFOContainerWriteHandle->begin(), chargedPFOContainerWriteHandle->end(), [] (const xAOD::PFO* pfo1, const xAOD::PFO* pfo2) {return pfo1->pt()>pfo2->pt();});
 
   return StatusCode::SUCCESS;  
 }

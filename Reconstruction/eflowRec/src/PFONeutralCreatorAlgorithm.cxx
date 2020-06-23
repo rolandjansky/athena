@@ -4,6 +4,8 @@
 
 #include "eflowRec/PFONeutralCreatorAlgorithm.h"
 
+#include <algorithm>
+
 #include "eflowRec/eflowCaloObject.h"
 #include "eflowRec/eflowRecCluster.h"
 #include "eflowRec/eflowTrackClusterLink.h"
@@ -57,9 +59,11 @@ StatusCode PFONeutralCreatorAlgorithm::execute(const EventContext& ctx) const {
 
   // Record the output containers
   SG::WriteHandle<xAOD::PFOContainer> neutralPFOContainerWriteHandle(m_neutralPFOContainerWriteHandleKey,ctx);
+  std::sort(neutralPFOContainer->begin(), neutralPFOContainer->end(), [] (const xAOD::PFO* pfo1, const xAOD::PFO* pfo2) {return pfo1->pt()>pfo2->pt();});
   ATH_CHECK( neutralPFOContainerWriteHandle.record(std::move(neutralPFOContainer),std::move(neutralPFOContainerAux)) );
   if(m_LCMode) {
     ATH_MSG_INFO("LC MODE !?");
+    std::sort(neutralPFOContainer_nonModified->begin(), neutralPFOContainer_nonModified->end(), [] (const xAOD::PFO* pfo1, const xAOD::PFO* pfo2) {return pfo1->pt()>pfo2->pt();});
     SG::WriteHandle<xAOD::PFOContainer> neutralPFOContainerWriteHandle_nonModified(m_neutralPFOContainerWriteHandleKey,ctx);
     ATH_CHECK( neutralPFOContainerWriteHandle_nonModified.record(std::move(neutralPFOContainer_nonModified),std::move(neutralPFOContainerAux_nonModified)) );
   }
