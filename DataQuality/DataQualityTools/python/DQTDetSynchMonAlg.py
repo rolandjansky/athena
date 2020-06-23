@@ -173,9 +173,9 @@ if __name__ == '__main__':
     # Initialize configuration object, add accumulator, merge, and run.
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
     #from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
+    from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
     cfg = MainServicesCfg(ConfigFlags)
-    cfg.merge(TrigBSReadCfg(ConfigFlags))
+    cfg.merge(ByteStreamReadCfg(ConfigFlags))
     from TrigInDetConfig.InDetConfig import TrigInDetConfig
     cfg.merge(TrigInDetConfig(ConfigFlags))
 

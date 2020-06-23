@@ -8,13 +8,14 @@
 #define PMGTOOLS_PMGCROSSSECTIONTOOL_H
 
 // System include(s):
-#include <array>
+#include <map>
+#include <string>
 
 // Infrastructure include(s):
 #include "AsgTools/AsgTool.h"
 
 // Interface include(s):
-#include "PMGTools/IPMGCrossSectionTool.h"
+#include "PMGAnalysisInterfaces/IPMGCrossSectionTool.h"
 
 /// Tool providing sample cross-sections and k-factors etc
 ///
@@ -51,9 +52,21 @@ namespace PMGTools {
     std::string getSampleName(const int dsid) const;
     
     /// return the AMI cross-section for DSID
-    double getGeneratorXsection(const int dsid) const;
+    double getAMIXsection(const int dsid) const;
+
+    /// return the cross-section uncertainty for DSID
+    double getXsectionUncertainty(const int dsid) const;
+
+    /// return the cross-section uncertainty for DSID
+    double getXsectionUncertaintyUP(const int dsid) const;
+
+    /// return the cross-section uncertainty for DSID
+    double getXsectionUncertaintyDOWN(const int dsid) const;
     
-    
+    // :: below is for future use?
+    /// return the branching ratio for DSID
+    //double getBR(const int dsid) const;
+
     /// return the k-factor for DSID
     double getKfactor(const int dsid) const;
    
@@ -66,7 +79,7 @@ namespace PMGTools {
   private:
       
     // store vector of structures, each structure contains full info for DSID
-    std::map<int,PMGTools::AllSampleInfo> m_storeSampleInfo;
+    std::map<unsigned, PMGTools::AllSampleInfo> m_fStoreSampleInfo;
     std::string m_InputFileName;
     
   }; // class PMGCrossSectionTool

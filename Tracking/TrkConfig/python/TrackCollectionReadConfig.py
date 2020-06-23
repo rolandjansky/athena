@@ -64,7 +64,8 @@ in the input file."""
                       Key = 'TrackCollection/' + key,
                       Aliases = aliases,
                       ExtraInputs = [('InDetDD::SiDetectorElementCollection', 'ConditionStore+PixelDetectorElementCollection'),
-                                     ('InDetDD::SiDetectorElementCollection', 'ConditionStore+SCT_DetectorElementCollection')])
+                                     ('InDetDD::SiDetectorElementCollection', 'ConditionStore+SCT_DetectorElementCollection'), 
+                                     ( 'InDetDD::TRT_DetElementContainer' , 'ConditionStore+TRT_DetElementContainer' ) ])
     result.addEventAlgo (alg)
 
     # We also require AddressRemappingSvc.

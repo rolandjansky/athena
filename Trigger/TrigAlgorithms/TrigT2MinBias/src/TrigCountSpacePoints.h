@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMINBIAS_TRIGCOUNTSPACEPOINTS_H
@@ -15,7 +15,6 @@
 class SCT_ID;
 class PixelID;
 class TrigSpacePointCounts;
-class IRegSelSvc;
 class IRegSelSvc;
 
 /** @class TrigCountSpacePoints

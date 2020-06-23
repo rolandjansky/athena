@@ -90,7 +90,7 @@ MagField::AtlasFieldSvc::~AtlasFieldSvc()
 }
 
 /** framework methods */
-StatusCode MagField::AtlasFieldSvc::initialize ATLAS_NOT_THREAD_SAFE ( )
+StatusCode MagField::AtlasFieldSvc::initialize( )
 {
     ATH_MSG_INFO( "initialize() ..." );
 
@@ -211,7 +211,7 @@ StatusCode MagField::AtlasFieldSvc::importCurrents(AtlasFieldSvcTLS &tls)
 }
 
 /** callback for possible magnet current update **/
-StatusCode MagField::AtlasFieldSvc::updateCurrent ATLAS_NOT_THREAD_SAFE (IOVSVC_CALLBACK_ARGS)
+StatusCode MagField::AtlasFieldSvc::updateCurrent(IOVSVC_CALLBACK_ARGS)
 {
     // get magnet currents from DCS
     double solcur(0.);
@@ -304,7 +304,7 @@ StatusCode MagField::AtlasFieldSvc::updateCurrent ATLAS_NOT_THREAD_SAFE (IOVSVC_
 }
 
 /** callback for possible field map filenames update **/
-StatusCode MagField::AtlasFieldSvc::updateMapFilenames ATLAS_NOT_THREAD_SAFE (IOVSVC_CALLBACK_ARGS)
+StatusCode MagField::AtlasFieldSvc::updateMapFilenames(IOVSVC_CALLBACK_ARGS)
 {
     ATH_MSG_INFO( "reading magnetic field map filenames from COOL" );
 

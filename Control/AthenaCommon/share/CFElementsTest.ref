@@ -1,0 +1,17 @@
+test_findAlgorithms (AthenaCommon.CFElements.TestConf2CF) ... ok
+test_findDeep (AthenaCommon.CFElements.TestConf2CF) ... ok
+test_findMissing (AthenaCommon.CFElements.TestConf2CF) ... ok
+test_findRespectingScope (AthenaCommon.CFElements.TestConf2CF) ... ok
+test_findTop (AthenaCommon.CFElements.TestConf2CF) ... ok
+test_flatCollectors (AthenaCommon.CFElements.TestConf2CF) ... ok
+test_findAlgorithms (AthenaCommon.CFElements.TestLegacyCF) ... ok
+test_findDeep (AthenaCommon.CFElements.TestLegacyCF) ... ok
+test_findMissing (AthenaCommon.CFElements.TestLegacyCF) ... ok
+test_findRespectingScope (AthenaCommon.CFElements.TestLegacyCF) ... ok
+test_findTop (AthenaCommon.CFElements.TestLegacyCF) ... ok
+test_flatCollectors (AthenaCommon.CFElements.TestLegacyCF) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.002s
+
+OK

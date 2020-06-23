@@ -363,7 +363,7 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t, const s
 
     std::unique_ptr<const Trk::TrackSummary> summary;
     if (m_trackSummaryTool.get()!=nullptr) {
-      summary.reset(m_trackSummaryTool->createSummary(*track));
+      summary = m_trackSummaryTool->summary(*track, nullptr);
       if (summary == nullptr) {
         ATH_MSG_DEBUG ("No proper TrackSummary was returned. Creating TrackParticle with a dummy TrackSummary");
         summary = std::make_unique<Trk::TrackSummary>();

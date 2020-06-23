@@ -35,10 +35,10 @@ StatusCode eflowCellEOverPTool_mc12_JetETMiss::initialize(){
   return StatusCode::SUCCESS;
 }
 
-StatusCode eflowCellEOverPTool_mc12_JetETMiss::execute(eflowEEtaBinnedParameters *binnedParameters){
+StatusCode eflowCellEOverPTool_mc12_JetETMiss::fillBinnedParameters(eflowEEtaBinnedParameters *binnedParameters) const {
 
   if (binnedParameters) {
-    
+
     binnedParameters->initialise(m_eBinValues, m_etaBinBounds);
 
     ////////////////////////////

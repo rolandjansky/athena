@@ -27,6 +27,7 @@
 #include "AthenaKernel/tools/AthenaPackageInfo.h"
 #include "AthenaKernel/DataBucketBase.h"
 #include "AthenaKernel/ThinningDecisionBase.h"
+#include "AthenaKernel/CondCont.h"
 
 #include "GaudiKernel/MsgStream.h"
 

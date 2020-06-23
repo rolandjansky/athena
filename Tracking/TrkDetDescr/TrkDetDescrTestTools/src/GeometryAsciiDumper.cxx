@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -57,7 +57,7 @@ StatusCode Trk::GeometryAsciiDumper::finalize()
 
 
 
-StatusCode Trk::GeometryAsciiDumper::processNode(const Trk::TrackingVolume& tvol, size_t level)
+StatusCode Trk::GeometryAsciiDumper::processNode(const Trk::TrackingVolume& tvol, size_t level) const
 {
 
    ATH_MSG_VERBOSE("Dumping information for TrackingVolume.");
@@ -95,7 +95,7 @@ StatusCode Trk::GeometryAsciiDumper::processNode(const Trk::TrackingVolume& tvol
 }
 
 
-StatusCode Trk::GeometryAsciiDumper::processNode(const Trk::Layer& lay, size_t level)
+StatusCode Trk::GeometryAsciiDumper::processNode(const Trk::Layer& lay, size_t level) const
 {
     
     ATH_MSG_VERBOSE("Dumping information for Layer.");
@@ -121,7 +121,7 @@ StatusCode Trk::GeometryAsciiDumper::processNode(const Trk::Layer& lay, size_t l
 }
 
 
-StatusCode Trk::GeometryAsciiDumper::processNode(const Trk::Surface& sf, size_t level)
+StatusCode Trk::GeometryAsciiDumper::processNode(const Trk::Surface& sf, size_t level) const
 {
     ATH_MSG_VERBOSE("Dumping information for Surfaces.");
     std::stringstream levelBuffer;

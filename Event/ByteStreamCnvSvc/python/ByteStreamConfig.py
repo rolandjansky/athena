@@ -64,11 +64,6 @@ def ByteStreamReadCfg( inputFlags, typeNames=[] ):
 
     return acc
 
-def TrigBSReadCfg( flags, typeNames=[] ):
-    # TODO: Search and replace all clients to use ByteStreamReadCfg directly, then remove TrigBSReadCfg
-    return ByteStreamReadCfg( flags, typeNames )
-
-
 def ByteStreamWriteCfg( flags, typeNames=[] ):
     acc = ComponentAccumulator("AthOutSeq")
     outputSvc = CompFactory.ByteStreamEventStorageOutputSvc()
@@ -106,6 +101,6 @@ if __name__ == "__main__":
 
     ConfigFlags.Input.Files = defaultTestFiles.RAW
 
-    acc = TrigBSReadCfg( ConfigFlags )
+    acc = ByteStreamReadCfg( ConfigFlags )
     acc.store( open( "test.pkl", "wb" ) )
     print("All OK")

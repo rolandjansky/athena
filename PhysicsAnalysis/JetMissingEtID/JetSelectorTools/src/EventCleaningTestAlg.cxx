@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // EDM includes
@@ -7,8 +7,6 @@
 // Local includes
 #include "EventCleaningTestAlg.h"
 
-static const float GeV = 1000.;
-static const float invGeV = 1./GeV;
 
 //-----------------------------------------------------------------------------
 // Constructor

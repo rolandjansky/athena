@@ -26,6 +26,34 @@ addJetRecoToAlgSequence(DerivationFrameworkJob,eventShapeTools=None)
 DFJetAlgs = {}
 
 ##################################################################
+# Schedule the augmentation of a flag to label events with large
+# EMEC-IW Noise based on the presence of many bad quality clusters 
+##################################################################
+
+if hasattr(DerivationFrameworkJob,"BadBatmanAugmentation"):
+    dfjetlog.warning( "BadBatmanAugmentation: BadBatmanAugmentation already scheduled on sequence "+DerivationFrameworkJob.name )
+else:
+    # Check if we have clusters.  If we don't then this cannot run
+    from RecExConfig.ObjKeyStore import objKeyStore
+    if objKeyStore.isInInput( "xAOD::CaloClusterContainer", "CaloCalTopoClusters" ):
+        # schedule it
+        batmanaug = CfgMgr.DerivationFramework__CommonAugmentation("BadBatmanAugmentation")
+        DerivationFrameworkJob += batmanaug
+        batmanaugtool = None
+        from AthenaCommon.AppMgr import ToolSvc
+        # create and add the tool to the alg if needed                                                                                                                                                      
+        if hasattr(ToolSvc,"BadBatmanAugmentationTool"):
+            batmanaugtool = getattr(ToolSvc,"BadBatmanAugmentationTool")
+        else:
+            batmanaugtool = CfgMgr.DerivationFramework__BadBatmanAugmentationTool("BadBatmanAugmentationTool")
+            ToolSvc += batmanaugtool
+        if not batmanaugtool in batmanaug.AugmentationTools:
+            batmanaug.AugmentationTools.append(batmanaugtool)
+    else:
+        if not objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
+            dfjetlog.warning('Could not schedule BadBatmanAugmentation (fine if running on EVNT)')
+
+##################################################################
 #                  Definitions of helper functions 
 ##################################################################
 
@@ -72,7 +100,7 @@ def addGhostAssociation(DerivationFrameworkJob):
 
 ##################################################################
 
-def reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale=-1.0, variableRMinRadius=-1.0):
+def reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale=-1.0, variableRMinRadius=-1.0, algseq=None):
     """Return a list of tools (possibly empty) to be run in a jetalg. These tools will make sure PseudoJets will be associated
     to the container specified by the input arguments.    
     """
@@ -139,6 +167,12 @@ def reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale=-1.0, variab
     # map the input to the jtm code for PseudoJetGetter
     getterMap = dict( LCTopo = 'lctopo', EMTopo = 'emtopo', EMPFlow = 'empflow', EMCPFlow = 'emcpflow', Truth='truth', TruthWZ='truthwz', PV0Track='pv0track')
     # create the finder for the temporary collection.
+
+    for getter in jtm.gettersMap[getterMap[inputtype]]:
+        if getter not in jtm.allGetters:
+            algseq += getter
+            jtm.allGetters += getter
+
     tmpFinderTool= jtm.addJetFinder(tmpName, jetalg, rsize, getterMap[inputtype] ,
                                     **finderArgs   # pass the prepared arguments
                                     )
@@ -170,14 +204,16 @@ def buildGenericGroomAlg(jetalg, rsize, inputtype, groomedName, jetToolBuilder,
     from JetRec.JetRecConf import JetAlgorithm
     # return if the alg is already scheduled here :
     if hasattr(algseq,ungroomedalgname):
+        finderalg = getattr(algseq, ungroomedalgname)
         dfjetlog.warning( "Algsequence "+algseq.name()+" already has an instance of "+ungroomedalgname )
     elif ungroomedalgname in DFJetAlgs:
         dfjetlog.info( "Added jet finder"+ ungroomedalgname+" to sequence"+ algseq.name() )
+        finderalg = DFJetAlgs[ungroomedalgname]
         algseq += DFJetAlgs[ungroomedalgname]
     else:
         # 1. make sure we have pseudo-jet in our original container
         # this returns a list of the needed tools to do so.
-        jetalgTools = reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale, variableRMinRadius)
+        jetalgTools = reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale, variableRMinRadius, algseq)
         if includePreTools:
             # enable track ghost association and JVF
             jetalgTools =  [jtm.tracksel, jtm.tvassoc] + jetalgTools 
@@ -189,7 +225,10 @@ def buildGenericGroomAlg(jetalg, rsize, inputtype, groomedName, jetToolBuilder,
 
     # 2nd step run the trimming alg. We can re-use the original largeR jet since we reassociated the PseudoJet already.
     fatjet_groom = jetToolBuilder(groomedName, ungroomedName)
-
+    fatjet_rectool = [t for t in finderalg.Tools if t.name() == ungroomedName][0]
+    fatjet_groom.InputPseudoJets = fatjet_rectool.InputPseudoJets # recopy the InputPseudoJets so tools know how to map fastjet constituents with xAOD constituents
+    
+    
     dfjetlog.info( "Added jet groomer "+algname+" to sequence "+algseq.name() )
     groomeralg = JetAlgorithm(algname, Tools = [fatjet_groom])
     DFJetAlgs[algname] = groomeralg;
@@ -260,8 +299,10 @@ def addFilteredJets(jetalg, rsize, inputtype, mumax=1.0, ymin=0.15, mods="groome
 
 def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
                     mods="default", calibOpt="none", ghostArea=0.01,
-                    algseq=None, outputGroup="CustomJets"):
-    jetnamebase = "{0}{1}{2}".format(jetalg,int(rsize*10),inputtype)
+                    algseq=None, namesuffix="",
+                    outputGroup="CustomJets"):
+
+    jetnamebase = "{0}{1}{2}{3}".format(jetalg,int(rsize*10),inputtype,namesuffix)
     jetname = jetnamebase+"Jets"
     algname = "jetalg"+jetnamebase
     OutputJets.setdefault(outputGroup , [] ).append(jetname)
@@ -308,6 +349,12 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
         # map the input to the jtm code for PseudoJetGetter
         getterMap = dict( LCTopo = 'lctopo', EMTopo = 'emtopo', EMPFlow = 'empflow', EMCPFlow = 'emcpflow', Truth='truth', TruthWZ='truthwz', PV0Track='pv0track')
         # create the finder for the temporary collection.
+
+        for getter in jtm.gettersMap[getterMap[inputtype]]:
+            if getter not in jtm.allGetters:
+                algseq += getter
+                jtm.allGetters += getter
+
         finderTool= jtm.addJetFinder(jetname, jetalg, rsize, getterMap[inputtype] ,
                                      **finderArgs   # pass the prepared arguments
                                      )
@@ -317,6 +364,40 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
         dfjetlog.info( "Added "+algname+" to sequence "+algseq.name() )
         algseq += alg
         DFJetAlgs[algname] = alg;
+
+################################################################## 
+# Schedule the adding of BCID info
+################################################################## 
+def addDistanceInTrain(sequence=DerivationFrameworkJob):
+    # simple set up -- either the alg exists and contains the tool, in which case we exit
+    if hasattr(sequence,"DistanceInTrainAugmentation"):
+        dfjetlog.warning( "DistanceInTrainAugmentation: DistanceInTrainAugmentation already scheduled on sequence"+sequence.name )
+        return
+    else:
+        isMC = False
+        if globalflags.DataSource() == 'geant4':
+          isMC = True
+
+        distanceintrainaug = CfgMgr.DerivationFramework__CommonAugmentation("DistanceInTrainAugmentation")
+        sequence += distanceintrainaug
+
+        distanceintrainaugtool = None
+        from AthenaCommon.AppMgr import ToolSvc
+        # create and add the tool to the alg if needed                                                                                                                                                      
+        if hasattr(ToolSvc,"DistanceInTrainAugmentationTool"):
+            distanceintrainaugtool = getattr(ToolSvc,"DistanceInTrainAugmentationTool")
+        else:
+            distanceintrainaugtool = CfgMgr.DerivationFramework__DistanceInTrainAugmentationTool("DistanceInTrainAugmentationTool")
+            from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
+            if isMC:
+                ToolSvc += BunchCrossingTool( "MC" )
+                distanceintrainaugtool.BCTool = "Trig::MCBunchCrossingTool/BunchCrossingTool"
+            else:
+                ToolSvc += BunchCrossingTool( "LHC" )
+                distanceintrainaugtool.BCTool = "Trig::LHCBunchCrossingTool/BunchCrossingTool"
+            ToolSvc += distanceintrainaugtool
+        if not distanceintrainaugtool in distanceintrainaug.AugmentationTools:
+            distanceintrainaug.AugmentationTools.append(distanceintrainaugtool)
 
 ##################################################################
 #       Set up helpers for adding jets to the output streams
