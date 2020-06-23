@@ -256,9 +256,7 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
        lutDigit.layer       = layer;
        
        const float r2 = hitx*hitx+hity*hity;
-       float phi = atan(hity/hitx);
-       if (hitx<0 && hity>0) phi += M_PI;
-       if (hitx<0 && hity<0) phi -= M_PI;
+       float phi = atan2(hity,hitx);
        const float l = sqrt(hitz*hitz+r2);
        const float tan = sqrt( (l-hitz)/(l+hitz) );
        const float eta = -log(tan);

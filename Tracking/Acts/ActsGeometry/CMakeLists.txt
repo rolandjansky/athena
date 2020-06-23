@@ -21,14 +21,16 @@ atlas_depends_on_subdirs( PUBLIC
                           MagneticField/MagFieldInterfaces
                           Calorimeter/CaloDetDescr
                           Tracking/Acts/ActsGeometryInterfaces
-                          Tracking/Acts/ActsInterop )
+                          Tracking/Acts/ActsInterop
+                          Tracking/TrkDetDescr/TrkGeometry)
 
 # External dependencies:
 find_package( CLHEP )
 find_package( Eigen )
 find_package( Boost )
+find_package( nlohmann_json )
 
-find_package( Acts COMPONENTS Core )
+find_package( Acts COMPONENTS Core JsonPlugin)
 
 # Component(s) in the package:
 
@@ -46,6 +48,8 @@ atlas_add_library( ActsGeometryLib
                    ActsInteropLib
                    ActsGeometryInterfacesLib
                    ActsCore
+                   ActsJsonPlugin
+                   TrkGeometry
                    PixelReadoutGeometry
                    SCT_ReadoutGeometry
                    TRT_ReadoutGeometry)
@@ -55,9 +59,14 @@ atlas_add_component( ActsGeometry
                      src/ActsWriteTrackingGeometry.cxx
                      src/ActsWriteTrackingGeometryTransforms.cxx
                      src/ActsExtrapolationTool.cxx
+                     src/ActsMaterialMapping.cxx
+                     src/ActsSurfaceMappingTool.cxx
+                     #src/ActsVolumeMappingTool.cxx
                      src/ActsObjWriterTool.cxx
                      #src/ActsExCellWriterSvc.cxx
-                     #src/ActsMaterialTrackWriterSvc.cxx
+                     src/ActsMaterialStepConverterTool.cxx
+                     src/ActsMaterialJsonWriterTool.cxx
+                     src/ActsMaterialTrackWriterSvc.cxx
                      #src/GeomShiftCondAlg.cxx
                      src/ActsAlignmentCondAlg.cxx
                      src/NominalAlignmentCondAlg.cxx
@@ -67,16 +76,16 @@ atlas_add_component( ActsGeometry
                      src/components/*.cxx
                      PUBLIC_HEADERS ActsGeometry
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${BOOST_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} 
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES}
                      EventInfo
                      CaloDetDescrLib
-                     ActsInteropLib 
+                     ActsInteropLib
                      ActsGeometryLib
                      ActsGeometryInterfacesLib
-                     ActsCore)
+                     ActsCore
+                     ActsJsonPlugin)
 
 # Install files from the package:
 atlas_install_headers( ActsGeometry )
 atlas_install_joboptions( share/*.py )
 atlas_install_python_modules( python/*.py )
-

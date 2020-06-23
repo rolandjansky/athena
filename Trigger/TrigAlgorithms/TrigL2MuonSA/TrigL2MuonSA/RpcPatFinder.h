@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_RPAPATFINDER_H
@@ -21,15 +21,10 @@ class RpcPatFinder: public AthAlgTool
 {
 
  public:
-  static const InterfaceID& interfaceID();
 
   RpcPatFinder(const std::string& type, 
 	       const std::string& name,
                  const IInterface*  parent);
-  ~RpcPatFinder(void);
-
-  virtual StatusCode initialize();
-  virtual StatusCode finalize  ();
 
  public:
 
@@ -62,7 +57,7 @@ class RpcPatFinder: public AthAlgTool
 		    double result_dist[]);
 
   bool deltaOK(int l1, int l2, double x1, double x2, int isphi, double &delta);  
-  double calibR(std::string stationName, double R, double Phi);  
+  double calibR(std::string stationName, double R, double Phi) const;  
   void abcal(unsigned int result_pat, size_t index[], double aw[], double bw[]);
 };
 

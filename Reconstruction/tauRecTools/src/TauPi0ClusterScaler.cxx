@@ -12,7 +12,7 @@
 
 #include <vector>
 
-#include "tauRecTools/TauPi0ClusterScaler.h"
+#include "TauPi0ClusterScaler.h"
 #include "xAODTau/TauJet.h"
 #include "xAODPFlow/PFO.h"
 #include "tauRecTools/ITauToolBase.h"
