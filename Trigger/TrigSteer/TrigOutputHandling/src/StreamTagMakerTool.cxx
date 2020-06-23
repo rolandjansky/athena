@@ -7,6 +7,7 @@
 #include "TrigConfData/HLTChain.h"
 #include "GaudiKernel/IAlgExecStateSvc.h"
 #include "eformat/StreamTag.h"
+#include <sstream>
 
 using namespace TrigCompositeUtils;
 
@@ -53,7 +54,7 @@ StatusCode StreamTagMakerTool::initialize() {
         obeyLB == "true",
         fullEventBuild == "true"
       };
-      ATH_MSG_DEBUG("-- " << streamTag);
+      ATH_MSG_DEBUG("-- " << formatStreamTagInfo(streamTag));
       streamDictionary.insert(std::pair<std::string, StreamTagInfo>(stream.getAttribute("name"),streamTag));
     } catch (const std::exception& ex) {
       ATH_MSG_ERROR("Failure reading stream tag configuration from JSON: " << ex.what());
@@ -223,3 +224,14 @@ StatusCode StreamTagMakerTool::fillPEBInfoMap(std::unordered_map<DecisionID, PEB
   } // Loop over decision containers
   return StatusCode::SUCCESS;
 }
+
+// =============================================================================
+
+std::string
+StreamTagMakerTool::formatStreamTagInfo (const StreamTagInfo& info) const
+{
+  std::ostringstream ss;
+  ss << "[" << std::get<0>(info) << ", " << std::get<1>(info) << ", " << std::get<2>(info) << ", " << std::get<3>(info) << "]";
+  return ss.str();
+}
+
