@@ -284,12 +284,14 @@ StatusCode MuFastSteering::execute()
   }
 
   std::vector< const TrigRoiDescriptor* > internalRoI;
+  TrigRoiDescriptorCollection::const_iterator p_roids = roiCollection->begin();
+  TrigRoiDescriptorCollection::const_iterator p_roidsEn = roiCollection->end();
 
-  for(const TrigRoiDescriptor& p_roids : *roiCollection ) {
-    internalRoI.push_back(&p_roids);
-    ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " eta = " << "(" << p_roids.etaMinus() << ")" << p_roids.eta() << "(" << p_roids.etaPlus() << ")");
-    ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " phi = " << "(" << p_roids.phiMinus() << ")" << p_roids.phi() << "(" << p_roids.phiPlus() << ")");
-    ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " zed = " << "(" << p_roids.zedMinus() << ")" << p_roids.zed() << "(" << p_roids.zedPlus() << ")");
+  for(; p_roids != p_roidsEn; ++p_roids ) {
+    internalRoI.push_back(*p_roids);
+    ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " eta = " << "(" << (*p_roids)->etaMinus() << ")" << (*p_roids)->eta() << "(" << (*p_roids)->etaPlus() << ")");
+    ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " phi = " << "(" << (*p_roids)->phiMinus() << ")" << (*p_roids)->phi() << "(" << (*p_roids)->phiPlus() << ")");
+    ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " zed = " << "(" << (*p_roids)->zedMinus() << ")" << (*p_roids)->zed() << "(" << (*p_roids)->zedPlus() << ")");
   }
   ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " size = " << internalRoI.size());
 
