@@ -188,8 +188,9 @@ StatusCode TrigByteStreamCnvSvc::commitOutput(const std::string& /*outputFile*/,
     auto startTime = std::chrono::high_resolution_clock::now();
     hltinterface::DataCollector::instance()->eventDone(std::move(rawEventPtr));
     auto endTime = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);
+    auto duration = std::chrono::duration<float, std::milli>(endTime - startTime);
     m_histEventDoneTime->Fill(static_cast<float>(duration.count()));
+    m_histEventDoneTimeER->Fill(static_cast<float>(duration.count()));
     ATH_MSG_DEBUG("Serialised FullEventFragment with HLT result was returned to DataCollector successfully, "
                   << "the eventDone call took " << duration.count() << " microseconds");
   }
@@ -462,23 +463,27 @@ void TrigByteStreamCnvSvc::bookHistograms() {
   regHist(m_histPebSubDetsFromSubDetList);
 
   m_histResultSizeByModule = new TH2F(
-    "ResultSizeByModule", "HLT result size by module;Module ID;Size [kB]", 10, 0, 10, 100, 0, 1000);
+    "ResultSizeByModule", "HLT result size by module;Module ID;Size [kB]", 10, 0, 10, 200, 0, 2000);
   regHist(m_histResultSizeByModule);
 
   m_histResultSizeByStream = new TH2F(
-    "ResultSizeByStream", "HLT result size by stream;;Size [kB]", 1, 0, 1, 100, 0, 1000);
+    "ResultSizeByStream", "HLT result size by stream;;Size [kB]", 1, 0, 1, 200, 0, 2000);
   m_histResultSizeByStream->SetCanExtend(TH1::kXaxis);
   regHist(m_histResultSizeByStream);
 
   m_histResultSizeTotal = new TH1F(
-    "ResultSizeTotal", "HLT result total size (sum of all modules);Size [kB];Events", 100, 0, 1000);
+    "ResultSizeTotal", "HLT result total size (sum of all modules);Size [kB];Events", 200, 0, 2000);
   regHist(m_histResultSizeTotal);
 
   m_histResultSizeFullEvFrag = new TH1F(
-    "ResultSizeFullEvFrag", "HLT output FullEventFragment size;Size [kB];Events", 100, 0, 1000);
+    "ResultSizeFullEvFrag", "HLT output FullEventFragment size;Size [kB];Events", 200, 0, 2000);
   regHist(m_histResultSizeFullEvFrag);
 
   m_histEventDoneTime = new TH1F(
-    "TIME_EventDoneCall", "Time of DataCollector::eventDone calls;Time [us];Events", 1000, 0, 1000);
+    "TIME_EventDoneCall", "Time of DataCollector::eventDone calls;Time [ms];Events", 400, 0, 2);
   regHist(m_histEventDoneTime);
+
+  m_histEventDoneTimeER = new TH1F(
+    "TIME_EventDoneCall_extRange", "Time of DataCollector::eventDone calls;Time [ms];Events", 400, 0, 200);
+  regHist(m_histEventDoneTimeER);
 }

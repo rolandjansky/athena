@@ -141,5 +141,5 @@ class HltEventLoopMgr(_HltEventLoopMgr):
                                    xbins=200, xmin=0, xmax=10000)
       self.MonTool.defineHistogram('SlotIdleTime', path='EXPERT', type='TH1F',
                                    title='Time between freeing and assigning a scheduler slot;Time [ms];Events',
-                                   xbins=200, xmin=0, xmax=200)
+                                   xbins=400, xmin=0, xmax=400)
       return
