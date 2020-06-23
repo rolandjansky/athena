@@ -67,8 +67,6 @@ macro( _add_exec name )
       LINK_LIBRARIES ${ROOT_LIBRARIES} PileupReweightingLib )
 endmacro( _add_exec )
 
-_add_exec( testPRW )
-_add_exec( testPRWTool )
 _add_exec( checkPRWConfigFile )
 
 # Test(s) in the package:
