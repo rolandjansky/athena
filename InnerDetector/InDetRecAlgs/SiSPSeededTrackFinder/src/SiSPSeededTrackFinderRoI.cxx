@@ -157,13 +157,19 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::execute()
   //if no RoI found; no need to go further
   if ( m_listRoIs.empty() ) {
     ATH_MSG_DEBUG("no selectedRoIs " );
-    if (!evtStore()->contains<xAOD::VertexContainer>(m_vxOutputName)){
-      CHECK(evtStore()->record(theVertexContainer, m_vxOutputName));
+    StatusCode sc = evtStore()->record(theVertexContainer, m_vxOutputName);
+    StatusCode sc_aux = evtStore()->record(theVertexAuxContainer, m_vxOutputName+"Aux.");
+    if ( sc.isFailure() || sc_aux.isFailure() ) {
+      // can't write output container. Clean-up and abort
+      ATH_MSG_ERROR("Cannot write output container: " << m_vxOutputName);
+      if (theVertexContainer) delete theVertexContainer;
+      if (theVertexAuxContainer) delete theVertexAuxContainer;
+      return StatusCode::FAILURE;
     }
-    if (!evtStore()->contains<xAOD::VertexAuxContainer>(m_vxOutputName+"Aux.")){
-      CHECK(evtStore()->record(theVertexAuxContainer, m_vxOutputName+"Aux."));
+    else{
+      // empty container written successfully.  No need to continue with rest of code
+      return StatusCode::SUCCESS;
     }
-    return StatusCode::SUCCESS;
   }
   ZBoundary[0] = m_listRoIs[0].zWindow[0];
   ZBoundary[1] = m_listRoIs[0].zWindow[1];
@@ -171,22 +177,17 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::execute()
   ATH_MSG_DEBUG("selectedRoIs " << ZBoundary[0] <<" " << ZBoundary[1]);
   
   //VERTEX
-  std::vector<xAOD::Vertex *> dummyxAODVerticesVector;
-  for( size_t r = 0; r < m_listRoIs.size(); r++ ){
+  for( int r = 0; r < m_listRoIs.size(); r++ ){
 
-    xAOD::Vertex * dummyxAODVertex = new xAOD::Vertex;
+    theVertexContainer->push_back( new xAOD::Vertex );
 
-    dummyxAODVerticesVector.push_back(dummyxAODVertex);
+    theVertexContainer->back()->setZ( m_listRoIs[r].zReference );
+    theVertexContainer->back()->auxdecor<double>("boundaryLow") = m_listRoIs[r].zWindow[0];
+    theVertexContainer->back()->auxdecor<double>("boundaryHigh") = m_listRoIs[r].zWindow[1];
 
-    theVertexContainer->push_back( dummyxAODVerticesVector.at(r) );
-
-    dummyxAODVerticesVector.at(r)->setZ( m_listRoIs[r].zReference );
-    dummyxAODVerticesVector.at(r)->auxdecor<double>("boundaryLow") = m_listRoIs[r].zWindow[0];
-    dummyxAODVerticesVector.at(r)->auxdecor<double>("boundaryHigh") = m_listRoIs[r].zWindow[1];
-
-    dummyxAODVerticesVector.at(r)->auxdecor<double>("perigeeZ0Lead") = m_listRoIs[r].zPerigeePos[0];
-    dummyxAODVerticesVector.at(r)->auxdecor<double>("perigeeZ0Sublead") = m_listRoIs[r].zPerigeePos[1];
-    dummyxAODVerticesVector.at(r)->auxdecor<int>("IsHS") = 1;
+    theVertexContainer->back()->auxdecor<double>("perigeeZ0Lead") = m_listRoIs[r].zPerigeePos[0];
+    theVertexContainer->back()->auxdecor<double>("perigeeZ0Sublead") = m_listRoIs[r].zPerigeePos[1];
+    theVertexContainer->back()->auxdecor<int>("IsHS") = 1;
 
   }
   
@@ -203,31 +204,34 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::execute()
 
     RandZBoundary[0] = m_listRandRoIs[0].zWindow[0];
     RandZBoundary[1] = m_listRandRoIs[0].zWindow[1];
-    std::vector<xAOD::Vertex *> dummyxAODVerticesVectorRand;
     for( size_t r = 0; r < m_listRandRoIs.size(); r++ ){
 
-      xAOD::Vertex * dummyxAODVertex = new xAOD::Vertex;
-
-      dummyxAODVerticesVectorRand.push_back(dummyxAODVertex);
-
-      theVertexContainer->push_back( dummyxAODVerticesVectorRand.at(r) );
-
-      dummyxAODVerticesVectorRand.at(r)->setZ( m_listRandRoIs[r].zReference );
-      dummyxAODVerticesVectorRand.at(r)->auxdecor<double>("boundaryLow") = m_listRandRoIs[r].zWindow[0];
-      dummyxAODVerticesVectorRand.at(r)->auxdecor<double>("boundaryHigh") = m_listRandRoIs[r].zWindow[1];
-
-      dummyxAODVerticesVectorRand.at(r)->auxdecor<double>("perigeeZ0Lead") = m_listRandRoIs[r].zPerigeePos[0];
-      dummyxAODVerticesVectorRand.at(r)->auxdecor<double>("perigeeZ0Sublead") = m_listRandRoIs[r].zPerigeePos[1];
-      dummyxAODVerticesVectorRand.at(r)->auxdecor<int>("IsHS") = 0;
-
+      theVertexContainer->push_back( new xAOD::Vertex );
+      
+      theVertexContainer->back()->setZ( m_listRandRoIs[r].zReference );
+      theVertexContainer->back()->auxdecor<double>("boundaryLow") = m_listRandRoIs[r].zWindow[0];
+      theVertexContainer->back()->auxdecor<double>("boundaryHigh") = m_listRandRoIs[r].zWindow[1];
+      
+      theVertexContainer->back()->auxdecor<double>("perigeeZ0Lead") = m_listRandRoIs[r].zPerigeePos[0];
+      theVertexContainer->back()->auxdecor<double>("perigeeZ0Sublead") = m_listRandRoIs[r].zPerigeePos[1];
+      theVertexContainer->back()->auxdecor<int>("IsHS") = 0;
+      
     }
   }
   
-  if (!evtStore()->contains<xAOD::VertexContainer>(m_vxOutputName)){
-    CHECK(evtStore()->record(theVertexContainer, m_vxOutputName));
+  // Record the RoI information
+  StatusCode sc = evtStore()->record(theVertexContainer, m_vxOutputName);
+  StatusCode sc_aux = evtStore()->record(theVertexAuxContainer, m_vxOutputName+"Aux.");
+  if ( sc.isFailure() || sc_aux.isFailure() ) {
+    // can't write output container. Clean-up and abort
+    ATH_MSG_ERROR("Cannot write output container: " << m_vxOutputName);
+    if (theVertexContainer) delete theVertexContainer;
+    if (theVertexAuxContainer) delete theVertexAuxContainer;
+    return StatusCode::FAILURE;
   }
-  if (!evtStore()->contains<xAOD::VertexAuxContainer>(m_vxOutputName+"Aux.")){
-    CHECK(evtStore()->record(theVertexAuxContainer, m_vxOutputName+"Aux."));
+  else{
+    // empty container written successfully.  No need to continue with rest of code
+    return StatusCode::SUCCESS;
   }
 
   
@@ -237,7 +241,7 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::execute()
   m_seedsmaker  ->newEvent(-1); 
   std::list<Trk::Vertex> VZ; 
   if(m_RoIWidth >= 0.) m_seedsmaker->find3Sp(VZ, ZBoundary); 
-  if(m_RoIWidth < 0.) m_seedsmaker->find3Sp(VZ); //If you want to disable the RoI, make the RoI input width a negative value.  The RoI "vertex" container will still be there in case you want to use that information for whatever reason (ie where the RoI would have been centered)
+  if(m_RoIWidth < 0.) m_seedsmaker->find3Sp(VZ); //If you want to disable the RoI but still have a separate container for low-pt tracks, make the RoI input width a negative value.  The RoI "vertex" container will still be there in case you want to use that information for whatever reason (ie where the RoI would have been centered)
   if(m_doRandomSpot) m_seedsmaker->find3Sp(VZ, RandZBoundary); //see comment proceding line with "double RandZBoundary[2];"
   m_trackmaker->newEvent(PIX,SCT);
 
