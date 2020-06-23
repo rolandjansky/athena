@@ -36,7 +36,7 @@ preexec_all = ';'.join([
 
 rdo2aod = ExecStep.ExecStep()
 rdo2aod.type = 'Reco_tf'
-rdo2aod.input = 'id_Zmumu_pu40'  
+rdo2aod.input = 'Zmumu_pu40'  
 rdo2aod.max_events = 10 # TODO: 2000 events
 rdo2aod.threads = 1 # TODO: change to 4
 rdo2aod.concurrent_events = 1 # TODO: change to 4
