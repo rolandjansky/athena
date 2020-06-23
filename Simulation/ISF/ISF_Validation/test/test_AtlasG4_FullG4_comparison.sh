@@ -24,7 +24,7 @@ Sim_tf.py \
 --DataRunNumber '284500' \
 --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
 --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1" \
---outputHITSFile "Hits.FullG4.pool.root" \
+--outputHITSFile "HITS.FullG4.pool.root" \
 --maxEvents 2 \
 --imf False
 
@@ -42,7 +42,7 @@ AtlasG4_tf.py \
 --DataRunNumber '284500' \
 --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
 --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1" \
---outputHITSFile "Hits.AtlasG4.pool.root" \
+--outputHITSFile "HITS.AtlasG4.pool.root" \
 --maxEvents 2 \
 --imf False
 
@@ -50,7 +50,8 @@ echo  "art-result: $? simulation AtlasG4"
 
 
 # Compare the merged outputs
-acmd.py diff-root Hits.FullG4.pool.root Hits.AtlasG4.pool.root --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings TrackRecordCollection_p2_CaloEntryLayer TrackRecordCollection_p2_MuonEntryLayer TrackRecordCollection_p2_MuonExitLayer
+acmd.py diff-root HITS.FullG4.pool.root HITS.AtlasG4.pool.root --error-mode resilient --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings TrackRecordCollection_p2_CaloEntryLayer TrackRecordCollection_p2_MuonEntryLayer TrackRecordCollection_p2_MuonExitLayer RecoTimingObj_p1_RAWtoESD_mems RecoTimingObj_p1_RAWtoESD_timings RAWtoESD_mems RAWtoESD_timings ESDtoAOD_mems ESDtoAOD_timings HITStoRDO_timings RAWtoALL_mems RAWtoALL_timings RecoTimingObj_p1_RAWtoALL_mems RecoTimingObj_p1_RAWtoALL_timings RecoTimingObj_p1_EVNTtoHITS_timings EVNTtoHITS_timings RecoTimingObj_p1_Bkg_HITStoRDO_timings index_ref
+
 
 echo "art-result: $? comparison"
 
