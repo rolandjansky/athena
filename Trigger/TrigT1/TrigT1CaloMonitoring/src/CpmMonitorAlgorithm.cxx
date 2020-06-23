@@ -9,7 +9,7 @@
 
 CpmMonitorAlgorithm::CpmMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
   : AthMonitorAlgorithm(name,pSvcLocator),
-    m_phiScaleTT(32./M_PI), m_phiScaleJE(16./M_PI)
+    m_phiScaleTT(32./M_PI)
 {
 }
 
