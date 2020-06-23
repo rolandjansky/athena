@@ -7,6 +7,9 @@
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
+#ifdef HEPMC3
+// This form of ifdef is kept for convenience
+#else
 // The lines below I don't like. We should fix them when we update the
 // the metadata to handles (ATLASRECTS-4162).
 // Needs changes in HepMC to resolve.
@@ -19,6 +22,7 @@
 #undef private
 #ifdef __clang__
 #pragma clang diagnostic pop
+#endif
 #endif
 
 #include "GeneratorObjects/xAODTruthParticleLink.h"
@@ -39,6 +43,8 @@
 #include <unordered_set>
 
 
+#include "AtlasHepMC/WeightContainer.h"
+#include "AtlasHepMC/Polarization.h"
 #include "AtlasHepMC/GenVertex_fwd.h"
 #include "AtlasHepMC/GenParticle_fwd.h"
 
