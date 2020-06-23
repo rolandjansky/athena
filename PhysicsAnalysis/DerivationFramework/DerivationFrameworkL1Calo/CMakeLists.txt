@@ -30,6 +30,5 @@ atlas_add_component( DerivationFrameworkL1Calo
                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps xAODTrigL1Calo GaudiKernel DerivationFrameworkL1CaloLib )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 

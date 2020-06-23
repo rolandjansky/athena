@@ -20,6 +20,3 @@ atlas_add_library( AraTool
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel )
 
-# Install files from the package:
-atlas_install_python_modules( python/*.py )
-
