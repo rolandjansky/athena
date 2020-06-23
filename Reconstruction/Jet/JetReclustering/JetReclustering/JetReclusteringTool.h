@@ -80,7 +80,6 @@ class JetReclusteringTool : public asg::AsgTool, virtual public IJetExecuteTool 
     float m_sd_zcut;
     float m_sd_beta;
     float m_sd_R0;
-    int m_sd_N;
     // enable to add area attributes form
     bool m_doArea;
     std::string m_areaAttributes;

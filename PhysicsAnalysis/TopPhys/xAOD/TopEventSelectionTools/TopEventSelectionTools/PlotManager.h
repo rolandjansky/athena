@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef PLOTMANAGER_H_
@@ -92,6 +92,22 @@ namespace top {
                  int ybins, double* ybinArray) const;
 
     /**
+     * @brief Add a 2D histogram with variable bin size to the output file.
+     *
+     * @param hname A unique name, notice that we automatically add the name
+     * of the analysis on to this with an underscore.
+     * @param title The histogram title, as root expects.
+     * @param xbins The number of x-bins, passed directly to root.
+     * @param xbinArray The array with x-bin edges, passed directly to root.
+     * @param ybins The number of y-bins, passed directly to root.
+     * @param ystart The starting y-value, passed directly to root.
+     * @param yend The ending y-value, passed directly to root.
+     */
+    void addHist(const std::string& hname, const std::string& title,
+                 int xbins, double* xbinArray,
+                 int ybins, double ystart, double yend) const;
+
+    /**
      * @brief Recover an existing histogram, to fill it for example.
      *
      * @return A pointer to the histogram if it exists.  If it doesn't exist
@@ -108,6 +124,16 @@ namespace top {
      */
     void scaleHistograms(double sf = 1.) const;
   private:
+    /**
+     * @brief Helper method to check for duplicates when adding histogram.
+     * 
+     * If duplicate histogram exists with same name as hname, print
+     * error message and throw std::runtime_error
+     *
+     * @param hname Name of the histogram to check against duplicates.
+     */
+    void checkDuplicate(const std::string& hname) const;
+
     EL::Worker* m_wk;
 
     ///Name of the folder to store the plots in, in the output file.

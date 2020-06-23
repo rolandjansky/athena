@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopAnalysis/EventSelectionManager.h"
@@ -23,6 +23,10 @@
 
 #include "TopParticleLevel/ParticleLevelEvent.h"
 
+#include "TopAnalysis/MsgCategory.h"
+// use ATH_MSG macros defined in the namespace TopAnalysis
+using namespace TopAnalysis;
+
 namespace top {
   EventSelectionManager::EventSelectionManager(const std::vector<SelectionConfigurationData>& selectionConfigData,
                                                TFile* outputFile, const std::string& toolLoaderNames,
@@ -40,31 +44,31 @@ namespace top {
       //remove the lib and add namespace and Loader to the class name
       std::string className = "top::" + toolLoaderName.substr(3) + "Loader";
 
-      std::cout << "Attempting to load Tools from this class: " << className << "\n";
+      ATH_MSG_INFO("Attempting to load Tools from this class: " << className);
       TClass* c = ::TClass::GetClass(className.c_str());
 
       //okay, so that failed
       //maybe the user didn't put it in the top namespace - try again without top::?
       if (c == nullptr) {
         className = toolLoaderName.substr(3) + "Loader";
-        std::cout << "Attempting to load Tools from this class: " << className << "\n";
+        ATH_MSG_INFO("Attempting to load Tools from this class: " << className);
         c = ::TClass::GetClass(className.c_str());
       }
 
       //okay, so that worked!
       if (c != nullptr) {
-        std::cout << "   Success part 1 of 2" << "\n";
+        ATH_MSG_INFO("   Success part 1 of 2");
         top::ToolLoaderBase* bc = static_cast<top::ToolLoaderBase*> (c->New());
 
         if (bc) {
-          std::cout << "   Success part 2 of 2" << "\n";
+          ATH_MSG_INFO("   Success part 2 of 2");
           toolLoaders.push_back(std::unique_ptr<top::ToolLoaderBase>(bc));
-        } else std::cout << "   Failure converting to ToolLoaderBase\n";
-      } else std::cout << "    Class " << className << " in library " << toolLoaderName <<
-        " not found - this is only a problem if you wrote one in your library\n";
+        } else ATH_MSG_ERROR("   Failure converting to ToolLoaderBase");
+      } else ATH_MSG_WARNING("    Class " << className << " in library " << toolLoaderName <<
+        " not found - this is only a problem if you wrote one in your library");
     }
 
-    std::cout << "\nTelling you how I'm configured, before I do anything:\n";
+    ATH_MSG_INFO("Telling you how I'm configured, before I do anything:");
     for (const auto& currentConfig : selectionConfigData)
       m_selections.emplace_back(currentConfig.m_name, currentConfig.m_cutnames, outputFile, toolLoaders, config, wk);
   }
@@ -147,7 +151,7 @@ namespace top {
   }
 
   void EventSelectionManager::finalise() {
-    std::cout << "Final yields:\n";
+    ATH_MSG_INFO("Final yields:");
     for (const auto& currentSelection : m_selections)
       currentSelection.finalise();
   }
@@ -161,9 +165,8 @@ namespace top {
     for (const auto& currentSelection : m_selections)
       if (currentSelection.name() == selection) return currentSelection.GetFakesMMConfigs();
 
-    std::cout << "WARNING: Attempt to retrieve the FakesMMConfigs for non-existing selection " << selection <<
-    std::endl;
-    std::cout << "         This is nonense - returning empty list" << std::endl;
+    ATH_MSG_WARNING("Attempt to retrieve the FakesMMConfigs for non-existing selection " << selection
+        << "\n         This is nonense - returning empty list");
     std::vector<std::string> empty;
     return empty;
   }

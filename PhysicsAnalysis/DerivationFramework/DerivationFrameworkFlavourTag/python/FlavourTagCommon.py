@@ -264,6 +264,7 @@ def applyBTagging(jetalg,algname,sequence):
                 # In the absence of properly defined FlatBEff WP we alias them on the flat cut ones
                 btagtool.OperatingPoint = btagWP
                 btagtool.JetAuthor = jetalg+"Jets"
+                btagtool.MinPt = 0
                 if '_BTagging' in jetalg:
                     btagtool.JetAuthor = jetalg.replace('_BTagging','Jets_BTagging')
                 btagtool.ErrorOnTagWeightFailure = False #avoid an error when the jets tagweight cannot be retrived, and only print a warning

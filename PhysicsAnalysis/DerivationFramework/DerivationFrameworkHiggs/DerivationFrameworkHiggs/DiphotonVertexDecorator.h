@@ -33,7 +33,6 @@
 
 namespace CP { 
   class IPhotonVertexSelectionTool;
-  class IPhotonPointingTool;
 }
 
 namespace DerivationFramework {
@@ -63,7 +62,6 @@ namespace DerivationFramework {
       ///////////////
       ///// TOOLS 
       ToolHandle<CP::IPhotonVertexSelectionTool> m_photonVertexSelectionTool;
-      ToolHandle<CP::IPhotonPointingTool> m_photonPointingTool;
       ToolHandle<CP::RetrievePFOTool> m_pfotool;
       
       ///////////////

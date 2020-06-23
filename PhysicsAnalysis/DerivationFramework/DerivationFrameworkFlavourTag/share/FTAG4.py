@@ -16,6 +16,7 @@ from DerivationFrameworkFlavourTag.HbbCommon import addVRJets, addExKtCoM, addHb
 from DerivationFrameworkFlavourTag.SoftBtagCommon import applySoftBtagging
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 
+from DerivationFrameworkCore.LHE3WeightMetadata import *
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 from DerivationFrameworkJetEtMiss.AntiKt4EMTopoJetsCPContent import AntiKt4EMTopoJetsCPContent
@@ -150,6 +151,10 @@ softTagAlgTight.TrackSelectionTool.CutLevel = "LoosePrimary"
 softTagAlgTight.OperatingPoint = 'Tight'
 
 FTAG4Seq += softTagAlgTight
+
+# make Pixel and SCT conditions available
+include ("InDetRecExample/PixelConditionsAccess.py") # include all pixel condtions avaliable in AOD /DT
+include ("InDetRecExample/SCTConditionsAccess.py")
 
 applySoftBtagging("softBtag", FTAG4Seq ) # SV tagger in VrtSecInclusive
 

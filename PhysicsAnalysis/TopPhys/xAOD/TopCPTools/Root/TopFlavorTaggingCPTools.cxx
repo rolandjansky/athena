@@ -76,9 +76,9 @@ namespace top {
     top::check(setTaggerWorkingPoints("AntiKt4EMTopoJets", false, "DL1", {"CTag_Loose", "CTag_Tight"}), "Error setting AntiKt4EMTopoJets WP");
 
     // Calibrated and uncalibrated working points for EMPflow jets for all algorithms
-    top::check(setTaggerWorkingPoints("AntiKt4EMPFlowJets", true, "MV2c10", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKt4EMPFlowJets WP");
+    top::check(setTaggerWorkingPoints("AntiKt4EMPFlowJets", false, "MV2c10", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKt4EMPFlowJets WP");
     top::check(setTaggerWorkingPoints("AntiKt4EMPFlowJets", true, "DL1", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKt4EMPFlowJets WP");
-    top::check(setTaggerWorkingPoints("AntiKt4EMPFlowJets", true, "DL1r", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85" "Continuous"}), "Error setting AntiKt4EMPFlowJets WP");
+    top::check(setTaggerWorkingPoints("AntiKt4EMPFlowJets", true, "DL1r", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKt4EMPFlowJets WP");
     top::check(setTaggerWorkingPoints("AntiKt4EMPFlowJets", false, "DL1rmu", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKt4EMPFlowJets WP");
 
     // Calibrated and uncalibrated working points for R=0.2 track jets for all algorithms
@@ -96,6 +96,9 @@ namespace top {
 
     std::string caloJets_type = m_config->sgKeyJetsType();
     std::string caloJets_collection = m_config->sgKeyJets();
+
+    std::string trackJets_type = m_config->sgKeyTrackJetsType();
+    std::string trackJets_collection = m_config->sgKeyTrackJets();
 
     // BTagging Selectors should be created for DL1 algorithm to get the correct weight (in case charm-fraction is
     // adjusted)
@@ -129,11 +132,11 @@ namespace top {
     }
     if (m_config->useTrackJets()) {
       for (auto alg : DL1_algorithms) {
-        std::string btagsel_tool_name = "BTaggingSelectionTool_forEventSaver_" + alg + "_" + m_config->sgKeyTrackJets();
+        std::string btagsel_tool_name = "BTaggingSelectionTool_forEventSaver_" + alg + "_" + trackJets_collection;
         BTaggingSelectionTool* btagsel = new BTaggingSelectionTool(btagsel_tool_name);
         top::check(btagsel->setProperty("TaggerName", alg),
                    "Failed to set b-tagging selecton tool TaggerName");
-        top::check(btagsel->setProperty("JetAuthor", m_config->sgKeyTrackJets()),
+        top::check(btagsel->setProperty("JetAuthor", trackJets_collection),
                    "Failed to set b-tagging selection JetAuthor");
         top::check(btagsel->setProperty("FlvTagCutDefinitionsFileName",
                                         m_cdi_file),
@@ -217,6 +220,9 @@ namespace top {
                      "Failed to set b-tagging OperatingPoint");
           top::check(btageff->setProperty("JetAuthor", caloJets_collection),
                      "Failed to set b-tagging JetAuthor");
+	  top::check(btageff->setProperty("MinPt",
+                                      static_cast<double>(m_config->jetPtcut())),
+		     "Failed to set b-tagging selection tool MinPt");
           top::check(btageff->setProperty("EfficiencyFileName", calib_file_path),
                      "Failed to set path to b-tagging CDI file");
           top::check(btageff->setProperty("ScaleFactorFileName", calib_file_path),
@@ -251,30 +257,30 @@ namespace top {
       if (m_config->useTrackJets()) {
         std::vector<std::string> track_WPs = {};
         std::vector<std::string> track_WPs_calib = {};
-        if (m_config->sgKeyTrackJets() == "AntiKtVR30Rmax4Rmin02TrackJets") {
+        if (trackJets_type == "AntiKtVR30Rmax4Rmin02TrackJets") {
           track_WPs = m_trackAntiKtVR_WPs;
           track_WPs_calib = m_trackAntiKtVR_WPs_calib;
-        } else if (m_config->sgKeyTrackJets() == "AntiKt2PV0TrackJets") {
+        } else if (trackJets_type == "AntiKt2PV0TrackJets") {
           track_WPs = m_trackAntiKt2_WPs;
           track_WPs_calib = m_trackAntiKt2_WPs_calib;
-        } else if (m_config->sgKeyTrackJets() == "AntiKt4PV0TrackJets") {
+        } else if (trackJets_type == "AntiKt4PV0TrackJets") {
           track_WPs = m_trackAntiKt4_WPs;
           track_WPs_calib = m_trackAntiKt4_WPs_calib;
         }
 
         if (std::find(track_WPs.begin(), track_WPs.end(), bTagWPName) == track_WPs.end()) {
           ATH_MSG_WARNING("top::FlavorTaggingCPTools::initialize");
-          ATH_MSG_WARNING("     b-tagging WP: " + btagWP + " not supported for jet collection " + m_config->sgKeyTrackJets());
+          ATH_MSG_WARNING("     b-tagging WP: " + btagWP + " not supported for jet collection " + trackJets_collection);
           ATH_MSG_WARNING("     it will therefore be ignored");
         } else {
           //------------------------------------------------------------
           // Setup BTaggingSelectionTool
           //------------------------------------------------------------
-          std::string btagsel_tool_name = "BTaggingSelectionTool_" + bTagWPName + "_" + m_config->sgKeyTrackJets();
+          std::string btagsel_tool_name = "BTaggingSelectionTool_" + bTagWPName + "_" + trackJets_collection;
           BTaggingSelectionTool* btagsel = new BTaggingSelectionTool(btagsel_tool_name);
           top::check(btagsel->setProperty("TaggerName", m_tagger),
                      "Failed to set b-tagging selecton tool TaggerName");
-          top::check(btagsel->setProperty("JetAuthor", m_config->sgKeyTrackJets()),
+          top::check(btagsel->setProperty("JetAuthor", trackJets_collection),
                      "Failed to set b-tagging selection JetAuthor");
           top::check(btagsel->setProperty("FlvTagCutDefinitionsFileName",
                                           m_cdi_file),
@@ -294,20 +300,23 @@ namespace top {
           if (std::find(track_WPs_calib.begin(),
                         track_WPs_calib.end(), bTagWPName) == track_WPs_calib.end()) {
             ATH_MSG_WARNING("top::FlavorTaggingCPTools::initialize");
-            ATH_MSG_WARNING("     b-tagging WP: " + btagWP + " is not calibrated for jet collection " + m_config->sgKeyTrackJets());
+            ATH_MSG_WARNING("     b-tagging WP: " + btagWP + " is not calibrated for jet collection " + trackJets_collection);
             ATH_MSG_WARNING("     it will therefore be ignored for the scale-factors, although the tagging decisions will be saved");
           } else {
             //------------------------------------------------------------
             // Setup BTaggingEfficiencyTool
             //------------------------------------------------------------
-            std::string btageff_tool_name = "BTaggingEfficiencyTool_" + bTagWPName + "_" + m_config->sgKeyTrackJets();
+            std::string btageff_tool_name = "BTaggingEfficiencyTool_" + bTagWPName + "_" + trackJets_collection;
             BTaggingEfficiencyTool* btageff = new BTaggingEfficiencyTool(btageff_tool_name);
             top::check(btageff->setProperty("TaggerName", m_tagger),
                        "Failed to set b-tagging TaggerName");
             top::check(btageff->setProperty("OperatingPoint", btagWP),
                        "Failed to set b-tagging OperatingPoint");
-            top::check(btageff->setProperty("JetAuthor", m_config->sgKeyTrackJets()),
+            top::check(btageff->setProperty("JetAuthor", trackJets_collection),
                        "Failed to set b-tagging JetAuthor");
+            top::check(btageff->setProperty("MinPt",
+                                        static_cast<double>(m_config->trackJetPtcut())),
+		       "Failed to set b-tagging selection tool MinPt");
             top::check(btageff->setProperty("EfficiencyFileName", calib_file_path),
                        "Failed to set path to b-tagging CDI file");
             top::check(btageff->setProperty("ScaleFactorFileName", calib_file_path),

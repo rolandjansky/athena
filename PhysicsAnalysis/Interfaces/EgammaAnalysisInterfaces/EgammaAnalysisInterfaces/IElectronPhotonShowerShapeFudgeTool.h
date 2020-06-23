@@ -1,16 +1,16 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAANALYSISINTERFACES_IELECTRONPHOTONSHOWERSHAPEFUDGETOOL_H
 #define EGAMMAANALYSISINTERFACES_IELECTRONPHOTONSHOWERSHAPEFUDGETOOL_H
 
 /**
-   @class AsgFudgeMCTool
-   @brief Tool to fudge photon MC shower shapes.
+   @class IElectronPhotonShowerShapeFudgeTool
+   @brief Tool interface to correct electron and photon MC variables and to fudge photon MC shower shapes.
 
-   @author Rob Roy Fletcher (University of Pennsylvania) rob.fletcher@cern.ch
-   @date   August 2014
+   @author Rob Roy Fletcher (University of Pennsylvania) rob.fletcher@cern.ch (2014) and Nils Gillwald (DESY) nils.gillwald@desy.de (2020)
+   @date   February 2020
 
 
 */

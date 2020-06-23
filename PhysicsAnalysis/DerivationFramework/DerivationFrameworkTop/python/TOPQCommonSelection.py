@@ -40,9 +40,9 @@
 # Shares most settings with TOPQ1
 #
 # TOPQ6 (single top)
-#   >=1 electron(pT>20 GeV) OR
-#   >=1 muon(pT>20 GeV)
-# same as TOPQ1 but no thinning on tracks
+#   >=1 electron(pT>23 GeV) AND
+#   >=1 muon(pT>23 GeV)
+# otherwise same as TOPQ1 but no thinning on tracks
 
 #================================
 # IMPORTS
@@ -66,6 +66,7 @@ EL15_tight = "(Electrons.pt > 15*GeV && abs(Electrons.eta) < 2.5 && Electrons.DF
 EL17 = "(Electrons.pt > 17*GeV && abs(Electrons.eta) < 2.5 && Electrons.DFCommonElectronsLHLoose)"
 EL20 = "(Electrons.pt > 20*GeV && abs(Electrons.eta) < 2.5 && Electrons.DFCommonElectronsLHLoose)"
 EL22 = "(Electrons.pt > 22*GeV && abs(Electrons.eta) < 2.5 && Electrons.DFCommonElectronsLHLoose)"
+EL23 = "(Electrons.pt > 23*GeV && abs(Electrons.eta) < 2.7 && Electrons.DFCommonElectronsLHLoose)"
 EL25 = "(Electrons.pt > 25*GeV && abs(Electrons.eta) < 2.5 && Electrons.DFCommonElectronsLHLoose)"
 
 #================
@@ -78,6 +79,7 @@ MU15_tight = "(Muons.pt > 15*GeV && abs(Muons.eta) < 2.7 && Muons.muonType == 0 
 MU17 = "(Muons.pt > 17*GeV && abs(Muons.eta) < 2.7 && Muons.muonType == 0 && Muons.DFCommonGoodMuon)"
 MU20 = "(Muons.pt > 20*GeV && abs(Muons.eta) < 2.7 && Muons.muonType == 0 && Muons.DFCommonGoodMuon)"
 MU22 = "(Muons.pt > 22*GeV && abs(Muons.eta) < 2.7 && Muons.muonType == 0 && Muons.DFCommonGoodMuon)"
+MU23 = "(Muons.pt > 23*GeV && abs(Muons.eta) < 2.7 && Muons.muonType == 0 && Muons.DFCommonGoodMuon)"
 MU25 = "(Muons.pt > 25*GeV && abs(Muons.eta) < 2.7 && Muons.muonType == 0 && Muons.DFCommonGoodMuon)"
 
 #================
@@ -139,7 +141,7 @@ def setup_lep(TOPQname, ToolSvc):
     elif TOPQname == 'TOPQ5':
         TOPQ_Selection_lep = "( (count("+MU+") >= 1) || (count("+EL+") >= 1) )"
     elif TOPQname == 'TOPQ6':
-        TOPQ_Selection_lep = "( ((count("+MU+") >= 1) && (count("+EL+") >= 1)) || ((count("+MU+") >= 2) && (count("+EL+") >= 0)) || ((count("+MU+") >= 0) && (count("+EL+") >= 2)) )"
+        TOPQ_Selection_lep = "( ((count("+MU23+") >= 1) && (count("+EL23+") >= 1)) )"
     else:
         TOPQ_Selection_lep = "1"
 

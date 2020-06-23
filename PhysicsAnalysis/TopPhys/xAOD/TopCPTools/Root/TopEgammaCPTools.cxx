@@ -100,11 +100,6 @@ namespace top {
         "top::EgammaCPTools: no need to initialise anything since using neither electrons nor fwd electrons nor photons");
     }
 
-    // Update for R21 is to remove radiative Z corrections, so if the option is used, it will be ignored
-    if (m_config->photonUseRadiativeZ()) {
-      ATH_MSG_INFO(
-        "top::EgammaCPTools: You have requested radiative corrections for photons however these are not yet available in R21. This options will be ignored.");
-    }
     return StatusCode::SUCCESS;
   }
 
@@ -231,7 +226,7 @@ namespace top {
     for (const std::string& isoWP : photon_isolations) {
       std::string photonIsoSFName = "AsgPhotonEfficiencyCorrectionTool_IsoSF" + isoWP;
       if (!asg::ToolStore::contains<IPhotonEffTool>(photonIsoSFName)) {
-        if (m_config->isMC() && !af2) { // only available for full simulation
+        if (m_config->isMC()) {
           IPhotonEffTool* photonIsoSFTool = new AsgPhotonEfficiencyCorrectionTool(photonIsoSFName);
           top::check(asg::setProperty(photonIsoSFTool, "ForceDataType", data_type),
                      "Failed to set ForceDataType for " + photonIsoSFName);
@@ -288,12 +283,28 @@ namespace top {
     m_electronEffSFIDFile = electronSFMapFilePath("ID");
     m_electronEffSFTriggerFile = electronSFMapFilePath("trigger");
     m_electronEffTriggerFile = electronSFMapFilePath("trigger");
-    m_electronEffSFIsoFile = electronSFMapFilePath("isolation");
+    std::vector<std::string> inPLViso;
+    if (electronIsolation == "PLVTight" ||
+	electronIsolation == "PLVLoose") {
+      m_electronEffSFIsoFile = electronSFFilePath("PLV", electronID, electronIsolation);
+      inPLViso.push_back(m_electronEffSFIsoFile);
+    }
+    else {
+      m_electronEffSFIsoFile = electronSFMapFilePath("isolation");
+    }
     // - Loose
     m_electronEffSFIDLooseFile = electronSFMapFilePath("ID");
     m_electronEffSFTriggerLooseFile = electronSFMapFilePath("trigger");
     m_electronEffTriggerLooseFile = electronSFMapFilePath("trigger");
-    m_electronEffSFIsoLooseFile = electronSFMapFilePath("isolation");
+    std::vector<std::string> inPLVisoLoose;
+    if (electronIsolationLoose == "PLVTight" ||
+	electronIsolationLoose == "PLVLoose") {
+      m_electronEffSFIsoLooseFile = electronSFFilePath("PLV", electronID, electronIsolationLoose);
+      inPLVisoLoose.push_back(m_electronEffSFIsoLooseFile);
+    }
+    else {
+      m_electronEffSFIsoLooseFile = electronSFMapFilePath("isolation");
+    }
 
     // Define the trigger string for scale factors
     const std::string trigger_string = "SINGLE_E_2015_e24_lhmedium_L1EM20VH_"
@@ -334,11 +345,23 @@ namespace top {
                                                            "", electronIDLoose, electronIsolationLoose,
                                                            "Eff_" + trigger_string, dataType, "TOTAL", "", "");
     // Isolation SFs
-    m_electronEffSFIso = setupElectronSFToolWithMap(elSFPrefix + "Iso", m_electronEffSFIsoFile, "", electronID,
-                                                    electronIsolation, "", dataType, "TOTAL", "", "");
-    m_electronEffSFIsoLoose = setupElectronSFToolWithMap(elSFPrefix + "IsoLoose", m_electronEffSFIsoLooseFile, "",
-                                                         electronID, electronIsolationLoose, "", dataType, "TOTAL", "",
-                                                         "");
+    if (electronIsolation == "PLVTight" ||
+	electronIsolation == "PLVLoose") {
+      m_electronEffSFIso = setupElectronSFTool(elSFPrefix + "Iso", inPLViso, dataType);
+    }
+    else {
+      m_electronEffSFIso = setupElectronSFToolWithMap(elSFPrefix + "Iso", m_electronEffSFIsoFile, "", electronID,
+						      electronIsolation, "", dataType, "TOTAL", "", "");
+    }
+    if (electronIsolationLoose == "PLVTight" ||
+	electronIsolationLoose == "PLVLoose") {
+      m_electronEffSFIsoLoose = setupElectronSFTool(elSFPrefix + "IsoLoose", inPLVisoLoose, dataType);
+    }
+    else {
+      m_electronEffSFIsoLoose = setupElectronSFToolWithMap(elSFPrefix + "IsoLoose", m_electronEffSFIsoLooseFile, "",
+							   electronIDLoose, electronIsolationLoose, "", dataType, "TOTAL", "",
+							   "");
+    }
 
     ATH_MSG_INFO(
       "Requested Electrons SF tool for " << m_config->electronEfficiencySystematicModel() << " correlation model");
@@ -394,17 +417,36 @@ namespace top {
                                                                       m_config->electronEfficiencySystematicModelEtaBinning(),
                                                                       m_config->electronEfficiencySystematicModelEtBinning());
       // Isolation SFs
-      m_electronEffSFIsoCorrModel = setupElectronSFToolWithMap(elSFPrefixCorrModel + "Iso", m_electronEffSFIsoFile, "",
-                                                               electronID, electronIsolation, "", dataType,
-                                                               m_config->electronEfficiencySystematicModel(),
-                                                               m_config->electronEfficiencySystematicModelEtaBinning(),
-                                                               m_config->electronEfficiencySystematicModelEtBinning());
-      m_electronEffSFIsoLooseCorrModel = setupElectronSFToolWithMap(elSFPrefixCorrModel + "IsoLoose",
-                                                                    m_electronEffSFIsoLooseFile, "", electronID,
-                                                                    electronIsolationLoose, "", dataType,
-                                                                    m_config->electronEfficiencySystematicModel(),
-                                                                    m_config->electronEfficiencySystematicModelEtaBinning(),
-                                                                    m_config->electronEfficiencySystematicModelEtBinning());
+      if (electronIsolation == "PLVTight" ||
+	  electronIsolation == "PLVLoose") {
+	m_electronEffSFIsoCorrModel = setupElectronSFTool(elSFPrefixCorrModel + "Iso", inPLViso, dataType,
+							  m_config->electronEfficiencySystematicModel(),
+							  m_config->electronEfficiencySystematicModelEtaBinning(),
+							  m_config->electronEfficiencySystematicModelEtBinning());
+      }
+      else {
+	m_electronEffSFIsoCorrModel = setupElectronSFToolWithMap(elSFPrefixCorrModel + "Iso", m_electronEffSFIsoFile, "",
+								 electronID, electronIsolation, "", dataType,
+								 m_config->electronEfficiencySystematicModel(),
+								 m_config->electronEfficiencySystematicModelEtaBinning(),
+								 m_config->electronEfficiencySystematicModelEtBinning());
+      }
+      if (electronIsolationLoose == "PLVTight" ||
+	  electronIsolationLoose == "PLVLoose") {
+	m_electronEffSFIsoLooseCorrModel = setupElectronSFTool(elSFPrefixCorrModel + "IsoLoose", inPLVisoLoose, dataType,
+							       m_config->electronEfficiencySystematicModel(),
+							       m_config->electronEfficiencySystematicModelEtaBinning(),
+							       m_config->electronEfficiencySystematicModelEtBinning());
+
+      }
+      else {
+	m_electronEffSFIsoLooseCorrModel = setupElectronSFToolWithMap(elSFPrefixCorrModel + "IsoLoose",
+								      m_electronEffSFIsoLooseFile, "", electronIDLoose,
+								      electronIsolationLoose, "", dataType,
+								      m_config->electronEfficiencySystematicModel(),
+								      m_config->electronEfficiencySystematicModelEtaBinning(),
+								      m_config->electronEfficiencySystematicModelEtBinning());
+      }
     }
 
     if (m_config->useFwdElectrons()) {
@@ -426,7 +468,11 @@ namespace top {
 
 
     // Charge ID cannot use maps at the moment so we default to the old method
-    if (m_config->useElectronChargeIDSelection()) { // We need to update the implementation according to new
+    if (m_config->useElectronChargeIDSelection()
+	&& electronIsolation != "PLVTight"
+	&& electronIsolation != "PLVLoose"
+	&& electronIsolationLoose != "PLVTight"
+	&& electronIsolationLoose != "PLVLoose" ) { // We need to update the implementation according to new
                                                     // recommendations
       ATH_MSG_INFO("Setting up Electrons ChargeID SF tool");
       // Charge ID file (no maps)
@@ -464,7 +510,10 @@ namespace top {
 
   IAsgElectronEfficiencyCorrectionTool*
   EgammaCPTools::setupElectronSFTool(const std::string& name, const std::vector<std::string>& file_list,
-                                     const int& data_type) {
+                                     const int& data_type,
+				     const std::string& correlation_model,
+				     const std::string& correlationModelEtaBinning,
+				     const std::string& correlationModelEtBinning) {
     IAsgElectronEfficiencyCorrectionTool* tool = nullptr;
 
     if (asg::ToolStore::contains<IAsgElectronEfficiencyCorrectionTool>(name)) {
@@ -476,8 +525,10 @@ namespace top {
                    "Failed to set CorrectionFileNameList to " + name);
         top::check(asg::setProperty(tool, "ForceDataType", data_type),
                    "Failed to set ForceDataType to " + name);
-        top::check(asg::setProperty(tool, "CorrelationModel", "TOTAL"),
+        top::check(asg::setProperty(tool, "CorrelationModel", correlation_model),
                    "Failed to set CorrelationModel to " + name);
+	if (correlationModelEtaBinning != "" && correlationModelEtaBinning != "default") this->setCorrelationModelBinning(tool, "UncorrEtaBinsUser", correlationModelEtaBinning);
+	if (correlationModelEtBinning != "" && correlationModelEtBinning != "default") this->setCorrelationModelBinning(tool, "UncorrEtBinsUser", correlationModelEtBinning);
         top::check(tool->initialize(), "Failed to initialize " + name);
       }
     }
@@ -517,10 +568,15 @@ namespace top {
   IAsgElectronEfficiencyCorrectionTool*
   EgammaCPTools::setupElectronSFToolWithMap(const std::string& name, const std::string& map_path,
                                             const std::string& reco_key, const std::string& ID_key,
-                                            const std::string& iso_key, const std::string& trigger_key,
+                                            const std::string& ISO_key, const std::string& trigger_key,
                                             const int& data_type, const std::string& correlation_model,
                                             const std::string& correlationModelEtaBinning,
                                             const std::string& correlationModelEtBinning) {
+    std::string iso_key = ISO_key;
+    // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/LatestRecommendationsElectronIDRun2#PLV_scale_factors_for_central_el
+    // If isolation WP is PLVTight or PLVLoose, switch to no isolation to trick this function.
+    if (iso_key == "PLVTight" || iso_key == "PLVLoose") iso_key = "";
+
     std::string infoStr = "Configuring : name=" + name + " map=" + map_path + " reco_key=" + reco_key + " ID_key=" +
                           ID_key + " iso_key=" + iso_key + " trigger_key=" + trigger_key + "data_type=" +
                           std::to_string(data_type) +
@@ -595,6 +651,22 @@ namespace top {
       file_path += ISO;
       file_path += "_ECIDSloose.root";
       file_path = el_calib_path + file_path;
+    } else if (type == "PLV") {
+      if (ID != "MediumLLH" && ID != "TightLLH")
+	ATH_MSG_ERROR(
+		      "The requested ID WP (" + ID +
+		      ") is not supported for PLV SFs! try TightLH or MediumLH instead."
+		      );
+      file_path  = "/ElectronEfficiencyCorrection/2015_2018/rel21.2/Precision_Summer2020_v1/isolation/";
+      file_path += "efficiencySF.Isolation.MediumLHorTightLH_d0z0_v13_isol";
+      file_path += ISO;
+      if (ISO == "PLVTight" && m_config->useElectronChargeIDSelection()) {
+	ATH_MSG_INFO(
+		     "ECIDS tool and PLVTight isolation detected, switching to combined isolation SFs."
+		     );
+	file_path += "ECIDS";
+      }
+      file_path += ".root";
     } else if (type == "ChargeMisID") {
       // Protect against "None" Iso key
       std::string iso = ISO;
@@ -605,7 +677,7 @@ namespace top {
       file_path += "chargeEfficiencySF.";
       file_path += ID;
       file_path += "_d0z0_v13";
-      if (iso != "") file_path += "_" + iso;
+      if (iso != "" && iso != "PLVTight" && iso != "PLVLoose") file_path += "_" + iso;
       if (m_config->useElectronChargeIDSelection()) {
         if (ID != "MediumLLH" && ID != "TightLLH") ATH_MSG_WARNING("The requested ID WP (" + ID + ") is not supported for electron ECIDS+ChargeMisID SFs! Try TightLH or MediumLH instead. Will now switch to regular ChargeMisID SFs.");
         else if (iso != "FCTight" && iso != "Gradient") ATH_MSG_WARNING("The requested ISO WP (" + iso + ") is not supported for electron ECIDS+ChargeMisID SFs! Try FCTight or Gradient instead. Will now switch to regular ChargeMisID SFs.");
@@ -675,7 +747,7 @@ namespace top {
     if (type == "HighPtCaloOnly") working_point = "FCHighPtCaloOnly";
     if (type == "TightTrackOnly") working_point = "Gradient";
     if (type == "TightTrackOnly_FixedRad") working_point = "Gradient";
-    if (type == "FCTight" || type == "FCLoose" || type == "FCHighPtCaloOnly" || type == "Gradient") working_point = type;
+    if (type == "FCTight" || type == "FCLoose" || type == "FCHighPtCaloOnly" || type == "Gradient" || type == "PLVTight" || type == "PLVLoose") working_point = type;
 
     return working_point;
   }

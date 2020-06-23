@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -151,7 +151,7 @@ namespace VKalVrtAthena {
     if(maxChi2TrackIndex == AlgConsts::invalidUnsigned ) return StatusCode::SUCCESS;
     
     
-    // defind work variables
+    // define work variables
     vector<const xAOD::NeutralParticle*>  dummyNeutrals;
     
     vector<WrkVrt> new_vertices;
@@ -354,7 +354,7 @@ namespace VKalVrtAthena {
     }
 
 
-    //Check if track is removed from 2tr vertex => then sharing of track left should also be decreased
+    // Check if track is removed from two-track vertex => then sharing of track left should also be decreased
     if( wrkvrt.selectedTrackIndices.size() == 1 ) {
       
       const auto& leftTrackIndex = *( tracks.begin() );
@@ -468,12 +468,12 @@ namespace VKalVrtAthena {
     //----------------------------------------------------------
     v2.selectedTrackIndices.clear();             //Clean dropped vertex
     v2.closestWrkVrtValue = AlgConsts::maxValue; //Clean dropped vertex
-    v2.closestWrkVrtIndex=0;                     //Clean dropped vertex
-    v2.isGood=false;                             //Clean dropped vertex
+    v2.closestWrkVrtIndex = 0;                   //Clean dropped vertex
+    v2.isGood = false;                           //Clean dropped vertex
     
     v1.closestWrkVrtValue = AlgConsts::maxValue; //Clean new vertex
-    v1.closestWrkVrtIndex=0;                     //Clean new vertex
-    v1.isGood=true;                              //Clean new vertex
+    v1.closestWrkVrtIndex = 0;                   //Clean new vertex
+    v1.isGood = true;                            //Clean new vertex
     
     StatusCode sc = refitVertex( v1 );
     if( sc.isFailure() ) {
@@ -695,6 +695,9 @@ namespace VKalVrtAthena {
     declareProperty("DoTwoTrSoftBtag",                 m_jp.doTwoTrSoftBtag                 = false                         );
     declareProperty("TwoTrVrtAngleCut",                m_jp.twoTrVrtAngleCut                = -10                           );
     declareProperty("TwoTrVrtMinDistFromPVCut",        m_jp.twoTrVrtMinDistFromPV           = 0.                            );
+
+    declareProperty("TruncateListOfWorkingVertices",   m_jp.truncateWrkVertices             = true                           );
+    declareProperty("MaxNumberOfWorkingVertices",      m_jp.maxWrkVertices                  = 1500                           );
         
     // default values are set upstream - check top of file
     declareProperty("do_PVvetoCut",                    m_jp.do_PVvetoCut                    = true                          );
@@ -1093,33 +1096,29 @@ namespace VKalVrtAthena {
         enum { Pixel = 1, SCT = 2 };
         
         const auto& id = detElement->identify();
-        //Flag active = false;
 	Flag good = false;
         
         if( m_atlasId->is_pixel(id) ) {
           
           auto idHash = m_pixelId->wafer_hash( id );
-          //active = m_pixelCondSummarySvc->isActive( idHash );
 	  good = m_pixelCondSummarySvc->isGood( idHash );
           
-          pattern->emplace_back( std::make_tuple( position, Pixel, m_pixelId->barrel_ec(id), m_pixelId->layer_disk(id), /*active,*/ good ) );
+          pattern->emplace_back( std::make_tuple( position, Pixel, m_pixelId->barrel_ec(id), m_pixelId->layer_disk(id), good ) );
           
         } else if( m_atlasId->is_sct(id) ) {
           
           auto idHash = m_sctId->wafer_hash( id );
-          //active = m_sctCondSummarySvc->isActive( idHash );
 	  good = m_sctCondSummarySvc->isGood( idHash );
           
-          pattern->emplace_back( std::make_tuple( position, SCT, m_sctId->barrel_ec(id), m_sctId->layer_disk(id), /*active,*/ good ) );
+          pattern->emplace_back( std::make_tuple( position, SCT, m_sctId->barrel_ec(id), m_sctId->layer_disk(id), good ) );
           
         }
         
         if( pattern->size() > 0 ) {
           
-          ATH_MSG_VERBOSE(" >> " << __FUNCTION__ << ", track " << trk << ": position = (" << position.Perp() << ", " << position.z() << ", " << position.Phi() << "), detElement ID = " << id << /*", active = " << active*/ ", good = " << good
+          ATH_MSG_VERBOSE(" >> " << __FUNCTION__ << ", track " << trk << ": position = (" << position.Perp() << ", " << position.z() << ", " << position.Phi() << "), detElement ID = " << id << ", good = " << good
                           << ": (det, bec, layer) = (" << std::get<1>( pattern->back() ) << ", " << std::get<2>( pattern->back() ) << ", "  << std::get<3>( pattern->back() ) << ")" );
           
-          //if( !active ) nDisabled++;
 	  if( !good ) nDisabled++;
         }
         
@@ -1197,9 +1196,9 @@ namespace VKalVrtAthena {
       layerMap[ { 2,-2, 8 } ] = Trk::sctEndCap8;
     }
     
-    enum { position=0, detector=1, bec=2, layer=3, /*isActive=4,*/ isGood=4 };
+    enum { position=0, detector=1, bec=2, layer=3, isGood=4 };
     
-    // Labmda!
+    // Lambda!
     auto getDetectorType = [&]( const ExtrapolatedPoint& point ) -> unsigned {
       
       const LayerCombination comb { std::get<detector>( point ), std::get<bec>( point ), std::get<layer>( point ) };
@@ -1227,7 +1226,6 @@ namespace VKalVrtAthena {
       const auto& point      = *itr;
       const auto& nextPoint  = *( std::next( itr ) );
       
-      //ATH_MSG_VERBOSE( " > " <<  __FUNCTION__ << ": isActive = " << std::get<isActive>( point ) );
       ATH_MSG_VERBOSE( " > " <<  __FUNCTION__ << ": isGood = " << std::get<isGood>( point ) );
       
       auto& thisPos = std::get<position>( point );
@@ -1252,7 +1250,6 @@ namespace VKalVrtAthena {
       
       // if the front-end module is not active, then the hit is not expected,
       // which means the hit may be present
-      //if( false == std::get<isActive>( point ) ) {
       if( false == std::get<isGood>( point ) ) {
         expectedHitPattern.at( detectorType ) = kMayHaveHit;
         continue;
@@ -1529,7 +1526,7 @@ namespace VKalVrtAthena {
     else if( vertex_pattern == aroundPixelBarrel1 ) {
 	
       if(   (pattern & (1<<Trk::pixelBarrel0)) ) return false;
-      // require nothing for PixelBarrel1
+      // require nothing for PixelBarrel
       if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
       if( nPixelLayers < 2 )                     return false;
     }
@@ -2130,7 +2127,7 @@ namespace VKalVrtAthena {
     
     if( m_jp.geoModel == VKalVrtAthena::GeoModel::Run2 ) {
       flag = patternCheckRun2( pattern, vertex );
-    } else if ( m_jp.geoModel == VKalVrtAthena::GeoModel::Run1 ) {
+    } else if( m_jp.geoModel == VKalVrtAthena::GeoModel::Run1 ) {
       flag = patternCheckRun1( pattern, vertex );
     }
     
@@ -2143,7 +2140,7 @@ namespace VKalVrtAthena {
     
     if( m_jp.geoModel == VKalVrtAthena::GeoModel::Run2 ) {
       flag = patternCheckRun2OuterOnly( pattern, vertex );
-    } else if ( m_jp.geoModel == VKalVrtAthena::GeoModel::Run1 ) {
+    } else if( m_jp.geoModel == VKalVrtAthena::GeoModel::Run1 ) {
       flag = patternCheckRun1OuterOnly( pattern, vertex );
     }
     
@@ -2234,7 +2231,7 @@ namespace VKalVrtAthena {
       layerMap[ { 2,-2, 8 } ] = Trk::sctEndCap8;
     }
     
-    enum { position=0, detector=1, bec=2, layer=3, /*isActive=4,*/ isGood=4 };
+    enum { position=0, detector=1, bec=2, layer=3, isGood=4 };
     
     // Lambda!
     auto getDetectorType = [&]( const ExtrapolatedPoint& point ) -> unsigned {
@@ -2260,7 +2257,7 @@ namespace VKalVrtAthena {
       
       const auto& point = *itr;
       
-      ATH_MSG_VERBOSE( " > " <<  __FUNCTION__ << /*": isActive = " << std::get<isActive>( point ) <<*/ ": isGood = " << std::get<isGood>( point ) );
+      ATH_MSG_VERBOSE( " > " <<  __FUNCTION__ << ": isGood = " << std::get<isGood>( point ) );
       
       if( !std::get<isGood>( point ) ) {
         const auto& detectorType = getDetectorType( point );
@@ -2276,17 +2273,12 @@ namespace VKalVrtAthena {
       msg += Form("%u", ( disabledPattern >> i ) & 1 );
     }
     ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": " << msg ); 
-    // CO: temporary for debugging, should be removed
-    if (disabledPattern != 0) {
-      ATH_MSG_WARNING( " > " << __FUNCTION__ << ": " << msg ); 
-    }
     
     msg = "Recorded hit pattern: ";
     for( unsigned i=0; i<Trk::numberOfDetectorTypes; i++) {
       msg += Form("%u", ( hitPattern >> i ) & 1 );
     }
     ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": " << msg );
-    
     
     return patternCheck( modifiedPattern, vertex );
     
@@ -2363,7 +2355,6 @@ namespace VKalVrtAthena {
     
     std::vector<const xAOD::TruthParticle*> truthSvTracks;
     
-    //
     // truth particle selection functions
     
     auto selectNone = [](const xAOD::TruthVertex*) ->bool { return false; };

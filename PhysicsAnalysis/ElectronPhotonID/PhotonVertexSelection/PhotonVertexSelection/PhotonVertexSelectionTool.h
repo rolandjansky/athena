@@ -7,7 +7,7 @@
 
 // Framework includes
 #include "AsgTools/AsgTool.h"
-#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/ToolHandle.h"
 
 // EDM includes
 #include "xAODEgamma/PhotonContainer.h"
@@ -17,10 +17,11 @@
 
 // Forward declarations
 namespace TMVA { class Reader; }
-namespace CP { class IPhotonPointingTool; }
 
 namespace CP {
 
+  class IPhotonPointingTool;
+  
   /// Implementation for the photon vertex selection tool
   ///
   /// Takes a list of photons (for example, to two leading photons), decorates them and
@@ -50,7 +51,7 @@ namespace CP {
     std::string m_derivationPrefix;
 
     /// PhotonPointingTool
-    asg::AnaToolHandle<CP::IPhotonPointingTool> m_pointingTool;
+    ToolHandle<CP::IPhotonPointingTool> m_pointingTool;
 
     /// Vertex container
     const xAOD::VertexContainer* m_vertices;

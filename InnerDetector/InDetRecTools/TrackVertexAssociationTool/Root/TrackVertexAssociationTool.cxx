@@ -190,7 +190,7 @@ TrackVertexAssociationTool::MatchStatus TrackVertexAssociationTool::isMatch(cons
 
   // If vertex fit information is flagged to be used,
   if(m_doUsedInFit) {
-    if(trk.vertex()==&vx) { // check whether the track is used for the given vertex fit
+    if(trk.vertex() && trk.vertex()->index() == vx.index()) { // check whether the track is used for the given vertex fit
       ATH_MSG_DEBUG("This track is used to fit the vertex");
       return UsedInFit;
     } else if (trk.vertex()!=0) { // otherwise, automatically return UnMatch if it was used in another vertex fit

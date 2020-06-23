@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "MuonEfficiencyCorrections/MuonEfficiencyScaleFactors.h"
@@ -30,8 +30,9 @@ namespace CP {
                 m_efficiency_decoration_name_data(),
                 m_efficiency_decoration_name_mc(),
                 m_sf_decoration_name(),
-                m_calibration_version("191111_Winter_PrecisionZ"),
+                m_calibration_version("200513_Precision_r21"),
                 m_lowpt_threshold(15.e3),
+                m_iso_jet_dR("dRJet"),
                 m_affectingSys(),
                 m_filtered_sys_sets(),
                 m_init(false),
@@ -49,6 +50,9 @@ namespace CP {
         declareProperty("CustomFileHighEta", m_custom_file_HighEta);
         declareProperty("CustomFileLowPt", m_custom_file_LowPt);
         declareProperty("CustomFileLowPtCalo", m_custom_file_LowPtCalo);
+        
+        // Apply additional systematics to account for negelected pt dependency
+        // in the maps themselves or for non-closure
         declareProperty("ApplyKinematicSystematic", m_applyKineDepSys);
 
         // Set specific names for the decorations of the scale-factors to the muon
@@ -57,16 +61,22 @@ namespace CP {
         declareProperty("ScaleFactorDecorationName", m_sf_decoration_name);
       
         declareProperty("CalibrationRelease", m_calibration_version);
+        // Set this property to -1 if you do not want to use the JPsi
+        // reconstruction scale-factors
         declareProperty("LowPtThreshold", m_lowpt_threshold);
         declareProperty("UncorrelateSystematics", m_seperateSystBins);
         declareProperty("BreakDownSystematics", m_breakDownSyst);
+        /// Name of the decorator carrying the information the distance to the
+        /// next what ever jet (AntiKt4EMTopo,....)
+        declareProperty("CloseJetDRDecorator", m_iso_jet_dR);
     }
-
-    MuonEfficiencyScaleFactors::~MuonEfficiencyScaleFactors() {
+    std::string MuonEfficiencyScaleFactors::close_by_jet_decoration() const{
+        return m_iso_jet_dR;
     }
     float MuonEfficiencyScaleFactors::lowPtTransition() const{
         return m_lowpt_threshold;
     }
+    bool MuonEfficiencyScaleFactors::uncorrelate_sys() const { return m_seperateSystBins; }
     CP::MuonEfficiencyType MuonEfficiencyScaleFactors::measurement() const{
         return m_Type;
     }
@@ -128,6 +138,7 @@ namespace CP {
         } else {
             ATH_MSG_INFO("JPsi based low pt SF will start to rock below " << m_lowpt_threshold / 1000. << " GeV!");
         }
+       
         std::set<std::string> decorations{
             sf_decoration() ,
             data_effi_decoration(),
@@ -456,8 +467,10 @@ namespace CP {
             for (int i =0; syst_tree->GetEntry(i); ++i){
                 insert_bit( *syst_name, get_bit(look_up));
                 if (is_symmetric) insert_bit(*syst_name, EffiCollection::Symmetric);
-                if (m_applyKineDepSys && has_pt_sys)   insert_bit(*syst_name, EffiCollection::PtDependent);
-                if (m_seperateSystBins && uncorrelated) insert_bit(*syst_name, EffiCollection::UnCorrelated);                
+                
+                if (m_applyKineDepSys && has_pt_sys)   {
+                    insert_bit(*syst_name, EffiCollection::PtDependent);
+                }if (m_seperateSystBins && uncorrelated) insert_bit(*syst_name, EffiCollection::UnCorrelated);                
             }
         }
         return syst_map;
@@ -519,7 +532,7 @@ namespace CP {
         m_current_sf = itr->second;
         
         if (m_seperateSystBins && !itr->first.name().empty()){
-            for (std::set<SystematicVariation>::iterator t = mySysConf.begin(); t != mySysConf.end(); ++t) {
+            for (std::set<SystematicVariation>::const_iterator t = mySysConf.begin(); t != mySysConf.end(); ++t) {
                 if ((*t).isToyVariation()) {
                     // First entry corresponds to the bin number and
                     // the second entry to the position in which the map is ordered
@@ -537,7 +550,7 @@ namespace CP {
     }
     std::string MuonEfficiencyScaleFactors::getUncorrelatedSysBinName(unsigned int Bin) const {
         if (!m_current_sf){
-          throw std::runtime_error("No systematic has been loaded. Cannot return any syst-bin") ;
+           throw std::runtime_error("No systematic has been loaded. Cannot return any syst-bin") ;
            ATH_MSG_FATAL("No systematic has been loaded. Cannot return any syst-bin");
           
         }        

@@ -22,7 +22,7 @@ namespace top {
 
     bool apply(const top::Event&) const override;
 
-    std::string name() const {return "RECO:PTMAX";}
+    std::string name() const override {return "RECO:PTMAX";}
   private:
     TLorentzVector neutrinoCandidate(const TLorentzVector& lep, const xAOD::MissingET& met,
                                      bool dealWithNegative_nu) const;

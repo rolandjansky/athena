@@ -5,7 +5,6 @@
 #ifndef ISOLATIONCORRECTION_IISOLATIONCORRECTIONTOOL_H
 #define ISOLATIONCORRECTION_IISOLATIONCORRECTIONTOOL_H
 
-#include "AsgTools/IAsgTool.h"
 //xAOD
 #include "xAODEgamma/Egamma.h"
 
@@ -19,7 +18,7 @@
 
 namespace CP {
 
-  class IIsolationCorrectionTool : virtual public asg::IAsgTool, virtual public CP::ISystematicsTool {
+  class IIsolationCorrectionTool : virtual public CP::ISystematicsTool {
     // Declare the interface that the class provides
     ASG_TOOL_INTERFACE(IIsolationCorrectionTool)
       

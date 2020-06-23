@@ -141,7 +141,8 @@ addTCCTrimmedJetsForTop(TOPQ1Sequence, "TOPQ1")
 
 # add VR jets
 from DerivationFrameworkTop.TOPQCommonJets import addVRJetsForTop
-addVRJetsForTop(TOPQ1Sequence)
+addVRJetsForTop(TOPQ1Sequence,'201810')
+addVRJetsForTop(TOPQ1Sequence,'201903')
 
 # add Xbb tagger information
 from DerivationFrameworkTop.TOPQCommonJets import addXbbTaggerInformation
@@ -172,6 +173,14 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
 addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=TOPQ1Sequence, algname="QGTaggerToolAlg", truthjetalg=truthjetalg)
 addQGTaggerTool(jetalg="AntiKt4EMPFlow", sequence=TOPQ1Sequence, algname="QGTaggerToolAlg", truthjetalg=truthjetalg)
 
+# Decorate PFlow jets with FJVT
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import getPFlowfJVT
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=TOPQ1Sequence, algname='JetForwardPFlowJvtToolAlg')
+
+# Decorate PFlow jets with MVfJVT
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import applyMVfJvtAugmentation
+applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=TOPQ1Sequence, algname='JetForwardJvtToolBDTAlg')
+
 # Then apply truth tools in the form of aumentation
 if DFisMC:
     from DerivationFrameworkTop.TOPQCommonTruthTools import *
@@ -193,6 +202,7 @@ TOPQ1Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ1Kernel", Thi
 # JetTagNonPromptLepton decorations
 #====================================================================
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+import LeptonTaggers.LeptonTaggersConfig as LepTagConfig
 
 # Build AntiKt4PV0TrackJets and run b-tagging
 JetTagConfig.ConfigureAntiKt4PV0TrackJets(TOPQ1Sequence, 'TOPQ1')
@@ -200,7 +210,7 @@ JetTagConfig.ConfigureAntiKt4PV0TrackJets(TOPQ1Sequence, 'TOPQ1')
 # Add BDT decoration algs
 TOPQ1Sequence += JetTagConfig.GetDecoratePromptLeptonAlgs()
 TOPQ1Sequence += JetTagConfig.GetDecoratePromptTauAlgs()
-
+TOPQ1Sequence += LepTagConfig.GetDecorateImprovedPromptLeptonAlgs()
 
 # Finally, add the private sequence to the main job
 DerivationFrameworkJob += TOPQ1Sequence

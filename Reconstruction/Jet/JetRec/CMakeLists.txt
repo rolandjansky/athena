@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 778359 2016-10-13 19:24:10Z krasznaa $
 ################################################################################
 # Package: JetRec
 ################################################################################
@@ -42,12 +41,11 @@ atlas_add_library( JetRecLib
   JetRec/*.h Root/*.cxx
   PUBLIC_HEADERS JetRec
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS}
-  PRIVATE_INCLUDE_DIRS ${FASTJETCONTRIB_INCLUDE_DIRS}
-  LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} AthLinks AsgTools
-  xAODCaloEvent xAODJet xAODMuon EventShapeInterface JetEDM
+  ${FASTJETCONTRIB_INCLUDE_DIRS}
+  LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} ${FASTJETCONTRIB_LIBRARIES}
+  AthLinks AsgTools xAODCaloEvent xAODJet xAODMuon EventShapeInterface JetEDM
   JetInterface JetCalibToolsLib AnaAlgorithmLib
-  PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} xAODBase xAODCore
-  xAODEventInfo xAODTracking )
+  PRIVATE_LINK_LIBRARIES xAODBase xAODCore xAODEventInfo xAODTracking )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( JetRec

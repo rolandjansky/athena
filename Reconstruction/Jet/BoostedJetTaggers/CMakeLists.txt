@@ -30,6 +30,7 @@ atlas_depends_on_subdirs(
    Reconstruction/Jet/JetCalibTools
    Reconstruction/Jet/JetUncertainties
    Reconstruction/Jet/JetRec
+   PhysicsAnalysis/AnalysisCommon/ParticleJetTools
    PhysicsAnalysis/Interfaces/JetAnalysisInterfaces
    PhysicsAnalysis/Interfaces/MuonAnalysisInterfaces
    PRIVATE
@@ -70,7 +71,7 @@ atlas_add_library( BoostedJetTaggersLib
    LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES}
    ${LWTNN_LIBRARIES}
    AsgTools 
-   xAODBase xAODJet xAODTruth JetInterface JetRecLib JetEDM JetSelectorToolsLib JetCalibToolsLib  JetUncertaintiesLib
+   xAODBase xAODJet xAODTruth JetInterface JetRecLib JetEDM JetSelectorToolsLib JetCalibToolsLib  JetUncertaintiesLib ParticleJetToolsLib 
    MuonSelectorToolsLib MuonMomentumCorrectionsLib PATCoreLib PATInterfaces 
    JetAnalysisInterfacesLib InDetTrackSelectionToolLib InDetTrackSystematicsToolsLib 
    MuonAnalysisInterfacesLib ${extra_libs} 

@@ -1,6 +1,7 @@
 /*
- Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
+
 #ifndef MUONTRIGGERSCALEFACTORS_H_
 #define MUONTRIGGERSCALEFACTORS_H_
 
@@ -14,23 +15,10 @@
 #include <string>
 #include <sstream>
 #include <memory>
-
-// ROOT classes we need
-#include "TTree.h"
-#include "TLorentzVector.h"
-#include "TFile.h"
-#include "TSystem.h"
-#include "TROOT.h"
-#include "TRandom.h"
-#include "TDirectory.h"
-#include "TH2.h"
-#include "TKey.h"
-class TLorentzVector;
-class TH2;
-class TFile;
-class TDirectory;
-
 #include <unordered_map>
+
+#include "TDirectory.h"
+#include "TH1.h"
 
 namespace CP {
     typedef std::shared_ptr<TH1> TH1_Ptr;
@@ -62,8 +50,6 @@ namespace CP {
             virtual CP::SystematicCode applySystematicVariation(const CP::SystematicSet& systConfig);
 
             virtual int getBinNumber(const xAOD::Muon& muon, const std::string& trigger) const;
-      
-            virtual double dR(const double eta1, const double phi1, const double eta2, const double phi2) const;
 
             virtual int getReplica_index(std::string sysBaseName, const std::string trigStr) const;
       

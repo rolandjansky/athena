@@ -33,15 +33,49 @@ public:
   float m_sd_zcut = 0.1;
   float m_sd_beta = 0.0;
   float m_sd_R0 = 1.0;
-  int m_sd_N = 1;
   float m_varR_minR = -1.0;
   float m_varR_mass = -1.0; // GeV
   bool m_doArea = false;
   std::string m_areaAttributes = "ActiveArea ActiveArea4vec";
+  
+  // options for substructure tools
+  std::vector<float> m_ecf_betaVals = {};
+  bool m_ecf_doC3 = false;
+  bool m_ecf_doDichroic = false;
+  bool m_ecfg_doN3 = false;
+  bool m_ecfg_doLSeries = false;
+  
+  // tracks
+  std::string m_ghostTracksInputContainer = "";
+  std::string m_ghostTracksVertexAssociationName = "";
+  // b-tagging jets
   std::string m_ghostBTagJetInputContainer = "";
   std::string m_ghostBTagJetLabel = "";
-  std::string m_ghostTracksInputContainer = "";
-  std::string m_ghostTracksVertexAssName = "";
+  // truth B quarks
+  std::string m_ghostTruthBQuarksInputContainer = "";
+  std::string m_ghostTruthBQuarksLabel = "";
+  // truth B hadrons
+  std::string m_ghostTruthBHadronsInputContainer = "";
+  std::string m_ghostTruthBHadronsLabel = "";
+  // truth C quarks
+  std::string m_ghostTruthCQuarksInputContainer = "";
+  std::string m_ghostTruthCQuarksLabel = "";
+  // truth C hadrons
+  std::string m_ghostTruthCHadronsInputContainer = "";
+  std::string m_ghostTruthCHadronsLabel = "";
+  // truth T quarks
+  std::string m_ghostTruthTQuarksInputContainer = "";
+  std::string m_ghostTruthTQuarksLabel = "";
+  // truth W bosons
+  std::string m_ghostTruthWBosonsInputContainer = "";
+  std::string m_ghostTruthWBosonsLabel = "";
+  // truth Z bosons
+  std::string m_ghostTruthZBosonsInputContainer = "";
+  std::string m_ghostTruthZBosonsLabel = "";
+  // truth H bosons
+  std::string m_ghostTruthHBosonsInputContainer = "";
+  std::string m_ghostTruthHBosonsLabel = "";
+
   float m_ghostScale = 1e-20;
   bool m_debug = false;
 

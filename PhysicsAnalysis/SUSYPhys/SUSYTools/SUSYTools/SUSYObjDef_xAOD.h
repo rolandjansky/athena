@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
@@ -43,6 +43,7 @@
 // Tool interfaces
 // Toolbox, which holds the tools
 #include "AssociationUtils/ToolBox.h"
+#include "ParticleJetTools/JetTruthLabelingTool.h"
 
 class IJetCalibrationTool;
 class IJERTool;
@@ -79,6 +80,7 @@ namespace CP {
   class IEgammaCalibrationAndSmearingTool;
   class IEfficiencyScaleFactorTool;
   class IIsolationSelectionTool;
+  class IIsolationLowPtPLVTool;
   class IIsolationCloseByCorrectionTool;
   class IIsolationCorrectionTool;
   class IPileupReweightingTool;
@@ -151,6 +153,7 @@ namespace ST {
     const xAOD::Vertex* GetPrimVtx() const override final;
 
     StatusCode BendBTaggingLinks(xAOD::JetContainer* to_container , const std::string& bTagKey) const override final;
+    StatusCode SetBtagWeightDecorations(const xAOD::Jet& input, const asg::AnaToolHandle<IBTaggingSelectionTool>& btagSelTool, std::string btagTagger) const override final;
     StatusCode GetJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& jetkey = "", const xAOD::JetContainer* containerToBeCopied = 0) override final;
     StatusCode GetTrackJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& jetkey = "", const xAOD::JetContainer* containerToBeCopied = 0) override final;
     StatusCode GetJetsSyst(const xAOD::JetContainer& calibjets, xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& jetkey = "") override final;
@@ -465,12 +468,14 @@ namespace ST {
     bool m_doTTVAsf;
     bool m_doModifiedEleId;
     bool m_upstreamTriggerMatching; /// Use composite trigger matching tool if matching was done upstream
+    std::string m_trigMatchingPrefix; /// Prefix for trigger matchiing container name
 
     std::string m_jetUncertaintiesConfig;
     std::string m_jetUncertaintiesCalibArea;
     bool m_jetUncertaintiesPDsmearing;
 
     bool m_useBtagging;
+    bool m_useBtagging_trkJet;
     bool m_debug;
 
     bool m_strictConfigCheck;
@@ -523,6 +528,7 @@ namespace ST {
     bool m_autoconfigPRWCombinedmode;
     bool m_autoconfigPRWRPVmode;
     std::string m_autoconfigPRWHFFilter;
+    std::string m_autoconfigPRWRtags;
     std::string m_mcCampaign;
     int m_mcChannel;
 
@@ -551,7 +557,7 @@ namespace ST {
     // strings needed for dealing with 2015+2016 electron trigger SFs
     std::string m_electronTriggerSFStringSingle;
 
-    std::vector<std::string> m_tau_trig_support;
+    std::map<std::string, std::string> m_tau_trig_support;
 
     std::string m_eleId;
     std::string m_eleIdBaseline;
@@ -570,6 +576,7 @@ namespace ST {
     double      m_eleIsoHighPtThresh;
     std::string m_eleChID_WP;
     bool        m_eleChIso; // use Charge ID SF with/without Iso applied
+    bool        m_eleChID_signal; // allows to run ECID but remove it from signal definition
     bool        m_runECIS; //run ChargeIDSelector if valid WP was selected
     std::string m_photonBaselineIso_WP;
     std::string m_photonIso_WP;
@@ -580,13 +587,14 @@ namespace ST {
     double      m_muIsoHighPtThresh;
     std::string m_BtagWP;
     std::string m_BtagTagger;
+    double m_BtagMinPt;
     std::string m_BtagTimeStamp;
     std::string m_BtagKeyOverride;
     std::string m_BtagSystStrategy;
     std::string m_BtagWP_trkJet;
     std::string m_BtagTagger_trkJet;
-    std::string m_BtagTimeStamp_trkJet;
     double m_BtagMinPt_trkJet;
+    std::string m_BtagTimeStamp_trkJet;
 
     //configurable cuts here
     double m_eleBaselinePt;
@@ -633,16 +641,21 @@ namespace ST {
     double m_jetPt;
     double m_jetEta;
     double m_jetJvt;
-    std::string m_JVT_WP;
+    std::string m_JvtWP;
     double m_JvtPtMax;
+    std::string m_JvtConfig;
+    std::string m_JvtConfig_SFFile;
 
     double m_trkJetPt;
     double m_trkJetEta;
 
     bool   m_doFwdJVT;
-    double m_fwdjetEtaMin;
-    double m_fwdjetPtMax;
-    std::string m_fwdjetOp;
+    std::string m_fJvtWP;
+    double m_fJvtPtMax;
+    double m_fJvtEtaMin;
+    std::string m_fJvtConfig;
+    std::string m_fJvtConfig_SFFile;
+    bool m_fJvt_useTightOP;
 
     bool m_JMScalib;
 
@@ -673,6 +686,7 @@ namespace ST {
     bool   m_orRemoveCaloMuons;
     std::string m_orBtagWP;
     std::string m_orInputLabel;
+    bool   m_orPhotonFavoured;
     double m_orBJetPtUpperThres;
     bool m_orLinkOverlapObjects;
 
@@ -688,6 +702,7 @@ namespace ST {
     bool m_useSigLepForIsoCloseByOR;
     std::string m_IsoCloseByORpassLabel;
 
+    bool m_useTRUTH3;
 
     std::string m_metJetSelection;
 
@@ -702,6 +717,7 @@ namespace ST {
     CP::SystematicSet m_currentSyst;
 
     std::string m_EG_corrModel;
+    std::string m_EG_corrFNList;
     bool m_applyJVTCut;
 
     std::string m_bTaggingCalibrationFilePath;
@@ -718,11 +734,12 @@ namespace ST {
     asg::AnaToolHandle<IJetUpdateJvt> m_jetJvtUpdateTool;
     asg::AnaToolHandle<IJetModifier> m_jetFwdJvtTool;
     asg::AnaToolHandle<CP::IJetJvtEfficiency> m_jetJvtEfficiencyTool;
-    asg::AnaToolHandle<CP::IJetJvtEfficiency> m_jetFJvtEfficiencyTool;
+    asg::AnaToolHandle<CP::IJetJvtEfficiency> m_jetFwdJvtEfficiencyTool;
 
     asg::AnaToolHandle<IJetSelectorTool> m_WTaggerTool;
     asg::AnaToolHandle<IJetSelectorTool> m_ZTaggerTool;
     asg::AnaToolHandle<IJetSelectorTool> m_TopTaggerTool;
+    asg::AnaToolHandle<JetTruthLabelingTool> m_jetTruthLabelingTool;
 
     //
     std::string m_jesConfig;
@@ -785,13 +802,8 @@ namespace ST {
     asg::AnaToolHandle<TauAnalysisTools::ITauSmearingTool> m_tauSmearingTool;
     asg::AnaToolHandle<TauAnalysisTools::ITauTruthMatchingTool> m_tauTruthMatch;
     asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauEffTool;
-    asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauTrigEffTool0;
-    asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauTrigEffTool1;
-    asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauTrigEffTool2;
-    asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauTrigEffTool3;
-    asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauTrigEffTool4;
+    std::vector<asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool>> m_tauTrigEffTool;
     asg::AnaToolHandle<TauAnalysisTools::ITauOverlappingElectronLLHDecorator> m_tauElORdecorator;
-    asg::AnaToolHandle<ITauToolBase> m_tauWPdecorator;
     //
     asg::AnaToolHandle<IBTaggingEfficiencyTool> m_btagEffTool;
     asg::AnaToolHandle<IBTaggingSelectionTool> m_btagSelTool;
@@ -828,6 +840,7 @@ namespace ST {
     //
     asg::AnaToolHandle<CP::IIsolationCorrectionTool> m_isoCorrTool;
     asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoTool;
+    asg::AnaToolHandle<CP::IIsolationLowPtPLVTool> m_isoToolLowPtPLV;
     asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoBaselineTool;
     asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoHighPtTool;
     asg::AnaToolHandle<CP::IIsolationCloseByCorrectionTool> m_isoCloseByTool;
@@ -855,6 +868,7 @@ namespace ST {
   }; // Class SUSYObjDef_xAOD
 
   // decorators
+  const static SG::AuxElement::Decorator<unsigned> dec_isEM("isEM");
   const static SG::AuxElement::Decorator<char> dec_baseline("baseline");
   const static SG::AuxElement::Decorator<char> dec_selected("selected"); //for priority-aware OR of baseline objects
   const static SG::AuxElement::Decorator<char> dec_signal("signal");

@@ -69,6 +69,10 @@ namespace top {
     /// Very annoying
     const xAOD::SystematicEventContainer* systematicEvents(const std::string& sgKey) const;
   private:
+  
+    void decorateTopEvent(top::Event &event);
+    void decorateTopEventSoftMuons(top::Event &event);
+  
     std::shared_ptr<top::TopConfig> m_config;
     std::unique_ptr<RCJetMC15> m_rc;
     std::map<std::string, std::unique_ptr<RCJetMC15> > m_VarRC;

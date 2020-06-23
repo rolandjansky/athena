@@ -72,10 +72,12 @@ thinningTools.append(TAUP1JetTPThinningTool)
 
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 TAUP1CaloClusterThinning  = DerivationFramework__CaloClusterThinning(
-  name                      = "TAUP1ClusterThinning",
-  ThinningService           = TAUP1ThinningHelper.ThinningSvc(),
-  SGKey                     = "TauJets",
-  TopoClCollectionSGKey     = "CaloCalTopoClusters")
+  name                            = "TAUP1ClusterThinning",
+  ThinningService                 = TAUP1ThinningHelper.ThinningSvc(),
+  SGKey                           = "TauJets",
+  TopoClCollectionSGKey           = "LCOriginTopoClusters",
+  AdditionalTopoClCollectionSGKey = ["CaloCalTopoClusters"],
+  ConeSize                        = 0.6)
 
 ToolSvc += TAUP1CaloClusterThinning
 thinningTools.append(TAUP1CaloClusterThinning)
@@ -188,6 +190,7 @@ if DerivationFrameworkIsMonteCarlo:
                                         "xAOD::TruthParticleAuxContainer#TruthPhotonsAux.",
                                         "xAOD::TruthParticleContainer#TruthNeutrinos",
                                         "xAOD::TruthParticleAuxContainer#TruthNeutrinosAux."]
+  TAUP1SlimmingHelper.SmartCollections += ["AntiKt4TruthJets"]
 
 TAUP1SlimmingHelper.IncludeMuonTriggerContent    = False
 TAUP1SlimmingHelper.IncludeTauTriggerContent     = True
@@ -195,9 +198,13 @@ TAUP1SlimmingHelper.IncludeEGammaTriggerContent  = True
 TAUP1SlimmingHelper.IncludeEtMissTriggerContent  = False
 TAUP1SlimmingHelper.IncludeJetTriggerContent     = False
 TAUP1SlimmingHelper.IncludeBJetTriggerContent    = False
+# Fix for tau pi0 container
+TAUP1SlimmingHelper.AppendToDictionary = {'finalTauPi0sAux':'xAOD::ParticleAuxContainer'}
 
 TAUP1SlimmingHelper.ExtraVariables               = ExtraContentTAUP1
 TAUP1SlimmingHelper.AllVariables                 = ExtraContainersTAUP1
+
+addOriginCorrectedClusters(TAUP1SlimmingHelper, writeLC=True, writeEM=False)
 
 if globalflags.DataSource() == "geant4":
   TAUP1SlimmingHelper.ExtraVariables            += ExtraContentTruthTAUP1

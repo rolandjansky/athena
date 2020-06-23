@@ -363,9 +363,11 @@ if not hasattr(DerivationFrameworkJob, alg_name ):
 # JetTagNonPromptLepton decorations
 #====================================================================
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+import LeptonTaggers.LeptonTaggersConfig as LepTagConfig
 if not hasattr(MUON1Seq,"Muons_decoratePromptLepton"):
     JetTagConfig.ConfigureAntiKt4PV0TrackJets(MUON1Seq,"MUON1")
     MUON1Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
+    MUON1Seq += LepTagConfig.GetDecorateImprovedPromptLeptonAlgs()
 
 from DerivationFrameworkMuons import ConstituentPileupIso
 ConstituentPileupIso.ConstituentPileupIso(MUON1Seq)

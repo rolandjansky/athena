@@ -48,7 +48,7 @@ namespace top {
 
     virtual bool apply(const top::Event&) const override;
 
-    std::string name() const {return "RECO:CHI2LJETS";}
+    std::string name() const override {return "RECO:CHI2LJETS";}
   private:
     ///So we can do a minimisation
     TMinuit* min;

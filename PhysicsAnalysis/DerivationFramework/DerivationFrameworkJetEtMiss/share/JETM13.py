@@ -72,7 +72,7 @@ DerivationFrameworkJob += jetm13Seq
 
 
 from TrackCaloClusterRecTools.TrackCaloClusterConfig import runTCCReconstruction
-runTCCReconstruction(jetm13Seq,ToolSvc, outputTCCName="TrackCaloClustersCombinedAndNeutral")
+runTCCReconstruction(jetm13Seq,ToolSvc, "LCOriginTopoClusters", outputTCCName="TrackCaloClustersCombinedAndNeutral")
 
 
 # Add the necessary constituents for UFOs
@@ -86,8 +86,8 @@ if pflowCSSKSeq.getFullName() not in [t.getFullName() for t in DerivationFramewo
 
 # Finally we can run the UFO building taking our unified PFlow container as input
 from TrackCaloClusterRecTools.TrackCaloClusterConfig import runUFOReconstruction
-emufoAlg = runUFOReconstruction(jetm13Seq,ToolSvc, PFOPrefix="CHS")
-emcsskufoAlg = runUFOReconstruction(jetm13Seq,ToolSvc, PFOPrefix="CSSK")
+emufoAlg = runUFOReconstruction(jetm13Seq,ToolSvc, PFOPrefix="CHS",caloClusterName="LCOriginTopoClusters")
+emcsskufoAlg = runUFOReconstruction(jetm13Seq,ToolSvc, PFOPrefix="CSSK",caloClusterName="LCOriginTopoClusters")
 
 
 #=======================================

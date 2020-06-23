@@ -38,11 +38,13 @@
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
 #endif
 
+#include "TopAnalysis/MsgCategory.h"
+using namespace TopAnalysis;
+
 namespace top {
   void xAODInit(bool failOnUnchecked) {
     if (!xAOD::Init()) {
-      std::cout << "Failed xAOD::Init - no idea what to do, exiting\n";
-      exit(1);
+      throw std::runtime_error("Failed xAOD::Init - no idea what to do, exiting");
     }
 
     //fail on unchecked error codes
@@ -64,12 +66,10 @@ namespace top {
       for (int i = 0; i < ar->GetEntries(); ++i) {
         TBranch* b = (TBranch*) ar->At(i);
         std::string name = std::string(b->GetName());
-        //            std::cout << name << std::endl;
         if (name == "StreamAOD") return true;
       }
     } else {
-      std::cout << "isFilePrimaryxAOD says MetaData tree missing from input file.\n Weird" << std::endl;
-      exit(1);
+      throw std::runtime_error("Tools::isFilePrimaryxAOD: MetaData tree missing from input file.");
     }
 
     return false;
@@ -86,6 +86,17 @@ namespace top {
     return eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION);
   }
 
+  size_t MCweightsSize(TFile* inputFile, const std::string& eventInfoName) {
+    xAOD::TEvent xaodEvent(xAOD::TEvent::kClassAccess);
+    top::check(xaodEvent.readFrom(inputFile), "Tools::MCweightsSize Failed to read file in");
+
+    xaodEvent.getEntry(0);
+    const xAOD::EventInfo* eventInfo(0);
+    top::check(xaodEvent.retrieve(eventInfo, eventInfoName), "Tools::isFileSimulation Failed to get " + eventInfoName);
+
+    return eventInfo->mcEventWeights().size();
+  }
+
   bool isTruthDxAOD(TFile* inputFile) {
     TTree* metaData = dynamic_cast<TTree*> (inputFile->Get("MetaData"));
 
@@ -96,7 +107,6 @@ namespace top {
       for (int i = 0; i < ar->GetEntries(); ++i) {
         TBranch* b = (TBranch*) ar->At(i);
         std::string name = std::string(b->GetName());
-        //            std::cout << name << std::endl;
         if (name.find("DAOD_TRUTH") != std::string::npos) return true;
       }
     } else {
@@ -198,6 +208,44 @@ namespace top {
     return rawEntries;
   }
 
+  void renameCutBookkeepers(std::vector<std::string>& bookkeeper_names,
+      const std::vector<std::string>& pmg_weight_names) {
+
+    // prefix in the bookkeeper names to remove
+    static const std::string name_prefix = "AllExecutedEvents_NonNominalMCWeight_";
+
+    // check if we have more than one MC generator weight, in that case we have to do the renaming
+    if (pmg_weight_names.size() > 1) {
+      if (bookkeeper_names.size() != pmg_weight_names.size()) {
+        // The number of AllExecutedEvents_ bookkeepers does not match the number of weights retrieved by PMGTool
+        // we cannot match the bookkeepers to weights by indices in this case
+        throw std::runtime_error("ERROR: The number of CutBookkeepers does not match the number of MC generator weights in metadata! Cannot match nominal MC weight to nominal sum of weights!");
+      }
+
+      // rename the bookkeepers based on the weight names from PMGTool
+      // this names are then also written into the sumWeights TTree in output files
+      for (std::string &name : bookkeeper_names) {
+        if (name == "AllExecutedEvents") {
+          name = pmg_weight_names.at(0);
+        } else {
+          // erase "AllExecutedEvents_NonNominalMCWeight_" prefix
+          int index = std::stoi(name.erase(0, name_prefix.size()));
+          name = pmg_weight_names.at(index);
+        }
+      }
+    } else {
+      // expect only one MC weight in this sample, hence only one AllExecutedEvents* bookeeeper
+      if (bookkeeper_names.size() == 1) {
+        bookkeeper_names[0] = "nominal";
+      } else {
+        ATH_MSG_INFO("WARNING: PMGTruthWeightTool reports no extra MC generator weight variations, "
+          << "but this sample does not have exactly one AllExecutedEvents* bookkeeper!\n"
+          << "Expect trouble, because this means we can't guarantee that proper CutBookkeeper "
+          << "is used for the sum of weights!");
+      }
+    }
+  }
+
   xAOD::TEvent::EAuxMode guessAccessMode(const std::string& filename, const std::string& electronCollectionName) {
     //there must be a better way than this
     std::unique_ptr<TFile> inputFile(TFile::Open(filename.c_str()));
@@ -240,13 +288,15 @@ namespace top {
     }
 
     if (fallback) {
-      std::cout << "Falling back to kClassAccess" << std::endl;
+      ATH_MSG_WARNING("Falling back to kClassAccess");
       mode = xAOD::TEvent::kClassAccess;
     }
 
     //useful message
-    if (mode == xAOD::TEvent::kClassAccess) std::cout << "guessAccessMode: Using kClassAccess\n";
-    else if (mode == xAOD::TEvent::kBranchAccess) std::cout << "guessAccessMode: Using kBranchAccess\n";
+    if (mode == xAOD::TEvent::kClassAccess)
+      ATH_MSG_INFO("guessAccessMode: Using kClassAccess");
+    else if (mode == xAOD::TEvent::kBranchAccess)
+      ATH_MSG_INFO("guessAccessMode: Using kBranchAccess");
 
     return mode;
   }
@@ -257,8 +307,7 @@ namespace top {
     std::fstream in(filename.c_str());
 
     if (!in.is_open()) {
-      std::cout << "Problem opening " << filename << "\n";
-      exit(1);
+      throw std::runtime_error("Problem opening " + filename);
     }
 
     std::string str;
@@ -281,19 +330,17 @@ namespace top {
     return v;
   }
 
-  unsigned int checkFiles(const std::vector<std::string>& filenames) {
-    std::cout << "Input filenames:\n";
-    unsigned int i = 0;
-    unsigned int totalYield = 0;
+  size_t checkFiles(const std::vector<std::string>& filenames) {
+    ATH_MSG_INFO("Input filenames:\n");
+    size_t i = 0;
+    size_t totalYield = 0;
 
     for (const auto& filename : filenames) {
       std::unique_ptr<TFile> f(TFile::Open(filename.c_str()));
-      std::cout << "    " << i + 1 << "/" << filenames.size() << " File: " << filename;
+      ATH_MSG_INFO(i + 1 << "/" << filenames.size() << " File: " << filename);
 
       if (!f.get()) {
-        std::cout << "\nDid not manage to open " << filename << std::endl;
-        std::cout << "Can't continue" << std::endl;
-        exit(1);
+        throw std::runtime_error("Did not manage to open " + filename);
       }
 
       const TTree* const t = dynamic_cast<TTree* > (f->Get("CollectionTree"));
@@ -307,13 +354,11 @@ namespace top {
       if (t) entries = t->GetEntries();
       else note = " (No CollectionTree)";
 
-      std::cout << " Entries: " << entries << note << "\n";
+      ATH_MSG_INFO("Entries: " << entries << note);
       totalYield += entries;
 
       ++i;
     }
-
-    std::cout << "\n";
 
     return totalYield;
   }
@@ -322,11 +367,8 @@ namespace top {
     std::ifstream ifs(filename.c_str());
 
     if (!ifs) {
-      std::cout << "File does not exist " << filename << std::endl;
-      std::cout << "This should contain a list - comma separated list of" << std::endl;
-      std::cout << "input files" << std::endl;
-      std::cout << "Can't continue" << std::endl;
-      exit(1);
+      throw std::runtime_error("File does not exist " + filename
+          + "\nThis should contain a list - comma separated list of input files.");
     }
 
     //loop over the lines in the file
@@ -351,9 +393,7 @@ namespace top {
     }
 
     if (fileList.size() == 0) {
-      std::cout << "Could not get a list of input files from " << filename << std::endl;
-      std::cout << "Can't continue" << std::endl;
-      exit(1);
+      throw std::runtime_error("Could not get a list of input files from " + filename);
     }
 
     return fileList;
@@ -370,51 +410,46 @@ namespace top {
 
     std::vector<std::unique_ptr<top::ToolLoaderBase> > toolLoaders;
     for (const auto& toolLoaderName : tokens) {
-      std::cout << "Attempting to load library: " << toolLoaderName << ".so\n";
+      ATH_MSG_INFO("Attempting to load library: " << toolLoaderName << ".so");
       gSystem->Load((toolLoaderName + ".so").c_str());
     }
   }
 
   top::TopObjectSelection* loadObjectSelection(std::shared_ptr<top::TopConfig> config) {
-    std::cout << "Attempting to load ObjectSelection: " << config->objectSelectionName() << std::endl;
+    ATH_MSG_INFO("Attempting to load ObjectSelection: " << config->objectSelectionName());
     TClass* c = ::TClass::GetClass(config->objectSelectionName().c_str());
 
     if (c == nullptr) {
-      std::cout << "Didn't manage to load " << config->objectSelectionName() << std::endl;
-      exit(1);
+      throw std::runtime_error("Didn't manage to load " + config->objectSelectionName());
     }
 
     top::ObjectLoaderBase* bc = static_cast<top::ObjectLoaderBase*> (c->New());
 
     if (bc == nullptr) {
-      std::cout << "Didn't manage to cast it to top::ObjectLoaderBase " << std::endl;
-      exit(1);
+      throw std::runtime_error("Didn't manage to cast it to top::ObjectLoaderBase");
     }
 
     top::TopObjectSelection* objectSelection = bc->init(config);
 
     if (objectSelection == nullptr) {
-      std::cout << "Didn't manage to make a top::ObjectSelection class" << std::endl;
-      exit(1);
+      throw std::runtime_error("Didn't manage to make a top::ObjectSelection class");
     }
 
     return objectSelection;
   }
 
   top::EventSaverBase* loadEventSaver(std::shared_ptr<top::TopConfig> config) {
-    std::cout << "Attempting to load OutputFormat: " << config->outputFormat() << std::endl;
+    ATH_MSG_INFO("Attempting to load OutputFormat: " << config->outputFormat());
     TClass* c = ::TClass::GetClass(config->outputFormat().c_str());
 
     if (c == nullptr) {
-      std::cout << "Didn't manage to load " << config->outputFormat() << std::endl;
-      exit(1);
+      throw std::runtime_error("Didn't manage to load " + config->outputFormat());
     }
 
     top::EventSaverBase* bc = static_cast<top::EventSaverBase*> (c->New());
 
     if (bc == nullptr) {
-      std::cout << "Didn't manage to cast it to top::EventSaverBase " << std::endl;
-      exit(1);
+      throw std::runtime_error("Didn't manage to cast it to top::EventSaverBase ");
     }
 
     return bc;
@@ -425,56 +460,61 @@ namespace top {
     xAOD::TEvent xaodEvent(xAOD::TEvent::kClassAccess);
     top::check(xaodEvent.readFrom(inputFile), "Cannot load inputFile");
     xaodEvent.getEntry(0);
-
+    
+    bool gotDSID=false;
+    unsigned int mcChannelNumber = ((unsigned int) -1);
+    
+    std::string productionRelease="?", amiTag="?", AODFixVersion="?", AODCalibVersion="?", dataType="?", geometryVersion="?", conditionsTag="?",
+                  beamType="?", simFlavour="?";
+    float beamEnergy = 0, mcProcID = -1;
+    
     // Magical metadata tool to access FileMetaData object
     asg::AsgMetadataTool ATMetaData("OurNewMetaDataObject");
+    bool readFMD=false;
 
     // Check it exists, and if it does we will work with it
-    if (!ATMetaData.inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData")) {
-      std::cout << "TopAnalysis::Tools::readMetaData - There is no FileMetaData in the input file." << std::endl;
-      config->setAmiTag("?");
-      return false;
+    if (ATMetaData.inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData")) {
+      
+      ATH_MSG_INFO("Trying to read FileMetaData");
+
+      // Create pointer for FileMetaData which we will load
+      const xAOD::FileMetaData* FMD = 0;
+      top::check(ATMetaData.inputMetaStore()->retrieve(FMD,
+                                                       "FileMetaData"),
+                 "Failed to retrieve metadata from AsgMetadataTool");
+      // Let's get all the info we can...
+      // https://gitlab.cern.ch/atlas/athena/blob/21.2/Event/xAOD/xAODMetaData/xAODMetaData/versions/FileMetaData_v1.h#L47
+      /// Release that was used to make the file [string]
+      FMD->value(xAOD::FileMetaData::productionRelease, productionRelease);
+      /// AMI tag used to process the file the last time [string]
+      FMD->value(xAOD::FileMetaData::amiTag, amiTag);
+      /// Version of AODFix that was used on the file last [string]
+      FMD->value(xAOD::FileMetaData::AODFixVersion, AODFixVersion);
+      /// Version of AODCalib that was used on the file last [string]
+      FMD->value(xAOD::FileMetaData::AODCalibVersion, AODCalibVersion);
+      /// Data type that's in the file [string]
+      FMD->value(xAOD::FileMetaData::dataType, dataType);
+      /// Geometry version [string]
+      FMD->value(xAOD::FileMetaData::geometryVersion, geometryVersion);
+      /// Conditions version used for simulation/reconstruction [string]
+      FMD->value(xAOD::FileMetaData::conditionsTag, conditionsTag);
+      /// Beam energy [float]
+      FMD->value(xAOD::FileMetaData::beamEnergy, beamEnergy);
+      /// Beam type [string]
+      FMD->value(xAOD::FileMetaData::beamType, beamType);
+      /// Same as mc_channel_number [float]
+      gotDSID = FMD->value(xAOD::FileMetaData::mcProcID, mcProcID);
+      mcChannelNumber = mcProcID;
+      /// Fast or Full sim [string]
+      FMD->value(xAOD::FileMetaData::simFlavour, simFlavour);
+      /// It is also possible to access any other info in metadata with
+      /// FMD->value("SomeMetaInfo", someObject);
+      readFMD=true;
     }
-
-    // Create pointer for FileMetaData which we will load
-    const xAOD::FileMetaData* FMD = 0;
-    top::check(ATMetaData.inputMetaStore()->retrieve(FMD,
-                                                     "FileMetaData"),
-               "Failed to retrieve metadata from AsgMetadataTool");
-    // Let's get all the info we can...
-    // https://gitlab.cern.ch/atlas/athena/blob/21.2/Event/xAOD/xAODMetaData/xAODMetaData/versions/FileMetaData_v1.h#L47
-    std::string productionRelease, amiTag, AODFixVersion, AODCalibVersion, dataType, geometryVersion, conditionsTag,
-                beamType, simFlavour;
-    float beamEnergy = 0, mcProcID = -1;
-    /// Release that was used to make the file [string]
-    FMD->value(xAOD::FileMetaData::productionRelease, productionRelease);
-    /// AMI tag used to process the file the last time [string]
-    FMD->value(xAOD::FileMetaData::amiTag, amiTag);
-    /// Version of AODFix that was used on the file last [string]
-    FMD->value(xAOD::FileMetaData::AODFixVersion, AODFixVersion);
-    /// Version of AODCalib that was used on the file last [string]
-    FMD->value(xAOD::FileMetaData::AODCalibVersion, AODCalibVersion);
-    /// Data type that's in the file [string]
-    FMD->value(xAOD::FileMetaData::dataType, dataType);
-    /// Geometry version [string]
-    FMD->value(xAOD::FileMetaData::geometryVersion, geometryVersion);
-    /// Conditions version used for simulation/reconstruction [string]
-    FMD->value(xAOD::FileMetaData::conditionsTag, conditionsTag);
-    /// Beam energy [float]
-    FMD->value(xAOD::FileMetaData::beamEnergy, beamEnergy);
-    /// Beam type [string]
-    FMD->value(xAOD::FileMetaData::beamType, beamType);
-    /// Same as mc_channel_number [float]
-    const bool gotDSID = FMD->value(xAOD::FileMetaData::mcProcID, mcProcID);
-    unsigned int mcChannelNumber = mcProcID;
-    /// Fast or Full sim [string]
-    FMD->value(xAOD::FileMetaData::simFlavour, simFlavour);
-    /// It is also possible to access any other info in metadata with
-    /// FMD->value("SomeMetaInfo", someObject);
-
-    // in case FileMetaData is bugged and does not have DSID properly stored
-    // happens for example for files with 0 events in CollectionTree after skimming
-    if (!gotDSID || mcChannelNumber == ((unsigned int) -1)) {
+    if (!readFMD || !gotDSID || mcChannelNumber == ((unsigned int) -1)){  // in case FileMetaData is bugged and does not have DSID properly stored happens for example for files with 0 events in CollectionTree after skimming
+      
+      ATH_MSG_INFO("FileMetaData not found or not readable, trying to read TruthMetaData");
+      
       bool gotTruthMetaData = true;
       const xAOD::TruthMetaDataContainer *truthMetadata =  nullptr;
       if (ATMetaData.inputMetaStore()->contains<xAOD::TruthMetaDataContainer>("TruthMetaData")) {
@@ -482,7 +522,7 @@ namespace top {
           if (truthMetadata->size() == 1) {
             mcChannelNumber = truthMetadata->at(0)->mcChannelNumber();
           } else {
-            std::cout << "WARNING (TopAnalysis::Tools::readMetaData): TruthMetaData does not have exactly one entry. Cannot reliably determine DSID" << std::endl;
+            ATH_MSG_WARNING("TruthMetaData does not have exactly one entry. Cannot reliably determine DSID");
           }
         } else {
           gotTruthMetaData = false;
@@ -491,23 +531,26 @@ namespace top {
         gotTruthMetaData = false;
       }
       if (!gotTruthMetaData)
-        std::cout << "WARNING (TopAnalysis::Tools::readMetaData): We cannot retrieve TruthMetaData to determine DSID" << std::endl;
+      {
+        ATH_MSG_ERROR("We cannot retrieve even TruthMetaData to determine DSID");
+        return false;
+      }
     }
 
     /// Print out this information as a cross-check
-    std::cout << "Using AsgMetadataTool to access the following information" << std::endl;
-    std::cout << "TopAnalysis::Tools::readMetaData : productionRelease  -> " << productionRelease << std::endl;
-    std::cout << "TopAnalysis::Tools::readMetaData : amiTag             -> " << amiTag << std::endl;
-    std::cout << "TopAnalysis::Tools::readMetaData : AODFixVersion      -> " << AODFixVersion << std::endl;
-    std::cout << "TopAnalysis::Tools::readMetaData : AODCalibVersion    -> " << AODCalibVersion << std::endl;
-    std::cout << "TopAnalysis::Tools::readMetaData : dataType           -> " << dataType << std::endl;
-    std::cout << "TopAnalysis::Tools::readMetaData : geometryVersion    -> " << geometryVersion << std::endl;
-    std::cout << "TopAnalysis::Tools::readMetaData : conditionsTag      -> " << conditionsTag << std::endl;
-    std::cout << "TopAnalysis::Tools::readMetaData : beamEnergy         -> " << beamEnergy << std::endl;
-    std::cout << "TopAnalysis::Tools::readMetaData : beamType           -> " << beamType << std::endl;
-    std::cout << "TopAnalysis::Tools::readMetaData : mcProcID           -> " << int(mcChannelNumber) << std::endl;
-    std::cout << "TopAnalysis::Tools::readMetaData : simFlavour         -> " << simFlavour << std::endl;
-    std::cout << "Not all this information is not yet propagated to TopConfig      " << std::endl;
+    ATH_MSG_INFO("Using AsgMetadataTool to access the following information\n"
+        << "productionRelease  -> " << productionRelease << "\n"
+        << "amiTag             -> " << amiTag << "\n"
+        << "AODFixVersion      -> " << AODFixVersion << "\n"
+        << "AODCalibVersion    -> " << AODCalibVersion << "\n"
+        << "dataType           -> " << dataType << "\n"
+        << "geometryVersion    -> " << geometryVersion << "\n"
+        << "conditionsTag      -> " << conditionsTag << "\n"
+        << "beamEnergy         -> " << beamEnergy << "\n"
+        << "beamType           -> " << beamType << "\n"
+        << "mcProcID           -> " << int(mcChannelNumber) << "\n"
+        << "simFlavour         -> " << simFlavour << "\n"
+        << "Not all of this information is propagated to TopConfig");
 
     config->setAmiTag(amiTag);
     config->setDSID(mcChannelNumber);

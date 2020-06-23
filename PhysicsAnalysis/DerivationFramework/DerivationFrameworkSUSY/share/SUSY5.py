@@ -36,6 +36,11 @@ AugmentationTools   = []
 # stream-specific sequence for on-the-fly jet building
 SeqSUSY5 = CfgMgr.AthSequencer("SeqSUSY5")
 DerivationFrameworkJob += SeqSUSY5
+applyJetCalibration_xAODColl('AntiKt4EMPFlow',SeqSUSY5)
+
+# make Pixel and SCT conditions available
+include ("InDetRecExample/PixelConditionsAccess.py") # include all pixel condtions avaliable in AOD /DT
+include ("InDetRecExample/SCTConditionsAccess.py")
 
 #====================================================================
 # Trigger navigation thinning
@@ -150,14 +155,12 @@ objectSelection = '(count('+electronsRequirements+') + count('+muonsRequirements
 
 trig_expression = '(' + ' || '.join(METorPhoton_triggers+Lepton_triggers) + ')'
 MEttrig_expression ='(' + ' || '.join(METorPhoton_triggers) + ')'
+Leptrig_expression = '(' + ' || '.join(Lepton_triggers) + ')'
 
-if not DerivationFrameworkIsMonteCarlo:
-  JetEleExpression = '(count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>25*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta)<2.8)>=2)'
-  JetEleHighExpression = '(count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>200*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta)<2.8)>=1)'
-  LepTrigexpression = '('+'('+trig_expression+'&&'+objectSelectionHL+'&&'+JetEleExpression+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelectionSL+'&&'+JetEleExpression+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelection+'&&'+JetEleHighExpression+')'+' )'
-
-else :
-  LepTrigexpression = '('+'('+trig_expression+'&&'+objectSelectionHL+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelectionSL+')'+')'
+JetEleExpression4j15 = '(count(AntiKt4EMPFlowJets.DFCommonJets_Calib_pt>15*GeV && abs(AntiKt4EMPFlowJets.DFCommonJets_Calib_eta)<2.8)>=4)'
+JetEleExpression2j25 = '(count(AntiKt4EMPFlowJets.DFCommonJets_Calib_pt>25*GeV && abs(AntiKt4EMPFlowJets.DFCommonJets_Calib_eta)<2.8)>=2)'
+JetEleHighExpression = '(count(AntiKt4EMPFlowJets.DFCommonJets_Calib_pt>200*GeV && abs(AntiKt4EMPFlowJets.DFCommonJets_Calib_eta)<2.8)>=1)'
+LepTrigexpression = '('+'('+Leptrig_expression+'&&'+objectSelectionHL+'&&'+JetEleExpression4j15+')'+'||'+'('+trig_expression+'&&'+objectSelectionHL+'&&'+JetEleExpression2j25+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelectionSL+'&&'+JetEleExpression2j25+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelection+'&&'+JetEleHighExpression+')'+' )'
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 SUSY5SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY5SkimmingTool",
@@ -241,6 +244,8 @@ addRecommendedXbbTaggers(SeqSUSY5, ToolSvc)
 # Prompt Lepton Tagger
 #====================================================================
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+import LeptonTaggers.LeptonTaggersConfig as LepTagConfig
+
 
 # simple call to replaceAODReducedJets(["AntiKt4PV0TrackJets"], SeqSUSY5, "SUSY5")
 JetTagConfig.ConfigureAntiKt4PV0TrackJets(SeqSUSY5, "SUSY5")
@@ -248,6 +253,7 @@ JetTagConfig.ConfigureAntiKt4PV0TrackJets(SeqSUSY5, "SUSY5")
 # add decoration
 SeqSUSY5 += JetTagConfig.GetDecoratePromptLeptonAlgs(addSpectators=True)
 SeqSUSY5 += JetTagConfig.GetDecoratePromptTauAlgs()
+SeqSUSY5 += LepTagConfig.GetDecorateImprovedPromptLeptonAlgs()
 
 #====================================================================
 # CONTENT LIST
@@ -279,6 +285,7 @@ SUSY5SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo_201810.MV1_discrim
                                       "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag.TruthLink",
                                       "Photons.author.Loose.Tight.TruthLink",
                                       "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi.N90Constituents.Timing.Width.DFCommonJets_jetClean_VeryLooseBadLLP",
+                                      "AntiKt4EMPFlowJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi.N90Constituents.Timing.Width.DFCommonJets_jetClean_VeryLooseBadLLP",
                                       "GSFTrackParticles.z0.d0.vz.definingParametersCovMatrix","CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
                                       "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
                                       "TauJets.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink.seedTrackWidthPt500.seedTrackWidthPt1000",
@@ -302,6 +309,7 @@ SUSY5SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo_201810.MV1_discrim
 SUSY5SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD(addSpectators=True)
 # Saves BDT and input variables tau algorithm
 SUSY5SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
+SUSY5SlimmingHelper.ExtraVariables += LepTagConfig.GetExtraImprovedPromptVariablesForDxAOD()
 
 SUSY5SlimmingHelper.IncludeMuonTriggerContent   = True
 SUSY5SlimmingHelper.IncludeEGammaTriggerContent = True

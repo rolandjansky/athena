@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // General package includes
@@ -1139,13 +1139,13 @@ UncertaintyComponent* JetUncertaintiesTool::buildUncertaintyComponent(const Comp
         {
             if (component.parametrization == CompParametrization::PtEta || component.parametrization == CompParametrization::PtAbsEta)
             {
-                if (component.FatjetTruthLabels.size() > 0)
+                if (component.LargeRJetTruthLabels.size() > 0)
                 {
                     return new LargeRTopologyUncertaintyComponent(component);
                 }
                 else
                 {
-                    ATH_MSG_ERROR(Form("No FatjetTruthLabels specified for Large-R jet topology component %s",component.name.Data()));
+                    ATH_MSG_ERROR(Form("No LargeRJetTruthLabels specified for Large-R jet topology component %s",component.name.Data()));
                     return NULL;
                 }
             }
@@ -2446,7 +2446,9 @@ double JetUncertaintiesTool::getSmearingFactor(const xAOD::Jet& jet, const CompS
     // If the user specified a seed, then use it
     // If not, then use the jet's phi times 1*10^5 in MC, 1.23*10^5 in (pseudo-)data
     // Difference in seed between allows for easy use of pseudo-data
-    const long long int seed = m_userSeed != 0 ? m_userSeed : (m_isData ? 1.23e+5 : 1.00e+5)*fabs(jet.phi());
+    long long int seed = m_userSeed != 0 ? m_userSeed : (m_isData ? 1.23e+5 : 1.00e+5)*fabs(jet.phi());
+    // SetSeed(0) uses the clock, avoid this
+    if(seed == 0) seed = m_isData ? 34545654 : 45583453; // arbitrary numbers which the seed couldn't otherwise be
     m_rand.SetSeed(seed);
 
     // Calculate and return the smearing factor

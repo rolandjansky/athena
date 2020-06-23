@@ -111,6 +111,7 @@ namespace xAOD {
 
       EMFrac,
       HECFrac,
+      PSFrac,
       EnergyPerSampling,
       FracSamplingMax,
       FracSamplingMaxIndex,

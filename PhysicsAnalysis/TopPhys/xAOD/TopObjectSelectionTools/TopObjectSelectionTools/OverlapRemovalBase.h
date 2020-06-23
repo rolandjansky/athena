@@ -40,8 +40,8 @@ namespace top {
 
     virtual void print(std::ostream&) const = 0;
   };
-}
 
-std::ostream& operator << (std::ostream& os, const top::OverlapRemovalBase& overlapremoval);
+  std::ostream& operator << (std::ostream& os, const top::OverlapRemovalBase& overlapremoval);
+}
 
 #endif

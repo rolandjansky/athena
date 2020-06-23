@@ -6,11 +6,20 @@
 # Declare the package name:
 atlas_subdir( DerivationFrameworkAnalysisTests )
 
+if( XAOD_STANDALONE )
+   set( xaod_access_deps Control/xAODRootAccess )
+   set( xaod_access_lib xAODRootAccess )
+# ... for AthAnalysisBase (Athena calls this POOLRootAccess)
+else()
+   set( xaod_access_deps PhysicsAnalysis/POOLRootAccess )
+   set( xaod_access_lib POOLRootAccessLib )
+endif()
+
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
    PRIVATE
-   Control/xAODRootAccess
+   ${xaod_access_deps}
    Control/AthToolSupport/AsgTools
    Event/xAOD/xAODEventInfo
    Event/xAOD/xAODJet
@@ -26,6 +35,5 @@ find_package( ROOT COMPONENTS Core Tree Hist )
 atlas_add_executable( TruthDerivationTester
    util/TruthDerivationTester.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess AsgTools xAODEventInfo
+   LINK_LIBRARIES ${ROOT_LIBRARIES} ${xaod_access_lib} AsgTools xAODEventInfo
    xAODTruth xAODJet xAODMissingET )
-

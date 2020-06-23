@@ -94,7 +94,7 @@ for collection in ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets", "AntiKt10TrackCal
         largeJetPtCut = 200e3,
         largeJetEtaCut = 2.1,
         smallJetPtCut = 7e3,
-        nLeadingSubjets = 3,
+        nLeadingSubjets = 100, # save all the subjets in the jet
         addSubjetGhosts = True,
         addConstituents = True,
         addConeAssociated = True))

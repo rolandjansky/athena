@@ -580,6 +580,12 @@ replaceAODReducedJets(reducedJetList, higg3d3Seq,"HIGG3D3")
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = higg3d3Seq)
 
 #====================================================================
+# fJVT for PFlow jets
+#====================================================================
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import getPFlowfJVT
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=higg3d3Seq, algname='JetForwardPFlowJvtToolAlg')
+
+#====================================================================
 # QG tagging
 #====================================================================
 addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=higg3d3Seq,algname="QGTaggerToolAlg",truthjetalg='AntiKt4TruthJets')
@@ -588,9 +594,10 @@ addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=higg3d3Seq,algname="QGTaggerToo
 #====================================================================
 # Add non-prompt lepton tagging
 #====================================================================
-# import the JetTagNonPromptLepton config and add to the private sequence
-import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
-higg3d3Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
+# import the LeptonTaggers config and add to the private sequence
+import LeptonTaggers.LeptonTaggersConfig as LepTagConfig
+higg3d3Seq += LepTagConfig.GetDecoratePromptLeptonAlgs()
+higg3d3Seq += LepTagConfig.GetDecorateImprovedPromptLeptonAlgs()
 
 #====================================================================
 # Truth decoration tool
@@ -630,7 +637,8 @@ HIGG3D3SlimmingHelper.SmartCollections = [ "Electrons",
 HIGG3D3SlimmingHelper.ExtraVariables = list(HIGG3D3ExtraVariables)
 HIGG3D3SlimmingHelper.AllVariables = list(HIGG3D3ExtraContainers)
 
-HIGG3D3SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
+HIGG3D3SlimmingHelper.ExtraVariables += LepTagConfig.GetExtraPromptVariablesForDxAOD(onlyBDT=False)
+HIGG3D3SlimmingHelper.ExtraVariables += LepTagConfig.GetExtraImprovedPromptVariablesForDxAOD()
 
 if globalflags.DataSource()=='geant4':
     HIGG3D3SlimmingHelper.SmartCollections += ["AntiKt4TruthJets", "AntiKt4TruthDressedWZJets"]

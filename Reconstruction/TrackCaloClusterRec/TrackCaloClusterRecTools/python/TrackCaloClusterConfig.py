@@ -1,3 +1,6 @@
+from AthenaCommon import Logging
+ufolog = Logging.logging.getLogger('TCCorUFO')
+
 def associateAllTracks(trkClustAssocAlg):
     """ Make sure the given TrackParticleClusterAssociationAlg trkClustAssocAlg is scheduled to associate all tracks by removing the vtx selection tool"""
     trkClustAssocAlg.TrackVertexAssoTool = ""
@@ -82,10 +85,13 @@ def runTCCReconstruction(sequence,ToolSvc,caloClusterName="CaloCalTopoClusters",
     if not hasattr(sequence, "TrackClusterAssociationAlg"+assocPostfix):
         # make sure we run the TrackClusterAssociationAlg
         setupTrackCaloAssoc(sequence, ToolSvc, caloClusterName, trackParticleName, assocPostfix, onlyPV0Tracks=False)
-    else:
+    else: # make sure we use the same CaloCluster container as the TrackClusterAssociationAlg
+        alg = getattr(sequence, "TrackClusterAssociationAlg"+assocPostfix)
+        if alg.CaloClusterLocation != caloClusterName:
+            ufolog.error("Requesting TCC build of "+caloClusterName+" with TrackCaloClusterAlg configured with "+alg.CaloClusterLocation)
+            raise Exception("TCC config error")
         # make sure the TrackClusterAssociationAlg is configured to use *ALL* tracks.
-        trkClustAssocAlg = getattr(sequence, "TrackClusterAssociationAlg"+assocPostfix)
-        associateAllTracks(trkClustAssocAlg)
+        associateAllTracks(alg)
         
     ###################################
     # Schedule the TrackCaloClusterInfoAlg to create the weights for clusters/tracks and store them in a TrackCaloClusterInfo object.
@@ -142,7 +148,12 @@ def runUFOReconstruction(sequence,ToolSvc, PFOPrefix="CSSK", caloClusterName="Ca
 
     if not hasattr(sequence, "TrackClusterAssociationAlg"+assocPostfix):
         setupTrackCaloAssoc(sequence, ToolSvc, caloClusterName, trackParticleName, assocPostfix, onlyPV0Tracks=True)
-    
+    else: # make sure we use the same CaloCluster container as the TrackClusterAssociationAlg
+        alg = getattr(sequence, "TrackClusterAssociationAlg"+assocPostfix)
+        if alg.CaloClusterLocation != caloClusterName:
+            ufolog.error("Requesting UFO build of ",caloClusterName, " with TrackCaloClusterAlg configured with ",alg.CaloClusterLocation)
+            raise Exception("UFO config error")
+        
     from TrackCaloClusterRecTools.TrackCaloClusterRecToolsConf import UFOTool
 
     from TrackCaloClusterRecAlgs.TrackCaloClusterRecAlgsConf import TrackCaloClusterAlg, TrackCaloClusterInfoUFOAlg

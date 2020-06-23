@@ -86,10 +86,12 @@ thinningTools.append(TAUP3JetTPThinningTool)
 
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 TAUP3CaloClusterThinning  = DerivationFramework__CaloClusterThinning(
-  name                      = "TAUP3ClusterThinning",
-  ThinningService           = "TAUP3ThinningSvc",
-  SGKey                     = "TauJets",
-  TopoClCollectionSGKey     = "CaloCalTopoClusters")
+  name                            = "TAUP3ClusterThinning",
+  ThinningService                 = "TAUP3ThinningSvc",
+  SGKey                           = "TauJets",
+  TopoClCollectionSGKey           = "LCOriginTopoClusters",
+  AdditionalTopoClCollectionSGKey = ["CaloCalTopoClusters"],
+  ConeSize                        = 0.6)
 
 ToolSvc += TAUP3CaloClusterThinning
 thinningTools.append(TAUP3CaloClusterThinning)
@@ -198,6 +200,7 @@ if DerivationFrameworkIsMonteCarlo:
                                         "xAOD::TruthParticleAuxContainer#TruthPhotonsAux.",
                                         "xAOD::TruthParticleContainer#TruthNeutrinos",
                                         "xAOD::TruthParticleAuxContainer#TruthNeutrinosAux."]
+  TAUP3SlimmingHelper.SmartCollections += ["AntiKt4TruthJets"]
 
 TAUP3SlimmingHelper.IncludeMuonTriggerContent    = True
 TAUP3SlimmingHelper.IncludeTauTriggerContent     = True
@@ -205,6 +208,8 @@ TAUP3SlimmingHelper.IncludeEGammaTriggerContent  = False
 TAUP3SlimmingHelper.IncludeEtMissTriggerContent  = False
 TAUP3SlimmingHelper.IncludeJetTriggerContent     = False
 TAUP3SlimmingHelper.IncludeBJetTriggerContent    = False
+# Fix for tau pi0 container
+TAUP3SlimmingHelper.AppendToDictionary = {'finalTauPi0sAux':'xAOD::ParticleAuxContainer'}
 
 TAUP3SlimmingHelper.ExtraVariables               = ExtraContentTAUP3
 TAUP3SlimmingHelper.AllVariables                 = ExtraContainersTAUP3
@@ -214,8 +219,9 @@ TAUP3SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesFor
 TAUP3SlimmingHelper.ExtraVariables += ["Muons.PromptLeptonIso.PromptLeptonVeto"]
 TAUP3SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD(name="Muons")
 
+addOriginCorrectedClusters(TAUP3SlimmingHelper, writeLC=True, writeEM=False) 
+
 if globalflags.DataSource() == "geant4":
-  #TAUP3SlimmingHelper.AppendToDictionary = {'AntiKt4TruthJets':'xAOD::JetContainer','AntiKt4TruthJetsAux':'xAOD::JetAuxContainer'}
   TAUP3SlimmingHelper.ExtraVariables            += ExtraContentTruthTAUP3
   TAUP3SlimmingHelper.AllVariables              += ExtraContainersTruthTAUP3
 

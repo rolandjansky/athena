@@ -37,7 +37,6 @@ PerfStats No
 
 Systematics All
 JetUncertainties_NPModel GlobalReduction
-JetUncertainties_BunchSpacing 25ns
 
 ElectronID TightLH
 ElectronIDLoose MediumLH

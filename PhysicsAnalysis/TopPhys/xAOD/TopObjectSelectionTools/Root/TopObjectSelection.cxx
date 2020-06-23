@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopObjectSelectionTools/TopObjectSelection.h"
@@ -20,11 +20,16 @@
 #include "FourMomUtils/xAODP4Helpers.h"
 #include "PATCore/TAccept.h"
 
+#include "TopParticleLevel/TruthTools.h"
+#include "xAODTruth/TruthParticle.h"
+#include "xAODTruth/TruthParticleContainer.h"
+
+#include "TopDataPreparation/SampleXsection.h"
+
 namespace top {
   TopObjectSelection::TopObjectSelection(const std::string& name) :
     asg::AsgTool(name),
     m_config(nullptr),
-
     m_electronSelection(nullptr),
     m_fwdElectronSelection(nullptr),
     m_muonSelection(nullptr),
@@ -34,18 +39,17 @@ namespace top {
     m_photonSelection(nullptr),
     m_largeJetSelection(nullptr),
     m_trackJetSelection(nullptr),
-
     m_overlapRemovalToolPostSelection(nullptr),
-
     m_electronInJetSubtractor(nullptr),
-
     m_passPreORSelection("passPreORSelection"),
     m_passPreORSelectionLoose("passPreORSelectionLoose"),
-    // the following two are used to give failing JVT jets a lower priority in the OR
+    // the following two are used to give failing JVT and failing fJVT jets a lower priority in the OR
     m_ORToolDecoration("ORToolDecoration"),
     m_ORToolDecorationLoose("ORToolDecorationLoose"),
-
-    m_doLooseCuts(false) {
+    m_doLooseCuts(false),
+    m_overlapRemovalTool_softMuons_PFjets("OverlapRemovalTool_softMuons_PFjets"),
+    m_overlapRemovalTool_softMuons_Alljets("OverlapRemovalTool_softMuons_Alljets")
+  {
     declareProperty("config", m_config);
   }
 
@@ -66,6 +70,9 @@ namespace top {
     //         - The top recommendation is that you do OR on tight objects
     //   (3) Determination of Fakes control regions in MC - expert fakes mode
     //
+    
+    top::check(m_overlapRemovalTool_softMuons_PFjets.retrieve(), "Failed to retrieve overlap removal tool for soft muons - PF jets");
+    top::check(m_overlapRemovalTool_softMuons_Alljets.retrieve(), "Failed to retrieve overlap removal tool for soft muons - all jets");
 
     if (!m_config->isMC()) m_doLooseCuts = true;
 
@@ -368,17 +375,33 @@ namespace top {
       for (auto jetPtr : *jets) {
         ATH_MSG_DEBUG("   Jet pt = " << (jetPtr)->pt());
         bool passed = m_jetSelection->passSelection(*jetPtr);
+
+	//Forward jets always get JVT=1, Central jets always get fJVT=1
+	bool passedJVT_and_fJVT = true;
+	if (jetPtr->isAvailable<char>("passJVT")) {
+	  if (jetPtr->isAvailable<char>("AnalysisTop_fJVTdecision")) {
+	    passedJVT_and_fJVT = jetPtr->auxdataConst<char>("passJVT") && jetPtr->auxdataConst<char>("AnalysisTop_fJVTdecision"); 
+	  }
+	  else {
+	    passedJVT_and_fJVT = jetPtr->auxdataConst<char>("passJVT");
+	  } 
+	}
+	else if (jetPtr->isAvailable<char>("AnalysisTop_fJVTdecision")) { //Possibly redundant, fJVT shouldn't really be able to run if passJVT isn't avaliable
+	  passedJVT_and_fJVT = jetPtr->auxdataConst<char>("AnalysisTop_fJVTdecision");
+	}
+
         if (m_config->applyElectronInJetSubtraction()) {
           if (jetPtr->isAvailable<char>("passesFancyOR")) {
             if (!jetPtr->auxdecor<char>("passesFancyOR")) passed = false;
           }
         }
+	// if JVT or fJVT cut enabled and valid: jets that pass (f)JVT get passPreORSelection * 2, jets that fail get the same as passPreORSelection
+	// if no JVT cut and central jet, or no fJVT and forward jet, jet gets: passPreORSelection * 2
         jetPtr->auxdecor<char>(m_passPreORSelection) = passed;
-        jetPtr->auxdecor<char>(m_ORToolDecoration) = (passed ? (jetPtr->auxdataConst<char>("passJVT") ? 2 : 1) : 0);
+        jetPtr->auxdecor<char>(m_ORToolDecoration) = (passed ? (passedJVT_and_fJVT ? 2 : 1) : 0);
         if (m_doLooseCuts) {
           jetPtr->auxdecor<char>(m_passPreORSelectionLoose) = passed;
-          jetPtr->auxdecor<char>(m_ORToolDecorationLoose) =
-            (passed ? (jetPtr->auxdataConst<char>("passJVT") ? 2 : 1) : 0);
+          jetPtr->auxdecor<char>(m_ORToolDecorationLoose) = (passed ? (passedJVT_and_fJVT ? 2 : 1) : 0);
         }
         //decorate with b-tagging flags
         std::vector<std::string> availableWPs = m_config->bTagWP_available();
@@ -416,23 +439,30 @@ namespace top {
         ATH_MSG_DEBUG(" Cut on Jets with key = " << currentSystematic.second);
 
         for (auto jetPtr : *jets) {
-          char decoration = m_jetSelection->passSelection(*jetPtr);
+          bool decoration = m_jetSelection->passSelection(*jetPtr);
+
+	  //Forward jets always get JVT=1, Central jets always get fJVT=1 
+	  bool passedJVT_and_fJVT = true;
+	  if (jetPtr->isAvailable<char>("passJVT")) {
+	    if (jetPtr->isAvailable<char>("AnalysisTop_fJVTdecision")) {
+	      passedJVT_and_fJVT = jetPtr->auxdataConst<char>("passJVT") && jetPtr->auxdataConst<char>("AnalysisTop_fJVTdecision");
+	    }
+	    else {
+	      passedJVT_and_fJVT = jetPtr->auxdataConst<char>("passJVT");
+	    } 
+	  }
+	  else if (jetPtr->isAvailable<char>("AnalysisTop_fJVTdecision")) { //Possibly redundant, fJVT shouldn't really be able to run if passJVT isn't avaliable
+	    passedJVT_and_fJVT = jetPtr->auxdataConst<char>("AnalysisTop_fJVTdecision");
+	  }
+
+          // if JVT or fJVT cut enabled: jets that pass (f)JVT get passPreORSelection*2, jets which fail get the same as passPreORSelection
+          // if no JVT cut and central jet, or no fJVT cut and forward jet, jet gets: passPreORSelection * 2
           jetPtr->auxdecor<char>(m_passPreORSelection) = decoration;
-          // if JVT cut enabled: jets that pass JVT get a 2, otherwise the same as passPreORSelection
-          // if not, passPreORSelection * 2
-          if (jetPtr->isAvailable<char>("passJVT")) {
-            jetPtr->auxdecor<char>(m_ORToolDecoration) = decoration + jetPtr->auxdataConst<char>("passJVT");
-          } else {
-            jetPtr->auxdecor<char>(m_ORToolDecoration) = decoration * 2;
-          }
-          if (m_doLooseCuts) {
-            jetPtr->auxdecor<char>(m_passPreORSelectionLoose) = decoration;
-            if (jetPtr->isAvailable<char>("passJVT")) {
-              jetPtr->auxdecor<char>(m_ORToolDecorationLoose) = decoration + jetPtr->auxdataConst<char>("passJVT");
-            } else {
-              jetPtr->auxdecor<char>(m_ORToolDecorationLoose) = decoration * 2;
-            }
-          }
+          jetPtr->auxdecor<char>(m_passPreORSelectionLoose) = decoration;
+
+	  jetPtr->auxdecor<char>(m_ORToolDecoration) = (decoration ? (passedJVT_and_fJVT ? 2 : 1) : 0);
+	  jetPtr->auxdecor<char>(m_ORToolDecorationLoose) = (decoration ? (passedJVT_and_fJVT ? 2 : 1) : 0);;
+
           //decorate with b-tagging flags
           std::vector<std::string> availableWPs = m_config->bTagWP_available();
           for (auto& WP : availableWPs) {
@@ -498,7 +528,7 @@ namespace top {
         jetPtr->auxdecor<char>(m_passPreORSelectionLoose) = decoration;
       }
 
-      if (m_config->sgKeyTrackJets() == "AntiKtVR30Rmax4Rmin02TrackJets") { // Event cleaning for variable-R track jets
+      if (m_config->sgKeyTrackJetsType() == "AntiKtVR30Rmax4Rmin02TrackJets") { // Event cleaning for variable-R track jets
         float pt_baseline = 5e3;
         float radius1 = std::max(0.02, std::min(0.4, 30000. / jetPtr->pt()));
 
@@ -528,10 +558,10 @@ namespace top {
         } else {
           int tagWeightBin = -2; // AT default
           if (std::fabs(jetPtr->eta()) < 2.5) {
-            ToolHandle<IBTaggingSelectionTool>& btagsel = m_btagSelTools[WP];
+            ToolHandle<IBTaggingSelectionTool>& btagsel = m_trkjet_btagSelTools[WP];
             tagWeightBin = btagsel->getQuantile(*jetPtr);
           }
-          jetPtr->auxdecor<int>("tagWeightBin") = tagWeightBin;
+          jetPtr->auxdecor<int>("tagWeightBin_" + WP) = tagWeightBin;
         }
       }
     }
@@ -765,11 +795,15 @@ namespace top {
       }
     }
 
-    // Post overlap removal decorations
-    decorateMuonsPostOverlapRemoval(xaod_mu, xaod_jet, goodMuons, goodJets);
-
     // for the time being the only OR performed on soft muons is wrt prompt muons
     if (xaod_softmu) {
+      
+      if(m_config->useJets())
+      {
+        top::check(m_overlapRemovalTool_softMuons_Alljets->removeOverlaps(nullptr, xaod_softmu, xaod_jet, nullptr, nullptr), "Failed to identify overlap for soft muons - all jets");
+        if(m_config->useParticleFlowJets())top::check(m_overlapRemovalTool_softMuons_PFjets->removeOverlaps(nullptr, xaod_softmu, xaod_jet, nullptr, nullptr), "Failed to identify overlap for soft muons - PFlow jets");
+      }
+      
       int i(0);
       std::string passTopCuts = "passPreORSelection";
 
@@ -787,27 +821,18 @@ namespace top {
           }
         }
 
-        float dRMin = this->calculateMinDRMuonJet(*x, xaod_jet, goodJets); //nearest jet dR
+        float dRmin = 100; //nearest jet dR
+        if(m_config->useJets()) dRmin=this->calculateMinDRMuonJet(*x, xaod_jet, goodJets, m_config->softmuonDRJetcutUseRapidity());
 
-        if (x->auxdataConst< char >(passTopCuts) == 1 && !promptMuOR &&
-            dRMin < m_config->softmuonDRJetcut()) goodSoftMuons.push_back(i);                                                                                                                                               //the
-                                                                                                                                                                                                                            // dR
-                                                                                                                                                                                                                            // selection
-                                                                                                                                                                                                                            // must
-                                                                                                                                                                                                                            // be
-                                                                                                                                                                                                                            // done
-                                                                                                                                                                                                                            // here,
-                                                                                                                                                                                                                            // because
-                                                                                                                                                                                                                            // we
-                                                                                                                                                                                                                            // need
-                                                                                                                                                                                                                            // the
-                                                                                                                                                                                                                            // post-OR
-                                                                                                                                                                                                                            // jets...
+        if (x->auxdataConst< char >(passTopCuts) == 1 && !promptMuOR && (!m_config->useJets() || dRmin < m_config->softmuonDRJetcut()))
+        {
+           goodSoftMuons.push_back(i);//the dR selection must be done here, because we need the post-OR jets...
+        }
         i++;
       }
     }//end of OR procedure for soft muons
 
-
+    if(m_config->isMC() && m_config->useSoftMuons() && m_config->softmuonAdditionalTruthInfo()) decorateSoftMuonsPostOverlapRemoval(xaod_softmu,goodSoftMuons);
 
     // set the indices in the xAOD::SystematicEvent
     currentSystematic->setGoodPhotons(goodPhotons);
@@ -821,10 +846,35 @@ namespace top {
     currentSystematic->setGoodTrackJets(goodTrackJets);
 
     decorateEventInfoPostOverlapRemoval(goodJets.size(), currentSystematic->isLooseEvent());
-
     return StatusCode::SUCCESS;
   }
+  
+  void TopObjectSelection::decorateSoftMuonsPostOverlapRemoval(const xAOD::MuonContainer* xaod_softmu,std::vector<unsigned int>& goodSoftMuons)
+  {
 
+    for (auto iMu : goodSoftMuons) {
+    // Get muon iMu
+    const xAOD::Muon* muon = xaod_softmu->at(iMu);
+
+        muon->auxdecor<bool>("hasRecoMuonHistoryInfo")=false;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthMuonLink") = 0;
+        muon->auxdecor<top::LepParticleOriginFlag>("LepParticleOriginFlag") = top::LepParticleOriginFlag::MissingTruthInfo;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthFirstNonLeptonMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthBMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthCMotherLink") = 0;
+        muon->auxdecor<top::LepPartonOriginFlag>("LepPartonOriginFlag") = top::LepPartonOriginFlag::MissingTruthInfo;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthPartonMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthTopMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthWMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthZMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthPhotonMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthHiggsMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthBSMMotherLink") = 0;
+        
+        top::truth::getRecoMuonHistory(muon,m_config->softmuonAdditionalTruthInfoCheckPartonOrigin(),m_config->getShoweringAlgorithm(),m_config->softmuonAdditionalTruthInfoDoVerbose());
+    }//end of loop on soft muons
+  }
   void TopObjectSelection::applyTightSelectionPostOverlapRemoval(const xAOD::IParticleContainer* xaod,
                                                                  std::vector<unsigned int>& indices) {
     // Copy the original indices of the xAOD objects in
@@ -896,35 +946,21 @@ namespace top {
     }
   }
 
-  void TopObjectSelection::decorateMuonsPostOverlapRemoval(const xAOD::MuonContainer* xaod_mu,
-                                                           const xAOD::JetContainer* xaod_jet,
-                                                           std::vector<unsigned int>& goodMuons,
-                                                           std::vector<unsigned int>& goodJets) {
-    // Decorate muons with the dR of closest jet (after OR is applied)
-    // Use the good indicies to loop through the good objects
-    for (auto iMu : goodMuons) {
-      // Get muon iMu
-      const xAOD::Muon* muPtr = xaod_mu->at(iMu);
-      this->calculateMinDRMuonJet(*muPtr, xaod_jet, goodJets);
-    }
-    return;
-  }
-
-  float TopObjectSelection::calculateMinDRMuonJet(const xAOD::Muon& mu, const xAOD::JetContainer* xaod_jet,
-                                                  std::vector<unsigned int>& goodJets) {
+  float TopObjectSelection::calculateMinDRMuonJet(const xAOD::Muon& mu, const xAOD::JetContainer* xaod_jet, std::vector<unsigned int>& goodJets, bool useRapidity) {
+    
     float dRMin = 100.0;
-
+    
     // Loop over jets, calculate dR and record smallest value
     for (auto iJet : goodJets) {
       const xAOD::Jet* jetPtr = xaod_jet->at(iJet);
-      float dR = mu.p4().DeltaR(jetPtr->p4());
-      if (dR < dRMin) dRMin = dR;
+      if(jetPtr->isAvailable<char>("passJVT") && !(jetPtr->auxdataConst<char>("passJVT") )) continue; //at this level we still have jets not passing the JVT cut in the ntuple
+      float dR = xAOD::P4Helpers::deltaR(mu,*jetPtr,useRapidity);
+      if (dR < dRMin) 
+      {
+        dRMin = dR;
+      }
     }
-
-    // Decorate the muon with dR of closest jet (ie smallest dR)
-
-    mu.auxdecor< float >("dRJet") = dRMin;
-
+    
     return dRMin;
   }
 

@@ -21,7 +21,7 @@ namespace top {
 
     virtual bool applyParticleLevel(const top::ParticleLevelEvent& plEvent) const override;
 
-    std::string name() const;
+    std::string name() const override;
   private:
     std::string m_name;
 

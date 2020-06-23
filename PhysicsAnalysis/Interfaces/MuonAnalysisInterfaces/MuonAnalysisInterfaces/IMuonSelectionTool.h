@@ -34,6 +34,18 @@ namespace CP {
       ASG_TOOL_INTERFACE( CP::IMuonSelectionTool )
 
    public:
+
+      ///Enum for resolution categories, the "merged" categories Zero to Four group together categories with similar resolution
+      enum ResolutionCategory {
+	unclassified=-1, missingInner=1, missingMiddle=1<<1, missingOuter=1<<2, highPt2station=1<<3, highPt=1<<4,
+	spoiledCSC=1<<5, BEoverlap=1<<6, BIS78=1<<7, missingBEE=1<<8, oneStation=1<<9,
+	CategoryZero = missingInner | spoiledCSC | BEoverlap | BIS78 | missingBEE, 
+	CategoryOne = missingMiddle | oneStation, 
+	CategoryTwo = missingOuter, 
+	CategoryThree = highPt2station, 
+	CategoryFour = highPt
+      };
+
       /// Decide whether the muon in question is a "good muon" or not
       virtual const Root::TAccept& accept( const xAOD::Muon& mu ) const = 0;
 
@@ -65,7 +77,7 @@ namespace CP {
       virtual bool passedLowPtEfficiencyCuts(const xAOD::Muon&) const =0;
       virtual bool passedLowPtEfficiencyCuts(const xAOD::Muon&, xAOD::Muon::Quality thisMu_quality) const =0;
      
-      /// Returns true if a CB muon fails a pt- and eta-dependent cut on the relative CB q/p error   
+      /// Returns true if a CB muon passes a pt- and eta-dependent cut on the relative CB q/p error   
       virtual bool passedErrorCutCB(const xAOD::Muon&) const=0;
 
       /// Returns true if a CB muon fails some loose quaility requirements designed to remove pathological tracks 
@@ -76,6 +88,9 @@ namespace CP {
 
      /// Returns true if the muon passes additional calo-tag quality cuts
      virtual bool passedCaloTagQuality (const xAOD::Muon& mu) const = 0;
+
+     /// Returns an integer corresponding to categorization of muons with different resolutions
+     virtual int getResolutionCategory(const xAOD::Muon&) const=0;
 
    }; // class IMuonSelectionTool
 

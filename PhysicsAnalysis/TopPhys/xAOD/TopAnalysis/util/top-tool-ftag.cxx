@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include <iostream>
@@ -34,6 +34,10 @@
 // to disable the sending of file access statistics
 #include "xAODRootAccess/tools/TFileAccessTracer.h"
 
+#include "TopAnalysis/MsgCategory.h"
+// use ATH_MSG macros defined in the namespace TopAnalysis
+using namespace TopAnalysis;
+
 /**
  * @file The main executable.
  *
@@ -49,16 +53,16 @@ int TestFTag(std::shared_ptr<top::TopConfig>);
 
 std::shared_ptr<top::TopConfig> InitialiseTopSoftware(int argc, char** argv) {
   if (argc != 3) {
-    std::cout << "Code to read an input file and return information on the";
-    std::cout << "anticipated systematics list in the b-tagging calibration";
-    std::cout << "Use like:\n";
-    std::cout << "    " << argv[0] << " cuts.txt input.txt\n";
-    std::cout << "    cuts.txt   - file containing TopConfig\n";
-    std::cout << "    input.txt  - file containing list of input files\n";
-    std::cout << "\n";
-    std::cout << "For example\n";
-    std::cout << "    " << argv[0] <<
-    " $ROOTCOREBIN/data/TopAnalysis/nocuts.txt $ROOTCOREBIN/data/TopAnalysis/input-13TeV-fondueworld.txt\n";
+    ATH_MSG_INFO("Code to read an input file and return information on the"
+        << "anticipated systematics list in the b-tagging calibration"
+        << "Use like:\n"
+        << "    " << argv[0] << " cuts.txt input.txt\n"
+        << "    cuts.txt   - file containing TopConfig\n"
+        << "    input.txt  - file containing list of input files\n"
+        << "\n"
+        << "For example\n"
+        << "    " << argv[0] <<
+        " $ROOTCOREBIN/data/TopAnalysis/nocuts.txt $ROOTCOREBIN/data/TopAnalysis/input-13TeV-fondueworld.txt\n");
     return 0;
   }
 
@@ -72,16 +76,15 @@ std::shared_ptr<top::TopConfig> InitialiseTopSoftware(int argc, char** argv) {
 
   xAOD::TStore store;
 
-  std::cout << "Configuration Files:\n";
   std::string settingsFilename = std::string(argv[1]);
-  std::cout << "    " << settingsFilename << "\n";
-  std::cout << "    " << std::string(argv[2]) << "\n\n";
+  ATH_MSG_INFO("Configuration Files:\n"
+      << settingsFilename << "\n"
+      << std::string(argv[2]) << "\n");
 
   //load the settings from the input file
   auto* const settings = top::ConfigurationSettings::get();
   settings->loadFromFile(settingsFilename);
-  std::cout << "Configuration:\n";
-  std::cout << *settings << "\n";
+  ATH_MSG_INFO("Configuration:\n" << *settings << "\n");
 
   const std::string libraryNames = settings->value("LibraryNames");
   top::loadLibraries(libraryNames);
@@ -105,7 +108,7 @@ std::shared_ptr<top::TopConfig> InitialiseTopSoftware(int argc, char** argv) {
              "Failed to setProperty of topTools");
   top::check(topTools.initialize(), "Failed to initialize topTools");
   topConfig->fixConfiguration();
-  std::cout << *topConfig << "\n";
+  ATH_MSG_INFO(*topConfig);
 
   return topConfig;
 }

@@ -99,7 +99,8 @@ namespace Analysis
 				   const std::map<std::string, std::vector<std::string> >& excludeFromEV,
 				   const std::map<std::string, Analysis::EVReductionStrategy> EVReductions,
 				   bool useEV = true, bool useMCMCSF = true,
-				   bool useTopologyRescaling = false, bool useRecommendedEVExclusions = false);
+				   bool useTopologyRescaling = false, bool useRecommendedEVExclusions = false,
+				   bool verbose = true);
 
       /** default constructor for PROOF object retrieval */
       CalibrationDataInterfaceROOT();
@@ -412,6 +413,9 @@ namespace Analysis
 
       /** if true, exclude pre-recommended lists of uncertainties from the covariance matrix building, in addition to the above user specified lists **/
       bool m_useRecommendedEVExclusions;
+      
+      /** if true, allow also for some informational (and not only error/warning) messages **/
+      bool m_verbose;
 
       // ------------------------------------------------------------------------------------------
 

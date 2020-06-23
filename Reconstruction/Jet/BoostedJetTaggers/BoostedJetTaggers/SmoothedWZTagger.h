@@ -1,7 +1,5 @@
-// for editors : this file is -*- C++ -*-
-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BOOSTEDJETSTAGGERS_SMOOTHEDWZTAGGER_H_
@@ -9,6 +7,7 @@
 
 #include "BoostedJetTaggers/JSSTaggerBase.h"
 #include "AsgTools/AsgTool.h"
+#include "ParticleJetTools/JetTruthLabelingTool.h"
 
 #include "PATCore/TAccept.h"
 
@@ -42,9 +41,6 @@ class SmoothedWZTagger : public  JSSTaggerBase {
   private:
 
     // need to set in initialization
-    std::string m_wkpt;
-    std::string m_tagType;
-    std::string m_configFile;
     std::string m_weightConfigPath;
 
     // parameters to store specific cut values
@@ -59,9 +55,9 @@ class SmoothedWZTagger : public  JSSTaggerBase {
     TF1* m_funcD2Cut;
     TF1* m_funcNtrkCut;
 
-    // string for decorating jets with DNN output
-    std::string m_decorationName;
- 
+     // truth labeling tool
+    asg::AnaToolHandle<JetTruthLabelingTool> m_JetTruthLabelingTool; //!
+
     // string for scale factors
     std::string m_weightdecorationName;
     std::string m_weightFileName;
@@ -79,9 +75,6 @@ class SmoothedWZTagger : public  JSSTaggerBase {
     SG::AuxElement::Decorator<float>    m_dec_ntrkcut;
     SG::AuxElement::Decorator<float>    m_dec_weight;
     SG::AuxElement::Decorator<int>      m_dec_accept;
-
-    // accessor to truth label
-    SG::AuxElement::ConstAccessor<int> m_acc_truthLabel;
 };
 
 #endif

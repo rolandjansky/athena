@@ -34,6 +34,7 @@
 // CP Tool include(s):
 #include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"
+#include "IsolationSelection/IIsolationLowPtPLVTool.h"
 // the following is needed to make sure all muons for which d0sig is calculated are at least Loose
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "MuonMomentumCorrections/MuonCalibrationPeriodTool.h"
@@ -76,6 +77,7 @@ namespace top {
     ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_calibrationTool2017;
 
     ///-- Isolation --///
+    //until release 21.2.110 these are the used WPs
     ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FCTight;
     ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FCLoose;
     ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FCTightTrackOnly;
@@ -84,8 +86,26 @@ namespace top {
     ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FCTight_FixedRad;
     ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FixedCutPflowTight;
     ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FixedCutPflowLoose;
+    //since release 21.2.111 these are the used WPs
+    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_PflowTight_FixedRad;
+    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_PflowLoose_FixedRad;
+    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_PflowTight_VarRad;
+    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_PflowLoose_VarRad;
+    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_HighPtTrackOnly;
+    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_TightTrackOnly_VarRad;
+    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_TightTrackOnly_FixedRad;
+    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_PLVTight;
+    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_PLVLoose;
+    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_Tight_VarRad;
+    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_Tight_FixedRad;
+    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_Loose_VarRad;
+    ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_Loose_FixedRad;
+
+    ToolHandle<CP::IIsolationLowPtPLVTool> m_isolationTool_LowPtPLV;
     // the following is needed to make sure all muons for which d0sig is calculated are at least Loose
     ToolHandle<CP::IMuonSelectionTool> m_muonSelectionToolVeryLooseVeto;
+
+    bool m_isFirstEvent;
   };
 } // namespace
 #endif

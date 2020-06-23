@@ -124,20 +124,21 @@ else:
   import ROOT
   ROOT.gROOT.Macro( '$ROOTCOREDIR/scripts/load_packages.C' )
 
-  # Initialize the xAOD infrastructure: 
-  ROOT.xAOD.Init().ignore()
-
-  # Setup the tools
-  vertexTool = ROOT.CP.PhotonVertexSelectionTool("PhotonVertexSelectionTool")
-
   # Create transient tree: has to be done before initialising the pointing tool
   f = ROOT.TFile.Open( options.inputfile, "READ" )
   t = ROOT.xAOD.MakeTransientTree( f, "CollectionTree", ROOT.xAOD.TEvent.kAthenaAccess )
   import xAODRootAccess.GenerateDVIterators
 
+  # Setup the tools
+  vertexTool = ROOT.CP.PhotonVertexSelectionTool("PhotonVertexSelectionTool")
+  pTool = ROOT.CP.PhotonPointingTool("yyVtxPointingTool")
+  # in cxx this expects a ToolHandle. Here I give it a string and this works fine ??
+  vertexTool.setProperty("PhotonPointingTool","yyVtxPointingTool")
+  #print r.asg.ToolStore.dumpToolConfig()
+
   # Initialise tools
-  if not vertexTool.initialize().isSuccess():
-    print( "Couldn't initialise the vertex tool" )
+  if not pTool.initialize().isSuccess() or not vertexTool.initialize().isSuccess():
+    print( "Couldn't initialise the vertex or pointing tool" )
     sys.exit( 1 )
     pass
 

@@ -20,6 +20,7 @@
 #include "xAODJet/JetAuxContainer.h"
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODCore/ShallowCopy.h"
+#include "FourMomUtils/xAODP4Helpers.h"
 
 #include "TopPartons/PartonHistory.h"
 
@@ -372,11 +373,19 @@ namespace top {
         auto jet = calibratedJetsTDS->at(index);
 
         if (m_config->isMC()) {
-          // make product of SF (initialised to 1 in the header)
+          // JVT and fJVT, make product of SF (initialised to 1 in the header)
           top::check(jet->isAvailable<float>(
                        "JET_SF_jvt"),
                      " Can't find jet decoration \"JET_SF_jvt\" - we need it to calculate the jet scale-factors!");
           event.m_jvtSF *= jet->auxdataConst<float>("JET_SF_jvt");
+	  
+	  // fJVT scale factors not added to jets unless fJVT is requested
+	  if (m_config->getfJVTWP() != "None") {
+	    top::check(jet->isAvailable<float>(
+		        "JET_SF_fjvt"),
+		       " Can't find jet decoration \"JET_SF_fjvt\" - we need it to calculate the forward jet scale-factors!");
+	    event.m_fjvtSF *= jet->auxdataConst<float>("JET_SF_fjvt");
+	  }
           if (currentSystematic.hashValue() == m_config->nominalHashValue()) {// we only need the up/down JVT SF systs
                                                                               // for nominal
             top::check(jet->isAvailable<float>(
@@ -387,13 +396,37 @@ namespace top {
                          "JET_SF_jvt_DOWN"),
                        " Can't find jet decoration \"JET_SF_jvt_DOWN\" - we need it to calculate the jet scale-factors!");
             event.m_jvtSF_DOWN *= jet->auxdataConst<float>("JET_SF_jvt_DOWN");
-          }
-        }
+
+	    // fJVT scale factors not added to jets unless fJVT is requested
+	    if (m_config->getfJVTWP() != "None") {
+	      top::check(jet->isAvailable<float>(
+						 "JET_SF_fjvt_UP"),
+			 " Can't find jet decoration \"JET_SF_fjvt_UP\" - we need it to calculate the forward jet scale-factors!");
+	      event.m_fjvtSF_UP *= jet->auxdataConst<float>("JET_SF_fjvt_UP");
+	      top::check(jet->isAvailable<float>(
+						 "JET_SF_fjvt_DOWN"),
+			 " Can't find jet decoration \"JET_SF_fjvt_DOWN\" - we need it to calculate the forward jet scale-factors!");
+	      event.m_fjvtSF_DOWN *= jet->auxdataConst<float>("JET_SF_fjvt_DOWN");
+	    }
+          } //isNominal
+        } //isMC
 
         top::check(jet->isAvailable<char>(
                      "passJVT"),
                    " Can't find jet decoration \"passJVT\" - we need it to decide if we should keep the jet in the top::Event instance or not!");
-        if (jet->auxdataConst<char>("passJVT")) event.m_jets.push_back(calibratedJetsTDS->at(index));
+	bool passfJVT(true);
+	if (m_config->doForwardJVTinMET() || m_config->getfJVTWP() != "None") {
+	  top::check(jet->isAvailable<char>("AnalysisTop_fJVTdecision"),
+		     " Can't find jet decoration \"AnalysisTop_fJVTdecision\" - we need it to decide if we should keep forward jets in the top::Event instance or not!");
+	  passfJVT = jet->auxdataConst<char>("AnalysisTop_fJVTdecision");
+	  if (m_config->saveFailForwardJVTJets()) {
+	    if (!passfJVT) event.m_failFJvt_jets.push_back(calibratedJetsTDS->at(index));
+	  }
+	  //Add to failFJVT collection but don't actually cut on fJVT if fJVT is only requested in MET calculation (I'm not sure people will ever actually do this)
+	  if (m_config->getfJVTWP() == "None") passfJVT = true;
+	}
+
+        if (jet->auxdataConst<char>("passJVT") && passfJVT) event.m_jets.push_back(calibratedJetsTDS->at(index));
         if (m_config->saveFailJVTJets()) {
           if (!jet->auxdataConst<char>("passJVT")) event.m_failJvt_jets.push_back(calibratedJetsTDS->at(index));
         }
@@ -403,6 +436,9 @@ namespace top {
       //sort only the selected taus (faster)
       event.m_jets.sort(top::descendingPtSorter);
       if (m_config->saveFailJVTJets()) event.m_failJvt_jets.sort(top::descendingPtSorter);
+      if ( (m_config->doForwardJVTinMET() || m_config->getfJVTWP() != "None") && m_config->saveFailForwardJVTJets()){
+	event.m_failFJvt_jets.sort(top::descendingPtSorter);
+      }
     }
 
     // Reclustered jets
@@ -549,8 +585,59 @@ namespace top {
       } // end doTopPartonHistory
     } // end isMC
 
-
-
+    decorateTopEvent(event);
+    
     return event;
   }
+  
+  void TopEventMaker::decorateTopEvent(top::Event &event)
+  {
+    if(m_config->useSoftMuons()) decorateTopEventSoftMuons(event);
+  }
+  
+  void TopEventMaker::decorateTopEventSoftMuons(top::Event &event)
+  {
+    if(!m_config->useJets()) return;
+    
+    //first we initialize decorations for all jets
+    for(const xAOD::Jet* jet : event.m_jets) 
+    {
+      jet->auxdecor<int>("AT_SoftMuonIndex")=-1;
+      jet->auxdecor<float>("AT_SoftMuonDR")=-1;
+    }
+      
+    int imuon=0;
+    for(const xAOD::Muon* sm : event.m_softmuons)
+    {
+      //writing auxiliary info for SMT jet tagging
+      double dRmin=100.;
+      int nearestJetIndex=-1;
+      int ijet=0;
+      for(const xAOD::Jet *jet : event.m_jets)
+      {
+        double dr= xAOD::P4Helpers::deltaR(sm,jet,m_config->softmuonDRJetcutUseRapidity());
+        if(dr<dRmin && dr<m_config->softmuonDRJetcut())
+        {
+          dRmin=dr;
+          nearestJetIndex=ijet;
+        }
+        ijet++;
+      }
+      sm->auxdecor<int>("AT_SMTJetIndex")=nearestJetIndex;
+      sm->auxdecor<float>("AT_SMTJetDR")=dRmin;
+      
+      if(nearestJetIndex>=0)
+      {
+        const xAOD::Jet *jet = event.m_jets[nearestJetIndex];
+        if(jet->auxdecor<int>("AT_SoftMuonIndex")<0) //in this way we only associate a jet with the highest pt soft muon
+        {
+          jet->auxdecor<int>("AT_SoftMuonIndex")=imuon;
+          jet->auxdecor<float>("AT_SoftMuonDR")=dRmin;
+        }
+      }//end of case where we found a jet nearby
+      
+      imuon++;
+    }//end of loop on muons
+    
+  }//end of TopEventMaker::decorateTopEvent
 }

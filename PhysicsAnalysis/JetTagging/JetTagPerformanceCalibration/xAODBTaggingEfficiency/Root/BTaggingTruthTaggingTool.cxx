@@ -135,6 +135,7 @@ StatusCode BTaggingTruthTaggingTool::initialize() {
   ANA_CHECK(m_selTool.setProperty("FlvTagCutDefinitionsFileName", m_SFFile));
   ANA_CHECK(m_selTool.initialize());
 
+  ANA_CHECK(m_effTool.setProperty("MinPt",                           m_minPt));
   ANA_CHECK(m_effTool.setProperty("TaggerName",                      m_taggerName));
   ANA_CHECK(m_effTool.setProperty("OperatingPoint",                  m_OP));
   ANA_CHECK(m_effTool.setProperty("JetAuthor",                       m_jetAuthor));
@@ -927,15 +928,14 @@ StatusCode BTaggingTruthTaggingTool::chooseTagPermutation(TRFinfo &trfinf,unsign
 
 
 ///// tag bins  //////////////////////
-  // Cheatsheet:
-  // returns 5 if between 60% and 0%
-  // returns 4 if between 70% and 60%
-  // returns 3 if between 77% and 70%
-  // returns 2 if between 85% and 77%
-  // returns 1 if between 100% and 85%
-  // returns 0 if smaller than -1e4-> should never happen
-  // return -1 if bigger than 1e4 or not in b-tagging acceptance
-  //////////////////////
+// Cheatsheet:
+// returns 5 if between 60% and 0%
+// returns 4 if between 70% and 60%
+// returns 3 if between 77% and 70%
+// returns 2 if between 85% and 77%
+// returns 1 if between 100% and 85%
+// return -1 if not in b-tagging acceptance
+//////////////////////
 
 
 StatusCode BTaggingTruthTaggingTool::getQuantiles(TRFinfo &trfinf,std::vector<std::vector<int> > &trf_bin_ex, std::vector<std::vector<int> > &trf_bin_in){

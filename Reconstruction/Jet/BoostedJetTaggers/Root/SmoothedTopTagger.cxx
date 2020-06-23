@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BoostedJetTaggers/SmoothedTopTagger.h"
@@ -20,12 +20,6 @@ SmoothedTopTagger::SmoothedTopTagger( const std::string& name ) :
   m_dec_qwcut("qwcut")
 {
 
-  declareProperty( "ConfigFile",   m_configFile="");
-
-  declareProperty( "WorkingPoint", m_wkpt="" );
-  declareProperty( "Decoration",   m_decorationName="XX");
-  declareProperty( "DecorateJet",  m_decorate=true);
-
   declareProperty( "JetPtMin",              m_jetPtMin = 350000.0);
   declareProperty( "JetPtMax",              m_jetPtMax = 3000000.0);
   declareProperty( "JetEtaMax",             m_jetEtaMax = 2.0);
@@ -34,8 +28,6 @@ SmoothedTopTagger::SmoothedTopTagger( const std::string& name ) :
   declareProperty( "Var2CutFunc", m_var2CutExpr="", "") ;
 
   declareProperty( "TaggerMode",   m_modeName="");
-
-  declareProperty( "CalibArea", m_calibarea="");
 
 }
 
@@ -64,7 +56,7 @@ StatusCode SmoothedTopTagger::initialize(){
     // check for the existence of the configuration file
     std::string configPath;
 
-    configPath = PathResolverFindCalibFile(("BoostedJetTaggers/"+m_calibarea+"/"+m_configFile).c_str());
+    configPath = PathResolverFindCalibFile(("BoostedJetTaggers/"+m_calibArea+"/"+m_configFile).c_str());
 
     /* https://root.cern.ch/root/roottalk/roottalk02/5332.html */
     FileStat_t fStats;

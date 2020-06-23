@@ -26,6 +26,7 @@
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/ToolHandleArray.h"
 #include "AsgTools/AnaToolHandle.h"
+#include "AssociationUtils/IOverlapRemovalTool.h"
 
 // Top include(s):
 #include "TopObjectSelectionTools/ElectronSelectionBase.h"
@@ -207,7 +208,7 @@ namespace top {
      * @brief Print details of this object selection to wherever the user asks
      * for.  Useful for checking cuts in the log files I hope!
      *
-     * @param os Where you would like the output printing to, presumably std::cout?
+     * @param os Where you would like the output printing to, e.g. msg stream.
      */
     virtual void print(std::ostream& os) const;
 
@@ -239,11 +240,9 @@ namespace top {
                                 std::vector<unsigned int>& goodElectrons,
                                 std::vector<unsigned int>& goodMuons,
                                 std::vector<unsigned int>& goodTrackJets);
-
-    void decorateMuonsPostOverlapRemoval(const xAOD::MuonContainer* xaod_mu,
-                                         const xAOD::JetContainer* xaod_jet,
-                                         std::vector<unsigned int>& goodMuons,
-                                         std::vector<unsigned int>& goodJets);
+                                         
+    void decorateSoftMuonsPostOverlapRemoval(const xAOD::MuonContainer* xaod_softmu,
+                                         std::vector<unsigned int>& goodMuons);
 
     /**
      * @brief Pointer to the configuration object so we can check which objects
@@ -288,7 +287,7 @@ namespace top {
     // Pass selection strings
     const std::string m_passPreORSelection;
     const std::string m_passPreORSelectionLoose;
-    // the following two are used to give failing JVT jets a lower priority in the OR
+    // the following two are used to give failing JVT and failing fJVT jets a lower priority in the OR
     const std::string m_ORToolDecoration;
     const std::string m_ORToolDecorationLoose;
 
@@ -298,13 +297,17 @@ namespace top {
     // do decorate the jets with the b-tagging flags
     std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool> > m_btagSelTools;
     std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool> > m_trkjet_btagSelTools;
-
+    
     // Boolean to handle only running selection on nominal/systematics
     bool m_executeNominal;
+    
+    //helper OR tool for soft muons
+    asg::AnaToolHandle<ORUtils::IOverlapRemovalTool> m_overlapRemovalTool_softMuons_PFjets;
+    asg::AnaToolHandle<ORUtils::IOverlapRemovalTool> m_overlapRemovalTool_softMuons_Alljets;
+
     // Function to decorate event info
     void decorateEventInfoPostOverlapRemoval(int, bool);
-    float calculateMinDRMuonJet(const xAOD::Muon& mu, const xAOD::JetContainer* xaod_jet,
-                                std::vector<unsigned int>& goodJets);
+    float calculateMinDRMuonJet(const xAOD::Muon& mu, const xAOD::JetContainer* xaod_jet, std::vector<unsigned int>& goodJets, bool useRapidity=false);
   };
 }
 #endif

@@ -11,7 +11,6 @@
 
 #include "MuonEfficiencyCorrections/EfficiencyScaleFactor.h"
 #include "MuonEfficiencyCorrections/EffiCollection.h"
-#include "MuonEfficiencyCorrections/fineEtaPhiBinning.h"
 #include "MuonEfficiencyCorrections/HistHandler.h"
 
 #include "MuonEfficiencyCorrections/KinematicSystHandler.h"
@@ -19,6 +18,5 @@
 
 #include "MuonEfficiencyCorrections/MuonSFTestHelper.h"
 #include "MuonEfficiencyCorrections/MuonTriggerScaleFactors.h"
-
 
 #endif /* MUONEFFICIENCYCORRECTIONSDICT_H_ */

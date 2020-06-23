@@ -56,8 +56,11 @@ atlas_add_dictionary( xAODRootAccessDict
 # Install the Python modules of the package:
 atlas_install_python_modules( python/*.py )
 
-# Install the checkxAOD.py script
-atlas_install_scripts( scripts/checkxAOD.py )
+# Install the checkxAOD.py script, only for the standalone analysis release.
+# Athena based releases have a different implementation available to them.
+if( XAOD_STANDALONE )
+   atlas_install_scripts( scripts/checkxAOD.py )
+endif()
 
 # Build the executables of the package:
 foreach( exec xAODChecker xAODMerge xAODFileReadTest )

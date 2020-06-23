@@ -176,26 +176,26 @@ namespace CP {
             wp->addCut(new IsolationConditionFormula("ptcone20_1p25", xAOD::Iso::ptcone20, "1.25E03"));  //units are MeV!
         } else if (muWPname == "HighPtTrackOnly") {
             wp->addCut(new IsolationConditionFormula("ptcone20_Tight_1p25", xAOD::Iso::ptcone20_TightTTVA_pt1000, "1.25E03"));  //units are MeV!
-        } else if (muWPname == "FCTightTrackOnly_FixedRad") {
+        } else if (muWPname == "FCTightTrackOnly_FixedRad" || muWPname == "TightTrackOnly_FixedRad") {
             wp->addCut(new IsolationConditionFormula("MuonFixedCutHighMuTrackOnly_lowPt", xAOD::Iso::ptvarcone30_TightTTVA_pt1000, "0.06*(x>50e3?1e9:x)"));
             wp->addCut(new IsolationConditionFormula("MuonFixedCutHighMuTrackOnly_highPt", xAOD::Iso::ptcone20_TightTTVA_pt1000, "0.06*(x>50e3?x:1e9)"));
-        } else if (muWPname == "FCTight_FixedRad") {
+        } else if (muWPname == "FCTight_FixedRad" || muWPname == "Tight_FixedRad") {
             wp->addCut(new IsolationConditionFormula("MuonFixedCutHighMuTight_track_lowPt", xAOD::Iso::ptvarcone30_TightTTVA_pt1000, "0.04*(x>50e3?1e9:x)"));
             wp->addCut(new IsolationConditionFormula("MuonFixedCutHighMuTight_track_highPt", xAOD::Iso::ptcone20_TightTTVA_pt1000, "0.04*(x>50e3?x:1e9)"));
             wp->addCut(new IsolationConditionFormula("MuonFixedCutHighMuTight_calo", xAOD::Iso::topoetcone20, "0.15*x"));
-        } else if (muWPname == "FCLoose_FixedRad") {
+        } else if (muWPname == "FCLoose_FixedRad" || muWPname == "Loose_FixedRad") {
             wp->addCut(new IsolationConditionFormula("MuonFixedCutHighMuLoose_track_lowPt", xAOD::Iso::ptvarcone30_TightTTVA_pt1000, "0.15*(x>50e3?1e9:x)"));
             wp->addCut(new IsolationConditionFormula("MuonFixedCutHighMuLoose_track_highPt", xAOD::Iso::ptcone20_TightTTVA_pt1000, "0.15*(x>50e3?x:1e9)"));
             wp->addCut(new IsolationConditionFormula("MuonFixedCutHighMuLoose_calo", xAOD::Iso::topoetcone20, "0.30*x"));
-        } else if (muWPname == "FCTightTrackOnly") {
+        } else if (muWPname == "FCTightTrackOnly" || muWPname == "TightTrackOnly_VarRad") {
             wp->addCut(new IsolationConditionFormula("MuonFixedCutHighMuTrackOnly", xAOD::Iso::ptvarcone30_TightTTVA_pt1000, "0.06*x"));
-        } else if (muWPname == "FCTight") {
+        } else if (muWPname == "FCTight" || muWPname == "Tight_VarRad") {
             wp->addCut(new IsolationConditionFormula("MuonFixedCutHighMuTight_track", xAOD::Iso::ptvarcone30_TightTTVA_pt1000, "0.04*x"));
             wp->addCut(new IsolationConditionFormula("MuonFixedCutHighMuTight_calo", xAOD::Iso::topoetcone20, "0.15*x"));
-        } else if (muWPname == "FCLoose") {
+        } else if (muWPname == "FCLoose" || muWPname == "Loose_VarRad") {
             wp->addCut(new IsolationConditionFormula("MuonFixedCutHighMuLoose_track", xAOD::Iso::ptvarcone30_TightTTVA_pt1000, "0.15*x"));
             wp->addCut(new IsolationConditionFormula("MuonFixedCutHighMuLoose_calo", xAOD::Iso::topoetcone20, "0.30*x"));
-        } else if (muWPname == "FixedCutPflowTight") {
+        } else if (muWPname == "FixedCutPflowTight" || muWPname == "PflowTight_FixedRad") {
             std::vector<xAOD::Iso::IsolationType> isoTypesHighPt;
             std::vector<xAOD::Iso::IsolationType> isoTypesLowPt;
             isoTypesHighPt.push_back(xAOD::Iso::ptcone20_TightTTVA_pt500);
@@ -204,7 +204,12 @@ namespace CP {
             isoTypesLowPt.push_back(xAOD::Iso::neflowisol20);
             wp->addCut(new IsolationConditionCombined("MuonPFlowTightLowPt", isoTypesLowPt, TF2("pflowTFunctionLowPt","fabs(x)+0.4*(y>0?y:0)"), "0.045*(x>50e3?1e9:x)"));
             wp->addCut(new IsolationConditionCombined("MuonPFlowTightHighPt", isoTypesHighPt, TF2("pflowTFunctionHighPt","fabs(x)+0.4*(y>0?y:0)"), "0.045*(x>50e3?x:1e9)"));
-        } else if (muWPname == "FixedCutPflowLoose") {
+        } else if (muWPname == "PflowTight_VarRad") {
+            std::vector<xAOD::Iso::IsolationType> isoTypes;
+            isoTypes.push_back(xAOD::Iso::ptvarcone30_TightTTVA_pt500);
+            isoTypes.push_back(xAOD::Iso::neflowisol20);
+            wp->addCut(new IsolationConditionCombined("MuonPFlowTight", isoTypes, TF2("pflowTFunction","fabs(x)+0.4*(y>0?y:0)"), "0.045*x"));
+        } else if (muWPname == "FixedCutPflowLoose" || muWPname == "PflowLoose_FixedRad") {
             std::vector<xAOD::Iso::IsolationType> isoTypesHighPt;
             std::vector<xAOD::Iso::IsolationType> isoTypesLowPt;
             isoTypesHighPt.push_back(xAOD::Iso::ptcone20_TightTTVA_pt500);
@@ -213,6 +218,11 @@ namespace CP {
             isoTypesLowPt.push_back(xAOD::Iso::neflowisol20);
             wp->addCut(new IsolationConditionCombined("MuonPFlowLooseLowPt", isoTypesLowPt, TF2("pflowLFunctionLowPt","fabs(x)+0.4*(y>0?y:0)"), "0.16*(x>50e3?1e9:x)"));
             wp->addCut(new IsolationConditionCombined("MuonPFlowLooseHighPt", isoTypesHighPt, TF2("pflowLFunctionHighPt","fabs(x)+0.4*(y>0?y:0)"), "0.16*(x>50e3?x:1e9)"));
+        } else if (muWPname == "PflowLoose_VarRad") {
+            std::vector<xAOD::Iso::IsolationType> isoTypes;
+            isoTypes.push_back(xAOD::Iso::ptvarcone30_TightTTVA_pt500);
+            isoTypes.push_back(xAOD::Iso::neflowisol20);
+            wp->addCut(new IsolationConditionCombined("MuonPFlowLoose", isoTypes, TF2("pflowTFunction","fabs(x)+0.4*(y>0?y:0)"), "0.16*x"));
         } else if (muWPname == "FixedCutLoosePLV") {
             wp->addCut(new IsolationConditionFormula("MuonFixedCutLoose_track", xAOD::Iso::ptvarcone30, "0.15*x"));
             wp->addCut(new IsolationConditionFormula("MuonFixedCutLoose_calo", xAOD::Iso::topoetcone20, "0.30*x"));
@@ -300,13 +310,13 @@ namespace CP {
         } else if (elWPname == "FCLoose") {
             wp->addCut(new IsolationConditionFormula("ElecFixedCutHighMuLoose_track", xAOD::Iso::ptvarcone20_TightTTVA_pt1000, "0.15*x"));
             wp->addCut(new IsolationConditionFormula("ElecFixedCutHighMuLoose_calo", xAOD::Iso::topoetcone20, "0.20*x"));
-        } else if (elWPname == "Tight") {
+        } else if (elWPname == "Tight" || elWPname == "Tight_VarRad") {
             wp->addCut(new IsolationConditionFormula("ElecTight_track", xAOD::Iso::ptvarcone30_TightTTVALooseCone_pt1000, "0.06*x"));
             wp->addCut(new IsolationConditionFormula("ElecTight_calo", xAOD::Iso::topoetcone20, "0.06*x"));
-        } else if (elWPname == "Loose") {
+        } else if (elWPname == "Loose" || elWPname == "Loose_VarRad") {
             wp->addCut(new IsolationConditionFormula("ElecLoose_track", xAOD::Iso::ptvarcone30_TightTTVALooseCone_pt1000, "0.15*x"));
             wp->addCut(new IsolationConditionFormula("ElecLoose_calo", xAOD::Iso::topoetcone20, "0.20*x"));
-        } else if (elWPname == "TightTrackOnly") {
+        } else if (elWPname == "TightTrackOnly" || elWPname == "TightTrackOnly_VarRad") {
             wp->addCut(new IsolationConditionFormula("ElecTightTrackOnly", xAOD::Iso::ptvarcone30_TightTTVALooseCone_pt1000, "0.06*x"));
         } else if (elWPname == "TightTrackOnly_FixedRad") {
             wp->addCut(new IsolationConditionFormula("ElecTightTrackOnly_lowPt", xAOD::Iso::ptvarcone30_TightTTVALooseCone_pt1000, "0.06*(x>50e3?1e9:x)"));

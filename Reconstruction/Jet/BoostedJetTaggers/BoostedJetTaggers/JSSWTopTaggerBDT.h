@@ -1,7 +1,5 @@
-// for editors : this file is -*- C++ -*-
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JSSWTOPTAGGERBDT_H_
@@ -14,16 +12,7 @@
 #include "TMVA/Reader.h"
 #include "TMVA/MethodCuts.h"
 
-#include <TSystem.h>
-#include <TFile.h>
 #include <TF1.h>
-
-#include <unordered_map>
-#include <unordered_set>
-#include <memory>
-#include <set>
-#include <list>
-#include <vector>
 
 class JSSWTopTaggerBDT : public JSSTaggerBase {
   ASG_TOOL_CLASS0(JSSWTopTaggerBDT)
@@ -70,13 +59,6 @@ class JSSWTopTaggerBDT : public JSSTaggerBase {
     std::string m_inputVariableSet;
     std::string m_BDTmethod;
 
-    // inclusive config file
-    std::string m_configFile;
-    std::string m_tagType;
-    std::string m_tmvaConfigFileName;
-    std::string m_tmvaConfigFilePath;
-    std::string m_calibarea_tmva;
-
     // for internal usage
     mutable TAGCLASS m_TagClass;
 
@@ -121,15 +103,11 @@ class JSSWTopTaggerBDT : public JSSTaggerBase {
     TF1* m_funcMassCutHigh;
     TF1* m_funcScoreCut;
 
-    // string for decorating jets with DNN output
-    std::string m_decorationName;
-
     // decorators
     SG::AuxElement::Decorator<float> m_dec_mcutL;
     SG::AuxElement::Decorator<float> m_dec_mcutH;
     SG::AuxElement::Decorator<float> m_dec_scoreCut;
     SG::AuxElement::Decorator<float> m_dec_scoreValue;
-
 };
 
 #endif

@@ -69,6 +69,9 @@ if (DerivationFrameworkIsMonteCarlo):
    # Re-point links on reco objects
    addMiniTruthCollectionLinks(SeqPHYS2)
    addPVCollection(SeqPHYS2)
+   # Set appropriate truth jet collection for tau truth matching
+   ToolSvc.DFCommonTauTruthMatchingTool.TruthJetContainerName = "AntiKt4TruthDressedWZJets"
+   # SUSY signal
    from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
    if IsSUSYSignal():
       from DerivationFrameworkSUSY.SUSYWeightMetadata import *
@@ -135,11 +138,12 @@ ToolSvc += PHYS2MuonTPThinningTool
 thinningTools.append(PHYS2MuonTPThinningTool)
 
 # TauJets thinning
+tau_thinning_expression = "(TauJets.ptFinalCalib >= 13.*GeV) && (TauJets.nTracks>=1) && (TauJets.nTracks<=3) && (TauJets.RNNJetScoreSigTrans>0.01)"
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
 PHYS2TauJetsThinningTool = DerivationFramework__GenericObjectThinning(name            = "PHYS2TauJetsThinningTool",
                                                                      ThinningService = PHYS2ThinningHelper.ThinningSvc(),
                                                                      ContainerName   = "TauJets",
-                                                                     SelectionString = "(TauJets.ptFinalCalib >= 13.*GeV) && (TauJets.nTracks>=1) && (TauJets.nTracks<=3)")
+                                                                     SelectionString = tau_thinning_expression)
 ToolSvc += PHYS2TauJetsThinningTool
 thinningTools.append(PHYS2TauJetsThinningTool)
 
@@ -149,7 +153,7 @@ PHYS2TauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name     
                                                                       ThinningService        = PHYS2ThinningHelper.ThinningSvc(),
                                                                       TauKey                 = "TauJets",
                                                                       InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                      SelectionString        = "(TauJets.ptFinalCalib >= 13.*GeV) && (TauJets.nTracks>=1) && (TauJets.nTracks<=3)",
+                                                                      SelectionString        = tau_thinning_expression,
                                                                       ApplyAnd               = False,
                                                                       DoTauTracksThinning    = True,
                                                                       TauTracksKey           = "TauTracks")
@@ -177,6 +181,10 @@ if (DerivationFrameworkIsMonteCarlo):
 
 replaceAODReducedJets(reducedJetList,SeqPHYS2,"PHYS2")
 addDefaultTrimmedJets(SeqPHYS2,"PHYS2",dotruth=DerivationFrameworkIsMonteCarlo)
+
+# Add large-R jet truth labeling
+if (DerivationFrameworkIsMonteCarlo):
+   addJetTruthLabel(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=SeqPHYS2,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Consolidated")
 
 addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=SeqPHYS2,algname="QGTaggerToolAlg")
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqPHYS2,algname="QGTaggerToolPFAlg")

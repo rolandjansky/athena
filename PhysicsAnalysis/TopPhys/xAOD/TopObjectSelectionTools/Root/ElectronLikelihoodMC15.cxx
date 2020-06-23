@@ -1,11 +1,14 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopObjectSelectionTools/ElectronLikelihoodMC15.h"
 #include "TopEvent/EventTools.h"
 #include "ElectronPhotonSelectorTools/AsgElectronChargeIDSelectorTool.h"
 #include <iostream>
+
+#include "TopObjectSelectionTools/MsgCategory.h"
+using namespace TopObjectSelectionTools;
 
 namespace top {
   ElectronLikelihoodMC15::ElectronLikelihoodMC15(const double ptcut, const bool vetoCrack,
@@ -119,15 +122,15 @@ namespace top {
     //WARNING: and this electron is vetoed from the selection
     try {
       if (el.auxdataConst<int>("DFCommonElectronsLHLoose") != 1) {
-        std::cerr << "This electron fails the DFCommonElectronsLHLoose and has an incorrect decoration." << std::endl;
-        std::cerr << " pt (" << el.pt() << "), eta (" << el.eta() << ")" << std::endl;
+        ATH_MSG_ERROR("This electron fails the DFCommonElectronsLHLoose and has an incorrect decoration.\n pt ("
+            << el.pt() << "), eta (" << el.eta() << ")");
         return false;
       }
     }
     catch (const SG::ExcAuxTypeMismatch& e) {
       if (el.auxdataConst<char>("DFCommonElectronsLHLoose") != 1) {
-        std::cerr << "This electron fails the DFCommonElectronsLHLoose and has an incorrect decoration." << std::endl;
-        std::cerr << " pt (" << el.pt() << "), eta (" << el.eta() << ")" << std::endl;
+        ATH_MSG_ERROR("This electron fails the DFCommonElectronsLHLoose and has an incorrect decoration.\n pt ("
+            << el.pt() << "), eta (" << el.eta() << ")");
         return false;
       }
     }
@@ -140,6 +143,11 @@ namespace top {
     //Good electrons should always have a cluster, if not then crash to warn us
     //Better than checking and silently doing nothing...
     if (std::fabs(el.caloCluster()->etaBE(2)) > 2.47) return false;
+
+    //Veto electrons suffering from the 2015+2016/mc16a crack+topocluster association bug
+    //See https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/HowToCleanJets2017#EGamma_Crack_Electron_topocluste for details
+    if (el.isAvailable<char>("DFCommonCrackVetoCleaning"))
+	if (!el.auxdataConst<char>("DFCommonCrackVetoCleaning")) return false;
 
     if (m_vetoCrack && std::fabs(el.caloCluster()->etaBE(2)) > 1.37 &&
         std::fabs(el.caloCluster()->etaBE(2)) < 1.52) return false;
@@ -179,8 +187,7 @@ namespace top {
     // TTVA:
     // see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TrackingCPEOYE2015#Track_to_Vertex_Association
     if (!el.isAvailable<float>("d0sig")) {
-      std::cout << "d0 significance not found for electron. "
-                << "Maybe no primary vertex? Won't accept." << std::endl;
+      ATH_MSG_WARNING("d0 significance not found for electron. Maybe no primary vertex? Won't accept.");
       return false;
     }
 
@@ -188,8 +195,7 @@ namespace top {
     if (std::abs(d0sig) >= 5) return false;
 
     if (!el.isAvailable<float>("delta_z0_sintheta")) {
-      std::cout << "delta z0*sin(theta) not found for electron. "
-                << "Maybe no primary vertex? Won't accept." << std::endl;
+      ATH_MSG_WARNING("delta z0*sin(theta) not found for electron. Maybe no primary vertex? Won't accept.");
       return false;
     }
 

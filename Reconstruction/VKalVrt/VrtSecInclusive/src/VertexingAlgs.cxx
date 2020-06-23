@@ -650,6 +650,13 @@ namespace VKalVrtAthena {
       
     }
 
+    if (m_jp.truncateWrkVertices){
+      if (workVerticesContainer->size() > m_jp.maxWrkVertices){
+        m_vertexingStatus = 3;
+        workVerticesContainer->resize(m_jp.maxWrkVertices); 
+      }
+    }
+
     //-------------------------------------------------------
     // Iterative cleanup algorithm
 

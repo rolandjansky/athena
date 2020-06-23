@@ -38,8 +38,11 @@ FakeEfficiency_el_pt__PromptSubtr
 FakeEfficiency_el_pt__Trig
 ```
 
-The histogram bin contents should correspond to the  uncertainty only (not the central value plus or minus the uncertainty). Histograms containing nominal values and uncertainties must have identical binnings. Only symmetric uncertainties are supported for the moment (therefore if asymmetric uncertainties are needed, one must switch to using an XML file).
+Two formats are accepted for the uncertainties:
+ * Set the histogram bin contents to correspond to the uncertainty only (not the central value plus or minus the uncertainty). Errors in each bin should be set to zero to avoid ambiguities.
+ * Set the histograms to have the same bin content as the nominal, and the uncertainty is encoded in the err in each bin.
 
+Histograms containing nominal values and uncertainties must have identical binnings. Only symmetric uncertainties are supported for the moment (therefore if asymmetric uncertainties are needed, one must switch to using an XML file).
 If systematic uncertainties with identical names affect different types of efficiencies, they will be treated as correlated, even if they were predefined in an XML file beforehand (in fact doing the latter is really not recommended, it will mess things up). 
 
 

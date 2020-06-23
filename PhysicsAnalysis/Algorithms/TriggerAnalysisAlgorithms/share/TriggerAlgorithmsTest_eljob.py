@@ -50,6 +50,7 @@ sh.printContent()
 job = ROOT.EL.Job()
 job.sampleHandler( sh )
 job.options().setDouble( ROOT.EL.Job.optMaxEvents, 500 )
+job.options().setString( ROOT.EL.Job.optSubmitDirMode, "unique" )
 
 from TriggerAnalysisAlgorithms.TriggerAnalysisAlgorithmsTest import makeSequence
 algSeq = makeSequence (dataType)

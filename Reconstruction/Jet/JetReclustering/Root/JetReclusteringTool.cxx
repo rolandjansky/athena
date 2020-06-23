@@ -90,7 +90,6 @@ JetReclusteringTool::JetReclusteringTool(std::string name) :
   declareProperty("SoftDropZCut",                  m_sd_zcut = 0.1);
   declareProperty("SoftDropBeta",                  m_sd_beta = 0.0);
   declareProperty("SoftDropR0",                    m_sd_R0 = 1.0);
-  declareProperty("SoftDropN",                     m_sd_N = 1);
   declareProperty("DoArea",                        m_doArea = false);
   declareProperty("AreaAttributes",                m_areaAttributes = "ActiveArea ActiveArea4vec");
   declareProperty("ECFBetaList",                   m_ecf_betaVals = {});
@@ -106,6 +105,14 @@ JetReclusteringTool::JetReclusteringTool(std::string name) :
   declareProperty("GhostTruthBHadronsLabel",           m_ghostTruthBHadronsLabel = "");
   declareProperty("GhostTruthCHadronsInputContainer",  m_ghostTruthCHadronsInputContainer = "");
   declareProperty("GhostTruthCHadronsLabel",           m_ghostTruthCHadronsLabel = "");
+  declareProperty("GhostTruthTopQuarksInputContainer", m_ghostTruthTQuarksInputContainer = "");
+  declareProperty("GhostTruthTopQuarksLabel",          m_ghostTruthTQuarksLabel = "");
+  declareProperty("GhostTruthWBosonsInputContainer",   m_ghostTruthWBosonsInputContainer = "");
+  declareProperty("GhostTruthWBosonsLabel",            m_ghostTruthWBosonsLabel = "");
+  declareProperty("GhostTruthZBosonsInputContainer",   m_ghostTruthZBosonsInputContainer = "");
+  declareProperty("GhostTruthZBosonsLabel",            m_ghostTruthZBosonsLabel = "");
+  declareProperty("GhostTruthHBosonsInputContainer",   m_ghostTruthHBosonsInputContainer = "");
+  declareProperty("GhostTruthHBosonsLabel",            m_ghostTruthHBosonsLabel = "");
   declareProperty("GhostScale",                m_ghostScale = 1e-20);
 
 }
@@ -379,7 +386,6 @@ StatusCode JetReclusteringTool::initialize(){
     ATH_MSG_INFO( "\tZCut: " << m_sd_zcut );
     ATH_MSG_INFO( "\tBeta: " << m_sd_beta );
     ATH_MSG_INFO( "\tR0: " << m_sd_R0 );
-    ATH_MSG_INFO( "\tN: " << m_sd_N );
     ASG_CHECK( ASG_MAKE_ANA_TOOL( m_jetGroomingTool, JetRecursiveSoftDrop) );
     m_jetGroomingTool.setName("JetRecursiveSoftDrop/JetRecursiveSoftDropTool_" + this->name());
     ASG_CHECK(m_jetGroomingTool.setProperty("ZCut", m_sd_zcut));
@@ -489,7 +495,6 @@ void JetReclusteringTool::print() const {
     ATH_MSG_INFO("    SoftDropZCut:           " << m_sd_zcut );
     ATH_MSG_INFO("    SoftDropBeta:           " << m_sd_beta );
     ATH_MSG_INFO("    SoftDropR0:             " << m_sd_R0 );
-    ATH_MSG_INFO("    SoftDropN:              " << m_sd_N );
   }
 
   if(m_isInitialized){

@@ -55,9 +55,9 @@ def addTCCTrimmedJetsForTop(algseq, outputGroup):
 #================
 # VR jets
 #================
-def addVRJetsForTop(algseq):
+def addVRJetsForTop(algseq, train='201810'):
     from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
-    addVRJets(algseq)
+    addVRJets(algseq,training=train)
 
 #================
 # xbb tagging information

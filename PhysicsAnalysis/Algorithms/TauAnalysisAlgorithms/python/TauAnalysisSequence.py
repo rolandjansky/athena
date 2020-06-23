@@ -59,8 +59,8 @@ def makeTauAnalysisSequence( dataType, workingPoint, postfix = '',
     seq = AnaAlgSequence( "TauAnalysisSequence" + postfix )
 
     # Variables keeping track of the selections being applied.
-    selectionDecorNames = []
-    selectionDecorCount = []
+    seq.addMetaConfigDefault ("selectionDecorNames", [])
+    seq.addMetaConfigDefault ("selectionDecorCount", [])
 
     # Setup the tau selection tool
     selectionTool = createPublicTool( 'TauAnalysisTools::TauSelectionTool',
@@ -92,9 +92,9 @@ def makeTauAnalysisSequence( dataType, workingPoint, postfix = '',
         ( selectionTool.getType(), selectionTool.getName() )
     alg.selectionDecoration = 'selected_tau' + postfix + ',as_bits'
     seq.append( alg, inputPropName = 'particles',
-                stageName = 'selection' )
-    selectionDecorNames.append( alg.selectionDecoration )
-    selectionDecorCount.append( 6 )
+                stageName = 'selection',
+                metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
+                              'selectionDecorCount' : [6]} )
 
     # Set up the algorithm calculating the efficiency scale factors for the
     # taus:
@@ -127,43 +127,43 @@ def makeTauAnalysisSequence( dataType, workingPoint, postfix = '',
     if enableCutflow:
         alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'TauCutFlowDumperAlg' + postfix )
         alg.histPattern = 'tau_cflow_%SYS%'
-        alg.selection = selectionDecorNames[ : ]
-        alg.selectionNCuts = selectionDecorCount[ : ]
-        seq.append( alg, inputPropName = 'input', stageName = 'selection' )
+        seq.append( alg, inputPropName = 'input', stageName = 'selection',
+                    dynConfig = {'selection' : lambda meta : meta["selectionDecorNames"][:],
+                                 'selectionNCuts' : lambda meta : meta["selectionDecorCount"][:]} )
 
     # Set up an algorithm used for decorating baseline tau selection:
     alg = createAlgorithm( 'CP::AsgSelectionAlg',
                            'TauSelectionSummary' + postfix )
     addPrivateTool( alg, 'selectionTool', 'CP::AsgFlagSelectionTool' )
-    alg.selectionTool.selectionFlags = selectionDecorNames[ : ]
     alg.selectionDecoration = 'baselineSelection' + postfix + ',as_char'
     seq.append( alg, inputPropName = 'particles',
-                stageName = 'selection' )
+                stageName = 'selection',
+                dynConfig = {'selectionTool.selectionFlags' : lambda meta : meta["selectionDecorNames"][:]} )
 
     # Set up an algorithm that makes a view container using the selections
     # performed previously:
     if shallowViewOutput:
         alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
                             'TauViewFromSelectionAlg' + postfix )
-        alg.selection = selectionDecorNames[ : ]
         seq.append( alg, inputPropName = 'input', outputPropName = 'output',
-                    stageName = 'selection' )
+                    stageName = 'selection',
+                    dynConfig = {'selection' : lambda meta : meta["selectionDecorNames"][:]} )
 
     # Set up an algorithm dumping the kinematic properties of the taus:
     if enableKinematicHistograms:
         alg = createAlgorithm( 'CP::KinematicHistAlg', 'TauKinematicDumperAlg' + postfix )
-        alg.preselection = '&&'.join (selectionDecorNames)
         alg.histPattern = 'tau_%VAR%_%SYS%'
-        seq.append( alg, inputPropName = 'input', stageName = 'selection' )
+        seq.append( alg, inputPropName = 'input', stageName = 'selection',
+                    dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
 
     # Set up a final deep copy making algorithm if requested:
     if deepCopyOutput:
         alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
                                'TauDeepCopyMaker' + postfix )
         alg.deepCopy = True
-        alg.selection = selectionDecorNames[ : ]
         seq.append( alg, inputPropName = 'input', outputPropName = 'output',
-                    stageName = 'selection' )
+                    stageName = 'selection',
+                    dynConfig = {'selection' : lambda meta : meta["selectionDecorNames"] [:]} )
         pass
 
     # Return the sequence:

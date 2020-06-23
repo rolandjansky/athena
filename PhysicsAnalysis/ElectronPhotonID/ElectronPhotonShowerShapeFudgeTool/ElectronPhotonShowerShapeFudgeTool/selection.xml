@@ -1,3 +1,4 @@
 <lcgdict>
   <class name="ElectronPhotonShowerShapeFudgeTool" /> 
+  <class name="ElectronPhotonVariableCorrectionTool" />
 </lcgdict>

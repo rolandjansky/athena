@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BoostedJetTaggers/JetQGTagger.h"
@@ -49,16 +49,14 @@ namespace CP {
                   m_weightdec("weightdec")
   {
 
-    declareProperty( "ConfigFile",   m_configFile="");
     declareProperty( "NTrackCut",    m_NTrackCut=-1);
     declareProperty( "cuttype",      m_cuttype="log_pt");
     declareProperty( "slope",        m_slope=9.779);
     declareProperty( "intercept",    m_intercept=-32.28);
-    declareProperty( "DecorateJet",  m_decorate = true);
     declareProperty( "UseJetVars",   m_mode = 0); // 0 uses the tracks. 1 uses variables from the jets
 
     declareProperty( "Tagger", m_taggername = "ntrack");
-    declareProperty( "CalibArea",     m_calibarea = "BoostedJetTaggers/QGTagger/May2019/");
+    m_calibArea = "BoostedJetTaggers/QGTagger/May2019/"; // Overwrite base class default
     declareProperty( "TopoWeightFile", m_topofile = "");
     declareProperty( "ExpWeightFile", m_expfile = "qgsyst_exp.root");
     declareProperty( "MEWeightFile",  m_mefile  = "qgsyst_me.root");
@@ -724,7 +722,7 @@ namespace CP {
 
   StatusCode JetQGTagger::loadHist(TH2D *&hist,std::string fname,std::string histname){
 
-    std::string filename = PathResolverFindCalibFile( (m_calibarea+fname).c_str() );
+    std::string filename = PathResolverFindCalibFile( (m_calibArea+fname).c_str() );
     ATH_MSG_INFO("CALIB FILE: " << filename << " histo: " << histname);
     if (filename.empty()){
       ATH_MSG_WARNING ( "Could NOT resolve file name " << fname);

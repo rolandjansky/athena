@@ -722,7 +722,7 @@ namespace EL
 
     ANA_MSG_DEBUG ("merging histograms in location " << data.submitDir);
 
-    RCU_ASSERT (config.njobs_old.size() == config.samples.size());
+    RCU_ASSERT (data.batchJob->njobs_old.size() == data.batchJob->samples.size());
     for (std::size_t sample = 0, end = data.batchJob->samples.size();
 	 sample != end; ++ sample)
     {

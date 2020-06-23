@@ -1,4 +1,3 @@
-
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # commont content for Hbb DAODs
@@ -127,6 +126,10 @@ def getHIGG5CommonDictionExtionson(add_truth_if_mc=True) :
       "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810Aux"                  : "xAOD::JetAuxContainer"     ,
       "BTagging_AntiKtVR30Rmax4Rmin02Track_201810"                        : "xAOD::BTaggingContainer"   ,
       "BTagging_AntiKtVR30Rmax4Rmin02Track_201810Aux"                     : "xAOD::BTaggingAuxContainer",
+      "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903"                     : "xAOD::JetContainer"        ,
+      "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903Aux"                  : "xAOD::JetAuxContainer"     ,
+      "BTagging_AntiKtVR30Rmax4Rmin02Track_201903"                        : "xAOD::BTaggingContainer"   ,
+      "BTagging_AntiKtVR30Rmax4Rmin02Track_201903Aux"                     : "xAOD::BTaggingAuxContainer",
       "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets"                 : "xAOD::JetContainer"        ,
       "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJetsAux"              : "xAOD::JetAuxContainer"     ,
       "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub"            : "xAOD::BTaggingContainer"   ,
@@ -145,6 +148,8 @@ def getHIGG5CommonSmartCollections(add_truth_if_mc=True) :
                                "TauJets",
                                "MET_Reference_AntiKt4EMTopo",
                                "MET_Reference_AntiKt4EMPFlow",
+                               "AntiKt4EMTopoJets",
+                               "AntiKt4EMPFlowJets",
                                getJetEMTopoName()]
     if BTaggingFlags.Do2019Retraining:
         common_smart_collections+=["AntiKt4EMPFlowJets_BTagging201810", "AntiKt4EMPFlowJets_BTagging201903"]
@@ -162,6 +167,7 @@ def getHIGG5CommonSmartCollections(add_truth_if_mc=True) :
                                #"BTagging_AntiKt2Track",
                                #  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                "BTagging_AntiKtVR30Rmax4Rmin02Track_201810",
+                               "BTagging_AntiKtVR30Rmax4Rmin02Track_201903",
                                "InDetTrackParticles",
                                "PrimaryVertices"]
     from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo

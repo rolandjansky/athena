@@ -21,3 +21,6 @@ set( XAOD_ANALYSIS TRUE CACHE BOOL
 set( AnalysisBaseReleaseEnvironment_ENVIRONMENT
    SET ROOTCOREDIR \${AnalysisBase_DIR}
    SET ROOTCOREBIN \${AnalysisBase_DIR} )
+
+# Do not use Boost's CMake code when building AnalysisBase.
+set( Boost_NO_BOOST_CMAKE TRUE )

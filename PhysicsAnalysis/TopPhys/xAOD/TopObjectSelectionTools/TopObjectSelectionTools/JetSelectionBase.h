@@ -18,8 +18,8 @@ namespace top {
 
     virtual void print(std::ostream&) const = 0;
   };
-}
 
-std::ostream& operator << (std::ostream& os, const top::JetSelectionBase& selection);
+  std::ostream& operator << (std::ostream& os, const top::JetSelectionBase& selection);
+}
 
 #endif

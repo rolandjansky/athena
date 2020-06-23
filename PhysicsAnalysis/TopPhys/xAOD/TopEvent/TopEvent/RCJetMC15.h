@@ -96,6 +96,8 @@ private:
   std::string m_VarRCjets_mass_scale;
   float m_ptcut;       // in GeV
   float m_etamax;
+  float m_inputJetPtMin;
+  float m_inputJetEtaMax;
   float m_trim;
   float m_radius;
   float m_minradius;

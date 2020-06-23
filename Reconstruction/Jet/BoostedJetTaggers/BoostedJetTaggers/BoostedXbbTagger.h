@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JSSXBBTAGGER_H_
@@ -10,10 +10,6 @@
 #include "AsgTools/AnaToolHandle.h"
 #include "PATInterfaces/CorrectionCode.h" // needed for checking of muon momentum correction return value properly
 
-// c++ includes
-#include <set>
-#include <string>
-#include <memory>
 #include "TF1.h"
 
 // EDM includes
@@ -75,10 +71,7 @@ class BoostedXbbTagger : public JSSTaggerBase {
     const xAOD::JetFourMom_t getMuonCorrectedJetFourMom(const xAOD::Jet& jet, std::vector<const xAOD::Muon*> muons, MuonCorrectionScheme scheme, bool useJMSScale = false) const;
     StatusCode getJSSVar(float& value, const xAOD::Jet& jet, std::string name) const;
 
-    // general properties of the tool configuration
     std::string m_name;
-    std::string m_wkpt;
-    std::string m_configFile;
 
     // the jet mass cut values
     std::string m_jetMassMinStr;
@@ -114,9 +107,6 @@ class BoostedXbbTagger : public JSSTaggerBase {
     asg::AnaToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
     asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool> m_muonCalibrationAndSmearingTool;
 
-    // string for decorating jets with DNN output
-    std::string m_decorationName;
-
     // generic decorations used
     SG::AuxElement::Decorator<float> m_dec_jetMassMin;
     SG::AuxElement::Decorator<float> m_dec_jetMassMax;
@@ -127,4 +117,5 @@ class BoostedXbbTagger : public JSSTaggerBase {
     SG::AuxElement::Decorator<std::vector<ElementLink<xAOD::IParticleContainer> > > m_dec_muonsInFatJetLink;
     SG::AuxElement::Decorator<std::vector<ElementLink<xAOD::IParticleContainer> > > m_dec_trackJetsInFatJet;
 };
+
 #endif

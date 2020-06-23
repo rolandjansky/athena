@@ -49,6 +49,9 @@ class IsolationCorrection : public asg::AsgMessaging{
     //void SetDD(bool apply_dd);
     void SetCorrectEtcone(bool correct_etcone);
     void SetTroubleCategories(bool trouble_categories);
+    void FitType(bool b) { m_useLogLogFit = b; };
+    void ForcePartType(bool b) { m_forcePartType = b; }
+    void Print();
 
   private:
 
@@ -74,6 +77,8 @@ class IsolationCorrection : public asg::AsgMessaging{
     bool m_set_mc;
     bool m_correct_etcone;
     bool m_trouble_categories;
+    bool m_useLogLogFit;
+    bool m_forcePartType;
 
     CP::ShowerDepthTool* m_shower;
 
@@ -255,8 +260,7 @@ class IsolationCorrection : public asg::AsgMessaging{
     std::vector<TGraph*> m_graph_histoMean_2015_cone40_author_16_electron;
     std::vector<TGraph*> m_graph_histoMean_2015_cone30_author_16_electron;
     std::vector<TGraph*> m_graph_histoMean_2015_cone20_author_16_electron;
-
-
+  
     // -------------------------------------------------------------------------------------------
     // ------------- full 2012 (rel 17.2) leakage corrections --------------------------------------
     // corrections recomputed for topological isolation: fine grained in eta, derived from MC12

@@ -49,6 +49,7 @@ private:
   //
   static std::string s_fitOptions;
   static bool s_quietFits;
+  static bool s_saveFitFunc;
   static TH1* s_undelayedFitHist;
   static TH1* s_delayedFitHist;
   static TF1* s_combinedFitFunc;
@@ -269,7 +270,8 @@ public:
   ~ZDCPulseAnalyzer();
 
   static void SetFitOPtions(std::string fitOptions) { s_fitOptions = fitOptions;}
-  static void SetQuietFits(bool quiet) {s_quietFits = quiet;}
+  static void SetQuietFits  (bool quiet) {s_quietFits = quiet;}
+  static void SetSaveFitFunc(bool save ) {s_saveFitFunc = save;}
   static bool QuietFits() {return s_quietFits;}
 
   void EnableDelayed(float deltaT, float pedestalShift, bool fixedBaseline = false);

@@ -43,6 +43,7 @@ class LhoodMMEvent {
   double m_aux, m_aux2;
 
   void Init(int nlep, const std::vector<FakeBkgTools::Efficiency>& realEff, const std::vector<FakeBkgTools::Efficiency>& fakeEff, const std::vector<bool>& isTight, const std::vector<int>& charge, float weight, double aux, double aux2);
+
 };
 
 #endif

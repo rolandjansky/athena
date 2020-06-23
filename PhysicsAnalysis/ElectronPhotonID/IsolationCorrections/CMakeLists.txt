@@ -54,3 +54,15 @@ atlas_add_dictionary( IsolationCorrectionsDict
 # Install files from the package:
 atlas_install_data( data/*.root ) 
 
+atlas_add_test( isoCorr_test_mem SOURCES
+   util/test_mem.cxx
+   LINK_LIBRARIES IsolationCorrectionsLib
+   )
+
+if( XAOD_STANDALONE )
+atlas_add_executable( isoCorr_test
+   util/TestIsolationCorrections.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES IsolationCorrectionsLib xAODRootAccess xAODEventInfo xAODEgamma xAODCaloEvent xAODCore PATInterfaces
+   )
+endif()

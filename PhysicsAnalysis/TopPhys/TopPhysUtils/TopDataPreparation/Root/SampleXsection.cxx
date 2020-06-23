@@ -142,6 +142,11 @@ SampleXsection::showering SampleXsection::getShowering(const int dsid) const {
   return unknown;
 }
 
+std::string SampleXsection::getShoweringString(const int dsid) const
+{
+  return showerToString(getShowering(dsid));
+}
+
 int SampleXsection::getShoweringIndex(const int dsid) const {
   // A.Knue: labelling taken from here:
   // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BTagCalib2015#Pre_Recommendations_for_MC15_Bas

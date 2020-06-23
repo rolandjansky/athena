@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef TOPCPTOOLS_TOPTAUCPTOOLS_H_
@@ -22,6 +22,7 @@
 #include "TauAnalysisTools/ITauSelectionTool.h"
 #include "TauAnalysisTools/ITauSmearingTool.h"
 #include "TauAnalysisTools/ITauEfficiencyCorrectionsTool.h"
+#include "TauAnalysisTools/ITauTruthMatchingTool.h"
 
 namespace top {
   class TopConfig;
@@ -43,6 +44,7 @@ namespace top {
     ToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauEffCorrToolLoose;
 
     ToolHandle<TauAnalysisTools::ITauSmearingTool> m_tauSmearingTool;
+    ToolHandle<TauAnalysisTools::ITauTruthMatchingTool> m_truthMatchingTool;
 
     StatusCode setupCalibration();
     StatusCode setupScaleFactors();

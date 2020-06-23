@@ -29,7 +29,7 @@ namespace top {
     m_sherpa_22_reweight_tool("PMGSherpa22VJetsWeightTool"),
     m_globalLeptonTriggerSF(nullptr),
     m_pmg_truth_weight_tool("PMGTruthWeightTool"),
-    m_has_weight_metadata(false),
+    m_sample_multiple_MCweights(false),
     m_nominal_weight_name("") {
     declareProperty("config", m_config);
   }
@@ -90,7 +90,6 @@ namespace top {
         top::check(m_globalLeptonTriggerSF->initialize(), "Failed to initalize");
       }
 
-      top::check(m_pmg_truth_weight_tool.retrieve(), "Failed to retrieve PMGTruthWeightTool");
       top::check(initialize_nominal_MC_weight(), "Failed to initialize nominal MC weight in SF calculator");
     }
 
@@ -103,15 +102,64 @@ namespace top {
   }
 
   StatusCode ScaleFactorCalculator::initialize_nominal_MC_weight() {
+    // check if user force-requested to use plain MC weights vector index
+    // in that case ignore all the additional checks if metadata broken
+    // as well as the method to determine nominal weight by name
+    if (m_config->forceNominalWeightFallbackIndex()) {
+      ATH_MSG_WARNING("ForceNominalWeightFallbackIndex option was set to true."
+          << "\nWill use weight with index: " << m_config->nominalWeightIndex()
+          << " instead of determining it from metadata!");
+      return StatusCode::SUCCESS;
+    }
     ///-- Start using the PMG tool to get the nominal event weights --///
-    // we will later need to know if this sample has any MC weight variations
-    // some samples don't have any, and we have to fallback to taking 0th weight from EventInfo
+    // in case PMGTruthWeightTool init fails, e.g. due to broken metadata
+    if (!m_pmg_truth_weight_tool.retrieve()) {
+      // we don't know how many MC weights there are and user didn't specify nominal index
+      if (m_config->MCweightsVectorSize() == size_t(-1)
+          && m_config->nominalWeightIndex() == size_t(-1)) {
+        ATH_MSG_ERROR("\nPMGTruthWeightTool instance could not be retrieved."
+            << "We could not determine the number of MC generator weights in this sample.\n"
+            << "We cannot determine the nominal MC weight. Please specify the index of "
+            << "nominal MC weight via config option NominalWeightFallbackIndex.");
+        return StatusCode::FAILURE;
+      }
+      // we know there are multiple MC weights and user didn't specify nominal index
+      if (m_config->MCweightsVectorSize() > 1
+          && m_config->nominalWeightIndex() == size_t(-1)) {
+        ATH_MSG_ERROR("\nPMGTruthWeightTool instance could not be retrieved."
+            << "We detect multiple MC generator weights in the sample.\n "
+            << "We cannot determine which one is nominal. Please specify the index of "
+            << "nominal MC weight via config option NominalWeightFallbackIndex.");
+        return StatusCode::FAILURE;
+      }
+      // only one MC weight in the sample, this is sovable unambiguously
+      if (m_config->MCweightsVectorSize() == 1) {
+        m_config->setNominalWeightIndex(0);
+        ATH_MSG_WARNING("PMGTruthWeightTool instance could not be retrieved."
+            << "This sample has only one MC weight, will use that one.");
+        return StatusCode::SUCCESS;
+      }
+      // possibly multiple weights, but the user already gave us fallback option
+      ATH_MSG_WARNING("PMGTruthWeightTool instance could not be retrieved."
+          << "Falling back to specified NominalWeightFallbackIndex "
+          << m_config->nominalWeightIndex());
+      return StatusCode::SUCCESS;
+    }
+    // PMGTruthWeightTool was initialized succesfully, let's see if we have weights
     const std::vector<std::string>& pmg_weight_names = m_pmg_truth_weight_tool->getWeightNames();
-    m_has_weight_metadata = (pmg_weight_names.size() > 0);
-    if (!m_has_weight_metadata) {
-      ATH_MSG_WARNING("PMGTruthWeightTool did not find any MC generator weights metadata for this sample.");
-      ATH_MSG_WARNING("Will use 0th weight from the eventInfo.");
-      m_config->setDetectedNominalWeightIndex(0);
+    m_sample_multiple_MCweights = (pmg_weight_names.size() > 1);
+    if (!m_sample_multiple_MCweights) {
+      ATH_MSG_WARNING("PMGTruthWeightTool did not find multiple MC generator weights in metadata for this sample."
+          << "\nThis most likely means that the sample has only one weight."
+          << "\nCheck the top-xaod output for PMGTruthWeightTool-related errors just to be sure.");
+      if (m_config->nominalWeightIndex() != size_t(-1)) {
+        ATH_MSG_WARNING("Using MC weight index " << m_config->nominalWeightIndex()
+            << " as specified in config.");
+      } else {
+        ATH_MSG_WARNING("Will use 0th weight index. "
+            << "If you want a different weight, specify it via config option NominalWeightFallbackIndex");
+        m_config->setNominalWeightIndex(0);
+      }
       return StatusCode::SUCCESS;
     }
     // here we try to find the first weight name from the NominalWeightNames config option, that matches any MC weight in the sample
@@ -130,8 +178,8 @@ namespace top {
     }
     // we have to find the index, because PMGTruthWeightTool has no method to give us the index
     auto weight_index = std::find(pmg_weight_names.begin(), pmg_weight_names.end(), m_nominal_weight_name);
-    m_config->setDetectedNominalWeightName(m_nominal_weight_name);
-    m_config->setDetectedNominalWeightIndex(weight_index - pmg_weight_names.begin());
+    m_config->setNominalWeightName(m_nominal_weight_name);
+    m_config->setNominalWeightIndex(weight_index - pmg_weight_names.begin());
     if (multiple_matches.size() > 1) {
       std::stringstream s_multiple_matches;
       for (const std::string &wname : multiple_matches)
@@ -153,7 +201,8 @@ namespace top {
       return StatusCode::FAILURE;
     }
 
-    ATH_MSG_INFO("Using the following MC weight as nominal: " + m_config->detectedNominalWeightName());
+    ATH_MSG_INFO("Using the following MC weight as nominal: \"" + m_config->nominalWeightName()
+        << "\", index: " << m_config->nominalWeightIndex());
     return StatusCode::SUCCESS;
   }
 
@@ -220,15 +269,14 @@ namespace top {
     if (eventInfo->isAvailable<float>("AnalysisTop_eventWeight")) return eventInfo->auxdataConst<float>(
         "AnalysisTop_eventWeight");
 
-    if (m_has_weight_metadata) {
-      sf = m_pmg_truth_weight_tool->getWeight(m_nominal_weight_name);
-      ///-- Decorate the event info with this weight and return --///
+    try {
+      sf = eventInfo->mcEventWeights().at(m_config->nominalWeightIndex());
       eventInfo->auxdecor<float>("AnalysisTop_eventWeight") = sf;
-      return sf;
-    } else {
-      sf = eventInfo->mcEventWeights()[0];
-      eventInfo->auxdecor<float>("AnalysisTop_eventWeight") = sf;
-      return sf;
+    } catch (std::out_of_range &e) {
+      ATH_MSG_ERROR("MC weight specified by index " << m_config->nominalWeightIndex()
+          << " does not exist: ");
+      throw;
     }
+    return sf;
   }
 }  // namespace top

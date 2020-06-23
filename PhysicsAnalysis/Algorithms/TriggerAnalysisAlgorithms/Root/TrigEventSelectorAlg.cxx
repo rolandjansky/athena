@@ -4,6 +4,7 @@
 
 /// @author Tadej Novak
 
+#include <AnaAlgorithm/FilterReporter.h>
 #include <RootCoreUtils/StringUtil.h>
 #include <TriggerAnalysisAlgorithms/TrigEventSelectionAlg.h>
 #include <xAODEventInfo/EventInfo.h>
@@ -33,35 +34,30 @@ StatusCode CP::TrigEventSelectionAlg::initialize()
     }
   }
 
+  ANA_CHECK (m_filterParams.initialize());
+
   return StatusCode::SUCCESS;
 }
 
 StatusCode CP::TrigEventSelectionAlg::execute()
 {
-  m_total++;
+  EL::FilterReporter filter (m_filterParams, false);
 
   if (m_trigList.empty()) {
-    setFilterPassed(true);
+    filter.setPassed(true);
     return StatusCode::SUCCESS;
   }
-
-  setFilterPassed(false);
 
   const xAOD::EventInfo *evtInfo = 0;
   ANA_CHECK(evtStore()->retrieve(evtInfo, "EventInfo"));
 
-  bool passed = false;
   for (size_t i = 0; i < m_trigList.size(); i++) {
     bool trigPassed = m_trigDecisionTool->isPassed(m_trigList[i]);
     if (!m_selectionDecoration.empty()) {
       m_selectionAccessors[i](*evtInfo) = trigPassed;
     }
-    passed = passed || trigPassed;
-  }
-
-  if (passed) {
-    m_passed++;
-    setFilterPassed(true);
+    if (trigPassed)
+      filter.setPassed (true);
   }
 
   return StatusCode::SUCCESS;
@@ -69,7 +65,7 @@ StatusCode CP::TrigEventSelectionAlg::execute()
 
 StatusCode CP::TrigEventSelectionAlg::finalize()
 {
-  ATH_MSG_INFO("Events passing triggers: " << m_passed << " / " << m_total);
+  ANA_CHECK (m_filterParams.finalize());
 
   return StatusCode::SUCCESS;
 }

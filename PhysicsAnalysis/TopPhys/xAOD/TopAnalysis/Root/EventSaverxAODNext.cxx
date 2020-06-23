@@ -57,7 +57,6 @@ namespace top {
     for (const auto& branchName : extraBranches)
       eventInfoList += "." + branchName;
 
-    //std::cout << "EventLoaderCorrectSelect::branchesToSave - EventInfo " << eventInfoList << std::endl;
     evtStore()->event()->setAuxItemList("EventInfoAux.", eventInfoList);
 
     // Photons

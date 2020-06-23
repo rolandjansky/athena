@@ -1,6 +1,6 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
- */
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
 
 // $Id: JetObjectCollectionMaker.h 809674 2017-08-23 14:10:24Z iconnell $
 #ifndef ANALYSISTOP_TOPSYSTEMATICOBJECTMAKER_JETOBJECTCOLLECTIONMAKER_H
@@ -47,7 +47,8 @@
 #include "TopJetSubstructure/TopJetSubstructure.h"
 
 #include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
-#include "BoostedJetTaggers/SmoothedWZTagger.h"
+#include "JetAnalysisInterfaces/IJetSelectorTool.h"
+#include "ParticleJetTools/JetTruthLabelingTool.h"
 
 // Forward declaration(s):
 namespace top {
@@ -84,6 +85,9 @@ namespace top {
     // return all recommendedSystematics
     inline const std::list<CP::SystematicSet>& recommendedSystematics()   const {return m_recommendedSystematics;}
   protected:
+  
+    // Function will return prefix which will be added to systematic names obtained from tools
+    virtual std::string getLargeRModName(const std::string& NPModel) const;
     // specify Systematic
     virtual void addSystematics(const std::set<std::string>& specifiedSystematics,
                                 const CP::SystematicSet& recommendedSysts, std::unordered_map<CP::SystematicSet,
@@ -100,16 +104,6 @@ namespace top {
 
     StatusCode printout(const bool isLargeR);
 
-    void addCorrelation(const std::string& name,
-                        systMap& map_one,
-                        const std::string& syst_one_name,
-                        systMap& map_two,
-                        const std::string& syst_two_name);
-
-    void addCorrelation(const std::string& name,
-                        systMap& map_one,
-                        const std::string& syst_one_name,
-                        std::list<CP::SystematicSet>& jet_specified);
   private:
     std::shared_ptr<top::TopConfig> m_config;
     bool m_doJER;
@@ -144,7 +138,7 @@ namespace top {
     std::unordered_map<std::string, ToolHandle<IJetSelectorTool> > m_boostedJetTaggers;
 
     ToolHandle<IJetUpdateJvt> m_jetUpdateJvtTool;
-    ToolHandle<IJetModifier> m_fjvtTool;
+    ToolHandle<IJetModifier> m_jetSelectfJvtTool;
 
     std::string m_truthJetCollForHS;
 
@@ -162,11 +156,12 @@ namespace top {
 
     StatusCode decorateBJets(xAOD::Jet& jet);
     StatusCode decorateHSJets();
+    StatusCode decorateMatchedTruth();
     StatusCode tagLargeRJet(const xAOD::Jet& jet);
     StatusCode tagNominalLargeRJets();
 
     ///-- Large R jet truth labeling --///
-    std::unique_ptr<SmoothedWZTagger> m_TaggerForJES;
+    std::unique_ptr<JetTruthLabelingTool> m_jetTruthLabelingTool;
 
     // DL1 decoration
     std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool> > m_btagSelToolsDL1Decor;

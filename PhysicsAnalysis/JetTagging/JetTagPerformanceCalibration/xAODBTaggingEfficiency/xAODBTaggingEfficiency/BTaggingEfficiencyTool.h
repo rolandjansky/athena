@@ -297,6 +297,8 @@ private:
   std::string m_OP;
   ///  jet collection name
   std::string m_jetAuthor;
+  ///  minimum jet pT
+  float m_minPt;
   /// systematics model to be used (current choices are "SFEigen", "SFEigenRefined", and "Envelope")
   std::string m_systStrategy;
   /// if true, attempt to retrieve the data/MC efficiency scale factor calibration files from the @PathResolver development area
@@ -312,6 +314,8 @@ private:
   bool m_useRecommendedEVExclusions;
   /// if true, ignore out-of-extrapolation range errors (i.e., return CorrectionCode::Ok if these are encountered)
   bool m_ignoreOutOfValidityRange;
+  /// if false, suppress any non-error/warning printout from the underlying tool
+  bool m_verboseCDITool;
   /// @}
 
   /// @name Cached variables

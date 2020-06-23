@@ -16,6 +16,7 @@
 
 #include <TFile.h>
 #include <TH2F.h>
+#include <TH3.h>
 #include <string>
 #include <vector>
 #include <regex>
@@ -289,6 +290,36 @@ StatusCode BaseFakeBkgTool::register2DHistogram(TH2* h2, const float *xval, cons
     else
     {
         ATH_CHECK( CheckHistogramCompatibility(h2, itr->first) );
+    }
+    return StatusCode::SUCCESS;
+}
+
+				StatusCode BaseFakeBkgTool::register3DHistogram(TH3* h3, const float *xval, const float *yval, const float *zval) {
+
+    if(!h3)
+    {
+        ATH_MSG_ERROR("invalid histogram pointer");
+        return StatusCode::FAILURE;
+    }
+    const std::string name = h3->GetName();
+    auto itr = m_values_3dhisto_map.begin();
+    const auto enditr = m_values_3dhisto_map.end(); 
+    for(;itr!=enditr;++itr)
+    {
+        if(itr->first == h3)
+        {
+            ATH_MSG_ERROR("the histogram \"" << name << "\" has already been registered");
+            return StatusCode::FAILURE;
+        }
+        if(name == itr->first->GetName()) break;
+    }
+    if(itr == enditr)
+    {
+m_values_3dhisto_map.emplace(h3, std::make_tuple(xval, yval, zval));
+    }
+    else
+    {
+        ATH_CHECK( CheckHistogramCompatibility(h3, itr->first) );
     }
     return StatusCode::SUCCESS;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PARTICLEJETTOOLSDICT_H
@@ -11,6 +11,7 @@
 #include "ParticleJetTools/CopyFlavorLabelTruthParticles.h"
 #include "ParticleJetTools/CopyTruthJetParticles.h"
 #include "ParticleJetTools/ParticleJetDeltaRLabelTool.h"
+#include "ParticleJetTools/ParticleJetGhostLabelTool.h"
 #include "ParticleJetTools/JetConeLabeling.h"
 #include "ParticleJetTools/JetQuarkLabel.h"
 #include "ParticleJetTools/JetPartonTruthLabel.h"
@@ -18,6 +19,7 @@
 #include "ParticleJetTools/JetParticleCenterOfMassAssociation.h"
 #include "ParticleJetTools/JetParticleShrinkingConeAssociation.h"
 #include "ParticleJetTools/JetParticleFixedConeAssociation.h"
+#include "ParticleJetTools/JetTruthLabelingTool.h"
 
 #ifndef XAOD_STANDALONE
 #include "src/JetModifierAlg.h"

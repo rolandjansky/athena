@@ -7,140 +7,200 @@
 NSubjettinessRatiosTool::NSubjettinessRatiosTool(std::string name) : 
   JetSubStructureMomentToolsBase(name)
 {
+  declareProperty("AlphaList", m_rawAlphaVals = {});
   declareProperty("DoDichroic", m_doDichroic = false);
 }
 
-int NSubjettinessRatiosTool::modifyJet(xAOD::Jet &jet) const {
-  
-  if (!jet.isAvailable<float>(m_prefix+"Tau1") || 
-      !jet.isAvailable<float>(m_prefix+"Tau2") ||
-      !jet.isAvailable<float>(m_prefix+"Tau3") ||
-      !jet.isAvailable<float>(m_prefix+"Tau4") ||
-      !jet.isAvailable<float>(m_prefix+"Tau1_wta") || 
-      !jet.isAvailable<float>(m_prefix+"Tau2_wta") ||
-      !jet.isAvailable<float>(m_prefix+"Tau3_wta") ||
-      !jet.isAvailable<float>(m_prefix+"Tau4_wta")) {
-    
-    ATH_MSG_ERROR("Tau decorations for " << m_prefix << " are not all available. Exiting..");
-    return 1;
-  }
+StatusCode NSubjettinessRatiosTool::initialize() {
 
-  if (m_doDichroic) { 
-    if (!jet.isAvailable<float>(m_prefix+"Tau2_ungroomed") ||
-        !jet.isAvailable<float>(m_prefix+"Tau3_ungroomed") ||
-        !jet.isAvailable<float>(m_prefix+"Tau4_ungroomed") ||
-        !jet.isAvailable<float>(m_prefix+"Tau2_wta_ungroomed") ||
-        !jet.isAvailable<float>(m_prefix+"Tau3_wta_ungroomed") ||
-        !jet.isAvailable<float>(m_prefix+"Tau4_wta_ungroomed")) {
+  /// Call base class initialize to fix up m_prefix
+  ATH_CHECK(JetSubStructureMomentToolsBase::initialize());
 
-      ATH_MSG_ERROR("Ungroomed tau decorations for " << m_prefix << " are not all available. Exiting..");
-      return 1;
+  /// Add alpha = 1.0 by default
+  m_moments.emplace( 1.0, moments_t(1.0, m_prefix) );
+
+  /// Clean up input list of alpha values
+  for( float alpha : m_rawAlphaVals ) {
+
+    /// Round to the nearest 0.1
+    float alphaFix = round( alpha * 10.0 ) / 10.0;
+    if( std::abs(alpha-alphaFix) > 1.0e-5 ) ATH_MSG_DEBUG( "alpha = " << alpha << " has been rounded to " << alphaFix );
+
+    /// Skip negative values of alpha
+    if( alphaFix < 0.0 ) {
+      ATH_MSG_WARNING( "alpha must be positive. Skipping alpha = " << alpha );
+      continue;
     }
+
+    /// Store value. std::map::emplace prevents duplicate entries
+    m_moments.emplace( alphaFix, moments_t(alphaFix, m_prefix) );
+
   }
 
-  // Regular
-  float tau1 = jet.getAttribute<float>(m_prefix+"Tau1");
-  float tau2 = jet.getAttribute<float>(m_prefix+"Tau2");
-  float tau3 = jet.getAttribute<float>(m_prefix+"Tau3");
-  float tau4 = jet.getAttribute<float>(m_prefix+"Tau4");
-
-  float tau2_ungroomed = -999.0;
-  float tau3_ungroomed = -999.0;
-  float tau4_ungroomed = -999.0;
-
-  if (m_doDichroic) {
-    tau2_ungroomed = jet.getAttribute<float>(m_prefix+"Tau2_ungroomed");
-    tau3_ungroomed = jet.getAttribute<float>(m_prefix+"Tau3_ungroomed");
-    tau4_ungroomed = jet.getAttribute<float>(m_prefix+"Tau4_ungroomed");
+  for( auto const& moment : m_moments ) {
+    ATH_MSG_DEBUG( "Including alpha = " << moment.first );
   }
 
-  //Prevent div-0 and check against default value (-999) of the decoration
-  if(tau1 > 1e-8) {
-    jet.setAttribute(m_prefix+"Tau21", tau2/tau1);
-    if(tau2_ungroomed > 1e-8) 
-      jet.setAttribute(m_prefix+"Tau21_dichroic", tau2_ungroomed/tau1);
-    else
-      jet.setAttribute(m_prefix+"Tau21_dichroic", -999.0);
-  }
-  else {
-    jet.setAttribute(m_prefix+"Tau21", -999.0);
-    jet.setAttribute(m_prefix+"Tau21_dichroic", -999.0);
-  }
+  return StatusCode::SUCCESS;
 
-  //Prevent div-0 and check against default value (-999) of the decoration    
-  if(tau2 > 1e-8) { 
-    jet.setAttribute(m_prefix+"Tau32", tau3/tau2);
-    jet.setAttribute(m_prefix+"Tau42", tau4/tau2);
+}
 
-    if(tau3_ungroomed > 1e-8) 
-      jet.setAttribute(m_prefix+"Tau32_dichroic", tau3_ungroomed/tau2);
-    else
-      jet.setAttribute(m_prefix+"Tau32_dichroic", -999.0);
+int NSubjettinessRatiosTool::modifyJet(xAOD::Jet &jet) const {
 
-    if(tau4_ungroomed > 1e-8) 
-      jet.setAttribute(m_prefix+"Tau42_dichroic", tau4_ungroomed/tau2);
-    else
-      jet.setAttribute(m_prefix+"Tau42_dichroic", -999.0);
-  }
-  else {
-    jet.setAttribute(m_prefix+"Tau32", -999.0);
-    jet.setAttribute(m_prefix+"Tau42", -999.0);
+  for( auto const& moment : m_moments ) {
 
-    jet.setAttribute(m_prefix+"Tau32_dichroic", -999.0);
-    jet.setAttribute(m_prefix+"Tau42_dichroic", -999.0);
-  }
+    std::string suffix = moment.second.suffix;
 
-  float tau1_wta = jet.getAttribute<float>(m_prefix+"Tau1_wta");
-  float tau2_wta = jet.getAttribute<float>(m_prefix+"Tau2_wta");
-  float tau3_wta = jet.getAttribute<float>(m_prefix+"Tau3_wta");
-  float tau4_wta = jet.getAttribute<float>(m_prefix+"Tau4_wta");
+    if( !moment.second.acc_Tau1->isAvailable(jet) ||
+        !moment.second.acc_Tau2->isAvailable(jet) ||
+        !moment.second.acc_Tau3->isAvailable(jet) ||
+        !moment.second.acc_Tau4->isAvailable(jet) ||
+        !moment.second.acc_Tau1_wta->isAvailable(jet) ||
+        !moment.second.acc_Tau2_wta->isAvailable(jet) ||
+        !moment.second.acc_Tau3_wta->isAvailable(jet) ||
+        !moment.second.acc_Tau4_wta->isAvailable(jet)) {
 
-  float tau2_wta_ungroomed = -999.0;
-  float tau3_wta_ungroomed = -999.0;
-  float tau4_wta_ungroomed = -999.0;
+      ATH_MSG_ERROR( "Not all " << m_prefix << " Tau decorations with " << suffix << " are available. Exiting." );
+      return 1;
 
-  if (m_doDichroic) {
-    tau2_wta_ungroomed = jet.getAttribute<float>(m_prefix+"Tau2_wta_ungroomed");
-    tau3_wta_ungroomed = jet.getAttribute<float>(m_prefix+"Tau3_wta_ungroomed");
-    tau4_wta_ungroomed = jet.getAttribute<float>(m_prefix+"Tau4_wta_ungroomed");
-  }
+    }
 
-  // WTA
-  //Prevent div-0 and check against default value (-999) of the decoration
-  if(tau1_wta > 1e-8) { 
-    jet.setAttribute(m_prefix+"Tau21_wta", tau2_wta/tau1_wta);
-    if(tau2_wta_ungroomed > 1e-8) 
-      jet.setAttribute(m_prefix+"Tau21_wta_dichroic", tau2_wta_ungroomed/tau1_wta);
-    else
-      jet.setAttribute(m_prefix+"Tau21_wta_dichroic", -999.0);
-  }
-  else {
-    jet.setAttribute(m_prefix+"Tau21_wta", -999.0);
-    jet.setAttribute(m_prefix+"Tau21_wta_dichroic", -999.0);
-  }
+    if( m_doDichroic ) {
 
-  //Prevent div-0 and check against default value (-999) of the decoration
-  if(tau2_wta > 1e-8) {
-    jet.setAttribute(m_prefix+"Tau32_wta", tau3_wta/tau2_wta);
-    jet.setAttribute(m_prefix+"Tau42_wta", tau4_wta/tau2_wta);
+      if( !moment.second.acc_Tau2_ungroomed->isAvailable(jet) ||
+          !moment.second.acc_Tau3_ungroomed->isAvailable(jet) ||
+          !moment.second.acc_Tau4_ungroomed->isAvailable(jet) ||
+          !moment.second.acc_Tau2_wta_ungroomed->isAvailable(jet) ||
+          !moment.second.acc_Tau3_wta_ungroomed->isAvailable(jet) ||
+          !moment.second.acc_Tau4_wta_ungroomed->isAvailable(jet)) {
 
-    if(tau3_wta_ungroomed > 1e-8) 
-      jet.setAttribute(m_prefix+"Tau32_wta_dichroic", tau3_wta_ungroomed/tau2_wta);
-    else
-      jet.setAttribute(m_prefix+"Tau32_wta_dichroic", -999.0);
+        ATH_MSG_ERROR( "Not all ungroomed " << m_prefix << " Tau decorations with " << suffix << " are available. Exiting." );
+        return 1;
 
-    if(tau4_wta_ungroomed > 1e-8) 
-      jet.setAttribute(m_prefix+"Tau42_wta_dichroic", tau4_wta_ungroomed/tau2_wta);
-    else
-      jet.setAttribute(m_prefix+"Tau42_wta_dichroic", -999.0);
-  }
-  else {
-    jet.setAttribute(m_prefix+"Tau32_wta", -999.0);
-    jet.setAttribute(m_prefix+"Tau42_wta", -999.0);
+      }
 
-    jet.setAttribute(m_prefix+"Tau32_wta_dichroic", -999.0);
-    jet.setAttribute(m_prefix+"Tau42_wta_dichroic", -999.0);
+    }
+
+    /// Regular NSubjettiness
+    float Tau1 = (*moment.second.acc_Tau1)(jet);
+    float Tau2 = (*moment.second.acc_Tau2)(jet);
+    float Tau3 = (*moment.second.acc_Tau3)(jet);
+    float Tau4 = (*moment.second.acc_Tau4)(jet);
+
+    float Tau2_ungroomed = -999.0;
+    float Tau3_ungroomed = -999.0;
+    float Tau4_ungroomed = -999.0;
+
+    if( m_doDichroic ) {
+      Tau2_ungroomed = (*moment.second.acc_Tau2_ungroomed)(jet);
+      Tau3_ungroomed = (*moment.second.acc_Tau3_ungroomed)(jet);
+      Tau4_ungroomed = (*moment.second.acc_Tau4_ungroomed)(jet);
+    }
+
+    float Tau21 = -999.0;
+    float Tau32 = -999.0;
+    float Tau42 = -999.0;
+
+    float Tau21_dichroic = -999.0;
+    float Tau32_dichroic = -999.0;
+    float Tau42_dichroic = -999.0;
+
+    /// Prevent div-0 and check against default value (-999) of the decoration
+    if( Tau1 > 1e-8 ) {
+
+      Tau21 = Tau2 / Tau1;
+
+      if( Tau2_ungroomed > 1e-8 ) {
+        Tau21_dichroic = Tau2_ungroomed/Tau1;
+      }
+
+    }
+
+    /// Prevent div-0 and check against default value (-999) of the decoration
+    if( Tau2 > 1e-8 ) {
+
+      Tau32 = Tau3 / Tau2;
+      Tau42 = Tau4 / Tau2;
+
+      if(Tau3_ungroomed > 1e-8) {
+        Tau32_dichroic = Tau3_ungroomed / Tau2;
+      }
+
+      if(Tau4_ungroomed > 1e-8) {
+        Tau42_dichroic = Tau4_ungroomed / Tau2;
+      }
+
+    }
+
+    /// WTA NSubjettiness
+    float Tau1_wta = (*moment.second.acc_Tau1_wta)(jet);
+    float Tau2_wta = (*moment.second.acc_Tau2_wta)(jet);
+    float Tau3_wta = (*moment.second.acc_Tau3_wta)(jet);
+    float Tau4_wta = (*moment.second.acc_Tau4_wta)(jet);
+
+    float Tau2_wta_ungroomed = -999.0;
+    float Tau3_wta_ungroomed = -999.0;
+    float Tau4_wta_ungroomed = -999.0;
+
+    if( m_doDichroic ) {
+      Tau2_wta_ungroomed = (*moment.second.acc_Tau2_wta_ungroomed)(jet);
+      Tau3_wta_ungroomed = (*moment.second.acc_Tau3_wta_ungroomed)(jet);
+      Tau4_wta_ungroomed = (*moment.second.acc_Tau4_wta_ungroomed)(jet);
+    }
+
+    float Tau21_wta = -999.0;
+    float Tau32_wta = -999.0;
+    float Tau42_wta = -999.0;
+
+    float Tau21_wta_dichroic = -999.0;
+    float Tau32_wta_dichroic = -999.0;
+    float Tau42_wta_dichroic = -999.0;
+
+    /// Prevent div-0 and check against default value (-999) of the decoration
+    if( Tau1_wta > 1e-8 ) {
+
+      Tau21_wta = Tau2_wta / Tau1_wta;
+
+      if( Tau2_wta_ungroomed > 1e-8 ) {
+        Tau21_wta_dichroic = Tau2_wta_ungroomed / Tau1_wta;
+      }
+
+    }
+
+    /// Prevent div-0 and check against default value (-999) of the decoration
+    if( Tau2_wta > 1e-8 ) {
+
+      Tau32_wta = Tau3_wta / Tau2_wta;
+      Tau42_wta = Tau4_wta / Tau2_wta;
+
+      if( Tau3_wta_ungroomed > 1e-8 ) {
+        Tau32_wta_dichroic = Tau3_wta_ungroomed / Tau2_wta;
+      }
+
+      if(Tau4_wta_ungroomed > 1e-8) {
+        Tau42_wta_dichroic = Tau4_wta_ungroomed / Tau2_wta;
+      }
+
+    }
+
+    (*moment.second.dec_Tau21)(jet) = Tau21;
+    (*moment.second.dec_Tau32)(jet) = Tau32;
+    (*moment.second.dec_Tau42)(jet) = Tau42;
+
+    (*moment.second.dec_Tau21_dichroic)(jet) = Tau21_dichroic;
+    (*moment.second.dec_Tau32_dichroic)(jet) = Tau32_dichroic;
+    (*moment.second.dec_Tau42_dichroic)(jet) = Tau42_dichroic;
+
+    (*moment.second.dec_Tau21_wta)(jet) = Tau21_wta;
+    (*moment.second.dec_Tau32_wta)(jet) = Tau32_wta;
+    (*moment.second.dec_Tau42_wta)(jet) = Tau42_wta;
+
+    (*moment.second.dec_Tau21_wta_dichroic)(jet) = Tau21_wta_dichroic;
+    (*moment.second.dec_Tau32_wta_dichroic)(jet) = Tau32_wta_dichroic;
+    (*moment.second.dec_Tau42_wta_dichroic)(jet) = Tau42_wta_dichroic;
+
   }
 
   return 0;
+
 }

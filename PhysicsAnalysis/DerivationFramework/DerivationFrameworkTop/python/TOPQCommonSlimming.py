@@ -20,6 +20,7 @@ from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
 
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+import LeptonTaggers.LeptonTaggersConfig as LepTagConfig
 
 def setup(TOPQname, stream):
     DFisMC = (globalflags.DataSource()=='geant4')
@@ -36,6 +37,15 @@ def setup(TOPQname, stream):
         "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810Aux"          : "xAOD::JetAuxContainer"     ,
         "BTagging_AntiKtVR30Rmax4Rmin02Track_201810"        : "xAOD::BTaggingContainer"   ,
         "BTagging_AntiKtVR30Rmax4Rmin02Track_201810Aux"     : "xAOD::BTaggingAuxContainer",
+        # Include new retrained b-tagging with tag 201903
+        "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903"             : "xAOD::JetContainer"        ,
+        "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903Aux"          : "xAOD::JetAuxContainer"     ,
+        "BTagging_AntiKtVR30Rmax4Rmin02Track_201903"        : "xAOD::BTaggingContainer"   ,
+        "BTagging_AntiKtVR30Rmax4Rmin02Track_201903Aux"     : "xAOD::BTaggingAuxContainer",
+        "BTagging_AntiKtVR30Rmax4Rmin02Track_201903JFVtx"     : "xAOD::BTagVertexContainer"   ,
+        "BTagging_AntiKtVR30Rmax4Rmin02Track_201903JFVtxAux"  : "xAOD::BTagVertexAuxContainer",
+        "BTagging_AntiKtVR30Rmax4Rmin02Track_201903SecVtx"    : "xAOD::VertexContainer"   ,
+        "BTagging_AntiKtVR30Rmax4Rmin02Track_201903SecVtxAux" : "xAOD::VertexAuxContainer",
     }
 
     # list of existing containers with a smart list is available here :
@@ -55,6 +65,7 @@ def setup(TOPQname, stream):
         "BTagging_AntiKt4EMPFlow_201903",
         "BTagging_AntiKt4EMTopo_201810",
         "BTagging_AntiKtVR30Rmax4Rmin02Track_201810",
+        "BTagging_AntiKtVR30Rmax4Rmin02Track_201903",
         "Electrons",
         "HLT_xAOD__JetContainer_a4tcemsubjesFS",
         "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET",
@@ -98,6 +109,7 @@ def setup(TOPQname, stream):
     #TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt2PV0TrackJets
     TOPQSlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
     TOPQSlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
+    TOPQSlimmingHelper.ExtraVariables += LepTagConfig.GetExtraImprovedPromptVariablesForDxAOD()
     # additional variables for clusters
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_egammaClusters;
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_CaloCalTopoClusters;
@@ -138,6 +150,11 @@ def setup(TOPQname, stream):
         # see TOPQDERIV70
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKtVR30Rmax4Rmin02TrackJets
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKtVR30Rmax4Rmin02Track
+        # see TOPDERIV-93
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKtVR30Rmax4Rmin02TrackJets_201903
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_SecVtx_AntiKtVR30Rmax4Rmin02TrackJets_201903
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKtVR30Rmax4Rmin02Track_201903
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt10LCTopoJets
         # Xbb tagger extra variables
         from DerivationFrameworkFlavourTag.HbbCommon import xbbTaggerExtraVariables
         TOPQSlimmingHelper.ExtraVariables += xbbTaggerExtraVariables
@@ -145,6 +162,11 @@ def setup(TOPQname, stream):
         # see TOPQDERIV70
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKtVR30Rmax4Rmin02TrackJets
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKtVR30Rmax4Rmin02Track
+        # see TOPDERIV-93
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKtVR30Rmax4Rmin02TrackJets_201903
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKtVR30Rmax4Rmin02Track_201903
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_SecVtx_AntiKtVR30Rmax4Rmin02TrackJets_201903
+        TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt10LCTopoJets
         # add these trigger variables to both data and MC
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTag_HLT
         TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_HLT_EFJet

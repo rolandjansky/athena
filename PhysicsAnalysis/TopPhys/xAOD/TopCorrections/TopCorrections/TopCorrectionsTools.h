@@ -10,8 +10,12 @@
 
 namespace top {
   // Functions useful for b-tagging systematic name mapping
-  std::string bTagNamedSystCheck(std::shared_ptr<top::TopConfig>, const std::string, const std::string, bool);
-  std::string betterBtagNamedSyst(const std::string);
+  std::string bTagNamedSystCheck(std::shared_ptr<top::TopConfig>,
+                                 const std::string&,
+                                 const std::string&,
+                                 const bool,
+                                 const bool);
+  std::string betterBtagNamedSyst(const std::string&);
 }
 
 #endif

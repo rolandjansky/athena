@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopAnalysis/ObjectLoaderStandardCuts.h"
@@ -21,6 +21,10 @@
 // R21 specific
 #include "TopObjectSelectionTools/PhotonMC16.h"
 
+#include "TopAnalysis/MsgCategory.h"
+// use ATH_MSG macros defined in the namespace TopAnalysis
+using namespace TopAnalysis;
+
 namespace top {
   top::TopObjectSelection* ObjectLoaderStandardCuts::init(std::shared_ptr<top::TopConfig> topConfig) {
     top::TopObjectSelection* objectSelection = new top::TopObjectSelection(topConfig->objectSelectionName());
@@ -32,8 +36,7 @@ namespace top {
 
     ///-- Photons --//
     if (topConfig->usePhotons()) {
-      std::cout << "top::ObjectLoaderStandardCuts::init - Using new photon object for Release 21 - PhotonMC16" <<
-        std::endl;
+      ATH_MSG_INFO("top::ObjectLoaderStandardCuts::init - Using new photon object for Release 21 - PhotonMC16");
       objectSelection->photonSelection(new top::PhotonMC16(topConfig->photonPtcut(),
                                                            topConfig->photonEtacut(),
                                                            topConfig->photonIdentification(),
@@ -70,13 +73,11 @@ namespace top {
                                                                            topConfig->useElectronChargeIDSelection()
                                                                            ));
       } else {
-        std::cout << "\nHo hum\n";
-        std::cout <<
-          "Not sure it makes sense to use a mix of LH and cut-based electrons for the tight/loose definitions\n";
-        std::cout << "Tight electron definition is " << topConfig->electronID() << "\n";
-        std::cout << "Loose electron definition is " << topConfig->electronIDLoose() << "\n";
-        std::cout << "If it does make sense, feel free to fix this\n";
-        exit(1);
+        ATH_MSG_ERROR("Not sure it makes sense to use a mix of LH and cut-based electrons for the tight/loose definitions\n"
+          << "Tight electron definition is " << topConfig->electronID() << "\n"
+          << "Loose electron definition is " << topConfig->electronIDLoose() << "\n"
+          << "If it does make sense, feel free to fix this");
+        throw std::runtime_error("Mixing LH and cut-based electron definitions for tight/loose");
       }
     }
 
@@ -112,8 +113,7 @@ namespace top {
 
     ///-- Jets --///
     if (topConfig->useJets()) {
-      objectSelection->jetSelection(new top::JetMC15(topConfig->jetPtcut(), topConfig->jetEtacut(),
-                                                     topConfig->fwdJetAndMET()));
+      objectSelection->jetSelection(new top::JetMC15(topConfig->jetPtcut(), topConfig->jetEtacut()));
     }
 
     ///-- Large R Jets --///

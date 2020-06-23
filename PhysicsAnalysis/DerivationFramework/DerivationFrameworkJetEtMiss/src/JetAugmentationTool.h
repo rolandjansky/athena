@@ -1,7 +1,7 @@
 ////////////////////-*- C++ -*-////////////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetAugmentationTool.h, (c) ATLAS Detector software
@@ -22,6 +22,7 @@
 #include "JetAnalysisInterfaces/IJetJvtEfficiency.h"
 #include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
 #include "xAODJet/JetContainer.h"
+#include "ParticleJetTools/JetTruthLabelingTool.h"
 
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h" // QGTaggerTool
 
@@ -114,6 +115,18 @@ namespace DerivationFramework {
     SG::AuxElement::Decorator<float>* dec_Associated_truthjet_pt;
     SG::AuxElement::Decorator<float>* dec_Associated_truthjet_eta;
     ToolHandle<InDet::IInDetTrackSelectionTool> m_trkSelectionTool;
+
+    //// Large-R jet truth labeling @author jveatch@cern.ch and tnobe@cern.ch
+    ToolHandle<JetTruthLabelingTool> m_jetTruthLabelingTool;
+    bool m_decoratetruthlabel;
+    std::unique_ptr< SG::AuxElement::Decorator<int> > dec_Label;
+    std::unique_ptr< SG::AuxElement::Decorator<float> > dec_dRW;
+    std::unique_ptr< SG::AuxElement::Decorator<float> > dec_dRZ;
+    std::unique_ptr< SG::AuxElement::Decorator<float> > dec_dRH;
+    std::unique_ptr< SG::AuxElement::Decorator<float> > dec_dRTop;
+    std::unique_ptr< SG::AuxElement::Decorator<int> > dec_NB;
+    std::unique_ptr< SG::AuxElement::Decorator<float> > dec_TruthJetMass;
+    std::string m_truthLabelName;
 
   };
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BoostedJetTaggers/JSSWTopTaggerDNN.h"
@@ -21,48 +21,16 @@ JSSWTopTaggerDNN::JSSWTopTaggerDNN( const std::string& name ) :
   m_dec_mcutH("mcutH"),
   m_dec_scoreCut("scoreCut"),
   m_dec_scoreValue("scoreValue"),
-  m_dec_weight("weightdec"),
-  m_acc_truthLabel("FatjetTruthLabel")
-  {
-
-    declareProperty( "ConfigFile",   m_configFile="");
-    declareProperty( "Decoration",   m_decorationName="XX");
-    declareProperty( "DecorateJet",  m_decorate = true);
+  m_dec_weight("weightdec")
+{
 
     declareProperty( "JetEtaMax",             m_jetEtaMax = 2.0);
 
-    declareProperty( "TaggerType",    m_tagType="XXX");
-
-    declareProperty( "CalibArea",      m_calibarea = "");
-    declareProperty( "CalibAreaKeras", m_calibarea_keras = "BoostedJetTaggers/JSSWTopTaggerDNN/Boost2017/");
-    declareProperty( "KerasConfigFile", m_kerasConfigFileName="XXX");
-    declareProperty( "KerasOutput",     m_kerasConfigOutputName="XXX");
-
     // tagging scale factors
-    declareProperty( "CalcSF",                    m_calcSF = false);
     declareProperty( "WeightDecorationName",      m_weightdecorationName = "SF");
     declareProperty( "WeightFile",                m_weightFileName = "");
     declareProperty( "WeightHistogramName",       m_weightHistogramName = "");
     declareProperty( "WeightFlavors",             m_weightFlavors = "");
-    declareProperty( "TruthLabelDecorationName",  m_truthLabelDecorationName = "FatjetTruthLabel");
-    declareProperty( "TruthJetContainerName",   m_truthJetContainerName="AntiKt10TruthTrimmedPtFrac5SmallR20Jets");
-    declareProperty( "TruthParticleContainerName",   m_truthParticleContainerName="TruthParticles");
-    declareProperty( "TruthWBosonContainerName",   m_truthWBosonContainerName="TruthBosonWithDecayParticles");
-    declareProperty( "TruthZBosonContainerName",   m_truthZBosonContainerName="TruthBosonWithDecayParticles");
-    declareProperty( "TruthHBosonContainerName",   m_truthHBosonContainerName="TruthBosonWithDecayParticles");
-    declareProperty( "TruthTopQuarkContainerName",   m_truthTopQuarkContainerName="TruthTopQuarkWithDecayParticles");
-
-    declareProperty( "DSID",             m_DSID = -1);
-    declareProperty( "IsMC",             m_IsMC = true);
-
-    declareProperty( "dR_truthJet",      m_dR_truthJet = 0.75);
-    declareProperty( "dR_truthPart",     m_dR_truthPart = 0.75);
-    declareProperty( "mLowTop",          m_mLowTop = 140.);
-    declareProperty( "mHighTop",         m_mHighTop = -1);
-    declareProperty( "mLowW",            m_mLowW = 50.);
-    declareProperty( "mHighW",           m_mHighW = 100.);
-    declareProperty( "mLowZ",            m_mLowZ = 60.);
-    declareProperty( "mHighZ",           m_mHighZ = 110.);
 }
 
 JSSWTopTaggerDNN::~JSSWTopTaggerDNN() {}
@@ -78,12 +46,12 @@ StatusCode JSSWTopTaggerDNN::initialize(){
     // check for the existence of the configuration file
     std::string configPath;
 
-    if ( m_calibarea.compare("Local") == 0 ){
+    if ( m_calibArea.compare("Local") == 0 ){
       configPath = PathResolverFindCalibFile(("$WorkDir_DIR/data/BoostedJetTaggers/"+m_configFile).c_str());
-    } else if ( m_calibarea.find("eos") != std::string::npos) {
-      configPath = PathResolverFindCalibFile((m_calibarea+"/"+m_configFile).c_str());
+    } else if ( m_calibArea.find("eos") != std::string::npos) {
+      configPath = PathResolverFindCalibFile((m_calibArea+"/"+m_configFile).c_str());
     } else {
-      configPath = PathResolverFindCalibFile(("BoostedJetTaggers/"+m_calibarea+"/"+m_configFile).c_str());
+      configPath = PathResolverFindCalibFile(("BoostedJetTaggers/"+m_calibArea+"/"+m_configFile).c_str());
     }
 
     /* https://root.cern.ch/root/roottalk/roottalk02/5332.html */
@@ -109,7 +77,7 @@ StatusCode JSSWTopTaggerDNN::initialize(){
 
     // get the CVMFS calib area where stuff is stored
     // if this is set to "Local" then it will look for the config file in the share space
-    m_calibarea_keras = configReader.GetValue("CalibAreaKeras" ,"");
+    m_kerasCalibArea = configReader.GetValue("CalibAreaKeras" ,"");
 
     // get the name/path of the JSON config
     m_kerasConfigFileName = configReader.GetValue("KerasConfigFile" ,"");
@@ -136,27 +104,29 @@ StatusCode JSSWTopTaggerDNN::initialize(){
       m_weightFileName = configReader.GetValue("WeightFile", "");
       m_weightHistogramName = configReader.GetValue("WeightHistogramName", "");
       m_weightFlavors = configReader.GetValue("WeightFlavors", "");
-      m_truthLabelDecorationName = configReader.GetValue("TruthLabelDecorationName", "");
+    
+      // get truth label name information
+      m_truthLabelName = configReader.GetValue("TruthLabelName" , "R10TruthLabel_R21Consolidated");
     }
 
     // print out the configuration parameters for viewing
-    ATH_MSG_INFO( "Configurations Loaded  :");
-    ATH_MSG_INFO( "tagType                : "<<m_tagType );
-    ATH_MSG_INFO( "calibarea_keras        : "<<m_calibarea_keras );
-    ATH_MSG_INFO( "kerasConfigFileName    : "<<m_kerasConfigFileName );
-    ATH_MSG_INFO( "kerasConfigOutputName  : "<<m_kerasConfigOutputName );
-    ATH_MSG_INFO( "strMassCutLow          : "<<m_strMassCutLow );
-    ATH_MSG_INFO( "strMassCutHigh         : "<<m_strMassCutHigh );
-    ATH_MSG_INFO( "pTCutLow               : "<<m_jetPtMin );
-    ATH_MSG_INFO( "pTCutHigh              : "<<m_jetPtMax );
-    ATH_MSG_INFO( "strScoreCut            : "<<m_strScoreCut );
-    ATH_MSG_INFO( "decorationName         : "<<m_decorationName );
+    ATH_MSG_INFO( "Configurations Loaded :");
+    ATH_MSG_INFO( "tagType               : " << m_tagType );
+    ATH_MSG_INFO( "calibarea_keras       : " << m_kerasCalibArea );
+    ATH_MSG_INFO( "kerasConfigFileName   : " << m_kerasConfigFileName );
+    ATH_MSG_INFO( "kerasConfigOutputName : " << m_kerasConfigOutputName );
+    ATH_MSG_INFO( "strMassCutLow         : " << m_strMassCutLow );
+    ATH_MSG_INFO( "strMassCutHigh        : " << m_strMassCutHigh );
+    ATH_MSG_INFO( "pTCutLow              : " << m_jetPtMin );
+    ATH_MSG_INFO( "pTCutHigh             : " << m_jetPtMax );
+    ATH_MSG_INFO( "strScoreCut           : " << m_strScoreCut );
+    ATH_MSG_INFO( "decorationName        : " << m_decorationName );
     if(m_calcSF){
-      ATH_MSG_INFO( "weightdecorationName    : "<<m_weightdecorationName );
-      ATH_MSG_INFO( "weightFile              : "<<m_weightFileName );
-      ATH_MSG_INFO( "weightHistogramName     : "<<m_weightHistogramName );
-      ATH_MSG_INFO( "weightFlavors           : "<<m_weightFlavors );
-      ATH_MSG_INFO( "truthLabelDecorationName: "<<m_truthLabelDecorationName );
+      ATH_MSG_INFO( "weightdecorationName  : " << m_weightdecorationName );
+      ATH_MSG_INFO( "weightFile            : " << m_weightFileName );
+      ATH_MSG_INFO( "weightHistogramName   : " << m_weightHistogramName );
+      ATH_MSG_INFO( "weightFlavors         : " << m_weightFlavors );
+      ATH_MSG_INFO( "TruthLabelName        : " << m_truthLabelName );
     }
   }
   else { // no config file
@@ -199,7 +169,7 @@ StatusCode JSSWTopTaggerDNN::initialize(){
     dec_name = m_decorationName+"_"+m_weightdecorationName;
     ATH_MSG_INFO( "  "<<dec_name<<" : tagging SF" );
     m_dec_weight     = SG::AuxElement::Decorator<float>((dec_name).c_str());
-    m_acc_truthLabel = SG::AuxElement::ConstAccessor<int>((m_truthLabelDecorationName).c_str());
+    m_acc_truthLabel = std::make_unique< SG::AuxElement::ConstAccessor<int> >((m_truthLabelName).c_str());
   }
 
   // transform these strings into functions
@@ -213,11 +183,11 @@ StatusCode JSSWTopTaggerDNN::initialize(){
   ATH_MSG_INFO( "  Score cut low    : "<< m_strScoreCut );
 
   // if the calibarea is specified to be "Local" then it looks in the same place as the top level configs
-  if( m_calibarea_keras.empty() ){
+  if( m_kerasCalibArea.empty() ){
     ATH_MSG_INFO( (m_APP_NAME+": You need to specify where the calibarea is as either being Local or on CVMFS") );
     return StatusCode::FAILURE;
   }
-  else if(m_calibarea_keras.compare("Local")==0){
+  else if(m_kerasCalibArea.compare("Local")==0){
     std::string localCalibArea = "BoostedJetTaggers/JSSWTopTaggerDNN/";
     ATH_MSG_INFO( (m_APP_NAME+": Using Local calibarea "+localCalibArea ));
     // convert the JSON config file name to the full path
@@ -229,9 +199,9 @@ StatusCode JSSWTopTaggerDNN::initialize(){
     ATH_MSG_INFO( (m_APP_NAME+": Using CVMFS calibarea") );
     // get the config file from CVMFS
     // necessary because xml files are too large to house on the data space
-    m_kerasConfigFilePath = PathResolverFindCalibFile( (m_calibarea_keras+m_kerasConfigFileName).c_str() );
+    m_kerasConfigFilePath = PathResolverFindCalibFile( (m_kerasCalibArea+m_kerasConfigFileName).c_str() );
     if(m_calcSF)
-      m_weightConfigPath = PathResolverFindCalibFile( (m_calibarea_keras+m_weightFileName).c_str());
+      m_weightConfigPath = PathResolverFindCalibFile( (m_kerasCalibArea+m_weightFileName).c_str());
   }
 
   // read json file for DNN weights
@@ -309,6 +279,15 @@ StatusCode JSSWTopTaggerDNN::initialize(){
       m_weightHistograms.insert( std::make_pair( flavor, (TH2D*)m_weightConfig->Get((m_weightHistogramName+"_"+flavor).c_str()) ) );
       ATH_MSG_INFO( (m_APP_NAME+"Tagging SF histogram for "+flavor+" is installed.") );
     }
+
+    ASG_SET_ANA_TOOL_TYPE( m_JetTruthLabelingTool, JetTruthLabelingTool);
+    m_JetTruthLabelingTool.setName("JetTruthLabelingTool");
+    ATH_CHECK( m_JetTruthLabelingTool.setProperty("TruthLabelName", m_truthLabelName) );
+    ATH_CHECK( m_JetTruthLabelingTool.setProperty("UseTRUTH3", m_truthLabelUseTRUTH3) );
+    ATH_CHECK( m_JetTruthLabelingTool.setProperty("TruthParticleContainerName", m_truthParticleContainerName) );
+    ATH_CHECK( m_JetTruthLabelingTool.setProperty("TruthBosonContainerName", m_truthBosonContainerName) );
+    ATH_CHECK( m_JetTruthLabelingTool.setProperty("TruthTopQuarkContainerName", m_truthTopQuarkContainerName) );
+    ATH_CHECK( m_JetTruthLabelingTool.retrieve() );
   }
 
   ATH_MSG_INFO( (m_APP_NAME+": DNN Tagger tool initialized").c_str() );
@@ -363,10 +342,10 @@ Root::TAccept& JSSWTopTaggerDNN::tag(const xAOD::Jet& jet) const{
 
   // decorate truth label for SF provider
   float jet_weight=1.0;
-  if ( m_calcSF && (!m_acc_truthLabel.isAvailable(jet) || FatjetTruthLabel::intToEnum(m_acc_truthLabel(jet))==FatjetTruthLabel::UNKNOWN) ){
+  if ( m_calcSF && (!m_acc_truthLabel->isAvailable(jet) || LargeRJetTruthLabel::intToEnum((*m_acc_truthLabel)(jet))==LargeRJetTruthLabel::UNKNOWN) ){
     if ( m_IsMC ){
-      if (decorateTruthLabel(jet) == StatusCode::FAILURE){
-	ATH_MSG_FATAL("Failed to decorate jet truth label. Please check truth container names");
+      if ( m_JetTruthLabelingTool->modifyJet(jet) == StatusCode::FAILURE){
+        ATH_MSG_FATAL("Failed to decorate jet truth label. Please check truth container names");
       }
     }
   }
@@ -438,21 +417,21 @@ double JSSWTopTaggerDNN::getWeight(const xAOD::Jet& jet) const {
 	 fabs(jet.eta())>m_jetEtaMax ) return 1.0;
 
     std::string truthLabelStr;
-    FatjetTruthLabel::TypeEnum jetContainment=FatjetTruthLabel::intToEnum(jet.auxdata<int>(m_truthLabelDecorationName));
+    LargeRJetTruthLabel::TypeEnum jetContainment=LargeRJetTruthLabel::intToEnum((*m_acc_truthLabel)(jet));
     if( m_weightHistograms.count("t_qqb") ) {
       // full-contained top tagger
-      if( jetContainment==FatjetTruthLabel::tqqb ){
+      if( jetContainment==LargeRJetTruthLabel::tqqb ){
 	truthLabelStr="t_qqb";
-      }else if( jetContainment==FatjetTruthLabel::notruth || jetContainment==FatjetTruthLabel::qcd ) {
+      }else if( jetContainment==LargeRJetTruthLabel::notruth || jetContainment==LargeRJetTruthLabel::qcd ) {
 	truthLabelStr="q";
       }
     }else{
       // W/Z tagger or inclusive top tagger
-      if( jetContainment==FatjetTruthLabel::tqqb || jetContainment==FatjetTruthLabel::other_From_t ){
+      if( jetContainment==LargeRJetTruthLabel::tqqb || jetContainment==LargeRJetTruthLabel::other_From_t ){
 	truthLabelStr="t";
-      }else if( jetContainment==FatjetTruthLabel::Wqq || jetContainment==FatjetTruthLabel::Zqq || jetContainment==FatjetTruthLabel::Wqq_From_t ){
+      }else if( jetContainment==LargeRJetTruthLabel::Wqq || jetContainment==LargeRJetTruthLabel::Zqq || jetContainment==LargeRJetTruthLabel::Wqq_From_t ){
 	truthLabelStr="V_qq";
-      }else if( jetContainment==FatjetTruthLabel::notruth || jetContainment==FatjetTruthLabel::qcd ) {
+      }else if( jetContainment==LargeRJetTruthLabel::notruth || jetContainment==LargeRJetTruthLabel::qcd ) {
 	truthLabelStr="q";
       }
     }

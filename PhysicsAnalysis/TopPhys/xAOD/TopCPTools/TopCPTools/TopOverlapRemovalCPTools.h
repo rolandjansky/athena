@@ -33,8 +33,12 @@ namespace top {
 
     ORUtils::ToolBox m_ORtoolBox;
     ORUtils::ToolBox m_ORtoolBox_Loose;
+    ORUtils::ToolBox m_ORtoolBox_softMuons_PFjets;
+    ORUtils::ToolBox m_ORtoolBox_softMuons_Alljets;
     asg::AnaToolHandle<ORUtils::IOverlapRemovalTool> m_overlapRemovalTool;
     asg::AnaToolHandle<ORUtils::IOverlapRemovalTool> m_overlapRemovalTool_Loose;
+    asg::AnaToolHandle<ORUtils::IOverlapRemovalTool> m_overlapRemovalTool_softMuons_PFjets;
+    asg::AnaToolHandle<ORUtils::IOverlapRemovalTool> m_overlapRemovalTool_softMuons_Alljets;
 
     StatusCode setupOverlapRemoval();
   };

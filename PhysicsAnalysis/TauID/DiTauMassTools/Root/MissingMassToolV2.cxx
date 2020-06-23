@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // vim: ts=2 sw=2
@@ -27,6 +27,7 @@ MissingMassToolV2::MissingMassToolV2(const std::string& name) : asg::AsgTool(nam
   declareProperty("NiterFit3",			m_niter_fit_3=-1);
   // Property not there in latest MMC tags
   declareProperty("UseTauProbability",		m_use_tau_probability=-1);
+  declareProperty("UseMnuProbability",		m_use_mnu_probability=false);
   declareProperty("UseDefaults",		m_use_defaults=-1);
   declareProperty("UseEfficiencyRecovery",	m_use_efficiency_recovery=-1);
   declareProperty("UseMETDphiLL",		m_use_met_param_dphiLL = false);
@@ -75,6 +76,7 @@ StatusCode MissingMassToolV2::initialize()
   if (m_use_defaults>=0) m_MMC->preparedInput.SetUseDefaults(m_use_defaults);
   if (m_use_efficiency_recovery>=0) m_MMC->SetUseEfficiencyRecovery(m_use_efficiency_recovery);
   if (m_use_met_param_dphiLL) m_MMC->Prob->SetUseDphiLL(m_use_met_param_dphiLL);
+  if (m_use_mnu_probability) m_MMC->Prob->SetUseMnuProbability(m_use_mnu_probability);
 
   // could be made a property but maybe not with the enum
   // What about a string argument ?

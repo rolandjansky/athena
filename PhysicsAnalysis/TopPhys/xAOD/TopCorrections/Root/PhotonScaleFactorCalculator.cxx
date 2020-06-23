@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 // $Id: PhotonScaleFactorCalculator.cxx 802226 2017-04-04 16:13:10Z grancagn $
@@ -35,9 +35,10 @@ namespace top {
     ATH_MSG_INFO(" top::PhotonScaleFactorCalculator initialize");
     top::check(m_photonEffSF.retrieve(),
                "Failed to retrieve photon efficiency SF calculator");
-    std::cout << "------>Systematics:" << std::endl;
+    std::ostream& msgInfo = msg(MSG::Level::INFO);
+    msgInfo << "------>Systematics:\n";
     for (auto sys:m_photonEffSF->recommendedSystematics())
-      std::cout << "---> " << sys << std::endl;
+      msgInfo << "---> " << sys << "\n";
 
     // remove "FixedCut" if present
     std::string s = "FixedCut";
@@ -51,9 +52,9 @@ namespace top {
       m_photonIsoSF_exists = true;
       top::check(m_photonIsoSF.retrieve(),
                  "Failed to retrieve photon isolation efficiency SF calculator");
-      std::cout << "------>Systematics:" << std::endl;
+      msgInfo << "------>Systematics:\n";
       for (auto sys:m_photonIsoSF->recommendedSystematics())
-        std::cout << "---> " << sys << std::endl;
+        msgInfo << "---> " << sys << "\n";
     }
 
     std::string isoNameLoose = m_config->photonIsolationLoose();
@@ -66,9 +67,6 @@ namespace top {
       m_photonLooseIsoSF_exists = true;
       top::check(m_photonLooseIsoSF.retrieve(),
                  "Failed to retrieve loose photon isolation efficiency SF calculator");
-      //std::cout<<"------>Systematics:"<<std::endl;
-      //for (auto sys:m_photonIsoSF->recommendedSystematics())
-      //std::cout<<"---> "<<sys<<std::endl;
     }
     return StatusCode::SUCCESS;
   }

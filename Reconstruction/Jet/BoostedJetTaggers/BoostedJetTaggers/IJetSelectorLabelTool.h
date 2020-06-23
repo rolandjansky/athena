@@ -1,7 +1,7 @@
 // this file is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IJETSELECTORLABELTOOL_H
@@ -15,15 +15,11 @@
 /// 
 /// If you call:
 ///    tag(const xAOD::Jet& jet) 
-/// function, a truth label is decorated to the given jet and tagging result
-/// is calculated. If it is not a desired  use case, e.g. a truth label is only 
-/// needed for the JES uncertainties depending on the label, the separate 
-/// interface:
-///    decorateTruthLabel(const xAOD::Jet& jet)
-/// can be used just to attach the truth label to the jet, which doesn't 
-/// allow tagging it.
+/// function, the tagging result is calculated. The functionality of applying 
+/// truth labels has been moved to ParticleJetTools/JetTruthLabelingTool
 /// 
 /// @author Takuya Nobe <Takuya.Nobe@cern.ch>
+/// Updated by Jason Veatch <Jason.Veatch@cern.ch> February 2020
 /// 
 class IJetSelectorLabelTool : public virtual IJetSelectorTool {
 
@@ -35,16 +31,10 @@ class IJetSelectorLabelTool : public virtual IJetSelectorTool {
   
   /**
    * @fn
-   * attach a truth label to the given jet and return the tagging result
+   * return the tagging result
    */
   virtual Root::TAccept& tag(const xAOD::Jet& jet) const = 0;
   
-  /**
-   * @fn
-   * attach a truth label only
-   */
-  virtual StatusCode decorateTruthLabel(const xAOD::Jet& jet) const = 0;
-
 };
 
 #endif

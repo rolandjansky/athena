@@ -395,8 +395,7 @@ namespace top {
 
         if (m_config->useFwdElectrons()) systematicTree->makeOutputVariable(m_weight_fwdElSF, "weight_fwdElSF");
 
-        if (m_config->usePhotons()) systematicTree->makeOutputVariable(m_weight_photonSF,
-                                                                       "weight_photonSF");
+        if (m_config->usePhotons()) systematicTree->makeOutputVariable(m_weight_photonSF, "weight_photonSF");
 
         if (m_config->useTaus()) systematicTree->makeOutputVariable(m_weight_tauSF,
                                                                     "weight_tauSF");
@@ -472,7 +471,7 @@ namespace top {
                                                    tagWP) + "_eigenvars_Light_up");
               systematicTree->makeOutputVariable(m_perjet_weight_trackjet_bTagSF_eigen_Light_down[tagWP], "weight_perjet_trackjet_bTagSF_" + shortBtagWP(
                                                    tagWP) + "_eigenvars_Light_down");
-              for (const std::string& name : m_config->btagging_namedSysts(tagWP)) {
+              for (const std::string& name : m_config->trkjet_btagging_namedSysts(tagWP)) {
                 systematicTree->makeOutputVariable(m_perjet_weight_bTagSF_named_up[tagWP][name], "weight_perjet_trackjet_bTagSF_" + shortBtagWP(
                                                      tagWP) + "_" + betterBtagNamedSyst(name) + "_up");
                 systematicTree->makeOutputVariable(m_perjet_weight_bTagSF_named_down[tagWP][name], "weight_perjet_trackjet_bTagSF_" + shortBtagWP(
@@ -484,6 +483,7 @@ namespace top {
 
 
         systematicTree->makeOutputVariable(m_weight_jvt, "weight_jvt");
+        if (m_config->getfJVTWP() != "None") systematicTree->makeOutputVariable(m_weight_forwardjvt, "weight_forwardjvt");
 
         if (m_config->isSherpa22Vjets()) systematicTree->makeOutputVariable(m_weight_sherpa_22_vjets,
                                                                             "weight_sherpa_22_vjets");
@@ -664,8 +664,6 @@ namespace top {
                                                "weight_photonSF_ID_UP");
             systematicTree->makeOutputVariable(m_weight_photonSF_ID_DOWN,
                                                "weight_photonSF_ID_DOWN");
-            systematicTree->makeOutputVariable(m_weight_photonSF_effIso,
-                                               "weight_photonSF_effIso");
             systematicTree->makeOutputVariable(m_weight_photonSF_effIso_UP,
                                                "weight_photonSF_effIso_UP");
             systematicTree->makeOutputVariable(m_weight_photonSF_effIso_DOWN,
@@ -674,6 +672,10 @@ namespace top {
 
           systematicTree->makeOutputVariable(m_weight_jvt_up, "weight_jvt_UP");
           systematicTree->makeOutputVariable(m_weight_jvt_down, "weight_jvt_DOWN");
+	  if (m_config->getfJVTWP() != "None") {
+	    systematicTree->makeOutputVariable(m_weight_forwardjvt_up, "weight_forwardjvt_UP");
+	    systematicTree->makeOutputVariable(m_weight_forwardjvt_down, "weight_forwardjvt_DOWN");
+	  }
         }
 
         // for b-tagging SFs, can also have systematic-shifted in systematics trees
@@ -741,8 +743,8 @@ namespace top {
       ///-- weights for matrix-method fakes estimate by IFF --///
       if (!m_config->isMC() && systematicTree->name() == nominalLooseTTreeName && m_config->doFakesMMWeightsIFF()) {
         std::vector<CP::AsymptMatrixTool*> fakesMMWeightCalcIFF;
-        while (asg::ToolStore::contains<CP::AsymptMatrixTool>("AsymptMatrixTool_" + m_ASMsize)) {
-          fakesMMWeightCalcIFF.push_back(asg::ToolStore::get<CP::AsymptMatrixTool>("AsymptMatrixTool_" + m_ASMsize));
+        while (asg::ToolStore::contains<CP::AsymptMatrixTool>("AsymptMatrixTool_" + std::to_string (m_ASMsize))) {
+          fakesMMWeightCalcIFF.push_back(asg::ToolStore::get<CP::AsymptMatrixTool>("AsymptMatrixTool_" + std::to_string (m_ASMsize)));
           ++m_ASMsize;
         }
         std::string ASMweights_branch_name = "ASM_weight";
@@ -808,6 +810,23 @@ namespace top {
           systematicTree->makeOutputVariable(m_el_true_isPrompt, "el_true_isPrompt");
           systematicTree->makeOutputVariable(m_el_true_isChargeFl, "el_true_isChargeFl");
         }
+	if (m_config->enablePromptLeptonImprovedVetoStudies()) {
+	  systematicTree->makeOutputVariable(m_PLIV_el_PromptLeptonRNN_conversion, "PLIV_el_PromptLeptonRNN_conversion");
+	  systematicTree->makeOutputVariable(m_PLIV_el_PromptLeptonRNN_non_prompt_b, "PLIV_el_PromptLeptonRNN_non_prompt_b");
+	  systematicTree->makeOutputVariable(m_PLIV_el_PromptLeptonRNN_non_prompt_c, "PLIV_el_PromptLeptonRNN_non_prompt_c");
+	  systematicTree->makeOutputVariable(m_PLIV_el_PromptLeptonRNN_prompt, "PLIV_el_PromptLeptonRNN_prompt");
+	  systematicTree->makeOutputVariable(m_PLIV_el_PromptLeptonImprovedInput_MVAXBin, "PLIV_el_PromptLeptonImprovedInput_MVAXBin");
+	  systematicTree->makeOutputVariable(m_PLIV_el_PromptLeptonImprovedInput_TrackJetNTrack, "PLIV_el_PromptLeptonImprovedInput_TrackJetNTrack");
+	  systematicTree->makeOutputVariable(m_PLIV_el_PromptLeptonImprovedInput_topoetcone30rel, "PLIV_el_PromptLeptonImprovedInput_topoetcone30rel");
+	  systematicTree->makeOutputVariable(m_PLIV_el_PromptLeptonImprovedInput_ptvarcone30rel, "PLIV_el_PromptLeptonImprovedInput_ptvarcone30rel");
+	  systematicTree->makeOutputVariable(m_PLIV_el_PromptLeptonImprovedInput_PtFrac, "PLIV_el_PromptLeptonImprovedInput_PtFrac");
+	  systematicTree->makeOutputVariable(m_PLIV_el_PromptLeptonImprovedInput_DRlj, "PLIV_el_PromptLeptonImprovedInput_DRlj");
+	  systematicTree->makeOutputVariable(m_PLIV_el_PromptLeptonImprovedInput_CaloClusterSumEtRel, "PLIV_el_PromptLeptonImprovedInput_CaloClusterSumEtRel");
+	  systematicTree->makeOutputVariable(m_PLIV_el_PromptLeptonImprovedInput_PtRel, "PLIV_el_PromptLeptonImprovedInput_PtRel");
+	  systematicTree->makeOutputVariable(m_PLIV_el_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest_ThetaCutVtx, "PLIV_el_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest_ThetaCutVtx");
+	  systematicTree->makeOutputVariable(m_PLIV_el_PromptLeptonImprovedVetoBARR, "PLIV_el_PromptLeptonImprovedVetoBARR");
+	  systematicTree->makeOutputVariable(m_PLIV_el_PromptLeptonImprovedVetoECAP, "PLIV_el_PromptLeptonImprovedVetoECAP");
+	}
       }
 
       //forward electrons
@@ -843,6 +862,19 @@ namespace top {
           systematicTree->makeOutputVariable(m_mu_true_origin, "mu_true_origin");
           systematicTree->makeOutputVariable(m_mu_true_isPrompt, "mu_true_isPrompt");
         }
+	if (m_config->enablePromptLeptonImprovedVetoStudies()) {
+	  systematicTree->makeOutputVariable(m_PLIV_mu_PromptLeptonRNN_non_prompt_b, "PLIV_mu_PromptLeptonRNN_non_prompt_b");
+	  systematicTree->makeOutputVariable(m_PLIV_mu_PromptLeptonRNN_non_prompt_c, "PLIV_mu_PromptLeptonRNN_non_prompt_c");
+	  systematicTree->makeOutputVariable(m_PLIV_mu_PromptLeptonRNN_prompt, "PLIV_mu_PromptLeptonRNN_prompt");
+	  systematicTree->makeOutputVariable(m_PLIV_mu_PromptLeptonImprovedInput_MVAXBin, "PLIV_mu_PromptLeptonImprovedInput_MVAXBin");
+	  systematicTree->makeOutputVariable(m_PLIV_mu_PromptLeptonImprovedInput_topoetcone30rel, "PLIV_mu_PromptLeptonImprovedInput_topoetcone30rel");
+	  systematicTree->makeOutputVariable(m_PLIV_mu_PromptLeptonImprovedInput_PtFrac, "PLIV_mu_PromptLeptonImprovedInput_PtFrac");
+	  systematicTree->makeOutputVariable(m_PLIV_mu_PromptLeptonImprovedInput_DRlj, "PLIV_mu_PromptLeptonImprovedInput_DRlj");
+	  systematicTree->makeOutputVariable(m_PLIV_mu_PromptLeptonImprovedInput_ptvarcone30_TightTTVA_pt500rel, "PLIV_mu_PromptLeptonImprovedInput_ptvarcone30_TightTTVA_pt500rel");
+	  systematicTree->makeOutputVariable(m_PLIV_mu_PromptLeptonImprovedInput_CaloClusterERel, "PLIV_mu_PromptLeptonImprovedInput_CaloClusterERel");
+	  systematicTree->makeOutputVariable(m_PLIV_mu_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest, "PLIV_mu_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest");
+	  systematicTree->makeOutputVariable(m_PLIV_mu_PromptLeptonImprovedVeto, "PLIV_mu_PromptLeptonImprovedVeto");
+	}
       }
 
       //soft muons
@@ -906,7 +938,10 @@ namespace top {
         systematicTree->makeOutputVariable(m_jet_e, "jet_e");
         systematicTree->makeOutputVariable(m_jet_mv2c10, "jet_mv2c10");
         systematicTree->makeOutputVariable(m_jet_jvt, "jet_jvt");
-        systematicTree->makeOutputVariable(m_jet_passfjvt, "jet_passfjvt");
+	if (m_config->doForwardJVTinMET() || m_config->getfJVTWP() != "None") {
+	  systematicTree->makeOutputVariable(m_jet_fjvt, "jet_forwardjvt");
+	  systematicTree->makeOutputVariable(m_jet_passfjvt, "jet_passforwardjvt");
+	}
         if (m_config->isMC() && m_config->jetStoreTruthLabels()) {
           systematicTree->makeOutputVariable(m_jet_truthflav, "jet_truthflav");
           systematicTree->makeOutputVariable(m_jet_truthPartonLabel, "jet_truthPartonLabel");
@@ -952,7 +987,10 @@ namespace top {
         systematicTree->makeOutputVariable(m_failJvt_jet_phi, "failJvt_jet_phi");
         systematicTree->makeOutputVariable(m_failJvt_jet_e, "failJvt_jet_e");
         systematicTree->makeOutputVariable(m_failJvt_jet_jvt, "failJvt_jet_jvt");
-        systematicTree->makeOutputVariable(m_failJvt_jet_passfjvt, "failJvt_jet_passfjvt");
+	if (m_config->doForwardJVTinMET() || m_config->getfJVTWP() != "None") {
+	  systematicTree->makeOutputVariable(m_failJvt_jet_fjvt, "failJvt_jet_forwardjvt");
+	  systematicTree->makeOutputVariable(m_failJvt_jet_passfjvt, "failJvt_jet_passforwardjvt");
+	}
         if (m_config->isMC() && m_config->jetStoreTruthLabels()) {
           systematicTree->makeOutputVariable(m_failJvt_jet_truthflav, "failJvt_jet_truthflav");
           systematicTree->makeOutputVariable(m_failJvt_jet_truthPartonLabel, "failJvt_jet_truthPartonLabel");
@@ -969,6 +1007,35 @@ namespace top {
           systematicTree->makeOutputVariable(m_failJvt_jet_ghostTrack_d0, "failJvt_jet_ghostTrack_d0");
           systematicTree->makeOutputVariable(m_failJvt_jet_ghostTrack_z0, "failJvt_jet_ghostTrack_z0");
           systematicTree->makeOutputVariable(m_failJvt_jet_ghostTrack_qOverP, "failJvt_jet_ghostTrack_qOverP");
+        }
+      }
+
+      // fail-FJVT jets
+      if (m_config->getfJVTWP() != "None" && m_config->saveFailForwardJVTJets()) {
+        systematicTree->makeOutputVariable(m_failFJvt_jet_pt, "failforwardJvt_jet_pt");
+        systematicTree->makeOutputVariable(m_failFJvt_jet_eta, "failforwardJvt_jet_eta");
+        systematicTree->makeOutputVariable(m_failFJvt_jet_phi, "failforwardJvt_jet_phi");
+        systematicTree->makeOutputVariable(m_failFJvt_jet_e, "failforwardJvt_jet_e");
+        systematicTree->makeOutputVariable(m_failFJvt_jet_jvt, "failforwardJvt_jet_jvt");
+	systematicTree->makeOutputVariable(m_failFJvt_jet_fjvt, "failforwardJvt_jet_forwardjvt");
+        systematicTree->makeOutputVariable(m_failFJvt_jet_passjvt, "failforwardJvt_jet_passjvt");
+
+        if (m_config->isMC() && m_config->jetStoreTruthLabels()) {
+          systematicTree->makeOutputVariable(m_failFJvt_jet_truthflav, "failforwardJvt_jet_truthflav");
+          systematicTree->makeOutputVariable(m_failFJvt_jet_truthPartonLabel, "failforwardJvt_jet_truthPartonLabel");
+          systematicTree->makeOutputVariable(m_failFJvt_jet_isTrueHS, "failforwardJvt_jet_isTrueHS");
+          systematicTree->makeOutputVariable(m_failFJvt_jet_HadronConeExclExtendedTruthLabelID,
+                                             "failforwardJvt_jet_truthflavExtended");
+        }
+
+        if (m_config->useJetGhostTrack()) {
+          systematicTree->makeOutputVariable(m_failFJvt_jet_ghostTrack_pt, "failforwardJvt_jet_ghostTrack_pt");
+          systematicTree->makeOutputVariable(m_failFJvt_jet_ghostTrack_eta, "failforwardJvt_jet_ghostTrack_eta");
+          systematicTree->makeOutputVariable(m_failFJvt_jet_ghostTrack_phi, "failforwardJvt_jet_ghostTrack_phi");
+          systematicTree->makeOutputVariable(m_failFJvt_jet_ghostTrack_e, "failforwardJvt_jet_ghostTrack_e");
+          systematicTree->makeOutputVariable(m_failFJvt_jet_ghostTrack_d0, "failforwardJvt_jet_ghostTrack_d0");
+          systematicTree->makeOutputVariable(m_failFJvt_jet_ghostTrack_z0, "failforwardJvt_jet_ghostTrack_z0");
+          systematicTree->makeOutputVariable(m_failFJvt_jet_ghostTrack_qOverP, "failforwardJvt_jet_ghostTrack_qOverP");
         }
       }
 
@@ -1042,13 +1109,12 @@ namespace top {
           systematicTree->makeOutputVariable(m_rcjet_d23_clstr, "rcjet_d23_clstr");
           systematicTree->makeOutputVariable(m_rcjet_Qw_clstr, "rcjet_Qw_clstr");
           systematicTree->makeOutputVariable(m_rcjet_nconstituent_clstr, "rcjet_nconstituent_clstr");
-        }
-        if (m_useRCAdditionalJSS) {
-          systematicTree->makeOutputVariable(m_rcjet_D2_clstr, "rcjet_D2_clstr");
+	  systematicTree->makeOutputVariable(m_rcjet_D2_clstr, "rcjet_D2_clstr");
           systematicTree->makeOutputVariable(m_rcjet_ECF1_clstr, "rcjet_ECF1_clstr");
           systematicTree->makeOutputVariable(m_rcjet_ECF2_clstr, "rcjet_ECF2_clstr");
           systematicTree->makeOutputVariable(m_rcjet_ECF3_clstr, "rcjet_ECF3_clstr");
-
+        }
+        if (m_useRCAdditionalJSS) {
           systematicTree->makeOutputVariable(m_rcjet_gECF332_clstr, "rcjet_gECF332_clstr");
           systematicTree->makeOutputVariable(m_rcjet_gECF461_clstr, "rcjet_gECF461_clstr");
           systematicTree->makeOutputVariable(m_rcjet_gECF322_clstr, "rcjet_gECF322_clstr");
@@ -1113,12 +1179,13 @@ namespace top {
               systematicTree->makeOutputVariable(m_VarRCjetBranches[VarRC + "_" + name + "_d12_clstr"], VarRC + "_" + name + "_d12_clstr");
               systematicTree->makeOutputVariable(m_VarRCjetBranches[VarRC + "_" + name + "_d23_clstr"], VarRC + "_" + name + "_d23_clstr");
               systematicTree->makeOutputVariable(m_VarRCjetBranches[VarRC + "_" + name + "_Qw_clstr"], VarRC + "_" + name + "_Qw_clstr");
-            }
-            if (m_useVarRCAdditionalJSS) {
-              systematicTree->makeOutputVariable(m_VarRCjetBranches[VarRC + "_" + name + "_D2_clstr"], VarRC + "_" + name + "_D2_clstr");
+	      
+	      systematicTree->makeOutputVariable(m_VarRCjetBranches[VarRC + "_" + name + "_D2_clstr"], VarRC + "_" + name + "_D2_clstr");
               systematicTree->makeOutputVariable(m_VarRCjetBranches[VarRC + "_" + name + "_ECF1_clstr"], VarRC + "_" + name + "_ECF1_clstr");
               systematicTree->makeOutputVariable(m_VarRCjetBranches[VarRC + "_" + name + "_ECF2_clstr"], VarRC + "_" + name + "_ECF2_clstr");
               systematicTree->makeOutputVariable(m_VarRCjetBranches[VarRC + "_" + name + "_ECF3_clstr"], VarRC + "_" + name + "_ECF3_clstr");
+            }
+            if (m_useVarRCAdditionalJSS) {
 
               systematicTree->makeOutputVariable(m_VarRCjetBranches[VarRC + "_" + name + "_gECF332_clstr"], VarRC + "_" + name + "_gECF332_clstr");
               systematicTree->makeOutputVariable(m_VarRCjetBranches[VarRC + "_" + name + "_gECF461_clstr"], VarRC + "_" + name + "_gECF461_clstr");
@@ -1495,13 +1562,15 @@ namespace top {
         m_particleLevelTreeManager->makeOutputVariable(m_rcjet_Qw_clstr, "rcjet_Qw_clstr");
 
         m_particleLevelTreeManager->makeOutputVariable(m_rcjet_nconstituent_clstr, "rcjet_nconstituent_clstr");
-      }
-      if (m_useRCAdditionalJSS) {
-        m_particleLevelTreeManager->makeOutputVariable(m_rcjet_D2_clstr, "rcjet_D2_clstr");
+	
+	m_particleLevelTreeManager->makeOutputVariable(m_rcjet_D2_clstr, "rcjet_D2_clstr");
         m_particleLevelTreeManager->makeOutputVariable(m_rcjet_ECF1_clstr, "rcjet_ECF1_clstr");
         m_particleLevelTreeManager->makeOutputVariable(m_rcjet_ECF2_clstr, "rcjet_ECF2_clstr");
         m_particleLevelTreeManager->makeOutputVariable(m_rcjet_ECF3_clstr, "rcjet_ECF3_clstr");
 
+      }
+      if (m_useRCAdditionalJSS) {
+        
         m_particleLevelTreeManager->makeOutputVariable(m_rcjet_gECF332_clstr, "rcjet_gECF332_clstr");
         m_particleLevelTreeManager->makeOutputVariable(m_rcjet_gECF461_clstr, "rcjet_gECF461_clstr");
         m_particleLevelTreeManager->makeOutputVariable(m_rcjet_gECF322_clstr, "rcjet_gECF322_clstr");
@@ -1815,6 +1884,7 @@ namespace top {
       }
 
       m_weight_jvt = m_sfRetriever->jvtSF(event, top::topSFSyst::nominal);
+      if (m_config->getfJVTWP() != "None") m_weight_forwardjvt = m_sfRetriever->fjvtSF(event, top::topSFSyst::nominal);
 
       if (m_config->isSherpa22Vjets()) {
         if (event.m_info->isAvailable<double>("Sherpa22VJetsWeight")) {
@@ -1946,7 +2016,6 @@ namespace top {
         if (m_config->usePhotons()) {
           m_weight_photonSF_ID_UP = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_IDSF_UP);
           m_weight_photonSF_ID_DOWN = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_IDSF_DOWN);
-          m_weight_photonSF_effIso = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_ISO);
           m_weight_photonSF_effIso_UP = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_ISO_UP);
           m_weight_photonSF_effIso_DOWN = m_sfRetriever->photonSF(event, top::topSFSyst::PHOTON_EFF_ISO_DOWN);
         }
@@ -1954,6 +2023,10 @@ namespace top {
 
         m_weight_jvt_up = m_sfRetriever->jvtSF(event, top::topSFSyst::JVT_UP);
         m_weight_jvt_down = m_sfRetriever->jvtSF(event, top::topSFSyst::JVT_DOWN);
+	if (m_config->getfJVTWP() != "None"){
+	  m_weight_forwardjvt_up = m_sfRetriever->fjvtSF(event, top::topSFSyst::FJVT_UP);
+	  m_weight_forwardjvt_down = m_sfRetriever->fjvtSF(event, top::topSFSyst::FJVT_DOWN);
+	}
       }
 
       // for b-tagging SFs, can also have systematic-shifted in systematics trees
@@ -1988,7 +2061,7 @@ namespace top {
             m_sfRetriever->btagSF_eigen_vars(event, top::topSFSyst::BTAG_SF_EIGEN_LIGHT,
                                              m_weight_trackjet_bTagSF_eigen_Light_up[tagWP],
                                              m_weight_trackjet_bTagSF_eigen_Light_down[tagWP], tagWP, true);
-            for (auto name : m_config->btagging_namedSysts(tagWP)) {
+            for (auto name : m_config->trkjet_btagging_namedSysts(tagWP)) {
               m_weight_trackjet_bTagSF_named_up[tagWP][name] = m_sfRetriever->btagSF(event, top::topSFSyst::BTAG_SF_NAMED_UP, tagWP, true, name);
               m_weight_trackjet_bTagSF_named_down[tagWP][name] = m_sfRetriever->btagSF(event, top::topSFSyst::BTAG_SF_NAMED_DOWN, tagWP, true, name);
             }
@@ -2006,7 +2079,7 @@ namespace top {
     if (event.m_hashValue == m_config->nominalHashValue() && !m_config->isMC() && m_config->doFakesMMWeightsIFF()) {
       std::vector<CP::AsymptMatrixTool*> fakesMMWeightCalcIFF;
       for (int mmi = 0; mmi < m_ASMsize; ++mmi) {
-        fakesMMWeightCalcIFF.push_back(asg::ToolStore::get<CP::AsymptMatrixTool>("AsymptMatrixTool_" + mmi));
+        fakesMMWeightCalcIFF.push_back(asg::ToolStore::get<CP::AsymptMatrixTool>("AsymptMatrixTool_" + std::to_string (mmi)));
       }
       std::string ASMweights_branch_name = "ASMWeight";
       std::string decorName = "ASMWeight";
@@ -2130,9 +2203,42 @@ namespace top {
         m_el_true_isPrompt.resize(n_electrons);
         m_el_true_isChargeFl.resize(n_electrons);
       }
+      if (m_config->enablePromptLeptonImprovedVetoStudies()) {
+	m_PLIV_el_PromptLeptonRNN_conversion.resize(n_electrons);
+	m_PLIV_el_PromptLeptonRNN_non_prompt_b.resize(n_electrons);
+	m_PLIV_el_PromptLeptonRNN_non_prompt_c.resize(n_electrons);
+	m_PLIV_el_PromptLeptonRNN_prompt.resize(n_electrons);
+	m_PLIV_el_PromptLeptonImprovedInput_MVAXBin.resize(n_electrons);
+	m_PLIV_el_PromptLeptonImprovedInput_TrackJetNTrack.resize(n_electrons);
+	m_PLIV_el_PromptLeptonImprovedInput_topoetcone30rel.resize(n_electrons);
+	m_PLIV_el_PromptLeptonImprovedInput_ptvarcone30rel.resize(n_electrons);
+	m_PLIV_el_PromptLeptonImprovedInput_PtFrac.resize(n_electrons);
+	m_PLIV_el_PromptLeptonImprovedInput_DRlj.resize(n_electrons);
+	m_PLIV_el_PromptLeptonImprovedInput_CaloClusterSumEtRel.resize(n_electrons);
+	m_PLIV_el_PromptLeptonImprovedInput_PtRel.resize(n_electrons);
+	m_PLIV_el_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest_ThetaCutVtx.resize(n_electrons);
+	m_PLIV_el_PromptLeptonImprovedVetoBARR.resize(n_electrons);
+	m_PLIV_el_PromptLeptonImprovedVetoECAP.resize(n_electrons);
+      }
 
       static const SG::AuxElement::Accessor<char> accECIDS("DFCommonElectronsECIDS");
       static const SG::AuxElement::Accessor<double> accECIDSResult("DFCommonElectronsECIDSResult");
+
+      static const SG::AuxElement::Accessor<float> PLIV_el_PromptLeptonRNN_conversion("PromptLeptonRNN_conversion");
+      static const SG::AuxElement::Accessor<float> PLIV_el_PromptLeptonRNN_non_prompt_b("PromptLeptonRNN_non_prompt_b");
+      static const SG::AuxElement::Accessor<float> PLIV_el_PromptLeptonRNN_non_prompt_c("PromptLeptonRNN_non_prompt_c");
+      static const SG::AuxElement::Accessor<float> PLIV_el_PromptLeptonRNN_prompt("PromptLeptonRNN_prompt");
+      static const SG::AuxElement::Accessor<short> PLIV_el_PromptLeptonImprovedInput_MVAXBin("PromptLeptonImprovedInput_MVAXBin");
+      static const SG::AuxElement::Accessor<short> PLIV_el_PromptLeptonImprovedInput_TrackJetNTrack("PromptLeptonImprovedInput_TrackJetNTrack");
+      static const SG::AuxElement::Accessor<float> PLIV_el_PromptLeptonImprovedInput_topoetcone30rel("PromptLeptonImprovedInput_topoetcone30rel");
+      static const SG::AuxElement::Accessor<float> PLIV_el_PromptLeptonImprovedInput_ptvarcone30rel("PromptLeptonImprovedInput_ptvarcone30rel");
+      static const SG::AuxElement::Accessor<float> PLIV_el_PromptLeptonImprovedInput_PtFrac("PromptLeptonImprovedInput_PtFrac");
+      static const SG::AuxElement::Accessor<float> PLIV_el_PromptLeptonImprovedInput_DRlj("PromptLeptonImprovedInput_DRlj");
+      static const SG::AuxElement::Accessor<float> PLIV_el_PromptLeptonImprovedInput_CaloClusterSumEtRel("PromptLeptonImprovedInput_CaloClusterSumEtRel");
+      static const SG::AuxElement::Accessor<float> PLIV_el_PromptLeptonImprovedInput_PtRel("PromptLeptonImprovedInput_PtRel");
+      static const SG::AuxElement::Accessor<float> PLIV_el_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest_ThetaCutVtx("PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest_ThetaCutVtx");
+      static const SG::AuxElement::Accessor<float> PLIV_el_PromptLeptonImprovedVetoBARR("PromptLeptonImprovedVetoBARR");
+      static const SG::AuxElement::Accessor<float> PLIV_el_PromptLeptonImprovedVetoECAP("PromptLeptonImprovedVetoECAP");
 
       for (const auto* const elPtr : event.m_electrons) {
         m_el_pt[i] = elPtr->pt();
@@ -2160,6 +2266,24 @@ namespace top {
           m_el_ECIDS[i] = accECIDS.isAvailable(*elPtr) ? accECIDS(*elPtr) : 'n';
           m_el_ECIDSResult[i] = accECIDSResult.isAvailable(*elPtr) ? accECIDSResult(*elPtr) : -999.;
         }
+
+	if (m_config->enablePromptLeptonImprovedVetoStudies()) {
+	  m_PLIV_el_PromptLeptonRNN_conversion[i] = PLIV_el_PromptLeptonRNN_conversion.isAvailable(*elPtr) ? PLIV_el_PromptLeptonRNN_conversion(*elPtr) : -999.;
+	  m_PLIV_el_PromptLeptonRNN_non_prompt_b[i] = PLIV_el_PromptLeptonRNN_non_prompt_b.isAvailable(*elPtr) ? PLIV_el_PromptLeptonRNN_non_prompt_b(*elPtr) : -999.;
+	  m_PLIV_el_PromptLeptonRNN_non_prompt_c[i] = PLIV_el_PromptLeptonRNN_non_prompt_c.isAvailable(*elPtr) ? PLIV_el_PromptLeptonRNN_non_prompt_c(*elPtr) : -999.;
+	  m_PLIV_el_PromptLeptonRNN_prompt[i] = PLIV_el_PromptLeptonRNN_prompt.isAvailable(*elPtr) ? PLIV_el_PromptLeptonRNN_prompt(*elPtr) : -999.;
+	  m_PLIV_el_PromptLeptonImprovedInput_MVAXBin[i] = PLIV_el_PromptLeptonImprovedInput_MVAXBin.isAvailable(*elPtr) ? PLIV_el_PromptLeptonImprovedInput_MVAXBin(*elPtr) : -999.;
+	  m_PLIV_el_PromptLeptonImprovedInput_TrackJetNTrack[i] = PLIV_el_PromptLeptonImprovedInput_TrackJetNTrack.isAvailable(*elPtr) ? PLIV_el_PromptLeptonImprovedInput_TrackJetNTrack(*elPtr) : -999.;
+	  m_PLIV_el_PromptLeptonImprovedInput_topoetcone30rel[i] = PLIV_el_PromptLeptonImprovedInput_topoetcone30rel.isAvailable(*elPtr) ? PLIV_el_PromptLeptonImprovedInput_topoetcone30rel(*elPtr) : -999.;
+	  m_PLIV_el_PromptLeptonImprovedInput_ptvarcone30rel[i] = PLIV_el_PromptLeptonImprovedInput_ptvarcone30rel.isAvailable(*elPtr) ? PLIV_el_PromptLeptonImprovedInput_ptvarcone30rel(*elPtr) : -999.;
+	  m_PLIV_el_PromptLeptonImprovedInput_PtFrac[i] = PLIV_el_PromptLeptonImprovedInput_PtFrac.isAvailable(*elPtr) ? PLIV_el_PromptLeptonImprovedInput_PtFrac(*elPtr) : -999.;
+	  m_PLIV_el_PromptLeptonImprovedInput_DRlj[i] = PLIV_el_PromptLeptonImprovedInput_DRlj.isAvailable(*elPtr) ? PLIV_el_PromptLeptonImprovedInput_DRlj(*elPtr) : -999.;
+	  m_PLIV_el_PromptLeptonImprovedInput_CaloClusterSumEtRel[i] = PLIV_el_PromptLeptonImprovedInput_CaloClusterSumEtRel.isAvailable(*elPtr) ? PLIV_el_PromptLeptonImprovedInput_CaloClusterSumEtRel(*elPtr) : -999.;
+	  m_PLIV_el_PromptLeptonImprovedInput_PtRel[i] = PLIV_el_PromptLeptonImprovedInput_PtRel.isAvailable(*elPtr) ? PLIV_el_PromptLeptonImprovedInput_PtRel(*elPtr) : -999.;
+	  m_PLIV_el_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest_ThetaCutVtx[i] = PLIV_el_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest_ThetaCutVtx.isAvailable(*elPtr) ? PLIV_el_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest_ThetaCutVtx(*elPtr) : -999.;
+	  m_PLIV_el_PromptLeptonImprovedVetoBARR[i] = PLIV_el_PromptLeptonImprovedVetoBARR.isAvailable(*elPtr) ? PLIV_el_PromptLeptonImprovedVetoBARR(*elPtr) : -999.;
+	  m_PLIV_el_PromptLeptonImprovedVetoECAP[i] = PLIV_el_PromptLeptonImprovedVetoECAP.isAvailable(*elPtr) ? PLIV_el_PromptLeptonImprovedVetoECAP(*elPtr) : -999.;
+	}
 
         //retrieve the truth-matching variables from MCTruthClassifier
         if (m_config->isMC()) {
@@ -2209,6 +2333,31 @@ namespace top {
         m_mu_true_origin.resize(n_muons);
         m_mu_true_isPrompt.resize(n_muons);
       }
+      if (m_config->enablePromptLeptonImprovedVetoStudies()) {
+	m_PLIV_mu_PromptLeptonRNN_non_prompt_b.resize(n_muons);
+	m_PLIV_mu_PromptLeptonRNN_non_prompt_c.resize(n_muons);
+	m_PLIV_mu_PromptLeptonRNN_prompt.resize(n_muons);
+	m_PLIV_mu_PromptLeptonImprovedInput_MVAXBin.resize(n_muons);
+	m_PLIV_mu_PromptLeptonImprovedInput_topoetcone30rel.resize(n_muons);
+	m_PLIV_mu_PromptLeptonImprovedInput_PtFrac.resize(n_muons);
+	m_PLIV_mu_PromptLeptonImprovedInput_DRlj.resize(n_muons);
+	m_PLIV_mu_PromptLeptonImprovedInput_ptvarcone30_TightTTVA_pt500rel.resize(n_muons);
+	m_PLIV_mu_PromptLeptonImprovedInput_CaloClusterERel.resize(n_muons);
+	m_PLIV_mu_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest.resize(n_muons);
+	m_PLIV_mu_PromptLeptonImprovedVeto.resize(n_muons);
+      }
+
+      static const SG::AuxElement::Accessor<float> PLIV_mu_PromptLeptonRNN_non_prompt_b("PromptLeptonRNN_non_prompt_b");
+      static const SG::AuxElement::Accessor<float> PLIV_mu_PromptLeptonRNN_non_prompt_c("PromptLeptonRNN_non_prompt_c");
+      static const SG::AuxElement::Accessor<float> PLIV_mu_PromptLeptonRNN_prompt("PromptLeptonRNN_prompt");
+      static const SG::AuxElement::Accessor<short> PLIV_mu_PromptLeptonImprovedInput_MVAXBin("PromptLeptonImprovedInput_MVAXBin");
+      static const SG::AuxElement::Accessor<float> PLIV_mu_PromptLeptonImprovedInput_topoetcone30rel("PromptLeptonImprovedInput_topoetcone30rel");
+      static const SG::AuxElement::Accessor<float> PLIV_mu_PromptLeptonImprovedInput_PtFrac("PromptLeptonImprovedInput_PtFrac");
+      static const SG::AuxElement::Accessor<float> PLIV_mu_PromptLeptonImprovedInput_DRlj("PromptLeptonImprovedInput_DRlj");
+      static const SG::AuxElement::Accessor<float> PLIV_mu_PromptLeptonImprovedInput_ptvarcone30_TightTTVA_pt500rel("PromptLeptonImprovedInput_ptvarcone30_TightTTVA_pt500rel");
+      static const SG::AuxElement::Accessor<float> PLIV_mu_PromptLeptonImprovedInput_CaloClusterERel("PromptLeptonImprovedInput_CaloClusterERel");
+      static const SG::AuxElement::Accessor<float> PLIV_mu_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest("PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest");
+      static const SG::AuxElement::Accessor<float> PLIV_mu_PromptLeptonImprovedVeto("PromptLeptonImprovedVeto");
 
       for (const auto* const muPtr : event.m_muons) {
         m_mu_pt[i] = muPtr->pt();
@@ -2229,6 +2378,20 @@ namespace top {
         }
         if (muPtr->isAvailable<float>("d0sig")) m_mu_d0sig[i] = muPtr->auxdataConst<float>("d0sig");
         if (muPtr->isAvailable<float>("delta_z0_sintheta")) m_mu_delta_z0_sintheta[i] = muPtr->auxdataConst<float>("delta_z0_sintheta");
+
+	if (m_config->enablePromptLeptonImprovedVetoStudies()) {
+	  m_PLIV_mu_PromptLeptonRNN_non_prompt_b[i] = PLIV_mu_PromptLeptonRNN_non_prompt_b.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonRNN_non_prompt_b(*muPtr) : -999.;
+	  m_PLIV_mu_PromptLeptonRNN_non_prompt_c[i] = PLIV_mu_PromptLeptonRNN_non_prompt_c.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonRNN_non_prompt_c(*muPtr) : -999.;
+	  m_PLIV_mu_PromptLeptonRNN_prompt[i] = PLIV_mu_PromptLeptonRNN_prompt.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonRNN_prompt(*muPtr) : -999.;
+	  m_PLIV_mu_PromptLeptonImprovedInput_MVAXBin[i] = PLIV_mu_PromptLeptonImprovedInput_MVAXBin.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonImprovedInput_MVAXBin(*muPtr) : -999.;
+	  m_PLIV_mu_PromptLeptonImprovedInput_topoetcone30rel[i] = PLIV_mu_PromptLeptonImprovedInput_topoetcone30rel.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonImprovedInput_topoetcone30rel(*muPtr) : -999.;
+	  m_PLIV_mu_PromptLeptonImprovedInput_PtFrac[i] = PLIV_mu_PromptLeptonImprovedInput_PtFrac.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonImprovedInput_PtFrac(*muPtr) : -999.;
+	  m_PLIV_mu_PromptLeptonImprovedInput_DRlj[i] = PLIV_mu_PromptLeptonImprovedInput_DRlj.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonImprovedInput_DRlj(*muPtr) : -999.;
+	  m_PLIV_mu_PromptLeptonImprovedInput_ptvarcone30_TightTTVA_pt500rel[i] = PLIV_mu_PromptLeptonImprovedInput_ptvarcone30_TightTTVA_pt500rel.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonImprovedInput_ptvarcone30_TightTTVA_pt500rel(*muPtr) : -999.;
+	  m_PLIV_mu_PromptLeptonImprovedInput_CaloClusterERel[i] = PLIV_mu_PromptLeptonImprovedInput_CaloClusterERel.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonImprovedInput_CaloClusterERel(*muPtr) : -999.;
+	  m_PLIV_mu_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest[i] = PLIV_mu_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest(*muPtr) : -999.;
+	  m_PLIV_mu_PromptLeptonImprovedVeto[i] = PLIV_mu_PromptLeptonImprovedVeto.isAvailable(*muPtr) ? PLIV_mu_PromptLeptonImprovedVeto(*muPtr) : -999.;
+	}
 
         //retrieve the truth-matching variables from MCTruthClassifier
         if (m_config->isMC()) {
@@ -2322,8 +2485,7 @@ namespace top {
           
           if(m_config->softmuonAdditionalTruthInfo())
           {
-            //we do this only here, so we avoid losing time for soft muons we don't want to store in the output ntuple
-            top::truth::getRecoMuonHistory(muPtr,m_config->softmuonAdditionalTruthInfoCheckPartonOrigin(),m_config->softmuonAdditionalTruthInfoDoVerbose());
+            //these truth info are written in SoftMuonObjectCollectionMaker.cxx
             
             m_softmu_parton_origin_flag[i]=0;
             if(m_config->softmuonAdditionalTruthInfoCheckPartonOrigin())
@@ -2408,6 +2570,7 @@ namespace top {
       m_jet_e.resize(event.m_jets.size());
       m_jet_mv2c10.resize(event.m_jets.size());
       m_jet_jvt.resize(event.m_jets.size());
+      m_jet_fjvt.resize(event.m_jets.size());
       m_jet_passfjvt.resize(event.m_jets.size());
 
       // ghost tracks
@@ -2450,8 +2613,11 @@ namespace top {
         m_jet_HadronConeExclExtendedTruthLabelID.resize(event.m_jets.size());
       }
       for (auto& tagWP : m_config->bTagWP_available()) {
+
         if (tagWP.find("Continuous") == std::string::npos) {
           m_jet_isbtagged[tagWP].resize(event.m_jets.size());
+          if (std::find(m_config->bTagWP_calibrated().begin(),
+                m_config->bTagWP_calibrated().end(), tagWP) == m_config->bTagWP_calibrated().end()) continue;
 
           if (m_config->isMC() && m_config->storePerJetBtagSFs()) {
             m_perjet_weight_bTagSF[tagWP].resize(event.m_jets.size());
@@ -2461,7 +2627,7 @@ namespace top {
             m_perjet_weight_bTagSF_eigen_C_down[tagWP].resize(event.m_jets.size(), std::vector<float>(m_config->btagging_num_C_eigenvars(tagWP)));
             m_perjet_weight_bTagSF_eigen_Light_up[tagWP].resize(event.m_jets.size(), std::vector<float>(m_config->btagging_num_Light_eigenvars(tagWP)));
             m_perjet_weight_bTagSF_eigen_Light_down[tagWP].resize(event.m_jets.size(), std::vector<float>(m_config->btagging_num_Light_eigenvars(tagWP)));
-            for (const std::string& name : m_config->trkjet_btagging_namedSysts(tagWP)) {
+            for (const std::string& name : m_config->btagging_namedSysts(tagWP)) {
               m_perjet_weight_bTagSF_named_up[tagWP][name].resize(event.m_jets.size());
               m_perjet_weight_bTagSF_named_down[tagWP][name].resize(event.m_jets.size());
             }
@@ -2495,35 +2661,37 @@ namespace top {
           }
         }
 
-        if (m_config->useJetGhostTrack()) {
+        if (m_config->useJetGhostTrack() && m_jet_pt[i] > m_config->jetPtGhostTracks() && std::abs(m_jet_eta[i])<m_config->jetEtaGhostTracks()) {
           static const SG::AuxElement::Accessor< float > accD0("d0");
           static const SG::AuxElement::Accessor< float > accZ0("z0");
           static const SG::AuxElement::Accessor< float > accQOverP("qOverP");
 
-          const auto& ghostTracks = jetPtr->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(event.m_hashValue));
+	  std::vector<const xAOD::TrackParticle*> ghostTracks;
+          if(jetPtr->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(event.m_hashValue),ghostTracks)) {
 
-          const unsigned int nghostTracks = ghostTracks.size();
-
-          m_jet_ghostTrack_pt[i].resize(nghostTracks);
-          m_jet_ghostTrack_eta[i].resize(nghostTracks);
-          m_jet_ghostTrack_phi[i].resize(nghostTracks);
-          m_jet_ghostTrack_e[i].resize(nghostTracks);
-          m_jet_ghostTrack_d0[i].resize(nghostTracks);
-          m_jet_ghostTrack_z0[i].resize(nghostTracks);
-          m_jet_ghostTrack_qOverP[i].resize(nghostTracks);
-
-          for (unsigned int iGhost = 0; iGhost < nghostTracks; ++iGhost) {
-            top::check(ghostTracks.at(iGhost), "Error in EventSaverFlatNtuple: Found jet with null pointer in ghost track vector.");
-
-            m_jet_ghostTrack_pt[i][iGhost] = ghostTracks.at(iGhost)->pt();
-            m_jet_ghostTrack_eta[i][iGhost] = ghostTracks.at(iGhost)->eta();
-            m_jet_ghostTrack_phi[i][iGhost] = ghostTracks.at(iGhost)->phi();
-            m_jet_ghostTrack_e[i][iGhost] = ghostTracks.at(iGhost)->e();
-            m_jet_ghostTrack_d0[i][iGhost] = accD0(*ghostTracks.at(iGhost));
-            m_jet_ghostTrack_z0[i][iGhost] = accZ0(*ghostTracks.at(iGhost));
-            m_jet_ghostTrack_qOverP[i][iGhost] = accQOverP(*ghostTracks.at(iGhost));
-          }
-        }
+	    const unsigned int nghostTracks = ghostTracks.size();
+  
+	    m_jet_ghostTrack_pt[i].resize(nghostTracks);
+	    m_jet_ghostTrack_eta[i].resize(nghostTracks);
+	    m_jet_ghostTrack_phi[i].resize(nghostTracks);
+	    m_jet_ghostTrack_e[i].resize(nghostTracks);
+	    m_jet_ghostTrack_d0[i].resize(nghostTracks);
+	    m_jet_ghostTrack_z0[i].resize(nghostTracks);
+	    m_jet_ghostTrack_qOverP[i].resize(nghostTracks);
+  
+	    for (unsigned int iGhost = 0; iGhost < nghostTracks; ++iGhost) {
+	      top::check(ghostTracks.at(iGhost), "Error in EventSaverFlatNtuple: Found jet with null pointer in ghost track vector.");
+  
+	      m_jet_ghostTrack_pt[i][iGhost] = ghostTracks.at(iGhost)->pt();
+	      m_jet_ghostTrack_eta[i][iGhost] = ghostTracks.at(iGhost)->eta();
+	      m_jet_ghostTrack_phi[i][iGhost] = ghostTracks.at(iGhost)->phi();
+	      m_jet_ghostTrack_e[i][iGhost] = ghostTracks.at(iGhost)->e();
+	      m_jet_ghostTrack_d0[i][iGhost] = accD0(*ghostTracks.at(iGhost));
+	      m_jet_ghostTrack_z0[i][iGhost] = accZ0(*ghostTracks.at(iGhost));
+	      m_jet_ghostTrack_qOverP[i][iGhost] = accQOverP(*ghostTracks.at(iGhost));
+	    }
+	  }
+	}
 
 
         for (auto& tagWP : m_config->bTagWP_available()) {
@@ -2531,6 +2699,8 @@ namespace top {
             m_jet_isbtagged[tagWP][i] = false;
             if (jetPtr->isAvailable<char>("isbtagged_" + tagWP)) m_jet_isbtagged[tagWP][i] = jetPtr->auxdataConst<char>("isbtagged_" + tagWP);
             if (m_config->isMC() && m_config->storePerJetBtagSFs()) {
+              if (std::find(m_config->bTagWP_calibrated().begin(),
+                m_config->bTagWP_calibrated().end(), tagWP) == m_config->bTagWP_calibrated().end()) continue;
               m_perjet_weight_bTagSF[tagWP][i] = jetPtr->auxdataConst<float>("btag_SF_" + tagWP + "_nom");
               for (size_t ivar = 0; ivar < m_config->btagging_num_B_eigenvars(tagWP); ++ivar) {
                 m_perjet_weight_bTagSF_eigen_B_up[tagWP][i][ivar] = jetPtr->auxdataConst<float>("btag_SF_" + tagWP + "_FT_EFF_Eigen_B_" + std::to_string(ivar) + "__1up");
@@ -2544,7 +2714,7 @@ namespace top {
                 m_perjet_weight_bTagSF_eigen_Light_up[tagWP][i][ivar] = jetPtr->auxdataConst<float>("btag_SF_" + tagWP + "_FT_EFF_Eigen_Light_" + std::to_string(ivar) + "__1up");
                 m_perjet_weight_bTagSF_eigen_Light_down[tagWP][i][ivar] = jetPtr->auxdataConst<float>("btag_SF_" + tagWP + "_FT_EFF_Eigen_Light_" + std::to_string(ivar) + "__1down");
               }
-              for (const std::string& name : m_config->trkjet_btagging_namedSysts(tagWP)) {
+              for (const std::string& name : m_config->btagging_namedSysts(tagWP)) {
                 m_perjet_weight_bTagSF_named_up[tagWP][name][i] = jetPtr->auxdataConst<float>("btag_SF_" + tagWP + "_" + name + "__1up");
                 m_perjet_weight_bTagSF_named_down[tagWP][name][i] = jetPtr->auxdataConst<float>("btag_SF_" + tagWP + "_" + name + "__1down");
               }
@@ -2566,10 +2736,15 @@ namespace top {
         if (jetPtr->isAvailable<float>("AnalysisTop_JVT")) {
           m_jet_jvt[i] = jetPtr->auxdataConst<float>("AnalysisTop_JVT");
         }
-        m_jet_passfjvt[i] = -1;
-        if (jetPtr->isAvailable<char>("passFJVT")) {
-          m_jet_passfjvt[i] = jetPtr->getAttribute<char>("passFJVT");
+
+        m_jet_fjvt[i] = -1;
+        if (jetPtr->isAvailable<float>("fJvt")){
+          m_jet_fjvt[i] = jetPtr->auxdataConst<float>("fJvt");
         }
+        m_jet_passfjvt[i] = -1;
+	if (jetPtr->isAvailable<char>("AnalysisTop_fJVTdecision")){
+          m_jet_passfjvt[i] = jetPtr->getAttribute<char>("AnalysisTop_fJVTdecision");
+	}
 
         // DL1 can now be provided by btagging selector tool (see TopCorrections/BTagScaleFactorCalculator)
         m_jet_DL1[i] = jetPtr->auxdataConst<float>("AnalysisTop_DL1");
@@ -2618,7 +2793,7 @@ namespace top {
     }
 
     // fail-JVT jets
-    // btagging info is removed since btagging calibration is available for fail-JVT jets
+    // btagging info is removed since btagging calibration isn't available for fail-JVT jets
     if (m_config->saveFailJVTJets()) {
       unsigned int i(0);
       m_failJvt_jet_pt.resize(event.m_failJvt_jets.size());
@@ -2626,18 +2801,12 @@ namespace top {
       m_failJvt_jet_phi.resize(event.m_failJvt_jets.size());
       m_failJvt_jet_e.resize(event.m_failJvt_jets.size());
       m_failJvt_jet_jvt.resize(event.m_failJvt_jets.size());
+      m_failJvt_jet_fjvt.resize(event.m_failJvt_jets.size());
       m_failJvt_jet_passfjvt.resize(event.m_failJvt_jets.size());
-
+      
       // ghost tracks
       // fail-JVT jet could still have some ghost tracks, so these variables are kept
       if (m_config->useJetGhostTrack()) {
-        m_failJvt_jet_ghostTrack_pt.clear();
-        m_failJvt_jet_ghostTrack_eta.clear();
-        m_failJvt_jet_ghostTrack_phi.clear();
-        m_failJvt_jet_ghostTrack_e.clear();
-        m_failJvt_jet_ghostTrack_d0.clear();
-        m_failJvt_jet_ghostTrack_z0.clear();
-        m_failJvt_jet_ghostTrack_qOverP.clear();
 
         m_failJvt_jet_ghostTrack_pt.resize(event.m_failJvt_jets.size());
         m_failJvt_jet_ghostTrack_eta.resize(event.m_failJvt_jets.size());
@@ -2679,48 +2848,161 @@ namespace top {
           }
         }
 
-        if (m_config->useJetGhostTrack()) {
+        if (m_config->useJetGhostTrack() && m_failJvt_jet_pt[i] > m_config->jetPtGhostTracks() && std::abs(m_failJvt_jet_eta[i])<m_config->jetEtaGhostTracks()) {
           static const SG::AuxElement::Accessor< float > accD0("d0");
           static const SG::AuxElement::Accessor< float > accZ0("z0");
           static const SG::AuxElement::Accessor< float > accQOverP("qOverP");
 
-          const auto& ghostTracks = jetPtr->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(event.m_hashValue));
+          std::vector<const xAOD::TrackParticle*> ghostTracks;
+          if(jetPtr->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(event.m_hashValue),ghostTracks)) {
 
-          const unsigned int nghostTracks = ghostTracks.size();
-
-          m_failJvt_jet_ghostTrack_pt[i].resize(nghostTracks);
-          m_failJvt_jet_ghostTrack_eta[i].resize(nghostTracks);
-          m_failJvt_jet_ghostTrack_phi[i].resize(nghostTracks);
-          m_failJvt_jet_ghostTrack_e[i].resize(nghostTracks);
-          m_failJvt_jet_ghostTrack_d0[i].resize(nghostTracks);
-          m_failJvt_jet_ghostTrack_z0[i].resize(nghostTracks);
-          m_failJvt_jet_ghostTrack_qOverP[i].resize(nghostTracks);
-
-          for (unsigned int iGhost = 0; iGhost < nghostTracks; ++iGhost) {
-            top::check(ghostTracks.at(iGhost), "Error in EventSaverFlatNtuple: Found jet with null pointer in ghost track vector.");
-
-            m_failJvt_jet_ghostTrack_pt[i][iGhost] = ghostTracks.at(iGhost)->pt();
-            m_failJvt_jet_ghostTrack_eta[i][iGhost] = ghostTracks.at(iGhost)->eta();
-            m_failJvt_jet_ghostTrack_phi[i][iGhost] = ghostTracks.at(iGhost)->phi();
-            m_failJvt_jet_ghostTrack_e[i][iGhost] = ghostTracks.at(iGhost)->e();
-            m_failJvt_jet_ghostTrack_d0[i][iGhost] = accD0(*ghostTracks.at(iGhost));
-            m_failJvt_jet_ghostTrack_z0[i][iGhost] = accZ0(*ghostTracks.at(iGhost));
-            m_failJvt_jet_ghostTrack_qOverP[i][iGhost] = accQOverP(*ghostTracks.at(iGhost));
-          }
-        }
+	    const unsigned int nghostTracks = ghostTracks.size();
+  
+	    m_failJvt_jet_ghostTrack_pt[i].resize(nghostTracks);
+	    m_failJvt_jet_ghostTrack_eta[i].resize(nghostTracks);
+	    m_failJvt_jet_ghostTrack_phi[i].resize(nghostTracks);
+	    m_failJvt_jet_ghostTrack_e[i].resize(nghostTracks);
+	    m_failJvt_jet_ghostTrack_d0[i].resize(nghostTracks);
+	    m_failJvt_jet_ghostTrack_z0[i].resize(nghostTracks);
+	    m_failJvt_jet_ghostTrack_qOverP[i].resize(nghostTracks);
+  
+	    for (unsigned int iGhost = 0; iGhost < nghostTracks; ++iGhost) {
+	      top::check(ghostTracks.at(iGhost), "Error in EventSaverFlatNtuple: Found jet with null pointer in ghost track vector.");
+  
+	      m_failJvt_jet_ghostTrack_pt[i][iGhost] = ghostTracks.at(iGhost)->pt();
+	      m_failJvt_jet_ghostTrack_eta[i][iGhost] = ghostTracks.at(iGhost)->eta();
+	      m_failJvt_jet_ghostTrack_phi[i][iGhost] = ghostTracks.at(iGhost)->phi();
+	      m_failJvt_jet_ghostTrack_e[i][iGhost] = ghostTracks.at(iGhost)->e();
+	      m_failJvt_jet_ghostTrack_d0[i][iGhost] = accD0(*ghostTracks.at(iGhost));
+	      m_failJvt_jet_ghostTrack_z0[i][iGhost] = accZ0(*ghostTracks.at(iGhost));
+	      m_failJvt_jet_ghostTrack_qOverP[i][iGhost] = accQOverP(*ghostTracks.at(iGhost));
+	    }
+	  }
+	}
 
         m_failJvt_jet_jvt[i] = -1;
         if (jetPtr->isAvailable<float>("AnalysisTop_JVT")) {
           m_failJvt_jet_jvt[i] = jetPtr->auxdataConst<float>("AnalysisTop_JVT");
         }
+
+        m_failJvt_jet_fjvt[i] = -1;
+        if (jetPtr->isAvailable<float>("fJvt")) {
+	  m_failJvt_jet_fjvt[i] = jetPtr->auxdataConst<float>("fJvt");
+        }
         m_failJvt_jet_passfjvt[i] = -1;
-        if (jetPtr->isAvailable<char>("passFJVT")) {
-          m_failJvt_jet_passfjvt[i] = jetPtr->getAttribute<char>("passFJVT");
+        if (jetPtr->isAvailable<char>("AnalysisTop_fJVTdecision")) {
+          m_failJvt_jet_passfjvt[i] = jetPtr->getAttribute<char>("AnalysisTop_fJVTdecision");
         }
 
         ++i;
       }
-    }
+    }//ifSaveJVT
+      	
+    // fail-FJVT jets
+    // btagging info removed as this is only looking at forward jets
+    if (m_config->getfJVTWP() != "None" && m_config->saveFailForwardJVTJets()) {
+      unsigned int i(0);
+      m_failFJvt_jet_pt.resize(event.m_failFJvt_jets.size());
+      m_failFJvt_jet_eta.resize(event.m_failFJvt_jets.size());
+      m_failFJvt_jet_phi.resize(event.m_failFJvt_jets.size());
+      m_failFJvt_jet_e.resize(event.m_failFJvt_jets.size());
+      m_failFJvt_jet_jvt.resize(event.m_failFJvt_jets.size());
+      m_failFJvt_jet_fjvt.resize(event.m_failFJvt_jets.size());
+      m_failFJvt_jet_passjvt.resize(event.m_failFJvt_jets.size());
+
+      // ghost tracks
+      // fail-FJVT jet could still have some ghost tracks, so these variables are kept
+      if (m_config->useJetGhostTrack()) {
+
+        m_failFJvt_jet_ghostTrack_pt.resize(event.m_failFJvt_jets.size());
+        m_failFJvt_jet_ghostTrack_eta.resize(event.m_failFJvt_jets.size());
+        m_failFJvt_jet_ghostTrack_phi.resize(event.m_failFJvt_jets.size());
+        m_failFJvt_jet_ghostTrack_e.resize(event.m_failFJvt_jets.size());
+        m_failFJvt_jet_ghostTrack_d0.resize(event.m_failFJvt_jets.size());
+        m_failFJvt_jet_ghostTrack_z0.resize(event.m_failFJvt_jets.size());
+        m_failFJvt_jet_ghostTrack_qOverP.resize(event.m_failFJvt_jets.size());
+      }
+
+      if (m_config->isMC()) {
+        m_failFJvt_jet_truthflav.resize(event.m_failFJvt_jets.size());
+        m_failFJvt_jet_truthPartonLabel.resize(event.m_failFJvt_jets.size());
+        m_failFJvt_jet_isTrueHS.resize(event.m_failFJvt_jets.size());
+        m_failFJvt_jet_HadronConeExclExtendedTruthLabelID.resize(event.m_failFJvt_jets.size());
+      }
+
+      for (const auto* const jetPtr : event.m_failFJvt_jets) {
+        m_failFJvt_jet_pt[i] = jetPtr->pt();
+        m_failFJvt_jet_eta[i] = jetPtr->eta();
+        m_failFJvt_jet_phi[i] = jetPtr->phi();
+        m_failFJvt_jet_e[i] = jetPtr->e();
+        if (m_config->isMC()) {
+          m_failFJvt_jet_truthflav[i] = -99;
+          if (jetPtr->isAvailable<int>("HadronConeExclTruthLabelID")) {
+            jetPtr->getAttribute("HadronConeExclTruthLabelID", m_failFJvt_jet_truthflav[i]);
+          }
+          m_failFJvt_jet_truthPartonLabel[i] = -99;
+          if (jetPtr->isAvailable<int>("PartonTruthLabelID")) {
+            jetPtr->getAttribute("PartonTruthLabelID", m_failFJvt_jet_truthPartonLabel[i]);
+          }
+          m_failFJvt_jet_isTrueHS[i] = false;
+          if (jetPtr->isAvailable<char>("AnalysisTop_isHS")) {
+            jetPtr->getAttribute("AnalysisTop_isHS", m_failFJvt_jet_isTrueHS[i]);
+          }
+          m_failFJvt_jet_HadronConeExclExtendedTruthLabelID[i] = -99;
+          if (jetPtr->isAvailable<int>("HadronConeExclExtendedTruthLabelID")) {
+            jetPtr->getAttribute("HadronConeExclExtendedTruthLabelID", m_failFJvt_jet_HadronConeExclExtendedTruthLabelID[i]);
+          }
+        }
+
+        if (m_config->useJetGhostTrack() && m_failFJvt_jet_pt[i] > m_config->jetPtGhostTracks() && std::abs(m_failFJvt_jet_eta[i])<m_config->jetEtaGhostTracks()) {
+          static const SG::AuxElement::Accessor< float > accD0("d0");
+          static const SG::AuxElement::Accessor< float > accZ0("z0");
+          static const SG::AuxElement::Accessor< float > accQOverP("qOverP");
+
+          std::vector<const xAOD::TrackParticle*> ghostTracks;
+          if(jetPtr->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(event.m_hashValue),ghostTracks)) {
+
+	    const unsigned int nghostTracks = ghostTracks.size();
+  
+	    m_failFJvt_jet_ghostTrack_pt[i].resize(nghostTracks);
+	    m_failFJvt_jet_ghostTrack_eta[i].resize(nghostTracks);
+	    m_failFJvt_jet_ghostTrack_phi[i].resize(nghostTracks);
+	    m_failFJvt_jet_ghostTrack_e[i].resize(nghostTracks);
+	    m_failFJvt_jet_ghostTrack_d0[i].resize(nghostTracks);
+	    m_failFJvt_jet_ghostTrack_z0[i].resize(nghostTracks);
+	    m_failFJvt_jet_ghostTrack_qOverP[i].resize(nghostTracks);
+  
+	    for (unsigned int iGhost = 0; iGhost < nghostTracks; ++iGhost) {
+	      top::check(ghostTracks.at(iGhost), "Error in EventSaverFlatNtuple: Found jet with null pointer in ghost track vector.");
+  
+	      m_failFJvt_jet_ghostTrack_pt[i][iGhost] = ghostTracks.at(iGhost)->pt();
+	      m_failFJvt_jet_ghostTrack_eta[i][iGhost] = ghostTracks.at(iGhost)->eta();
+	      m_failFJvt_jet_ghostTrack_phi[i][iGhost] = ghostTracks.at(iGhost)->phi();
+	      m_failFJvt_jet_ghostTrack_e[i][iGhost] = ghostTracks.at(iGhost)->e();
+	      m_failFJvt_jet_ghostTrack_d0[i][iGhost] = accD0(*ghostTracks.at(iGhost));
+	      m_failFJvt_jet_ghostTrack_z0[i][iGhost] = accZ0(*ghostTracks.at(iGhost));
+	      m_failFJvt_jet_ghostTrack_qOverP[i][iGhost] = accQOverP(*ghostTracks.at(iGhost));
+	    }
+	  }
+	}
+
+        m_failFJvt_jet_jvt[i] = -1;
+        if (jetPtr->isAvailable<float>("AnalysisTop_JVT")) {
+          m_failFJvt_jet_jvt[i] = jetPtr->auxdataConst<float>("AnalysisTop_JVT");
+        }
+        m_failFJvt_jet_passjvt[i] = -1;
+        if (jetPtr->isAvailable<char>("passJVT")) {
+          m_failFJvt_jet_passjvt[i] = jetPtr->getAttribute<char>("passJVT");
+        }
+        m_failFJvt_jet_fjvt[i] = -1;
+        if (jetPtr->isAvailable<float>("fJvt")) { 
+	  m_failFJvt_jet_fjvt[i] = jetPtr->auxdataConst<float>("fJvt");
+        }
+
+        ++i;
+      }
+    }//ifSaveFJVT
+
 
     //large-R jets
     if (m_config->useLargeRJets()) {
@@ -2757,7 +3039,7 @@ namespace top {
         }
 
         if (m_config->isMC()) {
-          m_ljet_truthLabel[i] = jetPtr->auxdata<int>("FatjetTruthLabel");
+          m_ljet_truthLabel[i] = jetPtr->auxdata<int>("R10TruthLabel_R21Consolidated");
           for (const std::pair<std::string, std::string>& tagSF : m_config->boostedTaggerSFnames()) {
             m_ljet_tagSF[tagSF.first][i] = jetPtr->auxdata<float>(tagSF.second);
           }
@@ -2781,14 +3063,16 @@ namespace top {
       for (auto& tagWP : m_config->bTagWP_available_trkJet()) {
         if (tagWP.find("Continuous") == std::string::npos) {
           m_tjet_isbtagged[tagWP].resize(event.m_trackJets.size());
+          if (std::find(m_config->bTagWP_calibrated_trkJet().begin(),
+            m_config->bTagWP_calibrated_trkJet().end(), tagWP) == m_config->bTagWP_calibrated_trkJet().end()) continue;
           if (m_config->isMC() && m_config->storePerJetBtagSFs()) {
             m_perjet_weight_trackjet_bTagSF[tagWP].resize(event.m_trackJets.size());
-            m_perjet_weight_trackjet_bTagSF_eigen_B_up[tagWP].resize(event.m_trackJets.size(), std::vector<float>(m_config->btagging_num_B_eigenvars(tagWP)));
-            m_perjet_weight_trackjet_bTagSF_eigen_B_down[tagWP].resize(event.m_trackJets.size(), std::vector<float>(m_config->btagging_num_B_eigenvars(tagWP)));
-            m_perjet_weight_trackjet_bTagSF_eigen_C_up[tagWP].resize(event.m_trackJets.size(), std::vector<float>(m_config->btagging_num_C_eigenvars(tagWP)));
-            m_perjet_weight_trackjet_bTagSF_eigen_C_down[tagWP].resize(event.m_trackJets.size(), std::vector<float>(m_config->btagging_num_C_eigenvars(tagWP)));
-            m_perjet_weight_trackjet_bTagSF_eigen_Light_up[tagWP].resize(event.m_trackJets.size(), std::vector<float>(m_config->btagging_num_Light_eigenvars(tagWP)));
-            m_perjet_weight_trackjet_bTagSF_eigen_Light_down[tagWP].resize(event.m_trackJets.size(), std::vector<float>(m_config->btagging_num_Light_eigenvars(tagWP)));
+            m_perjet_weight_trackjet_bTagSF_eigen_B_up[tagWP].resize(event.m_trackJets.size(), std::vector<float>(m_config->trkjet_btagging_num_B_eigenvars(tagWP)));
+            m_perjet_weight_trackjet_bTagSF_eigen_B_down[tagWP].resize(event.m_trackJets.size(), std::vector<float>(m_config->trkjet_btagging_num_B_eigenvars(tagWP)));
+            m_perjet_weight_trackjet_bTagSF_eigen_C_up[tagWP].resize(event.m_trackJets.size(), std::vector<float>(m_config->trkjet_btagging_num_C_eigenvars(tagWP)));
+            m_perjet_weight_trackjet_bTagSF_eigen_C_down[tagWP].resize(event.m_trackJets.size(), std::vector<float>(m_config->trkjet_btagging_num_C_eigenvars(tagWP)));
+            m_perjet_weight_trackjet_bTagSF_eigen_Light_up[tagWP].resize(event.m_trackJets.size(), std::vector<float>(m_config->trkjet_btagging_num_Light_eigenvars(tagWP)));
+            m_perjet_weight_trackjet_bTagSF_eigen_Light_down[tagWP].resize(event.m_trackJets.size(), std::vector<float>(m_config->trkjet_btagging_num_Light_eigenvars(tagWP)));
             for (const std::string& name : m_config->trkjet_btagging_namedSysts(tagWP)) {
               m_perjet_weight_trackjet_bTagSF_named_up[tagWP][name].resize(event.m_trackJets.size());
               m_perjet_weight_trackjet_bTagSF_named_down[tagWP][name].resize(event.m_trackJets.size());
@@ -2815,16 +3099,18 @@ namespace top {
             m_tjet_isbtagged[tagWP][i] = false;
             if (jetPtr->isAvailable<char>("isbtagged_" + tagWP)) m_tjet_isbtagged[tagWP][i] = jetPtr->auxdataConst<char>("isbtagged_" + tagWP);
             if (m_config->isMC() && m_config->storePerJetBtagSFs()) {
+              if (std::find(m_config->bTagWP_calibrated_trkJet().begin(),
+                m_config->bTagWP_calibrated_trkJet().end(), tagWP) == m_config->bTagWP_calibrated_trkJet().end()) continue;
               m_perjet_weight_trackjet_bTagSF[tagWP][i] = jetPtr->auxdataConst<float>("btag_SF_" + tagWP + "_nom");
-              for (size_t ivar = 0; ivar < m_config->btagging_num_B_eigenvars(tagWP); ++ivar) {
+              for (size_t ivar = 0; ivar < m_config->trkjet_btagging_num_B_eigenvars(tagWP); ++ivar) {
                 m_perjet_weight_trackjet_bTagSF_eigen_B_up[tagWP][i][ivar] = jetPtr->auxdataConst<float>("btag_SF_" + tagWP + "_FT_EFF_Eigen_B_" + std::to_string(ivar) + "__1up");
                 m_perjet_weight_trackjet_bTagSF_eigen_B_down[tagWP][i][ivar] = jetPtr->auxdataConst<float>("btag_SF_" + tagWP + "_FT_EFF_Eigen_B_" + std::to_string(ivar) + "__1down");
               }
-              for (size_t ivar = 0; ivar < m_config->btagging_num_C_eigenvars(tagWP); ++ivar) {
+              for (size_t ivar = 0; ivar < m_config->trkjet_btagging_num_C_eigenvars(tagWP); ++ivar) {
                 m_perjet_weight_trackjet_bTagSF_eigen_C_up[tagWP][i][ivar] = jetPtr->auxdataConst<float>("btag_SF_" + tagWP + "_FT_EFF_Eigen_C_" + std::to_string(ivar) + "__1up");
                 m_perjet_weight_trackjet_bTagSF_eigen_C_down[tagWP][i][ivar] = jetPtr->auxdataConst<float>("btag_SF_" + tagWP + "_FT_EFF_Eigen_C_" + std::to_string(ivar) + "__1down");
               }
-              for (size_t ivar = 0; ivar < m_config->btagging_num_Light_eigenvars(tagWP); ++ivar) {
+              for (size_t ivar = 0; ivar < m_config->trkjet_btagging_num_Light_eigenvars(tagWP); ++ivar) {
                 m_perjet_weight_trackjet_bTagSF_eigen_Light_up[tagWP][i][ivar] = jetPtr->auxdataConst<float>("btag_SF_" + tagWP + "_FT_EFF_Eigen_Light_" + std::to_string(ivar) + "__1up");
                 m_perjet_weight_trackjet_bTagSF_eigen_Light_down[tagWP][i][ivar] = jetPtr->auxdataConst<float>("btag_SF_" + tagWP + "_FT_EFF_Eigen_Light_" + std::to_string(ivar) + "__1down");
               }
@@ -2963,12 +3249,13 @@ namespace top {
         m_rcjet_d23_clstr.resize(sizeOfRCjets, -999.);
         m_rcjet_Qw_clstr.resize(sizeOfRCjets, -999.);
         m_rcjet_nconstituent_clstr.resize(sizeOfRCjets, -999.);
-      }
-      if (m_useRCAdditionalJSS) {
-        m_rcjet_D2_clstr.resize(sizeOfRCjets, -999.);
+	
+	m_rcjet_D2_clstr.resize(sizeOfRCjets, -999.);
         m_rcjet_ECF1_clstr.resize(sizeOfRCjets, -999.);
         m_rcjet_ECF2_clstr.resize(sizeOfRCjets, -999.);
         m_rcjet_ECF3_clstr.resize(sizeOfRCjets, -999.);
+      }
+      if (m_useRCAdditionalJSS) {
 
         m_rcjet_gECF332_clstr.resize(sizeOfRCjets, -999.);
         m_rcjet_gECF461_clstr.resize(sizeOfRCjets, -999.);
@@ -3016,13 +3303,15 @@ namespace top {
           m_rcjet_d23_clstr[i] = (d23_clstr.isAvailable(*rc_jet)) ? d23_clstr(*rc_jet) : -999.;
           m_rcjet_Qw_clstr[i] = (Qw_clstr.isAvailable(*rc_jet)) ? Qw_clstr(*rc_jet) : -999.;
           m_rcjet_nconstituent_clstr[i] = (nconstituent_clstr.isAvailable(*rc_jet)) ? nconstituent_clstr(*rc_jet) : -999.;
-        }
-        if (m_useRCAdditionalJSS) {
-          m_rcjet_D2_clstr[i] = (D2_clstr.isAvailable(*rc_jet)) ? D2_clstr(*rc_jet) : -999.;
+	  
+	  m_rcjet_D2_clstr[i] = (D2_clstr.isAvailable(*rc_jet)) ? D2_clstr(*rc_jet) : -999.;
           m_rcjet_ECF1_clstr[i] = (ECF1_clstr.isAvailable(*rc_jet)) ? ECF1_clstr(*rc_jet) : -999.;
           m_rcjet_ECF2_clstr[i] = (ECF2_clstr.isAvailable(*rc_jet)) ? ECF2_clstr(*rc_jet) : -999.;
           m_rcjet_ECF3_clstr[i] = (ECF3_clstr.isAvailable(*rc_jet)) ? ECF3_clstr(*rc_jet) : -999.;
 
+        }
+        if (m_useRCAdditionalJSS) {
+          
           m_rcjet_gECF332_clstr[i] = (gECF332_clstr.isAvailable(*rc_jet)) ? gECF332_clstr(*rc_jet) : -999.;
           m_rcjet_gECF461_clstr[i] = (gECF461_clstr.isAvailable(*rc_jet)) ? gECF461_clstr(*rc_jet) : -999.;
           m_rcjet_gECF322_clstr[i] = (gECF322_clstr.isAvailable(*rc_jet)) ? gECF322_clstr(*rc_jet) : -999.;
@@ -3151,13 +3440,13 @@ namespace top {
             m_VarRCjetBranches[VarRC + "_" + name + "_d12_clstr"].resize(sizeOfRCjets, -999.);
             m_VarRCjetBranches[VarRC + "_" + name + "_d23_clstr"].resize(sizeOfRCjets, -999.);
             m_VarRCjetBranches[VarRC + "_" + name + "_Qw_clstr"].resize(sizeOfRCjets, -999.);
-          }
-          if (m_useVarRCAdditionalJSS) {
-            m_VarRCjetBranches[VarRC + "_" + name + "_D2_clstr"].resize(sizeOfRCjets, -999.);
+	    
+	    m_VarRCjetBranches[VarRC + "_" + name + "_D2_clstr"].resize(sizeOfRCjets, -999.);
             m_VarRCjetBranches[VarRC + "_" + name + "_ECF1_clstr"].resize(sizeOfRCjets, -999.);
             m_VarRCjetBranches[VarRC + "_" + name + "_ECF2_clstr"].resize(sizeOfRCjets, -999.);
             m_VarRCjetBranches[VarRC + "_" + name + "_ECF3_clstr"].resize(sizeOfRCjets, -999.);
-
+          }
+          if (m_useVarRCAdditionalJSS) {
             m_VarRCjetBranches[VarRC + "_" + name + "_gECF332_clstr"].resize(sizeOfRCjets, -999.);
             m_VarRCjetBranches[VarRC + "_" + name + "_gECF461_clstr"].resize(sizeOfRCjets, -999.);
             m_VarRCjetBranches[VarRC + "_" + name + "_gECF322_clstr"].resize(sizeOfRCjets, -999.);
@@ -3205,13 +3494,13 @@ namespace top {
               m_VarRCjetBranches[VarRC + "_" + name + "_d12_clstr"][i] = (d12_clstr.isAvailable(*rc_jet)) ? d12_clstr(*rc_jet) : -999.;
               m_VarRCjetBranches[VarRC + "_" + name + "_d23_clstr"][i] = (d23_clstr.isAvailable(*rc_jet)) ? d23_clstr(*rc_jet) : -999.;
               m_VarRCjetBranches[VarRC + "_" + name + "_Qw_clstr"][i] = (Qw_clstr.isAvailable(*rc_jet)) ? Qw_clstr(*rc_jet) : -999.;
-            }
-            if (m_useVarRCAdditionalJSS) {
-              m_VarRCjetBranches[VarRC + "_" + name + "_D2_clstr"][i] = (D2_clstr.isAvailable(*rc_jet)) ? D2_clstr(*rc_jet) : -999.;
+	      
+	      m_VarRCjetBranches[VarRC + "_" + name + "_D2_clstr"][i] = (D2_clstr.isAvailable(*rc_jet)) ? D2_clstr(*rc_jet) : -999.;
               m_VarRCjetBranches[VarRC + "_" + name + "_ECF1_clstr"][i] = (ECF1_clstr.isAvailable(*rc_jet)) ? ECF1_clstr(*rc_jet) : -999.;
               m_VarRCjetBranches[VarRC + "_" + name + "_ECF2_clstr"][i] = (ECF2_clstr.isAvailable(*rc_jet)) ? ECF2_clstr(*rc_jet) : -999.;
               m_VarRCjetBranches[VarRC + "_" + name + "_ECF3_clstr"][i] = (ECF3_clstr.isAvailable(*rc_jet)) ? ECF3_clstr(*rc_jet) : -999.;
-
+            }
+            if (m_useVarRCAdditionalJSS) {
               m_VarRCjetBranches[VarRC + "_" + name + "_gECF332_clstr"][i] = (gECF332_clstr.isAvailable(*rc_jet)) ? gECF332_clstr(*rc_jet) : -999.;
               m_VarRCjetBranches[VarRC + "_" + name + "_gECF461_clstr"][i] = (gECF461_clstr.isAvailable(*rc_jet)) ? gECF461_clstr(*rc_jet) : -999.;
               m_VarRCjetBranches[VarRC + "_" + name + "_gECF322_clstr"][i] = (gECF322_clstr.isAvailable(*rc_jet)) ? gECF322_clstr(*rc_jet) : -999.;
@@ -3616,6 +3905,7 @@ namespace top {
   }
 
   void EventSaverFlatNtuple::calculateTruthEvent() {
+    
     const xAOD::EventInfo* eventInfo(nullptr);
 
     top::check(evtStore()->retrieve(eventInfo, m_config->sgKeyEventInfo()), "Failed to retrieve EventInfo");
@@ -3712,7 +4002,7 @@ namespace top {
   }
 
   void EventSaverFlatNtuple::fillTruthEvent() {
-    m_truthTreeManager->fill();
+    if(m_config->doTopPartonLevel()) m_truthTreeManager->fill();
   }
 
   void EventSaverFlatNtuple::saveParticleLevelEvent(const top::ParticleLevelEvent& plEvent) {
@@ -4039,13 +4329,13 @@ namespace top {
         m_rcjet_d23_clstr.resize(sizeOfRCjets, -999.);
         m_rcjet_Qw_clstr.resize(sizeOfRCjets, -999.);
         m_rcjet_nconstituent_clstr.resize(sizeOfRCjets, -999.);
-      }
-      if (m_useRCAdditionalJSS) {
-        m_rcjet_D2_clstr.resize(sizeOfRCjets, -999.);
+	
+	m_rcjet_D2_clstr.resize(sizeOfRCjets, -999.);
         m_rcjet_ECF1_clstr.resize(sizeOfRCjets, -999.);
         m_rcjet_ECF2_clstr.resize(sizeOfRCjets, -999.);
         m_rcjet_ECF3_clstr.resize(sizeOfRCjets, -999.);
-
+      }
+      if (m_useRCAdditionalJSS) {
         m_rcjet_gECF332_clstr.resize(sizeOfRCjets, -999.);
         m_rcjet_gECF461_clstr.resize(sizeOfRCjets, -999.);
         m_rcjet_gECF322_clstr.resize(sizeOfRCjets, -999.);
@@ -4089,13 +4379,13 @@ namespace top {
           m_rcjet_d23_clstr[i] = (d23_clstr.isAvailable(*rc_jet)) ? d23_clstr(*rc_jet) : -999.;
           m_rcjet_Qw_clstr[i] = (Qw_clstr.isAvailable(*rc_jet)) ? Qw_clstr(*rc_jet) : -999.;
           m_rcjet_nconstituent_clstr[i] = (nconstituent_clstr.isAvailable(*rc_jet)) ? nconstituent_clstr(*rc_jet) : -999.;
-        }
-        if (m_useRCAdditionalJSS) {
-          m_rcjet_D2_clstr[i] = (D2_clstr.isAvailable(*rc_jet)) ? D2_clstr(*rc_jet) : -999.;
+	  
+	  m_rcjet_D2_clstr[i] = (D2_clstr.isAvailable(*rc_jet)) ? D2_clstr(*rc_jet) : -999.;
           m_rcjet_ECF1_clstr[i] = (ECF1_clstr.isAvailable(*rc_jet)) ? ECF1_clstr(*rc_jet) : -999.;
           m_rcjet_ECF2_clstr[i] = (ECF2_clstr.isAvailable(*rc_jet)) ? ECF2_clstr(*rc_jet) : -999.;
           m_rcjet_ECF3_clstr[i] = (ECF3_clstr.isAvailable(*rc_jet)) ? ECF3_clstr(*rc_jet) : -999.;
-
+        }
+        if (m_useRCAdditionalJSS) {
           m_rcjet_gECF332_clstr[i] = (gECF332_clstr.isAvailable(*rc_jet)) ? gECF332_clstr(*rc_jet) : -999.;
           m_rcjet_gECF461_clstr[i] = (gECF461_clstr.isAvailable(*rc_jet)) ? gECF461_clstr(*rc_jet) : -999.;
           m_rcjet_gECF322_clstr[i] = (gECF322_clstr.isAvailable(*rc_jet)) ? gECF322_clstr(*rc_jet) : -999.;
@@ -4215,13 +4505,13 @@ namespace top {
             m_VarRCjetBranchesParticle[VarRC + "_" + name + "_d12_clstr"].resize(sizeOfRCjets, -999.);
             m_VarRCjetBranchesParticle[VarRC + "_" + name + "_d23_clstr"].resize(sizeOfRCjets, -999.);
             m_VarRCjetBranchesParticle[VarRC + "_" + name + "_Qw_clstr"].resize(sizeOfRCjets, -999.);
-          }
-          if (m_useVarRCAdditionalJSS) {
-            m_VarRCjetBranchesParticle[VarRC + "_" + name + "_D2_clstr"].resize(sizeOfRCjets, -999.);
+	    
+	    m_VarRCjetBranchesParticle[VarRC + "_" + name + "_D2_clstr"].resize(sizeOfRCjets, -999.);
             m_VarRCjetBranchesParticle[VarRC + "_" + name + "_ECF1_clstr"].resize(sizeOfRCjets, -999.);
             m_VarRCjetBranchesParticle[VarRC + "_" + name + "_ECF2_clstr"].resize(sizeOfRCjets, -999.);
             m_VarRCjetBranchesParticle[VarRC + "_" + name + "_ECF3_clstr"].resize(sizeOfRCjets, -999.);
-
+          }
+          if (m_useVarRCAdditionalJSS) {
             m_VarRCjetBranchesParticle[VarRC + "_" + name + "_gECF332_clstr"].resize(sizeOfRCjets, -999.);
             m_VarRCjetBranchesParticle[VarRC + "_" + name + "_gECF461_clstr"].resize(sizeOfRCjets, -999.);
             m_VarRCjetBranchesParticle[VarRC + "_" + name + "_gECF322_clstr"].resize(sizeOfRCjets, -999.);
@@ -4268,13 +4558,13 @@ namespace top {
               m_VarRCjetBranchesParticle[VarRC + "_" + name + "_d12_clstr"][i] = (d12_clstr.isAvailable(*rc_jet)) ? d12_clstr(*rc_jet) : -999.;
               m_VarRCjetBranchesParticle[VarRC + "_" + name + "_d23_clstr"][i] = (d23_clstr.isAvailable(*rc_jet)) ? d23_clstr(*rc_jet) : -999.;
               m_VarRCjetBranchesParticle[VarRC + "_" + name + "_Qw_clstr"][i] = (Qw_clstr.isAvailable(*rc_jet)) ? Qw_clstr(*rc_jet) : -999.;
-            }
-            if (m_useVarRCAdditionalJSS) {
-              m_VarRCjetBranchesParticle[VarRC + "_" + name + "_D2_clstr"][i] = (D2_clstr.isAvailable(*rc_jet)) ? D2_clstr(*rc_jet) : -999.;
+	      
+	      m_VarRCjetBranchesParticle[VarRC + "_" + name + "_D2_clstr"][i] = (D2_clstr.isAvailable(*rc_jet)) ? D2_clstr(*rc_jet) : -999.;
               m_VarRCjetBranchesParticle[VarRC + "_" + name + "_ECF1_clstr"][i] = (ECF1_clstr.isAvailable(*rc_jet)) ? ECF1_clstr(*rc_jet) : -999.;
               m_VarRCjetBranchesParticle[VarRC + "_" + name + "_ECF2_clstr"][i] = (ECF2_clstr.isAvailable(*rc_jet)) ? ECF2_clstr(*rc_jet) : -999.;
               m_VarRCjetBranchesParticle[VarRC + "_" + name + "_ECF3_clstr"][i] = (ECF3_clstr.isAvailable(*rc_jet)) ? ECF3_clstr(*rc_jet) : -999.;
-
+            }
+            if (m_useVarRCAdditionalJSS) {
               m_VarRCjetBranchesParticle[VarRC + "_" + name + "_gECF332_clstr"][i] = (gECF332_clstr.isAvailable(*rc_jet)) ? gECF332_clstr(*rc_jet) : -999.;
               m_VarRCjetBranchesParticle[VarRC + "_" + name + "_gECF461_clstr"][i] = (gECF461_clstr.isAvailable(*rc_jet)) ? gECF461_clstr(*rc_jet) : -999.;
               m_VarRCjetBranchesParticle[VarRC + "_" + name + "_gECF322_clstr"][i] = (gECF322_clstr.isAvailable(*rc_jet)) ? gECF322_clstr(*rc_jet) : -999.;
@@ -4933,8 +5223,11 @@ namespace top {
     return prompt;
   }
 
-  int EventSaverFlatNtuple::filterBranches(const top::TreeManager*, const std::string& variable) {
-    const std::vector<std::string>& filteredBranches = m_config->filterBranches();
+  int EventSaverFlatNtuple::filterBranches(const top::TreeManager* treeManager, const std::string& variable) {
+    std::vector<std::string> filteredBranches;
+    if(treeManager->name() == "truth") filteredBranches= m_config->filterPartonLevelBranches();
+    else if(treeManager->name() == "particleLevel") filteredBranches= m_config->filterParticleLevelBranches();
+    else  filteredBranches= m_config->filterBranches();
 
     // lambda to test a wildcard on the variable
     auto matches_wildcard = [&variable] (const std::string& wildcard) {

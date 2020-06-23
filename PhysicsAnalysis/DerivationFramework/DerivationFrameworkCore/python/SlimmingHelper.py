@@ -591,13 +591,13 @@ class SlimmingHelper:
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
                         items.extend(BTaggingStandardContent("AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTag"))
                 elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_201810_expert":
-                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
                         items.extend(BTaggingExpertContent("AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810"))
                 elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_201903":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
                         items.extend(BTaggingStandardContent("AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903"))
                 elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_201903_expert":
-                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
                         items.extend(BTaggingExpertContent("AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903"))
                 elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_201810GhostTag":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
@@ -650,13 +650,18 @@ class SlimmingHelper:
                 elif collectionName=="InDetTrackParticles":
                         from DerivationFrameworkInDet.InDetTrackParticlesCPContent import InDetTrackParticlesCPContent
                         items.extend(InDetTrackParticlesCPContent)
+                elif collectionName=="LowPtRoITrackParticles":
+                        from DerivationFrameworkInDet.LowPtRoITrackParticlesCPContent import LowPtRoITrackParticlesCPContent
+                        items.extend(LowPtRoITrackParticlesCPContent)
                 elif collectionName=="PrimaryVertices":
                         from DerivationFrameworkInDet.PrimaryVerticesCPContent import PrimaryVerticesCPContent
                         items.extend(PrimaryVerticesCPContent)
+                elif collectionName=="LowPtRoIVertexContainer":
+                        from DerivationFrameworkInDet.LowPtRoIVertexContainerCPContent import LowPtRoIVertexContainerCPContent
+                        items.extend(LowPtRoIVertexContainerCPContent)
                 elif self.IncludeAdditionalTriggerContent == True:
                         from DerivationFrameworkCore.AdditionalTriggerContent import AdditionalTriggerContent
                         items.extend(AdditionalTriggerContent)
-
                 elif collectionName=="HLT_xAOD__MuonContainer_MuonEFInfo":
                         from DerivationFrameworkMuons.MuonTriggerContent import MuonTriggerContent
                         items.extend(MuonTriggerContent)

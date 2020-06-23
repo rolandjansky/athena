@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #********************************************************************
 # PHYSLITE.py 
 # reductionConf flag PHYSLITE in Reco_tf.py   
@@ -49,42 +50,13 @@ if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.HFHadronsCommon import *
   # Extra classifiers for the Higgs group
   import DerivationFrameworkHiggs.TruthCategories
+  # Set appropriate truth jet collection for tau truth matching
+  ToolSvc.DFCommonTauTruthMatchingTool.TruthJetContainerName = "AntiKt4TruthDressedWZJets"
   # Add sumOfWeights metadata for LHE3 multiweights =======
   from DerivationFrameworkCore.LHE3WeightMetadata import *
   from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
   if IsSUSYSignal():
      from DerivationFrameworkSUSY.SUSYWeightMetadata import *
-
-#====================================================================
-# TRIGGER CONTENT   
-#====================================================================
-# See https://twiki.cern.ch/twiki/bin/view/Atlas/TriggerAPI
-# Get single and multi mu, e, photon triggers
-# Jet, tau, multi-object triggers not available in the matching code
-allperiods = TriggerPeriod.y2015 | TriggerPeriod.y2016 | TriggerPeriod.y2017 | TriggerPeriod.y2018 | TriggerPeriod.future2e34
-trig_el  = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el,  livefraction=0.8)
-trig_mu  = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.mu,  livefraction=0.8)
-trig_g   = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.g,   livefraction=0.8)
-trig_tau = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.tau, livefraction=0.8)
-# Add cross-triggers for some sets
-trig_em = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el, additionalTriggerType=TriggerType.mu,  livefraction=0.8)
-trig_et = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el, additionalTriggerType=TriggerType.tau, livefraction=0.8)
-trig_mt = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.mu, additionalTriggerType=TriggerType.tau, livefraction=0.8)
-# Note that this seems to pick up both isolated and non-isolated triggers already, so no need for extra grabs
-
-# Merge and remove duplicates
-trigger_names_full = list(set(trig_el+trig_mu+trig_g+trig_tau+trig_em+trig_et+trig_mt))
-
-# Now reduce the list...
-from RecExConfig.InputFilePeeker import inputFileSummary
-trigger_names = []
-for trig_item in inputFileSummary['metadata']['/TRIGGER/HLT/Menu']:
-    if not 'ChainName' in trig_item: continue
-    if trig_item['ChainName'] in trigger_names_full: trigger_names += [ trig_item['ChainName'] ]
-
-# Create trigger matching decorations
-trigmatching_helper = TriggerMatchingHelper(
-        trigger_list = trigger_names, add_to_df_job=True)
 
 #==============================================================================
 # HEAVY FLAVOR DECORATION
@@ -202,11 +174,12 @@ ToolSvc += PHYSLITEMuonTPThinningTool
 thinningTools.append(PHYSLITEMuonTPThinningTool)
 
 # TauJets thinning
+tau_thinning_expression = "(AnalysisTauJets.ptFinalCalib >= 13.*GeV) && (AnalysisTauJets.nTracks>=1) && (AnalysisTauJets.nTracks<=3) && (AnalysisTauJets.RNNJetScoreSigTrans>0.01)"
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
 PHYSLITETauJetsThinningTool = DerivationFramework__GenericObjectThinning(name            = "PHYSLITETauJetsThinningTool",
                                                                          ThinningService = PHYSLITEThinningHelper.ThinningSvc(),
                                                                          ContainerName   = "AnalysisTauJets",
-                                                                         SelectionString = "(AnalysisTauJets.ptFinalCalib >= 13.*GeV) && (AnalysisTauJets.nTracks>=1) && (AnalysisTauJets.nTracks<=3)")
+                                                                         SelectionString = tau_thinning_expression)
 ToolSvc += PHYSLITETauJetsThinningTool
 thinningTools.append(PHYSLITETauJetsThinningTool)
 
@@ -216,7 +189,7 @@ PHYSLITETauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name  
                                                                           ThinningService        = PHYSLITEThinningHelper.ThinningSvc(),
                                                                           TauKey                 = "AnalysisTauJets",
                                                                           InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                          SelectionString        = "(AnalysisTauJets.ptFinalCalib >= 13.*GeV) && (AnalysisTauJets.nTracks>=1) && (AnalysisTauJets.nTracks<=3)",
+                                                                          SelectionString        = tau_thinning_expression,
                                                                           ApplyAnd               = False,
                                                                           DoTauTracksThinning    = True,
                                                                           TauTracksKey           = "TauTracks")
@@ -243,6 +216,14 @@ if (DerivationFrameworkIsMonteCarlo):
 replaceAODReducedJets(reducedJetList,SeqPHYSLITE,"PHYSLITE")
 add_largeR_truth_jets = DerivationFrameworkIsMonteCarlo and not hasattr(SeqPHYSLITE,'jetalgAntiKt10TruthTrimmedPtFrac5SmallR20')
 addDefaultTrimmedJets(SeqPHYSLITE,"PHYSLITE",dotruth=add_largeR_truth_jets)
+
+# Rebuild the PFlow jets for a consistent set of inputs to MET
+addCHSPFlowObjects()
+addStandardJets("AntiKt", 0.4, "EMPFlow", ptmin=5000, ptminFilter=10000, algseq=SeqPHYSLITE, outputGroup="PHYSLITE", calibOpt="arj:pflow", overwrite=True)
+
+# Add large-R jet truth labeling
+if (DerivationFrameworkIsMonteCarlo):
+   addJetTruthLabel(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=SeqPHYSLITE,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Consolidated")
 
 # q/g discrimination
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqPHYSLITE,algname="QGTaggerToolPFAlg")
@@ -282,9 +263,9 @@ if DerivationFrameworkIsMonteCarlo:
 
 #in your c++ code, create a ToolHandle<IPileupReweightingTool>
 #the ToolHandle constructor should be given "CP::PileupReweightingTool/myTool" as its string argument
-from PileupReweighting.AutoconfigurePRW import getLumiCalcFiles,getMCMuFiles
+from PileupReweighting.AutoconfigurePRW import getLumiCalcFiles
 ToolSvc += CfgMgr.CP__PileupReweightingTool("PHYSLITE_PRWTool",
-                                            ConfigFiles=getMCMuFiles(),
+                                            ConfigFiles=[],
                                             UnrepresentedDataAction=2,
                                             LumiCalcFiles=getLumiCalcFiles())
 SeqPHYSLITE += CfgMgr.CP__PileupReweightingProvider(Tool=ToolSvc.PHYSLITE_PRWTool,RunSystematics=False)
@@ -341,9 +322,6 @@ print( jetSequence ) # For debugging
 SeqPHYSLITE += jetSequence
 
 # Make sure the MET knows what we've done
-# First we need to rebuild charged pflow objects
-from eflowRec.ScheduleCHSPFlowMods import scheduleCHSPFlowMods
-scheduleCHSPFlowMods(SeqPHYSLITE)
 # Now build MET from our analysis objects
 from DerivationFrameworkJetEtMiss import METCommon
 from METReconstruction.METAssocConfig import METAssocConfig,AssocConfig
@@ -358,6 +336,52 @@ PHYSLITE_cfg = METAssocConfig('AnalysisMET',
                               doPFlow=True)
 METCommon.customMETConfigs.setdefault('AnalysisMET',{})[PHYSLITE_cfg.suffix] = PHYSLITE_cfg
 scheduleMETAssocAlg(sequence=SeqPHYSLITE,configlist="AnalysisMET")
+
+#====================================================================
+# TRIGGER CONTENT
+#====================================================================
+# See https://twiki.cern.ch/twiki/bin/view/Atlas/TriggerAPI
+# Get single and multi mu, e, photon triggers
+# Jet, tau, multi-object triggers not available in the matching code
+# Note this comes relatively late as we have to re-do the matching to our analysis objects
+allperiods = TriggerPeriod.y2015 | TriggerPeriod.y2016 | TriggerPeriod.y2017 | TriggerPeriod.y2018 | TriggerPeriod.future2e34
+trig_el  = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el,  livefraction=0.8)
+trig_mu  = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.mu,  livefraction=0.8)
+trig_g   = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.g,   livefraction=0.8)
+trig_tau = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.tau, livefraction=0.8)
+# Add cross-triggers for some sets
+trig_em = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el, additionalTriggerType=TriggerType.mu,  livefraction=0.8)
+trig_et = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el, additionalTriggerType=TriggerType.tau, livefraction=0.8)
+trig_mt = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.mu, additionalTriggerType=TriggerType.tau, livefraction=0.8)
+# Note that this seems to pick up both isolated and non-isolated triggers already, so no need for extra grabs
+trig_txe = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.tau, additionalTriggerType=TriggerType.xe, livefraction=0.8)
+
+# Merge and remove duplicates
+trigger_names_full_notau = list(set(trig_el+trig_mu+trig_g+trig_em+trig_et+trig_mt))
+trigger_names_full_tau = list(set(trig_tau+trig_txe))
+
+# Now reduce the list...
+from RecExConfig.InputFilePeeker import inputFileSummary
+trigger_names_notau = []
+trigger_names_tau = []
+for trig_item in inputFileSummary['metadata']['/TRIGGER/HLT/Menu']:
+    if not 'ChainName' in trig_item: continue
+    if trig_item['ChainName'] in trigger_names_full_notau: trigger_names_notau += [ trig_item['ChainName'] ]
+    if trig_item['ChainName'] in trigger_names_full_tau:   trigger_names_tau   += [ trig_item['ChainName'] ]
+
+# Create trigger matching decorations
+trigmatching_helper_notau = TriggerMatchingHelper(name='PHSYLITETriggerMatchingToolNoTau',
+        OutputContainerPrefix = "Analysis",
+        trigger_list = trigger_names_notau, add_to_df_job=False,
+        InputElectrons="AnalysisElectrons",InputPhotons="AnalysisPhotons",
+        InputMuons="AnalysisMuons",InputTaus="AnalysisTauJets")
+trigmatching_helper_tau = TriggerMatchingHelper(name='PHSYLITETriggerMatchingToolTau',
+        OutputContainerPrefix = "Analysis",
+        trigger_list = trigger_names_tau, add_to_df_job=False, DRThreshold=0.2,
+        InputElectrons="AnalysisElectrons",InputPhotons="AnalysisPhotons",
+        InputMuons="AnalysisMuons",InputTaus="AnalysisTauJets")
+SeqPHYSLITE += trigmatching_helper_notau.alg
+SeqPHYSLITE += trigmatching_helper_tau.alg
 
 #====================================================================
 # MAIN KERNEL
@@ -440,7 +464,7 @@ PHYSLITESlimmingHelper.ExtraVariables = [
   "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType.qOverP.theta.phi",
   "MuonSpectrometerTrackParticles.phi.d0.z0.vz.definingParametersCovMatrix.vertexLink.theta.qOverP.truthParticleLink",
   "AnalysisTauJets.pt.eta.phi.m.tauTrackLinks.jetLink.charge.isTauFlags.BDTJetScore.BDTEleScore.ptFinalCalib.etaFinalCalib.phiFinalCalib.mFinalCalib.electronLink.EleMatchLikelihoodScore.pt_combined.eta_combined.phi_combined.m_combined.BDTJetScoreSigTrans.BDTEleScoreSigTrans.PanTau_DecayMode.RNNJetScore.RNNJetScoreSigTrans.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink",
-  "AnalysisJets.pt.eta.phi.m.JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m.NumTrkPt500.SumPtTrkPt500.DetectorEta.Jvt.JVFCorr.JvtRpt.NumTrkPt1000.TrackWidthPt1000.GhostMuonSegmentCount.PartonTruthLabelID.ConeTruthLabelID.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID.TrueFlavor.DFCommonJets_jetClean_LooseBad.DFCommonJets_jetClean_TightBad.Timing.btagging.btaggingLink.GhostTrack.DFCommonJets_fJvt.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1",
+  "AnalysisJets.pt.eta.phi.m.JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m.NumTrkPt500.SumPtTrkPt500.DetectorEta.Jvt.JVFCorr.JvtRpt.NumTrkPt1000.TrackWidthPt1000.GhostMuonSegmentCount.PartonTruthLabelID.ConeTruthLabelID.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID.TrueFlavor.DFCommonJets_jetClean_LooseBad.DFCommonJets_jetClean_TightBad.Timing.btagging.btaggingLink.GhostTrack.DFCommonJets_fJvt.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.PSFrac.EMFrac.Width",
   "BTagging_AntiKt4EMPFlow_201903.DL1r_pu.DL1rmu_pu.DL1r_pb.DL1rmu_pb.DL1r_pc.DL1rmu_pc",
   "TruthPrimaryVertices.t.x.y.z",
   "MET_Core_AnalysisMET.name.mpx.mpy.sumet.source",
@@ -452,9 +476,7 @@ if DerivationFrameworkIsMonteCarlo:
     addTruth3ContentToSlimmerTool(PHYSLITESlimmingHelper)
 
 # Extra trigger collections
-trigmatching_helper.add_to_slimming(PHYSLITESlimmingHelper)
+trigmatching_helper_notau.add_to_slimming(PHYSLITESlimmingHelper)
+trigmatching_helper_tau.add_to_slimming(PHYSLITESlimmingHelper)
 
 PHYSLITESlimmingHelper.AppendContentToStream(PHYSLITEStream)
-
-svcMgr.MetaDataSvc.OutputLevel = DEBUG
-for t in svcMgr.MetaDataSvc.MetaDataTools: t.OutputLevel=DEBUG

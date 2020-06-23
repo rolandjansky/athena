@@ -129,7 +129,7 @@ double SoftKillerWeightTool::getSoftKillerMinPt(xAOD::IParticleContainer& cont) 
     }
     if(m_inputType==xAOD::Type::TrackCaloCluster ) {
       xAOD::TrackCaloCluster* tcc = static_cast<xAOD::TrackCaloCluster*>(part);
-      accept = (tcc->taste()!= 0)*(tcc->pt()>-1.*FLT_MIN);
+      accept = ((tcc->taste()!= 0)&&(tcc->pt()>-1.*FLT_MIN));
     }
     if(accept) {
       partPJ.push_back( fastjet::PseudoJet( part->p4() ));
@@ -162,7 +162,7 @@ std::pair<double,double> SoftKillerWeightTool::getSoftKillerMinPtSplit(xAOD::IPa
     }
     if(m_inputType==xAOD::Type::TrackCaloCluster) {
       xAOD::TrackCaloCluster* tcc = static_cast<xAOD::TrackCaloCluster*>(part);
-      accept = (tcc->taste()!= 0)*(tcc->pt()>-1.*FLT_MIN);
+      accept = ((tcc->taste()!= 0)&&(tcc->pt()>-1.*FLT_MIN));
     }
     if(accept) {
       double center_lambda = acc_clambda.isAvailable(*part) ? acc_clambda(*part) : 0.;

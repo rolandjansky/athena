@@ -40,11 +40,14 @@ namespace top {
      * @param key The string key used to identify this variable.
      * @param value On success, the setting for the given key (output).
      *
-     * @return Indicates success (i.e. the value was not empty).
-     *
      * Note: an attempt to retrieve a key with a non-boolean values raises an exception.
      */
-    bool retrieve(std::string const& key, bool& value) const;
+    void retrieve(std::string const& key, bool& value) const;
+    
+    /**
+     * same as above, but directly returning the boolean
+     */    
+    bool retrieve(std::string const& key) const;
 
     /**
      * @brief Have the configuration settings been read from a file?
@@ -113,10 +116,10 @@ namespace top {
     ///Here but not implemented, resulting in a happy compile error if you try and use them
     ConfigurationSettings operator = (const ConfigurationSettings&);
   };
-}
 
-std::ostream& operator << (std::ostream& os, const top::ConfigurationSettings& settings);
-std::ostream& operator << (std::ostream& os, const top::SelectionConfigurationData& data);
+  std::ostream& operator << (std::ostream& os, const ConfigurationSettings& settings);
+  std::ostream& operator << (std::ostream& os, const SelectionConfigurationData& data);
+}
 
 
 #endif

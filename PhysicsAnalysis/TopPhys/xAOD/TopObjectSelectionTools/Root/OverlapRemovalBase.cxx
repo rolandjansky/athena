@@ -10,9 +10,9 @@ namespace top {
 
   OverlapRemovalBase::~OverlapRemovalBase() {
   }
-}
 
-std::ostream& operator << (std::ostream& os, const top::OverlapRemovalBase& overlapremoval) {
-  overlapremoval.print(os);
-  return os;
+  std::ostream& operator << (std::ostream& os, const top::OverlapRemovalBase& overlapremoval) {
+    overlapremoval.print(os);
+    return os;
+  }
 }

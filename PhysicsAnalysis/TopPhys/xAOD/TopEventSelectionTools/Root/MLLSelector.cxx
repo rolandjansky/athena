@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopEventSelectionTools/MLLSelector.h"
@@ -24,8 +24,7 @@ namespace top {
       lepton0 = event.m_electrons[0];
       lepton1 = event.m_muons[0];
     } else {
-      std::cout << "MLL: Need two charged leptons" << std::endl;
-      exit(1);
+      throw std::runtime_error("MLLSelector::apply: Need two charge leptons");
     }
 
     const double mll = top::invariantMass(*lepton0, *lepton1);
@@ -53,8 +52,7 @@ namespace top {
       lepton0 = (*event.m_electrons)[0];
       lepton1 = (*event.m_muons)[0];
     } else {
-      std::cout << "MLL: Need two charged leptons" << std::endl;
-      exit(1);
+      throw std::runtime_error("MLLSelector::applyParticleLevel: Need two charged leptons");
     }
 
     const double mll = top::invariantMass(*lepton0, *lepton1);

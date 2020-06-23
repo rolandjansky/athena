@@ -150,7 +150,7 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("TCAL1Ker
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 TCAL1SlimmingHelper = SlimmingHelper('TCAL1SlimmingHelper')
 
-TCAL1SlimmingHelper.SmartCollections = ['Muons', 'MET_Reference_AntiKt4LCTopo', 'PrimaryVertices']
+TCAL1SlimmingHelper.SmartCollections = ['Muons', 'AntiKt4EMTopoJets', 'AntiKt4EMPFlowJets', 'MET_Reference_AntiKt4EMTopo', 'MET_Reference_AntiKt4EMPFlow', 'PrimaryVertices']
 #TCAL1SlimmingHelper.AllVariables = ['Muons']
 
 TCAL1ExtarVariables = 'Muons.' + TCAL1Prefix + 'etrkcone40'

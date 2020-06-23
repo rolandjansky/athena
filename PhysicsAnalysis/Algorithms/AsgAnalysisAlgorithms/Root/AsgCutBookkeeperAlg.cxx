@@ -195,7 +195,7 @@ namespace CP
 
       ANA_CHECK (book(TH1F(name.c_str(), "CutBookkeeper Information", 3, 0.5, 3.5)));
       TH1 *h = hist(name);
-      assert(m_hist != nullptr);
+      assert(h != nullptr);
 
       h->GetXaxis()->SetBinLabel (1, "Initial events");
       h->GetXaxis()->SetBinLabel (2, "Initial sum of weights");

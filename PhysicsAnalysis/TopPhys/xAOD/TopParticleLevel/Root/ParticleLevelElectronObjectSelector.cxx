@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 // Filename: ParticleLevelElectronObjectSelector.cxx
@@ -28,8 +28,8 @@ namespace top {
     } else if (truthParticle.isAvailable<unsigned int>("classifierParticleType")) {
       type = truthParticle.auxdata<unsigned int>("classifierParticleType");
     } else {
-      std::cerr << "Could not obtain MCTruthClassifier result decoration." << std::endl;
-      std::exit(1);
+      throw std::runtime_error("ParticleLevelElectronObjectSelector::apply: "
+          "Could not obtain MCTruthClassifier result decoration.");
     }
 
     // --------------------------------------------------
@@ -45,8 +45,8 @@ namespace top {
     if (m_opt.tau_is_hadron) {
       auto truthProxy = truthParticle.auxdata<ElementLink<xAOD::TruthParticleContainer> >("originalTruthParticle");
       if (not truthProxy.isValid()) {
-        std::cerr << "Could not obtain 'originalTruthParticle' reference." << std::endl;
-        std::exit(1);
+        throw std::runtime_error("ParticleLevelElectronObjectSelector::apply: "
+            "Could not obtain 'originalTruthParticle' reference.");
       }
       if (truth::isLeptonFromTau(*truthProxy)) {
         return false;

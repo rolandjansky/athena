@@ -69,26 +69,18 @@ namespace asg {
 #ifndef XAOD_STANDALONE
                     getType(name), getName(name), getParent(name)
 #else // not XAOD_STANDALONE
-                    this
+                    name
 #endif // not XAOD_STANDALONE
                     )
 #ifdef XAOD_STANDALONE
-      , m_name( name ), m_ppropmgr( new PropertyMgr() ), m_event()
+      , m_event()
 #endif // XAOD_STANDALONE
    {
-#ifdef XAOD_STANDALONE
-     msg().declarePropertyFor (*this);
-      
-#endif // XAOD_STANDALONE
       ToolStore::put( this ).ignore(); // Register the tool in the ToolStore
    }
 
    AsgTool::~AsgTool() {
 
-#ifdef XAOD_STANDALONE
-      
-      delete m_ppropmgr;
-#endif // XAOD_STANDALONE
       ToolStore::remove( this ).ignore(); // Remove the tool from the ToolStore
    }
 
@@ -99,34 +91,14 @@ namespace asg {
       return &m_event;
    }
 
-   /// See the comments for PropertyMgr::setProperty to see why this
-   /// function specialisation is needed, and why it has this exact form.
-   ///
-   /// @param name The name of the string property to set
-   /// @param value The value of the string property to set
-   /// @returns <code>StatusCode::SUCCESS</code> if the call was successful,
-   ///          <code>StatusCode::FAILURE</code> otherwise
-   ///
-   StatusCode AsgTool::setProperty( const std::string& name,
-                                    const char* value ) {
-
-      // Set the property using the property manager:
-      return m_ppropmgr->setProperty( name, value );
-   }
-
    PropertyMgr* AsgTool::getPropertyMgr() {
 
-      return m_ppropmgr;
+     return m_properties;
    }
 
    const PropertyMgr* AsgTool::getPropertyMgr() const {
 
-      return m_ppropmgr;
-   }
-
-   const std::string& AsgTool::name() const {
-
-      return m_name;
+     return m_properties;
    }
 
    void AsgTool::setName( const std::string& name ) {

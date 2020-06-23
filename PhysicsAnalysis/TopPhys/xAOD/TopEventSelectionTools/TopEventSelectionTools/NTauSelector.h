@@ -17,7 +17,7 @@ namespace top {
 
     bool apply(const top::Event& event) const override;
 
-    bool applyParticleLevel(const top::ParticleLevelEvent& event) const;
+    bool applyParticleLevel(const top::ParticleLevelEvent& event) const override;
   };
 }
 

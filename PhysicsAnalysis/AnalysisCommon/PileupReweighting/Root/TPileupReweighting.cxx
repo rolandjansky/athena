@@ -1602,6 +1602,14 @@ Float_t CP::TPileupReweighting::GetPrimaryWeight(Int_t periodNumber, Int_t chann
 
    double n = p->primaryHists[channelNumber]->GetBinContent(bin);
 
+   // There is a special case  that needs some additional protection
+   // If you have the sum of weights ==0 for a given mu then you will have 0 in the PRW 
+   // profile leading to an exception or FPE later
+   if (n==0){
+      Warning("GetPrimaryWeight","No events expected in channelNumber %d for periodNumber %d with x=%g.  Incorrect PRW profile or are you very unlucky???",channelNumber,periodNumber,x);
+      return 1.;
+   }
+
    if(!p->primaryHists[-1]) {
       Error("GetPrimaryWeight","No data loaded for period %d. Did you forget to load a lumicalc file or data config file?",periodNumber);
       throw std::runtime_error("Throwing 3: No data loaded. Did you forget to load a lumicalc file or data config file?");
@@ -1921,7 +1929,7 @@ void CP::TPileupReweighting::normalizeHistogram(TH1* hist){
                   bin = hist->GetBin(binx,biny,binz);
                   Double_t value = hist->GetBinContent(bin);
                   Double_t normalizer = proj->GetBinContent(binx);
-                  if(fabs(normalizer)>0.00001) {
+                  if(normalizer!=0.0) {
                      hist->SetBinContent(bin,value/normalizer);
                   } else {
                      skipNorm=true;
@@ -1933,7 +1941,7 @@ void CP::TPileupReweighting::normalizeHistogram(TH1* hist){
          if(skipNorm && m_debugging) Warning("normalizeHistogram","Skipped normalization in hist %s",hist->GetName());
       } else {
          //normalize to the sum of weights 
-         if(fabs(hist->GetSumOfWeights())>0.000000001) {
+         if(hist->GetSumOfWeights()!=0.0) {
             hist->Scale(1.0/hist->GetSumOfWeights());
          } else {
             if (m_debugging) Warning("normalizeHistogram","Skipping Normalizing histogram %s to ~zero: %f",hist->GetName(),hist->GetSumOfWeights());

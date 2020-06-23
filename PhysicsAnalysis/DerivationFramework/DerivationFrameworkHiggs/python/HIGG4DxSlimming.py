@@ -47,10 +47,10 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
                                               ]
     
     # extra containers for some formats                                                  
-    if HIGG4DxName in ['HIGG4D1', 'HIGG4D2', 'HIGG4D3', 'HIGG4D5', 'HIGG4D6', 'HDBS1']:
+    if HIGG4DxName in ['HIGG4D1', 'HIGG4D2', 'HIGG4D3', 'HIGG4D5', 'HIGG4D6', 'HIGG6D1', 'HIGG6D2', 'HDBS1']:
         HIGG4DxSlimmingHelper.SmartCollections += ["Photons"]
 
-    if HIGG4DxName in ['HIGG4D2', 'HIGG4D3']:
+    if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG6D1', 'HIGG6D2']:
         HIGG4DxSlimmingHelper.SmartCollections += ["AntiKt4LCTopoJets"]  # used as seeds for taus
 
     if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D6']:
@@ -143,6 +143,9 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
             "CaloCalTopoClusters."
             ]
 
+    if HIGG4DxName in ['HIGG6D1', 'HIGG6D2']:
+      ExtraContentTaus[0] += ".chargedPFOLinks.neutralPFOLinks.pi0PFOLinks"
+
     if HIGG4DxName == 'HDBS1':
         ExtraContentElectrons[0] += ".asy1.barys1.f1core.pos.pos7.poscs1.poscs2.r33over37allcalo"
         ExtraContentMuons[0] += ".MeasEnergyLoss.ParamEnergyLoss.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus"
@@ -157,7 +160,7 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
     if HIGG4DxName == 'HIGG4D6':
         HIGG4DxSlimmingHelper.ExtraVariables += ExtraContentJets
 
-    if HIGG4DxName in ['HIGG4D1', 'HIGG4D2']:
+    if HIGG4DxName in ['HIGG4D1', 'HIGG4D2', 'HIGG6D1', 'HIGG6D2']:
         from HIGG4DxAugmentation import JetTagConfig
         HIGG4DxSlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
         HIGG4DxSlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
@@ -226,6 +229,15 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
         HIGG4DxSlimmingHelper.IncludeEtMissTriggerContent = True
     elif HIGG4DxName == "HIGG4D6":
         pass
+    elif HIGG4DxName == "HIGG6D1":
+        HIGG4DxSlimmingHelper.IncludeEtMissTriggerContent = True
+        HIGG4DxSlimmingHelper.IncludeJetTriggerContent = True
+        HIGG4DxSlimmingHelper.IncludeTauTriggerContent = True
+    elif HIGG4DxName == "HIGG6D2":
+        HIGG4DxSlimmingHelper.IncludeEGammaTriggerContent = True
+        HIGG4DxSlimmingHelper.IncludeEtMissTriggerContent = True
+        HIGG4DxSlimmingHelper.IncludeMuonTriggerContent = True
+        HIGG4DxSlimmingHelper.IncludeTauTriggerContent = True
     elif HIGG4DxName == "HDBS1":
         HIGG4DxSlimmingHelper.IncludeMuonTriggerContent = True
         HIGG4DxSlimmingHelper.IncludeEGammaTriggerContent = True

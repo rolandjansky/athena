@@ -39,6 +39,9 @@ def setup(HIGG4DxName, HIGG4DxSequence, HIGG4DxSlimmingHelper):
         if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D6']:
             # default trimmed jets.
             addDefaultTrimmedJets(HIGG4DxSequence, HIGG4DxName, True)
+        if HIGG4DxName in ['HIGG6D1', 'HIGG6D2']:
+            applyJetCalibration_xAODColl("AntiKt4EMPFlow", HIGG4DxSequence)
+            getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=HIGG4DxSequence, algname='JetForwardPFlowJvtToolAlg')
 
 def buildDiTau(HIGG4DxName, HIGG4DxSequence, HIGG4DxSlimmingHelper, ToolSvc):
     addCHSPFlowObjects()

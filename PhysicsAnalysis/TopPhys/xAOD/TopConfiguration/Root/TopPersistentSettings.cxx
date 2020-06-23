@@ -35,6 +35,7 @@ namespace top {
     m_electronIsolationLoose("SetMe"),
     m_useElectronChargeIDSelection(false),
     m_useEgammaLeakageCorrection(true),
+    m_enablePromptLeptonImprovedVetoStudies(false),
 
     m_fwdElectronID("SetMe"),
 

@@ -1,9 +1,10 @@
 /*
- Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
-#include "MuonEfficiencyCorrections/HistHandler.h"
+#include <MuonEfficiencyCorrections/HistHandler.h>
 #include <MuonEfficiencyCorrections/UtilFunctions.h>
+
 #include <iostream>
 #include <cmath>
 #include <cstdint>
@@ -11,8 +12,8 @@
 
 #include <TH1.h>
 #include <TH2Poly.h>
-namespace CP {
 
+namespace CP {
     //###########################################################################################################
     //                                                   AxisHandlerProvider
     //###########################################################################################################
@@ -33,15 +34,77 @@ namespace CP {
             } else if (axis.find("eta") != std::string::npos) {
                 if (AbsAxis) return std::make_unique<AbsEtaAxisHandler>();
                 return std::make_unique<EtaAxisHandler>();
-            } else if (axis.find("dRJet") != std::string::npos) {
+            } else if (axis.find("dRJet") != std::string::npos || axis.find("#DeltaR (jet, #mu)") != std::string::npos) {
                 return std::make_unique<dRJetAxisHandler>();
             }
 
-            Error("AxisHandlerProvider", "Can not interpret axis title %s", axis.c_str());
+            Error("AxisHandlerProvider", "Can not interpret axis title '%s'", axis.c_str());
         } else {
             Error("AxisHandlerProvider", "nullptr pointer passed");
         }
         return std::make_unique<UndefinedAxisHandler>();
+    }
+  
+  
+    CorrectionCode PtAxisHandler::GetBinningParameter(const xAOD::Muon & mu, float & value) const {
+        value = mu.pt() / 1000.;
+        return CorrectionCode::Ok;
+    }
+    CorrectionCode ChargeAxisHandler::GetBinningParameter(const xAOD::Muon & mu, float & value) const {
+        value = mu.charge();
+        return CorrectionCode::Ok;
+    }
+    CorrectionCode EtaAxisHandler::GetBinningParameter(const xAOD::Muon & mu, float & value) const {
+        value = mu.eta();
+        return CorrectionCode::Ok;
+    }
+    CorrectionCode AbsEtaAxisHandler::GetBinningParameter(const xAOD::Muon & mu, float & value) const {
+        value = std::abs(mu.eta());
+        return CorrectionCode::Ok;
+    }
+    CorrectionCode PhiAxisHandler::GetBinningParameter(const xAOD::Muon & mu, float & value) const {
+        value = mu.phi();
+        return CorrectionCode::Ok;
+    }
+    void dRJetAxisHandler::set_close_jet_decorator(const std::string& decor_name){
+        m_close_jet_decor = decor_name;
+    }
+    
+    std::string dRJetAxisHandler::m_close_jet_decor = "dRJet";
+    dRJetAxisHandler::dRJetAxisHandler():
+            m_acc(m_close_jet_decor){}
+    
+    CorrectionCode dRJetAxisHandler::GetBinningParameter(const xAOD::Muon & mu, float & value) const {
+        static std::atomic<unsigned int> warned = {0};
+        static const SG::AuxElement::ConstAccessor<float> acc_dR_deriv("DFCommonJetDr");
+        if (acc_dR_deriv.isAvailable(mu)){
+            value = acc_dR_deriv(mu);
+        }else if( m_acc.isAvailable(mu) ) {
+            // decoration available in DxAOD
+            value = m_acc(mu);
+            if (warned < 5){
+                Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "The DFCommonJetDr jet decoration is not available in the derivaiton will fall back to %s",m_close_jet_decor.c_str());
+                ++warned;
+            }
+        } else {
+            // decoration not available 
+            value = -2.; 
+            // We want these warnings to be printed few times per job, so that they're visible, then stop before log file's size blows up 
+            if (warned<5){
+                Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "The %s decoration has not been found for the Muon. Isolation scale-factors are now also binned in #Delta R(jet,#mu)", m_close_jet_decor.c_str());
+                Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "using the closest calibrated AntiKt4EMTopo jet with p_{T}>20~GeV and surving the standard OR criteria.");
+                Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "You should decorate your muon appropiately before passing to the tool, and use dRJet = -1 in case there is no jet in an event.");
+                Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "For the time being the inclusive scale-factor is going to be returned.");
+                Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "In future derivations, muons will also be decorated centrally with DFCommonJetDr, for your benefit.");
+                Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "You can define custom jet decorations via the 'CloseJetDRDecorator' property of the MuonEfficiencyCorrections tool");
+                ++warned;
+            }
+        }
+        return CorrectionCode::Ok;
+    }
+    
+    CorrectionCode UndefinedAxisHandler::GetBinningParameter(const xAOD::Muon &, float &) const  {
+        return CorrectionCode::Error;
     }
     //###########################################################################################################
     //                                                   HistHandler
@@ -97,12 +160,12 @@ namespace CP {
     }
     HistHandler_TH1::~HistHandler_TH1() {
     }
-    int HistHandler_TH1::NBins() const {
-        return GetHist()->GetNbinsX() + 2;
-    }
+    int HistHandler_TH1::nBins() const {return GetHist()->GetNbinsX() + 2;}
+    int HistHandler_TH1::nOverFlowBins() const {return 2; }
+    bool HistHandler_TH1::isOverFlowBin(int b) const { return b == 0 || b >= nBins() -1; }
     std::string HistHandler_TH1::GetBinName(unsigned int bin) const {
         TAxis* xAx = GetHist()->GetXaxis();
-        return Form("%s_%.2f-%.2f", xAx->GetTitle(), xAx->GetBinLowEdge(bin), xAx->GetBinUpEdge(bin));
+        return Form("%s_%.2f_to_%.2f", xAx->GetTitle(), xAx->GetBinLowEdge(bin), xAx->GetBinUpEdge(bin));
     }
     CorrectionCode HistHandler_TH1::FindBin(const xAOD::Muon & muon, int & bin) const {
         if (!GetHist()) {
@@ -110,9 +173,8 @@ namespace CP {
             return CorrectionCode::Error;
         }
         float par = 0;
-        CorrectionCode found = m_x_handler->GetBinningParameter(muon, par);
-        if (found == CorrectionCode::Error) {
-            return found;
+        if (m_x_handler->GetBinningParameter(muon, par) == CorrectionCode::Error) {
+            return CorrectionCode::Error;
         } else {
             bin = GetHist()->FindBin(par);
             if (bin < 1 || bin > GetHist()->GetNbinsX()) {
@@ -131,16 +193,21 @@ namespace CP {
                 m_y_handler(h == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetYaxis())) {
 
     }
-    int HistHandler_TH2::NBins() const {
+    int HistHandler_TH2::nBins() const {
         return (GetHist()->GetNbinsX() + 2) * (GetHist()->GetNbinsY() + 2);
+    }
+    int HistHandler_TH2::nOverFlowBins() const {return 2*GetHist()->GetNbinsX() +  2*GetHist()->GetNbinsY() + 4; }
+    bool HistHandler_TH2::isOverFlowBin(int b) const { 
+        int x(-1),y(-1), z(-1);
+        GetHist()->GetBinXYZ(b,x,y,z);
+        return  x == 0 ||  x == GetHist()->GetXaxis()->GetNbins() + 1 ||  y == 0 ||  y == GetHist()->GetYaxis()->GetNbins() + 1; 
     }
     CorrectionCode HistHandler_TH2::FindBin(const xAOD::Muon & muon, int & bin) const {
         if (!GetHist()) return CorrectionCode::Error;
         float parx = 0;
         float pary = 0;
-        CorrectionCode foundx = m_x_handler->GetBinningParameter(muon, parx);
-        CorrectionCode foundy = m_y_handler->GetBinningParameter(muon, pary);
-        if (foundx == CorrectionCode::Error || foundy == CorrectionCode::Error) {
+        if (m_x_handler->GetBinningParameter(muon, parx) == CorrectionCode::Error || 
+            m_y_handler->GetBinningParameter(muon, pary) == CorrectionCode::Error) {
             return CorrectionCode::Error;
         } else {
             int binx = GetHist()->GetXaxis()->FindBin(parx);
@@ -173,15 +240,12 @@ namespace CP {
         GetHist()->GetBinXYZ(bin, x, y, z);
         TAxis* xAx = GetHist()->GetXaxis();
         TAxis* yAx = GetHist()->GetYaxis();
-        return Form("%s_%.2f-%.2f--%s_%.2f-%.2f",
-        //xAxis
+        return Form("%s_%.2f_to_%.2f_times_%s_%.2f_to_%.2f",
+                //xAxis
                 xAx->GetTitle(), xAx->GetBinLowEdge(x), xAx->GetBinUpEdge(x),
                 //yAxis
-                yAx->GetTitle(), yAx->GetBinLowEdge(y), yAx->GetBinUpEdge(y)
-
-                );
+                yAx->GetTitle(), yAx->GetBinLowEdge(y), yAx->GetBinUpEdge(y));
     }
-
     //###########################################################################################################
     //                                                   HistHandler_TH3
     //###########################################################################################################
@@ -200,7 +264,6 @@ namespace CP {
                 m_z_handler(other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.GetHist()->GetZaxis())) {
 
     }
-
     HistHandler_TH3::~HistHandler_TH3() {
     }
     HistHandler_TH3 & HistHandler_TH3::operator =(const HistHandler_TH3 & other) {
@@ -213,19 +276,27 @@ namespace CP {
         m_z_handler = std::unique_ptr<AxisHandler>(other.GetHist() == nullptr ? 0 : AxisHandlerProvider::GetAxisHandler(other.GetHist()->GetZaxis()));
         return *this;
     }
-    int HistHandler_TH3::NBins() const {
+    int HistHandler_TH3::nBins() const {
         return (GetHist()->GetNbinsX() + 2) * (GetHist()->GetNbinsY() + 2) * (GetHist()->GetNbinsZ() + 2);
     }
-
+    int HistHandler_TH3::nOverFlowBins() const {return 2*(GetHist()->GetNbinsX()*GetHist()->GetNbinsY() + 
+                                                          GetHist()->GetNbinsX()*GetHist()->GetNbinsZ() +
+                                                          GetHist()->GetNbinsY()*GetHist()->GetNbinsZ())  + 8; }
+    bool HistHandler_TH3::isOverFlowBin(int b) const { 
+        int x(-1),y(-1), z(-1);
+        GetHist()->GetBinXYZ(b,x,y,z);
+        return  x == 0 ||  x == GetHist()->GetXaxis()->GetNbins() + 1 ||  
+                y == 0 ||  y == GetHist()->GetYaxis()->GetNbins() + 1 || 
+                z == 0 ||  z == GetHist()->GetZaxis()->GetNbins() + 1; 
+    }   
     CorrectionCode HistHandler_TH3::FindBin(const xAOD::Muon & muon, int & bin) const {
         if (!GetHist()) return CorrectionCode::Error;
         float parx = 0;
         float pary = 0;
         float parz = 0;
-        CorrectionCode foundx = m_x_handler->GetBinningParameter(muon, parx);
-        CorrectionCode foundy = m_y_handler->GetBinningParameter(muon, pary);
-        CorrectionCode foundz = m_z_handler->GetBinningParameter(muon, parz);
-        if (foundx == CorrectionCode::Error || foundy == CorrectionCode::Error || foundz == CorrectionCode::Error) return CorrectionCode::Error;
+        if (m_x_handler->GetBinningParameter(muon, parx) == CorrectionCode::Error || 
+            m_y_handler->GetBinningParameter(muon, pary) == CorrectionCode::Error || 
+            m_z_handler->GetBinningParameter(muon, parz) == CorrectionCode::Error) return CorrectionCode::Error;
         else {
             int binx = GetHist()->GetXaxis()->FindBin(parx);
             int biny = GetHist()->GetYaxis()->FindBin(pary);
@@ -244,7 +315,7 @@ namespace CP {
         TAxis* xAx = GetHist()->GetXaxis();
         TAxis* yAx = GetHist()->GetYaxis();
         TAxis* zAx = GetHist()->GetZaxis();
-        return Form("%s_%.2f-%.2f--%s_%.2f-%.2f--%s_%.2f-%.2f",
+        return Form("%s_%.2f_to_%.2f_times_%s_%.2f_to_%.2f_times_%s_%.2f_to_%.2f",
         //xAxis
                 xAx->GetTitle(), xAx->GetBinLowEdge(x), xAx->GetBinUpEdge(x),
                 //yAxis
@@ -286,16 +357,19 @@ namespace CP {
 
     HistHandler_TH2Poly::~HistHandler_TH2Poly() {
     }
-    int HistHandler_TH2Poly::NBins() const {
+    int HistHandler_TH2Poly::nBins() const {
         return m_h->GetNumberOfBins() + 1;
     }
+    
+    int HistHandler_TH2Poly::nOverFlowBins() const {return 10;}
+    bool HistHandler_TH2Poly::isOverFlowBin(int b) const {return b < 1;}
+
     CorrectionCode HistHandler_TH2Poly::FindBin(const xAOD::Muon & muon, int & bin) const {
         if (!m_h) return CorrectionCode::Error;
         float parx = 0;
         float pary = 0;
-        CorrectionCode foundx = m_x_handler->GetBinningParameter(muon, parx);
-        CorrectionCode foundy = m_y_handler->GetBinningParameter(muon, pary);
-        if (foundx == CorrectionCode::Error || foundy == CorrectionCode::Error) return CorrectionCode::Error;
+        if (m_x_handler->GetBinningParameter(muon, parx) == CorrectionCode::Error || 
+            m_y_handler->GetBinningParameter(muon, pary) == CorrectionCode::Error) return CorrectionCode::Error;
         else {
             bin = GetHist()->FindBin(parx, pary);
             if (bin < 0) {
@@ -309,10 +383,8 @@ namespace CP {
         GetHist()->GetBinXYZ(bin, x, y, z);
         TAxis* xAx = GetHist()->GetXaxis();
         TAxis* yAx = GetHist()->GetYaxis();
-        return Form("%s_%.2f-%.2f--%s_%.2f-%.2f",
-        //xAxis
+        return Form("%s_%.2f_to_%.2f__times_%s_%.2f_to_%.2f",
                 xAx->GetTitle(), xAx->GetBinLowEdge(x), xAx->GetBinUpEdge(x),
-                //yAxis
                 yAx->GetTitle(), yAx->GetBinLowEdge(y), yAx->GetBinUpEdge(y));
     }
 } // namespace CP

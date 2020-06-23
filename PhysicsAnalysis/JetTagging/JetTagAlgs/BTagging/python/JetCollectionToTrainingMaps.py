@@ -30,8 +30,8 @@ postTagDL2JetToTrainingMap={
 # in some cases we just want to make sure the b-jets are augmented
 # with all the required inputs for b-tagging
 btagAugmentedJetCollectionList = [
-    'AntiKtVR30Rmax4Rmin02Track',
-    'AntiKtVR30Rmax4Rmin02TrackGhostTag'
+    'AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810',
+    'AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810GhostTag',
 ]
 
 # By default the things called by BTagTool will ignore anything that
