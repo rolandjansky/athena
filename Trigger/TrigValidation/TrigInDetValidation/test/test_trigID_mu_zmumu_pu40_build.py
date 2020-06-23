@@ -1,27 +1,8 @@
 #!/usr/bin/env python
 
 # art-description: art job for mu_Zmumu_IBL_pu40
-# art-type: grid
+# art-type: build
 # art-include: master/Athena
-# art-output: *.txt
-# art-output: *.log
-# art-output: log.*
-# art-output: *.out
-# art-output: *.err
-# art-output: *.log.tar.gz
-# art-output: *.new
-# art-output: *.json
-# art-output: *.root
-# art-output: *.check*
-# art-output: HLTEF-plots
-# art-output: HLTL2-plots
-# art-output: times
-# art-output: times-FTF
-# art-output: cost-perCall
-# art-output: cost-perEvent
-# art-output: cost-perCall-chain
-# art-output: cost-perEvent-chain
-# art-output: *.dat 
 
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
@@ -55,7 +36,7 @@ preexec_all = ';'.join([
 
 rdo2aod = ExecStep.ExecStep()
 rdo2aod.type = 'Reco_tf'
-rdo2aod.input = 'id_Zmumu_pu40'  # specified in inputRDOFile below
+rdo2aod.input = 'id_Zmumu_pu40'  
 rdo2aod.max_events = 10 # TODO: 2000 events
 rdo2aod.threads = 1 # TODO: change to 4
 rdo2aod.concurrent_events = 1 # TODO: change to 4
@@ -65,7 +46,7 @@ rdo2aod.args += ' --preExec "RDOtoRDOTrigger:{:s};" "all:{:s};" "RAWtoESD:{:s};"
     preexec_trig, preexec_all, preexec_reco, preexec_reco)
 
 test = Test.Test()
-test.art_type = 'grid'
+test.art_type = 'build'
 test.exec_steps = [rdo2aod]
 test.check_steps = CheckSteps.default_check_steps(test)
 

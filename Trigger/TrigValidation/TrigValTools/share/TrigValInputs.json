@@ -120,7 +120,7 @@
             "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/mc16_13TeV.310772.CosmicRays_CollisionSetup.recon.RDO.s3513_s3519_r11737_tid20237005_00/RDO.20237005._004484.pool.root.1"
         ]
     },
-    "id_Zmumu_pu40": {
+    "Zmumu_pu40": {
         "source": "mc",
         "format": "RDO",
         "paths": [
