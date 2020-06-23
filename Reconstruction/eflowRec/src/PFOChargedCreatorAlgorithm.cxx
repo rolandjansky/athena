@@ -11,7 +11,7 @@
 #include "xAODPFlow/PFOAuxContainer.h"
 
 PFOChargedCreatorAlgorithm::PFOChargedCreatorAlgorithm(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name,pSvcLocator)
+  AthReentrantAlgorithm(name,pSvcLocator)
 {
 }
 
@@ -24,15 +24,15 @@ StatusCode PFOChargedCreatorAlgorithm::initialize(){
   return StatusCode::SUCCESS;
 }
 
-StatusCode  PFOChargedCreatorAlgorithm::execute(){
+StatusCode  PFOChargedCreatorAlgorithm::execute(const EventContext& ctx) const {
 
   ATH_MSG_DEBUG("Processing eflowCaloObjectContainer");
 
-  SG::WriteHandle<xAOD::PFOContainer> chargedPFOContainerWriteHandle(m_chargedPFOContainerWriteHandleKey);
+  SG::WriteHandle<xAOD::PFOContainer> chargedPFOContainerWriteHandle(m_chargedPFOContainerWriteHandleKey,ctx);
   ATH_CHECK(chargedPFOContainerWriteHandle.record(std::make_unique<xAOD::PFOContainer>(),std::make_unique<xAOD::PFOAuxContainer>()));
   
   /* Create Charged PFOs from all eflowCaloObjects */
-  SG::ReadHandle<eflowCaloObjectContainer> eflowCaloObjectContainerReadHandle(m_eflowCaloObjectContainerReadHandleKey);
+  SG::ReadHandle<eflowCaloObjectContainer> eflowCaloObjectContainerReadHandle(m_eflowCaloObjectContainerReadHandleKey,ctx);
   for (auto thisEflowCaloObject : *eflowCaloObjectContainerReadHandle) createChargedPFO(*thisEflowCaloObject,true,chargedPFOContainerWriteHandle);
 
   return StatusCode::SUCCESS;  
@@ -40,7 +40,7 @@ StatusCode  PFOChargedCreatorAlgorithm::execute(){
 
 StatusCode PFOChargedCreatorAlgorithm::finalize(){ return StatusCode::SUCCESS; }
 
-void PFOChargedCreatorAlgorithm::createChargedPFO(const eflowCaloObject& energyFlowCaloObject, bool addClusters, SG::WriteHandle<xAOD::PFOContainer>& chargedPFOContainerWriteHandle){
+void PFOChargedCreatorAlgorithm::createChargedPFO(const eflowCaloObject& energyFlowCaloObject, bool addClusters, SG::WriteHandle<xAOD::PFOContainer>& chargedPFOContainerWriteHandle) const {
 
   /* Loop over all tracks in the eflowCaloObject */
   int nTracks = energyFlowCaloObject.nTracks();
