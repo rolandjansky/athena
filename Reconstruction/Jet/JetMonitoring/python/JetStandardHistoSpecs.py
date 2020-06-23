@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import  SystemOfUnits
-from JetMonitoring.JetMonitoringConfig import HistoSpec, VarSpec, ConfigDict, ToolSpec
+from JetMonitoring.JetMonitoringConfig import HistoSpec, EventHistoSpec, VarSpec, ConfigDict, ToolSpec
 
 # ***********************************************    
 # ***********************************************
@@ -28,6 +28,7 @@ knownEventVar = dict(
     avgMu = ToolSpec('EventHistoVarTool', 'avgMu', Variable='averageInteractionsPerCrossing'),
     actMu = ToolSpec('EventHistoVarTool', 'actMu', Variable='actualInteractionsPerCrossing'),
     njets = ToolSpec('NumJetVarTool', 'njets0', ),
+    njets20 = ToolSpec('NumJetVarTool', 'njets20', JetMinPtCut = 20.),
     njets50 = ToolSpec('NumJetVarTool', 'njets50', JetMinPtCut = 50.),
 )
 
@@ -45,7 +46,6 @@ _knownHistos = [
     #        As in TH1 ctor, ';' in the title is interpreted as in "Main Title;Title xAxis;Title yAxis"
     HistoSpec( 'eta',  (50,-5,5) , title='#eta;#eta;Entries'),
     HistoSpec( 'phi',  (50,-3.3,3.3) , title='#phi;#phi;Entries'),
-    HistoSpec( 'njets', (20,0,20) , title='Jet multiplicity;NJets;Entries'),
     # Same but we indicate that the variable is to be plotted in GeV by appending ':GeV'
     HistoSpec( 'pt:GeV',  (100,0,200) , title='p_{T};p_{T} [GeV];'),    
     HistoSpec( 'm:GeV',  (100,0,300) , title='mass;mass [GeV];'),
@@ -56,7 +56,7 @@ _knownHistos = [
     # We add a new spec with a new name and we indicate the actual variable with the argument xvar
     HistoSpec( 'highpt',  (100,0.,4000) , title='p_{T};p_{T} [GeV];', xvar='pt:GeV'),    
 
-    
+    EventHistoSpec( 'njets', (30,0,30), title='Jet Multiplicity;Njets;Entries' ),
     # When the jet variable is not a simple float, use the xvar argument to refer to a detailed variable spec in 'knownVar'
     HistoSpec( 'JVF',  (100,0,1.2) , title='Jet Vtx Frac;JVF;', xvar='JVF'),    
     # if the var name contains '[N]' the system will assume the variable is a vector<float> and setup tools accordingly (so we don't need to specify 'xvar')

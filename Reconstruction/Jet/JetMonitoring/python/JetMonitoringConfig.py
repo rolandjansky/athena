@@ -376,6 +376,36 @@ class HistoSpec(ToolSpec):
         write(')')
 
 
+class EventHistoSpec(ToolSpec):
+    """A similar dictionary to HistoSpec above, but specialized to contain a
+    JetHistoEventLevelFiller specification.
+    Invocation is like : spec = EventHistoSpec( name, bins=(n,xlow,xhigh) )
+    """
+    def __init__(self, name , bins, **args):
+        self.name = name
+        self.bins = bins
+        self.hargs = ConfigDict( **args)
+        ConfigDict.__init__(self, **args)
+
+    def toTool(self):
+        from AthenaConfiguration.ComponentFactory import CompFactory
+        from JetMonitoring.JetStandardHistoSpecs import knownEventVar
+        tool = CompFactory.JetHistoEventLevelFiller( self.name+"hfiller",
+                                                Var = knownEventVar[self.name].toTool(),
+                                                Group = self.name,
+        )
+        return tool
+
+    def defineHisto(self, parentAlg, monhelper , path):
+        hargs = dict(xbins = self.bins[0],xmin = self.bins[1], xmax=self.bins[2],
+                     type='TH1F', )
+        hargs.update( **self.hargs)
+
+        # we create one group for each histoFiller : self.name() are unique within a JetMonitoringAlg
+        bottomLevelDir = self.bottomLevelDir if self.bottomLevelDir != '' else parentAlg.JetContainerName
+        group = monhelper.addGroup(parentAlg, self.name, self.topLevelDir+bottomLevelDir)
+        group.defineHistogram(self.name, path=path, **hargs)
+
 
 
 class SelectSpec(ToolSpec):
