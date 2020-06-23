@@ -42,9 +42,7 @@ from W_SMEFT import W_SMEFT
 from Wj import Wj
 from Wjj import Wjj
 from Wt_DR import Wt_DR
-from Wt_DR_onshellW import Wt_DR_onshellW
 from Wt_DS import Wt_DS
-from Wt_DS_onshellW import Wt_DS_onshellW
 from WW import WW
 from Wy import Wy
 from WZ import WZ
