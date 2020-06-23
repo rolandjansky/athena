@@ -215,9 +215,7 @@ CP::SystematicCode FFJetSmearingTool::applySystematicVariation
     if(sysMapItr == m_sysFilterMap.end()){
 
         // Filter the input systematics with my affecting systematics.
-        // Should be ok to use static here, as the affecting systematics should be
-        // the same across any instance of this tool.
-        static const CP::SystematicSet affectingSysts = affectingSystematics();
+        const CP::SystematicSet affectingSysts = affectingSystematics();
         CP::SystematicSet filteredSysts;
         if( CP::SystematicSet::
             filterForAffectingSystematics(systematics, affectingSysts, filteredSysts) !=
