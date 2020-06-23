@@ -65,10 +65,10 @@
 namespace FFAllowedMassDef{
     enum TypeEnum
     {
-        UNKNOWN=0,
-        Calo, //Calorimeter
-        TA,   //Track Assisted
-        Comb, //Combined
+        UNKNOWN,  ///to indicate a fail in the configuration
+        Calo,     ///Calorimeter
+        TA,       ///Track Assisted
+        Comb,     ///Combined
     };
     inline TypeEnum stringToEnum(const TString& name)
     {

@@ -152,7 +152,7 @@ StatusCode FFJetSmearingTool::initialize()
 
     // Make sure we have a valid systematic mode
     bool isValidMassDef=false;
-    if(m_MassDef == FFAllowedMassDef::Calo || m_MassDef == FFAllowedMassDef::TA || m_MassDef == FFAllowedMassDef::Comb){ isValidMassDef=true;}
+    if(m_MassDef != FFAllowedMassDef::UNKNOWN){ isValidMassDef=true;}
     if(!isValidMassDef)
     {
       ATH_MSG_ERROR("No Systematics associated to this mass definition: " << m_MassDef_string);
