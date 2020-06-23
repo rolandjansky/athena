@@ -182,7 +182,7 @@ bool FFJetSmearingTool::isAffectedBySystematic
 {
     // Using 'find' is sufficient until this tool supports continuous
     //   // variations, at which point I'll need to use the 'match' method.
-    static CP::SystematicSet sys = affectingSystematics();
+    CP::SystematicSet sys = affectingSystematics();
     return sys.find(systematic) != sys.end();
 }
 //-----------------------------------------------------------------------------
