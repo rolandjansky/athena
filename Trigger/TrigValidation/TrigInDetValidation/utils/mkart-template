@@ -8,6 +8,7 @@ function usage {
     echo "     -n, --noglob             do not overwrite existing files"
     echo "     -d, --dataset FILE       run on FILE"
     echo "     -c, --cleanup            clean up afterwards"
+    echo "     -a, --art                create test scripts for official ART"
     echo "     -h, --help               this help"
     if [ $# -lt 1 ]; then exit 0; fi ; exit $1 
 }
@@ -38,6 +39,7 @@ OUTDIR=$PWD
 NOGLOB=0
 DATASET=
 DELETE=0
+ART=0
 
 while [ $# -ge 1 ]; do
     case "$1" in
@@ -46,6 +48,7 @@ while [ $# -ge 1 ]; do
         -d | --dataset ) if [ $# -lt 2 ]; then usage 1; fi ; DATASET=$2 ; shift ;;
         -n | --noglob )  NOGLOB=1 ;;
         -c | --cleanup ) DELETE=1 ;;
+        -a | --art ) ART=1 ;;
         -h | --help )   usage 0;;
         *)   
           DIR=$1
@@ -112,6 +115,9 @@ for xmlfile in $FILES; do
     echo "#!/bin/bash" > $outfile
     
     echo "# art-description: art job for $(echo $_file | sed 's|TrigInDetValidation_||g')" >> $outfile 
+    if [ $ART -eq 1 ]; then
+      echo "# art-include: 21.3/Athena" >>  $outfile
+    fi
     echo "# art-type: grid"       >>  $outfile 
     echo "# art-input:  $(basename $(dirname $DATASET))" >>  $outfile 
     echo "# art-output: *.dat "   >>  $outfile 
@@ -123,6 +129,9 @@ for xmlfile in $FILES; do
 
     echo "# art-input-nfiles: 10" >> $outfile 
     echo "# art-cores:         8" >> $outfile 
+    if [ $ART -eq 1 ]; then
+      echo "# art-memory: 4096" >> $outfile 
+    fi
     echo ""                       >> $outfile 
     echo ""                       >> $outfile 
 
@@ -158,12 +167,18 @@ for xmlfile in $FILES; do
 	    
 	     if [ -e utils/art-nfiles.dat ]; then
 		 nfiles=$(grep "$jobbase " utils/art-nfiles.dat | awk '{print $2}')
-		 cat $outfile | sed  "s|# art-input-nfiles: .*|# art-input-nfiles: $nfiles|g" >> $outfile-
-		 mv $outfile{-,}
+                 if [ -n "$nfiles" ]; then
+		     cat $outfile | sed  "s|# art-input-nfiles: .*|# art-input-nfiles: $nfiles|g" >> $outfile-
+		     mv $outfile{-,}
 
-                 ncores=8
-                 [ $nfiles -lt 8 ] && ncores=$nfiles
-		 cat $outfile | sed  "s|# art-cores: .*|# art-ncores: $ncores|g" >> $outfile-
+                     ncores=8
+                     [ $nfiles -lt 8 ] && ncores=$nfiles
+                     if [ $ART -eq 1 ]; then
+		         cat $outfile | sed  "s|# art-cores: .*|# art-cores: $ncores|g" >> $outfile-
+                     else
+		         cat $outfile | sed  "s|# art-cores: .*|# art-ncores: $ncores|g" >> $outfile-
+                     fi
+                 fi
 		 mv $outfile{-,}
 
 	     fi
