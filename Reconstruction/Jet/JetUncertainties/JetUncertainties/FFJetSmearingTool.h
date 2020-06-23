@@ -35,7 +35,7 @@
 
 // Other packages includes
 #include "JetAnalysisInterfaces/IJetSelectorTool.h"
-#include "JetInterface/IJetResolutionTool.h"
+#include "JetInterface/IJetCorrectionTool.h"
 #include "ParticleJetTools/LargeRJetLabelEnum.h"
 
 // Local includes
@@ -93,11 +93,11 @@ namespace FFAllowedMassDef{
 
 }
 
-class FFJetSmearingTool : public asg::AsgTool, virtual public IJetResolutionTool 
+class FFJetSmearingTool : public asg::AsgTool, virtual public IJetCorrectionTool 
 {
 
     /// Proper constructor for Athena
-    ASG_TOOL_CLASS( FFJetSmearingTool,  IJetResolutionTool  )
+    ASG_TOOL_CLASS( FFJetSmearingTool,  IJetCorrectionTool  )
 
     public:
         // Constructor/destructor/init

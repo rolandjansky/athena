@@ -2,8 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef JETINTERFACE_IJETRESOLUTIONTOOL_H //To avoid re-definition
-#define JETINTERFACE_IJETRESOLUTIONTOOL_H
+#ifndef JETINTERFACE_IJETCORRECTIONTOOL_H //To avoid re-definition
+#define JETINTERFACE_IJETCORRECTIONTOOL_H
 
 // EDM includes
 #include "xAODJet/Jet.h"
@@ -21,20 +21,20 @@
 /// If you find any bug, please, contact <alberto.prades.ibanez@cern.ch>
 
 
-class IJetResolutionTool : public virtual CP::ISystematicsTool
+class IJetCorrectionTool : public virtual CP::ISystematicsTool
 {
 
     // Declare the interface that the class provides
-    ASG_TOOL_INTERFACE( IJetResolutionTool )
+    ASG_TOOL_INTERFACE( IJetCorrectionTool )
 
     public:
 
         /// Virtual destructor
-        virtual ~IJetResolutionTool(){};
+        virtual ~IJetCorrectionTool(){};
 
         virtual CP::CorrectionCode applyCorrection(xAOD::Jet* jet_reco) = 0;
 
-}; // class IJetResolutionTool
+}; // class IJetCorrectionTool
 
 
-#endif /* JETINTERFACE_IJETRESOLUTIONTOOL_H  */
+#endif /* JETINTERFACE_IJETCORRECTIONTOOL_H  */
