@@ -57,10 +57,6 @@ StatusCode PFCellLevelSubtractionTool::initialize(){
     msg(MSG::WARNING) << "Cannot find PFTrackClusterMatchingTool" << endmsg;
   }
 
-  if (m_matchingToolForPull_015.retrieve().isFailure()) {
-    msg(MSG::WARNING) << "Cannot find PFTrackClusterMatchingTool_2" << endmsg;
-  }
-
   if (m_matchingToolForPull_02.retrieve().isFailure()) {
     msg(MSG::WARNING) << "Cannot find PFTrackClusterMatchingTool_2" << endmsg;
   }
@@ -115,29 +111,30 @@ unsigned int PFCellLevelSubtractionTool::matchAndCreateEflowCaloObj(unsigned int
     eflowRecTrack *thisEfRecTrack = static_cast<eflowRecTrack*>(data.tracks->at(iTrack));
 
      /* Add cluster matches needed for pull calculation*/
-    std::vector<eflowRecCluster*> bestClusters_015 = m_matchingToolForPull_015->doMatches(thisEfRecTrack, data.clusters, -1);
-    std::vector<eflowRecCluster*> bestClusters_02 = m_matchingToolForPull_02->doMatches(thisEfRecTrack, data.clusters, -1);
+    std::vector<std::pair<eflowRecCluster*,float> > bestClusters_02 = m_matchingToolForPull_02->doMatches(thisEfRecTrack, data.clusters, -1);
 
-    for (unsigned int imatch=0; imatch < bestClusters_015.size(); ++imatch) {
-      eflowTrackClusterLink* trackClusterLink = eflowTrackClusterLink::getInstance(thisEfRecTrack, bestClusters_015.at(imatch));
-      thisEfRecTrack->addAlternativeClusterMatch(trackClusterLink,"cone_015");    
-    }
-
-    for (unsigned int imatch=0; imatch < bestClusters_02.size(); ++imatch) {
-      eflowTrackClusterLink* trackClusterLink = eflowTrackClusterLink::getInstance(thisEfRecTrack, bestClusters_02.at(imatch));
+    for (auto& matchpair : bestClusters_02) {
+      eflowRecCluster* theCluster = matchpair.first;
+      float distancesq = matchpair.second;
+      eflowTrackClusterLink* trackClusterLink = eflowTrackClusterLink::getInstance(thisEfRecTrack, theCluster);
+      if(distancesq<0.15*0.15) {
+	// Narrower cone is a subset of the selected clusters
+	// Distance returned is deltaR^2
+	thisEfRecTrack->addAlternativeClusterMatch(trackClusterLink,"cone_015");
+      }
       thisEfRecTrack->addAlternativeClusterMatch(trackClusterLink,"cone_02");    
     }
 
-    std::vector<eflowRecCluster*> bestClusters = m_matchingTool->doMatches(thisEfRecTrack, data.clusters, n);
+    std::vector<std::pair<eflowRecCluster*,float> > bestClusters = m_matchingTool->doMatches(thisEfRecTrack, data.clusters, n);
     if (bestClusters.empty()) { continue; }
 
     /* Matched cluster: create TrackClusterLink and add it to both the track and the cluster (eflowCaloObject will be created later) */
     nMatches++;
-    for (unsigned int imatch=0; imatch < bestClusters.size(); ++imatch) {
-    eflowTrackClusterLink* trackClusterLink = eflowTrackClusterLink::getInstance(thisEfRecTrack, bestClusters.at(imatch));
-    thisEfRecTrack->addClusterMatch(trackClusterLink);
-    bestClusters.at(imatch)->addTrackMatch(trackClusterLink);
-    
+    for (auto& matchpair : bestClusters) {
+      eflowRecCluster* theCluster = matchpair.first;
+      eflowTrackClusterLink* trackClusterLink = eflowTrackClusterLink::getInstance(thisEfRecTrack, theCluster);
+      thisEfRecTrack->addClusterMatch(trackClusterLink);
+      theCluster->addTrackMatch(trackClusterLink);
     }
   
   }

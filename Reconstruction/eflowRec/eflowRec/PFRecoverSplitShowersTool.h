@@ -6,6 +6,9 @@
 #define PFRECOVERSPLITSHOWERSTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
+
+#include <unordered_set>
+
 #include "GaudiKernel/ToolHandle.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "eflowRec/IPFSubtractionTool.h"
@@ -40,8 +43,7 @@ class PFRecoverSplitShowersTool : public extends<AthAlgTool, IPFSubtractionTool>
 
   struct eflowData {
     eflowCaloObjectContainer* caloObjects;
-    std::vector<eflowRecCluster*> clustersToConsider;
-    std::vector<bool> considerThisCluster;
+    std::unordered_set<eflowRecCluster*> clustersToConsider;
     std::vector<eflowRecTrack*> tracksToRecover;
   };
 

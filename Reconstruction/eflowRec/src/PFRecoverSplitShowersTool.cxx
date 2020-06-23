@@ -55,9 +55,8 @@ void PFRecoverSplitShowersTool::execute(eflowCaloObjectContainer* theEflowCaloOb
 
   eflowData data;
   data.caloObjects = theEflowCaloObjectContainer;
-  data.tracksToRecover.resize(eflowRecTracks->size());
-  data.clustersToConsider.resize(eflowRecClusters->size());
-  data.considerThisCluster.resize(eflowRecClusters->size(),false);
+  data.tracksToRecover.reserve(eflowRecTracks->size());
+  data.clustersToConsider.reserve(eflowRecClusters->size());
 
   fillTracksToRecover(data);
   fillClustersToConsider(data);
@@ -89,14 +88,10 @@ void PFRecoverSplitShowersTool::fillClustersToConsider(eflowData& data) const {
         if (0 == (int)theCellLink->size()){ continue; }
 
         thisEflowCaloObject->efRecCluster(i)->clearTrackMatches();
-        data.clustersToConsider.push_back(thisEflowCaloObject->efRecCluster(i));
-	// efRecCluster indices are parallel to topoclusters(?)
-	data.considerThisCluster[thisEflowCaloObject->efRecCluster(i)->getCluster()->index()] = true;
+        data.clustersToConsider.insert(thisEflowCaloObject->efRecCluster(i));
         thisEflowCaloObject->clearClusters();
     }
   }
-
-  std::sort(data.clustersToConsider.begin(),data.clustersToConsider.end(),eflowRecCluster::SortDescendingPt());
 }
 
 void PFRecoverSplitShowersTool::fillTracksToRecover(eflowData& data) const {
@@ -179,7 +174,7 @@ unsigned int PFRecoverSplitShowersTool::matchAndCreateEflowCaloObj(eflowData& da
     for (auto trkClusLink : matchedClusters_02){
       eflowRecCluster* thisEFRecCluster = trkClusLink->getCluster();
       // Look up whether this cluster is intended for recovery
-      if( !data.considerThisCluster[trkClusLink->getCluster()->getCluster()->index()] ) {continue;}
+      if( data.clustersToConsider.find(trkClusLink->getCluster()) == data.clustersToConsider.end() ) {continue;}
       eflowTrackClusterLink* trackClusterLink = eflowTrackClusterLink::getInstance(thisEfRecTrack,thisEFRecCluster);
       thisEfRecTrack->addClusterMatch(trackClusterLink);
       thisEFRecCluster->addTrackMatch(trackClusterLink);
@@ -188,7 +183,9 @@ unsigned int PFRecoverSplitShowersTool::matchAndCreateEflowCaloObj(eflowData& da
 
   /* Create all eflowCaloObjects that contain eflowRecCluster */
   eflowCaloObjectMaker makeCaloObject;
-  unsigned int nCaloObjects = makeCaloObject.makeTrkCluCaloObjects(data.tracksToRecover, data.clustersToConsider,
+  std::vector<eflowRecCluster*> v_clustersToConsider(data.clustersToConsider.begin(),data.clustersToConsider.end());
+  std::sort(v_clustersToConsider.begin(),v_clustersToConsider.end(),eflowRecCluster::SortDescendingPt());
+  unsigned int nCaloObjects = makeCaloObject.makeTrkCluCaloObjects(data.tracksToRecover, v_clustersToConsider,
 								   data.caloObjects);
   ATH_MSG_DEBUG("PFRecoverSplitShowersTool created " << nCaloObjects << " CaloObjects");
 
