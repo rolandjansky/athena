@@ -31,7 +31,7 @@ class PtEndcapLUTSvc : public AthService, virtual public IInterface
     PtEndcapLUTSvc(const std::string& name, ISvcLocator* sl);
     virtual ~PtEndcapLUTSvc() {}
     
-    virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIF);
+    virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIF) override;
 
     virtual StatusCode initialize() override;
 
