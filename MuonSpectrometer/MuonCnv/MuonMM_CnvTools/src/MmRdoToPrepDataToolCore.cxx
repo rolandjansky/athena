@@ -72,7 +72,7 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(const MM_RawDataColl
   MMPrepDataCollection* prdColl = nullptr;
   
   // check if the collection already exists, otherwise add it
-  if ( m_mmPrepDataContainer->indexFind(hash) != m_mmPrepDataContainer->end() ) {
+  if ( m_mmPrepDataContainer->indexFindPtr(hash) != nullptr) {
 
     ATH_MSG_DEBUG("In processCollection: collection already contained in the MM PrepData container");
     return StatusCode::FAILURE;

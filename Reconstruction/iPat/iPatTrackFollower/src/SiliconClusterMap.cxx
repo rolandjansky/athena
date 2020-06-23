@@ -39,12 +39,11 @@ bool
 SiliconClusterMap::hasPixelCollection (int idHash) const
 {
     if (!m_pixelContainer) return false;
-    InDet::SiClusterContainer::const_iterator collectionIterator =
-	m_pixelContainer->indexFind(idHash);
-    if (collectionIterator == m_pixelContainer->end()
-	|| (**collectionIterator).size() == 0) return false;
-    m_begin	= (**collectionIterator).begin();
-    m_end	= (**collectionIterator).end();
+    auto collectionIterator = m_pixelContainer->indexFindPtr(idHash);
+    if (collectionIterator == nullptr
+	|| (*collectionIterator).size() == 0) return false;
+    m_begin	= (*collectionIterator).begin();
+    m_end	= (*collectionIterator).end();
     return true;
 }
 
@@ -52,12 +51,11 @@ bool
 SiliconClusterMap::hasSCT_Collection (int idHash) const
 {
     if (!m_SCT_Container) return false;
-    InDet::SiClusterContainer::const_iterator collectionIterator =
-	m_SCT_Container->indexFind(idHash);
-    if (collectionIterator == m_SCT_Container->end()
-        || (**collectionIterator).size() == 0) return false;
-    m_begin	= (**collectionIterator).begin();
-    m_end	= (**collectionIterator).end();
+    auto collectionIterator = m_SCT_Container->indexFindPtr(idHash);
+    if (collectionIterator == nullptr
+        || (*collectionIterator).size() == 0) return false;
+    m_begin	= (*collectionIterator).begin();
+    m_end	= (*collectionIterator).end();
     
     return true;
 }
