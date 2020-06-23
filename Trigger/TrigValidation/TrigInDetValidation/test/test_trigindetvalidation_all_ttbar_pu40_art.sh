@@ -1,7 +1,7 @@
 #!/bin/bash
 # art-description: art job for all_ttbar_pu40
-# art-type: grid
 # art-include: 21.3/Athena
+# art-type: grid
 # art-output: HLTEF-plots-electron
 # art-output: HLTL2-plots-electron
 # art-output: HLTEF-plots-electron-lowpt
@@ -26,7 +26,7 @@
 # art-output: output-cost
 # art-output: output-logs
 # art-input-nfiles: 3
-# art-athena-mt: 3
+# art-cores: 3
 # art-memory: 4096
 
 
@@ -59,6 +59,7 @@ RUNPOST=-1
 DIRECTORY=
 LOCAL=0
 FORCE=0
+FORK=1
 
 while [ $# -ge 1 ]; do
     case "$1" in
@@ -89,9 +90,7 @@ function converttime {
     ((H=$totes/3600))
     ((M=($totes%3600)/60))
     ((S=$totes%60))
-    [ $M -lt 10 ] && M=0$M
-    [ $S -lt 10 ] && S=0$S
-    echo "$H:$M:$S"
+    printf "%d:%02d:%02d\n" $H $M $S
 }
 
 timestamp "starting"
@@ -152,8 +151,6 @@ function waitonallproc   {
 
 # run athena  
 
-iathena=0
-
 function runathena { 
    timestamp  "runathena:"
 
@@ -167,15 +164,12 @@ function runathena {
 
      mkdir -p athena-$1
      cd  athena-$1
-     cp ../*.py .
 
      pwd
      echo "ARGS: $ARGS"
      echo -e "\nrunning athena in athena-$1\n"
      athena.py  -c "$ARGS"               TrigInDetValidation/TrigInDetValidation_RTT_topOptions_AllSlices.py  &> athena-local-$1.log
-     echo "art-result: $? athena_$iathena"
-
-     ((iathena++))
+     echo "art-result: $? athena_$1"
 
      pwd
      ls -lt
@@ -214,23 +208,57 @@ export RTTJOBNAME=TrigInDetValidation_all_ttbar_pu40
 jobList=
 
 if [ $LOCAL -eq 1 ]; then
+
       echo "running locally"
       # get number of files 
       NFILES=$(grep "^#[[:space:]]*art-input-nfiles:" $0 | sed 's|.*art-input-nfiles:[[:space:]]*||g')
       [ $NFILES -lt 1 ] && echo "not enough files: $NFILES" && exit -1
       _jobList=$(TIDAdataset.py $RTTJOBNAME)
       for git in $_jobList ; do [ $NFILES -gt 0 ] || break ; jobList="$jobList ARTConfig=['$git']" ; ((NFILES--)) ; echo "running over $git"  ; done
+
+elif [ -n "$ArtProcess" ]; then
+
+      # art-cores specified, so ART is already forking off subprocesses
+      FORK=0
+      case "$ArtProcess" in
+            start)
+                  timestamp "ART Starting (${ArtCores}-core)"
+                  exit 0   # nothing more to do this time round
+                  ;;
+            end)
+                  timestamp "ART Ending (${ArtCores}-core)"
+                  ;;       # skip to postprocessing
+            *)
+                  # runathena here and now, no forking
+                  timestamp "ART job $ArtProcess (${ArtCores}-core)"
+                  IFS=',' read -r -a file <<< "${ArtInFile}"
+                  file=${file[${ArtProcess}]}
+                  _jobList="'../$file'"
+                  echo "ART running over $_jobList"
+                  jobList="ARTConfig=[$_jobList]"
+                  if [ $RUNATHENA -eq 1 ]; then
+                      ARGS="$jobList;EventMax=1000;doIDNewTracking=True;rec.doFloatingPointException.set_Value_and_Lock(False)"
+                      runathena "$ArtProcess"
+                  fi
+                  exit 0   # this thread is done
+                  ;;
+      esac
+
 else
+
       fileList="['${ArtInFile//,/', '}']"
       _jobList="'../${ArtInFile//,/' '../}'"
       echo "List of files = $fileList"
       for git in $_jobList ; do jobList="$jobList ARTConfig=[$git]" ; echo "ART running over $git"  ; done
+
 fi
 
 
 if [ $RUNATHENA -eq 1 ]; then 
 
-get_files -jo             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_AllSlices.py
+if [ $FORK -eq 1 ]; then
+# remove this once everything works correctly
+# get_files -jo             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_AllSlices.py
 
 
 # run athena in separate directories
@@ -272,9 +300,12 @@ done
 
 [ -e topp.log ] && rm topp.log
 
-ps -aF --pid $PPROCS | grep $USER >> topp.log
+echo -e "\nUID        PID  PPID  C    SZ   RSS PSR STIME TTY          TIME CMD" >> topp.log
+ps -aF --pid $PPROCS | grep $USER | grep -v grep | grep -v sed | sed 's| [^[:space:]]*/python | python |g' | sed 's| [^[:space:]]*/athena| athena|g' | sed 's|ARTConfig=.* |ARTConfig=... |g' | sed 's|eos/[^[:space:]]*/trigindet|eos/.../trigindet|g' >> topp.log
 
 echo >> topp.log
+
+sleep 20 
 
 top -b -n1 > top.log
 grep PID top.log >> topp.log
@@ -292,6 +323,8 @@ timestamp "waiting on athena jobs ..."
 # echo -e "\n\nwaiting on athena jobs...\n"
 
 waitonallproc
+
+fi
 
 echo "all done ! hooray !"
 
@@ -320,7 +353,9 @@ hadd expert-monitoring.root athena-*/expert-monitoring.root &> hadd.log
 # file to the check will fail. This creates a link so this 
 # test will pass
   
-for git in output-dataset/*.root ; do ln -s $git TrkNtuple-0000.root ; break ; done  
+for git in output-dataset/*.root ; do if [ -e $git ]; then ln -s $git TrkNtuple-0000.root ; break ; fi ; done  
+
+[ -e TrkNtuple-0000.root ] || echo "WARNING: all athena stages failed"
 
 fi
 
