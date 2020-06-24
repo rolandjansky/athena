@@ -54,7 +54,7 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks ):
         acc.merge(JetSecVertexingAlg)
     
     JetBTaggingAlg = JetBTaggingAlgCfg(ConfigFlags, JetCollection = inputJets.replace("Jets",""), PrimaryVertexCollectionName=inputVertex, TaggerList = ConfigFlags.BTagging.TrigTaggersList, SetupScheme = "Trig", SVandAssoc = SecVertexingAndAssociators, **kwargs)
-    BTaggingAlg = JetBTaggingAlg.getEventAlgo((ConfigFlags.BTagging.OutputFiles.Prefix + inputJets.replace("Jets","") + ConfigFlags.BTagging.GeneralToolSuffix).lower()) #Defined in JetBTaggingAlgConfig.py; Ends up to be "btagging_hlt_bjets"
+    BTaggingAlg = JetBTaggingAlg.getEventAlgo((ConfigFlags.BTagging.OutputFiles.Prefix + inputJets.replace("Jets","") + ConfigFlags.BTagging.GeneralToolSuffix).lower()) #Defined in JetBTaggingAlgConfig.py; Ends up to be "btagging_hlt_b(Jets)"
     BTaggingAlg.BTaggingCollectionName = recordable( btagname )
     BTaggingAlg.BTagJFVtxCollectionName = btagname_JFVtx
     BTaggingAlg.BTagSVCollectionName = btagname_SecVtx

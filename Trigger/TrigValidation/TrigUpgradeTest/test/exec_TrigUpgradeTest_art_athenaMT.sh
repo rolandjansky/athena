@@ -115,7 +115,6 @@ else
   --filesInput "${DS}" \
   --evtMax ${EVENTS} \
   --skipEvents ${SKIPEVENTS} \
-  -l DEBUG \
   -c "${EXTRA}" \
   ${JOBOPTION} >${JOB_LOG} 2>&1
   ) 2>&1
