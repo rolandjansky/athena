@@ -22,8 +22,6 @@ SiliconClusterMap::SiliconClusterMap (const InDet::SiClusterContainer*	pixelCont
 	m_SCT_Container		(SCT_Container)
 {}
 
-SiliconClusterMap::~SiliconClusterMap (void)
-{}
 
 //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
