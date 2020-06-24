@@ -26,7 +26,7 @@ class ClusterTimeProjectionMMClusterBuilderTool :
   StatusCode initialize() override;
 
   StatusCode getClusters(std::vector<Muon::MMPrepData>& MMprds,
-      std::vector<Muon::MMPrepData*>& clustersVec) const override;
+      std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVec) const override;
 
  private:
     /// Muon Detector Descriptor
@@ -52,7 +52,7 @@ class ClusterTimeProjectionMMClusterBuilderTool :
                                const std::vector<uint> &idxCluster,
                                const double &clustersPosition,
                                const double &clustersPositionErrorSq,
-                               std::vector<Muon::MMPrepData*>& clustersVec) const;
+                               std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVec) const;
 
     uint channel(const Identifier &id) const {
         return m_idHelperSvc->mmIdHelper().channel(id);
