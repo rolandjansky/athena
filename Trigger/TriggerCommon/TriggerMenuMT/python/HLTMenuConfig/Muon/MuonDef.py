@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ########################################################################
 #
@@ -11,7 +11,8 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Muon.MuonDef")
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 
-from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muFastOvlpRmSequence, muCombSequence, muCombOvlpRmSequence, muEFMSSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, muEFCBInvMassSequence, efLateMuRoISequence, efLateMuSequence
+from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muFastOvlpRmSequence, muCombSequence, muCombOvlpRmSequence, muEFMSSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, efLateMuRoISequence, efLateMuSequence
+from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFInvMassHypoToolFromDict
 
 # this must be moved to the HypoTool file:
 def dimuDrComboHypoToolFromDict(chainDict):
@@ -48,9 +49,6 @@ def muIsoSequenceCfg(flags):
 
 def muEFCBSequenceCfg(flags):
     return muEFCBSequence()
-
-def muEFCBInvMSequenceCfg(flags):
-    return muEFCBInvMassSequence()
 
 def FSmuEFSASequenceCfg(flags):
     return muEFSAFSSequence()
@@ -94,13 +92,6 @@ class MuonChainConfiguration(ChainConfigurationBase):
                 chainstep = getattr(self, step)()
                 chainSteps+=[chainstep]
     
-        if 'invm' in self.chainPart['invMassInfo']:
-            steps=stepDictionary['invM']
-            for step_level in steps:
-                for step in step_level:
-                    chainstep = getattr(self, step)()
-                    chainSteps+=[chainstep]
-
         myChain = self.buildChain(chainSteps)
         return myChain
 
@@ -124,7 +115,6 @@ class MuonChainConfiguration(ChainConfigurationBase):
             "noL1":[[],['getFSmuEFSA', 'getFSmuEFCB']],
             "msonly":[['getmuFast', 'getmuMSEmpty'], ['getmuEFMS']],
             "ivarmedium":[['getmuFast', 'getmuComb'], ['getmuEFSA', 'getmuEFCB', 'getmuEFIso']],
-            "invM":[[],['getmuInvM']],
             "lateMu":[[],['getLateMuRoI','getLateMu']],
             "Dr": [['getmuFastDr', 'getmuCombDr']],
             "muoncalib":[['getmuFast']]
@@ -192,7 +182,11 @@ class MuonChainConfiguration(ChainConfigurationBase):
 
     # --------------------
     def getmuEFCB(self):
-        return self.getStep(4,'EFCB', [muEFCBSequenceCfg])
+
+        if 'invm' in self.chainPart['invMassInfo']:
+            return self.getStep(4,'EFCB', [muEFCBSequenceCfg], comboTools=[TrigMuonEFInvMassHypoToolFromDict])
+        else:
+            return self.getStep(4,'EFCB', [muEFCBSequenceCfg])
  
     # --------------------
     def getFSmuEFSA(self):
@@ -222,10 +216,6 @@ class MuonChainConfiguration(ChainConfigurationBase):
     def getEFCBEmpty(self):
         return self.getStep(6,'EFCBEmpty',[])
     
-    #--------------------
-    def getmuInvM(self):
-        return self.getStep(5,'muInvM',[muEFCBInvMSequenceCfg])
-        
     #--------------------
     def getLateMuRoI(self):
         return self.getStep(1,'muEFLateRoI',[muEFLateRoISequenceCfg])
