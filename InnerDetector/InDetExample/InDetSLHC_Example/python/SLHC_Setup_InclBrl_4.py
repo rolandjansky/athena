@@ -43,7 +43,10 @@ class SLHC_Setup_XMLReader :
                                  )          
         else:
             print "WARNING! No recognised value of SLHC_Flags.LayoutOption found. (SLHC_Flags.LayoutOption =",SLHC_Flags.LayoutOption,"). Using generic names "
-            SLHC_Setup_XMLReader(PixelModules = "ITK_PixelModules",
+            SLHC_Setup_XMLReader(PixelLayout = "InclBrl4Ref",
+                                 PixelEndcapLayout = "ECRing4Ref",
+                                 PixelModules = "ITK_PixelModules",
+                                 #SCTLayout = "",
                                  dictionaryFileName = "InDetIdDictFiles/IdDictInnerDetector_SLHC_InclBrl_4.xml",
                                  createXML = True,
                                  doPix=True,
@@ -126,14 +129,14 @@ class SLHC_Setup :
                 }
         else:
             xmlFileDict["Pixel"]={
-                "PIXELGENERAL":"PixelGeneral",
-                "PIXELSIMPLESERVICE":"PixelSimpleService",
+                "PIXELGENERAL":"InclBrl4_PixelGeneral",
+                "PIXELSIMPLESERVICE":"InclBrl_PixelSimpleService",
                 "SILICONMODULES":"ITK_PixelModules",
                 "SILICONREADOUT":"PixelModuleReadout",
-                "STAVESUPPORT":"SlimStaveSupport",
-                "PIXELDISCSUPPORT":"DiskSupport",
-                "MATERIAL":"Material",
-                "PIXELROUTINGSERVICE":"PixelRoutingService",
+                "STAVESUPPORT":"InclBrl4_StaveSupport",
+                "PIXELDISCSUPPORT":"InclBrl4_DiskSupport",
+                "MATERIAL":"InclBrl_Material",
+                "PIXELROUTINGSERVICE":"InclBrl4_PixelRoutingService",
                 }
 
 
