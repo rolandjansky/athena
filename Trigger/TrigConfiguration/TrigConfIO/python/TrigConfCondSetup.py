@@ -1,6 +1,6 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
-from TrigConfIO.TransformXML2JSON import transformXML2Json
 
 def setupMenuProvider():
 
@@ -27,7 +27,7 @@ def setupMenuProvider():
     condSequence += TrigConf__L1MenuCondAlg( InputType = l1InputType,
                                              JsonFileName = l1JsonFile
     )
-    msg.info("Configured L1MenuCondAlg with InputType=%s and JsonFileName=%s" % (l1InputType, l1JsonFile))
+    msg.info("Configured L1MenuCondAlg with InputType=%s and JsonFileName=%s", l1InputType, l1JsonFile)
 
 
     # HLT menu setup
@@ -43,4 +43,4 @@ def setupMenuProvider():
     condSequence += TrigConf__HLTMenuCondAlg( InputType = hltInputType,
                                               JsonFileName = hltJsonFile
     )
-    msg.info("Configured HLTMenuCondAlg with InputType=%s and JsonFileName=%s" % (hltInputType, hltJsonFile))
+    msg.info("Configured HLTMenuCondAlg with InputType=%s and JsonFileName=%s", hltInputType, hltJsonFile)
