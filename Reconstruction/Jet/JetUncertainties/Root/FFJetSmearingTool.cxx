@@ -256,7 +256,7 @@ CP::SystematicCode FFJetSmearingTool::applySystematicVariation
 StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings){
 
     std::unique_ptr<TFile> data_file ( TFile::Open(m_HistogramsFilePath.c_str()));
-    if(!data_file){
+    if(!data_file || data_file->IsZombie()){
         ATH_MSG_FATAL( "Could not open the first input file: " << m_HistogramsFilePath );
         return StatusCode::FAILURE;
     }
@@ -374,7 +374,7 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
 
 
     std::unique_ptr<TFile> Calo_TA_weight_file ( TFile::Open(Calo_TA_weight_file_path));
-    if(!Calo_TA_weight_file){
+    if(!Calo_TA_weight_file || Calo_TA_weight_file->IsZombie()){
         ATH_MSG_FATAL( "Could not open the first input file: " << Calo_TA_weight_file_path );
         return StatusCode::FAILURE;
     }
