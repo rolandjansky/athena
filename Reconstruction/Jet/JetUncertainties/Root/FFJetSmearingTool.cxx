@@ -561,15 +561,15 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
     ATH_MSG_VERBOSE("Reco Jet to Smear: pt = " << jet_reco->pt()/1000. << ", mass = " << jet_reco->m()/1000. << ", eta = " << jet_reco->eta());
 
     if(std::abs(jet_reco->eta()) > m_EtaRange){//JetCalibTools do not properly for jets with |eta|>2
-      ATH_MSG_VERBOSE("This jet exceeds the eta range that the tool allows (|eta|<" << m_EtaRange << ")");
-      return CP::CorrectionCode::OutOfValidityRange; 
+        ATH_MSG_INFO("This jet exceeds the eta range that the tool allows (|eta|<" << m_EtaRange << ")");
+        return CP::CorrectionCode::OutOfValidityRange; 
     }
     if(jet_reco->m()/1000. > m_MassRange){
-        ATH_MSG_VERBOSE("This jet exceeds the mass range that the tool allows jet_mass <" << m_MassRange << " GeV)");
+        ATH_MSG_DEBUG("This jet exceeds the mass range that the tool allows jet_mass <" << m_MassRange << " GeV)");
         return CP::CorrectionCode::OutOfValidityRange;
     }
     if(jet_reco->pt()/1000. > m_PtRange){
-        ATH_MSG_VERBOSE("This jet exceeds the pt range that the tool allows jet_pt <" << m_PtRange << " GeV)");
+        ATH_MSG_DEBUG("This jet exceeds the pt range that the tool allows jet_pt <" << m_PtRange << " GeV)");
         return CP::CorrectionCode::OutOfValidityRange;
     }
 
@@ -700,7 +700,9 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
     }
 
     if(m_MassDef==FFAllowedMassDef::Comb || m_MassDef==FFAllowedMassDef::TA){
-        getJMSJMR( jet_reco, jet_mass_TA, FFAllowedMassDef::TA,jetTopology, JMS_err, JMR_err);
+        if(!(getJMSJMR( jet_reco, jet_mass_TA, FFAllowedMassDef::TA,jetTopology, JMS_err, JMR_err))){
+            return CP::CorrectionCode::Ok;
+        }
 
         scale = JMS + JMS_err;
         resolution = JMR + JMR_err;
