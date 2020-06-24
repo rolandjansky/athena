@@ -37,7 +37,7 @@ namespace Muon {
     
     StatusCode calibrateClus(const Muon::MMPrepData* prepData, const Amg::Vector3D& globalPos, std::vector<NSWCalib::CalibratedStrip>& calibClus) const;
     StatusCode calibrateStrip(const double time,  const double charge, const Amg::Vector3D& globalPos, const double lorentzAngle, NSWCalib::CalibratedStrip& calibStrip) const;
-    StatusCode calibrateStrip(const Muon::MM_RawData* mmRawData, const Amg::Vector3D& globalPos, NSWCalib::CalibratedStrip& calibStrip) const;
+    StatusCode calibrateStrip(const Muon::MM_RawData* mmRawData, NSWCalib::CalibratedStrip& calibStrip) const;
     virtual StatusCode initialize();
     virtual StatusCode finalize();
 
@@ -45,7 +45,8 @@ namespace Muon {
   private:
 
     ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
-
+    const MuonGM::MuonDetectorManager * m_muonMgr;
+    
     ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
 
     StatusCode initializeGasProperties();

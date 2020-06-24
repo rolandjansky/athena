@@ -1,7 +1,8 @@
 #include "NSWCalibTool.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/PhysicalConstants.h"
-
+#include "StoreGate/StoreGateSvc.h"
+#include "MuonReadoutGeometry/MMReadoutElement.h"
 
 namespace {
   static constexpr double const& toRad = M_PI/180;
@@ -36,6 +37,7 @@ Muon::NSWCalibTool::NSWCalibTool(const std::string& t,
 				  const IInterface* p ) :
   AthAlgTool(t,n,p),
   m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
+  m_muonMgr(0),
   m_magFieldSvc("AtlasFieldSvc",n)
 {
   declareInterface<INSWCalibTool>(this);
@@ -59,13 +61,25 @@ StatusCode Muon::NSWCalibTool::initialize()
   ATH_CHECK(m_magFieldSvc.retrieve());
   // initialize the MuonIdHelperTool and check the configuration
   ATH_CHECK(m_idHelperTool.retrieve());
-
   if ( !(m_idHelperTool->HasMM() && m_idHelperTool->HasSTgc() ) ) {
     ATH_MSG_ERROR("MuonIdHelperTool not properly configured, missing MM or STGC");
     return StatusCode::FAILURE;
   }
-
   ATH_CHECK(initializeGasProperties());
+
+  // get the detector descriptor manager
+  StoreGateSvc* detStore=0;
+  StatusCode sc = serviceLocator()->service("DetectorStore", detStore);   
+  if (sc.isSuccess()) {
+    sc = detStore->retrieve( m_muonMgr );
+    if (sc.isFailure()) {
+      ATH_MSG_FATAL(" Cannot retrieve MuonReadoutGeometry ");
+      return sc;
+    }
+  } else {
+    ATH_MSG_ERROR("DetectorStore not found ");
+    return sc;
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -133,8 +147,19 @@ StatusCode Muon::NSWCalibTool::calibrateStrip(const double time, const double ch
   return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::NSWCalibTool::calibrateStrip(const Muon::MM_RawData* mmRawData, const Amg::Vector3D& globalPos, NSWCalib::CalibratedStrip& calibStrip) const
+StatusCode Muon::NSWCalibTool::calibrateStrip(const Muon::MM_RawData* mmRawData, NSWCalib::CalibratedStrip& calibStrip) const
 {
+  Identifier rdoId = mmRawData->identify();
+  
+  //Get strip global pos
+  Identifier parentID =  m_idHelperTool->mmIdHelper().parentID(rdoId);
+  Identifier layId = m_idHelperTool->mmIdHelper().channelID(parentID, m_idHelperTool->mmIdHelper().multilayer(rdoId), m_idHelperTool->mmIdHelper().gasGap(rdoId),1);
+  Identifier prdId = m_idHelperTool->mmIdHelper().channelID(parentID, m_idHelperTool->mmIdHelper().multilayer(rdoId), m_idHelperTool->mmIdHelper().gasGap(rdoId),mmRawData->channel());
+  
+  const MuonGM::MMReadoutElement* detEl = m_muonMgr->getMMReadoutElement(layId);
+  Amg::Vector3D globalPos;
+  detEl->stripGlobalPosition(prdId,globalPos);
+  
   calibStrip.charge = mmRawData->charge();
   calibStrip.time = mmRawData->time() - globalPos.norm() * reciprocalSpeedOfLight + m_timeOffset;
   calibStrip.identifier = mmRawData->identify();
