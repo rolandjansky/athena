@@ -30,6 +30,12 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 find_package( tdaq-common COMPONENTS eformat_write )
 
 # Component(s) in the package:
+atlas_add_library( TrigT1CaloByteStreamLib
+                   TrigT1CaloByteStream/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS TrigT1CaloByteStream
+                   LINK_LIBRARIES AsgTools AthContainers GaudiKernel xAODTrigL1Calo )
+
 atlas_add_component( TrigT1CaloByteStream
                      src/*.cxx
                      src/xaod/*.cxx
@@ -44,6 +50,4 @@ atlas_add_dictionary( TrigT1CaloByteStreamDict
                       LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${ROOT_LIBRARIES} AsgTools AthContainers xAODTrigL1Calo GaudiKernel AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test EventInfo ZdcByteStreamLib TrigT1CaloEventLib TrigT1CaloUtilsLib TrigT1Interfaces )
 
 # Install files from the package:
-atlas_install_headers( TrigT1CaloByteStream )
 atlas_install_joboptions( share/*.py )
-
