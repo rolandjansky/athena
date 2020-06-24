@@ -255,10 +255,9 @@ CP::SystematicCode FFJetSmearingTool::applySystematicVariation
 
 StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings){
 
-
-    TFile data_file(m_HistogramsFilePath.c_str(),"READ");
-    if(data_file.IsOpen()==false){
-        ATH_MSG_FATAL( "Unable to open " << m_HistogramsFilePath );
+    std::unique_ptr<TFile> data_file ( TFile::Open(m_HistogramsFilePath.c_str()));
+    if(!data_file){
+        ATH_MSG_FATAL( "Could not open the first input file: " << m_HistogramsFilePath );
         return StatusCode::FAILURE;
     }
 
@@ -273,7 +272,7 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
         return StatusCode::FAILURE;
     }
 
-    m_CALO_ResponseMap  = (TH2D*)data_file.Get( CaloResponseMap_path  );
+    m_CALO_ResponseMap  = (TH2D*)data_file->Get( CaloResponseMap_path  );
     m_CALO_ResponseMap->SetDirectory(0);
 
 
@@ -286,7 +285,7 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
             return StatusCode::FAILURE;
         }
 
-        m_TA_ResponseMap  = (TH2D*)data_file.Get( TAResponseMap_path   );
+        m_TA_ResponseMap  = (TH2D*)data_file->Get( TAResponseMap_path   );
         m_TA_ResponseMap->SetDirectory(0);//To keep it open when we close the .root file
     }
 
@@ -309,7 +308,7 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
             m_Syst_Affects_JMSorJMR[Syst_Name] = "JMS";
 
 
-            m_Syst_Hist_map[Syst_Name] = (TH2D*)data_file.Get(m_Syst_HistPath_map[Syst_Name].c_str());
+            m_Syst_Hist_map[Syst_Name] = (TH2D*)data_file->Get(m_Syst_HistPath_map[Syst_Name].c_str());
             m_Syst_Hist_map[Syst_Name]->SetDirectory(0);
 
 
@@ -333,14 +332,14 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
             m_Syst_Affects_JMSorJMR[Syst_Name] = "JMR";
 
 
-            m_Syst_Hist_map[Syst_Name] = (TH2D*)data_file.Get(m_Syst_HistPath_map[Syst_Name].c_str());
+            m_Syst_Hist_map[Syst_Name] = (TH2D*)data_file->Get(m_Syst_HistPath_map[Syst_Name].c_str());
             m_Syst_Hist_map[Syst_Name]->SetDirectory(0);
 
 
         }
     }
 
-    data_file.Close();
+    data_file->Close();
 
 
     //Read the Calo and TA mass weight histograms from the same file that JetUncertainties uses
@@ -374,21 +373,20 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
     ATH_MSG_INFO(Form("    Location: %s",Calo_TA_weight_file_path.Data()));
 
 
-
-    TFile Calo_TA_weight_file(Calo_TA_weight_file_path,"READ");
-    if(Calo_TA_weight_file.IsOpen()==false){
-        ATH_MSG_FATAL( "Unable to open " << Calo_TA_weight_file_path );
+    std::unique_ptr<TFile> Calo_TA_weight_file ( TFile::Open(Calo_TA_weight_file_path));
+    if(!Calo_TA_weight_file){
+        ATH_MSG_FATAL( "Could not open the first input file: " << Calo_TA_weight_file_path );
         return StatusCode::FAILURE;
     }
 
-    m_caloMassWeight = (TH3F*)Calo_TA_weight_file.Get(Calo_weight_hist_name);
-    m_TAMassWeight = (TH3F*)Calo_TA_weight_file.Get(TA_weight_hist_name);
+    m_caloMassWeight = (TH3F*)Calo_TA_weight_file->Get(Calo_weight_hist_name);
+    m_TAMassWeight = (TH3F*)Calo_TA_weight_file->Get(TA_weight_hist_name);
 
     m_caloMassWeight->SetDirectory(0);
     m_TAMassWeight->SetDirectory(0);//To keep it open when we close the .root file
 
 
-    Calo_TA_weight_file.Close();
+    Calo_TA_weight_file->Close();
 
     return StatusCode::SUCCESS;
 }
