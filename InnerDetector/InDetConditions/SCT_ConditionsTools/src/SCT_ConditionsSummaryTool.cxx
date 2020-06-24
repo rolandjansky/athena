@@ -166,14 +166,26 @@ SCT_ConditionsSummaryTool::goodFraction(const IdentifierHash& /*elementHash*/, c
 }
 
 bool
-SCT_ConditionsSummaryTool::isBSActive(const IdentifierHash& /*elementHash*/) const {
-  ATH_MSG_WARNING("isBSActive() is not implemented for SCT_ConditionsSummaryTool");
+SCT_ConditionsSummaryTool::hasBSError(const IdentifierHash& /*elementHash*/) const {
+  ATH_MSG_WARNING("hasBSError() is not implemented for SCT_ConditionsSummaryTool");
   return true;
 }
 
 bool
-SCT_ConditionsSummaryTool::isBSActive(const IdentifierHash& /*elementHash*/, const EventContext& /*ctx*/) const {
-  ATH_MSG_WARNING("isBSActive() is not implemented for SCT_ConditionsSummaryTool");
+SCT_ConditionsSummaryTool::hasBSError(const IdentifierHash& /*elementHash*/, Identifier /*elementId*/) const {
+  ATH_MSG_WARNING("hasBSError() is not implemented for SCT_ConditionsSummaryTool");
+  return true;
+}
+
+bool
+SCT_ConditionsSummaryTool::hasBSError(const IdentifierHash& /*elementHash*/, const EventContext& /*ctx*/) const {
+  ATH_MSG_WARNING("hasBSError() is not implemented for SCT_ConditionsSummaryTool");
+  return true;
+}
+
+bool
+SCT_ConditionsSummaryTool::hasBSError(const IdentifierHash& /*elementHash*/, Identifier /*elementId*/, const EventContext& /*ctx*/) const {
+  ATH_MSG_WARNING("hasBSError() is not implemented for SCT_ConditionsSummaryTool");
   return true;
 }
 

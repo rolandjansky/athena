@@ -60,12 +60,11 @@ class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool
     virtual bool isGood(const IdentifierHash& moduleHash, const Identifier& elementId, const EventContext& ctx) const override final;
     virtual double goodFraction(const IdentifierHash & moduleHash, const Identifier & idStart, const Identifier & idEnd, const EventContext& ctx) const override final;
 
-    virtual bool isBSActive(const IdentifierHash& moduleHash) const override final;
-    virtual bool isBSActive(const IdentifierHash& moduleHash, const EventContext& ctx) const override final;
+    virtual bool hasBSError(const IdentifierHash& moduleHash) const override final;
+    virtual bool hasBSError(const IdentifierHash& moduleHash, Identifier pixid) const override final;
+    virtual bool hasBSError(const IdentifierHash& moduleHash, const EventContext& ctx) const override final;
+    virtual bool hasBSError(const IdentifierHash& moduleHash, Identifier pixid, const EventContext& ctx) const override final;
     virtual uint64_t getBSErrorWord(const IdentifierHash& moduleHash, const EventContext& ctx) const override final;
-
-    bool hasBSError(const IdentifierHash& moduleHash, const EventContext& ctx) const;
-    bool hasBSError(const IdentifierHash& moduleHash, Identifier pixid, const EventContext& ctx) const;
 
     bool checkChipStatus(IdentifierHash moduleHash, Identifier pixid) const;
     bool checkChipStatus(IdentifierHash moduleHash, Identifier pixid, const EventContext& ctx) const;
@@ -107,17 +106,10 @@ class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool
     struct IDCCacheEntry {
       EventContext::ContextEvt_t eventId = EventContext::INVALID_CONTEXT_EVT; // invalid event ID for the start
       const IDCInDetBSErrContainer_Cache* IDCCache = nullptr;
-      // infomations in granularity of Chips
-      // misisng value mean that the map need updating
-      // 0 as the value denotes no error
-      std::map<Identifier, unsigned int> tempMaskedChips;
-      std::map<Identifier, unsigned int> abcdErrorChips;
 
       void reset( EventContext::ContextEvt_t evtId, const IDCInDetBSErrContainer_Cache* cache) {
         eventId = evtId;
         IDCCache   = cache;
-        tempMaskedChips.clear();
-        abcdErrorChips.clear();
       }
 
       bool needsUpdate( const EventContext& ctx) const {

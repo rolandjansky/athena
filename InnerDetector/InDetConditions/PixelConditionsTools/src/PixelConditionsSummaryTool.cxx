@@ -109,6 +109,16 @@ uint64_t PixelConditionsSummaryTool::getBSErrorWord(const IdentifierHash& module
   return word<std::numeric_limits<uint64_t>::max()-3000000000 ? word : 0;
 }
 
+bool PixelConditionsSummaryTool::hasBSError(const IdentifierHash& moduleHash) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return hasBSError(moduleHash, ctx);
+}
+
+bool PixelConditionsSummaryTool::hasBSError(const IdentifierHash& moduleHash, Identifier pixid) const {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return hasBSError(moduleHash, pixid, ctx);
+}
+
 bool PixelConditionsSummaryTool::hasBSError(const IdentifierHash& moduleHash, const EventContext& ctx) const {
   if (!m_useByteStream) { return false; }
 
@@ -152,16 +162,6 @@ bool PixelConditionsSummaryTool::hasBSError(const IdentifierHash& moduleHash, Id
   return false;
 }
 
-bool PixelConditionsSummaryTool::isBSActive(const IdentifierHash & moduleHash) const {
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
-  return isBSActive(moduleHash, ctx);
-}
-
-bool PixelConditionsSummaryTool::isBSActive(const IdentifierHash & moduleHash, const EventContext& ctx) const {
-  if (m_useByteStream && hasBSError(moduleHash, ctx)) { return false; }
-  return true;
-}
-
 bool PixelConditionsSummaryTool::isActive(const Identifier& elementId, const InDetConditions::Hierarchy h) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   return isActive(elementId, h, ctx);
@@ -183,7 +183,7 @@ bool PixelConditionsSummaryTool::isActive(const Identifier& /*elementId*/, const
 
 bool PixelConditionsSummaryTool::isActive(const IdentifierHash& moduleHash, const EventContext& ctx) const {
 
-  if (m_useByteStream && !isBSActive(moduleHash,ctx)) { return false; }
+  if (m_useByteStream && hasBSError(moduleHash, ctx)) { return false; }
 
   SG::ReadCondHandle<PixelDCSStateData> dcsstate_data(m_condDCSStateKey,ctx);
   bool isDCSActive = false;
@@ -201,7 +201,7 @@ bool PixelConditionsSummaryTool::isActive(const IdentifierHash& moduleHash, cons
 
 bool PixelConditionsSummaryTool::isActive(const IdentifierHash& moduleHash, const Identifier& elementId, const EventContext& ctx) const {
 
-  if (m_useByteStream && !isBSActive(moduleHash,ctx)) { return false; }
+  if (m_useByteStream && hasBSError(moduleHash, ctx)) { return false; }
 
   SG::ReadCondHandle<PixelDCSStateData> dcsstate_data(m_condDCSStateKey,ctx);
   bool isDCSActive = false;

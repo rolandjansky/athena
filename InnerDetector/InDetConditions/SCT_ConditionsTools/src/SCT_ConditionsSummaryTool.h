@@ -61,8 +61,10 @@ public:
   virtual bool isGood(const IdentifierHash& elementHash, const Identifier& elementId, const EventContext& ctx) const override;
   virtual double goodFraction(const IdentifierHash& elementHash, const Identifier& idStart, const Identifier& idEnd, const EventContext& ctx) const override;
 
-  virtual bool isBSActive(const IdentifierHash& moduleHash) const override;
-  virtual bool isBSActive(const IdentifierHash& moduleHash, const EventContext& ctx) const override;
+  virtual bool hasBSError(const IdentifierHash& elementHash) const override;
+  virtual bool hasBSError(const IdentifierHash& elementHash, Identifier elementId) const override;
+  virtual bool hasBSError(const IdentifierHash& elementHash, const EventContext& ctx) const override;
+  virtual bool hasBSError(const IdentifierHash& elementHash, Identifier elementId, const EventContext& ctx) const override;
   virtual uint64_t getBSErrorWord(const IdentifierHash& moduleHash, const EventContext& ctx) const  override;
   //@}
 private:
