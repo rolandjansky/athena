@@ -272,7 +272,7 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
         return StatusCode::FAILURE;
     }
 
-    m_CALO_ResponseMap  = (TH2D*)data_file->Get( CaloResponseMap_path  );
+    m_CALO_ResponseMap  = dynamic_cast<TH2D*>(data_file->Get( CaloResponseMap_path ));
     m_CALO_ResponseMap->SetDirectory(0);
 
 
@@ -285,7 +285,7 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
             return StatusCode::FAILURE;
         }
 
-        m_TA_ResponseMap  = (TH2D*)data_file->Get( TAResponseMap_path   );
+        m_TA_ResponseMap  = dynamic_cast<TH2D*>(data_file->Get( TAResponseMap_path ));
         m_TA_ResponseMap->SetDirectory(0);//To keep it open when we close the .root file
     }
 
@@ -308,7 +308,7 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
             m_Syst_Affects_JMSorJMR[Syst_Name] = "JMS";
 
 
-            m_Syst_Hist_map[Syst_Name] = (TH2D*)data_file->Get(m_Syst_HistPath_map[Syst_Name].c_str());
+            m_Syst_Hist_map[Syst_Name] = dynamic_cast<TH2D*>(data_file->Get(m_Syst_HistPath_map[Syst_Name].c_str()));
             m_Syst_Hist_map[Syst_Name]->SetDirectory(0);
 
 
@@ -332,7 +332,7 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
             m_Syst_Affects_JMSorJMR[Syst_Name] = "JMR";
 
 
-            m_Syst_Hist_map[Syst_Name] = (TH2D*)data_file->Get(m_Syst_HistPath_map[Syst_Name].c_str());
+            m_Syst_Hist_map[Syst_Name] = dynamic_cast<TH2D*>(data_file->Get(m_Syst_HistPath_map[Syst_Name].c_str()));
             m_Syst_Hist_map[Syst_Name]->SetDirectory(0);
 
 
@@ -379,8 +379,8 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
         return StatusCode::FAILURE;
     }
 
-    m_caloMassWeight = (TH3F*)Calo_TA_weight_file->Get(Calo_weight_hist_name);
-    m_TAMassWeight = (TH3F*)Calo_TA_weight_file->Get(TA_weight_hist_name);
+    m_caloMassWeight = dynamic_cast<TH3F*>(Calo_TA_weight_file->Get(Calo_weight_hist_name));
+    m_TAMassWeight = dynamic_cast<TH3F*>(Calo_TA_weight_file->Get(TA_weight_hist_name));
 
     m_caloMassWeight->SetDirectory(0);
     m_TAMassWeight->SetDirectory(0);//To keep it open when we close the .root file
