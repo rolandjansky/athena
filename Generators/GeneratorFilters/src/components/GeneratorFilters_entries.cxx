@@ -89,6 +89,12 @@
 #include "GeneratorFilters/MissingEtFilter.h"
 #include "GeneratorFilters/TrimuMassRangeFilter.h"
 #include "GeneratorFilters/MultiBjetFilter.h"
+#include "GeneratorFilters/ParentsTracksFilter.h"
+#include "GeneratorFilters/SplitPhotonFilter.h"
+#include "GeneratorFilters/TripletChainFilter.h"
+#include "GeneratorFilters/TransverseMassVVFilter.h"
+#include "GeneratorFilters/TTbarWithJpsimumuFilter.h"
+#include "GeneratorFilters/TTbarLJetsVptFilter.h"
 
 DECLARE_ALGORITHM_FACTORY(ElectronFilter)
 DECLARE_ALGORITHM_FACTORY(LeptonFilter)
@@ -176,6 +182,13 @@ DECLARE_ALGORITHM_FACTORY(HTFilter)
 DECLARE_ALGORITHM_FACTORY(MissingEtFilter)
 DECLARE_ALGORITHM_FACTORY(TrimuMassRangeFilter)
 DECLARE_ALGORITHM_FACTORY(MultiBjetFilter)
+DECLARE_ALGORITHM_FACTORY(ParentsTracksFilter)
+DECLARE_ALGORITHM_FACTORY(SplitPhotonFilter)
+DECLARE_ALGORITHM_FACTORY(TripletChainFilter)
+DECLARE_ALGORITHM_FACTORY(TransverseMassVVFilter)
+DECLARE_ALGORITHM_FACTORY(TTbarWithJpsimumuFilter)
+DECLARE_ALGORITHM_FACTORY(TTbarLJetsVptFilter)
+
 
 DECLARE_FACTORY_ENTRIES(GeneratorFilters) {
     DECLARE_ALGORITHM(LeptonFilter)
@@ -263,5 +276,12 @@ DECLARE_FACTORY_ENTRIES(GeneratorFilters) {
     DECLARE_ALGORITHM(MissingEtFilter)
     DECLARE_ALGORITHM(TrimuMassRangeFilter)
     DECLARE_ALGORITHM(MultiBjetFilter)
+    DECLARE_ALGORITHM(ParentsTracksFilter)  
+    DECLARE_ALGORITHM(SplitPhotonFilter)  
+    DECLARE_ALGORITHM(TripletChainFilter)
+    DECLARE_ALGORITHM(TransverseMassVVFilter)
+    DECLARE_ALGORITHM(TTbarWithJpsimumuFilter)
+    DECLARE_ALGORITHM(TTbarLJetsVptFilter)
+
 }
 
