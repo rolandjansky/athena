@@ -499,7 +499,8 @@ StatusCode FFJetSmearingTool::getJMSJMR( xAOD::Jet* jet_reco, double jet_mass_va
 
     // For now, assuming there is only one (affecting) systematic at a time.	
     if(m_sysConfig->size() != 1){
-        throw std::logic_error("More than one affecting systematic received");
+        ATH_MSG_ERROR("More than one affecting systematic received. Please, use just one affecting systematic at a time.");
+        return StatusCode::FAILURE;
     }
     const CP::SystematicVariation& sys = *m_sysConfig->begin();
 
@@ -678,7 +679,10 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
     bool is_TA_mass_smeared = false;
 
     if(m_MassDef==FFAllowedMassDef::Comb || m_MassDef==FFAllowedMassDef::Calo){
-        getJMSJMR( jet_reco, jet_mass_CALO, FFAllowedMassDef::Calo,jetTopology, JMS_err, JMR_err);	
+
+        if(!(getJMSJMR( jet_reco, jet_mass_CALO, FFAllowedMassDef::Calo,jetTopology, JMS_err, JMR_err)).isSuccess()){
+            return CP::CorrectionCode::Ok;
+        }	
 
         scale = JMS + JMS_err;
         resolution = JMR + JMR_err;
