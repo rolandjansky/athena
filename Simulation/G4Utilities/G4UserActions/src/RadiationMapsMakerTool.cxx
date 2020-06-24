@@ -546,8 +546,8 @@ namespace G4UA{
 	  hname += (int)((j+1)*360./m_config.nBinsdphi);
 	  hThetaSpec->SetTitle(hname.Data());
 	  // normalize to volume element per bin
-	  for(int k=0;i<hThetaSpec->GetNbinsX();i++) { 
-	    for(int l=0;j<hThetaSpec->GetNbinsY();j++) {
+	  for(int k=0;k<hThetaSpec->GetNbinsX();k++) { 
+	    for(int l=0;l<hThetaSpec->GetNbinsY();l++) {
 	      double r0=hThetaSpec->GetYaxis()->GetBinLowEdge(l+1);
 	      double r1=hThetaSpec->GetYaxis()->GetBinUpEdge(l+1);
 	      double z0=hThetaSpec->GetXaxis()->GetBinLowEdge(k+1);
