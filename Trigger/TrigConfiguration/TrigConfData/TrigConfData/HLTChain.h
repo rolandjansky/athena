@@ -50,7 +50,7 @@ namespace TrigConf {
       std::vector<std::string> l1thresholds() const;
 
       /** Accessor to the connected output streams */
-      std::vector<DataStructure> streams() const;
+      std::vector<std::string> streams() const;
 
       /** Accessor to the groups this chain belongs to */
       std::vector<std::string> groups() const;

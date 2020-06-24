@@ -15,7 +15,6 @@ atlas_add_poolcnv_library( TrkEventAthenaPoolPoolCnv
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
-atlas_install_python_modules( python/*.py )
 
 # Set up (a) test(s) for the converter(s):
 find_package( AthenaPoolUtilitiesTest )

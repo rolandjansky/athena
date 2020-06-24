@@ -41,16 +41,16 @@ class LArReadCells: public ::AthAlgorithm {
    int m_bcid; 
    int m_error;
    int m_ncells;
-   float m_ECell[250000];
-   float m_TCell[250000];
-   float m_EtaCell[250000];
-   float m_PhiCell[250000];
-   int   m_LayerCell[250000];
-   int   m_ProvCell[250000];
-   int   m_QuaCell[250000];
-   int   m_GainCell[250000];
-   int   m_HwidCell[250000];
-   int   m_ADC[250000][32];
+   std::vector<float> m_ECell     { 250000 };
+   std::vector<float> m_TCell     { 250000 };
+   std::vector<float> m_EtaCell   { 250000 };
+   std::vector<float> m_PhiCell   { 250000 };
+   std::vector<int>   m_LayerCell { 250000 };
+   std::vector<int>   m_ProvCell  { 250000 };
+   std::vector<int>   m_QuaCell   { 250000 };
+   std::vector<int>   m_GainCell  { 250000 };
+   std::vector<int>   m_HwidCell  { 250000 };
+   std::vector<int[32]> m_ADC     { 250000 };
 
     SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
     SG::ReadCondHandleKey<ILArPedestal> m_pedestalKey{this,"PedestalKey","LArPedestal","SG Key of Pedestal conditions object"};

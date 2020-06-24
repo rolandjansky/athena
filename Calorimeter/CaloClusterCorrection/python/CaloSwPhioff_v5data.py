@@ -1,7 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#
-# $Id: CaloSwPhioff_v5data.py 579457 2014-01-21 21:20:22Z ehill $
 #
 # File: CaloClusterCorrection/python/CaloSwPhioff_v5_data.py
 # Created: Sep 2010, sss
@@ -33,6 +31,7 @@ def _flip_phi (corr):
     
 def _copy_parms (src, dst):
     for (k, v) in src.__dict__.items():
+        if k[0] == '_': continue
         if k == 'correction':
             v = _flip_phi (v)
         setattr (dst, k, v)

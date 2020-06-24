@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -8,10 +8,6 @@
    i.e. position, surface, weights, intersection, derivatives, residual etc
  ***************************************************************************/
 
-#include <cmath>
-#include <iomanip>
-#include <iostream>
-// #include "EventPrimitives/EventPrimitives.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/SystemOfUnits.h"
@@ -33,6 +29,10 @@
 #include "TrkTrack/AlignmentEffectsOnTrack.h"
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkiPatFitterUtils/FitMeasurement.h"
+
+#include <cmath>
+#include <iomanip>
+#include <iostream>
 
 namespace Trk{
   
@@ -1017,21 +1017,7 @@ void
 FitMeasurement::intersection (ExtrapolationType type,
 			      const TrackSurfaceIntersection* value)
 {
-    // by convention: FittedTrajectory clears out the previous intersections
-//     if (type == FittedTrajectory)
-//     {
-// 	for (int typ = 0; typ != ExtrapolationTypes; ++typ)
-// 	{
-// 	    if (! m_intersection[typ]) continue;
-// 	    delete m_intersection[typ];
-// 	    m_intersection[typ] = 0;
-// 	}
-//     }
-//     else
-    {
-	delete m_intersection[type];
-    }
-    
+    if (type!=FittedTrajectory) delete m_intersection[type];
     m_intersection[type] = value;
 }
 

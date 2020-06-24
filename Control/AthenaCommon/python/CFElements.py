@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.Configurable import Configurable
@@ -313,16 +313,20 @@ class TestLegacyCF( unittest.TestCase, TestCF ):
         from AthenaCommon.Configurable import ConfigurablePyAlgorithm
         Configurable.configurableRun3Behavior=0
         top = parOR("top")
-        top += parOR("nest1")
-        nest2 = seqAND("nest2")
-        top += nest2
-        top += ConfigurablePyAlgorithm("SomeAlg0")
-        nest2 += parOR("deep_nest1")
-        nest2 += parOR("deep_nest2")
 
-        nest2 += ConfigurablePyAlgorithm("SomeAlg1")
-        nest2 += ConfigurablePyAlgorithm("SomeAlg2")
-        nest2 += ConfigurablePyAlgorithm("SomeAlg3")
+        # Skip initialization if it's already been done... otherwise, we'll
+        # get errors about duplicates.
+        if not top.getChildren():
+            top += parOR("nest1")
+            nest2 = seqAND("nest2")
+            top += nest2
+            top += ConfigurablePyAlgorithm("SomeAlg0")
+            nest2 += parOR("deep_nest1")
+            nest2 += parOR("deep_nest2")
+
+            nest2 += ConfigurablePyAlgorithm("SomeAlg1")
+            nest2 += ConfigurablePyAlgorithm("SomeAlg2")
+            nest2 += ConfigurablePyAlgorithm("SomeAlg3")
         self.top = top
 
 

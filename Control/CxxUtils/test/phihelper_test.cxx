@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file CxxUtils/test/phihelper_test.cxx
@@ -64,6 +64,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_wrap, T, test_types)
   BOOST_TEST(wrapToPi<T>(-40.1 * PI) == wrapToPi<T>(-10.1 * PI));
 }
 
+// cppcheck-suppress unknownMacro
 BOOST_TEST_DECORATOR(TOLERANCE)
 BOOST_AUTO_TEST_CASE_TEMPLATE(test_delta, T, test_types)
 {

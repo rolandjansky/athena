@@ -29,6 +29,7 @@ def setupMenu():
 
     TriggerFlags.TestSlice.signatures = TriggerFlags.TestSlice.signatures() + []
 
+
     TriggerFlags.MuonSlice.signatures = TriggerFlags.MuonSlice.signatures() + [
         #ART-19985
         ChainProp(name='HLT_mu6_idperf_L1MU6', groups=SingleMuonGroup),

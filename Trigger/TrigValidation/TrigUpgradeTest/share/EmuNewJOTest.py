@@ -7,7 +7,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
 from AthenaCommon.Constants import INFO, DEBUG, VERBOSE
 from AthenaCommon.Logging import logging
-from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
+from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
 from TrigUpgradeTest.TriggerHistSvcConfig import TriggerHistSvcConfig
 from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg, TGCCablingConfigCfg
 from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvcCfg
@@ -31,7 +31,7 @@ flags.Trigger.L1Decoder.forceEnableAllChains = True
 flags.lock()
 
 acc = ComponentAccumulator()
-acc.merge(TrigBSReadCfg(flags))
+acc.merge(ByteStreamReadCfg(flags))
 acc.merge(TriggerHistSvcConfig(flags))
 
 l1DecoderAlg, OrigHLTChains = generateL1DecoderAndChains()

@@ -1,11 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
-
 /**
  * @file RootUtils/PyROOTTFilePythonize.h
  * @author Sebastien Binet
@@ -54,11 +50,14 @@ public:
 
   /** the buffer of bytes
    */
-  char* buf;
+  std::vector<char> buf;
 
   /** 
+   * After we drop py2, we can simplify the code in PyUtils.RootUtils.py
+   * by just returning a bytes object from here.
    */
-  void* buffer() const { return (void*)buf; }
+  void* buffer() const { return (void*)buf.data(); }
+
 };
 
 /** @brief read `len` bytes from file `f`

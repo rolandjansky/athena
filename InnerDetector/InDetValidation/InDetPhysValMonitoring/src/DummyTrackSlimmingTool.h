@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /* Dear emacs, this is -*-c++-*- */
@@ -37,6 +37,7 @@ public:
    */
   virtual Trk::Track* slim(const Trk::Track& track) const override;
   virtual std::unique_ptr<Trk::Track> slimCopy(const Trk::Track& track) const override;
+  virtual void slimTrack(Trk::Track&) const override;
 
 private:
 };

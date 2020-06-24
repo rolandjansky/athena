@@ -535,6 +535,8 @@ int main(int argc, char** argv)
   int nbl = -1;
 
   int nsiholes = 2;
+  int npixholes = 20; /// essentially no limit
+  int nsctholes = 20; /// essentially no limit
 
   bool expectBL = false;
 
@@ -590,6 +592,8 @@ int main(int argc, char** argv)
   if ( inputdata.isTagDefined("zed") )      zed      = inputdata.GetValue("zed");
   if ( inputdata.isTagDefined("npix") )     npix     = inputdata.GetValue("npix");
   if ( inputdata.isTagDefined("nsiholes") ) nsiholes = inputdata.GetValue("nsiholes");
+  if ( inputdata.isTagDefined("npixholes") ) npixholes = inputdata.GetValue("npixholes");
+  if ( inputdata.isTagDefined("nsctholes") ) nsctholes = inputdata.GetValue("nsctholes");
   if ( inputdata.isTagDefined("expectBL") ) expectBL = ( inputdata.GetValue("expectBL") > 0.5 ? true : false );
   if ( inputdata.isTagDefined("nsct") )     nsct     = inputdata.GetValue("nsct");
   if ( inputdata.isTagDefined("nbl") )      nbl      = inputdata.GetValue("nbl");
@@ -930,7 +934,7 @@ int main(int argc, char** argv)
   Filter_Track filter_offline( eta, 1000, zed, pT, 
                                npix, nsct, -1, nbl, 
                                -2, -2, chi2prob, 
-                               20, 20, nsiholes, expectBL ); /// include chi2 probability cut 
+                               npixholes, nsctholes, nsiholes, expectBL ); /// include chi2 probability cut 
 
   if ( selectcharge!=0 ) filter_offline.chargeSelection( selectcharge );
   if ( pTMax>pT )        filter_offline.maxpT( pTMax );

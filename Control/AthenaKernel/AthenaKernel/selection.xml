@@ -28,4 +28,8 @@
 
    <class name="SG::ThinningDecisionBase"/>
 
+   <class name="CondContBase"/>
+   <class name="CondContSingleBase"/>
+   <class name="CondContMixedBase"/>
+
 </lcgdict>

@@ -21,11 +21,11 @@ class LArSymConditionsAlg: public AthAlgorithm {
   //delegate to base-class ctor
   using AthAlgorithm::AthAlgorithm;
 
-  ~LArSymConditionsAlg()=default;
+  virtual ~LArSymConditionsAlg()=default;
 
-  StatusCode initialize() override;
-  StatusCode execute() override;
-  StatusCode finalize() {return StatusCode::SUCCESS;}
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override {return StatusCode::SUCCESS;}
 
  private:
   SG::ReadCondHandleKey<LArMCSym> m_mcSymKey{this,"LArMCSym","LArMCSym","Key of the LArMCSym symmetry table CDO"};

@@ -82,6 +82,8 @@ StatusCode SCT_DCSConditionsStatCondAlg::execute(const EventContext& ctx) const 
   std::unique_ptr<SCT_DCSStatCondData> writeCdoState{std::make_unique<SCT_DCSStatCondData>()};
 
   // Read state info
+  // Meaning of state word is found at
+  // https://twiki.cern.ch/twiki/bin/view/Atlas/SctDCSSoftware#Decoding_Status_words
   std::string paramState{"STATE"};
   CondAttrListCollection::const_iterator attrListState{readCdoState->begin()};
   CondAttrListCollection::const_iterator endState{readCdoState->end()};
@@ -92,11 +94,17 @@ StatusCode SCT_DCSConditionsStatCondAlg::execute(const EventContext& ctx) const 
     const CondAttrListCollection::AttributeList &payload{attrListState->second};
     if (payload.exists(paramState) and not payload[paramState].isNull()) {
       unsigned int val{payload[paramState].data<unsigned int>()};
-      unsigned int hvstate{val bitand 240};
-      unsigned int lvstate{val bitand 15};
-      if (   ( (m_chanstatCut=="NORM")  and not ((hvstate==16 or hvstate==48)                                and (lvstate==1 or lvstate==3))                             )
-          or ( (m_chanstatCut=="NSTBY") and not ((hvstate==16 or hvstate==48 or hvstate==32)                 and (lvstate==1 or lvstate==3 or lvstate==2))               )
-          or ( (m_chanstatCut=="LOOSE") and not ((hvstate==16 or hvstate==48 or hvstate==32 or hvstate==128) and (lvstate==1 or lvstate==3 or lvstate==2 or lvstate==8)) )) {
+      unsigned int hvstate{(val >> 4) & 0xF};
+      unsigned int lvstate{ val       & 0xF};
+      if (   ((m_chanstatCut=="NORM")  
+              and not ((hvstate==ON or hvstate==MANUAL)
+                       and (lvstate==ON or lvstate==MANUAL)))
+          or ((m_chanstatCut=="NSTBY")
+              and not ((hvstate==ON or hvstate==MANUAL or hvstate==STANDBY)
+                       and (lvstate==ON or lvstate==MANUAL or lvstate==STANDBY)))
+          or ((m_chanstatCut=="LOOSE")
+              and not ((hvstate==ON or hvstate==MANUAL or hvstate==STANDBY or hvstate==RAMPING)
+                       and (lvstate==ON or lvstate==MANUAL or lvstate==STANDBY or lvstate==RAMPING)))) {
         writeCdoState->fill(channelNumber, paramState);
       } else {
         writeCdoState->remove(channelNumber, paramState);

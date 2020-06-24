@@ -7,6 +7,15 @@ import re
 import collections
 import copy
 
+# collections.Sequence is deprecated as of python 3.3.
+# As of 3.9, need to get it from collections.abc.
+# But that doesn't exist in py2.
+try:
+    from collections import abc
+    Sequence = abc.Sequence
+except ImportError:
+    Sequence = collections.Sequence
+
 class AppendListSemantics(GaudiConfig2.semantics.SequenceSemantics):
     '''
     Extend the sequence-semantics with a merge-method that appends the lists
@@ -106,7 +115,7 @@ class PublicHandleArraySemantics(GaudiConfig2.semantics.PropertySemantics):
         super(PublicHandleArraySemantics, self).__init__(cpp_type,name)
         
     def store(self, value):
-        if not isinstance(value,collections.Sequence) and not isinstance(value,set):
+        if not isinstance(value,Sequence) and not isinstance(value,set):
             value=[value,]
 
         newValue=[]
@@ -172,7 +181,7 @@ class SubAlgoSemantics(GaudiConfig2.semantics.PropertySemantics):
         super(SubAlgoSemantics, self).__init__(cpp_type,name)
         
     def store(self,value):
-        if not isinstance(value,collections.Sequence):
+        if not isinstance(value,Sequence):
             value=[value,]
         
         for v in value:

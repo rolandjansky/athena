@@ -271,7 +271,8 @@ if doPixel:
 
     if not hasattr(condSeq, "PixelTDAQCondAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelTDAQCondAlg
-        condSeq += PixelTDAQCondAlg(name="PixelTDAQCondAlg")
+        condSeq += PixelTDAQCondAlg(name="PixelTDAQCondAlg",
+                                    ReadKey = '')
 
     #####################
     # Calibration Setup #
@@ -316,6 +317,7 @@ if doPixel:
     if not hasattr(condSeq, 'PixelCablingCondAlg'):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelCablingCondAlg
         condSeq += PixelCablingCondAlg(name="PixelCablingCondAlg",
+                                       ReadKey='',
                                        MappingFile=IdMappingDat,
                                        RodIDForSingleLink40=rodIDForSingleLink40)
 

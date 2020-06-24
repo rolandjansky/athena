@@ -142,6 +142,7 @@ namespace Athena_test {
 
     ++dh;
     assert (vp[0]->refCount() == 2);
+    // cppcheck-suppress postfixOperator
     dh2++;
     assert (vp[0]->refCount() == 1);
 
@@ -152,6 +153,7 @@ namespace Athena_test {
     assert (vp[0]->refCount() == 2);
     for (int i=1; i < 4; i++)
       assert (vp[i]->refCount() == 0);
+    // cppcheck-suppress postfixOperator
     dh3++;
     assert (vp[0]->refCount() == 1);
     assert (vp[1]->refCount() == 1);

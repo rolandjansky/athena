@@ -883,6 +883,10 @@ StatusCode EventSelectorAthenaPool::share(int evtnum) {
 
 //________________________________________________________________________________
 StatusCode EventSelectorAthenaPool::readEvent(int maxevt) {
+   if (m_eventStreamingTool.empty()) {
+      ATH_MSG_ERROR("No AthenaSharedMemoryTool configured for readEvent()");
+      return(StatusCode::FAILURE);
+   }
    ATH_MSG_VERBOSE("Called read Event " << maxevt);
    IEvtSelector::Context* ctxt = new EventContextAthenaPool(this);
    for (int i = 0; i < maxevt || maxevt == -1; ++i) {
@@ -905,11 +909,12 @@ StatusCode EventSelectorAthenaPool::readEvent(int maxevt) {
       while (m_athenaPoolCnvSvc->readData().isSuccess()) {
          ATH_MSG_VERBOSE("Called last readData, while marking last event in readEvent()");
       }
-// Nothing to do right now, trigger alternative (e.g. caching) here? Currently just fast loop.
+      usleep(1000);
       sc = m_eventStreamingTool->putEvent(0, 0, 0, 0);
    }
    if (!sc.isSuccess()) {
       ATH_MSG_ERROR("Cannot put last Event marker to AthenaSharedMemoryTool");
+      return(StatusCode::FAILURE);
    } else {
       sc = m_athenaPoolCnvSvc->readData();
       while (sc.isSuccess() || sc.isRecoverable()) {

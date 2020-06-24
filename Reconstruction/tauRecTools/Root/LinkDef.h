@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "tauRecTools/TauCalibrateLC.h"
@@ -15,7 +15,6 @@
 #include "tauRecTools/TauWPDecorator.h"
 #include "tauRecTools/TauJetBDTEvaluator.h"
 #include "tauRecTools/TauIDVarCalculator.h"
-#include "tauRecTools/TauEleOLRDecorator.h"
 #include "tauRecTools/TauJetRNNEvaluator.h"
 
 #ifdef __CINT__
@@ -24,10 +23,6 @@
 #pragma link off all classes;
 #pragma link off all functions;
 #pragma link C++ nestedclass;
-
-#endif
-
-#ifdef __CINT__
 
 #pragma link C++ class TauCalibrateLC+;
 #pragma link C++ class TauCommonCalcVars+;
@@ -44,7 +39,6 @@
 #pragma link C++ class TauWPDecorator+;
 #pragma link C++ class TauJetBDTEvaluator+;
 #pragma link C++ class TauIDVarCalculator+;
-#pragma link C++ class TauEleOLRDecorator+;
 #pragma link C++ class TauJetRNNEvaluator+;
 
 #endif

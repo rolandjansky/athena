@@ -28,7 +28,7 @@ public:
   const IGeometryDBSvc * db() const {return m_athenaComps->geomDB();}
 
   // Access to material manager 
-  InDetMaterialManager * matMgr() const {return m_matMgr;}
+  InDetMaterialManager * matMgr() {return m_matMgr;}
   
   
   // Access to message stream

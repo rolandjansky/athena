@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTMonitoringRun3/TRTMonitoringRun3ESD_Alg.h"
@@ -1115,7 +1115,6 @@ for (; p_trk != trackCollection.end(); ++p_trk) {
 }
 
 
-int maxtimestamp = 0.;
 //----------------------------------------------------------------------------------//
 StatusCode TRTMonitoringRun3ESD_Alg::fillTRTHighThreshold(const xAOD::TrackParticleContainer& trackCollection,
                                                      const xAOD::EventInfo& eventInfo) const {
@@ -1131,12 +1130,6 @@ StatusCode TRTMonitoringRun3ESD_Alg::fillTRTHighThreshold(const xAOD::TrackParti
     const Trk::Perigee *perigee = NULL;
     const DataVector<const Trk::TrackParameters> *AllTrkPar(0);
     DataVector<const Trk::TrackParameters>::const_iterator p_trkpariter;
-    int timeStamp;
-    timeStamp = eventInfo.timeStamp();
-
-    if (timeStamp > maxtimestamp) {
-        maxtimestamp = timeStamp;
-    }
 
     int runNumber;
     runNumber = eventInfo.runNumber();
