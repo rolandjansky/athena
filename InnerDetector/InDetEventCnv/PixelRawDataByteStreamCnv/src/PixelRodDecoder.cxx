@@ -931,8 +931,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
 
     } // end of switch
 
-//STSTST    if (offlineIdHash!=0xffffffff) { // now write the error word to the service
-    if (offlineIdHash!=InvalidHash) { // now write the error word to the service
+    if (offlineIdHash!=0xffffffff) { // now write the error word to the service
       if (bsErrCode) {
         int chFE = 0;
         if (isIBLModule || isDBMModule) {   // get FE channel id for IBL
