@@ -6,7 +6,7 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "TrigValAlgs/TrigEDMAuxChecker.h"
+#include "TrigEDMAuxChecker.h"
 #include <algorithm>
 TrigEDMAuxChecker::TrigEDMAuxChecker(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
