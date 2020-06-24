@@ -232,8 +232,10 @@ def getTruth3Collections(kernel) :
     addBosonsAndDownstreamParticles(kernel,1)
     #STEP5 INCLUDE special top collection with 1 generation below (custom)
     addTopQuarkAndDownstreamParticles(kernel,1)
-     #STEP6 hard scatter information (only one generation, so really ME...)
-    addHardScatterCollection(kernel)
+     #STEP6 hard scatter information 
+     ### generation=1 (only one generation, so really ME...)
+     ### generation=2 add both two VBF/VBS quarks in final state
+    addHardScatterCollection(kernel, 2)
      #STEP7 add PV information (up to ~60 vertices per event)
     addPVCollection(kernel)
      #STEP8 add custom tau collection with 1 generation below (custom)
