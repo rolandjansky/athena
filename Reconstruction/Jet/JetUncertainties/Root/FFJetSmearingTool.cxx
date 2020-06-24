@@ -256,11 +256,9 @@ CP::SystematicCode FFJetSmearingTool::applySystematicVariation
 StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings){
 
 
-    TString data_file_location =  m_HistogramsFilePath;//m_ConfigFile;
-
-    TFile data_file(data_file_location,"READ");
+    TFile data_file(m_HistogramsFilePath.c_str(),"READ");
     if(data_file.IsOpen()==false){
-        ATH_MSG_FATAL( "Unable to open " << data_file_location );
+        ATH_MSG_FATAL( "Unable to open " << m_HistogramsFilePath );
         return StatusCode::FAILURE;
     }
 
