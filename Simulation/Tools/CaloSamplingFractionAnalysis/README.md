@@ -5,7 +5,7 @@
 The sampling fractions input electrons are generated in release 21.6 as single electrons with a momentum of 50 GeV, injected at a radius of r=1.5m for the barrel and distance of z=3.7405m for the endcap
 ```
 setupATLAS
-asetup 21.6.18,AthGeneration
+asetup 21.6.31,AthGeneration
 Gen_tf.py  --ecmEnergy=13000 --firstEvent=1 --maxEvents=10 --randomSeed=1234 --jobConfig=athena/Simulation/Tools/CaloSamplingFractionAnalysis/share/PG_pid11_Mom50000_Radius1500000_eta_0_140 --outputEVNTFile=mc.PG_pid11_Mom50000_Radius1500000_eta_0_140.HITS.root
 Gen_tf.py  --ecmEnergy=13000 --firstEvent=1 --maxEvents=10 --randomSeed=1234 --jobConfig=athena/Simulation/Tools/CaloSamplingFractionAnalysis/share/PG_pid11_Mom50000_Z3740500_bec_eta_135_350 --outputEVNTFile=mc.PG_pid11_Mom50000_Z3740500_bec_eta_135_350.HITS.pool.root
 ```
