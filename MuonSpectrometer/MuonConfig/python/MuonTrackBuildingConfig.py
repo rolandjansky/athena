@@ -286,14 +286,44 @@ def MuonSegmentRegionRecoveryToolCfg(flags, name="MuonSegmentRegionRecoveryTool"
 
     # Not bothering to handle IDHelper or EDMHelper or HitSummaryTool. Default is okay.
     
-    from RegionSelector.RegSelConfig import regSelCfg
-    acc = regSelCfg(flags)
+    from RegionSelector.RegSelToolConfig import regSelTool_MDT_Cfg, regSelTool_RPC_Cfg, regSelTool_TGC_Cfg
+    acc = regSelTool_MDT_Cfg(flags)
+    kwargs.setdefault("MDTRegionSelector", acc.popPrivateTools())
     result.merge(acc)
-    # FIXME - the following doesn't currently work (the region selector doesn't set a primary service)
-    # this should be revisited once the rewrite of the region selector is done (can use the default until then)
-    #kwargs.setdefault("RegionSelector", acc.getService())
-    
-    
+
+    acc = regSelTool_TGC_Cfg(flags)
+    kwargs.setdefault("TGCRegionSelector", acc.popPrivateTools())
+    result.merge(acc)
+
+    acc = regSelTool_RPC_Cfg(flags)
+    kwargs.setdefault("RPCRegionSelector", acc.popPrivateTools())
+    result.merge(acc)
+
+    if flags.Detector.GeometryCSC:
+        from RegionSelector.RegSelToolConfig import regSelTool_CSC_Cfg
+        acc = regSelTool_CSC_Cfg(flags)
+        kwargs.setdefault("CSCRegionSelector", acc.popPrivateTools())
+        result.merge(acc)
+    else:
+        kwargs.setdefault("CSCRegionSelector", "")
+
+    if flags.Detector.GeometrysTGC:
+        from RegionSelector.RegSelToolConfig import regSelTool_STGC_Cfg
+        acc = regSelTool_STGC_Cfg(flags)
+        kwargs.setdefault("STGCRegionSelector", acc.popPrivateTools())
+        result.merge(acc)
+    else:
+        kwargs.setdefault("STGCRegionSelector", "")
+
+    if flags.Detector.GeometryMM:
+        from RegionSelector.RegSelToolConfig import regSelTool_MM_Cfg
+        acc = regSelTool_MM_Cfg(flags)
+        kwargs.setdefault("MMRegionSelector", acc.popPrivateTools())
+        result.merge(acc)
+    else:
+        kwargs.setdefault("MMRegionSelector", "")
+
+
     acc = MuonTrackSummaryToolCfg(flags)
     kwargs.setdefault("TrackSummaryTool", acc.getPrimary())
     result.merge(acc)

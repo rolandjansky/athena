@@ -57,8 +57,13 @@ StatusCode XtoVVDecayFilter::filterEvent() {
     for (auto pitr: *genEvt) {
       if ( abs(pitr->pdg_id()) != m_PDGParent || pitr->status() != m_StatusParent) continue;
         bool isGrandParentOK = false;
+#ifdef HEPMC3
+        auto firstMother = pitr->production_vertex()->particles_in().begin();
+        auto endMother = pitr->production_vertex()->particles_in().end();
+#else
         auto firstMother = pitr->production_vertex()->particles_begin(HepMC::parents);
         auto endMother = pitr->production_vertex()->particles_end(HepMC::parents);
+#endif
         for (auto  thisMother=firstMother;thisMother!=endMother;thisMother++) {
           ATH_MSG_DEBUG(" Parent " << pitr->pdg_id() << " barcode = "   << HepMC::barcode(pitr) << " status = "  << pitr->status());
           ATH_MSG_DEBUG(" a Parent mother "  << (*thisMother)->pdg_id()<< " barcode = " << HepMC::barcode(*thisMother));
@@ -89,8 +94,13 @@ StatusCode XtoVVDecayFilter::filterEvent() {
 void XtoVVDecayFilter::FindAncestor(const HepMC::GenVertexPtr searchvertex,
                                     int targetPDGID, bool& okPDGChild1, bool& okPDGChild2) {
   if (!searchvertex) return;
+#ifdef HEPMC3
+  auto firstAncestor = searchvertex->particles_out().begin();
+  auto endAncestor = searchvertex->particles_out().end();
+#else
   const HepMC::GenVertex::particles_out_const_iterator firstAncestor = searchvertex->particles_out_const_begin();
   const HepMC::GenVertex::particles_out_const_iterator endAncestor = searchvertex->particles_out_const_end();
+#endif
   for (  auto thisAncestor = firstAncestor; thisAncestor != endAncestor; ++thisAncestor){
     //ATH_MSG_DEBUG(" child " << (*thisAncestor)->pdg_id());
     if (abs((*thisAncestor)->pdg_id()) == targetPDGID) { //same particle as parent

@@ -30,7 +30,7 @@
 #include "MuonChamberHoleRecoveryTool.h"
 #include "MuonRecToolInterfaces/IMuonSeededSegmentFinder.h"
 #include "MuonChamberHoleRecoveryTool.h"
-#include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -162,8 +162,18 @@ namespace Muon {
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ToolHandle<IMuonHitSummaryTool>        m_hitSummaryTool
       {this, "HitSummaryTool", "Muon::MuonHitSummaryTool/MuonHitSummaryTool"};            //!< hit summary tool
-    ServiceHandle<IRegSelSvc>         m_regionSelector
-      {this, "RegionSelector", "RegSelSvc"};            //!< The region selector      
+    ToolHandle<IRegSelTool>         m_regsel_mdt
+      {this, "MDTRegionSelector", "RegSelTool/RegSelTool_MDT"};            //!< The region selector tool for MDT      
+    ToolHandle<IRegSelTool>         m_regsel_csc
+      {this, "CSCRegionSelector", "RegSelTool/RegSelTool_CSC"};            //!< The region selector tool for CSC      
+    ToolHandle<IRegSelTool>         m_regsel_rpc
+      {this, "RPCRegionSelector", "RegSelTool/RegSelTool_RPC"};            //!< The region selector tool for RPC      
+    ToolHandle<IRegSelTool>         m_regsel_tgc
+      {this, "TGCRegionSelector", "RegSelTool/RegSelTool_TGC"};            //!< The region selector tool for TGC      
+    ToolHandle<IRegSelTool>         m_regsel_stgc
+      {this, "STGCRegionSelector", "RegSelTool/RegSelTool_STGC"};            //!< The region selector tool for STGC      
+    ToolHandle<IRegSelTool>         m_regsel_mm
+      {this, "MMRegionSelector", "RegSelTool/RegSelTool_MM"};            //!< The region selector tool for MM      
     ServiceHandle<IMuonEDMHelperSvc>           m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };           //!< EDM Helper tool

@@ -380,9 +380,9 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtCsm(const MdtCsmContainer* pMd
       ml_id = m_idHelperSvc->mdtIdHelper().multilayerID(tmp_id, processingDetEl);
       m_idHelperSvc->mdtIdHelper().get_detectorElement_hash(ml_id, v_idHash_corr);
     }
-    MdtCsmContainer::const_iterator pCsmIt = pMdtCsmContainer->indexFind(v_idHash_corr);
+    auto pCsmIt = pMdtCsmContainer->indexFindPtr(v_idHash_corr);
     
-    if( pCsmIt==pMdtCsmContainer->end() ) {
+    if( pCsmIt==nullptr ) {
       if(processingDetEl == 1){
 	if ( m_idHelperSvc->mdtIdHelper().stationName(ml_id) == 53 ) processingDetEl = 2;   //if this is BME, the 2nd layer should be checked next
 	else ++i;
@@ -393,7 +393,7 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtCsm(const MdtCsmContainer* pMd
       continue;
     }
     if( BMEpresent ){
-      Identifier elementId = ((*pCsmIt)->identify());
+      Identifier elementId = (pCsmIt->identify());
       // if there are BMEs it's also required to process there 2nd CSM
       if( m_idHelperSvc->mdtIdHelper().stationName(elementId) == 53 ) { // is BME chamber
         // do the loop once again with the SAME iterator, but for the 2nd multilayer
@@ -407,14 +407,14 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtCsm(const MdtCsmContainer* pMd
       }
     }
 
-    v_mdtCsms.push_back(*pCsmIt);
+    v_mdtCsms.push_back(pCsmIt);
     ATH_MSG_DEBUG("MDT Collection hash " << v_idHash_corr
 		  << " associated to:  SubDet 0x" << MSG::hex
-		  << (*pCsmIt)->SubDetId() << " MRod 0x"
-		  << (*pCsmIt)->MrodId() << " Link 0x"
-		  << (*pCsmIt)->CsmId() << MSG::dec);
+		  << pCsmIt->SubDetId() << " MRod 0x"
+		  << pCsmIt->MrodId() << " Link 0x"
+		  << pCsmIt->CsmId() << MSG::dec);
     ATH_MSG_DEBUG("Number of digit in  MDT Collection "
-		  << v_idHash_corr << ": " << (*pCsmIt)->size());
+		  << v_idHash_corr << ": " << pCsmIt->size());
     
     if(processingDetEl == 1) ++i;
   }
@@ -847,23 +847,23 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std
 
   for(const IdentifierHash& id : v_idHash) {
 
-    Muon::MdtPrepDataContainer::const_iterator MDTcoll = mdtPrds->indexFind(id);
+    auto MDTcoll = mdtPrds->indexFindPtr(id);
 
-    if( MDTcoll == mdtPrds->end() ) {
+    if( MDTcoll == nullptr ) {
       ATH_MSG_DEBUG("MDT prep data collection not found in Hash ID" << (int)id);
       continue;
     }
 
-    if( (*MDTcoll)->size() == 0 ) {
+    if( MDTcoll->size() == 0 ) {
       ATH_MSG_DEBUG("MDT prep data collection is empty in Hash ID" << (int)id);
       continue;
     }
 
-    mdtCols.push_back(*MDTcoll);
+    mdtCols.push_back(MDTcoll);
 
     ATH_MSG_DEBUG("Selected Mdt Collection: "
-		  << m_idHelperSvc->mdtIdHelper().show_to_string((*MDTcoll)->identify())
-		  << " with size " << (*MDTcoll)->size()
+		  << m_idHelperSvc->mdtIdHelper().show_to_string(MDTcoll->identify())
+		  << " with size " << MDTcoll->size()
 		  << "in Hash ID" << (int)id);
   }
 

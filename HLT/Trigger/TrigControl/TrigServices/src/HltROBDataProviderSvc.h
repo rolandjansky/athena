@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGSERVICES_HLTROBDATAPROVIDERSVC_H
 #define TRIGSERVICES_HLTROBDATAPROVIDERSVC_H
@@ -160,6 +160,10 @@ private:
   // list of all enabled ROBs which can be retrieved    
   Gaudi::Property< std::vector<uint32_t> > m_enabledROBs{
     this, "enabledROBs", {} , "Enabled ROBs for retrieval"};
+
+  // prefetch all ROBs from a ROS if ROB data from this ROS are requested
+  Gaudi::Property<bool> m_prefetchAllROBsfromROS{
+    this, "prefetchAllROBsfromROS", false , "When ROBs from a ROS are requested then prefetch all ROBs in this ROS"};
 
   /*------------------------+
    * Methods acting on ROBs |

@@ -185,6 +185,27 @@ def MuidSegmentRegionRecoveryTool( name ='MuidSegmentRegionRecoveryTool', **kwar
     import MuonCombinedRecExample.CombinedMuonTrackSummary
     from AthenaCommon.AppMgr import ToolSvc
     kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
+
+    from RegionSelector.RegSelToolConfig import makeRegSelTool_MDT, makeRegSelTool_RPC, makeRegSelTool_TGC
+    kwargs.setdefault("MDTRegionSelector", makeRegSelTool_MDT())
+    kwargs.setdefault("RPCRegionSelector", makeRegSelTool_RPC())
+    kwargs.setdefault("TGCRegionSelector", makeRegSelTool_TGC())
+    if MuonGeometryFlags.hasCSC():
+        from RegionSelector.RegSelToolConfig import makeRegSelTool_CSC
+        kwargs.setdefault("CSCRegionSelector", makeRegSelTool_CSC())
+    else:
+        kwargs.setdefault("CSCRegionSelector", "")
+    if MuonGeometryFlags.hasSTGC():
+        from RegionSelector.RegSelToolConfig import makeRegSelTool_sTGC
+        kwargs.setdefault("STGCRegionSelector", makeRegSelTool_sTGC())
+    else:
+        kwargs.setdefault("STGCRegionSelector", "")
+    if MuonGeometryFlags.hasMM():
+        from RegionSelector.RegSelToolConfig import makeRegSelTool_MM
+        kwargs.setdefault("MMRegionSelector", makeRegSelTool_MM())
+    else:
+        kwargs.setdefault("MMRegionSelector", "")
+
     return CfgMgr.Muon__MuonSegmentRegionRecoveryTool(name,**kwargs)
 
 

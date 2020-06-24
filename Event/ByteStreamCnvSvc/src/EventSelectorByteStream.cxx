@@ -448,6 +448,19 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
          ATH_MSG_DEBUG("Skipping event " << m_NumEvents - 1);
       }
    } // for loop
+   if (!m_eventStreamingTool.empty() && m_eventStreamingTool->isServer()) { // For SharedReader Server, put event into SHM
+      const RawEvent* pre = 0;
+      pre = m_eventSource->currentEvent();
+      StatusCode sc = m_eventStreamingTool->putEvent(m_NumEvents - 1, pre->start(), pre->fragment_size_word() * sizeof(uint32_t), m_eventSource->currentEventStatus());
+      while (sc.isRecoverable()) {
+         usleep(1000);
+         sc = m_eventStreamingTool->putEvent(m_NumEvents - 1, pre->start(), pre->fragment_size_word() * sizeof(uint32_t), m_eventSource->currentEventStatus());
+      }
+      if (!sc.isSuccess()) {
+         ATH_MSG_ERROR("Cannot put Event " << m_NumEvents - 1 << " to AthenaSharedMemoryTool");
+         return(StatusCode::FAILURE);
+      }
+   }
    return(StatusCode::SUCCESS);
 }
 
@@ -868,11 +881,11 @@ StatusCode EventSelectorByteStream::share(int evtNum) {
 //________________________________________________________________________________
 StatusCode EventSelectorByteStream::readEvent(int maxevt) {
    if (m_eventStreamingTool.empty()) {
+      ATH_MSG_ERROR("No AthenaSharedMemoryTool configured for readEvent()");
       return(StatusCode::FAILURE);
    }
    ATH_MSG_VERBOSE("Called read Event " << maxevt);
    for (int i = 0; i < maxevt || maxevt == -1; ++i) {
-      //const RawEvent* pre = m_eventSource->nextEvent();
       const RawEvent* pre = 0;
       if (this->next(*m_beginIter).isSuccess()) {
          pre = m_eventSource->currentEvent();
@@ -882,18 +895,6 @@ StatusCode EventSelectorByteStream::readEvent(int maxevt) {
             break;
          }
          ATH_MSG_ERROR("Unable to retrieve next event for " << i << "/" << maxevt);
-         return(StatusCode::FAILURE);
-      }
-      if (pre == 0) {
-         // End of file, wait for last event to be taken
-         StatusCode sc = m_eventStreamingTool->putEvent(0, 0, 0, 0);
-         while (sc.isRecoverable()) {
-            usleep(1000);
-            sc = m_eventStreamingTool->putEvent(0, 0, 0, 0);
-         }
-         if (!sc.isSuccess()) {
-            ATH_MSG_ERROR("Cannot put last Event marker to AthenaSharedMemoryTool");
-         }
          return(StatusCode::FAILURE);
       }
       if (m_eventStreamingTool->isServer()) {
@@ -907,6 +908,16 @@ StatusCode EventSelectorByteStream::readEvent(int maxevt) {
             return(StatusCode::FAILURE);
          }
       }
+   }
+   // End of file, wait for last event to be taken
+   StatusCode sc = m_eventStreamingTool->putEvent(0, 0, 0, 0);
+   while (sc.isRecoverable()) {
+      usleep(1000);
+      sc = m_eventStreamingTool->putEvent(0, 0, 0, 0);
+   }
+   if (!sc.isSuccess()) {
+      ATH_MSG_ERROR("Cannot put last Event marker to AthenaSharedMemoryTool");
+      return(StatusCode::FAILURE);
    }
    return(StatusCode::SUCCESS);
 }

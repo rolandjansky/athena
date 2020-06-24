@@ -142,6 +142,9 @@ StatusCode HltROBDataProviderSvc::initialize()
     }
   }
 
+  // prefetch all ROBs in a ROS on a first retrieval of ROBs from this ROS
+  ATH_MSG_INFO(" ---> Prefetch all ROBs in a ROS on first retrieval                = " << m_prefetchAllROBsfromROS);
+
   // Setup the slot specific cache
   m_eventsCache = SG::SlotSpecificObj<EventCache>( SG::getNSlots() );
 
@@ -307,6 +310,15 @@ void HltROBDataProviderSvc::setNextEvent(const EventContext& context, const RawE
   ATH_MSG_DEBUG("      current [global id, LVL1 id] = [" << cache->globalEventNumber << "," << cache->currentLvl1ID << "]" );
   ATH_MSG_DEBUG("      number of received ROBs      =  " << rob_fragments.size() );
   ATH_MSG_DEBUG("      size of ROB cache            =  " << cache->robmap.size() );
+
+  //------------------------------+
+  // Initiate whole ROS retrieval |
+  //------------------------------+
+  if ( m_prefetchAllROBsfromROS.value() && m_enabledROBs.value().size() != 0 ) {
+    addROBData( context, m_enabledROBs.value(), "prefetch_HLTROBDataProviderSvc" );
+    ATH_MSG_DEBUG("      ROS prefetch init. size      =  " << m_enabledROBs.value().size() );
+  }
+
   return;
 }
 

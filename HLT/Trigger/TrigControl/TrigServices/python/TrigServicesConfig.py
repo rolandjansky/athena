@@ -105,13 +105,13 @@ class HltROBDataProviderSvc(_HltROBDataProviderSvc):
                          xbins=100, xmin=0, xmax=500),
          defineHistogram('TIME_ROBRequest', path='EXPERT', type='TH1F',
                          title='Time for ROB retrievals;time [mu s]',
-                         xbins=100, xmin=0, xmax=10000),
+                         xbins=400, xmin=0, xmax=200000),
          defineHistogram('NUMBER_ROBRequest', path='EXPERT', type='TH1F',
                          title='Number of retrieved ROBs;number',
                          xbins=100, xmin=0, xmax=1000),
          defineHistogram('TIME_CollectAllROBs', path='EXPERT', type='TH1F',
                          title='Time for retrieving complete event data;time [mu s]',
-                         xbins=100, xmin=0, xmax=10000),
+                         xbins=400, xmin=0, xmax=200000),
          defineHistogram('NUMBER_CollectAllROBs', path='EXPERT', type='TH1F',
                          title='Number of received ROBs for collect call;number',
                          xbins=100, xmin=0, xmax=2500)
@@ -141,5 +141,5 @@ class HltEventLoopMgr(_HltEventLoopMgr):
                                    xbins=200, xmin=0, xmax=10000)
       self.MonTool.defineHistogram('SlotIdleTime', path='EXPERT', type='TH1F',
                                    title='Time between freeing and assigning a scheduler slot;Time [ms];Events',
-                                   xbins=200, xmin=0, xmax=200)
+                                   xbins=400, xmin=0, xmax=400)
       return

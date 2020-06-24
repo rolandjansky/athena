@@ -116,7 +116,7 @@
 + Reconstruction/egamma/egammaLayerRecalibTool
 + Reconstruction/egamma/egammaMVACalib
 + Reconstruction/egamma/egammaRecEvent
-#+ Reconstruction/tauRecTools
++ Reconstruction/tauRecTools
 + Tools/ART
 + Tools/DirectIOART
 + Tools/PathResolver
