@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIG_DECISIONUNPACKERATHENA_H
@@ -39,6 +39,10 @@ namespace Trig{
   public:
     DecisionUnpackerAthena( SG::ReadHandleKey<TrigDec::TrigDecision>* olddeckey );
     virtual ~DecisionUnpackerAthena();
+
+    DecisionUnpackerAthena (const DecisionUnpackerAthena&) = delete;
+    DecisionUnpackerAthena& operator= (const DecisionUnpackerAthena&) = delete;
+
     virtual StatusCode unpackDecision(std::unordered_map<std::string, const LVL1CTP::Lvl1Item*>&,
 				      std::map<CTPID, LVL1CTP::Lvl1Item*>&,
 				      std::unordered_map<std::string, const HLT::Chain*>&,
