@@ -2,7 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MuonSTEP_PropagatorCfg, MuonTrackCleanerCfg, MuonSegmentMomentumFromFieldCfg, MuonSeededSegmentFinderCfg
+from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MuonSTEP_PropagatorCfg, MuonTrackCleanerCfg, MuonSegmentMomentumFromFieldCfg, MuonSeededSegmentFinderCfg, MuonEDMPrinterTool
 from MuonConfig.MuonSegmentFindingConfig import MuonSegmentFittingToolCfg 
 
 def MooTrackFitterCfg(flags, name = 'MooTrackFitter', **kwargs):
@@ -47,6 +47,8 @@ def MooTrackFitterCfg(flags, name = 'MooTrackFitter', **kwargs):
     result.addPublicTool(momentum_estimator)
     kwargs.setdefault("SegmentMomentum", momentum_estimator )
     
+    kwargs.setdefault("MuonPrinterTool", MuonEDMPrinterTool(flags) )
+
     acc = MuonTrackToSegmentToolCfg(flags)
     track_to_segment_tool =  acc.getPrimary()
     kwargs.setdefault("TrackToSegmentTool", track_to_segment_tool)    
@@ -153,6 +155,8 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", **kwargs):
     kwargs.setdefault("TrackToSegmentTool", track_to_segment_tool)    
     result.merge(acc)
     
+    kwargs.setdefault("Printer", MuonEDMPrinterTool(flags) )
+
     # FIXME - remove ErrorOptimisationTool from cxx?
     # declareProperty("ErrorOptimisationTool","" );
 
@@ -205,8 +209,9 @@ def MooCandidateMatchingToolCfg(flags, name="MooCandidateMatchingTool", doSegmen
     
     result = ComponentAccumulator()
 
-    # Won't explicitly configure MuonEDMHelperSvc, MuonEDMPrinterTool
-    
+    # Won't explicitly configure MuonEDMHelperSvc
+    kwargs.setdefault("MuonPrinterTool", MuonEDMPrinterTool(flags) )
+
     acc = MuonExtrapolatorCfg(flags, name="MuonStraightLineExtrapolator")
     slextrap = acc.getPrimary()
     result.merge(acc)
@@ -345,7 +350,8 @@ def MuPatCandidateToolCfg(flags, name="MuPatCandidateTool", **kwargs):
     result.merge(acc)
     kwargs.setdefault("CscRotCreator", csc_cluster_creator)
         
-    # from AthenaCommon.Constants import VERBOSE
+    kwargs.setdefault("MuonPrinterTool", MuonEDMPrinterTool(flags) )
+
     mu_pat_cand_tool = Muon__MuPatCandidateTool(name, **kwargs)
     result.setPrivateTools(mu_pat_cand_tool)
     return result

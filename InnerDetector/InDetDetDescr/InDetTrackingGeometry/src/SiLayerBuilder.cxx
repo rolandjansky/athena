@@ -1011,6 +1011,12 @@ std::vector< const Trk::DiscLayer* >* InDet::SiLayerBuilder::createDiscLayers(st
     sortEnd   = discLayers->end(); 
     std::sort(sortIter, sortEnd, zSorter);
   }
+
+  ATH_MSG_DEBUG("Returning: " << discLayers->size() << " disk-like layers to the volume builder");
+  for (const auto& dl : (*discLayers)){
+ 	ATH_MSG_VERBOSE(" ----> Pointer location : " << dl);
+        ATH_MSG_VERBOSE(" ----> Disk layer located at : " << dl->surfaceRepresentation().center().z());
+  }
  
   return discLayers;
 }
