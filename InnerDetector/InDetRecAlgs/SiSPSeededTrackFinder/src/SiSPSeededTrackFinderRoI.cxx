@@ -177,7 +177,7 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::execute()
   ATH_MSG_DEBUG("selectedRoIs " << ZBoundary[0] <<" " << ZBoundary[1]);
   
   //VERTEX
-  for( int r = 0; r < m_listRoIs.size(); r++ ){
+  for( size_t r = 0; r < m_listRoIs.size(); r++ ){
 
     theVertexContainer->push_back( new xAOD::Vertex );
 
