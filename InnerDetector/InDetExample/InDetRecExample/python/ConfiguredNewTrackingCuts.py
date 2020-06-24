@@ -76,6 +76,8 @@ class ConfiguredNewTrackingCuts :
     self.__seedFilterLevel         = 1
     self.__maxdImpactPPSSeeds      = 1.7
     self.__maxdImpactSSSSeeds      = 1000.0
+    self.__maxSeedsPerSP           = 5
+    self.__keepAllConfirmedSeeds   = False
 
     # --- min pt cut for brem
     self.__minPTBrem               = 1. * Units.GeV # off
@@ -990,6 +992,12 @@ class ConfiguredNewTrackingCuts :
 
   def RoadWidth( self ) :
     return self.__roadWidth
+
+  def MaxSeedsPerSP( self ) :
+    return self.__maxSeedsPerSP
+    
+  def KeepAllConfirmedSeeds( self ) :
+    return self.__keepAllConfirmedSeeds
 
   def seedFilterLevel( self ) :
     return self.__seedFilterLevel

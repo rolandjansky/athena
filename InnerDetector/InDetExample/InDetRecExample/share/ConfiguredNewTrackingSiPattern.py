@@ -92,6 +92,9 @@ class  ConfiguredNewTrackingSiPattern:
          if NewTrackingCuts.mode() == "Offline" or InDetFlags.doHeavyIon() or  NewTrackingCuts.mode() == "ForwardTracks":
             InDetSiSpacePointsSeedMaker.maxdImpactPPS = NewTrackingCuts.maxdImpactPPSSeeds()
             InDetSiSpacePointsSeedMaker.maxdImpactSSS = NewTrackingCuts.maxdImpactSSSSeeds()
+            InDetSiSpacePointsSeedMaker.maxSeedsForSpacePoint = NewTrackingCuts.MaxSeedsPerSP()
+            InDetSiSpacePointsSeedMaker.alwaysKeepConfirmedSeeds = NewTrackingCuts.KeepAllConfirmedSeeds()
+            
          if NewTrackingCuts.mode() == "R3LargeD0":
             InDetSiSpacePointsSeedMaker.usePixel = False
             InDetSiSpacePointsSeedMaker.etaMax = NewTrackingCuts.maxEta() 
