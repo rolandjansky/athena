@@ -28,8 +28,8 @@ Sim_tf.py \
 --maxEvents 2 \
 --imf False
 
-echo  "art-result: $? simulation FullG4"
-
+rc1=$?
+echo  "art-result: $rc1 simulation FullG4"
 
 AtlasG4_tf.py \
 --conditionsTag 'default:OFLCOND-MC16-SDR-14' \
@@ -46,12 +46,15 @@ AtlasG4_tf.py \
 --maxEvents 2 \
 --imf False
 
-echo  "art-result: $? simulation AtlasG4"
+rc2=$?
+echo  "art-result: $rc2 simulation AtlasG4"
 
-
-# Compare the merged outputs
-acmd.py diff-root HITS.FullG4.pool.root HITS.AtlasG4.pool.root --error-mode resilient --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings TrackRecordCollection_p2_CaloEntryLayer TrackRecordCollection_p2_MuonEntryLayer TrackRecordCollection_p2_MuonExitLayer RecoTimingObj_p1_RAWtoESD_mems RecoTimingObj_p1_RAWtoESD_timings RAWtoESD_mems RAWtoESD_timings ESDtoAOD_mems ESDtoAOD_timings HITStoRDO_timings RAWtoALL_mems RAWtoALL_timings RecoTimingObj_p1_RAWtoALL_mems RecoTimingObj_p1_RAWtoALL_timings RecoTimingObj_p1_EVNTtoHITS_timings EVNTtoHITS_timings RecoTimingObj_p1_Bkg_HITStoRDO_timings index_ref
-
-
-echo "art-result: $? comparison"
-
+if [ $rc1 -eq 0 ]
+then
+  if [ $rc2 -eq 0 ]
+  then
+    # Compare the merged outputs
+    acmd.py diff-root HITS.FullG4.pool.root HITS.AtlasG4.pool.root --error-mode resilient --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings TrackRecordCollection_p2_CaloEntryLayer TrackRecordCollection_p2_MuonEntryLayer TrackRecordCollection_p2_MuonExitLayer RecoTimingObj_p1_RAWtoESD_mems RecoTimingObj_p1_RAWtoESD_timings RAWtoESD_mems RAWtoESD_timings ESDtoAOD_mems ESDtoAOD_timings HITStoRDO_timings RAWtoALL_mems RAWtoALL_timings RecoTimingObj_p1_RAWtoALL_mems RecoTimingObj_p1_RAWtoALL_timings RecoTimingObj_p1_EVNTtoHITS_timings EVNTtoHITS_timings RecoTimingObj_p1_Bkg_HITStoRDO_timings index_ref
+    echo "art-result: $? comparison"
+  fi
+fi
