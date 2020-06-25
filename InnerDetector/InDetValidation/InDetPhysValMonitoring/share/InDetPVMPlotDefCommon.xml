@@ -635,15 +635,15 @@
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
 <h id="efficiency_vs_d0" type="TEfficiency" title="Fraction of reco-matched truth track">
-  <x title="d_{0} [mm]" n="100" lo="-25" hi="25"/>
+  <x title="d_{0} [mm]" n="100" lo="-300" hi="300"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
 <h id="efficiency_vs_z0" type="TEfficiency" title="Fraction of reco-matched truth track">
-  <x title="z_{0} [mm]" n="100" lo="-250" hi="250"/>
+  <x title="z_{0} [mm]" n="100" lo="-500" hi="500"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
 <h id="efficiency_vs_R" type="TEfficiency" title="Fraction of reco-matched truth track">
-  <x title="R [mm]" n="100" lo="0" hi="50"/>
+  <x title="R [mm]" n="100" lo="0" hi="300"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
 <h id="efficiency_vs_Z" type="TEfficiency" title="Fraction of reco-matched truth track">
