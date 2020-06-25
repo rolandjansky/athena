@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-/*
- */
 /**
  * @file CaloEvent/src/CaloTester.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -26,9 +24,9 @@
  *        is called.
  */
 CaloTester::CaloTester()
+  : m_mgr_up (std::make_unique<CaloDetDescrManager>())
 {
   // Make a manager instance.
-  m_mgr_up = std::make_unique<CaloDetDescrManager>();
   m_mgr = m_mgr_up.get();
   m_mgr->set_helper (&m_helpers.caloID());
   m_mgr->initialize();
