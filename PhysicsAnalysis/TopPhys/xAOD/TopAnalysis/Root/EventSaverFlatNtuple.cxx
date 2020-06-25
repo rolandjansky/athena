@@ -2539,21 +2539,6 @@ namespace top {
     // tracks                   
     if (m_config->useTracks()) {
 
-      m_track_pt.clear();
-      m_track_eta.clear();
-      m_track_phi.clear();
-      m_track_e.clear();
-      m_track_charge.clear();
-      m_track_d0.clear();
-      m_track_d0_significance.clear();
-      m_track_z0.clear();
-      m_track_z0_significance.clear();
-      m_track_phi0.clear();
-      m_track_theta.clear();
-      m_track_qOverP.clear();
-      m_track_chiSquared.clear();
-      m_track_numberDoF.clear();
-
       m_track_pt.resize(event.m_tracks.size());
       m_track_eta.resize(event.m_tracks.size());
       m_track_phi.resize(event.m_tracks.size());

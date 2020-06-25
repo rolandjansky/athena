@@ -573,7 +573,8 @@ namespace top {
       ATH_MSG_DEBUG(" Cut on Tracks with key = " << currentSystematic.second);
 
       const xAOD::VertexContainer* vertices = nullptr;
-      top::check( static_cast<StatusCode>(evtStore() -> retrieve( vertices, "PrimaryVertices" )), "Failed to get primary vertices");
+      //      top::check( static_cast<StatusCode>(evtStore() -> retrieve( vertices, "PrimaryVertices" )), "Failed to get primary vertices");
+      top::check(evtStore() -> retrieve( vertices, "PrimaryVertices" ), "Failed to get primary vertices");
       const auto it_pv = std::find_if(vertices->cbegin(), vertices->cend(),
                                       [](const xAOD::Vertex* vtx)
                                       {return vtx->vertexType() == xAOD::VxType::PriVtx;});
