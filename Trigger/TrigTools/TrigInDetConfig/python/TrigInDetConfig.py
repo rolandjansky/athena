@@ -5,6 +5,137 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
+def RungeKuttaPropagatorCfg(flags, **kwargs):
+  acc = ComponentAccumulator()
+  name = kwargs.pop("propagatorName", "InDetTrigPatternPropagator")
+  acc.addPublicTool( CompFactory.Trk.RungeKuttaPropagator( name ) )
+  return acc
+
+def SiDetElementsRoadMaker_xkCfg( flags, **kwargs ):
+  """
+  based  on: InnerDetector/InDetExample/InDetTrigRecExample/python/InDetTrigConfigRecLoadTools.py, should be moved elsewhere
+  """
+  acc = ComponentAccumulator()
+  name = kwargs.pop( "rodMakerName", "InDetTrigSiDetElementsRoadMaker" )
+  acc.merge( RungeKuttaPropagatorCfg( flags, **kwargs ) )
+  tool = CompFactory.InDet.SiDetElementsRoadMaker_xk( name,
+                                                      PropagatorTool = acc.getPublicTool( "InDetTrigPatternPropagator" ),
+                                                      usePixel     = flags.Detector.PixelOn, # DetFlags.haveRIO.pixel_on(),
+                                                      useSCT       = flags.Detector.SCTOn, #DetFlags.haveRIO.SCT_on(),
+                                                      RoadWidth    = 10, #InDetTrigCutValues.RoadWidth()
+                                                        )
+  acc.addPublicTool( tool )
+  return acc
+
+def PixelClusterOnTrackCfg( flags, **kwargs ):
+  """
+  based on: InnerDetector/InDetExample/InDetTrigRecExample/python/InDetTrigConfigRecLoadTools.py
+  """
+  acc = ComponentAccumulator()
+  name =  kwargs.pop("pixelOnTrackName", "InDetTrigPixelClusterOnTrackTool")
+  from SiLorentzAngleTool.PixelLorentzAngleConfig import PixelLorentzAngleCfg
+
+  pixelLATool = acc.popToolsAndMerge( PixelLorentzAngleCfg( flags) )
+  acc.addPublicTool( pixelLATool )
+
+  nnTool = CompFactory.InDet.NnClusterizationFactory( name                         = "TrigNnClusterizationFactory",
+                                                      PixelLorentzAngleTool        = pixelLATool,
+                                                      useToT                       = flags.InDet.doNNToTCalibration,
+                                                      NnCollectionReadKey          = 'PixelClusterNN',
+                                                      NnCollectionWithTrackReadKey = 'PixelClusterNNWithTrack')
+
+  tool = CompFactory.InDet.PixelClusterOnTrackTool( name,
+                                                    ErrorStrategy = 2,
+                                                    LorentzAngleTool = acc.getPublicTool( "PixelLorentzAngleTool" ),
+                                                    NnClusterizationFactory = nnTool )
+  acc.addPublicTool( tool )
+  return acc
+
+
+def SCT_ClusterOnTrackToolCfg( flags, **kwargs ):
+  acc = ComponentAccumulator()
+  from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
+  sctLATool =  acc.popToolsAndMerge( SCT_LorentzAngleCfg( flags ) )
+  acc.addPublicTool( sctLATool )
+  tool = CompFactory.InDet.SCT_ClusterOnTrackTool("SCT_ClusterOnTrackTool",
+                                                    CorrectionStrategy = 0,  # do correct position bias
+                                                    ErrorStrategy      = 2,  # do use phi dependent errors
+                                                    LorentzAngleTool   = acc.getPublicTool( "SCT_LorentzAngleTool" ) # default name
+                                                    )
+  acc.addPublicTool ( tool )
+  return acc
+
+def RIO_OnTrackCreatorCfg( flags, **kwargs ):
+  acc = ComponentAccumulator()
+  name =  kwargs.pop("rioOnTrackCreatorName", "InDetTrigRotCreator")
+  acc.merge( PixelClusterOnTrackCfg( flags, **kwargs ) )
+  acc.merge( SCT_ClusterOnTrackToolCfg( flags, **kwargs ) )
+  tool = CompFactory.Trk.RIO_OnTrackCreator(name,
+                                              ToolPixelCluster= acc.getPublicTool( "InDetTrigPixelClusterOnTrackTool" ), #InDetTrigPixelClusterOnTrackTool,
+                                              ToolSCT_Cluster = acc.getPublicTool( "SCT_ClusterOnTrackTool" ),
+                                              Mode = 'indet')
+  acc.addPublicTool( tool )
+  return acc
+
+def SiCombinatorialTrackFinder_xkCfg( flags, **kwargs ):
+  """
+  based  on: InnerDetector/InDetExample/InDetTrigRecExample/python/InDetTrigConfigRecLoadTools.py, should be moved elsewhere
+  """
+  acc = ComponentAccumulator()
+  name = kwargs.pop( "combinatorialTrackFinderName", "InDetTrigSiComTrackFinder" )
+  acc.merge( RungeKuttaPropagatorCfg( flags, **kwargs ) )
+  acc.addPublicTool( CompFactory.Trk.KalmanUpdator_xk( "InDetTrigPatternUpdator" ) )
+  acc.merge( RIO_OnTrackCreatorCfg( flags, **kwargs ) )
+
+  from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
+  pixelCondSummaryTool = acc.popToolsAndMerge( PixelConditionsSummaryCfg(flags) )
+
+  from InDetConfig.InDetRecToolConfig import InDetSCT_ConditionsSummaryToolCfg
+  sctCondSummaryTool = acc.popToolsAndMerge( InDetSCT_ConditionsSummaryToolCfg( flags,withFlaggedCondTool=False, withTdaqTool=False ) )
+
+
+  tool = CompFactory.InDet.SiCombinatorialTrackFinder_xk(name,
+                                                         PropagatorTool = acc.getPublicTool( "InDetTrigPatternPropagator" ),
+                                                         UpdatorTool    = acc.getPublicTool( "InDetTrigPatternUpdator" ),
+                                                         RIOonTrackTool   = acc.getPublicTool( "InDetTrigRotCreator" ),
+                                                         usePixel         = flags.Detector.PixelOn, #DetFlags.haveRIO.pixel_on(),
+                                                         useSCT           =  flags.Detector.SCTOn, #DetFlags.haveRIO.SCT_on(),
+                                                         PixelClusterContainer = 'PixelTrigClusters',
+                                                         SCT_ClusterContainer = 'SCT_TrigClusters',
+                                                         PixelSummaryTool = pixelCondSummaryTool,
+                                                         SctSummaryTool = sctCondSummaryTool
+                                                        )
+  acc.addPublicTool( tool )
+  return acc
+
+def SiTrackMaker_xkCfg(flags, **kwargs):
+  """
+  based on: InnerDetector/InDetExample/InDetTrigRecExample/python/InDetTrigConfigRecNewTracking.py , should be moved elsewhere
+  """
+  import AthenaCommon.SystemOfUnits as Unit
+  name = kwargs.pop("name", "SiTrackMaker_xk")
+  acc = ComponentAccumulator()
+  acc.merge( SiDetElementsRoadMaker_xkCfg( flags, **kwargs ) )
+  acc.merge( SiCombinatorialTrackFinder_xkCfg( flags, **kwargs ) )
+  tool = CompFactory.InDet.SiTrackMaker_xk( name,
+                                            RoadTool = acc.getPublicTool( "InDetTrigSiDetElementsRoadMaker" ),
+                                            CombinatorialTrackFinder =acc.getPublicTool( "InDetTrigSiComTrackFinder" ),
+                                            pTmin = 100*Unit.MeV, # TODO use flag for these props
+                                            nClustersMin   = 1,
+                                            nHolesMax      = 10,
+                                            nHolesGapMax   = 1,
+                                            SeedsFilterLevel = 1,
+                                            Xi2max         = 15,
+                                            Xi2maxNoAdd    = 35,
+                                            nWeightedClustersMin= 6,
+                                            #CosmicTrack              = InDetFlags.doCosmics(),
+                                            Xi2maxMultiTracks         = 15,
+                                            UseAssociationTool       = False )
+  acc.addPublicTool( tool )
+  return acc
+
+
+
 class InDetCacheNames(object):
   Pixel_ClusterKey   = "PixelTrigClustersCache"
   SCT_ClusterKey     = "SCT_ClustersCache"
@@ -32,6 +163,7 @@ def InDetIDCCacheCreatorCfg():
   acc.addEventAlgo( InDetCacheCreatorTrig )
   return acc
 
+
 #Set up conditions algorithms
 def TrigInDetCondConfig( flags ):
 
@@ -47,8 +179,10 @@ def TrigInDetCondConfig( flags ):
   acc.merge(addFoldersSplitOnline(flags, "INDET","/Indet/Onl/AlignL3","/Indet/AlignL3",className="AlignableTransformContainer"))
   acc.merge(addFoldersSplitOnline(flags, "INDET","/Indet/Onl/IBLDist","/Indet/IBLDist",className="CondAttrListCollection"))
 
-  SCT_DCSConditionsTool=CompFactory.SCT_DCSConditionsTool
-  dcsTool = SCT_DCSConditionsTool(ReadAllDBFolders = True, ReturnHVTemp = True)
+  from SCT_ConditionsTools.SCT_DCSConditionsConfig import SCT_DCSConditionsCfg, SCT_DCSConditionsToolCfg
+  dcsTool =  acc.popToolsAndMerge( SCT_DCSConditionsCfg( flags, DCSConditionsTool = SCT_DCSConditionsToolCfg( flags, ReadAllDBFolders = True, ReturnHVTemp = True)) )
+#  SCT_DCSConditionsTool=CompFactory.SCT_DCSConditionsTool
+#  dcsTool = SCT_DCSConditionsTool(ReadAllDBFolders = True, ReturnHVTemp = True)
 
   from SCT_ConditionsTools.SCT_SiliconConditionsConfig import SCT_SiliconConditionsToolCfg, SCT_SiliconConditionsCfg
   #sctSiliconConditionsTool= SCT_SiliconConditionsCfg(flags, toolName="InDetSCT_SiliconConditionsTool", dcsTool=dcsTool )
@@ -363,7 +497,8 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
   acc.addPublicTool( CompFactory.TrigL2LayerNumberTool( "TrigL2LayerNumberTool_FTF" ) )
   acc.addPublicTool( CompFactory.Trk.TrackSummaryTool( "InDetTrigFastTrackSummaryTool" ) )
   acc.addPublicTool( CompFactory.TrigL2ResidualCalculator( "TrigL2ResidualCalculator" ) )
-  acc.addPublicTool( CompFactory.InDet.SiTrackMaker_xk( "InDetTrigSiTrackMaker_FTF" + signature ) )
+  acc.merge( SiTrackMaker_xkCfg( flags, name = "InDetTrigSiTrackMaker_FTF"+signature ) )
+
   acc.addPublicTool( CompFactory.TrigInDetTrackFitter( "TrigInDetTrackFitter" ) )
   acc.addPublicTool( CompFactory.TrigSpacePointConversionTool( "TrigSpacePointConversionTool" + signature ) )
 
