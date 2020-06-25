@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -25,6 +25,7 @@
 //Gaudi
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 // Base class
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -42,7 +43,6 @@
 //#include "TrigT1Interfaces/RecMuonRoI.h"
 
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 
 /** Main LVL2 Algorithm. Sided by a xAOD::L2StandaloneMuon, match the muon spectrometer track with an ID track, and produces a xAOD::L2CombinedMuon. */
 class muCombMT : public AthAlgorithm
@@ -138,7 +138,7 @@ class muCombMT : public AthAlgorithm
    Gaudi::Property<std::string> m_ID_algo_to_use {this, "IDalgo", "InDetTrigTrackingxAODCnv_Muon_FTF","ID trk xAOD collection to use"};
 
   /** Min Pt to select the ID track for matching */
-   Gaudi::Property<double> m_PtMinTrk  {this, "MinPtTRK",     1.*CLHEP::GeV, "ID track minimum pT"}; //GeV/c
+   Gaudi::Property<double> m_PtMinTrk  {this, "MinPtTRK",     1.*Gaudi::Units::GeV, "ID track minimum pT"}; //GeV/c
   /** Max abs(eta) to select the ID track for matching */
    Gaudi::Property<double> m_EtaMaxTrk {this, "MaxAbsEtaTRK", 2.5, "ID tracks max |eta|"};
 
@@ -201,7 +201,7 @@ class muCombMT : public AthAlgorithm
 
    // Simplified DeltaR(/Pt) based match
   /** max deltaPt for simpified matching */
-   Gaudi::Property<double> m_winPt {this, "WinPt",       -1.0*CLHEP::GeV, "matching parameter (simplifed): pT windows in geV (disabled if < 0)"};
+   Gaudi::Property<double> m_winPt {this, "WinPt",       -1.0*Gaudi::Units::GeV, "matching parameter (simplifed): pT windows in geV (disabled if < 0)"};
   /** max deltaR for simplified matching */
    Gaudi::Property<double> m_winDR {this, "WinDelta",     0.2, "matching parameter (simplifed): strategy dependent"};
 
