@@ -11,6 +11,9 @@
 #   condSeq+= TrkGeoCondAlg
 #
 ##################################################################################
+
+from __future__ import print_function
+
 # import the DetFlags for the setting
 from AthenaCommon.DetFlags import DetFlags
 
@@ -112,7 +115,7 @@ class ConfiguredTrackingGeometryCondAlg( Trk__TrackingGeometryCondAlg ) :
             AtlasMaterialTag = TrkDetFlags.MaterialTagBase()+str(TrkDetFlags.MaterialVersion())+TrkDetFlags.MaterialSubVersion()+'_'
         
             if TrkDetFlags.ConfigurationOutputLevel() < 3 :
-               print '[ TrackingGeometryCondAlg ] Associating DB folder : ', CoolDataBaseFolder
+               print ('[ TrackingGeometryCondAlg ] Associating DB folder : ', CoolDataBaseFolder)
         
             # we need the conditions interface
             from IOVDbSvc.CondDB import conddb
@@ -126,7 +129,7 @@ class ConfiguredTrackingGeometryCondAlg( Trk__TrackingGeometryCondAlg ) :
                 conddb.blockFolder('/GLOBAL/TrackingGeo/LayerMaterialV2')
                 conddb.addFolderWithTag('',DataBaseConnection+CoolDataBaseFolder,AtlasMaterialTag+MagicTag,force=True)
                 if TrkDetFlags.ConfigurationOutputLevel() < 3 :
-                    print '[ TrackingGeometryCondAlg ] Using Local Database: '+DataBaseConnection        
+                    print ('[ TrackingGeometryCondAlg ] Using Local Database: '+DataBaseConnection)
                 # make sure that the pool files are in the catalog
             elif TrkDetFlags.SLHC_Geometry() :
                 # set the folder to the SLHC location        
@@ -135,9 +138,9 @@ class ConfiguredTrackingGeometryCondAlg( Trk__TrackingGeometryCondAlg ) :
                 cfoldertag = CoolDataBaseFolder+' <tag>'+ctag+'</tag>'
                 conddb.addFolderSplitMC('GLOBAL',cfoldertag,cfoldertag)
             else :
-                print '[ TrackingGeometryCondAlg ]     base material tag : ', AtlasMaterialTag
+                print ('[ TrackingGeometryCondAlg ]     base material tag : ', AtlasMaterialTag)
                 cfolder = CoolDataBaseFolder +'<tag>TagInfoMajor/'+AtlasMaterialTag+'/GeoAtlas</tag>'
-                print '[ TrackingGeometryCondAlg ]     translated to COOL: ', cfolder
+                print ('[ TrackingGeometryCondAlg ]     translated to COOL: ', cfolder)
                 # load the right folders (preparation for calo inclusion)
                 conddb.addFolderSplitMC('GLOBAL',cfolder,cfolder)
 
@@ -165,10 +168,10 @@ class ConfiguredTrackingGeometryCondAlg( Trk__TrackingGeometryCondAlg ) :
         
         # screen output of the configuration
         if TrkDetFlags.ConfigurationOutputLevel() < 3 :
-           print self
-           print '* [ GeometryBuilder       ]'
-           print AtlasGeometryBuilder
-           print '* [ Configuration : end   ] ***'+name+'********************************'
+           print (self)
+           print ('* [ GeometryBuilder       ]')
+           print (AtlasGeometryBuilder)
+           print ('* [ Configuration : end   ] ***'+name+'********************************')
         
 ##################################################################################    
 
