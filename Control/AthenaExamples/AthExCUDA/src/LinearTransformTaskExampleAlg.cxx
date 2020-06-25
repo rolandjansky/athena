@@ -3,17 +3,25 @@
 //
 
 // Local include(s).
-#include "LinearTransformExampleAlg.h"
-#include "cudaMultiply.h"
+#include "LinearTransformTaskExampleAlg.h"
+#include "CudaMultiplyTask.h"
 
-// System include(s).
-#include <cmath>
-#include <vector>
+// AthCUDA include(s).
+#include "AthCUDAKernel/KernelStatus.h"
 
-namespace AthCUDA {
+namespace AthCUDAExamples {
+
+   StatusCode LinearTransformTaskExampleAlg::initialize() {
+
+      // Retrieve the necessary component(s).
+      ATH_CHECK( m_kernelRunnerSvc.retrieve() );
+
+      // Return gracefully.
+      return StatusCode::SUCCESS;
+   }
 
    StatusCode
-   LinearTransformExampleAlg::execute( const EventContext& ) const {
+   LinearTransformTaskExampleAlg::execute( const EventContext& ) const {
 
       // Create a dummy array variable that will be multiplied by some amount.
       static const std::size_t ARRAY_SIZE = 10000;
@@ -24,10 +32,18 @@ namespace AthCUDA {
          dummyArray.push_back( ARRAY_ELEMENT );
       }
 
-      // Call on a function, which would synchronously make some modification
-      // to this vector.
+      // Create and launch the calculation using a task object.
+      AthCUDA::KernelStatus status;
       static const float MULTIPLIER = 1.23f;
-      cudaMultiply( dummyArray, MULTIPLIER );
+      auto task = make_CudaMultiplyTask( status, dummyArray, MULTIPLIER );
+      ATH_CHECK( m_kernelRunnerSvc->execute( std::move( task ) ) );
+
+      // Now wait for the task to finish.
+      if( status.wait() != 0 ) {
+         ATH_MSG_ERROR( "Something went wrong in the execution of the CUDA "
+                        "task" );
+         return StatusCode::FAILURE;
+      }
 
       // Check if the operation succeeded.
       static const float EXPECTED_RESULT = ARRAY_ELEMENT * MULTIPLIER;
@@ -42,4 +58,4 @@ namespace AthCUDA {
       return StatusCode::SUCCESS;
    }
 
-} // namespace AthCUDA
+} // namespace AthCUDAExamples
