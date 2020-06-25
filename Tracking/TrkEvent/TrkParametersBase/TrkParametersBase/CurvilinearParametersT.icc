@@ -109,7 +109,7 @@ CurvilinearParametersT<DIM, T, S>::CurvilinearParametersT(
   this->m_position = pos;
   this->m_momentum = mom;
 
-  //we need all the above to create the surface
+  // we need all the above to create the surface
   this->m_surface.reset(new S(this->m_position, curvilinearFrame()));
 }
 
@@ -153,6 +153,36 @@ CurvilinearParametersT<DIM, T, S>::operator=(
     m_cIdentifier = rhs.m_cIdentifier;
   }
   return *this;
+}
+/** the curvilinear parameters identifier */
+template<int DIM, class T, class S>
+unsigned int
+CurvilinearParametersT<DIM, T, S>::cIdentifier() const
+{
+  return m_cIdentifier;
+}
+
+template<int DIM, class T, class S>
+void
+CurvilinearParametersT<DIM, T, S>::setcIdentifier(unsigned int cIdentifier)
+{
+  m_cIdentifier = cIdentifier;
+}
+
+/** Test to see if there's a surface there. */
+template<int DIM, class T, class S>
+bool
+CurvilinearParametersT<DIM, T, S>::hasSurface() const
+{
+  return m_surface != nullptr;
+}
+
+/** Access to the Surface method */
+template<int DIM, class T, class S>
+const S&
+CurvilinearParametersT<DIM, T, S>::associatedSurface() const
+{
+  return *m_surface;
 }
 
 // equality operator
@@ -203,6 +233,46 @@ CurvilinearParametersT<DIM, T, S>::operator==(
   // return compatibility of base class parts
   return ParametersBase<DIM, T>::operator==(rhs);
 }
+/** clone */
+template<int DIM, class T, class S>
+CurvilinearParametersT<DIM, T, S>*
+CurvilinearParametersT<DIM, T, S>::clone() const
+{
+  return new CurvilinearParametersT<DIM, T, S>(*this);
+}
+
+/** Return the ParametersType enum */
+template<int DIM, class T, class S>
+ParametersType
+CurvilinearParametersT<DIM, T, S>::type() const
+{
+  return Trk::Curvilinear;
+}
+
+// Surface return (with on demand construction)
+template<int DIM, class T, class S>
+Amg::RotationMatrix3D
+CurvilinearParametersT<DIM, T, S>::measurementFrame() const
+{
+  Amg::RotationMatrix3D mFrame;
+  // the columnes
+  CurvilinearUVT local_curvilinearFrame = curvilinearFrame();
+  mFrame.col(0) = local_curvilinearFrame.curvU();
+  mFrame.col(1) = local_curvilinearFrame.curvV();
+  mFrame.col(2) = local_curvilinearFrame.curvT();
+
+  // return the rotation matrix that defines the curvilinear parameters
+  return mFrame;
+}
+
+
+template<int DIM, class T, class S>
+CurvilinearUVT
+CurvilinearParametersT<DIM, T, S>::curvilinearFrame() const
+{
+  CurvilinearUVT curvilinFrame(this->momentum().unit());
+  return curvilinFrame;
+}
 
 // Screen output dump
 template<int DIM, class T, class S>
@@ -226,29 +296,6 @@ CurvilinearParametersT<DIM, T, S>::dump(std::ostream& out) const
   return out;
 }
 
-// Surface return (with on demand construction)
-template<int DIM, class T, class S>
-Amg::RotationMatrix3D
-CurvilinearParametersT<DIM, T, S>::measurementFrame() const
-{
-  Amg::RotationMatrix3D mFrame;
-  // the columnes
-  CurvilinearUVT local_curvilinearFrame = curvilinearFrame();
-  mFrame.col(0) = local_curvilinearFrame.curvU();
-  mFrame.col(1) = local_curvilinearFrame.curvV();
-  mFrame.col(2) = local_curvilinearFrame.curvT();
-
-  // return the rotation matrix that defines the curvilinear parameters
-  return mFrame;
-}
-
-template<int DIM, class T, class S>
-CurvilinearUVT
-CurvilinearParametersT<DIM, T, S>::curvilinearFrame() const
-{
-  CurvilinearUVT curvilinFrame(this->momentum().unit());
-  return curvilinFrame;
-}
 
 // private updateParametersHelper
 template<int DIM, class T, class S>
