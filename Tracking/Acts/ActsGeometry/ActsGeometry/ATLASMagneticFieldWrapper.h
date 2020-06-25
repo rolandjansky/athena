@@ -33,16 +33,7 @@ public:
   Acts::Vector3D
   getField(const Acts::Vector3D& pos) const
   {
-    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, Gaudi::Hive::currentContext()};
-    if (!readHandle.isValid()) {
-       std::stringstream msg;
-       msg << "Failed to retrieve magmnetic field conditions data " << m_fieldCacheCondObjInputKey.key() << ".";
-       throw std::runtime_error(msg.str());
-    }
-    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-
-    MagField::AtlasFieldCache fieldCache;
-    fieldCondObj->getInitializedCache (fieldCache);
+    MagField::AtlasFieldCache fieldCache = getFieldCache();
 
     double posXYZ[3];
     posXYZ[0] = pos.x();
@@ -69,16 +60,7 @@ public:
   getFieldGradient(const Acts::Vector3D& position, Acts::ActsMatrixD<3, 3>& gradient) const
   {
 
-    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, Gaudi::Hive::currentContext()};
-    if (!readHandle.isValid()) {
-       std::stringstream msg;
-       msg << "Failed to retrieve magmnetic field conditions data " << m_fieldCacheCondObjInputKey.key() << ".";
-       throw std::runtime_error(msg.str());
-    }
-    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
-
-    MagField::AtlasFieldCache fieldCache;
-    fieldCondObj->getInitializedCache (fieldCache);
+    MagField::AtlasFieldCache fieldCache = getFieldCache();
 
     double posXYZ[3];
     posXYZ[0] = position.x();
@@ -112,11 +94,23 @@ public:
 
 private:
 
+  MagField::AtlasFieldCache getFieldCache() const {
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, Gaudi::Hive::currentContext()};
+    if (!readHandle.isValid()) {
+       std::stringstream msg;
+       msg << "Failed to retrieve magmnetic field conditions data " << m_fieldCacheCondObjInputKey.key() << ".";
+       throw std::runtime_error(msg.str());
+    }
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
 
+    MagField::AtlasFieldCache fieldCache;
+    fieldCondObj->getInitializedCache (fieldCache);
 
-  // TODO: store pointer??
+    return fieldCache;
+  }
+
+  // TODO: store pointer instead?
   SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey;
-       //{this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
 
   const double m_bFieldUnit = 1000.*Acts::UnitConstants::T;
 };
