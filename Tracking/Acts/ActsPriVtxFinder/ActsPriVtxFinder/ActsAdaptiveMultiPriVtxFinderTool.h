@@ -43,10 +43,6 @@
 
 #include <cmath>
 
-namespace MagField {
-  class IMagFieldSvc;
-}
-
 namespace Acts {
 class Surface;
 class BoundaryCheck;
@@ -114,7 +110,7 @@ private:
 
   std::shared_ptr<VertexFinder> m_vertexFinder = nullptr;
 
-  ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle;
+  SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
   ToolHandle<IActsTrackingGeometryTool> m_trackingGeometryTool{this, "TrackingGeometryTool", "", "ActsTrackingGeometryTool"};
   ToolHandle<InDet::IInDetTrackSelectionTool> m_trkFilter{this, "TrackSelector", "", "InDetTrackSelectionTool"};
   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey {this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot"};

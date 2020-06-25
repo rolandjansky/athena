@@ -6,7 +6,6 @@
 
 // ATHENA
 #include "GaudiKernel/IInterface.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
 #include "TrkLinks/LinkToXAODTrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
@@ -42,8 +41,7 @@ namespace
 
   ActsAdaptiveMultiPriVtxFinderTool::ActsAdaptiveMultiPriVtxFinderTool(const std::string& type, const std::string& name,
     const IInterface* parent)
-  : base_class(type, name, parent),
-  m_fieldServiceHandle("AtlasFieldSvc", name)
+  : base_class(type, name, parent)
   {}
 
 StatusCode
@@ -61,11 +59,10 @@ ActsAdaptiveMultiPriVtxFinderTool::initialize()
 
     Acts::Navigator navigator(trackingGeometry);
 
-  	// We need the field service
-    ATH_CHECK( m_fieldServiceHandle.retrieve() );
-    ATH_MSG_INFO("Using ATLAS magnetic field service");
     using BField_t = ATLASMagneticFieldWrapper;
-    BField_t bField(m_fieldServiceHandle.get());
+    ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
+    BField_t bField(m_fieldCacheCondObjInputKey);
+
     auto stepper = Acts::EigenStepper<BField_t>(std::move(bField));
     auto propagator = std::make_shared<Propagator>(std::move(stepper), 
       std::move(navigator));
