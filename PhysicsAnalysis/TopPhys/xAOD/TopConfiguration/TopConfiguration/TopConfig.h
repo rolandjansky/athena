@@ -573,6 +573,7 @@ namespace top {
     virtual void decoKeyJetGhostTrack(const std::string& key);
     inline virtual const std::string& decoKeyJetGhostTrack() const {return m_decoKeyJetGhostTrack;}
     virtual void runPeriodJetGhostTrack(const std::vector<std::uint32_t>& vect);
+    virtual void runPeriodTrack(const std::vector<std::uint32_t>& vect);
 
     virtual const std::string& sgKeyPhotons(const std::size_t hash) const;
     virtual const std::string& sgKeyElectrons(const std::size_t hash) const;
@@ -634,6 +635,9 @@ namespace top {
 
     // Retrieve run periods for ghost tracks.
     const std::vector<std::uint32_t>& runPeriodsJetGhostTrack() const {return m_jetGhostTrackRunPeriods;}
+
+    // Retrieve run periods for tracks.                                                                                                                                                           
+    const std::vector<std::uint32_t>& runPeriodsTrack() const {return m_trackRunPeriods;}
 
     // Retrieve mapping from systematic hash to CP::SystematicSet.
     inline std::shared_ptr<std::unordered_map<std::size_t, CP::SystematicSet> > systMapJetGhostTrack()   const {
@@ -2048,6 +2052,7 @@ namespace top {
     std::string m_decoKeyJetGhostTrack;
     std::vector<std::string> m_jetGhostTrackSystematics;
     std::vector<std::uint32_t> m_jetGhostTrackRunPeriods;
+    std::vector<std::uint32_t> m_trackRunPeriods;
 
     float m_jetResponseMatchingDeltaR;
 

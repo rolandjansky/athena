@@ -16,7 +16,7 @@ namespace top {
   class TrackSelection: public TrackSelectionBase {
   public:
     TrackSelection(const double ptcut, const double etamax);
-    ~TrackSelection();
+    virtual ~TrackSelection();
     virtual bool passSelection(const xAOD::TrackParticle&, const xAOD::Vertex&) override;
     virtual void print(std::ostream& os) const override;
   private:

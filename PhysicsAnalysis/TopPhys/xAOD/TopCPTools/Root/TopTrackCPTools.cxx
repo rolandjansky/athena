@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopCPTools/TopTrackCPTools.h"
@@ -58,17 +58,15 @@ namespace top {
     //       lower bound (incl) of the i-th range; the (i+1)-th element is
     //       the upper bound (excl) of the i-th range.
 
-    // ANDREA: CHECK!!!
     m_runPeriods = {
       276262, 297730, 300909, 311482, 334738, 341650, 364486
     };
 
-    m_config->runPeriodJetGhostTrack(m_runPeriods);
+    m_config->runPeriodTrack(m_runPeriods);
 
-    top::check(setupSmearingTool(), "Failed to setup track smearing tools");
-    top::check(setupBiasingTools(), "Failed to setup track biasing tools");
+    top::check(setupSmearingTool(),    "Failed to setup track smearing tools");
+    top::check(setupBiasingTools(),    "Failed to setup track biasing tools");
     top::check(setupTruthFilterTool(), "Failed to setup truth filter tools");
-    //    top::check(setupJetTrackFilterTool(), "Failed to setup track filter tools");
 
     if(m_trkseltool.empty()) {
       InDet::InDetTrackSelectionTool *selTool = new InDet::InDetTrackSelectionTool( "TrkSelTool" , m_config->trackQuality());
@@ -147,6 +145,9 @@ namespace top {
   }
 
   StatusCode TrackCPTools::setupTruthFilterTool() {
+
+    // for track reconstruction efficiency uncertainties and fake rate uncertainties
+
     if (asg::ToolStore::contains<InDet::InDetTrackTruthOriginTool>(m_truthOriginToolName)) {
       m_truthOriginTool = asg::ToolStore::get<InDet::InDetTrackTruthOriginTool>(m_truthOriginToolName);
     } else {
@@ -171,31 +172,6 @@ namespace top {
     }
     return StatusCode::SUCCESS;
   }
-
-  /*  StatusCode TrackCPTools::setupJetTrackFilterTool() {
-    if (asg::ToolStore::contains<InDet::InDetTrackTruthOriginTool>(m_truthOriginToolName)) {
-      m_truthOriginTool = asg::ToolStore::get<InDet::InDetTrackTruthOriginTool>(m_truthOriginToolName);
-    } else {
-      auto tool = new InDet::InDetTrackTruthOriginTool(m_truthOriginToolName);
-      top::check(tool->initialize(),
-                 "Failure to initialize InDetTrackTruthOriginTool " + m_truthOriginToolName);
-      m_truthOriginTool = tool;
-      ATH_MSG_INFO(" Creating truth origin tool " + m_truthOriginToolName);
-    }
-
-    if (asg::ToolStore::contains<InDet::JetTrackFilterTool>(m_jetTrackFilterToolName)) {
-      m_jetTrackFilterTool = asg::ToolStore::get<InDet::JetTrackFilterTool>(m_jetTrackFilterToolName);
-    } else {
-      auto tool = new InDet::JetTrackFilterTool(m_jetTrackFilterToolName);
-      top::check(tool->setProperty("trackOriginTool",
-                                   ToolHandle<InDet::IInDetTrackTruthOriginTool>{&(*m_truthOriginTool)}),
-                 "Failed to setProperty trackOriginTool of InDetTrackTruthFilterTool " + m_truthFilterToolName);
-      top::check(tool->initialize(), "Failure to initialize JetTrackFilterTool");
-      m_jetTrackFilterTool = tool;
-      ATH_MSG_INFO(" Creating jet track filter tool");
-    }
-    return StatusCode::SUCCESS;
-    }*/
 
 
 }  // namespace top

@@ -1,11 +1,11 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
-// modified base on GhostTrackSystematicsMaker.h
+// modified base on GhostTrackSystematicsMaker.h from Fabian Wilk
 // Description:
-// Author: Fabian Wilk
-// Created: Mon Oct 24 16:54:17 2016
+// Author: Andrea Knue
+// Created: June 2020
 
 
 #ifndef _TOP_TRACKSYSTEMATICSMAKER_H_
@@ -33,7 +33,6 @@ namespace InDet {
   class InDetTrackBiasingTool;
   class InDetTrackTruthFilterTool;
   class InDetTrackTruthOriginTool;
-  class JetTrackFilterTool;
 }
 
 namespace top {
@@ -41,21 +40,7 @@ namespace top {
 }
 
 namespace top {
-  /*
-   *  This tool produces one copy of this container for each of the affecting
-   *  and requested systematics. Some systematics change only the number of
-   *  tracks (efficiency-style systematics) while other only smear (some) of
-   *  the track particle properties.
-   *  ANDREA: CHANGE!!!
-   *  The requested systematics are retrieved from top::TopConfig, filtered to
-   *  only contain those affecting the ghost tracks, and propagated back to
-   *  the top::TopConfig instance so that they become available to any tool
-   *  which wishes to query
-   *
-   *      - the affecting systematics,
-   *      - the decoration name used for the varied ghost track container
-   *
-   */
+
   class TrackSystematicsMaker final: public asg::AsgTool {
   public:
     explicit TrackSystematicsMaker(const std::string& name);
@@ -92,10 +77,9 @@ namespace top {
      *  an empty set will result in no systematic variation.
      */
     virtual void specifiedSystematics(const std::set<std::string>& specifiedSystematics);
+
   protected:
 
-    //    StatusCode applyNoOpSystematic(xAOD::TrackParticleContainer* nominal,
-    //				   const CP::SystematicSet& syst) const;
 
     StatusCode applyTruthFilterSystematic(InDet::InDetTrackTruthFilterTool* tool,
                                           const CP::SystematicSet& syst) const;
@@ -106,16 +90,10 @@ namespace top {
     StatusCode applyBiasingSystematic(InDet::InDetTrackBiasingTool* tool,
                                       const CP::SystematicSet& syst) const;
 
-    //StatusCode applyJetTrackFilterSystematic(xAOD::TrackParticleContainer* nominal,
-    //                                        InDet::JetTrackFilterTool* tool,
-    //                                        const CP::SystematicSet& syst) const;
-
-
   private:
     StatusCode retrieveTrackCPTool();
   private:
     std::shared_ptr<top::TopConfig> m_config;
-    double m_jetPtCut, m_jetEtaCut;
     std::vector<std::uint32_t> m_runPeriods;
 
     std::list<CP::SystematicSet> m_specifiedSystematics;
@@ -136,7 +114,6 @@ namespace top {
         exec(smearing);
         exec(truthFilter);
         exec(bias);
-        exec(jetTrackFilter);
       }
 
       void removeNonSpecified(const std::list<CP::SystematicSet>& specified) {
@@ -154,21 +131,19 @@ namespace top {
         exec(smearing);
         exec(truthFilter);
         exec(bias);
-        exec(jetTrackFilter);
       }
 
       std::size_t numSystematics() const {
-        return smearing.size() + truthFilter.size() + bias.size() + jetTrackFilter.size();
+        return smearing.size() + truthFilter.size() + bias.size();
       }
 
-      std::vector<CP::SystematicSet> smearing, truthFilter, bias, jetTrackFilter;
+      std::vector<CP::SystematicSet> smearing, truthFilter, bias;
     } m_systs;
 
     struct {
       ToolHandle<InDet::InDetTrackSmearingTool> smearing;
       ToolHandle<InDet::InDetTrackTruthOriginTool> truthOrigin;
       ToolHandle<InDet::InDetTrackTruthFilterTool> truthFilter;
-      ToolHandle<InDet::JetTrackFilterTool> jetTrackFilter;
 
       std::vector<ToolHandle<InDet::InDetTrackBiasingTool> > bias;
     } m_tools;
@@ -183,4 +158,4 @@ namespace top {
   }
 }
 
-#endif /* _TOP_GHOSTTRACKSYSTEMATICSMAKER_H_ */
+#endif /* _TOP_TRACKSYSTEMATICSMAKER_H_ */

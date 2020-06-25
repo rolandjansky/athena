@@ -578,7 +578,7 @@ namespace top {
                                       [](const xAOD::Vertex* vtx)
                                       {return vtx->vertexType() == xAOD::VxType::PriVtx;});
       const xAOD::Vertex* primaryVertex = (it_pv == vertices->cend()) ? nullptr : *it_pv;
-      if (primaryVertex == nullptr) Warning("TopObjectSelection", "No primary vertex found." );
+      if (primaryVertex == nullptr) ATH_MSG_WARNING("TopObjectSelection. No primary vertex found." );
 
 
       int counter = 0;

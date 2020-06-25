@@ -1978,8 +1978,15 @@ namespace top {
   // setting the run periods for ghost track
   // even if configuration is fixed - could be changed later
   void TopConfig::runPeriodJetGhostTrack(const std::vector<std::uint32_t>& vect) {
-    if (m_useJetGhostTrack == true || m_useTracks) m_jetGhostTrackRunPeriods = vect;
+    if (m_useJetGhostTrack == true) m_jetGhostTrackRunPeriods = vect;
   }
+
+  // setting the run periods for tracks                                                                                                                                                             
+  // even if configuration is fixed - could be changed later                                                                                                                                             
+  void TopConfig::runPeriodTrack(const std::vector<std::uint32_t>& vect) {
+    if (m_useTracks) m_trackRunPeriods = vect;
+  }
+
 
   void TopConfig::setBTaggingSFSysts(std::string WP, const std::set<std::string>& btagging_SF_names, bool isTrackJet) {
     //this avoids code duplication

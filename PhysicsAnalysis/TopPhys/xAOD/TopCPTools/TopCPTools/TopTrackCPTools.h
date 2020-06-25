@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef TOPCPTOOLS_TOPTRACKCPTOOLS_H_
@@ -21,7 +21,6 @@
 #include "InDetTrackSystematicsTools/InDetTrackBiasingTool.h"
 #include "InDetTrackSystematicsTools/InDetTrackTruthFilterTool.h"
 #include "InDetTrackSystematicsTools/InDetTrackTruthOriginTool.h"
-#include "InDetTrackSystematicsTools/JetTrackFilterTool.h"
 #include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
 
 namespace top {
@@ -50,14 +49,10 @@ namespace top {
     const std::string m_truthFilterToolName {
       "top::TrackCPTools::InDetTrackTruthFilterTool"
     };
-    const std::string m_jetTrackFilterToolName {
-      "top::TrackCPTools::JetTrackFilterTool"
-    };
 
     ToolHandle<InDet::InDetTrackSmearingTool>      m_smearingTool;
     ToolHandle<InDet::InDetTrackTruthOriginTool>   m_truthOriginTool;
     ToolHandle<InDet::InDetTrackTruthFilterTool>   m_truthFilterTool;
-    ToolHandle<InDet::JetTrackFilterTool>          m_jetTrackFilterTool;
 
     ToolHandle<InDet::IInDetTrackSelectionTool> m_trkseltool;
 
@@ -66,7 +61,7 @@ namespace top {
     StatusCode setupSmearingTool();
     StatusCode setupBiasingTools();
     StatusCode setupTruthFilterTool();
-    StatusCode setupJetTrackFilterTool();
+
   };
 }  // namespace top
 

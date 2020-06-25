@@ -24,28 +24,7 @@ namespace top {
     m_trkseltool("TrkSelTool")
   {
 
-    //    declareProperty("TrkSelTool", m_trkseltool);
-
-    //    //std::cout << "In track selection 1" << std::endl;
-
-    /*if(m_trkseltool.empty()) {
-
-      //      //std::cout << "In track selection 1a" << std::endl;
-
-      InDet::InDetTrackSelectionTool *selTool = new InDet::InDetTrackSelectionTool( "TrkSelTool" , m_config->trackQuality());
-      top::check(selTool -> initialize(), "Failed to initialize InDetTrackSelectionTool");
-
-      //      //std::cout << "In track selection 1b" << std::endl;
-      m_trkseltool = ToolHandle<InDet::IInDetTrackSelectionTool>(selTool);
-
-      //      //std::cout << "In track selection 1c" << std::endl;
-      }*/
-
-    // //std::cout << "In track selection 2" << std::endl;
-
     top::check(m_trkseltool.retrieve(), "Failed to retrieve InDetTrackSelectionTool");
-
-    // //std::cout << "In track selection 3" << std::endl;
 
   }
 
@@ -57,11 +36,12 @@ namespace top {
 
     if (std::fabs(track.eta()) > m_etamax) return false;
 
-    //std::cout << "In track selection 4" << std::endl;
 
+    if (track.isAvailable<char>("passTruthFilter")) {
+      if (!track.auxdecor<char>("passTruthFilter")) return false;
+    }
+    
     if ( !m_trkseltool->accept(track, &primaryVertex ) ) return false;
-
-    //std::cout << "In track selection 5" << std::endl;
 
     return true;
   }
