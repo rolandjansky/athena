@@ -80,6 +80,7 @@
 
 // system includes
 #include <fstream>
+#include <regex>
 
 namespace ST {
 
@@ -297,6 +298,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_jetCalibTool(""),
     m_jetFatCalibTool(""),
     m_jetUncertaintiesTool(""),
+    m_jetUncertaintiesPDSmearTool(""),
     m_fatjetUncertaintiesTool(""),
     m_TCCjetUncertaintiesTool(""),
     m_jetCleaningTool(""),
@@ -612,6 +614,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   m_jetCalibTool.declarePropertyFor( this, "JetCalibTool", "The JetCalibTool" );
   m_jetFatCalibTool.declarePropertyFor( this, "FatJetCalibTool", "The JetCalibTool for large-R jets" );
   m_jetUncertaintiesTool.declarePropertyFor( this, "JetUncertaintiesTool", "The JetUncertaintiesTool" );
+  m_jetUncertaintiesPDSmearTool.declarePropertyFor( this, "JetPDSmearUncertaintiesTool", "The JetPDSmearUncertaintiesTool" );
   m_fatjetUncertaintiesTool.declarePropertyFor( this, "FatJetUncertaintiesTool", "The JetUncertaintiesTool for large-R jets" );
   m_TCCjetUncertaintiesTool.declarePropertyFor( this, "TCCJetUncertaintiesTool", "The JetUncertaintiesTool for TCC jets" );
   m_jetCleaningTool.declarePropertyFor( this, "JetCleaningTool", "The JetCleaningTool" );
@@ -1360,7 +1363,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_JvtConfig, "Jet.JvtConfig", rEnv, "Moriond2018/");
   configFromFile(m_jetUncertaintiesConfig, "Jet.UncertConfig", rEnv, "rel21/Summer2019/R4_SR_Scenario1_SimpleJER.config"); // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2018SmallR
   configFromFile(m_jetUncertaintiesCalibArea, "Jet.UncertCalibArea", rEnv, "default"); // Defaults to default area set by tool
-  configFromFile(m_jetUncertaintiesPDsmearing, "Jet.UncertPDsmearing", rEnv, false); // for non "SimpleJER" config, run MC twice with IsData on/off, see twiki above
+  configFromFile(m_jetUncertaintiesPDsmearing, "Jet.UncertPDsmearing", rEnv, false); // for non "SimpleJER" config, run the PDSmear systematics. This are labelled with an __2 if they are being used, but otherwise will have the same tree name as the JET_JER systematic trees.
   configFromFile(m_fatJets, "Jet.LargeRcollection", rEnv, "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"); // set to "None" to turn off large jets 
   configFromFile(m_fatJetUncConfig, "Jet.LargeRuncConfig", rEnv, "rel21/Spring2019/R10_GlobalReduction.config"); // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Moriond2018LargeR
   configFromFile(m_fatJetUncVars, "Jet.LargeRuncVars", rEnv, "default"); // do all if not specified
@@ -1872,12 +1875,21 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
   m_currentSyst = systConfig;
 
   // NB: SystematicSet typically has only one component (see SUSYToolsTester macro)
-  if (!m_jetUncertaintiesTool.empty()) {
+  // The PDSmear systematics have been initialised as the second component of the JET_JER systematic, here we'll catch the uncertainties which are to use the PDSmear initialised tool. 
+  if (!m_jetUncertaintiesTool.empty() && systConfig.name().find("__2") == std::string::npos) {
     CP::SystematicCode ret = m_jetUncertaintiesTool->applySystematicVariation(systConfig);
     if ( ret != CP::SystematicCode::Ok) {
       ATH_MSG_VERBOSE("Cannot configure JetUncertaintiesTool for systematic var. " << systConfig.name() );
     } else {
       ATH_MSG_VERBOSE("Configured JetUncertaintiesTool for systematic var. " << systConfig.name() );
+    }
+  }
+  if (!m_jetUncertaintiesPDSmearTool.empty() && systConfig.name().find("__2") != std::string::npos ) {
+    CP::SystematicCode ret = m_jetUncertaintiesPDSmearTool->applySystematicVariation(systConfig);
+    if ( ret != CP::SystematicCode::Ok) {
+      ATH_MSG_VERBOSE("Cannot configure JetUncertaintiesPDSmearTool for systematic var. " << systConfig.name() );
+    } else {
+      ATH_MSG_VERBOSE("Configured JetUncertaintiesPDSmearTool for systematic var. " << systConfig.name() );
     }
   }
   if (!m_fatjetUncertaintiesTool.empty()) {
@@ -2225,12 +2237,22 @@ std::vector<ST::SystInfo> SUSYObjDef_xAOD::getSystInfoList() const {
   infodef.affectedWeights.clear();
   sysInfoList.push_back(infodef);
 
+  
+
   // add all recommended systematics
   for (const auto& systSet : CP::make_systematics_vector(recommendedSystematics)) {
     for (const auto& sys : systSet) {
-
-      sysInfoList.push_back(getSystInfo(sys));
+	sysInfoList.push_back(getSystInfo(sys));
+	if (sys.basename().find("JET_JER") != std::string::npos && m_jetUncertaintiesPDsmearing == true) {
+	  // Add the additional PDSmear JET_JER systematics to the systematics registry if we're using the PDSmear. Otherwise they don't need to be added.
+	  std::string JER_systematicName = sys.name();
+	  JER_systematicName = std::regex_replace(JER_systematicName, std::regex("__1"), "__2");
+	  CP::SystematicVariation sys_JER(JER_systematicName);
+	  sysInfoList.push_back(getSystInfo(sys_JER));
+	}
     }
+    
+
   }
 
   ATH_MSG_INFO("Returning list of " << sysInfoList.size() << " systematic variations");
@@ -2259,13 +2281,34 @@ ST::SystInfo SUSYObjDef_xAOD::getSystInfo(const CP::SystematicVariation& sys) co
       sysInfo.affectedWeights.insert(ST::Weights::Jet::FJVT);
     }
   }
-  if (!m_jetUncertaintiesTool.empty()) {
-    if ( m_jetUncertaintiesTool->isAffectedBySystematic( CP::SystematicVariation(sys.basename(), CP::SystematicVariation::CONTINUOUS) ) ) {
-      sysInfo.affectsKinematics = true;
-      sysInfo.affectsType = SystObjType::Jet;
+
+
+  if (sys.name().find("__2") == std::string::npos) {
+    if (!m_jetUncertaintiesTool.empty()) {
+      if ( m_jetUncertaintiesTool->isAffectedBySystematic( CP::SystematicVariation(sys.basename(), CP::SystematicVariation::CONTINUOUS) ) ) {
+	sysInfo.affectsKinematics = true;
+	sysInfo.affectsType = SystObjType::Jet;
+      }
     }
   }
-  if (!m_fatjetUncertaintiesTool.empty()) {
+  if (sys.name().find("__2") != std::string::npos) {
+    if (!m_jetUncertaintiesPDSmearTool.empty()) {
+      if ( m_jetUncertaintiesPDSmearTool->isAffectedBySystematic( CP::SystematicVariation(sys.basename(), CP::SystematicVariation::CONTINUOUS) ) ) {
+	sysInfo.affectsKinematics = true;
+	sysInfo.affectsType = SystObjType::Jet;
+      }
+    }
+  }
+
+
+//  if (!m_jetUncertaintiesTool.empty()) {
+//    if ( m_jetUncertaintiesTool->isAffectedBySystematic( CP::SystematicVariation(sys.basename(), CP::SystematicVariation::CONTINUOUS) ) ) {
+//      sysInfo.affectsKinematics = true;
+//      sysInfo.affectsType = SystObjType::Jet;
+//    }
+//  }
+
+   if (!m_fatjetUncertaintiesTool.empty()) {
     if ( m_fatjetUncertaintiesTool->isAffectedBySystematic( CP::SystematicVariation(sys.basename(), CP::SystematicVariation::CONTINUOUS) ) ) {
       sysInfo.affectsKinematics = true;
       sysInfo.affectsType = SystObjType::Jet;

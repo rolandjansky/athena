@@ -286,20 +286,45 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
     m_jetUncertaintiesTool.setTypeAndName("JetUncertaintiesTool/"+toolName);
 
-    // Allowing for IsData = true (pseudo-data smearing) if AllJER or FullJER config is set in m_jetUncertaintiesConfig
-    bool JERUncPDsmearing = isData() ? isData() : m_jetUncertaintiesPDsmearing;
-    if (m_jetUncertaintiesConfig.find("SimpleJER") != std::string::npos) JERUncPDsmearing = isData();
 
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("JetDefinition", jetdef) );
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("MCType", isAtlfast() ? "AFII" : "MC16") );
-    ATH_CHECK( m_jetUncertaintiesTool.setProperty("IsData", JERUncPDsmearing) );
+    ATH_CHECK( m_jetUncertaintiesTool.setProperty("IsData", false) ); // Never use the PDSmearing for the nominal tool. 
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("ConfigFile", m_jetUncertaintiesConfig) );
     if (m_jetUncertaintiesCalibArea != "default") ATH_CHECK( m_jetUncertaintiesTool.setProperty("CalibArea", m_jetUncertaintiesCalibArea) );
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_jetUncertaintiesTool.retrieve() );
   } else  ATH_CHECK( m_jetUncertaintiesTool.retrieve() );
   
+  ATH_MSG_INFO("Set up Jet PD Smear Uncertainty tool...");
+  
+  if (!m_jetUncertaintiesPDSmearTool.isUserConfigured() && m_jetUncertaintiesPDsmearing == true) {
+    std::string jetdef("AntiKt4" + xAOD::JetInput::typeName(xAOD::JetInput::Type(m_jetInputType)));
+    
+    if(jetdef != "AntiKt4EMTopo" && jetdef !="AntiKt4EMPFlow"){
+      ATH_MSG_WARNING("Jet Uncertaintes recommendations only exist for EMTopo and PFlow jets, falling back to AntiKt4EMTopo");
+      jetdef = "AntiKt4EMTopo";
+    }
+    toolName = "JetUncertaintiesPDSmearTool_" + jetdef;
+    
+    m_jetUncertaintiesPDSmearTool.setTypeAndName("JetUncertaintiesTool/"+toolName);
+    
+    // If, for some reason, you're trying to use the PDSmear, with the reduced set return an error (you shouldn't do this, you're just going to duplicate the SimpleJER results. 
+    bool JERUncPDsmearing = isData() ? isData() : m_jetUncertaintiesPDsmearing;
+    if (m_jetUncertaintiesConfig.find("SimpleJER") != std::string::npos && JERUncPDsmearing){
+      ATH_MSG_ERROR("You are trying to use the SimpleJER set, with PDsmearing. There is no functionality for this. Please fix your config file. Either run with PDSmear set to false, or run with the AllJER or FullJER sets.");
+      return StatusCode::FAILURE;
+    }
+    ATH_CHECK( m_jetUncertaintiesPDSmearTool.setProperty("JetDefinition", jetdef) );
+    ATH_CHECK( m_jetUncertaintiesPDSmearTool.setProperty("MCType", isAtlfast() ? "AFII" : "MC16") );
+    ATH_CHECK( m_jetUncertaintiesPDSmearTool.setProperty("IsData", true) ); // Set to True by default for PDSmear-named tool. 
+    ATH_CHECK( m_jetUncertaintiesPDSmearTool.setProperty("ConfigFile", m_jetUncertaintiesConfig) );
+    if (m_jetUncertaintiesCalibArea != "default") ATH_CHECK( m_jetUncertaintiesPDSmearTool.setProperty("CalibArea", m_jetUncertaintiesCalibArea) );
+    ATH_CHECK( m_jetUncertaintiesPDSmearTool.setProperty("OutputLevel", this->msg().level()) );
+    ATH_CHECK( m_jetUncertaintiesPDSmearTool.retrieve() );
+  } else  ATH_CHECK( m_jetUncertaintiesPDSmearTool.retrieve() );
 
+  ATH_MSG_INFO("Set up FatJet Uncertainty tool if using...");
   // Initialise jet uncertainty tool for fat jets
   // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2019LargeR
   if (!m_fatjetUncertaintiesTool.isUserConfigured() && !m_fatJets.empty() && !m_fatJetUncConfig.empty()) {
