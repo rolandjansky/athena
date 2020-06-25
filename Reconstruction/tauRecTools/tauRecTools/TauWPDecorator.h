@@ -28,54 +28,51 @@ class TH2;
  */
 
 class TauWPDecorator : public TauRecToolBase {
-public:
-
-    TauWPDecorator(const std::string& name="TauWPDecorator") ;
+  public:
     ASG_TOOL_CLASS2(TauWPDecorator, TauRecToolBase, ITauToolBase)
+    TauWPDecorator(const std::string& name="TauWPDecorator");
     ~TauWPDecorator();
 
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
     virtual StatusCode execute(xAOD::TauJet& pTau) const override;
 
-    virtual StatusCode retrieveHistos(int nProng);
-    virtual StatusCode storeLimits(int nProng);
-    virtual double transformScore(double score, double cut_lo, double eff_lo, double cut_hi, double eff_hi) const;
+  private:
+    StatusCode retrieveHistos(int nProng);
+    StatusCode storeLimits(int nProng);
+    double transformScore(double score, double cutLow, double effLow, double cutHigh, double effHigh) const;
 
-private:
-    std::string m_file0P;
-    std::string m_file1P;
-    std::string m_file3P;
+    bool m_electronMode;
+    bool m_defineWPs;
+    std::string m_scoreName;
+    std::string m_scoreNameTrans;
+
+    std::string m_file0p;
+    std::string m_file1p;
+    std::string m_file3p;
+    
+    std::vector<int> m_EDMWPs;
+    std::vector<float> m_EDMWPEffs0p;
+    std::vector<float> m_EDMWPEffs1p;
+    std::vector<float> m_EDMWPEffs3p;
+
+    std::vector<std::string> m_decorWPs;
+    std::vector<float> m_decorWPEffs0p;
+    std::vector<float> m_decorWPEffs1p;
+    std::vector<float> m_decorWPEffs3p;
+    
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"Key_eventInfo", "EventInfo", "EventInfo key"};
     
     typedef std::pair<double, std::unique_ptr<TH2> > m_pair_t;
 
-    std::unique_ptr<std::vector<m_pair_t>> m_hists0P; //!
-    std::unique_ptr<std::vector<m_pair_t>> m_hists1P; //!
-    std::unique_ptr<std::vector<m_pair_t>> m_hists3P; //!
+    std::unique_ptr<std::vector<m_pair_t>> m_hists0p;
+    std::unique_ptr<std::vector<m_pair_t>> m_hists1p;
+    std::unique_ptr<std::vector<m_pair_t>> m_hists3p;
     
-    // Limits, probably not needed
-    std::map<int, double> m_xmin;
-    std::map<int, double> m_ymin;
-    std::map<int, double> m_xmax;
-    std::map<int, double> m_ymax;
-    
-    bool m_defineWP;
-    bool m_electronMode;
-
-    std::vector<int> m_cut_bits;
-    std::vector<float> m_cut_effs_0p;
-    std::vector<float> m_cut_effs_1p;
-    std::vector<float> m_cut_effs_3p;
-
-    std::vector<std::string> m_decoration_names;
-    std::vector<float> m_cut_effs_decoration_0p;
-    std::vector<float> m_cut_effs_decoration_1p;
-    std::vector<float> m_cut_effs_decoration_3p;
-
-    std::string m_scoreName;
-    std::string m_newScoreName;
-
-    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"Key_eventInfo", "EventInfo", "EventInfo key"};
+    std::map<int, double> m_xMin;
+    std::map<int, double> m_yMin;
+    std::map<int, double> m_xMax;
+    std::map<int, double> m_yMax;
 };
 
 #endif
