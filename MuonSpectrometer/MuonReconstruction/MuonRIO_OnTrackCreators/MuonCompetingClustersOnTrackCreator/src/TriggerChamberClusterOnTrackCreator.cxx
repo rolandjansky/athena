@@ -38,18 +38,18 @@ TriggerChamberClusterOnTrackCreator::initialize()
 }
   
 const CompetingMuonClustersOnTrack*
-TriggerChamberClusterOnTrackCreator::createBroadCluster(const std::list<const Trk::PrepRawData*>& prds,
-							const double) const
-{
+TriggerChamberClusterOnTrackCreator::createBroadCluster(const std::list<const Trk::PrepRawData*>& prds, const double) const {
     ATH_MSG_VERBOSE("enter createBroadCluster: number of prds " << prds.size() );
 
     // make some PRD consistency checks
-    if (! prds.size())
-    {
-	ATH_MSG_WARNING("fails: empty PRD list ");
-	return 0;
+    if (!prds.size()) {
+        ATH_MSG_WARNING("fails: empty PRD list ");
+        return nullptr;
     }
-
+    if (!(*prds.begin())) {
+        ATH_MSG_WARNING("fails: first element of RPD list is nullptr");
+        return nullptr;
+    }
     const Trk::TrkDetElementBase* detectorElement = (**prds.begin()).detectorElement();
     Identifier channelId = (**prds.begin()).identify();
     bool isRpc = m_idHelperSvc->isRpc(channelId);
@@ -62,22 +62,20 @@ TriggerChamberClusterOnTrackCreator::createBroadCluster(const std::list<const Tr
 
     bool measuresPhi = isRpc && m_idHelperSvc->rpcIdHelper().measuresPhi(channelId);
     if (!isRpc) measuresPhi = m_idHelperSvc->tgcIdHelper().isStrip(channelId);
-    for (std::list<const Trk::PrepRawData*>::const_iterator p = prds.begin();
-	 p != prds.end();
-	 ++p)
-    {
-	channelId = (**p).identify();
-	if ((isRpc      && m_idHelperSvc->rpcIdHelper().measuresPhi(channelId)	!= measuresPhi)
-	    || (! isRpc	&& m_idHelperSvc->tgcIdHelper().isStrip(channelId)		!= measuresPhi))
-	{
-	    ATH_MSG_WARNING("fails: PRDs must measure same coordinate ");
-	    return 0;
-	}
-	if ((**p).detectorElement() != detectorElement)
-	{
-		ATH_MSG_WARNING("fails: PRDs must be from same detectorElement ");
-		return 0;
-	}
+    for (std::list<const Trk::PrepRawData*>::const_iterator p = prds.begin(); p != prds.end(); ++p) {
+        if (!(*p)) {
+            ATH_MSG_WARNING("fails: current PrepRawData is nullptr, continuing");
+            continue;
+        }
+        channelId = (**p).identify();
+        if ((isRpc && m_idHelperSvc->rpcIdHelper().measuresPhi(channelId) != measuresPhi) || (!isRpc && m_idHelperSvc->tgcIdHelper().isStrip(channelId) != measuresPhi)) {
+            ATH_MSG_WARNING("fails: PRDs must measure same coordinate ");
+            return nullptr;
+        }
+        if ((**p).detectorElement() != detectorElement) {
+            ATH_MSG_WARNING("fails: PRDs must be from same detectorElement ");
+            return nullptr;
+        }
     }
 
     // create a rot for each prd (which gets weight zero)
@@ -156,41 +154,48 @@ TriggerChamberClusterOnTrackCreator::applyClusterConsistency(
     }
 }
 
-std::vector<const Muon::MuonClusterOnTrack*>*
-TriggerChamberClusterOnTrackCreator::createPrdRots(
-    const std::list<const Trk::PrepRawData*>& prds) const
-{
+std::vector<const Muon::MuonClusterOnTrack*>* TriggerChamberClusterOnTrackCreator::createPrdRots(const std::list<const Trk::PrepRawData*>& prds) const {
     // create clusterRot for each PRD
-    std::vector<const Muon::MuonClusterOnTrack*>* rots =
-	new std::vector<const Muon::MuonClusterOnTrack*>;
-    for (std::list<const Trk::PrepRawData*>::const_iterator  p = prds.begin();
-	 p != prds.end();
-	 ++p)
-    {
-	Identifier id = (**p).identify();
-	const Trk::TrkDetElementBase* detectorElement	= (**p).detectorElement();
-	const Amg::Vector3D globalPosition	= detectorElement->center(id);
-	const Muon::MuonClusterOnTrack* cluster		=
-	    m_clusterCreator->createRIO_OnTrack(**p,globalPosition); 
-	rots->push_back(cluster);
+    std::vector<const Muon::MuonClusterOnTrack*>* rots = new std::vector<const Muon::MuonClusterOnTrack*>;
+    if (!prds.size()) {
+        ATH_MSG_WARNING("empty PRD list ");
+        return rots;
     }
-
+    if (!(*prds.begin())) {
+        ATH_MSG_WARNING("first element of RPD list is nullptr");
+        return rots;
+    }
+    for (std::list<const Trk::PrepRawData*>::const_iterator p = prds.begin(); p != prds.end(); ++p) {
+        if (!(*p)) {
+            ATH_MSG_WARNING("current PrepRawData is nullptr, continuing");
+            continue;
+        }
+        Identifier id = (**p).identify();
+        const Trk::TrkDetElementBase* detectorElement = (**p).detectorElement();
+        const Amg::Vector3D globalPosition = detectorElement->center(id);
+        const Muon::MuonClusterOnTrack* cluster = m_clusterCreator->createRIO_OnTrack(**p,globalPosition);
+        rots->push_back(cluster);
+    }
     return rots;
 }
 
 void
-TriggerChamberClusterOnTrackCreator::makeClustersBySurface(
-    std::list<int>&					limitingChannels,
-    std::list<const Muon::MuonClusterOnTrack*>&		limitingRots,
-    const std::list<const Trk::PrepRawData*>&		prds,
-    const std::vector<const Muon::MuonClusterOnTrack*>& rots) const
-{
+TriggerChamberClusterOnTrackCreator::makeClustersBySurface(std::list<int>& limitingChannels, std::list<const Muon::MuonClusterOnTrack*>& limitingRots, const std::list<const Trk::PrepRawData*>& prds, const std::vector<const Muon::MuonClusterOnTrack*>& rots) const {
+    if (!prds.size()) {
+        ATH_MSG_WARNING("makeClustersBySurface- empty PRD list ");
+        return;
+    }
+    if (!(*prds.begin())) {
+        ATH_MSG_WARNING("makeClustersBySurface - first element of RPD list is nullptr");
+        return;
+    }
     std::vector<const Trk::PrepRawData*> usedPrd;
     std::vector<const Muon::MuonClusterOnTrack*>::const_iterator r = rots.begin();
-    for (std::list<const Trk::PrepRawData*>::const_iterator p = prds.begin();
-	 p != prds.end();
-	 ++p, ++r)
-    {
+    for (std::list<const Trk::PrepRawData*>::const_iterator p = prds.begin(); p != prds.end(); ++p, ++r) {
+        if (!(*p)) {
+            ATH_MSG_WARNING("makeClustersBySurface - current PrepRawData is nullptr, continuing");
+            continue;
+        }
 	if (std::find(usedPrd.begin(),usedPrd.end(),*p) != usedPrd.end()) continue;
 	usedPrd.push_back(*p);
 	int channel	= 0;
@@ -214,10 +219,11 @@ TriggerChamberClusterOnTrackCreator::makeClustersBySurface(
 	
 	std::list<const Trk::PrepRawData*>::const_iterator q = p;
 	std::vector<const Muon::MuonClusterOnTrack*>::const_iterator s = r;
-	for (++q, ++s;
-	     q != prds.end();
-	     ++q, ++s)
-	{
+	for (++q, ++s; q != prds.end(); ++q, ++s) {
+        if (!(*q)) {
+            ATH_MSG_WARNING("makeClustersBySurface - current PrepRawData is nullptr, continuing");
+            continue;
+        }
 	    channelId = (**q).identify();
 	    if ((     isRpc && m_idHelperSvc->rpcIdHelper().gasGap(channelId)	!= gasGap)
 		|| (! isRpc && m_idHelperSvc->tgcIdHelper().gasGap(channelId)	!= gasGap)) continue;
