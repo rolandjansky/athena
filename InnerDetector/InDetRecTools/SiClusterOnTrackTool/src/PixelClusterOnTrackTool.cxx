@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -136,7 +136,7 @@ InDet::PixelClusterOnTrackTool::initialize() {
   m_dRMap = SG::ReadHandleKey<InDet::DRMap>(m_dRMapName);
   ATH_CHECK( m_dRMap.initialize() );
 
-  m_applyNNcorrection = !m_splitClusterMapKey.key().empty();
+  m_applyNNcorrection &= !m_splitClusterMapKey.key().empty();
   ATH_CHECK(m_splitClusterMapKey.initialize(m_applyNNcorrection));
   ATH_CHECK(m_NnClusterizationFactory.retrieve( DisableTool{!m_applyNNcorrection} ));
   

@@ -1,7 +1,7 @@
 /*
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-#include "TrigT1CaloTools/L1DatabaseOverrideForDataTool.h"
+#include "L1DatabaseOverrideForDataTool.h"
 
 #include "TrigT1CaloCalibConditions/L1CaloPprChanDefaultsContainer.h"
 #include "TrigT1CaloCalibConditions/L1CaloPprChanCalibContainer.h"

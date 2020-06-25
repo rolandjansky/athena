@@ -62,27 +62,26 @@ namespace CP
 
 
 
-    const Root::TAccept& AsgFlagSelectionTool ::
-    getTAccept () const
+    const asg::AcceptInfo& AsgFlagSelectionTool ::
+    getAcceptInfo () const
     {
       return m_accept;
     }
 
 
 
-    const Root::TAccept& AsgFlagSelectionTool ::
+    asg::AcceptData AsgFlagSelectionTool ::
     accept (const xAOD::IParticle *particle) const
     {
-      m_accept.clear();
+      asg::AcceptData accept (&m_accept);
       for(std::size_t cutIndex=0; cutIndex<m_accept.getNCuts(); ++cutIndex) {
           // Test against the opposite of the invert value
           bool testval = !m_invertFlags[cutIndex];
           ATH_MSG_VERBOSE("Now testing flag \"" << m_selFlags[cutIndex] << "\" requiring value " << testval);
-          m_accept.setCutResult (cutIndex, m_acc_selFlags[cutIndex]->getBool (*particle)==testval);
+          accept.setCutResult (cutIndex, m_acc_selFlags[cutIndex]->getBool (*particle)==testval);
       }
-      ATH_MSG_VERBOSE("  Result: " << m_accept);
 
-      return m_accept;
+      return accept;
     }
 }
 

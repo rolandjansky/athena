@@ -1,14 +1,8 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# configurables for TrigEgammaRec fexes
-from AthenaCommon.Logging import logging
-import traceback
-from AthenaCommon.AppMgr import ToolSvc
-
 from TrigEgammaRec import TrigEgammaRecConf
 
-
-from egammaRec.Factories import Factory, ToolFactory, FcnWrapper, getPropertyValue 
+from egammaRec.Factories import Factory
 # The following tools use the offline configuration
 from egammaTools.egammaToolsFactories import EMConversionBuilder, EGammaAmbiguityTool,EMFourMomBuilder
 

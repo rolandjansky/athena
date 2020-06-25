@@ -194,8 +194,6 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newRegion
 
     SG::ReadHandle<SpacePointContainer> spacepointsPixel{m_spacepointsPixel, ctx};
     if (spacepointsPixel.isValid()) {
-      SpacePointContainer::const_iterator spce = spacepointsPixel->end();
-
       // Loop through all trigger collections
       //
       for (const IdentifierHash& l: vPixel) {
@@ -225,9 +223,6 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newRegion
 
     SG::ReadHandle<SpacePointContainer> spacepointsSCT{m_spacepointsSCT, ctx};
     if (spacepointsSCT.isValid()) {
-
-      SpacePointContainer::const_iterator spce = spacepointsSCT->end();
-
       // Loop through all trigger collections
       //
       for (const IdentifierHash& l: vSCT) {

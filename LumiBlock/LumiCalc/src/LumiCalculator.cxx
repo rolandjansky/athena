@@ -968,7 +968,7 @@ void  LumiCalculator::IntegrateLumi(const xAOD::LumiBlockRangeContainer * iovc, 
       if (m_runnbr == 281385) {
 	if (m_clumiblocknbr <= 196) {
 	  m_livefrac *= 4./6.;
-	} else if (m_clumiblocknbr <= 196) {
+	} else if (m_clumiblocknbr <= 374) {
 	  m_livefrac *= 5./6.;
 	}
       }

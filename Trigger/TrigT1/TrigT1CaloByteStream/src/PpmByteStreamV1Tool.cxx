@@ -17,7 +17,7 @@
 #include "TrigT1CaloEvent/TriggerTower.h"
 #include "TrigT1CaloUtils/DataError.h"
 #include "TrigT1CaloUtils/TriggerTowerKey.h"
-#include "TrigT1CaloMappingToolInterfaces/IL1CaloMappingTool.h"
+#include "TrigT1CaloToolInterfaces/IL1CaloMappingTool.h"
 
 #include "CmmSubBlock.h"
 #include "L1CaloErrorByteStreamTool.h"

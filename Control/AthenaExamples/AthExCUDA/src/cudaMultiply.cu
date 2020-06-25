@@ -26,7 +26,7 @@
       }                                                                       \
    } while( false )
 
-namespace AthCUDA {
+namespace AthCUDAExamples {
 
    /// Very simple kernel performing a multiplication on an array.
    __global__
@@ -77,11 +77,11 @@ namespace AthCUDA {
       return;
    }
 
-} // namespace AthCUDA
+} // namespace AthCUDAExamples
 
 #else
 
-namespace AthCUDA {
+namespace AthCUDAExamples {
 
    /// CPU implementation of @c cudaMultiply
    void cudaMultiply( std::vector< float >& array, float multiplier ) {
@@ -91,6 +91,6 @@ namespace AthCUDA {
       }
    }
 
-} // namespace AthCUDA
+} // namespace AthCUDAExamples
 
 #endif // __CUDACC__

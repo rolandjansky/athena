@@ -277,32 +277,29 @@ Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::overlappingTracks(const Track
 
     DataVector<const Trk::TrackStateOnSurface>::const_iterator tsos = tsosVec->begin();
     for (; tsos != tsosVec->end(); ++tsos) {
-      const MeasurementBase* measurement = (*tsos)->measurementOnTrack();   
-        
+      const MeasurementBase* measurement = (*tsos)->measurementOnTrack();
+
       if(!measurement || ! (*tsos)->trackParameters()){
         ATH_MSG_VERBOSE("---- TSOS has either no measurement or parameters: "<< measurement << "  " << (*tsos)->trackParameters() );
-        continue;           
-      }
-      
-      const Trk::RIO_OnTrack* rio = dynamic_cast<const Trk::RIO_OnTrack*> ( measurement );
-      if(!rio){
         continue;
       }
-           
-      const InDet::PixelCluster* pixel = dynamic_cast<const InDet::PixelCluster*> ( rio->prepRawData() );
-      if (pixel) {
-        
-        //Update the pixel split information if the element is unique (The second element of the pair indiciates if the element was inserted into the map)
-        auto ret =  setOfPixelClustersOnTrack.insert(std::make_pair( pixel, (*tsos)->trackParameters() ));
-        if (ret.second) {
-          updatePixelSplitInformationForCluster( *(ret.first), splitClusterMap);
-        }
-        
-        setOfPixelClustersToTrackAssoc.insert( std::make_pair( pixel, scoredTracksItem.first ) );
-        continue;
+
+      if (!measurement->type(Trk::MeasurementBaseType::RIO_OnTrack)) continue;
+
+      const Trk::RIO_OnTrack* rio = static_cast<const Trk::RIO_OnTrack*>(measurement);
+      if (rio->rioType(Trk::RIO_OnTrackType::PixelCluster)) {
+         const InDet::PixelCluster* pixel = static_cast<const InDet::PixelCluster*> ( rio->prepRawData() );
+         assert( pixel);
+
+         //Update the pixel split information if the element is unique (The second element of the pair indiciates if the element was inserted into the map)
+         auto ret =  setOfPixelClustersOnTrack.insert(std::make_pair( pixel, (*tsos)->trackParameters() ));
+         if (ret.second && m_splitProbTool.isEnabled()) {
+            updatePixelSplitInformationForCluster( *(ret.first), splitClusterMap);
+         }
+         setOfPixelClustersToTrackAssoc.insert( std::make_pair( pixel, scoredTracksItem.first ) );
       }
-    
-    }  
+
+    }
   }
 
   // now loop as long as map is not empty

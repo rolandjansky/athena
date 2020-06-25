@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //--------------------------------------------------------------
@@ -539,6 +539,7 @@ void CaloCellContainer::orderWhenIncomplete()
     }
 
     // May be less, if there were duplicates.
+    // cppcheck-suppress assertWithSideEffect
     assert (itout <= end());
     resize (itout - begin());
   }
@@ -598,11 +599,7 @@ const CxxUtils::PackedArray& CaloCellContainer::getLookUpTable() const
       // If the cells are sorted, we can look at the last cell to know
       // the maximum hash we're dealing with.  Otherwise, set it to the
       // maximum cell hash value.
-      if (ncells == 0) {
-        // Special case --- don't do anything for an empty container.
-        theSize = 0;
-      }
-      else if (isOrdered()) {
+      if (isOrdered()) {
         // Set LUT size from the hash of the last cell.
         theSize = back()->caloDDE()->calo_hash()+1;
       }

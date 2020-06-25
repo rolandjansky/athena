@@ -3,7 +3,7 @@
 #--------------------------------
 include.block ('HIRecExample/HIRec_jobOptions.py')
 
-print 'IN HEAVY ION REC'
+print("IN HEAVY ION REC")
 
 # # General adjustments
 # topSequence.TimeOut=3600* Units.s
@@ -20,7 +20,7 @@ from HIRecExample.HIRecExampleFlags import jobproperties
 # include reconstruction algorithms
 # only in ESD step
 if rec.doESD:
-    print "Including HI algorithms in ESD step"
+    print("Including HI algorithms in ESD step")
     if jobproperties.HIRecExampleFlags.doHIGlobal:
         include( "HIGlobal/HIGlobal_jobOptions.py" )
 

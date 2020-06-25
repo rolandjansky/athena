@@ -28,7 +28,7 @@ namespace Trk
   {
   public:
     /** Default constructor */
-    Charged(const double& charge = 1.):
+   Charged(const double& charge = 1.):
       m_charge(charge)
     {}
 
