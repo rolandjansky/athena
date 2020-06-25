@@ -5,7 +5,8 @@
 #ifndef ACTSGEOMETRY_ATLASMAGNETICFIELDWRAPPER_H
 #define ACTSGEOMETRY_ATLASMAGNETICFIELDWRAPPER_H
 
-#include "MagFieldInterfaces/IMagFieldSvc.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/Units.hpp"
 #include "Acts/MagneticField/MagneticFieldContext.hpp"
@@ -24,58 +25,34 @@ public:
     }
   };
 
-  // FieldCell is not needed anymore, keep it for backwards compatibility right now.
-  struct FieldCell {
-  public:
-    FieldCell(MagField::IMagFieldSvc* fieldService)
-      : m_fieldService(fieldService)
-    {
-    }
-
-    Acts::Vector3D
-    getField(const Acts::Vector3D& pos) const
-    {
-      Acts::Vector3D bfield;
-      m_fieldService->getField(&pos, &bfield);
-
-      bfield *= m_bFieldUnit; // kT -> T;
-
-      return bfield;
-    }
-
-    Acts::Vector3D
-    getFieldGradient(const Acts::Vector3D& position, Acts::ActsMatrixD<3, 3>& gradient) const
-    {
-      Acts::Vector3D bfield;
-      m_fieldService->getField(&position, &bfield, &gradient);
-
-      bfield *= m_bFieldUnit; // kT -> T;
-      gradient *= m_bFieldUnit;
-
-      return bfield;
-    }
-
-    inline
-    bool isInside(const Acts::Vector3D&) const {
-      return true;
-    }
-
-  private:
-    MagField::IMagFieldSvc *m_fieldService;
-    const double m_bFieldUnit = 1000.*Acts::UnitConstants::T;
-  };
-
-  ATLASMagneticFieldWrapper(MagField::IMagFieldSvc *fieldService)
-    : m_fieldCell(fieldService),
-      m_fieldService(fieldService)
+  ATLASMagneticFieldWrapper(const SG::ReadCondHandleKey<AtlasFieldCacheCondObj>& fieldCacheCondObjInputKey)
+    : m_fieldCacheCondObjInputKey(fieldCacheCondObjInputKey)
   {
   }
 
   Acts::Vector3D
   getField(const Acts::Vector3D& pos) const
   {
-    Acts::Vector3D bfield;
-    m_fieldService->getField(&pos, &bfield);
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, Gaudi::Hive::currentContext()};
+    if (!readHandle.isValid()) {
+       std::stringstream msg;
+       msg << "Failed to retrieve magmnetic field conditions data " << m_fieldCacheCondObjInputKey.key() << ".";
+       throw std::runtime_error(msg.str());
+    }
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+
+    MagField::AtlasFieldCache fieldCache;
+    fieldCondObj->getInitializedCache (fieldCache);
+
+    double posXYZ[3];
+    posXYZ[0] = pos.x();
+    posXYZ[0] = pos.y();
+    posXYZ[0] = pos.z();
+    double BField[3];
+    fieldCache.getField(posXYZ, BField);
+
+    // Magnetic field
+    Acts::Vector3D bfield{BField[0],BField[1],BField[2]};
 
     bfield *= m_bFieldUnit; // kT -> T;
 
@@ -91,8 +68,33 @@ public:
   Acts::Vector3D
   getFieldGradient(const Acts::Vector3D& position, Acts::ActsMatrixD<3, 3>& gradient) const
   {
-    Acts::Vector3D bfield;
-    m_fieldService->getField(&position, &bfield, &gradient);
+
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, Gaudi::Hive::currentContext()};
+    if (!readHandle.isValid()) {
+       std::stringstream msg;
+       msg << "Failed to retrieve magmnetic field conditions data " << m_fieldCacheCondObjInputKey.key() << ".";
+       throw std::runtime_error(msg.str());
+    }
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+
+    MagField::AtlasFieldCache fieldCache;
+    fieldCondObj->getInitializedCache (fieldCache);
+
+    double posXYZ[3];
+    posXYZ[0] = position.x();
+    posXYZ[0] = position.y();
+    posXYZ[0] = position.z();
+    double BField[3];
+    double grad[9];
+
+    fieldCache.getField(posXYZ, BField, grad);
+
+    // Magnetic field
+    Acts::Vector3D bfield{BField[0], BField[1],BField[2]};
+    Acts::ActsMatrixD<3, 3> tempGrad;
+    tempGrad << grad[0], grad[1], grad[2], grad[3], grad[4], grad[5], grad[6], grad[7], grad[8]; 
+    gradient = tempGrad;
+
 
     bfield *= m_bFieldUnit; // kT -> T;
     gradient *= m_bFieldUnit;
@@ -108,18 +110,14 @@ public:
     return getFieldGradient(position, gradient);
   }
 
-  // only kept for backwards compatibility
-  FieldCell
-  getFieldCell(const Acts::Vector3D& /*position*/) const
-  {
-    return m_fieldCell;
-  }
-
 private:
-  // only kept for backwards compatibility
-  FieldCell m_fieldCell;
 
-  MagField::IMagFieldSvc *m_fieldService;
+
+
+  // TODO: store pointer??
+  SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey;
+       //{this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
+
   const double m_bFieldUnit = 1000.*Acts::UnitConstants::T;
 };
 

@@ -6,7 +6,6 @@
 
 // ATHENA
 #include "GaudiKernel/IInterface.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 
 // PACKAGE
 #include "ActsGeometry/ActsGeometryContext.h"
@@ -51,8 +50,7 @@ using ActsExtrapolationDetail::VariantPropagator;
 
 ActsExtrapolationTool::ActsExtrapolationTool(const std::string& type, const std::string& name,
     const IInterface* parent)
-  : base_class(type, name, parent),
-    m_fieldServiceHandle("AtlasFieldSvc", name)
+  : base_class(type, name, parent)
 {
 }
 
@@ -76,12 +74,13 @@ ActsExtrapolationTool::initialize()
 
   Acts::Navigator navigator(trackingGeometry);
 
-  if (m_fieldMode == "ATLAS"s) {
-    // we need the field service
-    ATH_CHECK( m_fieldServiceHandle.retrieve() );
+  if (m_fieldMode == "ATLAS"s) {    
     ATH_MSG_INFO("Using ATLAS magnetic field service");
     using BField_t = ATLASMagneticFieldWrapper;
-    BField_t bField(m_fieldServiceHandle.get());
+
+    ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
+
+    BField_t bField(m_fieldCacheCondObjInputKey);
     auto stepper = Acts::EigenStepper<BField_t>(std::move(bField));
     auto propagator = Acts::Propagator<decltype(stepper), Acts::Navigator>(std::move(stepper),
                                                                       std::move(navigator));
