@@ -23,6 +23,8 @@
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/AsgTool.h"
 
+//#include <AsgTools/AsgToolConfig.h>
+
 // ROOT
 #include "TFile.h"
 #include "TCanvas.h"
@@ -196,7 +198,24 @@ int main(int argc, char* argv[]){
         
     const std::string name_FFJetSmearingTool = "FFJetSmearing_Example";
     // Call the constructor
+
     FFJetSmearingTool ffjetsmearingtool(name_FFJetSmearingTool.c_str());
+
+/*
+asg::AsgToolConfig config (("FFJetSmearingTool/" + name_FFJetSmearingTool).c_str());
+// configure `config` object
+std::shared_ptr<void> cleanup;
+ToolHandle<FFJetSmearingTool> ffjetsmearingtool;
+
+
+//ASSERT_SUCCESS (config.makeTool (fjetsmearingtool, cleanup));
+config.makeTool (ffjetsmearingtool, cleanup);
+*/
+
+
+
+
+
 
     (ffjetsmearingtool.setProperty( "MassDef", kindofmass )).ignore();
 
