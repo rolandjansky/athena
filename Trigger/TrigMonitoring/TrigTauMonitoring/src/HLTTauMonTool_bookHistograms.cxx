@@ -121,8 +121,8 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
     //Basic kinematic variables
     addHistogram(new TH1F("hEFEt","EF Et;E_{T}[GeV];Nevents",50,0.0,100.0));
     addHistogram(new TH1F("hEFEta","EF TrigCaloCluster Eta; #eta ; Nevents",26,-2.6,2.6));
-    addHistogram(new TH1F("hEFNUM","Online mu; Online #mu ; Nevents",50,0,50));
-    addHistogram(new TH2F("hEFNUMvsmu","Online vs offline mu; Online #mu ; Offline #mu",  70,0,70,70,0,70));
+    addHistogram(new TH1F("hEFNUM","Online mu; Online #mu ; Nevents",100,0,100));
+    addHistogram(new TH2F("hEFNUMvsmu","Online vs offline mu; Online #mu ; Offline #mu",  100,0,100,100,0,100));
     addHistogram(new TH1F("hEFPhi","EF TrigCaloCluster Phi; #phi ; Nevents",16,-3.2,3.2));
     addHistogram(new TH1F("hEFnTrack","EF number of tracks;number of tracks;Nevents",10,0,10));
     addHistogram(new TH2F("hEFEtaVsPhi","EF TrigCaloCluster Eta vs Phi; #eta ; #phi ; Nevents",26,-2.6,2.6,16,-3.2,3.2));

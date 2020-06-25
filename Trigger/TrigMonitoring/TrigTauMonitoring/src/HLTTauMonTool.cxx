@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @file HLTTauMonTool.cxx
@@ -244,7 +244,6 @@ StatusCode HLTTauMonTool::init() {
     
     if(m_L1StringCondition=="allowResurrectedDecision") m_L1TriggerCondition=TrigDefs::Physics | TrigDefs::allowResurrectedDecision;
     if(m_HLTStringCondition=="allowResurrectedDecision") m_HLTTriggerCondition=TrigDefs::Physics | TrigDefs::allowResurrectedDecision;
-    ATH_CHECK( m_luminosityCondDataKey.initialize() );
 
     return StatusCode::SUCCESS;
 }
@@ -328,10 +327,6 @@ StatusCode HLTTauMonTool::fill() {
     m_mu_offline = avg_mu;
     ATH_MSG_DEBUG("offline mu "<<avg_mu);
   }
-  SG::ReadCondHandle<LuminosityCondData> lumiData (m_luminosityCondDataKey, Gaudi::Hive::currentContext());
-  float avg_mu = lumiData->lbAverageInteractionsPerCrossing();
-  m_mu_online = avg_mu;
-  ATH_MSG_DEBUG("online mu "<<avg_mu);
 
   m_muCut40Passed = (!m_domuCut40 || (m_domuCut40 && (m_mu_offline<40.)));
 
@@ -340,7 +335,10 @@ StatusCode HLTTauMonTool::fill() {
     ATH_MSG_WARNING("Failed to retrieve EventInfo container, aborting!");
     return StatusCode::SUCCESS;
   }
- m_LB = evtInfo->lumiBlock();
+  m_LB = evtInfo->lumiBlock();
+
+  ATH_MSG_DEBUG("actual mu: "<<evtInfo->actualInteractionsPerCrossing() );
+  m_mu_online = evtInfo->actualInteractionsPerCrossing();
 
   // fill true taus vectors
   m_true_taus.clear(); 
