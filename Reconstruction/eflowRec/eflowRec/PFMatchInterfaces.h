@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -84,15 +84,11 @@ template <class ObjectType, class PositionType>
 class PositionProvider: public IPositionProvider {
 protected:
   PositionProvider() {}
-  PositionProvider(const PositionProvider& originalPositionProvider) { m_position = std::make_unique<PositionType>(*originalPositionProvider.getPosition()); }
-  PositionProvider& operator = (const PositionProvider& originalPositionProvider) { if (this == &originalPositionProvider) return *this; else {m_position = std::make_unique<PositionType>(*originalPositionProvider.getPosition()); return *this;} }
   
 public:
   virtual ~PositionProvider() {}
-  virtual PositionType* getPosition(const ObjectType* cluster) = 0;
+  virtual PositionType getPosition(const ObjectType* cluster) const = 0;
 
-protected:
-  std::unique_ptr<PositionType> m_position;
 };
 
 template <class PositionType>
@@ -110,7 +106,7 @@ protected:
 public:
   virtual ~DistanceCalculator() { }
 
-  virtual double distanceBetween(TrackPositionType* position1, ClusterPositionType* position2) = 0;
+  virtual double distanceBetween(const TrackPositionType& position1, const ClusterPositionType& position2) const = 0;
 };
 
 
@@ -122,7 +118,7 @@ protected:
 public:
   virtual ~IDistanceProvider() { }
 
-  virtual double distanceBetween(const ITrack* track, const ICluster* cluster) = 0;
+  virtual double distanceBetween(const ITrack* track, const ICluster* cluster) const = 0;
 };
 
 template<class TrackPositionType, class ClusterPositionType>
@@ -142,7 +138,7 @@ public:
   }
   virtual ~DistanceProvider() {}
 
-  double distanceBetween(const ITrack* track, const ICluster* cluster) {
+  double distanceBetween(const ITrack* track, const ICluster* cluster) const {
     TrackPositionProvider<TrackPositionType>* trackPositionProvider = m_trackPosition.get();
     ClusterPositionProvider<ClusterPositionType>* clusterPositionProvider = m_clusterPosition.get();
     return m_distanceCalculator->distanceBetween(trackPositionProvider->getPosition(track),clusterPositionProvider->getPosition(cluster));

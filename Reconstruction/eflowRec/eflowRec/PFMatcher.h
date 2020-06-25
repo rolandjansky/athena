@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -14,19 +14,14 @@
 
 #include "eflowRec/PFMatchInterfaces.h"
 #include <algorithm>
+#include <utility>
 #include <cmath>
 
 class DistanceProvider;
 
 namespace PFMatch {
 
-struct MatchDistance {
-  MatchDistance(const ICluster* cluster, double distance, bool isMatch):
-    m_cluster(cluster), m_distance(distance), m_isMatch(isMatch) { }
-  const ICluster* m_cluster;
-  double m_distance;
-  bool m_isMatch;
-};
+  typedef std::pair<const ICluster*,double> MatchDistance;
 
 /**
 Checks if a cluster should be matched to a track or not, and has methods to return list of best matches.
@@ -38,14 +33,14 @@ public:
 
   virtual ~TrackClusterMatcher() {};
 
-  MatchDistance match(const ITrack* track, const ICluster* cluster);
+  MatchDistance match(const ITrack* track, const ICluster* cluster) const;
 
   template<class ClusterType>
-  MatchDistance bestMatchDRparametrized(ITrack* track, const std::vector<ClusterType*>& clusters);
+  MatchDistance bestMatchDRparametrized(ITrack* track, const std::vector<ClusterType*>& clusters) const;
   template<class ClusterType>
-  std::vector<MatchDistance> bestMatches(ITrack* track, const std::vector<ClusterType*>& clusters, int nMatches, double energyThreshold);
+  std::vector<MatchDistance> bestMatches(ITrack* track, const std::vector<ClusterType*>& clusters, int nMatches, double energyThreshold) const;
   template<class ClusterType>
-  double getDRCutSquared(ClusterType* theCluster);
+  double getDRCutSquared(ClusterType* theCluster) const;
 
 private:
 
@@ -61,7 +56,7 @@ private:
 };
 
 template<class ClusterType>
-   MatchDistance TrackClusterMatcher::bestMatchDRparametrized(ITrack* track, const std::vector<ClusterType*>& clusters) {
+   MatchDistance TrackClusterMatcher::bestMatchDRparametrized(ITrack* track, const std::vector<ClusterType*>& clusters) const {
    ClusterType* bestCluster = nullptr;
    double bestDistance(m_matchCut);
    unsigned int nClusters(clusters.size());
@@ -79,11 +74,11 @@ template<class ClusterType>
      } 	
    }
    
-   return MatchDistance(bestCluster, bestDistance, bestCluster != nullptr);
+   return MatchDistance(bestCluster, bestDistance);
  }
 
- template<class ClusterType>
-std::vector<MatchDistance> TrackClusterMatcher::bestMatches(ITrack* track, const std::vector<ClusterType*>& clusters, int nMatches, double energyThreshold) {
+template<class ClusterType>
+std::vector<MatchDistance> TrackClusterMatcher::bestMatches(ITrack* track, const std::vector<ClusterType*>& clusters, int nMatches, double energyThreshold) const {
 
   std::vector<MatchDistance> result;
   unsigned const nClusters(clusters.size());
@@ -93,7 +88,7 @@ std::vector<MatchDistance> TrackClusterMatcher::bestMatches(ITrack* track, const
       ClusterType* thisCluster = clusters[iCluster];
       double thisDistance(m_distanceProvider->distanceBetween(track, thisCluster));
       if (thisDistance < m_matchCut) {
-        result.push_back(MatchDistance(thisCluster, thisDistance, true));
+        result.push_back(MatchDistance(thisCluster, thisDistance));
       }
     }
   }
@@ -140,7 +135,7 @@ std::vector<MatchDistance> TrackClusterMatcher::bestMatches(ITrack* track, const
       masked.push_back(iMasked);
       maskedType.push_back(bestCluster->getEfRecCluster()->getClusterType());
 
-      result.push_back(MatchDistance(bestCluster, bestDistance, bestCluster != nullptr));
+      result.push_back(MatchDistance(bestCluster, bestDistance));
     }
     assert(maskedType.size() == masked.size());
   }
@@ -150,7 +145,7 @@ std::vector<MatchDistance> TrackClusterMatcher::bestMatches(ITrack* track, const
  }
 
 template<class ClusterType>
- double TrackClusterMatcher::getDRCutSquared( ClusterType* theCluster) {
+ double TrackClusterMatcher::getDRCutSquared( ClusterType* theCluster) const {
     
     double m_coneRSq = 1.64*1.64;
     double coneRSq = m_coneRSq;
