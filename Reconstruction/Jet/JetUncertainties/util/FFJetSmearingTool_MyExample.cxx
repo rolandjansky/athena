@@ -59,8 +59,7 @@
   do {                                               \
     const bool result = ARG;                         \
     if(!result) {                                    \
-      ::Error(APP_NAME, "Failed to execute: \"%s\"", \
-              #ARG );                                \
+      std::cout << "Failed to execute: "<< #ARG <<std::endl;\
       return 1;                                      \
     }                                                \
   } while( false )
@@ -174,11 +173,6 @@ int main(int argc, char* argv[]){
 //*************************************************************************************************************************************
 
 
-
-    // Set up the job for xAOD access:
-    static const char* APP_NAME = "FFJetSmearingTool_Example";
-
- 
     //--------------------
     // Opening input file
     //--------------------
@@ -189,7 +183,7 @@ int main(int argc, char* argv[]){
     // Create a TEvent object
     xAOD::TEvent event(xAOD::TEvent::kClassAccess);
 
-    RETURN_CHECK( APP_NAME, event.readFrom( ifile.get() ) );
+    CHECK( event.readFrom( ifile.get() ) );
 
   
     //----------------------------------
@@ -238,10 +232,10 @@ config.makeTool (ffjetsmearingtool, cleanup);
     // Print the recommended systematics
 
     const CP::SystematicSet& recommendedSysts = ffjetsmearingtool.recommendedSystematics();//take the systematics of the FFJETSmearing Tool
-    Info( APP_NAME, "Recommended systematics:" );
+    std::cout << "Recommended systematics:" << std::endl;
     for(auto sysItr = recommendedSysts.begin();
         sysItr != recommendedSysts.end(); ++sysItr){
-        Info( APP_NAME, "  %s", sysItr->name().c_str() );
+        std::cout << sysItr->name().c_str() << std::endl;
     }
 
 
@@ -302,7 +296,7 @@ config.makeTool (ffjetsmearingtool, cleanup);
     for (auto sys : sysList)	 {
         // Tell the calibration tool which variation to apply
         if (ffjetsmearingtool.applySystematicVariation(sys) != CP::SystematicCode::Ok) {
-            Error(APP_NAME, "Cannot configure calibration tool for systematics");
+            std::cout << "Error, Cannot configure calibration tool for systematics" << std::endl;
         }
 
         std::cout << "\nWe are using the systematic " << sys.name()  << std::endl;
@@ -369,7 +363,7 @@ config.makeTool (ffjetsmearingtool, cleanup);
 
             // Load the event:
             if( event.getEntry( ievent ) < 0 ) {
-                std::cerr << "Failed to load entry " << ievent << std::endl;
+                std::cout << "Failed to load entry " << ievent << std::endl;
                 return 1;
             }
 
@@ -383,12 +377,8 @@ config.makeTool (ffjetsmearingtool, cleanup);
             CHECK( event.retrieve(ei, "EventInfo") );
 
             if(want_to_debug==true){
-                Info(APP_NAME,
-                "===>>>  start processing event #%i, "
-                "run #%i %i events processed so far  <<<===",
-                static_cast<int>(ei->eventNumber()),
-                static_cast<int>(ei->runNumber()),
-                static_cast<int>(ievent));
+                std::cout << "===>>>  start processing event #" << ei->eventNumber() << ", run #" << ei->runNumber() << " " << ievent << " events processed so far  <<<===" << std::endl;
+
             }
 
 
@@ -396,8 +386,7 @@ config.makeTool (ffjetsmearingtool, cleanup);
             const xAOD::JetContainer* jets_truth = 0;
             CHECK( event.retrieve(jets_truth, "AntiKt10TruthTrimmedPtFrac5SmallR20Jets") );
             if(want_to_debug==true){
-                Info(APP_NAME, "Number of truth jets: %i",
-                static_cast<int>(jets_truth->size()));
+                std::cout << "Number of truth jets: " << jets_truth->size() << std::endl;
             }
         //Loop over the truth jets in the event
             xAOD::JetContainer::const_iterator jetItr;
@@ -407,7 +396,7 @@ config.makeTool (ffjetsmearingtool, cleanup);
 
                 if(want_to_debug==true){
                     // Print basic info about this jet
-                    Info(APP_NAME, "Truth Jet: pt = %g, mass = %g, eta = %g", jet_truth->pt()/1000., jet_truth->m()/1000., jet_truth->eta());
+                    std::cout << "Truth Jet: pt = " << jet_truth->pt()/1000. << ", mass = " << jet_truth->m()/1000. << ", eta = " << jet_truth->eta() << std::endl;
                 }
 
 
@@ -420,8 +409,7 @@ config.makeTool (ffjetsmearingtool, cleanup);
             CHECK( event.retrieve(jets_reco, reco_jetColl) ); 
  
             if(want_to_debug==true){
-                Info(APP_NAME, "Number of reco jets: %i",
-                static_cast<int>(jets_reco->size()));
+                std::cout << "Number of reco jets: " << jets_reco->size() << std::endl;
             }
             //Loop over the reco jets in the event
             //xAOD::JetContainer::const_iterator jetItr;
@@ -431,7 +419,7 @@ config.makeTool (ffjetsmearingtool, cleanup);
 
                 if(want_to_debug==true){
                     // Print basic info about this jet
-                    Info(APP_NAME, "Reco Jet: pt = %g, mass = %g, eta = %g", jet_reco->pt()/1000., jet_reco->m()/1000., jet_reco->eta());
+                    std::cout << "Reco Jet: pt = " <<  jet_reco->pt()/1000. << ", mass = " <<  jet_reco->m()/1000. << ", eta = " <<  jet_reco->eta() << std::endl;
                 }
             }
 
@@ -443,7 +431,7 @@ config.makeTool (ffjetsmearingtool, cleanup);
  
             // Retrieve jet container
             const xAOD::JetContainer* jets = 0;
-            RETURN_CHECK( APP_NAME, event.retrieve( jets, reco_jetColl ) );
+            CHECK( event.retrieve( jets, reco_jetColl ) );
 
             // Shallow copy 
             auto jets_shallowCopy = xAOD::shallowCopyContainer( *jets );
@@ -472,9 +460,9 @@ config.makeTool (ffjetsmearingtool, cleanup);
                 jet_reco->getAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumTA",jet_reco_TA_FourMom);
 
                 if(want_to_debug==true && kindofmass == "Comb"){   
-                    Info(APP_NAME,"Comb jet mass = %g", jet_reco_Comb_FourMom.mass() );
-                    Info(APP_NAME,"CALO jet mass = %g", jet_reco_CALO_FourMom.mass() );
-                    Info(APP_NAME, "TA jet mass = %g", jet_reco_TA_FourMom.mass() );
+                    std::cout << "Comb jet mass = " << jet_reco_Comb_FourMom.mass() << std::endl;
+                    std::cout << "CALO jet mass = " << jet_reco_CALO_FourMom.mass() << std::endl;
+                    std::cout << "TA jet mass = " << jet_reco_TA_FourMom.mass() << std::endl;
                 }
 
                 xAOD::Jet* jet_reco_Comb = new xAOD::Jet(); //You have to initialize the jet object this way. If not, oyu will encounter breaks when running 
@@ -489,9 +477,9 @@ config.makeTool (ffjetsmearingtool, cleanup);
                 //jet_reco_Comb.setJetP4( xAOD::JetFourMom_t(jet_reco_Comb_FourMom.pt(), jet_reco_Comb_FourMom.eta(), jet_reco_Comb_FourMom.phi(), jet_reco_Comb_FourMom.mass() ) );
 
                 if(want_to_debug==true){
-                    Info(APP_NAME,"NEW Comb jet mass = %g", jet_reco_Comb->m() );
-                    Info(APP_NAME,"NEW CALO jet mass = %g", jet_reco_CALO->m() );
-                    Info(APP_NAME,"NEW TA jet mass = %g", jet_reco_TA->m() );
+                    std::cout << "NEW Comb jet mass = " << jet_reco_Comb->m() << std::endl;
+                    std::cout << "NEW CALO jet mass = " << jet_reco_CALO->m() << std::endl;
+                    std::cout << "NEW TA jet mass = " << jet_reco_TA->m() << std::endl;
                 }
 
 
@@ -504,7 +492,6 @@ config.makeTool (ffjetsmearingtool, cleanup);
 
 
                 if(!(ffjetsmearingtool.getMatchedTruthJet(jet_reco, jet_truth_matched).isSuccess())){ 
-                    //Warning(APP_NAME, "No truth jet match with this reco jet");
                     delete jet_reco_TA;
                     continue;            
                 }
