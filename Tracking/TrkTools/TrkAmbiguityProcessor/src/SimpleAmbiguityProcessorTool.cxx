@@ -287,6 +287,11 @@ void Trk::SimpleAmbiguityProcessorTool::addTrack(Trk::Track* in_track,
           stat.incrementCounterByRegion(ECounter::kNgoodFits,bremTrack.get());
 
 	  // rerun score
+          if (m_trackSummaryTool.isEnabled()) {
+             m_trackSummaryTool->computeAndReplaceTrackSummary(*bremTrack,
+                                                               &prdToTrackMap,
+                                                               suppressHoleSearch);
+          }
 	  score = m_scoringTool->score( *bremTrack, suppressHoleSearch );
 
 	  // do we accept the track ?
