@@ -565,11 +565,11 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
         return CP::CorrectionCode::OutOfValidityRange; 
     }
     if(jet_reco->m()/1000. > m_MassRange){
-        ATH_MSG_DEBUG("This jet exceeds the mass range that the tool allows jet_mass <" << m_MassRange << " GeV)");
+        ATH_MSG_INFO("This jet exceeds the mass range that the tool allows jet_mass <" << m_MassRange << " GeV)");
         return CP::CorrectionCode::OutOfValidityRange;
     }
     if(jet_reco->pt()/1000. > m_PtRange){
-        ATH_MSG_DEBUG("This jet exceeds the pt range that the tool allows jet_pt <" << m_PtRange << " GeV)");
+        ATH_MSG_INFO("This jet exceeds the pt range that the tool allows jet_pt <" << m_PtRange << " GeV)");
         return CP::CorrectionCode::OutOfValidityRange;
     }
 
