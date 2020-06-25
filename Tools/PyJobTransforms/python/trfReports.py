@@ -656,7 +656,14 @@ def exeResourceReport(exe, report):
 
     if exe.memStats:
         exeResource['memory'] = exe.memStats
-        exeResource['MaxVMEM'] = exe.memEval
+        if exe.memEval:
+            exeResource['MaxVMEM'] = exe.memEval
+        else:
+            exeResource['MaxVMEM'] = 'at least report this'
+        if exe.memFullEval:
+            exeResource['FullMem'] = exe.memFullEval
+        else:
+            exeResource['FullMem'] = 'at least report this'
     if exe.eventCount:
         exeResource['nevents'] = exe.eventCount
     if exe.athenaMP:
