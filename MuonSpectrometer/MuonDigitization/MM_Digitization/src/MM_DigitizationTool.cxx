@@ -1263,6 +1263,10 @@ StatusCode MM_DigitizationTool::doDigitization() {
     // IdentifierHash detIdhash ;
     // set RE hash id
     const Identifier elemId = m_idHelper->elementID( stripDigitOutputAllHits.digitID() );
+    if (!m_idHelper->is_mm(elemId)) {
+        ATH_MSG_WARNING("given Identifier "<<elemId.get_compact()<<" is not a MM Identifier, skipping");
+        continue;
+    }
     m_idHelper->get_module_hash( elemId, moduleHash );
     
     MmDigitCollection* digitCollection = nullptr;

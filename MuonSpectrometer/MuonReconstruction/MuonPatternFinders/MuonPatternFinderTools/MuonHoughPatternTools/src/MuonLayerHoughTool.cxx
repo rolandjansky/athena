@@ -938,7 +938,7 @@ namespace Muon {
               }
             }
           }else if( etaHit.prd ){
-            if( !m_idHelper->isRpc(etaHit.prd->identify()) ) continue;
+            if( !m_idHelper->isRpc(etaHit.prd->identify()) && !m_idHelper->issTgc(etaHit.prd->identify()) ) continue;
             Identifier gpId = m_idHelper->gasGapId( etaHit.prd->identify() );
             auto mit = triggerLayersPhiMinMax.find(gpId);
             if( mit == triggerLayersPhiMinMax.end() )  ++nNoOverlaps;
