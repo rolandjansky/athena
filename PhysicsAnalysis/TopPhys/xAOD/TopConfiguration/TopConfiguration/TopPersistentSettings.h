@@ -89,7 +89,6 @@ namespace top {
     std::map<std::size_t, std::string> m_systSgKeyMapJetsLoose_electronInJetSubtraction;
     std::map<std::size_t, std::string> m_systSgKeyMapLargeRJets;
     std::map<std::size_t, std::string> m_systSgKeyMapTrackJets;
-    std::map<std::size_t, std::string> m_systSgKeyMapTracks;
     std::map<std::size_t, std::string> m_systSgKeyMapMissingET;
     std::map<std::size_t, std::string> m_systSgKeyMapMissingETLoose;
     std::map<std::size_t, std::string> m_systSgKeyMapKLFitter;
@@ -99,6 +98,7 @@ namespace top {
     std::map<std::size_t, std::string> m_systPersistantAllTTreeNames;
 
     std::map<std::size_t, std::string> m_systDecoKeyMapJetGhostTrack;
+    std::map<std::size_t, std::string> m_systSgKeyMapTracks;
 
     std::vector<std::size_t> m_list_systHashAll;
     std::vector<std::size_t> m_list_systHash_electronInJetSubtraction;

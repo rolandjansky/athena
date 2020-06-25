@@ -1866,7 +1866,6 @@ namespace top {
     bool m_useJets;
     bool m_useLargeRJets;
     bool m_useTrackJets;
-    bool m_useTracks;
     bool m_useRCJets;
     bool m_useVarRCJets;
 
@@ -1874,6 +1873,8 @@ namespace top {
     // available. However, we want the systematics to be executed automatically
     // whenever the user has "configured" ghost tracks.
     bool m_useJetGhostTrack;
+
+    bool m_useTracks;
 
     // Are we using particle flow jets
     // Need this as some things aren't supported at the moment
@@ -2027,12 +2028,9 @@ namespace top {
     std::string m_sgKeyLargeRJets;
     std::string m_sgKeyTrackJets;
     std::string m_sgKeyTrackJetsType;
-    std::string m_sgKeyTracks;
-    std::string m_sgKeyTracksType;
 
     std::string m_sgKeyMissingEt;
     std::string m_sgKeyMissingEtLoose;
-    std::string m_sgKeyInDetTrackParticles;
 
     std::string m_sgKeyTruthEvent;
     std::string m_sgKeyMCParticle;
@@ -2052,7 +2050,13 @@ namespace top {
     std::string m_decoKeyJetGhostTrack;
     std::vector<std::string> m_jetGhostTrackSystematics;
     std::vector<std::uint32_t> m_jetGhostTrackRunPeriods;
+
+    std::string m_sgKeyInDetTrackParticles;    
+    std::string m_sgKeyTracks;
+    std::string m_sgKeyTracksType;
     std::vector<std::uint32_t> m_trackRunPeriods;
+
+    
 
     float m_jetResponseMatchingDeltaR;
 

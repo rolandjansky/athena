@@ -157,8 +157,6 @@ namespace top {
     m_sgKeyTrackJetsType("SetMe"),
     m_sgKeyMissingEt("MET"),
     m_sgKeyMissingEtLoose("LooseMET"),
-    m_sgKeyInDetTrackParticles("InDetTrackParticles"),
-    m_sgKeyTracks("SetMe"),
 
     m_sgKeyTruthEvent("TruthEvents"),
     m_sgKeyMCParticle("SetMe"),
@@ -175,6 +173,9 @@ namespace top {
     m_sgKeyTopSystematicEventsLoose("TopSystematicEventsLoose"),
     m_passEventSelectionDecoration("passEventSelection"),
     m_decoKeyJetGhostTrack("GhostTrack"),
+    m_sgKeyInDetTrackParticles("InDetTrackParticles"),
+    m_sgKeyTracks("SetMe"),
+
 
     m_jetResponseMatchingDeltaR(-1),
 
