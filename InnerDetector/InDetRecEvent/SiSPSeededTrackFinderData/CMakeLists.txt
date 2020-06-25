@@ -37,5 +37,5 @@ atlas_add_library( SiSPSeededTrackFinderData
                    src/*.cxx
                    PUBLIC_HEADERS SiSPSeededTrackFinderData
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                   LINK_LIBRARIES InDetPrepRawData InDetReadoutGeometry TrkEventPrimitives TrkExInterfaces TrkGeometry TrkPatternParameters TrkTrack TrkToolInterfaces TrkEventUtils MagFieldElements MagFieldConditions
+                   LINK_LIBRARIES InDetPrepRawData InDetReadoutGeometry TrkEventPrimitives TrkExInterfaces TrkGeometry TrkPatternParameters TrkTrack TrkToolInterfaces TrkEventUtils MagFieldElements MagFieldConditions InDetConditionsSummaryService
                    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} GaudiKernel InDetRIO_OnTrack SiSpacePointsSeed TrkSurfaces TrkMaterialOnTrack TrkPrepRawData TrkRIO_OnTrack TrkSpacePoint)
