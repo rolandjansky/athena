@@ -20,7 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( InDetConversionFinder
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps xAODTracking GaudiKernel InDetRecToolInterfaces TrkTrack TrkTrackSummary )
+                     LINK_LIBRARIES AthenaBaseComps xAODTracking GaudiKernel InDetRecToolInterfaces TrkTrack TrkTrackSummary egammaInterfacesLib )
 
 # Install files from the package:
 atlas_install_headers( InDetConversionFinder )
