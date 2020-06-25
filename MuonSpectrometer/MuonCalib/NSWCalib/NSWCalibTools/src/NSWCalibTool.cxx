@@ -1,7 +1,6 @@
 #include "NSWCalibTool.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/PhysicalConstants.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "MuonReadoutGeometry/MMReadoutElement.h"
 
 namespace {
@@ -37,7 +36,7 @@ Muon::NSWCalibTool::NSWCalibTool(const std::string& t,
 				  const IInterface* p ) :
   AthAlgTool(t,n,p),
   m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-  m_muonMgr(0),
+  m_muonMgr(nullptr),
   m_magFieldSvc("AtlasFieldSvc",n)
 {
   declareInterface<INSWCalibTool>(this);
@@ -68,18 +67,8 @@ StatusCode Muon::NSWCalibTool::initialize()
   ATH_CHECK(initializeGasProperties());
 
   // get the detector descriptor manager
-  StoreGateSvc* detStore=0;
-  StatusCode sc = serviceLocator()->service("DetectorStore", detStore);   
-  if (sc.isSuccess()) {
-    sc = detStore->retrieve( m_muonMgr );
-    if (sc.isFailure()) {
-      ATH_MSG_FATAL(" Cannot retrieve MuonReadoutGeometry ");
-      return sc;
-    }
-  } else {
-    ATH_MSG_ERROR("DetectorStore not found ");
-    return sc;
-  }
+  ATH_CHECK(detStore()->retrieve(m_muonMgr));
+
   return StatusCode::SUCCESS;
 }
 
