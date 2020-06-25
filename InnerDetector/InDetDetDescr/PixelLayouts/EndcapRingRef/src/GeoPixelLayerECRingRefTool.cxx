@@ -102,7 +102,7 @@ void GeoPixelLayerECRingRefTool::preBuild(const PixelGeoBuilderBasics* basics, i
   m_ringPos.clear();
   m_ringListF.clear();
   m_ringListB.clear();
-  //m_ringFBzshift.clear();      // ST bugfix
+  m_ringFBzshift.clear();     
 
   
   InDet::EndcapLayerTmp* discTmp = m_xmlReader->getPixelEndcapLayerTemplate(m_layer); 
@@ -242,8 +242,7 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
 {
 
  // Check that the prebuild phase is done coherently
- // if(layer!=m_layer || m_endcapSide!=side ) preBuild(basics,layer);   // ST bugfix
-  if(layer!=m_layer) preBuild(basics,layer);   
+  if(layer!=m_layer || m_endcapSide!=side ) preBuild(basics,layer);   
 
   m_layer = layer;
   m_endcapSide = side;
