@@ -11,7 +11,6 @@ softas, hardas = resource.getrlimit( resource.RLIMIT_RSS )
 logRecoUtils.info( 'Memory resident state RSS soft limit : %s hard limit: %s ',softas == -1 and 'unlimited' or str(softas),  hardas == -1 and 'unlimited' or str(hardas))
 
 # make IOV calls in reproducible order
-Service("AthenaSealSvc").OutputLevel=WARNING
 Service('IOVSvc').sortKeys=True
 
 ############

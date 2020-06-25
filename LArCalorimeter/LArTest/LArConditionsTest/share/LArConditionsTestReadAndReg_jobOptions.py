@@ -93,15 +93,6 @@ EventSelector = svcMgr.EventSelector
 theApp.EvtMax = 1
 
 #--------------------------------------------------------------
-# Make sure AthenaSealSvc is loaded for dict check
-#--------------------------------------------------------------
-include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-# Check the dictionary in memory for completeness
-AthenaSealSvc = Service( "AthenaSealSvc" )
-AthenaSealSvc.CheckDictionary = TRUE
-AthenaSealSvc.OutputLevel     = 3
-
-#--------------------------------------------------------------
 # Load POOL support
 #--------------------------------------------------------------
 

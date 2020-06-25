@@ -5,7 +5,6 @@
   <class name="Athena::IThinningHdlr" />
   <class name="Athena::ISlimmingHdlr" />
   <class name="IValgrindSvc" />
-  <class name="IAthenaSealSvc" />
   <class name="IDictLoaderSvc" />
   <class name="IEvtIdModifierSvc" />
   <class name="IIoComponent" />

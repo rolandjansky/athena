@@ -17,16 +17,6 @@ include( "AthenaPoolCnvSvc/ReadAthenaPool_jobOptions.py" )
 ServiceMgr.EventSelector.InputCollections = [strInputRootCollection]
 
 #--------------------------------------------------------------
-# JobOptions for the loading of the AthenaSealSvc
-include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-
-# Add in dictionary name:
-AthenaSealSvc = Service( "AthenaSealSvc" )
-
-# Check the dictionary in memory for completeness
-AthenaSealSvc.CheckDictionary = TRUE
-
-#--------------------------------------------------------------
 # Event related parameters
 #theApp.EvtMax = jobOptionValues.iEventCountLocRecCorr
 

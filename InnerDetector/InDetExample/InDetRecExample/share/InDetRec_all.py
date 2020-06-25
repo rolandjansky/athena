@@ -204,8 +204,6 @@ if 'doWriteBS' in dir() and doWriteBS:
 if doWriteESD or doWriteAOD or ('doCopyRDO' in dir() and doCopyRDO):
   # --- load setup
   from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-  # --- check dictionary
-  ServiceMgr.AthenaSealSvc.CheckDictionary = True
 
 # MC truth information
   if doWriteESD or doWriteAOD:
