@@ -2159,9 +2159,6 @@ namespace top {
     // Tracks
     float m_trackPtcut; // track object selection pT cut
     float m_trackEtacut; // track object selection (abs) eta cut
-    
-    std::string m_trackQuality; // track quality to be used in track selection
-
 
     // Jet configuration for reclustered jets
     float m_RCJetPtcut;
@@ -2180,6 +2177,8 @@ namespace top {
     std::string m_VarRCJetMassScale;
     bool m_useVarRCJetSubstructure;
     bool m_useVarRCJetAdditionalSubstructure;
+
+    std::string m_trackQuality; // track quality to be used in track selection                                                                                                                              
 
     // these are needed for the top mass analysis, per default should be 1.0
     float m_JSF;
