@@ -16,5 +16,5 @@ include("Pythia8_i/Pythia8_Powheg.py")
 # EVGEN configuration
 #--------------------------------------------------------------
 evgenConfig.description = "POWHEG+Pythia8 W+j MiNNLO production with A14 NNPDF2.3 tune"
-evgenConfig.keywords    = [ "SM", "Q", "1jet" ]
+evgenConfig.keywords    = [ "SM", "W", "1jet" ]
 evgenConfig.contact     = [ "simone.amoroso@cern.ch" ]
