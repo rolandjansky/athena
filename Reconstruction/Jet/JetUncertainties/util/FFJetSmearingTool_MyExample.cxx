@@ -548,11 +548,9 @@ int main(int argc, char* argv[]){
                 TH1F* hold = new TH1F("","",numBinsMass,0,upperlimit1);
                 for (int k=1; k<= hist_jet_mass_scale_change_3D->GetNbinsZ(); k++)
                 {
-                    hold->SetBinContent(k,hist_jet_mass_scale_change_3D->GetBinContent(i,j,k));                    //Es basicamente una proyeccion en 2D del TH3
+                    hold->SetBinContent(k,hist_jet_mass_scale_change_3D->GetBinContent(i,j,k));                    //A 2D projection of the TH3
                 }
                 hist_jet_mass_scale_change_2D->SetBinContent(i,j,hold->GetMean()/hist_jet_mass_scale_change_3D->GetYaxis()->GetBinCenter(j));
-                //Info(APP_NAME,"meannnnn = %g", hold->GetMean() );
-                //Info(APP_NAME,"binCenter = %g", hist_jet_mass_scale_change_3D->GetYaxis()->GetBinCenter(j) );
                 delete hold;
             }
         }
@@ -568,11 +566,9 @@ int main(int argc, char* argv[]){
                 TH1F* hold = new TH1F("","",numBinsDiff,lowerlimit3,upperlimit3);
                 for (int k=1; k<= hist_jet_mass_resolution_change_3D->GetNbinsZ(); k++)
                 {
-                    hold->SetBinContent(k,hist_jet_mass_resolution_change_3D->GetBinContent(i,j,k));                    //Es basicamente una proyeccion en 2D del TH3
+                    hold->SetBinContent(k,hist_jet_mass_resolution_change_3D->GetBinContent(i,j,k));                    //A 2D projection of the TH3
                 }
-                hist_jet_mass_resolution_change_2D->SetBinContent(i,j,hold->GetMean()/*/hist_jet_mass_resolution_change_3D->GetYaxis()->GetBinCenter(j)*/);
-                //Info(APP_NAME,"meannnnn = %g", hold->GetMean() );
-                //Info(APP_NAME,"binCenter = %g", hist_jet_mass_scale_change_3D->GetYaxis()->GetBinCenter(j) );
+                hist_jet_mass_resolution_change_2D->SetBinContent(i,j,hold->GetMean()/hist_jet_mass_resolution_change_3D->GetYaxis()->GetBinCenter(j));
                 delete hold;
             }
         }
