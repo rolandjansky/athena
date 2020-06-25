@@ -20,11 +20,11 @@ enum SplitMode { NONE=0, DEFAULT, MIDDLE, GOOD};
 class GeoPixelRingECRingRef  {
 
  public:
-  GeoPixelRingECRingRef(int iDisk,int iRing, double ringRadius, double ringOuterRadius, double zOffset, double phiOffset,
+  GeoPixelRingECRingRef(int iDisk,int iRing, double ringRadius, double ringOuterRadius, double zOffset, double rOffset, double phiOffset,
 			int iSide, int numModules, std::string moduleType, int firstRing, int back_front, SplitMode mode = NONE, double inclination = 0.);
   ~GeoPixelRingECRingRef();
   virtual std::pair<GeoFullPhysVol*,GeoFullPhysVol*> BuildSplit(const PixelGeoBuilderBasics* basics, int endcapSide);
-  virtual GeoFullPhysVol* Build(const PixelGeoBuilderBasics* basics, int endcapSide, GeoFullPhysVol* envelope=0, double=0.);
+  virtual GeoFullPhysVol* Build(const PixelGeoBuilderBasics* basics, int endcapSide, GeoFullPhysVol* envelope=0, double=0., double=0.);
   void preBuild(const PixelGeoBuilderBasics* basics);
   void readoutId(std::string,int,int); 
 
@@ -45,6 +45,7 @@ class GeoPixelRingECRingRef  {
   double m_radius;
   double m_outerRadius;
   double m_zOffset;
+  double m_rOffset;
   double m_phiOffset;
   int m_ringSide;
   int m_numModules;

@@ -513,6 +513,7 @@ void InDet::XMLReaderSvc::parseEndcapXML(DOMNode* node, std::vector< InDet::Endc
   XMLCh* TAG_nsectors        = transcode("NumberOfSectors");
   XMLCh* TAG_modtype         = transcode("RingModuleType");
   XMLCh* TAG_zoffset         = transcode("RingModuleZSeparation");
+  XMLCh* TAG_roffset         = transcode("RingModuleRSeparation");
   XMLCh* TAG_phioffset       = transcode("RingPhiOfModuleZero");
   XMLCh* TAG_material        = transcode("RingSupportMaterial");
   XMLCh* TAG_ringpos         = transcode("RingPositions");
@@ -547,6 +548,7 @@ void InDet::XMLReaderSvc::parseEndcapXML(DOMNode* node, std::vector< InDet::Endc
   std::vector<std::string>  tmpsplitmode;
   std::vector<double>       tmpsplitoffset;
   std::vector<double>       tmpzoffset;
+  std::vector<double>       tmproffset;
   std::vector<double>       tmpphioffset;
   std::vector<int>          tmprolayer;
   std::vector<std::string>  tmproregion;
@@ -578,6 +580,7 @@ void InDet::XMLReaderSvc::parseEndcapXML(DOMNode* node, std::vector< InDet::Endc
     else if (XMLString::equals(currentElement->getTagName(),TAG_splitMode))       tmpsplitmode  = getVectorString(currentNode);
     else if (XMLString::equals(currentElement->getTagName(),TAG_splitOffset))     tmpsplitoffset= getVectorDouble(currentNode);
     else if (XMLString::equals(currentElement->getTagName(),TAG_zoffset))         tmpzoffset    = getVectorDouble(currentNode);
+    else if (XMLString::equals(currentElement->getTagName(),TAG_roffset))         tmproffset    = getVectorDouble(currentNode);
     else if (XMLString::equals(currentElement->getTagName(),TAG_phioffset))       tmpphioffset  = getVectorDouble(currentNode);
     else if (XMLString::equals(currentElement->getTagName(),TAG_ringpos))         tmpringpos    = getVectorDouble(currentNode);
     else if (XMLString::equals(currentElement->getTagName(),TAG_readoutRegion))   tmproregion   = getVectorString(currentNode);
@@ -604,6 +607,16 @@ void InDet::XMLReaderSvc::parseEndcapXML(DOMNode* node, std::vector< InDet::Endc
     }
   }else{
     for (unsigned int ir = 0 ; ir < nrings; ir++) tmpzoffset.push_back(0.);    
+  }
+
+  if(tmproffset.size()>0){
+    if(tmproffset.size() != nrings){
+      double roffs = tmproffset.at(0); 
+      tmproffset.clear();
+      for (unsigned int ir = 0 ; ir < nrings; ir++) tmproffset.push_back(roffs);
+    }
+  }else{
+    for (unsigned int ir = 0 ; ir < nrings; ir++) tmproffset.push_back(0.);    
   }
   
   if(tmpphioffset.size()>0){
@@ -724,6 +737,7 @@ void InDet::XMLReaderSvc::parseEndcapXML(DOMNode* node, std::vector< InDet::Endc
     layer->modtype.push_back(tmpmodtype.at(ir));
     layer->ringpos.push_back(tmpringpos.at(ir));
     layer->zoffset.push_back(tmpzoffset.at(ir));
+    layer->roffset.push_back(tmproffset.at(ir));
     layer->phioffset.push_back(tmpphioffset.at(ir));
     layer->nsectors.push_back(tmpnsectors.at(ir));
     layer->splitMode.push_back(tmpsplitmode.at(ir));

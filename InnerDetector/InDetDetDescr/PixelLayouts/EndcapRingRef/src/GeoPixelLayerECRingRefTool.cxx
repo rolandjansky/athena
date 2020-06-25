@@ -102,6 +102,8 @@ void GeoPixelLayerECRingRefTool::preBuild(const PixelGeoBuilderBasics* basics, i
   m_ringPos.clear();
   m_ringListF.clear();
   m_ringListB.clear();
+  //m_ringFBzshift.clear();      // ST bugfix
+
   
   InDet::EndcapLayerTmp* discTmp = m_xmlReader->getPixelEndcapLayerTemplate(m_layer); 
 
@@ -124,6 +126,7 @@ void GeoPixelLayerECRingRefTool::preBuild(const PixelGeoBuilderBasics* basics, i
   std::vector<double> v_ringRadius = discTmp->innerRadius;
   std::vector<double> v_ringOuterRadius = discTmp->outerRadius;
   std::vector<double> v_zOffset = discTmp->zoffset;
+  std::vector<double> v_rOffset = discTmp->roffset;
   std::vector<double> v_phiOffset = discTmp->phioffset;
   std::vector<int> v_numModules = discTmp->nsectors;
   std::vector<std::string> v_moduleType = discTmp->modtype;
@@ -152,6 +155,7 @@ void GeoPixelLayerECRingRefTool::preBuild(const PixelGeoBuilderBasics* basics, i
     double ringRadius = getValueFromVector(v_ringRadius, iRing); 
     double ringOuterRadius = getValueFromVector(v_ringOuterRadius, iRing); 
     double zOffset = getValueFromVector(v_zOffset, iRing); 
+    double rOffset = getValueFromVector(v_rOffset, iRing); 
     double phiOffset = getValueFromVector(v_phiOffset, iRing);
     int numModules = getValueFromVector(v_numModules, iRing);
     std::string moduleType = getValueFromVector(v_moduleType, iRing);
@@ -170,29 +174,30 @@ void GeoPixelLayerECRingRefTool::preBuild(const PixelGeoBuilderBasics* basics, i
     
     int iSide = getValueFromVector(v_discSide,iRing);
 
+
     // Forward ring
-    GeoPixelRingECRingRef ringF(m_layer,iRing,ringRadius, ringOuterRadius, zOffset, phiOffset, iSide, numModules, moduleType, discNumber, 1, splitMode, inclination);
+    GeoPixelRingECRingRef ringF(m_layer,iRing,ringRadius, ringOuterRadius, zOffset, rOffset,phiOffset, iSide, numModules, moduleType, discNumber, 1, splitMode, inclination);
     ringF.preBuild(basics);
     ringF.readoutId(roRegion,roLayer,roEta);
     m_ringListF.push_back(ringF);
     m_ringPos.push_back(ringPosition-halfZoffset+ringF.getRingZShift());
     m_ringFBzshift.push_back(-halfZoffset+ringF.getRingZShift()); 
 
-    rLayerMin = std::min(rLayerMin,ringF.getRingRMin());
-    rLayerMax = std::max(rLayerMax,ringF.getRingRMax());
+    rLayerMin = std::min(rLayerMin,ringF.getRingRMin()-fabs(0.5*rOffset));
+    rLayerMax = std::max(rLayerMax,ringF.getRingRMax()+fabs(0.5*rOffset));
     zLayerMin = std::min(zLayerMin,ringPosition-halfZoffset-halfSplitOffset + ringF.getRingZMin()  );
     zLayerMax = std::max(zLayerMax,ringPosition-halfZoffset+halfSplitOffset + ringF.getRingZMax()  );
 
     // Backward ring
-    GeoPixelRingECRingRef ringB(m_layer,iRing,ringRadius, ringOuterRadius, zOffset, phiOffset, iSide, numModules, moduleType, discNumber, -1, splitMode, inclination);
+    GeoPixelRingECRingRef ringB(m_layer,iRing,ringRadius, ringOuterRadius, zOffset, rOffset, phiOffset, iSide, numModules, moduleType, discNumber, -1, splitMode, inclination);
     ringB.preBuild(basics);
     ringB.readoutId(roRegion,roLayer,roEta);
     m_ringListB.push_back(ringB);
     m_ringPos.push_back(ringPosition+halfZoffset-ringB.getRingZShift());
     m_ringFBzshift.push_back(+halfZoffset-ringB.getRingZShift()); 
-    
-    rLayerMin = std::min(rLayerMin,ringB.getRingRMin());
-    rLayerMax = std::max(rLayerMax,ringB.getRingRMax());
+
+    rLayerMin = std::min(rLayerMin,ringB.getRingRMin()-fabs(0.5*rOffset));
+    rLayerMax = std::max(rLayerMax,ringB.getRingRMax()+fabs(0.5*rOffset));
     zLayerMin = std::min(zLayerMin,ringPosition+halfZoffset-halfSplitOffset + ringB.getRingZMin() );
     zLayerMax = std::max(zLayerMax,ringPosition+halfZoffset+halfSplitOffset + ringB.getRingZMax() );
   }
@@ -236,12 +241,12 @@ void GeoPixelLayerECRingRefTool::preBuild(const PixelGeoBuilderBasics* basics, i
 GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics* basics, int layer, int side) 
 {
 
- // Check that the prebuild phase is done
-  if(layer!=m_layer) preBuild(basics,layer);
+ // Check that the prebuild phase is done coherently
+ // if(layer!=m_layer || m_endcapSide!=side ) preBuild(basics,layer);   // ST bugfix
+  if(layer!=m_layer) preBuild(basics,layer);   
 
   m_layer = layer;
   m_endcapSide = side;
-
 
   InDet::EndcapLayerTmp* discTmp = m_xmlReader->getPixelEndcapLayerTemplate(m_layer); 
 
@@ -250,6 +255,7 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
   std::vector<double> v_ringPosition = discTmp->ringpos;
   int nrings = (int)v_ringPosition.size();
   std::vector<int> v_numModules = discTmp->nsectors;
+  std::vector<double> v_rOffset = discTmp->roffset;
   std::vector<std::string> v_splitMode = discTmp->splitMode;
   std::vector<double> v_splitOffset    = discTmp->splitOffset;
   std::vector<double> v_inclination    = discTmp->inclination;
@@ -265,15 +271,16 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
     
     SplitMode splitMode  = getSplitMode(getValueFromVector(v_splitMode,iRing));
     double inclination = getValueFromVector(v_inclination, iRing);
+    double rOffset = getValueFromVector(v_rOffset, iRing); 
     
     if (splitMode==NONE) {
       // strategy for common envelope for inclined F+B+ring support : build it while building inclined Forward ring, pass an an argument 
       ATH_MSG_DEBUG("**** BUILD ENTIRE ring "<<iRing<<"/"<<nrings<<"  - layer "<<m_layer<<"   ");
       double zshift = (inclination !=0) ? m_ringFBzshift[2*iRing] : 0;
-      GeoFullPhysVol* envelope = m_ringListF[iRing].Build(basics,m_endcapSide,0,zshift);
+      GeoFullPhysVol* envelope = m_ringListF[iRing].Build(basics,m_endcapSide,0,zshift,-0.5*rOffset);
       if (inclination==0) { ringList_PV.push_back(envelope); envelope=0; }
       zshift = (inclination !=0) ? m_ringFBzshift[2*iRing+1] : 0;
-      ringList_PV.push_back(m_ringListB[iRing].Build(basics,m_endcapSide, envelope,zshift));
+      ringList_PV.push_back(m_ringListB[iRing].Build(basics,m_endcapSide, envelope,zshift,0.5*rOffset));
     
     } else {
       if (inclination !=0) {
@@ -575,12 +582,6 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
       ecPhys->add(supPhys);
 
       ATH_MSG_DEBUG(" placing layer support for layer:"<<m_layer<<":"<<r[0]<<","<<r[1]<<":"<<z[0]<<":"<<z[1]<<":"<<matName);
-    }
-
-    std::vector<int> shells = ringHelper.getNbShellSupportIndex(m_layer);
-    if (!shells.size()  || shells[0]<0) {
-      ATH_MSG_DEBUG("Layer minmax global : "<<m_layerZMin<<" "<<m_layerZMax<<" / "<<m_layerZMin<<" "<<m_layerZMax);
-      return ecPhys;
     }
 
     // Place the shell supports
