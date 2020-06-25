@@ -32,10 +32,6 @@ namespace InDet {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode InDetTrackTruthOriginTool::finalize() {
-    return StatusCode::SUCCESS;
-  }
-
   int InDetTrackTruthOriginTool::getTrackOrigin(const xAOD::TrackParticle* track) const {
 
     const xAOD::TruthParticle* truth = nullptr;

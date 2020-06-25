@@ -97,9 +97,9 @@ Trk::MaterialEffectsUpdator::initialize() {
                     "Failed to retrieve tool " << m_eLossUpdator << ". No multiple scattering effects will be taken into account.");
       m_doEloss = false;
       return StatusCode::FAILURE;
-    } else {
+    } 
       ATH_MSG_DEBUG("Retrieved tool " << m_eLossUpdator);
-    }
+    
   }
   else {
     m_eLossUpdator.disable();
@@ -111,9 +111,9 @@ Trk::MaterialEffectsUpdator::initialize() {
                     ". No energy loss effects will be taken into account.");
       m_doMs = false;
       return StatusCode::FAILURE;
-    } else {
+    } 
       ATH_MSG_DEBUG("Retrieved tool " << m_msUpdator);
-    }
+    
   }
   else {
     m_msUpdator.disable();
@@ -124,9 +124,9 @@ Trk::MaterialEffectsUpdator::initialize() {
     if (m_materialMapper.retrieve().isFailure()) {
       ATH_MSG_FATAL("Failed to retrieve tool " << m_materialMapper << ". No material recording.");
       return StatusCode::FAILURE;
-    } else {
+    } 
       ATH_MSG_DEBUG("Retrieved tool " << m_materialMapper);
-    }
+    
   }
   else {
     m_materialMapper.disable();

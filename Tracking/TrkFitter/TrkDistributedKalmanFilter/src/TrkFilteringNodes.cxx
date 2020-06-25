@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -12,19 +12,19 @@
 // D.Emeliyanov@rl.ac.uk
 ///////////////////////////////////////////////////////////////////
 
-#include<stdio.h>
-#include<stdlib.h>
-#include<math.h>
-#include "TrkDistributedKalmanFilter/TrkBaseNode.h"
 #include "TrkDistributedKalmanFilter/TrkFilteringNodes.h"
-#include "TrkDistributedKalmanFilter/TrkTrackState.h"
+#include "TrkDistributedKalmanFilter/TrkBaseNode.h"
 #include "TrkDistributedKalmanFilter/TrkPlanarSurface.h"
+#include "TrkDistributedKalmanFilter/TrkTrackState.h"
 #include "TrkEventPrimitives/ParamDefs.h"
+#include "TrkParameters/TrackParameters.h"
 #include "TrkPrepRawData/PrepRawData.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
-#include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
+#include<cmath>
+#include<cstdio>
+#include<cstdlib>
 
 
 
@@ -142,7 +142,7 @@ namespace Trk
   TrkClusterNode::TrkClusterNode(TrkPlanarSurface* pS, double chi2Cut, double pos, double cov)
   {
     m_pSurface=pS;m_chi2Cut=chi2Cut;
-    m_m=pos;m_V=cov;m_pPRD=NULL;m_nodeType=2;m_ndof=1;
+    m_m=pos;m_V=cov;m_pPRD=nullptr;m_nodeType=2;m_ndof=1;
   }
 
   void TrkClusterNode::serialize(char fileName[])
@@ -225,7 +225,7 @@ namespace Trk
 					     double pos, double cov)
   {
     m_pSurface=pS;m_chi2Cut=chi2Cut;
-    m_m=pos;m_V=cov;m_pPRD=NULL;m_Rc=Rc;
+    m_m=pos;m_V=cov;m_pPRD=nullptr;m_Rc=Rc;
     m_nodeType=2;m_ndof=1;
   }
 
@@ -300,7 +300,7 @@ namespace Trk
     m_pSurface=pS;m_chi2Cut=chi2Cut;
     m_m[0]=pos[0];m_m[1]=pos[1];
     m_V[0][0]=cov[0];m_V[0][1]=cov[1]; m_V[1][0]=cov[2]; m_V[1][1]=cov[3];
-    m_pPRD=NULL;m_nodeType=1;m_ndof=2;
+    m_pPRD=nullptr;m_nodeType=1;m_ndof=2;
   }
 
   void TrkPixelNode::serialize(char fileName[])
@@ -439,7 +439,7 @@ namespace Trk
 
   void TrkTrtNode::updateInternal()
   {
-    if(isValidated()&&(m_pTrackState!=NULL))
+    if(isValidated()&&(m_pTrackState!=nullptr))
       {
 	m_freezeLR=true;
 	m_lrSign=(m_pTrackState->getTrackState(0)<0.0)?-1:1;

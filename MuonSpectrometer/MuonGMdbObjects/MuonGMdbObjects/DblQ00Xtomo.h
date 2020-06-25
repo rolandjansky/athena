@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************
@@ -10,27 +10,23 @@
  // entered: 2012-09-24
  // comment: Mdt AsBuilt parameters - class to read from DB
 
-#include <string>
-
 #ifndef DBLQ00_XTOMO_H
 #define DBLQ00_XTOMO_H
 
 #include "RDBAccessSvc/IRDBQuery.h"
+
 #include <memory>
+#include <string>
 
-namespace MuonGM
-{
-    
+class AmdcDb;
 
+namespace MuonGM {
 class DblQ00Xtomo {
-
 public:
     DblQ00Xtomo();
     ~DblQ00Xtomo();
     DblQ00Xtomo(std::unique_ptr<IRDBQuery>&& xtomo);
-//    DblQ00Xtomo(std::string asciiFileName);
-    
-//    void WriteXtomoToAsciiFile(std::string filename);
+    DblQ00Xtomo(AmdcDb* xtomo);
 
     // data members for DblQ00/XTOMO fields
     struct XTOMO {

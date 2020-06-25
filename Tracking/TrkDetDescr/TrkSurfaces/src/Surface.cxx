@@ -186,7 +186,7 @@ Trk::Surface::isOnSurface(const Amg::Vector3D& glopo, BoundaryCheck bchk, double
   if (posOnSurface) {
     delete posOnSurface;
     return true;
-  } else
+  } 
     return false;
 }
 

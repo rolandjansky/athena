@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -13,7 +13,7 @@
 //         D. Hu (Jun 2011 - May 2012)
 //         L. Sawyer (Dec 2013 - )
 // ********************************************************************
-#include "CaloMonitoring/CaloTowerVecMon.h"
+#include "CaloTowerVecMon.h"
 
 #include "AthenaMonitoring/DQBadLBFilterTool.h"
 #include "AthenaMonitoring/DQAtlasReadyFilterTool.h"

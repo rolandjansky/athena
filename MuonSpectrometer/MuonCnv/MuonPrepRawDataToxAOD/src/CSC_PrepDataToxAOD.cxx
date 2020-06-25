@@ -1,11 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// CSC_PrepDataToxAOD.cxx
-//   Implementation file for class CSC_PrepDataToxAOD
-///////////////////////////////////////////////////////////////////
 
 #include "CSC_PrepDataToxAOD.h"
 
@@ -19,10 +14,8 @@
 
 // Constructor with parameters:
 CSC_PrepDataToxAOD::CSC_PrepDataToxAOD(const std::string &name, ISvcLocator *pSvcLocator) :
-  AthAlgorithm(name,pSvcLocator),
-  m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
-{  
-    
+  AthAlgorithm(name,pSvcLocator)
+{
 }
 
 // Initialize method:
@@ -32,7 +25,6 @@ StatusCode CSC_PrepDataToxAOD::initialize()
   m_trackMeasVal="CSC_Clusters_TrackMeasVal";
   ATH_CHECK(m_cscPrds.initialize());
   ATH_CHECK(m_trackMeasVal.initialize());
-  ATH_CHECK(m_idHelper.retrieve());
   return StatusCode::SUCCESS;
 }
 
@@ -79,11 +71,5 @@ StatusCode CSC_PrepDataToxAOD::execute()
   }
   ATH_MSG_DEBUG( " recorded CSC_PrepData obejcts: size " << xaod->size() );
 
-  return StatusCode::SUCCESS;
-}
-
-// Finalize method:
-StatusCode CSC_PrepDataToxAOD::finalize()
-{
   return StatusCode::SUCCESS;
 }

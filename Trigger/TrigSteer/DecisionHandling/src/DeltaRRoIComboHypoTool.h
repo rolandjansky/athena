@@ -9,7 +9,7 @@
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
-#include "ComboHypoToolBase.h"
+#include "DecisionHandling/ComboHypoToolBase.h"
 
 class DeltaRRoIComboHypoTool:  public ComboHypoToolBase {
 

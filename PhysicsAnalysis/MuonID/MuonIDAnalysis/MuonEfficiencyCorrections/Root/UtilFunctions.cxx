@@ -4,6 +4,7 @@
 
 #include "TH1.h"
 #include "TLorentzVector.h" // needed for Warning()
+#include <locale>
 
 namespace CP{
 

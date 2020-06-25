@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // STL includes
@@ -537,6 +537,7 @@ namespace Muon {
           continue;
         }
         Identifier id = m_edmHelperSvc->getIdentifier(*meas);
+        if (!id.is_valid()) continue;
 
         if( m_idHelperSvc->isMdt(id) ) stationIds.insert( m_idHelperSvc->chamberIndex(id) );
 
@@ -775,8 +776,6 @@ namespace Muon {
     std::vector< std::pair<bool,const Trk::TrackStateOnSurface* > > newStates;
     newStates.reserve(states->size()+5);
      
-    Identifier currentMdtChId;
-
     const Trk::TrackParameters* startPars = 0;
     std::map<int,std::set<MuonStationIndex::StIndex> > stationsPerSector;
 
@@ -1166,8 +1165,6 @@ namespace Muon {
     std::vector< std::pair<bool,const Trk::TrackStateOnSurface* > > newStates;
     newStates.reserve(states->size()+5);
      
-    Identifier currentMdtChId;
-
     const Trk::TrackParameters* startPars = 0;
 
     // loop over TSOSs and find start parameters

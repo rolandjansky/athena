@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /* This class is a simulation of the sTGC VMM behavior.  It is intended to be used as a module controlling
@@ -20,7 +20,6 @@
 #include <iosfwd>
 #include <inttypes.h>
 #include "MuonDigitContainer/MuonDigit.h"
-#include "MuonIdHelpers/sTgcIdHelper.h"
 #include "MuonDigitContainer/sTgcDigitContainer.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"

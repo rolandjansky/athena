@@ -65,9 +65,12 @@ StatusCode SiRegSelCondAlg::execute(const EventContext& ctx)  const
   SG::WriteCondHandle<IRegSelLUTCondData> lutCondData( m_tableKey, ctx );
   // Do we have a valid Write Cond Handle for current time?
   if (lutCondData.isValid()) {
-    ATH_MSG_DEBUG("CondHandle " << lutCondData.fullKey() << " is already valid."
-                  << ". In theory this should not be called, but may happen"
-                  << " if multiple concurrent events are being processed out of order.");
+    /// inpractice, this should never be called, although i serial athena, 
+    /// because the implementation of the conditions behaviour is flawed in 
+    /// the framework, this routine will be called every event (!) regardless 
+    /// of whether it should be called or not so we need this check to 
+    /// prevent unecessary code execution on out our side 
+    ATH_MSG_DEBUG("CondHandle " << lutCondData.fullKey() << " is already valid." );
     return StatusCode::SUCCESS;
   }
  

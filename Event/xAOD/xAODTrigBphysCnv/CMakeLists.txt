@@ -14,11 +14,18 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           Trigger/TrigEvent/TrigParticle )
 
+atlas_add_library( xAODTrigBphysCnvLib
+                   xAODTrigBphysCnv/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS xAODTrigBphysCnv
+                   LINK_LIBRARIES GaudiKernel xAODTrigBphys )
+
+
 # Component(s) in the package:
 atlas_add_component( xAODTrigBphysCnv
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES xAODTrigBphys GaudiKernel AthenaBaseComps AthenaKernel TrigParticle )
+                     LINK_LIBRARIES xAODTrigBphysCnvLib xAODTrigBphys GaudiKernel AthenaBaseComps AthenaKernel TrigParticle )
 
 # Install files from the package:
 atlas_install_headers( xAODTrigBphysCnv )

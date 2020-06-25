@@ -19,11 +19,10 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 
+#include <cmath>
 
-using namespace std;
 using SCT_Monitoring::N_REGIONS;
 using SCT_Monitoring::bec2Index;
-
 
 namespace {
   // some possible parameter key values
@@ -74,7 +73,7 @@ ATH_MSG_DEBUG("SCTTracksMonAlg::fillHistograms()");
     m_doNegativeEndcap, true, m_doPositiveEndcap
   };
 
-  bitset<N_TRIGGER_TYPES> firedTriggers{0};
+  std::bitset<N_TRIGGER_TYPES> firedTriggers{0};
   if (m_doTrigger and (not checkTriggers(firedTriggers).isSuccess())) {
     ATH_MSG_WARNING("Triggers not found!");
   }
@@ -96,13 +95,9 @@ ATH_MSG_DEBUG("SCTTracksMonAlg::fillHistograms()");
 
     int local_scthits{0};
     int scthits_on_trk{0}; // Breaks out of loop if track has less than 3 sct hits
-    std::unique_ptr<const Trk::TrackSummary> trkSum = std::make_unique<const Trk::TrackSummary>(*(track->trackSummary()));
+    std::unique_ptr<const Trk::TrackSummary> trkSum = m_trackSummaryTool->summary (*track);
     if (trkSum==nullptr) {
-      trkSum.reset(m_trackSummaryTool->createSummary(*track)); //creates new object on heap
-      if (trkSum==nullptr) {
-        ATH_MSG_WARNING("Trk::TrackSummary is null and cannot be created by " << m_trackSummaryTool.name());
-        continue;
-      }
+      ATH_MSG_WARNING("Trk::TrackSummary is null and cannot be created by " << m_trackSummaryTool.name());
     }
 
     if (trkSum) {
@@ -132,7 +127,7 @@ ATH_MSG_DEBUG("SCTTracksMonAlg::fillHistograms()");
     fill("SCTTracksMonitor", trk_etaAcc); 
 
     if (track->perigeeParameters()->parameters()[Trk::qOverP] != 0.) {
-        auto trk_ptAcc{Monitored::Scalar<float>("trk_pt", fabs(1. / (track->perigeeParameters()->parameters()[Trk::qOverP] * 1000.)))};
+        auto trk_ptAcc{Monitored::Scalar<float>("trk_pt", std::abs(1. / (track->perigeeParameters()->parameters()[Trk::qOverP] * 1000.)))};
         fill("SCTTracksMonitor", trk_ptAcc);
     }
     auto trk_d0Acc{Monitored::Scalar<float>("trk_d0", track->perigeeParameters()->parameters()[Trk::d0])};
@@ -173,7 +168,7 @@ ATH_MSG_DEBUG("SCTTracksMonAlg::fillHistograms()");
             const unsigned int subsystemIndex{bec2Index(bec)};
             const bool doThisDetector{doThisSubsystem[subsystemIndex]};
             hasHits[subsystemIndex] = true;
-            unique_ptr<const Trk::TrackParameters> trkParameters(nullptr);
+            std::unique_ptr<const Trk::TrackParameters> trkParameters(nullptr);
             const Trk::TrackParameters* trkParam{tsos->trackParameters()};
             const Trk::RIO_OnTrack* rio{dynamic_cast<const Trk::RIO_OnTrack*>(tsos->measurementOnTrack())};
             if (rio) {
@@ -198,7 +193,7 @@ ATH_MSG_DEBUG("SCTTracksMonAlg::fillHistograms()");
               ATH_MSG_DEBUG("Cluster Position Phi= " << clus->localParameters()[Trk::locX]);
 #endif
               if (not m_residualPullCalculator.empty()) {
-                unique_ptr<const Trk::ResidualPull> residualPull{m_residualPullCalculator->residualPull(rio, trkParam,
+                std::unique_ptr<const Trk::ResidualPull> residualPull{m_residualPullCalculator->residualPull(rio, trkParam,
                                                                       m_doUnbiasedCalc ? Trk::ResidualPull::Unbiased : Trk::ResidualPull::Biased)};
                 if (not residualPull) {
                   ATH_MSG_WARNING("Residual Pull Calculator did not succeed!");
@@ -258,7 +253,7 @@ SCTTracksMonAlg::calculatePull(const float residual, const float trkErr, const f
 }
 
 StatusCode
-SCTTracksMonAlg::checkTriggers(bitset<N_TRIGGER_TYPES>& firedTriggers) const {
+SCTTracksMonAlg::checkTriggers(std::bitset<N_TRIGGER_TYPES>& firedTriggers) const {
 
   const EventContext& ctx = Gaudi::Hive::currentContext();
   SG::ReadHandle<xAOD::EventInfo> evtInfo = GetEventInfo (ctx);
@@ -271,6 +266,6 @@ SCTTracksMonAlg::checkTriggers(bitset<N_TRIGGER_TYPES>& firedTriggers) const {
 }
 
 bool
-SCTTracksMonAlg::hasTriggerFired(const unsigned int trigger, const bitset<N_TRIGGER_TYPES>& firedTriggers) const {
+SCTTracksMonAlg::hasTriggerFired(const unsigned int trigger, const std::bitset<N_TRIGGER_TYPES>& firedTriggers) const {
   return ((trigger < N_TRIGGER_TYPES) ? firedTriggers.test(trigger) : false);
 }

@@ -213,7 +213,7 @@ if InDetFlags.doMonitoringGlobal() or InDetFlags.doMonitoringPrimaryVertexingEnh
 if InDetFlags.doMonitoringGlobal():
   from InDetVertexMonitoring.InDetVertexMonitoringConf import InDetVertexMonitoring
   InDetVertexMonitoring = InDetVertexMonitoring(  name = "InDetVertexMonitoring",
-                                                VertexContainer = InDetKeys.PrimaryVertices(),
+                                                VertexContainer = InDetKeys.xAODVertexContainer(),
                                                 DoControlPlots = False,
                                                 histFolder = "InDetGlobal/PrimaryVertexMultiplicity"
                                                 )

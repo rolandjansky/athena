@@ -97,7 +97,8 @@ main()
     components[i].invCov = input[i].invCov;
     components[i].weight = input[i].weight;
   }
-  std::vector<std::pair<int32_t, int32_t>> mergeOrder=findMerges(components,n,12);
+  std::vector<std::pair<int32_t, int32_t>> mergeOrder =
+    findMerges(components.buffer(), n, 12);
   for (const auto& i : mergeOrder){  
     std::cout << "[" << i.first << ", " << i.second << "]" << '\n';
   }

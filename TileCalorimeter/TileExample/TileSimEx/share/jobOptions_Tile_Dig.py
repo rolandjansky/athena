@@ -280,7 +280,7 @@ else:
 if doD3PDCell or doD3PDCellInfo or doD3PDMBTS :
     # create TileCell from TileRawChannel and store it in CaloCellContainer
     include( 'TileRec/TileCellMaker_jobOptions.py' )
-    ToolSvc.TileCellBuilder.maskBadChannels = False
+    topSequence.CaloCellMaker.CaloCellMakerToolNames["TileCellBuilder"].maskBadChannels = False
 
 # write all digits
 #if DetFlags.writeRDOPool.Tile_on():

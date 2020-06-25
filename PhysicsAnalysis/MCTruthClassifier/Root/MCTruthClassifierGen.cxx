@@ -8,6 +8,7 @@
  */
 
 #include "MCTruthClassifier/MCTruthClassifier.h"
+#include "AsgDataHandles/ReadHandle.h"
 using namespace MCTruthPartClassifier;
 using std::abs;
 
@@ -31,7 +32,7 @@ MCTruthClassifier::particleTruthClassifier(const HepMC::GenParticle* thePart, In
   }
 
   for (const auto& entry : *truthParticleLinkVecReadHandle) {
-    if (entry->first.isValid() && entry->second.isValid() && entry->first.cptr()->barcode() == thePart->barcode()) {
+    if (entry->first.isValid() && entry->second.isValid() && HepMC::barcode(entry->first.cptr()) == HepMC::barcode(thePart)) {
       const xAOD::TruthParticle* truthParticle = *entry->second;
       if (!compareTruthParticles(thePart, truthParticle)) {
         // if the barcode/pdg id / status of the pair does not match
@@ -52,7 +53,7 @@ MCTruthClassifier::compareTruthParticles(const HepMC::GenParticle* genPart, cons
   if (!genPart || !truthPart)
     return false;
 
-  if (genPart->barcode() != truthPart->barcode() || genPart->pdg_id() != truthPart->pdgId() ||
+  if (HepMC::barcode(genPart) != truthPart->barcode() || genPart->pdg_id() != truthPart->pdgId() ||
       genPart->status() != truthPart->status()) {
     ATH_MSG_DEBUG("HepMC::GenParticle and xAOD::TruthParticle do not match");
     return false;

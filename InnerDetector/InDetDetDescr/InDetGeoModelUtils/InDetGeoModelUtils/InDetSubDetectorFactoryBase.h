@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetGeoModelUtils_SubDetectorFactoryBase_H
@@ -7,6 +7,8 @@
 
 #include "AthenaKernel/MsgStreamMember.h"
 #include "InDetGeoModelUtils/InDetDDAthenaComps.h"
+
+#include <memory>
 
 class StoreGateSvc;
 class IGeoDbTagSvc;
@@ -57,6 +59,8 @@ private:
   
 protected:
   InDetMaterialManager * m_materialManager;
+  // Use this std::unique_ptr when this class owns InDetMaterialManager
+  std::unique_ptr<InDetMaterialManager> m_materialManagerUnique;
 };
 
 } // end namespace

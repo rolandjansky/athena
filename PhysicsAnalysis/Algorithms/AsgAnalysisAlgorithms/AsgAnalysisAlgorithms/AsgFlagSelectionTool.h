@@ -60,9 +60,9 @@ namespace CP
 
     virtual StatusCode initialize () override;
 
-    virtual const Root::TAccept& getTAccept( ) const override;
+    virtual const asg::AcceptInfo& getAcceptInfo( ) const override;
 
-    virtual const Root::TAccept& accept( const xAOD::IParticle* /*part*/ ) const override;
+    virtual asg::AcceptData accept( const xAOD::IParticle* part ) const override;
 
 
 
@@ -80,9 +80,9 @@ namespace CP
     /// \}
 
 
-    /// \brief the \ref TAccept we are using
+    /// \brief the \ref asg::AcceptInfo we are using
   private:
-    mutable Root::TAccept m_accept;
+    asg::AcceptInfo m_accept;
   };
 }
 

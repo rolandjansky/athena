@@ -2,19 +2,15 @@
 
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#@purpose: get the inclusive and exclusive vmem sizes of a library
-
 from __future__ import print_function
 
 __author__ = "Sebastien Binet <binet@cern.ch>"
 __doc__    = "get the inclusive and exclusive vmem sizes of a library"
-__version__= "$Revision: 1.2 $"
 
 ## std imports
 import argparse
 import ctypes
 import os
-import sys
 
 ## 3rd-party imports
 from PyUtils.Decorators import forking as forking
@@ -31,7 +27,7 @@ def lib_loader(libname):
 @forking
 def load_lib (libname):
     _,vmem0,_ = pymon()
-    lib = lib_loader (libname)
+    lib_loader (libname)
     _,vmem1,_  = pymon()
     libs = [l for l in loaded_libs()
             if not os.path.basename(l) in _veto_libs and
@@ -139,8 +135,6 @@ def save_stats (lib_stats, fname=None):
     print (":: saving vmem statistics in [%s]... [done]"%fname)
     
 def main():
-    import sys
-    import os
 
     parser = argparse.ArgumentParser(
         description='get the inclusive and exclusive vmem sizes of a library'

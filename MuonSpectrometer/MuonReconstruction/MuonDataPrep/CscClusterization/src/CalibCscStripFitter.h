@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// CalibCscStripFitter.h
 
 #ifndef CalibCscStripFitter_H
 #define CalibCscStripFitter_H
@@ -12,18 +10,16 @@
 //
 // Strip fitter using the parabolic fit fron the CSC calibration tool.
 
-#include <vector>
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "CscClusterization/ICscStripFitter.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
-class ICscCalibTool;
-class CscIdHelper;
-namespace Muon {
-  class CscStripPrepData;
-}
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "CscCalibTools/ICscCalibTool.h"
 
+#include <vector>
+#include <string>
 
 class CalibCscStripFitter : virtual public ICscStripFitter, public AthAlgTool {
 
@@ -32,19 +28,13 @@ public:  // Ctors and dtor.
     rms = 0, sigma, f001
   };
 
-  // Constructor.
   CalibCscStripFitter(std::string, std::string, const IInterface*);
 
-  // Destructor.
-  ~CalibCscStripFitter();
+  ~CalibCscStripFitter()=default;
 
 public:  // AlgTool methods
 
-  // Initialization.
   StatusCode initialize();
-
-  // Finalization.
-  StatusCode finalize();
 
 public:  // Interface methods
 
@@ -72,10 +62,8 @@ private:  // data
   std::string m_noiseOptionStr;
   NoiseOption m_noiseOption;
 
-  // Pointer to MuonIdHelperSvc.
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-  // Calibration tool.
   ToolHandle<ICscCalibTool> m_cscCalibTool;
 
 };

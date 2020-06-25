@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # File: CaloTools/python/CaloEstimatedGainToolConfig.py
 # Created: Aug 2019, sss
@@ -71,5 +71,13 @@ if __name__ == "__main__":
     acc1 = CaloEstimatedGainToolCfg (flags1)
     only = ['CaloEstimatedGainTool']
     acc1.printCondAlgs(summariseProps=True, onlyComponents = only)
-    print ('ComponentAccumulator:', acc1.popPrivateTools())
+
+    # Print a configurable with properties in sorted order.
+    Configurable = CompFactory.CaloEstimatedGainTool.__bases__[0]
+    def sorted_repr (c):
+        if not isinstance(c, Configurable): return str(c)
+        args = [c.name] + ['{}={!r}'.format(item[0], sorted_repr(item[1])) for item in sorted(c._properties.items())]
+        return '{}({})'.format(type(c).__name__, ', '.join(args))
+
+    print ('ComponentAccumulator:', sorted_repr (acc1.popPrivateTools()))
     acc1.wasMerged()

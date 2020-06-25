@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -7,32 +7,20 @@
  -----------------------------------------
  ***************************************************************************/
 
-//<doc><file>	$Id: DblQ00Aptp.cxx,v 1.4 2007-02-12 17:33:50 stefspa Exp $
-//<version>	$Name: not supported by cvs2svn $
-
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include "MuonGMdbObjects/DblQ00Aptp.h"
+#include "RDBAccessSvc/IRDBRecordset.h"
+#include "AmdcDb/AmdcDb.h"
+#include "AmdcDb/AmdcDbRecord.h"
+
 #include <iostream>
 #include <sstream>
 #include <stdio.h>
 
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
-
 namespace MuonGM
 {
 
-DblQ00Aptp::DblQ00Aptp(std::unique_ptr<IRDBQuery>&& aptp)
- : m_nObj(0)
-{
+DblQ00Aptp::DblQ00Aptp(std::unique_ptr<IRDBQuery>&& aptp) :
+    m_nObj(0) {
   if(aptp) {
     aptp->execute();
     m_nObj = aptp->size();
@@ -63,9 +51,6 @@ DblQ00Aptp::DblQ00Aptp(std::unique_ptr<IRDBQuery>&& aptp)
         m_d[i].icut        = aptp->data<int>(fieldIcut);
         for (unsigned int j=0; j<8; j++)
         {
- //            std::ostringstream tem;
-//             tem << j;
-//             std::string tag = "APTP_DATA.IPHI_"+tem.str();
             m_d[i].iphi[j]     = aptp->data<int>(fieldIphi+j);        
         }
         m_d[i].iz          = aptp->data<int>(fieldIz);
@@ -76,9 +61,6 @@ DblQ00Aptp::DblQ00Aptp(std::unique_ptr<IRDBQuery>&& aptp)
         m_d[i].alfa        = aptp->data<float>(fieldAlfa);      
         m_d[i].beta        = aptp->data<float>(fieldBeta);     
         m_d[i].gamma       = aptp->data<float>(fieldGamma);
-//         std::cerr<<i<<" type, iz, iphi, z, r, s "<<m_d[i].type<<" "<<m_d[i].iz <<" ";
-//         for(unsigned int j=0; j<8; j++)std::cerr<<m_d[i].iphi[j];
-//         std::cerr<<" "<<m_d[i].z<<" "<<m_d[i].r<<" "<<m_d[i].s    <<std::endl;
         i++;
     }
     aptp->finalize();
@@ -88,7 +70,62 @@ DblQ00Aptp::DblQ00Aptp(std::unique_ptr<IRDBQuery>&& aptp)
     std::cerr<<"NO Aptp banks in the MuonDD Database"<<std::endl;
   }
 }
-    
+
+DblQ00Aptp::DblQ00Aptp(AmdcDb* aptp) :
+    m_nObj(0) {
+  IRDBRecordset_ptr pIRDBRecordset = aptp->getRecordsetPtr(std::string(getObjName()),"Amdc");
+  std::vector<IRDBRecord*>::const_iterator it = pIRDBRecordset->begin();
+
+  m_nObj = pIRDBRecordset->size();
+  m_d = new APTP[m_nObj];
+  if (m_nObj == 0) std::cerr<<"NO Aptp banks in the AmdcDbRecord"<<std::endl;
+
+  const AmdcDbRecord* pAmdcDbRecord = dynamic_cast<const AmdcDbRecord*>((*it));
+  if (pAmdcDbRecord == 0){
+    std::cerr << "No way to cast in AmdcDbRecord for " << getObjName() << std::endl;
+    return;
+  }
+  
+  std::vector< std::string> VariableList = pAmdcDbRecord->getVariableList();
+  int ItemTot = VariableList.size() ;
+  for(int Item=0 ; Item<ItemTot ; Item++){
+    std::string DbVar = VariableList[Item];
+  }
+
+  int i = -1;
+  it = pIRDBRecordset->begin();
+  for( ; it<pIRDBRecordset->end(); it++){
+     pAmdcDbRecord = dynamic_cast<const AmdcDbRecord*>((*it));
+     if(pAmdcDbRecord == 0){
+       std::cerr << "No way to cast in AmdcDbRecord for " << getObjName() << std::endl;
+       return;
+     }
+
+     i = i + 1;
+
+     m_d[i].version = (*it)->getInt("VERS");
+     m_d[i].line =  (*it)->getInt("LINE");
+     sprintf(m_d[i].type,"%s",(*it)->getString("TYP").c_str());
+     m_d[i].i = (*it)->getInt("I");
+     m_d[i].icut = (*it)->getInt("ICUT");
+     for(int DB_JFF=0; DB_JFF<8 ; DB_JFF++) {
+        std::string DbVar = "";
+        std::ostringstream Aostringstream;
+        Aostringstream << DB_JFF;
+        DbVar = "IPHI_"+Aostringstream.str();
+        m_d[i].iphi[DB_JFF] =(*it)->getInt(DbVar);
+     }
+     m_d[i].iz = (*it)->getInt("IZ");
+     m_d[i].dphi = (*it)->getFloat("DPHI");
+     m_d[i].z = (*it)->getFloat("Z");
+     m_d[i].r = (*it)->getFloat("R");
+     m_d[i].s = (*it)->getFloat("S");
+     m_d[i].alfa = (*it)->getFloat("ALFA");
+     m_d[i].beta = (*it)->getFloat("BETA");
+     m_d[i].gamma = (*it)->getFloat("GAMMA");
+  }
+}
+
 DblQ00Aptp::~DblQ00Aptp()
 {
     delete [] m_d;

@@ -1,57 +1,41 @@
-################################################################################
-# Package: xAODTracking
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# Declare the package name:
+# Declare the package name.
 atlas_subdir( xAODTracking )
 
-# Extra dependencies, based on what environment we are in:
+# Extra dependencies, based on what environment we are in.
 if( NOT XAOD_STANDALONE AND NOT XAOD_ANALYSIS )
-   set( extra_deps Tracking/TrkEvent/TrkNeutralParameters
-      Tracking/TrkEvent/TrkParameters
-      Tracking/TrkEvent/TrkTrack
-      Tracking/TrkEvent/VxVertex )
-   set( extra_libs  TrkNeutralParameters TrkParameters TrkTrack VxVertex )
+   set( extra_libs TrkNeutralParameters TrkParameters TrkTrack VxVertex )
 endif()
 
-if (BUILDVP1LIGHT)
-    if( BUILDVP1LIGHT_DIST STREQUAL "ubuntu")
-        set( extra_libs ${extra_libs} GenVector )
-    endif()
-endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/CxxUtils
-   Control/AthContainers
-   Control/AthLinks
-   DetectorDescription/GeoPrimitives
-   Event/EventPrimitives
-   Event/xAOD/xAODBase
-   Event/xAOD/xAODCore
-   ${extra_deps} )
-
-# External dependencies:
-find_package( Eigen )
+# External dependencies.
 find_package( ROOT COMPONENTS Core GenVector )
+find_package( xAODUtilities )
 
-# Component(s) in the package:
+# Component(s) in the package.
 atlas_add_library( xAODTracking
    xAODTracking/*.h xAODTracking/versions/*.h Root/*.cxx
    PUBLIC_HEADERS xAODTracking
-   INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-   LINK_LIBRARIES ${EIGEN_LIBRARIES} ${ROOT_LIBRARIES} AthContainers 
-   AthLinks GeoPrimitives
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers  AthLinks GeoPrimitives
    EventPrimitives xAODBase xAODCore ${extra_libs} )
+
+atlas_add_xaod_smart_pointer_dicts(
+   INPUT xAODTracking/selection.xml
+   OUTPUT _selectionFile
+   CONTAINERS "xAOD::TrackParticleContainer_v1"
+              "xAOD::NeutralParticleContainer_v1" "xAOD::VertexContainer_v1"
+              "xAOD::TrackMeasurementValidationContainer_v1"
+              "xAOD::TrackStateValidationContainer_v1"
+              "xAOD::SCTRawHitValidationContainer_v1" )
 
 atlas_add_dictionary( xAODTrackingDict
    xAODTracking/xAODTrackingDict.h
-   xAODTracking/selection.xml
-   LINK_LIBRARIES xAODTracking
+   ${_selectionFile}
+   LINK_LIBRARIES xAODCore xAODTracking
    EXTRA_FILES Root/dict/*.cxx )
 
-# Test(s) in the package:
+# Test(s) in the package.
 atlas_add_test( xAODTracking_TrackParticle_test
    SOURCES test/xAODTracking_TrackParticle_test.cxx
    LINK_LIBRARIES xAODTracking )

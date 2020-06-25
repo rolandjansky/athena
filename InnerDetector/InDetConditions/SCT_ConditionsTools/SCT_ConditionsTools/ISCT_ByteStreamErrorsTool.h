@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -30,20 +30,26 @@ class IdentifierHash;
  **/
 namespace SCT_ByteStreamErrors {
   //!< @brief for cases when error doe snot need to be accumulated
-  inline IDCInDetBSErrContainer::ErrorCode makeError( ErrorType errType ) { return IDCInDetBSErrContainer::ErrorCode{1} << errType; }
+  inline IDCInDetBSErrContainer::ErrorCode makeError(ErrorType errType) {
+    return IDCInDetBSErrContainer::ErrorCode{1} << errType;
+  }
 
   //!< @brief helper to be used in clients to fetch error information
-  inline bool hasError(IDCInDetBSErrContainer::ErrorCode errWord,  ErrorType errType ) { return errWord & makeError( errType ); }
+  inline bool hasError(IDCInDetBSErrContainer::ErrorCode errWord, ErrorType errType) {
+    return errWord & makeError(errType);
+  }
 
-  //!< @brief helper to set the error: @example errors[hashId] = addError( errors[hashId], PixelByteStreamErrors::Invalid )
-  inline void addError(IDCInDetBSErrContainer::ErrorCode& errWord,  ErrorType errType ) { errWord |= makeError( errType ); }
+  //!< @brief helper to set the error: @example errors[hashId] = addError(errors[hashId], SCT_ByteStreamErrors::BCIDError)
+  inline void addError(IDCInDetBSErrContainer::ErrorCode& errWord, ErrorType errType) {
+    errWord |= makeError(errType);
+  }
 
 }
 
 
 class ISCT_ByteStreamErrorsTool: virtual public ISCT_ConditionsTool {
 
- public:
+public:
   //@name Tool methods
   //@{
 
@@ -63,7 +69,7 @@ class ISCT_ByteStreamErrorsTool: virtual public ISCT_ConditionsTool {
   virtual unsigned int abcdErrorChips(const Identifier& moduleId) const =0;
   virtual unsigned int abcdErrorChips(const Identifier& moduleId, const EventContext& ctx) const =0;
 
- private:
+private:
 
 };
 

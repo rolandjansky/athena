@@ -10,6 +10,10 @@ from .exceptions import (DefectUnknownError,
                          InvalidLogicTagError)
 
 import six
+if six.PY2:
+    def _decode (s): return s.decode('utf-8')
+else:
+    def _decode (s): return s
 
 
 class DefectIDBitfield(Structure):
@@ -229,7 +233,7 @@ class DefectsDBIDsNamesMixin(object):
         description
         """
         get_desc = self.defects_folder.channelDescription
-        return dict((channel, get_desc(self.defect_chan_as_id(channel)).decode('utf-8'))
+        return dict((channel, _decode (get_desc(self.defect_chan_as_id(channel))))
                      for channel in channels)
                      
     def get_virtual_channel_descriptions(self, channels):
@@ -238,7 +242,7 @@ class DefectsDBIDsNamesMixin(object):
         descriptiondefect_id
         """
         get_desc = self.defect_logic_folder.channelDescription
-        return dict((channel, get_desc(self.defect_chan_as_id(channel)).decode('utf-8'))
+        return dict((channel, _decode(get_desc(self.defect_chan_as_id(channel))))
                     for channel in channels)
 
     @property

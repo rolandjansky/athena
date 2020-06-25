@@ -12,6 +12,7 @@
 #include "MuonReadoutGeometry/MMReadoutElement.h"
 
 #include "TTree.h"
+#include <TString.h> // for Form
 
 using namespace Muon;
 
@@ -69,11 +70,8 @@ StatusCode MMRDOVariables::fillVariables(const MuonGM::MuonDetectorManager* Muon
 
       // get the readout element class where the RDO is recorded
       int isSmall = (stName[2] == 'S');
-      const MuonGM::MMReadoutElement* rdoEl = MuonDetMgr->getMMRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet );
-      if (!rdoEl) {
-        ATH_MSG_WARNING("Could not retrieve MMReadoutElement from DetectorManager for isSmall=" << isSmall << ", stationEta=" << stationEta << ", stationPhi=" << stationPhi << ", multiplet=" << multiplet << ", skipping this entry...");
-        continue;
-      }
+      const MuonGM::MMReadoutElement* rdoEl = MuonDetMgr->getMMRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet);
+      if (!rdoEl) throw std::runtime_error(Form("File: %s, Line: %d\nMMRDOVariables::fillVariables() - Failed to retrieve MMReadoutElement for isSmall=%d, stationEta=%d, stationPhi=%d, multiplet=%d", __FILE__, __LINE__, isSmall, stationEta, stationPhi, multiplet));
 
       Amg::Vector2D localStripPos(0.,0.);
       if ( rdoEl->stripPosition(Id,localStripPos) )  {

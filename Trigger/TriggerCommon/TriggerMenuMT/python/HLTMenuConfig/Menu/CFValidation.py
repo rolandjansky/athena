@@ -59,8 +59,10 @@ def checkVDV( inputNodes, ancestorNames, allEVCAs ):
                 if name in allEVCAs.keys():
 
                     # Check EVCA properties
-                    if not hasattr( allEVCAs[ name ], "RequireParentView" ) or not allEVCAs[ name ].RequireParentView:
-                        raise RuntimeError( "ViewDataVerifier alg " + node.name() + " has upstream EventViewCreatorAlgorithm " + allEVCAs[ name ].name() + " with RequireParentView = False" )
+                    parentAllowed = hasattr( allEVCAs[ name ], "RequireParentView" ) and allEVCAs[ name ].RequireParentView
+                    eventLevelAllowed = hasattr( allEVCAs[ name ], "ViewFallThrough" ) and allEVCAs[ name ].ViewFallThrough
+                    if not ( parentAllowed or eventLevelAllowed ):
+                        raise RuntimeError( "ViewDataVerifier alg " + node.name() + " has upstream EventViewCreatorAlgorithm " + allEVCAs[ name ].name() + " with no external data" )
                     foundEVCA = True
                     break
 

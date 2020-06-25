@@ -133,14 +133,16 @@ namespace Trk {
                      VolumeBounds*   volbounds,
                      const Material& matprop,
                      const std::vector<const DetachedTrackingVolume*>* detachedSubVolumes,
-                     const std::string& volumeName="undefined");                            
+                     const std::string& volumeName="undefined")
+        ATLAS_CTORDTOR_NOT_THREAD_SAFE;
 
       /** Constructor for a full equipped Tracking Volume with detached subvolumes  
         -  mixed =======> 2 b) detached volumes */
       TrackingVolume(const Volume& volume,
                      const Material& matprop,
                      const std::vector<const DetachedTrackingVolume*>* detachedSubVolumes,
-                     const std::string& volumeName="undefined");                            
+                     const std::string& volumeName="undefined")
+        ATLAS_CTORDTOR_NOT_THREAD_SAFE;
 
       /** Constructor for a full equipped Tracking Volume with unordered subvolumes
         - mixed =======> 1 d) unordered volumes  */
@@ -148,14 +150,16 @@ namespace Trk {
                      VolumeBounds*   volbounds,
                      const Material& matprop,
                      const std::vector<const TrackingVolume*>* unorderedSubVolumes,
-                     const std::string& volumeName="undefined");                            
+                     const std::string& volumeName="undefined")
+        ATLAS_CTORDTOR_NOT_THREAD_SAFE;
 
       /** Constructor for a full equipped Tracking Volume with unordered subvolumes 
         - mixed =======> 2 d) unordered volumes  */
       TrackingVolume(const Volume& volume,
                      const Material& matprop,
                      const std::vector<const TrackingVolume*>* unorderedSubVolumes,
-                     const std::string& volumeName="undefined");                            
+                     const std::string& volumeName="undefined")
+        ATLAS_CTORDTOR_NOT_THREAD_SAFE;
       
       /** Constructor for a full equipped Tracking Volume with arbitrary layers
         -  mixed =======> 1 c) arbitrarily oriented layers */
@@ -163,14 +167,16 @@ namespace Trk {
                      VolumeBounds*   volbounds,
                      const Material& matprop,
                      const std::vector<const Layer*>* arbitraryLayers,
-                     const std::string& volumeName="undefined");                     
+                     const std::string& volumeName="undefined")
+        ATLAS_CTORDTOR_NOT_THREAD_SAFE;
 
       /** Constructor for a full equipped Tracking Volume with arbitrary layers
         -  mixed =======> 2 c) arbitrarily oriented layers */
       TrackingVolume(const Volume& volume,
                      const Material& matprop,
                      const std::vector<const Layer*>* arbitraryLayers,
-                     const std::string& volumeName="undefined");                     
+                     const std::string& volumeName="undefined")
+        ATLAS_CTORDTOR_NOT_THREAD_SAFE;
 
       /** Constructor for a full equipped Tracking Volume with arbitrary layers AND subVolumes - 
         -  mixed =======> 1 e) unordered layers AND unordered subvolumes */
@@ -179,7 +185,8 @@ namespace Trk {
                      const std::vector<const Layer*>* arbitraryLayers,
                      const std::vector<const TrackingVolume*>* unorderedSubVolumes,
                      const Material& matprop,
-                     const std::string& volumeName="undefined");                     
+                     const std::string& volumeName="undefined")
+        ATLAS_CTORDTOR_NOT_THREAD_SAFE;
 
       /** Constructor for a full equipped Tracking Volume with arbitrary layers AND subVolumes - 
         -  mixed =======> 2 e) unordered layers AND unordered subvolumes */
@@ -187,7 +194,8 @@ namespace Trk {
                      const std::vector<const Layer*>* arbitraryLayers,
                      const std::vector<const TrackingVolume*>* unorderedSubVolumes,
                      const Material& matprop,
-                     const std::string& volumeName="undefined");                     
+                     const std::string& volumeName="undefined")
+        ATLAS_CTORDTOR_NOT_THREAD_SAFE;
 
       /** copy constructor with shift */
       TrackingVolume(const TrackingVolume& trVol, Amg::Transform3D& transform);
@@ -372,7 +380,7 @@ namespace Trk {
       void propagateMaterialProperties ATLAS_NOT_THREAD_SAFE (const Material& mprop) const;
       
       /** Create Boundary Surface */
-      void createBoundarySurfaces();
+      void createBoundarySurfaces ATLAS_NOT_THREAD_SAFE ();
       
       /** Create Layer Attempts Caluclator */
       void createLayerAttemptsCalculator();
@@ -386,7 +394,7 @@ namespace Trk {
           - adapts the layer dimensions to the new volumebounds + envelope
           - adapts entry layer position where necessary to the new volumebounds 
       */
-      void synchronizeLayers(MsgStream& msgstream, double envelope = 1.) const;
+      void synchronizeLayers ATLAS_NOT_THREAD_SAFE (MsgStream& msgstream, double envelope = 1.) const;
 
       /** Register Next - Previous for Layers, set volumelink */
       void interlinkLayers ATLAS_NOT_THREAD_SAFE();

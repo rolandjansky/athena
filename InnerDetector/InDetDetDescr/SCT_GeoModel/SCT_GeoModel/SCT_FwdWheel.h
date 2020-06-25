@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GEOMODEL_SCT_FWDWHEEL_H
@@ -7,6 +7,7 @@
 
 #include "SCT_GeoModel/SCT_ComponentFactory.h"
 
+#include <memory>
 #include <vector>
 
 
@@ -44,8 +45,7 @@ public:
   double zPosition() const {return m_zPosition;} 
   int    numRings() const {return m_numRings;}
   int    ringType(int i) const {return m_ringType[i];} 
-  //int    ringStereoType(int i) const {return m_ringStereoType[i];} 
-  const  SCT_FwdRing* ring(int i) {return m_rings[i];}
+  const  SCT_FwdRing* ring(int i) {return m_rings[i].get();}
 
   //
   // Retrieve derived parameters
@@ -95,13 +95,13 @@ private:
   double m_safety;
 
   // Child detector elements
-  std::vector<SCT_FwdRing *>      m_rings;
-  SCT_FwdDiscSupport *            m_discSupport;
-  std::vector<SCT_FwdPatchPanel*> m_patchPanel;
-  SCT_FwdPPConnector*             m_pPConnector;
-  SCT_FwdPPCooling*               m_pPCooling;
-  std::vector<SCT_FwdFSI*>        m_fsiType;
-  SCT_FwdDiscFixation*            m_discFixation;
+  std::vector<std::unique_ptr<SCT_FwdRing>> m_rings;
+  std::unique_ptr<SCT_FwdDiscSupport> m_discSupport;
+  std::vector<std::unique_ptr<SCT_FwdPatchPanel>> m_patchPanel;
+  std::unique_ptr<SCT_FwdPPConnector> m_pPConnector;
+  std::unique_ptr<SCT_FwdPPCooling> m_pPCooling;
+  std::vector<std::unique_ptr<SCT_FwdFSI>> m_fsiType;
+  std::unique_ptr<SCT_FwdDiscFixation> m_discFixation;
 
   const std::vector<SCT_FwdModule*> & m_modules;
 

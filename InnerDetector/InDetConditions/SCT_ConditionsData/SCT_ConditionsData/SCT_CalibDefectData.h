@@ -1,24 +1,31 @@
+// -*- C++ -*-
+
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
  * @file SCT_CalibDefectData.h
  * header file for data object
- * @author P. Johansson - 26/10/07
+ * @author P. Johansson
+ * @date 26/10/07
  **/
 
 #ifndef SCT_CALIBDEFECTDATA_H
 #define SCT_CALIBDEFECTDATA_H
 
-#include "AthenaKernel/CLASS_DEF.h"
-#include <map>
-#include <vector>
-#include <string>
-
 // Include Athena stuff
 #include "Identifier/Identifier.h"
 
+#include <map>
+#include <string>
+#include <vector>
+
+/**
+ * @class SCT_CalibDefectData
+ * @brief Container with a list of defects derived from calibration data
+ * and used in SCT_ReadCalibDataCondAlg and SCT_ReadCalibDataTool.
+ **/
 class SCT_CalibDefectData {
 public:
 
@@ -29,10 +36,10 @@ public:
     std::vector<float> parValue;
   } CalibModuleDefects;
 
-  // Constructor
+  /// Constructor
   SCT_CalibDefectData();
 
-  // Destructor
+  /// Destructor
   virtual ~SCT_CalibDefectData() = default;
 
   /// Add defects for a module
@@ -64,8 +71,11 @@ private:
 
 };
 
+// Class definition for StoreGate
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( SCT_CalibDefectData , 103608210, 1 )
 
+// Condition container definition for CondInputLoader
 #include "AthenaKernel/CondCont.h"
 CONDCONT_DEF( SCT_CalibDefectData , 1073500 );
 

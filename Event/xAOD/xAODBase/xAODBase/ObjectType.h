@@ -49,6 +49,7 @@ enum ObjectType {
   Tau      = 9, ///< The object is a tau (jet)
 
   TrackCaloCluster = 10, ///< The object is a track-calo-cluster
+  FlowElement = 11, ///< The object is a track-calo-cluster
 
   // }
 

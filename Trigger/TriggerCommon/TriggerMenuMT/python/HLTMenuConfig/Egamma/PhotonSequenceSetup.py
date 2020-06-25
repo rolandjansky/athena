@@ -17,7 +17,8 @@ def fastPhotonMenuSequence():
     
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import CaloMenuDefs
     ViewVerify = CfgMgr.AthViews__ViewDataVerifier("FastPhotonViewDataVerifier")
-    ViewVerify.DataObjects = [('xAOD::TrigEMClusterContainer','StoreGateSvc+'+ CaloMenuDefs.L2CaloClusters)]
+    ViewVerify.DataObjects = [( 'xAOD::TrigEMClusterContainer' , 'StoreGateSvc+' + CaloMenuDefs.L2CaloClusters ),
+                              ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+EMIDRoIs' )]
 
     from TrigEgammaHypo.TrigL2PhotonFexMTConfig import L2PhotonFex_1
     thePhotonFex= L2PhotonFex_1()

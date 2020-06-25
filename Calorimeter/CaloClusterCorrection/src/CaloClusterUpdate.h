@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCLUSTERCORRECTION_CALOCLUSTER_UPDATE_H
@@ -47,25 +47,18 @@ class CaloClusterUpdate : public CaloClusterCorrection
 {
 
  public:
-
-  // constructor 
-  CaloClusterUpdate(const std::string& type,
-		   const std::string& name,
-		   const IInterface* parent);
-  // destructor 
-  virtual ~CaloClusterUpdate() override;
+  // constructor
+  using CaloClusterCorrection::CaloClusterCorrection;
 
   // virtual method in CaloClusterCorrection
-  virtual void makeCorrection(const EventContext& ctx,
-                              xAOD::CaloCluster* cluster) const override;
+  virtual void makeCorrection (const Context& myctx,
+                               xAOD::CaloCluster* cluster) const override;
 
  private:
 
   // If true, the total cluster energy is set to the sum of all layer energies.
-  bool m_update_energy;
-
-  CaloClusterUpdate();
-
+  Constant<bool> m_update_energy
+  { this, "update_energy", "Should cluster total energy be updated?" };
 };
 
 

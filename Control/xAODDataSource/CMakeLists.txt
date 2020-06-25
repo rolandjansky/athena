@@ -61,4 +61,4 @@ atlas_add_test( dataFrame_pytest
    LOG_IGNORE_PATTERN "Can.t find BranchInfo|Function should only be called" )
 
 # Install files from the package.
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

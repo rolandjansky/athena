@@ -1,31 +1,31 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonCalib_MdtGasChannel_h
 #define  MuonCalib_MdtGasChannel_h
 
+#include "MuonCalibIdentifier/MuonFixedId.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
+
 #include "string"
 #include "map"
 #include "set"
-#include "MuonCalibIdentifier/MuonFixedId.h"
 #include "iostream"
 
 namespace MuonCalib {
-
-//class MuonFixedId;
 
 class MdtGasChannel
 	{
 	public:
 		typedef std::pair<int, int> GasChannel;
-		inline MdtGasChannel() 
-			{
-			if(!readFile())
-				{
-				std::cout<<"ERROR: Gas channel file not found!"<<std::endl;
-				}
+		inline MdtGasChannel() {
+			if(!readFile()) {
+				MsgStream log(Athena::getMessageSvc(),"MdtGasChannel");
+				log<<MSG::WARNING<<"Gas channel file not found!"<<endmsg;
 			}
+		}
 		const GasChannel & GetGasChannel(const MuonFixedId &id) const;
 		static const GasChannel INVALID_CHANNEL;
 	private:

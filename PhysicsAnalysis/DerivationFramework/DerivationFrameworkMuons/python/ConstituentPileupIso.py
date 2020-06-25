@@ -198,13 +198,10 @@ def ConstituentPileupIso(privateSeq):
                                   UseEMScale                      = True,
                                   addCaloExtensionDecoration      = False)
   ToolSvc += TimePFCSSKCaloIsolationTool
-  
-  import ROOT, cppyy
-  # Need to be sure base dict is loaded first.
-  cppyy.loadDictionary('xAODCoreRflxDict')
-  cppyy.loadDictionary('xAODPrimitivesDict')
-  isoPar = ROOT.xAOD.Iso
-  
+
+  # Import the xAOD isolation parameters.
+  from xAODPrimitives.xAODIso import xAODIso as isoPar
+
   from IsolationAlgs.IsolationAlgsConf import IsolationBuilder
   isoBuilderLC = IsolationBuilder(
                                         name                  = "isoBuilderLC",

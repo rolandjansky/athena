@@ -59,9 +59,8 @@ from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr)
 theApp.EvtMax=1
 
 ## theByteStreamInputSvc=svcMgr.ByteStreamInputSvc
-## theByteStreamInputSvc.FullFileName=["/home/wlampl/LArOFIter/ramp/inputs/daq.Ramp.0029146.No.Streaming.LB0000.EB-EMBA._0001.data"]
+## svcMgr.EventSelector.Input=["/home/wlampl/LArOFIter/ramp/inputs/daq.Ramp.0029146.No.Streaming.LB0000.EB-EMBA._0001.data"]
    
-## theByteStreamInputSvc.MaxBadEvents=0
 
 
 #That's the dumper, keep for now

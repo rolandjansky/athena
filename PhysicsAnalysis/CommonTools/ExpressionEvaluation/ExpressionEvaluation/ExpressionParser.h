@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -32,10 +32,10 @@ namespace ExpressionParsing {
       ExpressionParser& operator= (const ExpressionParser&) = delete;
 
       bool loadExpression(const std::string &expression);
-      StackElement evaluate(); 
-      bool evaluateAsBool(); 
-      double evaluateAsDouble();
-      std::vector<int> evaluateAsVector();      
+      StackElement evaluate() const;
+      bool evaluateAsBool() const;
+      double evaluateAsDouble() const;
+      std::vector<int> evaluateAsVector() const;
 
     private:
       void setup();

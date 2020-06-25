@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // +==========================================================================+
@@ -80,7 +80,11 @@ StatusCode LArPileUpTool::initialize()
   //
   if (m_RndmEvtOverlay)
   {
-    m_NoiseOnOff = false ;
+    if (!m_isMcOverlay) m_NoiseOnOff = false ;
+    else {
+       ATH_MSG_INFO(" MC overlay case => switch back on noise only to emulate extra noise for cells with different gains");
+       m_NoiseOnOff=true;
+    }
     m_PileUp = true ;
     ATH_MSG_INFO(" pileup and/or noise added by overlaying digits of random events");
     if (m_isMcOverlay) ATH_MSG_INFO("   random events are from MC ");
@@ -210,9 +214,10 @@ StatusCode LArPileUpTool::initialize()
 
   m_Noise.resize(m_NSamples);
 
+
 // register data handle for conditions data
 
-  ATH_CHECK(m_noiseKey.initialize(!m_RndmEvtOverlay && !m_pedestalNoise && m_NoiseOnOff));
+  ATH_CHECK(m_noiseKey.initialize((!m_RndmEvtOverlay || m_isMcOverlay) && !m_pedestalNoise && m_NoiseOnOff));
 
   ATH_CHECK(m_shapeKey.initialize());
   ATH_CHECK(m_fSamplKey.initialize());
@@ -623,7 +628,6 @@ StatusCode LArPileUpTool::mergeEvent(const EventContext& ctx)
    it =  0;
    it_end = m_hitmap->GetNbCells();
 
-   Identifier cellID;
    const std::vector<std::pair<float,float> >* TimeE;
    const std::vector<std::pair<float,float> >* TimeE_DigiHSTruth = nullptr;
 
@@ -1624,7 +1628,7 @@ StatusCode LArPileUpTool::MakeDigit(const EventContext& ctx, const Identifier & 
   const ILArPedestal* pedestal=*pedHdl;
 
   const ILArNoise* noise=nullptr;  
-  if ( !m_RndmEvtOverlay && !m_pedestalNoise && m_NoiseOnOff ){
+  if ( (!m_RndmEvtOverlay || m_isMcOverlay)  && !m_pedestalNoise && m_NoiseOnOff ){
     SG::ReadCondHandle<ILArNoise> noiseHdl(m_noiseKey, ctx);
     noise=*noiseHdl;
   }
@@ -1676,7 +1680,6 @@ StatusCode LArPileUpTool::MakeDigit(const EventContext& ctx, const Identifier & 
    if(m_doDigiTruth) {
      m_Samples_DigiHSTruth[i]=0.;
    }
-
   }
 
 #ifndef NDEBUG
@@ -1824,6 +1827,7 @@ StatusCode LArPileUpTool::MakeDigit(const EventContext& ctx, const Identifier & 
   int BvsEC=0;
   if(iCalo==EM || iCalo==EMIW) BvsEC=abs(m_larem_id->barrel_ec(cellId));
 
+  bool addedNoise=false;
   if(    m_NoiseOnOff
       && (    (BvsEC==1 && m_NoiseInEMB)
            || (BvsEC>1  && m_NoiseInEMEC)
@@ -1855,8 +1859,46 @@ StatusCode LArPileUpTool::MakeDigit(const EventContext& ctx, const Identifier & 
            }
            m_Noise[i]=m_Noise[i]*SigmaNoise;
         }
-     } else for (int i=0;i<m_NSamples;i++) m_Noise[i]=0.;
-  }
+        addedNoise=true;
+     } else  {
+        // overlay case a priori don't add any noise
+        for (int i=0;i<m_NSamples;i++) m_Noise[i]=0.;
+        // if gain from zerobias events is < gain from mixed events => add extra noise to account for gain vs noise dependance
+        //   done in a simple way without taking into account the time correlation of this extra noise properly
+        if (rndmEvtDigit) {
+            // if gain of cell is different from ZB event gain
+            if (igain > rndmEvtDigit->gain() ) {
+               double SigmaNoiseZB=0.;    // noise in ZB event for gain of ZB event
+               double SigmaNoise=0.;      // noise expected for new gain value
+               double SigmaExtraNoise=0.;  // quadratic difference of noise values
+               if (!m_pedestalNoise) {
+                  SigmaNoiseZB =  noise->noise(ch_id,rndmEvtDigit->gain());
+                  SigmaNoise   =  noise->noise(ch_id,igain );
+               }    
+               else {
+                  float noise = pedestal->pedestalRMS(ch_id,rndmEvtDigit->gain() );
+                  if (noise >= (1.0+LArElecCalib::ERRORCODE) ) SigmaNoiseZB = noise;
+                  else SigmaNoiseZB=0.;
+                  noise = pedestal->pedestalRMS(ch_id,igain);
+                  if (noise >= (1.0+LArElecCalib::ERRORCODE) ) SigmaNoise=noise;
+                  else SigmaNoise=0.;
+               }
+               // Convert SigmaNoiseZB in noise in ADC counts for igain conversion
+               auto polynom_adc2mevZB = adc2MeVs->ADC2MEV(cellId,rndmEvtDigit->gain() );
+               auto polynom_adc2mev = adc2MeVs->ADC2MEV(cellId,igain);
+               if ( polynom_adc2mevZB.size()>1 &&  polynom_adc2mev.size()>1) {
+                  if (polynom_adc2mev[1] >0.) {
+                   SigmaNoiseZB = SigmaNoiseZB * (polynom_adc2mevZB[1])/(polynom_adc2mev[1]);
+                   if (SigmaNoise > SigmaNoiseZB) SigmaExtraNoise = sqrt(SigmaNoise*SigmaNoise - SigmaNoiseZB*SigmaNoiseZB);
+                  }
+               }    // check that AC2MeV factors are there
+               RandGaussZiggurat::shootArray(engine,m_NSamples,m_Rndm,0.,1.);   // generate noise
+               for (int i=0;i<m_NSamples;i++) m_Noise[i] = SigmaExtraNoise * m_Rndm[i];
+               addedNoise=true;
+            }  // different gains
+        }      // rndm Digit is there
+     }         // rndm Overlay test
+  }            // add noise ?
 //
 // ......... convert into adc counts  ................................
 //
@@ -1893,7 +1935,7 @@ StatusCode LArPileUpTool::MakeDigit(const EventContext& ctx, const Identifier & 
     double xAdc;
     double xAdc_DigiHSTruth = 0;
 
-    if ( m_NoiseOnOff ){
+    if ( addedNoise ){
       xAdc =  m_Samples[i]*energy2adc + m_Noise[i] + Pedestal + 0.5;
       if(m_doDigiTruth) {
         xAdc_DigiHSTruth =  m_Samples_DigiHSTruth[i]*energy2adc + m_Noise[i] + Pedestal + 0.5;

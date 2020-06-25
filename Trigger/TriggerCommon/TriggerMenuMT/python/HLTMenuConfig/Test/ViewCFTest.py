@@ -50,7 +50,7 @@ class ViewCFTest( unittest.TestCase ):
         with self.assertRaisesRegexp( RuntimeError, "no corresponding upstream EventViewCreatorAlgorithm" ):
             checkVDV( topSequence, [topSequence.name()], {} )
         evca1.ViewNodeName = "viewSequence"
-        with self.assertRaisesRegexp( RuntimeError, "RequireParentView = False" ):
+        with self.assertRaisesRegexp( RuntimeError, "no external data" ):
             checkVDV( topSequence, [topSequence.name()], {} )
         evca1.RequireParentView = True
         checkVDV( topSequence, [topSequence.name()], {} )

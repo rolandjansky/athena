@@ -1,19 +1,17 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
 #ifndef MUON_MUONPATTERNSEGMENTMAKER_MUONPATTERNSEGMENTMAKER_H
 #define MUON_MUONPATTERNSEGMENTMAKER_MUONPATTERNSEGMENTMAKER_H
 
-#include <string>
-#include <map>
-#include <vector>
-
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/StoreGateSvc.h"
-
 #include "MuonSegmentMakerToolInterfaces/IMuonPatternSegmentMaker.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonSegmentMaker.h"
@@ -23,35 +21,17 @@
 #include "MuonPattern/MuonPatternCombinationCollection.h"
 #include "MuonPattern/MuonPatternCombination.h"
 
-
-#include "Identifier/Identifier.h"
-
-class StoreGate;
-class MsgStream;
+#include <string>
+#include <map>
+#include <vector>
 
 class MdtPrepData;
 
-class RpcIdHelper;
-class MdtIdHelper;
-class CscIdHelper;
-class TgcIdHelper;
-class StoreGateSvc;
-class Identifier;
-
-
-namespace Trk {
-  class RIO_OnTrack;
-  class PrepRawData;
-}
-
 namespace Muon {
-  class MuonPatternCombination;
   class MdtPrepData;
   class MuonClusterOnTrack;
   class MdtDriftCircleOnTrack;
   class MuonSegment;
-  class MuonIdHelperTool;
-  class MuonEDMPrinterTool;
 
   class MuonPatternSegmentMaker : virtual public IMuonPatternSegmentMaker, public AthAlgTool
   {
@@ -111,10 +91,9 @@ namespace Muon {
   
   public:
     MuonPatternSegmentMaker(const std::string&, const std::string&, const IInterface*);
-    virtual ~MuonPatternSegmentMaker();
+    virtual ~MuonPatternSegmentMaker()=default;
 
     virtual StatusCode initialize();
-    virtual StatusCode finalize();
 
     void find( const MuonPatternCombination& pattern, const std::vector<const RpcPrepDataCollection*>& rpcCols, const std::vector<const TgcPrepDataCollection*>& tgcCols,
 	       Trk::SegmentCollection* segColl) const;
@@ -150,7 +129,7 @@ namespace Muon {
 
     ToolHandle<IMuonClusterOnTrackCreator>    m_clusterCreator;  //<! pointer to muon cluster rio ontrack creator
     ToolHandle<MuonEDMPrinterTool>            m_printer;         //<! tool to print EDM objects
-    ToolHandle<MuonIdHelperTool>              m_idHelper;    //<! tool to interpret and print Identifiers
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     bool m_doNtuple; //<! write ntuple for standalone pattern finding
     bool m_doMultiAnalysis; //<! use neighbouring chambers during segment finding

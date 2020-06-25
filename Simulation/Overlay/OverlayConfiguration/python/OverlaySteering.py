@@ -5,7 +5,7 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
+from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
 
@@ -27,7 +27,7 @@ from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoOverlayCfg
 
 def OverlayMainServicesCfg(flags):
     """Configure event loop for overlay"""
-    acc = MainServicesThreadedCfg(flags)
+    acc = MainServicesCfg(flags)
     if not flags.Overlay.DataOverlay:
         if flags.Concurrency.NumThreads > 0:
             AthenaHiveEventLoopMgr = CompFactory.AthenaHiveEventLoopMgr

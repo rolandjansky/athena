@@ -20,13 +20,15 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/Identifier
                           Event/EventPrimitives
                           GaudiKernel
-                          MagneticField/MagFieldInterfaces
                           Reconstruction/MuonIdentification/MuidEvent
                           Reconstruction/MuonIdentification/MuidInterfaces
                           Reconstruction/MuonIdentification/muonEvent
                           Reconstruction/RecoTools/RecoToolInterfaces
                           Tracking/TrkEvent/TrkEventUtils
-                          Tracking/TrkEvent/TrkMaterialOnTrack )
+                          Tracking/TrkEvent/TrkMaterialOnTrack
+                          MagneticField/MagFieldElements
+                          MagneticField/MagFieldConditions
+			  )
 
 # External dependencies:
 find_package( CLHEP )
@@ -36,7 +38,7 @@ atlas_add_component( TrkMaterialProvider
                      src/TrkMaterialProviderTool.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps TrkDetDescrInterfaces TrkGeometry TrkSurfaces TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces AtlasDetDescr Identifier EventPrimitives GaudiKernel MagFieldInterfaces MuidEvent MuidInterfaces muonEvent RecoToolInterfaces TrkEventUtils TrkMaterialOnTrack )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps TrkDetDescrInterfaces TrkGeometry TrkSurfaces TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces AtlasDetDescr Identifier EventPrimitives GaudiKernel MuidEvent MuidInterfaces muonEvent RecoToolInterfaces TrkEventUtils TrkMaterialOnTrack MagFieldElements MagFieldConditions )
 
 # Install files from the package:
 atlas_install_headers( TrkMaterialProvider )

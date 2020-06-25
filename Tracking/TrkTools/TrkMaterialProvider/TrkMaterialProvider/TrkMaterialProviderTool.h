@@ -29,12 +29,10 @@
 #include "TrkExInterfaces/IMultipleScatteringUpdator.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
+// For magneticfield
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 
 #include "RecoToolInterfaces/IMuonCaloEnergyTool.h"
-
-namespace MagField {
-  class IMagFieldSvc;
-}
 
 namespace Trk {
   class Surface;
@@ -194,7 +192,9 @@ namespace Trk{
     const Trk::Volume* m_calorimeterVolume;
     const Trk::Volume* m_indetVolume;
 
-    ServiceHandle<MagField::IMagFieldSvc>           m_magFieldSvc;
+    // Read handle for conditions object to get the field cache
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj",
+                                                                               "Name of the Magnetic Field conditions object key"};
 
     bool m_applyTGScaling;
     bool m_repositionTSOS;

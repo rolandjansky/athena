@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -48,7 +48,6 @@ LArHVCorrectionMonTool::LArHVCorrectionMonTool(const std::string& type,
     m_larCablingService("LArCablingLegacyService"),
     m_eventsCounter(0)
 {
-  declareProperty("LArRawChannelKey",m_channelKey="LArRawChannels");
   declareProperty("ErrorThreshold",m_threshold=0.02);
   declareProperty("EtaGranularity",m_delta_eta=0.01);
   declareProperty("PhiGranularity",m_delta_phi=0.01);
@@ -93,6 +92,8 @@ StatusCode LArHVCorrectionMonTool::initialize()
   ATH_CHECK( m_scaleCorrKey.initialize() );
   ATH_CHECK( m_onlineScaleCorrKey.initialize() );
   
+  ATH_CHECK( m_channelKey.initialize() );
+
   // LArOnlineIDStrHelper
   m_strHelper = new  LArOnlineIDStrHelper(m_LArOnlineIDHelper);
   m_strHelper->setDefaultNameType(LArOnlineIDStrHelper::LARONLINEID);
@@ -252,10 +253,9 @@ LArHVCorrectionMonTool::fillHistograms()
     float nonNominal[] = {0.,0.,0.,0.,0.,0.,0.,0.};
     
     // Retrieve Raw Channels Container
-    const LArRawChannelContainer* pRawChannelsContainer;
-    StatusCode sc = evtStore()->retrieve(pRawChannelsContainer, m_channelKey);
-    if(sc.isFailure()) {
-      ATH_MSG_WARNING( "Can't retrieve LArRawChannelContainer with key " << m_channelKey );
+    SG::ReadHandle<LArRawChannelContainer> pRawChannelsContainer{m_channelKey};
+    if(!pRawChannelsContainer.isValid()) {
+      ATH_MSG_WARNING( "Can't retrieve LArRawChannelContainer with key " << m_channelKey.key() );
       return StatusCode::SUCCESS;
     }
 

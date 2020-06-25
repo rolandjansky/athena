@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -22,8 +22,9 @@
 
 #include "CLHEP/Geometry/Transform3D.h"
 
-#include <string>
 #include <map>
+#include <memory>
+#include <string>
   
 class StoreGateSvc;
 class Identifier; 
@@ -117,7 +118,7 @@ class SiNumerology;
                                            GeoVAlignmentStore* alignStore=nullptr) const;
     
       /** Access to module design */
-      void addDesign(const SiDetectorDesign *);
+      void addDesign(std::unique_ptr<const SiDetectorDesign>&&);
       int numDesigns() const;
       const SiDetectorDesign * getDesign(int i) const;
     
@@ -126,7 +127,7 @@ class SiNumerology;
       SiNumerology & numerology() {return m_numerology;}
 
       /** Set SiCommonItems */
-      void setCommonItems(const SiCommonItems* commonItems);
+      void setCommonItems(std::unique_ptr<const SiCommonItems>&& commonItems);
 
     private:
       //** Prevent copy and assignment */
@@ -144,8 +145,8 @@ class SiNumerology;
     
       std::string                               m_tag;
       SiNumerology                              m_numerology;
-      std::vector< const SiDetectorDesign *>    m_designs;
-      const SiCommonItems*                      m_commonItems{nullptr};
+      std::vector<std::unique_ptr<const SiDetectorDesign>> m_designs;
+      std::unique_ptr<const SiCommonItems>      m_commonItems;
     
     };
 

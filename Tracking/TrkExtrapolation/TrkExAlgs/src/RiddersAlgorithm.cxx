@@ -10,7 +10,6 @@
 // Trk stuff
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkExUtils/TransportJacobian.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/CylinderSurface.h"
@@ -27,7 +26,6 @@ Trk::RiddersAlgorithm::RiddersAlgorithm(const std::string& name, ISvcLocator* pS
   :
   AthAlgorithm(name,pSvcLocator),
   m_propagator("Trk::RungeKuttaPropagator/RungeKuttaPropagator"),       
-  m_magFieldSvc("AtlasFieldSvc",name),
   m_useCustomField(true),
   m_useAlignedSurfaces(true),
   m_fieldValue(2.*Gaudi::Units::tesla),
@@ -91,7 +89,6 @@ Trk::RiddersAlgorithm::RiddersAlgorithm(const std::string& name, ISvcLocator* pS
   
 
   declareProperty("Propagator"                , m_propagator);
-  declareProperty("MagFieldSvc"         , m_magFieldSvc);
   declareProperty("CustomFieldValue"          , m_fieldValue);
   declareProperty("UseCustomMagneticField"    , m_useCustomField);
   declareProperty("UseAlignedSurfaces"        , m_useAlignedSurfaces);
@@ -140,12 +137,6 @@ StatusCode Trk::RiddersAlgorithm::initialize()
   // Get Extrapolator from ToolService   
   if (m_propagator.retrieve().isFailure()) {
         ATH_MSG_FATAL( "Could not retrieve Tool " << m_propagator << ". Exiting." );
-        return StatusCode::FAILURE;
-  }
-
-  // Get the Magnetic Field Tool if needed
-  if (!m_useCustomField && m_magFieldSvc.retrieve().isFailure()) {
-        ATH_MSG_FATAL( "Could not retrieve Tool " << m_magFieldSvc << ". Exiting." );
         return StatusCode::FAILURE;
   }
 

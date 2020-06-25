@@ -2,6 +2,7 @@
 #!/bin/sh
 #
 # art-description: RIG convenors - q221 reconstruction
+# art-athena-mt: 4
 # art-type: build
 # art-include: 21.0/Athena
 # art-include: 21.0-TrigMC/Athena

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -42,7 +42,7 @@ double HistogramOperations::BinwiseCompare( TH1 * NewInput, TH1 * OldInput, stri
 	if ( newX == oldX && newY == oldY && newZ == oldZ )
 	{
 		//Parse the argument as the allowed percentage change in each bin value
-		double allowedDiff = strtod( Argument.c_str(), NULL );
+		double allowedDiff = strtod( Argument.c_str(), nullptr );
 
 		//Compare each bin
 		double totalMismatch = 0.0;
@@ -65,8 +65,8 @@ double HistogramOperations::BinwiseCompare( TH1 * NewInput, TH1 * OldInput, stri
 
 					//Compare
 					double mismatch = 0.0;
-					if(UsePercent) mismatch = fabs( newBinContent - oldBinContent ) * 100.0 / newBinContent;
-					else mismatch = fabs( newBinContent - oldBinContent );
+					if(UsePercent) mismatch = std::abs( newBinContent - oldBinContent ) * 100.0 / newBinContent;
+					else mismatch = std::abs( newBinContent - oldBinContent );
 					
 					//Add to the total mismatch score unless it's within the fuzz factor
 					if ( mismatch > allowedDiff )
@@ -104,7 +104,7 @@ double HistogramOperations::BinwiseHackCompare( TH1 * NewInput, TH1 * OldInput, 
 	vector<double> binChange;
 	for ( int argumentIndex = 0; argumentIndex < splitArgument.size(); argumentIndex++ )
 	{
-		binChange.push_back( strtod( splitArgument[argumentIndex].c_str(), NULL ) );
+		binChange.push_back( strtod( splitArgument[argumentIndex].c_str(), nullptr ) );
 	}
 
 	int newX = NewInput->GetNbinsX();
@@ -141,7 +141,7 @@ double HistogramOperations::BinwiseHackCompare( TH1 * NewInput, TH1 * OldInput, 
 					}
 
 					//Compare
-					double mismatch = fabs( newBinContent - oldBinContent ) * 100.0 / newBinContent;
+					double mismatch = std::abs( newBinContent - oldBinContent ) * 100.0 / newBinContent;
 
 					//Add to the total mismatch score unless it's within the fuzz factor
 					if ( mismatch > binChange[xIndex] )
@@ -175,7 +175,7 @@ double HistogramOperations::BinwiseHackCompare( TH1 * NewInput, TH1 * OldInput, 
 double HistogramOperations::KolmogorovTest( TH1 * NewInput, TH1 * OldInput, string Argument )
 {
 	//Parse the argument as the minimum allowed probability of match
-	double threshold = strtod( Argument.c_str(), NULL );
+	double threshold = strtod( Argument.c_str(), nullptr );
 
 	//Perform the Kolmogorov-Smirnov test
 	NewInput->Sumw2();
@@ -221,7 +221,7 @@ double HistogramOperations::CompareMean( TH1 * NewInput, TH1 * OldInput, string 
 	else
 	{
 		comparison = 0;
-		allowedDiff = strtod( Argument.c_str(), NULL );
+		allowedDiff = strtod( Argument.c_str(), nullptr );
 	}
 
 	//Loop over all axes
@@ -230,8 +230,8 @@ double HistogramOperations::CompareMean( TH1 * NewInput, TH1 * OldInput, string 
 		double newMean = NewInput->GetMean(axisIndex);
 		double oldMean = OldInput->GetMean(axisIndex);
 		double seeChange = 0.0;
-		if(UsePercent) seeChange = fabs( newMean - oldMean ) * 100.0 / newMean;
-		else seeChange = fabs( newMean - oldMean );
+		if(UsePercent) seeChange = std::abs( newMean - oldMean ) * 100.0 / newMean;
+		else seeChange = std::abs( newMean - oldMean );
 
 		if ( comparison == 0 && seeChange > allowedDiff )
 		{
@@ -250,12 +250,12 @@ double HistogramOperations::CompareMean( TH1 * NewInput, TH1 * OldInput, string 
 		  cerr << "WARNING: Mean of " << NewInput->GetName() << " has reduced on the " << axisIndex << " axis" << endl;
 		  result += oldMean - newMean;
 		}
-		else if ( comparison == 3 && fabs(newMean) > fabs(oldMean) )
+		else if ( comparison == 3 && std::abs(newMean) > std::abs(oldMean) )
 		{
 		  cerr << "WARNING: Absolute value of the mean of " << NewInput->GetName() << " has increased on the " << axisIndex << " axis" << endl;
 		  result += oldMean - newMean;
 		}
-		else if ( comparison == 4 && fabs(newMean) < fabs(oldMean) )
+		else if ( comparison == 4 && std::abs(newMean) < std::abs(oldMean) )
 		{
 		  cerr << "WARNING: Absolute value of the mean of " << NewInput->GetName() << " has decreased on the " << axisIndex << " axis" << endl;
 		  result += oldMean - newMean;
@@ -284,7 +284,7 @@ double HistogramOperations::CompareSigma( TH1 * NewInput, TH1 * OldInput, string
 	else
 	{
 		comparison = 0;
-		allowedDiff = strtod( Argument.c_str(), NULL );
+		allowedDiff = strtod( Argument.c_str(), nullptr );
 	}
 
 	//Loop over all axes
@@ -293,8 +293,8 @@ double HistogramOperations::CompareSigma( TH1 * NewInput, TH1 * OldInput, string
 		double newSigma = NewInput->GetRMS(axisIndex);
 		double oldSigma = OldInput->GetRMS(axisIndex);
 		double seeChange = 0.0;
-		if(UsePercent) seeChange = fabs( newSigma - oldSigma ) * 100.0 / newSigma;
-		else seeChange = fabs( newSigma - oldSigma );
+		if(UsePercent) seeChange = std::abs( newSigma - oldSigma ) * 100.0 / newSigma;
+		else seeChange = std::abs( newSigma - oldSigma );
 
 		if ( comparison == 0 && seeChange > allowedDiff )
 		{
@@ -322,10 +322,10 @@ double HistogramOperations::CompareSigma( TH1 * NewInput, TH1 * OldInput, string
 double HistogramOperations::CompareTotalEntries( TH1 * NewInput, TH1 * OldInput, string Argument )
 {
 	//Parse the argument as the allowed percentage change
-	double percentChange = strtod( Argument.c_str(), NULL );
+	double percentChange = strtod( Argument.c_str(), nullptr );
 
 	//Calculate the percentage change in number of entries
-	double change = fabs( NewInput->GetEntries() - OldInput->GetEntries() ) * 100.0 / NewInput->GetEntries();
+	double change = std::abs( NewInput->GetEntries() - OldInput->GetEntries() ) * 100.0 / NewInput->GetEntries();
 
 	//Warn if outside allowed range
 	if ( change > percentChange )

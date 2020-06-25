@@ -1,6 +1,6 @@
 ########################################
 # Job to run RecExCommon, schedule
-# LumiBlockMetaDataTool and LumiCalcSvc
+# LumiBlockMetaDataTool 
 # but don't write out any AOD outputfile
 
 # the Input AOD File
@@ -22,16 +22,6 @@ GoodRunsListSelectorTool.OutputLevel = INFO
 from LumiBlockComps.LumiBlockCompsConf import LumiBlockMetaDataTool
 ToolSvc += LumiBlockMetaDataTool( "LumiBlockMetaDataTool" )
 LumiBlockMetaDataTool.OutputLevel = DEBUG
-
-# add LumiCalcSvc and configure
-from LumiBlockComps.LumiBlockCompsConf import LumiCalcSvc
-LumiCalcSvc = LumiCalcSvc()
-LumiCalcSvc.Triggers = ["EF_mu20"]
-LumiCalcSvc.UseMC = True
-LumiCalcSvc.LBCollNames = ["LumiBlocks_GoodDQ0"] #, "IncompleteLumiBlocks_GoodDQ0"]
-#LumiCalcSvc.LBCollNames = ["LumiBlocks", "IncompleteLumiBlocks"]
-LumiCalcSvc.Verbose = False
-svcMgr += LumiCalcSvc
 
 # Either use aodtoaod.py as it is
 #include ("RecExCommon/aodtoaod.py")

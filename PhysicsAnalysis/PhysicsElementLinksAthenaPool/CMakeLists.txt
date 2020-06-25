@@ -17,5 +17,5 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_poolcnv_library( PhysicsElementLinksAthenaPoolPoolCnv
                            src/*.cxx
                            FILES PhysicsElementLinks/JetLinks.h PhysicsElementLinks/TauJetLinks.h PhysicsElementLinks/MuonLinks.h PhysicsElementLinks/ElectronLinks.h PhysicsElementLinks/PhotonLinks.h PhysicsElementLinks/TruthParticleLinks.h PhysicsElementLinks/TrackLinks.h
-                           LINK_LIBRARIES AthenaPoolUtilities AthenaPoolCnvSvcLib PhysicsElementLinks )
+                           LINK_LIBRARIES AthenaPoolUtilities AthenaPoolCnvSvcLib PhysicsElementLinks ParticleEventAthenaPoolLib )
 

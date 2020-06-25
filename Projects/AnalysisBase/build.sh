@@ -127,7 +127,7 @@ if [ -n "$EXE_CMAKE" ]; then
     fi
 
     # Now run the actual CMake configuration:
-    _time_ cmake -G "${GENERATOR}" \
+    _time_ cmake -G "${GENERATOR}" --graphviz=packages.dot \
          -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} \
          ${USE_LAUNCHERS} ${EXTRACMAKE[@]} \
          ${AnalysisBaseSrcDir} 2>&1 | tee cmake_config.log

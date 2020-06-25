@@ -1,10 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
 // KalmanPiecewiseAnnealingFilter.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
+
+#include <memory>
+
+
 
 #include "TrkKalmanFitter/KalmanPiecewiseAnnealingFilter.h"
 #include "TrkExInterfaces/IExtrapolator.h"
@@ -101,7 +105,7 @@ StatusCode Trk::KalmanPiecewiseAnnealingFilter::configureWithTools
  const Trk::ProtoTrajectoryUtility* utility,
  const Trk::IDynamicNoiseAdjustor* dna)
 {
-  if (extrap==NULL || updator == NULL || recalibrator == NULL || utility==NULL)
+  if (extrap==nullptr || updator == nullptr || recalibrator == nullptr || utility==nullptr)
     return StatusCode::FAILURE;
   m_extrapolator = extrap;
   m_updator      = updator;
@@ -112,12 +116,12 @@ StatusCode Trk::KalmanPiecewiseAnnealingFilter::configureWithTools
   // configure piecewise ForwardKalmanFitter
   StatusCode sc;
   sc = m_forwardFitter->configureWithTools(const_cast<Trk::IExtrapolator*>(m_extrapolator), m_updator,
-					   0 /* no rot-creator needed */, m_dynamicNoiseAdjustor);
+					   nullptr /* no rot-creator needed */, m_dynamicNoiseAdjustor);
   if(sc.isFailure()) return sc;
 
   sc = m_smoother->configureWithTools(const_cast<Trk::IExtrapolator*>(m_extrapolator), m_updator,
 				      m_dynamicNoiseAdjustor,
-				      0,       // no alignable Surface Provider
+				      nullptr,       // no alignable Surface Provider
 				      true,    // always do smoothing
 				      false);  // no creation of FitQualityOnSurface objects (DAF-like)
   if(sc.isFailure()) return sc;
@@ -217,7 +221,7 @@ bool Trk::KalmanPiecewiseAnnealingFilter::annealingProblem_all
   for(Trajectory::iterator it = m_trajPiece.begin(); it != m_trajPiece.end(); ++it) {
     const Trk::CompetingRIOsOnTrack* compROT = 
       dynamic_cast<const Trk::CompetingRIOsOnTrack*>(it->measurement());
-    if (compROT == NULL || it->isOutlier()) continue;
+    if (compROT == nullptr || it->isOutlier()) continue;
 
     double assPrb = compROT->assignmentProbability(compROT->indexOfMaxAssignProb());
     double msErrX = sqrt(compROT->rioOnTrack(compROT->indexOfMaxAssignProb()).localCovariance()(Trk::locX,Trk::locX));
@@ -238,7 +242,7 @@ bool Trk::KalmanPiecewiseAnnealingFilter::annealingProblem_all
       const Trk::RIO_OnTrack* broadCluster = 
         m_recalibrator->makeBroadMeasurement(*compROT, *refPars,
                                              it->measurementType());
-      if (broadCluster!=NULL) {
+      if (broadCluster!=nullptr) {
         ATH_MSG_DEBUG ("annealing in silicon deemed to be failing, replace CompROT-cluster dLocX="<<
                        sqrt(compROT->rioOnTrack(compROT->indexOfMaxAssignProb()).localCovariance()(Trk::locX,Trk::locX))
 		       <<" by hit with dLocX="<<sqrt(broadCluster->localCovariance()(Trk::locX,Trk::locX)));
@@ -289,7 +293,7 @@ bool Trk::KalmanPiecewiseAnnealingFilter::annealingProblem_all
   for(Trajectory::iterator it = m_trajPiece.begin(); it != m_trajPiece.end(); ++it) {
     const Trk::CompetingRIOsOnTrack* compROT = 
       dynamic_cast<const Trk::CompetingRIOsOnTrack*>(it->measurement());
-    if (compROT == NULL || it->isOutlier()) continue;
+    if (compROT == nullptr || it->isOutlier()) continue;
 
     double msErrX = sqrt(compROT->rioOnTrack(compROT->indexOfMaxAssignProb()).localCovariance()(Trk::locX,Trk::locX));
     double msErrY = (compROT->localParameters().contains(Trk::locY) ?
@@ -307,7 +311,7 @@ bool Trk::KalmanPiecewiseAnnealingFilter::annealingProblem_all
       const Trk::RIO_OnTrack* broadCluster = 
 	m_recalibrator->makeBroadMeasurement(*compROT, *refPars,
 					     it->measurementType());
-      if (broadCluster!=NULL) {
+      if (broadCluster!=nullptr) {
 
 	ATH_MSG_DEBUG ("annealing in silicon deemed to be failing, replace CompROT-cluster dLocX="<<
 		       sqrt(compROT->rioOnTrack(compROT->indexOfMaxAssignProb()).localCovariance()(Trk::locX,Trk::locX))
@@ -329,12 +333,12 @@ bool Trk::KalmanPiecewiseAnnealingFilter::annealingProblem_all
 
 }
 
-const Trk::FitterStatusCode
+Trk::FitterStatusCode
 Trk::KalmanPiecewiseAnnealingFilter::filterTrajectory
 (Trajectory& trajectory, const ParticleHypothesis&   particleType) const
 {
-  const Trk::TrackParameters* predPar = 0;
-  const Trk::TrackParameters* updPar  = 0;
+  const Trk::TrackParameters* predPar = nullptr;
+  const Trk::TrackParameters* updPar  = nullptr;
   Trk::Trajectory::iterator  start = m_utility->firstFittableState(trajectory);
   return this->filterTrajectoryPiece(trajectory, start, updPar, predPar,
                                      trajectory.size(), particleType);
@@ -342,7 +346,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectory
 
 //================ main method: the piece-wise filter ==========================
 
-const Trk::FitterStatusCode
+Trk::FitterStatusCode
 Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece 
 (Trajectory& trajectory,
  Trajectory::iterator& start,
@@ -359,14 +363,14 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
     msg(MSG::DEBUG) << endmsg;
   }
   if (pieceSize<3) pieceSize=8; // some reasonable size for annealing
-  Trk::KalmanMatEffectsController dafMec(particleType, m_dynamicNoiseAdjustor!=NULL);
+  Trk::KalmanMatEffectsController dafMec(particleType, m_dynamicNoiseAdjustor!=nullptr);
 
   //////////////////////////////////////////////////////////////////////////////
   // step 1: make first loop while turning ROT/PRDs into competing ones
   //////////////////////////////////////////////////////////////////////////////
-  const TrackParameters* predPar     = 0;
+  const TrackParameters* predPar     = nullptr;
   std::unique_ptr<const AmgVector(5)> predDiffPar;
-  const TrackParameters* updatedPar  = 0;
+  const TrackParameters* updatedPar  = nullptr;
   bool end_reached = false;
   bool hadAnnealingProblemDC = false;
   bool hadAnnealingProblem   = false;
@@ -380,8 +384,8 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
       if (input_it->referenceParameters()) {
         if (start_predPar) {
           predPar = start_predPar->clone();
-          predDiffPar.reset(  new AmgVector(5)(start_predPar->parameters()
-                                               - start->referenceParameters()->parameters() ) );
+          predDiffPar = std::make_unique<AmgVector(5)>(  start_predPar->parameters()
+                                               - start->referenceParameters()->parameters() );
         } else {
           predDiffPar.reset(  start->checkoutParametersDifference() );
           predPar = CREATE_PARAMETERS(*start->referenceParameters(),
@@ -405,7 +409,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
         const TransportJacobian& jac = *m_trajPiece.back().jacobian();
         AmgVector(5) updDiffPar = updatedPar->parameters() 
                                   - m_trajPiece.back().referenceParameters()->parameters();
-        predDiffPar.reset(  new AmgVector(5)(jac*updDiffPar) );
+        predDiffPar = std::make_unique<AmgVector(5)>(  jac*updDiffPar );
         AmgSymMatrix(5)* C = new AmgSymMatrix(5) (jac*(*updatedPar->covariance())*jac.transpose());
         // add uncertainties from material effects:
         if (input_it->materialEffects()) {
@@ -438,7 +442,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
     const Trk::RIO_OnTrack* testROT 
       = dynamic_cast<const Trk::RIO_OnTrack*>(input_it->measurement());
 
-    if (input_it->isOutlier() || testROT==NULL || input_it->measurement()==NULL) {
+    if (input_it->isOutlier() || testROT==nullptr || input_it->measurement()==nullptr) {
       // outlier, material and unambiguous hits: *COPY* into piecewise trajectory.
 
       if (input_it->measurement())
@@ -491,11 +495,11 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
     if (input_it->isOutlier() || !m_trajPiece.back().measurement() ) {
       delete updatedPar;
       updatedPar = predPar;
-      predPar    = 0;
+      predPar    = nullptr;
     } else {
       m_trajPiece.back().checkinForwardPar(predPar);
       delete updatedPar;
-      FitQualityOnSurface* fitQuality=0;
+      FitQualityOnSurface* fitQuality=nullptr;
       updatedPar = m_updator->addToState(*predPar,
 					 m_trajPiece.back().measurement()->localParameters(),
 					 m_trajPiece.back().measurement()->localCovariance(),
@@ -506,7 +510,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
 	delete fitQuality;
 	return Trk::FitterStatusCode::UpdateFailure;
       }
-      if (fitQuality != NULL) {
+      if (fitQuality != nullptr) {
 	m_trajPiece.back().setForwardStateFitQuality(*fitQuality);
 	delete fitQuality;
       }
@@ -523,7 +527,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
   //////////////////////////////////////////////////////////////////////////////
   // === step 2: enter annealing loop acting on pairs of forward-backward filters
   //////////////////////////////////////////////////////////////////////////////
-  FitQuality* newFitQuality  = 0;
+  FitQuality* newFitQuality  = nullptr;
   FitQuality  savedForwardFQ = m_utility->forwardFilterQuality(m_trajPiece);
   for (unsigned int annealer=0; annealer < m_option_annealingScheme.size(); ++annealer) {
 
@@ -577,7 +581,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
     for(Trajectory::iterator it = m_trajPiece.begin(); it != m_trajPiece.end(); ++it) {
       const Trk::CompetingRIOsOnTrack* compROT = 
 	dynamic_cast<const Trk::CompetingRIOsOnTrack*>(it->measurement());
-      if (compROT != NULL && !it->isOutlier()) assgnProbSum += 
+      if (compROT != nullptr && !it->isOutlier()) assgnProbSum += 
 						 compROT->assignmentProbability(compROT->indexOfMaxAssignProb());
     }
     if (assgnProbSum < 0.5) {
@@ -628,7 +632,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
       for(Trajectory::iterator it = m_trajPiece.begin(); it != m_trajPiece.end(); ++it) {
         const Trk::CompetingRIOsOnTrack* compROT = 
 	  dynamic_cast<const Trk::CompetingRIOsOnTrack*>(it->measurement());
-        const Trk::FitQuality* testFQ = 0;
+        const Trk::FitQuality* testFQ = nullptr;
         if (it->smoothedTrackParameters() && it->measurement()) {
 	  testFQ = m_updator->fullStateFitQuality(*(it->smoothedTrackParameters()),
 						  it->measurement()->localParameters(),
@@ -733,7 +737,7 @@ Trk::KalmanPiecewiseAnnealingFilter::filterTrajectoryPiece
       if (it->parametersCovariance())
         itForKF->checkinParametersCovariance(it->checkoutParametersCovariance());
       itForKF->setForwardStateFitQuality(it->forwardStateChiSquared(),it->forwardStateNumberDoF());
-      if (it->dnaMaterialEffects()!=NULL)      
+      if (it->dnaMaterialEffects()!=nullptr)      
 	itForKF->checkinDNA_MaterialEffects(it->checkoutDNA_MaterialEffects());
     // }
   }

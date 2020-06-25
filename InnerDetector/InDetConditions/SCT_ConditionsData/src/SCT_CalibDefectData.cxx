@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //----------------------------------------------------------------------
@@ -8,11 +8,11 @@
 // P. Johansson
 //----------------------------------------------------------------------
 #include "SCT_ConditionsData/SCT_CalibDefectData.h"
-#include <utility>
-#include <sstream>
-#include <iostream>
+
 #include <iomanip>
-using namespace std;
+#include <iostream>
+#include <sstream>
+#include <utility>
 
 //----------------------------------------------------------------------
 //constructor
@@ -24,7 +24,7 @@ SCT_CalibDefectData::SCT_CalibDefectData():
 // Add map entries of defects on module
 bool SCT_CalibDefectData::addModule(const Identifier & moduleId, const CalibModuleDefects & moduleDefects)
 {
-  return (m_defectMap.insert(make_pair(moduleId, moduleDefects))).second;
+  return (m_defectMap.insert(std::make_pair(moduleId, moduleDefects))).second;
 }
 
 //----------------------------------------------------------------------
@@ -45,12 +45,12 @@ SCT_CalibDefectData::CalibModuleDefects SCT_CalibDefectData::findModule(const Id
 // Method to print the map - useful debug tool
 std::string SCT_CalibDefectData::str()
 {
-  ostringstream txt;
+  std::ostringstream txt;
   if (m_defectMap.empty()){
     txt << "No modules are in the SCT Calibration defect data map.\n";
   } else {
     CalibConditions::const_iterator itr(m_defectMap.begin());
-    for(; itr!=m_defectMap.end(); ++itr){
+    for (; itr!=m_defectMap.end(); ++itr){
       txt << itr->first << "  " << moduleText(itr->first);
     }
   }
@@ -61,23 +61,23 @@ std::string SCT_CalibDefectData::str()
 // Print data for one module
 std::string SCT_CalibDefectData::moduleText( const Identifier & moduleId ){
   CalibModuleDefects thisModuleDefects = findModule( moduleId );
-  ostringstream txt;
-  ostringstream tmp;
+  std::ostringstream txt;
+  std::ostringstream tmp;
 
   if ( thisModuleDefects.begDefects.empty() ){
     txt << "The SCT module Calibration defect data map is empty for module " << moduleId <<".\n";
   } else {
-    txt << "\n" << left << setw(15) << "Bad strips" <<  setw(15) << "Defect type" << setw(15) << "Value:" << "\n";
+    txt << "\n" << std::left << std::setw(15) << "Bad strips" <<  std::setw(15) << "Defect type" << std::setw(15) << "Value:" << "\n";
     for ( unsigned int i = 0; i < thisModuleDefects.begDefects.size(); i++){
       if ( thisModuleDefects.begDefects[i] == thisModuleDefects.endDefects[i] ){
-	txt << left << setw(15) << thisModuleDefects.begDefects[i];
+        txt << std::left << std::setw(15) << thisModuleDefects.begDefects[i];
       }
       else{
-      	tmp << thisModuleDefects.begDefects[i] << " - " << thisModuleDefects.endDefects[i];
-	txt << left << setw(15) << tmp.str();
-      } 
-      txt << left << setw(15) << thisModuleDefects.typeOfDefect[i];
-      txt << left << setw(15) << thisModuleDefects.parValue[i] << "\n";
+        tmp << thisModuleDefects.begDefects[i] << " - " << thisModuleDefects.endDefects[i];
+        txt << std::left << std::setw(15) << tmp.str();
+      }
+      txt << std::left << std::setw(15) << thisModuleDefects.typeOfDefect[i];
+      txt << std::left << std::setw(15) << thisModuleDefects.parValue[i] << "\n";
       tmp.str("");
     }
   }

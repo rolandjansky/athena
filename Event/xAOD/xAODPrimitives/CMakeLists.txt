@@ -1,36 +1,23 @@
-################################################################################
-# Package: xAODPrimitives
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# Declare the package name:
+# Declare the package name.
 atlas_subdir( xAODPrimitives )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthContainers
-                          PRIVATE
-                          AtlasTest/TestTools )
-
-# External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
-
-# Component(s) in the package:
+# Component(s) in the package.
 atlas_add_library( xAODPrimitives
-                   Root/*.cxx
-                   PUBLIC_HEADERS xAODPrimitives
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthContainers
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools )
+   xAODPrimitives/*.h xAODPrimitives/tools/*.h Root/*.cxx
+   PUBLIC_HEADERS xAODPrimitives
+   LINK_LIBRARIES AthContainers )
 
 atlas_add_dictionary( xAODPrimitivesDict
-                      xAODPrimitives/xAODPrimitivesDict.h
-                      xAODPrimitives/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers TestTools xAODPrimitives )
+   xAODPrimitives/xAODPrimitivesDict.h
+   xAODPrimitives/selection.xml
+   LINK_LIBRARIES xAODPrimitives )
 
+# Test(s) in the package.
 atlas_add_test( ut_xAOD_primitives_enums_test
-                SOURCES
-                test/ut_xAOD_primitives_enums_test.cxx
-                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers TestTools xAODPrimitives )
+   SOURCES test/ut_xAOD_primitives_enums_test.cxx
+   LINK_LIBRARIES xAODPrimitives )
 
+# Install files from the package.
+atlas_install_python_modules( python/*.py )

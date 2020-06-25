@@ -27,25 +27,37 @@ def precisionElectronRecoSequence(RoIs):
     from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precisionCaloMenuDefs
     import AthenaCommon.CfgMgr as CfgMgr
 
-    ViewVerifyPrecisionCluster = CfgMgr.AthViews__ViewDataVerifier("precisionElectronClusterVerifier")
-    ViewVerifyPrecisionCluster.DataObjects = [('xAOD::CaloClusterContainer','StoreGateSvc+'+ precisionCaloMenuDefs.precisionCaloClusters)]
-
     ## Taking Fast Track information computed in 2nd step ##
     TrackCollection="TrigFastTrackFinder_Tracks_Electron"
     ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("FastTrackViewDataVerifier")
     
-    
-    ViewVerifyTrk.DataObjects = [('TrackCollection','StoreGateSvc+'+TrackCollection),
-                                 ('xAOD::CaloClusterContainer' , precisionCaloMenuDefs.precisionCaloClusters),
-                                 ('CaloCellContainer' , 'StoreGateSvc+CaloCells'),
-                                 ('SCT_FlaggedCondData','StoreGateSvc+SCT_FlaggedCondData_TRIG'),
-                                 ]
+    ViewVerifyTrk.DataObjects = [( 'TrackCollection' , 'StoreGateSvc+' + TrackCollection ),
+                                 ( 'xAOD::CaloClusterContainer' , 'StoreGateSvc+' + precisionCaloMenuDefs.precisionCaloClusters ),
+                                 ( 'CaloAffectedRegionInfoVec' , 'ConditionStore+LArAffectedRegionInfo' ),
+                                 ( 'CaloCellContainer' , 'StoreGateSvc+CaloCells' ),
+                                 ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.AveIntPerXDecor' ),
+                                 ( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
+                                 ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+precisionElectron' ),
+                                 ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )] # the load below doesn't always work
+
+    # These objects must be loaded from SGIL if not from CondInputLoader
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSequence = AlgSequence()
+    topSequence.SGInputLoader.Load += [( 'CaloAffectedRegionInfoVec' , 'ConditionStore+LArAffectedRegionInfo' )]
+    from IOVDbSvc.CondDB import conddb
+    if not conddb.folderRequested( "PixelClustering/PixelClusNNCalib" ):
+      ViewVerifyTrk.DataObjects += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
+                                    ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
+      topSequence.SGInputLoader.Load += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
+                                         ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
     
     if globalflags.InputFormat.is_bytestream():
-       ViewVerifyTrk.DataObjects += [( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
-                                    ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ) ]
+      ViewVerifyTrk.DataObjects += [( 'InDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
+                                    ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )]
+    else:
+      topSequence.SGInputLoader.Load += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
+      ViewVerifyTrk.DataObjects += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
 
-    # AlgSequence.SGInputLoader.Load.append([ ('InDetBSErrContainer','StoreGateSvc+PixelByteStreamErrs') ])
     """ Precision Track Related Setup.... """
     PTAlgs = []
     PTTracks = []
@@ -61,7 +73,6 @@ def precisionElectronRecoSequence(RoIs):
     electronPrecisionTrack = parOR("electronPrecisionTrack")
     electronPrecisionTrack += ViewVerifyTrk
     electronPrecisionTrack += PTSeq
-    electronPrecisionTrack += ViewVerifyPrecisionCluster
 
     """ Retrieve the factories now """
     from TriggerMenuMT.HLTMenuConfig.Electron.TrigElectronFactories import TrigEgammaRecElectron, TrigElectronSuperClusterBuilder, TrigTopoEgammaElectronCfg

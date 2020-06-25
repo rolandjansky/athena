@@ -118,7 +118,7 @@ MessageSvc.Format = "% F%50W%S%7W%R%T %0W%M"
 #MessageSvc.setDebug+=["RpcROD_Decoder"]
 
 from ByteStreamCnvSvc import ReadByteStream
-ServiceMgr.ByteStreamInputSvc.FullFileName=["root://eosatlas.cern.ch//eos/atlas/atlastier0/rucio/data15_cos/physics_CosmicMuons/00256385/data15_cos.00256385.physics_CosmicMuons.merge.RAW/data15_cos.00256385.physics_CosmicMuons.merge.RAW._lb0615._SFO-13._0001.1"]
+ServiceMgr.EventSelector.Input=["root://eosatlas.cern.ch//eos/atlas/atlastier0/rucio/data15_cos/physics_CosmicMuons/00256385/data15_cos.00256385.physics_CosmicMuons.merge.RAW/data15_cos.00256385.physics_CosmicMuons.merge.RAW._lb0615._SFO-13._0001.1"]
 
 #import AthenaPoolCnvSvc.ReadAthenaPool
 #ServiceMgr.EventSelector.InputBSCollections = [ "root://eosatlas.cern.ch//eos/atlas/atlastier0/rucio/data15_cos/physics_CosmicMuons/00256385/data15_cos.00256385.physics_CosmicMuons.merge.RAW/data15_cos.00256385.physics_CosmicMuons.merge.RAW._lb0615._SFO-13._0001.1" ]

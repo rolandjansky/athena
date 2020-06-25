@@ -3,6 +3,9 @@
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CAMenuSequence, ChainStep, Chain, InEventReco, getChainStepName, createStepView
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
+import pprint
+from AthenaCommon.Logging import logging
+log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Jet.generateJet' )
 
 def generateChains( flags, chainDict ):
 
@@ -80,8 +83,7 @@ def generateChains( flags, chainDict ):
     for part in chainDict['chainParts']:
         l1Thresholds.append(part['L1threshold'])
 
-    import pprint
-    pprint.pprint(chainDict)
+    log.debug('dictionary is: %s\n', pprint.pformat(chainDict))
 
     acc.printConfig()
 

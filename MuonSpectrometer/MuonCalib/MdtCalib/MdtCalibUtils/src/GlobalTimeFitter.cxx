@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCalibUtils/GlobalTimeFitter.h"
@@ -15,13 +15,9 @@ double GlobalTimeFitter::GTFit( MuonCalibSegment * seg ) {
   float tdcmin=1000000;
   double timeoffset=0.;
   int stepf,stepff[13],stepl,stepr,dtt,dttbuono(0);
-//  double abuona,bbuona,chibuo,chi2r,chi2l;
-//  double aoutr,aoutl,boutr,boutl;
   double chi2r,chi2l;
   double chi2min  = 100000;
   double bestchi2 = 100000;
-//  double sig2al,sig2ar,sig2bl,sig2br,corrabl,corrabr;
-//  double sig2abuona,sig2bbuona,corrabbuona;
 
    stepff[0]=512;stepff[1]=256;stepff[2]=128;stepff[3]=64;stepff[4]=32;
    stepff[5]=16;stepff[6]=8;stepff[7]=4;stepff[8]=2;stepff[9]=1 ;
@@ -41,13 +37,10 @@ double GlobalTimeFitter::GTFit( MuonCalibSegment * seg ) {
       for(std::vector<MdtCalibHitBase*>::iterator it = seg->mdtHOTBegin() ;
          it != seg->mdtHOTEnd(); ++it) {
          double newtime = (double)((*it)->tdcCount()-tdcmin+stepl)*25./32.;
-         // newtime = newtime + ..... ADD HERE OTHER CORRECTIONS  like :
-         // newtime = newtime - (*it)->propagationTime() - (*it)->timeOfFlight()
       
          if ( newtime<0. || newtime>750.) outofrange = 1 ;
          (*it)->setDriftTime(newtime);
          double r=m_rtRel->radius(newtime);
-         // double dr=(*it)->sigmaDriftRadius(); //   ??? NO it's wrong !
          double dr=getDefaultResolution(r); //  get H8 resolution
          (*it)->setDriftRadius(r,dr);
        }
@@ -61,13 +54,10 @@ double GlobalTimeFitter::GTFit( MuonCalibSegment * seg ) {
       for(std::vector<MdtCalibHitBase*>::iterator it = seg->mdtHOTBegin() ;
          it != seg->mdtHOTEnd(); ++it) {
          double newtime = (double)((*it)->tdcCount()-tdcmin+stepr)*25./32.;
-         // newtime = newtime + ..... ADD HERE OTHER CORRECTIONS  like :
-         // newtime = newtime - (*it)->propagationTime() - (*it)->timeOfFlight()
       
          if ( newtime<0. || newtime>750.) outofrange = 1 ;
          (*it)->setDriftTime(newtime);
          double r=m_rtRel->radius(newtime);
-         // double dr=(*it)->sigmaDriftRadius();  //  ??? NO it's wrong !
          double dr=getDefaultResolution(r); //  get H8 resolution
          (*it)->setDriftRadius(r,dr);
        }
@@ -104,12 +94,8 @@ double GlobalTimeFitter::GTFit( MuonCalibSegment * seg ) {
    for(std::vector<MdtCalibHitBase*>::iterator it = seg->mdtHOTBegin() ;
          it != seg->mdtHOTEnd(); ++it) {
       double newtime = (double)((*it)->tdcCount()-tdcmin+timeoffset)*25./32.;
-      // newtime = newtime + ..... ADD HERE OTHER CORRECTIONS  like :
-      // newtime = newtime - (*it)->propagationTime() - (*it)->timeOfFlight()
-      // newtime = 400.;
       (*it)->setDriftTime(newtime);
       double r=m_rtRel->radius(newtime);
-      // double dr=(*it)->sigmaDriftRadius();  //  ??? NO it's wrong !
       double dr=getDefaultResolution(r); //  get H8 resolution
       (*it)->setDriftRadius(r,dr);
    }
@@ -130,7 +116,6 @@ double GlobalTimeFitter::GTFit2( MuonCalibSegment * seg ) {
       double dr=(*it)->sigmaDriftRadius();
       (*it)->setDriftRadius(r,dr);
 
-      std::cout << " TEST GTFit2 : " << r << std::endl ;
       timeShift = t ;
    }
   

@@ -97,12 +97,7 @@ msg.info("Adjusting TileInfo for %s samples" % TileFrameLength )
 tileInfoConfigurator.NSamples = TileFrameLength
 tileInfoConfigurator.TrigSample = (TileFrameLength-1)//2 # Floor division
 
-if athenaCommonFlags.isOnline():
-    #=== setup reading from COOL DB
-    msg.info("setting up COOL for TileCal online conditions data")
-    tileInfoConfigurator.setupCOOL()
-    tileInfoConfigurator.setupCOOLOFC()
-elif TileUseCOOL:
+if TileUseCOOL or athenaCommonFlags.isOnline():
     #=== setup reading from COOL DB
     msg.info("setting up COOL for TileCal conditions data")
     TileGapTiming=""

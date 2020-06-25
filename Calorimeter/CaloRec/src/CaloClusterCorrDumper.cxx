@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -9,102 +9,24 @@
 
 
 #include "CaloClusterCorrDumper.h"
-//#include "GaudiKernel/ISvcLocator.h"
-//#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/MsgStream.h"
-//#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/ListItem.h"
+#include "StoreGate/ReadCondHandle.h"
 
-//#include "CaloRec/ToolWithConstantsMixin.h"
-#include "CaloConditions/ToolConstants.h"
-
-#include <fstream>
-
-
-//###############################################################################
-CaloClusterCorrDumper::CaloClusterCorrDumper(const std::string& name, 
-                                             ISvcLocator* pSvcLocator) 
-  : AthAlgorithm(name, pSvcLocator)
-{
-  // Name(s) of Cluster Correction Tools
-  declareProperty("ClusterCorrectionTools", m_correctionToolNames,
-		  "List of Tools whose constants should be dumped");
-  declareProperty("FileName",m_fileName="","Name of output text file");
-}
-
-//###############################################################################
-
-CaloClusterCorrDumper::~CaloClusterCorrDumper()
-{ }
-
-//###############################################################################
-
-
-StatusCode CaloClusterCorrDumper::execute() {
-  return StatusCode::SUCCESS;
-}
 
 
 StatusCode CaloClusterCorrDumper::initialize()
 {
-  //Get ToolSvc  
-  IToolSvc*     p_toolSvc;
-  CHECK( service("ToolSvc", p_toolSvc) );
-  
-  // allocate tools derived from ToolsWithConstants
-  std::vector<std::string>::const_iterator firstTool=m_correctionToolNames.begin();
-  std::vector<std::string>::const_iterator lastTool =m_correctionToolNames.end();
-  for ( ; firstTool != lastTool; firstTool++ ) {
-    IAlgTool* algToolPtr;
-    ListItem  clusAlgoTool(*firstTool);
-    StatusCode scTool = p_toolSvc->retrieveTool(clusAlgoTool.type(),
-						clusAlgoTool.name(),
-						algToolPtr,
-						this
-						);
-    if ( scTool.isFailure() ) {
-      REPORT_MESSAGE(MSG::ERROR) << "Cannot find tool for " << *firstTool;
-    }
-    else {
-      REPORT_MESSAGE(MSG::INFO) /*<< m_key << ": "*/
-                                << "Found tool for " << *firstTool;
-      
-      // check for tool type
-      CaloRec::ToolWithConstantsMixin* theTool = 
-	dynamic_cast<CaloRec::ToolWithConstantsMixin*>(algToolPtr);
-      if ( theTool != 0 ) { 
-	m_correctionTools.push_back(theTool);
-      }
-    }
-  }
-  REPORT_MESSAGE(MSG::INFO) /*<< m_key << ": "*/
-                            << "Found " << m_correctionTools.size() <<
-    " tools.";
-
+  ATH_CHECK( m_constants.initialize() );
   return StatusCode::SUCCESS;
 }
 
-StatusCode CaloClusterCorrDumper::finalize() {
-  std::ofstream file;
-  file.open(m_fileName.c_str(),std::ios::app);
-  if (!file.is_open()) {
-    ATH_MSG_FATAL( "Failed to open file named " << m_fileName  );
-    return StatusCode::FAILURE;
+
+StatusCode CaloClusterCorrDumper::execute (const EventContext& ctx) const
+{
+  for (const SG::ReadCondHandleKey<CaloRec::ToolConstants>& k : m_constants) {
+    SG::ReadCondHandle<CaloRec::ToolConstants> constant (k, ctx);
+    ATH_MSG_INFO( constant->toString ("dumper") );
   }
-
-
-
-  std::vector<CaloRec::ToolWithConstantsMixin*>::const_iterator it=m_correctionTools.begin();
-  std::vector<CaloRec::ToolWithConstantsMixin*>::const_iterator it_e=m_correctionTools.end();
-  for (;it!=it_e;++it) {
-    file << "Dump of constants:" << std::endl;
-    (*it)->writeConstants(file,"dumper");
-  }
-
-
-  file.close();
   return StatusCode::SUCCESS;
 }
-
 
 

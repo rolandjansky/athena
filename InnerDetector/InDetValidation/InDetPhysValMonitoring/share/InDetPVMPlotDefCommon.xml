@@ -780,6 +780,38 @@
   <x title="Number of interactions" n="81" lo="-0.5" hi="80.5"/>
   <y title="Number of reco vertices" lo="0.0" hi="60.0"/>
 </h>
+<h id="vx_hs_reco_eff" type="TEfficiency" title="HS vertex reconstruction efficiency">
+  <x title="Local PU density [vertices/mm]" n="4" lo="0.0" hi="2.0"/>
+  <y title="HS vertex reconstruction efficiency" lo="0.8" hi="1.2"/>
+</h>
+<h id="vx_hs_sel_eff" type="TEfficiency" title="HS vertex selection efficiency (sum[pt,track^2])">
+  <x title="Local PU density [vertices/mm]" n="4" lo="0.0" hi="2.0"/>
+  <y title="HS vertex selection efficiency" lo="0.6" hi="1.2"/>
+</h>
+<h id="vx_hs_reco_long_reso" type="TProfile" title="Reco Longitudinal Resolution">
+  <x title="Local PU density [vertices/mm]" n="4" lo="0.0" hi="2.0"/>
+  <y title="Reco longitudinal resolution [mm]" lo="0.0" hi="1.0"/>
+</h>
+<h id="vx_hs_reco_trans_reso" type="TProfile" title="Reco Transverse Resolution">
+  <x title="Local PU density [vertices/mm]" n="4" lo="0.0" hi="2.0"/>
+  <y title="Reco transverse resolution [mm]" lo="0.0" hi="1.0"/>
+</h>
+<h id="vx_hs_truth_long_reso_vs_PU" type="TH2" title="Truth Longitudinal Resolution vs. PU (2D)">
+  <x title="Local PU density [vertices/mm]" n="4" lo="0.0" hi="2.0"/>
+  <y title="|Reco-truth| longitudinal resolution [mm]" n="20" lo="-0.08" hi="0.08"/>
+</h>
+<h id="vx_hs_truth_trans_reso_vs_PU" type="TH2" title="Truth Transverse Resolution vs. PU (2D)">
+  <x title="Local PU density [vertices/mm]" n="4" lo="0.0" hi="2.0"/>
+  <y title="|Reco-truth| transverse resolution [mm]" n="20" lo="0.0" hi="0.02"/>
+</h>
+<h id="vx_hs_truth_long_reso" type="TH1" title="Truth Longitudinal Resolution">
+  <x title="Local PU density [vertices/mm]" n="4" lo="0.0" hi="2.0"/>
+  <y title="|Reco-truth| longitudinal resolution [mm]" lo="0.0" hi="1.0"/>
+</h>
+<h id="vx_hs_truth_trans_reso" type="TH1" title="Truth Transverse Resolution">
+  <x title="Local PU density [vertices/mm]" n="4" lo="0.0" hi="2.0"/>
+  <y title="|Reco-truth| transverse resolution [mm]" lo="0.0" hi="1.0"/>
+</h>
 <h id="vx_nTracks" type="TH1F" title="Number of tracks at vertex">
   <x title="Number of Tracks" n="150" lo="0" hi="150"/>
   <y title="Entries"/>

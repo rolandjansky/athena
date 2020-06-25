@@ -46,13 +46,12 @@ namespace Monitored {
       }
 
       if (m_monWeight) {
-        const std::vector<double> weightVector{m_monWeight->getVectorRepresentation()};
-        auto weightAccessor = [&](size_t i){ return weightVector[i]; };
+        auto weightAccessor = [&](size_t i){ return m_monWeight->get(i); };
 
-        if (ATH_UNLIKELY(weightVector.size() != var.size())) {
+        if (ATH_UNLIKELY(m_monWeight->size() != var.size())) {
           MsgStream log(Athena::getMessageSvc(), "HistogramFiller1D");
           log << MSG::ERROR << "Weight does not match the size of plotted variable: "
-              << weightVector.size() << " " << var.size() << endmsg;
+              << m_monWeight->size() << " " << var.size() << endmsg;
         }
         // Need to fill here while weightVector is still in scope
         if (not m_monCutMask) return HistogramFiller::fill<TH1>(weightAccessor, detail::noCut, var);

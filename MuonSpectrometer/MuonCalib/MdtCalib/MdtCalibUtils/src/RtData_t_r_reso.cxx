@@ -1,10 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCalibUtils/RtData_t_r_reso.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
+
 #include <stdio.h>
+
 #define M_MAX_PARS 1000
+
 namespace MuonCalib {
 
   std::istream& RtData_t_r_reso::read( std::istream& is )
@@ -25,11 +30,10 @@ namespace MuonCalib {
     for( unsigned int i=0;i<m_npars;++i){
       // check if eof reached before last entry was read
       if( is.eof() ){
-	std::cout << "RtData_t_r_reso::read ERROR <unexpected eof>" << std::endl;
-	std::cout << " -> exit after " << i-1 << " entries out of " << m_npars 
-		  << " were read from file" << std::endl;
-	reset();
-	return is;
+        MsgStream log(Athena::getMessageSvc(),"RtData_t_r_reso");
+        log<<MSG::WARNING<<"read() <unexpected eof> -> exit after " << i-1 << " entries out of " << m_npars << " were read from file" <<endmsg;
+        reset();
+        return is;
       }
 
       // read next entry
@@ -48,14 +52,13 @@ namespace MuonCalib {
   std::ostream& RtData_t_r_reso::write( std::ostream& os ) const
   {
     if( m_isValid ){
-      //os << " RegionId " << m_regionId << " " << m_npars << std::endl;
       os << " dummy "<<m_regionId << " " << m_npars << std::endl;
-      // loop over data and write to std::ostream
       for( unsigned int i=0;i<m_npars;++i){
 	os << "  " << m_radiusVec[i] << " " << m_timeVec[i] << " " << m_resoVec[i] << std::endl;
       }
     }else{
-      std::cout << "RtData_t_r_reso::write ERROR <data not valid>" << std::endl;
+      MsgStream log(Athena::getMessageSvc(),"RtData_t_r_reso");
+      log<<MSG::WARNING<<"write() <data not valid>" <<endmsg;
     }
   
     return os;
@@ -63,15 +66,8 @@ namespace MuonCalib {
 
   void RtData_t_r_reso::write_forDB( FILE *frtt, FILE *frtr, FILE *frts ) const
   {
-    //    int mdt_rt_id=98; // FAB:280208: to be set!!!
-    //    int mdt_rt_map_t_id=97; // FAB:280208: to be set!!!
-    //    int mdt_rt_map_r_id=96; // FAB:280208: to be set!!!
-    //    int mdt_rt_map_s_id=95; // FAB:280208: to be set!!!
  
     if( m_isValid ){
-      //      fprintf(frtt," %d,%d,%d,%d",mdt_rt_map_t_id,mdt_rt_id,mdt_rt_id,m_npars);
-      //      fprintf(frtr," %d,%d,%d,%d",mdt_rt_map_r_id,mdt_rt_id,mdt_rt_map_t_id,m_npars);
-      //      fprintf(frts," %d,%d,%d",mdt_rt_map_s_id,mdt_rt_id,m_npars);
       fprintf(frtt,"%d",m_npars);
       fprintf(frtr,"%d",m_npars);
       fprintf(frts,"%d",m_npars);
@@ -86,7 +82,8 @@ namespace MuonCalib {
       fprintf(frtr,"\n");
       fprintf(frts,"\n");
     }else{
-      std::cout << "RtData_t_r_reso::write_forDB ERROR <data not valid>" << std::endl;
+      MsgStream log(Athena::getMessageSvc(),"RtData_t_r_reso");
+      log<<MSG::WARNING<<"write_forDB() <data not valid>" <<endmsg;
     }
   
     return;

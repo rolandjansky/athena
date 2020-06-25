@@ -1,74 +1,35 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentSelectionTool.h"
  
-#include "GaudiKernel/MsgStream.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonSegmentMakerToolInterfaces/IMuonSegmentHitSummaryTool.h"
-
 #include "MuonSegment/MuonSegment.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonPrepRawData/MdtPrepData.h"
 #include "MuonSegment/MuonSegmentQuality.h"
-#include <map>
 
+#include <map>
 
 namespace Muon {
 
-  MuonSegmentSelectionTool::MuonSegmentSelectionTool(const std::string& ty,const std::string& na,const IInterface* pa)
-    : AthAlgTool(ty,na,pa),
-      m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"), 
+  MuonSegmentSelectionTool::MuonSegmentSelectionTool(const std::string& ty,const std::string& na,const IInterface* pa) :
+      AthAlgTool(ty,na,pa),
       m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
       m_hitSummaryTool("Muon::MuonSegmentHitSummaryTool/MuonSegmentHitSummaryTool", this)
   {
     declareInterface<IMuonSegmentSelectionTool>(this);
-
     declareProperty("SegmentQualityCut",m_cutSegmentQuality = 10.);
     declareProperty("MinADCPerSegmentCut",m_minAdcPerSegmentCut = 70. );
     declareProperty("GoodADCFractionCut",m_adcFractionCut = -1. );
   }
 
-
-  MuonSegmentSelectionTool::~MuonSegmentSelectionTool(){}
-
-
   StatusCode MuonSegmentSelectionTool::initialize()
   {
-
-    if ( AthAlgTool::initialize().isFailure() ) {
-      return StatusCode::FAILURE;
-    }
-
-    if(m_edmHelperSvc.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_edmHelperSvc);
-      return StatusCode::FAILURE;
-    }
-
-    if(m_printer.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_printer);
-      return StatusCode::FAILURE;
-    }
-    
-    if(m_idHelperTool.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_idHelperTool);
-      return StatusCode::FAILURE;
-    }
-    
-    if(m_hitSummaryTool.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_hitSummaryTool);
-      return StatusCode::FAILURE;
-    }
-    
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode MuonSegmentSelectionTool::finalize()
-  {
-    if( AthAlgTool::finalize().isFailure() ) return StatusCode::FAILURE;
+    ATH_CHECK(m_edmHelperSvc.retrieve());
+    ATH_CHECK(m_printer.retrieve());
+    ATH_CHECK(m_idHelperSvc.retrieve());
+    ATH_CHECK(m_hitSummaryTool.retrieve());
     return StatusCode::SUCCESS;
   }
 
@@ -81,13 +42,13 @@ namespace Muon {
         
     // different treatment for CSC and MDT segments
     // mdt treatment
-    if( m_idHelperTool->isMdt(chid) ) return mdtSegmentQuality(seg,chid,ignoreHoles);
+    if( m_idHelperSvc->isMdt(chid) ) return mdtSegmentQuality(seg,chid,ignoreHoles);
     
     // csc segments
-    if( m_idHelperTool->isCsc(chid) ) return cscSegmentQuality(seg,chid,ignoreHoles,useEta,usePhi);
+    if( m_idHelperSvc->isCsc(chid) ) return cscSegmentQuality(seg,chid,ignoreHoles,useEta,usePhi);
 
     // rpc/tgc case
-    if( m_idHelperTool->isTgc(chid) || m_idHelperTool->isRpc(chid) ) return 1;
+    if( m_idHelperSvc->isTgc(chid) || m_idHelperSvc->isRpc(chid) ) return 1;
 
     // NSW segments
     return nswSegmentQuality(seg,chid,ignoreHoles);
@@ -157,7 +118,7 @@ namespace Muon {
     /*      cuts for quality level 2  */
 
     // require hits in both projections
-    if( abs(m_idHelperTool->stationEta(chid)) > 2 && hitCounts.ncscHitsPhi == 0  ) return 1; 
+    if( std::abs(m_idHelperSvc->stationEta(chid)) > 2 && hitCounts.ncscHitsPhi == 0  ) return 1; 
       
 
     /**********************************/
@@ -165,7 +126,7 @@ namespace Muon {
 
     // require four hits in one of the projections and hits in the other
     if( hitCounts.ncscHitsEta < 12 ||  
-	( abs(m_idHelperTool->stationEta(chid)) > 2 && hitCounts.ncscHitsPhi < 4 ) ) return 2;  
+	( std::abs(m_idHelperSvc->stationEta(chid)) > 2 && hitCounts.ncscHitsPhi < 4 ) ) return 2;  
 
     /**********************************/
     /*   segment has highest quality  */

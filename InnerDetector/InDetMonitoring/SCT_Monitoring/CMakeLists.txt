@@ -24,7 +24,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkTools/TrkToolInterfaces
                           Trigger/TrigAnalysis/TrigAnalysisInterfaces
                           PRIVATE
-			  Luminosity/LumiBlockData
+			  LumiBlock/LumiBlockData
                           Control/AthenaKernel
                           Control/AthContainers
                           DetectorDescription/Identifier
@@ -40,19 +40,18 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkTrackSummary
                           Trigger/TrigEvent/TrigDecisionInterface
                           MagneticField/MagFieldElements
-                          MagneticField/MagFieldCondition )
+                          MagneticField/MagFieldConditions )
 
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_component( SCT_Monitoring
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                      PUBLIC_HEADERS SCT_Monitoring
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AthenaMonitoringLib GaudiKernel InDetReadoutGeometry SCT_ReadoutGeometry InDetPrepRawData ITrackToVertex TrkTrack TrkToolInterfaces CommissionEvent AthenaKernel AthContainers Identifier InDetIdentifier InDetRawData InDetRIO_OnTrack LWHists PathResolver TrkSurfaces TrkEventUtils TrkMeasurementBase TrkParameters TrkRIO_OnTrack TrkSpacePoint TrkTrackSummary MagFieldElements MagFieldConditions )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringLib GaudiKernel InDetReadoutGeometry SCT_ReadoutGeometry InDetPrepRawData ITrackToVertex TrkTrack TrkToolInterfaces CommissionEvent AthenaKernel AthContainers Identifier InDetIdentifier InDetRawData InDetRIO_OnTrack LWHists PathResolver TrkSurfaces TrkEventUtils TrkMeasurementBase TrkParameters TrkRIO_OnTrack TrkSpacePoint TrkTrackSummary MagFieldElements MagFieldConditions )
 
 atlas_add_dictionary( SCT_MonitoringDict
                       SCT_Monitoring/SCT_MonitoringDict.h

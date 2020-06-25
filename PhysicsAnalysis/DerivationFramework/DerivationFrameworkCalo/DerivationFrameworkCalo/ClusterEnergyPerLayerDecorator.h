@@ -14,9 +14,8 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IThinningTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
-
 #include "xAODEgamma/EgammaFwd.h"
-
+#include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ToolHandle.h"
 
 class CaloFillRectangularCluster;
@@ -45,8 +44,9 @@ namespace DerivationFramework {
       ToolHandle<CaloClusterCollectionProcessor> m_caloFillRectangularTool;
       CaloFillRectangularCluster *m_tool;
       std::string m_CellCollectionName;
-      
-      void decorateObject(const xAOD::Egamma*& egamma) const;
+
+      void decorateObject(const EventContext& ctx,
+                          const xAOD::Egamma* egamma) const;
   };
 }
 

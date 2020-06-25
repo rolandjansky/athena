@@ -20,7 +20,7 @@
 #include "TTree.h"
 
 /** Constructor **/
-MagField::AtlasFieldMap::AtlasFieldMap() {}
+MagField::AtlasFieldMap::AtlasFieldMap() = default;
 
 MagField::AtlasFieldMap::~AtlasFieldMap()
 {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SlimmingHandler_h
@@ -95,7 +95,6 @@ SlimmingHandler<ResultType>::SlimmingHandler(ResultType* result,
 template<class ResultType>
 void SlimmingHandler<ResultType>::commit() {
   
-  //  log << MSG::DEBUG << "TrigNavigationSlimmingHdlr::commit() wiht slimming tool " << m_slimmer << endmsg;
   // do slimming and serialized to the m_result
   std::vector<uint32_t> temp;
   
@@ -117,8 +116,6 @@ void SlimmingHandler<ResultType>::rollback() {
   //  Athena::MsgStreamMember mlog(Athena::Options::Eager, m_name);
   //  MsgStream log = mlog.get();
   
-  //  log << MSG::DEBUG << "TrigNavigationSlimmingHdlr::rollback()";
-
   //  replace_data(m_result, m_unslimmedNavData);
 
   // // write the saved navigation data back into the hltresult

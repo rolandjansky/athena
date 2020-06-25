@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,9 +11,9 @@
 // Gaudi
 #include "GaudiKernel/MsgStream.h"
 // STD
+#include <cmath>
 #include <iomanip>
 #include <iostream>
-#include <math.h>
 
 Trk::CylinderBounds::CylinderBounds()
   : m_boundValues(CylinderBounds::bv_length, 0.)
@@ -102,10 +102,11 @@ Trk::CylinderBounds::minDistance(const Amg::Vector2D& pos) const
   double sF = 2. * m_boundValues[CylinderBounds::bv_radius] * sin(.5 * (dF - wF));
 
   if (sF <= 0. || sZ <= 0.) {
-    if (sF > sZ)
+    if (sF > sZ){
       return sF;
-    else
-      return sZ;
+    }
+
+    return sZ;
   }
   return sqrt(sF * sF + sZ * sZ);
 }

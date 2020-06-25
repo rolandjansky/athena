@@ -117,7 +117,7 @@ def getJetCalibTool(jetcollection, context, data_type, calibseq = "", rhoname = 
         if context == "T0":
             _data_type = "data"
         _pvname = ""
-        if "Residual" in calibseq or "GSC" in calibseq and gscdepth!="EM3":
+        if "Residual" in _calibseq or "GSC" in _calibseq and gscdepth!="EM3":
             _pvname = pvname
         return defineJetCalibTool(jetcollection, _configfile, calibarea, _calibseq, _data_type, rhoname, _pvname, gscdepth)
     except KeyError as e:

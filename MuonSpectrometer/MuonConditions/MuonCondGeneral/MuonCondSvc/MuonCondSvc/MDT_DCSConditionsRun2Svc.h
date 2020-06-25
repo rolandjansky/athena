@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDSVC_MDT_DCSCONDITIONSRUN2SVC_H
@@ -10,24 +10,20 @@
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/IInterface.h"
 #include "AthenaBaseComps/AthService.h"
-
-//#include "MuonIdHelpers/MdtIdHelper.h"
-
 #include "MuonCondInterface/IMDT_DCSConditionsRun2Svc.h"
 #include "MuonCondInterface/IMDT_DCSConditionsRun2Tool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaKernel/IOVSvcDefs.h"
+#include "AthenaBaseComps/AthService.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonCondSvc/MuonHierarchy.h"
+#include "StoreGate/StoreGateSvc.h"
+#include "AthenaKernel/IIOVDbSvc.h" 
+
 #include <vector>
 #include <list>
 #include <string>
 #include <map>
-//
-#include "AthenaBaseComps/AthService.h"
-#include "GaudiKernel/ServiceHandle.h"
-
-#include "MuonCondSvc/MuonHierarchy.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "AthenaKernel/IIOVDbSvc.h" 
 
 
 template <class TYPE> class SvcFactory;

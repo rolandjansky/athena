@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -91,7 +91,7 @@ private:
     //! internal method printing the current state (debugging)
     void printGlobalParams(int istate, std::string ptype,
                            const TrackParameters*,
-                           const DNA_MaterialEffects* = 0) const;
+                           const DNA_MaterialEffects* = nullptr) const;
 
     /** @brief method trying to define inital error for bw smoother in a smart way.
 

@@ -78,7 +78,7 @@ private:
     bool m_doHitsMon;
     float m_DistToStraw;
     
-    bool m_ArgonXenonSplitter;
+    BooleanProperty m_ArgonXenonSplitter{this, "doArgonXenonSeparation", true};
     
     int m_totalEvents;
     float m_longToTCut;

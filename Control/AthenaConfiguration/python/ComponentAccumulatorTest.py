@@ -493,8 +493,8 @@ class TestSequencesMerging( unittest.TestCase ):
         self.assertEqual( len(ca1._allSequences), 2, "Dangling sequences not maintained" )
                 
         print("Instantiating top CA")
-        from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
-        topca = MainServicesThreadedCfg( ConfigFlags )
+        from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+        topca = MainServicesCfg( ConfigFlags )
         topca.printConfig()
 
         print("Merging to the top level CA")        

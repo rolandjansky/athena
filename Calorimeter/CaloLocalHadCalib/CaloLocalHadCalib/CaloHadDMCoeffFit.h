@@ -22,6 +22,7 @@
 #include <vector>
 #include <string>
 #include <math.h>
+#include "CxxUtils/checker_macros.h"
 
 class CaloLocalHadCoeff;
 class CaloLocalHadCoeffHelper;
@@ -32,8 +33,7 @@ class TH1F;
 class TProfile2D;
 
 
-
-class CaloHadDMCoeffFit {
+class ATLAS_NOT_THREAD_SAFE CaloHadDMCoeffFit {
   public :
 
   // average and rms on-the-flight calculation

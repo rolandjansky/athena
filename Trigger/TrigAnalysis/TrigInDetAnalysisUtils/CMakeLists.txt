@@ -17,6 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
 			  Event/xAOD/xAODMuon
 			  Event/xAOD/xAODEgamma
 			  Event/xAOD/xAODTau
+			  Event/xAOD/xAODTruth
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/TrkTrackSummary

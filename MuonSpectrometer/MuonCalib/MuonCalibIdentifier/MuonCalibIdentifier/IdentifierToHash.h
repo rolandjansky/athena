@@ -1,6 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
+#ifndef MUONCALIBIDENTIFIER_IDENTIFIERTOHASH_H
+#define MUONCALIBIDENTIFIER_IDENTIFIERTOHASH_H
 
 /***************************************************************************
  * Identifier utility
@@ -11,16 +14,14 @@
  * Last Update  : 27 April 2005
  ***************************************************************************/
 
-#ifndef MUONCALIBIDENTIFIER_IDENTIFIERTOHASH_H
-# define MUONCALIBIDENTIFIER_IDENTIFIERTOHASH_H
-// std
+#include "MuonCalibIdentifier/MultiDimArray.h"
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
+
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <limits.h>
-// other packages
-// this package
-#include "MuonCalibIdentifier/MultiDimArray.h"
 
 /**
  * The IdentifierToHash table.
@@ -63,14 +64,15 @@ public:
       static const typename K::ValueType& getConstRef( const K& obj, const T& indices ) {
 	 int idx = indices[N-1];
 #ifdef IDENTIFIERTOHASH_DEBUG
-	 std::cout << "[" << idx << "]";
+    MsgStream log(Athena::getMessageSvc(),"RecursiveIndexCall");
+    log<<MSG::DEBUG<<"[" << idx << "]"<<endmsg;
 #endif
 	 return RecursiveIndexCall<N-1,typename K::SubType>::getConstRef( obj[ idx ], indices );
       }
       static typename K::ValueType& getRef( K& obj, const T& indices ) {
 	 int idx = indices[N-1];
 #ifdef IDENTIFIERTOHASH_DEBUG
-	 std::cout << "{" << idx << "}";
+    log<<MSG::DEBUG<<"{" << idx << "}"<<endmsg;
 #endif
 	 return RecursiveIndexCall<N-1,typename K::SubType>::getRef( obj[ idx ], indices );
       }
@@ -83,14 +85,15 @@ public:
       static const typename K::ValueType& getConstRef( const K& obj, const T& indices ) {
 	 int idx = indices[0];
 #ifdef IDENTIFIERTOHASH_DEBUG
-	 std::cout << "[" << idx << "]";
+    MsgStream log(Athena::getMessageSvc(),"RecursiveIndexCall");
+    log<<MSG::DEBUG<<"[" << idx << "]"<<endmsg;
 #endif
 	 return obj[ idx ];
       }
       static typename K::ValueType& getRef( K& obj, const T& indices ) {
 	 int idx = indices[0];
 #ifdef IDENTIFIERTOHASH_DEBUG
-	 std::cout << "{" << idx << "}";
+    log<<MSG::DEBUG<<"{" << idx << "}"<<endmsg;
 #endif
 	 return obj[ idx ];
       }
@@ -110,11 +113,10 @@ public:
 	 int idx = indices[N-1];
 	 bool bOK = obj.isInRange( idx );
 #ifdef IDENTIFIERTOHASH_DEBUG
-	 std::cout << "(" << idx << ")";
+    MsgStream log(Athena::getMessageSvc(),"RecursiveRangeCheck");
+    log<<MSG::DEBUG<<"(" << idx << ")"<<endmsg;
 	 if ( !bOK ) {
-	    std::cout << " CHECK: " << idx << " Out of range (" << obj.minIndex()
-		      << "," << obj.maxIndex() << ")"
-		      << std::endl;
+      log<<MSG::DEBUG<<" CHECK: " << idx << " Out of range (" << obj.minIndex() << "," << obj.maxIndex() << ")"<<endmsg;
 	 } 
 #endif
 	 return bOK && RecursiveRangeCheck<N-1,typename K::SubType>::isInRange( obj[ idx ], indices );
@@ -129,13 +131,13 @@ public:
 	 int idx = indices[0];
 	 bool bOK = obj.isInRange( idx );
 #ifdef IDENTIFIERTOHASH_DEBUG
-	 std::cout << "(" << idx << ")";
+    MsgStream log(Athena::getMessageSvc(),"RecursiveRangeCheck");
+    log<<MSG::DEBUG<<"(" << idx << ")"<<endmsg;
 	 if ( !bOK ) {
-	    std::cout << " CHECK: Out of range (" << obj.minIndex() << "," << obj.maxIndex() << ")";
+      log<<MSG::DEBUG<<" CHECK: Out of range (" << obj.minIndex() << "," << obj.maxIndex() << ")"<<endmsg;
 	 }else {
-	    std::cout << " CHECK: Range OK";
+      log<<MSG::DEBUG<<" CHECK: Range OK"<<endmsg;
 	 }
-	 std::cout << std::endl;
 #endif
 	 return bOK;
       }
@@ -198,18 +200,18 @@ bool
 IdentifierToHash<T>::addEntry( const typename IdentifierToHash<T>::IdType& id,
 			       const typename IdentifierToHash<T>::HashType& aHash ) {
 #ifdef IDENTIFIERTOHASH_DEBUG
-   std::cout << "IdentifierToHash<T>::addEntry(0x" << std::hex << id << std::dec
-	     << "," << aHash << ")";
+   MsgStream log(Athena::getMessageSvc(),"IdentifierToHash<T>");
+   log<<MSG::DEBUG<<"IdentifierToHash<T>::addEntry(0x" << std::hex << id << std::dec << "," << aHash << ")"<<endmsg;
 #endif
    if ( !T::isValid( id ) ) {
 #ifdef IDENTIFIERTOHASH_DEBUG
-      std::cout << ": id is invalid. Nothing added." << std::endl;    
+   log<<MSG::DEBUG<<": id is invalid. Nothing added."<<endmsg;
 #endif
       return false;
    }
    m_idFields.setAll( id );
-#ifdef IDENTIFIERTOHASH_DEBUG
-   std::cout << "::IdToHashTable";
+#ifdef 
+   log<<MSG::DEBUG<<"::IdToHashTable"<<endmsg;
 #endif
    
    HashType& hashRef =
@@ -217,15 +219,14 @@ IdentifierToHash<T>::addEntry( const typename IdentifierToHash<T>::IdType& id,
    // only add hash if entry is not yet taken
    if ( hashRef != defaultHashValue() ) {
 #ifdef IDENTIFIERTOHASH_DEBUG
-      std::cout << " WARNING: id already taken by hash=" << hashRef
-		<< ". Nothing added." << std::endl;
+      log<<MSG::WARNING<<"id already taken by hash=" << hashRef << ". Nothing added."<<endmsg;
 #endif
       return false;
    } else {
       // set the hash to the indicated value
       hashRef = aHash;
 #ifdef IDENTIFIERTOHASH_DEBUG
-      std::cout << " ADDED." << std::endl;
+      log<<MSG::DEBUG<<" ADDED."<<endmsg;
 #endif
    }
 

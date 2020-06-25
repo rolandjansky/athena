@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 # +---------------------------------------------+
@@ -36,7 +36,7 @@ def getMetadataDict(dir):
     keyNext = iter.Next()
     while keyNext:
         if keyNext.GetClassName() == "TDirectory":
-            retDict.update(getMetadataDict(keyNext.ReadObj()));
+            retDict.update(getMetadataDict(keyNext.ReadObj()))
         keyNext = iter.Next()
 
     return retDict

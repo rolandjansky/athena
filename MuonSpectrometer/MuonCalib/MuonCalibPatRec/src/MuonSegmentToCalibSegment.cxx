@@ -340,9 +340,9 @@ namespace MuonCalib {
       // use pointer to rot
       const Trk::RIO_OnTrack* rot = seg.rioOnTrack(irot);
       
-      if( m_idHelperSvc->mdtIdHelper().is_mdt( rot->identify() ) ){
+      if( m_idHelperSvc->isMdt( rot->identify() ) ){
 	return rot->identify();
-      }else if( m_idHelperSvc->cscIdHelper().is_csc( rot->identify() ) ){
+      }else if( m_idHelperSvc->isCsc( rot->identify() ) ){
 	return rot->identify();
       }
     }
@@ -354,28 +354,28 @@ namespace MuonCalib {
   Amg::Transform3D MuonSegmentToCalibSegment::getGlobalToStation( const Identifier& id, const MuonGM::MuonDetectorManager* MuonDetMgr  ) const
   {
     
-    if( m_idHelperSvc->mdtIdHelper().is_mdt( id ) ){
+    if( m_idHelperSvc->isMdt( id ) ){
       const MuonGM::MdtReadoutElement* detEl = MuonDetMgr->getMdtReadoutElement(id);
       if( !detEl ) {
 	ATH_MSG_WARNING( "getGlobalToStation failed to retrieve detEL byebye"  );
       }else{
 	return detEl->GlobalToAmdbLRSTransform();
       }
-    }else if( m_idHelperSvc->cscIdHelper().is_csc( id ) ){
+    }else if( m_idHelperSvc->isCsc( id ) ){
       const MuonGM::CscReadoutElement* detEl = MuonDetMgr->getCscReadoutElement(id);
       if( !detEl ) {
 	ATH_MSG_WARNING( "getGlobalToStation failed to retrieve detEL byebye"  );
       }else{
 	return detEl->transform().inverse();
       }
-    }else if( m_idHelperSvc->tgcIdHelper().is_tgc( id ) ){
+    }else if( m_idHelperSvc->isTgc( id ) ){
       const MuonGM::TgcReadoutElement* detEl = MuonDetMgr->getTgcReadoutElement(id);
       if( !detEl ) {
 	ATH_MSG_WARNING( "getGlobalToStation failed to retrieve detEL byebye"  );
       }else{
 	return detEl->transform().inverse();
       }
-    }else if( m_idHelperSvc->rpcIdHelper().is_rpc( id ) ){
+    }else if( m_idHelperSvc->isRpc( id ) ){
       const MuonGM::RpcReadoutElement* detEl = MuonDetMgr->getRpcReadoutElement(id);
       if( !detEl ) {
 	ATH_MSG_WARNING( "getGlobalToStation failed to retrieve detEL byebye"  );
@@ -521,7 +521,7 @@ namespace MuonCalib {
           } else { continue;}
       }
       
-      if( m_idHelperSvc->mdtIdHelper().is_mdt(id)) {
+      if( m_idHelperSvc->isMdt(id)) {
         if (competingRio) {
           ATH_MSG_WARNING( "  MDT hit is competing Rio !!! "  );
          continue;
@@ -757,7 +757,7 @@ namespace MuonCalib {
 	basehit->setSegmentT0Applied(apply_t0);
 	mdtSeg->addHitOnTrack(basehit);
 
-      }else if( m_idHelperSvc->rpcIdHelper().is_rpc( id ) ){
+      }else if( m_idHelperSvc->isRpc( id ) ){
 	// rpc ROT
 	++nr;
 
@@ -812,7 +812,7 @@ namespace MuonCalib {
 	
 	  mdtSeg->addHitOnTrack( rpcCH );
         }
-      }else if( m_idHelperSvc->tgcIdHelper().is_tgc( id ) ){
+      }else if( m_idHelperSvc->isTgc( id ) ){
 	++nt;
 
         int nRios = 1;
@@ -863,7 +863,7 @@ namespace MuonCalib {
 
 	  mdtSeg->addHitOnTrack( tgcCH );
         }
-      }else if( m_idHelperSvc->cscIdHelper().is_csc( id ) ){
+      }else if( m_idHelperSvc->isCsc( id ) ){
 	++nc;
 
         int nRios = 1;
@@ -972,7 +972,7 @@ namespace MuonCalib {
 	  std::vector< const Trk::PrepRawData* >::const_iterator prd_it = prdvec.begin();
 	  for( ; prd_it!= prdvec.end() ;++prd_it ) {
 	    Identifier id = (*prd_it)->identify();
-	    if( m_idHelperSvc->mdtIdHelper().is_mdt(id) ) {
+	    if( m_idHelperSvc->isMdt(id) ) {
 	      nmdt += 1000; //a mdt is always an eta-hit.
 	    } else if ( m_idHelperSvc->isRpc(id) ) {
 	      if      ( m_idHelperSvc->rpcIdHelper().measuresPhi(id) ) nrpc += 1;

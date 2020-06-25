@@ -10,4 +10,5 @@ from LArClusterRec.LArClusterSwGetters import *
 LArClusterSwEle35Getter()
 
 # 7x11 clusters with no corrections.
-LArClusterSw711GetterNocorr()
+# not built by default
+#LArClusterSw711GetterNocorr()

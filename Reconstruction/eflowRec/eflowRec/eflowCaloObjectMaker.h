@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -29,8 +29,8 @@ public:
 
   eflowCaloObjectMaker() { }
 
-  int makeTrkCluCaloObjects(eflowRecTrackContainer* eflowTrackContainer, eflowRecClusterContainer* eflowClusterContainer, eflowCaloObjectContainer* caloObjectContainer);
-  int makeTrkCluCaloObjects(std::vector<eflowRecTrack*> m_tracksToRecover, std::vector<eflowRecCluster*> m_clustersToConsider, eflowCaloObjectContainer* caloObjectContainer);
+  unsigned int makeTrkCluCaloObjects(eflowRecTrackContainer* eflowTrackContainer, eflowRecClusterContainer* eflowClusterContainer, eflowCaloObjectContainer* caloObjectContainer);
+  unsigned int makeTrkCluCaloObjects(std::vector<eflowRecTrack*>& tracksToRecover, std::vector<eflowRecCluster*>& clustersToConsider, eflowCaloObjectContainer* caloObjectContainer);
 
 private:
 

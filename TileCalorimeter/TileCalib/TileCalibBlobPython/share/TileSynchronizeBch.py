@@ -223,4 +223,3 @@ else:
 #=== close databases
 db1.closeDatabase()
 db2.closeDatabase()
-

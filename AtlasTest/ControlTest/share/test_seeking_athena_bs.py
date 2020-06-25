@@ -50,7 +50,7 @@ OUTPUT='%(output_file_name)s'
 
 include('ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py')
 
-svcMgr.ByteStreamInputSvc.FullFileName = %(input_file_list)s
+svcMgr.EventSelector.Input = %(input_file_list)s
 
 import AthenaServices.PyAthenaEventLoopMgr as aspy
 #aspy.enable_seeking()

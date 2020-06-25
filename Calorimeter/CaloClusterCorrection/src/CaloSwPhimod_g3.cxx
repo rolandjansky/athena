@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -34,27 +34,9 @@ Updated:  June, 2004    (sss)
 
 
 
-// -------------------------------------------------------------
-// Constructor 
-// -------------------------------------------------------------
-using xAOD::CaloCluster;
-CaloSwPhimod_g3::CaloSwPhimod_g3(const std::string& type,
-                                 const std::string& name,
-                                 const IInterface* parent)
-  : CaloClusterCorrection(type,name,parent)
-{
-  declareConstant ("correction", m_correction);
-}
-
-// -------------------------------------------------------------
-// Destructor 
-// -------------------------------------------------------------
-CaloSwPhimod_g3::~CaloSwPhimod_g3()
-{ }
-
 // make correction to one cluster 
-void CaloSwPhimod_g3::makeCorrection(const EventContext& /*ctx*/,
-                                     CaloCluster* cluster) const
+void CaloSwPhimod_g3::makeCorrection (const Context& myctx,
+                                      xAOD::CaloCluster* cluster) const
 {
 
   float eta2 = cluster->etaBE(2); // use second sampling
@@ -71,7 +53,7 @@ void CaloSwPhimod_g3::makeCorrection(const EventContext& /*ctx*/,
   else
       nabs = 256.;
 
-  std::vector<float> tab = qphmop (aeta2);
+  std::vector<float> tab = qphmop (myctx, aeta2);
   assert (tab.size() == 5);
   float qphimod = 
     tab[0] + 
@@ -86,21 +68,24 @@ void CaloSwPhimod_g3::makeCorrection(const EventContext& /*ctx*/,
   
 }
 
-std::vector<float> CaloSwPhimod_g3::qphmop (float aeta) const
+std::vector<float> CaloSwPhimod_g3::qphmop (const Context& myctx,
+                                            float aeta) const
 {
-  std::vector<float> coef (m_correction.size(1)-1);
+  const CxxUtils::Array<2> correction = m_correction (myctx);
+
+  std::vector<float> coef (correction.size(1)-1);
 
   int i1 = 0;
   int i2 = 0;
-  if (aeta < m_correction[0][0]) {
-    for (unsigned int j = 1; j < m_correction.size(1); j++)
-      coef[j-1] = m_correction[0][j];
+  if (aeta < correction[0][0]) {
+    for (unsigned int j = 1; j < correction.size(1); j++)
+      coef[j-1] = correction[0][j];
     return coef;
   }
     
-  else if (aeta >= m_correction[0][0]) {
-    for (unsigned int i = 0; i < m_correction.size()-1; i++) {
-      if (aeta >= m_correction[i][0] && aeta < m_correction[i+1][0]) {
+  else if (aeta >= correction[0][0]) {
+    for (unsigned int i = 0; i < correction.size()-1; i++) {
+      if (aeta >= correction[i][0] && aeta < correction[i+1][0]) {
         i1 = i;
         i2 = i+1;
         break;
@@ -108,18 +93,18 @@ std::vector<float> CaloSwPhimod_g3::qphmop (float aeta) const
     }
   }
   if (i1 == i2) {
-    i2 = m_correction.size()-1;
+    i2 = correction.size()-1;
     i1 = i2-1;
   }
 
-  float deta = m_correction[i2][0] - m_correction[i1][0];
+  float deta = correction[i2][0] - correction[i1][0];
   if (deta == 0)
     deta = 1;
 
-  float m = (aeta - m_correction[i1][0]) / deta;
-  for (unsigned int j = 1; j < m_correction.size(1); j++) {
-    float dy = m_correction[i2][j] - m_correction[i1][j];
-    coef[j-1] = (m_correction[i1][j] + dy * m);
+  float m = (aeta - correction[i1][0]) / deta;
+  for (unsigned int j = 1; j < correction.size(1); j++) {
+    float dy = correction[i2][j] - correction[i1][j];
+    coef[j-1] = (correction[i1][j] + dy * m);
   }
 
   return coef;

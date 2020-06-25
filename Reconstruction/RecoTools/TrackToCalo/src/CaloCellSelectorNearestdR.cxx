@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -39,11 +39,7 @@ namespace Trk
     Amg::Vector3D nearestPos,nearestMom;
     Utils::findNearestPoint( cellPos, m_caloExtension, nearestIdx, nearestPos, nearestMom);
 
-    if( Utils::deltaR2( nearestPos.eta(),dde->eta(),nearestPos.phi(),dde->phi()) < m_coneSize2){
-      return true;
-    }
-
-    return false;
+    return Utils::deltaR2( nearestPos.eta(),dde->eta(),nearestPos.phi(),dde->phi()) < m_coneSize2;
   }
 
 } // end of namespace

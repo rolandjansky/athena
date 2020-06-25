@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.scripts.merge_files
 # @purpose take a bunch of input (pool/bs) files and produce a single one
@@ -6,8 +6,7 @@
 # @author Sebastien Binet
 # @date February 2010
 
-__version__ = "$Revision: 310812 $"
-__doc__ = "take a bunch of input (pool/bs) files and produce a single one"
+__doc__ = "merge multiple input (pool/bs) files"
 __author__ = "Sebastien Binet"
 
 
@@ -39,8 +38,8 @@ import PyUtils.acmdlib as acmdlib
     help = "Path to a file where to put athena job's logfile"
     )
 def main(args):
-    """take a bunch of input (pool/bs) files and produce a single one
-    """
+    """merge multiple input (pool/bs) files"""
+
     exitcode = 0
 
     import PyUtils.Logging as L
@@ -48,7 +47,6 @@ def main(args):
     msg.setLevel(L.logging.INFO)
 
     msg.info(':'*40)
-    msg.info('welcome to merge-files version %s', __version__)
 
     import os.path as osp
     args.files = [ osp.expandvars(osp.expanduser(fname))

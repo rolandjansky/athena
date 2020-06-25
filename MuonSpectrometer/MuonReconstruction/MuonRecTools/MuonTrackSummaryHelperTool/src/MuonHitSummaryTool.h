@@ -1,47 +1,34 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONHITSUMMARYTOOL_H
 #define MUON_MUONHITSUMMARYTOOL_H
 
+#include "MuonRecToolInterfaces/IMuonHitSummaryTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include <string>
 
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonRecToolInterfaces/IMuonHitSummaryTool.h"
-
-class Identifier;
-
-namespace Trk {
-  class ITrackSummaryHelperTool;  
-}
-
 namespace Muon {
-  
-  class MuonIdHelperTool;
-  class MuonEDMPrinterTool;
-
   /**
      @brief Helper tool to extract simple counts from a Trk::Track, Trk::TrackSummary or Trk::MuonTrackSummary
 
   */
   class MuonHitSummaryTool : public AthAlgTool, virtual public IMuonHitSummaryTool {
   public:
-    /** @brief constructor */
     MuonHitSummaryTool(const std::string&,const std::string&,const IInterface*);
 
-    /** @brief destructor */
-    virtual ~MuonHitSummaryTool ();
+    virtual ~MuonHitSummaryTool()=default;
     
-    /** @brief AlgTool initilize */
     StatusCode initialize();
-    
-    /** @brief AlgTool finalize */
-    StatusCode finalize();
     
     /** @brief Calculate compact summary
 	@param track input track
@@ -84,7 +71,7 @@ namespace Muon {
     /** helper function to calculate MuonTrackSummary from track */
     void getMuonTrackSummary( Trk::MuonTrackSummary& muonSummary, const Trk::Track& track ) const;
     void calculateSummaryCounts( CompactSummary& sum) const;    
-    ToolHandle<MuonIdHelperTool>   m_idHelper;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ServiceHandle<IMuonEDMHelperSvc>  m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };

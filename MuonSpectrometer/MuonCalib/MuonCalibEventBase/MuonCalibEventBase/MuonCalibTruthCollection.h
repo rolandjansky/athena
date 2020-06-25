@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //*********************************************************//
@@ -10,6 +10,9 @@
 
 #ifndef MuonCalibTruthCollection_h
 #define MuonCalibTruthCollection_h
+
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 #include <vector>
 #include <iostream>
@@ -134,39 +137,49 @@ namespace MuonCalib{
   }
   
   inline void MuonCalibTruthCollection::addTruth( MuonCalibTruth* truth ) { 
-    if(truth){
+    if (truth) {
       m_truthVec.push_back(truth) ; 
+    } else {
+      MsgStream log(Athena::getMessageSvc(),"MuonCalibTruthCollection");
+      log<<MSG::WARNING<<"MuonCalibTruth not passed to MuonCalibTruthCollection"<<endmsg;
     }
-    else std::cout << "MuonCalibTruth not passed to MuonCalibTruthCollection" << std::endl;
   }
   
 
   inline void MuonCalibTruthCollection::addTruth( MuonCalibMdtTruthHit* truth ) { 
-    if(truth){
+    if (truth) {
       m_mdtTruthVec.push_back(truth) ;
+    } else {
+      MsgStream log(Athena::getMessageSvc(),"MuonCalibTruthCollection");
+      log<<MSG::WARNING<<"MuonCalibMdtTruthHit not passed to MuonCalibTruthCollection"<<endmsg;
     }
-    else std::cout << "MuonCalibMdtTruthHit not passed to MuonCalibTruthCollection" << std::endl;
   }
 
   inline void MuonCalibTruthCollection::addTruth( MuonCalibRpcTruthHit* truth ) { 
-    if(truth){
+    if (truth) {
       m_rpcTruthVec.push_back(truth) ;
+    } else {
+      MsgStream log(Athena::getMessageSvc(),"MuonCalibTruthCollection");
+      log<<MSG::WARNING<<"MuonCalibRpcTruthHit not passed to MuonCalibTruthCollection"<<endmsg;
     }
-    else std::cout << "MuonCalibRpcTruthHit not passed to MuonCalibTruthCollection" << std::endl;
   }
 
   inline void MuonCalibTruthCollection::addTruth( MuonCalibTgcTruthHit* truth ) { 
-    if(truth){
+    if (truth) {
       m_tgcTruthVec.push_back(truth) ;
+    } else {
+      MsgStream log(Athena::getMessageSvc(),"MuonCalibTruthCollection");
+      log<<MSG::WARNING<<"MuonCalibTgcTruthHit not passed to MuonCalibTruthCollection"<<endmsg;
     }
-    else std::cout << "MuonCalibTgcTruthHit not passed to MuonCalibTruthCollection" << std::endl;
   }
 
   inline void MuonCalibTruthCollection::addTruth( MuonCalibCscTruthHit* truth ) { 
-    if(truth){
+    if (truth) {
       m_cscTruthVec.push_back(truth) ;
+    } else {
+      MsgStream log(Athena::getMessageSvc(),"MuonCalibTruthCollection");
+      log<<MSG::WARNING<<"MuonCalibCscTruthHit not passed to MuonCalibTruthCollection"<<endmsg;
     }
-    else std::cout << "MuonCalibCscTruthHit not passed to MuonCalibTruthCollection" << std::endl;
   }
 
 }//end namespace MuonCalib

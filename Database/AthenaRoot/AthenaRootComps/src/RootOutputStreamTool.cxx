@@ -109,7 +109,7 @@ StatusCode RootOutputStreamTool::connectOutput(const std::string& outputName) {
   return StatusCode::SUCCESS;
 }
 
-StatusCode RootOutputStreamTool::commitOutput() {
+StatusCode RootOutputStreamTool::commitOutput(bool/* doCommit*/) {
   ATH_MSG_VERBOSE("commitOutput");
   if (m_outputName.empty()) {
     ATH_MSG_ERROR("Unable to commit, no output connected.");

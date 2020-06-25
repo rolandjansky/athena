@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelByteStreamErrorsTool_h
 #define PixelByteStreamErrorsTool_h
 
-#ifndef SIMULATIONBASE
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "PixelConditionsTools/IPixelByteStreamErrorsTool.h"
 
@@ -126,5 +125,4 @@ inline InterfaceID& PixelByteStreamErrorsTool::interfaceID() {
   return IID_PixelByteStreamErrorsTool;
 }
 
-#endif
 #endif

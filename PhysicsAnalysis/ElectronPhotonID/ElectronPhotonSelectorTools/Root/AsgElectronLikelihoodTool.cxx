@@ -447,10 +447,10 @@ asg::AcceptData AsgElectronLikelihoodTool::accept(const EventContext& ctx, const
     if(eg->type() == xAOD::Type::Electron){
     const xAOD::Electron* el = static_cast<const xAOD::Electron*>(eg);
     return accept(el, mu);
-    } else {
+    } 
       ATH_MSG_ERROR("Input is not an electron and not caloOnly is set");
       return m_rootTool->accept();
-    }
+    
   }
   
   //Calo only LH
@@ -772,10 +772,10 @@ double AsgElectronLikelihoodTool::calculate( const EventContext& ctx, const xAOD
         const xAOD::Electron* el = static_cast<const xAOD::Electron*>(eg);
         return calculate(ctx, el);
       }
-      else {
+      
         ATH_MSG_ERROR("Input is not an electron and not Calo Only is required");
         return -999;
-      }
+      
   }
 
  const xAOD::CaloCluster* cluster = eg->caloCluster();
@@ -929,10 +929,10 @@ asg::AcceptData AsgElectronLikelihoodTool::accept(const EventContext& ctx, const
     const xAOD::Electron* el = static_cast<const xAOD::Electron*>(part);
     return accept(ctx, el);
   }
-  else {
+  
     ATH_MSG_ERROR("Input is not an electron");
     return m_rootTool->accept();
-  }
+  
 }
 
 double AsgElectronLikelihoodTool::calculate(const xAOD::IParticle* part) const
@@ -947,10 +947,10 @@ double AsgElectronLikelihoodTool::calculate(const EventContext& ctx, const xAOD:
     const xAOD::Electron* el = static_cast<const xAOD::Electron*>(part);
     return calculate(ctx, el);
   }
-  else {
+  
       ATH_MSG_ERROR ( "Input is not an electron" );
       return -999;
-  }
+  
 }
 
 //=============================================================================

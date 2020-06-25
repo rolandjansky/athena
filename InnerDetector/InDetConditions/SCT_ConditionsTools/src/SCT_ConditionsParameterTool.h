@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -9,24 +9,18 @@
  **/
 #ifndef SCT_ConditionsParameterTool_h
 #define SCT_ConditionsParameterTool_h
-//STL includes
-#include <list>
-#include <vector>
-
-//boost include
-#include "boost/array.hpp"
-
-//Gaudi Includes
-#include "AthenaBaseComps/AthAlgTool.h"
-
-//Athena includes
-#include "StoreGate/ReadCondHandleKey.h"
-
-//InnerDetector includes
-#include "SCT_ConditionsData/SCT_CondParameterData.h"
 
 //local includes
 #include "SCT_ConditionsTools/ISCT_ConditionsParameterTool.h"
+
+//Athena includes
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "SCT_ConditionsData/SCT_CondParameterData.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
+//STL includes
+#include <list>
+#include <vector>
 
 /**
  * @class SCT_ConditionsParameterTool

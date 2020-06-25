@@ -1,24 +1,25 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIG_TRIGMUONEFEXTRAPOLATORNSWHYPO_H 
 #define TRIG_TRIGMUONEFEXTRAPOLATORNSWHYPO_H
 
-#include <string>
 #include "TrigInterfaces/HypoAlgo.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 
-class StoreGateSvc;
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+
+#include <string>
+
 class TriggerElement;
 
 class TrigMuonEFExtrapolatorNSWHypo: public HLT::HypoAlgo
 {
    public:
       TrigMuonEFExtrapolatorNSWHypo(const std::string & name, ISvcLocator* pSvcLocator);
-      ~TrigMuonEFExtrapolatorNSWHypo();
+      ~TrigMuonEFExtrapolatorNSWHypo()=default;
 
       HLT::ErrorCode hltInitialize();    
       HLT::ErrorCode hltExecute(const HLT::TriggerElement* outputTE, bool& pass); 
@@ -34,8 +35,7 @@ class TrigMuonEFExtrapolatorNSWHypo: public HLT::HypoAlgo
          "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
          "Handle to the service providing the IMuonEDMHelperSvc interface" };
 
-      // ToolHandle for IdHelperTool
-      ToolHandle<Muon::MuonIdHelperTool>  m_idhelperTool;
+      ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
       // Services
       StoreGateSvc* m_storeGate;

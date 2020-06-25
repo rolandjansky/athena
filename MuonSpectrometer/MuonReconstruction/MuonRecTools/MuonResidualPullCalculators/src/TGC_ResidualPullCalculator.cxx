@@ -1,66 +1,28 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// TGC_ResidualPullCalculator.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-
 #include "TGC_ResidualPullCalculator.h"
-#include "TrkRIO_OnTrack/RIO_OnTrack.h"
 
-// muon-specific actions
+#include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-
-// matrix stuff for matrix transformation of tgc errors
 #include "EventPrimitives/EventPrimitives.h"
 
 //================ Constructor =================================================
 
-Muon::TGC_ResidualPullCalculator::TGC_ResidualPullCalculator(const std::string& t,
-			  const std::string& n,
-			  const IInterface*  p )
-  :
-  AthAlgTool(t,n,p),
-  m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
-{
+Muon::TGC_ResidualPullCalculator::TGC_ResidualPullCalculator(const std::string& t, const std::string& n, const IInterface* p) :
+    AthAlgTool(t,n,p) {
   declareInterface<IResidualPullCalculator>(this);
 }
-
-//================ Destructor =================================================
-
-Muon::TGC_ResidualPullCalculator::~TGC_ResidualPullCalculator()
-{}
-
 
 //================ Initialisation =================================================
 
 StatusCode Muon::TGC_ResidualPullCalculator::initialize()
 {
-  
-  StatusCode sc = AthAlgTool::initialize();
-  if (sc.isFailure()) return sc;
-  
-  sc = m_idHelper.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR (" Cannot retrieve " << m_idHelper);
-    return StatusCode::FAILURE;
-  }
-  
+  ATH_CHECK(m_idHelperSvc.retrieve());
   ATH_MSG_DEBUG ("initialize() successful in " << name());
-
   return StatusCode::SUCCESS;
-}
-
-//================ Finalisation =================================================
-
-StatusCode Muon::TGC_ResidualPullCalculator::finalize()
-{
-  StatusCode sc = AthAlgTool::finalize();
-  return sc;
 }
 
 //================ calculate residuals for TGC ==================================
@@ -86,11 +48,11 @@ void Muon::TGC_ResidualPullCalculator::residuals(
   }
   Identifier ID = rot->identify();
   
-  if( m_idHelper->isTgc(ID) ) {
+  if( m_idHelperSvc->isTgc(ID) ) {
 
     double sinAlpha = 0.0;
     
-    bool isStrip = m_idHelper->tgcIdHelper().isStrip(ID);
+    bool isStrip = m_idHelperSvc->tgcIdHelper().isStrip(ID);
 
     // calculate residual
     if (isStrip) {
@@ -149,11 +111,11 @@ const Trk::ResidualPull* Muon::TGC_ResidualPullCalculator::residualPull(
   if (!trkPar || !rot) {
     if( !trkPar ) ATH_MSG_WARNING ("No TrackParameters, cannot calculate residual/pull ");
     if( !rot )    ATH_MSG_WARNING ("No ROT, cannot calculate residual/pull ");
-    return 0;
+    return nullptr;
   }
   Identifier ID = rot->identify();
   
-  if( m_idHelper->isTgc(ID) ) {
+  if( m_idHelperSvc->isTgc(ID) ) {
 
     // try to cast the track parameters to measured ones
     const AmgSymMatrix(5)* trkCov = trkPar->covariance();
@@ -161,7 +123,7 @@ const Trk::ResidualPull* Muon::TGC_ResidualPullCalculator::residualPull(
 
     double sinAlpha = 0.0;
     
-    bool isStrip = m_idHelper->tgcIdHelper().isStrip(ID);
+    bool isStrip = m_idHelperSvc->tgcIdHelper().isStrip(ID);
 
     // calculate residual
     std::vector<double> residual(1);
@@ -171,7 +133,7 @@ const Trk::ResidualPull* Muon::TGC_ResidualPullCalculator::residualPull(
       if (measurement->localParameters().parameterKey() !=3) {
         ATH_MSG_WARNING ( "TGC ClusterOnTrack does not carry the expected "
                           << "LocalParameters structure!");
-        return 0;
+        return nullptr;
       }
       // get orientation angle of strip to rotate back from local frame to strip
       const Amg::MatrixX &covmat=measurement->localCovariance();
@@ -183,9 +145,9 @@ const Trk::ResidualPull* Muon::TGC_ResidualPullCalculator::residualPull(
 
       const MuonGM::TgcReadoutElement *ele = 
         dynamic_cast<const MuonGM::TgcReadoutElement*>(rot->detectorElement());
-      if (ele == 0) {
+      if (!ele) {
         ATH_MSG_WARNING ("Could not obtain TGC detEl from TGC ROT, this is a bug!" );
-        return 0;
+        return nullptr;
       }
 
       double cosAlpha = sqrt(1 - sinAlpha*sinAlpha);
@@ -226,7 +188,7 @@ const Trk::ResidualPull* Muon::TGC_ResidualPullCalculator::residualPull(
       if (measurement->localParameters().parameterKey() != 1) {
         ATH_MSG_WARNING ("TGC ClusterOnTrack does not carry the expected "
                          << "LocalParameters structure!" );
-        return 0;
+        return nullptr;
       } else {
         // convention to be interpreted by TrkValTools: 2nd coordinate codes orientation of TGC
         residual[Trk::loc1] = measurement->localParameters()[Trk::loc1]
@@ -245,13 +207,13 @@ const Trk::ResidualPull* Muon::TGC_ResidualPullCalculator::residualPull(
       }
     }
     // create the Trk::ResidualPull.
-    ATH_MSG_VERBOSE ( "Calculating Pull for channel " << m_idHelper->toString(ID) << " residual " << residual[Trk::loc1] << " pull " << pull[Trk::loc1] );
+    ATH_MSG_VERBOSE ( "Calculating Pull for channel " << m_idHelperSvc->toString(ID) << " residual " << residual[Trk::loc1] << " pull " << pull[Trk::loc1] );
 
     return new Trk::ResidualPull(residual, pull, pullIsValid, resType, 1, sinAlpha);
 
   } else {
     ATH_MSG_DEBUG ( "Input problem measurement is not TGC." );
-    return 0;
+    return nullptr;
   }
 }
 

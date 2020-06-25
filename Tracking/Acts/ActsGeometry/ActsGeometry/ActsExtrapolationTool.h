@@ -15,16 +15,14 @@
 // PACKAGE
 #include "ActsGeometryInterfaces/IActsExtrapolationTool.h"
 #include "ActsGeometryInterfaces/IActsTrackingGeometryTool.h"
-#include "ActsGeometry/ActsGeometryContext.h"
 #include "ActsGeometry/ATLASMagneticFieldWrapper.h"
 
 // ACTS
+#include "Acts/MagneticField/ConstantBField.hpp"
+#include "Acts/MagneticField/MagneticFieldContext.hpp"
 #include "Acts/Propagator/detail/SteppingLogger.hpp"
 #include "Acts/Propagator/DebugOutputActor.hpp"
 #include "Acts/Propagator/StandardAborters.hpp"
-#include "ActsGeometry/ATLASMagneticFieldWrapper.h"
-#include "Acts/MagneticField/ConstantBField.hpp"
-#include "Acts/MagneticField/MagneticFieldContext.hpp"
 #include "Acts/Utilities/Result.hpp"
 #include "Acts/Utilities/Units.hpp"
 #include "Acts/Utilities/Helpers.hpp"
@@ -48,7 +46,6 @@ namespace ActsExtrapolationDetail {
 
 class ActsExtrapolationTool : public extends<AthAlgTool, IActsExtrapolationTool>
 {
-
 public:
   virtual StatusCode initialize() override;
 
@@ -62,14 +59,39 @@ private:
   using SteppingLogger = Acts::detail::SteppingLogger;
   using DebugOutput = Acts::DebugOutputActor;
   using EndOfWorld = Acts::EndOfWorldReached;
-  using ResultType = Acts::Result<std::pair<std::vector<Acts::detail::Step>,
+  using ResultType = Acts::Result<std::pair<ActsPropagationOutput,
                                             DebugOutput::result_type>>;
+
 
 public:
   virtual
-  std::vector<Acts::detail::Step>
+  ActsPropagationOutput
+  propagationSteps(const EventContext& ctx,
+                   const Acts::BoundParameters& startParameters,
+                   Acts::NavigationDirection navDir = Acts::forward,
+                   double pathLimit = std::numeric_limits<double>::max()) const override;
+
+  virtual
+  std::unique_ptr<const Acts::CurvilinearParameters>
   propagate(const EventContext& ctx,
             const Acts::BoundParameters& startParameters,
+            Acts::NavigationDirection navDir = Acts::forward,
+            double pathLimit = std::numeric_limits<double>::max()) const override;
+
+  virtual
+  ActsPropagationOutput
+  propagationSteps(const EventContext& ctx,
+                   const Acts::BoundParameters& startParameters,
+                   const Acts::Surface& target,
+                   Acts::NavigationDirection navDir = Acts::forward,
+                   double pathLimit = std::numeric_limits<double>::max()) const override;
+
+  virtual
+  std::unique_ptr<const Acts::BoundParameters>
+  propagate(const EventContext& ctx,
+            const Acts::BoundParameters& startParameters,
+            const Acts::Surface& target,
+            Acts::NavigationDirection navDir = Acts::forward,
             double pathLimit = std::numeric_limits<double>::max()) const override;
 
   virtual
@@ -90,8 +112,12 @@ private:
   Gaudi::Property<std::vector<double>> m_constantFieldVector{this, "ConstantFieldVector", {0, 0, 0}, "Constant field value to use if FieldMode == Constant"};
 
   Gaudi::Property<double> m_ptLoopers{this, "PtLoopers", 300, "PT loop protection threshold. Will be converted to Acts MeV unit"};
-
   Gaudi::Property<double> m_maxStepSize{this, "MaxStepSize", 10, "Max step size in Acts m unit"};
+
+  // Material inteaction option
+  Gaudi::Property<bool> m_interactionMultiScatering{this, "InteractionMultiScatering", false, "Whether to consider multiple scattering in the interactor"};
+  Gaudi::Property<bool> m_interactionEloss{this, "InteractionEloss", false, "Whether to consider energy loss in the interactor"};
+  Gaudi::Property<bool> m_interactionRecord{this, "InteractionRecord", false, "Whether to record all material interactions"};
 };
 
 

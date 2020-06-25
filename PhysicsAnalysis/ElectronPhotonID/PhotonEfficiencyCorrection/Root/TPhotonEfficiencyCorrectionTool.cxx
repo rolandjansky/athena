@@ -27,10 +27,6 @@ int Root::TPhotonEfficiencyCorrectionTool::initialize(){
    return Root::TElectronEfficiencyCorrectionTool::initialize();
 }
 
-int Root::TPhotonEfficiencyCorrectionTool::finalize(){
-    return Root::TElectronEfficiencyCorrectionTool::finalize();
-}
-
 typedef Root::TPhotonEfficiencyCorrectionTool::Result Result;
 const Result Root::TPhotonEfficiencyCorrectionTool::calculate( const PATCore::ParticleDataType::DataType dataType,
                                   const unsigned int runnumber,

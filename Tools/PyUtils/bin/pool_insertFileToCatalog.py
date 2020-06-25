@@ -25,7 +25,7 @@ def pool_insert(files, catalog_name="xmlcatalog_file:PoolFileCatalog.xml"):
         len (files),
         catalog_name
         ))
-    import os, sys
+    import os
     import subprocess
     sc,exe = subprocess.getstatusoutput ('which pool_insertFileToCatalog')
     if sc != 0:

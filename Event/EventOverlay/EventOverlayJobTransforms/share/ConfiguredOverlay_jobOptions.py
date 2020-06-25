@@ -35,7 +35,7 @@ if overlayFlags.isDataOverlay():
     from InDetRecExample.InDetJobProperties import InDetFlags
     from ByteStreamCnvSvc import ReadByteStream
     include("RecExCommon/BSRead_config.py")
-    ServiceMgr.ByteStreamInputSvc.FullFileName = DataInputCollections
+    ServiceMgr.EventSelector.Input = DataInputCollections
     ServiceMgr.ByteStreamInputSvc.EventStore= "StoreGateSvc/"+overlayFlags.dataStore()
     from AthenaKernel import StoreID
     ServiceMgr.ByteStreamAddressProviderSvc.StoreID=StoreID.UNKNOWN

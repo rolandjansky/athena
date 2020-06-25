@@ -104,18 +104,7 @@ include( "IdDictDetDescrCnv/IdDictDetDescrCnv_joboptions.py" )
 include( "LArConditionsCommon/LArConditionsCommon_MC_jobOptions.py" )
 include( "LArConditionsCommon/LArIdMap_MC_jobOptions.py" )
 
-theApp.Dlls += [ "LArTools" ]
-
-
 include( "AthenaPoolCnvSvc/AthenaPool_jobOptions.py" )
-
-theApp.Dlls   += [ "AthenaPoolCnvSvc" ]
-theApp.Dlls   += [ "LArCondAthenaPoolPoolCnv" ]
-include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-# AthenaSealSvc.CheckDictAtInit = True
-
-include ("LArRawConditions/LArRawConditionsDict_joboptions.py")
-# include ("LArTools/LArToolsDict_joboptions.py")
 
 theApp.EvtMax=1 
 

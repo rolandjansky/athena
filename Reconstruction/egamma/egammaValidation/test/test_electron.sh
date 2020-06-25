@@ -11,6 +11,7 @@
 # art-output: *.hist.root
 # art-output: *.txt
 # art-output: *.png
+# art-output: dcube
 
 echo "ArtProcess: $ArtProcess"
 
@@ -46,6 +47,10 @@ case $ArtProcess in
 	EgammaARTmonitoring_plotsMaker.py /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/egammaValidation/Baseline_Files/rootFiles/Baseline-monitoring_electron.hist.root Nightly-monitoring_electron.hist.root electron
 
 	echo  "art-result: $? final_comparison"
+
+	$ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py -p -x dcube -c /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/egammaValidation/DCube_Config/electron.xml -r /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/egammaValidation/Nightly_Files/Nightly-monitoring_electron.hist.root  Nightly-monitoring_electron.hist.root
+	echo  "art-result: $? plot"
+
 
 	;;
 

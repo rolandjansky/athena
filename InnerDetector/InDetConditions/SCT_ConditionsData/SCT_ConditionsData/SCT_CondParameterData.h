@@ -1,35 +1,43 @@
+// -*- C++ -*-
+
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
- * SCT_CondParameterData.h
- * @file header file for data object
- * @author Susumu Oda - 2018-01-25
+ * @file SCT_CondParameterData.h
+ * @brief header file for data object for SCT_ConditionsParameterTool and SCT_ConditionsParameterCondAlg.
+ * @author Susumu Oda
+ * @date 2018-01-25
  **/
 
 #ifndef SCT_CONDPARAMETERDATA_H
 #define SCT_CONDPARAMETERDATA_H
 
-// STL include
-#include <vector>
-
-// boost include
-#include "boost/array.hpp"
+// Definition of the number of elements
+#include "SCT_ConditionsData/SCT_ConditionsParameters.h"
 
 // Athena includes
 #include "Identifier/IdentifierHash.h"
-#include "AthenaKernel/CLASS_DEF.h"
+
+// STL include
+#include <array>
+#include <vector>
+
+/**
+ * @class SCT_CondParameterData
+ * @brief Data object for SCT_ConditionsParameterTool and SCT_ConditionsParameterCondAlg
+ **/
 
 class SCT_CondParameterData {
 public:
-  // Parameters
+  /// Parameters
   enum ParameterIndex{AVG_THRESHOLD, N_PARAMETERS, INVALID_PARAMETER};
 
-  //constructor
+  /// Constructor
   SCT_CondParameterData();
 
-  //destructor
+  /// Destructor
   virtual ~SCT_CondParameterData() = default;
   //@name main methods
   //@{
@@ -60,9 +68,7 @@ public:
   //@}
   
 private:
-  enum {N_ELEMENTS=8176};
-
-  boost::array<boost::array<float, N_PARAMETERS>, N_ELEMENTS > m_values;
+  std::array<std::array<float, N_PARAMETERS>, SCT_ConditionsData::NUMBER_OF_WAFERS> m_values;
 
   float m_min[N_PARAMETERS];
   float m_max[N_PARAMETERS];
@@ -71,10 +77,12 @@ private:
   float m_sumsq[N_PARAMETERS];
 };
 
+// Class definition for StoreGate
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( SCT_CondParameterData , 34383719 , 1 )
 
+// Condition container definition for CondInputLoader
 #include "AthenaKernel/CondCont.h"
 CONDCONT_DEF( SCT_CondParameterData, 3856939 );
-
 
 #endif // SCT_CONDPARAMETERDATA_H

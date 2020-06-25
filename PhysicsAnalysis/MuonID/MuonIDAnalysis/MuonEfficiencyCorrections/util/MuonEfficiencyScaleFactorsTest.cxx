@@ -148,14 +148,15 @@ int main(int argc, char* argv[]) {
 
      const std::vector<std::string> WPs {
          // reconstruction WPs
-         "Loose", "Medium", "Tight", "HighPt",
+         "Loose", "Medium", "Tight", "HighPt", "LowPt", "LowPtMVA",
          // track-to-vertex-association WPs
          "TTVA",
          // BadMuon veto SFs
          "BadMuonVeto_HighPt",
          // isolation WPs
-         "FixedCutLooseIso", "LooseTrackOnlyIso", "LooseIso", "GradientIso", "GradientLooseIso",
-         "FixedCutTightTrackOnlyIso", "FixedCutHighPtTrackOnlyIso", "FixedCutTightIso"
+	 "PLVLooseIso", "PLVTightIso", "HighPtTrackOnlyIso",
+	 "Loose_FixedRadIso", "Tight_FixedRadIso", "PflowLoose_FixedRadIso", "PflowTight_FixedRadIso", "TightTrackOnly_FixedRadIso",
+	 "Loose_VarRadIso", "Tight_VarRadIso", "PflowLoose_VarRadIso", "PflowTight_VarRadIso", "TightTrackOnly_VarRadIso"
     };
    
     std::vector<EffiToolInstance> EffiTools;

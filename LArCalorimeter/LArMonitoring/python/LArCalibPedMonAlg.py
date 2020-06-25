@@ -70,8 +70,8 @@ if __name__=='__main__':
    ConfigFlags.Detector.GeometryMM=False
    ConfigFlags.lock()
 
-   from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
-   cfg = MainServicesSerialCfg()
+   from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+   cfg = MainServicesCfg(ConfigFlags)
 
    from LArByteStream.LArRawCalibDataReadingConfig import LArRawCalibDataReadingCfg
    cfg.merge(LArRawCalibDataReadingCfg(ConfigFlags,gain="HIGH",doAccDigit=True))

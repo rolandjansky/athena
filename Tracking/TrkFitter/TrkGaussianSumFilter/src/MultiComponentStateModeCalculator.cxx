@@ -2,15 +2,13 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/****************************************************************************************
-      MultiComponentStateModeCalculator.cxx  -  description
-      -----------------------------------------------------
-begin                : Thursday 6th July 2006
-author               : atkinson , amorley , anastopoulos
-email                : amorley@cern.ch
-description          : Implementation code for MultiComponentStateModeCalculator
-class
-****************************************************************************************/
+/**
+ * @file   MultiComponentStateModeCalculator.cxx
+ * @date   Thursday 6th July 2006
+ * @author Atkinson,Anthony Morley, Christos Anastopoulos
+ *
+ * Implementation code for MultiComponentStateModeCalculator
+ */
 
 #include "TrkGaussianSumFilter/MultiComponentStateModeCalculator.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
@@ -18,6 +16,80 @@ class
 
 namespace {
 const double invsqrt2PI = 1. / sqrt(2. * M_PI);
+
+/** bried method to determine the value of the a gaussian distribution at a
+ * given value */
+double
+gaus(double x, double mean, double sigma)
+{
+  // gauss = 1/(sigma * sqrt(2*pi)) * exp  ( -0.5 * ((x-mean)/sigma)^2 )
+  // = (1/sqrt(2*pi))* (1/sigma)  * exp  (-0.5 * ((x-mean)*(1/sigma)) *
+  // ((x-mean)*(1/sigma)) )  
+  //= invsqrt2PI * invertsigma * exp (-0.5 *z * z)
+  double invertsigma = 1. / sigma;
+  double z = (x - mean) * invertsigma;
+  double result = (invsqrt2PI * invertsigma) * exp(-0.5 * z * z);
+  return result;
+}
+
+using namespace Trk::MultiComponentStateModeCalculator;
+/** @brief method to determine the pdf of the cashed mixture at a given value*/
+double
+pdf(double x, int i, const std::array<std::vector<Component>, 5>& mixture)
+{
+  double pdf(0.);
+  auto component = mixture[i].begin();
+  for (; component != mixture[i].end(); ++component) {
+    pdf += component->weight * gaus(x, component->mean, component->sigma);
+  }
+  return pdf;
+}
+
+/** @brief method to determine the first order derivative of the pdf at a given
+ * value*/
+double
+d1pdf(double x, int i, const std::array<std::vector<Component>, 5>& mixture)
+{
+
+  double result(0.);
+  auto component = mixture[i].begin();
+  for (; component != mixture[i].end(); ++component) {
+    double z = (x - component->mean) / component->sigma;
+    result += -1. * component->weight * z *
+              gaus(x, component->mean, component->sigma) / component->sigma;
+  }
+  return result;
+}
+
+/** @brief method to determine the second order derivative of the pdf at a given
+ * value*/
+double
+d2pdf(double x, int i, const std::array<std::vector<Component>, 5>& mixture)
+{
+
+  double result(0.);
+  auto component = mixture[i].begin();
+  for (; component != mixture[i].end(); ++component) {
+    double z = (x - component->mean) / component->sigma;
+    result += component->weight / (component->sigma * component->sigma) *
+              (z * z - 1.) * gaus(x, component->mean, component->sigma);
+  }
+  return result;
+}
+
+/** bried method to determine the width of the a gaussian distribution at a
+ * given value */
+double
+width(int i, const std::array<std::vector<Component>, 5>& mixture)
+{
+  double pdf(0.);
+  auto component = mixture[i].begin();
+  for (; component != mixture[i].end(); ++component) {
+    pdf += component->weight * component->sigma;
+  }
+  return pdf;
+}
+
 }
 
 std::array<double, 10>
@@ -226,102 +298,6 @@ Trk::MultiComponentStateModeCalculator::findModeGlobal(
     }
   }
   return mode;
-}
-
-double
-Trk::MultiComponentStateModeCalculator::pdf(
-  double x,
-  int i,
-  const std::array<std::vector<Component>, 5>& mixture)
-{
-
-  double pdf(0.);
-
-  auto component = mixture[i].begin();
-
-  for (; component != mixture[i].end(); ++component) {
-    pdf += component->weight * gaus(x, component->mean, component->sigma);
-  }
-
-  return pdf;
-}
-
-double
-Trk::MultiComponentStateModeCalculator::d1pdf(
-  double x,
-  int i,
-  const std::array<std::vector<Component>, 5>& mixture)
-{
-
-  double result(0.);
-
-  auto component = mixture[i].begin();
-
-  for (; component != mixture[i].end(); ++component) {
-
-    double z = (x - component->mean) / component->sigma;
-
-    result += -1. * component->weight * z *
-              gaus(x, component->mean, component->sigma) / component->sigma;
-  }
-
-  return result;
-}
-
-double
-Trk::MultiComponentStateModeCalculator::d2pdf(
-  double x,
-  int i,
-  const std::array<std::vector<Component>, 5>& mixture)
-{
-
-  double result(0.);
-
-  auto component = mixture[i].begin();
-
-  for (; component != mixture[i].end(); ++component) {
-
-    double z = (x - component->mean) / component->sigma;
-
-    result += component->weight / (component->sigma * component->sigma) *
-              (z * z - 1.) * gaus(x, component->mean, component->sigma);
-  }
-
-  return result;
-}
-
-double
-Trk::MultiComponentStateModeCalculator::gaus(double x,
-                                             double mean,
-                                             double sigma)
-{
-
-  /*
-   * gauss = 1/(sigma * sqrt(2*pi)) * exp  ( -0.5 * ((x-mean)/sigma)^2 )
-   * =(1/sqrt(2*pi))* (1/sigma)  * exp  (-0.5 * ((x-mean)*(1/sigma)) *
-   * ((x-mean)*(1/sigma)) ) = invsqrt2PI * invertsigma * exp (-0.5 *z * z)
-   */
-  double invertsigma = 1. / sigma;
-  double z = (x - mean) * invertsigma;
-  double result = (invsqrt2PI * invertsigma) * exp(-0.5 * z * z);
-  return result;
-}
-
-double
-Trk::MultiComponentStateModeCalculator::width(
-  int i,
-  const std::array<std::vector<Component>, 5>& mixture)
-{
-
-  double pdf(0.);
-
-  auto component = mixture[i].begin();
-
-  for (; component != mixture[i].end(); ++component) {
-    pdf += component->weight * component->sigma;
-  }
-
-  return pdf;
 }
 
 double

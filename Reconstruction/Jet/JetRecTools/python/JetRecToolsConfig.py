@@ -29,9 +29,7 @@ trackcollectionmap = {
     }
 }
 
-def getTrackSelTool(trkopt=""):
-    jettracksname = "JetSelectedTracks"
-    if trkopt: jettracksname += "_{}".format("trkopt")
+def getTrackSelTool(trkopt="",doWriteTracks=False):
 
     # Track selector needs its own hierarchical config getter in JetRecTools?
     idtrackselloose = CompFactory.getComp("InDet::InDetTrackSelectionTool")(
@@ -44,15 +42,25 @@ def getTrackSelTool(trkopt=""):
     )
     jettrackselloose = CompFactory.JetTrackSelectionTool(
         "jettrackselloose",
-        InputContainer  = trackcollectionmap[trkopt]["Tracks"],
-        OutputContainer = jettracksname,
         Selector        = idtrackselloose
     )
+    # Should phase this out completely!
+    # Make a jet track selection alg
+    # Elsewhere just use the ID track tool directly
+    if doWriteTracks:
+        jettracksname = "JetSelectedTracks"
+        if trkopt: jettracksname += "_{}".format("trkopt")
+        jettrackselloose.InputContainer  = trackcollectionmap[trkopt]["Tracks"]
+        jettrackselloose.OutputContainer = jettracksname
+
     return jettrackselloose
 
 def getTrackVertexAssocTool(trkopt=""):
     if trkopt: "_{}".format(trkopt)
     # Track-vertex association
+    # This is to be deprecated
+    # In fact can probably be switched already to match legacy master
+    # but for a future MR
     idtvassoc = CompFactory.getComp("CP::TrackVertexAssociationTool")(
         "idloosetvassoc",
         VertexContainer         = trackcollectionmap[trkopt]["Vertices"],

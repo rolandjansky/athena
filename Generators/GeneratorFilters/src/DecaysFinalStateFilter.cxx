@@ -67,7 +67,7 @@ StatusCode DecaysFinalStateFilter::filterEvent() {
       }
       if (!allowedParent) continue;
 
-      HepMC::GenVertex* vtx = (*pitr)->end_vertex();
+     auto vtx = (*pitr)->end_vertex();
       if (!vtx) continue;
 
       for (HepMC::GenVertex::particles_out_const_iterator opitr = vtx->particles_out_const_begin();

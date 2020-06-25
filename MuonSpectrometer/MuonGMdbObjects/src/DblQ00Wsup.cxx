@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -7,32 +7,19 @@
  -----------------------------------------
  ***************************************************************************/
 
-//<doc><file>	$Id: DblQ00Wsup.cxx,v 1.4 2007-02-12 17:33:50 stefspa Exp $
-//<version>	$Name: not supported by cvs2svn $
-
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include "MuonGMdbObjects/DblQ00Wsup.h"
+#include "RDBAccessSvc/IRDBRecordset.h"
+#include "AmdcDb/AmdcDb.h"
+#include "AmdcDb/AmdcDbRecord.h"
+
 #include <iostream>
 #include <sstream>
-//#include <stdio>
-
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
 namespace MuonGM
 {
 
-DblQ00Wsup::DblQ00Wsup(std::unique_ptr<IRDBQuery>&& wsup)
- : m_nObj(0)
-{
+DblQ00Wsup::DblQ00Wsup(std::unique_ptr<IRDBQuery>&& wsup) :
+    m_nObj(0) {
   if(wsup) {
     wsup->execute();
     m_nObj = wsup->size();
@@ -65,7 +52,57 @@ DblQ00Wsup::DblQ00Wsup(std::unique_ptr<IRDBQuery>&& wsup)
     std::cerr<<"NO Wsup banks in the MuonDD Database"<<std::endl;
   }
 }
-    
+
+DblQ00Wsup::DblQ00Wsup(AmdcDb* wsup) :
+    m_nObj(0) {
+  IRDBRecordset_ptr pIRDBRecordset = wsup->getRecordsetPtr(std::string(getObjName()),"Amdc");
+  std::vector<IRDBRecord*>::const_iterator it = pIRDBRecordset->begin();
+
+  m_nObj = pIRDBRecordset->size();
+  m_d = new WSUP[m_nObj];
+  if (m_nObj == 0) std::cerr<<"NO Wsup banks in the AmdcDbRecord"<<std::endl;
+
+  const AmdcDbRecord* pAmdcDbRecord = dynamic_cast<const AmdcDbRecord*>((*it));
+  if (pAmdcDbRecord == 0){
+    std::cerr << "No way to cast in AmdcDbRecord for " << getObjName() << std::endl;
+    return;
+  }
+  
+  std::vector< std::string> VariableList = pAmdcDbRecord->getVariableList();
+  int ItemTot = VariableList.size() ;
+  for(int Item=0 ; Item<ItemTot ; Item++){
+    std::string DbVar = VariableList[Item];
+  }
+
+  int i = -1;
+  it = pIRDBRecordset->begin();
+  for( ; it<pIRDBRecordset->end(); it++){
+     pAmdcDbRecord = dynamic_cast<const AmdcDbRecord*>((*it));
+     if(pAmdcDbRecord == 0){
+       std::cerr << "No way to cast in AmdcDbRecord for " << getObjName() << std::endl;
+       return;
+     }
+
+     i = i + 1;
+
+     m_d[i].version = (*it)->getInt("VERS");    
+     m_d[i].jsta = (*it)->getInt("JSTA");
+     m_d[i].nxxsup = (*it)->getInt("NXXSUP");
+     m_d[i].nzzsup = (*it)->getInt("NZZSUP");
+     m_d[i].x0 = (*it)->getFloat("X0");
+     m_d[i].thickn = (*it)->getFloat("THICKN");
+     for(unsigned int j=0; j<4; j++)
+     {
+       std::ostringstream tem;
+       tem << j;
+       std::string tagx = "XXSUP_"+tem.str();
+       std::string tagy = "ZZSUP_"+tem.str();
+       m_d[i].xxsup[j] = (*it)->getFloat(tagx);        
+       m_d[i].zzsup[j] = (*it)->getFloat(tagy);        
+     }
+  }
+}
+
 DblQ00Wsup::~DblQ00Wsup()
 {
     delete [] m_d;

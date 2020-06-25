@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -62,10 +62,10 @@ namespace Trk {
     */
     virtual StatusCode configureWithTools(const IExtrapolator*, const IUpdator*,
                                           const IRIO_OnTrackCreator*,
-                                          const IDynamicNoiseAdjustor* = 0,
-                                          const IAlignableSurfaceProvider* = 0,
-                                          const IMeasurementRecalibrator* = 0,
-                                          const IKalmanPiecewiseAnnealingFilter* =0 ) = 0;
+                                          const IDynamicNoiseAdjustor* = nullptr,
+                                          const IAlignableSurfaceProvider* = nullptr,
+                                          const IMeasurementRecalibrator* = nullptr,
+                                          const IKalmanPiecewiseAnnealingFilter* =nullptr ) = 0;
 				
     /** @brief forward kalman filter working on a set of PrepRawData, for example
         intended for fitting during pattern regognition 

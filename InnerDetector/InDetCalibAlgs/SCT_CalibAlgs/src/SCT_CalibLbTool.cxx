@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -33,16 +33,13 @@
 #include "TFile.h"
 #include "TMath.h"
 
-#include <boost/lexical_cast.hpp>
-
-using namespace std;
 using namespace SCT_CalibAlgs;
 
-static const string pathRoot{"/LB/"};
+static const std::string pathRoot{"/LB/"};
 static const int n_chipsPerSide{6};
 static const int n_stripsPerChip{128};
-static const string detectorNames[] {"negativeEndcap", "barrel", "positiveEndcap"};
-static const string detectorPaths[] {"SCTEC/", "SCTB/","SCTEA/"};
+static const std::string detectorNames[] {"negativeEndcap", "barrel", "positiveEndcap"};
+static const std::string detectorPaths[] {"SCTEC/", "SCTB/","SCTEA/"};
 
 SCT_CalibLbTool::SCT_CalibLbTool(const std::string& type, const std::string& name, const IInterface* parent):
    base_class(type, name, parent)
@@ -96,7 +93,7 @@ SCT_CalibLbTool::book() {
    //pointers to the histos are deleted by m_thistSvc methods
    m_phistoVector.clear();
    m_phistoVector2D.clear();
-   string histoName{pathRoot+"GENERAL/"};
+   std::string histoName{pathRoot+"GENERAL/"};
    m_LbRange = numberOfLb();
    m_numberOfEventsHisto = new TH1I{"events", "Events", m_LbRange, 0.5, m_LbRange+0.5};
 
@@ -117,9 +114,9 @@ SCT_CalibLbTool::book() {
    for (; waferItr !=m_waferItrEnd; ++waferItr) {
       const Identifier& waferId{*waferItr};
       const int bec{m_pSCTHelper->barrel_ec(waferId)};
-      const string formattedPosition{formatPosition(waferId, m_pSCTHelper)+"_"};
+      const std::string formattedPosition{formatPosition(waferId, m_pSCTHelper)+"_"};
       ////
-      std::string histotitle{string{"SCT "} + detectorNames[bec2Index(bec)] + string{" Hitmap: plane "} + formattedPosition};
+      std::string histotitle{std::string{"SCT "} + detectorNames[bec2Index(bec)] + std::string{" Hitmap: plane "} + formattedPosition};
       std::string formattedPosition2D{formattedPosition + "_2D"};
       std::string name2D{hitmapPaths[bec2Index(m_pSCTHelper->barrel_ec(waferId))] + formattedPosition + "_2D"};
       TH2F* hitmapHistoLB_tmp2D{new TH2F{TString{formattedPosition2D}, TString{histotitle}, nbins, firstStrip-0.5, lastStrip+0.5, yAxisBins, 0.5, m_LbsToMerge*yAxisBins+0.5}};
@@ -131,9 +128,9 @@ SCT_CalibLbTool::book() {
       ////
       for (int iChip(0); iChip!=n_chipsPerSide; ++iChip) {
          int chipId{m_pSCTHelper->side(waferId)==0 ? iChip:iChip+n_chipsPerSide};
-         const string formattedChipPosition{formattedPosition + boost::lexical_cast<string>(chipId)};
-         const string hname{pathRoot + detectorPaths[bec2Index(bec)] + "/" + formattedChipPosition};
-         const string histTitle{string{"SCT"} + detectorNames[bec2Index(bec)] + string{" LB: chip "} + formattedChipPosition};
+         const std::string formattedChipPosition{formattedPosition + std::to_string(chipId)};
+         const std::string hname{pathRoot + detectorPaths[bec2Index(bec)] + "/" + formattedChipPosition};
+         const std::string histTitle{std::string{"SCT"} + detectorNames[bec2Index(bec)] + std::string{" LB: chip "} + formattedChipPosition};
          TH1F* hist_tmp{new TH1F{TString{formattedChipPosition}, TString{histTitle}, m_LbRange, 0.5, m_LbRange+0.5}};
          if (m_thistSvc->regHist(hname.c_str(), hist_tmp).isFailure()) ATH_MSG_ERROR("Error in booking LB histogram");
          m_phistoVector.push_back(hist_tmp);
@@ -168,7 +165,7 @@ SCT_CalibLbTool::read(const std::string& fileName) {
    for (; waferItr !=m_waferItrEnd; ++waferItr) {
       const Identifier& waferId{*waferItr};
       const int bec{m_pSCTHelper->barrel_ec(waferId)};
-      const string formattedPosition{formatPosition(waferId, m_pSCTHelper)+"_"};
+      const std::string formattedPosition{formatPosition(waferId, m_pSCTHelper)+"_"};
       ////
       std::string name2D=detectorPaths[bec2Index(m_pSCTHelper->barrel_ec( waferId ))] + formattedPosition + "_2D";
       TH2F* hitmapHistoLB_tmp2D = (TH2F*) fileLB->Get(name2D.c_str());
@@ -181,7 +178,7 @@ SCT_CalibLbTool::read(const std::string& fileName) {
       ////
       for (int iChip{0}; iChip!=n_chipsPerSide; ++iChip) {
          int chipId{m_pSCTHelper->side(waferId)==0 ? iChip : iChip+n_chipsPerSide};
-         const string hname{detectorPaths[bec2Index(bec)] + "/" + formattedPosition + boost::lexical_cast<string>(chipId)};
+         const std::string hname{detectorPaths[bec2Index(bec)] + "/" + formattedPosition + std::to_string(chipId)};
          TH1F* hist_tmp{static_cast<TH1F*>(fileLB->Get(hname.c_str()))};
          if (hist_tmp==nullptr) {
             ATH_MSG_ERROR("Error in reading LB histogram");
@@ -223,7 +220,7 @@ SCT_CalibLbTool::fill(const bool fromData) {
 bool
 SCT_CalibLbTool::fillFromData() {
    if (!m_evtInfo) {
-      ATH_MSG_ERROR("The evtInfo pointer is NULL");
+      ATH_MSG_ERROR("The evtInfo pointer is nullptr");
       return false;
    }
    m_lumiBlock=m_evtInfo->lumiBlock();

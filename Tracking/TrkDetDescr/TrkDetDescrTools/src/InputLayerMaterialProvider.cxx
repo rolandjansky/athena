@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -56,7 +56,7 @@ StatusCode Trk::InputLayerMaterialProvider::initialize() {
 }
 
 // Processor Action to work on TrackingGeometry 
-StatusCode Trk::InputLayerMaterialProvider::process(const Trk::TrackingGeometry& tgeo) {
+StatusCode Trk::InputLayerMaterialProvider::process(const Trk::TrackingGeometry& tgeo) const {
   
   ATH_MSG_VERBOSE("Start processing the TrackingGeometry recursively");
   // retrieve the highest tracking volume
@@ -71,7 +71,7 @@ StatusCode Trk::InputLayerMaterialProvider::process(const Trk::TrackingGeometry&
 }
 
 // Processor Action to work on TrackingVolumes
-StatusCode Trk::InputLayerMaterialProvider::process(const Trk::TrackingVolume& tvol, size_t level) {
+StatusCode Trk::InputLayerMaterialProvider::process(const Trk::TrackingVolume& tvol, size_t level) const {
   
   std::stringstream displayBuffer;
   for (size_t il = 0; il < level; ++il) displayBuffer << " ";
@@ -118,7 +118,7 @@ StatusCode Trk::InputLayerMaterialProvider::process(const Trk::TrackingVolume& t
 }
 
 // Processor Action to work on Layers 
-StatusCode Trk::InputLayerMaterialProvider::process(const Trk::Layer& lay, size_t level) {
+StatusCode Trk::InputLayerMaterialProvider::process(const Trk::Layer& lay, size_t level) const {
     
     // skip Layers w/o material
     if (!lay.layerMaterialProperties()) 
@@ -142,7 +142,7 @@ StatusCode Trk::InputLayerMaterialProvider::process(const Trk::Layer& lay, size_
 }
 
 // Processor Action to work on Surfaces 
-StatusCode Trk::InputLayerMaterialProvider::process(const Trk::Surface&, size_t) {
+StatusCode Trk::InputLayerMaterialProvider::process(const Trk::Surface&, size_t) const {
     return StatusCode::SUCCESS;
 }
 

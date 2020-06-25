@@ -1,9 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRIOONTRACK_MMCLUSTERONTRACK_H
 #define MUONRIOONTRACK_MMCLUSTERONTRACK_H
+
+#include <vector>
 
 // Base classes
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
@@ -47,20 +49,23 @@ namespace Muon
 	@param[in] positionAlongStrip  <b>Required</b> Used to calculate global position.  
     */
     MMClusterOnTrack(
-		       const MMPrepData* RIO,
-		       const Trk::LocalParameters& locpos,
-		       const Amg::MatrixX& locerr, 
-		       double positionAlongStrip
-		       );
+           const MMPrepData* RIO,
+           const Trk::LocalParameters& locpos,
+           const Amg::MatrixX& locerr,
+           double positionAlongStrip,
+           std::vector<float> stripDriftDists = std::vector<float>(0),
+           std::vector<Amg::MatrixX> stripDriftDistErrors = std::vector<Amg::MatrixX>(0));
 
     // Alternate constructor that doesn't dereference the RIO link.
     MMClusterOnTrack(
-                     const ElementLinkToIDC_MM_Container& RIO,
-                     const Trk::LocalParameters& locpos,
-                     const Amg::MatrixX& locerr,
-                     const Identifier& id,
-                     const MuonGM::MMReadoutElement* detEl,
-                     double positionAlongStrip);
+           const ElementLinkToIDC_MM_Container& RIO,
+           const Trk::LocalParameters& locpos,
+           const Amg::MatrixX& locerr,
+           const Identifier& id,
+           const MuonGM::MMReadoutElement* detEl,
+           double positionAlongStrip,
+           std::vector<float> stripDriftDists = std::vector<float>(0),
+           std::vector<Amg::MatrixX> stripDriftDistErrors = std::vector<Amg::MatrixX>(0));
 
     /** @brief Destructor*/
     virtual ~MMClusterOnTrack();
@@ -79,6 +84,9 @@ namespace Muon
 	(i.e. a surface of a detector element) */
     virtual const Trk::Surface& associatedSurface() const;
 
+    const std::vector<float> stripDriftDists() const;
+    const std::vector<Amg::MatrixX> stripDriftDistErrors() const;
+
     /** @brief Dumps information about the PRD*/
     virtual MsgStream&    dump( MsgStream&    stream) const;
 
@@ -90,13 +98,14 @@ namespace Muon
        @warning Only intended for use by persistency convertors.
        @todo Throw exception if TrkDetElementBase isn't correct concrete type*/
     virtual void setValues(const Trk::TrkDetElementBase*, const Trk::PrepRawData*);
-
     /** PrepRawData object assoicated with this measurement*/
     ElementLinkToIDC_MM_Container              m_rio;
 
     /** The detector element, assoicated with this measurement*/
     const MuonGM::MMReadoutElement*            m_detEl;
 
+    std::vector<float> m_stripDriftDists;
+    std::vector<Amg::MatrixX> m_stripDriftDistErrors;
   };
 
   ///////////////////////////////////////////////////////////////////
@@ -131,6 +140,17 @@ namespace Muon
     return detectorElement()->surface(identify());
   }
 
+  inline const std::vector<float> MMClusterOnTrack::stripDriftDists() const
+  {
+    return m_stripDriftDists;
+  }
+
+  inline const std::vector<Amg::MatrixX> MMClusterOnTrack::stripDriftDistErrors() const
+  {
+    return m_stripDriftDistErrors;
+  }
+
+
   inline void MMClusterOnTrack::setValues(const Trk::TrkDetElementBase* detEl,
 					    const  Trk::PrepRawData* /*rio*/)
   {
@@ -140,6 +160,6 @@ namespace Muon
     assert(0!=m_detEl);
   }
 
-}
+}  // namespace Muon
 
 #endif

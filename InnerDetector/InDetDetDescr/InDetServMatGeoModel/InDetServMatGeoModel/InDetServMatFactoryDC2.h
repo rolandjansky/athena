@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETSERVMATGEOMODEL_INDETSERVMATFACTORYDC2_H
@@ -7,12 +7,13 @@
 
 
 #include "AthenaKernel/MsgStreamMember.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "CxxUtils/checker_macros.h"
 #include "GeoModelKernel/GeoVDetectorFactory.h"
 //the following needed because the return type of getDetectorManager() is not 
 //the same as the method return type as specified in the baseclass
 #include "InDetServMatGeoModel/InDetServMatManager.h"
 
+#include "GaudiKernel/ServiceHandle.h"
 
 class StoreGateSvc;
 class IRDBAccessSvc;
@@ -45,7 +46,7 @@ class InDetServMatFactoryDC2 : public GeoVDetectorFactory  {
   StoreGateSvc                   *m_detStore;
   ServiceHandle<IRDBAccessSvc>    m_rdbAccess;
   InDetDD::InDetServMatManager   *m_manager;
-  mutable Athena::MsgStreamMember m_msg;
+  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
 };
 
 #endif //  INDETSERVMATGEOMODEL_INDETSERVMATFACTORYDC2_H

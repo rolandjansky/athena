@@ -1,41 +1,29 @@
-################################################################################
-# Package: xAODTrigMuon
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# Declare the package name:
+# Declare the package name.
 atlas_subdir( xAODTrigMuon )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthContainers
-                          Event/xAOD/xAODBase
-                          Event/xAOD/xAODCore
-                          Event/xAOD/xAODTracking
-                          PRIVATE
-                          Control/AthLinks )
+# External dependencies.
+find_package( ROOT COMPONENTS Core GenVector )
+find_package( xAODUtilities )
 
-# External dependencies:
-find_package( ROOT COMPONENTS Physics Core Tree MathCore Hist RIO pthread GenVector )
-
-# Extra dependencies, based on what environment we are in:
-if (BUILDVP1LIGHT)
-    if( BUILDVP1LIGHT_DIST STREQUAL "ubuntu")
-        set( extra_libs GenVector )
-    endif()
-endif()
-
-# Component(s) in the package:
+# Component(s) in the package.
 atlas_add_library( xAODTrigMuon
-                   Root/*.cxx
-                   PUBLIC_HEADERS xAODTrigMuon
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthContainers xAODBase xAODCore xAODTracking ${extra_libs}
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks )
+    xAODTrigMuon/*.h xAODTrigMuon/versions/*.h Root/*.cxx
+    PUBLIC_HEADERS xAODTrigMuon
+    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+    LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks xAODBase xAODCore
+    xAODTracking )
+
+atlas_add_xaod_smart_pointer_dicts(
+   INPUT xAODTrigMuon/selection.xml
+   OUTPUT _selectionFile
+   CONTAINERS "xAOD::L2StandAloneMuonContainer_v1"
+              "xAOD::L2StandAloneMuonContainer_v2" "xAOD::L2IsoMuonContainer_v1"
+              "xAOD::L2CombinedMuonContainer_v1" )
 
 atlas_add_dictionary( xAODTrigMuonDict
-                      xAODTrigMuon/xAODTrigMuonDict.h
-                      xAODTrigMuon/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers xAODBase xAODCore xAODTracking AthLinks xAODTrigMuon
-                      EXTRA_FILES Root/dict/*.cxx )
-
+    xAODTrigMuon/xAODTrigMuonDict.h
+    ${_selectionFile}
+    LINK_LIBRARIES xAODCore xAODTrigMuon
+    EXTRA_FILES Root/dict/*.cxx )

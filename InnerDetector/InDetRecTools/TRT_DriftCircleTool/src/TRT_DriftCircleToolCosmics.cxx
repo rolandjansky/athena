@@ -34,7 +34,7 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
 
-#include "StoreGate/ReadHandle.h"
+#include "StoreGate/ReadCondHandle.h"
 ///////////////////////////////////////////////////////////////////
 // Constructior
 ///////////////////////////////////////////////////////////////////
@@ -188,7 +188,7 @@ StatusCode InDet::TRT_DriftCircleToolCosmics::finalize()
 // Trk::TRT_DriftCircles collection production
 ///////////////////////////////////////////////////////////////////
 
-InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleToolCosmics::convert(int Mode,const InDetRawDataCollection<TRT_RDORawData>* rdo, const bool /* m_getTRTBadChannel */)
+InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleToolCosmics::convert(int Mode,const InDetRawDataCollection<TRT_RDORawData>* rdo, const EventContext& ctx, const bool /* _getTRTBadChannel */) const
 {
 
   //Initialise a new TRT_DriftCircleCollection
@@ -199,9 +199,9 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleToolCosmics::convert(int
     return rio;
   }
 
-  SG::ReadHandle<ComTime> theComTime(m_evtPhaseKey);
+  SG::ReadHandle<ComTime> theComTime(m_evtPhaseKey, ctx);
   
-  SG::ReadCondHandle<InDetDD::TRT_DetElementContainer> trtDetEleHandle(m_trtDetEleContKey);
+  SG::ReadCondHandle<InDetDD::TRT_DetElementContainer> trtDetEleHandle(m_trtDetEleContKey, ctx);
   const InDetDD::TRT_DetElementCollection* elements(trtDetEleHandle->getElements());
   if (not trtDetEleHandle.isValid() or elements==nullptr) {
     ATH_MSG_FATAL(m_trtDetEleContKey.fullKey() << " is not available.");

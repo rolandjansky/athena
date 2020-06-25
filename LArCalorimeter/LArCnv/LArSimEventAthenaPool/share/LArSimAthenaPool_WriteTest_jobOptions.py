@@ -20,7 +20,6 @@ theApp.EvtMax = 20
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
 #--------------------------------------------------------------
-##include "$ATHENASEALSVCROOT/share/AthenaSealSvc_joboptions.txt" 
 ##include "$LARSIMEVENTROOT/dict/LArSimEvent_joboptions.txt"
 ##include "$IDENTIFIERROOT/dict/Identifier_joboptions.txt"
 ##include "$EVENTINFOROOT/dict/EventInfo_joboptions.txt"

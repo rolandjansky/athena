@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /// Author: Ketevi A. Assamagan, Woochun Park
@@ -333,9 +333,7 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
   std::vector<uint16_t> samples;
   samples.reserve(4);
 
-  Identifier oldId;
   IdentifierHash cscHashId;
-  Identifier stationId;
   for (; rdoColl!=lastRdoColl; ++rdoColl) {
     if ( (*rdoColl)->size() > 0 ) {
       ATH_MSG_DEBUG ( " Number of RawData in this rdo " << (*rdoColl)->size() );

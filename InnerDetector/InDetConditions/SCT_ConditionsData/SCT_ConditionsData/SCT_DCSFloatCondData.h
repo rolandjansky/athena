@@ -1,34 +1,46 @@
+// -*- C++ -*-
+
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
- * SCT_DCSFloatCondData.h
- * @file header file for data object
- * @author Susumu Oda - 11/08/17
+ * @file SCT_DCSFloatCondData.h
+ * @brief header file for data object for SCT_DCSConditions{HV,Temp}CondAlg,
+ * SCT_DCSConditionsTool, SCT_SiliconConditions{HV,Temp}CondAlg,
+ * SCTSiPropertiesCondAlg, SCTSiLorentzAngleCondAlg.
+ * @author Susumu Oda
+ * @date 11/08/17
  **/
 
 #ifndef SCT_DCSFLOATCONDDATA_H
 #define SCT_DCSFLOATCONDDATA_H
 
-#include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
+
 #include <map>
 
+/**
+ * @class SCT_DCSFloatCondData
+ * @brief Class for data object used in
+ * SCT_DCSConditions{HV,Temp}CondAlg,
+ * SCT_DCSConditionsTool, SCT_SiliconConditions{HV,Temp}CondAlg,
+ * SCTSiPropertiesCondAlg, SCTSiLorentzAngleCondAlg.
+ **/
 class SCT_DCSFloatCondData {
 public:
-  //constructor
+  /// Constructor
   SCT_DCSFloatCondData();
 
-  //destructor
+  /// Destructor
   virtual ~SCT_DCSFloatCondData() = default;
   //@name main methods
   //@{
-  /// set a float value for a channel
+  /// Set a float value for a channel
   void setValue(const CondAttrListCollection::ChanNum& chanNum, const float value);
-  /// get the float value for a channel
+  /// Get the float value for a channel
   bool getValue(const CondAttrListCollection::ChanNum& chanNum, float& value) const;
-  /// clear the m_channelValues
+  /// Clear the m_channelValues
   void clear();
   //@}
   
@@ -37,8 +49,11 @@ private:
   FloatConditions m_channelValues;
 };
 
+// Class definition for StoreGate
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( SCT_DCSFloatCondData , 234553277 , 1 )
 
+// Condition container definition for CondInputLoader
 #include "AthenaKernel/CondCont.h"
 CONDCONT_DEF( SCT_DCSFloatCondData, 257878639 );
 

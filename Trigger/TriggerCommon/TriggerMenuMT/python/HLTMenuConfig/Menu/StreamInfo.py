@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from future.moves.collections import UserList
+from six.moves import UserList
+
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
 
@@ -33,6 +34,8 @@ _all_streams = [
     StreamInfo('IDCosmic','physics',True,True),
     # EXPRESS STREAM
     StreamInfo('express', 'express', True, True),
+    # MONITORING STREAM
+    StreamInfo('IDMonitoring','monitoring', True, True),
     # CALIBRATION STREAMS
     StreamInfo('BeamSpot', 'calibration', True, False),
     StreamInfo('LArCells', 'calibration', False, False),

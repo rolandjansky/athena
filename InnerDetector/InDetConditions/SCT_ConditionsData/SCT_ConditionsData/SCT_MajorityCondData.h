@@ -1,11 +1,14 @@
+// -*- C++ -*-
+
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
  * @file SCT_MajorityCondData.h
- * header file for data object
- * @author Susumu Oda - 2017-10-13
+ * @brief header file for data object for SCT_MajorityCondAlg and SCT_MajorityConditionsTool.
+ * @author Susumu Oda
+ * @date 2017-10-13
  **/
 
 #ifndef SCT_MAJORITYCONDDATA_H
@@ -13,46 +16,50 @@
 
 #include <map>
 
-// Include Athena stuff
-#include "AthenaKernel/CLASS_DEF.h"
-
+/**
+ * @class SCT_MajorityCondData
+ * @brief Class for data object used in SCT_MajorityCondAlg and SCT_MajorityConditionsTool.
+ **/
 class SCT_MajorityCondData {
 public:
-  // Constructor
+  /// Constructor
   SCT_MajorityCondData();
-  // Destructor
+  /// Destructor
   virtual ~SCT_MajorityCondData() = default;
 
-  // Set majority state for a region
+  /// Set majority state for a region
   void setMajorityState(const int& region, const bool& majorityState);
-  // Get majority state for a region
+  /// Get majority state for a region
   bool getMajorityState(const int& region) const;
-  // Clear majority state
+  /// Clear majority state
   void clearMajorityStates();
 
-  // Set HV fraction for a region
+  /// Set HV fraction for a region
   void setHVFraction(const int& region, const float& hvFraction);
-  // Get HV fraction for a region
+  /// Get HV fraction for a region
   float getHVFraction(const int& region) const;
-  // Clear HV fractions
+  /// Clear HV fractions
   void clearHVFractions();
 
-  // Set filled variable
+  /// Set filled variable
   void setFilled(const bool& filled);
-  // Get filled variable
+  /// Get filled variable
   bool isFilled() const;
 
 private:
-  // Map to store majority state
+  /// Map to store majority state
   std::map<int, bool> m_majorityState;
-  // Map to store HV fraction
+  /// Map to store HV fraction
   std::map<int, float> m_hvFraction;
-  // Flag to check data are filled or not
+  /// Flag to check data are filled or not
   bool m_filled;
 };
 
+// Class definition for StoreGate
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( SCT_MajorityCondData , 131714728 , 1 )
 
+// Condition container definition for CondInputLoader
 #include "AthenaKernel/CondCont.h"
 CONDCONT_DEF( SCT_MajorityCondData, 80083480 );
 

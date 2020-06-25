@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file SCT_ReadCalibChipDataTool.cxx Implementation file for SCT_ReadCalibChipDataTool.
@@ -14,10 +14,10 @@
 #include "SCT_ConditionsData/SCT_ModuleCalibParameter.h"
 #include "SCT_ConditionsData/SCT_ModuleGainCalibData.h"
 #include "SCT_ConditionsData/SCT_ModuleNoiseCalibData.h"
-#include "SCT_ConditionsTools/SCT_ReadCalibChipUtilities.h"
+#include "SCT_ConditionsTools/SCT_ReadCalibChipDefs.h"
 
 using namespace SCT_ConditionsData;
-using namespace SCT_ReadCalibChipUtilities;
+using namespace SCT_ReadCalibChipDefs;
 
 //----------------------------------------------------------------------
 SCT_ReadCalibChipDataTool::SCT_ReadCalibChipDataTool (const std::string& type, const std::string& name, const IInterface* parent) :

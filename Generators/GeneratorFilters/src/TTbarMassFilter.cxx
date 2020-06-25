@@ -20,8 +20,8 @@ StatusCode TTbarMassFilter::filterEvent() {
   bool isLastTop    = false;
   bool isFirstTop = false;
   double topPairInvariantMass = 0.;
-  std::vector<HepMC::GenParticle*> tops;
-  std::vector<const HepMC::GenVertex*>   top_vtxs;
+  std::vector<HepMC::GenParticlePtr> tops;
+  std::vector<HepMC::GenVertexPtr>   top_vtxs;
 
   for (McEventCollection::const_iterator itr = events()->begin(); itr!=events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
@@ -37,7 +37,7 @@ StatusCode TTbarMassFilter::filterEvent() {
       if (abs(mcpart->pdg_id()) == 6) {
         // Assume that this is the 'last' top
         isLastTop=true;
-        const HepMC::GenVertex* decayVtx = mcpart->end_vertex();
+        HepMC::GenVertex* decayVtx = mcpart->end_vertex();
         // Unusual case...
         if (!decayVtx) {
           ATH_MSG_WARNING("top particle with a status "<<mcpart->status()<<" has no valid decay vertex. ");
@@ -71,7 +71,7 @@ StatusCode TTbarMassFilter::filterEvent() {
           // Investigate whether this top particle is the 'first' one.
           isFirstTop = false;
           // Retrieve the production vertex of the current 'last' top particle
-          const HepMC::GenVertex* prodVtx = mcpart->production_vertex();
+          HepMC::GenVertex* prodVtx = mcpart->production_vertex();
           if (!prodVtx) {
             ATH_MSG_WARNING("Top particle with a status " << mcpart->status() << " has no valid production vertex");
             //save null pointer for consistency
@@ -158,7 +158,7 @@ StatusCode TTbarMassFilter::filterEvent() {
     double topPairInvMass_2=0.;
 
     // There must be only two different vertecies out of the four
-    const HepMC::GenVertex* prodVtx = top_vtxs[0];
+    const HepMC::GenVertexPtr prodVtx = top_vtxs[0];
     int top_11 = 0;
     int top_12 = -1;
     int top_21 = -1;

@@ -28,7 +28,7 @@ if not hasattr(svcMgr,"ByteStreamCnvSvc"): from ByteStreamCnvSvc import ReadByte
 
 # Define the input
 svcMgr.EventSelector.Input = [ "/afs/cern.ch/atlas/maxidisk/d108/cranshaw/nightlies/extractedEvents.data" ]
-#svcMgr.ByteStreamInputSvc.FullFileName = [ "/afs/cern.ch/atlas/maxidisk/d108/cranshaw/nightlies/extractedEvents.data" ]
+#svcMgr.EventSelector.Input = [ "/afs/cern.ch/atlas/maxidisk/d108/cranshaw/nightlies/extractedEvents.data" ]
 theApp.ExtSvc += [ "ByteStreamCnvSvc"]
 svcMgr.ByteStreamInputSvc.OutputLevel=DEBUG
 #svcMgr.ByteStreamInputSvc.DumpFlag = True

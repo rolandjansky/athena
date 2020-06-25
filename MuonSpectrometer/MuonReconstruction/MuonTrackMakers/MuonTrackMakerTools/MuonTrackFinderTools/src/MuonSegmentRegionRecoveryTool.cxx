@@ -77,10 +77,22 @@ StatusCode MuonSegmentRegionRecoveryTool::initialize()
 
   ATH_CHECK( m_chamberHoleRecoveryTool.retrieve() );
   ATH_CHECK( m_extrapolator.retrieve() );
-  ATH_CHECK( m_fitter.retrieve() );
+  if(m_onlyEO){
+    ATH_CHECK( m_fitter.retrieve() );
+    m_builder.disable();
+  }
+  else{
+    m_fitter.disable();
+    ATH_CHECK( m_builder.retrieve() );
+  }
   ATH_CHECK( m_idHelperSvc.retrieve() );
   ATH_CHECK( m_hitSummaryTool.retrieve() );
-  ATH_CHECK( m_regionSelector.retrieve() );
+  ATH_CHECK( m_regsel_mdt.retrieve() );
+  if(!m_regsel_csc.empty()) ATH_CHECK( m_regsel_csc.retrieve() );
+  ATH_CHECK( m_regsel_rpc.retrieve() );
+  ATH_CHECK( m_regsel_tgc.retrieve() );
+  if(!m_regsel_stgc.empty()) ATH_CHECK( m_regsel_stgc.retrieve() );
+  if(!m_regsel_mm.empty()) ATH_CHECK( m_regsel_mm.retrieve() );
   ATH_CHECK( m_trackSummaryTool.retrieve() );
 
   if(!m_condKey.empty()) ATH_CHECK(m_condKey.initialize());
@@ -191,7 +203,12 @@ void MuonSegmentRegionRecoveryTool::addHashes( DETID type, const IRoiDescriptor&
 
   std::vector<IdentifierHash> crossed;
 
-  m_regionSelector->DetHashIDList(type, roi, crossed );
+  if(type == MDT) m_regsel_mdt->HashIDList(roi, crossed );
+  if(type == CSC) m_regsel_csc->HashIDList(roi, crossed );
+  if(type == RPC) m_regsel_rpc->HashIDList(roi, crossed );
+  if(type == TGC) m_regsel_tgc->HashIDList(roi, crossed );
+  if(type == STGC) m_regsel_stgc->HashIDList(roi, crossed );
+  if(type == MM) m_regsel_mm->HashIDList(roi, crossed );
 
   for ( std::vector<IdentifierHash>::iterator it = crossed.begin(); it != crossed.end(); ++it ) {
     if ( !exclusion.count(*it) && !hashes.count(*it) ) {
@@ -1052,7 +1069,9 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::addMissingChambers( const Trk::
 
     ATH_MSG_DEBUG("Creating new Track " << newStates.size());
     Trk::Track* newTrack =  new Trk::Track( track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone() : 0 );
-    const Trk::Track* refittedTrack = m_fitter->fit(*newTrack, m_useFitterOutlierLogic, Trk::muon);
+    const Trk::Track* refittedTrack;
+    if(m_onlyEO) refittedTrack=m_fitter->fit(*newTrack, m_useFitterOutlierLogic, Trk::muon);
+    else refittedTrack=m_builder->fit(*newTrack, m_useFitterOutlierLogic, Trk::muon);
     delete newTrack;
     if ( refittedTrack ) {
       ATH_MSG_DEBUG("New Track " << m_printer->print(*refittedTrack) << std::endl << m_printer->printStations(*refittedTrack) );

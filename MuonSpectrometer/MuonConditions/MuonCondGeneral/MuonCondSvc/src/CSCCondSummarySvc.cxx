@@ -3,24 +3,18 @@
 */
 
 #include "MuonCondSvc/CSCCondSummarySvc.h"
+
 #include <vector>
 #include <list>
 #include <algorithm>
 #include <sstream>
 #include <iterator>
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/StatusCode.h"
-#include "Identifier/IdentifierHash.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonCondInterface/ICSCConditionsSvc.h"
-#include "Identifier/Identifier.h"
 
 CSCCondSummarySvc::CSCCondSummarySvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthService(name, pSvcLocator),
   m_reportingServices(name),
   m_detStore("DetectorStore",name),
-  m_noReports(true){
-  //  m_reportingServices.push_back("CSC_DCSConditionsSvc");
+  m_noReports(true) {
   declareProperty("ConditionsServices",m_reportingServices);
   declareProperty("DetStore", m_detStore);
   declareProperty("UseSimulation",m_usesimulation=false);
@@ -29,62 +23,35 @@ CSCCondSummarySvc::CSCCondSummarySvc( const std::string& name, ISvcLocator* pSvc
 
 StatusCode
 CSCCondSummarySvc::initialize(){
-  StatusCode sc(StatusCode::FAILURE);
   m_noReports = m_reportingServices.empty();
- 
-  sc = m_detStore.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::FATAL) << "DetectorStore service not found !" << endmsg;
-    return sc;
-  } else {
-    msg(MSG::INFO) << "DetectorStore service found !" << endmsg;
-  } 
- 
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_CHECK(m_detStore.retrieve());
+  ATH_CHECK(m_idHelperSvc.retrieve());
   
   if(m_usesimulation) {
-    
     m_reportingServices.empty(); 
-    msg(MSG::INFO) << "Simulation setup: No Conditions Data for CSC !" << endmsg;
- 
-  } else msg(MSG::INFO) << "Data DCS Conditions CSC !" << endmsg;
+    ATH_MSG_DEBUG("Simulation setup: No Conditions Data for CSC !");
+  } else ATH_MSG_DEBUG("Data DCS Conditions CSC !");
   
   if (m_noReports){
-    sc=StatusCode::SUCCESS;
-    msg(MSG::INFO)<<"No services were selected for the CSC summary"<<endmsg;
+    ATH_MSG_DEBUG("No services were selected for the CSC summary");
   } else {
-    sc = m_reportingServices.retrieve();
-    if ( sc.isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve " << m_reportingServices << endmsg;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(m_reportingServices.retrieve());
     ServiceHandleArray<ICSCConditionsSvc>::const_iterator pSvc= m_reportingServices.begin();
     ServiceHandleArray<ICSCConditionsSvc>::const_iterator pLastSvc= m_reportingServices.end();
      for (;pSvc not_eq pLastSvc; ++pSvc){
    
        const std::string& svcName = pSvc->name();
-      msg(MSG::INFO)<<"Using "<< svcName << endmsg;
+      ATH_MSG_DEBUG("Using "<< svcName);
       if (m_detStore->regFcn(&ICSCConditionsSvc::initInfo,&**pSvc,
                            &CSCCondSummarySvc::update_CSC,this) != StatusCode::SUCCESS){ 
-        msg(MSG::WARNING)<<"Unable to register call back for "<<svcName<<endmsg; 
+        ATH_MSG_WARNING("Unable to register call back for "<<svcName); 
       } else {
-        msg(MSG::INFO)<<"initInfo registered for call-back for "<<svcName<<endmsg;
+        ATH_MSG_DEBUG("initInfo registered for call-back for "<<svcName);
       }
     }
   }
-  return sc;
-}
-
-
-
-//Finalize
-StatusCode
-CSCCondSummarySvc::finalize(){
-  msg(MSG::INFO)<<"Thank-you for using the CSCCondSummarySvc, version "<<PACKAGE_VERSION<<endmsg;
-  //Code
   return StatusCode::SUCCESS;
 }
-
 
 StatusCode
 CSCCondSummarySvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
@@ -100,27 +67,20 @@ CSCCondSummarySvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 }
 
 StatusCode CSCCondSummarySvc::update_CSC(IOVSVC_CALLBACK_ARGS){
-
-  msg(MSG::INFO)<<"Register Call Back for CSC System"<<endmsg;
-
-   return StatusCode::SUCCESS;
+  ATH_MSG_DEBUG("Register Call Back for CSC System");
+  return StatusCode::SUCCESS;
 }
 
 StatusCode CSCCondSummarySvc::initInfo(IOVSVC_CALLBACK_ARGS){
-
-  msg(MSG::INFO)<<"Not to be called just dummy"<<endmsg;
-   return StatusCode::SUCCESS;
+  ATH_MSG_DEBUG("Not to be called just dummy");
+  return StatusCode::SUCCESS;
 }
 
 
 bool CSCCondSummarySvc::isGoodWireLayer(const Identifier & Id) const{
   bool result=true;
   // check ID
-  
-  Identifier ChamberId = m_muonIdHelperTool->cscIdHelper().elementID(Id);
-  
-  // Identifier WireLayerId = m_muonIdHelperTool->cscIdHelper().channelID(ChamberId, 1, wirelayer,1,1);
-     
+  Identifier ChamberId = m_idHelperSvc->cscIdHelper().elementID(Id);
   if (not m_noReports){
     ServiceHandleArray<ICSCConditionsSvc>::const_iterator svc= m_reportingServices.begin();
     ServiceHandleArray<ICSCConditionsSvc>::const_iterator lastSvc= m_reportingServices.end();
@@ -129,15 +89,6 @@ bool CSCCondSummarySvc::isGoodWireLayer(const Identifier & Id) const{
 	bool found = std::binary_search((*svc)->deadStationsId().begin(),(*svc)->deadStationsId().end(),ChamberId,Compare);
 	if(found) result= false;
       }
-      
-    //   if ((*svc)->deadWireLayersId().size()!=0 && result==true){
-//  	bool found = std::binary_search((*svc)->deadWireLayersId().begin(),(*svc)->deadWireLayersId().end(),WirelayerId,Compare);
-//  	if(found) result= false;
-//       }
-//       else{
-// 	msg(MSG::INFO)<<" Dead Wirelayer from the service  are not availables "<<(*svc) <<endmsg;
-	
-//       }
     }
     
   } 
@@ -145,14 +96,9 @@ bool CSCCondSummarySvc::isGoodWireLayer(const Identifier & Id) const{
   return result;
 }
 
-
-
-
 bool CSCCondSummarySvc::isGood(const Identifier & Id) const{
   bool total_result = true;
-//  int counter=0;
-//  Identifier WirelayerId = m_muonIdHelperTool->cscIdHelper().multilayerID(Id);
-  Identifier ChamberId = m_muonIdHelperTool->cscIdHelper().elementID(Id);
+  Identifier ChamberId = m_idHelperSvc->cscIdHelper().elementID(Id);
   if (not m_noReports){
     ServiceHandleArray<ICSCConditionsSvc>::const_iterator svc= m_reportingServices.begin();
     ServiceHandleArray<ICSCConditionsSvc>::const_iterator lastSvc= m_reportingServices.end();
@@ -160,21 +106,14 @@ bool CSCCondSummarySvc::isGood(const Identifier & Id) const{
     for (;svc not_eq lastSvc;++svc){
       if ((*svc)->deadStationsId().size()!=0) 
 	{
-	  msg(MSG::VERBOSE)<<" dentro chamber dropped "<<endmsg; 
+	  ATH_MSG_VERBOSE(" dentro chamber dropped "); 
 	  bool found = std::binary_search( 
 					  (*svc)->deadStationsId().begin(),(*svc)->deadStationsId().end(),ChamberId,Compare);
 	  if(found) total_result = false;
-	  msg(MSG::VERBOSE)<<" Chamber Dropped by DCS or not installed at all "<<endmsg;
-	  
-// 	}else if ((*svc)->deadWireLayersId().size()!=0){
-	
-// 	bool found = std::binary_search( 
-// 					(*svc)->deadWireLayersId().begin(),(*svc)->deadWireLayersId().end(),WirelayerId,Compare);
-// 	if(found) total_result= false;
-// 	msg(MSG::VERBOSE)<<" Chamber with WireLayer Dropped  "<<endmsg;
-	
+	  ATH_MSG_VERBOSE(" Chamber Dropped by DCS or not installed at all ");
+
 	}else total_result = true;
-      msg(MSG::VERBOSE)<<"Thank-you for using the CSCCondSummarySvc,  service "<<endmsg;
+      ATH_MSG_VERBOSE("Thank-you for using the CSCCondSummarySvc,  service ");
     }   
   }
 
@@ -185,11 +124,10 @@ bool CSCCondSummarySvc::isGood(const Identifier & Id) const{
 bool CSCCondSummarySvc::isGoodChamber(const Identifier & Id) const{
   bool result=true;
   int counter =0;
-  //Identifier chamberId = m_muonIdHelperTool->cscIdHelper().elementID(Id);
    ServiceHandleArray<ICSCConditionsSvc>::const_iterator svc= m_reportingServices.begin();
     ServiceHandleArray<ICSCConditionsSvc>::const_iterator lastSvc= m_reportingServices.end();
     for (;svc not_eq  lastSvc;svc++){
-      msg(MSG::INFO)<<" Dead Stations from the service , size= "<<(*svc)->deadStationsId().size()<<endmsg;
+      ATH_MSG_WARNING(" Dead Stations from the service , size= "<<(*svc)->deadStationsId().size());
       if ((*svc)->deadStationsId().size()!=0){
 
 	bool found = std::binary_search( 
@@ -198,13 +136,13 @@ bool CSCCondSummarySvc::isGoodChamber(const Identifier & Id) const{
 	if(found) counter++;
       }
       else{
-	msg(MSG::INFO)<<" Dead Stations from the service  are not availables "<<(*svc) <<endmsg;
+	ATH_MSG_WARNING(" Dead Stations from the service  are not availables "<<(*svc));
 	
       }
     }
   
     if (counter!=0) result = false; 
-    msg(MSG::INFO)<<" Dead Stations from the service  "<< counter <<endmsg;
+    ATH_MSG_WARNING(" Dead Stations from the service  "<< counter);
     
     return result;
   
@@ -216,7 +154,6 @@ bool CSCCondSummarySvc::isGoodChamber(const Identifier & Id) const{
 
 
 const std::vector<Identifier>& CSCCondSummarySvc::deadStationsId() const{
-  //m_emptyId.clear();
   if (not m_noReports){
    ServiceHandleArray<ICSCConditionsSvc>::const_iterator svc= m_reportingServices.begin();
     ServiceHandleArray<ICSCConditionsSvc>::const_iterator lastSvc= m_reportingServices.end();
@@ -225,7 +162,7 @@ const std::vector<Identifier>& CSCCondSummarySvc::deadStationsId() const{
       if ((*svc)->deadStationsId().size()!=0){
 	return (*svc)->deadStationsId();
       }else{
-	msg(MSG::INFO)<<" Dead Stations from the service  are not availables "<<(*svc) <<endmsg;
+	ATH_MSG_WARNING(" Dead Stations from the service are not availables "<<(*svc));
       }
     }
     
@@ -236,7 +173,6 @@ const std::vector<Identifier>& CSCCondSummarySvc::deadStationsId() const{
 
 
 const std::vector<Identifier>& CSCCondSummarySvc::deadWireLayersId() const{
-  //m_emptyId.clear();
   if (not m_noReports){
      ServiceHandleArray<ICSCConditionsSvc>::const_iterator svc= m_reportingServices.begin();
      ServiceHandleArray<ICSCConditionsSvc>::const_iterator lastSvc= m_reportingServices.end();
@@ -245,7 +181,7 @@ const std::vector<Identifier>& CSCCondSummarySvc::deadWireLayersId() const{
       if ((*svc)->deadWireLayersId().size()!=0){
 	return (*svc)->deadWireLayersId();
       }else{
-	msg(MSG::INFO)<<" Dead Wire from the service  are not availables "<<(*svc) <<endmsg;
+	ATH_MSG_WARNING(" Dead Wire from the service  are not availables "<<(*svc));
       }
     }
     
@@ -255,7 +191,6 @@ const std::vector<Identifier>& CSCCondSummarySvc::deadWireLayersId() const{
 
 
 const std::vector<std::string>& CSCCondSummarySvc::deadStations() const{
-  //m_emptyId.clear();
   if (not m_noReports){
    ServiceHandleArray<ICSCConditionsSvc>::const_iterator svc= m_reportingServices.begin();
     ServiceHandleArray<ICSCConditionsSvc>::const_iterator lastSvc= m_reportingServices.end();
@@ -264,7 +199,7 @@ const std::vector<std::string>& CSCCondSummarySvc::deadStations() const{
       if ((*svc)->deadStations().size()!=0){
 	return (*svc)->deadStations();
       }else{
-	msg(MSG::INFO)<<" Dead Stations from the service  are not availables "<<(*svc) <<endmsg;
+	ATH_MSG_WARNING(" Dead Stations from the service  are not availables "<<(*svc));
       }
     }
     
@@ -275,7 +210,6 @@ const std::vector<std::string>& CSCCondSummarySvc::deadStations() const{
 
 
 const std::vector<std::string>& CSCCondSummarySvc::deadWireLayers() const{
-  //m_emptyId.clear();
   if (not m_noReports){
      ServiceHandleArray<ICSCConditionsSvc>::const_iterator svc= m_reportingServices.begin();
      ServiceHandleArray<ICSCConditionsSvc>::const_iterator lastSvc= m_reportingServices.end();
@@ -284,7 +218,7 @@ const std::vector<std::string>& CSCCondSummarySvc::deadWireLayers() const{
       if ((*svc)->deadWireLayers().size()!=0){
 	return (*svc)->deadWireLayers();
       }else{
-	msg(MSG::INFO)<<" Dead Wire from the service  are not availables "<<(*svc) <<endmsg;
+	ATH_MSG_WARNING(" Dead Wire from the service  are not availables "<<(*svc));
       }
     }
     

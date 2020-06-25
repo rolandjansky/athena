@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -13,22 +13,17 @@
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
-//#include "CoolLumiUtilities/IBunchGroupTool.h"
+#include "LArRecEvent/LArCollisionTime.h"
 
 #include <map>
 #include <string>
 #include <bitset>
 #include <vector>
-//#include "TH1.h"
-//#include "TH2I.h"
-//#include "TH2F.h"
 #include "TMath.h"
 #include "TTree.h"
 
 class ITHistSvc;
 
-//class TH1F;
-//class TH2F;
 class TTree;
 class TH1F_LW;
 class TH2F_LW;
@@ -108,7 +103,9 @@ class LArCollisionTimeMonTool: public ManagedMonitorToolBase
   bool m_bcid_init;
 
 
-  std::string m_histPath, m_key;
+  std::string m_histPath;
+  SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey{this, "EventInfoKey", "EventInfo"};
+  SG::ReadHandleKey<LArCollisionTime> m_key{this, "Key", "LArCollisionTime"};
 
   void cleanup();
 };

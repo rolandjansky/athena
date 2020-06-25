@@ -92,6 +92,7 @@ class SCTErrMonAlg : public AthMonitorAlgorithm {
 
   BooleanProperty m_makeConfHisto{this, "MakeConfHisto", true};
   BooleanProperty m_coverageCheck{this, "CoverageCheck", true};
+  BooleanProperty m_coverageCheckOnlyFirtsEventOfLB{this, "CoverageCheckOnlyFirtsEventOfLB", true};
   BooleanProperty m_useDCS{this, "UseDCS", true};
   BooleanProperty m_doPerLumiErrors{this, "DoPerLumiErrors", true, "Do lumi block 2D error histos"};
 

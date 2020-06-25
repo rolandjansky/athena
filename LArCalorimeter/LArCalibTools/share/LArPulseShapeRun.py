@@ -45,7 +45,7 @@ from AtlasGeoModel import GeoModelInit
 
 from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
 topSequence+=xAODMaker__EventInfoCnvAlg()
-svcMgr.ByteStreamInputSvc.FullFileName=athenaCommonFlags.BSRDOInput()
+svcMgr.EventSelector.Input=athenaCommonFlags.BSRDOInput()
 
 #Get identifier mapping (needed by LArConditionsContainer)
                            

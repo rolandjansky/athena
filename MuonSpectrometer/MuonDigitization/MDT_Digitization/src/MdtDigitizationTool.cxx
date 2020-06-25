@@ -153,6 +153,9 @@ StatusCode MdtDigitizationTool::initialize() {
   if ( m_t0_from_DB ) {
     ATH_CHECK(m_calibrationDbTool.retrieve());
   }
+  else {
+    m_calibrationDbTool.disable();
+  }
 
   //Gather masked stations
   for (unsigned int i=0;i<m_maskedStations.size();i++) {

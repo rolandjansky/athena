@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARBADCHANNELCONDALG_H
@@ -17,20 +17,23 @@
 
 class LArBadChannelCondAlg: public AthAlgorithm {
  public:
+  //Delegate to base-class ctor
+  using AthAlgorithm::AthAlgorithm;
 
-  LArBadChannelCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
-  ~LArBadChannelCondAlg();
+  virtual ~LArBadChannelCondAlg()=default;
 
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize() {return StatusCode::SUCCESS;}
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override {return StatusCode::SUCCESS;}
 
  private:
-  SG::ReadCondHandleKey<CondAttrListCollection>   m_BCInputKey; 
-  SG::ReadCondHandleKey<LArOnOffIdMapping>  m_cablingKey;   
-  SG::WriteCondHandleKey<LArBadChannelCont>      m_BCOutputKey;
-  ServiceHandle<ICondSvc> m_condSvc;
-  std::string m_inputFileName;
+  SG::ReadCondHandleKey<CondAttrListCollection> m_BCInputKey{this,"ReadKey","/LAR/BadChannelsOfl/BadChannels",
+      "Key of input CDO (AttrListCollection)"}; 
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","Key of cabling CDO"};   
+  SG::WriteCondHandleKey<LArBadChannelCont> m_BCOutputKey{this,"WriteKey","LArBadChannel","Key of output CDO"};
+  ServiceHandle<ICondSvc> m_condSvc{this,"CondSvc","CondSvc"};
+  Gaudi::Property<std::string> m_inputFileName{this,"InputFileName","",
+      "Optional file containing (supplemental) bad channels"};
 };
 
 

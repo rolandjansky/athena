@@ -201,7 +201,7 @@ const DistanceFunctor<T,U> *ObjectMatching::prepareMetric() const {
 
     // note that the static keyword prevents multiple initialization,
     // so only one of each metric will be produced per run
-    static const std::auto_ptr<const typename TrigMatch::MetricTraits<T,U>::type > metric(new typename TrigMatch::MetricTraits<T,U>::type);
+    static const std::unique_ptr<const typename TrigMatch::MetricTraits<T,U>::type > metric(new typename TrigMatch::MetricTraits<T,U>::type);
 
     return metric.get();
 

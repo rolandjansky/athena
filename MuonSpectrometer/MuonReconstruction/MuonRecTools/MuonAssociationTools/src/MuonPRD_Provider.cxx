@@ -1,12 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// MuonPRD_Provider.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-
 #include "MuonPRD_Provider.h"
+
 #include "MuonPrepRawData/MdtPrepData.h"
 #include "MuonPrepRawData/TgcPrepData.h"
 #include "MuonPrepRawData/RpcPrepData.h"
@@ -30,16 +27,9 @@ namespace Muon {
   StatusCode MuonPRD_Provider::initialize()
   {
     ATH_MSG_VERBOSE("Initializing ...");           
-    // Set up ATLAS ID helper to be able to identify the PRD's det-subsystem
-    ATH_CHECK( m_muonIdHelperTool.retrieve() );
+    ATH_CHECK(m_idHelperSvc.retrieve());
     return StatusCode::SUCCESS;
-  }           
-
-  StatusCode MuonPRD_Provider::finalize()
-  {
-    ATH_MSG_VERBOSE("Initializing ...");
-    return StatusCode::SUCCESS;
-  }       
+  }   
        
   StatusCode MuonPRD_Provider::retrieveCollection() {
     if (m_keyMdt!="" && evtStore()->retrieve(m_mdtPrds,m_keyMdt).isFailure() ){
@@ -75,15 +65,15 @@ namespace Muon {
 
 
     // check validity of the Identifier
-    if (!ide.is_valid() || !m_muonIdHelperTool->isMuon(ide) ){
+    if (!ide.is_valid() || !m_idHelperSvc->isMuon(ide) ){
       ATH_MSG_VERBOSE("The identifier is not valid ! Return 0.");
       return 0;
     }
     ndof = 1;
-    if ( m_mdtPrds && m_muonIdHelperTool->isMdt(ide) ){
+    if ( m_mdtPrds && m_idHelperSvc->isMdt(ide) ){
       // get the Identifier Hash
       IdentifierHash ideHash;
-      m_muonIdHelperTool->mdtIdHelper().get_module_hash(ide,ideHash);
+      m_idHelperSvc->mdtIdHelper().get_module_hash(ide,ideHash);
 
       if (!ideHash.is_valid()){
 	ATH_MSG_VERBOSE("The hash identifier is not valid ! Return 0.");
@@ -92,10 +82,10 @@ namespace Muon {
       return prdFromIdentifierContainer<MdtPrepData>(*m_mdtPrds,ide,ideHash);
     }
 
-    if ( m_cscPrds && m_muonIdHelperTool->isCsc(ide) ){
+    if ( m_cscPrds && m_idHelperSvc->isCsc(ide) ){
       // get the Identifier Hash
       IdentifierHash ideHash;
-      m_muonIdHelperTool->cscIdHelper().get_module_hash(ide,ideHash);
+      m_idHelperSvc->cscIdHelper().get_module_hash(ide,ideHash);
 
       if (!ideHash.is_valid()){
 	ATH_MSG_VERBOSE("The hash identifier is not valid ! Return 0.");
@@ -104,10 +94,10 @@ namespace Muon {
       return prdFromIdentifierContainer<CscPrepData>(*m_cscPrds,ide,ideHash);
     }
 
-    if ( m_tgcPrds && m_muonIdHelperTool->isTgc(ide) ){
+    if ( m_tgcPrds && m_idHelperSvc->isTgc(ide) ){
       // get the Identifier Hash
       IdentifierHash ideHash;
-      m_muonIdHelperTool->tgcIdHelper().get_module_hash(ide,ideHash);
+      m_idHelperSvc->tgcIdHelper().get_module_hash(ide,ideHash);
 
       if (!ideHash.is_valid()){
 	ATH_MSG_VERBOSE("The hash identifier is not valid ! Return 0.");
@@ -116,10 +106,10 @@ namespace Muon {
       return prdFromIdentifierContainer<TgcPrepData>(*m_tgcPrds,ide,ideHash);
     }
 
-    if ( m_rpcPrds && m_muonIdHelperTool->isRpc(ide) ){
+    if ( m_rpcPrds && m_idHelperSvc->isRpc(ide) ){
       // get the Identifier Hash
       IdentifierHash ideHash;
-      m_muonIdHelperTool->rpcIdHelper().get_module_hash(ide,ideHash);
+      m_idHelperSvc->rpcIdHelper().get_module_hash(ide,ideHash);
 
       if (!ideHash.is_valid()){
 	ATH_MSG_VERBOSE("The hash identifier is not valid ! Return 0.");
@@ -127,10 +117,10 @@ namespace Muon {
       }
       return prdFromIdentifierContainer<RpcPrepData>(*m_rpcPrds,ide,ideHash);
     }
-    if ( m_mmPrds && m_muonIdHelperTool->mmIdHelper().is_mm(ide) ){
+    if ( m_mmPrds && m_idHelperSvc->isMM(ide) ){
       // get the Identifier Hash
       IdentifierHash ideHash;
-      m_muonIdHelperTool->mmIdHelper().get_module_hash(ide,ideHash);
+      m_idHelperSvc->mmIdHelper().get_module_hash(ide,ideHash);
 
       if (!ideHash.is_valid()){
 	ATH_MSG_VERBOSE("The hash identifier is not valid ! Return 0.");
@@ -141,10 +131,10 @@ namespace Muon {
       return prd;
     }
 
-    if ( m_stgcPrds && m_muonIdHelperTool->stgcIdHelper().is_stgc(ide) ){
+    if ( m_stgcPrds && m_idHelperSvc->issTgc(ide) ){
       // get the Identifier Hash
       IdentifierHash ideHash;
-      m_muonIdHelperTool->stgcIdHelper().get_module_hash(ide,ideHash);
+      m_idHelperSvc->stgcIdHelper().get_module_hash(ide,ideHash);
 
       if (!ideHash.is_valid()){
 	ATH_MSG_VERBOSE("The hash identifier is not valid ! Return 0.");

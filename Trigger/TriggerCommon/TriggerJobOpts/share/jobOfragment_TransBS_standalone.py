@@ -15,8 +15,10 @@ StreamBS.ExtraOutputs += [transTypeKey]
 
 
 if not TriggerFlags.fakeLVL1():
-   theApp.Dlls += ["TrigT1ResultByteStream"]
+   from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1ByteStreamEncodersRecExSetup
+   L1ByteStreamEncodersRecExSetup()
    StreamBS.ItemList += ["ROIB::RoIBResult#*"]
+   StreamBS.ExtraInputs += [('ROIB::RoIBResult', 'StoreGateSvc+RoIBResult')]
 
 if TriggerFlags.doID():
    # TRT

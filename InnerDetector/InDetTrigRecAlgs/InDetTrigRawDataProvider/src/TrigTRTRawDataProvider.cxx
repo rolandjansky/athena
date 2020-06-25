@@ -80,7 +80,7 @@ namespace InDet {
     } else 
       msg(MSG::INFO) << "Retrieved service " << m_IdMapping << endmsg;
 
-    m_container = new TRT_RDO_Container(m_id->straw_layer_hash_max()); 
+    m_container = new TRT_RDO_Container(m_id->straw_layer_hash_max(), EventContainers::Mode::OfflineFast); 
     m_container ->addRef();     // make sure it is never deleted
 
     return StatusCode::SUCCESS;

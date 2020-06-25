@@ -1,30 +1,24 @@
-################################################################################
-# Package: CaloGeoHelpers
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# Declare the package name:
+# Declare the package name.
 atlas_subdir( CaloGeoHelpers )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/CxxUtils
-                          PRIVATE
-                          AtlasTest/TestTools )
-
-# Component(s) in the package:
+# Component(s) in the package.
 atlas_add_library( CaloGeoHelpers
-                   Root/*.cxx
-                   PUBLIC_HEADERS CaloGeoHelpers
-                   LINK_LIBRARIES CxxUtils
-                   PRIVATE_LINK_LIBRARIES TestTools )
+   CaloGeoHelpers/*.h CaloGeoHelpers/*.def Root/*.cxx
+   PUBLIC_HEADERS CaloGeoHelpers
+   LINK_LIBRARIES CxxUtils )
 
+atlas_add_dictionary( CaloGeoHelpersDict
+   CaloGeoHelpers/CaloGeoHelpersDict.h
+   CaloGeoHelpers/selection.xml
+   LINK_LIBRARIES CaloGeoHelpers )
+
+# Test(s) in the package.
 atlas_add_test( CaloPhiRange_test
-                SOURCES
-                test/CaloPhiRange_test.cxx
-                LINK_LIBRARIES CxxUtils TestTools CaloGeoHelpers )
+   SOURCES test/CaloPhiRange_test.cxx
+   LINK_LIBRARIES CaloGeoHelpers )
 
 atlas_add_test( CaloSampling_test
-                SOURCES
-                test/CaloSampling_test.cxx
-                LINK_LIBRARIES CxxUtils TestTools CaloGeoHelpers )
-
+   SOURCES test/CaloSampling_test.cxx
+   LINK_LIBRARIES CaloGeoHelpers )

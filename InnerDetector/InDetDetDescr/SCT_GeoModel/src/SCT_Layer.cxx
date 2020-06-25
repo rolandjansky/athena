@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -63,20 +63,6 @@ SCT_Layer::SCT_Layer(const std::string & name,
 
 SCT_Layer::~SCT_Layer()
 {
-  delete m_bracket;
-  delete m_clamp;
-  delete m_coolingEnd;
-  delete m_flange;
-  delete m_harness;
-  delete m_ski;
-  delete m_skiAux;
-  delete m_skiPowerTape;
-  delete m_supportCyl;
-  if (m_includeFSI) {
-    delete m_endJewel;
-    delete m_scorpion;
-    delete m_fibreMask;
-  }
 }
 
 void
@@ -123,25 +109,20 @@ SCT_Layer::preBuild()
   std::string layerNumStr = intToString(m_iLayer);
 
   // Build the Flanges
-  m_flange     = new SCT_Flange("Flange"+layerNumStr, m_iLayer, m_detectorManager, m_geometryManager, m_materials);
+  m_flange     = std::make_unique<SCT_Flange>("Flange"+layerNumStr, m_iLayer, m_detectorManager, m_geometryManager, m_materials);
   
   // Build the SupportCyl
-  m_supportCyl = new SCT_SupportCyl("SupportCyl"+layerNumStr, m_iLayer, m_cylinderLength,
+  m_supportCyl = std::make_unique<SCT_SupportCyl>("SupportCyl"+layerNumStr, m_iLayer, m_cylinderLength,
                                     m_detectorManager, m_geometryManager, m_materials);
 
   // Build the FSI end jewel, scorpion and fibre mask
   // Mask runs between scorpions and flange in z - must be built after these
   if (m_includeFSI) {
-    m_endJewel = new SCT_FSIEndJewel("FSIEndJewel"+layerNumStr, m_detectorManager, m_geometryManager, m_materials);
-    m_scorpion = new SCT_FSIScorpion("FSIScorpion"+layerNumStr, m_detectorManager, m_geometryManager, m_materials);
+    m_endJewel = std::make_unique<SCT_FSIEndJewel>("FSIEndJewel"+layerNumStr, m_detectorManager, m_geometryManager, m_materials);
+    m_scorpion = std::make_unique<SCT_FSIScorpion>("FSIScorpion"+layerNumStr, m_detectorManager, m_geometryManager, m_materials);
     double length_mask = 0.5*m_cylinderLength - m_flange->length() - m_zScorpion - 0.5*m_scorpion->length();
-    m_fibreMask = new SCT_FSIFibreMask("FSIFibreMask"+layerNumStr, m_iLayer, length_mask,
+    m_fibreMask = std::make_unique<SCT_FSIFibreMask>("FSIFibreMask"+layerNumStr, m_iLayer, length_mask,
                                        m_detectorManager, m_geometryManager, m_materials);
-  }
-  else {
-    m_endJewel = nullptr;
-    m_scorpion = nullptr;
-    m_fibreMask = nullptr;
   }
 
   //
@@ -160,7 +141,7 @@ SCT_Layer::preBuild()
 
   // Make the ski
   // The ski length is now reduced to m_activeLength to make room for the cooling inlet/outlet volumes
-  m_ski = new SCT_Ski("Ski"+layerNumStr, m_module, m_stereoSign, m_tilt, m_activeLength,
+  m_ski = std::make_unique<SCT_Ski>("Ski"+layerNumStr, m_module, m_stereoSign, m_tilt, m_activeLength,
                       m_detectorManager, m_geometryManager, m_materials);
 
   //
@@ -169,11 +150,11 @@ SCT_Layer::preBuild()
   // Bracket is placed at edge of division. 
   // -tiltSign * (r*divisionAngle/2 - bracket_width/2)
   // Works for both +ve and -ve tilt.
-  m_bracket = new SCT_Bracket("Bracket"+layerNumStr, m_detectorManager, m_geometryManager, m_materials);
+  m_bracket = std::make_unique<SCT_Bracket>("Bracket"+layerNumStr, m_detectorManager, m_geometryManager, m_materials);
 
-  m_harness = new SCT_Harness("Harness"+layerNumStr, m_cylinderLength,
+  m_harness = std::make_unique<SCT_Harness>("Harness"+layerNumStr, m_cylinderLength,
                               m_detectorManager, m_geometryManager, m_materials);
-  m_skiPowerTape = new SCT_SkiPowerTape("SkiPowerTape"+layerNumStr, m_ski, m_cylinderLength,
+  m_skiPowerTape = std::make_unique<SCT_SkiPowerTape>("SkiPowerTape"+layerNumStr, m_ski.get(), m_cylinderLength,
                                         m_detectorManager, m_geometryManager, m_materials);
 
   int tiltSign = (m_tilt < 0) ? -1 : +1;
@@ -185,21 +166,21 @@ SCT_Layer::preBuild()
   
  
   // Make the SkiAux. This is layer dependent.
-  m_skiAux = new SCT_SkiAux("SkiAux"+layerNumStr, 
-                            m_ski, 
-                            m_bracket,
-                            m_harness,
-                            m_skiPowerTape, 
-                            m_outerRadiusOfSupport,
-                            bracketOffset, 
-                            powerTapeOffset,
-                            divisionAngle,
-                            m_detectorManager,
-                            m_geometryManager,
-                            m_materials);
+  m_skiAux = std::make_unique<SCT_SkiAux>("SkiAux"+layerNumStr, 
+                                          m_ski.get(), 
+                                          m_bracket.get(),
+                                          m_harness.get(),
+                                          m_skiPowerTape.get(), 
+                                          m_outerRadiusOfSupport,
+                                          bracketOffset, 
+                                          powerTapeOffset,
+                                          divisionAngle,
+                                          m_detectorManager,
+                                          m_geometryManager,
+                                          m_materials);
 
   // Build the clamp: we cannot do this until we have the dimensions of SkiAux
-  m_clamp = new SCT_Clamp("Clamp"+layerNumStr, m_iLayer, m_skiAux->outerRadius(),
+  m_clamp = std::make_unique<SCT_Clamp>("Clamp"+layerNumStr, m_iLayer, m_skiAux->outerRadius(),
                           m_detectorManager, m_geometryManager, m_materials);
 
   // Build the volume representing the cooling inlets, outlet and U-bends.
@@ -207,7 +188,7 @@ SCT_Layer::preBuild()
   double coolingInnerRadius = m_clamp->outerRadius();
   double clearance = 1*Gaudi::Units::mm;
   double coolingLength = 0.5*m_cylinderLength - 0.5*m_activeLength - clearance;
-  m_coolingEnd = new SCT_CoolingEnd("CoolingEnd"+layerNumStr, m_iLayer, coolingInnerRadius, coolingLength,
+  m_coolingEnd = std::make_unique<SCT_CoolingEnd>("CoolingEnd"+layerNumStr, m_iLayer, coolingInnerRadius, coolingLength,
                                     m_detectorManager, m_geometryManager, m_materials);
 
   //

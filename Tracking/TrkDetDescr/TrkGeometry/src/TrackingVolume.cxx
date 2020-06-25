@@ -421,7 +421,7 @@ Trk::TrackingVolume::TrackingVolume(const Trk::TrackingVolume& trVol,
     const Trk::NavBinnedArray1D<Trk::Layer>* confLays = dynamic_cast<const Trk::NavBinnedArray1D<Trk::Layer>*> (confinedLayers);
     if (confLays)
         m_confinedLayers = new Trk::NavBinnedArray1D<Trk::Layer>(*confLays,
-                new std::vector<Trk::SharedObject<const Trk::Layer> >(layerOrder), transform);
+                std::vector<Trk::SharedObject<const Trk::Layer> >(layerOrder), transform);
   }
 
   // confined 'unordered' layers
@@ -467,7 +467,7 @@ Trk::TrackingVolume::TrackingVolume(const Trk::TrackingVolume& trVol,
     const Trk::NavBinnedArray1D<Trk::TrackingVolume>* confVols = dynamic_cast<const Trk::NavBinnedArray1D<Trk::TrackingVolume>*> (confinedVolumes);
     if (confVols)
         m_confinedVolumes =  new Trk::NavBinnedArray1D<Trk::TrackingVolume>(*confVols,
-                new std::vector<Trk::SharedObject<const Trk::TrackingVolume> >(volOrder), transform);
+                std::vector<Trk::SharedObject<const Trk::TrackingVolume> >(volOrder), transform);
   }
   
   // confined unordered volumes
@@ -853,7 +853,7 @@ const Trk::BoundarySurface<Trk::TrackingVolume>* Trk::TrackingVolume::boundarySu
   return (m_boundarySurfaces->operator[](oa)).get();
 }
 
-void Trk::TrackingVolume::createBoundarySurfaces()
+void Trk::TrackingVolume::createBoundarySurfaces ATLAS_NOT_THREAD_SAFE ()
 {
   // prepare the BoundarySurfaces
   m_boundarySurfaces = new std::vector< Trk::SharedObject<const Trk::BoundarySurface<Trk::TrackingVolume> > >;
@@ -1064,7 +1064,7 @@ const Trk::TrackingVolume* Trk::TrackingVolume::cloneTV ATLAS_NOT_THREAD_SAFE (A
     if (confLaysNav)
         layerArray =  new Trk::NavBinnedArray1D<Trk::Layer>(
                 *confLaysNav,
-                new std::vector<Trk::SharedObject<const Trk::Layer> >(layerOrder),
+                std::vector<Trk::SharedObject<const Trk::Layer> >(layerOrder),
                 transform);
   }
 
@@ -1117,7 +1117,7 @@ const Trk::TrackingVolume* Trk::TrackingVolume::cloneTV ATLAS_NOT_THREAD_SAFE (A
     if (confVolsNav)
         volumeArray =  new Trk::NavBinnedArray1D<Trk::TrackingVolume>(
                 *confVolsNav,
-                new std::vector<Trk::SharedObject<const TrackingVolume> >(volOrder),
+                std::vector<Trk::SharedObject<const TrackingVolume> >(volOrder),
                 transform );
   }
   
@@ -1219,7 +1219,7 @@ void  Trk::TrackingVolume::moveTV ATLAS_NOT_THREAD_SAFE (Amg::Transform3D& trans
 }
 
 
-void Trk::TrackingVolume::synchronizeLayers(MsgStream& msgstream, double envelope) const {
+void Trk::TrackingVolume::synchronizeLayers ATLAS_NOT_THREAD_SAFE (MsgStream& msgstream, double envelope) const {
 
   // case a : Layers exist
   const Trk::BinnedArray< Trk::Layer >* confLayers = confinedLayers();
@@ -1231,7 +1231,7 @@ void Trk::TrackingVolume::synchronizeLayers(MsgStream& msgstream, double envelop
             else 
                 clayIter->resizeLayer(volumeBounds(),envelope);
         }  else
-            msgstream << MSG::WARNING << "  ---> found 0 pointer to layer, indicates problem." << endmsg;
+            msgstream << MSG::WARNING << "  ---> found 0 pointer to layer in Volume [ "<<volumeName()<<" ], indicates problem." << endmsg;
   }
   // case b : container volume -> step down
   const Trk::BinnedArray< Trk::TrackingVolume >* confVolumes = confinedVolumes();
@@ -1247,12 +1247,23 @@ void Trk::TrackingVolume::compactify ATLAS_NOT_THREAD_SAFE (size_t& cSurfaces, s
   const Trk::BinnedArray< Trk::Layer >* confLayers = confinedLayers();
   if (confLayers){
     const std::vector<const Trk::Layer*>& layers = confLayers->arrayObjects();
-    for (auto& clayIter : layers ) clayIter->compactify(cSurfaces,tSurfaces);
+    for (auto& clayIter : layers ) {
+      if (&(*clayIter)!=nullptr) 
+        clayIter->compactify(cSurfaces,tSurfaces);
+      else 
+        std::cout<<"WARNING: Attempt to compactify nullptr layer in volume : "<<volumeName()<<std::endl;
+    }
   }
   // confined 'unordered' layers
   const std::vector<const Trk::Layer* >* confArbLayers = confinedArbitraryLayers();
-  if (confArbLayers)
-      for (auto& calayIter : (*confArbLayers ) ) calayIter->compactify(cSurfaces,tSurfaces);
+  if (confArbLayers) {
+      for (auto& calayIter : (*confArbLayers ) ) {
+        if (&(*calayIter)!=nullptr) 
+          calayIter->compactify(cSurfaces,tSurfaces);
+        else 
+          std::cout<<"WARNING: Attempt to compactify nullptr layer."<<std::endl;
+      }
+  }
   // confined volumes
   const Trk::BinnedArray< Trk::TrackingVolume >* confVolumes = confinedVolumes();
   if (confVolumes){

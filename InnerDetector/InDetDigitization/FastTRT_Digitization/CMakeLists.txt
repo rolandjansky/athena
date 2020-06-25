@@ -17,7 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           InnerDetector/InDetConditions/TRT_ConditionsServices
                           InnerDetector/InDetRecEvent/InDetPrepRawData
-                          InnerDetector/InDetRecTools/TRT_DriftFunctionTool
+                          InnerDetector/InDetRecTools/TRT_DriftFunctionTool # FIXME this package only builds a component library!
                           InnerDetector/InDetSimEvent
                           Simulation/HitManagement
                           Tracking/TrkEvent/TrkParameters
@@ -29,7 +29,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Generators/GeneratorObjects
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
-			  InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
+                          InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           InnerDetector/InDetRawEvent/InDetSimData
                           Tracking/TrkDetDescr/TrkDetElementBase )
 
@@ -43,10 +43,9 @@ atlas_add_component( FastTRT_Digitization
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib StoreGateLib SGtests Identifier EventInfo xAODEventInfo GaudiKernel TRT_ConditionsServicesLib InDetPrepRawData InDetSimEvent HitManagement TrkParameters TrkTruthData TrkToolInterfaces GeoPrimitives GeneratorObjects InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry InDetSimData TrkDetElementBase EventContainers)
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib StoreGateLib SGtests Identifier EventInfo xAODEventInfo GaudiKernel TRT_ConditionsServicesLib InDetPrepRawData InDetSimEvent HitManagement TrkParameters TrkTruthData TrkToolInterfaces GeoPrimitives GeneratorObjects InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry InDetSimData TrkDetElementBase EventContainers TRT_DriftFunctionToolLib )
 
 # Install files from the package:
-atlas_install_headers( FastTRT_Digitization )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 

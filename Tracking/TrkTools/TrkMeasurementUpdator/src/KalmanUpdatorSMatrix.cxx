@@ -92,16 +92,16 @@ Trk::TrackParameters* Trk::KalmanUpdatorSMatrix::addToState (const Trk::TrackPar
                                    SParVector5(&inputTrkPar.parameters()[0],5),covTrk,
                                    measLocPos[0],1,measLocCov,
                                    updatingSign,fitQoS,false);
-  } else if (nLocCoord == 2) {
+  } if (nLocCoord == 2) {
     return calculateFilterStep_2D (inputTrkPar,// transmit the surface
                                    SParVector5(&inputTrkPar.parameters()[0],5),covTrk,
                                    SParVector2(measLocPos[0],measLocPos[1]),3,
                                    measLocCov,
                                    updatingSign,fitQoS,false);
-  } else {
+  } 
     ATH_MSG_WARNING( " number (" << nLocCoord << ") of local coordinates must be 1 or 2, can not update!" ); 
     return nullptr;
-  }
+  
 }
 
 // updator #2 for Kalman Fitter - version with LocalParameters (for example for RIO_OnTrack)
@@ -123,7 +123,7 @@ Trk::TrackParameters* Trk::KalmanUpdatorSMatrix::addToState (const Trk::TrackPar
     if (fitQoS) {
         ATH_MSG_WARNING( "expect nil FitQuality pointer, refuse operation to avoid mem leak!");
         return nullptr;
-    } else {
+    } 
 
       SCovMatrix5 covTrk;
       if (!getStartCov(covTrk,inputTP,updatingSign)) return nullptr;
@@ -134,17 +134,17 @@ Trk::TrackParameters* Trk::KalmanUpdatorSMatrix::addToState (const Trk::TrackPar
                                        SParVector5(&inputTP.parameters()[0],5),covTrk,
                                        measLocPos[0],1,measLocCov,
                                        updatingSign,fitQoS,true);
-      } else if (nLocCoord == 2) {
+      } if (nLocCoord == 2) {
         return calculateFilterStep_2D (inputTP,
                                        SParVector5(&inputTP.parameters()[0],5),covTrk,
                                        SParVector2(measLocPos[0],measLocPos[1]),3,
                                        measLocCov,
                                        updatingSign,fitQoS,true);
-        } else {
+        } 
         ATH_MSG_WARNING( " number (" << nLocCoord << ") of local coordinates must be 1 or 2, can not update!" ); 
         return nullptr;
-      }
-    }
+      
+    
 }
 
 // updator #4 for Kalman Fitter - version with LocalParameters (for example for RIO_OnTrack)
@@ -157,9 +157,9 @@ Trk::TrackParameters* Trk::KalmanUpdatorSMatrix::addToState (const Trk::TrackPar
         ATH_MSG_WARNING( "expect nil FitQuality pointer, refuse operation to"
               << " avoid mem leak!" );
       return nullptr;
-    } else {
+    } 
       return prepareFilterStep (trkPar, measmtPar, measmtCov, 1, fitQoS, true);
-    }
+    
 }
 
 // inverse updator #1 for Kalman Fitter - version with Amg::Vector2D (for example for PrepRawData)
@@ -178,17 +178,17 @@ Trk::TrackParameters* Trk::KalmanUpdatorSMatrix::removeFromState (const Trk::Tra
                                      SParVector5(&inputTP.parameters()[0],5),covTrk,
                                      measLocPos[0],1,measLocCov,
                                      updatingSign,fitQoS,false);
-    } else if (nLocCoord == 2) {
+    } if (nLocCoord == 2) {
       return calculateFilterStep_2D (inputTP,
                                      SParVector5(&inputTP.parameters()[0],5),covTrk,
                                      SParVector2(measLocPos[0],measLocPos[1]),3,
                                      measLocCov,
                                      updatingSign,fitQoS,false);
-    } else {
+    } 
       ATH_MSG_WARNING( " number (" << nLocCoord << ") of local coordinates "
             << "must be 1 or 2, can not un-update!" ); 
       return nullptr;
-    }
+    
 }
 
 // inverse updator #2 for Kalman Fitter - version with LocalParameters (for example for RIO_OnTrack)
@@ -211,7 +211,7 @@ Trk::TrackParameters* Trk::KalmanUpdatorSMatrix::removeFromState (const Trk::Tra
       msg(MSG::WARNING) << "expect nil FitQuality pointer, refuse operation to"
             << " avoid mem leak!" << endmsg;
       return nullptr;
-    } else {
+    } 
       SCovMatrix5 covTrk;
       
       if (!getStartCov(covTrk,inputTP,updatingSign)) return nullptr;
@@ -222,18 +222,18 @@ Trk::TrackParameters* Trk::KalmanUpdatorSMatrix::removeFromState (const Trk::Tra
                                        SParVector5(&inputTP.parameters()[0],5),covTrk,
                                        measLocPos[0],1,measLocCov,
                                        updatingSign,fitQoS,true);
-      } else if (nLocCoord == 2) {
+      } if (nLocCoord == 2) {
         return calculateFilterStep_2D (inputTP,
                                        SParVector5(&inputTP.parameters()[0],5),covTrk,
                                        SParVector2(measLocPos[0],measLocPos[1]),3,
                                        measLocCov,
                                        updatingSign,fitQoS,true);
-      } else {
+      } 
         ATH_MSG_WARNING( " number (" << nLocCoord << ") of local coordinates"
               << " must be 1 or 2, can not un-update!" );
         return nullptr;
-      }
-    }
+      
+    
 }
 
 // inverse updator #4 for Kalman Fitter - version with LocalParameters (for example for RIO_OnTrack)
@@ -245,9 +245,9 @@ Trk::TrackParameters* Trk::KalmanUpdatorSMatrix::removeFromState (const Trk::Tra
     if (fitQoS) {
         ATH_MSG_WARNING( "expect nil FitQuality pointer, refuse operation to avoid mem leak!" );
         return nullptr;
-    } else {
+    } 
         return prepareFilterStep (trkPar, measmtPar, measmtCov, -1, fitQoS, true);
-    }
+    
 }
 
 // state-to-state updator, trajectory combination - version without fitQuality
@@ -350,7 +350,7 @@ Trk::KalmanUpdatorSMatrix::fullStateFitQuality (const Trk::TrackParameters& trkP
                          (*trkPar.covariance()),
                          locPos[Trk::locX],covRio(0,0),
                          1,-1); // key=1, signForUpdatedChi2 = -1
-    } else if (nLocCoord == 2) {
+    } if (nLocCoord == 2) {
       SCovMatrix2 SmeasCov;
       SmeasCov(0,0) = covRio(0,0);
       SmeasCov(1,0) = covRio(0,1);
@@ -359,10 +359,10 @@ Trk::KalmanUpdatorSMatrix::fullStateFitQuality (const Trk::TrackParameters& trkP
                          (*trkPar.covariance()),
                          SParVector2(locPos[Trk::locX],locPos[Trk::locY]),
                          SmeasCov, 2,-1);
-    } else {
+    } 
       ATH_MSG_WARNING( "Error in local position - must be 1D or 2D!" );
       return nullptr;
-    }
+    
 }
 
 
@@ -388,7 +388,7 @@ Trk::KalmanUpdatorSMatrix::fullStateFitQuality (const Trk::TrackParameters& trkP
                          (*trkPar.covariance()),
                          parRio[s_enumAccessor.pardef[intAccessor(0)]],covRio(0,0),
                          parRio.parameterKey(),-1);
-    } else if (nLocCoord == 2) {
+    } if (nLocCoord == 2) {
       SCovMatrix2 SmeasCov;
       for (int i=0, irow=0; i<5; ++i) {
         if (parRio.parameterKey() & (1<<i)) {
@@ -402,14 +402,14 @@ Trk::KalmanUpdatorSMatrix::fullStateFitQuality (const Trk::TrackParameters& trkP
                          SParVector2(parRio[s_enumAccessor.pardef[intAccessor(0)]],
                                      parRio[s_enumAccessor.pardef[intAccessor(1)]]),
                          SmeasCov, parRio.parameterKey(),-1);
-    } else if (nLocCoord == 5) {
+    } if (nLocCoord == 5) {
       return makeChi2_5D(SParVector5(&trkPar.parameters()[0],5),
                          (*trkPar.covariance()),
                          SParVector5(parRio[Trk::locX],parRio[Trk::locY],
                                      parRio[Trk::phi0],parRio[Trk::theta],
                                      parRio[Trk::qOverP]),
                          covRio,-1);
-    } else { // stay with Eigen for other cases
+    } // stay with Eigen for other cases
 
       // State to measurement dimensional reduction Matrix ( n x m )
       const Amg::MatrixX& H = parRio.expansionMatrix();
@@ -421,7 +421,7 @@ Trk::KalmanUpdatorSMatrix::fullStateFitQuality (const Trk::TrackParameters& trkP
       
       // all the rest is outsourced to a common chi2 routine
       return makeChi2Object(r,(*trkPar.covariance()),covRio,H,-1);
-    }
+    
 }
 
 // estimator for FitQuality on Surface (allows for setting of LR for straws)
@@ -447,7 +447,7 @@ Trk::KalmanUpdatorSMatrix::predictedStateFitQuality (const Trk::TrackParameters&
                          (*predPar.covariance()),
                          rioLocPos[Trk::locX],covRio(0,0),
                          1,+1); // key=1, signForUpdatedChi2 = +1
-    } else if (nLocCoord == 2) {
+    } if (nLocCoord == 2) {
       SCovMatrix2 SmeasCov;
       SmeasCov(0,0) = covRio(0,0);
       SmeasCov(1,0) = covRio(1,0);
@@ -456,10 +456,10 @@ Trk::KalmanUpdatorSMatrix::predictedStateFitQuality (const Trk::TrackParameters&
                          (*predPar.covariance()),
                          SParVector2(rioLocPos[Trk::locX],rioLocPos[Trk::locY]),
                          SmeasCov, 2,+1);
-    } else {
+    } 
       ATH_MSG_WARNING( "Error in local position - must be 1D or 2D!" );
       return nullptr;
-    }
+    
 }
 
 // estimator for FitQuality on Surface (allows for setting of LR for straws)
@@ -489,7 +489,7 @@ Trk::KalmanUpdatorSMatrix::predictedStateFitQuality (const Trk::TrackParameters&
                          (*predPar.covariance()),
                          parRio[s_enumAccessor.pardef[intAccessor(0)]],covRio(0,0),
                          parRio.parameterKey(),+1);
-    } else if (nLocCoord == 2) {
+    } if (nLocCoord == 2) {
       SCovMatrix2 SmeasCov;
       for (int i=0, irow=0; i<5; ++i) {
         if (parRio.parameterKey() & (1<<i)) {
@@ -503,14 +503,14 @@ Trk::KalmanUpdatorSMatrix::predictedStateFitQuality (const Trk::TrackParameters&
                          SParVector2(parRio[s_enumAccessor.pardef[intAccessor(0)]],
                                      parRio[s_enumAccessor.pardef[intAccessor(1)]]),
                          SmeasCov, parRio.parameterKey(),+1);
-    } else if (nLocCoord == 5 ) {
+    } if (nLocCoord == 5 ) {
       return makeChi2_5D(SParVector5(&predPar.parameters()[0],5),
                          (*predPar.covariance()),
                          SParVector5(parRio[Trk::locX],parRio[Trk::locY],
                                      parRio[Trk::phi0],parRio[Trk::theta],
                                      parRio[Trk::qOverP]),
                          covRio,+1);
-    } else { // stay with CLHEP for other cases
+    } // stay with CLHEP for other cases
 
       // State to measurement dimensional reduction Matrix ( n x m )
       const Amg::MatrixX& H = parRio.expansionMatrix();
@@ -523,7 +523,7 @@ Trk::KalmanUpdatorSMatrix::predictedStateFitQuality (const Trk::TrackParameters&
       // all the rest is outsourced to a common chi2 routine
       return makeChi2Object(r,(*predPar.covariance()),
                             covRio,H,+1);
-    }
+    
 }
 
 // estimator for FitQuality on Surface (allows for setting of LR for straws)
@@ -617,7 +617,7 @@ Trk::KalmanUpdatorSMatrix::calculateFilterStep_1D (const TrackParameters& TP,
   if (R == 0.0) {
     ATH_MSG_DEBUG( "inversion of the error-on-the-residual failed.");
     return nullptr;
-  } else R = 1./R;
+  } R = 1./R;
 
   // --- compute Kalman gain matrix
   ROOT::Math::SMatrix<double,5,1,ROOT::Math::MatRepStd<double, 5, 1> >
@@ -1105,9 +1105,9 @@ Trk::FitQualityOnSurface* Trk::KalmanUpdatorSMatrix::makeChi2_1D(const SParVecto
   if (chiSquared == 0.0) {
     ATH_MSG_DEBUG( "inversion of the error-on-the-residual failed." );
     return nullptr;
-  } else {
+  } 
     chiSquared = r*r/chiSquared;
-  }
+  
   return new FitQualityOnSurface(chiSquared, 1);
 }
 
@@ -1204,7 +1204,7 @@ SCovMatrix2 Trk::KalmanUpdatorSMatrix::projection_2D(const SCovMatrix5& M, const
   if (key == 3) { // shortcut the most-used case
     SCovMatrix2 S = M.Sub<SCovMatrix2> (0,0);
     return S;
-  } else {
+  } 
     ROOT::Math::SVector<int,2>  iv;
     for (int i=0,k=0; i<5; ++i) { if (key & (1<<i)) iv(k++)=i; }
     SCovMatrix2 covSubMatrix;
@@ -1214,7 +1214,7 @@ SCovMatrix2 Trk::KalmanUpdatorSMatrix::projection_2D(const SCovMatrix5& M, const
       }
     }
     return covSubMatrix;
-  }
+  
 }
 
 SCovMatrix2 Trk::KalmanUpdatorSMatrix::projection_2D(const Amg::MatrixX& M,
@@ -1235,7 +1235,7 @@ SCovMatrix3 Trk::KalmanUpdatorSMatrix::projection_3D(const SCovMatrix5& M, const
 {
   if (key == 7) { // shortcut the most-used case
     return M.Sub<SCovMatrix3> (0,0);
-  } else {
+  } 
     ROOT::Math::SVector<int,3>  iv;
     for (int i=0,k=0; i<5; ++i) { if (key & (1<<i)) iv(k++)=i; }
     SCovMatrix3 covSubMatrix;
@@ -1245,14 +1245,14 @@ SCovMatrix3 Trk::KalmanUpdatorSMatrix::projection_3D(const SCovMatrix5& M, const
       }
     }
     return covSubMatrix;
-  }
+  
 }
 
 SCovMatrix4 Trk::KalmanUpdatorSMatrix::projection_4D(const SCovMatrix5& M, const int& key) const
 {
   if (key == 15) { // shortcut the most-used case
     return M.Sub<SCovMatrix4> (0,0);
-  } else {
+  } 
     ROOT::Math::SVector<int,4> iv;
     for (int i=0,k=0; i<5; ++i) { if (key & (1<<i)) iv(k++)=i; }
     SCovMatrix4 covSubMatrix;
@@ -1262,7 +1262,7 @@ SCovMatrix4 Trk::KalmanUpdatorSMatrix::projection_4D(const SCovMatrix5& M, const
       }
     }
     return covSubMatrix;
-  }
+  
 }
 
 bool Trk::KalmanUpdatorSMatrix::getStartCov(SCovMatrix5& M,
@@ -1275,11 +1275,11 @@ bool Trk::KalmanUpdatorSMatrix::getStartCov(SCovMatrix5& M,
     if (isign<0) {
       ATH_MSG_WARNING ("MeasuredTrackParameters == Null, can not calculate updated parameter state.");
       return false;
-    } else {
+    } 
       // no error given - use a huge error matrix for the time
       ATH_MSG_VERBOSE ("-U- no covTrk at input - assign large error matrix for the time being.");
       M.SetDiagonal(m_cov0);
-    }
+    
   } else {
     //    int k = measTrkPar->localAmg::MatrixX().covariance().cols(); is always 5
     for (int i=0; i<5; ++i) {
@@ -1323,7 +1323,7 @@ bool Trk::KalmanUpdatorSMatrix::consistentParamDimensions(const Trk::LocalParame
     ATH_MSG_WARNING ("dim of local parameters: "<<P.dimension()<<" vs. dim of error matrix: "<<dimCov);
     ATH_MSG_INFO    ("==> refuse update or chi2 calculation");
     return false;
-  } else return true;
+  } return true;
 }
 
 bool Trk::KalmanUpdatorSMatrix::correctThetaPhiRange_5D(SParVector5& V,SCovMatrix5& M,

@@ -169,11 +169,6 @@ namespace Rec
     /** @} */
 
 private:
-    /**Cached pointer to the Perigee (if one was used to create this class).
-    It is required that Trk::TrackParticleBase::definingParameters() is actually a Perigee. If not then
-    this call just returns a 0 pointer.*/
-    mutable const Trk::Perigee*       m_cachedPerigee;
-
     AthenaBarCodeImpl m_abc;
     };
 }
@@ -185,10 +180,8 @@ SG_BASES2 (Rec::TrackParticle,
 
 inline const Trk::Perigee* Rec::TrackParticle::measuredPerigee() const
 {
-    if (0==m_cachedPerigee){
-        m_cachedPerigee = dynamic_cast<const Trk::Perigee*>( &definingParameters() );
-    }
-    return m_cachedPerigee;
+  //use the method from Particle Base
+   return this->perigee();
 }
   
   /**

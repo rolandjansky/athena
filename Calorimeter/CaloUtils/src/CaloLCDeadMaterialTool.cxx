@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef DEBUG_DMTHINGS
@@ -94,15 +94,15 @@ StatusCode CaloLCDeadMaterialTool::initialize()
 {
   if(m_interpolate) {
     msg(MSG::INFO) << "Interpolation is ON, dimensions: ";
-    for(std::map<std::string, std::vector<std::string> >::iterator it=m_interpolateDimensionNames.begin(); it!=m_interpolateDimensionNames.end(); it++){
+    for(std::map<std::string, std::vector<std::string> >::iterator it=m_interpolateDimensionNames.begin(); it!=m_interpolateDimensionNames.end(); ++it){
       msg(MSG::INFO) << " " << (*it).first << " (";
-      for(std::vector<std::string >::iterator it2 = (*it).second.begin(); it2!=(*it).second.end(); it2++) {
+      for(std::vector<std::string >::iterator it2 = (*it).second.begin(); it2!=(*it).second.end(); ++it2) {
         msg() << (*it2) << " ";
       }
       msg() << ")";
     }
     msg() << endmsg;
-    for(std::map<std::string, std::vector<std::string> >::iterator it=m_interpolateDimensionNames.begin(); it!=m_interpolateDimensionNames.end(); it++){
+    for(std::map<std::string, std::vector<std::string> >::iterator it=m_interpolateDimensionNames.begin(); it!=m_interpolateDimensionNames.end(); ++it){
       std::vector<int > *vtmp=0;
       if((*it).first == "AREA_DMFIT") {
         vtmp = &m_interpolateDimensionsFit;
@@ -114,7 +114,7 @@ StatusCode CaloLCDeadMaterialTool::initialize()
         msg(MSG::WARNING) << "Unkown dead material area type '" << (*it).first << "'" << std::endl;
         continue;
       }
-      for(std::vector<std::string >::iterator it2 = (*it).second.begin(); it2!=(*it).second.end(); it2++) {
+      for(std::vector<std::string >::iterator it2 = (*it).second.begin(); it2!=(*it).second.end(); ++it2) {
         CaloLocalHadDefs::LocalHadDimensionId id = CaloLCCoeffHelper::getDimensionId( (*it2) );
         if(id!=CaloLocalHadDefs::DIMU_UNKNOWN) {
           vtmp->push_back(int(id));

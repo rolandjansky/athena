@@ -181,6 +181,7 @@ class LegacyThreshold( Threshold ):
                            had_veto = p['had_veto'],
                            isobits = p['isobits'],
                            use_relIso = p['use_relIso'])
+        thrv.checkOverlapAny( self.thresholdValues )
         self.thresholdValues.append(thrv)
         return self
 
@@ -611,6 +612,14 @@ class ThresholdValue(object):
         self.window = window
         self.priority = priority
 
+    def checkOverlapAny(self, listOfThrValues):
+        for rv in listOfThrValues:
+            if rv.priority != self.priority:
+                continue
+            if (self.etamax >= rv.etamin) and (self.etamin <= rv.etamax):
+                # overlaps with existing range of the same priority
+                raise RuntimeError( "ThresholdValue %s: Range eta %i - %i (priority %i) overlaps with existing range of the same priority" % \
+                                    (self.name, self.etamin, self.etamax, self.priority) )
 
     def setIsolation(self, em_isolation, had_isolation, had_veto, isobits, use_relIso):
         self.em_isolation = em_isolation

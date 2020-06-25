@@ -58,7 +58,7 @@ namespace InDet{
     // Inputs are the cluster collection of a module, and the silicon 
     // detector manager, and the map to be filled.
     void execute(PixelClusterCollection* collection,
-                 PixelGangedClusterAmbiguities& map);  
+                 PixelGangedClusterAmbiguities& map) const;  
  
   private:
 

@@ -23,7 +23,7 @@ atlas_add_component( TruthTools
                      src/TruthSelector.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} AtlasHepMCLib AthenaBaseComps GaudiKernel GeneratorObjects TruthUtils )
+                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} AtlasHepMCLib AthenaBaseComps GaudiKernel GeneratorObjects TruthUtils GenInterfacesLib )
 
 # Install files from the package:
 atlas_install_headers( TruthTools )

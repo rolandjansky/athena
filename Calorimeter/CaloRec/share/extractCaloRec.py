@@ -1,5 +1,9 @@
-import os, sys, commands,getopt, datetime
-#import os, sys, commands,getopt
+import os, sys, getopt, datetime
+#import os, sys, getopt
+
+from future import standard_library
+standard_library import aliases()
+import subprocess
 
 
 class LogClass:
@@ -136,14 +140,14 @@ class extract:
             if self.debugLevel:
                 mylog.log(com)
         
-            res=commands.getoutput(com)
+            res=subprocess.getoutput(com)
             tmp= res.splitlines() 
         else:
             for i in self.CaloList:
                 com="grep \"Time User\" " + file + " | grep \"\<" +i+":initi\""
                 if self.debugLevel:
                     mylog.log(com)
-                res=commands.getoutput(com)
+                res=subprocess.getoutput(com)
                 tmp += res.splitlines()
             
         return tmp
@@ -155,7 +159,7 @@ class extract:
         if self.debugLevel:
             mylog.log(com)
         
-        res=commands.getoutput(com)    
+        res=subprocess.getoutput(com)    
         res2= res.splitlines() 
         return res2
 
@@ -168,14 +172,14 @@ class extract:
             if self.debugLevel:
                 mylog.log(com)
         
-            res=commands.getoutput(com)    
+            res=subprocess.getoutput(com)    
             tmp= res.splitlines() 
         else:
             for i in self.CaloList:
                 com="grep \"Time User\" " + file + " | grep \"\<" +i
                 if self.debugLevel:
                     mylog.log(com)
-                res=commands.getoutput(com)
+                res=subprocess.getoutput(com)
                 tmp += res.splitlines()
 
         return tmp
@@ -192,14 +196,14 @@ class extract:
             if self.debugLevel:
                 mylog.log(com)
         
-            res=commands.getoutput(com)    
+            res=subprocess.getoutput(com)    
             tmp= res.splitlines() 
         else:
             for i in self.extraCaloList:
                 com="grep \"Time User\" " + file + " | grep '" +i+" '" 
                 if self.debugLevel:
                     mylog.log(com)
-                res=commands.getoutput(com)
+                res=subprocess.getoutput(com)
                 tmp += res.splitlines()
 
         return tmp
@@ -212,7 +216,7 @@ class extract:
         if self.debugLevel:
             mylog.log(com)
         
-        res=commands.getoutput(com)    
+        res=subprocess.getoutput(com)    
         res2= res.splitlines() 
         return res2
 
@@ -223,7 +227,7 @@ class extract:
         if self.debugLevel:
             mylog.log(com)
         
-        res=commands.getoutput(com)
+        res=subprocess.getoutput(com)
 
         if self.debugLevel:
             mylog.log(res)
@@ -239,7 +243,7 @@ class extract:
         if self.debugLevel:
             mylog.log(com)
         
-        res=commands.getoutput(com)    
+        res=subprocess.getoutput(com)    
         res2= res.splitlines() 
         return res2
 
@@ -250,7 +254,7 @@ class extract:
         if self.debugLevel:
             mylog.log(com)
         
-        res=commands.getoutput(com)    
+        res=subprocess.getoutput(com)    
         res2= res.splitlines() 
         return res2
 
@@ -262,7 +266,7 @@ class extract:
         if self.debugLevel:
             mylog.log(com)
         
-        res=commands.getoutput(com)    
+        res=subprocess.getoutput(com)    
         res2= res.splitlines() 
         return res2
 
@@ -277,7 +281,7 @@ class extract:
 
         if self.debugLevel:
             mylog.log(com)
-        res=commands.getoutput(com)    
+        res=subprocess.getoutput(com)    
         tmp +=res.splitlines()
 
         # real memory
@@ -285,7 +289,7 @@ class extract:
 
         if self.debugLevel:
             mylog.log(com)
-        res=commands.getoutput(com)    
+        res=subprocess.getoutput(com)    
         tmp +=res.splitlines()
     
         return tmp
@@ -300,7 +304,7 @@ class extract:
         if self.debugLevel:
             mylog.log(com)
         
-        res=commands.getoutput(com)
+        res=subprocess.getoutput(com)
         res2= res.splitlines()
         if len(res2)==0:
             return tmp
@@ -314,7 +318,7 @@ class extract:
         if self.debugLevel:
             mylog.log(com)
 
-        res=commands.getoutput(com)
+        res=subprocess.getoutput(com)
         res2= res.splitlines()
         if len(res2)==0:
             return tmp
@@ -335,7 +339,7 @@ class extract:
             t=i.lstrip()
             tmp=t.split(" ")
             alg.append(tmp[0])
-        #print alg
+        #printfunc (alg)
         for j in alg:
             tref=self.extractCPUTimeInitializeAlgo(reffile,str(j),mylog)
             tnew=self.extractCPUTimeInitializeAlgo(file,str(j),mylog)
@@ -344,7 +348,7 @@ class extract:
                     mylog.log(mess)
                     continue
             #if str(j)=="LArSWClusterMaker:initialize":
-            #    print str(j)," ", tref,"  ",tnew
+            #    printfunc (str(j)," ", tref,"  ",tnew)
             #if self.CPUTimeUnity(str(tref[0]))==self.CPUTimeUnity(str(tnew[0])):
             trefUnity=self.CPUTimeUnity(str(tref[0]))
             tnewUnity=self.CPUTimeUnity(str(tnew[0]))
@@ -397,8 +401,8 @@ class extract:
                 nbEvtRef=self.extractNbEventsExecuteAlgo(reffile,str(j),mylog)
                 tnew=self.extractCPUTimeExecuteAlgo(file,str(j),mylog)
                 nbEvtNew=self.extractNbEventsExecuteAlgo(file,str(j),mylog)
-                #print j," ", tref,"  ",tnew
-                #print 'KARIM2 ',j," ",nbEvtRef ,"  ",nbEvtNew
+                #printfunc (j," ", tref,"  ",tnew)
+                #printfunc ('KARIM2 ',j," ",nbEvtRef ,"  ",nbEvtNew)
                 if len(tnew)==0:
                     mess=j+" not found in " + file
                     mylog.log(mess)
@@ -461,8 +465,8 @@ class extract:
                 if isok==0:
                     continue
                     
-                # print j," ", tref,"  ",tnew
-                # print j," ",nbEvtRefb ,"  ",nbEvtNewb
+                # printfunc (j," ", tref,"  ",tnew)
+                # printfunc (j," ",nbEvtRefb ,"  ",nbEvtNewb)
                 
                 # convert en secondes
                 trefUnity=self.CPUTimeUnity(str(tref[0]))
@@ -539,7 +543,7 @@ class extract:
                 #mylog.log(mess)
                 #return
                 continue
-            # print memexeref, memexe
+            # printfunc (memexeref, memexe)
             if len(memexe)==0:
                 #mess='Info about memory execute not found'
                 #mylog.log(mess)
@@ -574,26 +578,26 @@ class extract:
 
         # find the first event with memory info
         #for i in range(1,int(nbEvents[0])+1):
-        #    print i
+        #    printfunc (i)
         #    try:
         #        memexeFIRST=self.extractMemoryCBNTExecute(file,i,mylog)
         #        firstEvForLeak=memexeFIRST
         #        break
         #    except:
-        #        print 'pipo'
+        #        printfunc ('pipo')
                 
         # find the last event with memory info
         #for i in range(int(nbEvents[0])+1,1):
-        #    print i
+        #    printfunc (i)
         #    try:
         #        memexeLAST=self.extractMemoryCBNTExecute(file,i,mylog)
         #        lastEvForLeak=memexeLAST
         #        break
         #    except:
-        #        print 'pipo'
+        #        printfunc ('pipo')
 
-        #print "first event : ", memexeFIRST
-        #print "last event : ", memexeLAST
+        #printfunc ("first event : ", memexeFIRST)
+        #printfunc ("last event : ", memexeLAST)
         
 
         #leakRSS=float(memexeLAST[1])-float(memexeFIRST[1])
@@ -601,7 +605,7 @@ class extract:
 
         com="grep \"only second half of the job\" " + file + " | awk '{print $9}'"
         
-        res=commands.getoutput(com)
+        res=subprocess.getoutput(com)
         res2= res.splitlines()
         
         mess="leak = "+str(res2[0])+" MByte/event"
@@ -622,7 +626,7 @@ class extract:
         if self.debugLevel:
             mylog.log(com)
         
-        res=commands.getoutput(com)    
+        res=subprocess.getoutput(com)    
         res2= res.splitlines() 
         return res2
 
@@ -638,7 +642,7 @@ class extract:
                 com="grep \"^Size of "+str(i)+"\" " + file + " | awk '{print $5}'"
                 if self.debugLevel:
                     mylog.log(com)
-                res=commands.getoutput(com)
+                res=subprocess.getoutput(com)
                 tmp += res.splitlines()
             return tmp
         else:
@@ -663,7 +667,7 @@ class extract:
                 com="ls -l  "+str(i)+" " + " | awk '{print $5}'"
                 if self.debugLevel:
                     mylog.log(com)
-                res=commands.getoutput(com)
+                res=subprocess.getoutput(com)
                 tmp += res.splitlines()
             return tmp
         else:
@@ -694,7 +698,7 @@ class extract:
             nbEventsRef=self.extractNbEventsExecuteAlgo(reffile,"CaloCellMaker:execute",mylog)
             nbEvents=self.extractNbEventsExecuteAlgo(file,"CaloCellMaker:execute",mylog)
 
-            #print 'KARIM',nbEventsRef,' ', nbEvents
+            #printfunc ('KARIM',nbEventsRef,' ', nbEvents)
 
             SizeOfFilesNew[j]=float(SizeOfFilesNew[j])/float(nbEvents[0])
             SizeOfFilesRef[j]=float(SizeOfFilesRef[j])/float(nbEventsRef[0])
@@ -716,20 +720,20 @@ class extract:
 ##     def extractLog(self,log):
 
 ##         com="grep ^BEGIN_RTTINFO "+log
-##         res=commands.getoutput(com)    
+##         res=subprocess.getoutput(com)    
 ##         res2=res.splitlines()
-##         print res2
+##         printfunc (res2)
 ##         names=[]
 ##         for i in res2:
 ##             name=i.split('=')
 ##             name[1]=name[1].strip()
 ##             names.append(name[1])
-##             print name[1]
+##             printfunc (name[1])
 ##             com="grep -n \"^BEGIN_RTTINFO = "+name[1]+"\" "+log+"| cut -d: -f1"
-##             print com
-##             n1=commands.getoutput(com)
+##             printfunc (com)
+##             n1=subprocess.getoutput(com)
 ##             com="grep -n \"^END_RTTINFO = "+name[1]+"\" "+log+" | cut -d: -f1"
-##             n2=commands.getoutput(com)
+##             n2=subprocess.getoutput(com)
 ##             nblines=int(n2)-int(n1)
 ##             newlog=name[1]+".log"
 ##             com="grep -A"+str(nblines)+" \"^BEGIN_RTTINFO = "+name[1]+"\" "+log +" >"+newlog
@@ -740,14 +744,14 @@ class extract:
 
 
         com="wc -l "+log +" | awk '{print $1}'"
-        res=commands.getoutput(com)    
+        res=subprocess.getoutput(com)    
         res2=res.splitlines()
         nbAllLines=int(res2[0])
 
-        #print nbAllLines
+        #printfunc (nbAllLines)
         
         com="grep ^BEGIN_RTTINFO "+log
-        res=commands.getoutput(com)    
+        res=subprocess.getoutput(com)    
         res2=res.splitlines()
         
         names=[]
@@ -757,20 +761,20 @@ class extract:
             names.append(name[1])
             
         for i in range(len(names)):
-            #print i,names[i]
+            #printfunc (i,names[i])
             #com="grep -n BEGIN_RTTINFO="+names[i]+" "+log+" | cut -d: -f1"
             com="grep -n \"^BEGIN_RTTINFO = "+names[i]+"\" "+log+"| cut -d: -f1"
-            n1=commands.getoutput(com)
+            n1=subprocess.getoutput(com)
             try:
                 #com="grep -n BEGIN_RTTINFO="+names[i+1]+" "+log+" | cut -d: -f1"
                 com="grep -n \"^BEGIN_RTTINFO = "+names[i+1]+"\" "+log+"| cut -d: -f1"
                 
-                n2=commands.getoutput(com)
+                n2=subprocess.getoutput(com)
             except:
                 n2=nbAllLines
             
             nblines=int(n2)-int(n1)-1
-            #print nblines
+            #printfunc (nblines)
             newlog=names[i]+".log"
             #com="grep -A"+str(nblines)+" BEGIN_RTTINFO="+names[i]+" "+log +" >"+newlog
             com="grep -A"+str(nblines)+" \"^BEGIN_RTTINFO = "+names[i]+"\" "+log +" >"+newlog
@@ -790,7 +794,7 @@ class extract:
         try:
  #           rttDescriptor = self.dict.get('JobDescriptor')
 #            log=rttDescriptor.log
-            res2=commands.getoutput("ls CaloRec_RTT_*_log")
+            res2=subprocess.getoutput("ls CaloRec_RTT_*_log")
             log=res2
         except:
             log=sys.argv[1]
@@ -814,7 +818,7 @@ class extract:
 
         for test in names:
             com="rm resultats.txt"
-            commands.getoutput(com)    
+            subprocess.getoutput(com)    
                
             mylog=LogClass("resultats.txt",1)
 
@@ -823,7 +827,7 @@ class extract:
             log=test+".log"
             com = "cat " +log + "|grep BEGIN_RTTINFO | cut -d= -f2| tail -n1" 
 
-            res=commands.getoutput(com)
+            res=subprocess.getoutput(com)
             jobopt=res.strip()
 
             mylog.log(str(res))
@@ -838,14 +842,14 @@ class extract:
             ok=0
             for i in self.logDict.keys():
                 if i==res.strip():
-                    print "Found : ",self.logDict[i]
+                    printfunc ("Found : ",self.logDict[i])
                     ok=1
                     self.reflog=self.logDict[i]
 
                     break
 
             if ok==0:
-                print "logfile not in dict !!!"
+                printfunc ("logfile not in dict !!!")
                 return              
 
 
@@ -878,15 +882,15 @@ class extract:
             mylog.log("Computing node informations : ")
 
             com="cat /etc/redhat-release"
-            res=commands.getoutput(com)
+            res=subprocess.getoutput(com)
             mylog.log("Operating system : "+str(res))
 
             com="cat /proc/cpuinfo | grep \"model name\" | tail -n1 | cut -d: -f2"
-            res=commands.getoutput(com)
+            res=subprocess.getoutput(com)
             mylog.log("CPU :"+str(res))
                 
             com="cat /proc/meminfo | grep MemTotal | cut -d: -f2"
-            res=commands.getoutput(com)
+            res=subprocess.getoutput(com)
             mylog.log("MEMORY :"+str(res))
             mylog.log("----------------------------------------------------------------------------------")
 
@@ -939,7 +943,7 @@ class extract:
 
             com="ls -ltr"
             mylog.log(com)
-            mylog.log(str(commands.getoutput(com)))
+            mylog.log(str(subprocess.getoutput(com)))
 
 
             mylog.close()

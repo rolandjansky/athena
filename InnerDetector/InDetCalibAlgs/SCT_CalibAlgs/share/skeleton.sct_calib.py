@@ -42,11 +42,6 @@ theApp.AuditAlgorithms = True
 theApp.AuditServices   = True
 
 #--------------------------------------------------------------
-# Load AthenaSealSvc
-#--------------------------------------------------------------
-ServiceMgr.AthenaSealSvc.CheckDictionary = True
-
-#--------------------------------------------------------------
 # User setup to run each algorithm
 # - SCTCalibConfig.py is used as input to the following
 #   flags/properties
@@ -497,7 +492,7 @@ SCTCalib.ReadBS         = ReadBS
 #--- Input files
 if hasattr( runArgs, 'InputType' ) :
     if runArgs.InputType is 'RAW' :
-        ServiceMgr.ByteStreamInputSvc.FullFileName = runArgs.inputNames
+        ServiceMgr.EventSelector.Input = runArgs.inputNames
 #        ServiceMgr.ByteStreamInputSvc.PartName = runArgs.part
     elif runArgs.InputType is 'NTUP_TRKVALID' :
         SCTCalib.InputTrkVal                       = runArgs.inputNames

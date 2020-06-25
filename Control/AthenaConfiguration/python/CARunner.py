@@ -36,8 +36,9 @@ if __name__=="__main__":
     acc=pickle.load(inFile)
 
     if acc._isMergable: #Not a top-level accumulator
-        from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg        
-        acc1=MainServicesSerialCfg()
+        from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        acc1=MainServicesCfg(ConfigFlags)
         acc1.merge(acc)
         acc1.run(nEvt)
     else:

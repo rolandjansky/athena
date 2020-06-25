@@ -6,7 +6,6 @@
 #
 from __future__ import with_statement, print_function
 
-__version__ = "$Revision$"
 __author__  = "Sebastien Binet <binet@cern.ch>"
 
 import sys
@@ -17,7 +16,7 @@ from AthenaCommon.Logging import log
 
 # import xml before ROOT to prevent crashes (LCG_96): ATEAM-597
 # should be OK to remove from LCG_97 on
-import xml.etree.cElementTree
+import xml.etree.cElementTree  # noqa: F401
 
 def ROOT6Setup():
    log.info('executing ROOT6Setup')
@@ -32,8 +31,8 @@ def ROOT6Setup():
        if six.PY3 and level < 0: level = 0
        m = oldimporthook(name, globals, locals, fromlist, level)
        if m and (m.__name__== 'ROOT' or name[0:4]=='ROOT') \
-             and (name!='ROOT' or fromlist!=None): # prevent triggering on just 'import ROOT'; see ATEAM-597
-          log.debug('Python import module=%s  fromlist=%s'%(name, str(fromlist)))
+             and (name!='ROOT' or fromlist is not None): # prevent triggering on just 'import ROOT'; see ATEAM-597
+          log.debug('Python import module=%s  fromlist=%s', name, str(fromlist))
           if fromlist:
              #MN: in this case 'm' is the final nested module already, don't walk the full 'name'
              vars = [ '.'.join(['', fl, autoload_var_name]) for fl in fromlist]
@@ -45,7 +44,7 @@ def ROOT6Setup():
                 #MN: walk the module chain and try to touch 'autoload_var_name' to trigger ROOT autoloading of namespaces
                 for comp in v.split('.')[1:]:
                    mm = getattr(mm, comp)
-             except:
+             except Exception:
                 pass
        return m
    

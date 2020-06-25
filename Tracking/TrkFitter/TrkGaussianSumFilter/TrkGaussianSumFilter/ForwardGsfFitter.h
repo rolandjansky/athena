@@ -2,15 +2,12 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/* *******************************************************************************
-      ForwardGsfFitter.h  -  description
-      ----------------------------------
-begin                : Wednesday 9th March 2005
-author               : atkinson
-email                : Tom.Atkinson@cern.ch
-decription           : Class definition for the forward GSF fitter
-**********************************************************************************
-*/
+/**
+ * @file   ForwardGsfFitter.h
+ * @date   Wednesday 9th March 2005
+ * @author Tom Athkinson, Anthony Morley, Christos Anastopoulos
+ * @brief   Class definition for the forward GSF fitter 
+ */
 
 #ifndef TrkForwardGsfFitter_H
 #define TrkForwardGsfFitter_H
@@ -60,6 +57,7 @@ public:
 
   /** Forward GSF fit using PrepRawData */
   virtual std::unique_ptr<ForwardTrajectory> fitPRD(
+    const EventContext& ctx,
     const PrepRawDataSet&,
     const TrackParameters&,
     const ParticleHypothesis particleHypothesis =
@@ -67,6 +65,7 @@ public:
 
   /** Forward GSF fit using MeasurementSet */
   virtual std::unique_ptr<ForwardTrajectory> fitMeasurements(
+    const EventContext& ctx,
     const MeasurementSet&,
     const TrackParameters&,
     const ParticleHypothesis particleHypothesis =
@@ -78,6 +77,7 @@ public:
 private:
   /** Progress one step along the fit */
   bool stepForwardFit(
+    const EventContext& ctx,
     ForwardTrajectory*,
     const PrepRawData*,
     const MeasurementBase*,

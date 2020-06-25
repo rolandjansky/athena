@@ -100,10 +100,16 @@ class DummyMaterialEffectsUpdator : public AthAlgTool,
 
     virtual void modelAction(const TrackParameters* parm=nullptr) const override{ 
       if(parm) return; 
-    } 
+    }
 
-    typedef IMaterialEffectsUpdator::ICache ICache;                                          
-    class Cache : public ICache{
+    typedef IMaterialEffectsUpdator::ICache ICache;
+    class Cache : public ICache
+    {
+    public:
+      virtual MaterialCacheType type() const override final
+      {
+        return ICache::DummyMaterialEffects;
+      }
     };
 
     virtual std::unique_ptr<ICache> getCache() const override{

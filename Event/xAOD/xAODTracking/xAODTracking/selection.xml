@@ -1,180 +1,135 @@
+<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
 <lcgdict>
-  <!-- VERTEX DICTIONARIES -->
+
+   <!-- xAOD::TrackParticle interface type(s). -->
+   <class name="xAOD::TrackParticle_v1" >
+      <field name="m_perigeeParameters" transient="true" />
+   </class>
+   <read sourceClass="xAOD::TrackParticle_v1" version="[1-]"
+         targetClass="xAOD::TrackParticle_v1" source="" target="" >
+     <![CDATA[
+        newObj->resetCache();
+      ]]>
+   </read>
+   <class name="xAOD::TrackParticleContainer_v1"
+          id="F7564EE8-3BD2-11E3-A42F-6C3BE51AB9F1" />
+   <typedef name="xAOD::TrackParticle" />
+   <typedef name="xAOD::TrackParticleContainer" />
+
+   <!-- xAOD::TrackParticle auxiliary type(s). -->
+   <class name="xAOD::TrackParticleAuxContainer_v1"
+          id="C3B01EA0-CA87-4C96-967F-E0F9A75BD370"/>
+   <class name="xAOD::TrackParticleAuxContainer_v2"
+          id="53031BE5-2156-41E8-B70C-41A1C0572FC5"/>
+   <read sourceClass="xAOD::TrackParticleAuxContainer_v2" version="[1-]"
+         targetClass="xAOD::TrackParticleAuxContainer_v2"
+         source="" target="" >
+     <![CDATA[
+       newObj->toTransient();
+      ]]>
+   </read>
+   <class name="xAOD::TrackParticleAuxContainer_v3"
+          id="F41DF744-242D-11E6-B472-02163E010CEC"/>
+   <read sourceClass="xAOD::TrackParticleAuxContainer_v3" version="[1-]"
+         targetClass="xAOD::TrackParticleAuxContainer_v3"
+         source="" target="" >
+     <![CDATA[
+       newObj->toTransient();
+      ]]>
+   </read>
+   <class name="xAOD::TrackParticleAuxContainer_v4"
+          id="403ceb6e-2a3d-11e8-b048-080027f5cbda"/>
+   <read sourceClass="xAOD::TrackParticleAuxContainer_v4" version="[1-]"
+         targetClass="xAOD::TrackParticleAuxContainer_v4"
+         source="" target="" >
+     <![CDATA[
+       newObj->toTransient();
+      ]]>
+   </read>
+   <class name="xAOD::TrackParticleAuxContainer_v5"
+          id="3CE194F2-99D1-42D5-A3EB-D193E0AFA9FF"/>
+   <typedef name="xAOD::TrackParticleAuxContainer" />
+
+   <!-- xAOD::NeutralParticle interface type(s). -->
+   <class name="xAOD::NeutralParticle_v1" >
+      <field name="m_perigeeParameters" transient="true" />
+   </class>
+   <read sourceClass="xAOD::NeutralParticle_v1" version="[1-]"
+         targetClass="xAOD::NeutralParticle_v1" source="" target="" >
+     <![CDATA[
+        newObj->resetCache();
+      ]]>
+   </read>
+   <class name="xAOD::NeutralParticleContainer_v1"
+          id="12869D6A-5CEB-11E3-B64A-02163E00A92F" />
+   <typedef name="xAOD::NeutralParticle" />
+   <typedef name="xAOD::NeutralParticleContainer" />
+
+   <!-- xAOD::NeutralParticle auxiliary type(s). -->
+   <class name="xAOD::NeutralParticleAuxContainer_v1"
+          id="006862BC-5CEB-11E3-9FB4-02163E00A92F" />
+   <typedef name="xAOD::NeutralParticleAuxContainer" />
   
-  <!-- Vertex_v1 dictionaries: -->
-  <class name="xAOD::Vertex_v1" >
-    <field name="m_position" transient="true" />
-    <field name="m_covariance" transient="true" />
-  </class>
-  <read sourceClass="xAOD::Vertex_v1" version="[1-]"
-        targetClass="xAOD::Vertex_v1" source="" target="" >
-    <![CDATA[
-       newObj->resetCache();
-    ]]>
-  </read>
-  <class name="xAOD::VertexContainer_v1"
-         id="00B6DBA1-0E0D-4FDA-BFEF-F08EEFFE4BA0" />
-  <class name="xAOD::VertexAuxContainer_v1"
-         id="B1F73A82-9B4E-4508-8EB0-EF7D6E05BA57" />
+   <!-- xAOD::Vertex interface type(s). -->
+   <class name="xAOD::Vertex_v1" >
+      <field name="m_position" transient="true" />
+      <field name="m_covariance" transient="true" />
+   </class>
+   <read sourceClass="xAOD::Vertex_v1" version="[1-]"
+         targetClass="xAOD::Vertex_v1" source="" target="" >
+     <![CDATA[
+        newObj->resetCache();
+      ]]>
+   </read>
+   <class name="xAOD::VertexContainer_v1"
+          id="00B6DBA1-0E0D-4FDA-BFEF-F08EEFFE4BA0" />
+   <typedef name="xAOD::Vertex" />
+   <typedef name="xAOD::VertexContainer" />
 
-  <!-- Vertex_v1 links: -->
-  <class name="DataLink<xAOD::VertexContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::VertexContainer_v1> >" />
+   <!-- xAOD::Vertex auxiliary type(s). -->
+   <class name="xAOD::VertexAuxContainer_v1"
+          id="B1F73A82-9B4E-4508-8EB0-EF7D6E05BA57" />
+   <typedef name="xAOD::VertexAuxContainer" />
 
-  <class name="ElementLink<xAOD::VertexContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::VertexContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::VertexContainer_v1> > >" />
-  
-  <!-- TRACK PARTICLE DICTIONARIES -->
-  
-  <!-- TrackParticle_v1 dictionaries: -->
-  <class name="xAOD::TrackParticle_v1">
-         <field name="m_perigeeParameters" transient="true"/>
-  </class>
-  <read sourceClass="xAOD::TrackParticle_v1" version="[1-]"
-        targetClass="xAOD::TrackParticle_v1" source="" target="" >
-    <![CDATA[
-       newObj->resetCache();
-    ]]> 
-  </read>
-  <class name="xAOD::TrackParticleAuxContainer_v1"
-         id="C3B01EA0-CA87-4C96-967F-E0F9A75BD370"/>
-  <class name="xAOD::TrackParticleContainer_v1"
-         id="F7564EE8-3BD2-11E3-A42F-6C3BE51AB9F1"/>
+   <!-- xAOD::TrackMeasurementValidation interface type(s). -->
+   <class name="xAOD::TrackMeasurementValidation_v1" />
+   <class name="xAOD::TrackMeasurementValidationContainer_v1"
+          id="868F1FD8-AFE7-4B40-B12E-73716C37A6B0" />
+   <typedef name="xAOD::TrackMeasurementValidation" />
+   <typedef name="xAOD::TrackMeasurementValidationContainer" />
 
-  <class name="xAOD::TrackParticleAuxContainer_v2"
-         id="53031BE5-2156-41E8-B70C-41A1C0572FC5"/>
+   <!-- xAOD::TrackMeasurementValidation auxiliary type(s). -->
+   <class name="xAOD::TrackMeasurementValidationAuxContainer_v1"
+          id="61B62A1A-4C51-43A2-9623-1B9E910A81E8" />
+   <typedef name="xAOD::TrackMeasurementValidationAuxContainer" />
 
-  <class name="xAOD::TrackParticleAuxContainer_v3"
-         id="F41DF744-242D-11E6-B472-02163E010CEC"/>
+   <!-- xAOD::TrackStateValidation interface type(s). -->
+   <class name="xAOD::TrackStateValidation_v1" />
+   <class name="xAOD::TrackStateValidationContainer_v1"
+          id="149664B4-C7A7-4373-B5BA-D8D2DB3E65B5" />
+   <typedef name="xAOD::TrackStateValidation" />
+   <typedef name="xAOD::TrackStateValidationContainer" />
 
-  <class name="xAOD::TrackParticleAuxContainer_v4"
-	 id="403ceb6e-2a3d-11e8-b048-080027f5cbda"/>
+   <!-- xAOD::TrackStateValidation auxiliary type(s). -->
+   <class name="xAOD::TrackStateValidationAuxContainer_v1"
+          id="797432BD-DBEE-4C08-BF8E-E0556434A3F3" />
+   <typedef name="xAOD::TrackStateValidationAuxContainer" />
 
-  <class name="xAOD::TrackParticleAuxContainer_v5"
-	 id="3CE194F2-99D1-42D5-A3EB-D193E0AFA9FF"/>
+   <!-- xAOD::SCTRawHitValidation interface type(s). -->
+   <class name="xAOD::SCTRawHitValidation_v1" />
+   <class name="xAOD::SCTRawHitValidationContainer_v1"
+          id="4F8042A1-64B0-42AB-B0A4-C9716C15336A" />
+   <typedef name="xAOD::SCTRawHitValidation" />
+   <typedef name="xAOD::SCTRawHitValidationContainer" />
 
-  <read sourceClass="xAOD::TrackParticleAuxContainer_v4" version="[1-]"
-        targetClass="xAOD::TrackParticleAuxContainer_v4"
-        source="" target="" >
-    <![CDATA[
-      newObj->toTransient();
-     ]]>
-  </read>
+   <!-- xAOD::SCTRawHitValidation auxiliary type(s). -->
+   <class name="xAOD::SCTRawHitValidationAuxContainer_v1"
+          id="788781DA-FE8A-414A-A72B-6E846094FCF8" />
+   <typedef name="xAOD::SCTRawHitValidationAuxContainer" />
 
-  <read sourceClass="xAOD::TrackParticleAuxContainer_v3" version="[1-]"
-        targetClass="xAOD::TrackParticleAuxContainer_v3"
-        source="" target="" >
-    <![CDATA[
-      newObj->toTransient();
-     ]]>
-  </read>
-
-  <read sourceClass="xAOD::TrackParticleAuxContainer_v2" version="[1-]"
-        targetClass="xAOD::TrackParticleAuxContainer_v2"
-        source="" target="" >
-    <![CDATA[
-      newObj->toTransient();
-     ]]>
-  </read>
-
-  <!-- NeutralParticle_v1 dictionaries: -->
-  <class name="xAOD::NeutralParticle_v1">
-         <field name="m_perigeeParameters" transient="true"/>
-  </class>
-  <read sourceClass="xAOD::NeutralParticle_v1" version="[1-]"
-        targetClass="xAOD::NeutralParticle_v1" source="" target="" >
-    <![CDATA[
-       newObj->resetCache();
-    ]]> 
-  </read>
-  <class name="xAOD::NeutralParticleAuxContainer_v1"
-         id="006862BC-5CEB-11E3-9FB4-02163E00A92F"/>
-  <class name="xAOD::NeutralParticleContainer_v1"
-         id="12869D6A-5CEB-11E3-B64A-02163E00A92F"/>  
-
-  <!-- All smart pointer dictionaries for xAOD::IParticle -->
-  <class name="DataLink<xAOD::TrackParticleContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::TrackParticleContainer_v1> >" />
-  
-  <class name="ElementLink<xAOD::TrackParticleContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::TrackParticleContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::TrackParticleContainer_v1> > >" />
-    
-  <!-- All smart pointer dictionaries for xAOD::IParticle -->
-  <class name="DataLink<xAOD::NeutralParticleContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::NeutralParticleContainer_v1> >" />
-
-  <class name="ElementLink<xAOD::NeutralParticleContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::NeutralParticleContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::NeutralParticleContainer_v1> > >" />
-
-  <!-- SCTRawHitValidation_v1 dictionaries: -->
-  <class name="xAOD::SCTRawHitValidation_v1"/>
-  <class name="xAOD::SCTRawHitValidationAuxContainer_v1"
-         id="788781DA-FE8A-414A-A72B-6E846094FCF8" />
-  <class name="xAOD::SCTRawHitValidationContainer_v1"
-         id="4F8042A1-64B0-42AB-B0A4-C9716C15336A" />
-
-   <!-- Smart pointers to objects: -->
-  <class name="DataLink<xAOD::SCTRawHitValidationContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::SCTRawHitValidationContainer_v1> >" />
-
-  <class name="ElementLink<xAOD::SCTRawHitValidationContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::SCTRawHitValidationContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::SCTRawHitValidationContainer_v1> > >" />
-
-  <!-- TrackMeasurementValidation_v1 dictionaries: -->
-  <class name="xAOD::TrackMeasurementValidation_v1"/>
-  <class name="xAOD::TrackMeasurementValidationAuxContainer_v1"
-         id="61B62A1A-4C51-43A2-9623-1B9E910A81E8"/>
-  <class name="xAOD::TrackMeasurementValidationContainer_v1"
-         id="868F1FD8-AFE7-4B40-B12E-73716C37A6B0"/>
-
-   <!-- Smart pointers to objects: -->
-  <class name="DataLink<xAOD::TrackMeasurementValidationContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::TrackMeasurementValidationContainer_v1> >" />
-
-  <class name="ElementLink<xAOD::TrackMeasurementValidationContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::TrackMeasurementValidationContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::TrackMeasurementValidationContainer_v1> > >" />
-
-
-  <!-- TrackStateValidation_v1 dictionaries: -->
-  <class name="xAOD::TrackStateValidation_v1"/>
-  <class name="xAOD::TrackStateValidationAuxContainer_v1"
-         id="797432BD-DBEE-4C08-BF8E-E0556434A3F3"/>
-  <class name="xAOD::TrackStateValidationContainer_v1"
-         id="149664B4-C7A7-4373-B5BA-D8D2DB3E65B5"/>
-
-  <!-- Smart pointers to objects: -->
-  <class name="DataLink<xAOD::TrackStateValidationContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::TrackStateValidationContainer_v1> >" />
-
-  <class name="ElementLink<xAOD::TrackStateValidationContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::TrackStateValidationContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::TrackStateValidationContainer_v1> > >" />
-
-  <class name="xAOD::CurvilinearParameters_t" />
-
-  <!-- Enums -->
-  <enum pattern="xAOD::*" />
-
-  <class name="std::vector<std::vector<std::vector<int> > >"/>
-  <class name="std::vector<std::vector<std::vector<float> > >"/>
-  <class name="std::vector<std::vector<unsigned long> >"/>
-
-
-  <!-- Suppress the unwanted classes found by ROOT 6. -->
-  <!-- Hopefully we can remove these extra lines at one point... -->
-  <exclusion>
-    <class name="SG::IConstAuxStore" />
-    <class name="DataLink<SG::IConstAuxStore>" />
-    <class name="DataVector<xAOD::IParticle>" />
-    <enum name="xAOD::Type::ObjectType" />
-  </exclusion>
-
-  <!--Add Helper Functions -->
-  <function pattern="xAOD::TrackParticleHelpers::*" />  
+   <!-- Additional type(s). -->
+   <class name="xAOD::CurvilinearParameters_t" />
+   <enum pattern="xAOD::*" />
+   <function pattern="xAOD::TrackParticleHelpers::*" />
 
 </lcgdict>

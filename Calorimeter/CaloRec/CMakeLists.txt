@@ -125,14 +125,19 @@ atlas_add_test( CaloCellContainerAliasAlg_test
 
 atlas_add_test( CaloThinCellsBySamplingAlg_test
                 SCRIPT python -m CaloRec.CaloThinCellsBySamplingAlg_test
-                PROPERTIES TIMEOUT 300
+                PROPERTIES TIMEOUT 600
                 LOG_SELECT_PATTERN "ERROR|error|WARNING [^U]|FATAL|processing" )
 
 
 atlas_add_test( CaloThinCellsByClusterAlg_test
                 SCRIPT python -m CaloRec.CaloThinCellsByClusterAlg_test
-                PROPERTIES TIMEOUT 300
+                PROPERTIES TIMEOUT 600
                 LOG_SELECT_PATTERN "ERROR|error|WARNING [^U]|FATAL|processing" )
+
+
+atlas_add_test( ToolConstantsCondAlg_test
+                SCRIPT test/ToolConstantsCondAlg_test.py
+                LOG_IGNORE_PATTERN "Cache alignment|Current filenames|Unable to locate catalog|peeking into" )
 
 
 atlas_add_test( CaloCellContainerAliasAlgConfig_test
@@ -148,3 +153,8 @@ atlas_add_test( CaloThinCellsByClusterAlgConfig_test
 atlas_add_test( CaloThinCellsBySamplingAlgConfig_test
                 SCRIPT python -m CaloRec.CaloThinCellsBySamplingAlgConfig
                 LOG_SELECT_PATTERN "ComponentAccumulator" )
+
+atlas_add_test( ToolConstantsCondAlgConfig_test
+                SCRIPT python -m CaloRec.ToolConstantsCondAlgConfig
+                LOG_SELECT_PATTERN "ComponentAccumulator|^---" )
+

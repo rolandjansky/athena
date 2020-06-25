@@ -3,6 +3,7 @@
 */
 
 #ifndef GENERATIONBASE
+#include "AsgDataHandles/ReadHandle.h"
 #include "MCTruthClassifier/MCTruthClassifier.h"
 using namespace MCTruthPartClassifier;
 using std::abs;

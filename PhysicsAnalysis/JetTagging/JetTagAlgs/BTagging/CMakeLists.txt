@@ -12,7 +12,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODBTagging
                           Event/xAOD/xAODJet
                           GaudiKernel
-                          MagneticField/MagFieldInterfaces
                           Reconstruction/Jet/JetInterface
                           Tracking/TrkEvent/VxVertex
                           PRIVATE
@@ -31,7 +30,10 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/Particle
                           Tracking/TrkEvent/TrkLinks
                           Tracking/TrkEvent/VxJetVertex
-                          Tracking/TrkEvent/VxSecVertex )
+                          Tracking/TrkEvent/VxSecVertex
+                          MagneticField/MagFieldElements
+                          MagneticField/MagFieldConditions
+			  )
 
 # External dependencies:
 find_package( Eigen )
@@ -55,13 +57,13 @@ atlas_add_library( BTaggingLib
                    src/HighLevelBTagAlg.cxx
                    PUBLIC_HEADERS BTagging
                    PRIVATE_INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES AsgTools AthenaBaseComps xAODBTagging xAODJet GaudiKernel MagFieldInterfaces JetInterface VxVertex ParticleJetToolsLib JetTagToolsLib FlavorTagDiscriminants
-                   PRIVATE_LINK_LIBRARIES ${EIGEN_LIBRARIES} GeoPrimitives xAODBase xAODCore xAODMuon xAODTracking InDetRecToolInterfaces JetTagEvent JetTagInfo Particle TrkLinks VxJetVertex VxSecVertex )
+                   LINK_LIBRARIES AsgTools AthenaBaseComps xAODBTagging xAODJet GaudiKernel JetInterface VxVertex ParticleJetToolsLib JetTagToolsLib FlavorTagDiscriminants
+                   PRIVATE_LINK_LIBRARIES ${EIGEN_LIBRARIES} GeoPrimitives xAODBase xAODCore xAODMuon xAODTracking InDetRecToolInterfaces JetTagEvent JetTagInfo Particle TrkLinks VxJetVertex VxSecVertex MagFieldElements MagFieldConditions )
 
 atlas_add_component( BTagging
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AsgTools AthenaBaseComps xAODBTagging xAODJet GaudiKernel MagFieldInterfaces JetInterface VxVertex GeoPrimitives xAODBase xAODCore xAODMuon xAODTracking InDetRecToolInterfaces ParticleJetToolsLib JetTagEvent JetTagInfo JetTagToolsLib FlavorTagDiscriminants Particle TrkLinks VxJetVertex VxSecVertex BTaggingLib )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AsgTools AthenaBaseComps xAODBTagging xAODJet GaudiKernel JetInterface VxVertex GeoPrimitives xAODBase xAODCore xAODMuon xAODTracking InDetRecToolInterfaces ParticleJetToolsLib JetTagEvent JetTagInfo JetTagToolsLib FlavorTagDiscriminants Particle TrkLinks VxJetVertex VxSecVertex BTaggingLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

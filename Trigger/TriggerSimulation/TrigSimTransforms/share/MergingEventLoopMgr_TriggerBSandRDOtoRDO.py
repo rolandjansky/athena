@@ -17,7 +17,6 @@ from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProvi
 #-------------------------------------------------------------------------------
 from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
 from PoolSvc.PoolSvcConf import PoolSvc
-from AthenaServices.AthenaServicesConf import AthenaSealSvc
 from AthenaPoolServices.AthenaRootStreamerSvcConf import AthenaRootStreamerSvc
 from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import EventSelectorAthenaPool
 from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import AthenaPoolAddressProviderSvc
@@ -82,7 +81,7 @@ svcMgr += StoreGateSvc("BSStoreGate")
 svcMgr += ByteStreamEventStorageInputSvc("ByteStreamInputSvc")
 svcMgr.ByteStreamInputSvc.EventStore        = svcMgr.BSStoreGate
 svcMgr.ByteStreamInputSvc.MetaDataStore     = svcMgr.BSMetaDataStore
-svcMgr.ByteStreamInputSvc.FullFileName      = athenaCommonFlags.BSRDOInput()
+svcMgr.EventSelector.Input      = athenaCommonFlags.BSRDOInput()
 
 svcMgr += EventSelectorByteStream("BSEventSelector")
 svcMgr.BSEventSelector.ByteStreamInputSvc = "ByteStreamInputSvc"
@@ -181,10 +180,6 @@ svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DEFAULT_SPLITLEVEL ='0'" ]
 svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "STREAM_MEMBER_WISE = '1'" ]
 svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DEFAULT_BUFFERSIZE = '32000'" ]
 svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "ContainerName = 'TTree=POOLContainer'; TREE_AUTO_FLUSH = '0'" ]
-
-svcMgr.AthenaSealSvc.CheckDictionary = True
-#svcMgr.AthenaSealSvc.CheckDictAtInit = True
-
 
 from OutputStreamAthenaPool.CreateOutputStreams import AthenaPoolOutputStream
 ostream = AthenaPoolOutputStream("StreamRDO", athenaCommonFlags.PoolRDOOutput(), True)

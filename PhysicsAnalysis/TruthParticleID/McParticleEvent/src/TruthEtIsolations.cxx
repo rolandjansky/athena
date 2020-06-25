@@ -99,7 +99,7 @@ TruthEtIsolations::hasEtIsol( const HepMC::GenParticle* p ) const
 {
   return ( 0 == p ) 
     ? false
-    : hasEtIsol( p->barcode() );
+    : hasEtIsol( HepMC::barcode(p) );
 }
 
 const TruthEtIsolations::EtIsol_t* 
@@ -107,7 +107,7 @@ TruthEtIsolations::etIsolations( const HepMC::GenParticle* p ) const
 {
   return ( 0 == p ) 
     ? 0
-    : etIsolations( p->barcode() );
+    : etIsolations( HepMC::barcode(p) );
 }
   
 double 
@@ -116,7 +116,7 @@ TruthEtIsolations::etIsol( const HepMC::GenParticle* p,
 {
   return ( 0 == p ) 
     ? m_dfltEtIsols[idx]
-    : etIsol( p->barcode(), idx );
+    : etIsol( HepMC::barcode(p), idx );
 }
 
 /////////////////////////////////////////////////////////////////// 
@@ -128,14 +128,14 @@ TruthEtIsolations::setEtIsol( const HepMC::GenParticle* genParticle,
 			      const TruthParticleParameters::ConeSize coneIdx,
 			      const double etIsol )
 {
-  m_etIsolations[genParticle->barcode()][coneIdx] = etIsol;
+  m_etIsolations[HepMC::barcode(genParticle)][coneIdx] = etIsol;
 }
 
 void 
 TruthEtIsolations::setEtIsol( const HepMC::GenParticle* genParticle,
 			      const std::vector<double>& etIsols )
 {
-  EtIsol_t& et = m_etIsolations[genParticle->barcode()];
+  EtIsol_t& et = m_etIsolations[HepMC::barcode(genParticle)];
   for ( std::size_t 
 	  i    = 0, 
 	  iMax = std::min<std::size_t>( etIsols.size(), 
@@ -152,7 +152,7 @@ void
 TruthEtIsolations::setEtIsol( const HepMC::GenParticle* genParticle,
 			      const EtIsol_t& etIsols )
 {
-  m_etIsolations[genParticle->barcode()] = etIsols;
+  m_etIsolations[HepMC::barcode(genParticle)] = etIsols;
 }
   
 /////////////////////////////////////////////////////////////////// 

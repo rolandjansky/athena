@@ -1,11 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CaloMonitoring/CaloMonToolBase.h" 
-#include "xAODEventInfo/EventInfo.h"
-#include "LArRecEvent/LArCollisionTime.h"
-#include "RecBackgroundEvent/BeamBackgroundData.h"
+#include "CaloMonToolBase.h" 
 #include "TH1F.h"
 
 CaloMonToolBase::CaloMonToolBase(const std::string& type, const std::string& name,const IInterface* parent) 
@@ -13,26 +10,27 @@ CaloMonToolBase::CaloMonToolBase(const std::string& type, const std::string& nam
    m_lb(0),
    m_passBeamBackgroundRemoval(false),
    m_h_EvtRejSumm(nullptr),
-   m_BadLBTool(this, "DQBadLBFilterTool"),
-   m_ReadyFilterTool(this, "DQAtlasReadyFilterTool")
+   m_BadLBTool(this, "BadLBTool", "DQBadLBFilterTool"),
+   m_ReadyFilterTool(this, "ReadyFilterTool", "DQAtlasReadyFilterTool")
  {
   declareProperty("useBadLBTool", m_useBadLBTool=false);
-  declareProperty("BadLBTool", m_BadLBTool);
 
   declareProperty("useReadyFilterTool",m_useReadyFilterTool=true);
-  declareProperty("ReadyFilterTool",m_ReadyFilterTool);
 
   declareProperty("useLArCollisionFilterTool",m_useCollisionFilterTool=true);
 
   declareProperty("useLArNoisyAlg",m_useLArNoisyAlg=false);
 
   declareProperty("useBeamBackgroundRemoval",m_useBeamBackgroundRemoval=false);
- //Key of the beam background object
-  declareProperty("BeamBackgroundKey",m_beamBackgroundKey="CSCBackgroundForCaloMon");
 }
 CaloMonToolBase::~CaloMonToolBase() {}
 
 StatusCode CaloMonToolBase::initialize() {
+
+  // initialize keys
+  ATH_CHECK( m_EventInfoKey.initialize() );
+  ATH_CHECK( m_LArCollisionTimeKey.initialize(m_useCollisionFilterTool) );
+  ATH_CHECK( m_beamBackgroundKey.initialize() );
 
   // retrieve AtlasReadyFilter tool
   if(m_useReadyFilterTool){
@@ -113,11 +111,10 @@ StatusCode CaloMonToolBase::checkFilters(bool& ifPass){
     ifPass = 1;
   }
 
-  const xAOD::EventInfo* eventInfo;
-  sc = evtStore()->retrieve(eventInfo);
-  if (sc.isFailure()) {
+  SG::ReadHandle<xAOD::EventInfo> eventInfo{m_EventInfoKey};
+  if (!eventInfo.isValid()) {
     ATH_MSG_ERROR("Event info not found !" );
-    return sc;
+    return StatusCode::SUCCESS;
   }
 
   m_lb = eventInfo->lumiBlock();
@@ -137,9 +134,8 @@ StatusCode CaloMonToolBase::checkFilters(bool& ifPass){
   // Filter the events identfied as collision by the LAr system
   // Useful in CosmicCalo to reject collision candidates
   if (m_useCollisionFilterTool){
-    const LArCollisionTime * larTime;
-    sc = evtStore()->retrieve(larTime,"LArCollisionTime");
-    if(sc.isFailure()){
+    SG::ReadHandle<LArCollisionTime> larTime{m_LArCollisionTimeKey};
+    if(!larTime.isValid()){
       ATH_MSG_WARNING("Unable to retrieve LArCollisionTime event store");
       if(ifPass) m_h_EvtRejSumm->Fill(4); 
     }
@@ -160,9 +156,8 @@ StatusCode CaloMonToolBase::checkFilters(bool& ifPass){
 
   m_passBeamBackgroundRemoval=true;
   if(m_useBeamBackgroundRemoval){
-    const BeamBackgroundData* beamBackgroundData;
-    sc = evtStore()->retrieve(beamBackgroundData, m_beamBackgroundKey);// "BeamBackgroundData");
-    if(sc.isFailure()){
+    SG::ReadHandle<BeamBackgroundData> beamBackgroundData{m_beamBackgroundKey};
+    if(!beamBackgroundData.isValid()){
       ATH_MSG_WARNING("Unable to retrieve BeamBackgroundData");
     }
     else {

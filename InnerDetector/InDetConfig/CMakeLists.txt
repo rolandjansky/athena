@@ -9,6 +9,6 @@ atlas_subdir( InDetConfig )
 atlas_install_python_modules( python/*.py )
 
 
-# atlas_add_test( InDetClusterization_test
-#     SCRIPT python -m InDetConfig.ClusterizationConfig
-#     PROPERTIES TIMEOUT 600)
+atlas_add_test( InDetClusterization_test
+    SCRIPT python -m InDetConfig.ClusterizationConfig
+    PROPERTIES TIMEOUT 600)

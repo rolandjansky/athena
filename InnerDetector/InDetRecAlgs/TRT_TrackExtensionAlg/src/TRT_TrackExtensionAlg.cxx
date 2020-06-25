@@ -16,7 +16,7 @@
 
 InDet::TRT_TrackExtensionAlg::TRT_TrackExtensionAlg
 (const std::string& name,ISvcLocator* pSvcLocator) :
-	AthAlgorithm(name, pSvcLocator) {
+	AthReentrantAlgorithm(name, pSvcLocator) {
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -38,11 +38,7 @@ StatusCode InDet::TRT_TrackExtensionAlg::initialize() {
 // Execute
 ///////////////////////////////////////////////////////////////////
 
-StatusCode InDet::TRT_TrackExtensionAlg::execute() {
-  return execute_r( Gaudi::Hive::currentContext() );
-}
-
-StatusCode InDet::TRT_TrackExtensionAlg::execute_r(const EventContext& ctx) const {
+StatusCode InDet::TRT_TrackExtensionAlg::execute(const EventContext& ctx) const {
         Counter_t counter;
 
 	// Get input tracks collection

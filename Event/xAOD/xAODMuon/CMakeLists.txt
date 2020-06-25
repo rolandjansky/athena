@@ -1,51 +1,40 @@
-# $Id: CMakeLists.txt 790886 2016-12-22 22:03:35Z ssnyder $
-################################################################################
-# Package: xAODMuon
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# Declare the package name:
+# Declare the package name.
 atlas_subdir( xAODMuon )
 
-# Extra dependencies, based on the build environment:
+# External dependencies.
+find_package( ROOT COMPONENTS Core GenVector )
+find_package( xAODUtilities )
+
+# Extra dependencies, based on the build environment.
+set( extra_libs )
 if( NOT XAOD_ANALYSIS AND NOT GENERATIONBASE )
-   set( extra_deps Tracking/TrkEvent/TrkSegment )
    set( extra_libs TrkSegment )
 endif()
 
-if (BUILDVP1LIGHT)
-    if( BUILDVP1LIGHT_DIST STREQUAL "ubuntu")
-        set( extra_libs ${extra_libs} GenVector )
-    endif()
-endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthContainers
-   Control/AthLinks
-   Event/xAOD/xAODBase
-   Event/xAOD/xAODCaloEvent
-   Event/xAOD/xAODCore
-   Event/xAOD/xAODPrimitives
-   Event/xAOD/xAODTracking
-   MuonSpectrometer/MuonStationIndex
-   ${extra_deps} )
-
-find_package( ROOT COMPONENTS Core GenVector )
-
-# Component(s) in the package:
+# Component(s) in the package.
 atlas_add_library( xAODMuon
    xAODMuon/*.h xAODMuon/versions/*.h Root/*.cxx
    PUBLIC_HEADERS xAODMuon
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks xAODBase xAODCaloEvent xAODCore
-   xAODPrimitives xAODTracking MuonStationIndexLib ${extra_libs} )
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks xAODBase
+   xAODCaloEvent xAODCore xAODPrimitives xAODTracking MuonStationIndexLib
+   ${extra_libs} )
+
+atlas_add_xaod_smart_pointer_dicts(
+   INPUT xAODMuon/selection.xml
+   OUTPUT _selectionFile
+   CONTAINERS "xAOD::MuonContainer_v1" "xAOD::MuonSegmentContainer_v1"
+              "xAOD::SlowMuonContainer_v1" )
 
 atlas_add_dictionary( xAODMuonDict
    xAODMuon/xAODMuonDict.h
-   xAODMuon/selection.xml
-   LINK_LIBRARIES xAODMuon
+   ${_selectionFile}
+   LINK_LIBRARIES xAODCore xAODMuon
    EXTRA_FILES Root/dict/*.cxx )
 
+# Test(s) in the package.
 atlas_add_test( xAODMuon_Muon_test
    SOURCES test/xAODMuon_Muon_test.cxx
    LINK_LIBRARIES xAODMuon )

@@ -79,6 +79,7 @@
 
 #include "LArGeoEndcap/EMECConstruction.h"
 #include "LArGeoEndcap/EMECSupportConstruction.h"
+#include "GeoModelKernel/GeoUnidentifiedShape.h"
 
 LArGeo::EMECConstruction::EMECConstruction(bool is_tb, bool has_inner, bool has_outer)
     : m_fullGeo(true), m_isTB(is_tb), m_hasInnerWheel(has_inner), m_hasOuterWheel(has_outer),
@@ -580,42 +581,56 @@ void LArGeo::EMECConstruction::place_custom_solids(
     const GeoMaterial *Glue, const GeoMaterial *Lead
 )
 {
-    for(auto shape: absorbers){
-        GeoLogVol* log_volume = new GeoLogVol(shape->name(), shape, Absorber);
-        GeoPhysVol* phys_volume = new GeoPhysVol(log_volume);
-        fullPV->add(new GeoIdentifierTag(1));
-        fullPV->add(new GeoTransform(GeoTrf::Transform3D::Identity()));
-        fullPV->add(phys_volume);
-        if(multilayered_absorbers > 0){
-            GeoPhysVol* glue_phys = phys_volume;
-            std::string lead_name = shape->name();
-            size_t repl = lead_name.find("Absorber");
-            if(std::string::npos != repl) lead_name.replace(repl, 8, "Lead");
-            else throw std::runtime_error(lead_name + ": cannot find 'Absorber'");
-            if(multilayered_absorbers != 2){
-                std::string glue_name = shape->name();
-                glue_name.replace(repl, 8, "Glue");
-                LArCustomShape* glue_shape = new LArCustomShape(glue_name);
-                GeoLogVol* glue_log = new GeoLogVol(glue_name, glue_shape, Glue);
-                glue_phys = new GeoPhysVol(glue_log);
-                phys_volume->add(new GeoIdentifierTag(1));
-                phys_volume->add(new GeoTransform(GeoTrf::Transform3D::Identity()));
-                phys_volume->add(glue_phys);
-            }
-            LArCustomShape* lead_shape = new LArCustomShape(lead_name);
-            GeoLogVol *lead_log = new GeoLogVol(lead_name, lead_shape, Lead);
-            GeoPhysVol *lead_phys  = new GeoPhysVol(lead_log);
-            glue_phys->add(new GeoIdentifierTag(1));
-            glue_phys->add(new GeoTransform(GeoTrf::Transform3D::Identity()));
-            glue_phys->add(lead_phys);
-        }
+
+  // This lambda function creates a proxy for the LArCustomShape:
+  auto toUnidentified = [] (const LArCustomShape *inputShape)
+    {
+      std::string name= inputShape->name();
+      return new GeoUnidentifiedShape("LArCustomShape",name);
+    };  
+
+  
+  for(auto shape: absorbers){
+    GeoLogVol* log_volume = new GeoLogVol(shape->name(), toUnidentified(shape), Absorber);
+    GeoPhysVol* phys_volume = new GeoPhysVol(log_volume);
+    fullPV->add(new GeoIdentifierTag(1));
+    fullPV->add(new GeoTransform(GeoTrf::Transform3D::Identity()));
+    fullPV->add(phys_volume);
+    if(multilayered_absorbers > 0){
+      GeoPhysVol* glue_phys = phys_volume;
+      std::string lead_name = shape->name();
+      size_t repl = lead_name.find("Absorber");
+      if(std::string::npos != repl) lead_name.replace(repl, 8, "Lead");
+      else throw std::runtime_error(lead_name + ": cannot find 'Absorber'");
+      if(multilayered_absorbers != 2){
+	std::string glue_name = shape->name();
+	glue_name.replace(repl, 8, "Glue");
+	LArCustomShape* glue_shape = new LArCustomShape(glue_name);
+	GeoLogVol* glue_log = new GeoLogVol(glue_name, toUnidentified(glue_shape), Glue);
+	glue_phys = new GeoPhysVol(glue_log);
+	phys_volume->add(new GeoIdentifierTag(1));
+	phys_volume->add(new GeoTransform(GeoTrf::Transform3D::Identity()));
+	phys_volume->add(glue_phys);
+	glue_shape->ref(); glue_shape->unref();
+      }
+      LArCustomShape* lead_shape = new LArCustomShape(lead_name);
+      GeoLogVol *lead_log = new GeoLogVol(lead_name, toUnidentified(lead_shape), Lead);
+      GeoPhysVol *lead_phys  = new GeoPhysVol(lead_log);
+      glue_phys->add(new GeoIdentifierTag(1));
+      glue_phys->add(new GeoTransform(GeoTrf::Transform3D::Identity()));
+      glue_phys->add(lead_phys);
+      lead_shape->ref(); lead_shape->unref();
     }
+    shape->ref(); shape->unref();
+    
+  }
 
     for(auto shape: electrodes){
-        GeoLogVol* log_volume = new GeoLogVol(shape->name(), shape, Electrode);
-        GeoPhysVol* phys_volume = new GeoPhysVol(log_volume);
-        fullPV->add(new GeoIdentifierTag(1));
-        fullPV->add(new GeoTransform(GeoTrf::Transform3D::Identity()));
-        fullPV->add(phys_volume);
+      GeoLogVol* log_volume = new GeoLogVol(shape->name(), toUnidentified(shape), Electrode);
+      GeoPhysVol* phys_volume = new GeoPhysVol(log_volume);
+      fullPV->add(new GeoIdentifierTag(1));
+      fullPV->add(new GeoTransform(GeoTrf::Transform3D::Identity()));
+      fullPV->add(phys_volume);
+      shape->ref(); shape->unref();
     }
 }

@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-"exec" "`which python`" "-tt" "$0" "$@";
+"exec" "`which python`" "-tt" "$0" "$@"
 
 # File: pyroot.py
 # Author: Sebastien Binet (binet@cern.ch)
@@ -10,7 +10,6 @@
 
 from __future__ import print_function
 
-__version__ = '$Revision$'
 __author__  = 'Sebastien Binet (binet@cern.ch)'
 __doc__     = 'For details about pyroot.py, run "less `which pyroot.py`"'
 
@@ -32,8 +31,7 @@ def _help_and_exit( reason = None ):
      --no-display                           prompt, but no graphics display
  -c, --command                        ...  one-liner, runs before any scripts
  -h, --help                           ...  print this help message
- -v, --version                        ...  print version number
- -,-- [arg1,...]                      ...  additional arguments passed directly 
+ -,-- [arg1,...]                      ...  additional arguments passed directly
                                            to user scripts (left untouched)
  [<file1>.py [<file2>.py [...]]]      ...  scripts to run""")
 
@@ -75,23 +73,20 @@ for opt, arg in optlist:
    elif opt in ("-i", "--interactive"):
       runBatch = 0
       defOptions = ""
-      if display == None: display = 1
+      if display is None: display = 1
    elif opt in ("--no-display",):
       display = 0
    elif opt in ("-c", "--command"):
       command = string.strip( arg )
    elif opt in ("-h", "--help"):
       _help_and_exit()
-   elif opt in ("-v", "--version"):
-      print (__version__)
-      sys.exit(0)
 
 if optlist: del opt, arg
 del args, optlist, opts
 del _useropts, _userlongopts, string, getopt
 
 ## for the benefit of PyROOT
-if not display and not '-b' in sys.argv:
+if not display and '-b' not in sys.argv:
    sys.argv = sys.argv[:1] + ['-b'] + sys.argv[1:]
 del display
 
@@ -100,7 +95,7 @@ del display
 if not os.getcwd() in sys.path:
    sys.path = [ os.getcwd() ] + sys.path
 
-if not '' in sys.path:
+if '' not in sys.path:
    sys.path = [ '' ] + sys.path
 
 sys.ps1 = 'pyroot> '
@@ -116,7 +111,7 @@ if runBatch:
 else:
    os.environ['PYTHONINSPECT'] = '1'
  # readline support
-   import rlcompleter, readline
+   import rlcompleter, readline  # noqa: F401
 
    readline.parse_and_bind( 'tab: complete' )
    readline.parse_and_bind( 'set show-all-if-ambiguous On' )

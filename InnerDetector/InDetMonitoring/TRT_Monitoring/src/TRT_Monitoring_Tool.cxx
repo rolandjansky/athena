@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TRT_Monitoring/TRT_Monitoring_Tool.h"
+#include "TRT_Monitoring_Tool.h"
 
 #include "AthContainers/DataVector.h"
 #include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
@@ -589,7 +589,7 @@ StatusCode TRT_Monitoring_Tool::initialize() {
 	ATH_CHECK( m_xAODEventInfoKey.initialize() );
 	ATH_CHECK( m_TRT_BCIDCollectionKey.initialize() );
 	ATH_CHECK( m_comTimeObjectKey.initialize() );
-	ATH_CHECK( m_trigDecisionKey.initialize() );
+	ATH_CHECK( m_trigDecisionKey.initialize(!m_trigDecisionKey.empty()) );
 
 	ATH_MSG_INFO("My TRT_DAQ_ConditionsSvc is " << m_DAQSvc);
 
@@ -1131,7 +1131,13 @@ StatusCode TRT_Monitoring_Tool::fillHistograms() {
 	SG::ReadHandle<xAOD::EventInfo>     xAODEventInfo(m_xAODEventInfoKey);
 	SG::ReadHandle<InDetTimeCollection> trtBCIDCollection(m_TRT_BCIDCollectionKey);
 	SG::ReadHandle<ComTime>             comTimeObject(m_comTimeObjectKey);
-	SG::ReadHandle<xAOD::TrigDecision>  trigDecision(m_trigDecisionKey);
+	const xAOD::TrigDecision*           trigDecision(nullptr);
+	if (!m_trigDecisionKey.empty()) {
+		SG::ReadHandle<xAOD::TrigDecision> htrigDecision{m_trigDecisionKey};
+		if (htrigDecision.isValid()) {
+			trigDecision = htrigDecision.get();
+		}
+	}
 
 	if (!xAODEventInfo.isValid()) {
 		ATH_MSG_ERROR("Could not find event info object " << m_xAODEventInfoKey.key() <<
@@ -1170,7 +1176,7 @@ StatusCode TRT_Monitoring_Tool::fillHistograms() {
 			              " in store");
 			return StatusCode::FAILURE;
 		}
-		if (!trigDecision.isValid()) {
+		if (!m_trigDecisionKey.empty() && !trigDecision) {
 			ATH_MSG_INFO("Could not find trigger decision object " << m_trigDecisionKey.key() <<
 			              " in store");
 		}
@@ -1180,7 +1186,7 @@ StatusCode TRT_Monitoring_Tool::fillHistograms() {
 			             " in store");
 		}
 		if (m_passEventBurst) {
-			ATH_CHECK( fillTRTTracks(*trackCollection, trigDecision.ptr(), comTimeObject.ptr()) );
+			ATH_CHECK( fillTRTTracks(*trackCollection, trigDecision, comTimeObject.ptr()) );
 		}
 	}
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ***********************************************************
@@ -9,7 +9,7 @@
 // LArCellMonTools class                                       
 //                                                            
 // ***********************************************************                                                                                                                                                   
-#include "CaloMonitoring/LArCellBinning.h"
+#include "LArCellBinning.h"
 #include <iostream>
 #include "TMath.h"
 

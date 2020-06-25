@@ -1,4 +1,4 @@
-#include "TrigmuIso/muIso.h"
+#include "../muIso.h"
 
 DECLARE_COMPONENT( muIso )
 

@@ -39,12 +39,7 @@ namespace TruthHelper {
       }
     }
 
-    NCutter& operator=(const NCutter& rhs) {
-      NCutter tmp(rhs);
-      std::swap(m_selectors, tmp.m_selectors);
-
-      return *this;
-}
+    NCutter& operator=(const NCutter& rhs) ;
 
     ~NCutter() {
       std::vector<GenIMCselector*>::iterator i = m_selectors.begin();
@@ -53,7 +48,7 @@ namespace TruthHelper {
 
     GenIMCselector* create() const;
 
-    bool operator() (const HepMC::GenParticle* const ) const;
+    bool operator() (HepMC::ConstGenParticlePtr ) const;
 
 
   private:

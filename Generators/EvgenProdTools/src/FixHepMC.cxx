@@ -47,7 +47,7 @@ StatusCode FixHepMC::execute() {
     }
 
     // Event particle content cleaning -- remove "bad" structures
-    vector<HepMC::GenParticle*> toremove; toremove.reserve(10);
+    std::vector<HepMC::GenParticlePtr> toremove; toremove.reserve(10);
     long seenThisEvent = 0;
     /// @todo Use nicer particles accessor from TruthUtils / HepMC3 when it exists
     for (HepMC::GenEvent::particle_const_iterator ip = evt->particles_begin(); ip != evt->particles_end(); ++ip) {
@@ -137,17 +137,17 @@ StatusCode FixHepMC::finalize() {
 //@{
 
 // Identify PDG ID = 0 particles, usually from HEPEVT padding
-bool FixHepMC::isPID0(const HepMC::GenParticle* p) {
+bool FixHepMC::isPID0(const HepMC::GenParticlePtr p) {
   return p->pdg_id() == 0;
 }
 
 // Identify non-transportable stuff _after_ hadronisation
-bool FixHepMC::isNonTransportableInDecayChain(const HepMC::GenParticle* p) {
+bool FixHepMC::isNonTransportableInDecayChain(const HepMC::GenParticlePtr p) {
   return !MC::isTransportable(p) && MC::fromDecay(p);
 }
 
 // Identify internal "loop" particles
-bool FixHepMC::isLoop(const HepMC::GenParticle* p) {
+bool FixHepMC::isLoop(const HepMC::GenParticlePtr p) {
   if (p->production_vertex() == p->end_vertex() && p->end_vertex() != NULL) return true;
   if (m_loopByBC && p->production_vertex()) {
     /// @todo Use new particle MC::parents(...) tool

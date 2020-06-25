@@ -135,10 +135,10 @@ db = TileCalibTools.openDb('SQLITE', 'CONDBR2', 'UPDATE')
 tag = "RUN2-HLT-UPD1-00"
 for directory in sorted(timingDict.keys()):
     since = timingDict[directory]
-#    fileTdlas = directory+"/Tile.tdlas"
     fileTclas = directory+"/Tile.tclas"
     fillTimingTc(fileTclas,tag,since)
-#    fillTimingTd(fileTdlas,tag,since)
+    #fileTdlas = directory+"/Tile.tdlas"
+    #fillTimingTd(fileTdlas,tag,since)
 
 #=== close the database connection
 db.closeDatabase()

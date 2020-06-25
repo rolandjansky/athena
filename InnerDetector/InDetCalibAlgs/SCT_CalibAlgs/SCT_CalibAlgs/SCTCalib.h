@@ -46,7 +46,7 @@
 // Gaudi
 #include "GaudiKernel/ToolHandle.h" //member
 
-// STL and boost headers
+// STL headers
 #include <string>
 #include <vector>
 #include <utility>

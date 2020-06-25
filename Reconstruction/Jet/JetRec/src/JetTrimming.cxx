@@ -7,123 +7,77 @@
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/JetDefinition.hh"
 #include "fastjet/Selector.hh"
-#include "fastjet/tools/Filter.hh"
 #include "JetEDM/PseudoJetVector.h"
 
 #include "JetRec/PseudoJetTranslator.h"
 
 
-using fastjet::PseudoJet;
-using xAOD::JetContainer;
-
-
+  // tool implementing the operations to convert fastjet::PseudoJet -> xAOD::Jet
+const static PseudoJetTranslator s_pjTranslator(false, false); // false => do not save jet areas
 
 //**********************************************************************
 
 StatusCode JetTrimming::initialize() {
+  ATH_CHECK( JetGroomer::initialize() );
+
+  // Unfortunately not possible to do this because there is no
+  // declareProperty overload for CheckedProperty in AsgTool
+  //
+  // Enforce upper/lower limits of Gaudi::Properties
+  // m_rclus.verifier().setBounds(0.,10.);
+  // m_ptfrac.verifier().setBounds(0.,1.);
   if ( m_rclus < 0.0 || m_rclus > 10.0 ) {
-    ATH_MSG_ERROR("Invalid value for RClus " << m_rclus);
+    ATH_MSG_ERROR("Invalid value " << m_rclus << "for RClus. Allowable range is 0-10");
     return StatusCode::FAILURE;
   }
   if ( m_ptfrac < 0.0 || m_ptfrac > 1.0 ) {
-    ATH_MSG_ERROR("Invalid value for PtFrac " << m_ptfrac);
+    ATH_MSG_ERROR("Invalid value " << m_ptfrac << "for PtFrac. Allowable range is 0-1");
     return StatusCode::FAILURE;
   }
 
-  ATH_CHECK( m_inputPseudoJets.initialize() );
-  ATH_CHECK( m_inputJetContainer.initialize() );
+  // Define the trimmer
+  m_trimmer = std::make_unique<fastjet::Filter>(fastjet::JetDefinition(fastjet::kt_algorithm, m_rclus),
+						fastjet::SelectorPtFractionMin(m_ptfrac));
 
   ATH_MSG_INFO("     Recluster R: " << m_rclus);
   ATH_MSG_INFO("  pT faction min: " << m_ptfrac);
+
   return StatusCode::SUCCESS;
 }
 
 
 //**********************************************************************
-std::pair<std::unique_ptr<xAOD::JetContainer>, std::unique_ptr<SG::IAuxStore> > JetTrimming::getJets() const {
-  // Return this in case of any problems
-  auto nullreturn = std::make_pair(std::unique_ptr<xAOD::JetContainer>(nullptr), std::unique_ptr<SG::IAuxStore>(nullptr));
 
-  // -----------------------
-  // retrieve input
-  SG::ReadHandle<xAOD::JetContainer> jetContHandle(m_inputJetContainer);
-  if(!jetContHandle.isValid()) {
-    ATH_MSG_ERROR("No valid JetContainer with key "<< m_inputJetContainer.key());
-    return nullreturn;
-  }
+void JetTrimming::insertGroomedJet(const xAOD::Jet& parentjet, const PseudoJetContainer& inpjcont, xAOD::JetContainer& outcont, PseudoJetVector& trimpjvec) const {
 
-  SG::ReadHandle<PseudoJetContainer> pjContHandle(m_inputPseudoJets);
-  if(!pjContHandle.isValid()) {
-    ATH_MSG_ERROR("No valid PseudoJetContainer with key "<< m_inputPseudoJets.key());
-    return nullreturn;
-  }
+  const static SG::AuxElement::Accessor<const fastjet::PseudoJet*> s_pjAcc("PseudoJet");
+  const static SG::AuxElement::ConstAccessor<const fastjet::PseudoJet*> s_pjConstAcc("PseudoJet");
 
-  // Build the container to be returned 
-  // Avoid memory leaks with unique_ptr
-  auto trimmedJets = std::make_unique<xAOD::JetContainer>();
-  auto auxCont = std::make_unique<xAOD::JetAuxContainer>();
-  trimmedJets->setStore(auxCont.get());
+  // retrieve the PseudoJet from the parent :
+  const fastjet::PseudoJet& parentPJ = *s_pjConstAcc(parentjet);
 
+  // Trim :
+  fastjet::PseudoJet trimmedPJ = m_trimmer->result(parentPJ) ;
+  ATH_MSG_VERBOSE("   Input cluster sequence: " << parentPJ.associated_cluster_sequence());
+  ATH_MSG_VERBOSE(" Trimmed cluster sequence: " << trimmedPJ.associated_cluster_sequence());
 
-  // The trimmer 
-  fastjet::Filter trimmer(fastjet::JetDefinition(fastjet::kt_algorithm, m_rclus),
-                          fastjet::SelectorPtFractionMin(m_ptfrac));
+  // build the xAOD::Jet from the PseudoJet, and put it in the container
+  xAOD::Jet& jet = s_pjTranslator.translate(trimmedPJ, inpjcont, outcont, parentjet);
+  // The vector is resized externally to match the jet container size,
+  // so just fill the corresponding entry
+  trimpjvec[jet.index()] = trimmedPJ; // save a *copy* of this trimmed PJ
 
-  // tool implementing the operations to convert fastjet::PseudoJet -> xAOD::Jet
-  PseudoJetTranslator pjTranslator(false, false); // false => do not save jet areas
+  // decorate with the pointer to the PJ we keep in the evt store.
+  s_pjAcc(jet) = & trimpjvec[jet.index()];
 
-  // -----------------------
-  // Build a new pointer to a PseudoJetVector containing the final trimmed PseudoJets
-  // This allows us to own the vector of PseudoJet which we will put in the evt store.
-  // Thus the contained PseudoJet will be kept frozen there and we can safely use pointer to them from the xAOD::Jet objects
-  auto trimPJVector = std::make_unique<PseudoJetVector>( );
-  trimPJVector->resize( jetContHandle->size() );
-  // Accessors to retrieve and set the pointers to PseudoJet 
-  static SG::AuxElement::ConstAccessor<const fastjet::PseudoJet*> pjConstAcc("PseudoJet");
-  static SG::AuxElement::Accessor<const fastjet::PseudoJet*> pjAcc("PseudoJet");
-
-
-  // loop over input jets
-  int count = 0;
-  for (const xAOD::Jet* parentJet: *jetContHandle){
-    // retrieve the PseudoJet from the parent :
-    const PseudoJet * parentPJ = pjConstAcc(*parentJet);
-    
-    // Trim :
-    PseudoJet trimmedPJ = trimmer(*parentPJ) ;
-    (*trimPJVector)[count] = trimmedPJ; // save a *copy* of this trimmed PJ
-    
-    ATH_MSG_VERBOSE("   Input cluster sequence: " << parentPJ->associated_cluster_sequence());
-    ATH_MSG_VERBOSE(" Trimmed cluster sequence: " << trimmedPJ.associated_cluster_sequence());
-
-    // build the xAOD::Jet from the PseudoJet, and put it in the container
-    xAOD::Jet* jet = pjTranslator.translate(trimmedPJ, *pjContHandle, *trimmedJets, *parentJet);
-
-    // decorate with the pointer to the PJ we keep in the evt store. 
-    pjAcc(*jet) = & (*trimPJVector)[count] ; 
-    
-    int nptrim = trimmedPJ.pieces().size();
-    jet->setAttribute<int>(xAOD::JetAttribute::TransformType, xAOD::JetTransform::Trim);
-    jet->setAttribute(xAOD::JetAttribute::RClus, m_rclus);
-    jet->setAttribute(xAOD::JetAttribute::PtFrac, m_ptfrac);
-    jet->setAttribute<int>(xAOD::JetAttribute::NTrimSubjets, nptrim);
-    ATH_MSG_DEBUG("Properties after trimming:");
-    ATH_MSG_DEBUG("   ncon: " << trimmedPJ.constituents().size() << "/"
-		  << parentPJ->constituents().size());
-    ATH_MSG_DEBUG("   nsub: " << nptrim);
-    count++;
-  }
-
-  // -------------------------------------
-  // record final PseudoJetVector
-  SG::WriteHandle<PseudoJetVector> pjVectorHandle(m_finalPseudoJets);
-  if(!pjVectorHandle.record(std::move(trimPJVector))){
-    ATH_MSG_ERROR("Can't record PseudoJetVector under key "<< m_finalPseudoJets);
-    return nullreturn;
-  }
-  
-  // Return the jet container and aux, use move to transfer
-  // ownership of pointers to caller
-  return std::make_pair(std::move(trimmedJets), std::move(auxCont));
-
+  int nptrim = trimmedPJ.pieces().size();
+  jet.setAttribute<int>(xAOD::JetAttribute::TransformType, xAOD::JetTransform::Trim);
+  jet.setAttribute<int>(xAOD::JetAttribute::NTrimSubjets, nptrim);
+  // Need to convert from GaudiProperty
+  jet.setAttribute(xAOD::JetAttribute::RClus, float(m_rclus));
+  jet.setAttribute(xAOD::JetAttribute::PtFrac, float(m_ptfrac));
+  ATH_MSG_VERBOSE("Properties after trimming:");
+  ATH_MSG_VERBOSE("   ncon: " << trimmedPJ.constituents().size() << "/"
+		  << parentPJ.constituents().size());
+  ATH_MSG_VERBOSE("   nsub: " << nptrim);
 }

@@ -9,6 +9,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkVertexFitterInterfaces/IImpactPoint3dEstimator.h"
 #include "TrkNeutralParameters/NeutralParameters.h"
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 
 /**
  * @class Trk::ImpactPoint3dEstimator
@@ -27,10 +28,6 @@
  * EDM Migration to xAOD - move Trk::Vertex to Amg::Vector3D
  *
  */
-
-namespace MagField {
-  class IMagFieldSvc;
-}
 
 namespace Trk
 {
@@ -86,8 +83,9 @@ namespace Trk
     
     
     ToolHandle< Trk::IExtrapolator > m_extrapolator;
-    ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
-    
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey 
+          {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
+
     int m_maxiterations;
     double m_precision;
     

@@ -34,12 +34,7 @@ StatusCode CaloNoiseCondAlg::initialize() {
     return StatusCode::FAILURE;
   }
 
-  if ( m_useHVCorr) {
-    if (m_hvCorrKey.initialize().isFailure()) {
-      ATH_MSG_ERROR("useHVCorr set to true but failed to initialize LArHVCorrKey");
-      return StatusCode::FAILURE;
-    }
-  }
+  ATH_CHECK( m_hvCorrKey.initialize(m_useHVCorr) );
 
   if (m_lumi0<0) {
     if (m_lumiFolderKey.initialize().isFailure()) {

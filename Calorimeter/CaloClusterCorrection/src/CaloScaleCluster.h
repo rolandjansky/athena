@@ -1,10 +1,9 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloScaleCluster.h,v 1.1 2006-07-07 04:00:03 ssnyder Exp $
 /**
  * @file  CaloScaleCluster.h
  * @author scott snyder <snyder@bnl.gov>
@@ -37,14 +36,13 @@ class CaloScaleCluster
   : public CaloClusterCorrectionCommon
 {
  public:
-  // constructor 
-  CaloScaleCluster (const std::string& type,
-                    const std::string& name,
-                    const IInterface* parent);
+  /// Inherit constructor.
+  using CaloClusterCorrectionCommon::CaloClusterCorrectionCommon;
+
 
   /**
    * @brief Virtual function for the correction-specific code.
-   * @param ctx     The event context.
+   * @param myctx   ToolWithConstants context.
    * @param cluster The cluster to correct.
    *                It is updated in place.
    * @param elt     The detector description element corresponding
@@ -62,7 +60,7 @@ class CaloScaleCluster
    *                @c CaloSampling::CaloSample; i.e., it has both
    *                the calorimeter region and sampling encoded.
    */
-  virtual void makeTheCorrection (const EventContext& ctx,
+  virtual void makeTheCorrection (const Context& myctx,
                                   xAOD::CaloCluster* cluster,
                                   const CaloDetDescrElement* elt,
                                   float eta,
@@ -74,13 +72,16 @@ class CaloScaleCluster
   
 private:
   /// Calibration constant: tabulated arrays of function parameters.
-  CaloRec::Array<2> m_correction;
+  Constant<CxxUtils::Array<2> > m_correction
+  { this, "correction", "Arrays of function parameters" };
 
   /// Calibration constant: degree of the polynomial interpolation.
-  int               m_degree;
+  Constant<int> m_degree
+  { this, "degree", "Degree of the polynomial interpolation" };
 
   /// Calibration constant: maximum eta for which this correction is defined.
-  float             m_etamax;
+  Constant<float> m_etamax
+  { this, "etamax", "Maximum eta for which this correction is defined" };
 };
 
 

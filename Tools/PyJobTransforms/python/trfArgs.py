@@ -16,6 +16,7 @@ from PyJobTransforms.trfLogger import stdLogLevels
 
 ## Add standard transform arguments to an argparse ArgumentParser
 def addStandardTrfArgs(parser):
+    parser.add_argument('--CA', action='store_true', help='Use ComponentAccumulator base configuration')
     parser.add_argument('--verbose', '--debug', action='store_true', help='Set transform loglevel to DEBUG')
     parser.add_argument('--loglevel', choices=list(stdLogLevels), help='Set transform logging level')
     parser.add_argument('--argJSON', '--argjson', metavar='FILE', help='File containing JSON serialised argument dictionary')

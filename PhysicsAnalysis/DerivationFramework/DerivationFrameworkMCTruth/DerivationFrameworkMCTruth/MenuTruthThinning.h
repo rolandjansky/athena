@@ -46,8 +46,9 @@ namespace DerivationFramework {
         bool isttHFHadron(const xAOD::TruthParticle*) const;
         bool isBoson(const xAOD::TruthParticle*) const;
         bool isFsrFromLepton(const xAOD::TruthParticle*) const;
-        
-        
+	bool parentIsLongLived(const xAOD::TruthParticle*) const;
+
+
     private:
         // THE MENU
         
@@ -68,7 +69,10 @@ namespace DerivationFramework {
         
         /// Parameter: Keep b-hadrons?
         bool m_writeBHadrons;
-        
+
+        /// Parameter: Keep c-hadrons?
+        bool m_writeCHadrons;
+
         /// Parameter: Keep geant particles?
         bool m_writeGeant;
         
@@ -125,12 +129,22 @@ namespace DerivationFramework {
         bool m_preserveAncestors;
         bool m_preserveImmediate; // parents, siblings, children only
         bool m_preserveHadVtx; // hadronization vertices for above
-        
+
+        /// Parameter: List of PDG IDs to always keep
+        std::vector<int> m_pdgIdsToKeep;
+
+	/// Parameter: List of PDG IDs of long lived particles so that one can keep their children	
+	std::vector<int> m_longLivedPdgIds;
+
+        /// for keeping trace of barcodes in order to detect loops
+        mutable std::unordered_set<int> m_barcode_trace;
+
         // counters
         mutable std::atomic<unsigned int> m_totpart;
         mutable std::atomic<unsigned int> m_removedpart;
         mutable std::atomic<int> m_eventCount;
         
+
         /// Parameter: simulation barcode offset
         int m_geantOffset;
     }; 

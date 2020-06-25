@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #********************************************************************************
 #
@@ -14,16 +14,11 @@ OutputLevel = 0
 from AthenaCommon.Logging import logging
 logger = logging.getLogger("TrigEgammaEmulationToolConfig")
 
-from AthenaCommon         import CfgMgr
 from AthenaCommon.AppMgr  import ToolSvc
-from egammaRec.Factories  import ToolFactory,FcnWrapper,AlgFactory, getPropertyValue
+from egammaRec.Factories  import ToolFactory
 import PyUtils.RootUtils as ru
 ROOT = ru.import_root()
-import cppyy
-
-# Following loads the online selectors
-from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf  import AsgElectronIsEMSelector
-from ElectronPhotonSelectorTools.ElectronIsEMSelectorMapping      import ElectronIsEMMap,electronPIDmenu
+import cppyy  # noqa: F401
 
 #*****************************************************************************
 #from TrigEgammaMatchingTool.TrigEgammaMatchingToolConf import Trig__TrigEgammaMatchingTool

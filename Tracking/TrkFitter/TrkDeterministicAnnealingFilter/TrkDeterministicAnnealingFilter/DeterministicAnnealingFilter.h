@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -17,6 +17,7 @@
 #include "TrkFitterUtils/FitterTypes.h"     // typedefs
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/EventContext.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "TrkFitterUtils/FitterStatusCode.h"    // needed for Trk::FitterStatusCode::Success
@@ -24,7 +25,7 @@
 #include "TrkParameters/TrackParameters.h"      // typedef
 #include "TrkEventUtils/TrkParametersComparisonFunction.h"  // typedef
 
-
+#include <memory>
 class IAlgTool;
 
 namespace Trk {
@@ -68,48 +69,59 @@ public:
     DeterministicAnnealingFilter();
     ~DeterministicAnnealingFilter();
     // standard Athena methods
-    StatusCode initialize();
-    StatusCode finalize();
-
-
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
+    /*
+     * Bring in default impl with
+     * EventContext for now
+     */
+    using ITrackFitter::fit;
     /** refit a track (the main method; it uses most information from pattern recognition):
     This function should normally be called with tracks containing
     Trk::CompetingRIOsOnTrack.
     If non CompetingRIOsOnTrack are given it might include the creation of
     Trk::CompetingRIOsOnTrack depending on the jobOptions.
     runOutlier has no meaning in all of the DAF's fitting methods */
-    virtual Track* fit (const Track&,
-                        const RunOutlierRemoval  runOutlier=false,
-                        const ParticleHypothesis matEffects=Trk::nonInteracting) const;
+    virtual std::unique_ptr<Track> fit(
+      const EventContext& ctx,
+      const Track&,
+      const RunOutlierRemoval runOutlier = false,
+      const ParticleHypothesis matEffects = Trk::nonInteracting) const override;
 
     /** refit a track adding a PrepRawDataSet: Trk::ICompetingRIOsOnTrackCreator is used
     to create Trk::CompetingRIOsOnTrack out of the additional PrepRawData first.
     Be careful: The dicision which PrepRawData should compete against each other can
     not be done here.
      - NOT IMPLEMENTED YET!!! */
-    virtual Track* fit(const Track&,
-                       const PrepRawDataSet&,
-                       const RunOutlierRemoval runOutlier=false,
-                       const ParticleHypothesis matEffects=Trk::nonInteracting) const;
+    virtual std::unique_ptr<Track> fit(
+      const EventContext&,
+      const Track&,
+      const PrepRawDataSet&,
+      const RunOutlierRemoval runOutlier = false,
+      const ParticleHypothesis matEffects = Trk::nonInteracting) const override;
 
     /** fit a track to a PrepRawDataSet: Trk::ICompetingRIOsOnTrackCreator is used
     to create Trk::CompetingRIOsOnTrack out of the additional PrepRawData first.
     Be careful: The dicision which PrepRawData should compete against each other can
     not be done here.
     - NOT IMPLEMENTED YET!!! */
-    virtual Track* fit(const PrepRawDataSet&,
-                       const TrackParameters&,
-                       const RunOutlierRemoval runOutlier=false,
-                       const ParticleHypothesis matEffects=Trk::nonInteracting) const;
+    virtual std::unique_ptr<Track> fit(
+      const EventContext&,
+      const PrepRawDataSet&,
+      const TrackParameters&,
+      const RunOutlierRemoval runOutlier = false,
+      const ParticleHypothesis matEffects = Trk::nonInteracting) const override;
 
     /** re-fit a track, adding a fittable measurement set:
          This function should normally be called with a MeasurementSet containing
         Trk::CompetingRIOsOnTrack
         - NOT IMPLEMENTED YET!!!*/
-    virtual Track* fit(const Track&,
-                       const MeasurementSet&,
-                       const RunOutlierRemoval runOutlier=false,
-                       const ParticleHypothesis matEffects=Trk::nonInteracting) const;
+    virtual std::unique_ptr<Track> fit(
+      const EventContext&,
+      const Track&,
+      const MeasurementSet&,
+      const RunOutlierRemoval runOutlier = false,
+      const ParticleHypothesis matEffects = Trk::nonInteracting) const override;
 
     /** fit a track to a set of measurementBase.
         This function should normally be called with a MeasurementSet containing
@@ -117,22 +129,20 @@ public:
         The TrackParameters is a first estimate for the track.
         If non Trk::CompetingRIOsOnTrack are given the TrackParameters are
         used for computing the initial assignment probabilities.*/
-    virtual Track* fit(const MeasurementSet&,
-                       const TrackParameters&,
-                       const RunOutlierRemoval runOutlier=false,
-                       const ParticleHypothesis matEffects=Trk::nonInteracting) const;
+    virtual std::unique_ptr<Track> fit(
+      const EventContext& ctx,
+      const MeasurementSet&,
+      const TrackParameters&,
+      const RunOutlierRemoval runOutlier = false,
+      const ParticleHypothesis matEffects = Trk::nonInteracting) const override;
 
-    /** not implemented: makes no sense for the DAF (always returns a NULL pointer) */
-    virtual Track* fit(const SpacePointSet&,
-                       const TrackParameters&,
-                       const RunOutlierRemoval runOutlier=false,
-                       const ParticleHypothesis matEffects=Trk::nonInteracting) const;
     /** combined track fit:
         - NOT implemented yet!!!*/
-    virtual Track* fit(const Track&,
-                       const Track&,
-                       const RunOutlierRemoval,
-                       const ParticleHypothesis) const;
+    virtual std::unique_ptr<Track> fit(const EventContext&,
+                                       const Track&,
+                                       const Track&,
+                                       const RunOutlierRemoval,
+                                       const ParticleHypothesis) const override;
     ///////////////////////////////////////////////////////////////////
     // Private methods:
     ///////////////////////////////////////////////////////////////////
@@ -154,7 +164,8 @@ private:
     //std::string                         m_option_compROTcreator;    //!< jobOption: name and instance of CompetingRIOsOnTrackTool
 
     //ToolHandle< const ITrackFitter* >               m_ITrackFitter;             //!< pointer to ITrack Fitter
-    //std::string                         m_option_KalmanFitter;      //!< jobOption: DEACTIVATED IN THE CURRENT VERSION! Name and instance of the ITrackFitter. Default and best choice: "none". If set to "none", the Kalman Forward Filter and Backward Smoother are used directly (recommended for speed reasons).
+    //std::string                         m_option_KalmanFitter;      //!< jobOption: DEACTIVATED IN THE CURRENT VERSION! 
+    //Name and instance of the ITrackFitter. Default and best choice: "none". If set to "none", the Kalman Forward Filter and Backward Smoother are used directly (recommended for speed reasons).
 
     ToolHandle< IForwardKalmanFitter >              m_forwardFitter;            //!< the tool handle for the Kalman forward filter
     //std::string                         m_option_FwFilterInstance;  //!< jobOption: instance of the Kalman forward filter
@@ -182,8 +193,20 @@ private:
     mutable Trajectory                  m_trajectory;               //!< trajectory of Trk::ProtoTrackStateOnSurface
     
     Trk::PropDirection                  m_directionToPerigee;
-    
-    enum FitStatusCodes {Call, Success, BadInput, ExtrapolationFailure, ForwardFilterFailure, SmootherFailure, OutlierFailure, PerigeeMakingFailure, NoTrkParsToUpdateCompROT, nFitStatusCodes};
+
+    enum FitStatusCodes
+    {
+      Call,
+      Success,
+      BadInput,
+      ExtrapolationFailure,
+      ForwardFilterFailure,
+      SmootherFailure,
+      OutlierFailure,
+      PerigeeMakingFailure,
+      NoTrkParsToUpdateCompROT,
+      nFitStatusCodes
+    };
     mutable std::vector< std::vector<int> > m_fitStatistics;
     mutable std::vector< std::vector<int> > m_failuresByIteration;
     enum StatIndex {iAll = 0, iBarrel = 1, iTransi = 2, iEndcap = 3, nStatIndex = 4};
@@ -199,8 +222,9 @@ private:
 //         const ParticleHypothesis matEffects=Trk::nonInteracting) const;
 
     Track* doDAFfitWithKalman(
-        const TrackParameters&,
-        const ParticleHypothesis matEffects=Trk::nonInteracting) const;
+      const EventContext& ctx,
+      const TrackParameters&,
+      const ParticleHypothesis matEffects = Trk::nonInteracting) const;
     /** method to create a track from internal trajectory which is common to all interfaces */
     Track*                     makeTrack(const ParticleHypothesis) const;
 //    /** special method to build Perigee parameters from the track */
@@ -225,9 +249,11 @@ private:
     void monitorTrackFits(FitStatusCodes, const double& eta, int iteration=0) const;
 
     /** call the validation tool */
-    void callValidation(int iterationIndex,
-                        const Trk::ParticleHypothesis  matEffects,
-                        FitterStatusCode fitStatCode=Trk::FitterStatusCode::Success ) const;
+    void callValidation(
+      const EventContext& ctx,
+      int iterationIndex,
+      const Trk::ParticleHypothesis matEffects,
+      FitterStatusCode fitStatCode = Trk::FitterStatusCode::Success) const;
 };
 
 } // end of namespace

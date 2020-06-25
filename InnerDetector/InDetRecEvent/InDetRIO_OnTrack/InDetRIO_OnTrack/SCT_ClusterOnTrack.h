@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -112,21 +112,26 @@ namespace InDet{
       /** returns global position (gathered through Surface constraint)
       - fullfills Trk::MeasurementBase interface
         Overload of the method in parent class */
-      virtual const Amg::Vector3D& globalPosition() const final;
+      virtual const Amg::Vector3D& globalPosition() const override final;
      
       /** Pseudo-constructor */
-      SCT_ClusterOnTrack* clone() const ;
+      virtual SCT_ClusterOnTrack* clone() const override;
 
     /** returns the surface for the local to global transformation
       - fullfills the Trk::MeasurementBase interface
      */
-      const Trk::Surface& associatedSurface() const;
+      virtual const Trk::Surface& associatedSurface() const override;
 
-    	
+      virtual bool rioType(Trk::RIO_OnTrackType::Type type) const override
+      {
+        return (type == Trk::RIO_OnTrackType::SCTCluster);
+      }
+
+
     /** returns the PrepRawData - is a SCT_Cluster in this scope
       - fullfills the Trk::RIO_OnTrack interface
      */
-      virtual const InDet::SCT_Cluster* prepRawData() const;
+      virtual const InDet::SCT_Cluster* prepRawData() const override;
 
     const ElementLinkToIDCSCT_ClusterContainer& prepRawDataLink() const;
      
@@ -134,20 +139,20 @@ namespace InDet{
     /** returns the detector element, assoicated with the PRD of this class
       - fullfills the Trk::RIO_OnTrack interface
      */
-      virtual const InDetDD::SiDetectorElement* detectorElement() const;
+      virtual const InDetDD::SiDetectorElement* detectorElement() const override;
     
       /**returns some information about this RIO_OnTrack.*/
-      virtual MsgStream&    dump( MsgStream& out ) const;	
+      virtual MsgStream&    dump( MsgStream& out ) const override;	
 	
       /**returns some information about this RIO_OnTrack.*/
-      virtual std::ostream& dump( std::ostream& out ) const;
+      virtual std::ostream& dump( std::ostream& out ) const override;
 
       double positionAlongStrip() const;
 
     private:
     /** ONLY for use in custom convertor
       Allows the custom convertor to reset values when persistying/reading back RoTs*/
-      virtual void setValues(const Trk::TrkDetElementBase* detEl, const Trk::PrepRawData* prd);
+      virtual void setValues(const Trk::TrkDetElementBase* detEl, const Trk::PrepRawData* prd) override;
  
       /** SCT_Cluster - the RIO (PRD, PrepRawData)*/
       ElementLinkToIDCSCT_ClusterContainer m_rio; 

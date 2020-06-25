@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -61,10 +61,10 @@ Trk::RectangleBounds::minDistance(const Amg::Vector2D& pos) const
   double dy = fabs(pos[1]) - m_boundValues[RectangleBounds::bv_halfY];
 
   if (dx <= 0. || dy <= 0.) {
-    if (dx > dy)
+    if (dx > dy){
       return dx;
-    else
-      return dy;
+    }
+    return dy;
   }
   return sqrt(dx * dx + dy * dy);
 }

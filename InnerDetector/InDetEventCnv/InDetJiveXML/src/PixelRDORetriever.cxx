@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetJiveXML/PixelRDORetriever.h"
@@ -23,9 +23,8 @@ namespace JiveXML {
    **/
   PixelRDORetriever::PixelRDORetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    m_typeName("PixelRDO"),
-    m_geo("JiveXML::InDetGeoModelTool/InDetGeoModelTool",this){
-    
+    m_typeName("PixelRDO")
+  {
     //Declare the interface
     declareInterface<IDataRetriever>(this);
 

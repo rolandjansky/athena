@@ -18,6 +18,7 @@
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaKernel/IOVTime.h"
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "EventInfo/EventInfo.h"
 #include "Identifier/Identifier.h"
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
@@ -33,18 +34,18 @@
 #include "GaudiKernel/ClassID.h"
 
 //STL
-#include <string>
-#include <map>
-#include <set>
 #include <list>
+#include <map>
+#include <memory>
 #include <mutex>
+#include <set>
+#include <string>
 
 //forward declarations
 class IdentifierHash;
 class SCT_ID;
 class IIOVRegistrationSvc;
 class IAthenaOutputStreamTool;
-class CondAttrListCollection;
 
 /**
  ** Algorithm to test writing conditions data and reading them back.
@@ -176,14 +177,14 @@ class SCTCalibWriteTool : public AthAlgTool {
       // cache for the Collections, access by foldername
       mutable std::mutex m_mutex{};
       mutable std::map<const std::string, const CondAttrListCollection*>  m_attrListCollectionMap ATLAS_THREAD_SAFE; // Guarded by m_mutex
-      CondAttrListCollection*      m_attrListColl{nullptr};
-      CondAttrListCollection*      m_attrListColl_deadStrip{nullptr};
-      CondAttrListCollection*      m_attrListColl_deadChip{nullptr};
-      CondAttrListCollection*      m_attrListColl_eff{nullptr};
-      CondAttrListCollection*      m_attrListColl_no{nullptr};
-      CondAttrListCollection*      m_attrListColl_RawOccu{nullptr};
-      CondAttrListCollection*      m_attrListColl_BSErr{nullptr};
-      CondAttrListCollection*      m_attrListColl_LA{nullptr};
+      std::unique_ptr<CondAttrListCollection> m_attrListColl;
+      std::unique_ptr<CondAttrListCollection> m_attrListColl_deadStrip;
+      std::unique_ptr<CondAttrListCollection> m_attrListColl_deadChip;
+      std::unique_ptr<CondAttrListCollection> m_attrListColl_eff;
+      std::unique_ptr<CondAttrListCollection> m_attrListColl_no;
+      std::unique_ptr<CondAttrListCollection> m_attrListColl_RawOccu;
+      std::unique_ptr<CondAttrListCollection> m_attrListColl_BSErr;
+      std::unique_ptr<CondAttrListCollection> m_attrListColl_LA;
       BooleanProperty              m_writeCondObjs{this, "WriteCondObjs", true};
       BooleanProperty              m_regIOV{this, "RegisterIOV", true};
       BooleanProperty              m_readWriteCool{this, "ReadWriteCool", true};

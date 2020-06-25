@@ -102,7 +102,7 @@ if('inputFiles' not in dir()):
   
 printfunc ('the input files are: '  )
 printfunc (inputFiles)
-ServiceMgr.ByteStreamInputSvc.FullFileName= inputFiles 
+ServiceMgr.EventSelector.Input = inputFiles
 
 include ("CscCalibTools/CscCalibTool_jobOptions.py")
 ToolSvc.CscCalibTool.ReadFromDatabase = True

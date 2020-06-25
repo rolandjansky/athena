@@ -257,7 +257,7 @@ if not 'FullFileName' in dir():
    PedestalAutoCorrLog.info( "No FullFileName! Please give a FullFileName list")
    theApp.exit(-1)
 else :   
-   theByteStreamInputSvc.FullFileName=FullFileName
+   svcMgr.EventSelector.Input=FullFileName
 
 from LArByteStream.LArByteStreamConf import LArRodDecoder
 svcMgr.ToolSvc += LArRodDecoder()

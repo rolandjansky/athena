@@ -40,14 +40,21 @@ TrigConf::L1Threshold::update()
    m_thrValue = getAttribute<unsigned int>("value", true, 0);
    m_input = getAttribute("input", true, "");
    m_mapping = getAttribute<unsigned int>("mapping");
-   if( const auto & thrVs = data().get_child_optional("thrValues") ) {
-      for( auto & x : thrVs.get() ) {
-         auto value = x.second.get_child("value").get_value<unsigned int>();
-         auto etamin = x.second.get_child("etamin").get_value<unsigned int>();
-         auto etamax = x.second.get_child("etamax").get_value<unsigned int>();
-         auto priority = x.second.get_child("priority").get_value<unsigned int>();
-         m_etaDepThrValue.addRangeValue(value, etamin, etamax, priority, /*symmetric=*/ false);
+   try {
+      if( const auto & thrVs = data().get_child_optional("thrValues") ) {
+         for( auto & x : thrVs.get() ) {
+            auto value = x.second.get_child("value").get_value<unsigned int>();
+            auto etamin = x.second.get_child("etamin").get_value<int>();
+            auto etamax = x.second.get_child("etamax").get_value<int>();
+            auto priority = x.second.get_child("priority").get_value<unsigned int>();
+            m_etaDepThrValue.addRangeValue(value, etamin, etamax, priority, /*symmetric=*/ false);
+         }
       }
+   }
+   catch(std::exception & ex) {
+      std::cerr << "Caught exception when reading threshold values for threshold " << m_name << std::endl
+                << ex.what() << std::endl;
+      throw;
    }
 }
 

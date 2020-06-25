@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGL2MUONSA_PTBARRELLUT_H
@@ -8,8 +8,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "GaudiKernel/Service.h"
-#include "GaudiKernel/IInterface.h"
-#include "GaudiKernel/StatusCode.h"
 
 #include <string>
 
@@ -28,7 +26,7 @@ class PtBarrelLUT: public AthAlgTool
     float PhiMax[4];
     float PhiStep[4];
     float table[4][2][60][60][2];
-  };  
+  };
   
   struct LUTsp {
     // [innerR][charge][eta][phi][parms]
@@ -36,15 +34,10 @@ class PtBarrelLUT: public AthAlgTool
   };
 
   public:
-    static const InterfaceID& interfaceID();
 
     PtBarrelLUT(const std::string& type, 
 		const std::string& name,
                 const IInterface*  parent);
-    ~PtBarrelLUT(void);
-
-    virtual StatusCode initialize();
-    virtual StatusCode finalize  ();
 
     const LUT&   lut(void) const  { return m_lut; };
     const LUTsp& lutSP(void) const { return m_lutSP; };

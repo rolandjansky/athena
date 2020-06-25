@@ -24,7 +24,7 @@ atlas_add_library( ALFA_RawEv
                    PUBLIC_HEADERS ALFA_RawEv
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers HitManagement StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES GaudiKernel )
+                   PRIVATE_LINK_LIBRARIES GaudiKernel EventContainers )
 
 atlas_add_dictionary( ALFA_RawEvDict
                       ALFA_RawEv/ALFA_RawEvDict.h

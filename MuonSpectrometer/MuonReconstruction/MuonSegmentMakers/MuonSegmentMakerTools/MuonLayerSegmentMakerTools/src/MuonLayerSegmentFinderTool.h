@@ -1,36 +1,35 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONLAYERSEGMENTFINDERTOOL_H
 #define MUON_MUONLAYERSEGMENTFINDERTOOL_H
 
-#include "MuonSegmentMakerToolInterfaces/IMuonClusterSegmentFinderTool.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonLayerSegmentFinderTool.h"
-
-#include <vector>
-
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonRecToolInterfaces/IMuonSegmentMaker.h"
+#include "MuonRecToolInterfaces/IMuonPRDSelectionTool.h"
+#include "CscSegmentMakers/ICscSegmentFinder.h"
+#include "MuonSegmentMakerToolInterfaces/IMuonClusterSegmentFinder.h"
+#include "MuonHoughPatternTools/MuonLayerHoughTool.h"
 #include "MuonLayerEvent/MuonSystemExtension.h"
 #include "MuonDetDescrUtils/MuonSectorMapping.h"
+#include "MuonSegmentMakerToolInterfaces/IMuonClusterSegmentFinderTool.h"
+#include "MuonRecToolInterfaces/IMuonRecoValidationTool.h"
 
-#include "MuonHoughPatternTools/MuonLayerHoughTool.h"
+#include <string>
+#include <vector>
 
-class ICscSegmentFinder;
 namespace Muon {
   
   class MuonSegment;
   struct MuonLayerPrepRawData;
   class MuonLayerROTs;
-  class MuonIdHelperTool;
-  class MuonEDMPrinterTool;
-  class IMuonPRDSelectionTool;
-  class IMuonSegmentMaker;
-  class IMuonClusterSegmentFinder;
-  class IMuonClusterSegmentFinderTool;
-  class IMuonRecoValidationTool;
   class MdtDriftCircleOnTrack;
   class MuonClusterOnTrack;
   class MuonLayerSegmentFinderTool : virtual public IMuonLayerSegmentFinderTool,  public AthAlgTool {
@@ -38,9 +37,8 @@ namespace Muon {
 
     /** Default AlgTool functions */
     MuonLayerSegmentFinderTool(const std::string& type, const std::string& name, const IInterface* parent);
-    virtual ~MuonLayerSegmentFinderTool();
+    virtual ~MuonLayerSegmentFinderTool()=default;
     StatusCode initialize();
-    StatusCode finalize();
 
     /**IMuonLayerSegmentFinderTool interface: find */   
     void find( const MuonSystemExtension::Intersection& intersection, std::vector< std::shared_ptr<const Muon::MuonSegment> >& segments, MuonLayerPrepRawData& layerPrepRawData ) const;
@@ -71,8 +69,7 @@ namespace Muon {
     SG::ReadHandleKey<MuonLayerHoughTool::HoughDataPerSectorVec> m_houghDataPerSectorVecKey {this, 
         "Key_MuonLayerHoughToolHoughDataPerSectorVec", "HoughDataPerSectorVec", "HoughDataPerSectorVec key"};
 
-    /** tool handles */
-    ToolHandle<MuonIdHelperTool>                      m_idHelper; 
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ToolHandle<MuonEDMPrinterTool>                    m_printer; 
     ToolHandle<IMuonPRDSelectionTool>                 m_muonPRDSelectionTool;
     ToolHandle<IMuonSegmentMaker>                     m_segmentMaker;

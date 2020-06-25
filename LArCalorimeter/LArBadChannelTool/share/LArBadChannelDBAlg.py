@@ -100,7 +100,7 @@ OutputTagList=[Tag]
 
 from RegistrationServices.OutputConditionsAlg import OutputConditionsAlg
 theOutputConditionsAlg=OutputConditionsAlg("OutputConditionsAlg","dummy.pool.root",
-					   OutputList,OutputTagList,True)
+                                           OutputList,OutputTagList,True)
 
 theOutputConditionsAlg.Run1 = IOVBeginRun
 theOutputConditionsAlg.LB1 = IOVBeginLB

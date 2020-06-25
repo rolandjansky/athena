@@ -1,25 +1,20 @@
+// Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: CaloRings_v1.h 708162 2015-11-16 16:03:49Z ssnyder $
 #ifndef XAODCALORINGS_VERSIONS_CALORINGS_V1_H
 #define XAODCALORINGS_VERSIONS_CALORINGS_V1_H
 
 // STL include(s):                          
 #include <vector>
-#include <ostream>
-
-// Athena framework includes:
-#include "AsgTools/MsgStream.h"
+#include <iosfwd>
 
 // EDM include(s):
 #include "AthContainers/AuxElement.h"
-#include "xAODCore/AuxStoreAccessorMacros.h"
 
 // Local include(s):
-#include "xAODCaloRings/versions/RingSetContainer_v1.h"
-#include "xAODCaloRings/versions/RingSetConf_v1.h"
+#include "xAODCaloRings/RingSetContainer.h"
+#include "xAODCaloRings/RingSetConf.h"
 
 namespace xAOD {
 
@@ -52,8 +47,6 @@ namespace xAOD {
  * 
  * This package was based on xAODEgamma implementation.
  *
- * $Revision: 708162 $
- * $Date: 2015-11-16 17:03:49 +0100 (Mon, 16 Nov 2015) $
  **/
 class CaloRings_v1 : public SG::AuxElement {
 
@@ -97,47 +90,47 @@ class CaloRings_v1 : public SG::AuxElement {
     /** 
      * @brief returns iterator to the beginning of RingSet Collection.
      **/
-    RingSetLinks_v1::iterator begin(); 
+    RingSetLinks::iterator begin();
     /** 
      * @brief returns iterator to the ending of RingSet EL Collection.
      **/
-    RingSetLinks_v1::iterator end(); 
+    RingSetLinks::iterator end();
     /** 
      * @brief returns const_iterator to the beginning of RingSet Collection.
      **/
-    RingSetLinks_v1::const_iterator begin() const; 
+    RingSetLinks::const_iterator begin() const;
     /** 
      * @brief returns const_iterator to the ending of RingSet EL Collection.
      **/
-    RingSetLinks_v1::const_iterator end() const; 
+    RingSetLinks::const_iterator end() const;
     /** 
      * @brief Return ith RingSet
      **/
-    RingSet_v1 *at(const unsigned index);
+    RingSet *at(const unsigned index);
     /** 
      * @brief Return ith RingSet
      **/
-    RingSet_v1 *operator [](const unsigned index);
+    RingSet *operator [](const unsigned index);
     /** 
      * @brief Return ith RingSet
      **/
-    const RingSet_v1 *at(const unsigned index) const;
+    const RingSet *at(const unsigned index) const;
     /** 
      * @brief Return ith RingSet
      **/
-    const RingSet_v1 *operator [](const unsigned index) const;
+    const RingSet *operator [](const unsigned index) const;
     /** 
      * @brief Returns constant ringsets collection.
      *
      * Set via AUXSTORE_OBJECT_SETTER_AND_GETTER marcro.
      **/
-    const RingSetLinks_v1 &ringSetLinks() const;
+    const RingSetLinks &ringSetLinks() const;
     /** 
      * @brief Set this CaloRings RingSet Collection.
      *
      * Set via AUXSTORE_OBJECT_SETTER_AND_GETTER marcro.
      **/
-    void setRingSetLinks(const RingSetLinks_v1 &ringsets);
+    void setRingSetLinks(const RingSetLinks &ringsets);
     /// @}
 
     /// @name CaloRings_v1 operators overload:
@@ -200,11 +193,7 @@ class CaloRings_v1 : public SG::AuxElement {
 
     
     /// Print @name CaloRings_v1 methods:
-    /// @{ 
-    /**
-     * @brief Print @name CaloRings_v1 using AsgTool MsgStream:
-     **/
-    void print( MsgStream &stream, MSG::Level level = MSG::DEBUG ) const;
+    /// @{
     /**
      * @brief Print @name CaloRings_v1 using ostream:
      **/

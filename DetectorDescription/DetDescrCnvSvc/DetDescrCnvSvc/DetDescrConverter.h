@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -46,10 +46,6 @@ protected:
 
     DetDescrConverter(const CLID& myCLID, ISvcLocator* svcloc);
 //      StatusCode addToDetStore(const CLID& clid, const std::string& name) const;
-
-    /// Provide access to Detector Store
-    StoreGateSvc * 	detStore() const;
-    
 
 private:
     DetDescrCnvSvc* 	m_cnvSvc;

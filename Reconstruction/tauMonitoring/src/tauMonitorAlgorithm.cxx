@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "tauMonitoring/tauMonitorAlgorithm.h"
+#include "tauMonitorAlgorithm.h"
 
 #include "GaudiKernel/SystemOfUnits.h"
 #include "xAODCore/ShallowCopy.h"

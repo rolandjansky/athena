@@ -203,7 +203,7 @@ if not doReadBS:
     ostring+="""
 
 if doReadBS:
-  ServiceMgr.ByteStreamInputSvc.FullFileName = [ "some file" ]
+  ServiceMgr.EventSelector.Input = [ "some file" ]
 
 #--------------------------------------------------------------
 # Calibration stuff

@@ -10,6 +10,7 @@
 #include "L1TopoInterfaces/IL1TopoHistSvc.h"
 
 #include "TH1.h"
+#include "TH2.h"
 #include <iostream>
 
 using namespace std;
@@ -46,6 +47,30 @@ public:
          m_localHistStore.push_back(h);
       }
    }
+  
+   void registerHist(TH2 * h) {
+      // histograms in the L1Topo framework are put in a algorith specific folder
+      string newHistName = m_name + "/" + h->GetName();
+      h->SetName(newHistName.c_str());
+
+      if( m_histSvc ) {
+         m_histSvc->registerHist(h);
+      } else {
+         m_localHistStore.push_back(h);
+      }
+   }
+  
+   void fillHist1D(const std::string & histName, double x) {
+      string newHistName = m_name + "/" + histName;
+      m_histSvc->fillHist1D(newHistName,x);
+   }
+  
+  
+   void fillHist2D(const std::string & histName, double x, double y) {
+      string newHistName = m_name + "/" + histName;
+      m_histSvc->fillHist2D(newHistName,x,y);
+   }
+  
    
 private:
 
@@ -141,6 +166,18 @@ void ConfigurableAlg::setL1TopoHistSvc(std::shared_ptr<IL1TopoHistSvc> histSvc) 
 
 void ConfigurableAlg::registerHist(TH1 * h) {
    m_impl->registerHist(h);
+}
+
+void ConfigurableAlg::registerHist(TH2 * h) {
+   m_impl->registerHist(h);
+}
+
+void ConfigurableAlg::fillHist1D(const std::string & histName, double x) {
+  m_impl->fillHist1D(histName,x);
+}
+
+void ConfigurableAlg::fillHist2D(const std::string & histName, double x, double y) {
+  m_impl->fillHist2D(histName,x,y);
 }
 
 

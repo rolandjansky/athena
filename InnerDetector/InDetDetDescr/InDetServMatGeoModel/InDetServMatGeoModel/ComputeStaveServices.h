@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ComputeStaveServices_H
@@ -7,6 +7,7 @@
 
 #include "InDetServMatGeoModel/StaveServices.h"
 #include "AthenaKernel/MsgStreamMember.h"
+#include "CxxUtils/checker_macros.h"
 
 class ComputeStaveServices {
 public:
@@ -21,7 +22,7 @@ public:
  private:
   // the message stream (same for all derived classes)
   MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
-  mutable Athena::MsgStreamMember m_msg;
+  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
   
 };
 

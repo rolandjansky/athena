@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -39,7 +39,7 @@ def TileGeoG4SDCalcCfg(ConfigFlags, name="TileGeoG4SDCalc", **kwargs):
     if ConfigFlags.Sim.ParticleID:
         kwargs.setdefault("DoCalibHitParticleID", ConfigFlags.Sim.ParticleID )
 
-    result.setPrivateTools( TileGeoG4SDCalc(name, **kwargs) )
+    result.addService( TileGeoG4SDCalc(name, **kwargs) )
     return result
 
 
@@ -50,5 +50,5 @@ def TileCTBGeoG4SDCalcCfg(ConfigFlags, name="TileCTBGeoG4SDCalc", **kwargs):
     if ConfigFlags.Sim.ParticleID:
         kwargs.setdefault("DoCalibHitParticleID", ConfigFlags.Sim.ParticleID )
 
-    result.setPrivateTools( TileGeoG4SDCalc(name, **kwargs) )
+    result.addService( TileGeoG4SDCalc(name, **kwargs) )
     return result

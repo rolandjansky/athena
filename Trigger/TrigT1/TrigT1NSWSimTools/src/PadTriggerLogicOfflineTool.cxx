@@ -1,16 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <boost/geometry.hpp>
-#include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/geometries/polygon.hpp>
+#include "TrigT1NSWSimTools/PadTriggerLogicOfflineTool.h"
 
-// Athena/Gaudi includes
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
-// local includes
-#include "TrigT1NSWSimTools/PadTriggerLogicOfflineTool.h"
 #include "TrigT1NSWSimTools/PadData.h"
 #include "TrigT1NSWSimTools/PadOfflineData.h"
 #include "TrigT1NSWSimTools/PadTrigger.h"
@@ -18,52 +13,41 @@
 #include "TrigT1NSWSimTools/SingleWedgePadTrigger.h"
 #include "TrigT1NSWSimTools/tdr_compat_enum.h"
 #include "TrigT1NSWSimTools/sTGCTriggerBandsInEta.h"
-
-
-//Event info includes
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
-
-// Muon software includes
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
-#include "MuonIdHelpers/sTgcIdHelper.h"
 #include "MuonDigitContainer/sTgcDigitContainer.h"
 #include "MuonDigitContainer/sTgcDigit.h"
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonSimData/MuonSimData.h"
 #include "MuonAGDDDescription/sTGCDetectorDescription.h"
 #include "MuonAGDDDescription/sTGCDetectorHelper.h"
-// trk
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
-
-// random numbers
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
 
-
-// root
+#include <boost/geometry.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
+#include <boost/geometry/geometries/polygon.hpp>
 #include "TTree.h"
 #include "TVector3.h"
-// std
 #include <functional>
 #include <algorithm>
 #include <map>
 #include <utility>
-#include <math.h>
+#include <cmath>
 
 namespace NSWL1 {
 //------------------------------------------------------------------------------
-PadTriggerLogicOfflineTool::PadTriggerLogicOfflineTool( const std::string& type,
-                                                        const std::string& name,
-                                                        const IInterface* parent) :
+PadTriggerLogicOfflineTool::PadTriggerLogicOfflineTool(const std::string& type, const std::string& name, const IInterface* parent) :
     AthAlgTool(type,name,parent),
     m_etaBandsLargeSector(BandsInEtaLargeSector),
     m_etaBandsSmallSector(BandsInEtaSmallSector),
     m_incidentSvc("IncidentSvc",name),
-    m_detManager(0),
+    m_detManager(nullptr),
     m_rndmEngineName(""),
     m_sTgcDigitContainer(""),
     m_sTgcSdoContainer(""),
@@ -72,20 +56,13 @@ PadTriggerLogicOfflineTool::PadTriggerLogicOfflineTool( const std::string& type,
     m_useSimple4of4(false),
     m_doNtuple(false),
     m_tdrLogic(),
-    m_lutCreatorToolsTGC ("sTGC_RegionSelectorTable",this)
-{
+    m_lutCreatorToolsTGC ("sTGC_RegionSelectorTable",this) {
     declareInterface<NSWL1::IPadTriggerLogicTool>(this);
     declareProperty("TimeJitter", m_PadEfficiency = 1.0, "pad trigger efficiency (tmp placeholder)");
     declareProperty("PhiIdBits", m_phiIdBits = 6, "Number of bit to compute Phi-Id of pad triggers");
     declareProperty("UseSimple4of4", m_useSimple4of4 = false, "use simplified logic requiring 4 hits on 4 gas gaps");
     declareProperty("DoNtuple", m_doNtuple = false, "save the trigger outputs in an analysis ntuple");
 }
-//------------------------------------------------------------------------------
-PadTriggerLogicOfflineTool::~PadTriggerLogicOfflineTool() {
-
-}
-
-
 
 StatusCode PadTriggerLogicOfflineTool::initialize() {
     ATH_MSG_INFO( "initializing " << name() );
@@ -104,8 +81,8 @@ StatusCode PadTriggerLogicOfflineTool::initialize() {
     ATH_CHECK(m_incidentSvc.retrieve());
     m_incidentSvc->addListener(this,IncidentType::BeginEvent);
     ATH_CHECK(m_lutCreatorToolsTGC.retrieve());
-    ATH_CHECK( detStore()->retrieve( m_detManager ));
-    
+    ATH_CHECK(detStore()->retrieve(m_detManager));
+    ATH_CHECK(m_idHelperSvc.retrieve());
     return StatusCode::SUCCESS;
 }
 //------------------------------------------------------------------------------
@@ -478,11 +455,10 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandida
     //Assignment of  Phi Id using 6 bits slicing
     Identifier padIdentifier(pt.m_pads.at(0)->id() );
     IdentifierHash moduleHashId;
-    const sTgcIdHelper* idhelper=m_detManager->stgcIdHelper();
-    const IdContext ModuleContext = idhelper->detectorElement_context();
+    const IdContext ModuleContext = m_idHelperSvc->stgcIdHelper().detectorElement_context();
 
     //get the module Identifier using the pad's
-    idhelper->get_hash( padIdentifier, moduleHashId, &ModuleContext );
+    m_idHelperSvc->stgcIdHelper().get_hash( padIdentifier, moduleHashId, &ModuleContext );
     const auto regSelector = m_lutCreatorToolsTGC->getLUT();
     const RegSelModule* thismodule=regSelector->Module(moduleHashId);
 

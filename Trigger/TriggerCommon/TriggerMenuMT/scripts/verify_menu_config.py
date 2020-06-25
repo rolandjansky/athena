@@ -14,6 +14,7 @@ import os
 import sys
 import argparse
 
+from collections import OrderedDict as odict
 from AthenaCommon.Logging import logging
 from menu_config_tests import TriggerLevel, menu_tests
 
@@ -44,7 +45,7 @@ def load_and_verify(file_path, trigger_level):
         log.error("'{}' is not a JSON file".format(file_path))
     else:
         with open(file_path, "r") as config_file:
-            config = json.load(config_file)
+            config = json.load(config_file, object_pairs_hook = odict)
 
         return verify(config, trigger_level)
 
@@ -104,7 +105,7 @@ if __name__ == "__main__":
         for failed_test in result["failures"]:
             log.error("'{}' failed for: {}".format(
                 failed_test.description,
-                ", ".join(failed_test.failures)))
+                ", ".join([str(i) for i in failed_test.failures])))
 
         if result["failures"]:
             any_failures = True

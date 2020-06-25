@@ -22,7 +22,7 @@ public :
   // Constructors
   EMClusterEtaPosErrorsMatrix(); // for use when afterwards read from db
   EMClusterEtaPosErrorsMatrix(const std::vector<EMAPMatrixAxis> &axes, 
-			   std::string textDescription = "");
+			   const std::string& textDescription = "");
   /** Default destructor*/
   ~EMClusterEtaPosErrorsMatrix() {};
   

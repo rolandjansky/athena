@@ -1,12 +1,10 @@
 InDetVKalVxInJetTool/InDetTrkInJetType_test
 
 
-Initializing Gaudi ApplicationMgr using job opts /home/sss/atlas/rootaccess/build/joboptions/InDetVKalVxInJetTool/InDetVKalVxInJetTool_tests.txt
-JobOptionsSvc        INFO # =======> /home/sss/atlas/rootaccess/build/joboptions/InDetVKalVxInJetTool/InDetVKalVxInJetTool_tests.txt
-JobOptionsSvc        INFO # (1,1): ApplicationMgr.ExtSvc = ["MagField::AtlasFieldSvc/AtlasFieldSvc"]
-JobOptionsSvc        INFO # (2,1): AtlasFieldSvc.UseDCS = 0
-JobOptionsSvc        INFO # (3,1): AtlasFieldSvc.UseMapsFromCool = 0
-JobOptionsSvc        INFO Job options successfully read in from /home/sss/atlas/rootaccess/build/joboptions/InDetVKalVxInJetTool/InDetVKalVxInJetTool_tests.txt
+Initializing Gaudi ApplicationMgr using job opts /sps/atlas/s/schaffer/work/work-21.magFieldSvc_9/build/x86_64-centos7-gcc8-opt/jobOptions/InDetVKalVxInJetTool/InDetVKalVxInJetTool_tests.txt
+JobOptionsSvc        INFO # =======> /sps/atlas/s/schaffer/work/work-21.magFieldSvc_9/build/x86_64-centos7-gcc8-opt/jobOptions/InDetVKalVxInJetTool/InDetVKalVxInJetTool_tests.txt
+JobOptionsSvc        INFO # (1,1): ApplicationMgr.ExtSvc += ["StoreGateSvc/ConditionStore", "CondSvc"]
+JobOptionsSvc        INFO Job options successfully read in from /sps/atlas/s/schaffer/work/work-21.magFieldSvc_9/build/x86_64-centos7-gcc8-opt/jobOptions/InDetVKalVxInJetTool/InDetVKalVxInJetTool_tests.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)

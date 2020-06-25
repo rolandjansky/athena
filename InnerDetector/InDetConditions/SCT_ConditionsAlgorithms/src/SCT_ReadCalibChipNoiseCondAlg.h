@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */ 
 
 #ifndef SCT_ReadCalibChipNoiseCondAlg_h
@@ -19,9 +19,6 @@
 // Include Gaudi classes
 #include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/Property.h"
-
-// Include boost stuff
-#include "boost/array.hpp"
 
 // Forward declarations
 class SCT_ID;

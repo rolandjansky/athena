@@ -12,7 +12,7 @@
 namespace TrkExTools{
   std::string
   getToolSuffix(const std::string& fullToolName){
-    return fullToolName.substr(fullToolName.find_last_of(".") + 1);
+    return fullToolName.substr(fullToolName.find_last_of('.') + 1);
   }
   
   std::vector<std::string>
@@ -26,7 +26,7 @@ namespace TrkExTools{
   validToolName(const std::string & toolName){
     //valid name can contain underscore or alphanumeric characters, but cannot start
     //with a number
-    std::regex re{"^[a-zA-Z_][a-zA-Z0-9_]*$"};
+    std::regex re{"^[a-zA-Z_][a-zA-Z0-9_]*(::)?[a-zA-Z0-9_]*$"};
     return std::regex_match(toolName, re);
   }
   
@@ -35,7 +35,9 @@ namespace TrkExTools{
     std::string result{};
     auto isEmpty = [](const std::string & s){return s.empty();};
     if (std::any_of(toolNameVector.begin(), toolNameVector.end(), isEmpty) ) return "A tool name was empty.";
-    if (not std::all_of(toolNameVector.begin(), toolNameVector.end(),validToolName)) return "A tool name was invalid";
+    if (auto pTheTool=std::find_if_not(toolNameVector.begin(), toolNameVector.end(), validToolName); pTheTool != toolNameVector.end()) {
+      result = "A tool name was invalid: " + *pTheTool;
+    }
     return result;
   }
   

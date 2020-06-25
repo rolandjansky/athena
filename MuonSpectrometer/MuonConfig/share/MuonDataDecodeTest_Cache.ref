@@ -4,8 +4,6 @@ RpcRawDataProvi...   INFO initialize() successful in RpcRawDataProvider.RPC_RawD
 TgcRawDataProvider   INFO TgcRawDataProvider::initialize
 TgcRawDataProvider   INFO  'DoSeededDecoding':False
 TgcRawDataProvi...   INFO initialize() successful in TgcRawDataProvider.TGC_RawDataProviderToolMT.TgcROD_Decoder
-TgcRawDataProvi...   INFO Retrieved tool Decoder = PrivateToolHandle('Muon::TGC_RodDecoderReadout/TgcROD_Decoder')
-TgcRawDataProvi...   INFO Retrieved service ServiceHandle('ROBDataProviderSvc')
 TgcRawDataProvi...   INFO initialize() successful in TgcRawDataProvider.TGC_RawDataProviderToolMT
 MdtRawDataProvider   INFO MdtRawDataProvider::initialize
 MdtRawDataProvider   INFO  'DoSeededDecoding':False
@@ -19,7 +17,6 @@ CscRawDataProvi...   INFO Retrieved tool Decoder = PrivateToolHandle('Muon::CscR
 CscRawDataProvi...   INFO The Muon Geometry version is R.08.01
 CscRawDataProvi...   INFO initialize() successful in CscRawDataProvider.CSC_RawDataProviderToolMT
 RpcRdoToRpcPrep...   INFO properties are 
-RpcRdoToRpcPrep...   INFO processingData                     0
 RpcRdoToRpcPrep...   INFO produceRpcCoinDatafromTriggerWords 1
 RpcRdoToRpcPrep...   INFO reduceCablingOverlap               1
 RpcRdoToRpcPrep...   INFO solvePhiAmbiguities                1
@@ -27,10 +24,13 @@ RpcRdoToRpcPrep...   INFO timeShift                          -12.5
 RpcRdoToRpcPrep...   INFO etaphi_coincidenceTime             20
 RpcRdoToRpcPrep...   INFO overlap_timeTolerance              10
 RpcRdoToRpcPrep...   INFO Correct prd time from cool db      0
-RpcRdoToRpcPrep...   INFO Rpc Cabling Svc name is dataLike
 RpcRdoToRpcPrep...   INFO Retrieved DecodingTool = PrivateToolHandle('Muon::RpcRdoToPrepDataToolMT/RpcRdoToRpcPrepDataTool')
 TgcRdoToTgcPrep...   INFO initialize() successful in TgcRdoToTgcPrepData.TgcRdoToTgcPrepDataTool
 TgcRdoToTgcPrep...   INFO Retrieved DecodingTool = PrivateToolHandle('Muon::TgcRdoToPrepDataToolMT/TgcRdoToTgcPrepDataTool')
+MdtRdoToMdtPrep...   INFO Processing configuration for layouts with BMG chambers.
+MdtRdoToMdtPrep...   INFO Processing configuration for layouts with BME chambers.
+MdtRdoToMdtPrep...   INFO Processing configuration for layouts with BMG chambers.
+MdtRdoToMdtPrep...   INFO Retrieved DecodingTool = PrivateToolHandle('Muon::MdtRdoToPrepDataToolMT/MdtRdoToMdtPrepDataTool')
 CscRdoToCscPrep...   INFO The Geometry version is MuonSpectrometer-R.08.01
 CscRdoToCscPrep...   INFO Retrieved CscRdoToCscPrepDataTool = PrivateToolHandle('Muon::CscRdoToCscPrepDataToolMT/CscRdoToCscPrepDataTool')
 MdtRawDataProvi...   INFO Fraction of fills that use the cache = 0

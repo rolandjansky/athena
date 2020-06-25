@@ -2,18 +2,17 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/*************************************************************************************
-      IMultiStateMaterialEffects.h  -  description
-      --------------------------------------------
-begin                : Thursday 17th February 2005
-author               : atkinson
-email                : Tom.Atkinson@cern.ch
-decription           : (Non-pure) abstract base class for defining material
-                       effects including energy loss and multiple scattering for
-                       use in the multi-component state environment. These
-                       material effects will produce multi-component state
-outputs
-************************************************************************************/
+/**
+ * @file   IMultiStateMaterialEffects.h
+ * @date   Thursday 17th February 2005
+ * @author Tom Atkinson, Anthony Morley, Christos Anastopoulos
+ * 
+ * Abstract base class for defining material
+ * effects including energy loss and multiple scattering for
+ * use in the multi-component state environment. These
+ * material effects will produce multi-component state
+ */
+
 
 #ifndef Trk_IMultiStateMaterialEffects_H
 #define Trk_IMultiStateMaterialEffects_H
@@ -24,8 +23,6 @@ outputs
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
-
-#include "TrkExInterfaces/IMaterialEffectsUpdator.h"
 
 #include <Eigen/StdVector>
 #include <memory>

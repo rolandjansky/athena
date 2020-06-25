@@ -1,6 +1,10 @@
-import os, sys, commands,getopt, datetime
+import os, sys,getopt, datetime
 import re
 import logging
+
+from future import standard_library
+standard_library import aliases()
+import subprocess
 
 def file_exists(fpath):
         return os.path.exists(fpath)
@@ -54,9 +58,9 @@ class CheckForFail:
 ## 		return 1
 
 	# FIX : since rttDescriptor.name doesn't work correctly
-	log=commands.getoutput("ls CaloRec_RTT_*_log")
+	log=subprocess.getoutput("ls CaloRec_RTT_*_log")
 	com = "cat " +log + "|grep BEGIN_RTTINFO | cut -d= -f2| tail -n1"
-	jobopt=commands.getoutput(com)
+	jobopt=subprocess.getoutput(com)
 	logger.info(jobopt)
 	found=0
 	for opt in self.tests:

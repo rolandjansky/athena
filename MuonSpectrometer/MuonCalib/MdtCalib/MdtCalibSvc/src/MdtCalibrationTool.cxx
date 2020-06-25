@@ -2,8 +2,9 @@
   Copyright (C) 2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "MdtCalibSvc/MdtCalibrationTool.h"
+
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
-#include "MdtCalibSvc/MdtCalibrationTool.h" // there must be an include issue: if you put this before the MdtReadoutElement, compilation will fail
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MdtCalibSvc/MdtCalibrationDbTool.h"
 #include "MdtCalibSvc/MdtCalibrationSvcInput.h"

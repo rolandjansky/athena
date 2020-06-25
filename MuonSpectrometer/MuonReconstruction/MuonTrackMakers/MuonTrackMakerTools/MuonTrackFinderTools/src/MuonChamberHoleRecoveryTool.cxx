@@ -147,7 +147,6 @@ namespace Muon {
     states.insert(states.end(), trkstates->begin(), trkstates->end());
     
     std::set<MuonStationIndex::StIndex> stations;
-    Identifier currentMdtChId;
     unsigned int nholes = 0;
     // loop over TSOSs
     std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsit = states.begin();
