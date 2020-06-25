@@ -24,7 +24,6 @@
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 namespace MuonGM {
-  class MuonDetectorManager;
   class TgcReadoutElement;
 }
 
@@ -44,26 +43,20 @@ class TgcDataPreparator: public AthAlgTool
     unsigned short int bitpos;
   };
 
-  public:
-      
-      static const InterfaceID& interfaceID();
-
    public:
 
       TgcDataPreparator(const std::string& type, 
 			const std::string& name,
 			const IInterface*  parent);
     
-      ~TgcDataPreparator()=default;
-    
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
     
       StatusCode prepareData(const LVL1::RecMuonRoI*  p_roi,
 			     TrigL2MuonSA::TgcHits&   tgcHits);
 
       void setOptions(const TrigL2MuonSA::TgcDataPreparatorOptions& options) { m_options = options; };
 
-      void setRoIBasedDataAccess(bool use_RoIBasedDataAccess);
+      void setRoIBasedDataAccess(bool use_RoIBasedDataAccess){ m_use_RoIBasedDataAccess = use_RoIBasedDataAccess; };
 
    private:
 
@@ -74,21 +67,19 @@ class TgcDataPreparator: public AthAlgTool
 
    private:
 
-      const MuonGM::MuonDetectorManager* m_muonMgr;
       const MuonGM::TgcReadoutElement* m_tgcReadout;
       ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-
-      //ActiveStoreSvc* m_activeStore;
-      ServiceHandle<ActiveStoreSvc> m_activeStore;
 
       // Cabling (new)
       MuonTGC_CablingSvc* m_tgcCabling;	
 
       // Tool handles for BS conversion and Rdo to Prep Data conversion
-      ToolHandle<Muon::IMuonRawDataProviderTool> m_rawDataProviderTool;
+      ToolHandle<Muon::IMuonRawDataProviderTool> m_rawDataProviderTool{
+        this, "TgcRawDataProvider", "Muon::TGC_RawDataProviderTool/TGC_RawDataProviderTool"};
 
       // Tool for Rdo to Prep Data conversion
-      ToolHandle<Muon::IMuonRdoToPrepDataTool> m_tgcPrepDataProvider;
+      ToolHandle<Muon::IMuonRdoToPrepDataTool> m_tgcPrepDataProvider{
+        this, "TgcPrepDataProvider", "Muon::TgcRdoToPrepDataTool/TgcPrepDataProviderTool"};
 
       // Region Selector
       ServiceHandle<IRegSelSvc> m_regionSelector;
@@ -97,10 +88,10 @@ class TgcDataPreparator: public AthAlgTool
       ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
 
       // option
-      TrigL2MuonSA::TgcDataPreparatorOptions m_options;
+      TrigL2MuonSA::TgcDataPreparatorOptions m_options{};
 
       // utils
-      TrigL2MuonSA::RecMuonRoIUtils m_recMuonRoIUtils;
+      TrigL2MuonSA::RecMuonRoIUtils m_recMuonRoIUtils{};
 
       SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_tgcContainerKey{
 	this, "TGCPrepDataContainer", "TGC_Measurements", "Name of the TGCContainer to read in"};

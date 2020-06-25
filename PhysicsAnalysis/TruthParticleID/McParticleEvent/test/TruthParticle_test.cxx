@@ -76,7 +76,7 @@ void throw_tp_test_err (const char* file, int line, const char* what)
 
 #define TP_ASSERT(X) myassert(X)
 
-typedef CLHEP::HepLorentzVector HLV_t;
+typedef HepMC::FourVector HLV_t;
 typedef TruthParticleContainer::Map_t Map_t;
 typedef TruthEtIsolations::EtIsol_t EtIsol_t;
 

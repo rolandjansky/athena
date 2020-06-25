@@ -27,6 +27,8 @@ namespace ORUtils
   MuPFJetOverlapTool::MuPFJetOverlapTool(const std::string& name)
     : BaseOverlapTool(name)
   {
+    declareProperty("BJetLabel", m_bJetLabel = "",
+                    "Input b-jet flag. Disabled by default.");
     declareProperty("NumJetTrk", m_numJetTrk = 4,
                     "Min number of jet tracks to keep jet and remove muon");
     declareProperty("JetNumTrackDecoration", m_jetNumTrkDec = "",
@@ -58,6 +60,12 @@ namespace ORUtils
 
     ATH_MSG_DEBUG("Configuring mu-pflow-jet cone size " << m_coneDR);
     m_dRMatchCone = std::make_unique<DeltaRMatcher>(m_coneDR, m_useRapidity);
+
+    // Initialize the b-jet helper
+    if(!m_bJetLabel.empty()) {
+      ATH_MSG_DEBUG("Configuring btag-aware mu-pflow-jet OR with btag label: " << m_bJetLabel);
+      m_bJetHelper = std::make_unique<BJetHelper>(m_bJetLabel);
+    }
 
     // Additional config printouts
     ATH_MSG_DEBUG("PFlow jet removal which are identified as muons config: NumJetTrk " << m_numJetTrk <<
@@ -131,6 +139,9 @@ namespace ORUtils
 
       for(const xAOD::Jet* jet : jets){
         if(!m_decHelper->isSurvivingObject(*jet)) continue;
+
+        // Don't reject user-defined b-tagged jets
+        if(m_bJetHelper && m_bJetHelper->isBJet(*jet)) continue;
 
         // Get the number of tracks and the sumPT of those tracks
         int nTrk = getNumTracks(*jet, vtxIdx);

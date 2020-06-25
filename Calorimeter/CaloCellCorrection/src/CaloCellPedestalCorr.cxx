@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ****************************************************************************************
@@ -52,11 +52,9 @@ StatusCode CaloCellPedestalCorr::initialize()
 
   ATH_CHECK(detStore()->retrieve(m_cellId, "CaloCell_ID"));
 
-  if (m_lumi0<0 && !m_isMC) {
-    ATH_CHECK(m_lumiFolderName.initialize());
-  }
+  ATH_CHECK(m_lumiFolderName.initialize(m_lumi0<0 && !m_isMC));
+  ATH_CHECK(m_pedShiftFolder.initialize(!m_isMC));
   if (!m_isMC) {
-    ATH_CHECK(m_pedShiftFolder.initialize());
     ATH_CHECK(m_caloCoolIdTool.retrieve());
   }
 

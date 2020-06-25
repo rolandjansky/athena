@@ -28,12 +28,6 @@ import AthenaPoolCnvSvc.AthenaPool
 import IOVDbSvc.IOVDb
 
 #--------------------------------------------------------------
-# Make sure AthenaSealSvc is loaded for dict check
-#--------------------------------------------------------------
-# Check the dictionary in memory for completeness
-svcMgr.AthenaSealSvc.CheckDictionary = TRUE
-
-#--------------------------------------------------------------
 # Private Application Configuration options
 #--------------------------------------------------------------
 # Load "user algorithm" top algorithms to be run, and the libraries that house them

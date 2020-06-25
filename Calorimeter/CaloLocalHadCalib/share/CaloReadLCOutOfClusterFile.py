@@ -20,8 +20,6 @@ theApp.EvtMax = 1
 
 
 AthenaPoolCnvSvc = Service( "AthenaPoolCnvSvc" )
-AthenaSealSvc = Service( "AthenaSealSvc" )
-AthenaSealSvc.CheckDictionary = True 
 
 from RegistrationServices.OutputConditionsAlg import OutputConditionsAlg
 myOCA=OutputConditionsAlg("myOCA",outFileName)

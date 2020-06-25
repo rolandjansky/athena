@@ -73,7 +73,7 @@ StatusCode PFCellLevelSubtractionTool::initialize(){
   m_integrator = std::make_unique<eflowLayerIntegrator>(gaussianRadius, gaussianRadiusError, maximumRadiusSigma, m_isHLLHC);
   m_binnedParameters = std::make_unique<eflowEEtaBinnedParameters>();
   
-  sc = m_theEOverPTool->execute(m_binnedParameters.get());
+  sc = m_theEOverPTool->fillBinnedParameters(m_binnedParameters.get());
 
   if (sc.isFailure()) {
     msg(MSG::WARNING) << "Could not execute eflowCellEOverPTool " << endmsg;

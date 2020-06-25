@@ -2,6 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_STANDALONE 
+
 /**
  * Tau Electron Overlap Removal Decorator Tool
  *
@@ -109,3 +111,5 @@ float TauEleOLRDecorator::getCutVal(float fEta, float fPt) const
   int iBin= m_hCutValues->FindBin(fPt, std::abs(fEta));
   return m_hCutValues->GetBinContent(iBin);
 }
+
+#endif

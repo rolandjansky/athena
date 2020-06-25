@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -39,40 +39,27 @@ Updated:  June, 2004    (sss)
 #include "GaudiKernel/MsgStream.h"
 #include <cmath>
 
-// -------------------------------------------------------------
-// Constructor 
-// -------------------------------------------------------------
+
 using xAOD::CaloCluster;
-CaloSwClcon_g3::CaloSwClcon_g3(const std::string& type,
-                               const std::string& name,
-                               const IInterface* parent)
-  : CaloClusterCorrection(type, name, parent)
-{ 
-  declareConstant ("etamin",     m_etamin);
-  declareConstant ("etamax",     m_etamax);
-  declareConstant ("correction", m_correction);
-}
-
-
-// -------------------------------------------------------------
-// Destructor
-// -------------------------------------------------------------
-CaloSwClcon_g3::~CaloSwClcon_g3()
-{ }
 
 // apply correction to one cluster.
-void CaloSwClcon_g3::makeCorrection(const EventContext& /*ctx*/,
-                                    CaloCluster* cluster) const
+void CaloSwClcon_g3::makeCorrection (const Context& myctx,
+                                     CaloCluster* cluster) const
 {
+  const float etamin = m_etamin (myctx);
+  const float etamax = m_etamax (myctx);
+
   float eta = cluster->eta();
   float aeta = fabs(eta);
-  if (aeta < m_etamin || aeta >= m_etamax) return;
-  if (m_correction.size() == 0) return;
+  if (aeta < etamin || aeta >= etamax) return;
+
+  const CxxUtils::Array<1> correction = m_correction (myctx);
+  if (correction.size() == 0) return;
   
   // Determine the correction
-  double granularity = (m_etamax - m_etamin) / m_correction.size();
-  int i = static_cast<int> ((aeta - m_etamin)/granularity);
-  float qclcon = m_correction[i];
+  double granularity = (etamax - etamin) / correction.size();
+  int i = static_cast<int> ((aeta - etamin)/granularity);
+  float qclcon = correction[i];
  
   // Do the Correction
   setenergy(cluster, qclcon * cluster->e());

@@ -29,11 +29,12 @@ namespace Muon
     virtual StatusCode initialize();
 
     StatusCode getClusters(std::vector<Muon::MMPrepData>& stripsVect, 
-			   std::vector<Muon::MMPrepData*>& clustersVect) const;
+			   std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVect) const;
 
   private: 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-    
+    bool m_writeStripProperties;
+
     bool m_useErrorParametrization;
     uint m_maxHoleSize;
     

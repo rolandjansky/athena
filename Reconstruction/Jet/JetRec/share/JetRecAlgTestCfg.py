@@ -32,8 +32,8 @@ ConfigFlags.lock()
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 # Get a ComponentAccumulator setting up the fundamental Athena job
-from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
-cfg=MainServicesCfg(ConfigFlags) 
+from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+cfg=MainServicesCfg(ConfigFlags)
 
 # Add the components for reading in pool files
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
@@ -120,7 +120,7 @@ def JetBuildAlgCfg(ConfigFlags,buildjetsname):
         "pjmergealg_"+buildjetsname,
         InputPJContainers = pjcs,
         OutputContainer = "PseudoJetMerged_"+buildjetsname)
-    
+
     buildcfg.addEventAlgo(mergepjalg)
 
     # Create the JetClusterer, set some standard options
@@ -162,15 +162,14 @@ def JetGroomAlgCfg(ConfigFlags,buildjetsname,groomjetsname):
 
     # Create the JetGroomer, provide it with a JetTrimmer
     jtrim = CompFactory.JetTrimming("trimSmallR2Frac5",RClus=0.2,PtFrac=0.05)
-    jtrim.InputJetContainer = buildjetsname
-    jtrim.InputPseudoJets = "PseudoJetMerged_"+buildjetsname
-    jtrim.TrimmedOutputPseudoJets = "PseudoJet"+groomjetsname
+    jtrim.UngroomedJets = buildjetsname
+    jtrim.ParentPseudoJets = "PseudoJetMerged_"+buildjetsname
 
     # Create the JetRecAlg, configure it to use the builder
     # using constructor syntax instead
     # (equivalent to setting properties with "=")
     jra = CompFactory.JetRecAlg(
-        "JRA_groom",
+        "JRA_trim",
         Provider = jtrim,       # Single ToolHandle
         Modifiers = [], # ToolHandleArray
         OutputContainer = groomjetsname)

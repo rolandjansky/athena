@@ -4,7 +4,7 @@
  **     @author  mark sutton
  **     @date    Fri 11 Jan 2019 07:41:26 CET 
  **
- **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -17,7 +17,11 @@
 #include <map>
 #include <set>
 
-//#include "Cintex/Cintex.h"
+/// stack trace headers
+#include <execinfo.h>
+#include <signal.h>
+#include <unistd.h>
+
 
 #include "TChain.h"
 #include "TFile.h"
@@ -84,6 +88,21 @@ extern BinConfig bjetBinConfig;
 extern BinConfig cosmicBinConfig;
 
 void copyReleaseInfo( TTree* tree, TFile* foutdir );
+
+
+/// signal handler
+void handler(int sig) {
+  void *array[10];
+
+  // get void*'s for all entries on the stack
+  size_t size = backtrace(array, 10);
+
+  // print out all the frames to stderr
+  std::cout << "Error: signal %d:\n" <<  sig << std::endl;
+  backtrace_symbols_fd(array, size, STDERR_FILENO);
+  std::exit(1);
+}
+
 
 
 
@@ -341,9 +360,9 @@ int usage(const std::string& name, int status) {
 template<typename T>
 std::vector<T*> pointers( std::vector<T>& v ) {
   /// this is slow - all this copying
-  std::vector<T*> _v(v.size());
-  for ( unsigned i=0 ; i<v.size() ; i++ ) _v.push_back( &v[i] );
-  return _v;
+  std::vector<T*> vp(v.size(),0);
+  for ( unsigned i=v.size() ; i-- ; ) vp[i] = &v[i];
+  return vp;
 }
 
 
@@ -365,6 +384,11 @@ bool SelectObjectETovPT(const TrackTrigObject& tobj, TIDA::Track* t=0) {
 
 int main(int argc, char** argv) 
 {
+  signal( SIGABRT, handler ); 
+  signal( SIGFPE,  handler ); 
+  signal( SIGILL,  handler ); 
+  signal( SIGSEGV, handler ); 
+  signal( SIGTERM, handler ); 
 
   //  ROOT::Cintex::Cintex::Enable();
 
@@ -511,6 +535,8 @@ int main(int argc, char** argv)
   int nbl = -1;
 
   int nsiholes = 2;
+  int npixholes = 20; /// essentially no limit
+  int nsctholes = 20; /// essentially no limit
 
   bool expectBL = false;
 
@@ -566,6 +592,8 @@ int main(int argc, char** argv)
   if ( inputdata.isTagDefined("zed") )      zed      = inputdata.GetValue("zed");
   if ( inputdata.isTagDefined("npix") )     npix     = inputdata.GetValue("npix");
   if ( inputdata.isTagDefined("nsiholes") ) nsiholes = inputdata.GetValue("nsiholes");
+  if ( inputdata.isTagDefined("npixholes") ) npixholes = inputdata.GetValue("npixholes");
+  if ( inputdata.isTagDefined("nsctholes") ) nsctholes = inputdata.GetValue("nsctholes");
   if ( inputdata.isTagDefined("expectBL") ) expectBL = ( inputdata.GetValue("expectBL") > 0.5 ? true : false );
   if ( inputdata.isTagDefined("nsct") )     nsct     = inputdata.GetValue("nsct");
   if ( inputdata.isTagDefined("nbl") )      nbl      = inputdata.GetValue("nbl");
@@ -906,7 +934,7 @@ int main(int argc, char** argv)
   Filter_Track filter_offline( eta, 1000, zed, pT, 
                                npix, nsct, -1, nbl, 
                                -2, -2, chi2prob, 
-                               20, 20, nsiholes, expectBL ); /// include chi2 probability cut 
+                               npixholes, nsctholes, nsiholes, expectBL ); /// include chi2 probability cut 
 
   if ( selectcharge!=0 ) filter_offline.chargeSelection( selectcharge );
   if ( pTMax>pT )        filter_offline.maxpT( pTMax );
@@ -2100,22 +2128,10 @@ int main(int argc, char** argv)
           ///  and all our functions are using const vector<T>&, so we would need to duplicate
           ///  all the functions to allow over riding with vector<T*> *and* vector<const T*>
           ///  to get this nonsense to work
-          
-          std::vector<TIDA::Vertex> vtxcck = vertices_roi;           
-          std::vector<TIDA::Vertex*> vtxp; // = pointers( vtxcck );
-          
-          vtxp.reserve( vtxcck.size() );
-          for ( unsigned iv=0 ; iv<vtxcck.size() ; iv++ ) vtxp.push_back( &vtxcck[iv] );
-          
-          std::vector<TIDA::Vertex> vtxcck_test = vertices_test;
-          std::vector<TIDA::Vertex*> vtxp_test; // = pointers( vtxcck_test );
-          
-          vtxp_test.reserve( vtxcck_test.size() );
-          for ( unsigned iv=0 ; iv<vtxcck_test.size() ; iv++ ) vtxp_test.push_back( &vtxcck_test[iv] );
-          
-          //      std::cout << "vertex size :" << vtxp_test.size() << "\tvertex key " << vtxanal->name() << std::endl;
 
-          if ( vtxp.size()>0 ) vtxanal->execute( vtxp, vtxp_test, track_ev );
+	  ///  so we now use a handy wrapper function to do the conversion for us ...
+
+          if ( vertices_roi.size()>0 ) vtxanal->execute( pointers(vertices_roi), pointers(vertices_test), track_ev );
 
         }
 

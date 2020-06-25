@@ -102,10 +102,10 @@ StatusCode MakeEventStreamInfo::postExecute() {
 
    EventStreamInfo* pEventStream = m_metaDataSvc->tryRetrieve<EventStreamInfo>(m_key.value());
    if( !pEventStream ) {
-      pEventStream = new EventStreamInfo();
-      if( m_metaDataSvc->record(pEventStream, m_key.value() ).isFailure()) {
+      auto esinfo_up = std::make_unique<EventStreamInfo>();
+      pEventStream = esinfo_up.get();
+      if( m_metaDataSvc->record(std::move(esinfo_up), m_key.value()).isFailure() ) {
          ATH_MSG_ERROR("Could not register EventStreamInfo object");
-         delete pEventStream;
          return(StatusCode::FAILURE);
       }
    }

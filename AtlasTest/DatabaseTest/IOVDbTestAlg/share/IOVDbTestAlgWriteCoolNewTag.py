@@ -124,9 +124,6 @@ import AthenaPoolCnvSvc.WriteAthenaPool
 # AthenaPool details
 #--------------------------------------------------------------
 
-# Check the dictionary in memory for completeness
-svcMgr.AthenaSealSvc.CheckDictionary = TRUE
-
 #--------------------------------------------------------------
 #  Use AthenaOutputStreamTool to write
 #    Must "turn off" standard AthenaOutputStream

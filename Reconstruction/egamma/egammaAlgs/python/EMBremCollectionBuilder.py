@@ -14,7 +14,6 @@ from egammaRec.Factories import AlgFactory
 from egammaTools.egammaExtrapolators import (AtlasPublicExtrapolator,
                                              egammaExtrapolator)
 # default configuration of the EMBremCollectionBuilder
-from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
 from InDetRecExample.InDetJobProperties import InDetFlags
 from InDetRecExample.InDetKeys import InDetKeys
 from RecExConfig.RecFlags import rec
@@ -108,6 +107,7 @@ class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
         #  Track Particle Creator tool (private not in ToolSvc)
         #  But needs a public extrapolator and
         #  InDetTrackSummaryTool still...
+        #
         from TrkParticleCreator.TrkParticleCreatorConf import (
             Trk__TrackParticleCreatorTool)
 
@@ -138,7 +138,6 @@ class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
 EMBremCollectionBuilder = AlgFactory(
     egammaBremCollectionBuilder,
     name='EMBremCollectionBuilder',
-    ExtrapolationTool=EMExtrapolationTools,
     TrackParticleContainerName=InDetKeys.xAODTrackParticleContainer(),
     OutputTrkPartContainerName=egammaKeys.outputTrackParticleKey(),
     OutputTrackContainerName=egammaKeys.outputTrackKey(),

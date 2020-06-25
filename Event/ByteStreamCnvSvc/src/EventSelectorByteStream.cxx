@@ -1,13 +1,9 @@
-/*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-*/
-
-//====================================================================
-//	EventSelectorByteStream.cxx
-//====================================================================
-//
-// Include files.
+/* Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration */
 #include "EventSelectorByteStream.h"
+
+#include <vector>
+#include <algorithm>
+
 #include "EventContextByteStream.h"
 #include "ByteStreamCnvSvc/ByteStreamInputSvc.h"
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
@@ -28,38 +24,61 @@
 #include "PersistentDataModel/DataHeader.h"
 #include "eformat/StreamTag.h"
 
-#include <vector>
-#include <algorithm>
 
 // Constructor.
-EventSelectorByteStream::EventSelectorByteStream(const std::string& name, ISvcLocator* svcloc)
-   : base_class(name, svcloc)
-{
-   declareProperty("HelperTools", m_helperTools);
+EventSelectorByteStream::EventSelectorByteStream(
+    const std::string& name,
+    ISvcLocator* svcloc)
+  : base_class(name, svcloc)
+  , m_activeStoreSvc("ActiveStoreSvc", name) {
+  declareProperty("HelperTools", m_helperTools);
 
-   // RunNumber, OldRunNumber and OverrideRunNumberFromInput are used
-   // to override the run number coming in on the input stream
-   m_runNo.verifier().setLower(0);
-   // The following properties are only for compatibility with
-   // McEventSelector and are not really used anywhere
-   // TODO: validate if those are even used
-   m_eventsPerRun.verifier().setLower(0);
-   m_firstEventNo.verifier().setLower(0);
-   m_firstLBNo.verifier().setLower(0);
-   m_eventsPerLB.verifier().setLower(0);
-   m_initTimeStamp.verifier().setLower(0);
+  // RunNumber, OldRunNumber and OverrideRunNumberFromInput are used
+  // to override the run number coming in on the input stream
+  m_runNo.verifier().setLower(0);
+  // The following properties are only for compatibility with
+  // McEventSelector and are not really used anywhere
+  // TODO(berghaus): validate if those are even used
+  m_eventsPerRun.verifier().setLower(0);
+  m_firstEventNo.verifier().setLower(0);
+  m_firstLBNo.verifier().setLower(0);
+  m_eventsPerLB.verifier().setLower(0);
+  m_initTimeStamp.verifier().setLower(0);
 
-   m_inputCollectionsProp.declareUpdateHandler(&EventSelectorByteStream::inputCollectionsHandler, this);
+  m_inputCollectionsProp.declareUpdateHandler(
+      &EventSelectorByteStream::inputCollectionsHandler,
+      this);
 }
-//________________________________________________________________________________
+
+
+/******************************************************************************/
 void EventSelectorByteStream::inputCollectionsHandler(Property&) {
-   if (this->FSMState() != Gaudi::StateMachine::OFFLINE) {
-      this->reinit().ignore();
-   }
+  if (this->FSMState() != Gaudi::StateMachine::OFFLINE) {
+    this->reinit().ignore();
+  }
 }
-//________________________________________________________________________________
+
+
+/******************************************************************************/
 EventSelectorByteStream::~EventSelectorByteStream() {
 }
+
+
+/******************************************************************************/
+StoreGateSvc*
+EventSelectorByteStream::eventStore() const {
+  if (m_activeStoreSvc == 0) {
+    if (!m_activeStoreSvc.retrieve().isSuccess()) {
+      ATH_MSG_ERROR("Cannot get ActiveStoreSvc");
+      throw GaudiException(
+          "Cannot get ActiveStoreSvc", name(), StatusCode::FAILURE);
+    }
+  }
+
+  return(m_activeStoreSvc->activeStore());
+}
+
+
 //________________________________________________________________________________
 StatusCode EventSelectorByteStream::initialize() {
    if (m_isSecondary.value()) {
@@ -90,11 +109,6 @@ StatusCode EventSelectorByteStream::initialize() {
    m_eventSource = dynamic_cast<ByteStreamInputSvc*>(svc);
    if (m_eventSource == 0) {
       ATH_MSG_FATAL("Cannot cast ByteStreamInputSvc");
-      return(StatusCode::FAILURE);
-   }
-   m_eventSource->addRef();
-   if (!m_evtStore.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get StoreGateSvc");
       return(StatusCode::FAILURE);
    }
 
@@ -434,6 +448,19 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
          ATH_MSG_DEBUG("Skipping event " << m_NumEvents - 1);
       }
    } // for loop
+   if (!m_eventStreamingTool.empty() && m_eventStreamingTool->isServer()) { // For SharedReader Server, put event into SHM
+      const RawEvent* pre = 0;
+      pre = m_eventSource->currentEvent();
+      StatusCode sc = m_eventStreamingTool->putEvent(m_NumEvents - 1, pre->start(), pre->fragment_size_word() * sizeof(uint32_t), m_eventSource->currentEventStatus());
+      while (sc.isRecoverable()) {
+         usleep(1000);
+         sc = m_eventStreamingTool->putEvent(m_NumEvents - 1, pre->start(), pre->fragment_size_word() * sizeof(uint32_t), m_eventSource->currentEventStatus());
+      }
+      if (!sc.isSuccess()) {
+         ATH_MSG_ERROR("Cannot put Event " << m_NumEvents - 1 << " to AthenaSharedMemoryTool");
+         return(StatusCode::FAILURE);
+      }
+   }
    return(StatusCode::SUCCESS);
 }
 
@@ -653,13 +680,13 @@ StatusCode EventSelectorByteStream::recordAttributeList() const
 {
    std::string listName("EventInfoAtts");
 
-   if (m_evtStore->contains<AthenaAttributeList>(listName)) {
+   if (eventStore()->contains<AthenaAttributeList>(listName)) {
       const AthenaAttributeList* oldAttrList = nullptr;
-      if (!m_evtStore->retrieve(oldAttrList, listName).isSuccess()) {
+      if (!eventStore()->retrieve(oldAttrList, listName).isSuccess()) {
          ATH_MSG_ERROR("Cannot retrieve old AttributeList from StoreGate.");
          return(StatusCode::FAILURE);
       }
-      if (!m_evtStore->removeDataAndProxy(oldAttrList).isSuccess()) {
+      if (!eventStore()->removeDataAndProxy(oldAttrList).isSuccess()) {
          ATH_MSG_ERROR("Cannot remove old AttributeList from StoreGate.");
          return(StatusCode::FAILURE);
       }
@@ -673,7 +700,7 @@ StatusCode EventSelectorByteStream::recordAttributeList() const
    ATH_CHECK(fillAttributeList(attrList.get(), "", false));
 
    // put result in event store
-   if (m_evtStore->record(std::move(attrList), listName).isFailure()) {
+   if (eventStore()->record(std::move(attrList), listName).isFailure()) {
       return StatusCode::FAILURE;
    }
 
@@ -854,11 +881,11 @@ StatusCode EventSelectorByteStream::share(int evtNum) {
 //________________________________________________________________________________
 StatusCode EventSelectorByteStream::readEvent(int maxevt) {
    if (m_eventStreamingTool.empty()) {
+      ATH_MSG_ERROR("No AthenaSharedMemoryTool configured for readEvent()");
       return(StatusCode::FAILURE);
    }
    ATH_MSG_VERBOSE("Called read Event " << maxevt);
    for (int i = 0; i < maxevt || maxevt == -1; ++i) {
-      //const RawEvent* pre = m_eventSource->nextEvent();
       const RawEvent* pre = 0;
       if (this->next(*m_beginIter).isSuccess()) {
          pre = m_eventSource->currentEvent();
@@ -868,18 +895,6 @@ StatusCode EventSelectorByteStream::readEvent(int maxevt) {
             break;
          }
          ATH_MSG_ERROR("Unable to retrieve next event for " << i << "/" << maxevt);
-         return(StatusCode::FAILURE);
-      }
-      if (pre == 0) {
-         // End of file, wait for last event to be taken
-         StatusCode sc = m_eventStreamingTool->putEvent(0, 0, 0, 0);
-         while (sc.isRecoverable()) {
-            usleep(1000);
-            sc = m_eventStreamingTool->putEvent(0, 0, 0, 0);
-         }
-         if (!sc.isSuccess()) {
-            ATH_MSG_ERROR("Cannot put last Event marker to AthenaSharedMemoryTool");
-         }
          return(StatusCode::FAILURE);
       }
       if (m_eventStreamingTool->isServer()) {
@@ -894,13 +909,23 @@ StatusCode EventSelectorByteStream::readEvent(int maxevt) {
          }
       }
    }
+   // End of file, wait for last event to be taken
+   StatusCode sc = m_eventStreamingTool->putEvent(0, 0, 0, 0);
+   while (sc.isRecoverable()) {
+      usleep(1000);
+      sc = m_eventStreamingTool->putEvent(0, 0, 0, 0);
+   }
+   if (!sc.isSuccess()) {
+      ATH_MSG_ERROR("Cannot put last Event marker to AthenaSharedMemoryTool");
+      return(StatusCode::FAILURE);
+   }
    return(StatusCode::SUCCESS);
 }
 
 //________________________________________________________________________________
 StatusCode EventSelectorByteStream::createAddress(const IEvtSelector::Context& /*it*/,
                 IOpaqueAddress*& iop) const {
-   SG::DataProxy* proxy = m_evtStore->proxy(ClassID_traits<DataHeader>::ID(),"ByteStreamDataHeader");
+   SG::DataProxy* proxy = eventStore()->proxy(ClassID_traits<DataHeader>::ID(),"ByteStreamDataHeader");
    if (proxy !=0) {
      iop = proxy->address();
      return(StatusCode::SUCCESS);

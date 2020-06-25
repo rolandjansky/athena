@@ -19,7 +19,7 @@
  * EDM Migration to xAOD - from Trk::VxCandidate to xAOD::Vertex
  *
  *   findVertex will now always return an xAOD::VertexContainer,
- *   even when using a TrackCollection or a TrackParticleBaseCollection
+ *   even when using a TrackCollection .
  *   as input.
  *
  ***************************************************************************/
@@ -32,7 +32,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrkTrack/TrackCollection.h" // type def ...
-#include "TrkParticleBase/TrackParticleBaseCollection.h" // type def ...
 #include "TrkParameters/TrackParameters.h"
 
 /**
@@ -48,7 +47,6 @@ namespace Trk
 {
  class IVertexFitter;
  class Track;
- class TrackParticleBase;
  class ITrackLink;
  class IVertexSeedFinder;
  class IImpactPoint3dEstimator;
@@ -91,8 +89,6 @@ public:
    virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(
      const TrackCollection* trackTES) const override;
 
-   virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(
-     const Trk::TrackParticleBaseCollection* trackTES) const override;
    
    virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(
      const xAOD::TrackParticleContainer* trackParticles) const override;

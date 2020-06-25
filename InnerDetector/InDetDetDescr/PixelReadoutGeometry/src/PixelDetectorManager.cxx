@@ -54,19 +54,6 @@ namespace InDetDD {
     for (size_t i=0; i < m_volume.size(); i++) {
       m_volume[i]->unref();
     }
-
-    for (size_t j=0; j < m_higherAlignableTransforms.size(); j++){
-      AlignableTransformMap::iterator iterMap;  
-      for (iterMap = m_higherAlignableTransforms[j].begin(); 
-      iterMap != m_higherAlignableTransforms[j].end();
-      ++iterMap) {
-        delete iterMap->second;
-      }
-    }
-
-    for (size_t k=0; k < m_alignableTransforms.size(); k++){
-      delete m_alignableTransforms[k];
-    }
   }
 
 
@@ -217,7 +204,7 @@ namespace InDetDD {
 
       if (frame == InDetDD::global) {
 
-        return setAlignableTransformGlobalDelta(m_alignableTransforms[idHash], delta, alignStore);
+        return setAlignableTransformGlobalDelta(m_alignableTransforms[idHash].get(), delta, alignStore);
 
       } else if (frame == InDetDD::local) {
 
@@ -229,10 +216,10 @@ namespace InDetDD {
         if( m_isLogical ){
 	  //Ensure cache is up to date and use the alignment corrected local to global transform
 	  element->setCache();
-	  return setAlignableTransformLocalDelta(m_alignableTransforms[idHash], element->transform(), delta, alignStore);
+	  return setAlignableTransformLocalDelta(m_alignableTransforms[idHash].get(), element->transform(), delta, alignStore);
         } else 
 	  //Use default local to global transform
-	  return setAlignableTransformLocalDelta(m_alignableTransforms[idHash], element->defTransform(), delta, alignStore);
+	  return setAlignableTransformLocalDelta(m_alignableTransforms[idHash].get(), element->defTransform(), delta, alignStore);
       } else {
         // other not supported
         msg(MSG::WARNING) << "Frames other than global or local are not supported." << endmsg;
@@ -255,7 +242,7 @@ namespace InDetDD {
       if (iter == m_higherAlignableTransforms[index].end()) return false;      
 
       // Its a global transform
-      return setAlignableTransformGlobalDelta(iter->second, delta, alignStore);
+      return setAlignableTransformGlobalDelta((iter->second).get(), delta, alignStore);
     }
 
   }
@@ -287,13 +274,13 @@ namespace InDetDD {
       if (level == 0) {
         IdentifierHash idHash = m_idHelper->wafer_hash(id);
         if (idHash.is_valid()) {
-          m_alignableTransforms[idHash]= new ExtendedAlignableTransform(transform, child);
+          m_alignableTransforms[idHash]= std::make_unique<ExtendedAlignableTransform>(transform, child);
         } 
       } else {
         // Higher levels are saved in a map. NB the index is level-1 as level=0 is treated above.   
         int index = level - FIRST_HIGHER_LEVEL; 
         if (index >= static_cast<int>(m_higherAlignableTransforms.size())) m_higherAlignableTransforms.resize(index+1); 
-        m_higherAlignableTransforms[index][id] = new ExtendedAlignableTransform(transform, child);
+        m_higherAlignableTransforms[index][id] = std::make_unique<ExtendedAlignableTransform>(transform, child);
       }
     }  
   }
@@ -551,7 +538,7 @@ namespace InDetDD {
 
       // now we need to get the original alignment delta to apply this additional
       // shift to
-      ExtendedAlignableTransform* eat = m_alignableTransforms[idHash];
+      ExtendedAlignableTransform* eat = m_alignableTransforms[idHash].get();
       const GeoTrf::Transform3D* currentDelta = alignStore->getDelta(eat->alignableTransform());
       if (currentDelta == nullptr) {
         ATH_MSG_ERROR("Have IBL Dist for element which does not have an alignment delta."

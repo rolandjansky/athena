@@ -69,14 +69,6 @@ public:
     return findVertex(trackTES);
   }
 
-  virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-  findVertex(const EventContext& ctx,
-             const Trk::TrackParticleBaseCollection* trackTES) const
-  {
-    (void)(ctx); // We do not use ctx
-    return findVertex(trackTES);
-  }
-
   /** Find vertex from xAOD::TrackParticleContainer.
    * @param EventContext
    * @param trackParticles input track container
@@ -90,17 +82,16 @@ public:
     return findVertex(trackParticles);
   }
 
+  /* 
+   * Non Event context aware methods
+   */
+
   virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
   findVertex(const TrackCollection* trackTES) const
   {
     return findVertex(Gaudi::Hive::currentContext(), trackTES);
   }
 
-  virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-  findVertex(const Trk::TrackParticleBaseCollection* trackTES) const
-  {
-    return findVertex(Gaudi::Hive::currentContext(), trackTES);
-  }
   virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
   findVertex(const xAOD::TrackParticleContainer* trackParticles) const
   {

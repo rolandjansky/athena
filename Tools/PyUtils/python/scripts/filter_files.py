@@ -7,12 +7,13 @@
 # @date March 2010
 from __future__ import with_statement
 
-__doc__ = "take a bunch of input (pool/bs) files and produce a filtered one"
+__doc__ = "filter multiple input (pool/bs) files"
 __author__ = "Sebastien Binet"
 
 
 ### imports -------------------------------------------------------------------
 import PyUtils.acmdlib as acmdlib
+import six
 
 @acmdlib.command(
     name='filter-files'
@@ -33,8 +34,8 @@ import PyUtils.acmdlib as acmdlib
     help='comma separated list of tuples (run,event) numbers to select or an ascii file containg a list of such run+event numbers to select'
     )
 def main(args):
-    """take a bunch of input (pool/bs) files and produce a filtered one
-    """
+    """filter multiple input (pool/bs) files"""
+
     exitcode = 0
 
     import PyUtils.Logging as L
@@ -83,7 +84,7 @@ def main(args):
         
         selection = []
         for item in args.selection:
-            if not isinstance(item, (tuple, list, int, int)):
+            if not isinstance(item, (tuple, list) + six.integer_types):
                 raise TypeError('type: %r' % type(item))
 
             if isinstance(item, (tuple, list)):

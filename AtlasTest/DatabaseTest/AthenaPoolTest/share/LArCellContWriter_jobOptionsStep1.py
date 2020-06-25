@@ -69,8 +69,6 @@ MessageSvc.OutputLevel = INFO
 MessageSvc.debugLimit  = 100000
 ClassIDSvc = Service( "ClassIDSvc" )
 ClassIDSvc.OutputLevel = INFO
-AthenaSealSvc = Service( "AthenaSealSvc" )
-AthenaSealSvc.OutputLevel = INFO
 LArCellContFakeWriter = Algorithm( "LArCellContFakeWriter" )
 LArCellContFakeWriter.OutputLevel = DEBUG
 

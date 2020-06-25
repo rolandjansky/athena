@@ -182,8 +182,6 @@ include( "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py" )
 
 #include("CaloIdCnv/CaloIdCnv_joboptions.py")
 
-include ("AthenaServices/AthenaSealSvc_joboptions.py")
-
 include( "LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py" )
 
 #if dspth:

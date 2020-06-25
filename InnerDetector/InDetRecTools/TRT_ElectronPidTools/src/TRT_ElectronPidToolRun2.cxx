@@ -75,7 +75,7 @@ InDet::TRT_ElectronPidToolRun2::TRT_ElectronPidToolRun2(const std::string& t, co
 \*****************************************************************************/
 
 InDet::TRT_ElectronPidToolRun2::~TRT_ElectronPidToolRun2()
-{}
+= default;
 
 /*****************************************************************************\
 |*%%%  Initialisation  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
@@ -229,7 +229,7 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
     if (!driftcircle) continue;
 
     // From now (May 2015) onwards, we ONLY USE MIDDLE HT BIT:
-    bool isHTMB  = ((driftcircle->prepRawData()->getWord() & 0x00020000) > 0) ? true : false;
+    bool isHTMB  = (driftcircle->prepRawData()->getWord() & 0x00020000) > 0;
 
     nTRThits++;
     if (isHTMB) nTRThitsHTMB++;

@@ -58,7 +58,8 @@ atlas_add_library( TrackToCaloLib
                    LINK_LIBRARIES ${EIGEN_LIBRARIES} CaloEvent CaloGeoHelpers GeoPrimitives xAODCaloEvent GaudiKernel ParticleCaloExtension RecoToolInterfaces 
 		   TrackCaloClusterRecToolsLib TrkCaloExtension TrkParametersIdentificationHelpers CaloDetDescrLib CaloUtilsLib InDetReadoutGeometry TRT_ReadoutGeometry
                    PRIVATE_LINK_LIBRARIES CaloIdentifier AthenaBaseComps AtlasDetDescr FourMomUtils xAODTracking xAODMuon xAODEgamma xAODTruth TrkSurfaces 
-                   TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces CxxUtils StoreGateLib EventKernel )
+                   TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces CxxUtils StoreGateLib EventKernel ParticlesInConeToolsLib ITrackToVertex
+                   InDetTrackSelectionToolLib )
 
 atlas_add_component( TrackToCalo
                      src/components/*.cxx

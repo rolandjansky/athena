@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@ Trk::LayerMaterialProvider::~LayerMaterialProvider()
 
 
 // Processor Action to work on TrackingGeometry 
-StatusCode Trk::LayerMaterialProvider::process(const Trk::TrackingGeometry& tgeo) {
+StatusCode Trk::LayerMaterialProvider::process(const Trk::TrackingGeometry& tgeo) const{
   
   ATH_MSG_VERBOSE("Start processing the TrackingGeometry recursively");
   // retrieve the highest tracking volume
@@ -81,14 +81,16 @@ StatusCode Trk::LayerMaterialProvider::process(const Trk::TrackingGeometry& tgeo
 }
 
 // Processor Action to work on TrackingVolumes
-StatusCode Trk::LayerMaterialProvider::process(const Trk::TrackingVolume& tvol, size_t level) {
+StatusCode Trk::LayerMaterialProvider::process(const Trk::TrackingVolume& tvol, size_t level) const {
   
   // load the material map if not done yet
-  if (!m_layerMaterialMap){ 
-      if (loadMaterialMap().isFailure()){
-            ATH_MSG_DEBUG( "Problems loading hte LayerMaterialMap - check name or call sequence." );
-            return StatusCode::FAILURE;
-      }
+  bool loadMapFailed = false;
+  std::call_once(m_loadMapOnceFlag, [&](){
+      loadMapFailed = loadMaterialMap().isFailure();
+  });
+  if (loadMapFailed){
+      ATH_MSG_DEBUG( "Problems loading the LayerMaterialMap - check name or call sequence." );
+      return StatusCode::FAILURE;
   }
   
   std::stringstream displayBuffer;
@@ -148,14 +150,16 @@ StatusCode Trk::LayerMaterialProvider::process(const Trk::TrackingVolume& tvol, 
 }
 
 // Processor Action to work on Layers 
-StatusCode Trk::LayerMaterialProvider::process(const Trk::Layer& lay, size_t level) {
+StatusCode Trk::LayerMaterialProvider::process(const Trk::Layer& lay, size_t level) const {
 
     // load the material map if not done yet
-    if (!m_layerMaterialMap){ 
-        if (loadMaterialMap().isFailure()){
-              ATH_MSG_WARNING( "Problems loading the LayerMaterialMap - check name or call sequence." );
-              return StatusCode::FAILURE;
-        }
+    bool loadMapFailed = false;
+    std::call_once(m_loadMapOnceFlag, [&](){
+        loadMapFailed = loadMaterialMap().isFailure();
+    });
+    if (loadMapFailed){
+        ATH_MSG_DEBUG( "Problems loading the LayerMaterialMap - check name or call sequence." );
+        return StatusCode::FAILURE;
     }
     // is the pointer still null?
     if (!m_layerMaterialMap) {
@@ -190,12 +194,12 @@ StatusCode Trk::LayerMaterialProvider::process(const Trk::Layer& lay, size_t lev
 }
 
 // Processor Action to work on Surfaces 
-StatusCode Trk::LayerMaterialProvider::process(const Trk::Surface&, size_t) {
+StatusCode Trk::LayerMaterialProvider::process(const Trk::Surface&, size_t) const{
     return StatusCode::SUCCESS;
 }
 
 // load the material map from StoreGate
-StatusCode Trk::LayerMaterialProvider::loadMaterialMap() {
+StatusCode Trk::LayerMaterialProvider::loadMaterialMap() const {
     
     // -------------------------------------------------------------------------------
     if (detStore()->retrieve(m_layerMaterialMap, m_layerMaterialMapName).isFailure()){

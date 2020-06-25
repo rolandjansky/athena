@@ -1448,9 +1448,9 @@ StatusCode SiSmearedDigitizationTool::digitize(const EventContext& ctx)
 
         if (!m_useCustomGeometry) {
           // Pixel Design needed -------------------------------------------------------------
-          InDetDD::SCT_ModuleSideDesign* design_sct;
+          const InDetDD::SCT_ModuleSideDesign* design_sct;
 
-          design_sct = (InDetDD::SCT_ModuleSideDesign*)&hitSiDetElement->design();
+          design_sct = dynamic_cast<const InDetDD::SCT_ModuleSideDesign*>(&hitSiDetElement->design());
 
           if (!design_sct) {
             ATH_MSG_INFO ( "Could not get design"<< design_sct) ;

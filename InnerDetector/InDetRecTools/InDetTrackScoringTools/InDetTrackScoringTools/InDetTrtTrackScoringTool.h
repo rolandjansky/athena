@@ -58,16 +58,15 @@ private:
   const TRT_ID* m_trtId;
   
   //these are used for ScoreModifiers 
-  int m_maxSigmaChi2, m_maxLogProb, m_maxTrtRatio, m_maxTrtFittedRatio;
+  int m_maxSigmaChi2, m_maxTrtRatio, m_maxTrtFittedRatio;
   
-  std::vector<double> m_factorSigmaChi2, m_factorLogProb, m_factorTrtRatio, m_factorTrtFittedRatio;
+  std::vector<double> m_factorSigmaChi2, m_factorTrtRatio, m_factorTrtFittedRatio;
   
-  std::vector<double> m_boundsSigmaChi2, m_boundsLogProb, m_boundsTrtRatio, m_boundsTrtFittedRatio;
+  std::vector<double> m_boundsSigmaChi2, m_boundsTrtRatio, m_boundsTrtFittedRatio;
 
   
   /** use the scoring tuned to Ambiguity processing or not */
   bool m_useAmbigFcn;
-  bool m_useLogProbBins;
   bool m_useSigmaChi2;
   
   /**holds the scores assigned to each Trk::SummaryType from the track's Trk::TrackSummary*/

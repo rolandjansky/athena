@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,7 +13,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include <ostream>
 #include <limits>
-
 
 
 // Constructor with parameters - no global position assigned
@@ -42,12 +41,11 @@ InDet::SCT_ClusterOnTrack::SCT_ClusterOnTrack(const InDet::SCT_Cluster* RIO,
   m_rio.setElement(RIO);
   
 //constructing local position provided a global one  
-  const Amg::Vector2D * lpos =  detectorElement()->surface( identify() ).
-                                positionOnSurface(globalPosition);
+  std::unique_ptr<const Amg::Vector2D>
+    lpos{detectorElement()->surface( identify() ).positionOnSurface(globalPosition)};
 					
 //storing the position along the strip if available
   m_positionAlongStrip = (lpos) ? (*lpos)[Trk::locY]:0.; 
-  delete lpos;
 }
 
 InDet::SCT_ClusterOnTrack::SCT_ClusterOnTrack( const ElementLinkToIDCSCT_ClusterContainer& RIO,

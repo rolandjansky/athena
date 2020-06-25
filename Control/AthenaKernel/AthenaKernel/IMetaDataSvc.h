@@ -39,6 +39,10 @@ public: // Non-static members
    template <typename T, typename TKEY> 
    StatusCode record(T* p2BRegistered, const TKEY& key);
 
+   /// Record an object with a key, take ownership of the unique_ptr obj
+   template <typename T, typename TKEY> 
+   StatusCode record(std::unique_ptr<T> pUnique, const TKEY& key);
+
    /// Remove object with this type+key
    template <typename T, typename TKEY> 
    StatusCode remove(const TKEY& key, bool ignoreIfAbsent=false);
@@ -102,6 +106,19 @@ StatusCode IMetaDataSvc::record(T* pObject, const TKEY& key)
    if( container->insert( currentRangeID() , pObject) )  return StatusCode::SUCCESS;
    return StatusCode::FAILURE;
 }
+
+
+template <typename T, typename TKEY> 
+StatusCode IMetaDataSvc::record(std::unique_ptr<T> pUnique, const TKEY& key)
+{
+   if( this->record( pUnique.get(), key ).isSuccess() ) {
+      pUnique.release();
+      return StatusCode::SUCCESS;
+   }
+   pUnique.reset();
+   return StatusCode::FAILURE;
+}
+
 
 template <typename T, class TKEY>
 StatusCode IMetaDataSvc::remove(const TKEY& key, bool ignoreIfAbsent)

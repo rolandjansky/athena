@@ -482,8 +482,6 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(const LVL1::RecMuo
   unsigned int sector = (sectorAddress & 0x0000003e) >> 1;
   unsigned int roiNumber =  sectorRoIOvl & 0x0000001F;  
 
-  Identifier padId;
-  
   // retrieve the pad container
   const RpcPadContainer* rpcPadContainer=nullptr; 
   ATH_CHECK(evtStore()->retrieve(rpcPadContainer,"RPCPAD"));
@@ -493,14 +491,13 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(const LVL1::RecMuo
   unsigned int padIdHash;
   if (readCdo->give_PAD_address( side, sector, roiNumber, padIdHash)) {
 
-    RpcPadContainer::const_iterator itPad = rpcPadContainer->indexFind(padIdHash);  
-    if( itPad==rpcPadContainer->end() ) {        
+    auto itPad = rpcPadContainer->indexFindPtr(padIdHash);  
+    if( itPad==nullptr ) {        
       ATH_MSG_WARNING("Failed to retrieve PAD hash Id " << padIdHash);  
       return StatusCode::FAILURE;                         
     }
-    const RpcPad* rpcPad = *itPad;
+    const RpcPad* rpcPad = itPad;
 
-    if(rpcPad) {
       uint16_t sector = rpcPad->sector();
       uint16_t sysId  = (sector<32)? 0x66 : 0x65;
       uint16_t secId  = sector%32;
@@ -542,11 +539,6 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(const LVL1::RecMuo
 	rpcFragment << matrix;
       } // loop on the pad matrices
     
-    }
-    else {
-      ATH_MSG_WARNING("Can't initialize the RpcPad");
-      return StatusCode::FAILURE;
-    }
   }
   else {
     ATH_MSG_WARNING("Can't get the pad address from the RpcCablingCondData");

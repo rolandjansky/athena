@@ -78,11 +78,20 @@ public:
 
   /**
    * @brief CaloClusterCorrection virtual method
-   * @param ctx     The event context.
+   * @param myctx   ToolWithConstants context.
    * @param cluster The cluster on which to operate.
    */
-  virtual void makeCorrection(const EventContext& ctx,
-                              xAOD::CaloCluster* cluster) const override;
+  virtual void makeCorrection (const Context& myctx,
+                               xAOD::CaloCluster* cluster) const override;
+
+
+  // Alternate version that takes an EventContext.
+  void makeCorrection (const EventContext& ctx,
+                       xAOD::CaloCluster* cluster) const
+  {
+    return makeCorrection (context(ctx), cluster);
+  }
+
 
   /*
    * @brief Return the seed position of a cluster.

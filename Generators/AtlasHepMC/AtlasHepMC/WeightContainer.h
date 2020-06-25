@@ -3,5 +3,9 @@
 */
 #ifndef ATLASHEPMC_WEIGHTCONTAINER_H
 #define ATLASHEPMC_WEIGHTCONTAINER_H
+#ifdef HEPMC3
+#include "HepMC3/Version.h"
+#else
 #include "HepMC/WeightContainer.h"
+#endif
 #endif

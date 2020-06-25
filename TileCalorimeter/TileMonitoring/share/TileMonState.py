@@ -202,11 +202,10 @@ else:
 if 'TriggerType' in dir():
     ByteStreamEmonInputSvc.TriggerType = TriggerType
 
-
-if 'Dispersion' in dir():
-    ByteStreamEmonInputSvc.Dispersion = Dispersion
+if 'GroupName' in dir():
+    ByteStreamEmonInputSvc.GroupName = GroupName
 else:
-    ByteStreamEmonInputSvc.Dispersion = True
+    ByteStreamEmonInputSvc.GroupName = "TilePhysMon"
 
 # #################################################
 # Shall athena exit if the partition is shutdown ?

@@ -122,8 +122,6 @@ private:
   bool                                  m_pixEmulateSurfaceCharge;  //!< emulate the surface charge
   double                                m_pixSmearPathLength;       //!< the 2. model parameter: smear the path
   bool                                  m_pixSmearLandau;           //!< if true : landau else: gauss
-  mutable int                           m_siDeltaPhiCut;
-  mutable int                           m_siDeltaEtaCut;
   double                                m_pixMinimalPathCut;        //!< the 1. model parameter: minimal 3D path in pixel
   double                                m_pixPathLengthTotConv;     //!< from path length to tot
   bool                                  m_pixModuleDistortion;       //!< simulationn of module bowing

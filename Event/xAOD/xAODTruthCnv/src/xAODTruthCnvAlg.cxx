@@ -186,8 +186,13 @@ namespace xAODMaker {
 	    xTruthEventContainer->push_back( xTruthEvent );
 	    // Cross-section
 	    auto crossSection = genEvt->cross_section();
+#ifdef HEPMC3
+	    xTruthEvent->setCrossSection(crossSection ? (float)crossSection->xsec() : -1);
+	    xTruthEvent->setCrossSectionError(crossSection ? (float)crossSection->xsec_err() : -1);
+#else
 	    xTruthEvent->setCrossSection(crossSection ? (float)crossSection->cross_section() : -1);
 	    xTruthEvent->setCrossSectionError(crossSection ? (float)crossSection->cross_section_error() : -1);
+#endif
                     
 	    if (m_writeMetaData) {
 	      //The mcChannelNumber is used as a unique identifier for which truth meta data belongs to
@@ -211,6 +216,22 @@ namespace xAODMaker {
 	    // Heavy ion info
 	    auto const hiInfo = genEvt->heavy_ion();
 	    if (hiInfo) {
+#ifdef HEPMC3
+              /* Please note HepMC3 as well as more recent HePMC2 versions   have more Hi parameters */
+	      xTruthEvent->setHeavyIonParameter(hiInfo->Ncoll_hard, xAOD::TruthEvent::NCOLLHARD);
+	      xTruthEvent->setHeavyIonParameter(hiInfo->Npart_proj, xAOD::TruthEvent::NPARTPROJ);
+	      xTruthEvent->setHeavyIonParameter(hiInfo->Npart_targ, xAOD::TruthEvent::NPARTTARG);
+	      xTruthEvent->setHeavyIonParameter(hiInfo->Ncoll, xAOD::TruthEvent::NCOLL);
+	      xTruthEvent->setHeavyIonParameter(hiInfo->spectator_neutrons, xAOD::TruthEvent::SPECTATORNEUTRONS);
+	      xTruthEvent->setHeavyIonParameter(hiInfo->spectator_protons, xAOD::TruthEvent::SPECTATORPROTONS);
+	      xTruthEvent->setHeavyIonParameter(hiInfo->N_Nwounded_collisions, xAOD::TruthEvent::NNWOUNDEDCOLLISIONS);
+	      xTruthEvent->setHeavyIonParameter(hiInfo->Nwounded_N_collisions, xAOD::TruthEvent::NWOUNDEDNCOLLISIONS);
+	      xTruthEvent->setHeavyIonParameter(hiInfo->Nwounded_Nwounded_collisions, xAOD::TruthEvent::NWOUNDEDNWOUNDEDCOLLISIONS);
+	      xTruthEvent->setHeavyIonParameter((float)hiInfo->impact_parameter, xAOD::TruthEvent::IMPACTPARAMETER);
+	      xTruthEvent->setHeavyIonParameter((float)hiInfo->event_plane_angle, xAOD::TruthEvent::EVENTPLANEANGLE);
+	      xTruthEvent->setHeavyIonParameter((float)hiInfo->eccentricity, xAOD::TruthEvent::ECCENTRICITY);
+	      xTruthEvent->setHeavyIonParameter((float)hiInfo->sigma_inel_NN, xAOD::TruthEvent::SIGMAINELNN);
+#else
 	      xTruthEvent->setHeavyIonParameter(hiInfo->Ncoll_hard(), xAOD::TruthEvent::NCOLLHARD);
 	      xTruthEvent->setHeavyIonParameter(hiInfo->Npart_proj(), xAOD::TruthEvent::NPARTPROJ);
 	      xTruthEvent->setHeavyIonParameter(hiInfo->Npart_targ(), xAOD::TruthEvent::NPARTTARG);
@@ -224,6 +245,7 @@ namespace xAODMaker {
 	      xTruthEvent->setHeavyIonParameter(hiInfo->event_plane_angle(), xAOD::TruthEvent::EVENTPLANEANGLE);
 	      xTruthEvent->setHeavyIonParameter(hiInfo->eccentricity(), xAOD::TruthEvent::ECCENTRICITY);
 	      xTruthEvent->setHeavyIonParameter(hiInfo->sigma_inel_NN(), xAOD::TruthEvent::SIGMAINELNN);
+#endif
 	      // This doesn't yet exist in our version of HepMC
 	      // xTruthEvent->setHeavyIonParameter(hiInfo->centrality(),xAOD::TruthEvent::CENTRALITY);
 	    }
@@ -232,6 +254,18 @@ namespace xAODMaker {
 	    // This will exist 99% of the time, except for e.g. cosmic or particle gun simulation
 	    auto const pdfInfo = genEvt->pdf_info();
 	    if (pdfInfo) {
+#ifdef HEPMC3
+	      xTruthEvent->setPdfInfoParameter(pdfInfo->parton_id[0], xAOD::TruthEvent::PDGID1);
+	      xTruthEvent->setPdfInfoParameter(pdfInfo->parton_id[1], xAOD::TruthEvent::PDGID2);
+	      xTruthEvent->setPdfInfoParameter(pdfInfo->pdf_id[1], xAOD::TruthEvent::PDFID1);
+	      xTruthEvent->setPdfInfoParameter(pdfInfo->pdf_id[1], xAOD::TruthEvent::PDFID2);
+                        
+	      xTruthEvent->setPdfInfoParameter((float)pdfInfo->x[0], xAOD::TruthEvent::X1);
+	      xTruthEvent->setPdfInfoParameter((float)pdfInfo->x[1], xAOD::TruthEvent::X2);
+	      xTruthEvent->setPdfInfoParameter((float)pdfInfo->scale, xAOD::TruthEvent::Q);
+	      xTruthEvent->setPdfInfoParameter((float)pdfInfo->xf[0], xAOD::TruthEvent::XF1);
+	      xTruthEvent->setPdfInfoParameter((float)pdfInfo->xf[1], xAOD::TruthEvent::XF2);
+#else
 	      xTruthEvent->setPdfInfoParameter(pdfInfo->id1(), xAOD::TruthEvent::PDGID1);
 	      xTruthEvent->setPdfInfoParameter(pdfInfo->id2(), xAOD::TruthEvent::PDGID2);
 	      xTruthEvent->setPdfInfoParameter(pdfInfo->pdf_id1(), xAOD::TruthEvent::PDFID1);
@@ -242,6 +276,7 @@ namespace xAODMaker {
 	      xTruthEvent->setPdfInfoParameter((float)pdfInfo->scalePDF(), xAOD::TruthEvent::Q);
 	      xTruthEvent->setPdfInfoParameter((float)pdfInfo->pdf1(), xAOD::TruthEvent::XF1);
 	      xTruthEvent->setPdfInfoParameter((float)pdfInfo->pdf2(), xAOD::TruthEvent::XF2);
+#endif
 	    }
 	  }
 	  if (!isSignalProcess) xTruthPileupEventContainer->push_back( xTruthPileupEvent );
@@ -258,8 +293,13 @@ namespace xAODMaker {
 	  // If this is a disconnected vertex, add it manually or won't be added from the loop over particles below.
 	   auto disconnectedSignalProcessVtx = HepMC::signal_process_vertex((HepMC::GenEvent*)genEvt); // Get the signal process vertex
 	  if (disconnectedSignalProcessVtx) {
+#ifdef HEPMC3
+	    if (disconnectedSignalProcessVtx->particles_in().size() == 0 &&
+		disconnectedSignalProcessVtx->particles_out().size() == 0 ) {
+#else
 	    if (disconnectedSignalProcessVtx->particles_in_size() == 0 &&
 		disconnectedSignalProcessVtx->particles_out_size() == 0 ) {
+#endif
 	      //This is a disconnected vertex, add it manually
 	      vertices.push_back (disconnectedSignalProcessVtx);
 	    }
@@ -269,30 +309,38 @@ namespace xAODMaker {
                 
 	  // Get the beam particles
 	  pair<HepMC::GenParticlePtr,HepMC::GenParticlePtr> beamParticles;
-	  if ( genEvt->valid_beam_particles() ) beamParticles = genEvt->beam_particles();
-	  for (HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin(); pitr!=genEvt->particles_end(); ++pitr) {
+	  bool genEvt_valid_beam_particles=false;
+#ifdef HEPMC3
+	  auto beamParticles_vec = ((HepMC::GenEvent*)genEvt)->beams();
+	  genEvt_valid_beam_particles=(beamParticles_vec.size()>1);
+	  if (genEvt_valid_beam_particles){beamParticles.first=beamParticles_vec[0]; beamParticles.second=beamParticles_vec[1]; }
+#else	  
+          genEvt_valid_beam_particles=genEvt->valid_beam_particles();
+	  if ( genEvt_valid_beam_particles ) beamParticles = genEvt->beam_particles();
+#endif 
+	  for (auto  part: *((HepMC::GenEvent*)genEvt)) {
 	    // (a) create TruthParticle
 	    xAOD::TruthParticle* xTruthParticle = new xAOD::TruthParticle();
 	    xTruthParticleContainer->push_back( xTruthParticle );
-	    fillParticle(xTruthParticle, *pitr); // (b) Copy HepMC info into the new particle
+	    fillParticle(xTruthParticle, part); // (b) Copy HepMC info into the new particle
 	    // (c) Put particle into container; Build Event<->Particle element link
 	    const ElementLink<xAOD::TruthParticleContainer> eltp(*xTruthParticleContainer, xTruthParticleContainer->size()-1);
 	    if (isSignalProcess) xTruthEvent->addTruthParticleLink(eltp);
 	    if (!isSignalProcess) xTruthPileupEvent->addTruthParticleLink(eltp);
                     
 	    // Create link between HepMC and xAOD truth
-	    if (isSignalProcess) truthLinkVec->push_back(new xAODTruthParticleLink(HepMcParticleLink((*pitr),0,EBC_MAINEVCOLL,HepMcParticleLink::IS_POSITION), eltp));
-	    if (!isSignalProcess) truthLinkVec->push_back(new xAODTruthParticleLink(HepMcParticleLink((*pitr),genEvt->event_number()), eltp));
+	    if (isSignalProcess) truthLinkVec->push_back(new xAODTruthParticleLink(HepMcParticleLink(part,0,EBC_MAINEVCOLL,HepMcParticleLink::IS_POSITION), eltp));
+	    if (!isSignalProcess) truthLinkVec->push_back(new xAODTruthParticleLink(HepMcParticleLink(part,genEvt->event_number()), eltp));
                     
 	    // Is this one of the beam particles?
-	    if (genEvt->valid_beam_particles()) {
+	    if (genEvt_valid_beam_particles) {
 	      if (isSignalProcess) {
-		if (*pitr == beamParticles.first) xTruthEvent->setBeamParticle1Link(eltp);
-		if (*pitr == beamParticles.second) xTruthEvent->setBeamParticle2Link(eltp);
+		if (part == beamParticles.first) xTruthEvent->setBeamParticle1Link(eltp);
+		if (part == beamParticles.second) xTruthEvent->setBeamParticle2Link(eltp);
 	      }
 	    }
 	    // (d) Particle's production vertex
-	    auto productionVertex = (*pitr)->production_vertex();
+	    auto productionVertex = part->production_vertex();
 	    if (productionVertex) {
 	      VertexParticles& parts = vertexMap[productionVertex];
 	      if (parts.incoming.empty() && parts.outgoing.empty())
@@ -304,7 +352,7 @@ namespace xAODMaker {
 	    // else maybe want to keep track that this is the production vertex
 	    //
 	    // (e) Particle's decay vertex
-	    auto decayVertex = (*pitr)->end_vertex();
+	    auto decayVertex = part->end_vertex();
 	    if (decayVertex) {
 	      VertexParticles& parts = vertexMap[decayVertex];
 	      if (parts.incoming.empty() && parts.outgoing.empty())
@@ -376,7 +424,7 @@ namespace xAODMaker {
         tp->setBarcode(HepMC::barcode(gp));
         tp->setStatus(gp->status());
         
-        const HepMC::Polarization& pol = gp->polarization();
+        auto pol = HepMC::polarization(gp);
         if (pol.is_defined()) {
             tp->setPolarizationParameter(pol.theta(), xAOD::TruthParticle::polarizationTheta);
             tp->setPolarizationParameter(pol.phi(), xAOD::TruthParticle::polarizationPhi);
@@ -422,6 +470,12 @@ namespace xAODMaker {
         m_tmd->push_back (std::make_unique <xAOD::TruthMetaData>());
         xAOD::TruthMetaData* md = m_tmd->back();
         
+#ifdef HEPMC3
+        ///Here comes the fix. Note that HepMC2.06.11 also contains the fix
+        md->setMcChannelNumber(mcChannelNumber);
+        std::vector<std::string> orderedWeightNameVec=genEvt.weight_names();
+        md->setWeightNames(orderedWeightNameVec);
+#else 
         // FIXME: class member protection violation here.
         // This appears to be because WeightContainer has no public methods
         // to get information about the weight names.
@@ -439,6 +493,7 @@ namespace xAODMaker {
                             
         md->setMcChannelNumber(mcChannelNumber);
         md->setWeightNames( std::move(orderedWeightNameVec) );
+#endif
       }
 
       return StatusCode::SUCCESS;

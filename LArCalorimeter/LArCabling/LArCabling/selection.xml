@@ -2,6 +2,8 @@
 
   <class name="LArCablingLegacyService" />
   <class name="LArCablingBase" />
+  <class name="LArOnOffIdMapping" />
+  <class name="CondCont<LArOnOffIdMapping>" />
 
 </lcgdict>
 

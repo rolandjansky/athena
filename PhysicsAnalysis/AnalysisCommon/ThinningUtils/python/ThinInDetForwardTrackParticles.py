@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -9,6 +9,18 @@ class ThinInDetForwardTrackParticles(Configured):
     
     def configure(self):
         mlog = logging.getLogger ('ThinInDetForwardTrackParticles.py::configure:')
+        from InDetRecExample.InDetJobProperties import InDetFlags
+        from InDetRecExample.InDetKeys import InDetKeys
+        from RecExConfig.InputFilePeeker import inputFileSummary
+
+        have_InDetForwardParticles = (inputFileSummary['eventdata_items']
+                                      and  any(InDetKeys.xAODForwardTrackParticleContainer() in elements
+                                             for elements in inputFileSummary['eventdata_items']))
+        if not have_InDetForwardParticles and ( not InDetFlags.doForwardTracks() or not InDetFlags.doParticleCreation() ) :
+            mlog.error("Not attempting to thin InDetForwardParticles, because the container %s does not seem to be available"
+                       % (InDetKeys.xAODForwardTrackParticleContainer()))
+            return True
+
         mlog.info('entering')
         try:
             from ThinningUtils.ThinningUtilsConf import ThinInDetForwardTrackParticlesAlg

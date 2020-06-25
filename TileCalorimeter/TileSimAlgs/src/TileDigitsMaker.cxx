@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -1188,8 +1188,6 @@ StatusCode TileDigitsMaker::FillDigitCollection(const TileHitCollection* hitColl
   IdContext drawer_context = m_tileHWID->drawer_context();
 
   /* Set up buffers for handling information in a single collection. */
-  IdentifierHash idhash;
-
   HWIdentifier drawer_id = m_tileHWID->drawer_id(hitCollection->identify());
   int ros = m_tileHWID->ros(drawer_id);
   int drawer = m_tileHWID->drawer(drawer_id);

@@ -171,7 +171,7 @@ class TrigEgammaMonAlgBuilder:
     # This will be removed for future.
     monitoring_electron = ['HLT_e3_etcut_L1EM3','HLT_e5_etcut_L1EM3','HLT_e7_etcut_L1EM3','HLT_e300_etcut_L1EM24VHI']
     monitoring_photon = ['HLT_g5_etcut_L1EM3','HLT_g5_loose_L1EM3','HLT_g5_medium_L1EM3','HLT_g5_tight_L1EM3','HLT_g140_loose_L1EM24VH']
-    monitoringTP_electron = ['HLT_e26_lhtight_L1EM24VHI','HLT_e60_lhmedium_L1EM24VHI','HLT_e140_lhloose_L1EM24VHI']
+    monitoringTP_electron = ['HLT_e26_lhtight_L1EM22VHI','HLT_e60_lhmedium_L1EM22VHI','HLT_e140_lhloose_L1EM22VHI']
 
 
 

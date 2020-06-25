@@ -33,7 +33,7 @@ namespace InDet {
     declareInterface<ConversionFinderUtils>(this);        	
   }
   
-  ConversionFinderUtils::~ConversionFinderUtils() {}
+  ConversionFinderUtils::~ConversionFinderUtils() = default;
   
   const InterfaceID& ConversionFinderUtils::interfaceID() 
   {

@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-__doc__ = "ToolFactory to instantiate EMVertexBuilder with default configuration"
+__doc__ = """ToolFactory to instantiate EMVertexBuilder
+with default configuration"""
 __author__ = "Bruno Lenzi"
 
 import InDetRecExample.TrackingCommon as TrackingCommon
@@ -14,28 +15,23 @@ from egammaTools.egammaExtrapolators import AtlasPublicExtrapolator
 class VertexFinderToolInstance(FcnWrapper):
     def __call__(self):
 
-        # Loading Configurable HoleSearchTool
-        egammaInDetHoleSearchTool = TrackingCommon.getInDetHoleSearchTool(
-            name="egammaInDetHoleSearchTool",
-            Extrapolator=AtlasPublicExtrapolator()
-        )
-
-        # Load the InDetTrackSummaryHelperTool
-        egammaInDetTrackSummaryHelperTool = (
+        # In reality we do NOT need a summary tool
+        # but the confgured Secondary vertex
+        # still asks for one (TODO)
+        egammaVtxInDetTrackSummaryHelperTool = (
             TrackingCommon.getInDetSummaryHelper(
-                name="egammaInDetSummaryHelper",
+                name="egammaVtxInDetSummaryHelper",
                 AssoTool=None,
+                HoleSearch=None,
                 DoSharedHits=False,
-                HoleSearch=egammaInDetHoleSearchTool,
                 private=True))
 
-        #
-        egammaInDetTrackSummaryTool = (
+        egammaVtxInDetTrackSummaryTool = (
             TrackingCommon.getInDetTrackSummaryTool(
-                name="egammaInDetTrackSummaryTool",
-                InDetSummaryHelperTool=egammaInDetTrackSummaryHelperTool,
+                name="egammaVtxInDetTrackSummaryTool",
+                InDetSummaryHelperTool=egammaVtxInDetTrackSummaryHelperTool,
                 doSharedHits=False,
-                doHolesInDet=True))
+                doHolesInDet=False))
 
         #
         # Configured conversion vertex reconstruction cuts
@@ -55,7 +51,7 @@ class VertexFinderToolInstance(FcnWrapper):
             TrackParticles=egammaKeys.outputTrackParticleKey(),
             SecVertices=egammaKeys.outputConversionKey(),
             Extrapolator=AtlasPublicExtrapolator(),
-            TrackSummaryTool=egammaInDetTrackSummaryTool,
+            TrackSummaryTool=egammaVtxInDetTrackSummaryTool,
             printConfig=False)
 
         return theemvertexfindertool.toolInstance()

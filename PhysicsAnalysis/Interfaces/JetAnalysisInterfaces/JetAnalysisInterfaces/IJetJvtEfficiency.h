@@ -54,10 +54,10 @@ public:
 
     //Checks if the jet passes the jvt cut threshold. 
     //Uses maximum validity range by default, but there is a configurable parameter
-    virtual bool passesJvtCut(const xAOD::Jet& jet) = 0;
+    virtual bool passesJvtCut(const xAOD::Jet& jet) const = 0;
 
     //Checks if the jet lies in the pt and eta range where Jvt is valid.
-    virtual bool isInRange(const xAOD::Jet& jet) = 0;
+    virtual bool isInRange(const xAOD::Jet& jet) const = 0;
 
     //returns actual jvtthreshold
     virtual float getJvtThresh() const = 0;

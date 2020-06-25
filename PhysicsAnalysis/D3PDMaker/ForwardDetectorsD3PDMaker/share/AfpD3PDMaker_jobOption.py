@@ -11,20 +11,11 @@ ServiceMgr.EventSelector.InputCollections += [InputRootCollection]
 theApp.EvtMax = -1
 ServiceMgr.EventSelector.SkipEvents = 0
 
-#--------------------------------------------------------------
-# JobOptions for the loading of the AthenaSealSvc
-include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-
-# Add in dictionary name:
-AthenaSealSvc = Service( "AthenaSealSvc" )
 IOVDbSvc = Service( "IOVDbSvc" )
 
 from IOVDbSvc.CondDB import conddb
 ####for other possible servers see dbreplica.config in Athena installation directory
 #IOVDbSvc.dbConnection="oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_DCS;dbname=COMP200"
-
-# Check the dictionary in memory for completeness
-AthenaSealSvc.CheckDictionary = TRUE
 
 ###################################################################################################
 # Load Global Flags and set defaults (import the new jobProperty globalflags)
@@ -78,6 +69,4 @@ MessageSvc.defaultLimit = 9999999
 
 ClassIDSvc = Service( "ClassIDSvc" )
 ClassIDSvc.OutputLevel = 2
-
-AthenaSealSvc.OutputLevel = 5
 

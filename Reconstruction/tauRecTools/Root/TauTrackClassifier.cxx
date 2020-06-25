@@ -61,20 +61,11 @@ StatusCode TauTrackClassifier::finalize()
   return StatusCode::SUCCESS;
 }
 
-    
-//______________________________________________________________________________
-StatusCode TauTrackClassifier::execute(xAOD::TauJet& xTau) const
-{
-  // Get track container via link from tau - instead of using read handle (not written to store yet) 
-  // Check that size > 0
-  ElementLink< xAOD::TauTrackContainer > link;
-  xAOD::TauTrackContainer* tauTrackCon = 0;
-  if (xTau.allTauTrackLinks().size() > 0) {
-    link = xTau.allTauTrackLinks().at(0);//we don't care about this specific link, just the container
-    tauTrackCon = link.getDataNonConstPtr();
-  }  
 
-  std::vector<xAOD::TauTrack*> vTracks = xAOD::TauHelpers::allTauTracksNonConst(&xTau, tauTrackCon);
+//______________________________________________________________________________
+StatusCode TauTrackClassifier::executeTrackClassifier(xAOD::TauJet& xTau, xAOD::TauTrackContainer& tauTrackCon) const
+{
+  std::vector<xAOD::TauTrack*> vTracks = xAOD::TauHelpers::allTauTracksNonConst(&xTau, &tauTrackCon);
   for (xAOD::TauTrack* xTrack : vTracks)
   {
     // reset all track flags and set status to unclassified

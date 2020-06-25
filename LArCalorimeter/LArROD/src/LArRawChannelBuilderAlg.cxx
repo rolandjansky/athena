@@ -119,7 +119,7 @@ StatusCode LArRawChannelBuilderAlg::execute(const EventContext& ctx) const {
     const float E1=m_absECutFortQ.value() ? std::fabs(E) : E;
     if (E1>m_eCutFortQ.value()) {
       ATH_MSG_VERBOSE("Channel " << m_onlineId->channel_name(id) << " gain " << gain << " above threshold for tQ computation");
-      prov|=0x2100; // above cut + iteration converged (by definition, if no iteration done)
+      prov|=0x2000; //  fill bit in provenance that time+quality information are available
 
       //Get time by applying OFC-b coefficients:
       const auto& ofcb=ofcs->OFC_b(id,gain);

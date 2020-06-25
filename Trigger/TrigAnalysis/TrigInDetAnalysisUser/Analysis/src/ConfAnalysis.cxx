@@ -1108,7 +1108,7 @@ void ConfAnalysis::finalise() {
 
   eff_vs_lb->finalise();
 
-  z_vs_lb->Finalise(); z_vs_lb->Write();
+  z_vs_lb->Finalise(Resplot::FitNull95); z_vs_lb->Write();
   delete z_vs_lb;
 
   //  TH1F* hefflb = eff_vs_lb->Hist();

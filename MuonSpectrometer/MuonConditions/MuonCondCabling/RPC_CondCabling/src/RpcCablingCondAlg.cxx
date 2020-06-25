@@ -617,7 +617,6 @@ StatusCode RpcCablingCondAlg::buildRDOmap(RpcCablingCondData* writeCdo)
     // -----  Initialization of Pad configuration ------ //
     if (m_ApplyFeetPadThresholds) {
       // if using COOL check the existence of a PAD not existing in run-1 cabling
-      Identifier offline_id;
       // if (!giveOffflineID(0,21,7,offline_id)&&m_RPCTriggerRoadsfromCool) {
       //   ATH_MSG_INFO("RUN-1 like cabling, not applying FeetPadThresholds");
       // }else{

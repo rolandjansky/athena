@@ -7,6 +7,7 @@
  */
 
 // Framework includes
+#include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 
 // PerfMonComps includes
@@ -58,6 +59,11 @@ StatusCode PerfMonMTSvc::initialize() {
   // Print where we are
   ATH_MSG_INFO("Initializing " << name());
 
+  // Set to be listener to SvcPostFinalize
+  ServiceHandle<IIncidentSvc> incSvc("IncidentSvc/IncidentSvc", name());
+  ATH_CHECK(incSvc.retrieve());
+  incSvc->addListener(this, IncidentType::SvcPostFinalize);
+
   // Check if /proc exists, if not memory statistics are not available
   const bool procExists = PMonMT::doesDirectoryExist("/proc");
   if(!procExists) {
@@ -96,16 +102,23 @@ StatusCode PerfMonMTSvc::finalize() {
   // Print where we are
   ATH_MSG_INFO("Finalizing " << name());
 
-  // Final capture upon finalization
-  m_measurement_snapshots.capture_snapshot();
-  m_snapshotData[FINALIZE].addPointStop_snapshot(m_measurement_snapshots);
-
-  // Report everything
-  report();
-
   return StatusCode::SUCCESS;
 }
 
+/*
+ * Capture finalizations and report in SvcPostFinalize
+ */
+void PerfMonMTSvc::handle(const Incident& inc) {
+  if (inc.type() == IncidentType::SvcPostFinalize) {
+    // Final capture upon post-finalization
+    m_measurement_snapshots.capture_snapshot();
+    m_snapshotData[FINALIZE].addPointStop_snapshot(m_measurement_snapshots);
+
+    // Report everything
+    report();
+  }
+  return;
+}
 /*
  * Start Auditing
  */
@@ -341,7 +354,8 @@ void PerfMonMTSvc::report2Log_Description() const {
   ATH_MSG_INFO("=======================================================================================");
   ATH_MSG_INFO("                                 PerfMonMTSvc Report                                   ");
   ATH_MSG_INFO("=======================================================================================");
-  ATH_MSG_INFO("!!! PLEASE NOTE THAT THIS SERVICE IS CURRENTLY IN R&D PHASE");
+  ATH_MSG_INFO("IMPORTANT : PLEASE NOTE THAT THIS SERVICE IS CURRENTLY IN R&D PHASE.");
+  ATH_MSG_INFO("            FOR FURTHER INFORMATION/QUERIES PLEASE GET IN TOUCH WITH THE SPOT TEAM.");
   ATH_MSG_INFO("=======================================================================================");
   if (m_reportResultsToJSON) {
     ATH_MSG_INFO("*** Full set of information can also be found in: " << m_jsonFileName.toString());
@@ -422,6 +436,8 @@ void PerfMonMTSvc::report2Log_EventLevel() {
   using boost::format;
 
   ATH_MSG_INFO("                                Event Level Monitoring                                 ");
+  ATH_MSG_INFO("                 (Only first " << m_eventLoopMsgLimit.toString() <<
+               " measurements are explicitly printed)");
   ATH_MSG_INFO("=======================================================================================");
 
   ATH_MSG_INFO(format("%1% %|16t|%2$.2f %|28t|%3$.2f %|40t|%4% %|52t|%5% %|64t|%6% %|76t|%7%") % "Event" % "CPU [s]" %
@@ -488,6 +504,7 @@ void PerfMonMTSvc::report2Log_Summary() {
     ATH_MSG_INFO(format("%1% %|35t|%2% ") % "Leak estimate per event Pss: " % scaleMem(m_fit_pss.slope()));
     ATH_MSG_INFO("  >> Estimated using the last " << m_fit_vmem.nPoints()
                                                   << " measurements from the Event Level Monitoring");
+    ATH_MSG_INFO("  >> Events prior to the first 25 are omitted...");
   }
 
   ATH_MSG_INFO("=======================================================================================");

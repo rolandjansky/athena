@@ -1,14 +1,14 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration 
 from __future__ import print_function
 
-from ConfigUtils import serviceFactory,toolFactory
+from InDetPhysValMonitoring.ConfigUtils import serviceFactory,toolFactory
 from InDetRecExample.TrackingCommon import setDefaults
 
 import InDetPhysValMonitoring.InDetPhysValMonitoringConf
 
 def removePhysValExample() :
    print ('DEBUG no AntiKt4EMTopoJets in input file.')
-   from InDetPhysValDecoration import findMonMan
+   from InDetPhysValMonitoring.InDetPhysValDecoration import findMonMan
    mon_index = findMonMan()
    if mon_index is not None :
      import re

@@ -66,37 +66,28 @@ StatusCode WeightedBDtoElectronFilter::filterEvent() {
   McEventCollection::const_iterator itr;
   for (itr = events()->begin(); itr!=events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
-    for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
-      double etaAbs = fabs((*pitr)->momentum().pseudoRapidity());
-      double pt = (*pitr)->momentum().perp();
-
+    for (auto pitr: *genEvt) {
       // check stables only
-      if ( (*pitr)->status() == 1) {
-        // check pdg_id
-        if ( std::abs((*pitr)->pdg_id()) == 11 ) {
-          // check pt
-          if ( pt>=m_PtMin && pt<=m_PtMax) {
-            // check eta
-            if ( etaAbs <=m_EtaRange ) {
-
-              // check parent and ancestors for B hadron
-              auto bParent = FindBParent( (*pitr) );
-              if ( bParent != 0 ) {
-
-                // apply prescale factors
-                if ( PassPrescaleCheck( etaAbs, pt ) ) {
-                  ATH_MSG_VERBOSE(" found good electron (pass prescale): PID = " << (*pitr)->pdg_id() <<
+      if ( pitr->status() != 1)  continue;
+      // check pdg_id
+      if ( std::abs(pitr->pdg_id()) != 11 )  continue;
+      double etaAbs = std::abs(pitr->momentum().pseudoRapidity());
+      double pt = pitr->momentum().perp();
+      // check pt
+      if ( pt<m_PtMin || pt>m_PtMax) continue;
+      // check eta
+      if ( etaAbs > m_EtaRange ) continue;
+      // check parent and ancestors for B hadron
+      auto bParent = FindBParent( pitr );
+      if ( !bParent ) continue;
+      // apply prescale factors
+      if ( ! PassPrescaleCheck( etaAbs, pt ) ) continue;
+      ATH_MSG_VERBOSE(" found good electron (pass prescale): PID = " << pitr->pdg_id() <<
                                   "					   B hadron PID = " << bParent->pdg_id() <<
-                                  "					   electron pt	= " << (*pitr)->momentum().perp()/1000. << " GeV " <<
-                                  "					   electron eta = " << (*pitr)->momentum().pseudoRapidity() <<
+                                  "					   electron pt	= " << pitr->momentum().perp()/1000. << " GeV " <<
+                                  "					   electron eta = " << pitr->momentum().pseudoRapidity() <<
                                   " ===>>> event passed WeightedBDtoElectronFilter ");
-                  return StatusCode::SUCCESS;
-                }
-              } // B parent
-            } // eta range
-          } // pt cut
-        } // pdg id
-      } // stable
+      return StatusCode::SUCCESS;
     } // particle loop
   } // gen events loop
 

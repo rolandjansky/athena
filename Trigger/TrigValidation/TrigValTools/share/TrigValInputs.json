@@ -49,6 +49,13 @@
             "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.RDO.e4993_s3214_r11315/RDO.17533168._000002.pool.root.1"
         ]
     },
+    "ttbar_pu80": {
+        "source": "mc",
+        "format": "RDO",
+        "paths": [
+            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.recon.RDO.e6337_e5984_s3126_r10201/RDO.13232200._000020.pool.root.1"
+        ]
+    },
     "ttbar_rel21": {
         "source": "mc",
         "format": "RDO",
@@ -104,6 +111,13 @@
         "format": "HITS",
         "paths": [
             "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigAnalysisTest/mc16_13TeV.361239.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_high.simul.HITS.e4981_s3087_s3111_tid10701335_00/HITS.10701335._000011.pool.root.1"
+        ]
+    },
+    "mc_cosmics": {
+        "source": "mc",
+        "format": "RDO",
+        "paths": [
+            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/mc16_13TeV.310772.CosmicRays_CollisionSetup.recon.RDO.s3513_s3519_r11737_tid20237005_00/RDO.20237005._004484.pool.root.1"
         ]
     }
 }

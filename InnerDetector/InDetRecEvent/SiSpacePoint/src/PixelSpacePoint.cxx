@@ -9,6 +9,7 @@
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
 #include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
 
+#include <memory>
 
 namespace InDet
 {
@@ -31,10 +32,9 @@ namespace InDet
     Trk::MeasurementBase::m_localParams = Trk::LocalParameters(clus->localPosition());
     Trk::MeasurementBase::m_localCovariance = clus->localCovariance();
 
-    const  Amg::Vector3D* tmpPos = clus->detectorElement()->surface().localToGlobal(clus->localPosition()) ;
-    assert (tmpPos!=nullptr) ;
+    std::unique_ptr<const Amg::Vector3D> tmpPos{clus->detectorElement()->surface().localToGlobal(clus->localPosition())};
+    assert (tmpPos) ;
     m_position = *tmpPos;
-    delete tmpPos;
 
     m_clusList = new std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>(clus,nullptr);
     m_elemIdList.first = elementId ;
@@ -43,51 +43,6 @@ namespace InDet
   }
   
   //------------ -------------------------------------------------
-  
-  /** Constructor with globCovariance */
-  PixelSpacePoint::PixelSpacePoint( IdentifierHash elementId, 
-                                    const Trk::PrepRawData* clus, 
-                                    const Amg::MatrixX* globcov ) 
-    :
-    SpacePoint()
-  {
-    assert (clus!=nullptr);
-    m_globalCovariance = *globcov;
-    Trk::MeasurementBase::m_localParams = Trk::LocalParameters(clus->localPosition());
-    Trk::MeasurementBase::m_localCovariance = clus->localCovariance();
-    delete globcov;
-
-    const Amg::Vector3D* tmpPos = clus->detectorElement()->surface().localToGlobal(clus->localPosition()) ;
-    assert (tmpPos!=nullptr) ;
-    m_position = *tmpPos;
-    delete tmpPos ;
-
-    m_clusList = new std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>(clus,nullptr);
-    m_elemIdList.first = elementId ;
-    m_elemIdList.second = 0 ;
-  }
-  
-  /** Constructor with globCovariance */
-  PixelSpacePoint::PixelSpacePoint( IdentifierHash elementId, 
-                                    const Trk::PrepRawData* clus, 
-                                    const Amg::MatrixX& globcov ) 
-    :
-    SpacePoint()
-  {
-    assert (clus!=nullptr);
-    m_globalCovariance = globcov;
-    Trk::MeasurementBase::m_localParams = Trk::LocalParameters(clus->localPosition());
-    Trk::MeasurementBase::m_localCovariance = clus->localCovariance();
-
-    const Amg::Vector3D* tmpPos = clus->detectorElement()->surface().localToGlobal(clus->localPosition()) ;
-    assert (tmpPos!=nullptr) ;
-    m_position = *tmpPos;
-    delete tmpPos ;
-
-    m_clusList = new std::pair<const Trk::PrepRawData*, const Trk::PrepRawData*>(clus,nullptr);
-    m_elemIdList.first = elementId ;
-    m_elemIdList.second = 0 ;
-  }
   
   /** Constructor with globPosition and globCovariance */
   PixelSpacePoint::PixelSpacePoint( IdentifierHash elementId,

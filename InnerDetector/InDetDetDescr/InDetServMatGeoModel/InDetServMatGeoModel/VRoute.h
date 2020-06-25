@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef VRoute_H
@@ -29,7 +29,7 @@ public:
 
   virtual double exit() const {return rExit();}
 
-  virtual Route* nextRoute() const {return m_next;}
+  virtual Route* nextRoute() {return m_next;}
 
   virtual const VolumeContainer& volumes() const {return m_volumes;}
 

@@ -22,8 +22,7 @@
              EDM Migration to xAOD - from Trk::VxCandidate to xAOD::Vertex
 
                findVertex will now always return an xAOD::VertexContainer,
-               even when using a TrackCollection or a
- TrackParticleBaseCollection as input.
+               even when using a TrackCollection.
  ***************************************************************************/
 
 #ifndef INDETPRIVXFINDERTOOL_INDETPRIVXFINDERTOOL_H
@@ -35,7 +34,6 @@
 #include "InDetRecToolInterfaces/IVertexFinder.h"
 // cannot be forward declared because of typedef
 #include "TrkParameters/TrackParameters.h"
-#include "TrkParticleBase/TrackParticleBaseCollection.h"
 #include "TrkTrack/TrackCollection.h"
 
 #include <vector>
@@ -97,7 +95,6 @@
 namespace Trk {
 class IVertexFitter;
 class Track;
-class TrackParticleBase;
 class IVxCandidateXAODVertex;
 }
 
@@ -120,8 +117,6 @@ public:
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(
     const TrackCollection* trackTES) const override;
 
-  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(
-    const Trk::TrackParticleBaseCollection* trackTES) const override;
 
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(
     const xAOD::TrackParticleContainer* trackParticles) const override;
@@ -150,7 +145,7 @@ private:
   /** The maximum chi-squared per track which is allowed in the fit. */
   double m_maxChi2PerTrack;
 
-  /** the common finding code (regardless of Track or TrackParticle(Base) is
+  /** the common finding code (regardless of Track or TrackParticle is
    * here */
   // VxContainer* m_findVertex(std::vector< std::vector<const
   // Trk::TrackParameters*> >& origParameters);

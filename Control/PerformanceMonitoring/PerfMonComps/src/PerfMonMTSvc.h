@@ -11,6 +11,7 @@
 
 // Framework includes
 #include "AthenaBaseComps/AthService.h"
+#include "GaudiKernel/IIncidentListener.h"
 
 // PerfMonKernel includes
 #include "PerfMonKernel/IPerfMonMTSvc.h"
@@ -34,7 +35,7 @@
 #include <cmath>
 #include <functional>
 
-class PerfMonMTSvc : virtual public IPerfMonMTSvc, public AthService {
+class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListener, public AthService {
  public:
   /// Standard Gaudi Service constructor
   PerfMonMTSvc(const std::string& name, ISvcLocator* pSvcLocator);
@@ -44,6 +45,9 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, public AthService {
 
   /// Function declaring the interface(s) implemented by the service
   virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
+
+  /// Incident service handle for post-finalize
+  virtual void handle( const Incident& incident ) override;
 
   /// Standard Gaudi Service initialization
   virtual StatusCode initialize() override;
@@ -74,7 +78,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, public AthService {
   /// Report the results
   void report();
 
-  /// Report to stdout
+  /// Report to log
   void report2Log();
   void report2Log_Description() const;
   void report2Log_ComponentLevel();

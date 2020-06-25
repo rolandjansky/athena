@@ -85,24 +85,13 @@ trigDecStream.TrigDecMaker.OutputLevel = VERBOSE
 ########################
 # Serialization
 ########################
-AthenaSealSvc = Service( "AthenaSealSvc" )
 # Set up service
-include( "AthenaServices/AthenaSealSvc_joboptions.py" )
 include( "FourMom/FourMomDict_joboptions.py" )
 include( "Navigation/NavigationDict_joboptions.py" )
 include( "EventKernel/EventKernelDict_joboptions.py" )
 include( "TrigCaloEvent/TrigCaloEventDict_joboptions.py" )
 include( "TrigParticle/TrigParticleDict_joboptions.py" )
 include ("TrigSteeringEvent/TrigSteeringEventDict_joboptions.py")
-
-theApp.CreateSvc += [ "AthenaSealSvc" ]
-AthenaSealSvc.CheckDictAtInit = False
-#AthenaSealSvc.initialize()
-theApp.Dlls += [ "TrigSerializeResult" ]
-AthenaSealSvc.OutputLevel = VERBOSE
-
-
-
 
 
 ############################

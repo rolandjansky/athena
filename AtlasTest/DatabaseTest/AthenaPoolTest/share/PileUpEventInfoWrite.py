@@ -30,19 +30,6 @@ from AthenaCommon.AppMgr import theApp
 import AthenaPoolCnvSvc.WriteAthenaPool
 
 #--------------------------------------------------------------
-# JobOptions for the loading of the AthenaSealSvc
-#--------------------------------------------------------------
-#include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-
-# Dictionaries for AthenaSealSvc:
-#include( "EventInfo/EventInfoDict_joboptions.py" )
-
-# Add in dictionary name:
-#AthenaSealSvc = Service( "AthenaSealSvc" )
-#AthenaSealSvc.DictNames += [ "SealCLHEPDict" ]
-# Check the dictionary in memory for completeness
-svcMgr.AthenaSealSvc.CheckDictionary = True
-#--------------------------------------------------------------
 # Event related parameters
 #--------------------------------------------------------------
 theApp.EvtMax = 5

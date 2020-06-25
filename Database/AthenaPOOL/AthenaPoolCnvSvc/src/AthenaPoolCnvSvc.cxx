@@ -30,6 +30,7 @@
 
 #include "AuxDiscoverySvc.h"
 
+#include "boost/algorithm/string.hpp"
 #include <algorithm>
 
 //______________________________________________________________________________
@@ -86,7 +87,7 @@ StatusCode AthenaPoolCnvSvc::initialize() {
    }
    // Extracting MaxFileSizes for global default and map by Database name.
    for (std::vector<std::string>::const_iterator iter = m_maxFileSizes.value().begin(),
-	   last = m_maxFileSizes.value().end(); iter != last; iter++) {
+	   last = m_maxFileSizes.value().end(); iter != last; ++iter) {
       if (iter->find('=') != std::string::npos) {
          long long maxFileSize = atoll(iter->substr(iter->find('=') + 1).c_str());
          if (maxFileSize > 15000000000LL) {
@@ -605,7 +606,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
       ATH_MSG_ERROR("commitOutput FAILED to cleanup converters.");
       return(StatusCode::FAILURE);
    }
-   for (std::map<void*, RootType>::iterator iter = commitCache.begin(), last = commitCache.end(); iter != last; iter++) {
+   for (std::map<void*, RootType>::iterator iter = commitCache.begin(), last = commitCache.end(); iter != last; ++iter) {
       iter->second.Destruct(iter->first);
    }
    // Check FileSize
@@ -963,15 +964,15 @@ StatusCode AthenaPoolCnvSvc::convertAddress(const IOpaqueAddress* pAddress,
 //__________________________________________________________________________
 StatusCode AthenaPoolCnvSvc::decodeOutputSpec(std::string& fileSpec,
 		int& outputTech) const {
-   if (fileSpec.find("oracle") == 0 || fileSpec.find("mysql") == 0) {
+  if (boost::starts_with (fileSpec, "oracle") || boost::starts_with (fileSpec, "mysql")) {
       outputTech = pool::POOL_RDBMS_StorageType.type();
-   } else if (fileSpec.find("ROOTKEY:") == 0) {
+   } else if (boost::starts_with (fileSpec, "ROOTKEY:")) {
       outputTech = pool::ROOTKEY_StorageType.type();
       fileSpec.erase(0, 8);
-   } else if (fileSpec.find("ROOTTREE:") == 0) {
+   } else if (boost::starts_with (fileSpec, "ROOTTREE:")) {
       outputTech = pool::ROOTTREE_StorageType.type();
       fileSpec.erase(0, 9);
-   } else if (fileSpec.find("ROOTTREEINDEX:") == 0) {
+   } else if (boost::starts_with (fileSpec, "ROOTTREEINDEX:")) {
       outputTech = pool::ROOTTREEINDEX_StorageType.type();
       fileSpec.erase(0, 14);
    } else if (outputTech == 0) {
@@ -1165,7 +1166,6 @@ AthenaPoolCnvSvc::AthenaPoolCnvSvc(const std::string& name, ISvcLocator* pSvcLoc
 	::AthCnvSvc(name, pSvcLocator, POOL_StorageType),
 	m_outputStreamingTool(this)
 {
-   declareProperty("InputStreamingTool", m_inputStreamingTool);
    declareProperty("OutputStreamingTool", m_outputStreamingTool);
 }
 //______________________________________________________________________________
@@ -1179,7 +1179,7 @@ void AthenaPoolCnvSvc::extractPoolAttributes(const StringArrayProperty& property
    std::vector<std::string> opt;
    std::string attributeName, containerName, databaseName, valueString;
    for (std::vector<std::string>::const_iterator iter = property.value().begin(),
-           last = property.value().end(); iter != last; iter++) {
+           last = property.value().end(); iter != last; ++iter) {
       opt.clear();
       attributeName.clear();
       containerName.clear();
@@ -1296,7 +1296,7 @@ StatusCode AthenaPoolCnvSvc::processPoolAttributes(std::vector<std::vector<std::
       if (iter->empty()) {
          iter = attr.erase(iter);
       } else {
-         iter++;
+         ++iter;
       }
    }
    return(retError ? StatusCode::FAILURE : StatusCode::SUCCESS);

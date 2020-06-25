@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //  AtlasMagFld object inherits from Trk::baseMagFld.  So pointer
@@ -41,7 +41,7 @@ namespace Trk{
      m_magFrameZ(0.)
      {}
 
-  VKalAtlasMagFld::~VKalAtlasMagFld(){}
+  VKalAtlasMagFld::~VKalAtlasMagFld()= default;
 //
 //  Setting of parameters
 //

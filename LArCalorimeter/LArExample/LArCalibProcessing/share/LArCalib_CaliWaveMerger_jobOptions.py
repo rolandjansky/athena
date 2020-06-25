@@ -59,9 +59,6 @@ ToolSvc.LArRoI_Map.Print = False
 #
 ###############################################################################
 
-include("AthenaServices/AthenaSealSvc_joboptions.py")
-AthenaSealSvc.CheckDictionary = True 
-
 include( "AthenaPoolCnvSvc/AthenaPool_jobOptions.py" )
 
 CondProxyProvider = Service( "CondProxyProvider" )
@@ -99,10 +96,6 @@ if ( WriteRootFile ) :
 	NTupleSvc.Output = [ "FILE1 DATAFILE='"+RootFileName+"' OPT='NEW'" ]
 
 if ( WritePoolFile ) :
-
-        include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-        AthenaSealSvc.CheckDictionary = True 
-
         include( "AthenaPoolCnvSvc/AthenaPool_jobOptions.py" )
 
         include("RegistrationServices/OutputConditionsAlg_jobOptions.py")

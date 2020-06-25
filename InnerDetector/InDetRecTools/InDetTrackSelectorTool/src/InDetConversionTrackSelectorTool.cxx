@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSelectorTool/InDetConversionTrackSelectorTool.h"
@@ -130,7 +130,7 @@ namespace InDet
    double pt = std::fabs(1./qOverP)*std::sin(perigee->parameters()[Trk::theta]);
    double d0 = perigee->parameters()[Trk::d0];
    double z0 = perigee->parameters()[Trk::z0];
-   const Trk::TrackSummary* tSum = m_trkSumTool->createSummaryNoHoleSearch(track);
+   std::unique_ptr<const Trk::TrackSummary> tSum = m_trkSumTool->summaryNoHoleSearch(track);
    if(tSum){
      double ratioTrk = 1.0;
      int nclus  = tSum->get(Trk::numberOfPixelHits) + tSum->get(Trk::numberOfSCTHits);
@@ -171,7 +171,6 @@ namespace InDet
        if(ratioTrk>m_trRatioV0) pass = false;
      }
 
-     delete tSum;
    } else pass = false;
    if (not vertexSuppliedByUser) delete myVertex;
    if (perigee!=track.perigeeParameters()) delete perigee;

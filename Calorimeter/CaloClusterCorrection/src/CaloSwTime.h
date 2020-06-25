@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCLUSTERCORRECTION_CALOSWTIME_H
@@ -22,14 +22,10 @@ PURPOSE:  Compute time of SW clusters
 class CaloSwTime : public  CaloClusterCorrection
 {
 public:
-  // constructor 
-  CaloSwTime (const std::string& type,
-                     const std::string& name,
-                     const IInterface* parent);
+  /// Inherit constructor.
+  using CaloClusterCorrection::CaloClusterCorrection;
 
-  virtual ~CaloSwTime() override;
-
-  virtual void makeCorrection (const EventContext& ctx,
+  virtual void makeCorrection (const Context& myctx,
                                xAOD::CaloCluster* cluster) const override;
 
 

@@ -5,6 +5,8 @@
 #ifndef LARG4SHOWERLIBSVC_ILIBLARSHOWERLIBSVC_H
 #define LARG4SHOWERLIBSVC_ILIBLARSHOWERLIBSVC_H
 
+// #define DEBUG_FrozenShowers
+
 // Include Files
 #include "GaudiKernel/IInterface.h"
 
@@ -23,8 +25,11 @@ public:
 
   virtual bool                    checkLibrary( G4int, int ) = 0;
 
+#ifdef DEBUG_FrozenShowers
   virtual std::vector<EnergySpot> getShower(const G4FastTrack&, int ) = 0;
-
+#else
+  virtual std::vector<EnergySpot> getShower(const G4FastTrack&, int ) const = 0;
+#endif
   virtual double                  getContainmentZ(const G4FastTrack&, int ) = 0;
   virtual double                  getContainmentR(const G4FastTrack&, int ) = 0;
 };

@@ -12,6 +12,10 @@
 #include "TrkDetDescrTools/TrackingVolumeArrayCreator.h"
 #include "TrkDetDescrTools/TrackingVolumeHelper.h"
 
+#include "TrkDetDescrTools/GeometryBuilderCond.h"
+#include "TrkDetDescrTools/GenericGeometryBuilderCond.h"
+#include "TrkDetDescrTools/LayerProviderCond.h"
+
 using namespace Trk;
 
 DECLARE_COMPONENT( CylinderVolumeCreator )
@@ -28,3 +32,6 @@ DECLARE_COMPONENT( InputLayerMaterialProvider )
 DECLARE_COMPONENT( TrackingVolumeArrayCreator )
 DECLARE_COMPONENT( TrackingVolumeHelper )
 
+DECLARE_COMPONENT( GeometryBuilderCond )
+DECLARE_COMPONENT( GenericGeometryBuilderCond )
+DECLARE_COMPONENT( LayerProviderCond )

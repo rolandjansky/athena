@@ -59,11 +59,6 @@ def _setupAtlasUnixStandardJob():
         svcMgr += AthenaServicesConf.AthDictLoaderSvc()
     theApp.CreateSvc += [svcMgr.AthDictLoaderSvc.getFullJobOptName()]
 
-    # the dict checker
-    if not hasattr(svcMgr, 'AthenaSealSvc'):
-        svcMgr += AthenaServicesConf.AthenaSealSvc()
-    theApp.CreateSvc += [svcMgr.AthenaSealSvc.getFullJobOptName()]
-    
     # add-in a service to handle core-dumps
     if not hasattr(svcMgr, 'CoreDumpSvc'):
         svcMgr += AthenaServicesConf.CoreDumpSvc()

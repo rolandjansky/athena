@@ -10,7 +10,6 @@
 
 from __future__ import print_function
 
-__version__ = "$Revision: 776263 $"
 __author__  = "Sebastien Binet <binet@cern.ch>, " \
     "Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>, " \
     "RD Schaffer R.D.Schaffer@cern.ch"

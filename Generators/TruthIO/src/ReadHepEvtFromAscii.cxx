@@ -90,11 +90,15 @@ StatusCode ReadHepEvtFromAscii::initialize(){
     msg(MSG::ERROR) << "Could not find StoreGateSvc" << endmsg;
     return sc;
   }
+#ifdef HEPMC3
+//These things are not present
+#else
 
   HepMC::HEPEVT_Wrapper::set_sizeof_int(4);
   HepMC::HEPEVT_Wrapper::set_sizeof_real(8);
   HepMC::HEPEVT_Wrapper::set_max_number_entries(10000);
   
+#endif
   // Initialize input file
   m_file=std::ifstream(m_input_file.c_str());
   if( !m_file.is_open() ) return StatusCode::FAILURE;
@@ -126,13 +130,21 @@ StatusCode ReadHepEvtFromAscii::execute() {
   for (int i=1; (i<=HepMC::HEPEVT_Wrapper::number_entries())&&fileok; i++) fileok=read_hepevt_particle(i);
   if (!fileok) return StatusCode::FAILURE;
 
+#ifdef HEPMC3
+  HepMC::HEPEVT_Wrapper::HEPEVT_to_GenEvent(evt);
+#else
   HepMC::IO_HEPEVT hepio;
   hepio.set_print_inconsistency_errors(0);
   hepio.fill_next_event(evt);
+#endif
  
   // Convert GeV to MeV 
+#ifdef HEPMC3
+  for ( auto p: evt->particles() ){
+#else
   for ( auto ip = evt->particles_begin(); ip != evt->particles_end(); ++ip ){
       auto p=*ip;
+#endif
 	  HepMC::FourVector newMomentum(0.,0.,0.,0.);
 	  newMomentum.setPx( p->momentum().px() * 1000. );
 	  newMomentum.setPy( p->momentum().py() * 1000. );

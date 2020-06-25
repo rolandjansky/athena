@@ -86,6 +86,8 @@ StatusCode InDetServMatBuilderToolSLHC::initialize()
   m_athenaComps->setRDBAccessSvc(&*m_rdbAccessSvc);
   m_athenaComps->setGeometryDBSvc(&*m_geometryDBSvc);
 
+  build();
+
   msg(MSG::INFO) << "initialize() successful in " << name() << endmsg;
   return StatusCode::SUCCESS;
 }
@@ -97,9 +99,8 @@ StatusCode InDetServMatBuilderToolSLHC::finalize()
   return sc;
 }
 	
-const std::vector<const InDetDD::ServiceVolume *> & InDetServMatBuilderToolSLHC::getServices()
+const std::vector<const InDetDD::ServiceVolume *> & InDetServMatBuilderToolSLHC::getServices() const
 {
-  if (!m_init) build();
   return m_services;
 }
 

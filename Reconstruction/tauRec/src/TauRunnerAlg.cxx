@@ -175,22 +175,22 @@ StatusCode TauRunnerAlg::execute() {
     
       for (ToolHandle<ITauToolBase>& tool : m_tools) {
 	ATH_MSG_DEBUG("RunnerAlg Invoking tool " << tool->name());
-	if ( tool->name().find("Pi0ClusterCreator") != std::string::npos){
-          sc = tool->executePi0ClusterCreator(*pTau, *neutralPFOContainer, *hadronicClusterPFOContainer, *pi0CaloClusterContainer, *pPi0ClusterContainer);
-        }
-	else if ( tool->name().find("VertexVariables") != std::string::npos){
+	if ( tool->type() == "TauPi0ClusterCreator"){
+	  sc = tool->executePi0ClusterCreator(*pTau, *neutralPFOContainer, *hadronicClusterPFOContainer, *pi0CaloClusterContainer, *pPi0ClusterContainer);
+	}
+	else if ( tool->type() == "TauVertexVariables"){
 	  sc = tool->executeVertexVariables(*pTau, *pSecVtxContainer);
 	}
-	else if ( tool->name().find("Pi0ClusterScaler") != std::string::npos){
+	else if ( tool->type() == "TauPi0ClusterScaler"){
 	  sc = tool->executePi0ClusterScaler(*pTau, *neutralPFOContainer, *chargedPFOContainer);
 	}
-	else if ( tool->name().find("Pi0ScoreCalculator") != std::string::npos){
+	else if ( tool->type() == "TauPi0ScoreCalculator"){
 	  sc = tool->executePi0nPFO(*pTau, *neutralPFOContainer);
 	}
-	else if ( tool->name().find("Pi0Selector") != std::string::npos){
+	else if ( tool->type() == "TauPi0Selector"){
 	  sc = tool->executePi0nPFO(*pTau, *neutralPFOContainer);
 	}
-	else if ( tool->name().find("PanTau") != std::string::npos){
+	else if ( tool->type() == "PanTau::PanTauProcessor"){
 	  sc = tool->executePanTau(*pTau, *pi0Container);
 	}
 	else {

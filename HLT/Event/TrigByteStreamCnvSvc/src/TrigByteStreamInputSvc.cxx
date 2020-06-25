@@ -98,7 +98,7 @@ const RawEvent* TrigByteStreamInputSvc::nextEvent() {
   auto monLBN = Monitored::Scalar<uint16_t>("getNext_LBN", m_maxLB);
   auto monNoEvent = Monitored::Scalar<bool>("getNext_noEvent", false);
   try {
-    auto t_getNext = Monitored::Timer<std::chrono::milliseconds>("TIME_getNext");
+    auto t_getNext = Monitored::Timer<std::chrono::duration<float, std::milli>>("TIME_getNext");
     status = hltinterface::DataCollector::instance()->getNext(cache->rawData);
     auto mon = Monitored::Group(m_monTool, t_getNext);
   }

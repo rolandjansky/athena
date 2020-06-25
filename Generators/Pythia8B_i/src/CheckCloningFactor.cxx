@@ -45,11 +45,11 @@ StatusCode CheckCloningFactor::execute() {
     for (itr = mcCollptr->begin(); itr!=mcCollptr->end(); ++itr) {
         // Loop over all particles in the event and find the b-quarks
         const HepMC::GenEvent* genEvt = (*itr);
-        for (HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin(); pitr!=genEvt->particles_end(); ++pitr) {
-	    int p_id = (*pitr)->pdg_id();
-	    int p_stat = (*pitr)->status();
+        for (auto pitr: *genEvt) {
+	    int p_id = pitr->pdg_id();
+	    int p_stat = pitr->status();
             if ( (abs(p_id)==5) && (p_stat == 62 || p_stat == 63) ) {
-                bQuarks.push_back(*pitr);
+                bQuarks.push_back(pitr);
             }
         }
     }

@@ -26,20 +26,42 @@ StatusCode ViewCreatorFetchFromViewROITool::attachROILinks(TrigCompositeUtils::D
   SG::WriteHandle<TrigRoiDescriptorCollection> roisWriteHandle = createAndStoreNoAux(m_roisWriteHandleKey, ctx);
   
   for ( Decision* outputDecision : decisions ) { 
-    const std::vector<LinkInfo<ViewContainer>> myView = findLinks<ViewContainer>(outputDecision, viewString(), TrigDefs::lastFeatureOfType);
-    
-    if (myView.size() != 1) {
-      ATH_MSG_ERROR("Did not find exactly one most-recent '" << viewString() << "' for Decision object index " << outputDecision->index()
-        << ", found " << myView.size());
-      if (myView.size() > 1) {
-        ATH_MSG_ERROR("Was this Decision Object was merged after having followed different reconstruction paths in previous Steps?");
-        ATH_MSG_ERROR("Need more information about which of these Views to look in to find the desired '" << m_inViewRoIKey.key() << "' TrigRoiDescriptorCollection");
+    LinkInfo<ViewContainer> viewToFetchFrom;
+    if(!m_viewToFetchFrom.empty()){
+      // Look for a specific View, keyed by the View's SG key
+      const std::vector<LinkInfo<ViewContainer>> myViews = findLinks<ViewContainer>(outputDecision, viewString(), TrigDefs::allFeaturesOfType);
+      bool found = false;
+      for(LinkInfo<ViewContainer> v : myViews){
+	if(v.link.dataID() == m_viewToFetchFrom){
+	  found = true;
+	  viewToFetchFrom = v;
+	  break;
+	}
       }
-      return StatusCode::FAILURE;
+      if(!found){
+	ATH_MSG_ERROR("Of the " << myViews.size() << " Views in the history of Decision object with index " << outputDecision->index()
+		      << ", none came from a View called " << m_viewToFetchFrom);
+	return StatusCode::FAILURE;
+      }
     }
-    ATH_CHECK(myView.at(0).isValid());
+    else{
 
-    SG::ReadHandle<TrigRoiDescriptorCollection> roiReadHandle = ViewHelper::makeHandle(*myView.at(0).link, m_inViewRoIKey, ctx);
+      // Assume the most recent View is the one we fetch from, and that there is exactly one most recent View after any merging
+      const std::vector<LinkInfo<ViewContainer>> myView = findLinks<ViewContainer>(outputDecision, viewString(), TrigDefs::lastFeatureOfType);
+      if (myView.size() != 1) {
+	ATH_MSG_ERROR("Did not find exactly one most-recent '" << viewString() << "' for Decision object index " << outputDecision->index()
+		      << ", found " << myView.size());
+	if (myView.size() > 1) {
+	  ATH_MSG_ERROR("Was this Decision Object was merged after having followed different reconstruction paths in previous Steps?");
+	  ATH_MSG_ERROR("Need more information about which of these Views to look in to find the desired '" << m_inViewRoIKey.key() << "' TrigRoiDescriptorCollection");
+	}
+	return StatusCode::FAILURE;
+      }
+      viewToFetchFrom = myView.at(0);
+    }
+    ATH_CHECK(viewToFetchFrom.isValid());
+
+    SG::ReadHandle<TrigRoiDescriptorCollection> roiReadHandle = ViewHelper::makeHandle(*viewToFetchFrom.link, m_inViewRoIKey, ctx);
     ATH_CHECK(roiReadHandle.isValid());
 
     if (roiReadHandle->size() != 1) {

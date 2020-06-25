@@ -55,14 +55,6 @@ GeoModelSvc.MuonVersionOverride="MuonSpectrometer-R.01.01.Initial.Light"
 svcMgr.EventSelector.InputCollections        = [ "rfio:/castor/cern.ch/grid/atlas/t0/perm/M4cosmics/0020897/ESD/M4.0020897.debug.L1TT-b00000011.ESD.v13002507.part0013._lumi0000._0001.1" ] 
 
 #--------------------------------------------------------------
-# JobOptions for the loading of the AthenaSealSvc
-#--------------------------------------------------------------
-
-# Add in dictionary name:
-#AthenaSealSvc.DictNames += [ "SealCLHEPDict" ]
-# Check the dictionary in memory for completeness
-svcMgr.AthenaSealSvc.CheckDictionary = True
-#--------------------------------------------------------------
 # Event related parameters
 #--------------------------------------------------------------
 theApp.EvtMax = -1
@@ -105,7 +97,6 @@ print Stream1.ItemList
 svcMgr.MessageSvc = Service( "MessageSvc" )
 svcMgr.MessageSvc.OutputLevel = INFO
 svcMgr.MessageSvc.debugLimit  = 100000
-svcMgr.AthenaSealSvc.OutputLevel = INFO
 
 AthenaEventLoopMgr = Service( "AthenaEventLoopMgr" )
 #AthenaEventLoopMgr.OutputLevel = DEBUG
