@@ -21,7 +21,7 @@
 #include "GaudiKernel/IScheduler.h"
 #include "AthViews/View.h"
 
-#include "ViewAlgs/IViewCreatorROITool.h"
+#include "DecisionHandling/IViewCreatorROITool.h"
 
 // Muon specifics
 #include "xAODMuon/MuonContainer.h"

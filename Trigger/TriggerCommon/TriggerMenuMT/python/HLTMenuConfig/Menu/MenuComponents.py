@@ -320,6 +320,7 @@ class EmptyMenuSequence(object):
     def __init__(self, name):
         self._name = name
         Maker = CompFactory.InputMakerForRoI("IM"+name)
+        Maker.RoITool = CompFactory.ViewCreatorInitialROITool()
         self._maker       = InputMakerNode( Alg = Maker )
         self._seed=''
         self._sequence    = Node( Alg = seqAND(name, [Maker]))
