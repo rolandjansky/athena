@@ -276,9 +276,7 @@ def JetAlgFromTools(rtools, suffix="HI",persistify=True) :
     # Add the PseudoJetAlgorithm
     # To avoid massive refactoring and to preserve familiarity,
     # jet guys kept calling things "getters", but these are already
-    # PseudoJetAlgorithms as they eliminated the wrappers
-
-    from JetRec.JetRecConf import PseudoJetAlgorithm
+    # PseudoJetAlgorithms as they eliminated the wrappers 
     for getter in jtm.allGetters:
         print ('Adding PseudoJetAlgorithm %s' % getter.name)
         print ('Input Container %s' % getter.InputContainer)
