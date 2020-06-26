@@ -256,9 +256,10 @@ def getTruthThinningTool(tool_prefix, thinning_helper) :
     truth_cond_WZH    = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))" # W, Z and Higgs
     # truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16))" # Leptons
     truth_cond_Top_Quark  = "((abs(TruthParticles.pdgId) == 6))"
-    # truth_cond_BC_Quark  = "((abs(TruthParticles.pdgId) ==  5))||((abs(TruthParticles.pdgId) ==  4))" # C quark and Bottom quark
-    # truth_cond_Hadrons = "((abs(TruthParticles.pdgId) >=  400)&&(abs(TruthParticles.pdgId)<600))||((abs(TruthParticles.pdgId) >=  4000)&&(abs(TruthParticles.pdgId)<6000))||((abs(TruthParticles.pdgId) >=  10400)&&(abs(TruthParticles.pdgId)<10600))||((abs(TruthParticles.pdgId) >=  20400)&&(abs(TruthParticles.pdgId)<20600))"
-    truth_expression = '('+truth_cond_WZH+' || '+truth_cond_Top_Quark+')'
+    truth_cond_BC_Quark  = "((abs(TruthParticles.pdgId) ==  5))||((abs(TruthParticles.pdgId) ==  4))" # C quark and Bottom quark
+    truth_cond_Hadrons = "((abs(TruthParticles.pdgId) >=  400)&&(abs(TruthParticles.pdgId)<600))||((abs(TruthParticles.pdgId) >=  4000)&&(abs(TruthParticles.pdgId)<6000))||((abs(TruthParticles.pdgId) >=  10400)&&(abs(TruthParticles.pdgId)<10600))||((abs(TruthParticles.pdgId) >=  20400)&&(abs(TruthParticles.pdgId)<20600))"
+    truth_expression = '('+truth_cond_WZH+' || '+truth_cond_Top_Quark+') || (('+ truth_cond_Hadrons+')&&(sqrt(TruthParticles.px*TruthParticles.px+TruthParticles.py*TruthParticles.py)>5000))'
+
 
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
     MCThinningTool = DerivationFramework__GenericTruthThinning(
