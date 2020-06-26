@@ -44,9 +44,6 @@ class PixelRodDecoder : virtual public IPixelRodDecoder, public AthAlgTool {
 				IDCInDetBSErrContainer& decodingErrors,
 				std::vector<IdentifierHash>* vecHash = NULL) const override;
 
-    StatusCode StoreBSError() const override;
-
-
     uint32_t getDataType(unsigned int rawDataWord, bool link_start) const;   // determine module word type
 
     ////// decode IBL module header word

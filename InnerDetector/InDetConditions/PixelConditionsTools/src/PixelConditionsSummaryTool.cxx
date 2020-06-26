@@ -26,7 +26,8 @@ StatusCode PixelConditionsSummaryTool::initialize(){
 
   ATH_CHECK(m_condDCSStateKey.initialize());
   ATH_CHECK(m_condDCSStatusKey.initialize());
-  ATH_CHECK(m_BSErrContReadKey.initialize(m_useByteStream && !m_BSErrContReadKey.empty()));
+// ATH_CHECK(m_BSErrContReadKey.initialize(m_useByteStream && !m_BSErrContReadKey.empty()));
+  ATH_CHECK(m_BSErrContReadKey.initialize(SG::AllowEmpty));
 
   ATH_CHECK(detStore()->retrieve(m_pixelID,"PixelID"));
 
@@ -64,20 +65,7 @@ StatusCode PixelConditionsSummaryTool::initialize(){
 
 const IDCInDetBSErrContainer* PixelConditionsSummaryTool::getContainer(const EventContext& ctx) const {
   SG::ReadHandle<IDCInDetBSErrContainer> idcErrCont(m_BSErrContReadKey, ctx);
-  /** When running over ESD files without BSErr container stored, don't
-   * want to flood the user with error messages. Should just have a bunch
-   * of empty sets, and keep quiet.
-   */
-  if (not idcErrCont.isValid()) {
-    m_nRetrievalFailure++;
-    if (m_nRetrievalFailure<=3) {
-      ATH_MSG_INFO("PixelConditionsSummaryTool Failed to retrieve BS error container " << m_BSErrContReadKey.key() << " from StoreGate.");
-      if (m_nRetrievalFailure==3) {
-        ATH_MSG_INFO("PixelConditionsSummaryTool This message on retrieval failure of " << m_BSErrContReadKey.key() << " is suppressed.");
-      }
-    }
-    return nullptr;
-  }
+  if (not idcErrCont.isValid()) { return nullptr; }
   ATH_MSG_VERBOSE("PixelConditionsSummaryTool IDC Container fetched " << m_BSErrContReadKey.key());
   return idcErrCont.cptr();
 }
@@ -106,7 +94,7 @@ uint64_t PixelConditionsSummaryTool::getBSErrorWord(const IdentifierHash& module
     ATH_MSG_ERROR("PixelConditionsSummaryTool No cache! " );
   }
   uint64_t word = (uint64_t)idcCachePtr->retrieve(moduleHash);
-  return word<std::numeric_limits<uint64_t>::max()-3000000000 ? word : 0;
+  return word<m_missingErrorInfo ? word : 0;
 }
 
 bool PixelConditionsSummaryTool::hasBSError(const IdentifierHash& moduleHash) const {

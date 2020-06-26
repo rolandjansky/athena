@@ -117,15 +117,16 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
 
     // Get IBL SearviceRecords : IBL hashID[156-435]
     if (i>155 && i<436) {
-      for (int j=1; j<32; j++) {
-        int indexOffset = 17*maxHash;
-        int channelFE = indexOffset+(j-1)*280+i-156;     // offset+(ServiceCode)*(#IBL) + moduleHash-156
-        uint64_t serviceCounter = m_pixelCondSummaryTool->getBSErrorWord(channelFE,ctx);
-        ATH_MSG_DEBUG("   IBL SearviceRecords bit=" << j << "  " << serviceCounter);
+      for (int j=0; j<2; j++) {
+        for (int k=1; k<32; k++) {
+          int indexOffset = 17*maxHash;
+          int channelFE = indexOffset+(k-1)*280*2+2*(i-156)+j;    // offset+(ServiceCode)*(#IBLxFE) + (#FE)x(moduleHash-156) + FE
+          uint64_t serviceCounter = m_pixelCondSummaryTool->getBSErrorWord(channelFE,ctx);
+          ATH_MSG_DEBUG("   IBL SearviceRecords bit=" << j << "  " << serviceCounter);
+        }
       }
     }
   }
-
 
 
 //===================================================================

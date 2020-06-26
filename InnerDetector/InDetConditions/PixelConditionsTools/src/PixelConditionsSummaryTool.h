@@ -100,6 +100,7 @@ class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool
     SG::ReadHandleKey<IDCInDetBSErrContainer>  m_BSErrContReadKey
     {this, "PixelByteStreamErrs", "PixBSErr", "PixelByteStreamErrs container key"};
 
+    const uint64_t m_missingErrorInfo{std::numeric_limits<uint64_t>::max()-3000000000};
 
     mutable std::mutex m_cacheMutex{};
 
@@ -123,7 +124,6 @@ class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool
      * Obtains container form the SG, if it is missing it will complain (hard-coded 3 times per job) and return nullptr
      **/
     [[nodiscard]] const IDCInDetBSErrContainer* getContainer(const EventContext& ctx) const;
-    mutable std::atomic_uint m_nRetrievalFailure{0};
 
     /**
      * Return cache for the current event

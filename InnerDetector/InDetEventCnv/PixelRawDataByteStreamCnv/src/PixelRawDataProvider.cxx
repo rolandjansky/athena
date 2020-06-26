@@ -139,7 +139,7 @@ StatusCode PixelRawDataProvider::execute(const EventContext& ctx) const {
     SG::UpdateHandle<IDCInDetBSErrContainer_Cache> bsErrorsCacheHandle( m_bsErrorsCacheKey, ctx);
     decodingErrors = std::make_unique<IDCInDetBSErrContainer>( bsErrorsCacheHandle.ptr() );
   } else {
-    decodingErrors = std::make_unique<IDCInDetBSErrContainer>( 43776, std::numeric_limits<int>::min() );
+    decodingErrors = std::make_unique<IDCInDetBSErrContainer>( m_rawDataTool->SizeOfIDCInDetBSErrContainer(), std::numeric_limits<int>::min() );
   }
 
   // ask PixelRawDataProviderTool to decode it and to fill the IDC

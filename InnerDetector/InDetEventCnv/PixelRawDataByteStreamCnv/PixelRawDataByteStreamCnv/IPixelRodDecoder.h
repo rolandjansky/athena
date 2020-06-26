@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IPIXELRAWDATABYTESTREAM_PIXEL_RODDECODER_H
@@ -24,7 +24,6 @@ class IPixelRodDecoder : virtual public IAlgTool{
 					IDCInDetBSErrContainer& decodingErrors,
 					std::vector<IdentifierHash>* vecHash = NULL) const = 0;
 
-    virtual StatusCode StoreBSError() const =0;
 };
 
 inline const InterfaceID& IPixelRodDecoder::interfaceID(){

@@ -154,7 +154,11 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
     if (ATH_UNLIKELY((*rob_status)!=0)) {
       ATH_MSG_DEBUG( "ROB status word for robid 0x"<< std::hex << robId << " is non-zero 0x" << (*rob_status) << std::dec);
 
-      if (((*rob_status) >> 27) & 0x1) { // TODO: find source of thse constants
+      /*
+        Definition of the status words in a ROB fragment header is found in
+           https://twiki.cern.ch/twiki/bin/view/Atlas/ROBINFragmentErrors#Definition_of_the_first_status_e
+      */
+      if (((*rob_status) >> 27) & 0x1) {
         const std::deque<Identifier> offlineIdList = pixCabling->find_entry_offlineList(robId);
         for (const Identifier& id: offlineIdList) {
           PixelByteStreamErrors::addError(bsErrCode,PixelByteStreamErrors::TruncatedROB);
@@ -932,15 +936,17 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
     } // end of switch
 
     if (offlineIdHash!=0xffffffff) { // now write the error word to the service
+
+      int chFE = 0;
+      if (isIBLModule || isDBMModule) {   // get FE channel id for IBL
+        linkNum_IBLheader = decodeModule_IBL(rawDataWord);
+        chFE = (extractFefromLinkNum(linkNum_IBLheader) & 0x1);
+      }
+      else {                              // for PIXEL
+        chFE = decodeFE(rawDataWord);
+      }
+
       if (bsErrCode) {
-        int chFE = 0;
-        if (isIBLModule || isDBMModule) {   // get FE channel id for IBL
-          linkNum_IBLheader = decodeModule_IBL(rawDataWord);
-          chFE = (extractFefromLinkNum(linkNum_IBLheader) & 0x1);
-        }
-        else {                              // for PIXEL
-          chFE = decodeFE(rawDataWord);
-        }
         int indexFE = (1+chFE)*m_pixel_id->wafer_hash_max()+(int)offlineIdHash;  // index for IDCInDetBSErrContainer
         decodingErrors.setOrDrop( offlineIdHash, bsErrCode );
         decodingErrors.setOrDrop( indexFE,       bsErrCode );
@@ -949,7 +955,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
         if (serviceCode>0 && serviceCode<32) {
           if (serviceCode!=14) {
             int indexOffset = 17*m_pixel_id->wafer_hash_max();
-            int indexSvcCounter = indexOffset+(serviceCode-1)*280+(int)offlineIdHash-156;
+            int indexSvcCounter = indexOffset+(serviceCode-1)*280*2+2*((int)offlineIdHash-156)+chFE;
             decodingErrors.setOrDrop( indexSvcCounter, serviceCodeCounter );
           }
         }
@@ -977,11 +983,6 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
   }
   return sc;
 }
-
-StatusCode PixelRodDecoder::StoreBSError() const {
-  return StatusCode::SUCCESS;
-}
-
 
 // ****************************************************************************************************** DECODING FUNCTIONS
 
