@@ -1,0 +1,40 @@
+Py:Athena            INFO using release [?-22.0.0] [?] [?/?] -- built on [?]
+--- detstore
+Py:ComponentAccumulator    INFO Event Inputs
+Py:ComponentAccumulator    INFO Event Algorithm Sequences
+Py:ComponentAccumulator    INFO Top sequence 0
+Py:ComponentAccumulator    INFO \__ AthAlgSeq (seq: SEQ AND)
+Py:ComponentAccumulator    INFO Condition Algorithms
+Py:ComponentAccumulator    INFO  \__ ToolConstantsCondAlg_key1 (cond alg)
+Py:ComponentAccumulator    INFO      * COOLFolderKey: 
+Py:ComponentAccumulator    INFO      * DetStoreKey: ds1
+Py:ComponentAccumulator    INFO      * ToolConstantsKey: key1
+Py:ComponentAccumulator    INFO Services
+Py:ComponentAccumulator    INFO []
+Py:ComponentAccumulator    INFO Public Tools
+Py:ComponentAccumulator    INFO [
+Py:ComponentAccumulator    INFO ]
+Py:ComponentAccumulator    INFO Private Tools
+Py:ComponentAccumulator    INFO [
+Py:ComponentAccumulator    INFO ]
+Py:ComponentAccumulator    INFO TheApp properties
+--- cool
+Py:ComponentAccumulator    INFO Event Inputs
+Py:ComponentAccumulator    INFO Event Algorithm Sequences
+Py:ComponentAccumulator    INFO Top sequence 0
+Py:ComponentAccumulator    INFO \__ AthAlgSeq (seq: SEQ AND)
+Py:ComponentAccumulator    INFO Condition Algorithms
+Py:ComponentAccumulator    INFO  \__ ToolConstantsCondAlg_key2 (cond alg)
+Py:ComponentAccumulator    INFO      * COOLFolderKey: folder2
+Py:ComponentAccumulator    INFO      * DetStoreKey: 
+Py:ComponentAccumulator    INFO      * ToolConstantsKey: key2
+Py:ComponentAccumulator    INFO Services
+Py:ComponentAccumulator    INFO []
+Py:ComponentAccumulator    INFO Public Tools
+Py:ComponentAccumulator    INFO [
+Py:ComponentAccumulator    INFO ]
+Py:ComponentAccumulator    INFO Private Tools
+Py:ComponentAccumulator    INFO [
+Py:ComponentAccumulator    INFO ]
+Py:ComponentAccumulator    INFO TheApp properties
+--- error

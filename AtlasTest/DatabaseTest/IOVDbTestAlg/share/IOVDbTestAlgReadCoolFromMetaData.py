@@ -50,11 +50,6 @@ svcMgr.MetaDataSvc.MetaDataTools += [ "IOVDbMetaDataTool" ]
 import IOVDbSvc.IOVDb
 
 #--------------------------------------------------------------
-# Make sure AthenaSealSvc is loaded for dict check
-#--------------------------------------------------------------
-svcMgr.AthenaSealSvc.CheckDictionary = TRUE
-
-#--------------------------------------------------------------
 # Private Application Configuration options
 #--------------------------------------------------------------
 

@@ -30,7 +30,7 @@ StatusCode Muon::ClusterTimeProjectionMMClusterBuilderTool::initialize() {
 
 StatusCode Muon::ClusterTimeProjectionMMClusterBuilderTool::getClusters(
                 std::vector<Muon::MMPrepData>& MMprds,
-                std::vector<Muon::MMPrepData*>& clustersVec) const {
+                std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVec) const {
     std::vector<std::vector<Muon::MMPrepData>> prdsPerLayer(8, std::vector<Muon::MMPrepData>(0));
     ATH_CHECK(sortHitsToLayer(MMprds, prdsPerLayer));
     for (const auto& prdsOfLayer : prdsPerLayer) {
@@ -192,7 +192,7 @@ StatusCode Muon::ClusterTimeProjectionMMClusterBuilderTool::writeClusterPrd(
                            const std::vector<uint> &idxCluster,
                            const double &clusterPosition,
                            const double &clusterPositionErrorSq,
-                           std::vector<Muon::MMPrepData*>& clustersVec) const {
+                           std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVec) const {
     std::vector<Identifier> rdoList;
     std::vector<int> stripCharges;
     std::vector<short int> stripTimes;
@@ -227,7 +227,7 @@ StatusCode Muon::ClusterTimeProjectionMMClusterBuilderTool::writeClusterPrd(
             MMPrdsOfLayer.at(idxCluster.at(0)).localPosition().y());
     Identifier idStrip0 = MMPrdsOfLayer.at(idxCluster.at(0)).identify();
 
-    MMPrepData* prdN = new MMPrepData(idStrip0,
+    std::unique_ptr<MMPrepData> prdN = std::make_unique<MMPrepData>(idStrip0,
                    MMPrdsOfLayer.at(idxCluster.at(0)).collectionHash(),
                    localClusterPositionV, rdoList, covN,
                    MMPrdsOfLayer.at(idxCluster.at(0)).detectorElement(),
@@ -239,6 +239,6 @@ StatusCode Muon::ClusterTimeProjectionMMClusterBuilderTool::writeClusterPrd(
     prdN->setDriftDist(stripDriftDists, stripDriftDistErrors);
     prdN->setAuthor(Muon::MMPrepData::Author::ClusterTimeProjectionClusterBuilder);
 
-    clustersVec.push_back(prdN);
+    clustersVec.push_back(std::move(prdN));
     return StatusCode::SUCCESS;
 }

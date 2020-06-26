@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 import sys,os,traceback,time,commands,getopt
 
@@ -54,12 +54,6 @@ PoolSvc=Service("PoolSvc")
 PoolSvc.SortReplicas=True
 from DBReplicaSvc.DBReplicaSvcConf import DBReplicaSvc
 svcMgr+=DBReplicaSvc(UseCOOLSQLite=False)
-
-#--------------------------------------------------------------
-# Make sure AthenaSealSvc is loaded for dict check
-#--------------------------------------------------------------
-# include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-svcMgr.AthenaSealSvc.CheckDictionary=True
 
 #--------------------------------------------------------------
 # Private Application Configuration options

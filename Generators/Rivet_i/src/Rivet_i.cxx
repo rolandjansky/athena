@@ -250,6 +250,46 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
     modEvent->set_event_number(eventNumber);
   }
 
+#ifdef HEPMC3
+std::vector<std::string>  old_names=event->weight_names();
+std::vector<std::string>  new_names;
+std::string str;
+for ( auto s: old_names) { str+=s; str+=" ";}
+    std::vector<std::pair<std::string,std::string> > w_subs = {
+      {" nominal ",""},
+      {" set = ","_"},
+      {" = ","_"},
+      {"=",""},
+      {",",""},
+      {".",""},
+      {":",""},
+      {" ","_"},
+      {"#","num"},
+      {"\n","_"},
+      {"/","over"}
+    };
+    std::regex re("(([^()]+))"); // Regex for stuff enclosed by parentheses ()
+    for (std::sregex_iterator i = std::sregex_iterator(str.begin(), str.end(), re);
+         i != std::sregex_iterator(); ++i ) {
+      std::smatch m = *i;
+      std::vector<std::string> temp = ::split(m.str(), "[,]");
+      if (temp.size() == 2 || temp.size() == 3) {
+        std::string wname = temp[0];
+        if (temp.size() == 3)  wname += "," + temp[1];
+        double value = old_wc[wname];
+        for (const auto& sub : w_subs) {
+          size_t start_pos = wname.find(sub.first);
+          while (start_pos != std::string::npos) {
+            wname.replace(start_pos, sub.first.length(), sub.second);
+            start_pos = wname.find(sub.first);
+          }
+        }
+        new_wc[wname];
+        new_wc.back() = value;
+      }
+    }
+modEvent->run_info()->set_weight_names(new_names);
+#else
   // weight-name cleaning
   const HepMC::WeightContainer& old_wc = event->weights();
   std::ostringstream stream;
@@ -296,7 +336,54 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
     }
     // end of weight-name cleaning
   }
+#endif
+#ifdef HEPMC3
+  if (
+  false//!modEvent->valid_beam_particles()//FIXME!
+  ) {
+    for (auto p: modEvent->particles()) {
+      if (!p->production_vertex() && p->pdg_id() != 0) {
+        beams.push_back(p);
+      }
+    }
+    if (beams.size() > 2) std::sort(beams.begin(), beams.end(), cmpGenParticleByEDesc);
+    beams.resize(2);
+  } else {
+    beams.resize(2);
+    beams[0] = modEvent->beams()[0];
+    beams[1] = modEvent->beams()[1];
+  }
+  double scalefactor = 1.0;
+  //ATH_MSG_ALWAYS("BEAM ENERGY = " << beams[0]->momentum().e());
+  //ATH_MSG_ALWAYS("UNITS == MEV = " << std::boolalpha << (modEvent->momentum_unit() == HepMC::Units::MEV));
+  modEvent->set_units(HepMC3::Units::GEV, HepMC3::Units::MM);
+  if (beams[0]->momentum().e() > 50000.0) scalefactor = 0.001;
 
+  if (scalefactor == 1.0 && 
+  true//modEvent->valid_beam_particles()//FIXME
+  ) {
+    return modEvent;
+  } else {
+    if (scalefactor != 1.0) {
+      // ATH_MSG_ALWAYS("RESCALING * " << scalefactor);
+      for (auto  p: modEvent->particles()) {
+        const HepMC::FourVector pGeV(p->momentum().px() * scalefactor,
+                                     p->momentum().py() * scalefactor,
+                                     p->momentum().pz() * scalefactor,
+                                     p->momentum().e() * scalefactor);
+        p->set_momentum(pGeV);
+        p->set_generated_mass( p->generated_mass() * scalefactor );
+      }
+    }
+    for (auto p: modEvent->particles()) {
+      // map beam particle pointers to new event
+      if (HepMC::barcode(beams[0]) == HepMC::barcode(p)) beams[0]=p;
+      if (HepMC::barcode(beams[1]) == HepMC::barcode(p)) beams[1]=p;
+    }
+    modEvent->set_beam_particles(beams[0], beams[1]);
+    return modEvent;
+  }
+#else
   if (!modEvent->valid_beam_particles()) {
     for (HepMC::GenEvent::particle_const_iterator p = modEvent->particles_begin(); p != modEvent->particles_end(); ++p) {
       if (!(*p)->production_vertex() && (*p)->pdg_id() != 0) {
@@ -340,4 +427,5 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
     modEvent->set_beam_particles(beams[0], beams[1]);
     return modEvent;
   }
+#endif
 }

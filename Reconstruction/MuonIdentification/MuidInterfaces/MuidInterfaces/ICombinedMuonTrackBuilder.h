@@ -15,9 +15,9 @@
 #define MUIDINTERFACES_ICOMBINEDMUONTRACKBUILDER_H
 
 #include "GaudiKernel/IAlgTool.h"
-#include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkFitterUtils/FitterTypes.h"
 #include "TrkParameters/TrackParameters.h"
+#include "TrkEventPrimitives/ParticleHypothesis.h"
 
 namespace Trk
 {
@@ -37,8 +37,7 @@ Base class for CombinedMuonTrackBuilder AlgTool
      
 @author Alan.Poppleton@cern.ch
 */
-    class ICombinedMuonTrackBuilder : virtual public IAlgTool,
-				      virtual public Trk::ITrackFitter
+    class ICombinedMuonTrackBuilder : virtual public IAlgTool
 {
 public:
 
@@ -73,67 +72,9 @@ public:
     virtual Trk::Track*		standaloneRefit	(const Trk::Track&	combinedTrack, 
                                                  float bs_x = 0., float bs_y = 0., float bs_z = 0.) const = 0;
 
-
-     /*
-      * Default implement the ITrackFitter context aware method to just call
-      * the no-context ones
-      */
-      using Trk::ITrackFitter::fit;
-      virtual std::unique_ptr<Trk::Track> fit(
-        const EventContext&,
-        const Trk::Track& track,
-        const Trk::RunOutlierRemoval runOutlier = false,
-        const Trk::ParticleHypothesis matEffects = Trk::nonInteracting) const
-      {
-        return std::unique_ptr<Trk::Track>(fit(track, runOutlier, matEffects));
-      }
-      virtual std::unique_ptr<Trk::Track> fit(
-        const EventContext&,
-        const Trk::Track& track,
-        const Trk::PrepRawDataSet& prepRawSet,
-        const Trk::RunOutlierRemoval runOutlier = false,
-        const Trk::ParticleHypothesis matEffects = Trk::nonInteracting) const
-      {
-        return std::unique_ptr<Trk::Track>(fit(track, prepRawSet, runOutlier, matEffects));
-      }
-      virtual std::unique_ptr<Trk::Track> fit(
-        const EventContext&,
-        const Trk::PrepRawDataSet& prepRawSet,
-        const Trk::TrackParameters& params,
-        const Trk::RunOutlierRemoval runOutlier = false,
-        const Trk::ParticleHypothesis matEffects = Trk::nonInteracting) const
-      {
-        return std::unique_ptr<Trk::Track>(fit(prepRawSet, params, runOutlier, matEffects));
-      }
-      virtual std::unique_ptr<Trk::Track> fit(
-        const EventContext&,
-        const Trk::Track& track,
-        const Trk::MeasurementSet& measSet,
-        const Trk::RunOutlierRemoval runOutlier = false,
-        const Trk::ParticleHypothesis matEffects = Trk::nonInteracting) const
-      {
-         return std::unique_ptr<Trk::Track>(fit(track, measSet, runOutlier, matEffects));
-      }
-      virtual std::unique_ptr<Trk::Track> fit(
-        const EventContext&,
-        const Trk::MeasurementSet& measSet,
-        const Trk::TrackParameters& params,
-        const Trk::RunOutlierRemoval runOutlier = false,
-        const Trk::ParticleHypothesis matEffects = Trk::nonInteracting) const
-      {
-        return std::unique_ptr<Trk::Track>(fit(measSet, params, runOutlier, matEffects));
-      }
-      virtual std::unique_ptr<Trk::Track> fit(
-        const EventContext&,
-        const Trk::Track& track1,
-        const Trk::Track& track2,
-        const Trk::RunOutlierRemoval runOutlier = false,
-        const Trk::ParticleHypothesis matEffects = Trk::nonInteracting) const
-      {
-
-        return std::unique_ptr<Trk::Track>(fit(track1, track2, runOutlier, matEffects));
-      }
-    //End of default implementing of context aware methods 
+    /*refit a track*/
+    virtual Trk::Track* fit(Trk::Track& track, const Trk::RunOutlierRemoval runOutlier = false,
+                    const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const = 0;
 
 
 };

@@ -28,7 +28,7 @@ namespace Trk
     Neutral() = default;
 
     /** Default constructor with dummy parameter */
-    Neutral(const double&) {}
+    Neutral(const double&){}
 
     /** Copy constructor */
     Neutral(const Neutral&) = default;

@@ -181,7 +181,7 @@ def MuonTrackQuery( name="MuonTrackQuery", **kwargs ):
      return CfgMgr.Rec__MuonTrackQuery(name,**kwargs)
 
 def MuidSegmentRegionRecoveryTool( name ='MuidSegmentRegionRecoveryTool', **kwargs ):
-    kwargs.setdefault("Fitter",  getPublicTool("CombinedMuonTrackBuilderFit") )
+    kwargs.setdefault("Builder",  getPublicTool("CombinedMuonTrackBuilderFit") )
     import MuonCombinedRecExample.CombinedMuonTrackSummary
     from AthenaCommon.AppMgr import ToolSvc
     kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)

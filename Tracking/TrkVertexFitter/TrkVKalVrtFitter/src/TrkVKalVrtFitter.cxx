@@ -95,8 +95,8 @@ TrkVKalVrtFitter:: TrkVKalVrtFitter(const std::string& type,
 /*  This object is created ONLY if IExtrapolator pointer is provideded.     */
 /*         see VKalExtPropagator.cxx for details                            */
 /*--------------------------------------------------------------------------*/
-    m_fitPropagator = 0;       //Pointer to VKalVrtFitter propagator object to supply to VKalVrtCore (specific interface) 
-    m_InDetExtrapolator = 0;   //Direct pointer to Athena propagator
+    m_fitPropagator = nullptr;       //Pointer to VKalVrtFitter propagator object to supply to VKalVrtCore (specific interface) 
+    m_InDetExtrapolator = nullptr;   //Direct pointer to Athena propagator
 
     m_isAtlasField       = false;   // To allow callback and then field first call only at execute stage
 }
@@ -261,233 +261,7 @@ void TrkVKalVrtFitter::initState (const EventContext& ctx, State& state) const
   state.m_MassInputParticles = m_c_MassInputParticles;
 }
 
-
-
-   /** Interface for Track with starting point */
-
-xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const Track*> & vectorTrk,
-                                    const Amg::Vector3D & firstStartingPoint) const
-{
-    State state;
-    initState (state);
-    setApproximateVertex(firstStartingPoint.x(),
-                         firstStartingPoint.y(),
-                         firstStartingPoint.z(),
-                         state);
-    Amg::Vector3D Vertex;
-    TLorentzVector Momentum;
-    long int Charge;
-    std::vector<double> ErrorMatrix;
-    std::vector<double> Chi2PerTrk;
-    std::vector< std::vector<double> >  TrkAtVrt;
-    double Chi2;
-    StatusCode sc=VKalVrtFit( vectorTrk,
-                              Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state, true );
-
-    xAOD::Vertex * tmpVertex = 0;
-    if(sc.isSuccess()) {
-      tmpVertex = makeXAODVertex( 0, Vertex, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state );
-      std::vector<VxTrackAtVertex> & vxavList=tmpVertex->vxTrackAtVertex();
-      for(int it=0; it<(int)vxavList.size(); it++){
-          LinkToTrack * linkTT = new LinkToTrack();
-          linkTT->setElement( vectorTrk.at(it) );
-          vxavList[it].setOrigTrack(linkTT);           //pointer to initial Track
-      }
-    }
-    return tmpVertex;
-}
-
-
-
-
-xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParticleBase*> & vectorTrk,
-                                    const Amg::Vector3D & firstStartingPoint) const
-{
-    State state;
-    initState (state);
-    setApproximateVertex(firstStartingPoint.x(),
-                         firstStartingPoint.y(),
-                         firstStartingPoint.z(),
-                         state);
-    Amg::Vector3D Vertex;
-    TLorentzVector Momentum;
-    long int Charge;
-    std::vector<double> ErrorMatrix;
-    std::vector<double> Chi2PerTrk;
-    std::vector< std::vector<double> >  TrkAtVrt;
-    double Chi2;
-    StatusCode sc=VKalVrtFit( vectorTrk,
-                              Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state, true );
-
-    xAOD::Vertex * tmpVertex = 0;
-    if(sc.isSuccess()) {
-      tmpVertex = makeXAODVertex( 0, Vertex, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state );
-      std::vector<VxTrackAtVertex> & vxavList=tmpVertex->vxTrackAtVertex();
-      for(int it=0; it<(int)vxavList.size(); it++){
-        ElementLink<TrackParticleBaseCollection> TEL;  TEL.setElement( vectorTrk.at(it) );
-        LinkToTrackParticleBase * ITL = new LinkToTrackParticleBase(TEL); 
-        vxavList[it].setOrigTrack(ITL);              //pointer to initial TrackParticle(Base)
-      }
-    }
-    return tmpVertex;
-
-}
-
-
-
-
-
-
-
-    /** Interface for Track with vertex constraint */
-    /** the position of the constraint is ALWAYS the starting point */
- 
-
-xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const Track*>& vectorTrk,
-                                     const xAOD::Vertex& firstStartingPoint) const
-{   
-    State state;
-    initState (state);
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "A priori vertex constraint is added to VKalVrt fitter!" << endmsg;
-//    m_fitSvc->setDefault();
-    Amg::Vector3D VertexIni(0.,0.,0.);
-    StatusCode sc=VKalVrtFitFast(vectorTrk, VertexIni, state);
-    if( sc.isSuccess()){
-       setApproximateVertex(VertexIni.x(),VertexIni.y(),VertexIni.z(),state);
-    }else{
-       setApproximateVertex(firstStartingPoint.position().x(),
-                            firstStartingPoint.position().y(),
-                            firstStartingPoint.position().z(),
-                            state);
-    }
-    setVertexForConstraint(firstStartingPoint.position().x(),
-                           firstStartingPoint.position().y(),
-                           firstStartingPoint.position().z(),
-                           state);
-    setCovVrtForConstraint(firstStartingPoint.covariancePosition()(Trk::x,Trk::x),
-                           firstStartingPoint.covariancePosition()(Trk::y,Trk::x),
-                           firstStartingPoint.covariancePosition()(Trk::y,Trk::y),
-                           firstStartingPoint.covariancePosition()(Trk::z,Trk::x),
-                           firstStartingPoint.covariancePosition()(Trk::z,Trk::y),
-                           firstStartingPoint.covariancePosition()(Trk::z,Trk::z),
-                           state);
-    state.m_useAprioriVertex=true;
-    Amg::Vector3D Vertex;
-    TLorentzVector Momentum;
-    long int Charge;
-    std::vector<double> ErrorMatrix;
-    std::vector<double> Chi2PerTrk;
-    std::vector< std::vector<double> >  TrkAtVrt;
-    double Chi2;
-    sc=VKalVrtFit( vectorTrk,
-                   Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state, true );
-
-    xAOD::Vertex * tmpVertex = 0;
-    if(sc.isSuccess()) {
-      tmpVertex = makeXAODVertex( 0, Vertex, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state );
-      std::vector<VxTrackAtVertex> & vxavList=tmpVertex->vxTrackAtVertex();
-      for(int it=0; it<(int)vxavList.size(); it++){
-          LinkToTrack * linkTT = new LinkToTrack();
-          linkTT->setElement( vectorTrk.at(it) );
-          vxavList[it].setOrigTrack(linkTT);           //pointer to initial Track
-      }
-    }
-    return tmpVertex;
-
-//    return  new VxCandidate(*m_tmpRecV,*m_tmpVTAV);
-}
-xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParticleBase*>& vectorTrk,
-                                     const xAOD::Vertex & firstStartingPoint) const
-{   
-    State state;
-    initState (state);
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "A priori vertex constraint is added to VKalVrt fitter!" << endmsg;
-//    m_fitSvc->setDefault();
-    Amg::Vector3D VertexIni(0.,0.,0.);
-    StatusCode sc=VKalVrtFitFast(vectorTrk, VertexIni, state); 
-    if( sc.isSuccess()){
-       setApproximateVertex(VertexIni.x(),VertexIni.y(),VertexIni.z(),state);
-    }else{
-       setApproximateVertex(firstStartingPoint.position().x(),
-                            firstStartingPoint.position().y(),
-                            firstStartingPoint.position().z(),
-                            state);
-    }
-    setVertexForConstraint(firstStartingPoint.position().x(),
-                           firstStartingPoint.position().y(),
-                           firstStartingPoint.position().z(),
-                           state);
-    setCovVrtForConstraint(firstStartingPoint.covariancePosition()(Trk::x,Trk::x),
-                           firstStartingPoint.covariancePosition()(Trk::y,Trk::x),
-                           firstStartingPoint.covariancePosition()(Trk::y,Trk::y),
-                           firstStartingPoint.covariancePosition()(Trk::z,Trk::x),
-                           firstStartingPoint.covariancePosition()(Trk::z,Trk::y),
-                           firstStartingPoint.covariancePosition()(Trk::z,Trk::z),
-                           state);
-    state.m_useAprioriVertex=true;
-    Amg::Vector3D Vertex;
-    TLorentzVector Momentum;
-    long int Charge;
-    std::vector<double> ErrorMatrix;
-    std::vector<double> Chi2PerTrk;
-    std::vector< std::vector<double> >  TrkAtVrt;
-    double Chi2;
-    sc=VKalVrtFit( vectorTrk,
-                   Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state, true );
-
-    xAOD::Vertex * tmpVertex = 0;
-    if(sc.isSuccess()) {
-      tmpVertex = makeXAODVertex( 0, Vertex, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state );
-      std::vector<VxTrackAtVertex> & vxavList=tmpVertex->vxTrackAtVertex();
-      for(int it=0; it<(int)vxavList.size(); it++){
-        ElementLink<TrackParticleBaseCollection> TEL;  TEL.setElement( vectorTrk.at(it) );
-        LinkToTrackParticleBase * ITL = new LinkToTrackParticleBase(TEL); 
-        vxavList[it].setOrigTrack(ITL);              //pointer to initial TrackParticle(Base)
-      }
-    }
-    return tmpVertex;
-
-}
-
-
-
-
-/*  VxCandidate * TrkVKalVrtFitter::fit(const vector<const ParametersBase*> & perigeeList,
-                                      const Vertex& startingPoint)
-{
-    int NTrk=perigeeList.size();
-    const Trk::FitQuality* fitQuality = new Trk::FitQuality(10.,1);
-    std::vector<const Trk::Track*>  trackList;
-    for(int i=0; i<NTrk; i++) {
-       const Trk::Perigee* perigee = dynamic_cast<const Trk::Perigee*> (perigeeList[i]);
-       DataVector<const TrackStateOnSurface>* trkStOnSurf=new DataVector<const TrackStateOnSurface>;
-       const TrackStateOnSurface* trackSOS = new TrackStateOnSurface(0, perigee, 0,  0);
-       trkStOnSurf->push_back(trackSOS);
-       trackList.push_back( new Track( Track::unknown, trkStOnSurf, fitQuality) );
-    }
-    VxCandidate * tmp=fit( trackList, startingPoint);
-    for(int i=0; i<NTrk; i++) { delete trackList[i];}  delete fitQuality;
-    return tmp;
- }
-VxCandidate * TrkVKalVrtFitter::fit(const vector<const ParametersBase*> & perigeeList,
-                                    const RecVertex& constraint)
-{
-    int NTrk=perigeeList.size();
-    const Trk::FitQuality* fitQuality = new Trk::FitQuality(10.,1);
-    vector<const Trk::Track*>  trackList;
-    for(int i=0; i<NTrk; i++) {
-       const Trk::Perigee* perigee = dynamic_cast<const Trk::Perigee*> (perigeeList[i]);
-       DataVector<const TrackStateOnSurface>* trkStOnSurf=new DataVector<const TrackStateOnSurface>;
-       const TrackStateOnSurface* trackSOS = new TrackStateOnSurface(0, perigee, 0,  0);
-       trkStOnSurf->push_back(trackSOS);
-       trackList.push_back( new Track( Track::unknown, trkStOnSurf, fitQuality) );
-    }
-    VxCandidate * tmp=fit( trackList, constraint);
-    for(int i=0; i<NTrk; i++) { delete trackList[i];}  delete fitQuality;
-    return tmp;
-}*/
-
-     /** Interface for MeasuredPerigee with starting point */
+/** Interface for MeasuredPerigee with starting point */
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*> & perigeeListC,
                                      const Amg::Vector3D & startingPoint) const
 {
@@ -508,7 +282,7 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*> &
     StatusCode sc=VKalVrtFit( perigeeListC, perigeeListN,
                               Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state, true );
 
-    xAOD::Vertex * tmpVertex = 0;
+    xAOD::Vertex * tmpVertex = nullptr;
     if(sc.isSuccess()) {
       tmpVertex = makeXAODVertex( 0, Vertex, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state );
     }
@@ -536,7 +310,7 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*>  
     StatusCode sc=VKalVrtFit( perigeeListC,perigeeListN,
                               Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state, true );
 
-    xAOD::Vertex * tmpVertex = 0;
+    xAOD::Vertex * tmpVertex = nullptr;
     if(sc.isSuccess()) {
       tmpVertex = makeXAODVertex( (int)perigeeListN.size(), Vertex, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state );
     }
@@ -590,7 +364,7 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*> &
                    Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state, true );
 
 
-    xAOD::Vertex * tmpVertex = 0;
+    xAOD::Vertex * tmpVertex = nullptr;
     if(sc.isSuccess()) {
       tmpVertex = makeXAODVertex( 0, Vertex, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state );
     }
@@ -639,7 +413,7 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*>  
                    Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state, true );
 
 
-    xAOD::Vertex * tmpVertex = 0;
+    xAOD::Vertex * tmpVertex = nullptr;
     if(sc.isSuccess()) {
       tmpVertex = makeXAODVertex( (int)perigeeListN.size(), Vertex, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state );
     }
@@ -664,7 +438,7 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
 {
     State& state = dynamic_cast<State&> (istate);
 
-    xAOD::Vertex * tmpVertex = 0;
+    xAOD::Vertex * tmpVertex = nullptr;
     setApproximateVertex(startingPoint.x(),
                          startingPoint.y(),
                          startingPoint.z(),
@@ -685,7 +459,7 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
        sc=VKalGetTrkWeights(fittrkwgt, state); if(sc.isFailure())fittrkwgt.clear();
        for(int ii=0; ii<state.m_FitStatus; ii++) {
           ElementLink<xAOD::TrackParticleContainer> TEL;  TEL.setElement( xtpListC[ii] );
-          if(fittrkwgt.size())  tmpVertex->addTrackAtVertex(TEL,fittrkwgt[ii]);
+          if(!fittrkwgt.empty())  tmpVertex->addTrackAtVertex(TEL,fittrkwgt[ii]);
           else                    tmpVertex->addTrackAtVertex(TEL,1.);
        }
     }
@@ -699,7 +473,7 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
 {
     State state;
     initState (state);
-    xAOD::Vertex * tmpVertex = 0;
+    xAOD::Vertex * tmpVertex = nullptr;
     setApproximateVertex(startingPoint.x(),
                          startingPoint.y(),
                          startingPoint.z(),
@@ -720,11 +494,11 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
        for(int ii=0; ii<state.m_FitStatus; ii++) {
           if(ii<(int)xtpListC.size()) {
              ElementLink<xAOD::TrackParticleContainer> TEL;  TEL.setElement( xtpListC[ii] );
-             if(fittrkwgt.size())  tmpVertex->addTrackAtVertex(TEL,fittrkwgt[ii]);
+             if(!fittrkwgt.empty())  tmpVertex->addTrackAtVertex(TEL,fittrkwgt[ii]);
              else                    tmpVertex->addTrackAtVertex(TEL,1.);
           }else{
              ElementLink<xAOD::NeutralParticleContainer> TEL;  TEL.setElement( xtpListN[ii] );
-             if(fittrkwgt.size())  tmpVertex->addNeutralAtVertex(TEL,fittrkwgt[ii]);
+             if(!fittrkwgt.empty())  tmpVertex->addNeutralAtVertex(TEL,fittrkwgt[ii]);
              else                    tmpVertex->addNeutralAtVertex(TEL,1.);
           }
        }
@@ -749,7 +523,7 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
     State& state = dynamic_cast<State&> (istate);
 
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "A priori vertex constraint is activated in VKalVrt fitter!" << endmsg;
-    xAOD::Vertex * tmpVertex = 0;
+    xAOD::Vertex * tmpVertex = nullptr;
     setApproximateVertex(constraint.position().x(), constraint.position().y(),constraint.position().z(),state);
     setVertexForConstraint(constraint.position().x(),
                            constraint.position().y(),
@@ -779,7 +553,7 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
        sc=VKalGetTrkWeights(fittrkwgt, state); if(sc.isFailure())fittrkwgt.clear();
        for(int ii=0; ii<state.m_FitStatus; ii++) {
           ElementLink<xAOD::TrackParticleContainer> TEL;  TEL.setElement( xtpListC[ii] );
-          if(fittrkwgt.size())  tmpVertex->addTrackAtVertex(TEL,fittrkwgt[ii]);
+          if(!fittrkwgt.empty())  tmpVertex->addTrackAtVertex(TEL,fittrkwgt[ii]);
           else                    tmpVertex->addTrackAtVertex(TEL,1.);
        }
     }
@@ -795,7 +569,7 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
     initState (state);
 
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "A priori vertex constraint is activated in VKalVrt fitter!" << endmsg;
-    xAOD::Vertex * tmpVertex = 0;
+    xAOD::Vertex * tmpVertex = nullptr;
     setApproximateVertex(constraint.position().x(), constraint.position().y(),constraint.position().z(),state);
     setVertexForConstraint(constraint.position().x(),
                            constraint.position().y(),
@@ -825,11 +599,11 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
        for(int ii=0; ii<state.m_FitStatus; ii++) {
           if(ii<(int)xtpListC.size()) {
              ElementLink<xAOD::TrackParticleContainer> TEL;  TEL.setElement( xtpListC[ii] );
-             if(fittrkwgt.size())  tmpVertex->addTrackAtVertex(TEL,fittrkwgt[ii]);
+             if(!fittrkwgt.empty())  tmpVertex->addTrackAtVertex(TEL,fittrkwgt[ii]);
              else                    tmpVertex->addTrackAtVertex(TEL,1.);
           }else{
              ElementLink<xAOD::NeutralParticleContainer> TEL;  TEL.setElement( xtpListN[ii] );
-             if(fittrkwgt.size())  tmpVertex->addNeutralAtVertex(TEL,fittrkwgt[ii]);
+             if(!fittrkwgt.empty())  tmpVertex->addNeutralAtVertex(TEL,fittrkwgt[ii]);
              else                    tmpVertex->addNeutralAtVertex(TEL,1.);
           }
        }
@@ -838,45 +612,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
     return tmpVertex;
 }
 
-
-
-
-
-
-
-xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const Track*> & vectorTrk) const
-{
-    State state;
-    initState (state);
-    Amg::Vector3D VertexIni(0.,0.,0.);
-
-    StatusCode sc=VKalVrtFitFast(vectorTrk, VertexIni, state);
-    Amg::Vector3D Vertex;
-    std::vector<double> ErrorMatrix;
-    std::vector<double> Chi2PerTrk;
-    std::vector< std::vector<double> >  TrkAtVrt;
-    double Chi2;
-    if(sc.isSuccess()) {
-      setApproximateVertex(VertexIni.x(),VertexIni.y(),VertexIni.z(),state);
-      TLorentzVector Momentum;
-      long int Charge;
-      sc=VKalVrtFit( vectorTrk,
-                     Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state, true );
-
-    }
-    
-    xAOD::Vertex * tmpVertex = 0;
-    if(sc.isSuccess()){
-      tmpVertex = makeXAODVertex( 0, Vertex, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state );
-      std::vector<VxTrackAtVertex> & vxavList=tmpVertex->vxTrackAtVertex();
-      for(int it=0; it<(int)vxavList.size(); it++){
-          LinkToTrack * linkTT = new LinkToTrack();
-          linkTT->setElement( vectorTrk.at(it) );
-          vxavList[it].setOrigTrack(linkTT);           //pointer to initial Track
-      }
-    }
-    return tmpVertex;
-}
 
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const  TrackParameters*> & perigeeListC) const
 {
@@ -896,7 +631,7 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const  TrackParameters*> 
     sc=VKalVrtFit( perigeeListC, perigeeListN,
                    Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state, true );
 
-    xAOD::Vertex * tmpVertex = 0;
+    xAOD::Vertex * tmpVertex = nullptr;
     if(sc.isSuccess()) {
        tmpVertex = makeXAODVertex( 0, Vertex, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state );
     }
@@ -921,7 +656,7 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const  TrackParameters*> 
     sc=VKalVrtFit( perigeeListC, perigeeListN,
                    Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state, true );
 
-    xAOD::Vertex * tmpVertex = 0;
+    xAOD::Vertex * tmpVertex = nullptr;
     if(sc.isSuccess()) {
        tmpVertex = makeXAODVertex( (int)perigeeListN.size(), Vertex, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state );
     }
@@ -1079,8 +814,8 @@ xAOD::Vertex * TrkVKalVrtFitter::makeXAODVertex( int Neutrals,
       AmgSymMatrix(5) *CovMtxP=new AmgSymMatrix(5);
       if(covarExist){ FillMatrixP( ii, (*CovMtxP), CovFull );}
       else          { (*CovMtxP).setIdentity();}
-      Perigee *        tmpChargPer=0;
-      NeutralPerigee * tmpNeutrPer=0;
+      Perigee *        tmpChargPer=nullptr;
+      NeutralPerigee * tmpNeutrPer=nullptr;
       if(ii<NTrk-Neutrals){
          tmpChargPer  =  new Perigee( 0.,0., TrkAtVrt[ii][0],
 	                                     TrkAtVrt[ii][1],
@@ -1093,7 +828,7 @@ xAOD::Vertex * TrkVKalVrtFitter::makeXAODVertex( int Neutrals,
 						    PerigeeSurface(Vertex),
 					                    CovMtxP );
       }
-      tmpVTAV.push_back( VxTrackAtVertex(Chi2PerTrk[ii], tmpChargPer, tmpNeutrPer) );
+      tmpVTAV.emplace_back(Chi2PerTrk[ii], tmpChargPer, tmpNeutrPer );
     }
 
     return tmpVertex;

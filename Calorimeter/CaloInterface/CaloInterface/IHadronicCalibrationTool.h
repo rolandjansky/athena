@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOINTERFACE_IHADRONICCALIBRATIONTOOL_H
@@ -47,19 +47,16 @@ JetRec::JetCellCalibratorTool.
 
 ***********************************************************************/
 
-#include "GaudiKernel/IAlgTool.h"
 #include "CaloInterface/ICellWeightTool.h"
+#include "GaudiKernel/IAlgTool.h"
+#include "GaudiKernel/extend_interfaces.h"
 
 class CaloCell;
 
-class IHadronicCalibrationTool : virtual public IAlgTool, virtual public ICellWeightTool
+class IHadronicCalibrationTool : virtual public extend_interfaces<ICellWeightTool>
 {
  public:
-
-  static const InterfaceID& interfaceID() { 
-    static const InterfaceID IID_IHadronicCalibrationTool("IHadronicCalibrationTool", 1 , 0);
-    return IID_IHadronicCalibrationTool; 
-  }
+  DeclareInterfaceID( IHadronicCalibrationTool, 1, 0 );
 
   virtual double etCell(const CaloCell* thisCell, double weight)  = 0;
   virtual double etCryo(double etAccb3, double etTile1)           = 0;

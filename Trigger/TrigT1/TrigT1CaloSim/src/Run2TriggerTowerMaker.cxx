@@ -15,7 +15,7 @@
 #include "TrigT1CaloCalibConditions/L1CaloDisabledTowersContainer.h"
 #include "TrigT1CaloCalibConditions/L1CaloPpmDeadChannelsContainer.h"
 #include "TrigT1CaloCondSvc/L1CaloCondSvc.h"
-#include "TrigT1CaloMappingToolInterfaces/IL1CaloMappingTool.h"
+#include "TrigT1CaloToolInterfaces/IL1CaloMappingTool.h"
 #include "TrigT1CaloToolInterfaces/IL1TriggerTowerTool.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "TrigConfL1Data/ThresholdConfig.h"

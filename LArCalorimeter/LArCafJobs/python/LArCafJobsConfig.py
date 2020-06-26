@@ -57,9 +57,6 @@ class DefaultShapeDumper(LArShapeDumper) :
       StreamLArSamples.MetadataItemList += ['LArSamplesContainer#Samples']
       StreamLArSamples.WriteOnExecute = False
       StreamLArSamples.WriteOnFinalize = True
-    else :
-      from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-      svcMgr.AthenaSealSvc.DictNames += [ "LArCafJobsDict" ]
 
     self.CaloType = caloType
     self.Prescale = prescale

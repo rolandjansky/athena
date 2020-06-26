@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
-#include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 #include "CLHEP/Matrix/Matrix.h"
 #include "CLHEP/Matrix/Vector.h"
-#include <math.h>
+#include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
+#include <cmath>
 #include <iostream>
 //-------------------------------------------------
 /* Coversion from ATLAS to VKalVrt parameters
@@ -126,7 +126,6 @@ namespace Trk{
 	     ct += CovI[ii][jj]*Deriv[i][ii]*Deriv[j][jj];};};
        VTrkCov[ipnt++]=ct;
      };}
-     return;
-
+     
 }
 } // end of namespace

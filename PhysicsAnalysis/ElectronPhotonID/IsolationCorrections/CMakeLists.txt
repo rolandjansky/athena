@@ -7,10 +7,12 @@ atlas_subdir( IsolationCorrections )
 
 # Extra dependencies, based on the environment:
 set( extra_deps )
+set( extra_libs )
 if( NOT XAOD_STANDALONE )
    set( extra_deps GaudiKernel 
    Control/AthenaBaseComps	       
    Control/AthAnalysisBaseComps)
+   set( extra_libs AthAnalysisBaseCompsLib )
 endif()
 
 # Declare the package's dependencies:
@@ -38,7 +40,7 @@ atlas_add_library( IsolationCorrectionsLib
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma xAODEventInfo
    xAODPrimitives xAODTracking PATInterfaces PATCoreLib
-   PRIVATE_LINK_LIBRARIES PathResolver xAODMetaData)
+   PRIVATE_LINK_LIBRARIES PathResolver xAODMetaData ${extra_libs} )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( IsolationCorrections

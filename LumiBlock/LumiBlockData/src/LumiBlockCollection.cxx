@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////// 
@@ -51,7 +51,7 @@ LumiBlockCollection& LumiBlockCollection::operator=( const LumiBlockCollection& 
 	 << " has the following (run,lumiblock) ranges: "
          << std::endl;
      LumiBlockCollection::const_iterator it;
-     for(it=begin(); it!=end(); it++) {
+     for(it=begin(); it!=end(); ++it) {
        out << "\t [ (" 
            << (*it)->start().run() << "," << (*it)->start().event() 
 	   << "):("

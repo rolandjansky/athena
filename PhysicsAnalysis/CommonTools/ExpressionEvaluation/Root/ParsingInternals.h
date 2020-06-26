@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -147,15 +147,12 @@ namespace ExpressionParsing
   {
     public:
       VirtualMachine(unsigned stackSize = 4096)
-        : m_stack(stackSize), m_stack_ptr(m_stack.begin())
+        : m_stackSize(stackSize)
       { }
 
-      StackElement top() const { return m_stack_ptr[-1]; };
-      void execute(std::vector<StackElement> const& code);
-
-    private:
-      std::vector<StackElement> m_stack;
-      std::vector<StackElement>::iterator m_stack_ptr;
+      StackElement execute(std::vector<StackElement> const& code) const;
+  private:
+      unsigned m_stackSize;
   };
 
 
@@ -180,7 +177,7 @@ namespace ExpressionParsing
       void operator()(ast::expression const& x) const;
 
     private:
-      mutable IProxyLoader *m_proxyLoader;
+      IProxyLoader *m_proxyLoader;
       IUnitInterpreter *m_unitInterpreter;
   };
 

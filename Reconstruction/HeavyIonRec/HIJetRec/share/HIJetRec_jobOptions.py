@@ -108,12 +108,12 @@ if jetFlags.useTruth():
             inputcontent = objKeyStore['inputFile'].list()
             for t in inputcontent :
                 if tname in t:
-                    print 'Truth collection %s already exists, no need to rebuild it' % tname
+                    print("Truth collection %s already exists, no need to rebuild it" % tname)
                     collExists=True
                     break
         if collExists: continue
         f=jtm.addJetFinder(tname,"AntiKt", R,"truth", ptmin= HIJetFlags.TruthJetPtMin())
-        print 'Adding %s' %tname
+        print("Adding %s" %tname)
         AddToOutputList(tname)
         #jtm.HIJetRecs+=[f]
 
@@ -143,13 +143,13 @@ modulator0=iter0.Modulator
 subtr1=MakeSubtractionTool(iter0.OutputEventShapeKey,modulator=modulator0)
 
 #now iterate
-print 'Now moving to iteration 1'
+print("Now moving to iteration 1")
 
 seeds1=jtm.addJetCopier("%s_%s1" % (seed_prefix,HIJetFlags.SeedSuffix()),"%s_Unsubtracted" % seed_prefix,[subtr1,jtm.HICalibMap[seed_prefix],jtm.jetfilHISeeds],shallow=False)
 jtm.HIJetRecs+=[seeds1]
 iteration_dict=dict(suffix="iter1")
 if jetFlags.useTracks() and HIJetFlags.TrackJetSeeds() : iteration_dict['track_jet_seeds']=HIJetFlags.TrackJetContainerName()
-print 'Adding iteration 1'
+print("Adding iteration 1")
 iter1=AddIteration(seed_container=seeds1.OutputContainer,shape_name=EventShapeKey,**iteration_dict)
 
 HIJetFlags.IteratedEventShapeKey=iter1.OutputEventShapeKey
@@ -243,9 +243,9 @@ if HIJetFlags.DoHIBTagging():
             jetname.JetModifiers += [ btagger ]
             jetname.lock()
             if BTaggingFlags.OutputLevel < 3:
-              print ConfInstance.getJetCollectionTool(jet[:-4])
+              print(ConfInstance.getJetCollectionTool(jet[:-4]))
           except AttributeError as error:
-            print '#BTAG# --> ' + str(error)
+            print("#BTAG# --> " + str(error))
             NotInJetToolManager.append(AuthorSubString[i])
 
       if len(NotInJetToolManager) > 0:

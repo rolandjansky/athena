@@ -8,7 +8,7 @@
 namespace TruthHelper {
 
 
-  bool IsGenerator::operator()(const HepMC::GenParticle* const p ) const {
+bool IsGenerator::operator()(HepMC::ConstGenParticlePtr p ) const {
     return HepMC::barcode(p) < 200000 &&
       (p->status() < 200 ||
        p->status() % 1000 == 1 || p->status() % 1000 == 2 ||

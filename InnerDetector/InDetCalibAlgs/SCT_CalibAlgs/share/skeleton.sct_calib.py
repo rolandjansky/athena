@@ -42,11 +42,6 @@ theApp.AuditAlgorithms = True
 theApp.AuditServices   = True
 
 #--------------------------------------------------------------
-# Load AthenaSealSvc
-#--------------------------------------------------------------
-ServiceMgr.AthenaSealSvc.CheckDictionary = True
-
-#--------------------------------------------------------------
 # User setup to run each algorithm
 # - SCTCalibConfig.py is used as input to the following
 #   flags/properties
