@@ -85,7 +85,7 @@ typedef std::vector<const HepMC::GenParticle*>  MCparticleCollection ;
 //This is a copy of the previous isGenSimulStable which depended on TruthHelper
 bool FastCaloSimIsGenSimulStable(const HepMC::GenParticle* p) {
   int status=p->status();
-  HepMC::GenVertex* vertex = p->end_vertex();
+  auto vertex = p->end_vertex();
   // we want to keep primary particle with status==2 but without vertex in HepMC
   int vertex_barcode=-999999;
   if (vertex) vertex_barcode=vertex->barcode();
