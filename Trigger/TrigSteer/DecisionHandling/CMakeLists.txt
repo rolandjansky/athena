@@ -17,8 +17,6 @@ atlas_add_library( DecisionHandlingLib
 # Component(s) in the package:
 atlas_add_component( DecisionHandling
                      src/components/*.cxx
-                     src/ComboHypo.cxx
-                     src/ComboHypoToolBase.cxx
                      src/DeltaRRoIComboHypoTool.cxx
                      src/InputMakerForRoI.cxx
                      src/TriggerSummaryAlg.cxx
