@@ -185,7 +185,7 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection( const MM_RawDataCollect
       continue;
     }
     NSWCalib::CalibratedStrip calibStrip;
-    ATH_CHECK (m_calibTool->calibrate(rdo, globalPos, calibStrip));
+    ATH_CHECK (m_calibTool->calibrateStrip(rdo, calibStrip));
 
 //    const Trk::Surface& surf = detEl->surface(rdoId);
 //    const Amg::Vector3D* globalPos = surf.localToGlobal(localPos);
