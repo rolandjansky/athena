@@ -231,8 +231,10 @@ class ConfiguredBackTracking:
          #
          if InDetFlags.doCosmics():
             InDetTRT_SeededScoringTool = TrackingCommon.getInDetCosmicScoringTool_TRT(NewTrackingCuts)
+            InDetTRT_SeededSummaryTool = TrackingCommon.getInDetTrackSummaryToolSharedHits()
          else:
             InDetTRT_SeededScoringTool = TrackingCommon.getInDetTRT_SeededScoringTool(NewTrackingCuts)
+            InDetTRT_SeededSummaryTool = TrackingCommon.getInDetTrackSummaryTool()
 
          #
          # --- Load selection tool
@@ -262,7 +264,7 @@ class ConfiguredBackTracking:
          InDetTRT_SeededAmbiguityProcessor = Trk__SimpleAmbiguityProcessorTool(name               = 'InDetTRT_SeededAmbiguityProcessor',
                                                                                Fitter             = CfgGetter.getPublicTool('InDetTrackFitter'),
                                                                                AssociationTool    = TrackingCommon.getInDetPRDtoTrackMapToolGangedPixels(),
-                                                                               TrackSummaryTool   = TrackingCommon.getInDetTrackSummaryTool(),
+                                                                               TrackSummaryTool   = InDetTRT_SeededSummaryTool,
                                                                                SelectionTool      = InDetTRT_SeededAmbiTrackSelectionTool,
                                                                                RefitPrds          = not InDetFlags.refitROT(),
                                                                                SuppressTrackFit   = False,

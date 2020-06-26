@@ -321,6 +321,7 @@ else:
           printfunc (InDetTRTonly_PRD_AssociationPhase)
 
         from AthenaCommon import CfgGetter
+        # @TODO create track summary for the following tracks .i.e. add "SummaryTool = TrackingCommon.getInDetTrackSummaryTool()", ?
         from TRT_SegmentsToTrack.TRT_SegmentsToTrackConf import InDet__TRT_SegmentsToTrack
         InDetTrkSegmenttoTrkPhase = InDet__TRT_SegmentsToTrack(name                      = "InDetTRT_SegmentsToTrack_BarrelPhase",
                                                         InputSegmentsCollection   = InDetKeys.TRT_Segments_Phase(),
@@ -346,39 +347,6 @@ else:
         include ("InDetRecExample/ConfiguredInDetPreProcessingTRT.py")
         InDetPreProcessingTRT = ConfiguredInDetPreProcessingTRT(True, True)
 
-    # ------------------------------------------------------------
-    #
-    # ----------- now we do legacy pattern if requested
-    #
-    # ------------------------------------------------------------
-    
-    
-    #
-    # --- TRT track segment finding
-    #
-    if InDetFlags.doTrackSegmentsTRT():
-      # --- load cuts for TRT segment finding
-      if ('InDetNewTrackingCutsTRT' not in dir()):
-        printfunc ("InDetRec_jobOptions: InDetNewTrackingCutsTRT not set before - import them now")
-        from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
-        InDetNewTrackingCutsTRT = ConfiguredNewTrackingCuts("TRT")
-      InDetNewTrackingCutsTRT.printInfo()
-      # --- segment finingd
-      include ("InDetRecExample/ConfiguredTRTSegmentFinding.py")
-      InDetRecTRTSegementFinding = ConfiguredTRTSegmentFinding ("_TRT", [],
-                                                                InDetNewTrackingCutsTRT,
-                                                                InDetKeys.TRT_SegmentsTRT()
-                                                                )
-      # --- making tacks out of segments
-
-
-      include ("InDetRecExample/ConfiguredTRTStandalone.py")
-      InDetRecTRTStandalone = ConfiguredTRTStandalone ("_TRT", [],
-                                                       InDetNewTrackingCutsTRT,
-                                                       InDetKeys.TRT_SegmentsTRT(),
-                                #                       InDetKeys.TRT_SegmentsTRT_EC(),
-                                                       TrackCollectionKeys,
-                                                       TrackCollectionTruthKeys)
 
     # ------------------------------------------------------------
     #
@@ -442,6 +410,7 @@ else:
       # --- add into list for combination
       InputCombinedInDetTracks += [ InDetRecBackTracking.BackTrackingTracks() ]
 
+      
     # ------------------------------------------------------------
     #
     # --- Large-d0 option (FIXME: Here or should be placed 
@@ -581,6 +550,40 @@ else:
       # --- add into list for combination
       InputCombinedInDetTracks += [ InDetRecTRTStandalone.TRTStandaloneTracks() ]  
 
+
+    # ------------------------------------------------------------
+    #
+    # ----------- now we do legacy pattern if requested
+    #
+    # ------------------------------------------------------------
+
+    #
+    # --- TRT track segment finding
+    #
+    if InDetFlags.doTrackSegmentsTRT():
+      # --- load cuts for TRT segment finding
+      if ('InDetNewTrackingCutsTRT' not in dir()):
+        printfunc ("InDetRec_jobOptions: InDetNewTrackingCutsTRT not set before - import them now")
+        from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
+        InDetNewTrackingCutsTRT = ConfiguredNewTrackingCuts("TRT")
+      InDetNewTrackingCutsTRT.printInfo()
+      # --- segment finingd
+      include ("InDetRecExample/ConfiguredTRTSegmentFinding.py")
+      InDetRecTRTSegementFinding = ConfiguredTRTSegmentFinding ("_TRT", [],
+                                                                InDetNewTrackingCutsTRT,
+                                                                InDetKeys.TRT_SegmentsTRT()
+                                                                )
+      # --- making tracks out of segments
+
+
+      include ("InDetRecExample/ConfiguredTRTStandalone.py")
+      InDetRecTRTStandalone = ConfiguredTRTStandalone ("_TRT", [],
+                                                       InDetNewTrackingCutsTRT,
+                                                       InDetKeys.TRT_SegmentsTRT(),
+                                #                       InDetKeys.TRT_SegmentsTRT_EC(),
+                                                       TrackCollectionKeys,
+                                                       TrackCollectionTruthKeys,
+                                                       PRDtoTrackMap='InDetTRTonly_PRDtoTrackMap' if InDetFlags.doTRTStandalone() else '' )
 
     # ------------------------------------------------------------
     #

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_SEGMENTSTOTRACK_H
@@ -20,7 +20,10 @@
 #include "TrkTrack/TrackCollection.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
-
+#include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
+// for shared hits:
+#include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
+#include "TrkEventUtils/PRDtoTrackMap.h"
 
 class PRD_MultiTruthCollection;
 class AtlasDetectorID;
@@ -83,7 +86,18 @@ namespace InDet
 
     ToolHandle<Trk::ITrackFitter> m_trackFitter;   //!< The TrackFitter
 
-    ToolHandle<Trk::IExtrapolator> m_extrapolator; //!< The Extrapolator    
+    ToolHandle<Trk::IExtrapolator> m_extrapolator; //!< The Extrapolator
+
+    ToolHandle<Trk::IExtendedTrackSummaryTool> m_trkSummaryTool
+       {this, "SummaryTool","",""};
+    ToolHandle<Trk::IPRDtoTrackMapTool>        m_assoTool
+       {this, "AssociationTool", "","" };
+    /** key for the PRDtoTrackMap to filled by the ambiguity score processor.**/
+    SG::WriteHandleKey<Trk::PRDtoTrackMap>    m_assoMapName
+       {this,"AssociationMapName","",""};  ///< key to be set to optionally store PRD to track association map
+    SG::ReadHandleKey<Trk::PRDtoTrackMap>     m_inputAssoMapName
+       {this,"InputAssociationMapName","",""};  ///< key to be set to optionally store PRD to track association map
+
     
     double m_noiseCut;                        //!< All tracks with a TRT Noise fraction larger than this variable will be thrown away
     int  m_minTRTHits;                        //!< All tracks with less Hits (after the track fit) will be thrown away
