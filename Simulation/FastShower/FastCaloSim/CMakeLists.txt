@@ -46,6 +46,7 @@ find_package( CLHEP )
 find_package( Eigen )
 find_package( HepPDT )
 find_package( ROOT COMPONENTS Gpad Cint Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint Graf Graf3d Html Postscript Gui GX11TTF GX11 )
+find_package( Boost )
 
 # this line failed automatic conversion in cmt2cmake :
 # macro_append FastCaloSim_cppflags " -DFastCaloSim_project_release_v1=`echo $(FastCaloSim_project_release) | awk -F. '{printf("'"'%d'"'",$$1)}'` "
@@ -78,11 +79,11 @@ atlas_add_library( FastCaloSimLib
                    src/TCellReweight.cxx
                    ${FastCaloSimLibDictSource}
                    PUBLIC_HEADERS FastCaloSim
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS}
-                   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}  ${EIGEN_INCLUDE_DIRS}
+                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} 
+                   PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}  ${EIGEN_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPPDT_LIBRARIES} CaloEvent CaloIdentifier CaloInterfaceLib AthenaBaseComps AthenaKernel FastCaloSimAthenaPool FastSimulationEventLib Identifier GaudiKernel LArRecEvent TileEvent TrkEventPrimitives TrkParameters TrkExInterfaces CaloDetDescrLib StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib ${EIGEN_LIBRARIES} AthAllocators AthenaPoolUtilities AtlasDetDescr DetDescrCondToolsLib GeoPrimitives EventKernel NavFourMom GeneratorObjects TruthUtils PathResolver TrkGeometry TrkSurfaces TrkMaterialOnTrack )
+                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} ${Boost_LIBRARIES} AtlasHepMCLib ${EIGEN_LIBRARIES} AthAllocators AthenaPoolUtilities AtlasDetDescr DetDescrCondToolsLib GeoPrimitives EventKernel NavFourMom GeneratorObjects TruthUtils PathResolver TrkGeometry TrkSurfaces TrkMaterialOnTrack )
 
 atlas_add_component( FastCaloSim
                      src/components/*.cxx

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // class CBNT_DetailedCellInfo 
@@ -306,7 +306,7 @@ StatusCode CBNTAA_DetailedCellInfo::CBNT_execute()
    std::vector<std::string>::iterator iter;
 
 
-   for (iter=m_CalibrationContainerNames.begin();iter!=m_CalibrationContainerNames.end();iter++) {
+   for (iter=m_CalibrationContainerNames.begin();iter!=m_CalibrationContainerNames.end();++iter) {
      sc = m_storeGate->retrieve(clbc,*iter);
      if (sc.isFailure()) {
        log << MSG::ERROR << "Cannot retrieve calibration container" << endmsg;
@@ -315,7 +315,7 @@ StatusCode CBNTAA_DetailedCellInfo::CBNT_execute()
      }
    }
 
-   for (iter=m_CalibrationContainerInactiveNames.begin();iter!=m_CalibrationContainerInactiveNames.end();iter++) {
+   for (iter=m_CalibrationContainerInactiveNames.begin();iter!=m_CalibrationContainerInactiveNames.end();++iter) {
      sc = m_storeGate->retrieve(clbc,*iter);
      if (sc.isFailure()) {
        log << MSG::ERROR << "Cannot retrieve calibration container (Inactive)" << endmsg;
@@ -367,11 +367,11 @@ StatusCode CBNTAA_DetailedCellInfo::CBNT_execute()
          
 
          std::vector<const CaloCalibrationHitContainer * >::const_iterator it;
-         for (it=v_clbc.begin();it!=v_clbc.end();it++) {
+         for (it=v_clbc.begin();it!=v_clbc.end();++it) {
            CaloCalibrationHitContainer::const_iterator first_calib_cell;
            CaloCalibrationHitContainer::const_iterator last_calib_cell  = (*it)->end();
            //loop over cells in calibration container
-           for(first_calib_cell = (*it)->begin();first_calib_cell!=last_calib_cell;first_calib_cell++) 
+           for(first_calib_cell = (*it)->begin();first_calib_cell!=last_calib_cell;++first_calib_cell) 
            {
              if ((*first_calib_cell)->cellID()==cell->ID())
              {
@@ -393,11 +393,11 @@ StatusCode CBNTAA_DetailedCellInfo::CBNT_execute()
          }  //end of loop over all calibration containers
 
          std::vector<const CaloCalibrationHitContainer * >::const_iterator itInactive;
-         for (itInactive=v_clbcInactive.begin();itInactive!=v_clbcInactive.end();itInactive++) {
+         for (itInactive=v_clbcInactive.begin();itInactive!=v_clbcInactive.end();++itInactive) {
            CaloCalibrationHitContainer::const_iterator first_calib_cell;
            CaloCalibrationHitContainer::const_iterator last_calib_cell  = (*itInactive)->end();
            //loop over cells in calibration container
-           for(first_calib_cell = (*itInactive)->begin();first_calib_cell!=last_calib_cell;first_calib_cell++) 
+           for(first_calib_cell = (*itInactive)->begin();first_calib_cell!=last_calib_cell;++first_calib_cell) 
            {
              if ((*first_calib_cell)->cellID()==cell->ID())
              {
