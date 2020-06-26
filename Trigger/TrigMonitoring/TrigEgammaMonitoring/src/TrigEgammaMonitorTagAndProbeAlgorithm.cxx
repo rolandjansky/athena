@@ -266,7 +266,7 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::executeTandP( const EventContext& ct
                 
                 probeElectrons.push_back(selProbe);
 
-                auto mon_count_probe= Monitored::Scalar<std::string>(m_anatype+"_PorbeCutCounter","GoodProbe");
+                auto mon_count_probe= Monitored::Scalar<std::string>(m_anatype+"_ProbeCutCounter","GoodProbe");
                 auto mon_mee = Monitored::Scalar<float>(m_anatype+"_Mee" , tpPairMass/1.e3 );
                 fill( monGroup , mon_count_probe, mon_mee );
             }

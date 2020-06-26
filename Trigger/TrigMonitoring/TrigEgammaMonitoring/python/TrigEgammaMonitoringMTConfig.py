@@ -367,6 +367,8 @@ class TrigEgammaMonAlgBuilder:
       if info.isL1Item():
         self.bookL1CaloDistributions( monAlg, trigger )
         self.bookEfficiencies( monAlg, trigger, "L1Calo" )
+        self.bookL1CaloResolutions( monAlg, trigger )
+        self.bookL1CaloAbsResolutions( monAlg, trigger )
 
       else:
         #
@@ -376,6 +378,9 @@ class TrigEgammaMonAlgBuilder:
         self.bookL2CaloDistributions( monAlg, trigger )
         self.bookEFCaloDistributions( monAlg, trigger )
         
+        self.bookL1CaloResolutions( monAlg, trigger )
+        self.bookL1CaloAbsResolutions( monAlg, trigger )
+        self.bookL2CaloResolutions( monAlg, trigger )
         self.bookHLTResolutions( monAlg, trigger )
         
         if info.isElectron():
@@ -561,8 +566,6 @@ class TrigEgammaMonAlgBuilder:
       monGroup = self.addGroup( monAlg, trigger+'_Efficiency_'+level+'_'+subgroup, self.basePath+'/'+trigger+'/Efficiency/'+level+'/'+subgroup )
     else:
       monGroup = self.addGroup( monAlg, trigger+'_Efficiency_'+level, self.basePath+'/'+trigger+'/Efficiency/'+level )
-    
-
 
     # Numerator
     self.addHistogram(monGroup, TH1F("match_pt", "Trigger Matched Offline p_{T}; p_{T} [GeV] ; Count", self._nEtbins, self._etbins))
@@ -593,8 +596,47 @@ class TrigEgammaMonAlgBuilder:
 
 
 
+  def bookL1CaloResolutions(self, monAlg, trigger):
 
+    from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F
+    monGroup = self.addGroup( monAlg, trigger+'_Resolutions_L1Calo', self.basePath+'/'+trigger+'/Resolutions/L1Calo' )
+    self.addHistogram(monGroup, TH1F("res_et", "E_{T} resolution; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 100, -0.1, 0.1))
+    self.addHistogram(monGroup, TH1F("eta", "eta; eta ; Count", self._nEtabins, self._etabins))
     
+
+
+  def bookL1CaloAbsResolutions(self, monAlg, trigger):
+
+    from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F
+    monGroup = self.addGroup( monAlg, trigger+'_AbsResolutions_L1Calo', self.basePath+'/'+trigger+'/AbsResolutions/L1Calo' )
+    self.addHistogram(monGroup, TH1F("res_et", "E_{T} resolution; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 100, -0.1, 0.1))
+
+
+
+
+  def bookL2CaloResolutions(self, monAlg, trigger):
+
+    from TrigEgammaMonitoring.TrigEgammaMonitorHelper import TH1F
+    monGroup = self.addGroup( monAlg, trigger+'_Resolutions_L2Calo', self.basePath+'/'+trigger+'/Resolutions/L2Calo' )
+    
+    self.addHistogram(monGroup, TH1F("res_et", "E_{T} resolution; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 100, -0.1, 0.1))
+    self.addHistogram(monGroup, TH1F("res_eta", "#eta resolution; (#eta(on)-#eta(off))/#eta(off) ; Count", 40, -0.001, 0.001))
+    self.addHistogram(monGroup, TH1F("res_phi", "#phi resolution; (#phi(on)-#phi(off))/#phi(off) ; Count", 40, -0.001, 0.001))
+    self.addHistogram(monGroup, TH1F("res_ethad", "ethad resolution; (ethad(on)-ethad(off))/ethad(off) ; Count", 20, -5, 5))
+    self.addHistogram(monGroup, TH1F("res_ethad1", "ethad1 resolution; (ethad1(on)-ethad1(off))/ethad1(off) ; Count", 20, -5, 5))
+    self.addHistogram(monGroup, TH1F("res_Rhad", "Rhad resolution; (Rhad(on)-Rhad(off))/Rhad(off) ; Count", 20, -10., 10.))
+    self.addHistogram(monGroup, TH1F("res_Rhad1", "Rhad1; Rhad1 resolution; (Rhad1(on)-Rhad1(off))/Rhad1(off)", 20, -10., 10.))
+    self.addHistogram(monGroup, TH1F("res_Reta", "Reta resolution; (Reta(on)-Reta(off))/Reta(off) ; Count", 20, -0.01, 0.01))
+    self.addHistogram(monGroup, TH1F("res_Rphi", "Rphi resolution; (Rphi(on)-Rphi(off))/Rphi(off) ; Count", 20, -0.01, 0.01))
+    self.addHistogram(monGroup, TH1F("res_weta2", "weta2 resolution; (weta2(on)-weta2(off))/weta2(off) ; Count", 20, -0.05, 0.05))
+    self.addHistogram(monGroup, TH1F("res_f1", "f1 resolution; (f1(on)-f1(off))/f1(off) ; Count", 20, -0.05, 0.05))
+    self.addHistogram(monGroup, TH1F("res_f3", "f3 resolution; (f3(on)-f3(off))/f3(off) ; Count", 20, -0.05, 0.05))
+    self.addHistogram(monGroup, TH1F("res_eratio", "eratio resolution; (eratio(on)-eratio(off))/eratio(off) ; Count", 20, -0.001, 0.001))
+    #self.addHistogram(monGroup, TH2F("res_etVsEta", "E_{T} resolution as function of #eta; #eta; (E_{T}(on)-E_{T}(off))/E_{T}(off); Count",25, -2.5, 2.5,50, -0.1, 0.1))
+    #self.addHistogram(monGroup, TH2F("res_etVsEt", "E_{T} resolution as function of E_{T}; E_{T} [GeV]; (E_{T}(on)-E_{T}(off))/E_{T}(off); Count",25, 0., 100.,50, -0.1, 0.1))
+ 
+
+
 
 
   def bookHLTResolutions(self, monAlg, trigger):

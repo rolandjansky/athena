@@ -746,13 +746,14 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillResolutions( std::vector< std::pair
 
 
   if (info.trigL1){
-    //fillL1CaloResolution( trigger, pair_l1_vec );
-    //fillL1CaloAbsResolution( trigger, pair_l1_vec );
+    fillL1CaloResolution( trigger, pair_l1_vec );
+    fillL1CaloAbsResolution( trigger, pair_l1_vec );
   }else{
    
     // Fill L1Calo for all level 1 objects found
-    //fillL1CaloResolution( trigger, pair_l1_vec );
-    //fillL1CaloAbsResolution( trigger, pair_l1_vec );
+    fillL1CaloResolution( trigger, pair_l1_vec );
+    fillL1CaloAbsResolution( trigger, pair_l1_vec );
+    fillL2CaloResolution( trigger, pair_eg_vec ); 
     
     // Fill HLT electron for all onl objects found
     if ( info.trigType=="electron"){
@@ -815,7 +816,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillL1CaloAbsResolution(const std::stri
     for (auto& pairObj : pairObjs){
       auto off = pairObj.first;
       auto l1 = pairObj.second;
-      ATH_MSG_DEBUG("Fill L1CaloResolution");
+      ATH_MSG_DEBUG("Fill L1CaloAbsResolution");
       if(off->type()==xAOD::Type::Electron){
         const xAOD::Electron* eloff =static_cast<const xAOD::Electron*> (off);
         eta_vec.push_back( l1->eta() );
@@ -1361,6 +1362,144 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillHLTPhotonResolution(const std::stri
 }
 
 
+void TrigEgammaMonitorAnalysisAlgorithm::fillL2CaloResolution(const std::string &trigger,
+                                                        std::vector< std::pair< const xAOD::Egamma*, const TrigCompositeUtils::Decision * >> pairObjs ) const
+
+{
+    ATH_MSG_DEBUG("Fill L2Calo Resolution");
+
+    auto monGroup = getGroup( trigger + "_Resolutions_L2Calo" );
+
+    std::vector<float> res_et_vec, res_phi_vec, res_eta_vec, res_Rhad_vec, res_Rhad1_vec, res_Reta_vec, res_ethad_vec, res_ethad1_vec,
+    res_Rphi_vec, res_weta2_vec, res_f1_vec, res_f3_vec, res_eratio_vec;
+    
 
 
+    auto res_et_col       = Monitored::Collection( "res_et"         , res_et_vec            );
+    auto res_eta_col      = Monitored::Collection( "res_eta"        , res_eta_vec           );
+    auto res_phi_col      = Monitored::Collection( "res_phi"        , res_phi_vec           );
+    auto res_ethad_col    = Monitored::Collection( "res_ethad"      , res_ethad_vec         );
+    auto res_ethad1_col   = Monitored::Collection( "res_ethad1"     , res_ethad1_vec        );
+    auto res_Rhad_col     = Monitored::Collection( "res_Rhad"       , res_Rhad_vec          );
+    auto res_Rhad1_col    = Monitored::Collection( "res_Rhad1"      , res_Rhad1_vec         );
+    auto res_Reta_col     = Monitored::Collection( "res_Reta"       , res_Reta_vec          );
+    auto res_Rphi_col     = Monitored::Collection( "res_Rphi"       , res_Rphi_vec          );
+    auto res_weta2_col    = Monitored::Collection( "res_weta2"      , res_weta2_vec         );
+    auto res_f1_col       = Monitored::Collection( "res_f1"         , res_f1_vec            );
+    auto res_f3_col       = Monitored::Collection( "res_f3"         , res_f3_vec            );
+    auto res_eratio_col   = Monitored::Collection( "res_eratio"     , res_eratio_vec        );
+
+
+    for ( auto& pairObj : pairObjs ){
+
+
+        const xAOD::Egamma *off = pairObj.first;
+        const xAOD::TrigEMCluster *onl=nullptr;
+
+        { // Get the closest electron object from the trigger starting with deltaR = 0.15
+          float maxDeltaR=0.05;
+          auto vec =  tdt()->features<xAOD::TrigEMClusterContainer>(trigger,TrigDefs::Physics ,match()->key("L2Calo") );      
+          for(auto &featLinkInfo : vec ){                                             
+            if(! featLinkInfo.isValid() ) continue;
+            const auto *feat = *(featLinkInfo.link);                   
+            if(!feat) continue;
+            float deltaR = dR( off->eta(), off->phi(), feat->eta(), feat->phi() );
+            if( deltaR < maxDeltaR){
+              maxDeltaR=deltaR;
+              onl=feat;
+            }
+          } 
+        }
+
+        if(!onl)  continue;
+        
+        float val_off=0.;
+
+        val_off=off->caloCluster()->et();
+        if(val_off!=0.){
+            res_et_vec.push_back(((onl->et())-val_off)/val_off);
+        }
+        val_off=off->caloCluster()->eta();
+        if(val_off!=0.){
+            res_eta_vec.push_back((onl->eta()-val_off)/val_off);
+        }
+        val_off=off->caloCluster()->phi();
+        if(val_off!=0.){
+            res_phi_vec.push_back((onl->phi()-val_off)/val_off);
+        }
+        float elonl_ethad = onl->energy( CaloSampling::HEC0 ); elonl_ethad += onl->energy( CaloSampling::HEC1 );
+        elonl_ethad += onl->energy( CaloSampling::HEC2 ); elonl_ethad += onl->energy( CaloSampling::HEC3 );
+        elonl_ethad += onl->energy( CaloSampling::TileBar0 ); elonl_ethad += onl->energy( CaloSampling::TileExt0 ); 
+        elonl_ethad += onl->energy( CaloSampling::TileBar1 ); elonl_ethad += onl->energy( CaloSampling::TileExt1 ); 
+        elonl_ethad += onl->energy( CaloSampling::TileBar2 ); elonl_ethad += onl->energy( CaloSampling::TileExt2 ); 
+        elonl_ethad /= TMath::CosH(onl->eta() );
+        val_off=getShowerShape_ethad(off);
+        if(val_off!=0.){
+            res_ethad_vec.push_back((elonl_ethad-val_off)/val_off);
+        }
+        val_off=getShowerShape_ethad1(off);
+        if(val_off!=0.){
+            res_ethad1_vec.push_back(( (onl->ehad1()/TMath::Abs(onl->eta()) )-val_off)/val_off);
+        }
+        float elonl_Rhad = elonl_ethad / onl->energy() ;
+        val_off=getShowerShape_Rhad(off);
+        if(val_off!=0.){
+            res_Rhad_vec.push_back(( elonl_Rhad-val_off)/val_off);
+        }
+        float elonl_Rhad1 = onl->ehad1() / onl->energy() ;
+        val_off=getShowerShape_Rhad1(off);
+        if(val_off!=0.){
+            res_Rhad1_vec.push_back(( elonl_Rhad1-val_off)/val_off);
+        }
+        float onl_reta= 999.0;
+        if ( fabsf ( onl->e277() ) > 0.01 ) onl_reta = onl->e237() / onl->e277();
+        val_off=getShowerShape_Reta(off);
+        if(val_off!=0.){
+            res_Reta_vec.push_back( (onl_reta -val_off)/val_off);
+        }
+        val_off=getShowerShape_weta2(off);
+        if(val_off!=0.){
+            res_weta2_vec.push_back(( (onl->weta2())-val_off)/val_off);
+        }
+        float onl_f1 = onl->energy(CaloSampling::EMB1)+onl->energy(CaloSampling::EME1);
+        onl_f1 /= onl->energy();
+        val_off=getShowerShape_f1(off);
+        if(val_off!=0.){
+            res_f1_vec.push_back(( (onl_f1)-val_off)/val_off);
+        }
+        float onl_f3 = onl->energy(CaloSampling::EMB3)+onl->energy(CaloSampling::EME3);
+        onl_f3 /= onl->energy();
+        val_off=getShowerShape_f3(off);
+        if(val_off!=0.){
+            res_f3_vec.push_back(( (onl_f3)-val_off)/val_off);
+        }
+        float onl_eratio = 999.0;
+        if ( fabsf(onl->emaxs1() + onl->e2tsts1()) > 0.01 ) 
+            onl_eratio = (onl->emaxs1() - onl->e2tsts1()) / (onl->emaxs1() + onl->e2tsts1());
+        val_off=getShowerShape_Eratio(off);
+        if(val_off!=0.){
+            res_eratio_vec.push_back(( (onl_eratio)-val_off)/val_off);
+        }
+
+    }// Loop over all pair objects
+
+
+    // Fill everything
+    fill( monGroup        ,
+          res_et_col      , 
+          res_eta_col     , 
+          res_phi_col     , 
+          res_ethad_col   , 
+          res_ethad1_col  , 
+          res_Rhad_col    , 
+          res_Rhad1_col   , 
+          res_Reta_col    , 
+          res_Rphi_col    , 
+          res_weta2_col   , 
+          res_f1_col      , 
+          res_f3_col      , 
+          res_eratio_col  
+          );
+
+}
 
