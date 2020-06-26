@@ -23,7 +23,8 @@ from AthenaCommon.AlgSequence import AthSequencer
 signatureName = 'Cosmic'
 
 #TODO switch once done
-from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm, ViewCreatorInitialROITool
+from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool
 from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection, mapThresholdToL1DecisionCollection
 
 inputMakerAlg = EventViewCreatorAlgorithm("IM_%s"%signatureName)
