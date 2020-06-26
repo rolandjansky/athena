@@ -20,8 +20,7 @@ topSequence = AlgSequence()
 
 from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
 
-from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-from ViewAlgs.ViewAlgsConf import ViewCreatorInitialROITool
+from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorInitialROITool
 InputMakerAlg = InputMakerForRoI("MetCellInputMaker", RoIsLink="initialRoI")
 InputMakerAlg.RoITool = ViewCreatorInitialROITool()
 InputMakerAlg.RoIs='METCellRoI'
