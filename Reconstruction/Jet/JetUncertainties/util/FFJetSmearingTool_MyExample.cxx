@@ -465,16 +465,15 @@ config.makeTool (ffjetsmearingtool, cleanup);
                     std::cout << "TA jet mass = " << jet_reco_TA_FourMom.mass() << std::endl;
                 }
 
-                xAOD::Jet* jet_reco_Comb = new xAOD::Jet(); //You have to initialize the jet object this way. If not, oyu will encounter breaks when running 
-                jet_reco_Comb->makePrivateStore(); //And after that we have to give it a private store toa void a brak when using setJetP4
+                std::unique_ptr<xAOD::Jet> jet_reco_Comb(new xAOD::Jet()); //You have to initialize the jet object this way. If not, oyu will encounter breaks when running 
+                jet_reco_Comb->makePrivateStore(); //And after that we have to give it a private store to avoid a brak when using setJetP4
                 jet_reco_Comb->setJetP4(jet_reco_Comb_FourMom);
-                xAOD::Jet* jet_reco_CALO = new xAOD::Jet();
+                std::unique_ptr<xAOD::Jet> jet_reco_CALO(new xAOD::Jet());
                 jet_reco_CALO->makePrivateStore();
                 jet_reco_CALO->setJetP4(jet_reco_CALO_FourMom);
                 xAOD::Jet* jet_reco_TA = new xAOD::Jet();
                 jet_reco_TA->makePrivateStore();
                 jet_reco_TA->setJetP4(jet_reco_TA_FourMom);
-                //jet_reco_Comb.setJetP4( xAOD::JetFourMom_t(jet_reco_Comb_FourMom.pt(), jet_reco_Comb_FourMom.eta(), jet_reco_Comb_FourMom.phi(), jet_reco_Comb_FourMom.mass() ) );
 
                 if(want_to_debug==true){
                     std::cout << "NEW Comb jet mass = " << jet_reco_Comb->m() << std::endl;
@@ -483,8 +482,6 @@ config.makeTool (ffjetsmearingtool, cleanup);
                 }
 
 
-                delete jet_reco_Comb;
-                delete jet_reco_CALO;
                 //delete jet_reco_TA;
 
 //------------------------------------------------------------------------------------------------------------------------------------------//
