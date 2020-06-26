@@ -1,8 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
+#include "AsgMessaging/MessageCheck.h"
 #include "PileupReweighting/PileupReweightingTool.h"
 #include "TTree.h"
 
@@ -13,6 +14,11 @@ void testValue(double v1, double v2) {
 
 
 int main() {
+
+   // needed for the ANA_CHECK() macro
+   using namespace asg::msgUserCode;
+   ANA_CHECK_SET_TYPE (int);
+
    //create a 'dummy' lumicalc file, with only a few runs, with a few lumiblocks 
    TFile l("tool.dummy.None.lumicalc.root","RECREATE");
    TTree *t = new TTree("LumiMetaData","LumiMetaData");
@@ -93,11 +99,11 @@ int main() {
 
    //check multi period failure
    CP::IPileupReweightingTool* prw_bad = new CP::PileupReweightingTool("prw_bad");
-   asg::setProperty(prw_bad,"ConfigFiles",configFiles);
-   asg::setProperty(prw_bad,"LumiCalcFiles",lumicalcFiles);
+   ANA_CHECK (asg::setProperty(prw_bad,"ConfigFiles",configFiles));
+   ANA_CHECK (asg::setProperty(prw_bad,"LumiCalcFiles",lumicalcFiles));
    
    try {
-    prw_bad->initialize();
+     ANA_CHECK (prw_bad->initialize());
    } catch(const std::runtime_error& e) {
     std::cout << "correctly caught:" << e.what() << std::endl;
    }
@@ -106,10 +112,10 @@ int main() {
 
    //repeat with action=3 ... 
    CP::IPileupReweightingTool* prw = new CP::PileupReweightingTool("prw");
-   asg::setProperty(prw,"ConfigFiles",configFiles);
-   asg::setProperty(prw,"LumiCalcFiles",lumicalcFiles);
-   asg::setProperty(prw,"UseMultiPeriods",true); //channel 2000 has periods 100 and 101
-   prw->initialize();
+   ANA_CHECK (asg::setProperty(prw,"ConfigFiles",configFiles));
+   ANA_CHECK (asg::setProperty(prw,"LumiCalcFiles",lumicalcFiles));
+   ANA_CHECK (asg::setProperty(prw,"UseMultiPeriods",true)); //channel 2000 has periods 100 and 101
+   ANA_CHECK (prw->initialize());
 
 
 
@@ -127,10 +133,10 @@ int main() {
    CP::IPileupReweightingTool* prw1 = new CP::PileupReweightingTool("prw1");
    std::vector<std::string> configFiles1 = {"tool.dummy1.prw.root"};
    std::vector<std::string> lumicalcFiles1 = {"tool.dummy.None.lumicalc.root","tool.dummy.TriggerA.lumicalc.root:TriggerA","tool.dummy.TriggerB.lumicalc.root:TriggerB"};
-   asg::setProperty(prw1, "ConfigFiles",configFiles1);
-   asg::setProperty(prw1, "LumiCalcFiles",lumicalcFiles1);
-   asg::setProperty(prw1,"UseMultiPeriods",true); //channel 2000 has periods 100 and 101
-   prw1->initialize();
+   ANA_CHECK (asg::setProperty(prw1, "ConfigFiles",configFiles1));
+   ANA_CHECK (asg::setProperty(prw1, "LumiCalcFiles",lumicalcFiles1));
+   ANA_CHECK (asg::setProperty(prw1,"UseMultiPeriods",true)); //channel 2000 has periods 100 and 101
+   ANA_CHECK (prw1->initialize());
 
    std::cout << "prw1 Integrated lumi = " << prw1->GetIntegratedLumi() << " (expected=2.7e-5) " << std::endl;  testValue(prw1->GetIntegratedLumi(),2.7e-5);
    std::cout << "prw1 periodWeights : " << prw1->expert()->GetPeriodWeight(100,2002) << " (expected=1.6666) " << prw1->expert()->GetPeriodWeight(101,2002) << " (expected=0.5555)" << std::endl; testValue(prw1->expert()->GetPeriodWeight(100,2002),1.6666);
