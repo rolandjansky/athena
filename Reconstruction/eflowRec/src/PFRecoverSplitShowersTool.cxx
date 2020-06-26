@@ -217,9 +217,10 @@ void PFRecoverSplitShowersTool::performSubtraction(eflowCaloObject* thisEflowCal
     matchedClusters.clear();
     std::vector<eflowTrackClusterLink*> links = thisEfRecTrack->getClusterMatches();
     for ( auto thisEFlowTrackClusterLink : links) matchedClusters.push_back(thisEFlowTrackClusterLink->getCluster());
+    std::sort(matchedClusters.begin(),matchedClusters.end(),eflowRecCluster::SortDescendingPt());
 
     if (msgLvl(MSG::DEBUG)){
-      for (auto thisClus : matchedClusters) ATH_MSG_DEBUG("Cluster with e,pt, eta and phi of " << thisClus->getCluster()->e() << ", "<< thisClus->getCluster()->pt() << ", " << thisClus->getCluster()->eta() << " and " << thisClus->getCluster()->phi() << " will be subtracted");
+      for (auto thisClus : matchedClusters) ATH_MSG_DEBUG("Cluster " << thisClus->getCluster()->index() << " with e,pt, eta and phi of " << thisClus->getCluster()->e() << ", "<< thisClus->getCluster()->pt() << ", " << thisClus->getCluster()->eta() << " and " << thisClus->getCluster()->phi() << " will be subtracted");
     }
     /* Do subtraction */
     std::vector<std::pair<xAOD::CaloCluster*, bool> > clusterSubtractionList;
@@ -258,7 +259,7 @@ void PFRecoverSplitShowersTool::performSubtraction(eflowCaloObject* thisEflowCal
           else clusterSubtractedEnergyRatios.push_back(NAN);
         }
 
-	      pfSubtractionStatusSetter.markSubtractionStatus(clusterSubtractionList, clusterSubtractedEnergyRatios, *thisEflowCaloObject);
+	pfSubtractionStatusSetter.markSubtractionStatus(clusterSubtractionList, clusterSubtractedEnergyRatios, *thisEflowCaloObject);
 	
         } 
 
