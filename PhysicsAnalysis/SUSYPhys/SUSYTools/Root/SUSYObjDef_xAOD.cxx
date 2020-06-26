@@ -2301,13 +2301,6 @@ ST::SystInfo SUSYObjDef_xAOD::getSystInfo(const CP::SystematicVariation& sys) co
   }
 
 
-//  if (!m_jetUncertaintiesTool.empty()) {
-//    if ( m_jetUncertaintiesTool->isAffectedBySystematic( CP::SystematicVariation(sys.basename(), CP::SystematicVariation::CONTINUOUS) ) ) {
-//      sysInfo.affectsKinematics = true;
-//      sysInfo.affectsType = SystObjType::Jet;
-//    }
-//  }
-
    if (!m_fatjetUncertaintiesTool.empty()) {
     if ( m_fatjetUncertaintiesTool->isAffectedBySystematic( CP::SystematicVariation(sys.basename(), CP::SystematicVariation::CONTINUOUS) ) ) {
       sysInfo.affectsKinematics = true;
