@@ -6,6 +6,6 @@
 #define TAUANALYSISTOOLS_SHAREDFILESVERSION_H
 
 /// Version of the calibration files
-static const char *const sSharedFilesVersion = "00-03-14";
+static const char *const sSharedFilesVersion = "00-03-15";
 
 #endif // TAUANALYSISTOOLS_SHAREDFILESVERSION_H
