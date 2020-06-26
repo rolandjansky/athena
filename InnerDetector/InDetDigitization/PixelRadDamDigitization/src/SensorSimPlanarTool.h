@@ -49,6 +49,10 @@ class SensorSimPlanarTool : public SensorSimTool {
     std::map<std::pair<int, int>, TH1F*> timeMap_h;
     std::map<std::pair<int, int>, TH2F*> lorentzMap_e;
     std::map<std::pair<int, int>, TH2F*> lorentzMap_h;
+    // map to directly get factor to calculate bin instead of calling FindBin
+    std::map<std::pair<int, int>, double> ramo_x_binMap;
+    std::map<std::pair<int, int>, double> ramo_y_binMap;
+    std::map<std::pair<int, int>, double> ramo_z_binMap;
 
     ToolHandle<RadDamageUtil>                     m_radDamageUtil;
   
