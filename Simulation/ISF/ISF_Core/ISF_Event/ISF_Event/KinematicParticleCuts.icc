@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -17,6 +17,7 @@ ISF::KinematicParticleCuts::KinematicParticleCuts() :
   m_cut_maxMomEta( 99.f),
   m_cut_minMom2(-1.),
   m_cut_maxMom2(-1.),
+  m_cut_maxEkin(-1.),
   m_cut_charge(ISF_UNDEF_CHARGE),
   m_cut_pdg(0)
 {
