@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# art-description: art job for mu_Zmumu_IBL_pu40
+# art-description: art job for mu_Zmumu_pu40_build
 # art-type: build
 # art-include: master/Athena
 
@@ -20,13 +20,21 @@ preexec_trig = ';'.join([
 ])
 
 preexec_reco = ';'.join([
-    'pass' # TODO: figure out a working set of options to disable parts of reco
-    # 'from RecExConfig.RecFlags import rec',
-    # 'rec.doForwardDet=False',
-    # 'rec.doEgamma=False',
-    # 'rec.doMuonCombined=False',
-    # 'rec.doJetMissingETTag=False',
-    # 'rec.doTau=False'
+    'from RecExConfig.RecFlags import rec',
+    'rec.doForwardDet=False',
+    'rec.doEgamma=False',
+    'rec.doMuonCombined=False',
+    'rec.doJetMissingETTag=False',
+    'rec.doTau=False'
+])
+
+preexec_aod = ';'.join([
+     preexec_reco,
+     'from ParticleBuilderOptions.AODFlags import AODFlags',
+     'AODFlags.ThinGeantTruth.set_Value_and_Lock(False)',
+     'AODFlags.ThinNegativeEnergyCaloClusters.set_Value_and_Lock(False)',
+     'AODFlags.ThinNegativeEnergyNeutralPFOs.set_Value_and_Lock(False)',
+     'AODFlags.ThinInDetForwardTrackParticles.set_Value_and_Lock(False)'
 ])
 
 preexec_all = ';'.join([
@@ -43,7 +51,7 @@ rdo2aod.concurrent_events = 1 # TODO: change to 4
 rdo2aod.perfmon = False
 rdo2aod.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG"'
 rdo2aod.args += ' --preExec "RDOtoRDOTrigger:{:s};" "all:{:s};" "RAWtoESD:{:s};" "ESDtoAOD:{:s};"'.format(
-    preexec_trig, preexec_all, preexec_reco, preexec_reco)
+    preexec_trig, preexec_all, preexec_reco, preexec_aod)
 
 test = Test.Test()
 test.art_type = 'build'

@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
-# art-description: art job for mu_Zmumu_pu40_grid
+# art-description: art job for all_ttbar_pu80_grid
 # art-type: grid
 # art-include: master/Athena
-# art-input: mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143
-# art-input-nfiles: 4
+# art-input: mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7195
+# art-input-nfiles: 3
 # art-athena-mt: 4
 # art-output: *.txt
 # art-output: *.log
@@ -48,12 +48,18 @@ for opt,arg in opts:
 
 chains = [
     'HLT_mu6_idperf_L1MU6',
-    'HLT_mu24_idperf_L1MU20'
+    'HLT_mu24_idperf_L1MU20',
+    'HLT_e5_etcut_L1EM3',  ## need an idperf chain once one is in the menu
+    'HLT_tau25_idperf_tracktwo_L1TAU12IM',
+    'HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20'
 ]
 
 preexec_trig = ';'.join([
     'doEmptyMenu=True',
     'doMuonSlice=True',
+    'doEgammaSlice=True',
+    'doTauSlice=True',
+    'doBjetSlice=True',
     'selectChains='+str(chains)
 ])
 
@@ -85,13 +91,13 @@ preexec_all = ';'.join([
 
 rdo2aod = ExecStep.ExecStep()
 rdo2aod.type = 'Reco_tf'
-rdo2aod.max_events = 2000 # TODO: 2000 events
+rdo2aod.max_events = 1000 # TODO: 2000 events
 rdo2aod.threads = 1 # TODO: change to 4
 rdo2aod.concurrent_events = 1 # TODO: change to 4
 rdo2aod.perfmon = False
 rdo2aod.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG" '
 if local:
-    rdo2aod.input = 'Zmumu_pu40'
+    rdo2aod.input = 'ttbar_pu80'   ## This isn't the same sample as the grid test but for not lets use it.
 else:
     rdo2aod.input = ''
     rdo2aod.args += '--inputRDOFile=$ArtInFile '
