@@ -2081,9 +2081,13 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newOneSeed
  InDet::SiSpacePointForSeed*& p3, float z, float seedCandidateQuality) const
 {
   /// get the worst seed so far 
-  std::multimap<float,InDet::SiSpacePointsProSeed*>::reverse_iterator l = data.mapOneSeeds_Pro.rbegin();
-  float worstQualityInMap = (*l).first;
-  InDet::SiSpacePointsProSeed* worstSeedSoFar = (*l).second;
+  float worstQualityInMap = std::numeric_limits<float>::min();
+  InDet::SiSpacePointsProSeed* worstSeedSoFar = nullptr;
+  if (!data.mapOneSeeds_Pro.empty()) {
+    std::multimap<float,InDet::SiSpacePointsProSeed*>::reverse_iterator l = data.mapOneSeeds_Pro.rbegin();
+    worstQualityInMap = (*l).first;
+    worstSeedSoFar = (*l).second;
+  }
   /// There are three cases where we simply add our new seed to the list and push it into the map: 
     /// a) we have not yet reached our max number of seeds 
   if (data.nOneSeeds < m_maxOneSize
