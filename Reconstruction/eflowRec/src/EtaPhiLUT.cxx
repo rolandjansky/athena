@@ -22,10 +22,13 @@ namespace eflowRec {
   /// calculate phi index for a given phi
   unsigned int phiIndex(float phi, float binsize) { return (phi + M_PI)/binsize; }
 
-  EtaPhiLUT::EtaPhiLUT( eflowRecClusterContainer& clustersin, unsigned int nbins ) :
-      m_nphiBins(nbins),
-      m_phiBinSize(TWOPI/m_nphiBins),
-      m_phiBinnedLookUpTable(m_nphiBins)
+  EtaPhiLUT::EtaPhiLUT( unsigned int nbins ) :
+    m_nphiBins(nbins),
+    m_phiBinSize(TWOPI/m_nphiBins),
+    m_phiBinnedLookUpTable(m_nphiBins)
+    {}
+
+  void EtaPhiLUT::fill(eflowRecClusterContainer& clustersin)
   {
     for(eflowRecCluster* cluster : clustersin) {
       int index = phiIndex(cluster->getCluster()->phi(), m_phiBinSize);

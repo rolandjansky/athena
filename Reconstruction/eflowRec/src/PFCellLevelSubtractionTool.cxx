@@ -44,7 +44,7 @@ using namespace eflowSubtract;
 PFCellLevelSubtractionTool::PFCellLevelSubtractionTool(const std::string& type,const std::string& name,const IInterface* parent) :
   base_class( type, name, parent),
   m_binnedParameters(nullptr)
-{ 
+{
 }
 
 PFCellLevelSubtractionTool::~PFCellLevelSubtractionTool() {
@@ -76,6 +76,12 @@ StatusCode PFCellLevelSubtractionTool::initialize(){
     return StatusCode::SUCCESS;
   }
 
+  m_trkpos.reset( dynamic_cast<PFMatch::TrackEtaPhiInFixedLayersProvider*>(PFMatch::TrackPositionFactory::Get("EM2EtaPhi").release()) );
+  if(!m_trkpos.get()) {
+    ATH_MSG_ERROR("Failed to get TrackPositionProvider for cluster preselection!");
+    return StatusCode::FAILURE;
+  }
+
   return StatusCode::SUCCESS;
 
 }
@@ -88,6 +94,7 @@ void PFCellLevelSubtractionTool::execute(eflowCaloObjectContainer* theEflowCaloO
   data.caloObjects = theEflowCaloObjectContainer;
   data.tracks = recTrackContainer;
   data.clusters = recClusterContainer;
+  data.clusterLUT.fill(*recClusterContainer);
   
   /* Add each track to its best matching cluster's eflowCaloObject */
   matchAndCreateEflowCaloObj(m_nMatchesInCellLevelSubtraction, data);
@@ -113,6 +120,14 @@ unsigned int PFCellLevelSubtractionTool::matchAndCreateEflowCaloObj(unsigned int
   unsigned int nTrack = data.tracks->size();
   for (unsigned int iTrack=0; iTrack<nTrack; ++iTrack) {
     eflowRecTrack *thisEfRecTrack = static_cast<eflowRecTrack*>(data.tracks->at(iTrack));
+
+    // Preselect clusters in a local cone
+    eflowRecMatchTrack matchTrack(thisEfRecTrack);
+    PFMatch::EtaPhi etaphi = m_trkpos->getPosition(&matchTrack);
+    float tracketa = etaphi.getEta();
+    float trackphi = etaphi.getPhiD();
+    float dRpresel = 0.4; // Some safety margin, but still << full detector
+    std::vector<eflowRecCluster*> nearbyClusters = data.clusterLUT.clustersInCone(tracketa,trackphi,dRpresel);
 
      /* Add cluster matches needed for pull calculation*/
     std::vector<eflowRecCluster*> bestClusters_015 = m_matchingToolForPull_015->doMatches(thisEfRecTrack, data.clusters, -1);

@@ -26,7 +26,9 @@ namespace eflowRec {
   class EtaPhiLUT {
   public:
     /** constructor taking the desired binsize */
-  explicit EtaPhiLUT( eflowRecClusterContainer& clustersin, unsigned int nbins = 50 );
+  EtaPhiLUT( unsigned int nbins = 50 );
+
+  void fill(eflowRecClusterContainer& clustersin);
 
   /** collect eflowRecClusters in a given cone */
   std::vector<eflowRecCluster*> clustersInCone( float eta, float phi, float dr ) const;
