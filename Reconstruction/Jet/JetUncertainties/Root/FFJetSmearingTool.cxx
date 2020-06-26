@@ -841,8 +841,8 @@ double FFJetSmearingTool::Read3DHistogram(TH3* histo, double x, double y, double
   if(z >= zMax) aux_z = zMax-1e-6 ; //so it fits the up-most z-bin
   if(z <= zMin) aux_z = zMin+1e-6 ; //so it fits the low-most z-bin
 
-  //Use the interpolate function from RootHelpers.cxx
-  double weight = RootHelpers::Interpolate(histo, aux_x, aux_y, aux_z);
+  //Use the interpolate function from JetHelpers.cxx
+  double weight = JetHelpers::Interpolate(histo, aux_x, aux_y, aux_z);
 
 
   return weight;

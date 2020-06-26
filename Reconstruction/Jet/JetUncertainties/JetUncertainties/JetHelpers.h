@@ -2,8 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef JETUNCERTAINTIES_ROOTHELPERS_H
-#define JETUNCERTAINTIES_ROOTHELPERS_H
+#ifndef JETUNCERTAINTIES_JETHELPERS_H
+#define JETUNCERTAINTIES_JETHELPERS_H
 
 
 #include <iostream>
@@ -21,10 +21,10 @@ class TH1;
 
 class TAxis;
 
-namespace RootHelpers 
+namespace JetHelpers 
 {
 
-        // RootHelper to have a const method for interpolation. This will be change in future versions as discussed in https://sft.its.cern.ch/jira/browse/ROOT-9994
+        // JetHelpers to have a const method for interpolation. This will be change in future versions as discussed in https://sft.its.cern.ch/jira/browse/ROOT-9994
 
         double Interpolate(const TH1* histo, const double x);
         double Interpolate(const TH1* histo, const double x, const double y);

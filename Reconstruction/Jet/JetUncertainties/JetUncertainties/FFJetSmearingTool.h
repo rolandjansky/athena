@@ -40,7 +40,7 @@
 
 // Local includes
 #include "JetUncertainties/Helpers.h"
-#include "JetUncertainties/RootHelpers.h"
+#include "JetUncertainties/JetHelpers.h"
 
 
 // Other includes

@@ -9,7 +9,7 @@
 
 #include "JetUncertainties/UncertaintyEnum.h"
 
-#include "JetUncertainties/RootHelpers.h"
+#include "JetUncertainties/JetHelpers.h"
 
 #include "TString.h"
 #include "TH1.h"
