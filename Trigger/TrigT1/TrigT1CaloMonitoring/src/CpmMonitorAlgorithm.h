@@ -64,8 +64,6 @@ private:
 
   // Phi scale for trigger tower eta/phi plots
   double m_phiScaleTT;
-  // Phi scale for jet element eta/phi plots
-  double m_phiScaleJE;
 
   StringProperty m_packageName{this,"PackageName","CpmMonitor","group name for histograming"};
 
