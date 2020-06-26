@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -88,6 +88,9 @@ class  SCT_FrontEnd : public AthAlgTool, virtual public ISCT_FrontEnd {
   StatusCode initVectors(const int & strips) const;
 
  private:
+
+  enum CompressionMode { Level_X1X=1, Edge_01X=2, AnyHit_1XX_X1X_XX1=3 }; // Used for m_data_compression_mode (DataCompressionMode)
+  enum ReadOutMode { Condensed=0, Expanded=1 }; // Used for m_data_readout_mode (DataReadOutMode)
 
   bool m_PulseAveragingFlag;
 
