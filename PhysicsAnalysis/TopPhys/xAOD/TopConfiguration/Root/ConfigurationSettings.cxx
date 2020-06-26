@@ -65,10 +65,10 @@ namespace top {
                       "Electron Efficiency Systematic model E_T binning (option for SIMPLIFIED model, do not specify to use default; format XXX:YYY:ZZZ. e.g. 4000:7000:10000:15000:13000000)",
                       "default");
     registerParameter("ElectronIsolation",
-                      "Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, (EXPERIMENTAL: HighPtCaloOnly, Loose, Tight, TightTrackOnly, TightTrackOnly_FixedRad, PLVTight, PLVLoose), (DANGEROUS: PflowTight, PflowLoose), None",
+                      "Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, PLVTight, PLVLoose, (EXPERIMENTAL: HighPtCaloOnly, Loose, Tight, TightTrackOnly, TightTrackOnly_FixedRad), (DANGEROUS: PflowTight, PflowLoose), None",
                       "FCTight");
     registerParameter("ElectronIsolationLoose",
-                      "Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, (EXPERIMENTAL: HighPtCaloOnly, Loose, Tight, TightTrackOnly, TightTrackOnly_FixedRad, PLVTight, PLVLoose), (DANGEROUS: PflowTight, PflowLoose), None",
+                      "Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, PLVTight, PLVLoose, (EXPERIMENTAL: HighPtCaloOnly, Loose, Tight, TightTrackOnly, TightTrackOnly_FixedRad), (DANGEROUS: PflowTight, PflowLoose), None",
                       "None");
     registerParameter("ElectronIsolationSF", "Force electron isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("ElectronIsolationSFLoose", "Force electron isolation SF (e.g. None). EXPERIMENTAL!", " ");
@@ -161,12 +161,25 @@ namespace top {
 
     registerParameter("JetPt", "Jet pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
     registerParameter("JetEta", "Absolute Jet eta cut for object selection. Default 2.5.", "2.5");
-    registerParameter("FwdJetAndMET", "Forward jet selection and corresponding MET calculation."
-                                      "Default (does nothing on forward jets), fJVT (No longer recommended), fJVTTight(apply tight fJVT cut if pT<60GeV and |eta|>2.5), Tight (requires pT>30GeV if |eta|>2.5).",
+   
+    registerParameter("JVTinMETCalculation",
+                      "Perfom a JVT cut on the jets in the MET recalculation? True (default) or False.", "True");
+    registerParameter("SaveFailJVTJets", "Save the jets that failed the JVT cut? False (default) or True.", "False");
+    registerParameter("JVTWP", "Set JVT WP, default is set to \'Default\' (Tight for PFlow and Medium for Topo).",
                       "Default");
+    registerParameter("ForwardJVTWP", "Set fJVT Working Point for selecting forward jets (|eta|>2.5 & 20GeV<pT<60GeV)"
+		      "\'None\': No fJVT (doesn't run tool for selection) - use this if you don't have forward jets in your selection or if using using PFlow jets with a derivation older than p4173, \'Tight\' (fJVT<0.4, recommended), \'Medium\': (fJVT<0.5, if combined with ForwardJVTinMETCalculation this will set MET WP to Tenacious with stricter JVTinMET requirements",
+                      "None");
+    registerParameter("ForwardJVTinMETCalculation",
+                      "Use fJVT cut on forward jets to improve resolution in the MET recalculation? \'False\' (default - must set false if using pflow jets with derivations older than P4173), or \'True\'", "False");
+    registerParameter("SaveFailForwardJVTJets", "Save the jets that failed the fJVT cut? \'False\' (default), or \'True\'", "False");
+    
     registerParameter("JetPtGhostTracks",
-                      "Jet pT threshold for ghost track systematic variations calculation (in MeV). Default 19 GeV.",
-                      "19000.");
+                      "Jet pT threshold for ghost track systematic variations calculation (in MeV). Default 30 GeV.",
+                      "30000.");
+    registerParameter("JetEtaGhostTracks",
+                      "Jet eta threshold for ghost track systematic variations calculation. Default 2.5",
+                      "2.5");
     registerParameter("GhostTrackspT",
                       "PT of the ghost tracks associated small-R jets (in MeV). Default 500 MeV.",
                       "500.");
@@ -192,11 +205,6 @@ namespace top {
                       "Simple");
     registerParameter("JetCalibSequence", "Jet calibaration sequence, GSC (default) or JMS", "GSC");
     registerParameter("StoreJetTruthLabels", "Flag to store truth labels for jets - True (default) or False", "True");
-    registerParameter("JVTinMETCalculation",
-                      "Perfom a JVT cut on the jets in the MET recalculation? True (default) or False.", "True");
-    registerParameter("SaveFailJVTJets", "Save the jets that failed the JVT cut? False (default) or True.", "False");
-    registerParameter("JVTWP", "Set JVT WP, default is set to \'Default\' (Tight for PFlow and Medium for Topo).",
-                      "Default");
 
     registerParameter("JSF", "Used for top mass analysis, default is 1.0", "1.0");
     registerParameter("bJSF", "Used for top mass analysis, default is 1.0", "1.0");
@@ -223,6 +231,8 @@ namespace top {
     registerParameter("RCJetPt", "Reclustered Jet pT cut for object selection (in MeV). Default 100000 MeV.",
                       "100000.");
     registerParameter("RCJetEta", "Reclustered Jet eta cut for object selection. Default 2.0.", "2.0");
+    registerParameter("RCInputJetPtMin", "Min Pt cut for RC jet inputs collection. Parameter is shared between RC and VarRC jets. Default 30000. [MeV]", "30000.");
+    registerParameter("RCInputJetEtaMax", "Max |Eta| cut for RC jet inputs collection. Parameter is shared between RC and VarRC jets. Default 2.5", "2.5");
     registerParameter("RCJetTrim", "Reclustered Jet trimming cut for object selection. Default 0.05.", "0.05");
     registerParameter("RCJetRadius", "Reclustered Jet radius for object selection. Default 1.0", "1.0");
     registerParameter("UseRCJetSubstructure", "Calculate Reclustered Jet Substructure Variables. Default False",

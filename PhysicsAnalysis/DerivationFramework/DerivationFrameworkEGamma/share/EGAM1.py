@@ -12,6 +12,14 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkEGamma.EGAM1ExtraContent import *
+from DerivationFrameworkHI.HISkimmingTools import *
+from DerivationFrameworkHI.HIDerivationFlags import HIDerivationFlags
+from AthenaCommon.GlobalFlags import globalflags
+
+# check if we run on heavy ion MC with "data overlay" and tag as MC using Conditions From MetaData
+GetConditionsFromMetaData()
+DFisMC = (globalflags.DataSource()=='geant4') or (HIDerivationFlags.isSimulation())
+
 
 # read common DFEGamma settings from egammaDFFlags
 from DerivationFrameworkEGamma.egammaDFFlags import jobproperties
@@ -32,9 +40,8 @@ DoCellReweightingVariations = jobproperties.egammaDFFlags.doEGammaCellReweightin
 
 
 # check if we run on data or MC (DataSource = geant4)
-from AthenaCommon.GlobalFlags import globalflags
 print "EGAM1 globalflags.DataSource(): ", globalflags.DataSource()
-if globalflags.DataSource()!='geant4':
+if not DFisMC:
     DoCellReweighting = False
     DoCellReweightingVariations = False
 
@@ -468,7 +475,6 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
         print EGAM1JetTPThinningTool
         thinningTools.append(EGAM1JetTPThinningTool)
 
-
     # Tracks associated with Muons
     if (TrackThinningKeepMuonTracks) : 
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
@@ -519,7 +525,7 @@ thinningTools.append(EGAM1CCTCThinningTool)
 
 
 # Truth thinning
-if globalflags.DataSource()=='geant4':
+if DFisMC:
     truth_cond_WZH = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))" # W, Z and Higgs
     truth_cond_lep = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16))" # Leptons
     truth_cond_top = "((abs(TruthParticles.pdgId) ==  6))"                                     # Top quark
@@ -622,7 +628,7 @@ EGAM1SlimmingHelper.ExtraVariables = ExtraContentAll
 EGAM1SlimmingHelper.AllVariables = ExtraContainersElectrons
 EGAM1SlimmingHelper.AllVariables += ExtraContainersTrigger
 
-if globalflags.DataSource()=='geant4':
+if DFisMC:
     EGAM1SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     EGAM1SlimmingHelper.AllVariables += ExtraContainersTruth
 else:
@@ -647,7 +653,6 @@ EGAM1SlimmingHelper.AppendContentToStream(EGAM1Stream)
 #Add full CellContainer
 EGAM1Stream.AddItem("CaloCellContainer#AODCellContainer")
 EGAM1Stream.AddItem("CaloClusterCellLinkContainer#egammaClusters_links")
-
 
 
 

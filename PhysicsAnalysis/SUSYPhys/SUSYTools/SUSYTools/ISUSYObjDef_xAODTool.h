@@ -35,6 +35,10 @@
 // For the SystInfo struct
 #include "PATInterfaces/SystematicSet.h"
 
+// Tool handles
+#include "AsgTools/AnaToolHandle.h"
+class IBTaggingSelectionTool;
+
 // For the TrigDefs
 #include "TrigDecisionInterface/Conditions.h"
 
@@ -222,6 +226,7 @@ namespace ST {
     virtual const xAOD::Vertex* GetPrimVtx() const = 0;
     
     virtual StatusCode BendBTaggingLinks(xAOD::JetContainer* , const std::string& bTagKey) const = 0;
+    virtual StatusCode SetBtagWeightDecorations(const xAOD::Jet& input, const asg::AnaToolHandle<IBTaggingSelectionTool>& btagSelTool, std::string btagTagger) const = 0;
     virtual StatusCode GetJets(xAOD::JetContainer*& copy,xAOD::ShallowAuxContainer*& copyaux,const bool recordSG=true, const std::string& jetkey="", const xAOD::JetContainer* containerToBeCopied = 0) = 0;
     virtual StatusCode GetTrackJets(xAOD::JetContainer*& copy,xAOD::ShallowAuxContainer*& copyaux,const bool recordSG=true, const std::string& jetkey="", const xAOD::JetContainer* containerToBeCopied = 0) = 0;
     virtual StatusCode GetJetsSyst(const xAOD::JetContainer& calibjets,xAOD::JetContainer*& copy,xAOD::ShallowAuxContainer*& copyaux, const bool recordSG=true, const std::string& jetkey="") = 0;

@@ -27,6 +27,17 @@ def TriggerChains(HIGG4DxName):
         return 'HLT_tau.*'
     elif HIGG4DxName in ['HIGG4D6']:
         return ''
+    elif HIGG4DxName in ['HIGG6D1']:
+        met = '(^(?!.*_[0-9]*(tau|e|j|mu|g|b|perf|idperf))(HLT_xe.*))'
+        multijet = '(^(?!.*_[0-9]*(tau|e|xe|mu|g|b|perf|idperf))(HLT_[0-9]*j[0-9]*.*))'
+        singleTau = '(^(?!.*_[0-9]*(e|mu|j|xe|g|b|perf|idperf))(?!HLT_tau.*_[0-9]*tau.*)(HLT_tau.*))'
+        return '|'.join([met, multijet, singleTau])
+    elif HIGG4DxName in ['HIGG6D2']:
+        met = '(^(?!.*_[0-9]*(tau|e|j|mu|g|b|perf|idperf))(HLT_xe.*))'
+        singleE = '(^(?!.*_[0-9]*(tau|mu|j|xe|g|b|perf|idperf))(?!HLT_e.*_[0-9]*e.*)(HLT_e.*))'
+        singleMu = '(^(?!.*_[0-9]*(tau|e|j|xe|g|b|perf|idperf))(?!HLT_mu.*_[0-9]*mu.*)(HLT_mu.*))'
+        singleTau = '(^(?!.*_[0-9]*(e|mu|j|xe|g|b|perf|idperf))(?!HLT_tau.*_[0-9]*tau.*)(HLT_tau.*))'
+        return '|'.join([met, singleE, singleMu, singleTau])
     elif HIGG4DxName in ['HDBS1']:
         # single-e, single-mu
         return '(^(?!.*_[0-9]*(tau|mu|j|xe|g|b|perf|idperf))(?!HLT_e.*_[0-9]*e.*)(HLT_e.*))|(^(?!.*_[0-9]*(tau|e|j|xe|g|b|perf|idperf))(?!HLT_mu.*_[0-9]*mu.*)(HLT_mu.*))'
@@ -73,7 +84,7 @@ def setup(HIGG4DxName, HIGG4DxThinningSvc, ToolSvc):
 
     # Tracks associated with Muons
     HIGG4DxMuonSelectionString = ""
-    if HIGG4DxName in ['HIGG4D3', 'HIGG4D4', 'HIGG4D5', 'HIGG4D6', 'HDBS1']:
+    if HIGG4DxName in ['HIGG4D3', 'HIGG4D4', 'HIGG4D5', 'HIGG4D6', 'HIGG6D1', 'HIGG6D2', 'HDBS1']:
         HIGG4DxMuonSelectionString = "Muons.pt > 1*GeV"
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
     HIGG4DxMuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = HIGG4DxName+"MuonTPThinningTool",
@@ -86,7 +97,7 @@ def setup(HIGG4DxName, HIGG4DxThinningSvc, ToolSvc):
 
     # Tracks associated with Electrons
     HIGG4DxElectronSelectionString = ""
-    if HIGG4DxName in ['HIGG4D3', 'HIGG4D4', 'HIGG4D5', 'HIGG4D6', 'HDBS1']:
+    if HIGG4DxName in ['HIGG4D3', 'HIGG4D4', 'HIGG4D5', 'HIGG4D6', 'HIGG6D1', 'HIGG6D2', 'HDBS1']:
         HIGG4DxElectronSelectionString = "Electrons.pt > 5*GeV"
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
     HIGG4DxElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = HIGG4DxName+"ElectronTPThinningTool",

@@ -32,6 +32,7 @@ namespace top {
     : ::asg::AsgTool(name),
     m_config(nullptr),
     m_jetPtCut(0.),
+    m_jetEtaCut(0.),
     m_runPeriods(),
     m_specifiedSystematics(),
     m_recommendedSystematics(),
@@ -68,7 +69,7 @@ namespace top {
     } else {
       std::set<std::string> syst;
       bool ok = m_config->getSystematicsList(syststr, syst);
-      if (not ok) {
+      if (!ok) {
         ATH_MSG_ERROR(" top::GhostTrackSystematicsMaker could not determine systematic list");
         return StatusCode::FAILURE;
       }
@@ -82,7 +83,7 @@ namespace top {
 
 
     m_jetPtCut = m_config->jetPtGhostTracks();
-    m_jetEtaCut = m_config->jetEtacut();
+    m_jetEtaCut = m_config->jetEtaGhostTracks();
 
     ATH_MSG_INFO(
       " top::GhostTrackSystematicsMaker: Systematic variations of ghost tracks will be done only for jets with pt >= " << m_jetPtCut << " MeV and eta <= " << m_jetEtaCut <<
@@ -95,8 +96,12 @@ namespace top {
   StatusCode GhostTrackSystematicsMaker::applyNoOpSystematic(xAOD::JetContainer* nominal,
                                                              const CP::SystematicSet& syst) const {
     ///-- Loop over the xAOD Container --///
+    
+    static int warningCounter=0;
+    const int warningLimit=20;
+    
     for (const auto& jet : *nominal) {
-      if ((jet->pt() < m_jetPtCut) || (fabs(jet->eta()) > m_jetEtaCut)) continue;
+      if ((jet->pt() < m_jetPtCut) || (std::abs(jet->eta()) > m_jetEtaCut)) continue;
       // Copy nominal ghost track container into the systematic variation.
 
       const auto& ghostTracks =
@@ -110,9 +115,12 @@ namespace top {
         newGhosts.push_back(ghostTracks[iGhost]);
       }
 
-      if (newGhosts.size() == 0) ATH_MSG_WARNING(
+      if (newGhosts.size() == 0 && warningCounter<warningLimit) {
+	ATH_MSG_WARNING(
           "in GhostTrackSystematicsMaker: All ghost tracks are null pointers. There may be something wrong with your configuration or derivation. Jet pt: " << jet->pt() << " Jet eta: " <<
         jet->eta());
+	warningCounter++;
+      }
 
       jet->setAssociatedObjects(m_config->decoKeyJetGhostTrack(syst.hash()),
                                 newGhosts);
@@ -130,7 +138,7 @@ namespace top {
 
     ///-- Loop over the xAOD Container --///
     for (const auto& jet : *nominal) {
-      if ((jet->pt() < m_jetPtCut) || (fabs(jet->eta()) > m_jetEtaCut)) continue;
+      if ((jet->pt() < m_jetPtCut) || (std::abs(jet->eta()) > m_jetEtaCut)) continue;
       const auto& ghostTracks =
         jet->getAssociatedObjects<xAOD::IParticle>(m_config->decoKeyJetGhostTrack());
       std::vector<const xAOD::IParticle*> newGhosts;
@@ -143,7 +151,7 @@ namespace top {
         };
         top::check(tp, "Failed to convert xAOD::IParticle to xAOD::TrackParticle for ghost track");
 
-        if (not tool->accept(tp)) {
+        if (!tool->accept(tp)) {
           continue;
         }
 
@@ -166,7 +174,7 @@ namespace top {
 
     ///-- Loop over the xAOD Container --///
     for (const auto& jet : *nominal) {
-      if ((jet->pt() < m_jetPtCut) || (fabs(jet->eta()) > m_jetEtaCut)) continue;
+      if ((jet->pt() < m_jetPtCut) || (std::abs(jet->eta()) > m_jetEtaCut)) continue;
       const auto& ghostTracks = jet->getAssociatedObjects<xAOD::IParticle>(m_config->decoKeyJetGhostTrack());
       std::vector<const xAOD::IParticle*> newGhosts;
 
@@ -179,7 +187,7 @@ namespace top {
         };
         top::check(tp, "Failed to convert xAOD::IParticle to xAOD::TrackParticle for ghost track");
 
-        if (not tool->accept(tp, nominal)) {
+        if (!tool->accept(tp, nominal)) {
           continue;
         }
 
@@ -219,7 +227,7 @@ namespace top {
     newTrackParticles->setStore(newTrackParticlesAux);
 
     for (const auto& jet : *nominal) {
-      if ((jet->pt() < m_jetPtCut) || (fabs(jet->eta()) > m_jetEtaCut)) continue;
+      if ((jet->pt() < m_jetPtCut) || (std::abs(jet->eta()) > m_jetEtaCut)) continue;
       const auto& ghostTracks = jet->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack());
 
       std::vector<const xAOD::IParticle*> newGhosts;
@@ -276,7 +284,7 @@ namespace top {
     newTrackParticles->setStore(newTrackParticlesAux);
 
     for (const auto& jet : *nominal) {
-      if ((jet->pt() < m_jetPtCut) || (fabs(jet->eta()) > m_jetEtaCut)) continue;
+      if ((jet->pt() < m_jetPtCut) || (std::abs(jet->eta()) > m_jetEtaCut)) continue;
       const auto& ghostTracks = jet->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack());
 
       std::vector<const xAOD::IParticle*> newGhosts;
@@ -323,7 +331,7 @@ namespace top {
 
     // We don't want to do anything on Data -> bail early so that we can
     // rely on the inputs to be MC.
-    if (not m_config->isMC()) {
+    if (!m_config->isMC()) {
       return StatusCode::SUCCESS;
     }
 
@@ -450,7 +458,7 @@ namespace top {
       ///-- MC only --///
       if (m_config->isMC()) {
         ///-- Are we only doing Nominal? Did the user specify specific systematics to use? --///
-        if (not m_config->isSystNominal(m_config->systematics())) {
+        if (!m_config->isSystNominal(m_config->systematics())) {
           if (allGhostTrackSystematics) {
             m_specifiedSystematics.push_back(s);
             continue;
@@ -503,7 +511,7 @@ namespace top {
     std::string biasToolPrefix {
       "top::GhostTrackCPTools::InDetTrackBiasingTool"
     };
-    top::check(not m_runPeriods.empty(), "Assertion failed");
+    top::check(!m_runPeriods.empty(), "Assertion failed");
     // Two cases are possible:
     //     - Either a single run number was specified to the runPeriods
     //       parameter in which case we'll use exactly that run number, or

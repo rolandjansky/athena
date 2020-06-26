@@ -210,7 +210,9 @@ STDM7SlimmingHelper.SmartCollections = ["Electrons",
                                         "AntiKt4EMPFlowJets_BTagging201810", 
                                         "AntiKt4EMPFlowJets_BTagging201903",
                                         "InDetTrackParticles",
-                                        "PrimaryVertices" ]
+                                        "LowPtRoITrackParticles",
+                                        "LowPtRoIVertexContainer",
+                                        "PrimaryVertices"]
 
 STDM7SlimmingHelper.IncludeEGammaTriggerContent = True
 STDM7SlimmingHelper.IncludeMuonTriggerContent = True

@@ -27,6 +27,8 @@ ParticleLevelRCJetObjectLoader::ParticleLevelRCJetObjectLoader(const std::shared
    AsgTool("ParticleLevelRCJetObjectLoader"), m_config(cfg) {
   m_ptcut = 0.;
   m_etamax = 0.;
+  m_inputJetPtMin = 0.;
+  m_inputJetEtaMax = 999.;
   m_trim = 0.;
   m_radius = 0.;
   m_treeName = "particleLevel";
@@ -99,7 +101,8 @@ StatusCode ParticleLevelRCJetObjectLoader::initialize() {
     m_useAdditionalJSS = m_config->useRCJetAdditionalSubstructure();
   }
 
-
+  m_inputJetPtMin = m_config->RCInputJetPtMin();
+  m_inputJetEtaMax = m_config->RCInputJetEtaMax();
 
 
 
@@ -118,6 +121,7 @@ StatusCode ParticleLevelRCJetObjectLoader::initialize() {
                                                 m_radius), "Failed re-clustering radius initialize reclustering tool");
   top::check(m_jetReclusteringTool->setProperty("RCJetPtMin",
                                                 m_ptcut * 1e-3), "Failed ptmin [GeV] initialize reclustering tool");
+  top::check(m_jetReclusteringTool->setProperty("InputJetPtMin", m_inputJetPtMin * 1e-3), "Failed InputJetPtMin [GeV] initialize reclustering tool");
   top::check(m_jetReclusteringTool->setProperty("TrimPtFrac",
                                                 m_trim), "Failed pT fraction initialize reclustering tool");
   top::check(m_jetReclusteringTool->setProperty("VariableRMinRadius",
@@ -191,12 +195,17 @@ StatusCode ParticleLevelRCJetObjectLoader::execute(const top::ParticleLevelEvent
   // -- Save the jet container to the TStore (only if it doesn't already exist!)
   // -- Then, we can access it with the re-clustering tool further down
   if (!evtStore()->contains<xAOD::JetContainer>(m_InputJetContainer)) {
-    typedef ConstDataVector< xAOD::JetContainer > CJets;
-    std::unique_ptr< CJets > rcjets(new CJets(plEvent.m_jets->begin(), plEvent.m_jets->end(), SG::VIEW_ELEMENTS));
-    top::check(evtStore()->tds()->record(std::move(
-                                           rcjets), m_InputJetContainer),
-               "Failed to put jets in TStore for re-clustering");
+    auto rcJetInputs = std::make_unique< ConstDataVector< xAOD::JetContainer > >(SG::VIEW_ELEMENTS);
+    for(const xAOD::Jet* jet : *plEvent.m_jets) {
+      if(jet->pt() < m_inputJetPtMin || std::abs(jet->eta()) > m_inputJetEtaMax) continue;
+      rcJetInputs->push_back(jet);
+    }
+    top::check(evtStore()->tds()->record(std::move(rcJetInputs), m_InputJetContainer),
+	       "Failed to put jets in TStore for re-clustering");
   } // end if jet container exists
+
+  
+
 
 
   // --- EXECUTE --- //

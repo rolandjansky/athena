@@ -6,6 +6,7 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkCore.WeightMetadata import *
 from DerivationFrameworkFlavourTag.HbbCommon import *
 from DerivationFrameworkFlavourTag.HbbCommon import (
   addRecommendedXbbTaggers, xbbTaggerExtraVariables
@@ -247,6 +248,7 @@ HIGG5Common.addAntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub(higg5d1Seq)
 
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
 addVRJets(higg5d1Seq)
+addVRJets(higg5d1Seq, training='201903') #new trackjet training!
 # Also add Hbb Tagger
 addRecommendedXbbTaggers(higg5d1Seq, ToolSvc)
 
@@ -303,6 +305,9 @@ DerivationFrameworkJob += higg5d1Seq
 
 # QGTaggerTool ###
 addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=higg5d1Seq, algname="QGTaggerToolAlg")
+addQGTaggerTool(jetalg="AntiKt4EMPFlow", sequence=higg5d1Seq, algname="QGTaggerToolPFAlg")
+
+
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -340,7 +345,7 @@ addOriginCorrectedClusters(HIGG5D1SlimmingHelper, writeLC=True, writeEM=False)
 # if not DerivationFrameworkIsMonteCarlo : # for very early data
 #   HIGG5D1SlimmingHelper.IncludeMuonTriggerContent = True
 HIGG5D1SlimmingHelper.IncludeEGammaTriggerContent = True
-# HIGG5D1SlimmingHelper.IncludeBJetTriggerContent = True
+HIGG5D1SlimmingHelper.IncludeBJetTriggerContent = True
 # HIGG5D1SlimmingHelper.IncludeBPhysTriggerContent = True
 # HIGG5D1SlimmingHelper.IncludeJetTauEtMissTriggerContent = True
 HIGG5D1SlimmingHelper.IncludeEtMissTriggerContent = True

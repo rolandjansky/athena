@@ -153,6 +153,7 @@ namespace ST {
     const xAOD::Vertex* GetPrimVtx() const override final;
 
     StatusCode BendBTaggingLinks(xAOD::JetContainer* to_container , const std::string& bTagKey) const override final;
+    StatusCode SetBtagWeightDecorations(const xAOD::Jet& input, const asg::AnaToolHandle<IBTaggingSelectionTool>& btagSelTool, std::string btagTagger) const override final;
     StatusCode GetJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& jetkey = "", const xAOD::JetContainer* containerToBeCopied = 0) override final;
     StatusCode GetTrackJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& jetkey = "", const xAOD::JetContainer* containerToBeCopied = 0) override final;
     StatusCode GetJetsSyst(const xAOD::JetContainer& calibjets, xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = true, const std::string& jetkey = "") override final;
@@ -474,6 +475,7 @@ namespace ST {
     bool m_jetUncertaintiesPDsmearing;
 
     bool m_useBtagging;
+    bool m_useBtagging_trkJet;
     bool m_debug;
 
     bool m_strictConfigCheck;
@@ -639,16 +641,21 @@ namespace ST {
     double m_jetPt;
     double m_jetEta;
     double m_jetJvt;
-    std::string m_JVT_WP;
+    std::string m_JvtWP;
     double m_JvtPtMax;
+    std::string m_JvtConfig;
+    std::string m_JvtConfig_SFFile;
 
     double m_trkJetPt;
     double m_trkJetEta;
 
     bool   m_doFwdJVT;
-    double m_fwdjetEtaMin;
-    double m_fwdjetPtMax;
-    std::string m_fwdjetOp;
+    std::string m_fJvtWP;
+    double m_fJvtPtMax;
+    double m_fJvtEtaMin;
+    std::string m_fJvtConfig;
+    std::string m_fJvtConfig_SFFile;
+    bool m_fJvt_useTightOP;
 
     bool m_JMScalib;
 
@@ -727,7 +734,7 @@ namespace ST {
     asg::AnaToolHandle<IJetUpdateJvt> m_jetJvtUpdateTool;
     asg::AnaToolHandle<IJetModifier> m_jetFwdJvtTool;
     asg::AnaToolHandle<CP::IJetJvtEfficiency> m_jetJvtEfficiencyTool;
-    asg::AnaToolHandle<CP::IJetJvtEfficiency> m_jetFJvtEfficiencyTool;
+    asg::AnaToolHandle<CP::IJetJvtEfficiency> m_jetFwdJvtEfficiencyTool;
 
     asg::AnaToolHandle<IJetSelectorTool> m_WTaggerTool;
     asg::AnaToolHandle<IJetSelectorTool> m_ZTaggerTool;

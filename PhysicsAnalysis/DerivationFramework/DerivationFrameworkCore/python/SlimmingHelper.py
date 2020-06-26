@@ -650,13 +650,18 @@ class SlimmingHelper:
                 elif collectionName=="InDetTrackParticles":
                         from DerivationFrameworkInDet.InDetTrackParticlesCPContent import InDetTrackParticlesCPContent
                         items.extend(InDetTrackParticlesCPContent)
+                elif collectionName=="LowPtRoITrackParticles":
+                        from DerivationFrameworkInDet.LowPtRoITrackParticlesCPContent import LowPtRoITrackParticlesCPContent
+                        items.extend(LowPtRoITrackParticlesCPContent)
                 elif collectionName=="PrimaryVertices":
                         from DerivationFrameworkInDet.PrimaryVerticesCPContent import PrimaryVerticesCPContent
                         items.extend(PrimaryVerticesCPContent)
+                elif collectionName=="LowPtRoIVertexContainer":
+                        from DerivationFrameworkInDet.LowPtRoIVertexContainerCPContent import LowPtRoIVertexContainerCPContent
+                        items.extend(LowPtRoIVertexContainerCPContent)
                 elif self.IncludeAdditionalTriggerContent == True:
                         from DerivationFrameworkCore.AdditionalTriggerContent import AdditionalTriggerContent
                         items.extend(AdditionalTriggerContent)
-
                 elif collectionName=="HLT_xAOD__MuonContainer_MuonEFInfo":
                         from DerivationFrameworkMuons.MuonTriggerContent import MuonTriggerContent
                         items.extend(MuonTriggerContent)

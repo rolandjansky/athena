@@ -61,6 +61,7 @@ namespace top {
     CP::SystematicSet m_systDOWN;
 
     ToolHandle<CP::IJetJvtEfficiency> m_jvt_tool;
+    ToolHandle<CP::IJetJvtEfficiency> m_fjvt_tool;
   };
 }  // namespace top
 #endif  // ANALYSISTOP_TOPCORRECTIONS_JETSCALEFACTORCALCULATOR_H

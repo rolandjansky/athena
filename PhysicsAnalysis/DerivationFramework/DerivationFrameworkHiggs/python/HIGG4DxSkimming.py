@@ -97,6 +97,26 @@ def setup(HIGG4DxName, ToolSvc):
         trigger_all      = '({} || {} || {})'.format(trigger_main, trigger_electron, trigger_muon)
         skim_expression = ditaujet + "&&" + trigger_all
 
+    elif HIGG4DxName == 'HIGG6D1':
+        jetSelEM = ' count ((AntiKt4EMPFlowJets.pt > 20.0*GeV) && (abs(AntiKt4EMPFlowJets.eta) < 2.6)) >= 4'
+        jetSelLC = ' count ((AntiKt4LCTopoJets.pt > 20.0*GeV) && (abs(AntiKt4LCTopoJets.eta) < 2.6)) >= 4'
+        jetSelEMCalib = ' count ((AntiKt4EMPFlowJets.DFCommonJets_Calib_pt > 20.0*GeV) && (abs(AntiKt4EMPFlowJets.DFCommonJets_Calib_eta) < 2.6)) >= 4'
+        jetSel = '( '+ jetSelEM + ' ) || ( '+ jetSelLC + ' ) || ( '+ jetSelEMCalib + ' )'
+        tauSel = '(TauJets.pt > 25*GeV && (abs(TauJets.eta)<2.6) && (abs(TauJets.charge)<3) && ((TauJets.nTracks == 1) || (TauJets.nTracks == 2) || (TauJets.nTracks == 3) ) )'
+        skim_expression = '( '+ jetSel + ' ) && (count( ' + tauSel +  ' ) >= 1)'
+
+    elif HIGG4DxName == 'HIGG6D2':
+        singleLepTrigger = " ({0}) ".format("1") # TODO
+        electronRequirements = "( (Electrons.pt > 25*GeV) && (abs(Electrons.eta) < 2.6) && (Electrons.DFCommonElectronsLHLoose))"
+        muonRequirements = "( (Muons.pt > 25*GeV) && (abs(Muons.eta) < 2.6) && (Muons.DFCommonMuonsPreselection) )"
+        lepSel = "( ( (count({0}) >=1)  || (count({1}) >=1)))".format(electronRequirements, muonRequirements)
+        lepSel2 = "(( count({0}) + count({1}) ) >=2 )".format(electronRequirements, muonRequirements)
+        tauSel = "(TauJets.pt > 25*GeV && (abs(TauJets.eta)<2.6) && (abs(TauJets.charge)==1) && ((TauJets.nTracks == 1) || (TauJets.nTracks == 3) ) )"
+        jetSelEM = "count(({0}.pt > 20.0*GeV) && (abs({0}.eta) < 2.6)) >= (1 + count({1}) + count({2}))".format("AntiKt4EMPFlowJets", electronRequirements, tauSel)
+        jetSelEMCalib = "count(({0}.DFCommonJets_Calib_pt > 20.0*GeV)&& (abs({0}.DFCommonJets_Calib_eta) < 2.6)) >= (1 + count({1}) + count({2}) )".format("AntiKt4EMPFlowJets", electronRequirements, tauSel)
+        jetSel = "({0}) || ({1})".format(jetSelEM, jetSelEMCalib)
+        skim_expression = "({0}) &&  ( ( ({1}) && (count({2}) >= 1) ) || ({3}) )  && ({4})".format(jetSel, lepSel, tauSel, lepSel2, singleLepTrigger)
+
     elif HIGG4DxName == 'HDBS1':
         #The final selection here: (At least two leptons (and triggers) +  at least 2 jets) OR (At least one lepton (and veto the other, trigger) + at least 3 jets)
         eReq = '( Electrons.pt > 28.0*GeV && abs(Electrons.eta) < 2.5 && '+eleTight+' )'

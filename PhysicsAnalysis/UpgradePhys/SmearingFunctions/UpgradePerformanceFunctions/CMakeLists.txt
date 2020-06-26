@@ -47,11 +47,11 @@ atlas_add_library( UpgradePerformanceFunctionsLib
                    UpgradePerformanceFunctions/*/*.icc ${_cintDictSource}
                    PUBLIC_HEADERS UpgradePerformanceFunctions
                    LINK_LIBRARIES PathResolver AsgTools MuonEfficiencyCorrectionsLib MuonMomentumCorrectionsLib
-                                  ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES}  ${extra_libs}
+                                  CalibrationDataInterfaceLib ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES}  ${extra_libs}
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} )
 
 if( NOT XAOD_STANDALONE )
-   atlas_add_component( UpgradePerformanceFunctions 
+   atlas_add_component( UpgradePerformanceFunctions
       src/*.h src/*.cxx src/components/*.cxx
       LINK_LIBRARIES UpgradePerformanceFunctionsLib GaudiKernel AthenaBaseComps AthenaPoolUtilities xAODTruth xAODJet AthAnalysisBaseComps xAODEventInfo AsgTools xAODMuon ${EIGEN_LIBRARIES})
 endif()

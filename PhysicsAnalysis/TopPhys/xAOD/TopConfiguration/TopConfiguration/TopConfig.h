@@ -1041,15 +1041,15 @@ namespace top {
       }
     }
 
-    inline virtual void fwdJetAndMET(const std::string& fwd) {
-      if (!m_configFixed) {
-        m_fwdJetAndMET = fwd;
-      }
-    }
-
     inline virtual void jetPtGhostTracks(const float pt) {
       if (!m_configFixed) {
         m_jetPtGhostTracks = pt;
+      }
+    }
+    
+    inline virtual void jetEtaGhostTracks(const float eta) {
+      if (!m_configFixed) {
+        m_jetEtaGhostTracks = eta;
       }
     }
     
@@ -1073,13 +1073,14 @@ namespace top {
 
     inline virtual float jetPtcut()  const {return m_jetPtcut;}
     inline virtual float jetEtacut() const {return m_jetEtacut;}
-    inline virtual const std::string& fwdJetAndMET() const {return m_fwdJetAndMET;}
-   
-    inline virtual float jetPtGhostTracks()  const {return m_jetPtGhostTracks;}
     
     inline virtual float ghostTrackspT()  const {return m_ghostTrackspT;}
     inline virtual const std::string& ghostTracksVertexAssociation()  const {return m_ghostTracksVertexAssociation;}
     inline virtual const std::string& ghostTracksQuality()  const {return m_ghostTracksQuality;}
+    
+    inline virtual float jetPtGhostTracks()  const {return m_jetPtGhostTracks;}
+    inline virtual float jetEtaGhostTracks()  const {return m_jetEtaGhostTracks;}
+
 
     inline virtual void largeRJetPtcut(const float pt) {
       if (!m_configFixed) {
@@ -1134,6 +1135,8 @@ namespace top {
 
     inline virtual float RCJetPtcut() const {return m_RCJetPtcut;}
     inline virtual float RCJetEtacut() const {return m_RCJetEtacut;}
+    inline virtual float RCInputJetPtMin() const {return m_RCInputJetPtMin;}
+    inline virtual float RCInputJetEtaMax() const {return m_RCInputJetEtaMax;}
     inline virtual float RCJetTrimcut() const {return m_RCJetTrimcut;}
     inline virtual float RCJetRadius() const {return m_RCJetRadius;}
     inline virtual bool useRCJetSubstructure() const {return m_useRCJetSubstructure;}
@@ -1148,6 +1151,18 @@ namespace top {
     inline virtual void RCJetEtacut(const float eta) {
       if (!m_configFixed) {
         m_RCJetEtacut = eta;
+      }
+    }
+
+    inline virtual void RCInputJetPtMin(const float pt) {
+      if (!m_configFixed) {
+        m_RCInputJetPtMin = pt;
+      }
+    }
+
+    inline virtual void RCInputJetEtaMax(const float eta) {
+      if (!m_configFixed) {
+        m_RCInputJetEtaMax = eta;
       }
     }
 
@@ -1284,6 +1299,24 @@ namespace top {
 
     inline const std::string& getJVTWP() const {return m_JVTWP;}
     inline void setJVTWP(const std::string& value) {m_JVTWP = value;}
+
+    inline virtual void doForwardJVTinMET(const bool& dofJVT) {
+      if (!m_configFixed) {
+        m_doForwardJVTInMETCalculation = dofJVT;
+      }
+    }
+
+    inline virtual bool doForwardJVTinMET() const {return m_doForwardJVTInMETCalculation;}
+    inline virtual void saveFailForwardJVTJets(const bool& dofJVT) {
+      if (!m_configFixed) {
+        m_saveFailForwardJVTJets = dofJVT;
+      }
+    }
+
+    inline virtual bool saveFailForwardJVTJets() const {return m_saveFailForwardJVTJets;}
+
+    inline const std::string& getfJVTWP() const {return m_fJVTWP;}
+    inline void setfJVTWP(const std::string& value) {m_fJVTWP = value;}
 
     inline virtual float JSF() const {return m_JSF;}
     inline virtual float bJSF() const {return m_bJSF;}
@@ -2108,8 +2141,8 @@ namespace top {
     // Jet configuration
     float m_jetPtcut; // jet object selection pT cut
     float m_jetEtacut; // jet object selection (abs) eta cut
-    std::string m_fwdJetAndMET; // type of treatment of forward jets, including for MET calculation
     float m_jetPtGhostTracks; // jet pt threshold for ghost track systematic variations calculation
+    float m_jetEtaGhostTracks; // jet eta threshold for ghost track systematic variations calculation
     std::string m_jetUncertainties_NPModel; // AllNuisanceParameters, 19NP or 3NP
     std::string m_jetUncertainties_QGFracFile; // to improve Flavour composition and response
     std::vector<std::string> m_jetUncertainties_QGHistPatterns; // to improve Flavour composition and response, with
@@ -2121,6 +2154,9 @@ namespace top {
     bool m_doJVTInMETCalculation;
     bool m_saveFailJVTJets;
     std::string m_JVTWP;
+    bool m_doForwardJVTInMETCalculation;
+    bool m_saveFailForwardJVTJets;
+    std::string m_fJVTWP;
 
     // Large R jet configuration
     float m_largeRJetPtcut; // large R jet object selection pT cut
@@ -2138,6 +2174,8 @@ namespace top {
     // Jet configuration for reclustered jets
     float m_RCJetPtcut;
     float m_RCJetEtacut;
+    float m_RCInputJetPtMin;
+    float m_RCInputJetEtaMax;
     float m_RCJetTrimcut;
     float m_RCJetRadius;
     bool m_useRCJetSubstructure;

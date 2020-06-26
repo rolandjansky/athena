@@ -384,51 +384,31 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
  
 
   ///////////////////////////////////////////////////////////////////////////////////////////
-  // Initialise jet JVT efficiency tool
+  // Initialise jet JVT efficiency tool (scale factors)
 
-  m_applyJVTCut = m_JVT_WP!="";
+  m_applyJVTCut = !m_JvtWP.empty();
   if (!m_jetJvtEfficiencyTool.isUserConfigured() && m_applyJVTCut) {
     toolName = "JVTEfficiencyTool";
     m_jetJvtEfficiencyTool.setTypeAndName("CP::JetJvtEfficiency/"+toolName);
-    ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("WorkingPoint",m_JVT_WP) );
-    ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("MaxPtForJvt",m_JvtPtMax) );
-    // Set the decoration to the name we used to use
-    ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("ScaleFactorDecorationName","jvtscalefact") );
-    // Set the jvt moment (the one we update!)
-    //    ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("JetJvtMomentName", "Jvt") ); //default!
 
-    if (m_jetInputType == xAOD::JetInput::EMTopo){
-      ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("SFFile","JetJvtEfficiency/Moriond2018/JvtSFFile_EMTopoJets.root") );
-    } else if (m_jetInputType == xAOD::JetInput::LCTopo){
-      ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("SFFile","JetJvtEfficiency/Moriond2018/JvtSFFile_LC.root") );
-    } else if (m_jetInputType == xAOD::JetInput::EMPFlow){
-      ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("SFFile","JetJvtEfficiency/Moriond2018/JvtSFFile_EMPFlow.root") );
-    } else {
+    // build SFFile path with folder name from config
+    m_JvtConfig_SFFile = "JetJvtEfficiency/" + m_JvtConfig; 
+    if (m_jetInputType == xAOD::JetInput::EMTopo) { m_JvtConfig_SFFile += "JvtSFFile_EMTopoJets.root"; }
+    else if (m_jetInputType == xAOD::JetInput::LCTopo) { m_JvtConfig_SFFile += "JvtSFFile_LC.root"; }
+    else if (m_jetInputType == xAOD::JetInput::EMPFlow) { m_JvtConfig_SFFile += "JvtSFFile_EMPFlowJets.root"; }
+    else {
       ATH_MSG_ERROR("Cannot configure JVT uncertainties for unsupported jet input type (neither EM nor LC)");
       return StatusCode::FAILURE;
     }
-
+    
+    ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("WorkingPoint", m_JvtWP) );
+    ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("MaxPtForJvt", m_JvtPtMax) );
+    ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("ScaleFactorDecorationName", "jvtscalefact") ); // set decoration name
+    ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("SFFile", m_JvtConfig_SFFile) );
     ATH_CHECK( m_jetJvtEfficiencyTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_jetJvtEfficiencyTool.retrieve() );
-  } else if (m_jetJvtEfficiencyTool.isUserConfigured())ATH_CHECK( m_jetJvtEfficiencyTool.retrieve() );
+  } else if (m_jetJvtEfficiencyTool.isUserConfigured()) ATH_CHECK( m_jetJvtEfficiencyTool.retrieve() );
  
-  ///////////////////////////////////////////////////////////////////////////////////////////
-  // Initialise jet f-JVT efficiency tool for scale factors
-
-  if (!m_jetFJvtEfficiencyTool.isUserConfigured()) {
-    toolName = m_doFwdJVT ? m_metJetSelection+"_fJVT" : m_metJetSelection+"_NOfJVT";
-    m_jetFJvtEfficiencyTool.setTypeAndName("CP::JetJvtEfficiency/FJVTEfficiencyTool_"+toolName);
-    ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("WorkingPoint",m_fwdjetOp) );
-    ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("MaxPtForJvt",m_fwdjetPtMax) );
-    ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("JetfJvtMomentName","passFJvt") );
-    // Set the decoration to the name we used to use
-    ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("ScaleFactorDecorationName","fJVTSF") );
-    ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("UseMuSFFormat",true) );
-    ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("SFFile","JetJvtEfficiency/Nov2019/fJvtSFFile.EMtopo.root"));
-    ATH_CHECK( m_jetFJvtEfficiencyTool.setProperty("OutputLevel", this->msg().level()) );
-    ATH_CHECK( m_jetFJvtEfficiencyTool.retrieve() );
-  } else  ATH_CHECK( m_jetFJvtEfficiencyTool.retrieve() );
-  
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   // Initialise FwdJVT tool
@@ -436,21 +416,51 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   if (!m_jetFwdJvtTool.isUserConfigured()) {
     toolName = m_doFwdJVT ? m_metJetSelection+"_fJVT" : m_metJetSelection+"_NOfJVT";
     m_jetFwdJvtTool.setTypeAndName("JetForwardJvtTool/FJVTTool_"+toolName);
-    ATH_CHECK( m_jetFwdJvtTool.setProperty("OutputDec", "passFJvt") ); //Output decoration
+
     // fJVT WPs depend on the MET WP, see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EtmissRecommendationsRel21p2#fJVT_and_MET
-    if (m_doFwdJVT && m_metJetSelection == "Tight") {
-      ATH_CHECK( m_jetFwdJvtTool.setProperty("UseTightOP", true) ); // Tight
-    } else if (m_doFwdJVT && (m_metJetSelection == "Tenacious" || m_metJetSelection == "TenaciousJVT641")) {
-      ATH_CHECK( m_jetFwdJvtTool.setProperty("UseTightOP", false) ); // Loose
-    } else {
-      ATH_CHECK( m_jetFwdJvtTool.setProperty("UseTightOP", (m_fwdjetOp=="Tight")) ); // Tight or Loose
+    // Tenacious MET --> Medium JVT WP
+    // Tight MET --> Tight JVT WP
+    m_fJvt_useTightOP = (m_fJvtWP=="Tight");
+    if (m_doFwdJVT && ( (m_metJetSelection == "Tight" && m_fJvtWP != "Tight") || ((m_metJetSelection == "Tenacious" || m_metJetSelection == "TenaciousJVT641") && m_fJvtWP != "Loose") ) ) {
+       ATH_MSG_ERROR( "Tight (Tenacious) MET WP should be used with Tight (Loose) fJvt WP. Please reconfigure." );
+       return StatusCode::FAILURE;
     }
-    ATH_CHECK( m_jetFwdJvtTool.setProperty("EtaThresh", m_fwdjetEtaMin) );   //Eta dividing central from forward jets
-    ATH_CHECK( m_jetFwdJvtTool.setProperty("ForwardMaxPt", m_fwdjetPtMax) ); //Max Pt to define fwdJets for JVT
+
+    ATH_CHECK( m_jetFwdJvtTool.setProperty("OutputDec", "passFJvt") ); //Output decoration
+    ATH_CHECK( m_jetFwdJvtTool.setProperty("UseTightOP", m_fJvt_useTightOP) );
+    ATH_CHECK( m_jetFwdJvtTool.setProperty("ForwardMaxPt", m_fJvtPtMax) ); // Max Pt to define fwdJets for JVT
+    ATH_CHECK( m_jetFwdJvtTool.setProperty("EtaThresh", m_fJvtEtaMin) );   // Eta dividing central from forward jets
     ATH_CHECK( m_jetFwdJvtTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_jetFwdJvtTool.retrieve() );
   } else ATH_CHECK( m_jetFwdJvtTool.retrieve() );
  
+
+  ///////////////////////////////////////////////////////////////////////////////////////////
+  // Initialise jet FwdJVT efficiency tool for scale factors
+
+  if (!m_jetFwdJvtEfficiencyTool.isUserConfigured()) {
+    toolName = m_doFwdJVT ? m_metJetSelection+"_fJVT" : m_metJetSelection+"_NOfJVT";
+    m_jetFwdJvtEfficiencyTool.setTypeAndName("CP::JetJvtEfficiency/FJVTEfficiencyTool_"+toolName);
+
+    // build SFFile path with folder name from config
+    m_fJvtConfig_SFFile = "JetJvtEfficiency/" + m_fJvtConfig; 
+    if (m_jetInputType == xAOD::JetInput::EMTopo) { m_fJvtConfig_SFFile += "fJvtSFFile.EMtopo.root"; }
+    else if (m_jetInputType == xAOD::JetInput::EMPFlow) { m_fJvtConfig_SFFile += "fJvtSFFile.EMPFlow.root"; }
+    else {
+      ATH_MSG_ERROR("Cannot configure fJVT uncertainties for unsupported jet input type (neither EMTopo nor EMPFlow)");
+      return StatusCode::FAILURE;
+    }
+
+    ATH_CHECK( m_jetFwdJvtEfficiencyTool.setProperty("JetfJvtMomentName", "passFJvt") );
+    ATH_CHECK( m_jetFwdJvtEfficiencyTool.setProperty("ScaleFactorDecorationName", "fJVTSF") ); // set decoration name
+    ATH_CHECK( m_jetFwdJvtEfficiencyTool.setProperty("WorkingPoint", m_fJvtWP) );
+    ATH_CHECK( m_jetFwdJvtEfficiencyTool.setProperty("MaxPtForJvt", m_fJvtPtMax) );
+    ATH_CHECK( m_jetFwdJvtEfficiencyTool.setProperty("UseMuSFFormat", true) );
+    ATH_CHECK( m_jetFwdJvtEfficiencyTool.setProperty("SFFile", m_fJvtConfig_SFFile) );
+    ATH_CHECK( m_jetFwdJvtEfficiencyTool.setProperty("OutputLevel", this->msg().level()) );
+    ATH_CHECK( m_jetFwdJvtEfficiencyTool.retrieve() );
+  } else  ATH_CHECK( m_jetFwdJvtEfficiencyTool.retrieve() );
+  
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   // Initialise muon calibration tool
@@ -697,7 +707,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_elecSelLikelihood.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_elecSelLikelihood.retrieve() );
   } else  ATH_CHECK( m_elecSelLikelihood.retrieve() );
- 
 
   // Baseline Electrons
   if (!m_elecSelLikelihoodBaseline.isUserConfigured()) {
@@ -717,7 +726,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_elecSelLikelihoodBaseline.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_elecSelLikelihoodBaseline.retrieve() );
   } else ATH_CHECK( m_elecSelLikelihoodBaseline.retrieve() );
-
+ 
 
 
   // /////////////////////////////////////////////////////////////////////////////////////////
@@ -736,7 +745,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_photonSelIsEM.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_photonSelIsEM.retrieve() );
   } else ATH_CHECK( m_photonSelIsEM.retrieve() );
- 
 
   if (!m_photonSelIsEMBaseline.isUserConfigured()) {
     toolName = "PhotonSelIsEMBaseline_" + m_photonIdBaseline;
@@ -751,7 +759,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_photonSelIsEMBaseline.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_photonSelIsEMBaseline.retrieve() );
   } else  ATH_CHECK( m_photonSelIsEMBaseline.retrieve() );
- 
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   // Initialise electron efficiency tool
@@ -830,7 +837,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       CONFIG_EG_EFF_TOOL( m_elecEfficiencySFTool_isoHighPt, toolName, corrFNList[m_eleIsoHighPt_WP] );
     } 
     // can't do the iso tool via the macro, it needs two properties set
-    else {                                                                                               // default: use map file
+    else {                                                                                                     // default: use map file
       if ( !m_elecEfficiencySFTool_isoHighPt.isUserConfigured() ) {
   
         if ( !check_isOption(m_el_iso_fallback[m_eleIsoHighPt_WP], m_el_iso_support) ) { //check if supported
@@ -1337,22 +1344,37 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_tauElORdecorator.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_tauElORdecorator.retrieve() );
   } else  ATH_CHECK( m_tauElORdecorator.retrieve() );
- 
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 // Initialise B-tagging tools
 
   // Warnings for invalid timestamps, or timestamped containers with old CDI file & vice versa
-  if (!m_BtagTimeStamp.empty() && !(m_BtagTimeStamp.compare("201810")==0||m_BtagTimeStamp.compare("201903")==0)) {
+  int cdiYear = atoi(m_bTaggingCalibrationFilePath.substr(m_bTaggingCalibrationFilePath.find("13TeV/")+6,4).c_str());
+  // Regular Jets
+  if (m_useBtagging && (!m_BtagTimeStamp.empty() && !(m_BtagTimeStamp.compare("201810")==0||m_BtagTimeStamp.compare("201903")==0))) {
     ATH_MSG_ERROR("Only 201810 & 201903 are valid BTag container timestamps. Current = " << m_BtagTimeStamp);
     return StatusCode::FAILURE;
   }
-  if (!m_BtagTimeStamp.empty() && m_bTaggingCalibrationFilePath.find("13TeV/2017")!=std::string::npos) {
-    ATH_MSG_ERROR("Shouldn't use timestamped collection (" << m_BtagTimeStamp << ") with older CDI file (" << m_bTaggingCalibrationFilePath << ")");
+  if (m_useBtagging && (!m_BtagTimeStamp.empty() && cdiYear<2019)) {
+    ATH_MSG_ERROR("Shouldn't use timestamped Jet collection (" << m_BtagTimeStamp << ") with older CDI file (" << m_bTaggingCalibrationFilePath << ")");
     return StatusCode::FAILURE;
   }
-  if (m_BtagTimeStamp.empty() && (m_bTaggingCalibrationFilePath.find("13TeV/2019")!=std::string::npos || m_bTaggingCalibrationFilePath.find("13TeV/2020")!=std::string::npos)) {
-     ATH_MSG_ERROR("Should provide a BTag container timestamp (default = Btag.TimeStamp: 201810) to use with with newer CDI files (" << m_bTaggingCalibrationFilePath << ")");
+  if (m_useBtagging && (m_BtagTimeStamp.empty() && cdiYear>2017)) {
+     ATH_MSG_ERROR("Should provide a BTag container timestamp (default = Btag.TimeStamp: 201810) to use with Jets and newer CDI files (" << m_bTaggingCalibrationFilePath << ")");
+     return StatusCode::FAILURE;
+  }
+  // TrackJets
+  if (m_useBtagging_trkJet && (!m_BtagTimeStamp_trkJet.empty() && !(m_BtagTimeStamp_trkJet.compare("201810")==0||m_BtagTimeStamp_trkJet.compare("201903")==0))) {
+    ATH_MSG_ERROR("Only 201810 & 201903 are valid BTag container timestamps for TrackJets. Current = " << m_BtagTimeStamp_trkJet);
+    return StatusCode::FAILURE;
+  }
+  if (m_useBtagging_trkJet && (!m_BtagTimeStamp_trkJet.empty() && cdiYear<2020)) {
+    ATH_MSG_ERROR("Shouldn't use timestamped TrackJet collection (" << m_BtagTimeStamp_trkJet << ") with older CDI file (" << m_bTaggingCalibrationFilePath << ")");
+    return StatusCode::FAILURE;
+  }
+  if (m_useBtagging_trkJet && (m_BtagTimeStamp_trkJet.empty() && cdiYear>2019)) {
+     ATH_MSG_ERROR("Should provide a BTag container timestamp (default = Btag.TimeStamp_trkJet: 201903) to use with TrackJets and newer CDI files (" << m_bTaggingCalibrationFilePath << ")");
      return StatusCode::FAILURE;
   }
 
@@ -1364,7 +1386,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   }
   if (!m_BtagTimeStamp.empty()) jetcollBTag += "_BTagging" + m_BtagTimeStamp;
 
-  if (!m_btagSelTool.isUserConfigured() && !m_BtagWP.empty()) {
+  if (m_useBtagging && !m_btagSelTool.isUserConfigured() && !m_BtagWP.empty()) {
     if (jetcollBTag.find("AntiKt4EMTopoJets") == std::string::npos && jetcollBTag.find("AntiKt4EMPFlowJets")==std::string::npos) {
       ATH_MSG_WARNING("** Only AntiKt4EMTopoJets and AntiKt4EMPFlowJets are supported with FTAG scale factors!");
         return StatusCode::FAILURE;
@@ -1383,7 +1405,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   } else if (m_btagSelTool.isUserConfigured()) ATH_CHECK( m_btagSelTool.retrieve() );
  
 
-  if (!m_btagSelTool_OR.isUserConfigured() && !m_orBtagWP.empty()) {
+  if (m_useBtagging && !m_btagSelTool_OR.isUserConfigured() && !m_orBtagWP.empty()) {
     if (jetcoll != "AntiKt4EMTopoJets" && jetcoll != "AntiKt4EMPFlowJets") {
       ATH_MSG_WARNING("** Only AntiKt4EMTopoJets and AntiKt4EMPFlowJets are supported with FTAG scale factors!");
         return StatusCode::FAILURE;
@@ -1405,7 +1427,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   std::string BTagColl_TrkJet = trkjetcoll;
   if (!m_BtagTimeStamp_trkJet.empty()) BTagColl_TrkJet += "_BTagging"+m_BtagTimeStamp_trkJet;
   
-  if (!m_btagSelTool_trkJet.isUserConfigured() && !m_BtagWP_trkJet.empty()) {
+  if (m_useBtagging_trkJet && !m_btagSelTool_trkJet.isUserConfigured() && !m_BtagWP_trkJet.empty()) {
     if (trkjetcoll.find("AntiKt2PV0TrackJets")==std::string::npos && trkjetcoll.find("AntiKtVR30Rmax4Rmin02TrackJets")==std::string::npos) {
       ATH_MSG_WARNING("** Only AntiKt2PV0TrackJets and AntiKtVR30Rmax4Rmin02TrackJets are supported with FTAG scale factors!");
         return StatusCode::FAILURE;
@@ -1433,7 +1455,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   else if (m_showerType == 4) MCshowerID = "410464"; // aMC@NLO+Pythia8
 
   // btagEfficiencyTool
-  if (!m_btagEffTool.isUserConfigured() && !m_BtagWP.empty()) {
+  if (m_useBtagging && !m_btagEffTool.isUserConfigured() && !m_BtagWP.empty()) {
     if (jetcoll != "AntiKt4EMTopoJets" && jetcoll != "AntiKt4EMPFlowJets") {
       ATH_MSG_WARNING("** Only AntiKt4EMTopoJets and AntiKt4EMPFlowJets are supported with FTAG scale factors!");
         return StatusCode::FAILURE;
@@ -1462,7 +1484,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   } else ATH_CHECK( m_btagEffTool.retrieve() );
   
 
-  if (!m_btagEffTool_trkJet.isUserConfigured() && !m_BtagWP_trkJet.empty()) {
+  if (m_useBtagging_trkJet && !m_btagEffTool_trkJet.isUserConfigured() && !m_BtagWP_trkJet.empty()) {
     if (trkjetcoll.find("AntiKt2PV0TrackJets")==std::string::npos && trkjetcoll.find("AntiKtVR30Rmax4Rmin02TrackJets")==std::string::npos) {
       ATH_MSG_WARNING("** Only AntiKt2PV0TrackJets and AntiKtVR30Rmax4Rmin02TrackJets are supported with FTAG scale factors!");
         return StatusCode::FAILURE;
@@ -1710,8 +1732,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 // Initialise Isolation Tool
   if (!m_isoTool.isUserConfigured()) {
     m_isoTool.setTypeAndName("CP::IsolationSelectionTool/IsoTool");
-    ATH_CHECK( m_isoTool.setProperty("ElectronWP", m_eleIso_WP.empty()    ? "Gradient" : m_eleIso_WP) );
-    ATH_CHECK( m_isoTool.setProperty("MuonWP",     m_muIso_WP.empty()     ? "FCLoose" : m_muIso_WP) );
+    ATH_CHECK( m_isoTool.setProperty("ElectronWP", m_eleIso_WP.empty()    ? "FCLoose" : m_eleIso_WP) );
+    ATH_CHECK( m_isoTool.setProperty("MuonWP",     m_muIso_WP.empty()     ? "Loose_VarRad" : m_muIso_WP) );
     ATH_CHECK( m_isoTool.setProperty("PhotonWP",   m_photonIso_WP.empty() ? "FixedCutTight" : m_photonIso_WP ) );
     ATH_CHECK( m_isoTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_isoTool.retrieve() );
@@ -1726,8 +1748,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
   if (!m_isoBaselineTool.isUserConfigured()) {
     m_isoBaselineTool.setTypeAndName("CP::IsolationSelectionTool/IsoBaselineTool");
-    ATH_CHECK( m_isoBaselineTool.setProperty("ElectronWP", m_eleBaselineIso_WP.empty()    ? "Gradient" : m_eleBaselineIso_WP    ) );
-    ATH_CHECK( m_isoBaselineTool.setProperty("MuonWP",     m_muBaselineIso_WP.empty()     ? "FCLoose" : m_muBaselineIso_WP     ) );
+    ATH_CHECK( m_isoBaselineTool.setProperty("ElectronWP", m_eleBaselineIso_WP.empty()    ? "FCLoose" : m_eleBaselineIso_WP    ) );
+    ATH_CHECK( m_isoBaselineTool.setProperty("MuonWP",     m_muBaselineIso_WP.empty()     ? "Loose_VarRad" : m_muBaselineIso_WP     ) );
     ATH_CHECK( m_isoBaselineTool.setProperty("PhotonWP",   m_photonBaselineIso_WP.empty() ? "FixedCutTight" : m_photonBaselineIso_WP ) );
     ATH_CHECK( m_isoBaselineTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_isoBaselineTool.retrieve() );
@@ -1736,8 +1758,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
   if (!m_isoHighPtTool.isUserConfigured()) {
     m_isoHighPtTool.setTypeAndName("CP::IsolationSelectionTool/IsoHighPtTool");
-    ATH_CHECK( m_isoHighPtTool.setProperty("ElectronWP", m_eleIsoHighPt_WP.empty() ? "Gradient" : m_eleIsoHighPt_WP) );
-    ATH_CHECK( m_isoHighPtTool.setProperty("MuonWP",     m_muIsoHighPt_WP.empty()  ? "FCLoose" : m_muIsoHighPt_WP ) );
+    ATH_CHECK( m_isoHighPtTool.setProperty("ElectronWP", m_eleIsoHighPt_WP.empty() ? "FCLoose" : m_eleIsoHighPt_WP) );
+    ATH_CHECK( m_isoHighPtTool.setProperty("MuonWP",     m_muIsoHighPt_WP.empty()  ? "Loose_VarRad" : m_muIsoHighPt_WP ) );
     ATH_CHECK( m_isoHighPtTool.setProperty("PhotonWP",   m_photonIso_WP.empty()    ? "FixedCutTight" : m_photonIso_WP ) );
     ATH_CHECK( m_isoHighPtTool.setProperty("OutputLevel", this->msg().level()) );
     ATH_CHECK( m_isoHighPtTool.retrieve() );
