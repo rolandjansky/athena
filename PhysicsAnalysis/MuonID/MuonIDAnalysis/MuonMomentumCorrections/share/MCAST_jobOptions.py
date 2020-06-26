@@ -13,7 +13,7 @@ from MuonMomentumCorrections.MuonMomentumCorrectionsConf import CP__TestMCASTToo
 alg = CP__TestMCASTTool()
 #alg.MuonCalibrationAndSmearingTool.FilesPath = '/home/artoni/MuonCombinedPerformance/atlas-mcp/MaintainMuonMomentumCorrections/run/temporary_config_files/'
 #alg.MuonCalibrationAndSmearingTool.Release = 'Recs2019_05_30'
-alg.MuonCalibrationAndSmearingTool.OutputLevel = VERBOSE 
+alg.MuonCalibrationAndSmearingTool.OutputLevel = INFO 
 alg.MuonCalibrationAndSmearingTool.AddExtraDecorations = True
 alg.MuonCalibrationAndSmearingTool.doExtraSmearing = True 
 alg.MuonCalibrationAndSmearingTool.do2StationsHighPt = False 
