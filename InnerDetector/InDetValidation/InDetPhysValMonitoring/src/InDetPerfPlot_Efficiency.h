@@ -39,6 +39,8 @@ private:
   TEfficiency* m_efficiency_vs_R;
   TEfficiency* m_efficiency_vs_Z;
 
+  TEfficiency* m_extended_efficiency_vs_d0;
+  TEfficiency* m_extended_efficiency_vs_z0;
   TEfficiency* m_efficiency_vs_prodR;
   TEfficiency* m_efficiency_vs_prodZ;
 

@@ -19,6 +19,8 @@ InDetPerfPlot_Efficiency::InDetPerfPlot_Efficiency(InDetPlotBase* pParent, const
   m_efficiency_vs_z0{},
   m_efficiency_vs_R{},
   m_efficiency_vs_Z{},
+  m_extended_efficiency_vs_d0{},
+  m_extended_efficiency_vs_z0{},
   m_efficiency_vs_prodR{},
   m_efficiency_vs_prodZ{} {
   // nop
@@ -35,6 +37,8 @@ InDetPerfPlot_Efficiency::initializePlots() {
   book(m_efficiency_vs_R, "efficiency_vs_R");
   book(m_efficiency_vs_Z, "efficiency_vs_Z");
 
+  book(m_extended_efficiency_vs_d0, "extended_efficiency_vs_d0");
+  book(m_extended_efficiency_vs_z0, "extended_efficiency_vs_z0");
   book(m_efficiency_vs_prodR, "efficiency_vs_prodR");
   book(m_efficiency_vs_prodZ, "efficiency_vs_prodZ");
 
@@ -59,6 +63,8 @@ InDetPerfPlot_Efficiency::fill(const xAOD::TruthParticle& truth, const bool isGo
   fillHisto(m_efficiency_vs_R, R, isGood);
   fillHisto(m_efficiency_vs_Z, Z, isGood);
 
+  fillHisto(m_extended_efficiency_vs_d0, d0, isGood);
+  fillHisto(m_extended_efficiency_vs_z0, z0, isGood);
   if (truth.hasProdVtx()) {
     const xAOD::TruthVertex* vtx = truth.prodVtx();
     double prod_rad = vtx->perp();
