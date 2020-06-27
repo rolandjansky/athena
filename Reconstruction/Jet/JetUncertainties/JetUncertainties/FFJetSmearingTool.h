@@ -70,7 +70,7 @@ namespace FFAllowedMassDef{
         TA,       ///Track Assisted
         Comb,     ///Combined
     };
-    inline TypeEnum stringToEnum(const TString& name)
+    TypeEnum stringToEnum(const TString& name)
     {
         if (name.EqualTo("Calo",TString::kIgnoreCase))
             return Calo;
@@ -80,7 +80,7 @@ namespace FFAllowedMassDef{
             return Comb;
         return UNKNOWN;
     }
-    inline TString enumToString(const TypeEnum type)
+    TString enumToString(const TypeEnum type)
     {
         switch (type)
         {
