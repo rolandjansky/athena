@@ -47,8 +47,8 @@ class AmdcDb final : public AthService, virtual public IRDBAccessSvcWithUpdate {
   
   virtual IRDBRecordset_ptr getRecordsetPtr(const std::string& node,
                                             const std::string& tag,
-                                            const std::string& tag2node ,
-                                            const std::string& connName) override;
+                                            const std::string& tag2node="",
+                                            const std::string& connName="") override;
 
   //Functions of IRDBAccessSvc Not implemented
   virtual bool connect   (const std::string& connName) override;

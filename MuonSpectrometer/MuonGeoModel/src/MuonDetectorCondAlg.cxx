@@ -73,7 +73,7 @@ StatusCode MuonDetectorCondAlg::execute()
   // =======================
   // Create the MuonDetectorManager by calling the MuonDetectorFactory001
   // =======================
-  MuonDetectorTool* MuDetTool = m_iGeoModelTool.get();
+  const MuonDetectorTool* MuDetTool = m_iGeoModelTool.get();
   MuonGM::MuonDetectorFactory001 theFactory(detStore().operator->());
   if(MuDetTool->createFactory(theFactory).isFailure()){
     ATH_MSG_FATAL("unable to create MuonDetectorFactory001 ");

@@ -69,7 +69,7 @@
 /////////////////////////////////////////////////////////////
 
 
-#include "egammaPerformance/photonMonTool.h"
+#include "photonMonTool.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -90,9 +90,6 @@ photonMonTool::photonMonTool(const std::string & type, const std::string & name,
      m_photonRegionGroup(nullptr),
      m_photonLBGroup(nullptr)
 {
-  // Name of the photon collection
-  declareProperty("PhotonContainer", m_PhotonContainer = "PhotonCollection", "Name of the photon collection");
-
   m_CbTightPhotons = new photonHist(std::string("CbTight"));
   m_CbTightPhotons->m_lumiBlockNumber = 0;
   m_CbTightPhotons->m_nPhotonsInCurrentLB = 0;
@@ -118,6 +115,13 @@ photonMonTool::~photonMonTool()
   ATH_MSG_DEBUG("photonMonTool ::: m_CbLoosePhotons deleted");
   if (m_CbTightPhotons) delete m_CbTightPhotons;
   ATH_MSG_DEBUG("photonMonTool ::: m_CbTightPhotons deleted");
+}
+
+StatusCode photonMonTool::initialize()
+{
+  ATH_CHECK( egammaMonToolBase::initialize() );
+  ATH_CHECK( m_PhotonContainer.initialize() );
+  return StatusCode::SUCCESS;
 }
 
 StatusCode photonMonTool::bookHistogramsForOnePhotonType(photonHist& myHist)
@@ -633,15 +637,8 @@ StatusCode photonMonTool::fillHistograms() {
   //--------------------
   //figure out current LB
   //--------------------
-  const DataHandle<xAOD::EventInfo> evtInfo;
-  StatusCode sc = m_storeGate->retrieve(evtInfo); 
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("couldn't retrieve event info");
-    return StatusCode::FAILURE;
-  }
-
   unsigned int previousLB = m_currentLB;
-  m_currentLB = evtInfo->lumiBlock();
+  m_currentLB = getCurrentLB();
 
   //deal with the change of LB
   if (m_currentLB>previousLB) {
@@ -685,9 +682,8 @@ StatusCode photonMonTool::fillHistograms() {
   }
 
   // Get photon container
-  const xAOD::PhotonContainer* photon_container=nullptr;
-  sc = m_storeGate->retrieve(photon_container, m_PhotonContainer);
-  if(sc.isFailure() || !photon_container){
+  SG::ReadHandle<xAOD::PhotonContainer> photon_container{m_PhotonContainer};
+  if(!photon_container.isValid()){
     ATH_MSG_VERBOSE("no photon container found in TDS");
     return StatusCode::FAILURE;
   } 
@@ -769,11 +765,5 @@ StatusCode photonMonTool::fillHistograms() {
     fillTH1FperRegion(m_CbTightPhotons->m_hvN,i,m_CbTightPhotons->m_nPhotons);
   }
 
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode photonMonTool::procHistograms()
-{
   return StatusCode::SUCCESS;
 }

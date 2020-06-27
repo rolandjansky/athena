@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCLUSTERCORRECTION_CALOSWCALIBHITSCALIBRATION_H
@@ -24,14 +24,13 @@ PURPOSE:  Calibrate SW em clusters with coefficients extracted
 class CaloSwCalibHitsCalibration : public CaloClusterCorrectionCommon
 {
 public:
-  // constructor 
-  CaloSwCalibHitsCalibration (const std::string& type,
-                              const std::string& name,
-                              const IInterface* parent);
+  /// Inherit constructor.
+  using CaloClusterCorrectionCommon::CaloClusterCorrectionCommon;
+
 
   /**
    * @brief Virtual function for the correction-specific code.
-   * @param ctx     The event context.
+   * @param myctx   ToolWithConstants context.
    * @param cluster The cluster to correct.
    *                It is updated in place.
    * @param elt     The detector description element corresponding
@@ -49,7 +48,7 @@ public:
    *                @c CaloSampling::CaloSample; i.e., it has both
    *                the calorimeter region and sampling encoded.
    */
-  virtual void makeTheCorrection (const EventContext& ctx,
+  virtual void makeTheCorrection (const Context& myctx,
                                   xAOD::CaloCluster* cluster,
                                   const CaloDetDescrElement* elt,
                                   float eta,
@@ -60,18 +59,14 @@ public:
 
 
  private:
-
-
-  CaloRec::Array<3>     m_correction;
-  CaloRec::Array<2>     m_sampling_depth;
-  float m_eta_start_crack;
-  float m_eta_end_crack;
-  float m_etamax;
-  //int m_degree;
-  bool m_use_raw_eta;
-  //bool m_preserve_offset;
-  bool m_fix_v6_pathologies;
-  bool m_updateSamplingEnergies;
+  Constant<CxxUtils::Array<3> >  m_correction    { this, "correction", "" };
+  Constant<CxxUtils::Array<2> >  m_sampling_depth{ this, "sampling_depth", "" };
+  Constant<float>             m_eta_start_crack { this, "eta_start_crack", "" };
+  Constant<float>             m_eta_end_crack   { this, "eta_end_crack",   "" };
+  Constant<float>             m_etamax          { this, "etamax",          "" };
+  Constant<bool>              m_use_raw_eta     { this, "use_raw_eta",     "" };
+  Constant<bool>  m_fix_v6_pathologies     { this, "fix_v6_pathologies", "" };
+  Constant<bool>  m_updateSamplingEnergies { this, "update_sampling_energies", true, "" };
 
   CaloClusterCorr::CaloSwCalibHitsShowerDepth m_showerDepth;
 };

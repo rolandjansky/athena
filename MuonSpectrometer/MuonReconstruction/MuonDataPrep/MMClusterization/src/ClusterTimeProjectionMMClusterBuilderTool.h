@@ -14,8 +14,6 @@
 #include "MuonPrepRawData/MMPrepData.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "MuonIdHelpers/MuonIdHelperSvc.h"
-
 namespace Muon {
 class ClusterTimeProjectionMMClusterBuilderTool :
   virtual public IMMClusterBuilderTool,
@@ -28,12 +26,13 @@ class ClusterTimeProjectionMMClusterBuilderTool :
   StatusCode initialize() override;
 
   StatusCode getClusters(std::vector<Muon::MMPrepData>& MMprds,
-      std::vector<Muon::MMPrepData*>& clustersVec) const override;
+      std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVec) const override;
 
  private:
     /// Muon Detector Descriptor
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
+    bool m_writeStripProperties;
     uint m_maxHoleSize;
 
 
@@ -53,7 +52,7 @@ class ClusterTimeProjectionMMClusterBuilderTool :
                                const std::vector<uint> &idxCluster,
                                const double &clustersPosition,
                                const double &clustersPositionErrorSq,
-                               std::vector<Muon::MMPrepData*>& clustersVec) const;
+                               std::vector<std::unique_ptr<Muon::MMPrepData>>& clustersVec) const;
 
     uint channel(const Identifier &id) const {
         return m_idHelperSvc->mmIdHelper().channel(id);

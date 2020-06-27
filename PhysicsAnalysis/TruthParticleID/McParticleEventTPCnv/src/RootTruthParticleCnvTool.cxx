@@ -97,7 +97,7 @@ RootTruthParticleCnvTool::convert(const McEventCollection *mcCollection,
                "TruthParticle is not wrapping the GenParticle : %d !!",
                hepMcPart->barcode());
     }
-    HepMcParticleLink mcLink( hepMcPart->barcode(), genEventIndex );
+    HepMcParticleLink mcLink( hepMcPart->barcode(), genEventIndex, EBC_MAINEVCOLL, HepMcParticleLink::IS_POSITION );
     bcToMcPart[ mcLink.compress() ] = mcPart;
 
   }//> end loop over particles

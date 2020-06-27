@@ -51,6 +51,8 @@ CaloCellContainerCheckerTool::CaloCellContainerCheckerTool(
 /////////////////////////////////////////////////////////////////////
 
 StatusCode CaloCellContainerCheckerTool::initialize() {
+
+  ATH_CHECK(detStore()->retrieve(m_theCaloCCIDM,"CaloCell_ID"));
   return StatusCode::SUCCESS;
 }
 
@@ -189,9 +191,7 @@ CaloCellContainerCheckerTool::doProcess (const CaloCellContainer* theCont,
   // check find methods
 
   // count number of holes
-  const CaloCell_ID*               theCaloCCIDM  = nullptr;
-  ATH_CHECK(detStore()->retrieve(theCaloCCIDM,"CaloCell_ID"));
-  unsigned int hashMax=theCaloCCIDM->calo_cell_hash_max();
+  const unsigned int hashMax=m_theCaloCCIDM->calo_cell_hash_max();
   unsigned int nHoles =0;
   
   ATH_MSG_DEBUG("Now check all hashes give meaningful answer");
@@ -201,12 +201,12 @@ CaloCellContainerCheckerTool::doProcess (const CaloCellContainer* theCont,
       ++nHoles;
       if (msgLvl(MSG::VERBOSE)) {
 	//const  CaloDetDescrElement* theCaloDDM->dde=get_element(theHash);
-	const Identifier id=theCaloCCIDM->cell_id(theHash);
-	const int subcalo=theCaloCCIDM->sub_calo(theHash);
-	const int sampling=theCaloCCIDM->calo_sample(theHash);
-	const int pos_neg=theCaloCCIDM->pos_neg(id);
-	const int region=theCaloCCIDM->region(id);
-	const int sample=theCaloCCIDM->sample(id);
+	const Identifier id=m_theCaloCCIDM->cell_id(theHash);
+	const int subcalo=m_theCaloCCIDM->sub_calo(theHash);
+	const int sampling=m_theCaloCCIDM->calo_sample(theHash);
+	const int pos_neg=m_theCaloCCIDM->pos_neg(id);
+	const int region=m_theCaloCCIDM->region(id);
+	const int sample=m_theCaloCCIDM->sample(id);
 	msg(MSG::VERBOSE) << "Cell not found: id=0x" << std::hex << id << std::dec 
 			  << ", SubCalo=" <<subcalo <<", sampling="<< sampling << ", pos_neg=" 
 			  << pos_neg << ", region=" << region << ", sample=" << sample << endmsg;

@@ -39,7 +39,6 @@
 #include "BTagging/BTagSecVertexing.h"
 #include "BTagging/BTagTool.h"
 
-#include "AthenaMonitoringKernel/Monitored.h"
 // ----------------------------------------------------------------------------------------------------------------- 
 
 
@@ -79,10 +78,6 @@ StatusCode TrigBtagFexMT::initialize() {
   ATH_CHECK( m_trkContainerKey.initialize() );
 
   ATH_CHECK( m_outputBTaggingContainerKey.initialize() );
-  //  ATH_CHECK( m_outputBtagVertexContainerKey.initialize() );
-  //  ATH_CHECK( m_outputVertexContainerKey.initialize() );
-
-  if (!m_monTool.empty()) CHECK(m_monTool.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -101,16 +96,10 @@ StatusCode TrigBtagFexMT::execute() {
   CHECK( jetContainerHandle.isValid() );
   const xAOD::JetContainer *jetContainer = jetContainerHandle.get();
   ATH_MSG_DEBUG( "Retrieved " << jetContainer->size() << " jets" );
-  auto monitor_for_jet_count = Monitored::Scalar( "jet_count", jetContainer->size() );
-
-  //auto monitor_for_jet_pt = Monitored::Collection( "jet_pt", *jetContainer, []( const xAOD::Jet *jet ) { return jet->pt(); } );
-  auto monitor_for_jet_pt = Monitored::Collection( "jet_pt", *jetContainer, &xAOD::Jet::pt );
-  auto monitor_for_jet_eta = Monitored::Collection( "jet_eta", *jetContainer, &xAOD::Jet::eta );
 
   for ( const xAOD::Jet* jet : *jetContainer ) {
     ATH_MSG_DEBUG( "    BTAGFEX:    ** pt=" << jet->pt() << " eta=" << jet->eta() << " phi=" << jet->phi() );
   }
-  auto monitor_group_for_jets = Monitored::Group( m_monTool, monitor_for_jet_pt, monitor_for_jet_eta );
 
 
   // Test retrieval of Track Particles
@@ -119,38 +108,10 @@ StatusCode TrigBtagFexMT::execute() {
   CHECK( trkContainerHandle.isValid() );
   const xAOD::TrackParticleContainer *trkContainer =  trkContainerHandle.get();
   ATH_MSG_DEBUG("Retrieved " << trkContainerHandle->size() << " Tracks");
-  auto monitor_for_track_count = Monitored::Scalar( "track_count", trkContainer->size() );
-
-  auto monitor_for_track_Et = Monitored::Collection( "track_Et", *trkContainer, []( const xAOD::TrackParticle *trk ) { return trk->p4().Et(); } );
-  auto monitor_for_track_eta = Monitored::Collection( "track_eta", *trkContainer, &xAOD::TrackParticle::eta );
-  auto monitor_for_track_phi = Monitored::Collection( "track_phi", *trkContainer, &xAOD::TrackParticle::phi );
-
-  // Monitors for d0 and z0 track impact parameter variables
-  auto monitor_for_track_d0 = Monitored::Collection( "track_d0", *trkContainer, &xAOD::TrackParticle::d0 );
-  auto monitor_for_track_d0err = Monitored::Collection( "track_d0err", *trkContainer, []( const xAOD::TrackParticle *trk ) {
-    return trk->definingParametersCovMatrix()( Trk::d0, Trk::d0 );
-  } );
-  auto monitor_for_track_d0sig = Monitored::Collection( "track_d0sig", *trkContainer, []( const xAOD::TrackParticle *trk ) {
-    return trk->d0() / trk->definingParametersCovMatrix()( Trk::d0, Trk::d0 );
-  } );
-
-  auto monitor_for_track_z0 = Monitored::Collection( "track_z0", *trkContainer, &xAOD::TrackParticle::z0 );
-  auto monitor_for_track_z0err = Monitored::Collection( "track_z0err", *trkContainer, []( const xAOD::TrackParticle *trk ) {
-    return trk->definingParametersCovMatrix()( Trk::z0, Trk::z0 );
-  } );
-  auto monitor_for_track_z0sig = Monitored::Collection( "track_z0sig", *trkContainer, []( const xAOD::TrackParticle *trk ) {
-    return trk->z0() / trk->definingParametersCovMatrix()( Trk::z0, Trk::z0 );
-  } );
 
   for ( const xAOD::TrackParticle *trk : *trkContainer ) {
     ATH_MSG_DEBUG( "  *** pt=" << trk->p4().Et() * 1e-3 << " eta=" << trk->eta() << " phi=" << trk->phi() );
   }
-  auto monitor_group_for_tracks = Monitored::Group( m_monTool, 
-    monitor_for_track_Et, monitor_for_track_eta, monitor_for_track_phi,
-    monitor_for_track_d0, monitor_for_track_d0err, monitor_for_track_d0sig,
-    monitor_for_track_z0, monitor_for_track_z0err, monitor_for_track_z0sig
-  );
-
 
   // Test retrieval of VertexContainer
   ATH_MSG_DEBUG( "Attempting to retrieve VertexContainer with key " << m_VertexContainerKey.key() );
@@ -158,12 +119,10 @@ StatusCode TrigBtagFexMT::execute() {
   CHECK( vxContainerHandle.isValid() );  
   const xAOD::VertexContainer* vxContainer = vxContainerHandle.get();
   ATH_MSG_DEBUG( "Retrieved " << vxContainer->size() <<" vertices..." );
-  auto monitor_for_vertex_count = Monitored::Scalar( "vertex_count", vxContainer->size() );
 
   for ( const xAOD::Vertex *pv : *vxContainer ) {
     ATH_MSG_DEBUG( "   ** PV x=" << pv->x()<< " y=" << pv->y() << " z=" << pv->z() );
   }
-
 
   // Creating dummy B-Tagging container in order to avoid
   // warnings from the SGInputLoader
@@ -171,11 +130,12 @@ StatusCode TrigBtagFexMT::execute() {
   std::unique_ptr< xAOD::BTaggingAuxContainer > outputBtaggingAux = std::make_unique< xAOD::BTaggingAuxContainer >();
   outputBtagging->setStore( outputBtaggingAux.get() );
 
+  xAOD::BTagging *toAdd = new xAOD::BTagging();
+  outputBtagging->push_back( toAdd );
+
   SG::WriteHandle< xAOD::BTaggingContainer > btaggingHandle = SG::makeHandle( m_outputBTaggingContainerKey,ctx );
   CHECK( btaggingHandle.record( std::move( outputBtagging ),std::move( outputBtaggingAux ) ) );
   ATH_MSG_DEBUG( "Exiting with " << btaggingHandle->size() << " btagging objects" );
-
-  auto monitor_group_for_events = Monitored::Group( m_monTool, monitor_for_jet_count, monitor_for_track_count, monitor_for_vertex_count );
 
   return StatusCode::SUCCESS;
 }

@@ -258,7 +258,7 @@ svcMgr.THistSvc.Output = [ CTmonMan.FileKey + " DATAFILE='HistFile.root' OPT='RE
 
 
 include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
-svcMgr.ByteStreamInputSvc.FullFileName = athenaCommonFlags.FilesInput()
+svcMgr.EventSelector.Input = athenaCommonFlags.FilesInput()
 include( "ByteStreamCnvSvcBase/BSAddProvSvc_RDO_jobOptions.py" )
 include( "ByteStreamCnvSvcBase/BSAddProvSvc_RIO_jobOptions.py" )
 

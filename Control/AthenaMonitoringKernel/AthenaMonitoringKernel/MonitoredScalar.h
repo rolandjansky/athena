@@ -103,12 +103,19 @@ namespace Monitored {
     T operator--() { return --m_value; }
     T operator--(int) { return m_value--; }
 
-    std::vector<double> getVectorRepresentation() const override {
-      return { convertToDouble( m_value, m_valueTransform, m_valueGenerator ) };
+    virtual double get(size_t) const override {
+      if constexpr (std::is_convertible_v<double, T>) {
+        return (m_valueGenerator ? static_cast<double>(m_valueGenerator()) :
+                m_valueTransform ? m_valueTransform(m_value) : static_cast<double>(m_value));
+      }
+      else return 0;
     }
 
-    std::vector<std::string> getStringVectorRepresentation() const override{
-      return { convertToString( m_value, m_valueGenerator ) };
+    virtual std::string getString(size_t) const override {
+      if constexpr (std::is_constructible_v<std::string, T>) {
+        return (m_valueGenerator ? m_valueGenerator() : m_value);
+      }
+      else return {};
     }
 
     virtual bool hasStringRepresentation() const override {
@@ -123,35 +130,7 @@ namespace Monitored {
     T m_value{};
     std::function<double(const T&)> m_valueTransform;
     std::function<T()> m_valueGenerator;
-
-    template< typename U, typename Generator,
-              typename = typename std::enable_if< std::is_constructible<std::string, U>::value >::type >
-    std::string convertToString( const U& value, Generator g ) const {
-      return  ( g ? g() : value );
-    }
-
-    template< typename U, typename Generator,
-              typename = typename std::enable_if< ! std::is_constructible<std::string, U>::value >::type, typename = void >
-    std::string convertToString( const U&, Generator ) const {
-      return "";
-    }
-
-    template< typename U, typename Transformer, typename Generator,  typename = typename std::enable_if< !std::is_convertible<double, U>::value >::type >
-      double convertToDouble( const U&, Transformer, Generator  ) const {
-      return 0;
-    }
-
-    template< typename U, typename Transformer, typename Generator, typename = typename std::enable_if< std::is_convertible<double, U>::value >::type, typename = void >
-      double convertToDouble(const U& value, Transformer t, Generator g ) const {      
-      return  ( g ? static_cast<double>(g()) : t ? t(value) : static_cast<double>(value) );
-    }
-
-
   };
-
-
-
-
 
 } // namespace Monitored
 

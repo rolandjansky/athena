@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGL2MUONSA_PTENDCAPLUT_H
@@ -9,7 +9,6 @@
 
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/IInterface.h"
-#include "GaudiKernel/StatusCode.h"
 
 #include <map>
 #include <cstring>
@@ -25,15 +24,11 @@ class PtEndcapLUT: public AthAlgTool
   enum DataType { INVALID, ALPHAPOL2, BETAPOL2, TGCALPHAPOL2, INVRADIUSPOL2, CSCPOL2 };
     
   public:
-    static const InterfaceID& interfaceID();
 
     PtEndcapLUT(const std::string& type, 
                 const std::string& name,
                 const IInterface*  parent);
     ~PtEndcapLUT(void);
-
-    virtual StatusCode initialize();
-    virtual StatusCode finalize  ();
 
     StatusCode readLUT(std::string lut_fileName);
     StatusCode readLUTSigmaMean(std::string lut_mean, std::string lut_sigma);

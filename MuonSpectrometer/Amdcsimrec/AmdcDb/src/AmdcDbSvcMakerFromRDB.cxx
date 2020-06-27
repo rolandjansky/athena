@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AmdcDb/AmdcDbSvcMakerFromRDB.h"
@@ -10,7 +10,6 @@
 #include "AmdcDb/AmdcDbRecordset.h"
 #include "AmdcDb/AmdcDbRecord.h"
 #include "boost/range/iterator_range.hpp"
-
 
 namespace AmdcDb_detail {
 
@@ -96,6 +95,13 @@ VarDesc AMDC_Vars[] = {
   {VarDesc::String, "DATA", "(NLINE)-ASCII"},
 };
 
+VarDesc AGDD_Vars[] = {
+  {VarDesc::Int, "VERS", "VERSION"},
+  {VarDesc::String, "VNAME", "NAME"},
+  {VarDesc::Int, "LENAGDD", "STRING LENGTH"},
+  {VarDesc::Int, "NLINE", "CHAR4 NUMBER"},
+  {VarDesc::String, "DATA", "(NLINE)-ASCII"},
+};
 
 VarDesc ATYP_Vars[] = {
   {VarDesc::Int, "VERS", "VERSION"},
@@ -537,8 +543,6 @@ AmdcDbSvcMakerFromRDB::AmdcDbSvcMakerFromRDB(){
   
 }
 
-AmdcDbSvcMakerFromRDB::~AmdcDbSvcMakerFromRDB(){}
-
 // Set a AmdcDbSvc
 void AmdcDbSvcMakerFromRDB::SetEpsLengthMM(int EpsLengthMM){ m_EpsLengthMM  = EpsLengthMM ;}
 void AmdcDbSvcMakerFromRDB::SetEpsLengthCM(int EpsLengthCM){ m_EpsLengthCM  = EpsLengthCM ;}
@@ -557,10 +561,9 @@ void AmdcDbSvcMakerFromRDB::Set(
   m_detectorNode = detectorNode ;
   
   AMDC(pIRDBAccessSvc,pAmdcDbSvc);
-  
+  AGDD(pIRDBAccessSvc,pAmdcDbSvc);
   ATYP(pIRDBAccessSvc,pAmdcDbSvc);
   ACUT(pIRDBAccessSvc,pAmdcDbSvc);
-  
   WRPC(pIRDBAccessSvc,pAmdcDbSvc);
   AWLN(pIRDBAccessSvc,pAmdcDbSvc);
   WTGC(pIRDBAccessSvc,pAmdcDbSvc);
@@ -580,7 +583,6 @@ void AmdcDbSvcMakerFromRDB::Set(
   ALIN(pIRDBAccessSvc,pAmdcDbSvc);
   ALMN(pIRDBAccessSvc,pAmdcDbSvc);
   APTP(pIRDBAccessSvc,pAmdcDbSvc);
-  
   ASZT(pIRDBAccessSvc,pAmdcDbSvc);
   ISZT(pIRDBAccessSvc,pAmdcDbSvc);
 
@@ -600,6 +602,10 @@ void AmdcDbSvcMakerFromRDB::AMDC(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcD
   addVars ("AMDC", RANGE(AMDC_Vars), pIRDBAccessSvc, pAmdcDbSvc);
 }
 
+void AmdcDbSvcMakerFromRDB::AGDD(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcDbSvc)
+{
+  addVars ("AGDD", RANGE(AGDD_Vars), pIRDBAccessSvc, pAmdcDbSvc);
+}
 
 void AmdcDbSvcMakerFromRDB::ATYP(IRDBAccessSvc* pIRDBAccessSvc,AmdcDbSvc* pAmdcDbSvc)
 {

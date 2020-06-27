@@ -11,7 +11,7 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 #include "IsolationTool/CaloIsolationTool.h"
 #include "CaloGeoHelpers/CaloSampling.h"
-#include "StoreGate/ReadHandle.h"
+#include "AsgDataHandles/ReadHandle.h"
 
 #ifndef XAOD_ANALYSIS
 #include "CaloEvent/CaloCell.h"

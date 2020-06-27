@@ -56,13 +56,13 @@ StatusCode XtoVVDecayFilterExtended::filterEvent() {
   for (itr = events()->begin(); itr != events()->end(); ++itr) {
     // Loop over all particles in the event
     const HepMC::GenEvent* genEvt = (*itr);
-    for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
-      if ( abs((*pitr)->pdg_id()) == m_PDGParent && (*pitr)->status() == m_StatusParent) {
-        bool isGrandParentOK = RunHistory(*pitr);
+    for (auto  pitr: *genEvt) {
+      if ( std::abs(pitr->pdg_id()) == m_PDGParent && pitr->status() == m_StatusParent) {
+        bool isGrandParentOK = RunHistory(pitr);
 	ATH_MSG_DEBUG(" Grand Parent is OK? " << isGrandParentOK);
         if (!isGrandParentOK) continue;
         ++nGoodParent;
-        FindAncestor((*pitr)->end_vertex(), m_PDGParent, okPDGChild1, okPDGChild2);
+        FindAncestor(pitr->end_vertex(), m_PDGParent, okPDGChild1, okPDGChild2);
       }
     }
   }
@@ -83,7 +83,7 @@ StatusCode XtoVVDecayFilterExtended::filterEvent() {
 
 // Runs the history of ancestors and returns TRUE if it finds the
 // m_PDGGrandParent in the list of ansestors
-bool XtoVVDecayFilterExtended::RunHistory(HepMC::GenParticle *pitr) {
+bool XtoVVDecayFilterExtended::RunHistory(HepMC::GenParticlePtr pitr) {
   if (! pitr->production_vertex()) {
     ATH_MSG_DEBUG("No History for this case");
     return false;
@@ -108,7 +108,7 @@ bool XtoVVDecayFilterExtended::RunHistory(HepMC::GenParticle *pitr) {
 
 // checks whether the grandparent of a given particle is m_PDGGrandParent
 // it returns the first mother
-HepMC::GenParticle*  XtoVVDecayFilterExtended::CheckGrandparent(HepMC::GenParticle *pitr, int &result) {
+HepMC::GenParticlePtr  XtoVVDecayFilterExtended::CheckGrandparent(HepMC::GenParticlePtr pitr, int &result) {
 
   if (! pitr->production_vertex()) {
     ATH_MSG_DEBUG("No ancestor for this case");
@@ -135,7 +135,7 @@ HepMC::GenParticle*  XtoVVDecayFilterExtended::CheckGrandparent(HepMC::GenPartic
 }
 
 
-void XtoVVDecayFilterExtended::FindAncestor(const HepMC::GenVertex * searchvertex,
+void XtoVVDecayFilterExtended::FindAncestor(const HepMC::GenVertexPtr searchvertex,
                                     int targetPDGID, bool& okPDGChild1, bool& okPDGChild2) {
   if (!searchvertex) return;
   const HepMC::GenVertex::particles_out_const_iterator firstAncestor = searchvertex->particles_out_const_begin();

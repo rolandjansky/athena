@@ -45,7 +45,7 @@ endmacro( _add_test )
 atlas_add_test( gt_SystematicSet
    SOURCES test/gt_SystematicSet.cxx
    INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-   LINK_LIBRARIES ${GTEST_LIBRARIES} PATInterfaces )
+   LINK_LIBRARIES ${GTEST_LIBRARIES} PATInterfaces RootCoreUtils )
 
 _add_test( ut_SystematicSet_unordered_map )
 _add_test( ut_SystematicVariation )

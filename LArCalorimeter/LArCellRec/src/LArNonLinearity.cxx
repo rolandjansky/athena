@@ -87,7 +87,7 @@ StatusCode LArNonLinearity::initialize()
   ATH_MSG_INFO( " Initialize LArNonLinearity "  );
 
   // pointer to DD manager and helpers:
-  const DataHandle<CaloIdManager> caloIdMgr;
+  const CaloIdManager* caloIdMgr;
   ATH_CHECK( detStore()->retrieve(caloIdMgr) );
 
   m_emID = caloIdMgr->getEM_ID();

@@ -91,7 +91,8 @@ void compare (const Muon::MdtDriftCircleOnTrack& p1,
            static_cast<const Trk::RIO_OnTrack&>(p2));
   assert (p1.status() == p2.status());
   assert (p1.detectorElement() == p2.detectorElement());
-  assert (p1.prepRawDataLink().key() == p2.prepRawDataLink().key());
+  // Link key gets modified during writing.
+  assert (p2.prepRawDataLink().key() == 546340330);
   assert (p1.prepRawDataLink().index() == p2.prepRawDataLink().index());
   assert (p1.localAngle() == p2.localAngle());
   assert (p1.positionAlongWire() == p2.positionAlongWire());

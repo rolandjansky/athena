@@ -40,7 +40,7 @@ public:
   virtual unsigned int currentEventStatus() const;
   virtual std::pair<long,std::string> getBlockIterator(const std::string /* file */);
   virtual void closeBlockIterator(bool);
-  virtual bool ready();
+  virtual bool ready() const;
   virtual StatusCode generateDataHeader(); 
   virtual long positionInBlock();
   virtual void validateEvent();
@@ -59,7 +59,7 @@ inline unsigned int ByteStreamInputSvc::currentEventStatus() const {
 // Virtual methods needed for file input
 inline std::pair<long,std::string> ByteStreamInputSvc::getBlockIterator(const std::string /* file */) {return std::make_pair(-1,"GUID");}
 inline void ByteStreamInputSvc::closeBlockIterator(bool) {}
-inline bool ByteStreamInputSvc::ready() {return false;}
+inline bool ByteStreamInputSvc::ready() const {return false;}
 inline StatusCode ByteStreamInputSvc::generateDataHeader() {return StatusCode::SUCCESS;}
 inline long ByteStreamInputSvc::positionInBlock() {return -1;} 
 inline void ByteStreamInputSvc::validateEvent() {}

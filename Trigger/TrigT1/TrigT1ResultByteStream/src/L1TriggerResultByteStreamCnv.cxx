@@ -30,7 +30,7 @@ L1TriggerResultByteStreamCnv::L1TriggerResultByteStreamCnv(ISvcLocator* svcLoc) 
   Converter(storageType(), classID(), svcLoc),
   AthMessaging(msgSvc(), "L1TriggerResultByteStreamCnv"),
   m_ByteStreamEventAccess("ByteStreamCnvSvc", "L1TriggerResultByteStreamCnv"),
-  m_muonEncoderTool("ExampleL1TriggerByteStreamTool/ToolSvc.L1MuonBSEncoderTool") {}
+  m_muonEncoderTool("ExampleL1TriggerByteStreamTool/L1MuonBSEncoderTool") {}
 
 // =============================================================================
 // Standard destructor

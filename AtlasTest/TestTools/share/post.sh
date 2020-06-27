@@ -260,6 +260,9 @@ PP="$PP"'|filling address for'
 # MetaInputLoader addresses and SIDs
 PP="$PP"'|MetaInputLoader *INFO ( address|.*is still valid for|.*and sid)'
 
+# Message useless for judging test success
+PP="$PP"'|^FileMgr +DEBUG Successfully registered handler for tech'
+
 ########################################### END #####################################################
 
 # Always use default ignore list

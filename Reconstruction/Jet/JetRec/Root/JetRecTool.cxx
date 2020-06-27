@@ -22,6 +22,10 @@
 
 #include "StoreGate/ReadHandle.h"
 
+#ifndef GENERATIONBASE
+  #include "AthenaMonitoringKernel/Monitored.h"
+#endif
+
 typedef ToolHandleArray<IJetModifier> ModifierArray;
 typedef ToolHandleArray<IJetConsumer> ConsumerArray;
 
@@ -221,6 +225,10 @@ StatusCode JetRecTool::initialize() {
   m_conclock.Reset();
   m_nevt = 0;
 
+#ifndef GENERATIONBASE
+  if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
+#endif
+
   ATH_MSG_INFO("Timing detail: " << m_timer);
   return rstat;
 }
@@ -402,6 +410,18 @@ const JetContainer* JetRecTool::build() const {
     }
     m_conclock.Stop();
   }
+
+
+#ifndef GENERATIONBASE
+  // monitor jet multiplicity and basic jet kinematics
+  auto njets = Monitored::Scalar<int>("nJets");
+  auto pt    = Monitored::Collection("pt",  *jetsHandle, [c=m_mevtogev]( const xAOD::Jet* jet ) { return jet->pt()*c; });
+  auto et    = Monitored::Collection("et",  *jetsHandle, [c=m_mevtogev]( const xAOD::Jet* jet ) { return jet->p4().Et()*c; });
+  auto eta   = Monitored::Collection("eta", *jetsHandle, []( const xAOD::Jet* jet ) { return jet->eta(); });
+  auto phi   = Monitored::Collection("phi", *jetsHandle, []( const xAOD::Jet* jet ) { return jet->phi(); });
+  auto mon   = Monitored::Group(m_monTool,njets,pt,et,eta,phi);
+  njets      = jetsHandle->size();
+#endif
 
   m_totclock.Stop();
 

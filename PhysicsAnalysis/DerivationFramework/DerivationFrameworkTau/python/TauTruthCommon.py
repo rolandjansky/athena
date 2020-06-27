@@ -8,52 +8,61 @@
 
 from __future__ import print_function
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob, DerivationFrameworkIsMonteCarlo
-from AthenaCommon.AppMgr import ToolSvc
-from AthenaCommon import CfgMgr 
-
 #====================================================================
 # AUGMENTATION TOOLS
 #====================================================================
 # Tau Truth making and matching
-if DerivationFrameworkIsMonteCarlo:
-
-    from DerivationFrameworkTau.DerivationFrameworkTauConf import DerivationFramework__TauTruthMatchingWrapper
-    from TauAnalysisTools.TauAnalysisToolsConf import TauAnalysisTools__TauTruthMatchingTool
+def scheduleTauTruthTools(kernel=None):
+    # Ensure that we are running on MC!
+    from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo
+    if not DerivationFrameworkIsMonteCarlo:
+        return
+    # Ensure that we are adding it to something
+    if kernel is None:
+        from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
+        kernel = DerivationFrameworkJob
+    if hasattr(kernel,'TauTruthCommonKernel'):
+        # Already there!  Carry on...
+        return
 
     DFCommonTauTruthWrapperTools = []
 
-    # Tau Truth making and matching
-    # Set up the MCTruthClassifier
-    from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
-    DFCommonTauTruthClassifier = MCTruthClassifier(name = "DFCommonTauTruthClassifier",
-                                        ParticleCaloExtensionTool="")
-    ToolSvc += DFCommonTauTruthClassifier
-
-    # Build the truth taus
-    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthCollectionMakerTau
-    DFCommonTruthTauTool = DerivationFramework__TruthCollectionMakerTau(name             = "DFCommonTruthTauTool",
-                                                                 NewCollectionName       = "TruthTaus",
-                                                                 MCTruthClassifier       = DFCommonTauTruthClassifier)
-    ToolSvc += DFCommonTruthTauTool
-    DFCommonTauTruthWrapperTools.append(DFCommonTruthTauTool)
-
+    from AthenaCommon.AppMgr import ToolSvc
     # Matching
     # Only do if working with AOD
     from RecExConfig.ObjKeyStore import objKeyStore
     if objKeyStore.isInInput( "xAOD::TauJetContainer", "TauJets" ):    
+        from TauAnalysisTools.TauAnalysisToolsConf import TauAnalysisTools__TauTruthMatchingTool
         DFCommonTauTruthMatchingTool = TauAnalysisTools__TauTruthMatchingTool(name="DFCommonTauTruthMatchingTool")
+        DFCommonTauTruthMatchingTool.WriteTruthTaus = True
+        DFCommonTauTruthMatchingTool.WriteInvisibleFourMomentum = True
+        DFCommonTauTruthMatchingTool.WriteVisibleNeutralFourMomentum = True
         ToolSvc += DFCommonTauTruthMatchingTool
+
+        from DerivationFrameworkTau.DerivationFrameworkTauConf import DerivationFramework__TauTruthMatchingWrapper
         DFCommonTauTruthMatchingWrapper = DerivationFramework__TauTruthMatchingWrapper( name = "DFCommonTauTruthMatchingWrapper",
                                                                                         TauTruthMatchingTool = DFCommonTauTruthMatchingTool,
                                                                                         TauContainerName     = "TauJets")
         ToolSvc += DFCommonTauTruthMatchingWrapper
         print (DFCommonTauTruthMatchingWrapper)
         DFCommonTauTruthWrapperTools.append(DFCommonTauTruthMatchingWrapper)
+    else:
+        # No reco taus, so just build the truth tau container
+        from TauAnalysisTools.TauAnalysisToolsConf import TauAnalysisTools__BuildTruthTaus
+        btt = TauAnalysisTools__BuildTruthTaus( WriteTruthTaus = True,
+                                                WriteInvisibleFourMomentum = True,
+                                                WriteVisibleNeutralFourMomentum = True )
+        ToolSvc += btt
+        from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthCollectionMakerTau
+        DFCommonTruthTauCollectionMaker = DerivationFramework__TruthCollectionMakerTau()
+        DFCommonTruthTauCollectionMaker.BuildTruthTaus = btt
+        ToolSvc += DFCommonTruthTauCollectionMaker
+        print (DFCommonTruthTauCollectionMaker)
+        DFCommonTauTruthWrapperTools.append(DFCommonTruthTauCollectionMaker)
 
     #=======================================
     # CREATE THE DERIVATION KERNEL ALGORITHM
     #=======================================
-
-    DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("TauTruthCommonKernel",
-                                                                             AugmentationTools = DFCommonTauTruthWrapperTools)
+    from AthenaCommon import CfgMgr
+    kernel += CfgMgr.DerivationFramework__CommonAugmentation( "TauTruthCommonKernel",
+                                                              AugmentationTools = DFCommonTauTruthWrapperTools )

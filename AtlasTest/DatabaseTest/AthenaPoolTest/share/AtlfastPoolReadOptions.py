@@ -86,10 +86,6 @@ IKinematicDumper.cellLocation     = "/Event/AtlfastPoolTestCells"
 #--------------------------------------------------------------
 # Input options
 #--------------------------------------------------------------
-# Include AthenaSealSvc and dicts that are 
-# not linked against converters (temporary)
-include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-
 include( "FourMom/FourMomDict_joboptions.py" )
 
 # Converters:

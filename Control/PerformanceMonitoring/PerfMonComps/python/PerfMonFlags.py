@@ -136,7 +136,7 @@ class doMonitoringMT(JobProperty):
         # Setup PerfMonAlg
         from AthenaCommon.AlgSequence import AthSequencer
         topSequence = AthSequencer("AthAlgSeq")
-        if not hasattr(topSequence, "PerfMonMTSvcAlg"):
+        if not hasattr(topSequence, "PerfMonMTAlg"):
             from PerfMonComps.PerfMonCompsConf import PerfMonMTAlg
             topSequence += PerfMonMTAlg("PerfMonMTAlg")
         return

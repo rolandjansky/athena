@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   */
 
 /** @file ByteStreamMetadataTool.cxx
  *  @brief This file contains the implementation for the ByteStreamMetadataTool class.
@@ -13,155 +13,168 @@
 #include "ByteStreamData/ByteStreamMetadataContainer.h"
 #include "StoreGate/StoreGateSvc.h"
 
-//___________________________________________________________________________
-ByteStreamMetadataTool::ByteStreamMetadataTool(const std::string& type,
-	const std::string& name,
-	const IInterface* parent) : AthAlgTool(type, name, parent), 
-		m_pMetaDataStore("StoreGateSvc/MetaDataStore", name), 
-		m_pInputStore("StoreGateSvc/InputMetaDataStore", name) {
-   declareInterface<IMetaDataTool>(this);
-}
 
-//___________________________________________________________________________
-ByteStreamMetadataTool::~ByteStreamMetadataTool() {
-}
-
-//___________________________________________________________________________
-StatusCode ByteStreamMetadataTool::initialize() {
-   ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
-   if (!::AthAlgTool::initialize().isSuccess()) {
-      ATH_MSG_FATAL("Cannot initialize AthService base class.");
-      return(StatusCode::FAILURE);
-   }
-
-   // locate the DetectorStore and initialize our local ptr
-   StatusCode status = m_pMetaDataStore.retrieve();
-   if (!status.isSuccess() || 0 == m_pMetaDataStore) {
-      ATH_MSG_ERROR("Could not find MetaDataStore");
-      return(status);
-   }
-   status = m_pInputStore.retrieve();
-   if (!status.isSuccess() || 0 == m_pInputStore) {
-      ATH_MSG_ERROR("Could not find InputMetaDataStore");
-      return(status);
-   }
-   return(StatusCode::SUCCESS);
-}
-
-//___________________________________________________________________________
-StatusCode ByteStreamMetadataTool::finalize() {
-   ATH_MSG_INFO("in finalize()");
-   return(::AthAlgTool::finalize());
-}
-
-
-StatusCode ByteStreamMetadataTool::beginInputFile(const SG::SourceID&)
+/******************************************************************************/
+ByteStreamMetadataTool::ByteStreamMetadataTool(
+    const std::string& type,
+    const std::string& name,
+    const IInterface* parent)
+  : AthAlgTool(type, name, parent)
+  , m_metadataStore("StoreGateSvc/MetaDataStore", name)
+  , m_inputStore   ("StoreGateSvc/InputMetaDataStore", name)
 {
-   return this->beginInputFile();
+  declareInterface<IMetaDataTool>(this);
 }
 
-StatusCode ByteStreamMetadataTool::beginInputFile()
-{
-   std::vector<std::string> vKeys;
-   std::set<std::string> keys;
-   m_pInputStore->keys<ByteStreamMetadata>(vKeys);
-   keys.insert(vKeys.begin(), vKeys.end());
-   m_pInputStore->keys<ByteStreamMetadataContainer>(vKeys);
-   keys.insert(vKeys.begin(), vKeys.end());
 
-   std::vector<ByteStreamMetadata*> copy;
-   std::set<std::string> transGuids;
-   for (std::set<std::string>::const_iterator keyIter = keys.begin(), keyEnd = keys.end();
-	      keyIter != keyEnd; keyIter++) {
-      ATH_MSG_DEBUG("Processing Input ByteStreamMetadata, key = " << *keyIter);
-      copy.clear();
-      if (m_pInputStore->contains<ByteStreamMetadata>(*keyIter)) {
-         std::list<SG::ObjectWithVersion<ByteStreamMetadata> > allVersions;
-         StatusCode status = m_pInputStore->retrieveAllVersions(allVersions, *keyIter);
-         if (!status.isSuccess()) {
-            ATH_MSG_ERROR("Could not find Input ByteStreamMetadata");
-            return StatusCode::FAILURE;
-         } else {
-            ATH_MSG_DEBUG("Found Input ByteStreamMetadata");
-         }
-         for (SG::ObjectWithVersion<ByteStreamMetadata>& obj : allVersions) {
-            copy.push_back(new ByteStreamMetadata(*obj.dataObject));
-         }
+/******************************************************************************/
+ByteStreamMetadataTool::~ByteStreamMetadataTool()
+{}
+
+
+/******************************************************************************/
+StatusCode
+ByteStreamMetadataTool::initialize()
+{
+  ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
+
+  ATH_CHECK(::AthAlgTool::initialize());
+  ATH_CHECK(m_metadataStore.retrieve());
+  ATH_CHECK(m_inputStore.retrieve());
+
+  return(StatusCode::SUCCESS);
+}
+
+
+/******************************************************************************/
+StatusCode
+ByteStreamMetadataTool::finalize()
+{
+  ATH_MSG_INFO("in finalize()");
+  return(::AthAlgTool::finalize());
+}
+
+
+/******************************************************************************/
+StatusCode
+ByteStreamMetadataTool::beginInputFile(const SG::SourceID&)
+{
+  return this->beginInputFile();
+}
+
+
+/******************************************************************************/
+StatusCode
+ByteStreamMetadataTool::beginInputFile()
+{
+  std::set<std::string> keys = keysFromInput();
+
+  std::vector<std::unique_ptr<ByteStreamMetadata> > copy;
+  std::set<std::string> transGuids;
+
+
+  for(const auto& key : keys) {
+    ATH_MSG_DEBUG("Processing Input ByteStreamMetadata, key = " << key);
+    copy.clear();
+
+    if(m_inputStore->contains<ByteStreamMetadata>(key)) {
+
+      std::list<SG::ObjectWithVersion<ByteStreamMetadata> > allVersions;
+      ATH_CHECK(m_inputStore->retrieveAllVersions(allVersions, key));
+
+      for(SG::ObjectWithVersion<ByteStreamMetadata>& obj : allVersions)
+        copy.push_back(std::make_unique<ByteStreamMetadata>(*obj.dataObject));
+
+    }
+
+
+    if(m_inputStore->contains<ByteStreamMetadataContainer>(key)) {
+
+      std::list<SG::ObjectWithVersion<ByteStreamMetadataContainer> > allVersions;
+      ATH_CHECK(m_inputStore->retrieveAllVersions(allVersions, key));
+
+      for(SG::ObjectWithVersion<ByteStreamMetadataContainer>& obj : allVersions)
+        for(const ByteStreamMetadata* md : *obj.dataObject)
+          copy.push_back(std::make_unique<ByteStreamMetadata>(*md));
+    }
+
+
+    if(!copy.empty()) {
+
+      transGuids.clear();
+      // Check for existing container
+      ByteStreamMetadataContainer* bsmdc = 0;
+
+      if (m_metadataStore->contains<ByteStreamMetadataContainer>(key)) {
+
+        ATH_MSG_DEBUG("Pre-existing ByteStreamMetadataContainer found");
+        ATH_CHECK(m_metadataStore->retrieve(bsmdc, key));
+
+        for (const auto& bsmd : *bsmdc)
+          transGuids.insert(bsmd->getGuid());
+
+      } else {
+
+        bsmdc = new ByteStreamMetadataContainer;
+        ATH_CHECK(m_metadataStore->record(bsmdc, key));
+
       }
-      if (m_pInputStore->contains<ByteStreamMetadataContainer>(*keyIter)) {
-         std::list<SG::ObjectWithVersion<ByteStreamMetadataContainer> > allVersions;
-         StatusCode status = m_pInputStore->retrieveAllVersions(allVersions, *keyIter);
-         if (!status.isSuccess()) {
-            ATH_MSG_ERROR("Could not find Input ByteStreamMetadataContainer");
-            return StatusCode::FAILURE;
-         } else {
-            ATH_MSG_DEBUG("Found Input ByteStreamMetadataContainer");
-         }
-         for (SG::ObjectWithVersion<ByteStreamMetadataContainer>& obj : allVersions) {
-            const ByteStreamMetadataContainer& bsmdc = *obj.dataObject;
-            for (const ByteStreamMetadata* md : bsmdc) {
-              copy.push_back(new ByteStreamMetadata(*md));
-            }
-         }
+
+      for(auto& pBSMD : copy) {
+        // Only insert new metadata records (with GUID not yet in container)
+        if(transGuids.insert(pBSMD->getGuid()).second)
+          bsmdc->push_back(std::move(pBSMD));
       }
-      if (!copy.empty()) {
-         transGuids.clear();
-         // Check for existing container
-         ByteStreamMetadataContainer* bsmdc = 0;
-         if (m_pMetaDataStore->contains<ByteStreamMetadataContainer>(*keyIter)) {
-            ATH_MSG_DEBUG("Pre-existing ByteStreamMetadataContainer found");
-            StatusCode status = m_pMetaDataStore->retrieve(bsmdc, *keyIter);
-            if (!status.isSuccess()) {
-               ATH_MSG_ERROR("Could not retrieve " << *keyIter << " ByteStreamMetadataContainer");
-               return StatusCode::FAILURE;
-            }
-            for (ByteStreamMetadataContainer::const_iterator iter = bsmdc->begin(), iterEnd = bsmdc->end();
-	               iter != iterEnd; iter++) {
-               transGuids.insert((*iter)->getGuid());
-            }
-         } else {
-            bsmdc = new ByteStreamMetadataContainer;
-            StatusCode status = m_pMetaDataStore->record(bsmdc, *keyIter);
-            if (!status.isSuccess()) {
-               ATH_MSG_ERROR("Could not store ByteStreamMetadata in Metadata store");
-               return StatusCode::FAILURE;
-            } else {
-               ATH_MSG_DEBUG("ByteStreamMetadata copied to MetaDataStore");
-            }
-         }
-         for (std::vector<ByteStreamMetadata*>::iterator iter = copy.begin(), iterEnd = copy.end();
-	            iter != iterEnd; iter++) {
-            // Only insert new metadata records (with GUID not yet in container)
-            if (transGuids.insert((*iter)->getGuid()).second) {
-               bsmdc->push_back(*iter);
-               *iter = 0;
-            } else {
-               delete *iter; *iter = 0;
-            }
-         }
-      }
-   }
-   return StatusCode::SUCCESS;
+    }
+  }
+
+  return StatusCode::SUCCESS;
 }
 
 
-StatusCode ByteStreamMetadataTool::endInputFile(const SG::SourceID&)
+
+/******************************************************************************/
+inline
+std::set<std::string>
+ByteStreamMetadataTool::keysFromInput() const
 {
-   return StatusCode::SUCCESS;
+  std::vector<std::string> vKeys;
+  std::set<std::string> keys;
+
+  m_inputStore->keys<ByteStreamMetadata>(vKeys);
+  keys.insert(vKeys.begin(), vKeys.end());
+
+  m_inputStore->keys<ByteStreamMetadataContainer>(vKeys);
+  keys.insert(vKeys.begin(), vKeys.end());
+
+  return keys;
 }
 
-StatusCode ByteStreamMetadataTool::endInputFile()
+
+/******************************************************************************/
+StatusCode
+ByteStreamMetadataTool::endInputFile(const SG::SourceID&)
 {
-   return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
-StatusCode ByteStreamMetadataTool::metaDataStop(const SG::SourceID&)
+
+StatusCode
+ByteStreamMetadataTool::endInputFile()
 {
-   return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
-StatusCode ByteStreamMetadataTool::metaDataStop()
+
+StatusCode
+ByteStreamMetadataTool::metaDataStop(const SG::SourceID&)
 {
-   return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
+
+StatusCode
+ByteStreamMetadataTool::metaDataStop()
+{
+  return StatusCode::SUCCESS;
+}

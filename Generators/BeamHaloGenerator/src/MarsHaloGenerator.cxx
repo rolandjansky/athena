@@ -93,11 +93,11 @@ int MarsHaloGenerator::fillEvt(HepMC::GenEvent* evt) {
 
   // Check if sampling has been enabled or not.
   if(!m_enableSampling) {
-    evt->set_signal_process_id(BeamHaloGenerator::MARS_READ);
+    HepMC::set_signal_process_id(evt,BeamHaloGenerator::MARS_READ);
     evt->weights().push_back(beamHaloEvent[0].weight());
   }
   else {
-    evt->set_signal_process_id(BeamHaloGenerator::MARS_SINGLE);
+    HepMC::set_signal_process_id(evt,BeamHaloGenerator::MARS_SINGLE);
     evt->weights().push_back(1.0);
   }
 

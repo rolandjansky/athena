@@ -24,7 +24,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkVertexFitter/TrkVertexAnalysisUtils
                           Trigger/TrigEvent/TrigMuonEvent
                           Trigger/TrigEvent/TrigParticle
-                          Trigger/TrigSteer/DecisionHandling )
+                          Trigger/TrigSteer/DecisionHandling
+                          InnerDetector/InDetConditions/BeamSpotConditionsData )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
@@ -37,7 +38,8 @@ atlas_add_component( TrigBphysMonitoring
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} xAODTracking TrigDecisionToolLib 
                      TrigHLTMonitoringLib AthenaMonitoringLib TrkVertexAnalysisUtilsLib AthenaBaseComps xAODEventInfo 
-                     xAODMuon xAODTrigBphys xAODTrigMuon GaudiKernel TrkParameters TrkParametersBase VxVertex TrigMuonEvent TrigParticle DecisionHandlingLib )
+                     xAODMuon xAODTrigBphys xAODTrigMuon GaudiKernel TrkParameters TrkParametersBase VxVertex TrigMuonEvent 
+                     TrigParticle DecisionHandlingLib BeamSpotConditionsData )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

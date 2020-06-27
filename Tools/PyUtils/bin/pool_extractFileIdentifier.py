@@ -22,7 +22,7 @@ standard_library.install_aliases()
 
 def pool_extract(files):
     print (":: extracting GUID for [%i] files... "% len(files))
-    import os, sys
+    import os
     import subprocess
     sc,exe = subprocess.getstatusoutput('which pool_extractFileIdentifier')
     if sc != 0:

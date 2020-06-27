@@ -98,7 +98,7 @@ namespace Simulation
         ATH_MSG_VERBOSE( "Updated  vtx  position = " << newPos );
 
         // store the updated position in the vertex
-        curVtx->set_position( newPos);
+        curVtx->set_position( HepMC::FourVector(newPos.x(),newPos.y(),newPos.z(),newPos.t()));
         if(modifySigVtx && signalProcVtx==curVtx) {
           modifySigVtx=false;
         }

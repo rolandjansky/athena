@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -59,6 +59,8 @@ class LArDetectorToolNV : public GeoModelTool {
 
     std::string m_EMECVariantInner;
     std::string m_EMECVariantOuter;
+
+    bool m_activateFT;
 };
 
 #endif

@@ -21,6 +21,7 @@ endif()
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
+   Control/AthToolSupport/AsgDataHandles
    Control/AthToolSupport/AsgTools
    Event/xAOD/xAODBase
    Event/xAOD/xAODCaloEvent
@@ -50,7 +51,7 @@ atlas_add_library( IsolationToolLib
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES AsgTools xAODBase xAODCaloEvent xAODCore xAODEgamma
    xAODEventShape xAODMuon xAODPFlow xAODPrimitives xAODTracking
-   InDetTrackSelectionToolLib
+   AsgDataHandlesLib InDetTrackSelectionToolLib
    IsolationCorrectionsLib
    ${extra_lib}
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} CaloGeoHelpers FourMomUtils

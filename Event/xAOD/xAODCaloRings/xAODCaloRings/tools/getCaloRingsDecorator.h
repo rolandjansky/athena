@@ -1,17 +1,15 @@
+// Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: getCaloRingsDecorator.h 668862 2015-05-20 20:15:30Z wsfreund $
 #ifndef XAODCALORINGS_UTILS_GETCALORINGSDECORATOR_H
 #define XAODCALORINGS_UTILS_GETCALORINGSDECORATOR_H
 
-// Athena includes:
-#include "AthContainers/AuxElement.h"
-
 // Local includes:
-#include "xAODCaloRings/CaloRingsContainer.h"
+#include "xAODCaloRings/CaloRingsAuxTypes.h"
 
+// System include(s).
+#include <string>
 
 namespace xAOD {
 
@@ -23,7 +21,7 @@ std::string caloRingsLinksDecorKey(){
 /**
  * @brief Get CaloRings accessor with read only permissions.
  **/
-caloRingsReader_t* getCaloRingsReader();
+const caloRingsReader_t& getCaloRingsReader();
 
 } // namespace xAOD
 

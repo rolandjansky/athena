@@ -289,8 +289,8 @@ def LArCellMonConfig(inputFlags):
                            type='TH2F', path=energyvstime_hist_path,
                            xbins=lArCellBinningScheme.timescale, ybins=lArCellBinningScheme.energyscale)
 
-         cellMonGroup.defineHistogram('cellTime_'+part+'_cut;CellEnergyVsTime_'+part+'_'+str(eCutForTiming[idx/2]),
-                           title='Cell Energy vs Cell Time in '+part+' with CSC veto - Cell Time (E>'+str(eCutForTiming[idx/2])+' [MeV]);Cell Time [ns];Cell Energy [MeV]',
+         cellMonGroup.defineHistogram('cellTime_'+part+'_cut;CellEnergyVsTime_'+part+'_'+str(eCutForTiming[idx//2]),
+                           title='Cell Energy vs Cell Time in '+part+' with CSC veto - Cell Time (E>'+str(eCutForTiming[idx//2])+' [MeV]);Cell Time [ns];Cell Energy [MeV]',
                            weight='cellEnergy_'+part+'_cut',
                            cutmask='enGreaterThanCut_'+part,
                            type='TH1F', path=energyvstime_hist_path,
@@ -470,8 +470,8 @@ if __name__=='__main__':
 
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
-    cfg = MainServicesSerialCfg()
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
+    cfg = MainServicesCfg(ConfigFlags)
 
     # in case of tier0 workflow:
     #from CaloRec.CaloRecoConfig import CaloRecoCfg

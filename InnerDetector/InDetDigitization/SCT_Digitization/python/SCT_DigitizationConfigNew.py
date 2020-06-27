@@ -190,7 +190,7 @@ def SCT_FrontEndCfg(flags, name="SCT_FrontEnd", **kwargs):
     # Setup the ReadCalibChip folders and Svc
     acc = SCT_ReadCalibChipDataCfg(flags)
     kwargs.setdefault("SCT_ReadCalibChipDataTool", acc.popPrivateTools())
-    # DataCompressionMode: 1 is level mode x1x (default), 2 is edge mode 01x, 3 is expanded any hit xxx
+    # DataCompressionMode: 1 is level mode X1X (default), 2 is edge mode 01X, 3 is any hit mode (1XX|X1X|XX1)
     if flags.Digitization.PileUpPremixing:
         kwargs.setdefault("DataCompressionMode", 3)
     elif flags.Detector.Overlay and flags.Input.isMC:

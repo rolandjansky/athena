@@ -46,7 +46,10 @@ namespace DerivationFramework {
         { this, "InDetTrackParticlesKey", "InDetTrackParticles", "" };
       SG::ReadHandleKey<xAOD::TauJetContainer> m_tauKey
          { this, "TauKey", "", ""};
-
+      Gaudi::Property<bool> m_doTauTracksThinning
+         { this, "DoTauTracksThinning", "", "Apply thinning to tau tracks in addition to ID tracks"};
+      SG::ThinningHandleKey<xAOD::TauTrackContainer> m_tauTracksSGKey
+        { this, "TauTracksKey", "TauTracks", "StoreGate key of the tau track container" }; 
       Gaudi::Property<std::string> m_selectionString
          { this, "SelectionString", "",""};
       Gaudi::Property<float> m_coneSize

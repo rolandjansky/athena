@@ -2,14 +2,13 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/*********************************************************************************
-      MultiComponentStateCombiner.cxx  -  description
-      -----------------------------------------------
-begin                : Monday 20th December 2004
-author               : atkinson,morley,anastopoulos
-description          : Implementation code for MultiComponentStateCombiner
-helpers
-*********************************************************************************/
+/**
+ * @file   MultiComponentStateCombiner.cxx
+ * @date   Monday 20th December 2004
+ * @author Atkinson,Anthony Morley, Christos Anastopoulos
+ * 
+ * Implementation code for MultiComponentStateCombiner
+ */
 
 #include "TrkGaussianSumFilter/MultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/MultiComponentStateModeCalculator.h"

@@ -1,20 +1,17 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MMLOADVARIABLES_H
 #define MMLOADVARIABLES_H
 
+#include "MMT_struct.h" //for digitWrapper, hitData_key, hitData_entry, evInf_entry
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
-//C++ language libraries
 #include <map>
 #include <vector>
 #include <string>
 
-#include "MMT_struct.h" //for digitWrapper, hitData_key, hitData_entry, evInf_entry
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-
-//forward declarations
 class MsgStream;
 class MmIdHelper;
 class MmDigit;
@@ -27,13 +24,12 @@ namespace MuonGM {
   class MuonDetectorManager;
 }
 
-
   class MMLoadVariables {
 
   public:
 
     MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetectorManager* detManager, const MmIdHelper* idhelper, MMT_Parameters *par);
-   ~MMLoadVariables();
+   ~MMLoadVariables()=default;
 
     void getMMDigitsInfo(std::vector<digitWrapper>& entries, std::map<hitData_key,hitData_entry>& Hits_Data_Set_Time, std::map<int,evInf_entry>& Event_Info);
     //Import_Athena..._.m stuff
@@ -162,9 +158,9 @@ namespace MuonGM {
     
     //
 
-    const MuonGM::MuonDetectorManager* m_detManager{};        //!< MuonDetectorManager
-    const MmIdHelper*                  m_MmIdHelper{};        //!< MM offline Id helper
-    StoreGateSvc*                      m_evtStore{};
+    const MuonGM::MuonDetectorManager* m_detManager;        //!< MuonDetectorManager
+    const MmIdHelper* m_MmIdHelper;        //!< MM offline Id helper
+    StoreGateSvc* m_evtStore;
     MMT_Parameters* m_par{};
     bool m_striphack{};
     std::string getWedgeType(const MmDigitContainer *nsw_MmDigitContainer);

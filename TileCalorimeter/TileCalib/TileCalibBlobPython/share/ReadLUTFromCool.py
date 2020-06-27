@@ -122,4 +122,3 @@ for idx in range(0,maxidx):
 
 #=== close DB
 db.closeDatabase()
-

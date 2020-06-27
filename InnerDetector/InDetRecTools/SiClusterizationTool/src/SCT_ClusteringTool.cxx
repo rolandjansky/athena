@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -30,6 +30,7 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 
 #include <algorithm>
+#include <cmath>
 
 namespace InDet {
   
@@ -463,7 +464,7 @@ namespace InDet {
       //
       // Find length of strip at centre
       const std::pair<InDetDD::SiLocalPosition, InDetDD::SiLocalPosition> ends(design->endsOfStrip(clusterDim.centre));
-      const double stripLength(fabs(ends.first.xEta()-ends.second.xEta()));
+      const double stripLength(std::abs(ends.first.xEta()-ends.second.xEta()));
       //
       // Now make a SiCluster
       clusterNumber++;
@@ -687,7 +688,7 @@ namespace InDet {
         // Find length of strip at centre
         //
         std::pair<InDetDD::SiLocalPosition, InDetDD::SiLocalPosition> ends(design->endsOfStrip(centre));
-        stripL = fabs(ends.first.xEta()-ends.second.xEta());
+        stripL = std::abs(ends.first.xEta()-ends.second.xEta());
 
         double w       = element->phiPitch(localPos)*iphipitch;
         double sn      = element->sinStereoLocal(localPos);

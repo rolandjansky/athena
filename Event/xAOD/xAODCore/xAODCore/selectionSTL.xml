@@ -1,0 +1,55 @@
+<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
+<lcgdict>
+
+   <!-- "Single" vector type(s). -->
+   <class name="std::vector<char>" />
+   <class name="std::vector<signed char>" />
+   <class name="std::vector<unsigned char>" />
+   <class name="std::vector<uint32_t>" />
+
+   <!-- "Double" vector type(s). -->
+   <class name="std::vector<std::vector<bool> >" />
+   <class name="std::vector<std::vector<char> >" />
+   <class name="std::vector<std::vector<signed char> >" />
+   <class name="std::vector<std::vector<unsigned char> >" />
+   <class name="std::vector<std::vector<int> >" />
+   <class name="std::vector<std::vector<size_t> >" />
+   <class name="std::vector<std::vector<uint16_t> >" />
+   <class name="std::vector<std::vector<uint32_t> >" />
+   <class name="std::vector<std::vector<unsigned long> >" />
+   <class name="std::vector<std::vector<unsigned long long> >" />
+   <class name="std::vector<std::vector<std::string> >" />
+
+   <!-- "Triple" vector type(s). -->
+   <class name="std::vector<std::vector<std::vector<int> > >" />
+   <class name="std::vector<std::vector<std::vector<unsigned char> > >" />
+   <class name="std::vector<std::vector<std::vector<size_t> > >" />
+   <class name="std::vector<std::vector<std::vector<uint16_t> > >" />
+   <class name="std::vector<std::vector<std::vector<uint32_t> > >" />
+   <class name="std::vector<std::vector<std::vector<unsigned long> > >" />
+   <class name="std::vector<std::vector<std::vector<unsigned long long> > >" />
+   <class name="std::vector<std::vector<std::vector<float> > >" />
+   <class name="std::vector<std::vector<std::vector<std::string> > >" />
+
+   <!-- "Quadruple" vector type(s). -->
+   <class name="std::vector<std::vector<std::vector<std::vector<std::string> > > >" />
+
+   <!-- "Special" vector type(s). -->
+   <class name="std::vector<std::set<uint32_t> >" />
+   <class name="std::vector<std::vector<std::set<uint32_t> > >" />
+   <class name="std::vector<std::pair<std::string,std::string> >" />
+   <class name="std::vector<std::vector<std::pair<std::string,std::string> > >" />
+   <class name="std::vector<std::vector<std::pair<unsigned int,double> > >" />
+
+   <!-- Map type(s). -->
+   <class name="std::map<std::string,std::vector<int> >" />
+   <class name="std::map<std::string,std::vector<float> >" />
+   <class name="std::map<std::string,std::vector<std::vector<int> > >" />
+   <class name="std::map<std::string,std::vector<std::vector<float> > >" />
+
+   <!-- "Other" type(s). -->
+   <class name="std::bitset<3>" />
+   <class name="std::bitset<11>" />
+   <class name="std::set<uint32_t>" />
+
+</lcgdict>

@@ -97,17 +97,5 @@ ToolSvc += station_3
 
 AFPSiHitsMonTool.stationsMonitors = [station_0, station_1, station_2, station_3]
 
-ToolSvc += AFPSiHitsMonTool
 AFPMonManager.AthenaMonTools += [ AFPSiHitsMonTool ]
 
-
-# # ===== Technical monitor =====
-# from AFP_Monitoring.AFP_MonitoringConf import AFPTechnicalMonitorTool
-# AFPTechnicalMonTool = AFPTechnicalMonitorTool (
-# name           = "AFPTechnicalMonitoring",
-# PreScale       = 0,
-# EnableLumi = True
-# )
-
-# ToolSvc += AFPTechnicalMonTool
-# AFPMonManager.AthenaMonTools += [ AFPTechnicalMonTool ]

@@ -41,7 +41,7 @@ class LumiblockHistogramProviderTestSuite {
         REGISTER_TEST_CASE(test_shouldThrowExceptionWhen_kLBNHistoryDepth_isNonPositive),
         REGISTER_TEST_CASE(test_shouldNotThrowExceptionWhen_kLBNHistoryDepth_isDefinedAsNumber),
         REGISTER_TEST_CASE(test_shouldCreateNewHistogramWithUpdatedAlias),
-        REGISTER_TEST_CASE(test_shouldCreateNewHistogramWithUpdatedLumiBlock),
+        REGISTER_TEST_CASE(test_shouldCreateNewHistogramWithUpdatedLumiBlock)
       };
     }
 
@@ -75,38 +75,48 @@ class LumiblockHistogramProviderTestSuite {
 
     void test_shouldCreateNewHistogramWithUpdatedAlias() {
       auto expectedFlow = {
-        make_tuple(0, "test alias(0-2)"), 
-        make_tuple(1, "test alias(0-2)"),
-        make_tuple(2, "test alias(0-2)"),
-        make_tuple(3, "test alias(3-5)"),
-        make_tuple(4, "test alias(3-5)"),
-        make_tuple(5, "test alias(3-5)"),
-        make_tuple(6, "test alias(6-8)"),
-        make_tuple(7, "test alias(6-8)"),
-        make_tuple(8, "test alias(6-8)"),
-        make_tuple(9, "test alias(9-11)"),
+        make_tuple(0, "test alias_LB0_2"),
+        make_tuple(1, "test alias_LB0_2"),
+        make_tuple(2, "test alias_LB0_2"),
+        make_tuple(3, "test alias_LB3_5"),
+        make_tuple(4, "test alias_LB3_5"),
+        make_tuple(5, "test alias_LB3_5"),
+        make_tuple(6, "test alias_LB6_8"),
+        make_tuple(7, "test alias_LB6_8"),
+        make_tuple(8, "test alias_LB6_8"),
+        make_tuple(9, "test alias_LB9_11"),
       };
 
-      TNamed histogram;
+      TH1F histogram("h", "h", 1, 0, 1);
       HistogramDef histogramDef;
       histogramDef.alias = "test alias";
       histogramDef.kLBNHistoryDepth = 3;
 
+      m_gmTool->histSvc().mock_always_empty = false; // the moc actually keeps track of registered histograms
       LumiblockHistogramProvider testObj(m_gmTool.get(), m_histogramFactory, histogramDef);
 
       for (auto input : expectedFlow) {
         const unsigned lumiBlock = get<0>(input);
         const string expectedAlias = get<1>(input);
 
-        m_gmTool->mock_lumiBlock = [lumiBlock]() { return lumiBlock; };
-        m_histogramFactory->mock_create = [&histogram, expectedAlias](const HistogramDef& def) mutable {
+        m_gmTool->mock_lumiBlock = [&]() { return lumiBlock; };
+        m_histogramFactory->mock_create = [&](const HistogramDef& def) mutable {
           VALUE(def.alias) EXPECTED(expectedAlias);
+	  m_log << MSG::INFO << "Registering: " << def.alias << endmsg;
+	  m_gmTool->histSvc().regHist(m_histogramFactory->getFullName(def), &histogram).ignore();
           return &histogram;
         };
+	m_histogramFactory->mock_remove = [&](const Monitored::HistogramDef& def) {
+	  m_log << MSG::INFO << "Deregistering: " << def.alias << endmsg;
+	  m_gmTool->histSvc().deReg(m_histogramFactory->getFullName(def)).ignore();
+	  return nullptr;
+	};
+
 
         TNamed* const result = testObj.histogram();
         VALUE(result) EXPECTED(&histogram);
       }
+      VALUE( m_gmTool->histSvc().mock_registered.size() ) EXPECTED ( 1 );
     }
 
     void test_shouldCreateNewHistogramWithUpdatedLumiBlock() {
@@ -145,7 +155,7 @@ class LumiblockHistogramProviderTestSuite {
 
   // ==================== Initialization & run ====================
   public:
-    LumiblockHistogramProviderTestSuite() 
+    LumiblockHistogramProviderTestSuite()
       : m_log(Athena::getMessageSvc(), "LumiblockHistogramProviderTestSuite") {
     }
 

@@ -46,26 +46,22 @@ TrigEgammaMonitorTagAndProbeAlgorithm::~TrigEgammaMonitorTagAndProbeAlgorithm()
 StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::initialize() {
     
     ATH_CHECK(TrigEgammaMonitorBaseAlgorithm::initialize() );
-    ATH_CHECK(m_eventInfoKey.initialize());
     ATH_CHECK(m_offElectronKey.initialize());
     ATH_CHECK(m_jetKey.initialize());
    
 
     ATH_MSG_INFO("Now configuring chains for analysis: " << name() );
     std::vector<std::string> chains  = tdt()->getListOfTriggers("HLT_e.*, L1_EM.*, HLT_g.*");
-    
     for(const auto trigName:m_trigInputList)
     {
-      if (std::find(chains.begin(), chains.end(), trigName) != chains.end()){
-        if(getTrigInfoMap().count(trigName) != 0){
-          ATH_MSG_WARNING("Trigger already booked, removing from trigger list " << trigName);
-        }else {
-          m_trigList.push_back(trigName);
-          setTrigInfo(trigName);
-        }
+      if(getTrigInfoMap().count(trigName) != 0){
+        ATH_MSG_WARNING("Trigger already booked, removing from trigger list " << trigName);
+      }else {
+        m_trigList.push_back(trigName);
+        setTrigInfo(trigName);
       }
     }
-    
+   
     return StatusCode::SUCCESS;
 }
 
@@ -116,6 +112,10 @@ StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::fillHistograms( const EventCon
 
         // Include fill here
 
+        fillDistributions( pairObjs, info );
+        fillEfficiencies( pairObjs, info );
+
+
 
     } // End loop over trigger list
     
@@ -132,13 +132,14 @@ StatusCode TrigEgammaMonitorTagAndProbeAlgorithm::fillHistograms( const EventCon
 
 bool TrigEgammaMonitorTagAndProbeAlgorithm::executeTandP( const EventContext& ctx, std::vector<const xAOD::Electron*> &probeElectrons) const
 {
-    
+   
+
     auto monGroup = getGroup( "Event" );
     
     fillLabel(monGroup, m_anatype+"_CutCounter", "Events");
 
 
-    SG::ReadHandle<xAOD::EventInfo> eventInfo( m_eventInfoKey, ctx );
+    SG::ReadHandle<xAOD::EventInfo> eventInfo = GetEventInfo (ctx);
     if( !eventInfo.isValid() ){
       ATH_MSG_WARNING("Failed to retrieve EventInfo");
       return false;
@@ -282,10 +283,12 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::minimalTriggerRequirement() const {
     
     ATH_MSG_DEBUG("Apply Minimal trigger requirements");
     for(unsigned int ilist = 0; ilist != m_tagTrigList.size(); ilist++) {
-        std::string tag = m_tagTrigList.at(ilist);
+        std::string tag = m_tagTrigList[ilist];
         if ( tdt()->isPassed(tag) )
             return true;
     }
+
+
     return false;
 }
 
@@ -391,7 +394,7 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::isTagElectron( ToolHandle<GenericMon
     // The statement below is more general
     bool tagPassed=false;
     for(unsigned int ilist = 0; ilist != m_tagTrigList.size(); ilist++) {
-      std::string tag = m_tagTrigList.at(ilist);
+      std::string tag = m_tagTrigList[ilist];
       if(tdt()->isPassed(tag)){ 
         if(m_tp){
           std::string p1trigger;
@@ -419,7 +422,7 @@ bool TrigEgammaMonitorTagAndProbeAlgorithm::isTagElectron( ToolHandle<GenericMon
     ATH_MSG_DEBUG("Matching Tag Electron FC");
     bool tagMatched=false;
     for(unsigned int ilist = 0; ilist != m_tagTrigList.size(); ilist++) {
-        std::string tag = m_tagTrigList.at(ilist);
+        std::string tag = m_tagTrigList[ilist];
         if( match()->match(el,tag) )
             tagMatched=true;
     }

@@ -1,10 +1,10 @@
 #include "../DumpDecisions.h"
 #include "../RoRSeqFilter.h"
 #include "../TriggerSummaryAlg.h"
-#include "../ComboHypo.h"
+#include "DecisionHandling/ComboHypo.h"
 #include "../InputMakerForRoI.h"
 #include "../DeltaRRoIComboHypoTool.h"
-#include "../ComboHypoToolBase.h"
+#include "DecisionHandling/ComboHypoToolBase.h"
 
 DECLARE_COMPONENT( DumpDecisions )
 DECLARE_COMPONENT( RoRSeqFilter )

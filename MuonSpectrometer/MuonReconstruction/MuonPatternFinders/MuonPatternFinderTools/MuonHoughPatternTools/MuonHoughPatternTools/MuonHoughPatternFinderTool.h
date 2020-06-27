@@ -5,31 +5,29 @@
 #ifndef MUONHOUGHPATTERNALGS_MUONHOUGHPATTERNFINDERTOOL_H
 #define MUONHOUGHPATTERNALGS_MUONHOUGHPATTERNFINDERTOOL_H
 
-#include <iostream>
-#include <vector>
-
 #include "MuonRecToolInterfaces/IMuonHoughPatternFinderTool.h"
-#include "MuonRecToolInterfaces/IMuonCombinePatternTool.h"
-
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonHoughPatternTools/IMuonHoughPatternTool.h"
+#include "MuonRecToolInterfaces/IMuonCombinePatternTool.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "MuonPattern/MuonPatternCombinationCollection.h"
 #include "MuonPattern/MuonPatternCollection.h"
 #include "TrkDriftCircleMath/DriftCircle.h"
 
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include <iostream>
+#include <vector>
+#include <string>
 
 class TH1F;
 class TFile;
 
 class MuonHoughHitContainer;
-class IMuonHoughPatternTool;
-
-namespace Muon {
-  class MuonEDMPrinterTool;
-}
 
 namespace Muon {
 
@@ -119,8 +117,7 @@ namespace Muon {
 
     ToolHandle <IMuonHoughPatternTool>   m_muonHoughPatternTool{this,"muonHoughPatternTool","MuonHoughPatternTool"};    //!< Pointer to concrete tool
     ToolHandle <Muon::IMuonCombinePatternTool>  m_muonCombinePatternTool{this,"muonCombinePatternTool","MuonCombinePatternTool"};   //!< Pointer to concrete tool  
-    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};  //!< Pointer to concrete tool
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     /** ToolHandle for EDM printing of segments */
     ToolHandle<Muon::MuonEDMPrinterTool> m_printer{this,"printerTool","Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
  

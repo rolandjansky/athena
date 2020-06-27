@@ -8,7 +8,6 @@ TrigL1JetMonitorAlgorithm::TrigL1JetMonitorAlgorithm( const std::string& name, I
   : AthMonitorAlgorithm(name,pSvcLocator)
 {
   declareProperty("L1JetContainer", m_l1jetContainerkey = "LVL1JetRoIs");
-  declareProperty("TriggerChain",   m_chain             = "");
 }
 
 TrigL1JetMonitorAlgorithm::~TrigL1JetMonitorAlgorithm() {}
@@ -20,12 +19,6 @@ StatusCode TrigL1JetMonitorAlgorithm::initialize() {
 
 StatusCode TrigL1JetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const {
   using namespace Monitored;
-
-  bool triggerPassed = true;
-  if( m_chain != "" ){
-    if( !getTrigDecisionTool()->isPassed(m_chain) ) triggerPassed = false;
-  }
-  if( !triggerPassed ) return StatusCode::SUCCESS;
 
   // Retrieve the L1 jet container
   SG::ReadHandle<xAOD::JetRoIContainer> jets(m_l1jetContainerkey, ctx);

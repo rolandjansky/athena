@@ -266,9 +266,6 @@ if ( WriteNtuple ) :
 	NTupleSvc.Output = [ "FILE1 DATAFILE='"+RootFileName+"' OPT='NEW'" ]
 
 if ( WritePOOLFile ) :
-        include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-        AthenaSealSvc.CheckDictionary = True 
-
         include( "AthenaPoolCnvSvc/AthenaPool_jobOptions.py" )
         theApp.Dlls   += [ "LArAthenaPoolPoolCnv" ]
         theApp.Dlls   += [ "LArCondAthenaPoolPoolCnv" ]

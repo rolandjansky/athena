@@ -15,7 +15,17 @@ class HWIdentifier : public Identifier {
 public:
 
     /// Default constructor
-    HWIdentifier ();
+    HWIdentifier() = default;
+    /// Default Copy constructor
+    HWIdentifier(const HWIdentifier& other) = default;
+    /// Default Move constructor
+    HWIdentifier(HWIdentifier&& other) = default;
+    /// Default Assignment operators
+    HWIdentifier& operator=(const HWIdentifier& old) = default;
+    ///  Default Move Assignment operator
+    HWIdentifier& operator=(HWIdentifier&& old) = default;
+    /// Default dtor
+    ~HWIdentifier() = default;
 
     /// Constructor from value_type
     explicit HWIdentifier(value_type value);
@@ -41,12 +51,6 @@ struct hash<HWIdentifier>
   }
 };
 }
-
-
-
-inline HWIdentifier::HWIdentifier()
-    : Identifier::Identifier()
-{}
 
 inline HWIdentifier::HWIdentifier(value_type value)
     : Identifier::Identifier(value)

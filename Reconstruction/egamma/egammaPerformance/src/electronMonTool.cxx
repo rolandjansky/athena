@@ -72,7 +72,7 @@
 /////////////////////////////////////////////////////////////
 
 
-#include "egammaPerformance/electronMonTool.h"
+#include "electronMonTool.h"
 
 electronMonTool::electronMonTool(const std::string & type, const std::string & name, const IInterface* parent) : 
   egammaMonToolBase(type,name,parent),
@@ -81,10 +81,6 @@ electronMonTool::electronMonTool(const std::string & type, const std::string & n
   m_electronIdGroup(nullptr),
   m_electronLBGroup(nullptr)
 {
-
-  // Name of the electron collection
-  declareProperty("ElectronContainer", m_ElectronContainer = "Electrons", "Name of the electron collection" );
-
   bool WithFullHistList = true;
   bool WithLimitedHistList = false;
 
@@ -136,6 +132,13 @@ electronMonTool::~electronMonTool()
   delete m_LhMediumElectrons;
   delete m_LhLooseElectrons;
 
+}
+
+StatusCode electronMonTool::initialize()
+{
+  ATH_CHECK( egammaMonToolBase::initialize() );
+  ATH_CHECK( m_ElectronContainer.initialize() );
+  return StatusCode::SUCCESS;
 }
 
 StatusCode electronMonTool::bookHistogramsForOneElectronType(electronHist& myHist)
@@ -529,15 +532,8 @@ StatusCode electronMonTool::fillHistograms() {
   //--------------------
   //figure out current LB
   //--------------------
-  const DataHandle<xAOD::EventInfo> evtInfo;
-  StatusCode sc = m_storeGate->retrieve(evtInfo); 
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("couldn't retrieve event info");
-    return StatusCode::FAILURE;
-  }
-
   unsigned int previousLB = m_currentLB;
-  m_currentLB = evtInfo->lumiBlock();
+  m_currentLB = getCurrentLB();
 
   //deal with the change of LB
   if (m_currentLB>previousLB) {
@@ -558,9 +554,8 @@ StatusCode electronMonTool::fillHistograms() {
   }
 
   // Get electron container
-  const xAOD::ElectronContainer* electron_container=nullptr;
-  sc = m_storeGate->retrieve(electron_container, m_ElectronContainer);
-  if(sc.isFailure() || !electron_container){
+  SG::ReadHandle<xAOD::ElectronContainer> electron_container{m_ElectronContainer};
+  if(!electron_container.isValid()){
     ATH_MSG_VERBOSE("no electron container found in TDS");
     return StatusCode::FAILURE;
   } 
@@ -673,11 +668,5 @@ StatusCode electronMonTool::fillHistograms() {
     fillTH1FperRegion(m_LhTightElectrons->m_hvN,i,m_LhTightElectrons->m_nElectrons);
   }
 
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode electronMonTool::procHistograms()
-{
   return StatusCode::SUCCESS;
 }

@@ -15,7 +15,7 @@
 #include <cmath> // std::isnan()
 #include <limits>
 
-InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string& sDir) : InDetPlotBase(pParent, sDir),
+InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string& sDir, const int iDetailLevel) : InDetPlotBase(pParent, sDir),
   m_trackParameters(this, "Tracks/Selected/Parameters"),
   m_nTracks(this, "Tracks/Tracks"),
   m_hitResidualPlot(this, "Tracks/Hits/Residuals"),
@@ -32,13 +32,14 @@ InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string& sDir) : 
   m_resolutionPlotSecd(nullptr),
   m_doTrackInJetPlots(true) //FIX CONFIGURATION
 {
+  this->m_iDetailLevel = iDetailLevel;
   m_trackParticleTruthProbKey = "truthMatchProbability";
   m_truthProbLowThreshold = 0.5;
   
   if(m_iDetailLevel >= 200){
     m_resolutionPlotSecd = std::unique_ptr<InDetPerfPlot_Resolution>(new InDetPerfPlot_Resolution(this, "Tracks/Matched/Resolutions/Secondary"));
     m_hitsMatchedTracksPlots = std::unique_ptr<InDetPerfPlot_Hits>(new InDetPerfPlot_Hits(this, "Tracks/Matched/HitsOnTracks"));
-    m_vertexTruthMatchingPlots = std::unique_ptr<InDetPerfPlot_VertexTruthMatching>(new InDetPerfPlot_VertexTruthMatching(this, "Vertices/AllPrimaryVertices"));
+    m_vertexTruthMatchingPlots = std::unique_ptr<InDetPerfPlot_VertexTruthMatching>(new InDetPerfPlot_VertexTruthMatching(this, "Vertices/AllPrimaryVertices", m_iDetailLevel));
   }
 
   //A lot of Jets... do we need these at all???
@@ -125,7 +126,7 @@ InDetRttPlots::fillFakeRate(const xAOD::TrackParticle& track, const bool isFake,
 //Fill Vertexing Plots
 //
 void
-InDetRttPlots::fill(const xAOD::VertexContainer& vertexContainer, const std::vector<const xAOD::TruthVertex*>& truthVertices) {
+InDetRttPlots::fill(const xAOD::VertexContainer& vertexContainer, const std::vector<const xAOD::TruthVertex*>& truthHSVertices, const std::vector<const xAOD::TruthVertex*>& truthPUVertices) {
   // fill vertex container general properties
   // m_verticesVsMuPlots.fill(vertexContainer); //if ever needed
   // fill vertex-specific properties, for all vertices and for hard-scattering vertex
@@ -135,9 +136,6 @@ InDetRttPlots::fill(const xAOD::VertexContainer& vertexContainer, const std::vec
       continue; // skip dummy vertex
     }
     m_vertexPlots.fill(*vtx);
-    if(m_iDetailLevel >= 200){
-      m_vertexTruthMatchingPlots->fill(*vtx);
-    }
     ATH_MSG_DEBUG("IN InDetRttPlots::fill, filling for all vertices");
     if (vtx->vertexType() == xAOD::VxType::PriVtx) {
       m_hardScatterVertexPlots.fill(*vtx);
@@ -146,7 +144,7 @@ InDetRttPlots::fill(const xAOD::VertexContainer& vertexContainer, const std::vec
     }
   }
   if(m_iDetailLevel >= 200){
-    m_vertexTruthMatchingPlots->fill(vertexContainer, truthVertices);
+    m_vertexTruthMatchingPlots->fill(vertexContainer, truthHSVertices, truthPUVertices);
   }
 }
 

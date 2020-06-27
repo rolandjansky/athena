@@ -1,33 +1,19 @@
 TrkVertexSeedFinderUtils/NewtonTrkDistanceFinder_test
 
 
-Initializing Gaudi ApplicationMgr using job opts /afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/jobOptions/TrkVertexSeedFinderUtils/TrkVertexSeedFinderUtils_tests.txt
-JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/jobOptions/TrkVertexSeedFinderUtils/TrkVertexSeedFinderUtils_tests.txt
-JobOptionsSvc        INFO # (1,1): ApplicationMgr.ExtSvc = ["MagField::AtlasFieldSvc/AtlasFieldSvc"]
-JobOptionsSvc        INFO # (2,1): AtlasFieldSvc.UseDCS = 0
-JobOptionsSvc        INFO # (3,1): AtlasFieldSvc.UseMapsFromCool = 0
-JobOptionsSvc        INFO Job options successfully read in from /afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/jobOptions/TrkVertexSeedFinderUtils/TrkVertexSeedFinderUtils_tests.txt
+Initializing Gaudi ApplicationMgr using job opts /home/dcasper/Work/atlas/vtx/build/x86_64-centos7-gcc8-opt/jobOptions/TrkVertexSeedFinderUtils/TrkVertexSeedFinderUtils_tests.txt
+JobOptionsSvc        INFO Job options successfully read in from /home/dcasper/Work/atlas/vtx/build/x86_64-centos7-gcc8-opt/jobOptions/TrkVertexSeedFinderUtils/TrkVertexSeedFinderUtils_tests.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v33r1)
-                                          running on lxplus775.cern.ch on Fri Apr 10 21:24:03 2020
+                                          running on localhost.localdomain on Thu May 14 05:38:41 2020
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
-AtlasFieldSvc        INFO initialize() ...
-AtlasFieldSvc        INFO Currents are set-up by jobOptions - delaying map initialization until BeginRun incident happens
-AtlasFieldSvc        INFO Added listener to BeginRun incident
-AtlasFieldSvc        INFO initialize() successful
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
-AtlasFieldSvc        INFO handling incidents ...
-AtlasFieldSvc        INFO importCurrents() ...
-AtlasFieldSvc        INFO Initializing the field map (solenoidCurrent=7730 toroidCurrent=20400)
-AtlasFieldSvc        INFO reading the map from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/atlas/offline/ReleaseData/v20/MagneticFieldMaps/bfieldmap_7730_20400_14m.root
-AtlasFieldSvc        INFO Initialized the field map from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/atlas/offline/ReleaseData/v20/MagneticFieldMaps/bfieldmap_7730_20400_14m.root
-AtlasFieldSvc        INFO Solenoid zone id 7000
-AtlasFieldSvc        INFO Currents imported and map initialized
-AtlasFieldSvc        INFO BeginRun incident handled
-AtlasFieldSvc        INFO incidents handled successfully
+ClassIDSvc           INFO  getRegistryEntries: read 1460 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 372 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 3256 CLIDRegistry entries for module ALL
 test1

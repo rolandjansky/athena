@@ -39,7 +39,7 @@ bool AuxDiscoverySvc::getAuxStore(void* obj, const Guid& classId, const std::str
    if (info == nullptr) {
       return false;
    }
-   if ((contId.size() < 5 || contId.substr(contId.size() - 5, 4) != "Aux.")
+   if (!contId.empty() && (contId.size() < 5 || contId.substr(contId.size() - 5, 4) != "Aux.")
 	   && !info->clazz().Properties().HasProperty("IAuxStore")) {
       return false;
    }
@@ -110,7 +110,7 @@ AuxDiscoverySvc::getAuxIDs(const void* obj, const Guid& classId, const std::stri
    if (info == nullptr) {
       return SG::auxid_set_t();
    }
-   if ((contId.size() < 5 || contId.substr(contId.size() - 5, 4) != "Aux.")
+   if (!contId.empty() && (contId.size() < 5 || contId.substr(contId.size() - 5, 4) != "Aux.")
 	   && !info->clazz().Properties().HasProperty("IAuxStore")) {
       return SG::auxid_set_t();
    }
@@ -171,7 +171,7 @@ StatusCode AuxDiscoverySvc::receiveStore(const IAthenaSerializeSvc* serSvc, cons
       return(StatusCode::FAILURE);
    }
    const std::string contName = std::string(static_cast<char*>(buffer));
-   if (classId != Guid::null() && !contName.empty() && this->getAuxStore(obj, classId, contName)) {
+   if (classId != Guid::null() && this->getAuxStore(obj, classId, contName)) {
       void* attrName = nullptr;
       void* typeName = nullptr;
       void* elemName = nullptr;

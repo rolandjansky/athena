@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRTRADIATORPARAMETERS_H
@@ -20,7 +20,7 @@ public:
     m_GasThickness(dGas),
     m_BEflg(beflag) {}
 
-  G4LogicalVolume * GetLogicalVolume() const { return m_aLogicalVolume; }
+  const G4LogicalVolume * GetLogicalVolume() const { return m_aLogicalVolume; }
   G4double          GetFoilThickness() const { return m_FoilThickness; }
   G4double          GetGasThickness()  const { return m_GasThickness; }
   BEflag            GetBEflag()        const { return m_BEflg; }

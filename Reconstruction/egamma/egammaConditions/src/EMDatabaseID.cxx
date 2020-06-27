@@ -20,10 +20,10 @@ EMDatabaseID::EMDatabaseID(const EMDatabaseID& ob)
   set(ob);
 }
 	
-EMDatabaseID::EMDatabaseID(std::string s)
+EMDatabaseID::EMDatabaseID(const std::string& s)
 {
   //  clear();
-  setUniqueID(std::move(s));
+  setUniqueID(s);
 }
 
 /** Constructor via unique id-string*/
@@ -33,22 +33,22 @@ EMDatabaseID::EMDatabaseID(EMDatabaseIDDescriptor &id)
   else			set(id.Object, id.Container, id.Type, id.Channel, id.Author, id.RecoSWV, id.Tag, id.SimSWV);
 }
 
-EMDatabaseID::EMDatabaseID(std::string Object, std::string Container, std::string Type, std::string Channel, std::string Author, std::string RecoSWV, std::string Tag, long start, long end)
+EMDatabaseID::EMDatabaseID(const std::string& Object, const std::string& Container, const std::string& Type, const std::string& Channel, const std::string& Author, const std::string& RecoSWV, const std::string& Tag, long start, long end)
 {
   //  clear(); // not needed; set overwrites everything
-  set(std::move(Object), std::move(Container), std::move(Type), std::move(Channel), std::move(Author), std::move(RecoSWV), std::move(Tag), start, end);
+  set(Object, Container, Type, Channel, Author, RecoSWV, Tag, start, end);
 }
 	
-EMDatabaseID::EMDatabaseID(std::string Object, std::string Container, std::string Type, std::string Channel, std::string Author, std::string RecoSWV, std::string Tag, std::string SimSWV)
+EMDatabaseID::EMDatabaseID(const std::string& Object, const std::string& Container, const std::string& Type, const std::string& Channel, const std::string& Author, const std::string& RecoSWV, const std::string& Tag, const std::string& SimSWV)
 {
   //  clear();
-  set(std::move(Object), std::move(Container), std::move(Type), std::move(Channel), std::move(Author), std::move(RecoSWV), std::move(Tag), std::move(SimSWV));
+  set(Object, Container, Type, Channel, Author, RecoSWV, Tag, SimSWV);
 }
 
-EMDatabaseID::EMDatabaseID(std::string Object, std::string Type, std::string Tag)
+EMDatabaseID::EMDatabaseID(const std::string& Object, const std::string& Type, const std::string& Tag)
 {
   //  clear();
-  set(std::move(Object), "", std::move(Type), "", "", "", std::move(Tag), "");
+  set(Object, "", Type, "", "", "", Tag, "");
 }
 	
 EMDatabaseID::~EMDatabaseID()
@@ -94,38 +94,38 @@ void EMDatabaseID::set(const EMDatabaseID& ob)
   m_idDes	= ob.m_idDes;
 }
 
-void EMDatabaseID::set(std::string Object, std::string Container, std::string Type, std::string Channel, std::string Author, std::string RecoSWV, std::string Tag, long start, long end)
+void EMDatabaseID::set(const std::string& Object, const std::string& Container, const std::string& Type, const std::string& Channel, const std::string& Author, const std::string& RecoSWV, const std::string& Tag, long start, long end)
 {
-  m_idDes.Object	= beautify(std::move(Object));
-  m_idDes.Container	= beautify(std::move(Container));
-  m_idDes.Type		= beautify(std::move(Type));
-  m_idDes.Channel	= beautify(std::move(Channel));
-  m_idDes.Author	= beautify(std::move(Author));
-  m_idDes.RecoSWV	= beautify(std::move(RecoSWV));
-  m_idDes.Tag	= beautify(std::move(Tag));
+  m_idDes.Object	= beautify(Object);
+  m_idDes.Container	= beautify(Container);
+  m_idDes.Type		= beautify(Type);
+  m_idDes.Channel	= beautify(Channel);
+  m_idDes.Author	= beautify(Author);
+  m_idDes.RecoSWV	= beautify(RecoSWV);
+  m_idDes.Tag	= beautify(Tag);
   m_idDes.runStart	= start;
   m_idDes.runEnd	= end;
   m_idDes.SimSWV	= "";
 }
 
-void EMDatabaseID::set(std::string Object, std::string Container, std::string Type, std::string Channel, std::string Author, std::string RecoSWV, std::string Tag, std::string SimSWV)
+void EMDatabaseID::set(const std::string& Object, const std::string& Container, const std::string& Type, const std::string& Channel, const std::string& Author, const std::string& RecoSWV, const std::string& Tag, const std::string& SimSWV)
 {
-  m_idDes.Object	= beautify(std::move(Object));
-  m_idDes.Container	= beautify(std::move(Container));
-  m_idDes.Type		= beautify(std::move(Type));
-  m_idDes.Channel	= beautify(std::move(Channel));
-  m_idDes.Author	= beautify(std::move(Author));
-  m_idDes.RecoSWV	= beautify(std::move(RecoSWV));
-  m_idDes.Tag	= beautify(std::move(Tag));
+  m_idDes.Object	= beautify(Object);
+  m_idDes.Container	= beautify(Container);
+  m_idDes.Type		= beautify(Type);
+  m_idDes.Channel	= beautify(Channel);
+  m_idDes.Author	= beautify(Author);
+  m_idDes.RecoSWV	= beautify(RecoSWV);
+  m_idDes.Tag	= beautify(Tag);
   m_idDes.runStart	= 0;
   m_idDes.runEnd	= 0;
-  m_idDes.SimSWV	= beautify(std::move(SimSWV));
+  m_idDes.SimSWV	= beautify(SimSWV);
 }
 
 // for object retrieval
-void EMDatabaseID::set(std::string Object, std::string Type, std::string Tag)
+void EMDatabaseID::set(const std::string& Object, const std::string& Type, const std::string& Tag)
 {
-  set(std::move(Object), "", std::move(Type), "", "", "", std::move(Tag), "");
+  set(Object, "", Type, "", "", "", Tag, "");
 }
 
 void EMDatabaseID::clear()
@@ -144,7 +144,7 @@ void EMDatabaseID::clear()
 
 bool EMDatabaseID::isMCData() const	
 {
-  return m_idDes.SimSWV != "";
+  return !m_idDes.SimSWV.empty();
 }
 
 bool EMDatabaseID::isComplete() const

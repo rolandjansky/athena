@@ -11,7 +11,7 @@
 #include "TrkSurfaces/PlaneSurface.h"
 #include "VxVertex/VxTrackAtVertex.h"
 #include "TrkEventPrimitives/ParamDefs.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
+#include "MagFieldElements/AtlasFieldCache.h"
 
 // #define IMPACTPOINT3DESTIMATOR_DEBUG
 
@@ -27,12 +27,10 @@ namespace Trk
   ImpactPoint3dEstimator::ImpactPoint3dEstimator(const std::string& t, const std::string& n, const IInterface*  p) : 
     base_class(t,n,p),
     m_extrapolator("Trk::Extrapolator"),
-    m_magFieldSvc("AtlasFieldSvc", n),
     m_maxiterations(20),
     m_precision(1e-10)//DeltaPhi
   {   
     declareProperty("Extrapolator",m_extrapolator);
-    declareProperty("MagFieldSvc",     m_magFieldSvc);
     declareProperty("MaxIterations",m_maxiterations);
     declareProperty("Precision",m_precision);
   }
@@ -42,15 +40,8 @@ namespace Trk
   
   StatusCode ImpactPoint3dEstimator::initialize() 
   { 
-    if ( m_extrapolator.retrieve().isFailure() ) {
-      ATH_MSG_FATAL( "Failed to retrieve tool " << m_extrapolator  );
-      return StatusCode::FAILURE;
-    }
-
-    if (m_magFieldSvc.retrieve().isFailure() ) {
-      ATH_MSG_FATAL("Could not find magnetic field service."  );
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( m_extrapolator.retrieve() );
+    ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
 
     ATH_MSG_DEBUG( "Initialize successful"  );
     return StatusCode::SUCCESS;
@@ -123,8 +114,14 @@ namespace Trk
                                        const Amg::Vector3D* theVertex,
                                        double& distance) const
   {
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, Gaudi::Hive::currentContext()};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+
+    MagField::AtlasFieldCache fieldCache;
+    fieldCondObj->getInitializedCache (fieldCache);
+
     double magnFieldVect[3];
-    m_magFieldSvc->getField(trackPerigee->associatedSurface().center().data(),magnFieldVect);
+    fieldCache.getField(trackPerigee->associatedSurface().center().data(),magnFieldVect);
     if(magnFieldVect[2] == 0 ){
       ATH_MSG_DEBUG("Magnetic field in the Z direction is 0 --  propagate like a straight line");
       return Estimate3dIPNoCurvature(trackPerigee, theVertex, distance);

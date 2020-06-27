@@ -55,17 +55,16 @@ public:
    *    layers given the Trk::ParametersBase.  
    *    whether or not to extrapolate to each calo sample
    */
-  virtual StatusCode getMatchAtCalo (const EventContext&           ctx,
-                                     const xAOD::CaloCluster&      cluster, 
-                                     const xAOD::TrackParticle&    trkPB,
-                                     Trk::PropDirection            direction,
-                                     std::array<double,4>&         eta,
-                                     std::array<double,4>&         phi,
-                                     std::array<double,4>&         deltaEta,
-                                     std::array<double,4>&         deltaPhi,
-                                     unsigned int                  extrapFrom = fromPerigee,
-                                     Cache* cache=nullptr) const = 0;
-
+  virtual StatusCode getMatchAtCalo(const EventContext& ctx,
+                                    const xAOD::CaloCluster& cluster,
+                                    const xAOD::TrackParticle& trkPB,
+                                    Trk::PropDirection direction,
+                                    std::array<double, 4>& eta,
+                                    std::array<double, 4>& phi,
+                                    std::array<double, 4>& deltaEta,
+                                    std::array<double, 4>& deltaPhi,
+                                    unsigned int extrapFrom = fromPerigee,
+                                    Cache* cache = nullptr) const = 0;
 
   /** test for vertex-to-cluster match given also the positions 
    * at the calorimeter from the vertex extrapolation  **/
@@ -77,23 +76,28 @@ public:
 
   /** get eta, phi at EM2 given a vertex which is converted to NeutralParameters.
     Return false if the extrapolation fails **/
-  virtual bool getEtaPhiAtCalo (const xAOD::Vertex* vertex, 
-                                float *etaAtCalo,
-                                float *phiAtCalo) const = 0;
+  virtual bool getEtaPhiAtCalo(const EventContext& ctx,
+                               const xAOD::Vertex* vertex,
+                               float* etaAtCalo,
+                               float* phiAtCalo) const = 0;
 
   /** get eta, phi at EM2 given NeutralParameters.
     Return false if the extrapolation fails **/
-  virtual bool getEtaPhiAtCalo (const Trk::TrackParameters* trkPar, 
-                                float *etaAtCalo,
-                                float *phiAtCalo) const =0;
+  virtual bool getEtaPhiAtCalo(const EventContext& ctx,
+                               const Trk::TrackParameters* trkPar,
+                               float* etaAtCalo,
+                               float* phiAtCalo) const = 0;
 
   /** get the momentum of the i-th trackParticle attached to the vertex 
    * at the vertex (designed for conversions) **/
-  virtual Amg::Vector3D getMomentumAtVertex(const xAOD::Vertex&, unsigned int) const = 0;
+  virtual Amg::Vector3D getMomentumAtVertex(const EventContext& ctx,
+                                            const xAOD::Vertex&,
+                                            unsigned int) const = 0;
 
   /** get sum of the momenta at the vertex (designed for conversions). Retrieve from auxdata if available and \<reuse\> is true **/
-  virtual Amg::Vector3D getMomentumAtVertex(const xAOD::Vertex&, bool reuse = true) const = 0;
-
+  virtual Amg::Vector3D getMomentumAtVertex(const EventContext& ctx,
+                                            const xAOD::Vertex&,
+                                            bool reuse = true) const = 0;
 };
 
 inline const InterfaceID& IEMExtrapolationTools::interfaceID()

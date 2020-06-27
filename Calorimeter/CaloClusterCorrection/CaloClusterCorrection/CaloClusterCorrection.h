@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it is really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCLUSTERCORRECTION_CALOCLUSTERCORRECTION_H
@@ -46,44 +46,13 @@ Updated:  February, 2006 (DLelas)
 
 // INCLUDE HEADER FILES:
 #include "CaloRec/CaloClusterProcessor.h"
-#include "CaloRec/ToolWithConstantsMixin.h"
+#include "CaloUtils/ToolWithConstants.h"
 
 class CaloClusterCorrection
-  : public CaloClusterProcessor,
-    public CaloRec::ToolWithConstantsMixin
+  : public CaloUtils::ToolWithConstants<CaloClusterProcessor>
 {
 
  public:
-  // Destructor 
-  virtual ~CaloClusterCorrection() override;
-
-
-  /**
-   * @brief Standard initialization method.
-   */
-  virtual StatusCode initialize() override;
-
-
-  using CaloClusterProcessor::setProperty;
-  /**
-   * @brief Method to set a property value.
-   * @param propname The name of the property to set.
-   * @param value The value to which to set it.
-   *
-   * Defined here as required by @c ToolWithConstantsMixin.
-   */
-  virtual StatusCode setProperty (const std::string& propname,
-                                  const std::string& value) override;
-
-  /**
-   * @brief Method to set a property value.
-   * @param p The property name/value to set.
-   *
-   * Defined here as required by @c ToolWithConstantsMixin.
-   */
-  virtual StatusCode setProperty (const Property& p) override;
-
-
   // modifying CaloCluster object 
   virtual void setsample(xAOD::CaloCluster* cluster,
                          CaloSampling::CaloSample sampling,
@@ -96,7 +65,7 @@ class CaloClusterCorrection
   virtual void setenergy(xAOD::CaloCluster* cluster, float energy) const;
 
   // derived class implement the real correction.
-  virtual void makeCorrection(const EventContext& ctx,
+  virtual void makeCorrection(const Context& myctx,
                               xAOD::CaloCluster*) const = 0;
 
   using CaloClusterProcessor::execute;
@@ -104,19 +73,8 @@ class CaloClusterCorrection
                      xAOD::CaloCluster* cluster) const override;
 
  protected:
-  /**
-   * @brief Constructor.
-   * @param type The type of this tool.
-   * @param name The name of this tool.
-   * @param parent The parent of this tool.
-   * @param toolcls Set this to override the class name for this tool
-   *                that gets saved to the database.
-   */
-  CaloClusterCorrection(const std::string& type,
- 		        const std::string& name,
-	 	        const IInterface* parent,
-                        const std::string& toolcls = "");
-
+  /// Delegate to base class constructor.
+  using base_class::base_class;
 };
 
 #endif

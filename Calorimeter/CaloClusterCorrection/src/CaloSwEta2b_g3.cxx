@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -43,38 +43,26 @@ using CaloClusterCorr::interpolate;
 
 // granularity of middle EM barrel layer
 
-  const float CaloSwEta2b_g3::s_middle_layer_granularity = 0.025;
+const float CaloSwEta2b_g3::s_middle_layer_granularity = 0.025;
 
 
-CaloSwEta2b_g3::CaloSwEta2b_g3(const std::string& type,
-                               const std::string& name,
-                               const IInterface* parent)
-  : CaloClusterCorrection(type,name,parent,
-                          "CaloSwEta${LAYER}${BE}_g3")
+void CaloSwEta2b_g3::makeCorrection (const Context& myctx,
+                                     CaloCluster* cluster) const
 {
-  declareConstant ("correction",           m_correction);
-  declareConstant ("residuals",            m_residuals);
-  declareConstant ("residual_bins",        m_residual_bins);
-  declareConstant ("correction_degree",    m_correction_degree);
-  declareConstant ("residual_eval_degree", m_residual_eval_degree);
-  declareConstant ("residual_degree",      m_residual_degree);
-  declareConstant ("correction_coef",      m_correction_coef);
-  declareConstant ("residual_coef",        m_residual_coef);
-  declareConstant ("region",               m_region, true/*temp*/);
-}
-
-CaloSwEta2b_g3::~CaloSwEta2b_g3()
-{ }
-
-
-void CaloSwEta2b_g3::makeCorrection(const EventContext& /*ctx*/,
-                                    CaloCluster* cluster) const
-{
-  assert (m_residuals.size(1)-1 == m_residual_bins.size());
-
   // Only for barrel
   if (!cluster->inBarrel())
     return;
+
+  const CxxUtils::Array<2> correction = m_correction (myctx);
+  const CxxUtils::Array<2> residuals = m_residuals (myctx);
+  const CxxUtils::Array<1> residual_bins = m_residual_bins (myctx);
+  const int correction_degree = m_correction_degree(myctx);
+  const int residual_eval_degree = m_residual_eval_degree(myctx);
+  const int residual_degree = m_residual_degree(myctx);
+  const float correction_coef = m_correction_coef(myctx);
+  const float residual_coef = m_residual_coef(myctx);
+
+  assert (residuals.size(1)-1 == residual_bins.size());
 
   // eta of second sampling
   float eta = cluster->etaSample(CaloSampling::EMB2); 
@@ -85,31 +73,31 @@ void CaloSwEta2b_g3::makeCorrection(const EventContext& /*ctx*/,
   float u2 = fmod(aeta,s_middle_layer_granularity) ;
 
   //   First order (average) S-shape correction
-  float deta = m_correction_coef * interpolate (m_correction,
-						u2,
-						m_correction_degree);
+  float deta = correction_coef * interpolate (correction,
+                                              u2,
+                                              correction_degree);
 
   //    Residual S-shape correction: six ranges in eta from 0 to 1.2
   //    Evaluated by 2nd order interpolation between 10 tabulated values
 
   // first we evaluate our residual in each eta range, given u2
 
-  unsigned int shape[] = {m_residual_bins.size(), 2};
+  unsigned int shape[] = {residual_bins.size(), 2};
   CaloRec::WritableArrayData<2> w (shape);
   
-  for (unsigned int i=0; i < m_residual_bins.size(); i++) {
-    w[i][0] = m_residual_bins[i];
-    w[i][1] = interpolate (m_residuals,
+  for (unsigned int i=0; i < residual_bins.size(); i++) {
+    w[i][0] = residual_bins[i];
+    w[i][1] = interpolate (residuals,
 			   u2, 
-			   m_residual_eval_degree,
+			   residual_eval_degree,
 			   i+1);
   }
 
   // finally we interpolate (2nd order) for the actual eta
 
-  deta += m_residual_coef * interpolate (w,
-					 aeta,
-					 m_residual_degree);
+  deta += residual_coef * interpolate (w,
+                                       aeta,
+                                       residual_degree);
   if (eta < 0)
     deta = -deta;
 

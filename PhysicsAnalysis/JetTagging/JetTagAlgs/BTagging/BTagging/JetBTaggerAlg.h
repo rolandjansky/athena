@@ -20,7 +20,8 @@
 #include "BTagging/IBTagTrackAssociation.h"
 #include "BTagging/IBTagSecVertexing.h"
 
-#include "MagFieldInterfaces/IMagFieldSvc.h"
+// For magneticfield
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 
 namespace Analysis{
 
@@ -53,7 +54,8 @@ class  JetBTaggerAlg:
     ToolHandle< IBTagTool > m_bTagTool;
     ToolHandle< IBTagTrackAssociation > m_BTagTrackAssocTool;
     ToolHandle< IBTagSecVertexing > m_bTagSecVtxTool;
-    ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
+    // Read handle for conditions object to get the field cache
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
 
 };
 

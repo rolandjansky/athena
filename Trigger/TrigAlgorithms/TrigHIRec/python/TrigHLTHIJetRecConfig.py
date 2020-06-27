@@ -8,7 +8,6 @@ from AthenaCommon.SystemOfUnits import MeV
 from JetRec.JetRecConf import JetRecTool
 from JetRec.JetRecConf import (JetFromPseudojet,
                                JetFinder)
-from JetRec.JetRecConf import PseudoJetGetter 	#added
 from JetRec.JetRecFlags import jetFlags
 from JetRec.JetRecStandard import jtm
 from JetRec.JetRecCalibrationFinder import jrcf

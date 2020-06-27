@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArDetectorFactory.h"
@@ -65,6 +65,7 @@ LArGeo::LArDetectorFactory::LArDetectorFactory(int testbeam,bool fullGeo, const 
   , m_buildEndcap(true)
   , m_testbeam(testbeam)
   , m_fullGeo(fullGeo)
+  , m_activateFT(false)
 {}
 
 
@@ -154,11 +155,13 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 
       if (m_testbeam==0) {
 
-	BarrelCryostatConstruction barrelCryostatConstruction(m_fullGeo);
+	BarrelCryostatConstruction barrelCryostatConstruction(m_fullGeo, m_activateFT);
 	barrelCryostatConstruction.setBarrelSagging(m_barrelSagging);
 	barrelCryostatConstruction.setBarrelCellVisLimit(m_barrelVisLimit);
 
-	EndcapCryostatConstruction endcapCryostatConstruction(m_fullGeo, m_EMECVariantInner, m_EMECVariantOuter);
+  EndcapCryostatConstruction endcapCryostatConstruction(
+    m_fullGeo, m_EMECVariantInner, m_EMECVariantOuter, m_activateFT
+  );
 	endcapCryostatConstruction.setFCALVisLimit(m_fcalVisLimit);
 
 	//const GeoMaterial* matAir = materialManager->getMaterial("std::Air");

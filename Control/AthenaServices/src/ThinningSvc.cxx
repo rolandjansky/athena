@@ -111,10 +111,6 @@ StatusCode ThinningSvc::initialize()
     }
     ATH_MSG_INFO ("Thinning streams: [ " << streams.str() << "]");
   }
-  if ( m_thinnedOutStreamNames.value().empty() ) {
-    ATH_MSG_WARNING
-      ("No stream labeled as to be thinned ! Check your configuration !");
-  }
 
   return StatusCode::SUCCESS;
 }

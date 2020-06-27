@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 
@@ -26,7 +26,7 @@ class CaloClusterTopoEMFixedSizeGetter (CaloClusterGetterBase):
 
     def makeCorrectionTools (self):
         corrargs = self._corrargs.copy()
-        if not self._corrargs.has_key ('cells_name'):
+        if 'cells_name' not in  self._corrargs:
             cells = self.getInputGetter(jp.CaloRecFlags.clusterCellGetterName())
             corrargs['cells_name'] = cells.outputKey()
         return make_CaloSwCorrections (key = 'gam35',

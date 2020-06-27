@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -21,22 +21,13 @@ SiElementPropertiesTable::SiElementPropertiesTable(const SCT_ID&  idHelper,
     float   epsilonWidth) 
     {
   size_t maxSCT = idHelper.wafer_hash_max();
-  m_properties.assign(maxSCT, nullptr);
+  m_properties.reserve(maxSCT);
   for (size_t i = 0; i < maxSCT; ++i){
      IdentifierHash hash(i);
      const InDetDD::SiDetectorElement* element = elements[hash]; 
      if (element != 0){ 
-       SiElementProperties* props = new SiElementProperties(hash, idHelper,*element,epsilonWidth);
-       m_properties[i] = props;
+       m_properties.emplace_back(hash, idHelper,*element,epsilonWidth);
      }
-  }
-}
-//--------------------------------------------------------------------------
-
-SiElementPropertiesTable::~SiElementPropertiesTable(){
-  size_t maxSCT = m_properties.size();
-  for (size_t i=0; i < maxSCT; ++i){
-    delete m_properties[i];m_properties[i] =0;
   }
 }
 //--------------------------------------------------------------------------

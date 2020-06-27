@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -27,20 +27,21 @@ namespace Trk {
      
     @author Andreas.Salzburger@cern.ch   
    */
- 
-  struct RealLinearEquation {
 
-   double yOfX;            //!< the result of x
-   double segLength;      //!< length of the line segment
-   
-    RealLinearEquation(double px, double py, double k, double xprime) {
-      double deltax = xprime-px;
-      yOfX = py + k*(deltax);
-      double deltay = yOfX-py;
-      segLength = sqrt(deltax*deltax+deltay*deltay);  
-    }
+struct RealLinearEquation
+{
 
-  };
+  double yOfX;      //!< the result of x
+  double segLength; //!< length of the line segment
+
+  RealLinearEquation(double px, double py, double k, double xprime)
+  {
+    double deltax = xprime - px;
+    yOfX = py + k * (deltax);
+    double deltay = yOfX - py;
+    segLength = sqrt(deltax * deltax + deltay * deltay);
+  }
+};
 
 } // end of namespace
 

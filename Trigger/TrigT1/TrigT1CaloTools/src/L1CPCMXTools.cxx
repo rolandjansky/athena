@@ -15,7 +15,7 @@
 #include "TrigConfL1Data/TriggerThresholdValue.h"
 #include "TrigT1CaloEvent/CPMTobRoI.h"
 #include "TrigT1CaloEvent/EmTauROI.h"
-#include "TrigT1CaloTools/L1CPCMXTools.h"
+#include "L1CPCMXTools.h"
 #include "TrigT1CaloUtils/CPAlgorithm.h"
 #include "TrigT1CaloUtils/ClusterProcessorModuleKey.h"
 #include "TrigT1CaloUtils/DataError.h"

@@ -1,13 +1,7 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//////////////////////////////////////////////////////
-//
-// Author : Srivas Prasad (srivas.prasad@cern.ch)
-// Date   : February 2010
-//
-//////////////////////////////////////////////////////
 #include "MuonSegmentT0FillerTool.h"
 #include "TrkSegment/Segment.h"
 #include "MuonSegment/MuonSegment.h"
@@ -20,10 +14,7 @@ namespace D3PD {
 MuonSegmentT0FillerTool::MuonSegmentT0FillerTool (const std::string& type,
                                             const std::string& name,
                                             const IInterface* parent)
-  : BlockFillerTool<Trk::Segment> (type, name, parent)
-    //    m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    //    m_idToFixedIdTool("MuonCalib::IdToFixedIdTool")
-{
+  : BlockFillerTool<Trk::Segment> (type, name, parent) {
   declareProperty("doMuonBoyCSCTiming", m_doMuonBoyCSCTiming=false);
 
   book().ignore(); // Avoid coverity warnings.
@@ -33,9 +24,6 @@ StatusCode MuonSegmentT0FillerTool::initialize()
 {
   CHECK( BlockFillerTool<Trk::Segment>::initialize() );
   CHECK( m_edmHelperSvc.retrieve() );
-  //  CHECK( m_idHelperTool.retrieve() );
-  //  CHECK( m_idToFixedIdTool.retrieve() );
-
   return StatusCode::SUCCESS;
 }
 
@@ -43,7 +31,6 @@ StatusCode MuonSegmentT0FillerTool::book()
 {
   CHECK( addVariable ("t0",             m_t0)  );
   CHECK( addVariable ("t0err",             m_t0err)  );
-
   return StatusCode::SUCCESS;
 }
 

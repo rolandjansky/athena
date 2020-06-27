@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -124,8 +124,8 @@ class  SCT_FrontEnd : public extends<AthAlgTool, ISCT_FrontEnd> {
   FloatProperty m_OGcorr{this, "OffsetGainCorrelation", 0.00001, "Gain/offset correlation for the strips"};
   FloatProperty m_Threshold{this, "Threshold", 1.0, "Threshold"};
   FloatProperty m_timeOfThreshold{this, "TimeOfThreshold", 30.0, "Threshold time"};
-  ShortProperty m_data_compression_mode{this, "DataCompressionMode", 1, "Front End Data Compression Mode"};
-  ShortProperty m_data_readout_mode{this, "DataReadOutMode", 0, "Front End Data Read out mode Mode"};
+  ShortProperty m_data_compression_mode{this, "DataCompressionMode", 1, "Front End Data Compression Mode: 1 is level mode X1X (default), 2 is edge mode 01X, 3 is any hit mode (1XX|X1X|XX1)"};
+  ShortProperty m_data_readout_mode{this, "DataReadOutMode", 0, "Front End Data Read out mode Mode: 0 is condensed mode and 1 is expanded mode"};
   BooleanProperty m_useCalibData{this, "UseCalibData", true, "Flag to set the use of calibration data for noise, Gain,offset etc."};
 
   ToolHandle<ISCT_Amp> m_sct_amplifier{this, "SCT_Amp", "SCT_Amp", "Handle the Amplifier tool"}; //!< Handle the Amplifier tool

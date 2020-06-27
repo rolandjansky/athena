@@ -47,9 +47,6 @@ StatusCode DiTauTruthMatchingTool::initialize()
 //______________________________________________________________________________
 void DiTauTruthMatchingTool::getTruth(const xAOD::DiTauJet& xDiTau)
 {
-  if (m_bIsData)
-    return;
-
   if (retrieveTruthTaus().isFailure())
     return;
 

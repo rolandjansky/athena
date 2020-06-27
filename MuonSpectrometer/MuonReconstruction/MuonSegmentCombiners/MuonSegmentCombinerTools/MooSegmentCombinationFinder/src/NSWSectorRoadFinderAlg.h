@@ -1,31 +1,30 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MOOSEGMENTFINDERS_NSWSECTORROADFINDERALG_H
 #define MOOSEGMENTFINDERS_NSWSECTORROADFINDERALG_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "MuonPrepRawData/MMPrepDataContainer.h"
 #include "MuonPrepRawData/sTgcPrepDataContainer.h"
 #include "MuonPrepRawData/MMPrepDataCollection.h"
 #include "MuonPrepRawData/sTgcPrepDataCollection.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonPattern/MuonPatternChamberIntersect.h"
 #include "MuonPattern/MuonPatternCombinationCollection.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 class NSWSectorRoadFinderAlg : public AthAlgorithm
 {
  public:
   NSWSectorRoadFinderAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
-  virtual ~NSWSectorRoadFinderAlg();
+  virtual ~NSWSectorRoadFinderAlg()=default;
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute() override;
-  virtual StatusCode finalize() override;
 
 
  private:
@@ -39,26 +38,25 @@ class NSWSectorRoadFinderAlg : public AthAlgorithm
     for( ;it!=it_end; ++it ){
       
       const Muon::MuonPrepDataCollection< PrdT >& col = **it;
-      if( m_idHelper->sector(col.identify()) != sector ) continue;
+      if( m_idHelperSvc->sector(col.identify()) != sector ) continue;
       if( col.empty() ) continue;
       if( ! col.front()->detectorElement() ) {
 	ATH_MSG_WARNING("PrepData with out detector element pointer, skipping collection ");
 	continue;
       }
-      ATH_MSG_VERBOSE(" chamber  " << m_idHelper->toStringChamber(col.identify()) << "  with hits " << col.size() );
+      ATH_MSG_VERBOSE(" chamber  " << m_idHelperSvc->toStringChamber(col.identify()) << "  with hits " << col.size() );
       std::vector< const Trk::PrepRawData* > rios;
       rios.insert(rios.end(), col.begin(), col.end());
       chamberData.push_back( Muon::MuonPatternChamberIntersect( col.front()->detectorElement()->center(),col.front()->detectorElement()->normal(),rios ) );
     }
   }
-  
-  ToolHandle<Muon::MuonIdHelperTool> m_idHelper;
 
   /** storegate location of the MuonPrepDataContainer for all four technologies */
   SG::ReadHandleKey<Muon::sTgcPrepDataContainer>         m_keysTgc;
   SG::ReadHandleKey<Muon::MMPrepDataContainer>           m_keyMM;
   SG::WriteHandleKey<MuonPatternCombinationCollection>   m_patternLocation;
-
+  
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 };
 
 

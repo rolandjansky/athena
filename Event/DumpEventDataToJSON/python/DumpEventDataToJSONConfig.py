@@ -30,7 +30,7 @@ if __name__=="__main__":
     # from AthenaCommon.Constants import DEBUG
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     # from AthenaConfiguration.TestDefaults import defaultTestFiles
-    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg    
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg    
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 
     Configurable.configurableRun3Behavior=1
@@ -56,7 +56,7 @@ if __name__=="__main__":
     log.debug('Lock config flags now.')
     ConfigFlags.lock()
 
-    cfg=MainServicesThreadedCfg(ConfigFlags)
+    cfg=MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
     
     # Disable doExtrap if you would prefer not to use the extrapolator.

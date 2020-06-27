@@ -80,8 +80,8 @@ atlas_add_component( InDetPhysValMonitoring
 # Install files from the package:
 atlas_install_headers( InDetPhysValMonitoring )
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*.py )
-atlas_install_runtime( share/*.hdef  share/*.xml  share/*.xsl )
+atlas_install_joboptions( share/*.py share/*.txt )
+atlas_install_runtime( share/*.xml )
 atlas_install_runtime( test/InDetPhysValMonitoring_TestConfiguration.xml )
 
 # build postprocessing program 
@@ -97,5 +97,28 @@ atlas_add_test( SingleHistogramDefinition_test
                 POST_EXEC_SCRIPT "nopost.sh"
 )
 
+atlas_add_test( HistogramDefinitionSvc_test
+                SOURCES
+                test/HistogramDefinitionSvc_test.cxx
+                INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+                LINK_LIBRARIES ${Boost_LIBRARIES} InDetPhysValMonitoringLib
+                POST_EXEC_SCRIPT "nopost.sh"
+)
+
+atlas_add_test( XmlEntityInclusion_test
+                SOURCES
+                test/XmlEntityInclusion_test.cxx
+                INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+                LINK_LIBRARIES ${Boost_LIBRARIES} InDetPhysValMonitoringLib
+                POST_EXEC_SCRIPT "nopost.sh"
+)
+
+atlas_add_test( InDetPlotBase_test
+                SOURCES
+                test/InDetPlotBase_test.cxx
+                INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+                LINK_LIBRARIES ${Boost_LIBRARIES} InDetPhysValMonitoringLib
+                POST_EXEC_SCRIPT "nopost.sh"
+)
 
 

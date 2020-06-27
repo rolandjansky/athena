@@ -485,7 +485,7 @@ StatusCode NSWPRDValAlg::NSWMatchingAlg (EDM_object data0, EDM_object data1) {
               warningPrinted = true;
             }
           } else {
-            ATH_MSG_WARNING("No match found!");
+            ATH_MSG_DEBUG("No match found!");
           }
         }
      }

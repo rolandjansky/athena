@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -33,7 +33,7 @@ Trk::GeometryTTreeDumper::~GeometryTTreeDumper()
 {}
 
 
-StatusCode Trk::GeometryTTreeDumper::processNode(const Trk::TrackingVolume& tvol, size_t)
+StatusCode Trk::GeometryTTreeDumper::processNode(const Trk::TrackingVolume& tvol, size_t) const
 {
    ATH_MSG_VERBOSE("Dumping information for TrackingVolume.");
    // clean up from the previous event
@@ -73,7 +73,7 @@ StatusCode Trk::GeometryTTreeDumper::processNode(const Trk::TrackingVolume& tvol
 }
 
 
-StatusCode Trk::GeometryTTreeDumper::processNode(const Trk::Layer& lay, size_t)
+StatusCode Trk::GeometryTTreeDumper::processNode(const Trk::Layer& lay, size_t) const
 {
     
     ATH_MSG_VERBOSE("Dumping information for Layer.");
@@ -90,7 +90,7 @@ StatusCode Trk::GeometryTTreeDumper::processNode(const Trk::Layer& lay, size_t)
 }
 
 
-StatusCode Trk::GeometryTTreeDumper::processNode(const Trk::Surface& sf, size_t)
+StatusCode Trk::GeometryTTreeDumper::processNode(const Trk::Surface& sf, size_t) const
 {
     ATH_MSG_VERBOSE("Dumping information for Surfaces.");
 

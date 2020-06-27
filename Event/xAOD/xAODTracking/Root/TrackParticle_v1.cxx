@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Misc includes
@@ -7,6 +7,8 @@
 #include <cassert>
 #include <vector>
 #include <stdexcept>
+#include <atomic>
+#include <iostream>
 
 // EDM include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -16,8 +18,27 @@
 #include "xAODTracking/TrackSummaryAccessors_v1.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
-// Amg include
-//#include "EventPrimitives/EventPrimitives.h"
+
+namespace xAODTrackParticlePrivate {
+
+  /// Function that would be possible to use to debug what client is trying
+  /// to access covariance matrix from an @c xAOD::TrackParticle object, before they
+  /// it has been set.
+  void covarianceUnsetHook() {
+    static std::atomic< bool > uninitCovarianceAccessPrinted = false;
+    if( ! uninitCovarianceAccessPrinted ) {
+      std::cout << "xAOD::TrackParticle WARNING Uninitialised covariance matrix was "
+	"accessed.\n"
+	"                        Debug it by breaking on "
+	"xAODTrackParticlePrivate::covarianceUnsetHook function calls!"
+		<< std::endl;
+      uninitCovarianceAccessPrinted = true;
+    }
+    return;
+  }
+
+}
+
 
 namespace xAOD {
 
@@ -207,6 +228,7 @@ namespace xAOD {
           cov( i, i ) = diagVec[ i ];
         }
     } else {
+      xAODTrackParticlePrivate::covarianceUnsetHook();
       // If the variable is not available/set, set the matrix to identity.
       cov.setIdentity();
     }
@@ -231,6 +253,8 @@ namespace xAOD {
 	}
       }
 
+      else xAODTrackParticlePrivate::covarianceUnsetHook();
+
     }
 
     else{ //Compressed case
@@ -254,6 +278,8 @@ namespace xAOD {
 			   offDiagVec[th_qp_index]*sqrt(cov(th_index,th_index)*cov(qp_index,qp_index)) );
 
       }
+
+      else xAODTrackParticlePrivate::covarianceUnsetHook();
 
     }
 

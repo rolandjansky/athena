@@ -1,10 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ElectricFieldTool.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
+
+#include <cmath>
 
 SCT_ElectricFieldTool::SCT_ElectricFieldTool(const std::string& t, const std::string& n, const IInterface* p) : 
   base_class(t, n, p) {
@@ -49,7 +51,7 @@ double SCT_ElectricFieldTool::getElectricField(double positionZ,
     
     //------------ find depletion depth for model=0 and 1 -------------
     double depletionDepth{bulkDepth};
-    if (biasVoltage < fabs(depletionVoltage)) depletionDepth = sqrt(biasVoltage/fabs(depletionVoltage)) * bulkDepth;
+    if (biasVoltage < std::abs(depletionVoltage)) depletionDepth = sqrt(biasVoltage/std::abs(depletionVoltage)) * bulkDepth;
     if (y<=depletionDepth){
       //---------- case for uniform electric field ------------------------
       if( m_eFieldModel ==UNIFORM_FIELD ) {
@@ -60,7 +62,7 @@ double SCT_ElectricFieldTool::getElectricField(double positionZ,
       
       //---------- case for flat diode model ------------------------------
       if (m_eFieldModel==FLAT_DIODE) {       
-        if (biasVoltage > fabs(depletionVoltage)) {
+        if (biasVoltage > std::abs(depletionVoltage)) {
           Ey = (biasVoltage+depletionVoltage)/depletionDepth - 2.*depletionVoltage*(bulkDepth-y)/(bulkDepth*bulkDepth);
         } else {
           double Emax{2.* depletionDepth * depletionVoltage / (bulkDepth*bulkDepth)};

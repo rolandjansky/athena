@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -29,7 +29,6 @@
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArRawEvent/LArRawChannel.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
-#include "LArRawEvent/LArFebHeaderContainer.h"
 
 #include "LArRawEvent/LArFebHeader.h" 
 
@@ -178,6 +177,7 @@ LArRODMonTool::initialize() {
   ATH_CHECK(m_channelKey_fromBytestream.initialize());
   ATH_CHECK(m_digitContainerKey.initialize());
   ATH_CHECK(m_eventInfoKey.initialize());
+  ATH_CHECK(m_febContKey.initialize());
 
   ATH_CHECK(m_keyOFC.initialize());
   ATH_CHECK(m_keyShape.initialize());
@@ -594,9 +594,8 @@ LArRODMonTool::bookHistograms()
 
 bool LArRODMonTool::FebStatus_Check() {
   m_ignoreFEBs.clear();
-  const LArFebHeaderContainer* febCont=NULL;
-  StatusCode sc = evtStore()->retrieve(febCont);
-  if (sc.isFailure() || !febCont) {
+  SG::ReadHandle<LArFebHeaderContainer> febCont{m_febContKey};
+  if (!febCont.isValid()) {
     ATH_MSG_WARNING( "No LArFEB container found in TDS" ); 
     return false;
   }

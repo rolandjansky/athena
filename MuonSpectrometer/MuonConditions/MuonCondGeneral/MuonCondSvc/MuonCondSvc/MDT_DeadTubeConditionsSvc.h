@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDSVC_MDT_DEADTUBECONDITIONSSVC_H
@@ -10,8 +10,6 @@
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/IInterface.h"
 #include "AthenaBaseComps/AthService.h"
-
-//#include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonCondSvc/MuonHierarchy.h"
 #include "MuonCondInterface/IMDT_DeadTubeConditionsSvc.h"
 #include "MuonCondInterface/IMDT_DeadTubeConditionsTool.h"
@@ -21,11 +19,6 @@
 class IMDT_DeadTubeConditionsTool;
 class IIOVSvc;
 class Identifier;
-
-//const InterfaceID InterfaceID_IMDT_DeadTubeConditionsSvc("MDT_DeadTubeConditionsSvc", 1, 0);
-
-//class IMDT_DeadTubeConditionsSvc;
-
 
 class MDT_DeadTubeConditionsSvc : public AthService, virtual public IMDT_DeadTubeConditionsSvc {
 friend class SvcFactory<MDT_DeadTubeConditionsSvc>;    

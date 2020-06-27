@@ -79,7 +79,7 @@ if False:                       # it would be nice if this could be set automati
 if (jobName == 'TRT-Monitoring-Noise'):
     keyname     = 'SFI'         # take the events straight from L2 - the IDMonitoring stream does not go through the Event Filter, anyway
     keycount    = 255           # there are only around 100 SFIs - connect to all of them
-    dispersion  = False         # process the same events as other monitoring jobs with the same event selection
+    groupName  = ''         # process the same events as other monitoring jobs with the same event selection
     streamLogic = 'Or'
     streamName  = 'IDMonitoring' # avoid PixelNoise and SCTNoise, because those streams contain mostly partial events without TRT data
     lvl1Logic   = 'Or'
@@ -89,7 +89,7 @@ if (jobName == 'TRT-Monitoring-Noise'):
 if (jobName == 'TRT-Monitoring-Beam'):
     keyname     = 'SFI'         # take the events straight from L2 - the IDMonitoring stream does not go through the Event Filter, anyway
     keycount    = 255           # there are only around 100 SFIs - connect to all of them
-    dispersion  = False         # process the same events as other monitoring jobs with the same event selection
+    groupName  = ''         # process the same events as other monitoring jobs with the same event selection
     streamLogic = 'Or'
     streamName  = 'IDMonitoring' # avoid PixelNoise and SCTNoise, because those streams contain mostly partial events without TRT data
     lvl1Logic   = 'Or'

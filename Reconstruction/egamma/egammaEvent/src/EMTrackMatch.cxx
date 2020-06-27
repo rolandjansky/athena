@@ -37,11 +37,11 @@ Updated:  Jan, 2004 (FD+AK)
 ********************************************************************/
 
 // INCLUDE HEADER FILES:
-#include <math.h>
 #include "egammaEvent/EMTrackMatch.h"
 #include "AthenaKernel/BaseInfo.h"
 #include "AthenaKernel/ClassName.h"
 #include "GaudiKernel/GaudiException.h"
+#include <cmath>
 
 //  END OF HEADER FILES INCLUDE
 

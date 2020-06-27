@@ -140,9 +140,9 @@ TCS::DeltaEtaIncl2::processBitCorrect( const std::vector<TCS::TOBArray const *> 
                             output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                         }
                         if(fillAccept and not alreadyFilled) {
-                            m_histAcceptDEta2[i]->Fill((float)deltaEta*0.10);
+                            fillHist1D(m_histAcceptDEta2[i]->GetName(),(float)deltaEta*0.10);
                         } else if(fillReject) {
-                            m_histRejectDEta2[i]->Fill((float)deltaEta*0.10);
+                            fillHist1D(m_histRejectDEta2[i]->GetName(),(float)deltaEta*0.10);
                         }
                         TRG_MSG_DEBUG("DeltaEta = " << deltaEta << " -> accept bit  " << i << " -> "
                                       << (accept?"pass":"fail"));
@@ -183,9 +183,9 @@ TCS::DeltaEtaIncl2::process( const std::vector<TCS::TOBArray const *> & input,
                             output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                         }
                         if(fillAccept and not alreadyFilled) {
-                            m_histAcceptDEta2[i]->Fill((float)deltaEta*0.10);
+                            fillHist1D(m_histAcceptDEta2[i]->GetName(),(float)deltaEta*0.10);
                         } else if(fillReject) {
-                            m_histRejectDEta2[i]->Fill((float)deltaEta*0.10);
+                            fillHist1D(m_histRejectDEta2[i]->GetName(),(float)deltaEta*0.10);
                         }
                         TRG_MSG_DEBUG("DeltaEta = " << deltaEta << " -> accept bit  " << i << " -> " 
                                       << (accept?"pass":"fail"));

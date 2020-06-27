@@ -12,3 +12,12 @@ ApplicationMgr Ready
 test1
 ClassIDSvc           INFO  getRegistryEntries: read 1853 CLIDRegistry entries for module ALL
 HepMcParticleLink    INFO find_proxy: Using TruthEvent as McEventCollection key for this job 
+HepMcParticleLink WARNING cptr: Mc Truth not stored for event with event number 460
+HepMcParticleLink WARNING cptr: Mc Truth not stored for event with event number 460
+HepMcParticleLink WARNING cptr: Mc Truth not stored for event with event number 460
+HepMcParticleLink WARNING cptr: Mc Truth not stored for event with event number 460
+HepMcParticleLink WARNING cptr: Mc Truth not stored for event with event number 460
+HepMcParticleLink WARNING cptr: Mc Truth not stored for event with event number 460
+HepMcParticleLink WARNING cptr: Mc Truth not stored for event with event number 460
+HepMcParticleLink WARNING cptr: Mc Truth not stored for event with event number 460
+HepMcParticleLink WARNING cptr: Mc Truth not stored for event with event number 460

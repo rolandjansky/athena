@@ -1,5 +1,5 @@
  /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -152,7 +152,6 @@ StatusCode IDPerfMonEoverP::initialize()
   ATH_CHECK( m_evt.initialize() );
 
   // Retrieve Jet selector tool
-  m_jetCleaningTool.setTypeAndName("JetCleaningTool/JetCleaningTool");
   CHECK( m_jetCleaningTool.retrieve() );
 
   // Retrieve fitter

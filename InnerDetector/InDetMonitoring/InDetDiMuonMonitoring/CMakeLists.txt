@@ -26,6 +26,5 @@ atlas_add_component( InDetDiMuonMonitoring
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaMonitoringLib xAODMuon xAODTracking GaudiKernel StoreGateLib SGtests )
 
 # Install files from the package:
-atlas_install_headers( InDetDiMuonMonitoring )
 atlas_install_joboptions( share/*.py )
 

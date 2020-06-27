@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -22,7 +22,7 @@
 #include <vector>
 
 
-int eflowCaloObjectMaker::makeTrkCluCaloObjects(eflowRecTrackContainer* eflowTrackContainer, eflowRecClusterContainer* eflowClusterContainer, eflowCaloObjectContainer* caloObjectContainer) {
+unsigned int eflowCaloObjectMaker::makeTrkCluCaloObjects(eflowRecTrackContainer* eflowTrackContainer, eflowRecClusterContainer* eflowClusterContainer, eflowCaloObjectContainer* caloObjectContainer) {
   std::vector<eflowRecTrack*> tracksToRecover;
   std::vector<eflowRecCluster*> clustersToConsider;
   for (unsigned int iTrack=0; iTrack<eflowTrackContainer->size(); ++iTrack) {
@@ -38,8 +38,8 @@ int eflowCaloObjectMaker::makeTrkCluCaloObjects(eflowRecTrackContainer* eflowTra
 
 }
 
-int eflowCaloObjectMaker::makeTrkCluCaloObjects(std::vector<eflowRecTrack*> tracksToRecover, std::vector<eflowRecCluster*> clustersToConsider, eflowCaloObjectContainer* caloObjectContainer) {
-  int result(0);
+unsigned int eflowCaloObjectMaker::makeTrkCluCaloObjects(std::vector<eflowRecTrack*>& tracksToRecover, std::vector<eflowRecCluster*>& clustersToConsider, eflowCaloObjectContainer* caloObjectContainer) {
+  unsigned int result(0);
 
   /* Create all eflowCaloObjects that contain only eflowRecTracks and cache eflowRecTracks matched with cluster */
   std::vector<eflowRecTrack*> tracksToConsider;  tracksToConsider.clear();
@@ -85,7 +85,7 @@ int eflowCaloObjectMaker::makeTrkCluCaloObjects(std::vector<eflowRecTrack*> trac
       trackForNextLoop.push_back(tracksToConsider.at(0));
       trackList.insert(trackList.end(), trackForNextLoop.begin(), trackForNextLoop.end());
 
-      int time(0);
+      unsigned int time(0);
       /* iteratively searching tracks and clusters those belong to one CaloObject */
       do {
 	clusterForNextLoop = uniqCluster(trackForNextLoop, clusterList);

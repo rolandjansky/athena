@@ -299,7 +299,7 @@ namespace Trk {
       return &m_measurement->associatedSurface();
     } if (m_trackpar != nullptr) {
       return &m_trackpar->associatedSurface();
-    } else if (m_materialEffects != nullptr) {
+    } if (m_materialEffects != nullptr) {
       return m_materialEffects->surface();
     } else {
       return nullptr;

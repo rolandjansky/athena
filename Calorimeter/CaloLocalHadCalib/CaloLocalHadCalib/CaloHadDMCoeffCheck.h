@@ -15,12 +15,14 @@
  * Class is used for quick validation of dead material constants, it runs on
  * data provided by special dead material tree and fills dmreco .vs. dmtrue
  * histograms for different dead material areas
+ *
+ *
  * */
 
 #include <vector>
 #include <string>
 #include <math.h>
-
+#include "CxxUtils/checker_macros.h"
 class CaloLocalHadCoeff;
 class CaloLocalHadCoeffHelper;
 class CaloHadDMCoeffData;
@@ -30,7 +32,12 @@ class TH1F;
 
 
 
-class CaloHadDMCoeffCheck {
+/* 
+ * Not thread safe due to ROOT facilities like gStyle
+ * but is used only for validation/plotting
+ * so should be fine
+ */
+class ATLAS_NOT_THREAD_SAFE CaloHadDMCoeffCheck {
   public :
 
     CaloHadDMCoeffCheck();

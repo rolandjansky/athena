@@ -310,7 +310,7 @@ StatusCode ByteStreamMultipleOutputStreamCopyTool::connectOutput(const std::stri
   return StatusCode::SUCCESS;
 }
 //__________________________________________________________________________
-StatusCode ByteStreamMultipleOutputStreamCopyTool::commitOutput() {
+StatusCode ByteStreamMultipleOutputStreamCopyTool::commitOutput(bool/* doCommit*/) {
   ATH_MSG_DEBUG( "In commitOutput" );
   const RawEvent* re_c = m_inputSvc->currentEvent() ;
   if(!re_c){

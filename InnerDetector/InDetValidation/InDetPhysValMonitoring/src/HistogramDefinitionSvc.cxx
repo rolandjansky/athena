@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -10,8 +10,6 @@
 //
 
 #include "InDetPhysValMonitoring/HistogramDefinitionSvc.h"
-#include "ReadFromText.h"
-#include "ReadFromXml.h"
 #include "ReadFromXmlDom.h"
 #include "IReadHistoDef.h"
 namespace {
@@ -47,7 +45,8 @@ HistogramDefinitionSvc::initialize() {
   ATH_MSG_INFO("Set format:" << m_formatString.value());
   ATH_MSG_INFO("format " << m_format);
   if (m_format == TEXT_PLAIN) {
-    m_reader.reset(new ReadFromText(m_source.value()));
+    ATH_MSG_FATAL("Text format histogram definition files are deprecated.");
+    return StatusCode::FAILURE;
   }
   if (m_format == TEXT_XML) {
     m_reader.reset(new ReadFromXmlDom(m_source.value()));

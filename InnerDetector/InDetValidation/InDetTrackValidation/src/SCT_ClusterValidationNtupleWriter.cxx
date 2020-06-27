@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -405,11 +405,11 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
       for (; rioIterator != (*containerIterator)->end(); rioIterator++) {
         // get the surface center of the RIO
         if (!(*rioIterator)) {
-          ATH_MSG_WARNING( "NULL pointer to RIO" );
+          ATH_MSG_WARNING( "nullptr to RIO" );
           continue;
         }
         if (!((*rioIterator)->detectorElement())) {
-          ATH_MSG_WARNING( "in RIO: NULL pointer to detElement" );
+          ATH_MSG_WARNING( "in RIO: nullptr to detElement" );
           continue;
         }
    

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FASTSIDIGITIZATION_SCT_FASTDIGITIZATION_H
@@ -8,7 +8,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-class ISCT_FastDigitizationTool;
+class IPileUpTool;
 
 /** Top algorithm class for SCT digitization */
 class SCT_FastDigitization : public AthAlgorithm {
@@ -19,12 +19,11 @@ class SCT_FastDigitization : public AthAlgorithm {
   SCT_FastDigitization(const std::string &name,ISvcLocator *pSvcLocator);
 
   /** Basic algorithm methods */
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override final;
+  virtual StatusCode execute() override final;
 
  private:
-   ToolHandle<ISCT_FastDigitizationTool> m_digTool;
+  ToolHandle<IPileUpTool> m_digTool{this, "DigitizationTool", "SCT_FastDigitizationTool", "AthAlgTool which performs the SCT digitization"};
 };
 
 #endif // FASTSIDIGITIZATION_SCT_FASTDIGITIZATION_H

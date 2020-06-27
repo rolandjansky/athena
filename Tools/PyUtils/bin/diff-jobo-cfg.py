@@ -16,7 +16,6 @@
 
 from __future__ import print_function
 
-__version__ = "$Revision: 298860 $"
 __author__  = "Sebastien Binet, Adrien Renaud"
 
 import sys
@@ -52,7 +51,7 @@ def load_cfg_file(fname):
         import shelve
         comps_db = shelve.open(fname, 'r')
         return comps_db['all-cfgs']
-    except Exception as err:
+    except Exception:
         from past.builtins import execfile
         execfile(fname, comps_db)
         return comps_db['d']
@@ -105,17 +104,12 @@ def cmp_component_db(ref, chk, verbose=True):
 
     diff = []
     for comp_name in common_keys:
-        is_diff = False
         comp_ref = ref[comp_name]
         comp_chk = chk[comp_name]
 
-        for k in ('comp_type', 'cxx_type',):
-            if comp_ref[k] != comp_chk[k]:
-                is_diff = True
         ref_props = sorted([(k,v) for k,v in comp_ref['props'].iteritems()])
         chk_props = sorted([(k,v) for k,v in comp_chk['props'].iteritems()])
         if ref_props != chk_props:
-            is_diff = True
             diff.append((comp_name, ref_props, chk_props,
                          dict_diff(ref=comp_ref['props'],
                                    chk=comp_chk['props'])))
@@ -140,7 +134,7 @@ def cmp_component_db(ref, chk, verbose=True):
             print ("-%s: %r" %(prop_name, ref_value,))
             print ("+%s: %r" %(prop_name, chk_value,))
     
-        
+
     if (len(ref_only_keys) > 0 or
         len(chk_only_keys) > 0 or
         len(diff) > 0):
@@ -186,8 +180,7 @@ if __name__ == "__main__":
         options.chk_fname = args[1]
         pass
 
-    if (options.chk_fname == None or 
-        options.ref_fname == None) :
+    if (options.chk_fname is None or options.ref_fname is None) :
         str(parser.print_help() or "")
         sys.exit(1)
         pass

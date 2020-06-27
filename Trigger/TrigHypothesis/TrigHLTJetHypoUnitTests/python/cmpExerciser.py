@@ -231,15 +231,16 @@ if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
 
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
-    cfg=MainServicesSerialCfg()
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ConfigFlags.Exec.MaxEvents=10
+    cfg=MainServicesCfg(ConfigFlags)
     cfg.merge(JetHypoExerciserCompareCfg(label,
                                          fn_frag,
                                          mult_string,
                                          event_generator)
     )
 
-    cfg.setAppProperty("EvtMax", 1)
     cfg.run()
 
     #f=open("HelloWorld.pkl","wb")

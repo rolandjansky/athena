@@ -39,13 +39,13 @@ atlas_add_library( InDetBeamSpotFinderLib
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} xAODTracking GaudiKernel
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps EventInfo xAODEventInfo TrkEventPrimitives VxVertex AtlasDetDescr Identifier TrkFitterInterfaces TrkFitterUtils TrkParameters TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkTrack TrkVertexFitterInterfaces  )
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} xAODTracking GaudiKernel TrigAnalysisInterfaces
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps EventInfo xAODEventInfo TrkEventPrimitives VxVertex AtlasDetDescr Identifier TrkFitterInterfaces TrkFitterUtils TrkParameters TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkTrack TrkVertexFitterInterfaces )
 
 atlas_add_component( InDetBeamSpotFinder
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} xAODTracking GaudiKernel AthenaBaseComps EventInfo xAODEventInfo TrkEventPrimitives VxVertex AtlasDetDescr Identifier TrkFitterInterfaces TrkFitterUtils TrkParameters TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkTrack TrkVertexFitterInterfaces  InDetBeamSpotFinderLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} xAODTracking GaudiKernel AthenaBaseComps EventInfo xAODEventInfo TrkEventPrimitives VxVertex AtlasDetDescr Identifier TrkFitterInterfaces TrkFitterUtils TrkParameters TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkTrack TrkVertexFitterInterfaces InDetBeamSpotFinderLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

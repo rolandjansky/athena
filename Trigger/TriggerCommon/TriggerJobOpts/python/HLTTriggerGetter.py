@@ -132,9 +132,11 @@ class HLTSimulationGetter(Configured):
             from RecExConfig.ObjKeyStore import objKeyStore
             from PyUtils.MetaReaderPeeker import convert_itemList
             objKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
-            if ( not objKeyStore.isInInput("xAOD::EventInfo") ) and ( not hasattr(topSequence, "xAODMaker::EventInfoCnvAlg") ):
+            from AthenaCommon.AlgSequence import AthSequencer
+            condSeq = AthSequencer("AthCondSeq")
+            if ( not objKeyStore.isInInput("xAOD::EventInfo") ) and ( not hasattr(condSeq, "xAODMaker::EventInfoCnvAlg") ):
                 from xAODEventInfoCnv.xAODEventInfoCnvAlgDefault import xAODEventInfoCnvAlgDefault
-                xAODEventInfoCnvAlgDefault(sequence=topSequence)
+                xAODEventInfoCnvAlgDefault(sequence=condSeq)
 
         if jobproperties.Global.InputFormat() == 'bytestream':
             # Decode ROIB::RoIBResult from ByteStream

@@ -16,7 +16,6 @@
 
 namespace InDetDD {
 
-  using std::abs;
   using std::cos;
   using std::sin;
 
@@ -89,10 +88,10 @@ SCT_ForwardModuleSideGeometry::distanceToDetectorEdge(const SiLocalPosition & lo
 
   // Distance to top/bottom.
   // Calculation symmetric around zero so we can use abs.
-  etaDist = m_halfLength - abs(localPosition.xEta());
+  etaDist = m_halfLength - std::abs(localPosition.xEta());
 
   // For phi distance use r*phiDiff.
-  phiDist = polar.r() * (m_rightSide - abs(polar.theta()));
+  phiDist = polar.r() * (m_rightSide - std::abs(polar.theta()));
 
 }
 
@@ -114,7 +113,7 @@ bool SCT_ForwardModuleSideGeometry::inActiveArea(const SiLocalPosition &chargePo
   double xEta = chargePos.xEta();
   double xPhi = chargePos.xPhi();
 
-  if (abs(xEta) > m_halfLength) return false;
+  if (std::abs(xEta) > m_halfLength) return false;
 
   if (checkBondGap && m_nCrystals > 1) {
     // Check if in bond gap
@@ -124,7 +123,7 @@ bool SCT_ForwardModuleSideGeometry::inActiveArea(const SiLocalPosition &chargePo
   // edge at xEta
   double edge = (xEta + m_radius) * m_tangent;
   
-  return (abs(xPhi) < edge);
+  return (std::abs(xPhi) < edge);
 }
 
 // DEPRECATED
@@ -155,7 +154,7 @@ bool SCT_ForwardModuleSideGeometry::inActiveArea(const SCT_ForwardPolarPosition
 double SCT_ForwardModuleSideGeometry::stripPitch(const SCT_ForwardPolarPosition
 						 &polarPos) const
 {
-  return 2.0*polarPos.r()*fabs(sin(m_step*0.5));
+  return 2.0*polarPos.r()*std::abs(sin(m_step*0.5));
 }
 
 // give distance to the nearest diode in units of pitch, from 0.0 to 0.5, 
@@ -168,8 +167,8 @@ double SCT_ForwardModuleSideGeometry::scaledDistanceToNearestDiode(const SCT_For
 			    static_cast<int>(polarPos.theta()/m_step);
   else stripIndex = static_cast<int>(polarPos.theta()/m_step-1);
   const double thetaStrip = (stripIndex+0.5)*m_step;
-  const double pitch = 2.0*polarPos.r()*fabs(sin(m_step*0.5));
-  return polarPos.r()*fabs(sin(polarPos.theta()-thetaStrip))/pitch;
+  const double pitch = 2.0*polarPos.r()*std::abs(sin(m_step*0.5));
+  return polarPos.r()*std::abs(sin(polarPos.theta()-thetaStrip))/pitch;
 }  
 
 // Method to calculate length of a module

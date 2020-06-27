@@ -36,6 +36,8 @@ const int MaxNumberOfWireHighPtBoard = 2;
 class  TGCHighPtBoard;
 class  TGCHighPtChipOut;
 class  TGCTMDB;
+class  TGCNSW;
+class  TGCNSWCoincidenceMap;
 
 //for Run3
 class TGCTrackSelectorOut;
@@ -74,6 +76,8 @@ public:
   void setEIFIMap(const TGCEIFICoincidenceMap* mapI);
   void setTileMuMap(const TGCTMDB* tmdb,
 		    const TGCTileMuCoincidenceMap* mapTM);
+  void setNSWMap(std::shared_ptr<const TGCNSW> nsw,
+		 std::shared_ptr<const TGCNSWCoincidenceMap> mapNSW);
   void showResult(TGCSLSelectorOut* out);
  
   TGCSectorLogic(TGCArguments*, TGCRegionType regionIn, int id);
@@ -97,6 +101,10 @@ protected:
   void doInnerCoincidence(const SG::ReadCondHandleKey<TGCTriggerData> readCondKey,
                           int SSCId,  TGCRPhiCoincidenceOut* coincidenceOut);
 
+  void doInnerCoincidenceRun3(int SSCId,  TGCRPhiCoincidenceOut* coincidenceOut);
+
+  void doTGCNSWCoincidence(TGCRPhiCoincidenceOut* coincidenceOut); 
+
 private:
   TGCSectorLogic& operator=(const TGCSectorLogic& right);
 
@@ -115,6 +123,8 @@ private:
   const TGCEIFICoincidenceMap*  m_mapEIFI;
   const TGCTileMuCoincidenceMap*  m_mapTileMu;
   const TGCTMDB*            m_pTMDB;
+  std::shared_ptr<const TGCNSW>             m_nsw;
+  std::shared_ptr<const TGCNSWCoincidenceMap> m_mapNSW;
 
   // for Run2
   TGCSLPreSelector m_preSelector; 

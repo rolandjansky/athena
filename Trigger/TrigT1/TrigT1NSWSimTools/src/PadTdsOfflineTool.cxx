@@ -3,7 +3,6 @@
 */
 
 #include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/IIncidentSvc.h"
 #include "AGDDKernel/AGDDDetector.h"
 #include "AGDDKernel/AGDDDetectorStore.h"
 
@@ -20,7 +19,6 @@
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonSimData/MuonSimData.h"
 
-#include "AthenaKernel/IAtRndmGenSvc.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #include "GaudiKernel/EventContext.h"
 #include "CLHEP/Random/RandFlat.h"

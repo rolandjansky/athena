@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_RDO_ContainerCnv_p0.h"
@@ -22,7 +22,7 @@ SCT_RDO_Container* SCT_RDO_ContainerCnv_p0::createTransient(const SCT_RDO_Contai
     const InDetRawDataCollection<SCT1_RawData>* rdoCollOld = *it;
     
     if (rdoCollOld==nullptr) {
-      throw std::runtime_error("Got NULL collection reading old format SCT_RDO_Container");
+      throw std::runtime_error("Got nullptr of collection reading old format SCT_RDO_Container");
     }
 
     // Ugly cast...  The new format does not need it in its converters.

@@ -11,12 +11,10 @@
 #           based on Dominik Seichter's 'dependencies.sh':
 #           http://domseichter.blogspot.com/2008/02/visualize-dependencies-of-binaries-and.html
 #
-# $Id: dlldep.py,v 1.1 2009-02-09 17:56:35 fwinkl Exp $
-#
 
 from __future__ import print_function
 
-import sys, os
+import sys
 from os.path import basename
 import subprocess as sp
 import re

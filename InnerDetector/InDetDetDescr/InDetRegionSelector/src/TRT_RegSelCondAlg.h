@@ -16,7 +16,6 @@
 
 #include "GaudiKernel/ISvcLocator.h"
 
-#include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/EventIDRange.h"
 
 #include "TRT_Cabling/ITRT_CablingSvc.h"

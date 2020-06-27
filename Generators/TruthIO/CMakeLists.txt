@@ -22,7 +22,6 @@ find_package( HepPDT )
 # Component(s) in the package:
 atlas_add_component( TruthIO
                      src/*.cxx
-                     src/*.F
                      src/components/*.cxx
                      INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} 
                      LINK_LIBRARIES ${HEPPDT_LIBRARIES} AtlasHepMCLib AtlasHepMCfioLib AthenaBaseComps GaudiKernel GeneratorModulesLib StoreGateLib SGtests EventInfo GeneratorObjects )

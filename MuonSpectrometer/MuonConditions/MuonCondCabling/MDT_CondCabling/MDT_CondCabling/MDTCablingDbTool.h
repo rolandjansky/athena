@@ -1,28 +1,24 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDT_CONDCABLING_MDTCABLINGDBTOOL_H
 #define MDT_CONDCABLING_MDTCABLINGDBTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
 #include "MuonCondInterface/IMDTCablingDbTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "MuonCablingData/MuonMDT_CablingMap.h"
 #include "AthenaKernel/IIOVDbSvc.h"
-#include "GaudiKernel/MsgStream.h"
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
-class Identifier; 
+#include <string>
+
 class IIOVSvc;
-class IIOVDbSvc;
-class StatusCode;
-class MuonMDT_CablingMap;
 
-class MDTCablingDbTool: public AthAlgTool, public IMDTCablingDbTool
-{
+class MDTCablingDbTool: public AthAlgTool, public IMDTCablingDbTool {
 
 public:    
 
@@ -40,25 +36,15 @@ public:
 
   virtual std::string mapFolderName() const {return m_mapFolder;}
   virtual std::string mezzanineFolderName() const {return m_mezzanineFolder;}
-    
- 
-
-  //  MuonMDT_CablingMap* getMap() {return m_cablingData;} 
 
  private: 
-
-
- 
   virtual StatusCode loadParameters(IOVSVC_CALLBACK_ARGS);
   virtual StatusCode loadMezzanine(IOVSVC_CALLBACK_ARGS);
   virtual StatusCode loadMDTMap(IOVSVC_CALLBACK_ARGS);
-  
-      
 
   IIOVSvc* m_IOVSvc;
   IIOVDbSvc* m_IOVDbSvc;
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
   MuonMDT_CablingMap* m_cablingData; 
   std::string      m_DataLocation;

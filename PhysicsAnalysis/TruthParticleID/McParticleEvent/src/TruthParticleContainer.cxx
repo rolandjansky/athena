@@ -70,7 +70,7 @@ TruthParticleContainer::TruthParticleContainer( const SG::OwnershipPolicy own ) 
 const TruthParticle* 
 TruthParticleContainer::truthParticle( const int barcode,std::size_t genEventIdx ) const
 {
-  HepMcParticleLink mcLink(barcode, genEventIdx);
+  HepMcParticleLink mcLink(barcode, genEventIdx, EBC_MAINEVCOLL, HepMcParticleLink::IS_POSITION);
   Map_t::const_iterator itr = m_particles.find(mcLink.compress());
   if ( itr != m_particles.end() ) {
     return itr->second;
@@ -81,7 +81,7 @@ TruthParticleContainer::truthParticle( const int barcode,std::size_t genEventIdx
 std::size_t
 TruthParticleContainer::truthParticleIdx( const int barcode, std::size_t genEventIdx ) const
 {
-  HepMcParticleLink mcLink(barcode, genEventIdx);
+  HepMcParticleLink mcLink(barcode, genEventIdx, EBC_MAINEVCOLL, HepMcParticleLink::IS_POSITION);
   Map_t::const_iterator itr = m_particles.find(mcLink.compress());
   if ( itr != m_particles.end() ) {
     for ( std::size_t idx = 0; idx != this->size(); ++idx ) {

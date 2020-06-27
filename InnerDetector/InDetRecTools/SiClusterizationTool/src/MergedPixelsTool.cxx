@@ -177,7 +177,8 @@ namespace InDet {
             // Instead the method isDuplicated check wether the new
             // one has a larger LVL1 - if so it does replace the old 
             // lvl1 with the new one.  
-            if(!isDuplicated(**firstGroup, **lvl1Group, rdoID, lvl1, pixelID)) {
+            if(!m_checkDuplicatedRDO ||
+               (m_checkDuplicatedRDO && !isDuplicated(**firstGroup, **lvl1Group, rdoID, lvl1, pixelID))) {
               (*firstGroup)->push_back(rdoID);
               (*totGroup)->push_back(tot);
               (*lvl1Group)->push_back(lvl1);
@@ -228,7 +229,8 @@ namespace InDet {
           // one has a larger LVL1 - if so it does replace the old 
           // lvl1 with the new one.  
           
-          if(!isDuplicated(**firstGroup, **lvl1Group, gangedID, lvl1, pixelID)) {
+          if(!m_checkDuplicatedRDO ||
+             (m_checkDuplicatedRDO && !isDuplicated(**firstGroup, **lvl1Group, gangedID, lvl1, pixelID))) {
             (*firstGroup)->push_back(gangedID);
             (*totGroup)->push_back(tot);
             (*lvl1Group)->push_back(lvl1);
@@ -669,7 +671,7 @@ namespace InDet {
       if (m_usePixelMap and !(m_summaryTool->isGood(idHash,rdoID))) continue;
           
       const int lvl1= rdo->getLVL1A();      
-      if (checkDuplication(pixelID, rdoID, lvl1, collectionID)) continue;
+      if (m_checkDuplicatedRDO and checkDuplication(pixelID, rdoID, lvl1, collectionID)) continue;
       
       const int tot = rdo->getToT();
       

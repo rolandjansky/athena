@@ -21,7 +21,7 @@ int main() {
   std::cout << "**** SGTimingTest BEGINS ****" << std::endl;
 
   ISvcLocator* pSvcLoc;
-  if (!Athena_test::initGaudi("SGTiming_test.txt", pSvcLoc)) {
+  if (!Athena_test::initGaudi("StoreGate/SGTiming_test.txt", pSvcLoc)) {
     return 1;
   }
 

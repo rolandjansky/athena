@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DETDESCRCNVSVC_DETDESCRCNVSVC_H
@@ -50,9 +50,6 @@ public:
     /// Convert address to string form
     virtual StatusCode convertAddress( const IOpaqueAddress* pAddress,
 				       std::string& refAddress);
-    
-    /// Provide access to Detector Store
-    StoreGateSvc * 	detStore() const;
   
 //      /// AddressProvider interface
 //      typedef IAddressProvider::tadList tadList;

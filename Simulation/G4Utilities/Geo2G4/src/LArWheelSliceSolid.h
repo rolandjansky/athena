@@ -49,7 +49,7 @@ class LArWheelSliceSolid : public G4VSolid
         G4int zside = 1,
         const LArWheelCalculator *calc = 0
     );
-    LArWheelSliceSolid(const G4String& name, const LArWheelCalculator *calc);
+    LArWheelSliceSolid(const G4String& name);
     virtual ~LArWheelSliceSolid(){}
 
   // Mandatory for custom solid Geant4 functions

@@ -62,5 +62,16 @@ test.exec_steps = [writeBS, filterMain, decodeMain, filterCost, decodeCost]
 test.check_steps = CheckSteps.default_check_steps(test)
 test.get_step('CheckFile').input_file = 'ESD.pool.root,ESD.Module1.pool.root'
 
+# Overwrite default MessageCount settings
+# We are trying to lower the limits step by step
+# Ultimately there should be no per-event messages
+msgcount = test.get_step("MessageCount")
+msgcount.thresholds = {
+  'WARNING': 600,
+  'INFO': 600,
+  'other': 100
+}
+msgcount.required = True # make the test exit code depend on this step
+
 import sys
 sys.exit(test.run())

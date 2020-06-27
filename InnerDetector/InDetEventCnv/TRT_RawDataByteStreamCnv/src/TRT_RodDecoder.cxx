@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -24,6 +24,8 @@
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
 
+#include "InDetByteStreamErrors/TRT_BSErrContainer.h"
+
 /*
  * TRT Specific detector manager to get layout information
  */
@@ -43,7 +45,7 @@ TRT_RodDecoder::TRT_RodDecoder
 ( const std::string& type, const std::string& name,const IInterface* parent )
   :  AthAlgTool              ( type,name,parent ),
      m_CablingSvc            ( "TRT_CablingSvc", name ),
-     m_bsErrSvc              ( "TRT_ByteStream_ConditionsSvc", name ),
+     //     m_bsErrSvc              ( "TRT_ByteStream_ConditionsSvc", name ),
      m_recordBSErrors        ( true ),
      m_lookAtSidErrors       ( true ),
      m_lookAtErrorErrors     ( false ),
@@ -63,7 +65,6 @@ TRT_RodDecoder::TRT_RodDecoder
 
 {
   declareProperty ( "TRT_Cabling", m_CablingSvc );
-  declareProperty ( "BSCondSvc", m_bsErrSvc );
   declareProperty ( "RecordByteStreamErrors", m_recordBSErrors );
   declareProperty ( "LookAtSidErrors",        m_lookAtSidErrors );
   declareProperty ( "LookAtErrorErrors",      m_lookAtErrorErrors );
@@ -117,17 +118,6 @@ StatusCode TRT_RodDecoder::initialize()
     return StatusCode::FAILURE;
   } else 
     ATH_MSG_INFO( "Retrieved tool " << m_CablingSvc );
-
-
-  /*
-   * Retrieve conditions tool
-   */
-  if ( m_bsErrSvc.retrieve().isFailure() )
-  {
-    ATH_MSG_FATAL( "Failed to retrieve service " << m_bsErrSvc );
-    return StatusCode::FAILURE;
-  } else
-    ATH_MSG_INFO( "Retrieved service " << m_bsErrSvc );
 
 
   /*
@@ -260,6 +250,7 @@ StatusCode TRT_RodDecoder::finalize() {
 StatusCode
 TRT_RodDecoder::fillCollection ( const ROBFragment* robFrag,
 				 TRT_RDO_Container* rdoIdc,
+				 TRT_BSErrContainer* bsErr,
 				 const std::vector<IdentifierHash>* vecHash )
 {
 
@@ -293,7 +284,8 @@ TRT_RodDecoder::fillCollection ( const ROBFragment* robFrag,
     if ( *rob_status )
     {
 
-      m_bsErrSvc->add_rob_error( robFrag->rob_source_id(), *rob_status ); 
+      bsErr->add_rob_error( robFrag->rob_source_id(), *rob_status ); 
+      
 
 
       /*
@@ -442,14 +434,14 @@ TRT_RodDecoder::fillCollection ( const ROBFragment* robFrag,
 		if ( m_lookAtSidErrors && D_sid )
 		{
 		  //		    cout << "sid ";
-		  m_bsErrSvc->add_sid_error( Index );
+		  bsErr->add_sid_error( Index );
 		  sid_errors++;
 		}
 		      
 		if ( m_lookAtErrorErrors && D_error )
 		{
 		  //		    cout << "err ";
-		  m_bsErrSvc->add_error_error( Index );
+		  bsErr->add_error_error( Index );
 		  error_errors++;
 		}
 		      
@@ -457,7 +449,7 @@ TRT_RodDecoder::fillCollection ( const ROBFragment* robFrag,
 		{
 		  //		    cout << "l1(" << hex << D_L1ID << "/" 
 		  //			 << (rod_L1ID & 0x7) << dec;
-		  m_bsErrSvc->add_l1id_error( Index, D_L1ID );
+		  bsErr->add_l1id_error( Index, D_L1ID );
 		  l1id_errors++;
 		}
 
@@ -476,14 +468,14 @@ TRT_RodDecoder::fillCollection ( const ROBFragment* robFrag,
 		{
 		  //		    cout << "bc(" << hex << D_BCID << "/" 
 		  //			 << expected_BCID << dec;
-		  m_bsErrSvc->add_bcid_error( Index, D_BCID );
+		  bsErr->add_bcid_error( Index, D_BCID );
 		  bcid_errors++;
 		}
 	      } 
 	      else if ( m_lookAtMissingErrors )
 	      {
 		//		 cout << "mis ";
-		m_bsErrSvc->add_missing_error( Index );
+		bsErr->add_missing_error( Index );
 		missing_errors++;
 	      }
 		  

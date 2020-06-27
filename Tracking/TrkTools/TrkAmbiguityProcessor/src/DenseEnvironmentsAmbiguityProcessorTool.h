@@ -24,13 +24,14 @@
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTrack/TrackSeedMap.h"
 #include "TrkParameters/TrackParameters.h"
-
+//
+#include "AmbiCounter.icc"
+//
 #include <map>
-#include <set>
 #include <vector>
-#include <ostream>
 
 #include "TrackPtr.h"
+
 
 class AtlasDetectorID;
 class PixelID;
@@ -42,21 +43,41 @@ namespace InDet{
 }
 
 namespace Trk {
-
   class ITrackScoringTool;
   class ITruthToTrack;
   class IExtrapolator;
-
+  //
   class DenseEnvironmentsAmbiguityProcessorTool : public AthAlgTool, 
-                                                  virtual public ITrackAmbiguityProcessorTool
-    {
-    public:
-    
-      // default methods
-      DenseEnvironmentsAmbiguityProcessorTool(const std::string&,const std::string&,const IInterface*);
-      virtual ~DenseEnvironmentsAmbiguityProcessorTool ();
-      virtual StatusCode initialize() override;
-      virtual StatusCode finalize  () override;
+        virtual public ITrackAmbiguityProcessorTool{
+  public:
+    enum class EStatType {
+      kNtracks,
+      kNinvalid,
+      kNcandidates,
+      kNscoreOk,
+      kNscoreZeroBremRefit,
+      kNscoreZeroBremRefitFailed,
+      kNscoreZeroBremRefitScoreZero,
+      kNscoreZero,
+      kNaccepted,
+      kNsubTrack,
+      kNnoSubTrack,
+      kNacceptedBrem,
+      kNbremFits,
+      kNfits,
+      kNrecoveryBremFits,
+      kNgoodFits,
+      kNfailedFits,
+      kNCounter
+   };
+   using TrackStat = AmbiCounter<EStatType>;
+   // default methods
+   DenseEnvironmentsAmbiguityProcessorTool(const std::string&,const std::string&,const IInterface*);
+   virtual ~DenseEnvironmentsAmbiguityProcessorTool ();
+   virtual StatusCode initialize() override;
+   virtual StatusCode finalize  () override;
+   void dumpStat(MsgStream &out) const;
+
 
       /**Returns a processed TrackCollection from the passed 'tracks'
      @param tracks collection of tracks which will have ambiguities resolved. Will not be 
@@ -71,108 +92,31 @@ namespace Trk {
       /** statistics output to be called by algorithm during finalize. */
       virtual void statistics() override;
     private:
-      class TrackStat {
-      public:
-         TrackStat(const std::vector<float> &eta_bounds) : m_etabounds(&eta_bounds){}
-
-         enum EStatType {
-            kNtracks,
-            kNinvalid,
-            kNcandidates,
-            // kNcandScoreZero,
-            // kNcandDouble,
-            kNscoreOk,
-            kNscoreZeroBremRefit,
-            kNscoreZeroBremRefitFailed,
-            kNscoreZeroBremRefitScoreZero,
-            kNscoreZero,
-            kNaccepted,
-            kNsubTrack,
-            kNnoSubTrack,
-            kNacceptedBrem,
-            kNbremFits,
-            kNfits,
-            kNrecoveryBremFits,
-            kNgoodFits,
-            kNfailedFits,
-            kNStatTypes
-         };
-         enum EGlobalStatType {
-            kNevents,
-            kNInvalidTracks,
-            kNTracksWithoutParam,
-            kNGlobalStatTypes,
-         };
-         /** internal monitoring: categories for counting different types of extension results*/
-         enum StatIndex {iAll = 0, iBarrel = 1, iTransi = 2, iEndcap = 3, iForwrd = 4, kNStatRegions=5};
-
-         class Counter {
-         public:
-            Counter &operator+=(const Counter &a) {
-               m_counter += a.m_counter;
-               return *this;
-            }
-            Counter &operator++()   { ++m_counter; return *this;}
-            operator int() const    { return m_counter; }
-            int value()    const    { return m_counter; }
-         private:
-            unsigned int m_counter=0;
-         };
-
-         void newEvent() {
-            ++m_globalCounter[kNevents];
-         }
-
-         TrackStat &operator+=(const TrackStat &a) {
-            for (unsigned int i=0; i<kNGlobalStatTypes; ++i) {
-               m_globalCounter[i]+= a.m_globalCounter[i];
-            }
-            for (unsigned int i=0; i<kNStatTypes; ++i) {
-               for (unsigned int region_i=0; region_i< kNStatRegions; ++region_i) {
-                  m_counter[i][region_i] += a.m_counter[i][region_i];
-               }
-            }
-            return *this;
-         }
-
-         /** helper for monitoring and validation: does success/failure counting */
-         void increment_by_eta(EStatType type, const Track* track, bool updateAll=true);
-         void dumpStatType(MsgStream &out, const std::string &head, EStatType type, unsigned short iw=9) const;
-         void dump(MsgStream &out, bool try_brem_fit) const;
-
-         const std::vector<float>  &etaBounds() const { return *m_etabounds; }  //!< eta intervals for internal monitoring
-
-      private:
-         std::array<Counter,kNGlobalStatTypes>                      m_globalCounter;
-         std::array<std::array<Counter, kNStatRegions>,kNStatTypes> m_counter;
-
-         const std::vector<float>  *m_etabounds;           //!< eta intervals for internal monitoring
-      };
 
       //transfer ownership
       void addTrack(Track* track, const bool fitted,
                     std::multimap<float, TrackPtr > &scoreTrackFitflagMap,
                     const Trk::PRDtoTrackMap &prd_to_track_map,
                     std::vector<std::unique_ptr<const Trk::Track> >& cleanup_tracks,
-                    Trk::DenseEnvironmentsAmbiguityProcessorTool::TrackStat &stat) const;
+                    TrackStat &stat) const;
 
       void solveTracks(const TracksScores& trackScoreTrackMap,
                        Trk::PRDtoTrackMap &prd_to_track_map,
                        TrackCollection &finalTracks,
                        std::vector<std::unique_ptr<const Trk::Track> >& cleanup_tracks,
-                       Trk::DenseEnvironmentsAmbiguityProcessorTool::TrackStat &stat) const;
+                       TrackStat &stat) const;
 
       /** refit track */
       Track* refitTrack( const Trk::Track* track, Trk::PRDtoTrackMap &prd_to_track_map,
-                         Trk::DenseEnvironmentsAmbiguityProcessorTool::TrackStat &stat) const;
+     TrackStat &stat) const;
 
       /** refit PRDs */
       Track* refitPrds( const Track* track, Trk::PRDtoTrackMap &prd_to_track_map,
-                        Trk::DenseEnvironmentsAmbiguityProcessorTool::TrackStat &stat) const;
+    TrackStat &stat) const;
 
       /** refit ROTs corresponding to PRDs*/
       //TODO or Q: new created track, why const
-      Track* refitRots( const Track* track, Trk::DenseEnvironmentsAmbiguityProcessorTool::TrackStat &stat) const;
+      Track* refitRots( const Track* track, TrackStat &stat) const;
 
       /** stores the minimal dist(trk,trk) for covariance correction*/
       void storeTrkDistanceMapdR(TrackCollection& tracks,
@@ -269,7 +213,7 @@ namespace Trk {
       /**These allow us to retrieve the helpers*/
       const PixelID* m_pixelId;
       const AtlasDetectorID* m_idHelper;
-      std::vector<float>     m_etabounds;           //!< eta intervals for internal monitoring
+      std::vector<float>     m_etaBounds;           //!< eta intervals for internal monitoring
 
       SG::WriteHandleKey<InDet::DRMap>                    m_dRMap;      //!< the actual dR map         
 
@@ -348,41 +292,6 @@ namespace Trk {
       }
 } //end ns
 
-void Trk::DenseEnvironmentsAmbiguityProcessorTool::TrackStat::increment_by_eta(EStatType type,
-                                                                               const Track* track,
-                                                                               bool updateAll) {
-   std::array<Counter,kNStatRegions> &Ntracks = m_counter[type];
-   if (updateAll) ++Ntracks[iAll];
-
-   // test
-   if (!track) {
-      ++m_globalCounter[kNInvalidTracks];
-   }
-   // use first parameter
-   if (!track->trackParameters()) {
-      ++m_globalCounter[kNTracksWithoutParam];
-   }
-   else {
-      double eta = track->trackParameters()->front()->eta();
-      for (unsigned int region_i=1; region_i< kNStatRegions; ++region_i) {
-         if (std::abs(eta)      < (*m_etabounds)[region_i-1]) {
-            ++Ntracks[region_i];
-            break;
-         }
-      }
-   }
-}
-
-void Trk::DenseEnvironmentsAmbiguityProcessorTool::TrackStat::dumpStatType(MsgStream &out,
-                                                                           const std::string &head,
-                                                                           EStatType type,
-                                                                           unsigned short iw) const {
-   out << head << std::setiosflags(std::ios::dec);
-   for (unsigned region_i=0; region_i<kNStatRegions; ++region_i) {
-      out << std::setw(iw) << m_counter[type][region_i].value();
-   }
-   out << "\n";
-}
 
 #endif // TrackAmbiguityProcessorTool_H
 

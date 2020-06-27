@@ -26,7 +26,8 @@ template <class T, class D>
 WriteDecorHandle<T, D>::WriteDecorHandle (const WriteDecorHandleKey<T>& key)
   : Base (key, nullptr),
     m_contHandle (key.contHandleKey()),
-    m_acc (SG::decorKeyFromKey (key.key()))
+    m_acc (SG::decorKeyFromKey (key.key())),
+    m_madeAlias (false)
 {
 }
 
@@ -47,7 +48,8 @@ WriteDecorHandle<T, D>::WriteDecorHandle (const WriteDecorHandleKey<T>& key,
                                           const EventContext& ctx)
   : Base (key, &ctx),
     m_contHandle (key.contHandleKey(), ctx),
-    m_acc (SG::decorKeyFromKey (key.key()))
+    m_acc (SG::decorKeyFromKey (key.key())),
+    m_madeAlias (false)
 {
 }
 
@@ -59,7 +61,8 @@ template <class T, class D>
 WriteDecorHandle<T, D>::WriteDecorHandle (const WriteDecorHandle& rhs)
   : Base (rhs),
     m_contHandle (rhs.m_contHandle),
-    m_acc (rhs.m_acc)
+    m_acc (rhs.m_acc),
+    m_madeAlias (rhs.m_madeAlias)
 {
 }
 
@@ -71,8 +74,10 @@ template <class T, class D>
 WriteDecorHandle<T, D>::WriteDecorHandle (WriteDecorHandle&& rhs)
   : Base (std::move (rhs)),
     m_contHandle (std::move (rhs.m_contHandle)),
-    m_acc (std::move (rhs.m_acc))
+    m_acc (std::move (rhs.m_acc)),
+    m_madeAlias (rhs.m_madeAlias)
 {
+  rhs.m_madeAlias = false;
 }
 
 
@@ -83,7 +88,7 @@ template <class T, class D>
 WriteDecorHandle<T, D>::~WriteDecorHandle()
 {
   // Lock the decoration.  But don't do anything if we haven't touched it.
-  if (this->cachedPtr()) {
+  if (m_madeAlias) {
     const IConstAuxStore* store = this->vectorData()->getConstStore();
     if (store) {
       IConstAuxStore* store_nc ATLAS_THREAD_SAFE = const_cast<IConstAuxStore*> (store);
@@ -103,6 +108,7 @@ WriteDecorHandle<T, D>& WriteDecorHandle<T, D>::operator= (const WriteDecorHandl
     *static_cast<Base*>(this) = rhs;
     m_acc = rhs.m_acc;
     m_contHandle = rhs.m_contHandle;
+    m_madeAlias = rhs.m_madeAlias;
   }
   return *this;
 }
@@ -118,6 +124,8 @@ WriteDecorHandle<T, D>& WriteDecorHandle<T, D>::operator= (WriteDecorHandle&& rh
     *static_cast<Base*>(this) = std::move (rhs);
     m_acc = std::move (rhs.m_acc);
     m_contHandle = std::move (rhs.m_contHandle);
+    m_madeAlias = rhs.m_madeAlias;
+    rhs.m_madeAlias = false;
   }
   return *this;
 }
@@ -150,6 +158,7 @@ bool WriteDecorHandle<T, D>::isPresent() const
 template <class T, class D>
 StatusCode WriteDecorHandle<T, D>::setProxyDict (IProxyDict* store)
 {
+  m_madeAlias = false;
   if (m_contHandle.setProxyDict (store).isFailure())
     return StatusCode::FAILURE;
   return Base::setProxyDict (store);
@@ -201,21 +210,56 @@ WriteDecorHandle<T, D>::getDecorationArray()
 /**
  * @brief Test to see if this variable exists in the store,
  *        for the referenced object.
+ *        Specialization for the case of a standalone object
+ *        (@c T derives from @c SG::AuxElement).
+ */
+template <class T, class D>
+inline
+bool WriteDecorHandle<T, D>::isAvailable (std::true_type)
+{
+  if (this->m_ptr) {
+    const SG::AuxVectorData* obj = static_cast<const T*>(this->m_ptr)->container();
+    if (obj) {
+      return obj->isAvailable (m_acc.auxid());
+    }
+  }
+
+  return false;
+}
+
+
+/**
+ * @brief Test to see if this variable exists in the store,
+ *        for the referenced object.
+ *        Specialization for the case of a container
+ *        (@c T does not derive from @c SG::AuxElement).
+ */
+template <class T, class D>
+inline
+bool WriteDecorHandle<T, D>::isAvailable (std::false_type)
+{
+  if (this->m_ptr) {
+    return static_cast<const T*>(this->m_ptr)->isAvailable (m_acc.auxid());
+  }
+
+  return false;
+}
+
+
+/**
+ * @brief Test to see if this variable exists in the store,
+ *        for the referenced object.
  */
 template <class T, class D>
 inline
 bool WriteDecorHandle<T, D>::isAvailable()
 {
-  const SG::AuxVectorData* obj = static_cast<SG::AuxVectorData*> (this->m_ptr);
-  if (!obj) {
-    obj = static_cast<SG::AuxVectorData*> (ReadHandle<T>::typeless_dataPointer_impl (true));
+  if (!this->m_ptr) {
+    ReadHandle<T>::typeless_dataPointer_impl (true);
   }
-
-  if (obj) {
-    return obj->isAvailable (m_acc.auxid());
-  }
-
-  return false;
+  // We can't just use vectorData() because that will create the decoration
+  // as a side effect.
+  return isAvailable (typename std::is_base_of<SG::AuxElement, T>::type());
 }
 
 
@@ -239,18 +283,21 @@ SG::auxid_t WriteDecorHandle<T, D>::auxid() const
 template <class T, class D>
 void* WriteDecorHandle<T, D>::typeless_dataPointer_impl (bool quiet)
 {
-  if (this->m_ptr)
+  if (this->m_ptr && this->m_madeAlias)
     return this->m_ptr;
   if (m_contHandle.alias (WriteHandleKey<T> (this->key())).isFailure())
     return nullptr;
-  void* ptr = ReadHandle<T>::typeless_dataPointer_impl (quiet);
+  if (!this->m_ptr) {
+    ReadHandle<T>::typeless_dataPointer_impl (quiet);
+  }
   // Important to call the base class method above before calling vectorData;
   // otherwise, we'll get an infinite recursion.
   // Also don't call getDecorationArray if the container is empty.
-  if (ptr && this->vectorData()->size_v() > 0) {
+  if (this->m_ptr && this->vectorData()->size_v() > 0) {
     m_acc.getDecorationArray (*this->vectorData());
   }
-  return ptr;
+  this->m_madeAlias = true;
+  return this->m_ptr;
 }
 
 

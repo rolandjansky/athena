@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # $Id: MakeHierTags.py,v 1.5 2009-04-30 20:29:53 ssnyder Exp $
@@ -94,7 +94,7 @@ class MakeHierTags:
             else:
                 toolversion = ''
 
-            if not self.funcmap.has_key (toolfunc):
+            if not toolfunc in self.funcmap:
                 print ("WARNING: skipping tagging for tool", toolfunc.__name__)
                 continue
             folder = self.funcmap[toolfunc]
@@ -118,7 +118,7 @@ class MakeHierTags:
             return
 
         for folder in self.folders:
-            if not self.tags.has_key ((folder, htag)):
+            if (folder, htag) not in self.tags:
                 (dum1, dum2, corrclass, basename) = folder.split ('/')
                 tag = corrclass + '.' + generation + basename + '-dummy'
                 self.set_tag (folder, tag, htag)

@@ -80,8 +80,8 @@ StatusCode InDetGlobalPrimaryVertexMonTool::initialize() {
   if(!sc.isSuccess()) return sc;
 
   ATH_CHECK( m_vxContainerName.initialize() );
-  ATH_CHECK( m_vxContainerNameWithoutBeamConstraint.initialize() );
-  ATH_CHECK( m_vxContainerNameSplit.initialize() );
+  ATH_CHECK( m_vxContainerNameWithoutBeamConstraint.initialize(m_doEnhancedMonitoring) );
+  ATH_CHECK( m_vxContainerNameSplit.initialize(m_doEnhancedMonitoring) );
 
   return StatusCode::SUCCESS;
 }

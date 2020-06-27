@@ -3,5 +3,9 @@
 */
 #ifndef ATLASHEPMC_IOBASECLASS_H
 #define ATLASHEPMC_IOBASECLASS_H
+#ifdef HEPMC3
+#include "HepMC3/Version.h"
+#else
 #include "HepMC/IO_BaseClass.h"
+#endif
 #endif

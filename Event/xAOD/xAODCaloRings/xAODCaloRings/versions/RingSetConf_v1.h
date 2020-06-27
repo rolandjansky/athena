@@ -1,17 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: RingSetConf_v1.h 704590 2015-10-29 17:47:12Z wsfreund $
 #ifndef XAODCALORINGS_VERSIONS_RINGSETCONF_V1_H
 #define XAODCALORINGS_VERSIONS_RINGSETCONF_V1_H
 
 // std includes:
 #include <vector>
-#include <ostream>
+#include <iosfwd>
 
 // Athena framework includes:
-#include "AsgTools/MsgStream.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "AthContainers/DataVector.h"
 
@@ -34,8 +31,6 @@ typedef DataVector< xAOD::RingSetConf_v1 > RingSetConfContainer_v1;
  *
  * @author Werner Spolidoro Freund <wsfreund@cern.ch>
  *
- * $Revision: 704590 $
- * $Date: 2015-10-29 18:47:12 +0100 (Thu, 29 Oct 2015) $
  **/
 class RingSetConf_v1 : public SG::AuxElement {
 
@@ -153,8 +148,6 @@ class RingSetConf_v1 : public SG::AuxElement {
     /// @}
     /// Prints rawConf
     /// @{
-    static void print( const RawConf &raw, 
-        MsgStream &stream, MSG::Level level = MSG::DEBUG );
     static void print( const RawConf &raw, std::ostream &stream);
     /// @}
     /**
@@ -181,8 +174,6 @@ class RingSetConf_v1 : public SG::AuxElement {
     static void addRawConfColBounderies( RawConfCollection &clRingsConf );
     /// Prints RawConfCollection
     /// @{
-    static void print( const RawConfCollection &raw, MsgStream &stream, 
-        MSG::Level level = MSG::DEBUG );
     static void print( const RawConfCollection &raw, std::ostream &stream );
     /// @}
     /**
@@ -444,10 +435,6 @@ class RingSetConf_v1 : public SG::AuxElement {
     /// @}
  
     /// @{ Print @name RingSetConf_v1 methods:
-    /**
-     * @brief Print @name RingSetConf_v1 using AsgTool MsgStream:
-     **/
-    void print( MsgStream &stream, MSG::Level level = MSG::DEBUG ) const;
     /**
      * @brief Print @name RingSetConf_v1 using ostream:
      **/

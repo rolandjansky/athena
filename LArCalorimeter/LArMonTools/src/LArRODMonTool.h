@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -23,6 +23,7 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArRawConditions/LArADC2MeV.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
+#include "LArRawEvent/LArFebHeaderContainer.h"
 
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
@@ -204,6 +205,7 @@ private:
 
  
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,"EventInfoKey","EventInfo","SG Key of EventInfo object"};
+  SG::ReadHandleKey<LArFebHeaderContainer> m_febContKey{this, "LArFebHeaderContainerKey", "LArFebHeader"};
   // Keys for LArRawChannels containers
   SG::ReadHandleKey<LArRawChannelContainer> m_channelKey_fromBytestream{this,"LArRawChannelKey_fromBytestream","LArRawChannels","SG key of LArRawChannels produced by teh DSP"};
   SG::ReadHandleKey<LArRawChannelContainer> m_channelKey_fromDigits{this,"LArRawChannelKey_fromDigits","LArRawChannels_FromDigits","SG key of LArRawChannels produced offline"};

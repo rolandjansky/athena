@@ -225,33 +225,33 @@ else:
     indexmax=index+1
 
 if brief or doubl:
-  name1 = ["","","0.0     "]
-  names = []
-  dm=" "
-  for i in range(indexmax):
-      names += [""]
+    name1 = ["","","0.0     "]
+    names = []
+    dm=" "
+    for i in range(indexmax):
+        names += [""]
 else:
-  name1 = ["Noise cell ", "gain ","0.00    "]
-  names = ["RMS ", "pileup ", "RMS1 ", "RMS2 ", "Ratio "]
-  for i in range(len(names),indexmax):
-      names += ["c"+str(i)+" "]
-  dm="\t"
+    name1 = ["Noise cell ", "gain ","0.00    "]
+    names = ["RMS ", "pileup ", "RMS1 ", "RMS2 ", "Ratio "]
+    for i in range(len(names),indexmax):
+        names += ["c"+str(i)+" "]
+    dm="\t"
 for cell in range(cellmin,cellmax):
-  if tile and len(name1[0]):
-    name1[0] = "%s %6s hash " % hashMgr.getNames(cell)
-  for gain in range(gainmin,gainmax):
-    msg="%s%4d %s%d\t" % ( name1[0], cell, name1[1], gain)
-    for index in range(indexmin,indexmax):
-      v=blobFlt.getData(cell, gain, index)
-      if doubl:
-          msg += "%s%s%s" % (names[index],"{0:<15.10g}".format(v).ljust(15),dm)
-      elif v<5.e-7:
-          msg += "%s%s%s" % (names[index],name1[2],dm)
-      elif v<1:
-          msg += "%s%8.6f%s" % (names[index],v,dm)
-      else:
-          msg += "%s%s%s" % (names[index],"{0:<8.7g}".format(v).ljust(8),dm)
-    print (msg)
+    if tile and len(name1[0]):
+        name1[0] = "%s %6s hash " % hashMgr.getNames(cell)
+    for gain in range(gainmin,gainmax):
+        msg="%s%4d %s%d\t" % ( name1[0], cell, name1[1], gain)
+        for index in range(indexmin,indexmax):
+            v=blobFlt.getData(cell, gain, index)
+            if doubl:
+                msg += "%s%s%s" % (names[index],"{0:<15.10g}".format(v).ljust(15),dm)
+            elif v<5.e-7:
+                msg += "%s%s%s" % (names[index],name1[2],dm)
+            elif v<1:
+                msg += "%s%8.6f%s" % (names[index],v,dm)
+            else:
+                msg += "%s%s%s" % (names[index],"{0:<8.7g}".format(v).ljust(8),dm)
+        print (msg)
 
 #=== close DB
 db.closeDatabase()

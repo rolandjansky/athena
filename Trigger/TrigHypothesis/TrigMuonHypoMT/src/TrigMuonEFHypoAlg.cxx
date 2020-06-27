@@ -85,7 +85,6 @@ StatusCode TrigMuonEFHypoAlg::execute( const EventContext& context ) const
       toolInput.emplace_back( newd, roi, muon, previousDecision );
 
       newd -> setObjectLink( featureString(), muonEL );
-      newd->setObjectLink( viewString(),    viewEL);
       TrigCompositeUtils::linkToPrevious( newd, previousDecision, context );
 
       ATH_MSG_DEBUG("REGTEST: " << m_muonKey.key() << " pT = " << (*muonEL)->pt() << " GeV");

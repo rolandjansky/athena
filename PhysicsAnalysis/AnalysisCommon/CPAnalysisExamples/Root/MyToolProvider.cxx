@@ -7,8 +7,6 @@
 MyToolProvider::MyToolProvider(const std::string& name):
   AsgMessaging(name),
   jetCalibTool(0),
-  jerTool(0),
-  jerSmearingTool(0),
   jetUncertaintiesTool(0),
   jetCleaningTool(0),
   muonCalibrationAndSmearingTool(0),
@@ -26,8 +24,6 @@ MyToolProvider::MyToolProvider(const std::string& name):
 MyToolProvider::~MyToolProvider()
 {
   if (jetCalibTool) delete jetCalibTool;
-  if (jerTool) delete jerTool;
-  if (jerSmearingTool) delete jerSmearingTool;
   if (jetUncertaintiesTool) delete jetUncertaintiesTool;
   if (jetCleaningTool) delete jetCleaningTool;
   if (muonCalibrationAndSmearingTool) delete muonCalibrationAndSmearingTool;
@@ -75,24 +71,7 @@ StatusCode MyToolProvider::initialize(bool isData, bool isAtlfast)
   }
   ATH_CHECK( jetCalibTool->initialize() );
 
-  // jet resolution tool
-
-  jerTool = new JERTool("JERTool");
-
-  ATH_CHECK( jerTool->setProperty("PlotFileName", "JetResolution/Prerec2015_xCalib_2012JER_ReducedTo9NP_Plots_v2.root") );
-  ATH_CHECK( jerTool->setProperty("CollectionName", "AntiKt4EMTopoJets") );
-  ATH_CHECK( jerTool->initialize() );
-
-  // jet smearing tool
-
-  ToolHandle<IJERTool> jerToolHandle(jerTool);
-
-  jerSmearingTool = new JERSmearingTool("JERSmearingTool");
-  ATH_CHECK( jerSmearingTool->setProperty("ApplyNominalSmearing",false) );
-  ATH_CHECK( jerSmearingTool->setProperty("JERTool",jerToolHandle) );
-  ATH_CHECK( jerSmearingTool->initialize() );
-
-    ///////////////////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////////////////
   // Initialise jet uncertainty tool
 
   jetUncertaintiesTool = new JetUncertaintiesTool("JetUncertaintiesTool");

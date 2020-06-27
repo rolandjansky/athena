@@ -137,9 +137,9 @@ if __name__=='__main__':
     from AthenaCommon.AppMgr import ServiceMgr
     ServiceMgr.Dump = False
 
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg = MainServicesSerialCfg()
+    cfg = MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     tgcRawDataMonitorAcc = TgcRawDataMonitoringConfig(ConfigFlags)

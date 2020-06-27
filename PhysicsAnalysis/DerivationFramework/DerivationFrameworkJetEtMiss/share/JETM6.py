@@ -1,6 +1,6 @@
 #====================================================================
-# JETM6.py 
-# reductionConf flag JETM6 in Reco_tf.py   
+# JETM6.py
+# reductionConf flag JETM6 in Reco_tf.py
 #====================================================================
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
@@ -10,11 +10,11 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 
+from DerivationFrameworkFlavourTag.HbbCommon import *
+
 from DerivationFrameworkJetEtMiss.METCommon import *
-#
-if DerivationFrameworkIsMonteCarlo:
-    from DerivationFrameworkMCTruth.MCTruthCommon import *
-    from DerivationFrameworkTau.TauTruthCommon import *
+
+from DerivationFrameworkInDet.InDetCommon import *
 
 #====================================================================
 # SET UP STREAM   
@@ -27,32 +27,36 @@ augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
 
 #====================================================================
-# SKIMMING TOOL 
+# SKIMMING TOOL
 #====================================================================
 
-from DerivationFrameworkJetEtMiss.TriggerLists import *
-electronTriggers = singleElTriggers
-muonTriggers = singleMuTriggers
-photonTriggers = singlePhotonTriggers
+from DerivationFrameworkJetEtMiss import TriggerLists
+electronTriggers = TriggerLists.single_el_Trig()
+muonTriggers = TriggerLists.single_mu_Trig()
+photonTriggers = TriggerLists.single_photon_Trig()
+jetTriggers = TriggerLists.jetTrig()
 
 # For first data
-jetSelection = '(count( AntiKt10LCTopoJets.pt > 180.*GeV && abs(AntiKt10LCTopoJets.eta) < 2.5 ) >=1)'
-#jetSelection = '(count( CamKt12LCTopoJets.pt > 150.*GeV ) >=1)'
+jetSelection = '(count( AntiKt10LCTopoJets.pt > 400.*GeV && abs(AntiKt10LCTopoJets.eta) < 2.5 ) >=1 || count( AntiKt10UFOCSSKJets.pt > 400.*GeV && abs(AntiKt10UFOCSSKJets.eta) < 2.5 ) >= 1)'
+if DerivationFrameworkIsMonteCarlo:
+  jetSelection = '(count( AntiKt10LCTopoJets.pt > 180.*GeV && abs(AntiKt10LCTopoJets.eta) < 2.5 ) >=1 || count( AntiKt10UFOCSSKJets.pt > 180.*GeV && abs(AntiKt10UFOCSSKJets.eta) < 2.5 ) >= 1)'
 
 orstr  = ' || '
 andstr = ' && '
 eltrigsel = '(EventInfo.eventTypeBitmask==1) || '+orstr.join(electronTriggers)
-elofflinesel = andstr.join(['count((Electrons.pt > 20*GeV) && (Electrons.DFCommonElectronsLHMedium)) == 1',
-                            'count(AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta) < 2.5) >=1'])
+elofflinesel = andstr.join(['count((Electrons.pt > 20*GeV) && (Electrons.DFCommonElectronsLHLoose)) >= 1',
+                            '(count(AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta) < 2.5) >=1 || count(AntiKt10UFOCSSKJets.pt > 150*GeV && abs(AntiKt10UFOCSSKJets.eta) < 2.5) >=1)'])
 electronSelection = '( (' + eltrigsel + ') && (' + elofflinesel + ') )'
 
 mutrigsel = '(EventInfo.eventTypeBitmask==1) || '+orstr.join(muonTriggers)
-muofflinesel = andstr.join(['count((Muons.pt > 20*GeV) && (Muons.DFCommonMuonsPreselection)) == 1',
-                            'count(AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta) < 2.5) >=1'])
+muofflinesel = andstr.join(['count((Muons.pt > 20*GeV) && (Muons.DFCommonMuonsPreselection)) >= 1',
+                            '(count(AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta) < 2.5) >=1 || count(AntiKt10UFOCSSKJets.pt > 150*GeV && abs(AntiKt10UFOCSSKJets.eta) < 2.5) >=1 )'])
 muonSelection = ' ( (' + mutrigsel + ') && (' + muofflinesel + ') ) '
-# MET filter wanted? : MET_Reference_AntiKt4LCTopo > 20*GeV # should use a different container
+gammatrigsel = '(EventInfo.eventTypeBitmask==1) || '+orstr.join(photonTriggers)
+gammaofflinesel = '(count(Photons.pt > 150*GeV) >= 1 && (count(AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta) < 2.5) >=1 || count(AntiKt10UFOCSSKJets.pt > 150*GeV && abs(AntiKt10UFOCSSKJets.eta) < 2.5) >=1 ))'
+photonSelection = ' ( (' + gammatrigsel + ') && (' + gammaofflinesel + ') ) '
 
-lepSelection = '( ' + electronSelection + ' || ' + muonSelection + ' )'
+lepSelection = '( ' + electronSelection + ' || ' + muonSelection + ' || ' + photonSelection + ' )'
 
 
 expression = jetSelection + ' || '+ lepSelection
@@ -70,36 +74,122 @@ JETM6OfflineSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "
 ToolSvc += JETM6OfflineSkimmingTool
 
 #====================================================================
-# THINNING TOOLS 
+# CREATE PRIVATE SEQUENCE
+#====================================================================
+
+jetm6Seq = CfgMgr.AthSequencer("JETM6Sequence")
+DerivationFrameworkJob += jetm6Seq
+
+#====================================================================
+# Trigger matching decorations
+#====================================================================
+photonTriggers_matching = ['HLT_g60_loose', 'HLT_g140_loose', 'HLT_g160_loose']
+
+from DerivationFrameworkCore.TriggerMatchingAugmentation import applyTriggerMatching
+TrigMatchAug, NewTrigVars = applyTriggerMatching(ToolNamePrefix="JETM6",
+                                   ElectronTriggers=electronTriggers,
+                                   MuonTriggers=muonTriggers,
+                                   PhotonTriggers=photonTriggers_matching)
+
+#====================================================================
+# TRIGGER THINNING TOOL
+#====================================================================
+
+from DerivationFrameworkCore.ThinningHelper import ThinningHelper
+JETM6ThinningHelper = ThinningHelper( "JETM6ThinningHelper" )
+JETM6ThinningHelper.TriggerChains = ''
+
+JETM6ThinningHelper.TriggerChains += "|".join(electronTriggers)
+JETM6ThinningHelper.TriggerChains += "|".join(muonTriggers)
+JETM6ThinningHelper.TriggerChains += "|".join(photonTriggers)
+JETM6ThinningHelper.TriggerChains += "|".join(jetTriggers)
+
+JETM6ThinningHelper.AppendToStream( JETM6Stream )
+
+#====================================================================
+# THINNING TOOLS
 #====================================================================
 thinningTools = []
 
-# thinning_expression = "InDetTrackParticles.pt > 0.5*GeV"
+#########################################
+# Tracks associated with akt2 jets
+#########################################
+# It is necessary to apply the akt2-based track thinning before other track
+# thinning tools due to the faulty logic of the thinning tools
+from ThinningUtils.ThinningUtilsConf import DeltaRThinningTool
+# Applying only DeltaR thinning and not EleLink thinning is fine as long as ConeSize
+# is sufficiently large compared to the jet size.  If it is reduced to something close
+# to the size of the jet, there is no guarantee that all ghost-associated tracks will
+# be picked up
 
-# from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
-# JETM6JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "JETM6Akt4JetTPThinningTool",
-#                                                                         StreamName              = streamName,
-#                                                                         JetKey                  = "AntiKt4EMTopoJets",
-#                                                                         InDetTrackParticlesKey  = "InDetTrackParticles",
-#                                                                         TrackSelectionString    = thinning_expression)
-# ToolSvc += JETM6JetTPThinningTool
-# thinningTools.append(JETM6JetTPThinningTool)
+JETM6BaselineTrack = "(InDetTrackParticles.JETM6DFLoose) && (InDetTrackParticles.pt > 0.5*GeV) && (abs(DFCommonInDetTrackZ0AtPV)*sin(InDetTrackParticles.theta) < 3.0*mm) && (InDetTrackParticles.d0 < 2.0*mm)"
+
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+JETM6TrackParticleThinningTool = DerivationFramework__TrackParticleThinning(name            = "JETM6TrackParticleThinningTool",
+                                                                            StreamName      = streamName,
+                                                                            SelectionString = JETM6BaselineTrack,
+                                                                            InDetTrackParticlesKey = "InDetTrackParticles",
+                                                                            ApplyAnd        = True)
+
+ToolSvc += JETM6TrackParticleThinningTool
+thinningTools.append(JETM6TrackParticleThinningTool)
+
+JETM6ak2DeltaRTrackThinningTool = DeltaRThinningTool(name            = "JETM6ak2DeltaRTrackThinningTool",
+                                                     StreamName      = streamName,
+                                                     SGKey           = "InDetTrackParticles",
+                                                     ConeSize        = 0.33,
+                                                     ApplyAnd        = True)
+
+ToolSvc += JETM6ak2DeltaRTrackThinningTool
+
+from ThinningUtils.ThinningUtilsConf import ThinAssociatedObjectsTool
+JETM6ak2TrackThinningTool = ThinAssociatedObjectsTool(name               = "JETM6ak2TrackThinningTool",
+                                                      StreamName         = streamName,
+                                                      SGKey              = "AntiKt2LCTopoJets",
+                                                      ChildThinningTools = [JETM6ak2DeltaRTrackThinningTool])
+
+ToolSvc += JETM6ak2TrackThinningTool
+thinningTools.append(JETM6ak2TrackThinningTool)
+
+#########################################
+# Tracks associated with other jets
+#########################################
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 JETM6Akt4JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "JETM6Akt4JetTPThinningTool",
-                                                                        StreamName              = streamName,
-                                                                        JetKey                  = "AntiKt4EMTopoJets",
-                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
+                                                                            StreamName              = streamName,
+                                                                            JetKey                  = "AntiKt4EMTopoJets",
+                                                                            InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                            ApplyAnd                = False)
 ToolSvc += JETM6Akt4JetTPThinningTool
 thinningTools.append(JETM6Akt4JetTPThinningTool)
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
+JETM6Akt4PFlowJetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "JETM6Akt4PFlowJetTPThinningTool",
+                                                                                 StreamName              = streamName,
+                                                                                 JetKey                  = "AntiKt4EMPFlowJets",
+                                                                                 InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                                 ApplyAnd                = False)
+ToolSvc += JETM6Akt4PFlowJetTPThinningTool
+thinningTools.append(JETM6Akt4PFlowJetTPThinningTool)
+
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 JETM6Akt10JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "JETM6Akt10JetTPThinningTool",
-                                                                        StreamName              = streamName,
-                                                                        JetKey                  = "AntiKt10LCTopoJets",
-                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
+                                                                             StreamName              = streamName,
+                                                                             JetKey                  = "AntiKt10LCTopoJets",
+                                                                             InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                             ApplyAnd                = False)
 ToolSvc += JETM6Akt10JetTPThinningTool
 thinningTools.append(JETM6Akt10JetTPThinningTool)
+
+JETM6Akt10JetCSSKUFOThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "JETM6Akt10JetCSSKUFOThinningTool",
+                                                                                  StreamName              = streamName,
+                                                                                  JetKey                  = "AntiKt10UFOCSSKJets",
+                                                                                  InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                                  ApplyAnd                = False)
+ToolSvc += JETM6Akt10JetCSSKUFOThinningTool
+thinningTools.append(JETM6Akt10JetCSSKUFOThinningTool)
+
 
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
@@ -130,83 +220,148 @@ thinningTools.append(JETM6PhotonTPThinningTool)
 # TrackParticles associated with taus
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 JETM6TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name            = "JETM6TauTPThinningTool",
-                                                                        StreamName              = streamName,
+                                                                        StreamName      = streamName,
                                                                         TauKey          = "TauJets",
                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM6TauTPThinningTool
 thinningTools.append(JETM6TauTPThinningTool)
 
-# Truth particle thinning
-doTruthThinning = True
-preserveAllDescendants = False
-from AthenaCommon.GlobalFlags import globalflags
-if doTruthThinning and DerivationFrameworkIsMonteCarlo:
-    truth_cond_WZH    = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))"            # W, Z and Higgs
-    truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16) && (TruthParticles.barcode < 200000))"            # Leptons
-    truth_cond_Quark  = "((abs(TruthParticles.pdgId) <=  5  && (TruthParticles.pt > 10000.)) || (abs(TruthParticles.pdgId) == 6))"                 # Quarks
-    truth_cond_Gluon  = "((abs(TruthParticles.pdgId) == 21) && (TruthParticles.pt > 10000.))"                                                # Gluons
-    truth_cond_Photon = "((abs(TruthParticles.pdgId) == 22) && (TruthParticles.pt > 10000.) && (TruthParticles.barcode < 200000))"                 # Photon
-    
-    truth_expression = '('+truth_cond_WZH+' || '+truth_cond_Lepton +' || '+truth_cond_Quark+' || '+truth_cond_Gluon+' || '+truth_cond_Photon+')'
-    
-    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
-    JETM6TruthThinningTool = DerivationFramework__GenericTruthThinning( name = "JETM6TruthThinningTool",
-                                                                        StreamName              = streamName,
-                                                                        ParticleSelectionString = truth_expression,
-                                                                        #PreserveDescendants     = preserveAllDescendants,
-                                                                        PreserveDescendants     = False,
-                                                                        PreserveGeneratorDescendants = not preserveAllDescendants,
-                                                                        #PreserveGeneratorDescendants = False,
-                                                                        PreserveAncestors = True)
+#====================================================================
+# AUGMENTATION TOOLS
+#====================================================================
+augmentationTools = []
+augmentationTools.append(TrigMatchAug)
 
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__InDetTrackSelectionToolWrapper
+JETM6TrackSelectionTool = DerivationFramework__InDetTrackSelectionToolWrapper(name = "JETM6TrackSelectionTool",
+                                                                              ContainerName = "InDetTrackParticles",
+                                                                              DecorationName = "JETM6DFLoose" )
 
-    
-    ToolSvc += JETM6TruthThinningTool
-    thinningTools.append(JETM6TruthThinningTool)    
+JETM6TrackSelectionTool.TrackSelectionTool.CutLevel = "Loose"
+ToolSvc += JETM6TrackSelectionTool
+augmentationTools.append(JETM6TrackSelectionTool)
+
 
 #=======================================
-# CREATE PRIVATE SEQUENCE
-#=======================================
-
-jetm6Seq = CfgMgr.AthSequencer("JETM6Sequence")
-DerivationFrameworkJob += jetm6Seq
-
-#=======================================
-# CREATE THE DERIVATION KERNEL ALGORITHM   
+# CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-jetm6Seq += CfgMgr.DerivationFramework__DerivationKernel(	name = "JETM6TrigSkimKernel",
-                                                            AugmentationTools = [] , 
-                                                            SkimmingTools = [JETM6TrigSkimmingTool],
-                                                            ThinningTools = [])
+jetm6Seq += CfgMgr.DerivationFramework__DerivationKernel(name = "JETM6TrigSkimKernel",
+                                                         AugmentationTools = [] ,
+                                                         SkimmingTools = [JETM6TrigSkimmingTool],
+                                                         ThinningTools = [])
+
+
+#=======================================
+# BUILD UFO INPUTS
+#=======================================
+
+## Add PFlow constituents
+from JetRecTools.ConstModHelpers import getConstModSeq, xAOD
+pflowCSSKSeq = getConstModSeq(["CS","SK"], "EMPFlow")
+
+# add the pflow cssk sequence to the main jetalg if not already there :
+if pflowCSSKSeq.getFullName() not in [t.getFullName() for t in DerivationFrameworkJob.jetalg.Tools]:
+  DerivationFrameworkJob.jetalg.Tools += [pflowCSSKSeq]
+
+# Add UFO constituents
+from TrackCaloClusterRecTools.TrackCaloClusterConfig import runUFOReconstruction
+emufoAlg = runUFOReconstruction(jetm6Seq, ToolSvc, PFOPrefix="CHS")
+emcsskufoAlg = runUFOReconstruction(jetm6Seq, ToolSvc, PFOPrefix="CSSK")
 
 #=======================================
 # RESTORE AOD-REDUCED JET COLLECTIONS
 #=======================================
+
 reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4PV0TrackJets",
+                  "AntiKt2TruthJets",
+                  "AntiKt2LCTopoJets",
                   "AntiKt4TruthJets",
                   "AntiKt10TruthJets",
-                  "AntiKt10LCTopoJets"]
+                  "AntiKt10LCTopoJets",
+                  "AntiKt10UFOCSSKJets",
+                  "AntiKt10UFOCHSJets"
+                  ]
+
 replaceAODReducedJets(reducedJetList,jetm6Seq,"JETM6")
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 jetm6Seq += CfgMgr.DerivationFramework__DerivationKernel( name = "JETM6MainKernel",
-                                                          AugmentationTools = [] , 
+                                                          AugmentationTools = augmentationTools,
                                                           SkimmingTools = [JETM6OfflineSkimmingTool],
                                                           ThinningTools = thinningTools)
 
 #====================================================================
-# Special jets
+# GROOMED LARGE-R JETS
 #====================================================================
 
 OutputJets["JETM6"] = []
 
-# AntiKt10*PtFrac5Rclus20
 addDefaultTrimmedJets(jetm6Seq,"JETM6")
 
-addTrimmedJets("AntiKt", 1.0, "PV0Track", rclus=0.2, ptfrac=0.05, algseq=jetm6Seq, outputGroup="JETM6")
+if DerivationFrameworkIsMonteCarlo:
+  addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=jetm6Seq, outputGroup="JETM6", writeUngroomed=False)
+  addRecursiveSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.05, N=-1,  mods="truth_groomed", algseq=jetm6Seq, outputGroup="JETM6", writeUngroomed=False)
+  addBottomUpSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.05, mods="truth_groomed", algseq=jetm6Seq, outputGroup="JETM6", writeUngroomed=False)
+
+addTrimmedJets("AntiKt", 1.0, "UFOCHS", rclus=0.2, ptfrac=0.05, algseq=jetm6Seq, outputGroup="JETM6", writeUngroomed=False, mods="tcc_groomed")
+addTrimmedJets("AntiKt", 1.0, "UFOCSSK", rclus=0.2, ptfrac=0.05, algseq=jetm6Seq, outputGroup="JETM6", writeUngroomed=False, mods="tcc_groomed")
+addSoftDropJets("AntiKt", 1.0, "UFOCSSK", beta=1.0, zcut=0.1, algseq=jetm6Seq, outputGroup="JETM6", writeUngroomed=False, mods="tcc_groomed")
+addRecursiveSoftDropJets('AntiKt', 1.0, 'UFOCSSK', beta=1.0, zcut=0.05, N=-1,  mods="tcc_groomed", algseq=jetm6Seq, outputGroup="JETM6", writeUngroomed=False)
+addBottomUpSoftDropJets('AntiKt', 1.0, 'UFOCSSK', beta=1.0, zcut=0.05, mods="tcc_groomed", algseq=jetm6Seq, outputGroup="JETM6", writeUngroomed=False)
+
+#====================================================================
+# BTAGGING INFO FOR PFLOW JETS
+#====================================================================
+
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'],Sequencer = jetm6Seq)
+
+#====================================================================
+# VR track-jets (b-tagging)
+#====================================================================
+
+largeRJetAlgs = [
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20",
+    "AntiKt10UFOCHSTrimmedPtFrac5SmallR20",
+    "AntiKt10UFOCSSKTrimmedPtFrac5SmallR20",
+    "AntiKt10UFOCSSKSoftDropBeta100Zcut10",
+    "AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5",
+    "AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5Ninf",
+    ]
+
+largeRJetCollections = []
+for alg in largeRJetAlgs:
+  largeRJetCollections.append(alg+"Jets")
+
+if DerivationFrameworkIsMonteCarlo:
+  for alg in largeRJetAlgs:
+    addJetTruthLabel(jetalg=alg,sequence=jetm6Seq,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Consolidated")
+
+addVRJets(jetm6Seq, largeRColls = largeRJetCollections)
+addVRJets(jetm6Seq, largeRColls = largeRJetCollections, training='201903')
+
+#====================================================================
+# add xbb taggers
+#====================================================================
+
+from DerivationFrameworkFlavourTag.HbbCommon import addRecommendedXbbTaggers
+addRecommendedXbbTaggers(jetm6Seq, ToolSvc)
+
+#====================================================================
+# TRUTH3
+#====================================================================
+
+if DerivationFrameworkIsMonteCarlo:
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addTopQuarkAndDownstreamParticles,addHFAndDownstreamParticles,addTruthCollectionNavigationDecorations
+  addStandardTruthContents()
+  addTopQuarkAndDownstreamParticles()
+  addHFAndDownstreamParticles(addB=True, addC=False, generations=0)
+  addTruthCollectionNavigationDecorations(TruthCollections=["TruthTopQuarkWithDecayParticles","TruthBosonsWithDecayParticles"],prefix='Top')
+  import DerivationFrameworkCore.WeightMetadata
+  import DerivationFrameworkCore.LHE3WeightMetadata
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -219,68 +374,83 @@ JETM6SlimmingHelper.SmartCollections = ["Electrons",
                                         "TauJets",
                                         "InDetTrackParticles",
                                         "PrimaryVertices",
-                                        #
                                         "MET_Reference_AntiKt4EMTopo",
-                                        "MET_Reference_AntiKt4LCTopo",
                                         "MET_Reference_AntiKt4EMPFlow",
-                                        "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets",
-                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
+                                        "AntiKt2TruthJets",
+                                        "AntiKt2LCTopoJets",
+                                        "AntiKt4EMTopoJets","AntiKt4EMPFlowJets","AntiKt4TruthJets",
+                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                                        "AntiKt10UFOCHSTrimmedPtFrac5SmallR20Jets",
+                                        "AntiKt10UFOCSSKTrimmedPtFrac5SmallR20Jets",
+                                        "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
+                                        "AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets",
+                                        "AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJets",
+                                        "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810",
+                                        "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
+                                        "AntiKt4EMPFlowJets_BTagging201810",
+                                        "AntiKt4EMPFlowJets_BTagging201903",
+                                        "AntiKt4EMTopoJets_BTagging201810",
+                                        "BTagging_AntiKtVR30Rmax4Rmin02Track_201810",
+                                        "BTagging_AntiKtVR30Rmax4Rmin02Track_201903",
+                                        "BTagging_AntiKt4EMPFlow_201810",
+                                        "BTagging_AntiKt4EMPFlow_201903",
+                                        "BTagging_AntiKt4EMTopo_201810",
                                         ]
 JETM6SlimmingHelper.AllVariables = [
-    "TruthParticles",  "TruthEvents", "TruthVertices",
-    "MuonTruthParticles", "egammaTruthParticles",
-    #"JetETMissChargedParticleFlowObjects", "JetETMissNeutralParticleFlowObjects"
-    "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
+  "TruthEvents",
+  "Kt4EMTopoOriginEventShape","Kt4EMPFlowEventShape",
+  ]
+
+JETM6SlimmingHelper.ExtraVariables  = ['CaloCalTopoClusters.calE.calEta.calM.calPhi.CENTER_MAG']
+JETM6SlimmingHelper.ExtraVariables += ['Electrons.'+NewTrigVars["Electrons"],'Muons.'+NewTrigVars["Muons"],'Photons.'+NewTrigVars["Photons"]]
+JETM6SlimmingHelper.ExtraVariables += [
+    'HLT_xAOD__JetContainer_a4tcemsubjesFS.ActiveArea.ActiveArea4vec_eta.ActiveArea4vec_m.ActiveArea4vec_phi.ActiveArea4vec_pt.AverageLArQF.BchCorrCell.CentroidR.DetectorEta.EMFrac.EnergyPerSampling.FracSamplingMax.FracSamplingMaxIndex.HECFrac.HECQuality.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_m.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_pt.JetEtaJESScaleMomentum_eta.JetEtaJESScaleMomentum_m.JetEtaJESScaleMomentum_phi.JetEtaJESScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_m.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_pt.LArQuality.N90Constituents.NegativeE.Timing.eta.kinematics.m.phi.pt',
+    'HLT_xAOD__JetContainer_a4tcemsubjesISFS.ActiveArea.ActiveArea4vec_eta.ActiveArea4vec_m.ActiveArea4vec_phi.ActiveArea4vec_pt.AverageLArQF.BchCorrCell.CentroidR.DetectorEta.EMFrac.EnergyPerSampling.FracSamplingMax.FracSamplingMaxIndex.HECFrac.HECQuality.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_m.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_pt.JetEtaJESScaleMomentum_eta.JetEtaJESScaleMomentum_m.JetEtaJESScaleMomentum_phi.JetEtaJESScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_m.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_pt.LArQuality.N90Constituents.NegativeE.Timing.eta.kinematics.m.phi.pt',
+    'HLT_xAOD__JetContainer_a10tclcwsubjesFS.ActiveArea.ActiveArea4vec_eta.ActiveArea4vec_m.ActiveArea4vec_phi.ActiveArea4vec_pt.AverageLArQF.BchCorrCell.CentroidR.DetectorEta.EMFrac.EnergyPerSampling.FracSamplingMax.FracSamplingMaxIndex.HECFrac.HECQuality.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_m.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_m.JetEMScaleMomentum_phi.JetEMScaleMomentum_pt.JetEtaJESScaleMomentum_eta.JetEtaJESScaleMomentum_m.JetEtaJESScaleMomentum_phi.JetEtaJESScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_m.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_pt.LArQuality.N90Constituents.NegativeE.Timing.eta.kinematics.m.phi.pt',
     ]
 
-JETM6SlimmingHelper.ExtraVariables = [
-    'CaloCalTopoClusters.calE.calEta.calM.calPhi.CENTER_MAG',
-    'BTagging_AntiKt2Track.MSV_N2Tpair.MSV_badTracksIP.MSV_energyTrkInJet.MSV_normdist.MSV_nvsec.MSV_vertices.MV1_discriminant.MV2c00_discriminant.MV2c100_discriminant.MV2c10_discriminant.MV2c20_discriminant.MV2m_pb.MV2m_pc.MV2m_pu.MultiSVbb1_discriminant.MultiSVbb2_discriminant.SV0_N2Tpair.SV1_pb.SV1_pc.SV1_pu.IP3D_pb.IP3D_pc.IP3D_pu',
-    'BTagging_AntiKt4EMTopo.MSV_N2Tpair.MSV_badTracksIP.MSV_energyTrkInJet.MSV_normdist.MSV_nvsec.MSV_vertices.MV1_discriminant.MV2c00_discriminant.MV2c100_discriminant.MV2c10_discriminant.MV2c20_discriminant.MV2m_pb.MV2m_pc.MV2m_pu.MultiSVbb1_discriminant.MultiSVbb2_discriminant.SV0_N2Tpair.SV1_pb.SV1_pc.SV1_pu.IP3D_pb.IP3D_pc.IP3D_pu'
-    ]
+for truthc in [
+  "TruthTopQuark",
+  "TruthBosons",
+  "TruthHF"
+  ]:
+  JETM6SlimmingHelper.StaticContent.append("xAOD::TruthParticleContainer#"+truthc+"WithDecayParticles")
+  JETM6SlimmingHelper.StaticContent.append("xAOD::TruthParticleAuxContainer#"+truthc+"WithDecayParticlesAux.")
+  JETM6SlimmingHelper.StaticContent.append("xAOD::TruthVertexContainer#"+truthc+"WithDecayVertices")
+  JETM6SlimmingHelper.StaticContent.append("xAOD::TruthVertexAuxContainer#"+truthc+"WithDecayVerticesAux.")
 
-#JETM6SlimmingHelper.ExtraVariables = []
 for truthc in [
     "TruthMuons",
     "TruthElectrons",
     "TruthPhotons",
-    "TruthTaus",
-    "TruthNeutrinos"
+    "TruthBottom"
     ]:
     JETM6SlimmingHelper.StaticContent.append("xAOD::TruthParticleContainer#"+truthc)
     JETM6SlimmingHelper.StaticContent.append("xAOD::TruthParticleAuxContainer#"+truthc+"Aux.")
 
-## # Trigger content
-## from DerivationFrameworkCore.JetTriggerContent import JetTriggerContent
+#====================================================================
+# ORIGIN CORRECTED CLUSTERS
+#====================================================================
+
+addOriginCorrectedClusters(JETM6SlimmingHelper,writeLC=True,writeEM=True)
+
+#====================================================================
+# TRIGGER CONTENT
+#====================================================================
+ 
 JETM6SlimmingHelper.IncludeJetTriggerContent = True
 JETM6SlimmingHelper.IncludeMuonTriggerContent = True
 JETM6SlimmingHelper.IncludeEGammaTriggerContent = True
-# We actually set the precise variable content  in ExtraVariables
 
-# Add the jet containers to the stream 
-# explicitely add the container we want :
-addJetOutputs(JETM6SlimmingHelper,[
-        "AntiKt10LCTopoJets",    "AntiKt10TruthJets",
-        "JETM6", # jets defined in this file
-        ])
-# for other containers, w set the precise variable content  in ExtraVariables
-
-topoJetVars = 'ActiveArea.ActiveArea4vec_eta.ActiveArea4vec_m.ActiveArea4vec_phi.ActiveArea4vec_pt.AlgorithmType.AverageLArQF.BchCorrCell.Charge.ConeExclBHadronsFinal.ConeExclCHadronsFinal.ConeExclTausFinal.ConeTruthLabelID.ConstituentScale.DetectorEta.EMFrac.EnergyPerSampling.FracSamplingMax.FracSamplingMaxIndex.HECFrac.HECQuality.HadronConeExclTruthLabelID.HighestJVFVtx.InputType.IsoDelta2SumPt.IsoDelta3SumPt.JVF.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_m.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_pt.JetOriginConstitScaleMomentum_eta.JetOriginConstitScaleMomentum_m.JetOriginConstitScaleMomentum_phi.JetOriginConstitScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_m.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_pt.Jvt.JvtJvfcorr.JvtRpt.LArBadHVEnergyFrac.LArBadHVNCell.LArQuality.LeadingClusterCenterLambda.LeadingClusterSecondLambda.LeadingClusterSecondR.Mu12.N90Constituents.NegativeE.NumTrkPt1000.NumTrkPt500.OotFracClusters10.OotFracClusters5.OriginCorrected.OriginVertex.PartonTruthLabelID.PileupCorrected.SizeParameter.SumPtTrkPt1000.SumPtTrkPt500.TrackWidthPt1000.TrackWidthPt500.Width.btaggingLink.eta.pt.phi.m.GhostMuonSegmentCount.CentroidR.Timing'
-
-JETM6SlimmingHelper.ExtraVariables += [
-    'AntiKt4LCTopoJets.'+topoJetVars ,
-    'AntiKt4EMTopoJets.'+topoJetVars , 
-    'AntiKt4TruthJets.AlgorithmType.Angularity.Aplanarity.ConeExclBHadronsFinal.ConeExclCHadronsFinal.ConeExclTausFinal.ConeTruthLabelID.ConstituentScale.HadronConeExclTruthLabelID.InputType.IsoDelta2SumPt.IsoDelta3SumPt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_m.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_pt.Mu12.PartonTruthLabelID.SizeParameter.Width.eta.pt.phi.m',
-    "AntiKt2PV0TrackJets.AlgorithmType.ConstituentScale.Width.eta.pt.phi.m.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_m.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_pt.OriginVertex.SizeParameter",
-    'HLT_xAOD__JetContainer_a4tcemsubjesFS.ActiveArea.ActiveArea4vec_eta.ActiveArea4vec_m.ActiveArea4vec_phi.ActiveArea4vec_pt.AlgorithmType.AverageLArQF.BchCorrCell.CentroidR.ConstituentScale.DetectorEta.EMFrac.EnergyPerSampling.FracSamplingMax.FracSamplingMaxIndex.HECFrac.HECQuality.InputType.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_m.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_m.JetEMScaleMomentum_phi.JetEMScaleMomentum_pt.JetEtaJESScaleMomentum_eta.JetEtaJESScaleMomentum_m.JetEtaJESScaleMomentum_phi.JetEtaJESScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_m.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_pt.LArQuality.N90Constituents.NegativeE.OriginCorrected.PileupCorrected.SizeParameter.Timing.eta.kinematics.m.phi.pt',
-    'HLT_xAOD__JetContainer_a10tcemsubjesFS.ActiveArea.ActiveArea4vec_eta.ActiveArea4vec_m.ActiveArea4vec_phi.ActiveArea4vec_pt.AlgorithmType.AverageLArQF.BchCorrCell.CentroidR.ConstituentScale.DetectorEta.EMFrac.EnergyPerSampling.FracSamplingMax.FracSamplingMaxIndex.HECFrac.HECQuality.InputType.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_m.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_m.JetEMScaleMomentum_phi.JetEMScaleMomentum_pt.JetEtaJESScaleMomentum_eta.JetEtaJESScaleMomentum_m.JetEtaJESScaleMomentum_phi.JetEtaJESScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_m.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_pt.LArQuality.N90Constituents.NegativeE.OriginCorrected.PileupCorrected.SizeParameter.Timing.eta.kinematics.m.phi.pt',
-    ]
-
-#JETM6SlimmingHelper.StaticContent.append("xAOD::JetContainer#CamKt15LCTopoJets")
-#JETM6SlimmingHelper.StaticContent.append("xAOD::JetAuxContainer#CamKt15LCTopoJetsAux.eta.pt.phi")
+# Add the jet containers to the stream
+addJetOutputs(JETM6SlimmingHelper,
+              ["JETM6","AntiKt10LCTopoJets","AntiKt10TruthJets","AntiKt10UFOCSSKJets","AntiKt10UFOCHSJets"],
+              ["AntiKt10LCTopoJets","AntiKt10TruthJets","AntiKt10UFOCSSKJets","AntiKt10UFOCHSJets"], #smart slimming
+              ["AntiKt10EMPFlowCSSKJets"] #veto jets
+              )
 
 # Add the MET containers to the stream
-addMETOutputs(JETM6SlimmingHelper,["Diagnostic","AntiKt4LCTopo","AntiKt4EMPFlow","Track"])
+addMETOutputs(JETM6SlimmingHelper,["Diagnostic","AntiKt4EMPFlow","Track"])
 
 JETM6SlimmingHelper.AppendContentToStream(JETM6Stream)
 #JETM6Stream.RemoveItem("xAOD::TrigNavigation#*")
@@ -306,8 +476,8 @@ def removeVars(coll, vars):
             continue
         cleanedV.append(v)
     newS = '.'.join(cleanedV)
-    JETM6Stream.RemoveItem( origS ) 
-    JETM6Stream.AddItem( newS ) 
-    
+    JETM6Stream.RemoveItem( origS )
+    JETM6Stream.AddItem( newS )
+
 #removeVars('InDetTrackParticles', ['definingParametersCovMatrix',])
-         
+

@@ -17,7 +17,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include <string>
 #include <vector>
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "TrkParameters/TrackParameters.h"
 
 namespace Trk 
@@ -67,8 +66,7 @@ namespace Trk
       /** The Extrapolator to be retrieved */
       ToolHandle<IExtrapolator>         m_extrapolator;
       ToolHandle<IPropagator>           m_propagator;
-      ServiceHandle<MagField::IMagFieldSvc>              m_magFieldSvc;       //!< helper tool to get the magnetic field
-      MagneticFieldProperties*                    m_magFieldProperties; //!< magnetic field properties
+      MagneticFieldProperties*          m_magFieldProperties; //!< magnetic field properties
 
       /** Random Number setup */
       Rndm::Numbers*                    m_gaussDist;

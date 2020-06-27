@@ -13,9 +13,17 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaServices.AthenaServicesConf import AthenaOutputStream
 from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
 
+_trigNavThinningSvcs = {}
+def registerTrigNavThinningSvc (streamName, svc):
+   _trigNavThinningSvcs[streamName] = svc
+   return
+
 def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False,
                         eventInfoKey = "EventInfo", decisionFilter="",
                         trigNavThinningSvc = None ):
+   if trigNavThinningSvc is None:
+      trigNavThinningSvc = _trigNavThinningSvcs.get (streamName, None)
+
    # define athena output stream
    writingTool = AthenaOutputStreamTool( streamName + "Tool" )
    outputStream = AthenaOutputStream(

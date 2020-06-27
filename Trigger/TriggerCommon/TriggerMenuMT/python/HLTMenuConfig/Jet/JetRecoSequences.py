@@ -71,7 +71,7 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
         rcJetDef.modifiers = rcModList
 
         rcConstitPJAlg = getConstitPJGAlg( rcJetDef.inputdef )
-        rcConstitPJKey = rcConstitPJAlg.PJGetter.OutputContainer
+        rcConstitPJKey = rcConstitPJAlg.OutputContainer
         recoSeq += conf2toConfigurable( rcConstitPJAlg )
 
         rcPJs = [rcConstitPJKey]
@@ -144,7 +144,7 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
 
         # Add the PseudoJetGetter alg to the sequence
         constitPJAlg = getConstitPJGAlg( jetDef.inputdef )
-        constitPJKey = constitPJAlg.PJGetter.OutputContainer
+        constitPJKey = constitPJAlg.OutputContainer
         recoSeq += conf2toConfigurable( constitPJAlg )
         # Basic list of PseudoJets is just the constituents
         # Append ghosts (tracks) if desired
@@ -181,9 +181,13 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
         calibMods = JetRecoConfiguration.defineCalibFilterMods(jetRecoDict,dataSource, rhoKey)
         jetModList += calibMods
 
+        # Get online monitoring tool
+        from JetRec import JetOnlineMon
+        monTool = JetOnlineMon.getMonTool_TrigJetAlgorithm("HLTJets/"+jetsFullName+"/")
+
         # Generate a JetAlgorithm to run the jet finding and modifiers
         # (via a JetRecTool instance).
-        jetRecAlg = JetRecConfig.getJetAlgorithm(jetsFullName, jetDef, pjs, jetModList)
+        jetRecAlg = JetRecConfig.getJetAlgorithm(jetsFullName, jetDef, pjs, jetModList, monTool)
         recoSeq += conf2toConfigurable( jetRecAlg )
         # End of basic jet reco
         pass

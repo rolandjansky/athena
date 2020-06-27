@@ -76,7 +76,7 @@ DbStatus RootTreeIndexContainer::transAct(Transaction::Action action) {
    DbStatus status = RootTreeContainer::transAct(action);
    if (action == Transaction::TRANSACT_FLUSH) {
       if (m_tree == nullptr) return Error;
-      if (m_index_ref != nullptr && m_tree->GetEntryNumberWithIndex(nextRecordId()) == -1) {
+      if (m_index_ref != nullptr && m_tree->GetEntries() > 0 && m_tree->GetEntryNumberWithIndex(nextRecordId()) == -1) {
          m_tree->BuildIndex("index_ref");
       }
    }

@@ -16,7 +16,7 @@
 #define ASG_DATA_HANDLES_READ_HANDLE_KEY_H
 
 #ifndef XAOD_STANDALONE
-#include <StoreGate/ReadHandle.h>
+#include <StoreGate/ReadHandleKey.h>
 #else
 
 #include "AsgDataHandles/VarHandleKey.h"

@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-/*
- */
 /**
  * @file TileEvent/src/TileDQstatus.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -265,7 +263,7 @@ void TileDQstatus::fillBCIDErrDetail(const TileDigitsContainer* digitsCnt,
     TileDigitsContainer::const_iterator collItr = digitsCnt->begin();
     TileDigitsContainer::const_iterator lastColl = digitsCnt->end();
 
-    for (; collItr != lastColl; collItr++) { // Loop over TileModules
+    for (; collItr != lastColl; ++collItr) { // Loop over TileModules
       if ((*collItr)->identify() != frag)
         continue;
 

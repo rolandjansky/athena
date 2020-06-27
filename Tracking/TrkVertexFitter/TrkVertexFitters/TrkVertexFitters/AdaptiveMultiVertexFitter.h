@@ -66,7 +66,6 @@
  *     seedVertex           now uses Amg::Vector3D
  *     linearizationVertex  now uses Amg::Vector3D
  *
- *   Trk::TrackToVtxLink
  *     Vertex objects stored using this class are now xAOD::Vertex
  *
  * Instead of using the MVFVxCandidate class, xAOD::Vertex is employed by decorating it

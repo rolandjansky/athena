@@ -30,8 +30,6 @@
 #include "TrigTrackJetFinderTool/ITrigTrackJetFinderTool.h"
 #include "VxSecVertex/VxSecVertexInfo.h"
 
-#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
-
 
 
 namespace Analysis {
@@ -79,7 +77,6 @@ class TrigBtagFexMT: public AthAlgorithm {
   // DATA
   /** @brief List of xAOD tagger basenames */
   Gaudi::Property< std::vector< std::string > > m_TaggerBaseNames {this,"TaggerBaseNames",std::vector< std::string >(),"List of xAOD tagger basenames"};
-  ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
 
   // PROPERTIES
   /** @brief Switch for offline tools */

@@ -338,8 +338,6 @@ SimFlags.OptionalUserActionList.addAction('G4UA::GeantFollowerTool',['Step','Eve
 ############### The output collection #######################
 
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-## --- check dictionary
-ServiceMgr.AthenaSealSvc.CheckDictionary   = True
 ## --- commit interval (test)
 #ServiceMgr.AthenaPoolCnvSvc.OutputLevel = DEBUG
 

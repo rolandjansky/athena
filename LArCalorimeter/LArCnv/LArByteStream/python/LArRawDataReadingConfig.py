@@ -15,6 +15,8 @@ def LArRawDataReadingCfg(configFlags, **kwargs):
         kwargs.setdefault("LArDigitKey", configFlags.Overlay.BkgPrefix + "FREE")
         kwargs.setdefault("LArRawChannelKey", "")
 
+    kwargs.setdefault("FailOnCorruption",False)
+
     acc.addEventAlgo(LArRawDataReadingAlg(**kwargs))
     return acc
 

@@ -1,26 +1,16 @@
-################################################################################
-# Package: xAODViews
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# Declare the package name:
+# Declare the package name.
 atlas_subdir( xAODViews )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthContainers
-                          Event/xAOD/xAODCore
-                          Event/xAOD/xAODTracking )
+# Component(s) in the package.
+atlas_add_library( xAODViewsLib
+   xAODViews/*.h
+   INTERFACE
+   PUBLIC_HEADERS xAODViews
+   LINK_LIBRARIES AthContainers xAODCore xAODTracking )
 
-# External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
-
-# Component(s) in the package:
 atlas_add_dictionary( xAODViewsDict
-                      xAODViews/xAODViewsDict.h
-                      xAODViews/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers xAODCore xAODTracking )
-
-# Install files from the package:
-atlas_install_headers( xAODViews )
-
+   xAODViews/xAODViewsDict.h
+   xAODViews/selection.xml
+   LINK_LIBRARIES xAODViewsLib )

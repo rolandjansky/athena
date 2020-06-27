@@ -116,6 +116,12 @@ public:
 
 
   /**
+   * @brief Can the handle be successfully dereferenced?
+   */
+  bool isValid();
+
+
+  /**
    * @brief Dereference the pointer, but don't cache anything.
    */
   const_pointer_type get() const;

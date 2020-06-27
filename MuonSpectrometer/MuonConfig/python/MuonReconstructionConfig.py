@@ -24,7 +24,7 @@ if __name__=="__main__":
     args = SetupMuonStandaloneArguments()
     ConfigFlags = SetupMuonStandaloneConfigFlags(args)
     cfg = SetupMuonStandaloneCA(args,ConfigFlags)
-          
+
     # Run the actual test.
     acc = MuonReconstructionCfg(ConfigFlags)
     cfg.merge(acc)
@@ -59,7 +59,7 @@ if __name__=="__main__":
     itemsToRecord += ["TrackCollection#MuonSpectrometerTracks"] 
     SetupMuonStandaloneOutput(cfg, ConfigFlags, itemsToRecord)
     
-    cfg.printConfig(withDetails = True, summariseProps = True)
+    cfg.printConfig(withDetails = True)
               
     f=open("MuonReconstruction.pkl","wb")
     cfg.store(f)

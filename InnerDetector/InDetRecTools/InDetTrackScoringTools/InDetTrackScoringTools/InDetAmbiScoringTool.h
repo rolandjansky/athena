@@ -20,6 +20,9 @@
 #include "TrkParameters/TrackParameters.h"
 #include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/IOVSvcDefs.h"
+// MagField cache
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MagFieldElements/AtlasFieldCache.h"
 #include <vector>
 #include <string>
 #include "BeamSpotConditionsData/BeamSpotData.h"
@@ -30,10 +33,6 @@ namespace Trk {
   class Track;
   class TrackSummary;
 
-}
-
-namespace MagField {
-  class IMagFieldSvc;
 }
 
 namespace InDet {
@@ -67,10 +66,10 @@ class InDetAmbiScoringTool : virtual public Trk::ITrackScoringTool,
   
   //these are used for ScoreModifiers 
   int m_maxDblHoles, m_maxPixHoles, m_maxSCT_Holes,  m_maxHits, m_maxSigmaChi2, m_maxTrtRatio, m_maxTrtFittedRatio,
-    m_maxB_LayerHits, m_maxPixelHits, m_maxPixLay, m_maxLogProb, m_maxGangedFakes;
+    m_maxB_LayerHits, m_maxPixelHits, m_maxPixLay,  m_maxGangedFakes;
   std::vector<double> m_factorDblHoles, m_factorPixHoles, m_factorSCT_Holes,  m_factorHits,
-    m_factorSigmaChi2, m_factorB_LayerHits, m_factorPixelHits, m_factorPixLay, m_factorLogProb, m_factorHoles, m_factorGangedFakes;
-  std::vector<double> m_boundsSigmaChi2, m_boundsLogProb, m_boundsHits,
+    m_factorSigmaChi2, m_factorB_LayerHits, m_factorPixelHits, m_factorPixLay, m_factorHoles, m_factorGangedFakes;
+  std::vector<double> m_boundsSigmaChi2, m_boundsHits,
     m_boundsTrtRatio, m_factorTrtRatio, m_boundsTrtFittedRatio, m_factorTrtFittedRatio;
   
   /**\todo make this const, once createSummary method is const*/
@@ -85,21 +84,20 @@ class InDetAmbiScoringTool : virtual public Trk::ITrackScoringTool,
   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
   
   ToolHandle<Trk::IExtrapolator>         m_extrapolator;
-  ServiceHandle<MagField::IMagFieldSvc>  m_magFieldSvc;
+
+  // Read handle for conditions object to get the field cache
+  SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
 
   
   /** use the scoring tuned to Ambiguity processing or not */
   bool m_useAmbigFcn;
   bool m_useTRT_AmbigFcn;
-  bool m_useLogProbBins;
   bool m_useSigmaChi2;
   
   bool m_usePixel;
   bool m_useSCT;
 
   /** cuts for selecting good tracks*/
-  int    m_minNDF;        //!< minimal number of degrees of freedom cut
-  //bool   m_fieldOn;       //!< do we have field on ?
   double m_minPt;         //!< minimal Pt cut
   double m_maxEta;        //!< maximal Eta cut
   double m_maxRPhiImp;    //!< maximal RPhi impact parameter cut

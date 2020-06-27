@@ -1,10 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: IsolationType.h 718726 2016-01-20 12:10:22Z dzhang $
 #ifndef XAODPRIMITIVES_ISOLATIONTYPE_H
 #define XAODPRIMITIVES_ISOLATIONTYPE_H
 
@@ -100,8 +97,6 @@ namespace xAOD {
               default:      return "[Unknown IsolationType]";
           }
       }
-
-      struct ROOT6_NamespaceAutoloadHook{};
       
    } // namespace Iso
 

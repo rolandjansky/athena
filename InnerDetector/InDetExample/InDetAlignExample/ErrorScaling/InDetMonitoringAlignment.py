@@ -108,7 +108,7 @@ if not jobproperties.Beam.beamType()=='cosmics':
         from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import InDetAlignMonBeamSpot
         InDetAlignMonBeamSpot_noTrig = InDetAlignMonBeamSpot (name                           = "InDetAlignMonBeamSpot_noTrig",
                                                               extrapolator                   = InDetExtrapolator,
-                                                              vxContainerName                = InDetKeys.PrimaryVertices(),
+                                                              vxContainerName                = InDetKeys.xAODVertexContainer(),
                                                               vxContainerWithBeamConstraint  = InDetFlags.useBeamConstraint())
         
         #ToolSvc += InDetAlignMonBeamSpot_noTrig
@@ -232,7 +232,7 @@ if (InDetFlags.doPrintConfigurables()):
 from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import IDAlignMonGenericTracks
 InDetAlignMonGenericTracks_noTrig = IDAlignMonGenericTracks (name                = "InDetAlignMonGenericTracks_noTrig",
                                                              trackSelection      = m_alignMonTrackSelectionTool[1],
-                                                             VxPrimContainerName = InDetKeys.PrimaryVertices())   
+                                                             VxPrimContainerName = InDetKeys.xAODVertexContainer())   
 
 if jobproperties.Beam.beamType()=='cosmics' or jobproperties.Beam.beamType()=='singlebeam':
     InDetAlignMonGenericTracks_noTrig.tracksName   = InDetKeys.Tracks()
@@ -375,10 +375,10 @@ else:
     InDetAlignMonGenericTracks = IDAlignMonGenericTracks (name                = "InDetAlignMonGenericTracks",
                                                           trackSelection      = m_alignMonTrackSelectionTool[1],
                                                           tracksName          = InDetKeys.ExtendedTracks(),
-                                                          VxPrimContainerName = InDetKeys.PrimaryVertices())
+                                                          VxPrimContainerName = InDetKeys.xAODVertexContainer())
 
     InDetAlignMonBeamSpot = InDetAlignMonBeamSpot (name                          = "InDetAlignMonBeamSpot",
-                                                   vxContainerName               = InDetKeys.PrimaryVertices(),
+                                                   vxContainerName               = InDetKeys.xAODVertexContainer(),
                                                    vxContainerWithBeamConstraint = InDetFlags.useBeamConstraint())
 
     if jobproperties.Beam.beamType()=='collisions':

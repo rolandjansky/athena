@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCLUSTERCORRECTION_CALOSWECCRACK_G3_H
@@ -40,16 +40,11 @@ class CaloSwECcrack_g3 : public CaloClusterCorrection
 {
 
  public:
-
-  // constructor 
-  CaloSwECcrack_g3(const std::string& type,
-                   const std::string& name,
-                   const IInterface* parent);
-  // destructor 
-  virtual ~CaloSwECcrack_g3() override;
+  // Inherit constructor.
+  using CaloClusterCorrection::CaloClusterCorrection;
   
-  virtual void makeCorrection(const EventContext& ctx,
-                              xAOD::CaloCluster* cluster) const override;
+  virtual void makeCorrection (const Context& myctx,
+                               xAOD::CaloCluster* cluster) const override;
 
  private:
 

@@ -9,6 +9,7 @@ namespace AthSYCL {
 
    int DeviceSelector::operator()( const cl::sycl::device& device ) const {
 
+#ifndef TRISYCL_CL_SYCL_HPP
       // Do not accept any NVidia OpenCL devices.
       const std::string vendor =
          device.get_info< cl::sycl::info::device::vendor >();
@@ -18,8 +19,9 @@ namespace AthSYCL {
           ( version.find( "OpenCL" ) != std::string::npos ) ) {
          return -1;
       }
+#endif // not TRISYCL_CL_SYCL_HPP
 
-      // For the remaining devices juse use the scoring implemented by
+      // For the remaining devices just use the scoring implemented by
       // cl::sycl::default_selector.
       return m_defaultSelector( device );
    }

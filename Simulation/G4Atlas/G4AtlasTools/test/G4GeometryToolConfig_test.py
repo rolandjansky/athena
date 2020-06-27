@@ -8,7 +8,7 @@ from __future__ import print_function
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 if __name__ == '__main__':
-  from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+  from AthenaConfiguration.MainServicesConfig import MainServicesCfg
   import os
 
   # Set up logging and config behaviour
@@ -67,55 +67,41 @@ if __name__ == '__main__':
   ## Initialize a new component accumulator
   cfg = ComponentAccumulator()
 
-  acc, tool  = BeamPipeGeoDetectorToolCfg(ConfigFlags)
-  cfg.merge(acc)
+  tool = cfg.popToolsAndMerge(BeamPipeGeoDetectorToolCfg(ConfigFlags))
   cfg.addPublicTool(tool)
 
-  acc1, tool1  = PixelGeoDetectorToolCfg(ConfigFlags)
-  cfg.merge(acc1)
-  cfg.addPublicTool(tool1)
+  tool = cfg.popToolsAndMerge(PixelGeoDetectorToolCfg(ConfigFlags))
+  cfg.addPublicTool(tool)
+  
+  tool = cfg.popToolsAndMerge(SCTGeoDetectorToolCfg(ConfigFlags))
+  cfg.addPublicTool(tool)
+  
+  tool = cfg.popToolsAndMerge(TRTGeoDetectorToolCfg(ConfigFlags))
+  cfg.addPublicTool(tool)
+  
+  tool = cfg.popToolsAndMerge(IDETEnvelopeCfg(ConfigFlags))
+  cfg.addPublicTool(tool)
+  
+  tool = cfg.popToolsAndMerge(ForwardRegionEnvelopeCfg(ConfigFlags))
+  cfg.addPublicTool(tool)
+  
+  tool = cfg.popToolsAndMerge(CALOEnvelopeCfg(ConfigFlags))
+  cfg.addPublicTool(tool)
+  
+  tool = cfg.popToolsAndMerge(LucidGeoDetectorToolCfg(ConfigFlags))
+  cfg.addPublicTool(tool)
 
-  acc2, tool2  = SCTGeoDetectorToolCfg(ConfigFlags)
-  cfg.merge(acc2)
-  cfg.addPublicTool(tool2)
+  tool = cfg.popToolsAndMerge(ALFAGeoDetectorToolCfg(ConfigFlags))
+  cfg.addPublicTool(tool)
 
-  acc3, tool3  = TRTGeoDetectorToolCfg(ConfigFlags)
-  cfg.merge(acc3)
-  cfg.addPublicTool(tool3)
+  tool = cfg.popToolsAndMerge(ZDCGeoDetectorToolCfg(ConfigFlags))
+  cfg.addPublicTool(tool)
+  
+  tool = cfg.popToolsAndMerge(AFPGeoDetectorToolCfg(ConfigFlags))
+  cfg.addPublicTool(tool)
 
-  acc4, tool4  = IDETEnvelopeCfg(ConfigFlags)
-  cfg.merge(acc4)
-  cfg.addPublicTool(tool4)
-
-
-  acc5,tool5 = ForwardRegionEnvelopeCfg(ConfigFlags)
-  cfg.merge(acc5)
-  cfg.addPublicTool(tool5)
-
-  acc6,tool6 = CALOEnvelopeCfg(ConfigFlags)
-  cfg.merge(acc6)
-  cfg.addPublicTool(tool6)
-
-  acc7, tool7 = LucidGeoDetectorToolCfg(ConfigFlags)
-  cfg.merge(acc7)
-  cfg.addPublicTool(tool7)
-
-  acc8, tool8 = ALFAGeoDetectorToolCfg(ConfigFlags)
-  cfg.merge(acc8)
-  cfg.addPublicTool(tool8)
-
-  acc9, tool9 = ZDCGeoDetectorToolCfg(ConfigFlags)
-  cfg.merge(acc9)
-  cfg.addPublicTool(tool9)
-
-  acc10, tool10 = AFPGeoDetectorToolCfg(ConfigFlags)
-  cfg.merge(acc10)
-  cfg.addPublicTool(tool10)
-
-
-  accATLAS,toolATLAS = ATLASEnvelopeCfg(ConfigFlags)
-  cfg.merge(accATLAS)
-  cfg.addPublicTool(toolATLAS)
+  tool = cfg.popToolsAndMerge(ATLASEnvelopeCfg(ConfigFlags))
+  cfg.addPublicTool(tool)
 
   cfg.addPublicTool(MaterialDescriptionToolCfg(ConfigFlags))
 

@@ -26,9 +26,6 @@ namespace FlavorTagDiscriminants {
     m_dl2.reset(new DL2HighLevel(m_props.nnFile, flipConfig));
     return StatusCode::SUCCESS;
   }
-  StatusCode DL2Tool::finalize() {
-    return StatusCode::SUCCESS;
-  }
 
   void DL2Tool::decorate(const xAOD::Jet& jet) const {
     ATH_MSG_DEBUG("Decoration from: " + m_props.nnFile);

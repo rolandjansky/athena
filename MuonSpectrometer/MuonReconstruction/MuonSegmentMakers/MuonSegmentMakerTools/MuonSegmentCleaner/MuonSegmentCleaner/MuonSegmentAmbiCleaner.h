@@ -1,44 +1,26 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonSegmentCleaner_MuonSegmentAmbiCleaner_H
 #define MuonSegmentCleaner_MuonSegmentAmbiCleaner_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonRecToolInterfaces/IMuonSegmentCleaner.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
-class RpcIdHelper;
-class MdtIdHelper;
-class CscIdHelper;
-class TgcIdHelper;
-class Identifier;
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 namespace Muon {
   class MuonSegment;
-}
-namespace MuonGM {
-  class MuonDetectorManager;
-}
-
-namespace Trk {
-  class RIO_OnTrack;
-  class PrepRawData;
 }
 
 class MuonSegmentAmbiCleaner : public AthAlgTool, virtual public Muon::IMuonSegmentCleaner
 {
  public: 
-  /** constructor */
   MuonSegmentAmbiCleaner(const std::string&,const std::string&,const IInterface*);
-  /** destructor */
-  virtual ~MuonSegmentAmbiCleaner();
+  virtual ~MuonSegmentAmbiCleaner()=default;
 
-  /** to initiate private members */
   virtual StatusCode initialize(); 
-  /** to delete private members */
-  virtual StatusCode finalize(); 
 
   /** For one segment solve ambiguous RPC and TGC hits: different eta but same phi
       using the MDT extrapolated segment 
@@ -48,8 +30,7 @@ class MuonSegmentAmbiCleaner : public AthAlgTool, virtual public Muon::IMuonSegm
 
  private:
 
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
+  ServiceHandle<Muon::IMuonIdHelperSvc>     m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
   /** flag to print out debugging information */
   bool m_debug;

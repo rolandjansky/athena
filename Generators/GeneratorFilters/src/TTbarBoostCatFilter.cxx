@@ -61,10 +61,10 @@ StatusCode TTbarBoostCatFilter::filterEvent() {
   if(m_LepPtmin*m_LepPtmax <0 && m_LepPtmin < 0 ) m_LepPtmin = 0.;
   if(m_LepPtmin*m_LepPtmax <0 && m_LepPtmax < 0 ) m_LepPtmax = 14000000.; // 14 TeV
 
-  std::vector<HepMC::GenParticle*> tops;
-  std::vector<HepMC::GenParticle*> ws;   // W from top decay (from tops)
-  std::vector<HepMC::GenParticle*> leps; // e, mu, tau from W decay (from ws)
-  std::vector<HepMC::GenParticle*> nus;  // nutrino from W decay (from ws)
+  std::vector<HepMC::GenParticlePtr> tops;
+  std::vector<HepMC::GenParticlePtr> ws;   // W from top decay (from tops)
+  std::vector<HepMC::GenParticlePtr> leps; // e, mu, tau from W decay (from ws)
+  std::vector<HepMC::GenParticlePtr> nus;  // nutrino from W decay (from ws)
 
   for (McEventCollection::const_iterator itr = events()->begin(); itr!=events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);

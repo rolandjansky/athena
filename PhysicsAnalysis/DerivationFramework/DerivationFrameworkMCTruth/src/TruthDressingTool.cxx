@@ -3,8 +3,7 @@
 */
 
 /////////////////////////////////////////////////////////////////
-// TruthDressingTool.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
+// TruthDressingTool.cxx
 // Author: Kevin Finelli (kevin.finelli@cern.ch)
 // Create dressed (i.e. including FSR photons) 4-vectors of truth objects
 
@@ -20,8 +19,8 @@
 // Constructor
 DerivationFramework::TruthDressingTool::TruthDressingTool(const std::string& t,
         const std::string& n,
-        const IInterface* p ) :
-    AthAlgTool(t,n,p)
+        const IInterface* p )
+   : AthAlgTool(t,n,p)
 {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     declareProperty ("particlesKey",
@@ -38,7 +37,9 @@ DerivationFramework::TruthDressingTool::TruthDressingTool(const std::string& t,
     declareProperty ("particleIDsToDress", m_listOfPIDs = std::vector<int>{11,13},
             "List of the pdgID's of particles to be dressed (usually 11,13).  Special treatment for taus (15)");
     declareProperty ("useAntiKt", m_useAntiKt = false,
-        "use anti-k_T in addition to fixed-cone dressing");
+            "use anti-k_T instead of fixed-cone dressing");
+    declareProperty ("decorationName", m_decorationName = "",
+            "Name of the decoration for photons that were used in dressing");
 
 }
 
@@ -72,31 +73,31 @@ StatusCode DerivationFramework::TruthDressingTool::addBranches() const
         ATH_MSG_ERROR("No TruthParticleContainer with name " << m_dressParticlesKey << " found in StoreGate!");
         return StatusCode::FAILURE;
     }
-    SG::AuxElement::Decorator< float > decorator_e("e_dressed");
-    SG::AuxElement::Decorator< float > decorator_pt("pt_dressed");
-    SG::AuxElement::Decorator< float > decorator_eta("eta_dressed");
-    SG::AuxElement::Decorator< float > decorator_phi("phi_dressed");
+    const static SG::AuxElement::Decorator< float > decorator_e("e_dressed");
+    const static SG::AuxElement::Decorator< float > decorator_pt("pt_dressed");
+    const static SG::AuxElement::Decorator< float > decorator_eta("eta_dressed");
+    const static SG::AuxElement::Decorator< float > decorator_phi("phi_dressed");
 
     // for truth taus, use 'vis' in the decoration name to avoid prompt/visible tau momentum ambiguity
     // use (pt,eta,phi,m) for taus, for consistency with other TauAnalysisTools decorations
-    SG::AuxElement::Decorator< float > decorator_pt_vis("pt_vis_dressed");
-    SG::AuxElement::Decorator< float > decorator_eta_vis("eta_vis_dressed");
-    SG::AuxElement::Decorator< float > decorator_phi_vis("phi_vis_dressed");
-    SG::AuxElement::Decorator< float > decorator_m_vis("m_vis_dressed");
+    const static SG::AuxElement::Decorator< float > decorator_pt_vis("pt_vis_dressed");
+    const static SG::AuxElement::Decorator< float > decorator_eta_vis("eta_vis_dressed");
+    const static SG::AuxElement::Decorator< float > decorator_phi_vis("phi_vis_dressed");
+    const static SG::AuxElement::Decorator< float > decorator_m_vis("m_vis_dressed");
 
-    SG::AuxElement::Decorator< int > decorator_nphoton("nPhotons_dressed");
+    const static SG::AuxElement::Decorator< int > decorator_nphoton("nPhotons_dressed");
 
-    //anti-kt dressing
-    SG::AuxElement::Decorator< float > decorator_e_akt("e_dressed_akt");
-    SG::AuxElement::Decorator< float > decorator_pt_akt("pt_dressed_akt");
-    SG::AuxElement::Decorator< float > decorator_eta_akt("eta_dressed_akt");
-    SG::AuxElement::Decorator< float > decorator_phi_akt("phi_dressed_akt");
-
-    // anti-kt for truth taus
-    SG::AuxElement::Decorator< float > decorator_pt_vis_akt("pt_vis_dressed_akt");
-    SG::AuxElement::Decorator< float > decorator_eta_vis_akt("eta_vis_dressed_akt");
-    SG::AuxElement::Decorator< float > decorator_phi_vis_akt("phi_vis_dressed_akt");
-    SG::AuxElement::Decorator< float > decorator_m_vis_akt("m_vis_dressed_akt");
+    // One for the photons as well
+    std::string decorationName = m_decorationName.empty()?"unusedPhotonDecoration":m_decorationName;
+    const static SG::AuxElement::Decorator< char > dressDec (decorationName);
+    // If we want to decorate, then we need to decorate everything with false to begin with
+    if (!m_decorationName.empty()){
+      for (const auto * particle : *importedTruthParticles){
+        if (!particle->isAvailable<char>(decorationName)) {
+          dressDec(*particle);
+        }
+      } // Loop over particles
+    } // We are using the decoration
 
     //get struct of helper functions
     DerivationFramework::DecayGraphHelper decayHelper;
@@ -126,65 +127,71 @@ StatusCode DerivationFramework::TruthDressingTool::addBranches() const
     std::vector<int> photonPID{22};
     decayHelper.constructListOfFinalParticles(importedTruthParticles, photonsFSRList, photonPID, m_usePhotonsFromHadrons);
 
-    //loop over photons, uniquely associate each to nearest bare particle
-    for (const auto& phot : photonsFSRList ) {
-      double dRmin = m_coneSize;
-      int idx = -1;
-
-      for (size_t i = 0; i < listOfParticlesToDress.size(); ++i) {
-        xAOD::TruthParticle::FourMom_t bare_part;
-        if(abs(listOfParticlesToDress[i]->pdgId())==15) {
-
-          if( !listOfParticlesToDress[i]->isAvailable<double>("pt_vis") ||
-              !listOfParticlesToDress[i]->isAvailable<double>("eta_vis") ||
-              !listOfParticlesToDress[i]->isAvailable<double>("phi_vis") ||
-              !listOfParticlesToDress[i]->isAvailable<double>("m_vis")) {
-            ATH_MSG_ERROR("Visible momentum not available for truth taus, cannot perform dressing!");
-            return StatusCode::FAILURE;
+    // Do dR-based photon dressing (default)
+    if (!m_useAntiKt){
+      //loop over photons, uniquely associate each to nearest bare particle
+      for (const auto& phot : photonsFSRList ) {
+        double dRmin = m_coneSize;
+        int idx = -1;
+  
+        for (size_t i = 0; i < listOfParticlesToDress.size(); ++i) {
+          xAOD::TruthParticle::FourMom_t bare_part;
+          if(abs(listOfParticlesToDress[i]->pdgId())==15) {
+  
+            if( !listOfParticlesToDress[i]->isAvailable<double>("pt_vis") ||
+                !listOfParticlesToDress[i]->isAvailable<double>("eta_vis") ||
+                !listOfParticlesToDress[i]->isAvailable<double>("phi_vis") ||
+                !listOfParticlesToDress[i]->isAvailable<double>("m_vis")) {
+              ATH_MSG_ERROR("Visible momentum not available for truth taus, cannot perform dressing!");
+              return StatusCode::FAILURE;
+            }
+  
+            bare_part.SetPtEtaPhiM(listOfParticlesToDress[i]->auxdata<double>("pt_vis"),
+                                   listOfParticlesToDress[i]->auxdata<double>("eta_vis"),
+                                   listOfParticlesToDress[i]->auxdata<double>("phi_vis"),
+                                   listOfParticlesToDress[i]->auxdata<double>("m_vis"));
           }
-
-          bare_part.SetPtEtaPhiM(listOfParticlesToDress[i]->auxdata<double>("pt_vis"),
-                                 listOfParticlesToDress[i]->auxdata<double>("eta_vis"),
-                                 listOfParticlesToDress[i]->auxdata<double>("phi_vis"),
-                                 listOfParticlesToDress[i]->auxdata<double>("m_vis"));
+          else {
+            bare_part = listOfParticlesToDress[i]->p4();
+          }
+  
+          double dR = bare_part.DeltaR(phot->p4());
+          if (dR < dRmin) {
+            dRmin = dR;
+            idx = i;
+          }
+        }
+  
+        if(idx > -1) {
+          listOfDressedParticles[idx] += phot->p4();
+          dressedParticlesNPhot[idx]++;
+          if (!m_decorationName.empty()){
+            dressDec(*phot) = 1;
+          }
+        }
+      }
+  
+      //loop over particles and add decorators
+      //for (const auto& part : listOfDressedParticles) {
+      for (size_t i = 0; i < listOfParticlesToDress.size(); ++i) {
+          const xAOD::TruthParticle* part = listOfParticlesToDress[i];
+          xAOD::TruthParticle::FourMom_t& dressedVec = listOfDressedParticles[i];
+  
+        if(abs(part->pdgId())==15) {
+          decorator_pt_vis(*part)      = dressedVec.Pt();
+          decorator_eta_vis(*part)     = dressedVec.Eta();
+          decorator_phi_vis(*part)     = dressedVec.Phi();
+          decorator_m_vis(*part)       = dressedVec.M();
         }
         else {
-          bare_part = listOfParticlesToDress[i]->p4();
+          decorator_e(*part)       = dressedVec.E();
+          decorator_pt(*part)      = dressedVec.Pt();
+          decorator_eta(*part)     = dressedVec.Eta();
+          decorator_phi(*part)     = dressedVec.Phi();
         }
-
-        double dR = bare_part.DeltaR(phot->p4());
-        if (dR < dRmin) {
-          dRmin = dR;
-          idx = i;
-        }
+        decorator_nphoton(*part) = dressedParticlesNPhot[i];
       }
-
-      if(idx > -1) {
-        listOfDressedParticles[idx] += phot->p4();
-        dressedParticlesNPhot[idx]++;
-      }
-    }
-
-    //loop over particles and add decorators
-    //for (const auto& part : listOfDressedParticles) {
-    for (size_t i = 0; i < listOfParticlesToDress.size(); ++i) {
-        const xAOD::TruthParticle* part = listOfParticlesToDress[i];
-        xAOD::TruthParticle::FourMom_t& dressedVec = listOfDressedParticles[i];
-
-      if(abs(part->pdgId())==15) {
-        decorator_pt_vis(*part)      = dressedVec.Pt();
-        decorator_eta_vis(*part)     = dressedVec.Eta();
-        decorator_phi_vis(*part)     = dressedVec.Phi();
-        decorator_m_vis(*part)       = dressedVec.M();
-      }
-      else {
-        decorator_e(*part)       = dressedVec.E();
-        decorator_pt(*part)      = dressedVec.Pt();
-        decorator_eta(*part)     = dressedVec.Eta();
-        decorator_phi(*part)     = dressedVec.Phi();
-      }
-      decorator_nphoton(*part) = dressedParticlesNPhot[i];
-    }
+    } // end of the dR matching part
 
     //build the anti-kt jet list
     if (m_useAntiKt) {
@@ -220,6 +227,8 @@ StatusCode DerivationFramework::TruthDressingTool::addBranches() const
       fastjet::ClusterSequence cseq(fj_particles, jet_def);
       sorted_jets = sorted_by_pt(cseq.inclusive_jets(0));
       //associate clustered jets back to bare particles
+      std::vector<int> photon_barcodes(50);
+      photon_barcodes.clear();
       for (const auto& part : listOfParticlesToDress) {
         //loop over fastjet pseudojets and associate one with this particle by barcode
         bool found=false;
@@ -233,41 +242,55 @@ StatusCode DerivationFramework::TruthDressingTool::addBranches() const
               // to decorate leptons with the number of dressing photons found by the anti-kt algorithm?
 
               if(abs(part->pdgId())==15) {
-                decorator_pt_vis_akt(*part)      = pjItr->pt();
-                decorator_eta_vis_akt(*part)     = pjItr->pseudorapidity();
-                decorator_phi_vis_akt(*part)     = pjItr->phi_std(); //returns phi in [-pi,pi]
-                decorator_m_vis_akt(*part)       = pjItr->m();
+                decorator_pt_vis(*part)      = pjItr->pt();
+                decorator_eta_vis(*part)     = pjItr->pseudorapidity();
+                decorator_phi_vis(*part)     = pjItr->phi_std(); //returns phi in [-pi,pi]
+                decorator_m_vis(*part)       = pjItr->m();
               }
               else {
-                decorator_e_akt(*part)       = pjItr->e();
-                decorator_pt_akt(*part)      = pjItr->pt();
-                decorator_eta_akt(*part)     = pjItr->pseudorapidity();
-                decorator_phi_akt(*part)     = pjItr->phi_std(); //returns phi in [-pi,pi]
+                decorator_e(*part)       = pjItr->e();
+                decorator_pt(*part)      = pjItr->pt();
+                decorator_eta(*part)     = pjItr->pseudorapidity();
+                decorator_phi(*part)     = pjItr->phi_std(); //returns phi in [-pi,pi]
               }
               found=true;
               break;
-            }
-
-          }
+            } // Found the matching barcode
+          } // Loop over the jet constituents
+          if (found){
+            for(const auto& constit : constituents) {
+              photon_barcodes.push_back(constit.user_index());
+            } // Loop over the constituents
+          } // Found one of the key leptons in this jet
           ++pjItr;
         }
         if (!found) {
           if(abs(part->pdgId())==15) {
-            decorator_pt_vis_akt(*part)      = 0.;
-            decorator_eta_vis_akt(*part)     = 0.;
-            decorator_phi_vis_akt(*part)     = 0.;
-            decorator_m_vis_akt(*part)       = 0.;
+            decorator_pt_vis(*part)      = 0.;
+            decorator_eta_vis(*part)     = 0.;
+            decorator_phi_vis(*part)     = 0.;
+            decorator_m_vis(*part)       = 0.;
           }
           else {
-            decorator_e_akt(*part)       = 0;
-            decorator_pt_akt(*part)      = 0;
-            decorator_eta_akt(*part)     = 0;
-            decorator_phi_akt(*part)     = 0;
+            decorator_e(*part)       = 0;
+            decorator_pt(*part)      = 0;
+            decorator_eta(*part)     = 0;
+            decorator_phi(*part)     = 0;
           }
           ATH_MSG_WARNING("Bare particle not found in constituents ");
         }
       }
-    }
+      // Check if we wanted to decorate photons used for dressing
+      if (!m_decorationName.empty()){
+        //loop over photons, uniquely associate each to nearest bare particle
+        for (const auto& phot : photonsFSRList ) {
+          bool found=std::find(photon_barcodes.begin(),photon_barcodes.end(),phot->barcode())!=photon_barcodes.end();
+          if (found){
+            dressDec(*phot) = 1;
+          }
+        } // End of loop over photons
+      } // End of decoration of photons used in dressing
+    } // End of anti-kT dressing
 
     return StatusCode::SUCCESS;
 }

@@ -288,13 +288,6 @@ if not objKeyStore.isInInput( "xAOD::EventInfo"):
 # functionality : monitor memory and cpu time
 #
 
-# check dictionary all the time
-ServiceMgr.AthenaSealSvc.CheckDictionary = True
-if not rec.doCheckDictionary():
-    ServiceMgr.AthenaSealSvc.OutputLevel=WARNING
-    pass
-
-#
 #
 #now write out Transient Event Store content in POOL
 if rec.doWriteESD() or rec.doWriteAOD() or rec.doWriteRDO() or rec.doWriteTAG():

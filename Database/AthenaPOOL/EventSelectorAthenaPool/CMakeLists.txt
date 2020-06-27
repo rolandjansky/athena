@@ -39,3 +39,8 @@ atlas_add_component( EventSelectorAthenaPool
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 
+
+atlas_add_test( CondProxyProviderConfig_test
+                SCRIPT python -m EventSelectorAthenaPool.CondProxyProviderConfig
+                LOG_SELECT_PATTERN "ComponentAccumulator|^---|^CondProxyProvider" )
+

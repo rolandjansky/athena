@@ -3,5 +3,9 @@
 */
 #ifndef ATLASHEPMC_IOASCIIPARTICLES_H
 #define ATLASHEPMC_IOASCIIPARTICLES_H
+#ifdef HEPMC3
+#include "HepMC3/Version.h"
+#else
 #include "HepMC/IO_AsciiParticles.h"
+#endif
 #endif

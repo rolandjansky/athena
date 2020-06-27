@@ -42,18 +42,18 @@ namespace {
          auto & q = queries.back();
          // tables
          q.addToTableList ( "SUPER_MASTER_TABLE", "SMT" );
-         q.addToTableList ( "HLT_SETUP", "JO" );
+         q.addToTableList ( "HLT_JOBOPTIONS", "JO" );
          // bind vars
          q.extendBinding<int>("smk");
          // conditions
          q.extendCondition("SMT.SMT_ID = :smk");
-         q.extendCondition("AND JO.HST_ID=SMT.SMT_HLT_JOBOPTIONS_ID");
+         q.extendCondition("AND JO.HJO_ID=SMT.SMT_HLT_JOBOPTIONS_ID");
          // attributes
          q.extendOutput<std::string>( "SMT.SMT_NAME" );
          q.extendOutput<int>        ( "SMT.SMT_HLT_JOBOPTIONS_ID" );
-         q.extendOutput<coral::Blob>( "JO.HST_DATA" );
+         q.extendOutput<coral::Blob>( "JO.HJO_DATA" );
          // the field with the data
-         q.setDataName("JO.HST_DATA");
+         q.setDataName("JO.HJO_DATA");
       }
       return queries;
    }

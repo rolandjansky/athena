@@ -50,11 +50,11 @@ StatusCode Trk::FieldIntegralByTrackQueryTool::initialize()
   if (m_trackingVolumesSvc.retrieve().isFailure()) {
     ATH_MSG_FATAL( "Failed to retrieve Svc " << m_trackingVolumesSvc );
     return StatusCode::FAILURE;
-  } else {
+  } 
     ATH_MSG_DEBUG( "Retrieved Svc " << m_trackingVolumesSvc );
     m_caloVolume = new Trk::Volume(m_trackingVolumesSvc->volume(ITrackingVolumesSvc::MuonSpectrometerEntryLayer));
     m_indetVolume= new Trk::Volume(m_trackingVolumesSvc->volume(ITrackingVolumesSvc::CalorimeterEntryLayer));
-  }
+  
   ATH_MSG_INFO ("Successfully initialized "<<name());
   return StatusCode::SUCCESS;
 }
@@ -123,10 +123,10 @@ double Trk::FieldIntegralByTrackQueryTool::fieldIntegral(const Trk::Track& track
 		 "missing code in this tool. Will bail out...");
     return 0.0;
   }
-  else {
+  
     ATH_MSG_VERBOSE ("found starting parameters for MS field calculation at "<<
                      parameters->associatedSurface() );
-  }
+  
 
   // loop over TSOS to integrate vector Bdl
   for (DataVector<const Trk::TrackStateOnSurface>::const_iterator

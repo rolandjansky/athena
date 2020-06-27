@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: CaloScaleCluster.cxx,v 1.1 2006-07-07 04:00:06 ssnyder Exp $
 /**
  * @file  CaloScaleCluster.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -21,25 +19,8 @@ using CaloClusterCorr::interpolate;
 
 
 /**
- * @brief Constructor.
- * @param type The type of the tool.
- * @param name The name of the tool.
- * @param parent The parent algorithm of the tool.
- */
-CaloScaleCluster::CaloScaleCluster (const std::string& type,
-                                    const std::string& name,
-                                    const IInterface* parent)
-  : CaloClusterCorrectionCommon(type, name, parent)
-{ 
-  declareConstant ("correction", m_correction);
-  declareConstant ("degree",     m_degree);
-  declareConstant ("etamax",     m_etamax);
-}
-
-
-/**
  * @brief Virtual function for the correction-specific code.
- * @param ctx     The event context.
+ * @param myctx   ToolWithConstants context.
  * @param cluster The cluster to correct.
  *                It is updated in place.
  * @param elt     The detector description element corresponding
@@ -57,7 +38,7 @@ CaloScaleCluster::CaloScaleCluster (const std::string& type,
  *                @c CaloSampling::CaloSample; i.e., it has both
  *                the calorimeter region and sampling encoded.
  */
-void CaloScaleCluster::makeTheCorrection (const EventContext& /*ctx*/,
+void CaloScaleCluster::makeTheCorrection (const Context& myctx,
                                           CaloCluster* cluster,
                                           const CaloDetDescrElement* /*elt*/,
                                           float /*eta*/,
@@ -67,11 +48,13 @@ void CaloScaleCluster::makeTheCorrection (const EventContext& /*ctx*/,
                                           CaloSampling::CaloSample /*samp*/)
   const
 {
+  const CxxUtils::Array<2> correction = m_correction (myctx);
+  
   float adj_aeta = std::abs (adj_eta);
   float fac;
-  if (std::abs (adj_eta) > m_etamax)
-    fac = m_correction[m_correction.size()-1][1];
+  if (std::abs (adj_eta) > m_etamax (myctx))
+    fac = correction[correction.size()-1][1];
   else
-    fac = interpolate (m_correction, adj_aeta, m_degree);
+    fac = interpolate (correction, adj_aeta, m_degree (myctx));
   cluster->setE (cluster->e() / fac);
 }

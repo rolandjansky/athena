@@ -27,6 +27,7 @@ namespace Acts {
 }
 
 class IActsTrackingGeometrySvc;
+class IActsMaterialJsonWriterTool;
 
 class ActsWriteTrackingGeometry : public AthReentrantAlgorithm {
 public:
@@ -40,6 +41,7 @@ private:
   ToolHandle<ActsTrackingGeometryTool> m_trackingGeometryTool{this, "TrackingGeometryTool", "ActsTrackingGeometryTool"};
 
   ToolHandle<ActsObjWriterTool> m_objWriterTool{this, "ObjWriterTool", "ActsObjWriterTool"};
+  ToolHandle<IActsMaterialJsonWriterTool> m_materialJsonWriterTool{this, "MaterialJsonWriterTool", "ActsMaterialJsonWriterTool"};
 
 };
 

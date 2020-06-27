@@ -95,6 +95,10 @@ GenerateMenu.overwriteSignaturesWith(ElectronOnly)
 #-----------------------------------------------------------
 include("RecExCommon/RecExCommon_topOptions.py")
 #-----------------------------------------------------------
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+if not hasattr( condSeq, "LumiBlockMuWriter" ):
+    include ("LumiBlockComps/LumiBlockMuWriter_jobOptions.py")
 
 #-----------------------------------------------------------
 include("TriggerTest/TriggerTestCommon.py")

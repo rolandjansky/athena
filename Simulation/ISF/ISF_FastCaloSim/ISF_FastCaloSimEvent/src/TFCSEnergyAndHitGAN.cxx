@@ -64,7 +64,7 @@ unsigned int TFCSEnergyAndHitGAN::get_nr_of_init(unsigned int bin) const
 
 void TFCSEnergyAndHitGAN::set_nr_of_init(unsigned int bin,unsigned int ninit)
 {
-  if(bin<=m_bin_ninit.size()) {
+  if(bin>=m_bin_ninit.size()) {
     m_bin_ninit.resize(bin+1,0);
     m_bin_ninit.shrink_to_fit();
   }
@@ -164,8 +164,13 @@ void TFCSEnergyAndHitGAN::GetBinning(int pid,int etaMid,std::string FastCaloGANI
                      
                      std::string name = "hist_pid_" + std::to_string(nodePid) + "_etaSliceNumber_" + std::to_string(EtaMaxList.size()) + "_layer_" + std::to_string(layer);
                      int xBins = edges.size()-1;
-                     if (xBins == 0) xBins = 1; //remove warning
+                     if (xBins == 0) {
+                       xBins = 1; //remove warning
+                       edges.push_back(0);
+                       edges.push_back(1);
+                     }  
                      binsInLayer[layer] = TH2D(name.c_str(), name.c_str(), xBins, &edges[0], binsInAlpha, -TMath::Pi(), TMath::Pi());
+                     binsInLayer[layer].SetDirectory(0);
                   }
                }
                

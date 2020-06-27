@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -18,6 +18,8 @@
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
 
 #include "InDetIdentifier/SCT_ID.h"
+
+#include <memory>
   
 class StoreGateSvc;
 class Identifier;
@@ -158,10 +160,10 @@ namespace InDetDD {
     //@{
     std::vector<PVLink>                                         m_volume;
     SiDetectorElementCollection                                 m_elementCollection;
-    typedef std::map<Identifier, ExtendedAlignableTransform*>   AlignableTransformMap;
+    typedef std::map<Identifier, std::unique_ptr<ExtendedAlignableTransform>> AlignableTransformMap;
     std::vector<AlignableTransformMap>                          m_higherAlignableTransforms;
-    std::vector<ExtendedAlignableTransform*>                    m_alignableTransforms;
-    std::vector<ExtendedAlignableTransform*>                    m_moduleAlignableTransforms;
+    std::vector<std::unique_ptr<ExtendedAlignableTransform>>    m_alignableTransforms;
+    std::vector<std::unique_ptr<ExtendedAlignableTransform>>    m_moduleAlignableTransforms;
     const SCT_ID*                                               m_idHelper;
       
     /**

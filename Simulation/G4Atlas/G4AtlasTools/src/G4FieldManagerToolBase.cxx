@@ -7,8 +7,12 @@
 
 // CLHEP includes
 #include "CLHEP/Units/SystemOfUnits.h"
-using CLHEP::perThousand;
-using CLHEP::perMillion;
+
+// Some geant headers erroneously expect these to be in the global namespace.
+// Don't use using, so as not to trigger warnings from the namespace
+// static checker.
+static constexpr double perThousand = CLHEP::perThousand;
+static constexpr double perMillion  = CLHEP::perMillion;
 
 // Geant4 steppers
 #include "G4AtlasRK4.hh"

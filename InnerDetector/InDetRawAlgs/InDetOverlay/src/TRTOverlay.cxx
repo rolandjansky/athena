@@ -147,15 +147,13 @@ StatusCode TRTOverlay::overlayContainer(const TRT_RDO_Container *bkgContainer,
                                         TRT_RDO_Container *outputContainer,
                                         const InDetSimDataCollection *signalSDOCollection) const
 {
-  // Get all the hashes for the signal container
-  const std::vector<IdentifierHash> signalHashes = signalContainer->GetAllCurrentHashes();
 
   // There are some use cases where background is empty
   if (!bkgContainer) {
     // Only loop through the signal collections and copy them over
-    for (const IdentifierHash &hashId : signalHashes) {
+    for (const auto &[hashId, ptr] : signalContainer->GetAllHashPtrPair()) {
       // Copy the signal collection
-      std::unique_ptr<TRT_RDO_Collection> signalCollection = Overlay::copyCollection(hashId, signalContainer->indexFindPtr(hashId));
+      std::unique_ptr<TRT_RDO_Collection> signalCollection = Overlay::copyCollection(hashId, ptr);
 
       if (outputContainer->addCollection(signalCollection.get(), hashId).isFailure()) {
         ATH_MSG_ERROR("Adding signal Collection with hashId " << hashId << " failed");
@@ -176,21 +174,21 @@ StatusCode TRTOverlay::overlayContainer(const TRT_RDO_Container *bkgContainer,
   // Retrieve the occupancy map
   std::map<int, double> occupancyMap = m_TRT_LocalOccupancyTool->getDetectorOccupancy(bkgContainer);
 
-  // Get all the hashes for the background container
-  const std::vector<IdentifierHash> bkgHashes = bkgContainer->GetAllCurrentHashes();
 
   // The MC signal container should typically be smaller than bkgContainer,
   // because the latter contains all the noise, minimum bias and pile up.
   // Thus we firstly iterate over signal hashes and store them in a map.
-  std::map<IdentifierHash, bool> overlapMap;
-  for (const IdentifierHash &hashId : signalHashes) {
-    overlapMap.emplace(hashId, false);
+  std::vector < std::pair<IdentifierHash, bool> > overlapMap;
+  overlapMap.reserve(signalContainer->numberOfCollections());
+  for (const auto &[hashId, ptr] : signalContainer->GetAllHashPtrPair()) {
+    overlapMap.emplace_back(hashId, false);
   }
 
   // Now loop through the background hashes and copy unique ones over
-  for (const IdentifierHash &hashId : bkgHashes) {
-    auto search = overlapMap.find(hashId);
-    if (search == overlapMap.end()) {
+  for (const auto &[hashId, ptr] : bkgContainer->GetAllHashPtrPair()) {
+    auto search = std::lower_bound( overlapMap.begin(), overlapMap.end(), hashId,
+     [](const std::pair<IdentifierHash, bool> &lhs,  IdentifierHash rhs) -> bool { return lhs.first < rhs; } );
+    if (search == overlapMap.end() || search->first != hashId) {
       // Copy the background collection
       std::unique_ptr<TRT_RDO_Collection> bkgCollection = Overlay::copyCollection(hashId, bkgContainer->indexFindPtr(hashId));
 

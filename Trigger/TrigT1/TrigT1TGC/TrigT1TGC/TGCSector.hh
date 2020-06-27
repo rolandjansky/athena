@@ -30,7 +30,7 @@
 
 #include "TrigT1TGC/TGCSectorLogic.hh"
 #include "TrigT1TGC/TGCTMDB.h"
-
+#include "TrigT1TGC/TGCNSW.h"
 
 namespace LVL1TGCTrigger {
 
@@ -44,7 +44,9 @@ public:
 	    TGCRegionType type, 
 	    TGCForwardBackwardType forwardBackward, 
 	    const TGCDatabaseManager* db,
-	    const TGCTMDB*            tmdb);
+	    const TGCTMDB*            tmdb,
+	    std::shared_ptr<const TGCNSW>             nsw
+	    );
 
   TGCSector(TGCArguments*);
 
@@ -81,6 +83,7 @@ public:
 
 private:
   const TGCTMDB* getTMDB() const { return m_TMDB; }
+  std::shared_ptr<const TGCNSW>   getNSW() const{ return m_NSW; }
   
   int getPatchPanelType(TGCSignalType signal, int layer) const;
 
@@ -89,6 +92,7 @@ private:
   void setRPhiMap(const TGCRPhiCoincidenceMap* map, 
 		  const TGCEIFICoincidenceMap* mapI=0);
   void setTileMuMap(const TGCTileMuCoincidenceMap* map);
+  void setNSWMap(std::shared_ptr<const TGCNSWCoincidenceMap> mapNSW);
   void connectPPToSB(const TGCConnectionPPToSB* connection);
   void connectSBToHPB(const TGCConnectionSBToHPB* connection);
   void connectHPBToSL(const TGCConnectionHPBToSL* connection);
@@ -122,6 +126,7 @@ private:
 
   TGCSectorLogic* m_SL;
   const TGCTMDB* m_TMDB;
+  std::shared_ptr<const TGCNSW>  m_NSW;
 
   TGCArguments* m_tgcArgs;
 

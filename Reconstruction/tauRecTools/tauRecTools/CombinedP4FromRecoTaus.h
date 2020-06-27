@@ -27,13 +27,9 @@ public:
   CombinedP4FromRecoTaus(const std::string& name="CombinedP4FromRecoTaus");  
     
   //function where variables are computed and decorated
-  StatusCode initialize() override;
+  virtual StatusCode initialize() override;
         
-  StatusCode execute(xAOD::TauJet& xTau) override
-  {
-    return static_cast<const CombinedP4FromRecoTaus*>(this)->execute(xTau);
-  } 
-  StatusCode execute(xAOD::TauJet& xTau) const;
+  virtual StatusCode execute(xAOD::TauJet& xTau) const override;
 
   bool getUseCaloPtFlag(const xAOD::TauJet* tau) const;
 

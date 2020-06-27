@@ -13,7 +13,6 @@
 #include "CumulativeHistogramFiller1D.h"
 #include "HistogramFillerRebinable.h"
 #include "VecHistogramFiller1D.h"
-#include "VecHistogramFiller1DWithOverflows.h"
 #include "HistogramFillerProfile.h"
 #include "HistogramFiller2D.h"
 #include "HistogramFiller2DProfile.h"
@@ -31,9 +30,7 @@ HistogramFiller* HistogramFillerFactory::create(const HistogramDef& def) {
       return new CumulativeHistogramFiller1D(def, histogramProvider);
     } else if (def.kAddBinsDynamically || def.kRebinAxes) {
       return new HistogramFillerRebinable1D(def, histogramProvider);
-    } else if (def.kVecUO) {
-      return new VecHistogramFiller1DWithOverflows(def, histogramProvider);
-    } else if (def.kVec) {
+    } else if (def.kVec || def.kVecUO) {
       return new VecHistogramFiller1D(def, histogramProvider);
     } else {
       return new HistogramFiller1D(def, histogramProvider);

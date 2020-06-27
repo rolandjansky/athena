@@ -2,18 +2,14 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/* *******************************************************************************
-      ForwardGsfFitter.cxx  -  description
-      ------------------------------------
-begin                : Wednesday 9th March 2005
-author               : amorley, atkinson
-email                : Anthony.Morley@cern.ch, Tom.Atkinson@cern.ch
-decription           : Implementation code for ForwardGsfFitter class
-**********************************************************************************
-*/
+/**
+ * @file   ForwardGsfFitter.cxx
+ * @date   Wednesday 9th March 2005
+ * @author Tom Athkinson, Anthony Morley, Christos Anastopoulos
+ * @brief  Implementation code for ForwardGsfFitter class
+ */
 
 #include "TrkGaussianSumFilter/ForwardGsfFitter.h"
-
 #include "TrkMultiComponentStateOnSurface/MultiComponentStateOnSurface.h"
 
 #include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
@@ -94,32 +90,11 @@ Trk::ForwardGsfFitter::configureTools(
 
 std::unique_ptr<Trk::ForwardTrajectory>
 Trk::ForwardGsfFitter::fitPRD(
+  const EventContext& ctx,
   const Trk::PrepRawDataSet& inputPrepRawDataSet,
   const Trk::TrackParameters& estimatedTrackParametersNearOrigin,
   const Trk::ParticleHypothesis particleHypothesis) const
 {
-
-  // Check that the updator is instansiated
-  if (!m_updator) {
-    ATH_MSG_ERROR("The measurement updator is not configured... Exiting!");
-    return nullptr;
-  }
-
-  if (!m_extrapolator) {
-    ATH_MSG_ERROR("The extrapolator is not configured... Exiting!");
-    return nullptr;
-  }
-
-  if (!m_rioOnTrackCreator) {
-    ATH_MSG_ERROR("The RIO_OnTrackCreator is not configured for use with the "
-                  "PrepRawData set... Exiting!");
-    return nullptr;
-  }
-
-  if (inputPrepRawDataSet.empty()) {
-    ATH_MSG_ERROR("Input PrepRawDataSet is empty... Exiting!");
-    return nullptr;
-  }
 
   // Configure for forwards filtering material effects overide
   Trk::ParticleHypothesis configuredParticleHypothesis;
@@ -173,6 +148,7 @@ Trk::ForwardGsfFitter::fitPRD(
     // Every valid step the ForwardTrajectory object passed to the
     // stepForwardFit method is updated
     bool stepIsValid = stepForwardFit(
+      ctx,
       forwardTrajectory.get(),
       *prepRawData,
       nullptr,
@@ -195,6 +171,7 @@ Trk::ForwardGsfFitter::fitPRD(
 
 std::unique_ptr<Trk::ForwardTrajectory>
 Trk::ForwardGsfFitter::fitMeasurements(
+  const EventContext& ctx,
   const Trk::MeasurementSet& inputMeasurementSet,
   const Trk::TrackParameters& estimatedTrackParametersNearOrigin,
   const Trk::ParticleHypothesis particleHypothesis) const
@@ -252,7 +229,8 @@ Trk::ForwardGsfFitter::fitMeasurements(
 
   for (; measurement != inputMeasurementSet.end(); ++measurement) {
 
-    bool stepIsValid = stepForwardFit(forwardTrajectory.get(),
+    bool stepIsValid = stepForwardFit(ctx,
+                                      forwardTrajectory.get(),
                                       nullptr,
                                       *measurement,
                                       (*measurement)->associatedSurface(),
@@ -273,6 +251,7 @@ Trk::ForwardGsfFitter::fitMeasurements(
 
 bool
 Trk::ForwardGsfFitter::stepForwardFit(
+  const EventContext& ctx,
   ForwardTrajectory* forwardTrajectory,
   const Trk::PrepRawData* originalPrepRawData,
   const Trk::MeasurementBase* originalMeasurement,
@@ -296,7 +275,7 @@ Trk::ForwardGsfFitter::stepForwardFit(
   // Extrapolate multi-component state to the next measurement surface
   // =================================================================
   Trk::MultiComponentState extrapolatedState =
-    m_extrapolator->extrapolate(Gaudi::Hive::currentContext(),
+    m_extrapolator->extrapolate(ctx,
                                 updatedState,
                                 surface,
                                 Trk::alongMomentum,

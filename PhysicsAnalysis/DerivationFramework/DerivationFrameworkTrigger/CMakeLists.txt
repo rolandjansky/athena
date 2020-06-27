@@ -13,7 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigCost/EnhancedBiasWeighter
                           Trigger/TrigAnalysis/TrigAnalysisInterfaces
                           Trigger/TrigAnalysis/TriggerMatchingTool
-                          Trigger/TrigDecisionTool/TrigDecisionTool
+                          Trigger/TrigAnalysis/TrigDecisionTool
                           Trigger/TrigEvent/TrigNavStructure
                           Event/xAOD/xAODBase
                           Event/xAOD/xAODCore

@@ -167,9 +167,10 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(
   }
 
   // Calculate the weight of each component after the measurement
-  PosteriorWeightsCalculator pwc;
   std::vector<Trk::ComponentParameters> stateWithNewWeights =
-    pwc.weights(std::move(stateBeforeUpdate), measurement);
+    PosteriorWeightsCalculator::weights(std::move(stateBeforeUpdate),
+                                        measurement);
+  
   if (stateWithNewWeights.empty()) {
     ATH_MSG_DEBUG("Cacluation of state posterior weights failed... Exiting!");
     return {};
@@ -293,9 +294,9 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(
   }
 
   // Calculate the weight of each component after the measurement
-  PosteriorWeightsCalculator pwc;
   std::vector<Trk::ComponentParameters> stateWithNewWeights =
-    pwc.weights(std::move(stateBeforeUpdate), measurement);
+    PosteriorWeightsCalculator::weights(std::move(stateBeforeUpdate),
+                                        measurement);
 
   if (stateWithNewWeights.empty()) {
     ATH_MSG_DEBUG("Cacluation of state posterior weights failed... Exiting!");

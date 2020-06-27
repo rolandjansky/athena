@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -24,23 +24,6 @@ PURPOSE:  Apply specif calibration for the energy lost in front
 using xAOD::CaloCluster;
 using CLHEP::TeV;
 
-// -------------------------------------------------------------
-// Constructor
-// -------------------------------------------------------------
-
-CaloSwDeadOTX_ps::CaloSwDeadOTX_ps
-  (const std::string& type,
-   const std::string& name,
-   const IInterface* parent)
-   : CaloClusterCorrectionCommon(type, name, parent) 
-{
-   declareConstant("correction"      , m_correction);
-   declareConstant("sampling_depth"  , m_sampling_depth);
-   declareConstant("eta_start_crack" , m_eta_start_crack);
-   declareConstant("eta_end_crack"   , m_eta_end_crack);
-   declareConstant("etamax"          , m_etamax);
-   declareConstant("use_raw_eta"     , m_use_raw_eta);
-}
 
 StatusCode CaloSwDeadOTX_ps::initialize()
 {
@@ -65,7 +48,7 @@ StatusCode CaloSwDeadOTX_ps::initialize()
 }
 
 void CaloSwDeadOTX_ps::makeTheCorrection
-   (const EventContext& ctx,
+   (const Context& myctx,
     CaloCluster* cluster,
     const CaloDetDescrElement* /*elt*/,
     float eta,
@@ -74,36 +57,37 @@ void CaloSwDeadOTX_ps::makeTheCorrection
     float /*adj_phi*/,
     CaloSampling::CaloSample /*samp*/) const
 {
-
 // ??? In principle, we should use adj_eta for the interpolation
 //     and range checks.  However, the v2 corrections were derived
 //     using regular eta instead.
 
    //Get affected info for this event
-   SG::ReadCondHandle<CaloAffectedRegionInfoVec> affHdl{m_affKey,ctx};
+   SG::ReadCondHandle<CaloAffectedRegionInfoVec> affHdl{m_affKey, myctx.ctx()};
    const CaloAffectedRegionInfoVec* affCont=*affHdl;
    if(!affCont) {
      ATH_MSG_WARNING("Do not have affected regions info, is this expected ?");
    }
 
    float the_aeta;
-   if (m_use_raw_eta)
+   if (m_use_raw_eta(myctx))
       the_aeta = std::abs (adj_eta);
    else
       the_aeta = std::abs (eta);
 	
-   if (the_aeta >= m_etamax) return;
+  const float etamax = m_etamax (myctx);
+   if (the_aeta >= etamax) return;
 	
    int si;
-   if (the_aeta < m_eta_start_crack)
+   if (the_aeta < m_eta_start_crack(myctx))
       si = 0;
-   else if (the_aeta > m_eta_end_crack)
+   else if (the_aeta > m_eta_end_crack(myctx))
       si = 1;
    else {
    // No corrections are applied for the crack region.
       return;
    } 
 
+   const CxxUtils::Array<3> correction = m_correction (myctx);
 
    ATH_MSG_DEBUG(  "************************************************************************************************" << endmsg);
    ATH_MSG_DEBUG(  " USING CALIBHITS CALIBRATION : apply correction for dead OTX in the presampler" << endmsg);
@@ -153,12 +137,12 @@ void CaloSwDeadOTX_ps::makeTheCorrection
 // -------------------------------------------------------------
 
 // Determine the eta bin for the correction
-   int ibin = (static_cast<int> (the_aeta / m_etamax * 100)) ;  
+   int ibin = (static_cast<int> (the_aeta / etamax * 100)) ;  
 
 // Load the correction coefficients 
-   CaloRec::Array<1> froffset = m_correction[0][ibin];       
-   CaloRec::Array<1> frslope  = m_correction[1][ibin];
-   CaloRec::Array<1> sec      = m_correction[2][ibin];   
+   CaloRec::Array<1> froffset = correction[0][ibin];       
+   CaloRec::Array<1> frslope  = correction[1][ibin];
+   CaloRec::Array<1> sec      = correction[2][ibin];   
 
 // -------------------------------------------------------------
 // Compute longitudinal barycenter: this is a very old and approximate
@@ -169,7 +153,7 @@ void CaloSwDeadOTX_ps::makeTheCorrection
    double shower_lbary_raw =0;
    for (int nl = 0 ; nl< 4 ; nl++){
       raw_energy +=  cluster->eSample (samps[si][nl]);
-      shower_lbary_raw += (m_sampling_depth[ibin][nl+1] * cluster->eSample (samps[si][nl])) ;
+      shower_lbary_raw += (m_sampling_depth(myctx)[ibin][nl+1] * cluster->eSample (samps[si][nl])) ;
    }
 	       
    if (raw_energy == 0) return;

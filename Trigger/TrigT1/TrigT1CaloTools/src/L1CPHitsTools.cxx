@@ -17,7 +17,7 @@
 #include "TrigT1Interfaces/CoordinateRange.h"
 #include "TrigT1Interfaces/CPRoIDecoder.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
-#include "TrigT1CaloTools/L1CPHitsTools.h"
+#include "L1CPHitsTools.h"
 
 namespace LVL1 {
 

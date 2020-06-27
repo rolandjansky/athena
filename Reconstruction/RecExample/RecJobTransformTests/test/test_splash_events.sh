@@ -1,6 +1,7 @@
 #!/bin/sh
 #
 # art-description: Reco_tf runs on splash events with all streams
+# art-athena-mt: 4
 # art-type: grid
 # art-include: 21.0/Athena
 # art-include: 21.0-TrigMC/Athena

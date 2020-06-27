@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDSVC_MDT_DQCONDITIONSSVC_H
@@ -10,8 +10,6 @@
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/IInterface.h"
 #include "AthenaBaseComps/AthService.h"
-
-//#include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonCondSvc/MuonHierarchy.h"
 #include "MuonCondInterface/IMDT_DQConditionsSvc.h"
 #include "MuonCondInterface/IMDT_DQConditionsTool.h"
@@ -21,7 +19,6 @@
 class IMDT_DQConditionsTool;
 class IIOVSvc;
 class Identifier;
-
 
 class MDT_DQConditionsSvc : public AthService, virtual public IMDT_DQConditionsSvc {
 friend class SvcFactory<MDT_DQConditionsSvc>;    

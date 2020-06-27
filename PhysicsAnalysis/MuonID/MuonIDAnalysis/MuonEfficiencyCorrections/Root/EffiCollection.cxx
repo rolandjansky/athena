@@ -8,8 +8,12 @@
 #include <MuonEfficiencyCorrections/UtilFunctions.h>
 #include <TTree.h>
 namespace CP {
-    const std::vector<std::string> ToRemove { "GeV", "MeV", "[", "]", "{", "}", "(", ")", "#", " " };
-    const std::vector<std::string> ToReplace { "-", "." };
+    namespace {
+        static const std::vector<std::string> ToRemove { "GeV", "MeV", "[", "]", "{", "}", "(", ")", "#", " " };
+        typedef std::pair<std::string,std::string> stringpair;
+        static const std::vector<stringpair> ToReplace { stringpair("-","minus"), stringpair(".","p")};
+        
+    }
     EffiCollection::EffiCollection(const MuonEfficiencyScaleFactors& ref_tool) :
             m_ref_tool(ref_tool),
             m_central_eff(),
@@ -100,16 +104,17 @@ namespace CP {
         /// bin numbers
         unsigned int n = m_central_eff->nBins();
         std::function<void (CollectionContainer*)> assign_mapping =  [this, &n](CollectionContainer* container){
-                if (container != m_central_eff.get()){
+                if (container != m_central_eff.get() && container->separateBinSyst()){
                     container->SetGlobalOffSet(n);
-                     n += container->nBins();
+                    n += container->nBins();
                 };
         };
         assign_mapping(m_calo_eff.get());
         assign_mapping(m_calo_eff.get());
-        assign_mapping(m_forward_eff.get());
         assign_mapping(m_lowpt_central_eff.get());
         assign_mapping(m_lowpt_calo_eff.get());
+     
+        assign_mapping(m_forward_eff.get());
        
         /// Systematic constructor has been called. We can now assemble
         /// the systematic variations
@@ -125,9 +130,9 @@ namespace CP {
                     
                 std::shared_ptr<CollectionContainer> container = retrieveContainer(file_type);
                 if (container->isNominal()) continue;
-                if (container->seperateBinSyst()){
+                if (container->separateBinSyst()){
                     /// Let the world implode... Yeaha register foreach bin
-                    /// a systematic variation
+                    /// a systematic variation                    
                     for (unsigned int b = container->nBins() - 1; b > 0  ; --b){
                         unsigned int bin = b + container->globalOffSet();
                         if (container->isOverFlowBin(bin)) continue;
@@ -222,8 +227,8 @@ namespace CP {
             for (const std::string& R : ToRemove) {
                 BinName = ReplaceExpInString(BinName, R, "");
             }
-            for (const std::string& R : ToReplace) {
-                BinName = ReplaceExpInString(BinName, R, "_");
+            for (const stringpair& R : ToReplace) {
+                BinName = ReplaceExpInString(BinName, R.first, R.second);
             }
             return BinName;
         }
@@ -404,9 +409,9 @@ namespace CP {
         if (m_SF.empty()) return false;
         return (*m_SF.begin())->IsUpVariation();        
     }
-    bool CollectionContainer::seperateBinSyst() const {
+    bool CollectionContainer::separateBinSyst() const {
         if (m_SF.empty()) return false;
-        return (*m_SF.begin())->SeperateSystBins();
+        return (*m_SF.begin())->separateBinSyst();
     }
     std::string CollectionContainer::sysname() const{
         if (m_SF.empty()) return "UNKNOWN SYST";

@@ -257,6 +257,7 @@ void checkit (const CondCont<T>& cc_rl,
   const T* t = nullptr;
   assert (cc_rl.find (runlbn (10, 17), t));
   assert (t == ptrs[0]);
+  assert (cc_rl.find (runlbn (10, 17)) == t);
 
   t = nullptr;
   assert (cc_rl.find (runlbn (100, 200), t));
@@ -271,6 +272,7 @@ void checkit (const CondCont<T>& cc_rl,
 
   assert (!cc_rl.find (runlbn (15, 17), t));
   assert (!cc_ts.find (timestamp (999), t));
+  assert (cc_rl.find (runlbn (15, 17)) == nullptr);
 
   assert (cc_rl.range (runlbn (100, 200), r));
   assert (r == r2);
@@ -535,10 +537,12 @@ void test4 (TestRCUSvc& rcusvc)
   const B* obj = nullptr;
   assert (!cc.find (runlbn(1, 10), obj, &range));
   assert (!cc.find (timestamp(110), obj, &range));
+  assert (cc.find (runlbn(1, 10)) == nullptr);
 
   assert (cc.find (mixed(1, 12, 3), obj, &range));
   assert (obj->m_x == 2);
   assert (*range == EventIDRange (mixed(1, 10,   2),   mixed(1, 20,   4.5)));
+  assert (cc.find (mixed(1, 12, 3)) == obj);
 
   assert (cc.find (mixed(1, 35, 25), obj, &range));
   assert (obj->m_x == 3);

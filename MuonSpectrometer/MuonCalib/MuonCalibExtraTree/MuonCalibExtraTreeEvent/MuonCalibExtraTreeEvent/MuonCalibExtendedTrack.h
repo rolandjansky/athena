@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCALIBEXTENDEDTRACK_H
@@ -11,7 +11,8 @@
 #include "MuonCalibExtraTreeEvent/MuonCalibTrackSummary.h"
 #include "MuonCalibExtraTreeEvent/MuonCalibRawHitAssociationMap.h"
 #include "MuonCalibExtraTreeEvent/MuonCalibExtendedTrackOverlap.h"
-
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
 #include <string>
@@ -273,11 +274,14 @@ namespace MuonCalib {
     for( ;it!=it_end;++it ){
       if( idAuthors.count((*it)->author()) ) return true;
       if( (*it)->author() == 140 ) {
-	const MuonCalibExtendedTrack* mbTrack = (*it)->getAssociatedTrack(100);
-	if( mbTrack ){
-	  if( mbTrack->ndof() != (*it)->ndof() ) return true;
-	  else std::cout << " STACO track without ID " << std::endl;
-	}
+        const MuonCalibExtendedTrack* mbTrack = (*it)->getAssociatedTrack(100);
+        if( mbTrack ){
+          if( mbTrack->ndof() != (*it)->ndof() ) return true;
+          else {
+            MsgStream log(Athena::getMessageSvc(),"MuonCalibExtendedTrack");
+            log<<MSG::WARNING<<"STACO track without IDn"<<endmsg;
+          }
+        }
       }
     }
     return false;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGOUTPUTHANDLING_HLTRESULTMTMAKER_H
@@ -48,10 +48,15 @@ private:
     this, "HLTResultWHKey", "HLTResultMT",
     "Key of the output HLTResultMT object"
   };
+  /// Tool creating stream tags (defines if event is accepted)
+  ToolHandle<HLTResultMTMakerTool> m_streamTagMaker {
+    this, "StreamTagMaker", "",
+    "Tool creating stream tags (defines if event is accepted)"
+  };
   /// Tools filling the HLTResultMT object
   ToolHandleArray<HLTResultMTMakerTool> m_makerTools {
     this, "MakerTools", {},
-    "Set of tools that fill content of the HLTResultMT"
+    "Set of additional tools that fill content of the HLTResultMT"
   };
   /// Monitoring tool
   ToolHandle<GenericMonitoringTool> m_monTool {

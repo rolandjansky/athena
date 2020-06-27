@@ -1,0 +1,117 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef TrkAmbiguityProcessor_AmbiCounter_icc
+#define TrkAmbiguityProcessor_AmbiCounter_icc
+#include <array>
+#include <vector>
+#include <string>
+#include "TrkTrack/Track.h"
+
+template<class EnumType>
+class AmbiCounter {
+public:
+  using Categories = EnumType;
+  enum RegionIndex {iAll = 0, iBarrel = 1, iTransi = 2, iEndcap = 3, iDBM = 4, nRegions=5, iForwrd = 4};
+  enum GlobalCounterIndices {
+    nEvents,
+    nInvalidTracks,
+    nTracksWithoutParam,
+    nGlobalCounters,
+  };
+  //
+  AmbiCounter(const std::vector<float> &eta_bounds): m_etaBounds(eta_bounds){
+    //nop
+  }
+  
+  //convert Category to array index
+  size_t 
+  idx(const Categories & categoryIndex) const{
+    return static_cast<size_t>(categoryIndex);
+  }
+  
+  //increment event count
+  void 
+  newEvent(){
+    ++m_globalCounter[nEvents];
+  }
+  
+  //return number of events
+  int 
+  numberOfEvents() const{
+    return m_globalCounter[nEvents];
+  }
+  // increment one bin
+  void 
+  increment(Categories regionIdx, unsigned int etaBinIdx) {
+    if (etaBinIdx>=nRegions) return;
+    if (regionIdx<Categories::kNCounter && etaBinIdx < m_counter[idx(regionIdx)].size()) {
+      ++m_counter[idx(regionIdx)][etaBinIdx];
+    } else {  throw std::range_error("out of range"); }
+    
+  }
+  //
+  AmbiCounter<EnumType> & operator +=(const AmbiCounter<EnumType> &a) {
+  for (unsigned int i=0; i<nGlobalCounters; ++i) {
+       m_globalCounter[i]+= a.m_globalCounter[i];
+  }
+  for (size_t regionIdx=0; regionIdx < idx(Categories::kNCounter); ++regionIdx) {
+     for (unsigned int etaBinIdx=0; etaBinIdx < a.m_counter[regionIdx].size(); ++etaBinIdx) {
+        m_counter[regionIdx][etaBinIdx] += a.m_counter[regionIdx][etaBinIdx];
+     }
+  }
+  return *this;
+}
+  //
+  void incrementCounterByRegion(Categories regionIdx,const Trk::Track* track, bool updateAll=true){
+   if (updateAll) increment(regionIdx,iAll);
+   // test
+   if (!track) {
+      ++m_globalCounter[nEvents];
+      return;
+   }
+   // use first parameter
+   if (!track->trackParameters()) {
+      ++m_globalCounter[nTracksWithoutParam];
+   } else {
+      std::array<int, nRegions> &nTracks = m_counter[idx(regionIdx)];
+      // @TODO make sure that list of track parameters is not empty
+      const double absEta = std::abs(track->trackParameters()->front()->eta());
+      ++nTracks[etaBin(absEta)];
+    }
+  }
+  //
+  std::string 
+  dumpRegions(const std::string & head,Categories regionIdx, const int iw =9) const {
+    std::stringstream out;
+    out << head;
+    for (unsigned int etaBinIdx=0; etaBinIdx < nRegions; ++etaBinIdx) {
+       assert( etaBinIdx < m_counter[idx(regionIdx)].size() );
+       out << std::setiosflags(std::ios::dec) << std::setw(iw) << m_counter[idx(regionIdx)][etaBinIdx];
+    }
+    out << "\n";
+    return out.str();
+  }
+  //
+  int 
+  globalCount(GlobalCounterIndices i) const{
+    return m_globalCounter[i]; 
+  }
+  
+private:
+  std::array<std::array<int, nRegions>,static_cast<size_t>(Categories::kNCounter)> m_counter{};
+  std::array<int,nGlobalCounters>                      m_globalCounter{};
+  const std::vector<float>  &m_etaBounds;           //!< eta intervals for internal monitoring
+  size_t 
+  etaBin(const double val){
+    size_t regionIdx=1; 
+    //eta *must be* in ascending order in the m_etaBounds vector
+    for (;regionIdx< nRegions; ++regionIdx){
+      if (val < m_etaBounds[regionIdx-1]) break;
+    }
+    return regionIdx;
+  }
+};
+
+#endif

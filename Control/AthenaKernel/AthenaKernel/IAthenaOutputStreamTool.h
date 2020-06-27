@@ -85,7 +85,7 @@ public:
     
     /// Commit the output stream after having streamed out objects
     ///   Must commitOutput AFTER streaming
-    virtual StatusCode commitOutput() = 0;
+    virtual StatusCode commitOutput(bool doCommit = false) = 0;
 
     /// Finalize the output stream after the last commit, e.g. in
     /// finalize

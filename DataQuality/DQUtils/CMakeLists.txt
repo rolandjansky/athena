@@ -39,10 +39,7 @@ atlas_add_dictionary( DQUtilsDict
                       LINK_LIBRARIES ${ORACLE_LIBRARIES} ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${Python_LIBRARIES} ${CORAL_LIBRARIES} CoraCool DQUtils )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py python/ext python/sugar )
-atlas_install_scripts( share/count_filled_lbs.py share/dqu_grldiff.py share/dqu_lumi.py share/dqu_grl_extract_period.py share/dqu_dump_periods.py )
+atlas_install_python_modules( python/*.py python/ext python/sugar
+   POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-select E11,E402,W1 --extend-ignore E731 )
 
-# Code quality check
-atlas_add_test( flake8
-   SCRIPT flake8 --select=ATL,E11,E402,E71,E72,E9,W1,W6,F ${CMAKE_CURRENT_SOURCE_DIR}/python/
-   POST_EXEC_SCRIPT nopost.sh )
+atlas_install_scripts( share/count_filled_lbs.py share/dqu_grldiff.py share/dqu_lumi.py share/dqu_grl_extract_period.py share/dqu_dump_periods.py )

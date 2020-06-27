@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARMONTOOLS_LARRAWCHANNELMONTOOL_H
@@ -20,6 +20,7 @@
 #include "CaloInterface/ICaloNoiseTool.h"
 #include "LArCabling/LArCablingLegacyService.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
+#include "LArRawEvent/LArRawChannelContainer.h"
 
 // --- boost ---
 #include <boost/shared_ptr.hpp>
@@ -126,7 +127,8 @@ class LArRawChannelMonTool: public ManagedMonitorToolBase
 
   // --- Naming Conventions ---
   std::string m_data_name_base;
-  std::string m_LArRawChannel_container_key;
+  SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey{this, "EventInfoKey", "EventInfo"};
+  SG::ReadHandleKey<LArRawChannelContainer> m_LArRawChannel_container_key{this, "LArRawChannelContainerKey", "LArRawChannels"};
 
   // --- Monitoring Controls ---
   std::vector<double>      m_occupancy_thresholds;

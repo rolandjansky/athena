@@ -28,5 +28,5 @@ atlas_add_test( dumpHLTContentInBS_run3
                 /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data20_test/data_test.00374861.physics_Main.daq.RAW._lb0004._SFO-1._0001.data
                 LOG_IGNORE_PATTERN "^----" )
 atlas_add_test( flake8
-                SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}
+                SCRIPT ${ATLAS_FLAKE8} -- ${CMAKE_CURRENT_SOURCE_DIR}
                 POST_EXEC_SCRIPT nopost.sh )

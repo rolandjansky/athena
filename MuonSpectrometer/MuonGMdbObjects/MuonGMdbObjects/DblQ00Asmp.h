@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************
@@ -14,18 +14,20 @@
 #define DBLQ00_ASMP_H
 
 #include "RDBAccessSvc/IRDBQuery.h"
+
 #include <memory>
 
-namespace MuonGM
-{
-class DblQ00Asmp {
+class AmdcDb;
 
+namespace MuonGM {
+class DblQ00Asmp {
 public:
     DblQ00Asmp(){};
     ~DblQ00Asmp();
     DblQ00Asmp(std::unique_ptr<IRDBQuery>&&);
-    // data members for DblQ00/ASMP fields
+    DblQ00Asmp(AmdcDb* asmp);
 
+    // data members for DblQ00/ASMP fields
     struct ASMP {
         int version; // VERSION
         int indx; // STATION NUMBER (INSIDE TYPE)

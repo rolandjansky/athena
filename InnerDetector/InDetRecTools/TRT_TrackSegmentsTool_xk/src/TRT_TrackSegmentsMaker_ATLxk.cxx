@@ -265,19 +265,17 @@ InDet::TRT_TrackSegmentsMaker_ATLxk::newRegion
   //
   event_data->m_extEventData = m_extensionTool->newEvent(ctx);
 
-  InDet::TRT_DriftCircleContainer::const_iterator we = trtcontainer->end();
-
   eraseHistogramm(*event_data);
 
   std::vector<IdentifierHash>::const_iterator d=vTRT.begin(),de=vTRT.end();
   int n = 0;
   for(; d!=de; ++d) {
 
-    InDet::TRT_DriftCircleContainer::const_iterator w = trtcontainer->indexFind((*d));
+    auto w = trtcontainer->indexFindPtr((*d));
 
-    if(w!=we) {
+    if(w!=nullptr) {
 
-      Identifier ID = (*w)->identify();
+      Identifier ID = w->identify();
       int be = m_trtid->barrel_ec     (ID);
       int lw = m_trtid->layer_or_wheel(ID);
       int sl = m_trtid->straw_layer   (ID);
@@ -289,7 +287,7 @@ InDet::TRT_TrackSegmentsMaker_ATLxk::newRegion
       unsigned int ad  = 1000*b+l;
 
       InDet::TRT_DriftCircleCollection::const_iterator 
-	c  = (*w)->begin(), ce = (*w)->end();
+	c  = w->begin(), ce = w->end();
 
       for(; c!=ce; ++c) {
 

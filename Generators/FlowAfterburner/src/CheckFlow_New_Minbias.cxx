@@ -39,7 +39,7 @@
 
 using namespace TruthHelper;
 
-typedef std::vector<const HepMC::GenParticle*>  MCparticleCollection ;
+//typedef std::vector<const HepMC::GenParticlePtr>  MCParticleCollection ;
 
 CheckFlow_New_Minbias::CheckFlow_New_Minbias(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator)
@@ -259,7 +259,7 @@ StatusCode CheckFlow_New_Minbias::execute() {
 
   // Iterate over MC particles  We are using the IsGenStable predicate from IsGenStable ifs;
   GenAll ifs;
-  std::vector<const HepMC::GenParticle*> particles;
+  MCParticleCollection particles;
   CHECK(m_tesIO->getMC(particles, &ifs, m_key));
 
   for (auto pitr: particles) {

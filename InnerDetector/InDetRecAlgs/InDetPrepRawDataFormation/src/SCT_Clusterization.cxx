@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**   @file SCT_Clusterization.cxx
@@ -36,7 +36,7 @@ namespace InDet {
     ATH_MSG_INFO("SCT_Clusterization::initialize()!");
 
     // Get the conditions summary service (continue anyway, just check the pointer 
-    // later and declare everything to be 'good' if it is NULL)
+    // later and declare everything to be 'good' if it is nullptr)
     if (m_checkBadModules.value()) {
       ATH_MSG_INFO("Clusterization has been asked to look at bad module info");
       ATH_CHECK(m_pSummaryTool.retrieve());
@@ -119,7 +119,7 @@ namespace InDet {
           const InDetRawDataCollection<SCT_RDORawData>* rd{*rdoCollections};
           ATH_MSG_DEBUG("RDO collection size=" << rd->size() << ", Hash=" << rd->identifyHash());
           SCT_ClusterContainer::IDC_WriteHandle lock{clusterContainer->getWriteHandle(rdoCollections.hashId())};
-          if (lock.alreadyPresent()) {
+          if (lock.OnlineAndPresentInAnotherView()) {
             ATH_MSG_DEBUG("Item already in cache , Hash=" << rd->identifyHash());
             continue;
           }
@@ -187,7 +187,7 @@ namespace InDet {
 
 
             SCT_ClusterContainer::IDC_WriteHandle lock{clusterContainer->getWriteHandle(listOfSCTIds[i])};
-            if (lock.alreadyPresent()) {
+            if (lock.OnlineAndPresentInAnotherView()) {
 	      ATH_MSG_DEBUG("Item already in cache , Hash=" << listOfSCTIds[i]);
               continue;
             }

@@ -10,7 +10,6 @@
 #include "LumiBlockMetaDataTool.h"
 #include "GoodRunsLists/IGoodRunsListSelectorTool.h"
 #include "GoodRunsLists/TGoodRunsListReader.h"
-#include "LumiBlockComps/ILumiCalcSvc.h"
 #include "xAODLuminosity/SortLumiBlockRangeByStart.h"
 
 #include "DBDataModel/CollectionMetadata.h"

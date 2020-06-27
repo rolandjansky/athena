@@ -242,13 +242,12 @@ HLT::ErrorCode TrigLLPInnerDetectorHypo::hltExecute(const HLT::TriggerElement* /
     for( ; hashIt != hashItEnd; ++hashIt ){
       
       // get single pixel collection -> pixSpCollIt
-      SpacePointContainer::const_iterator pixSpCollIt = pixCont->indexFind( (*hashIt) );
-      if( pixSpCollIt == pixCont->end() ) continue;
-      if( (*pixSpCollIt) == NULL ) continue;
+      auto pixSpCollIt = pixCont->indexFindPtr( (*hashIt) );
+      if( pixSpCollIt == NULL ) continue;
       
       // retrieve number of pixel SP/CL per collection
-      SpacePointCollection::const_iterator spItEnd = (*pixSpCollIt)->end();
-      SpacePointCollection::const_iterator spIt = (*pixSpCollIt)->begin();
+      SpacePointCollection::const_iterator spItEnd = pixSpCollIt->end();
+      SpacePointCollection::const_iterator spIt = pixSpCollIt->begin();
       
       for( ; spIt != spItEnd; ++spIt ){
 	
@@ -315,16 +314,15 @@ HLT::ErrorCode TrigLLPInnerDetectorHypo::hltExecute(const HLT::TriggerElement* /
     std::vector<IdentifierHash>::iterator sctIt = m_listOfSctIds.begin();
     for( ; sctIt != sctItEnd; ++sctIt ){
       
-      SpacePointContainer::const_iterator sctSpCollIt = sctCont->indexFind( (*sctIt) );
+      auto sctSpCollIt = sctCont->indexFindPtr( (*sctIt) );
       
-      if( sctSpCollIt == sctCont->end() ) continue;
-      if( (*sctSpCollIt) == NULL ) continue;
+      if( sctSpCollIt == NULL ) continue;
       
       const std::vector<Identifier>& rdoList();
-      m_nSctSP = (*sctSpCollIt)->size();
+      m_nSctSP = sctSpCollIt->size();
       
       // returns detector element identifier
-      Identifier sctid = (*sctSpCollIt)->identify();
+      Identifier sctid = sctSpCollIt->identify();
       
       //int bec = (int)m_sctHelper->barrel_ec(sctid);
       

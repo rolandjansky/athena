@@ -1,45 +1,27 @@
-################################################################################
-# Package: xAODTrigEgamma
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# Declare the package name:
+# Declare the package name.
 atlas_subdir( xAODTrigEgamma )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthContainers
-                          Control/AthLinks
-                          Event/xAOD/xAODBase
-                          Event/xAOD/xAODCaloEvent
-                          Event/xAOD/xAODCore
-                          Event/xAOD/xAODEgamma
-                          Event/xAOD/xAODTracking
-                          Event/xAOD/xAODTrigCalo )
+# External dependencies.
+find_package( ROOT COMPONENTS Core GenVector )
+find_package( xAODUtilities )
 
-# External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread GenVector )
-
-# Extra dependencies, based on what environment we are in:
-if (BUILDVP1LIGHT)
-    if( BUILDVP1LIGHT_DIST STREQUAL "ubuntu")
-        set( extra_libs GenVector )
-    endif()
-endif()
-
-# Component(s) in the package:
+# Component(s) in the package.
 atlas_add_library( xAODTrigEgamma
-                   Root/*.cxx
-                   PUBLIC_HEADERS xAODTrigEgamma
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthContainers AthLinks xAODBase xAODCaloEvent xAODCore xAODEgamma xAODTracking xAODTrigCalo
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${extra_libs} )
+    xAODTrigEgamma/*.h xAODTrigEgamma/versions/*.h Root/*.cxx
+    PUBLIC_HEADERS xAODTrigEgamma
+    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+    LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks xAODBase
+    xAODCaloEvent xAODCore xAODEgamma xAODTracking xAODTrigCalo )
+
+atlas_add_xaod_smart_pointer_dicts(
+   INPUT xAODTrigEgamma/selection.xml
+   OUTPUT _selectionFile
+   CONTAINERS "xAOD::TrigPhotonContainer_v1" "xAOD::TrigElectronContainer_v1" )
 
 atlas_add_dictionary( xAODTrigEgammaDict
-                      xAODTrigEgamma/xAODTrigEgammaDict.h
-                      xAODTrigEgamma/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks
-                      xAODBase xAODCaloEvent xAODCore xAODEgamma xAODTracking
-                      xAODTrigCalo xAODTrigEgamma ${extra_libs}
-                      EXTRA_FILES Root/dict/*.cxx )
-
+    xAODTrigEgamma/xAODTrigEgammaDict.h
+    ${_selectionFile}
+    LINK_LIBRARIES xAODCore xAODTrigEgamma
+    EXTRA_FILES Root/dict/*.cxx )

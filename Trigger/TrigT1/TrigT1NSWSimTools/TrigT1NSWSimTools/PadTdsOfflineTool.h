@@ -14,9 +14,9 @@
 #include "TrigT1NSWSimTools/IPadTdsTool.h"
 #include "PadTdsValidationTree.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "GaudiKernel/IIncidentSvc.h"
+#include "AthenaKernel/IAtRndmGenSvc.h"
 
-class IIncidentSvc;
-class IAtRndmGenSvc;
 class sTgcDigit;
 class TTree;
 class MuonSimDataCollection;

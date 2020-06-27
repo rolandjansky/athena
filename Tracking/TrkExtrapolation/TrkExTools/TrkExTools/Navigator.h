@@ -63,68 +63,90 @@ namespace Trk {
                     virtual public INavigator {
     public:
       /** Constructor */
-      Navigator(const std::string&,const std::string&,const IInterface*);
+      Navigator(const std::string&, const std::string&, const IInterface*);
       /** Destructor */
       virtual ~Navigator();
-       
+
       /** AlgTool initialize method.*/
       virtual StatusCode initialize() override;
       /** AlgTool finalize method */
       virtual StatusCode finalize() override;
-      
-      /** INavigator interface method - returns the TrackingGeometry used for navigation */
-      virtual const TrackingGeometry* trackingGeometry() const override final;   
-      
-      /** INavigator interface methods - global search for the Volume one is in */
-      virtual const TrackingVolume*               volume(const Amg::Vector3D& gp) const override final;
-            
+
+      /** INavigator interface method - returns the TrackingGeometry used for
+       * navigation */
+      virtual const TrackingGeometry* trackingGeometry() const override final;
+
+      /** INavigator interface methods - global search for the Volume one is in
+       */
+      virtual const TrackingVolume* volume(
+        const Amg::Vector3D& gp) const override final;
+
       /** INavigator interface method - forward hightes TrackingVolume */
-      virtual const TrackingVolume*               highestVolume() const override final;
-        
-      /** INavigator interface methods - getting the next BoundarySurface not knowing the Volume*/
-      virtual const BoundarySurface<TrackingVolume>* nextBoundarySurface( const IPropagator& prop,
-                                                       const TrackParameters& parms,
-                                                       PropDirection dir) const override final;  
-      
-      /** INavigator interface methods - getting the next BoundarySurface when knowing the Volume*/
-      virtual const BoundarySurface<TrackingVolume>* nextBoundarySurface( const IPropagator& prop,
-                                                       const TrackParameters& parms,
-                                                       PropDirection dir,
-                                                       const TrackingVolume& vol  ) const override final;
+      virtual const TrackingVolume* highestVolume() const override final;
 
-      /** INavigator interface method - getting the next Volume and the parameter for the next Navigation*/
-      virtual NavigationCell nextTrackingVolume( const IPropagator& prop,
-                                               const TrackParameters& parms,
-                                               PropDirection dir,
-                                               const TrackingVolume& vol) const override final;
-
-      /** INavigator interface method - getting the next Volume and the parameter for the next Navigation
-        - contains full loop over volume boundaries
-      */
-      virtual NavigationCell nextDenseTrackingVolume( const IPropagator& prop,
-						    const TrackParameters& parms,
-						    const Surface* destination,
-						    PropDirection dir, 
-						    ParticleHypothesis particle, 
-						    const TrackingVolume& vol,
-						    double& path) const override final;
-     
-      /** INavigator interface method - getting the closest TrackParameters from a Track to a Surface*/
-      virtual const TrackParameters*      closestParameters( const Track& trk,
-                                                     const Surface& sf,
-                                                     const IPropagator* prop = nullptr) const override final;
+      /** INavigator interface method - getting the closest TrackParameters from
+       * a Track to a Surface*/
+      virtual const TrackParameters* closestParameters(
+        const Track& trk,
+        const Surface& sf,
+        const IPropagator* prop = nullptr) const override final;
 
       /** INavigator method to resolve navigation at boundary */
-      virtual bool atVolumeBoundary( const Trk::TrackParameters* parms, 
-							const Trk::TrackingVolume* vol,  
-							Trk::PropDirection dir, 
-							const Trk::TrackingVolume*& nextVol, 
-							double tol) const override final;
-    
-     /** Validation Action:
-        Can be implemented optionally, outside access to internal validation steps */
-      virtual void validationAction() const override{}
-      
+      virtual bool atVolumeBoundary(const Trk::TrackParameters* parms,
+                                    const Trk::TrackingVolume* vol,
+                                    Trk::PropDirection dir,
+                                    const Trk::TrackingVolume*& nextVol,
+                                    double tol) const override final;
+
+      /** Validation Action:
+         Can be implemented optionally, outside access to internal validation
+         steps */
+      virtual void validationAction() const override {}
+
+      using INavigator::nextBoundarySurface;
+      using INavigator::nextTrackingVolume;
+      using INavigator::nextDenseTrackingVolume;
+
+      /** INavigator interface methods - getting the next BoundarySurface not
+       * knowing the Volume*/
+      virtual const BoundarySurface<TrackingVolume>* nextBoundarySurface(
+        const EventContext& ctx,
+        const IPropagator& prop,
+        const TrackParameters& parms,
+        PropDirection dir) const override final;
+
+      /** INavigator interface methods - getting the next BoundarySurface when
+       * knowing the Volume*/
+      virtual const BoundarySurface<TrackingVolume>* nextBoundarySurface(
+        const EventContext& ctx,
+        const IPropagator& prop,
+        const TrackParameters& parms,
+        PropDirection dir,
+        const TrackingVolume& vol) const override final;
+
+      /** INavigator interface method - getting the next Volume and the
+       * parameter for the next Navigation*/
+      virtual NavigationCell nextTrackingVolume(
+        const EventContext& ctx,
+        const IPropagator& prop,
+        const TrackParameters& parms,
+        PropDirection dir,
+        const TrackingVolume& vol) const override final;
+
+      /** INavigator interface method - getting the next Volume and the
+        parameter for the next Navigation
+        - contains full loop over volume boundaries
+      */
+      virtual NavigationCell nextDenseTrackingVolume(
+        const EventContext& ctx,
+        const IPropagator& prop,
+        const TrackParameters& parms,
+        const Surface* destination,
+        PropDirection dir,
+        ParticleHypothesis particle,
+        const TrackingVolume& vol,
+        double& path) const override final;
+
     private:
       /* 
       * Methods to be overriden by the NavigatorValidation
@@ -137,7 +159,7 @@ namespace Trk {
       void updateTrackingGeometry() const;
       
       
-      bool                                               m_validationMode; //!<This becomes a dummy option for now    
+      bool                                      m_validationMode; //!<This becomes a dummy option for now    
       /* 
        ****************************************************************
        * According to Goetz Gaycken this needs special attention marking as
@@ -167,7 +189,6 @@ namespace Trk {
       mutable Gaudi::Accumulators::Counter<int>       m_backwardThirdBoundSwitch;  //!< counter for failed third backward nextBounday calls
       mutable Gaudi::Accumulators::Counter<int>       m_outsideVolumeCase;         //!< counter for navigation-break in outside volume cases (ovc)
       mutable Gaudi::Accumulators::Counter<int>       m_sucessfulBackPropagation;  //!< counter for sucessful recovery of navigation-break in ovc 
-      
     };
 
 } // end of namespace

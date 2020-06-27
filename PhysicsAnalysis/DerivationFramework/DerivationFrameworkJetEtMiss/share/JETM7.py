@@ -14,36 +14,42 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 
 #
 if DerivationFrameworkIsMonteCarlo:
-    from DerivationFrameworkMCTruth.MCTruthCommon import *
-    from DerivationFrameworkTau.TauTruthCommon import *
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+  addStandardTruthContents()
 
 #====================================================================
 # SKIMMING TOOL 
 #====================================================================
 
-from DerivationFrameworkJetEtMiss.TriggerLists import *
-electronTriggers = singleElTriggers
-muonTriggers = singleMuTriggers
+from DerivationFrameworkJetEtMiss import TriggerLists
+electronTriggers = TriggerLists.single_el_Trig()
+muonTriggers = TriggerLists.single_mu_Trig()
 
 orstr  = ' || '
 andstr = ' && '
 eltrigsel = '(EventInfo.eventTypeBitmask==1) || '+orstr.join(electronTriggers)
 elofflinesel = andstr.join(['count((Electrons.pt > 25*GeV) && (Electrons.DFCommonElectronsLHMedium)) >= 1',
-                            'count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>20*GeV && AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_77) >= 1'
+                            'count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>20*GeV &&  AntiKt4EMTopoJets_BTagging201810.DFCommonJets_FixedCutBEff_77_MV2c10) >= 1'
                             ])
 electronSelection = '( (' + eltrigsel + ') && (' + elofflinesel + ') )'
 
 mutrigsel = '(EventInfo.eventTypeBitmask==1) || '+orstr.join(muonTriggers)
 muofflinesel = andstr.join(['count((Muons.pt > 25*GeV) && (Muons.DFCommonMuonsPreselection)) >= 1',
-                            'count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>20*GeV && AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_77) >= 1'
+                            'count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>20*GeV &&  AntiKt4EMTopoJets_BTagging201810.DFCommonJets_FixedCutBEff_77_MV2c10) >= 1'
                             ])
 muonSelection = ' ( (' + mutrigsel + ') && (' + muofflinesel + ') )'
 expression = '( ' + electronSelection + ' || ' + muonSelection + ' )'
-
+for i in expression:
+	print "ISHAN " + i
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 JETM7SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "JETM7SkimmingTool1",
                                                                  expression = expression)
 ToolSvc += JETM7SkimmingTool
+
+#Trigger matching decorations
+from DerivationFrameworkCore.TriggerMatchingAugmentation import applyTriggerMatching
+TrigMatchAug, NewTrigVars = applyTriggerMatching(ToolNamePrefix="JETM7",
+                                                 ElectronTriggers=electronTriggers,MuonTriggers=muonTriggers)
 
 #====================================================================
 # SET UP STREAM   
@@ -61,7 +67,9 @@ applyJetCalibration_xAODColl("AntiKt4EMTopo") # adds this to DerivationFramework
 updateJVT_xAODColl("AntiKt4EMTopo") # adds this to DerivationFrameworkJob by default
 
 from DerivationFrameworkFlavourTag.FlavourTagCommon import applyBTagging_xAODColl
-applyBTagging_xAODColl("AntiKt4EMTopo")
+applyJetCalibration_xAODColl("AntiKt4EMTopo_BTagging201810")
+updateJVT_xAODColl('AntiKt4EMTopo_BTagging201810')
+applyBTagging_xAODColl('AntiKt4EMTopo_BTagging201810')
 
 #=======================================
 # ESTABLISH THE THINNING HELPER
@@ -106,7 +114,7 @@ thinningTools.append(JETM7PhotonTPThinningTool)
 # TrackParticles associated with taus
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
 JETM7TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name            = "JETM7TauTPThinningTool",
-                                                                        StreamName              = streamName,
+                                                                        StreamName      = streamName,
                                                                         TauKey          = "TauJets",
                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += JETM7TauTPThinningTool
@@ -166,16 +174,19 @@ reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4TruthWZJets"]
 replaceAODReducedJets(reducedJetList,jetm7Seq,"JETM7")
 
+#=======================================
+# BTAGGING INFO FOR PFLOW JET
+#=======================================
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'],Sequencer = jetm7Seq)
+
 #==============================================================================
-# SUSY background generator filters
+# background generator filters
 #==============================================================================
-augmentationTools = []
+augmentationTools = [TrigMatchAug]
 if globalflags.DataSource() == 'geant4':
-  ToolSvc += CfgMgr.DerivationFramework__SUSYGenFilterTool(
-    "JETM7GenFilt",
-    SimBarcodeOffset = DerivationFrameworkSimBarcodeOffset
-  )
-  augmentationTools.append(ToolSvc.JETM7GenFilt)
+    from DerivationFrameworkMCTruth.GenFilterToolSetup import *
+    augmentationTools.append(ToolSvc.DFCommonTruthGenFilt)
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 jetm7Seq += CfgMgr.DerivationFramework__DerivationKernel( name = "JETM7Kernel",
@@ -204,14 +215,20 @@ JETM7SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJet
                                         "MET_Reference_AntiKt4LCTopo",
                                         "MET_Reference_AntiKt4EMPFlow",
                                         "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets",
-                                        "BTagging_AntiKt4EMTopo",]
+                                        "AntiKt4EMPFlowJets_BTagging201810",
+                                        "AntiKt4EMPFlowJets_BTagging201903",
+                                        "AntiKt4EMTopoJets_BTagging201810",
+                                        "BTagging_AntiKt4EMPFlow_201810",
+                                        "BTagging_AntiKt4EMPFlow_201903",
+                                        "BTagging_AntiKt4EMTopo_201810"]
 JETM7SlimmingHelper.AllVariables = [# "CaloCalTopoClusters",
                                     "MuonTruthParticles", "egammaTruthParticles",
                                     "TruthParticles", "TruthEvents", "TruthVertices",
                                     "MuonSegments",
                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
                                     ]
-JETM7SlimmingHelper.ExtraVariables = ["Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus"]
+JETM7SlimmingHelper.ExtraVariables = ["Electrons."+NewTrigVars["Electrons"],
+                                      "Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus."+NewTrigVars["Muons"]]
 for truthc in [
     "TruthMuons",
     "TruthElectrons",

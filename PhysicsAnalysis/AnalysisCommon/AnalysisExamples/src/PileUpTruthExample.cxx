@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Author : Ketevi A. Assamagan
@@ -45,14 +45,14 @@ StatusCode PileUpTruthExample::execute() {
 
   // signal
   const HepMC::GenEvent * signal = pileupType.signal_mc_event();
-  const HepMC::GenVertex* prodVtx = signal->signal_process_vertex();
+  auto prodVtx = HepMC::signal_process_vertex(signal);
   if ( prodVtx ) {
-     float xi = (prodVtx->position()).x();
-     float yi = (prodVtx->position()).y();
-     float zi = (prodVtx->position()).z();
+     double xi = (prodVtx->position()).x();
+     double yi = (prodVtx->position()).y();
+     double zi = (prodVtx->position()).z();
 
      ATH_MSG_INFO ("signal vertex is " << xi << " " << yi << " " << zi
-                   << " process ID = " << signal->signal_process_id()
+                   << " process ID = " << HepMC::signal_process_id(signal)
                    << " McEvent index = " << signal->event_number());
   }
 
@@ -61,11 +61,11 @@ StatusCode PileUpTruthExample::execute() {
   McEventCollection::const_iterator iend = pileupType.in_time_minimum_bias_event_end();
 
   for (; ibeg!=iend; ++ibeg ) {
-    const HepMC::GenVertex* prodVtx = (*ibeg)->signal_process_vertex();
+    auto prodVtx = HepMC::signal_process_vertex(*ibeg);
     if ( prodVtx ) {
-       float xi = (prodVtx->position()).x();
-       float yi = (prodVtx->position()).y();
-       float zi = (prodVtx->position()).z();
+       double xi = (prodVtx->position()).x();
+       double yi = (prodVtx->position()).y();
+       double zi = (prodVtx->position()).z();
        ATH_MSG_INFO ("pileup vertex is " << xi << " " << yi << " " << zi
                      << " process ID = " << (*ibeg)->signal_process_id()
                      << " McEvent index = " << (*ibeg)->event_number());
@@ -75,7 +75,7 @@ StatusCode PileUpTruthExample::execute() {
   /** retrive the list of in-time generator stable particles - signal and in-time minimum bias 
       in-time meas particles in Bunch crossing = 0 */
   IsGenStable isStable;
-  std::vector<const HepMC::GenParticle*> particleList;
+  std::vector<HepMC::ConstGenParticlePtr> particleList;
   pileupType.in_time_particles( particleList, isStable );
 
   /** now do something with the list */

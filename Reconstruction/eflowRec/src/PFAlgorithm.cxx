@@ -22,12 +22,19 @@ StatusCode PFAlgorithm::initialize(){
   ATH_CHECK(m_eflowCaloObjectsWriteHandleKey.initialize());
   ATH_CHECK(m_caloClustersWriteHandleKey.initialize());
 
+  if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
+
   printTools();
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode PFAlgorithm::execute(){
+  // Define monitored quantities
+  auto t_exec = Monitored::Timer<std::chrono::milliseconds>( "TIME_execute" );
+  auto t_subtract = Monitored::Timer<std::chrono::milliseconds>( "TIME_subtract" );
+  auto N_efrTracks = Monitored::Scalar( "N_efrTracks", 0 );
+  auto N_efrClusters = Monitored::Scalar( "N_efrClusters", 0 );
 
   ATH_MSG_DEBUG("Executing");
 
@@ -49,25 +56,34 @@ StatusCode PFAlgorithm::execute(){
   
   xAOD::CaloClusterContainer& theCaloClusterContainerReference = *(caloClustersWriteHandle.ptr());
   ATH_CHECK(m_IPFClusterSelectorTool->execute(theEFlowRecClusterContainerReference,theCaloClusterContainerReference));
-  
+
+  // Explicitly start/stop the timer around the subtraction tool calls
+  t_subtract.start();
   /* Run the SubtractionTools */
   for (auto thisIPFSubtractionTool : m_IPFSubtractionTools){
     thisIPFSubtractionTool->execute(theElowCaloObjectContainer,&localEFlowRecTrackContainer,&theEFlowRecClusterContainerReference);
   }
+  t_subtract.stop();
 
-  for (auto thisEFTrack : localEFlowRecTrackContainer){
-    ATH_MSG_DEBUG("This efRecTrack has E,pt,eta and phi of " << thisEFTrack->getTrack()->e() << ", " << thisEFTrack->getTrack()->pt() << ", " << thisEFTrack->getTrack()->eta() << " and " << thisEFTrack->getTrack()->phi());
+  if(msgLvl(MSG::DEBUG)) {
+    for (auto thisEFTrack : localEFlowRecTrackContainer){
+      msg() << "This efRecTrack has E,pt,eta and phi of " << thisEFTrack->getTrack()->e() << ", " << thisEFTrack->getTrack()->pt() << ", " << thisEFTrack->getTrack()->eta() << " and " << thisEFTrack->getTrack()->phi() << endmsg;
+    }
+
+    for (auto thisEFCluster : *(eflowRecClustersWriteHandle.ptr()) ){
+      msg() << "This efRecCluster has E,pt,eta and phi of " << thisEFCluster->getCluster()->e() << "," << thisEFCluster->getCluster()->pt() << ", " << thisEFCluster->getCluster()->eta() << " and " << thisEFCluster->getCluster()->phi() << endmsg;
+    }
   }
 
-  for (auto thisEFCluster : *(eflowRecClustersWriteHandle.ptr()) ){
-    ATH_MSG_DEBUG("This efRecCluster has E,pt,eta and phi of " << thisEFCluster->getCluster()->e() << "," << thisEFCluster->getCluster()->pt() << ", " << thisEFCluster->getCluster()->eta() << " and " << thisEFCluster->getCluster()->phi());
-  }
+  N_efrTracks = localEFlowRecTrackContainer.size();
+  N_efrClusters = theEFlowRecClusterContainerReference.size();
 
   /* Run the other AglTools */
   for (auto thisIPFBaseTool :  m_IPFBaseTools){
     thisIPFBaseTool->execute(*theElowCaloObjectContainer);
   }
-    
+
+  auto mon = Monitored::Group(m_monTool, t_exec, t_subtract, N_efrTracks, N_efrClusters);
   return StatusCode::SUCCESS;
 }
 

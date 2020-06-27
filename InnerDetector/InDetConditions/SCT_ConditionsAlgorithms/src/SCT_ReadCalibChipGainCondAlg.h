@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */ 
 
 #ifndef SCT_ReadCalibChipGainCondAlg_h
@@ -19,9 +19,6 @@
 #include "StoreGate/WriteCondHandleKey.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "SCT_ConditionsData/SCT_GainCalibData.h"
-
-// Include boost stuff
-#include "boost/array.hpp"
 
 // Forward declarations
 class SCT_ID;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IDENTIFIER_RANGE_H
@@ -582,12 +582,13 @@ Range::field::get_value_at (size_type index) const
     // both_bounded if the more frequent case and so comes first.
 
     if (both_bounded == m_mode) {
+        assert (index < (size_type) (m_maximum - m_minimum + 1));
 	return (m_minimum + index); 
 //  	if (index >= (size_type) (m_maximum - m_minimum + 1)) return (0); 
 //  	else return (m_minimum + index); 
     }
     else if (enumerated == m_mode) {
-	return (m_values[index]); 
+        return (m_values.at(index)); 
 //        if (index >= m_values.size ()) return (0); 
 //        else return (m_values[index]); 
     }

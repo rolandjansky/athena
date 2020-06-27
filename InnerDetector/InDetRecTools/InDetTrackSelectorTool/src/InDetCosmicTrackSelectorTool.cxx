@@ -6,7 +6,6 @@
 
 // forward declares
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "VxVertex/Vertex.h"
 #include "TrkTrack/Track.h"
 #include "TrkParticleBase/TrackParticleBase.h"
@@ -24,8 +23,7 @@ namespace InDet
   //----------------------------------------------------------------------------
   InDetCosmicTrackSelectorTool::InDetCosmicTrackSelectorTool(const std::string& t, const std::string& n, const IInterface* p)
     : AthAlgTool(t,n,p), 
-    m_trackSumToolAvailable(false),
-    m_magFieldSvc("AtlasFieldSvc",n)
+    m_trackSumToolAvailable(false)
   {
     declareInterface<ITrackSelectorTool>(this);
     declareProperty("maxZ0",                     m_maxZ0 = 150.);
@@ -38,7 +36,6 @@ namespace InDet
     declareProperty("numberOfSiliconHitsTop",    m_numberOfSiHitsTop = -1);
     declareProperty("numberOfSiliconHitsBottom", m_numberOfSiHitsBottom = -1);
     declareProperty("TrackSummaryTool",          m_trackSumTool);
-    declareProperty("MagFieldSvc", m_magFieldSvc);
   }
 
   //----------------------------------------------------------------------------
@@ -64,11 +61,8 @@ namespace InDet
        m_trackSumToolAvailable = true;
      }
 
-     if (m_magFieldSvc.retrieve().isFailure()) {
-       msg(MSG::FATAL) << "Failed to retrieve tool " << m_magFieldSvc << endmsg;
-       return StatusCode::FAILURE;
-     }
-     ATH_MSG_INFO("Retrieved tool "<<m_magFieldSvc);
+     // Read handle for AtlasFieldCacheCondObj
+     ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
 
      return StatusCode::SUCCESS;
   }
@@ -236,7 +230,17 @@ namespace InDet
     }
 
     // only check pt if mag. field is on
-    if (m_magFieldSvc->solenoidOn()) {
+    EventContext ctx = Gaudi::Hive::currentContext();
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+    if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("execute: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      return false;
+    }
+    MagField::AtlasFieldCache fieldCache;
+    fieldCondObj->getInitializedCache (fieldCache);
+
+    if (fieldCache.solenoidOn()){//B field
       if (trackParameters[Trk::qOverP] == 0.) {
         ATH_MSG_DEBUG("Track rejected because of qOverP == 0.");
         return false;

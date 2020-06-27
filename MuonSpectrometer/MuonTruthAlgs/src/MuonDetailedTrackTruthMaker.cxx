@@ -34,8 +34,8 @@ StatusCode MuonDetailedTrackTruthMaker::initialize()
   }
   
   if (m_hasSTgc && m_hasMM) {
-    if (m_hasCSC) m_PRD_TruthNames={"sTGC_TruthMap","MM_TruthMap","RPC_TruthMap","TGC_TruthMap","MDT_TruthMap","CSC_TruthMap"};
-    else m_PRD_TruthNames={"sTGC_TruthMap","MM_TruthMap","RPC_TruthMap","TGC_TruthMap","MDT_TruthMap"};
+    if (m_hasCSC) m_PRD_TruthNames={"STGC_TruthMap","MM_TruthMap","RPC_TruthMap","TGC_TruthMap","MDT_TruthMap","CSC_TruthMap"};
+    else m_PRD_TruthNames={"STGC_TruthMap","MM_TruthMap","RPC_TruthMap","TGC_TruthMap","MDT_TruthMap"};
   }
 
   m_detailedTrackTruthNames.reserve ( m_trackCollectionNames.size());

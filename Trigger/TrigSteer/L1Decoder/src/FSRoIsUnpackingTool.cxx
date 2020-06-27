@@ -67,7 +67,7 @@ StatusCode FSRoIsUnpackingTool::unpack( const EventContext& ctx,
 			std::inserter(activeFSchains, activeFSchains.end() ) );
 
   auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, "L1" ); // This "L1" denotes an initial node with no parents
-  for ( auto c: activeFSchains ) addDecisionID( c, decision );
+  addChainsToDecision( HLT::Identifier( "FSNOSEED" ), decision, activeChains );
 
   ATH_MSG_DEBUG("Unpacking FS RoI for " << activeFSchains.size() << " chains: " << [&](){ 
       TrigCompositeUtils::DecisionIDContainer ids; 

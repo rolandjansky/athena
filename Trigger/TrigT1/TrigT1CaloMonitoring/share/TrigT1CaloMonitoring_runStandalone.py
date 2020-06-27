@@ -14,7 +14,7 @@ FilesInput = [
 
 
 from ByteStreamCnvSvc import ReadByteStream
-svcMgr.ByteStreamInputSvc.FullFileName = FilesInput
+svcMgr.EventSelector.Input = FilesInput
 
 include("TrigT1CaloByteStream/ReadLVL1CaloBSRun2_jobOptions.py")
 
