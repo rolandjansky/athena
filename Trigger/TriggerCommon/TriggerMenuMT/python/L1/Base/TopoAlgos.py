@@ -56,9 +56,9 @@ class TopoAlgo(object):
         confObj["algId"] = self.algoId
         return confObj
 
-    def getEnergyScaleEM(self):
+    def getScaleToCountsEM(self):
         tw = self.menuThr.typeWideThresholdConfig(ThrType["EM"])
-        return tw["emscale"]
+        return 1000 / tw["resolutionMeV"]
     
 class Variable(object):
     def __init__(self, name, selection, value):
@@ -108,7 +108,7 @@ class SortingAlgo(TopoAlgo):
             confObj["fixedParameters"]["generics"][genParm.name] = odict([("value", genParm.value), ("position", pos)]) 
 
         confObj["variableParameters"] = list()
-        _emscale_for_decision = self.getEnergyScaleEM()
+        _emscale_for_decision = self.getScaleToCountsEM()
         _mu_for_decision=1 # MU4->3GeV, MU6->5GeV, MU10->9GeV
         for (pos, variable) in enumerate(self.variables): 
             # adjust MinET if outputs match with EM or TAU or MU  ==> this is a terrible hack that won't fly in Run 3
@@ -185,7 +185,7 @@ class DecisionAlgo(TopoAlgo):
 
         # variable parameters
         confObj["variableParameters"] = list()
-        _emscale_for_decision = self.getEnergyScaleEM()
+        _emscale_for_decision = self.getScaleToCountsEM()
         _mu_for_decision = 1 # MU4->3GeV, MU6->5GeV, MU10->9GeV
         for (pos, variable) in enumerate(self.variables):
             # scale MinET if inputs match with EM or TAU
