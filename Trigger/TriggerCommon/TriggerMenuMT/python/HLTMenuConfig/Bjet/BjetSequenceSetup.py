@@ -48,8 +48,6 @@ def bJetStep2Sequence():
     # BJet specific
     InputMakerAlg.PlaceJetInView = True
     InputMakerAlg.InViewJets = recordable( "HLT_bJets" )
-    #
-    InputMakerAlg.ViewNodeName = "bJetBtagSequence"
 
 
     # Prepare data objects for view verifier
