@@ -1,7 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.BTaggingFlags import BTaggingFlags
-from IOVDbSvc.IOVDbSvcConfig import addFolders
 
 def JetTagCalibCfg(ConfigFlags, scheme="", TaggerList = [], ChannelAlias = ""):
 
@@ -40,70 +39,64 @@ def JetTagCalibCfg(ConfigFlags, scheme="", TaggerList = [], ChannelAlias = ""):
 
     CalibrationChannelAliases += ChannelAlias
 
-
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    result=ComponentAccumulator()
-    JetTagCalibCondAlg = CompFactory.Analysis.JetTagCalibCondAlg
-    jettagcalibcondalg = "JetTagCalibCondAlg"
-    connSchema = "GLOBAL_OFL"
     if scheme == "Trig":
+        JetTagCalibCondAlg,=CompFactory.getComps("Analysis__JetTagCalibCondAlg",)
+        jettagcalibcondalg = "JetTagCalibCondAlg"
         histoskey = "JetTagTrigCalibHistosKey"
         readkeycalibpath = "/GLOBAL/TrigBTagCalib/RUN12"
+        connSchema = "GLOBAL_OFL"
         if not ConfigFlags.Input.isMC:
             readkeycalibpath = readkeycalibpath.replace("/GLOBAL/","/GLOBAL/Onl/")
             connSchema = connSchema.replace("OFL","ONL")
+        from IOVDbSvc.CondDB import conddb
+        conddb.addFolder(connSchema, readkeycalibpath, className='CondAttrListCollection')
+
+        JetTagCalib = JetTagCalibCondAlg(jettagcalibcondalg, ReadKeyCalibPath=readkeycalibpath, HistosKey = histoskey, taggers = TaggerList, channelAliases = CalibrationChannelAliases, IP2D_TrackGradePartitions = grades, RNNIP_NetworkConfig = BTaggingFlags.RNNIPConfig)
+        return JetTagCalib
+
     else:
+        from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+        result=ComponentAccumulator()
+        JetTagCalibCondAlg = CompFactory.Analysis.JetTagCalibCondAlg
+        jettagcalibcondalg = "JetTagCalibCondAlg"
         histoskey = "JetTagCalibHistosKey"
         readkeycalibpath = "/GLOBAL/BTagCalib/RUN12"
+        connSchema = "GLOBAL_OFL"
         if not ConfigFlags.Input.isMC:
             readkeycalibpath = readkeycalibpath.replace("/GLOBAL/","/GLOBAL/Onl/")
             connSchema = connSchema.replace("_OFL","")
+        from IOVDbSvc.IOVDbSvcConfig import addFolders
+        result.merge(addFolders(ConfigFlags,[readkeycalibpath], connSchema, className='CondAttrListCollection'))
 
-    result.merge(addFolders(ConfigFlags,[readkeycalibpath], connSchema, className='CondAttrListCollection'))
-    JetTagCalib = JetTagCalibCondAlg(jettagcalibcondalg, ReadKeyCalibPath=readkeycalibpath, HistosKey = histoskey, taggers = TaggerList, channelAliases = BTaggingFlags.CalibrationChannelAliases, IP2D_TrackGradePartitions = grades, RNNIP_NetworkConfig = BTaggingFlags.RNNIPConfig)
-    result.addCondAlgo(JetTagCalib)
-    return result
+        JetTagCalib = JetTagCalibCondAlg(jettagcalibcondalg, ReadKeyCalibPath=readkeycalibpath, HistosKey = histoskey, taggers = TaggerList, channelAliases = CalibrationChannelAliases, IP2D_TrackGradePartitions = grades, RNNIP_NetworkConfig = BTaggingFlags.RNNIPConfig)
+        result.addCondAlgo(JetTagCalib)
+        return result
 
 
-
+#    #conf2toConfigurable is not working for this at the moment, thats why we need old-config style for trigger
+#    #if this option would be working, need the following line in runHLT_standalone.py
+#    #CAtoGlobalWrapper(JetTagCalibCfg, ConfigFlags, scheme="Trig", TaggerList=ConfigFlags.BTagging.TrigTaggersList, ChannelAlias = alias)
+#
+#    from IOVDbSvc.IOVDbSvcConfig import addFolders
+#    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+#    result=ComponentAccumulator()
+#    JetTagCalibCondAlg = CompFactory.Analysis.JetTagCalibCondAlg
+#    jettagcalibcondalg = "JetTagCalibCondAlg"
+#    connSchema = "GLOBAL_OFL"
 #    if scheme == "Trig":
-#        JetTagCalibCondAlg,=CompFactory.getComps("Analysis__JetTagCalibCondAlg",)
-#        jettagcalibcondalg = "JetTagCalibCondAlg"
 #        histoskey = "JetTagTrigCalibHistosKey"
 #        readkeycalibpath = "/GLOBAL/TrigBTagCalib/RUN12"
-#        connSchema = "GLOBAL_OFL"
 #        if not ConfigFlags.Input.isMC:
 #            readkeycalibpath = readkeycalibpath.replace("/GLOBAL/","/GLOBAL/Onl/")
 #            connSchema = connSchema.replace("OFL","ONL")
-#        from IOVDbSvc.CondDB import conddb
-#        conddb.addFolder(connSchema, readkeycalibpath, className='CondAttrListCollection')
-        #if conddb.dbdata == 'COMP200':
-        #  conddb.addFolder("GLOBAL_ONL", "/GLOBAL/Onl/BTagCalib/RUN12", className='CondAttrListCollection')
-        #  if globalflags.DataSource()!='data':
-        #    conddb.addFolder("GLOBAL_ONL", "/GLOBAL/Onl/TrigBTagCalib/RUN12", className='CondAttrListCollection')
-        #elif conddb.isMC:
-        #  conddb.addFolder("GLOBAL_OFL", "/GLOBAL/BTagCalib/RUN12", className='CondAttrListCollection')
-        #  conddb.addFolder("GLOBAL_OFL", "/GLOBAL/TrigBTagCalib/RUN12", className='CondAttrListCollection')
-
-#        JetTagCalib = JetTagCalibCondAlg(jettagcalibcondalg, ReadKeyCalibPath=readkeycalibpath, HistosKey = histoskey, taggers = ConfigFlags.BTagging.TrigTaggersList, channelAliases = CalibrationChannelAliases, IP2D_TrackGradePartitions = grades, RNNIP_NetworkConfig = BTaggingFlags.RNNIPConfig)
-#        return JetTagCalib
-
 #    else:
-#        from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-#        result=ComponentAccumulator()
-#        JetTagCalibCondAlg = CompFactory.Analysis.JetTagCalibCondAlg
-#        jettagcalibcondalg = "JetTagCalibCondAlg"
 #        histoskey = "JetTagCalibHistosKey"
 #        readkeycalibpath = "/GLOBAL/BTagCalib/RUN12"
-#        connSchema = "GLOBAL_OFL"
 #        if not ConfigFlags.Input.isMC:
 #            readkeycalibpath = readkeycalibpath.replace("/GLOBAL/","/GLOBAL/Onl/")
 #            connSchema = connSchema.replace("_OFL","")
-#        from IOVDbSvc.IOVDbSvcConfig import addFolders
-#        result.merge(addFolders(ConfigFlags,[readkeycalibpath], connSchema, className='CondAttrListCollection'))
-
-#        JetTagCalib = JetTagCalibCondAlg(jettagcalibcondalg, ReadKeyCalibPath=readkeycalibpath, HistosKey = histoskey, taggers = TaggerList, channelAliases = BTaggingFlags.CalibrationChannelAliases, IP2D_TrackGradePartitions = grades, RNNIP_NetworkConfig = BTaggingFlags.RNNIPConfig)
-#        result.addCondAlgo(JetTagCalib)
-#        return result
-
-
+#
+#    result.merge(addFolders(ConfigFlags,[readkeycalibpath], connSchema, className='CondAttrListCollection'))
+#    JetTagCalib = JetTagCalibCondAlg(jettagcalibcondalg, ReadKeyCalibPath=readkeycalibpath, HistosKey = histoskey, taggers = TaggerList, channelAliases = BTaggingFlags.CalibrationChannelAliases, IP2D_TrackGradePartitions = grades, RNNIP_NetworkConfig = BTaggingFlags.RNNIPConfig)
+#    result.addCondAlgo(JetTagCalib)
+#    return result

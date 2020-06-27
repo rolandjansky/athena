@@ -130,6 +130,7 @@ if len(athenaCommonFlags.FilesInput())>0:
     af = athFile.fopen(athenaCommonFlags.FilesInput()[0])
     globalflags.InputFormat = 'bytestream' if af.fileinfos['file_type']=='bs' else 'pool'
     globalflags.DataSource = 'data' if af.fileinfos['evt_type'][0]=='IS_DATA' else 'geant4'
+    ConfigFlags.Input.isMC = False if globalflags.DataSource=='data' else True
     # Set isOnline=False for MC inputs unless specified in the options
     if globalflags.DataSource() != 'data' and 'isOnline' not in globals():
         log.info("Setting isOnline = False for MC input")
@@ -145,6 +146,7 @@ if len(athenaCommonFlags.FilesInput())>0:
 else:   # athenaHLT
     globalflags.InputFormat = 'bytestream'
     globalflags.DataSource = 'data' if not opt.setupForMC else 'data'
+    ConfigFlags.Input.isMC = False
     if '_run_number' not in dir():
         import PyUtils.AthFile as athFile
         from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -161,11 +163,15 @@ else:   # athenaHLT
 # Set final Cond/Geo tag based on input file, command line or default
 globalflags.DetDescrVersion = opt.setDetDescr or TriggerFlags.OnlineGeoTag()
 globalflags.ConditionsTag = opt.setGlobalTag or TriggerFlags.OnlineCondTag()
+ConfigFlags.GeoModel.AtlasVersion = opt.setDetDescr or TriggerFlags.OnlineGeoTag()
+ConfigFlags.IOVDb.GlobalTag = opt.setGlobalTag or TriggerFlags.OnlineCondTag()
 
 # Other defaults
 jobproperties.Beam.beamType = 'collisions'
+ConfigFlags.Beam.Type = 'collisions'
 jobproperties.Beam.bunchSpacing = 25
 globalflags.DatabaseInstance='CONDBR2' if opt.useCONDBR2 else 'COMP200'
+ConfigFlags.IOVDb.DatabaseInstance='CONDBR2' if opt.useCONDBR2 else 'COMP200'
 athenaCommonFlags.isOnline.set_Value_and_Lock(opt.isOnline)
 
 log.info('Configured the following global flags:')
@@ -588,7 +594,7 @@ if opt.doBjetSlice or opt.forceEnableAllChains:
     print("In JetTagCalibCfg")
     from JetTagCalibration.JetTagCalibConfig import JetTagCalibCfg
     alias = ["HLT_b->HLT_b,AntiKt4EMTopo"] #"HLT_bJets" is the name of the b-jet JetContainer
-    CAtoGlobalWrapper(JetTagCalibCfg, ConfigFlags, scheme="Trig", TaggerList=ConfigFlags.BTagging.TrigTaggersList, ChannelAlias = alias)
+    topSequence += JetTagCalibCfg(ConfigFlags, scheme="Trig", TaggerList=ConfigFlags.BTagging.TrigTaggersList, ChannelAlias = alias)
 
 # Trigger output
 if opt.doWriteBS or opt.doWriteRDOTrigger:

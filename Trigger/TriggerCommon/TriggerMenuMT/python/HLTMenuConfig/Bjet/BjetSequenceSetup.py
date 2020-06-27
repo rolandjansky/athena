@@ -3,9 +3,8 @@
 
 # menu components
 from AthenaCommon.CFElements import seqAND
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, InViewReco
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 from TrigEDMConfig.TriggerEDMRun3 import recordable
-from AthenaConfiguration.ComponentFactory import CompFactory
 
 #from AthenaCommon.Constants import DEBUG
 
@@ -69,31 +68,21 @@ def bJetStep2Sequence():
     from TriggerMenuMT.HLTMenuConfig.Bjet.BjetFlavourTaggingConfiguration import getFlavourTagging
     acc_flavourTaggingAlgs,bTaggingContainerName = getFlavourTagging( inputJets=InputMakerAlg.InViewJets, inputVertex=prmVtxKey, inputTracks=PTTrackParticles[0] )
     
-#======================This is running on Release 22.0.11, but not after Gaudi2 updates===================
-#    inViewReco = InViewReco("bJetBtagSequence", viewMaker=InputMakerAlg)
-#    inViewReco.addRecoAlg(secondStageAlgs)
-#    inViewReco.mergeReco(acc_flavourTaggingAlgs)
-#    acc_flavourTaggingAlgs.wasMerged()
-#    inViewReco.wasMerged()
-
-#    Configurable.configurableRun3Behavior=0
-
-#======================This is a new idea, since the function "conf2toConfigurable" was added recently, but is crashing when converting ATLASExtrapolator=====
     Configurable.configurableRun3Behavior=0
 
+    #Conversion of flavour-tagging algorithms from new to old-style
     from AthenaCommon.CFElements import findAllAlgorithms
     from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
     AllFlavourTaggingAlgs = []
     for alg in findAllAlgorithms(acc_flavourTaggingAlgs.getSequence("AthAlgSeq")):
         AllFlavourTaggingAlgs.append(conf2toConfigurable(alg))
 
-    acc_flavourTaggingAlgs.wasMerged()
+    acc_flavourTaggingAlgs.wasMerged() #Needed to remove error message; Next we add all algorithms to sequence so this is kind of an old-style merge
     bJetBtagSequence = seqAND( "bJetBtagSequence", secondStageAlgs + AllFlavourTaggingAlgs )
     InputMakerAlg.ViewNodeName = "bJetBtagSequence"
-
+    
     # Sequence
     BjetAthSequence = seqAND( "BjetAthSequence_step2",[InputMakerAlg,bJetBtagSequence] )
-#=============================================================================================================
 
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetBtagHypoAlgMT
     hypo = TrigBjetBtagHypoAlgMT( "TrigBjetBtagHypoAlg" )
@@ -110,8 +99,6 @@ def bJetStep2Sequence():
     hypo.MonTool = TrigBjetOnlineMonitoring()
 
     from TrigBjetHypo.TrigBjetBtagHypoTool import TrigBjetBtagHypoToolFromDict
-#    return MenuSequence( Sequence    = inViewReco.sequence(),
-#                         Maker       = inViewReco.inputMaker(),
     return MenuSequence( Sequence    = BjetAthSequence,
                          Maker       = InputMakerAlg,
                          Hypo        = hypo,
