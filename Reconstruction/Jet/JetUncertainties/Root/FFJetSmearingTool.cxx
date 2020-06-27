@@ -474,7 +474,7 @@ LargeRJetTruthLabel::TypeEnum jetTruthLabel = LargeRJetTruthLabel::intToEnum(acc
     else if(jetTruthLabel == LargeRJetTruthLabel::notruth)    
     {
         jetTopology="no_match";
-        ATH_MSG_WARNING("No truth jet match with this reco jet");//applyCorrention should fail for the same reason before arriving here. This message should never be shown
+        ATH_MSG_DEBUG("No truth jet match with this reco jet. The jet will not be smeared.");//applyCorrention should fail for the same reason before arriving here. This message should never be shown
     }
   
     else jetTopology="QCD"; //We should never arrive here 
@@ -580,8 +580,8 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
     if(!(getMatchedTruthJet(jet_reco, jet_truth_matched).isSuccess())){
 
         m_InfoWarnings = m_InfoWarnings + 1; 
-        if(m_InfoWarnings < 5) ATH_MSG_WARNING("No truth jet match with this reco jet. The jet will not be smeared.");
-        else if(m_InfoWarnings == 5) ATH_MSG_WARNING("No truth jet match with this reco jet. The jet will not be smeared. This is the last time this message is shown.");
+        if(m_InfoWarnings < 5) ATH_MSG_DEBUG("No truth jet match with this reco jet. The jet will not be smeared.");
+        else if(m_InfoWarnings == 5) ATH_MSG_DEBUG("No truth jet match with this reco jet. The jet will not be smeared. This is the last time this message is shown.");
 
         return CP::CorrectionCode::Ok; 
     }
@@ -592,8 +592,8 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
     std::string jetTopology;
 
     if(!(getJetTopology( jet_reco, jetTopology)).isSuccess()){
-        ATH_MSG_WARNING("Imposible to obtain the jetTopology");
-        return CP::CorrectionCode::Ok;
+        ATH_MSG_ERROR("Imposible to obtain the jetTopology");
+        return CP::CorrectionCode::Error;
     }
     if(jetTopology == "no_match"){
         return CP::CorrectionCode::Ok;
