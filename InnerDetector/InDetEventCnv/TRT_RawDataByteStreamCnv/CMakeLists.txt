@@ -12,6 +12,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/ByteStreamData
                           InnerDetector/InDetRawEvent/InDetRawData
                           PRIVATE
+                          Control/AthenaKernel
+                          Control/CxxUtils
                           Control/StoreGate
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Event/ByteStreamCnvSvcBase
@@ -37,7 +39,7 @@ atlas_add_component( TRT_RawDataByteStreamCnv
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} ${COOL_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps Identifier ByteStreamData ByteStreamData_test InDetRawData StoreGateLib SGtests AthenaPoolUtilities ByteStreamCnvSvcBaseLib GaudiKernel TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry PathResolver IRegionSelector TrigSteeringEvent TRT_CablingLib )
+                     LINK_LIBRARIES ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} ${COOL_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps Identifier ByteStreamData ByteStreamData_test InDetRawData AthenaKernel CxxUtils StoreGateLib SGtests AthenaPoolUtilities ByteStreamCnvSvcBaseLib GaudiKernel TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry PathResolver IRegionSelector TrigSteeringEvent TRT_CablingLib )
 
 # Install files from the package:
 atlas_install_headers( TRT_RawDataByteStreamCnv )

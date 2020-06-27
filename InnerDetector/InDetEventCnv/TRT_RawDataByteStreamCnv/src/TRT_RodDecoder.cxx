@@ -248,10 +248,11 @@ StatusCode TRT_RodDecoder::finalize() {
  * ----------------------------------------------------------
  */
 StatusCode
-TRT_RodDecoder::fillCollection ( const ROBFragment* robFrag,
+TRT_RodDecoder::fillCollection ATLAS_NOT_THREAD_SAFE ( const ROBFragment* robFrag,
 				 TRT_RDO_Container* rdoIdc,
 				 TRT_BSErrContainer* bsErr,
 				 const std::vector<IdentifierHash>* vecHash )
+// Non-thread-safe function 'StatusCode TRT_RodDecoder::update()' called
 {
 
   std::lock_guard<std::mutex> lock(m_cacheMutex);
@@ -270,8 +271,6 @@ TRT_RodDecoder::fillCollection ( const ROBFragment* robFrag,
   //		<< MSG::hex 
   //		<< robid << " L1ID = " << robFrag->rod_lvl1_id()
   //		<< MSG::dec );
-
-  static int  err_count                = 0;
 
   /*
    * Save non-zero rob status to TRT BS Conditions Services
@@ -292,14 +291,19 @@ TRT_RodDecoder::fillCollection ( const ROBFragment* robFrag,
        * This is a hack to only print once per event.  It will work the
        * vast majority of the time, but it may miss an occasional event.
        */
-      static uint32_t Last_print_L1ID = 0xffffffff;
-      static uint32_t Last_print_BCID = 0xffffffff;
 
-      if ( (Last_print_L1ID != robFrag->rod_lvl1_id()) || 
-      	   (Last_print_BCID != robFrag->rod_bc_id()) )
+      const EventContext& ctx{Gaudi::Hive::currentContext()};
+      CacheEntry* ent{m_cache.get(ctx)};
+      if (ent->m_evt!=ctx.evt()) { // New event in this slot
+        ent->reset();
+        ent->m_evt = ctx.evt();
+      }
+
+      if ( (ent->Last_print_L1ID != robFrag->rod_lvl1_id()) || 
+      	   (ent->Last_print_BCID != robFrag->rod_bc_id()) )
       {
-	Last_print_L1ID = robFrag->rod_lvl1_id();
-	Last_print_BCID = robFrag->rod_bc_id();
+	ent->Last_print_L1ID = robFrag->rod_lvl1_id();
+	ent->Last_print_BCID = robFrag->rod_bc_id();
 
 	ATH_MSG_INFO( "Non-Zero ROB status word for ROB " 
 		      << MSG::hex 
@@ -324,18 +328,18 @@ TRT_RodDecoder::fillCollection ( const ROBFragment* robFrag,
 				 vecHash );  
     else
     {
-      if ( err_count < 100 )
+      if ( m_err_count_fillCollection < 100 )
       {
 	ATH_MSG_WARNING( "Rod Version: " << RodBlockVersion		\
 			 << ", but Compression Table not loaded!  ROD ID = " \
 			 << MSG::hex << robid << MSG::dec );
-	err_count++;
+	m_err_count_fillCollection++;
       }
-      else if ( 100 == err_count )
+      else if ( 100 == m_err_count_fillCollection )
       {
 	ATH_MSG_WARNING( "Too many Rod Version messages.  "	\
 			 << "Turning message off." );
-	err_count++;
+	m_err_count_fillCollection++;
       }
       
       sc = StatusCode::FAILURE;
@@ -707,8 +711,6 @@ TRT_RodDecoder::int_fillMinimalCompress( const ROBFragment *robFrag,
 					TRT_RDO_Container* rdoIdc,
 					const std::vector<IdentifierHash>* vecHash)
 {
-  static int err_count = 0;
-  
   uint32_t robid = robFrag->rod_source_id();
   
   // get the ROD version. It could be used to decode the data in one
@@ -775,14 +777,14 @@ TRT_RodDecoder::int_fillMinimalCompress( const ROBFragment *robFrag,
 	    //  ATH_MSG_WARNING( "vint[" << in_ptr << "] = " << MSG::hex << vint[in_ptr] << MSG::dec );
 	  }
 	  if ( v ) {
-	    if ( err_count < 100 ) {
+	    if ( m_err_count_int_fillMinimalCompress < 100 ) {
 	       ATH_MSG_WARNING( "Invalid ByteStream, ROD ID = " \
 				<< MSG::hex << robid << MSG::dec );
-	      err_count++;
-	    } else if ( 100 == err_count ) {
+	      m_err_count_int_fillMinimalCompress++;
+	    } else if ( 100 == m_err_count_int_fillMinimalCompress ) {
 	       ATH_MSG_WARNING( "Too many Invalid ByteStream messages  " \
 				<< "Turning message off." );
-	      err_count++;
+	      m_err_count_int_fillMinimalCompress++;
 	    }
 	    return StatusCode::RECOVERABLE;
 	  }
@@ -938,8 +940,6 @@ TRT_RodDecoder::int_fillFullCompress( const ROBFragment *robFrag,
 				      t_CompressTable* Ctable,
 				      const std::vector<IdentifierHash>* vecHash)
 {
-  static int err_count = 0;
-
   int phase;
   for ( phase=0; phase<2; phase++ )
   {
@@ -1033,17 +1033,17 @@ TRT_RodDecoder::int_fillFullCompress( const ROBFragment *robFrag,
       word = Ctable->m_syms[idx];
     else
     {
-      if ( err_count < 100 ) 
+      if ( m_err_count_int_fillFullCompress < 100 ) 
       {
 	ATH_MSG_WARNING( "Invalid ByteStream, ROD ID = "		\
 			 << MSG::hex << robid << MSG::dec );
-	err_count++;
+	m_err_count_int_fillFullCompress++;
       }
-      else if ( 100 == err_count ) 
+      else if ( 100 == m_err_count_int_fillFullCompress ) 
       {
 	ATH_MSG_WARNING( "Too many Invalid ByteStream messages  "	\
 			 << "Turning message off." );
-	err_count++;
+	m_err_count_int_fillFullCompress++;
       }
 
       return StatusCode::RECOVERABLE;
@@ -1700,7 +1700,8 @@ TableFilename
  * Read Compression Table from DB on IOV change
  */
 StatusCode
-TRT_RodDecoder::update()
+TRT_RodDecoder::update ATLAS_NOT_THREAD_SAFE ()
+// Non-thread-safe function 'AthenaAttributeList::AthenaAttributeList(const coral::AttributeList&)' called
 {  
 
   /*
