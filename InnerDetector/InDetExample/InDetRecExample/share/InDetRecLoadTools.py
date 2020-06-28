@@ -899,41 +899,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
   #
   # -----------------------------------------
 
-  if (not (InDetFlags.primaryVertexSetup() == 'IterativeFinding') and
-      not (InDetFlags.primaryVertexSetup() == 'AdaptiveMultiFinding') and
-      not (InDetFlags.primaryVertexSetup() == 'DefaultVKalVrtFinding') and
-      not (InDetFlags.primaryVertexSetup() == 'MedImgMultiFinding' ) and
-      not (InDetFlags.primaryVertexSetup() == 'GaussIterativeFinding' ) and
-      not (InDetFlags.primaryVertexSetup() == 'GaussAdaptiveMultiFinding' ) ):
-    #
-    # --- load primary vertex finder tool
-    #
-    do_multi_vtx = InDetPrimaryVertexingCuts.enableMultipleVertices()
-    from InDetPriVxFinderTool.InDetPriVxFinderToolConf import InDet__InDetPriVxFinderTool
-    InDetPriVxFinderTool = InDet__InDetPriVxFinderTool(name              = "InDetPriVxFinderTool",
-                                                       PriVxSeedFinder   = getInDetMultiSeedFinder() if do_multi_vtx else None,
-                                                       TrackSelector     = InDetTrackSelectorTool,
-                                                       VertexFitterTool  = InDetVxFitterTool,
-                                                       maxChi2PerTrack   = InDetPrimaryVertexingCuts.MaxChi2PerTrack(),
-                                                       chi2CutMethod     = InDetPrimaryVertexingCuts.chi2CutMethod(),
-                                                       enableMultipleVertices = do_multi_vtx,
-                                                       useBeamConstraint = InDetFlags.useBeamConstraint())
-
-  elif (InDetFlags.primaryVertexSetup() == 'MedImgMultiFinding') :
-    #
-    # --- load Medical Imaging seeded multi vertex finder
-    #
-    from InDetPriVxFinderTool.InDetPriVxFinderToolConf import InDet__InDetMultiPriVxFinderTool
-    InDetPriVxFinderTool = InDet__InDetMultiPriVxFinderTool( name                        = "InDetMedImgMultiPriVxFinderTool",
-                                                            VertexFitterTool             = InDetVxFitterTool,
-                                                            TrackSelector                = InDetTrackSelectorTool,
-                                                            SeedFinder                   = InDetVtxSeedFinder,
-                                                            ImpactPoint3dEstimator       = InDetImpactPoint3dEstimator,
-                                                            useBeamConstraint            = InDetFlags.useBeamConstraint(),
-                                                            significanceCutSeeding       = 12,
-                                                            maxVertices                  = 200)
-
-  elif ( (InDetFlags.primaryVertexSetup() == 'IterativeFinding') or
+  if ( (InDetFlags.primaryVertexSetup() == 'IterativeFinding') or
          (InDetFlags.primaryVertexSetup() == 'GaussIterativeFinding' ) ):
     #
     # --- load adaptive primary vertex finder
@@ -965,20 +931,9 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                                     TrackSelector     = InDetTrackSelectorTool,
                                                                     useBeamConstraint = InDetFlags.useBeamConstraint(),
                                                                     selectiontype     = 0,
-								    TracksMaxZinterval = 3,#mm 
+                                                                    TracksMaxZinterval = 3,#mm 
                                                                     do3dSplitting     = InDetFlags.doPrimaryVertex3DFinding())
 
-  elif InDetFlags.primaryVertexSetup() == 'DefaultVKalVrtFinding':
-    #
-    # --- load vkal vertex finder tool
-    #
-    from InDetVKalPriVxFinderTool.InDetVKalPriVxFinderTool import InDet__InDetVKalPriVxFinderTool
-    InDetPriVxFinderTool = InDet__InDetVKalPriVxFinderTool(name                   = "InDetVKalPriVxFinder",
-                                                           TrackSummaryTool       = InDetTrackSummaryTool,
-                                                           FitterTool             = InDetVxFitterTool,
-                                                           BeamConstraint         = 0)
-    if InDetFlags.useBeamConstraint():
-      InDetPriVxFinderTool.BeamConstraint = 1
 
   ToolSvc += InDetPriVxFinderTool
   if (InDetFlags.doPrintConfigurables()):
