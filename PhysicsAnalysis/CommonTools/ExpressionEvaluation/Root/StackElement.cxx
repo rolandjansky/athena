@@ -449,7 +449,7 @@ namespace ExpressionParsing {
       for (std::size_t idx=0; idx < a.size(); ++idx) {
          a[idx] = helper.compare(a[idx],b[idx]);
       }
-      return a;
+      return std::vector<int>(std::move(a));
    }
 
    template <class T_CompHelper>
@@ -459,7 +459,7 @@ namespace ExpressionParsing {
       for (std::size_t idx=0; idx < a.size(); ++idx) {
          b[idx] = helper.compare(a[idx],b[idx]);
       }
-      return b;
+      return std::vector<int>(std::move(b));
    }
 
    template <class T_CompHelper>
