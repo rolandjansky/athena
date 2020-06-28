@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -17,17 +17,24 @@
 //                                                             //
 /////////////////////////////////////////////////////////////////
 #include "TRTDigSettings.h"
+
+#include "CxxUtils/checker_macros.h"
 #include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h" //For speed of light
-#include "GaudiKernel/Algorithm.h"         //For adding properties to an algorithm
-#include "GaudiKernel/AlgTool.h"           //For adding properties to an algtool
-#include <iostream>
-#include <limits>
 
 //Geomodel
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
+
+#include "GaudiKernel/Algorithm.h"         //For adding properties to an algorithm
+#include "GaudiKernel/AlgTool.h"           //For adding properties to an algtool
+
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/PhysicalConstants.h" //For speed of light
+
+#include <iostream>
+#include <limits>
+
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // std::exit is used.
 
 // RDBAccessSvc (Interface to the DD database) has been removed since
 // TRT_Digitization-01-00-11 because the fetched values are correctly

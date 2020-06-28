@@ -61,6 +61,8 @@
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
 
+#include "CxxUtils/checker_macros.h"
+
 //#include "driftCircle.h" // local copy for debugging and development
 
 //_____________________________________________________________________________
@@ -87,7 +89,7 @@ TRTDigitizationTool::~TRTDigitizationTool() {
 }
 
 //_____________________________________________________________________________
-StatusCode TRTDigitizationTool::initialize()
+StatusCode TRTDigitizationTool::initialize ATLAS_NOT_THREAD_SAFE ()
 {
 
   ATH_MSG_DEBUG ( name()<<"::initialize() begin" );
