@@ -14,7 +14,6 @@ trig6Seq = CfgMgr.AthSequencer("TRIG6Sequence")
 #====================================================================
 # SET UP STREAM   
 #====================================================================
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 
 streamName = derivationFlags.WriteDAOD_TRIG6Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_TRIG6Stream )
