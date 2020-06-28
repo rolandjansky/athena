@@ -1066,7 +1066,7 @@
 
 <h id="pullHelper_eta_ptqopt" type="TH2F" title="pull vs #eta for p_{T} #times q/p_{T}">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
-  <y title="(reco_{q/p_{T}} - truth_{q/p_{T}) / #sigma(q/p_{T})" n="100" lo="-10.0" hi="10.0"/>
+  <y title="(reco_{q/p_{T}} - truth_{q/p_{T}}) / #sigma(q/p_{T})" n="100" lo="-10.0" hi="10.0"/>
 </h>
 
 <h id="pullHelper_eta_theta" type="TH2F" title="pull vs #eta for #theta">
