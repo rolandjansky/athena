@@ -94,7 +94,6 @@ class IOVSvc;
 class IOVSvcTool;
 class PileUpMergeSvc;
 class SGDeleteAlg;
-class ThinningSvc;
 class ActiveStoreSvc;
 namespace SG { 
   class VarHandleBase; 
@@ -615,7 +614,6 @@ private:
   friend class PileUpMergeSvc;      // FIXME needs to call tRange
   friend class StoreGateSvc;
   ///access typeless_record
-  friend class ThinningSvc;
   friend class SG::VarHandleBase;                                                      
 
   ///DEPRECATED: Return a _pointer_ to the DataStore
