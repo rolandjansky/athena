@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -40,9 +40,6 @@ class Identifier;
 class AtlasDetectorID;
 class GeoVAlignmentStore;
 class CondAttrListCollection;
-
-// mutable Athena::MsgStreamMember issues warnings.
-ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 namespace InDetDD {
 
@@ -188,7 +185,7 @@ namespace InDetDD {
       virtual const AtlasDetectorID* getIdHelper() const = 0;
     
       //Declaring private message stream member.
-      mutable Athena::MsgStreamMember           m_msg;
+      mutable Athena::MsgStreamMember           m_msg ATLAS_THREAD_SAFE;
       
       Version                                   m_version;
       std::map<std::string, LevelInfo>          m_keys;
