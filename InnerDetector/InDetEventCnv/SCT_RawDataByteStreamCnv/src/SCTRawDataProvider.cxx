@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCTRawDataProvider.h"
@@ -39,8 +39,9 @@ StatusCode SCTRawDataProvider::initialize()
     m_cabling.disable();
   }
   else {
-    // Retrieve Cabling service
+    // Retrieve Cabling tool
     ATH_CHECK(m_cabling.retrieve());
+    m_regionSelector.disable();
   }
 
   //Initialize
@@ -105,8 +106,8 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
     for (const TrigRoiDescriptor* roi : *roiCollection) {
       superRoI.push_back(roi);
     }
-    m_regionSelector->DetROBIDListUint(SCT, superRoI, listOfROBs);
-    m_regionSelector->DetHashIDList(SCT, superRoI, hashIDs);
+    m_regionSelector->ROBIDList(superRoI, listOfROBs);
+    m_regionSelector->HashIDList(superRoI, hashIDs);
     m_robDataProvider->getROBData(listOfROBs, vecROBFrags);
   }
 
