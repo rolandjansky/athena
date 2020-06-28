@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBTPCnv/TBBPCContCnv_p1.h"
@@ -74,7 +74,7 @@ TBBPCContCnv_p1::transToPers(const TBBPCCont* trans,
   TBBPCCont::const_iterator BPCIt_e = trans->end();
 
   // copy all the scints from the trans to the pers
-  for (; BPCIt!=BPCIt_e; BPCIt++) {
+  for (; BPCIt!=BPCIt_e; ++BPCIt) {
     const TBBPC * BPC = * BPCIt;
 
     // fill in the scint properties
