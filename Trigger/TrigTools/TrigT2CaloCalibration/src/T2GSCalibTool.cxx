@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -20,12 +20,10 @@
 
 
 T2GSCalibTool::T2GSCalibTool(const std::string& t, const std::string& n,
-			       const IInterface*  p ) : AthAlgTool(t,n,p),	m_log(msgSvc(), n)	
+			       const IInterface*  p )
+  : base_class(t,n,p),
+    m_log(msgSvc(), n)	
 {
- 
-  declareInterface<IT2HadCalibTool>(this);
-
-  declareConstant("CalibConstants",     m_calibConstants);
   declareProperty("EtaBins",            m_etaBins);
   declareProperty("EtaMin",             m_etaMin);
   declareProperty("EtaMax",             m_etaMax);
@@ -43,32 +41,11 @@ T2GSCalibTool::~T2GSCalibTool() {
 }
 
 
-StatusCode T2GSCalibTool::setProperty (const std::string& propname,
-                                             const std::string& value){
-  StatusCode sc = AthAlgTool::setProperty (propname, value);
-  if (sc.isFailure())
-    return sc;
-  sc=CaloRec::ToolWithConstantsMixin::setProperty (propname, value);
-  if (sc.isFailure())
-    return sc;
-  return StatusCode::SUCCESS;  
-}
-
-StatusCode T2GSCalibTool::setProperty (const Property& p){
-  StatusCode sc=AthAlgTool::setProperty (p);
-  if (sc.isFailure())
-    return sc;
-  sc=CaloRec::ToolWithConstantsMixin::setProperty (p);
-  if (sc.isFailure())
-    return sc;
-  return StatusCode::SUCCESS;
-}   
-
-
 StatusCode T2GSCalibTool::initialize()
 {
   // Initialize MsgStream
   m_log.setLevel(msgLevel());
+  ATH_CHECK( base_class::initialize() );
   return StatusCode::SUCCESS;  
 }
 
@@ -140,13 +117,13 @@ double T2GSCalibTool::CalculateCorrection(double jetProperty,
     ? interpolate(pT, jetProperty, 
 		  m_ptBins[eta_index], 
 		  m_propertyBins[eta_index], 
-		  m_calibConstants[eta_index]) 
+		  m_calibConstants()[eta_index]) 
     : 0;
   if(corr == 0){
     corr = extrapolate(pT, jetProperty, 
 		       m_ptBins[eta_index], 
 		       m_propertyBins[eta_index], 
-		       m_calibConstants[eta_index]);
+		       m_calibConstants()[eta_index]);
 
 
   }

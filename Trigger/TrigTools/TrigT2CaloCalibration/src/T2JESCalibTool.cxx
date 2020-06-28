@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -23,13 +23,10 @@
 
 
 T2JESCalibTool::T2JESCalibTool(const std::string& t, const std::string& n,
-			       const IInterface*  p ) : AthAlgTool(t,n,p),	m_log(msgSvc(), n)	
+			       const IInterface*  p )
+  : base_class(t,n,p),
+    m_log(msgSvc(), n)	
 {
- 
- declareInterface<IT2HadCalibTool>(this);
- m_etcut = 10; //GeV
- declareProperty("MinEtCut",m_etcut);
- declareConstant("JES_Factors", m_EnergyCorrConstants);
 }
 
  
@@ -37,32 +34,11 @@ T2JESCalibTool::~T2JESCalibTool() {
 }
 
 
-StatusCode T2JESCalibTool::setProperty (const std::string& propname,
-                                             const std::string& value){
-  StatusCode sc = AthAlgTool::setProperty (propname, value);
-  if (sc.isFailure())
-    return sc;
-  sc=CaloRec::ToolWithConstantsMixin::setProperty (propname, value);
-  if (sc.isFailure())
-    return sc;
-  return StatusCode::SUCCESS;  
-}
-
-StatusCode T2JESCalibTool::setProperty (const Property& p){
-  StatusCode sc=AthAlgTool::setProperty (p);
-  if (sc.isFailure())
-    return sc;
-  sc=CaloRec::ToolWithConstantsMixin::setProperty (p);
-  if (sc.isFailure())
-    return sc;
-  return StatusCode::SUCCESS;
-}   
-
-
 StatusCode T2JESCalibTool::initialize()
 {
   // Initialize MsgStream
   m_log.setLevel(msgLevel());
+  ATH_CHECK( base_class::initialize() );
   return StatusCode::SUCCESS;  
 }
 
@@ -113,7 +89,7 @@ double T2JESCalibTool::GetJES(double jet_e, double jet_eta)
   unsigned ieta = GetEtaBin(jet_eta);
 
   // Calculate the jet response and then the JES as 1/R
-  double R=PolLogE(m_EnergyCorrConstants,ieta,E);
+  double R=PolLogE(m_EnergyCorrConstants(),ieta,E);
   return 1.0/R;
 }
 
