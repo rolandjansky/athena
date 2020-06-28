@@ -1199,7 +1199,7 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTEfficiency(const TrackCollection& co
 			continue;
 		}
 
-		const std::unique_ptr<const Trk::TrackSummary> summary(m_TrackSummaryTool->createSummary(*(*track)));
+		const std::unique_ptr<const Trk::TrackSummary> summary(m_TrackSummaryTool->summary(*(*track)));
 		int n_trt_hits = summary->get(Trk::numberOfTRTHits);
 		int n_sct_hits = summary->get(Trk::numberOfSCTHits);
 		int n_pixel_hits = summary->get(Trk::numberOfPixelHits);
@@ -1525,7 +1525,7 @@ StatusCode TRTMonitoringRun3RAW_Alg::fillTRTHits(const TrackCollection& trackCol
 	}
 
 	for (; p_trk != trackCollection.end(); ++p_trk) {
-		const std::unique_ptr<const Trk::TrackSummary> summary(m_TrackSummaryTool->createSummary(*(*p_trk)));
+		const std::unique_ptr<const Trk::TrackSummary> summary(m_TrackSummaryTool->summary(*(*p_trk)));
 		int nTRTHits = summary->get(Trk::numberOfTRTHits);
 
 		if (nTRTHits < m_minTRThits) continue;
