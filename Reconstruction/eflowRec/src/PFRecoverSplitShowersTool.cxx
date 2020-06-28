@@ -159,19 +159,20 @@ unsigned int PFRecoverSplitShowersTool::matchAndCreateEflowCaloObj(eflowData& da
       ATH_MSG_DEBUG("Recovering charged EFO with e,pt, eta and phi " << track->e() << ", " << track->pt() << ", " << track->eta() << " and " << track->phi());
     }
     // Get list of matched clusters in the dR<0.2 cone -- already identified
-    const std::vector<eflowTrackClusterLink*>& matchedClusters_02 = *thisEfRecTrack->getAlternativeClusterMatches("cone_02");
+    const std::vector<eflowTrackClusterLink*>* matchedClusters_02 = thisEfRecTrack->getAlternativeClusterMatches("cone_02");
+    if (!matchedClusters_02) { continue; }
 
     if (msgLvl(MSG::DEBUG)){
-      for (auto trkClusLink : matchedClusters_02) {
+      for (auto trkClusLink : *matchedClusters_02) {
 	const eflowRecCluster* thisEFRecCluster = trkClusLink->getCluster();
 	ATH_MSG_DEBUG("Have matched cluster with e, pt, eta, phi of " << thisEFRecCluster->getCluster()->e() << ", " <<  thisEFRecCluster->getCluster()->eta() << ", " << thisEFRecCluster->getCluster()->eta() << " and " << thisEFRecCluster->getCluster()->phi());
       }
     }
 
-    if (matchedClusters_02.empty()) { continue; }
+    if (matchedClusters_02->empty()) { continue; }
 
     /* Matched cluster: create TrackClusterLink and add it to both the track and the cluster (eflowCaloObject will be created later) */
-    for (auto trkClusLink : matchedClusters_02){
+    for (auto trkClusLink : *matchedClusters_02){
       eflowRecCluster* thisEFRecCluster = trkClusLink->getCluster();
       // Look up whether this cluster is intended for recovery
       if( data.clustersToConsider.find(trkClusLink->getCluster()) == data.clustersToConsider.end() ) {continue;}
