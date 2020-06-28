@@ -3810,7 +3810,6 @@ StatusCode TRT_Monitoring_Tool::fillTRTEfficiency(const TrackCollection& combTra
 }
 
 
-int maxtimestamp = 0.;
 //----------------------------------------------------------------------------------//
 StatusCode TRT_Monitoring_Tool::fillTRTHighThreshold(const TrackCollection& trackCollection,
                                                      const xAOD::EventInfo& eventInfo) {
@@ -3825,15 +3824,15 @@ StatusCode TRT_Monitoring_Tool::fillTRTHighThreshold(const TrackCollection& trac
 	lumiBlockNumber = eventInfo.lumiBlock();
 	timeStamp = eventInfo.timeStamp();
 
-	if (timeStamp > maxtimestamp) {
-		maxtimestamp = timeStamp;
+	if (timeStamp > m_maxtimestamp) {
+		m_maxtimestamp = timeStamp;
 	}
 
 	int runNumber;
 	runNumber = eventInfo.runNumber();
 	// get Online Luminosity
 	double intLum = (this->lbDuration() * this->lbAverageLuminosity());
-	double timeStampAverage = (maxtimestamp - 0.5 * this->lbDuration());
+	double timeStampAverage = (m_maxtimestamp - 0.5 * this->lbDuration());
 	m_IntLum->SetBinContent(1, intLum);
 	m_LBvsLum->SetBinContent(lumiBlockNumber, intLum);
 	m_LBvsTime->SetBinContent(lumiBlockNumber, timeStampAverage);
