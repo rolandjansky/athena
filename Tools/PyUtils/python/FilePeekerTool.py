@@ -61,20 +61,6 @@ class FilePeekerTool():
 
         from PyCool import coral
 
-        attribute_methods = dir(coral.Attribute)
-        methnames = ['data<std::__cxx11::basic_string<char> >',
-                     'data<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >',
-                     'data<std::basic_string<char> >',
-                     'data<std::string>']
-        for m in methnames:
-            if m in attribute_methods:
-                attribute_getdata = m
-                break
-        else:
-            raise Exception("Can't find data method in Attribute")
-        def attr_str_data(attr):
-            return getattr(attr, attribute_getdata) ()
-
         nb = meta.GetEntry( 0 )
 
         esiName= 'Stream'
@@ -285,7 +271,7 @@ class FilePeekerTool():
                         spec   = a.specification()
                         a_type = spec.typeName()
                         if a_type.find('string') >= 0:
-                            a_data = attr_str_data(a)
+                            a_data = a.data('string')()
 #                           a_data = getattr(a, 'data<std::basic_string<char> >') ()
                             try:
                                 a_data = eval(a_data,{},{})
@@ -294,7 +280,7 @@ class FilePeekerTool():
                                 pass
 #                           print >> stdout,  spec.name(),a_data
                         else:
-                            a_data = getattr(a,'data<%s>'%a_type)()
+                            a_data = a.data(a_type)()
                         #print >> stdout,  "%s: %s  %s" (spec.name(), a_data, type(a_data) )
                         attr_data.append( (spec.name(), a_data) )
                     attrs.append(dict(attr_data))
