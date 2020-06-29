@@ -59,7 +59,7 @@ namespace top {
      *  Unless systematics have been requested through the
      *  specifiedSystematics setter function, this will be an empty list.
      */
-    inline virtual const std::list<CP::SystematicSet>& specifiedSystematics() const;
+    inline const std::list<CP::SystematicSet>& specifiedSystematics() const;
 
     /*
      * @brief Retrieve the recommended systematics list.
@@ -140,22 +140,13 @@ namespace top {
       std::vector<CP::SystematicSet> smearing, truthFilter, bias;
     } m_systs;
 
-    struct {
-      ToolHandle<InDet::InDetTrackSmearingTool> smearing;
-      ToolHandle<InDet::InDetTrackTruthOriginTool> truthOrigin;
-      ToolHandle<InDet::InDetTrackTruthFilterTool> truthFilter;
+    ToolHandle<InDet::InDetTrackSmearingTool> m_smearingTool;
+    std::vector<ToolHandle<InDet::InDetTrackBiasingTool> > m_biasTool;
+    ToolHandle<InDet::InDetTrackTruthOriginTool> m_truthOriginTool;
+    ToolHandle<InDet::InDetTrackTruthFilterTool> m_truthFilterTool;
 
-      std::vector<ToolHandle<InDet::InDetTrackBiasingTool> > bias;
-    } m_tools;
   };
 
-  /* inline virtual */ const std::list<CP::SystematicSet>& TrackSystematicsMaker::specifiedSystematics() const {
-    return m_specifiedSystematics;
-  }
-
-  /* inline */ const std::list<CP::SystematicSet>& TrackSystematicsMaker::recommendedSystematics() const {
-    return m_recommendedSystematics;
-  }
 }
 
 #endif /* _TOP_TRACKSYSTEMATICSMAKER_H_ */

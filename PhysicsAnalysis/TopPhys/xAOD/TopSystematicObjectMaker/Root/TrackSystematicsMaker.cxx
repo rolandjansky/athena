@@ -37,10 +37,13 @@ namespace top {
     m_specifiedSystematics(),
     m_recommendedSystematics(),
     m_nominalSystematicSet(),
-    m_tools() {
+    m_smearingTool("top::TrackCPTools::InDetTrackSmearingTool"),
+    m_truthOriginTool("top::TrackCPTools::InDetTrackTruthOriginTool"),   
+    m_truthFilterTool("top::TrackCPTools::InDetTrackTruthFilterTool")                 
+  {
     declareProperty("config", m_config);
   }
-
+  
   /* virtual */ TrackSystematicsMaker::~TrackSystematicsMaker() {
   }
 
@@ -57,10 +60,8 @@ namespace top {
     // program abortion upon failure. This is intended as there's no
     // meaningful method of recovery.
     // These tools are setup and initialised in the TopCPTools package, and we just retrieve them here.
-    top::check(retrieveTrackCPTool(),
-               "Failed to retrieve the track CP tools");
-
-
+    top::check(retrieveTrackCPTool(), "Failed to retrieve the track CP tools");
+    
     // Setup the recommended systematics. This utilises the tools that were
     // setup before.
     const std:: string& syststr = m_config->systematics();
@@ -272,7 +273,7 @@ namespace top {
 
     ///-- SMEARING --///
     for (const auto& syst : m_systs.smearing) {
-      top::check(applySmearingSystematic(&(*m_tools.smearing), syst),
+      top::check(applySmearingSystematic(&(*m_smearingTool), syst),
 		 "Failure to apply TrackSystematic");
     }
 
@@ -282,7 +283,7 @@ namespace top {
     };
 
     if (m_runPeriods.size() == 1) {
-      biasingTool = &(*m_tools.bias[0]);
+      biasingTool = &(*m_biasTool[0]);
 
       top::check(biasingTool, "Failure to selected biasing tool");
       for (const auto& syst : m_systs.bias) {
@@ -309,7 +310,7 @@ namespace top {
 	
         for (std::size_t i = 1; i < m_runPeriods.size(); ++i) {
           if (randomRunNumber < m_runPeriods[i]) {
-            biasingTool = &(*m_tools.bias[i - 1]);
+            biasingTool = &(*m_biasTool[i - 1]);
             break;
           }
         }
@@ -324,7 +325,7 @@ namespace top {
     ///-- TRUTH FILTER --///                                                                                                                                                                           
     for (const auto& syst : m_systs.truthFilter) {                                                                                                                                                 
 
-      top::check(applyTruthFilterSystematic(&(*m_tools.truthFilter), syst),
+      top::check(applyTruthFilterSystematic(&(*m_truthFilterTool), syst),
 		 "Failure to apply TrackSystematic");                                                                                                                                                      
     } 
 
@@ -346,11 +347,11 @@ namespace top {
     std::set<CP::SystematicSet> systs;
 
     // SMEARING
-    m_systs.smearing = CP::make_systematics_vector(m_tools.smearing->recommendedSystematics());
+    m_systs.smearing = CP::make_systematics_vector(m_smearingTool->recommendedSystematics());
     systs.insert(m_systs.smearing.begin(), m_systs.smearing.end());
 
     // BIAS
-    for (const auto& tool : m_tools.bias) {
+    for (const auto& tool : m_biasTool) {
       m_systs.bias =
         CP::make_systematics_vector(tool->recommendedSystematics());
       systs.insert(m_systs.bias.begin(), m_systs.bias.end());
@@ -358,7 +359,7 @@ namespace top {
 
     // TRUTH FILTER                                                                                                                                                                                   
     m_systs.truthFilter =                                                                                                                                                                                 
-      CP::make_systematics_vector(m_tools.truthFilter->recommendedSystematics());                                                                                                                         
+      CP::make_systematics_vector(m_truthFilterTool->recommendedSystematics());                                                                                                                         
     systs.insert(m_systs.truthFilter.begin(), m_systs.truthFilter.end()); 
 
     // PUT INTO RECOMMENDED AND SPECIFIED
@@ -416,21 +417,10 @@ namespace top {
   StatusCode TrackSystematicsMaker::retrieveTrackCPTool() {
     ATH_MSG_INFO(" Retrieving track CPTools");
 
-    std::string smearingToolName {
-      "top::TrackCPTools::InDetTrackSmearingTool"
-    };
 
-    if (asg::ToolStore::contains<InDet::InDetTrackSmearingTool>(smearingToolName)) {
-      m_tools.smearing =
-        asg::ToolStore::get<InDet::InDetTrackSmearingTool>(smearingToolName);
-    } else {
-      ATH_MSG_ERROR(" Impossible to retrieve " + smearingToolName);
-      return StatusCode::FAILURE;
-    }
-
-    std::string biasToolPrefix {
-      "top::TrackCPTools::InDetTrackBiasingTool"
-    };
+    top::check(m_smearingTool.retrieve(), "Failed to retrieve track smearing tool");
+    
+    std::string biasToolPrefix {"top::TrackCPTools::InDetTrackBiasingTool"};
     top::check(not m_runPeriods.empty(), "Assertion failed");
     // Two cases are possible:
     //     - Either a single run number was specified to the runPeriods
@@ -440,50 +430,52 @@ namespace top {
     unsigned int end = 0;
     if (m_runPeriods.size() == 1) {
       end = 1;
-      m_tools.bias.resize(1);
+      m_biasTool.resize(1);
     } else {
       end = m_runPeriods.size() - 1;
-      m_tools.bias.resize(m_runPeriods.size() - 1);
+      m_biasTool.resize(m_runPeriods.size() - 1);
     }
 
     for (unsigned int i = 0; i < end; i++) {
+  
+
       std::string biasToolName {
         ""
       };
       if (m_runPeriods.size() == 1) {
         biasToolName = biasToolPrefix + "_" + std::to_string(m_runPeriods[0]);
-      } else {
+      } 
+      else {
         biasToolName = biasToolPrefix + "_" + std::to_string(m_runPeriods[i]) + "_" +
                        std::to_string(m_runPeriods[i + 1]);
       }
+
+
       if (asg::ToolStore::contains<InDet::InDetTrackBiasingTool>(biasToolName)) {
-        m_tools.bias[i] = asg::ToolStore::get<InDet::InDetTrackBiasingTool>(biasToolName);
+	m_biasTool[i] = asg::ToolStore::get<InDet::InDetTrackBiasingTool>(biasToolName);
       } else {
         ATH_MSG_ERROR(" Impossible to retrieve " + biasToolName);
         return StatusCode::FAILURE;
       }
+
+
+
     }
 
-    std::string truthOriginToolName {
-      "top::TrackCPTools::InDetTrackTruthOriginTool"
-    };
-    if (asg::ToolStore::contains<InDet::InDetTrackTruthOriginTool>(truthOriginToolName)) {
-      m_tools.truthOrigin = asg::ToolStore::get<InDet::InDetTrackTruthOriginTool>(truthOriginToolName);
-    } else {
-      ATH_MSG_ERROR(" Impossible to retrieve " + truthOriginToolName);
-      return StatusCode::FAILURE;
-    }
-
-    std::string truthFilterToolName {
-      "top::TrackCPTools::InDetTrackTruthFilterTool"
-    };
-    if (asg::ToolStore::contains<InDet::InDetTrackTruthFilterTool>(truthFilterToolName)) {
-      m_tools.truthFilter = asg::ToolStore::get<InDet::InDetTrackTruthFilterTool>(truthFilterToolName);
-    } else {
-      ATH_MSG_ERROR(" Impossible to retrieve " + truthFilterToolName);
-      return StatusCode::FAILURE;
-    }
+    top::check(m_truthOriginTool.retrieve(), "Failed to retrieve track truth origin tool");
+    top::check(m_truthFilterTool.retrieve(), "Failed to retrieve track truth filter tool");
+    
 
     return StatusCode::SUCCESS;
   }
+
+  
+  inline const std::list<CP::SystematicSet>& TrackSystematicsMaker::specifiedSystematics() const {
+    return m_specifiedSystematics;
+  }
+
+  inline const std::list<CP::SystematicSet>& TrackSystematicsMaker::recommendedSystematics() const {
+    return m_recommendedSystematics;
+  }
+
 }
