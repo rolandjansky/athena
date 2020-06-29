@@ -51,6 +51,8 @@ namespace Analysis {
     ATH_CHECK( m_BTaggingCollectionName.initialize() );
     m_jetBTaggingLinkName = m_JetCollectionName.key() + m_BTagLink;
     ATH_CHECK( m_jetBTaggingLinkName.initialize() );
+    m_bTagJetDecorLinkName = m_BTaggingCollectionName.key() + ".jetLink";
+    ATH_CHECK( m_bTagJetDecorLinkName.initialize() );
    
     /// retrieve the main BTagTool
     if ( m_bTagTool.retrieve().isFailure() ) {
@@ -108,6 +110,8 @@ namespace Analysis {
 
     //Decor Jet with element link to the BTagging
     SG::WriteDecorHandle<xAOD::JetContainer,ElementLink< xAOD::BTaggingContainer > > h_jetBTaggingLinkName(m_jetBTaggingLinkName, ctx);
+    //Decor BTagging with element link to the Jet
+    SG::WriteDecorHandle<xAOD::BTaggingContainer, ElementLink< xAOD::JetContainer > > h_bTagJetLinkName(m_bTagJetDecorLinkName, ctx);
 
     //Create a xAOD::BTaggingContainer in any case (must be done)
     std::string bTaggingContName = m_BTaggingCollectionName.key();
@@ -171,13 +175,16 @@ namespace Analysis {
       ATH_MSG_WARNING("#BTAG# Failed in taggers call");
     }
 
-    //Create the element link from the jet to the btagging
+    //Create the element link from the jet to the btagging and reverse link
     for (size_t jetIndex=0; jetIndex < h_JetCollectionName->size() ; ++jetIndex) {
       const xAOD::Jet * jetToTag = h_JetCollectionName->at(jetIndex);
       xAOD::BTagging * itBTag = h_BTaggingCollectionName->at(jetIndex);
       ElementLink< xAOD::BTaggingContainer> linkBTagger;
       linkBTagger.toContainedElement(*h_BTaggingCollectionName.ptr(), itBTag);
       h_jetBTaggingLinkName(*jetToTag) = linkBTagger;
+      ElementLink< xAOD::JetContainer> linkJet;
+      linkJet.toContainedElement(*h_JetCollectionName.ptr(), jetToTag);
+      h_bTagJetLinkName(*itBTag) = linkJet;
     }
 
     return StatusCode::SUCCESS;

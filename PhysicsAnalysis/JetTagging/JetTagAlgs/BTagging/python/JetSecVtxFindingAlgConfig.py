@@ -2,7 +2,6 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from BTagging.BTaggingFlags import BTaggingFlags
 from BTagging.NewJetFitterVxFinderConfig import NewJetFitterVxFinderCfg
 from BTagging.InDetVKalVxInJetToolConfig import InDetVKalVxInJetToolCfg
 
@@ -32,8 +31,8 @@ def JetSecVtxFindingAlgCfg(ConfigFlags, JetCollection, ParticleCollection="", SV
 
     options = {}
     options.setdefault('SecVtxFinder', secVtxFinder)
-    options.setdefault('PrimaryVertexName', BTaggingFlags.PrimaryVertexCollectionName)
-    options.setdefault('vxPrimaryCollectionName', BTaggingFlags.PrimaryVertexCollectionName)
+    options.setdefault('PrimaryVertexName', ConfigFlags.BTagging.PrimaryVertexCollectionName)
+    options.setdefault('vxPrimaryCollectionName', ConfigFlags.BTagging.PrimaryVertexCollectionName)
     options['JetCollectionName'] = jetcol.replace('Track', 'PV0Track') + 'Jets'
     options['TrackToJetAssociatorName'] = options['JetCollectionName'] + '.' + Associator
     options['BTagVxSecVertexInfoName'] = SVFinder + 'VxSecVertexInfo_' + JetCollection
