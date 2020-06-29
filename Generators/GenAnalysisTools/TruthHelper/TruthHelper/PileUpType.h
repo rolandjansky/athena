@@ -42,7 +42,7 @@ public:
     const HepMC::GenEvent * signal_mc_event() const;
 
     template<class Selector>
-    void signal_particles( std::vector<const HepMC::GenParticle*>& particleList,
+    void signal_particles( std::vector<HepMC::ConstGenParticlePtr>& particleList,
                            const Selector& select ) const;
 
     /** extract the in-time minimum bias McEvent Particles from the McEventCollection
@@ -58,7 +58,7 @@ public:
     McEventCollection::const_iterator signal_and_in_time_minimum_bias_event_end() const;
 
     template<class Selector>
-    void in_time_minimum_bias_particles( std::vector<const HepMC::GenParticle*>& particleList,
+    void in_time_minimum_bias_particles( std::vector<HepMC::ConstGenParticlePtr>& particleList,
                                          const Selector& select ) const;
 
     /** the in-time particles - this includes in the signal */
@@ -66,22 +66,22 @@ public:
     McEventCollection::const_iterator in_time_event_end() const;
 
     template<class Selector>
-    void in_time_particles( std::vector<const HepMC::GenParticle*>& particleList,
+    void in_time_particles( std::vector<HepMC::ConstGenParticlePtr>& particleList,
                             const Selector& select ) const;
 
     /** return the MC events in [-2BC, +2BC], including the signal McEvent at BC=0 */
     template<class Selector>
-    void particles_in_two_bunch_crossings( std::vector<const HepMC::GenParticle*>& particleList,
+    void particles_in_two_bunch_crossings( std::vector<HepMC::ConstGenParticlePtr>& particleList,
                                            const Selector& select ) const;
 
     /** return the MC events in [-inf,-2BC] and [2BC,+inf], excluding the cavern background and the beam halo */
     template<class Selector>
-    void particles_outside_two_bunch_crossings( std::vector<const HepMC::GenParticle*>& particleList,
+    void particles_outside_two_bunch_crossings( std::vector<HepMC::ConstGenParticlePtr>& particleList,
                                                 const Selector& select ) const;
 
     /** return the MC events of the cavern background */
     template<class Selector>
-    void cavern_background_particles( std::vector<const HepMC::GenParticle*>& particleList,
+    void cavern_background_particles( std::vector<HepMC::ConstGenParticlePtr>& particleList,
                                       const Selector& select ) const;
 
 private:

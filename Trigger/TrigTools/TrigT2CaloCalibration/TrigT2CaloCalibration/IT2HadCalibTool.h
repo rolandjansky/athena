@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -22,7 +22,7 @@
 class IT2HadCalibTool : virtual public IAlgTool {
     public:
         /**interface ID*/
-        static const InterfaceID& interfaceID();
+        DeclareInterfaceID( IT2HadCalibTool, 1, 0 );
         
         /**virtual method to be defined in the inherited class for*/
         virtual double c_energy(double EMenergy,double HADenergy,double eta) = 0;

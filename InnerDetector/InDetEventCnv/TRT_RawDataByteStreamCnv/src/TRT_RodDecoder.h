@@ -19,7 +19,6 @@
 /*
  * TRT Tools we use
  */
-#include "TRT_ConditionsServices/ITRT_ByteStream_ConditionsSvc.h"
 #include "TRT_Cabling/ITRT_CablingSvc.h"
 
 /*
@@ -92,15 +91,14 @@ public:
 
   //! the method to fill the IDC
   virtual StatusCode fillCollection ( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* robFrag,
-			      TRT_RDO_Container* rdoIdc,
-			      const std::vector<IdentifierHash>* vecHash = 0) override;
+				      TRT_RDO_Container* rdoIdc,
+				      TRT_BSErrContainer* bserr,
+				      const std::vector<IdentifierHash>* vecHash = 0) override;
 
 
  private:
 
    ServiceHandle<ITRT_CablingSvc>   m_CablingSvc;
-
-   ServiceHandle<ITRT_ByteStream_ConditionsSvc> m_bsErrSvc;
 
    /*
     * Do we look for Front-End Errors at all?

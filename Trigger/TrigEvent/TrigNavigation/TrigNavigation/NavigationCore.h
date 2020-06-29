@@ -40,9 +40,9 @@ class TrigEDMSizes;
 namespace HLTNavDetails { class TypeMapDeleter; }
 
 class TrigBStoxAODTool;
+class TrigNavigationThinningSvc;
 
 namespace HLT {
-  class TrigNavigationSlimmingTool;
   namespace TrigNavTools {
     struct SlimmingHelper;
   }
@@ -97,7 +97,7 @@ namespace HLT {
 
 
   class NavigationCore : public HLT::TrigNavStructure {
-    friend class HLT::TrigNavigationSlimmingTool;
+    friend class ::TrigNavigationThinningSvc;
     friend struct HLT::TrigNavTools::SlimmingHelper;
     friend class HLTNavDetails::TypeMapDeleter;
     friend class ::TrigBStoxAODTool;

@@ -99,9 +99,6 @@ if not 'OUTPUT' in dir():
   pass
 outStream.OutputFile = OUTPUT
 
-from AthenaServices.AthenaServicesConf import AthenaSealSvc
-svcMgr += AthenaSealSvc( OutputLevel = ERROR )
-
 from GaudiSvc.GaudiSvcConf import MessageSvc
 svcMgr += MessageSvc( defaultLimit = 4000000 )
 svcMgr.MessageSvc.OutputLevel  = ERROR

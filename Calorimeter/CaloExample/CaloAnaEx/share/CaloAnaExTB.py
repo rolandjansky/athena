@@ -665,12 +665,6 @@ if doWriteESD:
         Stream1.EvtConversionSvc = "AthenaPoolCnvSvc"
         Stream1.OutputFile = "reconstruction.root"
 
-    #check dictionary
-    AthenaSealSvc.CheckDictionary = True
-
-    # Needed for TBEvent ESD writing
-    include ( "TBEvent/TBEventDict_joboptions.py")    
-
     # Define the output file name
     Stream1.OutputFile    = "athena.root"
 

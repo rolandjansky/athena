@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -21,8 +21,8 @@
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "SCT_ConditionsData/SCT_FlaggedCondData.h"
 
-/// Tool/service handle template parameters
-#include "IRegionSelector/IRegSelSvc.h"
+/// Tool handle template parameters
+#include "IRegionSelector/IRegSelTool.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "SiClusterizationTool/ISCT_ClusteringTool.h"
 
@@ -80,7 +80,7 @@ private:
    * @name Service and Tool Handles and ID helper
    */
   //@{
-  ServiceHandle<IRegSelSvc> m_regionSelector; //!< region selector service for HLT
+  ToolHandle<IRegSelTool> m_regionSelector{this, "RegSelTool", "RegSelTool/RegSel_SCT", "region selector tool for HLT"};
   ToolHandle<ISCT_ClusteringTool> m_clusteringTool{this, "clusteringTool", "InDet::SCT_ClusteringTool"};
   ToolHandle<IInDetConditionsTool> m_pSummaryTool{this, "conditionsTool", "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT conditions summary"};
   const SCT_ID* m_idHelper{nullptr};

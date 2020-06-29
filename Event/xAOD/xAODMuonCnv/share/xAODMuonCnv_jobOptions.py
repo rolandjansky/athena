@@ -45,7 +45,6 @@ from AthenaCommon.AppMgr import theApp
 theApp.EvtMax = -1
 ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.defaultLimit = 1000000
-# ServiceMgr.AthenaSealSvc.OutputLevel = VERBOSE
 
 #from VP1Algs.VP1AlgsConf import VP1Alg
 #theJob += VP1Alg()

@@ -14,7 +14,6 @@
 #include "../JobIDSvc.h"
 #include "../CoreDumpSvc.h"
 #include "../AthDictLoaderSvc.h"
-#include "../AthenaSealSvc.h"
 #include "../PageAccessControlSvc.h"
 #include "../DecisionSvc.h"
 #include "../ItemListSvc.h"
@@ -55,7 +54,6 @@ DECLARE_COMPONENT( JobIDSvc )
 DECLARE_COMPONENT( CoreDumpSvc )
 DECLARE_COMPONENT( PageAccessControlSvc )
 DECLARE_COMPONENT( AthDictLoaderSvc )
-DECLARE_COMPONENT( AthenaSealSvc )
 DECLARE_COMPONENT( DecisionSvc )
 DECLARE_COMPONENT( ItemListSvc )
 DECLARE_COMPONENT( AthenaSummarySvc )

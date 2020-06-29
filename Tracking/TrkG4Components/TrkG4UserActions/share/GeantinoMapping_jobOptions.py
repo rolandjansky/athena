@@ -109,8 +109,6 @@ SimFlags.OptionalUserActionList.addAction('G4UA::MaterialStepRecorderTool',['Run
 ############### The Material hit collection ##################
 
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-# --- check dictionary
-ServiceMgr.AthenaSealSvc.CheckDictionary   = True
 # --- commit interval (test)
 ServiceMgr.AthenaPoolCnvSvc.OutputLevel = DEBUG
 MaterialStream              = AthenaPoolOutputStream ( 'MaterialStream' )

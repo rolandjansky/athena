@@ -90,11 +90,11 @@ struct ParametersNextVolume
   BoundarySurfaceFace exitFace;
 
   ParametersNextVolume(TrackParmContainer& track_parm_container)
-    : nextParameters(track_parm_container)
+    : nextVolume(nullptr)
+    , nextParameters(track_parm_container)
     , navParameters(track_parm_container)
+    , exitFace(undefinedFace)
   {
-    nextVolume = nullptr;
-    exitFace = undefinedFace;
   }
 
   //!< update the boundaryInformation

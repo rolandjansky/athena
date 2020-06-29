@@ -17,6 +17,7 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "InDetRawData/InDetTimeCollection.h"
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
+#include "InDetByteStreamErrors/TRT_BSErrContainer.h"
 
 // Tool interfaces
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
@@ -27,6 +28,8 @@
 #include <string>
 #include <vector>
 #include <set>
+
+
 
 class TProfile;
 class TH1F_LW;
@@ -55,7 +58,6 @@ class ITRT_CalDbTool;
 class ITRT_StrawStatusSummaryTool;
 class ITRT_ConditionsSvc;
 class ITRT_DAQ_ConditionsSvc;
-class ITRT_ByteStream_ConditionsSvc;
 class ITRT_StrawNeighbourSvc;
 //class ITRT_DriftFunctionTool;
 
@@ -144,7 +146,6 @@ private:
 	ServiceHandle<IToolSvc> p_toolSvc;
 	ToolHandle<ITRT_StrawStatusSummaryTool> m_sumTool;
 	ServiceHandle<ITRT_DAQ_ConditionsSvc> m_DAQSvc;
-	ServiceHandle<ITRT_ByteStream_ConditionsSvc> m_BSSvc;
 	ServiceHandle<ITRT_ConditionsSvc> m_condSvc_BS;
 	ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc;
 	ToolHandle<ITRT_CalDbTool> m_TRTCalDbTool;
@@ -158,6 +159,9 @@ private:
 	SG::ReadHandleKey<InDetTimeCollection> m_TRT_BCIDCollectionKey{this, "TRTBCIDCollectionName", "TRT_BCID", "Name of TRT BCID collection"};
 	SG::ReadHandleKey<ComTime> m_comTimeObjectKey{this, "ComTimeObjectName", "TRT_Phase", "Name of ComTime object"};
 	SG::ReadHandleKey<xAOD::TrigDecision> m_trigDecisionKey{this, "TrigDecisionObjectName", "xTrigDecision", "Name of trigger decision object"};
+
+        SG::ReadHandleKey<TRT_BSErrContainer> m_bsErrContKey{this,"ByteStreamErrors","TRT_ByteStreamErrs","SG key of TRT ByteStream Error container"};
+
 
 	// Tools
 	ToolHandle<Trk::ITrackSummaryTool> m_TrackSummaryTool{this, "TrkSummaryTool", "Trk::TrackSummaryTool/InDetTrackSummaryTool", "Track summary tool name"};

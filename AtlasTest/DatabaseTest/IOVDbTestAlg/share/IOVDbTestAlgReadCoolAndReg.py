@@ -115,10 +115,3 @@ svcMgr.ProxyProviderSvc.ProviderNames += [ "CondProxyProvider" ]
 
 svcMgr += getConfigurable( "CondProxyProvider" )()
 svcMgr.CondProxyProvider.InputCollections = ["SimplePoolFile.root"]
-
-#--------------------------------------------------------------
-# Make sure AthenaSealSvc is loaded for dict check
-#--------------------------------------------------------------
-# Check the dictionary in memory for completeness
-svcMgr.AthenaSealSvc.CheckDictionary = TRUE
-

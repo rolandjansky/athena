@@ -23,11 +23,6 @@ include( "LArIdCnv/LArIdCnv_joboptions.py" )
 include ( "IOVDbSvc/IOVDbSvc_jobOptions.py" )
 
 #--------------------------------------------------------------
-# Make sure AthenaSealSvc is loaded for dict check
-#--------------------------------------------------------------
-include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-
-#--------------------------------------------------------------
 # Private Application Configuration options
 #--------------------------------------------------------------
 #load relevant libraries

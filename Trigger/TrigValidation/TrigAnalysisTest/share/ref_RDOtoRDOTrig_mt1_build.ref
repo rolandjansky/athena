@@ -53,8 +53,8 @@ TrigSignatureMoniMT                                INFO HLT_2mu6Comb_L12MU6 #204
 TrigSignatureMoniMT                                INFO -- #2046267508 Events         4          4          4          3          -          -          -          -          3
 TrigSignatureMoniMT                                INFO -- #2046267508 Features                             16         12         -          -          -          -
 TrigSignatureMoniMT                                INFO HLT_2mu6_10invm70_L1MU6 #1316992871
-TrigSignatureMoniMT                                INFO -- #1316992871 Events         10         10         4          3          3          3          2          -          0
-TrigSignatureMoniMT                                INFO -- #1316992871 Features                             16         12         18         28         2          -
+TrigSignatureMoniMT                                INFO -- #1316992871 Events         10         10         4          3          3          3          -          -          3
+TrigSignatureMoniMT                                INFO -- #1316992871 Features                             16         12         18         28         -          -
 TrigSignatureMoniMT                                INFO HLT_2mu6_Dr_L12MU4 #3304584056
 TrigSignatureMoniMT                                INFO -- #3304584056 Events         4          4          4          3          -          -          -          -          3
 TrigSignatureMoniMT                                INFO -- #3304584056 Features                             16         12         -          -          -          -
@@ -122,11 +122,11 @@ TrigSignatureMoniMT                                INFO HLT_e300_etcut_L1EM22VHI
 TrigSignatureMoniMT                                INFO -- #2128128255 Events         6          6          0          0          0          -          -          -          0
 TrigSignatureMoniMT                                INFO -- #2128128255 Features                             0          0          0          -          -          -
 TrigSignatureMoniMT                                INFO HLT_e3_etcut1step_mu26_L1EM8I_MU10 #2209076666
-TrigSignatureMoniMT                                INFO -- #2209076666 Events         5          5          5          2          2          2          -          -          2
-TrigSignatureMoniMT                                INFO -- #2209076666 Features                             5          2          2          2          -          -
+TrigSignatureMoniMT                                INFO -- #2209076666 Events         5          5          3          1          1          1          -          -          1
+TrigSignatureMoniMT                                INFO -- #2209076666 Features                             3          1          1          1          -          -
 TrigSignatureMoniMT                                INFO HLT_e3_etcut1step_mu6fast_L1EM8I_MU10 #2086577378
-TrigSignatureMoniMT                                INFO -- #2086577378 Events         5          5          5          -          -          -          -          -          5
-TrigSignatureMoniMT                                INFO -- #2086577378 Features                             5          -          -          -          -          -
+TrigSignatureMoniMT                                INFO -- #2086577378 Events         5          5          3          -          -          -          -          -          3
+TrigSignatureMoniMT                                INFO -- #2086577378 Features                             3          -          -          -          -          -
 TrigSignatureMoniMT                                INFO HLT_e3_etcut_L1EM3 #683953566
 TrigSignatureMoniMT                                INFO -- #683953566 Events          20         20         20         20         20         -          -          -          20
 TrigSignatureMoniMT                                INFO -- #683953566 Features                              171        1848       390        -          -          -

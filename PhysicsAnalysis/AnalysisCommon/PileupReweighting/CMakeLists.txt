@@ -77,7 +77,5 @@ atlas_add_test( ut_PRWExample_test
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} PileupReweightingLib )
 
-# Install files from the package:
-atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_data( share/*.root )

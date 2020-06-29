@@ -10,6 +10,7 @@
 #include "AtlasHepMC/GenEvent.h"
 
 #include "GeneratorObjects/McEventCollection.h"
+#include "GenInterfaces/IHepMCWeightSvc.h"
 #include "AthenaKernel/errorcheck.h"
 #include "PathResolver/PathResolver.h"
 
@@ -37,6 +38,7 @@ using namespace std;
 
 Rivet_i::Rivet_i(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
+  m_hepMCWeightSvc("HepMCWeightSvc", name),
   m_analysisHandler(0),
   m_init(false)
 {
@@ -53,6 +55,8 @@ Rivet_i::Rivet_i(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty("IgnoreBeamCheck", m_ignorebeams=false);
   declareProperty("DoRootHistos", m_doRootHistos=false);
   declareProperty("SkipWeights", m_skipweights=false);
+  //declareProperty("MatchWeights", m_matchWeights="");
+  //declareProperty("UnmatchWeights", m_unmatchWeights="");
   declareProperty("WeightCap", m_weightcap=-1.0);
 }
 
@@ -122,6 +126,8 @@ StatusCode Rivet_i::initialize() {
   assert(m_analysisHandler);
   m_analysisHandler->setIgnoreBeams(m_ignorebeams); //< Whether to do beam ID/energy consistency checks
   m_analysisHandler->skipMultiWeights(m_skipweights); //< Whether to skip weights or not
+  //m_analysisHandler->selectMultiWeights(m_matchWeights); //< Only run on a subset of the multi-weights
+  //m_analysisHandler->deselectMultiWeights(m_unmatchWeights); //< Veto a subset of the multi-weights
   if (m_weightcap>0) m_analysisHandler->setWeightCap(m_weightcap);
 
   // Set Rivet native log level to match Athena
@@ -251,6 +257,32 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
   }
 
   // weight-name cleaning
+#ifdef HEPMC3
+  std::vector<std::string>  w_names = event->weight_names();
+  std::vector<std::pair<std::string,std::string> > w_subs = {
+    {" nominal ",""},
+    {" set = ","_"},
+    {" = ","_"},
+    {"=",""},
+    {",",""},
+    {".",""},
+    {":",""},
+    {" ","_"},
+    {"#","num"},
+    {"\n","_"},
+    {"/","over"}
+  };
+  for (std::string& wname : w_names) {
+    for (const auto& sub : w_subs) {
+      size_t start_pos = wname.find(sub.first);
+      while (start_pos != std::string::npos) {
+        wname.replace(start_pos, sub.first.length(), sub.second);
+        start_pos = wname.find(sub.first);
+      }
+    }
+  }
+  modEvent->run_info()->set_weight_names(w_names);
+#else
   const HepMC::WeightContainer& old_wc = event->weights();
   std::ostringstream stream;
   old_wc.print(stream);
@@ -259,6 +291,12 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
   // then it doesn't use named weights
   // --> no need for weight-name cleaning
   if (str.size() > 1) {
+    vector<string> orig_order(m_hepMCWeightSvc->weightNames().size());
+    for (const auto& item : m_hepMCWeightSvc->weightNames()) {
+      orig_order[item.second] = item.first;
+    }
+    map<string, double> new_name_to_value;
+    map<string, string> old_name_to_new_name;
     HepMC::WeightContainer& new_wc = modEvent->weights();
     new_wc.clear();
     vector<pair<string,string> > w_subs = {
@@ -282,6 +320,7 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
       if (temp.size() == 2 || temp.size() == 3) {
         string wname = temp[0];
         if (temp.size() == 3)  wname += "," + temp[1];
+        string old_name = string(wname);
         double value = old_wc[wname];
         for (const auto& sub : w_subs) {
           size_t start_pos = wname.find(sub.first);
@@ -290,13 +329,64 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
             start_pos = wname.find(sub.first);
           }
         }
-        new_wc[wname];
-        new_wc.back() = value;
+        new_name_to_value[wname] = value;
+        old_name_to_new_name[old_name] = wname;
       }
+    }
+    for (const string& old_name : orig_order) {
+      const string& new_name = old_name_to_new_name[old_name];
+      new_wc[ new_name ] = new_name_to_value[new_name];
     }
     // end of weight-name cleaning
   }
+#endif
+#ifdef HEPMC3
+  if (
+  false//!modEvent->valid_beam_particles()//FIXME!
+  ) {
+    for (auto p: modEvent->particles()) {
+      if (!p->production_vertex() && p->pdg_id() != 0) {
+        beams.push_back(p);
+      }
+    }
+    if (beams.size() > 2) std::sort(beams.begin(), beams.end(), cmpGenParticleByEDesc);
+    beams.resize(2);
+  } else {
+    beams.resize(2);
+    beams[0] = modEvent->beams()[0];
+    beams[1] = modEvent->beams()[1];
+  }
+  double scalefactor = 1.0;
+  //ATH_MSG_ALWAYS("BEAM ENERGY = " << beams[0]->momentum().e());
+  //ATH_MSG_ALWAYS("UNITS == MEV = " << std::boolalpha << (modEvent->momentum_unit() == HepMC::Units::MEV));
+  modEvent->set_units(HepMC3::Units::GEV, HepMC3::Units::MM);
+  if (beams[0]->momentum().e() > 50000.0) scalefactor = 0.001;
 
+  if (scalefactor == 1.0 && 
+  true//modEvent->valid_beam_particles()//FIXME
+  ) {
+    return modEvent;
+  } else {
+    if (scalefactor != 1.0) {
+      // ATH_MSG_ALWAYS("RESCALING * " << scalefactor);
+      for (auto  p: modEvent->particles()) {
+        const HepMC::FourVector pGeV(p->momentum().px() * scalefactor,
+                                     p->momentum().py() * scalefactor,
+                                     p->momentum().pz() * scalefactor,
+                                     p->momentum().e() * scalefactor);
+        p->set_momentum(pGeV);
+        p->set_generated_mass( p->generated_mass() * scalefactor );
+      }
+    }
+    for (auto p: modEvent->particles()) {
+      // map beam particle pointers to new event
+      if (HepMC::barcode(beams[0]) == HepMC::barcode(p)) beams[0]=p;
+      if (HepMC::barcode(beams[1]) == HepMC::barcode(p)) beams[1]=p;
+    }
+    modEvent->set_beam_particles(beams[0], beams[1]);
+    return modEvent;
+  }
+#else
   if (!modEvent->valid_beam_particles()) {
     for (HepMC::GenEvent::particle_const_iterator p = modEvent->particles_begin(); p != modEvent->particles_end(); ++p) {
       if (!(*p)->production_vertex() && (*p)->pdg_id() != 0) {
@@ -340,4 +430,5 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
     modEvent->set_beam_particles(beams[0], beams[1]);
     return modEvent;
   }
+#endif
 }

@@ -6,73 +6,6 @@
 # Declare the package name:
 atlas_subdir( tauRecTools )
 
-# Declare the package's dependencies:
-if( XAOD_STANDALONE OR XAOD_ANALYSIS )
-   set( extra_deps )
-   if( XAOD_ANALYSIS )
-      set( extra_deps GaudiKernel )
-   endif()
-   atlas_depends_on_subdirs(
-      PUBLIC
-      Control/AthLinks
-      Control/AthToolSupport/AsgDataHandles
-      Control/AthToolSupport/AsgTools
-      Control/CxxUtils
-      Event/xAOD/xAODCaloEvent
-      Event/xAOD/xAODEventInfo
-      Event/xAOD/xAODPFlow
-      Event/xAOD/xAODTau
-      Event/xAOD/xAODEgamma
-      Event/xAOD/xAODTracking
-      Event/xAOD/xAODParticleEvent
-      Reconstruction/MVAUtils
-      PRIVATE
-      Event/FourMomUtils
-      Event/xAOD/xAODJet
-      Tools/PathResolver
-      PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
-      ${extra_deps} )
-else()
-   atlas_depends_on_subdirs(
-      PUBLIC
-      Calorimeter/CaloUtils
-      Control/AthLinks
-      Control/AthToolSupport/AsgDataHandles
-      Control/AthToolSupport/AsgTools
-      Control/CxxUtils
-      Event/xAOD/xAODCaloEvent
-      Event/xAOD/xAODEventInfo
-      Event/xAOD/xAODPFlow
-      Event/xAOD/xAODTau
-      Event/xAOD/xAODEgamma
-      Event/xAOD/xAODTracking
-      Event/xAOD/xAODParticleEvent
-      Reconstruction/Particle
-      Reconstruction/MVAUtils
-      PRIVATE
-      Calorimeter/CaloInterface
-      Control/AthContainers
-      Event/FourMomUtils
-      Event/NavFourMom
-      Event/xAOD/xAODJet
-      GaudiKernel
-      InnerDetector/InDetRecTools/InDetRecToolInterfaces
-      InnerDetector/InDetRecTools/InDetTrackSelectionTool
-      InnerDetector/InDetConditions/BeamSpotConditionsData
-      Reconstruction/Jet/JetEDM
-      Reconstruction/RecoTools/ITrackToVertex
-      Reconstruction/RecoTools/RecoToolInterfaces
-      Tools/PathResolver
-      PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
-      Tracking/TrkEvent/TrkLinks
-      Tracking/TrkEvent/TrkParametersIdentificationHelpers
-      Tracking/TrkEvent/TrkTrackSummary
-      Tracking/TrkEvent/VxVertex
-      Tracking/TrkTools/TrkToolInterfaces
-      Tracking/TrkVertexFitter/TrkVertexFitterInterfaces
-      Tracking/TrkVertexFitter/TrkVertexFitters)
-endif()
-
 # External dependencies:
 find_package( Boost )
 find_package( ROOT COMPONENTS Core Tree Hist RIO )
@@ -95,7 +28,6 @@ atlas_add_root_dictionary( tauRecToolsLib tauRecToolsLibCintDict
   tauRecTools/TauJetBDTEvaluator.h
   tauRecTools/TauJetRNNEvaluator.h
   tauRecTools/TauIDVarCalculator.h
-  tauRecTools/TauEleOLRDecorator.h
   Root/LinkDef.h
   EXTERNAL_PACKAGES ROOT
   )
@@ -112,7 +44,7 @@ if( XAOD_STANDALONE OR XAOD_ANALYSIS )
       AthLinks AsgTools CxxUtils xAODCaloEvent xAODEventInfo xAODPFlow xAODEgamma xAODTau
       xAODTracking xAODParticleEvent AsgDataHandlesLib
       PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} ${LWTNN_LIBRARIES} FourMomUtils xAODJet
-      PathResolver MVAUtils ElectronPhotonSelectorToolsLib )
+      PathResolver MVAUtils )
 else()
    atlas_add_library( tauRecToolsLib
       tauRecTools/*.h Root/*.cxx tauRecTools/lwtnn/*.h Root/lwtnn/*.cxx  ${tauRecToolsLibCintDict}
@@ -134,7 +66,7 @@ if( NOT XAOD_STANDALONE )
          INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
          LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${LWTNN_LIBRARIES} xAODTau
          xAODTracking xAODEgamma AthContainers FourMomUtils xAODCaloEvent xAODJet 
-         xAODPFlow xAODParticleEvent MVAUtils ElectronPhotonSelectorToolsLib GaudiKernel tauRecToolsLib )
+         xAODPFlow xAODParticleEvent MVAUtils ElectronPhotonSelectorToolsLib BeamSpotConditionsData GaudiKernel tauRecToolsLib )
    else()
       atlas_add_component( tauRecTools
          src/*.h src/*.cxx src/components/*.cxx
@@ -145,12 +77,8 @@ if( NOT XAOD_STANDALONE )
          InDetRecToolInterfaces JetEDM Particle ITrackToVertex
          RecoToolInterfaces TrkLinks TrkParametersIdentificationHelpers
          TrkTrackSummary VxVertex TrkToolInterfaces TrkVertexFitterInterfaces
-         TrkVertexFittersLib InDetTrackSelectionToolLib
+         TrkVertexFittersLib InDetTrackSelectionToolLib BeamSpotConditionsData
          tauRecToolsLib )
    endif()
 endif()
 
-# Install files from the package:
-atlas_install_runtime( share/*.xml )
-atlas_install_runtime( share/*.root )
-atlas_install_data( share/* )

@@ -319,19 +319,17 @@ StatusCode ParticleDecayer::fillEvt(HepMC::GenEvent* event) {
     return status;  
   }
   
-  for ( HepMC::GenEvent::particle_const_iterator ip = event->particles_begin(); ip != event->particles_end(); ++ip ) {
+  for ( auto  genpart : *event) { 
 
      //////////////////////////////////////////////
      //    only one dark photon per LeptonJet    //
      //////////////////////////////////////////////
      if (m_LJType == 1) {
-        if ((*ip)->pdg_id()==m_particleID) { //if geantino assign the new mass and cross-check
+        if (genpart->pdg_id()==m_particleID) { //if geantino assign the new mass and cross-check
            ATH_MSG_DEBUG("ParticleDecayer::fillEvt: -- only one dark photon per LeptonJet");
-           ATH_MSG_DEBUG("ParticleDecayer::fillEvt:   -- found MC particle with PDG ID = " << (*ip)->pdg_id());
+           ATH_MSG_DEBUG("ParticleDecayer::fillEvt:   -- found MC particle with PDG ID = " << genpart->pdg_id());
            ATH_MSG_DEBUG("ParticleDecayer::fillEvt:   -- assign the new mass of the dark photon, m = " << m_particleMass);
 
-           //Update the geantino/parent-particle
-           HepMC::GenParticlePtr genpart = (*ip);
            //Change the mass of the parent particle ( set by user input + command )
            //Changes the magnitude of the spatial part of the 4-momentum such that the new 4-momentum has the desired inv mass
            CHECK( changeMass( genpart, m_particleMass ) ); 
@@ -358,14 +356,11 @@ StatusCode ParticleDecayer::fillEvt(HepMC::GenEvent* event) {
         /////////////////////////////////////////////
         //      two dark photons per LeptonJet     //
         /////////////////////////////////////////////
-        if ((*ip)->pdg_id()==m_particleID) {
+        if (genpart->pdg_id()==m_particleID) {
 
            ATH_MSG_DEBUG("ParticleDecayer::fillEvt: -- two dark photons per LeptonJet");
-           ATH_MSG_DEBUG("ParticleDecayer::fillEvt:   -- found MC particle with PDG ID = " << (*ip)->pdg_id());
+           ATH_MSG_DEBUG("ParticleDecayer::fillEvt:   -- found MC particle with PDG ID = " << genpart->pdg_id());
            ATH_MSG_DEBUG("ParticleDecayer::fillEvt:   -- assign the new mass of the dark scalar, m = " << m_scalarMass);
-
-           ////Update the geantino/parent-particle
-           HepMC::GenParticlePtr genpart = (*ip);
 
            //Get the mass of the parent particle ( set by user input + command )
            //Change the mass of the parent particle ( set by user input + command )
@@ -401,10 +396,14 @@ StatusCode ParticleDecayer::fillEvt(HepMC::GenEvent* event) {
            addParticle( genpart->end_vertex(), m_particlePDGID, HepMC::FourVector(v1.x(),v1.y(),v1.z(),0.0), 2);
            
            //lifetime handling of the dark photons
-           std::vector<HepMC::GenVertexPtr> dp_end_vertices;
            int polarizationSwitch = 1;
+#ifdef HEPMC3
+           auto pItBegin = genpart->end_vertex()->particles_out().end();
+           auto pItEnd = genpart->end_vertex()->particles_out().end();
+#else
            HepMC::GenVertex::particles_out_const_iterator pItBegin    = genpart->end_vertex()->particles_out_const_begin();
            HepMC::GenVertex::particles_out_const_iterator pItEnd = genpart->end_vertex()->particles_out_const_end();
+#endif
            for ( auto pIt=pItBegin ; pIt != pItEnd; ++pIt )
               {
                  //Add decay position to the event
@@ -454,8 +453,8 @@ void ParticleDecayer::addParticle(HepMC::GenVertexPtr prod_vtx, int pdg, HepMC::
         mass = getParticleMass(pdg);
      }
   double energy=std::sqrt(std::pow(momentum.x(),2)+std::pow(momentum.y(),2)+std::pow(momentum.z(),2)+mass*mass);   
-  HepMC::GenParticlePtr aParticle = new HepMC::GenParticle(HepMC::FourVector(momentum.x(), momentum.y(), momentum.z(), energy), 
-		                           pdg, statusCode, HepMC::Flow(), HepMC::Polarization(0, 0));
+HepMC::GenParticlePtr aParticle = HepMC::newGenParticlePtr (HepMC::FourVector(momentum.x(), momentum.y(), momentum.z(), energy), 
+		                           pdg, statusCode);
 
   prod_vtx->add_particle_out(aParticle);
 }

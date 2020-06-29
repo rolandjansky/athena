@@ -22,6 +22,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
 			  InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           InnerDetector/InDetDetDescr/TRT_Cabling
+			  InnerDetector/InDetConditions/InDetByteStreamErrors
                           Tools/PathResolver
                           Trigger/TrigEvent/TrigSteeringEvent )
 

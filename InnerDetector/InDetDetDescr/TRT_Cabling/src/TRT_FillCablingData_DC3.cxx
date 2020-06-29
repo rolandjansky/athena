@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -47,6 +47,9 @@
 #include "eformat/SourceIdentifier.h"  // change to new eformat v3
 #include "PathResolver/PathResolver.h"
 
+#include "CxxUtils/checker_macros.h"
+
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // std::exit is used.
 
 using eformat::helper::SourceIdentifier; 
 using namespace std;

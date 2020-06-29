@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -72,11 +72,11 @@ StatusCode CaloLCClassificationTool::initialize()
 
   if(m_interpolate) {
     msg(MSG::INFO) << "Interpolation is ON, dimensions: ";
-    for(std::vector<std::string>::iterator it=m_interpolateDimensionNames.begin(); it!=m_interpolateDimensionNames.end(); it++){
+    for(std::vector<std::string>::iterator it=m_interpolateDimensionNames.begin(); it!=m_interpolateDimensionNames.end(); ++it){
       msg() << " " << (*it);
     }
     msg() << endmsg;
-    for(std::vector<std::string>::iterator it=m_interpolateDimensionNames.begin(); it!=m_interpolateDimensionNames.end(); it++){
+    for(std::vector<std::string>::iterator it=m_interpolateDimensionNames.begin(); it!=m_interpolateDimensionNames.end(); ++it){
       CaloLocalHadDefs::LocalHadDimensionId id = CaloLCCoeffHelper::getDimensionId( (*it) );
       if(id!=CaloLocalHadDefs::DIMU_UNKNOWN) {
         m_interpolateDimensions.push_back(int(id));

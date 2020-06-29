@@ -5,6 +5,7 @@ atlas_subdir( PyUtils )
 
 # External dependencies:
 find_package( decorator )
+find_package( graphviz )
 find_package( requests )
 find_package( six )
 find_package( ROOT COMPONENTS Core PyROOT Tree MathCore Hist RIO pthread )

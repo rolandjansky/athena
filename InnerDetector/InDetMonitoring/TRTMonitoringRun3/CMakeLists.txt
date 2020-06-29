@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           InnerDetector/InDetConditions/TRT_ConditionsServices
+			  InnerDetector/InDetConditions/InDetByteStreamErrors
                           Event/xAOD/xAODEventInfo
                           Commission/CommissionEvent
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry

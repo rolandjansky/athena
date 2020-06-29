@@ -37,18 +37,12 @@ struct MdtLayerHits
 class MuFastPatternFinder: public AthAlgTool
 {
    public:
-      
-      static const InterfaceID& interfaceID();
-
-   public:
 
       MuFastPatternFinder(const std::string& type, 
 			   const std::string& name,
 			   const IInterface*  parent);
     
-      ~MuFastPatternFinder()=default;
-    
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
     
    private:
 
@@ -61,11 +55,9 @@ class MuFastPatternFinder: public AthAlgTool
 			      TrigL2MuonSA::MdtHits&        mdtHits,
 			      std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns);
 
-      void setGeometry(bool use_new_geometry);
-
    private:
       // MDT calibration service
-      ToolHandle<MdtCalibrationTool> m_mdtCalibrationTool;
+      ToolHandle<MdtCalibrationTool> m_mdtCalibrationTool{this, "CalibrationTool", "MdtCalibrationTool"};
 
       ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 };

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #--
 #-- Configures standard cell weight calibration tools (extracted from JetGetter)
@@ -187,9 +187,12 @@ class H1Calibration(object):
            dbString="CALO"
         if (folder,tag) not in H1Calibration.loaded_folder:
             if H1Calibration.overrideFolder():
-                conddb.addFolder(dbString,folder+'<tag>'+tag+'</tag>')
+                conddb.addFolder(dbString,folder+'<tag>'+tag+'</tag>',
+                                 className = 'CaloRec::ToolConstants')
             else:
-                conddb.addFolder(dbString,folder)
+                conddb.addFolder(dbString,folder,
+                                 className = 'CaloRec::ToolConstants')
+
             H1Calibration.loaded_folder.append( (folder,tag) )
     
 def getCellWeightTool(finder="Cone",mainparam=0.4,input="Topo", onlyCellWeight=False):
@@ -212,6 +215,6 @@ def getCellWeightTool(finder="Cone",mainparam=0.4,input="Topo", onlyCellWeight=F
     #-- configure tool
     toolName = finder + editParm(mainparam) + input
     cellcalibtool = H1WeightToolCSC12Generic("H1Weight"+toolName)
-    cellcalibtool.detStoreKey = key
+    cellcalibtool.DBHandleKey = key
     # --
     return cellcalibtool

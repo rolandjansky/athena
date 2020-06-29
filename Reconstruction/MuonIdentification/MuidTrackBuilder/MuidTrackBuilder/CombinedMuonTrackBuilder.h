@@ -7,7 +7,7 @@
 //  AlgTool gathering  material effects along a combined muon track, in
 //  particular the TSOS'es representing the calorimeter energy deposit and
 //  Coulomb scattering.
-//  The resulting track is fitted at the IP using the ITrackFitter interface.
+//  The resulting track is fitted at the IP
 //
 //  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,7 @@
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkExInterfaces/IIntersector.h"
 #include "TrkExInterfaces/IPropagator.h"
+#include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
@@ -91,53 +92,21 @@ class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuon
         refit a track removing any indet measurements with optional addition of pseudoMeasurements */
     Trk::Track* standaloneRefit(const Trk::Track& combinedTrack, float bs_x, float bs_y, float bs_z) const;
 
-    /** ITrackFitter interface:
-     *    
-     * Bring in default impl with
-     * EventContext for now
-     */
     using ICombinedMuonTrackBuilder::fit;
 
     /*refit a track */
-    Trk::Track* fit(const Trk::Track& track, const Trk::RunOutlierRemoval runOutlier = false,
+    Trk::Track* fit(Trk::Track& track, const Trk::RunOutlierRemoval runOutlier = false,
                     const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const;
 
-    /**ITrackFitter interface:
-    refit a track adding a PrepRawDataSet */
-    Trk::Track* fit(const Trk::Track& /*track*/, const Trk::PrepRawDataSet& /*rawDataSet*/,
-                    const Trk::RunOutlierRemoval /*runOutlier*/,
-                    const Trk::ParticleHypothesis /*particleHypothesis*/) const
-    {
-        return interfaceNotImplemented();
-    };
-
-    /** ITrackFitter interface:
-        fit a set of PrepRawData objects */
-    Trk::Track* fit(const Trk::PrepRawDataSet&, const Trk::TrackParameters& /*perigeeStartValue*/,
-                    const Trk::RunOutlierRemoval /*runOutlier*/,
-                    const Trk::ParticleHypothesis /*particleHypothesis*/) const
-    {
-        return interfaceNotImplemented();
-    };
-
-    /** ITrackFitter interface:
-        refit a track adding a MeasurementSet */
-    Trk::Track* fit(const Trk::Track& /*track*/, const Trk::MeasurementSet& /*measurementSet*/,
-                    const Trk::RunOutlierRemoval /*runOutlier*/,
-                    const Trk::ParticleHypothesis /*particleHypothesis*/) const
-    {
-        return interfaceNotImplemented();
-    };
-
-    /** ITrackFitter interface:
+    /** 
         fit a set of MeasurementBase objects with starting value for perigeeParameters */
     Trk::Track* fit(const Trk::MeasurementSet& /*measurementSet*/, const Trk::TrackParameters& /*perigeeStartValue*/,
                     const Trk::RunOutlierRemoval /*runOutlier*/,
                     const Trk::ParticleHypothesis /*particleHypothesis*/) const;
 
-    /** ITrackFitter interface:
+    /** 
         combined muon fit */
-    Trk::Track* fit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack,
+    Trk::Track* fit(const Trk::Track& indetTrack, Trk::Track& extrapolatedTrack,
                     const Trk::RunOutlierRemoval  runOutlier         = false,
                     const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const;
 

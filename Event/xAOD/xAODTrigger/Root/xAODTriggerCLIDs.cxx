@@ -14,6 +14,8 @@
 #include "xAODTrigger/JetEtRoIAuxInfo.h"
 #include "xAODTrigger/JetRoIContainer.h"
 #include "xAODTrigger/JetRoIAuxContainer.h"
+#include "xAODTrigger/TriggerMenuJsonContainer.h"
+#include "xAODTrigger/TriggerMenuJsonAuxContainer.h"
 #include "xAODTrigger/MuonRoIContainer.h"
 #include "xAODTrigger/MuonRoIAuxContainer.h"
 #include "xAODTrigger/TrigCompositeContainer.h"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -14,6 +14,8 @@
  * Base class
  */
 #include "AthenaBaseComps/AthAlgTool.h"
+
+#include "CxxUtils/checker_macros.h"
 
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
@@ -30,6 +32,7 @@
 #include <vector>
 #include <stdint.h> 
 
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // std::exit is used.
 
 class TRT_FillCablingData_DC3: public AthAlgTool {
 

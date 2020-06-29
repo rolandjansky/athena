@@ -200,7 +200,7 @@ def muEFSAAlgSequence(ConfigFlags):
 
     newRoITool = ViewCreatorFetchFromViewROITool()
     newRoITool.RoisWriteHandleKey = recordable("HLT_Roi_L2SAMuonForEF") #RoI collection recorded to EDM
-    newRoITool.InViewRoIs = muNames.L2forIDName #input RoIs from L2 SA views
+    newRoITool.InViewRoIs = "forMS" #input RoIs from L2 SA views
     newRoITool.ViewToFetchFrom = "MUViewRoIs"
     efsaViewsMaker.RoITool = newRoITool # Create a new ROI centred on the L2 SA muon from Step 1 
     #
@@ -323,41 +323,6 @@ def muEFCBSequence():
                          Hypo        = trigMuonEFCBHypo,
                          HypoToolGen = TrigMuonEFCombinerHypoToolFromDict )
 
-########################
-### EF CB with dimuon ##
-### mass cuts         ##
-########################
-def muEFCBInvMassSequence():
-
-    from AthenaCommon import CfgMgr
-    invMassRecoSequence = parOR("muInvMViewNode")
-    
-    invMViewsMaker = EventViewCreatorAlgorithm("IMmuinvm")
-    #
-    invMViewsMaker.RoIsLink = "roi" # Merge based on L2SA muon
-    invMViewsMaker.RoITool = ViewCreatorPreviousROITool() # Spawn EventViews on L2SA muon ROI 
-    #
-    invMViewsMaker.Views = "muInvMViewRoIs"
-    invMViewsMaker.InViewRoIs = "muInvMRoIs"
-    #
-    invMViewsMaker.RequireParentView = True
-    invMViewsMaker.ViewFallThrough = True
-    
-    ViewVerifyEFCB = CfgMgr.AthViews__ViewDataVerifier("muInvMViewDataVerifier")
-    ViewVerifyEFCB.DataObjects = [( 'xAOD::MuonContainer' , 'StoreGateSvc+'+muNames.EFCBName )]
-    invMassRecoSequence += ViewVerifyEFCB
-    invMassSequence = seqAND( "muInvMSequence", [invMViewsMaker, invMassRecoSequence] )
-
-    invMViewsMaker.ViewNodeName = invMassRecoSequence.name()
-
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFInvMassHypoAlg, TrigMuonEFInvMassHypoToolFromDict
-
-    trigMuonEFInvMHypo = TrigMuonEFInvMassHypoAlg( "TrigMuonEFInvMassHypoAlg" )
-    trigMuonEFInvMHypo.MuonDecisions = muNames.EFCBName
-    return MenuSequence( Sequence    = invMassSequence,
-                         Maker       = invMViewsMaker,
-                         Hypo        = trigMuonEFInvMHypo,
-                         HypoToolGen = TrigMuonEFInvMassHypoToolFromDict )
 
 ######################
 ### EF SA full scan ###
