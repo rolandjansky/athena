@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -52,7 +52,7 @@ class TileCondToolEmscale;
 class TileDigitsToTTL1: public AthAlgorithm {
   public:
     // Constructor
-    TileDigitsToTTL1(std::string name, ISvcLocator* pSvcLocator);
+    TileDigitsToTTL1(const std::string& name, ISvcLocator* pSvcLocator);
 
     //Destructor 
     virtual ~TileDigitsToTTL1();
