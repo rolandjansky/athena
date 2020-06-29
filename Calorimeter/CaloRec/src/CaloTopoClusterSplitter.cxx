@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -119,7 +119,7 @@ StatusCode CaloTopoClusterSplitter::initialize()
   //--- check sampling names to use
   std::vector<std::string>::iterator samplingIter = m_samplingNames.begin(); 
   std::vector<std::string>::iterator samplingIterEnd = m_samplingNames.end(); 
-  for(; samplingIter!=samplingIterEnd; samplingIter++) { 
+  for(; samplingIter!=samplingIterEnd; ++samplingIter) { 
     if ( *samplingIter == "PreSamplerB" ) 
       m_validSamplings.insert(CaloCell_ID::PreSamplerB);
     else if ( *samplingIter == "EMB1" ) 
@@ -183,7 +183,7 @@ StatusCode CaloTopoClusterSplitter::initialize()
 
   msg(MSG::INFO) << "Samplings to consider for local maxima:";
   samplingIter = m_samplingNames.begin(); 
-  for(; samplingIter!=samplingIterEnd; samplingIter++)  
+  for(; samplingIter!=samplingIterEnd; ++samplingIter)  
     msg() << " " << *samplingIter;
   msg() << endmsg;
 
@@ -191,7 +191,7 @@ StatusCode CaloTopoClusterSplitter::initialize()
   m_maxSampling=0;
   std::set<int>::const_iterator vSamplingIter = m_validSamplings.begin(); 
   std::set<int>::const_iterator vSamplingIterEnd = m_validSamplings.end(); 
-  for(; vSamplingIter!=vSamplingIterEnd; vSamplingIter++) {
+  for(; vSamplingIter!=vSamplingIterEnd; ++vSamplingIter) {
     if ( (*vSamplingIter) > m_maxSampling ) 
       m_maxSampling = (*vSamplingIter);
     if ( (*vSamplingIter) < m_minSampling ) 
@@ -200,14 +200,14 @@ StatusCode CaloTopoClusterSplitter::initialize()
 
   m_useSampling.resize(m_maxSampling-m_minSampling+1,false);
 
-  for(vSamplingIter = m_validSamplings.begin(); vSamplingIter!=vSamplingIterEnd; vSamplingIter++) {
+  for(vSamplingIter = m_validSamplings.begin(); vSamplingIter!=vSamplingIterEnd; ++vSamplingIter) {
     m_useSampling[(*vSamplingIter)-m_minSampling] = true;
   }
 
   //--- check sampling names to use
   samplingIter = m_secondarySamplingNames.begin(); 
   samplingIterEnd = m_secondarySamplingNames.end(); 
-  for(; samplingIter!=samplingIterEnd; samplingIter++) { 
+  for(; samplingIter!=samplingIterEnd; ++samplingIter) { 
     if ( *samplingIter == "PreSamplerB" ) 
       m_validSecondarySamplings.insert(CaloCell_ID::PreSamplerB);
     else if ( *samplingIter == "EMB1" ) 
@@ -271,7 +271,7 @@ StatusCode CaloTopoClusterSplitter::initialize()
 
   msg(MSG::INFO) << "Secondary samplings to consider for local maxima:";
   samplingIter = m_secondarySamplingNames.begin(); 
-  for(; samplingIter!=samplingIterEnd; samplingIter++)  
+  for(; samplingIter!=samplingIterEnd; ++samplingIter)  
     msg() << " " << *samplingIter;
   msg() << endmsg;
 
@@ -279,7 +279,7 @@ StatusCode CaloTopoClusterSplitter::initialize()
   m_maxSecondarySampling=0;
   vSamplingIter = m_validSecondarySamplings.begin(); 
   vSamplingIterEnd = m_validSecondarySamplings.end(); 
-  for(; vSamplingIter!=vSamplingIterEnd; vSamplingIter++) {
+  for(; vSamplingIter!=vSamplingIterEnd; ++vSamplingIter) {
     if ( (*vSamplingIter) > m_maxSecondarySampling ) 
       m_maxSecondarySampling = (*vSamplingIter);
     if ( (*vSamplingIter) < m_minSecondarySampling ) 
@@ -288,7 +288,7 @@ StatusCode CaloTopoClusterSplitter::initialize()
 
   m_useSecondarySampling.resize(m_maxSecondarySampling-m_minSecondarySampling+1,false);
 
-  for(vSamplingIter = m_validSecondarySamplings.begin(); vSamplingIter!=vSamplingIterEnd; vSamplingIter++) {
+  for(vSamplingIter = m_validSecondarySamplings.begin(); vSamplingIter!=vSamplingIterEnd; ++vSamplingIter) {
     m_useSecondarySampling[(*vSamplingIter)-m_minSecondarySampling] = true;
   }
 
@@ -363,7 +363,7 @@ StatusCode CaloTopoClusterSplitter::execute(const EventContext& ctx,
   }
 
 
-  for (; clusCollIter != clusCollIterEnd; clusCollIter++, iClusterNumber++ ){
+  for (; clusCollIter != clusCollIterEnd; ++clusCollIter, ++iClusterNumber ){
     xAOD::CaloCluster* parentCluster = (*clusCollIter);
     CaloClusterCellLink* cellLinks=parentCluster->getOwnCellLinks();
     if (!cellLinks) {
@@ -582,7 +582,7 @@ StatusCode CaloTopoClusterSplitter::execute(const EventContext& ctx,
 		    
 		    // loop over all seed cells and check if cells match
 		    for(;hashCellIter!=hashCellIterEnd 
-			  && isLocalMax;hashCellIter++) {
+			  && isLocalMax;++hashCellIter) {
 		      if ( cellVector[(unsigned int)nId - m_hashMin] 
 			   == (*hashCellIter) )
                       {
@@ -639,7 +639,7 @@ StatusCode CaloTopoClusterSplitter::execute(const EventContext& ctx,
 		    
 		    // loop over all seed cells and check if cells match
 		    for(;hashCellIter!=hashCellIterEnd 
-			  && isLocalMax;hashCellIter++) {
+			  && isLocalMax;++hashCellIter) {
 		      if ( cellVector[(unsigned int)nId - m_hashMin] 
 			   == (*hashCellIter) )
                       {
@@ -693,7 +693,7 @@ StatusCode CaloTopoClusterSplitter::execute(const EventContext& ctx,
   hashCellIterEnd=mySeedCells.end();
   
   // loop over all seed cells and set them Used
-  for(;hashCellIter!=hashCellIterEnd;hashCellIter++) {
+  for(;hashCellIter!=hashCellIterEnd;++hashCellIter) {
     hashCellIter->getCaloTopoTmpClusterCell()->setUsed();
     HashCluster *myCluster = hashCellIter->getCaloTopoTmpClusterCell()->getCaloTopoTmpHashCluster();
     myCluster->setContainsLocalMax();
@@ -711,7 +711,7 @@ StatusCode CaloTopoClusterSplitter::execute(const EventContext& ctx,
     hashCellIterEnd=mySeedCells.end();
 
     // loop over all current neighbor cells (for Seed Growing Algo)
-    for(;hashCellIter!=hashCellIterEnd;hashCellIter++) {
+    for(;hashCellIter!=hashCellIterEnd;++hashCellIter) {
       msg(MSG::DEBUG) << " SeedCell [" 
 		      << hashCellIter->getCaloTopoTmpClusterCell()->getSubDet() 
 		      << "|" 
@@ -731,7 +731,7 @@ StatusCode CaloTopoClusterSplitter::execute(const EventContext& ctx,
     hashCellIterEnd=mySeedCells.end();
     
     // loop over all current neighbor cells (for Seed Growing Algo)
-    for(;hashCellIter!=hashCellIterEnd;hashCellIter++) {
+    for(;hashCellIter!=hashCellIterEnd;++hashCellIter) {
       CaloTopoSplitterClusterCell* pClusCell = hashCellIter->getCaloTopoTmpClusterCell();
       IdentifierHash hashid = pClusCell->getID();
       HashCluster *myCluster = pClusCell->getCaloTopoTmpHashCluster();
@@ -819,13 +819,14 @@ StatusCode CaloTopoClusterSplitter::execute(const EventContext& ctx,
 	      // myNextCell list it is a shared cell, added to the
 	      // list of shared cells and removed from the cluster it
 	      // first was added to
+              // cppcheck-suppress invalidContainer; false positive
 	      while ( !isRemoved && nextCellIter != nextCellIterEnd ) {
 		if ( (*nextCellIter) == neighborCell ) {
-		  myNextCells.erase(nextCellIter);
+		  nextCellIter = myNextCells.erase(nextCellIter);
 		  isRemoved=true;
 		}
 		else
-		  nextCellIter++;
+		  ++nextCellIter;
 	      }
 	      if ( isRemoved ) {
 		pNCell->setShared();
@@ -849,7 +850,7 @@ StatusCode CaloTopoClusterSplitter::execute(const EventContext& ctx,
 		// with other local maxima
 		HashCluster::iterator clusCellIter=toKill->begin();
 		HashCluster::iterator clusCellIterEnd = toKill->end();
-		for(;clusCellIter!=clusCellIterEnd;clusCellIter++) {
+		for(;clusCellIter!=clusCellIterEnd;++clusCellIter) {
 		  clusCellIter->setCaloTopoTmpHashCluster(toKeep);
 		}
 		toKeep->add(*toKill);
@@ -898,7 +899,7 @@ StatusCode CaloTopoClusterSplitter::execute(const EventContext& ctx,
       hashCellIterEnd=mySeedCells.end();
     
       // loop over all current neighbor cells (for Seed Growing Algo)
-      for(;hashCellIter!=hashCellIterEnd;hashCellIter++) {
+      for(;hashCellIter!=hashCellIterEnd;++hashCellIter) {
 	CaloTopoSplitterClusterCell* pClusCell = hashCellIter->getCaloTopoTmpClusterCell();
 	IdentifierHash hashid = pClusCell->getID();
 	HashCluster *myCluster = pClusCell->getCaloTopoTmpHashCluster();
@@ -1009,7 +1010,7 @@ StatusCode CaloTopoClusterSplitter::execute(const EventContext& ctx,
     // all weights
     hashCellIter= sharedCellList.begin();
     hashCellIterEnd=sharedCellList.end();
-    for(;hashCellIter!=hashCellIterEnd;hashCellIter++) {
+    for(;hashCellIter!=hashCellIterEnd;++hashCellIter) {
       CaloTopoSplitterClusterCell* pClusCell = hashCellIter->getCaloTopoTmpClusterCell();
       float e1 = (pClusCell->getCaloTopoTmpHashCluster())->getEnergy();
       float e2 = (pClusCell->getSecondCaloTopoTmpHashCluster())->getEnergy();
@@ -1037,7 +1038,7 @@ StatusCode CaloTopoClusterSplitter::execute(const EventContext& ctx,
     // respective clusters
     hashCellIter= sharedCellList.begin();
     hashCellIterEnd=sharedCellList.end();
-    for(;hashCellIter!=hashCellIterEnd;hashCellIter++) {
+    for(;hashCellIter!=hashCellIterEnd;++hashCellIter) {
       CaloTopoSplitterClusterCell* pClusCell = hashCellIter->getCaloTopoTmpClusterCell();
       HashCluster *firstCluster = pClusCell->getCaloTopoTmpHashCluster();
       HashCluster *secondCluster = pClusCell->getSecondCaloTopoTmpHashCluster();
@@ -1069,7 +1070,7 @@ StatusCode CaloTopoClusterSplitter::execute(const EventContext& ctx,
       HashCluster::iterator clusCellIter=tmpCluster->begin();
       HashCluster::iterator clusCellIterEnd=tmpCluster->end();
       myCluster->getCellLinks()->reserve(tmpCluster->size());
-      for(;clusCellIter!=clusCellIterEnd;clusCellIter++) {
+      for(;clusCellIter!=clusCellIterEnd;++clusCellIter) {
 	CaloTopoSplitterClusterCell *pClusCell =  *clusCellIter;
 	xAOD::CaloCluster::cell_iterator itrCell = pClusCell->getCellIterator();
 	double myWeight = itrCell.weight();//pClusCell->getParentCluster()->getCellWeight(itrCell);
@@ -1103,7 +1104,7 @@ StatusCode CaloTopoClusterSplitter::execute(const EventContext& ctx,
 	myRestClusters[tmpCluster->getParentClusterIndex()]->getCellLinks()->reserve(tmpCluster->size());
 	HashCluster::iterator clusCellIter=tmpCluster->begin();
 	HashCluster::iterator clusCellIterEnd=tmpCluster->end();
-	for(;clusCellIter!=clusCellIterEnd;clusCellIter++) {
+	for(;clusCellIter!=clusCellIterEnd;++clusCellIter) {
 	  CaloTopoSplitterClusterCell *pClusCell =  *clusCellIter;
 	  xAOD::CaloCluster::cell_iterator itrCell = pClusCell->getCellIterator();
 	  const double myWeight = itrCell.weight();
@@ -1121,7 +1122,7 @@ StatusCode CaloTopoClusterSplitter::execute(const EventContext& ctx,
   // to the list
   iClusterNumber = 0;
   clusCollIter    = clusColl->begin();
-  for (; clusCollIter != clusCollIterEnd; clusCollIter++,iClusterNumber++){
+  for (; clusCollIter != clusCollIterEnd; ++clusCollIter,++iClusterNumber){
     const xAOD::CaloCluster* parentCluster = (*clusCollIter);
     if ( !hasLocalMaxVector[iClusterNumber] ) {
       //xAOD::CaloCluster *myClone = new xAOD::CaloCluster(*parentCluster);
