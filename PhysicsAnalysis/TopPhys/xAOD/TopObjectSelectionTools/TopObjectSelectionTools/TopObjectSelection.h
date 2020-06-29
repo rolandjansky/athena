@@ -36,6 +36,7 @@
 #include "TopObjectSelectionTools/JetSelectionBase.h"
 #include "TopObjectSelectionTools/TauSelectionBase.h"
 #include "TopObjectSelectionTools/PhotonSelectionBase.h"
+#include "TopObjectSelectionTools/TrackSelectionBase.h"
 #include "TopObjectSelectionTools/OverlapRemovalBase.h"
 #include "TopSystematicObjectMaker/ElectronInJetSubtractionCollectionMaker.h"
 
@@ -194,6 +195,18 @@ namespace top {
      */
     void trackJetSelection(JetSelectionBase* ptr);
 
+    /**                                                                                                                                                                                                 
+     * @brief Set the code used to select tracks.                                                                                                                                                         
+     *                                                                                                                                                                                                    
+     * Note that nullptr means that no selection will be applied (so all                                                                                                                                  
+     * tracks will be accepted).                                                                                                                                                                          
+     *                                                                                                                                                                                                    
+     * @param ptr The code used to perform the track selection (see                                                                                                                                       
+     * TopObjectSelectionTools).                                                                                                                                                                          
+     **/
+    void trackSelection(TrackSelectionBase* ptr);
+
+
     /**
      * @brief Set the code used to perform the overlap removal.  At the moment
      * the overlap removal is performed after all the electron, muon, jet etc
@@ -227,6 +240,7 @@ namespace top {
     void applySelectionPreOverlapRemovalJets();
     void applySelectionPreOverlapRemovalLargeRJets();
     void applySelectionPreOverlapRemovalTrackJets();
+    void applySelectionPreOverlapRemovalTracks();
 
     virtual StatusCode applyOverlapRemoval();
     virtual StatusCode applyOverlapRemoval(const bool isLoose, const std::string& sgKey);
@@ -277,6 +291,9 @@ namespace top {
 
     ///Track jet selection code - can load user defined classes
     std::unique_ptr<top::JetSelectionBase> m_trackJetSelection;
+
+    ///Track selection code - can load user defined classes   
+    std::unique_ptr<top::TrackSelectionBase> m_trackSelection;
 
     ///Overlap removal that runs after all object selection
     std::unique_ptr<top::OverlapRemovalBase> m_overlapRemovalToolPostSelection;

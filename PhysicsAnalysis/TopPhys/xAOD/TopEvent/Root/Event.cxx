@@ -12,6 +12,7 @@
 #include "xAODJet/JetContainer.h"
 #include "xAODTau/TauJetContainer.h"
 #include "xAODMissingET/MissingETContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthVertex.h"
 #include "xAODCore/ShallowCopy.h"
@@ -66,6 +67,10 @@ std::ostream& operator << (std::ostream& os, const top::Event& event) {
   os << "Track jets: " << event.m_trackJets.size() << "\n";
   for (const auto* const jetPtr : event.m_trackJets) {
     os << "    " << *jetPtr << "\n";
+  }
+  os << "Tracks: " << event.m_tracks.size() << "\n";
+  for (const auto* const trackPtr : event.m_tracks) {
+    os << "    " << *trackPtr << "\n";
   }
   os << "Taus: " << event.m_tauJets.size() << "\n";
   for (const auto* const tauPtr : event.m_tauJets) {
@@ -136,6 +141,17 @@ std::ostream& operator << (std::ostream& os, const xAOD::TauJet& tau) {
 
   return os;
 }
+
+std::ostream& operator << (std::ostream& os, const xAOD::TrackParticle& track) {
+  os << "Track" <<
+    " pt " << track.pt() <<
+    " eta " << track.eta() <<
+    " phi " << track.phi() <<
+    " m " << track.m();
+
+  return os;
+}
+
 
 std::ostream& operator << (std::ostream& os, const xAOD::TruthParticle& truth) {
   const unsigned int w = 10;

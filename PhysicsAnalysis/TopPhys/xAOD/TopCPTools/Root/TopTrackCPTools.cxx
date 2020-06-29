@@ -2,7 +2,8 @@
    Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
-#include "TopCPTools/TopGhostTrackCPTools.h"
+#include "TopCPTools/TopTrackCPTools.h"
+#include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
 
 #include <map>
 #include <string>
@@ -17,27 +18,28 @@
 
 
 namespace top {
-  GhostTrackCPTools::GhostTrackCPTools(const std::string& name) :
+  TrackCPTools::TrackCPTools(const std::string& name) :
     asg::AsgTool(name) {
     declareProperty("config", m_config);
+    declareProperty("TrkSelTool", m_trkseltool);
   }
 
-  StatusCode GhostTrackCPTools::initialize() {
-    ATH_MSG_INFO("top::GhostTrackCPTools initialize...");
+  StatusCode TrackCPTools::initialize() {
+    ATH_MSG_INFO("top::TrackCPTools initialize...");
 
     if (m_config->isTruthDxAOD()) {
-      ATH_MSG_INFO("top::GhostTrackCPTools: no need to initialise anything on truth DxAOD");
+      ATH_MSG_INFO("top::TrackCPTools: no need to initialise anything on truth DxAOD");
       return StatusCode::SUCCESS;
     }
 
-    if (!m_config->useJets() || !m_config->useJetGhostTrack()) {
+    if (!m_config->useTracks()) {
       ATH_MSG_INFO(
-        "top::GhostTrackCPTools: no need to initialise anything since not using jets or tracks ghost-matched to jets");
+        "top::TrackCPTools: no need to initialise anything since not using tracks");
       return StatusCode::SUCCESS;
     }
 
     if (!m_config->makeAllCPTools()) {
-      ATH_MSG_INFO("top::GhostTrackCPTools: no need to initialise for mini-xAOD");
+      ATH_MSG_INFO("top::TrackCPTools: no need to initialise for mini-xAOD");
       return StatusCode::SUCCESS;
     }
 
@@ -55,21 +57,28 @@ namespace top {
     //       input of size n, n-1 ranges are formed. The i-th element is the
     //       lower bound (incl) of the i-th range; the (i+1)-th element is
     //       the upper bound (excl) of the i-th range.
+
     m_runPeriods = {
       276262, 297730, 300909, 311482, 334738, 341650, 364486
     };
 
-    m_config->runPeriodJetGhostTrack(m_runPeriods);
+    m_config->runPeriodTrack(m_runPeriods);
 
-    top::check(setupSmearingTool(), "Failed to setup track smearing tools");
-    top::check(setupBiasingTools(), "Failed to setup track biasing tools");
+    top::check(setupSmearingTool(),    "Failed to setup track smearing tools");
+    top::check(setupBiasingTools(),    "Failed to setup track biasing tools");
     top::check(setupTruthFilterTool(), "Failed to setup truth filter tools");
-    top::check(setupJetTrackFilterTool(), "Failed to setup track filter tools");
+
+    if(m_trkseltool.empty()) {
+      InDet::InDetTrackSelectionTool *selTool = new InDet::InDetTrackSelectionTool( "TrkSelTool" , m_config->trackQuality());
+      top::check(selTool -> initialize(), "Failed to initialize InDetTrackSelectionTool");
+      m_trkseltool = ToolHandle<InDet::IInDetTrackSelectionTool>(selTool);
+    }
+    top::check(m_trkseltool.retrieve(), "Failed to retrieve InDetTrackSelectionTool");
 
     return StatusCode::SUCCESS;
   }
 
-  StatusCode GhostTrackCPTools::setupSmearingTool() {
+  StatusCode TrackCPTools::setupSmearingTool() {
     if (asg::ToolStore::contains<InDet::InDetTrackSmearingTool>(m_smearingToolName)) {
       m_smearingTool = asg::ToolStore::get<InDet::InDetTrackSmearingTool>(m_smearingToolName);
     } else {
@@ -81,7 +90,7 @@ namespace top {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode GhostTrackCPTools::setupBiasingTools() {
+  StatusCode TrackCPTools::setupBiasingTools() {
     top::check(not m_runPeriods.empty(), "Assertion failed");
 
     // Two cases are possible:
@@ -135,7 +144,10 @@ namespace top {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode GhostTrackCPTools::setupTruthFilterTool() {
+  StatusCode TrackCPTools::setupTruthFilterTool() {
+
+    // for track reconstruction efficiency uncertainties and fake rate uncertainties
+
     if (asg::ToolStore::contains<InDet::InDetTrackTruthOriginTool>(m_truthOriginToolName)) {
       m_truthOriginTool = asg::ToolStore::get<InDet::InDetTrackTruthOriginTool>(m_truthOriginToolName);
     } else {
@@ -161,28 +173,5 @@ namespace top {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode GhostTrackCPTools::setupJetTrackFilterTool() {
-    if (asg::ToolStore::contains<InDet::InDetTrackTruthOriginTool>(m_truthOriginToolName)) {
-      m_truthOriginTool = asg::ToolStore::get<InDet::InDetTrackTruthOriginTool>(m_truthOriginToolName);
-    } else {
-      auto tool = new InDet::InDetTrackTruthOriginTool(m_truthOriginToolName);
-      top::check(tool->initialize(),
-                 "Failure to initialize InDetTrackTruthOriginTool " + m_truthOriginToolName);
-      m_truthOriginTool = tool;
-      ATH_MSG_INFO(" Creating truth origin tool " + m_truthOriginToolName);
-    }
 
-    if (asg::ToolStore::contains<InDet::JetTrackFilterTool>(m_jetTrackFilterToolName)) {
-      m_jetTrackFilterTool = asg::ToolStore::get<InDet::JetTrackFilterTool>(m_jetTrackFilterToolName);
-    } else {
-      auto tool = new InDet::JetTrackFilterTool(m_jetTrackFilterToolName);
-      top::check(tool->setProperty("trackOriginTool",
-                                   ToolHandle<InDet::IInDetTrackTruthOriginTool>{&(*m_truthOriginTool)}),
-                 "Failed to setProperty trackOriginTool of InDetTrackTruthFilterTool " + m_truthFilterToolName);
-      top::check(tool->initialize(), "Failure to initialize JetTrackFilterTool");
-      m_jetTrackFilterTool = tool;
-      ATH_MSG_INFO(" Creating jet track filter tool");
-    }
-    return StatusCode::SUCCESS;
-  }
 }  // namespace top

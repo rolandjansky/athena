@@ -66,6 +66,7 @@ namespace top {
       m_largeJets(SG::VIEW_ELEMENTS),
       m_RCJets(SG::VIEW_ELEMENTS),
       m_trackJets(SG::VIEW_ELEMENTS),
+      m_tracks(SG::VIEW_ELEMENTS),
       m_tauJets(SG::VIEW_ELEMENTS),
       m_met(nullptr),
 
@@ -130,6 +131,9 @@ namespace top {
     ///Container of track jets (can be sorted)
     xAOD::JetContainer m_trackJets;
 
+    ///Container of tracks (can be sorted)                                                                                                                                                                
+    xAOD::TrackParticleContainer m_tracks;
+
     ///Container of taujets (can be sorted)
     xAOD::TauJetContainer m_tauJets;
 
@@ -172,5 +176,6 @@ std::ostream& operator << (std::ostream& os, const xAOD::Jet& jet);
 std::ostream& operator << (std::ostream& os, const xAOD::TauJet& tau);
 std::ostream& operator << (std::ostream& os, const xAOD::TruthParticle& truth);
 std::ostream& operator << (std::ostream& os, const xAOD::MissingET& met);
+std::ostream& operator << (std::ostream& os, const xAOD::TrackParticle& track);
 
 #endif

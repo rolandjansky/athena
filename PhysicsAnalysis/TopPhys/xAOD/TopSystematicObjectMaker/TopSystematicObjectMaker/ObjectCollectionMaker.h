@@ -34,6 +34,7 @@
 #include "TopSystematicObjectMaker/JetObjectCollectionMaker.h"
 #include "TopSystematicObjectMaker/MissingETObjectCollectionMaker.h"
 #include "TopSystematicObjectMaker/GhostTrackSystematicsMaker.h"
+#include "TopSystematicObjectMaker/TrackSystematicsMaker.h"
 
 // Forward declaration(s):
 namespace top {
@@ -67,6 +68,8 @@ namespace top {
     std::unique_ptr<top::JetObjectCollectionMaker>       m_jetMaker;
     std::unique_ptr<top::MissingETObjectCollectionMaker> m_metMaker;
     std::unique_ptr<top::GhostTrackSystematicsMaker>     m_ghostTrackSystMaker;
+    std::unique_ptr<top::TrackSystematicsMaker>          m_trackSystMaker;
+
   };
 } // namespace
 

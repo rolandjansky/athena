@@ -39,7 +39,7 @@ namespace top {
     m_useRCJets(false),
     m_useVarRCJets(false),
     m_useJetGhostTrack(false),
-
+    m_useTracks(false),
     m_useTruthParticles(false),
     m_useTruthElectrons(false),
     m_useTruthMuons(false),
@@ -157,7 +157,6 @@ namespace top {
     m_sgKeyTrackJetsType("SetMe"),
     m_sgKeyMissingEt("MET"),
     m_sgKeyMissingEtLoose("LooseMET"),
-    m_sgKeyInDetTrackParticles("InDetTrackParticles"),
 
     m_sgKeyTruthEvent("TruthEvents"),
     m_sgKeyMCParticle("SetMe"),
@@ -174,6 +173,9 @@ namespace top {
     m_sgKeyTopSystematicEventsLoose("TopSystematicEventsLoose"),
     m_passEventSelectionDecoration("passEventSelection"),
     m_decoKeyJetGhostTrack("GhostTrack"),
+    m_sgKeyInDetTrackParticles("InDetTrackParticles"),
+    m_sgKeyTracks("SetMe"),
+
 
     m_jetResponseMatchingDeltaR(-1),
 
@@ -284,6 +286,8 @@ namespace top {
     m_useVarRCJetSubstructure(false),
     m_useVarRCJetAdditionalSubstructure(false),
 
+    m_trackQuality("SetMe"),
+
     m_JSF(1.0),
     m_bJSF(1.0),
 
@@ -355,6 +359,7 @@ namespace top {
     m_systHashJets(nullptr),
     m_systHashLargeRJets(nullptr),
     m_systHashTrackJets(nullptr),
+    m_systHashTracks(nullptr),
     m_systHashMET(nullptr),
 
     m_systHashAll(nullptr),
@@ -372,6 +377,7 @@ namespace top {
     m_systMapJets(nullptr),
     m_systMapLargeRJets(nullptr),
     m_systMapTrackJets(nullptr),
+    m_systMapTracks(nullptr),
     m_systMapMET(nullptr),
 
     m_systSgKeyMapPhotons(nullptr),
@@ -385,6 +391,7 @@ namespace top {
     m_systSgKeyMapJetsLoose_electronInJetSubtraction(nullptr),
     m_systSgKeyMapLargeRJets(nullptr),
     m_systSgKeyMapTrackJets(nullptr),
+    m_systSgKeyMapTracks(nullptr),
     m_systSgKeyMapMET(nullptr),
 
     m_systAllSgKeyMapPhotons(nullptr),
@@ -396,6 +403,7 @@ namespace top {
     m_systAllSgKeyMapJets(nullptr),
     m_systAllSgKeyMapLargeRJets(nullptr),
     m_systAllSgKeyMapTrackJets(nullptr),
+    m_systAllSgKeyMapTracks(nullptr),
     m_systAllSgKeyMapElectrons_electronInJetSubtraction(nullptr),
     m_systAllSgKeyMapJets_electronInJetSubtraction(nullptr),
     m_systAllSgKeyMapJetsLoose_electronInJetSubtraction(nullptr),
@@ -418,6 +426,8 @@ namespace top {
     m_systAllSgKeyMapLargeRJetsTDSAux(nullptr),
     m_systAllSgKeyMapTrackJetsTDS(nullptr),
     m_systAllSgKeyMapTrackJetsTDSAux(nullptr),
+    m_systAllSgKeyMapTracksTDS(nullptr),
+    m_systAllSgKeyMapTracksTDSAux(nullptr),
     m_systAllSgKeyMapElectrons_electronInJetSubtractionTDS(nullptr),
     m_systAllSgKeyMapElectrons_electronInJetSubtractionTDSAux(nullptr),
     m_systAllSgKeyMapJets_electronInJetSubtractionTDS(nullptr),
@@ -459,6 +469,7 @@ namespace top {
     m_systHashJets = std::shared_ptr<std::unordered_set<std::size_t> > (new std::unordered_set<std::size_t> );
     m_systHashLargeRJets = std::shared_ptr<std::unordered_set<std::size_t> > (new std::unordered_set<std::size_t> );
     m_systHashTrackJets = std::shared_ptr<std::unordered_set<std::size_t> > (new std::unordered_set<std::size_t> );
+    m_systHashTracks = std::shared_ptr<std::unordered_set<std::size_t> > (new std::unordered_set<std::size_t> );
     m_systHashMET = std::shared_ptr<std::unordered_set<std::size_t> > (new std::unordered_set<std::size_t> );
 
     m_systHashAll = std::shared_ptr<std::unordered_set<std::size_t> > (new std::unordered_set<std::size_t> );
@@ -493,6 +504,12 @@ namespace top {
     m_systMapTrackJets =
       std::shared_ptr<std::unordered_map<std::size_t, CP::SystematicSet> > (new std::unordered_map<std::size_t,
                                                                                                    CP::SystematicSet> );
+     m_systMapTracks =
+       std::shared_ptr<std::unordered_map<std::size_t, CP::SystematicSet> > (new std::unordered_map<std::size_t,
+									     CP::SystematicSet> );
+     
+
+
     m_systMapMET =
       std::shared_ptr<std::unordered_map<std::size_t, CP::SystematicSet> > (new std::unordered_map<std::size_t,
                                                                                                    CP::SystematicSet> );
@@ -528,6 +545,12 @@ namespace top {
     m_systSgKeyMapTrackJets =
       std::shared_ptr<std::unordered_map<std::size_t, std::string> > (new std::unordered_map<std::size_t,
                                                                                              std::string> );
+
+    m_systSgKeyMapTracks =
+      std::shared_ptr<std::unordered_map<std::size_t, std::string> > (new std::unordered_map<std::size_t,
+								                             std::string> );
+
+    
     m_systSgKeyMapMET =
       std::shared_ptr<std::unordered_map<std::size_t, std::string> > (new std::unordered_map<std::size_t,
                                                                                              std::string> );
@@ -557,6 +580,9 @@ namespace top {
     m_systAllSgKeyMapTrackJets =
       std::shared_ptr<std::unordered_map<std::size_t, std::string> > (new std::unordered_map<std::size_t,
                                                                                              std::string> );
+    m_systAllSgKeyMapTracks =
+      std::shared_ptr<std::unordered_map<std::size_t, std::string> > (new std::unordered_map<std::size_t,
+								                             std::string> );
 
     m_systAllSgKeyMapElectrons_electronInJetSubtraction
       = std::shared_ptr<std::unordered_map<std::size_t, std::string> > (new std::unordered_map<std::size_t,
@@ -607,6 +633,11 @@ namespace top {
       new std::unordered_map<std::size_t, std::string> );
     m_systAllSgKeyMapTrackJetsTDSAux = std::shared_ptr<std::unordered_map<std::size_t, std::string> > (
       new std::unordered_map<std::size_t, std::string> );
+    m_systAllSgKeyMapTracksTDS = std::shared_ptr<std::unordered_map<std::size_t, std::string> > (
+      new std::unordered_map<std::size_t, std::string> );
+    m_systAllSgKeyMapTracksTDSAux = std::shared_ptr<std::unordered_map<std::size_t, std::string> > (
+      new std::unordered_map<std::size_t, std::string> );
+
     m_systAllSgKeyMapElectrons_electronInJetSubtractionTDS =
       std::shared_ptr<std::unordered_map<std::size_t, std::string> > (new std::unordered_map<std::size_t,
                                                                                              std::string> );
@@ -648,6 +679,7 @@ namespace top {
       new std::unordered_map<std::size_t, CP::SystematicSet> );
     m_systDecoKeyMapJetGhostTrack = std::shared_ptr<std::unordered_map<std::size_t, std::string> > (
       new std::unordered_map<std::size_t, std::string> );
+
 
     m_systAllTTreeNames =
       std::shared_ptr<std::unordered_map<std::size_t, std::string> > (new std::unordered_map<std::size_t,
@@ -699,6 +731,7 @@ namespace top {
     this->sgKeyJets(settings->value("JetCollectionName"));
     this->sgKeyLargeRJets(settings->value("LargeJetCollectionName"));
     this->sgKeyTrackJets(settings->value("TrackJetCollectionName"));
+    this->sgKeyTracks(settings->value("TrackCollectionName"));
     this->jetSubstructureName(settings->value("LargeJetSubstructure"));
     this->decoKeyJetGhostTrack(settings->value("JetGhostTrackDecoName"));
 
@@ -1276,6 +1309,10 @@ namespace top {
 
     this->trackJetPtcut(std::stof(settings->value("TrackJetPt")));
     this->trackJetEtacut(std::stof(settings->value("TrackJetEta")));
+
+    this->trackPtcut(std::stof(settings->value("TrackPt")));
+    this->trackEtacut(std::stof(settings->value("TrackEta")));
+    this->trackQuality(settings->value("TrackQuality"));
 
     // Jet configuration reclustered jets
     this->RCJetPtcut(std::stof(settings->value("RCJetPt")));
@@ -1892,6 +1929,15 @@ namespace top {
     }
   }
 
+  void TopConfig::sgKeyTracks(const std::string& s) {
+    
+    if (!m_configFixed) {
+      m_useTracks = false;
+      if (s != "None") m_useTracks = true;
+      m_sgKeyTracks = s;
+    }
+  }
+
   void TopConfig::sgKeyTruthElectrons(const std::string& s) {
     if (!m_configFixed) {
       m_useTruthElectrons = false;
@@ -1971,6 +2017,13 @@ namespace top {
   void TopConfig::runPeriodJetGhostTrack(const std::vector<std::uint32_t>& vect) {
     if (m_useJetGhostTrack == true) m_jetGhostTrackRunPeriods = vect;
   }
+
+  // setting the run periods for tracks                                                                                                                                                             
+  // even if configuration is fixed - could be changed later                                                                                                                                             
+  void TopConfig::runPeriodTrack(const std::vector<std::uint32_t>& vect) {
+    if (m_useTracks) m_trackRunPeriods = vect;
+  }
+
 
   void TopConfig::setBTaggingSFSysts(std::string WP, const std::set<std::string>& btagging_SF_names, bool isTrackJet) {
     //this avoids code duplication
@@ -2241,6 +2294,26 @@ namespace top {
     }
   }
 
+  void TopConfig::systematicsTracks(const std::list<CP::SystematicSet>& syst) {
+
+    if (!m_configFixed) {
+
+      for (auto s : syst) {
+        m_systHashTracks->insert(s.hash());
+	m_list_systHashAll->push_back(s.hash());
+        m_systMapTracks->insert(std::make_pair(s.hash(), s));
+
+        m_systSgKeyMapTracks->insert(std::make_pair(s.hash(), m_sgKeyTracks + "_" + s.name()));
+
+      }
+      
+      m_list_systHashAll->sort();
+      m_list_systHashAll->unique();
+    }
+    
+  }
+
+
   void TopConfig::fixConfiguration() {
     ATH_MSG_INFO("TopConfig::fixConfiguration()");
     // Prevent the user from changing anything
@@ -2271,6 +2344,7 @@ namespace top {
     std::string nominalJets("SetMe");
     std::string nominalLargeRJets("SetMe");
     std::string nominalTrackJets("SetMe");
+    std::string nominalTracks("SetMe");
     std::string nominal("nominal");
     std::string tds("TDS");
     std::string tdsAux("TDSAux.");
@@ -2324,6 +2398,11 @@ namespace top {
     if (trackJet != m_systSgKeyMapTrackJets->end()) {
       nominalTrackJets = (*trackJet).second;
     }
+    std::unordered_map<std::size_t, std::string>::const_iterator tracks = m_systSgKeyMapTracks->find(m_nominalHashValue);
+    if (tracks != m_systSgKeyMapTracks->end()) {
+      nominalTracks = (*tracks).second;
+    }
+
 
     for (std::unordered_set<std::size_t>::const_iterator i = m_systHashAll->begin(); i != m_systHashAll->end(); ++i) {
       std::unordered_map<std::size_t, std::string>::const_iterator ph = m_systSgKeyMapPhotons->find(*i);
@@ -2397,6 +2476,16 @@ namespace top {
       if (trackJet == m_systSgKeyMapTrackJets->end()) {
         m_systAllSgKeyMapTrackJets->insert(std::make_pair((*i), nominalTrackJets));
       }
+
+      std::unordered_map<std::size_t, std::string>::const_iterator tracks = m_systSgKeyMapTracks->find(*i);
+      if (tracks != m_systSgKeyMapTracks->end()) {
+        m_systAllSgKeyMapTracks->insert(std::make_pair((*i), (*tracks).second));
+      }
+      if (tracks == m_systSgKeyMapTracks->end()) {
+	m_systAllSgKeyMapTracks->insert(std::make_pair((*i), nominalTracks));
+      }
+
+
     } // Loop over all systematic hash values
 
 
@@ -2526,6 +2615,11 @@ namespace top {
       m_systAllSgKeyMapTrackJetsTDSAux->insert(std::make_pair((*i).first, (*i).second + tdsAux));
     }
 
+    for (Itr2 i = m_systAllSgKeyMapTracks->begin(); i != m_systAllSgKeyMapTracks->end(); ++i) {
+      m_systAllSgKeyMapTracksTDS->insert(std::make_pair((*i).first, (*i).second + tds));
+      m_systAllSgKeyMapTracksTDSAux->insert(std::make_pair((*i).first, (*i).second + tdsAux));
+    }
+
     for (Itr2 i = m_systAllSgKeyMapJets_electronInJetSubtraction->begin();
          i != m_systAllSgKeyMapJets_electronInJetSubtraction->end(); ++i) {
       m_systAllSgKeyMapJets_electronInJetSubtractionTDS->insert(std::make_pair((*i).first, (*i).second + tds));
@@ -2586,6 +2680,11 @@ namespace top {
     }
     if (m_useTrackJets) {
       for (Itr i = m_systMapTrackJets->begin(); i != m_systMapTrackJets->end(); ++i) {
+        m_systAllTTreeNames->insert(std::make_pair((*i).first, (*i).second.name()));
+      }
+    }
+    if (m_useTracks) {
+      for (Itr i = m_systMapTracks->begin(); i != m_systMapTracks->end(); ++i) {
         m_systAllTTreeNames->insert(std::make_pair((*i).first, (*i).second.name()));
       }
     }
@@ -2995,6 +3094,30 @@ namespace top {
     return m_sgKeyDummy;
   }
 
+  const std::string& TopConfig::sgKeyTracks(const std::size_t hash) const {
+    std::unordered_map<std::size_t, std::string>::const_iterator key = m_systAllSgKeyMapTracks->find(hash);
+    if (key != m_systAllSgKeyMapTracks->end()) {
+      return (*key).second;
+    }
+    return m_sgKeyDummy;
+  }
+
+  const std::string& TopConfig::sgKeyTracksTDS(const std::size_t hash) const {
+    std::unordered_map<std::size_t, std::string>::const_iterator key = m_systAllSgKeyMapTracksTDS->find(hash);
+    if (key != m_systAllSgKeyMapTracksTDS->end()) {
+      return (*key).second;
+    }
+    return m_sgKeyDummy;
+  }
+
+  const std::string& TopConfig::sgKeyTracksTDSAux(const std::size_t hash) const {
+    std::unordered_map<std::size_t, std::string>::const_iterator key = m_systAllSgKeyMapTracksTDSAux->find(hash);
+    if (key != m_systAllSgKeyMapTracksTDSAux->end()) {
+      return (*key).second;
+    }
+    return m_sgKeyDummy;
+  }
+
   const std::string& TopConfig::sgKeyMissingEt(const std::size_t hash) const {
     std::unordered_map<std::size_t, std::string>::const_iterator key = m_systSgKeyMapMissingET->find(hash);
     if (key != m_systSgKeyMapMissingET->end()) {
@@ -3202,6 +3325,7 @@ namespace top {
     out->m_sgKeyJets = m_sgKeyJets;
     out->m_sgKeyLargeRJets = m_sgKeyLargeRJets;
     out->m_sgKeyTrackJets = m_sgKeyTrackJets;
+    out->m_sgKeyTracks = m_sgKeyTracks;
     out->m_sgKeyMissingEt = m_sgKeyMissingEt;
     out->m_sgKeyMissingEtLoose = m_sgKeyMissingEtLoose;
 
@@ -3222,6 +3346,8 @@ namespace top {
     out->m_muonIsolationLoose = m_muonIsolationLoose;
 
     out->m_softmuonQuality = m_softmuonQuality;
+
+    out->m_trackQuality = m_trackQuality;
 
     typedef std::unordered_map<std::size_t, std::string>::const_iterator Itr;
 
@@ -3263,6 +3389,9 @@ namespace top {
 
     for (Itr i = m_systSgKeyMapTrackJets->begin(); i != m_systSgKeyMapTrackJets->end(); ++i)
       out->m_systSgKeyMapTrackJets.insert(std::make_pair((*i).first, (*i).second));
+
+    for (Itr i = m_systSgKeyMapTracks->begin(); i != m_systSgKeyMapTracks->end(); ++i)
+      out->m_systSgKeyMapTracks.insert(std::make_pair((*i).first, (*i).second));
 
     for (Itr i = m_systSgKeyMapMissingET->begin(); i != m_systSgKeyMapMissingET->end(); ++i)
       out->m_systSgKeyMapMissingET.insert(std::make_pair((*i).first, (*i).second));
@@ -3350,6 +3479,7 @@ namespace top {
     sgKeyJets(settings->m_sgKeyJets);
     sgKeyLargeRJets(settings->m_sgKeyLargeRJets);
     sgKeyTrackJets(settings->m_sgKeyTrackJets);
+    sgKeyTracks(settings->m_sgKeyTracks);
     m_sgKeyMissingEt = settings->m_sgKeyMissingEt;
     m_sgKeyMissingEtLoose = settings->m_sgKeyMissingEtLoose;
 
@@ -3411,6 +3541,9 @@ namespace top {
 
     for (Itr i = settings->m_systSgKeyMapTrackJets.begin(); i != settings->m_systSgKeyMapTrackJets.end(); ++i)
       m_systSgKeyMapTrackJets->insert(std::make_pair((*i).first, (*i).second));
+
+    for (Itr i = settings->m_systSgKeyMapTracks.begin(); i != settings->m_systSgKeyMapTracks.end(); ++i)
+      m_systSgKeyMapTracks->insert(std::make_pair((*i).first, (*i).second));
 
     for (Itr i = settings->m_systSgKeyMapMissingET.begin(); i != settings->m_systSgKeyMapMissingET.end(); ++i)
       m_systSgKeyMapMissingET->insert(std::make_pair((*i).first, (*i).second));
