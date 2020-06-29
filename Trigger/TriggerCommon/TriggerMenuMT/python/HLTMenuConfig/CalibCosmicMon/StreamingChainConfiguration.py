@@ -8,7 +8,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigu
 from TrigStreamerHypo.TrigStreamerHypoConfigMT import StreamerHypoToolMTgenerator
 from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlgMT
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
-from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
+from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorInitialROITool
 from AthenaCommon.CFElements import seqAND
 
 
@@ -23,6 +23,7 @@ def StreamingSequenceCfg( flags ):
 def StreamingMenuSequence():
 
     inputMakerAlg = InputMakerForRoI("IM_streamerInputMaker")
+    inputMakerAlg.RoITool = ViewCreatorInitialROITool()
     inputMakerAlg.RoIs="streamerInputRoIs"
     streamingSequence = seqAND("streamerSequence", [inputMakerAlg])
 

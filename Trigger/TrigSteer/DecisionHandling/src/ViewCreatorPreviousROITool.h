@@ -6,7 +6,7 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #define VIEWALGS_VIEWCREATORPREVIOUSROITOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "ViewAlgs/IViewCreatorROITool.h"
+#include "DecisionHandling/IViewCreatorROITool.h"
 
 /**
  * @class ViewCreatorPreviousROITool

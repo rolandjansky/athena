@@ -55,11 +55,13 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
   const DecisionContainer* cachedViews = nullptr;
   if (!m_cachedViewsKey.empty()) {
     SG::ReadHandle<DecisionContainer> cachedRH = SG::makeHandle(m_cachedViewsKey, context);
-    ATH_CHECK(cachedRH.isValid());
-    cachedViews = cachedRH.ptr();
+    // Even if the handle is configured, this precursor EventViewCreatorAlg may not have executed in a given event
+    if (cachedRH.isValid()) {
+      cachedViews = cachedRH.ptr();
+    }
   }
 
-  // Keep track of the ROIs we spwan a View for, do not spawn duplicates.
+  // Keep track of the ROIs we spawn a View for, do not spawn duplicates.
   // For many cases, this will be covered by the Merging operation preceding this.
   ElementLinkVector<TrigRoiDescriptorCollection> RoIsFromDecision;
 
@@ -83,7 +85,7 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
     ATH_CHECK(roiEL.isValid());
 
     // We do one of three things here, either... 
-    // a) We realise that an identically configured past EVCA has already run a View on an equivilant ROI. If so we can re-use this.
+    // a) We realise that an identically configured past EVCA has already run a View on an equivalent ROI. If so we can re-use this.
     // b) We encounter a new ROI and hence need to spawn a new view.
     // c) We encounter a ROI that we have already seen in looping over this outputHandle, we can re-use a view.
       
@@ -96,7 +98,7 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
 
     if (useCached) {
 
-      // Re-use an aready processed view from a previously executed EVCA instance
+      // Re-use an already processed view from a previously executed EVCA instance
       const Decision* cached = cachedViews->at(cachedIndex);
       ElementLink<ViewContainer> cachedViewEL = cached->objectLink<ViewContainer>(viewString());
       ElementLink<TrigRoiDescriptorCollection> cachedROIEL = cached->objectLink<TrigRoiDescriptorCollection>(roiString());
@@ -159,9 +161,6 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
     getScheduler(),                                 // Scheduler to launch with
     m_reverseViews ) );                             // Debug option
   
-  if (msgLvl(MSG::DEBUG)) {
-    debugPrintOut(context, outputHandle);
-  }
   return StatusCode::SUCCESS;
 }
 

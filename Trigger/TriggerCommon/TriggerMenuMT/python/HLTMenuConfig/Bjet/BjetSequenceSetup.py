@@ -29,7 +29,7 @@ def bJetStep2Sequence():
     outputRoIName = "HLT_Roi_Bjet"
 
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
-    from ViewAlgs.ViewAlgsConf import ViewCreatorCentredOnJetWithPVConstraintROITool
+    from DecisionHandling.DecisionHandlingConf import ViewCreatorCentredOnJetWithPVConstraintROITool
     InputMakerAlg = EventViewCreatorAlgorithm( "IMBJet_step2" )
     #
     newRoITool = ViewCreatorCentredOnJetWithPVConstraintROITool()
