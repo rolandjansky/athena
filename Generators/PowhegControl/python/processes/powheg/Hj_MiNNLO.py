@@ -1,16 +1,19 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from ..external import ExternalNNLOReweighter
+from AthenaCommon import Logging
 from ..powheg_V2 import PowhegV2
 import os
 
+## Get handle to Athena logging                                                                                                                   
+logger = Logging.logging.getLogger("PowhegControl")
 
-class Hj(PowhegV2):
-    """! Default Powheg configuration for Higgs boson production plus one jet.
+
+class Hj_MiNNLO(PowhegV2):
+    """! Default Powheg configuration for Higgs boson production plus one jet using MiNNLOPS.
 
     Create a configurable object with all applicable Powheg options.
 
-    @author James Robinson  <james.robinson@cern.ch>
+    @author Simone Amoroso  <simone.amoroso@cern.ch>
     """
 
     def __init__(self, base_directory, **kwargs):
@@ -19,10 +22,8 @@ class Hj(PowhegV2):
         @param base_directory: path to PowhegBox code.
         @param kwargs          dictionary of arguments from Generate_tf.
         """
-        super(Hj, self).__init__(base_directory, "HJ", **kwargs)
 
-        # Add algorithms to the sequence
-        self.add_algorithm(ExternalNNLOReweighter(os.path.split(self.executable)[0], "nnlopsreweighter-newrwgt"))
+        super(Hj_MiNNLO, self).__init__(base_directory, os.path.join("Hj", "HjMiNNLO"), powheg_executable="pwhg_main", **kwargs)
 
         # Add all keywords for this process, overriding defaults if required
         self.add_keyword("alphas_from_lhapdf",0.0)

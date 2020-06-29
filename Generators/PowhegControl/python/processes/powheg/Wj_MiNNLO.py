@@ -1,7 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import Logging
-from ..external import ExternalNNLOReweighter
 from ..powheg_V2 import PowhegV2
 import os
 
@@ -9,12 +8,12 @@ import os
 logger = Logging.logging.getLogger("PowhegControl")
 
 
-class Wj(PowhegV2):
+class Wj_MiNNLO(PowhegV2):
     """! Default Powheg configuration for single W-boson production plus one jet using MINNLOPS.
 
     Create a configurable object with all applicable Powheg options.
 
-    @author James Robinson  <simone.amoroso@amoroso.ch>
+    @author Simone Amoroso  <simone.amoroso@amoroso.ch>
     """
 
     def __init__(self, base_directory, **kwargs):

@@ -107,7 +107,7 @@ class Zj_MiNNLO(PowhegV2):
         self.add_keyword("minnlo", 1)
         self.add_keyword("mintupbratlim")
         self.add_keyword("mintupbxless")
-        seld.add_keyword("modlog_p")
+        self.add_keyword("modlog_p")
         self.add_keyword("ncall1", 20000)
         self.add_keyword("ncall1rm")
         self.add_keyword("ncall2", 70000)
