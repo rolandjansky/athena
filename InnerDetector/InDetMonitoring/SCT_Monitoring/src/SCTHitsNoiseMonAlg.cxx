@@ -208,9 +208,9 @@ StatusCode SCTHitsNoiseMonAlg::generalHistsandNoise(const std::array<std::unorde
     // Define a set of spIDs
     std::unordered_set<Identifier> mySetOfSPIds;
     for (int side{0}; side<N_SIDES; side++) {
-      SpacePointContainer::const_iterator spContainerIterator{spacePointContainer->indexFind(side==0 ? theModuleHash0 : theModuleHash1)};
-      if (spContainerIterator==spacePointContainer->end()) continue;
-      for (const Trk::SpacePoint* sp: **spContainerIterator) {
+      auto spContainerIterator{spacePointContainer->indexFindPtr(side==0 ? theModuleHash0 : theModuleHash1)};
+      if (spContainerIterator==nullptr) continue;
+      for (const Trk::SpacePoint* sp: *spContainerIterator) {
         const std::vector<Identifier>& rdoList{(thisSide==side ? sp->clusterList().first : sp->clusterList().second)->rdoList()};
         mySetOfSPIds.insert(rdoList.begin(), rdoList.end());
       }

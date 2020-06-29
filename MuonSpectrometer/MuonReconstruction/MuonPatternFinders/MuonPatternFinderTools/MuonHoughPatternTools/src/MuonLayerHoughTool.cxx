@@ -1707,24 +1707,24 @@ namespace Muon {
         for( ;iit!=iit_end;++iit ){
           // !?! else if made by Felix
           if( mdtCont && mdtCont->size()>0 && tech == MuonStationIndex::MDT ) {
-            MdtPrepDataContainer::const_iterator pos = mdtCont->indexFind(*iit);
-            if( pos != mdtCont->end() ) fill(truthHits,**pos,houghData.hitVec[layerHash]);
+            auto pos = mdtCont->indexFindPtr(*iit);
+            if( pos != nullptr ) fill(truthHits,*pos,houghData.hitVec[layerHash]);
           }
           else if( rpcCont && rpcCont->size()>0 && tech == MuonStationIndex::RPC ) {
-            RpcPrepDataContainer::const_iterator pos = rpcCont->indexFind(*iit);
-            if( pos != rpcCont->end() ) fill(truthHits,**pos,houghData.hitVec[layerHash],houghData.phiHitVec[regionLayer.first]);
+            auto pos = rpcCont->indexFindPtr(*iit);
+            if( pos != nullptr ) fill(truthHits,*pos,houghData.hitVec[layerHash],houghData.phiHitVec[regionLayer.first]);
           }
           else if( tgcCont && tgcCont->size()>0 && tech == MuonStationIndex::TGC ) {
-            TgcPrepDataContainer::const_iterator pos = tgcCont->indexFind(*iit);
-            if( pos != tgcCont->end() ) fill(truthHits, tgcClusteringObjs, **pos,houghData.hitVec[layerHash],houghData.phiHitVec[regionLayer.first],collectionsPerSector.sector);
+            auto pos = tgcCont->indexFindPtr(*iit);
+            if( pos != nullptr ) fill(truthHits, tgcClusteringObjs, *pos,houghData.hitVec[layerHash],houghData.phiHitVec[regionLayer.first],collectionsPerSector.sector);
           }
           else if( stgcCont && stgcCont->size()>0 && tech == MuonStationIndex::STGC ) {
-            sTgcPrepDataContainer::const_iterator pos = stgcCont->indexFind(*iit);
-            if( pos != stgcCont->end() ) fill(truthHits,**pos,houghData.hitVec[layerHash],houghData.phiHitVec[regionLayer.first],collectionsPerSector.sector);
+            auto pos = stgcCont->indexFindPtr(*iit);
+            if( pos != nullptr ) fill(truthHits,*pos,houghData.hitVec[layerHash],houghData.phiHitVec[regionLayer.first],collectionsPerSector.sector);
           }
           else if( mmCont && mmCont->size()>0 && tech == MuonStationIndex::MM ) {
-            MMPrepDataContainer::const_iterator pos = mmCont->indexFind(*iit);
-            if( pos != mmCont->end() ) fill(truthHits,**pos,houghData.hitVec[layerHash]);
+            auto pos = mmCont->indexFindPtr(*iit);
+            if( pos != nullptr ) fill(truthHits,*pos,houghData.hitVec[layerHash]);
           }
         }
       }
