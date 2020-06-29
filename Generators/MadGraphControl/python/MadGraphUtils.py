@@ -488,7 +488,10 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None,
         raise RuntimeError('Settings are not compliant with PMG defaults! Please use do_PMG_updates function to get PMG default params.')
 
     # Modify run card, then print
-    modify_run_card(process_dir=MADGRAPH_GRIDPACK_LOCATION,settings={'iseed':str(random_seed),'python_seed':str(random_seed)})
+    settings={'iseed':str(random_seed)}
+    if not isNLO:
+        settings['python_seed']=str(random_seed)
+    modify_run_card(process_dir=MADGRAPH_GRIDPACK_LOCATION,settings=settings)
     print_cards_from_dir(process_dir=MADGRAPH_GRIDPACK_LOCATION)
 
     mglog.info('Generating events from gridpack')
