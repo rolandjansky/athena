@@ -1135,7 +1135,7 @@ void Trk::TrkMaterialProviderTool::updateVector(DataVector<const Trk::TrackState
     while(i<ntoupdate) {
       it = inputTSOS->erase(it);
       ++i;
-      firstMS--;
+      --firstMS;
     }    
     inputTSOS->insert(firstMS, caloTSOS->begin(), caloTSOS->end());
   }
@@ -1169,7 +1169,7 @@ void Trk::TrkMaterialProviderTool::updateVectorMS(DataVector<const Trk::TrackSta
 
 // In the MuonSpectrometer the TSOS for the MaterialEffectsOnTrack do NOT have trackParameters
 
-  for(;it!= inputTSOS->end();it++) {
+  for(;it!= inputTSOS->end();++it) {
     msStates++;
     if((*it)->materialEffectsOnTrack()) {
       msMatStates++;
@@ -1220,7 +1220,7 @@ void Trk::TrkMaterialProviderTool::updateVectorMS(DataVector<const Trk::TrackSta
    std::cout << " msStates " <<   msStates << " msMatStates " << msMatStates << " msMatParStates " << msMatParStates << std::endl;
 
 // dump (new) energy loss
-   for(it = firstMS;it!= inputTSOS->end();it++) {
+   for(it = firstMS;it!= inputTSOS->end();++it) {
     if((*it)->materialEffectsOnTrack()) {
       const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>((*it)->materialEffectsOnTrack());
       if(meot) {
