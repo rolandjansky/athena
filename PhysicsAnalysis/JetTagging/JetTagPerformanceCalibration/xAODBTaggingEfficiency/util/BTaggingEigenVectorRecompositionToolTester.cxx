@@ -51,21 +51,7 @@ int main() {
   }
   
   const std::string label = "B";
-  const int evIdx = 0;
-  /**
-     printListOfCoefficients(label, evIdx)
-
-     input value:
-     1. label: falvor label in std::string format, could be one of B, C, T, Light
-     2. evIdx: The index of eigenvector user interested in.
-     output:
-     Print out original nuisance parameter names along with the corresponding
-     coefficient value of specified eigenvector evIdx.
-   */
-  auto correction_code = evr_tool->printListOfCoefficients(label, evIdx);
-  if (correction_code != CP::CorrectionCode::Ok) {
-    std::cout << "getListOfCoefficients failed!" << std::endl;
-  }
+  const unsigned int evIdx = 0;
 
   /**
      getCoefficientMap(label, EigenIdxList)
@@ -75,11 +61,11 @@ int main() {
      2. EigenIdxList is user defined vector containing all eigenvector index
      that user interested in.
      output:
-     Map of format map<string, map<string, double>> containing decomposition
+     Map of format map<string, map<string, float>> containing decomposition
      coefficient of the list of eigenvectors defined by EigenIdxList.
   */
-  std::vector<int> eigenIdxList = {1,2,3,4,5};
-  std::map<std::string, std::map<std::string, double>> coefficientMap = evr_tool->getCoefficientMap(label, eigenIdxList);
+  std::vector<unsigned int> eigenIdxList = {1,2,3,4,5};
+  std::map<std::string, std::map<std::string, float>> coefficientMap = evr_tool->getCoefficientMap(label, eigenIdxList);
 
   /**
      getCoefficients(label, evIdx)
@@ -91,7 +77,7 @@ int main() {
      vector of coefficient values. The order is the same as output given by
      getListOfOriginalNuisanceParameters()
    */
-  std::vector<double> coeffs = evr_tool->getCoefficients(label, evIdx);
+  std::vector<float> coeffs = evr_tool->getCoefficients(label, evIdx);
   
   /**
      getListOfOriginalNuisanceParameters(label)
@@ -102,19 +88,6 @@ int main() {
      List of original nuisance parameter names.
    */
   std::vector<std::string> orig_nps = evr_tool->getListOfOriginalNuisanceParameters(label);
-  
-  /**
-     printListOfOriginalNuisanceParameters(label)
-     
-     input value:
-     1. label: falvor label in std::string format, could be one of B, C, T, Light
-     output:
-     Print all original nuisance parameter names
-   */
-  correction_code = evr_tool->printListOfOriginalNuisanceParameters("B");
-  if (correction_code != CP::CorrectionCode::Ok) {
-    std::cout << "printListOfOriginalNuisanceParameters failed!" << std::endl;
-  }
 
   /**
      getNumEigenVectors(label)
@@ -122,11 +95,13 @@ int main() {
      input value:
      1. label: falvor label in std::string format, could be one of B, C, T, Light
      return value:
-     number of eigen vectors used for chosen label.
+     number of eigen vectors used for chosen label. Return 0 if error occured. 
    */
   int nEigen = evr_tool->getNumEigenVectors("B");
-  std::cout<<"There are "<<nEigen
-	   <<" eigen vectors for flavour B."<<std::endl;
+  if (nEigen >= 0){
+    std::cout<<"There are "<<nEigen
+	     <<" eigen vectors for flavour B."<<std::endl;
+  }
 
   return retval;
 

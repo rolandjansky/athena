@@ -942,7 +942,7 @@ BTaggingEfficiencyTool::listScaleFactorSystematics(bool named) const {
 }
 
 CorrectionCode
-BTaggingEfficiencyTool::getEigenRecompositionCoefficientMap(const std::string &label, std::map<std::string, std::map<std::string, double>> & coefficientMap){
+BTaggingEfficiencyTool::getEigenRecompositionCoefficientMap(const std::string &label, std::map<std::string, std::map<std::string, float>> & coefficientMap){
   // Calling EigenVectorRecomposition method in CDI and retrieve recomposition map.
   // If success, coefficientMap would be filled and return ok.
   // If failed, return error.

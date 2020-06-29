@@ -313,7 +313,7 @@ namespace Analysis
 						    unsigned int mapindex = 0);
       
       /** Get Eigenvector recomposition map after running runEigenVectorRecomposition()*/
-      std::map<std::string, std::map<std::string, double>> getEigenVectorRecompositionCoefficientMap();
+      std::map<std::string, std::map<std::string, float>> getEigenVectorRecompositionCoefficientMap();
 
       // ------------------------------------------------------------------------------------------
 
@@ -451,7 +451,7 @@ namespace Analysis
       // ------------------------------------------------------------------------------------------
 
       // map storing coefficient calculated by EigenRecomposition.
-      std::map<std::string, std::map<std::string, double>> m_coefficientMap;
+      std::map<std::string, std::map<std::string, float>> m_coefficientMap;
 
       // ------------------------------------------------------------------------------------------
 

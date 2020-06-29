@@ -1045,7 +1045,7 @@ CalibrationDataEigenVariations::isExtrapolationVariation(unsigned int nameIndex)
 //________________________________________________________________________________
 bool
 CalibrationDataEigenVariations::EigenVectorRecomposition(const std::string label, 
-							 std::map<std::string, std::map<std::string, double>> &coefficientMap) const
+							 std::map<std::string, std::map<std::string, float>> &coefficientMap) const
 {
   // Calculating eigen vector recomposition coefficient map and pass to
   // user by reference. Return true if method success. Return false and
@@ -1161,7 +1161,7 @@ CalibrationDataEigenVariations::EigenVectorRecomposition(const std::string label
   TMatrixD matCoeff = matSF*matEigenInvert;
   int nRows = matCoeff.GetNrows();
   int nCols = matCoeff.GetNcols();
-  std::map<std::string, double> temp_map;
+  std::map<std::string, float> temp_map;
   for (int col = 0; col < nCols; col++){
     temp_map.clear();
     for(int row = 0; row < nRows; row++){

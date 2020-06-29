@@ -207,7 +207,7 @@ class BTaggingEfficiencyTool: public asg::AsgTool,
    * is stored in the map in the format of:
    * map<"Eigen_B_0", map<"[original uncertainty name]", [corresponding coefficient value]>> 
    */
-  CP::CorrectionCode getEigenRecompositionCoefficientMap(const std::string &label, std::map<std::string, std::map<std::string, double>> & coefficientMap);
+  CP::CorrectionCode getEigenRecompositionCoefficientMap(const std::string &label, std::map<std::string, std::map<std::string, float>> & coefficientMap);
   /// @}
 
 private:

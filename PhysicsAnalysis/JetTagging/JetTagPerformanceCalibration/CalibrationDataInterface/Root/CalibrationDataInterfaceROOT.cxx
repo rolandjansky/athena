@@ -2208,7 +2208,7 @@ Analysis::CalibrationDataInterfaceROOT::runEigenVectorRecomposition (const std::
     return Analysis::kError;
   }
   // Doing eigenvector recomposition
-  std::map<std::string, std::map<std::string, double>> coefficientMap;
+  std::map<std::string, std::map<std::string, float>> coefficientMap;
   if(!eigenVariation->EigenVectorRecomposition(label, coefficientMap))
     return Analysis::kError;
 
@@ -2216,7 +2216,7 @@ Analysis::CalibrationDataInterfaceROOT::runEigenVectorRecomposition (const std::
   return Analysis::kSuccess;
 }
 
-std::map<std::string, std::map<std::string, double>>
+std::map<std::string, std::map<std::string, float>>
 Analysis::CalibrationDataInterfaceROOT::getEigenVectorRecompositionCoefficientMap(){
   if(m_coefficientMap.empty())
     cerr << "getCoefficientMap: Call runEigenVectorRecomposition() before retrieving coefficient map! " <<endl;

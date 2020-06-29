@@ -51,92 +51,31 @@ StatusCode BTaggingEigenVectorRecompositionTool::initialize()
       return StatusCode::FAILURE;
   }
   
-  std::map<std::string, std::map<std::string, double>>::iterator outter;
+  std::map<std::string, std::map<std::string, float>>::iterator outter;
   
   outter = m_coefficientMapB.begin();
-  for (std::map<std::string, double>::iterator inner=outter->second.begin();
+  for (std::map<std::string, float>::iterator inner=outter->second.begin();
        inner!=outter->second.end(); ++inner){
     m_NPnameListB.push_back(inner->first);
   }
   outter = m_coefficientMapC.begin();
-  for (std::map<std::string, double>::iterator inner=outter->second.begin();
+  for (std::map<std::string, float>::iterator inner=outter->second.begin();
        inner!=outter->second.end(); ++inner){
     m_NPnameListC.push_back(inner->first);
   }
   outter = m_coefficientMapT.begin();
-  for (std::map<std::string, double>::iterator inner=outter->second.begin();
+  for (std::map<std::string, float>::iterator inner=outter->second.begin();
        inner!=outter->second.end(); ++inner){
     m_NPnameListT.push_back(inner->first);
   }
   outter = m_coefficientMapLight.begin();
-  for (std::map<std::string, double>::iterator inner=outter->second.begin();
+  for (std::map<std::string, float>::iterator inner=outter->second.begin();
        inner!=outter->second.end(); ++inner){
     m_NPnameListLight.push_back(inner->first);
   }
 
   return StatusCode::SUCCESS;
 
-}
-
-// Print out nuisance parameter names correspond to the chosen flavour.
-CP::CorrectionCode BTaggingEigenVectorRecompositionTool::printListOfOriginalNuisanceParameters(const std::string & label) const
-
-{
-  ATH_MSG_INFO("=============================================");
-  ATH_MSG_INFO("printListOfOriginalNuisanceParameters()");
-  ATH_MSG_INFO("Calling getListOfOriginalNuisanceParameters()");
-  std::vector<std::string> NPnameList = getListOfOriginalNuisanceParameters(label);
-  if(NPnameList.empty()){
-    ATH_MSG_ERROR("Could not retrieve list of original nuisance parameters");
-    return CP::CorrectionCode::Error;
-  }
-  
-  ATH_MSG_INFO("Printing list of original NP names for " << label <<":");
-  ATH_MSG_INFO("");
-  for (std::string name : NPnameList){
-    ATH_MSG_INFO(name);
-  }
-  ATH_MSG_INFO("");
-  ATH_MSG_INFO("Finished printing list of original NP names for " << label <<".");
-  ATH_MSG_INFO("=============================================");
-
-  return CP::CorrectionCode::Ok;
-
-}
-
-// Print out list of coefficients for the chosen eigen vector of chosen flavour label.
-// The output contains original uncertainties' names and the corresponding
-// coefficient value. The order of the original uncertainty printed is
-// exactly the same as the order given by printListOfOriginalNuisanceParameters()
-CP::CorrectionCode BTaggingEigenVectorRecompositionTool::printListOfCoefficients(const std::string & label, const int& evIdx) const
-{
-  ATH_MSG_INFO("=============================================");
-  ATH_MSG_INFO("printListOfCoefficients()");
-  ATH_MSG_INFO("Here you print the coefficients for now");
-  ATH_MSG_INFO("Tagger name = " << m_btageffTool->getTaggerName());
-  ATH_MSG_INFO(" ");
-  std::vector<int> evIdxList = {evIdx};
-  std::map<std::string, std::map<std::string, double>> outterMap = 
-    getCoefficientMap(label, evIdxList);
-  if(outterMap.empty()){
-    ATH_MSG_ERROR("Could not retrieve coefficient map of Eigen_"<<label<<"_"<<std::to_string(evIdx));
-    return CP::CorrectionCode::Error;
-  }
-
-  std::map<std::string, double> innerMap =
-    outterMap["Eigen_"+label+"_"+std::to_string(evIdx)];
-  ATH_MSG_INFO("Printing coefficient of Eigen_"<<label<<"_"<<std::to_string(evIdx));
-  ATH_MSG_INFO("");
-  for (std::map<std::string, double>::iterator in = innerMap.begin();
-       in != innerMap.end(); ++in){
-    ATH_MSG_INFO(in->first<<": "<<in->second);
-  }
-  ATH_MSG_INFO("");
-  ATH_MSG_INFO("Finished printing coefficients of Eigen_"
-	       <<label<<"_"<<std::to_string(evIdx));
-  ATH_MSG_INFO("=============================================");
-
-  return CP::CorrectionCode::Ok;
 }
 
 // Return a vector which contains a list of original vector uncertainties names.
@@ -166,11 +105,11 @@ std::vector<std::string> BTaggingEigenVectorRecompositionTool::getListOfOriginal
 // Produce a coefficient map contains only eigenvectors that is showing in
 // eigenIdxList and return it to user. If given empty evIdxList, the function
 // returns a full map. Produced map is for the chosen flavour label.
-std::map<std::string, std::map<std::string, double>> BTaggingEigenVectorRecompositionTool::getCoefficientMap(const std::string & label, const std::vector<int> evIdxList) const
+std::map<std::string, std::map<std::string, float>> BTaggingEigenVectorRecompositionTool::getCoefficientMap(const std::string & label, const std::vector<unsigned int> evIdxList) const
 {
   ATH_MSG_INFO("getCoefficientMap()");
   
-  std::map<std::string, std::map<std::string, double>> fullMap;
+  std::map<std::string, std::map<std::string, float>> fullMap;
   if(label.compare("B") == 0)
     fullMap = m_coefficientMapB;
   else if(label.compare("C") == 0)
@@ -185,13 +124,13 @@ std::map<std::string, std::map<std::string, double>> BTaggingEigenVectorRecompos
   }
   
   std::vector<std::string> evNameList;
-  for(int i : evIdxList){
-    // Note: This eigenvector name convention has to be same with that in CalibrationDataEigenVariations. One way to avoid the naming convention is to change coefficient map structure into: map<int, map<string, double>>
+  for(unsigned int i : evIdxList){
+    // Note: This eigenvector name convention has to be same with that in CalibrationDataEigenVariations. One way to avoid the naming convention is to change coefficient map structure into: map<unsigned int, map<string, float>>
     evNameList.push_back("Eigen_"+label+"_"+std::to_string(i));
   }
 
-  std::map<std::string, std::map<std::string, double>> resultMap;
-  for (std::map<std::string, std::map<std::string, double>>::iterator iter = fullMap.begin();
+  std::map<std::string, std::map<std::string, float>> resultMap;
+  for (std::map<std::string, std::map<std::string, float>>::iterator iter = fullMap.begin();
        iter != fullMap.end(); ++iter){
     if (evNameList.end() != std::find(evNameList.begin(), evNameList.end(), iter->first) ||
 	evNameList.empty())
@@ -204,11 +143,11 @@ std::map<std::string, std::map<std::string, double>> BTaggingEigenVectorRecompos
 // and the chosen eigenvector. The order of the value is the same as
 // the order of original uncertainty names given by
 // getListOfOriginalNuisanceParameters()
-std::vector<double> BTaggingEigenVectorRecompositionTool::getCoefficients(const std::string & label, const int& evIdx) const
+std::vector<float> BTaggingEigenVectorRecompositionTool::getCoefficients(const std::string & label, const unsigned int evIdx) const
 {
   ATH_MSG_INFO("getCoefficients()");
-  std::vector<double> coefficients; // dummy to be replaced
-  std::map<std::string, std::map<std::string, double>> fullMap;
+  std::vector<float> coefficients; // dummy to be replaced
+  std::map<std::string, std::map<std::string, float>> fullMap;
   std::vector<std::string> NPnameList;
   if(label.compare("B") == 0){
     fullMap = m_coefficientMapB;
@@ -237,7 +176,7 @@ std::vector<double> BTaggingEigenVectorRecompositionTool::getCoefficients(const 
     return coefficients;
   }
   
-  std::map<std::string, double> oneEVmap = fullMap[evName];
+  std::map<std::string, float> oneEVmap = fullMap[evName];
   for(std::string NPname : NPnameList){
     coefficients.push_back(oneEVmap[NPname]);
   }
@@ -246,7 +185,7 @@ std::vector<double> BTaggingEigenVectorRecompositionTool::getCoefficients(const 
 
 // Return number of eigenvectors used for the chosen label.
 int BTaggingEigenVectorRecompositionTool::getNumEigenVectors(const std::string & label)const{
-  std::map<std::string, std::map<std::string, double>> fullMap;
+  std::map<std::string, std::map<std::string, float>> fullMap;
   if(label.compare("B") == 0)
     fullMap = m_coefficientMapB;
   else if(label.compare("C") == 0)

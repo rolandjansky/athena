@@ -89,7 +89,7 @@ namespace Analysis
 
     /** Eigenvector recomposition method.*/
     bool EigenVectorRecomposition(const std::string label,
-				  std::map<std::string, std::map<std::string, double>> &coefficientMap) const;
+				  std::map<std::string, std::map<std::string, float>> &coefficientMap) const;
 
   private:
     /** container object containing the basic information */

@@ -50,19 +50,6 @@ class BTaggingEigenVectorRecompositionTool: public asg::AsgTool,
   virtual ~BTaggingEigenVectorRecompositionTool();
 
   /**
-   * Print list of original nuisance parameters names.
-   **/
-  CP::CorrectionCode printListOfOriginalNuisanceParameters(const std::string & label) const;
-
-  /**
-   * Print out list of coefficients for the chosen eigen vector of chosen flavour label.
-   * The output contains original uncertainties' names and the corresponding
-   * coefficient value. The order of the original uncertainty printed is
-   * exactly the same as the order given by printListOfOriginalNuisanceParameters()
-   **/
-  CP::CorrectionCode printListOfCoefficients(const std::string & label, const int& evIdx) const;
-
-  /**
    * Return a vector which contains a list of original vector uncertainties names.
    * vector list is for the chosen flavour label. The order of the names is the same
    * as the coefficient values given by getCoefficients()  
@@ -74,9 +61,9 @@ class BTaggingEigenVectorRecompositionTool: public asg::AsgTool,
    * eigenIdxList and return it to user. If given empty evIdxList, the function
    * returns a full map. Produced map is for the chosen flavour label.
    **/
-   std::map<std::string, std::map<std::string, double>> getCoefficientMap(const std::string & label,
-									 const std::vector<int> eigenIdxList = 
-									 std::vector<int>()) const;
+   std::map<std::string, std::map<std::string, float>> getCoefficientMap(const std::string & label,
+									 const std::vector<unsigned int> eigenIdxList = 
+									 std::vector<unsigned int>()) const;
 
   /**
    * Returns a vector contains the coefficients value of the chosen label
@@ -84,7 +71,7 @@ class BTaggingEigenVectorRecompositionTool: public asg::AsgTool,
    * the order of original uncertainty names given by
    * getListOfOriginalNuisanceParameters()
    **/
-  std::vector<double> getCoefficients(const std::string & label, const int& evIdx) const;
+  std::vector<float> getCoefficients(const std::string & label, const unsigned int evIdx) const;
 
   // Return number of eigenvectors used for the chosen label.
   int getNumEigenVectors(const std::string & label)const;
@@ -122,10 +109,10 @@ class BTaggingEigenVectorRecompositionTool: public asg::AsgTool,
   // memeber variable maps which has format:
   // map<"Eigen_[flavour]_[index]", map<"[original uncertainty name]", coefficent value>
   // One map for each flavour.
-  std::map<std::string, std::map<std::string, double>> m_coefficientMapB;
-  std::map<std::string, std::map<std::string, double>> m_coefficientMapC;
-  std::map<std::string, std::map<std::string, double>> m_coefficientMapT;
-  std::map<std::string, std::map<std::string, double>> m_coefficientMapLight;
+  std::map<std::string, std::map<std::string, float>> m_coefficientMapB;
+  std::map<std::string, std::map<std::string, float>> m_coefficientMapC;
+  std::map<std::string, std::map<std::string, float>> m_coefficientMapT;
+  std::map<std::string, std::map<std::string, float>> m_coefficientMapLight;
 
   // contains list of original uncertainty names. The aim for having this
   // is to keep the order of uncertainty names.
