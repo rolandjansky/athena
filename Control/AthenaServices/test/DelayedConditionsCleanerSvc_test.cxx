@@ -653,7 +653,7 @@ int main()
   errorcheck::ReportMessage::hideErrorLocus();
   std::cout << "DelayedConditionsCleanerSvc_test\n";
   ISvcLocator* svcloc = 0;
-  if (!Athena_test::initGaudi("DelayedConditionsCleanerSvc_test.txt", svcloc)) {
+  if (!Athena_test::initGaudi("AthenaServices/DelayedConditionsCleanerSvc_test.txt", svcloc)) {
     std::cerr << "This test can not be run" << std::endl;
     return 1;
   }  
