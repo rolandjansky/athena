@@ -221,6 +221,21 @@ class ConfiguredNewTrackingCuts :
       self.__maxPrimaryImpact        = 5.0 * Units.mm #based on studies by T.Strebler
 
     if self.__indetflags.cutLevel() >= 17:
+      # Tuning of the search road and strip seed IP in the track finder.
+      # Designed to speed up reconstruction at minimal performance impact. 
+      self.__roadWidth              = 12
+      self.__maxdImpactSSSSeeds     = 5.0 * Units.mm
+
+    if self.__indetflags.cutLevel() >= 18:
+      # Further tuning of the pattern recognition designed to 
+      # speed up reconstruction compared to 17 with minimal additional 
+      # impact. Kept as separate level pending cross-check of 
+      # seed confirmation robustness with end-of-run-3 radiation
+      # damage. 
+      self.__keepAllConfirmedSeeds  = True
+      self.__maxSeedsPerSP          = 1
+
+    if self.__indetflags.cutLevel() >= 19:
       print('--------> FATAL ERROR, cut level undefined, abort !')
       import sys
       sys.exit()

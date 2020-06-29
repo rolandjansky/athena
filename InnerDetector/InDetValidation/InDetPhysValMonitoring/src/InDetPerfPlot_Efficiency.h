@@ -33,6 +33,7 @@ public:
 private:
   TEfficiency* m_efficiency_vs_eta;
   TEfficiency* m_efficiency_vs_pt;
+  TEfficiency* m_efficiency_vs_pt_low;
   TEfficiency* m_efficiency_vs_phi;
   TEfficiency* m_efficiency_vs_d0;
   TEfficiency* m_efficiency_vs_z0;

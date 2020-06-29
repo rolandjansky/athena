@@ -14,6 +14,7 @@ InDetPerfPlot_Efficiency::InDetPerfPlot_Efficiency(InDetPlotBase* pParent, const
   InDetPlotBase(pParent, sDir),
   m_efficiency_vs_eta{},
   m_efficiency_vs_pt{},
+  m_efficiency_vs_pt_low{},
   m_efficiency_vs_phi{},
   m_efficiency_vs_d0{},
   m_efficiency_vs_z0{},
@@ -29,6 +30,7 @@ InDetPerfPlot_Efficiency::initializePlots() {
 
   book(m_efficiency_vs_eta, "efficiency_vs_eta");
   book(m_efficiency_vs_pt, "efficiency_vs_pt");
+  book(m_efficiency_vs_pt_low, "efficiency_vs_pt_low");
   book(m_efficiency_vs_phi, "efficiency_vs_phi");
   book(m_efficiency_vs_d0, "efficiency_vs_d0");
   book(m_efficiency_vs_z0, "efficiency_vs_z0");
@@ -48,6 +50,7 @@ InDetPerfPlot_Efficiency::fill(const xAOD::TruthParticle& truth, const bool isGo
 
   fillHisto(m_efficiency_vs_eta, eta, isGood);
   fillHisto(m_efficiency_vs_pt, pt, isGood);
+  fillHisto(m_efficiency_vs_pt_low, pt, isGood);
   fillHisto(m_efficiency_vs_phi, phi, isGood);
 
   double d0 = truth.auxdata<float>("d0");

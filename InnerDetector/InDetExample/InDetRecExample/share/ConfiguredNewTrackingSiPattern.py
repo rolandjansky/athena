@@ -94,7 +94,7 @@ class  ConfiguredNewTrackingSiPattern:
             InDetSiSpacePointsSeedMaker.maxdImpactSSS = NewTrackingCuts.maxdImpactSSSSeeds()
             InDetSiSpacePointsSeedMaker.maxSeedsForSpacePoint = NewTrackingCuts.MaxSeedsPerSP()
             InDetSiSpacePointsSeedMaker.alwaysKeepConfirmedSeeds = NewTrackingCuts.KeepAllConfirmedSeeds()
-            
+
          if NewTrackingCuts.mode() == "R3LargeD0":
             InDetSiSpacePointsSeedMaker.usePixel = False
             InDetSiSpacePointsSeedMaker.etaMax = NewTrackingCuts.maxEta() 
