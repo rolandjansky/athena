@@ -42,7 +42,7 @@ InDet::SiCombinatorialTrackFinder_xk::SiCombinatorialTrackFinder_xk
 // Initialisation
 ///////////////////////////////////////////////////////////////////
 
-StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize ATLAS_NOT_THREAD_SAFE ()
+StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize()
 {  
   // Get RungeKutta propagator tool
   //
