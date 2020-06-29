@@ -48,6 +48,7 @@ namespace Print {
 inline void line(std::ostream& os,const GenParticle& p){p.print(os);}
 inline void line(std::ostream& os,const GenParticle* p){p->print(os);}
 }
+inline std::ostream& operator<<( std::ostream& os, const GenParticle* p ) { if (p) return os<<(*p); else return os;} 
 }
 #endif
 #endif
