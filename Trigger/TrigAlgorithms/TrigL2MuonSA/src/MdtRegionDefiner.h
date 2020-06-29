@@ -11,13 +11,13 @@
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
 
-#include "TrigL2MuonSA/TgcFit.h"
-#include "TrigL2MuonSA/TgcData.h"
-#include "TrigL2MuonSA/RpcData.h"
-#include "TrigL2MuonSA/TgcFitResult.h"
-#include "TrigL2MuonSA/RpcFitResult.h"
-#include "TrigL2MuonSA/MuonRoad.h"
-#include "TrigL2MuonSA/MdtRegion.h"
+#include "TgcFit.h"
+#include "TgcData.h"
+#include "RpcData.h"
+#include "TgcFitResult.h"
+#include "RpcFitResult.h"
+#include "MuonRoad.h"
+#include "MdtRegion.h"
 
 #include <string>
 

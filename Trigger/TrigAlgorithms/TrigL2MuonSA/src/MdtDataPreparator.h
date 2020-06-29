@@ -19,13 +19,13 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
-#include "TrigL2MuonSA/TgcData.h"
-#include "TrigL2MuonSA/MdtData.h"
-#include "TrigL2MuonSA/RecMuonRoIUtils.h"
-#include "TrigL2MuonSA/MdtRegionDefiner.h"
+#include "TgcData.h"
+#include "MdtData.h"
+#include "RecMuonRoIUtils.h"
+#include "MdtRegionDefiner.h"
 
-#include "TrigL2MuonSA/RpcFitResult.h"
-#include "TrigL2MuonSA/TgcFitResult.h"
+#include "RpcFitResult.h"
+#include "TgcFitResult.h"
 
 #include "MuonCablingData/MuonMDT_CablingMap.h"
 #include "StoreGate/ReadCondHandleKey.h"

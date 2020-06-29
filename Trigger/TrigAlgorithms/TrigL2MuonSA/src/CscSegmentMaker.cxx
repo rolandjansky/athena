@@ -6,7 +6,7 @@
 #include "MuonReadoutGeometry/CscReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
-#include "TrigL2MuonSA/CscSegmentMaker.h"
+#include "CscSegmentMaker.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"

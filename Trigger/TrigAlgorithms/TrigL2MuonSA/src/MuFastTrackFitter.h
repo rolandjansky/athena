@@ -10,18 +10,18 @@
 
 #include "TrigT1Interfaces/RecMuonRoI.h"
 
-#include "TrigL2MuonSA/RpcFitResult.h"
-#include "TrigL2MuonSA/TgcFitResult.h"
-#include "TrigL2MuonSA/TrackData.h"
+#include "RpcFitResult.h"
+#include "TgcFitResult.h"
+#include "TrackData.h"
 
-#include "TrigL2MuonSA/PtEndcapLUTSvc.h"
-#include "TrigL2MuonSA/PtBarrelLUTSvc.h"
-#include "TrigL2MuonSA/AlignmentBarrelLUTSvc.h"
+#include "PtEndcapLUTSvc.h"
+#include "PtBarrelLUTSvc.h"
+#include "AlignmentBarrelLUTSvc.h"
 
-#include "TrigL2MuonSA/SagittaRadiusEstimate.h"
-#include "TrigL2MuonSA/AlphaBetaEstimate.h"
-#include "TrigL2MuonSA/PtFromRadius.h"
-#include "TrigL2MuonSA/PtFromAlphaBeta.h"
+#include "SagittaRadiusEstimate.h"
+#include "AlphaBetaEstimate.h"
+#include "PtFromRadius.h"
+#include "PtFromAlphaBeta.h"
 
 namespace TrigL2MuonSA {
 

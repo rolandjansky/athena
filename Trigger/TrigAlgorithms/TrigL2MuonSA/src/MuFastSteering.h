@@ -14,16 +14,16 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
-#include "TrigL2MuonSA/MuFastDataPreparator.h"
-#include "TrigL2MuonSA/MuFastPatternFinder.h"
-#include "TrigL2MuonSA/MuFastStationFitter.h"
-#include "TrigL2MuonSA/MuFastTrackFitter.h"
-#include "TrigL2MuonSA/MuFastTrackExtrapolator.h"
-#include "TrigL2MuonSA/RecMuonRoIUtils.h"
-#include "TrigL2MuonSA/MuCalStreamerTool.h"
+#include "MuFastDataPreparator.h"
+#include "MuFastPatternFinder.h"
+#include "MuFastStationFitter.h"
+#include "MuFastTrackFitter.h"
+#include "MuFastTrackExtrapolator.h"
+#include "RecMuonRoIUtils.h"
+#include "MuCalStreamerTool.h"
 #include "GaudiKernel/IIncidentListener.h"
-#include "TrigL2MuonSA/CscSegmentMaker.h"
-#include "TrigL2MuonSA/CscRegUtils.h"
+#include "CscSegmentMaker.h"
+#include "CscRegUtils.h"
 
 //adding a part of DataHandle for AthenaMT
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"

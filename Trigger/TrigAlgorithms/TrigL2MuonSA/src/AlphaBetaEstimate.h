@@ -11,11 +11,11 @@
 
 #include "TrigT1Interfaces/RecMuonRoI.h"
 
-#include "TrigL2MuonSA/TgcFitResult.h"
-#include "TrigL2MuonSA/MuonRoad.h"
-#include "TrigL2MuonSA/TrackData.h"
+#include "TgcFitResult.h"
+#include "MuonRoad.h"
+#include "TrackData.h"
 
-#include "TrigL2MuonSA/PtEndcapLUTSvc.h"
+#include "PtEndcapLUTSvc.h"
 
 namespace TrigL2MuonSA {
   

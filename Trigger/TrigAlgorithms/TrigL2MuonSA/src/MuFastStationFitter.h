@@ -10,16 +10,16 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
 
-#include "TrigL2MuonSA/MdtData.h"
-#include "TrigL2MuonSA/TgcFitResult.h"
-#include "TrigL2MuonSA/RpcFitResult.h"
-#include "TrigL2MuonSA/SuperPointData.h"
-#include "TrigL2MuonSA/TrackData.h"
-#include "TrigL2MuonSA/MuonRoad.h"
-#include "TrigL2MuonSA/PtEndcapLUT.h"
+#include "MdtData.h"
+#include "TgcFitResult.h"
+#include "RpcFitResult.h"
+#include "SuperPointData.h"
+#include "TrackData.h"
+#include "MuonRoad.h"
+#include "PtEndcapLUT.h"
 #include "TrigMuonBackExtrapolator/ITrigMuonBackExtrapolator.h"
-#include "TrigL2MuonSA/AlphaBetaEstimate.h"
-#include "TrigL2MuonSA/PtFromAlphaBeta.h"
+#include "AlphaBetaEstimate.h"
+#include "PtFromAlphaBeta.h"
 
 namespace TrigL2MuonSA {
 

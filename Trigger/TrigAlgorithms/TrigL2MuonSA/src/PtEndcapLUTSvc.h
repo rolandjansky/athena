@@ -11,7 +11,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "TrigL2MuonSA/PtEndcapLUT.h"
+#include "PtEndcapLUT.h"
 
 #include <map>
 #include <cstring>

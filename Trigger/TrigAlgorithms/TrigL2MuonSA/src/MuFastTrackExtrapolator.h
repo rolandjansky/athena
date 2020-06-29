@@ -9,7 +9,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "TrigL2MuonSA/TrackData.h"
+#include "TrackData.h"
 
 #include "TrigMuonBackExtrapolator/ITrigMuonBackExtrapolator.h"
 

@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_TRACKDATA_H
 #define  TRIGL2MUONSA_TRACKDATA_H
 
-#include "TrigL2MuonSA/MdtData.h"
-#include "TrigL2MuonSA/SuperPointData.h"
+#include "MdtData.h"
+#include "SuperPointData.h"
 
 #define NCHAMBER 11
 

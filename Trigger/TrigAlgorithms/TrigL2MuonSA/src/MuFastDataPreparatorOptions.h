@@ -5,8 +5,8 @@
 #ifndef  TRIGL2MUONSA_MUFASTDATAPREPARATOROPTIONS_H
 #define  TRIGL2MUONSA_MUFASTDATAPREPARATOROPTIONS_H
 
-#include "TrigL2MuonSA/TgcDataPreparatorOptions.h"
-#include "TrigL2MuonSA/MdtDataPreparatorOptions.h"
+#include "TgcDataPreparatorOptions.h"
+#include "MdtDataPreparatorOptions.h"
 
 namespace TrigL2MuonSA {
 
