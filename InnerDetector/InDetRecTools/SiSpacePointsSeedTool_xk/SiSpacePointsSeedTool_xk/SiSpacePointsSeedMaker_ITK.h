@@ -136,15 +136,12 @@ namespace InDet {
       int                         m_nlist                         ;
       int                         m_maxsize                       ;
       int                         m_iteration                     ;
-      int                         m_iminPPS                       ;
-      int                         m_imaxPPS                       ;
       int                         m_ndyncut                       ;
       int                         m_nCmSp                         ;
 
       float                       m_etamin, m_etamax              ;
       float                       m_drmin                         ;
       float                       m_drmax                         ;
-      float                       m_drminPPS                      ;
       float                       m_drminPPP                      ;
       float                       m_drmaxPPP                      ;
       float                       m_rmaxPPP                       ;
@@ -153,7 +150,6 @@ namespace InDet {
       float                       m_dzdrmax0                      ;
       float                       m_dzdrmin                       ;
       float                       m_dzdrmax                       ;
-      float                       m_dzdrmaxPPS                    ;
       float                       m_zmin                          ;
       float                       m_zmax                          ;
       float                       m_zmaxPPP                       ;
@@ -170,7 +166,6 @@ namespace InDet {
       float                       m_dzver                         ;
       float                       m_dzdrver                       ;
       float                       m_diver                         ;
-      float                       m_diverpps                      ;
       float                       m_diversss                      ;
       float                       m_divermax                      ;
       float                       m_dazmax                        ;
@@ -184,9 +179,6 @@ namespace InDet {
       float                       m_COFK                          ;  
       float                       m_RTmin                         ;
       float                       m_RTmax                         ;
-      float                       m_rapydityPPSmax                ;
-      float                       m_radiusPPSmin                  ;
-      float                       m_radiusPPSmax                  ;
 
       int r_size                                                  ;
       int r_first                                                 ;
@@ -199,14 +191,14 @@ namespace InDet {
       std::list<InDet::SiSpacePointForSeedITK*>::iterator i_spforseed; 
 
       int m_ns,m_nsaz,m_nsazv                                     ;
-      int m_fNmax[3],m_fvNmax                                     ;
+      int m_fNmax[2],m_fvNmax                                     ;
       int m_fNmin,m_fvNmin                                        ;
       int  m_nr     ; int* r_index   ; int* r_map                 ;
       int  m_nrfz   , rfz_index  [2211], rfz_map  [2211]          ;
       int  m_nrfzv  , rfzv_index [300], rfzv_map [300]            ;
-      int rfz_b[3][2211],rfz_t[3][2211],rfz_ib[3][2211][9],rfz_it[3][2211][9];
+      int rfz_b[2][2211],rfz_t[2][2211],rfz_ib[2][2211][9],rfz_it[2][2211][9];
       int rfzv_n[300],rfzv_i[300][6]                              ;
-      float m_sF[3]                                               ;
+      float m_sF[2]                                               ;
       float m_sFv                                                 ;
 
       ///////////////////////////////////////////////////////////////////
@@ -295,19 +287,15 @@ namespace InDet {
 	(SiSpacePointForSeedITK*&,SiSpacePointForSeedITK*&,float);
       void newOneSeedWithCurvaturesComparisonSSS
 	(SiSpacePointForSeedITK*&,SiSpacePointForSeedITK*&,float);
-      void newOneSeedWithCurvaturesComparisonPPS
-	(SiSpacePointForSeedITK*&,SiSpacePointForSeedITK*&,float);
  
       void fillSeeds       () ;
       void fillLists       () ;
       void fillListsSSS    () ;
       void fillListsPPP    () ;
-      void fillListsPPS    () ;
       void erase           () ;
       void production3Sp   () ;
       void production3SpSSS() ;
       void production3SpPPP() ;
-      void production3SpPPS() ;
 
       void production3SpSSS
 	(std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
@@ -321,12 +309,6 @@ namespace InDet {
 	 std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
 	 std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
 	 int,int,int&);
-       void production3SpPPS
-	 (std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
-	  std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
-	  std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
-	  std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
-	  int,int,int&);
        void production3SpTrigger
 	 (std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
 	  std::vector<InDet::SiSpacePointForSeedITK*>::iterator*,
