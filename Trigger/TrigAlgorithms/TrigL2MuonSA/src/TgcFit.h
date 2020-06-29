@@ -11,7 +11,7 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
 
-#include "TrigL2MuonSA/TgcFitResult.h"
+#include "TgcFitResult.h"
 
 namespace TrigL2MuonSA {
 

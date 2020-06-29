@@ -9,9 +9,9 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 
-#include "TrigL2MuonSA/TrackData.h"
-#include "TrigL2MuonSA/PtBarrelLUTSvc.h"
-#include "TrigL2MuonSA/PtBarrelLUT.h"
+#include "TrackData.h"
+#include "PtBarrelLUTSvc.h"
+#include "PtBarrelLUT.h"
 
 namespace TrigL2MuonSA {
 

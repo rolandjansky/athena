@@ -9,10 +9,10 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 
-#include "TrigL2MuonSA/TrackData.h"
-#include "TrigL2MuonSA/PtEndcapLUTSvc.h"
-#include "TrigL2MuonSA/PtEndcapLUT.h"
-#include "TrigL2MuonSA/TgcFitResult.h"
+#include "TrackData.h"
+#include "PtEndcapLUTSvc.h"
+#include "PtEndcapLUT.h"
+#include "TgcFitResult.h"
 
 namespace TrigL2MuonSA {
   

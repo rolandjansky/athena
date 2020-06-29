@@ -11,9 +11,9 @@
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "MdtCalibSvc/MdtCalibrationTool.h"
-#include "TrigL2MuonSA/MuonRoad.h"
-#include "TrigL2MuonSA/MdtData.h"
-#include "TrigL2MuonSA/TrackData.h"
+#include "MuonRoad.h"
+#include "MdtData.h"
+#include "TrackData.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 // --------------------------------------------------------------------------------

@@ -12,11 +12,11 @@
 
 #include "GeoPrimitives/GeoPrimitives.h"
 
-#include "TrigL2MuonSA/TrackData.h"
-#include "TrigL2MuonSA/TgcFitResult.h"
-#include "TrigL2MuonSA/MuonRoad.h"
-#include "TrigL2MuonSA/CscData.h"
-#include "TrigL2MuonSA/CscRegUtils.h"
+#include "TrackData.h"
+#include "TgcFitResult.h"
+#include "MuonRoad.h"
+#include "CscData.h"
+#include "CscRegUtils.h"
 
 #include <vector>
 

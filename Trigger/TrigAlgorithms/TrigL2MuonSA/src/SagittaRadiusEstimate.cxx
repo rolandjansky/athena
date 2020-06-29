@@ -4,7 +4,7 @@
 
 #include <cmath>
 
-#include "TrigL2MuonSA/SagittaRadiusEstimate.h"
+#include "SagittaRadiusEstimate.h"
 
 #include "xAODTrigMuon/TrigMuonDefs.h"
 

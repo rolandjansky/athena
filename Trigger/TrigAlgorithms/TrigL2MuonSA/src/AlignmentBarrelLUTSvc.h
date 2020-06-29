@@ -11,7 +11,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "TrigL2MuonSA/AlignmentBarrelLUT.h"
+#include "AlignmentBarrelLUT.h"
 
 namespace TrigL2MuonSA {
 

@@ -11,11 +11,11 @@
 
 #include "TrigT1Interfaces/RecMuonRoI.h"
 
-#include "TrigL2MuonSA/RpcFitResult.h"
-#include "TrigL2MuonSA/TrackData.h"
+#include "RpcFitResult.h"
+#include "TrackData.h"
 
-#include "TrigL2MuonSA/AlignmentBarrelLUTSvc.h"
-#include "TrigL2MuonSA/AlignmentBarrelLUT.h"
+#include "AlignmentBarrelLUTSvc.h"
+#include "AlignmentBarrelLUT.h"
 
 namespace TrigL2MuonSA {
 

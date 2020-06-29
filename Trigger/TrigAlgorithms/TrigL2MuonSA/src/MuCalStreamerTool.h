@@ -8,11 +8,11 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-#include "TrigL2MuonSA/MdtData.h"
-#include "TrigL2MuonSA/RpcData.h"
-#include "TrigL2MuonSA/TgcData.h"
-#include "TrigL2MuonSA/CscData.h"
-#include "TrigL2MuonSA/TrackData.h"
+#include "MdtData.h"
+#include "RpcData.h"
+#include "TgcData.h"
+#include "CscData.h"
+#include "TrackData.h"
 
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
