@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////
@@ -86,6 +86,10 @@ namespace Analysis
     TMatrixDSym getEigenCovarianceMatrixFromVariations() const;
     /** matrix to remove unecessary rows and columns from covariance */
     TMatrixD    getJacobianReductionMatrix() const;
+
+    /** Eigenvector recomposition method.*/
+    bool EigenVectorRecomposition(const std::string label,
+				  std::map<std::string, std::map<std::string, float>> &coefficientMap) const;
 
   private:
     /** container object containing the basic information */
