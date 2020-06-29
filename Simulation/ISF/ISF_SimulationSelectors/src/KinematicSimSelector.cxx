@@ -41,16 +41,16 @@ StatusCode  ISF::KinematicSimSelector::initialize()
   ATH_MSG_VERBOSE("Initializing ...");
   ATH_CHECK(m_partPropSvc.retrieve()); 
 
-   HepPDT::ParticleDataTable* m_particleDataTable; 
-   m_particleDataTable = (HepPDT::ParticleDataTable*) m_partPropSvc->PDT();
+   HepPDT::ParticleDataTable* particleDataTable; 
+   particleDataTable = (HepPDT::ParticleDataTable*) m_partPropSvc->PDT();
 
-   if(m_particleDataTable == 0) 
+   if(particleDataTable == 0) 
    {
     ATH_MSG_ERROR("PDG table not found");
     return StatusCode::FAILURE;
     }
 
-  const HepPDT::ParticleData* data = m_particleDataTable->particle(HepPDT::ParticleID(abs(m_cut_pdg))); 
+  const HepPDT::ParticleData* data = particleDataTable->particle(HepPDT::ParticleID(abs(m_cut_pdg))); 
 
   double mass = 0; 
   if(data) mass = data->mass().value(); 
