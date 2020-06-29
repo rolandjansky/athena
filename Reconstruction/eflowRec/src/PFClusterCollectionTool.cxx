@@ -61,6 +61,7 @@ std::unique_ptr<xAOD::CaloClusterContainer> PFClusterCollectionTool::execute(con
       ATH_MSG_DEBUG("Adding cluster with E, eta and phi to moments maker " << thisCluster->e() << ", " << thisCluster->eta() << " and " << thisCluster->phi());
     }
   }
+  std::sort(result->begin(), result->end(), [](xAOD::CaloCluster* c1, xAOD::CaloCluster* c2) {return c1->e()>c2->e();});
   return result;
 }
 
