@@ -1,45 +1,9 @@
-
 ################################################################################
 # Package: FastCaloSim
 ################################################################################
 
 # Declare the package name:
 atlas_subdir( FastCaloSim )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloDetDescr
-                          Calorimeter/CaloEvent
-                          Calorimeter/CaloIdentifier
-                          Calorimeter/CaloInterface
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/StoreGate
-                          DetectorDescription/Identifier
-                          GaudiKernel
-                          LArCalorimeter/LArRecEvent
-                          Simulation/FastSimulation/FastSimulationEvent
-                          Simulation/FastShower/FastCaloSimAthenaPool
-                          TileCalorimeter/TileEvent
-                          Tracking/TrkEvent/TrkEventPrimitives
-                          Tracking/TrkEvent/TrkParameters
-                          Tracking/TrkExtrapolation/TrkExInterfaces
-                          Generators/GeneratorObjects
-                          Simulation/FastShower/FastCaloSimAthenaPool
-                          PRIVATE
-                          Generators/AtlasHepMC
-                          Control/AthAllocators
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          DetectorDescription/AtlasDetDescr
-                          DetectorDescription/DetDescrCond/DetDescrCondTools
-                          DetectorDescription/GeoPrimitives
-                          Event/EventKernel
-                          Event/NavFourMom
-                          Generators/TruthUtils
-                          Tools/PathResolver
-                          Tracking/TrkDetDescr/TrkGeometry
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkMaterialOnTrack )
 
 # External dependencies:
 find_package( CLHEP )
@@ -94,12 +58,10 @@ atlas_add_component( FastCaloSim
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 
-
 atlas_add_test( FastShowerCellBuilderTool_test
   SCRIPT test/FastShowerCellBuilderTool_test.sh
   PROPERTIES TIMEOUT 600
   LOG_SELECT_PATTERN "ERROR|error|WARNING [^U]|FATAL|processing|TestAlg|xxx" )
-
 
 atlas_add_test( AddNoiseCellBuilderToolConfigTest_test
                 SCRIPT python -m FastCaloSim.AddNoiseCellBuilderToolConfig

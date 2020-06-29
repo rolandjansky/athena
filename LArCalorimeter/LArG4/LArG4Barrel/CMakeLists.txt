@@ -5,16 +5,6 @@
 # Declare the package name:
 atlas_subdir( LArG4Barrel )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Calorimeter/CaloG4Sim
-                          Control/AthenaKernel
-                          Control/StoreGate
-                          GaudiKernel
-                          LArCalorimeter/LArG4/LArG4Code
-                          LArCalorimeter/LArGeoModel/LArHV
-                          Tools/PathResolver )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Geant4 )
