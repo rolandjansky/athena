@@ -98,6 +98,10 @@ class  ConfiguredNewTrackingSiPattern:
          if NewTrackingCuts.mode() == "R3LargeD0":
             InDetSiSpacePointsSeedMaker.usePixel = False
             InDetSiSpacePointsSeedMaker.etaMax = NewTrackingCuts.maxEta() 
+            InDetSiSpacePointsSeedMaker.maxSeedsForSpacePoint = NewTrackingCuts.MaxSeedsPerSP()
+            InDetSiSpacePointsSeedMaker.alwaysKeepConfirmedSeeds = NewTrackingCuts.KeepAllConfirmedSeeds()
+            InDetSiSpacePointsSeedMaker.maxdRadius = 150
+            InDetSiSpacePointsSeedMaker.seedScoreBonusConfirmationSeed = -2000  #let's be generous
 
          if usePrdAssociationTool:
             # not all classes have that property !!!
