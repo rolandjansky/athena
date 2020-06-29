@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -53,7 +53,7 @@ namespace InDet{
    {    
 
     std::vector<const Rec::TrackParticle*>::const_iterator   i_ntrk;
-    AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
+    AmgVector(5) VectPerig; VectPerig.setZero();
     const Trk::Perigee* mPer;
     const Trk::FitQuality*     TrkQual;
     std::vector<double> Impact,ImpactError;
