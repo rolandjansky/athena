@@ -249,18 +249,6 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines() {
   }		  
   ATH_MSG_INFO("recorded new " << writeALineHandle.key() << " with range " << rangeALineW << " into Conditions Store");
 
-  // >>>>>>>>>>>> START: This code should be REMOVED after MuonDetectorManger in MuonEventTPCnv moves to Conditions Store >>>>>>>>>>>>
-  // =======================
-  // FIRST Update the MuonDetectorManager and THEN record the BLine.
-  // =======================
-
-  // FIXME: const_cast
-  if (const_cast<MuonGM::MuonDetectorManager*>(m_muonDetMgrDS)->updateDeformations(*writeBLineCdo).isFailure()) ATH_MSG_ERROR("Unable to updateDeformations" );
-  else ATH_MSG_DEBUG("updateDeformations DONE" );
-  // if (m_muonDetMgrDS->updateDeformations(writeBLineCdo.get()).isFailure()) ATH_MSG_ERROR("Unable to updateDeformations" );
-  // else ATH_MSG_DEBUG("updateDeformations DONE" );
-  // <<<<<<<<<<<<< END: This code should be REMOVED after MuonDetectorManger in MuonEventTPCnv moves to Conditions Store <<<<<<<<<<<<<
-
   if (writeBLineHandle.record(rangeBLineW, std::move(writeBLineCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record BLineMapContainer " << writeBLineHandle.key() 
 		  << " with EventRange " << rangeBLineW
@@ -884,18 +872,6 @@ StatusCode MuonAlignmentCondAlg::loadAlignILines(std::string folderName)
    // dump I-lines to log file TBA
   if (m_dumpILines && (int)writeCdo->size()>0) dumpILines(folderName, writeCdo.get());
 
-  // >>>>>>>>>>>> START: This code should be REMOVED after MuonDetectorManger in MuonEventTPCnv moves to Conditions Store >>>>>>>>>>>>
-  // =======================
-  // FIRST update MuonDetectorManager and THEN record the output cond object.
-  // =======================
-
-  // FIXME: const_cast
-  if (const_cast<MuonGM::MuonDetectorManager*>(m_muonDetMgrDS)->updateCSCInternalAlignmentMap(*writeCdo).isFailure()) ATH_MSG_ERROR("Unable to updateCSCInternalAlignmentMap" );
-  else ATH_MSG_DEBUG("updateCSCInternalAlignmentMap DONE" );
-  // if (m_muonDetMgrDS->updateCSCInternalAlignmentMap(writeCdo.get()).isFailure()) ATH_MSG_ERROR("Unable to updateCSCInternalAlignmentMap" );
-  // else ATH_MSG_DEBUG("updateCSCInternalAlignmentMap DONE" );
-  // <<<<<<<<<<<<< END: This code should be REMOVED after MuonDetectorManger in MuonEventTPCnv moves to Conditions Store <<<<<<<<<<<<<
-
   if (writeHandle.record(rangeCscILinesW, std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record CscInternalAlignmentMapContainer " << writeHandle.key() 
 		  << " with EventRange " << rangeCscILinesW
@@ -1018,18 +994,6 @@ StatusCode MuonAlignmentCondAlg::loadAlignAsBuilt(std::string folderName)
 
   // !!!!!!!!!!!!!! In the MuonAlignmentDbTool this was in loadAlignABLines. I moved it here
   if ( m_asBuiltFile!="" ) setAsBuiltFromAscii(writeCdo.get());
-
-  // >>>>>>>>>>>> START: This code should be REMOVED after MuonDetectorManger in MuonEventTPCnv moves to Conditions Store >>>>>>>>>>>>
-  // =======================
-  // FIRST update MuonDetectorManager and THEN record the output cond object.
-  // =======================
-
-  // FIXME: const_cast
-  if (const_cast<MuonGM::MuonDetectorManager*>(m_muonDetMgrDS)->updateAsBuiltParams(*writeCdo).isFailure()) ATH_MSG_ERROR("Unable to updateAsBuiltParams" );
-  else ATH_MSG_DEBUG("updateAsBuiltParams DONE" );
-  // if (m_muonDetMgrDS->updateAsBuiltParams(writeCdo.get()).isFailure()) ATH_MSG_ERROR("Unable to updateAsBuiltParams" );
-  // else ATH_MSG_DEBUG("updateAsBuiltParams DONE" );
-  // <<<<<<<<<<<<< END: This code should be REMOVED after MuonDetectorManger in MuonEventTPCnv moves to Conditions Store <<<<<<<<<<<<<
 
   if (writeHandle.record(rangeMdtAsBuiltW, std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record MdtAsBuiltMapContainer " << writeHandle.key() 
