@@ -273,14 +273,16 @@ def JetAlgFromTools(rtools, suffix="HI",persistify=True) :
         topsequence += JetAlgorithm("jetalgconstit"+suffix,
                                     Tools=[jtm.jetrunconstitHI])
 
-    #### test : add the PseudoJetAlgorithm
-    from JetRec.JetRecConf import PseudoJetAlgorithm
+    # Add the PseudoJetAlgorithm
+    # To avoid massive refactoring and to preserve familiarity,
+    # jet guys kept calling things "getters", but these are already
+    # PseudoJetAlgorithms as they eliminated the wrappers 
     for getter in jtm.allGetters:
-        print ('Adding PseudoJetAlgorithm for PseudoJetGetter %s' % getter.name)
+        print ('Adding PseudoJetAlgorithm %s' % getter.name)
         print ('Input Container %s' % getter.InputContainer)
         print ('Output Container %s' % getter.OutputContainer)
         print ('Label %s' % getter.Label)
-        topsequence += PseudoJetAlgorithm("pjalg_"+suffix+getter.Label,PJGetter=getter)
+        topsequence += getter
 
     runner=JetToolRunner("jetrun"+suffix,
                          Tools=rtools,
