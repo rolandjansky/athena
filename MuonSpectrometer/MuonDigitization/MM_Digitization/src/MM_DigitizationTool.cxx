@@ -1242,6 +1242,10 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
     // IdentifierHash detIdhash ;
     // set RE hash id
     const Identifier elemId = m_idHelperSvc->mmIdHelper().elementID( stripDigitOutputAllHits.digitID() );
+    if (!m_idHelperSvc->isMM(elemId)) {
+        ATH_MSG_WARNING("given Identifier "<<elemId.get_compact()<<" is not a MM Identifier, skipping");
+        continue;
+    }
     m_idHelperSvc->mmIdHelper().get_module_hash( elemId, moduleHash );
     
     MmDigitCollection* digitCollection = nullptr;
