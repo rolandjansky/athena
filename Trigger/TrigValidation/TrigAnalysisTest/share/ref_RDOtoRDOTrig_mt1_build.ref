@@ -553,6 +553,12 @@ TrigSignatureMoniMT                                INFO -- #1198298874 Features 
 TrigSignatureMoniMT                                INFO HLT_noalg_idmon_L1RD0_UNPAIRED_ISO #2536676873
 TrigSignatureMoniMT                                INFO -- #2536676873 Events         0          0          -          -          -          -          -          -          0
 TrigSignatureMoniMT                                INFO -- #2536676873 Features                             -          -          -          -          -          -
+TrigSignatureMoniMT                                INFO HLT_noalg_mb_L1RD2_EMPTY #3788962163
+TrigSignatureMoniMT                                INFO -- #3788962163 Events         0          0          -          -          -          -          -          -          0
+TrigSignatureMoniMT                                INFO -- #3788962163 Features                             -          -          -          -          -          -
+TrigSignatureMoniMT                                INFO HLT_noalg_zb_L1ZB #1289992951
+TrigSignatureMoniMT                                INFO -- #1289992951 Events         0          0          -          -          -          -          -          -          0
+TrigSignatureMoniMT                                INFO -- #1289992951 Features                             -          -          -          -          -          -
 TrigSignatureMoniMT                                INFO HLT_sct_noise_SCTPEB_L1RD0_EMPTY #3024203296
 TrigSignatureMoniMT                                INFO -- #3024203296 Events         0          0          0          -          -          -          -          -          0
 TrigSignatureMoniMT                                INFO -- #3024203296 Features                             0          -          -          -          -          -
