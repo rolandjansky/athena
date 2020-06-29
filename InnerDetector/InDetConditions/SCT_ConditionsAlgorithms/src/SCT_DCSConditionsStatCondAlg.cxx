@@ -37,7 +37,7 @@ StatusCode SCT_DCSConditionsStatCondAlg::initialize() {
     }
   }
 
-  if (m_useHV.value()) {
+  if (m_useDefaultHV.value()) {
     m_hvLowLimit = m_useHVLowLimit;
     m_hvUpLimit = m_useHVUpLimit;
     m_chanstatCut = m_useHVChanCut;
