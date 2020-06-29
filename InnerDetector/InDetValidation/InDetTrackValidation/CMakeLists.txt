@@ -10,6 +10,7 @@ atlas_depends_on_subdirs(
    PUBLIC
    Control/AthenaBaseComps
    Control/AthenaKernel
+   Control/CxxUtils
    Control/StoreGate
    Event/xAOD/xAODEventInfo
    GaudiKernel
@@ -54,7 +55,7 @@ atlas_add_component( InDetTrackValidation
    InDetTrackValidation/*.h src/*.cxx src/components/*.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib
-   AthenaBaseComps AthenaKernel StoreGateLib SGtests xAODEventInfo GaudiKernel InDetRawData InDetPrepRawData
+   AthenaBaseComps AthenaKernel CxxUtils StoreGateLib SGtests xAODEventInfo GaudiKernel InDetRawData InDetPrepRawData
    InDetSimEvent TrkParameters TrkSpacePoint TrkTrack TrkValInterfaces AthContainers AtlasDetDescr
    EventPrimitives GeneratorObjects TRT_ConditionsData
    TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry SCT_CablingLib
