@@ -21,7 +21,6 @@ const HepMC::GenParticle* TrackInformation::GetHepMCParticle() const
 {
   return m_theParticle;
 }
-
 const ISF::ISFParticle* TrackInformation::GetBaseISFParticle() const
 {
   return m_theBaseISFParticle;
