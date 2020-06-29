@@ -343,7 +343,7 @@ else:
 ##    postSeq.CountHepMC.RequestedOutput = evgenConfig.nEventsPerJob if runArgs.maxEvents == -1 or rounding==1 else runArgs.maxEvents
     #postSeq.CountHepMC.RequestedOutput = evgenConfig.nEventsPerJob if runArgs.maxEvents == -1  else runArgs.maxEvents
     postSeq.CountHepMC.RequestedOutput = evgenConfig.nEventsPerJob ### should always be 1, as set in EvgenJobTransforms/LHEonly.py
-    evgenLog.info('Requested (dummy) output events '+str(postSeq.CountHepMC.RequestedOutput))
+#    evgenLog.info('Requested (dummy) output events '+str(postSeq.CountHepMC.RequestedOutput))
 
 ## Check that the keywords list is not empty:
 if not evgenConfig.keywords:
@@ -705,7 +705,8 @@ def _checkattr(attr, required=False):
 with open(eventsFile) as f:
     contents = f.read()
     count_ev = contents.count("<event>")
-    
+
+evgenLog.info('Requested output events '+str(count_ev))    
 print "MetaData: %s = %s" % ("Number of produced LHE events ", count_ev)
 
 if _checkattr("description", required=True):

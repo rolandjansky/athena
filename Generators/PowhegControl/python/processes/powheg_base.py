@@ -38,6 +38,34 @@ class PowhegBase(Configurable):
         logger.info("OpenLoopsPath (after) = {0}".format(os.getenv('OpenLoopsPath')))
         logger.debug("LD_LIBRARY_PATH (after) = {0}".format(os.getenv('LD_LIBRARY_PATH')))
 
+    def link_madloop_libraries(self):
+        '''
+        Manual fix for MadLoop libraries, avoiding issues when /afs not available
+        This is NOT a viable long-term solution and should be made obsolete after the migration
+        The trick consists in making a symbolic link of some directory in the installation
+        which contains some files needed by MadLoop
+        '''
+        import os
+        logger.warning("Applying manual, hard-coded fixes for MadLoop library paths")
+        MadLoop_virtual = os.path.dirname(self.executable)+"/virtual"
+        logger.info("Trying to link directory {} locally".format(MadLoop_virtual))
+        if not os.access(MadLoop_virtual,os.R_OK):
+            logger.fatal("Impossible to access directory {} needed for this process which uses MadLoop".format(MadLoop_virtual))
+        if os.access("virtual",os.R_OK):# checking if link already exists
+            logger.info("Found \"virtual\" probably from previous run - deleting it to recreate it with correct path")
+            try:
+                os.remove("virtual")
+            except:
+                logger.fatal("Impossible to remove \"virtual\" symbolic link - exiting...")
+                raise
+        os.symlink(MadLoop_virtual, "virtual")
+        link = os.readlink("virtual")
+        if link != MadLoop_virtual:
+            logger.fatal("Symbolic link \"virtual\" points to {0} while it should point to {1} - linking probably didn't work. Exiting...".format(link,MadLoop_virtual))
+            raise
+        else:
+            logger.info("Local directory \"virtual\" now points to {}".format(MadLoop_virtual))
+
     def __init__(self, base_directory, version, executable_name, cores, powheg_executable="pwhg_main", is_reweightable=True, **kwargs):
         """! Constructor.
 

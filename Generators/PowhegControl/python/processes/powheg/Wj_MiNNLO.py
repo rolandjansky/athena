@@ -2,18 +2,18 @@
 
 from AthenaCommon import Logging
 from ..powheg_V2 import PowhegV2
+import os
 
 ## Get handle to Athena logging
 logger = Logging.logging.getLogger("PowhegControl")
 
 
-class Wt_DR_onshellW(PowhegV2):
-    """! Default Powheg configuration for single top production with an associated W-boson through the t-channel (diagram removal).
-    The W-boson is on-shell (stable in the matrix element and without width).
+class Wj_MiNNLO(PowhegV2):
+    """! Default Powheg configuration for single W-boson production plus one jet using MINNLOPS.
 
     Create a configurable object with all applicable Powheg options.
 
-    @author James Robinson  <james.robinson@cern.ch>
+    @author Simone Amoroso  <simone.amoroso@amoroso.ch>
     """
 
     def __init__(self, base_directory, **kwargs):
@@ -22,23 +22,23 @@ class Wt_DR_onshellW(PowhegV2):
         @param base_directory: path to PowhegBox code.
         @param kwargs          dictionary of arguments from Generate_tf.
         """
-        super(Wt_DR_onshellW, self).__init__(base_directory, "ST_wtch_DR_onshellW", **kwargs)
+
+        super(Wj_MiNNLO, self).__init__(base_directory, os.path.join("Wj", "WjMiNNLO"), powheg_executable="pwhg_main", **kwargs)
+
+        # Add algorithms to the sequence
 
         # Add parameter validation functions
         self.validation_functions.append("validate_decays")
 
-        ## List of allowed top decay modes
-        self.allowed_top_decay_modes = ["t > all", "t > b j j", "t > b l+ vl", "t > b emu+ vemu", "t > b e+ ve",
-                                        "t > b mu+ vm", "t > b tau+ vt", "t~ > all", "t~ > b~ j j", "t~ > b~ l- vl~",
-                                        "t~ > b~ emu- vemu~", "t~ > b~ e- ve~", "t~ > b~ mu- vm~", "t~ > b~ tau- vt~"]
-
-        ## List of allowed W decay modes
-        self.allowed_W_decay_modes = ["w > all", "w > j j", "w > l vl", "w > emu vemu", "w > e ve", "w > mu vm", "w > tau vt"]
+        ## List of allowed decay modes
+        self.allowed_decay_modes = ["w- > e- ve~", "w- > mu- vm~", "w- > tau- vt~", "w+ > e+ ve", "w+ > mu+ vm", "w+ > tau+ vt"]
 
         # Add all keywords for this process, overriding defaults if required
-        self.add_keyword("alphaem_inv")
+        self.add_keyword("alphaem")
         self.add_keyword("alphas_from_lhapdf")
-        self.add_keyword("bornktmin")
+        self.add_keyword("alphas_from_pdf",1.0)
+        self.add_keyword("alphas_cutoff_fact")
+        self.add_keyword("bornktmin", 5.0)
         self.add_keyword("bornonly")
         self.add_keyword("bornsuppfact")
         self.add_keyword("bornzerodamp")
@@ -67,35 +67,39 @@ class Wt_DR_onshellW(PowhegV2):
         self.add_keyword("compress_lhe")
         self.add_keyword("compress_upb")
         self.add_keyword("compute_rwgt")
+        self.add_keyword("distribute_by_ub")
+        self.add_keyword("distribute_by_ub_AP")
         self.add_keyword("doublefsr")
         self.add_keyword("evenmaxrat")
         self.add_keyword("facscfact", self.default_scales[0])
+        self.add_keyword("factsc2min")
         self.add_keyword("fastbtlbound")
         self.add_keyword("fixedgrid")
         self.add_keyword("flg_debug")
-        self.add_keyword("foldcsi")
-        self.add_keyword("foldphi")
-        self.add_keyword("foldy")
+        self.add_keyword("foldcsi", 5)
+        self.add_keyword("foldphi", 5)
+        self.add_keyword("foldy", 5)
+        self.add_keyword("frensc2min")
         self.add_keyword("fullrwgt")
+        self.add_keyword("fullrwgtmode")
         self.add_keyword("hdamp")
         self.add_keyword("hfact")
         self.add_keyword("icsimax")
+        self.add_keyword("idvecbos", hidden=True)
         self.add_keyword("ih1")
         self.add_keyword("ih2")
+        self.add_keyword("inc_delta_terms")
         self.add_keyword("itmx1", 5)
         self.add_keyword("itmx1rm")
-        self.add_keyword("itmx2", 6)
+        self.add_keyword("itmx2", 5)
         self.add_keyword("itmx2rm")
         self.add_keyword("iupperfsr")
         self.add_keyword("iupperisr")
         self.add_keyword("iymax")
+        self.add_keyword("largeptscales", 0)
         self.add_keyword("lhans1", self.default_PDFs)
         self.add_keyword("lhans2", self.default_PDFs)
-        self.add_keyword("lhfm/bmass")
-        self.add_keyword("lhfm/cmass")
-        self.add_keyword("lhfm/emass")
-        self.add_keyword("lhfm/mumass")
-        self.add_keyword("lhfm/taumass")
+        self.add_keyword("lhapdf6maxsets")
         self.add_keyword("lhrwgt_descr")
         self.add_keyword("lhrwgt_group_combine")
         self.add_keyword("lhrwgt_group_name")
@@ -103,29 +107,42 @@ class Wt_DR_onshellW(PowhegV2):
         self.add_keyword("LOevents")
         self.add_keyword("manyseeds")
         self.add_keyword("max_io_bufsize")
+        self.add_keyword("max_W_mass", 2.0 * self.parameters_by_name("beam_energy")[0].value)
         self.add_keyword("maxseeds")
-        self.add_keyword("minlo")
+        self.add_keyword("min_W_mass", 2.5)
+        self.add_keyword("minlo_nnll")
+        self.add_keyword("minlo", 1)
+        self.add_keyword("minnlo", 1)
         self.add_keyword("mintupbratlim")
         self.add_keyword("mintupbxless")
-        self.add_keyword("ncall1", 50000)
+        self.add_keyword("modlog_p")
+        self.add_keyword("ncall1", 20000)
         self.add_keyword("ncall1rm")
-        self.add_keyword("ncall2", 150000)
+        self.add_keyword("ncall2", 100000)
         self.add_keyword("ncall2rm")
+        self.add_keyword("ncallfrominput")
         self.add_keyword("noevents")
         self.add_keyword("novirtual")
-        self.add_keyword("nubound", 150000)
+        self.add_keyword("nubound", 60000)
         self.add_keyword("olddij")
         self.add_keyword("par_2gsupp")
         self.add_keyword("par_diexp")
         self.add_keyword("par_dijexp")
+        self.add_keyword("par_fsrtinycsi")
+        self.add_keyword("par_fsrtinyy")
+        self.add_keyword("par_isrtinycsi")
+        self.add_keyword("par_isrtinyy")
         self.add_keyword("parallelstage")
         self.add_keyword("pdfreweight")
+        self.add_keyword("pdf_cutoff_fact")
         self.add_keyword("ptsqmin")
         self.add_keyword("ptsupp")
+        self.add_keyword("Q0",2)
         self.add_keyword("radregion")
         self.add_keyword("rand1")
         self.add_keyword("rand2")
         self.add_keyword("renscfact", self.default_scales[1])
+        self.add_keyword("runningscales")
         self.add_keyword("rwl_add")
         self.add_keyword("rwl_file")
         self.add_keyword("rwl_format_rwgt")
@@ -137,37 +154,29 @@ class Wt_DR_onshellW(PowhegV2):
         self.add_keyword("sthw2")
         self.add_keyword("storeinfo_rwgt")
         self.add_keyword("storemintupb")
-        self.add_keyword("tdec/elbranching")
-        self.add_keyword("tdec/emass")
-        self.add_keyword("tdec/mumass")
-        self.add_keyword("tdec/taumass")
+        self.add_keyword("sudscalevar")
         self.add_keyword("testplots")
         self.add_keyword("testsuda")
-        self.add_keyword("topdecaymode", self.allowed_top_decay_modes[0], name="decay_mode_top")
-        self.add_keyword("topmass")
-        self.add_keyword("topwidth")
-        self.add_keyword("ttype", hidden=True)
         self.add_keyword("ubexcess_correct")
         self.add_keyword("ubsigmadetails")
         self.add_keyword("use-old-grid")
         self.add_keyword("use-old-ubound")
-        self.add_keyword("wdecaymode", self.allowed_W_decay_modes[0], name="decay_mode_W")
+        self.add_keyword("vdecaymode", self.allowed_decay_modes[0], name="decay_mode")
         self.add_keyword("withdamp")
         self.add_keyword("withnegweights")
         self.add_keyword("withsubtr")
-        self.add_keyword("wmass")
-        self.add_keyword("wwidth")
-        self.add_keyword("xupbound", 4)
+        self.add_keyword("Wmass")
+        self.add_keyword("Wwidth")
+        self.add_keyword("xgriditeration")
+        self.add_keyword("xupbound", 6)
+        self.add_keyword("Zmass")
+        self.add_keyword("Zwidth")
 
     def validate_decays(self):
-        """! Validate ttype, topdecaymode and wdecaymode keywords."""
+        """! Validate idvecbos and vdecaymode keywords."""
         self.expose()  # convenience call to simplify syntax
-        self.check_decay_mode(self.decay_mode_top, self.allowed_top_decay_modes)
-        self.check_decay_mode(self.decay_mode_W, self.allowed_W_decay_modes)
+        self.check_decay_mode(self.decay_mode, self.allowed_decay_modes)
         # Calculate appropriate decay mode numbers
-        __top_decay = self.decay_mode_top.replace("~", "").replace("+", "").replace("-", "").replace("b", "").split("t > ")[1].strip()
-        __W_decay = self.decay_mode_W.split("w > ")[1].strip()
-        __decay_mode_lookup = {"all": "11111", "j j": "00011", "l vl": "11100", "emu vemu": "11000", "e ve": "10000", "mu vm": "01000", "tau vt": "00100"}
-        self.parameters_by_keyword("ttype")[0].value = [+1, -1][self.decay_mode_top.startswith("t~")]
-        self.parameters_by_keyword("topdecaymode")[0].value = __decay_mode_lookup[__top_decay]
-        self.parameters_by_keyword("wdecaymode")[0].value = __decay_mode_lookup[__W_decay]
+        self.parameters_by_keyword("idvecbos")[0].value = 24 * [-1, +1][self.decay_mode.startswith("w+")]
+        __decay_mode_lookup = {"e- ve~": 1, "mu- vm~": 2, "tau- vt~": 3, "e+ ve": 1, "mu+ vm": 2, "tau+ vt": 3}
+        self.parameters_by_keyword("vdecaymode")[0].value = __decay_mode_lookup[self.decay_mode.split("> ")[1]]

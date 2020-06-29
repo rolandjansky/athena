@@ -1,16 +1,16 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #--------------------------------------------------------------
 # EVGEN configuration
 #--------------------------------------------------------------
-evgenConfig.description = "POWHEG+Pythia8 W+t (diagram subtraction) production with A14 NNPDF2.3 tune. The W-boson is on-shell (stable in the matrix element and without width)"
-evgenConfig.keywords = ["SM", "W", "top"]
-evgenConfig.contact = ["james.robinson@cern.ch"]
+evgenConfig.description = "POWHEG+Pythia8 single top plus jet production with A14 NNPDF2.3 tune."
+evgenConfig.keywords = ["SM", "top"]
+evgenConfig.contact = ["stefan.richter@cern.ch"]
 
 # --------------------------------------------------------------
-# Load ATLAS defaults for the Powheg Wt_DS_onshellW process
+# Load ATLAS defaults for the Powheg tj process
 # --------------------------------------------------------------
-include("PowhegControl/PowhegControl_Wt_DS_onshellW_Common.py")
+include("PowhegControl/PowhegControl_tj_Common.py")
 
 # --------------------------------------------------------------
 # Generate events

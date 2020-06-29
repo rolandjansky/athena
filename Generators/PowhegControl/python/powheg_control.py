@@ -71,6 +71,11 @@ class PowhegControl(object):
                     process_kwargs["nEvents"] = int(1.1 * run_args.maxEvents + 0.5)
                 else:# default nEvents value is maxEvents for lhe-only production
                     process_kwargs["nEvents"] = run_args.maxEvents
+            else:#default is 10k events if no --maxEvents was set
+                if hasattr(run_args, "outputEVNTFile") or hasattr(run_args, "outputYODAFile"):
+                    process_kwargs["nEvents"] = 11000 # 10% safety factor if we shower the events
+                else:
+                    process_kwargs["nEvents"] = 10000 # no safety factor for lhe-only production
             if hasattr(run_args, "randomSeed"):
                 process_kwargs["random_seed"] = run_args.randomSeed
             if hasattr(run_args, "outputTXTFile"):

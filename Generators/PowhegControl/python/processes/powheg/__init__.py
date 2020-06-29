@@ -13,6 +13,7 @@ from ggF_H import ggF_H
 from ggF_HH import ggF_HH
 from ggF_HZ import ggF_HZ
 from Hj import Hj
+from Hj_MiNNLO import Hj_MiNNLO
 from Hjj import Hjj
 from HWj import HWj
 from HWj_EW import HWj_EW
@@ -23,6 +24,7 @@ from jjj import jjj
 from ssWWjj import ssWWjj
 from t_sch import t_sch
 from t_tch_4FS import t_tch_4FS
+from tj import tj
 from tt import tt
 from tt_NLOdecays import tt_NLOdecays
 from ttbb import ttbb
@@ -39,11 +41,10 @@ from Wbbj import Wbbj
 from W_EW import W_EW
 from W_SMEFT import W_SMEFT
 from Wj import Wj
+from Wj_MiNNLO import Wj_MiNNLO
 from Wjj import Wjj
 from Wt_DR import Wt_DR
-from Wt_DR_onshellW import Wt_DR_onshellW
 from Wt_DS import Wt_DS
-from Wt_DS_onshellW import Wt_DS_onshellW
 from WW import WW
 from Wy import Wy
 from WZ import WZ

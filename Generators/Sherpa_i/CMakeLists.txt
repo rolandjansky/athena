@@ -32,10 +32,10 @@ atlas_add_component( Sherpa_i
    LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${SHERPA_LIBRARIES}
    GaudiKernel GeneratorModulesLib TruthUtils AthenaBaseComps AthenaKernel )
 
-add_definitions(-DSHERPA_LCGROOT="${SHERPA_LCGROOT}")
-
+# Install file(s) from the package.
 atlas_install_joboptions( share/common/*.py )
 
+# Set (a) Sherpa specific environment variable(s).
 set( SherpaEnvironment_DIR ${CMAKE_CURRENT_SOURCE_DIR}
    CACHE PATH "Location of SherpaEnvironment.cmake" )
 find_package( SherpaEnvironment )

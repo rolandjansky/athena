@@ -436,7 +436,7 @@ def generate(process_dir='PROC_mssm_0', grid_pack=False, gridpack_compile=False,
             ### NLO RUN ###
             mglog.info('Package up process_dir')
             os.rename(process_dir,MADGRAPH_GRIDPACK_LOCATION)
-            tar = subprocess.Popen(['tar','czf',gridpack_name,MADGRAPH_GRIDPACK_LOCATION,'--exclude=lib/PDFsets','--exclude=Events/*/*events*gz'])
+            tar = subprocess.Popen(['tar','czf',gridpack_name,MADGRAPH_GRIDPACK_LOCATION,'--exclude=lib/PDFsets','--exclude=Events/*/*events*gz','--exclude=SubProcesses/P*/G*/log*txt','--exclude=*/*.o','--exclude=*/*/*.o','--exclude=*/*/*/*.o','--exclude=--exclude=*/*/*/*/*.o'])
             tar.wait()
             os.rename(MADGRAPH_GRIDPACK_LOCATION,process_dir)
 
@@ -483,12 +483,15 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None,
         check_reweight_card(MADGRAPH_GRIDPACK_LOCATION)
 
     # Check the param card
-    code = check_PMG_updates(process_dir)
+    code = check_PMG_updates(process_dir=MADGRAPH_GRIDPACK_LOCATION)
     if requirePMGSettings and code!=0:
         raise RuntimeError('Settings are not compliant with PMG defaults! Please use do_PMG_updates function to get PMG default params.')
 
     # Modify run card, then print
-    modify_run_card(process_dir=MADGRAPH_GRIDPACK_LOCATION,settings={'iseed':str(random_seed),'python_seed':str(random_seed)})
+    settings={'iseed':str(random_seed)}
+    if not isNLO:
+        settings['python_seed']=str(random_seed)
+    modify_run_card(process_dir=MADGRAPH_GRIDPACK_LOCATION,settings=settings)
     print_cards_from_dir(process_dir=MADGRAPH_GRIDPACK_LOCATION)
 
     mglog.info('Generating events from gridpack')
@@ -984,7 +987,7 @@ def madspin_on_lhe(input_LHE,madspin_card,runArgs=None,keep_original=False):
         if len(commands)>1 and 'import'==commands[0] and not 'model'==commands[1]:
             continue
         # Check for a launch command
-        if 'launch' == commands[0]:
+        if len(commands)>0 and 'launch' == commands[0]:
             has_launch = True
         madspin_exec_card.write(l.strip()+'\n')
     if not has_launch:
@@ -1477,7 +1480,7 @@ output -f
 
 def SUSY_Generation(runArgs = None, process=None,\
                     syst_mod=None, keepOutput=False, param_card=None, writeGridpack=False,\
-                    madspin_card=None, run_settings={}, params={}, fixEventWeightsForBridgeMode=False):
+                    madspin_card=None, run_settings={}, params={}, fixEventWeightsForBridgeMode=False, add_lifetimes_lhe=False):
 
     ktdurham = run_settings['ktdurham'] if 'ktdurham' in run_settings else None
     ktdurham , alpsfact , scalefact = get_SUSY_variations( params['MASS'] , syst_mod , ktdurham=ktdurham )
@@ -1510,6 +1513,12 @@ def SUSY_Generation(runArgs = None, process=None,\
     else:
         # Grab the run card and move it into place
         generate(runArgs=runArgs,process_dir=process_dir,grid_pack=writeGridpack)
+
+    # Add lifetimes to LHE before arranging output if requested
+    if add_lifetimes_lhe :
+        mglog.info('Requested addition of lifetimes to LHE files: doing so now.')
+        if is_gen_from_gridpack() : add_lifetimes()
+        else: add_lifetimes(process_dir=process_dir)
 
     # Move output files into the appropriate place, with the appropriate name
     arrange_output(process_dir=process_dir,saveProcDir=keepOutput,runArgs=runArgs,fixEventWeightsForBridgeMode=fixEventWeightsForBridgeMode)
@@ -1682,6 +1691,20 @@ def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=M
             if decayEdit and blockName == 'DECAY':
                 decayEdit = False # Start a new DECAY block
             pos = 0 if line.strip().startswith('DECAY') else 1
+            if blockName=='MASS' and 'MASS' in params:
+                # Any residual masses to set?
+                leftOvers = [ x for x in params['MASS'] if x not in doneParams['MASS'] ]
+                for pdg_id in leftOvers:
+                    mglog.warning('Adding mass line for '+str(pdg_id)+' = '+str(params['MASS'][pdg_id])+' which was not in original param card')
+                    newcard.write('   '+str(pdg_id)+'  '+str(params['MASS'][pdg_id])+'\n')
+                    doneParams['MASS'][pdg_id]=True
+            if blockName=='DECAY' and 'DECAY' not in line.strip().upper() and 'DECAY' in params:
+                # Any residual decays to include?
+                leftOvers = [ x for x in params['DECAY'] if x not in doneParams['DECAY'] ]
+                for pdg_id in leftOvers:
+                    mglog.warning('Adding decay for pdg id '+str(pdg_id)+' which was not in the original param card')
+                    newcard.write( params['DECAY'][pdg_id].strip()+'\n' )
+                    doneParams['DECAY'][pdg_id]=True
             blockName = line.strip().upper().split()[pos]
         if decayEdit:
             continue #skipping these lines because we are in an edit of the DECAY BR

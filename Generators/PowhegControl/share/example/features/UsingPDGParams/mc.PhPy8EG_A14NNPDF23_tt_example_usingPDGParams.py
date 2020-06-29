@@ -3,14 +3,20 @@
 #--------------------------------------------------------------
 # EVGEN configuration
 #--------------------------------------------------------------
-evgenConfig.description = "POWHEG+Pythia8 W+t (diagram removal) production with A14 NNPDF2.3 tune. The W-boson is on-shell (stable in the matrix element and without width)."
-evgenConfig.keywords = ["SM", "W", "top"]
+evgenConfig.description = "POWHEG+Pythia8 top pair production with A14 NNPDF2.3 tune."
+evgenConfig.keywords = ["SM", "top"]
 evgenConfig.contact = ["james.robinson@cern.ch"]
 
 # --------------------------------------------------------------
-# Load ATLAS defaults for the Powheg Wt_DR_onshellW process
+# Making sure to use PDG parameter values as default
+# This fragment needs to be included before the next which creates the PowhegConfig object
 # --------------------------------------------------------------
-include("PowhegControl/PowhegControl_Wt_DR_onshellW_Common.py")
+include("PowhegControl/PowhegControl_usePDGvalues.py")
+
+# --------------------------------------------------------------
+# Load ATLAS defaults for the Powheg tt process
+# --------------------------------------------------------------
+include("PowhegControl/PowhegControl_tt_Common.py")
 
 # --------------------------------------------------------------
 # Generate events

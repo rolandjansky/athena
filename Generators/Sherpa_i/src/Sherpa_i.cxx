@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HepMC/GenEvent.h"
@@ -231,15 +231,14 @@ void Sherpa_i::compilePlugin(std::string pluginCode) {
   FILE *file = fopen("Sherpa_iPlugin.C","w");
   fputs(pluginCode.c_str(),file);
   fclose(file);
-  std::string prefix = SHERPA_LCGROOT; // from Sherpa_i/CMakeLists.txt compile def
   std::string command;
   // Python -> C++ string conversion seems to add quote character as first
   // and last line if the string contains quotes (like always in a plugin)
   // thus removing them here
   command += "tail -n +2 Sherpa_iPlugin.C | head -n -1 > Sherpa_iPlugin.C.tmp; mv Sherpa_iPlugin.C.tmp Sherpa_iPlugin.C; ";
   command += "g++ -shared -std=c++0x -g ";
-  command += "-I`"+prefix+"/bin/Sherpa-config --incdir` ";
-  command += "`"+prefix+"/bin/Sherpa-config --ldflags` ";
+  command += "-I`Sherpa-config --incdir` ";
+  command += "`Sherpa-config --ldflags` ";
   command += "-fPIC -o libSherpa_iPlugin.so Sherpa_iPlugin.C";
   ATH_MSG_INFO("Now compiling plugin library using: "+command);
   if (system(command.c_str())!=0) {
