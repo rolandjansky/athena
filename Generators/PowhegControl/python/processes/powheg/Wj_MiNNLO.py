@@ -8,12 +8,12 @@ import os
 logger = Logging.logging.getLogger("PowhegControl")
 
 
-class Zj_MiNNLO(PowhegV2):
-    """! Default Powheg configuration for single Z-boson production plus one jet using MiNNLOPS.
+class Wj_MiNNLO(PowhegV2):
+    """! Default Powheg configuration for single W-boson production plus one jet using MINNLOPS.
 
     Create a configurable object with all applicable Powheg options.
 
-    @author Simone Amoroso  <simone.amoroso@cern.ch>
+    @author Simone Amoroso  <simone.amoroso@amoroso.ch>
     """
 
     def __init__(self, base_directory, **kwargs):
@@ -22,7 +22,8 @@ class Zj_MiNNLO(PowhegV2):
         @param base_directory: path to PowhegBox code.
         @param kwargs          dictionary of arguments from Generate_tf.
         """
-        super(Zj_MiNNLO, self).__init__(base_directory, os.path.join("Zj", "ZjMiNNLO"), powheg_executable="pwhg_main", **kwargs)
+
+        super(Wj_MiNNLO, self).__init__(base_directory, os.path.join("Wj", "WjMiNNLO"), powheg_executable="pwhg_main", **kwargs)
 
         # Add algorithms to the sequence
 
@@ -30,13 +31,13 @@ class Zj_MiNNLO(PowhegV2):
         self.validation_functions.append("validate_decays")
 
         ## List of allowed decay modes
-        self.allowed_decay_modes = ["z > e+ e-", "z > mu+ mu-", "z > tau+ tau-", "z > b b~"]
+        self.allowed_decay_modes = ["w- > e- ve~", "w- > mu- vm~", "w- > tau- vt~", "w+ > e+ ve", "w+ > mu+ vm", "w+ > tau+ vt"]
 
         # Add all keywords for this process, overriding defaults if required
-        self.add_keyword("alphas_from_lhapdf",0.0)
+        self.add_keyword("alphaem")
+        self.add_keyword("alphas_from_lhapdf")
         self.add_keyword("alphas_from_pdf",1.0)
         self.add_keyword("alphas_cutoff_fact")
-        self.add_keyword("alphaem")
         self.add_keyword("bornktmin", 5.0)
         self.add_keyword("bornonly")
         self.add_keyword("bornsuppfact")
@@ -52,6 +53,15 @@ class Zj_MiNNLO(PowhegV2):
         self.add_keyword("charmthr")
         self.add_keyword("charmthrpdf")
         self.add_keyword("check_bad_st2")
+        self.add_keyword("CKM_Vcb")
+        self.add_keyword("CKM_Vcd")
+        self.add_keyword("CKM_Vcs")
+        self.add_keyword("CKM_Vtb")
+        self.add_keyword("CKM_Vtd")
+        self.add_keyword("CKM_Vts")
+        self.add_keyword("CKM_Vub")
+        self.add_keyword("CKM_Vud")
+        self.add_keyword("CKM_Vus")
         self.add_keyword("clobberlhe")
         self.add_keyword("colltest")
         self.add_keyword("compress_lhe")
@@ -75,6 +85,7 @@ class Zj_MiNNLO(PowhegV2):
         self.add_keyword("hdamp")
         self.add_keyword("hfact")
         self.add_keyword("icsimax")
+        self.add_keyword("idvecbos", hidden=True)
         self.add_keyword("ih1")
         self.add_keyword("ih2")
         self.add_keyword("inc_delta_terms")
@@ -89,9 +100,6 @@ class Zj_MiNNLO(PowhegV2):
         self.add_keyword("lhans1", self.default_PDFs)
         self.add_keyword("lhans2", self.default_PDFs)
         self.add_keyword("lhapdf6maxsets")
-        self.add_keyword("lhfm/emass")
-        self.add_keyword("lhfm/mumass")
-        self.add_keyword("lhfm/taumass")
         self.add_keyword("lhrwgt_descr")
         self.add_keyword("lhrwgt_group_combine")
         self.add_keyword("lhrwgt_group_name")
@@ -99,9 +107,9 @@ class Zj_MiNNLO(PowhegV2):
         self.add_keyword("LOevents")
         self.add_keyword("manyseeds")
         self.add_keyword("max_io_bufsize")
-        self.add_keyword("max_Z_mass", 2.0 * self.parameters_by_name("beam_energy")[0].value)
+        self.add_keyword("max_W_mass", 2.0 * self.parameters_by_name("beam_energy")[0].value)
         self.add_keyword("maxseeds")
-        self.add_keyword("min_Z_mass", 60.0)
+        self.add_keyword("min_W_mass", 2.5)
         self.add_keyword("minlo_nnll")
         self.add_keyword("minlo", 1)
         self.add_keyword("minnlo", 1)
@@ -110,12 +118,12 @@ class Zj_MiNNLO(PowhegV2):
         self.add_keyword("modlog_p")
         self.add_keyword("ncall1", 20000)
         self.add_keyword("ncall1rm")
-        self.add_keyword("ncall2", 70000)
+        self.add_keyword("ncall2", 100000)
         self.add_keyword("ncall2rm")
         self.add_keyword("ncallfrominput")
         self.add_keyword("noevents")
         self.add_keyword("novirtual")
-        self.add_keyword("nubound", 10000)
+        self.add_keyword("nubound", 60000)
         self.add_keyword("olddij")
         self.add_keyword("par_2gsupp")
         self.add_keyword("par_diexp")
@@ -160,15 +168,15 @@ class Zj_MiNNLO(PowhegV2):
         self.add_keyword("Wmass")
         self.add_keyword("Wwidth")
         self.add_keyword("xgriditeration")
-        self.add_keyword("xupbound", 20)
-        self.add_keyword("ZbbNLO")
+        self.add_keyword("xupbound", 6)
         self.add_keyword("Zmass")
         self.add_keyword("Zwidth")
 
     def validate_decays(self):
-        """! Validate vdecaymode keyword."""
+        """! Validate idvecbos and vdecaymode keywords."""
         self.expose()  # convenience call to simplify syntax
         self.check_decay_mode(self.decay_mode, self.allowed_decay_modes)
         # Calculate appropriate decay mode numbers
-        __decay_mode_lookup = {"b b~": 5, "e+ e-": 1, "mu+ mu-": 2, "tau+ tau-": 3}
+        self.parameters_by_keyword("idvecbos")[0].value = 24 * [-1, +1][self.decay_mode.startswith("w+")]
+        __decay_mode_lookup = {"e- ve~": 1, "mu- vm~": 2, "tau- vt~": 3, "e+ ve": 1, "mu+ vm": 2, "tau+ vt": 3}
         self.parameters_by_keyword("vdecaymode")[0].value = __decay_mode_lookup[self.decay_mode.split("> ")[1]]
