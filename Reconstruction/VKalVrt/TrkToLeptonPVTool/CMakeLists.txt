@@ -20,7 +20,6 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( Eigen )
-#find_package( ROOT COMPONENTS Core )
 
 
 # Component(s) in the package:

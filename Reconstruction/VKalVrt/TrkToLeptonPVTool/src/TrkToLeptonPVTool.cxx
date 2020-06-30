@@ -22,12 +22,10 @@ TrkToLeptonPVTool::TrkToLeptonPVTool(const std::string& type,
                                            const std::string& name,
                                            const IInterface* parent):
   AthAlgTool(type,name,parent),
-  //m_Z0_limLow(-8.),
   m_beamService("BeamCondSvc",name),
   m_fitterSvc("Trk::TrkVKalVrtFitter/VertexFitterTool",this)
   {
-     declareInterface<ITrkToLeptonPVTool>(this);
-     //declareProperty("Z0_limLow", m_Z0_limLow    ,  "Low Z0 impact cut" );
+     declareInterface<ITrkToLeptonPV>(this);
      declareProperty("BeamSpotSvc", m_beamService, "Name of the BeamSpot service");
      declareProperty("VertexFitter", m_fitterSvc, "Name of the Vertex Fitter tool");
      m_timingProfile=nullptr;
@@ -47,11 +45,6 @@ TrkToLeptonPVTool::TrkToLeptonPVTool(const std::string& type,
      } else {
         ATH_MSG_DEBUG("TrkToLeptonPVTool TrkVKalVrtFitter found");
      }
-     //m_fitSvc = dynamic_cast<Trk::TrkVKalVrtFitter*>(&(*m_fitterSvc));
-     //if(!m_fitSvc){
-     //   ATH_MSG_DEBUG(" No implemented Trk::ITrkVKalVrtFitter interface");
-     //   return StatusCode::FAILURE;
-     //}
      //-----
      if(msgLvl(MSG::DEBUG)) ATH_CHECK(service("ChronoStatSvc", m_timingProfile));
      if(m_beamService.retrieve().isFailure()) {
@@ -143,7 +136,7 @@ TrkToLeptonPVTool::TrkToLeptonPVTool(const std::string& type,
      if(fullxAOD) return std::unique_ptr<const xAOD::Vertex>(m_fitterSvc->fit(particles,BEAM));
 
      //
-     //---DAOD case     
+     //---DAOD case
      //
      int NPRT=particles.size();
      std::unique_ptr< SG::AuxStoreInternal > pAux;
@@ -153,14 +146,14 @@ TrkToLeptonPVTool::TrkToLeptonPVTool(const std::string& type,
      TPC.setStore( pAux.get() );
      TPC.reserve( NPRT );
      for(int i=0; i<NPRT; i++){
-        TPC.push_back(new xAOD::TrackParticle(*particles[i]));
+	TPC.push_back(new xAOD::TrackParticle(*particles[i]));
 	if(!TPC[i])return std::unique_ptr<const xAOD::Vertex>(nullptr);
-        float mvx=0.; if(eventINFO)mvx=eventINFO->beamPosX();
-        float mvy=0.; if(eventINFO)mvy=eventINFO->beamPosY();
-        float mvz=0.; if(particles[i]->isAvailable<float>("vz"))mvz=particles[i]->vz();
-        TPC[i]->setParametersOrigin( mvx, mvy, mvz);
-        wrkTrkC[i]=TPC[i];
-     }     
+	float mvx=0.; if(eventINFO)mvx=eventINFO->beamPosX();
+	float mvy=0.; if(eventINFO)mvy=eventINFO->beamPosY();
+	float mvz=0.; if(particles[i]->isAvailable<float>("vz"))mvz=particles[i]->vz();
+	TPC[i]->setParametersOrigin( mvx, mvy, mvz);
+	wrkTrkC[i]=TPC[i];
+     }
      return std::unique_ptr<const xAOD::Vertex>(m_fitterSvc->fit(wrkTrkC,BEAM));
 
    }

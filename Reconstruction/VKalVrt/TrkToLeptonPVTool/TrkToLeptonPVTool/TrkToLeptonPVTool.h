@@ -19,12 +19,9 @@
 #include <vector>
 #include <utility>
 #include <memory>
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "xAODTracking/TrackParticleContainer.h"
-#include "xAODTracking/VertexContainer.h"
-#include "xAODEventInfo/EventInfo.h"
+#include "TrkToLeptonPVTool/ITrkToLeptonPV.h"
 //
 
 class IChronoStatSvc;
@@ -34,29 +31,13 @@ namespace Trk{
     class TrkVKalVrtFitter;
     class IVertexFitter;
 }
-//------------------------------------------------------------------------
-  static const InterfaceID IID_TrkToLeptonPVTool("ITrkToLeptonPVTool", 1, 0);
-
-  class ITrkToLeptonPVTool : virtual public IAlgTool {
-    public:
-      static const InterfaceID& interfaceID() { return IID_TrkToLeptonPVTool;}
-//---------------------------------------------------------------------------
-//Interface itself
-
-      virtual std::unique_ptr<const xAOD::Vertex> matchTrkToPV( const xAOD::TrackParticle*, const xAOD::Vertex*, const xAOD::EventInfo*) const =0;
-      virtual std::unique_ptr<const xAOD::Vertex> npartVertex(const std::vector<const xAOD::TrackParticle*>&, const xAOD::EventInfo *) const =0;
-  };
 
 
-
-
-  class TrkToLeptonPVTool : public AthAlgTool, virtual public ITrkToLeptonPVTool
+  class TrkToLeptonPVTool : public AthAlgTool, virtual public ITrkToLeptonPV
   {
 
    public:
-       /* Constructor */
       TrkToLeptonPVTool(const std::string& type, const std::string& name, const IInterface* parent);
-       /* Destructor */
       virtual ~TrkToLeptonPVTool();
 
 
@@ -64,21 +45,19 @@ namespace Trk{
       StatusCode finalize();
 
 
-      std::unique_ptr<const xAOD::Vertex> matchTrkToPV(const xAOD::TrackParticle *trk, const xAOD::Vertex * PV, const xAOD::EventInfo *) const;
-      std::unique_ptr<const xAOD::Vertex> npartVertex(const std::vector<const xAOD::TrackParticle*>&, const xAOD::EventInfo *) const;
+      std::unique_ptr<const xAOD::Vertex> matchTrkToPV(const xAOD::TrackParticle *trk, const xAOD::Vertex * PV, const xAOD::EventInfo *) const final;
+      std::unique_ptr<const xAOD::Vertex> npartVertex(const std::vector<const xAOD::TrackParticle*>&, const xAOD::EventInfo *) const final;
 //------------------------------------------------------------------------------------------------------------------
 // Private data and functions
 //
 
    private:
 
-    ServiceHandle< IBeamCondSvc > m_beamService; 
-    ToolHandle< Trk::IVertexFitter >       m_fitterSvc;
+    ServiceHandle< IBeamCondSvc >       m_beamService;
+    ToolHandle< Trk::IVertexFitter >    m_fitterSvc;
 
     Trk::TrkVKalVrtFitter*   m_fitSvc{};
     IChronoStatSvc * m_timingProfile{}; 
-
-    //float m_bl{};
 
  };
 
