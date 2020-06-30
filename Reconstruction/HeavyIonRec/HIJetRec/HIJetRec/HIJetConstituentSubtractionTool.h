@@ -62,8 +62,6 @@ private:
   /// \brief Name of HIEventShapeContainer
   SG::ReadHandleKey< xAOD::HIEventShapeContainer > m_eventShapeKey { this, "EventShapeKey", "", "The input HI Event Shape"};
 
-  SG::ReadHandleKey< xAOD::VertexContainer > m_vertexContainer { this, "VertexContainer", "PrimaryVertices", "Vertex container for primary vertices"};
-
   //That looks useless. commented out for the moment
   //std::string m_modulation_key;
   /// \brief Subtracted jet kinematics are stored
