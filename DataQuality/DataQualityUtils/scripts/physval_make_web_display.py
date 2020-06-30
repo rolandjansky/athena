@@ -9,6 +9,8 @@ Transate arbitrary root file into a han config file
 Adapted for physics validation 14 May 2014
 """
 
+from __future__ import print_function
+
 from DQConfMakerBase.DQElements import *
 from DQConfMakerBase.Helpers import IDHelper, make_thresholds
 from DataQualityUtils.hanwriter import writeHanConfiguration
@@ -35,14 +37,14 @@ def recurse(rdir, dqregion, ignorepath, modelrefs=[], displaystring='Draw=PE', d
     for key in rdir.GetListOfKeys():
         cl = key.GetClassName(); rcl = ROOT.TClass.GetClass(cl)
         if ' ' in key.GetName():
-            print 'WARNING: cannot have spaces in histogram names for han config; not including %s %s' % (cl, key.GetName())
+            print('WARNING: cannot have spaces in histogram names for han config; not including %s %s' % (cl, key.GetName()))
             continue
         if rcl.InheritsFrom('TH1') or rcl.InheritsFrom('TGraph') or rcl.InheritsFrom('TEfficiency'):
             if '/' in key.GetName():
-                print 'WARNING: cannot have slashes in histogram names, encountered in directory %s, histogram %s' % (rdir.GetPath(), key.GetName())
+                print('WARNING: cannot have slashes in histogram names, encountered in directory %s, histogram %s' % (rdir.GetPath(), key.GetName()))
                 continue
             if key.GetName() == 'summary':
-                print 'WARNING: cannot have histogram named summary, encountered in %s' % rdir.GetPath()
+                print('WARNING: cannot have histogram named summary, encountered in %s' % rdir.GetPath())
                 continue
             fpath = rdir.GetPath().replace(ignorepath, '')
             name = (fpath + '/' + key.GetName()).lstrip('/')
@@ -132,19 +134,19 @@ def process(infname, confname, options, refs=None):
     import re
     f = ROOT.TFile.Open(infname, 'READ')
     if not f.IsOpen():
-        print 'ERROR: cannot open %s' % infname
+        print('ERROR: cannot open %s' % infname)
         return
     
     top_level = DQRegion(id='topRegion',algorithm=worst)
-    print 'Building tree...'
+    print('Building tree...')
     refpairs = refs.split(',')
     try:
         refdict = dict(_.split(':') for _ in refpairs)
-    except Exception, e:
-        print e
+    except Exception as e:
+        print(e)
     # "Model" references
     dqrs = [DQReference(reference='%s:same_name' % v, id=k)
-            for k, v in refdict.items()]
+            for k, v in list(refdict.items())]
     displaystring = options.drawopt
     if options.refdrawopt:
         displaystring += ',' + (','.join('DrawRef=%s' % _ for _ in options.refdrawopt.split(',')))
@@ -165,7 +167,7 @@ def process(infname, confname, options, refs=None):
     hists = []
     if options.histlistfile:
         hists = [re.compile(line.rstrip('\n')) for line in open(options.histlistfile)]
-        if options.pathregex: print "histlistfile given, pathregex is ignored"
+        if options.pathregex: print("histlistfile given, pathregex is ignored")
     if options.refmangle:
         import sys
         sys.path.append(os.getcwd())
@@ -175,7 +177,7 @@ def process(infname, confname, options, refs=None):
         manglefunc = None
     recurse(topindir, top_level, topindirname, dqrs, displaystring, displaystring2D,
             re.compile(options.pathregex), startpath, hists, manglefunc=manglefunc)
-    print 'Pruning dead branches...'
+    print('Pruning dead branches...')
     prune(top_level)
     pc = paramcount(top_level)
  
@@ -183,7 +185,7 @@ def process(infname, confname, options, refs=None):
     for x in sublevel:
         top_level.delRelation('DQRegions', x)
         
-    print 'Writing output'
+    print('Writing output')
     writeHanConfiguration( filename = confname , roots = sublevel)
     return pc
 
@@ -192,7 +194,7 @@ def super_process(fname, options):
     import ROOT
     han_is_found = (ROOT.gSystem.Load('libDataQualityInterfaces') != 1)
     if not han_is_found:
-        print 'ERROR: unable to load offline DQMF; unable to proceed'
+        print('ERROR: unable to load offline DQMF; unable to proceed')
         sys.exit(1)
     bname = os.path.basename(fname)
 
@@ -211,8 +213,8 @@ def super_process(fname, options):
 
     with tmpdir() as hantmpdir:
         try:
-            print '====> Processing file %s' % (fname)
-            print '====> Generating han configuration file'
+            print('====> Processing file %s' % (fname))
+            print('====> Generating han configuration file')
             hantmpinput = os.path.join(hantmpdir, bname)
             shutil.copyfile(fname, hantmpinput)
             haninput = hantmpinput
@@ -222,13 +224,13 @@ def super_process(fname, options):
             
             # bad hack. rv = number of histogram nodes
             if rv == 0:
-                print 'No histograms to display; exiting with code 0'
+                print('No histograms to display; exiting with code 0')
                 sys.exit(0)
 
-            print '====> Compiling han configuration'
+            print('====> Compiling han configuration')
             hanhcfg = os.path.join(hantmpdir, 'han.hcfg')
             ROOT.dqi.HanConfig().AssembleAndSave( hanconfig, hanhcfg )
-            print '====> Executing han'
+            print('====> Executing han')
             import resource
             memlimit = resource.getrlimit(resource.RLIMIT_AS)
             resource.setrlimit(resource.RLIMIT_AS, (memlimit[1], memlimit[1]))
@@ -237,7 +239,7 @@ def super_process(fname, options):
             rv = ROOT.dqi.HanApp().Analyze( hanhcfg, haninput, hanoutput )
             if rv != 0:
                 raise Exception('failure in han')
-            print '====> Dumping web display output'
+            print('====> Dumping web display output')
             from DataQualityUtils import handimod
             handimod.handiWithComparisons( options.title,
                                            hanoutput,
@@ -256,8 +258,8 @@ def super_process(fname, options):
 ##            shutil.copy2(hanoutput, hantargetfile)
 ##            print '====> Cleaning up'
             os.unlink(hanoutput)
-        except Exception, e:
-            print e
+        except Exception as e:
+            print(e)
             import traceback
             traceback.print_exc()
             if 'canonical format' not in str(e):
