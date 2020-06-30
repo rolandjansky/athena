@@ -721,12 +721,6 @@ class doStatistics(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = True
 
-class doStandardPlots(InDetFlagsJobProperty):
-    """ Use to turn on creating the Standard Plots of tracking performance """
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-    
 class doPhysValMon(InDetFlagsJobProperty):
     """ Use to turn on Physics Validation Monitoring """
     statusOn     = True
@@ -1803,9 +1797,7 @@ class InDetJobProperties(JobPropertyContainer):
       #
       # control whether to do statistics package
       self.doStatistics            = self.postProcessing() and self.doStatistics()
-      # control to run Standard Plots
-      self.doStandardPlots         = self.postProcessing() and self.doStandardPlots()
-      # control to run Standard Plots
+      # control to run InDetPhysValMonitoring
       self.doPhysValMon            = self.postProcessing() and self.doPhysValMon()
       #
       # --------------------------------------------------------------------
@@ -2412,8 +2404,6 @@ class InDetJobProperties(JobPropertyContainer):
     # -----------------------------------------
     if self.doStatistics() :
        print('* run statistics packages')
-    if self.doStandardPlots() :
-       print('* run Standard Plots package')
     if self.doPhysValMon() :
        print('* run Physics Validation Monitoring')
     if self.doNtupleCreation():
@@ -2695,7 +2685,6 @@ _list_InDetJobProperties = [Enabled,
                             doSecVertexFinder,
                             doConversions,
                             doStatistics,
-                            doStandardPlots,
                             doPhysValMon,
                             materialInteractions,
                             materialInteractionsType,
