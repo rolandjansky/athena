@@ -46,10 +46,6 @@ void ElementLinkBase::setPersIndex( uint32_t index ) {
    return;
 }
 
-bool ElementLinkBase::isDefaultIndex() const {
-  return m_persIndex == ElementLinkBase::INVALID;
-}
-
 bool ElementLinkBase::isDefault() const {
-  return isDefaultIndex();
+  return m_persIndex == ElementLinkBase::INVALID;
 }
