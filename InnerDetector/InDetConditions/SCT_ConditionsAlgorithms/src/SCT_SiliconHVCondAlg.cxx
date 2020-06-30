@@ -25,9 +25,7 @@ StatusCode SCT_SiliconHVCondAlg::initialize() {
   // CondSvc
   ATH_CHECK(m_condSvc.retrieve());
   // Read Cond Handles
-  if (m_useState.value()) {
-    ATH_CHECK(m_readKeyState.initialize());
-  }
+  ATH_CHECK(m_readKeyState.initialize (m_useState.value()));
   ATH_CHECK(m_readKeyHV.initialize());
   // Write Cond Handle
   ATH_CHECK(m_writeKey.initialize());
