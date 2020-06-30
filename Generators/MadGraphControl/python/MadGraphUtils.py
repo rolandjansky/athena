@@ -1648,7 +1648,7 @@ def find_key_and_update(akey,dictionary):
     return akey
 
 
-def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=MADGRAPH_GRIDPACK_LOCATION,params={}):
+def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=MADGRAPH_GRIDPACK_LOCATION,params={},output_location=None):
     """Build a new param_card.dat from an existing one.
     Params should be a dictionary of dictionaries. The first key is the block name, and the second in the param name.
     Keys can include MASS (for masses) and DECAY X (for decays of particle X)"""
@@ -1680,7 +1680,8 @@ def modify_param_card(param_card_input=None,param_card_backup=None,process_dir=M
     os.rename(param_card_input, param_card_old) # change name of original card
 
     oldcard = open(param_card_old,'r')
-    newcard = open(process_dir+'/Cards/param_card.dat','w')
+    param_card_location= process_dir+'/Cards/param_card.dat' if output_location is None else output_location
+    newcard = open(param_card_location,'w')
     decayEdit = False #only becomes true in a DECAY block when specifying the BR
     blockName = ""
     doneParams = {} #tracks which params have been done
