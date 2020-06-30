@@ -84,7 +84,7 @@ def BTagToolCfg(ConfigFlags, TaggerList, PrimaryVertexCollectionName="", scheme 
       options = {}
       if useBTagFlagsDefaults:
         defaults = { 'Runmodus'                     : ConfigFlags.BTagging.RunModus,
-                     'vxPrimaryCollectionName'      : ConfigFlags.BTagging.PrimaryVertexCollectionName,
+                     'vxPrimaryCollectionName'      : PrimaryVertexCollectionName,
                      'TagToolList'                  : tagToolList,
                    }
         for option in defaults:

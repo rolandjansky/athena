@@ -1,6 +1,5 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentFactory import CompFactory
-from BTagging.BTaggingFlags import BTaggingFlags
 
 def JetTagCalibCfg(ConfigFlags, scheme="", TaggerList = [], **kwargs):
 
@@ -101,6 +100,6 @@ def JetTagCalibCfg(ConfigFlags, scheme="", TaggerList = [], **kwargs):
 #            connSchema = connSchema.replace("_OFL","")
 #
 #    result.merge(addFolders(ConfigFlags,[readkeycalibpath], connSchema, className='CondAttrListCollection'))
-#    JetTagCalib = JetTagCalibCondAlg(jettagcalibcondalg, ReadKeyCalibPath=readkeycalibpath, HistosKey = histoskey, taggers = TaggerList, channelAliases = BTaggingFlags.CalibrationChannelAliases, IP2D_TrackGradePartitions = grades, RNNIP_NetworkConfig = BTaggingFlags.RNNIPConfig)
+#    JetTagCalib = JetTagCalibCondAlg(jettagcalibcondalg, ReadKeyCalibPath=readkeycalibpath, HistosKey = histoskey, taggers = TaggerList, channelAliases = CalibrationChannelAliases, IP2D_TrackGradePartitions = grades, RNNIP_NetworkConfig = RNNIPConfig)
 #    result.addCondAlgo(JetTagCalib)
 #    return result

@@ -587,10 +587,9 @@ CAtoGlobalWrapper(triggerIDCCacheCreatorsCfg,ConfigFlags)
 
 # B-jet output file
 if opt.doBjetSlice or opt.forceEnableAllChains:
-    print("In JetTagCalibCfg")
     from JetTagCalibration.JetTagCalibConfig import JetTagCalibCfg
     alias = ["HLT_b->HLT_b,AntiKt4EMTopo"] #"HLT_bJets" is the name of the b-jet JetContainer
-    topSequence += JetTagCalibCfg(ConfigFlags, scheme="Trig", TaggerList=ConfigFlags.BTagging.TrigTaggersList, ChannelAlias = alias)
+    topSequence += JetTagCalibCfg(ConfigFlags, scheme="Trig", TaggerList=ConfigFlags.BTagging.TrigTaggersList, newChannel = alias)
 
 # Trigger output
 if opt.doWriteBS or opt.doWriteRDOTrigger:
