@@ -1,6 +1,6 @@
 // Dear emacs, this is -*- c++ -*-
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 #ifndef ATHLINKS_ELEMENTLINK_H
 #define ATHLINKS_ELEMENTLINK_H
@@ -186,7 +186,7 @@ public:
     * @brief Is this link invalid because its target was removed (e.g. through
     * slimming or thinning in the derivation framework)
     */
-   bool wasThinned() const { return !isValid() && !isDefault(); }
+   bool wasTargetRemoved() const { return !isValid() && !isDefault(); }
 
 private:
    /// Reset the object's internal cache
