@@ -100,7 +100,7 @@ class Descriptor(object):
         <variableName> is the name of the variable that is being set and is typically
         only used for error messages."""
         if self.__allowed and value not in self.__allowed:
-            raise TransformConfigError( '%s value %r is not in %s' % \
+            raise TransformConfigError( '%s value %r is not in %s' %
                                         (variableName, value, self.__allowed) )
 
         return value
@@ -156,7 +156,7 @@ class Float(Descriptor):
     def _checkValue(self,variableName,value):
         try:
             value = float(value)
-        except:
+        except Exception:
             raise TransformConfigError( '%s value %s is not a float' % (variableName, value) )
 
         # check the value against list of possible values
@@ -173,7 +173,7 @@ class Integer(Descriptor):
         inValue = value
         try:
             value = int(value)
-        except:
+        except Exception:
             raise TransformConfigError( '%s value %s is not an int' % (variableName, value) )
     
         if value != float(inValue):
@@ -206,8 +206,8 @@ class UniqueList(Descriptor):
         try:
             value.__iter__
             return list( value )
-        except:
-            raise TransformConfigError( '%s should be a list or tuple. Got %s instead.' % \
+        except Exception:
+            raise TransformConfigError( '%s should be a list or tuple. Got %s instead.' %
                                         ( variableName, type( value ).__name__ ) )
 
 
@@ -217,7 +217,7 @@ class UniqueList(Descriptor):
         if allowed:
             for v in value:
                 if v not in allowed:
-                    raise TransformConfigError( '%s value %r is not one of %s' % \
+                    raise TransformConfigError( '%s value %r is not one of %s' %
                                                 (variableName, value, allowed) )
         # make entries unique
         newValue = set() #[]
@@ -248,7 +248,7 @@ class ListOfStrings(UniqueList):
         # check that all entries are strings
         for v in value:
             if not isinstance( v, str ):
-                raise TransformConfigError("Entry %r in %s is not a string (but an %s)" % \
+                raise TransformConfigError("Entry %r in %s is not a string (but an %s)" %
                                            ( v, variableName, type( v ).__name__ ) )                                           
         return value
    
@@ -290,7 +290,7 @@ class JobConfigMetaClass(type):
 ##        print "JobConfigMetaClass( self=%r, name=%r, bases=%r, dict=%r )" % (self,name,bases,dict)
         if '__slots__' not in dict:
             raise TransformConfigError('Class %s does not have member __slots__. Please add __slots__ = ()'
-                                 ' to the class definition' % (name,) )
+                                       ' to the class definition' % (name,) )
         #
         # add list of properties
         #

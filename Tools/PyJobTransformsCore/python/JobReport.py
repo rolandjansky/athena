@@ -3,12 +3,9 @@
 ## @package JobReport
 #
 #  @brief Main module containing the @em JobReport class and other ancillary classes @em JobInfo, @em FileInfo and @em TaskInfo.
-#  @author $LastChangedBy: graemes $
-#  @version $Rev: 501327 $
-#  @date $Date: 2012-05-18 16:24:55 +0200 (Fri, 18 May 2012) $
 
 from __future__ import with_statement, print_function
-import os,sys,re,shutil,traceback, subprocess, itertools
+import os, sys, shutil, subprocess, itertools
 import pickle
 from copy import copy
 from PyJobTransformsCore import AtlasErrorCodes, extraMetadata
@@ -265,7 +262,7 @@ class TaskInfo( XMLNode ):
             trfName = None
             taskFound = True
             yield self
-        elif trfName == False: # omit top level task
+        elif trfName is False: # omit top level task
             trfName = None
         for subtask in self.subTasks:
             for st in subtask.tasks( trfName, False ):
@@ -400,7 +397,7 @@ class JobReport( object ):
     #  stored e.g. in composite transforms.
     def __init__( self ):
         # Can't be at class scope due to py3 scoping rules for comprehensions.
-        JobReport.defaultFiles = [ defaultFilenameBase + ext for ext in fileExtensions ] + [ metadata_xml, jobinfo_xml ]
+        JobReport.defaultFiles = [ self.defaultFilenameBase + ext for ext in self.fileExtensions ] + [ self.metadata_xml, self.jobinfo_xml ]
 
         self.reset()
         self.setCommand()
@@ -915,7 +912,7 @@ class JobReport( object ):
         try:
             if athenaOK and self.info( 'athCode' ).contents() != '0':
                 athenaOK = False
-        except:
+        except Exception:
             athenaOK = False
         for eInfo in self.errors():
             if self.__ignoreUnknown and eInfo.code == 69999 and athenaOK:
@@ -956,7 +953,7 @@ class JobReport( object ):
         if self.__ignoreErrors:
             try:
                 athCode = self.info( 'athCode' ).contents()
-            except:
+            except Exception:
                 pass
             else:
                 # Return success if Athena returns success regardless of any errors detected
@@ -993,7 +990,7 @@ class JobReport( object ):
         temp2 = 'tempfile2_TOBEREMOVED_'
         try:
             # the actual execution
-            slimmetadataProcess = subprocess.check_call( [ "slimmetadata", filename, temp1, temp2 ] )
+            subprocess.check_call( [ "slimmetadata", filename, temp1, temp2 ] )
         except subprocess.CalledProcessError as cpe:
             print ("Error slimming %s [%s]: %s" % ( filename, cpe.returncode, cpe.message ))
         else:
@@ -1002,7 +999,7 @@ class JobReport( object ):
         for f in [ temp1, temp2 ]:
             try:
                 os.remove( f )
-            except:
+            except Exception:
                 pass
 
     ## A wrapper method to allow for metadata to be written in two different formats
@@ -1220,12 +1217,12 @@ class JobReport( object ):
         for info in info_try_block.keys():
             try:
                 info_try_block[info]=self.info( info ).getContents()[ info ]
-            except:
+            except Exception:
                 pass
         for info in info_try_block_odict.keys():
             try:
                 info_try_block_odict[info]=self.info( info ).getContents()
-            except:
+            except Exception:
                 pass
         nevents = 0
         for oFile in self.outputFiles():
@@ -1290,7 +1287,7 @@ class JobReport( object ):
                 ifiles.append( { 'lfn' : os.path.basename( i.filename() ), 
                                  'GUID' : i.guid(), 
                                  'dataset' : i.metaData( 'dataset' ) } )
-            except:
+            except Exception:
                 print ('JobReport collecting info input files:  problems with ', i)
         # collect info about outputfiles,
         # (metadata should be by file because of the combined trfs)  
@@ -1322,12 +1319,12 @@ class JobReport( object ):
         for info in info_try_block.keys():
             try:
                 info_try_block[info]=self.info( info ).getContents()[ info ]
-            except:
+            except Exception:
                 pass
         for info in info_try_block_odict.keys():
             try:
                 info_try_block_odict[info]=self.info( info ).getContents()
-            except:
+            except Exception:
                 pass
         nevents = 0
         for oFile in self.outputFiles():

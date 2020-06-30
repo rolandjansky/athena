@@ -1,9 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import os,sys, inspect
-from PyJobTransformsCore.trfutil import *
-from PyJobTransformsCore.trferr import *
-#from AthenaCommon.AppMgr import NO_EVSEL,MONTECARLO
+import os, inspect
+from past.builtins import execfile
+from PyJobTransformsCore.trfutil import find_joboptions
+from PyJobTransformsCore.trferr import JobOptionsNotFoundError
+from PyJobTransformsCore.TransformLogger import TransformLogger
 NO_EVSEL    = -99
 MONTECARLO  = 1
 
