@@ -20,10 +20,10 @@ def JetTrackingSequence(dummyFlags,trkopt,RoIs):
         viewAlgs = makeInDetAlgsNoView( "JetFS", "FS", rois=RoIs )
         jetTrkSeq += viewAlgs
         tracksname = recordable("HLT_IDTrack_FS_FTF")
-        verticesname = recordable("HLT_EFHistoPrmVtx")
+        verticesname = recordable("HLT_IDVertex_FS")
 
     from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
-    vtxAlgs = makeVertices( "jet", "HLT_IDTrack_FS_FTF", verticesname )
+    vtxAlgs = makeVertices( "jet", tracksname, verticesname )
     prmVtx = vtxAlgs[-1]
     jetTrkSeq += prmVtx
 

@@ -25,7 +25,7 @@ def getBJetSequence():
 # ====================================================================================================  
 
 def bJetStep2Sequence():
-    prmVtxKey = "HLT_EFHistoPrmVtx"
+    prmVtxKey = "HLT_IDVertex_FS"
     outputRoIName = "HLT_Roi_Bjet"
 
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
