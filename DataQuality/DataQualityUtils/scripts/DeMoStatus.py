@@ -1,9 +1,10 @@
 #! /usr/bin/env python
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # Author : Benjamin Trocme (LPSC - Grenoble) - 2017
 # Displays the year cumulated stats (GRL runs)
 ##################################################################
 
+from __future__ import print_function
 import os,sys  
 from time import localtime, strftime
 
@@ -105,7 +106,7 @@ for iYear in args.parser_year:
 yearTagList.sort()
 
 if len(yearTagList) == 0:
-  print "No year / tag matching - Please check YearStats directory"
+  print("No year / tag matching - Please check YearStats directory")
   sys.exit()
 
 options = {}
@@ -147,7 +148,7 @@ subperiodNb = {}
 runsCharact = {}
 
 for iYT in yearTagList:
-  print "I am treating the following year/tag:%s"%iYT
+  print("I am treating the following year/tag:%s"%iYT)
 
   canvasResults[iYT] = {}
   legendResults[iYT] = {}
@@ -168,7 +169,7 @@ for iYT in yearTagList:
     runsCharact[iYT]['Number'] += 1
 
   runsCharact[iYT]['Range']="%d->%d / GRL only"%(runsCharact[iYT]['Low'],runsCharact[iYT]['High'])
-  print "I found %d runs in this year/tag (%s)"%(runsCharact[iYT]['Number'],runsCharact[iYT]['Range'])
+  print("I found %d runs in this year/tag (%s)"%(runsCharact[iYT]['Number'],runsCharact[iYT]['Range']))
 
   if (options['plotYearStats'] or options['plotYearStatsLarge']):
     if options['approvedPlots']:
@@ -255,12 +256,12 @@ for iYT in yearTagList:
       gPad.SetGrid(1)
       h1PeriodLett_IntLuminosity[iYT].Draw("P HIST")
       for iBin in range(1,h1PeriodLett_IntLuminosity[iYT].GetNbinsX()):
-        print "Period %s: %.3f pb-1"%(h1PeriodLett_IntLuminosity[iYT].GetXaxis().GetBinLabel(iBin),h1PeriodLett_IntLuminosity[iYT].GetBinContent(iBin))
+        print("Period %s: %.3f pb-1"%(h1PeriodLett_IntLuminosity[iYT].GetXaxis().GetBinLabel(iBin),h1PeriodLett_IntLuminosity[iYT].GetBinContent(iBin)))
     else:
       canvasResults[iYT]['intLumi']= TCanvas( "c_intLumi_%s"%(iYT),"Integrated luminosity per period", 200, 10, 1000, 500)
       h1Period_IntLuminosity[iYT].Draw("P HIST")
       for iBin in range(1,h1Period_IntLuminosity[iYT].GetNbinsX()):
-        print "Period %s: %.3f pb-1"%(h1Period_IntLuminosity[iYT].GetXaxis().GetBinLabel(iBin),h1Period_IntLuminosity[iYT].GetBinContent(iBin))
+        print("Period %s: %.3f pb-1"%(h1Period_IntLuminosity[iYT].GetXaxis().GetBinLabel(iBin),h1Period_IntLuminosity[iYT].GetBinContent(iBin)))
 
     canvasResults[iYT]['intLumi'].SetGridy(1)
 

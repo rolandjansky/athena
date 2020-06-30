@@ -1,6 +1,7 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
 
 import os
 ## Needed to correct ROOT behavior; see below
@@ -34,7 +35,7 @@ def handi( name, resultsFile, htmlDir ):
       try:
         os.makedirs(subHtmlDir)
       except os.error:
-        print 'Cannot create directory "' + subHtmlDir + '"; exiting.'
+        print('Cannot create directory "' + subHtmlDir + '"; exiting.')
         sys.exit(-1)
   
   total=of.stringAllHistograms()
@@ -58,7 +59,7 @@ def handi( name, resultsFile, htmlDir ):
 def usage():
   cmdi = sys.argv[0].rfind("/")
   cmd = sys.argv[0][cmdi+1:]
-  print "Usage: ", cmd, "<imput_file> <html_output_directory>"
+  print("Usage: ", cmd, "<imput_file> <html_output_directory>")
 
 def makeAllDirsFile( htmlDir, name, s, number, resultsFile ):
   g=open(htmlDir+'index.html','w')
