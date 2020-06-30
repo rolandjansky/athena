@@ -24,7 +24,6 @@
 FFJetSmearingTool::FFJetSmearingTool(const std::string name)
     : asg::AsgTool(name) 
     , m_isInit(false)
-    , m_name(name)
     , m_release("")
     , m_truth_jetColl("")
     , m_EtaRange(0)
@@ -50,13 +49,13 @@ StatusCode FFJetSmearingTool::initialize()
     // Ensure it hasn't been initialized already
     if (m_isInit)
     {
-        ATH_MSG_FATAL(Form("Blocking re-initialization of tool named %s",m_name.c_str()));
+        ATH_MSG_FATAL(Form("Blocking re-initialization of tool named %s",AsgTool::name().c_str())); //AsgTool::name() calls the name
         return StatusCode::FAILURE;
     }
 
-    ATH_MSG_INFO(Form("Preparing to initialize the FFJetSmearingTool named %s",m_name.c_str()));
+    ATH_MSG_INFO(Form("Preparing to initialize the FFJetSmearingTool named %s",AsgTool::name().c_str()));
 
-    if (m_name=="")
+    if (AsgTool::name()=="")
     {
         ATH_MSG_FATAL("No name specified.  Aborting.");
         return StatusCode::FAILURE;
@@ -81,7 +80,7 @@ StatusCode FFJetSmearingTool::initialize()
     }
     // We can read it - start printing
     ATH_MSG_INFO(Form("================================================"));
-    ATH_MSG_INFO(Form("  Initializing the FFJetSmearingTool named %s",m_name.c_str()));
+    ATH_MSG_INFO(Form("  Initializing the FFJetSmearingTool named %s",AsgTool::name().c_str()));
     ATH_MSG_INFO(Form("  Configuration file: \"%s\"",m_configFile.c_str()));
     ATH_MSG_INFO(Form("    Location: %s",configFilePath.Data()));
 

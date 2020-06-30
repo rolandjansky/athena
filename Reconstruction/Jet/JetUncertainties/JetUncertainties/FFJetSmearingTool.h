@@ -147,7 +147,6 @@ class FFJetSmearingTool : public asg::AsgTool, virtual public IJetCorrectionTool
 
         // Private members
         bool m_isInit;
-        std::string m_name;
         std::string m_release;
         std::string m_truth_jetColl;
         std::string m_truthlabelaccessor;
