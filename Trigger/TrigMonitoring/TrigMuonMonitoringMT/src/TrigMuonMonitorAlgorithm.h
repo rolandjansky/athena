@@ -42,7 +42,7 @@ class TrigMuonMonitorAlgorithm : public AthMonitorAlgorithm {
   // Properties
   Gaudi::Property<std::vector<std::string> > m_monitored_chains {this, "MonitoredChains", {}, "Trigger chains that are monitored"};
   Gaudi::Property<int> m_muontype {this, "MuonType", xAOD::Muon::MuonType::Combined, "MuonType used for monitoring"};
-  
+
 
 };
 
