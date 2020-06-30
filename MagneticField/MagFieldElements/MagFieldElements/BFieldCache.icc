@@ -19,26 +19,25 @@ BFieldCache::getB(const double* ATH_RESTRICT xyz,
     phi += 2 * M_PI;
   }
   // fractional position inside this bin
-  const float fz = (z - m_zmin) * m_invz;
-  const float gz = 1.0 - fz;
-  const float fr = (r - m_rmin) * m_invr;
-  const float gr = 1.0 - fr;
-  const float fphi = (phi - m_phimin) * m_invphi;
-  const float gphi = 1.0 - fphi;
+  const double fz = (z - m_zmin) * m_invz;
+  const double gz = 1.0 - fz;
+  const double fr = (r - m_rmin) * m_invr;
+  const double gr = 1.0 - fr;
+  const double fphi = (phi - m_phimin) * m_invphi;
+  const double gphi = 1.0 - fphi;
   // interpolate field values in z, r, phi
-  const float scale = m_scale;
-  float Bzrphi[3];
+  double Bzrphi[3];
   for (int i = 0; i < 3; i++) { // z, r, phi components
-    const float* field = m_field[i];
-    Bzrphi[i] = scale * (gz * (gr * (gphi * field[0] + fphi * field[1]) +
-                               fr * (gphi * field[2] + fphi * field[3])) +
-                         fz * (gr * (gphi * field[4] + fphi * field[5]) +
-                               fr * (gphi * field[6] + fphi * field[7])));
+    const double* field = m_field[i];
+    Bzrphi[i] = m_scale * (gz * (gr * (gphi * field[0] + fphi * field[1]) +
+                                 fr * (gphi * field[2] + fphi * field[3])) +
+                           fz * (gr * (gphi * field[4] + fphi * field[5]) +
+                                 fr * (gphi * field[6] + fphi * field[7])));
   }
   // convert (Bz,Br,Bphi) to (Bx,By,Bz)
-  float invr;
-  float c;
-  float s;
+  double invr;
+  double c;
+  double s;
   if (r > 0.0) {
     invr = 1.0 / r;
     c = x * invr;
@@ -54,37 +53,43 @@ BFieldCache::getB(const double* ATH_RESTRICT xyz,
 
   // compute field derivatives if requested
   if (deriv) {
-    const float sz = m_scale * m_invz;
-    const float sr = m_scale * m_invr;
-    const float sphi = m_scale * m_invphi;
+    const double sz   = m_scale * m_invz;
+    const double sr   = m_scale * m_invr;
+    const double sphi = m_scale * m_invphi;
    
-    float dBdz[3];
-    float dBdr[3];
-    float dBdphi[3];
+    double dBdz[3];
+    double dBdr[3];
+    double dBdphi[3];
     
     for (int j = 0; j < 3; j++) { // Bz, Br, Bphi components
-      const float* field = m_field[j];
+      const double* field = m_field[j];
       dBdz[j] =
         sz *
-        (gr * (gphi * (field[4] - field[0]) + fphi * (field[5] - field[1])) +
-         fr * (gphi * (field[6] - field[2]) + fphi * (field[7] - field[3])));
+        (gr * (gphi * (field[4] - field[0]) +
+               fphi * (field[5] - field[1])) +
+         fr * (gphi * (field[6] - field[2]) +
+               fphi * (field[7] - field[3])));
       dBdr[j] =
         sr *
-        (gz * (gphi * (field[2] - field[0]) + fphi * (field[3] - field[1])) +
-         fz * (gphi * (field[6] - field[4]) + fphi * (field[7] - field[5])));
+        (gz * (gphi * (field[2] - field[0]) +
+               fphi * (field[3] - field[1])) +
+         fz * (gphi * (field[6] - field[4]) +
+               fphi * (field[7] - field[5])));
       dBdphi[j] =
-        sphi * (gz * (gr * (field[1] - field[0]) + fr * (field[3] - field[2])) +
-                fz * (gr * (field[5] - field[4]) + fr * (field[7] - field[6])));
+        sphi * (gz * (gr * (field[1] - field[0]) +
+                      fr * (field[3] - field[2])) +
+                fz * (gr * (field[5] - field[4]) +
+                      fr * (field[7] - field[6])));
     }
     // convert to cartesian coordinates
-    const float cc = c * c;
-    const float cs = c * s;
-    const float ss = s * s;
-    const float ccinvr = cc * invr;
-    const float csinvr = cs * invr;
-    const float ssinvr = ss * invr;
-    const float sinvr = s * invr;
-    const float cinvr = c * invr;
+    const double cc = c * c;
+    const double cs = c * s;
+    const double ss = s * s;
+    const double ccinvr = cc * invr;
+    const double csinvr = cs * invr;
+    const double ssinvr = ss * invr;
+    const double sinvr = s * invr;
+    const double cinvr = c * invr;
     deriv[0] = cc * dBdr[1] - cs * dBdr[2] - csinvr * dBdphi[1] +
                ssinvr * dBdphi[2] + sinvr * B[1];
     deriv[1] = cs * dBdr[1] - ss * dBdr[2] + ccinvr * dBdphi[1] -
