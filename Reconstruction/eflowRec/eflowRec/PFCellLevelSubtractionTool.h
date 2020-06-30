@@ -9,11 +9,14 @@
 #include "eflowRec/IPFSubtractionTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include "xAODCaloEvent/CaloCluster.h"
+#include "xAODTracking/TrackParticle.h"
+
 #include "eflowRec/eflowCaloObject.h"
 #include "eflowRec/eflowCellList.h"
 #include "eflowRec/eflowEEtaBinnedParameters.h"
-#include "xAODCaloEvent/CaloCluster.h"
-#include "xAODTracking/TrackParticle.h"
+#include "eflowRec/PFMatchPositions.h"
+#include "eflowRec/EtaPhiLUT.h"
 
 #include <vector>
 
@@ -23,6 +26,14 @@ class eflowRecClusterContainer;
 class IEFlowCellEOverPTool;
 class PFTrackClusterMatchingTool;
 class eflowRecTrack;
+
+namespace PFMatch {
+  class TrackEtaPhiInFixedLayersProvider;
+}
+
+namespace eflowRec {
+  class EtaPhiLUT;
+}
 
 class PFCellLevelSubtractionTool : public extends<AthAlgTool, IPFSubtractionTool> {
 public:
@@ -41,6 +52,7 @@ public:
     eflowCaloObjectContainer* caloObjects;
     eflowRecTrackContainer* tracks;
     eflowRecClusterContainer* clusters;
+    eflowRec::EtaPhiLUT clusterLUT;
   };
 
   void calculateRadialEnergyProfiles(eflowData& data) const;
@@ -52,6 +64,9 @@ public:
   std::string printTrack(const xAOD::TrackParticle* track) const;
   std::string printCluster(const xAOD::CaloCluster* cluster) const;
   void printAllClusters(const eflowRecClusterContainer& recClusterContainer) const;
+
+  // Need a track position provider to preselect clusters
+  std::unique_ptr<PFMatch::TrackEtaPhiInFixedLayersProvider> m_trkpos;
 
   /** Default track-cluster matching tool */
   ToolHandle<PFTrackClusterMatchingTool> m_matchingTool{this,"PFTrackClusterMatchingTool","PFTrackClusterMatchingTool/CalObjBldMatchingTool","The track-cluster matching tool"};
