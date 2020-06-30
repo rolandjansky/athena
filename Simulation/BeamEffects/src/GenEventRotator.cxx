@@ -100,7 +100,7 @@ namespace Simulation
     ATH_MSG_VERBOSE("initial momentum " << hv );
     hv.transform(transform);
     ATH_MSG_VERBOSE("transformed momentum " << hv);
-    p->set_momentum(hv); //TODO check units
+    p->set_momentum(HepMC::FourVector(hv.px(),hv.py(),hv.pz(),hv.e())); //TODO check units
   }
 
 }

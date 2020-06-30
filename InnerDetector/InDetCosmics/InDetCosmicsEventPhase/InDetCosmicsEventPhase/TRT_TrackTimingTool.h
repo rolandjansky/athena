@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -88,9 +88,6 @@ class TRT_TrackTimingTool : virtual public ITRT_TrackTimingTool, public AthAlgTo
 		
     /** private debugging function for commissioning phase */
     void debugMissingMeasurements(const Trk::Track& trk) const;
-
-    /** debug printing function */
-    void print(const Trk::Track* track, float time) const;
 
   }; 
 

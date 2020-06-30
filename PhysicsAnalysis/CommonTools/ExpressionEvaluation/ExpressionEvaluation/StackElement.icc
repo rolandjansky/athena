@@ -68,7 +68,7 @@ namespace ExpressionParsing {
          return m_vecDoubleVal.size();
          break;
 
-      case SE_INT:  [[fallthrough]]
+      case SE_INT:  [[fallthrough]] ;
       case SE_DOUBLE:
          return 1; // @TOOD 0?
          break;

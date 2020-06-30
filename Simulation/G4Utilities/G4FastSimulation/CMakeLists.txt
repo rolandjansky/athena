@@ -5,11 +5,6 @@
 # Declare the package name:
 atlas_subdir( G4FastSimulation )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          GaudiKernel
-                          Simulation/G4Atlas/G4AtlasTools )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Geant4 )

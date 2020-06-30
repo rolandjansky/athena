@@ -56,7 +56,7 @@ class RatesTrigger:
     self.rateErr = self.passWeightedErr / self.rateDenominator
 
     # Trigger's efficiency is the fraction of active events which are passed. Error propagated.
-    self.efficiency    = self.passWeighted / self.activeWeighted
+    self.efficiency    = self.passWeighted / self.activeWeighted if self.activeWeighted > 0.0 else 0.0
     self.efficiencyErr = 0
     if self.passWeighted != 0 and self.activeWeighted != 0:
       fracErr = math.sqrt( math.pow(self.passWeightedErr/self.passWeighted,2) + math.pow(self.activeWeightedErr/self.activeWeighted,2) )

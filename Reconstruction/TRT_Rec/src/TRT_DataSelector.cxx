@@ -142,9 +142,8 @@ TRT_DataSelector::roadData(const std::vector<TRT_Prediction*>&	predictions,
 // 	(**p).print();
 
 	// get DriftCircle collection
-	InDet::TRT_DriftCircleContainer::const_iterator driftCircleCollection =
-	    m_driftCircleContainer->indexFind((**p).hashId());
-	if (driftCircleCollection == m_driftCircleContainer->end()) continue;
+	auto driftCircleCollection = m_driftCircleContainer->indexFindPtr((**p).hashId());
+	if (driftCircleCollection == nullptr) continue;
 
 // 	// Now, look at all straw data, and for each, create the correct
 // 	// road test.
@@ -156,8 +155,8 @@ TRT_DataSelector::roadData(const std::vector<TRT_Prediction*>&	predictions,
 	
 	//*** iterate over TRT_DriftCircles.
 	for (InDet::TRT_DriftCircleCollection::const_iterator driftCircle =
-		 (**driftCircleCollection).begin();
-	     driftCircle != (**driftCircleCollection).end();
+		 (*driftCircleCollection).begin();
+	     driftCircle != (*driftCircleCollection).end();
 	     ++driftCircle)
 	{
 	    Identifier	strawId	= (**driftCircle).identify();
@@ -315,13 +314,12 @@ TRT_DataSelector::roadData(const std::vector<TRT_Prediction*>&	predictions,
 	    Amg::Vector3D prediction		= (**p).position();
 
 	    // get DriftCircle collection
-	    InDet::TRT_DriftCircleContainer::const_iterator driftCircleCollection =
-		m_driftCircleContainer->indexFind((**p).hashId());
-	    if (driftCircleCollection == m_driftCircleContainer->end()) continue;
+	    auto driftCircleCollection = m_driftCircleContainer->indexFindPtr((**p).hashId());
+	    if (driftCircleCollection == nullptr) continue;
 	    //*** iterate over TRT_DriftCircles.
 	    for (InDet::TRT_DriftCircleCollection::const_iterator driftCircle =
-		     (**driftCircleCollection).begin();
-		 driftCircle != (**driftCircleCollection).end();
+		     (*driftCircleCollection).begin();
+		 driftCircle != (*driftCircleCollection).end();
 		 ++driftCircle)
 	    {
 		Identifier		strawId	= (**driftCircle).identify();

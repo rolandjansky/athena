@@ -6,6 +6,9 @@
 #define PFRECOVERSPLITSHOWERSTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
+
+#include <unordered_set>
+
 #include "GaudiKernel/ToolHandle.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "eflowRec/IPFSubtractionTool.h"
@@ -40,7 +43,7 @@ class PFRecoverSplitShowersTool : public extends<AthAlgTool, IPFSubtractionTool>
 
   struct eflowData {
     eflowCaloObjectContainer* caloObjects;
-    std::vector<eflowRecCluster*> clustersToConsider;
+    std::unordered_set<eflowRecCluster*> clustersToConsider;
     std::vector<eflowRecTrack*> tracksToRecover;
   };
 
@@ -57,9 +60,6 @@ class PFRecoverSplitShowersTool : public extends<AthAlgTool, IPFSubtractionTool>
 
   /* Tool for getting e/p values and hadronic shower cell ordering principle parameters */
   ToolHandle<IEFlowCellEOverPTool> m_theEOverPTool{this,"eflowCellEOverPTool","eflowCellEOverPTool","Energy Flow E/P Values and Shower Parameters Tool"};
-
-  /** Track-Cluster matching tool */
-  ToolHandle<PFTrackClusterMatchingTool> m_matchingTool{this,"PFTrackClusterMatchingTool","PFTrackClusterMatchingTool/RcvrSpltMatchingTool","The track-cluster matching tool"};
 
   std::unique_ptr<eflowEEtaBinnedParameters> m_binnedParameters;
 

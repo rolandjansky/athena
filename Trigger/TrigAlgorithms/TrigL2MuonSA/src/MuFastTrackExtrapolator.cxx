@@ -1,21 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigL2MuonSA/MuFastTrackExtrapolator.h"
+#include "MuFastTrackExtrapolator.h"
 #include "xAODTrigMuon/L2StandAloneMuonAuxContainer.h"
 #include "xAODTrigMuon/TrigMuonDefs.h"
 
-#include "CLHEP/Units/PhysicalConstants.h"
-
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-static const InterfaceID IID_MuFastTrackExtrapolator("IID_MuFastTrackExtrapolator", 1, 0);
-
-const InterfaceID& TrigL2MuonSA::MuFastTrackExtrapolator::interfaceID() { return IID_MuFastTrackExtrapolator; }
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -25,7 +16,6 @@ TrigL2MuonSA::MuFastTrackExtrapolator::MuFastTrackExtrapolator(const std::string
                                                                const IInterface*  parent): 
   AthAlgTool(type,name,parent)
 {
-  declareInterface<TrigL2MuonSA::MuFastTrackExtrapolator>(this);
 
   setMuFastRes(m_muFastRes_barrel,  0.042, -0.00046, 3.5, -1.8, 0.35, -0.017);
   setMuFastRes(m_muFastRes_endcap1, 0.098, -0.000097, 77.0, -47.0, 9.8, -0.67);
@@ -33,39 +23,6 @@ TrigL2MuonSA::MuFastTrackExtrapolator::MuFastTrackExtrapolator(const std::string
   setMuFastRes(m_muFastRes_endcap3, 0.087, -0.0013, 98.0, -60.0, 12.0, -0.80);
   setMuFastRes(m_muFastRes_endcap4, 0.060, -0.0014, 101.0, -61.0, 12.0, -0.80);
   
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-TrigL2MuonSA::MuFastTrackExtrapolator::~MuFastTrackExtrapolator() 
-{
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigL2MuonSA::MuFastTrackExtrapolator::initialize()
-{
-   ATH_MSG_DEBUG("Initializing MuFastTrackExtrapolator - package version " << PACKAGE_VERSION);
-   
-   StatusCode sc;
-   sc = AthAlgTool::initialize();
-   if (!sc.isSuccess()) {
-     ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
-      return sc;
-   }
-   
-   // 
-   return StatusCode::SUCCESS; 
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-void TrigL2MuonSA::MuFastTrackExtrapolator::setExtrapolatorTool(ToolHandle<ITrigMuonBackExtrapolator>* backExtrapolator)
-{
-  m_backExtrapolatorTool = backExtrapolator;
-  return;
 }
 
 // --------------------------------------------------------------------------------
@@ -128,17 +85,6 @@ StatusCode TrigL2MuonSA::MuFastTrackExtrapolator::extrapolateTrack(std::vector<T
 
     if (muonSA) delete muonSA;
   }
-  return sc; 
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigL2MuonSA::MuFastTrackExtrapolator::finalize()
-{
-  ATH_MSG_DEBUG("Finalizing MuFastTrackExtrapolator - package version " << PACKAGE_VERSION);
-  
-  StatusCode sc = AthAlgTool::finalize(); 
   return sc;
 }
 
@@ -174,13 +120,13 @@ double TrigL2MuonSA::MuFastTrackExtrapolator::getMuFastRes(std::vector<double> v
   if ( add != -1) {
     if (AbsPtInv < 0.186) {
       return vec[0]*AbsPtInv + vec[1];
-    } 
+    }
     else {
       double AbsPtInv3 = AbsPtInv*AbsPtInv*AbsPtInv;
       double AbsPtInv2 = AbsPtInv*AbsPtInv;
       return vec[2]*AbsPtInv3 + vec[3]*AbsPtInv2 + vec[4]*AbsPtInv +vec[5];
     }
-  } 
+  }
   else {//Takuya/Kunihiro updated numbers 
     
     const int N_PARAMS = 5;

@@ -308,11 +308,11 @@ def triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=False):
     """
     Returns CA with algorithms and/or tools required to do the serialisation
 
-    decObj - list of all naviagtaion objects
+    decObj - list of all navigation objects
     decObjHypoOut - list of decisions produced by hypos
     summaryAlg - the instance of algorithm producing final decision
-    offline - if true CA contains algorithms that needs to be merged to output stream sequence,
-              if false the CA contains a tool that needs to be added to HLT EventLoopMgr
+    offline - if true CA contains algorithms that need to be merged to output stream sequence,
+              if false the CA contains a tool that needs to be added to HltEventLoopMgr
     """
     from TrigEDMConfig import DataScoutingInfo
     from TrigEDMConfig.TriggerEDM import getRun3BSList
@@ -365,11 +365,8 @@ def triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=False):
         hltResultMakerAlg = HLTResultMTMakerAlg()
         hltResultMakerAlg.ResultMaker = hltResultMakerTool
         acc.addEventAlgo( hltResultMakerAlg )
-        # TODO: Decide if stream tags are needed and, if yes, find a way to save updated ones in offline BS saving
 
         # Transfer trigger bits to xTrigDecision which is read by offline BS writing ByteStreamCnvSvc
-        #from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMakerMT
-        #decmaker = TrigDecisionMakerMT('TrigDecMakerMT')
         decmaker = CompFactory.getComp( "TrigDec::TrigDecisionMakerMT" )("TrigDecMakerMT")
         acc.addEventAlgo( decmaker )
 

@@ -82,14 +82,6 @@ TRIG7Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 TRIG7Stream.AcceptAlgs(["TRIG7MainKernel"])
 
 #====================================================================
-# SET UP THINNING SERVICE   
-#====================================================================
-#from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-#augStream = MSMgr.GetStream( streamName )
-#evtStream = augStream.GetEventStream()
-#svcMgr += createThinningSvc( svcName="TRIG7ThinningSvc", outStreams=[evtStream] )
-
-#====================================================================
 # THINNING HELPER
 #====================================================================
 
@@ -111,7 +103,7 @@ jetcuts = '(AntiKt10LCTopoJets.pt > '+jetptmin+'*GeV && abs(AntiKt10LCTopoJets.e
 
 ## save clusters matched to ungroomed jets with jetcuts selection
 TRIG7ClusterThinningTool = DerivationFramework__JetCaloClusterThinning(name                  = "TRIG7ClusterThinningTool",
-                                                                       ThinningService       = TRIG7ThinningHelper.ThinningSvc(),
+                                                                       StreamName            = streamName,
                                                                        SGKey                 = "AntiKt10LCTopoJets",
                                                                        TopoClCollectionSGKey = "CaloCalTopoClusters",
                                                                        SelectionString       = jetcuts,
@@ -124,7 +116,7 @@ trigjetcuts = '(HLT_xAOD__JetContainer_a10tclcwsubjesFS.pt > '+jetptmin+'*GeV &&
 
 ## save clusters matched to ungroomed trigger jets passing trigjetcuts
 TRIG7TrigClusterThinningTool = DerivationFramework__JetCaloClusterThinning(name                  = "TRIG7TrigClusterThinningTool",
-                                                                           ThinningService       = TRIG7ThinningHelper.ThinningSvc(),
+                                                                           StreamName            = streamName,
                                                                            SGKey                 = "HLT_xAOD__JetContainer_a10tclcwsubjesFS",
                                                                            TopoClCollectionSGKey = "CaloCalTopoClusters",
                                                                            SelectionString       = trigjetcuts
@@ -140,7 +132,7 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFram
 
 ## save tracks matched to ungroomed jets passing jetcuts
 TRIG7TrackThinningTool = DerivationFramework__JetTrackParticleThinning(name      = "TRIG7TrackThinningTool",
-                                                                       ThinningService       = TRIG7ThinningHelper.ThinningSvc(),
+                                                                       StreamName             = streamName,
                                                                        JetKey                 = "AntiKt10LCTopoJets",
                                                                        InDetTrackParticlesKey = "InDetTrackParticles",
                                                                        SelectionString        = jetcuts)
@@ -149,7 +141,7 @@ thinningTools.append(TRIG7TrackThinningTool)
 
 ## save trackss matched to ungroomed trigger jets passing trigjets cuts
 TRIG7TrigTrackThinningTool = DerivationFramework__JetTrackParticleThinning(name   = "TRIG7TrigTrackThinningTool",
-                                                                           ThinningService       = TRIG7ThinningHelper.ThinningSvc(),
+                                                                           StreamName             = streamName,
                                                                            JetKey                 = "HLT_xAOD__JetContainer_a10tclcwsubjesFS",
                                                                            InDetTrackParticlesKey = "InDetTrackParticles",
                                                                            SelectionString        = trigjetcuts)
@@ -165,7 +157,7 @@ from AthenaCommon.GlobalFlags import globalflags
 if doTruthThinning and DerivationFrameworkIsMonteCarlo:  
   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
   TRIG7TruthThinningTool = DerivationFramework__MenuTruthThinning(name               = "TRIG7TruthThinningTool",
-                                                                  ThinningService    = TRIG7ThinningHelper.ThinningSvc(),
+                                                                  StreamName         = streamName,
                                                                   WriteAllStable     = True)
   ToolSvc += TRIG7TruthThinningTool
   thinningTools.append(TRIG7TruthThinningTool)

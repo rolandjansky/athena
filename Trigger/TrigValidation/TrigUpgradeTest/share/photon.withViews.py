@@ -18,8 +18,8 @@ trigL2CaloRingerFexMT = init_ringer()
 
 from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq, findAlgorithm
 from DecisionHandling.DecisionHandlingConf import RoRSeqFilter, DumpDecisions
-from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm, ViewCreatorInitialROITool
-
+from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool
 
 def createFastCaloSequence(rerun=False):
    __prefix = "Rerurn_" if rerun else ""

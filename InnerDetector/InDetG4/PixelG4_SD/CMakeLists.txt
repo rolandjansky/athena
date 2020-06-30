@@ -5,16 +5,6 @@
 # Declare the package name:
 atlas_subdir( PixelG4_SD )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Control/StoreGate
-                          GaudiKernel
-                          InnerDetector/InDetSimEvent
-                          Simulation/G4Atlas/G4AtlasTools
-                          Simulation/G4Sim/MCTruth
-                          AtlasTest/TestTools
-                           )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Geant4 )
@@ -27,7 +17,6 @@ atlas_add_library( PixelG4_SDLib
                    NO_PUBLIC_HEADERS PixelG4_SD
                    INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} CxxUtils StoreGateLib SGtests GaudiKernel InDetSimEvent G4AtlasToolsLib MCTruth )
-
 
 atlas_add_component( PixelG4_SD
                      src/components/*.cxx

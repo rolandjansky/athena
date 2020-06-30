@@ -14,6 +14,7 @@
 #ifndef PFMATCHINGTOOL_H_
 #define PFMATCHINGTOOL_H_
 
+#include <utility>
 #include "eflowRec/PFMatcher.h"
 
 class eflowRecCluster;
@@ -38,8 +39,8 @@ public:
   StatusCode finalize();
 
   /** Get n clusters that matches best to a given track */
-  std::vector<eflowRecCluster*> doMatches(const eflowRecTrack* track, eflowRecClusterContainer* clusters, int n) const;
-  std::vector<eflowRecCluster*> doMatches(const eflowRecTrack* track, const std::vector<eflowRecCluster*> clusters, int n) const;
+  std::vector<std::pair<eflowRecCluster*,float> > doMatches(const eflowRecTrack* track, eflowRecClusterContainer* clusters, int n) const;
+  std::vector<std::pair<eflowRecCluster*,float> > doMatches(const eflowRecTrack* track, const std::vector<eflowRecCluster*> clusters, int n) const;
 
 private:
 

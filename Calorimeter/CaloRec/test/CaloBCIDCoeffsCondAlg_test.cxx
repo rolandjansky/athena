@@ -51,6 +51,9 @@ public:
   LArOnlineIDTest();
   ~LArOnlineIDTest();
 
+  LArOnlineIDTest (const LArOnlineIDTest&) = delete;
+  LArOnlineIDTest& operator= (const LArOnlineIDTest&) = delete;
+
   const LArOnlineID&  onlineID() const { return *m_helper; }
 
 

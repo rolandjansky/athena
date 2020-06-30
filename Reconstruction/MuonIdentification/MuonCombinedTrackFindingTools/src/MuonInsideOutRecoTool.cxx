@@ -354,14 +354,13 @@ namespace MuonCombined {
     for( Muon::MuonLayerHashProviderTool::HashVec::const_iterator it=hashes.begin();it!=hashes.end();++it ){
 
       // skip if not found
-      typename ContainerType::const_iterator colIt;
-      colIt=input->indexFind(*it);
-      if( colIt == input->end() ) {
+      auto colIt =input->indexFindPtr(*it);
+      if( colIt == nullptr ) {
 	continue;
       }
-      ATH_MSG_VERBOSE("  adding " << m_idHelperSvc->toStringChamber((*colIt)->identify()) << " size " << (*colIt)->size());
+      ATH_MSG_VERBOSE("  adding " << m_idHelperSvc->toStringChamber(colIt->identify()) << " size " << colIt->size());
       // else add
-      output.push_back(*colIt);
+      output.push_back(colIt);
     }
     return true;
   }

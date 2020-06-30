@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBEVENT_TBMWPC_H
@@ -46,19 +46,19 @@ class TBMWPC : public TBBeamDetector
     
     
   // set signals  //////////////////////////////////////////////////////
-  void setCPos(std::vector<float> signals) {m_cPos=signals;}
-  void setCErr(std::vector<float> errors) {m_cErr=errors;}
+  void setCPos(const std::vector<float>& signals) {m_cPos=signals;}
+  void setCErr(const std::vector<float>& errors) {m_cErr=errors;}
     
     
   // set X or Y
   void setXchambers(bool isX){m_isX=isX;}
   
   /** Set cluster size for c-direction */
-  void setClusterSizeC(std::vector<float> clsize_c){ m_clusterSize_c=clsize_c;}
+  void setClusterSizeC(const std::vector<float>& clsize_c){ m_clusterSize_c=clsize_c;}
 
 
   // set/reset overflow
-  void setCPosOverflow(std::vector<bool> overflow) {m_cPosOverflow=overflow;}
+  void setCPosOverflow(const std::vector<bool>& overflow) {m_cPosOverflow=overflow;}
 
 
   // access signals ///////////////////////////////////////////////////////

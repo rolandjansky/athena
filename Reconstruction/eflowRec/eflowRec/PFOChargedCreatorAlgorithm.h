@@ -1,18 +1,18 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef PFOCHARGEDCREATORALGORITHM_H
 #define PFOCHARGEDCREATORALGORITHM_H
 
 #include "eflowRec/eflowCaloObject.h"
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/DataHandle.h"
 
 #include "xAODPFlow/PFOContainer.h"
 
-class PFOChargedCreatorAlgorithm : public AthAlgorithm {
+class PFOChargedCreatorAlgorithm : public AthReentrantAlgorithm {
   
 public:
   
@@ -21,14 +21,12 @@ public:
   ~PFOChargedCreatorAlgorithm() {}
 
   StatusCode initialize();
-  StatusCode execute();
+  StatusCode execute(const EventContext&) const;
   StatusCode finalize();
 
 private:
   /** Create the charged PFO */ 
-  void createChargedPFO(const eflowCaloObject& energyFlowCaloObject, bool addClusters, SG::WriteHandle<xAOD::PFOContainer>& chargedPFOContainerWriteHandle);
-  /** Function to add links to the vertex to which a charged PFO is matched (using the tracking CP loose vertex association tool) */
-  void addVertexLinksToChargedPFO(const xAOD::VertexContainer* theVertexContainer, SG::WriteHandle<xAOD::PFOContainer>& chargedPFOContainerWriteHandle);
+  void createChargedPFO(const eflowCaloObject& energyFlowCaloObject, bool addClusters, SG::WriteHandle<xAOD::PFOContainer>& chargedPFOContainerWriteHandle) const;
 
   /** Toggle EOverP algorithm mode, whereby no charged shower subtraction is performed */
   Gaudi::Property<bool> m_eOverPMode{this,"EOverPMode",false,"Toggle EOverP algorithm mode, whereby no charged shower subtraction is performed"};

@@ -91,7 +91,7 @@ StatusCode CscRdoToCscPrepDataToolCore::decode(const CscRawDataContainer* rdoCon
   }
 
   // identifiers of collections already decoded and stored in the container will be skipped
-  if (m_outputCollection->indexFind(givenHashId) != m_outputCollection->end()) {
+  if (m_outputCollection->numberOfCollections() != 0) {
     decodedIdhs.push_back(givenHashId);
     ATH_MSG_DEBUG ("A collection already exists in the container for offline id hash. "
                    << (int) givenHashId);
@@ -105,15 +105,14 @@ StatusCode CscRdoToCscPrepDataToolCore::decode(const CscRawDataContainer* rdoCon
   // retrieve specific collection for the givenID
   uint16_t idColl = 0xffff;
   m_cabling->hash2CollectionId(givenHashId,idColl);
-  CscRawDataContainer::const_iterator it_coll = rdoContainer->indexFind(idColl);
-  if (rdoContainer->end() ==  it_coll) {
+  const CscRawDataCollection * rawCollection = rdoContainer->indexFindPtr(idColl);
+  if (nullptr ==  rawCollection) {
     // unsigned int coll_hash = idColl;  
     ATH_MSG_DEBUG ( "Specific CSC RDO collection retrieving failed for collection hash = " << idColl );
     return StatusCode::SUCCESS;
   }
 
 
-  const CscRawDataCollection * rawCollection = *it_coll;
   ATH_MSG_DEBUG ( "Retrieved " << rawCollection->size() << " CSC RDOs.");
   //************************************************
   Identifier oldId;
@@ -158,8 +157,8 @@ StatusCode CscRdoToCscPrepDataToolCore::decode(const CscRawDataContainer* rdoCon
     }
 
     if (oldId != stationId) {
-      Muon::CscStripPrepDataContainer::const_iterator it_coll = m_outputCollection->indexFind(cscHashId);
-      if (m_outputCollection->end() == it_coll) {
+      auto it_coll = m_outputCollection->indexFindPtr(cscHashId);
+      if (nullptr == it_coll) {
 	CscStripPrepDataCollection * newCollection = new CscStripPrepDataCollection(cscHashId);
 	newCollection->setIdentifier(stationId);
 	collection = newCollection;
@@ -170,7 +169,7 @@ StatusCode CscRdoToCscPrepDataToolCore::decode(const CscRawDataContainer* rdoCon
       } else {  // It won't be needed because we already skipped decoded one (should be checked it's true)
 
 //Hack for transition to athenaMT classes
-	CscStripPrepDataCollection * oldCollection = const_cast<CscStripPrepDataCollection*>( *it_coll );
+	CscStripPrepDataCollection * oldCollection = const_cast<CscStripPrepDataCollection*>( it_coll );
 	collection = oldCollection;
 	cscHashId = collection->identifyHash();
       }
@@ -324,8 +323,8 @@ StatusCode CscRdoToCscPrepDataToolCore::decode(const CscRawDataContainer* rdoCon
 	}
 
 	if (oldId != stationId) {
-	  Muon::CscStripPrepDataContainer::const_iterator it_coll = m_outputCollection->indexFind(cscHashId);
-	  if (m_outputCollection->end() == it_coll) {
+	  auto it_coll = m_outputCollection->indexFindPtr(cscHashId);
+	  if (nullptr == it_coll) {
 	    CscStripPrepDataCollection * newCollection = new CscStripPrepDataCollection(cscHashId);
 	    newCollection->setIdentifier(stationId);
 	    collection = newCollection;
@@ -336,7 +335,7 @@ StatusCode CscRdoToCscPrepDataToolCore::decode(const CscRawDataContainer* rdoCon
 	    
 	  } else {  
 //Hack for transition to athenaMT classes
-            CscStripPrepDataCollection * oldCollection = const_cast<CscStripPrepDataCollection*>( *it_coll );
+            CscStripPrepDataCollection * oldCollection = const_cast<CscStripPrepDataCollection*>( it_coll );
 
 	    collection = oldCollection;
 	    cscHashId = collection->identifyHash();

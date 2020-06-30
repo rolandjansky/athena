@@ -215,6 +215,7 @@ StatusCode
 Trk::Extrapolator::initialize()
 {
 
+  // cppcheck-suppress publicAllocationError; false positive
   m_referenceSurface = new Trk::PlaneSurface(new Amg::Transform3D(Trk::s_idTransform), 0., 0.);
   m_referenceSurface->setOwner(Trk::TGOwn);
 
@@ -774,7 +775,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
       staticVol->confinedDetachedVolumes();
     if (detVols) {
       std::vector<const Trk::DetachedTrackingVolume*>::const_iterator iTer = detVols->begin();
-      for (; iTer != detVols->end(); iTer++) {
+      for (; iTer != detVols->end(); ++iTer) {
         // active station ?
         const Trk::Layer* layR = (*iTer)->layerRepresentation();
         bool active = layR && layR->layerType();
@@ -829,7 +830,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
             }
           } else if (confLays) {
             std::vector<const Trk::Layer*>::const_iterator lIt = confLays->begin();
-            for (; lIt != confLays->end(); lIt++) {
+            for (; lIt != confLays->end(); ++lIt++) {
               cache.m_layers.emplace_back(&((*lIt)->surfaceRepresentation()), true);
               cache.m_navigLays.emplace_back((*iTer)->trackingVolume(), *lIt);
             }
@@ -998,7 +999,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
   std::vector<const Trk::DetachedTrackingVolume*>* detVols =
     m_navigator->trackingGeometry()->lowestDetachedTrackingVolumes(gp);
   std::vector<const Trk::DetachedTrackingVolume*>::iterator dIter = detVols->begin();
-  for (; dIter != detVols->end(); dIter++) {
+  for (; dIter != detVols->end(); ++dIter) {
     const Trk::Layer* layR = (*dIter)->layerRepresentation();
     bool active = layR && layR->layerType();
     if (active && !resolveActive) {
@@ -1036,7 +1037,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
       // collect dense volume boundary
       if (confinedDense) {
         std::vector<const Trk::TrackingVolume*>::const_iterator vIter = confinedDense->begin();
-        for (; vIter != confinedDense->end(); vIter++) {
+        for (; vIter != confinedDense->end(); ++vIter) {
           const std::vector<SharedObject<const BoundarySurface<TrackingVolume>>>& bounds =
             (*vIter)->boundarySurfaces();
           cache.m_denseVols.emplace_back(*vIter, bounds.size());
@@ -1584,7 +1585,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
             cache.m_denseVols.begin();
           while (index >= (*dIter).second && dIter != cache.m_denseVols.end()) {
             index -= (*dIter).second;
-            dIter++;
+            ++dIter;
           }
           if (dIter != cache.m_denseVols.end()) {
             currVol = (*dIter).first;
@@ -1626,7 +1627,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
             cache.m_navigVolsInt.begin();
           while (index >= (*nIter).second && nIter != cache.m_navigVolsInt.end()) {
             index -= (*nIter).second;
-            nIter++;
+            ++nIter;
           }
           if (nIter != cache.m_navigVolsInt.end()) {
             currVol = (*nIter).first;
@@ -1674,7 +1675,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
             cache.m_detachedVols.begin();
           while (index >= (*dIter).second && dIter != cache.m_detachedVols.end()) {
             index -= (*dIter).second;
-            dIter++;
+            ++dIter;
           }
           if (dIter != cache.m_detachedVols.end()) {
             currVol = (*dIter).first->trackingVolume();
@@ -2059,7 +2060,7 @@ Trk::Extrapolator::extrapolateToVolumeImpl(const EventContext& ctx,
           if (dist < (*sIter).second) {
             break;
           }
-          sIter++;
+          ++sIter;
         }
         sIter = surfaces.insert(sIter, (std::pair<const Trk::Surface*, double>(nextSurface, dist)));
       } else {
@@ -2091,7 +2092,7 @@ Trk::Extrapolator::extrapolateToVolumeImpl(const EventContext& ctx,
     for (std::vector<std::pair<const Trk::Surface*, double>>::reverse_iterator rsIter =
            surfaces.rbegin();
          rsIter != surfaces.rend();
-         rsIter++) {
+         ++rsIter) {
       if ((*rsIter).second < 0) {
         Cache cache{};
         // Material effect updator cache
@@ -4988,7 +4989,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
       cache.m_currentStatic->confinedDetachedVolumes();
     if (detVols) {
       std::vector<const Trk::DetachedTrackingVolume*>::const_iterator iTer = detVols->begin();
-      for (; iTer != detVols->end(); iTer++) {
+      for (; iTer != detVols->end(); ++iTer) {
         // active station ?
         const Trk::Layer* layR = (*iTer)->layerRepresentation();
         bool active = layR && layR->layerType();
@@ -5026,7 +5027,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
             }
           } else if (confLays) {
             std::vector<const Trk::Layer*>::const_iterator lIt = confLays->begin();
-            for (; lIt != confLays->end(); lIt++) {
+            for (; lIt != confLays->end(); ++lIt) {
               cache.m_layers.emplace_back(&((*lIt)->surfaceRepresentation()), true);
               cache.m_navigLays.emplace_back((*iTer)->trackingVolume(), *lIt);
             }
@@ -5074,7 +5075,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
   std::vector<const Trk::DetachedTrackingVolume*>* detVols =
     m_navigator->trackingGeometry()->lowestDetachedTrackingVolumes(gp);
   std::vector<const Trk::DetachedTrackingVolume*>::iterator dIter = detVols->begin();
-  for (; dIter != detVols->end(); dIter++) {
+  for (; dIter != detVols->end(); ++dIter) {
     const Trk::Layer* layR = (*dIter)->layerRepresentation();
     bool active = layR && layR->layerType();
     if (active && !resolveActive) {
@@ -5112,7 +5113,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
       // collect dense volume boundary
       if (confinedDense) {
         std::vector<const Trk::TrackingVolume*>::const_iterator vIter = confinedDense->begin();
-        for (; vIter != confinedDense->end(); vIter++) {
+        for (; vIter != confinedDense->end(); ++vIter) {
           const std::vector<SharedObject<const BoundarySurface<TrackingVolume>>>& bounds =
             (*vIter)->boundarySurfaces();
           cache.m_denseVols.emplace_back(*vIter, bounds.size());
@@ -5645,7 +5646,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
           cache.m_denseVols.begin();
         while (index >= (*dIter).second && dIter != cache.m_denseVols.end()) {
           index -= (*dIter).second;
-          dIter++;
+          ++dIter;
         }
         if (dIter != cache.m_denseVols.end()) {
           currVol = (*dIter).first;
@@ -5685,9 +5686,9 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
                              cache.m_layers.size() - cache.m_denseBoundaries.size();
         std::vector<std::pair<const Trk::TrackingVolume*, unsigned int>>::iterator nIter =
           navigVols.begin();
-        while (index >= (*nIter).second && nIter != navigVols.end()) {
+        while (nIter != navigVols.end() && index >= (*nIter).second) {
           index -= (*nIter).second;
-          nIter++;
+          ++nIter;
         }
         if (nIter != navigVols.end()) {
           currVol = (*nIter).first;
@@ -5728,7 +5729,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
           cache.m_detachedVols.begin();
         while (index >= (*dIter).second && dIter != cache.m_detachedVols.end()) {
           index -= (*dIter).second;
-          dIter++;
+          ++dIter;
         }
         if (dIter != cache.m_detachedVols.end()) {
           currVol = (*dIter).first->trackingVolume();

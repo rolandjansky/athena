@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigL2MuonSA/TgcFit.h"
+#include "TgcFit.h"
 #include "gsl/gsl_statistics.h"
 #include "gsl/gsl_fit.h"
 #include <float.h>

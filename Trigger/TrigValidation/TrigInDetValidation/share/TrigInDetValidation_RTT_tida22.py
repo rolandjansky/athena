@@ -154,6 +154,8 @@ if ( True ) :
 
     "HLT_b.*perf.*:HLT_IDTrack_Bjet_FTF",
     "HLT_b.*perf.*:HLT_IDTrack_Bjet_IDTrig",
+    "HLT_j.*perf.*:HLT_IDTrack_Bjet_FTF",
+    "HLT_j.*perf.*:HLT_IDTrack_Bjet_IDTrig",
 
     "HLT_e.*_etcut.*:HLT_IDTrack_Electron_FTF",
     "HLT_e.*_etcut.*:HLT_IDTrack_Electron_IDTrig",
@@ -161,7 +163,7 @@ if ( True ) :
     "HLT_tau.*_idperf.*:HLT_IDTrack_TauCore_FTF",
     "HLT_tau.*_idperf.*:HLT_IDTrack_TauIso_FTF",
     "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_IDTrig"
-
+    "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_FTF"
 
     ]
   

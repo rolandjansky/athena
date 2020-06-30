@@ -4,7 +4,12 @@
 atlas_subdir( DecisionHandling )
 
 atlas_add_library( DecisionHandlingLib
-                   src/*.cxx
+                   src/ComboHypo.cxx
+                   src/ComboHypoToolBase.cxx
+                   src/DumpDecisions.cxx
+                   src/HLTIdentifier.cxx
+                   src/HypoBase.cxx
+                   src/InputMakerBase.cxx
                    PUBLIC_HEADERS DecisionHandling
                    LINK_LIBRARIES AthenaBaseComps AthenaMonitoringKernelLib GaudiKernel StoreGateLib TrigCompositeUtilsLib TrigCostMonitorMTLib TrigSteeringEvent TrigTimeAlgsLib
                    PRIVATE_LINK_LIBRARIES AthContainers AthViews xAODTrigger )
@@ -12,6 +17,11 @@ atlas_add_library( DecisionHandlingLib
 # Component(s) in the package:
 atlas_add_component( DecisionHandling
                      src/components/*.cxx
-                     LINK_LIBRARIES DecisionHandlingLib )
+                     src/DeltaRRoIComboHypoTool.cxx
+                     src/InputMakerForRoI.cxx
+                     src/TriggerSummaryAlg.cxx
+                     src/RoRSeqFilter.cxx
+                     src/ViewCreator*.cxx
+                     LINK_LIBRARIES DecisionHandlingLib xAODTrigCalo AthViews xAODTracking xAODJet )
 
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

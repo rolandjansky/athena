@@ -5,20 +5,6 @@
 # Declare the package name:
 atlas_subdir( LArG4Validation )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          GaudiKernel
-                          Calorimeter/CaloDetDescr
-                          Calorimeter/CaloIdentifier
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/StoreGate
-                          DetectorDescription/GeoModel/GeoAdaptors
-                          Generators/GeneratorObjects
-                          LArCalorimeter/LArSimEvent
-                          MagneticField/MagFieldInterfaces
-                          Reconstruction/egamma/egammaEvent )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( HepPDT )

@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigL2MuonSA/MuFastStationFitter.h"
+#include "MuFastStationFitter.h"
 #include "xAODTrigMuon/L2StandAloneMuonAuxContainer.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
@@ -16,31 +16,13 @@
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
-using namespace TrigL2MuonSA;
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-static const InterfaceID IID_MuFastStationFitter("IID_MuFastStationFitter", 1, 0);
-
-const InterfaceID& TrigL2MuonSA::MuFastStationFitter::interfaceID() { return IID_MuFastStationFitter; }
-
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
 TrigL2MuonSA::MuFastStationFitter::MuFastStationFitter(const std::string& type, 
                                                        const std::string& name,
                                                        const IInterface*  parent): 
-  AthAlgTool(type,name,parent),
-  m_alphaBetaEstimate("TrigL2MuonSA::AlphaBetaEstimate")
-{
-   declareInterface<TrigL2MuonSA::MuFastStationFitter>(this);
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-TrigL2MuonSA::MuFastStationFitter::~MuFastStationFitter() 
+  AthAlgTool(type,name,parent)
 {
 }
 
@@ -49,13 +31,6 @@ TrigL2MuonSA::MuFastStationFitter::~MuFastStationFitter()
 
 StatusCode TrigL2MuonSA::MuFastStationFitter::initialize()
 {
-   StatusCode sc;
-   sc = AthAlgTool::initialize();
-   if (!sc.isSuccess()) {
-     ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
-      return sc;
-   }
-   
    // BackExtrapolator services
    ATH_CHECK( m_backExtrapolator.retrieve() );
 
@@ -65,7 +40,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::initialize()
    ATH_CHECK( m_ptFromAlphaBeta.retrieve() );
    ATH_MSG_DEBUG("Retrieved service " << m_ptFromAlphaBeta);
 
-   return StatusCode::SUCCESS; 
+   return StatusCode::SUCCESS;
 }
 
 // --------------------------------------------------------------------------------
@@ -96,7 +71,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::setMCFlag(BooleanProperty use_mcLU
      m_ptFromAlphaBeta->setMCFlag(m_use_mcLUT, &*ptEndcapLUTSvc);
   }
 
-  ATH_MSG_DEBUG( "Completed tp set " << (m_use_mcLUT?"MC":"not MC") << " flag" );    
+  ATH_MSG_DEBUG( "Completed tp set " << (m_use_mcLUT?"MC":"not MC") << " flag" );
 
   return StatusCode::SUCCESS;
 }
@@ -109,26 +84,22 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::findSuperPoints(const LVL1::RecMuo
                                                               std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns)
 {
 
-  StatusCode sc = StatusCode::SUCCESS;
-
-  // 
-  std::vector<TrigL2MuonSA::TrackPattern>::iterator itTrack;
-  for (itTrack=v_trackPatterns.begin(); itTrack!=v_trackPatterns.end(); itTrack++) { // loop for track candidates
+  //
+  for (TrigL2MuonSA::TrackPattern& itTrack : v_trackPatterns) { // loop for track candidates
 
     if (rpcFitResult.isSuccess) {
       //      itTrack->phiMSDir = rpcFitResult.phiDir;
-      itTrack->phiMSDir = (cos(rpcFitResult.phi)!=0)? tan(rpcFitResult.phi): 0;
+      itTrack.phiMSDir = (cos(rpcFitResult.phi)!=0)? tan(rpcFitResult.phi): 0;
     } else {
-      itTrack->phiMSDir = (cos(p_roi->phi())!=0)? tan(p_roi->phi()): 0;
-      itTrack->isRpcFailure = true;
+      itTrack.phiMSDir = (cos(p_roi->phi())!=0)? tan(p_roi->phi()): 0;
+      itTrack.isRpcFailure = true;
     }
-    
-    sc = superPointFitter(*itTrack);
-    if (sc != StatusCode::SUCCESS) return sc;
+
+    ATH_CHECK( superPointFitter(itTrack) );
   }
   // 
 
-  return StatusCode::SUCCESS; 
+  return StatusCode::SUCCESS;
 }
 
 // --------------------------------------------------------------------------------
@@ -138,24 +109,20 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::findSuperPoints(const LVL1::RecMuo
                                                               TrigL2MuonSA::TgcFitResult& tgcFitResult,
                                                               std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns)
 {
-
-  StatusCode sc = StatusCode::SUCCESS;
   
-  std::vector<TrigL2MuonSA::TrackPattern>::iterator itTrack;
-  for (itTrack=v_trackPatterns.begin(); itTrack!=v_trackPatterns.end(); itTrack++) { // loop for track candidates
+  for (TrigL2MuonSA::TrackPattern& itTrack : v_trackPatterns) { // loop for track candidates
 
     if (tgcFitResult.isSuccess) {
-      itTrack->phiMSDir = tgcFitResult.phiDir;
+      itTrack.phiMSDir = tgcFitResult.phiDir;
     } else {
-      itTrack->phiMSDir = (cos(p_roi->phi())!=0)? tan(p_roi->phi()): 0;
-      itTrack->isTgcFailure = true;
+      itTrack.phiMSDir = (cos(p_roi->phi())!=0)? tan(p_roi->phi()): 0;
+      itTrack.isTgcFailure = true;
     }
 
-    sc = superPointFitter(*itTrack);
-    if (sc != StatusCode::SUCCESS) return sc;
+    ATH_CHECK( superPointFitter(itTrack) );
   }
   // 
-  return StatusCode::SUCCESS; 
+  return StatusCode::SUCCESS;
 }
 
 // --------------------------------------------------------------------------------
@@ -166,44 +133,31 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::findSuperPoints(const LVL1::RecMuo
                                                               TrigL2MuonSA::TgcFitResult& tgcFitResult,
                                                               std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns)
 {
-
-  StatusCode sc = StatusCode::SUCCESS;
   
-  std::vector<TrigL2MuonSA::TrackPattern>::iterator itTrack;
-  for (itTrack=v_trackPatterns.begin(); itTrack!=v_trackPatterns.end(); itTrack++) { // loop for track candidates
+  for (TrigL2MuonSA::TrackPattern& itTrack : v_trackPatterns) { // loop for track candidates
 
     if (tgcFitResult.isSuccess) {
-      itTrack->phiMSDir = tgcFitResult.phiDir;
+      itTrack.phiMSDir = tgcFitResult.phiDir;
     } else {
-      itTrack->phiMSDir = (cos(p_roi->phi())!=0)? tan(p_roi->phi()): 0;
-      itTrack->isTgcFailure = true;
+      itTrack.phiMSDir = (cos(p_roi->phi())!=0)? tan(p_roi->phi()): 0;
+      itTrack.isTgcFailure = true;
     }
 
-    sc = superPointFitter(*itTrack, muonRoad);
+    ATH_CHECK( superPointFitter(itTrack, muonRoad) );
 
-    if (sc != StatusCode::SUCCESS) return sc;
+    makeReferenceLine(itTrack, muonRoad);
+    ATH_CHECK( m_alphaBetaEstimate->setAlphaBeta(p_roi, tgcFitResult, itTrack, muonRoad) );
 
-    makeReferenceLine(*itTrack, muonRoad); 
-    sc = m_alphaBetaEstimate->setAlphaBeta(p_roi, tgcFitResult, *itTrack, muonRoad);
-    if (!sc.isSuccess()) {
-      ATH_MSG_WARNING("Endcap alpha and beta estimation failed");
-      return sc;
-    }
+    ATH_CHECK( m_ptFromAlphaBeta->setPt(itTrack,tgcFitResult) );
 
-    sc = m_ptFromAlphaBeta->setPt(*itTrack,tgcFitResult);
-    if (!sc.isSuccess()) {
-      ATH_MSG_WARNING("Endcap pT estimation failed");
-      return sc;
-    }
-
-    double exInnerA = fromAlphaPtToInn(tgcFitResult,*itTrack);
+    double exInnerA = fromAlphaPtToInn(tgcFitResult,itTrack);
     double bw = muonRoad.bw[3][0];
     double aw = muonRoad.aw[3][0];
-    if(exInnerA !=0 ) updateInnSP(*itTrack, exInnerA, aw,bw);
+    if(exInnerA !=0 ) updateInnSP(itTrack, exInnerA, aw,bw);
 
   }
   // 
-  return StatusCode::SUCCESS; 
+  return StatusCode::SUCCESS;
 }
 
 // --------------------------------------------------------------------------------
@@ -242,46 +196,44 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
      
      if (mdtSegment->size()==0) continue;
 
-     TrigL2MuonSA::MdtHits::iterator itMdtHit;
-     for (itMdtHit=mdtSegment->begin(); itMdtHit!=mdtSegment->end(); itMdtHit++) { // loop for MDT hit
-       
+     for (TrigL2MuonSA::MdtHitData& itMdtHit : *mdtSegment) { // loop for MDT hit
        
        if (count >= NMEAMX) continue;
-       if (itMdtHit->isOutlier) continue;
+       if (itMdtHit.isOutlier) continue;
        
        superPoint->Ndigi++;
        
        if (!count) {
-         rm   = itMdtHit->cYmid;
-         Amid = itMdtHit->cAmid;
-         Xmid = itMdtHit->cXmid;
-         Ymid = itMdtHit->cYmid;
+         rm   = itMdtHit.cYmid;
+         Amid = itMdtHit.cAmid;
+         Xmid = itMdtHit.cXmid;
+         Ymid = itMdtHit.cYmid;
        }
        if (!Xor) {
-         Xor = itMdtHit->R;
-         Yor = itMdtHit->Z;
+         Xor = itMdtHit.R;
+         Yor = itMdtHit.Z;
        }
        
-       phim  = itMdtHit->cPhip;
-       sigma = (fabs(itMdtHit->DriftSigma) > ZERO_LIMIT)? itMdtHit->DriftSigma: SIGMA;
+       phim  = itMdtHit.cPhip;
+       sigma = (fabs(itMdtHit.DriftSigma) > ZERO_LIMIT)? itMdtHit.DriftSigma: SIGMA;
 
        int station = 0;
        if (chamber == 0 || chamber == 3 ) station = 0;
        if (chamber == 1 || chamber == 4 ) station = 1;
        if (chamber == 2 || chamber == 5 ) station = 2;
        if (chamber == 6 ) station = 3;
-       if ( fabs(itMdtHit->DriftSpace) > ZERO_LIMIT &&
-            fabs(itMdtHit->DriftSpace) < DRIFTSPACE_LIMIT &&
-            fabs(itMdtHit->DriftTime) > ZERO_LIMIT ) {
+       if ( fabs(itMdtHit.DriftSpace) > ZERO_LIMIT &&
+            fabs(itMdtHit.DriftSpace) < DRIFTSPACE_LIMIT &&
+            fabs(itMdtHit.DriftTime) > ZERO_LIMIT ) {
 
-         pbFitResult.XILIN[count] = itMdtHit->R - Xor;
-         pbFitResult.YILIN[count] = itMdtHit->Z - Yor;
+         pbFitResult.XILIN[count] = itMdtHit.R - Xor;
+         pbFitResult.YILIN[count] = itMdtHit.Z - Yor;
          pbFitResult.IGLIN[count] = 2;
-         pbFitResult.RILIN[count] = (fabs(itMdtHit->DriftSpace) > ZERO_LIMIT)?
-           itMdtHit->DriftSpace: SetDriftSpace(itMdtHit->DriftTime, itMdtHit->R, itMdtHit->Z, phim, trackPattern.phiMSDir);
+         pbFitResult.RILIN[count] = (fabs(itMdtHit.DriftSpace) > ZERO_LIMIT)?
+           itMdtHit.DriftSpace: SetDriftSpace(itMdtHit.DriftTime, itMdtHit.R, itMdtHit.Z, phim, trackPattern.phiMSDir);
          pbFitResult.WILIN[count] = 1/(sigma*sigma);
          pbFitResult.JLINE[count] = count;
-         pbFitResult.IDMEA[count] = station*10 + itMdtHit->Layer;
+         pbFitResult.IDMEA[count] = station*10 + itMdtHit.Layer;
  
          pbFitResult.DISTJ[count] = 0.;
          pbFitResult.RESI[count] = 0.;
@@ -334,7 +286,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
          superPoint->R      = ac*X + bc + Xor;
          superPoint->Z      = X + Yor;
          superPoint->Alin   = pbFitResult.ALIN;
-         superPoint->Blin   = pbFitResult.BLIN; 
+         superPoint->Blin   = pbFitResult.BLIN;
          if ( chamber == 3 ){ //// Endcap Inner
            superPoint->Z = rm;
            superPoint->R = (rm-Yor)/pbFitResult.ALIN - pbFitResult.BLIN/pbFitResult.ALIN + Xor;
@@ -361,7 +313,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
    } // end loop for stations
    
    //
-   return StatusCode::SUCCESS; 
+   return StatusCode::SUCCESS;
 }
 
 // --------------------------------------------------------------------------------
@@ -382,8 +334,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
     mdtSegment = &(trackPattern.mdtSegments[chamber]);
     superPoint = &(trackPattern.superPoints[chamber]);
     if (mdtSegment->size()==0) continue;
-    
-    TrigL2MuonSA::MdtHits::iterator itMdtHit;
+
     if (chamber==0 || chamber == 6 || chamber==8){
       int   count=0;
       int   FitFlag;
@@ -400,41 +351,41 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
       const float DRIFTSPACE_LIMIT   = 16.;
       const int   MIN_MDT_FOR_FIT    = 3;
 
-     for (itMdtHit=mdtSegment->begin(); itMdtHit!=mdtSegment->end(); itMdtHit++) { // loop for MDT hit
+      for (TrigL2MuonSA::MdtHitData& itMdtHit : *mdtSegment) { // loop for MDT hit
 
        if (count >= NMEAMX) continue;
-       if (itMdtHit->isOutlier) continue;
+       if (itMdtHit.isOutlier) continue;
 
        superPoint->Ndigi++;
        if (!count) {
-         rm   = itMdtHit->cYmid;
-         Amid = itMdtHit->cAmid;
-         Xmid = itMdtHit->cXmid;
-         Ymid = itMdtHit->cYmid;
+         rm   = itMdtHit.cYmid;
+         Amid = itMdtHit.cAmid;
+         Xmid = itMdtHit.cXmid;
+         Ymid = itMdtHit.cYmid;
        }
        if (!Xor) {
-         Xor = itMdtHit->R;
-         Yor = itMdtHit->Z;
+         Xor = itMdtHit.R;
+         Yor = itMdtHit.Z;
        }
        
-       phim  = itMdtHit->cPhip;
-       sigma = (fabs(itMdtHit->DriftSigma) > ZERO_LIMIT)? itMdtHit->DriftSigma: SIGMA;
+       phim  = itMdtHit.cPhip;
+       sigma = (fabs(itMdtHit.DriftSigma) > ZERO_LIMIT)? itMdtHit.DriftSigma: SIGMA;
 
        int station = 0;
        if (chamber == 6 ) station = 3;
        if (chamber == 0 ) station = 0;
-       if ( fabs(itMdtHit->DriftSpace) > ZERO_LIMIT &&
-            fabs(itMdtHit->DriftSpace) < DRIFTSPACE_LIMIT &&
-            fabs(itMdtHit->DriftTime) > ZERO_LIMIT ) {
+       if ( fabs(itMdtHit.DriftSpace) > ZERO_LIMIT &&
+            fabs(itMdtHit.DriftSpace) < DRIFTSPACE_LIMIT &&
+            fabs(itMdtHit.DriftTime) > ZERO_LIMIT ) {
          
-         pbFitResult.XILIN[count] = itMdtHit->R - Xor;
-         pbFitResult.YILIN[count] = itMdtHit->Z - Yor;
+         pbFitResult.XILIN[count] = itMdtHit.R - Xor;
+         pbFitResult.YILIN[count] = itMdtHit.Z - Yor;
          pbFitResult.IGLIN[count] = 2;
-         pbFitResult.RILIN[count] = (fabs(itMdtHit->DriftSpace) > ZERO_LIMIT)?
-         	itMdtHit->DriftSpace: SetDriftSpace(itMdtHit->DriftTime, itMdtHit->R, itMdtHit->Z, phim, trackPattern.phiMSDir);
+         pbFitResult.RILIN[count] = (fabs(itMdtHit.DriftSpace) > ZERO_LIMIT)?
+         	itMdtHit.DriftSpace: SetDriftSpace(itMdtHit.DriftTime, itMdtHit.R, itMdtHit.Z, phim, trackPattern.phiMSDir);
          pbFitResult.WILIN[count] = 1/(sigma*sigma);
          pbFitResult.JLINE[count] = count;
-         pbFitResult.IDMEA[count] = station*10 + itMdtHit->Layer;
+         pbFitResult.IDMEA[count] = station*10 + itMdtHit.Layer;
          pbFitResult.DISTJ[count] = 0.;
          pbFitResult.RESI[count] = 0.;
          count++;
@@ -471,7 +422,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
               superPoint->Alin   = pbFitResult.ALIN;
               superPoint->Blin   = pbFitResult.BLIN;
             }
-           }      
+           }
          }
            superPoint->Phim   = phim;
            superPoint->Xor    = Xor;
@@ -491,29 +442,29 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
 
     double aw = muonRoad.aw[chamber][0];
     double bw = muonRoad.bw[chamber][0];
-    double nrWidth = 0.; 
+    double nrWidth = 0.;
     unsigned int  sumN = 0;
     //chamber=3/4/5 => Endcap Inner/Middle/Outer
     if(chamber==3) {nrWidth = m_rwidth_Endcapinn_first;}
     if(chamber==4) {nrWidth = m_rwidth_Endcapmid_first;}
     if(chamber==5) {nrWidth = m_rwidth_Endcapout_first;}
-    
-    for(itMdtHit=mdtSegment->begin(); itMdtHit!=mdtSegment->end(); itMdtHit++){
-      if (fabs(itMdtHit->DriftSpace) < m_mdt_driftspace_downlimit ||
-          fabs(itMdtHit->DriftSpace) > m_mdt_driftspace_uplimit){
-        itMdtHit->isOutlier = 2;
+
+    for (TrigL2MuonSA::MdtHitData& itMdtHit : *mdtSegment) { // loop for MDT hit
+      if (fabs(itMdtHit.DriftSpace) < m_mdt_driftspace_downlimit ||
+          fabs(itMdtHit.DriftSpace) > m_mdt_driftspace_uplimit){
+        itMdtHit.isOutlier = 2;
         continue;
       }
             
-      if(itMdtHit->isOutlier > 1)continue;
-      double Z = itMdtHit->Z;
-      double R = itMdtHit->R;
+      if(itMdtHit.isOutlier > 1)continue;
+      double Z = itMdtHit.Z;
+      double R = itMdtHit.R;
       double nbw = aw*Z + bw;
       if (R>(nbw-nrWidth) && R<(nbw+nrWidth)){
-        itMdtHit->isOutlier = 0;
+        itMdtHit.isOutlier = 0;
         sumN++;
       }  else {
-        itMdtHit->isOutlier = 2;
+        itMdtHit.isOutlier = 2;
          continue;
       }
     }
@@ -523,7 +474,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
     
   } // end loop for stations
   
-  return StatusCode::SUCCESS; 
+  return StatusCode::SUCCESS;
 }
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -651,7 +602,7 @@ void TrigL2MuonSA::MuFastStationFitter::stationSPFit(TrigL2MuonSA::MdtHits*    m
   float Maxlayers_Yor   = 0;
   float Maxlayers_PChi2 = 0;
   int   Maxlayers_N     = 0;
-  Maxlayers_A.clear(); 
+  Maxlayers_A.clear();
   Maxlayers_B.clear();
   Maxlayers_Chi2.clear();
   Maxlayers_RESI.clear();
@@ -670,7 +621,7 @@ void TrigL2MuonSA::MuFastStationFitter::stationSPFit(TrigL2MuonSA::MdtHits*    m
   for (int pr=real_layer; pr>=3; pr--) {
 
     Ly_flg.clear();
-    Line_A.clear(); 
+    Line_A.clear();
     Line_B.clear();
     Line_Chi2.clear();
     Line_count.clear();
@@ -799,7 +750,7 @@ void TrigL2MuonSA::MuFastStationFitter::stationSPFit(TrigL2MuonSA::MdtHits*    m
 
         if (hitarray.size()==0) continue;
 
-        for (itMdtHit=mdtSegment->begin(); itMdtHit!=mdtSegment->end(); itMdtHit++) { // loop for MDT hit
+	for (itMdtHit=mdtSegment->begin(); itMdtHit!=mdtSegment->end(); itMdtHit++) { // loop for MDT hit 
 
           int hit_index = std::distance(mdtSegment->begin(),itMdtHit);
 
@@ -884,7 +835,7 @@ void TrigL2MuonSA::MuFastStationFitter::stationSPFit(TrigL2MuonSA::MdtHits*    m
 
             if (pbFitResult.SlopeCand[cand]!=0.) {
               Line_A.push_back(1/pbFitResult.SlopeCand[cand]);
-              Line_B.push_back(-pbFitResult.InterceptCand[cand]/pbFitResult.SlopeCand[cand]-Yor/pbFitResult.SlopeCand[cand]+Xor); 
+              Line_B.push_back(-pbFitResult.InterceptCand[cand]/pbFitResult.SlopeCand[cand]-Yor/pbFitResult.SlopeCand[cand]+Xor);
               Line_Chi2.push_back(pbFitResult.Chi2Cand[cand]);
               Line_count.push_back(pbFitResult.NPOI);
               Line_Xor.push_back(Xor);
@@ -965,7 +916,7 @@ void TrigL2MuonSA::MuFastStationFitter::stationSPFit(TrigL2MuonSA::MdtHits*    m
       Maxlayers_Xor   = t_Xor[0];
       Maxlayers_Yor   = t_Yor[0];
       Maxlayers_PChi2 = pbFitResult.PCHI2;
-      Maxlayers_N     = t_count[0];  
+      Maxlayers_N     = t_count[0];
     }
 
     if (s_address == -1) { // Endcap
@@ -973,8 +924,8 @@ void TrigL2MuonSA::MuFastStationFitter::stationSPFit(TrigL2MuonSA::MdtHits*    m
       if (t_A[0]!=0. ) {
         superPoint->Z = t_sum_Z[0];
         superPoint->R = t_A[0]*t_sum_Z[0]+t_B[0];
-        superPoint->Alin =t_A[0]; 
-        superPoint->Blin =t_B[0]; 
+        superPoint->Alin =t_A[0];
+        superPoint->Blin =t_B[0];
       }
 
       superPoint->Phim   = t_phim[0];
@@ -999,8 +950,8 @@ void TrigL2MuonSA::MuFastStationFitter::stationSPFit(TrigL2MuonSA::MdtHits*    m
     if (real_layer>3) {
       if ((i_station == 3 || i_station == 5) && pr==4 && Chbest > m_endcapmid_mdt_chi2_limit) {
 
-        superPoint->Z =0.; 
-        superPoint->R =0.; 
+        superPoint->Z =0.;
+        superPoint->R =0.;
         superPoint->Alin=0.;
         superPoint->Blin=0.;
 
@@ -1023,11 +974,11 @@ void TrigL2MuonSA::MuFastStationFitter::stationSPFit(TrigL2MuonSA::MdtHits*    m
        break;//jump out all cp
     }else{
     	if(i_station==4 && Maxlayers_A.size()>0){
-        superPoint->Npoint = Maxlayers_N; 
+        superPoint->Npoint = Maxlayers_N;
         superPoint->Z = Maxlayers_Z;
         superPoint->R = Maxlayers_R;
-        superPoint->Alin =Maxlayers_A[0]; 
-        superPoint->Blin =Maxlayers_B[0]; 
+        superPoint->Alin =Maxlayers_A[0];
+        superPoint->Blin =Maxlayers_B[0];
         superPoint->Phim   = Maxlayers_Phim;
         superPoint->Xor    = Maxlayers_Xor;
         superPoint->Yor    = Maxlayers_Yor;
@@ -1055,12 +1006,12 @@ void TrigL2MuonSA::MuFastStationFitter::makeReferenceLine(TrigL2MuonSA::TrackPat
   TrigL2MuonSA::SuperPoint* superPoint;
   const unsigned int MAX_STATION = 8;
   float aw[8];
-  //float bw[8]; 
+  //float bw[8];
   float spZ[8];
-  float spR[8]; 
+  float spR[8];
   float A_cand[8][6];
   float B_cand[8][6];
-  float Chi2_cand[8][6]; 
+  float Chi2_cand[8][6];
   float spA[8];
   float spB[8];
   float spChi2[8];
@@ -1070,17 +1021,17 @@ void TrigL2MuonSA::MuFastStationFitter::makeReferenceLine(TrigL2MuonSA::TrackPat
   for (unsigned int i_station=4; i_station<MAX_STATION; i_station++) {
 
     aw[i_station]=0.;
-    //bw[i_station]=0.;  
+    //bw[i_station]=0.;
     spZ[i_station]=0.;
-    spR[i_station]=0.; 
+    spR[i_station]=0.;
     spA[i_station]=0.;
     spB[i_station]=0.;
     spChi2[i_station]=0.;
 
     for (unsigned int ci=0; ci<NCAND; ci++) {
-      A_cand[i_station][ci]    =0.;  
-      B_cand[i_station][ci]    =0.; 
-      Chi2_cand[i_station][ci] =0.;   
+      A_cand[i_station][ci]    =0.;
+      B_cand[i_station][ci]    =0.;
+      Chi2_cand[i_station][ci] =0.;
     }
 
     if (i_station<4 || i_station>5) continue; // only loop for endcap Inner/Middle/Outer
@@ -1303,25 +1254,24 @@ void TrigL2MuonSA::MuFastStationFitter::updateInnSP(TrigL2MuonSA::TrackPattern& 
 
   if (mdtSegment->size()==0) return;
 
-  TrigL2MuonSA::MdtHits::iterator itMdtHit;
-  for(itMdtHit=mdtSegment->begin(); itMdtHit!=mdtSegment->end(); itMdtHit++){
-    if (fabs(itMdtHit->DriftSpace) < m_mdt_driftspace_downlimit ||
-        fabs(itMdtHit->DriftSpace) > m_mdt_driftspace_uplimit){
-      itMdtHit->isOutlier = 2;
+  for (TrigL2MuonSA::MdtHitData& itMdtHit : *mdtSegment) { // loop for MDT hit
+    if (fabs(itMdtHit.DriftSpace) < m_mdt_driftspace_downlimit ||
+        fabs(itMdtHit.DriftSpace) > m_mdt_driftspace_uplimit){
+      itMdtHit.isOutlier = 2;
       continue;
     }
  
-    if (itMdtHit->isOutlier > 1) continue;
+    if (itMdtHit.isOutlier > 1) continue;
 
-    double Z = itMdtHit->Z;
-    double R = itMdtHit->R;
+    double Z = itMdtHit.Z;
+    double R = itMdtHit.R;
     double nbw = tgc_aw*Z + bw;
 
     if (R>(nbw-nrWidth) && R<(nbw+nrWidth)) {
-      itMdtHit->isOutlier = 0;
+      itMdtHit.isOutlier = 0;
       sumN[i_station]++;
     } else {
-      itMdtHit->isOutlier = 2;
+      itMdtHit.isOutlier = 2;
       continue;
     }
   }
@@ -1398,18 +1348,6 @@ void TrigL2MuonSA::MuFastStationFitter::findSubLayerCombination(std::vector<unsi
 }
 //-------------------------------------------------------------------------------
 
-// --------------------------------------------------------------------------------
-
-StatusCode TrigL2MuonSA::MuFastStationFitter::finalize()
-{
-  ATH_MSG_DEBUG("Finalizing MuFastStationFitter - package version " << PACKAGE_VERSION);
-   
-   StatusCode sc = AthAlgTool::finalize(); 
-
-   return sc;
-}
-
-// --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
 float TrigL2MuonSA::MuFastStationFitter::SetDriftSpace(float tdr, float rad, float zeta, float phim, float phiDir) {
@@ -1490,7 +1428,7 @@ int TrigL2MuonSA::MuFastStationFitter::Evlfit(int Ifla, TrigL2MuonSA::PBFitResul
       } else if (IGcur==3) {
         pbFitResult.RESI[j] = pbFitResult.DISTJ[j] - pbFitResult.RILIN[j];
       }
-    } 
+    }
 
     if(pbFitResult.PCHI2>=0.01||Ifla==1) return Ifit;
      

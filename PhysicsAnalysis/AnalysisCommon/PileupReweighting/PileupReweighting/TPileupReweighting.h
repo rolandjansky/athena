@@ -34,13 +34,13 @@
 // STL includes
 #include <iostream>
 #include <stdexcept>
+#include <memory>
+#include <list>
 
-#include "TH1.h"
+#include <TH1.h>
+#include <TH2.h>
 
 
-class TH1;
-class TH1D;
-class TH2D;
 class TTree;
 class TFile;
 
@@ -52,10 +52,6 @@ namespace CP {
   public: 
       /** Standard constructor */
       TPileupReweighting(const char* name="TPileupReweighting");
-
-      /** Standard destructor */
-      ~TPileupReweighting();
-
 
   public:
 
@@ -241,6 +237,12 @@ namespace CP {
       //*std::map<Int_t,std::map<Int_t, TH1*> > & GetInputHistograms() { return m_inputHistograms;}
 
 
+      std::vector<int> GetPeriodNumbers() const {
+        std::vector<int> out;
+        for(auto& p : m_periods) { out.push_back(p.first); }
+        return out;
+      }
+
       //-----------------------------------------------------
       //Methods to inspect the input and weighting histograms
       //-----------------------------------------------------
@@ -249,18 +251,18 @@ namespace CP {
             m_periods[periodNumber]->inputHists.find(channelNumber)==m_periods[periodNumber]->inputHists.end()) {
             return 0;
          }
-         return m_periods[periodNumber]->inputHists[channelNumber];
+         return m_periods[periodNumber]->inputHists[channelNumber].get();
       }
 
-      TH1D* GetPrimaryDistribution(Int_t channelNumber, Int_t periodNumber) {
+      TH1* GetPrimaryDistribution(Int_t channelNumber, Int_t periodNumber) {
          if(m_periods.find(periodNumber)==m_periods.end()||
             m_periods[periodNumber]->primaryHists.find(channelNumber)==m_periods[periodNumber]->primaryHists.end()) {
             return 0;
          }
-         return m_periods[periodNumber]->primaryHists[channelNumber];
+         return m_periods[periodNumber]->primaryHists[channelNumber].get();
       }
 
-      TH1D* GetPrimaryTriggerDistribution(const TString& trigger, Int_t periodNumber, long triggerBits)  {
+      TH1* GetPrimaryTriggerDistribution(const TString& trigger, Int_t periodNumber, long triggerBits)  {
          if(m_triggerObjs.find(trigger)==m_triggerObjs.end() || m_triggerObjs[trigger]->triggerHists.find(periodNumber) ==m_triggerObjs[trigger]->triggerHists.end() ||
             m_triggerObjs[trigger]->triggerHists[periodNumber].find(triggerBits) == m_triggerObjs[trigger]->triggerHists[periodNumber].end()) return 0;
       /*
@@ -268,15 +270,15 @@ namespace CP {
             m_triggerObjs.at(trigger).second->triggerHists.at(periodNumber).find(triggerBits) == m_triggerObjs.at(trigger).second.at(periodNumber).end()) return 0;
       */
          
-         return m_triggerObjs[trigger]->triggerHists[periodNumber][triggerBits];
+         return m_triggerObjs[trigger]->triggerHists[periodNumber][triggerBits].get();
       }
 
       /** Method for weighting data to account for prescales and mu bias. Use by giving the tool multiple lumicalc files, one for each trigger */
-      Double_t GetDataWeight(Int_t runNumber, const TString& trigger, Double_t x);
+      Double_t GetDataWeight(Int_t runNumber, const TString& trigger, Double_t x, bool run_dependent=false);
       Double_t GetDataWeight(Int_t runNumber, const TString& trigger);//version without mu dependence
 
     /** Method for prescaling MC to account for prescales in data */
-      Double_t GetPrescaleWeight(Int_t runNumber, const TString& trigger, Double_t x);
+      Double_t GetPrescaleWeight(Int_t runNumber, const TString& trigger, Double_t x, bool run_dependent=false);
       Double_t GetPrescaleWeight(Int_t runNumber, const TString& trigger);//version without mu dependence
 
 
@@ -298,6 +300,8 @@ namespace CP {
 
       double GetRunAverageMu(int run) { return m_runs[run].inputHists["None"]->GetMean(); }
 
+      
+
   protected:
       virtual bool runLbnOK(Int_t /*runNbr*/, Int_t /*lbn*/) { return true; } //override in the ASG tool
       virtual bool passTriggerBeforePrescale(const TString& trigger) const { 
@@ -313,13 +317,13 @@ namespace CP {
       Int_t IsBadBin(Int_t thisMCRunNumber, Int_t bin);
 
 
-      TH1* CloneEmptyHistogram(Int_t runNumber, Int_t channelNumber);
+      std::unique_ptr< TH1 > CloneEmptyHistogram(Int_t runNumber, Int_t channelNumber);
       /** Normalize histograms */
       void normalizeHistogram(TH1* histo);
       void AddDistributionTree(TTree *tree, TFile *file);
       //*Int_t FactorizeDistribution(TH1* hist, const TString weightName, Int_t channelNumber, Int_t periodNumber,bool includeInMCRun,bool includeInGlobal);
 
-      void CalculatePrescaledLuminosityHistograms(const TString& trigger);
+      void CalculatePrescaledLuminosityHistograms(const TString& trigger, int run_dependent=0);
 
       //********** Private members*************************
       TPileupReweighting* m_parentTool; //points to self if not a 'systematic varion' tool instance
@@ -348,7 +352,7 @@ namespace CP {
 
 
       /** the empty histogram used for this weight... effectively holds the configuration of the binning */
-      TH1* m_emptyHistogram; 
+      std::unique_ptr< TH1 > m_emptyHistogram; 
 
 
 
@@ -358,12 +362,11 @@ namespace CP {
 public:
       struct CompositeTrigger {
          int op;
-         CompositeTrigger* trig1;
-         CompositeTrigger* trig2;
+         std::unique_ptr< CompositeTrigger > trig1;
+         std::unique_ptr< CompositeTrigger > trig2;
          TString val;
          std::vector<TString> subTriggers; //only set for top-level object
-         CompositeTrigger() : op(0),trig1(0),trig2(0),val("") { }
-         ~CompositeTrigger() { if(trig1) delete trig1; if(trig2) delete trig2; }
+         CompositeTrigger() : op(0),trig1(),trig2(),val("") { }
          double eval(std::map<TString, std::map<Int_t, std::map<Int_t, Float_t> > >& m, int run, int lbn, const TPileupReweighting* tool) {
             switch(op) {
                case 0: if(m[val][run].find(lbn)==m[val][run].end() || !m[val][run][lbn] || !tool->passTriggerBeforePrescale(val)) return 0; /*trigger/failed disabled, so cannot contribute*/   
@@ -384,15 +387,18 @@ public:
           return out;
          }
          
-         std::map<int, std::map<long, TH1D*> > triggerHists; //unnormalized ... i.e. integral should be equal to the lumi! ... indexed by PeriodID,tbits
-         
+         // unnormalized ... i.e. integral should be equal to the lumi!
+         // ... indexed by PeriodID,tbits
+         // ... if doing run-dependent weights, PeriodID is replaced by -runNumber (negative number!)
+         std::map<int, std::map<long, std::unique_ptr< TH1 > > > triggerHists;
+
       };
 protected:
 
-      std::map<TString, CompositeTrigger*> m_triggerObjs; //map from trigger string to composite trigger object
+      std::map<TString, std::unique_ptr<CompositeTrigger> > m_triggerObjs; //map from trigger string to composite trigger object
 
-      CompositeTrigger* makeTrigger(const TString& s);
-      void calculateHistograms(CompositeTrigger* trigger);
+      std::unique_ptr<CompositeTrigger> makeTrigger(const TString& s);
+      void calculateHistograms(CompositeTrigger* trigger, int run_dependent);
 
 public:
       inline void PrintPeriods() { for(auto p : m_periods) {std::cout << p.first << " -> "; p.second->print("");} }
@@ -406,11 +412,11 @@ public:
          std::map<Int_t, Double_t> unrepData; //indexed by channel number
          std::vector<Period*> subPeriods; 
          std::vector<UInt_t> runNumbers; //populated with runNumbers that actually had some data available
-         std::map<Int_t, TH1*> inputHists;
+         std::map<Int_t, std::unique_ptr< TH1 > > inputHists;
          std::map<Int_t, Double_t> sumOfWeights; 
          std::map<Int_t, Int_t> numberOfEntries;
-         std::map<Int_t, TH1D*> primaryHists; //normalized histograms, indexed by channelNumber. -1 holds the data
-         std::map<Int_t, TH2D*> secondaryHists; //semi-normalized histograms, only used in 2D reweighting
+         std::map<Int_t, std::unique_ptr< TH1 > > primaryHists; //normalized histograms, indexed by channelNumber. -1 holds the data
+         std::map<Int_t, std::unique_ptr< TH2 > > secondaryHists; //semi-normalized histograms, only used in 2D reweighting
          //std::map<TString, TH1D*> triggerHists; //unnormalized ... i.e. integral should be equal to the lumi! ... should really only be filled in the channel=-1 case (i.e. data)
          bool contains(unsigned int runNumber) {
             if(runNumber >= start && runNumber <= end) return true;
@@ -423,18 +429,22 @@ public:
          };
          void print(const char* prefix) { 
             std::cout << prefix << id << "[" << start << "," << end << "] : ";
-            for(auto hist : inputHists) std::cout << hist.first << " , ";
+            for(auto& hist : inputHists) std::cout << hist.first << " , ";
             std::cout << std::endl;
             for(auto p : subPeriods) p->print(TString::Format(" %s",prefix).Data()); };
       };
       struct Run {
-         std::map<TString,TH1*> inputHists; //key is the 'trigger' 
+         std::map< TString, std::unique_ptr< TH1 > > inputHists; //key is the 'trigger' 
          std::map<Int_t,Double_t> badBins; 
          Double_t lumi; //total data in run
          std::map<UInt_t, std::pair<Double_t,Double_t> > lumiByLbn; //key=lbn, value = <lumi,mu>
-         TH1D* muDist; //mu distribution for this run
+         std::unique_ptr< TH1 > muDist; //mu distribution for this run
+         bool nominalFromHists = false; //flag if nominal 'None' hist came from histogram files (rather than lumicalc files)
       };
+      std::map<UInt_t, Run>& GetRunMap() { return m_runs; }
 protected:
+      /// List physically holding (owning) period objects
+      std::list< Period > m_periodList;
       std::map<Int_t, Period*> m_periods; //periods mapped by id. -1 = the "global" period (0->9999999). Uses a pointer so can easily implement remap as two entries pointing at same period
       std::map<UInt_t, Run> m_runs; //runs mapped by runNumber
 
@@ -446,7 +456,7 @@ protected:
       //RandomDataPeriod functionality stuff
       //numbers generated seperately for each mc period
       //-----------------------------------------------------
-      TRandom3 *m_random3;
+      std::unique_ptr< TRandom3 > m_random3;
 
       Bool_t m_ignoreBadChannels; //if true, will print a warning about any channels with too much unrepresented data, but will then just ignore them
       Bool_t m_useMultiPeriods = true; //if true, will allow for runDependentMC 

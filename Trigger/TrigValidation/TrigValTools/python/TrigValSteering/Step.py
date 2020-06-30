@@ -11,6 +11,7 @@ import sys
 import signal
 import subprocess
 import time
+import re
 from enum import Enum
 from threading import Timer
 from TrigValTools.TrigValSteering.Common import get_logger, art_result
@@ -185,6 +186,19 @@ class Step(object):
             with open(self.get_log_file_name()) as log_file:
                 log=log_file.read()
                 print(log)  # noqa: ATL901
+                # Print also sub-step logs for transforms
+                if self.executable.endswith('_tf.py'):
+                    step_matches = re.findall('Logs for (.*) are in (.*)', log)
+                    if not step_matches:
+                        self.log.warning('Failed to determine sub-step log names, cannot print the full sub-step logs')
+                    else:
+                        step_log_names = [m[1] for m in step_matches]
+                        for step_log_name in step_log_names:
+                            if os.path.isfile(step_log_name):
+                                with open(step_log_name) as step_log_file:
+                                    step_log = step_log_file.read()
+                                    self.log.info('Printing sub-step log file %s', step_log_name)
+                                    print(step_log)  # noqa: ATL901
 
         return self.result, cmd
 

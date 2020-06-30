@@ -2,9 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigL2MuonSA/MuFastDataPreparator.h"
-
-#include "CLHEP/Units/PhysicalConstants.h"
+#include "MuFastDataPreparator.h"
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 

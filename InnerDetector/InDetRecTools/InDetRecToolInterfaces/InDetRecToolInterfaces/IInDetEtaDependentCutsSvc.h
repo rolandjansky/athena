@@ -36,7 +36,7 @@ namespace InDet {
     virtual void getValue(const InDet::CutName cutName,    std::vector < int >& cut) = 0;
 
     template <class T>    
-    void getValue(const InDet::CutName cutName, T& cut, const double eta) {}
+      void getValue(const InDet::CutName /*cutName*/, T& /*cut*/, const double /*eta*/) {}
     
     virtual double  getMaxEta() const                         = 0;
     virtual double  getMinPtAtEta           (const double eta) const = 0;

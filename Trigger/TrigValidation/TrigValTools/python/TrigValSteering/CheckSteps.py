@@ -14,7 +14,7 @@ import json
 import six
 import glob
 
-from TrigValTools.TrigValSteering.Step import Step
+from TrigValTools.TrigValSteering.Step import Step, get_step_from_list
 from TrigValTools.TrigValSteering.Common import art_input_eos, art_input_cvmfs
 
 class RefComparisonStep(Step):
@@ -624,7 +624,7 @@ class MessageCountStep(Step):
     def __init__(self, name='MessageCount'):
         super(MessageCountStep, self).__init__(name)
         self.executable = 'messageCounter.py'
-        self.log_regex = r'(athena\..*log$|athenaHLT:.*\.out$|^log\..*to.*)'
+        self.log_regex = r'(athena\.(?!.*tail).*log$|athenaHLT:.*\.out$|^log\..*to.*)'
         self.skip_logs = []
         self.start_pattern = r'(HltEventLoopMgr|AthenaHiveEventLoopMgr).*INFO Starting loop on events'
         self.end_pattern = r'(HltEventLoopMgr.*INFO All events processed|AthenaHiveEventLoopMgr.*INFO.*Loop Finished)'
@@ -679,10 +679,10 @@ class MessageCountStep(Step):
                     if summary[level] > threshold:
                         self.result += 1
                         self.log.info(
-                            '%s Number of %s messages %s is higher than threshold %s',
-                            self.name, level, summary[level], threshold)
+                            '%s Number of %s messages %s in %s is higher than threshold %s',
+                            self.name, level, summary[level], log_file, threshold)
                         if self.print_on_fail:
-                            self.log.info('%s Printing all %s messages', self.name, level)
+                            self.log.info('%s Printing all %s messages from %s', self.name, level, log_file)
                             with open(all_json_file) as af:
                                 all_msg = json.load(af)
                                 for msg in all_msg[level]:
@@ -741,13 +741,16 @@ def default_check_steps(test):
         log_to_zip = check_steps[-1].merged_name
 
     # Reco_tf log merging
-    step_types = [step.type for step in test.exec_steps]
-    if 'Reco_tf' in step_types:
+    reco_tf_steps = [step for step in test.exec_steps if step.type=='Reco_tf']
+    if len(reco_tf_steps) > 0:
         reco_tf_logmerge = LogMergeStep('LogMerge_Reco_tf')
         reco_tf_logmerge.warn_if_missing = False
         tf_names = ['HITtoRDO', 'RDOtoRDOTrigger', 'RAWtoESD', 'ESDtoAOD',
                     'PhysicsValidation', 'RAWtoALL']
         reco_tf_logmerge.log_files = ['log.'+tf_name for tf_name in tf_names]
+        if not get_step_from_list('LogMerge', check_steps):
+            for step in reco_tf_steps:
+                reco_tf_logmerge.log_files.append(step.get_log_file_name())
         reco_tf_logmerge.extra_log_regex = r'athfile-.*\.log\.txt'
         reco_tf_logmerge.merged_name = 'athena.merged.log'
         log_to_zip = reco_tf_logmerge.merged_name

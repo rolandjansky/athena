@@ -14,7 +14,6 @@ Trk::TrackingGeometryCondAlg::TrackingGeometryCondAlg(const std::string& name, I
   : AthReentrantAlgorithm(name, pSvcLocator),
     m_geometryProcessors(this) 
 {
-  declareProperty("GeometryBuilder", m_trackingGeometryBuilder);
   declareProperty("GeometryProcessors", m_geometryProcessors);
 }
 

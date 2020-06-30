@@ -113,7 +113,7 @@ def generateChains( flags, chainDict ):
 
     l2muFastSequence.createHypoTools(chainDict)
 
-    l2muFastStep = ChainStep( stepName, [l2muFastSequence] )
+    l2muFastStep = ChainStep( name=stepName, Sequences=[l2muFastSequence], chainDicts=[chainDict] )
 
     ### Set muon step2 ###
     # Please set up L2muComb step here
@@ -176,7 +176,7 @@ def generateChains( flags, chainDict ):
 
     efmuMSSequence.createHypoTools(chainDict)
 
-    efmuMSStep = ChainStep( stepEFMSName, [efmuMSSequence] )
+    efmuMSStep = ChainStep( name=stepEFMSName, Sequences=[efmuMSSequence], chainDicts=[chainDict] )
 
     l1Thresholds=[]
     for part in chainDict['chainParts']:

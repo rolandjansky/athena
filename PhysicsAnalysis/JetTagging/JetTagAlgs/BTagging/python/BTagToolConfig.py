@@ -3,7 +3,6 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 Analysis__BTagTool=CompFactory.Analysis.BTagTool
-from BTagging.BTaggingFlags import BTaggingFlags
 
 def BTagToolCfg(ConfigFlags, TaggerList, useBTagFlagsDefaults = True):
       """Adds a new myBTagTool instance and registers it.
@@ -84,10 +83,9 @@ def BTagToolCfg(ConfigFlags, TaggerList, useBTagFlagsDefaults = True):
 
       options = {}
       if useBTagFlagsDefaults:
-        defaults = { 'Runmodus'                     : BTaggingFlags.Runmodus,
-                     'PrimaryVertexName'            : BTaggingFlags.PrimaryVertexCollectionName,
-                     'BaselineTagger'               : BTaggingFlags.BaselineTagger,
-                     'vxPrimaryCollectionName'      : BTaggingFlags.PrimaryVertexCollectionName,
+        defaults = { 'Runmodus'                     : ConfigFlags.BTagging.RunModus,
+                     'PrimaryVertexName'            : ConfigFlags.BTagging.PrimaryVertexCollectionName,
+                     'vxPrimaryCollectionName'      : ConfigFlags.BTagging.PrimaryVertexCollectionName,
                      'TagToolList'                  : tagToolList,
                    }
         for option in defaults:

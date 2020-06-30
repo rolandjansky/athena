@@ -5,10 +5,6 @@
 # Declare the package name:
 atlas_subdir( G4AtlasControl )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Geant4 )

@@ -391,7 +391,7 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track,
     while (iterTSOS!=track.trackStateOnSurfaces()->end()
            && (!(*iterTSOS)->type(Trk::TrackStateOnSurface::Measurement)
                || (*iterTSOS)->measurementOnTrack()->associatedSurface().type()!=Trk::Surface::Plane)) {
-      iterTSOS++;
+      ++iterTSOS;
     }
   }
 

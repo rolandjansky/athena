@@ -5,17 +5,6 @@
 # Declare the package name:
 atlas_subdir( G4CosmicFilter )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/StoreGate
-                          GaudiKernel
-                          Simulation/G4Atlas/G4AtlasInterfaces
-                          Simulation/G4Atlas/G4AtlasTools
-                          PRIVATE
-                          Simulation/G4Sim/MCTruth
-                          Simulation/G4Sim/TrackRecord )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Geant4 )

@@ -1,4 +1,7 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 ## Job options file for Geant4 ATLAS detector simulations
+from __future__ import print_function
 
 ## Algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence
@@ -74,7 +77,7 @@ pg = PG.ParticleGun(randomSvcName=simFlags.RandomSvc.get_Value(), randomStream="
 pg.sampler.pid = 999 #Geantino
 pg.sampler.mom = PG.EEtaMPhiSampler(energy=50000, eta=[-3,3])
 topSeq += pg
-print topSeq.ParticleGun
+print (topSeq.ParticleGun)
 
 # This should only be used when evgen is run in the simulation step
 include('G4AtlasApps/fragment.SimCopyWeights.py')
@@ -90,4 +93,4 @@ topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
 ## Add the G4 sim to the alg sequence after the generator
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
-print topSeq
+print (topSeq)

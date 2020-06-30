@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           InnerDetector/InDetRawEvent/InDetRawData
                           PRIVATE
+                          Control/CxxUtils
                           Control/StoreGate
                           DetectorDescription/IdDictParser
                           Generators/GeneratorObjects
@@ -35,12 +36,12 @@ set( _jobOPath "${_jobOPath}:$ENV{JOBOPTSEARCHPATH}" )
 atlas_add_test( PixelOverlay_test
                 SOURCES test/PixelOverlay_test.cxx src/PixelOverlay.cxx
                 INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
-                LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps IDC_OverlayBase GaudiKernel InDetRawData StoreGateLib SGtests GeneratorObjects InDetIdentifier InDetSimData TrkTrack ${GTEST_LIBRARIES} )
+                LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps IDC_OverlayBase GaudiKernel InDetRawData CxxUtils StoreGateLib SGtests GeneratorObjects InDetIdentifier InDetSimData TrkTrack ${GTEST_LIBRARIES} )
 
 atlas_add_test( SCTOverlay_test
                 SOURCES test/SCTOverlay_test.cxx src/SCTOverlay.cxx
                 INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
-                LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps IDC_OverlayBase GaudiKernel InDetRawData StoreGateLib SGtests GeneratorObjects InDetIdentifier InDetSimData TrkTrack IdDictParser ${GTEST_LIBRARIES}
+                LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps IDC_OverlayBase GaudiKernel InDetRawData CxxUtils StoreGateLib SGtests GeneratorObjects InDetIdentifier InDetSimData TrkTrack IdDictParser ${GTEST_LIBRARIES}
                 ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 
 
@@ -72,4 +73,4 @@ atlas_add_test( TRTOverlayConfig_test
 atlas_add_test( BCMOverlay_test
                 SOURCES test/BCMOverlay_test.cxx src/BCMOverlay.cxx
                 INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
-                LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel StoreGateLib SGtests GeneratorObjects InDetBCM_RawData InDetSimData ${GTEST_LIBRARIES} )
+                LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel CxxUtils StoreGateLib SGtests GeneratorObjects InDetBCM_RawData InDetSimData ${GTEST_LIBRARIES} )

@@ -630,6 +630,10 @@
   <x title="p_{T} [GeV]" n="25" lo="0" hi="50"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
+<h id="efficiency_vs_pt_low" type="TEfficiency" title="Fraction of reco-matched truth track">
+  <x title="p_{T} [GeV]" n="52" lo="0.4" hi="3"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
 <h id="efficiency_vs_phi" type="TEfficiency" title="Fraction of reco-matched truth track">
   <x title="#phi [rads]" n="25" lo="-&PI;" hi="&PI;"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
@@ -648,6 +652,14 @@
 </h>
 <h id="efficiency_vs_Z" type="TEfficiency" title="Fraction of reco-matched truth track">
   <x title="Z [mm]" n="100" lo="-350" hi="350"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
+<h id="extended_efficiency_vs_d0" type="TEfficiency" title="Fraction of reco-matched truth track">
+  <x title="d_{0} [mm]" n="50" lo="-300" hi="300"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
+<h id="extended_efficiency_vs_z0" type="TEfficiency" title="Fraction of reco-matched truth track">
+  <x title="z_{0} [mm]" n="50" lo="-750" hi="750"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
 <h id="efficiency_vs_prodR" type="TEfficiency" title="Track Efficiency vs Production Vertex Radius">

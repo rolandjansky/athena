@@ -27,6 +27,7 @@
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
+#include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
 #include "MuonChamberHoleRecoveryTool.h"
 #include "MuonRecToolInterfaces/IMuonSeededSegmentFinder.h"
 #include "MuonChamberHoleRecoveryTool.h"
@@ -155,8 +156,10 @@ namespace Muon {
       {this, "ChamberHoleRecoveryTool", "Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool"};            //<! hit-based hole search
     ToolHandle<Trk::IExtrapolator>        m_extrapolator
       {this, "Extrapolator", "Trk::Extrapolator/MuonExtrapolator"};            
+    ToolHandle<Rec::ICombinedMuonTrackBuilder>        m_builder
+      {this, "Builder", "Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder"};
     ToolHandle<Trk::ITrackFitter>        m_fitter
-      {this, "Fitter", "Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder"};            
+      {this, "Fitter", "Trk::GlobalChi2Fitter/MCTBSLFitter"};
     ServiceHandle<MuonStationIntersectSvc>        m_intersectSvc
       {this, "MuonStationIntersectSvc", "MuonStationIntersectSvc"};            
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};

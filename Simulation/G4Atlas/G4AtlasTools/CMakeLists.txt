@@ -5,14 +5,6 @@
 # Declare the package name:
 atlas_subdir( G4AtlasTools )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          AtlasGeometryCommon/SubDetectorEnvelopes
-                          Control/AthenaBaseComps
-                          Simulation/G4Atlas/G4AtlasInterfaces
-                          PRIVATE
-                          GaudiKernel )
-
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )
@@ -36,7 +28,6 @@ atlas_add_component( G4AtlasTools
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} ${TBB_LIBRARIES} AthenaBaseComps G4AtlasInterfaces GaudiKernel G4AtlasToolsLib )
 
-
 #testing just the simulation parts, no forward detectors or region
 atlas_add_test( G4GeometryToolConfig_Simtest
                 SCRIPT test/G4GeometryToolConfig_Simtest.py
@@ -53,11 +44,9 @@ atlas_add_test( G4PhysicsRegionConfig_test
                 SCRIPT test/G4PhysicsRegionConfig_test.py
                 PROPERTIES TIMEOUT 300 )
 
-
 atlas_add_test( G4FieldConfig_test
                 SCRIPT test/G4FieldConfig_test.py
                 PROPERTIES TIMEOUT 300 )
-
 
 atlas_add_test( G4AtlasToolsConfigNew_test
                 SCRIPT test/G4AtlasToolsConfigNew_test.py
