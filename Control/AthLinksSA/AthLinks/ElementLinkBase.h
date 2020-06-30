@@ -44,9 +44,6 @@ public:
    /// Reset the object's internal cache
    virtual bool toTransient() = 0;
 
-   /// Does this link have a cached element
-   virtual bool hasCachedElement() const = 0;
-
    /// Is the index set to the default value
    bool isDefaultIndex() const;
 

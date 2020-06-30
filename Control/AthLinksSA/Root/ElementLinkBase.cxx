@@ -51,8 +51,5 @@ bool ElementLinkBase::isDefaultIndex() const {
 }
 
 bool ElementLinkBase::isDefault() const {
-  // I'm not sure how necessary this is, but we also check if there is a cached
-  // element in case the link is referring to a transient object (I am not sure
-  // if this is allowed in AnalysisBase)
-  return !hasCachedElement() && isDefaultIndex();
+  return isDefaultIndex();
 }
