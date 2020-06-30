@@ -23,6 +23,8 @@ def JetSecVertexingAlgCfg(ConfigFlags, JetCollection, PrimaryVertexCollectionNam
         JetSVLink = 'JFVtx'
     if SVFinder == 'SV1':
         JetSVLink = 'SecVtx'
+    if SVFinder == 'MSV':
+        JetSVLink = 'MSecVtx' # Maybe no used
 
     varFactory = acc.popToolsAndMerge(MSVVariablesFactoryCfg("MSVVarFactory"))
 

@@ -1,6 +1,6 @@
 // -*- c++ -*-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_MONITORING_TOOL_H
@@ -25,6 +25,7 @@
 #include "TRT_DriftFunctionTool/ITRT_DriftFunctionTool.h"
 
 // STDLIB
+#include <atomic>
 #include <string>
 #include <vector>
 #include <set>
@@ -610,7 +611,7 @@ private:
 	int m_every_xth_track;
 	std::string m_datatype;
 
-
+	mutable std::atomic<int> m_maxtimestamp{0};
 
 	TProfile_LW* m_hefficiency_eta;
 	TProfile_LW* m_hefficiency_phi;

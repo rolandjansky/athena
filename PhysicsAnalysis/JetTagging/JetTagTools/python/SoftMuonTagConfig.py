@@ -1,8 +1,7 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from BTagging.BTaggingFlags import BTaggingFlags
 from JetTagTools.BTagTrackToVertexIPEstimatorConfig import BTagTrackToVertexIPEstimatorCfg
 from JetTagTools.NewLikelihoodToolConfig import NewLikelihoodToolCfg
 from JetTagTools.MuonSelectorToolConfig import MuonSelectorToolCfg
@@ -17,7 +16,7 @@ def SoftMuonTagCfg( flags, name = 'SoftMu', scheme = '', useBTagFlagsDefaults = 
 
     Runmodus                            default: BTagging.RunModus
     jetCollectionList                   default: BTaggingFlags.Jets
-    originalMuCollectionName            default: BTaggingFlags.MuonCollectionName
+    originalMuCollectionName            default: BTaggingFlags.MuonCollectionName ('Muons')
     BTagJetEtamin                       default: 2.5 (only if BTagging.RunModus == 'reference')
     MuonQuality                         default: xAOD::Muon::Medium
 
@@ -25,6 +24,7 @@ def SoftMuonTagCfg( flags, name = 'SoftMu', scheme = '', useBTagFlagsDefaults = 
           useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
                   **options: Python dictionary with options for the tool.
     output: The actual tool."""
+    muonCollectionName = 'Muons'
     acc = ComponentAccumulator()
     if useBTagFlagsDefaults:
         trackToVertexIPEstimator = acc.popToolsAndMerge(BTagTrackToVertexIPEstimatorCfg(flags, 'TrkToVxIPEstimator'))
@@ -32,8 +32,8 @@ def SoftMuonTagCfg( flags, name = 'SoftMu', scheme = '', useBTagFlagsDefaults = 
         likelihood = acc.popToolsAndMerge(NewLikelihoodToolCfg(flags, 'SoftMuonTagNewLikelihoodTool', 'SMT', scheme))
         defaults = {
                      'Runmodus'                         : flags.BTagging.RunModus,
-                     'jetCollectionList'                : BTaggingFlags.Jets,
-                     'originalMuCollectionName'         : BTaggingFlags.MuonCollectionName,
+                     'jetCollectionList'                : [], #used only in reference mode
+                     'originalMuCollectionName'         : muonCollectionName,
                      'MuonQuality'                      : 2,
                      'muonSelectorTool'                 : muonSelectorTool,
                      'LikelihoodTool'                   : likelihood,

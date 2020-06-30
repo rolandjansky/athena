@@ -5,18 +5,6 @@
 # Declare the package name:
 atlas_subdir( DigitizationTests )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaKernel
-                          Event/xAOD/xAODEventInfo
-                          Generators/GeneratorObjects
-                          InnerDetector/InDetDetDescr/InDetIdentifier
-                          InnerDetector/InDetRawEvent/InDetRawData
-                          InnerDetector/InDetRawEvent/InDetSimData )
-
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
@@ -29,7 +17,6 @@ atlas_add_component( DigitizationTests
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel AthenaKernel GeneratorObjects InDetIdentifier InDetRawData InDetSimData xAODEventInfo )
 
 # Install files from the package:
-atlas_install_headers( DigitizationTests )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( test/DigitizationTests_TestConfiguration.xml )

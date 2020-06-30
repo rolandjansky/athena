@@ -5,23 +5,6 @@
 # Declare the package name:
 atlas_subdir( FastCaloSimHit )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloInterface
-                          Control/AthenaBaseComps
-                          Control/StoreGate
-                          GaudiKernel
-                          LArCalorimeter/LArElecCalib
-                          LArCalorimeter/LArSimEvent
-                          TileCalorimeter/TileSimEvent
-                          PRIVATE
-                          Calorimeter/CaloEvent
-                          Calorimeter/CaloIdentifier
-                          Control/PileUpTools
-                          Event/EventInfo
-                          TileCalorimeter/TileConditions
-                          TileCalorimeter/TileEvent )
-
 # this line failed automatic conversion in cmt2cmake :
 # macro_append FastCaloSimHit_cppflags " -DFastCaloSimHit_project_release_v1=`echo $(FastCaloSimHit_project_release) | awk -F. '{printf("'"'%d'"'",$$1)}'` "
 

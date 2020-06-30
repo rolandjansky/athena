@@ -5,45 +5,6 @@
 # Declare the package name:
 atlas_subdir( ISF_FastCaloSimParametrization )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloDetDescr
-                          Calorimeter/CaloGeoHelpers
-                          Calorimeter/CaloInterface
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/StoreGate
-                          DetectorDescription/Identifier
-                          GaudiKernel
-                          LArCalorimeter/LArElecCalib
-                          Simulation/Barcode/BarcodeEvent
-                          Simulation/ISF/ISF_Core/ISF_Interfaces
-                          Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimEvent
-                          Tracking/TrkEvent/TrkEventPrimitives
-                          Tracking/TrkEvent/TrkParameters
-                          Tracking/TrkExtrapolation/TrkExInterfaces
-                          PRIVATE
-                          Calorimeter/CaloEvent
-                          Calorimeter/CaloIdentifier
-                          Calorimeter/CaloTrackingGeometry
-                          Simulation/G4Sim/TrackRecord
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          DetectorDescription/GeoModel/GeoAdaptors
-                          DetectorDescription/GeoModel/GeoModelInterfaces
-                          Event/EventInfo
-                          Event/NavFourMom
-                          Generators/AtlasHepMC
-                          Generators/GeneratorObjects
-                          LArCalorimeter/LArSimEvent
-                          Simulation/ISF/ISF_Core/ISF_Event
-                          Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimInterfaces
-                          TileCalorimeter/TileConditions
-                          TileCalorimeter/TileDetDescr
-                          TileCalorimeter/TileSimEvent
-                          Tracking/TrkDetDescr/TrkGeometry
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkMaterialOnTrack )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Geant4 )

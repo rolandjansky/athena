@@ -14,6 +14,8 @@ def JetBTaggerAlgCfg(ConfigFlags, JetCollection="", PrimaryVertexCollectionName=
     acc=ComponentAccumulator()
     jetcol = JetCollection
 
+    del options['Release']
+
     # setup the Analysis__BTagTrackAssociation tool
     options.setdefault('BTagTrackAssocTool', acc.popToolsAndMerge(BTagTrackAssociationCfg(ConfigFlags, 'TrackAssociation'+ ConfigFlags.BTagging.GeneralToolSuffix, jetcol, TaggerList )))
     

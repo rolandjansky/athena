@@ -5,7 +5,7 @@
 #include <numeric>
 #include <string>
 
-#include "TrigL2MuonSA/MuFastSteering.h"
+#include "MuFastSteering.h"
 #include "xAODTrigMuon/L2StandAloneMuonAuxContainer.h"
 #include "xAODTrigMuon/TrigMuonDefs.h"
 

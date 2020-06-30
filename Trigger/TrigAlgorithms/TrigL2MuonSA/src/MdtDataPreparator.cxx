@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigL2MuonSA/MdtDataPreparator.h"
+#include "MdtDataPreparator.h"
 
 #include "CxxUtils/phihelper.h"
 
@@ -17,7 +17,7 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 
-#include "TrigL2MuonSA/MdtRegionDefiner.h"
+#include "MdtRegionDefiner.h"
 
 #include "xAODTrigMuon/TrigMuonDefs.h"
 

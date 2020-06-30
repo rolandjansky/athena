@@ -2,14 +2,7 @@
 from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.BTaggingFlags import BTaggingFlags
 
-def JetTagCalibCfg(ConfigFlags, scheme="", TaggerList = [], ChannelAlias = ""):
-
-    grades= [ "0HitIn0HitNInExp2","0HitIn0HitNInExpIn","0HitIn0HitNInExpNIn","0HitIn0HitNIn",
-            "0HitInExp", "0HitIn",
-            "0HitNInExp", "0HitNIn",
-            "InANDNInShared", "PixShared", "SctShared",
-            "InANDNInSplit", "PixSplit",
-            "Good"]
+def JetTagCalibCfg(ConfigFlags, scheme="", TaggerList = [], **kwargs):
 
     CalibrationChannelAliases = [   "myOwnCollection->AntiKt4TopoEM,AntiKt4EMTopo",
                                     "AntiKt4Tower->AntiKt4Tower,AntiKt4H1Tower,AntiKt4TopoEM,AntiKt4EMTopo",
@@ -37,7 +30,18 @@ def JetTagCalibCfg(ConfigFlags, scheme="", TaggerList = [], ChannelAlias = ""):
                                     "AntiKt4EMPFlow->AntiKt4EMPFlow,AntiKt4EMTopo,AntiKt4TopoEM,AntiKt4LCTopo",
                                     "AntiKt4HI->AntiKt4HI,AntiKt4EMTopo,AntiKt4TopoEM,AntiKt4LCTopo"]
 
-    CalibrationChannelAliases += ChannelAlias
+    newChannel = kwargs.get("NewChannel")
+    if newChannel:
+        CalibrationChannelAliases.append(newChannel)
+
+    #IP2D
+    grades= ConfigFlags.BTagging.Grades
+
+    #IP3D
+    #Same as IP2D. Revisit JetTagCalibCondAlg.cxx if not.
+
+    #RNNIP
+    RNNIPConfig = {'rnnip':''}
 
     if scheme == "Trig":
         JetTagCalibCondAlg,=CompFactory.getComps("Analysis__JetTagCalibCondAlg",)
@@ -51,7 +55,7 @@ def JetTagCalibCfg(ConfigFlags, scheme="", TaggerList = [], ChannelAlias = ""):
         from IOVDbSvc.CondDB import conddb
         conddb.addFolder(connSchema, readkeycalibpath, className='CondAttrListCollection')
 
-        JetTagCalib = JetTagCalibCondAlg(jettagcalibcondalg, ReadKeyCalibPath=readkeycalibpath, HistosKey = histoskey, taggers = TaggerList, channelAliases = CalibrationChannelAliases, IP2D_TrackGradePartitions = grades, RNNIP_NetworkConfig = BTaggingFlags.RNNIPConfig)
+        JetTagCalib = JetTagCalibCondAlg(jettagcalibcondalg, ReadKeyCalibPath=readkeycalibpath, HistosKey = histoskey, taggers = TaggerList, channelAliases = CalibrationChannelAliases, IP2D_TrackGradePartitions = grades, RNNIP_NetworkConfig = RNNIPConfig)
         return JetTagCalib
 
     else:
@@ -68,7 +72,7 @@ def JetTagCalibCfg(ConfigFlags, scheme="", TaggerList = [], ChannelAlias = ""):
         from IOVDbSvc.IOVDbSvcConfig import addFolders
         result.merge(addFolders(ConfigFlags,[readkeycalibpath], connSchema, className='CondAttrListCollection'))
 
-        JetTagCalib = JetTagCalibCondAlg(jettagcalibcondalg, ReadKeyCalibPath=readkeycalibpath, HistosKey = histoskey, taggers = TaggerList, channelAliases = CalibrationChannelAliases, IP2D_TrackGradePartitions = grades, RNNIP_NetworkConfig = BTaggingFlags.RNNIPConfig)
+        JetTagCalib = JetTagCalibCondAlg(jettagcalibcondalg, ReadKeyCalibPath=readkeycalibpath, HistosKey = histoskey, taggers = TaggerList, channelAliases = CalibrationChannelAliases, IP2D_TrackGradePartitions = grades, RNNIP_NetworkConfig = RNNIPConfig)
         result.addCondAlgo(JetTagCalib)
         return result
 

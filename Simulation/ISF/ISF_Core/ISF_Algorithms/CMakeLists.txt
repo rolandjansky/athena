@@ -6,25 +6,6 @@
 # Declare the package name:
 atlas_subdir( ISF_Algorithms )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PRIVATE
-   GaudiKernel
-   Control/AthenaBaseComps
-   Control/StoreGate
-   DetectorDescription/AtlasDetDescr
-   InnerDetector/InDetSimEvent
-   LArCalorimeter/LArSimEvent
-   TileCalorimeter/TileSimEvent
-   MuonSpectrometer/MuonSimEvent
-   Generators/AtlasHepMC
-   Generators/GeneratorObjects
-   Simulation/Interfaces/HepMC_Interfaces
-   Simulation/ISF/ISF_Core/ISF_Event
-   Simulation/ISF/ISF_Core/ISF_Interfaces
-   Tools/PmbCxxUtils
-   AtlasTest/TestTools )
-
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )

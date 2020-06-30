@@ -10,6 +10,7 @@
 // AUTHORS: Beate Heinemann, Jean-Francois Arguin
 // **********************************************************************
 
+#include <atomic>
 #include <vector>
 #include <map>
 #include <memory>
@@ -740,7 +741,8 @@ class IDStandardPerformance : public ManagedMonitorToolBase
 
     void FillTrackIncidencePlots(detAreaTypes detArea, int phiWidth, int zWidth, float PixTrkAngle, float PixTrkThetaI);
 
-    const Trk::TrackParameters*  getUnbiasedTrackParameters(const Trk::TrackParameters* trkParameters, const Trk::MeasurementBase* measurement );
+    const Trk::TrackParameters*  getUnbiasedTrackParameters(const Trk::TrackParameters* trkParameters, const Trk::MeasurementBase* measurement,
+                                                            int& isUnbiased);
     void SetSafeMinimumMaximum(TH1* h1, float min, float max);
 
     float m_Pi;
@@ -806,8 +808,7 @@ class IDStandardPerformance : public ManagedMonitorToolBase
         , const InDetDD::SiDetectorElementCollection* elements);
 
 
-    mutable int       m_isUnbiased;  //!< if can get unbiased residuals
-    mutable bool      m_UpdatorWarning; //!< warn only once, if unbiased track states can not be calculated
+    mutable std::atomic<bool> m_UpdatorWarning; //!< warn only once, if unbiased track states can not be calculated
 
 };
 //} // close of namespace

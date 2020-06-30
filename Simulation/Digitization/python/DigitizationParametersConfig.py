@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 logDigitizationWriteMetadata = logging.getLogger( 'DigitizationParametersConfig' )
@@ -39,7 +39,7 @@ def writeDigitizationMetadata(ConfigFlags):
                           'DetDescrVersion' : 'GeoModel.AtlasVersion'
                       }
     logDigitizationWriteMetadata.info('Filling Digitization MetaData')
-    for testKey, testFlag in digitMetaDataKeys.iteritems():
+    for testKey, testFlag in digitMetaDataKeys.items():
         if ConfigFlags.hasFlag(testFlag):
             testValue = ConfigFlags._get(testFlag)
             if not isinstance(testValue, str):

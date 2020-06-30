@@ -5,16 +5,6 @@
 # Declare the package name:
 atlas_subdir( ISF_SimulationSelectors )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-                          Generators/AtlasHepMC
-                          Simulation/Barcode/BarcodeServices
-                          Simulation/ISF/ISF_Core/ISF_Event
-                          Simulation/ISF/ISF_Core/ISF_Interfaces
-                          Simulation/ISF/ISF_Tracking/ISF_TrackingInterfaces )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 

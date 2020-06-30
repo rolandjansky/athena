@@ -5,20 +5,6 @@
 # Declare the package name:
 atlas_subdir( TRT_TR_Process )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/CxxUtils
-                          Control/StoreGate
-                          DetectorDescription/GeoModel/GeoModelInterfaces
-                          DetectorDescription/IdDictDetDescr
-                          Simulation/G4Atlas/G4AtlasInterfaces
-                          Simulation/G4Utilities/GeoMaterial2G4
-                          Tools/PathResolver )
-
 # External dependencies:
 find_package( Boost )
 find_package( CLHEP )

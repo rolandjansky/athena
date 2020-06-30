@@ -70,17 +70,18 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
   # Load data into the view
   import AthenaCommon.CfgMgr as CfgMgr
   muDataPrepVDV = CfgMgr.AthViews__ViewDataVerifier( "muDataPrepVDV" + postFix )
-  muDataPrepVDV.DataObjects = [( 'CscStripPrepDataCollection_Cache' , MuonPrdCacheNames.CscStripCache ),
-                               ( 'MdtPrepDataCollection_Cache' , MuonPrdCacheNames.MdtCache )]
+  muDataPrepVDV.DataObjects = [( 'MdtPrepDataCollection_Cache' , MuonPrdCacheNames.MdtCache )]
+  if MuonGeometryFlags.hasCSC():
+    muDataPrepVDV.DataObjects += [( 'CscStripPrepDataCollection_Cache' , MuonPrdCacheNames.CscStripCache )]
 
-  # Only load these objects if they aren't available in conddb
-  from IOVDbSvc.CondDB import conddb
-  if not conddb.folderRequested( "/CSC/DCS/LAYERSTATE" ):
-    muDataPrepVDV.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/CSC/DCS/LAYERSTATE' )]
-  if not conddb.folderRequested( "/CSC/T0PHASE" ):
-    muDataPrepVDV.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/CSC/T0PHASE' )]
-  if not conddb.folderRequested( "/CSC/T0BASE" ):
-    muDataPrepVDV.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/CSC/T0BASE' )]
+    # Only load these objects if they aren't available in conddb
+    from IOVDbSvc.CondDB import conddb
+    if not conddb.folderRequested( "/CSC/DCS/LAYERSTATE" ):
+      muDataPrepVDV.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/CSC/DCS/LAYERSTATE' )]
+    if not conddb.folderRequested( "/CSC/T0PHASE" ):
+      muDataPrepVDV.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/CSC/T0PHASE' )]
+    if not conddb.folderRequested( "/CSC/T0BASE" ):
+      muDataPrepVDV.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/CSC/T0BASE' )]
 
   viewAlgs_MuonPRD.append( muDataPrepVDV )
 
@@ -121,61 +122,62 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
 
     viewAlgs_MuonPRD.append(  MM_RdoToMM_PrepData )
 
+  if MuonGeometryFlags.hasCSC():
+    ### CSC RDO data ###
+    from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscROD_Decoder
+    CSCRodDecoder = Muon__CscROD_Decoder(name		= "CscROD_Decoder",
+                                         IsCosmics	= False,
+                                         IsOldCosmics 	= False )
+    ToolSvc += CSCRodDecoder
 
-  ### CSC RDO data ###
-  from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscROD_Decoder
-  CSCRodDecoder = Muon__CscROD_Decoder(name		= "CscROD_Decoder",
-                                       IsCosmics	= False,
-                                       IsOldCosmics 	= False )
-  ToolSvc += CSCRodDecoder
+    from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CSC_RawDataProviderToolMT
+    MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderToolMT(name        = "CSC_RawDataProviderToolMT",
+                                                                 CscContainerCacheKey = MuonCacheNames.CscCache,
+                                                                 Decoder     = CSCRodDecoder )
+    ToolSvc += MuonCscRawDataProviderTool
 
-  from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CSC_RawDataProviderToolMT
-  MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderToolMT(name        = "CSC_RawDataProviderToolMT",
-                                                               CscContainerCacheKey = MuonCacheNames.CscCache,
-                                                               Decoder     = CSCRodDecoder )
-  ToolSvc += MuonCscRawDataProviderTool
+    from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataToolMT
+    CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataToolMT(name           = "CscRdoToCscPrepDataTool",
+                                                              CscStripPrdContainerCacheKey = MuonPrdCacheNames.CscStripCache)
+    
+    ToolSvc += CscRdoToCscPrepDataTool
 
-  from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataToolMT
-  CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataToolMT(name           = "CscRdoToCscPrepDataTool",
-                                                            CscStripPrdContainerCacheKey = MuonPrdCacheNames.CscStripCache)
-  
-  ToolSvc += CscRdoToCscPrepDataTool
-
-  from MuonRdoToPrepData.MuonRdoToPrepDataConf import CscRdoToCscPrepData
-  CscRdoToCscPrepData = CscRdoToCscPrepData(name                    = "CscRdoToCscPrepData" + postFix,
-                                            CscRdoToCscPrepDataTool = CscRdoToCscPrepDataTool,
-                                            PrintPrepData           = False,
-                                            DoSeededDecoding        = not forFullScan,
-                                            RoIs                    = RoIs )
+    from MuonRdoToPrepData.MuonRdoToPrepDataConf import CscRdoToCscPrepData
+    CscRdoToCscPrepData = CscRdoToCscPrepData(name                    = "CscRdoToCscPrepData" + postFix,
+                                              CscRdoToCscPrepDataTool = CscRdoToCscPrepDataTool,
+                                              PrintPrepData           = False,
+                                              DoSeededDecoding        = not forFullScan,
+                                              RoIs                    = RoIs )
 
 
-  from MuonByteStream.MuonByteStreamConf import Muon__CscRawDataProvider
-  CscRawDataProvider = Muon__CscRawDataProvider(name         = "CscRawDataProvider" + postFix,
-                                                ProviderTool = MuonCscRawDataProviderTool,
-                                                DoSeededDecoding        = not forFullScan,
-                                                RoIs                    = RoIs)
+    from MuonByteStream.MuonByteStreamConf import Muon__CscRawDataProvider
+    CscRawDataProvider = Muon__CscRawDataProvider(name         = "CscRawDataProvider" + postFix,
+                                                  ProviderTool = MuonCscRawDataProviderTool,
+                                                  DoSeededDecoding        = not forFullScan,
+                                                  RoIs                    = RoIs)
 
-  from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilderTool
-  CscClusterBuilderTool = CscThresholdClusterBuilderTool(name        = "CscThresholdClusterBuilderTool" )
-  ToolSvc += CscClusterBuilderTool
+    from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilderTool
+    CscClusterBuilderTool = CscThresholdClusterBuilderTool(name        = "CscThresholdClusterBuilderTool" )
+    ToolSvc += CscClusterBuilderTool
 
-  #CSC cluster building
-  from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilder
-  CscClusterBuilder = CscThresholdClusterBuilder(name            = "CscThresholdClusterBuilder",
-                                                 cluster_builder = CscClusterBuilderTool)
+    #CSC cluster building
+    from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilder
+    CscClusterBuilder = CscThresholdClusterBuilder(name            = "CscThresholdClusterBuilder",
+                                                   cluster_builder = CscClusterBuilderTool)
 
   # Make sure required objects are still available at whole-event level
   from AthenaCommon.AlgSequence import AlgSequence
   topSequence = AlgSequence()
 
-  if globalflags.InputFormat.is_bytestream():
-    viewAlgs_MuonPRD.append( CscRawDataProvider )
-    muDataPrepVDV.DataObjects += [( 'CscRawDataCollection_Cache' , MuonCacheNames.CscCache )]
-  else:
-    muDataPrepVDV.DataObjects += [( 'CscRawDataContainer' , 'StoreGateSvc+CSCRDO' )]
-    topSequence.SGInputLoader.Load += [( 'CscRawDataContainer' , 'StoreGateSvc+CSCRDO' )]
-  viewAlgs_MuonPRD.append( CscRdoToCscPrepData )
-  viewAlgs_MuonPRD.append( CscClusterBuilder )
+  if MuonGeometryFlags.hasCSC():
+    if globalflags.InputFormat.is_bytestream():
+      viewAlgs_MuonPRD.append( CscRawDataProvider )
+      muDataPrepVDV.DataObjects += [( 'CscRawDataCollection_Cache' , MuonCacheNames.CscCache )]
+    else:
+      muDataPrepVDV.DataObjects += [( 'CscRawDataContainer' , 'StoreGateSvc+CSCRDO' )]
+      topSequence.SGInputLoader.Load += [( 'CscRawDataContainer' , 'StoreGateSvc+CSCRDO' )]
+    viewAlgs_MuonPRD.append( CscRdoToCscPrepData )
+    viewAlgs_MuonPRD.append( CscClusterBuilder )
 
 
   ### MDT RDO data ###
@@ -335,27 +337,28 @@ def muFastRecoSequence( RoIs, doFullScanID = False ):
                                ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
                                ( 'DataVector< LVL1::RecMuonRoI >' , 'StoreGateSvc+HLT_RecMURoIs' )]
 
-  # Only load these objects if they aren't available in conddb
-  from IOVDbSvc.CondDB import conddb
-  if not conddb.folderRequested( "/CSC/DCS/LAYERSTATE" ):
-    muFastRecoVDV.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/CSC/DCS/LAYERSTATE' )]
-  if not conddb.folderRequested( "/CSC/T0PHASE" ):
-    muFastRecoVDV.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/CSC/T0PHASE' )]
-  if not conddb.folderRequested( "/CSC/T0BASE" ):
-    muFastRecoVDV.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/CSC/T0BASE' )]
+  if MuonGeometryFlags.hasCSC():
+    # Only load these objects if they aren't available in conddb
+    from IOVDbSvc.CondDB import conddb
+    if not conddb.folderRequested( "/CSC/DCS/LAYERSTATE" ):
+      muFastRecoVDV.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/CSC/DCS/LAYERSTATE' )]
+    if not conddb.folderRequested( "/CSC/T0PHASE" ):
+      muFastRecoVDV.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/CSC/T0PHASE' )]
+    if not conddb.folderRequested( "/CSC/T0BASE" ):
+      muFastRecoVDV.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/CSC/T0BASE' )]
 
   muFastRecoSequence += muFastRecoVDV
 
-
-  # Configure the L2 CSC data preparator - we can turn off the data decoding here
-  from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__CscDataPreparator
-  L2CscDataPreparator = TrigL2MuonSA__CscDataPreparator(name = "L2MuonSACscDataPreparator",
-                                                        DecodeBS = False,
-                                                        DoDecoding = False,
-                                                        CscRawDataProvider   = "",
-                                                        CscPrepDataProvider  = "",
-                                                        CscClusterProvider   = "")
-  ToolSvc += L2CscDataPreparator
+  if MuonGeometryFlags.hasCSC():
+    # Configure the L2 CSC data preparator - we can turn off the data decoding here
+    from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__CscDataPreparator
+    L2CscDataPreparator = TrigL2MuonSA__CscDataPreparator(name = "L2MuonSACscDataPreparator",
+                                                          DecodeBS = False,
+                                                          DoDecoding = False,
+                                                          CscRawDataProvider   = "",
+                                                          CscPrepDataProvider  = "",
+                                                          CscClusterProvider   = "")
+    ToolSvc += L2CscDataPreparator
  
   # Configure the L2 MDT data preparator - we can turn off the data decoding here
   from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MdtDataPreparator
@@ -391,7 +394,8 @@ def muFastRecoSequence( RoIs, doFullScanID = False ):
 
   from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MuFastDataPreparator
   MuFastDataPreparator = TrigL2MuonSA__MuFastDataPreparator()
-  MuFastDataPreparator.CSCDataPreparator = L2CscDataPreparator
+  if MuonGeometryFlags.hasCSC():
+    MuFastDataPreparator.CSCDataPreparator = L2CscDataPreparator
   MuFastDataPreparator.MDTDataPreparator = L2MdtDataPreparator
   MuFastDataPreparator.RPCDataPreparator = L2RpcDataPreparator
   MuFastDataPreparator.TGCDataPreparator = L2TgcDataPreparator
@@ -524,9 +528,10 @@ def muEFSARecoSequence( RoIs, name ):
     # we now try to share the data preparation algorithms with L2, so we tell the view that it should expect the MDT, TGC, CSC and RPC PRDs to be available
     EFMuonViewDataVerifier.DataObjects += [( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),
                                            ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' ),
-                                           ( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
-                                           ( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),
-                                           ( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' )]
+                                           ( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' )]
+    if MuonGeometryFlags.hasCSC():
+      EFMuonViewDataVerifier.DataObjects += [( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),
+                                             ( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' )]
     if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()): 
       EFMuonViewDataVerifier.DataObjects += [( 'Muon::MMPrepDataContainer'       , 'StoreGateSvc+MM_Measurements'),
                                              ( 'Muon::sTgcPrepDataContainer'     , 'StoreGateSvc+STGC_Measurements')]
@@ -620,8 +625,7 @@ def muEFCBRecoSequence( RoIs, name ):
   muEFCBRecoSequence = parOR("efcbViewNode_"+name)
   #Need ID tracking related objects and MS tracks from previous steps
   ViewVerifyMS = CfgMgr.AthViews__ViewDataVerifier("muonCBViewDataVerifier")
-  ViewVerifyMS.DataObjects = [( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),  
-                              ( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),  
+  ViewVerifyMS.DataObjects = [( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),  
                               ( 'Muon::TgcPrepDataContainer'      , 'StoreGateSvc+TGC_Measurements' ),
                               ( 'Muon::RpcPrepDataContainer'      , 'StoreGateSvc+RPC_Measurements' ),
                               ( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates'),
@@ -629,7 +633,8 @@ def muEFCBRecoSequence( RoIs, name ):
                               ( 'SCT_FlaggedCondData' , 'StoreGateSvc+SCT_FlaggedCondData' ),
                               ( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates_FS' ),
                               ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
-
+  if MuonGeometryFlags.hasCSC():
+    ViewVerifyMS.DataObjects += [( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' )]
   if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()): 
     ViewVerifyMS.DataObjects += [( 'Muon::MMPrepDataContainer'       , 'StoreGateSvc+MM_Measurements'),
                                 ( 'Muon::sTgcPrepDataContainer'     , 'StoreGateSvc+STGC_Measurements') ]
@@ -803,10 +808,11 @@ def muEFInsideOutRecoSequence(RoIs, name):
     # for non-latemu chains, the decoding/hough transform is run in an earlier step
     #Need PRD containers for inside-out reco
     ViewVerifyInsideOut = CfgMgr.AthViews__ViewDataVerifier("muonInsideOutViewDataVerifier")
-    ViewVerifyInsideOut.DataObjects = [( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' ),
-                                       ( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
+    ViewVerifyInsideOut.DataObjects = [( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
                                        ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' ),
                                        ( 'Muon::HoughDataPerSectorVec' , 'StoreGateSvc+HoughDataPerSectorVec')]
+    if MuonGeometryFlags.hasCSC():
+      ViewVerifyInsideOut.DataObjects += [( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' )]
     if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()): 
       ViewVerifyInsideOut.DataObjects += [( 'Muon::MMPrepDataContainer'       , 'StoreGateSvc+MM_Measurements'),
                                           ( 'Muon::sTgcPrepDataContainer'     , 'StoreGateSvc+STGC_Measurements') ]

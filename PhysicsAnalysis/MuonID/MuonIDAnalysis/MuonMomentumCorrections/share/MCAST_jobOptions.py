@@ -1,4 +1,4 @@
-path = '/data/atlassmallfiles/users/artoni/mcp/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.deriv.DAOD_MUON6.e3601_s3126_r10201_p4029'
+path = '/data/atlas/atlasdata/artoni/mcp/tests/mc16_13TeV.301026.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_1000M1250.deriv.DAOD_EXOT0.e3649_s3126_r9364_p3654'
 files = [os.path.join(path, f) for f in os.listdir(path)]
 
 import AthenaPoolCnvSvc.ReadAthenaPool
@@ -15,7 +15,7 @@ alg = CP__TestMCASTTool()
 #alg.MuonCalibrationAndSmearingTool.Release = 'Recs2019_05_30'
 alg.MuonCalibrationAndSmearingTool.OutputLevel = INFO 
 alg.MuonCalibrationAndSmearingTool.AddExtraDecorations = True
-alg.MuonCalibrationAndSmearingTool.doExtraSmearing = False 
+alg.MuonCalibrationAndSmearingTool.doExtraSmearing = True 
 alg.MuonCalibrationAndSmearingTool.do2StationsHighPt = False 
 alg.OutputLevel = INFO 
 theJob += alg

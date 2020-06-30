@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigL2MuonSA/PtFromRadius.h"
+#include "PtFromRadius.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "TMath.h"

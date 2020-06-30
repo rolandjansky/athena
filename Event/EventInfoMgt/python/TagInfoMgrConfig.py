@@ -47,7 +47,12 @@ if __name__ == "__main__":
 
     ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.lock()
-    acc, tagInfoMgr = TagInfoMgrCfg( ConfigFlags )
-    print (tagInfoMgr)
+
+    acc, tagInfoMgr = TagInfoMgrCfg( ConfigFlags, {"SomeKey": "SomeValue"} )
+    acc2,_ =  TagInfoMgrCfg( ConfigFlags, {"OtherKey":"OtherValue", "SomeKey": "SomeValue"} )
+    acc.merge(acc2)
+
+    assert "SomeKey" in acc.getService("TagInfoMgr").ExtraTagValuePairs
+    assert "OtherKey" in acc.getService("TagInfoMgr").ExtraTagValuePairs
     acc.store( open( "test.pkl", "wb" ) )
     print("All OK")

@@ -47,7 +47,7 @@ class TrigInDetCompStep(Step):
     def __init__(self, name='TrigInDetComp'):
         super(TrigInDetCompStep, self).__init__(name)
         self.input_file = 'data-hists.root'
-        self.ref_file = 'data-ref.root'
+        self.ref_file = 'data-hists.root'   #### need to add reference file here 
         self.output_dir = 'HLT-plots'
         self.chains = ' '
         self.args = ''

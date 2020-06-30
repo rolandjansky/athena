@@ -5,25 +5,6 @@
 # Declare the package name:
 atlas_subdir( ISF_Geant4Tools )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          GaudiKernel
-                          Simulation/G4Atlas/G4AtlasInterfaces
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Control/StoreGate
-                          DetectorDescription/AtlasDetDescr
-                          Generators/AtlasHepMC
-                          Generators/GeneratorObjects
-                          Simulation/G4Atlas/G4AtlasTools
-                          Simulation/G4Atlas/G4AtlasAlg
-                          Simulation/G4Sim/MCTruth
-                          Simulation/G4Sim/SimHelpers
-                          Simulation/ISF/ISF_Core/ISF_Event
-                          Simulation/ISF/ISF_Core/ISF_Interfaces
-                          Simulation/ISF/ISF_Geant4/ISF_Geant4Event )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Eigen )

@@ -294,7 +294,7 @@ namespace Trk
 
     std::vector<const Trk::TrackParameters*> perigeeList;
     for (std::vector<const Trk::Track*>::const_iterator iter=VectorTrk.begin();
-         iter!=VectorTrk.end();iter++) {
+         iter!=VectorTrk.end();++iter) {
       if (std::isnan((*iter)->perigeeParameters()->parameters()[Trk::d0])) {
         continue;
       }
@@ -352,7 +352,7 @@ namespace Trk
 
     std::vector<const Trk::TrackParameters*> perigeeList;
     for (std::vector<const Trk::TrackParticleBase*>::const_iterator iter=VectorTrk.begin();
-         iter!=VectorTrk.end();iter++) {
+         iter!=VectorTrk.end();++iter) {
       if (std::isnan((*iter)->perigee()->parameters()[Trk::d0])) {
         continue;
       }
@@ -474,7 +474,7 @@ namespace Trk
 
         //collect all measured perigees
         
-        for (iter=lintracksBegin;iter!=lintracksEnd;iter++) {
+        for (iter=lintracksBegin;iter!=lintracksEnd;++iter) {
           //m_LinearizedTrackFactory->linearize(*iter,ActualPosition);
           bool success=m_ImpactPoint3dEstimator->addIP3dAtaPlane(*iter,NewVertex);
           if (!success)
@@ -491,7 +491,7 @@ namespace Trk
       lintracksEnd=ActualVertex->vxTrackAtVertex().end();
 
       //now reweight tracks (find chi2 compatibility with actual vertex position)
-      for (iter=lintracksBegin;iter!=lintracksEnd;iter++) {
+      for (iter=lintracksBegin;iter!=lintracksEnd;++iter) {
 
         //estimate the compatibility of the track to the vertex and store it in iter->linState()->m_vtxCompatibility
         m_TrackCompatibilityEstimator->estimate(*iter,NewVertex);
@@ -509,7 +509,7 @@ namespace Trk
       }
 
       //now update with all the tracks info
-      for (iter=lintracksBegin;iter!=lintracksEnd;iter++) {
+      for (iter=lintracksBegin;iter!=lintracksEnd;++iter) {
         if(msgLvl(MSG::VERBOSE))
         {
           msg(MSG::VERBOSE) << "Updating vertex with a new track" << endmsg;
@@ -582,7 +582,7 @@ namespace Trk
     if(m_doSmoothing) {
       m_VertexSmoother->smooth(*ActualVertex);
     } else {
-      for (iter=lintracksBegin;iter!=lintracksEnd;iter++) {
+      for (iter=lintracksBegin;iter!=lintracksEnd;++iter) {
         //      const MeasuredPerigee* castToMP=dynamic_cast<const MeasuredPerigee*>(iter->initialPerigee());
         //      if (castToMP==0) {
         //        msg(MSG::WARNING) << "Couldn't cast a track to MeasuredPerigee to smooth it. Neutrals not supported. " <<
