@@ -343,18 +343,20 @@ InDetPhysValMonitoringTool::fillHistograms() {
       //
       //Loop over reco tracks to find the match
       //
+      const xAOD::TrackParticle* matchedTrack = nullptr;
       for (const auto& thisTrack: selectedTracks) { // Inner loop over selected track particles
         const xAOD::TruthParticle* associatedTruth = getAsTruth.getTruth(thisTrack);
         if (associatedTruth && associatedTruth == thisTruth) {
           float prob = getMatchingProbability(*thisTrack);
           if (not std::isnan(prob) && prob > m_lowProb) {
             isEfficient = true;
+            matchedTrack = thisTrack;
             break;
           }
         }
       }
       ATH_MSG_DEBUG("Filling efficiency plots info monitoring plots");
-      m_monPlots->fillEfficiency(*thisTruth, isEfficient, puEvents);
+      m_monPlots->fillEfficiency(*thisTruth, *matchedTrack, isEfficient, puEvents);
     }
   }
 
