@@ -11,6 +11,7 @@ from AthenaCommon import Logging
 mgsyslog = Logging.logging.getLogger('MadGraphSysUtils')
 
 SYSTEMATICS_WEIGHT_INFO="MUR%(mur).1f_MUF%(muf).1f_PDF%(pdf)i"
+SYSTEMATICS_WEIGHT_INFO_ALTDYNSCALES="MUR%(mur).1f_MUF%(muf).1f_DYNSCALE%(dyn)i_PDF%(pdf)i"
 
 #==================================================================================
 # main function: figure out run_card arguments that need to be set
@@ -32,6 +33,7 @@ def get_pdf_and_systematic_settings(the_base_fragment,isNLO,useNLOotf=False):
     basefragment_settings['alternative_pdfs']=None
     basefragment_settings['pdf_variations']=None
     basefragment_settings['scale_variations']=None
+    basefragment_settings['alternative_dynamic_scales']=None
     for s in basefragment_settings:
         if s in the_base_fragment:
             if isinstance(basefragment_settings[s],list) and len(basefragment_settings[s])==0:
@@ -59,9 +61,9 @@ def get_pdf_and_systematic_settings(the_base_fragment,isNLO,useNLOotf=False):
         else:
             if not isinstance(basefragment_settings[s],list):
                 raise RuntimeError(s+', configured in base fragment, has to be a list of integers')
-            for pdf in basefragment_settings[s]:
-                if not isinstance(pdf,int):
-                    raise RuntimeError(s+', configured in base fragment, has to be a list of integers')
+            for element in basefragment_settings[s]:
+                if not isinstance(element,int) or not element>0:
+                    raise RuntimeError(s+', configured in base fragment, has to be a list of positive integers')
     
     ### Resolve smaller issues with base fragment input
     if basefragment_settings['alternative_pdfs'] is not None:
@@ -78,7 +80,12 @@ def get_pdf_and_systematic_settings(the_base_fragment,isNLO,useNLOotf=False):
 
     # turn on LO systematics and use new systematics script
     if not useNLOotf:
-        runcard_systematics_arguments['weight_info']=SYSTEMATICS_WEIGHT_INFO
+        if basefragment_settings['alternative_dynamic_scales'] is not None:
+             runcard_systematics_arguments['weight_info']=SYSTEMATICS_WEIGHT_INFO_ALTDYNSCALES
+        else:
+            runcard_systematics_arguments['weight_info']=SYSTEMATICS_WEIGHT_INFO
+        runcard_systematics_arguments['remove_wgts']='".*MUR0.5_MUF2.0.*|.*MUR2.0_MUF0.5.*"'
+            
         runcard_settings['systematics_program']='none'
         for s in ['alternative_pdfs','pdf_variations','scale_variations']:
             if basefragment_settings[s] is not None and len(basefragment_settings[s])>0:
@@ -107,7 +114,7 @@ def get_pdf_and_systematic_settings(the_base_fragment,isNLO,useNLOotf=False):
         if basefragment_settings['alternative_pdfs'] is not None:
             for a in basefragment_settings['alternative_pdfs']:
                 runcard_settings['lhaid']+=' '+str(a)
-                runcard_settings['reweight_pdf']+=' False'
+                runcard_settings['reweight_pdf']+=' False'           
             
     else: #use the new python systematics module
         sys_pdfs=[]
@@ -121,6 +128,7 @@ def get_pdf_and_systematic_settings(the_base_fragment,isNLO,useNLOotf=False):
             runcard_systematics_arguments['pdf']=','.join(sys_pdfs)
         if isNLO:
             runcard_settings['reweight_pdf']='False'
+            
 
     ### Set scale variations to be included as weights
     if useNLOotf and basefragment_settings['scale_variations'] is None:
@@ -134,9 +142,17 @@ def get_pdf_and_systematic_settings(the_base_fragment,isNLO,useNLOotf=False):
             runcard_systematics_arguments['muf']=','.join([str(s) for s in basefragment_settings['scale_variations']])
             runcard_systematics_arguments['mur']=','.join([str(s) for s in basefragment_settings['scale_variations']])
             runcard_systematics_arguments['dyn']='-1'
-            runcard_settings['systematics_arguments']=write_systematics_arguments(runcard_systematics_arguments)
             if isNLO:
                 runcard_settings['reweight_scale']='False'
+
+    if basefragment_settings['alternative_dynamic_scales'] is not None:
+        if useNLOotf:
+            raise RuntimeError('Cannot reweight to alternative dynamic scales using the NLO OTF module')
+        else:
+            runcard_systematics_arguments['dyn']=','.join([str(s) for s in [-1]+basefragment_settings['alternative_dynamic_scales']])
+            
+    if not useNLOotf:
+        runcard_settings['systematics_arguments']=write_systematics_arguments(runcard_systematics_arguments)
 
     return runcard_settings
 
