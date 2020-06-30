@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -48,7 +48,7 @@ class DelayedConditionsCleanerSvcProps;
  * On each event (@c event interface) we put the current IOV keys
  * (run+LBN and timestamp) into ring buffers (of size RingSize).
  * If the topmost entry of the priority queue has come due, then we
- * pull of that entry and other entries due up to LookAhead events later.
+ * pull off that entry and other entries due up to LookAhead events later.
  * We then do a trim operation on each of the conditions containers,
  * removing conditions objects from the oldest first that do not
  * match any of the IOV keys in the ring buffer.

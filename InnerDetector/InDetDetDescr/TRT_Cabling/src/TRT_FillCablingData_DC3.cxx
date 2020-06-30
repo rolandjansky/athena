@@ -49,8 +49,6 @@
 
 #include "CxxUtils/checker_macros.h"
 
-ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // std::exit is used.
-
 using eformat::helper::SourceIdentifier; 
 using namespace std;
 
@@ -81,7 +79,7 @@ const InterfaceID& TRT_FillCablingData_DC3::interfaceID( )
 
 
   // Initialisation
-StatusCode TRT_FillCablingData_DC3::initialize( )
+StatusCode TRT_FillCablingData_DC3::initialize ATLAS_NOT_THREAD_SAFE ( ) // thread unsafe TRT_FillCablingData_DC3::defineTables is used.
 {
   ATH_MSG_INFO( "TRT_FillCablingData_DC3::initialize" ); 
 
@@ -175,7 +173,7 @@ void TRT_FillCablingData_DC3::defineParameters()
 
 
   // Fill Tables with IDs for all straws
-void TRT_FillCablingData_DC3::defineTables()
+void TRT_FillCablingData_DC3::defineTables ATLAS_NOT_THREAD_SAFE () // thread unsafe std::exit is used.
 {
    ATH_MSG_INFO( "In defineTables" ); 
 

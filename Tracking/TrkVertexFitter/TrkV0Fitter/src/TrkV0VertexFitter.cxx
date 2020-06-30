@@ -116,7 +116,7 @@ namespace Trk
 
   /** Interface for xAOD::TrackParticle with mass and pointing constraints */
   xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const xAOD::TrackParticle*> & vectorTrk,
-                                        const std::vector<double> masses,
+                                        const std::vector<double>& masses,
                                         const double& constraintMass,
                                         const xAOD::Vertex* pointingVertex,
                                         const Amg::Vector3D& firstStartingPoint) const
@@ -210,7 +210,7 @@ namespace Trk
 
   /** Interface for Trk::TrackParameters with mass and pointing constraints */
   xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const Trk::TrackParameters*>& originalPerigees,
-                                        const std::vector<double> masses,
+                                        const std::vector<double>& masses,
                                         const double& constraintMass,
                                         const xAOD::Vertex* pointingVertex,
                                         const Amg::Vector3D& firstStartingPoint) const

@@ -119,6 +119,7 @@ def clusterFSInputMaker( ):
   RoIs = 'FSJETRoI'
   from AthenaConfiguration.ComponentFactory import CompFactory
   InputMakerAlg = CompFactory.InputMakerForRoI("IMclusterFS", RoIsLink="initialRoI")
+  InputMakerAlg.RoITool = CompFactory.ViewCreatorInitialROITool()
   InputMakerAlg.RoIs=RoIs
   return InputMakerAlg
 

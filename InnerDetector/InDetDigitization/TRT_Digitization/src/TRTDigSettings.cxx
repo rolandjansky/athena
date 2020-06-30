@@ -18,7 +18,6 @@
 /////////////////////////////////////////////////////////////////
 #include "TRTDigSettings.h"
 
-#include "CxxUtils/checker_macros.h"
 #include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 
 //Geomodel
@@ -33,8 +32,6 @@
 
 #include <iostream>
 #include <limits>
-
-ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // std::exit is used.
 
 // RDBAccessSvc (Interface to the DD database) has been removed since
 // TRT_Digitization-01-00-11 because the fetched values are correctly
@@ -325,10 +322,10 @@ void TRTDigSettings::defineNewVariable(std::string name, double * datamember,std
 
   //sanity checks:
   if (m_intboolparMap.find(name)!=m_intboolparMap.end() || m_doubleparMap.find(name)!=m_doubleparMap.end()) {
-    std::cout << "TRTDigSettings: Multiple definitions of "<<name<<std::endl; exit(1);
+    msg(MSG::FATAL) << "TRTDigSettings: Multiple definitions of "<<name<<endmsg; return;
   }
   if (lowrange > highrange || lowrange*unitval<=m_propertyNotSetMagicNumber ) {
-    std::cout << "TRTDigSettings: Problem in range of par "<<name<<std::endl; exit(1);
+    msg(MSG::FATAL) << "TRTDigSettings: Problem in range of par "<<name<<endmsg; return;
   }
 
   doubleparameter p;
@@ -349,10 +346,10 @@ void TRTDigSettings::defineNewUIntVariable(std::string name,unsigned int * datam
                                            unsigned int lowrange, unsigned int highrange) {
   //sanity checks:
   if (m_intboolparMap.find(name)!=m_intboolparMap.end() || m_doubleparMap.find(name)!=m_doubleparMap.end()) {
-    std::cout << "TRTDigSettings: Multiple definitions of "<<name<<std::endl; exit(1);
+    msg(MSG::FATAL) << "TRTDigSettings: Multiple definitions of "<<name<<endmsg; return;
   }
   if (lowrange > highrange ) {
-    std::cout << "TRTDigSettings: Problem in range of par "<<name<<std::endl; exit(1);
+    msg(MSG::FATAL) << "TRTDigSettings: Problem in range of par "<<name<<endmsg; return;
   }
 
   intboolparameter p;
@@ -374,10 +371,10 @@ void TRTDigSettings::defineNewIntVariable(std::string name,int * datamember,std:
                                           int lowrange, int highrange) {
   //sanity checks:
   if (m_intboolparMap.find(name)!=m_intboolparMap.end() || m_doubleparMap.find(name)!=m_doubleparMap.end()) {
-    std::cout << "TRTDigSettings: Multiple definitions of "<<name<<std::endl; exit(1);
+    msg(MSG::FATAL) << "TRTDigSettings: Multiple definitions of "<<name<<endmsg; return;
   }
   if (lowrange > highrange || lowrange<=m_propertyNotSetMagicNumber_int ) {
-    std::cout << "TRTDigSettings: Problem in range of par "<<name<<std::endl; exit(1);
+    msg(MSG::FATAL) << "TRTDigSettings: Problem in range of par "<<name<<endmsg; return;
   }
 
   intboolparameter p;
@@ -398,7 +395,7 @@ void TRTDigSettings::defineNewIntVariable(std::string name,int * datamember,std:
 void TRTDigSettings::defineNewBoolVariable(std::string name,bool * datamember,std::string description) {
   //sanity checks:
   if (m_intboolparMap.find(name)!=m_intboolparMap.end() || m_doubleparMap.find(name)!=m_doubleparMap.end()) {
-    std::cout << "TRTDigSettings: Multiple definitions of "<<name<<std::endl; exit(1);
+    msg(MSG::FATAL) << "TRTDigSettings: Multiple definitions of "<<name<<endmsg; return;
   }
 
   intboolparameter p;

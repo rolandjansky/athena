@@ -12,12 +12,14 @@ atlas_depends_on_subdirs(  )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
+                          Control/CxxUtils
                           GaudiKernel )
 
 # External dependencies:
 find_package( CLHEP )
 find_package( Eigen )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( Boost COMPONENTS unit_test_framework )
 
 # tag rootMathLibs was not recognized in automatic conversion in cmt2cmake
 
@@ -30,3 +32,11 @@ atlas_add_component( InDetEtaDependentCuts
 
 # Install files from the package:
 atlas_install_headers( InDetEtaDependentCuts )
+atlas_install_joboptions( share/*.txt )
+
+atlas_add_test( InDetEtaDependentCutsSvc_test                
+   SOURCES test/InDetEtaDependentCutsSvc_test.cxx 
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel AthenaBaseComps GaudiKernel TestTools CxxUtils InDetRecToolInterfaces
+   POST_EXEC_SCRIPT "nopost.sh" )
+

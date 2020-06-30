@@ -86,6 +86,7 @@ StatusCode PixelChargeToTConversion::execute(){
       const PixelID* pixelIDp=dynamic_cast<const PixelID*>(aid);
       if (!pixelIDp){
         ATH_MSG_ERROR("Could not get PixelID pointer");
+        return StatusCode::FAILURE;
       } 
       const PixelID& pixelID = *pixelIDp;
 

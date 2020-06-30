@@ -9,8 +9,8 @@ from TrigStreamerHypo.TrigStreamerHypoConfigMT import StreamerHypoToolMTgenerato
 from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlgMT
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 from AthenaCommon.CFElements import seqAND
-from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm, ViewCreatorInitialROITool
-
+from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool
 
 #----------------------------------------------------------------
 

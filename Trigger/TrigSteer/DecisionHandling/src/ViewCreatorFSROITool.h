@@ -2,12 +2,12 @@
 Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef VIEWALGS_VIEWCREATORFSROITOOL_H
-#define VIEWALGS_VIEWCREATORFSROITOOL_H
+#ifndef DESICIONHANDLING_VIEWCREATORFSROITOOL_H
+#define DESICIONHANDLING_VIEWCREATORFSROITOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "StoreGate/WriteHandleKey.h"
-#include "ViewAlgs/IViewCreatorROITool.h"
+#include "DecisionHandling/IViewCreatorROITool.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 /**
@@ -39,4 +39,4 @@ public:
 
 };
 
-#endif //> !VIEWALGS_VIEWCREATORFSROITOOL_H
+#endif //> !DESICIONHANDLING_VIEWCREATORFSROITOOL_H

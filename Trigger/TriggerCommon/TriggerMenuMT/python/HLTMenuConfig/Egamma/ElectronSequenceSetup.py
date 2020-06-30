@@ -10,7 +10,8 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFr
 # Until such time as FS and RoI collections do not interfere, a hacky fix
 #from AthenaCommon.CFElements import parOR, seqAND
 from AthenaCommon.CFElements import seqAND
-from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm, ViewCreatorInitialROITool
+from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 def fastElectronSequence(ConfigFlags):

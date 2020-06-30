@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -73,15 +73,15 @@ namespace Trk{
 
 	std::vector<double>::iterator it1,it2;
 	it1=it2=xx.begin();
-	for(i=0; i<((n+1)/2); i++,it1++){}; for(i=0; i<(n/2+1);i++,it2++){};
+	for(i=0; i<((n+1)/2); ++i,++it1){}; for(i=0; i<(n/2+1);++i,++it2){};
 	out[0]=0.5*( (*it1) + (*it2) );
 		
 	it1=it2=yy.begin();
-	for(i=0; i<((n+1)/2); i++,it1++){}; for(i=0; i<(n/2+1);i++,it2++){};
+	for(i=0; i<((n+1)/2); ++i,++it1){}; for(i=0; i<(n/2+1);++i,++it2){};
 	out[1]=0.5*( (*it1) + (*it2) );
 
 	it1=it2=zz.begin();
-	for(i=0; i<((n+1)/2); i++,it1++){}; for(i=0; i<(n/2+1);i++,it2++){};
+	for(i=0; i<((n+1)/2); ++i,++it1){}; for(i=0; i<(n/2+1);++i,++it2){};
 	out[2]=0.5*( (*it1) + (*it2) );
 
     }
@@ -138,15 +138,15 @@ namespace Trk{
 
 	std::vector<double>::iterator it1,it2;
 	it1=it2=xx.begin();
-	for(i=0; i<((n+1)/2); i++,it1++){}; for(i=0; i<(n/2+1);i++,it2++){};
+	for(i=0; i<((n+1)/2); ++i,++it1){}; for(i=0; i<(n/2+1);++i,++it2){};
 	out[0]=0.5*( (*it1) + (*it2) );
 		
 	it1=it2=yy.begin();
-	for(i=0; i<((n+1)/2); i++,it1++){}; for(i=0; i<(n/2+1);i++,it2++){};
+	for(i=0; i<((n+1)/2); ++i,++it1){}; for(i=0; i<(n/2+1);++i,++it2){};
 	out[1]=0.5*( (*it1) + (*it2) );
 
 	it1=it2=zz.begin();
-	for(i=0; i<((n+1)/2); i++,it1++){}; for(i=0; i<(n/2+1);i++,it2++){};
+	for(i=0; i<((n+1)/2); ++i,++it1){}; for(i=0; i<(n/2+1);++i,++it2){};
 	out[2]=0.5*( (*it1) + (*it2) );
 
     }
@@ -203,15 +203,15 @@ namespace Trk{
 
 	std::vector<double>::iterator it1,it2;
 	it1=it2=xx.begin();
-	for(i=0; i<((n+1)/2); i++,it1++){}; for(i=0; i<(n/2+1);i++,it2++){};
+	for(i=0; i<((n+1)/2); ++i,++it1){}; for(i=0; i<(n/2+1);++i,++it2){};
 	out[0]=0.5*( (*it1) + (*it2) );
 		
 	it1=it2=yy.begin();
-	for(i=0; i<((n+1)/2); i++,it1++){}; for(i=0; i<(n/2+1);i++,it2++){};
+	for(i=0; i<((n+1)/2); ++i,++it1){}; for(i=0; i<(n/2+1);++i,++it2){};
 	out[1]=0.5*( (*it1) + (*it2) );
 
 	it1=it2=zz.begin();
-	for(i=0; i<((n+1)/2); i++,it1++){}; for(i=0; i<(n/2+1);i++,it2++){};
+	for(i=0; i<((n+1)/2); ++i,++it1){}; for(i=0; i<(n/2+1);++i,++it2){};
 	out[2]=0.5*( (*it1) + (*it2) );
 
     }
@@ -268,15 +268,15 @@ namespace Trk{
 
 	std::vector<double>::iterator it1,it2;
 	it1=it2=xx.begin();
-	for(i=0; i<((n+1)/2); i++,it1++){}; for(i=0; i<(n/2+1);i++,it2++){};
+	for(i=0; i<((n+1)/2); ++i,++it1){}; for(i=0; i<(n/2+1);++i,++it2){};
 	out[0]=0.5*( (*it1) + (*it2) );
 		
 	it1=it2=yy.begin();
-	for(i=0; i<((n+1)/2); i++,it1++){}; for(i=0; i<(n/2+1);i++,it2++){};
+	for(i=0; i<((n+1)/2); ++i,++it1){}; for(i=0; i<(n/2+1);++i,++it2){};
 	out[1]=0.5*( (*it1) + (*it2) );
 
 	it1=it2=zz.begin();
-	for(i=0; i<((n+1)/2); i++,it1++){}; for(i=0; i<(n/2+1);i++,it2++){};
+	for(i=0; i<((n+1)/2); ++i,++it1){}; for(i=0; i<(n/2+1);++i,++it2){};
 	out[2]=0.5*( (*it1) + (*it2) );
 
     }

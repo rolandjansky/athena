@@ -360,7 +360,9 @@ void PerfMonMTSvc::report2Log_Description() const {
   if (m_reportResultsToJSON) {
     ATH_MSG_INFO("*** Full set of information can also be found in: " << m_jsonFileName.toString());
     ATH_MSG_INFO("*** In order to make plots using the results run the following commands:");
-    ATH_MSG_INFO("*** $ perfmonmt-plotter -i " << m_jsonFileName.toString());
+    ATH_MSG_INFO("*** $ perfmonmt-plotter.py -i " << m_jsonFileName.toString());
+    ATH_MSG_INFO("*** In order to print tables using the results run the following commands:");
+    ATH_MSG_INFO("*** $ perfmonmt-printer.py -i " << m_jsonFileName.toString());
     ATH_MSG_INFO("=======================================================================================");
   }
 }
@@ -402,7 +404,7 @@ void PerfMonMTSvc::report2Log_ComponentLevel() {
       }
       counter++;
 
-      ATH_MSG_INFO(format("%1% %|15t|%2% %|25t|%3% %|40t|%4% %|55t|%5% %|75t|%6%") % it.first.stepName %
+      ATH_MSG_INFO(format("%1% %|15t|%2% %|25t|%3$.2f %|40t|%4$.0f %|55t|%5$.0f %|75t|%6%") % it.first.stepName %
                    it.second->getCallCount() % it.second->getDeltaCPU() % it.second->getDeltaVmem() %
                    it.second->getDeltaMalloc() % it.first.compName);
     }
@@ -440,7 +442,7 @@ void PerfMonMTSvc::report2Log_EventLevel() {
                " measurements are explicitly printed)");
   ATH_MSG_INFO("=======================================================================================");
 
-  ATH_MSG_INFO(format("%1% %|16t|%2$.2f %|28t|%3$.2f %|40t|%4% %|52t|%5% %|64t|%6% %|76t|%7%") % "Event" % "CPU [s]" %
+  ATH_MSG_INFO(format("%1% %|16t|%2% %|28t|%3% %|40t|%4% %|52t|%5% %|64t|%6% %|76t|%7%") % "Event" % "CPU [s]" %
                "Wall [s]" % "Vmem [kB]" % "Rss [kB]" % "Pss [kB]" % "Swap [kB]");
 
   ATH_MSG_INFO("---------------------------------------------------------------------------------------");
@@ -573,6 +575,10 @@ void PerfMonMTSvc::report2JsonFile_Summary(nlohmann::json& j) const {
                                            {"dSwap", dSwap}};
 
   }
+
+  // Report the total number of events
+  const long nEvents = m_eventCounter;
+  j["summary"]["nEvents"] = nEvents;
 
   // Report Peaks
   const long vmemPeak = m_measurement_events.vmemPeak;

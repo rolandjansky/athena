@@ -1,0 +1,3 @@
+ApplicationMgr.OutputLevel = 5;
+ApplicationMgr.CreateSvc += { "InDet::InDetEtaDependentCutsSvc" };
+MessageSvc.OutputLevel = 5;

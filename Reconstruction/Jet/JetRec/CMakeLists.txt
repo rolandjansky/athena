@@ -68,7 +68,7 @@ endif()
 atlas_add_dictionary( JetRecDict
    JetRec/JetRecDict.h
    JetRec/selection.xml
-   LINK_LIBRARIES JetRecLib )
+   LINK_LIBRARIES JetRecLib ${mon_lib} )
 
 # Test(s) in the package:
 atlas_add_test( TestTests
