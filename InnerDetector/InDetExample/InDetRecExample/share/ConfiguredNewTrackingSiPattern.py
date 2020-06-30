@@ -123,6 +123,11 @@ class  ConfiguredNewTrackingSiPattern:
             InDetSiSpacePointsSeedMaker.DeltaThetaRoISP       = 0.8
             InDetSiSpacePointsSeedMaker.DeltaPhiRoISP         = 0.8
             InDetSiSpacePointsSeedMaker.RoISeedTool           = RoISeedTool
+         if NewTrackingCuts.mode() == "SLHC" and InDetFlags.doFastTracking() :
+            InDetSiSpacePointsSeedMaker.useFastTracking       = True
+            InDetSiSpacePointsSeedMaker.maxSeedsForSpacePoint = 3
+
+
                     
          #InDetSiSpacePointsSeedMaker.OutputLevel = VERBOSE
          ToolSvc += InDetSiSpacePointsSeedMaker
