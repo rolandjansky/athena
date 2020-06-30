@@ -6,7 +6,6 @@ from __future__ import print_function
 
 import sys
 
-import ROOT
 from ROOT import gROOT
 gROOT.SetBatch(True)
 

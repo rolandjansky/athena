@@ -62,4 +62,3 @@ if __name__ == "__main__":
       dbTagName          = "DetStatusDQMFOFLH-FDR2-02"
       
   mod.hancool_histo( inputFilePath, input_run, dbConnectionHisto,dqmfOflHisto, dbTagName)
-

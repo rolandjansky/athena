@@ -12,8 +12,7 @@ from __future__ import print_function
 
 #HANDIR='/afs/cern.ch/user/a/atlasdqm/dqmdisk/han_results/fastphysmon/1'
 
-from DQConfMakerBase.DQElements import *
-from DQConfMakerBase.Helpers import IDHelper, make_thresholds
+from DQConfMakerBase.DQElements import DQReference, DQRegion, DQAlgorithm
 from DQHanConfMaker.hanwriter import writeHanConfiguration
 import ROOT
 
@@ -57,21 +56,21 @@ def prune(dqregion):
     False if we should not
     """
     params = dqregion.getDQParameters()
-    if params == None:
+    if params is None:
         params = []
     subregions = dqregion.getSubRegions()
-    if subregions == None:
+    if subregions is None:
         subregions = []
     else:
         subregions = subregions[:]
     # kill subregions
     for sr in subregions:
-        if sr == None:
+        if sr is None:
             continue
         if prune(sr):
             dqregion.delRelation('DQRegions', sr)
     subregions = dqregion.getSubRegions()
-    if subregions == None:
+    if subregions is None:
         subregions = []
     if len(subregions) + len(params) == 0:
         return True
@@ -80,10 +79,10 @@ def prune(dqregion):
 
 def paramcount(dqregion):
     params = dqregion.getDQParameters()
-    if params == None:
+    if params is None:
         params = []
     subregions = dqregion.getSubRegions()
-    if subregions == None:
+    if subregions is None:
         subregions = []
     
     return len(params) + sum([paramcount(region) for region in subregions])
@@ -124,6 +123,7 @@ def super_process(fname, options):
     hanoutput = None
 
     failed = False
+    prebuilt_hcfg = False
 
     @contextlib.contextmanager
     def tmpdir():
@@ -184,14 +184,14 @@ def super_process(fname, options):
                     os.unlink(hanconfig)
                     os.unlink(hanhcfg)
                 os.unlink(hanoutput)
-            except:
+            except Exception:
                 pass
         
     return not failed
 
         
 if __name__=="__main__":
-    import sys, optparse, shutil
+    import sys, optparse
     parser = optparse.OptionParser(usage='usage: %prog [options] inputfile run')
     parser.add_option('--webdir', default='/afs/cern.ch/user/a/atlasdqm/dqmdisk/han_results/fastphysmon',
                       help='Change directory to store web display files')
@@ -217,7 +217,7 @@ if __name__=="__main__":
         sys.exit(1)
 
     rv = super_process(fname, options)
-    if rv == True:
+    if rv:
         sys.exit(0)
     else:
         sys.exit(1)    

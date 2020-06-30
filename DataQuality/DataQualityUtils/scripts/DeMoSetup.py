@@ -5,7 +5,7 @@
 ##################################################################
 
 from __future__ import print_function
-import os,sys  
+import os
 import argparse
 
 parser = argparse.ArgumentParser(description='')
@@ -32,4 +32,3 @@ if not os.path.exists(direct):
   os.system("mkdir %s"%direct)
   os.system("mkdir %s/Run"%direct)
   os.system("mkdir %s/Weekly"%direct)
-

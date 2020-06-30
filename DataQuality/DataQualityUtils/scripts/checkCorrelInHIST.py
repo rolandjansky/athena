@@ -35,15 +35,14 @@
 # Author : Benjamin Trocme (LPSC Grenoble) / 2017
 
 from __future__ import print_function
-import os, sys  
-import string
+import os, sys
 import argparse
 from six.moves import xmlrpc_client as xmlrpclib
 
 from DataQualityUtils import pathExtract         
 
-from ROOT import TFile,TCanvas,TBox,TPaveText,TColor
-from ROOT import TH1,TH2,TH1I,TH1D,TH2D
+from ROOT import TFile,TCanvas,TBox,TPaveText
+from ROOT import TH1D,TH2D
 from ROOT import kBlue,kGreen,kRed
 from ROOT import gStyle
 

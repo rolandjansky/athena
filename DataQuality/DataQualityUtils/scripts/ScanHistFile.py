@@ -57,7 +57,7 @@ def _dolsr(dir):
             del dirobj
         elif keyClass.InheritsFrom("TTree"):
             currObj=key.ReadObj()
-            if currObj == None:
+            if currObj is None:
                 print("WARNING TTree Object \"%s\" in file:directory \"%s\" is corrupt "\
                 "keylen=%s numbytes=%s objlen=%s fseekkey=%s"%(name,dir.GetPath(),key.GetKeylen(),
                                                               key.GetNbytes(),key.GetObjlen(),key.GetSeekKey()))
@@ -80,7 +80,7 @@ def _dolsr(dir):
             del currObj
         else:
             currObj=key.ReadObj()
-            if currObj == None:
+            if currObj is None:
                 print("WARNING Object \"%s\" in file:directory \"%s\" is corrupt "\
                 "keylen=%s numbytes=%s objlen=%s fseekkey=%s"%(name,dir.GetPath(),key.GetKeylen(),
                                                               key.GetNbytes(),key.GetObjlen(),key.GetSeekKey()))

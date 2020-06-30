@@ -12,10 +12,9 @@ from re import match
 from time import strftime,gmtime
 
 from ROOT import TFile
-from ROOT import TH1F
 from ROOT import TCanvas
 from ROOT import kTeal
-from ROOT import gStyle,gROOT,gPad
+from ROOT import gStyle,gPad
 
 
 sys.path.append("/afs/cern.ch/user/l/larmon/public/prod/Misc")
@@ -31,7 +30,6 @@ debug = False
 ########################################################################
 ########################################################################
 # Main script
-import os,sys  
 
 from argparse import RawTextHelpFormatter,ArgumentParser
 
@@ -97,7 +95,7 @@ if len(args.parser_year) == 1:
   singleYear = True
 else:
   singleYear = False
-  if (options['plotDiff2tags']):
+  if args.parser_diff2tags:
     print("To compare two tags, you must choose only one year. Exiting...")
     sys.exit()
 
@@ -263,9 +261,9 @@ for iYT in yearTagList:
         tmpLines = sorted(f2.readlines())
         for iline in tmpLines: # Loop on all lines of the loss-[defect/veto].dat files
           if defVetoType[iDefVeto] == "Intolerable defect":
-            read = match("(\d+) \((\d+) ub-1.*\) -> (\d+.\d+) pb-1 \D+(\d+.\d+)\D+",iline)
+            read = match(r"(\d+) \((\d+) ub-1.*\) -> (\d+.\d+) pb-1 \D+(\d+.\d+)\D+",iline)
           else:# Veto loss is never recoverable (not tolerable defects)
-            read = match("(\d+) \((\d+) ub-1.*\) -> (\d+.\d+) pb-1",iline)
+            read = match(r"(\d+) \((\d+) ub-1.*\) -> (\d+.\d+) pb-1",iline)
           # retrieve the run number
           runnumber = int(read.group(1))
           # If the runs filter is activated (i.e. runsFilter != 0), check if the runs must be filtered
@@ -569,4 +567,3 @@ if (len(yearTagList) == 2 and options['plotDiff2tags'] and singleYear):
         c_diffTwoYT[defOrVeto_type].cd(2)
         leg_diffTwoYT[defOrVeto_type].SetHeader(suffixTitle[iSuffix])
         leg_diffTwoYT[defOrVeto_type].Draw()
-    

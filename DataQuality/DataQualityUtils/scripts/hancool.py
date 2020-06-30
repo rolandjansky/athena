@@ -52,4 +52,3 @@ if __name__ == "__main__":
       db_tag = "HEAD"
 
   mod.hancool(runNumber,filePath,dbConnection,dqmfOfl, db_tag)
-

@@ -17,7 +17,7 @@ import argparse
 from DataQualityUtils import pathExtract         
 from six.moves import xmlrpc_client as xmlrpclib
 
-from ROOT import TFile,TChain
+from ROOT import TChain
 from ROOT import gStyle
 
 gStyle.SetPalette(1)
@@ -72,4 +72,3 @@ if entries != 0:
   print("The chained tree contains %d entries"%(entries))
 else:
   print("Empty chain...")
-

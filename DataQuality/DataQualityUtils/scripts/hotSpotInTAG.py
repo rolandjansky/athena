@@ -20,19 +20,14 @@
 
 from __future__ import print_function
 
-import os, sys  
-import string,math
+import sys
 from math import fabs
 import argparse
-from DataQualityUtils import pathExtract
+from DataQualityUtils import pathExtract, returnFilesPath
 
-import ROOT
-from ROOT import *
-from ROOT import gROOT, gDirectory
-from ROOT import gStyle, TCanvas, TString
-from ROOT import TFile, TTree
-from ROOT import TH1F,TH2F,TBrowser
-from ROOT import TPaveText
+from ROOT import gStyle, TCanvas
+from ROOT import TChain
+from ROOT import TH1D, TH2D, TH1I
 
 # Analysis functions===========================================================================================================
 def analyzeTree():

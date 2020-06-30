@@ -31,13 +31,13 @@ if __name__ == '__main__':
     
     try:
         cmod = importConfiguration(configModule)
-    except Exception as e:
+    except Exception:
         print("Could not import configuration module \'" + configModule + "\'")
         sys.exit(1)
 
     try:
         config = cmod.dqconfig
-    except Exception as e:
+    except Exception:
         print("Configuration object 'dqconfig' not defined in module \'" + configModule + "\'")
         sys.exit(1)
 

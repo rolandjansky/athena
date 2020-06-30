@@ -56,7 +56,7 @@
 #########################################################################
 
 from __future__ import print_function
-import sys, string, os.path, os, json, time, pprint, xmlrpclib, traceback
+import sys, os.path, os, json, time, pprint, traceback
 from six.moves import xmlrpc_client as xmlrpclib
 import six
 if six.PY2:
@@ -82,7 +82,7 @@ def getSubFileMap(fname, nevts=0) :
     return map
 
 def publish_success_to_mq(run, ptag, stream, incr, ami, procpass, hcfg, isprod):
-  import stomp, json, os, ssl
+  import stomp, json, ssl
   from DataQualityUtils import stompconfig
   dest='/topic/atlas.dqm.progress'
   conn=stomp.Connection([('atlas-mb.cern.ch', 61013)], **stompconfig.config())
@@ -553,4 +553,3 @@ if __name__ == "__main__":
   else :
     jsonfile = sys.argv[1][len('--argJSON='):]
     dq_trf_wrapper(jsonfile)
-  

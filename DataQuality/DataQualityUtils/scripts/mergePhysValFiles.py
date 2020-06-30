@@ -9,7 +9,7 @@
 #----------------------------------------------------------------------
 
 from __future__ import print_function
-import getopt,os,sys,glob,argparse,ROOT,time
+import os,glob,argparse,ROOT,time
 
 start = time.clock()
 

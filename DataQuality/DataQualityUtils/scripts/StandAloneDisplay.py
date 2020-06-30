@@ -9,7 +9,7 @@ CWD = os.getcwd()
 
 import sys
 
-import ROOT
+import ROOT  # noqa: F401
 ## Importing gSystem may change the current directory to one of the
 ## command-line arguments; chdir to original directory to have
 ## predictable behavior
@@ -268,4 +268,3 @@ if __name__ == "__main__":
   html_dir=sys.argv[2] # destination directory for html files
   name=resultsFile
   handi( name, resultsFile, html_dir )
-

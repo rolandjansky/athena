@@ -53,7 +53,7 @@
 #########################################################################
 
 from __future__ import print_function
-import sys, string, os.path, os, pickle, time, pprint, xmlrpclib
+import sys, string, os.path, os, pickle, time, pprint
 from six.moves import xmlrpc_client as xmlrpclib
 #sami
 import hashlib
@@ -80,7 +80,7 @@ def getFileMap(fname, dsname, nevts=0) :
   return map
 
 def publish_success_to_mq(run, ptag, stream, incr, ami, procpass, hcfg, isprod):
-  import stomp, json, os, ssl
+  import stomp, json, ssl
   from DataQualityUtils import stompconfig
   dest='/topic/atlas.dqm.progress'
   #conn=stomp.Connection([('atlas-mb.cern.ch', 61023)], use_ssl=True,
@@ -505,4 +505,3 @@ if __name__ == "__main__":
   else :
     picklefile = sys.argv[1][len('--argdict='):]
     dq_combined_trf(picklefile)
-  

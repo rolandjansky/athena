@@ -23,7 +23,7 @@ import ROOT
 ## Importing gSystem may change the current directory to one of the
 ## command-line arguments; chdir to original directory to have
 ## predictable behavior
-from ROOT import gSystem
+from ROOT import gSystem  # noqa: F401
 os.chdir(CWD)
 
 from DataQualityUtils.DQWebDisplayMod import DQWebDisplay
@@ -94,4 +94,3 @@ if __name__ == "__main__":
 
   
   DQWebDisplay( inputFile, runAccumulating, config )
-

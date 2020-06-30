@@ -4,10 +4,6 @@
 
 from __future__ import print_function
 
-## *****************************************************************************
-VERSION = '$Id: DQHistogramMerge.py 509709 2012-07-10 16:03:00Z vogel $'
-## *****************************************************************************
-
 import DataQualityUtils.DQHistogramMergeMod as mod
 import sys, os
 

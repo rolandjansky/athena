@@ -4,7 +4,7 @@
 ##################################################################
 
 from ROOT import THStack
-from ROOT import TCanvas,TLegend
+from ROOT import TCanvas
 from ROOT import kYellow,kOrange,kRed,kBlue,kPink,kMagenta,kGreen,kSpring,kViolet,kAzure,kCyan,kTeal,kBlack
 
 #import gb

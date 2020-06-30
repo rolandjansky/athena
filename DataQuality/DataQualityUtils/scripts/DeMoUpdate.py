@@ -10,7 +10,6 @@ from string import ljust
 import time
 
 from ROOT import TFile
-from ROOT import TH1F,TProfile
 from ROOT import TCanvas,TPaveText
 from ROOT import kBlack,kOrange,kGreen
 from ROOT import gStyle
@@ -18,7 +17,7 @@ from ROOT import gStyle
 import six.moves.xmlrpc_client as xmlrpclib
 
 sys.path.append("/afs/cern.ch/user/l/larmon/public/prod/Misc")
-from LArMonCoolLib import GetLBTimeStamps,GetOnlineLumiFromCOOL,GetOfflineLumiFromCOOL,GetLBDuration,GetReadyFlag,GetNumberOfCollidingBunches
+from LArMonCoolLib import GetLBTimeStamps,GetOnlineLumiFromCOOL,GetOfflineLumiFromCOOL,GetReadyFlag,GetNumberOfCollidingBunches
 from gb import MakeTH1,SetXLabel,MakeTProfile
 
 from DeMoLib import strLumi,plotStack,initialize
@@ -72,8 +71,6 @@ def findLB(lbts,startOfVetoPeriod): # Find the lumiblock where a veto period sta
 ################################################################################################################################################
 # print single run report. Only printing, no computation
 def singleRunReport(runNumber,dict1,dict2,directory,defects,veto,exactVetoComput): 
-  import string
-
   if dict1['signoff'] == "DONE" or dict1['signoff'] == "FINAL OK":
     repOnDisk = True
     f = open('%s/Run/%s.txt' % (directory,runNumber), 'w')
@@ -541,8 +538,8 @@ for iVeto in veto["all"]:
   runSpec['AllRuns']['lumiVeto_%s'%iVeto] = 0. # Total luminosity rejected by each time veto
 
 if (len(runSpec) == 1):
-  print "I did not find any run in runList."
-  print "Please check the run range/options"
+  print("I did not find any run in runList.")
+  print("Please check the run range/options")
 
 #######################################################################################
 #### Main loop over selected runs
@@ -1050,8 +1047,8 @@ if (options['saveHistos']):
 # yearStats update
 # If new runs were added to period plots, save them
 if (options['updateYearStats'] and bool_newRunsInYearStats):
-  print "WARNING: I am going to update the %s stats with the following runs:"%(options['year'])
-  print "NB: only runs fully signed off are considered"
+  print("WARNING: I am going to update the %s stats with the following runs:"%(options['year']))
+  print("NB: only runs fully signed off are considered")
   for irun in runSpec.keys():
     if (irun != "AllRuns"):
       if runSpec[irun]['newInYearStats']:

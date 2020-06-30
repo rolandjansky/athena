@@ -11,8 +11,8 @@ Adapted for physics validation 14 May 2014
 
 from __future__ import print_function
 
-from DQConfMakerBase.DQElements import *
-from DQConfMakerBase.Helpers import IDHelper, make_thresholds
+from DQConfMakerBase.DQElements import DQRegion, DQReference, DQAlgorithm, DQAlgorithmParameter
+from DQConfMakerBase.Helpers import make_thresholds
 from DataQualityUtils.hanwriter import writeHanConfiguration
 import ROOT
 
@@ -30,10 +30,10 @@ algorithmparameters = [DQAlgorithmParameter('AuxAlgName--Chi2Test_Chi2_per_NDF',
 # Edit this to change thresholds
 thresh = make_thresholds('Chi2_per_NDF', 1.0, 1.50, 'Chi2Thresholds')
 
+
 def recurse(rdir, dqregion, ignorepath, modelrefs=[], displaystring='Draw=PE', displaystring2D='Draw=COLZ', regex=None, startpath=None, hists=None, manglefunc=None):
-    import re
     if manglefunc is None:
-        manglefunc = lambda a, b: a
+        manglefunc = lambda a, b: a  # noqa: E731
     for key in rdir.GetListOfKeys():
         cl = key.GetClassName(); rcl = ROOT.TClass.GetClass(cl)
         if ' ' in key.GetName():
@@ -99,21 +99,21 @@ def prune(dqregion):
     False if we should not
     """
     params = dqregion.getDQParameters()
-    if params == None:
+    if params is None:
         params = []
     subregions = dqregion.getSubRegions()
-    if subregions == None:
+    if subregions is None:
         subregions = []
     else:
         subregions = subregions[:]
     # kill subregions
     for sr in subregions:
-        if sr == None:
+        if sr is None:
             continue
         if prune(sr):
             dqregion.delRelation('DQRegions', sr)
     subregions = dqregion.getSubRegions()
-    if subregions == None:
+    if subregions is None:
         subregions = []
     if len(subregions) + len(params) == 0:
         return True
@@ -122,10 +122,10 @@ def prune(dqregion):
 
 def paramcount(dqregion):
     params = dqregion.getDQParameters()
-    if params == None:
+    if params is None:
         params = []
     subregions = dqregion.getSubRegions()
-    if subregions == None:
+    if subregions is None:
         subregions = []
     
     return len(params) + sum([paramcount(region) for region in subregions])
@@ -203,6 +203,7 @@ def super_process(fname, options):
     hanoutput = None
 
     failed = False
+    prebuilt_hcfg = False
 
     @contextlib.contextmanager
     def tmpdir():
@@ -271,14 +272,14 @@ def super_process(fname, options):
                     os.unlink(hanconfig)
                     os.unlink(hanhcfg)
                 os.unlink(hanoutput)
-            except:
+            except Exception:
                 pass
         
     return not failed
 
         
 if __name__=="__main__":
-    import sys, optparse, shutil, os
+    import sys, optparse, os
     os.environ['TDAQ_ERS_NO_SIGNAL_HANDLERS']='1'
     parser = optparse.OptionParser(usage='usage: %prog [options] inputfile')
     parser.add_option('--reffile', default=None,
@@ -332,7 +333,7 @@ if __name__=="__main__":
         thresh = make_thresholds('P', 0.05, 0.01, 'pThresholds')
 
     rv = super_process(fname, options)
-    if rv == True:
+    if rv:
         sys.exit(0)
     else:
         sys.exit(1)    

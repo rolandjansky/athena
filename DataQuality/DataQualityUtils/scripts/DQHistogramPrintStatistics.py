@@ -5,11 +5,11 @@
 from __future__ import print_function
 import os
 ## Needed to correct ROOT behavior; see below
-CWD = os.getcwd()
+CWD = os.getcwd()  # noqa: E402
 
 import sys
 
-import ROOT
+import ROOT  # noqa: F401
 ## Importing gSystem may change the current directory to one of the
 ## command-line arguments; chdir to original directory to have
 ## predictable behavior
@@ -45,4 +45,3 @@ if __name__ == "__main__":
     sys.exit(0)
   
   DQHistogramPrintStatistics( sys.argv[1] )
-  

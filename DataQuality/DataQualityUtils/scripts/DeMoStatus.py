@@ -5,20 +5,18 @@
 ##################################################################
 
 from __future__ import print_function
-import os,sys  
-from time import localtime, strftime
+import os,sys
 
 from ROOT import TFile
-from ROOT import TProfile,TH1F
 from ROOT import TCanvas
 from ROOT import gStyle,gPad
-from ROOT import kBlack,kOrange,kGreen
+from ROOT import kBlack
 
 sys.path.append("/afs/cern.ch/user/l/larmon/public/prod/Misc")
 
 from gb import MakeTH1,SetXLabel,MakeTProfile
 
-from DeMoLib import strLumi, plotStack, initialize
+from DeMoLib import plotStack, initialize
 
 global debug
 debug = False
@@ -66,7 +64,6 @@ def ATLASLabel(x,y,text=""):
 ########################################################################
 # Main script
 from argparse import RawTextHelpFormatter,ArgumentParser
-from ROOT import gROOT
 
 parser = ArgumentParser(description='',formatter_class=RawTextHelpFormatter)
 parser.add_argument('-y','--year',dest='parser_year',default = ["2018"],nargs='*',help='Year [Default: 2018]',action='store')
@@ -317,4 +314,3 @@ if (yearTagNb >= 2 and (options['plotYearStats'] or options['plotYearStatsLarge'
     plotStack("veto--Year--%s"%legendHeader,h1YearTag_Veto,veto["all"],defectVeto["description"],h1YearTag_IntLuminosity,options['lumiNotPercent'],stackResults,canvasResults,legendResults,False,True,options['approvedPlots'])
     if options['approvedPlots']:
       ATLASLabel(0.1,0.81,"Internal")
-  

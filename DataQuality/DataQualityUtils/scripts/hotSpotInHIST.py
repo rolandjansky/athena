@@ -32,15 +32,14 @@
 #  -g, --grl             Look for Calo/LAr/Tile defects set in suspicious LBs
 # Author : Benjamin Trocme (LPSC Grenoble) / 2015-2016
 
-import os, sys  
-import string
+import os, sys
 import argparse
 from six.moves import xmlrpc_client as xmlrpclib
 
 from DataQualityUtils import pathExtract         
 
-from ROOT import TFile,TCanvas,TBox,TColor,TLegend
-from ROOT import TH1,TH2,TH1I
+from ROOT import TFile,TCanvas,TBox,TLegend,TLine,TArrow
+from ROOT import TH1I
 from ROOT import kBlue,kGreen,kOrange,kMagenta,kCyan,kRed
 from ROOT import gStyle
 
