@@ -13,7 +13,7 @@
 #include "TrigT1CaloUtils/CrateEnergy.h"
 #include "TrigT1CaloUtils/SystemEnergy.h"
 #include "TrigT1CaloUtils/DataError.h"
-#include "TrigT1CaloTools/L1EnergyCMXTools.h"
+#include "L1EnergyCMXTools.h"
 #include "TrigConfL1Data/TriggerThreshold.h"
 #include "TrigConfL1Data/L1DataDef.h"
 #include "TrigConfL1Data/CTPConfig.h"

@@ -20,7 +20,7 @@
 #include "TrigT1CaloEvent/CMXJetTob.h"
 #include "TrigT1CaloEvent/JEMTobRoI.h"
 #include "TrigT1CaloEvent/JetROI.h"
-#include "TrigT1CaloTools/L1JetCMXTools.h"
+#include "L1JetCMXTools.h"
 #include "TrigT1CaloUtils/DataError.h"
 #include "TrigT1CaloUtils/JetAlgorithm.h"
 #include "TrigT1Interfaces/CoordinateRange.h"

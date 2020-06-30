@@ -104,11 +104,12 @@ namespace Trk {
     const TrackParameters*   navParameters;
     BoundarySurfaceFace      exitFace;
     
-    ParamsNextVolume(){
-      nextVolume              = nullptr;
-      nextParameters          = nullptr;
-      navParameters           = nullptr;
-        exitFace                = undefinedFace;
+    ParamsNextVolume()
+      : nextVolume(nullptr),
+        nextParameters(nullptr),
+        navParameters(nullptr),
+        exitFace(undefinedFace)
+    {
     }
     
     
@@ -258,7 +259,7 @@ namespace Trk {
                        //const TrackingVolume& tvol,
                        float time,
                        PropDirection dir = anyDirection,
-                       BoundaryCheck bcheck = true,
+                       const BoundaryCheck& bcheck = true,
                        ParticleHypothesis particle=pion,
                        bool startingLayer = false) const;
 

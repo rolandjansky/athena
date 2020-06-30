@@ -29,14 +29,12 @@ def precisionPhotonRecoSequence(RoIs):
     ViewVerify = CfgMgr.AthViews__ViewDataVerifier("PrecisionPhotonPhotonViewDataVerifier")
     ViewVerify.DataObjects = [( 'xAOD::CaloClusterContainer' , 'StoreGateSvc+' + precisionCaloMenuDefs.precisionCaloClusters ),
                               ( 'CaloCellContainer' , 'StoreGateSvc+CaloCells' ),
-                              ( 'xAOD::VertexContainer' , 'StoreGateSvc+GSFConversionVertices' ),
                               ( 'CaloAffectedRegionInfoVec' , 'ConditionStore+LArAffectedRegionInfo' )]
 
     # Make sure the required objects are still available at whole-event level
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
-    topSequence.SGInputLoader.Load += [( 'xAOD::VertexContainer' , 'StoreGateSvc+GSFConversionVertices' ),
-                                       ( 'CaloAffectedRegionInfoVec' , 'ConditionStore+LArAffectedRegionInfo' )]
+    topSequence.SGInputLoader.Load += [( 'CaloAffectedRegionInfoVec' , 'ConditionStore+LArAffectedRegionInfo' )]
 
 
     # Retrieve the factories now

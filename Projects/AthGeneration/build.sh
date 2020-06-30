@@ -129,9 +129,10 @@ if [ -n "$EXE_CMAKE" ]; then
     # from scratch in an incremental build.
     rm -f CMakeCache.txt
     # Now run the actual CMake configuration:
-    { _time_ cmake ${BUILDTOOLTYPE} -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} \
-        ${EXTRACMAKE[@]} \
+    { _time_ cmake ${BUILDTOOLTYPE} --graphviz=packages.dot \
+        -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} \
         -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
+        ${EXTRACMAKE[@]} \
         ${AthGenerationSrcDir}; } 2>&1 | tee cmake_config.log
 fi
 

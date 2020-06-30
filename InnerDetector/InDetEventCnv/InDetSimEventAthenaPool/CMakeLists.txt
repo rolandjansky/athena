@@ -19,7 +19,7 @@ find_package( AthenaPoolUtilitiesTest )
 
 if( ATHENAPOOLUTILITIESTEST_FOUND )
   set( INDETSIMEVENTATHENAPOOL_REFERENCE_TAG
-       InDetSimEventAthenaPoolReference-02-00-00 )
+       InDetSimEventAthenaPoolReference-02-01-00 )
   run_tpcnv_legacy_test( InDetSimEventTPCnv_HITS   HITS.04919495._000416
                    REFERENCE_TAG ${INDETSIMEVENTATHENAPOOL_REFERENCE_TAG} )
 else()

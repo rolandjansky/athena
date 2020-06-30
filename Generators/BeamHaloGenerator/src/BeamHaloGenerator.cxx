@@ -97,8 +97,8 @@ int BeamHaloGenerator::convertEvent(std::vector<BeamHaloParticle>* beamHaloEvent
 				    HepMC::GenEvent* evt) {
   double pz;
   bool flipFlag = flipEvent();
-  HepMC::GenParticle* genParticle;
-  HepMC::GenVertex* genVertex;
+  HepMC::GenParticlePtr genParticle;
+  HepMC::GenVertexPtr genVertex;
   const double c = 2.99792458E+11; // speed of light in mm/s
 
   std::vector<BeamHaloParticle>::iterator itr = beamHaloEvent->begin();
@@ -121,11 +121,11 @@ int BeamHaloGenerator::convertEvent(std::vector<BeamHaloParticle>* beamHaloEvent
     HepMC::FourVector fourVector = (*itr).fourVector();
 
     if(!flipFlag) {
-      genParticle = new HepMC::GenParticle(fourVector,
+      genParticle = HepMC::newGenParticlePtr(fourVector,
 					   (*itr).pdgId(),
 					   1);
 
-      genVertex = new HepMC::GenVertex(HepMC::FourVector(position.x(),
+      genVertex = HepMC::newGenVertexPtr(HepMC::FourVector(position.x(),
 							 position.y(),
 							 (position.z() + m_interfacePlane),
 							 c*position.t() -1.0*std::fabs(m_interfacePlane)),
@@ -135,11 +135,11 @@ int BeamHaloGenerator::convertEvent(std::vector<BeamHaloParticle>* beamHaloEvent
       pz = fourVector.pz();
       fourVector.setPz(-pz);
 
-      genParticle = new HepMC::GenParticle(fourVector,
+      genParticle = HepMC::newGenParticlePtr(fourVector,
 					   (*itr).pdgId(),
 					   1);
 
-      genVertex = new HepMC::GenVertex(HepMC::FourVector(position.x(),
+      genVertex = HepMC::newGenVertexPtr(HepMC::FourVector(position.x(),
 							 position.y(),
 							 -1.0*(position.z() + m_interfacePlane),
 							 c*position.t() -1.0*std::fabs(m_interfacePlane)),

@@ -2,8 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Egamma_v1$
-
 // EDM include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
 // Local include(s):
@@ -183,13 +181,26 @@ void Egamma_v1::setAuthor(uint16_t newAuthor) {
   acc(*this) = newAuthor;
 }
 
+/// Accessor for the "ambiguityLink" dynamic variable
+///
+/// It is declared outside of the @c xAOD::Egamma_v1::ambiguousObject() call to
+/// make sure that the auxiliary ID registry would know about this type as soon
+/// as the library holding this code is loaded.
+///
+static const SG::AuxElement::Accessor< ElementLink< xAOD::EgammaContainer > >
+   ambiguityLinkAcc( "ambiguityLink" );
+
 /// ambiguous
-const Egamma_v1* Egamma_v1::ambiguousObject() const{
-  static const SG::AuxElement::Accessor<ElementLink<xAOD::EgammaContainer> > acc("ambiguityLink");
-  if(acc.isAvailable(*this) && acc(*this).isValid()){
-    return (*acc(*this));
-  }
-  return nullptr;
+const Egamma_v1* Egamma_v1::ambiguousObject() const {
+
+   if( ! ambiguityLinkAcc.isAvailable( *this ) ) {
+      return nullptr;
+   }
+   const ElementLink< xAOD::EgammaContainer >& link = ambiguityLinkAcc( *this );
+   if( ! link.isValid() ) {
+      return nullptr;
+   }
+   return *link;
 }
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -59,8 +59,11 @@ transToPers( const Muon::MdtDriftCircleOnTrack    *transObj,
 	     Muon::MdtDriftCircleOnTrack_p2 *persObj, MsgStream &log) 
 {
   // Prepare ELs
-  m_eventCnvTool->prepareRIO_OnTrack(const_cast<Muon::MdtDriftCircleOnTrack *>(transObj));  
-  m_elCnv.transToPers(&transObj->prepRawDataLink(),&persObj->m_prdLink,log);  
+  Trk::IEventCnvSuperTool::ELKey_t key;
+  Trk::IEventCnvSuperTool::ELIndex_t index;
+  m_eventCnvTool->prepareRIO_OnTrackLink(transObj, key, index);
+  ElementLinkToIDC_MDT_Container eltmp (key, index);
+  m_elCnv.transToPers(&eltmp, &persObj->m_prdLink,log);  
   
   persObj->m_id = transObj->identify().get_identifier32().get_compact();
   persObj->m_localParams = toPersistent( &m_localParCnv, &transObj->localParameters(), log );

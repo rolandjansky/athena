@@ -31,8 +31,8 @@ class CFNaming(object):
         return CFNaming.simplifyOutName("HLTNav_" + filter_name + "__" + filterIn)
 
     @staticmethod
-    def inputMakerOutName(IMname, filterOut):
-        return CFNaming.simplifyOutName("HLTNav_" + IMname + "__" + filterOut)
+    def inputMakerOutName(IMname):
+        return CFNaming.simplifyOutName("HLTNav_" + IMname)
 
     @staticmethod
     def hypoAlgOutNameOld(HypoName, HypoInput):
@@ -45,13 +45,13 @@ class CFNaming(object):
         name = CFNaming.simplifyOutName("HLTNav_" + HypoName)
         return name
 
-    
+
     @staticmethod
     def comboHypoName(HypoName):
         return "ComboHypo_" + HypoName
 
     @staticmethod
-    def comboSequenceCopyName(SequenceName, ncopy, StepName):    
+    def comboSequenceCopyName(SequenceName, ncopy, StepName):
         if type(SequenceName) is list:
            sequence = []
            for sq in SequenceName:

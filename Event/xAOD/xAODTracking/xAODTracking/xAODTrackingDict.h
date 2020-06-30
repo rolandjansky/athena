@@ -1,48 +1,49 @@
 // Dear emacs, this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
 #ifndef XAODTRACKING_XAODTRACKINGDICT_H
 #define XAODTRACKING_XAODTRACKINGDICT_H
-
-// Needed to successfully generate the dictionary in standalone mode:
-#if defined(__GCCXML__) and not defined(EIGEN_DONT_VECTORIZE)
-#   define EIGEN_DONT_VECTORIZE
-#endif // __GCCXML__
-
-// System include(s):
-#include <bitset>
  
-// EDM include(s):
-#include "AthLinks/DataLink.h"
-#include "AthLinks/ElementLink.h"
- 
-// Local include(s):
+// Local include(s).
+#include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/TrackParticleAuxContainer.h"
+#include "xAODTracking/versions/TrackParticle_v1.h"
 #include "xAODTracking/versions/TrackParticleContainer_v1.h"
 #include "xAODTracking/versions/TrackParticleAuxContainer_v1.h"
 #include "xAODTracking/versions/TrackParticleAuxContainer_v2.h"
 #include "xAODTracking/versions/TrackParticleAuxContainer_v3.h"
 #include "xAODTracking/versions/TrackParticleAuxContainer_v4.h"
 #include "xAODTracking/versions/TrackParticleAuxContainer_v5.h"
+
+#include "xAODTracking/NeutralParticle.h"
 #include "xAODTracking/NeutralParticleContainer.h"
+#include "xAODTracking/NeutralParticleAuxContainer.h"
+#include "xAODTracking/versions/NeutralParticle_v1.h"
 #include "xAODTracking/versions/NeutralParticleContainer_v1.h"
 #include "xAODTracking/versions/NeutralParticleAuxContainer_v1.h"
-#include "xAODTracking/versions/Vertex_v1.h"
+
+#include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
-#include "xAODTracking/versions/VertexContainer_v1.h"
+#include "xAODTracking/VertexAuxContainer.h"
+#include "xAODTracking/versions/Vertex_v1.h"
 #include "xAODTracking/versions/VertexContainer_v1.h"
 #include "xAODTracking/versions/VertexAuxContainer_v1.h"
+
+#include "xAODTracking/TrackMeasurementValidation.h"
 #include "xAODTracking/TrackMeasurementValidationContainer.h"
+#include "xAODTracking/TrackMeasurementValidationAuxContainer.h"
+#include "xAODTracking/versions/TrackMeasurementValidation_v1.h"
 #include "xAODTracking/versions/TrackMeasurementValidationContainer_v1.h"
 #include "xAODTracking/versions/TrackMeasurementValidationAuxContainer_v1.h"
+
+#include "xAODTracking/TrackStateValidation.h"
 #include "xAODTracking/TrackStateValidationContainer.h"
+#include "xAODTracking/TrackStateValidationAuxContainer.h"
+#include "xAODTracking/versions/TrackStateValidation_v1.h"
 #include "xAODTracking/versions/TrackStateValidationContainer_v1.h"
 #include "xAODTracking/versions/TrackStateValidationAuxContainer_v1.h"
-#include "xAODTracking/TrackingPrimitives.h"
-#include "xAODTracking/TrackParticlexAODHelpers.h"
 
 #include "xAODTracking/SCTRawHitValidation.h"
 #include "xAODTracking/SCTRawHitValidationContainer.h"
@@ -51,73 +52,33 @@
 #include "xAODTracking/versions/SCTRawHitValidationContainer_v1.h"
 #include "xAODTracking/versions/SCTRawHitValidationAuxContainer_v1.h"
 
+#include "xAODTracking/TrackingPrimitives.h"
+#include "xAODTracking/TrackParticlexAODHelpers.h"
+
+// EDM include(s).
+#include "xAODCore/tools/DictHelpers.h"
+
+// Instantiate all necessary types for the dictionary.
 namespace {
-  struct GCCXML_DUMMY_INSTANTIATION_XAODTRACKING {
-     xAOD::TrackParticleContainer_v1                                              c1;
-     DataLink< xAOD::TrackParticleContainer_v1 >                                  l1;
-     std::vector< DataLink< xAOD::TrackParticleContainer_v1 > >                   l2;
-     ElementLink< xAOD::TrackParticleContainer >                                  l3;
-     std::vector< ElementLink< xAOD::TrackParticleContainer_v1 > >                l4;
-     std::vector< std::vector< ElementLink< xAOD::TrackParticleContainer_v1 > > > l5;
+   struct GCCXML_DUMMY_INSTANTIATION_XAODTRACKING {
+      // Local type(s).
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, TrackParticleContainer_v1 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, NeutralParticleContainer_v1 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, VertexContainer_v1 );
 
-     xAOD::NeutralParticleContainer_v1                                              nc1;
-     DataLink< xAOD::NeutralParticleContainer_v1 >                                  nl1;
-     std::vector< DataLink< xAOD::NeutralParticleContainer_v1 > >                   nl2;
-     ElementLink< xAOD::NeutralParticleContainer >                                  nl3;
-     std::vector< ElementLink< xAOD::NeutralParticleContainer_v1 > >                nl4;
-     std::vector< std::vector< ElementLink< xAOD::NeutralParticleContainer_v1 > > > nl5;
-     
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
-     std::bitset< 11 >                                                            dummy1;
-     TrackCollection                                                              c2;
-     ElementLink<TrackCollection>                                                 l8;
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD,
+                                           TrackMeasurementValidationContainer_v1 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD,
+                                           TrackStateValidationContainer_v1 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD,
+                                           SCTRawHitValidationContainer_v1 );
 
-      // Container(s):
-      xAOD::VertexContainer_v1                                                    c3;
-      // Data link(s):
-      DataLink< xAOD::VertexContainer_v1 >                                        dl1;
-      std::vector< DataLink< xAOD::VertexContainer_v1 > >                         dl2;
-      // Element link(s):
-      ElementLink< xAOD::VertexContainer >                                        el1;
-      std::vector< ElementLink< xAOD::VertexContainer_v1 > >                      el2;
-      std::vector< std::vector< ElementLink< xAOD::VertexContainer_v1 > > >       el3;
-
-      // Container(s):
-      xAOD::TrackMeasurementValidationContainer_v1                                                    c4;
-      // Data link(s):
-      DataLink< xAOD::TrackMeasurementValidationContainer_v1 >                                        pdl1;
-      std::vector< DataLink< xAOD::TrackMeasurementValidationContainer_v1 > >                         pdl2;
-      // Element link(s):
-      ElementLink< xAOD::TrackMeasurementValidationContainer >                                     pel1;
-      std::vector< ElementLink< xAOD::TrackMeasurementValidationContainer_v1 > >                   pel2;
-      std::vector< std::vector< ElementLink< xAOD::TrackMeasurementValidationContainer_v1 > > >    pel3;
-
-      // Container(s):
-      xAOD::TrackStateValidationContainer_v1                                                    c5;
-      // Data link(s):
-      DataLink< xAOD::TrackStateValidationContainer_v1 >                                        mdl1;
-      std::vector< DataLink< xAOD::TrackStateValidationContainer_v1 > >                         mdl2;
-      // Element link(s):
-      ElementLink< xAOD::TrackStateValidationContainer >                                     mel1;
-      std::vector< ElementLink< xAOD::TrackStateValidationContainer_v1 > >                      mel2;
-      std::vector< std::vector< ElementLink< xAOD::TrackStateValidationContainer_v1 > > >       mel3;
-
-      std::vector<std::vector<std::vector<int> > > vecDummyIntX;
-      std::vector<std::vector<std::vector<float> > > vecDummyFltX;
-      std::vector<std::vector<unsigned long> > vecDummyULX;
-
-      // Container(s):
-      xAOD::SCTRawHitValidationContainer_v1                                                    c6;
-      // Data link(s):
-      DataLink< xAOD::SCTRawHitValidationContainer_v1 >                                        rdodl1;
-      std::vector< DataLink< xAOD::SCTRawHitValidationContainer_v1 > >                         rdodl2;
-      // Element link(s):
-      ElementLink< xAOD::SCTRawHitValidationContainer >                                        rdoel1;
-      std::vector< ElementLink< xAOD::SCTRawHitValidationContainer_v1 > >                      rdoel2;
-      std::vector< std::vector< ElementLink< xAOD::SCTRawHitValidationContainer_v1 > > >       rdoel3;
-
-  };
+      // Type(s) needed for the dictionary generation to succeed.
+#ifndef XAOD_STANDALONE
+      XAOD_INSTANTIATE_CONTAINER_TYPES( TrackCollection );
+#endif // not XAOD_STANDALONE
+      xAOD::CurvilinearParameters_t dummy;
+   };
 }
 
 #endif // XAODTRACKPARTICLE_XAODTRACKPARTICLEDICT_H

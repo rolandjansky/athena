@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCTRawDataProvider.h"
@@ -8,6 +8,7 @@
 #include "SCT_Cabling/ISCT_CablingTool.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "EventContainers/IdentifiableContTemp.h"
+#include "EventContainers/IdentifiableContainerBase.h"
 
 #include <memory>
 
@@ -38,8 +39,9 @@ StatusCode SCTRawDataProvider::initialize()
     m_cabling.disable();
   }
   else {
-    // Retrieve Cabling service
+    // Retrieve Cabling tool
     ATH_CHECK(m_cabling.retrieve());
+    m_regionSelector.disable();
   }
 
   //Initialize
@@ -64,7 +66,7 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
   SG::WriteHandle<SCT_RDO_Container> rdoContainer(m_rdoContainerKey, ctx);
   bool externalCacheRDO = !m_rdoContainerCacheKey.key().empty();
   if (not externalCacheRDO) {
-    ATH_CHECK(rdoContainer.record (std::make_unique<SCT_RDO_Container>(m_sctID->wafer_hash_max())));
+    ATH_CHECK(rdoContainer.record (std::make_unique<SCT_RDO_Container>(m_sctID->wafer_hash_max(), EventContainers::Mode::OfflineFast)));
     ATH_MSG_DEBUG("Created container for " << m_sctID->wafer_hash_max());
   }
   else {
@@ -104,8 +106,8 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
     for (const TrigRoiDescriptor* roi : *roiCollection) {
       superRoI.push_back(roi);
     }
-    m_regionSelector->DetROBIDListUint(SCT, superRoI, listOfROBs);
-    m_regionSelector->DetHashIDList(SCT, superRoI, hashIDs);
+    m_regionSelector->ROBIDList(superRoI, listOfROBs);
+    m_regionSelector->HashIDList(superRoI, hashIDs);
     m_robDataProvider->getROBData(listOfROBs, vecROBFrags);
   }
 

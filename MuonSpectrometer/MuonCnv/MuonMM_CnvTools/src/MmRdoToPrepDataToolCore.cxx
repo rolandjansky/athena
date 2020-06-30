@@ -40,12 +40,13 @@ Muon::MmRdoToPrepDataToolCore::MmRdoToPrepDataToolCore(const std::string& t,
   declareProperty("MergePrds", m_merge = true);
   declareProperty("ClusterBuilderTool",m_clusterBuilderTool);
   declareProperty("NSWCalibTool", m_calibTool);
+  declareProperty("singleStripChargeCut", m_singleStripChargeCut = 6241 * 0.4);   // 0.4 fC from BB5 cosmics
 }
 
 StatusCode Muon::MmRdoToPrepDataToolCore::initialize()
 {  
   ATH_MSG_DEBUG(" in initialize()");
-  
+ 
   ATH_CHECK(detStore()->retrieve(m_muonMgr));
   
   ATH_CHECK(m_idHelperSvc.retrieve());
@@ -72,7 +73,7 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(const MM_RawDataColl
   MMPrepDataCollection* prdColl = nullptr;
   
   // check if the collection already exists, otherwise add it
-  if ( m_mmPrepDataContainer->indexFind(hash) != m_mmPrepDataContainer->end() ) {
+  if ( m_mmPrepDataContainer->indexFindPtr(hash) != nullptr) {
 
     ATH_MSG_DEBUG("In processCollection: collection already contained in the MM PrepData container");
     return StatusCode::FAILURE;
@@ -175,25 +176,31 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(const MM_RawDataColl
     localPos.x() += calibStrip.dx;
 
     if(!merge) {
-      prdColl->push_back(new MMPrepData(prdId, hash, localPos, rdoList, cov, detEl, calibStrip.time, calibStrip.charge, calibStrip.distDrift));
+       	// storage will be handeled by Store Gate
+	      std::unique_ptr<MMPrepData> mpd = std::make_unique<MMPrepData>(prdId, hash, localPos, rdoList, cov, detEl, calibStrip.time, calibStrip.charge, calibStrip.distDrift);
+	      mpd->setAuthor(Muon::MMPrepData::Author::RDOTOPRDConverter);
+	      prdColl->push_back(std::move(mpd));
+
     } else {
        MMPrepData mpd = MMPrepData(prdId, hash, localPos, rdoList, cov, detEl, calibStrip.time, calibStrip.charge, calibStrip.distDrift);
+       if(mpd.charge() < m_singleStripChargeCut) continue;
        // set the hash of the MMPrepData such that it contains the correct value in case it gets used in SimpleMMClusterBuilderTool::getClusters
        mpd.setHashAndIndex(hash,0);
+       mpd.setAuthor(Muon::MMPrepData::Author::RDOTOPRDConverter);
        MMprds.push_back(mpd);
     } 
   }
 
   if(merge) {
-    std::vector<MMPrepData*> clusters;
+    std::vector<std::unique_ptr<Muon::MMPrepData>>  clusters;
 
     /// reconstruct the clusters
     ATH_CHECK(m_clusterBuilderTool->getClusters(MMprds,clusters));
 
     for (unsigned int i = 0 ; i<clusters.size() ; ++i ) {
-      MMPrepData* prdN = clusters.at(i);
+      std::unique_ptr<Muon::MMPrepData> prdN = std::move(clusters.at(i));
       prdN->setHashAndIndex(prdColl->identifyHash(), prdColl->size());
-      prdColl->push_back(prdN);
+      prdColl->push_back(std::move(prdN));
     } 
 
   }

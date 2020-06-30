@@ -12,9 +12,9 @@
 #include "AsgTools/AnaToolHandle.h"
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
 
-#include "../AthAsgExUnittest/IMyPackageTool.h"
+#include "../src/IMyPackageTool.h"
 
-#include "../AthAsgExUnittest/MyPackageTool.h"
+#include "../src/MyPackageTool.h"
 #include "../src/MyPackageAlg.h"
 
 #include <iostream>

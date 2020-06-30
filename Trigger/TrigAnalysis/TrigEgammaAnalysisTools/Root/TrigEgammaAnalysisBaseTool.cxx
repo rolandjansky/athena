@@ -1025,12 +1025,12 @@ bool TrigEgammaAnalysisBaseTool::getCaloRings( const xAOD::Electron * el, std::v
   if(!el) return false;
   ringsE.clear();
 
-  auto ringsELReader = xAOD::getCaloRingsReader();
+  const auto& ringsELReader = xAOD::getCaloRingsReader();
   // First, check if we can retrieve decoration: 
   const xAOD::CaloRingsLinks *caloRingsLinks(nullptr);
   try { 
-    ATH_MSG_DEBUG("getCaloRingsReader->operator()(*el)");
-    caloRingsLinks = &(ringsELReader->operator()(*el)); 
+    ATH_MSG_DEBUG("getCaloRingsReader()(*el)");
+    caloRingsLinks = &(ringsELReader(*el));
   } catch ( const std::exception &e) { 
     ATH_MSG_WARNING("Couldn't retrieve CaloRingsELVec. Reason: " << e.what()); 
     return false;

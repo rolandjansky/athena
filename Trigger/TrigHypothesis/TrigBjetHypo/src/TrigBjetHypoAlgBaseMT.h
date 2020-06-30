@@ -38,10 +38,25 @@ class TrigBjetHypoAlgBaseMT : public ::HypoBase {
   StatusCode retrievePreviousDecisionContainer( const EventContext&,
 						const TrigCompositeUtils::DecisionContainer*& ) const;
 
-  virtual StatusCode attachLinksToDecision( const EventContext&,
-					    TrigCompositeUtils::Decision&,
-					    int index,
-					    int indexPrmVertex = 0 ) const = 0;
+
+  template < class CONTAINER >
+    StatusCode retrieveCollectionFromView( const EventContext&,
+					   ElementLinkVector< CONTAINER >&,
+					   const SG::ReadHandleKey< CONTAINER >&,
+					   const TrigCompositeUtils::Decision* ) const;
+
+  template < class CONTAINER >
+    StatusCode retrieveObjectFromNavigation( const std::string&,
+					     ElementLink< CONTAINER >&,
+					     const TrigCompositeUtils::Decision* ) const;
+
+  template < class CONTAINER >
+    StatusCode retrieveCollectionFromNavigation( const std::string& linkName,
+						 ElementLinkVector< CONTAINER >& objELs,
+						 const TrigCompositeUtils::DecisionContainer* ) const;
+
+
+
 
 
   template < class CONTAINER >

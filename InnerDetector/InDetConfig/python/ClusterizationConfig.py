@@ -68,8 +68,8 @@ if __name__ == "__main__":
     ConfigFlags.lock()
     ConfigFlags.dump()
 
-    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
-    top_acc = MainServicesThreadedCfg(ConfigFlags)
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    top_acc = MainServicesCfg(ConfigFlags)
 
     msgService = top_acc.getService('MessageSvc')
     msgService.Format = "S:%s E:%e % F%138W%S%7W%R%T  %0W%M"
@@ -84,4 +84,4 @@ if __name__ == "__main__":
     top_acc.run(25)
     #with open('test4.pkl', mode="wb") as f:
     #   dill.dump(acc, f)
-    top_acc.store(open("test00.pkl", "w"))
+    top_acc.store(open("test00.pkl", "wb"))

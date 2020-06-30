@@ -141,9 +141,9 @@ TCS::JetHT::process( const std::vector<TCS::TOBArray const *> & input,
          output[i]->push_back( CompositeTOB( GenericTOB::createOnHeap( GenericTOB(sumET,0,0) ) ));
       }
       if(fillAccept and not alreadyFilled) {
-          m_histAcceptHT[i]->Fill(sumET);
+          fillHist1D(m_histAcceptHT[i]->GetName(),sumET);
       } else if(fillReject) {
-          m_histRejectHT[i]->Fill(sumET);
+          fillHist1D(m_histRejectHT[i]->GetName(),sumET);
       }
 
       TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " HT = " << sumET);

@@ -67,10 +67,10 @@ public:
     */
     virtual StatusCode configureWithTools(const Trk::IExtrapolator*, const Trk::IUpdator*,
                                           const Trk::IRIO_OnTrackCreator*,
-                                          const Trk::IDynamicNoiseAdjustor* = 0,
-                                          const Trk::IAlignableSurfaceProvider* = 0,
-                                          const Trk::IMeasurementRecalibrator* = 0,
-                                          const Trk::IKalmanPiecewiseAnnealingFilter* = 0);
+                                          const Trk::IDynamicNoiseAdjustor* = nullptr,
+                                          const Trk::IAlignableSurfaceProvider* = nullptr,
+                                          const Trk::IMeasurementRecalibrator* = nullptr,
+                                          const Trk::IKalmanPiecewiseAnnealingFilter* = nullptr);
 				
     //! standard athena AlgTool initialize
     StatusCode initialize();
@@ -129,9 +129,9 @@ private:
                                   ProtoTrackStateOnSurface*) const;
 
     //! internal method printing the current state
-    void printGlobalParams(int istate, std::string ptype,
+    void printGlobalParams(int istate, const std::string& ptype,
                            const TrackParameters*,
-                           const DNA_MaterialEffects* = 0) const;
+                           const DNA_MaterialEffects* = nullptr) const;
 
     // all toolhandles are passed in through a configure method, for reasons of
     // consistency among the KF-subtools and to avoid recursive tool retrieval

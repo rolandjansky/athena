@@ -78,7 +78,7 @@ MuonTrackQuery::initialize()
 const CaloEnergy*
 MuonTrackQuery::caloEnergy(const Trk::Track& track) const
 {
-    const CaloEnergy* caloEnergy = 0;
+    const CaloEnergy* caloEnergy = nullptr;
 
     DataVector<const Trk::TrackStateOnSurface>::const_iterator s = track.trackStateOnSurfaces()->begin();
     for (; s != track.trackStateOnSurfaces()->end(); ++s) {
@@ -126,8 +126,8 @@ MuonTrackQuery::caloEnergyDeposit(const Trk::Track& track) const
         return 0.;
     }
 
-    const Trk::TrackParameters* indetExitParameters = 0;
-    const Trk::TrackParameters* caloExitParameters  = 0;
+    const Trk::TrackParameters* indetExitParameters = nullptr;
+    const Trk::TrackParameters* caloExitParameters  = nullptr;
 
     DataVector<const Trk::TrackStateOnSurface>::const_iterator s = track.trackStateOnSurfaces()->begin();
     for (; s != track.trackStateOnSurfaces()->end(); ++s) {
@@ -191,7 +191,7 @@ MuonTrackQuery::fieldIntegral(const Trk::Track& track) const
 
     Amg::Vector3D integratedMomentumKick = Amg::Vector3D(0., 0., 0.);
 
-    const Trk::TrackParameters* parameters = 0;
+    const Trk::TrackParameters* parameters = nullptr;
 
     // loop over TSOS to integrate vector Bdl
     int hit = 1;
@@ -643,8 +643,8 @@ MuonTrackQuery::momentumBalanceSignificance(const Trk::Track& track) const
     // compare parameters with those from previous TSOS
     double energyBalance = 0.;
 
-    const Trk::EnergyLoss*      energyLoss         = 0;
-    const Trk::TrackParameters* previousParameters = 0;
+    const Trk::EnergyLoss*      energyLoss         = nullptr;
+    const Trk::TrackParameters* previousParameters = nullptr;
 
     DataVector<const Trk::TrackStateOnSurface>::const_iterator s = track.trackStateOnSurfaces()->begin();
     for (; s != track.trackStateOnSurfaces()->end(); ++s) {
@@ -778,7 +778,7 @@ MuonTrackQuery::scatteringAngleSignificance(const Trk::Track& track) const
 
     // provide refit for slimmed tracks
     const Trk::Track* fullTrack     = &track;
-    const Trk::Track* refittedTrack = 0;
+    const Trk::Track* refittedTrack = nullptr;
 
     if (isSlimmed(track)) {
         if (!m_fitter.empty()) {
@@ -908,12 +908,12 @@ MuonTrackQuery::spectrometerParameters(const Trk::Track& track) const
 
     if (!calorimeterVolume) {
         ATH_MSG_WARNING("Failed to retrieve Calo volume ");
-        return 0;
+        return nullptr;
     }
 
     // find parameters at innermost spectrometer measurement
     // clone perigee if track has been slimmed
-    const Trk::TrackParameters* parameters = 0;
+    const Trk::TrackParameters* parameters = nullptr;
 
     DataVector<const Trk::TrackStateOnSurface>::const_iterator s = track.trackStateOnSurfaces()->begin();
     for (; s != track.trackStateOnSurfaces()->end(); ++s) {
@@ -963,8 +963,8 @@ MuonTrackQuery::spectrometerPhiQuality(const Trk::Track& track) const
     // quality 0 - no additional phi measurement needed
     //         1 - phi direction un- (or poorly) constrained
     //         2 - no phi hits on track
-    const Trk::TrackStateOnSurface* leadingPhiMeasurement  = 0;
-    const Trk::TrackStateOnSurface* trailingPhiMeasurement = 0;
+    const Trk::TrackStateOnSurface* leadingPhiMeasurement  = nullptr;
+    const Trk::TrackStateOnSurface* trailingPhiMeasurement = nullptr;
 
     DataVector<const Trk::TrackStateOnSurface>::const_iterator s = track.trackStateOnSurfaces()->begin();
     for (; s != track.trackStateOnSurfaces()->end(); ++s) {
@@ -1045,12 +1045,12 @@ MuonTrackQuery::triggerStationParameters(const Trk::Track& track) const
 
     if (!calorimeterVolume) {
         ATH_MSG_WARNING("Failed to retrieve Calo volume ");
-        return 0;
+        return nullptr;
     }
 
     // find parameters at innermost trigger station measurement
     // fails if track has been slimmed
-    const Trk::TrackParameters* parameters = 0;
+    const Trk::TrackParameters* parameters = nullptr;
 
     DataVector<const Trk::TrackStateOnSurface>::const_iterator s = track.trackStateOnSurfaces()->begin();
     for (; s != track.trackStateOnSurfaces()->end(); ++s) {
@@ -1068,7 +1068,7 @@ MuonTrackQuery::triggerStationParameters(const Trk::Track& track) const
         parameters = (**s).trackParameters();
     }
 
-    if (!parameters) return 0;
+    if (!parameters) return nullptr;
 
     // if necessary, flip to outgoing parameters
     if (parameters->momentum().dot(parameters->position()) > 0.) {
@@ -1086,7 +1086,7 @@ const Trk::TrackParameters*
 MuonTrackQuery::flippedParameters(const Trk::TrackParameters& parameters) const
 {
     // flip parameters
-    const Trk::TrackParameters* flippedParams = 0;
+    const Trk::TrackParameters* flippedParams = nullptr;
 
     double phi = parameters.parameters()[Trk::phi0];
     if (phi > 0.) {
@@ -1101,7 +1101,7 @@ MuonTrackQuery::flippedParameters(const Trk::TrackParameters& parameters) const
 
     flippedParams = surface->createTrackParameters(
         parameters.parameters()[Trk::d0], parameters.parameters()[Trk::z0], phi, theta, qOverP,
-        parameters.covariance() ? new AmgSymMatrix(5)(*parameters.covariance()) : 0);
+        parameters.covariance() ? new AmgSymMatrix(5)(*parameters.covariance()) : nullptr);
 
     return flippedParams;
 }

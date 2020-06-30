@@ -30,7 +30,7 @@
 #include "AthenaKernel/errorcheck.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
-#include "TrigValAlgs/TrigCountDumper.h"
+#include "TrigCountDumper.h"
 #include "TrigSteeringEvent/Lvl1Item.h"
 
 using namespace xercesc;

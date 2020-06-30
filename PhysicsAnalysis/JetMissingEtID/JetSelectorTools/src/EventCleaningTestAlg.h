@@ -27,7 +27,7 @@ class EventCleaningTestAlg : public AthAlgorithm
   public:
 
     /// Standard algorithm constructor
-    EventCleaningTestAlg(const std::string& name, ISvcLocator* svcLoc) override;
+    EventCleaningTestAlg(const std::string& name, ISvcLocator* svcLoc);
 
     /// Initialize the algorithm
     virtual StatusCode initialize() override;

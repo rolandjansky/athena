@@ -27,8 +27,6 @@ DetDescrCnvSvc.DecodeIdDict = TRUE
 theApp.Dlls += [ "AmdbAth", "MuonAsciiDetDescrDecoder" ]
 theApp.ExtSvc += [ "AmdbsimrecAthenaSvc"]
 theApp.ExtSvc += [ "MuonAsciiDetDescrSvc" ]
-#dictionary name
-#AthenaSealSvc.DictNames += { "MuonSimEventDict" };
 theApp.TopAlg += ["MDT_Digitizer"]
 # MDT_Digitizer
 # ------------

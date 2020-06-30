@@ -1,11 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_G4_SD_TRTPrintingOfHits_hh
 #define TRT_G4_SD_TRTPrintingOfHits_hh
 
 #include "AthenaKernel/MsgStreamMember.h"
+
+#include "CxxUtils/checker_macros.h"
 
 class TRTUncompressedHit;
 class TRTOutputFile;
@@ -29,7 +31,7 @@ class TRTPrintingOfHits
 
     TRTOutputFile* m_pOutputFile;
 
-    mutable Athena::MsgStreamMember m_msg;
+    mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
 
 };
 

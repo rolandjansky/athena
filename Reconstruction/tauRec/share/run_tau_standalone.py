@@ -142,7 +142,7 @@ logRecoOutputItemList_jobOptions = logging.getLogger( 'py:RecoOutputItemList_job
 from OutputStreamAthenaPool.CreateOutputStreams import  createOutputStream
 
 StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
-print StreamESD.ItemList
+print (StreamESD.ItemList)
 
 # tau stuff
 

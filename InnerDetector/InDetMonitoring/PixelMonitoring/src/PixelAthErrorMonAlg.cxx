@@ -9,7 +9,7 @@ PixelAthErrorMonAlg::PixelAthErrorMonAlg( const std::string& name, ISvcLocator* 
   m_pixelid(nullptr)
 {
   //jo flags
-  declareProperty("ErrorsTool", m_pixelErrorTool);
+  // declareProperty("ErrorsTool", m_pixelErrorTool);
   declareProperty("doOnline", m_doOnline = false);
   declareProperty("doModules", m_doModules = false);
   declareProperty("doLumiBlock", m_doLumiBlock = false);

@@ -1,11 +1,12 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.BTagToolConfig import BTagToolCfg
 from BTagging.BTagLightSecVertexingConfig import BTagLightSecVtxToolCfg
 
 # import the JetBTaggingAlg configurable
-from BTagging.BTaggingConf import Analysis__JetBTaggingAlg as JetBTaggingAlg
+Analysis__JetBTaggingAlg = CompFactory.Analysis.JetBTaggingAlg
 
 def JetBTaggingAlgCfg(ConfigFlags, JetCollection="", TaggerList=[], SetupScheme="", SVandAssoc={""}, TimeStamp = "", **options):
 
@@ -39,10 +40,8 @@ def JetBTaggingAlgCfg(ConfigFlags, JetCollection="", TaggerList=[], SetupScheme=
     options['BTaggingCollectionName'] = btagname
     options['JetLinkName'] = options['BTaggingCollectionName'] + '.jetLink'
     options['name'] = (btagname + ConfigFlags.BTagging.GeneralToolSuffix).lower()
-    print("Manu")
-    print(options)
 
     # -- create main BTagging algorithm
-    acc.addEventAlgo(JetBTaggingAlg(**options))
+    acc.addEventAlgo(Analysis__JetBTaggingAlg(**options))
 
     return acc

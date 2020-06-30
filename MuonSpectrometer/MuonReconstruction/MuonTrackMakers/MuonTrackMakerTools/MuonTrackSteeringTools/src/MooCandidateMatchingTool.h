@@ -15,7 +15,8 @@
 #include "CxxUtils/checker_macros.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
+// For magneticfield
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "MuonRecToolInterfaces/IMuonTrackSegmentMatchingTool.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
@@ -186,8 +187,9 @@ namespace Muon {
       {this, "SegmentMatchingTool", "Muon::MuonSegmentMatchingTool/MuonSegmentMatchingTool"};
     ToolHandle<IMuonSegmentMatchingTool>  m_segmentMatchingToolTight
       {this, "SegmentMatchingToolTight", "Muon::MuonSegmentMatchingTool/MuonSegmentMatchingToolTight"};
-    ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc 
-      {this, "MagFieldSvc", "AtlasFieldSvc"}; 
+    // Read handle for conditions object to get the field cache
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj",
+                                                                               "Name of the Magnetic Field conditions object key"};
     ToolHandle<MuPatCandidateTool>        m_candidateTool    
       {this, "MuPatCandidateTool", "Muon::MuPatCandidateTool/MuPatCandidateTool"};
     

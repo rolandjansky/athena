@@ -106,7 +106,7 @@ else:
 #"COMCOND-BLKP-005-05"
 
 #Specify the input file(s)
-svcMgr.ByteStreamInputSvc.FullFileName=athenaCommonFlags.BSRDOInput()
+svcMgr.EventSelector.Input=athenaCommonFlags.BSRDOInput()
 if hasattr(runArgs,"skipEvents"):
     svcMgr.EventSelector.SkipEvents=runArgs.skipEvents
 

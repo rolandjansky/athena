@@ -3,6 +3,7 @@
 */
 
 #include "tauRecTools/CaloClusterVariables.h"
+#include "tauRecTools/HelperFunctions.h"
 #include <cmath>
 
 const double CaloClusterVariables::DEFAULT = -1111.;
@@ -21,7 +22,8 @@ m_totMass(DEFAULT),
 m_effMass(DEFAULT),
 m_totEnergy(DEFAULT),
 m_effEnergy(DEFAULT),
-m_doVertexCorrection(false) {
+m_doVertexCorrection(false),
+m_incShowerSubtr(true){
 }
 
 //*******************************************
@@ -33,18 +35,15 @@ bool CaloClusterVariables::update(const xAOD::TauJet& pTau) {
     const xAOD::Jet* pSeed = *pTau.jetLink();
     if(!pSeed) return false;
 
-    xAOD::JetConstituentVector::const_iterator nav_it = pSeed->getConstituents().begin();
-    xAOD::JetConstituentVector::const_iterator nav_itE = pSeed->getConstituents().end();
-    const xAOD::CaloCluster* pCluster;
-   
-    std::vector<CaloVertexedClusterType> constituents;
-    for (; nav_it != nav_itE; ++nav_it) {
-      pCluster = dynamic_cast<const xAOD::CaloCluster*> ( (*nav_it)->rawConstituent() );
-      if (!pCluster) continue;
+    // Loop through jets, get links to clusters
+    std::vector<const xAOD::CaloCluster*> clusterList;
+    StatusCode sc = tauRecTools::GetJetClusterList(pSeed, clusterList, m_incShowerSubtr);
 
+    std::vector<CaloVertexedClusterType> constituents;
+    for (auto pCluster : clusterList){
       // correct cluster
       if (pTau.vertexLink() && m_doVertexCorrection)
-        constituents.emplace_back (*pCluster, (*pTau.vertexLink())->position());
+	constituents.emplace_back (*pCluster, (*pTau.vertexLink())->position());
       else
         constituents.emplace_back (*pCluster);
     }

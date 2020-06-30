@@ -164,7 +164,7 @@ AthDictLoaderSvc::load_type ATLAS_NOT_THREAD_SAFE (const std::string& type_name)
  *         succeed *IF* the dictionary for that type has been generated.
  */
 const RootType
-AthDictLoaderSvc::load_type (const std::type_info& typeinfo)
+AthDictLoaderSvc::load_type ATLAS_NOT_THREAD_SAFE (const std::type_info& typeinfo)
 {
   ATH_MSG_DEBUG 
     ("loading [" << System::typeinfoName(typeinfo) << " (from typeinfo)]...");
@@ -175,7 +175,7 @@ AthDictLoaderSvc::load_type (const std::type_info& typeinfo)
  *         by any necessary means.
  */
 const RootType
-AthDictLoaderSvc::load_type (CLID clid)
+AthDictLoaderSvc::load_type ATLAS_NOT_THREAD_SAFE (CLID clid)
 {
   std::string name = "<N/A>";
   if (!m_clidSvc->getTypeNameOfID(clid, name).isSuccess()) {

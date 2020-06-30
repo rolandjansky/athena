@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -34,8 +34,8 @@ public:
 
     ~SiElementProperties();
 
-    const std::vector<IdentifierHash>*	neighbours (void);
-    float				halfWidth (void);
+    const std::vector<IdentifierHash>*	neighbours (void) const;
+    float				halfWidth (void) const;
     
 private:
     std::vector<IdentifierHash>		m_neighbours;
@@ -50,14 +50,14 @@ private:
 
 //--------------------------------------------------------------------------
 inline const std::vector<IdentifierHash>*
-SiElementProperties::neighbours()
+SiElementProperties::neighbours() const
 {
     return &m_neighbours;
 }
 
 //----------------------------------------------------------------------------
 inline float
-SiElementProperties::halfWidth()
+SiElementProperties::halfWidth() const
 {
     return m_halfWidth;
 }

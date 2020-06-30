@@ -163,7 +163,6 @@ IDStandardPerformance::IDStandardPerformance( const std::string & type, const st
   declareProperty("PixeltracksName",          m_PixeltracksName);
   declareProperty("SCTtracksName",            m_SCTtracksName);
   m_UpdatorWarning = false;
-  m_isUnbiased = 0;
 }
 
 
@@ -3616,10 +3615,9 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 
     //for each track see if we can get updator tool
     //if (m_updator) {
+    int isUnbiased = 0; // if can get unbiased residuals
     if (! m_updatorHandle.empty()){
-      m_isUnbiased = 1;
-    } else {
-      m_isUnbiased = 0;
+      isUnbiased = 1;
     }
 
     // ----------------------------------------------------------------
@@ -3959,7 +3957,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 
         if (mesb && biasedTrackParameters) {
           // track parameters at outliers are already unbiased by definition
-          const Trk::TrackParameters *trackParameters = (!(*TSOSItr)->type(Trk::TrackStateOnSurface::Outlier)) ? getUnbiasedTrackParameters(biasedTrackParameters,mesb) : biasedTrackParameters;
+          const Trk::TrackParameters *trackParameters = (!(*TSOSItr)->type(Trk::TrackStateOnSurface::Outlier)) ? getUnbiasedTrackParameters(biasedTrackParameters,mesb,isUnbiased) : biasedTrackParameters;
           if (!m_residualPullCalculator.empty()) {
           // fill general residuals and pulls
           // for the residuals and pulls always use the ROT.
@@ -3971,7 +3969,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 	    int phiWidth = -1;
 	    int zWidth   = -1;
 	    // float pullLocY     = -1000.;
-            if (hit && m_isUnbiased && trkpt>m_minTrackPtRes) {
+            if (hit && isUnbiased && trkpt>m_minTrackPtRes) {
 	      // Cluster width determination
 	      if(m_idHelper->is_pixel(surfaceID) ||  m_idHelper->is_sct(surfaceID)) {
 		const InDet::SiCluster* pCluster = dynamic_cast <const InDet::SiCluster*>(hit->prepRawData());
@@ -4041,7 +4039,7 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 		  PixTrkAngle = ( M_PI / 2 ) - PixTrkAngle;
 		}
 	      detAreaTypes detArea = n_detAreaTypes;
-	      Trk::ResidualPull::ResidualType resType = m_isUnbiased
+	      Trk::ResidualPull::ResidualType resType = isUnbiased
                                                       ? Trk::ResidualPull::Unbiased
                                                       : Trk::ResidualPull::Biased;
               const std::unique_ptr<const Trk::ResidualPull> residualPull(m_residualPullCalculator->residualPull(hit,
@@ -4157,8 +4155,6 @@ void IDStandardPerformance::MakeHitPlots(const DataVector<Trk::Track>* trks){
 	    }
 	  }
 	  */
-
-	  Identifier TrkSurfaceID;
 
 
 	  //iterate over pixel hits on tracks
@@ -4728,7 +4724,8 @@ void IDStandardPerformance::FillTrackIncidencePlots(detAreaTypes detArea, int ph
 
 const Trk::TrackParameters*
 IDStandardPerformance::getUnbiasedTrackParameters(const Trk::TrackParameters* trkParameters
-                                                , const Trk::MeasurementBase* measurement ) {
+                                                , const Trk::MeasurementBase* measurement
+                                                , int& isUnbiased) {
   const Trk::TrackParameters *unbiasedTrkParameters = 0;
 
   // ------------------------------------
@@ -4738,7 +4735,7 @@ IDStandardPerformance::getUnbiasedTrackParameters(const Trk::TrackParameters* tr
   //const Trk::MeasuredTrackParameters *measuredTrkParameters =
   //dynamic_cast<const Trk::MeasuredTrackParameters*>(trkParameters);
 
-  if (!m_updatorHandle.empty() && (m_isUnbiased==1) ) {
+  if (!m_updatorHandle.empty() && (isUnbiased==1) ) {
     if ( trkParameters->covariance() ) {
       // Get unbiased state
       unbiasedTrkParameters =
@@ -4749,7 +4746,7 @@ IDStandardPerformance::getUnbiasedTrackParameters(const Trk::TrackParameters* tr
       if (!unbiasedTrkParameters) {
     msg(MSG::WARNING) << "Could not get unbiased track parameters, "
         <<"use normal parameters" << endmsg;
-    m_isUnbiased = 0;
+    isUnbiased = 0;
       }
     } else if (!m_UpdatorWarning) {
       // warn only once!
@@ -4757,9 +4754,9 @@ IDStandardPerformance::getUnbiasedTrackParameters(const Trk::TrackParameters* tr
       <<"Unbiased track states can not be calculated "
       <<"(ie. pulls and residuals will be too small)" << endmsg;
       m_UpdatorWarning = true;
-      m_isUnbiased = 0;
+      isUnbiased = 0;
     } else {
-      m_isUnbiased = 0;
+      isUnbiased = 0;
     }// end if no measured track parameter
   }
   return unbiasedTrkParameters;

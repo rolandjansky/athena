@@ -143,7 +143,7 @@ if not athenaCommonFlags.isOnline():
     log.info( "Skip Events is " + str(EvtMin) )
     log.info( "Max events is " + str(EvtMax) )
 
-    svcMgr.ByteStreamInputSvc.FullFileName = FileNameVec
+    svcMgr.EventSelector.Input = FileNameVec
     svcMgr.EventSelector.MaxBadEvents = MaxBadEvents
    
     athenaCommonFlags.FilesInput = FileNameVec
@@ -156,7 +156,7 @@ if not athenaCommonFlags.isOnline():
 # init DetDescr
 from AthenaCommon.GlobalFlags import jobproperties
 if not 'DetDescrVersion' in dir():
-    DetDescrVersion = 'ATLAS-R2-2015-04-00-00'
+    DetDescrVersion = 'ATLAS-R2-2016-01-00-01'
 jobproperties.Global.DetDescrVersion = DetDescrVersion 
 log.info( "DetDescrVersion = %s" % (jobproperties.Global.DetDescrVersion() ))
 
@@ -192,12 +192,12 @@ doTileFit = True
 TileCorrectTime = True    
 doTileOptATLAS = False
 
+TileLasRun = True
+TilePhysTiming = True
 
 # load conditions data
 include( "TileRec/TileDefaults_jobOptions.py" )
 include( "TileConditions/TileConditions_jobOptions.py" )
-from TileConditions.TileCondToolConf import getTileCondToolTiming
-tileInfoConfigurator.TileCondToolTiming = getTileCondToolTiming( 'COOL','GAPLAS')
 
 # set reconstruction flags and reconstruct data
 from TileRecUtils.TileRecFlags import jobproperties
@@ -313,4 +313,6 @@ svcMgr.AthenaEventLoopMgr.EventPrintoutInterval = 100
 if TileUseCOOL:
     from DBReplicaSvc.DBReplicaSvcConf import DBReplicaSvc
     svcMgr += DBReplicaSvc(UseCOOLSQLite=False)
+
+topSequence.TileDQstatusAlg.TileBeamElemContainer = ""
 

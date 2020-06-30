@@ -15,9 +15,9 @@
 #define MUIDINTERFACES_ICOMBINEDMUONTRACKBUILDER_H
 
 #include "GaudiKernel/IAlgTool.h"
-#include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkFitterUtils/FitterTypes.h"
 #include "TrkParameters/TrackParameters.h"
+#include "TrkEventPrimitives/ParticleHypothesis.h"
 
 namespace Trk
 {
@@ -37,8 +37,7 @@ Base class for CombinedMuonTrackBuilder AlgTool
      
 @author Alan.Poppleton@cern.ch
 */
-    class ICombinedMuonTrackBuilder : virtual public IAlgTool,
-				      virtual public Trk::ITrackFitter
+    class ICombinedMuonTrackBuilder : virtual public IAlgTool
 {
 public:
 
@@ -72,6 +71,12 @@ public:
        refit a track removing any indet measurements with optional addition of pseudoMeasurements */
     virtual Trk::Track*		standaloneRefit	(const Trk::Track&	combinedTrack, 
                                                  float bs_x = 0., float bs_y = 0., float bs_z = 0.) const = 0;
+
+    /*refit a track*/
+    virtual Trk::Track* fit(Trk::Track& track, const Trk::RunOutlierRemoval runOutlier = false,
+                    const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const = 0;
+
+
 };
  
 }	// end of namespace

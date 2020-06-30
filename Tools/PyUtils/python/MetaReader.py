@@ -51,7 +51,7 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
 
     if mode != 'full' and len(meta_key_filter) > 0:
         raise NameError('It is possible to use the meta_key_filter option only for full mode')
-    if len(meta_key_filter) > 0:
+    if meta_key_filter:
         msg.info('Filter used: {0}'.format(meta_key_filter))
 
     # create the storage object for metadata.
@@ -149,7 +149,7 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                         '*': 'EventStreamInfo_p*'
                     }
 
-                if mode == 'full' and len(meta_key_filter) > 0:
+                if mode == 'full' and meta_key_filter:
                     meta_filter = {f: '*' for f in meta_key_filter}
                 # store all persistent classes for metadata container existing in a POOL/ROOT file.
                 persistent_instances = {}
@@ -199,7 +199,7 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                 metadata_tree.GetEntry(0)
 
                 # clean the meta-dict if the meta_key_filter flag is used, to return only the key of interest
-                if len(meta_key_filter) > 0:
+                if meta_key_filter:
                     meta_dict[filename] = {}
 
                 # read the metadata
@@ -500,9 +500,9 @@ def _extract_fields_iovpc(value):
         elif type_idx == 8:
             attr_value = int(value.m_unsignedLong[obj_idx])
         elif type_idx == 9:
-            attr_value = long(value.m_longLong[obj_idx])
+            attr_value = int(value.m_longLong[obj_idx])
         elif type_idx == 10:
-            attr_value = long(value.m_unsignedLongLong[obj_idx])
+            attr_value = int(value.m_unsignedLongLong[obj_idx])
         elif type_idx == 11:
             attr_value = float(value.m_float[obj_idx])
         elif type_idx == 12:
@@ -519,9 +519,9 @@ def _extract_fields_iovpc(value):
                 attr_value = attr_value.replace('_', '/')
             # Now it is clean
         elif type_idx == 15:
-            attr_value = long(value.m_date[obj_idx])
+            attr_value = int(value.m_date[obj_idx])
         elif type_idx == 16:
-            attr_value = long(value.m_timeStamp[obj_idx])
+            attr_value = int(value.m_timeStamp[obj_idx])
         else:
             raise ValueError('Unknown type id {0} for attribute {1}'.format(type_idx, attr_name))
 

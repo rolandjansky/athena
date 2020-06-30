@@ -276,6 +276,76 @@ def _make_dijet_label(chain_parts):
             )""" % argvals
 
 
+def _make_ht_label(chain_parts):
+    """ht label. ht cuts, and cuts on particpating jets
+    Currently supported cuts:
+    - all jets: ht
+    - all jets: et
+    - all jets:  eta
+
+    - default values are used for unspecified cuts.
+    The cut set can be extended according to the pattern
+    """
+
+    assert len(chain_parts) == 1, '_make_ht_label, no. of chain parts != 1'
+    scenario = chain_parts[0]['hypoScenario']
+    
+    assert scenario.startswith('HT'), '_make_ht_label(): scenario does not start with HT'
+
+    arg_res = [
+        re.compile(r'^(?P<lo>\d*)(?P<key>ht)(?P<hi>\d*)$'),
+        re.compile(r'^(?P<lo>\d*)(?P<key>et)(?P<hi>\d*)$'),
+        re.compile(r'^(?P<lo>\d*)(?P<key>eta)(?P<hi>\d*)$'),
+    ]
+
+    defaults = {
+        'ht': ('0', 'inf'),
+        'et': ('0', 'inf'),
+        'eta': ('0', 'inf'),
+     }
+
+
+    args = _args_from_scenario(scenario)
+    argvals = {}
+    nargs = len(args)
+    assert len(args) <= len(arg_res), 'bad num of args %d, expected < %d' % (len(args),
+                                                                             len(arg_res))
+
+    # obtain argument values frrom scenario
+    while args:
+        arg = args.pop()
+        for r in arg_res:
+            m = r.match(arg)
+            if m is not None:
+                arg_res.remove(r)
+                gd = m.groupdict()
+                key = gd['key']
+
+                try:
+                    lo = float(gd['lo'])
+                except ValueError:
+                    lo = float(defaults[key][0])
+                argvals[key+'lo'] = lo 
+                try:
+                    hi = float(gd['hi'])
+                except ValueError:
+                    hi = float(defaults[key][1])
+                argvals[key+'hi'] =  hi
+
+    print (argvals)
+    assert len(argvals) == 2*nargs, 'no of args: %d, expected %d' % (len(argvals), 2*nargs)
+
+    print ('sent 100')
+    result =  """
+    ht([(%(htlo).0fht) 
+        (%(etlo).0fet)
+        (%(etalo).0feta%(etahi).0f)
+    ])"""  % argvals
+    print (result)
+    return result
+    
+
+
 def _make_combinationsTest_label(chain_parts):
     """make test label for  combinations helper with two simple children."""
 
@@ -329,6 +399,7 @@ def chainDict2jetLabel(chain_dict):
     # suported scenarios 
     router = {
         'simple': _make_simple_label,
+        'HT': _make_ht_label,
         'vbenf': _make_vbenf_label,
         'dijet': _make_dijet_label,
         'combinationsTest': _make_combinationsTest_label,
@@ -365,83 +436,4 @@ and([]
     # more than 2 labels is not expected
     assert False
 
-def _tests():
-
-    print('\n--------- _tests() starts _______')
-
-    from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
-    from TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
-
-    chain_names = (
-        'HLT_j85_L1J20',
-        # 'HLT_j80_0eta240_2j60_320eta490_L1J20',
-        # ``'HLT_j85_j70_L1J20',
-        'HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20',
-        'HLT_j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20',
-        
-    )
-    
-
-    for cn in chain_names:
-        chain_dict = DictFromChainName.dictFromChainName(cn)
-
-        label = chainDict2jetLabel(chain_dict)
-        print('\n')
-        print(cn)
-        print('  ', label)
-        print('\n')
-
-        parser = ChainLabelParser(label, debug=False)
-        parser.parse()
-
-    print('\n--------- _tests() ends _______')
-
-    
-def _tests1():
-    
-    print('\n--------- _tests1() starts _______')
-
-    from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
-    from TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
-    
-    chain_name = 'HLT_j85_L1J20'
-
-    chain_dict = DictFromChainName.dictFromChainName(chain_name)
-    label = _make_simple_partition_label(chain_dict)
-    
-    print('\n')
-    print(chain_name)
-    print('  ', label)
-    print('\n')
-    
-    parser = ChainLabelParser(label, debug=False)
-    parser.parse()
-
-    print('\n--------- _tests1() ends _______')
-    
-def _tests2():
-    print('\n--------- _tests2() starts _______')
-
-    from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
-    from TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
-    
-    chain_name = 'HLT_j85_L1J20'
-
-    chain_dict = DictFromChainName.dictFromChainName(chain_name)
-    label = _make_simple_comb_label(chain_dict)
-
-    print('\n')
-    print(chain_name)
-    print('  ', label)
-    print('\n')
-
-    parser = ChainLabelParser(label, debug=False)
-    parser.parse()
-
-    print('\n--------- _tests2() ends _______')
-
-
-if __name__ == '__main__':
-    _tests()
-    _tests1()
-    _tests2()
+# module tests now in testChainDictMaker.py

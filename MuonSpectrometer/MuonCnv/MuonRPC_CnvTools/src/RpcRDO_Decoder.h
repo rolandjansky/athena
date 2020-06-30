@@ -9,7 +9,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "RPC_CondCabling/RpcCablingCondData.h"
-#include "StoreGate/ReadCondHandleKey.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include <inttypes.h>
@@ -31,18 +30,17 @@ class RpcRDO_Decoder : virtual public IRPC_RDO_Decoder, public AthAlgTool {
 
   virtual StatusCode initialize();
 
-  virtual std::vector<RpcDigit*>* getDigit(const RpcFiredChannel * fChan, 
-				   uint16_t& sectorID, uint16_t& padId, 
-				   uint16_t& cmaId) const;
+  virtual std::vector<RpcDigit*>* getDigit(const RpcFiredChannel* fChan,
+				   uint16_t& sectorID, uint16_t& padId,
+				   uint16_t& cmaId, const RpcCablingCondData* rpcCab) const;
 
-  virtual std::vector<Identifier>* getOfflineData(const RpcFiredChannel * fChan, 
-					  uint16_t& sectorID, uint16_t& padId, 
-					  uint16_t& cmaId, double& time) const;
+  virtual std::vector<Identifier>* getOfflineData(const RpcFiredChannel* fChan,
+					  uint16_t& sectorID, uint16_t& padId,
+					  uint16_t& cmaId, double& time, const RpcCablingCondData* rpcCab) const;
 
 	
  private:
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-  SG::ReadCondHandleKey<RpcCablingCondData> m_rpcReadKey{this, "RpcCablingKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
 
   const IRPCcablingSvc* m_cablingSvc;
 

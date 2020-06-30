@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -105,6 +105,9 @@ class  SCT_FrontEnd : public extends<AthAlgTool, ISCT_FrontEnd> {
 
  private:
 
+  enum CompressionMode { Level_X1X=1, Edge_01X=2, AnyHit_1XX_X1X_XX1=3 }; // Used for m_data_compression_mode (DataCompressionMode)
+  enum ReadOutMode { Condensed=0, Expanded=1 }; // Used for m_data_readout_mode (DataReadOutMode)
+
   FloatProperty m_NoiseBarrel{this, "NoiseBarrel", 1500.0, "Noise factor, Barrel  (in the case of no use of calibration data)"};
   FloatProperty m_NoiseBarrel3{this, "NoiseBarrel3", 1541.0, "Noise factor, Barrel3  (in the case of no use of calibration data)"};
   FloatProperty m_NoiseInners{this, "NoiseInners", 1090.0, "Noise factor, EC Inners  (in the case of no use of calibration data)"};
@@ -124,8 +127,8 @@ class  SCT_FrontEnd : public extends<AthAlgTool, ISCT_FrontEnd> {
   FloatProperty m_OGcorr{this, "OffsetGainCorrelation", 0.00001, "Gain/offset correlation for the strips"};
   FloatProperty m_Threshold{this, "Threshold", 1.0, "Threshold"};
   FloatProperty m_timeOfThreshold{this, "TimeOfThreshold", 30.0, "Threshold time"};
-  ShortProperty m_data_compression_mode{this, "DataCompressionMode", 1, "Front End Data Compression Mode"};
-  ShortProperty m_data_readout_mode{this, "DataReadOutMode", 0, "Front End Data Read out mode Mode"};
+  ShortProperty m_data_compression_mode{this, "DataCompressionMode", Edge_01X, "Front End Data Compression Mode: 1 is level mode X1X (default), 2 is edge mode 01X, 3 is any hit mode (1XX|X1X|XX1)"};
+  ShortProperty m_data_readout_mode{this, "DataReadOutMode", Condensed, "Front End Data Read out mode Mode: 0 is condensed mode and 1 is expanded mode"};
   BooleanProperty m_useCalibData{this, "UseCalibData", true, "Flag to set the use of calibration data for noise, Gain,offset etc."};
 
   ToolHandle<ISCT_Amp> m_sct_amplifier{this, "SCT_Amp", "SCT_Amp", "Handle the Amplifier tool"}; //!< Handle the Amplifier tool

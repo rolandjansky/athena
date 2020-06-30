@@ -105,9 +105,9 @@ def createTriggerFlags():
 
     # Enables collection and export of detailed monitoring data of the HLT execution
     flags.addFlag('Trigger.CostMonitoring.doCostMonitoring', False)
-    flags.addFlag('Trigger.CostMonitoring.chain', 'HLT_costmonitor')
+    flags.addFlag('Trigger.CostMonitoring.chain', 'HLT_costmonitor_CostMonDS_L1All')
     flags.addFlag('Trigger.CostMonitoring.outputCollection', 'HLT_TrigCostContainer')
-    flags.addFlag('Trigger.CostMonitoring.monitorAllEvents', True) # Defaulting to "True" is temporary
+    flags.addFlag('Trigger.CostMonitoring.monitorAllEvents', False)
 
 
     # enable Bcm inputs simulation
@@ -124,6 +124,9 @@ def createTriggerFlags():
     # partition name used to determine online vs offline BS result writing
     import os
     flags.addFlag('Trigger.Online.partitionName', os.getenv('TDAQ_PARTITION') or '')
+
+    # shortcut to check if job is running in a partition (i.e. partition name is not empty)
+    flags.addFlag('Trigger.Online.isPartition', lambda prevFlags: len(prevFlags.Trigger.Online.partitionName)>0)
     
     # write BS output file
     flags.addFlag('Trigger.writeBS', False)

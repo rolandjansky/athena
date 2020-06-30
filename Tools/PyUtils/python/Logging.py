@@ -1,11 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @author: Sebastien Binet
 ## @file :  PyUtils/python/Logging.py
 ## @purpose: try to import Logging from AthenaCommon.
 ##           falls back on stdlib's one
 
-__version__ = "$Revision$"
 __author__  = "Sebastien Binet"
 
 __all__ = ['msg', 'logging']
@@ -27,7 +26,7 @@ except ImportError:
         if self.manager.disable >= logging.VERBOSE:
             return
         if logging.VERBOSE >= self.getEffectiveLevel():
-            apply(self._log, (logging.VERBOSE, msg, args), kwargs)
+            self._log(logging.VERBOSE, msg, args, **kwargs)
     cls.verbose = verbose
     del verbose
     

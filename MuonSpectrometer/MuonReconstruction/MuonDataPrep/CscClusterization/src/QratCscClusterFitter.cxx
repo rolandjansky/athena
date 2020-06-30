@@ -1,18 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// QratCscClusterFitter.cxx
 #include "QratCscClusterFitter.h"
-#include "CscClusterization/ICscClusterFitter.h"
-#include "CscClusterization/ICscAlignmentTool.h"
+
 #include "MuonPrepRawData/CscClusterStatus.h"
 #include "MuonPrepRawData/CscStripPrepData.h"
 #include "MuonPrepRawData/CscPrepData.h"
 #include "MuonReadoutGeometry/CscReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "EventPrimitives/EventPrimitives.h"
@@ -21,8 +17,6 @@
 #include <sstream>
 #include <iomanip>
 
-using std::string;
-using std::vector;
 using Muon::CscClusterStatus;
 using Muon::CscStripPrepData;
 using Muon::CscPrepData;
@@ -36,7 +30,7 @@ enum CscStation { UNKNOWN_STATION, CSS, CSL };
 enum CscPlane { CSS_ETA, CSL_ETA, CSS_PHI, CSL_PHI, UNKNOWN_PLANE };
 
 namespace {
-  string splane(CscPlane plane) {
+  std::string splane(CscPlane plane) {
     switch(plane) {
     case CSS_ETA: return "CSS eta";
     case CSL_ETA: return "CSL eta";
@@ -62,7 +56,7 @@ namespace {
 //******************************************************************************
 
 int qrat_correction(CscPlane plane, double qrat, double& cor, double& dcordqrat) {
-  vector<double> pfac;
+  std::vector<double> pfac;
   if ( plane == CSS_ETA ) {
     if ( qrat < 0.095 ) return 1;
     if ( qrat > 1.01 ) return 1;
@@ -127,7 +121,7 @@ int qrat_correction(CscPlane plane, double qrat, double& cor, double& dcordqrat)
 //   cor = output correction
 //   dcordqrat = derivative of cor w.r.t. qrat
 
-int qrat_interpolation(double qrmin, const vector<double>& corvals,
+int qrat_interpolation(double qrmin, const std::vector<double>& corvals,
                        double qrat, double& cor, double& dcordqrat) {
   int nbin = corvals.size();
   if ( ! nbin ) return 1;
@@ -215,9 +209,8 @@ int qrat_atanh(const double a, const double b, double c, const double x0,
 
 //****************************************************************************
 
-QratCscClusterFitter::
-QratCscClusterFitter(string type, string aname, const IInterface* parent)
-  : AthAlgTool(type, aname, parent),
+QratCscClusterFitter::QratCscClusterFitter(std::string type, std::string aname, const IInterface* parent) :
+    AthAlgTool(type, aname, parent),
     m_detMgr(nullptr), 
     m_alignmentTool("CscAlignmentTool/CscAlignmentTool", this)
 {
@@ -266,21 +259,12 @@ QratCscClusterFitter(string type, string aname, const IInterface* parent)
 
 //**********************************************************************
 
-QratCscClusterFitter::~QratCscClusterFitter() { }
-
-//**********************************************************************
-
 StatusCode QratCscClusterFitter::initialize() {
   
   ATH_MSG_VERBOSE ( "Initalizing " << name() );
 
-  // retrieve MuonDetectorManager
-  if ( detStore()->retrieve(m_detMgr,"Muon").isFailure() ) {
-    ATH_MSG_FATAL ( "Could not find the MuonGeoModel Manager! " );
-    return StatusCode::FAILURE;
-  } 
-  
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_CHECK(detStore()->retrieve(m_detMgr,"Muon"));
+  ATH_CHECK(m_idHelperSvc.retrieve());
 
   if ( m_alignmentTool.retrieve().isFailure() )   {
     ATH_MSG_WARNING ( name() << ": unable to retrieve cluster fitter " << m_alignmentTool );
@@ -391,17 +375,11 @@ Results QratCscClusterFitter::fit(const StripFitList& sfits, double tantheta) co
   Identifier idStrip0 = pstrip->identify();
 
   const CscReadoutElement* pro = m_detMgr->getCscReadoutElement(idStrip0);
-  bool measphi = m_muonIdHelperTool->cscIdHelper().CscIdHelper::measuresPhi(idStrip0);
+  bool measphi = m_idHelperSvc->cscIdHelper().CscIdHelper::measuresPhi(idStrip0);
   double pitch = pro->cathodeReadoutPitch(0, measphi);
   unsigned int maxstrip = pro->maxNumberOfStrips(measphi);
-  unsigned int strip0 = m_muonIdHelperTool->cscIdHelper().strip(idStrip0) - 1;
-
-  //  int zsec    = m_muonIdHelperTool->cscIdHelper().stationEta(idStrip0);
-  int station = m_muonIdHelperTool->cscIdHelper().stationName(idStrip0) - 49;    // 1=CSS, 2=CSL
-  //  int phisec  = m_muonIdHelperTool->cscIdHelper().stationPhi(idStrip0);
-
-  //  int sector  = zsec*(2*phisec - station + 1);
-  //  int wlay    = m_muonIdHelperTool->cscIdHelper().wireLayer(idStrip0);
+  unsigned int strip0 = m_idHelperSvc->cscIdHelper().strip(idStrip0) - 1;
+  int station = m_idHelperSvc->cscIdHelper().stationName(idStrip0) - 49;    // 1=CSS, 2=CSL
 
   CscPlane plane = findPlane(station, measphi);
   if ( plane == UNKNOWN_PLANE ) {
@@ -412,12 +390,10 @@ Results QratCscClusterFitter::fit(const StripFitList& sfits, double tantheta) co
   
   // Display input strips.
   ATH_MSG_VERBOSE ( "QRAT fittter input has " << nstrip << " strips" );
-  //  unsigned int nstrip_threshold =0;
   for ( unsigned int istrip=0; istrip<nstrip; ++istrip ) {
     Identifier id = sfits[istrip].strip->identify();
-    //    if (sfits[istrip].charge>=20000) ++nstrip_threshold;
-    ATH_MSG_VERBOSE ( "  " <<  station << " : " << measphi << "  " << m_muonIdHelperTool->cscIdHelper().wireLayer(id)
-                      << "  " << istrip << " " << m_muonIdHelperTool->cscIdHelper().strip(id)
+    ATH_MSG_VERBOSE ( "  " <<  station << " : " << measphi << "  " << m_idHelperSvc->cscIdHelper().wireLayer(id)
+                      << "  " << istrip << " " << m_idHelperSvc->cscIdHelper().strip(id)
                       << " " << sfits[istrip].charge );
   }
   
@@ -518,8 +494,8 @@ Results QratCscClusterFitter::fit(const StripFitList& sfits, double tantheta) co
   double savg = istrip_peak;
 
   // Calculate QRAT correction to strip position.
-  string posopt = m_posopt_eta;
-  string erropt = m_erropt_eta;
+  std::string posopt = m_posopt_eta;
+  std::string erropt = m_erropt_eta;
   double dpos = 0.0;
   if ( measphi ) {
     posopt = m_posopt_phi;
@@ -546,7 +522,7 @@ Results QratCscClusterFitter::fit(const StripFitList& sfits, double tantheta) co
     stat2 = qrat_correction(plane, qrat2, scor2, dscordqrat2);
   } else if ( posopt == "TABLE" ) {
     double qrmin = 0.0;
-    const vector<double>* pcor = 0;
+    const std::vector<double>* pcor = 0;
     if ( plane == CSS_ETA ) {
       qrmin = m_qratmin_css_eta;
       pcor = &m_qratcor_css_eta;
@@ -753,7 +729,7 @@ double QratCscClusterFitter::getCorrectedError(const CscPrepData* pclu, double s
   double dpos = Amg::error(pclu->localCovariance(),ierr);
 
   Identifier idStrip0 = pclu->identify();
-  int station = m_muonIdHelperTool->cscIdHelper().stationName(idStrip0) - 49; // 1=CSS, 2=CSL
+  int station = m_idHelperSvc->cscIdHelper().stationName(idStrip0) - 49; // 1=CSS, 2=CSL
   // Calculate the angle of incidence.
   double tantht = 0.0;
   if ( station == 1 ) {
@@ -798,7 +774,7 @@ Results QratCscClusterFitter::fit(const StripFitList& sfits) const {
     // Fetch the chamber type.
     const CscStripPrepData* pstrip = sfits[0].strip;
     Identifier idStrip0 = pstrip->identify();
-    int station = m_muonIdHelperTool->cscIdHelper().stationName(idStrip0) - 49; // 1=CSS, 2=CSL
+    int station = m_idHelperSvc->cscIdHelper().stationName(idStrip0) - 49; // 1=CSS, 2=CSL
     // Calculate the angle of incidence.
     double tantht = 0.0;
     double pos = res.position;
@@ -811,12 +787,7 @@ Results QratCscClusterFitter::fit(const StripFitList& sfits) const {
     double dpostht = m_error_tantheta*std::abs(tantht);
     double dpos = res.dposition;
     
-    //  std::cout << "QratCluFitter:: as followed Position error:: dpos=" << dpos
-    //            << " dpostht=" << dpostht << " new=";
-    
     res.dposition = sqrt(dpos*dpos + dpostht*dpostht);
-    //  std::cout << res.dposition << "  at tantheta=" << tantht << " angle="
-    //            << atan(tantht)*180/acos(-1.0)<< std::endl;
     
     // Return the updated result.
     new_results.push_back(res);
@@ -824,13 +795,3 @@ Results QratCscClusterFitter::fit(const StripFitList& sfits) const {
   
   return new_results;
 }
-
-//**********************************************************************
-
-StatusCode QratCscClusterFitter::finalize(){
-
-  ATH_MSG_VERBOSE ( "Goodbye" );
-  return StatusCode::SUCCESS;
-}
-
-//**********************************************************************

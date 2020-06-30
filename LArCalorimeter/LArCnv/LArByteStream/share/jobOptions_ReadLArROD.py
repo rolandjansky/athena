@@ -9,7 +9,7 @@ include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
 
 # EventStorage Input 
 ByteStreamInputSvc =  svcMgr.ByteStreamInputSvc
-ByteStreamInputSvc.FullFileName = ["daq.csc12.0000000.Single.Stream.LB0000.Athena._0001.data"]
+EventSelector.Input = ["daq.csc12.0000000.Single.Stream.LB0000.Athena._0001.data"]
 include( "ByteStreamCnvSvcBase/BSAddProvSvc_RDO_jobOptions.py" )
 
 from AthenaCommon.DetFlags import DetFlags

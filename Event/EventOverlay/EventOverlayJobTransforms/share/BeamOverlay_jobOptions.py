@@ -9,3 +9,6 @@ if DetFlags.overlay.BCM_on():
 
     from AthenaCommon import CfgGetter
     job += CfgGetter.getAlgorithm("BCM_OverlayDigitization")
+    job += CfgGetter.getAlgorithm("BCMOverlay")
+    if DetFlags.overlay.Truth_on():
+        job += CfgGetter.getAlgorithm("BCMSDOOverlay")

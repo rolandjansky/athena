@@ -31,10 +31,10 @@ import os, sys, getopt
 os.environ['TERM'] = 'linux'
 
 try:
-  from builtins import input
+    from builtins import input
 except ImportError:
-  # old python 2 without builtins
-  input=raw_input
+    # old python 2 without builtins
+    input=raw_input
 
 # main defaults are here - can be modified from command line
 run=999999999
@@ -110,7 +110,7 @@ if instance2=="none":
 if sqlfn2=="same":
     sqlfn2=sqlfn
 
-# if maxdiffpercent>-1:
+#if maxdiffpercent>-1:
 #    maxdiff=-1;
 
 print ('run ',run, 'lumi ',lumi, 'run2 ',run2, 'lumi2 ',lumi2)
@@ -292,7 +292,7 @@ for ros in range(0,5):
                 for adc in range(ng):
                     for ind in range(0,oscMax):
                         if (ind<osc):
-                          v[ind] = flt.getData(chn, adc, ind)
+                            v[ind] = flt.getData(chn, adc, ind)
                         if (ind<os2c):
                             v2[ind] = flt2.getData(chn, adc, ind)
                         dv12 = v[ind] - v2[ind]
@@ -300,7 +300,7 @@ for ros in range(0,5):
                             dv12percent=0
                         else:
                             dv12percent=dv12*100./v2[ind]
-#                        print ( modName, ' chann ',  repr(chn),  ' adc ',  repr(adc),  ' ind ',  repr(ind),  ' val1 ',  repr(v[ind]),' val2 ',  repr(v2[ind]), ' diff ',  repr(dv12), 'percent ', repr(dv12percent))
+                        #print ( modName, ' chann ',  repr(chn),  ' adc ',  repr(adc),  ' ind ',  repr(ind),  ' val1 ',  repr(v[ind]),' val2 ',  repr(v2[ind]), ' diff ',  repr(dv12), 'percent ', repr(dv12percent))
                         if abs(dv12) > maxdiff and abs(dv12percent) > maxdiffpercent:
                             if ot==30: # integers
                                 f.write('%s chann %2d adc %d ind %d val1 %d val2 %d  diff %d \n' % (modName,chn,adc,ind,v[ind],v2[ind],dv12))
@@ -311,7 +311,7 @@ for ros in range(0,5):
                                 if writedif and adc==0 and ind==0:
                                     fd.write("%s ch %2d %.4f\n" % (modName,chn,dv12))
 
-#                        f.write(s + "\n")
+                        #f.write(s + "\n")
 
 #=== close DB and output file
 db.closeDatabase()
@@ -319,4 +319,3 @@ db2.closeDatabase()
 f.close()
 if writedif:
     fd.close()
-

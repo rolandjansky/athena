@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // PrintMC - dump details of MC events
 // Updated 29/10/2009 by Andy Buckley <andy.buckley@cern.ch>
-
+// Updated 18.06.2020 by <andrii.verbytskyi@mpp.mpg.de>
 #include "TruthIO/PrintMC.h"
 #include "GeneratorObjects/McEventCollection.h"
 
@@ -88,16 +88,70 @@ StatusCode PrintMC::execute() {
     // VERTEX format
     /// @todo Isn't this if (m_VerboseOutput... redundant?
     if (m_VerboseOutput && m_printsty == "Vertex") {
-      evt->print(); // standard HepMC dump of vertex list
+     HepMC::Print::line(std::cout, *evt); // standard HepMC dump of vertex list
     }
     // BARCODE format
     /// @todo Isn't this if (m_VerboseOutput... redundant?
     else if (m_VerboseOutput && m_printsty == "Barcode") {
       drawLine(std::cout);
+#ifdef HEPMC3
       std::cout << "GenEvent: #" << evt->event_number()
-                << " ID=" << evt->signal_process_id()
+                << " ID=" << HepMC::signal_process_id(evt)
                 << " SignalProcessGenVertex Barcode: "
-                << ( evt->signal_process_vertex() ? evt->signal_process_vertex()->barcode() : 0 ) << "\n";
+                << ( HepMC::signal_process_vertex(evt) ? HepMC::barcode(HepMC::signal_process_vertex(evt)) : 0 ) << "\n";
+      std::cout << " Entries this event: " << evt->vertices().size() << " vertices, "
+                << evt->particles().size() << " particles.\n";
+
+      if (evt->heavy_ion()) {
+        std::cout << " HeavyIon: jatt=" << evt->heavy_ion()->Ncoll_hard
+                  << " np=" << evt->heavy_ion()->Npart_proj
+                  << " nt=" << evt->heavy_ion()->Npart_targ
+                  << " ncoll=" << evt->heavy_ion()->Ncoll
+                  << " specn=" << evt->heavy_ion()->spectator_neutrons
+                  << " specp=" << evt->heavy_ion()->spectator_protons
+                  << " n01=" << evt->heavy_ion()->N_Nwounded_collisions
+                  << " n10=" << evt->heavy_ion()->Nwounded_N_collisions
+                  << " n11=" << evt->heavy_ion()->Nwounded_Nwounded_collisions
+                  << " impact=" << evt->heavy_ion()->impact_parameter
+                  << " evplane=" << evt->heavy_ion()->event_plane_angle
+                  << " ecc=" << evt->heavy_ion()->eccentricity
+                  << " sigmaNNinel=" << evt->heavy_ion()->sigma_inel_NN
+		  << std::endl;
+      }
+      else {
+        std::cout << "HeavyIon: EMPTY"
+		  << std::endl;
+      }
+
+
+      // Weights
+      std::cout << " Weights(" << evt->weights().size() << ")=";
+      for ( auto wgt = evt->weights().begin();
+            wgt != evt->weights().end(); wgt++ ) { std::cout << *wgt << " "; }
+      std::cout << "\n";
+      std::cout << " EventScale " << (evt->attribute<HepMC3::DoubleAttribute>("event_scale")? evt->attribute<HepMC3::DoubleAttribute>("event_scale")->value():0.0)
+                << " [energy] \t alphaQCD=" << (evt->attribute<HepMC3::DoubleAttribute>("alphaQCD")? evt->attribute<HepMC3::DoubleAttribute>("alphaQCD")->value():0.0)
+                << "\t alphaQED=" << (evt->attribute<HepMC3::DoubleAttribute>("alphaQED")? evt->attribute<HepMC3::DoubleAttribute>("alphaQED")->value():0.0) << std::endl;
+
+      if (evt->pdf_info()) {
+        std::cout << "PdfInfo: id1=" << evt->pdf_info()->parton_id[0]
+                  << " id2=" << evt->pdf_info()->parton_id[1]
+                  << " x1=" << evt->pdf_info()->x[0]
+                  << " x2=" << evt->pdf_info()->x[1]
+                  << " q=" << evt->pdf_info()->scale
+                  << " xpdf1=" << evt->pdf_info()->pdf_id[0]
+                  << " xpdf2=" << evt->pdf_info()->pdf_id[1]
+		  << std::endl;
+      }
+      else {
+        std::cout << "PdfInfo: EMPTY"
+		  << std::endl;
+      }
+#else
+      std::cout << "GenEvent: #" << evt->event_number()
+                << " ID=" << HepMC::signal_process_id(evt)
+                << " SignalProcessGenVertex Barcode: "
+                << ( HepMC::signal_process_vertex(evt) ? HepMC::barcode(HepMC::signal_process_vertex(evt)) : 0 ) << "\n";
       std::cout << " Entries this event: " << evt->vertices_size() << " vertices, "
                 << evt->particles_size() << " particles.\n";
 
@@ -146,6 +200,7 @@ StatusCode PrintMC::execute() {
         std::cout << "PdfInfo: EMPTY"
 		  << std::endl;
       }
+#endif
 
       // Print a legend to describe the particle info
       char particle_legend[120];
@@ -160,39 +215,20 @@ StatusCode PrintMC::execute() {
       drawLine(std::cout);
 
       // Print all particles
-      for (HepMC::GenEvent::particle_const_iterator p = evt->particles_begin(); p != evt->particles_end(); ++p) {
-        int p_bcode = (*p)->barcode();
-        int p_pdg_id = (*p)->pdg_id();
-        double p_px = (*p)->momentum().px();
-        double p_py = (*p)->momentum().py();
-        double p_pz = (*p)->momentum().pz();
-        double p_pe = (*p)->momentum().e();
-        int p_stat = (*p)->status();
-        int p_prodvtx = 0;
-        if ((*p)->production_vertex() && (*p)->production_vertex()->barcode() != 0) {
-          p_prodvtx = (*p)->production_vertex()->barcode();
-        }
-        int p_endvtx = 0;
-        if ((*p)->end_vertex() && (*p)->end_vertex()->barcode() != 0) {
-          p_endvtx=(*p)->end_vertex()->barcode();
-        }
-        double v_x = 0;
-        double v_y = 0;
-        double v_z = 0;
-        double v_ct = 0;
-        if ((*p)->production_vertex()) {
-          v_x = (*p)->production_vertex()->position().x();
-          v_y = (*p)->production_vertex()->position().y();
-          v_z = (*p)->production_vertex()->position().z();
-          v_ct = (*p)->production_vertex()->position().t();
-        }
-
+      for (auto  p: *evt) {
+        int p_bcode = HepMC::barcode(p);
+        int p_pdg_id = p->pdg_id();
+        HepMC::FourVector mom=p->momentum();
+        int p_stat = p->status();
+        int p_prodvtx = p->production_vertex()?HepMC::barcode(p->production_vertex()):0;
+        int p_endvtx = p->end_vertex()?HepMC::barcode(p->end_vertex()):0;
+        HepMC::FourVector prodvtx=p->production_vertex()?p->production_vertex()->position():HepMC::FourVector(0.0,0.0,0.0,0.0);
         // Access the PDG table to get the particle name (and mass?)
         std::string sname;
-        double p_mass = (*p)->generated_mass();
-        const HepPDT::ParticleData* ap = particleData(abs(p_pdg_id));
+        double p_mass = p->generated_mass();
+        const HepPDT::ParticleData* ap = particleData(std::abs(p_pdg_id));
         if (!ap) {
-          ATH_MSG_DEBUG("PID " << abs(p_pdg_id) << " is not in particle data table");
+          ATH_MSG_DEBUG("PID " << std::abs(p_pdg_id) << " is not in particle data table");
         } else {
           const double p_charge = ap->charge() * (p_pdg_id < 0 ? -1 : 1); // assuming that charged leptons are in the PDT...
           // Build particle name string
@@ -229,16 +265,16 @@ StatusCode PrintMC::execute() {
         // Calc mass if missing
         /// @todo Is there no better way to detect unspecified masses than == 0? Final state photons *should* be 0
         if (p_mass == 0 && (p_stat == 2 || (p_stat != 1 && p_pdg_id != 22))) {
-          p_mass = (*p)->momentum().m();
+          p_mass = mom.m();
         }
 
         const char* p_name = sname.c_str() ;
         char particle_entries[120];
         sprintf(particle_entries, "  %9i %8i %-15s %4i %8i %8i   (%+9.3g,%+9.3g,%+9.3g,%+9.3g,%9.3g)",
-                p_bcode, p_pdg_id, p_name, p_stat, p_prodvtx, p_endvtx, p_px, p_py, p_pz, p_pe, p_mass);
+                p_bcode, p_pdg_id, p_name, p_stat, p_prodvtx, p_endvtx, mom.px(), mom.py(),mom.pz(), mom.e(), p_mass);
         std::cout << particle_entries << "\n";
         if (m_vertexinfo) {
-          sprintf(particle_entries," %60s (%+9.3g,%+9.3g,%+9.3g,%+9.3g)"," ",v_x, v_y, v_z, v_ct);
+          sprintf(particle_entries," %60s (%+9.3g,%+9.3g,%+9.3g,%+9.3g)"," ",prodvtx.x(), prodvtx.y(),prodvtx.z(), prodvtx.t());
           std::cout << particle_entries << "\n";
         }
       }

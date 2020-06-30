@@ -1055,7 +1055,6 @@ if doWriteESD:
     topSequence += CfgMgr.AthenaOutputStream("OutStream", WritingTool="AthenaOutputStreamTool")
     Stream1 = topSequence.OutStream
     Stream1.OutputFile    = ESDOutputFileName
-    svcMgr.AthenaSealSvc.CheckDictionary = True
     try:
         fullItemList += ["EventInfo#*"]
     except:

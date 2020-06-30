@@ -24,6 +24,7 @@
 #include "MuonRecToolInterfaces/IMuonTrackCleaner.h"
 #include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
 #include "TrkParameters/TrackParameters.h"
+#include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkTrack/TrackInfo.h"
 
@@ -79,46 +80,38 @@ class OutwardsCombinedMuonTrackBuilder : public AthAlgTool, virtual public IComb
         refit a track removing any indet measurements with optional addition of pseudoMeasurements
         according to original extrapolation */
     Trk::Track* standaloneRefit(const Trk::Track& combinedTrack, float bs_x, float bs_y, float bs_z) const;
-
-    /** ITrackFitter interface:
-        refit a track */
-    Trk::Track* fit(const Trk::Track& track, const Trk::RunOutlierRemoval runOutlier = false,
+    
+    using ICombinedMuonTrackBuilder::fit;
+    /** refit a track */
+    Trk::Track* fit(Trk::Track& track, const Trk::RunOutlierRemoval runOutlier = false,
                     const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const;
 
-    /** ITrackFitter interface:
-        refit a track adding a PrepRawDataSet */
-    Trk::Track* fit(const Trk::Track& /*track*/, const Trk::PrepRawDataSet& /*rawDataSet*/,
-                    const Trk::RunOutlierRemoval /*runOutlier*/,
-                    const Trk::ParticleHypothesis /*particleHypothesis*/) const
-    {
-        return 0;
-    };
 
-    /**ITrackFitter interface:
+    /** 
     fit a set of PrepRawData objects */
     Trk::Track* fit(const Trk::PrepRawDataSet&, const Trk::TrackParameters& /*perigeeStartValue*/,
                     const Trk::RunOutlierRemoval /*runOutlier*/,
                     const Trk::ParticleHypothesis /*particleHypothesis*/) const
     {
-        return 0;
+        return nullptr;
     };
 
-    /** ITrackFitter interface:
+    /** 
         refit a track adding a MeasurementSet */
     Trk::Track* fit(const Trk::Track& /*track*/, const Trk::MeasurementSet& /*measurementSet*/,
                     const Trk::RunOutlierRemoval /*runOutlier*/,
                     const Trk::ParticleHypothesis /*particleHypothesis*/) const
     {
-        return 0;
+        return nullptr;
     };
 
-    /** ITrackFitter interface:
+    /** 
         fit a set of MeasurementBase objects with starting value for perigeeParameters */
     Trk::Track* fit(const Trk::MeasurementSet& /*measurementSet*/, const Trk::TrackParameters& /*perigeeStartValue*/,
                     const Trk::RunOutlierRemoval /*runOutlier*/,
                     const Trk::ParticleHypothesis /*particleHypothesis*/) const;
 
-    /** ITrackFitter interface:
+    /** 
         combined muon fit */
     Trk::Track* fit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack,
                     const Trk::RunOutlierRemoval  runOutlier         = false,

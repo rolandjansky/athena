@@ -12,7 +12,7 @@
 namespace TrkExTools{
   std::string
   getToolSuffix(const std::string& fullToolName){
-    return fullToolName.substr(fullToolName.find_last_of(".") + 1);
+    return fullToolName.substr(fullToolName.find_last_of('.') + 1);
   }
   
   std::vector<std::string>

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGMNtupleWriter.h"
@@ -17,7 +17,6 @@ namespace MuonGM {
    
   MuonGMNtupleWriter::MuonGMNtupleWriter(const std::string& name, ISvcLocator* pSvcLocator) :
     AthAlgorithm(name,pSvcLocator),
-    //m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_tree(0),
     m_nevents(0)
   {
@@ -56,11 +55,6 @@ namespace MuonGM {
       return StatusCode::FAILURE;   
     }
 
-    // if(m_idHelper.retrieve().isFailure()) {
-    //   ATH_MSG_ERROR("Failed to retrieve: " << m_idHelper );
-    //   return StatusCode::FAILURE;   
-    // }
-    
     m_mdtSurfaceBranch.initForWrite(*m_tree,"mdt_");
 
     return AthAlgorithm::initialize();
@@ -103,7 +97,7 @@ namespace MuonGM {
 	    ++nmdt;
 	    if( fout ) {
 	      (*fout) << " New MDT ReadoutElement " << detEl->identify().get_compact() 
-		      << " " << MuonDetMgr->mdtIdHelper()->print_to_string(detEl->identify()) // m_idHelper->toStringDetEl(detEl->identify() ) 
+		      << " " << MuonDetMgr->mdtIdHelper()->print_to_string(detEl->identify())
 		      << " nlayers " << detEl->getNLayers() << " ntubes " << detEl->getNtubesperlayer() << std::endl
 		      << Amg::toString( detEl->transform(),6 ) << std::endl;
 	    }
@@ -135,7 +129,7 @@ namespace MuonGM {
 
 	      if( fout ) {
 		(*fout) << " New RPC ReadoutElement " << detEl->identify().get_compact() 
-			<< " " << MuonDetMgr->rpcIdHelper()->print_to_string(detEl->identify()) // m_idHelper->toStringDetEl(detEl->identify() ) 
+			<< " " << MuonDetMgr->rpcIdHelper()->print_to_string(detEl->identify())
 			<< "  NphiStripPanels " << detEl->NphiStripPanels() << std::endl
 			<< Amg::toString( detEl->transform(),6 ) << std::endl;
 	      }

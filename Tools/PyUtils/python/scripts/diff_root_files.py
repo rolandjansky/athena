@@ -1,12 +1,11 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.scripts.diff_root_files
 # @purpose check that 2 ROOT files have same content (containers and sizes).
 # @author Sebastien Binet
 # @date February 2010
 
-__version__ = "$Revision: 681245 $"
-__doc__ = "check that 2 ROOT files have same content (containers and sizes)."
+__doc__ = "diff two ROOT files (containers and sizes)"
 __author__ = "Sebastien Binet"
 
 ### imports -------------------------------------------------------------------
@@ -97,13 +96,13 @@ allowed: %(choices)s
                   help="""Compare nan as equal to nan""")
 
 def main(args):
-    """check that 2 ROOT files have same content (containers and sizes)
-    """
+    """diff two ROOT files (containers and sizes)"""
+
     global g_args
     g_args = args
     
     import PyUtils.RootUtils as ru
-    root = ru.import_root()
+    root = ru.import_root()  # noqa: F841
 
     import PyUtils.Logging as L
     msg = L.logging.getLogger('diff-root')
@@ -112,7 +111,7 @@ def main(args):
     else:
         msg.setLevel(L.logging.INFO)
 
-    from PyUtils.Helpers import ShutUp
+    from PyUtils.Helpers import ShutUp  # noqa: F401
 
     if args.entries == '':
         args.entries = -1
@@ -228,7 +227,6 @@ def main(args):
 
         leaves = infos['old']['leaves'] & infos['new']['leaves']
         msg.info('comparing [%s] leaves over entries...', len(leaves))
-        all_good = True
         n_good = 0
         n_bad = 0
         import collections
@@ -405,7 +403,6 @@ def main(args):
 
             if name[0] in args.enforce_leaves:
                 msg.info("don't compare further")
-                all_good = False
                 break
             pass # loop over events/branches
         

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IDAlignMonPVBiases_H
@@ -156,9 +156,9 @@ private:
   //TTree* m_Tree;
   //std::string m_TreeName;
 
-  mutable unsigned int            m_runNumber;
-  mutable unsigned int            m_evtNumber;
-  mutable unsigned int            m_lumi_block;
+  unsigned int            m_runNumber;
+  unsigned int            m_evtNumber;
+  unsigned int            m_lumi_block;
 
   double m_charge;
   double m_pt;

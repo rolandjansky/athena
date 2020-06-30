@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "ComboHypoToolBase.h"
+#include "DecisionHandling/ComboHypoToolBase.h"
 using namespace TrigCompositeUtils;
 
 

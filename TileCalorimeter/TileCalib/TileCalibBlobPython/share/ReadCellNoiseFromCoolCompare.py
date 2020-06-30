@@ -331,53 +331,53 @@ else:
 log.info("From DB:  ncell: %d ngain %d index nval %d", ncell, ngain, nval)
 
 if brief or doubl:
-  name1 = ["","","0.0     "]
-  names = ["S0 ", "Pl ", "S1 ", "S2 ", "Ra "]
-  dm=" "
+    name1 = ["","","0.0     "]
+    names = ["S0 ", "Pl ", "S1 ", "S2 ", "Ra "]
+    dm=" "
 else:
-  name1 = ["Noise cell ", "gain ","0.00    "]
-  names = ["   RMS ", "pileup ", "  RMS1 ", "  RMS2 ", " Ratio "]
-  for i in range(len(names),indexmax):
-      names += ["c"+str(i)+" "]
-  dm="\t"
+    name1 = ["Noise cell ", "gain ","0.00    "]
+    names = ["   RMS ", "pileup ", "  RMS1 ", "  RMS2 ", " Ratio "]
+    for i in range(len(names),indexmax):
+        names += ["c"+str(i)+" "]
+    dm="\t"
 for cell in range(cellmin,cellmax):
-  if tile and len(name1[0]):
-    name1[0] = "%s %6s hash " % hashMgr.getNames(cell)
-  for gain in range(gainmin,gainmax):
-    msg="%s%4d %s%d\t" % ( name1[0], cell, name1[1], gain)
-    l0=len(msg)
-    if multi:
-        dm="\n"+msg
-    for index in range(indexmin,indexmax):
-      v=blobFlt.getData(cell, gain, index)
-      v2=blobFlt2.getData(cell, gain, index)
-      dv12 = v - v2
-      if abs(dv12)<zthr:
-          dv12 = 0
-      if v2 == 0:
-          if v==0:
-              dp12=0
-          else:
-              dp12=100
-      else:
-          dp12=dv12*100./v2
+    if tile and len(name1[0]):
+        name1[0] = "%s %6s hash " % hashMgr.getNames(cell)
+    for gain in range(gainmin,gainmax):
+        msg="%s%4d %s%d\t" % ( name1[0], cell, name1[1], gain)
+        l0=len(msg)
+        if multi:
+            dm="\n"+msg
+        for index in range(indexmin,indexmax):
+            v=blobFlt.getData(cell, gain, index)
+            v2=blobFlt2.getData(cell, gain, index)
+            dv12 = v - v2
+            if abs(dv12)<zthr:
+                dv12 = 0
+            if v2 == 0:
+                if v==0:
+                    dp12=0
+                else:
+                    dp12=100
+            else:
+                dp12=dv12*100./v2
 
-      if abs(dv12) > maxdiff and abs(dp12) > maxdiffpercent:
-         if doubl:
-             s1 = "{0:<14.9g}".format(v)    if    v<0 else "{0:<15.10g}".format(v)
-             s2 = "{0:<14.9g}".format(v2)   if   v2<0 else "{0:<15.10g}".format(v2)
-             s3 = "{0:<14.9g}".format(dv12) if dv12<0 else "{0:<15.10g}".format(dv12)
-             s4 = "{0:<14.9g}".format(dp12) if dp12<0 else "{0:<15.10g}".format(dp12)
-             msg += "%s v1 %s v2 %s diff %s diffpercent %s%s" % (names[index],s1.ljust(15),s2.ljust(15),s3.ljust(15),s4.ljust(15),dm)
-         else:
-             s1 = name1[2] if    abs(v)<zthr else "%8.6f" %    v if    abs(v)<1 else "{0:<8.7g}".format(v).ljust(8)
-             s2 = name1[2] if   abs(v2)<zthr else "%8.6f" %   v2 if   abs(v2)<1 else "{0:<8.7g}".format(v2).ljust(8)
-             s3 = name1[2] if abs(dv12)<zthr else "%8.6f" % dv12 if abs(dv12)<1 else "{0:<8.7g}".format(dv12).ljust(8)
-             s4 = name1[2] if abs(dp12)<zthr else "%8.6f" % dp12 if abs(dp12)<1 else "{0:<8.7g}".format(dp12).ljust(8)
-             msg += "%s v1 %s v2 %s diff %s diffpercent %s%s" % (names[index],s1[:8],s2[:8],s3[:8],s4[:8],dm)
+            if abs(dv12) > maxdiff and abs(dp12) > maxdiffpercent:
+                if doubl:
+                    s1 = "{0:<14.9g}".format(v)    if    v<0 else "{0:<15.10g}".format(v)
+                    s2 = "{0:<14.9g}".format(v2)   if   v2<0 else "{0:<15.10g}".format(v2)
+                    s3 = "{0:<14.9g}".format(dv12) if dv12<0 else "{0:<15.10g}".format(dv12)
+                    s4 = "{0:<14.9g}".format(dp12) if dp12<0 else "{0:<15.10g}".format(dp12)
+                    msg += "%s v1 %s v2 %s diff %s diffpercent %s%s" % (names[index],s1.ljust(15),s2.ljust(15),s3.ljust(15),s4.ljust(15),dm)
+                else:
+                    s1 = name1[2] if    abs(v)<zthr else "%8.6f" %    v if    abs(v)<1 else "{0:<8.7g}".format(v).ljust(8)
+                    s2 = name1[2] if   abs(v2)<zthr else "%8.6f" %   v2 if   abs(v2)<1 else "{0:<8.7g}".format(v2).ljust(8)
+                    s3 = name1[2] if abs(dv12)<zthr else "%8.6f" % dv12 if abs(dv12)<1 else "{0:<8.7g}".format(dv12).ljust(8)
+                    s4 = name1[2] if abs(dp12)<zthr else "%8.6f" % dp12 if abs(dp12)<1 else "{0:<8.7g}".format(dp12).ljust(8)
+                    msg += "%s v1 %s v2 %s diff %s diffpercent %s%s" % (names[index],s1[:8],s2[:8],s3[:8],s4[:8],dm)
 
-    if len(msg)>l0:
-        print (msg[:len(msg)-len(dm)])
+        if len(msg)>l0:
+            print (msg[:len(msg)-len(dm)])
 
 #=== close DB
 db.closeDatabase()

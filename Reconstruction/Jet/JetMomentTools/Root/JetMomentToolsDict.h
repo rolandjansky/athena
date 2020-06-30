@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETMOMENTTOOLS_JETMOMENTTOOLSDICT_H
@@ -20,5 +20,6 @@
 #include "JetMomentTools/JetVertexFractionTool.h"
 #include "JetMomentTools/JetVertexTaggerTool.h"
 #include "JetMomentTools/JetWidthTool.h"
+#include "JetMomentTools/JetQGTaggerVariableTool.h"
 
 #endif

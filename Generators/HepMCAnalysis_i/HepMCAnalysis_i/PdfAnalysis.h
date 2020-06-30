@@ -7,10 +7,6 @@
 
 #include "baseAnalysis.h"
 
-// forward declarations
-#include "AtlasHepMC/GenEvent_fwd.h"
-#include "AtlasHepMC/PdfInfo.h"
-
 class TH1D;
 
 class PdfAnalysis: public baseAnalysis

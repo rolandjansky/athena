@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "TrkEventPrimitives/JacobianCartesianToPerigee.h"
-#include <math.h>
+#include <cmath>
 
 Trk::JacobianCartesianToPerigee::JacobianCartesianToPerigee(const double px, const double py, const double pz, const double E, const double, const double, const double, const double charge ):
   AmgMatrix(5,7)()

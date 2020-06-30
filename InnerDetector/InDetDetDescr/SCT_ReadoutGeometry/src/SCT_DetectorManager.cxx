@@ -50,20 +50,6 @@ namespace InDetDD {
     for (auto vol : m_volume) {
       vol->unref();
     }
-
-    for (auto higherAlignableTransform : m_higherAlignableTransforms){
-      for (auto iterMap : higherAlignableTransform) {
-        delete iterMap.second;
-      }
-    }
-
-    for (auto alignableTransform : m_alignableTransforms){
-      delete alignableTransform;
-    }
-
-    for (auto moduleAlignableTransform : m_moduleAlignableTransforms){
-      delete moduleAlignableTransform;
-    }
   }
 
   unsigned int SCT_DetectorManager::getNumTreeTops() const
@@ -185,7 +171,7 @@ namespace InDetDD {
 
       if (frame == InDetDD::global) { // global shift
         // Its a global transform
-        return setAlignableTransformGlobalDelta(m_alignableTransforms[idHash], delta, alignStore);
+        return setAlignableTransformGlobalDelta(m_alignableTransforms[idHash].get(), delta, alignStore);
 
       } else if (frame == InDetDD::local) { // local shift
 
@@ -198,10 +184,10 @@ namespace InDetDD {
         if( m_isLogical ){
           //Ensure cache is up to date and use the alignment corrected local to global transform
           element->setCache();
-          return setAlignableTransformLocalDelta(m_alignableTransforms[idHash], element->transform(), delta, alignStore);
+          return setAlignableTransformLocalDelta(m_alignableTransforms[idHash].get(), element->transform(), delta, alignStore);
         } else 
           //Use default local to global transform
-          return setAlignableTransformLocalDelta(m_alignableTransforms[idHash], element->defTransform(), delta, alignStore);
+          return setAlignableTransformLocalDelta(m_alignableTransforms[idHash].get(), element->defTransform(), delta, alignStore);
 
       } else {   
         // other not supported
@@ -224,7 +210,7 @@ namespace InDetDD {
 
       if (frame == InDetDD::global) { // global shift
         // Its a global transform
-        return setAlignableTransformGlobalDelta(m_moduleAlignableTransforms[idModuleHash], delta, alignStore);
+        return setAlignableTransformGlobalDelta(m_moduleAlignableTransforms[idModuleHash].get(), delta, alignStore);
       } else if (frame == InDetDD::local) { // local shift
         SiDetectorElement * element =  m_elementCollection[idHash];
         if (!element) return false;
@@ -234,10 +220,10 @@ namespace InDetDD {
         if( m_isLogical ){
           //Ensure cache is up to date and use the alignment corrected local to global transform
           element->setCache();
-          return setAlignableTransformLocalDelta(m_moduleAlignableTransforms[idModuleHash], element->moduleTransform(), delta, alignStore);
+          return setAlignableTransformLocalDelta(m_moduleAlignableTransforms[idModuleHash].get(), element->moduleTransform(), delta, alignStore);
         } else 
           //Use default local to global transform
-          return setAlignableTransformLocalDelta(m_moduleAlignableTransforms[idModuleHash],element->defModuleTransform(), delta, alignStore);
+          return setAlignableTransformLocalDelta(m_moduleAlignableTransforms[idModuleHash].get(), element->defModuleTransform(), delta, alignStore);
 
       } else {
         // other not supported
@@ -261,7 +247,7 @@ namespace InDetDD {
       if (iter == m_higherAlignableTransforms[index].end()) return false;      
 
       // Its a global transform
-      return setAlignableTransformGlobalDelta(iter->second, delta, alignStore);
+      return setAlignableTransformGlobalDelta((iter->second).get(), delta, alignStore);
     }
 
   }
@@ -292,13 +278,13 @@ namespace InDetDD {
         // Element
         IdentifierHash idHash = m_idHelper->wafer_hash(id);
         if (idHash.is_valid()) {
-          m_alignableTransforms[idHash]= new ExtendedAlignableTransform(transform, child);
+          m_alignableTransforms[idHash] = std::make_unique<ExtendedAlignableTransform>(transform, child);
         } 
       } else if (level == 1) {
         // Module
         IdentifierHash idHash = m_idHelper->wafer_hash(id);
         if (idHash.is_valid()) {
-          m_moduleAlignableTransforms[idHash/2]=new ExtendedAlignableTransform(transform, child);
+          m_moduleAlignableTransforms[idHash/2] = std::make_unique<ExtendedAlignableTransform>(transform, child);
         } 
 
       } else {
@@ -306,7 +292,7 @@ namespace InDetDD {
         // Higher levels are saved in a map. NB level=0,1 is treated above.   
         int index = level - FIRST_HIGHER_LEVEL; // level 0 and 1 is treated separately.
         if (index >= static_cast<int>(m_higherAlignableTransforms.size())) m_higherAlignableTransforms.resize(index+1); 
-        m_higherAlignableTransforms[index][id] = new ExtendedAlignableTransform(transform, child);
+        m_higherAlignableTransforms[index][id] = std::make_unique<ExtendedAlignableTransform>(transform, child);
       }  
     }
   }

@@ -13,4 +13,6 @@ def getFlavourTagging( inputJets, inputVertex, inputTracks ):
     bTagFex.TracksKey = inputTracks
     bTagFex.OutputBTagging = recordable( "HLT_BTagging" )
     algSequence.append( bTagFex )
-    return algSequence
+
+    return [algSequence,bTagFex.OutputBTagging]
+

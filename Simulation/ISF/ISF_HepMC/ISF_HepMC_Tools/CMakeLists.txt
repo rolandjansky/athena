@@ -5,19 +5,6 @@
 # Declare the package name:
 atlas_subdir( ISF_HepMC_Tools )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          DetectorDescription/AtlasDetDescr
-                          Generators/TruthUtils
-                          Generators/AtlasHepMC
-                          Simulation/ISF/ISF_Core/ISF_Event
-                          Simulation/ISF/ISF_Core/ISF_Interfaces
-                          Simulation/ISF/ISF_HepMC/ISF_HepMC_Interfaces
-                          Tools/PathResolver )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 find_package( GTest )

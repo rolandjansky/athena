@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAPOOLUTILITIES_ATHENAATTRIBUTETYPE_H
@@ -42,10 +42,10 @@ public:
   std::string extraInfo() const; // does not include type since is redundant
   
   // set methods
-  void setType(std::string info) {setInfoForKey("TYPE",info);}
-  void setUnit(std::string info) {setInfoForKey("UNIT",info);}
-  void setGroup(std::string info) {setInfoForKey("GRP",info);}
-  void fromString(std::string info);
+  void setType(const std::string& info) {setInfoForKey("TYPE",info);}
+  void setUnit(const std::string& info) {setInfoForKey("UNIT",info);}
+  void setGroup(const std::string& info) {setInfoForKey("GRP",info);}
+  void fromString(const std::string& info);
 
   // get methods
   std::string typeName() const;
@@ -60,7 +60,7 @@ public:
   
 private:
 
-  bool setInfoForKey(std::string key, std::string info);
+  bool setInfoForKey(const std::string& key, const std::string& info);
 
   std::map<std::string,std::string> m_keyedInfo;
   std::set<std::string> m_keys;
@@ -82,7 +82,8 @@ AthenaAttributeType::AthenaAttributeType(std::string t,
 }
 
 inline
-bool AthenaAttributeType::setInfoForKey(std::string key, std::string info)
+bool AthenaAttributeType::setInfoForKey(const std::string& key,
+                                        const std::string& info)
 {
    if ( m_keys.find(key) != m_keys.end() ) {
       std::map<std::string,std::string>::iterator i = m_keyedInfo.find(key);
@@ -94,7 +95,7 @@ bool AthenaAttributeType::setInfoForKey(std::string key, std::string info)
 }
 
 inline void
-AthenaAttributeType::fromString(std::string i)
+AthenaAttributeType::fromString(const std::string& i)
 {
    m_keyedInfo.clear();
    m_keys.clear();

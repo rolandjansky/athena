@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCLUSTERCORRECTION_CALOSWETA1B_G3_H
@@ -41,27 +41,23 @@ class CaloSwEta1b_g3 : public CaloClusterCorrection
 {
 
  public:
-  // constructor 
-  CaloSwEta1b_g3(const std::string& type,
-                 const std::string& name,
-                 const IInterface* parent);
-  // destructor 
-  virtual ~CaloSwEta1b_g3() override;
+  // Inherit constructor.
+  using CaloClusterCorrection::CaloClusterCorrection;
 
   // virtual method in CaloClusterCorrection
-  virtual void makeCorrection(const EventContext& ctx,
-                              xAOD::CaloCluster* cluster) const override;
+  virtual void makeCorrection (const Context& myctx,
+                               xAOD::CaloCluster* cluster) const override;
 
  private:
 
   CaloSwEta1b_g3() = delete;
   // parameters 
-  CaloRec::Array<2> m_correction;
-  CaloRec::Array<1> m_correction_bins;
-  int               m_correction_degree;
-  int               m_interp_degree;
-  float             m_correction_coef;
-  int               m_region;
+  Constant<CxxUtils::Array<2> > m_correction { this, "correction", "" };
+  Constant<CxxUtils::Array<1> > m_correction_bins { this, "correction_bins",""};
+  Constant<int>    m_correction_degree {this, "correction_degree", ""};
+  Constant<int>    m_interp_degree     { this, "interp_degree",    "" };
+  Constant<float>  m_correction_coef   { this, "correction_coef",  "" };
+  Constant<int>    m_region            { this, "region",           "" };
 
   static const float s_strip_granularity;
 

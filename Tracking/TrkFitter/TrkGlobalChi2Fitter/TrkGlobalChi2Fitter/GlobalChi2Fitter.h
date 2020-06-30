@@ -9,6 +9,7 @@
 #include "TrkDetDescrInterfaces/IMaterialEffectsOnTrackProvider.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/EventContext.h"
 #include "TrkFitterInterfaces/IGlobalTrackFitter.h"
 #include "TrkGlobalChi2Fitter/GXFTrajectory.h"
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
@@ -17,6 +18,7 @@
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "MagFieldElements/AtlasFieldCache.h"
 
+#include <memory>
 #include <mutex>
 
 class AtlasDetectorID;
@@ -148,56 +150,67 @@ namespace Trk {
 
     virtual ~ GlobalChi2Fitter();
 
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
+    /*
+     * Bring in default impl with
+     * EventContext for now
+     */
+    using ITrackFitter::fit;
 
-    virtual Track *fit(
-      const PrepRawDataSet &,
-    const TrackParameters &,
+    virtual std::unique_ptr<Track> fit(
+      const EventContext& ctx,
+      const PrepRawDataSet&,
+      const TrackParameters&,
       const RunOutlierRemoval runOutlier = false,
       const ParticleHypothesis matEffects = nonInteracting
-    ) const;
+      ) const override final;
 
-    virtual Track *fit(
+    virtual std::unique_ptr<Track> fit(
+      const EventContext& ctx,
       const Track &,
       const RunOutlierRemoval runOutlier = false,
       const ParticleHypothesis matEffects = nonInteracting
-    ) const;
+    ) const override final;
 
-    virtual Track *fit(
+    virtual std::unique_ptr<Track> fit(
+      const EventContext& ctx,
       const MeasurementSet &,
       const TrackParameters &,
       const RunOutlierRemoval runOutlier = false,
       const ParticleHypothesis matEffects = nonInteracting
-    ) const;
+    ) const override final;
 
-    virtual Track *fit(
+    virtual std::unique_ptr<Track> fit(
+      const EventContext& ctx,
       const Track &,
       const PrepRawDataSet &,
       const RunOutlierRemoval runOutlier = false,
       const ParticleHypothesis matEffects = nonInteracting
-    ) const;
+    ) const override final;
 
-    virtual Track *fit(
+    virtual std::unique_ptr<Track> fit(
+      const EventContext& ctx,
       const Track &,
       const Track &,
       const RunOutlierRemoval runOutlier = false,
       const ParticleHypothesis matEffects = nonInteracting
-    ) const;
+    ) const override final;
 
-    virtual Track *fit(
+    virtual std::unique_ptr<Track> fit(
+      const EventContext& ctx,
       const Track &,
       const MeasurementSet &,
       const RunOutlierRemoval runOutlier = false,
       const ParticleHypothesis matEffects = nonInteracting
-    ) const;
+    ) const override final;
 
     virtual Track* alignmentFit(
       AlignmentCache&,
       const Track&,
       const RunOutlierRemoval  runOutlier=false,
       const ParticleHypothesis matEffects=Trk::nonInteracting
-    ) const;
+    ) const override;
   
   private:
     void calculateJac(
@@ -215,6 +228,7 @@ namespace Trk {
     ) const;
 
     Track * fitIm(
+      const EventContext& ctx,
       Cache & cache,
       const Track & inputTrack,
       const RunOutlierRemoval runOutlier,
@@ -222,6 +236,7 @@ namespace Trk {
     ) const;
 
     Track *myfit(
+      const EventContext& ctx,
       Cache &,
       GXFTrajectory &,
       const TrackParameters &,
@@ -238,6 +253,7 @@ namespace Trk {
     ) const;
 
     Track *mainCombinationStrategy(
+      const EventContext& ctx,
       Cache &,
       const Track &,
       const Track &,
@@ -246,6 +262,7 @@ namespace Trk {
     ) const;
 
     Track *backupCombinationStrategy(
+      const EventContext& ctx,
       Cache &,
       const Track &,
       const Track &,
@@ -410,6 +427,7 @@ namespace Trk {
      * determine the behaviour of the particle as it traverses materials.
      */
     void addIDMaterialFast(
+      const EventContext& ctx,
       Cache & cache,
       GXFTrajectory & track,
       const TrackParameters * parameters,
@@ -430,6 +448,7 @@ namespace Trk {
     ) const;
 
     Track *makeTrack(
+      const EventContext& ctx,
       Cache &,
       GXFTrajectory &,
       const ParticleHypothesis
@@ -456,6 +475,7 @@ namespace Trk {
     ) const;
 
     FitterStatusCode runIteration(
+      const EventContext& ctx,
       Cache &,
       GXFTrajectory &,
       int,
@@ -472,6 +492,7 @@ namespace Trk {
     ) const;
 
     GXFTrajectory *runTrackCleanerSilicon(
+      const EventContext& ctx,
       Cache &,
       GXFTrajectory &,
       Amg::SymMatrixX &,
@@ -489,13 +510,17 @@ namespace Trk {
       bool, bool, int
     ) const;
 
-    FitterStatusCode calculateTrackParameters(GXFTrajectory &, bool) const;
+    FitterStatusCode calculateTrackParameters(
+      const EventContext& ctx,
+      GXFTrajectory&,
+      bool) const;
 
     void calculateDerivatives(GXFTrajectory &) const;
 
     void calculateTrackErrors(GXFTrajectory &, Amg::SymMatrixX &, bool) const;
 
     TransportJacobian *numericalDerivatives(
+      const EventContext& ctx,
       const TrackParameters *,
       const Surface *,
       PropDirection,
@@ -542,6 +567,7 @@ namespace Trk {
      * field cache.
      */
     void initFieldCache(
+      const EventContext& ctx,
       Cache & cache
     ) const;
 

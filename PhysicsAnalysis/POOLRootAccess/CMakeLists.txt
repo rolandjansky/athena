@@ -26,8 +26,8 @@ atlas_add_library( POOLRootAccessLib
                    src/*.cxx
                    PUBLIC_HEADERS POOLRootAccess
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
-		   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess AthAnalysisBaseCompsLib StoreGateLib 
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel SGtests StoreGateBindings  )
+		   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess AthAnalysisBaseCompsLib StoreGateLib StoreGateBindings 
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel SGtests  )
 
 atlas_add_dictionary( POOLRootAccessDict
                       POOLRootAccess/POOLRootAccessDict.h
@@ -43,7 +43,7 @@ atlas_add_executable( ut_basicRead_test
 atlas_add_executable( ut_basicxAODRead_test
                       test/ut_basicxAODRead_test.cxx
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} POOLRootAccessLib xAODEventInfo )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} POOLRootAccessLib xAODEventInfo xAODBase )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.opts )

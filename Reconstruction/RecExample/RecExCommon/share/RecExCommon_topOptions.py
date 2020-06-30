@@ -466,9 +466,9 @@ if globalflags.InputFormat.is_bytestream():
 
             # Specify input file
             if len(athenaCommonFlags.FilesInput())>0:
-                svcMgr.ByteStreamInputSvc.FullFileName=athenaCommonFlags.FilesInput()
+                svcMgr.EventSelector.Input=athenaCommonFlags.FilesInput()
             elif len(athenaCommonFlags.BSRDOInput())>0:
-                svcMgr.ByteStreamInputSvc.FullFileName=athenaCommonFlags.BSRDOInput()
+                svcMgr.EventSelector.Input=athenaCommonFlags.BSRDOInput()
         # --> AK
     else:
         logRecExCommon_topOptions.info("Read ByteStream file(s)")
@@ -476,9 +476,9 @@ if globalflags.InputFormat.is_bytestream():
 
         # Specify input file
         if len(athenaCommonFlags.FilesInput())>0:
-            svcMgr.ByteStreamInputSvc.FullFileName=athenaCommonFlags.FilesInput()
+            svcMgr.EventSelector.Input=athenaCommonFlags.FilesInput()
         elif len(athenaCommonFlags.BSRDOInput())>0:
-            svcMgr.ByteStreamInputSvc.FullFileName=athenaCommonFlags.BSRDOInput()
+            svcMgr.EventSelector.Input=athenaCommonFlags.BSRDOInput()
 
     if globalflags.DataSource()=='geant4':
         logRecExCommon_topOptions.info("DataSource is 'geant4'")
@@ -597,9 +597,11 @@ if globalflags.InputFormat.is_bytestream():
 ### write mu values into xAOD::EventInfo
 if rec.doESD() and rec.readRDO():
     if globalflags.DataSource()=='geant4':
-        include_muwriter = hasattr( condSeq, "xAODMaker::EventInfoCnvAlg" )
+        include_muwriter = (globalflags.InputFormat.is_bytestream() or
+                            hasattr( condSeq, "xAODMaker::EventInfoCnvAlg" ) or
+                            objKeyStore.isInInput( "xAOD::EventInfo"))
     else:
-        include_muwriter = jobproperties.Beam.beamType()=="collisions" and not athenaCommonFlags.isOnline()
+        include_muwriter = not athenaCommonFlags.isOnline()
 
     if include_muwriter:
         try:
@@ -842,17 +844,6 @@ if rec.doPersint()  :
 # gathering info from all the reco algorithms
 #
 
-
-
-
-# check dictionary all the time
-ServiceMgr.AthenaSealSvc.CheckDictionary = True
-if not rec.doCheckDictionary():
-    ServiceMgr.AthenaSealSvc.OutputLevel=WARNING
-
-
-
-#
 #
 #now write out Transient Event Store content in POOL
 #
@@ -1325,10 +1316,6 @@ if rec.doWriteAOD():
     from ParticleBuilderOptions.AODFlags import AODFlags
     # Particle Builders
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    from AthenaServices.Configurables import ThinningSvc
-    if not hasattr(svcMgr, 'ThinningSvc'):
-       svcMgr += ThinningSvc(OutputLevel=INFO)
-    svcMgr.ThinningSvc.Streams += ['StreamAOD']
 
 
     # cannot redo the slimming if readAOD and writeAOD
@@ -1363,13 +1350,6 @@ if rec.doWriteAOD():
             from ThinningUtils.ThinTrkTrack import ThinTrkTrack
             ThinTrkTrack()
             
-       # Doens't exist in xAOD world:
-       # if AODFlags.TrackParticleSlimmer or AODFlags.TrackParticleLastHitAndPerigeeSlimmer:
-       #     from PrimaryDPDMaker.PrimaryDPDMakerConf import SlimTrackInfo
-       #     topSequence += SlimTrackInfo( "SlimTrackParticles",
-       #                                   thinSvc             = 'ThinningSvc/ThinningSvc',
-       #                                   TrackPartContName   = 'TrackParticleCandidate',
-       #                                   SlimPerigee=AODFlags.TrackParticleLastHitAndPerigeeSlimmer() )
 
     pdr.flag_domain('output')
     # Create output StreamAOD
@@ -1416,9 +1396,6 @@ if rec.doWriteAOD():
 
     if AODFlags.TrackParticleSlimmer or AODFlags.TrackParticleLastHitAndPerigeeSlimmer:
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-        if not hasattr(svcMgr, 'ThinningSvc'):
-            svcMgr += createThinningSvc( svcName="ThinningSvc", outStreams=[StreamAOD] )
 
     # this is AOD->AOD copy
     if rec.readAOD():

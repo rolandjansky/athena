@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCLUSTERCORRECTION_CALOSWETAMOD_G3_H
@@ -38,25 +38,20 @@ Updated:  June, 2004    (sss)
 
 class CaloSwEtamod_g3 : public CaloClusterCorrection
 {
+public:
+  /// Inherit constructor.
+  using CaloClusterCorrection::CaloClusterCorrection;
 
- public:
-
-  // constructor 
-  CaloSwEtamod_g3 (const std::string& type,
-                   const std::string& name,
-                   const IInterface* parent);
-  // destructor 
-  virtual ~CaloSwEtamod_g3() override;
 
   // virtual method in CaloClusterCorrection
-  virtual void makeCorrection(const EventContext& ctx,
-                              xAOD::CaloCluster* cluster) const override;
+  virtual void makeCorrection (const Context& myctx,
+                               xAOD::CaloCluster* cluster) const override;
 
  private:
-
   CaloSwEtamod_g3() = delete;
-  int m_neta;
-  CaloRec::Array<3> m_correction;
+
+  Constant<int> m_neta { this, "eta_size", "" };
+  Constant<CxxUtils::Array<3> > m_correction { this, "correction", "" };
 };
 
 #endif

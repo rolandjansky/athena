@@ -86,7 +86,7 @@ LArShapeCopy::copyOldtoNew(const LArConditionsSubset<LArShapeP>* oldShape,
 			   LArConditionsSubset<LArShapeP1>* newShape)
 {
   newShape->assign (*oldShape,
-                    [] (const LArShapeP from,
+                    [] (const LArShapeP& from,
                         LArShapeP1& to)
                     {
                       to.m_vShape.assign (from.m_vShape.begin(),

@@ -41,34 +41,31 @@ StatusCode CheckCloningFactor::execute() {
     
     // Loop over all events in McEventCollection
     McEventCollection::const_iterator itr;
-    std::vector<const HepMC::GenParticle*> bQuarks;
+    std::vector<HepMC::ConstGenParticlePtr> bQuarks;
     for (itr = mcCollptr->begin(); itr!=mcCollptr->end(); ++itr) {
         // Loop over all particles in the event and find the b-quarks
         const HepMC::GenEvent* genEvt = (*itr);
-        for (HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin(); pitr!=genEvt->particles_end(); ++pitr) {
-	    int p_id = (*pitr)->pdg_id();
-	    int p_stat = (*pitr)->status();
+        for (auto pitr: *genEvt) {
+	    int p_id = pitr->pdg_id();
+	    int p_stat = pitr->status();
             if ( (abs(p_id)==5) && (p_stat == 62 || p_stat == 63) ) {
-                bQuarks.push_back(*pitr);
+                bQuarks.push_back(pitr);
             }
         }
     }
-    
+    //Unfortunately it is not clear what should happen in the case of absence of b quarks. To prevent bad things we return false.
+    if ( bQuarks.size()==0) return StatusCode::FAILURE;
     // Loop over the b-quarks and find the one with higest pt
-    std::vector<const HepMC::GenParticle*>::iterator bItr;
+    std::vector<HepMC::ConstGenParticlePtr>::iterator recordedBQuarkIt;
     double lastPt(-1.0);
-    int index(0), highestIndex(-1);
-    for (bItr = bQuarks.begin(); bItr!=bQuarks.end(); ++bItr, ++index) {
-        double et=(*bItr)->momentum().perp();
-        if (et>lastPt) {
-            highestIndex = index;
-            lastPt = et;
-        }
+    for (auto bItr = bQuarks.begin(); bItr!=bQuarks.end(); ++bItr) {
+        double thisPt=(*bItr)->momentum().perp();
+        if (thisPt>lastPt) { recordedBQuarkIt=bItr; }
     }
-    const HepMC::GenParticle* recordedBQuark = bQuarks[highestIndex];
-    double b_pt = recordedBQuark->momentum().perp();
-    double b_rapid = recordedBQuark->momentum().pseudoRapidity();
-    double b_phi = recordedBQuark->momentum().phi();
+    auto BQMom=(*recordedBQuarkIt)->momentum();
+    double b_pt = BQMom.perp();
+    double b_rapid = BQMom.pseudoRapidity();
+    double b_phi = BQMom.phi();
     
     unsigned int nAccumulatedEvents = bqKinematics[0].size();
     bool isUnique(true);
@@ -76,9 +73,9 @@ StatusCode CheckCloningFactor::execute() {
         double pt = (bqKinematics[0])[i];
         double rap = (bqKinematics[1])[i];
         double phi = (bqKinematics[2])[i];
-        if ((abs(pt-b_pt)<m_tolerance) &&
-            (abs(rap-b_rapid)<m_tolerance) &&
-            (abs(phi-b_phi)<m_tolerance) ) isUnique=false;
+        if ((std::abs(pt-b_pt)<m_tolerance) &&
+            (std::abs(rap-b_rapid)<m_tolerance) &&
+            (std::abs(phi-b_phi)<m_tolerance) ) isUnique=false;
         if (!isUnique) break;
     }
     

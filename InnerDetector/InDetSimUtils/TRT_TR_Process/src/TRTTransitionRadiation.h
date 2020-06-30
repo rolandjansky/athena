@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRTTRANSITIONRADIATION_H
@@ -14,9 +14,11 @@
 #include "G4Step.hh"
 #include "G4Track.hh"
 
+#include "AthenaKernel/MsgStreamMember.h"
+#include "CxxUtils/checker_macros.h"
+
 #include <vector>
 #include <iostream>
-#include "AthenaKernel/MsgStreamMember.h"
 
 //using namespace std;
 
@@ -106,7 +108,7 @@ private:
   G4double* m_sigmaGas;
   G4double* m_sigmaFoil;
 
-  mutable Athena::MsgStreamMember m_msg;
+  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
 
 };
 

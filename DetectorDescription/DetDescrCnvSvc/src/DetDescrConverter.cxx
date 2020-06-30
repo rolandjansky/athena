@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -127,19 +127,6 @@ DetDescrConverter::DetDescrConverter(const CLID& myCLID, ISvcLocator* svcloc) :
     }
     if (0 == m_cnvSvc) {
 	// cout<<"DMM:  ERROR--converter could not find DetDescrCnvSvc"<<endl;
-    }
-}
-
-
-
-/// Provide access to Detector Store
-StoreGateSvc * 	DetDescrConverter::detStore() const
-{
-    if(m_cnvSvc) {
-	return (m_cnvSvc->detStore());
-    }
-    else {
-	return (0);
     }
 }
 

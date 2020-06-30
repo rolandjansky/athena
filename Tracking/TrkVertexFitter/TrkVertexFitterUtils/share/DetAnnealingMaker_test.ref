@@ -1,26 +1,18 @@
 TrkVertexFitterUtils/DetAnnealingMaker_test
 
 
-Initializing Gaudi ApplicationMgr using job opts /home/sss/atlas/rootaccess/build/joboptions/TrkVertexFitterUtils/TrkVertexFitterUtils_tests.txt
-JobOptionsSvc        INFO # =======> /home/sss/atlas/rootaccess/build/joboptions/TrkVertexFitterUtils/TrkVertexFitterUtils_tests.txt
-JobOptionsSvc        INFO # (1,1): ApplicationMgr.ExtSvc = ["MagField::AtlasFieldSvc/AtlasFieldSvc"]
-JobOptionsSvc        INFO # (2,1): AtlasFieldSvc.UseDCS = 0
-JobOptionsSvc        INFO # (3,1): AtlasFieldSvc.UseMapsFromCool = 0
-JobOptionsSvc        INFO # (5,1): ToolSvc.Trk::DetAnnealingMaker.SetOfTemperatures = [3, 2, 1]
-JobOptionsSvc        INFO Job options successfully read in from /home/sss/atlas/rootaccess/build/joboptions/TrkVertexFitterUtils/TrkVertexFitterUtils_tests.txt
+Initializing Gaudi ApplicationMgr using job opts /sps/atlas/s/schaffer/work/work-21.magFieldSvc_9/build/x86_64-centos7-gcc8-opt/jobOptions/TrkVertexFitterUtils/TrkVertexFitterUtils_tests.txt
+JobOptionsSvc        INFO # =======> /sps/atlas/s/schaffer/work/work-21.magFieldSvc_9/build/x86_64-centos7-gcc8-opt/jobOptions/TrkVertexFitterUtils/TrkVertexFitterUtils_tests.txt
+JobOptionsSvc        INFO # (1,1): ToolSvc.Trk::DetAnnealingMaker.SetOfTemperatures = [3, 2, 1]
+JobOptionsSvc        INFO Job options successfully read in from /sps/atlas/s/schaffer/work/work-21.magFieldSvc_9/build/x86_64-centos7-gcc8-opt/jobOptions/TrkVertexFitterUtils/TrkVertexFitterUtils_tests.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Wed Jul 24 16:27:31 2019
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v33r1)
+                                          running on ccwige0002 on Wed May 27 19:01:56 2020
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
-AtlasFieldSvc        INFO initialize() ...
-AtlasFieldSvc        INFO Currents are set-up by jobOptions - delaying map initialization until BeginRun incident happens
-AtlasFieldSvc        INFO Added listener to BeginRun incident
-AtlasFieldSvc        INFO initialize() successful
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
-HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
 test1

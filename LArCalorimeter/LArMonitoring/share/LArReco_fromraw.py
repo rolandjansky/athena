@@ -102,7 +102,7 @@ svcMgr.IOVDbSvc.GlobalTag=currentGlobalES
 #"COMCOND-BLKP-005-05"
 
 #Specify the input file(s)
-svcMgr.ByteStreamInputSvc.FullFileName=athenaCommonFlags.BSRDOInput()
+svcMgr.EventSelector.Input=athenaCommonFlags.BSRDOInput()
 
 svcMgr.EventSelector.SkipEvents=skipEvents
 

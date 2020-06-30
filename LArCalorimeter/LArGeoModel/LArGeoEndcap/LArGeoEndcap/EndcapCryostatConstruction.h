@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -34,7 +34,12 @@ namespace LArGeo {
     {
     public:
 
-    EndcapCryostatConstruction(bool fullGeo, std::string emecVariantInner = "Wheel", std::string emecVariantOuter = "Wheel");
+    EndcapCryostatConstruction(
+        bool fullGeo,
+        std::string emecVariantInner = "Wheel",
+        std::string emecVariantOuter = "Wheel",
+        bool activateFT = false
+    );
     virtual ~EndcapCryostatConstruction();
 
     // Get the envelope containing one endcap (pos/neg)
@@ -62,6 +67,8 @@ namespace LArGeo {
     bool                      m_fullGeo;  // true->FULL, false->RECO
     std::string m_EMECVariantInner;
     std::string m_EMECVariantOuter;
+
+    bool m_activateFT;
 
     friend class ::LArDetectorToolNV;
 

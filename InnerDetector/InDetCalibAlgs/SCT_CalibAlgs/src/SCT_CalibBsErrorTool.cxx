@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -25,12 +25,11 @@
 
 #include <set>
 
-using namespace std;
 using namespace SCT_CalibAlgs;
 
-static const string pathRoot{"/BSErrors/"};
-static const string detectorPaths[] {"SCTEC/", "SCTB/","SCTEA/"};
-static const string detectorNames[] {"negativeEndcap", "barrel", "positiveEndcap"};
+static const std::string pathRoot{"/BSErrors/"};
+static const std::string detectorPaths[] {"SCTEC/", "SCTB/","SCTEA/"};
+static const std::string detectorNames[] {"negativeEndcap", "barrel", "positiveEndcap"};
 static const int n_BSErrorType{15};
 static const int firstBSErrorType{0};
 static const int lastBSErrorType{14};
@@ -64,7 +63,7 @@ bool
 SCT_CalibBsErrorTool::book() {
    bool result{true};
    m_phistoVector.clear();
-   string histoName{pathRoot+"GENERAL/"};
+   std::string histoName{pathRoot+"GENERAL/"};
    //histogram for numbers of events
    m_numberOfEventsHisto = new TH1I{"events", "Events", 1, 0.5, 1.5};
    if (m_thistSvc->regHist(histoName.c_str(), m_numberOfEventsHisto ).isFailure()) {
@@ -76,8 +75,8 @@ SCT_CalibBsErrorTool::book() {
    for (; waferItr not_eq waferItrE; ++waferItr) {
       Identifier waferId{*waferItr};
       const int bec{m_pSCTHelper->barrel_ec(waferId)};
-      const string formattedPosition{formatPosition(waferId, m_pSCTHelper)};
-      std::string histotitle{string{"SCT "} + detectorNames[bec2Index(bec)] + string{" BSErrors : plane "} + formattedPosition};
+      const std::string formattedPosition{formatPosition(waferId, m_pSCTHelper)};
+      std::string histotitle{std::string{"SCT "} + detectorNames[bec2Index(bec)] + std::string{" BSErrors : plane "} + formattedPosition};
       const std::string name{pathRoot+detectorPaths[bec2Index(m_pSCTHelper->barrel_ec(waferId))] + formattedPosition};
       TH1F* hitmapHisto_tmp{new TH1F{TString{formattedPosition}, TString{histotitle}, n_BSErrorType, firstBSErrorType-0.5, lastBSErrorType+0.5}};
       if (m_thistSvc->regHist(name.c_str(), hitmapHisto_tmp).isFailure()) {
@@ -136,7 +135,7 @@ SCT_CalibBsErrorTool::fillFromData() {
 void
 SCT_CalibBsErrorTool::fillBsErrorsForWafer(const Identifier& waferId, const int type) {
    int iWaferHash{static_cast<int>(m_pSCTHelper->wafer_hash(waferId))};
-   const string osWafer{formatPosition(waferId, m_pSCTHelper,".")};
+   const std::string osWafer{formatPosition(waferId, m_pSCTHelper,".")};
    //--- Protection for wrong waferID
    if ( iWaferHash < 0 || iWaferHash >= m_maxHash ) {
       ATH_MSG_WARNING("WaferHash " << iWaferHash << " is out of range : [ bec.layer.eta.phi.side, BSErrorType ] = [ " << osWafer << ", " << type << " ]");

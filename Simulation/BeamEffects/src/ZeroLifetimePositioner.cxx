@@ -71,7 +71,7 @@ StatusCode Simulation::ZeroLifetimePositioner::manipulate(HepMC::GenEvent& ge, b
   const auto pdgCodesEnd = m_pdgCodesToCheck.end();
   for (; vtxIt != vtxItEnd; ++vtxIt) {
     // quick access:
-    HepMC::GenVertex *curVtx = (*vtxIt);
+    auto curVtx = (*vtxIt);
     if (curVtx->particles_in_size()!=1 || curVtx->particles_out_size()!=1) { continue; }
     const int pdgIn=(*(curVtx->particles_in_const_begin()))->pdg_id();
     const int pdgOut=(*(curVtx->particles_out_const_begin()))->pdg_id();

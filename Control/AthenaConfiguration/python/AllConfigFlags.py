@@ -18,6 +18,14 @@ def _createCfgFlags():
 
     acf=AthConfigFlags()
 
+    #Flags steering the job execution:
+    from AthenaCommon.Constants import INFO
+    acf.addFlag('Exec.OutputLevel',INFO) #Global Output Level
+    acf.addFlag('Exec.MaxEvents',-1) 
+    acf.addFlag("Exec.SkipEvents",0)
+    acf.addFlag("Exec.DebugStage","")
+
+    #Flags describing the input data 
     acf.addFlag('Input.Files', ["_ATHENA_GENERIC_INPUTFILE_NAME_",] ) # former global.InputFiles
     acf.addFlag('Input.SecondaryFiles', []) # secondary input files for DoubleEventSelector
     acf.addFlag('Input.isMC', lambda prevFlags : "IS_SIMULATION" in GetFileMD(prevFlags.Input.Files).get("eventTypes",[]) ) # former global.isMC

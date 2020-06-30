@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # @file:    checkTrigger.py
 # @purpose: read a POOL file and dump a trigger summary.
 #           Copied (& modified) from CheckFile.py from Sebastien Binet
@@ -14,7 +15,6 @@
 # @endcode
 #
 
-__version__ = "$Revision: 1.1 $"
 __author__  = "Till Eifert <Till.Eifert@cern.ch>"
 
 
@@ -57,11 +57,11 @@ if __name__ == "__main__":
         fileNames = [ arg for arg in args if arg[0] != "-" ]
         pass
 
-    if options.fileName == None and len(fileNames) == 0:
+    if options.fileName is None and len(fileNames) == 0:
         str(parser.print_help() or "")
         sys.exit(1)
 
-    if options.fileName != None:
+    if options.fileName is not None:
         fileName = os.path.expandvars(os.path.expanduser(options.fileName))
         fileNames.append(fileName)
 
@@ -80,25 +80,25 @@ if __name__ == "__main__":
 ##                poolFile.detailedDump( dumpFile )
             if options.outFileName:
                 outFileName = options.outFileName
-                print "## saving checkFile report into [%s]..." % outFileName
+                print("## saving checkFile report into [%s]..." % outFileName)
                 poolFile.saveReport( outFileName )
-        except Exception, e:
-            print "## Caught exception [%s] !!" % str(e.__class__)
-            print "## What:",e
-            print sys.exc_info()[0]
-            print sys.exc_info()[1]
+        except Exception as e:
+            print("## Caught exception [%s] !!" % str(e.__class__))
+            print("## What: %s" % e)
+            print(sys.exc_info()[0])
+            print(sys.exc_info()[1])
             sc = 1
             pass
 
-        except :
-            print "## Caught something !! (don't know what)"
-            print sys.exc_info()[0]
-            print sys.exc_info()[1]
+        except Exception:
+            print("## Caught something !! (don't know what)")
+            print(sys.exc_info()[0])
+            print(sys.exc_info()[1])
             sc = 10
             pass
         if len(fileNames) > 1:
-            print ""
+            print("")
         pass # loop over fileNames
     
-    print "## Bye."
+    print("## Bye.")
     sys.exit(sc)

@@ -166,12 +166,6 @@ if loadInDetRec_Options["TRTCalibT0TagCos"]:
 if loadInDetRec_Options["TRTCalibRtTagCos"]:
   conddb.addOverride('/TRT/Calib/RT',loadInDetRec_Options["TRTCalibRtTagCos"])
 
-#Trying to fix the Database problem
-if loadInDetRec_Options["globalTag"] == "OFLCOND-RUN12-SDR-14":    
-  conddb.addOverride('/PIXEL/PixdEdx','PixdEdx_January2011_mc-000-00')
-  from AthenaCommon.CfgGetter import getService
-  getService("AtlasFieldSvc").UseDCS = False
-
 doJiveXML=False  
 if doJiveXML:
   ToolSvc.TrackRetriever.OtherTrackCollections =["CombinedInDetTracks", "CombinedInDetTracks_CTB"]

@@ -8,7 +8,6 @@ atlas_depends_on_subdirs(
    GaudiKernel )
 
 # External dependencies:
-find_package( HepMC )
 
 # Component(s) in the package:
 atlas_add_library( GenInterfacesLib

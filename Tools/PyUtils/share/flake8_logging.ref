@@ -1,6 +1,0 @@
-flake8_logging.py:11:39: ATL100: use lazy string formatting in logging calls (',' instead of '%')
-flake8_logging.py:13:37: ATL100: use lazy string formatting in logging calls (',' instead of '%')
-flake8_logging.py:15:43: ATL100: use lazy string formatting in logging calls (',' instead of '%')
-flake8_logging.py:19:1: ATL901: use 'AthenaCommon.Logging' instead of 'print'
-flake8_logging.py:21:1: ATL233: Python 3.x incompatible use of non function-like print statement
-flake8_logging.py:21:1: ATL901: use 'AthenaCommon.Logging' instead of 'print'

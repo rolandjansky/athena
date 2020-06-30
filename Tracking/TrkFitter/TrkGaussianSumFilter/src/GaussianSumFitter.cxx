@@ -170,8 +170,9 @@ Trk::GaussianSumFitter::finalize()
 /* 
  * Refitting of a track
 */
-Trk::Track*
+std::unique_ptr<Trk::Track>
 Trk::GaussianSumFitter::fit(
+  const EventContext& ctx,
   const Trk::Track& inputTrack,
   const Trk::RunOutlierRemoval outlierRemoval,
   const Trk::ParticleHypothesis particleHypothesis) const
@@ -227,7 +228,8 @@ Trk::GaussianSumFitter::fit(
     }
 
     // Apply GSF fit to MeasurementBase objects
-    return fit(measurementSet,
+    return fit(ctx,
+               measurementSet,
                *parametersNearestReference,
                outlierRemoval,
                particleHypothesis);
@@ -275,7 +277,8 @@ Trk::GaussianSumFitter::fit(
   }
 
   // Apply GSF fit to PrepRawData objects
-  return fit(prepRawDataSet,
+  return fit(ctx,
+             prepRawDataSet,
              *parametersNearestReference,
              outlierRemoval,
              particleHypothesis);
@@ -285,8 +288,9 @@ Trk::GaussianSumFitter::fit(
    Fitting of a set of PrepRawData objects
 */
 
-Trk::Track*
+std::unique_ptr<Trk::Track>
 Trk::GaussianSumFitter::fit(
+  const EventContext& ctx,
   const Trk::PrepRawDataSet& prepRawDataSet,
   const Trk::TrackParameters& estimatedParametersNearOrigin,
   const Trk::RunOutlierRemoval outlierRemoval,
@@ -320,7 +324,6 @@ Trk::GaussianSumFitter::fit(
               prdComparisonFunction);
   }
 
-  const EventContext& ctx= Gaudi::Hive::currentContext();
   // Perform GSF forwards fit
   ForwardTrajectory* forwardTrajectory =
     m_forwardGsfFitter
@@ -365,8 +368,6 @@ Trk::GaussianSumFitter::fit(
     return nullptr;
   }
 
-  Track* fittedTrack = nullptr;
-
   if (m_makePerigee) {
     const Trk::MultiComponentStateOnSurface* perigeeMultiStateOnSurface =
       this->makePerigee(ctx,smoothedTrajectory, particleHypothesis);
@@ -393,17 +394,16 @@ Trk::GaussianSumFitter::fit(
   Trk::TrackInfo info(Trk::TrackInfo::GaussianSumFilter, particleHypothesis);
   info.setTrackProperties(TrackInfo::BremFit);
   info.setTrackProperties(TrackInfo::BremFitSuccessful);
-  fittedTrack = new Track(info, smoothedTrajectory, fitQuality);
-
-  return fittedTrack;
+  return std::make_unique<Track>(info, smoothedTrajectory, fitQuality);
 }
 
 /*
  * Fitting of a set of MeasurementBase objects
  */
 
-Trk::Track*
+std::unique_ptr<Trk::Track>
 Trk::GaussianSumFitter::fit(
+  const EventContext& ctx,
   const Trk::MeasurementSet& measurementSet,
   const Trk::TrackParameters& estimatedParametersNearOrigin,
   const Trk::RunOutlierRemoval outlierRemoval,
@@ -465,7 +465,6 @@ Trk::GaussianSumFitter::fit(
          measurementBaseComparisonFunction);
   }
 
-  const EventContext& ctx = Gaudi::Hive::currentContext();
   // Perform GSF forwards fit - new memory allocated in forwards fitter
   ForwardTrajectory* forwardTrajectory =
     m_forwardGsfFitter
@@ -540,13 +539,12 @@ Trk::GaussianSumFitter::fit(
   Trk::TrackInfo info(Trk::TrackInfo::GaussianSumFilter, particleHypothesis);
   info.setTrackProperties(TrackInfo::BremFit);
   info.setTrackProperties(TrackInfo::BremFitSuccessful);
-  Track* fittedTrack = new Track(info, smoothedTrajectory, fitQuality);
-
-  return fittedTrack;
+  return std::make_unique<Track>(info, smoothedTrajectory, fitQuality);
 }
 
-Trk::Track*
-Trk::GaussianSumFitter::fit(const Track& intrk,
+std::unique_ptr<Trk::Track>
+Trk::GaussianSumFitter::fit(const EventContext& ctx,
+                            const Track& intrk,
                             const PrepRawDataSet& addPrdColl,
                             const RunOutlierRemoval runOutlier,
                             const ParticleHypothesis matEffects) const
@@ -556,7 +554,7 @@ Trk::GaussianSumFitter::fit(const Track& intrk,
   if (addPrdColl.empty()) {
     ATH_MSG_WARNING(
       "client tries to add an empty PrepRawDataSet to the track fit.");
-    return fit(intrk, runOutlier, matEffects);
+    return fit(ctx, intrk, runOutlier, matEffects);
   }
 
   /*  determine the Track Parameter which is the start of the trajectory,
@@ -584,11 +582,13 @@ Trk::GaussianSumFitter::fit(const Track& intrk,
 
   delete inputPreparator;
 
-  return fit(orderedPRDColl, *estimatedStartParameters, runOutlier, matEffects);
+  return fit(
+    ctx, orderedPRDColl, *estimatedStartParameters, runOutlier, matEffects);
 }
 
-Trk::Track*
-Trk::GaussianSumFitter::fit(const Track& inputTrack,
+std::unique_ptr<Trk::Track>
+Trk::GaussianSumFitter::fit(const EventContext& ctx,
+                            const Track& inputTrack,
                             const MeasurementSet& measurementSet,
                             const RunOutlierRemoval runOutlier,
                             const ParticleHypothesis matEffects) const
@@ -598,7 +598,7 @@ Trk::GaussianSumFitter::fit(const Track& inputTrack,
   if (measurementSet.empty()) {
     ATH_MSG_WARNING(
       "Client tries to add an empty MeasurementSet to the track fit.");
-    return fit(inputTrack, runOutlier, matEffects);
+    return fit(ctx, inputTrack, runOutlier, matEffects);
   }
 
   // Check that the input track has well defined parameters
@@ -624,11 +624,13 @@ Trk::GaussianSumFitter::fit(const Track& inputTrack,
     inputTrack, measurementSet, true, false);
 
   // Apply GSF fit to MeasurementBase objects
-  return fit(combinedMS, *parametersNearestReference, runOutlier, matEffects);
+  return fit(
+    ctx, combinedMS, *parametersNearestReference, runOutlier, matEffects);
 }
 
-Trk::Track*
-Trk::GaussianSumFitter::fit(const Track& intrk1,
+std::unique_ptr<Trk::Track>
+Trk::GaussianSumFitter::fit(const EventContext& ctx,
+                            const Track& intrk1,
                             const Track& intrk2,
                             const RunOutlierRemoval runOutlier,
                             const ParticleHypothesis matEffects) const
@@ -690,7 +692,7 @@ Trk::GaussianSumFitter::fit(const Track& intrk1,
     ms.push_back((*itStates2)->measurementOnTrack());
   }
 
-  return fit(ms, *minPar, runOutlier, matEffects);
+  return fit(ctx, ms, *minPar, runOutlier, matEffects);
 }
 
 const Trk::MultiComponentStateOnSurface*

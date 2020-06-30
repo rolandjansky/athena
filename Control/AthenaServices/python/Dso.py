@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file: AthenaServices/python/Dso.py
 # @purpose: simple interface to the rootmap files to easily locate reflex
@@ -23,8 +23,6 @@ __all__ = [
 import os
 from PyUtils import Dso as _Dso
 from PyUtils.Dso import _aliases
-from PyUtils.Decorators import memoize
-_load_typeregistry_dso = memoize(_Dso.load_typeregistry_dso)
 
 try:
     # attempt at fixing up the pyroot iterators...
@@ -114,23 +112,7 @@ class DsoDb(_Dso.PyDsoDb):
             return rflx_type
         return None
 
-    # FIXME: not yet
-##     def _to_rflx_name (self, typename):
-##         """helper method to massage a typename into something understandable
-##         by reflex (which doesn't understand the same thing than rootmaps).
-##         """
-##         rflx_name = None
-##         try:
-##             rflx_names = _load_typeregistry_dso()
-##         except OSError:
-##             rflx_names = None
-##         if rflx_names:
-##             rflx_name = rflx_names.get(typename, None)
-##         if rflx_name:
-##             return rflx_name
-##         return _Dso.DsoDb._to_rflx_name(self, typename)
-            
-        
+
     def visit(self, typename, visitor=None, ctx=None):
         self.msg.verbose("=== visiting %s", typename)
         if ctx is None:

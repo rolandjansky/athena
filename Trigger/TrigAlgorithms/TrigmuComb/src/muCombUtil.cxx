@@ -14,7 +14,7 @@
 #include <iostream>
 #include <math.h>
 
-#include "TrigmuComb/muCombUtil.h"
+#include "muCombUtil.h"
 #include "TrigMuonEvent/MuonFeature.h"
 #include "TrigInDetEvent/TrigInDetTrack.h"
 

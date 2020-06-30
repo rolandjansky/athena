@@ -78,9 +78,9 @@ namespace xAODMaker {
        return offDiagVecCompr;
      };
 
-     const std::vector< float >& offDiagVec = tp.definingParametersCovMatrixOffDiagVec();
+     const std::vector< float > offDiagVec = tp.definingParametersCovMatrixOffDiagVec();
      tp.setDefiningParametersCovMatrixOffDiagVec( compressOffDiag( offDiagVec, m_offDiagCovMatrixBits ) );
-     int offDiagComprBits = m_offDiagCovMatrixBits-1;
+     int offDiagComprBits = m_offDiagCovMatrixBits;
 
      while( ( tp.definingParametersCovMatrix().determinant() <= 0.0 ) &&
 	    ( ++offDiagComprBits <= m_diagCovMatrixBits ) ) {

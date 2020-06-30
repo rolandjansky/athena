@@ -50,6 +50,7 @@ atlas_add_library(
         LumiBlockCompsLib
         LumiBlockData
         TrigDecisionToolLib
+        TrigAnalysisInterfaces
     PRIVATE_LINK_LIBRARIES
         ${CORAL_LIBRARIES}
         AthenaKernel
@@ -85,4 +86,5 @@ atlas_install_runtime( share/test_unit_ExampleMonitorAlgorithm.ref )
 # Example monitor algorithm test
 atlas_add_test( ExampleMonitorAlgorithm_test
     SCRIPT test/test_unit_ExampleMonitorAlgorithm.sh
+    PROPERTIES TIMEOUT 300
 )

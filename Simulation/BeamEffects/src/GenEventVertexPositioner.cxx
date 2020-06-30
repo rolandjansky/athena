@@ -86,7 +86,7 @@ namespace Simulation
       auto vtxItEnd = ge.vertices_end();
       for( ; vtxIt != vtxItEnd; ++vtxIt) {
         // quick access:
-        HepMC::GenVertex *curVtx = (*vtxIt);
+        auto curVtx = (*vtxIt);
         const HepMC::FourVector &curPos = curVtx->position();
 
         // get a copy of the current vertex position
@@ -98,7 +98,7 @@ namespace Simulation
         ATH_MSG_VERBOSE( "Updated  vtx  position = " << newPos );
 
         // store the updated position in the vertex
-        curVtx->set_position( newPos);
+        curVtx->set_position( HepMC::FourVector(newPos.x(),newPos.y(),newPos.z(),newPos.t()));
         if(modifySigVtx && signalProcVtx==curVtx) {
           modifySigVtx=false;
         }

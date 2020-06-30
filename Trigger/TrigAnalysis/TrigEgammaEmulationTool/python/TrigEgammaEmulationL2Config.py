@@ -1,7 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-
-from egammaRec.Factories  import ToolFactory,FcnWrapper,AlgFactory, getPropertyValue
+from egammaRec.Factories  import ToolFactory
 from TrigEgammaEmulationTool.TrigEgammaEmulationToolConf import Trig__TrigEgammaL2CaloSelectorTool
 from TrigEgammaEmulationTool.TrigEgammaEmulationToolConf import Trig__TrigEgammaL2ElectronSelectorTool
 from AthenaCommon.SystemOfUnits                          import GeV

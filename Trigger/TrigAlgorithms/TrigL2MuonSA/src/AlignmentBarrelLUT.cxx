@@ -1,18 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigL2MuonSA/AlignmentBarrelLUT.h"
+#include "AlignmentBarrelLUT.h"
 #include<fstream>
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-static const InterfaceID IID_AlignmentBarrelLUT("IID_AlignmentBarrelLUT", 1, 0);
-
-const InterfaceID& TrigL2MuonSA::AlignmentBarrelLUT::interfaceID() { return IID_AlignmentBarrelLUT; }
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -22,32 +15,6 @@ TrigL2MuonSA::AlignmentBarrelLUT::AlignmentBarrelLUT(const std::string& type,
 						     const IInterface*  parent):
   AthAlgTool(type, name, parent)
 {
-  declareInterface<TrigL2MuonSA::AlignmentBarrelLUT>(this);
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-TrigL2MuonSA::AlignmentBarrelLUT::~AlignmentBarrelLUT()
-{
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigL2MuonSA::AlignmentBarrelLUT::initialize()
-{
-  ATH_MSG_DEBUG("Initializing AlignmentBarrelLUT - package version " << PACKAGE_VERSION) ;
-   
-  StatusCode sc;
-  sc = AthAlgTool::initialize();
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
-    return sc;
-  }
-
-  // 
-  return StatusCode::SUCCESS; 
 }
 
 // --------------------------------------------------------------------------------
@@ -62,8 +29,8 @@ StatusCode TrigL2MuonSA::AlignmentBarrelLUT::readLUT(std::string lut_fileName)
   std::ifstream file;
 
 
-  for(int i_saddress=0; i_saddress<4; i_saddress++) {
-    for(int i_innerR=0; i_innerR<2; i_innerR++) {
+  for(int i_saddress=0; i_saddress<s_saddress; i_saddress++) {
+    for(int i_innerR=0; i_innerR<s_innerR; i_innerR++) {
       m_NbinEta[i_saddress][i_innerR]=0;
       m_EtaMin[i_saddress][i_innerR]=0;
       m_EtaMax[i_saddress][i_innerR]=0;
@@ -73,9 +40,9 @@ StatusCode TrigL2MuonSA::AlignmentBarrelLUT::readLUT(std::string lut_fileName)
       m_PhiMax[i_saddress][i_innerR]=0;
       m_PhiStep[i_saddress][i_innerR]=0;
       
-      for(int i_eta=0; i_eta<15; i_eta++) {
-	for(int i_phi=0; i_phi<30; i_phi++) {
-	  for(int i_etaQ=0; i_etaQ<2; i_etaQ++) {
+      for(int i_eta=0; i_eta<s_eta; i_eta++) {
+	for(int i_phi=0; i_phi<s_phi; i_phi++) {
+	  for(int i_etaQ=0; i_etaQ<s_etaQ; i_etaQ++) {
 	    m_dZ[i_saddress][i_innerR][i_eta][i_phi][i_etaQ] = 0;
           }
         }
@@ -99,9 +66,9 @@ StatusCode TrigL2MuonSA::AlignmentBarrelLUT::readLUT(std::string lut_fileName)
     m_EtaStep[saddress][innerR] = (m_EtaMax[saddress][innerR] - m_EtaMin[saddress][innerR]) / (float)m_NbinEta[saddress][innerR];
     m_PhiStep[saddress][innerR] = (m_PhiMax[saddress][innerR] - m_PhiMin[saddress][innerR]) / (float)m_NbinPhi[saddress][innerR];
 
-    for (int i_eta=0; i_eta<15; i_eta++) {
-      for (int i_phi=0; i_phi<30; i_phi++) {
-	for (int i_etaQ=0; i_etaQ<2; i_etaQ++) {
+    for (int i_eta=0; i_eta<s_eta; i_eta++) {
+      for (int i_phi=0; i_phi<s_phi; i_phi++) {
+	for (int i_etaQ=0; i_etaQ<s_etaQ; i_etaQ++) {
 
 	  file >> N0 >> N1 >> N2 >> A0 >> A1 >> A2;
 
@@ -188,17 +155,3 @@ std::pair<int, int> TrigL2MuonSA::AlignmentBarrelLUT::GetBinNumber(int saddress,
 
   return std::make_pair(etaBin,phiBin);
 }
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigL2MuonSA::AlignmentBarrelLUT::finalize()
-{
-  ATH_MSG_DEBUG("Finalizing AlignmentBarrelLUT - package version " << PACKAGE_VERSION);
-   
-  StatusCode sc = AthAlgTool::finalize(); 
-  return sc;
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------

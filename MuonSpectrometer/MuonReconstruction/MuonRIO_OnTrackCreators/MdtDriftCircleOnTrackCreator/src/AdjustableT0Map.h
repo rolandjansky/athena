@@ -1,13 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AdjustableT0Map_H
 #define AdjustableT0Map_H
 
-namespace Muon {
-  class MuonIdHelpertool;
-}
+#include "MuonIdHelpers/MdtIdHelper.h"
+#include "Identifier/Identifier.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -22,8 +21,8 @@ namespace Muon {
 
 class AdjustableT0Map {
 public:
-    AdjustableT0Map(const Muon::MuonIdHelperTool*  muonIdHelperTool);
-    ~AdjustableT0Map() ;
+    AdjustableT0Map(const MdtIdHelper* idHelp);
+    ~AdjustableT0Map()=default;
 
 public:
 ///////////////////////////////////
@@ -69,7 +68,7 @@ private:
 
   double m_DefaultTShift;
 
-  const Muon::MuonIdHelperTool*  m_muonIdHelperTool ; //!< IdHelper
+  const MdtIdHelper* m_mdtIdHelper;
   
   int m_stationEtaMIN    ;
   int m_stationPhiMIN    ;

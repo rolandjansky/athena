@@ -30,3 +30,6 @@ class TrigmuRoIMTConfig (TrigmuRoIMT):
         super( TrigmuRoIMTConfig, self ).__init__( name )
 	
         self.MonTool = TrigmuRoIMTMonitoring()
+
+        from TrigMuonRoITools.TrigMuonRoIToolsConfig import TrigMuonRoIToolCfg
+        self.RoITool = TrigMuonRoIToolCfg()

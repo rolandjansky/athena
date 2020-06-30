@@ -19,8 +19,6 @@
 #include "TrigSteering/LvlConverter.h"
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
-class IRegSelSvc;
-
 namespace HLT 
 {
   class ILvl1ResultAccessTool;

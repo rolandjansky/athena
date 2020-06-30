@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -46,20 +46,20 @@ namespace iFatras {
     virtual ~LayerMaterialProvider();
 
     /** Processor Action to work on TrackingGeometry& tgeo */
-    virtual StatusCode process(const Trk::TrackingGeometry& tgeo);
+    virtual StatusCode process(const Trk::TrackingGeometry& tgeo) const;
        
     /** Processor Action to work on TrackingVolumes - the level is for the hierachy tree*/
-    virtual StatusCode process(const Trk::TrackingVolume& tvol, size_t level = 0);   
+    virtual StatusCode process(const Trk::TrackingVolume& tvol, size_t level = 0) const;
        
     /** Processor Action to work on Layers */
-    virtual StatusCode process(const Trk::Layer& lay, size_t level = 0);
+    virtual StatusCode process(const Trk::Layer& lay, size_t level = 0) const;
        
     /** Processor Action to work on Surfaces */
-    virtual StatusCode process(const Trk::Surface& surf, size_t level = 0);
+    virtual StatusCode process(const Trk::Surface& surf, size_t level = 0) const;
 
   private:
           
-    StatusCode loadMaterialMap();               //!< reatrieve the Material map from the detector store
+    StatusCode loadMaterialMap() const; //!< retrieve the Material map from the detector store
 
     //!< boolean switch for assignLayerMaterial
     mutable const Trk::LayerMaterialMap*         m_layerMaterialMap;

@@ -85,7 +85,7 @@ namespace Simulation
     if( !ge.signal_process_vertex() ) {
       if(m_ISFRun) {
         ATH_MSG_DEBUG("No signal_process_vertex found - creating a dummy GenVertex.");
-        CLHEP::HepLorentzVector signalPos( 0.0, 0.0, 0.0, 0.0);
+        HepMC::FourVector signalPos( 0.0, 0.0, 0.0, 0.0);
         HepMC::GenVertex *signalVertex = new HepMC::GenVertex( signalPos );
         // ge will now take ownership of the signal process vertex
         ge.set_signal_process_vertex( signalVertex );

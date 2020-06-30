@@ -24,7 +24,7 @@ topSequence = AlgSequence()
 #-- set up BS reading ------------------------------------------------------------------------------
 
 from ByteStreamCnvSvc import ReadByteStream
-svcMgr.ByteStreamInputSvc.FullFileName = [InputFile]
+svcMgr.EventSelector.Input = [InputFile]
 
 #-- set up output histogram file ------------------------------------------------------------------------------
 

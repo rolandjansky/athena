@@ -34,10 +34,7 @@ class TrigEgammaMonitorTagAndProbeAlgorithm: public TrigEgammaMonitorAnalysisAlg
     
    
     
-    /*! Trigger for tag and event wise selection */
-    std::vector<std::string> m_tagTrigList;
-    /*! List of triggers from menu */
-    std::vector<std::string> m_trigInputList;
+
     /*! List of triggers from menu after filter*/
     std::vector<std::string> m_trigList;
     
@@ -61,8 +58,10 @@ class TrigEgammaMonitorTagAndProbeAlgorithm: public TrigEgammaMonitorAnalysisAlg
     /** Properties **/
 
 
-
-
+    /*! List of triggers from menu */
+    Gaudi::Property<std::vector<std::string>> m_trigInputList{this, "TriggerList", {}};
+    /*! Tag trigger list */
+    Gaudi::Property<std::vector<std::string>> m_tagTrigList{ this, "TagTriggerList", {}};
     /*! Zee lower mass cut */
     Gaudi::Property<float> m_ZeeMassMin{ this, "ZeeLowerMass", 80};
     /*! Zee upper mass cut */
@@ -89,8 +88,6 @@ class TrigEgammaMonitorTagAndProbeAlgorithm: public TrigEgammaMonitorAnalysisAlg
     Gaudi::Property<bool> m_doJpsiee{this,"DoJpsiee", false};
     /*! analysis name */
     Gaudi::Property<std::string> m_anatype{ this, "Analysis","Zee"};
-
-     // Containers 
     /*! Event Wise offline ElectronContainer Access and end iterator */
     SG::ReadHandleKey<xAOD::ElectronContainer> m_offElectronKey{ this, "ElectronKey", "Electrons", ""};
     /*! Jet container for probe selection */

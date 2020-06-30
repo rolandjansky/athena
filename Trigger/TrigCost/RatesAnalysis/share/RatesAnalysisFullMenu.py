@@ -43,6 +43,7 @@ if __name__=='__main__':
 
   # Set the Athena configuration flags
   ConfigFlags.Input.Files = ["root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/rucio/data16_13TeV/8d/de/AOD.10654269._000566.pool.root.1"]
+
   ConfigFlags.fillFromArgs(args.flags)
   from PyUtils import AthFile
   af = AthFile.fopen(ConfigFlags.Input.Files[0]) 
@@ -55,15 +56,14 @@ if __name__=='__main__':
   ConfigFlags.lock()
 
   # Initialize configuration object, add accumulator, merge, and run.
-  from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
+  from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
   from AthenaConfiguration.ComponentFactory import CompFactory
 
   from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-  cfg = MainServicesSerialCfg()
+  cfg = MainServicesCfg(ConfigFlags)
   cfg.merge(PoolReadCfg(ConfigFlags))
 
-  from GaudiSvc.GaudiSvcConf import THistSvc
-  histSvc = THistSvc()
+  histSvc = CompFactory.THistSvc()
   histSvc.Output += ["RATESTREAM DATAFILE='" + args.outputHist + "' OPT='RECREATE'"]
   cfg.addService(histSvc)
 
@@ -78,7 +78,6 @@ if __name__=='__main__':
   tdt = CompFactory.Trig.TrigDecisionTool('TrigDecisionTool')
   tdt.TrigConfigSvc = cfgsvc
   tdt.NavigationFormat = "TrigComposite"
-  tdt.Navigation.Dlls = [e for e in  EDMLibraries if 'TPCnv' not in e]
   cfg.addPublicTool(tdt)
 
   # If the dataset name is in the input files path, then it will be fetched from there
@@ -95,8 +94,7 @@ if __name__=='__main__':
     xsec = amiTool.getCrossSection()
     fEff = amiTool.getFilterEfficiency()
 
-  from EnhancedBiasWeighter.EnhancedBiasWeighterConf import EnhancedBiasWeighter
-  ebw = EnhancedBiasWeighter('EnhancedBiasRatesTool')
+  ebw = CompFactory.EnhancedBiasWeighter('EnhancedBiasRatesTool')
   ebw.RunNumber = runNumber
   ebw.UseBunchCrossingTool = useBunchCrossingTool
   ebw.IsMC = isMC
@@ -107,8 +105,7 @@ if __name__=='__main__':
   ebw.MCIgnoreGeneratorWeights = args.MCIgnoreGeneratorWeights
   cfg.addPublicTool(ebw)
 
-  from RatesAnalysis.RatesAnalysisConf import FullMenu
-  rates = FullMenu()
+  rates = CompFactory.FullMenu()
   rates.PrescaleXML = args.inputPrescalesXML
   rates.DoTriggerGroups = args.disableTriggerGroups
   rates.DoGlobalGroups = args.disableGlobalGroups
@@ -126,14 +123,12 @@ if __name__=='__main__':
 
   # Setup for accessing bunchgroup data from the DB
   if useBunchCrossingTool:
-    from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
     if isMC:
-      cfg.addPublicTool(BunchCrossingTool("MC"))
+      cfg.addPublicTool(CompFactory.BunchCrossingTool("MC"))
     else:
-      cfg.addPublicTool(BunchCrossingTool("LHC"))
+      cfg.addPublicTool(CompFactory.BunchCrossingTool("LHC"))
 
-  from AthenaServices.AthenaServicesConf import AthenaEventLoopMgr
-  eventLoop = AthenaEventLoopMgr()
+  eventLoop = CompFactory.AthenaEventLoopMgr()
   eventLoop.EventPrintoutInterval = 1000
   cfg.addService(eventLoop)
 

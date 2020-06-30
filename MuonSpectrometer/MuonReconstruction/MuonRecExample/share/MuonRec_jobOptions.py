@@ -33,12 +33,12 @@ muonRecFlags.setDefaults()
 
 topSequence = AlgSequence()
 
-# ESDtoAOD and AODtoTAG need a configured MuonIdHelperTool (e.g. for the RPC_ResidualPullCalculator)
+# ESDtoAOD and AODtoTAG need a configured MuonIdHelperSvc (e.g. for the RPC_ResidualPullCalculator)
 # Since it is not automatically created by the job configuration (as for RDOtoESD),
 # do it here manually (hope this will be fixed with the movement to the new configuration for release 22)
 if rec.readESD() or rec.readAOD():
-    from MuonRecExample.MuonRecTools import MuonIdHelperTool
-    MuonIdHelperTool()
+    from MuonRecExample.MuonRecTools import MuonIdHelperSvc
+    MuonIdHelperSvc()
 
 if muonRecFlags.doCSCs() and not MuonGeometryFlags.hasCSC(): muonRecFlags.doCSCs = False
 if muonRecFlags.dosTGCs() and not MuonGeometryFlags.hasSTGC(): muonRecFlags.dosTGCs = False
@@ -165,7 +165,7 @@ if muonRecFlags.doStandalone():
                                              TrackTruthName=col+"Truth",
                                              TrackParticleName = "MuonSpectrometerTrackParticles" )
 
-        topSequence += Muon__MuonSegmentTruthAssociationAlg("MuonSegmentTruthAssociationAlg", HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=MuonGeometryFlags.hasSTGC(), HasMM=MuonGeometryFlags.hasMM())
+        topSequence += Muon__MuonSegmentTruthAssociationAlg("MuonSegmentTruthAssociationAlg")
 
         try:
             from PyUtils.MetaReaderPeeker import metadata

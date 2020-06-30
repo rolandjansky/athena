@@ -5,7 +5,7 @@
 
 #ifndef EVENTCONTAINERS_IIDENTIFIABLECONT_H
 #define EVENTCONTAINERS_IIDENTIFIABLECONT_H
-#include "Identifier/Identifier.h"
+#include "Identifier/IdentifierHash.h"
 #include <memory>
 
 namespace EventContainers {

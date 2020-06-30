@@ -14,9 +14,11 @@ UNKNOWN_CLASS:c...  ERROR CondContBase::insertBase: EventIDRange {[40,l:2] - [t:
 UNKNOWN_CLASS:c...  ERROR CondCont<T>::insert: Not most-derived class; CLID used: 932847546; container CLID: 932847547
 test3
 test4
+test5
 UNKNOWN_CLASS:c...  ERROR CondContMixedBase::insertMixed: Run+lbn part of new range doesn't match existing range, or can't extend. New: {[2,t:150,l:10] - [2,t:150,l:15]}; existing: {[2,t:100,l:10] - [2,t:103.500000000,l:20]}
 UNKNOWN_CLASS:c...  ERROR CondContMixedBase::findMixed: No valid timestamp in key used with mixed container.
 UNKNOWN_CLASS:c...  ERROR CondContBase::findBase: Non-Run/LBN key used in Run/LBN container.
+UNKNOWN_CLASS:c...  ERROR CondContMixedBase::findMixed: No valid timestamp in key used with mixed container.
 UNKNOWN_CLASS:c...  ERROR CondContMixedBase::findMixed: No valid timestamp in key used with mixed container.
 UNKNOWN_CLASS:c...  ERROR CondContBase::findBase: Non-Run/LBN key used in Run/LBN container.
 UNKNOWN_CLASS:c...  ERROR CondContMixedBase::erase: erase() is not implemented for mixed containers.

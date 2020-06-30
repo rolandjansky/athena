@@ -12,7 +12,7 @@ RpcRdoToRpcDigit::RpcRdoToRpcDigit(const std::string& name,
 
 StatusCode RpcRdoToRpcDigit::initialize()
 {
-  ATH_CHECK( m_idHelperSvc.retrieve() );
+  ATH_CHECK(m_idHelperSvc.retrieve());
 
   // get RPC cabling
   ATH_CHECK(m_rpcCablingServerSvc.retrieve());
@@ -22,6 +22,8 @@ StatusCode RpcRdoToRpcDigit::initialize()
   ATH_CHECK(m_rpcDigitKey.initialize());
 
   ATH_CHECK( m_rpcRdoDecoderTool.retrieve() );
+
+  ATH_CHECK(m_rpcReadKey.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -47,16 +49,19 @@ StatusCode RpcRdoToRpcDigit::execute(const EventContext& ctx) const
   // now decode RDO into digits
   RpcPadContainer::const_iterator rpcPAD = rdoContainer->begin();
 
+  SG::ReadCondHandle<RpcCablingCondData> cablingCondData{m_rpcReadKey, ctx};
+  const RpcCablingCondData* rpcCabling{*cablingCondData};
+
   for (; rpcPAD!=rdoContainer->end();++rpcPAD) {
     if ( (*rpcPAD)->size() > 0 ) {
-      ATH_CHECK(this->decodeRpc ( *rpcPAD, wh_rpcDigit.ptr(), collection ));
+      ATH_CHECK(this->decodeRpc(*rpcPAD, wh_rpcDigit.ptr(), collection, rpcCabling));
     }
   }
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode RpcRdoToRpcDigit::decodeRpc( const RpcPad * rdoColl, RpcDigitContainer *rpcContainer, RpcDigitCollection*& collection ) const
+StatusCode RpcRdoToRpcDigit::decodeRpc(const RpcPad * rdoColl, RpcDigitContainer *rpcContainer, RpcDigitCollection*& collection, const RpcCablingCondData* rpcCab) const
 {
 
   const IdContext rpcContext = m_idHelperSvc->rpcIdHelper().module_context();
@@ -86,7 +91,7 @@ StatusCode RpcRdoToRpcDigit::decodeRpc( const RpcPad * rdoColl, RpcDigitContaine
     // For each CM, loop on the fired channels
     for (const RpcFiredChannel * rpcChan : *coinMatrix) {
       const std::vector<RpcDigit*>* digitVec =
-        m_rpcRdoDecoderTool->getDigit(rpcChan, sectorId, padId, cmaId);
+        m_rpcRdoDecoderTool->getDigit(rpcChan, sectorId, padId, cmaId, rpcCab);
 
       if (!digitVec) {
         ATH_MSG_FATAL( "Error in the RPC RDO decoder "  );

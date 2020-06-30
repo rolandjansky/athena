@@ -1,32 +1,24 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// -*-c++-*-
 #ifndef NSWL1_PADTRIGGERLOGICOFFLINETOOL_H
 #define NSWL1_PADTRIGGERLOGICOFFLINETOOL_H
 
-//basic includes
+#include "TrigT1NSWSimTools/IPadTriggerLogicTool.h"
+#include "GaudiKernel/IIncidentListener.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
-#include "GaudiKernel/Property.h"
 
-//local includes
-#include "TrigT1NSWSimTools/IPadTriggerLogicTool.h"
 #include "TrigT1NSWSimTools/PadTriggerValidationTree.h"
 #include "TrigT1NSWSimTools/L1TdrStgcTriggerLogic.h"
 #include "TrigT1NSWSimTools/TriggerTypes.h"
-
-
-//To access detector envelope
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "RegSelLUT/IRegionIDLUT_Creator.h"
-
 
 //forward declarations
 class IIncidentSvc;
 class TTree;
-
 
 namespace MuonGM {
     class MuonDetectorManager;
@@ -55,15 +47,13 @@ namespace NSWL1 {
 
     */
     class PadTriggerLogicOfflineTool:
-            virtual public IPadTriggerLogicTool,
-            public AthAlgTool,
-            public IIncidentListener {
+            virtual public IPadTriggerLogicTool, public AthAlgTool, public IIncidentListener {
     public:
         enum CacheStatus {OK, FILL_ERROR, CLEARED};
         PadTriggerLogicOfflineTool(const std::string& type,
                         const std::string& name,
                         const IInterface* parent);
-        virtual ~PadTriggerLogicOfflineTool();
+        virtual ~PadTriggerLogicOfflineTool()=default;
         virtual StatusCode initialize() override;
         virtual void handle (const Incident& inc) override;
         /// Log a message using the Athena controlled logging system
@@ -86,6 +76,7 @@ namespace NSWL1 {
         PadTrigger convert(const SectorTriggerCandidate &t);
             
     private:
+        ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
         /// get the output tree from the athena histogram service
          const std::vector<float> m_etaBandsLargeSector;
          const std::vector<float> m_etaBandsSmallSector;

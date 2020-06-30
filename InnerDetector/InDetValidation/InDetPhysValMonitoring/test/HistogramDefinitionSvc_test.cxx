@@ -26,22 +26,22 @@
 static const std::string testJobOptionsFile("IDPVM_Test.txt");
 
 struct GaudiKernelFixture:public IDPVM_GaudiFixtureBase{
-  GaudiKernelFixture():IDPVM_GaudiFixtureBase(testJobOptionsFile){
+  GaudiKernelFixture(const std::string & joFilename):IDPVM_GaudiFixtureBase(joFilename){
     //nop, everything in base.
   }
 };
 
 BOOST_AUTO_TEST_SUITE(HistogramDefinitionSvcTest)
-  GaudiKernelFixture g;
+  GaudiKernelFixture g(testJobOptionsFile);
   const auto & svcLoc=g.svcLoc;
   ServiceHandle<IHistogramDefinitionSvc> hDefSvc ("HistogramDefinitionSvc", "test");
 
-  BOOST_AUTO_TEST_CASE( SanityCheck ){
+  BOOST_AUTO_TEST_CASE( sanityCheck ){
     const bool svcLocatorIsOk=(svcLoc != nullptr);
     BOOST_TEST(svcLocatorIsOk);
   }
 
-  BOOST_AUTO_TEST_CASE(HistogramDefinitionSvcRetrieved){
+  BOOST_AUTO_TEST_CASE(histogramDefinitionSvcRetrieved){
     BOOST_TEST (hDefSvc.retrieve().isSuccess());
   }
 
@@ -108,4 +108,5 @@ BOOST_AUTO_TEST_SUITE(HistogramDefinitionSvcTest)
     // What has not been checked: Non-existent file or XML parsing errors
   }
 BOOST_AUTO_TEST_SUITE_END()
+
   

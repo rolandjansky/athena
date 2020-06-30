@@ -1,6 +1,5 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
 
 """
 #
@@ -15,6 +14,8 @@ ___version___ = "$Id: $"
 from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.DetFlags import DetFlags
+from AthenaCommon.Logging import logging
+log = logging.getLogger('InDetTrigCommonTools')
 
 # --- set Data/MC flag
 isMC = False
@@ -131,5 +132,5 @@ if InDetTrigFlags.InDet25nsec():
 
 
 ToolSvc += InDetTrigTRT_DriftCircleTool
-print (InDetTrigTRT_DriftCircleTool)
+log.debug(InDetTrigTRT_DriftCircleTool)
 

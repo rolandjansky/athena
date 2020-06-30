@@ -507,6 +507,93 @@ class athenaLogFileReportTests(unittest.TestCase):
 16:32:37 IOVDbSvc                                             INFO Total payload read from COOL: 123 bytes in ((    4.56 ))s
 16:32:39 IOVDbSvc                                             INFO Total payload read from COOL: 456 bytes in ((    7.89 ))s'''
 
+        testCoreDumpAbNormalLine ='''
+00:49:51 RelationalDatabase Info Release number backward compatibility - NO SCHEMA EVOLUTION REQUIRED: database with OLDER release number 2.2.2 will be opened using CURRENT client release number 3.1.8
+00:49:51 2018-07-04 00:45:52,400 IOVDbSvc             INFO HVS tag OFLCOND-MC16-SDR-16 resolved to ExtDCSMagnetsSensorData-001 for folder /EXT/DCS/MAGNETS/SENSORDATA
+00:49:51 2018-07-04 00:45:52,416 IOVDbSvc             INFO HVS tag OFLCOND-MC16-SDR-16 resolved to MDTDCSDROPPEDCH_2010_Run158116 for folder /MDT/DCS/DROPPEDCH
+00:49:51 2018-07-04 00:45:52,433 IOVDbSvc             INFO HVS tag OFLCOND-MC16-SDR-16 resolved to MDTDCSPSLVCHSTATE_RUN12_MC16_01 for folder /MDT/DCS/PSLVCHSTATE
+00:49:51 2018-07-04 00:45:53,471 IOVDbSvc             INFO HVS tag OFLCOND-MC16-SDR-16 resolved to PixDCSFSMState-SIM-RUN124-000-00 for folder /PIXEL/DCS/FSMSTATE
+00:49:51 warn  [frontier.c:1014]: Request 76 on chan 7 failed at Wed Jul  4 00:45:59 2018: -9 [fn-socket.c:125]: connect to 138.253.60.41 timed out after 5 seconds
+00:49:51 warn  [frontier.c:1114]: Trying next proxy lcgsquid.shef.ac.uk with same server lcgft-atlas.gridpp.rl.ac.uk
+00:49:51 -------------------------------------------------------------------------------------
+00:49:51 Core dump from CoreDumpSvc on r21-n20.ph.liv.ac.uk at Wed Jul  4 00:46:24 2018
+00:49:51 
+00:49:51 Caught signal 11(Segmentation fault). Details:
+00:49:51   errno = 0, code = 1 (address not mapped to object)
+00:49:51   pid   = 4, uid = 0
+00:49:51   value = (1069839440, 0x7ffe3fc47450)
+00:49:51   vmem = 1442.31 MB
+00:49:51   rss  = 265.988 MB
+00:49:51   total-ram = 48257.4 MB
+00:49:51   free-ram  = 286.988 MB
+00:49:51   buffer-ram= 31.6758 MB
+00:49:51   total-swap= 32075 MB
+00:49:51   free-swap = 29365.3 MB
+00:49:51   addr  = 0x4
+00:49:51 
+00:49:51 Event counter: 0
+00:49:51 EventID:
+00:49:51 Last incident: BkgEvent_2548_SG:StoreCleared
+00:49:51 Current algorithm: <NONE>
+00:49:51 Algorithm stack: <EMPTY>
+00:49:51 -------------------------------------------------------------------------------------
+00:49:51 | AtlasBaseDir :                         /cvmfs/atlas.cern.ch/repo/sw/software/21.0 |
+00:49:51 | AtlasVersion :                                                            21.0.71 |
+00:49:51 | CMTCONFIG    :                                              x86_64-slc6-gcc62-opt |
+00:49:51 -------------------------------------------------------------------------------------
+00:49:51  Note: to see line numbers in below stacktrace you might consider running following :
+00:49:51   atlasAddress2Line --file <logfile>
+00:49:51 -------------------------------------------------------------------------------------
+00:49:51 
+00:49:51  *** Break *** segmentation violation
+00:49:51 
+00:49:51 
+00:49:51 
+00:49:51 ===========================================================
+00:49:51 There was a crash.
+00:49:51 This is the entire stack trace of all threads:
+00:49:51 ===========================================================
+00:49:51 #0  0x00002afccfc2b86d in waitpid () from /lib64/libc.so.6
+00:49:51 #1  0x00002afccfbbd479 in do_system () from /lib64/libc.so.6
+00:49:51 #2  0x00002afccfbbd7b0 in system () from /lib64/libc.so.6
+00:49:51 #3  0x00002afcd6863868 in TUnixSystem::StackTrace() () from /cvmfs/atlas.cern.ch/repo/sw/software/21.0/sw/lcg/releases/LCG_88/ROOT/6.08.06/x86_64-slc6-gcc62-opt/lib/libCore.so
+00:49:51 #4  0x00002afcd6865d7c in TUnixSystem::DispatchSignals(ESignals) () from /cvmfs/atlas.cern.ch/repo/sw/software/21.0/sw/lcg/releases/LCG_88/ROOT/6.08.06/x86_64-slc6-gcc62-opt/lib/libCore.so
+00:49:51 #5  0x00002afcef419c10 in CoreDumpSvcHandler::action(int, siginfo*, void*) () from /cvmfs/atlas.cern.ch/repo/sw/software/21.0/Athena/21.0.71/InstallArea/x86_64-slc6-gcc62-opt/lib/libAthenaServices.so
+00:49:51 #6  <signal handler called>
+00:49:51 #7  frontierHttpClnt_usinglastproxyingroup (c=c
+00:49:51 entry=0x27a94000) at fn-htclient.c:904
+00:49:51 #8  0x00002afce97b7e6a in frontier_postRawData (u_channel=657625312, uri=0x31e5c100 "Frontier/type=frontier_request:1:DEFAULT&encoding=BLOBzip5&p1=eNplj0EKAyEMRa8Ssi7FOnTpImimIzg6GKF05f1vUSu0o3QRyH--JyTCgW2BgzLHUmNy7B2QAE4EL99Eoccc6KD5dvPBjQtG8PPP8UE3V15SfZTid.7uoBHWnHZAKoGk2pRCWkN1Vv"..., body=body
+00:49:51 entry=0x0) at frontier.c:1066
+        '''
+
+        testCoreDumpAbnormalPattern = '''
+10:15:20 Error in <TProtoClass::FindDataMember>: data member with index 0 is not found in class Identifier
+10:15:20 Error in <CreateRealData>: Cannot find data member # 0 of class Identifier for parent TileTrigger!
+10:15:20 Error in <TExMap::Remove>: key 980837730 not found at 305
+10:15:20 TBufferFile::CheckObject:0: RuntimeWarning: reference to object of unavailable class TObject, offset=980837730 pointer will be 0
+10:15:20 Error in <TExMap::Remove>: key 980837731 not found at 306
+10:15:20 TBufferFile::CheckObject:0: RuntimeWarning: reference to object of unavailable class TObject, offset=980837731 pointer will be 0
+10:15:20 -------------------------------------------------------------------------------------
+10:15:20 Core dump from CoreDumpSvc on t-cn0130.hpc2n.umu.se at Thu Nov  7 10:14:44 2019
+18:16:06 -------------------------------------------------------------------------------------
+18:16:06 Caught signal 11(Segmentation fault). Details:
+        '''
+
+        testKnowledgeFile = '''
+10:38:58  PYTHIA Abort from Pythia::next: reached end of Les Houches Events File
+10:38:58 Pythia8              INFO Event generation failed - re-trying.
+10:38:58 Pythia8              INFO Event generation failed - re-trying.
+10:38:58 Pythia8              INFO Event generation failed - re-trying.
+10:38:58 Pythia8              INFO Event generation failed - re-trying.
+10:38:58 Pythia8              INFO Event generation failed - re-trying.
+10:38:58 Pythia8              INFO Event generation failed - re-trying.
+10:38:58 Pythia8              INFO Event generation failed - re-trying.
+10:38:58 Pythia8              INFO Event generation failed - re-trying.
+10:38:58 Pythia8              INFO Event generation failed - re-trying.
+10:38:58 Pythia8             ERROR Exceeded the max number of consecutive event failures.
+10:38:58 Pythia8             FATAL /build/atnight/localbuilds/nightlies/21.6/athena/Generators/GeneratorModules/src/GenModule.cxx:56 (StatusCode GenModule::execute()): code 0: this->callGenerator()
+        '''
+
         with open('file1', 'w') as f1:
             print('This is test file 1 w/o meaning', file=f1)
         with open('file2', 'w') as f2:
@@ -529,6 +616,12 @@ class athenaLogFileReportTests(unittest.TestCase):
         with open('file10', 'w') as f10:
             print(testLogExcerptMP, file=f10)
             print(testErrorExcerptMP, file=f10)
+        with open('file11', 'w') as f11:
+            print(testCoreDumpAbNormalLine, file=f11)
+        with open('file12', 'w') as f12:
+            print(testCoreDumpAbnormalPattern, file=f12)
+        with open('file13', 'w') as f13:
+            print(testKnowledgeFile, file=f13)
 
         self.myFileReport1 = athenaLogFileReport('file1')
         self.myFileReport2 = athenaLogFileReport('file2')
@@ -540,9 +633,12 @@ class athenaLogFileReportTests(unittest.TestCase):
         self.myFileReport8 = athenaLogFileReport('file8')
         self.myFileReport9 = athenaLogFileReport('file9')
         self.myFileReport10 = athenaLogFileReport('file10')
+        self.myFileReport11 = athenaLogFileReport('file11')
+        self.myFileReport12 = athenaLogFileReport('file12')
+        self.myFileReport13 = athenaLogFileReport('file13')
 
     def tearDown(self):
-        for f in 'file1', 'file2', 'file3', 'file4', 'file5', 'file6', 'file7', 'file8', 'file9', 'file10',\
+        for f in 'file1', 'file2', 'file3', 'file4', 'file5', 'file6', 'file7', 'file8', 'file9', 'file10', 'file11', 'file12', 'file13',\
                  'logWithSubstepNameSerial', 'logWithSubstepNameMP':
             try:
                 os.unlink(f)
@@ -626,11 +722,17 @@ ManagedAthenaTileMon reported an ERROR, but returned a StatusCode "SUCCESS"'''
 
     def test_coreDumpCurAlg(self):
         self.assertEqual(self.myFileReport6.worstError(), {'level': 'FATAL', 'nLevel': logging.FATAL,
-                                                           'firstError': {'count': 1, 'firstLine': 4,
-                                                               'message': 'Segmentation fault: Event counter: 41; Run: 204158; Evt: 70319934; Current algorithm: MuonCreatorAlg; Current Function: G4VoxelNavigation::ComputeStep'}})
+                                                           'firstError': {'moreDetails': {'abnormalLine(s) before CoreDump': {}, 'lastNormalLine before CoreDump': {'message': 'ToolSvc.CombinedMuonTrackBuilder                  WARNING standaloneRefit:: no outer material', 'firstLine': 2, 'count': 1}}, 'message': 'Segmentation fault: Event counter: 41; Run: 204158; Evt: 70319934; Current algorithm: MuonCreatorAlg; Current Function: G4VoxelNavigation::ComputeStep', 'firstLine': 4, 'count': 1}})
         self.assertEqual(self.myFileReport7.worstError(), {'level': 'FATAL', 'nLevel': logging.FATAL,
-                                                           'firstError': {'count': 1, 'firstLine': 4,
-                                                                          'message': 'Segmentation fault: Event counter: unknown; Run: unknown; Evt: unknown; Current algorithm: unknown; Current Function: unknown'}})
+                                                            'firstError': {'moreDetails': {'abnormalLine(s) before CoreDump': {}, 'lastNormalLine before CoreDump': {'message': 'ToolSvc.CombinedMuonTrackBuilder                  WARNING standaloneRefit:: no outer material', 'firstLine': 2, 'count': 1}}, 'message': 'Segmentation fault: Event counter: unknown; Run: unknown; Evt: unknown; Current algorithm: unknown; Current Function: unknown', 'firstLine': 4, 'count': 1}})
+        self.assertEqual(self.myFileReport11.worstError(), {'level': 'FATAL', 'nLevel': logging.FATAL,
+                                                            'firstError': {'moreDetails': {'abnormalLine(s) before CoreDump': {'message0': 'warn  [frontier.c:1114]: Trying next proxy lcgsquid.shef.ac.uk with same server lcgft-atlas.gridpp.rl.ac.uk', 'firstLine0': 8, 'count0': 2}, 'lastNormalLine before CoreDump': {'message': 'IOVDbSvc             INFO HVS tag OFLCOND-MC16-SDR-16 resolved to PixDCSFSMState-SIM-RUN124-000-00 for folder /PIXEL/DCS/FSMSTATE', 'firstLine': 6, 'count': 1}}, 'message': 'Segmentation fault: Event counter: 0; Run: unknown; Evt: unknown; Current algorithm: <NONE>; Current Function: frontierHttpClnt_usinglastproxyingroup; Abnormal line(s) seen just before core dump: warn  [frontier.c:1114]: Tryin...[truncated] (see the jobReport)', 'firstLine': 10, 'count': 1}})
+        self.assertEqual(self.myFileReport12.worstError(), {'level': 'FATAL', 'nLevel': logging.FATAL,
+                                                            'firstError': {'moreDetails': {'abnormalLine(s) before CoreDump': {'message0': 'TBufferFile::CheckObject:0: RuntimeWarning: reference to object of unavailable class TObject, offset=980837731 pointer will be 0', 'firstLine0': 7, 'count0': 2, 'message1': 'Error in <TExMap::Remove>: key 980837731 not found at 306', 'firstLine1': 6, 'count1': 2}, 'lastNormalLine before CoreDump': {'message': 'Error in <CreateRealData>: Cannot find data member # 0 of class Identifier for parent TileTrigger!', 'firstLine': 3, 'count': 1}}, 'message': 'Segmentation fault: Event counter: unknown; Run: unknown; Evt: unknown; Current algorithm: unknown; Current Function: unknown; Abnormal line(s) seen just before core dump: TBufferFile::CheckObject:0: Ru...[truncated] (see the jobReport)', 'firstLine': 9, 'count': 1}})
+
+    def test_knowledgeFile(self):
+        self.assertEqual(self.myFileReport13.worstError(), {'level': 'FATAL', 'nLevel': logging.FATAL,
+                                                            'firstError': {'count': 1, 'firstLine': 13, 'message': 'Pythia8             FATAL /build/atnight/localbuilds/nightlies/21.6/athena/Generators/GeneratorModules/src/GenModule.cxx:56 (StatusCode GenModule::execute()): code 0: this->callGenerator(); PYTHIA Abort from Pythia::next: reached end of Les Houches Events File'}})
 
     def test_dbMonitor(self):
         print(self.myFileReport9) 

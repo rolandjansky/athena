@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -16,8 +16,7 @@ def TrackingGeoCfg(inputFlags):
     result.merge(MuonGeoModelCfg(inputFlags))
 
     from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-    acc, geom_svc = TrackingGeometrySvcCfg(inputFlags)
-    result.merge(acc)
+    result.merge(TrackingGeometrySvcCfg(inputFlags))
 
     from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
     result.merge(MagneticFieldSvcCfg(inputFlags))
@@ -99,9 +98,16 @@ def PFCfg(inputFlags):
     calogeocfg = CaloGeoAndNoiseCfg(inputFlags)
     result.merge(calogeocfg)
 
-    result.addEventAlgo( getHLTPFTrackSelector(inputFlags,
+    PFTrackSelector = getHLTPFTrackSelector(inputFlags,
                                             inputFlags.eflowRec.TrackColl,
-                                            inputFlags.eflowRec.VertexColl) )
+                                            inputFlags.eflowRec.VertexColl)
+
+    # Add monitoring tool
+    from eflowRec import PFOnlineMon
+    monTool = PFOnlineMon.getMonTool_PFTrackSelector()
+    PFTrackSelector.MonTool = monTool
+
+    result.addEventAlgo( PFTrackSelector )
 
     #---------------------------------------------------------------------------------#
     # PFlowAlgorithm -- subtraction steps
@@ -123,6 +129,9 @@ def PFCfg(inputFlags):
     if not inputFlags.PF.useClusterMoments:
         pfmoments.CaloClusterMomentsMaker.MomentsNames = ["CENTER_MAG"]
     PFAlgorithm.BaseToolList = [pfmoments]
+
+    monTool = PFOnlineMon.getMonTool_PFAlgorithm()
+    PFAlgorithm.MonTool = monTool
 
     result.addEventAlgo(PFAlgorithm)
 
@@ -163,11 +172,11 @@ if __name__=="__main__":
     #
     cfgFlags.lock()
     
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
-    cfg=MainServicesSerialCfg() 
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
+    cfg=MainServicesCfg(cfgFlags) 
 
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
-    tccfg = CaloTopoClusterCfg(cfgFlags)
+    tccfg = CaloTopoClusterCfg(cfgFlags,doLCCalib=True)
     tcalg = tccfg.getPrimary()
     tcalg.ClustersOutputName = "CaloCalTopoClustersNew"
     cfg.merge(tccfg)
@@ -178,7 +187,7 @@ if __name__=="__main__":
 
     cfg.merge(PFCfg(cfgFlags))
 
-    cfg.printConfig(summariseProps=True)
+    cfg.printConfig()# (summariseProps=True)
 
     outputlist = [
         "xAOD::CaloClusterContainer#CaloCalTopoClusters*",
@@ -191,6 +200,8 @@ if __name__=="__main__":
     from pprint import pprint
     pprint( cfg.getEventAlgo("OutputStreamxAOD").ItemList )
 
+    histSvc = CompFactory.THistSvc(Output = ["EXPERT DATAFILE='expert-monitoring.root', OPT='RECREATE'"])
+    cfg.addService(histSvc)
 
     cfg.getService("StoreGateSvc").Dump = True
 

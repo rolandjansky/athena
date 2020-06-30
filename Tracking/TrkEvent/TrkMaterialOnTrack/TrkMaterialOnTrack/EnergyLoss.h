@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -9,8 +9,8 @@
 #ifndef TRKMATERIALONTRACK_ENERGYLOSS_H
 #define TRKMATERIALONTRACK_ENERGYLOSS_H
 
+#include <cmath>
 #include <iostream>
-#include <math.h>
 class MsgStream;
 class TrackCollectionCnv;
 

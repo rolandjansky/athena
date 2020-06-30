@@ -75,6 +75,8 @@ def PixelMonitoringConfig(flags):
         pixelAthMonAlgErrorMonAlg = helper.addAlgorithm(PixelAthErrorMonAlg, 'PixelAthErrorMonAlg')
         for k, v in kwargsErrMonAlg.items():
             setattr(pixelAthMonAlgErrorMonAlg, k, v)
+        from PixelConditionsTools.PixelConditionsToolsConf import PixelByteStreamErrorsTool
+        pixelAthMonAlgErrorMonAlg.PixelByteStreamErrorsTool = PixelByteStreamErrorsTool(ReadingESD = (flags.DQ.Environment == 'tier0ESD'))
         PixelAthErrorMonAlgCfg(helper, pixelAthMonAlgErrorMonAlg, **kwargsErrMonAlg)
         acc.merge(helper.result())
 

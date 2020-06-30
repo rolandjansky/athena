@@ -52,7 +52,7 @@ if not jobConfig['bytestream']:
     ServiceMgr.PoolSvc.AttemptCatalogPatch=True
     ServiceMgr.EventSelector.InputCollections = jobConfig['inputfiles']
 else:
-    ServiceMgr.ByteStreamInputSvc.FullFileName = jobConfig['inputfiles']
+    ServiceMgr.EventSelector.Input = jobConfig['inputfiles']
 
 
 # Number of events

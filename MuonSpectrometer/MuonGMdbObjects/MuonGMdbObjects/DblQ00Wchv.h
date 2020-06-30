@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************
@@ -14,15 +14,18 @@
 #define DBLQ00_WCHV_H
 
 #include "RDBAccessSvc/IRDBQuery.h"
-#include <memory>
-namespace MuonGM
-{
-class DblQ00Wchv {
 
+#include <memory>
+
+class AmdcDb;
+
+namespace MuonGM {
+class DblQ00Wchv {
 public:
     DblQ00Wchv(){};
     ~DblQ00Wchv();
     DblQ00Wchv(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Wchv(AmdcDb* wchv);
     
     // data members for DblQ00/WCHV fields
     struct WCHV {

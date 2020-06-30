@@ -11,6 +11,7 @@
 #include "MuonRDO/STGC_RawDataContainer.h"
 
 #include "TTree.h"
+#include <TString.h> // for Form
 
 using namespace Muon;
 
@@ -73,11 +74,8 @@ StatusCode sTGCRDOVariables::fillVariables(const MuonGM::MuonDetectorManager* Mu
 
       // get the readout element class where the RDO is recorded
       int isSmall = stName[2] == 'S';
-      const MuonGM::sTgcReadoutElement* rdoEl = MuonDetMgr->getsTgcRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet );
-      if (!rdoEl) {
-        ATH_MSG_WARNING("Could not retrieve sTgcReadoutElement from DetectorManager for isSmall=" << isSmall << ", stationEta=" << stationEta << ", stationPhi=" << stationPhi << ", multiplet=" << multiplet << ", skipping this entry...");
-        continue;
-      }
+      const MuonGM::sTgcReadoutElement* rdoEl = MuonDetMgr->getsTgcRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet);
+      if (!rdoEl) throw std::runtime_error(Form("File: %s, Line: %d\nsTGCRDOVariables::fillVariables() - Failed to retrieve sTgcReadoutElement for isSmall=%d, stationEta=%d, stationPhi=%d, multiplet=%d", __FILE__, __LINE__, isSmall, stationEta, stationPhi, multiplet));
 
       Amg::Vector2D localStripPos(0.,0.);
       if ( rdoEl->stripPosition(Id,localStripPos) )  {

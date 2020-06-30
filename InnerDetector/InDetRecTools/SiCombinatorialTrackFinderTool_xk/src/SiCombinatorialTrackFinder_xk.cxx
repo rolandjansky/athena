@@ -42,7 +42,7 @@ InDet::SiCombinatorialTrackFinder_xk::SiCombinatorialTrackFinder_xk
 // Initialisation
 ///////////////////////////////////////////////////////////////////
 
-StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize ATLAS_NOT_THREAD_SAFE ()
+StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize()
 {  
   // Get RungeKutta propagator tool
   //
@@ -78,6 +78,8 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize ATLAS_NOT_THREAD_SAF
     } else {
       ATH_MSG_INFO("Retrieved tool " << m_pixelCondSummaryTool);
     }
+  } else {
+    m_pixelCondSummaryTool.disable();
   }
 
   // Get SctConditionsSummaryTool
@@ -101,15 +103,12 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize ATLAS_NOT_THREAD_SAF
   //
   m_outputlevel = msg().level()-MSG::DEBUG;
 
-  if (m_usePIX) {
-    ATH_CHECK( m_pixcontainerkey.initialize() );
-    ATH_CHECK( m_boundaryPixelKey.initialize() );
-  }
-  if (m_useSCT) {
-    ATH_CHECK( m_sctcontainerkey.initialize() );
-    ATH_CHECK( m_boundarySCTKey.initialize() );
-    ATH_CHECK( m_SCTDetEleCollKey.initialize() );
-  }
+  ATH_CHECK( m_pixcontainerkey.initialize (m_usePIX) );
+  ATH_CHECK( m_boundaryPixelKey.initialize (m_usePIX) );
+
+  ATH_CHECK( m_sctcontainerkey.initialize (m_useSCT) );
+  ATH_CHECK( m_boundarySCTKey.initialize (m_useSCT) );
+  ATH_CHECK( m_SCTDetEleCollKey.initialize (m_useSCT) );
 
   // initialize conditions object key for field cache
   //

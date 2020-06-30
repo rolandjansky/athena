@@ -28,7 +28,7 @@ theApp.EvtMax = 200000
 if not hasattr(svcMgr,"ByteStreamCnvSvc"):
    from ByteStreamCnvSvc import ReadByteStream
    # Define the input
-   svcMgr.ByteStreamInputSvc.FullFileName = [ "/afs/cern.ch/atlas/maxidisk/d108/cranshaw/nightlies/extractedEvents.data" ]
+   svcMgr.EventSelector.Input = [ "/afs/cern.ch/atlas/maxidisk/d108/cranshaw/nightlies/extractedEvents.data" ]
    theApp.ExtSvc += [ "ByteStreamCnvSvc"]
 
    from ByteStreamCnvSvc import WriteByteStream

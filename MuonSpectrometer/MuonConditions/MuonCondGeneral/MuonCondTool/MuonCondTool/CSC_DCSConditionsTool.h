@@ -1,20 +1,18 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDTOOL_CSC_DCSCONDITIONSTOOL_H
 #define MUONCONDTOOL_CSC_DCSCONDITIONSTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonCondInterface/ICSC_DCSConditionsTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+
 #include "GaudiKernel/IChronoStatSvc.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 class IIOVSvc;
-class StatusCode;
 
 class CSC_DCSConditionsTool: public AthAlgTool, virtual public ICSC_DCSConditionsTool
 {
@@ -67,7 +65,7 @@ public:
 
   std::map<Identifier, int> m_CSC_LayerMap;
   std::map<Identifier, int> m_CSC_LayerMap_test;
-  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool;
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
  
   std::vector<int> m_wireLayer;
   std::vector<Identifier> m_cachedDeadStationsId;
@@ -79,13 +77,10 @@ public:
   //private comparison function for Identifier sorting
   static bool compareId(Identifier x,Identifier y) { return (x > y); } 
   
-  
-  std::string      m_DataLocation;
- 
-  std::string     m_dropchamberFolder;
-  std::string     m_hvFolder;
-  std::string     m_chamberFolder;
-
+  std::string m_DataLocation;
+  std::string m_dropchamberFolder;
+  std::string m_hvFolder;
+  std::string m_chamberFolder;
         
   std::stringstream m_CSCChamDrop;
   IChronoStatSvc* m_chronoSvc;
@@ -94,10 +89,7 @@ public:
   std::string m_chrono2;
   std::string m_chrono3;
   std::string m_chrono4;
-  
-  MsgStream m_log;
-  bool      m_debug;
-  bool      m_verbose;
+
 };
  
 

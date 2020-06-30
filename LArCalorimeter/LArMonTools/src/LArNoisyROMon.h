@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -17,6 +17,7 @@
 
 #include "Identifier/HWIdentifier.h"
 #include "LArIdentifier/LArOnlineID.h"
+#include "LArRecEvent/LArNoisyROSummary.h"
 
 #include <string>
 #include <array>
@@ -161,7 +162,8 @@ private:
   std::vector<std::string> m_L1_NoiseBurst_Triggers;
   unsigned int m_lumi_blocks;
   bool m_doHisto;
-  std::string m_inputKey;
+  SG::ReadHandleKey<LArNoisyROSummary> m_inputKey{this, "inputKey", "LArNoisyROSummary"};
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "eventInfoKey", "EventInfo"};
 };
 
 inline size_t LArNoisyROMon::partitionNumber(const HWIdentifier hwid) {

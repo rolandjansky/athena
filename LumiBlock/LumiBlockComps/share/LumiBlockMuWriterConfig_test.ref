@@ -1,0 +1,26 @@
+Py:Athena            INFO using release [WorkDir-22.0.14] [x86_64-centos7-gcc8-opt] [atlas-work3/85ffba7a6ec] -- built on [2020-05-15T0253]
+--- collisions
+Py:AutoConfigFlags    INFO Obtaining metadata of auto-configuration by peeking into /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
+Py:MetaReader        INFO Current mode used: peeker
+Py:MetaReader        INFO Current filenames: ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1']
+Py:LuminosityCondAlg    INFO luminosityCondAlgRun2Config requested /TRIGGER/OFLLUMI/OflPrefLumi
+Py:LuminosityCondAlg    INFO Created Run2 LuminosityCondAlg using folder /TRIGGER/OFLLUMI/OflPrefLumi
+Py:ComponentAccumulator    INFO Condition Algorithms
+Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
+Py:ComponentAccumulator    INFO      * Load: [['CondAttrListCollection', '/TRIGGER/OFLLUMI/OflPrefLumi'], ['CondAttrListCollection', '/TDAQ/OLC/CALIBRATIONS']]
+Py:ComponentAccumulator    INFO  \__ OnlineLumiCalibrationCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * CalibrationFolderInputKey: /TDAQ/OLC/CALIBRATIONS
+Py:ComponentAccumulator    INFO      * LumiCalibOutputKey: OnlineLumiCalibrationCondData
+Py:ComponentAccumulator    INFO  \__ LuminosityCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * BunchGroupInputKey: 
+Py:ComponentAccumulator    INFO      * BunchLumisInputKey: 
+Py:ComponentAccumulator    INFO      * FillParamsInputKey: 
+Py:ComponentAccumulator    INFO      * LuminosityFolderInputKey: /TRIGGER/OFLLUMI/OflPrefLumi
+Py:ComponentAccumulator    INFO      * LuminosityOutputKey: LuminosityCondData
+Py:ComponentAccumulator    INFO      * OnlineLumiCalibrationInputKey: OnlineLumiCalibrationCondData
+Py:ComponentAccumulator    INFO  \__ LumiBlockMuWriter (cond alg)
+Py:ComponentAccumulator    INFO      * LumiDataKey: LuminosityCondData
+--- cosmics
+Py:ComponentAccumulator    INFO Condition Algorithms
+Py:ComponentAccumulator    INFO  \__ LumiBlockMuWriter (cond alg)
+Py:ComponentAccumulator    INFO      * LumiDataKey: 

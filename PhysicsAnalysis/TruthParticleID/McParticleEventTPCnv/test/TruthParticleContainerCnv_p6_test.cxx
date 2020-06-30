@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /**
  * @file McParticleEventTPCnv/test/TruthParticleContainerCnv_p6_test.cxx
@@ -16,6 +16,9 @@
 #include "SGTools/TestStore.h"
 #include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ThreadLocalContext.h"
+// Athena
+#include "AthenaKernel/ExtendedEventContext.h"
 #include <cassert>
 #include <iostream>
 
@@ -76,10 +79,10 @@ void test1 (SGTest::TestStore& store)
   std::cout << "test1\n";
 
   auto evcoll = std::make_unique<McEventCollection>();
-  evcoll->push_back (std::make_unique<HepMC::GenEvent>());
-  evcoll->push_back (std::make_unique<HepMC::GenEvent>());
+  evcoll->push_back (std::make_unique<HepMC::GenEvent>(1000082, 4));
+  evcoll->push_back (std::make_unique<HepMC::GenEvent>(1000087, 5));
 
-  auto ge = std::make_unique<HepMC::GenEvent>();
+  auto ge = std::make_unique<HepMC::GenEvent>(1000083, 7);
   auto gv = std::make_unique<HepMC::GenVertex>();
   std::vector<HepMC::GenParticle*> parts;
   for (size_t i = 0; i < 5; i++) {
@@ -94,9 +97,15 @@ void test1 (SGTest::TestStore& store)
   }
   ge->add_vertex (gv.release());
   evcoll->push_back (std::move(ge));
-  store.record (std::move(evcoll), "mcevt");
+  store.record (std::move(evcoll), "GEN_AOD");
+  // create a dummy EventContext
+  EventContext ctx;
+  ctx.setExtension( Atlas::ExtendedEventContext( &store ) );
+  Gaudi::Hive::setCurrentContext( ctx );
+
+
   RootTruthParticleCnvTool cnvTool;
-  ElementLink<McEventCollection> evlink ("mcevt", 2);
+  ElementLink<McEventCollection> evlink ("GEN_AOD", 2);
   ElementLink<TruthEtIsolationsContainer> isoLink ("isol", 1);
 
   TruthParticleContainer trans1;
@@ -109,7 +118,7 @@ void test1 (SGTest::TestStore& store)
     trans1.push_back (std::move (tp));
   }
 
-  Athena_test::Leakcheck check;
+  //Athena_test::Leakcheck check;
   testit (trans1, cnvTool);
 }
 

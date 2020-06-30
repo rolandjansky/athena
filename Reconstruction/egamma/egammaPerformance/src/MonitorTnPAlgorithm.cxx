@@ -5,7 +5,7 @@ Author : B. Laforge (laforge@lpnhe.in2p3.fr)
 4 May 2020
 */
 
-#include "egammaPerformance/MonitorTnPAlgorithm.h"
+#include "MonitorTnPAlgorithm.h"
 
 MonitorTnPAlgorithm::MonitorTnPAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
 :AthMonitorAlgorithm(name,pSvcLocator) {

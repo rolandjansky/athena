@@ -1,46 +1,32 @@
-# $Id: CMakeLists.txt 775886 2016-09-29 16:03:02Z griffith $ 
-################################################################################
-# Package: xAODTau
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# Declare the package name:
+# Declare the package name.
 atlas_subdir( xAODTau )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthContainers
-   Control/AthLinks
-   Event/xAOD/xAODBase
-   Event/xAOD/xAODCore
-   Event/xAOD/xAODJet
-   Event/xAOD/xAODPFlow
-   Event/xAOD/xAODTracking
-   Event/xAOD/xAODTruth )
-
-# External dependencies:
+# External dependencies.
 find_package( ROOT COMPONENTS Core GenVector )
+find_package( xAODUtilities )
 
-# Extra dependencies, based on what environment we are in:
-if (BUILDVP1LIGHT)
-    if( BUILDVP1LIGHT_DIST STREQUAL "ubuntu")
-        set( extra_libs GenVector )
-    endif()
-endif()
-
-# Component(s) in the package:
+# Component(s) in the package.
 atlas_add_library( xAODTau
    xAODTau/*.h xAODTau/*.icc xAODTau/versions/*.h
    Root/*.h Root/*.icc Root/*.cxx
    PUBLIC_HEADERS xAODTau
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks xAODBase xAODCore
-   xAODJet xAODPFlow xAODTracking xAODTruth ${extra_libs} )
+   xAODJet xAODPFlow xAODTracking xAODTruth )
+
+atlas_add_xaod_smart_pointer_dicts(
+   INPUT xAODTau/selection.xml
+   OUTPUT _selectionFile
+   CONTAINERS "xAOD::TauJetContainer_v1" "xAOD::TauJetContainer_v2"
+              "xAOD::TauJetContainer_v3" "xAOD::DiTauJetContainer_v1"
+              "xAOD::TauTrackContainer_v1" )
 
 atlas_add_dictionary( xAODTauDict
    xAODTau/xAODTauDict.h
-   xAODTau/selection.xml
-   LINK_LIBRARIES xAODTau
+   ${_selectionFile}
+   LINK_LIBRARIES xAODCore xAODTau
    EXTRA_FILES Root/dict/*.cxx )
 
 atlas_add_dictionary( xAODTau_cDict
@@ -48,8 +34,7 @@ atlas_add_dictionary( xAODTau_cDict
    xAODTau/selection_c.xml
    LINK_LIBRARIES xAODTau )
 
-
-# Test(s) in the package:
+# Test(s) in the package.
 atlas_add_test( xAODTau_TauJet_test
    SOURCES test/xAODTau_TauJet_test.cxx
    LINK_LIBRARIES xAODTau )

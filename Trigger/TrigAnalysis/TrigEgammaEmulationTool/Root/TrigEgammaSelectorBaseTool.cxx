@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  *   */
 
 
@@ -83,43 +83,3 @@ const xAOD::TrigRingerRings* TrigEgammaSelectorBaseTool::getTrigCaloRings( const
   }
   return nullptr;
 }
-
-//!==========================================================================
-/*
-bool TrigEgammaSelectorBaseTool::getCaloRings( const xAOD::Electron *el, std::vector<float> &ringsE ){
-  if(!el) return false;
-  ringsE.clear();
-  auto m_ringsELReader = xAOD::getCaloRingsReader();
-
-  // First, check if we can retrieve decoration:
-  const xAOD::CaloRingsELVec *caloRingsELVec(nullptr);
-  try {
-    caloRingsELVec = &(m_ringsELReader->operator()(*el));
-  } catch ( const std::exception &e) {
-    ATH_MSG_WARNING("Couldn't retrieve CaloRingsELVec. Reason: " << e.what());
-  }
-
-  if ( caloRingsELVec->empty() ){
-    ATH_MSG_WARNING("Particle does not have CaloRings decoratorion.");
-    return false;
-  }
-
-  // For now, we are using only the first cluster
-  const xAOD::CaloRings *clrings = *(caloRingsELVec->at(0));
-  // For now, we are using only the first cluster
- 
-  if(clrings) clrings->exportRingsTo(ringsE);
-  else{
-    ATH_MSG_WARNING("There is a problem when try to attack the rings vector using exportRigsTo() method.");
-    return false;
-  }
-  return true;
-}
-#else
-bool TrigEgammaSelectorBaseTool::getCaloRings( const xAOD::Electron *el, std::vector<float> & ){
-  if(!el) return false;
-  return true;
-}
-*/
-
-

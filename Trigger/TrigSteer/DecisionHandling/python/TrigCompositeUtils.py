@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Note: These definitions shadow those in TrigComposite_v1.cxx
 
@@ -13,9 +13,7 @@ def legName(chainName, legCounter):
     return ("leg{:03d}_{}".format(legCounter, chainName))
 
 def chainNameFromLegName(legName):
-	if (isLegId(legName)):
-		return legName[7:]
-	return legName
+    return legName[7:] if isLegId(legName) else legName
 
 def isLegId(chainName):
     return chainName.startswith("leg")

@@ -104,10 +104,9 @@ namespace Trk {
   }
 
 //copy constructor changed
-  MVFVxTrackAtVertex::MVFVxTrackAtVertex(const MVFVxTrackAtVertex& rhs) :
-    VxTrackAtVertex(rhs),
-    m_linkToVertices(rhs.m_linkToVertices)
-  {}
+  MVFVxTrackAtVertex::MVFVxTrackAtVertex(const MVFVxTrackAtVertex& rhs) 
+    
+  = default;
 
 
 //assignement operator changed

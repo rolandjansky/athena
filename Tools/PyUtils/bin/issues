@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -25,7 +26,7 @@ def getDefects(pkg):
   request=Request(url,textData)
   try:
     u=urlopen(request, timeout=2)
-  except URLError as e:
+  except URLError:
     return "I'm sorry, the server timed out"
   textString = u.read().decode()
   return textString

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MM_SIMIDTOOFFLINEID_H
@@ -9,16 +9,14 @@
 #include "MuonIdHelpers/MmIdHelper.h"
 #include "Identifier/Identifier.h"
 
-
-
 struct MM_SimIdToOfflineId {
   
-  MM_SimIdToOfflineId( const MmIdHelper& idHelper ) : m_idHelper(&idHelper),m_simIdHelper(MicromegasHitIdHelper::GetHelper()) {}
+  MM_SimIdToOfflineId( const MmIdHelper* idHelper ) : m_idHelper(idHelper),m_simIdHelper(MicromegasHitIdHelper::GetHelper()) {}
   
   inline Identifier convert( int simId ) const;
   inline int convert (const Identifier & id) const;
 
-  const MmIdHelper*            m_idHelper;
+  const MmIdHelper* m_idHelper;
   MicromegasHitIdHelper* m_simIdHelper;
 };
 

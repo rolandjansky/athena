@@ -7,7 +7,7 @@
 
 // ATLAS things
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "xAODJet/Jet.h"
+#include "xAODJet/JetContainer.h"
 #include "xAODBTagging/BTagging.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadDecorHandle.h"
@@ -29,6 +29,7 @@ namespace Analysis {
    
   private:
     // Input Containers
+    SG::ReadHandleKey<xAOD::JetContainer > m_JetCollectionName {this, "JetCollectionName", "", "Input jet container"};
     SG::ReadHandleKey<xAOD::BTaggingContainer > m_BTagCollectionName {this, "BTaggingCollectionName", "", "Input BTagging container"};
     SG::ReadDecorHandleKey<xAOD::BTaggingContainer> m_bTagJetDecorLinkName {this, "JetLinkName", "", "Element Link from BTagging to Jet container"};
     std::string m_flipTagConfig;

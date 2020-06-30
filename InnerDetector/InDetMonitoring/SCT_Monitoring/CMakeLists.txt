@@ -24,7 +24,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkTools/TrkToolInterfaces
                           Trigger/TrigAnalysis/TrigAnalysisInterfaces
                           PRIVATE
-			  Luminosity/LumiBlockData
+			  LumiBlock/LumiBlockData
                           Control/AthenaKernel
                           Control/AthContainers
                           DetectorDescription/Identifier
@@ -40,7 +40,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkTrackSummary
                           Trigger/TrigEvent/TrigDecisionInterface
                           MagneticField/MagFieldElements
-                          MagneticField/MagFieldCondition )
+                          MagneticField/MagFieldConditions )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )

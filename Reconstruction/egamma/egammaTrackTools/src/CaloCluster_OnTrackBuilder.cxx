@@ -256,62 +256,58 @@ double CaloCluster_OnTrackBuilder::electronPhiResolution(double eta, double ener
 double CaloCluster_OnTrackBuilder::electronPhiResoA(double eta) const
 {
 
-  if ( eta < 0.30 )
-    return 0.000191492 ;
-  
-  else if ( eta < 0.60) 
-    return 9.35047e-05 + 0.000392766 * eta;
-  
-  else if ( eta < 0.80) 
-    return 0.000327201;   
-    
-  else if ( eta < 1.05)
-    return 0.000141755;
-  
-  else if ( eta < 1.35)
-    return (-1.07475  + 1.15372*eta)*1e-3;
+  if (eta < 0.30)
+    return 0.000191492;
 
-  else if ( eta < 1.55)
-    return (-15.2133 + 11.2163*eta)*1e-3 ;
-  
-  else if ( eta < 1.85)
+  if (eta < 0.60)
+    return 9.35047e-05 + 0.000392766 * eta;
+
+  if (eta < 0.80)
+    return 0.000327201;
+
+  if (eta < 1.05)
+    return 0.000141755;
+
+  if (eta < 1.35)
+    return (-1.07475 + 1.15372 * eta) * 1e-3;
+
+  if (eta < 1.55)
+    return (-15.2133 + 11.2163 * eta) * 1e-3;
+
+  if (eta < 1.85)
     return 0.00128452 - 0.00053016 * eta;
 
-  else if ( eta < 2.30)
+  if (eta < 2.30)
     return -0.000665622 + 0.00052136 * eta;
 
-  else
-    return 0.000327754;
-
+  return 0.000327754;
 }
 
 double CaloCluster_OnTrackBuilder::electronPhiResoB(double eta) const
 {
 
-  if ( eta < 0.65 )
-    return 0.0285262  + 0.00985529 * eta;
-  
-  else if ( eta < 1.04 )
-    return -0.0690774 + 0.166424   * eta; 
-  
-  else if ( eta < 1.25 )
-    return 0.0769113  + 0.0149434  * eta;   
-  
-  else if ( eta < 1.55 )
-    return -0.407594  + 0.393218   * eta;     
-  
-  else if ( eta < 1.95 )
-    return 0.415602   - 0.172824   * eta;     
-  
-  else if ( eta < 2.05 )
-    return 0.0840844;     
-  
-  else if ( eta < 2.40 )
-    return 0.187563   - 0.0472463  * eta;
-    
-  else 
-    return 0.0693652;
-  
+  if (eta < 0.65)
+    return 0.0285262 + 0.00985529 * eta;
+
+  if (eta < 1.04)
+    return -0.0690774 + 0.166424 * eta;
+
+  if (eta < 1.25)
+    return 0.0769113 + 0.0149434 * eta;
+
+  if (eta < 1.55)
+    return -0.407594 + 0.393218 * eta;
+
+  if (eta < 1.95)
+    return 0.415602 - 0.172824 * eta;
+
+  if (eta < 2.05)
+    return 0.0840844;
+
+  if (eta < 2.40)
+    return 0.187563 - 0.0472463 * eta;
+
+  return 0.0693652;
 }
 
 

@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -186,6 +186,11 @@ namespace HLT {
      * @brief access needed by slimming tools.
      */
     std::vector<TriggerElement*>& getAllTEs() { return m_factory.listOfProduced(); } 
+
+    /**
+     * @brief access needed by slimming tools.
+     */
+    const std::vector<TriggerElement*>& getAllTEs() const { return m_factory.listOfProduced(); } 
 
     /**
      * @brief The query returning a collection of all TriggerElements if name is given

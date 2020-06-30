@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_FwdWheel.h"
@@ -57,34 +57,15 @@ SCT_FwdWheel::SCT_FwdWheel(const std::string & name,
   : SCT_UniqueComponentFactory(name, detectorManager, geometryManager, materials),
     m_iWheel(iWheel), 
     m_endcap(ec),
-    m_pPConnector(0),
-    m_pPCooling(0),
-    m_discFixation(0),
     m_modules(modules)
 {
   getParameters();
-  //m_logVolume = 0;
   m_logVolume = preBuild(); 
   
 }
 
 SCT_FwdWheel::~SCT_FwdWheel()
 {
-  delete m_discSupport;
-  for (unsigned int iRing = 0; iRing < m_rings.size(); iRing++){
-    delete m_rings[iRing];
-  }
-  for (unsigned int iPPType = 0; iPPType < m_patchPanel.size(); iPPType++) {
-    delete m_patchPanel[iPPType];
-  }
-
-  if (m_pPConnectorPresent) delete m_pPConnector;
-  if (m_pPCoolingPresent)  delete m_pPCooling;
-  if (m_discFixationPresent)  delete m_discFixation;
-  
-  for (unsigned int iFSI = 0; iFSI <  m_fsiType.size(); iFSI++) {
-    delete m_fsiType[iFSI];
-  }
 }
 
 void
@@ -149,37 +130,36 @@ SCT_FwdWheel::preBuild()
 {
    
   // Create disc support. 
-  m_discSupport = new SCT_FwdDiscSupport("DiscSupport"+intToString(m_iWheel), m_iWheel,
-                                         m_detectorManager, m_geometryManager, m_materials);
+  m_discSupport = std::make_unique<SCT_FwdDiscSupport>("DiscSupport"+intToString(m_iWheel), m_iWheel,
+                                                       m_detectorManager, m_geometryManager, m_materials);
 
 
   // The rings
   for (int iRing = 0; iRing < m_numRings; iRing++){
     std::string ringName = "Ring"+intToString(iRing)+"For"+getName();
     int ringType = m_ringType[iRing];
-    m_rings.push_back(new SCT_FwdRing(ringName, m_modules[ringType], m_iWheel, iRing, m_endcap,
+    m_rings.push_back(std::make_unique<SCT_FwdRing>(ringName, m_modules[ringType], m_iWheel, iRing, m_endcap,
                                       m_detectorManager, m_geometryManager, m_materials));
   }
 
 
   // Create Patch Panel
-  //m_patchPanel = new SCT_FwdPatchPanel("PatchPanel"+intToString(m_iWheel), m_iWheel);
   for (int iPPType = 0; iPPType < m_numPatchPanelTypes; iPPType++) {
-    m_patchPanel.push_back(new SCT_FwdPatchPanel("PatchPanel"+intToString(iPPType), iPPType,
+    m_patchPanel.push_back(std::make_unique<SCT_FwdPatchPanel>("PatchPanel"+intToString(iPPType), iPPType,
                                                  m_detectorManager, m_geometryManager, m_materials));
   }
 
   // Create Patch Pannel Connector and Cooling, and disc Fixations
   if (m_pPConnectorPresent) {
-    m_pPConnector = new SCT_FwdPPConnector("PPConnector", 
+    m_pPConnector = std::make_unique<SCT_FwdPPConnector>("PPConnector", 
                                            m_detectorManager, m_geometryManager, m_materials);
   }
   if (m_pPCoolingPresent) {
-    m_pPCooling = new SCT_FwdPPCooling("PPCooling",
+    m_pPCooling = std::make_unique<SCT_FwdPPCooling>("PPCooling",
                                        m_detectorManager, m_geometryManager, m_materials);
   }
   if (m_discFixationPresent) {
-    m_discFixation = new SCT_FwdDiscFixation("DiscFixation",
+    m_discFixation = std::make_unique<SCT_FwdDiscFixation>("DiscFixation",
                                              m_detectorManager, m_geometryManager, m_materials);
   }
 
@@ -195,7 +175,7 @@ SCT_FwdWheel::preBuild()
   for (unsigned int iFSI = 0; iFSI < m_fsiVector->size(); iFSI++) {
     int type = (*m_fsiVector)[iFSI]->simType();
     if (!m_fsiType[type]) {
-      m_fsiType[type] = new SCT_FwdFSI("FSI"+intToString(type), type,
+      m_fsiType[type] = std::make_unique<SCT_FwdFSI>("FSI"+intToString(type), type,
                                        m_detectorManager, m_geometryManager, m_materials);
     }
   }
@@ -290,7 +270,7 @@ SCT_FwdWheel::build(SCT_Identifier id)
 
   for (int iRing = 0; iRing < m_numRings; iRing++){
    
-    SCT_FwdRing * ring = m_rings[iRing];
+    SCT_FwdRing * ring = m_rings[iRing].get();
 
     // Position ring
     double ringZpos = ring->ringSide() * ring->ringOffset(); 

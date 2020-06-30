@@ -5,7 +5,7 @@
   4 May 2020
 */
 
-#include "egammaPerformance/MonitorFwdElectronAlgorithm.h"
+#include "MonitorFwdElectronAlgorithm.h"
 
 MonitorFwdElectronAlgorithm::MonitorFwdElectronAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
 :AthMonitorAlgorithm(name,pSvcLocator)

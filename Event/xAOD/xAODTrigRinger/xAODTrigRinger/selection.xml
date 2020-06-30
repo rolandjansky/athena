@@ -1,64 +1,59 @@
-<!-- $Id: selection.xml $ -->
+<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
 <lcgdict>
 
-  <!-- TrigRingerRings_v1 dictionaries: -->
-  <class name="xAOD::TrigRingerRings_v1" />
-  <class name="xAOD::TrigRingerRingsContainer_v1"
-           id="AEF63C18-1B19-4861-A909-FCAF11CFBFCE" />
-  <class name="xAOD::TrigRingerRingsAuxContainer_v1"
-           id="4016ADBB-830C-4523-97E2-D5FED349D98D" />
+   <!-- xAOD::TrigRingerRings interface type(s). -->
+   <class name="xAOD::TrigRingerRings_v1" />
+   <class name="xAOD::TrigRingerRingsContainer_v1"
+          id="AEF63C18-1B19-4861-A909-FCAF11CFBFCE" />
+   <class name="xAOD::TrigRingerRings_v2" />
+   <class name="xAOD::TrigRingerRingsContainer_v2"
+          id="96FADA09-FADA-4437-AC96-B02CAA5DE776" />
+   <typedef name="xAOD::TrigRingerRings" />
+   <typedef name="xAOD::TrigRingerRingsContainer" />
 
-         <!--       
-  <class name="ElementLink<xAOD::TrigRingerRingsContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::TrigRingerRingsContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::TrigRingerRingsContainer_v1> > >" />
-         -->
+   <!-- Tell ROOT that it should automatically convert between smart pointer -->
+   <!-- types. -->
+   <read sourceClass="DataLink<xAOD::TrigRingerRingsContainer_v1>"
+         version="[1-]"
+         targetClass="DataLink<xAOD::TrigRingerRingsContainer_v2>"
+         source="" target="" />
+   <read sourceClass="ElementLink<xAOD::TrigRingerRingsContainer_v1>"
+         version="[1-]"
+         targetClass="ElementLink<xAOD::TrigRingerRingsContainer_v2>"
+         source="" target="" />
 
-  <!-- TrigRingerRings_v2 dictionaries: --> 
-  <class name="xAOD::TrigRingerRings_v2" />
-  <class name="xAOD::TrigRingerRingsContainer_v2"
-           id="96FADA09-FADA-4437-AC96-B02CAA5DE776" />
-  <class name="xAOD::TrigRingerRingsAuxContainer_v2"
-           id="5C14CCCA-B46E-4E2A-97F4-A15EAACB124C"/>
-  
-       
-  <class name="ElementLink<xAOD::TrigRingerRingsContainer_v2>" />
-  <class name="std::vector<ElementLink<xAOD::TrigRingerRingsContainer_v2> >"/>
-  <class name="std::vector<std::vector<ElementLink<xAOD::TrigRingerRingsContainer_v2> > >"/>
-  
+   <!-- xAOD::TrigRingerRings auxiliary type(s). -->
+   <class name="xAOD::TrigRingerRingsAuxContainer_v1"
+          id="4016ADBB-830C-4523-97E2-D5FED349D98D" />
+   <class name="xAOD::TrigRingerRingsAuxContainer_v2"
+          id="5C14CCCA-B46E-4E2A-97F4-A15EAACB124C"/>
+   <typedef name="xAOD::TrigRingerRingsAuxContainer" />
 
-  <!-- TrigRNNOutput_v1 dictionaries: -->
-  <class name="xAOD::TrigRNNOutput_v1" />
-  <class name="xAOD::TrigRNNOutputContainer_v1"
-           id="E96CE49C-6A88-47A0-8DA0-F1D42E0813C8" />
-  <class name="xAOD::TrigRNNOutputAuxContainer_v1"
-           id="5090A739-C400-4322-9F91-C49441C9141F" />
+   <!-- xAOD::TrigRNNOutput interface type(s). -->
+   <class name="xAOD::TrigRNNOutput_v1" />
+   <class name="xAOD::TrigRNNOutputContainer_v1"
+          id="E96CE49C-6A88-47A0-8DA0-F1D42E0813C8" />
+   <class name="xAOD::TrigRNNOutput_v2" />
+   <class name="xAOD::TrigRNNOutputContainer_v2"
+          id="6410C90B-57BE-48A9-9A96-A203E4EF90F1" />
+   <typedef name="xAOD::TrigRNNOutput" />
+   <typedef name="xAOD::TrigRNNOutputContainer" />
 
-         <!--
-  <class name="ElementLink<xAOD::TrigRNNOutputContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::TrigRNNOutputContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::TrigRNNOutputContainer_v1> > >" />
-         -->
+   <!-- Tell ROOT that it should automatically convert between smart pointer -->
+   <!-- types. -->
+   <read sourceClass="DataLink<xAOD::TrigRNNOutputContainer_v1>" version="[1-]"
+         targetClass="DataLink<xAOD::TrigRNNOutputContainer_v2>"
+         source="" target="" />
+   <read sourceClass="ElementLink<xAOD::TrigRNNOutputContainer_v1>"
+         version="[1-]"
+         targetClass="ElementLink<xAOD::TrigRNNOutputContainer_v2>"
+         source="" target="" />
 
-  <!-- TrigRNNOutput_v2 dictionaries: -->
-  <class name="xAOD::TrigRNNOutput_v2" />
-  <class name="xAOD::TrigRNNOutputContainer_v2"
-           id="6410C90B-57BE-48A9-9A96-A203E4EF90F1" />
-  <class name="xAOD::TrigRNNOutputAuxContainer_v2"
-           id="725ADE43-9D9D-4856-90C6-8DE105BE62A4" />
-
-   
-  <class name="ElementLink<xAOD::TrigRNNOutputContainer_v2>" />
-  <class name="std::vector<ElementLink<xAOD::TrigRNNOutputContainer_v2> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::TrigRNNOutputContainer_v2> > >" />
-
-        
-  <!-- Suppress the unwanted classes found by ROOT 6. -->
-  <!-- Hopefully we can remove these extra lines at one point... -->
-  <exclusion>
-    <class name="SG::IConstAuxStore" />
-    <class name="DataLink<SG::IConstAuxStore>" />
-    <class name="ElementLink<DataVector<xAOD::TrigEMCluster > >" />
-  </exclusion>
+   <!-- xAOD::TrigRNNOutput auxiliary type(s). -->
+   <class name="xAOD::TrigRNNOutputAuxContainer_v1"
+          id="5090A739-C400-4322-9F91-C49441C9141F" />
+   <class name="xAOD::TrigRNNOutputAuxContainer_v2"
+         id="725ADE43-9D9D-4856-90C6-8DE105BE62A4" />
+   <typedef name="xAOD::TrigRNNOutputAuxContainer" />
 
 </lcgdict>

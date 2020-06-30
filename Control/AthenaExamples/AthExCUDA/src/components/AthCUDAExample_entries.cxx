@@ -3,7 +3,9 @@
 //
 
 // Local include(s).
-#include "../LinearTransformExampleAlg.h"
+#include "../LinearTransformStandaloneExampleAlg.h"
+#include "../LinearTransformTaskExampleAlg.h"
 
 // Declare the "components".
-DECLARE_COMPONENT( AthCUDA::LinearTransformExampleAlg )
+DECLARE_COMPONENT( AthCUDAExamples::LinearTransformStandaloneExampleAlg )
+DECLARE_COMPONENT( AthCUDAExamples::LinearTransformTaskExampleAlg )

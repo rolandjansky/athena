@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ISvcLocator.h"
 
-#include "TrigL2MuonSA/PtEndcapLUTSvc.h"
+#include "PtEndcapLUTSvc.h"
 #include "PathResolver/PathResolver.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
@@ -13,8 +13,7 @@
 // --------------------------------------------------------------------------------
 
 TrigL2MuonSA::PtEndcapLUTSvc::PtEndcapLUTSvc(const std::string& name, ISvcLocator* sl) :
-  AthService(name,sl),
-  m_ptEndcapLUT("TrigL2MuonSA::PtEndcapLUT")
+  AthService(name,sl)
 {
 }
 
@@ -37,11 +36,6 @@ StatusCode TrigL2MuonSA::PtEndcapLUTSvc::queryInterface(const InterfaceID& riid,
 
 StatusCode TrigL2MuonSA::PtEndcapLUTSvc::initialize()
 {   
-  StatusCode sc;
-  
-  sc = AthService::initialize();
-  if ( sc.isFailure() ) return sc;
- 
   // implement the search of LUT trought the pathresolver Tool.
   std::string lut_fileName = PathResolver::find_file(m_lut_fileNameRun2, "DATAPATH");
   ATH_MSG_INFO(lut_fileName);
@@ -55,11 +49,8 @@ StatusCode TrigL2MuonSA::PtEndcapLUTSvc::initialize()
   ATH_MSG_DEBUG("Retrieved service " << m_ptEndcapLUT);
 
   // read LUT
-  sc = m_ptEndcapLUT->readLUT(lut_fileName);
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("Failed to read endcap LUT" << m_lut_fileNameRun2);
-    return sc;
-  }
+  ATH_CHECK( m_ptEndcapLUT->readLUT(lut_fileName) );
+  ATH_MSG_DEBUG("Read endcap LUT" << m_lut_fileNameRun2);
 
   return StatusCode::SUCCESS;
 }
@@ -67,10 +58,3 @@ StatusCode TrigL2MuonSA::PtEndcapLUTSvc::initialize()
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigL2MuonSA::PtEndcapLUTSvc::finalize()
-{
-  return StatusCode::SUCCESS;
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------

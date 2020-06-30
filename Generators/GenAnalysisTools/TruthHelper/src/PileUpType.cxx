@@ -31,7 +31,7 @@ McEventCollection::const_iterator PileUpType::in_time_minimum_bias_event_end() c
    McEventCollection::const_iterator ibegin = m_particleList->begin();
    McEventCollection::const_iterator iend = m_particleList->end();
    for ( ; ibegin != iend; ++ibegin ) {
-     if ( (*ibegin)->event_number() == -1 && (*ibegin)->signal_process_id() == 0 ) break;
+     if ( (*ibegin)->event_number() == -1 && HepMC::signal_process_id(*ibegin) == 0 ) break;
    }
    return ibegin;
 }

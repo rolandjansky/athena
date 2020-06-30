@@ -50,7 +50,7 @@ StatusCode CSC_RegionSelectorTable::finalize() {
 }
 
 
-RegSelSiLUT* CSC_RegionSelectorTable::getLUT() const {
+RegSelSiLUT* CSC_RegionSelectorTable::getLUT() {
   return m_regionLUT;
 } 
 

@@ -1,10 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: CaloSwEtaoff_v3.cxx,v 1.4 2008-01-25 04:14:22 ssnyder Exp $
 /**
  * @file  CaloSwEtaoff_v3.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -20,28 +17,8 @@
 
 
 /**
- * @brief Constructor.
- * @param type The type of the tool.
- * @param name The name of the tool.
- * @param parent The parent algorithm of the tool.
- */
-using xAOD::CaloCluster;
-CaloSwEtaoff_v3::CaloSwEtaoff_v3 (const std::string& type,
-                                  const std::string& name,
-                                  const IInterface* parent)
-  : CaloClusterCorrectionCommon (type, name, parent)
-{
-  declareConstant ("correction",       m_correction);
-  declareConstant ("regions",          m_regions);
-  declareConstant ("energies",         m_energies);
-  declareConstant ("energy_degree",    m_energy_degree);
-  declareConstant ("forms",            m_forms, true);
-}
-
-
-/**
  * @brief Virtual function for the correction-specific code.
- * @param ctx     The event context.
+ * @param myctx   ToolWithConstants context.
  * @param cluster The cluster to correct.
  *                It is updated in place.
  * @param elt     The detector description element corresponding
@@ -59,8 +36,8 @@ CaloSwEtaoff_v3::CaloSwEtaoff_v3 (const std::string& type,
  *                @c CaloSampling::CaloSample; i.e., it has both
  *                the calorimeter region and sampling encoded.
  */
-void CaloSwEtaoff_v3::makeTheCorrection (const EventContext& /*ctx*/,
-                                         CaloCluster* cluster,
+void CaloSwEtaoff_v3::makeTheCorrection (const Context& myctx,
+                                         xAOD::CaloCluster* cluster,
                                          const CaloDetDescrElement* elt,
                                          float eta,
                                          float adj_eta,
@@ -68,8 +45,6 @@ void CaloSwEtaoff_v3::makeTheCorrection (const EventContext& /*ctx*/,
                                          float /*adj_phi*/,
                                          CaloSampling::CaloSample samp) const
 {
-  assert (m_regions.size(1) == REG_ENTRIES);
-
   // Find u, the normalized displacement of the cluster within the cell.
   // In the range -1...1, with 0 at the center.
   float u = (eta - elt->eta()) / elt->deta() * 2;
@@ -82,28 +57,36 @@ void CaloSwEtaoff_v3::makeTheCorrection (const EventContext& /*ctx*/,
   else if (u < -1)
     u = -1;
 
+  const CxxUtils::Array<2> regions = m_regions (myctx);
+  assert (regions.size(1) == REG_ENTRIES);
+
   // Look up the region for this correction.  Give up if we're outsize
   // the range of the table.
   float adj_aeta = std::abs (adj_eta);
-  int region_ndx = find_region (adj_aeta);
+  int region_ndx = find_region (regions, adj_aeta);
   if (region_ndx < 0)
     return;
 
+  const CxxUtils::Array<4> correction = m_correction (myctx);
+  const CxxUtils::Array<2> forms = m_forms (myctx);
+
   // In a few regions, the fit was done using a cell size different
   // from what we actually have.  Need to recalculate u in this case.
-  if (std::abs (m_regions[region_ndx][REG_CELLSIZE] - elt->deta()) > 1e-3) {
-    float cellsize = m_regions[region_ndx][REG_CELLSIZE];
+  if (std::abs (regions[region_ndx][REG_CELLSIZE] - elt->deta()) > 1e-3) {
+    float cellsize = regions[region_ndx][REG_CELLSIZE];
     u = fmod (adj_aeta, cellsize) / cellsize * 2 - 1;
   }
 
   // Calculate the correction for each energy.
   float offs = energy_interpolation (cluster->e(),
-                                     Builder (*this,
+                                     Builder (correction,
+                                              regions,
+                                              forms,
                                               adj_aeta,
                                               u,
                                               region_ndx),
-                                     m_energies,
-                                     m_energy_degree);
+                                     m_energies(myctx),
+                                     m_energy_degree(myctx));
 
   // Apply the offset correction to the cluster.
   if (adj_eta < 0)
@@ -117,14 +100,15 @@ void CaloSwEtaoff_v3::makeTheCorrection (const EventContext& /*ctx*/,
  * @param aeta The @f$|\eta|@f$ value to find.
  * @returns The region index, or -1 if @c aeta is outside the table range.
  */
-int CaloSwEtaoff_v3::find_region (float aeta) const
+int CaloSwEtaoff_v3::find_region (const CxxUtils::Array<2>& regions,
+                                  float aeta) const
 {
   // ??? Would a binary search be better here?
   //     The table shouldn't be very large, so I'll leave it like
   //     this for now.
-  unsigned int nreg = m_regions.size();
+  unsigned int nreg = regions.size();
   for (unsigned int i=0; i < nreg; i++) {
-    if (aeta >= m_regions[i][REG_LO] && aeta < m_regions[i][REG_HI])
+    if (aeta >= regions[i][REG_LO] && aeta < regions[i][REG_HI])
       return i;
   }
   return -1;
@@ -133,22 +117,28 @@ int CaloSwEtaoff_v3::find_region (float aeta) const
 
 /**
  * @brief Constructor for energy interpolation table helper class.
- * @param corr The parent correction object.
+ * @param correction Tabulated arrays of function parameters.
+ * @param regions Table of regions.
+ * @param forms Functional form per region.
  * @param aeta The absolute value of @f$\eta@f$ at which the correction
  *             is being evaluated (in cal-local coordinates).
  * @param u    The fractional offset of the cluster within the cell.
  * @param region_ndx The index of the region within which the
  *             correction is being evaluated.
  */
-CaloSwEtaoff_v3::Builder::Builder (const CaloSwEtaoff_v3& corr,
+CaloSwEtaoff_v3::Builder::Builder (const CxxUtils::Array<4>& correction,
+                                   const CxxUtils::Array<2>& regions,
+                                   const CxxUtils::Array<2>& forms,
                                    float aeta,
                                    float u,
                                    int region_ndx)
-  : m_corr (corr),
+  : m_correction (correction),
+    m_regions (regions),
+    m_forms (forms),
     m_region_ndx (region_ndx),
     m_aeta (aeta),
     m_u (u),
-    m_form (m_corr.m_regions[region_ndx][REG_FORM])
+    m_form (regions[region_ndx][REG_FORM])
 {
 }
 
@@ -162,7 +152,7 @@ CaloSwEtaoff_v3::Builder::Builder (const CaloSwEtaoff_v3& corr,
 float CaloSwEtaoff_v3::Builder::calculate (int energy_ndx, bool& good) const
 {
   // Find the proper array of coefficients.
-  CaloRec::Array<2> coef = m_corr.m_correction[energy_ndx][m_region_ndx];
+  CaloRec::Array<2> coef = m_correction[energy_ndx][m_region_ndx];
 
   // If we don't have coefficients for this energy/region, skip it.
   if (coef[0].end()[-1] == 0) {
@@ -172,8 +162,8 @@ float CaloSwEtaoff_v3::Builder::calculate (int energy_ndx, bool& good) const
 
   // Which functional form to use?
   int form;
-  if (m_corr.m_forms.size() != 0 && m_corr.m_forms.size(1) != 0)
-    form = m_corr.m_forms[m_region_ndx][energy_ndx];
+  if (m_forms.size() != 0 && m_forms.size(1) != 0)
+    form = m_forms[m_region_ndx][energy_ndx];
   else
     form = m_form;
 
@@ -184,7 +174,7 @@ float CaloSwEtaoff_v3::Builder::calculate (int energy_ndx, bool& good) const
   // Required just for case 13
   float xlo=0 ;
   float xhi=0 ;
-  unsigned int reg_n = m_corr.m_regions.size();
+  unsigned int reg_n = m_regions.size();
 
   switch (form) {
   case 0:
@@ -208,10 +198,10 @@ float CaloSwEtaoff_v3::Builder::calculate (int energy_ndx, bool& good) const
   case 13:
 
     for (unsigned int i=0; i < reg_n; i++) {
-      if (m_aeta >= m_corr.m_regions[i][REG_LO] && m_aeta < m_corr.m_regions[i][REG_HI])
+      if (m_aeta >= m_regions[i][REG_LO] && m_aeta < m_regions[i][REG_HI])
       {
-         xlo = m_corr.m_regions[i][REG_LO] ;
-         xhi = m_corr.m_regions[i][REG_HI] ;
+         xlo = m_regions[i][REG_LO] ;
+         xhi = m_regions[i][REG_HI] ;
       }
     }
 

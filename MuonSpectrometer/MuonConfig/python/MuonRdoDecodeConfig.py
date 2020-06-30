@@ -63,19 +63,25 @@ def RpcRDODecodeCfg(flags, forTrigger=False):
     RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataToolMT(name = "RpcRdoToRpcPrepDataTool")
     if flags.Common.isOnline: 
         RpcRdoToRpcPrepDataTool.ReadKey = "" ## cond data not needed online
-    
+
+    if forTrigger:
+        RpcRdoToRpcPrepDataTool.RpcPrdContainerCacheKey      = MuonPrdCacheNames.RpcCache
+        RpcRdoToRpcPrepDataTool.RpcCoinDataContainerCacheKey = MuonPrdCacheNames.RpcCoinCache
+
     # Get the RDO -> PRD alorithm
     RpcRdoToRpcPrepData=CompFactory.RpcRdoToRpcPrepData
     RpcRdoToRpcPrepData = RpcRdoToRpcPrepData(name          = "RpcRdoToRpcPrepData",
                                               DecodingTool  = RpcRdoToRpcPrepDataTool,
                                               PrintPrepData = False )
+    # add RegSelTool
+    from RegionSelector.RegSelToolConfig import regSelTool_RPC_Cfg
+    RpcRdoToRpcPrepData.RegSel_RPC = acc.popToolsAndMerge( regSelTool_RPC_Cfg( flags ) )
 
     if forTrigger:
         # Set the algorithm to RoI mode
         RpcRdoToRpcPrepData.DoSeededDecoding = True
         from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
         RpcRdoToRpcPrepData.RoIs = mapThresholdToL1RoICollection("MU")
-
 
     acc.addEventAlgo(RpcRdoToRpcPrepData)
     return acc
@@ -100,6 +106,9 @@ def TgcRDODecodeCfg(flags, forTrigger=False):
     TgcRdoToTgcPrepData = TgcRdoToTgcPrepData(name          = "TgcRdoToTgcPrepData",
                                               DecodingTool  = TgcRdoToTgcPrepDataTool,
                                               PrintPrepData = False )
+    # add RegSelTool
+    from RegionSelector.RegSelToolConfig import regSelTool_TGC_Cfg
+    TgcRdoToTgcPrepData.RegSel_TGC = acc.popToolsAndMerge( regSelTool_TGC_Cfg( flags ) )
 
     if forTrigger:
         # Set the algorithm to RoI mode
@@ -134,8 +143,8 @@ def MdtRDODecodeCfg(flags, forTrigger=False):
                                               DecodingTool  = MdtRdoToMdtPrepDataTool,
                                               PrintPrepData = False )
     # add RegSelTool
-    from RegionSelector.RegSelToolConfig import makeRegSelTool_MDT
-    MdtRdoToMdtPrepData.RegSel_MDT = makeRegSelTool_MDT()
+    from RegionSelector.RegSelToolConfig import regSelTool_MDT_Cfg
+    MdtRdoToMdtPrepData.RegSel_MDT = acc.popToolsAndMerge( regSelTool_MDT_Cfg( flags ) )
 
     if forTrigger:
         # Set the algorithm to RoI mode
@@ -143,8 +152,9 @@ def MdtRDODecodeCfg(flags, forTrigger=False):
         from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
         MdtRdoToMdtPrepData.RoIs = mapThresholdToL1RoICollection("MU")
 
-    #acc.addEventAlgo(MdtRdoToMdtPrepData) #commented to pass test_trig_data_newJO_build.py after using makeRegSelTool_MDT
+    acc.addEventAlgo(MdtRdoToMdtPrepData) 
     return acc
+
 
 def CscRDODecodeCfg(flags, forTrigger=False):
     acc = ComponentAccumulator()
@@ -169,6 +179,9 @@ def CscRDODecodeCfg(flags, forTrigger=False):
     CscRdoToCscPrepData = CscRdoToCscPrepData(name                    = "CscRdoToCscPrepData",
                                               CscRdoToCscPrepDataTool = CscRdoToCscPrepDataTool,
                                               PrintPrepData           = False )
+    # add RegSelTool
+    from RegionSelector.RegSelToolConfig import regSelTool_CSC_Cfg
+    CscRdoToCscPrepData.RegSel_CSC = acc.popToolsAndMerge( regSelTool_CSC_Cfg( flags ) )
 
     if forTrigger:
         # Set the algorithm to RoI mode
@@ -220,8 +233,8 @@ def muonRdoDecodeTestData( forTrigger = False ):
     cfg=ComponentAccumulator()
 
     # Seem to need this to read BS properly
-    from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
-    cfg.merge(TrigBSReadCfg(ConfigFlags ))
+    from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+    cfg.merge(ByteStreamReadCfg(ConfigFlags ))
 
     # Add the MuonCache to ComponentAccumulator for trigger/RoI testing mode
     if forTrigger:

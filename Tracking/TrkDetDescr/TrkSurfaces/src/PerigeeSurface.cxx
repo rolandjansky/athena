@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ Trk::PerigeeSurface::PerigeeSurface(std::unique_ptr<Amg::Transform3D> tTransform
 {}
 
 Trk::PerigeeSurface::PerigeeSurface(const PerigeeSurface& pesf)
-  : Surface()
+  : Surface(pesf)
   , m_lineDirection(nullptr)
 {
   if (pesf.m_center)
@@ -97,7 +97,7 @@ Trk::PerigeeSurface::localToGlobal(const Trk::LocalParameters& locpars) const
     Amg::Vector3D loc3Dframe(
       -locpars[Trk::d0] * sin(locpars[Trk::phi0]), locpars[Trk::d0] * cos(locpars[Trk::phi0]), locpars[Trk::z0]);
     return new Amg::Vector3D(transform() * loc3Dframe);
-  } else
+  } 
     return new Amg::Vector3D(0., 0., locpars[Trk::z0] + (center().z()));
 }
 

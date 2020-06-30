@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -17,6 +17,8 @@
 #include <vector>
 // Eigen
 #include "GeoPrimitives/GeoPrimitives.h"
+
+#include "CxxUtils/checker_macros.h"
 
 class MsgStream;
 
@@ -55,7 +57,7 @@ namespace Trk {
      AbstractVolume(const AbstractVolume& vol);
      
      /**Constructor with Amg::Transform3D*, VolumeBounds*, passing ownership */
-     AbstractVolume(Amg::Transform3D* htrans, VolumeBounds* volbounds);
+     AbstractVolume(Amg::Transform3D* htrans, VolumeBounds* volbounds) ATLAS_CTORDTOR_NOT_THREAD_SAFE;
      
      /**Virtual Destructor*/
      virtual ~AbstractVolume();
@@ -71,7 +73,7 @@ namespace Trk {
          
    private:
      /**Private method to create BoundarySurfaces */  
-     void createBoundarySurfaces();
+     void createBoundarySurfaces ATLAS_NOT_THREAD_SAFE ();
      
      std::vector< SharedObject<const BoundarySurface<AbstractVolume> > >* m_boundarySurfaces;  //!< boundary Surfaces
                                

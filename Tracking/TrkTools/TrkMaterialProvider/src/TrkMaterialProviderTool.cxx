@@ -15,7 +15,6 @@
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "Identifier/Identifier.h"
 #include "TrkEventUtils/IdentifierExtractor.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 
 #include "muonEvent/CaloEnergy.h"
 
@@ -50,7 +49,6 @@ Trk::TrkMaterialProviderTool::TrkMaterialProviderTool(const std::string& t, cons
 	m_DetID(nullptr),
 	m_calorimeterVolume(nullptr),
 	m_indetVolume(nullptr),
-        m_magFieldSvc           ("AtlasFieldSvc",n),
 	m_maxNTracksIso(2),
 	m_paramPtCut(15.0*Gaudi::Units::GeV),
 	m_useCaloEnergyMeasurement(true),
@@ -68,7 +66,6 @@ Trk::TrkMaterialProviderTool::TrkMaterialProviderTool(const std::string& t, cons
   declareProperty("CaloMeasTool",		m_caloMeasTool);
   declareProperty("CaloParamTool",		m_caloParamTool);
   declareProperty("TrackIsolationTool",	m_trackIsolationTool);
-  declareProperty("MagFieldSvc",                      m_magFieldSvc);
   declareProperty("MaxNTracksIso", m_maxNTracksIso);
   declareProperty("ParamPtCut", m_paramPtCut);
   declareProperty("UseCaloEnergyMeasurement", m_useCaloEnergyMeasurement);
@@ -110,7 +107,8 @@ Trk::TrkMaterialProviderTool::initialize()
     m_trackIsolationTool.disable();
   }
 
-  ATH_CHECK(m_magFieldSvc.retrieve());
+  /// handle to the magnetic field cache
+  ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
 
   // need an Atlas id-helper to identify sub-detectors, take the one from detStore
   if (detStore()->retrieve(m_DetID, "AtlasID").isFailure()) {
@@ -475,13 +473,26 @@ void Trk::TrkMaterialProviderTool::getCaloMEOT(const Trk::Track& idTrack, const 
     ATH_MSG_WARNING("Unable to find first MS TSOS with Track Parameters!");  
 #endif
 
+  MagField::AtlasFieldCache    fieldCache;
+  // Get field cache object
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+  const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+ 
+  if (fieldCondObj == nullptr) {
+    ATH_MSG_ERROR("Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+    return;
+  }
+  fieldCondObj->getInitializedCache (fieldCache);
+
+  
   double Eloss = 0.; 
   double X0ScaleMS = 0.;
   double ElossScaleMS = 0.;
   // get calorimeter TSOS from TG
   DataVector<const Trk::TrackStateOnSurface>* caloTSOS = this->getCaloTSOS (*(*lastIDwP)->trackParameters(),
 									    // idTrack,
-									    m_magFieldSvc->toroidOn() ? msTrack : idTrack,
+									    fieldCache.toroidOn() ? msTrack : idTrack,
 									    (*firstMSnotPerigee)->surface(),
 									    Trk::alongMomentum, 
 									    Trk::muon,
@@ -491,10 +502,10 @@ void Trk::TrkMaterialProviderTool::getCaloMEOT(const Trk::Track& idTrack, const 
 									    true); 
   
   if(!caloTSOS || caloTSOS->size()!=3) {
-    if((!m_magFieldSvc->toroidOn()&&fabs(idTrack.perigeeParameters()->parameters()[Trk::qOverP])*4000.<1)|| (m_magFieldSvc->toroidOn()&&msTrack.perigeeParameters()->parameters()[Trk::qOverP]!=1/100000.&&msTrack.perigeeParameters()->parameters()[Trk::qOverP]!=0)) {
+    if((!fieldCache.toroidOn()&&fabs(idTrack.perigeeParameters()->parameters()[Trk::qOverP])*4000.<1)|| (fieldCache.toroidOn()&&msTrack.perigeeParameters()->parameters()[Trk::qOverP]!=1/100000.&&msTrack.perigeeParameters()->parameters()[Trk::qOverP]!=0)) {
 // Warnings only for high momentum ID tracks and MS tracks that have measured curvature (Straight track has pq= 100000)
-      if(!m_magFieldSvc->toroidOn()) ATH_MSG_WARNING(" Toroid off q*momentum of ID track " << 1./idTrack.perigeeParameters()->parameters()[Trk::qOverP]);
-      if(m_magFieldSvc->toroidOn()) ATH_MSG_WARNING(" Toroid on q*momentum of MS track " << 1./msTrack.perigeeParameters()->parameters()[Trk::qOverP]);
+      if(!fieldCache.toroidOn()) ATH_MSG_WARNING(" Toroid off q*momentum of ID track " << 1./idTrack.perigeeParameters()->parameters()[Trk::qOverP]);
+      if(fieldCache.toroidOn()) ATH_MSG_WARNING(" Toroid on q*momentum of MS track " << 1./msTrack.perigeeParameters()->parameters()[Trk::qOverP]);
       ATH_MSG_WARNING("Unable to retrieve Calorimeter TSOS from extrapolateM+aggregation (null or !=3)");
       if(!caloTSOS) {
          ATH_MSG_WARNING(" Zero Calorimeter TSOS from extrapolateM+aggregation");
@@ -629,7 +640,7 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm, con
     }
     return caloTSOS;    
     
-  } else {
+  } 
 
     // get boundary surfaces of the target volume
     auto boundaryIntersections = targetVolume->boundarySurfacesOrdered<Trk::TrackParameters>(parm,dir,false);
@@ -680,7 +691,7 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm, con
         return caloTSOS;    
       }
     }
-  }
+  
 
   return caloTSOS;
 }
@@ -980,7 +991,7 @@ CaloEnergy* Trk::TrkMaterialProviderTool::getParamCaloELoss(Trk::Track* track) c
 	      paramCaloEnergy->set_measEnergyLoss(caloEnergy->deltaEMeas(), caloEnergy->sigmaDeltaEMeas());
 	      paramCaloEnergy->set_paramEnergyLoss(caloEnergy->deltaEParam(), caloEnergy->sigmaMinusDeltaEParam(), caloEnergy->sigmaPlusDeltaEParam());
 	      return paramCaloEnergy;
-	    }else
+	    }
 	      return caloEnergy->clone();
 	  }
 	}
@@ -1067,9 +1078,9 @@ void Trk::TrkMaterialProviderTool::removeOutOfCalo(std::vector<const Trk::TrackS
                                       state=nullptr;
                                       return true;
                                     }
-                                    else {
+                                    
                                       return false;
-                                    }
+                                    
                                   } ), 
                    caloTSOS->end());
 
@@ -1091,9 +1102,9 @@ void Trk::TrkMaterialProviderTool::removeMS(std::vector<const Trk::TrackStateOnS
                                       state=nullptr;
                                       return true;
                                     }
-                                    else {
+                                    
                                       return false;
-                                    }
+                                    
                                   } ), 
                    caloTSOS->end());
 
@@ -1124,7 +1135,7 @@ void Trk::TrkMaterialProviderTool::updateVector(DataVector<const Trk::TrackState
     while(i<ntoupdate) {
       it = inputTSOS->erase(it);
       ++i;
-      firstMS--;
+      --firstMS;
     }    
     inputTSOS->insert(firstMS, caloTSOS->begin(), caloTSOS->end());
   }
@@ -1158,7 +1169,7 @@ void Trk::TrkMaterialProviderTool::updateVectorMS(DataVector<const Trk::TrackSta
 
 // In the MuonSpectrometer the TSOS for the MaterialEffectsOnTrack do NOT have trackParameters
 
-  for(;it!= inputTSOS->end();it++) {
+  for(;it!= inputTSOS->end();++it) {
     msStates++;
     if((*it)->materialEffectsOnTrack()) {
       msMatStates++;
@@ -1209,7 +1220,7 @@ void Trk::TrkMaterialProviderTool::updateVectorMS(DataVector<const Trk::TrackSta
    std::cout << " msStates " <<   msStates << " msMatStates " << msMatStates << " msMatParStates " << msMatParStates << std::endl;
 
 // dump (new) energy loss
-   for(it = firstMS;it!= inputTSOS->end();it++) {
+   for(it = firstMS;it!= inputTSOS->end();++it) {
     if((*it)->materialEffectsOnTrack()) {
       const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>((*it)->materialEffectsOnTrack());
       if(meot) {

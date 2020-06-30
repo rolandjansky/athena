@@ -74,26 +74,35 @@ class MaterialEffectsUpdator : public AthAlgTool,
 
     /*
      * The concrete cache class for this specialization of the IMaterialEffectsUpdator
-     */ 
-    typedef IMaterialEffectsUpdator::ICache ICache;                                          
-    class Cache : public ICache{
-    public :
-      Cache():validationLayer{nullptr},
-        validationSteps{0},
-        validationPhi{0.},
-        validationEta{0.},
-        accumulatedElossSigma{0.}{
-        }
-      const Trk::Layer*           validationLayer{nullptr};     //!< layer in the current validation setp
-      int                         validationSteps{0};           //!< number of validation steps
-      double                      validationPhi{0.};            //!< theta
-      double                      validationEta{0.};            //!< eta
-      double                      accumulatedElossSigma{0.};    //!< Sigma of the eloss accumulated so far in the extrapolation. Used in Landau mode
+     */
+    typedef IMaterialEffectsUpdator::ICache ICache;
+    class Cache : public ICache
+    {
+    public:
+      Cache()
+        : validationLayer{ nullptr }
+        , validationSteps{ 0 }
+        , validationPhi{ 0. }
+        , validationEta{ 0. }
+        , accumulatedElossSigma{ 0. }
+      {}
+      virtual MaterialCacheType type() const override final
+      {
+        return ICache::MaterialEffects;
+      }
+      //!< layer in the current validation step
+      const Trk::Layer* validationLayer{ nullptr };
+      int validationSteps{ 0 };   //!< number of validation steps
+      double validationPhi{ 0. }; //!< theta
+      double validationEta{ 0. }; //!< eta
+      //!< Sigma of the eloss accumulated so far in the extrapolation. Used in Landau mode
+      double accumulatedElossSigma{ 0. };
     };
 
-    virtual std::unique_ptr<ICache> getCache() const override {
+    virtual std::unique_ptr<ICache> getCache() const override final
+    {
       return std::make_unique<Cache>();
-  }
+    }
 
     /** Updator interface (full update for a layer)
       ---> ALWAYS the same pointer is returned
@@ -105,8 +114,11 @@ class MaterialEffectsUpdator : public AthAlgTool,
                                            PropDirection dir=alongMomentum,
                                            ParticleHypothesis particle=pion,
                                            MaterialUpdateMode matupmode=addNoise) const override {
-
-      Cache& cache= dynamic_cast<Cache&> (icache);
+      if(icache.type()!=ICache::MaterialEffects){
+         ATH_MSG_WARNING("Wrong cache Type");
+         return nullptr;
+      }
+      Cache& cache= static_cast<Cache&> (icache);
       const TrackParameters* outparam = updateImpl(cache,parm,sf,dir,particle,matupmode);
       return outparam;
     }
@@ -115,75 +127,105 @@ class MaterialEffectsUpdator : public AthAlgTool,
       ---> ALWAYS the same pointer is returned
       the pointer to the same TrackParameters object is returned,
       it is manipulated
-      */ 
-    virtual const TrackParameters*  update(ICache& icache, const TrackParameters* parm,
-                                           const MaterialEffectsOnTrack& meff,
-                                           Trk::ParticleHypothesis particle=pion,
-                                           MaterialUpdateMode matupmode=addNoise) const override {
+      */
+    virtual const TrackParameters* update(ICache& icache,
+                                          const TrackParameters* parm,
+                                          const MaterialEffectsOnTrack& meff,
+                                          Trk::ParticleHypothesis particle = pion,
+                                          MaterialUpdateMode matupmode = addNoise) const override
+    {
 
-      Cache& cache= dynamic_cast<Cache&> (icache);
-      const TrackParameters* outparam = updateImpl(cache,parm,meff,particle,matupmode);
+      if (icache.type() != ICache::MaterialEffects) {
+        ATH_MSG_WARNING("Wrong cache Type");
+        return nullptr;
+      }
+      Cache& cache = static_cast<Cache&>(icache);
+      const TrackParameters* outparam = updateImpl(cache, parm, meff, particle, matupmode);
       return outparam;
     }
 
     /** Updator interface (pre-update for a layer):
-      ---> ALWAYS the same pointer is returned 
+      ---> ALWAYS the same pointer is returned
       the pointer to the same TrackParametes object is returned,
       it is manipulated (if.preUpdateMaterial())
-      */ 
-    virtual const TrackParameters*   preUpdate(ICache& icache, const TrackParameters* parm,
-                                               const Layer& sf,
-                                               PropDirection dir=alongMomentum,
-                                               ParticleHypothesis particle=pion,
-                                               MaterialUpdateMode matupmode=addNoise) const override {
-
-      Cache& cache= dynamic_cast<Cache&> (icache);
-      const TrackParameters* outparam = preUpdateImpl(cache,parm,sf,dir,particle,matupmode);
+      */
+    virtual const TrackParameters* preUpdate(ICache& icache,
+                                             const TrackParameters* parm,
+                                             const Layer& sf,
+                                             PropDirection dir = alongMomentum,
+                                             ParticleHypothesis particle = pion,
+                                             MaterialUpdateMode matupmode = addNoise) const override
+    {
+      if (icache.type() != ICache::MaterialEffects) {
+        ATH_MSG_WARNING("Wrong cache Type");
+        return nullptr;
+      }
+      Cache& cache = static_cast<Cache&>(icache);
+      const TrackParameters* outparam = preUpdateImpl(cache, parm, sf, dir, particle, matupmode);
       return outparam;
     }
 
-    /** Updator interface (post-update for a layer): 
+    /** Updator interface (post-update for a layer):
       ---> ALWAYS pointer to new TrackParameters are returned
       if no postUpdate is to be done : return 0
-      */ 
-    virtual const TrackParameters*   postUpdate(ICache& icache,const TrackParameters& parm,
-                                                const Layer& sf,
-                                                PropDirection dir=alongMomentum,
-                                                ParticleHypothesis particle=pion,
-                                                MaterialUpdateMode matupmode=addNoise) const override{
-
-      Cache& cache= dynamic_cast<Cache&> (icache);
-      const TrackParameters* outparam = postUpdateImpl(cache,parm,sf,dir,particle,matupmode);
+      */
+    virtual const TrackParameters* postUpdate(
+      ICache& icache,
+      const TrackParameters& parm,
+      const Layer& sf,
+      PropDirection dir = alongMomentum,
+      ParticleHypothesis particle = pion,
+      MaterialUpdateMode matupmode = addNoise) const override
+    {
+      if (icache.type() != ICache::MaterialEffects) {
+        ATH_MSG_WARNING("Wrong cache Type");
+        return nullptr;
+      }
+      Cache& cache = static_cast<Cache&>(icache);
+      const TrackParameters* outparam = postUpdateImpl(cache, parm, sf, dir, particle, matupmode);
       return outparam;
     }
     /** Dedicated Updator interface:-> create new track parameters*/
-    virtual const TrackParameters*      update(ICache& icache, const TrackParameters& parm,
-                                               const MaterialProperties& mprop,
-                                               double pathcorrection,
-                                               PropDirection dir=alongMomentum,
-                                               ParticleHypothesis particle=pion,
-                                               MaterialUpdateMode matupmode=addNoise) const override {
-
-      Cache& cache= dynamic_cast<Cache&> (icache);
-      const TrackParameters* outparam = updateImpl(cache,parm,mprop,pathcorrection,dir,particle,matupmode);
+    virtual const TrackParameters* update(ICache& icache,
+                                          const TrackParameters& parm,
+                                          const MaterialProperties& mprop,
+                                          double pathcorrection,
+                                          PropDirection dir = alongMomentum,
+                                          ParticleHypothesis particle = pion,
+                                          MaterialUpdateMode matupmode = addNoise) const override
+    {
+      if (icache.type() != ICache::MaterialEffects) {
+        ATH_MSG_WARNING("Wrong cache Type");
+        return nullptr;
+      }
+      Cache& cache = static_cast<Cache&>(icache);
+      const TrackParameters* outparam =
+        updateImpl(cache, parm, mprop, pathcorrection, dir, particle, matupmode);
       return outparam;
     }
 
     /** Validation Action - calls the writing and resetting of the TTree variables */
-    virtual void validationAction(ICache& icache) const override {
-
-      Cache& cache= dynamic_cast<Cache&> (icache);
+    virtual void validationAction(ICache& icache) const override
+    {
+      if (icache.type() != ICache::MaterialEffects) {
+        ATH_MSG_WARNING("Wrong cache Type");
+      }
+      Cache& cache = static_cast<Cache&>(icache);
       validationActionImpl(cache);
-   }
+    }
 
     /** Only has an effect if m_landauMode == true.
       Resets mutable variables used for non-local calculation of energy loss if
       parm == 0. Otherwise, modifies parm with the final update of the covariance matrix*/
-    virtual void modelAction(ICache& icache, const TrackParameters* parm = nullptr) const override {
+    virtual void modelAction(ICache& icache, const TrackParameters* parm = nullptr) const override
+    {
 
-      Cache& cache= dynamic_cast<Cache&> (icache);
-      modelActionImpl(cache,parm);
-   }
+      if (icache.type() != ICache::MaterialEffects) {
+        ATH_MSG_WARNING("Wrong cache Type");
+      }
+      Cache& cache = static_cast<Cache&>(icache);
+      modelActionImpl(cache, parm);
+    }
 
   public:
     /* 

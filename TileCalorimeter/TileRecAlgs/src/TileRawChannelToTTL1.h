@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -54,7 +54,7 @@ class TileRawChannelContainer;
 class TileRawChannelToTTL1: public AthAlgorithm {
   public:
     // Constructor
-    TileRawChannelToTTL1(std::string name, ISvcLocator* pSvcLocator);
+    TileRawChannelToTTL1(const std::string& name, ISvcLocator* pSvcLocator);
 
     //Destructor 
     virtual ~TileRawChannelToTTL1();

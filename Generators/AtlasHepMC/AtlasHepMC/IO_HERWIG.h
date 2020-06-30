@@ -3,5 +3,9 @@
 */
 #ifndef ATLASHEPMC_IOHERWIG_H
 #define ATLASHEPMC_IOHERWIG_H
+#ifdef HEPMC3
+#include "HepMC3/Version.h"
+#else
 #include "HepMC/IO_HERWIG.h"
+#endif
 #endif

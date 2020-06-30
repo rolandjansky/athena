@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -27,7 +27,7 @@
 #include "GaudiKernel/GenericAddress.h"
 #include "GaudiKernel/StatusCode.h"
 
-extern long DetDescr_StorageType;
+const extern long DetDescr_StorageType;
 
 class DetDescrAddress   : public GenericAddress   {
 public:

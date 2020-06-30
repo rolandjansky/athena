@@ -42,13 +42,6 @@ svcMgr.DoubleEventSelector.OutputLevel = DEBUG
 svcMgr.SecondaryEventSelector.OutputLevel = DEBUG
 
 #--------------------------------------------------------------
-# JobOptions for the loading of the AthenaSealSvc
-#--------------------------------------------------------------
-
-# Check the dictionary in memory for completeness
-svcMgr.AthenaSealSvc.CheckDictionary = True
-
-#--------------------------------------------------------------
 # Event related parameters
 #--------------------------------------------------------------
 theApp.EvtMax = 5
@@ -102,7 +95,6 @@ PoolSvc.WriteCatalog = 'file:AthenaPoolTestStep2WriteDoubleSelector_catalog.xml'
 #--------------------------------------------------------------
 svcMgr.MessageSvc.OutputLevel = WARNING
 svcMgr.MessageSvc.debugLimit  = 100000
-svcMgr.AthenaSealSvc.OutputLevel = WARNING
 AthenaPoolTestDataWriter.OutputLevel = DEBUG
 
 from AthenaServices import AthenaServicesConf

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MAKEEVENTSTREAMINFO_H
@@ -14,6 +14,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "AthenaKernel/IMetaDataSvc.h"
 
 #include <string>
 
@@ -53,7 +54,7 @@ private:
    StringProperty m_oEventInfoKey;
 
    /// Pointer to the data stores
-   ServiceHandle<StoreGateSvc> m_metaDataStore;
-   ServiceHandle<StoreGateSvc> m_eventStore;
+   ServiceHandle<IMetaDataSvc>  m_metaDataSvc;
+   ServiceHandle<StoreGateSvc>  m_eventStore;
 };
 #endif

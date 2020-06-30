@@ -47,7 +47,7 @@
 ///class holding all plots for Inner Detector RTT Validation and implementing fill methods
 class InDetRttPlots: public InDetPlotBase {
 public:
-  InDetRttPlots(InDetPlotBase* pParent, const std::string& dirName);
+  InDetRttPlots(InDetPlotBase* pParent, const std::string& dirName, const int iDetailLevel = 10);
 
   ///fill for things needing truth and track only
   void fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle);
@@ -56,12 +56,12 @@ public:
   ///fill for things needing truth only
   void fill(const xAOD::TruthParticle& particle);
   ///Fill for efficiency plots
-  void fillEfficiency(const xAOD::TruthParticle& truth, const bool isGood, unsigned int /*mu=0*/);
+  void fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::TrackParticle& track, const bool isGood, unsigned int /*mu=0*/);
 
   ///fill for things needing all truth - not just the ones from the reco tracks
   
   ///fill reco-vertex related plots
-  void fill(const xAOD::VertexContainer& vertexContainer, const std::vector<const xAOD::TruthVertex*>& truthVertices);
+  void fill(const xAOD::VertexContainer& vertexContainer, const std::vector<const xAOD::TruthVertex*>& truthHSVertices, const std::vector<const xAOD::TruthVertex*>& truthPUVertices);
   ///fill reco-vertex related plots that need EventInfo
   void fill(const xAOD::VertexContainer& vertexContainer, unsigned int nPU);
 
@@ -96,6 +96,34 @@ private:
   std::unique_ptr<InDetPerfPlot_VertexTruthMatching> m_vertexTruthMatchingPlots;
   bool m_doTrackInJetPlots;
   std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots;
+
+  //By track authors
+  std::unique_ptr<InDetPerfPlot_Efficiency> m_effSiSPSeededFinderPlots;
+  std::unique_ptr<InDetPerfPlot_Efficiency> m_effInDetExtensionProcessorPlots;
+  std::unique_ptr<InDetPerfPlot_Efficiency> m_effTRTSeededTrackFinderPlots;
+  std::unique_ptr<InDetPerfPlot_Efficiency> m_effTRTStandalonePlots;
+  std::unique_ptr<InDetPerfPlot_Efficiency> m_effSiSpacePointsSeedMaker_LargeD0Plots;
+
+  std::unique_ptr<InDetPerfPlot_FakeRate> m_fakeSiSPSeededFinderPlots;
+  std::unique_ptr<InDetPerfPlot_FakeRate> m_fakeInDetExtensionProcessorPlots;
+  std::unique_ptr<InDetPerfPlot_FakeRate> m_fakeTRTSeededTrackFinderPlots;
+  std::unique_ptr<InDetPerfPlot_FakeRate> m_fakeTRTStandalonePlots;
+  std::unique_ptr<InDetPerfPlot_FakeRate> m_fakeSiSpacePointsSeedMaker_LargeD0Plots;
+
+  std::unique_ptr<InDetPerfPlot_TrackParameters> m_trkParaSiSPSeededFinderPlots;
+  std::unique_ptr<InDetPerfPlot_TrackParameters> m_trkParaInDetExtensionProcessorPlots;
+  std::unique_ptr<InDetPerfPlot_TrackParameters> m_trkParaTRTSeededTrackFinderPlots;
+  std::unique_ptr<InDetPerfPlot_TrackParameters> m_trkParaTRTStandalonePlots;
+  std::unique_ptr<InDetPerfPlot_TrackParameters> m_trkParaSiSpacePointsSeedMaker_LargeD0Plots;
+
+  std::unique_ptr<InDetPerfPlot_Resolution> m_resSiSPSeededFinderPlots;
+  std::unique_ptr<InDetPerfPlot_Resolution> m_resInDetExtensionProcessorPlots;
+  std::unique_ptr<InDetPerfPlot_Resolution> m_resTRTSeededTrackFinderPlots;
+  std::unique_ptr<InDetPerfPlot_Resolution> m_resTRTStandalonePlots;
+  std::unique_ptr<InDetPerfPlot_Resolution> m_resSiSpacePointsSeedMaker_LargeD0Plots;
+
+
+
 
   std::string m_trackParticleTruthProbKey;
   float m_truthProbLowThreshold;

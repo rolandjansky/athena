@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -10,8 +10,8 @@
  *      Max Baak <mbaak@cern.ch> - CERN, Switzerland                              *
  **********************************************************************************/
 
-#ifndef __LumiBlockCollectionConverter__
-#define __LumiBlockCollectionConverter__
+#ifndef LUMICALC_LUMIBLOCKCOLLECTIONCONVERTER_H
+#define LUMICALC_LUMIBLOCKCOLLECTIONCONVERTER_H
 
 #include <map>
 #include <vector>
@@ -34,6 +34,9 @@ class LumiBlockCollectionConverter {
 
   LumiBlockCollectionConverter();      
   virtual ~LumiBlockCollectionConverter();
+
+  LumiBlockCollectionConverter (const LumiBlockCollectionConverter&) = delete;
+  LumiBlockCollectionConverter& operator= (const LumiBlockCollectionConverter&) = delete;
 
   LumiBlockCollection* GetLumiBlockCollection(const Root::TGoodRunsList& grl, std::map<TString,TString>& metadata, TString& version) ;
   LumiBlockCollection* GetLumiBlockCollection(const Root::TGoodRunsList& grl) const;

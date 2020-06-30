@@ -36,9 +36,10 @@ StatusCode FourLeptonInvMassFilter::filterEvent() {
   McEventCollection::const_iterator itr;
   for (itr = events()->begin(); itr!=events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
-      
+     auto genEvt_particles_begin = HepMC::begin(*genEvt);
+     auto genEvt_particles_end = HepMC::end(*genEvt);
     // Loop over all particles in the event
-    for (HepMC::GenEvent::particle_const_iterator pitr1 = genEvt->particles_begin(); pitr1 != genEvt->particles_end(); ++pitr1 ){
+    for (auto  pitr1 = genEvt_particles_begin; pitr1 != genEvt_particles_end; ++pitr1 ){
       if((*pitr1)->status()!=1) continue;
 	  
       // Pick electrons or muons with Pt > m_inPt and |eta| < m_maxEta
@@ -47,10 +48,10 @@ StatusCode FourLeptonInvMassFilter::filterEvent() {
       if (!((*pitr1)->momentum().perp() >= m_minPt && fabs((*pitr1)->momentum().pseudoRapidity()) <= m_maxEta)) continue;
       
       // Loop over all remaining particles in the event
-      HepMC::GenEvent::particle_const_iterator pitr2 = pitr1;
+      auto pitr2 = pitr1;
       pitr2++;
       
-      for(; pitr2 != genEvt->particles_end(); ++pitr2){
+      for(; pitr2 != genEvt_particles_end; ++pitr2){
 	if((*pitr2)->status()!=1 || pitr1 == pitr2) continue;
 	
 	// Pick electrons or muons with Pt > m_inPt and |eta| < m_maxEta	  
@@ -59,10 +60,10 @@ StatusCode FourLeptonInvMassFilter::filterEvent() {
 	if (!((*pitr2)->momentum().perp() >= m_minPt && fabs((*pitr2)->momentum().pseudoRapidity()) <= m_maxEta)) continue;
 	
 	// Loop over all remaining particles in the event
-	HepMC::GenEvent::particle_const_iterator pitr3 = pitr2;
+	auto pitr3 = pitr2;
 	pitr3++;
 	
-	for(; pitr3 != genEvt->particles_end(); ++pitr3){
+	for(; pitr3 != genEvt_particles_end; ++pitr3){
 	  if((*pitr3)->status()!=1 || pitr1 == pitr3 || pitr2 == pitr3 ) continue;
 	  
 	  // Pick electrons or muons with Pt > m_inPt and |eta| < m_maxEta	  	      
@@ -71,10 +72,10 @@ StatusCode FourLeptonInvMassFilter::filterEvent() {
 	  if (!((*pitr3)->momentum().perp() >= m_minPt && fabs((*pitr3)->momentum().pseudoRapidity()) <= m_maxEta)) continue;
 	  
 	  // Loop over all remaining particles in the event
-	  HepMC::GenEvent::particle_const_iterator pitr4 = pitr3;
+	  auto pitr4 = pitr3;
 	  pitr4++;
 	  
-	  for(; pitr4 != genEvt->particles_end(); ++pitr4){
+	  for(; pitr4 != genEvt_particles_end; ++pitr4){
 	    if((*pitr4)->status()!=1 || pitr1 == pitr4 || pitr2 == pitr4 || pitr3 == pitr4) continue;
 	    
 	    // Pick electrons or muons with Pt > m_inPt and |eta| < m_maxEta	  	      

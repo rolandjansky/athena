@@ -29,9 +29,13 @@ atlas_depends_on_subdirs( PUBLIC
                           MagneticField/MagFieldElements
                           MagneticField/MagFieldConditions )
 
+# External dependencies:
+find_package( Boost )
+
 # Component(s) in the package:
 atlas_add_library( SiSPSeededTrackFinderData
                    src/*.cxx
                    PUBLIC_HEADERS SiSPSeededTrackFinderData
-                   LINK_LIBRARIES InDetPrepRawData InDetReadoutGeometry TrkEventPrimitives TrkExInterfaces TrkGeometry TrkPatternParameters TrkTrack TrkToolInterfaces TrkEventUtils MagFieldElements MagFieldConditions
-                   PRIVATE_LINK_LIBRARIES GaudiKernel InDetRIO_OnTrack SiSpacePointsSeed TrkSurfaces TrkMaterialOnTrack TrkPrepRawData TrkRIO_OnTrack TrkSpacePoint)
+                   PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+                   LINK_LIBRARIES InDetPrepRawData InDetReadoutGeometry TrkEventPrimitives TrkExInterfaces TrkGeometry TrkPatternParameters TrkTrack TrkToolInterfaces TrkEventUtils MagFieldElements MagFieldConditions InDetConditionsSummaryService
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} GaudiKernel InDetRIO_OnTrack SiSpacePointsSeed TrkSurfaces TrkMaterialOnTrack TrkPrepRawData TrkRIO_OnTrack TrkSpacePoint)

@@ -17,7 +17,7 @@
 
 
 /// Do we have function multiversioning  GCC and Clang > 7 support __attribute__ target
-#if defined(__GNUC__) && !defined(__CLING__) && !defined(__ICC) && !defined(__COVERITY__) && !defined(__CUDACC__)
+#if defined(__ELF__) && defined(__GNUC__) && !defined(__CLING__) && !defined(__ICC) && !defined(__COVERITY__) && !defined(__CUDACC__)
 # define HAVE_FUNCTION_MULTIVERSIONING 1
 #else
 # define HAVE_FUNCTION_MULTIVERSIONING 0

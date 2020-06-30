@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,9 +11,9 @@
 // Gaudi
 #include "GaudiKernel/MsgStream.h"
 // STD
+#include <cmath>
 #include <iomanip>
 #include <iostream>
-#include <math.h>
 
 // default constructor
 Trk::RotatedDiamondBounds::RotatedDiamondBounds()
@@ -110,14 +110,14 @@ Trk::RotatedDiamondBounds::insideFull(const Amg::Vector2D& locpo, double tol1, d
             m_boundValues[RotatedDiamondBounds::bv_halfY1]
         : 0.;
     return (fabs(locpo[Trk::locY]) <= m_boundValues[RotatedDiamondBounds::bv_medHalfX] - k * fabs(locpo[Trk::locX]));
-  } else {
+  } 
     double k =
       m_boundValues[RotatedDiamondBounds::bv_halfY2] > 0.
         ? (m_boundValues[RotatedDiamondBounds::bv_medHalfX] - m_boundValues[RotatedDiamondBounds::bv_maxHalfX]) / 2 /
             m_boundValues[RotatedDiamondBounds::bv_halfY2]
         : 0.;
     return (fabs(locpo[Trk::locY]) <= m_boundValues[RotatedDiamondBounds::bv_medHalfX] - k * fabs(locpo[Trk::locX]));
-  }
+  
 }
 
 // opening angle in point A

@@ -61,6 +61,14 @@ if( IS_DIRECTORY
       CACHE PATH "Directory holding the AthenaPoolUtilititesTest module" )
 endif()
 
+# Set up where to find the xAODUtilities CMake code.
+if( IS_DIRECTORY
+   "${CMAKE_SOURCE_DIR}/../../Event/xAOD/xAODCore/cmake" )
+   set( xAODUtilities_DIR
+      "${CMAKE_SOURCE_DIR}/../../Event/xAOD/xAODCore/cmake"
+      CACHE PATH "Directory holding the xAODUtilities module" )
+endif()
+
 # Set up CTest:
 atlas_ctest_setup()
 

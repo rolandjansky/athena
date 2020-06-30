@@ -120,7 +120,7 @@ myMonGroup[sctMon.GENERAL_INDEX].defineHistogram(varname= "LumiBlock, eff;" + "e
 
 # SCTEC, SCTB, SCTEA
 for isub in range(sctMon.N_REGIONS):
-    profileLabels = range(limit[isub])
+    profileLabels = list(range(limit[isub]))
     for k in range(limit[isub]):
         profileLabels[k] = dedicatedTitle(k, isub)
     # Efficiency

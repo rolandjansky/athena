@@ -1,34 +1,28 @@
-################################################################################
-# Package: xAODTrigCalo
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# Declare the package name:
+# Declare the package name.
 atlas_subdir( xAODTrigCalo )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloGeoHelpers
-                          Control/AthContainers
-                          Event/xAOD/xAODCore
-                          PRIVATE
-                          Control/AthLinks )
+# Pull in the helper CMake code.
+find_package( xAODUtilities )
 
-# External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
-
-# Component(s) in the package:
+# Component(s) in the package.
 atlas_add_library( xAODTrigCalo
-                   Root/*.cxx
-                   PUBLIC_HEADERS xAODTrigCalo
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES CaloGeoHelpers AthContainers xAODCore
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks )
+   xAODTrigCalo/*.h xAODTrigCalo/versions/*.h Root/*.cxx
+   PUBLIC_HEADERS xAODTrigCalo
+   LINK_LIBRARIES CaloGeoHelpers AthContainers xAODCore )
+
+atlas_add_xaod_smart_pointer_dicts(
+   INPUT xAODTrigCalo/selection.xml
+   OUTPUT _selectionFile
+   CONTAINERS "xAOD::TrigCaloClusterContainer_v1"
+              "xAOD::TrigEMClusterContainer_v1" )
 
 atlas_add_dictionary( xAODTrigCaloDict
-                      xAODTrigCalo/xAODTrigCaloDict.h
-                      xAODTrigCalo/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} CaloGeoHelpers AthContainers xAODCore AthLinks xAODTrigCalo
-                      EXTRA_FILES Root/dict/*.cxx )
+   xAODTrigCalo/xAODTrigCaloDict.h
+   ${_selectionFile}
+   LINK_LIBRARIES xAODCore xAODTrigCalo
+   EXTRA_FILES Root/dict/*.cxx )
 
-
+# Generate CLIDs for the library explicitly.
+atlas_generate_cliddb( xAODTrigCalo )

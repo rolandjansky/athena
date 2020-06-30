@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // PixelCalibAlgs
@@ -683,7 +683,7 @@ std::string PixMapDBWriter::getDCSIDFromPosition (int barrel_ec, int layer, int 
   return std::string("Error!");
 }
 
-std::vector<int> PixMapDBWriter::getPositionFromDCSID (std::string DCSID){
+std::vector<int> PixMapDBWriter::getPositionFromDCSID (const std::string& DCSID){
   for(unsigned int ii = 0; ii < m_pixelMapping.size(); ii++) {
     if (m_pixelMapping[ii].first == DCSID)
     return m_pixelMapping[ii].second;

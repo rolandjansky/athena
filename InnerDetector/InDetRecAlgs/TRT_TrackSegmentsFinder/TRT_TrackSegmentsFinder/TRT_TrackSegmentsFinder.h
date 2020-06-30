@@ -50,7 +50,7 @@ namespace InDet {
        {this, "MinNumberDriftCircles", 9,      "Minimum number of DriftCircles for a TRT segment."};
 
       Gaudi::Property<double>                       m_ClusterEt
-       {this, "CaloClusterEt",         3000.0, "Minimum ET of calo clusters in MeV too seed the TRT segment finder."};
+       {this, "CaloClusterEt",         4500.0, "Minimum ET of calo clusters in MeV too seed the TRT segment finder."};
 
       SG::ReadHandleKey<CaloClusterROI_Collection>  m_caloKey
        {this, "InputClusterContainerName", "InDetCaloClusterROIs", "Location of the optional Calo cluster seeds."};

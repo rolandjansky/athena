@@ -21,7 +21,7 @@
 #include "GaudiKernel/IScheduler.h"
 #include "AthViews/View.h"
 
-#include "ViewAlgs/IViewCreatorROITool.h"
+#include "DecisionHandling/IViewCreatorROITool.h"
 
 // Muon specifics
 #include "xAODMuon/MuonContainer.h"
@@ -105,7 +105,7 @@ class EventViewCreatorAlgorithm : public ::InputMakerBase
       "Jet slice specific option. Place Jet inside newly spawned View instance. See also InViewJets" };
 
     // TODO. In the next iteration, start to use this. Remove "_PROPERTY" which is there to catch against algs with identical properties
-    SG::WriteHandleKey< ConstDataVector<xAOD::JetContainer> > m_inViewJets {this,"InViewJets_PROPERTY","", 
+    SG::WriteHandleKey< xAOD::JetContainer > m_inViewJets {this,"InViewJets","", 
       "Name with which the Jet should be inserted into the views"};
 
     /**

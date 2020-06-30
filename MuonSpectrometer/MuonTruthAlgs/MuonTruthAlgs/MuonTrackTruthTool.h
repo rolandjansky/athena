@@ -1,16 +1,17 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONTRACKTRUTHTOOL_H
 #define MUON_MUONTRACKTRUTHTOOL_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonTrackTruthTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
-#include "Identifier/Identifier.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonSimData/CscSimDataCollection.h"
 #include "TrackRecord/TrackRecordCollection.h"
@@ -21,7 +22,6 @@
 #include <map>
 #include <utility>
 
-class MsgStream;
 class TruthTrajectory;
 
 namespace MuonGM {
@@ -29,8 +29,6 @@ namespace MuonGM {
 }
 
 namespace Muon {
-  class MuonEDMPrinterTool;
-  class MuonIdHelperTool;
   class MuonSegment;
 }
 
@@ -61,13 +59,10 @@ namespace Muon {
     MuonTrackTruthTool(const std::string&,const std::string&,const IInterface*);
 
     /** @brief destructor */
-    ~MuonTrackTruthTool ();
+    ~MuonTrackTruthTool()=default;
     
     /** @brief AlgTool initilize */
     StatusCode initialize();
-    
-    /** @brief AlgTool finalize */
-    StatusCode finalize();
     
     /** @brief perform truth matching for a given set of tracks */
     ResultVec match(const TrackCollection& tracks ) const;
@@ -146,7 +141,7 @@ namespace Muon {
     const MuonGM::MuonDetectorManager*  m_detMgr;
 
     ToolHandle<Muon::MuonEDMPrinterTool>         m_printer;
-    ToolHandle<Muon::MuonIdHelperTool>           m_idHelperTool;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ToolHandle<Trk::ITruthTrajectoryBuilder>     m_truthTrajectoryBuilder;
 
     mutable TruthTree m_truthTree;

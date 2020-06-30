@@ -30,7 +30,7 @@
 #include "FourMomUtils/xAODP4Helpers.h"
 
 #define CHECK_HITS( EXP )				\
-  if (!EXP)						\
+  if (!(EXP))						\
     {							\
       ATH_MSG_WARNING("Failed \"" << #EXP << "\"" );	\
       return false;					\

@@ -36,34 +36,21 @@ using namespace GSFUtils;
  * Based on
  * https://www.sciencedirect.com/science/article/pii/089812218990103X
  * equation (16)
+ * or 
+ * https://arxiv.org/pdf/2001.00727.pdf
+ * equation (10)
  * but not accounting for weights
  * covI * invCovJ + covJ * invCovI + (mean1-mean2) (invcov+invcov) (mean1-mean2)
  */
-[[maybe_unused]] float
+float
 symmetricKL(const Component1D& componentI, const Component1D& componentJ)
 {
   const double meanDifference = componentI.mean - componentJ.mean;
   const double inverCovSum = componentI.invCov + componentJ.invCov;
-  return componentI.invCov * componentJ.cov +
-         componentJ.invCov * componentI.cov +
-         meanDifference * inverCovSum * meanDifference;
-}
-/**
- * https://arxiv.org/pdf/2001.00727.pdf
- * equation (10)
- * Same as above but accounting for weights
- */
-[[maybe_unused]] float
-weightedSymmetricKL(const Component1D& componentI,
-                    const Component1D& componentJ)
-{
-  const double meanDifference = componentI.mean - componentJ.mean;
-  const double inverCovSum = componentI.invCov + componentJ.invCov;
-  const double weightMul = componentI.weight * componentJ.weight;
-  const double symmetricDis = componentI.invCov * componentJ.cov +
-                              componentJ.invCov * componentI.cov +
-                              meanDifference * inverCovSum * meanDifference;
-  return weightMul * symmetricDis;
+  const double term1 = componentI.invCov * componentJ.cov;
+  const double term2 = componentJ.invCov * componentI.cov;
+  const double term3 = meanDifference * inverCovSum * meanDifference;
+  return term1 + term2 + term3;
 }
 
 /**
@@ -109,8 +96,8 @@ combine(GSFUtils::Component1D& updated, GSFUtils::Component1D& removed)
  * new component
  */
 void
-recalculateDistances(const componentPtrRestrict componentsIn,
-                     floatPtrRestrict distancesIn,
+recalculateDistances(const Component1D* componentsIn,
+                     float* distancesIn,
                      const int32_t mini,
                      const int32_t n)
 {
@@ -140,8 +127,8 @@ recalculateDistances(const componentPtrRestrict componentsIn,
  * Calculate the distances for all component pairs
  */
 void
-calculateAllDistances(const componentPtrRestrict componentsIn,
-                      floatPtrRestrict distancesIn,
+calculateAllDistances(const Component1D* componentsIn,
+                      float* distancesIn,
                       const int32_t n)
 {
 
@@ -163,7 +150,7 @@ calculateAllDistances(const componentPtrRestrict componentsIn,
  * Reset the distances wrt to a mini index
  */
 void
-resetDistances(floatPtrRestrict distancesIn,
+resetDistances(float* distancesIn,
                const int32_t minj,
                const int32_t n)
 {
@@ -189,7 +176,7 @@ namespace GSFUtils {
  * which componets got merged
  */
 std::vector<std::pair<int32_t, int32_t>>
-findMerges(componentPtrRestrict componentsIn,
+findMerges(Component1D* componentsIn,
            const int32_t inputSize,
            const int32_t reducedSize)
 {
@@ -219,13 +206,14 @@ findMerges(componentPtrRestrict componentsIn,
   std::vector<std::pair<int32_t, int32_t>> merges;
   merges.reserve(inputSize - reducedSize);
   // initial distance calculation
-  calculateAllDistances(components, distances, n);
+  calculateAllDistances(components, distances.buffer(), n);
 
   // merge loop
   int32_t numberOfComponentsLeft = n;
   while (numberOfComponentsLeft > reducedSize) {
     // see if we have the next already
-    const std::pair<int32_t, float> minDis = findMinimumIndex(distances, nn2);
+    const std::pair<int32_t, float> minDis =
+      findMinimumIndex(distances.buffer(), nn2);
     const int32_t minIndex = minDis.first;
     const triangularToIJ conversion = convert[minIndex];
     const int32_t mini = conversion.I;
@@ -233,15 +221,16 @@ findMerges(componentPtrRestrict componentsIn,
     // Combine the 2 components
     combine(components[mini], components[minj]);
     // re-calculate distances wrt the new component at mini
-    recalculateDistances(components, distances, mini, n);
+    recalculateDistances(components, distances.buffer(), mini, n);
     // Reset old weights wrt the  minj position
-    resetDistances(distances, minj, n);
+    resetDistances(distances.buffer(), minj, n);
     // keep track and decrement
     merges.emplace_back(mini, minj);
     --numberOfComponentsLeft;
   } // end of merge while
   return merges;
 }
+
 /**
  * findMinimumIndex
  *
@@ -286,7 +275,7 @@ findMerges(componentPtrRestrict componentsIn,
  * in dst.
  */
 __attribute__((target("avx2"))) std::pair<int32_t, float>
-findMinimumIndex(const floatPtrRestrict distancesIn, const int n)
+findMinimumIndex(const float* distancesIn, const int n)
 {
   float* array = (float*)__builtin_assume_aligned(distancesIn, alignment);
   const __m256i increment = _mm256_set1_epi32(8);
@@ -348,7 +337,7 @@ findMinimumIndex(const floatPtrRestrict distancesIn, const int n)
  * latency.
  */
 __attribute__((target("sse4.1"))) std::pair<int32_t, float>
-findMinimumIndex(const floatPtrRestrict distancesIn, const int n)
+findMinimumIndex(const float* distancesIn, const int n)
 {
   float* array = (float*)__builtin_assume_aligned(distancesIn, alignment);
   // Do 2 vectors of 4 elements , so 8 at time
@@ -375,17 +364,21 @@ findMinimumIndex(const floatPtrRestrict distancesIn, const int n)
     minindices2 = _mm_blendv_epi8(minindices2, indices2, lt2);
     minvalues2 = _mm_min_ps(values2, minvalues2);
   }
-  // Do the final calculation scalar way
-  alignas(alignment) float distances[8];
-  alignas(alignment) int32_t indices[8];
+
+  // Compare //1 with //2
+  __m128i lt = _mm_castps_si128(_mm_cmplt_ps(minvalues1, minvalues2));
+  minindices1 = _mm_blendv_epi8(minindices2, minindices1, lt);
+  minvalues1 = _mm_min_ps(minvalues2, minvalues1);
+
+  // Do the final 4 scalar way
+  alignas(alignment) float distances[4];
+  alignas(alignment) int32_t indices[4];
   _mm_store_ps(distances, minvalues1);
-  _mm_store_ps(distances + 4, minvalues2);
   _mm_store_si128((__m128i*)(indices), minindices1);
-  _mm_store_si128((__m128i*)(indices + 4), minindices2);
 
   int32_t minIndex = indices[0];
   float minDistance = distances[0];
-  for (int i = 1; i < 8; ++i) {
+  for (int i = 1; i < 4; ++i) {
     if (distances[i] < minDistance) {
       minIndex = indices[i];
       minDistance = distances[i];
@@ -395,7 +388,7 @@ findMinimumIndex(const floatPtrRestrict distancesIn, const int n)
 }
 /*
  * SSE2 does not have a blend/select instruction.
- * Instruction describes in
+ * To create one  
  * We AND &
  * - a with the NOT of the mask
  * - b with the mask
@@ -407,7 +400,7 @@ SSE2_mm_blendv_epi8(__m128i a, __m128i b, __m128i mask)
   return _mm_or_si128(_mm_andnot_si128(mask, a), _mm_and_si128(mask, b));
 }
 __attribute__((target("sse2"))) std::pair<int32_t, float>
-findMinimumIndex(const floatPtrRestrict distancesIn, const int n)
+findMinimumIndex(const float* distancesIn, const int n)
 {
   float* array = (float*)__builtin_assume_aligned(distancesIn, alignment);
   // Do 2 vectors of 4 elements, so 8 at a time
@@ -434,22 +427,27 @@ findMinimumIndex(const floatPtrRestrict distancesIn, const int n)
     minindices2 = SSE2_mm_blendv_epi8(minindices2, indices2, lt2);
     minvalues2 = _mm_min_ps(values2, minvalues2);
   }
-  // Do the final calculation scalar way
-  alignas(alignment) float distances[8];
-  alignas(alignment) int32_t indices[8];
+ 
+   // Compare //1 with //2
+  __m128i lt = _mm_castps_si128(_mm_cmplt_ps(minvalues1, minvalues2));
+  minindices1 = SSE2_mm_blendv_epi8(minindices2, minindices1, lt);
+  minvalues1 = _mm_min_ps(minvalues2, minvalues1);
+
+  // Do the final 4 scalar way
+  alignas(alignment) float distances[4];
+  alignas(alignment) int32_t indices[4];
   _mm_store_ps(distances, minvalues1);
-  _mm_store_ps(distances + 4, minvalues2);
   _mm_store_si128((__m128i*)(indices), minindices1);
-  _mm_store_si128((__m128i*)(indices + 4), minindices2);
 
   int32_t minIndex = indices[0];
   float minDistance = distances[0];
-  for (int i = 1; i < 8; ++i) {
+  for (int i = 1; i < 4; ++i) {
     if (distances[i] < minDistance) {
       minIndex = indices[i];
       minDistance = distances[i];
     }
   }
+  
   return { minIndex, minDistance };
 }
 #endif // end of x86_64 versions
@@ -457,7 +455,7 @@ findMinimumIndex(const floatPtrRestrict distancesIn, const int n)
 __attribute__((target("default")))
 #endif // HAVE_FUNCTION_MULTIVERSIONING
 std::pair<int32_t, float>
-findMinimumIndex(const floatPtrRestrict distancesIn, const int n)
+findMinimumIndex(const float* distancesIn, const int n)
 {
   float* array = (float*)__builtin_assume_aligned(distancesIn, alignment);
   float minDistance = array[0];

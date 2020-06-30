@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkValHistUtils/IDHitPlots.h"
@@ -10,28 +10,28 @@
 namespace Trk {
   void
   IDHitPlots::init() {
-    nBLayerHits = NULL;
-    nPixelHits = NULL;
-    nPixelHoles = NULL;
-    nSCTHits = NULL;
-    nSCTHoles = NULL;
-    nTRTHits = NULL;
-    nTRTHighThresholdHits = NULL;
+    nBLayerHits = nullptr;
+    nPixelHits = nullptr;
+    nPixelHoles = nullptr;
+    nSCTHits = nullptr;
+    nSCTHoles = nullptr;
+    nTRTHits = nullptr;
+    nTRTHighThresholdHits = nullptr;
 
-    nBLayerOutliers = NULL;
-    nBLayerSharedHits = NULL;
-    nBLayerSplitHits = NULL;
-    nPixelOutliers = NULL;
-    nPixelContribLayers = NULL;
-    nPixelSharedHits = NULL;
-    nPixelSplitHits = NULL;
-    nPixelGangedHits = NULL;
-    nSCTOutliers = NULL;
-    nSCTDoubleHoles = NULL;
-    nSCTSharedHits = NULL;
-    nTRTOutliers = NULL;
-    nTRTHighThresholdOutliers = NULL;
-    nPixelGangedHitsFlaggedFakes = NULL;
+    nBLayerOutliers = nullptr;
+    nBLayerSharedHits = nullptr;
+    nBLayerSplitHits = nullptr;
+    nPixelOutliers = nullptr;
+    nPixelContribLayers = nullptr;
+    nPixelSharedHits = nullptr;
+    nPixelSplitHits = nullptr;
+    nPixelGangedHits = nullptr;
+    nSCTOutliers = nullptr;
+    nSCTDoubleHoles = nullptr;
+    nSCTSharedHits = nullptr;
+    nTRTOutliers = nullptr;
+    nTRTHighThresholdOutliers = nullptr;
+    nPixelGangedHitsFlaggedFakes = nullptr;
   }
 
   void

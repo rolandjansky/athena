@@ -13,7 +13,6 @@
 
 #include "SCT_GeoModel/SCT_Ski.h"
 #include "SCT_GeoModel/SCT_Module.h"
-// 14th Aug 2005 S.Mima modified.
 #include "SCT_GeoModel/SCT_Bracket.h"
 #include "SCT_GeoModel/SCT_Harness.h"
 #include "SCT_GeoModel/SCT_SkiPowerTape.h"
@@ -81,17 +80,11 @@ SCT_SkiAux::build()
   // such that the lower edge of the bracket is lined up with the upper 
   // edge of the next module below it. 
 
-  //  std::cout << "m_bracketPhiOffset = " << m_bracketPhiOffset << std::endl;
-  //  std::cout << "m_powerTapePhiOffset = " << m_powerTapePhiOffset << std::endl;
-  //  std::cout << "m_sectorAngle = " << m_sectorAngle << std::endl;
-
   // Define small distance for avoiding overlaps.
   double radiusBracket = m_innerRadius + 0.5*m_bracket->thickness() + epsilon();
   double xBracketPos = radiusBracket * cos(m_bracketPhiOffset);
   double yBracketPos = radiusBracket * sin(m_bracketPhiOffset);
  
-  //  std::cout << "Bracket x,y = " << xBracketPos << "  " << yBracketPos << std::endl;
-
   // Calculate position of harness, if present. Phi offset is
   // same as power tapes, and we leave a gap equal to one tape
   // width
@@ -104,7 +97,6 @@ SCT_SkiAux::build()
     xHarnessPos = radiusHarness * cos(m_powerTapePhiOffset);
     yHarnessPos = radiusHarness * sin(m_powerTapePhiOffset);
   }
-  //  std::cout << "Harness x,y = " << xHarnessPos << "  " << yHarnessPos << std::endl;
     
   //
   // Calculate Position of PowerTapes
@@ -121,8 +113,6 @@ SCT_SkiAux::build()
   if(m_harness != 0) {radiusTape += m_harness->thickness();}
   double xTapePos = radiusTape * cos(m_powerTapePhiOffset);
   double yTapePos = radiusTape * sin(m_powerTapePhiOffset);
-
-  //  std::cout << "Tape x,y = " << xTapePos << "  " << yTapePos << std::endl;
 
   //
   // Calculate envelope.
@@ -175,14 +165,6 @@ SCT_SkiAux::build()
   const GeoLogVol *skiAuxLog = 
     new GeoLogVol(getName(), skiAuxShape, m_materials->gasMaterial());
   GeoPhysVol * skiAux = new GeoPhysVol(skiAuxLog);
-  //  std::cout << "SCT_SkiAux: m_sectorStartAngle = " <<  m_sectorStartAngle
-  //            << ", m_sectorAngle = " << m_sectorAngle << std::endl;
-  //
-  //  std::cout << "minangle, maxangle, m_sectorStartAngle, m_sectorAngle = " 
-  //         << std::endl;
-  //  std::cout << minAngle << ","  << maxAngle << ", " 
-  //          << m_sectorStartAngle << "," 
-  //         << m_sectorAngle << std::endl;
 
   //
   // Position brackets
@@ -192,8 +174,6 @@ SCT_SkiAux::build()
   for (int iModule = 0; iModule < m_ski->modulesPerSki(); iModule++) {
     
     // Z Position is position of the center of the baseBoard:
-    // 15th Aug 2005 S.Mima modified.
-    //    double baseBoardPosZ =  m_ski->zPos(iModule) + m_ski->module()->baseBoardCenter();
     double coolingCenterPosZ =  m_ski->zPos(iModule) + m_ski->coolingBlockOffsetZ();
     GeoTrf::Translation3D posBracket(xBracketPos, yBracketPos, coolingCenterPosZ);
     GeoTrf::RotateZ3D rotBracket(m_bracketPhiOffset);
@@ -242,12 +222,6 @@ calcMinMaxRatioS(double xCenter, double yCenter,
   r10 = (yCenter + y) / (xCenter - x);
   r01 = (yCenter - y) / (xCenter + x);
 
-  //std::cout << "r11,r00,r10,r02: " 
-  //        << r11 << " "
-  //       << r00 << " "
-  //       << r10 << " "
-  //       << r01 << " " << std::endl;
-    
   minRatio = std::min(r11 , std::min(r00, std::min(r10, r01)));
   maxRatio = std::max(r11 , std::max(r00, std::max(r10, r01)));
 

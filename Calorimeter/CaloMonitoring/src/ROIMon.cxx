@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -7,7 +7,7 @@
 //
 // AUTHORS:   F Spano'    06/15/2006
 // ********************************************************************
-#include "CaloMonitoring/ROIMon.h" 
+#include "ROIMon.h" 
 
 #include <stdint.h>
 #include <algorithm>

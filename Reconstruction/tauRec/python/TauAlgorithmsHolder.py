@@ -77,7 +77,8 @@ def getTauAxis():
     from tauRecTools.tauRecToolsConf import TauAxisSetter
     TauAxisSetter = TauAxisSetter(  name = _name, 
                                     ClusterCone = 0.2,
-                                    VertexCorrection = True)
+                                    VertexCorrection = True,
+                                    IncShowerSubtr = tauFlags.useShowerSubClusters() )
                                     
     cached_instances[_name] = TauAxisSetter                
     return TauAxisSetter
@@ -311,7 +312,8 @@ def getTauSubstructure():
                                                           # parameters for CaloIsoCorrected variable
                                                           maxPileUpCorrection = 4000., #MeV
                                                           pileUpAlpha = 1.0,
-                                                          VertexCorrection = True
+                                                          VertexCorrection = True,
+                                                          IncShowerSubtr = tauFlags.useShowerSubClusters()
                                                        )
     
     cached_instances[_name] = TauSubstructureVariables
@@ -388,7 +390,8 @@ def getPi0ClusterCreator():
     
     from tauRecTools.tauRecToolsConf import TauPi0ClusterCreator
     TauPi0ClusterCreator = TauPi0ClusterCreator(name = _name,
-                                                Key_Pi0ClusterContainer="TauPi0SubtractedClusters"
+                                                Key_Pi0ClusterContainer="TauPi0SubtractedClusters",
+                                                IncShowerSubtr = tauFlags.useShowerSubClusters()
                                                 )
     
     cached_instances[_name] = TauPi0ClusterCreator

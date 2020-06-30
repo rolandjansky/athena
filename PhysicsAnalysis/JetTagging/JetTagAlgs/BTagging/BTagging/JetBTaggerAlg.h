@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BTAGGING_JETBTAGGERALG_HH
@@ -20,7 +20,8 @@
 #include "BTagging/IBTagTrackAssociation.h"
 #include "BTagging/IBTagSecVertexing.h"
 
-#include "MagFieldInterfaces/IMagFieldSvc.h"
+// For magneticfield
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 
 namespace Analysis{
 
@@ -44,8 +45,9 @@ class  JetBTaggerAlg:
   private:
   
     SG::ReadHandleKey<xAOD::JetContainer > m_JetCollectionName {this, "JetCollectionName", "", "Input jet container"};
-    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::JetContainer> >m_jetBTaggingLinkName{this,"JetContainerName","","Element link form jet to BTagging container"};
+    SG::WriteDecorHandleKey<xAOD::JetContainer> m_jetBTaggingLinkName{this, "BTaggingLinkName","","Element link form jet to BTagging container"};
     SG::WriteHandleKey<xAOD::BTaggingContainer> m_BTaggingCollectionName {this, "BTaggingCollectionName", "", "Output BTagging container"};
+    SG::WriteDecorHandleKey<xAOD::BTaggingContainer> m_bTagJetDecorLinkName {this, "JetLinkName", "", "Element Link from BTagging to Jet container"};
 
     std::string m_JetName;
     std::string m_BTagLink;
@@ -53,7 +55,8 @@ class  JetBTaggerAlg:
     ToolHandle< IBTagTool > m_bTagTool;
     ToolHandle< IBTagTrackAssociation > m_BTagTrackAssocTool;
     ToolHandle< IBTagSecVertexing > m_bTagSecVtxTool;
-    ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
+    // Read handle for conditions object to get the field cache
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
 
 };
 

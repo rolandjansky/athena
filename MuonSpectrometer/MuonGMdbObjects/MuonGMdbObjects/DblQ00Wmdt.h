@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************
@@ -14,15 +14,18 @@
 #define DBLQ00_WMDT_H
 
 #include "RDBAccessSvc/IRDBQuery.h"
-#include <memory>
-namespace MuonGM
-{
-class DblQ00Wmdt {
 
+#include <memory>
+
+class AmdcDb;
+
+namespace MuonGM {
+class DblQ00Wmdt {
 public:
     DblQ00Wmdt(){};
     ~DblQ00Wmdt();
     DblQ00Wmdt(std::unique_ptr<IRDBQuery>&&);
+    DblQ00Wmdt(AmdcDb* wmdt);
 
     // data members for DblQ00/WMDT fields
     struct WMDT {

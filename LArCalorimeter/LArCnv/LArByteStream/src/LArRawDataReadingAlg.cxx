@@ -28,6 +28,8 @@ LArRawDataReadingAlg::LArRawDataReadingAlg(const std::string& name, ISvcLocator*
   m_doFebHeaders = !m_febHeaderKey.empty();
   ATH_CHECK(m_febHeaderKey.initialize(m_doFebHeaders));  
 
+  ATH_CHECK(m_eventInfoKey.initialize() );
+
   ATH_CHECK(m_robDataProviderSvc.retrieve());
   ATH_CHECK(detStore()->retrieve(m_onlineId,"LArOnlineID"));  
   return StatusCode::SUCCESS;
@@ -80,11 +82,19 @@ StatusCode LArRawDataReadingAlg::execute(const EventContext& ctx) const {
     ATH_MSG_VERBOSE("Decoding ROB fragment 0x" << std::hex << rob.rob_source_id () << " with " << std::dec << rob.rod_fragment_size_word() << "ROB words");
 
     if (rob.rod_fragment_size_word() <3) {
-      ATH_MSG_ERROR("Encountered corrupt ROD fragment, less than 3 words!");
       if (m_failOnCorruption) {
+        ATH_MSG_ERROR("Encountered corrupt ROD fragment, less than 3 words!");
 	return StatusCode::FAILURE;
-      }else 
+      }else { 
+        // set corruption flag for this event
+        SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey, ctx);
+        if (!eventInfo->updateErrorState(xAOD::EventInfo::LAr,xAOD::EventInfo::Error)) {
+             ATH_MSG_WARNING( " cannot set error state for LAr "  );
+        } else {
+             ATH_MSG_WARNING( " error state for LAr data corruption set"  );
+        }
 	continue;
+      }
     }
     
      eformat::helper::Version ver(rob.rod_version());
@@ -125,13 +135,21 @@ StatusCode LArRawDataReadingAlg::execute(const EventContext& ctx) const {
       const uint32_t onsum  = rodBlock->onlineCheckSum();
       const uint32_t offsum = rodBlock->offlineCheckSum();
       if(onsum!=offsum) {
-	ATH_MSG_ERROR("Checksum error:");
-	ATH_MSG_ERROR("online checksum  = 0x" << MSG::hex << onsum);
-	ATH_MSG_ERROR("offline checksum = 0x" << MSG::hex << offsum << MSG::dec);
-	if (m_failOnCorruption) 
+	if (m_failOnCorruption) {
+	  ATH_MSG_ERROR("Checksum error:");
+	  ATH_MSG_ERROR("online checksum  = 0x" << MSG::hex << onsum);
+	  ATH_MSG_ERROR("offline checksum = 0x" << MSG::hex << offsum << MSG::dec);
 	  return StatusCode::FAILURE;
-	else
-	  continue; //Jump to the next ROD-block
+        } else {
+           // set corruption flag for this event
+           SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey, ctx);
+           if (!eventInfo->updateErrorState(xAOD::EventInfo::LAr,xAOD::EventInfo::Error)) {
+             ATH_MSG_WARNING( " cannot set error state for LAr "  );
+           } else {
+             ATH_MSG_WARNING( " error state for LAr data corruption set"  );
+           }
+	   continue; //Jump to the next ROD-block
+        }
       }
     }
 
@@ -139,11 +157,12 @@ StatusCode LArRawDataReadingAlg::execute(const EventContext& ctx) const {
     do {
       HWIdentifier fId(Identifier32(rodBlock->getFEBID()));
       if (!m_onlineId->isValidId(fId)) {
-	ATH_MSG_ERROR("Invalid FEB identifer 0x" << std::hex << fId.get_identifier32().get_compact()); 
-	if (m_failOnCorruption) 
+	if (m_failOnCorruption){ 
+	  ATH_MSG_ERROR("Invalid FEB identifer 0x" << std::hex << fId.get_identifier32().get_compact()); 
 	  return StatusCode::FAILURE;
-	else
+        } else {
 	  continue;
+        }
       }
       const int NthisFebChannel=m_onlineId->channelInSlotMax(fId);
 

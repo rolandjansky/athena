@@ -1,8 +1,7 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from BTagging.BTaggingFlags import BTaggingFlags
 from JetTagTools.JetFitterNtupleWriterNNConfig import JetFitterNtupleWriterNNCfg
 from JetTagTools.JetFitterNNToolConfig import JetFitterNNToolCfg
 
@@ -38,7 +37,7 @@ def JetFitterTagCfg(flags, name = 'JetFitterTagNN', scheme = '', CombinedIPNN = 
                 jetFitterNtupleWriterNN = acc.popToolsAndMerge(JetFitterNtupleWriterNNCfg('JetFitterNtupleWriterNN'))
                 jetfitterClassifier = acc.popToolsAndMerge(JetFitterNNToolCfg('JetFitterNNTool'))
                 defaults = { 'Runmodus'                         : flags.BTagging.RunModus,
-                     'jetCollectionList'                : BTaggingFlags.Jets,
+                     'jetCollectionList'                : [], #used only in reference mode
                      'SecVxFinderName'                  : 'JetFitter',
                      'useForcedCalibration'             : False,
                      'ipinfoTaggerName'                 : "",
@@ -47,7 +46,7 @@ def JetFitterTagCfg(flags, name = 'JetFitterTagNN', scheme = '', CombinedIPNN = 
                      }
             else:
                 defaults = { 'Runmodus'                         : flags.BTagging.RunModus,
-                     'jetCollectionList'                : BTaggingFlags.Jets,
+                     'jetCollectionList'                : [], #used only in reference mode
                      'SecVxFinderName'                  : 'JetFitter',
                      'useForcedCalibration'             : False,
                      'ipinfoTaggerName'                 : 'IP3D',
@@ -56,7 +55,7 @@ def JetFitterTagCfg(flags, name = 'JetFitterTagNN', scheme = '', CombinedIPNN = 
             # JetFitterFlip should be a flip version of JetFitter created in setupSecVtxTool
         if useBTagFlagsDefaults:
             defaults = { 'Runmodus'                         : flags.BTagging.RunModus,
-                     'jetCollectionList'                : BTaggingFlags.Jets,
+                     'jetCollectionList'                : [], #used only in reference mode
                      'SecVxFinderName'                  : 'JetFitterFlip',
                      'useForcedCalibration'             : False,
                      'ipinfoTaggerName'                 : 'IP3D',

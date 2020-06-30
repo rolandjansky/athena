@@ -1,4 +1,9 @@
+#!/bin/env python
+
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# TileCellTools.py
+# Alexander Solodkov <Sanya.Solodkov@cern.ch>, 2014-11-01
+################################################################
 
 import bisect
 

@@ -39,9 +39,9 @@ AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version Athena
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
-DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy-atlas.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2020-03-06T2143/Athena/22.0.12/InstallArea/x86_64-centos7-gcc8-dbg/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host lxplus7100.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Frontier server at (serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccfrontier01.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccfrontier05.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://atlasfrontier2-ai.cern.ch:8000/atlr)(serverurl=http://atlasfrontier1-ai.cern.ch:8000/atlr)(proxyurl=http://ccatlassquid.in2p3.fr:3128)(proxyurl=http://ccatlassquid02.in2p3.fr:3128)(proxyurl=http://ccatlassquid04.in2p3.fr:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2020-05-26T2140/Athena/22.0.14/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 1 servers found for host ccwige0002.in2p3.fr [ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc           WARNING Unable to locate catalog for prfile:poolcond/PoolCat_oflcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
@@ -314,6 +314,13 @@ CondInputLoader      INFO Will create WriteCondHandle dependencies for the follo
     +  ( 'CondAttrListCollection' , 'ConditionStore+/EXT/DCS/MAGNETS/SENSORDATA' ) 
     +  ( 'CondAttrListCollection' , 'ConditionStore+/Indet/IBLDist' ) 
     +  ( 'DetCondCFloat' , 'ConditionStore+/Indet/PixelDist' ) 
+AtlasFieldMapCo...   INFO Initialize
+AtlasFieldMapCo...   INFO Initialize: Key  ( 'AtlasFieldMapCondObj' , 'ConditionStore+fieldMapCondObj' )  has been succesfully registered 
+AtlasFieldMapCo...   INFO Initialize: Will update the field map from conditions
+AtlasFieldCache...   INFO Initialize
+AtlasFieldCache...   INFO Initialize: Key  ( 'AtlasFieldCacheCondObj' , 'ConditionStore+fieldCondObj' )  has been succesfully registered 
+AtlasFieldCache...   INFO Initialize: Will update current from conditions
+AtlasFieldCache...   INFO Initialize: useDCS, useSoleCurrent, useToroCurrent. 1,  'UseSoleCurrent':7730.0000,  'UseToroCurrent':20400.000 LockMapCurrents 0
 ClassIDSvc           INFO  getRegistryEntries: read 440 CLIDRegistry entries for module ALL
 ClassIDSvc           INFO  getRegistryEntries: read 764 CLIDRegistry entries for module ALL
 xAODMaker::Even...   INFO Initializing - Package version: xAODEventInfoCnv-00-00-00
@@ -326,12 +333,7 @@ testalg1          VERBOSE ServiceLocatorHelper::service: found service TimelineS
 testalg1.CrossD...  DEBUG Property update for OutputLevel : new value = 1
 testalg1.CrossD...   INFO Initialize successfull
 testalg1.CrossD...   INFO Initialize successfull
-AtlasFieldSvc        INFO initialize() ...
-AtlasFieldSvc        INFO maps will be chosen reading COOL folder /GLOBAL/BField/Maps
-ClassIDSvc           INFO  getRegistryEntries: read 1116 CLIDRegistry entries for module ALL
-AtlasFieldSvc        INFO magnet currents will be read from COOL folder /EXT/DCS/MAGNETS/SENSORDATA
-AtlasFieldSvc        INFO Booked callback for /EXT/DCS/MAGNETS/SENSORDATA
-AtlasFieldSvc        INFO initialize() successful
+ClassIDSvc           INFO  getRegistryEntries: read 967 CLIDRegistry entries for module ALL
 testalg1.CrossD...   INFO Initialize successful
 testalg1          VERBOSE ServiceLocatorHelper::service: found service AlgExecStateSvc
 testalg1            DEBUG input handles: 0
@@ -350,12 +352,6 @@ AthenaEventLoopMgr   INFO   ===>>>  start of run 1    <<<===
 EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
 EventPersistenc...   INFO Added successfully Conversion service:TagInfoMgr
 ClassIDSvc           INFO  getRegistryEntries: read 118 CLIDRegistry entries for module ALL
-IOVDbSvc             INFO Opening COOL connection for COOLOFL_DCS/OFLP200
-IOVDbFolder          INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to ExtDCSMagnetsSensorData-001 for folder /EXT/DCS/MAGNETS/SENSORDATA
-IOVDbSvc             INFO Disconnecting from COOLOFL_DCS/OFLP200
-IOVDbSvc             INFO Opening COOL connection for COOLOFL_GLOBAL/OFLP200
-IOVDbFolder          INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to BFieldMap-Run1-14m-v01 for folder /GLOBAL/BField/Maps
-IOVDbSvc             INFO Disconnecting from COOLOFL_GLOBAL/OFLP200
 IOVDbSvc             INFO Opening COOL connection for COOLOFL_INDET/OFLP200
 IOVDbFolder          INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to InDetAlign_IOVDEP-03 for folder /Indet/Align
 IOVDbFolder          INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to IBLDist-NULL for folder /Indet/IBLDist
@@ -369,20 +365,6 @@ PixelDetectorMa...WARNING Subsequent WARNINGS will be printed at DEBUG level.
 PixelDetectorMa...   INFO Processing IBLDist alignment container with key (/Indet/IBLDist) and alignment folder pointing to /Indet/Align
 PixelDetectorMa...WARNING Invalid HashID for identifier [2.1.0.0.0]
 PixelDetectorMa...WARNING No IBLDist corrections can be applied for invalid HashID's - exiting 
-AtlasFieldSvc        INFO reading magnetic field map filenames from COOL
-AtlasFieldSvc        INFO found map of type GlobalMap with soleCur=7730 toroCur=20400 (path file:MagneticFieldMaps/bfieldmap_7730_20400_14m.root)
-AtlasFieldSvc        INFO found map of type SolenoidMap with soleCur=7730 toroCur=0 (path file:MagneticFieldMaps/bfieldmap_7730_0_14m.root)
-AtlasFieldSvc        INFO found map of type ToroidMap with soleCur=0 toroCur=20400 (path file:MagneticFieldMaps/bfieldmap_0_20400_14m.root)
-AtlasFieldSvc        INFO no need to update map set
-AtlasFieldSvc        INFO Attempt 1 at reading currents from DCS (using channel name)
-AtlasFieldSvc        INFO Trying to read from DCS: [channel name, index, value] CentralSol_Current , 1 , 7730
-AtlasFieldSvc        INFO Trying to read from DCS: [channel name, index, value] CentralSol_SCurrent , 2 , 7730
-AtlasFieldSvc        INFO Trying to read from DCS: [channel name, index, value] Toroids_Current , 3 , 20400
-AtlasFieldSvc        INFO Trying to read from DCS: [channel name, index, value] Toroids_SCurrent , 4 , 20400
-AtlasFieldSvc        INFO Currents read from DCS: solenoid 7730 toroid 20400
-AtlasFieldSvc        INFO Initializing the field map (solenoidCurrent=7730 toroidCurrent=20400)
-AtlasFieldSvc        INFO reading the map from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/atlas/offline/ReleaseData/v20/MagneticFieldMaps/bfieldmap_7730_20400_14m.root
-AtlasFieldSvc        INFO Initialized the field map from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/atlas/offline/ReleaseData/v20/MagneticFieldMaps/bfieldmap_7730_20400_14m.root
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #1 0 events processed so far  <<<===
 IOVDbSvc             INFO Opening COOL connection for COOLOFL_TRT/OFLP200
 IOVDbFolder          INFO HVS tag OFLCOND-RUN12-SDR-35 resolved to TRTAlign_Nominal2 for folder /TRT/Align
@@ -405,6 +387,31 @@ SCT_DetectorEle...   INFO recorded new CDO SCT_DetectorElementCollection with ra
 PixelDetectorMa...   INFO Processing IBLDist alignment container with key /Indet/IBLDist
 PixelAlignCondAlg    INFO recorded new CDO PixelAlignmentStore with range {[0,t:0,l:0] - [1,l:4294967294]} into Conditions Store
 PixelDetectorEl...   INFO recorded new CDO PixelDetectorElementCollection with range {[0,t:0,l:0] - [1,l:4294967294]} with size of 2048 into Conditions Store
+AtlasFieldMapCo...   INFO updateFieldMap: Update map from conditions
+AtlasFieldMapCo...   INFO updateFieldMap: Update map from conditions: Range of input/output is {[0,l:0] - [INVALID]}
+AtlasFieldMapCo...   INFO updateFieldMap: reading magnetic field map filenames from COOL
+AtlasFieldMapCo...   INFO updateFieldMap: found map of type GlobalMap with soleCur=7730 toroCur=20400 (path file:MagneticFieldMaps/bfieldmap_7730_20400_14m.root)
+AtlasFieldMapCo...   INFO updateFieldMap: found map of type SolenoidMap with soleCur=7730 toroCur=0 (path file:MagneticFieldMaps/bfieldmap_7730_0_14m.root)
+AtlasFieldMapCo...   INFO updateFieldMap: found map of type ToroidMap with soleCur=0 toroCur=20400 (path file:MagneticFieldMaps/bfieldmap_0_20400_14m.root)
+AtlasFieldMapCo...   INFO updateFieldMap: tagInfoH  ( 'TagInfo' , 'DetectorStore+ProcessingTags' )  is valid. 
+AtlasFieldMapCo...   INFO updateFieldMap: DID NOT reset currents from TagInfo
+AtlasFieldMapCo...   INFO updateFieldMap: Set map currents from FieldSvc: solenoid/toroid 7730,20400
+AtlasFieldMapCo...   INFO updateFieldMap: Use map file MagneticFieldMaps/bfieldmap_7730_20400_14m.root
+AtlasFieldMapCo...   INFO updateFieldMap: Initialized the field map from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/atlas/offline/ReleaseData/v20/MagneticFieldMaps/bfieldmap_7730_20400_14m.root
+AtlasFieldMapCo...   INFO execute: solenoid zone id  7000
+AtlasFieldMapCo...   INFO execute: recored AtlasFieldMapCondObj with field map
+AtlasFieldCache...   INFO UpdateCurrentFromConditions  
+AtlasFieldCache...   INFO UpdateCurrentFromConditions: Range of input/output is {[0,0,t:0] - [t:4294967294.854775807]}
+AtlasFieldCache...   INFO UpdateCurrentFromConditions: Attempt 1 at reading currents from DCS (using channel name)
+AtlasFieldCache...   INFO UpdateCurrentFromConditions: Trying to read from DCS: [channel name, index, value] CentralSol_Current , 1 , 7730
+AtlasFieldCache...   INFO UpdateCurrentFromConditions: Trying to read from DCS: [channel name, index, value] CentralSol_SCurrent , 2 , 7730
+AtlasFieldCache...   INFO UpdateCurrentFromConditions: Trying to read from DCS: [channel name, index, value] Toroids_Current , 3 , 20400
+AtlasFieldCache...   INFO UpdateCurrentFromConditions: Trying to read from DCS: [channel name, index, value] Toroids_SCurrent , 4 , 20400
+AtlasFieldCache...   INFO UpdateCurrentFromConditions: Currents read from DCS - solenoid 7730 toroid 20400
+AtlasFieldCache...   INFO scaleField: Solenoid field scale factor 1. Solenoid and map currents: 7730,7730
+AtlasFieldCache...   INFO scaleField: Toroid field scale factor 1. Toroid and map currents: 20400,20400
+AtlasFieldCache...   INFO execute: initialized AtlasFieldCacheCondObj and cache with SFs - sol/tor 1/1
+AtlasFieldCache...   INFO execute: solenoid zone id  7000
 testalg1          VERBOSE execute
 testalg1          VERBOSE testing 1
 testalg1          VERBOSE testing 2
@@ -427,22 +434,21 @@ ApplicationMgr       INFO Application Manager Stopped successfully
 IncidentProcAlg1     INFO Finalize
 CondInputLoader      INFO Finalizing CondInputLoader...
 IncidentProcAlg2     INFO Finalize
-AtlasFieldSvc        INFO finalize() successful
 IdDictDetDescrCnv    INFO in finalize
-IOVDbFolder          INFO Folder /EXT/DCS/MAGNETS/SENSORDATA (AttrListColl) db-read 2/2 objs/chan/bytes 8/4/40 ((     0.09 ))s
-IOVDbFolder          INFO Folder /GLOBAL/BField/Maps (AttrListColl) db-read 1/1 objs/chan/bytes 3/3/202 ((     0.07 ))s
-IOVDbFolder          INFO Folder /GLOBAL/TrackingGeo/LayerMaterialV2 (PoolRef) db-read 1/0 objs/chan/bytes 1/1/231 ((     0.02 ))s
+IOVDbFolder          INFO Folder /EXT/DCS/MAGNETS/SENSORDATA (AttrListColl) db-read 1/1 objs/chan/bytes 4/4/20 ((     3.56 ))s
+IOVDbFolder          INFO Folder /GLOBAL/BField/Maps (AttrListColl) db-read 1/1 objs/chan/bytes 3/3/202 ((     6.30 ))s
+IOVDbFolder          INFO Folder /GLOBAL/TrackingGeo/LayerMaterialV2 (PoolRef) db-read 1/0 objs/chan/bytes 1/1/231 ((     0.10 ))s
 IOVDbFolder       WARNING Folder /GLOBAL/TrackingGeo/LayerMaterialV2 is requested but no data retrieved
-IOVDbFolder          INFO Folder /Indet/Align (PoolRefColl) db-read 1/2 objs/chan/bytes 34/43/5440 ((     0.05 ))s
-IOVDbFolder          INFO Folder /Indet/IBLDist (AttrListColl) db-read 1/2 objs/chan/bytes 14/14/280 ((     0.03 ))s
-IOVDbFolder          INFO Folder /Indet/PixelDist (PoolRef) db-read 1/1 objs/chan/bytes 1/1/179 ((     0.03 ))s
-IOVDbFolder          INFO Folder /TRT/Align (PoolRefColl) db-read 1/1 objs/chan/bytes 32/32/5120 ((     0.04 ))s
-IOVDbSvc             INFO  bytes in ((      0.33 ))s
+IOVDbFolder          INFO Folder /Indet/Align (PoolRefColl) db-read 1/2 objs/chan/bytes 34/43/5440 ((     0.09 ))s
+IOVDbFolder          INFO Folder /Indet/IBLDist (AttrListColl) db-read 1/2 objs/chan/bytes 14/14/280 ((     2.75 ))s
+IOVDbFolder          INFO Folder /Indet/PixelDist (PoolRef) db-read 1/1 objs/chan/bytes 1/1/179 ((     0.04 ))s
+IOVDbFolder          INFO Folder /TRT/Align (PoolRefColl) db-read 1/1 objs/chan/bytes 32/32/5120 ((     0.09 ))s
+IOVDbSvc             INFO  bytes in ((     12.93 ))s
 IOVDbSvc             INFO Connection sqlite://;schema=mycool.db;dbname=OFLP200 : nConnect: 0 nFolders: 0 ReadTime: ((     0.00 ))s
-IOVDbSvc             INFO Connection COOLOFL_INDET/OFLP200 : nConnect: 2 nFolders: 3 ReadTime: ((     0.11 ))s
-IOVDbSvc             INFO Connection COOLOFL_TRT/OFLP200 : nConnect: 2 nFolders: 1 ReadTime: ((     0.04 ))s
-IOVDbSvc             INFO Connection COOLOFL_GLOBAL/OFLP200 : nConnect: 2 nFolders: 2 ReadTime: ((     0.08 ))s
-IOVDbSvc             INFO Connection COOLOFL_DCS/OFLP200 : nConnect: 3 nFolders: 1 ReadTime: ((     0.09 ))s
+IOVDbSvc             INFO Connection COOLOFL_INDET/OFLP200 : nConnect: 2 nFolders: 3 ReadTime: ((     2.87 ))s
+IOVDbSvc             INFO Connection COOLOFL_TRT/OFLP200 : nConnect: 2 nFolders: 1 ReadTime: ((     0.09 ))s
+IOVDbSvc             INFO Connection COOLOFL_GLOBAL/OFLP200 : nConnect: 2 nFolders: 2 ReadTime: ((     6.40 ))s
+IOVDbSvc             INFO Connection COOLOFL_DCS/OFLP200 : nConnect: 2 nFolders: 1 ReadTime: ((     3.56 ))s
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
 testalg1.CrossD...   INFO Finalize successfull

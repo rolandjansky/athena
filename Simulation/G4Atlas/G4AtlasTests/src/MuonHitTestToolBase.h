@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4AT_MuonHitTestToolBase_h
@@ -8,15 +8,12 @@
 #include "SimTestToolBase.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
-//#include "CLHEP/Geometry/Point3D.h"
-//#include "CLHEP/Geometry/Vector3D.h"
 #include "Identifier/Identifier.h"
 #include "HitManagement/HitIdHelper.h"
 
 namespace MuonGM {
   class MuonDetectorManager;
 }
-
 
 class MuonHitTestToolBase : public SimTestToolBase {
 
@@ -31,7 +28,6 @@ protected:
   StatusCode executeFillHistos(const Amg::Vector3D &);
   StatusCode executeFillHistosSectors_Wedge1(const Amg::Vector3D &, std::string);
   StatusCode executeFillHistosSectors_Wedge2(const Amg::Vector3D &, std::string);
-  //StatusCode executeFillHistos_sTGc_Wedge1(const Amg::Vector3D &, std::string);
   StatusCode executeFillHistos_sTGc(const Amg::Vector3D &, std::string);
 
 protected:

@@ -804,7 +804,7 @@ double TRTFastDigitizationTool::getProbHT( int particleEncoding, float kineticEn
 
   } // end of switch
 
-  static Trk::ParticleMasses particleMasses;
+  static const Trk::ParticleMasses particleMasses;
   float pTrk = sqrt( kineticEnergy * kineticEnergy + 2. * kineticEnergy * particleMasses.mass[ hypothesis ] );
   if ( pTrk < 250. || pTrk > 7000000. ) return 0.;
 

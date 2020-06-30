@@ -13,6 +13,13 @@
 #include <cmath>
 #include "logLinearBinning.h"
 
+namespace{
+  constexpr float undefinedValue{-9999.};
+  constexpr float smallestAllowableSin(1e-8);
+  constexpr float smallestAllowableTan(1e-8);
+  constexpr float smallestAllowableQoverPt(1e-8);
+}
+
 InDetPerfPlot_Resolution::InDetPerfPlot_Resolution(InDetPlotBase* pParent, const std::string& sDir)  : InDetPlotBase(pParent, sDir),
   m_resolutionMethod(IDPVM::ResolutionHelper::iterRMS_convergence),
   m_primTrk(false),
@@ -250,8 +257,10 @@ InDetPerfPlot_Resolution::fill(const xAOD::TrackParticle& trkprt, const xAOD::Tr
 
 void
 InDetPerfPlot_Resolution::getPlots() {
-  float eta = -TMath::Log(TMath::Tan(m_truetrkP[THETA] / 2));
-
+  const float tanHalfTheta = std::tan(m_truetrkP[THETA] * 0.5);
+  const bool tanThetaIsSane = std::abs(tanHalfTheta) > smallestAllowableTan;
+  float eta = undefinedValue;
+  if (tanThetaIsSane) eta = -std::log(tanHalfTheta);
   for (unsigned int iparam = 0; iparam < NPARAMS; iparam++) {    
     if(iparam == PT) continue;
     m_pull[iparam]->Fill(m_pullP[iparam]);
@@ -271,7 +280,6 @@ InDetPerfPlot_Resolution::getPlots() {
     m_pullHelpereta[iparam]->Fill(eta, m_pullP[iparam]);
     
     if(m_iDetailLevel >= 200){
-
       if (m_trkP[QOVERPT] >= 0.) {
         m_resHelpereta_pos[iparam]->Fill(eta, m_resP[iparam]);
         m_resHelperpt_pos[iparam]->Fill(m_truetrkP[PT], m_resP[iparam]);
@@ -291,10 +299,16 @@ InDetPerfPlot_Resolution::getPlotParameters() {
   for (unsigned int iparam = 0; iparam < NPARAMS; iparam++) {
     m_resP[iparam] = m_trkP[iparam] - m_truetrkP[iparam];
     m_sigP[iparam] = m_trkErrP[iparam];
-    (m_sigP[iparam] != 0) ? m_pullP[iparam] = m_resP[iparam] / m_sigP[iparam] : m_pullP[iparam] = -9999.;
+    (m_sigP[iparam] != 0) ? m_pullP[iparam] = m_resP[iparam] / m_sigP[iparam] : m_pullP[iparam] = undefinedValue;
   }
-  m_resP[QOVERPT] = (m_trkP[QOVERPT] - m_truetrkP[QOVERPT]) * (1 / m_truetrkP[QOVERPT]);  // relative q/pt resolution
-  m_sigP[QOVERPT] *= m_trkP[PT];  // relative q/pt error 
+  bool saneQoverPt = std::abs(m_truetrkP[QOVERPT]) > smallestAllowableQoverPt;
+  if (not saneQoverPt){
+    m_resP[QOVERPT] = undefinedValue;
+    m_sigP[QOVERPT] = undefinedValue;
+  } else {
+      m_resP[QOVERPT] = (m_trkP[QOVERPT] - m_truetrkP[QOVERPT]) * (1 / m_truetrkP[QOVERPT]);  // relative q/pt resolution
+      m_sigP[QOVERPT] *= m_trkP[PT];  // relative q/pt error
+  }
 }
 
 void
@@ -302,18 +316,21 @@ InDetPerfPlot_Resolution::getTrackParameters(const xAOD::TrackParticle& trkprt) 
 
   m_trkP[D0] = trkprt.d0();
   m_trkP[Z0] = trkprt.z0();
-  m_trkP[QOVERPT] = trkprt.qOverP() * (1 / std::sin(trkprt.theta()));
+  const float sinTheta{std::sin(trkprt.theta())};
+  const bool saneSineValue = (std::abs(sinTheta) > smallestAllowableSin);
+  const float inverseSinTheta = saneSineValue ? 1./sinTheta : undefinedValue;
+  m_trkP[QOVERPT] = saneSineValue ? trkprt.qOverP()*inverseSinTheta : undefinedValue;
   m_trkP[THETA] = trkprt.theta();
   m_trkP[PHI] = trkprt.phi0();
   m_trkP[PT] = trkprt.pt() / Gaudi::Units::GeV;
-  m_trkP[Z0SIN] = trkprt.z0() * std::sin(trkprt.theta());
+  m_trkP[Z0SIN] = trkprt.z0() * sinTheta;
 
   // Track fit errors
   m_trkErrP[D0] = std::sqrt(trkprt.definingParametersCovMatrix()(0, 0));
   m_trkErrP[Z0] = std::sqrt(trkprt.definingParametersCovMatrix()(1, 1));
   m_trkErrP[PHI] = std::sqrt(trkprt.definingParametersCovMatrix()(2, 2));
   m_trkErrP[THETA] = std::sqrt(trkprt.definingParametersCovMatrix()(3, 3));
-  m_trkErrP[QOVERPT] = std::sqrt(trkprt.definingParametersCovMatrix()(4, 4)) * (1 / std::sin(trkprt.theta()));
+  m_trkErrP[QOVERPT] = std::sqrt(trkprt.definingParametersCovMatrix()(4, 4)) * inverseSinTheta;
   m_trkErrP[Z0SIN] = std::sqrt(std::pow(m_trkErrP[Z0] * std::sin(m_trkP[THETA]), 2) + 
                                std::pow(m_trkP[Z0] * m_trkErrP[THETA] * std::cos(m_trkP[THETA]), 2) + 
                                2 * m_trkP[Z0] * std::sin(m_trkP[THETA]) * std::cos(m_trkP[THETA]) * trkprt.definingParametersCovMatrix()(1, 3));  // Fixing incorrect formula for z0sin error
@@ -330,45 +347,48 @@ InDetPerfPlot_Resolution::getTrackParameters(const xAOD::TrackParticle& trkprt) 
   } else {
     double pt = trkprt.pt();
     double diff_qp = -pt / std::abs(trkprt.qOverP());
-    double diff_theta = pt / tan(trkprt.theta());
+    double diff_theta = pt / std::tan(trkprt.theta());
     const std::vector<float>& cov = trkprt.definingParametersCovMatrixVec();
     double pt_err2 = diff_qp * (diff_qp * cov[14] + diff_theta * cov[13]) + diff_theta * diff_theta * cov[9];
-    m_trkErrP[PT] = sqrt(pt_err2) / Gaudi::Units::GeV;
+    m_trkErrP[PT] = std::sqrt(pt_err2) / Gaudi::Units::GeV;
   }
 
 }
 
-void
+
+  void
 InDetPerfPlot_Resolution::getTrackParameters(const xAOD::TruthParticle& truthprt) {
   // "d0", "z0", "phi", "theta" , "qOverP"
   // Perigee for truth particles are in aux container
-  int nParams = 6;
-
-  for (int iParams = 0; iParams < nParams; iParams++) {
-    m_truetrkP[iParams] = -9999.;
+  for (int iParams = 0; iParams < NPARAMS; iParams++) {
+    m_truetrkP[iParams] = undefinedValue;
     if (truthprt.isAvailable<float>(m_paramProp[iParams])) {
       m_truetrkP[iParams] = (truthprt.auxdata<float>(m_paramProp[iParams]));
     }
   }
-
-  (truthprt.isAvailable<float>("d0")) ? m_truetrkP[D0] = truthprt.auxdata<float>("d0") : m_truetrkP[D0] = -9999.;
-  (truthprt.isAvailable<float>("z0")) ? m_truetrkP[Z0] = truthprt.auxdata<float>("z0") : m_truetrkP[Z0] = -9999.;
-  (truthprt.isAvailable<float>("theta")) ? m_truetrkP[THETA] = truthprt.auxdata<float>("theta") : m_truetrkP[THETA] =
-                                                                 -9999.;
-  (truthprt.isAvailable<float>("phi")) ? m_truetrkP[PHI] = truthprt.auxdata<float>("phi") : m_truetrkP[PHI] = -9999.;
-  (truthprt.isAvailable<float>("theta") &&
-   truthprt.isAvailable<float>("qOverP")) ? m_truetrkP[QOVERPT] = truthprt.auxdata<float>("qOverP") *
-                                                                  (1 /
-                                                                   std::sin(truthprt.auxdata<float>("theta"))) :
-                                                                  m_truetrkP[QOVERPT] = -9999.;
-
-
+  //rescale Pt 
   m_truetrkP[PT] = truthprt.pt() / Gaudi::Units::GeV;
-  (truthprt.isAvailable<float>("z0") &&
-   truthprt.isAvailable<float>("theta")) ? m_truetrkP[Z0SIN] = m_truetrkP[Z0] *
-                                                               std::sin(m_truetrkP[THETA]) : m_truetrkP[Z0SIN] =
-                                                                 -9999.;
+  //special cases
+  //need both theta and qOverP for qOverPT
+  //we didnt check qOverP yet, since the closest named variable (strangely; see header) is ptqopt
+  const float qOverP = truthprt.isAvailable<float>("qOverP") ? truthprt.auxdata<float>("qOverP") : undefinedValue;
+  if ((qOverP != undefinedValue) and (m_truetrkP[THETA] != undefinedValue)){
+    const float sinTheta =std::sin(m_truetrkP[THETA]);
+    if (std::abs(sinTheta) > smallestAllowableSin){
+      m_truetrkP[QOVERPT] = qOverP /sinTheta;
+    } else {
+      m_truetrkP[QOVERPT] = undefinedValue;
+    }
+  }
+  //need both z0 and theta for z0sinTheta
+  if ((m_truetrkP[Z0] != undefinedValue) and (m_truetrkP[THETA] != undefinedValue)){
+    const float sinTheta =std::sin(m_truetrkP[THETA]);
+    m_truetrkP[Z0SIN] = m_truetrkP[Z0] * sinTheta;
+  } else {
+    m_truetrkP[Z0SIN] = undefinedValue;
+  }
 }
+
 
 void
 InDetPerfPlot_Resolution::finalizePlots() {

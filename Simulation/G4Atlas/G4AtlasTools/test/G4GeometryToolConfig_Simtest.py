@@ -8,7 +8,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
 if __name__ == '__main__':
-  from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+  from AthenaConfiguration.MainServicesConfig import MainServicesCfg
   import os
 
   # Set up logging and config behaviour
@@ -95,5 +95,7 @@ if __name__ == '__main__':
   f=open("test.pkl","wb")
   cfg.store(f) 
   f.close()
+
+  print(cfg._publicTools)
 
   print ("-----------------finished----------------------")

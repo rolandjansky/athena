@@ -1,0 +1,81 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+///////////////////////////////////////////////////////////////////
+// IParticleCaloExtensionTool.icc, (c) ATLAS Detector software
+///////////////////////////////////////////////////////////////////
+
+
+/** old interfaces WITHOUT EventContext ------------------------------------------ */
+
+  /** Method returning the calo layers crossed 
+   * by the IParticle track or the IParticle itself 
+   * if it is  neutral/TruthParticle
+   * The memory ownership is handled by the unique_ptr 
+   * @param particle    reference to the Particle
+   * @return unique_ptr  to a CaloExtension 
+   */
+inline std::unique_ptr<Trk::CaloExtension> Trk::IParticleCaloExtensionTool::caloExtension(const xAOD::IParticle& particle) const
+{
+    return caloExtension( Gaudi::Hive::currentContext(), particle);
+}
+
+    
+  /** Method to return the calo layers crossed  (CaloExtension)
+   * by the IParticle track or the IParticle itself 
+   * if it is  neutral/TruthParticle.
+   *
+   * An alg looping over a single collection of IParticles  
+   * re-using them multiple times can use a local  cache of
+   * the form 
+   * std::unordered_map<size_t,std::unique_ptr<Trk::CaloExtension>>.
+   * The key is the  value of IParticle::index() 
+   *
+   * This method adds the relevant extension to the cache look-up table 
+   * which retains ownership. 
+   *
+   * @param particle      reference to the Particle
+   * @param cache         the look-up table cache 
+   * @return ptr to a const CaloExtension (owned by the cache)
+   */  
+inline const Trk::CaloExtension*  Trk::IParticleCaloExtensionTool::caloExtension( const xAOD::IParticle& particle, 
+                                                                                  Cache& cache ) const 
+{
+    return caloExtension( Gaudi::Hive::currentContext(), particle, cache);
+}
+
+
+  /** Method that can be used by algorithms that :
+   * A. Have an  IParticleCollection
+   * B. Define a mask of the size of that collection
+   * C. Want back a Calo Extension Collection alligned with the input collection 
+   * i.e 1 to 1 correspondance with the input collection.
+   * The Collection can then be used as such to retrieve the extensions
+   * or manipulated and written to StoreGate.
+   *
+   * @param particles The input collection
+   * @param mask      contains true for the elements for which to permorm an extension, false otherwise          
+   * @return caloextension Output to be filled,
+   * will contain unfilled CaloExtension where the mask was false, otherwise it contains the relevant
+   * result. 
+   */  
+inline StatusCode  Trk::IParticleCaloExtensionTool::caloExtensionCollection( const xAOD::IParticleContainer& particles, 
+                                                                             const std::vector<bool>& mask,
+                                                                             CaloExtensionCollection& caloextensions) const
+{
+    return caloExtensionCollection( Gaudi::Hive::currentContext(), particles, mask, caloextensions);
+}
+
+  /**
+   * Method returning a unique_ptr to the caloExtension given the relevant 
+   * starting point parametes , direction and particle hypothesis
+   */
+inline std::unique_ptr<Trk::CaloExtension> Trk::IParticleCaloExtensionTool::caloExtension( const TrackParameters& startPars, 
+                                                                                           PropDirection propDir, 
+                                                                                           Trk::ParticleHypothesis particleType ) const
+{
+    return caloExtension( Gaudi::Hive::currentContext(), startPars, propDir, particleType);
+}
+
+

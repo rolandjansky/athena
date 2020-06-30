@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # File: LumiBlockComps/python/LuminosityCondAlgDefault.py
 # Created: May 2019, sss, from existing LuminosityToolDefault.
@@ -38,12 +38,12 @@ def LuminosityCondAlgDefault (name = 'LuminosityCondAlg',
     kwargs = {}
 
     from IOVDbSvc.CondDB import conddb
-    if isOnline:
-        kwargs = configureOnlineLuminosityCondAlg (name)
-
-    elif conddb.isMC:
+    if conddb.isMC:
         mlog.info("LuminosityCondAlgDefault called for MC!")
         kwargs = configureLuminosityCondAlgMC (name)
+
+    elif isOnline:
+        kwargs = configureOnlineLuminosityCondAlg (name)
 
     elif conddb.dbdata == "COMP200":
         kwargs = configureLuminosityCondAlgRun1 (name)

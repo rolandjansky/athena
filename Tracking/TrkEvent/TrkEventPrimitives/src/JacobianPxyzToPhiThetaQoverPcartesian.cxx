@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "TrkEventPrimitives/JacobianPxyzToPhiThetaQoverPcartesian.h"
-#include <math.h>
+#include <cmath>
 
 Trk::JacobianPxyzToPhiThetaQoverPcartesian::JacobianPxyzToPhiThetaQoverPcartesian(const double px, const double py, const double pz, double charge):
     AmgMatrix(3,3)()

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetExternalAssocTool.h
@@ -17,6 +17,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/WriteDecorHandleKeyArray.h"
 
 #include "xAODJet/JetContainer.h"
 
@@ -54,10 +55,9 @@ namespace DerivationFramework{
     typedef ElementLink<xAOD::IParticleContainer>            type_el;
     typedef std::vector<type_el>                             type_ghostlink;
 
-    std::vector<SG::AuxElement::Decorator<type_ghostlink>* > m_VectorOfDecors;
+    SG::WriteDecorHandleKeyArray<xAOD::JetContainer> m_dec_keys{this, "DecKeys", {}, "SG keys for external decorations"};
 
   };
 
 }
-
 #endif

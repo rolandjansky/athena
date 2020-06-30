@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MMDigitVariables.h"
@@ -11,6 +11,7 @@
 #include "MuonReadoutGeometry/MMReadoutElement.h"
 
 #include "TTree.h"
+#include <TString.h> // for Form
 
 /** ---------- filling of variables */
 /** ---------- to be called on each evt i.e. execute level of main alg */
@@ -66,7 +67,8 @@ StatusCode MMDigitVariables::fillVariables(const MuonGM::MuonDetectorManager* Mu
 
       // get the readout element class where the digit is recorded
       int isSmall = (stName[2] == 'S');
-      const MuonGM::MMReadoutElement* rdoEl = MuonDetMgr->getMMRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet );
+      const MuonGM::MMReadoutElement* rdoEl = MuonDetMgr->getMMRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet);
+      if (!rdoEl) throw std::runtime_error(Form("File: %s, Line: %d\nMMDigitVariables::fillVariables() - Failed to retrieve MMReadoutElement for isSmall=%d, stationEta=%d, stationPhi=%d, multiplet=%d", __FILE__, __LINE__, isSmall, stationEta, stationPhi, multiplet));
 
       // information from VMM chip
       std::vector<float>  time          = digit->chipResponseTime();

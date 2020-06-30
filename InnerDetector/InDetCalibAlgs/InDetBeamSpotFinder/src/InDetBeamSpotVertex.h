@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDET_INDETBEAMSPOTVERTEX_H
@@ -19,6 +19,7 @@
 #include "TMinuit.h"
 #include "TMath.h"
 #include "TTree.h"
+#include <atomic>
 #include <string>
 #include <vector>
 #include <map>
@@ -199,6 +200,7 @@ namespace InDet {
     
     int m_nUsed;
 
+    mutable std::atomic<int> m_rCount{0}; // counter used for recussive mode
   };
 }
 #endif

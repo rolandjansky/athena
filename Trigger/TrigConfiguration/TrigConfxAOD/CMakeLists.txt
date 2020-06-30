@@ -1,34 +1,7 @@
-# $Id: CMakeLists.txt 794799 2017-01-31 17:07:29Z ssnyder $
-################################################################################
-# Package: TrigConfxAOD
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigConfxAOD )
-
-# Extra dependencies, based on the environment:
-set( extra_deps )
-if( XAOD_STANDALONE )
-   set( extra_deps Control/xAODRootAccess )
-else()
-   set( extra_deps Control/AthenaBaseComps Control/AthenaKernel
-      Control/StoreGate GaudiKernel )
-endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   Event/xAOD/xAODTrigger
-   Trigger/TrigConfiguration/TrigConfData
-   Trigger/TrigConfiguration/TrigConfHLTData
-   Trigger/TrigConfiguration/TrigConfInterfaces
-   Trigger/TrigConfiguration/TrigConfL1Data
-   PRIVATE
-   ${extra_deps} )
-
-# External(s):
-find_package( ROOT COMPONENTS Core RIO )
 
 # Libraries in the package:
 atlas_add_library( TrigConfxAODLib

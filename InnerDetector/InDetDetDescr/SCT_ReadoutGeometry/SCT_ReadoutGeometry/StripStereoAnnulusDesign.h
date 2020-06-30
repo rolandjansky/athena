@@ -30,14 +30,16 @@
 // Base class
 #include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
 
-#include <vector>
-#include <stdexcept> // For throw stuff
 #include "InDetReadoutGeometry/SiCellId.h"
+#include "TrkSurfaces/AnnulusBounds.h"
+
 #include "CLHEP/Geometry/Vector3D.h" // For unused phiMeasureSegment
 #include "CLHEP/Geometry/Transform3D.h"
 
+#include <vector>
+#include <stdexcept> // For throw stuff
+
 namespace Trk {
-class AnnulusBounds;
 class SurfaceBounds;
 }
 
@@ -59,7 +61,7 @@ public:
                    const double &stereoAngle,
                    const double &centreR);
 
-    ~StripStereoAnnulusDesign();
+    ~StripStereoAnnulusDesign() = default;
 
     HepGeom::Point3D<double> sensorCenter() const;
 
@@ -194,7 +196,7 @@ private:
     const double m_stereo;
     const double m_R;
     const double m_lengthBF;
-    Trk::AnnulusBounds *m_bounds;
+    Trk::AnnulusBounds m_bounds;
     const double m_sinStereo;
     const double m_cosStereo;
 };

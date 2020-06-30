@@ -110,10 +110,6 @@ else: include( "RecExCommon/RecExCommon_topOptions.py" )
 
 
 if TriggerFlags.doMT():
-  doBeamspotSlice=False
-  doStreamingSlice=False
-  doMonitorSlice=False
-  doMinBiasSlice=False
   doWriteRDOTrigger = False
   doWriteBS        = False
   include("TriggerJobOpts/runHLT_standalone.py")
@@ -285,8 +281,8 @@ ServiceMgr.MessageSvc.Format = "% F%40W%S%4W%e%s%7W%R%T %0W%M"
 #findAlgorithm( topSequence, "TauL2CaloHypo").OutputLevel=DEBUG
 #findAlgorithm( topSequence, "TrigTauRecMerged_TauPrecisionMVA").OutputLevel=DEBUG
 
-
-import AthenaCommon.Configurable as Configurable
-Configurable.log.setLevel( INFO )
-printfunc (topSequence)
+if recoLog.getEffectiveLevel() <= logging.DEBUG:
+    import AthenaCommon.Configurable as Configurable
+    Configurable.log.setLevel(logging.INFO)
+    recoLog.debug('Printing topSequence:\n%s', topSequence)
 

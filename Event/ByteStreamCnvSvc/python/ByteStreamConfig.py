@@ -18,18 +18,20 @@ def ByteStreamReadCfg( inputFlags, typeNames=[] ):
     if inputFlags.Input.SecondaryFiles:
         filenames = inputFlags.Input.SecondaryFiles
         eventSelector = EventSelectorByteStream("SecondaryEventSelector", IsSecondary=True)
+        eventSelector.Input = filenames
         acc.addService( eventSelector )
     else:
         filenames = inputFlags.Input.Files
         xAODMaker__EventInfoSelectorTool = CompFactory.xAODMaker.EventInfoSelectorTool
         xconv = xAODMaker__EventInfoSelectorTool()
         eventSelector = EventSelectorByteStream("EventSelector")
+        eventSelector.Input = filenames
         eventSelector.HelperTools += [xconv]
+        eventSelector.SkipEvents=inputFlags.Exec.SkipEvents
         acc.addService( eventSelector )
         acc.setAppProperty( "EvtSel", eventSelector.name )
 
     bsInputSvc = ByteStreamEventStorageInputSvc( "ByteStreamInputSvc" )
-    bsInputSvc.FullFileName = filenames
     if inputFlags.Overlay.DataOverlay:
         bsInputSvc.EventInfoKey = inputFlags.Overlay.BkgPrefix + "EventInfo"
     acc.addService( bsInputSvc )
@@ -60,52 +62,7 @@ def ByteStreamReadCfg( inputFlags, typeNames=[] ):
     proxy.ProviderNames += [ bsAddressProviderSvc.name ]
     acc.addService( proxy )
 
-    bsCnvSvc.InitCnvs += [ "EventInfo",]
-
     return acc
-
-def TrigBSReadCfg(inputFlags):
-
-    acc=ByteStreamReadCfg( inputFlags )
-
-    bsCnvSvc=acc.getService("ByteStreamCnvSvc")
-    bsCnvSvc.InitCnvs += ["HLT::HLTResult" ]
-    
-    bsAddressProviderSvc=acc.getService("ByteStreamAddressProviderSvc")
-
-    bsAddressProviderSvc.TypeNames += [
-        "TileCellIDC/TileCellIDC",
-        "MdtDigitContainer/MDT_DIGITS",
-        "RpcDigitContainer/RPC_DIGITS",
-        "TgcDigitContainer/TGC_DIGITS",
-        "CscDigitContainer/CSC_DIGITS",
-        "MuCTPI_RIO/MUCTPI_RIO",
-        "CTP_RIO/CTP_RIO"
-    ]
-
-    bsAddressProviderSvc.TypeNames += [
-        "LArRawChannelContainer/LArRawChannels",
-        "TileRawChannelContainer/TileRawChannelCnt",
-        "MuCTPI_RDO/MUCTPI_RDO",
-        "HLT::HLTResult/HLTResult_L2",
-        "HLT::HLTResult/HLTResult_EF",
-        "CTP_RDO/CTP_RDO",
-        "L1TopoRDOCollection/L1TopoRDOCollection"
-    ]
-
-
-    
-    if inputFlags.Input.isMC is False:
-        bsCnvSvc.GetDetectorMask=True
-        from IOVDbSvc.IOVDbSvcConfig import addFolders
-        acc.merge(addFolders(inputFlags,'/TDAQ/RunCtrl/SOR_Params','TDAQ' ))
-        # still need to figure out how conditions are setup in new system
-        #from IOVDbSvc.CondDB import conddb
-        #conddb.addFolder( 'TDAQ', '/TDAQ/RunCtrl/SOR_Params' )
-        #acc.addService( conddb )    
-
-    return acc
-
 
 def ByteStreamWriteCfg( flags, typeNames=[] ):
     acc = ComponentAccumulator("AthOutSeq")
@@ -144,6 +101,6 @@ if __name__ == "__main__":
 
     ConfigFlags.Input.Files = defaultTestFiles.RAW
 
-    acc = TrigBSReadCfg( ConfigFlags )
+    acc = ByteStreamReadCfg( ConfigFlags )
     acc.store( open( "test.pkl", "wb" ) )
     print("All OK")

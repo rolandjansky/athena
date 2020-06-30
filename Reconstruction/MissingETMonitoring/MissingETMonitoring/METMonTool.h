@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef METMonTool_H
@@ -17,6 +17,10 @@
 
 
 #include "JetInterface/IJetSelector.h"
+#include "xAODMissingET/MissingETContainer.h" 
+#include "xAODJet/JetContainer.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODMuon/MuonContainer.h"
 #include <string>
 #include <vector>
 
@@ -70,15 +74,18 @@ class METMonTool : public ManagedMonitorToolBase
     ToolHandle<GenericMonitoringTool> m_genTool{ this, "GenTool",  "", "Generic monitoring tool" };
 
   
-    Gaudi::Property<std::string> m_suffix{ this, "NameSuffix", "", "" };
+    StringProperty m_suffix{ this, "NameSuffix", "", "" };
     // TB this needs to be converted into the ReadHandles, for now doing c++11 move
-    std::vector<std::string> m_metKeys;
-    std::string              m_metFinKey = "MET_RefFinal";
-    std::string              m_metCalKey = "MET_LocHadTopo";
-    std::string              m_metRegKey = "";
-    std::string              m_jetColKey = "AntiKt4LCTopoJets";
-    std::string              m_eleColKey = "Electrons";
-    std::string              m_muoColKey = "Muons";
+    StringArrayProperty m_metKeys {this, "metKeys", {"MET_Base", "MET_Topo", "MET_Track"}};
+    SG::ReadHandleKeyArray<xAOD::MissingETContainer> m_metKeysFull {this, "metKeysFull", {}, "Don't set this manually, please"};
+    SG::ReadHandleKey<xAOD::MissingETContainer> m_metForCut {this, "metForCut", "MET_Reference_AntiKt4LCTopo", "MET object for cuts"};
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey {this, "eventInfoKey", "EventInfo"};
+    StringProperty m_metFinKey {this, "metFinKey", "MET_RefFinal"};
+    StringProperty m_metCalKey {this, "metCalKey", "MET_Calo"};
+    StringProperty m_metRegKey {this, "metRegKey", "", "Set to MET_TruthRegions if desired"};
+    SG::ReadHandleKey<xAOD::JetContainer> m_jetColKey {this, "jetColKey", "AntiKt4LCTopoJets"};
+    SG::ReadHandleKey<xAOD::ElectronContainer> m_eleColKey {this, "eleColKey", "Electrons"};
+    SG::ReadHandleKey<xAOD::MuonContainer> m_muoColKey {this, "muoColKey", "Muons"};
 
 
 

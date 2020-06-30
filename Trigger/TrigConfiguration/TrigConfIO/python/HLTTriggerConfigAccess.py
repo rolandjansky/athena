@@ -25,12 +25,16 @@ class HLTMenuAccess(TriggerConfigAccess):
     def chains(self):
         return iter(self)
 
+    def streams(self):
+        return self["streams"]
+
     def sequencers(self):
         return self["sequencers"]
 
     def printSummary(self):
         print("HLT menu %s" % self.name())
         print("Number of chains: %i" % len(self) )
+        print("Number of streams: %i" % len(self.streams()) )
         print("Number of sequencers: %i" % len(self.sequencers()) )
 
 
@@ -83,7 +87,7 @@ class HLTJobOptionsAccess(TriggerConfigAccess):
         super(HLTJobOptionsAccess,self).__init__( ConfigType.HLTJO, mainkey = "properties",
                                                   filename = filename, dbalias = dbalias, dbkey = smkey )
         self.loader.setQuery([
-            "SELECT JO.HST_DATA FROM {schema}.SUPER_MASTER_TABLE SMT, {schema}.HLT_SETUP JO WHERE JO.HST_ID=SMT.SMT_HLT_JOBOPTIONS_ID AND SMT.SMT_ID={dbkey}", # for new db schema
+            "SELECT JO.HJO_DATA FROM {schema}.SUPER_MASTER_TABLE SMT, {schema}.HLT_JOBOPTIONS JO WHERE JO.HJO_ID=SMT.SMT_HLT_JOBOPTIONS_ID AND SMT.SMT_ID={dbkey}", # for new db schema
             "SELECT JO.JO_CONTENT FROM {schema}.SUPER_MASTER_TABLE SMT, {schema}.JO_MASTER_TABLE JO WHERE JO.JO_ID=SMT.SMT_JO_MASTER_TABLE_ID AND SMT.SMT_ID={dbkey}"  # for current db schema
         ])
         self.load()

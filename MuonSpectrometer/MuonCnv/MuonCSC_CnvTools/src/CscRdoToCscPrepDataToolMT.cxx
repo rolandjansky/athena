@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /// Author: Ketevi A. Assamagan, Woochun Park
@@ -154,13 +154,12 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
   // retrieve specific collection for the givenID
   uint16_t idColl = 0xffff;
   m_cabling->hash2CollectionId(givenHashId,idColl);
-  CscRawDataContainer::const_iterator it_coll = rdoContainer->indexFind(idColl);
-  if (rdoContainer->end() ==  it_coll) {
+  const CscRawDataCollection * rawCollection  = rdoContainer->indexFindPtr(idColl);
+  if (nullptr ==  rawCollection) {
     ATH_MSG_DEBUG ( "Specific CSC RDO collection retrieving failed for collection hash = " << idColl );
     return StatusCode::SUCCESS;
   }
 
-  const CscRawDataCollection * rawCollection = *it_coll;
   ATH_MSG_DEBUG ( "Retrieved " << rawCollection->size() << " CSC RDOs.");
   //return if the input raw collection is empty (can happen for seeded decoding in trigger)
   if(rawCollection->size()==0) return StatusCode::SUCCESS;
@@ -333,9 +332,7 @@ StatusCode CscRdoToCscPrepDataToolMT::decode(const CscRawDataContainer* rdoConta
   std::vector<uint16_t> samples;
   samples.reserve(4);
 
-  Identifier oldId;
   IdentifierHash cscHashId;
-  Identifier stationId;
   for (; rdoColl!=lastRdoColl; ++rdoColl) {
     if ( (*rdoColl)->size() > 0 ) {
       ATH_MSG_DEBUG ( " Number of RawData in this rdo " << (*rdoColl)->size() );

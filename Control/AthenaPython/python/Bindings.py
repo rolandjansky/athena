@@ -6,7 +6,6 @@
 from __future__ import print_function
 
 ### data
-__version__ = "$Revision: 1.30 $"
 __author__  = """
 Sebastien Binet (binet@cern.ch)
 """
@@ -277,14 +276,6 @@ def _py_init_StoreGateSvc():
     except Exception: pass # fwd compatibility
     from StoreGateBindings.Bindings import StoreGateSvc
 
-    ## merge aliases...
-    global _clid_typename_aliases
-    from AthenaServices.Dso import _load_typeregistry_dso
-    try:
-        _clid_typename_aliases.update(_load_typeregistry_dso())
-    except OSError:
-        # no typeregistry file...
-        pass
     return StoreGateSvc
 
 @memoize

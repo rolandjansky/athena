@@ -16,7 +16,7 @@
 #define TRT_TrackExtensionAlg_H
 
 #include <string>
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "InDetRecToolInterfaces/ITRT_TrackExtensionTool.h"
 
@@ -32,7 +32,7 @@
 
 namespace InDet {
 
-	class TRT_TrackExtensionAlg : public AthAlgorithm {
+	class TRT_TrackExtensionAlg : public AthReentrantAlgorithm {
 
 		///////////////////////////////////////////////////////////////////
 		// Public methods:
@@ -47,7 +47,7 @@ namespace InDet {
 		TRT_TrackExtensionAlg(const std::string &name, ISvcLocator *pSvcLocator);
 		virtual ~TRT_TrackExtensionAlg() {}
 		StatusCode initialize();
-		StatusCode execute();
+		StatusCode execute(const EventContext& ctx) const;
 		StatusCode finalize();
 
 		///////////////////////////////////////////////////////////////////
@@ -55,9 +55,6 @@ namespace InDet {
 		///////////////////////////////////////////////////////////////////
 
 	protected:
-		StatusCode execute_r(const EventContext& ctx) const;
-
-
 		///////////////////////////////////////////////////////////////////
 		// Protected data 
 		///////////////////////////////////////////////////////////////////

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -79,7 +79,7 @@ int main( int argc, char * argv[] )
 				directory = opendir( argv[argumentIndex] );
 				if (directory)
 				{
-					while ( ( directoryEntry = readdir(directory) ) != NULL )
+					while ( ( directoryEntry = readdir(directory) ) != nullptr )
 					{
 						string entryName = directoryEntry->d_name;
 						if ( entryName != "." && entryName != ".." )
@@ -108,7 +108,7 @@ int main( int argc, char * argv[] )
 				directory = opendir( argv[argumentIndex] );
 				if (directory)
 				{
-					while ( ( directoryEntry = readdir(directory) ) != NULL )
+					while ( ( directoryEntry = readdir(directory) ) != nullptr )
 					{
 						string entryName = directoryEntry->d_name;
 						if ( entryName != "." && entryName != ".." )

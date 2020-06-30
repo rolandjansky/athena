@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkTools/TrkToolInterfaces
+			  Tracking/TrkExtrapolation/TrkExInterfaces 
                           PRIVATE
                           DetectorDescription/AtlasDetDescr
                           DetectorDescription/IdDictDetDescr
@@ -28,7 +29,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkEvent/TrkMeasurementBase
                           Tracking/TrkEvent/TrkTrack
-                          Tracking/TrkExtrapolation/TrkExInterfaces )
+                          )
 
 # External dependencies:
 find_package( Eigen )
@@ -42,11 +43,16 @@ atlas_add_library( InDetTestBLayerLib
                    src/*.cxx
                    PUBLIC_HEADERS InDetTestBLayer
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier EventPrimitives GaudiKernel InDetRecToolInterfaces TrkEventPrimitives TrkParameters TrkToolInterfaces
-                   PRIVATE_LINK_LIBRARIES AtlasDetDescr IdDictDetDescr InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry Particle TrkGeometry TrkSurfaces TrkMeasurementBase TrkTrack TrkExInterfaces )
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier EventPrimitives GaudiKernel InDetRecToolInterfaces 
+		   TrkEventPrimitives TrkParameters TrkToolInterfaces TrkExInterfaces 
+                   InDetConditionsSummaryService
+                   PRIVATE_LINK_LIBRARIES AtlasDetDescr IdDictDetDescr InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry Particle 
+		   TrkGeometry TrkSurfaces TrkMeasurementBase TrkTrack )
 
 atlas_add_component( InDetTestBLayer
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier EventPrimitives GaudiKernel InDetRecToolInterfaces TrkEventPrimitives TrkParameters TrkToolInterfaces AtlasDetDescr IdDictDetDescr InDetIdentifier InDetReadoutGeometry Particle TrkGeometry TrkSurfaces TrkMeasurementBase TrkTrack TrkExInterfaces InDetTestBLayerLib )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier EventPrimitives 
+		     GaudiKernel InDetRecToolInterfaces TrkEventPrimitives TrkParameters TrkToolInterfaces AtlasDetDescr IdDictDetDescr InDetIdentifier 
+		     InDetReadoutGeometry Particle TrkGeometry TrkSurfaces TrkMeasurementBase TrkTrack TrkExInterfaces InDetTestBLayerLib )
 

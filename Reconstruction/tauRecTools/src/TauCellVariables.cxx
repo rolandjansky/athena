@@ -40,7 +40,7 @@ StatusCode TauCellVariables::initialize() {
 
 
 
-StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
+StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) const {
 
   const xAOD::Jet* pJetSeed = (*pTau.jetLink());
   if (!pJetSeed) {

@@ -17,12 +17,13 @@ def JetTrackingSequence(dummyFlags,trkopt,RoIs):
     if trkopt=="ftf":
         from TrigInDetConfig.InDetSetup import makeInDetAlgsNoView
         # Guess FS rather than making it jet-specific?
-        jetTrkSeq += makeInDetAlgsNoView( "JetFS", "_FS", rois=RoIs )
+        viewAlgs = makeInDetAlgsNoView( "JetFS", "FS", rois=RoIs )
+        jetTrkSeq += viewAlgs
         tracksname = recordable("HLT_IDTrack_FS_FTF")
-        verticesname = recordable("HLT_EFHistoPrmVtx")
+        verticesname = recordable("HLT_IDVertex_FS")
 
     from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
-    vtxAlgs = makeVertices( "jet", "HLT_IDTrack_FS_FTF", verticesname )
+    vtxAlgs = makeVertices( "jet", tracksname, verticesname )
     prmVtx = vtxAlgs[-1]
     jetTrkSeq += prmVtx
 
@@ -51,19 +52,16 @@ def JetTrackingSequence(dummyFlags,trkopt,RoIs):
 
     label = "GhostTrack_{}".format(trkopt)
     ghosttracksname = "PseudoJet{}".format(label)
-    pjg = CompFactory.PseudoJetGetter("pjg_{}".format(label),
-                                     InputContainer=tracksname,
-                                     OutputContainer=ghosttracksname,
-                                     Label=label,
-                                     SkipNegativeEnergy=True,
-                                     GhostScale=1e-40)
 
     trackcollectionmap[trkopt]["GhostTracks"] = ghosttracksname
     trackcollectionmap[trkopt]["GhostTracksLabel"] = label
 
     pjgalg = CompFactory.PseudoJetAlgorithm(
         "pjgalg_"+label,
-        PJGetter=pjg
+        InputContainer=tracksname,
+        OutputContainer=ghosttracksname,
+        Label=label,
+        SkipNegativeEnergy=True
         )
     jetTrkSeq += conf2toConfigurable( pjgalg )
 

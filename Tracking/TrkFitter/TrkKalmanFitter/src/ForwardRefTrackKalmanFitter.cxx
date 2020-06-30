@@ -11,6 +11,10 @@
 // Markus.Elsing@cern.ch
 ///////////////////////////////////////////////////////////////////
 
+#include <memory>
+
+
+
 #include "TrkKalmanFitter/ForwardRefTrackKalmanFitter.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "TrkFitterUtils/FitterStatusCode.h"
@@ -193,15 +197,15 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
     return FitterStatusCode::BadInput;
   }
 
-  const TransportJacobian* jacobian = 0;
+  const TransportJacobian* jacobian = nullptr;
 
   //////////////////////////////////////////////////////////////////////////////////////////
   // the regular filter loop after finding the correct initialisation
   for( ; it!=trajectory.end(); it++) {
 
-    const AmgVector(5)* predDiffPar = 0;
-    const AmgSymMatrix(5)* predDiffCov = 0;
-    if (jacobian==0) {
+    const AmgVector(5)* predDiffPar = nullptr;
+    const AmgSymMatrix(5)* predDiffCov = nullptr;
+    if (jacobian==nullptr) {
       ATH_MSG_DEBUG ("-F- beginning of trajectory, have already predPar");
       predDiffPar = it->parametersDifference();
       predDiffCov = it->parametersCovariance();
@@ -239,15 +243,14 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
 
     const MeasurementBase* fittableMeasurement = it->measurement();
     if ((!fittableMeasurement) || it->isOutlier()) { // pure material state
-      updatedDifference.reset( new std::pair<AmgVector(5),AmgSymMatrix(5)>
-                               (std::make_pair(*predDiffPar,*predDiffCov)) );
+      updatedDifference = std::make_unique<std::pair<AmgVector(5),AmgSymMatrix(5)>>( std::make_pair(*predDiffPar,*predDiffCov) );
     } else {
 
       // Posibly re-calibrate. TRT extension finder leaves many TRT hits as wire-hits w/o LR solution
       if (allowRecalibrate && m_recalibrator
           && it->measurementType() == TrackState::TRT)  {
         const AmgVector(5) x = it->referenceParameters()->parameters()+(*predDiffPar);
-        const Trk::TrackParameters* param = CREATE_PARAMETERS(*it->referenceParameters(),x,0);
+        const Trk::TrackParameters* param = CREATE_PARAMETERS(*it->referenceParameters(),x,nullptr);
         Trk::TrackState::CalibrationType oldType = it->calibrationType();
 
         // the replaceMeas.-method does ownership right and detects if the
@@ -261,14 +264,14 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
         delete param;
       }
 
-      Trk::FitQualityOnSurface* fitQS=0;
+      Trk::FitQualityOnSurface* fitQS=nullptr;
       updatedDifference.reset(
         m_updator->updateParameterDifference(*predDiffPar, *predDiffCov,
                                                *(it->measurementDifference()),
                                                fittableMeasurement->localCovariance(),
                                                fittableMeasurement->localParameters().parameterKey(),
                                              fitQS, /*doFQ=*/true ) );
-      if (!updatedDifference || fitQS == 0) {
+      if (!updatedDifference || fitQS == nullptr) {
         delete fitQS;
         ATH_MSG_DEBUG("update in reference-parameter formalism failed.");
         return FitterStatusCode::UpdateFailure;
@@ -290,7 +293,7 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
         // allow making of wire-hits for TRT fits with L/R-solving on the fly
         if ( m_recalibrator && it->measurementType() == TrackState::TRT) {
           const AmgVector(5) x = it->referenceParameters()->parameters()+(*predDiffPar);
-          const Trk::TrackParameters* param = CREATE_PARAMETERS(*it->referenceParameters(),x,0);
+          const Trk::TrackParameters* param = CREATE_PARAMETERS(*it->referenceParameters(),x,nullptr);
           if ( Trk::SensorBoundsCheck::areParamsInside
                 (*fittableMeasurement, param->parameters(), *predDiffCov, 1.0, -1.0)) {
             Trk::TrackState::CalibrationType oldType = it->calibrationType();
@@ -301,7 +304,7 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
             fittableMeasurement = it->measurement();
 	    ATH_MSG_VERBOSE ("TRT ROT calibration changed, from "<<oldType<<" to broad hit "<<
                            it->calibrationType()<< " instead of outlier");
-            delete fitQS; fitQS=0;
+            delete fitQS; fitQS=nullptr;
             updatedDifference.reset( 
               m_updator->updateParameterDifference(*predDiffPar, *predDiffCov,
                                                    *(it->measurementDifference()),
@@ -344,8 +347,7 @@ Trk::ForwardRefTrackKalmanFitter::fit(Trk::Trajectory& trajectory,
           return FitterStatusCode::BadInput;
         }
         // copy over prePar to updatedPar because we ignore this update
-        updatedDifference.reset( new std::pair<AmgVector(5),AmgSymMatrix(5)>
-                                 (std::make_pair(*predDiffPar,*predDiffCov)) );
+        updatedDifference = std::make_unique<std::pair<AmgVector(5),AmgSymMatrix(5)>>( std::make_pair(*predDiffPar,*predDiffCov) );
       }
       // @TODO fitQS maybe NULL in case it points to an outlier.
       //    Shall this part of the code be reached for outliers ?
@@ -398,13 +400,13 @@ Trk::FitterStatusCode Trk::ForwardRefTrackKalmanFitter::enterSeedIntoTrajectory
                      "trajectory is EMPTY.\n This can not work!");
     return FitterStatusCode::BadInput;
   }
-  if (ffs->measurement() == NULL) {
+  if (ffs->measurement() == nullptr) {
     ATH_MSG_WARNING ("-Fe mess-up in enterSeedIntoTraj: can not find a first measurement!");
     trajectory.clear();
     return FitterStatusCode::BadInput;
   }
   const Trk::Surface& startSurface = ffs->measurement()->associatedSurface();
-  const Trk::TrackParameters* inputParAtStartSurface = 0;
+  const Trk::TrackParameters* inputParAtStartSurface = nullptr;
  
   // chk if TPar are already in correct local frame: first pointer check (quick) then geometric
   if ( &startSurface ==  &inputPar.associatedSurface() ||
@@ -418,7 +420,7 @@ Trk::FitterStatusCode Trk::ForwardRefTrackKalmanFitter::enterSeedIntoTrajectory
                                                                  startSurface,
                                                                  Trk::anyDirection,
                                                                  false, Trk::nonInteracting);
-    if (inputParAtStartSurface == NULL) {
+    if (inputParAtStartSurface == nullptr) {
       ATH_MSG_WARNING ("-Fe can not transport input param to first measurement => extrap problem or bad input");
       ATH_MSG_INFO ("-Fe parameters R="<< inputPar.position().perp() << ", z="<<
                     inputPar.position().z()<<" q/p="<<inputPar.parameters()[Trk::qOverP]<<
@@ -431,7 +433,7 @@ Trk::FitterStatusCode Trk::ForwardRefTrackKalmanFitter::enterSeedIntoTrajectory
   }
 
   // make first seed for filtering
-  AmgVector(5)* diffPar = 0;
+  AmgVector(5)* diffPar = nullptr;
   if (ffs->referenceParameters())
     diffPar = new AmgVector(5)(inputParAtStartSurface->parameters()
                                -ffs->referenceParameters()->parameters());
@@ -452,15 +454,15 @@ Trk::FitterStatusCode Trk::ForwardRefTrackKalmanFitter::enterSeedIntoTrajectory
 
     // lazy initialization because the tracking geometry is built after conditions are there
     Trk::MagneticFieldProperties useFullField(Trk::FullField);
-    if (m_idEnclosingVolume == 0 ) m_idEnclosingVolume = 
+    if (m_idEnclosingVolume == nullptr ) m_idEnclosingVolume = 
       m_extrapolator->trackingGeometry()->trackingVolume("InDet::Containers::InnerDetector");
-    if (m_msCompleteVolume == 0 )  m_msCompleteVolume = 
+    if (m_msCompleteVolume == nullptr )  m_msCompleteVolume = 
       m_extrapolator->trackingGeometry()->trackingVolume("All::Container::CompleteDetector");
-    if (m_idEnclosingVolume==0 && m_msCompleteVolume == 0) {
+    if (m_idEnclosingVolume==nullptr && m_msCompleteVolume == nullptr) {
       ATH_MSG_WARNING ("Could not get any detector enclosing volume from tracking geometry.");
       return FitterStatusCode::BadInput;
     }
-    const IPropagator* propagator = 0;
+    const IPropagator* propagator = nullptr;
     bool  isInsideID = true;
     if (m_idEnclosingVolume && m_idEnclosingVolume->inside(inputParAtStartSurface->position())) {
       ATH_MSG_VERBOSE ("subPropagator detection: found id volume of signature ID " << 
@@ -478,12 +480,12 @@ Trk::FitterStatusCode Trk::ForwardRefTrackKalmanFitter::enterSeedIntoTrajectory
 
     const Trk::TrackParameters* lastPropagatedPar = 
       CREATE_PARAMETERS((*inputParAtStartSurface),
-                        inputParAtStartSurface->parameters(), 0); // remove covariance
+                        inputParAtStartSurface->parameters(), nullptr); // remove covariance
     for (auto it=m_utility->firstFittableState ( trajectory ); it!=trajectory.end(); ++it) {
       if (!it->referenceParameters()) {
         it->checkinReferenceParameters (lastPropagatedPar);
       } else {
-        delete lastPropagatedPar; lastPropagatedPar=0;
+        delete lastPropagatedPar; lastPropagatedPar=nullptr;
         // FIXME study this further, whether cov really not needed and how close in param
         // space the old and new references are.
         ATH_MSG_VERBOSE("At state T"<<it->positionOnTrajectory()<<" have already reference.");
@@ -503,7 +505,7 @@ Trk::FitterStatusCode Trk::ForwardRefTrackKalmanFitter::enterSeedIntoTrajectory
         propagator = m_extrapolator->subPropagator(*m_idEnclosingVolume);
         ATH_MSG_DEBUG ("changed from MS to ID propagator.");
       }
-      TransportJacobian* jac = 0;
+      TransportJacobian* jac = nullptr;
       double pathLimit = -1.;
       if (!propagator) {
         ATH_MSG_WARNING("NO propagator!!");
@@ -533,12 +535,12 @@ Trk::FitterStatusCode Trk::ForwardRefTrackKalmanFitter::enterSeedIntoTrajectory
 
 
 // private -- helper to make pretty debug output
-void Trk::ForwardRefTrackKalmanFitter::printGlobalParams(int istate, std::string ptype,
+void Trk::ForwardRefTrackKalmanFitter::printGlobalParams(int istate, const std::string& ptype,
                                                          const Trk::TrackParameters& ref,
                                                          const AmgVector(5)& diff) const
 {
   const AmgVector(5) x = ref.parameters()+diff;
-  const Trk::TrackParameters* param = CREATE_PARAMETERS(ref,x,0);
+  const Trk::TrackParameters* param = CREATE_PARAMETERS(ref,x,nullptr);
   char tt[80]; snprintf(tt,79,"T%.2d",istate);
   msg(MSG::VERBOSE) << tt << ptype << " GP:" 
         << std::setiosflags(std::ios::fixed | std::ios::showpoint | std::ios::right )

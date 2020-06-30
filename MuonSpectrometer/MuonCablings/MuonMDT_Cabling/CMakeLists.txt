@@ -34,6 +34,3 @@ atlas_add_component( MuonMDT_Cabling
                      src/components/*.cxx
                      LINK_LIBRARIES GaudiKernel MuonMDT_CablingLib )
 
-# Install files from the package:
-atlas_install_python_modules( python/*.py )
-

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -24,6 +24,8 @@
 #include "AtlasDetDescr/AtlasDetectorID.h"
 
 #include "EventPrimitives/EventPrimitives.h"
+
+#include <memory>
 
 using CLHEP::micrometer;
 
@@ -168,7 +170,7 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   // error matrix
   const Amg::Vector2D& colRow = width.colRow();// made ref to avoid 
                                              // unnecessary copy EJWM
-  Amg::MatrixX* errorMatrix = new Amg::MatrixX(2,2);
+  std::unique_ptr<Amg::MatrixX> errorMatrix{std::make_unique<Amg::MatrixX>(2,2)};
   errorMatrix->setIdentity();
 
   // switches are more readable **OPT**
@@ -231,7 +233,7 @@ PixelCluster* ClusterMakerTool::pixelCluster(
  PixelCluster* newCluster = 
    new PixelCluster(clusterID, locpos, 
                     rdoList, lvl1a, totList,chargeList, 
-                    width, element, errorMatrix, omegax, omegay,
+                    width, element, errorMatrix.release(), omegax, omegay,
                     split,
                     splitProb1,
                     splitProb2);
@@ -365,7 +367,7 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   // error matrix
   const Amg::Vector2D& colRow = width.colRow();// made ref to avoid 
                                              // unnecessary copy EJWM
-  Amg::MatrixX* errorMatrix = new Amg::MatrixX(2,2);
+  std::unique_ptr<Amg::MatrixX> errorMatrix{std::make_unique<Amg::MatrixX>(2,2)};
   errorMatrix->setIdentity();
 	
   // switches are more readable **OPT**
@@ -378,7 +380,6 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   const PixelID* pid = dynamic_cast<const PixelID*>(aid);
   if (not pid){
   	ATH_MSG_ERROR("Dynamic cast failed at "<<__LINE__<<" of ClusterMakerTool.cxx.");
-  	delete errorMatrix;errorMatrix=nullptr;
   	return nullptr;
   }
   int layer = pid->layer_disk(clusterID);
@@ -438,7 +439,7 @@ PixelCluster* ClusterMakerTool::pixelCluster(
                     chargeList,
                     width,
                     element,
-                    errorMatrix,
+                    errorMatrix.release(),
                     omegax,
                     omegay,
                     split,
@@ -462,6 +463,8 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   // - the error strategy, currently
   //    0: Cluster Width/sqrt(12.)
   //    1: Set to a different values for one and two-strip clusters (def.)
+  // The scale factors were derived by the study reported on 25th September 2006.
+  // https://indico.cern.ch/event/430391/contributions/1066157/attachments/929942/1317007/SCTSoft_25Sept06_clusters.pdf
 
 SCT_Cluster* ClusterMakerTool::sctCluster(
                          const Identifier& clusterID,
@@ -481,7 +484,7 @@ SCT_Cluster* ClusterMakerTool::sctCluster(
 	const Amg::Vector2D& colRow = width.colRow();// made ref to avoid 
 	// unnecessary copy EJWM
 
-	Amg::MatrixX* errorMatrix = new Amg::MatrixX(2,2);
+        std::unique_ptr<Amg::MatrixX> errorMatrix{std::make_unique<Amg::MatrixX>(2,2)};
 	errorMatrix->setIdentity();
 
 	// switches are more readable **OPT**
@@ -537,9 +540,7 @@ SCT_Cluster* ClusterMakerTool::sctCluster(
 	  errorMatrix->fillSymmetric(1,1,sn2*v0+cs2*v1);
 	}
 
-	//        delete localPos;
-	//	localPos=0;
-	SCT_Cluster* newCluster = new SCT_Cluster(clusterID, locpos, rdoList , width, element, errorMatrix);
+	SCT_Cluster* newCluster = new SCT_Cluster(clusterID, locpos, rdoList , width, element, errorMatrix.release());
 	return newCluster;
 
 }

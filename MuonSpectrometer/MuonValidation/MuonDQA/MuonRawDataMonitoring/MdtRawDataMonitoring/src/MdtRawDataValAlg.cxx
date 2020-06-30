@@ -66,7 +66,7 @@ MdtRawDataValAlg::MdtRawDataValAlg( const std::string & type, const std::string 
 :ManagedMonitorToolBase( type, name, parent ),
  m_mg(0),
  m_masked_tubes(NULL),
- m_muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool"),
+ m_muonSelectionTool(this, "MuonSelectionTool", "CP::MuonSelectionTool/MuonSelectionTool"),
  m_DQFilterTools(this),
  m_atlas_ready(0),
  m_trig_BARREL(false),
@@ -445,9 +445,8 @@ StatusCode MdtRawDataValAlg::fillHistograms()
           for (const Trk::MeasurementBase* hit : *trk->measurementsOnTrack()) {
 	    const Trk::RIO_OnTrack* rot_from_track = dynamic_cast<const Trk::RIO_OnTrack*>(hit);
 	    if(!rot_from_track) continue;
-	    //              rot_from_track->dump(msg());
 	    Identifier rotId = rot_from_track->identify();
-	    if(!m_idHelperSvc->mdtIdHelper().is_mdt(rotId)) continue;
+	    if(!m_idHelperSvc->isMdt(rotId)) continue;
 	    IdentifierHash mdt_idHash;
 	    MDTChamber* mdt_chamber = 0;
 	    m_idHelperSvc->mdtIdHelper().get_module_hash( rotId, mdt_idHash );
@@ -1878,8 +1877,8 @@ StatusCode MdtRawDataValAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
       std::vector<float> traversed_distance;    
       for( unsigned i_chamber=0; i_chamber<unique_chambers.size(); i_chamber++) {
         Identifier station_id = unique_chambers.at(i_chamber);
-        if( !m_idHelperSvc->mdtIdHelper().is_mdt( station_id ) ) {
-          ATH_MSG_DEBUG("is_mdt() returned false in segm-based mdt eff calc" );
+        if( !m_idHelperSvc->isMdt( station_id ) ) {
+          ATH_MSG_DEBUG("Found non-MDT station identifier in segm-based mdt eff calc" );
         }
         std::string hardware_name = getChamberName(station_id); 
 

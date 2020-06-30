@@ -14,7 +14,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IRndmGenSvc.h"
 #include "GaudiKernel/RndmGenerators.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
+#include "GeoPrimitives/GeoPrimitives.h"
 #include <string>
 
 class AtlasDetectorID;
@@ -65,7 +65,6 @@ namespace Trk
 
       /** member variables for algorithm properties: */
       ToolHandle<IPropagator>           m_propagator;       
-      ServiceHandle<MagField::IMagFieldSvc>    m_magFieldSvc;       
       bool                              m_useCustomField;
       bool                              m_useAlignedSurfaces;
       double                            m_fieldValue;

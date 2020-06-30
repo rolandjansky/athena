@@ -10,6 +10,10 @@ from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromDict
 from TrigEgammaHypo.TrigL2PhotonHypoTool import TrigL2PhotonHypoToolFromDict
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
+import pprint
+from AthenaCommon.Logging import logging
+log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Photon.generatePhoton' )
+
 def generateChains(flags, chainDict):
 
     firstStepName = getChainStepName('Photon', 1)
@@ -68,9 +72,7 @@ def generateChains(flags, chainDict):
     for part in chainDict['chainParts']:
         l1Thresholds.append(part['L1threshold'])
 
-    import pprint
-    pprint.pprint(chainDict)
-
+    log.debug('dictionary is: %s\n', pprint.pformat(chainDict))
 
 
     chain = Chain(chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[fastCaloStep, l2PhotonStep])
