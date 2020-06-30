@@ -14,7 +14,7 @@ atlas_add_library( L1TopoCoreSim
                    PUBLIC_HEADERS L1TopoCoreSim
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} L1TopoCommon L1TopoConfig L1TopoEvent L1TopoInterfaces TrigConfBase
-                   PRIVATE_LINK_LIBRARIES L1TopoHardware )
+                   PRIVATE_LINK_LIBRARIES L1TopoHardware L1TopoAlgorithms )
 
 atlas_add_executable( TrigConfTopoStandAlone
                       src/test/TopoStandAlone.cxx
