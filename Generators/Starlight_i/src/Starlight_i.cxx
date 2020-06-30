@@ -224,6 +224,7 @@ StatusCode
 Starlight_i::fillEvt(HepMC::GenEvent* evt)
 {
 
+
    if(m_lheOutput) return StatusCode::SUCCESS;
    
    MsgStream log(messageService(), name());
@@ -239,6 +240,7 @@ Starlight_i::fillEvt(HepMC::GenEvent* evt)
     // Create the event vertex
     HepMC::GenVertex* v1 = new HepMC::GenVertex();
     evt->add_vertex( v1 );
+
 
     // Loop on all final particles and 
     // put them all as outgoing from the event vertex
@@ -321,9 +323,10 @@ Starlight_i::starlight2lhef()
       {
          CLHEP::HepLorentzVector particle_sl((*part).GetPx(), (*part).GetPy(), (*part).GetPz(), (*part).GetE());
          photon_system += particle_sl;
-         // pt is the correct scale here
-         ptscale = sqrt((*part).GetPx()*(*part).GetPx() + (*part).GetPy()*(*part).GetPy()); 
+         ptscale += sqrt((*part).GetPx()*(*part).GetPx() + (*part).GetPy()*(*part).GetPy()); 
       }
+      // avg pt is the correct scale here
+      ptscale /= (float) ipart;
       lheStream << "     4  9999  1.000000e+00  "<<ptscale<<"  7.297e-03  2.569093e-01\n";
       lheStream << " 22    -1     0     0     0     0  0.0000000000e+00  0.0000000000e+00  "
                 << photon_system.m()/2.*exp(photon_system.rapidity())<<"  "<<photon_system.m()/2.*exp(photon_system.rapidity())<<"  0.0000000000e+00 0. 9.\n";
