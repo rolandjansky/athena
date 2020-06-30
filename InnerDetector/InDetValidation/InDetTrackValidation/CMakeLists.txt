@@ -60,4 +60,5 @@ atlas_add_component( InDetTrackValidation
    EventPrimitives GeneratorObjects TRT_ConditionsData
    TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry SCT_CablingLib
    InDetRIO_OnTrack TrkSurfaces TrkEventPrimitives TrkMeasurementBase
-   TrkPrepRawData TrkRIO_OnTrack TrkToolInterfaces )
+   TrkPrepRawData TrkRIO_OnTrack TrkToolInterfaces SCT_ConditionsToolsLib
+   InDetTrackSplitterToolLib )
