@@ -347,6 +347,18 @@ ElementLink<STORABLE>::cachedElement() const
 
 
 /**
+ * @brief Is this link invalid because its target was removed (e.g. through
+ * slimming or thinning in the derivation framework)
+ */
+template <class STORABLE>
+inline
+bool ElementLink<STORABLE>::wasThinned() const
+{
+  return !isValid() && !this->isDefault();
+}
+
+
+/**
  * @brief Set the link to an element given by index and pointer to container.
  * @param data Reference to the container (storable).
  * @param elemID The index of the element within the container.

@@ -366,6 +366,12 @@ public:
   ElementType cachedElement() const;
 
 
+   /**
+    * @brief Is this link invalid because its target was removed (e.g. through
+    * slimming or thinning in the derivation framework)
+    */
+   bool wasThinned() const;
+
 
   //@)
   //========================================================================
