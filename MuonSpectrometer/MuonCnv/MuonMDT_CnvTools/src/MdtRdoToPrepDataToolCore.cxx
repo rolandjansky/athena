@@ -221,7 +221,10 @@ bool Muon::MdtRdoToPrepDataToolCore::handlePRDHash( IdentifierHash hash, const M
   if (m_BMEpresent) { // after BMEs were installed, the RDOs are indexed by the detectorElement hash of a multilayer
     Identifier elementId;
     IdContext tmp_context = m_idHelperSvc->mdtIdHelper().module_context();
-    m_idHelperSvc->mdtIdHelper().get_id(hash, elementId, &tmp_context);
+    if(m_idHelperSvc->mdtIdHelper().get_id(hash, elementId, &tmp_context)){
+      ATH_MSG_DEBUG("Found invalid elementId");
+      return false;
+    }
 
     Identifier multilayerId = m_idHelperSvc->mdtIdHelper().multilayerID(elementId, 1); //first multilayer
     IdentifierHash multilayerHash;
