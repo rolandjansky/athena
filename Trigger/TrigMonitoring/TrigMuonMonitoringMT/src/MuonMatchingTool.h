@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMUONMONITORINGMT_MUONMATCHINGTOOL_H
@@ -24,7 +24,6 @@
 class MuonMatchingTool : public AthAlgTool {
 
  public:
-  static const InterfaceID& interfaceID();
   MuonMatchingTool(const std::string& type, const std::string &name, const IInterface* parent);
 
   virtual StatusCode initialize() override;
@@ -44,10 +43,14 @@ class MuonMatchingTool : public AthAlgTool {
 
 
 
-  StatusCode matchL1(const xAOD::Muon *mu, SG::ReadHandle<xAOD::MuonRoIContainer> &murois, std::string trigger, bool &pass) const;
-  StatusCode matchSA(const xAOD::Muon *mu, std::string trigger, bool &pass) const;
-  StatusCode matchCB(const xAOD::Muon *mu, std::string trigger, bool &pass) const;
-  StatusCode matchEF(const xAOD::Muon *mu, std::string trigger, bool &pass) const;
+  const xAOD::MuonRoI* matchL1(const xAOD::Muon *mu, const EventContext& ctx, std::string trigger, bool &pass) const;
+  const xAOD::L2StandAloneMuon* matchSA(const xAOD::Muon *mu, std::string trigger, bool &pass) const;
+  const xAOD::L2StandAloneMuon* matchSA(const xAOD::Muon *mu, std::string trigger, float &dR) const;
+  const xAOD::L2CombinedMuon* matchCB(const xAOD::Muon *mu, std::string trigger, bool &pass) const;
+  const xAOD::Muon* matchEFSA(const xAOD::Muon *mu, std::string trigger, bool &pass) const;
+  const xAOD::Muon* matchEF(const xAOD::Muon *mu, std::string trigger, bool &pass) const;
+
+  const xAOD::Muon* matchOff( const EventContext& ctx, float trigEta, float trigPhi, float DR_cut) const;
 
   const Trk::TrackParameters* extTrackToPivot(const xAOD::TrackParticle *track) const;
   const Trk::TrackParameters* extTrackToTGC(const xAOD::TrackParticle *track) const;
@@ -58,13 +61,19 @@ class MuonMatchingTool : public AthAlgTool {
 
  private:
   // private methods
-  // Template methods that perform different matching schemes for T=xAOD::L2StandAloneMuon, xAOD::L2CombinedMuon and xAOD::Muon (EF).
   // See MuonMatchingTool.cxx for specialization and MuonMatchingTool.icc for implementation
-  template<class T> inline std::tuple<double,double> trigPosForMatch(const T *trig) const;
-  template<class T> inline std::tuple<double,double> offlinePosForMatch(const xAOD::Muon *mu) const;
-  template<class T> StatusCode match(const xAOD::Muon *mu, std::string trigger, double reqdR, bool &pass) const;
+  template<class T, class OFFL> const T* match(const OFFL *offl, std::string trigger, float &reqdR, bool &pass,
+				   std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*) = &MuonMatchingTool::trigPosForMatch<T>) const;
+  const Amg::Vector3D offlineMuonAtPivot(const xAOD::Muon *mu) const;
   double FermiFunction(double x, double x0, double w) const;
 
+  // static methods
+  // Template methods that perform different matching schemes for T=xAOD::L2StandAloneMuon, xAOD::L2CombinedMuon and xAOD::Muon (EF).
+  template<class T> static inline std::tuple<bool,double,double> trigPosForMatch(const T *trig);
+  static inline std::tuple<bool,double,double> trigPosForMatchEFSA(const xAOD::Muon *trig);
+  
+  SG::ReadHandleKey<xAOD::MuonRoIContainer> m_MuonRoIContainerKey {this, "MuonRoIContainerName", "LVL1MuonRoIs", "Level 1 muon container"};
+  SG::ReadHandleKey<xAOD::MuonContainer> m_MuonContainerKey {this, "MuonContainerName", "Muons", "Offline muon container"};
 
   // properties
   Gaudi::Property<bool> m_use_extrapolator {this, "UseExtrapolator", false, "Flag to enable the extrapolator for matching offline and trigger muons"};
