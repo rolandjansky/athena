@@ -45,3 +45,14 @@ void ElementLinkBase::setPersIndex( uint32_t index ) {
 
    return;
 }
+
+bool ElementLinkBase::isDefaultIndex() const {
+  return m_persIndex == ElementLinkBase::INVALID;
+}
+
+bool ElementLinkBase::isDefault() const {
+  // I'm not sure how necessary this is, but we also check if there is a cached
+  // element in case the link is referring to a transient object (I am not sure
+  // if this is allowed in AnalysisBase)
+  return !hasCachedElement() && isDefaultIndex();
+}

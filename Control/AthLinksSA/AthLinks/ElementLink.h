@@ -172,7 +172,7 @@ public:
    /// Access the currently cached element. Doesn't trigger lookup.
    ElementType cachedElement() const { return m_element; }
    /// Check if the link has a cached element pointer
-   bool hasCachedElement() const { return m_elementCached; }
+   virtual bool hasCachedElement() const override { return m_elementCached; }
 
    /// @}
 
