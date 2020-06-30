@@ -61,6 +61,7 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
     m_fillHist(false),
     m_useVertexCleaning(true),
     m_multiWithOneTrkVrt(true),
+    m_calibFileName("Fake2TrVertexReject.MVA.v01.root"),
     m_SV2T_BDT(nullptr),
     m_beamService("BeamCondSvc",name),
     m_fitterSvc("Trk::TrkVKalVrtFitter/VertexFitterTool",this)
@@ -111,6 +112,8 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
 
     declareProperty("beampipeR",	  m_beampipeR, "Radius of the beampipe material" );
     declareProperty("removeTrkMatSignif", m_removeTrkMatSignif, "Significance of Vertex-TrackingMaterial distance for removal. No removal if <=0." );
+
+    declareProperty("calibFileName", m_calibFileName, " MVA calibration file for 2-track fake vertices removal" );
 
     declareProperty("BeamSpotSvc",         m_beamService, "Name of the BeamSpot service");
     declareProperty("VertexFitterTool",    m_fitterSvc, "Name of the Vertex Fitter tool");
@@ -283,11 +286,12 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
      }
 
 //--------------------------------------------------------
-     std::string fileName="NewVrtSecInclusiveTool/Fake2TrVertexReject.MVA.root";
-     std::string rootFilePath = PathResolver::find_file(fileName, "DATAPATH");
+     //std::string fileName="NewVrtSecInclusiveTool/Fake2TrVertexReject.MVA.v01.root";   ///For local calibration file
+     //std::string rootFilePath = PathResolver::find_file(fileName, "DATAPATH");         ///
+     std::string rootFilePath = PathResolver::find_calib_file("NewVrtSecInclusiveTool/"+m_calibFileName);
      TFile* rootFile = TFile::Open(rootFilePath.c_str(), "READ");    
      if (!rootFile) {
-        ATH_MSG_FATAL("Could not retrieve root file: " << fileName);
+        ATH_MSG_FATAL("Could not retrieve root file: " << m_calibFileName);
         return StatusCode::FAILURE;
      }
      TTree * training = (TTree*)rootFile->Get("BDT");

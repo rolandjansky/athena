@@ -163,6 +163,7 @@ namespace Rec {
       bool m_fillHist{};
       bool m_useVertexCleaning{};
       bool m_multiWithOneTrkVrt{};
+      std::string m_calibFileName;
 
       std::unique_ptr<MVAUtils::BDT> m_SV2T_BDT;
 
@@ -176,7 +177,6 @@ namespace Rec {
       double m_massE{};
       double m_massK0{};
       double m_massLam{};
-      double m_massB{};
       std::string m_instanceName;
 
 //-------------------------------------------
