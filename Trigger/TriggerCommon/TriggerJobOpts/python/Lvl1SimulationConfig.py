@@ -110,9 +110,6 @@ def Lvl1SimulationSequence( flags = None ):
     ToolSvc += L1MuctpiTool("L1MuctpiTool")
     ToolSvc.L1MuctpiTool.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
     
-    ToolSvc += L1MuctpiTool("LVL1MUCTPI__L1MuctpiTool") # one for topo, no idea why we need two
-    ToolSvc.LVL1MUCTPI__L1MuctpiTool.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc        
-
     muctpi             = L1Muctpi()
     muctpi.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
     
@@ -147,15 +144,31 @@ def Lvl1SimulationSequence( flags = None ):
     from MuonCondSvc.MuonCondSvcConf import TGCTriggerDbAlg
     condSeq += TGCTriggerDbAlg()
 
+    from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulation
+    l1TopoSim = L1TopoSimulation()
+
+    l1TopoSim.MuonInputProvider.ROIBResultLocation = "" #disable input from RoIBResult
+    l1TopoSim.MuonInputProvider.MuctpiSimTool = ToolSvc.L1MuctpiTool
+
+    # enable the reduced (coarse) granularity topo simulation
+    # currently only for MC
+    from AthenaCommon.GlobalFlags  import globalflags
+    if globalflags.DataSource()!='data':
+        l1TopoSim.MuonInputProvider.MuonEncoding = 1
+    else:
+        l1TopoSim.MuonInputProvider.MuonEncoding = 0
+
+
+
     ctp             = CTPSimulationInReco("CTPSimulation")
     ctp.DoLUCID     = False
     ctp.DoBCM       = False
-    ctp.DoL1Topo    = False
+    ctp.DoL1Topo    = True
     ctp.UseCondL1Menu = False
     ctp.TrigConfigSvc = svcMgr.LVL1ConfigSvc
     ctpSim      = seqAND("ctpSim", [ctp, RoIBuilder("RoIBuilder")])
 
     #l1Sim = seqAND("l1Sim", [caloTowerMaker] )
-    l1Sim = seqAND("l1Sim", [l1CaloSim, l1MuonSim, ctpSim] )
+    l1Sim = seqAND("l1Sim", [l1CaloSim, l1MuonSim, l1TopoSim, ctpSim] )
     return l1Sim
-    
+
