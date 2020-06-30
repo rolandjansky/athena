@@ -11,13 +11,7 @@ import TrigMinBiasMonitoring.TrigMinBiasMonitCategory as minbias
 import TrigMuonMonitoring.TrigMuonMonitCategory as muon
 import TrigTauMonitoring.TrigTauMonitCategory as tau
 
-if not 'jobproperties' in dir():
-	from AthenaCommon.BeamFlags import jobproperties
-
-if not 'rec' in dir():
-	from RecExConfig.RecFlags import rec
-
-if not 'DQMonFlags' in dir():
+if 'DQMonFlags' not in dir():
 	from AthenaMonitoring.DQMonFlags import DQMonFlags
 
 class HLTMonTriggerList:
@@ -77,23 +71,23 @@ class HLTMonTriggerList:
 
 		self._get_monitoring_mode_success = self.get_monitoring_mode()
 
-		if self._get_monitoring_mode_success == False:
+		if self._get_monitoring_mode_success is False:
 			# what should be done in this case?
 			print ("HLTMonTriggerList: Error getting monitoring mode, default monitoring lists will be used.")
 
-		elif self.pp_mode == True:
+		elif self.pp_mode is True:
 			print ("HLTMonTriggerList: Setting up pp monitoring.")
 			self.set_HLTMonTrigList_pp()
 
-		elif self.mc_mode == True:
+		elif self.mc_mode is True:
 			print ("HLTMonTriggerList: Setting up MC monitoring.")
 			self.set_HLTMonTrigList_mc()
 
-		elif self.HI_mode == True:
+		elif self.HI_mode is True:
 			print ("HLTMonTriggerList: Setting up HI monitoring.")
 			self.set_HLTMonTrigList_HI()
 
-		elif self.cosmic_mode == True:
+		elif self.cosmic_mode is True:
 			print ("HLTMonTriggerList: Setting up cosmic monitoring.")
 			self.set_HLTMonTrigList_cosmic()
 
