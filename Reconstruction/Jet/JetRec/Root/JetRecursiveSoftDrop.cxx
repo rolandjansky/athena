@@ -1,15 +1,13 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020c CERN for the benefit of the ATLAS collaboration
 */
 
-// JetSoftDrop.cxx
+// JetRecursiveSoftDrop.cxx
 
-#include "JetRec/JetSoftDrop.h"
+#include "JetRec/JetRecursiveSoftDrop.h"
 #include <iomanip>
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/JetDefinition.hh"
-#include "fastjet/Selector.hh"
-#include "fastjet/tools/Filter.hh"
 #include "JetEDM/PseudoJetVector.h"
 
 
@@ -19,30 +17,33 @@ using xAOD::JetContainer;
 
 //**********************************************************************
 
-JetSoftDrop::JetSoftDrop(std::string name)
+JetRecursiveSoftDrop::JetRecursiveSoftDrop(std::string name)
   : AsgTool(name), m_bld("",this) {
-  //ZCut = 0.1, Beta = 0 are "CMS-like" parameters for SoftDrop: 
-  //https://indico.cern.ch/event/439039/contributions/2223279/attachments/1311773/1963161/BOOST16_toptagging_CMS.pdf
   declareProperty("ZCut", m_zcut =0.1);
   declareProperty("Beta", m_beta =0.0);
+  declareProperty("N",    m_N    =-1); //default to infinite layers
   declareProperty("R0",   m_R0   =1.0);
   declareProperty("JetBuilder", m_bld);
 }
 
 //**********************************************************************
 
-JetSoftDrop::~JetSoftDrop() {
+JetRecursiveSoftDrop::~JetRecursiveSoftDrop() {
 }
 
 //**********************************************************************
 
-StatusCode JetSoftDrop::initialize() {
+StatusCode JetRecursiveSoftDrop::initialize() {
   if ( m_zcut < 0.0 || m_zcut > 10.0 ) {
     ATH_MSG_ERROR("Invalid value for ZCut " << m_zcut);
     return StatusCode::FAILURE;
   }
   if ( m_beta < 0.0 || m_beta > 10.0 ) {
     ATH_MSG_ERROR("Invalid value for Beta " << m_beta);
+    return StatusCode::FAILURE;
+  }
+  if ( m_N < -1.0) {
+    ATH_MSG_ERROR("Invalid value for N " << m_N);
     return StatusCode::FAILURE;
   }
   if ( m_R0 < 0.0 || m_R0 > 10.0 ) {
@@ -58,9 +59,9 @@ StatusCode JetSoftDrop::initialize() {
 
 //**********************************************************************
 
-int JetSoftDrop::groom(const xAOD::Jet& jin,
-		       const PseudoJetContainer& pjContainer,
-		       xAOD::JetContainer& jets) const {
+int JetRecursiveSoftDrop::groom(const xAOD::Jet& jin,
+				const PseudoJetContainer& pjContainer,
+				xAOD::JetContainer& jets) const {
   if ( pseudojetRetriever() == nullptr ) {
     ATH_MSG_WARNING("Pseudojet retriever is null.");
     return 1;
@@ -72,16 +73,17 @@ int JetSoftDrop::groom(const xAOD::Jet& jin,
   }
 
   ////////////////////////
-  //configure soft drop tool
-  //http://fastjet.hepforge.org/svn/contrib/contribs/RecursiveTools/tags/1.0.0/SoftDrop.hh
+  //configure recursive soft drop tool
+  //https://fastjet.hepforge.org/trac/browser/contrib/contribs/RecursiveTools/tags/2.0.0-beta1
   ////////////////////////
-  fastjet::contrib::SoftDrop softdropper(m_beta, m_zcut, m_R0);
+  fastjet::contrib::RecursiveSoftDrop softdropper(m_beta, m_zcut, m_N, m_R0);
   PseudoJet pjsoftdrop = softdropper(*ppjin);
   int npsoftdrop = pjsoftdrop.pieces().size();
   xAOD::Jet* pjet = m_bld->add(pjsoftdrop, pjContainer, jets, &jin);
-  //pjet->SetAttribute<int>("TransformType", xAOD::JetTransform::SoftDrop); //xAOD::JetTransform::SoftDrop probably doesn't exist yet
-  pjet->setAttribute<float>("ZCut", m_zcut);
-  pjet->setAttribute<float>("SoftDropBeta", m_beta);
+
+  pjet->setAttribute<float>("RSoftDropZCut", m_zcut);
+  pjet->setAttribute<float>("RSoftDropBeta", m_beta);
+  pjet->setAttribute<int>("RSoftDropN", m_N);
   pjet->setAttribute<float>("SoftDropR0", m_R0);
   pjet->setAttribute<int>("NSoftDropSubjets", npsoftdrop);
 
@@ -99,9 +101,10 @@ int JetSoftDrop::groom(const xAOD::Jet& jin,
 
 //**********************************************************************
 
-void JetSoftDrop::print() const {
+void JetRecursiveSoftDrop::print() const {
   ATH_MSG_INFO("  Asymmetry measure min: " << m_zcut);
   ATH_MSG_INFO("  Angular exponent: " << m_beta);
+  ATH_MSG_INFO("  Recursive layers: " << m_N);
   ATH_MSG_INFO("  Characteristic jet radius: " << m_R0);
   ATH_MSG_INFO("  Jet builder: " << m_bld.name());
 }
