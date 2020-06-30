@@ -62,31 +62,31 @@
 
 
 
-namespace FFAllowedMassDef{
-    enum TypeEnum
+namespace JetTools{
+    enum class FFJetAllowedMassDefEnum
     {
         UNKNOWN,  ///to indicate a fail in the configuration
         Calo,     ///Calorimeter
         TA,       ///Track Assisted
         Comb,     ///Combined
     };
-    TypeEnum stringToEnum(const TString& name)
+    FFJetAllowedMassDefEnum stringToEnum(const TString& name)
     {
         if (name.EqualTo("Calo",TString::kIgnoreCase))
-            return Calo;
+            return FFJetAllowedMassDefEnum::Calo;
         if (name.EqualTo("TA",TString::kIgnoreCase))
-            return TA;
+            return FFJetAllowedMassDefEnum::TA;
         if (name.EqualTo("Comb",TString::kIgnoreCase))
-            return Comb;
-        return UNKNOWN;
+            return FFJetAllowedMassDefEnum::Comb;
+        return FFJetAllowedMassDefEnum::UNKNOWN;
     }
-    TString enumToString(const TypeEnum type)
+    TString enumToString(const FFJetAllowedMassDefEnum type)
     {
         switch (type)
         {
-            case Calo:         return "Calo";
-            case TA:           return "TA";
-            case Comb:         return "Comb";
+            case FFJetAllowedMassDefEnum::Calo:         return "Calo";
+            case FFJetAllowedMassDefEnum::TA:           return "TA";
+            case FFJetAllowedMassDefEnum::Comb:         return "Comb";
             default:           return "";
         }
     } 
@@ -137,7 +137,7 @@ class FFJetSmearingTool : public asg::AsgTool, virtual public IJetCorrectionTool
 
         StatusCode readFFJetSmearingToolSimplifiedData(TEnv& settings);
 
-        StatusCode getJMSJMR( xAOD::Jet* jet_reco, double jet_mass,  FFAllowedMassDef::TypeEnum MassDef_of_syst ,std::string jetTopology, double& JMS_err, double& JMR_err);
+        StatusCode getJMSJMR( xAOD::Jet* jet_reco, double jet_mass,  JetTools::FFJetAllowedMassDefEnum MassDef_of_syst ,std::string jetTopology, double& JMS_err, double& JMR_err);
 
         StatusCode getJetTopology( xAOD::Jet* jet_reco, std::string& jetTopology);
 
@@ -157,7 +157,7 @@ class FFJetSmearingTool : public asg::AsgTool, virtual public IJetCorrectionTool
         std::string m_calibArea;
         std::string m_histFileName;
         std::string m_MassDef_string;
-        FFAllowedMassDef::TypeEnum m_MassDef;
+        JetTools::FFJetAllowedMassDefEnum m_MassDef;
         std::string m_configFile;
         std::string m_path;
         std::string  m_HistogramsFilePath;

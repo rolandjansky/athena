@@ -66,7 +66,7 @@ StatusCode FFJetSmearingTool::initialize()
         ATH_MSG_FATAL("No kind of jet mass specified.  Aborting.");
         return StatusCode::FAILURE;
     }
-    m_MassDef = FFAllowedMassDef::stringToEnum(m_MassDef_string);//Transform the string to an enum
+    m_MassDef = JetTools::stringToEnum(m_MassDef_string);//Transform the string to an enum
 
     //reading the config file as in JetUncertaintiesTool
     TEnv settings;
@@ -152,7 +152,7 @@ StatusCode FFJetSmearingTool::initialize()
 
     // Make sure we have a valid systematic mode
     bool isValidMassDef=false;
-    if(m_MassDef != FFAllowedMassDef::UNKNOWN){ isValidMassDef=true;}
+    if(m_MassDef != JetTools::FFJetAllowedMassDefEnum::UNKNOWN){ isValidMassDef=true;}
     if(!isValidMassDef)
     {
       ATH_MSG_ERROR("No Systematics associated to this mass definition: " << m_MassDef_string);
@@ -276,7 +276,7 @@ StatusCode FFJetSmearingTool::readFFJetSmearingToolSimplifiedData(TEnv& settings
     m_CALO_ResponseMap->SetDirectory(0);
 
 
-    if(m_MassDef==FFAllowedMassDef::Comb || m_MassDef==FFAllowedMassDef::TA){
+    if(m_MassDef==JetTools::FFJetAllowedMassDefEnum::Comb || m_MassDef==JetTools::FFJetAllowedMassDefEnum::TA){
         TString TAResponseMap_path = settings.GetValue("TAResponseMap","");
 
         if(TAResponseMap_path == "")
@@ -491,7 +491,7 @@ LargeRJetTruthLabel::TypeEnum jetTruthLabel = LargeRJetTruthLabel::intToEnum(acc
 // The function "getJMSJMR" read the JMS and JMR uncertainties associated with the systematic 
 //-----------------------------------------------------------------------------
 
-StatusCode FFJetSmearingTool::getJMSJMR( xAOD::Jet* jet_reco, double jet_mass_value, FFAllowedMassDef::TypeEnum MassDef_of_syst, std::string jetTopology, double& JMS_err,  double& JMR_err){
+StatusCode FFJetSmearingTool::getJMSJMR( xAOD::Jet* jet_reco, double jet_mass_value, JetTools::FFJetAllowedMassDefEnum MassDef_of_syst, std::string jetTopology, double& JMS_err,  double& JMR_err){
 
     //JMS/JMR systematic variations
     JMS_err=0;
@@ -505,8 +505,8 @@ StatusCode FFJetSmearingTool::getJMSJMR( xAOD::Jet* jet_reco, double jet_mass_va
     const CP::SystematicVariation& sys = *m_sysConfig->begin();
 
 
-    if(m_Syst_MassDefAffected_map[sys.basename()] ==  FFAllowedMassDef::enumToString(MassDef_of_syst)){
-        ATH_MSG_VERBOSE("This uncertainty affects to the " << FFAllowedMassDef::enumToString(MassDef_of_syst) << " mass");
+    if(m_Syst_MassDefAffected_map[sys.basename()] ==  JetTools::enumToString(MassDef_of_syst)){
+        ATH_MSG_VERBOSE("This uncertainty affects to the " << JetTools::enumToString(MassDef_of_syst) << " mass");
     } //Only apply the systematic to the proper mass definition
     else{return StatusCode::SUCCESS;}
 
@@ -608,7 +608,7 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 
     float JetTrackAssistedMassCalibrated_from_JetCalibTools;
 
-    if(m_MassDef==FFAllowedMassDef::Comb){
+    if(m_MassDef==JetTools::FFJetAllowedMassDefEnum::Comb){
 
         xAOD::JetFourMom_t jet_reco_CALO;
         xAOD::JetFourMom_t jet_reco_TA;
@@ -627,11 +627,11 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 
         jet_reco->getAttribute<float>("JetTrackAssistedMassCalibrated", JetTrackAssistedMassCalibrated_from_JetCalibTools);
     }
-    if(m_MassDef==FFAllowedMassDef::Calo){
+    if(m_MassDef==JetTools::FFJetAllowedMassDefEnum::Calo){
         jet_mass_CALO = jet_reco->m();
         calo_mass_weight = 1;
     }
-    else if(m_MassDef==FFAllowedMassDef::TA){
+    else if(m_MassDef==JetTools::FFJetAllowedMassDefEnum::TA){
         jet_mass_TA = jet_reco->m();
         calo_mass_weight = 0;
     }
@@ -644,7 +644,7 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
     double avg_response_CALO=1;
     double avg_response_TA=1;
 
-    if(m_MassDef==FFAllowedMassDef::Comb || m_MassDef==FFAllowedMassDef::Calo){
+    if(m_MassDef==JetTools::FFJetAllowedMassDefEnum::Comb || m_MassDef==JetTools::FFJetAllowedMassDefEnum::Calo){
 
         if(m_CALO_ResponseMap->GetBinContent(m_CALO_ResponseMap->GetXaxis()->FindBin(jet_reco->pt()/1000.),m_CALO_ResponseMap->GetYaxis()->FindBin(jet_truth_matched.m()/1000.)) == 0){//If we look outside the Th2 histogram, we would obtain a 0 so we apply the nominal response (1)
         avg_response_CALO=1;
@@ -654,7 +654,7 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
         }
     }
 
-    if(m_MassDef==FFAllowedMassDef::Comb || m_MassDef==FFAllowedMassDef::TA){
+    if(m_MassDef==JetTools::FFJetAllowedMassDefEnum::Comb || m_MassDef==JetTools::FFJetAllowedMassDefEnum::TA){
 
         if(m_TA_ResponseMap->GetBinContent(m_TA_ResponseMap->GetXaxis()->FindBin(jet_reco->pt()/1000.),m_TA_ResponseMap->GetYaxis()->FindBin(jet_truth_matched.m()/1000.))==0){
 
@@ -678,9 +678,9 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
     bool is_CALO_mass_smeared = false;
     bool is_TA_mass_smeared = false;
 
-    if(m_MassDef==FFAllowedMassDef::Comb || m_MassDef==FFAllowedMassDef::Calo){
+    if(m_MassDef==JetTools::FFJetAllowedMassDefEnum::Comb || m_MassDef==JetTools::FFJetAllowedMassDefEnum::Calo){
 
-        if(!(getJMSJMR( jet_reco, jet_mass_CALO, FFAllowedMassDef::Calo,jetTopology, JMS_err, JMR_err)).isSuccess()){
+        if(!(getJMSJMR( jet_reco, jet_mass_CALO, JetTools::FFJetAllowedMassDefEnum::Calo,jetTopology, JMS_err, JMR_err)).isSuccess()){
             return CP::CorrectionCode::Ok;
         }	
 
@@ -699,8 +699,8 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 
     }
 
-    if(m_MassDef==FFAllowedMassDef::Comb || m_MassDef==FFAllowedMassDef::TA){
-        if(!(getJMSJMR( jet_reco, jet_mass_TA, FFAllowedMassDef::TA,jetTopology, JMS_err, JMR_err))){
+    if(m_MassDef==JetTools::FFJetAllowedMassDefEnum::Comb || m_MassDef==JetTools::FFJetAllowedMassDefEnum::TA){
+        if(!(getJMSJMR( jet_reco, jet_mass_TA, JetTools::FFJetAllowedMassDefEnum::TA,jetTopology, JMS_err, JMR_err))){
             return CP::CorrectionCode::Ok;
         }
 
@@ -730,7 +730,7 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 
     //Recalculate the weights after the smearing
 
-    if(m_MassDef==FFAllowedMassDef::Comb && JetTrackAssistedMassCalibrated_from_JetCalibTools != 0 && jet_mass_CALO != 0){
+    if(m_MassDef==JetTools::FFJetAllowedMassDefEnum::Comb && JetTrackAssistedMassCalibrated_from_JetCalibTools != 0 && jet_mass_CALO != 0){
                                         //we check that JetTrackAssistedMassCalibrated_from_JetCalibTools != 0 instead of jet_mass_TA != 0 becuase
                                         //there is a problem in the conversion between the mass itself and the four-vector representation (due to a
                                         //limitation of floating). This makes the value of jet_mass_TA!=0 in situations where it should be 0.
