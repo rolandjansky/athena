@@ -22,6 +22,9 @@
 #include "IDEDCSvc_GaudiFixtureBase.h"
 #include "../InDetEtaDependentCuts/InDetEtaDependentCutsSvc.h"
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // This is unit test and a static variable is used in IDEDC_GaudiFixtureBase.
+
 static const std::string testJobOptionsFile("InDetEtaDependentCutsTestJobOpts.txt");
 
 struct GaudiKernelFixture:public IDEDC_GaudiFixtureBase{
