@@ -182,6 +182,12 @@ public:
    /// Dummy function provinding the offline interface
    bool toPersistent() { return true; }
 
+   /**
+    * @brief Is this link invalid because its target was removed (e.g. through
+    * slimming or thinning in the derivation framework)
+    */
+   bool wasThinned() const { return !isValid() && !isDefault(); }
+
 private:
    /// Reset the object's internal cache
    virtual bool toTransient();
