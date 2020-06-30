@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -8,12 +8,13 @@
 
 #include "globals.hh"
 #include "AthenaKernel/MsgStreamMember.h"
+#include "CxxUtils/checker_macros.h"
 
 class G4LogicalVolume;
 class G4VisAttributes;
 
 
-class TRTVisualization
+class ATLAS_NOT_THREAD_SAFE TRTVisualization // static variable and thread unsafe exit are used.
 {
   public:
     ~TRTVisualization();
@@ -45,7 +46,7 @@ class TRTVisualization
 
     static TRTVisualization* s_pVisualization;
 
-    mutable Athena::MsgStreamMember m_msg;
+    mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
 
 };
 

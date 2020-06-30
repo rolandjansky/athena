@@ -1,14 +1,16 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_G4_SD_TRTParametersForBarrelHits_hh
 #define TRT_G4_SD_TRTParametersForBarrelHits_hh
 
+#include "CxxUtils/checker_macros.h"
+
 class TRTParameters;
 class TRTProcessingOfBarrelHits;
 
-class TRTParametersForBarrelHits
+class ATLAS_NOT_THREAD_SAFE TRTParametersForBarrelHits // Thread unsafe TRTParameters and TRTProcessingOfBarrelHits classes are used.
 {
 public:
   TRTParametersForBarrelHits(TRTProcessingOfBarrelHits*);
