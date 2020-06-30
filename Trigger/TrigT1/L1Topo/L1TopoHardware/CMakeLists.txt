@@ -1,6 +1,4 @@
-################################################################################
-# Package: L1TopoHardware
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( L1TopoHardware )
@@ -12,7 +10,8 @@ find_package( Boost )
 atlas_add_library( L1TopoHardware
    L1TopoHardware/*.h Root/*.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-   PUBLIC_HEADERS L1TopoHardware )
+   PUBLIC_HEADERS L1TopoHardware
+   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} )
 
 atlas_add_executable( TrigConfL1TopoGenPyHardware
    src/test/L1TopoGenPyHardware.cxx
