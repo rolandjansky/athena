@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
 #python 2.6 is buggy, it can't import modules in deamon threads one has to import them in to global 
@@ -11,7 +11,7 @@ def formatRusage(rusage):
     fieldnames=["utime","stime","maxrss","shrmem","ushrmem","ushrstk","minflt",
                  "majflt","nswap","inblock","oublock","msgsnd","msgrcv",
                  "nsignals","nvcontsw","nivcontsw"]
-    return ", ".join(["=".join([n,"%s"%v] if type(v) is int else [n,"%f"%v]) for n,v in zip(fieldnames,rusage)])
+    return ", ".join(["=".join([n,"%s"%v] if isinstance(v, int) else [n,"%f"%v]) for n,v in zip(fieldnames,rusage)])
 
 def DQProcMon(*args,**kwargs):
     #    from resource import getrusage, RUSAGE_SELF, RUSAGE_CHILDREN
