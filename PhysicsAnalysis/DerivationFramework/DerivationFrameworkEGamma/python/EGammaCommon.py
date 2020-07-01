@@ -87,15 +87,24 @@ ToolSvc += ElectronLHSelectorLooseBL
 #====================================================================
 # ELECTRON CHARGE SELECTION
 #====================================================================
+#
+# Disabled as is missing in R22
+#
+'''
 from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AsgElectronChargeIDSelectorTool
 ElectronChargeIDSelector = AsgElectronChargeIDSelectorTool("ElectronChargeIDSelectorLoose")
 ElectronChargeIDSelector.primaryVertexContainer = "PrimaryVertices"
 ElectronChargeIDSelector.TrainingFile = "ElectronPhotonSelectorTools/ChargeID/ECIDS_20180731rel21Summer2018.root"
 ToolSvc += ElectronChargeIDSelector
+'''
 
 #====================================================================
 # FWD ELECTRON LH SELECTORS
 #====================================================================
+#
+# Disabled as is missing in R22
+#
+'''
 from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AsgForwardElectronLikelihoodTool
 
 ForwardElectronLHSelectorLoose = AsgForwardElectronLikelihoodTool("ForwardElectronLHSelectorLoose", WorkingPoint="LooseLHForwardElectron")
@@ -106,7 +115,7 @@ ToolSvc += ForwardElectronLHSelectorMedium
 
 ForwardElectronLHSelectorTight = AsgForwardElectronLikelihoodTool("ForwardElectronLHSelectorTight", WorkingPoint="TightLHForwardElectron")
 ToolSvc += ForwardElectronLHSelectorTight 
-
+'''
 
 #====================================================================
 # PHOTON SELECTION (loose and tight cut-based)
@@ -222,14 +231,17 @@ ElectronPassLHTight = DerivationFramework__EGSelectionToolWrapper( name = "Elect
 ToolSvc += ElectronPassLHTight
 print(ElectronPassLHTight)
 
+#
+# Disabled as is missing in R22
+#
+'''
 # decorate electrons with the output of ECIDS ----------------------------------------------------------------------
 ElectronPassECIDS = DerivationFramework__EGElectronLikelihoodToolWrapper( name = "ElectronPassECIDS",
                                                                           EGammaElectronLikelihoodTool = ElectronChargeIDSelector,
                                                                           EGammaFudgeMCTool = "",
                                                                           CutType = "",
                                                                           StoreGateEntryName = "DFCommonElectronsECIDS",
-         
-                                                                 ContainerName = "Electrons",
+	                                                                  ContainerName = "Electrons",
                                                                           StoreTResult = True)
 ToolSvc += ElectronPassECIDS
 print (ElectronPassECIDS)
@@ -263,7 +275,7 @@ ForwardElectronPassLHTight = DerivationFramework__EGSelectionToolWrapper( name =
                                                                           ContainerName = "ForwardElectrons")
 ToolSvc += ForwardElectronPassLHTight
 print (ForwardElectronPassLHTight)
-
+'''
 
 # decorate photons with the output of IsEM loose
 # on MC, fudge the shower shapes before computing the ID (but the original shower shapes are not overridden)
@@ -347,11 +359,14 @@ ElectronAmbiguity = DF_EGEAT(name               = "ElectronAdditionnalAmbiguity"
                              isMC               = (globalflags.DataSource()!='data'))
 ToolSvc += ElectronAmbiguity
 
+#
+# Commented ForwardElectronPassLHLoose, ForwardElectronPassLHMedium, ForwardElectronPassLHTight, ElectronPassECIDS tools due to they are not available in R22
+#
 # list of all the decorators so far
 EGAugmentationTools = [DFCommonPhotonsDirection,
                        ElectronPassLHVeryLoose, ElectronPassLHLoose, ElectronPassLHLooseBL, ElectronPassLHMedium, ElectronPassLHTight,
-                       ForwardElectronPassLHLoose, ForwardElectronPassLHMedium, ForwardElectronPassLHTight,
-                       ElectronPassECIDS,
+                       #ForwardElectronPassLHLoose, ForwardElectronPassLHMedium, ForwardElectronPassLHTight,
+                       #ElectronPassECIDS,
                        PhotonPassIsEMLoose, PhotonPassIsEMTight, 
                        PhotonPassIsEMTightPtIncl, 
                        PhotonPassCleaning,
@@ -406,7 +421,7 @@ if  rec.doTruth():
     # Compute the truth-particle-level energy density in the central eta region
     from EventShapeTools.EventDensityConfig import configEventDensityTool, EventDensityAthAlg
     from JetRec.JetRecStandard import jtm
-    tc=configEventDensityTool("EDTruthCentralTool", jtm.truthget,
+    tc=configEventDensityTool("EDTruthCentralTool", jtm.truthget.Label,
                               0.5,
                               AbsRapidityMax      = 1.5,
                               OutputContainer     = "TruthIsoCentralEventShape",
@@ -415,7 +430,7 @@ if  rec.doTruth():
     ToolSvc += tc
 
     # Compute the truth-particle-level energy density in the forward eta region
-    tf=configEventDensityTool("EDTruthForwardTool", jtm.truthget,
+    tf=configEventDensityTool("EDTruthForwardTool", jtm.truthget.Label,
                               0.5,
                               AbsRapidityMin      = 1.5,
                               AbsRapidityMax      = 3.0,
@@ -444,8 +459,11 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("EGamma
 # ADD TOOLS
 #=======================================
 
-import IsolationAlgs.IsoUpdatedTrackCones as isoCones
-if not hasattr(DerivationFrameworkJob,"IsolationBuilderTight1000"):
-    DerivationFrameworkJob += isoCones.GetUpdatedIsoTrackCones()
+#
+# Disabling this tool due to it's missing in R22
+#
+# import IsolationAlgs.IsoUpdatedTrackCones as isoCones
+# if not hasattr(DerivationFrameworkJob,"IsolationBuilderTight1000"):
+#     DerivationFrameworkJob += isoCones.GetUpdatedIsoTrackCones()
 
 
