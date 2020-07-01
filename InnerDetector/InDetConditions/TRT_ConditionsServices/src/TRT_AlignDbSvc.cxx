@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file TRT_AlignDbSvc.cxx
@@ -31,6 +31,8 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #include "GeoPrimitives/CLHEPtoEigenEulerAnglesConverters.h"
+
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // This class uses const_cast and regFcn (callback). Legacy code
 
 TRT_AlignDbSvc::TRT_AlignDbSvc( const std::string& name, ISvcLocator* pSvcLocator )
   : AthService(name,pSvcLocator),
