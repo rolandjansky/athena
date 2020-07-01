@@ -595,11 +595,11 @@ const Muon::MdtPrepDataCollection* Muon::MuonTrackSummaryHelperTool::findMdtPrdC
   IdentifierHash hash_id;
   m_idHelperSvc->mdtIdHelper().get_module_hash(chId,hash_id );
 
-  Muon::MdtPrepDataContainer::const_iterator colIt = mdtPrdContainer->indexFind(hash_id);
-  if( colIt == mdtPrdContainer->end() ){
+  auto coll = mdtPrdContainer->indexFindPtr(hash_id);
+  if( coll == nullptr ){
     ATH_MSG_DEBUG(" MdtPrepDataCollection for:   " << m_idHelperSvc->toStringChamber(chId) 
 		  << "  not found in container ");
     return 0;
   }
-  return *colIt;
+  return coll;
 }

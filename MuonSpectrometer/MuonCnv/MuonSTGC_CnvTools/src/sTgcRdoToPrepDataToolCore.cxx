@@ -53,7 +53,7 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(const STGC_RawData
   sTgcPrepDataCollection* prdColl = nullptr;
   
   // check if the collection already exists, otherwise add it
-  if ( m_stgcPrepDataContainer->indexFind(hash) != m_stgcPrepDataContainer->end() ) {
+  if ( m_stgcPrepDataContainer->indexFindPtr(hash) != nullptr ) {
 
     ATH_MSG_DEBUG("In processCollection: collection already contained in the MM PrepData container");
     return StatusCode::FAILURE;
