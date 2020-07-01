@@ -192,50 +192,52 @@ dRMatchingTool::sortVectors(const T* container,
 
 void
 dRMatchingTool::checkCacheTrackParticles(const xAOD::TrackParticleContainer* trackParticles,
+                                         CacheEntry* ent,
                                          bool (* trackSelectionTool)(const xAOD::TrackParticle*)) const {
   // Check whether to cache.
-  if (*trackParticles == m_baseTrackContainer) {
+  if (*trackParticles == ent->m_baseTrackContainer) {
     return;
   }
 
   // Clear existing cache.
-  clearTrackParticles();
+  clearTrackParticles(ent);
 
   // Cache track particles.
   sortVectors<xAOD::TrackParticleContainer,
               xAOD::TrackParticle>(trackParticles,
-                                   m_trackParticlesSortedPt,
-                                   m_trackParticlesSortedEta,
-                                   m_trackParticlesSortedPhi,
+                                   ent->m_trackParticlesSortedPt,
+                                   ent->m_trackParticlesSortedEta,
+                                   ent->m_trackParticlesSortedPhi,
                                    trackSelectionTool);
 
   // Store copy of base track container.
-  m_baseTrackContainer = *trackParticles;
+  ent->m_baseTrackContainer = *trackParticles;
 
   return;
 }
 
 void
 dRMatchingTool::checkCacheTruthParticles(const xAOD::TruthParticleContainer* truthParticles,
+                                         CacheEntry* ent,
                                          bool (* truthSelectionTool)(const xAOD::TruthParticle*)) const {
   // Check whether to cache.
-  if (*truthParticles == m_baseTruthContainer) {
+  if (*truthParticles == ent->m_baseTruthContainer) {
     return;
   }
 
   // Clear existing cache.
-  clearTruthParticles();
+  clearTruthParticles(ent);
 
   // Cache truth particles.
   sortVectors<xAOD::TruthParticleContainer,
               xAOD::TruthParticle>(truthParticles,
-                                   m_truthParticlesSortedPt,
-                                   m_truthParticlesSortedEta,
-                                   m_truthParticlesSortedPhi,
+                                   ent->m_truthParticlesSortedPt,
+                                   ent->m_truthParticlesSortedEta,
+                                   ent->m_truthParticlesSortedPhi,
                                    truthSelectionTool);
 
   // Store copy of base truth container.
-  m_baseTruthContainer = *truthParticles;
+  ent->m_baseTruthContainer = *truthParticles;
 
   return;
 }
@@ -245,9 +247,10 @@ bool
 dRMatchingTool::sortedMatch(const U* p,
                             std::vector< const V* >& vec_pt,
                             std::vector< const V* >& vec_eta,
-                            std::vector< const V* >& vec_phi) const {
+                            std::vector< const V* >& vec_phi,
+                            float& dRmin) const {
   // (Re-)set variables.
-  m_dRmin = 9999.;
+  dRmin = 9999.;
 
   // Perform search in cached vectors.
   auto it_pt_lower = m_pTResMax < 0 ? vec_pt.begin() :
@@ -363,8 +366,8 @@ dRMatchingTool::sortedMatch(const U* p,
   bool passes = false;
   for (const V* other : set) {
     float dR = comp_deltaR(p, other);
-    m_dRmin = (dR < m_dRmin ? dR : m_dRmin);
-    passes |= m_dRmin < m_dRmax;
+    dRmin = (dR < dRmin ? dR : dRmin);
+    passes |= dRmin < m_dRmax;
   }
 
   return passes;
@@ -376,14 +379,20 @@ dRMatchingTool::accept(const xAOD::TrackParticle* track,
                        bool (* truthSelectionTool)(const xAOD::TruthParticle*)) const {
   asg::AcceptData acceptData (&m_accept);
 
+  std::lock_guard<std::mutex> lock{m_mutex}; // To guard m_numPassedCuts and m_cache
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  CacheEntry* ent{m_cache.get(ctx)};
+  ent->check(ctx.evt());
+
   // Determine whether to cache current truth particle container
-  checkCacheTruthParticles(truthParticles, truthSelectionTool);
+  checkCacheTruthParticles(truthParticles, ent, truthSelectionTool);
 
   bool passes = sortedMatch<xAOD::TrackParticle,
                             xAOD::TruthParticle>(track,
-                                                 m_truthParticlesSortedPt,
-                                                 m_truthParticlesSortedEta,
-                                                 m_truthParticlesSortedPhi);
+                                                 ent->m_truthParticlesSortedPt,
+                                                 ent->m_truthParticlesSortedEta,
+                                                 ent->m_truthParticlesSortedPhi,
+                                                 ent->m_dRmin);
 
   // Set cut values.
   if (m_dRmax > -1) {
@@ -415,14 +424,20 @@ dRMatchingTool::accept(const xAOD::TruthParticle* truth,
                        bool (* trackSelectionTool)(const xAOD::TrackParticle*)) const {
   asg::AcceptData acceptData (&m_accept);
 
+  std::lock_guard<std::mutex> lock{m_mutex}; // To guard m_numPassedCuts and m_cache
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  CacheEntry* ent{m_cache.get(ctx)};
+  ent->check(ctx.evt());
+
   // Determine whether to cache current track particle container
-  checkCacheTrackParticles(trackParticles, trackSelectionTool);
+  checkCacheTrackParticles(trackParticles, ent, trackSelectionTool);
 
   bool passes = sortedMatch<xAOD::TruthParticle,
                             xAOD::TrackParticle>(truth,
-                                                 m_trackParticlesSortedPt,
-                                                 m_trackParticlesSortedEta,
-                                                 m_trackParticlesSortedPhi);
+                                                 ent->m_trackParticlesSortedPt,
+                                                 ent->m_trackParticlesSortedEta,
+                                                 ent->m_trackParticlesSortedPhi,
+                                                 ent->m_dRmin);
 
   // Set cut values.
   if (m_dRmax > -1) {
@@ -453,7 +468,13 @@ dRMatchingTool::acceptLegacy(const xAOD::TrackParticle* p,
                              const xAOD::TruthParticleContainer* truthParticles,
                              bool (* truthSelectionTool)(const xAOD::TruthParticle*)) const {
   asg::AcceptData acceptData (&m_accept);
-  m_dRmin = 9999.;
+
+  std::lock_guard<std::mutex> lock{m_mutex}; // To guard m_numPassedCuts and m_cache
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  CacheEntry* ent{m_cache.get(ctx)};
+  ent->check(ctx.evt());
+
+  ent->m_dRmin = 9999.;
 
   // Define variables.
   const unsigned int Ncuts(m_cuts.size());
@@ -492,7 +513,7 @@ dRMatchingTool::acceptLegacy(const xAOD::TrackParticle* p,
 
     // If the current truth particle was matched, check minimal dR.
     if (passesThis) {
-      m_dRmin = (dR < m_dRmin ? dR : m_dRmin);
+      ent->m_dRmin = (dR < ent->m_dRmin ? dR : ent->m_dRmin);
     }
   }
 
@@ -526,7 +547,13 @@ dRMatchingTool::acceptLegacy(const xAOD::TruthParticle* p,
                              bool (* trackSelectionTool)(const xAOD::TrackParticle*)) const {
   // Reset the results.
   asg::AcceptData acceptData (&m_accept);
-  m_dRmin = 9999.;
+
+  std::lock_guard<std::mutex> lock{m_mutex}; // To guard m_numPassedCuts and m_cache
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  CacheEntry* ent{m_cache.get(ctx)};
+  ent->check(ctx.evt());
+
+  ent->m_dRmin = 9999.;
 
   // Define variables.
   const unsigned int Ncuts(m_cuts.size());
@@ -565,7 +592,7 @@ dRMatchingTool::acceptLegacy(const xAOD::TruthParticle* p,
 
     // If the current track particle was matched, check minimal dR.
     if (passesThis) {
-      m_dRmin = (dR < m_dRmin ? dR : m_dRmin);
+      ent->m_dRmin = (dR < ent->m_dRmin ? dR : ent->m_dRmin);
     }
   }
 
@@ -615,5 +642,10 @@ dRMatchingTool::finalize() {
 
 float
 dRMatchingTool::dRmin() const {
-  return m_dRmin;
+  std::lock_guard<std::mutex> lock{m_mutex}; // To guard m_cache
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  CacheEntry* ent{m_cache.get(ctx)};
+  ent->check(ctx.evt());
+
+  return ent->m_dRmin;
 }
