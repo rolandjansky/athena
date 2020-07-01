@@ -141,8 +141,14 @@ if (m_corRunNumber) {
 
 
 StatusCode CountHepMC::finalize() {
-  ATH_MSG_INFO("Events passing all checks and written = " << m_nPass);
-  return StatusCode::SUCCESS;
+  if (m_nCount > m_nPass){
+     ATH_MSG_ERROR("No enough events produced. Requested " << m_nCount << " provided " << m_nPass);
+     return StatusCode::FAILURE;
+  }
+  else {
+     ATH_MSG_INFO("Events passing all checks and written = " << m_nPass);
+     return StatusCode::SUCCESS;
+     }
 }
 
 #endif
