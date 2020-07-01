@@ -707,18 +707,25 @@ Trk::GaussianSumFitter::makePerigee(
   const Trk::TrackStateOnSurface* stateOnSurfaceNearestOrigin =
     smoothedTrajectory->back();
   const Trk::MultiComponentStateOnSurface*
-    multiComponentStateOnSurfaceNearestOrigin =
-      dynamic_cast<const Trk::MultiComponentStateOnSurface*>(
-        stateOnSurfaceNearestOrigin);
+    multiComponentStateOnSurfaceNearestOrigin = nullptr;
 
-  const Trk::MultiComponentState* multiComponentState = nullptr;
-  if (!multiComponentStateOnSurfaceNearestOrigin) {
-    // we need to make a dummy multicomponent surface
-    Trk::ComponentParameters dummyComponent(
-      stateOnSurfaceNearestOrigin->trackParameters()->clone(), 1.);
-    auto tmp_multiComponentState = std::make_unique<Trk::MultiComponentState>();
-    tmp_multiComponentState->push_back(std::move(dummyComponent));
-    multiComponentState = tmp_multiComponentState.release();
+  if (stateOnSurfaceNearestOrigin->variety() ==
+        Trk::TrackStateOnSurface::MultiComponent) {
+
+    multiComponentStateOnSurfaceNearestOrigin =
+      static_cast<const Trk::MultiComponentStateOnSurface*>(
+        stateOnSurfaceNearestOrigin);
+  }
+
+    const Trk::MultiComponentState* multiComponentState = nullptr;
+    if (!multiComponentStateOnSurfaceNearestOrigin) {
+      // we need to make a dummy multicomponent surface
+      Trk::ComponentParameters dummyComponent(
+        stateOnSurfaceNearestOrigin->trackParameters()->clone(), 1.);
+      auto tmp_multiComponentState =
+        std::make_unique<Trk::MultiComponentState>();
+      tmp_multiComponentState->push_back(std::move(dummyComponent));
+      multiComponentState = tmp_multiComponentState.release();
   } else {
     multiComponentState =
       multiComponentStateOnSurfaceNearestOrigin->components();
