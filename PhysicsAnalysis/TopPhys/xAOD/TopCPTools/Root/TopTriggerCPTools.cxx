@@ -20,6 +20,7 @@
 // Trigger include(s):
 #include "TrigConfxAOD/xAODConfigTool.h"
 #include "TriggerMatchingTool/MatchingTool.h"
+#include "TriggerMatchingTool/MatchFromCompositeTool.h"
 #include "TrigTauMatching/TrigTauMatching.h"
 #include "TrigGlobalEfficiencyCorrection/TrigGlobalEfficiencyCorrectionTool.h"
 #include "TrigGlobalEfficiencyCorrection/ImportData.h"
@@ -74,16 +75,24 @@ namespace top {
         }
 
         // Trigger matching tool
-        const std::string trig_match_name = "Trig::MatchingTool";
+        static const std::string trig_match_name = "Trig::MatchingTool";
         if (asg::ToolStore::contains<Trig::IMatchingTool>(trig_match_name)) {
           m_trigMatchTool = asg::ToolStore::get<Trig::IMatchingTool>(trig_match_name);
         } else {
-          Trig::MatchingTool* trigMatchTool = new Trig::MatchingTool(trig_match_name);
-          top::check(trigMatchTool->setProperty("TrigDecisionTool", m_trigDecisionTool),
-                     "Failed to set trigger decision tool to trigger matching tool");
-          top::check(trigMatchTool->initialize(),
-                     "Failed to initialize trig. matching tool");
-          m_trigMatchTool = trigMatchTool;
+          if (m_config->getDerivationStream() == "PHYS") {
+            Trig::MatchFromCompositeTool* trigMatchTool = new Trig::MatchFromCompositeTool(trig_match_name);
+            top::check(trigMatchTool->initialize(),
+                       "Failed to initialize trig. matching tool");
+            m_trigMatchTool = trigMatchTool;
+
+          } else {
+            Trig::MatchingTool* trigMatchTool = new Trig::MatchingTool(trig_match_name);
+            top::check(trigMatchTool->setProperty("TrigDecisionTool", m_trigDecisionTool),
+                       "Failed to set trigger decision tool to trigger matching tool");
+            top::check(trigMatchTool->initialize(),
+                       "Failed to initialize trig. matching tool");
+            m_trigMatchTool = trigMatchTool;
+          }
         }
 
         ///-- Tau matching --///
