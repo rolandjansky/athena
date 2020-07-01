@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LARDETCELLPARAMSP
@@ -10,7 +10,7 @@
 // persistent c-struct 
 class LArDetCellParamsP{
 public:
-    LArDetCellParamsP() : m_Omega0(-999999999), m_Taur(-999999999) {} 
+    LArDetCellParamsP() : m_Omega0(-9999999), m_Taur(-9999999) {} 
     LArDetCellParamsP(float o, float t)
 	    : m_Omega0(o), m_Taur(t) {} 
     bool isEmpty() const { return (m_Omega0 < -9999 && m_Taur < -9999) ; } ;
