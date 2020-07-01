@@ -113,13 +113,13 @@ StatusCode Muon::NSWCalibTool::calibrateClus(const Muon::MMPrepData* prepData, c
     double time = prepData->stripTimes().at(i);
     double charge = prepData->stripCharges().at(i);
     NSWCalib::CalibratedStrip calibStrip;
-    calibrateStrip(time, charge, globalPos, lorentzAngle, calibStrip);
+    calibrateStrip(time, charge, lorentzAngle, calibStrip);
     calibClus.push_back(calibStrip);
   }
   return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::NSWCalibTool::calibrateStrip(const double time, const double charge, const Amg::Vector3D& globalPos, const double lorentzAngle, NSWCalib::CalibratedStrip& calibStrip) const {
+StatusCode Muon::NSWCalibTool::calibrateStrip(const double time, const double charge, const double lorentzAngle, NSWCalib::CalibratedStrip& calibStrip) const {
   calibStrip.charge = charge;
   calibStrip.time = time;
 
