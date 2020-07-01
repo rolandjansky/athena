@@ -109,11 +109,9 @@ StatusCode Muon::NSWCalibTool::calibrateClus(const Muon::MMPrepData* prepData, c
   double lorentzAngle = (bfield>0. ? 1. : -1.)*m_lorentzAngleFunction->Eval(std::abs(bfield)) * toRad;
 
   /// loop over prepData strips
-  Muon::MMPrepData calibPrepData;
   for (unsigned int i = 0; i < prepData->stripNumbers().size(); i++){
     double time = prepData->stripTimes().at(i);
     double charge = prepData->stripCharges().at(i);
-    double localPos = prepData->stripNumbers().at(i);
     NSWCalib::CalibratedStrip calibStrip;
     calibrateStrip(time, charge, globalPos, lorentzAngle, calibStrip);
     calibClus.push_back(calibStrip);
@@ -123,7 +121,7 @@ StatusCode Muon::NSWCalibTool::calibrateClus(const Muon::MMPrepData* prepData, c
 
 StatusCode Muon::NSWCalibTool::calibrateStrip(const double time, const double charge, const Amg::Vector3D& globalPos, const double lorentzAngle, NSWCalib::CalibratedStrip& calibStrip) const {
   calibStrip.charge = charge;
-  calibStrip.time = time - globalPos.norm() * reciprocalSpeedOfLight + m_timeOffset;
+  calibStrip.time = time;
 
   double vDriftCorrected = m_vDrift * std::cos(lorentzAngle);
   calibStrip.distDrift = vDriftCorrected * calibStrip.time;
