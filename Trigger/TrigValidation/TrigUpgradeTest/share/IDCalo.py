@@ -48,7 +48,7 @@ if TriggerFlags.doID:
   from TrigInDetConfig.TrigInDetPriVtxConfig import makeVertices
   # TODO need to change the name of the output vertex collection to something recordable
   # what is this actually testing ? why do we have FS tracks with egamma and aprimary vertex ???
-  vtxAlgs = makeVertices( "bjet", "HLT_IDTrack_FS_FTF", "HLT_xPrimVx"  )
+  vtxAlgs = makeVertices( "bjet", "HLT_IDTrack_FS_FTF", "HLT_IDVertex_FS"  )
   allViewAlgorithms += vtxAlgs
 
 
