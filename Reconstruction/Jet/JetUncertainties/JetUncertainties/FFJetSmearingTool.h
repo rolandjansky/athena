@@ -156,8 +156,8 @@ class FFJetSmearingTool : public asg::AsgTool, virtual public IJetCorrectionTool
         std::string m_truth_jetColl;
         std::string m_truthlabelaccessor;
         float m_EtaRange;
-        float m_MassRange;
-        float m_PtRange;
+        float m_MaxMass;
+        float m_MaxPt;
         std::string m_calibArea;
         std::string m_histFileName;
         std::string m_MassDef_string;

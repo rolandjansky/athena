@@ -118,26 +118,26 @@ StatusCode FFJetSmearingTool::initialize()
     m_EtaRange = settings.GetValue("EtaRange",0);
     if (m_EtaRange == 0)
     {
-        ATH_MSG_ERROR("Cannot find the EtaRange  in the config file");
+        ATH_MSG_ERROR("Cannot find the EtaRange parameter in the config file");
         return StatusCode::FAILURE;
     }
     ATH_MSG_INFO("  EtaRange : Abs(eta) < " << m_EtaRange);
     //mass range of the tool  
-    m_MassRange = settings.GetValue("MassRange",0);
-    if (m_MassRange == 0)
+    m_MaxMass = settings.GetValue("MaxMass",0);
+    if (m_MaxMass == 0)
     {
-        ATH_MSG_ERROR("Cannot find the MassRange  in the config file");
+        ATH_MSG_ERROR("Cannot find the MaxMass parameter in the config file");
         return StatusCode::FAILURE;
     }
-    ATH_MSG_INFO("  MassRange : jet_mass < " << m_MassRange);
+    ATH_MSG_INFO("  MaxMass : jet_mass < " << m_MaxMass);
     //pt range of the tool 
-    m_PtRange = settings.GetValue("PtRange",0);
-    if (m_PtRange == 0)
+    m_MaxPt = settings.GetValue("MaxPt",0);
+    if (m_MaxPt == 0)
     {
-        ATH_MSG_ERROR("Cannot find the PtRange  in the config file");
+        ATH_MSG_ERROR("Cannot find the MaxPt parameter in the config file");
         return StatusCode::FAILURE;
     }
-    ATH_MSG_INFO("  PtRange : jet_pt < " << m_PtRange);
+    ATH_MSG_INFO("  MaxPt : jet_pt < " << m_MaxPt);
     // Get the file to read uncertainties in from
     m_histFileName = settings.GetValue("UncertaintyRootFile","");
     m_HistogramsFilePath = jet::utils::findFilePath(m_histFileName.c_str(),m_path.c_str(),m_calibArea.c_str());
@@ -555,18 +555,18 @@ StatusCode FFJetSmearingTool::getJMSJMR( xAOD::Jet* jet_reco, double jet_mass_va
 CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
 
     ATH_MSG_VERBOSE("//---------------------------------------------------------------//");
-    ATH_MSG_VERBOSE("Reco Jet to Smear: pt = " << jet_reco->pt()/1000. << ", mass = " << jet_reco->m()/1000. << ", eta = " << jet_reco->eta());
+    ATH_MSG_VERBOSE("Reco Jet to Smear: pt = " << jet_reco->pt() << ", mass = " << jet_reco->m() << ", eta = " << jet_reco->eta());
 
     if(std::abs(jet_reco->eta()) > m_EtaRange){//JetCalibTools do not properly for jets with |eta|>2
         ATH_MSG_INFO("This jet exceeds the eta range that the tool allows (|eta|<" << m_EtaRange << ")");
         return CP::CorrectionCode::OutOfValidityRange; 
     }
-    if(jet_reco->m()/1000. > m_MassRange){
-        ATH_MSG_INFO("This jet exceeds the mass range that the tool allows jet_mass <" << m_MassRange << " GeV)");
+    if(jet_reco->m() > m_MaxMass){
+        ATH_MSG_INFO("This jet exceeds the mass range that the tool allows jet_mass <" << m_MaxMass << " MeV)");
         return CP::CorrectionCode::OutOfValidityRange;
     }
-    if(jet_reco->pt()/1000. > m_PtRange){
-        ATH_MSG_INFO("This jet exceeds the pt range that the tool allows jet_pt <" << m_PtRange << " GeV)");
+    if(jet_reco->pt() > m_MaxPt){
+        ATH_MSG_INFO("This jet exceeds the maximum pt that the tool allows jet_pt <" << m_MaxPt << " MeV)");
         return CP::CorrectionCode::OutOfValidityRange;
     }
 
@@ -794,7 +794,7 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
     jet_reco->setJetP4(p4);
 
 
-    ATH_MSG_VERBOSE("Smeared Reco Jet: pt = " << jet_reco->pt()/1000. << ", mass = " << jet_reco->m()/1000. << ", eta = " << jet_reco->eta());
+    ATH_MSG_VERBOSE("Smeared Reco Jet: pt = " << jet_reco->pt() << ", mass = " << jet_reco->m() << ", eta = " << jet_reco->eta());
 	
 
 
