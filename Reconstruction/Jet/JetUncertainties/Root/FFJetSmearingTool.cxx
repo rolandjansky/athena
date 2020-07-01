@@ -65,7 +65,17 @@ StatusCode FFJetSmearingTool::initialize()
         ATH_MSG_FATAL("No kind of jet mass specified.  Aborting.");
         return StatusCode::FAILURE;
     }
-    m_MassDef = JetTools::stringToEnum(m_MassDef_string);//Transform the string to an enum
+
+    // Make sure we have a valid mass definition
+    bool isValidMassDef=false;
+    if((JetTools::stringToEnum(m_MassDef_string, m_MassDef).isSuccess())){
+        isValidMassDef=true; 
+    }
+    if(!isValidMassDef){
+        ATH_MSG_ERROR("No Systematics associated to this mass definition: " << m_MassDef_string);
+        ATH_MSG_ERROR("Should be 'Calo', 'TA' or 'Comb'");
+        return StatusCode::FAILURE;
+    }
 
     //reading the config file as in JetUncertaintiesTool
     TEnv settings;
@@ -145,18 +155,6 @@ StatusCode FFJetSmearingTool::initialize()
     if(!(readFFJetSmearingToolSimplifiedData(settings).isSuccess())){
         ATH_MSG_WARNING("Error reading " << m_HistogramsFilePath);
         return StatusCode::FAILURE;
-    }
-
-
-
-    // Make sure we have a valid systematic mode
-    bool isValidMassDef=false;
-    if(m_MassDef != JetTools::FFJetAllowedMassDefEnum::UNKNOWN){ isValidMassDef=true;}
-    if(!isValidMassDef)
-    {
-      ATH_MSG_ERROR("No Systematics associated to this mass definition: " << m_MassDef_string);
-      ATH_MSG_ERROR("Should be 'Calo', 'TA' or 'Comb'");
-      return StatusCode::FAILURE;
     }
 
     // Add the affecting systematics to the global registry

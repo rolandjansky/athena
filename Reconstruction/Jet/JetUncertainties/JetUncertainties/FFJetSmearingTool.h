@@ -65,20 +65,25 @@
 namespace JetTools{
     enum class FFJetAllowedMassDefEnum
     {
-        UNKNOWN,  ///to indicate a fail in the configuration
         Calo,     ///Calorimeter
         TA,       ///Track Assisted
         Comb,     ///Combined
     };
-    FFJetAllowedMassDefEnum stringToEnum(const TString& name)
+    StatusCode stringToEnum(const TString& name, FFJetAllowedMassDefEnum& result)
     {
-        if (name.EqualTo("Calo",TString::kIgnoreCase))
-            return FFJetAllowedMassDefEnum::Calo;
-        if (name.EqualTo("TA",TString::kIgnoreCase))
-            return FFJetAllowedMassDefEnum::TA;
-        if (name.EqualTo("Comb",TString::kIgnoreCase))
-            return FFJetAllowedMassDefEnum::Comb;
-        return FFJetAllowedMassDefEnum::UNKNOWN;
+        if (name.EqualTo("Calo",TString::kIgnoreCase)){
+            result = FFJetAllowedMassDefEnum::Calo;
+            return StatusCode::SUCCESS;
+        }
+        if (name.EqualTo("TA",TString::kIgnoreCase)){
+            result = FFJetAllowedMassDefEnum::TA;
+            return StatusCode::SUCCESS;
+        }
+        if (name.EqualTo("Comb",TString::kIgnoreCase)){
+            result = FFJetAllowedMassDefEnum::Comb;
+            return StatusCode::SUCCESS;
+        }
+        return StatusCode::FAILURE;
     }
     TString enumToString(const FFJetAllowedMassDefEnum type)
     {
