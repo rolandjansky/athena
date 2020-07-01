@@ -358,12 +358,11 @@ void InDet::TRT_StrawStatus::printDetailedInformation() {
             int chip, HVpad;    
             m_TRTStrawNeighbourSvc->getChip(id, chip);
             m_TRTStrawNeighbourSvc->getPad(id, HVpad);
-            static int printStatusCount(0);
-            if (!printStatusCount) {
+            if (!m_printStatusCount) {
                 ATH_MSG_INFO( "if the code crashes on the next line, there is a problem with m_TRTStrawStatusSummarySvc not being loaded " );
                 ATH_MSG_INFO( "in that case, running with reco turned on normally solves the problem, know of no better solution at the moment" );
                 ATH_MSG_INFO( "if you do not need the detailed print information, you can also just set printDetailedInformation to 0 to avoid this crash" ); 
-                printStatusCount++;
+                m_printStatusCount++;
             }
             int status = m_TRTStrawStatusSummaryTool->get_status( id );  
             int statusTemporary = m_TRTStrawStatusSummaryTool->getStatus( id );
