@@ -30,11 +30,11 @@ with open(runArgs.InputLbnMapFile) as f:
     for line in f:
         if line=='': break
         filenm=line.rstrip()
-        print filenm
+        printfunc (filenm)
         finfo=filenm.split(" ")
         run=finfo[3].replace(",","")
         lbn=finfo[5].replace(",","").zfill(4) #pad 44->0044
-        print run+"_"+lbn
+        printfunc (run+"_"+lbn)
         
         #copy the corresponding filter/vtx_run_lbn.data.txt files from EOS to here
         #runArgs.HIfiltervtxdirectory=/eos/atlas/atlascerngroupdisk/phys-hi/DataOverlay2015

@@ -6,7 +6,7 @@ num_lines = 0
 with open(fname, 'r') as f:
     for line in f:
         num_lines += 1
-print "Number of lines in events.txt is "+str(num_lines)
+printfunc ("Number of lines in events.txt is "+str(num_lines))
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.EvtMax.unlock()
 athenaCommonFlags.EvtMax.set_Value_and_Lock(num_lines)
