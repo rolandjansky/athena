@@ -24,17 +24,18 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // This is for unit tests and a static variab
 
 struct IDEDC_GaudiFixtureBase{
   ISvcLocator* svcLoc{};
-  static bool gaudiIsInitialised;
   const std::string jobOpts{};
-  IDEDC_GaudiFixtureBase(const std::string & jobOptionFile = "InDetEtaDependentCutsTestJobOpts.txt"):jobOpts(jobOptionFile){
+  static bool initGaudi (const std::string & jobOptionFile, ISvcLocator*& svcLoc)
+  {
     CxxUtils::ubsan_suppress ([]() { TInterpreter::Instance(); } );
-    if (not gaudiIsInitialised){
-      std::string fullJobOptsName="InDetEtaDependentCuts/" + jobOpts;
-      gaudiIsInitialised=Athena_test::initGaudi(fullJobOptsName, svcLoc);
-    }
+    std::string fullJobOptsName="InDetEtaDependentCuts/" + jobOptionFile;
+    return Athena_test::initGaudi(fullJobOptsName, svcLoc);
+  }
+  IDEDC_GaudiFixtureBase(const std::string & jobOptionFile = "InDetEtaDependentCutsTestJobOpts.txt"):jobOpts(jobOptionFile){
+    static const bool gaudiIsInitialized [[maybe_unused]]
+      = initGaudi (jobOptionFile, svcLoc);
   }
 };
 
-bool IDEDC_GaudiFixtureBase::gaudiIsInitialised=false;
 
 #endif
