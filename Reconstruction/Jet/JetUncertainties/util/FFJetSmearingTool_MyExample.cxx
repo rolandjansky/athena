@@ -193,7 +193,7 @@ int main(int argc, char* argv[]){
     const std::string name_FFJetSmearingTool = "FFJetSmearing_Example";
     // Call the constructor
 
-    FFJetSmearingTool ffjetsmearingtool(name_FFJetSmearingTool.c_str());
+    CP::FFJetSmearingTool ffjetsmearingtool(name_FFJetSmearingTool.c_str());
 
 /*
 asg::AsgToolConfig config (("FFJetSmearingTool/" + name_FFJetSmearingTool).c_str());

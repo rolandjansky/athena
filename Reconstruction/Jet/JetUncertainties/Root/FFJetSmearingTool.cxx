@@ -19,6 +19,7 @@
 // Local includes
 #include "JetUncertainties/FFJetSmearingTool.h"
 
+namespace CP {
 
 // Constructor
 FFJetSmearingTool::FFJetSmearingTool(const std::string name)
@@ -845,4 +846,5 @@ double FFJetSmearingTool::Read3DHistogram(TH3* histo, double x, double y, double
   return weight;
 }
 
+} // namespace CP
 
