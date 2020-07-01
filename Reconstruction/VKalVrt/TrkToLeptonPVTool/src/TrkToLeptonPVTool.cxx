@@ -23,12 +23,13 @@ TrkToLeptonPVTool::TrkToLeptonPVTool(const std::string& type,
                                            const IInterface* parent):
   AthAlgTool(type,name,parent),
   m_beamService("BeamCondSvc",name),
-  m_fitterSvc("Trk::TrkVKalVrtFitter/VertexFitterTool",this)
+  m_fitterSvc("Trk::TrkVKalVrtFitter/VertexFitterTool",this),
+  m_timingProfile("ChronoStatSvc",name)
   {
      declareInterface<ITrkToLeptonPV>(this);
      declareProperty("BeamSpotSvc", m_beamService, "Name of the BeamSpot service");
      declareProperty("VertexFitter", m_fitterSvc, "Name of the Vertex Fitter tool");
-     m_timingProfile=nullptr;
+     declareProperty("ChronoStatSvc", m_timingProfile, "Name of the timing service");
   }
 
 //Destructor---------------------------------------------------------------
@@ -46,10 +47,13 @@ TrkToLeptonPVTool::TrkToLeptonPVTool(const std::string& type,
         ATH_MSG_DEBUG("TrkToLeptonPVTool TrkVKalVrtFitter found");
      }
      //-----
-     if(msgLvl(MSG::DEBUG)) ATH_CHECK(service("ChronoStatSvc", m_timingProfile));
      if(m_beamService.retrieve().isFailure()) {
        ATH_MSG_DEBUG("Can't retrieve BeamService");
        return StatusCode::FAILURE;
+     }
+     //-----
+     if(m_timingProfile.retrieve().isFailure()) {
+       ATH_MSG_DEBUG("Can't retrieve ChronoStat service");
      }
      //-----
      return StatusCode::SUCCESS;
@@ -72,6 +76,7 @@ TrkToLeptonPVTool::TrkToLeptonPVTool(const std::string& type,
      }
 
      //---DAOD case     
+     if( !eventINFO ) return std::unique_ptr<const xAOD::Vertex>(nullptr);
      std::unique_ptr< SG::AuxStoreInternal > pAux;
      xAOD::TrackParticleContainer   TPC;
      std::vector<const xAOD::TrackParticle*>     wrkTrkC(1);
