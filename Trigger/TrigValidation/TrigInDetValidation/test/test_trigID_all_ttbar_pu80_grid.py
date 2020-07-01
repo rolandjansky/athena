@@ -34,16 +34,24 @@ from TrigInDetValidation.TrigInDetArtSteps import TrigInDetAna, TrigInDetdictSte
 import sys,getopt
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"l",["local"])
+    opts, args = getopt.getopt(sys.argv[1:],"lxp",["local"])
 except getopt.GetoptError:
-    print("Usage: -l(--local)")
+    print("Usage:  ")
+    print("-l(--local)    run locally with input file from art eos grid-input")
+    print("-x             don't run athena or post post-processing, only plotting")
+    print("-p             run post-processing, even if -x is set")
 
 
 local=False
+exclude=False
+postproc=False
 for opt,arg in opts:
     if opt in ("-l", "--local"):
         local=True
-
+    if opt=="-x":
+        exclude=True
+    if opt=="-p":
+        postproc=True
 
 
 chains = [
@@ -107,14 +115,17 @@ rdo2aod.args += ' --preExec "RDOtoRDOTrigger:{:s};" "all:{:s};" "RAWtoESD:{:s};"
 
 test = Test.Test()
 test.art_type = 'grid'
-test.exec_steps = [rdo2aod]
-test.check_steps = CheckSteps.default_check_steps(test)
+if (not exclude):
+    test.exec_steps = [rdo2aod]
+    test.exec_steps.append(TrigInDetAna()) # Run analysis to produce TrkNtuple
+    test.check_steps = CheckSteps.default_check_steps(test)
 
-# Run analysis to produce TrkNtuple
-test.exec_steps.append(TrigInDetAna())
- 
 # Run Tidardict
-test.check_steps.append(TrigInDetdictStep())
+if ((not exclude) or postproc ):
+    rdict = TrigInDetdictStep()
+    rdict.args='TIDAdata-run3.dat -r Offline -f data-hists.root -b Test_bin.dat '
+    test.check_steps.append(rdict)
+
  
 # Now the comparitor steps
 comp=TrigInDetCompStep('CompareStep1')
