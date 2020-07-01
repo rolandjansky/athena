@@ -1,11 +1,8 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetSimEvent/TRTHitIdHelper.h"
-
-// This class is singleton and static method and variable are used.
-ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 //
 // private constructor
@@ -13,8 +10,8 @@ TRTHitIdHelper::TRTHitIdHelper() :HitIdHelper() {
   Initialize();
 }
 
-TRTHitIdHelper* TRTHitIdHelper::GetHelper() {
-  static TRTHitIdHelper helper;
+const TRTHitIdHelper* TRTHitIdHelper::GetHelper() {
+  static const TRTHitIdHelper helper;
   return &helper;
 }
 
