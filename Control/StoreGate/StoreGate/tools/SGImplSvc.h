@@ -109,7 +109,7 @@ namespace PerfMon { class StorePayloadMon; }
  * @author ATLAS Collaboration
  * $Id: SGImplSvc.h 797595 2017-02-16 18:36:10Z ssnyder $
  **/
-class SGImplSvc :
+class SGImplSvc final :
   public Service, 
   public IProxyDict, 
   public IHiveStoreMgr,
