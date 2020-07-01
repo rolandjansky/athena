@@ -82,6 +82,11 @@ InDet::SiSPSeededTrackFinderRoI::SiSPSeededTrackFinderRoI
 StatusCode InDet::SiSPSeededTrackFinderRoI::initialize() 
 {
 
+  // Initialize read and write handles
+  ATH_CHECK( m_SpacePointsSCT.initialize() );
+  ATH_CHECK( m_SpacePointsPixel.initialize() );
+  ATH_CHECK( m_outputTracks.initialize() );
+
   // Get the ZWindowRoI seed tool
   ATH_CHECK( m_ZWindowRoISeedTool.retrieve() );
   ATH_MSG_DEBUG("Retrieved tool " << m_ZWindowRoISeedTool);
@@ -162,8 +167,8 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::execute()
     if ( sc.isFailure() || sc_aux.isFailure() ) {
       // can't write output container. Clean-up and abort
       ATH_MSG_ERROR("Cannot write output container: " << m_vxOutputName);
-      if (theVertexContainer) delete theVertexContainer;
-      if (theVertexAuxContainer) delete theVertexAuxContainer;
+      if ( sc.isFailure() ) delete theVertexContainer;
+      if ( sc_aux.isFailure() ) delete theVertexAuxContainer;
       return StatusCode::FAILURE;
     }
     else{
@@ -225,8 +230,8 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::execute()
   if ( sc.isFailure() || sc_aux.isFailure() ) {
     // can't write output container. Clean-up and abort
     ATH_MSG_ERROR("Cannot write output container: " << m_vxOutputName);
-    if (theVertexContainer) delete theVertexContainer;
-    if (theVertexAuxContainer) delete theVertexAuxContainer;
+    if ( sc.isFailure() ) delete theVertexContainer;
+    if ( sc_aux.isFailure() ) delete theVertexAuxContainer;
     return StatusCode::FAILURE;
   }
   else{
