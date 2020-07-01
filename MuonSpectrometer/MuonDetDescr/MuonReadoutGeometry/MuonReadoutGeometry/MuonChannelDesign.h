@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -139,11 +139,6 @@ namespace MuonGM {
 
     Amg::Vector2D chPos;
     if (!channelPosition( chNum, chPos) ) return -10000.;
-    // For MM Stereo strips, we rotated the geometry so the main axis is along the stereo angle
-    // As such,our calculations are in 1D and do not require the use of the angle
-    // We are commenting out instead of removing while we come to a permanent solution
-    // Alexandre Laurier September 12 2018
-
     //In the new geometry from November 2019 the layers are not anymore tilted, therefore we need
     //to introduce the correction for the stereo angle in the distance
     //Patrick Scholer March 18 2020
@@ -164,42 +159,46 @@ namespace MuonGM {
       double xMfirst = firstPos;
       double xMid;
       int chNum;
-      //sTGC strip pitch == 3.2mm is a way to check if sTGC only
-      if (inputPitch == 3.2){ // if sTGC strip
-        xMid = pos.x() - pos.y()*tan(sAngle);
-       if (xMid < xMfirst && xMid > xMfirst - firstPitch) chNum = 1; // If position between bottom boundary and 1st strip
-       else if (xMid > xMfirst) // position higher than first Pos
-          chNum = int( cos(sAngle)*(xMid - xMfirst)/inputPitch ) + 2;
-        else chNum = -1;
+      if (detType==MuonChannelDesign::DetType::STGC){ // if sTGC strip
+          xMid = pos.x() - pos.y()*tan(sAngle);
+          if (xMid < xMfirst && xMid > xMfirst - firstPitch) chNum = 1; // If position between bottom boundary and 1st strip
+          else if (xMid > xMfirst) // position higher than first Pos
+              chNum = std::floor( cos(sAngle)*(xMid - xMfirst)/inputPitch ) + 2;
+          else chNum = -1;
           
           if (chNum<1) return -1;
           if (chNum>nch) return -1;     // used also for calculation of the number of strips
           
       } else if (detType==MuonChannelDesign::DetType::MM) {
-             xMid = pos.x() - pos.y()*tan(sAngle);
-            // For all MM planes the local position is already rotated
-           // xMid = pos.x();
-            // This line is to deal with strips in the deadzone. For now, return strip #1 until we figure out best fix
-            // Alexandre Laurier 12 Sept 2018
+          xMid = pos.x() - pos.y()*tan(sAngle);
           int strips = sAngle==0 ? nMissedBottomEta : nMissedBottomStereo;
-          chNum = ((int) std::round( (xMid - xMfirst)/inputPitch)) + strips;
+          // +1 accounts for the first strip by xMfirst, and the other +1 since we start counting at 1.
+          chNum = ((int) std::floor( (xMid - xMfirst)/inputPitch)) + strips + 2;
           
-          if (chNum<0) return -1;
+          // if position is before beginning of first active strip return 1 (no readout) 
+          // This serves to protect against stereo layers where there are no strips in the gas volume
+          if (xMid < xMfirst-inputPitch) return 1;
+
+          // Protecting stereo layers
+          // Stereo layers have gas volume without strips. This makes sure that this area doesn't create bad identifiers
+          if (sAngle && xMid > (xMfirst + inputPitch*(totalStrips - nMissedTopStereo - strips)) ) return totalStrips;
+
+          if (chNum<1) return -1;
           if (chNum>totalStrips) return -1;
           
       }
       else return -1;
         
  
-        return chNum;
+      return chNum;
       
      
     } else if (type==MuonChannelDesign::phiStrip) {   // "phi" orientation, local coordinates rotated
 
       // find transverse pannel size for a given locX 
-      if (inputPitch == 1.8 && groupWidth == 20) // if sTGC wires
+      if (detType==MuonChannelDesign::DetType::STGC) // if sTGC wires
         return wireGroupNumber(pos);
-      int chNum = int( (pos.x()-firstPos)/inputPitch +1.5 ) ;
+      int chNum = std::round( (pos.x()-firstPos)/inputPitch +1 ) ;
       if (chNum<1) return -1;
       if (chNum>nch) return -1;  
       return chNum;   
@@ -213,10 +212,8 @@ namespace MuonGM {
   }
 
   inline int MuonChannelDesign::wireGroupNumber( const Amg::Vector2D& pos) const {
-    // As of 2017-10-12, this is incomplete.
     // The wires in the 1st gas volume of QL1, QS1 can not be read for digits
-    // We now hand-modified the xml file to include a new value.
-    if (type==MuonChannelDesign::phiStrip && inputPitch == 1.8 && groupWidth == 20) {   // sTGC Wires
+    if (type==MuonChannelDesign::phiStrip && detType==MuonChannelDesign::DetType::STGC) {   // sTGC Wires
       //First, find the wire number associated to the position
       int wireNumber;
       if (pos.x() > -0.5*maxYSize && pos.x() < firstPos) // Before first wire
@@ -257,7 +254,7 @@ namespace MuonGM {
         if( st < 1 ) return false;
         if( st > nch ) return false;
         
-      if (inputPitch == 1.8 && groupWidth == 20) { // sTGC Wires: returns center of wire group
+      if (detType==MuonChannelDesign::DetType::STGC) { // sTGC Wires: returns center of wire group
         if (st > nGroups || st ==63) return false; // 63 is because we defined 63 as a unactive digit
         double firstX = firstPos + (firstPitch-1)*inputPitch; // Position of the end of the first wire group (accounts for staggering)
         double locX;
@@ -295,50 +292,49 @@ namespace MuonGM {
 
       // always use same code to calculate strip position for layers with and without stereo angle
 	    double x = firstPos + inputPitch*(st-1);
-        if (inputPitch == 3.2) {
-            if( st < 1 ) return false;
-            if( st > nch ) return false;
-            // check if sTGC, preferably 2 unique values
-          // Alexandre Laurier 2017-11-22 :
-          // Now we make it so that the strip position returns in the center
-          // However, this should probably return in the center of the strip width
-          // and not the full strip pitch, ie center of actualy strip instead of center of 3.2mm
-          double xFirst = firstPos - 0.5 * firstPitch; // strip pos is at center of strip.
-          if (st == 1) x = xFirst;
-          else if (st <= nch) x = xFirst + (st-1) * inputPitch;
+        if (detType==MuonChannelDesign::DetType::STGC) {
+          if( st < 1 ) return false;
+          if( st > nch ) return false;
+          // We return the position in the center of the strip pitch
+          // in a 3.2mm pitch strip, we return at the centre ie after 1.6mm
+          // for the half strips (either first or last strips), we return after 0.8mm
+          if (st == 1) x = firstPos - 0.5 * firstPitch; // return center of the first strip
+          else if (st <= nch) x = firstPos + (st-1.5) * inputPitch;
           else return false;
           if (st == nch && firstPitch == 3.2) x = x - firstPitch/4; // accounts for staggering
           pos[0] = x;
           pos[1] = 0;
         }
        
-        else if (detType==MuonChannelDesign::DetType::MM) { //its a MM eta layer | for MM the strips indices start from 0 to reflect the electronics channels numbering
+        else if (detType==MuonChannelDesign::DetType::MM) { //its a MM eta layer | first strip is #1, no longer following electronics convention of #0 
             
-             if( st < nMissedBottomEta ) return false;
-             if( st > totalStrips-nMissedTopEta ) return false;
+            if( st < nMissedBottomEta+1 ) return false;
+            if( st > totalStrips-nMissedTopEta ) return false;
             
             else{
-                    pos[0] = firstPos + inputPitch*(st-nMissedBottomEta);
-                    pos[1] = 0;
+                // returns centre of strip
+                pos[0] = firstPos + inputPitch*(st-nMissedBottomEta-1.5);
+                pos[1] = 0;
             }
           
           
         }
         else { // default
-                pos[0] = x;
-                pos[1] = 0;
+            pos[0] = x;
+            pos[1] = 0;
         }
 	return true;
 
       }
       else if (sAngle!=0. && detType==MuonChannelDesign::DetType::MM) { //its a MM stereo layer
         
-          if( st < nMissedBottomStereo ) return false;
+          if( st < nMissedBottomStereo+1 ) return false;
           if( st > totalStrips-nMissedTopStereo ) return false;
           
           else{
-                pos[0] = firstPos + inputPitch*(st-nMissedBottomStereo);
-                pos[1] = 0;
+              // returns centre of strip
+              pos[0] = firstPos + inputPitch*(st-nMissedBottomStereo-1.5);
+              pos[1] = 0;
           }
 	    return true;
      
@@ -393,7 +389,7 @@ namespace MuonGM {
         double stLen = 0;
         if (sAngle==0.){
             
-            if(inputPitch==3.2) return inputLength +2*(st-0.5)*dY/nch;
+            if(detType==MuonChannelDesign::DetType::STGC) return inputLength +2*(st-0.5)*dY/nch;
             
             else if (detType==MuonChannelDesign::DetType::MM)
             {
@@ -446,10 +442,10 @@ namespace MuonGM {
     // TODO : calculate for TGCs
 
    // sTGC block:     
-    if (type==MuonChannelDesign::etaStrip && inputPitch == 3.2) return inputPitch; // if sTGC strips return 3.2mm which is stored as pitch, not width (2.7mm)     
-    if (type==MuonChannelDesign::phiStrip && inputPitch == 1.8 && groupWidth == 20) // if sTGC wires        
-      return groupWidth * inputPitch; // if sTGC wires return width of full wire group     else return inputWidth;
-      
+    if (type==MuonChannelDesign::etaStrip && detType==MuonChannelDesign::DetType::STGC) return inputPitch; // if sTGC strips return 3.2mm which is stored as pitch, not width (2.7mm)     
+    if (type==MuonChannelDesign::phiStrip && detType==MuonChannelDesign::DetType::STGC) // if sTGC wires
+      return groupWidth * inputPitch; // if sTGC wires return width of full wire group
+
     if(type==MuonChannelDesign::etaStrip && detType==MuonChannelDesign::DetType::MM) return inputPitch;
     else return inputWidth;
       
