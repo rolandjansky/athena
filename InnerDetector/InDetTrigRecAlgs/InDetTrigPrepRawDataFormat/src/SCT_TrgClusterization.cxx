@@ -402,18 +402,13 @@ namespace InDet{
 
       for (unsigned int i=0; i<m_listOfSctIds.size(); i++) {
 
-	SCT_RDO_Container::const_iterator 
-	  RDO_collection_iter = p_sctRDOContainer->indexFind(m_listOfSctIds[i]); 
-	
-	if (RDO_collection_iter == p_sctRDOContainer->end()) continue;
-
 	if (m_doTimeOutChecks && Athena::Timeout::instance().reached() ) {
 	  ATH_MSG_WARNING( "Timeout reached. Aborting sequence." );
 	  return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::TIMEOUT);
 	}
 
     
-	const InDetRawDataCollection<SCT_RDORawData>* RDO_Collection (*RDO_collection_iter);
+	const InDetRawDataCollection<SCT_RDORawData>* RDO_Collection (p_sctRDOContainer->indexFindPtr(m_listOfSctIds[i]));
                
 	if (!RDO_Collection) continue;
 

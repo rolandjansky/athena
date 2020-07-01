@@ -261,14 +261,12 @@ InDet::InDetEventCnvTool::pixelClusterLink( const Identifier& id,  const Identif
   } else {
     ATH_MSG_DEBUG("Pixel Cluster Container found" );
   }
-  const PixelClusterContainer* pixClusCont = h_pixClusCont.cptr();
-
-  PixelClusterContainer::const_iterator it = pixClusCont->indexFind(idHash);
+  const PixelClusterCollection *ptr = h_pixClusCont->indexFindPtr(idHash);
   // if we find PRD, then recreate link
-  if (it!=pixClusCont->end()) {
+  if (ptr!=nullptr) {
     //loop though collection to find matching PRD.
-    PixelClusterCollection::const_iterator collIt = (*it)->begin();
-    PixelClusterCollection::const_iterator collItEnd = (*it)->end();
+    PixelClusterCollection::const_iterator collIt    = ptr->begin();
+    PixelClusterCollection::const_iterator collItEnd = ptr->end();
     // there MUST be a faster way to do this!!
     for ( ; collIt!=collItEnd; collIt++){
       if ( (*collIt)->identify()==id ) return *collIt;
@@ -292,14 +290,12 @@ InDet::InDetEventCnvTool::sctClusterLink( const Identifier& id,  const Identifie
   } else {
     ATH_MSG_DEBUG("SCT Cluster Container found" );
   }
-  const SCT_ClusterContainer* sctClusCont = h_sctClusCont.cptr();
- 
-  SCT_ClusterContainer::const_iterator it = sctClusCont->indexFind(idHash);
+  const SCT_ClusterCollection *ptr = h_sctClusCont->indexFindPtr(idHash);
   // if we find PRD, then recreate link
-  if (it!=sctClusCont->end()) {
+  if (ptr!=nullptr) {
     //loop though collection to find matching PRD.
-    SCT_ClusterCollection::const_iterator collIt = (*it)->begin();
-    SCT_ClusterCollection::const_iterator collItEnd = (*it)->end();
+    SCT_ClusterCollection::const_iterator collIt    = ptr->begin();
+    SCT_ClusterCollection::const_iterator collItEnd = ptr->end();
     // there MUST be a faster way to do this!!
     for ( ; collIt!=collItEnd; collIt++) {
       if ( (*collIt)->identify()==id ) return *collIt;
@@ -323,14 +319,12 @@ InDet::InDetEventCnvTool::trtDriftCircleLink( const Identifier& id,  const Ident
   } else {
     ATH_MSG_DEBUG("TRT Drift Circles Container found" );
   }
-  const TRT_DriftCircleContainer* trtDriftCircleCont = h_trtDriftCircleCont.cptr();
-  
-  TRT_DriftCircleContainer::const_iterator it = trtDriftCircleCont->indexFind(idHash);
+  const TRT_DriftCircleCollection *ptr = h_trtDriftCircleCont->indexFindPtr(idHash);
   // if we find PRD, then recreate link
-  if (it!=trtDriftCircleCont->end()) {
+  if (ptr!=nullptr) {
     //loop though collection to find matching PRD.
-    TRT_DriftCircleCollection::const_iterator collIt = (*it)->begin();
-    TRT_DriftCircleCollection::const_iterator collItEnd = (*it)->end();
+    TRT_DriftCircleCollection::const_iterator collIt    = ptr->begin();
+    TRT_DriftCircleCollection::const_iterator collItEnd = ptr->end();
     // there MUST be a faster way to do this!!
     for ( ; collIt!=collItEnd; collIt++) {
       if ( (*collIt)->identify()==id ) return *collIt;
