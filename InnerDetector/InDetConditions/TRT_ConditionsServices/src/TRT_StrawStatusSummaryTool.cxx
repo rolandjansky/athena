@@ -12,7 +12,6 @@
 #include "TRT_StrawStatusSummaryTool.h"
 #include "InDetIdentifier/TRT_ID.h"
 
-
 TRT_StrawStatusSummaryTool::TRT_StrawStatusSummaryTool( const std::string& type, const std::string& name, const IInterface* parent)
   : base_class(type, name, parent),
     m_condSvc("CondSvc",name) {}
@@ -94,7 +93,7 @@ int TRT_StrawStatusSummaryTool::getStatusHT(Identifier offlineID, const EventCon
 
   const StrawStatusContainer* strawstatusHTcontainer;
   if(m_isGEANT4) {
-     strawstatusHTcontainer=m_strawstatusHTG4.cptr();
+    strawstatusHTcontainer=m_strawstatusHTG4.cptr();
   }
   else {
     SG::ReadCondHandle<StrawStatusContainer> rht(m_statHTReadKey,ctx);
@@ -108,7 +107,7 @@ const TRTCond::StrawStatusMultChanContainer* TRT_StrawStatusSummaryTool::getStra
 
   const StrawStatusContainer* strawstatusHTcontainer;
   if(m_isGEANT4) {
-     strawstatusHTcontainer=m_strawstatusHTG4.cptr();
+    strawstatusHTcontainer=m_strawstatusHTG4.cptr();
   }
   else {
     SG::ReadCondHandle<StrawStatusContainer> rht(m_statHTReadKey,Gaudi::Hive::currentContext());
