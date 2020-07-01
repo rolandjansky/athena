@@ -1727,7 +1727,7 @@ void Muon::TgcRdoToPrepDataToolCore::showIdentifierHash() {
 bool Muon::TgcRdoToPrepDataToolCore::isIdentifierHashFoundInAnyTgcPrepDataContainer(const IdentifierHash Hash) const
 {
   for(int ibc=0; ibc<NBC+1; ibc++) {
-    if(m_tgcPrepDataContainer[ibc]->indexFind(Hash) != m_tgcPrepDataContainer[ibc]->end()) {
+    if(m_tgcPrepDataContainer[ibc]->indexFindPtr(Hash) != nullptr) {
       return true;
     }
   }
@@ -1737,7 +1737,7 @@ bool Muon::TgcRdoToPrepDataToolCore::isIdentifierHashFoundInAnyTgcPrepDataContai
 bool Muon::TgcRdoToPrepDataToolCore::isIdentifierHashFoundInAnyTgcCoinDataContainer(const IdentifierHash Hash) const
 {
   for(int ibc=0; ibc<NBC; ibc++) {
-    if(m_tgcCoinDataContainer[ibc]->indexFind(Hash) != m_tgcCoinDataContainer[ibc]->end()) {
+    if(m_tgcCoinDataContainer[ibc]->indexFindPtr(Hash) != nullptr) {
       return true;
     }
   }
