@@ -114,7 +114,7 @@ class Node(DQHanConfMaker.Node):
         if self.nodeType != Node.DOCUMENT:
             writer.write(" { %s" % (newl))
         if self.attributes:
-            for key, attribute in self.attributes.iteritems():
+            for key, attribute in self.attributes.items():
                 writer.write("%s %s = %s%s" % (indent, key, attribute, newl))
         if self.subnodes:
             for node in self.subnodes:
@@ -707,7 +707,7 @@ def _findAllDQBaseObjects(rootlist):
         if not isinstance(dqbase, DQBase):
             raise ValueError(
                 '%s is not a valid DQBase object; this should never happen' % dqbase)
-        retset = set([dqbase])
+        retset = {dqbase}
         for rel in dqbase.getAllRelatedObjects():
             retset |= recurse(rel)
         return retset
