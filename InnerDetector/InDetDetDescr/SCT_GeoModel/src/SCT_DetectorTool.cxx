@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_DetectorTool.h"
@@ -167,7 +167,7 @@ SCT_DetectorTool::clear()
 }
 
 StatusCode 
-SCT_DetectorTool::registerCallback ATLAS_NOT_THREAD_SAFE ()
+SCT_DetectorTool::registerCallback ATLAS_NOT_THREAD_SAFE () // Thread unsafe detStore()->regFcn (callback) is used.
 {
   StatusCode sc{StatusCode::FAILURE, true};
   if (m_alignable.value()) {

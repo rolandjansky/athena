@@ -24,8 +24,7 @@
 #include <utility> //std::pair
 
 #include "CxxUtils/checker_macros.h"
-ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
-// This test uses global svcLoc and hDefSvc, and is not thread safe.
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // This test uses global svcLoc and hDefSvc, and is not thread safe.
 
 static const std::string testJobOptionsFile("IDPVM_Test.txt");
 

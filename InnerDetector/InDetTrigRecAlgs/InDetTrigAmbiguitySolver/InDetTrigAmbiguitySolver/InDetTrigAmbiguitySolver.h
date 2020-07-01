@@ -50,7 +50,7 @@ namespace InDet {
     HLT::ErrorCode hltFinalize();
 
   private:
-    HLT::ErrorCode savePRDtoTrackMap ATLAS_NOT_THREAD_SAFE
+    HLT::ErrorCode savePRDtoTrackMap ATLAS_NOT_THREAD_SAFE // Thread unsafe Trk::ITrackAmbiguityProcessorTool::setPRDtoTrackMap is used.
       (std::unique_ptr<Trk::PRDtoTrackMap> map);
 
     bool                    m_resolveTracks;     //!whether to resolve tracks, defaults to true
