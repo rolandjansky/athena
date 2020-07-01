@@ -31,14 +31,16 @@ def LArCellDeadOTXCorrToolDefault(name='LArCellDeadOTXCorr'):
 
     theLArCellDeadOTXCorr.triggerNoiseCut = [2.,0.265,0.45,0.16,0.87]
     theLArCellDeadOTXCorr.ignoredTTs = ignoredTTs
-    theLArCellDeadOTXCorr.COOLFolder = deadOTXCorrDbFolder 
-    theLArCellDeadOTXCorr.detStoreKey = "deadOTXCorrCtes"
+    theLArCellDeadOTXCorr.DBHandleKey = "deadOTXCorrCtes"
 
     from IOVDbSvc.CondDB import conddb
     #conddb.addFolder("", deadOTXCorrDbConnection + deadOTXCorrDbFolder + deadOTXCorrDbTag) 
-    conddb.addFolder("LAR_OFL",deadOTXCorrDbFolder )
+    conddb.addFolder("LAR_OFL",deadOTXCorrDbFolder,
+                     className = 'CondAttrListCollection')
 
-
+    from CaloRec.ToolConstantsCondAlgDefault import ToolConstantsCondAlgDefault
+    ToolConstantsCondAlgDefault ('deadOTXCorrCtes',
+                                 COOLFolder = deadOTXCorrDbFolder )
 
 
     if theLArCellDeadOTXCorr.useL1CaloDB : 
