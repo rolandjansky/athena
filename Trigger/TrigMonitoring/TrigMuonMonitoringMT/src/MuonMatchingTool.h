@@ -15,7 +15,6 @@
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "FourMomUtils/xAODP4Helpers.h"
 #include "GaudiKernel/SystemOfUnits.h"
-#include "TRandom1.h"
 #include <string>
 #include <memory>
 #include <tuple>
