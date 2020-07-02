@@ -30,7 +30,7 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     AFPSiGroup = helper.addGroup(afpSiLayerAlgorithm, 'AFPSiLayerTool', 'AFP/') 
     AFPToFGroup = helper.addGroup(afpToFAlgorithm, 'AFPToFTool', 'AFP/')
 
-    AFPSiGroup.defineHistogram('lb,nSiHits', title='Luminosity Block;lb;total number of Hits', type='TProfile', path='SiT/', xbins=1000, xmin=-0.5, xmax=999.5)
+    AFPSiGroup.defineHistogram('lb,nSiHits', title='Total number of hits;lb;total number of Hits', type='TProfile', path='SiT/', xbins=1000, xmin=-0.5, xmax=999.5)
     AFPSiGroup.defineHistogram('lb,lumiPerBCID', title='Mu;lumiBlock;<mu>', type='TProfile', path='SiT/', xbins=1000, xmin=-0.5, xmax=999.5)
     #AFPSiGroup.defineHistogram('layerNumber,layerEfficiency', title='LayerEfficiency as a function of a lumiblock;layerNumber;layerEfficiency', type='TH2F', path='SiT/', xbins = 16, xmin=0.5, xmax=16.5, ybins=100, ymin=0, ymax=1)
     AFPSiGroup.defineHistogram('layerEfficiency', type='TH1F', title='1D layer efficiency;layerEfficiency', path='SiT/', xbins=16, xmin=0.5, xmax=16.5)
@@ -45,15 +45,15 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     combinedList = ['farAside', 'nearAside', 'nearCside', 'farCside']
 
     array = helper.addArray([combinedList,layerList], afpSiLayerAlgorithm, 'AFPSiLayerTool', topPath = 'AFP/SiT/')
-    array.defineHistogram('pixelColIDChip', title='1D hitmap for {0} Layer {1};pixelColIDChip', path='PixelColIDChip', xbins=80, xmin=0.5, xmax=80.5)
-    array.defineHistogram('pixelRowIDChip', title='1D hitmap for {0} Layer {1};pixelRowIDChip', path='PixelRowIDChip', xbins=336, xmin=0.5, xmax=336.5)
+    array.defineHistogram('pixelColIDChip', title='Hits per column for {0} layer {1};pixelColIDChip', path='PixelColIDChip', xbins=80, xmin=0.5, xmax=80.5)
+    array.defineHistogram('pixelRowIDChip', title='Hits per row for {0} Layer {1};pixelRowIDChip', path='PixelRowIDChip', xbins=336, xmin=0.5, xmax=336.5)
     array.defineHistogram('pixelColIDChip,pixelRowIDChip', title='hitmap for {0} Layer {1};pixelColIDChip;pixelRowIDChip', type='TH2F', path='pixelColRow2D', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)
     array.defineHistogram('timeOverThreshold', type='TH1F', title='1D Time over threshold for {0} Layer {1};timeOverThreshold', path='SiTimeOverThreshold', xbins=16, xmin=0.5, xmax=16.5)
     array.defineHistogram('clusterX,clusterY', title='Cluster position in station {0} Layer {1};clusterX;clusterY', type='TH2F', path='Cluster', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)
 
 
     array = helper.addArray([combinedList], afpSiLayerAlgorithm, 'AFPSiLayerTool', topPath='AFP/SiT/Track/')
-    array.defineHistogram('trackX,trackY', title='Track position in station {0};trackX;trackY', type='TH2F', path='Track', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)
+    array.defineHistogram('trackX,trackY', title='Track in station {0};trackX;trackY', type='TH2F', path='Track', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)
 
     arrayOneList = helper.addArray([combinedList], afpToFAlgorithm, 'AFPToFTool', topPath='AFP/ToF/')
     arrayOneList.defineHistogram('trainID,barInTrainID', title='ToF hit bar vs train {0};trainID;barInTrainID', type='TH2F', path='HitBarvsTrain/',xbins=4,xmin=-0.5,xmax=3.5,ybins=4,ymin=-0.5,ymax=3.5)
