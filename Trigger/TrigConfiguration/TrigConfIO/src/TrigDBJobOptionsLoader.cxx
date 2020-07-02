@@ -18,6 +18,25 @@ namespace {
    getQueryDefinitions() {
       std::vector<TrigConf::QueryDefinition> queries;
 
+      { // query for table dev1
+         queries.emplace_back();
+         auto & q = queries.back();
+         // tables
+         q.addToTableList ( "SUPER_MASTER_TABLE", "SMT" );
+         q.addToTableList ( "HLT_JOBOPTIONS", "HJO" );
+         // bind vars
+         q.extendBinding<int>("smk");
+         // conditions
+         q.extendCondition("SMT.SMT_ID = :smk");
+         q.extendCondition("AND HJO.HJO_ID=SMT.SMT_HLT_JOBOPTIONS_ID");
+         // attributes
+         q.extendOutput<std::string>( "SMT.SMT_NAME" );
+         q.extendOutput<int>        ( "SMT.SMT_HLT_JOBOPTIONS_ID" );
+         q.extendOutput<coral::Blob>( "HJO.HJO_DATA" );
+         // the field with the data
+         q.setDataName("HJO.HJO_DATA");
+      }
+
       { // query for table dev2
          queries.emplace_back();
          auto & q = queries.back();
@@ -35,25 +54,6 @@ namespace {
          q.extendOutput<coral::Blob>( "JOMT.JO_CONTENT" );
          // the field with the data
          q.setDataName("JOMT.JO_CONTENT");
-      }
-
-      { // query for table dev1
-         queries.emplace_back();
-         auto & q = queries.back();
-         // tables
-         q.addToTableList ( "SUPER_MASTER_TABLE", "SMT" );
-         q.addToTableList ( "HLT_JOBOPTIONS", "JO" );
-         // bind vars
-         q.extendBinding<int>("smk");
-         // conditions
-         q.extendCondition("SMT.SMT_ID = :smk");
-         q.extendCondition("AND JO.HJO_ID=SMT.SMT_HLT_JOBOPTIONS_ID");
-         // attributes
-         q.extendOutput<std::string>( "SMT.SMT_NAME" );
-         q.extendOutput<int>        ( "SMT.SMT_HLT_JOBOPTIONS_ID" );
-         q.extendOutput<coral::Blob>( "JO.HJO_DATA" );
-         // the field with the data
-         q.setDataName("JO.HJO_DATA");
       }
       return queries;
    }
@@ -84,6 +84,11 @@ TrigConf::TrigDBJobOptionsLoader::loadJobOptions ( unsigned int smk,
          break;
       }
       catch(coral::QueryException & ex) {
+         TRG_MSG_INFO("Trying next query after coral::QueryException caught ( " << ex.what() <<" )" );
+         continue;
+      }
+      catch(std::exception & ex) {
+         TRG_MSG_INFO("Trying next query after std::exception caught ( " << ex.what() <<" )" );
          continue;
       }
    }
