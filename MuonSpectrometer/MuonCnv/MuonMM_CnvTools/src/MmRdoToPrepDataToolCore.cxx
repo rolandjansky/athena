@@ -143,7 +143,7 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(const MM_RawDataColl
       continue;
     }
     NSWCalib::CalibratedStrip calibStrip;
-    ATH_CHECK (m_calibTool->calibrate(rdo, globalPos, calibStrip));
+    ATH_CHECK (m_calibTool->calibrateStrip(rdo, calibStrip));
 
     const Amg::Vector3D globalDir(globalPos.x(), globalPos.y(), globalPos.z());
     Trk::LocalDirection localDir;
