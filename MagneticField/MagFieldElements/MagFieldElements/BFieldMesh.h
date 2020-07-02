@@ -25,7 +25,6 @@ class BFieldMesh
 {
 public:
   // constructor
-  BFieldMesh() = default;
   BFieldMesh(double zmin,
              double zmax,
              double rmin,
@@ -96,7 +95,7 @@ public:
 protected:
   std::array<double, 3> m_min;
   std::array<double, 3> m_max;
-  std::vector<double> m_mesh[3];
+  std::array<std::vector<double>,3> m_mesh;
 
 private:
   std::vector<BFieldVector<T>> m_field;
@@ -104,9 +103,9 @@ private:
   double m_nomScale; // nominal m_scale from the map
 
   // look-up table and related variables
-  std::vector<int> m_LUT[3];
+  std::array<std::vector<int>,3> m_LUT;
   std::array<double,3> m_invUnit; // inverse unit size in the LUT
   int m_roff, m_zoff;
 };
-#include "BFieldMesh.icc"
+#include "MagFieldElements/BFieldMesh.icc"
 #endif

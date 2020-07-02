@@ -2,21 +2,23 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-
 inline void
-BFieldCacheZR::getB(const double* xyz, double r, double* B, double* deriv) const
+BFieldCacheZR::getB(const double* ATH_RESTRICT xyz,
+                    double r,
+                    double* ATH_RESTRICT B,
+                    double* ATH_RESTRICT deriv) const
 {
-  const double& x(xyz[0]);
-  const double& y(xyz[1]);
-  const double& z(xyz[2]);
+  const double x = xyz[0];
+  const double y = xyz[1];
+  const double z = xyz[2];
   // fractional position inside this bin
-  double fz = (z - m_zmin) * m_invz;
-  double gz = 1.0 - fz;
-  double fr = (r - m_rmin) * m_invr;
-  double gr = 1.0 - fr;
+  const double fz = (z - m_zmin) * m_invz;
+  const double gz = 1.0 - fz;
+  const double fr = (r - m_rmin) * m_invr;
+  const double gr = 1.0 - fr;
   // interpolate field values in z, r
   double Bzr[2];
-  for (int i = 0; i < 2; i++) { // z, r components
+  for (int i = 0; i < 2; ++i) { // z, r components
     const double* field = m_field[i];
     Bzr[i] = gz * (gr * field[0] + fr * field[1]) +
              fz * (gr * field[2] + fr * field[3]);
@@ -28,18 +30,17 @@ BFieldCacheZR::getB(const double* xyz, double r, double* B, double* deriv) const
   } else {
     invr = 0.0;
   }
-  double c(x * invr);
-  double s(y * invr);
+  const double c(x * invr);
+  const double s(y * invr);
   B[0] = Bzr[1] * c;
   B[1] = Bzr[1] * s;
   B[2] = Bzr[0];
 
   // compute field derivatives if requested
   if (deriv) {
-    double dBdz[2];
-
-    double dBdr[2];
-    for (int j = 0; j < 2; j++) { // Bz, Br components
+    std::array<double, 2> dBdz;
+    std::array<double, 2> dBdr;
+    for (int j = 0; j < 2; ++j) { // Bz, Br components
       const double* field = m_field[j];
       dBdz[j] =
           m_invz * (gr * (field[2] - field[0]) +
@@ -49,11 +50,11 @@ BFieldCacheZR::getB(const double* xyz, double r, double* B, double* deriv) const
                     fz * (field[3] - field[2]));
     }
     // convert to cartesian coordinates
-    double cc = c * c;
-    double cs = c * s;
-    double ss = s * s;
-    double sinvr = s * invr;
-    double cinvr = c * invr;
+    const double cc = c * c;
+    const double cs = c * s;
+    const double ss = s * s;
+    const double sinvr = s * invr;
+    const double cinvr = c * invr;
     deriv[0] = cc * dBdr[1] + sinvr * B[1];
     deriv[1] = cs * dBdr[1] - cinvr * B[1];
     deriv[2] = c * dBdz[1];
