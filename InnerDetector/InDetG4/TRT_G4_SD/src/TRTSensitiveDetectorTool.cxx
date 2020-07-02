@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -18,7 +18,7 @@ TRTSensitiveDetectorTool::TRTSensitiveDetectorTool(const std::string& type, cons
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-G4VSensitiveDetector* TRTSensitiveDetectorTool::makeSD() const
+G4VSensitiveDetector* TRTSensitiveDetectorTool::makeSD ATLAS_NOT_THREAD_SAFE () const // Thread unsafe TRTSensitiveDetector class is used.
 {
 
   ATH_MSG_DEBUG( "Initializing SD" );
