@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LARNOISEP
@@ -11,7 +11,7 @@
 class LArNoiseP 
 {
 public:
-    LArNoiseP() : m_Noise(-999999999) {} 
+    LArNoiseP() : m_Noise(-9999999) {} 
     LArNoiseP(float n) : m_Noise(n) {} 
     bool isEmpty() const { return m_Noise < -9999 ; } ;
     float         m_Noise;

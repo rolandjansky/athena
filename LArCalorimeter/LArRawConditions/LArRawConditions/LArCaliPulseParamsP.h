@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LARCALIPULSEPARAMSP
@@ -12,9 +12,9 @@ class LArCaliPulseParamsP
 {
 public:
     LArCaliPulseParamsP()
-      : m_Tcal(-999999999), m_Fstep(-999999999), m_Offset(-999999999), m_dTimeCal(-999999999), m_nCB(-999) {} ;
+      : m_Tcal(-9999999), m_Fstep(-9999999), m_Offset(-9999999), m_dTimeCal(-99999), m_nCB(-999) {} ;
     LArCaliPulseParamsP(float r, float s) 
-      : m_Tcal(r), m_Fstep(s), m_Offset(-999999999), m_dTimeCal(-999999999), m_nCB(-999)  {} ;
+      : m_Tcal(r), m_Fstep(s), m_Offset(-9999999), m_dTimeCal(-9999999), m_nCB(-999)  {} ;
     LArCaliPulseParamsP(float r, float s, float t, float u) 
       : m_Tcal(r), m_Fstep(s), m_Offset(t), m_dTimeCal(u), m_nCB(-999)  {} ;
     LArCaliPulseParamsP(float r, float s, float t, float u ,short v) 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LARMINBIASAVERAGEP
@@ -15,7 +15,7 @@ class LArMinBiasAverageP
 {
 public: 
 
-    LArMinBiasAverageP() : m_MinBiasAverage(-999999999) {} 
+    LArMinBiasAverageP() : m_MinBiasAverage(-9999999) {} 
     LArMinBiasAverageP(float average) : m_MinBiasAverage(average) {} 
     bool isEmpty() const { return m_MinBiasAverage < -9999 ; } ;
     float m_MinBiasAverage;
