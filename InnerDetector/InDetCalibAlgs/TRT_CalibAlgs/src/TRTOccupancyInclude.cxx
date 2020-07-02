@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /* *******************************************************************
@@ -12,6 +12,7 @@
 #include "xAODEventInfo/EventInfo.h"
 
 #include "StoreGate/ReadHandle.h"
+#include "CxxUtils/checker_macros.h"
 
 TRTOccupancyInclude::TRTOccupancyInclude(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm   (name, pSvcLocator),
@@ -44,7 +45,7 @@ StatusCode TRTOccupancyInclude::initialize()
 
 //---------------------------------------------------------------------
 
-StatusCode TRTOccupancyInclude::execute()
+StatusCode TRTOccupancyInclude::execute ATLAS_NOT_THREAD_SAFE () // static variables are used.
 {
   msg(MSG::DEBUG) << "execute()" << endmsg;
 
