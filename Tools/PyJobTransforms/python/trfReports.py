@@ -519,8 +519,6 @@ class trfFileReport(object):
             raise trfExceptions.TransformReportException(trfExit.nameToCode('TRF_INTERNAL_REPORT_ERROR'),
                                                          'Unknown file ({0}) in the file report for {1}'.format(filename, self._fileArg))
         tree = ElementTree.Element('File', ID = str(self._fileArg.getSingleMetadata(fname = filename, metadataKey = 'file_guid', populate = not fast)))
-        logical = ElementTree.SubElement(tree, 'logical')
-        lfn = ElementTree.SubElement(logical, 'lfn', name = filename)
         for myKey, classicKey in iteritems(self._internalToClassicMap):
             # beam_type is tricky - we return only the first list value,
             # (but remember, protect against funny stuff!)
@@ -601,7 +599,7 @@ class machineReport(object):
             with open('/proc/cpuinfo') as cpuinfo:
                 for line in cpuinfo:
                     try:
-                        k, v = [ e.strip() for e in line.split(':') ]
+                        k, v = [ l.strip() for l in line.split(':') ]
                         if k == 'cpu family' and 'cpu_family' not in machine:
                             machine['cpu_family'] = v
                         elif k == 'model' and 'model' not in machine:
@@ -615,7 +613,7 @@ class machineReport(object):
         try:
             with open('/etc/machinefeatures/hs06') as hs:
                 machine['hepspec'] = hs.readlines()[0].strip()
-        except IOError as e:
+        except IOError:
             pass
         return machine
 
