@@ -1,7 +1,7 @@
 #include "NSWCalibTool.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/PhysicalConstants.h"
-
+#include "MuonReadoutGeometry/MMReadoutElement.h"
 
 namespace {
   static constexpr double const& toRad = M_PI/180;
@@ -36,6 +36,7 @@ Muon::NSWCalibTool::NSWCalibTool(const std::string& t,
 				  const IInterface* p ) :
   AthAlgTool(t,n,p),
   m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
+  m_muonMgr(nullptr),
   m_magFieldSvc("AtlasFieldSvc",n)
 {
   declareInterface<INSWCalibTool>(this);
@@ -59,13 +60,15 @@ StatusCode Muon::NSWCalibTool::initialize()
   ATH_CHECK(m_magFieldSvc.retrieve());
   // initialize the MuonIdHelperTool and check the configuration
   ATH_CHECK(m_idHelperTool.retrieve());
-
   if ( !(m_idHelperTool->HasMM() && m_idHelperTool->HasSTgc() ) ) {
     ATH_MSG_ERROR("MuonIdHelperTool not properly configured, missing MM or STGC");
     return StatusCode::FAILURE;
   }
-
   ATH_CHECK(initializeGasProperties());
+
+  // get the detector descriptor manager
+  ATH_CHECK(detStore()->retrieve(m_muonMgr));
+
   return StatusCode::SUCCESS;
 }
 
@@ -89,16 +92,7 @@ StatusCode Muon::NSWCalibTool::initializeGasProperties() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::NSWCalibTool::calibrate( const Muon::MM_RawData* mmRawData, const Amg::Vector3D& globalPos, NSWCalib::CalibratedStrip& calibStrip) const
-{
-
-  double  vDriftCorrected;
-  calibStrip.charge = mmRawData->charge();
-  calibStrip.time = mmRawData->time() - globalPos.norm() * reciprocalSpeedOfLight + m_timeOffset;
-
-  calibStrip.identifier = mmRawData->identify();
-
-  /// magnetic field
+StatusCode Muon::NSWCalibTool::calibrateClus(const Muon::MMPrepData* prepData, const Amg::Vector3D& globalPos, std::vector<NSWCalib::CalibratedStrip>& calibClus) const {
   Amg::Vector3D magneticField;
   m_magFieldSvc->getField(&globalPos,&magneticField);
 
@@ -106,27 +100,60 @@ StatusCode Muon::NSWCalibTool::calibrate( const Muon::MM_RawData* mmRawData, con
   double phi    = globalPos.phi();
   double bfield = (magneticField.x()*std::sin(phi)-magneticField.y()*std::cos(phi))*1000.;
 
-  /// swap sign depending on the readout side
-  int gasGap = m_idHelperTool->mmIdHelper().gasGap(mmRawData->identify());
+  //// swap sign depending on the readout side
+  int gasGap = m_idHelperTool->mmIdHelper().gasGap(prepData->identify());
   bool changeSign = ( globalPos.z() > 0. ? (gasGap==1 || gasGap==3) : (gasGap==2 || gasGap==4) );
   if (changeSign) bfield = -bfield;
 
-  /// sign of the lorentz angle matches digitization - angle is in radians
+  //// sign of the lorentz angle matches digitization - angle is in radians
   double lorentzAngle = (bfield>0. ? 1. : -1.)*m_lorentzAngleFunction->Eval(std::abs(bfield)) * toRad;
 
-  vDriftCorrected = m_vDrift * std::cos(lorentzAngle);
-  calibStrip.distDrift = vDriftCorrected * calibStrip.time;
-
-  /// transversal and longitudinal components of the resolution
-  calibStrip.resTransDistDrift = pitchErr + std::pow(m_transDiff * calibStrip.distDrift, 2); 
-  calibStrip.resLongDistDrift = std::pow(m_ionUncertainty * vDriftCorrected, 2) 
-    + std::pow(m_longDiff * calibStrip.distDrift, 2);
-  
-  calibStrip.dx = std::sin(lorentzAngle) * calibStrip.time * m_vDrift;
-
+  /// loop over prepData strips
+  for (unsigned int i = 0; i < prepData->stripNumbers().size(); i++){
+    double time = prepData->stripTimes().at(i);
+    double charge = prepData->stripCharges().at(i);
+    NSWCalib::CalibratedStrip calibStrip;
+    calibrateStrip(time, charge, lorentzAngle, calibStrip);
+    calibClus.push_back(calibStrip);
+  }
   return StatusCode::SUCCESS;
 }
 
+StatusCode Muon::NSWCalibTool::calibrateStrip(const double time, const double charge, const double lorentzAngle, NSWCalib::CalibratedStrip& calibStrip) const {
+  calibStrip.charge = charge;
+  calibStrip.time = time;
+
+  double vDriftCorrected = m_vDrift * std::cos(lorentzAngle);
+  calibStrip.distDrift = vDriftCorrected * calibStrip.time;
+
+  /// transversal and longitudinal components of the resolution
+  calibStrip.resTransDistDrift = pitchErr + std::pow(m_transDiff * calibStrip.distDrift, 2);
+  calibStrip.resLongDistDrift = std::pow(m_ionUncertainty * vDriftCorrected, 2)
+    + std::pow(m_longDiff * calibStrip.distDrift, 2);
+  calibStrip.dx = std::sin(lorentzAngle) * calibStrip.time * m_vDrift;
+  return StatusCode::SUCCESS;
+}
+
+StatusCode Muon::NSWCalibTool::calibrateStrip(const Muon::MM_RawData* mmRawData, NSWCalib::CalibratedStrip& calibStrip) const
+{
+  Identifier rdoId = mmRawData->identify();
+
+  //get globalPos
+  Amg::Vector3D globalPos;
+  const MuonGM::MMReadoutElement* detEl = m_muonMgr->getMMReadoutElement(rdoId);
+  detEl->stripGlobalPosition(rdoId,globalPos);
+
+  calibStrip.charge = mmRawData->charge();
+  calibStrip.time = mmRawData->time() - globalPos.norm() * reciprocalSpeedOfLight + m_timeOffset;
+  calibStrip.identifier = mmRawData->identify();
+
+  calibStrip.distDrift = m_vDrift * calibStrip.time;
+  calibStrip.resTransDistDrift = pitchErr + std::pow(m_transDiff * calibStrip.distDrift, 2);
+  calibStrip.resLongDistDrift = std::pow(m_ionUncertainty * m_vDrift, 2)
+    + std::pow(m_longDiff * calibStrip.distDrift, 2);
+
+  return StatusCode::SUCCESS;
+}
 
 StatusCode Muon::NSWCalibTool::finalize()
 {
