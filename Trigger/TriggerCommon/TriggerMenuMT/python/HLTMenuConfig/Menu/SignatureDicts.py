@@ -66,7 +66,7 @@ TestChainParts = {
     'signature'      : ['Test'],
     'chainPartName'  : '',
     'multiplicity'   : '',
-    'extra'          : ['muv1', 'muv1step', 'muv2', 'ev1', 'ev2', 'ev3', 'gv1', 'muEmpty', 'ev1dr', 'muv1dr'],
+    'extra'          : ['muv1', 'muv1step', 'muv2', 'ev1', 'ev2', 'ev3', 'gv1', 'muEmpty1', 'muEmpty2', 'ev1dr', 'muv1dr'],
     'trigType'       : ['TestChain'],
     'threshold'      : '',
     'addInfo'        : [''],

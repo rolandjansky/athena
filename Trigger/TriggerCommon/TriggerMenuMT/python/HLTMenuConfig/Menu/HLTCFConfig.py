@@ -340,6 +340,7 @@ def createDataFlow(chains, allDicts):
             sequenceFilter= None
             filterName = CFNaming.filterName(chainStep.name)
             filterOutput =[ CFNaming.filterOutName(filterName, inputName) for inputName in filterInput ]
+            log.debug("Filter outputps: %s", filterOutput)
 
             (foundFilter, foundCFSeq) = findCFSequences(filterName, CFseqList[nstep])
             log.debug("Found %d CF sequences with filter name %s", foundFilter, filterName)

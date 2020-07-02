@@ -202,7 +202,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
 
     #--------------------
     def getmuMSEmptyAll(self, stepID):
-        return self.getStep(stepID,'muMS_empty',[])
+        return self.getEmptyStep(stepID,'muMS_empty')
 
     #--------------------
     def getmuMSEmpty(self):
@@ -210,11 +210,11 @@ class MuonChainConfiguration(ChainConfigurationBase):
 
     #--------------------
     def getmuFastEmpty(self):
-        return self.getStep(1,'muFast_empty',[])
+        return self.getEmptyStep(1,'muFast_empty')
 
     #--------------------
     def getEFCBEmpty(self):
-        return self.getStep(6,'EFCBEmpty',[])
+        return self.getEmptyStep(6,'EFCBEmpty')
     
     #--------------------
     def getLateMuRoI(self):
