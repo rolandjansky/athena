@@ -464,7 +464,7 @@ print InDetTruthTrackCreation
 if TrkDetFlags.ISF_FatrasCustomGeometry():
     InDetKeys.PixelClustersTruth = "PRD_MultiTruthPlanarPixel"
     InDetKeys.SCT_ClustersTruth = "PRD_MultiTruthPlanarSCT"
-InDetFlags.doStandardPlots = True
+InDetFlags.doPhysValMon = True
 InDetRecTestBLayerTool=None
 
 InDetTrackSummaryToolSharedHits=InDetTrackSummaryTool

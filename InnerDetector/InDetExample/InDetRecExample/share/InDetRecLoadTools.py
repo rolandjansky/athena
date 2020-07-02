@@ -495,7 +495,7 @@ if InDetFlags.doPattern() and InDetFlags.doCosmics():
 # ------------------------------------------------------------
 
 # id rec stat processing and trk+pixel ntuple creation need this tool if truth is on
-if InDetFlags.doTruth() and (InDetFlags.doStatistics() or InDetFlags.doStandardPlots() or InDetFlags.doPhysValMon() or InDetFlags.doNtupleCreation()):
+if InDetFlags.doTruth() and (InDetFlags.doStatistics() or InDetFlags.doPhysValMon() or InDetFlags.doNtupleCreation()):
     #
     # --- load truth to track tool
     #
