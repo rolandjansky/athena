@@ -12,7 +12,6 @@
 //  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
-//<<<<<< INCLUDES                                                       >>>>>>
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "GaudiKernel/ConcurrencyFlags.h"
 #include "MuonCombinedToolInterfaces/IMuonCombinedTagTool.h"
@@ -21,8 +20,6 @@
 #include "MuonCombinedTool.h"
 
 namespace MuonCombined {
- 
-  //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
   MuonCombinedTool::MuonCombinedTool (const std::string& type, const std::string& name, const IInterface* parent)
     :	AthAlgTool(type, name, parent),
@@ -48,10 +45,12 @@ namespace MuonCombined {
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_muonCombinedTagTools.retrieve());
 
-    // debug tree, only in serial mode
-    if(m_runMuonCombinedDebugger && !Gaudi::Concurrency::ConcurrencyFlags::concurrent()) {
-      ATH_CHECK(m_muonCombDebugger.retrieve());
-      m_muonCombDebugger->bookBranches();
+    // debug tree, only for running with 1 thread
+    if(m_runMuonCombinedDebugger) {
+      if (!Gaudi::Concurrency::ConcurrencyFlags::concurrent() || Gaudi::Concurrency::ConcurrencyFlags::numThreads()==1) {
+        ATH_CHECK(m_muonCombDebugger.retrieve());
+        m_muonCombDebugger->bookBranches();
+      }
     }
 
     return StatusCode::SUCCESS;

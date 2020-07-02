@@ -42,8 +42,8 @@ namespace Muon {
     ATH_CHECK( detStore()->retrieve( m_detMgr ) );
 
     if( m_doNtuple ){
-      if (Gaudi::Concurrency::ConcurrencyFlags::concurrent()) {
-        // Disabled under concurrency due to thread-safety concerns, but we want to keep it as a debug tool
+      if (Gaudi::Concurrency::ConcurrencyFlags::concurrent() && Gaudi::Concurrency::ConcurrencyFlags::numThreads()>1) {
+        // Disabled for >1 threads due to thread-safety concerns, but we want to keep it as a debug tool
         ATH_MSG_DEBUG("HitNtuple disabled because of concurrency");
 	m_file = 0;
 	m_tree = 0;
