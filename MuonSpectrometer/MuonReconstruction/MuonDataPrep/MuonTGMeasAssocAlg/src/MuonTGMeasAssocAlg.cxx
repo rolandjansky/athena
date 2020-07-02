@@ -172,10 +172,6 @@ StatusCode Muon::MuonTGMeasAssocAlg::execute()
     if ( !sc.isFailure() && m_writeTgSegments ) sc = storeSegments();
   }
 
-  if ( m_muonTgTool ) {
-    m_muonTgTool->updateAssocMeas(m_allHits,m_allSegments);
-  }
-
   return StatusCode::SUCCESS;
 }
 
