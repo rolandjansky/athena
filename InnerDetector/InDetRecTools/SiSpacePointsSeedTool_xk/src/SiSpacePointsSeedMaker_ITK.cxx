@@ -256,7 +256,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::newEvent(int iteration)
     fillLists(); return;
   }
 
-  m_checketa = m_dzdrmin > 1. && !m_fastTracking;
+  m_checketa = m_dzdrmin > 1.;
 
   float irstep = 1./r_rstep;
   int   irmax  = r_size-1  ;
@@ -850,13 +850,11 @@ void InDet::SiSpacePointsSeedMaker_ITK::buildFrameWork()
 
   // Build radius sorted containers
   //
-  if(!m_fastTracking){
-    r_size = int((r_rmax+.1)/r_rstep);
-    r_Sorted = new std::list<InDet::SiSpacePointForSeedITK*>[r_size];
-    r_index  = new int[r_size];
-    r_map    = new int[r_size];
-    m_nr   = 0; for(int i=0; i!=r_size; ++i) {r_index[i]=0; r_map[i]=0;}
-  }
+  r_size = int((r_rmax+.1)/r_rstep);
+  r_Sorted = new std::list<InDet::SiSpacePointForSeedITK*>[r_size];
+  r_index  = new int[r_size];
+  r_map    = new int[r_size];
+  m_nr   = 0; for(int i=0; i!=r_size; ++i) {r_index[i]=0; r_map[i]=0;}
 
   // Build radius-azimuthal sorted containers
   //

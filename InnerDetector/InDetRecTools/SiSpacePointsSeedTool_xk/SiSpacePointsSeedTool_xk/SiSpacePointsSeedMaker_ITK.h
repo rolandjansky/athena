@@ -415,7 +415,7 @@ namespace InDet {
 
       if(usePixSctInform){
 
-	if(!sp->clusterList().second || m_fastTracking) pixInform(sp,r);
+	if(!sp->clusterList().second) pixInform(sp,r);
 	else sctInform(sp,r);
 
       }
