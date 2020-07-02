@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LAREMEC_HVBETAP
@@ -20,7 +20,7 @@
 class  LArEMEC_HVbetaP{
 public:
 
-    LArEMEC_HVbetaP() : m_EMEC_HVbeta(-999999999) {} 
+    LArEMEC_HVbetaP() : m_EMEC_HVbeta(-9999999) {} 
     LArEMEC_HVbetaP(float f) 
 	    : m_EMEC_HVbeta(f) {} 
     bool isEmpty() const { return m_EMEC_HVbeta < -9999 ; } ;

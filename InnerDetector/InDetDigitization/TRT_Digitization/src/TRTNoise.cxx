@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTNoise.h"
@@ -376,7 +376,7 @@ void TRTNoise::appendCrossTalkNoiseToProperDigits(std::vector<TRTDigit>& digitVe
                                                   CLHEP::HepRandomEngine* noiseRndmEngine) {
 
   //id helper:
-  TRTHitIdHelper* hitid_helper = TRTHitIdHelper::GetHelper();
+  const TRTHitIdHelper* hitid_helper = TRTHitIdHelper::GetHelper();
 
   std::vector<Identifier> IdsFromChip;
   std::vector<Identifier> CrossTalkIds;

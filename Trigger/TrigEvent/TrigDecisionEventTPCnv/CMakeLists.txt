@@ -23,24 +23,24 @@ atlas_add_dictionary( OLD_TrigDecisionEventTPCnvDict
 atlas_add_test( TrigDecisionCnv_p1_test
                 SOURCES
                 test/TrigDecisionCnv_p1_test.cxx
-                LINK_LIBRARIES TrigDecisionEventTPCnv )
+                LINK_LIBRARIES TestTools TrigDecisionEventTPCnv )
 
 atlas_add_test( TrigDecisionCnv_p2_test
                 SOURCES
                 test/TrigDecisionCnv_p2_test.cxx
-                LINK_LIBRARIES TrigDecisionEventTPCnv )
+                LINK_LIBRARIES TestTools TrigDecisionEventTPCnv )
 
 atlas_add_test( TrigDecisionCnv_p3_test
                 SOURCES
                 test/TrigDecisionCnv_p3_test.cxx
-                LINK_LIBRARIES TrigDecisionEventTPCnv )
+                LINK_LIBRARIES TestTools TrigDecisionEventTPCnv )
 
 atlas_add_test( TrigDecisionCnv_p4_test
                 SOURCES
                 test/TrigDecisionCnv_p4_test.cxx
-                LINK_LIBRARIES TrigDecisionEventTPCnv )
+                LINK_LIBRARIES TestTools TrigDecisionEventTPCnv )
 
 atlas_add_test( TrigDecisionCnv_p5_test
                 SOURCES
                 test/TrigDecisionCnv_p5_test.cxx
-                LINK_LIBRARIES TrigDecisionEventTPCnv )
+                LINK_LIBRARIES TestTools TrigDecisionEventTPCnv )

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## HLTFlags... taken from DQMonFlags ..
 
@@ -150,14 +150,12 @@ list+=[doOfflineTauTTP]
 
 #create a JobProperty container
 class HLTMonFlagsCont(JobPropertyContainer):
-    """
-    Container for HLT Monitoring FLags
-    """
-    def set_All_Off(self):
-        for j in list:
-            if j.__name__.startswith('do'):
-                j.StoredValue=False
-    pass
+	"""Container for HLT Monitoring Flags"""
+	def set_All_Off(self):
+		for j in list:
+			if j.__name__.startswith('do'):
+				j.StoredValue=False
+
 
 jobproperties.add_Container(HLTMonFlagsCont)
 

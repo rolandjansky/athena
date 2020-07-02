@@ -1,6 +1,6 @@
 from future.utils import iteritems
 from builtins import zip
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfMPTools
 #
@@ -13,7 +13,6 @@ __version__ = '$Revision'
 
 import os
 import os.path as path
-import re
 
 import logging
 msg = logging.getLogger(__name__)

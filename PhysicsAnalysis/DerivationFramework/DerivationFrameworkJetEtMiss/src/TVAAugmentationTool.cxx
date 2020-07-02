@@ -4,6 +4,7 @@
 
 #include "TVAAugmentationTool.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "StoreGate/WriteDecorHandle.h"
 
 namespace DerivationFramework {
 
@@ -25,12 +26,17 @@ namespace DerivationFramework {
     ATH_MSG_INFO("Initialising TVAAugmentationTool " << name() );
     ATH_CHECK( m_tool.retrieve() );
 
-    m_vtxDec = std::make_unique<SG::AuxElement::Decorator<vtxLink_t>>(m_linkName);
+    m_vtxDec_key = m_trackName + "." + m_linkName;
+    ATH_CHECK(m_vtxDec_key.initialize());
+
     return StatusCode::SUCCESS;
   }
 
   StatusCode TVAAugmentationTool::addBranches() const
   {
+
+    SG::WriteDecorHandle<xAOD::TrackParticleContainer, vtxLink_t> vtxDec_handle(m_vtxDec_key);
+
     const xAOD::VertexContainer* vertices = nullptr;
     ATH_CHECK(evtStore()->retrieve(vertices, m_vertexName) );
     const xAOD::TrackParticleContainer* tracks = nullptr;
@@ -40,7 +46,7 @@ namespace DerivationFramework {
 
     for (const xAOD::Vertex* ivtx : *vertices)
       for (const xAOD::TrackParticle* itrk : matchMap[ivtx])
-        (*m_vtxDec)(*itrk).toContainedElement(*vertices, ivtx);
+        vtxDec_handle(*itrk).toContainedElement(*vertices, ivtx);
 
     return StatusCode::SUCCESS;
   }

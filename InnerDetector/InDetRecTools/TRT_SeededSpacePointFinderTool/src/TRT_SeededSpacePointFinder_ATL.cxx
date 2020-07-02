@@ -258,20 +258,16 @@ std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData> InDet::TRT_Seede
     //
     SG::ReadHandle<SpacePointContainer> spacepointsPix(m_spacepointsPixname);
     if (spacepointsPix.isValid()) {
-      SpacePointContainer::const_iterator spce =  spacepointsPix->end  ();
-
       std::vector<IdentifierHash>::const_iterator l = vPixel.begin(), le = vPixel.end();
 
       // Loop through all trigger collections
       //
       for(; l!=le; ++l) {
 
-	SpacePointContainer::const_iterator  w =  spacepointsPix->indexFind((*l));
-	if(w==spce) continue;
-
-
-        SpacePointCollection::const_iterator sp  = (*w)->begin();
-        SpacePointCollection::const_iterator spe = (*w)->end  ();
+	const SpacePointCollection  *w =  spacepointsPix->indexFindPtr(*l);
+	if(w==nullptr) continue;
+        SpacePointCollection::const_iterator sp  = w->begin();
+        SpacePointCollection::const_iterator spe = w->end  ();
         for(; sp != spe; ++sp) {
 
 	  double r = (*sp)->r(); if(r<0. || r>=m_r_rmax) continue;
@@ -299,9 +295,6 @@ std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData> InDet::TRT_Seede
           ATH_MSG_ERROR("Failed to read PRD to track association map.");
         }
       }
-      //SpacePointContainer::const_iterator spc  =  m_spacepointsSCT->begin();
-      SpacePointContainer::const_iterator spce =  spacepointsSCT->end  ();
-
       std::vector<IdentifierHash>::const_iterator l = vSCT.begin(), le = vSCT.end();
 
       // Loop through all trigger collections
@@ -309,11 +302,10 @@ std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData> InDet::TRT_Seede
       double r_rmin = (!m_loadFull) ? m_r2min : m_r_rmin;
       for(; l!=le; ++l) {
 
-	SpacePointContainer::const_iterator  w =  spacepointsSCT->indexFind((*l));
-	if(w==spce) continue;
-
-        SpacePointCollection::const_iterator sp  = (*w)->begin();
-        SpacePointCollection::const_iterator spe = (*w)->end  ();
+	const SpacePointCollection  *w =  spacepointsSCT->indexFindPtr(*l);
+	if(w==nullptr) continue;
+        SpacePointCollection::const_iterator sp  = w->begin();
+        SpacePointCollection::const_iterator spe = w->end  ();
         for(; sp != spe; ++sp) {
 
           if(prd_to_track_map.cptr()){

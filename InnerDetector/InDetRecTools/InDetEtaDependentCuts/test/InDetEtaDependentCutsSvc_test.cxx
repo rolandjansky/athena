@@ -36,22 +36,24 @@ struct GaudiKernelFixture:public IDEDC_GaudiFixtureBase{
 using namespace InDet;
 
 BOOST_AUTO_TEST_SUITE(EtaDependentCutsSvcTest)
-  GaudiKernelFixture g(testJobOptionsFile);
+  const GaudiKernelFixture g(testJobOptionsFile);
   const auto & svcLoc=g.svcLoc;
-   ServiceHandle<IInDetEtaDependentCutsSvc> idEDCSvc ("InDet::InDetEtaDependentCutsSvc", "test");
  
    BOOST_AUTO_TEST_CASE( sanityCheck ){
      const bool svcLocatorIsOk=(svcLoc != nullptr);
      BOOST_TEST(svcLocatorIsOk);
    }
    BOOST_AUTO_TEST_CASE( retrieveSvc ){
+     ServiceHandle<IInDetEtaDependentCutsSvc> idEDCSvc ("InDet::InDetEtaDependentCutsSvc", "test");
      BOOST_TEST (idEDCSvc.retrieve().isSuccess());
    }
    BOOST_AUTO_TEST_CASE( interfaceID ){
+     ServiceHandle<IInDetEtaDependentCutsSvc> idEDCSvc ("InDet::InDetEtaDependentCutsSvc", "test");
      InterfaceID testId("IInDetEtaDependentCutsSvc",1,0);
      BOOST_TEST(idEDCSvc->interfaceID()==testId);
    }
    BOOST_AUTO_TEST_CASE(publicMethods){
+     ServiceHandle<IInDetEtaDependentCutsSvc> idEDCSvc ("InDet::InDetEtaDependentCutsSvc", "test");
      BOOST_TEST(idEDCSvc->getMaxEta() == 4.0);
    }
 BOOST_AUTO_TEST_SUITE_END()

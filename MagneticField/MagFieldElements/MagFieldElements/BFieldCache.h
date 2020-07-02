@@ -104,9 +104,9 @@ private:
   double m_zmin, m_zmax;          // bin range in z
   double m_rmin, m_rmax;          // bin range in r
   double m_phimin, m_phimax;      // bin range in phi
-  float m_invz, m_invr, m_invphi; // 1/(bin size) in z, r, phi
-  float m_field[3][8];            // (Bz,Br,Bphi) at 8 corners of the bin
-  float m_scale;                  // unit of m_field in kT
+  double m_invz, m_invr, m_invphi; // 1/(bin size) in z, r, phi
+  double m_field[3][8];            // (Bz,Br,Bphi) at 8 corners of the bin
+  double m_scale;                  // unit of m_field in kT
 };
 
 #include "BFieldCache.icc"

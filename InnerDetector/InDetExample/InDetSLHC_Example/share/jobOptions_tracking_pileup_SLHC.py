@@ -124,7 +124,7 @@ InDetFlags.doMonitoringAlignment = False
 
 # --- activate creation of ntuples, standard plots
 InDetFlags.doTrkNtuple      = True
-InDetFlags.doStandardPlots  = False
+InDetFlags.doPhysValMon  = False
 InDetFlags.doSGDeletion     = False
 InDetFlags.doTrkD3PD        = True
 

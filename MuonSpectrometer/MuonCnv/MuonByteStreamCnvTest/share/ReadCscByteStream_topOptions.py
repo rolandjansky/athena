@@ -92,6 +92,8 @@ include("MuonRdoToPrepData/CscRdoToCscPrepData_jobOptions.py")
 
 from MuonRdoToPrepData.MuonRdoToPrepDataConf import CscRdoToCscPrepData
 CscRdoToCscPrepData.OutputLevel = DEBUG
+from RegionSelector.RegSelToolConfig import makeRegSelTool_CSC
+CscRdoToCscPrepData.RegSel_CSC = makeRegSelTool_CSC()
 
 # Byte stream conversion service
 theApp.ExtSvc += [ "ByteStreamCnvSvc" ]

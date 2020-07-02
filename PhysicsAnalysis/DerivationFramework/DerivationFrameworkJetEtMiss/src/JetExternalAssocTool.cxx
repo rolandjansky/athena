@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetExternalAssocTool.cxx
 
 #include "JetExternalAssocTool.h"
+#include "StoreGate/WriteDecorHandle.h"
 
 namespace DerivationFramework{
 
@@ -48,18 +49,15 @@ StatusCode JetExternalAssocTool::initialize() {
 
   // setup vector of decorator
   for(auto NewLinkName : m_VectorOfNewLinkNames){
-    auto decorator = new SG::AuxElement::Decorator<type_ghostlink>(m_momentPrefix + NewLinkName);
-    m_VectorOfDecors.push_back(decorator);
+    m_dec_keys.emplace_back(  m_containerName + "." + m_momentPrefix + NewLinkName);
   }
+
+  ATH_CHECK(m_dec_keys.initialize());
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode JetExternalAssocTool::finalize(){
-
-  for(auto decorator : m_VectorOfDecors){
-    delete decorator;
-  }
 
   return StatusCode::SUCCESS;
 }
@@ -181,7 +179,9 @@ bool JetExternalAssocTool::TransferLink(const xAOD::Jet& jet, const xAOD::Jet& j
       targetLinks.push_back(el_obj);
     }
 
-    (*(m_VectorOfDecors[index_link]))(jet) = targetLinks;
+    SG::WriteDecorHandle<xAOD::JetContainer, type_ghostlink*> dec_handle(m_dec_keys.at(index_link));
+    *dec_handle(jet) = targetLinks;
+
   }
 
   return true;

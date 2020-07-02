@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -27,6 +27,7 @@
 #include <string>
 #include <vector>
 #include <array>
+#include <atomic>
 
 class AtlasDetectorID;
 class Identifier;
@@ -112,6 +113,8 @@ namespace InDet
 
       /** member variables for algorithm properties: */
       int m_printDetailedInformation;
+
+      mutable std::atomic<int> m_printStatusCount{0};
     }; 
 } // end of namespace
 

@@ -13,13 +13,13 @@
 #include <string>
 
 // FrameWork includes
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/DataObjID.h"
 
 namespace AthViews {
 
 class ViewDataVerifier
-  : public ::AthAlgorithm
+  : public ::AthReentrantAlgorithm
 { 
 
   /////////////////////////////////////////////////////////////////// 
@@ -40,7 +40,7 @@ class ViewDataVerifier
 
   // Athena algorithm's Hooks
   virtual StatusCode  initialize() override;
-  virtual StatusCode  execute() override;
+  virtual StatusCode  execute(const EventContext& ctx) const override;
 
  private:
 

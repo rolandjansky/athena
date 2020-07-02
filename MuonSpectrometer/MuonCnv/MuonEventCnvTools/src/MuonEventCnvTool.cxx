@@ -254,13 +254,13 @@ const Trk::PrepRawData*
       ATH_MSG_DEBUG("PRD Cluster container found at "<<prdKey);
   }
 
-  auto it = handle->indexFind(idHash);
+  auto ptr = handle->indexFindPtr(idHash);
   // if we find PRD, then recreate link
-  if (it!=handle->end()) 
+  if (ptr!=nullptr) 
   {
       //loop though collection to find matching PRD.
-      auto collIt = (*it)->begin();
-      auto collItEnd = (*it)->end();
+      auto collIt = ptr->begin();
+      auto collItEnd = ptr->end();
       // there MUST be a faster way to do this!!
       for ( ; collIt!=collItEnd; collIt++){
           if ( (*collIt)->identify()==id ) return *collIt;

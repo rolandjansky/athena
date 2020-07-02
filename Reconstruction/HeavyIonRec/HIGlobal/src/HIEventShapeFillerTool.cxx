@@ -29,7 +29,6 @@ StatusCode HIEventShapeFillerTool::initializeCollection(xAOD::HIEventShapeContai
 {
    //change m_evtShape to m_evtShape
    m_evtShape=evtShape_;
-
    //tool is initialized only once
    if(!m_index)
    {
@@ -105,6 +104,10 @@ StatusCode HIEventShapeFillerTool::fillCollectionFromClusterContainer(const xAOD
   weight_vector->reserve(theClusters->size());
   SG::AuxElement::Decorator< float > decorator("HIEtaPhiWeight");
 
+	std::unique_ptr<std::vector<float> > cm_vector(new std::vector<float>());
+  cm_vector->reserve(theClusters->size());
+  SG::AuxElement::Decorator< float > cm_decorator("HIMag");
+
   constexpr float area_cluster=HI::TowerBins::getBinArea();
 
   if(m_towerWeightTool) CHECK(m_towerWeightTool->configureEvent());
@@ -124,6 +127,25 @@ StatusCode HIEventShapeFillerTool::fillCollectionFromClusterContainer(const xAOD
     }
     weight_vector->push_back(weight);
     decorator(*cl)=weight;
+
+		//HIMag back in rel 22 (removed by mistake in 21)
+		float etot2=0;
+    float er2=0;
+
+    for(unsigned int sample=0; sample<24; sample++)
+    {
+      CaloSampling::CaloSample s=static_cast<CaloSampling::CaloSample>(sample);
+      if(!cl->hasSampling(s)) continue;
+      float esamp=std::abs(cl->eSample(s));
+      float w1=m_towerWeightTool->getWeight(eta,phi,s);
+      float wr=m_towerWeightTool->getWeightMag(eta,phi,s);
+      etot2+=esamp*w1;
+      er2+=esamp*wr;
+
+    }
+    float cm=er2/etot2;
+    cm_vector->push_back(cm);
+    cm_decorator(*cl)=cm;
 
     //update members
     slice->setEt(slice->et()+weight*ET);
@@ -158,7 +180,6 @@ StatusCode HIEventShapeFillerTool::fillCollectionFromClusterContainer(const xAOD
 
 StatusCode HIEventShapeFillerTool::fillCollectionFromCells(const SG::ReadHandleKey<CaloCellContainer> &cell_container_key)
 {
-   ATH_MSG_INFO("INSIDE FillCollectionFromCells");
    //retrieve the cell container from store
 	 SG::ReadHandle<CaloCellContainer>  read_handle_caloCell ( cell_container_key );
    const CaloCellContainer* CellContainer = read_handle_caloCell.get();
@@ -166,7 +187,6 @@ StatusCode HIEventShapeFillerTool::fillCollectionFromCells(const SG::ReadHandleK
 }
 StatusCode HIEventShapeFillerTool::fillCollectionFromCellContainer(const CaloCellContainer* CellContainer)
 {
-   ATH_MSG_INFO("INSIDE FillCollectionFromCellContainer");
    //loop on Cells
    for(const auto cellItr : *CellContainer) updateShape(m_evtShape,m_index,cellItr,1.,cellItr->eta(),cellItr->phi());
    return StatusCode::SUCCESS;

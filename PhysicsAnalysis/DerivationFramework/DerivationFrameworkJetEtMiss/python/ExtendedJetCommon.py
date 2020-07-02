@@ -664,6 +664,73 @@ def addRscanJets(jetalg,radius,inputtype,sequence,outputlist):
                             ghostArea=0.01, ptmin=2000, ptminFilter=7000, calibOpt="none", algseq=sequence, outputGroup=outputlist)
 
 ##################################################################
+
+def addConstModJets(jetalg,radius,inputtype,constmods,sequence,outputlist,customVxColl="",
+                    addGetters=None, **kwargs):
+
+    if len(constmods)>0:
+        extjetlog.info("Building jet collection with modifier sequence {0}".format(constmods))
+    if customVxColl:
+        extjetlog.info("Building jet collection with custom vx collection {0}".format(customVxColl))
+
+    constmodstr = "".join(constmods)
+    if customVxColl and "CustomVtx" not in inputtype:
+        inputtype=inputtype+"CustomVtx"
+    jetname = "{0}{1}{2}{3}{4}Jets".format(jetalg,int(radius*10),constmodstr,inputtype,customVxColl)
+    algname = "jetalg"+jetname
+
+    # Avoid scheduling twice
+    if hasattr(sequence,algname):
+        extjetlog.warning("Sequence {0} already has an instance of const mod jet alg {1}".format(sequence,algname))
+        return
+
+    from JetRecConfig import ConstModHelpers
+    from JetRecConfig.JetDefinition import xAODType, JetConstit
+
+    if inputtype == "EMTopo":
+        constit = JetConstit( xAODType.CaloCluster, ["EM","Origin"])
+    elif inputtype == "LCTopo":
+        constit = JetConstit( xAODType.CaloCluster, ["LC","Origin"])
+    elif inputtype == "EMPFlow":
+        constit = JetConstit( xAODType.ParticleFlow )
+
+    constit.modifiers += constmods
+
+    constitalg = ConstModHelpers.getConstitModAlg(constit)
+    if not hasattr(sequence, constitalg.name()):
+        sequence += constitalg
+
+    # Get the PseudoJetGetter
+    from JetRecConfig import JetRecConfig
+    constitpjalg = JetRecConfig.getConstitPJGAlg( constit )
+    if not hasattr(sequence,constitpjalg.name()):
+        sequence += constitpjalg
+
+    getterbase = inputtype.lower()
+    if inputtype == "PFlowCustomVtx": getterbase = "empflow_reduced"
+
+    getters = [constitpjalg]+list(jtm.gettersMap[getterbase])[1:]
+
+    if addGetters:
+        getters += addGetters
+
+    suffix = customVxColl+constmodstr
+
+    # Pass the configuration to addStandardJets
+    # The modifiers will be taken from the
+    jetfindargs = {"jetalg":        jetalg,
+                   "rsize":         radius,
+                   "inputtype":     inputtype,
+                   "customGetters": getters,
+                   "namesuffix":    suffix,
+                   "algseq":        sequence,
+                   "outputGroup":   outputlist
+                   }
+    jetfindargs.update(kwargs)
+
+    addStandardJets(**jetfindargs)
+
+##################################################################
 # Helper to add origin corrected clusters 
 ##################################################################
 def addOriginCorrectedClusters(slimhelper,writeLC=False,writeEM=False):

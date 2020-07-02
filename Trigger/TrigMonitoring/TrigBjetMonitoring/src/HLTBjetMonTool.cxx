@@ -66,7 +66,7 @@
 
 
 
-#include "TrigBjetMonitoring/HLTBjetMonTool.h"
+#include "HLTBjetMonTool.h"
 
 #include "TrigTrackJetFinderTool/ITrigTrackJetFinderTool.h"
 

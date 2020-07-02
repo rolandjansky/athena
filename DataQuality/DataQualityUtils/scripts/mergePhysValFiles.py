@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #----------------------------------------------------------------------
 #stand-alone script to merge specific directories of NTUP_PHYSVAL files 
@@ -8,7 +8,8 @@
 #16 May 2016
 #----------------------------------------------------------------------
 
-import getopt,os,sys,glob,argparse,ROOT,time
+from __future__ import print_function
+import os,glob,argparse,ROOT,time
 
 start = time.clock()
 
@@ -32,39 +33,39 @@ f = ROOT.TFile(output_file, "recreate")
 folder = os.getcwd()
 f2 = ROOT.TFile(files[1])
 
-print "Target file: " + output_file
+print("Target file: " + output_file)
 for infile in files:
-    print "Found input file: " + infile
+    print("Found input file: " + infile)
     if os.path.samefile(output_file, infile):
-        print "Please make sure that the output file is not part of the input files! Stopping."
+        print("Please make sure that the output file is not part of the input files! Stopping.")
         quit()
 
 errors = []
 
 def mergeFolder(path) :
-    print "Merging folder " + path
+    print("Merging folder " + path)
     d = f2.Get(path)
     if not d:
         error = "ERROR: Cannot find directory " + path + ". Omitting."
-        print error
+        print(error)
         errors.append(error)
         return
     dirlist = d.GetListOfKeys()
     for subdir in dirlist:
         obj = subdir.ReadObj()
         if obj.IsA().InheritsFrom(ROOT.TH1.Class()):
-            print "Now merging "+obj.GetName()
+            print("Now merging "+obj.GetName())
             h1 = obj
             hpath = d.GetPath()
             hname = hpath[hpath.find(":")+2:]+"/"+obj.GetName()
-            print "Path: "+hname
+            print("Path: "+hname)
             for tup in files:
                 if tup==files[1]: continue
                 nextfile = ROOT.TFile(tup)
                 h2 = nextfile.Get(hname)
                 if not h2:
                     error = "ERROR: Cannot find " + hname + " in file " + tup + ". Omitting."
-                    print error
+                    print(error)
                     errors.append(error)
                     continue
                 h1.Add(h2)
@@ -72,7 +73,7 @@ def mergeFolder(path) :
             subfolder.cd()
             h1.Write()
         if obj.IsA().InheritsFrom(ROOT.TDirectory.Class()):
-            print "Found subdirectory "+obj.GetName()
+            print("Found subdirectory "+obj.GetName())
             hpath = obj.GetPath()
             subfolder = f.mkdir(hpath[hpath.find(":")+2:],obj.GetTitle())
             subfolder.cd()
@@ -85,9 +86,9 @@ for mergeDir in mergeDirs:
 
 f.Close()
 if len(errors)>0:
-    print "Summary of all errors:"
+    print("Summary of all errors:")
     for phrase in errors:
-        print phrase
+        print(phrase)
 
 end = time.clock()
-print "Wall time used: %s sec" % (end - start)
+print("Wall time used: %s sec" % (end - start))

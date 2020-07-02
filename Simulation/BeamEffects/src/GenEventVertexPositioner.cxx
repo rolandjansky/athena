@@ -86,7 +86,7 @@ namespace Simulation
       auto vtxItEnd = ge.vertices_end();
       for( ; vtxIt != vtxItEnd; ++vtxIt) {
         // quick access:
-        HepMC::GenVertex *curVtx = (*vtxIt);
+        auto curVtx = (*vtxIt);
         const HepMC::FourVector &curPos = curVtx->position();
 
         // get a copy of the current vertex position

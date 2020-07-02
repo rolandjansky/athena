@@ -39,8 +39,8 @@ if not jetFlags.useTruth():
 jetFlags.useTruth.set_Value_and_Lock(is_mc_or_overlay)
 
 
-#Tower level subtraction
-HIJetFlags.DoCellBasedSubtraction.set_Value_and_Lock(False)
+#Tower level subtraction - made it false by default to avoid confusion
+#HIJetFlags.DoCellBasedSubtraction.set_Value_and_Lock(False)
 
 jetFlags.useTracks.set_Value_and_Lock(True)
 #HIP mode
@@ -161,11 +161,6 @@ subtr1=MakeSubtractionTool(iter0.OutputEventShapeKey,moment_name="NoIteration",m
 #main subtractor
 subtr2=MakeSubtractionTool(HIJetFlags.IteratedEventShapeKey(),modulator=modulator1)
 
-#put subtraction tool at the FRONT of the jet modifiers list
-hi_tools=[subtr1,subtr2]
-hi_tools+=GetFlowMomentTools(iter1.OutputEventShapeKey,iter1.ModulationEventShapeKey)
-
-
 #==========#==========#==========#==========#==========#==========
 #special addition for egamma
 #Downstream egamma jo will call SubtractedCellGetter, it assumes that the container pointed to by
@@ -177,10 +172,18 @@ if not HIJetFlags.DoCellBasedSubtraction():
     cell_level_shape_key=iter_egamma.OutputEventShapeKey
     #HIJetFlags.IteratedEventShapeKey=iter_egamma.OutputEventShapeKey
 
-#Subtraction for egamma and to get layers
-ApplySubtractionToClusters(name="HIClusterSubtraction_egamma", event_shape_key=cell_level_shape_key, cluster_key=ClusterKey, modulator=modulator1, CalculateMoments=True, useClusters=False)
+cluster_key_eGamma_deep=ClusterKey+"_eGamma_deep"
+cluster_key_final_deep=cluster_key_eGamma_deep+"_Cluster_deep"
+#Subtraction for egamma and to get layers - here no origin correction yet (done in the next stage)
+ApplySubtractionToClusters(name="HIClusterSubtraction_egamma", event_shape_key=cell_level_shape_key, cluster_key=ClusterKey, output_cluster_key=cluster_key_eGamma_deep, modulator=modulator1, CalculateMoments=True, useClusters=False, apply_origin_correction=False)
 #Cluster subtraction for jets
-ApplySubtractionToClusters(event_shape_key=HIJetFlags.IteratedEventShapeKey(), update_only=True, cluster_key=ClusterKey, modulator=modulator1, CalculateMoments=False, useClusters=True)
+ApplySubtractionToClusters(event_shape_key=HIJetFlags.IteratedEventShapeKey(), cluster_key=cluster_key_eGamma_deep, output_cluster_key=cluster_key_final_deep, modulator=modulator1, CalculateMoments=False, useClusters=True, apply_origin_correction=HIJetFlags.ApplyOriginCorrection())
+
+#put subtraction tool at the FRONT of the jet modifiers list
+hi_tools=[subtr1,subtr2]
+hi_tools+=GetFlowMomentTools(iter1.OutputEventShapeKey,iter1.ModulationEventShapeKey)
+hi_tools+=[GetConstituentsModifierTool(name="HIJetConstituentModifierTool", cluster_key=cluster_key_final_deep, apply_origin_correction=HIJetFlags.ApplyOriginCorrection())]
+
 ###
 #subtracted algorithms
 #make main jets from unsubtr collections w/ same R, add modifiers for subtraction

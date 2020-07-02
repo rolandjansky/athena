@@ -14,7 +14,7 @@ import time
 import re
 from enum import Enum
 from threading import Timer
-from TrigValTools.TrigValSteering.Common import get_logger, art_result
+from TrigValTools.TrigValSteering.Common import get_logger, art_result, running_in_CI
 
 
 class Step(object):
@@ -180,7 +180,7 @@ class Step(object):
         # Print full log to stdout for failed steps if running in CI
         if self.required \
                 and self.result != 0 \
-                and os.environ.get('gitlabTargetBranch') \
+                and running_in_CI() \
                 and self.output_stream==self.OutputStream.FILE_ONLY:
             self.log.error('Step failure while running in CI. Printing full log %s', self.get_log_file_name())
             with open(self.get_log_file_name()) as log_file:

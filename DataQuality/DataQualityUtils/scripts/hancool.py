@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
 import DataQualityUtils.hancoolmod as mod
 
 import sys
@@ -10,11 +11,11 @@ import sys
 def usage():
   cmdi = sys.argv[0].rfind("/")
   cmd = sys.argv[0][cmdi+1:]
-  print ""
-  print "Usage: ", cmd, "<runnumber> <path> <dbConnection> <detstatus> <dbtag>"
-  print "or"
-  print "Usage: ", cmd, "(picking up default settings)"
-  print ""
+  print("")
+  print("Usage: ", cmd, "<runnumber> <path> <dbConnection> <detstatus> <dbtag>")
+  print("or")
+  print("Usage: ", cmd, "(picking up default settings)")
+  print("")
 
 
 if __name__ == "__main__":
@@ -51,4 +52,3 @@ if __name__ == "__main__":
       db_tag = "HEAD"
 
   mod.hancool(runNumber,filePath,dbConnection,dqmfOfl, db_tag)
-
