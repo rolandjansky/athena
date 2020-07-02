@@ -42,10 +42,9 @@ namespace InDet {
     ///////////////
     // Initialize
     ///////////////
-    StatusCode InDetEtaDependentCutsSvc::initialize() {
-      
-      ATH_MSG_INFO ("Initializing " << name() << "...");
-      
+    StatusCode 
+    InDetEtaDependentCutsSvc::initialize() {
+      ATH_MSG_DEBUG ("Initializing " << name() << "...");
       if ((m_etaBins.size()-1) <= 0) {
         ATH_MSG_ERROR( "Wrong initialisation of eta bins. Check the eta bin values in " << name() );
         return StatusCode::FAILURE;
