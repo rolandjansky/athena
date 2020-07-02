@@ -148,7 +148,7 @@ class ConfiguredTrackingGeometrySvc( Trk__TrackingGeometrySvc ) :
                 if (TrkDetFlags.MaterialMagicTag == "DEFAULT"):
                  ctag = "AtlasLayerMat_v20_ATLAS-P2-ITK-22-00-00"
                  print '[ TrackingGeometrySvc ] TrkDetFlags not set for ITk!' 
-                 print '[ TrackingGeometrySvc ] Using a default ("AtlasLayerMat_v20_ATLAS-P2-ITK-22-02-00")'  
+                 print '[ TrackingGeometrySvc ] Using a default ("AtlasLayerMat_v20_ATLAS-P2-ITK-22-00-00")'  
                  #In case tag hasn't been set, give an existing default
                 cfoldertag = CoolDataBaseFolder+' <tag>'+ctag+'</tag>'
                 conddb.addFolderSplitMC('GLOBAL',cfoldertag,cfoldertag)
