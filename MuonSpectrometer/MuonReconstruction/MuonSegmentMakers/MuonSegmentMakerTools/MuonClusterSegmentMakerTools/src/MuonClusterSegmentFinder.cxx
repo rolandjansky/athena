@@ -520,14 +520,14 @@ return (fabs(i.z()) < fabs(j.z()));}
     // loop over hashes
     for( MuonLayerHashProviderTool::HashVec::const_iterator it=hashes.begin();it!=hashes.end();++it ){
       // skip if not found
-      Muon::MdtPrepDataContainer::const_iterator colIt = input->indexFind(*it);
-      if( colIt == input->end() ) {
+      auto col = input->indexFindPtr(*it);
+      if( col == nullptr ) {
 	//ATH_MSG_WARNING("Cannot find hash " << *it << " in container at " << location);
 	continue;
       }
-      ATH_MSG_VERBOSE("  adding " << m_idHelperSvc->toStringChamber((*colIt)->identify()) << " size " << (*colIt)->size());
+      ATH_MSG_VERBOSE("  adding " << m_idHelperSvc->toStringChamber(col->identify()) << " size " << col->size());
       // else add
-      output.push_back(*colIt);
+      output.push_back(col);
     }
     return true;
   }

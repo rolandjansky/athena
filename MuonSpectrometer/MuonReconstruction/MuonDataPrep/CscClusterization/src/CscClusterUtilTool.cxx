@@ -184,14 +184,14 @@ vector<const CscStripPrepData*> CscClusterUtilTool::getStrips(const CscPrepData*
 
 
   IdentifierHash elhash=MClus->collectionHash();
-  CscStripPrepDataContainer::const_iterator it = pdigcont->indexFind(elhash);
+  auto it = pdigcont->indexFindPtr(elhash);
 
   ATH_MSG_VERBOSE ( "Hash " << elhash << " converted to iterator of container successfully");
   
-  if (it != pdigcont->end()) {
+  if (it != nullptr) {
     ATH_MSG_VERBOSE ( " it == pdigcont.end() passed");
     for ( unsigned int istrip=0; istrip<prd_digit_ids.size(); ++istrip ) {
-      const CscStripPrepDataCollection& col = **it;
+      const CscStripPrepDataCollection& col = *it;
       // Loop over digits and fill these arrays.
       for ( CscStripPrepDataCollection::const_iterator idig=col.begin();
             idig!=col.end(); ++idig ) {

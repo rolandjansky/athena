@@ -112,8 +112,8 @@ StatusCode RpcRdoToRpcDigit::decodeRpc(const RpcPad * rdoColl, RpcDigitContainer
           elementId.show();
         }
 
-        RpcDigitContainer::const_iterator it_coll = rpcContainer->indexFind(coll_hash);
-        if (rpcContainer->end() ==  it_coll) {
+        const RpcDigitCollection * coll = rpcContainer->indexFindPtr(coll_hash);
+        if (nullptr ==  coll) {
           RpcDigitCollection * newCollection = new RpcDigitCollection(elementId, coll_hash);
           newCollection->push_back(newDigit);
           collection = newCollection;
@@ -123,7 +123,7 @@ StatusCode RpcRdoToRpcDigit::decodeRpc(const RpcPad * rdoColl, RpcDigitContainer
         }
         else
           {
-            RpcDigitCollection * oldCollection ATLAS_THREAD_SAFE = const_cast<RpcDigitCollection*>( *it_coll ); // FIXME
+            RpcDigitCollection * oldCollection ATLAS_THREAD_SAFE = const_cast<RpcDigitCollection*>( coll ); // FIXME
             oldCollection->push_back(newDigit);
             collection = oldCollection;
           }

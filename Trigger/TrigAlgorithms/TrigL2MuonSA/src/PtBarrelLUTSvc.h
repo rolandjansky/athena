@@ -27,7 +27,7 @@ namespace TrigL2MuonSA {
   public:
     PtBarrelLUTSvc(const std::string& name,ISvcLocator* sl);
     
-    virtual StatusCode queryInterface(const InterfaceID& riid,void** ppvIF);
+    virtual StatusCode queryInterface(const InterfaceID& riid,void** ppvIF) override;
     
     virtual StatusCode initialize(void) override;
 

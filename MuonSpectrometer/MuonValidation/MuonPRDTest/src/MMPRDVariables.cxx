@@ -38,7 +38,7 @@ StatusCode MMPRDVariables::fillVariables(const MuonGM::MuonDetectorManager* Muon
 
   for(const Muon::MMPrepDataCollection* coll : *nsw_MMPrepDataContainer) {
 
-    const Muon::MM_RawDataCollection* rdo_coll = *rdo_container->indexFind(coll->identifyHash());
+    const Muon::MM_RawDataCollection* rdo_coll = rdo_container->indexFindPtr(coll->identifyHash());
     if(rdo_coll==0){
       ATH_MSG_ERROR("Did not find rdo collection " << coll->identifyHash());
       return StatusCode::FAILURE;

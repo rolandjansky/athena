@@ -40,12 +40,13 @@ Muon::MmRdoToPrepDataToolCore::MmRdoToPrepDataToolCore(const std::string& t,
   declareProperty("MergePrds", m_merge = true);
   declareProperty("ClusterBuilderTool",m_clusterBuilderTool);
   declareProperty("NSWCalibTool", m_calibTool);
+  declareProperty("singleStripChargeCut", m_singleStripChargeCut = 6241 * 0.4);   // 0.4 fC from BB5 cosmics
 }
 
 StatusCode Muon::MmRdoToPrepDataToolCore::initialize()
 {  
   ATH_MSG_DEBUG(" in initialize()");
-  
+ 
   ATH_CHECK(detStore()->retrieve(m_muonMgr));
   
   ATH_CHECK(m_idHelperSvc.retrieve());
@@ -182,6 +183,7 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(const MM_RawDataColl
 
     } else {
        MMPrepData mpd = MMPrepData(prdId, hash, localPos, rdoList, cov, detEl, calibStrip.time, calibStrip.charge, calibStrip.distDrift);
+       if(mpd.charge() < m_singleStripChargeCut) continue;
        // set the hash of the MMPrepData such that it contains the correct value in case it gets used in SimpleMMClusterBuilderTool::getClusters
        mpd.setHashAndIndex(hash,0);
        mpd.setAuthor(Muon::MMPrepData::Author::RDOTOPRDConverter);

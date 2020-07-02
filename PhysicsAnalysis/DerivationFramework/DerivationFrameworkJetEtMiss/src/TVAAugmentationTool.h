@@ -29,7 +29,8 @@ namespace DerivationFramework {
       ToolHandle<CP::ITrackVertexAssociationTool> m_tool;
       // Internals
       using vtxLink_t = ElementLink<xAOD::VertexContainer>;
-      std::unique_ptr<SG::AuxElement::Decorator<vtxLink_t>> m_vtxDec;
+      SG::WriteDecorHandleKey<xAOD::TrackParticleContainer> m_vtxDec_key {this, "vtxDecKey", "", "Decoration for associated vertex"};
+
   }; //> end class TVAAugmentationTool
 } //> end namespace DerivationFramework
 

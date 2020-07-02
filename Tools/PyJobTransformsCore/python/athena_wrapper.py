@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @package athena_wrapper
 #
@@ -11,9 +11,6 @@
 #  @li Handle any exceptions that arise from the execution of @c athena.py and create the
 #  appropriate AtlasErrorCodes.ErrorInfo object and a corresponding job report file.
 #
-#  @author $LastChangedBy: graemes $
-#  @version $Rev: 518863 $
-#  @date $Date: 2012-09-25 11:45:05 +0200 (Tue, 25 Sep 2012) $
 
 """date"      # executable for the shell, but a string block to python 
 # First part (shell part) copied from athena.py
@@ -146,11 +143,14 @@ fi
 import builtins
 printfunc = getattr(builtins,'print')
 
-import os, sys
+import sys
+from past.builtins import execfile
 from AthenaCommon.Include import IncludeError
 from PyJobTransformsCore import trferr, trfconsts
-from PyJobTransformsCore.JobReport import *
+from PyJobTransformsCore.JobReport import JobReport
 from PyJobTransformsCore import AtlasErrorCodes
+
+# flake8: noqa
 
 ## The err variable will be used to contain an ErrorInfo instance 
 #  after the trferr.errorHandler handles an exception.
@@ -161,7 +161,7 @@ err = None
 try:
     ## Position of the '-c' option given at the command line.
     cPos = sys.argv.index( '-c' )
-except:
+except Exception:
     pass
 else:
     sys.argv[ cPos + 1 ] = ' '.join( sys.argv[ cPos + 1 : ] )
@@ -220,7 +220,7 @@ except str as e:
                                      severity = AtlasErrorCodes.FATAL,
                                      message = e )
 # Catch all other exceptions
-except:
+except Exception:
     err = AtlasErrorCodes.ErrorInfo( acronym = 'ATH_EXC_PYT',
                                       severity = AtlasErrorCodes.FATAL )
 

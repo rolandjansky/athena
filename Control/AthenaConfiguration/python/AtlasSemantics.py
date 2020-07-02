@@ -42,10 +42,10 @@ class MapMergeNoReplaceSemantics(GaudiConfig2.semantics.MappingSemantics):
         super(MapMergeNoReplaceSemantics, self).__init__(cpp_type, name)
 
     def merge(self,a,b):
-        for k,v in b.iteritems():
-            if k in a and not v == a[k]:
-                raise ValueError('conflicting values in map under key %r and %r %r' % (k, v, a[k]))
-            a[k] = v
+        for k in b.keys():
+            if k in a and b[k] != a[k]:
+                raise ValueError('conflicting values in map under key %r and %r %r' % (k, b[k], a[k]))
+            a[k] = b[k]
         return a
 
 class VarHandleSematics(GaudiConfig2.semantics.StringSemantics):

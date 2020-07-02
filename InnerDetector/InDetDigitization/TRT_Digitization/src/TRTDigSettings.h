@@ -25,8 +25,6 @@
 #include <string>
 #include <vector>
 
-ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // std::exit is used.
-
 class Algorithm;
 class AlgTool;
 namespace InDetDD { class TRT_DetectorManager; }

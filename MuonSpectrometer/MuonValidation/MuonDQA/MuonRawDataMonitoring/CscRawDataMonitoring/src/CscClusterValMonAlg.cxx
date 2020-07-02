@@ -227,13 +227,12 @@ StatusCode CscClusterValMonAlg::fillHistograms( const EventContext& ctx ) const 
           fill("CscClusMonitor",stripid, secLayer);
 
           if(!pcol) {
-            CscStripPrepDataContainer::const_iterator icol = cscStrip->indexFind(clus.identifyHash());
-            if ( icol == cscStrip->end() ) {
+            const CscStripPrepDataCollection* icol = cscStrip->indexFindPtr(clus.identifyHash());
+            if ( icol == nullptr ) {
               found_id = false;
               break;  // could not identify the strips
             } else {
-              pcol = *icol;
-              if(!pcol) found_id = false;
+              pcol = icol;
             }
           } // end if !pcol  
 

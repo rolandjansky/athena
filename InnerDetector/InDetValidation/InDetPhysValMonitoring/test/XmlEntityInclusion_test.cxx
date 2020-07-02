@@ -23,6 +23,10 @@
 #include "../InDetPhysValMonitoring/SingleHistogramDefinition.h"
 #include <utility> //std::pair
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+// This test uses global svcLoc and hDefSvc, and is not thread safe.
+
 static const std::string entityInclusionOptions("XmlEntityInclusionOptions.txt");
 /*
   The job options refer to an xml file 'entityMaster.xml' which contains 

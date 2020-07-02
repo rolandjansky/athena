@@ -15,8 +15,6 @@
  */
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "CxxUtils/checker_macros.h"
-
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 #include "Identifier/IdContext.h"
@@ -31,8 +29,6 @@
 #include <set>
 #include <vector>
 #include <stdint.h> 
-
-ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // std::exit is used.
 
 class TRT_FillCablingData_DC3: public AthAlgTool {
 

@@ -9,7 +9,7 @@ log = logging.getLogger('PFHLTSequence')
 # Use the appropriate containers based on what config is desired
 trackvtxcontainers = {
     "offline":  ("InDetTrackParticles","PrimaryVertices"),
-    "ftf":      ("HLT_IDTrack_FS_FTF","HLT_EFHistoPrmVtx"),
+    "ftf":      ("HLT_IDTrack_FS_FTF","HLT_IDVertex_FS"),
     }
 
 # PFTrackSelector

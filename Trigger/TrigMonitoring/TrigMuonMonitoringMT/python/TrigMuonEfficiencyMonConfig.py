@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import re
 import math
@@ -8,7 +8,9 @@ def TrigMuonEfficiencyMonConfig(helper):
     
     from AthenaConfiguration.ComponentFactory import CompFactory
 
-    Chains = ['HLT_mu26_ivarmedium_L1MU20', 'HLT_mu50_L1MU20', 'HLT_mu6_L1MU6']
+    # HLT_mu6_L1MU6 is test chain for small statistics, so it will be removed.
+    # To do: add multi-muon chain and msonly chain
+    Chains = ['HLT_mu6_L1MU6', 'HLT_mu26_ivarmedium_L1MU20', 'HLT_mu50_L1MU20']
 
     cached_regex = {}
     def regex(pat):
@@ -42,17 +44,48 @@ def TrigMuonEfficiencyMonConfig(helper):
                                       type='TEfficiency', path='',xbins=xbins,xmin=xmin,xmax=xmax)
 
             histGroup.defineHistogram(GroupName+'_L2SApass,'+GroupName+'_'+variable+';EffL2SA_'+variable+'_wrt_Upstream',
-                                      title='L2MuonSA Efficiency '+chain+';'+xlabel+';Efficiency',
+                                      title='L2MuonSA Efficiency '+chain+' wrt Upstream;'+xlabel+';Efficiency',
                                       cutmask=GroupName+'_L1pass',
                                       type='TEfficiency', path='',xbins=xbins,xmin=xmin,xmax=xmax)
 
+            histGroup.defineHistogram(GroupName+'_L2SApass,'+GroupName+'_'+variable+';EffL2SA_'+variable+'_wrt_offlineCB',
+                                      title='L2MuonSA Efficiency '+chain+' wrt offlineCB;'+xlabel+';Efficiency',
+                                      type='TEfficiency', path='',xbins=xbins,xmin=xmin,xmax=xmax)
+
             histGroup.defineHistogram(GroupName+'_L2CBpass,'+GroupName+'_'+variable+';EffL2CB_'+variable+'_wrt_Upstream',
-                                      title='L2muComb Efficiency '+chain+';'+xlabel+';Efficiency',
+                                      title='L2muComb Efficiency '+chain+' wrt Upstream;'+xlabel+';Efficiency',
                                       cutmask=GroupName+'_L2SApass',
                                       type='TEfficiency', path='',xbins=xbins,xmin=xmin,xmax=xmax)
 
-            histGroup.defineHistogram(GroupName+'_EFpass,'+GroupName+'_'+variable+';EffEF_'+variable+'_wrt_Upstream',
-                                      title='EF Muon Efficiency '+chain+';'+xlabel+';Efficiency',
+            histGroup.defineHistogram(GroupName+'_L2CBpass,'+GroupName+'_'+variable+';EffL2CB_'+variable+'_wrt_offlineCB',
+                                      title='L2muComb Efficiency '+chain+' wrt offlineCB;'+xlabel+';Efficiency',
+                                      type='TEfficiency', path='',xbins=xbins,xmin=xmin,xmax=xmax)
+
+            histGroup.defineHistogram(GroupName+'_EFSApass,'+GroupName+'_'+variable+';EffEFSA_'+variable+'_wrt_Upstream',
+                                      title='EFSA Muon Efficiency '+chain+' wrt Upstream;'+xlabel+';Efficiency',
+                                      cutmask=GroupName+'_L2CBpass',
+                                      type='TEfficiency', path='',xbins=xbins,xmin=xmin,xmax=xmax)
+
+            histGroup.defineHistogram(GroupName+'_EFSApass,'+GroupName+'_'+variable+';EffEFSA_'+variable+'_wrt_offlineCB',
+                                      title='EFSA Muon Efficiency '+chain+' wrt offlineCB;'+xlabel+';Efficiency',
+                                      type='TEfficiency', path='',xbins=xbins,xmin=xmin,xmax=xmax)
+
+            histGroup.defineHistogram(GroupName+'_EFSApass,'+GroupName+'_'+variable+';EffEFSA_'+variable+'_wrt_offlineCB_passedL2SA',
+                                      title='EFSA Muon Efficiency passed L2SA '+chain+' wrt offlineCB;'+xlabel+';Efficiency',
+                                      cutmask=GroupName+'_L2SApass',
+                                      type='TEfficiency', path='',xbins=xbins,xmin=xmin,xmax=xmax)
+
+            histGroup.defineHistogram(GroupName+'_EFCBpass,'+GroupName+'_'+variable+';EffEFCB_'+variable+'_wrt_Upstream',
+                                      title='EFCB Muon Efficiency '+chain+' wrt Upstream;'+xlabel+';Efficiency',
+                                      cutmask=GroupName+'_EFSApass',
+                                      type='TEfficiency', path='',xbins=xbins,xmin=xmin,xmax=xmax)
+
+            histGroup.defineHistogram(GroupName+'_EFCBpass,'+GroupName+'_'+variable+';EffEFCB_'+variable+'_wrt_offlineCB',
+                                      title='EFCB Muon Efficiency '+chain+' wrt offlineCB;'+xlabel+';Efficiency',
+                                      type='TEfficiency', path='',xbins=xbins,xmin=xmin,xmax=xmax)
+
+            histGroup.defineHistogram(GroupName+'_EFCBpass,'+GroupName+'_'+variable+';EffEFCB_'+variable+'_wrt_offlineCB_passedL2CB',
+                                      title='EFCB Muon Efficiency passed L2CB '+chain+' wrt offlineCB;'+xlabel+';Efficiency',
                                       cutmask=GroupName+'_L2CBpass',
                                       type='TEfficiency', path='',xbins=xbins,xmin=xmin,xmax=xmax)
 

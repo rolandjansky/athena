@@ -7,6 +7,7 @@
 # Brief: Unit test for LArCellDeadOTXCorr.
 #
 
+from __future__ import print_function
 
 import ROOT
 ROOT.TH1F
@@ -72,7 +73,7 @@ def make_bad_channel_condalg (name, badfebs = []):
         febfile = name + '.badfebs'
         f = open (febfile, 'w')
         for (feb, err) in badfebs:
-            print >> f, feb[0], feb[1], feb[2], feb[3], err
+            print (feb[0], feb[1], feb[2], feb[3], err, file=f)
         f.close()
     alg = LArBadFebCondAlg ('LArBadFebCondAlg' + name,
                             ReadKey = '',
@@ -346,10 +347,10 @@ class TestAlg (Alg):
         cabling = self.condStore()['LArOnOffIdMap'].find (ctx.eventID())
         for tt in tt_table:
             emid, hadid, febs = self.tt_to_febs (cabling, tt[0], tt[1])
-            print 'tt ', tt[0], tt[1], hex(emid), hex(hadid),
+            print ('tt ', tt[0], tt[1], hex(emid), hex(hadid), end='')
             for feb, idv in febs.items():
-                print feb, hex(idv),
-            print
+                print (feb, hex(idv), end='')
+            print()
         return
         
     def tt_to_febs (self, cabling, eta, phi):

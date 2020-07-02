@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 import sys
@@ -27,7 +27,7 @@ def grep_errors(filename):
     lines = []
     with open(filename) as f:
         lines = re.findall(error_pattern, f.read(), re.MULTILINE)
-    return filter(filter_fn, lines)
+    return list(filter(filter_fn, lines))
 
 
 def main():

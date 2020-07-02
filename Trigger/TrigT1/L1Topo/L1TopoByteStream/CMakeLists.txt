@@ -1,21 +1,7 @@
-################################################################################
-# Package: L1TopoByteStream
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( L1TopoByteStream )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/StoreGate
-                          Event/ByteStreamCnvSvcBase
-                          Event/ByteStreamData
-                          Event/xAOD/xAODTrigL1Calo
-                          Trigger/TrigT1/L1Topo/L1TopoRDO )
 
 # External dependencies:
 find_package( tdaq-common COMPONENTS eformat_write )
@@ -25,7 +11,7 @@ atlas_add_component( L1TopoByteStream
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} GaudiKernel AthenaBaseComps AthenaKernel StoreGateLib SGtests ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test xAODTrigL1Calo L1TopoRDO )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaKernel ByteStreamCnvSvcBaseLib ByteStreamData GaudiKernel L1TopoRDO StoreGateLib xAODTrigL1Calo )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

@@ -31,7 +31,7 @@ namespace Trk {
 
     //MsgStream log(msgSvc(), name());
     std::vector<const TrackParameters*>::const_iterator   i_pbase;
-    AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
+    AmgVector(5) VectPerig; VectPerig.setZero();
     Amg::Vector3D perGlobalPos,perGlobalVrt;
     const Trk::Perigee* mPer=nullptr;
     double CovVertTrk[15]; std::fill(CovVertTrk,CovVertTrk+15,0.);

@@ -26,7 +26,12 @@
 
 #include "TRT_ConditionsData/StrawStatusMultChanContainer.h"
 
-class TRT_StrawStatusSummaryTool: public extends<AthAlgTool, ITRT_StrawStatusSummaryTool>
+#include "CxxUtils/checker_macros.h"
+
+class ATLAS_NOT_THREAD_SAFE TRT_StrawStatusSummaryTool: // This class uses thread-unsafe DataHandle (m_strawstatusHTG4).
+// If bare pointer is used, GeoModelSvc.TRT_DetectorTool.TRT_StrawStatusSummaryTool
+// cannot retrieve folder 'SimStatusHTKey':/TRT/Cond/StatusHT
+  public extends<AthAlgTool, ITRT_StrawStatusSummaryTool>
 {  
  public:
   typedef TRTCond::StrawStatusMultChanContainer StrawStatusContainer;

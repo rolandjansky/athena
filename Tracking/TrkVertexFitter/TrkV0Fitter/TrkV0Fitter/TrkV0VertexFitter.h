@@ -158,13 +158,13 @@ namespace Trk
     */
       
     virtual xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*> & vectorTrk,
-                               const std::vector<double> masses,
+                               const std::vector<double>& masses,
                                const double& constraintMass,
                                const xAOD::Vertex* pointingVertex,
                                const Amg::Vector3D& startingPoint) const;
 
     virtual xAOD::Vertex * fit(const std::vector<const Trk::TrackParameters*> & perigeeList,
-                               const std::vector<double> masses,
+                               const std::vector<double>& masses,
                                const double& constraintMass,
                                const xAOD::Vertex* pointingVertex,
                                const Amg::Vector3D& startingPoint) const;

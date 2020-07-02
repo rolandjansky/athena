@@ -35,7 +35,7 @@ namespace Trk{
                                State& state) const
  {
     std::vector<const Track*>::const_iterator   i_ntrk;
-    AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0;
+    AmgVector(5) VectPerig; VectPerig.setZero();
     const  Perigee* mPer;
     double CovVertTrk[15]; std::fill(CovVertTrk,CovVertTrk+15,0.);
     double tmp_refFrameX=0, tmp_refFrameY=0, tmp_refFrameZ=0;

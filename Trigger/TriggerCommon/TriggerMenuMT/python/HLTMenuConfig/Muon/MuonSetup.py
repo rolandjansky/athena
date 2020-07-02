@@ -149,6 +149,8 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
                                               DoSeededDecoding        = not forFullScan,
                                               RoIs                    = RoIs )
 
+    from RegionSelector.RegSelToolConfig import makeRegSelTool_CSC
+    CscRdoToCscPrepData.RegSel_CSC = makeRegSelTool_CSC()
 
     from MuonByteStream.MuonByteStreamConf import Muon__CscRawDataProvider
     CscRawDataProvider = Muon__CscRawDataProvider(name         = "CscRawDataProvider" + postFix,
@@ -254,6 +256,9 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
                                             DoSeededDecoding = not forFullScan,
                                             RoIs             = RoIs)
 
+  from RegionSelector.RegSelToolConfig import makeRegSelTool_RPC
+  RpcRdoToRpcPrepData.RegSel_RPC = makeRegSelTool_RPC()
+
   from MuonByteStream.MuonByteStreamConf import Muon__RpcRawDataProvider
   RpcRawDataProvider = Muon__RpcRawDataProvider(name         = "RpcRawDataProvider" + postFix,
                                                 ProviderTool = MuonRpcRawDataProviderTool,
@@ -290,6 +295,8 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
                                             PrintPrepData    = False,
                                             DoSeededDecoding = not forFullScan,
                                             RoIs             = RoIs)
+  from RegionSelector.RegSelToolConfig import makeRegSelTool_TGC
+  TgcRdoToTgcPrepData.RegSel_TGC = makeRegSelTool_TGC()
 
   from MuonByteStream.MuonByteStreamConf import Muon__TgcRawDataProvider
   TgcRawDataProvider = Muon__TgcRawDataProvider(name         = "TgcRawDataProvider" + postFix,                                                

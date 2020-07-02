@@ -1,5 +1,5 @@
 #!/usr/bin env python
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # Script to browse the unmerged HIST files and extract LBs for which at least N occurences of an object is found
 # at a position foundas noisy
 # Uses the pathExtract library to extract the EOS path
@@ -32,14 +32,14 @@
 #  -g, --grl             Look for Calo/LAr/Tile defects set in suspicious LBs
 # Author : Benjamin Trocme (LPSC Grenoble) / 2015-2016
 
-import os, sys  
-import string
-import argparse,xmlrpclib
+import os, sys
+import argparse
+from six.moves import xmlrpc_client as xmlrpclib
 
 from DataQualityUtils import pathExtract         
 
-from ROOT import TFile,TCanvas,TBox,TColor,TLegend
-from ROOT import TH1,TH2,TH1I
+from ROOT import TFile,TCanvas,TBox,TLegend,TLine,TArrow
+from ROOT import TH1I
 from ROOT import kBlue,kGreen,kOrange,kMagenta,kCyan,kRed
 from ROOT import gStyle
 
@@ -89,9 +89,9 @@ if args.arg5 != "":
   tag = args.arg5
 else: # Try to retrieve the data project tag via atlasdqm
   if (not os.path.isfile("atlasdqmpass.txt")):
-    print "To retrieve the data project tag, you need to generate an atlasdqm key and store it in this directory as atlasdqmpass.txt (yourname:key)"
-    print "To generate a kay, go here : https://atlasdqm.cern.ch/dqauth/"
-    print "You can also define by hand the data project tag wit hthe option -t"
+    print("To retrieve the data project tag, you need to generate an atlasdqm key and store it in this directory as atlasdqmpass.txt (yourname:key)")
+    print("To generate a kay, go here : https://atlasdqm.cern.ch/dqauth/")
+    print("You can also define by hand the data project tag wit hthe option -t")
     sys.exit()
   passfile = open("atlasdqmpass.txt")
   passwd = passfile.read().strip(); passfile.close()
@@ -100,7 +100,7 @@ else: # Try to retrieve the data project tag via atlasdqm
   run_spec = {'stream': 'physics_CosmicCalo', 'proc_ver': 1,'source': 'tier0', 'low_run': runNumber, 'high_run':runNumber}
   run_info= s.get_run_information(run_spec)
   if '%d'%runNumber not in run_info.keys() or len(run_info['%d'%runNumber])<2:
-    print "Unable to retrieve the data project tag via atlasdqm... Please double check your atlasdqmpass.txt or define it by hand with -t option"
+    print("Unable to retrieve the data project tag via atlasdqm... Please double check your atlasdqmpass.txt or define it by hand with -t option")
     sys.exit()
   tag = run_info['%d'%runNumber][1]
   
@@ -311,35 +311,35 @@ if histoType == "2d_etaPhiHotSpot":
   summaryTitle = "Nb of hits in a region of %.2f around the position (%.2f,%.2f) - %s"%(deltaSpot,etaSpot,phiSpot,histoName)
   statement = "I have looked for LBs with at least %.0f entries at position (%.2f,%.2f) in %s histogram"%(minInLB,etaSpot,phiSpot,histoName)
   if (etaSpot==-999. or phiSpot==-999.):
-    print "No eta/phi defined -> whole histogram considered!"
+    print("No eta/phi defined -> whole histogram considered!")
     b_wholeHisto = True
 if histoType == "2d_xyHotSpot":
   b_ValueNotEntries = True
   if (deltaSpot != 0):
-    print "Warning: you have been summing over several bins a variable that may be not summable (different from summing hits!)"
+    print("Warning: you have been summing over several bins a variable that may be not summable (different from summing hits!)")
   summaryTitle = "Value in a region of %.2f around the position (%.2f,%.2f) - %s"%(deltaSpot,xSpot,ySpot,histoName)
   statement = "I have looked for LBs with at least variable > %.2f at position (%.2f,%.2f) in %s histogram"%(minInLB,xSpot,ySpot,histoName)
   if (xSpot==-999. or ySpot==-999.):
-    print "No x/y defined -> whole histogram considered!"
-    print "Warning: you have been summing over several bins a variable that may be not summable (different from summing hits!)"
+    print("No x/y defined -> whole histogram considered!")
+    print("Warning: you have been summing over several bins a variable that may be not summable (different from summing hits!)")
     b_wholeHisto = True
 elif histoType == "1d_etaHotSpot":
   summaryTitle = "Nb of hits in a region of %.2f around the eta position %.2f - %s"%(deltaSpot,etaSpot,histoName)
   statement = "I have looked for LBs with at least %.0f entries at eta position %.2f in %s histogram"%(minInLB,etaSpot,histoName)
   if (etaSpot==-999.):
-    print "No eta/phi -> whole histogram considered!"
+    print("No eta/phi -> whole histogram considered!")
     b_wholeHisto = True
 elif histoType == "1d_phiHotSpot":
   summaryTitle = "Nb of hits in a region of %.2f around the phi position %.2f - %s"%(deltaSpot,phiSpot,histoName)
   statement = "I have looked for LBs with at least %.0f entries at phi position %.2f in %s histogram"%(minInLB,phiSpot,histoName)
   if (phiSpot==-999.):
-    print "No eta/phi defined -> whole histogram considered!"
+    print("No eta/phi defined -> whole histogram considered!")
     b_wholeHisto = True
 elif histoType == "1d_integralAbove":
   summaryTitle = "Nb of hits in the band above %.2f - %s"%(integralAbove,histoName)
   statement = "I have looked for LBs with at least %.0f entries in band above %.2f in %s histogram"%(minInLB,integralAbove,histoName)
   if (integralAbove==-999.):
-    print "No lwoer bound defined -> whole histogram considered!"
+    print("No lwoer bound defined -> whole histogram considered!")
     b_wholeHisto = True
 #    print "You must define the lower bound of your integral"
 #    sys.exit()
@@ -354,7 +354,7 @@ else:
 # and plot the histogram
 runFilePath = "root://eosatlas.cern.ch/%s"%(pathExtract.returnEosHistPath(runNumber,stream,amiTag,tag)).rstrip()
 if ("FILE NOT FOUND" in runFilePath):
-  print "No merged file found..."
+  print("No merged file found...")
   sys.exit()
 
 f = TFile.Open(runFilePath)
@@ -498,10 +498,10 @@ lbCanvas = []
 histoLBNoisy = []
 fLB = {}
 
-print "I have found the merged HIST file %s"%(runFilePath)
-print "I have found %d unmerged HIST files"%(len(lbFilePathList))
-print "The first one is root://eosatlas.cern.ch/%s"%(lbFilePathList[0])
-print "The last one is root://eosatlas.cern.ch/%s"%(lbFilePathList[len(lbFilePathList)-1])
+print("I have found the merged HIST file %s"%(runFilePath))
+print("I have found %d unmerged HIST files"%(len(lbFilePathList)))
+print("The first one is root://eosatlas.cern.ch/%s"%(lbFilePathList[0]))
+print("The last one is root://eosatlas.cern.ch/%s"%(lbFilePathList[len(lbFilePathList)-1]))
 
 # Loop on all unmerged files
 
@@ -535,8 +535,8 @@ if (lowerLB == upperLB):
   lowerLB = lowerLB - 1
   upperLB = upperLB + 4
 
-print ""
-print statement
+print("")
+print(statement)
 
 maxNbInHot = 0
 totalInRegionRecomp = {} 
@@ -553,7 +553,7 @@ for iHisto in histoKeys:
 sortedLB = {}
 
 for iHisto in histoKeys:
-  print "======= ",histoLegend[iHisto]
+  print("======= ",histoLegend[iHisto])
   for iBin in regionBins[iHisto]:
     totalInRegion[iHisto] = totalInRegion[iHisto] + histo[iHisto].GetBinContent(iBin)
   
@@ -571,21 +571,21 @@ for iHisto in histoKeys:
   for i in range(nLB):
     if nbHitInHot[iHisto][sortedLB[iHisto][i]]>=minInLB:
       if not b_ValueNotEntries:
-        print "%d-LB: %d -> %d hits"%(i,sortedLB[iHisto][i],nbHitInHot[iHisto][sortedLB[iHisto][i]])
+        print("%d-LB: %d -> %d hits"%(i,sortedLB[iHisto][i],nbHitInHot[iHisto][sortedLB[iHisto][i]]))
       else:
-        print "%d-LB: %d -> %.2f"%(i,sortedLB[iHisto][i],nbHitInHot[iHisto][sortedLB[iHisto][i]])
+        print("%d-LB: %d -> %.2f"%(i,sortedLB[iHisto][i],nbHitInHot[iHisto][sortedLB[iHisto][i]]))
 
   if not b_ValueNotEntries:
-    print "In the whole run, there are %d entries"%(totalInRegion[iHisto])
+    print("In the whole run, there are %d entries"%(totalInRegion[iHisto]))
     if (totalInRegionRecomp[iHisto] != totalInRegion[iHisto]):
-      print "To be compared with %d entries cumulated from unmerged files"%(totalInRegionRecomp[iHisto])
+      print("To be compared with %d entries cumulated from unmerged files"%(totalInRegionRecomp[iHisto]))
       if (totalInRegionRecomp[iHisto] < totalInRegion[iHisto]):
-        print "This is normal only if you restricted the LB range..."
+        print("This is normal only if you restricted the LB range...")
       if (totalInRegionRecomp[iHisto] > totalInRegion[iHisto]):
-        print "This can be also caused by multiple processing, try to filter with -a option"
-        print "File path of the first file:",lbFilePathList[0]
+        print("This can be also caused by multiple processing, try to filter with -a option")
+        print("File path of the first file:",lbFilePathList[0])
   else:
-    print "In the whole run, the value is %.2f"%(totalInRegion[iHisto])
+    print("In the whole run, the value is %.2f"%(totalInRegion[iHisto]))
 
 #########################################################################
 ## Plot evolution vs LB
@@ -620,7 +620,7 @@ if (upperLB>=lowerLB): # check that at least one noisy LB was found
   c0.Update()
 
 if defectQuery:
-  print "I am looking for LAr/Tile/Calo defects defined for the suspicious LB"
+  print("I am looking for LAr/Tile/Calo defects defined for the suspicious LB")
   from DQDefects import DefectsDB
   db = DefectsDB()
   defectList = [d for d in (db.defect_names | db.virtual_defect_names) if ((d.startswith("LAR") and "SEV" in d) or (d.startswith("TILE")) or (d.startswith("CALO")))]
@@ -632,8 +632,8 @@ if defectQuery:
         associatedSuspicious = True
     if associatedSuspicious:
       if (iDef.since.lumi == iDef.until.lumi-1):
-        print "%s: %d set by %s - %s"%(iDef.channel,iDef.since.lumi,iDef.user,iDef.comment)
+        print("%s: %d set by %s - %s"%(iDef.channel,iDef.since.lumi,iDef.user,iDef.comment))
       else:
-        print "%s: %d->%d set by %s - %s"%(iDef.channel,iDef.since.lumi,iDef.until.lumi-1,iDef.user,iDef.comment)
+        print("%s: %d->%d set by %s - %s"%(iDef.channel,iDef.since.lumi,iDef.until.lumi-1,iDef.user,iDef.comment))
 
-raw_input("I am done...")
+input("I am done...")

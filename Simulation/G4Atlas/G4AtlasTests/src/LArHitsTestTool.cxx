@@ -243,7 +243,7 @@ StatusCode LArHitsTestTool::processEvent() {
       }
     }
   }
-  const HepMC::GenParticle *primary = getPrimary();
+  auto primary = getPrimary();
   if (primary) {
     m_etot_eta->Fill(primary->momentum().eta(),etot);
     m_etot_phi->Fill(primary->momentum().phi(),etot);
