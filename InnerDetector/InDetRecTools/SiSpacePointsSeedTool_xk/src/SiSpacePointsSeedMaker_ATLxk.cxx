@@ -1850,7 +1850,13 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
         * Note that below, the variable R is the radial coordinate fo the central SP, 
         * corresponding to r_central in the notation above. 
         **/
-        float d0  = std::abs((A-B*R)*R);
+	float d0 = 0;         
+	if(std::abs(B) < 1e-10) d0  = std::abs((A-B*R)*R);         
+	else{
+	  float x0 = -A/(2.*B);
+	  float rTrack = std::sqrt(onePlusAsquare/BSquare)*.5;
+	  d0 = std::abs(-rTrack + std::sqrt(rTrack*rTrack +2*x0*R +R*R));
+	}
 
         /// apply d0 cut to seed 
         if (d0 <= d0max) {
