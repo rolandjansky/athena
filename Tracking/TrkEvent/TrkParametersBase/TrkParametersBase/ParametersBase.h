@@ -142,6 +142,10 @@ public:
   /** Return the ParametersType enum */
   virtual ParametersType type() const = 0;
 
+  /** Return the ParametersType enum */
+  virtual int surfaceType() const = 0;
+
+ 
   /** Dumps relevant information about the track parameters into the ostream */
   virtual MsgStream& dump(MsgStream& out) const;
   virtual std::ostream& dump(std::ostream& out) const;

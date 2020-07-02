@@ -145,6 +145,9 @@ public:
   /** Return the surface type */
   virtual SurfaceType type() const override final;
 
+  /** Return the surface type static constexpr */
+  static constexpr SurfaceType staticType() ;
+
   /** Specified for StraightLineSurface: LocalToGlobal method without dynamic
    * memory allocation */
   virtual void localToGlobal(const Amg::Vector2D& locp,

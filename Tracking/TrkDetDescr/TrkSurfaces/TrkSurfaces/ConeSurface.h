@@ -142,6 +142,9 @@ public:
   /** Return the surface type */
   virtual SurfaceType type() const override final;
 
+  /** Return the surface type static constexpr */
+  static constexpr SurfaceType staticType() ;
+
   /** Return the measurement frame - this is needed for alignment, in particular
     for StraightLine and Perigee Surface
     - the default implementation is the the RotationMatrix3D of the transform */
