@@ -30,12 +30,14 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     AFPSiGroup = helper.addGroup(afpSiLayerAlgorithm, 'AFPSiLayerTool', 'AFP/') 
     AFPToFGroup = helper.addGroup(afpToFAlgorithm, 'AFPToFTool', 'AFP/')
 
-    AFPSiGroup.defineHistogram('lb,nSiHits', title='Luminosity Block;lb;total number of Hits', type='TProfile', path='SiT/',xbins=1000,xmin=-0.5,xmax=999.5) 
-	AFPSiGroup.defineHistogram('layerNumber,layerEfficiency', title='LayerEfficiency as a function of a lumiblock;layerNumber;layerEfficiency',type='TH2F',path='SiT/',xbins = 17,xmin=-0.5,xmax=16.5,ybins=100,ymin=0,ymax=100)
+    AFPSiGroup.defineHistogram('lb,nSiHits', title='Luminosity Block;lb;total number of Hits', type='TProfile', path='SiT/', xbins=1000, xmin=-0.5, xmax=999.5)
+    AFPSiGroup.defineHistogram('lb,lumiPerBCID', title='Mu;lumiBlock;<mu>', type='TProfile', path='SiT/', xbins=1000, xmin=-0.5, xmax=999.5)
+    #AFPSiGroup.defineHistogram('layerNumber,layerEfficiency', title='LayerEfficiency as a function of a lumiblock;layerNumber;layerEfficiency', type='TH2F', path='SiT/', xbins = 16, xmin=0.5, xmax=16.5, ybins=100, ymin=0, ymax=1)
+    AFPSiGroup.defineHistogram('layerEfficiency', type='TH1F', title='1D layer efficiency;layerEfficiency', path='SiT/', xbins=16, xmin=0.5, xmax=16.5)
 
-    AFPToFGroup.defineHistogram('lb,nTofHits', title='Luminosity Block;lb;total number of Hits', type='TProfile',  path='ToF/',xbins=1000,xmin=-0.5,xmax=999.5) 
-    AFPToFGroup.defineHistogram('numberOfHit_S0', title='Number of hit per bar station 0;total number of Hits', path='ToF/',xbins=4,xmin=-0.5,xmax=3.5)
-    AFPToFGroup.defineHistogram('numberOfHit_S3', title='Number of hit per bar station 3;total number of Hits', path='ToF/',xbins=4,xmin=-0.5,xmax=3.5)
+    AFPToFGroup.defineHistogram('lb,nTofHits', title='Multiplicity;lb;total number of Hits', type='TProfile', path='ToF/', xbins=1000, xmin=-0.5, xmax=999.5) 
+    AFPToFGroup.defineHistogram('numberOfHit_S0', title='Number of hit per bar station 0;bar', path='ToF/', xbins=4, xmin=-0.5, xmax=3.5)
+    AFPToFGroup.defineHistogram('numberOfHit_S3', title='Number of hit per bar station 3;bar', path='ToF/', xbins=4, xmin=-0.5, xmax=3.5)
 
 
     # Using a map of groups
@@ -51,9 +53,7 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
 
 
     array = helper.addArray([combinedList], afpSiLayerAlgorithm, 'AFPSiLayerTool', topPath='AFP/SiT/Track/')
-    array.defineHistogram('trackX,trackY', title='Track posistion position in station {0};trackX;trackY', type='TH2F', path='Track', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)
-
-
+    array.defineHistogram('trackX,trackY', title='Track position in station {0};trackX;trackY', type='TH2F', path='Track', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)
 
     arrayOneList = helper.addArray([combinedList], afpToFAlgorithm, 'AFPToFTool', topPath='AFP/ToF/')
     arrayOneList.defineHistogram('trainID,barInTrainID', title='ToF hit bar vs train {0};trainID;barInTrainID', type='TH2F', path='HitBarvsTrain/',xbins=4,xmin=-0.5,xmax=3.5,ybins=4,ymin=-0.5,ymax=3.5)
@@ -74,15 +74,17 @@ if __name__=='__main__':
 
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    nightly = ''
+    #nightly = '/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/user.ladamczy.00361795.calibration_AFP.AODV1_EXT0'
+    #file=''
+    #file = '/afs/cern.ch/user/l/ladamczy/public/data18_13TeV.00354309.physics_Main.ESD._lb0130._SFO-1._0001.data.r22'
     #file ='/afs/cern.ch/work/k/kristin/dataAFP/data17_13TeV.00337176.physics_Main.merge.AOD.r10258_p3399_tid13243079_00/AOD.13243079._000003.pool.root.1' 
     #file = '/afs/cern.ch/user/l/ladamczy/public/data17_13TeV.00337176.calibration_AFP.AOD.pool.root'
-    file='/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/user.ladamczy.00361795.calibration_AFP.AODV1_EXT0'
+    #file = '/afs/cern.ch/user/l/ladamczy/public/data18_13TeV.00354309.physics_Main.ESD._lb0130._SFO-1._0001.data.r22'
 
-    
-    ConfigFlags.Input.Files = [nightly+file]
+    #ConfigFlags.Input.Files = [nightly+file]
+    ConfigFlags.Input.Files = ['/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/user.ladamczy.00337176.calibration_AFP.AODV1_EXT0/user.ladamczy.21473705.EXT0._000003.xAOD.root']
     ConfigFlags.Input.isMC = False
-    ConfigFlags.Output.HISTFileName = 'AFPOutput.root'
+    ConfigFlags.Output.HISTFileName = 'AFPOutput4.root'
     
     ConfigFlags.lock()
 
@@ -95,7 +97,7 @@ if __name__=='__main__':
     exampleMonitorAcc = Run3AFPExampleMonitoringConfig(ConfigFlags)
     cfg.merge(exampleMonitorAcc)
 
-    cfg.run(10000) #use cfg.run(20) to only run on first 20 events
+    cfg.run(2000) #use cfg.run(20) to only run on first 20 events
 
 
 
