@@ -391,30 +391,30 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t, const s
         // search first valid TSOS first
         for ( const TrackStateOnSurface* tsos : *trackStates )
           {
-            if ( tsos->type(TrackStateOnSurface::Measurement) &&
-                 tsos->trackParameters()!=nullptr &&
-                 tsos->measurementOnTrack()!=nullptr &&
-                 !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(tsos->measurementOnTrack()))
-              {
-                first = tsos->trackParameters();
-                parameters.push_back(tsos->trackParameters()->clone());
-                break;
-              }
+          if (tsos->type(TrackStateOnSurface::Measurement) &&
+              tsos->trackParameters() != nullptr &&
+              tsos->measurementOnTrack() != nullptr &&
+              !(tsos->measurementOnTrack()->type(
+                Trk::MeasurementBaseType::PseudoMeasurementOnTrack))) {
+            first = tsos->trackParameters();
+            parameters.push_back(tsos->trackParameters()->clone());
+            break;
+          }
           }
 
         // search last valid TSOS first
           for (DataVector<const TrackStateOnSurface>::const_reverse_iterator rItTSoS = trackStates->rbegin();
                rItTSoS != trackStates->rend();
                ++rItTSoS) {
-            if ( (*rItTSoS)->type(TrackStateOnSurface::Measurement) &&
-                 (*rItTSoS)->trackParameters()!=nullptr &&
-                 (*rItTSoS)->measurementOnTrack()!=nullptr &&
-                 !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((*rItTSoS)->measurementOnTrack()))
-              {
+            if ((*rItTSoS)->type(TrackStateOnSurface::Measurement) &&
+                (*rItTSoS)->trackParameters() != nullptr &&
+                (*rItTSoS)->measurementOnTrack() != nullptr &&
+                !((*rItTSoS)->measurementOnTrack()->type(
+                  Trk::MeasurementBaseType::PseudoMeasurementOnTrack))) {
               if (!(first == (*rItTSoS)->trackParameters()))
                 parameters.push_back((*rItTSoS)->trackParameters()->clone());
               break;
-              }
+            }
           }
         // security check:
         if (parameters.size() > 2)
@@ -429,38 +429,43 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t, const s
         bool haveFirstMeasurementParameters = false;
         for (const TrackStateOnSurface* tsos : *(track->trackStateOnSurfaces()))
           {
-            if (! tsos->trackParameters())     continue;
+          if (!tsos->trackParameters()) {
+            continue;
+          }
 
-            if (! haveFirstMeasurementParameters
-                && tsos->type(TrackStateOnSurface::Measurement)
-                && ! tsos->type(TrackStateOnSurface::Outlier)
-                && tsos->measurementOnTrack()
-                && ! dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(tsos->measurementOnTrack()))
-              {
-                haveFirstMeasurementParameters  = true;
-                parameters.push_back(tsos->trackParameters()->clone());
-                ATH_MSG_VERBOSE( " including first measurement parameters at R "
-                                 << tsos->trackParameters()->position().perp()
-                                 << ", Z " << tsos->trackParameters()->position().z() );
-                continue;
-              }
-            if (! tsos->type(TrackStateOnSurface::Perigee)
-                || ! dynamic_cast<const Perigee*>(tsos->trackParameters()))  continue;
-            if (! aPer)
-              {
-                aPer = dynamic_cast<const Perigee*>(tsos->trackParameters()->clone());
-              }
-            else
-              {
-                parameters.push_back(tsos->trackParameters()->clone());
-              }
+          if (!haveFirstMeasurementParameters &&
+              tsos->type(TrackStateOnSurface::Measurement) &&
+              !tsos->type(TrackStateOnSurface::Outlier) &&
+              tsos->measurementOnTrack() &&
+              !(tsos->measurementOnTrack()->type(
+                Trk::MeasurementBaseType::PseudoMeasurementOnTrack))) {
+            haveFirstMeasurementParameters = true;
+            parameters.push_back(tsos->trackParameters()->clone());
+            ATH_MSG_VERBOSE(" including first measurement parameters at R "
+                            << tsos->trackParameters()->position().perp()
+                            << ", Z "
+                            << tsos->trackParameters()->position().z());
+            continue;
+          }
+          if (!tsos->type(TrackStateOnSurface::Perigee) ||
+              !dynamic_cast<const Perigee*>(tsos->trackParameters())) {
+            continue;
+          }
+          if (!aPer) {
+            aPer =
+              dynamic_cast<const Perigee*>(tsos->trackParameters()->clone());
+          } else {
+            parameters.push_back(tsos->trackParameters()->clone());
+          }
 
-            ATH_MSG_VERBOSE( " including perigee at R "
-                             << tsos->trackParameters()->position().perp()
-                             << ", Z " << tsos->trackParameters()->position().z() );
+          ATH_MSG_VERBOSE(" including perigee at R "
+                          << tsos->trackParameters()->position().perp()
+                          << ", Z " << tsos->trackParameters()->position().z());
 
-            // we are not interested in keeping measurement parameters after any second perigee
-            if (!parameters.empty()) haveFirstMeasurementParameters = true;
+          // we are not interested in keeping measurement parameters after any
+          // second perigee
+          if (!parameters.empty())
+            haveFirstMeasurementParameters = true;
           }
       }
 
@@ -577,8 +582,8 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t, const s
         if (tsos->type(TrackStateOnSurface::Measurement) &&
             tsos->trackParameters() != nullptr &&
             tsos->measurementOnTrack() != nullptr &&
-            !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(
-              tsos->measurementOnTrack())) {
+            !(tsos->measurementOnTrack()->type(
+              Trk::MeasurementBaseType::PseudoMeasurementOnTrack))) {
           tp = tsos->trackParameters();
 
           const InDet::SiClusterOnTrack* clus =
@@ -698,10 +703,11 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t, const s
     if (m_keepParameters || m_keepFirstParameters) {
       // search first valid TSOS first
       for (const TrackStateOnSurface* tsos : *trackStates) {
-        if ( tsos->type(TrackStateOnSurface::Measurement) &&
-             tsos->trackParameters()!=nullptr &&
-             tsos->measurementOnTrack()!=nullptr &&
-             !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(tsos->measurementOnTrack())) {
+        if (tsos->type(TrackStateOnSurface::Measurement) &&
+            tsos->trackParameters() != nullptr &&
+            tsos->measurementOnTrack() != nullptr &&
+            !(tsos->measurementOnTrack()->type(
+              Trk::MeasurementBaseType::PseudoMeasurementOnTrack))) {
           first = tsos->trackParameters();
           parameters.push_back(tsos->trackParameters());
           parameterPositions.push_back(xAOD::FirstMeasurement);
@@ -713,10 +719,11 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t, const s
         // search last valid TSOS first
         for (DataVector<const TrackStateOnSurface>::const_reverse_iterator
                rItTSoS = trackStates->rbegin(); rItTSoS != trackStates->rend(); ++rItTSoS) {
-          if ( (*rItTSoS)->type(TrackStateOnSurface::Measurement) &&
-               (*rItTSoS)->trackParameters()!=nullptr &&
-               (*rItTSoS)->measurementOnTrack()!=nullptr &&
-               !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((*rItTSoS)->measurementOnTrack())) {
+          if ((*rItTSoS)->type(TrackStateOnSurface::Measurement) &&
+              (*rItTSoS)->trackParameters() != nullptr &&
+              (*rItTSoS)->measurementOnTrack() != nullptr &&
+              !((*rItTSoS)->measurementOnTrack() ->
+                type(Trk::MeasurementBaseType::PseudoMeasurementOnTrack))) {
             if (!(first == (*rItTSoS)->trackParameters())) {
               parameters.push_back((*rItTSoS)->trackParameters());
               parameterPositions.push_back(xAOD::LastMeasurement);
@@ -740,11 +747,12 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t, const s
       for (const TrackStateOnSurface* tsos : *(track.trackStateOnSurfaces())) {
         if (! tsos->trackParameters())     continue;
 
-        if (! haveFirstMeasurementParameters
-            && tsos->type(TrackStateOnSurface::Measurement)
-            && ! tsos->type(TrackStateOnSurface::Outlier)
-            && tsos->measurementOnTrack()
-            && ! dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(tsos->measurementOnTrack())) {
+        if (!haveFirstMeasurementParameters &&
+            tsos->type(TrackStateOnSurface::Measurement) &&
+            !tsos->type(TrackStateOnSurface::Outlier) &&
+            tsos->measurementOnTrack() &&
+            !(tsos->measurementOnTrack()->type(
+              Trk::MeasurementBaseType::PseudoMeasurementOnTrack))) {
           haveFirstMeasurementParameters  = true;
           parameters.push_back(tsos->trackParameters());
           ATH_MSG_VERBOSE( " including first measurement parameters at R "
