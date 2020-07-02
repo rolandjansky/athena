@@ -22,6 +22,7 @@
 #include "VxVertex/VxContainer.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <cstdlib>
 #include <string>
@@ -51,7 +52,7 @@ namespace InDet
       @author  Sasa Fratina <sasa.fratina@cern.ch>
   */  
 
-  class TRT_StrawStatus : public AthAlgorithm
+  class ATLAS_NOT_THREAD_SAFE TRT_StrawStatus : public AthAlgorithm // A global variable (last_lumiBlock0) is read and written. Results should not be reproducible in multi-threading.
     {
     public:
 
