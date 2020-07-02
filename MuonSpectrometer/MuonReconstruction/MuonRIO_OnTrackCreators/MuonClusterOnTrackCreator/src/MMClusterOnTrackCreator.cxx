@@ -60,6 +60,7 @@ const Muon::MuonClusterOnTrack* Muon::MMClusterOnTrackCreator::createRIO_OnTrack
         ATH_MSG_WARNING("RIO not of type MMPrepData, cannot create ROT");
         return 0;
       }
+      std::cout<<"generating MMClusterOnTrack in MMClusterBuilder" << std::endl;
       MClT = new MMClusterOnTrack(MClus, locpar, loce, positionAlongStrip);
     }
     return MClT;

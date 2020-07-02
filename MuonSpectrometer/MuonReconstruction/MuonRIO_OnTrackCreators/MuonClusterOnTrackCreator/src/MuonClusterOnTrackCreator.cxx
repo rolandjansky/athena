@@ -326,6 +326,7 @@ namespace Muon {
 	        ATH_MSG_WARNING ( "RIO not of type MMPrepData, cannot create ROT" );
 	        return 0;
       }
+     std::cout<<"generating MMClusterOnTrack in MuonClusterBuilder" << std::endl;
       MClT = new MMClusterOnTrack(MClus,locpar,loce,positionAlongStrip);
 
     }else if( m_idHelper->issTgc(RIO.identify()) ){

@@ -32,6 +32,7 @@ Trk::RIO_OnTrackCreator::RIO_OnTrackCreator(const std::string& t,
      m_TRT_Cor           ("InDet::TRT_DriftCircleOnTrackTool/TRT_DriftCircleOnTrackTool"),
      m_MuonDriftCircleCor("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackTool"),
      m_MuonClusterCor    ("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackTool"),
+     m_MmClusterCor      ("Muon::MuonClusterOnTrackCreator/MMClusterOnTrackTool"),
      m_doPixel(true),
      m_doSCT(true),
      m_doTRT(true)
@@ -44,6 +45,7 @@ Trk::RIO_OnTrackCreator::RIO_OnTrackCreator(const std::string& t,
    declareProperty("ToolTRT_DriftCircle",m_TRT_Cor);
    declareProperty("ToolMuonDriftCircle",m_MuonDriftCircleCor);
    declareProperty("ToolMuonCluster"    ,m_MuonClusterCor);
+   declareProperty("ToolMMCluster"      ,m_MmClusterCor);
    declareProperty("Mode"               ,m_mode);
  }
 
@@ -70,7 +72,8 @@ StatusCode Trk::RIO_OnTrackCreator::initialize()
 		 << "     SCT        : " << m_SctClusCor << std::endl
 		 << "     TRT        : " << m_TRT_Cor       << std::endl
 		 << "     MDT        : " << m_MuonDriftCircleCor << std::endl
-		 << "     CSC/RPC/TGC: " << m_MuonClusterCor << std::endl
+		 << "     CSC/RPC/TGC/sTGC: " << m_MuonClusterCor << std::endl
+		 << "     MM: " << m_MmClusterCor << std::endl
 		 << endreq;
 
   // Get the correction tool to create Pixel/SCT/TRT RIO_onTrack
@@ -125,6 +128,13 @@ StatusCode Trk::RIO_OnTrackCreator::initialize()
       return StatusCode::FAILURE;
     } else {
       msg(MSG::INFO) << "Retrieved tool " << m_MuonClusterCor << endreq;
+    }
+    
+    if ( m_MmClusterCor.retrieve().isFailure() ) {
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_MmClusterCor << endreq;
+      return StatusCode::FAILURE;
+    } else {
+      msg(MSG::INFO) << "Retrieved tool " << m_MmClusterCor << endreq;
     }
   }
   
@@ -203,12 +213,22 @@ Trk::RIO_OnTrackCreator::correct(const Trk::PrepRawData& rio,
     }
   }
   if ( (m_idHelper->is_csc(id)) || (m_idHelper->is_rpc(id))
-       || (m_idHelper->is_tgc(id)) || (m_idHelper->is_mm(id)) || (m_idHelper->is_stgc(id)) ) {
+       || (m_idHelper->is_tgc(id)) || (m_idHelper->is_stgc(id)) ) {
     if (m_mode == "indet") {
-      msg(MSG::WARNING)<<"I have no tool to correct a CSC/RPC/TGC hit! - Giving back nil."<<endreq;
+      msg(MSG::WARNING)<<"I have no tool to correct a CSC/RPC/TGC/sTGC hit! - Giving back nil."<<endreq;
       return 0;
     } else {
       ATH_MSG_DEBUG ("RIO identified as MuonCluster.");
+      return m_MuonClusterCor->correct(rio, trk);
+    }
+  }
+  if (m_idHelper->is_mm(id)) {
+    if (m_mode == "indet") {
+      msg(MSG::WARNING)<<"I have no tool to correct a MM hit! - Giving back nil."<<endreq;
+      return 0;
+    } else {
+      ATH_MSG_DEBUG ("RIO identified as MMCluster.");
+      std::cout<< "RIO identified as MMCluster." << std::endl;
       return m_MuonClusterCor->correct(rio, trk);
     }
   }
