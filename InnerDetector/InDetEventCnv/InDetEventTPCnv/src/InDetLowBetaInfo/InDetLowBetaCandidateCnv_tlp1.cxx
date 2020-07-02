@@ -16,7 +16,8 @@ void InDetLowBetaCandidateCnv_tlp1::setPStorage(InDetLowBetaCandidate_tlp1* stor
 }
 
 
-void T_TPCnv<InDet::InDetLowBetaCandidate, InDetLowBetaCandidate_tlp1 >::persToTrans ATLAS_NOT_THREAD_SAFE (const InDetLowBetaCandidate_tlp1 *pers,
+void T_TPCnv<InDet::InDetLowBetaCandidate, InDetLowBetaCandidate_tlp1 >::persToTrans ATLAS_NOT_THREAD_SAFE // const_cast is used.
+                                                                                           (const InDetLowBetaCandidate_tlp1 *pers,
 											    InDet::InDetLowBetaCandidate *trans,
 											    MsgStream &msg) {
   setPStorage(const_cast<InDetLowBetaCandidate_tlp1*>(pers));

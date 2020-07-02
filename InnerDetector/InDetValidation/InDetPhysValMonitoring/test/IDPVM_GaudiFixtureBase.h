@@ -20,8 +20,7 @@
 #include <string>
 
 #include "CxxUtils/checker_macros.h"
-ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
-// This test uses static gaudiIsInitialised, and is not thread safe.
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // This test uses static gaudiIsInitialised, and is not thread safe.
 
 struct IDPVM_GaudiFixtureBase{
   ISvcLocator* svcLoc{};

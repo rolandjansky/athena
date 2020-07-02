@@ -565,8 +565,7 @@ int Calibrator::UpdateOldConstants(){
   } 
 }
 
-float Calibrator::FitRt ATLAS_NOT_THREAD_SAFE (std::string key, std::string opt, TH2F* rtHist, TDirectory* dir){
-  // Global gStyle is used.
+float Calibrator::FitRt ATLAS_NOT_THREAD_SAFE (std::string key, std::string opt, TH2F* rtHist, TDirectory* dir){ // Global gStyle is used.
 
   float rtpars[4];
 
@@ -698,8 +697,7 @@ float Calibrator::FitRt ATLAS_NOT_THREAD_SAFE (std::string key, std::string opt,
 }
 
 
-float Calibrator::FitTimeResidual ATLAS_NOT_THREAD_SAFE (std::string key, TH1F* tresHist){
-  // Global gStyle is used.
+float Calibrator::FitTimeResidual ATLAS_NOT_THREAD_SAFE (std::string key, TH1F* tresHist){ // Global gStyle is used.
 
   float mean = tresHist->GetMean();
   float rms = tresHist->GetRMS();
@@ -786,8 +784,7 @@ float Calibrator::FitTimeResidual ATLAS_NOT_THREAD_SAFE (std::string key, TH1F* 
   }
 
 
-float Calibrator::FitResidual ATLAS_NOT_THREAD_SAFE (std::string key, TH1F* resHist){
-  // Global gStyle is used.
+float Calibrator::FitResidual ATLAS_NOT_THREAD_SAFE (std::string key, TH1F* resHist){ // Global gStyle is used.
 
   float mean = resHist->GetMean();
   //float rms = resHist->GetRMS();
@@ -807,8 +804,7 @@ float Calibrator::FitResidual ATLAS_NOT_THREAD_SAFE (std::string key, TH1F* resH
 
 }
 
-TDirectory* Calibrator::Calibrate ATLAS_NOT_THREAD_SAFE (TDirectory* dir, std::string key, std::string opt, caldata * caldata_above){
-  // Thread unsafe FitResidual, FitRt, FitTimeResidual are used.
+TDirectory* Calibrator::Calibrate ATLAS_NOT_THREAD_SAFE (TDirectory* dir, std::string key, std::string opt, caldata * caldata_above){ // Thread unsafe FitResidual, FitRt, FitTimeResidual are used.
 
   //set some bool flags
   bool calrt=opt.find("R")!=std::string::npos;

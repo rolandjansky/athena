@@ -24,8 +24,7 @@
 #include "GaudiKernel/MsgStream.h"
 
 #include "CxxUtils/checker_macros.h"
-ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
-// Use of global g_svcLoc is not thread safe.
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // Use of global g_svcLoc is not thread safe.
 
 namespace OverlayTesting {
 
