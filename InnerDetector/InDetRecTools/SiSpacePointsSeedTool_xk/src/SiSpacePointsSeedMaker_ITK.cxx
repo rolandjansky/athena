@@ -167,6 +167,7 @@ InDet::SiSpacePointsSeedMaker_ITK::~SiSpacePointsSeedMaker_ITK()
 
 StatusCode InDet::SiSpacePointsSeedMaker_ITK::initialize()
 {
+
   StatusCode sc = AlgTool::initialize(); 
 
   // Get beam geometry
@@ -236,12 +237,13 @@ void InDet::SiSpacePointsSeedMaker_ITK::newEvent(int iteration)
   if(!m_iteration) {
     buildBeamFrameWork();
 
-    double f[3], gP[3] ={10.,10.,0.}; 
-    if(m_fieldService->solenoidOn()) {
-      m_fieldService->getFieldZR(gP,f); m_K = 2./(300.*f[2]);
+    if(!m_fastTracking){
+      double f[3], gP[3] ={10.,10.,0.};
+      if(m_fieldService->solenoidOn()) {
+	m_fieldService->getFieldZR(gP,f); m_K = 2./(300.*f[2]);
+      }
+      else m_K = 2./(300.* 5. );
     }
-    else m_K = 2./(300.* 5. );
-
     m_ipt2K     = m_ipt2/(m_K*m_K);
     m_ipt2C     = m_ipt2*m_COF    ;
     m_COFK      = m_COF*(m_K*m_K) ;  
@@ -276,7 +278,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::newEvent(int iteration)
 
 	SpacePointCollection::const_iterator sp  = (*spc)->begin();
 	SpacePointCollection::const_iterator spe = (*spc)->end  ();
-    
+
 	for(; sp != spe; ++sp) {
 
 	  if ((m_useassoTool &&  isUsed(*sp)) || (*sp)->r() > r_rmax || (*sp)->r() < r_rmin ) continue;
@@ -305,7 +307,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::newEvent(int iteration)
 
 	SpacePointCollection::const_iterator sp  = (*spc)->begin();
 	SpacePointCollection::const_iterator spe = (*spc)->end  ();
-    
+
 	for(; sp != spe; ++sp) {
 
 	  if ((m_useassoTool &&  isUsed(*sp)) || (*sp)->r() > r_rmax || (*sp)->r() < r_rmin ) continue;
@@ -325,10 +327,10 @@ void InDet::SiSpacePointsSeedMaker_ITK::newEvent(int iteration)
     if(m_useOverlap) {
 
       if(m_spacepointsOverlap.isValid()) {
-	
+
 	SpacePointOverlapCollection::const_iterator sp  = m_spacepointsOverlap->begin();
 	SpacePointOverlapCollection::const_iterator spe = m_spacepointsOverlap->end  ();
-	
+
 	for (; sp!=spe; ++sp) {
 
 	  if ((m_useassoTool &&  isUsed(*sp)) || (*sp)->r() > r_rmax || (*sp)->r() < r_rmin) continue;
@@ -365,12 +367,13 @@ void InDet::SiSpacePointsSeedMaker_ITK::newRegion
 
   buildBeamFrameWork();
 
-  double f[3], gP[3] ={10.,10.,0.}; 
-
-  if(m_fieldService->solenoidOn()) {
-    m_fieldService->getFieldZR(gP,f); m_K = 2./(300.*f[2]);
+  if(!m_fastTracking){
+    double f[3], gP[3] ={10.,10.,0.};
+    if(m_fieldService->solenoidOn()) {
+      m_fieldService->getFieldZR(gP,f); m_K = 2./(300.*f[2]);
+    }
+    else m_K = 2./(300.* 5. );
   }
-  else m_K = 2./(300.* 5. );
 
   m_ipt2K     = m_ipt2/(m_K*m_K);
   m_ipt2C     = m_ipt2*m_COF    ;
@@ -844,7 +847,19 @@ void InDet::SiSpacePointsSeedMaker_ITK::buildFrameWork()
   m_COF       =  134*.05*9.                    ;
   m_ipt       = 1./fabs(m_ptmin)               ;
   m_ipt2      = m_ipt*m_ipt                    ;
-  m_K         = 0.                             ;
+
+  if(m_fastTracking){
+
+    double f[3], gP[3] ={10.,10.,0.};
+    m_K = 2./(300.* 5. );
+    if(m_fieldService->solenoidOn()) {
+      m_fieldService->getFieldZR(gP,f);
+      m_K = 2./(300.*f[2]);
+    }
+
+  }
+  else m_K = 0.;
+
 
   m_ns = m_nsaz = m_nsazv = m_nr = m_nrfz = 0;
 
@@ -1100,7 +1115,7 @@ void  InDet::SiSpacePointsSeedMaker_ITK::convertToBeamFrameWork
 
 void InDet::SiSpacePointsSeedMaker_ITK::fillLists() 
 {
-  if (m_fastTracking && m_iteration ==0) fillListsPPPFast();
+  if (m_fastTracking && m_iteration == 0) fillListsPPPFast();
 
   else if(!m_fastTracking){
    if (m_iteration == 0) fillListsSSS();
@@ -1281,9 +1296,18 @@ void InDet::SiSpacePointsSeedMaker_ITK::fillLists()
 
 void InDet::SiSpacePointsSeedMaker_ITK::erase()
 {
-  for(int i=0; i!=m_nrfz;  ++i) {
-    int n = rfz_index[i]; rfz_map[n] = 0;
-    rfz_Sorted[n].clear();
+
+  if(m_fastTracking){
+    for(int i=0; i!=2211;  ++i) {
+      rfz_Sorted[i].clear();
+    }
+  }
+
+  else{
+    for(int i=0; i!=m_nrfz;  ++i) {
+      int n = rfz_index[i]; rfz_map[n] = 0;
+      rfz_Sorted[n].clear();
+    }
   }
   
   m_state = 0;
@@ -1436,6 +1460,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP
   int NB, int NT, int& nseed) 
 {
   std::vector<InDet::SiSpacePointForSeedITK*>::iterator r0=rb[0],re0=rbe[0];
+  if(m_fastTracking) m_RTmin = 70.;
 
   for(; r0!=re0; ++r0) {if((*r0)->radius() > m_RTmin) break;}
   rt[0] = r0; ++rt[0];
@@ -1473,7 +1498,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP
 
 	// Comparison with vertices Z coordinates
 	//
-	float dz  = sp->z()-Z   ; if(fabs(Z*dR-R*dz) > m_zmaxU*dR) continue;  
+	float dz  = sp->z()-Z   ; if(fabs(Z*dR-R*dz) > m_zmaxU*dR) continue;
 	float dx  = sp->x()-X   ;
 	float dy  = sp->y()-Y   ;
 	float x   = dx*ax+dy*ay ;
@@ -1594,7 +1619,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP
 
       for(int it(it0);  it!=Nt; ++it) {
 
-        int  t    = m_Tn[it].In;        
+        int  t    = m_Tn[it].In;
         float DT  = Tzb-m_Tn[it].Fl;
         float dT  = (DT*DT-(Erb+m_Er[t]))-((Rb2z+Rb2r*m_Tn[it].Fl)*m_R[t]);
         

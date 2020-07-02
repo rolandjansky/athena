@@ -120,7 +120,7 @@ class  ConfiguredNewTrackingSiPattern:
             InDetSiSpacePointsSeedMaker.DeltaThetaRoISP       = 0.8
             InDetSiSpacePointsSeedMaker.DeltaPhiRoISP         = 0.8
             InDetSiSpacePointsSeedMaker.RoISeedTool           = RoISeedTool
-         if NewTrackingCuts.mode() == "SLHC" and InDetFlags.doFastTracking() :
+         if InDetFlags.doFastTracking() :
             InDetSiSpacePointsSeedMaker.useFastTracking       = True
             InDetSiSpacePointsSeedMaker.maxSeedsForSpacePoint = 3
 
@@ -608,12 +608,12 @@ class  ConfiguredNewTrackingSiPattern:
             else:
                TrackCollectionKeys      += [ self.__SiTrackCollection ]
        
-      elif InDetFlags.doFastTracking():         
+      elif InDetFlags.doFastTracking() and NewTrackingCuts.mode() == "SLHC":
        #
        # defining setup without ambiguity solving for fast tracking reconstuction
        #
        from TrkCollectionAliasAlg.TrkCollectionAliasAlgConf import Trk__TrkCollectionAliasAlg
-       InDetCopyAlgForAmbi = Trk__TrkCollectionAliasAlg (name             = "InDetCopyAlgForAmbi",
+       InDetCopyAlgForAmbi = Trk__TrkCollectionAliasAlg (name             = "InDetCopyAlgForAmbi"+NewTrackingCuts.extension(),
                                                          CollectionName   = self.__SiTrackCollection,
                                                          AliasName        = ResolvedTrackCollectionKey) 
        topSequence += InDetCopyAlgForAmbi

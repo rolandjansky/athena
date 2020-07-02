@@ -269,7 +269,7 @@ namespace InDet {
       SiSpacePointForSeedITK* newSpacePoint
 	(Trk::SpacePoint*const&)                                 ;
       SiSpacePointForSeedITK* newSpacePoint
-	(Trk::SpacePoint*const&,float*)                          ;
+	(Trk::SpacePoint*const&,float*,bool)                     ;
 
       void newSeed
       (SiSpacePointForSeedITK*&,SiSpacePointForSeedITK*&,float)  ; 
@@ -385,13 +385,13 @@ namespace InDet {
     {
 
       float r[15];
-      return newSpacePoint(sp,r);
+      return newSpacePoint(sp,r,true);
 
     }
 
 
   inline SiSpacePointForSeedITK* SiSpacePointsSeedMaker_ITK::newSpacePoint
-    (Trk::SpacePoint*const& sp,float* r)
+    (Trk::SpacePoint*const& sp,float* r,bool usePixSctInform=false)
     {
       SiSpacePointForSeedITK* sps;
 
@@ -413,9 +413,12 @@ namespace InDet {
 
       }
 
+      if(usePixSctInform){
 
-      if(!sp->clusterList().second || m_fastTracking) {pixInform(sp,r);}
-      else if(!m_fastTracking)                        {sctInform(sp,r);}
+	if(!sp->clusterList().second || m_fastTracking) pixInform(sp,r);
+	else sctInform(sp,r);
+
+      }
 
       if(i_spforseed!=l_spforseed.end()) {
 	sps = (*i_spforseed++); sps->set(sp,r); 
