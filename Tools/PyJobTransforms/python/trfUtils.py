@@ -1297,12 +1297,6 @@ def bind_port(host, port):
     s.close()
     return ret
 
-def calcMemExcess(memStat):
-    maxVmem = memStat['Max']['vmem']
-    reportSum = 'couldnt get it'
-    reportSum = maxVmem
-    return reportSum
-
 def calcMemFull(memFullStats):
     reportFull = 'in utiles: can not read lines!!'
     for line in memFullStats:

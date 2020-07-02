@@ -38,7 +38,7 @@ msg = logging.getLogger(__name__)
 
 from PyJobTransforms.trfJobOptions import JobOptionsTemplate
 from PyJobTransforms.trfUtils import asetupReport, unpackDBRelease, setupDBRelease, cvmfsDBReleaseCheck, forceToAlphaNum
-from PyJobTransforms.trfUtils import ValgrindCommand, isInteractiveEnv, calcCpuTime, calcWallTime, calcMemExcess, calcMemFull
+from PyJobTransforms.trfUtils import ValgrindCommand, isInteractiveEnv, calcCpuTime, calcWallTime, calcMemFull
 from PyJobTransforms.trfUtils import bind_port
 from PyJobTransforms.trfExitCodes import trfExit
 from PyJobTransforms.trfLogger import stdLogLevels
@@ -381,13 +381,6 @@ class transformExecutor(object):
     @property
     def memStats(self):
         return self._memStats
-
-    @property
-    def memEval(self):
-        if self._memStats:
-            return calcMemExcess(self._memStats)
-        else:
-            return None
 
     @property
     def memFullEval(self):
@@ -787,7 +780,6 @@ class scriptExecutor(transformExecutor):
                 self._memMonitor = False
                 self._memFullStats = 'could not open mem.full file!!'
 
-
     def validate(self):
         if self._valStart is None:
             self._valStart = os.times()
@@ -825,6 +817,7 @@ class scriptExecutor(transformExecutor):
 
         self._valStop = os.times()
         msg.debug('valStop time is {0}'.format(self._valStop))
+
 
 
 class athenaExecutor(scriptExecutor):
