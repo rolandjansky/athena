@@ -32,7 +32,7 @@ Trk::RIO_OnTrackCreator::RIO_OnTrackCreator(const std::string& t,
      m_TRT_Cor           ("InDet::TRT_DriftCircleOnTrackTool/TRT_DriftCircleOnTrackTool"),
      m_MuonDriftCircleCor("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackTool"),
      m_MuonClusterCor    ("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackTool"),
-     m_MmClusterCor      ("Muon::MuonClusterOnTrackCreator/MMClusterOnTrackTool"),
+     m_MmClusterCor      ("Muon::MMClusterOnTrackCreator/MMClusterOnTrackTool"),
      m_doPixel(true),
      m_doSCT(true),
      m_doTRT(true)
@@ -229,7 +229,7 @@ Trk::RIO_OnTrackCreator::correct(const Trk::PrepRawData& rio,
     } else {
       ATH_MSG_DEBUG ("RIO identified as MMCluster.");
       std::cout<< "RIO identified as MMCluster." << std::endl;
-      return m_MuonClusterCor->correct(rio, trk);
+      return m_MmClusterCor->correct(rio, trk);
     }
   }
 
