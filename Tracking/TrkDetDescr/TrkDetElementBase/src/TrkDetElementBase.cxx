@@ -11,4 +11,4 @@ Trk::TrkDetElementBase::TrkDetElementBase(
 {}
 
 Trk::TrkDetElementBase::~TrkDetElementBase()
-{}
+= default;
