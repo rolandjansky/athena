@@ -13,7 +13,6 @@ using namespace Muon;
 
 Muon::sTgcRdoToPrepDataToolCore::sTgcRdoToPrepDataToolCore(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
-  m_muonMgr(nullptr),
   m_fullEventDone(false),
   m_stgcPrepDataContainer(0),
   m_clusterBuilderTool("Muon::SimpleSTgcClusterBuilderTool/SimpleSTgcClusterBuilderTool",this)
@@ -32,13 +31,11 @@ Muon::sTgcRdoToPrepDataToolCore::sTgcRdoToPrepDataToolCore(const std::string& t,
 StatusCode Muon::sTgcRdoToPrepDataToolCore::initialize()
 {  
   ATH_MSG_DEBUG(" in initialize()");
-  /// get the detector descriptor manager
-  ATH_CHECK(detStore()->retrieve(m_muonMgr));
   ATH_CHECK( m_idHelperSvc.retrieve() );
-
   // check if the initialization of the data container is success
   ATH_CHECK(m_stgcPrepDataContainerKey.initialize());
   ATH_CHECK(m_rdoContainerKey.initialize());
+  ATH_CHECK(m_muDetMgrKey.initialize());
   ATH_MSG_INFO("initialize() successful in " << name());
   return StatusCode::SUCCESS;
 }
@@ -92,11 +89,20 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(const STGC_RawData
 
     const STGC_RawData* rdo = *it;
     const Identifier rdoId = rdo->identify();
+    if (!m_idHelperSvc->issTgc(rdoId)) {
+      ATH_MSG_WARNING("given Identifier "<<rdoId.get_compact()<<" ("<<m_idHelperSvc->stgcIdHelper().print_to_string(rdoId)<<") is no sTGC Identifier, continuing");
+      continue;
+    }
     std::vector<Identifier> rdoList;
     rdoList.push_back(rdoId);
+
+    // TODO: this needs to be replaced by SG::ReadCondHandle<MuonGM::MuonDetectorManager>
+    // will do it in a follow-up MR, since for now, we need to get the Run2 detectors running, so skip sTGCs for now
+    const MuonGM::MuonDetectorManager* muDetMgrNominal=nullptr;
+    ATH_CHECK(detStore()->retrieve(muDetMgrNominal));
     
     // get the local and global positions
-    const MuonGM::sTgcReadoutElement* detEl = m_muonMgr->getsTgcReadoutElement(rdoId);
+    const MuonGM::sTgcReadoutElement* detEl = muDetMgrNominal->getsTgcReadoutElement(rdoId);
     Amg::Vector2D localPos;
 
     bool getLocalPos = detEl->stripPosition(rdoId,localPos);

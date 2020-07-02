@@ -4,7 +4,6 @@
 
 #include "RpcRdoToPrepDataToolCore.h"
 
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonTrigCoinData/RpcCoinDataContainer.h"
@@ -31,7 +30,6 @@ Muon::RpcRdoToPrepDataToolCore::RpcRdoToPrepDataToolCore( const std::string& typ
     m_reduceCablingOverlap(true),         //!< toggle on/off the overlap removal
     m_timeShift(0.),                      //!< any global time shift ?!
     m_decodeData(true),                   //!< toggle on/off the decoding of RPC RDO into RpcPrepData
-    m_muonMgr(nullptr),
     m_rpcRdoDecoderTool("Muon::RpcRDO_Decoder", this),
     m_fullEventDone(false)
 {
@@ -90,10 +88,6 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::initialize() {
   ATH_MSG_INFO("etaphi_coincidenceTime             "<<m_etaphi_coincidenceTime);
   ATH_MSG_INFO("overlap_timeTolerance              "<<m_overlap_timeTolerance );
   ATH_MSG_INFO("Correct prd time from cool db      "<<m_RPCInfoFromDb         );
-    
-  /// get the detector descriptor manager
-  ATH_CHECK(detStore()->retrieve(m_muonMgr));
-  ATH_MSG_VERBOSE("MuonDetectorManager retrieved");
   ATH_CHECK(m_rpcRdoDecoderTool.retrieve());  
   ATH_CHECK(m_idHelperSvc.retrieve());
   ATH_CHECK(m_rpcReadKey.initialize());
@@ -102,6 +96,7 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::initialize() {
   ATH_CHECK(m_rpcPrepDataContainerKey.initialize());
   ATH_CHECK(m_rpcCoinDataContainerKey.initialize());
   ATH_CHECK(m_eventInfo.initialize());
+  ATH_CHECK(m_muDetMgrKey.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -1100,8 +1095,9 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::processPad(const RpcPad *rdoColl,
             }
           }
         }
-	      // det element
-	      const RpcReadoutElement *descriptor = m_muonMgr->getRpcReadoutElement(channelId);
+        SG::ReadCondHandle<MuonGM::MuonDetectorManager> muDetMgrHandle{m_muDetMgrKey};
+        const MuonGM::MuonDetectorManager* muDetMgr = muDetMgrHandle.cptr();
+        const RpcReadoutElement* descriptor = muDetMgr->getRpcReadoutElement(channelId);
 	      
 	      // here check validity
 	      // if invalid, reset flags
