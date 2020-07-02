@@ -295,9 +295,6 @@ std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData> InDet::TRT_Seede
           ATH_MSG_ERROR("Failed to read PRD to track association map.");
         }
       }
-      //SpacePointContainer::const_iterator spc  =  m_spacepointsSCT->begin();
-      SpacePointContainer::const_iterator spce =  spacepointsSCT->end  ();
-
       std::vector<IdentifierHash>::const_iterator l = vSCT.begin(), le = vSCT.end();
 
       // Loop through all trigger collections
