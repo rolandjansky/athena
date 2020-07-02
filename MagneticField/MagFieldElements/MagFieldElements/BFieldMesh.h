@@ -27,9 +27,9 @@ public:
   BFieldMesh() = default;
   BFieldMesh(const BFieldMesh&) = default;
   BFieldMesh(BFieldMesh&&) = default;
-    BFieldMesh& operator=(const BFieldMesh&) = default;
-    BFieldMesh& operator=(BFieldMesh&&) = default;
-    ~BFieldMesh() = default;
+  BFieldMesh& operator=(const BFieldMesh&) = default;
+  BFieldMesh& operator=(BFieldMesh&&) = default;
+  ~BFieldMesh() = default;
   // constructor
   BFieldMesh(double zmin,
              double zmax,
