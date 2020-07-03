@@ -103,7 +103,7 @@ namespace Muon {
   }
 
   bool MuonRecoValidationTool::addTrackParticle(  const xAOD::TrackParticle& indetTrackParticle,
-                                                  const MuonSystemExtension& muonSystemExtension ) {
+                                                  const MuonSystemExtension& muonSystemExtension ) const {
     
     m_ntuple.trackParticleBlock.pt->push_back(indetTrackParticle.pt());
     m_ntuple.trackParticleBlock.p->push_back(1./indetTrackParticle.qOverP());
@@ -172,7 +172,7 @@ namespace Muon {
     return barcode;
   }
 
-  bool MuonRecoValidationTool::addTimeMeasurements( const xAOD::TrackParticle& indetTrackParticle, const MuGirlNS::StauHits& stauHits  ) {
+  bool MuonRecoValidationTool::addTimeMeasurements( const xAOD::TrackParticle& indetTrackParticle, const MuGirlNS::StauHits& stauHits ) const {
 
     Muon::MuonBetaCalculationUtils muonBetaCalculationUtils;
 
@@ -211,7 +211,7 @@ namespace Muon {
   }
 
   bool MuonRecoValidationTool::addTimeMeasurement( const MuonSystemExtension::Intersection& intersection, const Identifier& id,
-                                                   const Amg::Vector3D& gpos, float time, float errorTime ) {
+                                                   const Amg::Vector3D& gpos, float time, float errorTime ) const {
 
     // track index 
     m_ntuple.timeBlock.track.fill(getIndex(intersection));
@@ -234,7 +234,7 @@ namespace Muon {
   }
 
 
-  bool MuonRecoValidationTool::addTimeMeasurement( const MuonSystemExtension::Intersection& intersection, const Trk::MeasurementBase& meas ) {
+  bool MuonRecoValidationTool::addTimeMeasurement( const MuonSystemExtension::Intersection& intersection, const Trk::MeasurementBase& meas ) const {
 
     float segmentTimeCorrection = 0.;
     
@@ -313,7 +313,7 @@ namespace Muon {
   }
 
 
-  bool MuonRecoValidationTool::add( const MuonSystemExtension::Intersection& intersection, const MuonSegment& segment, int stage ) {
+  bool MuonRecoValidationTool::add( const MuonSystemExtension::Intersection& intersection, const MuonSegment& segment, int stage ) const {
 
 
     m_ntuple.segmentBlock.stage->push_back(stage);
@@ -394,7 +394,7 @@ namespace Muon {
   }
 
   bool MuonRecoValidationTool::add( const MuonSystemExtension::Intersection& intersection,
-                                    const MuonHough::MuonLayerHough::Maximum& maximum ) {
+                                    const MuonHough::MuonLayerHough::Maximum& maximum ) const {
 
     m_ntuple.houghBlock.maximum->push_back(maximum.max);
     
@@ -437,7 +437,7 @@ namespace Muon {
   }
 
   bool MuonRecoValidationTool::add( const MuonSystemExtension::Intersection& intersection, const Trk::PrepRawData& prd,
-                                    float expos, float expos_err )  {
+                                    float expos, float expos_err ) const {
 
     Identifier id = prd.identify();
     m_ntuple.hitBlock.id.fill(m_idHelperSvc->sector(id),m_idHelperSvc->chamberIndex(id));
@@ -482,7 +482,7 @@ namespace Muon {
   }
 
   bool MuonRecoValidationTool::addMuonCandidate( const xAOD::TrackParticle& indetTrackParticle, const MuonCandidate* candidate, 
-                                                 Trk::Track* combinedTrack, int ntimes, float beta, float chi2ndof, int stage ) {
+                                                 Trk::Track* combinedTrack, int ntimes, float beta, float chi2ndof, int stage ) const {
 
     auto pos = std::find(m_trackParticles.begin(),m_trackParticles.end(),&indetTrackParticle);
     if( pos == m_trackParticles.end() ) {
