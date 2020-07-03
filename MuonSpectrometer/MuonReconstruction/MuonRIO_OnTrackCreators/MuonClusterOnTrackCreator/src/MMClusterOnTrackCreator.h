@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -7,9 +7,9 @@
 ///////////////////////////////////////////////////////////////////
 // (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
-// Interface for CscClusterOnTrack production
+// Interface for MMClusterOnTrack production
 ///////////////////////////////////////////////////////////////////
-// Version 1.0 20/07/2004 
+// Version 1.0 03/07/2020 
 ///////////////////////////////////////////////////////////////////
 
 #ifndef MMClusterOnTrackCreator_H
@@ -25,16 +25,7 @@
 #include "TrkPrepRawData/PrepRawDataCLASS_DEF.h"
 #include "TrkParameters/TrackParameters.h"
 
-#include "MuonPrepRawData/CscStripPrepDataContainer.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
-
-
-
-
-class ICscStripFitter;
-class ICscClusterFitter;
-class ICscClusterUtilTool;
-class CscIdHelper;
 
 namespace Muon {
 

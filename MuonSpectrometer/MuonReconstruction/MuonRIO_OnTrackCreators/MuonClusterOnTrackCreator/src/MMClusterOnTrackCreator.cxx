@@ -1,3 +1,8 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+
 #include "MMClusterOnTrackCreator.h"
 
 
@@ -6,8 +11,8 @@
 Muon::MMClusterOnTrackCreator::MMClusterOnTrackCreator
   (const std::string& ty, const std::string& na, const IInterface* pa)
     : AthAlgTool(ty, na, pa),
-      m_muonIdHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool")
-  {
+      m_muonIdHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool") {
+
     // algtool interface - necessary!
     declareInterface<IMuonClusterOnTrackCreator>(this);
     declareInterface<IRIO_OnTrackCreator>(this);
@@ -29,28 +34,45 @@ const Muon::MuonClusterOnTrack* Muon::MMClusterOnTrackCreator::createRIO_OnTrack
                                                     const Amg::Vector3D& GP) const {
     MuonClusterOnTrack* MClT = 0;
 
-    //  check whether PrepRawData has detector element, if not there print warning
+    // check whether PrepRawData has detector element, if not there print warning
     const Trk::TrkDetElementBase* EL = RIO.detectorElement();
     if ( !EL ) {
       ATH_MSG_WARNING("RIO does not have associated detectorElement!, cannot produce ROT");
       return 0;
     }
 
+    // MuClusterOnTrack production
+    //
+    // in RIO_OnTrack the local param and cov should have the same dimension
     Trk::LocalParameters locpar(RIO.localPosition());
+
+    if (RIO.localCovariance().cols() != RIO.localCovariance().rows()) {
+      ATH_MSG_WARNING("Rows and colums not equal!");
+    }
+
+    if (RIO.localCovariance().cols() > 1) {
+      ATH_MSG_VERBOSE("Making 2-dim local parameters: " << m_muonIdHelperTool->toString(RIO.identify()));
+    } else {
+      Trk::DefinedParameter  radiusPar(RIO.localPosition().x(), Trk::locX);
+      locpar = Trk::LocalParameters(radiusPar);
+      ATH_MSG_VERBOSE("Making 1-dim local parameters: "  << m_muonIdHelperTool->toString(RIO.identify()));
+    }
 
     Amg::Vector2D lp;
     double positionAlongStrip = 0;
-    double positionAlongz = 0;
 
     if ( !EL->surface(RIO.identify()).globalToLocal(GP, GP, lp) ) {
       Amg::Vector3D lpos = RIO.detectorElement()->surface(RIO.identify()).transform().inverse()*GP;
       ATH_MSG_WARNING("Extrapolated GlobalPosition not on detector surface! Distance " << lpos.z());
       lp[Trk::locX]  = lpos.x();
       lp[Trk::locY]  = lpos.y();
-      positionAlongz = lpos.z();
     }
     positionAlongStrip = lp[Trk::locY];
+
     Amg::MatrixX loce = RIO.localCovariance();
+    ATH_MSG_DEBUG("All: new err matrix is " << loce);
+
+
 
 
     if ( m_muonIdHelperTool->isMM(RIO.identify()) ) {
@@ -60,9 +82,13 @@ const Muon::MuonClusterOnTrack* Muon::MMClusterOnTrackCreator::createRIO_OnTrack
         ATH_MSG_WARNING("RIO not of type MMPrepData, cannot create ROT");
         return 0;
       }
-      std::cout<<"generating MMClusterOnTrack in MMClusterBuilder" << std::endl;
+      ATH_MSG_VERBOSE("generating MMClusterOnTrack in MMClusterBuilder");
       MClT = new MMClusterOnTrack(MClus, locpar, loce, positionAlongStrip);
+     } else {
+      ATH_MSG_WARNING("MMClusterOnTrackCreator called with an non MM identifier");
+      std::cout << "MMClusterOnTrackCreator called with an non MM identifier" << std::endl;
     }
+
     return MClT;
 }
 

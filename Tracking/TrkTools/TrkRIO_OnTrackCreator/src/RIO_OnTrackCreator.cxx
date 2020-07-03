@@ -45,7 +45,7 @@ Trk::RIO_OnTrackCreator::RIO_OnTrackCreator(const std::string& t,
    declareProperty("ToolTRT_DriftCircle",m_TRT_Cor);
    declareProperty("ToolMuonDriftCircle",m_MuonDriftCircleCor);
    declareProperty("ToolMuonCluster"    ,m_MuonClusterCor);
-   declareProperty("ToolMMCluster"      ,m_MmClusterCor);
+   declareProperty("ToolMuonMMCluster"  ,m_MmClusterCor);
    declareProperty("Mode"               ,m_mode);
  }
 
@@ -228,7 +228,6 @@ Trk::RIO_OnTrackCreator::correct(const Trk::PrepRawData& rio,
       return 0;
     } else {
       ATH_MSG_DEBUG ("RIO identified as MMCluster.");
-      std::cout<< "RIO identified as MMCluster." << std::endl;
       return m_MmClusterCor->correct(rio, trk);
     }
   }
