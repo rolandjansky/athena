@@ -35,15 +35,8 @@ StatusCode PixelSiLorentzAngleCondAlg::initialize() {
 
   ATH_CHECK(m_siPropertiesTool.retrieve());
 
-  if (m_useMagFieldCache) {
-    ATH_CHECK( m_fieldCondObjInputKey.initialize() );
-    if (m_useMagFieldDcs) {
-      ATH_CHECK(m_readKeyBFieldSensor.initialize());
-    }
-    else {
-      ATH_CHECK(m_readKeyBFieldSensor.initialize(false));
-    }
-  }
+  ATH_CHECK(m_fieldCondObjInputKey.initialize( m_useMagFieldCache ));
+  ATH_CHECK(m_readKeyBFieldSensor.initialize( m_useMagFieldCache & m_useMagFieldDcs ));
 
   ATH_CHECK(m_pixelDetEleCollKey.initialize());
   
