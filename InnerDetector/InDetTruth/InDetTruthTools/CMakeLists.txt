@@ -29,7 +29,7 @@ atlas_add_component( InDetTruthTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS 
-                     LINK_LIBRARIES AtlasHepMCLib AthenaBaseComps TrkEventPrimitives AtlasDetDescr GaudiKernel InDetIdentifier InDetReadoutGeometry InDetSimData InDetPrepRawData TrkPrepRawData TrkTruthData )
+                     LINK_LIBRARIES AtlasHepMCLib AthenaBaseComps TrkEventPrimitives AtlasDetDescr GaudiKernel InDetIdentifier InDetReadoutGeometry InDetSimData InDetPrepRawData TrkPrepRawData TrkTruthData InDetTruthInterfaces TrkTruthTrackInterfaces )
 
 # Install files from the package:
 atlas_install_headers( InDetTruthTools )
