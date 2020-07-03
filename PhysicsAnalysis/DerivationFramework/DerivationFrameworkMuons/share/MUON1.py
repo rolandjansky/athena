@@ -343,6 +343,22 @@ MUON1Seq += CfgMgr.DerivationFramework__DerivationKernel("MUON1Kernel",
                                                                        ThinningTools = MUON1ThinningTools
                                                                        )
 
+
+#====================================================================
+# TrackAssociatedCaloSampleDecorator
+#====================================================================
+from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import DerivationFramework__TrackAssociatedCaloSampleDecorator
+
+MUON1_TrackAssociatedCaloSampleDecorator = DerivationFramework__TrackAssociatedCaloSampleDecorator(
+    name             = "MUON1_TrackAssociatedCaloSampleDecorator",
+    ContainerName    = "InDetTrackParticles"
+  )
+ToolSvc += MUON1_TrackAssociatedCaloSampleDecorator
+MUON1Seq += CfgMgr.DerivationFramework__DerivationKernel(
+    "MUON1KernelDeco",
+    AugmentationTools = [MUON1_TrackAssociatedCaloSampleDecorator]
+  )
+
 #====================================================================
 #       Decorate the vertices with the sum pt of their tracks
 #====================================================================
