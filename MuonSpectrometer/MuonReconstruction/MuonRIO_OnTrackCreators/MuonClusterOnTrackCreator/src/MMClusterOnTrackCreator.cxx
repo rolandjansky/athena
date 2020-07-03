@@ -32,13 +32,13 @@ StatusCode Muon::MMClusterOnTrackCreator::initialize() {
 
 const Muon::MuonClusterOnTrack* Muon::MMClusterOnTrackCreator::createRIO_OnTrack(const Trk::PrepRawData& RIO,
                                                     const Amg::Vector3D& GP) const {
-    MuonClusterOnTrack* MClT = 0;
+    MuonClusterOnTrack* MClT = nullptr;
 
     // check whether PrepRawData has detector element, if not there print warning
     const Trk::TrkDetElementBase* EL = RIO.detectorElement();
     if ( !EL ) {
       ATH_MSG_WARNING("RIO does not have associated detectorElement!, cannot produce ROT");
-      return 0;
+      return nullptr;
     }
 
     // MuClusterOnTrack production
@@ -47,7 +47,7 @@ const Muon::MuonClusterOnTrack* Muon::MMClusterOnTrackCreator::createRIO_OnTrack
     Trk::LocalParameters locpar(RIO.localPosition());
 
     if (RIO.localCovariance().cols() != RIO.localCovariance().rows()) {
-      ATH_MSG_WARNING("Rows and colums not equal!");
+      ATH_MSG_FATAL("Rows and colums not equal!");
     }
 
     if (RIO.localCovariance().cols() > 1) {
@@ -80,7 +80,7 @@ const Muon::MuonClusterOnTrack* Muon::MMClusterOnTrackCreator::createRIO_OnTrack
       const MMPrepData* MClus   = dynamic_cast<const MMPrepData*> (&RIO);
       if (!MClus) {
         ATH_MSG_WARNING("RIO not of type MMPrepData, cannot create ROT");
-        return 0;
+        return nullptr;
       }
       ATH_MSG_VERBOSE("generating MMClusterOnTrack in MMClusterBuilder");
       MClT = new MMClusterOnTrack(MClus, locpar, loce, positionAlongStrip);
