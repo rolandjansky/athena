@@ -6,8 +6,8 @@
 #include <cmath>
 
 #include "TrigL2MuonSA/RpcDataPreparator.h"
-#include "TrigL2MuonSA/RpcData.h"
-#include "TrigL2MuonSA/RecMuonRoIUtils.h"
+#include "RpcData.h"
+#include "RecMuonRoIUtils.h"
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
@@ -182,19 +182,19 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
      // Get RPC collections
      for(const IdentifierHash& id : rpcHashList) {
 
-       Muon::RpcPrepDataContainer::const_iterator RPCcoll = rpcPrds->indexFind(id);
+       auto RPCcoll = rpcPrds->indexFindPtr(id);
 
-       if( RPCcoll == rpcPrds->end() ) {
+       if( RPCcoll == nullptr ) {
          continue;
        }
 
-       if( (*RPCcoll)->size() == 0) {
+       if( RPCcoll->size() == 0) {
          ATH_MSG_DEBUG("Empty RPC list");
          continue;
        }
 
        rpcHashList_cache.push_back(id);
-       rpcCols.push_back(*RPCcoll);
+       rpcCols.push_back(RPCcoll);
      }
    }
 

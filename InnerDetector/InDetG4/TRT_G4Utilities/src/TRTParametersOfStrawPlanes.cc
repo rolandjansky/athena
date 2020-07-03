@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-20120 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -130,7 +130,7 @@ void TRTParametersOfStrawPlanes::DefineParameters()
 
   // Called by TRTParametersOfStrawPlanes
 
-void TRTParametersOfStrawPlanes::PrintParameters() const
+void TRTParametersOfStrawPlanes::PrintParameters ATLAS_NOT_THREAD_SAFE () const // Thread unsafe TRTUtilities and TRTOutputFile classes are used.
 {
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfStrawPlanes::PrintParameters" << endmsg;
 

@@ -214,7 +214,7 @@ StatusCode AthenaOutputStream::initialize() {
       ATH_MSG_FATAL("Could not locate default store");
       return(status);
    } else {
-      ATH_MSG_DEBUG("Found " << m_dataStore.type() << " store.");
+      ATH_MSG_DEBUG("Found " << m_dataStore.typeAndName() << " store.");
    }
    assert(static_cast<bool>(m_dataStore));
    if (!m_metadataItemList.value().empty()) {
@@ -223,7 +223,7 @@ StatusCode AthenaOutputStream::initialize() {
          ATH_MSG_FATAL("Could not locate metadata store");
          return(status);
       } else {
-         ATH_MSG_DEBUG("Found " << m_metadataStore.type() << " store.");
+         ATH_MSG_DEBUG("Found " << m_metadataStore.typeAndName() << " store.");
       }
       assert(static_cast<bool>(m_metadataStore));
    }
@@ -258,7 +258,7 @@ StatusCode AthenaOutputStream::initialize() {
       ATH_MSG_FATAL("Cannot find " << m_streamer);
       return(status);
    }
-   status = m_streamer->connectServices(m_dataStore.type(), m_persName, m_extendProvenanceRecord);
+   status = m_streamer->connectServices(m_dataStore.typeAndName(), m_persName, m_extendProvenanceRecord);
    if (status.isFailure()) {
       ATH_MSG_FATAL("Unable to connect services");
       return(status);
@@ -460,7 +460,7 @@ void AthenaOutputStream::writeMetaData(const std::string outputFN)
    ATH_MSG_DEBUG("metadataItemList: " << m_metadataItemList.value() );
    if (!m_metadataItemList.value().empty()) {
       m_currentStore = &m_metadataStore;
-      StatusCode status = streamer->connectServices(m_metadataStore.type(), m_persName, false);
+      StatusCode status = streamer->connectServices(m_metadataStore.typeAndName(), m_persName, false);
       if (status.isFailure()) {
          throw GaudiException("Unable to connect metadata services", name(), StatusCode::FAILURE);
       }
@@ -478,7 +478,7 @@ void AthenaOutputStream::writeMetaData(const std::string outputFN)
       }
       m_outputAttributes.clear();
       m_currentStore = &m_dataStore;
-      status = streamer->connectServices(m_dataStore.type(), m_persName, m_extendProvenanceRecord);
+      status = streamer->connectServices(m_dataStore.typeAndName(), m_persName, m_extendProvenanceRecord);
       if (status.isFailure()) {
          throw GaudiException("Unable to re-connect services", name(), StatusCode::FAILURE);
       }
@@ -486,7 +486,7 @@ void AthenaOutputStream::writeMetaData(const std::string outputFN)
       if ((pAsIProp->setProperty(m_itemList)).isFailure()) {
          throw GaudiException("Folder property [itemList] not found", name(), StatusCode::FAILURE);
       }
-      ATH_MSG_INFO("Records written: " << m_events);
+      ATH_MSG_INFO("Metadata records written: " << m_events);
    }
 }
 
@@ -562,7 +562,7 @@ StatusCode AthenaOutputStream::write() {
          st->addRef();
          streamer = dynamic_cast<IAthenaOutputStreamTool*>( st );
          if( streamer->initialize().isFailure()
-             || streamer->connectServices(m_dataStore.type(), m_persName, m_extendProvenanceRecord).isFailure() ) {
+             || streamer->connectServices(m_dataStore.typeAndName(), m_persName, m_extendProvenanceRecord).isFailure() ) {
             ATH_MSG_FATAL("Unable to initialize OutputStreamTool for " << outputFN );
             return StatusCode::FAILURE;
          }

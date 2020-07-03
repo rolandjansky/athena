@@ -36,6 +36,9 @@ namespace xAOD {
       /// Destructor
       virtual ~TAuxVectorFactory();
 
+      TAuxVectorFactory (const TAuxVectorFactory&) = delete;
+      TAuxVectorFactory& operator= (const TAuxVectorFactory&) = delete;
+
       /// @name Functions implementing the SG::IAuxTypeVectorFactory interface
       /// @{
 

@@ -5,23 +5,6 @@
 # Declare the package name:
 atlas_subdir( ISF_PunchThroughTools )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          DetectorDescription/GeoPrimitives
-                          Simulation/Barcode/BarcodeEvent
-                          Simulation/Barcode/BarcodeInterfaces
-                          Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimInterfaces
-                          AtlasGeometryCommon/SubDetectorEnvelopes
-                          Control/AthContainers
-                          GaudiKernel
-                          Generators/AtlasHepMC
-                          Simulation/ISF/ISF_Core/ISF_Event
-                          Simulation/ISF/ISF_Core/ISF_Interfaces
-                          Tools/PathResolver )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Eigen )

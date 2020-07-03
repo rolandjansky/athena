@@ -54,7 +54,7 @@ int main()
 {
   errorcheck::ReportMessage::hideErrorLocus();
   ISvcLocator* svcloc = nullptr;
-  if (!Athena_test::initGaudi("FPEControlSvc_test.txt", svcloc)) {
+  if (!Athena_test::initGaudi("AthenaServices/FPEControlSvc_test.txt", svcloc)) {
     std::cerr << "This test can not be run" << std::endl;
     return 0;
   }  

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigL2MuonSA/PtFromAlphaBeta.h"
+#include "PtFromAlphaBeta.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "xAODTrigMuon/TrigMuonDefs.h"

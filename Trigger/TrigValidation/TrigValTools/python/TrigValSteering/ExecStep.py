@@ -91,6 +91,12 @@ class ExecStep(Step):
             self.report_result(1, 'TestConfig')
             sys.exit(1)
 
+        # Ensure no log duplication for transforms
+        if self.executable.endswith('_tf.py'):
+            os.environ['TRF_NOECHO'] = '1'
+            if 'TRF_ECHO' in os.environ:
+                del os.environ['TRF_ECHO']
+
     def configure_input(self):
         self.log.debug('Configuring input for step %s', self.name)
         if self.input is None:

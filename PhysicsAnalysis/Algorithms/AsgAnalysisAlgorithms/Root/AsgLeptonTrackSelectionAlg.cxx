@@ -119,7 +119,7 @@ namespace CP
         ANA_CHECK (m_particlesHandle.getCopy (particles, sys));
         for (xAOD::IParticle *particle : *particles)
         {
-          m_accept.clear();
+          asg::AcceptData acceptData (&m_accept);
 
           if (m_preselection.getBool (*particle))
           {
@@ -136,7 +136,7 @@ namespace CP
               return StatusCode::FAILURE;
             }
 
-            m_accept.setCutResult (cutIndex ++, track != nullptr);
+            acceptData.setCutResult (cutIndex ++, track != nullptr);
             if (track != nullptr)
             {
               if (m_maxD0Significance > 0)
@@ -146,9 +146,9 @@ namespace CP
                   const float d0sig = xAOD::TrackingHelpers::d0significance
                     (track, eventInfo->beamPosSigmaX(), eventInfo->beamPosSigmaY(),
                     eventInfo->beamPosSigmaXY());
-                  m_accept.setCutResult (cutIndex ++, fabs( d0sig ) < m_maxD0Significance);
+                  acceptData.setCutResult (cutIndex ++, fabs( d0sig ) < m_maxD0Significance);
                 } catch (const std::runtime_error &) {
-                  m_accept.setCutResult (cutIndex ++, false);
+                  acceptData.setCutResult (cutIndex ++, false);
                 }
               }
               if (m_maxDeltaZ0SinTheta > 0)
@@ -156,7 +156,7 @@ namespace CP
                 const double vertex_z = primaryVertex ? primaryVertex->z() : 0;
                 const float deltaZ0SinTheta
                   = (track->z0() + track->vz() - vertex_z) * sin (particle->p4().Theta());
-                m_accept.setCutResult (cutIndex ++, fabs (deltaZ0SinTheta) < m_maxDeltaZ0SinTheta);
+                acceptData.setCutResult (cutIndex ++, fabs (deltaZ0SinTheta) < m_maxDeltaZ0SinTheta);
               }
               if (m_nMinPixelHits != -1 || m_nMaxPixelHits != -1) {
                 uint8_t nPixelHits;
@@ -168,7 +168,7 @@ namespace CP
                 if(m_nMaxPixelHits != -1) {
                   accept &= nPixelHits <= m_nMaxPixelHits;
                 }
-                m_accept.setCutResult (cutIndex++, accept);
+                acceptData.setCutResult (cutIndex++, accept);
               }
               if (m_nMinSCTHits != -1 || m_nMaxSCTHits != -1) {
                 uint8_t nSCTHits;
@@ -180,13 +180,13 @@ namespace CP
                 if(m_nMaxSCTHits != -1) {
                   accept &= nSCTHits <= m_nMaxSCTHits;
                 }
-                m_accept.setCutResult (cutIndex++, accept);
+                acceptData.setCutResult (cutIndex++, accept);
               }
             }
           }
 
           m_selectionAccessor->setBits
-              (*particle, selectionFromAccept (m_accept));
+              (*particle, selectionFromAccept (acceptData));
         }
         return StatusCode::SUCCESS;
       });

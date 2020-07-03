@@ -844,17 +844,6 @@ if rec.doPersint()  :
 # gathering info from all the reco algorithms
 #
 
-
-
-
-# check dictionary all the time
-ServiceMgr.AthenaSealSvc.CheckDictionary = True
-if not rec.doCheckDictionary():
-    ServiceMgr.AthenaSealSvc.OutputLevel=WARNING
-
-
-
-#
 #
 #now write out Transient Event Store content in POOL
 #

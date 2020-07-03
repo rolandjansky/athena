@@ -50,7 +50,7 @@ InDetConversionFinderTools::InDetConversionFinderTools(const std::string& t,
   declareProperty("MinFlightAngle", m_MinFlightAngle);
   }
   
-  InDetConversionFinderTools::~InDetConversionFinderTools(){}
+  InDetConversionFinderTools::~InDetConversionFinderTools()= default;
   
   StatusCode InDetConversionFinderTools::initialize()
   {

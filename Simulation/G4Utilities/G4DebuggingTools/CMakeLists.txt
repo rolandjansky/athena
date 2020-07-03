@@ -5,19 +5,6 @@
 # Declare the package name:
 atlas_subdir( G4DebuggingTools )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Control/StoreGate
-                          Event/EventInfo
-                          Simulation/G4Atlas/G4AtlasInterfaces
-                          Simulation/G4Atlas/G4AtlasTools
-                          Simulation/G4Sim/MCTruth
-                          Simulation/G4Sim/MCTruthBase
-                          Simulation/G4Sim/SimHelpers )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Geant4 )

@@ -32,7 +32,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( TrigInDetTrackFitter
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetIdentifier MagFieldInterfaces TrkTrack TrkExInterfaces TrkDistributedKalmanFilterLib TrkFitterInterfaces TrkToolInterfaces AtlasDetDescr InDetPrepRawData InDetRIO_OnTrack TrkSurfaces TrkEventPrimitives TrkParameters TrkPrepRawData TrkRIO_OnTrack TrigTimeAlgsLib )
+                     LINK_LIBRARIES AthenaBaseComps AtlasDetDescr GaudiKernel InDetIdentifier InDetPrepRawData InDetRIO_OnTrack MagFieldInterfaces StoreGateLib TrigInDetEvent TrigInDetToolInterfacesLib TrkDistributedKalmanFilterLib TrkEventPrimitives TrkParameters TrkPrepRawData TrkRIO_OnTrack TrkSurfaces TrkToolInterfaces TrkTrack )
 
 # Install files from the package:
 atlas_install_headers( TrigInDetTrackFitter )

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #----NORMAL USER ACCESS-------
 
@@ -18,7 +18,7 @@ triggers_hi = [ "mb_sp",
                 "mb_perf_L1MBTS_1_1",	
                 "noalg_mb_L1TE50",
                 ]
-		
+
 # pPb triggers 2016
 triggers_pPb = ["mb_sptrk",
                #"mb_sptrk_noisesup",
@@ -38,7 +38,7 @@ triggers_pPb = ["mb_sptrk",
                ]
 
 #!----NORMAL USER ACCESS-------
-		
+
 #----ADVANCED USER ACCESS-----
 #   PLEASE DO NOT MODIFY EXISTING CODE UNLESS YOU ARE PERFECTLY SURE WHAT YOU ARE DOING 
 
@@ -59,15 +59,14 @@ for x in triggers_pPb:
         triggersFiltered_pPb.append(x)
 
 from RecExConfig.RecFlags import rec
-from AthenaCommon.BeamFlags import jobproperties
 from AthenaCommon.Logging        import logging
 
 log = logging.getLogger( 'TrigMinBiasMonitoring' )
 
-if rec.doHeavyIon == True:
+if rec.doHeavyIon is True:
     log.info('HI mode of min-bias trigger monitoring')
     monitoring_minbias = triggersFiltered_hi     
-elif rec.doHIP == True:
+elif rec.doHIP is True:
     log.info('doHI mode of min-bias trigger monitoring')
     monitoring_minbias = triggersFiltered_pPb
 else:

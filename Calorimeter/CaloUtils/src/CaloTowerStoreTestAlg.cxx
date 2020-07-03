@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file  CaloTowerStoreTestAlg.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -94,7 +92,9 @@ CaloTowerStoreTestAlg::test_subseg_iter (const CaloTowerStore& store1,
 {
   CaloTowerSeg seg = subseg.segmentation();
   CaloTowerStore store2;
-  assert (store2.buildLookUp (*m_caloDDM, seg, calos));
+  if (!store2.buildLookUp (*m_caloDDM, seg, calos)) {
+    std::abort();
+  }
 
   assert (subseg.size() == store2.size());
 
@@ -117,7 +117,9 @@ void CaloTowerStoreTestAlg::test1()
   calos.push_back (CaloCell_ID::LARHEC);
   calos.push_back (CaloCell_ID::TILE);
   CaloTowerStore store;
-  assert (store.buildLookUp (*m_caloDDM, seg, calos));
+  if (!store.buildLookUp (*m_caloDDM, seg, calos)) {
+    std::abort();
+  }
 
   CaloTowerSeg::SubSeg subseg1 = seg.subseg (0.7, 0.3, -0.2, 0.4);
   test_subseg_iter (store, calos, subseg1);

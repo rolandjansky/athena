@@ -5,7 +5,7 @@
 // L1CPMTools.cxx,  
 ///////////////////////////////////////////////////////////////////
 
-#include "TrigT1CaloTools/L1CPMTools.h"
+#include "L1CPMTools.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "TrigT1Interfaces/CoordinateRange.h"
 #include "TrigT1CaloUtils/TriggerTowerKey.h"

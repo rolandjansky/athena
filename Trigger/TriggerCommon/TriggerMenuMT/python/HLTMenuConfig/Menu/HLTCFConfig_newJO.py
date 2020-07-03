@@ -69,7 +69,7 @@ def generateDecisionTree(chains):
     @memoize
     def getFilterAlg( stepNumber, stepName ):
         """
-        Returns, if need be create, filter for a given step
+        Returns, if need be created, filter for a given step
         """
 
         filtersStep = getFiltersStepSeq( stepNumber )
@@ -84,6 +84,19 @@ def generateDecisionTree(chains):
         log.debug('Creted filter {}'.format(filterName))
         return filterAlg
 
+    @memoize
+    def getComboHypo( stepNumber, step ):
+        """
+        Returns, if need be created, combo hypo for a given step
+        """
+
+        # todo: change name to be retrieved via CFNaming
+        #   so based on input hypos
+        comboHypoName = step.combo.name
+        comboHypo = CompFactory.ComboHypo(comboHypoName)
+
+        return comboHypo
+            
     @memoize
     def findInputMaker( stepCounter, stepName ):
         seq = getSingleMenuSeq( stepCounter, stepName )
@@ -143,6 +156,11 @@ def generateDecisionTree(chains):
             hypoAlg.HypoInputDecisions  = ""
             hypoAlg.HypoOutputDecisions = ""
 
+            if step.isCombo:
+                comboHypo = getComboHypo( stepCounter, step )
+                comboHypo.HypoInputDecisions  = []
+                comboHypo.HypoOutputDecisions = []
+
     # connect all outputs (decision DF)
     for chain in chains:
         for stepCounter, step in enumerate( chain.steps, 1 ):
@@ -163,6 +181,7 @@ def generateDecisionTree(chains):
                     filterOutputName = CFNaming.filterOutName( filterAlg.name, i )
                     filterAlg.Output = addAndAssureUniqness( filterAlg.Output, filterOutputName, "{} output".format( filterAlg.name ) )
                     im.InputMakerInputDecisions = addAndAssureUniqness( im.InputMakerInputDecisions,  filterOutputName, "{} input".format( im.name ) )
+
                 imOutputName = CFNaming.inputMakerOutName( im.name )
                 im.InputMakerOutputDecisions = assureUnsetOrTheSame( im.InputMakerOutputDecisions, imOutputName, "{} IM output".format( im.name ) )
                 # Hypo linking
@@ -174,6 +193,7 @@ def generateDecisionTree(chains):
                     "{} hypo output".format( hypoAlg.name )  )
 
                 hypoAlg.HypoTools.append( sequence._hypoToolConf.confAndCreate( TriggerConfigHLT.getChainDictFromChainName( chain.name ) ) )
+
 
     for chain in chains:
         for stepCounter, step in enumerate( chain.steps, 1 ):

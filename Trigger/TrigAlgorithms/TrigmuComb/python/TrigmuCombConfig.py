@@ -1,13 +1,10 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from TrigmuComb.TrigmuCombConf import *
-from TrigmuComb.TrigmuCombMonitoring import *
+from TrigmuComb.TrigmuCombConf import muComb
+from TrigmuComb.TrigmuCombMonitoring import TrigmuCombValidationMonitoring, TrigmuCombOnlineMonitoring, TrigmuCombCosmicMonitoring
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.GlobalFlags import globalflags
-from AthenaCommon.AppMgr import ServiceMgr
 from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-from MuonByteStream.MuonByteStreamFlags import muonByteStreamFlags
-from AthenaCommon.AppMgr import ToolSvc
 
 class TrigmuCombConfig (muComb):
 

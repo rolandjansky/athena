@@ -9,7 +9,7 @@ from TrigMuonHypoMT.TrigMuonHypoMTConf import (  # noqa: F401 (algs not used her
     TrigMuonEFHypoAlg, TrigMuonEFHypoTool,
     TrigMuonEFTrackIsolationHypoAlg, TrigMuonEFTrackIsolationHypoTool,
     TrigL2MuonOverlapRemoverMufastAlg, TrigL2MuonOverlapRemoverMucombAlg, TrigL2MuonOverlapRemoverTool,
-    TrigMuonEFInvMassHypoAlg, TrigMuonEFInvMassHypoTool,
+    TrigMuonEFInvMassHypoTool,
     TrigMuonLateMuRoIHypoAlg, TrigMuonLateMuRoIHypoTool
 )
 

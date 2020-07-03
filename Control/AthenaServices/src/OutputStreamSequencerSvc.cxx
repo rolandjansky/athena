@@ -135,6 +135,10 @@ void OutputStreamSequencerSvc::handle(const Incident& inc)
       // new event start - assing current rangeId to its slot
       ATH_MSG_DEBUG("Assigning rangeID = " << m_currentRangeID << " to slot " << slot);
       std::lock_guard lockg( m_mutex );
+      // If this service is enabled but not getting NextRange incidents, need to resize here
+      if( slot >= m_rangeIDinSlot.size() ) {
+         m_rangeIDinSlot.resize( std::max(slot+1, Gaudi::Concurrency::ConcurrencyFlags::numConcurrentEvents()) );
+      }
       m_rangeIDinSlot[ slot ] = m_currentRangeID;
    }
 

@@ -5,7 +5,7 @@
 //  L1DynamicPedestalProviderTxt.cxx 
 ///////////////////////////////////////////////////////////////////////
 
-#include "TrigT1CaloTools/L1DynamicPedestalProviderTxt.h"
+#include "L1DynamicPedestalProviderTxt.h"
 
 #include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 #include "TrigBunchCrossingTool/BunchCrossing.h"

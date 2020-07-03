@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETSIMEVENT_SIHITIDHELPER
@@ -21,15 +21,12 @@
 // Base Class
 #include "HitManagement/HitIdHelper.h"
 
-// This class is singleton and static method and variable are used.
-#include "CxxUtils/checker_macros.h"
-ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 class SiHitIdHelper : HitIdHelper {
  public:
   //
   // Access to the helper
-  static SiHitIdHelper* GetHelper();
+  static const SiHitIdHelper* GetHelper();
   //
   // Info retrieval:
   // Pixel or SCT

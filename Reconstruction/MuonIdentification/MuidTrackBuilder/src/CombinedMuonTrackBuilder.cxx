@@ -7,7 +7,7 @@
 //  AlgTool gathering  material effects along a combined muon track, in
 //  particular the TSOS'es representing the calorimeter energy deposit and
 //  Coulomb scattering.
-//  The resulting track is fitted at the IP using the ITrackFitter interface.
+//  The resulting track is fitted at the IP
 //
 //  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
@@ -132,7 +132,6 @@ CombinedMuonTrackBuilder::CombinedMuonTrackBuilder(const std::string& type, cons
     m_messageHelper = new MessageHelper(*this);
 
     declareInterface<ICombinedMuonTrackBuilder>(this);
-    declareInterface<Trk::ITrackFitter>(this);
     declareProperty("CaloEnergyParam", m_caloEnergyParam);
     declareProperty("CaloTSOS", m_caloTSOS);
     declareProperty("Cleaner", m_cleaner);
@@ -975,6 +974,7 @@ Trk::Track*
 CombinedMuonTrackBuilder::standaloneFit(const Trk::Track& inputSpectrometerTrack, const Trk::Vertex* inputVertex,
                                         float bs_x, float bs_y, float bs_z) const
 {
+
     MagField::AtlasFieldCache    fieldCache;
     // Get field cache object
     EventContext ctx = Gaudi::Hive::currentContext();
@@ -1623,7 +1623,7 @@ CombinedMuonTrackBuilder::standaloneFit(const Trk::Track& inputSpectrometerTrack
         ATH_MSG_VERBOSE("Refining Calorimeter TSOS in StandAlone Fit ...");
         std::unique_ptr<Trk::Track> oldTrack = std::make_unique<Trk::Track>(Trk::Track(*track));
 
-        m_materialUpdator->updateCaloTSOS(const_cast<Trk::Track&>(*track));
+        m_materialUpdator->updateCaloTSOS(*track);
 
         Trk::Track* refinedTrack = fit(*track, false, Trk::muon);
         if (refinedTrack) {
@@ -2254,9 +2254,9 @@ CombinedMuonTrackBuilder::standaloneRefit(const Trk::Track& combinedTrack, float
     return refittedTrack;
 }
 
-/** ITrackFitter interface: refit a track */
+/** refit a track */
 Trk::Track*
-CombinedMuonTrackBuilder::fit(const Trk::Track& track, const Trk::RunOutlierRemoval runOutlier,
+CombinedMuonTrackBuilder::fit(Trk::Track& track, const Trk::RunOutlierRemoval runOutlier,
                               const Trk::ParticleHypothesis particleHypothesis) const
 {
 
@@ -2311,7 +2311,7 @@ CombinedMuonTrackBuilder::fit(const Trk::Track& track, const Trk::RunOutlierRemo
         // run-2 schema, update default eloss with parametrised value
         if (m_useCaloTG) {
             ATH_MSG_VERBOSE("Updating Calorimeter TSOS in Muon Combined (re)Fit ...");
-            m_materialUpdator->updateCaloTSOS(const_cast<Trk::Track&>(track));
+            m_materialUpdator->updateCaloTSOS(track);
             caloAssociated = true;
         }
 
@@ -2366,7 +2366,7 @@ CombinedMuonTrackBuilder::fit(const Trk::Track& track, const Trk::RunOutlierRemo
         // Updates the calo TSOS with the ones from TG+corrections
         if (m_updateWithCaloTG && !m_useCaloTG && particleHypothesis == Trk::muon) {
             ATH_MSG_VERBOSE("Updating Calorimeter TSOS in Muon Standalone Fit ...");
-            m_materialUpdator->updateCaloTSOS(const_cast<Trk::Track&>(track));
+            m_materialUpdator->updateCaloTSOS(track);
         }
 
         // FIT
@@ -2452,7 +2452,7 @@ CombinedMuonTrackBuilder::fit(const Trk::Track& track, const Trk::RunOutlierRemo
     return fittedTrack;
 }
 
-/** ITrackFitter interface:
+/** 
     fit a set of MeasurementBase objects with starting value for perigeeParameters */
 Trk::Track*
 CombinedMuonTrackBuilder::fit(const Trk::MeasurementSet& measurementSet, const Trk::TrackParameters& perigeeStartValue,
@@ -2586,9 +2586,9 @@ CombinedMuonTrackBuilder::fit(const Trk::MeasurementSet& measurementSet, const T
 }
 
 
-/**ITrackFitter interface:  combined muon fit */
+/**combined muon fit */
 Trk::Track*
-CombinedMuonTrackBuilder::fit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack,
+CombinedMuonTrackBuilder::fit(const Trk::Track& indetTrack, Trk::Track& extrapolatedTrack,
                               const Trk::RunOutlierRemoval  runOutlier,
                               const Trk::ParticleHypothesis particleHypothesis) const
 {
@@ -2632,7 +2632,7 @@ CombinedMuonTrackBuilder::fit(const Trk::Track& indetTrack, const Trk::Track& ex
     // Updates the calo TSOS with the ones from TG+corrections
     if (m_updateWithCaloTG && !m_useCaloTG && particleHypothesis == Trk::muon) {
         ATH_MSG_VERBOSE("Updating Calorimeter TSOS in Muon Combined Fit ...");
-        m_materialUpdator->updateCaloTSOS(indetTrack, const_cast<Trk::Track&>(extrapolatedTrack));
+        m_materialUpdator->updateCaloTSOS(indetTrack, extrapolatedTrack);
     }
 
     // FIT

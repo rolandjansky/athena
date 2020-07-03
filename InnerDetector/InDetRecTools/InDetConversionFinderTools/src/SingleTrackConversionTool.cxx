@@ -73,7 +73,7 @@ namespace InDet {
   // -------------------------------------------------------
   // destructor
   // -------------------------------------------------------
-  SingleTrackConversionTool::~SingleTrackConversionTool() {}
+  SingleTrackConversionTool::~SingleTrackConversionTool() = default;
 
   // -------------------------------------------------------
   // not sure what this is about (Markus) ????

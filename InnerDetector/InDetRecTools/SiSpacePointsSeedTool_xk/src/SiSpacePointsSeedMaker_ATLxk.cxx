@@ -93,7 +93,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(const EventContext& ctx, Even
   erase(data);
   data.dzdrmin = m_dzdrmin0;
   data.dzdrmax = m_dzdrmax0;
-  data.maxScore = 100.;     ///< max score, where low scores are "better". 
+  data.maxScore = m_maxScore;     ///< max score, where low scores are "better". 
 
   /// in the first iteration, initialise the beam framework - beam spot position and direction
   if (data.iteration == 0) {
@@ -361,7 +361,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newRegion
 
   data.dzdrmin = m_dzdrmin0;
   data.dzdrmax = m_dzdrmax0;
-  data.maxScore = 100.;
+  data.maxScore = m_maxScore;
 
   if (not m_beamSpotKey.empty()) {
     buildBeamFrameWork(data);
@@ -931,6 +931,15 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::buildFrameWork()
   m_ipt       = 1./std::abs(.9*m_ptmin);
   m_ipt2      = m_ipt*m_ipt;
 
+  /// set up the score thresholds based on the user-supplied properties
+  /// The score of any seeds will always be >= the bonus applied,
+  /// since the starting value is |d0|. 
+  /// Hence, by subtracting one, we get all seeds which have 
+  /// received an additional bonus in addition to the PPP/SSS one, 
+  /// which is the confirmation one by construction. 
+  m_seedScoreThresholdPPPConfirmationSeed = m_seedScoreBonusPPP - 1.; 
+  m_seedScoreThresholdSSSConfirmationSeed = m_seedScoreBonusSSS - 1.; 
+
   /// Build radius sorted containers
   m_nBinsR = static_cast<int>((m_r_rmax+.1)/m_binSizeR);
 
@@ -1224,7 +1233,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::fillLists(EventData& data) const
       * where this is equivalent to 40mm. 
       **/
       if (!data.r_Sorted[radialBin].front()->spacepoint->clusterList().second) {
-        if (radialBin < 20) ibl = true;
+        if (radialBin * m_binSizeR < m_radiusCutIBL) ibl = true;
       } 
 
       /// if we reach a *strip* hit in the PPP pass, we have two conditions for bailing out: 
@@ -1300,8 +1309,8 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::fillLists(EventData& data) const
   }
   /// if we do not use the SCT, and did see some hits somewhere below 43mm (meaning we have the IBL installed), 
   /// apply stricter requirements on the seed score later on 
-  if (!m_sct && firstRadialBin && static_cast<float>(firstRadialBin)*m_binSizeR < 43.) {
-    data.maxScore = -200.;
+  if (!m_sct && firstRadialBin && static_cast<float>(firstRadialBin)*m_binSizeR < m_radiusCutIBL) {
+    data.maxScore = m_seedScoreThresholdPPPConfirmationSeed;
   }
 
   data.state = 0;
@@ -1841,7 +1850,13 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
         * Note that below, the variable R is the radial coordinate fo the central SP, 
         * corresponding to r_central in the notation above. 
         **/
-        float d0  = std::abs((A-B*R)*R);
+	float d0 = 0;         
+	if(std::abs(B) < 1e-10) d0  = std::abs((A-B*R)*R);         
+	else{
+	  float x0 = -A/(2.*B);
+	  float rTrack = std::sqrt(onePlusAsquare/BSquare)*.5;
+	  d0 = std::abs(-rTrack + std::sqrt(rTrack*rTrack +2*x0*R +R*R));
+	}
 
         /// apply d0 cut to seed 
         if (d0 <= d0max) {
@@ -2069,39 +2084,44 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3SpTrigger
 void InDet::SiSpacePointsSeedMaker_ATLxk::newOneSeed
 (EventData& data,
  InDet::SiSpacePointForSeed*& p1, InDet::SiSpacePointForSeed*& p2,
- InDet::SiSpacePointForSeed*& p3, float z, float q) const
+ InDet::SiSpacePointForSeed*& p3, float z, float seedCandidateQuality) const
 {
-  /// If we have not yet reached the maximum number of allowed seeds per central SP, 
-  /// add this one to the list 
-  if (data.nOneSeeds < m_maxOneSize) {
-
+  /// get the worst seed so far 
+  float worstQualityInMap = std::numeric_limits<float>::min();
+  InDet::SiSpacePointsProSeed* worstSeedSoFar = nullptr;
+  if (!data.mapOneSeeds_Pro.empty()) {
+    std::multimap<float,InDet::SiSpacePointsProSeed*>::reverse_iterator l = data.mapOneSeeds_Pro.rbegin();
+    worstQualityInMap = (*l).first;
+    worstSeedSoFar = (*l).second;
+  }
+  /// There are three cases where we simply add our new seed to the list and push it into the map: 
+    /// a) we have not yet reached our max number of seeds 
+  if (data.nOneSeeds < m_maxOneSize
+    /// b) we have reached the max number but always want to keep confirmed seeds 
+    /// and the new seed is a confirmed one, with worse quality than the worst one so far 
+      || (m_alwaysKeepConfirmedSeeds && worstQualityInMap <= seedCandidateQuality  && isConfirmedSeed(p1,p3,seedCandidateQuality) && data.nOneSeeds < data.seedPerSpCapacity)
+    /// c) we have reached the max number but always want to keep confirmed seeds 
+    ///and the new seed of higher quality than the worst one so far, with the latter however being confirmed 
+      || (m_alwaysKeepConfirmedSeeds && worstQualityInMap >  seedCandidateQuality  && isConfirmedSeed(worstSeedSoFar->spacepoint0(),worstSeedSoFar->spacepoint2(),worstQualityInMap) && data.nOneSeeds < data.seedPerSpCapacity)
+    ){
     data.OneSeeds_Pro[data.nOneSeeds].set(p1,p2,p3,z);
-    data.mapOneSeeds_Pro.insert(std::make_pair(q, &data.OneSeeds_Pro[data.nOneSeeds]));
+    data.mapOneSeeds_Pro.insert(std::make_pair(seedCandidateQuality, &data.OneSeeds_Pro[data.nOneSeeds]));
     ++data.nOneSeeds;
   } 
   /// otherwise, we check if there is a poorer-quality seed that we can kick out
-  else {
-    /// get the worst seed so far 
-    std::multimap<float,InDet::SiSpacePointsProSeed*>::reverse_iterator 
-      l = data.mapOneSeeds_Pro.rbegin();
-    /// if the worst so far is better than what we have on hand, our new candidate
-    /// is unlucky and gets skipped
-    if ((*l).first <= q) return;
-    
-    /// otherwise, we overwrite the worst seed so far with our new friend 
-    InDet::SiSpacePointsProSeed* s = (*l).second;
-    s->set(p1,p2,p3,z);
-
-    /// re-insert it with its proper quality to make sure it ends up in the right place 
-    std::multimap<float,InDet::SiSpacePointsProSeed*>::iterator 
-      i = data.mapOneSeeds_Pro.insert(std::make_pair(q,s));
-    /// and remove the entry with the old quality, which has been kicked out. 
-    for (++i; i!=data.mapOneSeeds_Pro.end(); ++i) {
-      if ((*i).second==s) {
-        data.mapOneSeeds_Pro.erase(i);
-        return;
+  else if (worstQualityInMap > seedCandidateQuality){
+      /// Overwrite the parameters of the worst seed with the new one 
+      worstSeedSoFar->set(p1,p2,p3,z);
+      /// re-insert it with its proper quality to make sure it ends up in the right place 
+      std::multimap<float,InDet::SiSpacePointsProSeed*>::iterator 
+        i = data.mapOneSeeds_Pro.insert(std::make_pair(seedCandidateQuality,worstSeedSoFar));
+      /// and remove the entry with the old quality to avoid duplicates
+      for (++i; i!=data.mapOneSeeds_Pro.end(); ++i) {
+        if ((*i).second==worstSeedSoFar) {
+          data.mapOneSeeds_Pro.erase(i);
+          return;
+        }
       }
-    }
   }
 }
 
@@ -2149,9 +2169,9 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newOneSeedWithCurvaturesComparison
      **/  
 
     /// if we have a SSS seed, boost the quality score by 400 
-    if      (!bottomSPisPixel) seedQuality-=400.;
+    if      (!bottomSPisPixel) seedQuality+=m_seedScoreBonusSSS;
     /// if we have a PPP, boost the quality by 200 
-    else if ( topSPisPixel) seedQuality-=200.;
+    else if ( topSPisPixel) seedQuality+=m_seedScoreBonusPPP;
 
 
     /** 
@@ -2178,7 +2198,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newOneSeedWithCurvaturesComparison
       float radiusOtherSP = (*it_otherSP).second->radius();
       if (std::abs(radiusOtherSP-radiusTopSP) < m_drmin) continue;
       /// if we have a confirmation seed, we improve the score of the seed. 
-      seedQuality -= 200.;
+      seedQuality += m_seedScoreBonusConfirmationSeed;
       /// only look for one confirmation seed! 
       break;
     }
@@ -2195,7 +2215,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newOneSeedWithCurvaturesComparison
     /// if we have a SSS seed, apply the d0 cut. 
     /// Exception: If the SSS seed has a confirmation seed (-400 from SSS and -200 from confirmation), 
     /// then we skip the d0 cut  
-    if (!bottomSPisPixel && originalSeedQuality > m_maxdImpactSSS && seedQuality > originalSeedQuality-500.) continue;
+    if (!bottomSPisPixel && (originalSeedQuality > m_maxdImpactSSS) && (seedQuality > m_seedScoreThresholdSSSConfirmationSeed)) continue;
     /// this is a good seed, save it (unless we have too many seeds per SP)
     newOneSeed(data, SPb, SP0, (*it_commonTopSP).second, Zob, seedQuality);
   } ///< end of loop over top SP candidates
@@ -2226,7 +2246,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::fillSeeds(EventData& data) const
     float quality = (*it_seedCandidate).first;
     theSeed       = (*it_seedCandidate).second;
     /// if this is not the highest-quality seed in the list and we have the first hit in the IBL, require a confirmation seed (score is then boosted by -200 for PPP + -200 for confirmation --> below -200)
-    if (it_seedCandidate!=it_firstSeedCandidate && theSeed->spacepoint0()->radius() < 43. && quality > -200.) continue;
+    if (it_seedCandidate!=it_firstSeedCandidate && theSeed->spacepoint0()->radius() < m_radiusCutIBL && quality > m_seedScoreThresholdPPPConfirmationSeed) continue;
     /// this will return false for strip seeds if the quality of the seed is worse than the one of all of the space points on the seed. 
     if (!theSeed->setQuality(quality)) continue;
     
@@ -2358,13 +2378,29 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newSeed
 }
 
 void InDet::SiSpacePointsSeedMaker_ATLxk::initializeEventData(EventData& data) const {
+  int seedArrayPerSPSize = m_maxOneSize; 
+  if (m_alwaysKeepConfirmedSeeds)  seedArrayPerSPSize = 50; 
   data.initialize(EventData::ATLxk,
                   m_maxsizeSP,
-                  m_maxOneSize,
+                  seedArrayPerSPSize,
                   0, /// maxsize not used
                   m_nBinsR,
                   0, /// sizeRF not used
                   arraySizePhiZ,
                   arraySizePhiZV,
                   m_checketa);
+}
+
+bool InDet::SiSpacePointsSeedMaker_ATLxk::isConfirmedSeed(const InDet::SiSpacePointForSeed* bottomSP, const InDet::SiSpacePointForSeed* topSP, float quality) const{
+
+    /// SSS seeds
+    if (bottomSP->spacepoint->clusterList().second){
+      return (quality < m_seedScoreThresholdSSSConfirmationSeed); 
+    }
+    /// PPP seeds
+    else if (!topSP->spacepoint->clusterList().second){
+      return (quality < m_seedScoreThresholdPPPConfirmationSeed); 
+    }
+    /// PPS: the confirmation is the only quality modifier applied
+    else return (quality < 0.); 
 }

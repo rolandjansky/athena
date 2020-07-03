@@ -42,7 +42,7 @@ conddb.addFolderWithTag("LAR_ONL","/LAR/Align","LARAlign-Repro2011-00",force=Tru
 conddb.blockFolder("/TRT/Align")
 conddb.addFolderWithTag("TRT_OFL","/TRT/Align","TRTAlign_Collision_2009_04",force=True,forceData=True)
 
-print "Haas: RT OVERRIDE 4"
+printfunc ("Haas: RT OVERRIDE 4")
 
 
 #from overlay_scripts/tagin.sh :

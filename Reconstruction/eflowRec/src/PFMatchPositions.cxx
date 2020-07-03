@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -18,7 +18,7 @@ namespace PFMatch {
 
 /* Track position providers */
 
-EtaPhi* TrackEtaPhiInFixedLayersProvider::getPosition(const ITrack* track) {
+EtaPhi TrackEtaPhiInFixedLayersProvider::getPosition(const ITrack* track) const {
   eflowEtaPhiPosition etaphi = track->etaPhiInLayer(m_barrelLayer);
   if (etaphi.getEta() == -999.){
     etaphi = track->etaPhiInLayer(m_endcapLayer);
@@ -26,27 +26,24 @@ EtaPhi* TrackEtaPhiInFixedLayersProvider::getPosition(const ITrack* track) {
   if (etaphi.getEta() == -999.){
     etaphi = track->etaPhiInLayer(m_fcalLayer);
   }
-  m_position = std::make_unique<EtaPhi>(etaphi);
-  return m_position.get();
+  return etaphi;
 }
 
 
 /* Cluster position providers */
 
-EtaPhi* ClusterPlainEtaPhiProvider::getPosition(const ICluster* cluster) {
+EtaPhi ClusterPlainEtaPhiProvider::getPosition(const ICluster* cluster) const {
   eflowEtaPhiPosition etaphi(cluster->eta(), cluster->phi());
-  m_position = std::make_unique<EtaPhi>(etaphi);
-  return m_position.get();
+  return etaphi;
 }
 
 const double ClusterGeometricalCenterProvider::m_etaPhiLowerLimit(0.0025);
 
-EtaPhiWithVariance* ClusterGeometricalCenterProvider::getPosition(const ICluster* cluster) {
+EtaPhiWithVariance ClusterGeometricalCenterProvider::getPosition(const ICluster* cluster) const {
 
   /* Check the status to make sure this function only execute once since it is expensive. */
   if(cluster->calVarianceStatus()) {
-    m_position = std::make_unique<EtaPhiWithVariance>(eflowEtaPhiPosition(cluster->etaMean(), cluster->phiMean()), cluster->etaVariance(), cluster->phiVariance());
-    return m_position.get();
+    return EtaPhiWithVariance(eflowEtaPhiPosition(cluster->etaMean(), cluster->phiMean()), cluster->etaVariance(), cluster->phiVariance());
   }
   cluster->setCalVarianceStatus();
 
@@ -55,9 +52,8 @@ EtaPhiWithVariance* ClusterGeometricalCenterProvider::getPosition(const ICluster
   /* Catch empty clusters */
   if (nCells == 0){
     cluster->etaVariance(m_etaPhiLowerLimit);
-    cluster->phiVariance(m_etaPhiLowerLimit);
-    m_position = std::make_unique<EtaPhiWithVariance>(eflowEtaPhiPosition(cluster->eta(), cluster->phi()), cluster->etaVariance(), cluster->phiVariance());
-    return m_position.get();
+    cluster->phiVariance(m_etaPhiLowerLimit);    
+    return EtaPhiWithVariance(eflowEtaPhiPosition(cluster->eta(), cluster->phi()), cluster->etaVariance(), cluster->phiVariance());;
   }
   assert(nCells > 0);
 
@@ -65,8 +61,7 @@ EtaPhiWithVariance* ClusterGeometricalCenterProvider::getPosition(const ICluster
   if (1 == nCells){ 
     cluster->etaVariance(m_etaPhiLowerLimit);
     cluster->phiVariance(m_etaPhiLowerLimit);
-    m_position = std::make_unique<EtaPhiWithVariance>(eflowEtaPhiPosition(cluster->eta(), cluster->phi()), cluster->etaVariance(), cluster->phiVariance());
-    return m_position.get();
+    return EtaPhiWithVariance(eflowEtaPhiPosition(cluster->eta(), cluster->phi()), cluster->etaVariance(), cluster->phiVariance());
   } 
 
 
@@ -99,8 +94,7 @@ EtaPhiWithVariance* ClusterGeometricalCenterProvider::getPosition(const ICluster
   cluster->phiMean(phiMean);
   cluster->etaVariance(etaVariance);
   cluster->phiVariance(phiVariance);
-  m_position = std::make_unique<EtaPhiWithVariance>(eflowEtaPhiPosition(etaMean, phiMean), cluster->etaVariance(), cluster->phiVariance());
-  return m_position.get();
+  return EtaPhiWithVariance(eflowEtaPhiPosition(etaMean, phiMean), cluster->etaVariance(), cluster->phiVariance());
 }
 
 }

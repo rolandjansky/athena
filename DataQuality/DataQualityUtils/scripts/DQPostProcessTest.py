@@ -1,16 +1,11 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-## *****************************************************************************
-VERSION = '$Id: DQPostProcessTest.py 696014 2015-09-21 16:35:54Z tuna $'
-## *****************************************************************************
-
-#import DataQualityUtils.DQHistogramMergeMod as mod
+from __future__ import print_function
 
 import sys
 
-import ROOT
 from ROOT import gROOT
 gROOT.SetBatch(True)
 
@@ -46,7 +41,7 @@ if len(sys.argv) == 3:
   if sys.argv[2] == "True" or sys.argv[2] == "1":
     isIncremental = True
 
-print '==================== Starting first round of checks ====================\n\n'
+print('==================== Starting first round of checks ====================\n\n')
 
 mf.fitMergedFile_IDPerfMonManager(outFile, isIncremental)
 mf.fitMergedFile_DiMuMonManager(outFile, isIncremental)
@@ -69,8 +64,8 @@ mf.L1CaloPostProcess(outFile, isIncremental)
 mf.SCTPostProcess(outFile, isIncremental)
 mf.VxMon_move(outFile, isIncremental) # may print a harmless error message about write access to EOS
 
-print '\n\n====================== First round of checks are completed============='
-print '==================== Starting second round ====================\n\n'
+print('\n\n====================== First round of checks are completed=============')
+print('==================== Starting second round ====================\n\n')
 
 mf.fitMergedFile_IDPerfMonManager(outFile, isIncremental)
 mf.fitMergedFile_DiMuMonManager(outFile, isIncremental)
@@ -93,5 +88,5 @@ mf.L1CaloPostProcess(outFile, isIncremental)
 mf.SCTPostProcess(outFile, isIncremental)
 mf.VxMon_move(outFile, isIncremental) # may print a harmless error message about write access to EOS
 
-print '\n\n====================== Second round of checks are completed============='
-print 'Postprocessing code should run in T0 without crashes '
+print('\n\n====================== Second round of checks are completed=============')
+print('Postprocessing code should run in T0 without crashes ')

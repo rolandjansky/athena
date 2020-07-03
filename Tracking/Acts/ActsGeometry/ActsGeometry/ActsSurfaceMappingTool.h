@@ -31,8 +31,9 @@ public:
   ActsSurfaceMappingTool(const std::string& type, const std::string& name,
 	           const IInterface* parent);
 
+  virtual
   std::shared_ptr<Acts::SurfaceMaterialMapper>
-  mapper() const
+  mapper() const override
   {
     return m_mapper;
   };

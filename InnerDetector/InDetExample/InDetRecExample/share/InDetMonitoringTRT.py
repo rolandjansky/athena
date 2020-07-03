@@ -92,6 +92,10 @@ InDetTRT_Monitoring_Tool = TRT_Monitoring_Tool (name                         = "
                                                 TrigDecisionObjectName       = "xTrigDecision" if DQMonFlags.useTrigger else ""
                                                 )
 
+if globalflags.DataSource == 'geant4':
+  #No ByteStream error in MC case
+  InDetTRT_Monitoring_Tool.ByteStreamErrors=""
+
 if jobproperties.Beam.beamType()=='collisions':
   from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
   InDetTRT_Monitoring_Tool.FilterTools += [GetFilledBunchFilterTool()]

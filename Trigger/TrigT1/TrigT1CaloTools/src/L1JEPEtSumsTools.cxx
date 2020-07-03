@@ -15,7 +15,7 @@
 #include "TrigT1CaloUtils/CrateEnergy.h"
 #include "TrigT1CaloUtils/SystemEnergy.h"
 #include "TrigT1CaloUtils/DataError.h"
-#include "TrigT1CaloTools/L1JEPEtSumsTools.h"
+#include "L1JEPEtSumsTools.h"
 
 namespace LVL1 {
 

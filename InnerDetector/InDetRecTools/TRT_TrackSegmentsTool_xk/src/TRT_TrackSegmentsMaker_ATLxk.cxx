@@ -265,8 +265,6 @@ InDet::TRT_TrackSegmentsMaker_ATLxk::newRegion
   //
   event_data->m_extEventData = m_extensionTool->newEvent(ctx);
 
-  InDet::TRT_DriftCircleContainer::const_iterator we = trtcontainer->end();
-
   eraseHistogramm(*event_data);
 
   std::vector<IdentifierHash>::const_iterator d=vTRT.begin(),de=vTRT.end();

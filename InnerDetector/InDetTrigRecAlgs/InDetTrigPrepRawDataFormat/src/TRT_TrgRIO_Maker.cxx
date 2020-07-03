@@ -370,12 +370,7 @@ namespace InDet{
 	  return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::TIMEOUT);
 	}
 
-	TRT_RDO_Container::const_iterator 
-	  RDO_collection_iter = p_trtRDOContainer->indexFind(m_listOfTrtIds[i]); 
-
-	if (RDO_collection_iter == p_trtRDOContainer->end()) continue;
-    
-	const InDetRawDataCollection<TRT_RDORawData>* RDO_Collection(*RDO_collection_iter);
+	const InDetRawDataCollection<TRT_RDORawData>* RDO_Collection( p_trtRDOContainer->indexFindPtr(m_listOfTrtIds[i]));
       
 	if (!RDO_Collection) continue;
       

@@ -164,7 +164,14 @@ namespace InDet {
     BooleanProperty m_useOverlap{this, "useOverlapSpCollection", true};
     IntegerProperty m_maxsize{this, "maxSize", 50000};
     IntegerProperty m_maxsizeSP{this, "maxSizeSP", 5000};
+    /// maximum number of seeds to keep per central space point. 
+    /// the top N seeds sorted by quality are preserved if more candidates
+    /// than the limit exist 
     IntegerProperty m_maxOneSize{this, "maxSeedsForSpacePoint", 5};
+    /// This flag will lead to all confirmed seeds (seeds where a second compatible seed
+    /// with a different top spacepoint is found) being kept, even in excess of 
+    /// maxSeedsForSpacePoint above 
+    BooleanProperty m_alwaysKeepConfirmedSeeds{this, "alwaysKeepConfirmedSeeds", false};
     FloatProperty m_etamax{this, "etaMax", 2.7};
     FloatProperty m_r1minv{this, "minVRadius1", 0.};
     FloatProperty m_r1maxv{this, "maxVRadius1", 60.};
@@ -194,6 +201,20 @@ namespace InDet {
     //@{
     BooleanProperty m_checketa{this, "checkEta", false};
     //@}
+
+    /// Scoring modifiers applied when ranking seeds. 
+    /// These are used within the newOneSeedWithCurvaturesComparison method. 
+    /// Be aware that a negative score is considered "better", so these should be 
+    /// set to negative numbers. 
+    ///@{
+    FloatProperty m_seedScoreBonusPPP{this, "seedScoreBonusPPP", -200.};
+    FloatProperty m_seedScoreBonusSSS{this, "seedScoreBonusSSS", -400.};
+    FloatProperty m_seedScoreBonusConfirmationSeed{this, "seedScoreBonusConfirmationSeed", -200.};
+    ///@}
+
+    /// Maximum score to accept 
+    FloatProperty m_maxScore{this, "maximumAcceptedSeedScore", 100.}; 
+
 
     /// @name Properties, which are not used in this implementation of SiSpacePointsSeedMaker_ATLxk class
     //@{
@@ -229,6 +250,24 @@ namespace InDet {
     float m_inverseBinSizePhi{0};   ///<  cache the inverse bin size in phi which we use - needed to evaluate phi bin locations
     float m_inverseBinSizePhiVertex{0};///<  as above but for vertex
     ///@}
+
+
+    /** Seed score thresholds defined based on the modifiers defined 
+    * as configurables above.
+    * These allow to categorise the seeds based on their quality score.
+    * The modifiers above are much larger than the range of the raw 
+    * unmodified scores would be, resulting in a grouping of the scores
+    * based on the modifiers applied. The thresholds are just below 
+    * the value reachable without the additional modifier
+    * @{
+    **/   
+    float m_seedScoreThresholdPPPConfirmationSeed{0.};    ///< max (score is assigned negative sign) score for PPP seeds with confirmation seed requirement. 
+    float m_seedScoreThresholdSSSConfirmationSeed{0.};    ///< max (score is assigned negative sign) score for SSS seeds with confirmation seed requirement. 
+    ///@}
+
+    /// We detect IBL hits via the seed radial location. 
+    /// Place the cut value roughly between IBL and L0
+    static constexpr float m_radiusCutIBL{43.}; 
 
     /// arrays associating bins to each other for SP formation
     std::array<int,arraySizePhiZ> m_nNeighbourCellsBottom;  ///< number of neighbouring phi-z bins to consider when looking for "bottom SP" candidates for each phi-z bin
@@ -286,11 +325,11 @@ namespace InDet {
     * @param[in] p2 Second space point for this seed
     * @param[in] p3 Third space point for this seed
     * @param[in] z z0 IP estimate
-    * @param[in] q quality estimate (based on d0, plus modifiers) 
+    * @param[in] quality quality estimate (based on d0, plus modifiers) 
     **/ 
     void newOneSeed(EventData& data,
                     SiSpacePointForSeed*& p1, SiSpacePointForSeed*& p2,
-                    SiSpacePointForSeed*& p3, float z, float q) const;
+                    SiSpacePointForSeed*& p3, float z, float quality) const;
 
     /** This creates all possible seeds with the passed central and bottom SP, using all top SP 
     * candidates which are stored in the data.CmSp member.  Seeds are scored by a quality score 
@@ -395,6 +434,20 @@ namespace InDet {
     bool isUsed(const Trk::SpacePoint* sp, const Trk::PRDtoTrackMap &prd_to_track_map) const;
 
     void initializeEventData(EventData& data) const;
+
+    /** Helper method to determine if a seed 
+     * is 'confirmed' - this means that a second
+     * seed exists with compatible curvature, 
+     * the same bottom and central SP, but a 
+     * different third SP. This information 
+     * is stored in a modification of the 
+     * seed quality, which we check here. 
+     * @param[in] bottomSP: bottom space point
+     * @param[in] topSP: top space point 
+     * @param[in] quality: seed quality
+     * @return true if the seed is confirmed, false otherwise 
+     **/ 
+    bool isConfirmedSeed(const InDet::SiSpacePointForSeed* bottomSP, const InDet::SiSpacePointForSeed* topSP, float quality) const; 
   };
   
 } // end of name space

@@ -5,23 +5,6 @@
 # Declare the package name:
 atlas_subdir( RDOAnalysis )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          InnerDetector/InDetDetDescr/InDetIdentifier
-                          InnerDetector/InDetRawEvent/InDetRawData
-                          InnerDetector/InDetRawEvent/InDetSimData
-                          InnerDetector/InDetRawEvent/InDetBCM_RawData
-			  InnerDetector/InDetRecEvent/InDetPrepRawData
-                          LArCalorimeter/LArRawEvent
-                          MuonSpectrometer/MuonRDO
-                          MuonSpectrometer/MuonSimData
-                          TileCalorimeter/TileEvent
-			  Tracking/TrkDetDescr/TrkSurfaces
-			  Tracking/TrkEvent/TrkTruthData )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread Table MathMore Minuit Minuit2 Matrix Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
 

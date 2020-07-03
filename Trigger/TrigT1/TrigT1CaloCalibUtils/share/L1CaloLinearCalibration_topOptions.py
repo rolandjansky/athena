@@ -26,7 +26,6 @@ from AthenaCommon.AppMgr import theApp
 import AthenaPoolCnvSvc.AthenaPool
 import IOVDbSvc.IOVDb
 
-svcMgr.AthenaSealSvc.CheckDictionary = True
 theApp.EvtMax                   = 1
 
 from AthenaCommon.GlobalFlags  import globalflags

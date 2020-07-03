@@ -118,8 +118,6 @@ ToolSvc.PixelRecoDbTool.InputSource = 1
 from AthenaCommon.AppMgr import ServiceMgr
 ServiceMgr.MessageSvc.enableSuppression = False
 ServiceMgr.MessageSvc.Format       = "% F%50W%S%7W%R%T %0W%M"
-#ServiceMgr.AthenaSealSvc.OutputLevel = 1
-#ServiceMgr.AthenaSealSvc.CheckDictionary = True
 
 OutputNameString = 'CheckSmearing'
 
@@ -466,7 +464,7 @@ print InDetTruthTrackCreation
 if TrkDetFlags.ISF_FatrasCustomGeometry():
     InDetKeys.PixelClustersTruth = "PRD_MultiTruthPlanarPixel"
     InDetKeys.SCT_ClustersTruth = "PRD_MultiTruthPlanarSCT"
-InDetFlags.doStandardPlots = True
+InDetFlags.doPhysValMon = True
 InDetRecTestBLayerTool=None
 
 InDetTrackSummaryToolSharedHits=InDetTrackSummaryTool

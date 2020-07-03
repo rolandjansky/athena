@@ -45,6 +45,7 @@ atlas_add_library( InDetTestBLayerLib
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier EventPrimitives GaudiKernel InDetRecToolInterfaces 
 		   TrkEventPrimitives TrkParameters TrkToolInterfaces TrkExInterfaces 
+                   InDetConditionsSummaryService
                    PRIVATE_LINK_LIBRARIES AtlasDetDescr IdDictDetDescr InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry Particle 
 		   TrkGeometry TrkSurfaces TrkMeasurementBase TrkTrack )
 

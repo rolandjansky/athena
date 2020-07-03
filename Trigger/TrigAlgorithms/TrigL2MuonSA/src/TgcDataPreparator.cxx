@@ -4,9 +4,9 @@
 
 #include <cmath>
 
-#include "TrigL2MuonSA/TgcDataPreparator.h"
-#include "TrigL2MuonSA/TgcData.h"
-#include "TrigL2MuonSA/RecMuonRoIUtils.h"
+#include "TgcDataPreparator.h"
+#include "TgcData.h"
+#include "RecMuonRoIUtils.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"

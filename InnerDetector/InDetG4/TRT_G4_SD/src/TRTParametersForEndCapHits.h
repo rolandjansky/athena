@@ -1,14 +1,16 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_G4_SD_TRTParametersForEndCapHits_hh
 #define TRT_G4_SD_TRTParametersForEndCapHits_hh
 
+#include "CxxUtils/checker_macros.h"
+
 class TRTParameters;
 class TRTProcessingOfEndCapHits;
 
-class TRTParametersForEndCapHits
+class ATLAS_NOT_THREAD_SAFE TRTParametersForEndCapHits // Thread unsafe TRTParameters and TRTProcessingOfEndCapHits classes are used.
 {
 public:
   TRTParametersForEndCapHits(TRTProcessingOfEndCapHits*);

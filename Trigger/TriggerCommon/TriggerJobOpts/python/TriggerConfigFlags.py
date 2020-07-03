@@ -28,10 +28,12 @@ def createTriggerFlags():
     # changes decoding of L1 so that allways all configured chains are enabled, testing mode
     flags.addFlag("Trigger.L1Decoder.forceEnableAllChains", False)
 
-    # L1 decoding options
-    flags.addFlag('Trigger.decodeLegacyL1', True)
-    flags.addFlag('Trigger.decodePhaseIL1', False)
-    
+    # Enable Run-3 LVL1 simulation and/or decoding
+    flags.addFlag('Trigger.enableL1Phase1', False)
+
+    # Enable Run-2 L1Calo simulation and/or decoding (possible even if enablePhase1 is True)
+    flags.addFlag('Trigger.enableL1CaloLegacy', True)
+
     # if 1, Run1 decoding version is set; if 2, Run2; if 3, Run 3 
     def EDMDecodingVersion(flags):
         log.debug("Attempting to determine EDMDecodingVersion.")

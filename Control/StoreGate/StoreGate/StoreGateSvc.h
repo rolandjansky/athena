@@ -106,7 +106,6 @@ class IOVSvc;
 class IOVSvcTool;
 class PileUpMergeSvc;
 class SGDeleteAlg;
-class ThinningSvc;
 class ActiveStoreSvc;
 class CondSvc;
 namespace SG { 
@@ -860,7 +859,6 @@ private:
   void clearProxyPayload(SG::DataProxy*);
 
   ///access typeless_record
-  friend class ThinningSvc;
   friend class SG::VarHandleBase;
   friend 
   PyObject* 

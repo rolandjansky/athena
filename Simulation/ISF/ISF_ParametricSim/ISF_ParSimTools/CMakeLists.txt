@@ -5,22 +5,6 @@
 # Declare the package name:
 atlas_subdir( ISF_ParSimTools )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Event/xAOD/xAODTracking
-                          GaudiKernel
-                          InnerDetector/InDetConditions/InDetBeamSpotService
-                          InnerDetector/InDetConditions/BeamSpotConditionsData
-                          Simulation/ISF/ISF_Core/ISF_Interfaces
-                          Simulation/ISF/ISF_ParametricSim/ISF_ParSimInterfaces
-                          Tracking/TrkExtrapolation/TrkExInterfaces
-                          PRIVATE
-                          Simulation/ISF/ISF_Core/ISF_Event
-                          Tools/PathResolver
-                          Tracking/TrkEvent/TrkParameters )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread Matrix )

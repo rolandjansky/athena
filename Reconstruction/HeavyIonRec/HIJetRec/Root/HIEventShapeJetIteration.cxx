@@ -55,6 +55,8 @@ int HIEventShapeJetIteration::execute() const
 
   const HIEventShapeIndex* es_index = HIEventShapeMap::getIndex(m_inputEventShapeKey.key());
   //New implementation after moving away from mutable
+  ATH_MSG_INFO("HIEventShapeJetIteration: found index for  " << m_inputEventShapeKey.key());
+
   if(es_index==nullptr)
   {
     ATH_MSG_INFO("No HIEventShapeIndex w/ name " << m_inputEventShapeKey.key() << " adding it to the map");
@@ -64,7 +66,9 @@ int HIEventShapeJetIteration::execute() const
   }
 
   const HIEventShapeIndex* other_index = HIEventShapeMap::getIndex(m_outputEventShapeKey.key());
-  if(!other_index) HIEventShapeMap::insert( m_inputEventShapeKey.key(), *es_index );
+  if(!other_index) {
+   HIEventShapeMap::getMap()->insert( m_outputEventShapeKey.key(), *es_index );
+ }
   //End of new implementation
 
   const xAOD::JetContainer* theCaloJets=0;

@@ -74,14 +74,22 @@ StatusCode HepMCTruthReader::execute() {
 void HepMCTruthReader::printEvent(const HepMC::GenEvent* event) {
   cout << "--------------------------------------------------------------------------------\n";
   cout << "GenEvent: #" << "NNN" << "\n";
+#ifdef HEPMC3 
+  cout << " Entries this event: " << event->vertices().size() << " vertices, " << event->particles().size() << " particles.\n";
+#else 
   cout << " Entries this event: " << event->vertices_size() << " vertices, " << event->particles_size() << " particles.\n";
   // Particles and vertices
+#endif
   cout << "                                    GenParticle Legend\n";
   cout << "        Barcode   PDG ID      ( Px,       Py,       Pz,     E ) Stat  DecayVtx\n";
   cout << "--------------------------------------------------------------------------------\n";
+#ifdef HEPMC3
+  for (auto iv: ((HepMC::GenEvent*)event)->vertices()) {  printVertex(iv);  } 
+#else
   for (HepMC::GenEvent::vertex_const_iterator iv = event->vertices_begin(); iv != event->vertices_end(); ++iv) {
     printVertex(*iv);
   }
+#endif
   cout << "--------------------------------------------------------------------------------\n";
 }
 
@@ -130,7 +138,7 @@ void HepMCTruthReader::printVertex(const HepMC::GenVertexPtr vertex) {
     //  print out gives us a unique tag for the particle.
     if (vertex->position().x() != 0.0 && vertex->position().y() != 0.0 && vertex->position().z() != 0.0) {
       cout.width(9);
-      cout << (void*)vertex;
+      cout << HepMC::raw_pointer(vertex);
       cout << " ID:";
       cout.width(5);
       cout << vertex->id();
@@ -154,7 +162,7 @@ void HepMCTruthReader::printVertex(const HepMC::GenVertexPtr vertex) {
       cout << endl;
     } else {
       cout.width(9);
-      cout << (void*)vertex;
+      cout << HepMC::raw_pointer(vertex);
       cout << " ID:";
       cout.width(5);
       cout << vertex->id();
@@ -170,6 +178,24 @@ void HepMCTruthReader::printVertex(const HepMC::GenVertexPtr vertex) {
   //   cout << endl;
   // }
   // Print out all the incoming, then outgoing particles
+#ifdef HEPMC3
+  for (auto  iPIn: vertex->particles_in()) {       
+    if ( iPIn == vertex->particles_in().front() ) {
+      cout << " I: ";
+      cout.width(2);
+      cout << vertex->particles_in().size();
+    } else cout << "      ";
+    printParticle(iPIn);
+  }
+  for (auto iPOut: vertex->particles_out()) {
+    if ( iPOut == vertex->particles_out().front()) {
+      cout << " O: ";
+      cout.width(2);
+      cout << vertex->particles_out().size();
+    } else cout << "      ";
+    printParticle(iPOut);
+  }  
+#else  
   for (HepMC::GenVertex::particles_in_const_iterator iPIn = vertex->particles_in_const_begin();
        iPIn != vertex->particles_in_const_end(); ++iPIn) {       
     if ( iPIn == vertex->particles_in_const_begin() ) {
@@ -189,6 +215,7 @@ void HepMCTruthReader::printVertex(const HepMC::GenVertexPtr vertex) {
     printParticle(*iPOut);
   }
 
+#endif
   cout.flags(f); 
 }
 

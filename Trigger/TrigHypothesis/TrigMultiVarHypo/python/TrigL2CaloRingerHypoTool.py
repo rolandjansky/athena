@@ -122,3 +122,4 @@ def TrigL2CaloRingerHypoToolFromDict( d ):
     return tool
   else:        
     return _IncTool( name, __cand(cparts[0]), __th(cparts[0]), __sel(cparts[0]) )
+

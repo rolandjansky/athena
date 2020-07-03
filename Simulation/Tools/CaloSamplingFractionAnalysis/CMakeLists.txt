@@ -5,26 +5,6 @@
 # Declare the package name:
 atlas_subdir( CaloSamplingFractionAnalysis )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-                          Calorimeter/CaloDetDescr
-                          Calorimeter/CaloEvent
-                          Calorimeter/CaloIdentifier
-                          Calorimeter/CaloSimEvent
-                          Control/AthenaBaseComps
-                          DetectorDescription/GeoModel/GeoAdaptors
-                          DetectorDescription/Identifier
-                          Event/EventInfo
-                          External/AtlasHepMC/AtlasHepMC
-                          LArCalorimeter/LArElecCalib
-                          LArCalorimeter/LArG4/LArG4RunControl
-                          LArCalorimeter/LArGeoModel/LArReadoutGeometry
-                          LArCalorimeter/LArSimEvent
-                          TileCalorimeter/TileDetDescr
-                          TileCalorimeter/TileSimEvent )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( HepMC )

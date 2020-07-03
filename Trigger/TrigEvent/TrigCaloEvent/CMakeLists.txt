@@ -7,8 +7,8 @@ atlas_subdir( TrigCaloEvent )
 atlas_add_library( TrigCaloEvent
                    src/*.cxx
                    PUBLIC_HEADERS TrigCaloEvent
-                   LINK_LIBRARIES AthContainers AthLinks AthenaKernel CaloGeoHelpers CxxUtils EventKernel FourMom GaudiKernel Navigation TrigMissingEtEvent xAODCaloEvent xAODTrigMinBias
-                   PRIVATE_LINK_LIBRARIES CaloEvent TrigNavigationLib xAODHIEvent xAODTrigCalo xAODTrigL1Calo xAODTrigRinger )
+                   LINK_LIBRARIES AthContainers AthLinks AthenaKernel CaloGeoHelpers CxxUtils EventKernel FourMom GaudiKernel Navigation TrigMissingEtEvent xAODCaloEvent xAODHIEvent xAODMuon xAODTrigCalo xAODTrigL1Calo xAODTrigMinBias xAODTrigRinger
+                   PRIVATE_LINK_LIBRARIES CaloEvent TrigNavigationLib )
 
 atlas_add_sercnv_library( TrigCaloEventSerCnv
                           FILES TrigCaloEvent/TrigCaloCluster.h TrigCaloEvent/TrigCaloClusterContainer.h TrigCaloEvent/TrigEMCluster.h TrigCaloEvent/TrigEMClusterContainer.h TrigCaloEvent/RingerRings.h TrigCaloEvent/RingerRingsContainer.h TrigCaloEvent/TrigTauCluster.h TrigCaloEvent/TrigTauClusterContainer.h TrigCaloEvent/TrigTauClusterDetails.h TrigCaloEvent/TrigTauClusterDetailsContainer.h TrigCaloEvent/TrigT2Jet.h TrigCaloEvent/TrigT2JetContainer.h TrigCaloEvent/Trig3Momentum.h TrigCaloEvent/TrigT2MbtsBits.h TrigCaloEvent/TrigT2MbtsBitsContainer.h TrigCaloEvent/TrigT2ZdcSignals.h TrigCaloEvent/TrigT2ZdcSignalsContainer.h TrigCaloEvent/TrigRNNOutput.h TrigCaloEvent/TrigRNNOutputContainer.h CaloEvent/CaloCellContainer.h CaloEvent/CaloClusterContainer.h CaloEvent/CaloShowerContainer.h CaloEvent/CaloTowerContainer.h CaloEvent/CaloCellLinkContainer.h

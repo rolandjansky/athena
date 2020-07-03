@@ -27,22 +27,12 @@ KineHepMcmap::giveParticle_getkine	(HepMC::GenParticlePtr p ) const
 HepMC::GenParticlePtr
 KineHepMcmap::givekine_getParticle	( const int kine ) const
 {
-    if (kine <= 0) return 0;
-    HepMC::GenParticlePtr	part =	nullptr;
-    bool not_found = true;
-    HepMC::GenEvent::particle_const_iterator p = m_evt->particles_begin();
-    do
+    if (kine <= 0) return nullptr;
+    for (HepMC::GenParticlePtr  part: *m_evt)
     {
-	int pkine = giveParticle_getkine(*p);
-	if (pkine == kine)
-	{
-	    not_found = false;
-	    part = *p;
-	}
-	++p;
-    } while (p != m_evt->particles_end() && not_found);
-
-    return part;
+         if (giveParticle_getkine(part) == kine )  return part;
+    }
+    return  nullptr;
 }
 
 
@@ -57,7 +47,7 @@ KineHepMcmap::givekine_getParticle	( const int kine ) const
 //         int kine = 120;
 	 
 //	 HepMC::KineHepMcmap  kinm(evt )   ;
-//	 HepMC::GenParticle* myparticle = kinm.givekine_getParticle( kine);
+//	 HepMC::GenParticlePtr myparticle = kinm.givekine_getParticle( kine);
 //	 int mykine = kinm.giveParticle_getkine(  myparticle);
 //	 cout << "KineHepMcmap geant particle 120 =  " << mykine << endl; 
 //	 if (myparticle) myparticle->print();

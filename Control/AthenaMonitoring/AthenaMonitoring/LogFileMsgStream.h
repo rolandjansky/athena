@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LOGFILEMSGSTREAM_H
@@ -68,7 +68,7 @@ class LogFileMsgStream : public MsgStream {
     return MsgStream::doOutput();
   }
   
-  void setFormat(std::string str) {
+  void setFormat(const std::string& str) {
     m_FormatString=str;
   }
   

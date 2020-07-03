@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -17,17 +17,21 @@
 //                                                             //
 /////////////////////////////////////////////////////////////////
 #include "TRTDigSettings.h"
+
 #include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h" //For speed of light
-#include "GaudiKernel/Algorithm.h"         //For adding properties to an algorithm
-#include "GaudiKernel/AlgTool.h"           //For adding properties to an algtool
-#include <iostream>
-#include <limits>
 
 //Geomodel
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
+
+#include "GaudiKernel/Algorithm.h"         //For adding properties to an algorithm
+#include "GaudiKernel/AlgTool.h"           //For adding properties to an algtool
+
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/PhysicalConstants.h" //For speed of light
+
+#include <iostream>
+#include <limits>
 
 // RDBAccessSvc (Interface to the DD database) has been removed since
 // TRT_Digitization-01-00-11 because the fetched values are correctly
@@ -318,10 +322,10 @@ void TRTDigSettings::defineNewVariable(std::string name, double * datamember,std
 
   //sanity checks:
   if (m_intboolparMap.find(name)!=m_intboolparMap.end() || m_doubleparMap.find(name)!=m_doubleparMap.end()) {
-    std::cout << "TRTDigSettings: Multiple definitions of "<<name<<std::endl; exit(1);
+    msg(MSG::FATAL) << "TRTDigSettings: Multiple definitions of "<<name<<endmsg; return;
   }
   if (lowrange > highrange || lowrange*unitval<=m_propertyNotSetMagicNumber ) {
-    std::cout << "TRTDigSettings: Problem in range of par "<<name<<std::endl; exit(1);
+    msg(MSG::FATAL) << "TRTDigSettings: Problem in range of par "<<name<<endmsg; return;
   }
 
   doubleparameter p;
@@ -342,10 +346,10 @@ void TRTDigSettings::defineNewUIntVariable(std::string name,unsigned int * datam
                                            unsigned int lowrange, unsigned int highrange) {
   //sanity checks:
   if (m_intboolparMap.find(name)!=m_intboolparMap.end() || m_doubleparMap.find(name)!=m_doubleparMap.end()) {
-    std::cout << "TRTDigSettings: Multiple definitions of "<<name<<std::endl; exit(1);
+    msg(MSG::FATAL) << "TRTDigSettings: Multiple definitions of "<<name<<endmsg; return;
   }
   if (lowrange > highrange ) {
-    std::cout << "TRTDigSettings: Problem in range of par "<<name<<std::endl; exit(1);
+    msg(MSG::FATAL) << "TRTDigSettings: Problem in range of par "<<name<<endmsg; return;
   }
 
   intboolparameter p;
@@ -367,10 +371,10 @@ void TRTDigSettings::defineNewIntVariable(std::string name,int * datamember,std:
                                           int lowrange, int highrange) {
   //sanity checks:
   if (m_intboolparMap.find(name)!=m_intboolparMap.end() || m_doubleparMap.find(name)!=m_doubleparMap.end()) {
-    std::cout << "TRTDigSettings: Multiple definitions of "<<name<<std::endl; exit(1);
+    msg(MSG::FATAL) << "TRTDigSettings: Multiple definitions of "<<name<<endmsg; return;
   }
   if (lowrange > highrange || lowrange<=m_propertyNotSetMagicNumber_int ) {
-    std::cout << "TRTDigSettings: Problem in range of par "<<name<<std::endl; exit(1);
+    msg(MSG::FATAL) << "TRTDigSettings: Problem in range of par "<<name<<endmsg; return;
   }
 
   intboolparameter p;
@@ -391,7 +395,7 @@ void TRTDigSettings::defineNewIntVariable(std::string name,int * datamember,std:
 void TRTDigSettings::defineNewBoolVariable(std::string name,bool * datamember,std::string description) {
   //sanity checks:
   if (m_intboolparMap.find(name)!=m_intboolparMap.end() || m_doubleparMap.find(name)!=m_doubleparMap.end()) {
-    std::cout << "TRTDigSettings: Multiple definitions of "<<name<<std::endl; exit(1);
+    msg(MSG::FATAL) << "TRTDigSettings: Multiple definitions of "<<name<<endmsg; return;
   }
 
   intboolparameter p;

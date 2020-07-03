@@ -79,6 +79,7 @@ namespace InDet {
     int fillOneSeeds{0};
     int nprint{0};
     int nseeds{0};
+    int seedPerSpCapacity{0}; ///< capacity for seeds from a single SP in the respective storage vector
 
     float K{0.};      ///< conversion from pT in MeV to twice the circle radius in the transverse plane in mm 
     float dzdrmin{0.};    //<! store eta cuts interpreted as dz/dr 
@@ -218,7 +219,7 @@ namespace InDet {
       if (type!=Cosmic) {
         Zo.resize(maxsizeSP, 0.);
       }
-
+      seedPerSpCapacity = maxOneSize; 
       if (type==ATLxk) {
         OneSeeds_Pro.resize(maxOneSize);
       } else if (type==BeamGas or type==HeavyIon or type==LowMomentum or type==Trigger) {

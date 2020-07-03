@@ -29,6 +29,7 @@ namespace Analysis {
     ATH_MSG_DEBUG( "Inizializing containers:"        );
     ATH_MSG_DEBUG( "    ** " << m_BTagCollectionName  );
 
+    ATH_CHECK( m_JetCollectionName.initialize() );
     ATH_CHECK( m_BTagCollectionName.initialize() );
     ATH_CHECK( m_bTagJetDecorLinkName.initialize() );
 
@@ -119,7 +120,16 @@ namespace Analysis {
   StatusCode BTagHighLevelAugmenterAlg::execute() {
     ATH_MSG_DEBUG( "Executing " << name() << "... " );
   
-    SG::ReadHandle< xAOD::BTaggingContainer > h_bTagContainer( m_BTagCollectionName);
+    EventContext ctx = Gaudi::Hive::currentContext();
+
+    //retrieve the Jet container
+    SG::ReadHandle<xAOD::JetContainer> h_JetCollectionName (m_JetCollectionName, ctx);
+    if (!h_JetCollectionName.isValid()) {
+      ATH_MSG_ERROR( " cannot retrieve jet container with key " << m_JetCollectionName.key()  );
+      return StatusCode::FAILURE;
+    }
+
+    SG::ReadHandle< xAOD::BTaggingContainer > h_bTagContainer( m_BTagCollectionName, ctx);
     CHECK( h_bTagContainer.isValid() );
     const xAOD::BTaggingContainer* btags = h_bTagContainer.get();
     ATH_MSG_DEBUG( "Retrieved " << btags->size() << " input btagging..." );

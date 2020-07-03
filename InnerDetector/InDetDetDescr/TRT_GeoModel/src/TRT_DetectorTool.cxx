@@ -20,6 +20,8 @@
 #include "AthenaKernel/ClassID_traits.h"
 #include "SGTools/DataProxy.h"
 
+#include "CxxUtils/checker_macros.h"
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Please consult the README for more information about which options to set in your joboptions file. //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -220,7 +222,7 @@ StatusCode TRT_DetectorTool::create()
 
 
 StatusCode 
-TRT_DetectorTool::registerCallback()
+TRT_DetectorTool::registerCallback ATLAS_NOT_THREAD_SAFE ()
 {
   // This callback is kept because the folder never changes.
 

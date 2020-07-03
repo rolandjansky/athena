@@ -61,6 +61,9 @@
 #include "StoreGate/ReadHandleKeyArray.h"
 #include "JetEDM/PseudoJetVector.h"
 #include "JetRec/PseudoJetContainer.h"
+#ifndef GENERATIONBASE
+  #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
+#endif
 
 class JetRecTool
 : public asg::AsgTool,
@@ -156,6 +159,12 @@ private:
   mutable TStopwatch m_pjcclock;
   mutable std::vector<TStopwatch> m_modclocks;
   mutable std::vector<TStopwatch> m_conclocks;
+
+#ifndef GENERATIONBASE
+  ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
+#endif
+
+  const double m_mevtogev = 0.001;
 
 };
 

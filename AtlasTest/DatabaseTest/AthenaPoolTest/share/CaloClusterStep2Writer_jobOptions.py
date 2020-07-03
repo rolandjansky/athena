@@ -52,14 +52,6 @@ theApp.Dlls     += [ "AthenaPoolTest" ]
 theApp.TopAlg   += [ "CaloClusterFakeWriter" ]
 
 #--------------------------------------------------------------
-# JobOptions for the loading of the AthenaSealSvc
-#--------------------------------------------------------------
-include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-
-
-# Check the dictionary in memory for completeness
-#AthenaSealSvc.CheckDictionary = true;
-#--------------------------------------------------------------
 # Output options
 #--------------------------------------------------------------
 # Converters:

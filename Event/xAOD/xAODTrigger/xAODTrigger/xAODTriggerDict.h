@@ -15,6 +15,13 @@
 #include "xAODTrigger/versions/TriggerMenuContainer_v1.h"
 #include "xAODTrigger/versions/TriggerMenuAuxContainer_v1.h"
 
+#include "xAODTrigger/TriggerMenuJson.h"
+#include "xAODTrigger/TriggerMenuJsonContainer.h"
+#include "xAODTrigger/TriggerMenuJsonAuxContainer.h"
+#include "xAODTrigger/versions/TriggerMenuJson_v1.h"
+#include "xAODTrigger/versions/TriggerMenuJsonContainer_v1.h"
+#include "xAODTrigger/versions/TriggerMenuJsonAuxContainer_v1.h"
+
 #include "xAODTrigger/MuonRoI.h"
 #include "xAODTrigger/MuonRoIContainer.h"
 #include "xAODTrigger/MuonRoIAuxContainer.h"
@@ -105,6 +112,7 @@ namespace {
    struct GCCXML_DUMMY_INSTANTIATION_XAODTRIGGER {
       // Local type(s).
       XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, TriggerMenuContainer_v1 );
+      XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, TriggerMenuJsonContainer_v1 );
       XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, BunchConfContainer_v1 );
 
       XAOD_INSTANTIATE_NS_CONTAINER_TYPES( xAOD, MuonRoIContainer_v1 );

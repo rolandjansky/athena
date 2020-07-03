@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_RAWDATABYTESTREAM_TRT_RODDECODER_H
@@ -19,7 +19,6 @@
 /*
  * TRT Tools we use
  */
-#include "TRT_ConditionsServices/ITRT_ByteStream_ConditionsSvc.h"
 #include "TRT_Cabling/ITRT_CablingSvc.h"
 
 /*
@@ -63,11 +62,18 @@
 #include "InDetIdentifier/TRT_ID.h"
 
 /*
+ * For cache
+ */
+#include "AthenaKernel/SlotSpecificObj.h"
+#include "CxxUtils/checker_macros.h"
+
+/*
  * STL
  */
-#include <vector>
+#include <atomic>
 #include <map>
-
+#include <mutex>
+#include <vector>
 
 // the tool to decode a ROB frament
 
@@ -92,15 +98,14 @@ public:
 
   //! the method to fill the IDC
   virtual StatusCode fillCollection ( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* robFrag,
-			      TRT_RDO_Container* rdoIdc,
-			      const std::vector<IdentifierHash>* vecHash = 0) override;
+				      TRT_RDO_Container* rdoIdc,
+				      TRT_BSErrContainer* bserr,
+				      const std::vector<IdentifierHash>* vecHash = 0) override;
 
 
  private:
 
    ServiceHandle<ITRT_CablingSvc>   m_CablingSvc;
-
-   ServiceHandle<ITRT_ByteStream_ConditionsSvc> m_bsErrSvc;
 
    /*
     * Do we look for Front-End Errors at all?
@@ -157,6 +162,10 @@ public:
 
    uint32_t m_Nrdos;              // Number of RDOs created
 
+   mutable std::atomic<int> m_err_count_fillCollection{0};
+   mutable std::atomic<int> m_err_count_int_fillMinimalCompress{0};
+   mutable std::atomic<int> m_err_count_int_fillFullCompress{0};
+
    // This replaces the IOVCALLBACK
    SG::ReadCondHandleKey<CondAttrListCollection> m_CompressKey{this,"keyName","/TRT/Onl/ROD/Compress","in-key"};
    mutable std::mutex m_cacheMutex;
@@ -180,7 +189,19 @@ private:
 
    StatusCode ReadCompressTableFile( std::string TableFilename );
    StatusCode ReadCompressTableDB( std::string Tag );
- 
+
+   // Struct for event cache
+   struct CacheEntry {
+     EventContext::ContextEvt_t m_evt{EventContext::INVALID_CONTEXT_EVT};
+     uint32_t Last_print_L1ID = 0xffffffff;
+     uint32_t Last_print_BCID = 0xffffffff;
+     void reset() {
+       Last_print_L1ID = 0xffffffff;
+       Last_print_BCID = 0xffffffff;
+     }
+   };
+   mutable SG::SlotSpecificObj<CacheEntry> m_cache ATLAS_THREAD_SAFE; // Guarded by m_cacheMutex
+
 };
 
 #endif

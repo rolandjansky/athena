@@ -24,7 +24,6 @@ JETM11Stream.AcceptAlgs(['JETM11Kernel'])
 #======================================================================================================================
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
-# cutExpression = "(count(Electrons.DFCommonElectronsLHLoose && Electrons.DFCommonElectrons_pt > (20 * GeV) && abs(Electrons.DFCommonElectrons_eta) < 2.47) + count(Muons.DFCommonMuonsPreselection && Muons.pt > (20*GeV) && abs(Muon.eta) < 2.47) ) >= 1"
 singleElTriggers = TriggerLists.single_el_Trig()
 singleMuTriggers = TriggerLists.single_mu_Trig()
 cutExpression = "(count(Electrons.DFCommonElectronsLHLoose && Electrons.pt > (24 * GeV) && abs(Electrons.eta) < 2.47) + count(Muons.DFCommonMuonsPreselection && Muons.pt > (24*GeV) && abs(Muons.eta) < 2.47) ) >= 1"

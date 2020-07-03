@@ -61,7 +61,7 @@ rec.projectName = 'IS_SIMULATION'
 DataInputCollections=runArgs.inputRDO_BKGFile
 athenaCommonFlags.PoolRDOInput=runArgs.inputRDO_BKGFile
 
-print "================ DetFlags ================ "
+printfunc ("================ DetFlags ================ ")
 if 'DetFlags' in dir():
     overlaylog.warning("DetFlags already defined! This means DetFlags should have been fully configured already..")
 else:
@@ -135,7 +135,7 @@ if hasattr(runArgs, "triggerConfig") and runArgs.triggerConfig!="NONE":
     cfg = TriggerConfigGetter("HIT2RDO")
 
 
-print "================ Start ================= "
+printfunc ("================ Start ================= ")
 from AthenaCommon.AlgSequence import AlgSequence
 topSeq = AlgSequence()
 ## Set Overall per-Algorithm time-limit on the AlgSequence
@@ -189,7 +189,7 @@ digitizationFlags.rndmSeedList.printSeeds()
 
 
 #================================================================
-print "overlay_trf: final outStream = ", outStream
+printfunc ("overlay_trf: final outStream = " + str(outStream))
 
 #================================================================
 # Logging
@@ -217,5 +217,4 @@ if hasattr(runArgs, 'AMITag'):
     if runArgs.AMITag != "NONE":
         ServiceMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag" : runArgs.AMITag})
 
-#print "OverlayPool_tf.py: at the end. job=\n", job
-print "\nOverlayPool_tf.py: at the end. ServiceMgr=\n", ServiceMgr
+printfunc ("\nOverlayPool_tf.py: at the end. ServiceMgr=\n" + str(ServiceMgr))

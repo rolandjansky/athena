@@ -4,7 +4,7 @@
 
 #include "TrigNavigation/Navigation.h"
 
-#include "TrigValAlgs/TrigSlimValAlg.h"
+#include "TrigSlimValAlg.h"
 #include "TrigNavTools/getFeatureOccurrences.h"
 
 TrigSlimValAlg::TrigSlimValAlg(const std::string& name, ISvcLocator *pSvcLocator) :

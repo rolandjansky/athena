@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "src/TRTSensitiveDetector.h"
@@ -31,6 +31,8 @@
 #include "G4AtlasTools/DerivedG4PhysicalVolume.h"
 #include "G4AtlasTools/DerivedG4SensitiveDetectorTestSetting.h"
 #include "MCTruth/TrackHelper.h"
+
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // Thread unsafe TRTSensitiveDetector class is tested in this unit test.
 
 //set environment
 class GaudiEnvironment : public ::testing::Environment {

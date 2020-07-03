@@ -26,10 +26,6 @@ MessageSvc.OutputLevel      = 3
 MessageSvc.debugLimit       = 2000
 MessageSvc.infoLimit        = 2000
 
-#data dictionqary
-AthenaSealSvc = Service( "AthenaSealSvc" )
-AthenaSealSvc.CheckDictionary = TRUE
-
 #configure IOVRegistrationSvc
 include( "RegistrationServices/IOVRegistrationSvc_jobOptions.py" )
 regSvc = Service( "IOVRegistrationSvc" )

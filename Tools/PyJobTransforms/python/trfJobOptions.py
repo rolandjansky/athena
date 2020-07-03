@@ -55,7 +55,7 @@ class JobOptionsTemplate(object):
 
     ## @brief Write the runArgs Job Options file
     def writeRunArgs(self, input = dict(), output = dict()):
-        msg.info('Writing runArgs to file \"%s\"' % self._runArgsFile)
+        msg.info('Writing runArgs to file \"%s\"', self._runArgsFile)
 
         ## Check consistency btw --CA flag and provided skeletons:
         if 'CA' in self._exe.conf.argdict:
@@ -225,13 +225,13 @@ class JobOptionsTemplate(object):
             msg.warning('No runArgs available')
 
         if not findFile(os.environ["JOBOPTSEARCHPATH"], self._runArgsFile):
-            msg.warning('Could not find runArgs file %s' % self._runArgsFile)
+            msg.warning('Could not find runArgs file %s', self._runArgsFile)
 
         # Check the skeleton(s):
         if  self._exe._skeleton:
             for skeleton in self._exe._skeleton:
                 if not findFile(os.environ["JOBOPTSEARCHPATH"], skeleton):
-                    msg.warning('Could not find job options skeleton file %s' % skeleton)
+                    msg.warning('Could not find job options skeleton file %s', skeleton)
 
   
     ## @brief Get the runArgs and skeleton joboptions, Master function

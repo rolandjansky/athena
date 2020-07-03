@@ -2,9 +2,9 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigL2MuonSA/MdtRegionDefiner.h"
+#include "MdtRegionDefiner.h"
 
-#include "TrigL2MuonSA/MdtRegion.h"
+#include "MdtRegion.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/MuonStation.h"

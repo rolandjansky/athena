@@ -122,7 +122,7 @@ if hasattr(runArgs, "triggerConfig") and runArgs.triggerConfig!="NONE":
     cfg = TriggerConfigGetter("HIT2RDO")
 
 
-print "================ DetFlags ================ "
+printfunc ("================ DetFlags ================ ")
 if 'DetFlags' in dir():
     overlaylog.warning("DetFlags already defined! This means DetFlags should have been fully configured already..")
 else:
@@ -207,7 +207,7 @@ if hasattr(runArgs,"WriteRDOFileMetaData"):
         writeDigitizationMetadata()
 
 #================================================================
-print "overlay_trf: final outStream = ", outStream
+printfunc ("overlay_trf: final outStream = " + str(outStream))
 
 #================================================================
 # Logging
@@ -232,5 +232,4 @@ if hasattr(runArgs, "postExec") and runArgs.postExec != 'NONE':
     for cmd in runArgs.postExec:
         exec(cmd)
 
-#print "OverlayBS_tf.py: at the end. job=\n", job
-print "\nOverlayBS_tf.py: at the end. ServiceMgr=\n", ServiceMgr
+printfunc ("\nOverlayBS_tf.py: at the end. ServiceMgr=\n" + str(ServiceMgr))

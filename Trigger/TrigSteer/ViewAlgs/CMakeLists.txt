@@ -11,4 +11,4 @@ atlas_add_library( ViewAlgsLib
 
 atlas_add_component( ViewAlgs
                      src/*.cxx src/components/*.cxx
-                     LINK_LIBRARIES AthViews AthenaBaseComps CxxUtils DecisionHandlingLib MuonCombinedEvent StoreGateLib TrigSteeringEvent ViewAlgsLib xAODJet xAODMuon xAODTracking xAODTrigCalo )
+                     LINK_LIBRARIES AthViews AthenaBaseComps CxxUtils DecisionHandlingLib MuonCombinedEvent StoreGateLib TrigSteeringEvent ViewAlgsLib xAODJet xAODMuon  )

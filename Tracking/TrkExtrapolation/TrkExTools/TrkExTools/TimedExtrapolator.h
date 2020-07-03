@@ -104,11 +104,12 @@ namespace Trk {
     const TrackParameters*   navParameters;
     BoundarySurfaceFace      exitFace;
     
-    ParamsNextVolume(){
-      nextVolume              = nullptr;
-      nextParameters          = nullptr;
-      navParameters           = nullptr;
-        exitFace                = undefinedFace;
+    ParamsNextVolume()
+      : nextVolume(nullptr),
+        nextParameters(nullptr),
+        navParameters(nullptr),
+        exitFace(undefinedFace)
+    {
     }
     
     

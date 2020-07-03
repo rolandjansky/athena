@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -11,6 +11,7 @@
 
 // Gaudi includes
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
@@ -115,7 +116,7 @@ namespace InDet {
 
     // some information for statistics -> printout in finalize
     mutable std::mutex                                  m_trackStatsMutex;
-    mutable std::vector< std::vector< unsigned int > >  m_trackStats; //!< # tracks as function of [#generated holes, #found holes]
+    mutable std::vector< std::vector< unsigned int > >  m_trackStats ATLAS_THREAD_SAFE; //!< # tracks as function of [#generated holes, #found holes]. Guarded by m_trackStatsMutex
 
   }; // end of class
 

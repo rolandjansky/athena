@@ -68,7 +68,7 @@ namespace InDet {
     declareProperty("DecorateVertices", m_decorateVertices=true);
   }
   
-  ConversionPostSelector::~ConversionPostSelector() {}
+  ConversionPostSelector::~ConversionPostSelector() = default;
   
   const InterfaceID& ConversionPostSelector::interfaceID() {
     return IID_IConversionPostSelector;

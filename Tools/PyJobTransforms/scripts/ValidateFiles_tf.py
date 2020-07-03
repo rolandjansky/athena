@@ -1,23 +1,15 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## A transform just getting some default file arguments (only to test file validation )
 
-import argparse
-import os
-import os.path
 import sys
-import time
-import traceback
-
-import logging
 
 from PyJobTransforms.trfLogger import msg
-msg.info('logging set in %s' % sys.argv[0])
+msg.info('logging set in %s', sys.argv[0])
 
 from PyJobTransforms.transform import transform
-from PyJobTransforms.trfExitCodes import trfExit
 from PyJobTransforms.trfExe import logscanExecutor
 import PyJobTransforms.trfArgs as trfArgs
 import PyJobTransforms.trfArgClasses as trfArgClasses

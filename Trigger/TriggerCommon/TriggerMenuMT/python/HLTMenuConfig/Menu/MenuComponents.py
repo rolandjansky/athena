@@ -320,6 +320,7 @@ class EmptyMenuSequence(object):
     def __init__(self, name):
         self._name = name
         Maker = CompFactory.InputMakerForRoI("IM"+name)
+        Maker.RoITool = CompFactory.ViewCreatorInitialROITool()
         self._maker       = InputMakerNode( Alg = Maker )
         self._seed=''
         self._sequence    = Node( Alg = seqAND(name, [Maker]))
@@ -769,8 +770,9 @@ class CFSequence(object):
     def setDecisions(self):
         """ Set the output decision of this CFSequence as the hypo outputdecision; In case of combo, takes the Combo outputs"""
         self.decisions=[]
+        # empty steps:
         if not len(self.step.sequences):
-            self.decisions.extend(self.filter.readOutputList())
+            self.decisions.extend(self.filter.getOutputList())
         else:
             if self.step.isCombo:
                 self.decisions.extend(self.step.combo.getOutputList())
@@ -804,7 +806,7 @@ class CFSequence(object):
                 seq.connectToFilter( filter_out )
                 nseq+=1
         else:
-          log.debug("This CFSequence has no sequences: outputs are the Filter outputs")
+          log.debug("This CFSequence has no sequences: outputs are the Filter outputs, which are %d", len(self.decisions))
 
 
     def connectCombo(self):
@@ -841,9 +843,7 @@ class ChainStep(object):
 
         # sanity check on inputs
         if len(Sequences) != len(multiplicity):
-            # empty steps have one entry in multiplicity
-            if not (len(Sequences)==0 and len(multiplicity)==1):
-                raise RuntimeError("Tried to configure a ChainStep %s with %i Sequences and %i multiplicities. These lists must have the same size" % (name, len(Sequences), len(multiplicity)) )
+            raise RuntimeError("Tried to configure a ChainStep %s with %i Sequences and %i multiplicities. These lists must have the same size" % (name, len(Sequences), len(multiplicity)) )
 
         self.name = name
         self.sequences=Sequences
@@ -878,6 +878,8 @@ class ChainStep(object):
             return list(self.combo.getChains())
         
     def __repr__(self):
+        if len(self.sequences) == 0:
+            return "--- ChainStep %s ---\n is Empty, ChainDict = %s "%(self.name,  ' '.join(map(str, [dic['chainName'] for dic in self.chainDicts])) )
         if not self.isCombo:
             return "--- ChainStep %s ---\n , multiplicity = %d  ChainDict = %s \n + MenuSequences = %s "%(self.name,  sum(self.multiplicity), ' '.join(map(str, [dic['chainName'] for dic in self.chainDicts])), ' '.join(map(str, [seq.name for seq in self.sequences]) ))
         else:

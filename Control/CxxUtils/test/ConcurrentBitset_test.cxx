@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -863,7 +863,7 @@ CKHSAdapter::CKHSAdapter()
 CKHSAdapter::CKHSAdapter (const CKHSAdapter& other)
   : CKHSAdapter()
 {
-  ck_hs_iterator it { nullptr, 0};
+  ck_hs_iterator it { nullptr, 0, nullptr};
   void* obj;
   ck_hs_t* hs_nc ATLAS_THREAD_SAFE = const_cast<ck_hs_t*>(&other.m_hs);
   while (ck_hs_next (hs_nc, &it, &obj)) {

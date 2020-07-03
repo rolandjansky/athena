@@ -94,7 +94,6 @@ class IOVSvc;
 class IOVSvcTool;
 class PileUpMergeSvc;
 class SGDeleteAlg;
-class ThinningSvc;
 class ActiveStoreSvc;
 namespace SG { 
   class VarHandleBase; 
@@ -110,7 +109,7 @@ namespace PerfMon { class StorePayloadMon; }
  * @author ATLAS Collaboration
  * $Id: SGImplSvc.h 797595 2017-02-16 18:36:10Z ssnyder $
  **/
-class SGImplSvc :
+class SGImplSvc final :
   public Service, 
   public IProxyDict, 
   public IHiveStoreMgr,
@@ -615,7 +614,6 @@ private:
   friend class PileUpMergeSvc;      // FIXME needs to call tRange
   friend class StoreGateSvc;
   ///access typeless_record
-  friend class ThinningSvc;
   friend class SG::VarHandleBase;                                                      
 
   ///DEPRECATED: Return a _pointer_ to the DataStore

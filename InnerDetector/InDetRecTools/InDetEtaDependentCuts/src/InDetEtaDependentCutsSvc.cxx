@@ -42,18 +42,17 @@ namespace InDet {
     ///////////////
     // Initialize
     ///////////////
-    StatusCode InDetEtaDependentCutsSvc::initialize() {
-      
-      ATH_MSG_INFO ("Initializing " << name() << "...");
-      
+    StatusCode 
+    InDetEtaDependentCutsSvc::initialize() {
+      ATH_MSG_DEBUG ("Initializing " << name() << "...");
       if ((m_etaBins.size()-1) <= 0) {
-        ATH_MSG_ERROR( "Wrong inizialisation of eta bins. Check the eta bin values in " << name() );
+        ATH_MSG_ERROR( "Wrong initialisation of eta bins. Check the eta bin values in " << name() );
         return StatusCode::FAILURE;
       }
       
       // expecting eta bins in ascending order
       if (not std::is_sorted(m_etaBins.value().begin(), m_etaBins.value().end())) {
-        ATH_MSG_ERROR( "Wrong inizialisation of eta bins in " << name() << ". Values are not sorted!" );
+        ATH_MSG_ERROR( "Wrong initialisation of eta bins in " << name() << ". Values are not sorted!" );
         return StatusCode::FAILURE;
       }          
       
@@ -140,14 +139,14 @@ namespace InDet {
     }
 
     int InDetEtaDependentCutsSvc::getIndexByEta(const double eta) const {
-      double absEta = std::abs(eta);
+      const double absEta = std::abs(eta);
       if (absEta > m_etaBins.value().back()) {
         ATH_MSG_ERROR("Requesting cut value for eta outside expected range!! ");
         return -1;
       }
       
-      auto pVal =  std::lower_bound(m_etaBins.value().begin(), m_etaBins.value().end(), absEta);
-      int bin = std::distance(m_etaBins.value().begin(), pVal) - 1;
+      const auto pVal =  std::lower_bound(m_etaBins.value().begin(), m_etaBins.value().end(), absEta);
+      const int bin = std::distance(m_etaBins.value().begin(), pVal) - 1;
       ATH_MSG_DEBUG("Checking (abs(eta)/bin) = (" << absEta << "," << bin << ")");
       return bin;
     }
