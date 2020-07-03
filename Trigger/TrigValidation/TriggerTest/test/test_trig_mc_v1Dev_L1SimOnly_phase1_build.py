@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# art-description: Trigger RDO->RDO_TRIG athena test with L1 simulation but without any HLT chains
+# art-description: Trigger RDO->RDO_TRIG athena test with L1 simulation with Phase-I path enabled but without any HLT chains
 # art-type: build
 # art-include: master/Athena
 # Skipping art-output which has no effect for build tests.
@@ -13,7 +13,16 @@ ex.type = 'athena'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'ttbar'
 ex.threads = 1
-ex.args = '-c "setMenu=\'LS2_v1\';doL1Sim=True;doEmptyMenu=True;doWriteBS=False;doWriteRDOTrigger=True;"'
+precommand = ''.join([
+  "setMenu='LS2_v1';",  # LS2_v1 soon to be renamed to Dev_pp_run3_v1
+  "doL1Sim=True;",
+  "enableL1Phase1=True;",
+  "enableL1CaloLegacy=True;",
+  "doEmptyMenu=True;",
+  "doWriteBS=False;",
+  "doWriteRDOTrigger=True;"
+])
+ex.args = '-c "{:s}"'.format(precommand)
 
 test = Test.Test()
 test.art_type = 'build'
