@@ -18,7 +18,7 @@ Database can be either connection string or db file:
 
 Example:
 
-  bsPlotVsMu.py --rl 341123 --ru 341123 
+  PlotVsMupy --rl 341123 --ru 341123 
 
 '''
 
@@ -26,7 +26,7 @@ from DQUtils import fetch_iovs, process_iovs
 from DQUtils.sugar import IOVSet,RANGEIOV_VAL,RunLumiType
 from array import array
 import math
-
+import time, datetime
 from InDetBeamSpotExample import BeamSpotData
 BeamSpotData.varDefs = getattr(BeamSpotData,'varDefsGen')
 from InDetBeamSpotExample.BeamSpotData import *
@@ -46,6 +46,7 @@ parser.add_option('', '--rl', dest='runMin', type='int', default=None, help='Sta
 parser.add_option('', '--ru', dest='runMax', type='int', default=None, help='Start run number (default: None)')
 parser.add_option('-p', '--plot', dest='plot', default='', help='quantity to plot, only make one plot')
 parser.add_option('', '--plotGraph' , dest='plotGraph', action="store_true", default=False, help='plot a graph instead of an histogram')
+parser.add_option('', '--noPlot', dest='plotSomething', action="store_false", default=True, help='plot something')
 (options,args) = parser.parse_args()
 
 db1 = args[0] if len(args)==1 else 'COOLOFL_INDET/CONDBR2'
@@ -71,10 +72,11 @@ def main():
     print( "  * ", f2, options.tagLumi )
     print( "="*100 )
 
-    reuiredForNtuple = ['posX','posY','posZ','sigmaX','sigmaY','sigmaZ'] 
-    checkNtupleProd =  all(item in varColl for item in reuiredForNtuple)
+    requiredForNtuple = ['posX','posY','posZ','sigmaX','sigmaY','sigmaZ'] 
+    checkNtupleProd =  all(item in varColl for item in requiredForNtuple)
     if not checkNtupleProd:
         print( 'Ntuple will not be filled missing vars')
+
 
     #Open up required databases
     from PyCool import cool
@@ -88,7 +90,9 @@ def main():
     
     from InDetBeamSpotExample.COOLUtils import COOLQuery
     coolQuery = COOLQuery()
-    
+
+
+
     if options.runMin is not None:
       iov1 = options.runMin << 32
       if options.runMax is not None:
@@ -103,17 +107,17 @@ def main():
     if (iov2>cool.ValidityKeyMax):
       iov2=cool.ValidityKeyMax
 
-    print( "Reading data from database")
+    print( "Reading data from database" )
     itrBS = folderBS.browseObjects(iov1, iov2, cool.ChannelSelection.all(), options.tagBS)
-    print("...finished getting BS data")
+    print( "...finished getting BS data" )
 
     lbDict = dict()
-
+   
     startRLB =0x7FFFFFFFFFFFFFFF
     endRLB =0
     
     outfile = ROOT.TFile("BeamspotLumi_%i.root" % (options.runMin),"recreate")
-    ntuple = ROOT.TNtuple( 'BeamspotLumi', 'BeamSpotLumi', "x:y:z:sigma_x:sigma_y:sigma_z:run:mu:lumi" )
+    ntuple = ROOT.TNtupleD( 'BeamspotLumi', 'BeamSpotLumi', "x:y:z:sigma_x:sigma_y:sigma_z:run:mu:lumi:year:month:day:hour:minute:epoch" )
 
 
     runs  =  set()
@@ -141,10 +145,12 @@ def main():
        if until > endRLB:
          endRLB = until
 
+
        values={}
        for var in varColl:
          values[var] = float(obj.payloadValue(var))
          values[var+'Err'] =  float(obj.payloadValue(var+'Err'))
+       values['until'] = until
        lbDict[since] = values
     
     print( 'Runs: ',runs )
@@ -162,7 +168,9 @@ def main():
     from DQUtils.sugar import RANGEIOV_VAL, RunLumi
     from DQUtils import IOVSet
 
-    grlIOVs=IOVSet.from_grl("data16_13TeV.periodAllYear_DetStatus-v89-pro21-01_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.xml")
+
+    grlIOVs=IOVSet.from_grl("data15_13TeV.periodAllYear_DetStatus-v89-pro21-02_Unknown_PHYS_StandardGRL_All_Good_25ns.xml")
+    grlIOVs+=IOVSet.from_grl("data16_13TeV.periodAllYear_DetStatus-v89-pro21-01_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.xml")
     grlIOVs+=IOVSet.from_grl("data17_13TeV.periodAllYear_DetStatus-v99-pro22-01_Unknown_PHYS_StandardGRL_All_Good_25ns_Triggerno17e33prim.xml")
     grlIOVs+=IOVSet.from_grl("data18_13TeV.periodAllYear_DetStatus-v102-pro22-04_Unknown_PHYS_StandardGRL_All_Good_25ns_Triggerno17e33prim.xml")
 
@@ -186,54 +194,66 @@ def main():
 
 
       while itrLumi.goToNext():
-        obj = itrLumi.currentRef()
+         obj = itrLumi.currentRef()
   
-        since = obj.since()
-        runBegin = since >> 32
-        lumiBegin = since & 0xFFFFFFFF
+         since = obj.since()
+         runBegin = since >> 32
+         lumiBegin = since & 0xFFFFFFFF
   
-        until = obj.until()
-        runUntil = until >> 32
-        lumiUntil = until & 0xFFFFFFFF
+         until = obj.until()
+         runUntil = until >> 32
+         lumiUntil = until & 0xFFFFFFFF
          
-        test_iov = IOVSet()
-        test_iov.add( RunLumiType(since), RunLumiType(since) )
-        inGRL = False
-        for sinceGRL, untilGRL, grl_states in process_iovs(grlIOVs):
-          if ( sinceGRL.run <= ( since >> 32)   and  untilGRL.run >= (until >> 32 )  and sinceGRL.lumi <= ( since & 0xFFFFFFFF) and  untilGRL.lumi >= (until & 0xFFFFFFFF )  ):
-            inGRL = True
-            break
-        if not inGRL:
-          continue
-
-
-
-        mu  =  float(obj.payloadValue('LBAvEvtsPerBX'))
-        instlumi  =  float(obj.payloadValue('LBAvInstLumi')) 
+         inGRL = False
+         for sinceGRL, untilGRL, grl_states in process_iovs(grlIOVs):
+           if grl_states[0].since==None:
+             continue
+           if ( sinceGRL.run <= runBegin and  untilGRL.run >= runUntil  and sinceGRL.lumi <= lumiBegin and  untilGRL.lumi >= lumiUntil ):
+             inGRL = True
+             break
          
-        if since in lbDict:
-          if lbDict[ since  ]['sigmaX'] > 0.1 :
-            continue
-          startTime = lblbMap.get(obj.since(), (0., 0.))[0]
-          endTime   = lblbMap.get(obj.until(), (0., 0.))[1]
-          mylumi = (endTime - startTime)/1e9 * instlumi/1e9
-          lumi.append( mylumi  ); # in fb^-1
-          xd.append(mu)
-          exd.append(0)
+         if not inGRL:
+           continue
+         
+         mu  =  float(obj.payloadValue('LBAvEvtsPerBX'))
+         instlumi  =  float(obj.payloadValue('LBAvInstLumi')) 
+        
+
+         #if( mu <  10 or mu > 65 ):
+         #print 'Mu: %2.1f Run : %d  LB: %d - %d Lumi: %f' % (mu,runBegin,lumiBegin,lumiUntil,instlumi) 
+        
+         if since in lbDict:
+           if lbDict[ since  ]['sigmaX'] > 0.1 :
+             continue
+           startTime = lblbMap.get(obj.since(), (0., 0.))[0]
+           endTime   = lblbMap.get(lbDict[ since  ]['until'], (0., 0.))[0] #[1] end of lumiblock
+           mylumi = (endTime - startTime)/1e9 * instlumi/1e9
+           thisTime = time.gmtime( startTime /1.e9 ) 
+           year  = thisTime[0]
+           month = thisTime[1]
+           day   = thisTime[2]
+           hour  = thisTime[3]
+           mins   = thisTime[4]
+           sec   = thisTime[5]
+           lumi.append( mylumi  ); # in fb^-1
+           xd.append(mu)
+           exd.append(0)
   
-          for var in varColl:
-            if not var in ydDict:
-              ydDict[var] = array('d')
-              ydDict2[var] = array('d')
-              eydDict[var] = array('d')
+           if options.plotSomething:
+             for var in varColl:
+               if not var in ydDict:
+                 ydDict[var] = array('d')
+                 ydDict2[var] = array('d')
+                 eydDict[var] = array('d')
   
-            ydDict2[var].append( mu/(lbDict[ since  ][var] * sqtrt2pi ))
-            ydDict[var].append( lbDict[ since  ][var] )
-            eydDict[var].append( lbDict[ since  ][var+'Err'] )
+               ydDict2[var].append( mu/(lbDict[ since  ][var] * sqtrt2pi ))
+               ydDict[var].append( lbDict[ since  ][var] )
+               eydDict[var].append( lbDict[ since  ][var+'Err'] )
   
-          if checkNtupleProd:
-            ntuple.Fill( lbDict[ since  ][ 'posX'], lbDict[ since  ][ 'posY'], lbDict[ since  ][ 'posZ'], lbDict[ since  ][ 'sigmaX'], lbDict[ since  ][ 'sigmaY'], lbDict[ since  ][ 'sigmaZ'],runBegin, mu, mylumi)    
-  
+           if checkNtupleProd and lbDict[ since  ]['sigmaZErr'] < 5 :
+             ntuple.Fill( lbDict[ since  ][ 'posX'], lbDict[ since  ][ 'posY'], lbDict[ since  ][ 'posZ'], lbDict[ since  ][ 'sigmaX'], lbDict[ since  ][ 'sigmaY'], lbDict[ since  ][ 'sigmaZ'],runBegin, mu, mylumi, year, month, day,hour, mins, startTime /1.e9 )    
+      
+
 
     runStart  = startRLB >> 32
     runEnd    = endRLB >> 32
@@ -264,6 +284,9 @@ def main():
 
     ntuple.Write()
 
+    if not options.plotSomething:
+      return
+
     from InDetBeamSpotExample import ROOTUtils
     ROOTUtils.setStyle()
     canvas = ROOT.TCanvas('BeamSpotComparison', 'BeamSpotComparison', 1600, 1200)
@@ -286,7 +309,6 @@ def main():
         continue
 
       gr = ROOT.TGraphErrors(len(xd), xd, ydDict[var], exd, eydDict[var])
-
       xmin = min(xd)
       xmax = max(xd)
       ymin = min(ydDict[var])
@@ -303,6 +325,7 @@ def main():
       h = (ymax2-ymin2)
       ymin2 -= 0.25*h
       ymax2 += 0.75*h
+
 
       h = (xmax-xmin)
       xmin -= 0.05*h
@@ -426,8 +449,6 @@ def main():
         canvas.Print( "Run_%d_Mu%sVsMuWLog.pdf" % ( options.runMin,var ) )
         canvas.SetLogz(False)
         
-        ymax = histoW1D.GetMaximum();
-        histoW1D.GetYaxis().SetRangeUser(0,ymax*1.75)
         histoW1D.Draw("colz");
         ROOTUtils.atlasLabel( 0.53,0.87,False,offset=0.12,isForApproval=False,customstring="Internal",energy='%2.0f' % beamEnergy,size=0.055) 
         ROOTUtils.drawText(0.18,0.87,0.055, varDef(var,'title',var) )
