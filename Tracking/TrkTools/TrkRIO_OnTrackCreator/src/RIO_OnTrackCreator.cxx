@@ -176,7 +176,7 @@ Trk::RIO_OnTrackCreator::correct(const Trk::PrepRawData& rio,
   if (m_doPixel && m_idHelper->is_pixel(id)) {
     if (m_mode == "muon") {
       ATH_MSG_WARNING("I have no tool to correct the current Pixel hit! - Giving back nil."<<endreq);
-      return 0;
+      return nullptr;
     } else {
       ATH_MSG_DEBUG ("RIO identified as PixelCluster.");
       return m_PixClusCor->correct(rio, trk);
@@ -186,7 +186,7 @@ Trk::RIO_OnTrackCreator::correct(const Trk::PrepRawData& rio,
   if (m_doSCT && m_idHelper->is_sct(id)) {
     if (m_mode == "muon") {
       ATH_MSG_WARNING("I have no tool to correct the current SCT hit! - Giving back nil."<<endreq);
-      return 0;
+      return nullptr;
     } else {
       ATH_MSG_DEBUG ("RIO identified as SCT_Cluster.");
       return m_SctClusCor->correct(rio, trk);
@@ -196,7 +196,7 @@ Trk::RIO_OnTrackCreator::correct(const Trk::PrepRawData& rio,
   if (m_doTRT && m_idHelper->is_trt(id)) {
     if (m_mode == "muon") {
       ATH_MSG_WARNING("I have no tool to correct this TRT driftcircle! - Giving back nil."<<endreq);
-      return 0;
+      return nullptr;
     } else {
       ATH_MSG_DEBUG ("RIO identified as TRT_DriftCircle.");
       return m_TRT_Cor->correct(rio, trk);
@@ -206,7 +206,7 @@ Trk::RIO_OnTrackCreator::correct(const Trk::PrepRawData& rio,
   if (m_idHelper->is_mdt(id)){
     if (m_mode == "indet") {
       ATH_MSG_WARNING("I have no tool to correct this MDT driftcircle! - Giving back nil."<<endreq);
-      return 0;
+      return nullptr;
     } else {
       ATH_MSG_DEBUG ("RIO identified as MuonDriftCircle.");
       return m_MuonDriftCircleCor->correct(rio, trk);
@@ -216,7 +216,7 @@ Trk::RIO_OnTrackCreator::correct(const Trk::PrepRawData& rio,
        || (m_idHelper->is_tgc(id)) || (m_idHelper->is_stgc(id)) ) {
     if (m_mode == "indet") {
       ATH_MSG_WARNING("I have no tool to correct a CSC/RPC/TGC/sTGC hit! - Giving back nil."<<endreq);
-      return 0;
+      return nullptr;
     } else {
       ATH_MSG_DEBUG ("RIO identified as MuonCluster.");
       return m_MuonClusterCor->correct(rio, trk);
@@ -225,7 +225,7 @@ Trk::RIO_OnTrackCreator::correct(const Trk::PrepRawData& rio,
   if (m_idHelper->is_mm(id)) {
     if (m_mode == "indet") {
       ATH_MSG_WARNING("I have no tool to correct a MM hit! - Giving back nil."<<endreq);
-      return 0;
+      return nullptr;
     } else {
       ATH_MSG_DEBUG ("RIO identified as MMCluster.");
       return m_MmClusterCor->correct(rio, trk);
@@ -241,5 +241,5 @@ Trk::RIO_OnTrackCreator::correct(const Trk::PrepRawData& rio,
     }
   }
 
-  return 0;
+  return nullptr;
 }
