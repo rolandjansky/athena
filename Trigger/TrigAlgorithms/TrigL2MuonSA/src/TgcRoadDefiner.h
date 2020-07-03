@@ -9,7 +9,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "TrigMuonBackExtrapolator/ITrigMuonBackExtrapolator.h"
+#include "TrigMuonToolInterfaces/ITrigMuonBackExtrapolator.h"
 #include "PtEndcapLUTSvc.h"
 #include "PtEndcapLUT.h"
 #include "TgcFit.h"

@@ -8,4 +8,4 @@ atlas_add_library( TrigMuonToolInterfaces
                    TrigMuonToolInterfaces/*.h
                    INTERFACE
                    PUBLIC_HEADERS TrigMuonToolInterfaces
-                   LINK_LIBRARIES GaudiKernel MuonCombinedEvent MuonPattern TrigMuonEvent TrigSteeringEvent TrkSegment TrkTrack xAODMuon xAODTracking )
+                   LINK_LIBRARIES GaudiKernel MuonCombinedEvent MuonPattern TrigInDetEvent TrigMuonEvent TrigSteeringEvent TrkSegment TrkTrack xAODMuon xAODTracking xAODTrigMuon )

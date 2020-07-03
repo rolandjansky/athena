@@ -14,7 +14,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigMuonEvent
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigSteer/TrigInterfaces
-                          Trigger/TrigTools/TrigMuonBackExtrapolator
                           Trigger/TrigTools/TrigMuonToolInterfaces
 			  Trigger/TrigSteer/DecisionHandling
 			  Control/AthViews
