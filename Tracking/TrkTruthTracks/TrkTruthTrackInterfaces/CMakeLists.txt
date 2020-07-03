@@ -10,6 +10,9 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Tracking/TrkEvent/TrkSegment )
 
-# Install files from the package:
-atlas_install_headers( TrkTruthTrackInterfaces )
+atlas_add_library( TrkTruthTrackInterfaces
+                   TrkTruthTrackInterfaces/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS TrkTruthTrackInterfaces
+                   LINK_LIBRARIES GaudiKernel AtlasHepMCLib TrkSegment )
 
