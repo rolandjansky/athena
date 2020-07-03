@@ -224,7 +224,7 @@ namespace MuonGM {
       
       if (m_etaDesign[il].sAngle == 0.) {    // eta layers
 
-        m_etaDesign[il].firstPos = -0.5*m_etaDesign[il].xSize;
+        m_etaDesign[il].firstPos = -0.5*m_etaDesign[il].xSize + pitch;
         m_etaDesign[il].signY  = 1 ;
         m_etaDesign[il].nch = ((int) std::round( (m_etaDesign[il].xSize/pitch))) + 1; // Total number of active strips
 	
@@ -249,7 +249,7 @@ namespace MuonGM {
 
         m_etaDesign[il].nch = ((int)std::round( (lPos - fPos)/pitch )) + 1;
 
-        m_etaDesign[il].firstPos = ( -0.5*m_etaDesign[il].xSize + (m_etaDesign[il].nMissedBottomStereo - m_etaDesign[il].nMissedBottomEta)*pitch);
+        m_etaDesign[il].firstPos = ( -0.5*m_etaDesign[il].xSize + (m_etaDesign[il].nMissedBottomStereo - m_etaDesign[il].nMissedBottomEta)*pitch) + pitch;
 
       }
       m_nStrips.push_back(m_etaDesign[il].totalStrips);
