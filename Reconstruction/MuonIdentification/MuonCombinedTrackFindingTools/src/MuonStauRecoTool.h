@@ -145,25 +145,25 @@ namespace MuonCombined {
 
     /**IMuonCombinedInDetExtensionTool interface: extend ID candidate */   
     virtual void extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks, TrackCollection* meTracks,
-			 Trk::SegmentCollection* segments) override;
+			 Trk::SegmentCollection* segments) const override;
 
     virtual void extendWithPRDs(const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, IMuonCombinedInDetExtensionTool::MuonPrdData prdData,
-				TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments ) override;
+				TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments ) const override;
 
   private:
     /** handle a single candidate */
-    void handleCandidate( const InDetCandidate& inDetCandidate, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks, Trk::SegmentCollection* segments );
+    void handleCandidate( const InDetCandidate& inDetCandidate, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks, Trk::SegmentCollection* segments ) const;
 
     /** associate Hough maxima to intersection */
-    void associateHoughMaxima( LayerData& layerData );
+    void associateHoughMaxima( LayerData& layerData ) const;
 
     /** extract RPC hit timing */
-    void extractRpcTimingFromMaximum( const Muon::MuonSystemExtension::Intersection& intersection, MaximumData& maximumData );
+    void extractRpcTimingFromMaximum( const Muon::MuonSystemExtension::Intersection& intersection, MaximumData& maximumData ) const;
     
     /** create Rpc hit timing for a set of clusters */
     void createRpcTimeMeasurementsFromClusters( const Muon::MuonSystemExtension::Intersection& intersection,
                                                 const std::vector< Muon::RpcClusterObj>& clusterObjects, 
-                                                RpcTimeMeasurementVec& rpcTimeMeasurements );
+                                                RpcTimeMeasurementVec& rpcTimeMeasurements ) const;
 
     /** find segments for a given maximum */
     void findSegments(  const Muon::MuonSystemExtension::Intersection& intersection, MaximumData& maximumData, 
@@ -175,7 +175,7 @@ namespace MuonCombined {
     bool processMuonSystemExtension(  const xAOD::TrackParticle& indetTrackParticle, const Muon::MuonSystemExtension& muonSystemExtension, CandidateVec& candidates );
     
     /** associate Hough maxima and associate time measurements */
-    bool extractTimeMeasurements( const Muon::MuonSystemExtension& muonSystemExtension, AssociatedData& associatedData );
+    bool extractTimeMeasurements( const Muon::MuonSystemExtension& muonSystemExtension, AssociatedData& associatedData ) const;
 
     /** create candidates from the beta seeds */
     bool createCandidates( const AssociatedData& associatedData, CandidateVec& candidates ) const;
@@ -191,19 +191,19 @@ namespace MuonCombined {
     bool extractTimeHits( const MaximumData& maximumData, Muon::TimePointBetaFitter::HitVec& hits, const BetaSeed* seed=0 ) const;
 
     /** refine candidates: find segments for the given beta */
-    bool refineCandidates( CandidateVec& candidates );
+    bool refineCandidates( CandidateVec& candidates ) const;
 
     /** combine reconstruction */
-    bool combineCandidates( const xAOD::TrackParticle& indetTrackParticle, CandidateVec& candidates );
+    bool combineCandidates( const xAOD::TrackParticle& indetTrackParticle, CandidateVec& candidates ) const;
 
     /** resolve ambiguities between the candidates */
-    bool resolveAmbiguities( CandidateVec& candidates );
+    bool resolveAmbiguities( CandidateVec& candidates ) const;
     
     /** create final tag object and add it to the inDetCandidate */
     void addTag( const InDetCandidate& inDetCandidate, Candidate& candidate, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks, Trk::SegmentCollection* segments ) const;
     
     /** extract time measurements from the track associated with the candidate */
-    void extractTimeMeasurementsFromTrack( Candidate& candidate  );
+    void extractTimeMeasurementsFromTrack( Candidate& candidate ) const;
 
     /** extract truth from the indetTrackParticle */
     TruthInfo* getTruth(  const xAOD::TrackParticle& indetTrackParticle ) const;
@@ -216,7 +216,7 @@ namespace MuonCombined {
     }
     
     /** helper function to add Candidate to ntuple */
-    void addCandidatesToNtuple( const xAOD::TrackParticle& indetTrackParticle, const CandidateVec& candidates, int stage );
+    void addCandidatesToNtuple( const xAOD::TrackParticle& indetTrackParticle, const CandidateVec& candidates, int stage ) const;
 
     /** */
     void mdtTimeCalibration( const Identifier& id, float& time, float& error ) const;
