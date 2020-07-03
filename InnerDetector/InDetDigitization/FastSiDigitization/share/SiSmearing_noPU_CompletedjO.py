@@ -248,7 +248,7 @@ BroadInDetRotCreator = Trk__RIO_OnTrackCreator(name                = 'BroadInDet
                                                ToolSCT_Cluster     = SCT_PlanarClusterOnTrackTool,
                                                ToolMuonCluster     = None,
                                                ToolMuonDriftCircle = None,
-                                               ToolMuonMMCluster       = None,       
+                                               ToolMuonMMCluster   = None,       
                                                ToolTRT_DriftCircle = None,    
                                                Mode                = 'indet')
 BroadInDetRotCreator.OutputLevel = OutputLevel

@@ -86,7 +86,6 @@ const Muon::MuonClusterOnTrack* Muon::MMClusterOnTrackCreator::createRIO_OnTrack
       MClT = new MMClusterOnTrack(MClus, locpar, loce, positionAlongStrip);
      } else {
       ATH_MSG_WARNING("MMClusterOnTrackCreator called with an non MM identifier");
-      std::cout << "MMClusterOnTrackCreator called with an non MM identifier" << std::endl;
     }
 
     return MClT;
