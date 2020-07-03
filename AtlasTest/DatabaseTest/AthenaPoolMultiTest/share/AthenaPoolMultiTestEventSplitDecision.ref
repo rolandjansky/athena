@@ -224,7 +224,7 @@ Splitter3            INFO EventInfo event: 19 run: 0
 Splitter3           DEBUG Trigmask = 10
 Splitter3            INFO L1 failed
 StorageSvc           INFO EventStreamInfo_p3 [11DF1B8C-0DEE-4687-80D7-E74B520ACBB4]
-StreamAll2           INFO Records written: 21
+StreamAll2           INFO Metadata records written: 21
 Splitter1            INFO in finalize()
 Splitter2            INFO in finalize()
 Splitter3            INFO in finalize()
