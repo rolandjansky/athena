@@ -11,7 +11,8 @@
 #==============================================================
 #
 # Required libs:
-import os.path
+import os
+import re
 import threading
 
 import AthenaCommon.Logging as L
@@ -31,11 +32,19 @@ class TmpThr(threading.Thread):
             line = line.lower()
             if ' warning ' in line:
                 maxlevel = max(1,maxlevel)
-            if ' error ' in line and not 'connection refused' in line:
+            if re.search(r"warn\s*\[frontier",line) is not None:
+                # Catch frontier warnings which could contain the word "error" as
+                # frontier will retry connections - full log shown if run in debug
+                msg.info("Caught warning from frontier: %s", line)
+            elif ' error ' in line and not 'connection refused' in line:
                 maxlevel = max(2,maxlevel)
             elif ' fatal ' in line.lower() or 'exception ' in line.lower():
                 maxlevel = max(3,maxlevel)
         output = ''.join(output)
+        output = ('Log file from execution of command:\n'
+               + output
+               + '========================================'
+               + '\nEnd of log file from TrigConf2COOLLib.py')
         if maxlevel==1:
             msg.warning(output)
         elif maxlevel==2:
@@ -44,6 +53,7 @@ class TmpThr(threading.Thread):
             msg.fatal(output)
         else:
             msg.debug(output)
+            msg.info('Successful execution of command')
 
 class TrigConf2CoolSyncSvc(PyAthena.Svc):
     def __init__(self, name="TrigConf2CoolSyncSvc",**kw):
