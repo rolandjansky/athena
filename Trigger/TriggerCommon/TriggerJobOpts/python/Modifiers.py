@@ -796,7 +796,7 @@ class rewriteLVL1(_modifier):
             from AthenaCommon.CFElements import findAlgorithm
             seq = AthSequencer('AthOutSeq')
             streamBS = findAlgorithm(seq, 'BSOutputStreamAlg')
-            if False: # (needs !33608) ConfigFlags.Trigger.enableL1Phase1:
+            if ConfigFlags.Trigger.enableL1Phase1:
                 out_type = 'xAOD::TrigCompositeContainer'
                 out_name = 'L1TriggerResult'
             else:
