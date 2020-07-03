@@ -15,7 +15,7 @@
 #include "TrkDistributedKalmanFilter/TrkFilteringNodes.h"
 #include "TrkDistributedKalmanFilter/TrkTrackState.h"
 #include "TrkDistributedKalmanFilter/TrkPlanarSurface.h"
-#include "TrigInDetTrackFitter/TrigInDetBremDetectionTool.h"
+#include "TrigInDetBremDetectionTool.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include <cmath>
 #include <cstring>

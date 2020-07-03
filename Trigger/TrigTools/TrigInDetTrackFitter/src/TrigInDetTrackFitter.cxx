@@ -36,7 +36,7 @@
 #include "TrkDistributedKalmanFilter/TrkPlanarSurface.h"
 
 #include "TrigInDetToolInterfaces/ITrigInDetTrackFitter.h"
-#include "TrigInDetTrackFitter/TrigInDetTrackFitter.h"
+#include "TrigInDetTrackFitter.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
