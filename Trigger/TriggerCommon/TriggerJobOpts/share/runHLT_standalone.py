@@ -537,12 +537,6 @@ if hasattr(svcMgr.THistSvc, "Output"):
     setTHistSvcOutput(svcMgr.THistSvc.Output)
 
 #-------------------------------------------------------------
-# Apply modifiers
-#-------------------------------------------------------------
-for mod in modifierList:
-    mod.postSetup()
-
-#-------------------------------------------------------------
 # Conditions overrides
 #-------------------------------------------------------------    
 if len(opt.condOverride)>0:
@@ -630,6 +624,12 @@ include("TriggerTest/disableChronoStatSvcPrintout.py")
 # Enable xAOD::EventInfo decorations for pileup values
 #-------------------------------------------------------------
 include ("LumiBlockComps/LumiBlockMuWriter_jobOptions.py")
+
+#-------------------------------------------------------------
+# Apply modifiers
+#-------------------------------------------------------------
+for mod in modifierList:
+    mod.postSetup()
 
 #-------------------------------------------------------------
 # Print top sequence
