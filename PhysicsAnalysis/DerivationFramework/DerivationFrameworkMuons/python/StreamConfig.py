@@ -101,6 +101,11 @@ class MuonsDxAODStreamConfigurer:
     extraVariables['MUON3'].append(pvExtra)
     extraVariables['MUON0'] = [pvExtra]
 
+
+    ## for TrackAssociatedCaloSample
+    extraVariables['MUON1'].append('InDetTrackParticles.trackCaloClusEta.trackCaloClusPhi.trackCaloSampleE.trackCaloSampleNumber')
+
+
     ### get final lists
     for s in Items: Items[s]+=commonItems
     for s in allVarContainer: allVarContainer[s]+=commonAllVarList
