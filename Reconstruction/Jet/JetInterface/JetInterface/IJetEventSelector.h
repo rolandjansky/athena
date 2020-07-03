@@ -12,6 +12,7 @@
 
 #include "AsgTools/IAsgTool.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "xAODJet/JetContainer.h"
 
 class IJetEventSelector : virtual public asg::IAsgTool {
 ASG_TOOL_INTERFACE(IJetEventSelector)
@@ -23,7 +24,7 @@ public:
 
   /// Method to select.
   /// Returns true if eventinfo condition is passed.
-  virtual int keep(const xAOD::EventInfo &e) const =0;
+  virtual int keep(const xAOD::EventInfo &e, const xAOD::JetContainer & jets) const =0;
 
 };
 

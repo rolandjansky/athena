@@ -20,7 +20,7 @@ StatusCode EventHistoVarTool::initialize() {
   
 }
 
-float EventHistoVarTool::value(const xAOD::EventInfo & e) const {
+float EventHistoVarTool::value(const xAOD::EventInfo & e, const xAOD::JetContainer & jets) const {
 
   if (! e.isAvailable<float>(m_varName) ) {
     ATH_MSG_WARNING("Could not access EventInfo variable "<< m_varName << ", returning default value " << m_defaultValue );

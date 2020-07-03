@@ -29,7 +29,7 @@ StatusCode JetEventSelector::initialize() {
   return StatusCode::SUCCESS;
 }
 
-int JetEventSelector::keep(const xAOD::EventInfo& e) const {
-  float v = m_var->value(e);
+int JetEventSelector::keep(const xAOD::EventInfo& e, const xAOD::JetContainer & jets) const {
+  float v = m_var->value(e, jets);
   return (m_min < v ) && (v<m_max);
 }

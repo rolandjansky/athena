@@ -21,7 +21,7 @@ StatusCode JetHistoEventLevelFiller::processJetContainer(const JetMonitoringAlg&
   auto eventInfo = parentAlg.GetEventInfo(ctx);
 
   Monitored::Scalar<float> s( m_var->describe() );
-  s = m_var->value( *eventInfo );
+  s = m_var->value( *eventInfo, jets );
   parentAlg.fill(m_group, s );
 
   return StatusCode::SUCCESS;

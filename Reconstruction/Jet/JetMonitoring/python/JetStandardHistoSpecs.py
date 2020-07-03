@@ -27,9 +27,9 @@ knownEventVar = dict(
     # These always are of type 'float'
     avgMu = ToolSpec('EventHistoVarTool', 'avgMu', Variable='averageInteractionsPerCrossing'),
     actMu = ToolSpec('EventHistoVarTool', 'actMu', Variable='actualInteractionsPerCrossing'),
-    njets = ToolSpec('NumJetVarTool', 'njets0', ),
-    njets20 = ToolSpec('NumJetVarTool', 'njets20', JetMinPtCut = 20.),
-    njets50 = ToolSpec('NumJetVarTool', 'njets50', JetMinPtCut = 50.),
+    njets = ToolSpec('NumJetVarTool', 'njets', JetMinPtCut=0. ),
+    njets20 = ToolSpec('NumJetVarTool', 'njets20', JetMinPtCut=20.),
+    njets50 = ToolSpec('NumJetVarTool', 'njets50', JetMinPtCut=50.),
 )
 
 # ***************************************
@@ -56,7 +56,7 @@ _knownHistos = [
     # We add a new spec with a new name and we indicate the actual variable with the argument xvar
     HistoSpec( 'highpt',  (100,0.,4000) , title='p_{T};p_{T} [GeV];', xvar='pt:GeV'),    
 
-    EventHistoSpec( 'njets', (30,0,30), title='Jet Multiplicity;Njets;Entries' ),
+    #EventHistoSpec( 'njets', (30,0,30), title='Jet Multiplicity;Njets;Entries' ),
     # When the jet variable is not a simple float, use the xvar argument to refer to a detailed variable spec in 'knownVar'
     HistoSpec( 'JVF',  (100,0,1.2) , title='Jet Vtx Frac;JVF;', xvar='JVF'),    
     # if the var name contains '[N]' the system will assume the variable is a vector<float> and setup tools accordingly (so we don't need to specify 'xvar')

@@ -8,38 +8,35 @@
 
 NumJetVarTool::NumJetVarTool(const std::string & type, const std::string & name ,const IInterface* parent):
   AthAlgTool( type, name, parent )
- ,m_jetContainerKey("AntiKt4LCTopoJets"), m_failureOnMissingContainer(true)
+ , m_failureOnMissingContainer(true)
 {
   declareInterface<IEventHistoVarTool>(this);
-  declareProperty("JetContainerName",m_jetContainerKey);
   declareProperty("FailureOnMissingContainer", m_failureOnMissingContainer);
 
 }
 
 StatusCode NumJetVarTool::initialize() {
 
-  ATH_CHECK( m_jetContainerKey.initialize() );
-  if(m_pTcut > 0.) ATH_MSG_INFO("Counting number of jets with pT >= " << m_pTcut);
+  if(m_pTcut > 0.) ATH_MSG_INFO("Counting number of jets with " << m_pTcut);
 
   return StatusCode::SUCCESS;
 
 }
 
-float NumJetVarTool::value(const xAOD::EventInfo & e) const {
-
-  SG::ReadHandle<xAOD::JetContainer> jets(m_jetContainerKey);    
-  if (! jets.isValid() ) {
+float NumJetVarTool::value(const xAOD::EventInfo & e, const xAOD::JetContainer & jets) const {
+  
+  if ( jets.empty() ) {
     if (m_failureOnMissingContainer){
-      ATH_MSG_ERROR("evtStore() does not contain jet Collection with name "<< m_jetContainerKey);
+      ATH_MSG_ERROR("Input JetContainer could not be found or is empty");
       return 0.;
     } else {
-      ATH_MSG_WARNING("evtStore() does not contain jet Collection with name "<< m_jetContainerKey);
+      ATH_MSG_WARNING("Input JetContainer could not be found or is empty");
       return 0.;
     }
   }
 
   float njets = 0.;
-  for (const xAOD::Jet* jet : *jets) {
+  for (const xAOD::Jet* jet : jets) {
     if (jet->pt() >= m_pTcut*1000.) {
       njets++;
     }
