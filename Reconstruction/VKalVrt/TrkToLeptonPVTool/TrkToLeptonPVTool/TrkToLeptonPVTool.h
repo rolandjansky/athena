@@ -45,8 +45,8 @@ namespace Trk{
       StatusCode finalize();
 
 
-      std::unique_ptr<const xAOD::Vertex> matchTrkToPV(const xAOD::TrackParticle *trk, const xAOD::Vertex * PV, const xAOD::EventInfo * =0) const final;
-      std::unique_ptr<const xAOD::Vertex> npartVertex(const std::vector<const xAOD::TrackParticle*>&, const xAOD::EventInfo * =0) const final;
+      std::unique_ptr<xAOD::Vertex> matchTrkToPV(const xAOD::TrackParticle *trk, const xAOD::Vertex * PV, const xAOD::EventInfo * =0) const final;
+      std::unique_ptr<xAOD::Vertex> npartVertex(const std::vector<const xAOD::TrackParticle*>&, const xAOD::EventInfo * =0) const final;
 //------------------------------------------------------------------------------------------------------------------
 // Private data and functions
 //

@@ -67,16 +67,16 @@ TrkToLeptonPVTool::TrkToLeptonPVTool(const std::string& type,
    }
 
 
-   std::unique_ptr<const xAOD::Vertex>  TrkToLeptonPVTool::matchTrkToPV( const xAOD::TrackParticle *trk, const xAOD::Vertex * PV,
+   std::unique_ptr<xAOD::Vertex>  TrkToLeptonPVTool::matchTrkToPV( const xAOD::TrackParticle *trk, const xAOD::Vertex * PV,
                                                                          const xAOD::EventInfo * eventINFO) const
    {
      if(trk->isAvailable<float>("vy")) {
        std::vector<const xAOD::TrackParticle *> tpv(1,trk);
-       return std::unique_ptr<const xAOD::Vertex>(m_fitterSvc->fit(tpv,(*PV)));
+       return std::unique_ptr<xAOD::Vertex>(m_fitterSvc->fit(tpv,(*PV)));
      }
 
      //---DAOD case     
-     if( !eventINFO ) return std::unique_ptr<const xAOD::Vertex>(nullptr);
+     if( !eventINFO ) return std::unique_ptr<xAOD::Vertex>(nullptr);
      std::unique_ptr< SG::AuxStoreInternal > pAux;
      xAOD::TrackParticleContainer   TPC;
      std::vector<const xAOD::TrackParticle*>     wrkTrkC(1);
@@ -84,28 +84,28 @@ TrkToLeptonPVTool::TrkToLeptonPVTool(const std::string& type,
      TPC.setStore( pAux.get() );
      TPC.reserve( 1 );
      TPC.push_back(new xAOD::TrackParticle(*trk));
-     if(!TPC[0])return std::unique_ptr<const xAOD::Vertex>(nullptr);
+     if(!TPC[0])return std::unique_ptr<xAOD::Vertex>(nullptr);
      float mvx=0.; if(eventINFO)mvx=eventINFO->beamPosX();
      float mvy=0.; if(eventINFO)mvy=eventINFO->beamPosY();
      float mvz=0.; if(trk->isAvailable<float>("vz"))mvz=trk->vz();
      TPC[0]->setParametersOrigin( mvx, mvy, mvz);
      wrkTrkC[0]=TPC[0];
-     return std::unique_ptr<const xAOD::Vertex>(m_fitterSvc->fit(wrkTrkC,(*PV)));
+     return std::unique_ptr<xAOD::Vertex>(m_fitterSvc->fit(wrkTrkC,(*PV)));
 
    }
 
 
-   std::unique_ptr<const xAOD::Vertex>TrkToLeptonPVTool::npartVertex( const std::vector<const xAOD::TrackParticle*> & particles,
+   std::unique_ptr<xAOD::Vertex>TrkToLeptonPVTool::npartVertex( const std::vector<const xAOD::TrackParticle*> & particles,
                                                                       const xAOD::EventInfo * eventINFO) const
    {
-     if(particles.size()<2) return std::unique_ptr<const xAOD::Vertex>(nullptr);
+     if(particles.size()<2) return std::unique_ptr<xAOD::Vertex>(nullptr);
 
      std::vector<const xAOD::TrackParticle*> tmpp(particles);
      std::sort(tmpp.begin(),tmpp.end());
      auto tst=std::unique(tmpp.begin(),tmpp.end());
      if( tst !=  tmpp.end()) {
        ATH_MSG_DEBUG(" Duplicated particles on input!");
-       return std::unique_ptr<const xAOD::Vertex>(nullptr);
+       return std::unique_ptr<xAOD::Vertex>(nullptr);
      }
 
      bool fullxAOD=false;   if(particles[0]->isAvailable<float>("vy")) fullxAOD=true;
@@ -138,7 +138,7 @@ TrkToLeptonPVTool::TrkToLeptonPVTool(const std::string& type,
                                 <<","<<BEAM.covariance()[3]<<","<<BEAM.covariance()[4]<<","<<BEAM.covariance()[5]);
 
 
-     if(fullxAOD) return std::unique_ptr<const xAOD::Vertex>(m_fitterSvc->fit(particles,BEAM));
+     if(fullxAOD) return std::unique_ptr<xAOD::Vertex>(m_fitterSvc->fit(particles,BEAM));
 
      //
      //---DAOD case
@@ -152,14 +152,14 @@ TrkToLeptonPVTool::TrkToLeptonPVTool(const std::string& type,
      TPC.reserve( NPRT );
      for(int i=0; i<NPRT; i++){
 	TPC.push_back(new xAOD::TrackParticle(*particles[i]));
-	if(!TPC[i])return std::unique_ptr<const xAOD::Vertex>(nullptr);
+	if(!TPC[i])return std::unique_ptr<xAOD::Vertex>(nullptr);
 	float mvx=0.; if(eventINFO)mvx=eventINFO->beamPosX();
 	float mvy=0.; if(eventINFO)mvy=eventINFO->beamPosY();
 	float mvz=0.; if(particles[i]->isAvailable<float>("vz"))mvz=particles[i]->vz();
 	TPC[i]->setParametersOrigin( mvx, mvy, mvz);
 	wrkTrkC[i]=TPC[i];
      }
-     return std::unique_ptr<const xAOD::Vertex>(m_fitterSvc->fit(wrkTrkC,BEAM));
+     return std::unique_ptr<xAOD::Vertex>(m_fitterSvc->fit(wrkTrkC,BEAM));
 
    }
 
