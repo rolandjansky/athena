@@ -59,7 +59,6 @@ TRT_ToT_dEdx::TRT_ToT_dEdx(const std::string& t, const std::string& n, const IIn
 
 void TRT_ToT_dEdx::SetDefaultConfiguration()
 {
-  declareProperty("TRT_dEdx_divideByL",m_divideByL=true);
   declareProperty("TRT_dEdx_useHThits",m_useHThits=true);
   declareProperty("TRT_dEdx_corrected",m_corrected=true);
   declareProperty("TRT_dEdx_whichToTEstimatorAlgo",m_whichToTEstimatorAlgo=kToTLargerIsland);
@@ -79,7 +78,6 @@ void TRT_ToT_dEdx::ShowDEDXSetup() const
   ATH_MSG_DEBUG("//////////////////////////////////////////////////////////////////");
   ATH_MSG_DEBUG("///              TRT_ToT_Tool setup configuration              ///");
   ATH_MSG_DEBUG(" ");
-  ATH_MSG_DEBUG("m_divideByL                     ="<<m_divideByL<<"");
   ATH_MSG_DEBUG("m_useHThits                     ="<<m_useHThits<<"");
   ATH_MSG_DEBUG("m_corrected                     ="<<m_corrected<<"");
   ATH_MSG_DEBUG("m_whichToTEstimatorAlgo         ="<<m_whichToTEstimatorAlgo<<"");
@@ -153,7 +151,6 @@ StatusCode TRT_ToT_dEdx::initialize()
   ATH_MSG_INFO("//////////////////////////////////////////////////////////////////");
   ATH_MSG_INFO("///              TRT_ToT_Tool setup configuration              ///");
   ATH_MSG_INFO(" ");
-  ATH_MSG_INFO("m_divideByL                     ="<<m_divideByL<<"");
   ATH_MSG_INFO("m_useHThits                     ="<<m_useHThits<<"");
   ATH_MSG_INFO("m_corrected                     ="<<m_corrected<<"");
   ATH_MSG_INFO("m_whichToTEstimatorAlgo         ="<<m_whichToTEstimatorAlgo<<"");
@@ -375,8 +372,7 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool divideByL, bool useHThit
       sort(vecToT.begin(), vecToT.end());
       int nhits = (int)vecToT.size();
 
-      int ntrunk = 1;
-      if(divideByL) nhits-=ntrunk;
+      if(divideByL) nhits-=nTrunkateHits;
 
       // Boost speed
       if(nhits<1)return 0.0;
@@ -426,16 +422,13 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool divideByL, bool useHThit
         int nhitsAr = (int)vecToT_Ar.size();
         int nhitsKr = (int)vecToT_Kr.size();
 
-
-        int ntrunk = 1;
         if(divideByL)
           {
             if(m_toolScenario==kAlgReweight){
-              if(nhitsXe>0) nhitsXe-=ntrunk;
-              if(nhitsAr>0) nhitsAr-=ntrunk;
-              if(nhitsKr>0) nhitsKr-=ntrunk;
-            }
-            else // kAlgReweightTrunkOne
+              if(nhitsXe>0) nhitsXe-=nTrunkateHits;
+              if(nhitsAr>0) nhitsAr-=nTrunkateHits;
+              if(nhitsKr>0) nhitsKr-=nTrunkateHits;
+            } else // kAlgReweightTrunkOne
               {
                 int trunkGas = kUnset;
                 double maxToT = 0.;
@@ -449,14 +442,13 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool divideByL, bool useHThit
 		}
                 if(nhitsKr>0 && vecToT_Kr.at(nhitsKr-1)>maxToT) trunkGas = kKrypton;
 
-                if(trunkGas==kXenon)   nhitsXe-=ntrunk;
+                if(trunkGas==kXenon)   nhitsXe-=nTrunkateHits;
                 else
-                  if(trunkGas==kArgon)   nhitsAr-=ntrunk;
+                  if(trunkGas==kArgon)   nhitsAr-=nTrunkateHits;
                   else
-                    if(trunkGas==kKrypton) nhitsKr-=ntrunk;
+                    if(trunkGas==kKrypton) nhitsKr-=nTrunkateHits;
               }
           }
-
 
         // Boost speed.
         int nhits  = nhitsXe + nhitsAr + nhitsKr;
@@ -518,116 +510,93 @@ double TRT_ToT_dEdx::usedHits(const Trk::Track* track, bool divideByL, bool useH
   DataVector<const Trk::TrackStateOnSurface>::const_iterator itr  = vtsos->begin();
   DataVector<const Trk::TrackStateOnSurface>::const_iterator itre = vtsos->end();  
   
+  if (m_toolScenario==kAlgStandard || m_toolScenario==kAlgScalingToXe) {
+    int nhits =0;
 
-  if(m_toolScenario==kAlgStandard || m_toolScenario==kAlgScalingToXe)
-    {
-      int nhits =0;
-
-      for ( ; itr!=itre ; ++itr) {
-        double l=0;
-        if ( isGood_Hit((*itr),divideByL,useHThits,l)) {
-          nhits++;
-        }
-      } 
-
-      int ntrunk = 1;
-      if(divideByL) nhits-=ntrunk;
-
-      return nhits;
-    }
-  
-    if(m_toolScenario==kAlgReweight || m_toolScenario==kAlgReweightTrunkOne)
-      {
-        int nhits = 0;
-        int nhitsXe = 0;
-        int nhitsAr = 0;
-        int nhitsKr = 0;
-
-        if(m_useTrackPartWithGasType!=kUnset)
-          {
-            ATH_MSG_WARNING("usedHits_Estimator():: Using m_toolScenario="<<m_toolScenario<<" scenario m_useTrackPartWithGasType is set to "<<m_useTrackPartWithGasType<<", but kUnset is required. Check you tool configuration.");
-          }
-
-        for ( ; itr!=itre ; ++itr) {
-          double l=0;
-          if ( isGood_Hit((*itr),divideByL,useHThits,l)) {
-            gasType=gasTypeInStraw(*itr);
-            if(gasType==kXenon)
-              nhitsXe++;
-            else
-              if(gasType==kArgon)
-                nhitsAr++;
-              else
-                if(gasType==kKrypton)
-                  nhitsKr++;
-                else
-                  ATH_MSG_ERROR("usedHits_Estimator():: During scenario kAlgReweight variable gasTypeInStraw got value kUnset.");
-          }
-        } 
-
-
-        int ntrunk = 1;
-        if(divideByL) {
-          if(m_toolScenario==kAlgReweight){
-            if(nhitsXe>0) nhitsXe-=ntrunk;
-            if(nhitsAr>0) nhitsAr-=ntrunk;
-            if(nhitsKr>0) nhitsKr-=ntrunk;
-          }
-          else { // kAlgReweightTrunkOne
-            if(nhitsXe>0 || nhitsAr>0 || nhitsKr>0)
-              nhitsXe -= ntrunk;
-          }
-        }
-
-        nhits  = nhitsXe + nhitsAr + nhitsKr;
-
-        return nhits;
+    for ( ; itr!=itre ; ++itr) {
+      double l=0;
+      if ( isGood_Hit((*itr),divideByL,useHThits,l)) {
+        nhits++;
       }
+    } 
+    if(divideByL) nhits-=nTrunkateHits;
+    return nhits;
+  } else if (m_toolScenario==kAlgReweight || m_toolScenario==kAlgReweightTrunkOne) {
+    int nhits = 0;
+    int nhitsXe = 0;
+    int nhitsAr = 0;
+    int nhitsKr = 0;
+
+    if(m_useTrackPartWithGasType!=kUnset) {
+      ATH_MSG_WARNING("usedHits_Estimator():: Using m_toolScenario="<<m_toolScenario<<" scenario m_useTrackPartWithGasType is set to "<<m_useTrackPartWithGasType<<", but kUnset is required. Check you tool configuration.");
+    }
+
+    for ( ; itr!=itre ; ++itr) {
+      double l=0;
+      if ( isGood_Hit((*itr),divideByL,useHThits,l)) {
+        gasType=gasTypeInStraw(*itr);
+        if (gasType==kXenon) {
+          nhitsXe++;
+        } else if (gasType==kArgon) {
+          nhitsAr++;
+        } else if (gasType==kKrypton) {
+          nhitsKr++;
+        } else {
+          ATH_MSG_ERROR("usedHits_Estimator():: During scenario kAlgReweight variable gasTypeInStraw got value kUnset.");
+        }
+      }
+    }
+
+    if(divideByL) {
+      if(m_toolScenario==kAlgReweight){
+        if(nhitsXe>0) nhitsXe-=nTrunkateHits;
+        if(nhitsAr>0) nhitsAr-=nTrunkateHits;
+        if(nhitsKr>0) nhitsKr-=nTrunkateHits;
+      } else { // kAlgReweightTrunkOne
+        if(nhitsXe>0 || nhitsAr>0 || nhitsKr>0)
+          nhitsXe -= nTrunkateHits;
+      }
+    }
+
+    nhits  = nhitsXe + nhitsAr + nhitsKr;
+    return nhits;
+  }
 
   ATH_MSG_ERROR("usedHits_Estimator():: m_toolScenario has wrong value "<<m_toolScenario<<"");
   return 0;
 }
-
-
 
 double TRT_ToT_dEdx::getProb(const Trk::TrackStateOnSurface *itr, const double dEdx_obs, const double pTrk, Trk::ParticleHypothesis hypothesis, int nUsedHits) const
 {
   return getProb(itr, dEdx_obs, pTrk, hypothesis, nUsedHits, m_divideByL);
 }
 
-
-
 double TRT_ToT_dEdx::getProb(const Trk::TrackStateOnSurface *itr, const double dEdx_obs, const double pTrk, Trk::ParticleHypothesis hypothesis, int nUsedHits, bool divideByL) const
 {
   EGasType gasType = gasTypeInStraw(itr);
   return getProb(gasType, dEdx_obs, pTrk, hypothesis, nUsedHits, divideByL);
 }
-        
 
 double TRT_ToT_dEdx::getProb(EGasType gasType, const double dEdx_obs, const double pTrk, Trk::ParticleHypothesis hypothesis, int nUsedHits, bool divideByL) const
-{
-        
+{        
   ATH_MSG_DEBUG("getProb():: gasTypeInStraw = "<<gasType<<"");
 
   SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
   const TRTDedxcorrection* dEdxCorrection{*readHandle};
-  if(dEdxCorrection==nullptr)
-    {
-      ATH_MSG_ERROR(" getProb: Could not find any dEdxCorrection in CondStore. Return zero.");
-      return 0;
-    }
+  if (dEdxCorrection==nullptr) {
+    ATH_MSG_ERROR(" getProb: Could not find any dEdxCorrection in CondStore. Return zero.");
+    return 0;
+  }
 
-
-  if(gasType==kUnset)
-    {
-      ATH_MSG_DEBUG("getProb():: gasTypeInStraw set kUnset that is not allowed! Use gasTypeInStraw(*itr) to get gas type info for that hit first!");
-      ATH_MSG_DEBUG("getProb():: Now gasTypeInStraw sets to kXenon.");
-      gasType = kXenon;
-    }
+  if(gasType==kUnset) {
+    ATH_MSG_DEBUG("getProb():: gasTypeInStraw set kUnset that is not allowed! Use gasTypeInStraw(*itr) to get gas type info for that hit first!");
+    ATH_MSG_DEBUG("getProb():: Now gasTypeInStraw sets to kXenon.");
+    gasType = kXenon;
+  }
 
   double dEdx_pred = predictdEdx(gasType, pTrk, hypothesis, divideByL); 
-  if(dEdx_pred==0)return 0.0;
-  if(hypothesis==Trk::electron){
+  if (dEdx_pred==0) return 0.0;
+  if (hypothesis==Trk::electron) {
     // correction for pTrk in [MeV]
     double factor = 1;
     double correct = 1+factor*(0.045*log10(pTrk)+0.885-1);
@@ -647,10 +616,9 @@ double TRT_ToT_dEdx::getProb(EGasType gasType, const double dEdx_obs, const doub
 }
 
 
-double TRT_ToT_dEdx::getTest(const double dEdx_obs, const double pTrk, Trk::ParticleHypothesis hypothesis, Trk::ParticleHypothesis antihypothesis, int nUsedHits) const {
-
+double TRT_ToT_dEdx::getTest(const double dEdx_obs, const double pTrk, Trk::ParticleHypothesis hypothesis, Trk::ParticleHypothesis antihypothesis, int nUsedHits) const
+{
   return getTest(dEdx_obs, pTrk, hypothesis, antihypothesis, nUsedHits, m_divideByL);
-
 }
 
 double TRT_ToT_dEdx::getTest(const double dEdx_obs, const double pTrk, Trk::ParticleHypothesis hypothesis, Trk::ParticleHypothesis antihypothesis, int nUsedHits, bool divideByL) const
@@ -658,26 +626,22 @@ double TRT_ToT_dEdx::getTest(const double dEdx_obs, const double pTrk, Trk::Part
   ATH_MSG_DEBUG("getTest()");
 
   EGasType gasType = kUnset;
-        
   if ( dEdx_obs<=0. || pTrk<=0. || nUsedHits<=0 ) return 0.5;
   
   double Pone = getProb(gasType, dEdx_obs,pTrk,hypothesis,nUsedHits, divideByL);
   double Ptwo = getProb(gasType, dEdx_obs,pTrk,antihypothesis,nUsedHits, divideByL);
-  if( (Pone+Ptwo) != 0){
+  if ((Pone+Ptwo) != 0) {
     ATH_MSG_DEBUG("getTest():: return "<<Pone/(Pone+Ptwo)<<"");
     return Pone/(Pone+Ptwo);
-  }
+  } else {
     return 0.5;
+  }
 }
-
-
 
 double TRT_ToT_dEdx::predictdEdx(const Trk::TrackStateOnSurface *itr, const double pTrk, Trk::ParticleHypothesis hypothesis) const
 {
   return predictdEdx(itr, pTrk, hypothesis, m_divideByL);
 }
-
-
 
 double TRT_ToT_dEdx::predictdEdx(const Trk::TrackStateOnSurface *itr, const double pTrk, Trk::ParticleHypothesis hypothesis, bool divideByL) const
 {
@@ -687,7 +651,6 @@ double TRT_ToT_dEdx::predictdEdx(const Trk::TrackStateOnSurface *itr, const doub
 
 double TRT_ToT_dEdx::predictdEdx(EGasType gasType, const double pTrk, Trk::ParticleHypothesis hypothesis, bool divideByL) const
 {
-
   ATH_MSG_DEBUG("predictdEdx(): gasTypeInStraw = "<<gasType<<"");
 
   SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
@@ -726,8 +689,6 @@ double TRT_ToT_dEdx::predictdEdx(EGasType gasType, const double pTrk, Trk::Parti
   
   //return 0;  
 }
-
-
 
 double TRT_ToT_dEdx::mass(const Trk::TrackStateOnSurface *itr, const double pTrk, double dEdx ) const
 {
@@ -774,8 +735,6 @@ double TRT_ToT_dEdx::mass(const Trk::TrackStateOnSurface *itr, const double pTrk
   return pTrk/betaGamma;
 }
 
-
-
 /* returns gas type for given straw */
 ITRT_ToT_dEdx::EGasType TRT_ToT_dEdx::gasTypeInStraw(const Trk::TrackStateOnSurface *itr) const
 {
@@ -802,8 +761,6 @@ ITRT_ToT_dEdx::EGasType TRT_ToT_dEdx::gasTypeInStraw(const Trk::TrackStateOnSurf
   return gasTypeInStraw(driftcircle);
 }
 
-
-
 ITRT_ToT_dEdx::EGasType TRT_ToT_dEdx::gasTypeInStraw(const InDet::TRT_DriftCircleOnTrack *driftcircle) const
 {
   Identifier DCid = driftcircle->identify();  
@@ -826,8 +783,6 @@ ITRT_ToT_dEdx::EGasType TRT_ToT_dEdx::gasTypeInStraw(const InDet::TRT_DriftCircl
   return GasType;
 }
 
-
-
 double TRT_ToT_dEdx::getToT(unsigned int BitPattern) const
 {
   if (m_whichToTEstimatorAlgo == kToTLargerIsland) {
@@ -846,7 +801,6 @@ double TRT_ToT_dEdx::getToT(unsigned int BitPattern) const
   throw std::exception();
 }
 
-
 /////////////////////////////////
 // Corrections
 /////////////////////////////////
@@ -855,29 +809,24 @@ double TRT_ToT_dEdx::correctNormalization(bool divideLength,bool scaledata, doub
 {
   SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
   const TRTDedxcorrection* dEdxCorrection{*readHandle};
-  if(dEdxCorrection==nullptr)
-    {
-      ATH_MSG_ERROR(" correctNormalization: Could not find any dEdxCorrection in CondStore. Return zero.");
-      return 0;
-    }
-
+  if(dEdxCorrection==nullptr) {
+    ATH_MSG_ERROR(" correctNormalization: Could not find any dEdxCorrection in CondStore. Return zero.");
+    return 0;
+  }
 
   EGasType gasType = static_cast<EGasType> (m_useTrackPartWithGasType);
-  if(m_useTrackPartWithGasType==kUnset)
-    gasType=kXenon;
-  if(nVtx<=0)nVtx=dEdxCorrection->normNzero[gasType];
+  if (m_useTrackPartWithGasType==kUnset) gasType=kXenon;
+  if (nVtx<=0) nVtx=dEdxCorrection->normNzero[gasType];
   double slope = dEdxCorrection->normSlopeTot[gasType];
   double offset = dEdxCorrection->normOffsetTot[gasType];
-  if(divideLength){
+  if (divideLength){
     slope = dEdxCorrection->normSlopeTotDivideByLength[gasType];
     offset = dEdxCorrection->normOffsetTotDivideByLength[gasType];
-  } 
+  }
   double shift = dEdxCorrection->normOffsetData[gasType];
   if(!scaledata)shift = 0;
   return (slope*dEdxCorrection->normNzero[gasType]+offset)/(slope*nVtx+offset+shift);
 }
-
-
 
 double TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackStateOnSurface *itr) const
 {
@@ -992,12 +941,10 @@ TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackStateOnSurface* itr,
 
 
 
-double TRT_ToT_dEdx::correctToT_corrRZL(const Trk::TrackParameters* trkP,const InDet::TRT_DriftCircleOnTrack *driftcircle, int HitPart,int Layer,int StrawLayer, bool isdata) const {
-
+double TRT_ToT_dEdx::correctToT_corrRZL(const Trk::TrackParameters* trkP,const InDet::TRT_DriftCircleOnTrack *driftcircle, int HitPart,int Layer,int StrawLayer, bool isdata) const
+{
   double l=strawLength(trkP) ;
-
-  return correctToT_corrRZL(trkP, driftcircle, HitPart, Layer, StrawLayer, isdata,
-                            m_useHThits, l);
+  return correctToT_corrRZL(trkP, driftcircle, HitPart, Layer, StrawLayer, isdata, m_useHThits, l);
 }
 
 double TRT_ToT_dEdx::correctToT_corrRZL(const Trk::TrackParameters* trkP,const InDet::TRT_DriftCircleOnTrack *driftcircle, int HitPart,int Layer,int StrawLayer, bool isdata, bool useHThits, double length) const
@@ -1008,49 +955,47 @@ double TRT_ToT_dEdx::correctToT_corrRZL(const Trk::TrackParameters* trkP,const I
   }
 
         
-  if(trkP==nullptr)return false; 
+  if (trkP==nullptr) return false; 
   if (!driftcircle) return false;
   if (driftcircle->prepRawData()==nullptr) return 0;
   double HitRtrack = fabs(trkP->parameters()[Trk::locR]);
   double Trt_RHit = fabs(driftcircle->localParameters()[Trk::driftRadius]);
   if ( m_useZeroRHitCut && Trt_RHit==0) return false;                                     // tube hit
   if ( (HitRtrack >= m_trackConfig_maxRtrack) || (HitRtrack <= m_trackConfig_minRtrack) )return false;    // drift radius close to wire or wall
-  if(!useHThits){
+  if (!useHThits) {
     int TrtHl = driftcircle->highLevel();
     if (TrtHl==1) return false; 
   }
 
   EGasType gasType = gasTypeInStraw(driftcircle);  
   if(m_useTrackPartWithGasType!=kUnset) // don't preselect hits
-    {
-      if(m_useTrackPartWithGasType!=gasType)
-        return false;
-    }
+  {
+    if(m_useTrackPartWithGasType!=gasType) return false;
+  }
 
   unsigned int BitPattern = driftcircle->prepRawData()->getWord();
   double ToT = getToT(BitPattern);
   if(ToT==0) return false; // If ToT for this hit equal 0, skip it.
 
-  if(m_applyMimicToXeCorrection || m_toolScenario==kAlgScalingToXe)
-    {
-      if(gasType!=kXenon) // mimic to Xenon ToT, so we skip Xenon hits
-        {     
-          if (abs(HitPart)==1) // Barrel
-            ToT/=mimicToXeHit_Barrel(gasType, HitRtrack, Layer, StrawLayer);
-          else // End-cap
-            ToT/=mimicToXeHit_Endcap(gasType, HitRtrack, Layer, HitPart); 
+  if(m_applyMimicToXeCorrection==true || m_toolScenario==kAlgScalingToXe) {
+    if(gasType!=kXenon) // mimic to Xenon ToT, so we skip Xenon hits
+    {     
+      if (abs(HitPart)==1) // Barrel
+        ToT/=mimicToXeHit_Barrel(gasType, HitRtrack, Layer, StrawLayer);
+      else // End-cap
+        ToT/=mimicToXeHit_Endcap(gasType, HitRtrack, Layer, HitPart); 
 
-          if(m_whichToTEstimatorAlgo==kToTLargerIsland){
-            if(ToT<3.125) ToT = 3.125;
-            if(ToT>75)    ToT = 75;
-          }else{
-            if(ToT<3.125) ToT = 3.125;
-            if(ToT>62.5)  ToT = 62.5;
-          }
+      if(m_whichToTEstimatorAlgo==kToTLargerIsland){
+        if (ToT<3.125) ToT = 3.125;
+        if (ToT>75)    ToT = 75;
+      } else {
+        if (ToT<3.125) ToT = 3.125;
+        if (ToT>62.5)  ToT = 62.5;
+      }
 
-          gasType=kXenon; // After mimic correction we work with that hit as Xenon hit.
-        }  
-    }
+      gasType=kXenon; // After mimic correction we work with that hit as Xenon hit.
+    }  
+  }
 
   if(length>0) ToT = ToT/length;
 
@@ -1068,65 +1013,59 @@ double TRT_ToT_dEdx::correctToT_corrRZL(const Trk::TrackParameters* trkP,const I
   return (valToT!=0.) ? (ToTmip*ToT/valToT) : 0.;
 }
 
-
-
 double TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackParameters* trkP,const InDet::TRT_DriftCircleOnTrack *driftcircle, int HitPart,int Layer,int StrawLayer, bool isdata) const
 {
-  return correctToT_corrRZ(trkP, driftcircle, HitPart, Layer, StrawLayer,  isdata, 
-                           m_useHThits);
+  return correctToT_corrRZ(trkP, driftcircle, HitPart, Layer, StrawLayer,  isdata, m_useHThits);
 }
 
 double TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackParameters* trkP,const InDet::TRT_DriftCircleOnTrack *driftcircle, int HitPart,int Layer,int StrawLayer, bool isdata, bool useHThits) const
 {
-
   if (isdata != m_isData) {
     ATH_MSG_ERROR("TRT_ToT_dEdx::correctToT_corrRZ called with isData = " << isdata
                   << " but data type is " << m_isData << ". Ignoring!");
   }
 
-  if(trkP==nullptr)return false; 
+  if (trkP==nullptr) return false; 
   if (!driftcircle) return false;
   if (driftcircle->prepRawData()==nullptr) return 0;
   double HitRtrack = fabs(trkP->parameters()[Trk::locR]);
   double Trt_RHit = fabs(driftcircle->localParameters()[Trk::driftRadius]);
-  if ( m_useZeroRHitCut && Trt_RHit==0) return false;                                     // tube hit
-  if ( (HitRtrack >= m_trackConfig_maxRtrack) || (HitRtrack <= m_trackConfig_minRtrack) )return false;    // drift radius close to wire or wall
-  if(!useHThits){
+  if (m_useZeroRHitCut && Trt_RHit==0) return false;                                     // tube hit
+  if ((HitRtrack >= m_trackConfig_maxRtrack) || (HitRtrack <= m_trackConfig_minRtrack)) return false;    // drift radius close to wire or wall
+  if (!useHThits) {
     int TrtHl = driftcircle->highLevel();
     if (TrtHl==1) return false; 
   }            
 
   EGasType gasType = gasTypeInStraw(driftcircle);  
   if(m_useTrackPartWithGasType!=kUnset) // don't preselect hits
-    {
-      if(m_useTrackPartWithGasType!=gasType)
-        return false;
-    }
+  {
+    if(m_useTrackPartWithGasType!=gasType)
+      return false;
+  }
 
   unsigned int BitPattern = driftcircle->prepRawData()->getWord();
   double ToT = getToT(BitPattern);
   if(ToT==0) return false; // If ToT for this hit equal 0, skip it.
   
-  if(m_applyMimicToXeCorrection || m_toolScenario==kAlgScalingToXe)
-    {
-      if(gasType!=kXenon) // mimic to Xenon ToT, so we skip Xenon hits
-        {     
-          if (abs(HitPart)==1) // Barrel
-            ToT/=mimicToXeHit_Barrel(gasType, HitRtrack, Layer, StrawLayer);
-          else // End-cap
-            ToT/=mimicToXeHit_Endcap(gasType, HitRtrack, Layer, HitPart); 
+  if(m_applyMimicToXeCorrection==true || m_toolScenario==kAlgScalingToXe) {
+    if(gasType!=kXenon) // mimic to Xenon ToT, so we skip Xenon hits
+    {     
+      if (abs(HitPart)==1) // Barrel
+        ToT/=mimicToXeHit_Barrel(gasType, HitRtrack, Layer, StrawLayer);
+      else // End-cap
+        ToT/=mimicToXeHit_Endcap(gasType, HitRtrack, Layer, HitPart); 
 
-          if(m_whichToTEstimatorAlgo==kToTLargerIsland){
-            if(ToT<3.125) ToT = 3.125;
-            if(ToT>75)    ToT = 75;
-          }else{
-            if(ToT<3.125) ToT = 3.125;
-            if(ToT>62.5)  ToT = 62.5;
-          }
-
-          gasType=kXenon; // After mimic correction we work with that hit as Xenon hit.
-        }  
-    }
+      if(m_whichToTEstimatorAlgo==kToTLargerIsland){
+        if (ToT<3.125) ToT = 3.125;
+        if (ToT>75)    ToT = 75;
+      } else {
+        if (ToT<3.125) ToT = 3.125;
+        if (ToT>62.5)  ToT = 62.5;
+      }
+      gasType = kXenon; // After mimic correction we work with that hit as Xenon hit.
+    }  
+  }
 
   const Amg::Vector3D& gp = driftcircle->globalPosition();
   double HitR = sqrt( gp.x() * gp.x() + gp.y() * gp.y() );
@@ -1141,8 +1080,6 @@ double TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackParameters* trkP,const In
   return ToTmip*ToT/valToT;
 }
 
-
-
 double TRT_ToT_dEdx::fitFuncBarrel_corrRZ(EGasType gasType, double driftRadius,double zPosition, int Layer, int StrawLayer) const
 {
   if (Layer == 0 && StrawLayer < 9) {
@@ -1150,8 +1087,6 @@ double TRT_ToT_dEdx::fitFuncBarrel_corrRZ(EGasType gasType, double driftRadius,d
   }
   return fitFuncBarrelLong_corrRZ(gasType, driftRadius, zPosition, Layer, StrawLayer);
 }
-
-
 
 double TRT_ToT_dEdx::fitFuncEndcap_corrRZ(EGasType gasType, double driftRadius,double radialPosition, int Layer, int sign) const 
 {
@@ -1162,8 +1097,6 @@ double TRT_ToT_dEdx::fitFuncEndcap_corrRZ(EGasType gasType, double driftRadius,d
   double a  =  fitFuncPol_corrRZ(gasType, 1,driftRadius,Layer,0,sign,2);
   return T0+a*radialPosition;
 }
-
-
 
 double TRT_ToT_dEdx::fitFuncBarrelLong_corrRZ(EGasType gasType, double driftRadius,double zPosition, int Layer, int StrawLayer) const
 {
@@ -1189,8 +1122,6 @@ double TRT_ToT_dEdx::fitFuncBarrelLong_corrRZ(EGasType gasType, double driftRadi
   return T0+(z/v)*exp(expArg);
 }
 
-
-
 double TRT_ToT_dEdx::fitFuncBarrelShort_corrRZ(EGasType gasType, double driftRadius,double zPosition, int StrawLayer) const
 {
   /**
@@ -1207,7 +1138,6 @@ double TRT_ToT_dEdx::fitFuncBarrelShort_corrRZ(EGasType gasType, double driftRad
 
 double TRT_ToT_dEdx::fitFuncPol_corrRZ(EGasType gasType, int parameter, double driftRadius, int Layer, int Strawlayer, int sign, int set) const
 {
-
   SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
   const TRTDedxcorrection* dEdxCorrection{*readHandle};
   if(dEdxCorrection==nullptr)
@@ -1284,7 +1214,6 @@ double TRT_ToT_dEdx::fitFuncPol_corrRZ(EGasType gasType, int parameter, double d
   return a+b*r+c*r*r+d*r*r*r+e*r*r*r*r+f*r*r*r*r*r;
 }
 
-
 double TRT_ToT_dEdx::fitFuncEndcap_corrRZL(EGasType gasType, double driftRadius,double radialPosition, int Layer, int sign) const 
 {
   /*
@@ -1293,11 +1222,10 @@ double TRT_ToT_dEdx::fitFuncEndcap_corrRZL(EGasType gasType, double driftRadius,
 
   SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
   const TRTDedxcorrection* dEdxCorrection{*readHandle};
-  if(dEdxCorrection==nullptr)
-    {
-      ATH_MSG_ERROR(" fitFuncEndcap_corrRZL: Could not find any dEdxCorrection in CondStore. Return zero.");
-      return 0;
-    }
+  if(dEdxCorrection==nullptr) {
+    ATH_MSG_ERROR(" fitFuncEndcap_corrRZL: Could not find any dEdxCorrection in CondStore. Return zero.");
+    return 0;
+  }
 
   double r = fabs(driftRadius);
   double a,b,c,d,e,f,g,h,i;  
@@ -1331,7 +1259,6 @@ double TRT_ToT_dEdx::fitFuncEndcap_corrRZL(EGasType gasType, double driftRadius,
   return T0+T1+slope*radialPosition;
 }
 
-
 double TRT_ToT_dEdx::fitFuncBarrel_corrRZL(EGasType gasType, double driftRadius,double zPosition, int Layer, int Strawlayer) const 
 {
   /*
@@ -1339,16 +1266,14 @@ double TRT_ToT_dEdx::fitFuncBarrel_corrRZL(EGasType gasType, double driftRadius,
    */
   SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
   const TRTDedxcorrection* dEdxCorrection{*readHandle};
-  if(dEdxCorrection==nullptr)
-    {
-      ATH_MSG_ERROR(" fitFuncBarrel_corrRZL: Could not find any dEdxCorrection in CondStore. Return zero.");
-      return 0;
-    }
+  if(dEdxCorrection==nullptr) {
+    ATH_MSG_ERROR(" fitFuncBarrel_corrRZL: Could not find any dEdxCorrection in CondStore. Return zero.");
+    return 0;
+  }
 
   double a,b,c,d,e,f,g;  
-
-  if(Layer==0 && Strawlayer<9){ // short straws
-    if(m_isData){
+  if (Layer==0 && Strawlayer<9) { // short straws
+    if (m_isData){
       a = dEdxCorrection->paraShortCorrRZDivideByLengthDATA[gasType][(0)*9+Strawlayer];
       b = dEdxCorrection->paraShortCorrRZDivideByLengthDATA[gasType][(1)*9+Strawlayer];
       c = dEdxCorrection->paraShortCorrRZDivideByLengthDATA[gasType][(2)*9+Strawlayer];
@@ -1356,7 +1281,7 @@ double TRT_ToT_dEdx::fitFuncBarrel_corrRZL(EGasType gasType, double driftRadius,
       e = dEdxCorrection->paraShortCorrRZDivideByLengthDATA[gasType][(4)*9+Strawlayer];
       f = dEdxCorrection->paraShortCorrRZDivideByLengthDATA[gasType][(5)*9+Strawlayer];
       g = dEdxCorrection->paraShortCorrRZDivideByLengthDATA[gasType][(6)*9+Strawlayer];
-    }else{
+    } else {
       a = dEdxCorrection->paraShortCorrRZDivideByLengthMC[gasType][(0)*9+Strawlayer];
       b = dEdxCorrection->paraShortCorrRZDivideByLengthMC[gasType][(1)*9+Strawlayer];
       c = dEdxCorrection->paraShortCorrRZDivideByLengthMC[gasType][(2)*9+Strawlayer];
@@ -1365,9 +1290,8 @@ double TRT_ToT_dEdx::fitFuncBarrel_corrRZL(EGasType gasType, double driftRadius,
       f = dEdxCorrection->paraShortCorrRZDivideByLengthMC[gasType][(5)*9+Strawlayer];
       g = dEdxCorrection->paraShortCorrRZDivideByLengthMC[gasType][(6)*9+Strawlayer];
     }
-    
-  }else{
-    if(m_isData){
+  } else {
+    if (m_isData) {
       a = dEdxCorrection->paraLongCorrRZDivideByLengthDATA[gasType][(0)*30*3+Layer*30+Strawlayer];
       b = dEdxCorrection->paraLongCorrRZDivideByLengthDATA[gasType][(1)*30*3+Layer*30+Strawlayer];
       c = dEdxCorrection->paraLongCorrRZDivideByLengthDATA[gasType][(2)*30*3+Layer*30+Strawlayer];
@@ -1375,7 +1299,7 @@ double TRT_ToT_dEdx::fitFuncBarrel_corrRZL(EGasType gasType, double driftRadius,
       e = dEdxCorrection->paraLongCorrRZDivideByLengthDATA[gasType][(4)*30*3+Layer*30+Strawlayer];
       f = dEdxCorrection->paraLongCorrRZDivideByLengthDATA[gasType][(5)*30*3+Layer*30+Strawlayer];
       g = dEdxCorrection->paraLongCorrRZDivideByLengthDATA[gasType][(6)*30*3+Layer*30+Strawlayer];
-    }else{
+    } else {
       a = dEdxCorrection->paraLongCorrRZDivideByLengthMC[gasType][(0)*30*3+Layer*30+Strawlayer];
       b = dEdxCorrection->paraLongCorrRZDivideByLengthMC[gasType][(1)*30*3+Layer*30+Strawlayer];
       c = dEdxCorrection->paraLongCorrRZDivideByLengthMC[gasType][(2)*30*3+Layer*30+Strawlayer];
@@ -1393,12 +1317,10 @@ double TRT_ToT_dEdx::fitFuncBarrel_corrRZL(EGasType gasType, double driftRadius,
   double slope = e*r+f*r*r+g*r*r*r;  
   double result;
   result = T0neg+T1+slope*z;
-  if(zPosition>0)result = T0pos+T1+slope*z;
+  if (zPosition>0) result = T0pos+T1+slope*z;
 
   return result;
 }
-
-
 
 double TRT_ToT_dEdx::getToTlargerIsland(unsigned int BitPattern) const 
 {
@@ -1433,8 +1355,6 @@ double TRT_ToT_dEdx::getToTlargerIsland(unsigned int BitPattern) const
   assert(k == 24);
   return best_length*3.125; 
 }
-
-
 
 double TRT_ToT_dEdx::getToTonly1bits(unsigned int BitPattern) const 
 {
@@ -1482,7 +1402,6 @@ double TRT_ToT_dEdx::getToTonly1bits(unsigned int BitPattern) const
   return ToT_only1bits;
 }
 
-
 double TRT_ToT_dEdx::getToTHighOccupancy(unsigned int BitPattern) const 
 {
   int LE = DriftTimeBin_v2(BitPattern);
@@ -1492,8 +1411,6 @@ double TRT_ToT_dEdx::getToTHighOccupancy(unsigned int BitPattern) const
 
   return (double) (TE-LE+1)*3.125; 
 }
-
-
 
 int TRT_ToT_dEdx::DriftTimeBin_v2(unsigned int BitPattern) const
 {
@@ -1513,9 +1430,7 @@ int TRT_ToT_dEdx::DriftTimeBin_v2(unsigned int BitPattern) const
     }
   if(i==18) i=0;
   return i;
-}  
-
-
+}
 
 int TRT_ToT_dEdx::TrailingEdge_v2(unsigned int BitPattern) const
 {
@@ -1543,8 +1458,6 @@ int TRT_ToT_dEdx::TrailingEdge_v2(unsigned int BitPattern) const
   return (23 - i);
 }
 
-
-
 double TRT_ToT_dEdx::getToTHighOccupancySmart(unsigned int BitPattern) const 
 {
   int LE = DriftTimeBin_v2(BitPattern);
@@ -1554,8 +1467,6 @@ double TRT_ToT_dEdx::getToTHighOccupancySmart(unsigned int BitPattern) const
 
   return (double) (TE-LE+1)*3.125; 
 }
-
-
 
 int TRT_ToT_dEdx::TrailingEdge_v3(unsigned int BitPattern) const
 {
@@ -1573,66 +1484,53 @@ int TRT_ToT_dEdx::TrailingEdge_v3(unsigned int BitPattern) const
   int j=0;
   int k=0;
   
-  if(word_TE & mask_last_bit) 
-    {
-  
-      for (j = 0; j < 11; ++j)
-        {
-          mask_last_bit=mask_last_bit<<1;
+  if (word_TE & mask_last_bit) {
+    for (j = 0; j < 11; ++j) {
+      mask_last_bit=mask_last_bit<<1;          
+      if (j==3) mask_last_bit=mask_last_bit<<1;
                 
-          if(j==3) mask_last_bit=mask_last_bit<<1;
-                
-          if ( !(word_TE & mask_last_bit) )
-            {
-              SawZero2 = true;
-              break;                  
-            }
-        }
-        
-      if(!SawZero2) return 19;
-
-      if(SawZero2){
-        for (k = j+1; k < 11; ++k)
-          {
-            mask_last_bit=mask_last_bit<<1;
-
-            if(k==3) mask_last_bit=mask_last_bit<<1;
-
-            if ( word_TE & mask_last_bit )
-              {
-                SawUnit1 = true;
-                break;                                  
-              }
-          } 
+      if (!(word_TE & mask_last_bit)) {
+        SawZero2 = true;
+        break;                  
       }
-        
-      if(!SawUnit1 && SawZero2) return 19;
-        
     }
+        
+    if(!SawZero2) return 19;
+
+    if(SawZero2){
+      for (k = j+1; k < 11; ++k) {
+        mask_last_bit=mask_last_bit<<1;
+        if (k==3) mask_last_bit=mask_last_bit<<1;
+
+        if (word_TE & mask_last_bit) {
+          SawUnit1 = true;
+          break;                                  
+        }
+      }
+    }
+        
+    if (!SawUnit1 && SawZero2) return 19; 
+  }
   
   //+++++++++++++++++++++++++++++++++++++
   
-  for (i = 0; i < 24; ++i)
-    {
-      if(!(word_TE & mask) && i>3)
-        {
-          SawZero1 = true;
-        }
-            
-      if(SawZero1)
-        {  
-          if ( (word_TE & mask) && SawZero )
-            break;
-          if ( !(word_TE & mask) )
-            SawZero = true;
-        }
-      mask <<= 1;
-      if (i == 7 || i == 15)
-        mask <<= 1;
+  for (i = 0; i < 24; ++i) {
+    if (!(word_TE & mask) && i>3) {
+      SawZero1 = true;
     }
+
+    if (SawZero1) {  
+      if ((word_TE & mask) && SawZero) {
+        break;
+      } else if (!(word_TE & mask)) {
+        SawZero = true;
+      }
+    }
+    mask <<= 1;
+    if (i == 7 || i == 15) mask <<= 1;
+  }
  
-  if ( 24 == i )
-    return i;
+  if (24 == i) return i;
 
   return (23 - i);
 }

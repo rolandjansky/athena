@@ -78,7 +78,6 @@ private:
 
   // Algorithm switchers
   bool m_corrected;                 // If true - make correction using rs-distributions
-  bool m_divideByL;                 // If true - divide ToT to the L of track in straw.
   bool m_useHThits;                 // If true - use HT hit for dEdX estimator calculation
 
   int  m_whichToTEstimatorAlgo;     // If true - use getToTNewApproach(), else - use getToTlargerIsland()
@@ -99,6 +98,8 @@ private:
   float m_trackConfig_minRtrack;  // maximum track radius
 
   bool m_useZeroRHitCut;  // skip tracks with where RHit=0
+
+  int nTrunkateHits = 1;
 
 
 public:
@@ -407,7 +408,6 @@ public:
 
   // void  SwitchOnDivideByL()                   { m_divideByL=true;           }
   // void  SwitchOffDivideByL()                  { m_divideByL=false;          }
-  bool  GetStatusDivideByL() const            { return m_divideByL;         }
 
   // void  SwitchOnUseHThits()                   { m_useHThits=true;           }
   // void  SwitchOffUseHThits()                  { m_useHThits=false;          }

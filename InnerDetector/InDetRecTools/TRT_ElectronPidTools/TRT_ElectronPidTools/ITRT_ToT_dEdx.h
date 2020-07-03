@@ -179,7 +179,6 @@ public:
 
   // virtual void  SwitchOnDivideByL() = 0;
   // virtual void  SwitchOffDivideByL() = 0;
-  virtual bool  GetStatusDivideByL() const = 0;
 
   // virtual void  SwitchOnUseHThits() = 0;
   // virtual void  SwitchOffUseHThits() = 0;
