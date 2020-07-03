@@ -1849,7 +1849,12 @@ namespace top {
     inline void setUseEventLevelJetCleaningTool(const bool value) {m_useEventLevelJetCleaningTool = value;}
 
     // Just a function that might need to be used in multiple places - return the running year (2015, 2016, 2017)
-    const std::string getYear(unsigned int runnumber);
+    std::string getYear(unsigned int runnumber, const bool isMC);
+    
+    const std::string& getYear(){return m_year;}
+    void SetYear(const std::string& year){m_year = year;}
+
+    void SetTriggersToYear(const bool isMC);
 
     // Setter and getter functions for recording whether we have configured the nominal objects
     inline virtual void setNominalAvailable(const bool s) {m_isNominalAvailable = s;}
@@ -2611,6 +2616,8 @@ namespace top {
     std::shared_ptr<TreeFilter> m_treeFilter;
 
     std::unordered_map<std::string, std::string> m_showerMCMCtranslator;
+
+    std::string m_year;
 
     //ReadFloatOption
     float readFloatOption(top::ConfigurationSettings* const& settings, std::string in) const;
