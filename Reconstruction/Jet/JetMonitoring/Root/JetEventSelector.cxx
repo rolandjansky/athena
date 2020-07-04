@@ -24,7 +24,7 @@ JetEventSelector:: ~JetEventSelector(){
 StatusCode JetEventSelector::initialize() {
 
   ATH_CHECK(m_var.retrieve() );
-  ATH_MSG_INFO( "Selecting on var ("<< m_var->describe() << ") in ["<< m_min << " , "<< m_max<< "]");
+  ATH_MSG_INFO( "Selecting on var ("<< m_var->varName() << ") in ["<< m_min << " , "<< m_max<< "]");
 
   return StatusCode::SUCCESS;
 }

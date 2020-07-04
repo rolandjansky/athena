@@ -32,7 +32,7 @@ public:
   /// the value of the variable for a given Event
   virtual float value(const xAOD::EventInfo &, const xAOD::JetContainer&) const = 0;
   /// a compact description of the variable.
-  virtual std::string describe() const =0;
+  virtual std::string varName() const =0;
 };
 
 
@@ -44,12 +44,13 @@ public:
   virtual StatusCode initialize() ;  
 
   virtual float value(const xAOD::EventInfo &, const xAOD::JetContainer&) const;
-  virtual std::string describe() const {return m_varName;}
+  virtual std::string varName() const {return m_varName;}
   
   
 private:
 
-  Gaudi::Property<std::string> m_varName {this,"Variable", ""};
+  Gaudi::Property<std::string> m_varName {this,"VarName", ""};
+  Gaudi::Property<std::string> m_attName {this,"Attribute", ""};
   Gaudi::Property<float> m_defaultValue = {this,"Default", -1.};
   
 };

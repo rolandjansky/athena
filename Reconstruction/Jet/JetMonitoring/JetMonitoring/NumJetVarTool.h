@@ -24,11 +24,12 @@ public:
   virtual StatusCode initialize() ;  
 
   virtual float value(const xAOD::EventInfo &, const xAOD::JetContainer&) const;
-  virtual std::string describe() const {return "NJets with pT cut";}
+  virtual std::string varName() const {return m_varName;}
   
 private:
 
   Gaudi::Property<float> m_pTcut = {this,"JetMinPtCut", 0.};
+  Gaudi::Property<std::string> m_varName {this,"VarName", ""};
   bool m_failureOnMissingContainer;
 
 };

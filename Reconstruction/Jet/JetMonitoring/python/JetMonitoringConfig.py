@@ -390,20 +390,26 @@ class EventHistoSpec(ToolSpec):
     def toTool(self):
         from AthenaConfiguration.ComponentFactory import CompFactory
         from JetMonitoring.JetStandardHistoSpecs import knownEventVar
+        # force the property "VarName" to simply be the name of the variable specification:
+        v = knownEventVar[self.name]
+        v.VarName = v.name
         tool = CompFactory.JetHistoEventLevelFiller( self.name+"hfiller",
-                                                Var = knownEventVar[self.name].toTool(),
+                                                Var = v.toTool(),
                                                 Group = self.name,
         )
         return tool
 
     def defineHisto(self, parentAlg, monhelper , path):
+        from JetMonitoring.JetStandardHistoSpecs import knownEventVar
         hargs = dict(xbins = self.bins[0],xmin = self.bins[1], xmax=self.bins[2],
                      type='TH1F', )
         hargs.update( **self.hargs)
         # we create one group for each histoFiller : self.name() are unique within a JetMonitoringAlg
         bottomLevelDir = self.bottomLevelDir if self.bottomLevelDir != '' else parentAlg.JetContainerName
         group = monhelper.addGroup(parentAlg, self.name, self.topLevelDir+bottomLevelDir)
-        group.defineHistogram(self.name, path=path, **hargs)
+        group.defineHistogram(knownEventVar[self.name].VarName, path=path, **hargs)
+
+
 
 
 
@@ -581,7 +587,7 @@ def retrieveEventVarToolConf(alias):
     if isinstance(alias, str): #check for existing event or jetcontainer specs
         conf = knownEventVar.get(alias,None) 
         if conf is None: #assume it's an eventInfo variable
-          conf = ToolSpec('EventHistoVarTool', alias, Variable=alias) 
+          conf = ToolSpec('EventHistoVarTool', alias, Attribute=alias) 
     else: # assume it's a config dict
         conf = alias
     return conf

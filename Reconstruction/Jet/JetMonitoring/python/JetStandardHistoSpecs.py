@@ -25,8 +25,8 @@ knownVar = dict(
 
 knownEventVar = dict(    
     # These always are of type 'float'
-    avgMu = ToolSpec('EventHistoVarTool', 'avgMu', Variable='averageInteractionsPerCrossing'),
-    actMu = ToolSpec('EventHistoVarTool', 'actMu', Variable='actualInteractionsPerCrossing'),
+    avgMu = ToolSpec('EventHistoVarTool', 'avgMu', Attribute='averageInteractionsPerCrossing'),
+    actMu = ToolSpec('EventHistoVarTool', 'actMu', Attribute='actualInteractionsPerCrossing'),
     njets = ToolSpec('NumJetVarTool', 'njets', JetMinPtCut=0. ),
     njets20 = ToolSpec('NumJetVarTool', 'njets20', JetMinPtCut=20.),
     njets50 = ToolSpec('NumJetVarTool', 'njets50', JetMinPtCut=50.),

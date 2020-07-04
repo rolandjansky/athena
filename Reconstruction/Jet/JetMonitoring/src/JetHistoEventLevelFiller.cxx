@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaMonitoringKernel/Monitored.h"
@@ -19,8 +19,7 @@ JetHistoEventLevelFiller::JetHistoEventLevelFiller( const std::string& type,  co
 StatusCode JetHistoEventLevelFiller::processJetContainer(const JetMonitoringAlg& parentAlg, const xAOD::JetContainer & jets, const EventContext& ctx) const {
 
   auto eventInfo = parentAlg.GetEventInfo(ctx);
-
-  Monitored::Scalar<float> s( m_var->describe() );
+  Monitored::Scalar<float> s( m_var->varName() );
   s = m_var->value( *eventInfo, jets );
   parentAlg.fill(m_group, s );
 
