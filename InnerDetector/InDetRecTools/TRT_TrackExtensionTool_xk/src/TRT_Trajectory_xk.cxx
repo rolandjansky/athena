@@ -519,7 +519,7 @@ Trk::TrackSegment* InDet::TRT_Trajectory_xk::convert()
 
   // Test quality of propagation to perigee
   //
-  if(fabs(m_parameters.pT()) < 300.) return 0;
+  if(fabs(m_parameters.pT()) < m_minTRTSegmentpT) return 0;
 
   const Trk::Surface* sur = m_parameters.associatedSurface();
 
@@ -722,7 +722,7 @@ bool InDet::TRT_Trajectory_xk::fitter()
   const double trad = .003;
   double        rad =  0. ;
 
-  if(!trackParametersEstimationForLastPoint() || fabs(m_parameters.pT()) < 300.) return false;
+  if(!trackParametersEstimationForLastPoint() || fabs(m_parameters.pT()) < m_minTRTSegmentpT) return false;
   double sin2 = 1./sin(m_parameters.par()[3]); sin2*= sin2        ;
   double P42  =        m_parameters.par()[4] ; P42  = P42*P42*134.;
 

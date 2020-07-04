@@ -19,6 +19,7 @@ class ConfiguredBackTracking:
       # get ToolSvc and topSequence
       #
       from AthenaCommon.AppMgr                import ToolSvc
+      from AthenaCommon.AppMgr                import ServiceMgr
       from AthenaCommon.AlgSequence           import AlgSequence
       topSequence = AlgSequence()
 
@@ -157,7 +158,17 @@ class ConfiguredBackTracking:
          self.__TRTSeededTracks = InDetKeys.TRTSeededTracks()
          #
          # TRT seeded back tracking algorithm
-         #
+         from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
+         InDetRegSelSvc             = RegSelSvcDefault()
+         #TODO Figure out if we want to use pixels too
+         #InDetRegSelSvc.enablePixel = DetFlags.pixel_on()
+         InDetRegSelSvc.enableSCT   = DetFlags.SCT_on()
+
+         ServiceMgr += InDetRegSelSvc
+         if (InDetFlags.doPrintConfigurables()):
+           printfunc (InDetRegSelSvc)
+
+
          from AthenaCommon import CfgGetter
          from TRT_SeededTrackFinder.TRT_SeededTrackFinderConf import InDet__TRT_SeededTrackFinder
          import InDetRecExample.TrackingCommon as TrackingCommon
@@ -183,6 +194,11 @@ class ConfiguredBackTracking:
                                                                    OutputSegments        = False,
                                                                    InputSegmentsLocation = InDetKeys.TRT_Segments(),
                                                                    OutputTracksLocation  = self.__TRTSeededTracks)
+         # TODO Add flag for calo seeded?
+         TRTCaloSeeded = True
+         if (TRTCaloSeeded):
+            InDetTRT_SeededTrackFinder.RegionSelectorSvc = InDetRegSelSvc
+            InDetTRT_SeededTrackFinder.CaloSeededRoI = True
          # InDetTRT_SeededTrackFinder.OutputLevel = VERBOSE
          topSequence += InDetTRT_SeededTrackFinder
          if (InDetFlags.doPrintConfigurables()):

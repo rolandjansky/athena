@@ -176,6 +176,8 @@ namespace InDet{
       // Methods
       ///////////////////////////////////////////////////////////////////
 
+      float m_minTRTSegmentpT = 3000.0;
+
       void stabline(int,double);
       void sort    (samiStruct*,int);
       void erase   (int);

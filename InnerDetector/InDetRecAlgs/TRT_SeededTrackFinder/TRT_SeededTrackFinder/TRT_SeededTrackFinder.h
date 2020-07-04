@@ -39,6 +39,9 @@
 
 #include "CxxUtils/checker_macros.h"
 
+#include "IRegionSelector/IRegSelSvc.h"
+#include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
+
 class MsgStream;
 
 namespace InDet {
@@ -79,7 +82,8 @@ namespace InDet {
     protected:
 
       StatusCode execute_r (const EventContext& ctx) const;
-
+  
+  //    ServiceHandle<IRegSelSvc>          m_regionSelector;      //!< region selector service
       ///////////////////////////////////////////////////////////////////
       /* Protected data                                                */
       ///////////////////////////////////////////////////////////////////
@@ -117,6 +121,12 @@ namespace InDet {
       double m_maxRPhiImp;      //!< maximal RPhi impact parameter cut
       double m_maxZImp;         //!< maximal z impact parameter cut
 
+      bool                               m_caloSeededRoI;
+      SG::ReadHandleKey<CaloClusterROI_Collection>  m_caloKey
+       {this, "InputClusterContainerName", "InDetCaloClusterROIs", "Location of the optional Calo cluster seeds."};
+
+      ServiceHandle<IRegSelSvc> m_regionSelector{ this, "RegSelSvc", "RegSelSvc/RegSelSvc", "Region selector service instance" };
+      float m_clusterEt;
       /** Global Counters for final algorithm statistics */
       struct Stat_t {
          enum ECounter {
