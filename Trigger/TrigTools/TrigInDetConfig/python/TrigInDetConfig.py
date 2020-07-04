@@ -91,7 +91,7 @@ def SiCombinatorialTrackFinder_xkCfg( flags, **kwargs ):
   pixelCondSummaryTool = acc.popToolsAndMerge( PixelConditionsSummaryCfg(flags) )
 
   from InDetConfig.InDetRecToolConfig import InDetSCT_ConditionsSummaryToolCfg
-  sctCondSummaryTool = acc.popToolsAndMerge( InDetSCT_ConditionsSummaryToolCfg( flags,withFlaggedCondTool=False, withTdaqTool=False ) )
+  sctCondSummaryTool = acc.popToolsAndMerge( InDetSCT_ConditionsSummaryToolCfg( flags, withFlaggedCondTool=False, withTdaqTool=False ) )
 
 
   tool = CompFactory.InDet.SiCombinatorialTrackFinder_xk(name,
@@ -272,14 +272,18 @@ def InDetIDCCacheCreatorCfg():
   return acc
 
 
+
+
 #Set up conditions algorithms
-def TrigInDetCondConfig( flags ):
+def TrigInDetCondCfg( flags ):
 
   acc = ComponentAccumulator()
   from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg
   acc.merge(InDetGeometryCfg(flags))
   #acc.merge(InDetGMConfig(flags))
 
+  
+  
   from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline, addFolders
   acc.merge(addFoldersSplitOnline(flags, "INDET","/Indet/Onl/AlignL1/ID","/Indet/AlignL1/ID",className="CondAttrListCollection"))
   acc.merge(addFoldersSplitOnline(flags, "INDET","/Indet/Onl/AlignL2/PIX","/Indet/AlignL2/PIX",className="CondAttrListCollection"))
@@ -323,33 +327,44 @@ def TrigInDetCondConfig( flags ):
   dbInstance = "DCS_OFL"
   acc.merge(addFolders(flags, [stateFolder, hvFolder, tempFolder], dbInstance, className="CondAttrListCollection"))
 
-  SCT_DCSConditionsTempCondAlg=CompFactory.SCT_DCSConditionsTempCondAlg
-  acc.addCondAlgo(SCT_DCSConditionsTempCondAlg( ReadKey = tempFolder ))
-  SCT_DCSConditionsStatCondAlg=CompFactory.SCT_DCSConditionsStatCondAlg
-  acc.addCondAlgo(SCT_DCSConditionsStatCondAlg(ReturnHVTemp = True,
-                                               ReadKeyHV = hvFolder,
-                                               ReadKeyState = stateFolder))
-  SCT_DCSConditionsHVCondAlg=CompFactory.SCT_DCSConditionsHVCondAlg
-  acc.addCondAlgo(SCT_DCSConditionsHVCondAlg(ReadKey = hvFolder))
 
-  SCT_SiliconHVCondAlg=CompFactory.SCT_SiliconHVCondAlg
-  acc.addCondAlgo(SCT_SiliconHVCondAlg(UseState = dcsTool.ReadAllDBFolders,
-                                       DCSConditionsTool = dcsTool))
-  SCT_SiliconTempCondAlg=CompFactory.SCT_SiliconTempCondAlg
-  acc.addCondAlgo(SCT_SiliconTempCondAlg(UseState = dcsTool.ReadAllDBFolders, DCSConditionsTool = dcsTool))
+  # from InDetConfig.InDetRecToolConfig import InDetSCT_ConditionsSummaryToolCfg
+  # sctCondSummaryTool = acc.popToolsAndMerge( InDetSCT_ConditionsSummaryToolCfg( flags, withFlaggedCondTool=False, withTdaqTool=False ) )
+  
+  # SCT_DCSConditionsTempCondAlg=CompFactory.SCT_DCSConditionsTempCondAlg
+  # acc.addCondAlgo(SCT_DCSConditionsTempCondAlg( ReadKey = tempFolder ))
+
+  # SCT_DCSConditionsStatCondAlg=CompFactory.SCT_DCSConditionsStatCondAlg
+  # acc.addCondAlgo(SCT_DCSConditionsStatCondAlg(ReturnHVTemp = True,
+  #                                             ReadKeyHV = hvFolder,
+  #                                             ReadKeyState = stateFolder))
+  # SCT_DCSConditionsHVCondAlg=CompFactory.SCT_DCSConditionsHVCondAlg
+  # acc.addCondAlgo(SCT_DCSConditionsHVCondAlg(ReadKey = hvFolder))
+
+  # SCT_SiliconHVCondAlg=CompFactory.SCT_SiliconHVCondAlg
+  # acc.addCondAlgo(SCT_SiliconHVCondAlg(UseState = dcsTool.ReadAllDBFolders,
+  #                                     DCSConditionsTool = dcsTool))
+  # SCT_SiliconTempCondAlg=CompFactory.SCT_SiliconTempCondAlg
+  # acc.addCondAlgo(SCT_SiliconTempCondAlg(UseState = dcsTool.ReadAllDBFolders, DCSConditionsTool = dcsTool))
 
 
-  SCTSiLorentzAngleCondAlg=CompFactory.SCTSiLorentzAngleCondAlg
-  acc.addCondAlgo(SCTSiLorentzAngleCondAlg(name = "SCTSiLorentzAngleCondAlg",
-                                           SiConditionsTool = sctSiliconConditionsTool,
-                                           UseMagFieldCache = True,
-                                           UseMagFieldDcs = False))
-  SiLorentzAngleTool=CompFactory.SiLorentzAngleTool
-  SCTLorentzAngleTool = SiLorentzAngleTool(name = "SCTLorentzAngleTool", DetectorName="SCT", SiLorentzAngleCondData="SCTSiLorentzAngleCondData")
-  SCTLorentzAngleTool.UseMagFieldCache = True
+
+  
+  # SCTSiLorentzAngleCondAlg=CompFactory.SCTSiLorentzAngleCondAlg
+  # acc.addCondAlgo(SCTSiLorentzAngleCondAlg(name = "SCTSiLorentzAngleCondAlg",
+  #                                          SiConditionsTool = sctSiliconConditionsTool,
+  #                                          UseMagFieldCache = True,
+  #                                          UseMagFieldDcs = False))
+  # SiLorentzAngleTool=CompFactory.SiLorentzAngleTool
+  # SCTLorentzAngleTool = SiLorentzAngleTool(name = "SCTLorentzAngleTool", DetectorName="SCT", SiLorentzAngleCondData="SCTSiLorentzAngleCondData")
+  # SCTLorentzAngleTool.UseMagFieldCache = True
+  # acc.addPublicTool(SCTLorentzAngleTool)
+
+
+  from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
+  SCTLorentzAngleTool =  acc.popToolsAndMerge( SCT_LorentzAngleCfg( flags ) )
   acc.addPublicTool(SCTLorentzAngleTool)
-
-
+  
   acc.merge(addFoldersSplitOnline(flags, "INDET", "/Indet/Onl/Beampos", "/Indet/Beampos", className="AthenaAttributeList"))
   acc.merge(addFolders(flags, "/TRT/Onl/ROD/Compress","TRT_ONL", className='CondAttrListCollection'))
   acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Calib/RT","/TRT/Calib/RT",className="TRTCond::RtRelationMultChanContainer"))
@@ -366,7 +381,7 @@ def TrigInDetCondConfig( flags ):
       PixelHitDiscCnfgAlgCfg, PixelReadoutSpeedAlgCfg, PixelCablingCondAlgCfg,
       PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg, PixelTDAQCondAlgCfg,
       PixelDistortionAlgCfg, PixelOfflineCalibCondAlgCfg
-# NEW FOR RUN3    PixelDeadMapCondAlgCfg, PixelChargeLUTCalibCondAlgCfg
+# NEW FOR RUN3    PixelDeadMapCondAlgCfg, PixelChargeLUTCalibCondAlgCfg/
   )
 
   from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
@@ -425,7 +440,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
   signature =  "_" + signatureName if signatureName else ''
 
   acc = ComponentAccumulator()
-  acc.merge(TrigInDetCondConfig(flags))
+  acc.merge(TrigInDetCondCfg(flags))
 
   from InDetRecExample.InDetKeys import InDetKeys
 
@@ -594,7 +609,8 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
   InDetSiSpacePointMakerTool = InDet__SiSpacePointMakerTool(name = "InDetSiSpacePointMakerTool"+ signature)
   acc.addPublicTool(InDetSiSpacePointMakerTool)
 
-  from AthenaCommon.DetFlags import DetFlags
+  acc.addCondAlgo( CompFactory.InDet.SiElementPropertiesTableCondAlg(name = "InDetSiElementPropertiesTableCondAlg") ) 
+  
   InDet__SiTrackerSpacePointFinder=CompFactory.InDet.SiTrackerSpacePointFinder
   InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name                   = "InDetSiTrackerSpacePointFinder"+ signature,
                                                                     SiSpacePointMakerTool  = InDetSiSpacePointMakerTool,
@@ -603,12 +619,13 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
                                                                     SpacePointsPixelName   = "PixelTrigSpacePoints",
                                                                     SpacePointsSCTName     = "SCT_TrigSpacePoints",
                                                                     SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
-                                                                    ProcessPixels          = DetFlags.haveRIO.pixel_on(),
-                                                                    ProcessSCTs            = DetFlags.haveRIO.SCT_on(),
-                                                                    ProcessOverlaps        = DetFlags.haveRIO.SCT_on(),
+                                                                    ProcessPixels          = flags.Detector.PixelOn, #DetFlags.haveRIO.pixel_on(), # TODO ask Jiri about thes flags again
+                                                                    ProcessSCTs            = flags.Detector.SCTOn, #DetFlags.haveRIO.SCT_on(),
+                                                                    ProcessOverlaps        = flags.Detector.SCTOn, #DetFlags.haveRIO.SCT_on(),
                                                                     SpacePointCacheSCT = InDetCacheNames.SpacePointCacheSCT,
                                                                     SpacePointCachePix = InDetCacheNames.SpacePointCachePix,)
-
+  from AthenaCommon.Constants import DEBUG
+  InDetSiTrackerSpacePointFinder.OutputLevel=DEBUG
   acc.addEventAlgo(InDetSiTrackerSpacePointFinder)
 
   acc.addPublicTool( CompFactory.TrigL2LayerNumberTool( "TrigL2LayerNumberTool_FTF" ) )
@@ -628,7 +645,9 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
                                          TrigL2ResidualCalculator = acc.getPublicTool( "TrigL2ResidualCalculator" ),
                                          initialTrackMaker        = acc.getPublicTool( "InDetTrigSiTrackMaker_FTF" + signature ),
                                          trigInDetTrackFitter     = acc.getPublicTool( "TrigInDetTrackFitter" ),
-                                         trigZFinder = CompFactory.TrigZFinder(), )
+                                         trigZFinder = CompFactory.TrigZFinder()) 
+  ftf.RoIs = roisKey
+  ftf.OutputLevel=DEBUG
   acc.addEventAlgo( ftf )
 
   #CondSvc=CompFactory.CondSvc

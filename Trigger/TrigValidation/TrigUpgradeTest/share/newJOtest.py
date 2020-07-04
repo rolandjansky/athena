@@ -29,7 +29,10 @@ flags.Output.doWriteRDO = True
 flags.Output.RDOFileName = 'RDO_TRIG.pool.root'
 
 flags.Trigger.CostMonitoring.doCostMonitoring = True
-
+flags.Scheduler.CheckDependencies = True
+flags.Scheduler.ShowDataDeps = True
+flags.Scheduler.ShowDataFlow = True
+flags.Scheduler.ShowControlFlow = True
 
 import importlib
 setupMenuPath = "TriggerMenuMT.HLTMenuConfig.Menu."+flags.Trigger.triggerMenuSetup+"_newJO"
@@ -69,9 +72,6 @@ from RegionSelector.RegSelConfig import regSelCfg
 acc.merge( regSelCfg( flags ) )
 
 
-from TrigInDetConfig.TrigInDetConfig import TrigInDetCondConfig
-acc.merge( TrigInDetCondConfig( flags ) )
-
 acc.getEventAlgo( "TrigSignatureMoniMT" ).OutputLevel=DEBUG
 
 
@@ -87,7 +87,10 @@ acc.foreach_component("*HLTTop/*Input*").OutputLevel = DEBUG # input makers
 acc.foreach_component("*HLTTop/*HLTEDMCreator*").OutputLevel = DEBUG # messaging from the EDM creators
 acc.foreach_component("*HLTTop/*GenericMonitoringTool*").OutputLevel = WARNING # silcence mon tools (addressing by type)
 
-acc.printConfig()
+
+
+acc.printConfig(withDetails=False, summariseProps=False)
+
 
 fname = "newJOtest.pkl"
 print( "Storing config in the file {}".format( fname ) )
