@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrkVertexKinematicFitterUtils_CollinearityConstraint_h 
@@ -10,27 +10,32 @@
 
 #include "TrkVertexFitterInterfaces/IKinematicConstraint.h"
 
-
-namespace Trk
+namespace Trk {
+class CollinearityConstraint : public IKinematicConstraint
 {
-  class CollinearityConstraint : public IKinematicConstraint
-  {
-  public:
+public:
 
-    CollinearityConstraint() ;
-    
-    ~CollinearityConstraint();
 
-   virtual const Amg::VectorX vectorOfValues(std::vector<Amg::VectorX> & cart_coordList, std::vector<int> &charges, Amg::Vector3D refPoint, double b_fieldTesla ) const;
-   
-   virtual const Amg::MatrixX matrixOfDerivatives(std::vector<Amg::VectorX> & cart_coordList, std::vector<int> &charges, Amg::Vector3D refPoint, double b_fieldTesla ) const;
-   
-   virtual int numberOfEquations() const { return m_eqno; } 
+  CollinearityConstraint() = default;
+  virtual ~CollinearityConstraint() = default;
 
-  private:
-    
-   int m_eqno; // number of constraint-equations used
-   };
+  virtual Amg::VectorX vectorOfValues(
+    std::vector<Amg::VectorX>& cart_coordList,
+    std::vector<int>& charges,
+    Amg::Vector3D refPoint,
+    double b_fieldTesla) const override final;
+
+  virtual Amg::MatrixX matrixOfDerivatives(
+    std::vector<Amg::VectorX>& cart_coordList,
+    std::vector<int>& charges,
+    Amg::Vector3D refPoint,
+    double b_fieldTesla) const override final;
+
+  virtual int numberOfEquations() const override final { return s_eqno; }
+
+private:
+  static constexpr int s_eqno = 2; // number of constraint-equations used
+};
 }
 
 #endif //TrkVertexKinematicFitterUtils_CollinearityConstraint_h 
