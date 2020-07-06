@@ -15,7 +15,7 @@ import six
 import glob
 
 from TrigValTools.TrigValSteering.Step import Step, get_step_from_list
-from TrigValTools.TrigValSteering.Common import art_input_eos, art_input_cvmfs
+from TrigValTools.TrigValSteering.Common import art_input_eos, art_input_cvmfs, running_in_CI
 
 class RefComparisonStep(Step):
     '''Base class for steps comparing a file to a reference'''
@@ -350,6 +350,9 @@ class RootCompStep(RefComparisonStep):
 
     def configure(self, test):
         RefComparisonStep.configure(self, test)
+        if running_in_CI():
+            # drawing the diff output may be slow and is not needed for CI
+            self.args += ' --noRoot --noPS'
         self.args += ' {} {}'.format(self.reference, self.input_file)
         Step.configure(self, test)
 

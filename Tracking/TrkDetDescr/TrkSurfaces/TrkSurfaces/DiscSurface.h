@@ -188,7 +188,7 @@ public:
 
   /** Specialized for DiscSurface : LocalParameters to Vector2D */
   virtual Amg::Vector2D localParametersToPosition(
-    const LocalParameters& locpars) const override;
+    const LocalParameters& locpars) const override final;
 
   /** Specialized for DiscSurface: LocalToGlobal method without dynamic memory
    * allocation */
@@ -255,7 +255,7 @@ public:
     const Amg::Vector3D& pos,
     const Amg::Vector3D& dir,
     bool forceDir = false,
-    Trk::BoundaryCheck bchk = false) const override;
+    Trk::BoundaryCheck bchk = false) const override final;
 
   /** fast straight line distance evaluation to Surface */
   virtual DistanceSolution straightLineDistanceEstimate(

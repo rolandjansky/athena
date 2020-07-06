@@ -10,10 +10,10 @@ find_package( cx_Oracle )
 find_package( future )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
-atlas_install_runtime( scripts/*.py )
-atlas_install_scripts( scripts/HelloWorld_tf.py )
+atlas_install_runtime( scripts/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
+atlas_install_scripts( scripts/HelloWorld_tf.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_generic( share/*.db
                        DESTINATION share
                        EXECUTABLE )

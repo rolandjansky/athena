@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LAREMEC_HVALPHAP
@@ -20,7 +20,7 @@
 class  LArEMEC_HValphaP{
 public:
 
-    LArEMEC_HValphaP() : m_EMEC_HValpha(-999999999) {} 
+    LArEMEC_HValphaP() : m_EMEC_HValpha(-9999999) {} 
     LArEMEC_HValphaP(float f) 
 	    : m_EMEC_HValpha(f) {} 
     bool isEmpty() const { return m_EMEC_HValpha < -9999 ; } ;

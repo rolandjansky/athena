@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LAREMEC_CPHIP
@@ -20,7 +20,7 @@
 class  LArEMEC_CphiP{
 public:
 
-    LArEMEC_CphiP() : m_EMEC_Cphi(-999999999) {} 
+    LArEMEC_CphiP() : m_EMEC_Cphi(-9999999) {} 
     LArEMEC_CphiP(float f) 
 	    : m_EMEC_Cphi(f) {} 
     float         m_EMEC_Cphi;

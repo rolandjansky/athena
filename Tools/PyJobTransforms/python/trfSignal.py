@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfSignal
 #
@@ -28,10 +28,10 @@ _defaultSignalList = ['SIGABRT', 'SIGFPE', 'SIGBUS', 'SIGHUP', 'SIGILL', 'SIGIO'
 def setTrfSignalHandlers(handler):
     for s in _defaultSignalList:
         try:
-            msg.debug("Setting signalhandler for %s to %s" % (s, handler))
+            msg.debug("Setting signalhandler for %s to %s", s, handler)
             _savedSignalHandlerDict[s] =  signal.signal(getattr(signal, s), handler)
         except Exception as e:
-            msg.error("Unable to attach custom signal handler to %s: %s" % (s, e))
+            msg.error("Unable to attach custom signal handler to %s: %s", s, e)
             continue
 
 ## @brief Restore signal handlers to the default ones
@@ -42,5 +42,5 @@ def resetTrfSignalHandlers():
         try:
             signal.signal(getattr(signal, s), _savedSignalHandlerDict.get(s, signal.SIG_DFL))
         except Exception as e:
-            msg.error("Unable to attach custom signal handler to %s: %s" % (s, e))
+            msg.error("Unable to attach custom signal handler to %s: %s", s, e)
             continue

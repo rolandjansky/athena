@@ -14,6 +14,10 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecToolInterfaces
                           Tracking/TrkEvent/TrkSegment )
 
-# Install files from the package:
-atlas_install_headers( MuonSegmentCombinerToolInterfaces )
+atlas_add_library( MuonSegmentCombinerToolInterfaces
+                   MuonSegmentCombinerToolInterfaces/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS MuonSegmentCombinerToolInterfaces
+                   LINK_LIBRARIES GaudiKernel MuonSegment MuonPattern TrkSegment MuonPrepRawData MuonEDM_AssociationObjects  )
+
 

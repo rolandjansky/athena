@@ -15,13 +15,18 @@ def getSecondStageBjetTracking( inputRoI, dataObjects ):
 
     # Make sure the required objects are still available at whole-event level
     from IOVDbSvc.CondDB import conddb
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSequence = AlgSequence()
     if not conddb.folderRequested( "PixelClustering/PixelClusNNCalib" ):
-      from AthenaCommon.AlgSequence import AlgSequence
-      topSequence = AlgSequence()
       topSequence.SGInputLoader.Load += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
                                          ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
       viewVerify.DataObjects += [( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNN' ),
                                  ( 'TTrainedNetworkCollection' , 'ConditionStore+PixelClusterNNWithTrack' )]
+
+    from AthenaCommon.GlobalFlags import globalflags
+    if not globalflags.InputFormat.is_bytestream():
+      viewVerify.DataObjects += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
+      topSequence.SGInputLoader.Load += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
 
     algSequence.append( seqAND("SecondStageFastTrackingSequence",viewAlgs) )
 

@@ -12,7 +12,7 @@
 class TRTUncompressedHit;
 class TRTOutputFile;
 
-class TRTPrintingOfHits
+class ATLAS_NOT_THREAD_SAFE TRTPrintingOfHits // Thread unsafe TRTOutputFile class is used.
 {
   public:
     TRTPrintingOfHits();

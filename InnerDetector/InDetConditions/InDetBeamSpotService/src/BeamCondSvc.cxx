@@ -62,9 +62,7 @@ StatusCode BeamCondSvc::queryInterface(const InterfaceID& riid, void** ppvInterf
   return StatusCode::SUCCESS;
 }
 
-StatusCode BeamCondSvc::initialize ATLAS_NOT_THREAD_SAFE ()
-// Non-thread-safe function 'AthenaAttributeList::AthenaAttributeList(const coral::AttributeListSpecification&)' called
-// Non-thread-safe function 'StatusCode StoreGateSvc::regFcn(...' called
+StatusCode BeamCondSvc::initialize ATLAS_NOT_THREAD_SAFE () // Thread unsafe AthenaAttributeList class and StoreGateSvc::regFcn method are used.
 {
   // service initialisation - get parameters, setup default cache
   // and register for condDB callbacks if needed
@@ -135,8 +133,7 @@ void BeamCondSvc::initCache(int status, float x, float y, float z,
 #endif
 }
 
-bool BeamCondSvc::fillRec ATLAS_NOT_THREAD_SAFE () const {
-  // Non-thread-safe function 'AthenaAttributeList::AthenaAttributeList(const coral::AttributeListSpecification&)' called
+bool BeamCondSvc::fillRec ATLAS_NOT_THREAD_SAFE () const { // Thread unsafe AthenaAttributeList class is used.
 
   // fill beamspot information from jobOptions into TDS AttributeList
   // for registration into conditions database

@@ -57,20 +57,20 @@ namespace MuonCombined {
 
     /**IMuonCombinedInDetExtensionTool interface: extend ID candidate with PRDs for segment-finding */   
     virtual void extendWithPRDs( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, IMuonCombinedInDetExtensionTool::MuonPrdData prdData,
-				 TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments) override;
+				 TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments) const override;
 
     /**IMuonCombinedInDetExtensionTool interface: deprecated*/
     virtual void extend(const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks, TrackCollection* meTracks,
-			Trk::SegmentCollection* segments) override;
+			Trk::SegmentCollection* segments) const override;
 
     /** find the best candidate for a given set of segments */
     std::pair<std::unique_ptr<const Muon::MuonCandidate>,Trk::Track*> 
-    findBestCandidate( const xAOD::TrackParticle& indetTrackParticle, const std::vector< Muon::MuonLayerRecoData >& allLayers);
+    findBestCandidate( const xAOD::TrackParticle& indetTrackParticle, const std::vector< Muon::MuonLayerRecoData >& allLayers) const;
 
   private:
     /** handle a single candidate */
     void handleCandidate( const InDetCandidate& inDetCandidate, InDetCandidateToTagMap* tagMap, IMuonCombinedInDetExtensionTool::MuonPrdData prdData,
-			  TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments);
+			  TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments) const;
 
     /** add muon candidate to indet candidate */
     void addTag( const InDetCandidate& indetCandidate, InDetCandidateToTagMap* tagMap, 
@@ -78,12 +78,12 @@ namespace MuonCombined {
 
     /** access data in layer */
     bool getLayerData( int sector, Muon::MuonStationIndex::DetectorRegionIndex regionIndex, Muon::MuonStationIndex::LayerIndex layerIndex, 
-		       Muon::MuonLayerPrepRawData& layerPrepRawData, IMuonCombinedInDetExtensionTool::MuonPrdData prdData);
+		       Muon::MuonLayerPrepRawData& layerPrepRawData, IMuonCombinedInDetExtensionTool::MuonPrdData prdData) const;
 
     /** access data in layer for a given technology */
     template<class COL>
       bool getLayerDataTech( int sector, Muon::MuonStationIndex::TechnologyIndex technology, Muon::MuonStationIndex::DetectorRegionIndex regionIndex,
-			     Muon::MuonStationIndex::LayerIndex layerIndex, const Muon::MuonPrepDataContainer< COL >* input, std::vector<const COL*>& output );
+			     Muon::MuonStationIndex::LayerIndex layerIndex, const Muon::MuonPrepDataContainer< COL >* input, std::vector<const COL*>& output ) const;
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ToolHandle<Muon::MuonEDMPrinterTool>             m_printer; 

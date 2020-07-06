@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetByteStreamErrorsAthenaPool/TRT_BSIdErrContainer_p1.h"
@@ -11,7 +11,8 @@
 
 #include <iostream>
 
-void TRT_BSIdErrContainerCnv_p1::transToPers ATLAS_NOT_THREAD_SAFE (const TRT_BSIdErrContainer* transCont, TRT_BSIdErrContainer_p1* persCont, MsgStream & /* log */) 
+void TRT_BSIdErrContainerCnv_p1::transToPers ATLAS_NOT_THREAD_SAFE // const_cast is used.
+(const TRT_BSIdErrContainer* transCont, TRT_BSIdErrContainer_p1* persCont, MsgStream & /* log */) 
 {
   TRT_BSIdErrContainer::const_iterator it = transCont->begin();
   TRT_BSIdErrContainer::const_iterator itEnd = transCont->end();

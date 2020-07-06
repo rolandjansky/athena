@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##############################################################################
 
@@ -150,7 +150,7 @@ def main():
     for transform_path in transforms_path_list:
         ######################################################################
 
-        if transform_path.endswith('_tf.py') == False:
+        if not transform_path.endswith('_tf.py'):
             continue
 
         ######################################################################

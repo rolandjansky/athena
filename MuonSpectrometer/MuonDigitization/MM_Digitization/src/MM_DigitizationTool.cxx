@@ -1012,7 +1012,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
 					       inAngle_XZ,
 					       inAngle_YZ,
 					       localMagneticField,
-					       detectorReadoutElement->numberOfMissingBottomStrips(layerID),
+					       detectorReadoutElement->numberOfMissingBottomStrips(layerID)+1,
 					       detectorReadoutElement->numberOfStrips(layerID)-detectorReadoutElement->numberOfMissingTopStrips(layerID),
 					       m_idHelperSvc->mmIdHelper().gasGap(layerID),
 					       m_eventTime+m_globalHitTime

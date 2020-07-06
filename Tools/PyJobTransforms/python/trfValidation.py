@@ -1,5 +1,4 @@
 from future.utils import iteritems
-from future.utils import listitems
 
 from past.builtins import basestring
 from builtins import zip
@@ -7,7 +6,7 @@ from builtins import object
 from builtins import range
 from builtins import int
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfValidation
 #
@@ -43,17 +42,15 @@ import PyJobTransforms.trfUtils as trfUtils
 # @brief Check a Pool file for corruption, return N events or -1 if access problem, -2 if corruption
 def corruptionTestPool(filename, verbose=False):
     if not os.access(filename, os.R_OK):
-        msg.info("ERROR can't access file %s" % filename)
+        msg.info("ERROR can't access file %s", filename)
         return -1
 
     ROOT = RootUtils.import_root()
-    from ROOT import TFile, TTree
-    import cppyy
 
     try:
-        f = TFile.Open(filename)
-    except:
-        msg.info("Can't open file %s" % filename)
+        f = ROOT.TFile.Open(filename)
+    except Exception:
+        msg.info("Can't open file %s", filename)
         return -1
 
     nEvents = None
@@ -63,24 +60,24 @@ def corruptionTestPool(filename, verbose=False):
         try:
             tn = k.GetName()
             t = f.Get(tn)
-            if not isinstance(t, TTree): return
-        except:
-            msg.info("Can't get tree %s from file %s" % (tn, filename))
+            if not isinstance(t, ROOT.TTree): return
+        except Exception:
+            msg.info("Can't get tree %s from file %s", tn, filename)
             f.Close()
             return -1
 
-        if (verbose): msg.info("Working on tree %s" % tn)
+        if (verbose): msg.info("Working on tree %s", tn)
         n = t.GetEntriesFast()
         for i in range(n):
             s = t.GetEntry(i)
             if s <= 0:
-                msg.info("Tree %s: Found corruption in event %i" % (i, n))
+                msg.info("Tree %s: Found corruption in event %i", i, n)
                 f.Close()
                 return -2
             else:
                 if verbose and i > 0 and i % 100 == 0:
-                    msg.info("Checking event %s" % i)
-        msg.info("Tree %s: %i event(s) ok" % (tn, n))
+                    msg.info("Checking event %s", i)
+        msg.info("Tree %s: %i event(s) ok", tn, n)
 
         # Use CollectionTree determine the number of events
         if tn == 'CollectionTree':
@@ -88,9 +85,9 @@ def corruptionTestPool(filename, verbose=False):
         pass  # end of loop over trees
 
     f.Close()
-    msg.info("ROOT file %s looks ok" % filename)
+    msg.info("ROOT file %s looks ok", filename)
     if n is None:
-        msg.info("Failed to determine number of events in file %s. No tree named 'CollectionTree'" % filename)
+        msg.info("Failed to determine number of events in file %s. No tree named 'CollectionTree'", filename)
         return 0
     return nEvents
 
@@ -102,7 +99,7 @@ def corruptionTestBS(filename):
     while p.poll() is None:
         line = p.stdout.readline()
         if line:
-            msg.info("AtlListBSEvents Report: %s" % line.strip())
+            msg.info("AtlListBSEvents Report: %s", line.strip())
     rc = p.returncode
     return rc
 
@@ -154,7 +151,6 @@ class ignorePatterns(object):
                                 # Blank means match anything, so make it so...
                                 who = "."
                             reWho = re.compile(who)
-                            reLevel = level # level is not a regexp (for now)
                             reMessage = re.compile(message)
                         except ValueError:
                             msg.warning('Could not parse this line as a valid error pattern: {0}'.format(line))
@@ -358,7 +354,7 @@ class athenaLogFileReport(logFileReport):
                         seenNonStandardError = line
                         continue
 
-                    msg.debug('Non-standard line in %s: %s' % (log, line))
+                    msg.debug('Non-standard line in %s: %s', log, line)
                     self._levelCounter['UNKNOWN'] += 1
                     continue
 
@@ -488,7 +484,7 @@ class athenaLogFileReport(logFileReport):
 
                 #Lookup: 'EventID: [Run,Evt,Lumi,Time,BunchCross,DetMask] = [267599,7146597,1,1434123751:0,0,0x0,0x0,0x0]'
                 if 'EventID' in line:
-                    match = re.findall('\[.*?\]', line)
+                    match = re.findall(r'\[.*?\]', line)
                     if match and match.__len__() >= 2:      # Assuming the line contains at-least one key-value pair.
                         brackets = "[]"
                         commaDelimer = ','
@@ -573,7 +569,7 @@ class athenaLogFileReport(logFileReport):
     def g494ExceptionParser(self, lineGenerator, firstline, firstLineCount):
         g4Report = firstline
         g4lines = 1
-        if not 'Aborting execution' in g4Report:
+        if 'Aborting execution' not in g4Report:
             for line, linecounter in lineGenerator:
                 g4Report += os.linesep + line
                 g4lines += 1
@@ -755,10 +751,10 @@ def performStandardFileValidation(dictionary, io, parallelMode = False):
             if arg.auxiliaryFile:
                 continue
             
-            msg.info('Validating data type %s...' % key)
+            msg.info('Validating data type %s...', key)
     
             for fname in arg.value:
-                msg.info('Validating file %s...' % fname)
+                msg.info('Validating file %s...', fname)
     
                 if io == "output":
                     msg.info('{0}: Testing corruption...'.format(fname))
@@ -792,7 +788,7 @@ def performStandardFileValidation(dictionary, io, parallelMode = False):
                 elif arg.getSingleMetadata(fname, 'file_guid') == 'UNDEFINED':
                     msg.info('Guid not defined.')
                 else:
-                    msg.info('Guid is %s' % arg.getSingleMetadata(fname, 'file_guid'))
+                    msg.info('Guid is %s', arg.getSingleMetadata(fname, 'file_guid'))
         msg.info('Stopping legacy (serial) file validation')
     if parallelMode is True:
         msg.info('Starting parallel file validation')

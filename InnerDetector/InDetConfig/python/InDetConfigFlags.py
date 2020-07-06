@@ -106,7 +106,6 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doSecVertexFinder", False) # switch on/off conversion finder fitting V0s 
   icf.addFlag("InDet.doConversions", False) # switch on/off conversion finder 
   icf.addFlag("InDet.doStatistics", True)
-  icf.addFlag("InDet.doStandardPlots", False) # Use to turn on creating the Standard Plots of tracking performance 
   icf.addFlag("InDet.doPhysValMon", False) # Use to turn on Physics Validation Monitoring 
   icf.addFlag("InDet.materialInteractions", True) 
   icf.addFlag("InDet.materialInteractionsType", 3) # Control which type of particle hypothesis to use for the material interactions 0=non-interacting,1=electron,2=muon,3=pion,4=kaon,5=proton. See ParticleHypothesis.h for full definition.

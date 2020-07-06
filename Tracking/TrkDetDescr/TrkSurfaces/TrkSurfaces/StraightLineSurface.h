@@ -149,7 +149,7 @@ public:
    * memory allocation */
   virtual void localToGlobal(const Amg::Vector2D& locp,
                              const Amg::Vector3D& mom,
-                             Amg::Vector3D& glob) const override;
+                             Amg::Vector3D& glob) const override final;
 
   /** Specified for StraightLineSurface: GlobalToLocal method without dynamic
     memory allocation This method is the true global->local transformation.<br>
@@ -172,11 +172,11 @@ public:
   */
   virtual bool globalToLocal(const Amg::Vector3D& glob,
                              const Amg::Vector3D& mom,
-                             Amg::Vector2D& loc) const override;
+                             Amg::Vector2D& loc) const override final;
 
   /** Special method for StraightLineSurface - providing a different z estimate
    */
-  virtual const Amg::Vector3D* localToGlobal(
+  const Amg::Vector3D* localToGlobal(
     const Trk::LocalParameters& locpars,
     const Amg::Vector3D& glomom,
     double locZ) const;
@@ -219,18 +219,18 @@ public:
     const Amg::Vector3D& pos,
     const Amg::Vector3D& dir,
     bool forceDir,
-    Trk::BoundaryCheck bchk) const override;
+    Trk::BoundaryCheck bchk) const override final;
 
   /** fast straight line distance evaluation to Surface */
   virtual DistanceSolution straightLineDistanceEstimate(
     const Amg::Vector3D& pos,
-    const Amg::Vector3D& dir) const override;
+    const Amg::Vector3D& dir) const override final;
 
   /** fast straight line distance evaluation to Surface - with bound option*/
   virtual DistanceSolution straightLineDistanceEstimate(
     const Amg::Vector3D& pos,
     const Amg::Vector3D& dir,
-    bool Bound) const override;
+    bool Bound) const override final;
 
   /** the pathCorrection for derived classes with thickness */
   virtual double pathCorrection(const Amg::Vector3D&,

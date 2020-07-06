@@ -25,14 +25,15 @@ BFieldCache::getB(const double* ATH_RESTRICT xyz,
   const double gr = 1.0 - fr;
   const double fphi = (phi - m_phimin) * m_invphi;
   const double gphi = 1.0 - fphi;
+  const double scale = m_scale;
   // interpolate field values in z, r, phi
   double Bzrphi[3];
-  for (int i = 0; i < 3; i++) { // z, r, phi components
+  for (int i = 0; i < 3; ++i) { // z, r, phi components
     const double* field = m_field[i];
-    Bzrphi[i] = m_scale * (gz * (gr * (gphi * field[0] + fphi * field[1]) +
-                                 fr * (gphi * field[2] + fphi * field[3])) +
-                           fz * (gr * (gphi * field[4] + fphi * field[5]) +
-                                 fr * (gphi * field[6] + fphi * field[7])));
+    Bzrphi[i] = scale * (gz * (gr * (gphi * field[0] + fphi * field[1]) +
+                               fr * (gphi * field[2] + fphi * field[3])) +
+                         fz * (gr * (gphi * field[4] + fphi * field[5]) +
+                               fr * (gphi * field[6] + fphi * field[7])));
   }
   // convert (Bz,Br,Bphi) to (Bx,By,Bz)
   double invr;
@@ -56,12 +57,12 @@ BFieldCache::getB(const double* ATH_RESTRICT xyz,
     const double sz   = m_scale * m_invz;
     const double sr   = m_scale * m_invr;
     const double sphi = m_scale * m_invphi;
-   
-    double dBdz[3];
-    double dBdr[3];
-    double dBdphi[3];
-    
-    for (int j = 0; j < 3; j++) { // Bz, Br, Bphi components
+
+    std::array<double, 3> dBdz;
+    std::array<double, 3> dBdr;
+    std::array<double, 3> dBdphi;
+
+    for (int j = 0; j < 3; ++j) { // Bz, Br, Bphi components
       const double* field = m_field[j];
       dBdz[j] =
         sz *

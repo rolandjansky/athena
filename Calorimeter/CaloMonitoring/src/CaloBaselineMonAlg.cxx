@@ -34,10 +34,9 @@ StatusCode CaloBaselineMonAlg::initialize() {
 
   StatusCode sc = m_bunchCrossingTool.retrieve();
   if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Unable to retrieve bunchCrossingTool. Switch off CaloBaselineMon" );
+    ATH_MSG_WARNING( "Unable to retrieve bunchCrossingTool. Switch off CaloBaselineMon" );
     m_pedestalMon_BCIDmin = -1;
     m_bcidtoolMon_BCIDmax = -1; 
-    return sc;
   }
 
   if (m_pedestalMon_BCIDmin > 0) m_bool_pedestalMon = true;

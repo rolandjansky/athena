@@ -63,13 +63,14 @@ StatusCode BCMOverlay::execute(const EventContext& ctx) const
   }
   ATH_MSG_DEBUG("Recorded output BCM RDO container " << outputContainer.name() << " in store " << outputContainer.store());
 
-  ATH_CHECK(overlayContainer(bkgContainerPtr, signalContainer.cptr(), outputContainer.ptr()));
+  ATH_CHECK(overlayContainer(ctx, bkgContainerPtr, signalContainer.cptr(), outputContainer.ptr()));
 
   ATH_MSG_DEBUG("execute() end");
   return StatusCode::SUCCESS;
 }
 
-StatusCode BCMOverlay::overlayContainer(const BCM_RDO_Container *bkgContainer, 
+StatusCode BCMOverlay::overlayContainer(const EventContext& ctx,
+                                        const BCM_RDO_Container *bkgContainer, 
                                         const BCM_RDO_Container *signalContainer, 
                                         BCM_RDO_Container *outputContainer) const
 {
@@ -88,38 +89,59 @@ StatusCode BCMOverlay::overlayContainer(const BCM_RDO_Container *bkgContainer,
     return StatusCode::SUCCESS;
   }
 
-  size_t containerSize = signalContainer->size();
+  std::unordered_map<unsigned int, const BCM_RDO_Collection *> bkgChannelMap;
+  for (const BCM_RDO_Collection *bkgColl : *bkgContainer) {
+    bkgChannelMap.emplace(bkgColl->getChannel(), bkgColl);
+  }
 
-  for (size_t i = 0; i < containerSize; i++) {
+  for (const BCM_RDO_Collection *sigColl : *signalContainer) {
 
-    const BCM_RDO_Collection *sigColl = signalContainer->at(i);
-    const BCM_RDO_Collection *bkgColl = bkgContainer->at(i);
+    auto it = bkgChannelMap.find(sigColl->getChannel());
+    if (it == bkgChannelMap.end()) {
+      ATH_MSG_ERROR ("No BCM background collection with channel " << sigColl->getChannel());
+      return StatusCode::FAILURE;
+    }
 
+    const BCM_RDO_Collection *bkgColl = it->second;
+    bkgChannelMap.erase(it);
     std::unique_ptr<BCM_RDO_Collection> outputColl = std::make_unique<BCM_RDO_Collection>();
-    size_t collectionSize = sigColl->size();
-    if (collectionSize != bkgColl->size()) {
-      ATH_MSG_ERROR ("BCM signal and background collection size mismatch");
-      return StatusCode::FAILURE;
-    }
+    outputColl->setChannel(sigColl->getChannel());
 
-    if (bkgColl->getChannel() == sigColl->getChannel()) {
-      outputColl->setChannel(sigColl->getChannel());
+    constexpr size_t mcSize{1}; // MC always has exactly one RDO
+    if (m_dataOverlay.value()) {
+      // Data has RDOs from more BCIDs, check MC size
+      if (sigColl->size() != mcSize) {
+        ATH_MSG_ERROR ("BCM signal collection size mismatch");
+        return StatusCode::FAILURE;
+      }
     } else {
-      ATH_MSG_ERROR ("BCM signal and background channel mismatch");
-      return StatusCode::FAILURE;
+      // In case of MC+MC overlay collection sizes are the same
+      size_t collectionSize = bkgColl->size();
+      if (collectionSize != sigColl->size() && collectionSize != mcSize) {
+        ATH_MSG_ERROR ("BCM signal and background collection size mismatch");
+        return StatusCode::FAILURE;
+      }
     }
 
-    for (size_t j = 0; j < collectionSize; j++) {
+    int currentBCID = ctx.eventID().bunch_crossing_id();
+    for (const BCM_RawData *bkgRDO : *bkgColl) {
+      if (m_dataOverlay.value() && bkgRDO->getBCID() != currentBCID) {
+        if (m_storeAllBCID.value()) {
+          outputColl->push_back(new BCM_RawData(bkgRDO->getWord1(), bkgRDO->getWord2()));
+        }
+        continue;
+      }
 
-      if (bkgColl->at(j)->getChannel() == sigColl->at(j)->getChannel()) {
-        BCM_RawData *mergedRDO = mergeChannel(bkgColl->at(j),sigColl->at(j));
-        if (mergedRDO) outputColl->push_back(mergedRDO);
-        else {
+      const BCM_RawData *sigRDO = sigColl->front();
+      if (bkgRDO->getChannel() == sigRDO->getChannel()) {
+        std::unique_ptr<BCM_RawData> mergedRDO = mergeChannel(bkgRDO, sigRDO);
+        if (mergedRDO != nullptr) {
+          outputColl->push_back(mergedRDO.release());
+        } else {
           ATH_MSG_ERROR ("BCM channel merging failed");
           return StatusCode::FAILURE;
         }
-      }
-      else {
+      } else {
         ATH_MSG_ERROR ("BCM signal and background channel mismatch");
         return StatusCode::FAILURE;
       }
@@ -131,14 +153,14 @@ StatusCode BCMOverlay::overlayContainer(const BCM_RDO_Container *bkgContainer,
   return StatusCode::SUCCESS;
 }
 
-BCM_RawData *BCMOverlay::mergeChannel(const BCM_RawData *bkgRDO, 
-                                      const BCM_RawData *signalRDO) const
+std::unique_ptr<BCM_RawData> BCMOverlay::mergeChannel(const BCM_RawData *bkgRDO, 
+                                                      const BCM_RawData *signalRDO) const
 {
 
   if (bkgRDO->getPulse1Width()==0) {
-    return new BCM_RawData(signalRDO->getWord1(), signalRDO->getWord2());
+    return std::make_unique<BCM_RawData>(signalRDO->getWord1(), signalRDO->getWord2());
   } else if (signalRDO->getPulse1Width()==0) {
-    return new BCM_RawData(bkgRDO->getWord1(), bkgRDO->getWord2());
+    return std::make_unique<BCM_RawData>(bkgRDO->getWord1(), bkgRDO->getWord2());
   }
 
   unsigned int bkg_p1 = bkgRDO->getPulse1Position();
@@ -196,12 +218,12 @@ BCM_RawData *BCMOverlay::mergeChannel(const BCM_RawData *bkgRDO,
   }
 
   // Record two earliest pulses into the output RDO
-  return new BCM_RawData(signalRDO->getChannel(),
-                         merged_p1, merged_w1,
-                         merged_p2, merged_w2,
-                         signalRDO->getLVL1A(),
-                         signalRDO->getBCID(),
-                         signalRDO->getLVL1ID());
+  return std::make_unique<BCM_RawData>(bkgRDO->getChannel(),
+                                       merged_p1, merged_w1,
+                                       merged_p2, merged_w2,
+                                       bkgRDO->getLVL1A(),
+                                       bkgRDO->getBCID(),
+                                       bkgRDO->getLVL1ID());
 }
 
 void BCMOverlay::overlayPulses(std::vector<std::unique_ptr<BCM_Pulse>>& merged_pulses) const

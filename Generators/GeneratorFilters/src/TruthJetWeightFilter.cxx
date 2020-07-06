@@ -212,16 +212,16 @@ double TruthJetWeightFilter::getRescaledJetPt(const CLHEP::HepLorentzVector &jet
   McEventCollection::const_iterator itr;
   for (itr = events()->begin(); itr!=events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
-    for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
-      if ((*pitr)->status() != 1) continue;
-      HepMC::FourVector tmp = (*pitr)->momentum();
+    for (auto pitr: *genEvt) {
+      if (pitr->status() != 1) continue;
+      HepMC::FourVector tmp = pitr->momentum();
       CLHEP::HepLorentzVector genpart(tmp.x(), tmp.y(), tmp.z(), tmp.t());
       if (jet.deltaR(genpart) > 0.4) continue;
 
       // Separate EM particles (including K0short here!) and hadronic
-      if (abs((*pitr)->pdg_id()) == 11 || abs((*pitr)->pdg_id()) == 22 || abs((*pitr)->pdg_id()) == 310) {
+      if (std::abs(pitr->pdg_id()) == 11 || std::abs(pitr->pdg_id()) == 22 || std::abs(pitr->pdg_id()) == 310) {
         empart += genpart.perp();
-      } else if (abs((*pitr)->pdg_id()) > 100) {
+      } else if (std::abs(pitr->pdg_id()) > 100) {
         hadpart += genpart.perp();
       }
     }
@@ -249,12 +249,12 @@ void TruthJetWeightFilter::getLeadTruthParts(const CLHEP::HepLorentzVector& jet,
   McEventCollection::const_iterator itr;
   for (itr = events()->begin(); itr!=events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
-    for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr ) {
-      if ((*pitr)->status() != 1) continue;
-      int pdgid = (*pitr)->pdg_id();
-      if (abs(pdgid) == 12 || abs(pdgid) == 14 || abs(pdgid) == 16) continue;
+    for (auto pitr: *genEvt ) {
+      if (pitr->status() != 1) continue;
+      int pdgid = pitr->pdg_id();
+      if (std::abs(pdgid) == 12 || std::abs(pdgid) == 14 || std::abs(pdgid) == 16) continue;
 
-      HepMC::FourVector tmp = (*pitr)->momentum();
+      HepMC::FourVector tmp = pitr->momentum();
       CLHEP::HepLorentzVector genpart(tmp.x(), tmp.y(), tmp.z(), tmp.t());
       if (jet.deltaR(genpart) > 0.4) continue;
 
@@ -336,9 +336,9 @@ CLHEP::HepLorentzVector TruthJetWeightFilter::getJetSubcomponent(const CLHEP::He
   McEventCollection::const_iterator itr;
   for (itr = events()->begin(); itr != events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
-    for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
-      if ((*pitr)->status() != 1) continue;
-      int pdgid = (*pitr)->pdg_id();
+    for (auto  pitr: *genEvt) {
+      if (pitr->status() != 1) continue;
+      int pdgid = pitr->pdg_id();
 
       // Only add specific components
       /// @todo Check that it's ok to use loop continues in a switch -- "break" certainly wouldn't work.
@@ -363,7 +363,7 @@ CLHEP::HepLorentzVector TruthJetWeightFilter::getJetSubcomponent(const CLHEP::He
         continue;
       }
 
-      HepMC::FourVector tmp = (*pitr)->momentum();
+      HepMC::FourVector tmp = pitr->momentum();
       CLHEP::HepLorentzVector genpart(tmp.x(), tmp.y(), tmp.z(), tmp.t());
       if (genpart.perp()/Gaudi::Units::GeV < ptcutoff) continue;
       if (axis.deltaR(genpart) > maxdr) continue;
@@ -385,6 +385,22 @@ StatusCode TruthJetWeightFilter::saveWeight(double weight) {
   McEventCollection::iterator itr = mymccoll->begin();
   for (int ii = 0; itr!=mymccoll->end(); ++itr, ii++) {
     HepMC::GenEvent* genEvt = (*itr);
+#ifdef HEPMC3
+    auto wgtsC = genEvt->weights();
+
+    // Only the event weight #0 is read by CopyEventWeight.
+    // Remaining (Pythia) weights are usually all one, but anyway multiply them all here.
+    for (size_t iw = 0; iw < (size_t) wgtsC.size(); iw++) {
+      if (wgtsC[iw] != 0) weight *= wgtsC[iw];
+    }
+
+    // Then put my weight on first place
+    wgtsC[0] = weight;
+    ATH_MSG_DEBUG("McEventCollection #" << ii << " WeightContainer size " << wgtsC.size());
+    for (size_t iii = 0; iii < (size_t) wgtsC.size(); iii++) {
+      ATH_MSG_DEBUG("Weight #" << iii << " " << wgtsC[iii]);
+    }
+#else
     HepMC::WeightContainer& wgtsC = genEvt->weights();
 
     // Only the event weight #0 is read by CopyEventWeight.
@@ -399,6 +415,7 @@ StatusCode TruthJetWeightFilter::saveWeight(double weight) {
     for (size_t iii = 0; iii < (size_t) wgtsC.size(); iii++) {
       ATH_MSG_DEBUG("Weight #" << iii << " " << wgtsC[iii]);
     }
+#endif
   }
   return StatusCode::SUCCESS;
 }
