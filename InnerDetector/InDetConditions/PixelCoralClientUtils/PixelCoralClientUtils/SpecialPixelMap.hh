@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -15,6 +15,7 @@
 #define SPECIALPIXELMAP_HH
 
 #include "CoralBase/Blob.h"
+#include "CxxUtils/checker_macros.h"
 
 #include<map>
 #include<vector>
@@ -45,7 +46,7 @@ class ModuleSpecialPixelMap;
     its IdentifierHash.
 */
 
-class DetectorSpecialPixelMap : public std::vector<ModuleSpecialPixelMap*>{
+class ATLAS_NOT_THREAD_SAFE DetectorSpecialPixelMap : public std::vector<ModuleSpecialPixelMap*>{ // Thread unsafe ModuleSpecialPixelMap class is used.
    
  public: 
    DetectorSpecialPixelMap();
@@ -99,7 +100,7 @@ class DetectorSpecialPixelMap : public std::vector<ModuleSpecialPixelMap*>{
 
 **/
 
-class ModuleSpecialPixelMap : private std::map<unsigned int, unsigned int>{
+class ATLAS_NOT_THREAD_SAFE ModuleSpecialPixelMap : private std::map<unsigned int, unsigned int>{ // static member variable is used.
 
  public:
    friend class ::ModuleSpecialPixelMap;
