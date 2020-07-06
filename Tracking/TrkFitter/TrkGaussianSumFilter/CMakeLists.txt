@@ -56,13 +56,15 @@ atlas_install_runtime( Data/*.par )
 
 #Executables for tests
 atlas_add_executable( GSF_testFindMinimumIndex
-	test/testFindMinimumIndex.cxx src/KLGaussianMixtureReduction.cxx)
+	test/testFindMinimumIndex.cxx src/KLGaussianMixtureReduction.cxx
+        LINK_LIBRARIES CxxUtils )
 
 atlas_add_executable( GSF_testAlignedDynArray
 	test/testAlignedDynArray.cxx)
 
 atlas_add_executable( GSF_testMergeComponents
-	test/testMergeComponents.cxx src/KLGaussianMixtureReduction.cxx)
+	test/testMergeComponents.cxx src/KLGaussianMixtureReduction.cxx
+        LINK_LIBRARIES CxxUtils )
 
 #Tests
 atlas_add_test(ut_GSF_testFindMinimumIndex
