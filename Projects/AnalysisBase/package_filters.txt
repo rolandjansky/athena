@@ -116,6 +116,7 @@
 + Reconstruction/egamma/egammaMVACalib
 + Reconstruction/egamma/egammaRecEvent
 + Reconstruction/tauRecTools
++ Reconstruction/PanTau/PanTauAlgs
 + Tools/ART
 + Tools/DirectIOART
 + Tools/PathResolver
