@@ -2088,7 +2088,7 @@ def run_card_consistency_check(isNLO=False,process_dir='.'):
         systematics_arguments=MadGraphSystematicsUtils.parse_systematics_arguments(mydict_new['systematics_arguments'])
         if 'weight_info' not in systematics_arguments:
             mglog.info('Enforcing systematic weight name convention')
-            if ' dyn' in systematics_argumentsis and len(dyn.split(',')>1):               
+            if ' dyn' in systematics_arguments and len(dyn.split(',')>1):               
                 systematics_arguments['weight_info']=MadGraphSystematicsUtils.SYSTEMATICS_WEIGHT_INFO_ALTDYNSCALES
             else:
                 systematics_arguments['weight_info']=MadGraphSystematicsUtils.SYSTEMATICS_WEIGHT_INFO
