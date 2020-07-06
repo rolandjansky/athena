@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LorentzAngleCalibration_C
@@ -143,7 +143,7 @@ bool LorentzAngleCalibration::Fill(Int_t Layer, Int_t EtaIndex, Int_t PhiIndex,
 	bool passed = kFALSE;
 	if( Layer == m_curLayer ){
 		passed = kTRUE;
-		static std::vector<Double_t> Pars(2);
+                std::vector<Double_t> Pars(2);
 		Pars[1] = PhiIndex;
 		Pars[0] = EtaIndex;
 
