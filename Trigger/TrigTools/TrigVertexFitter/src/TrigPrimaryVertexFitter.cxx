@@ -27,8 +27,8 @@
 #include "TrkTrack/TrackCollection.h"
 
 #include "TrigInDetToolInterfaces/ITrigPrimaryVertexFitter.h"
-#include "TrigVertexFitter/TrigPrimaryVertexFitter.h"
-#include "TrigVertexFitter/TrigPrimaryVertexTrack.h"
+#include "TrigPrimaryVertexFitter.h"
+#include "TrigPrimaryVertexTrack.h"
 
 
 TrigPrimaryVertexFitter::TrigPrimaryVertexFitter(const std::string& t, 

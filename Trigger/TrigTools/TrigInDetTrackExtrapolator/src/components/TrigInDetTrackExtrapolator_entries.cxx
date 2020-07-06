@@ -1,4 +1,4 @@
-#include "TrigInDetTrackExtrapolator/TrigInDetTrackExtrapolator.h"
+#include "../TrigInDetTrackExtrapolator.h"
 
 DECLARE_COMPONENT( TrigInDetTrackExtrapolator )
 
