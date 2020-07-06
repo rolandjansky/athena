@@ -20,6 +20,7 @@ main()
   params.emplace_back(std::make_unique<Trk::NeutralAtaStraightLine>());
 
   for (const auto& i : params) {
-    std::cout << "Dimensions: " << i->dim << " isCharged: "<< i->isCharged() << '\n';
+     std::cout << "Dimensions: " << i->dim << " isCharged: " << i->isCharged()
+              << " SurfaceType: " << i->surfaceType() << '\n';
   }
-  }
+}

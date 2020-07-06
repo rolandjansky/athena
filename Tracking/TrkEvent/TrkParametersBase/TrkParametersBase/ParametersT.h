@@ -119,6 +119,9 @@ public:
   /** Return the ParametersType enum */
   virtual ParametersType type() const override final;
 
+  /** Return the Surface Type (check SurfaceType enums)*/
+  virtual int surfaceType() const override final;
+
   /** Return the measurementFrame of the parameters */
   virtual Amg::RotationMatrix3D measurementFrame() const override final;
 

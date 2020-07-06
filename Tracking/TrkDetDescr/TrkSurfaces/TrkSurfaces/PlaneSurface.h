@@ -143,6 +143,9 @@ public:
   /** Return the surface type */
   virtual SurfaceType type() const override final;
 
+  /** Return the surface type static constexpr */
+  static constexpr SurfaceType staticType() ;
+
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * charged */
   virtual ParametersT<5, Charged, PlaneSurface>* createTrackParameters(
