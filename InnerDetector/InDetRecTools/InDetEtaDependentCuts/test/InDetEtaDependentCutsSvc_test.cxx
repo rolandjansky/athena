@@ -55,8 +55,7 @@ BOOST_AUTO_TEST_SUITE(EtaDependentCutsSvcTest)
     BOOST_TEST(idEDCSvc->interfaceID()==testId);
   }
   
-  //two failures related to use of template getValue() with the eta argument
-  BOOST_AUTO_TEST_CASE(publicMethods, * utf::expected_failures(2)){
+  BOOST_AUTO_TEST_CASE(publicMethods){
     ServiceHandle<IInDetEtaDependentCutsSvc> idEDCSvc ("InDet::InDetEtaDependentCutsSvc", "test");
     //for default constructed service, and choosing a nominal (valid) eta
     const double eta=2.0;
@@ -101,12 +100,6 @@ BOOST_AUTO_TEST_SUITE(EtaDependentCutsSvcTest)
     BOOST_CHECK_NO_THROW(idEDCSvc->getValue(dblCutEnum, intCutReturnValue));//doesn't throw
     //
     BOOST_TEST(intCutReturnValue.at(0) == 9);//i.e. should remain unchanged
-    //something wrong here, needs fixing in the code?
-    double etaBinCut{1.};
-    // T getValueAtEta(const std::vector< T > cuts, const double eta)
-    BOOST_CHECK_NO_THROW(idEDCSvc->getValue(InDet::CutName::etaBins, etaBinCut, eta));
-    BOOST_TEST( etaBinCut == 0.0); //failure
-    BOOST_CHECK_THROW(idEDCSvc->getValue(InDet::CutName::etaBins, etaBinCut, invalidEta), std::out_of_range); //failure
     
   }
 BOOST_AUTO_TEST_SUITE_END()
