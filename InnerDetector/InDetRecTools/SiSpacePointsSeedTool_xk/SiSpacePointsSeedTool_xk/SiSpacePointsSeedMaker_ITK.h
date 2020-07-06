@@ -369,9 +369,9 @@ namespace InDet {
 
       std::set<float>::iterator v=l_vertex.begin(),ve=l_vertex.end(); 
 
-      float dZmin = fabs((*v)-Zv); 
+      float dZmin = std::abs((*v)-Zv); 
       for(++v; v!=ve; ++v) {
-	float dZ = fabs((*v)-Zv); if(dZ >= dZmin) break; dZmin=dZ;
+	float dZ = std::abs((*v)-Zv); if(dZ >= dZmin) break; dZmin=dZ;
       }
       return dZmin < (m_dzver+m_dzdrver*R)*sqrt(1.+T*T);
     }
@@ -399,7 +399,7 @@ namespace InDet {
 
       if(m_checketa) {
 
-	float z = (fabs(r[2])+m_zmax);
+	float z = (std::abs(r[2])+m_zmax);
 	float x = r[0]*m_dzdrmin     ;
 	float y = r[1]*m_dzdrmin     ;
 	if((z*z )<(x*x+y*y)) return 0;
@@ -408,8 +408,8 @@ namespace InDet {
       if(m_fastTracking) {
 
 	float R2 =  r[0]*r[0]+r[1]*r[1];
-	if(fabs(r[2]) > 200. && R2 < 2500.       ) return 0;
-	if(fabs(r[2])-m_zmax > m_dzdrmax*sqrt(R2)) return 0;
+	if(std::abs(r[2]) > 200. && R2 < 2500.       ) return 0;
+	if(std::abs(r[2])-m_zmax > m_dzdrmax*sqrt(R2)) return 0;
 
       }
 
