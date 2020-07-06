@@ -885,7 +885,7 @@ void Muon::MuonHolesOnTrackTool::countHoles( const Trk::Track& input_track,  std
   DataVector<const Trk::TrackStateOnSurface>*  holes= getHolesOnTrack(input_track, particle);
  
   if (!holes)  return;
-  if (!(&information) || information.size()<28 ) return;
+  if ( information.size() < 28 ) return;
 
   for (unsigned int i=21; i<28; i++) information[i]=0; 
 
