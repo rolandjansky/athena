@@ -40,7 +40,7 @@
 
 GeoPixelRingECRingRef::GeoPixelRingECRingRef(int iLayer, int iRing, double ringRadius, double ringOuterRadius,
 					     double zOffset, double rOffset, double phiOffset,
-					     int ringSide, int numModules, std::string moduleType, 
+					     int ringSide, int numModules, const std::string &moduleType, 
 					   int diskId, int back_front, SplitMode mode, double inclination)
   : m_layer(iLayer),
     m_ring(iRing),

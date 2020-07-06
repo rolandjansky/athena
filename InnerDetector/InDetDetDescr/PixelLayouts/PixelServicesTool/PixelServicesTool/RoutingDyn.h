@@ -129,6 +129,9 @@ private:
   
 };
 
+// for GMX migration : consider ways to reduce the number of parameters
+// maybe consider https://en.wikipedia.org/wiki/Fluent_interface
+//  and/or prefer use of const ref
 
 class RouteParameter{
   

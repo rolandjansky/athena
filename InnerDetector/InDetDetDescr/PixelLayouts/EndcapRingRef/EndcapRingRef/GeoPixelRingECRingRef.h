@@ -20,8 +20,11 @@ enum SplitMode { NONE=0, DEFAULT, MIDDLE, GOOD};
 class GeoPixelRingECRingRef  {
 
  public:
+  // for GMX migration : consider ways to reduce the number of parameters (prone to bugs in parameter ordering)
+  // for example, like-named parameter initialisation, see https://en.cppreference.com/w/cpp/language/aggregate_initialization
+  // or simple struct 
   GeoPixelRingECRingRef(int iDisk,int iRing, double ringRadius, double ringOuterRadius, double zOffset, double rOffset, double phiOffset,
-			int iSide, int numModules, std::string moduleType, int firstRing, int back_front, SplitMode mode = NONE, double inclination = 0.);
+			int iSide, int numModules, const std::string &moduleType, int firstRing, int back_front, SplitMode mode = NONE, double inclination = 0.);
   ~GeoPixelRingECRingRef();
   virtual std::pair<GeoFullPhysVol*,GeoFullPhysVol*> BuildSplit(const PixelGeoBuilderBasics* basics, int endcapSide);
   virtual GeoFullPhysVol* Build(const PixelGeoBuilderBasics* basics, int endcapSide, GeoFullPhysVol* envelope=0, double=0., double=0.);
