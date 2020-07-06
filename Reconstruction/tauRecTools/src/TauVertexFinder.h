@@ -42,14 +42,7 @@ public:
   StatusCode initialize() override;
   StatusCode executeVertexFinder(xAOD::TauJet& pTau,
                                 const xAOD::VertexContainer* vertexContainer = nullptr,
-                                const xAOD::TrackParticleContainer* trackContainer = nullptr) override
-  {
-    return static_cast<const TauVertexFinder*>(this)->executeVertexFinder(pTau, vertexContainer, trackContainer);
-  }
-
-  StatusCode executeVertexFinder(xAOD::TauJet& pTau,
-                                         const xAOD::VertexContainer* vertexContainer = nullptr,
-                                         const xAOD::TrackParticleContainer* trackContainer = nullptr) const;
+                                const xAOD::TrackParticleContainer* trackContainer = nullptr) const override;
 
   StatusCode finalize() override;
 
