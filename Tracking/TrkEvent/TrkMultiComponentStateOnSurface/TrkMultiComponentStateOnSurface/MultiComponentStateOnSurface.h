@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*******************************************************************************
@@ -101,6 +101,9 @@ public:
 
   /** Clone method for deep copy of MultiComponentStateOnSurface - overidden from base class */
   virtual TrackStateOnSurface* clone() const override final;
+  
+  /** This is Multi, since we MultiComponent */
+  virtual TrackStateOnSurface::Variety variety() const override final;
 
   /** Method to return a pointer to the multi-component state */
   const MultiComponentState* components() const;
@@ -123,16 +126,5 @@ operator<<(std::ostream&, const MultiComponentStateOnSurface&);
 
 } // end of Trk namespace
 
-inline const Trk::MultiComponentState*
-Trk::MultiComponentStateOnSurface::components() const
-{
-  return m_multiComponentState;
-}
-
-inline double
-Trk::MultiComponentStateOnSurface::mixtureModeQoverP() const
-{
-  return m_mixtureModeQoverP;
-}
-
+#include "TrkMultiComponentStateOnSurface/MultiComponentStateOnSurface.icc"
 #endif
