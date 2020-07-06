@@ -77,15 +77,6 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
   if MuonGeometryFlags.hasCSC():
     muDataPrepVDV.DataObjects += [( 'CscStripPrepDataCollection_Cache' , MuonPrdCacheNames.CscStripCache )]
 
-    # Only load these objects if they aren't available in conddb
-    from IOVDbSvc.CondDB import conddb
-    if not conddb.folderRequested( "/CSC/DCS/LAYERSTATE" ):
-      muDataPrepVDV.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/CSC/DCS/LAYERSTATE' )]
-    if not conddb.folderRequested( "/CSC/T0PHASE" ):
-      muDataPrepVDV.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/CSC/T0PHASE' )]
-    if not conddb.folderRequested( "/CSC/T0BASE" ):
-      muDataPrepVDV.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/CSC/T0BASE' )]
-
   viewAlgs_MuonPRD.append( muDataPrepVDV )
 
 
@@ -346,16 +337,6 @@ def muFastRecoSequence( RoIs, doFullScanID = False ):
   muFastRecoVDV.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+'+RoIs ),
                                ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
                                ( 'DataVector< LVL1::RecMuonRoI >' , 'StoreGateSvc+HLT_RecMURoIs' )]
-
-  if MuonGeometryFlags.hasCSC():
-    # Only load these objects if they aren't available in conddb
-    from IOVDbSvc.CondDB import conddb
-    if not conddb.folderRequested( "/CSC/DCS/LAYERSTATE" ):
-      muFastRecoVDV.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/CSC/DCS/LAYERSTATE' )]
-    if not conddb.folderRequested( "/CSC/T0PHASE" ):
-      muFastRecoVDV.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/CSC/T0PHASE' )]
-    if not conddb.folderRequested( "/CSC/T0BASE" ):
-      muFastRecoVDV.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/CSC/T0BASE' )]
 
   muFastRecoSequence += muFastRecoVDV
 
