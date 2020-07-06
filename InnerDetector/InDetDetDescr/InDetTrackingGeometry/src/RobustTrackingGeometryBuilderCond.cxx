@@ -20,12 +20,13 @@
 #include "TrkVolumes/CylinderVolumeBounds.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/TrackingGeometry.h"
-#include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkGeometry/Material.h"
 #include "TrkGeometry/Layer.h"
 #include "TrkGeometry/CylinderLayer.h"
 #include "TrkGeometry/DiscLayer.h"
 #include "TrkSurfaces/DiscBounds.h"
+// Athena
+#include "CxxUtils/checker_macros.h"
 //Gaudi
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/MsgStream.h"
@@ -41,8 +42,6 @@ InDet::RobustTrackingGeometryBuilderCond::RobustTrackingGeometryBuilderCond(cons
   m_layerEnvelopeCover(2*Gaudi::Units::mm),
   m_buildBoundaryLayers(true),
   m_replaceJointBoundaries(true),
-  m_materialProperties(0),
-  m_magneticFieldProperties(0),
   m_outwardsFraction(0.75),
   m_indexStaticLayers(true),
   m_namespace("InDet::"),
@@ -78,8 +77,6 @@ InDet::RobustTrackingGeometryBuilderCond::RobustTrackingGeometryBuilderCond(cons
 // destructor
 InDet::RobustTrackingGeometryBuilderCond::~RobustTrackingGeometryBuilderCond()
 {
-  delete m_materialProperties;
-  delete m_magneticFieldProperties;
 }
 
 // Athena standard methods
@@ -125,16 +122,17 @@ StatusCode InDet::RobustTrackingGeometryBuilderCond::initialize()
    } else
       ATH_MSG_INFO( "Retrieved tool " << m_layerArrayCreator );      
 
-    // Dummy MaterialProerties
-    m_materialProperties = new Trk::Material;
+   // Dummy MaterialProerties
+   m_materialProperties.set(std::make_unique<Trk::Material>());
 
-    ATH_MSG_INFO( "initialize() succesful" );
+   ATH_MSG_INFO( "initialize() succesful" );
     
-  return StatusCode::SUCCESS;
+   return StatusCode::SUCCESS;
 }
 
 
-std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::RobustTrackingGeometryBuilderCond::trackingGeometry(const EventContext& ctx, std::pair<EventIDRange, const Trk::TrackingVolume*>) const
+std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::RobustTrackingGeometryBuilderCond::trackingGeometry ATLAS_NOT_THREAD_SAFE // Thread unsafe TrackingGeometry::indexStaticLayers method is used.
+(const EventContext& ctx, std::pair<EventIDRange, const Trk::TrackingVolume*>) const
 {
    // only one assumption: 
    // layer builders are ordered in increasing r
@@ -644,7 +642,7 @@ StatusCode InDet::RobustTrackingGeometryBuilderCond::finalize()
 }
 
 
-const Trk::TrackingVolume* InDet::RobustTrackingGeometryBuilderCond::packVolumeTriple(
+const Trk::TrackingVolume* InDet::RobustTrackingGeometryBuilderCond::packVolumeTriple ATLAS_NOT_THREAD_SAFE ( // Thread unsafe TrackingVolume::registerColorCode method is used.
                                      const std::vector<const Trk::Layer*>& negLayers,
                                      const std::vector<const Trk::Layer*>& centralLayers,
                                      const std::vector<const Trk::Layer*>& posLayers,

@@ -20,12 +20,13 @@
 #include "TrkVolumes/CylinderVolumeBounds.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/TrackingGeometry.h"
-#include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkGeometry/Material.h"
 #include "TrkGeometry/Layer.h"
 #include "TrkGeometry/CylinderLayer.h"
 #include "TrkGeometry/DiscLayer.h"
 #include "TrkSurfaces/DiscBounds.h"
+//Athena
+#include "CxxUtils/checker_macros.h"
 //Gaudi
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/MsgStream.h"
@@ -41,8 +42,6 @@ InDet::StagedTrackingGeometryBuilderCond::StagedTrackingGeometryBuilderCond(cons
   m_layerEnvelopeCover(2*Gaudi::Units::mm),
   m_buildBoundaryLayers(true),
   m_replaceJointBoundaries(true),
-  m_materialProperties(0),
-  m_magneticFieldProperties(0),
   m_indexStaticLayers(true),
   m_checkForRingLayout(false),
   m_ringTolerance(10*Gaudi::Units::mm),
@@ -77,8 +76,6 @@ InDet::StagedTrackingGeometryBuilderCond::StagedTrackingGeometryBuilderCond(cons
 // destructor
 InDet::StagedTrackingGeometryBuilderCond::~StagedTrackingGeometryBuilderCond()
 {
-  delete m_materialProperties;
-  delete m_magneticFieldProperties;
 }
 
 // Athena standard methods
@@ -116,16 +113,17 @@ StatusCode InDet::StagedTrackingGeometryBuilderCond::initialize()
    } else
       ATH_MSG_INFO( "Retrieved tool " << m_layerArrayCreator );      
 
-    // Dummy MaterialProerties
-    m_materialProperties = new Trk::Material;
+   // Dummy MaterialProerties
+   m_materialProperties.set(std::make_unique<Trk::Material>());
 
-    ATH_MSG_INFO( "initialize() succesful" );
+   ATH_MSG_INFO( "initialize() succesful" );
     
-  return StatusCode::SUCCESS;
+   return StatusCode::SUCCESS;
 }
 
 //FIXME: ctx, tVolPair not used yet, range not created
-std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::StagedTrackingGeometryBuilderCond::trackingGeometry(const EventContext& ctx, std::pair<EventIDRange, const Trk::TrackingVolume*> /*tVolPair*/) const
+std::pair<EventIDRange, const Trk::TrackingGeometry*> InDet::StagedTrackingGeometryBuilderCond::trackingGeometry ATLAS_NOT_THREAD_SAFE // Thread unsafe TrackingGeometry::indexStaticLayers method is used.
+(const EventContext& ctx, std::pair<EventIDRange, const Trk::TrackingVolume*> /*tVolPair*/) const
 {
    // only one assumption: 
    // layer builders are ordered in increasing r
@@ -290,9 +288,8 @@ StatusCode InDet::StagedTrackingGeometryBuilderCond::finalize()
 }
 
 
-const Trk::TrackingVolume* InDet::StagedTrackingGeometryBuilderCond::packVolumeTriple(const InDet::LayerSetup& layerSetup,
-                                                                                  double rMin, double& rMax,
-                                                                                  double zMax, double zPosCentral) const
+const Trk::TrackingVolume* InDet::StagedTrackingGeometryBuilderCond::packVolumeTriple ATLAS_NOT_THREAD_SAFE // Thread unsafe TrackingVolume::registerColorCode method is used.
+(const InDet::LayerSetup& layerSetup, double rMin, double& rMax, double zMax, double zPosCentral) const
 {
 
 
@@ -579,8 +576,8 @@ const Trk::TrackingVolume* InDet::StagedTrackingGeometryBuilderCond::createTrack
  
                              
 /** Private helper method to flush the cache into the id volumes - return volume is the one to be provided */
-const Trk::TrackingVolume* InDet::StagedTrackingGeometryBuilderCond::createFlushVolume(std::vector<InDet::LayerSetup>& layerSetupCache,
-                                                                                   double innerRadius, double& outerRadius, double extendZ) const
+const Trk::TrackingVolume* InDet::StagedTrackingGeometryBuilderCond::createFlushVolume ATLAS_NOT_THREAD_SAFE // Thread unsafe TrackingVolume::registerColorCode method is used.
+(std::vector<InDet::LayerSetup>& layerSetupCache, double innerRadius, double& outerRadius, double extendZ) const
 {
   // the return volume 
   const Trk::TrackingVolume* flushVolume = 0;
