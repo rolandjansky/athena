@@ -1,7 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#
-# $Id: CaloSwTransitionRegionsCorr_v5_1.py,v 1.1 2009-03-05 08:44:06 lcarmina Exp $
 #
 # File: CaloClusterCorrection/python/CaloSwTransitionRegionCorr_v5_1.py
 # Created: Dec, 2007, L. Carminati
@@ -10,7 +8,7 @@
 #          This version implement some fixes for eta=0 and eta=0.8 
 
 
-from CaloClusterCorrection.common import *
+from CaloClusterCorrection.constants import CALOCORR_CLUSTER
 
 #############################################################################
 

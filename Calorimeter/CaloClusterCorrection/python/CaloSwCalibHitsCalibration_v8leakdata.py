@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 #######################################################################
@@ -41,7 +41,7 @@
 # R. Turra.
 #######################################################################
 
-from CaloClusterCorrection.common import *
+from CaloClusterCorrection.constants import CALOCORR_COMBINED2
 
 #######################################################################
 
@@ -2739,7 +2739,7 @@ samplings_depths = [
 [ 2.4375 , 0.0  , 4.5959   , 15.9977 , 32.1175  ],
 [ 2.4625 , 0.0  , 4.68513   , 16.2385 , 32.5042  ],
 [ 2.4875 , 0.0  , 4.7232   , 16.4144 , 33.028  ]
-];
+]
 
 #######################################################################
 

@@ -12,7 +12,7 @@
 # in the barrel.
 #
 
-from CaloClusterCorrection.common import *
+from CaloClusterCorrection.constants import EMB2, EME2
 from CaloClusterCorrection.CaloSwPhioff_v5 import \
      CaloSwPhioff_v5_b2_parms, CaloSwPhioff_v5_e2_parms
 

@@ -1,7 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#
-# $Id: CaloTopoEMgap.py,v 1.5 2009-04-20 16:59:16 ssnyder Exp $
 #
 # File: CaloClusterCorrection/python/CaloTopoEMgap.py
 # Created: Mar 2007, sss, from earlier job options.
@@ -9,15 +7,17 @@
 # for TopoEM clusters.
 #
 
-from CaloClusterCorrection        import CaloClusterCorrectionConf
-from CaloClusterCorrection.common import *
+from AthenaConfiguration.ComponentFactory import CompFactory
+from CaloClusterCorrection.constants import \
+     CALOCORR_COOL, CALOCORR_DEFAULT_KEY, CALOCORR_EMTOPO, CALOCORR_CLUSTER
+from CaloClusterCorrection.common import makecorr
 
 #
 # This table lists all available versions of this correction.
 # See common.py for a description of the contents.
 #
-from CaloClusterCorrection.common import topoem_valid_keys as keys
-cls = CaloClusterCorrectionConf.CaloTopoEMGap
+from CaloClusterCorrection.constants import topoem_valid_keys as keys
+cls = CompFactory.CaloTopoEMGap   # CaloClusterCorrection
 CaloTopoEMgap_versions = [
 
     # v1 --- from the original DC3 job options file.
@@ -29,6 +29,7 @@ CaloTopoEMgap_versions = [
 
 #
 # Create a new tool instance.
+#  FLAGS is the configuration flags instance.
 #  NAME is the base name for this tool.  If defaulted, a name will
 #   be constructed from the name of the correction, the version, and the key.
 #  If SUFFIX is not None, it will be added onto the end of the tool name.
@@ -46,7 +47,8 @@ CaloTopoEMgap_versions = [
 # Additional keyword arguments may be passed to override any tool
 # parameters/constants.
 #
-def make_CaloTopoEMgap (name = None,
+def make_CaloTopoEMgap (flags,
+                        name = None,
                         suffix = None,
                         version = None,
                         key = CALOCORR_DEFAULT_KEY,
@@ -54,7 +56,8 @@ def make_CaloTopoEMgap (name = None,
                         confclass = None,
                         **kw):
     # Make the tool.
-    return makecorr (versions  = CaloTopoEMgap_versions,
+    return makecorr (flags,
+                     versions  = CaloTopoEMgap_versions,
                      name      = name,
                      basename  = 'topogap',
                      suffix    = suffix,

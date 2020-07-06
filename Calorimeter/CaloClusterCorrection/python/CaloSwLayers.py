@@ -1,7 +1,5 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#
-# $Id: CaloSwLayers.py,v 1.7 2009-03-16 12:28:40 lcarmina Exp $
 #
 # File: CaloClusterCorrection/python/CaloSwLayers.py
 # Created: Nov 2006, sss
@@ -24,15 +22,17 @@
 # are recalculated based on these cells.
 #
 
-from CaloClusterCorrection import CaloClusterCorrectionConf
-from CaloClusterCorrection.common import *
+from AthenaConfiguration.ComponentFactory import CompFactory
+from CaloClusterCorrection.constants import \
+     CALOCORR_NOPOOL, CALOCORR_DEFAULT_KEY, CALOCORR_SW
+from CaloClusterCorrection.common import makecorr
 import string
 
 #
 # This table lists all available versions of this correction.
 # See common.py for a description of the contents.
 #
-cls = CaloClusterCorrectionConf.CaloFillRectangularCluster
+cls = CompFactory.CaloFillRectangularCluster # CaloClusterCorrection
 CaloSwLayers_versions = [
     ['wt', cls, ['CaloSwLayers.CaloSwLayersWt_parms', CALOCORR_NOPOOL]],
     ['',   cls, ['CaloSwLayers.CaloSwLayers_parms',   CALOCORR_NOPOOL]],
@@ -41,6 +41,7 @@ CaloSwLayers_versions = [
 
 #
 # Create a new tool instance.
+#  FLAGS is the configuration flags instance.
 #  NAME is the base name for this tool.  If defaulted, a name will
 #   be constructed from the name of the correction, the version, and the key.
 #  If SUFFIX is not None, it will be added onto the end of the tool name.
@@ -61,7 +62,8 @@ CaloSwLayers_versions = [
 # Additional keyword arguments may be passed to override any tool
 # parameters/constants.
 #
-def make_CaloSwLayers (name = None,
+def make_CaloSwLayers (flags,
+                       name = None,
                        suffix = None,
                        version = None,
                        key = CALOCORR_DEFAULT_KEY,
@@ -70,10 +72,11 @@ def make_CaloSwLayers (name = None,
                        cells_name = None,
                        **kw):
 
-    if cells_name != None:
+    if cells_name is not None:
         kw['cells_name'] = cells_name
 
-    return makecorr (versions = CaloSwLayers_versions,
+    return makecorr (flags,
+                     versions = CaloSwLayers_versions,
                      name = name,
                      basename = 'layers',
                      suffix = suffix,
