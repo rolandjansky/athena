@@ -43,7 +43,6 @@ namespace Trk {
 
     public:
       JacobianCotThetaPtToThetaP(const double cotTheta, const double qpT);
-      ~JacobianCotThetaPtToThetaP();   
   };
 
 } // end of namespace
