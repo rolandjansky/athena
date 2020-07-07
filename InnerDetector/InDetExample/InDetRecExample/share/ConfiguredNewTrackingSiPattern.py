@@ -61,10 +61,7 @@ class  ConfiguredNewTrackingSiPattern:
          elif NewTrackingCuts.mode() == "BeamGas":
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_BeamGas as SiSpacePointsSeedMaker
          elif NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "ROIConv" :
-            if InDetFlags.doFastTracking():
-              from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_ITkTrigger as SiSpacePointsSeedMaker
-            else:
-              from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_ITK as SiSpacePointsSeedMaker
+            from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_ITK as SiSpacePointsSeedMaker
          elif NewTrackingCuts.mode() == "DisplacedSoftPion" :
             from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_TrkSeeded as SiSpacePointsSeedMaker
          else:
@@ -123,6 +120,11 @@ class  ConfiguredNewTrackingSiPattern:
             InDetSiSpacePointsSeedMaker.DeltaThetaRoISP       = 0.8
             InDetSiSpacePointsSeedMaker.DeltaPhiRoISP         = 0.8
             InDetSiSpacePointsSeedMaker.RoISeedTool           = RoISeedTool
+         if InDetFlags.doFastTracking() :
+            InDetSiSpacePointsSeedMaker.useFastTracking       = True
+            InDetSiSpacePointsSeedMaker.maxSeedsForSpacePoint = 3
+
+
                     
          #InDetSiSpacePointsSeedMaker.OutputLevel = VERBOSE
          ToolSvc += InDetSiSpacePointsSeedMaker
@@ -606,12 +608,12 @@ class  ConfiguredNewTrackingSiPattern:
             else:
                TrackCollectionKeys      += [ self.__SiTrackCollection ]
        
-      elif InDetFlags.doFastTracking():         
+      elif InDetFlags.doFastTracking() and NewTrackingCuts.mode() == "SLHC":
        #
        # defining setup without ambiguity solving for fast tracking reconstuction
        #
        from TrkCollectionAliasAlg.TrkCollectionAliasAlgConf import Trk__TrkCollectionAliasAlg
-       InDetCopyAlgForAmbi = Trk__TrkCollectionAliasAlg (name             = "InDetCopyAlgForAmbi",
+       InDetCopyAlgForAmbi = Trk__TrkCollectionAliasAlg (name             = "InDetCopyAlgForAmbi"+NewTrackingCuts.extension(),
                                                          CollectionName   = self.__SiTrackCollection,
                                                          AliasName        = ResolvedTrackCollectionKey) 
        topSequence += InDetCopyAlgForAmbi
