@@ -48,7 +48,6 @@ InDet::TRT_TrackExtensionTool_xk::TRT_TrackExtensionTool_xk
   m_usedriftrad     = true               ;
   m_parameterization= true               ;
   m_scale_error     = 2.                 ;
-
   declareInterface<ITRT_TrackExtensionTool>(this);
 
   declareProperty("RoadTool"               ,m_roadtool        );

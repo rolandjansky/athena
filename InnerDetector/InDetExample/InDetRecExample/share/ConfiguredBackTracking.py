@@ -194,10 +194,9 @@ class ConfiguredBackTracking:
                                                                    OutputSegments        = False,
                                                                    InputSegmentsLocation = InDetKeys.TRT_Segments(),
                                                                    OutputTracksLocation  = self.__TRTSeededTracks)
-         # TODO Add flag for calo seeded?
-         TRTCaloSeeded = True
-         if (TRTCaloSeeded):
-            InDetTRT_SeededTrackFinder.RegionSelectorSvc = InDetRegSelSvc
+         
+         if (NewTrackingCuts.RoISeededBackTracking()):
+            InDetTRT_SeededTrackFinder.RegionSelectionSvc = InDetRegSelSvc
             InDetTRT_SeededTrackFinder.CaloSeededRoI = True
          # InDetTRT_SeededTrackFinder.OutputLevel = VERBOSE
          topSequence += InDetTRT_SeededTrackFinder

@@ -1089,7 +1089,7 @@ def getInDetTRT_ExtensionToolCosmics(name='InDetTRT_ExtensionToolCosmics',**kwar
                          TRT_ClustersContainer = InDetKeys.TRT_DriftCircles(),
                          SearchNeighbour       = False,  # needs debugging!!!
                          RoadWidth             = 10.)
-
+                            
     from TRT_TrackExtensionTool_xk.TRT_TrackExtensionTool_xkConf import InDet__TRT_TrackExtensionToolCosmics
     return InDet__TRT_TrackExtensionToolCosmics(name                  = the_name, **kwargs)
 
