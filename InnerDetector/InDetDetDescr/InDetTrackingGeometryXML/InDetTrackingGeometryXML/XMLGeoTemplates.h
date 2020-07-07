@@ -247,6 +247,7 @@ namespace InDet {
     std::vector<std::string> modtype;
     std::vector<double>      ringpos;
     std::vector<double>      zoffset;
+    std::vector<double>      roffset;
     std::vector<double>      phioffset;
     std::vector<double>      outerRadius;
     std::vector<double>      innerRadius;

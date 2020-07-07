@@ -323,3 +323,31 @@ double PixelRoutingServiceXMLHelper::getMaterialFudgeGeneric(const std::string& 
   return theFudge;
 
 }
+
+int  PixelRoutingServiceXMLHelper::getNumSectors(int index) const
+{
+  if(getChildCount("PixelSvcRoute",index,"nSectors") > 0)
+    return getInt("PixelSvcRoute",index,"nSectors");
+  return 1;
+}
+
+double  PixelRoutingServiceXMLHelper::getPhiRefFirstSector(int index) const
+{
+  if(getChildCount("PixelSvcRoute",index,"phiRefFirstSector") > 0)
+    return getDouble("PixelSvcRoute",index,"phiRefFirstSector");
+  return 0.;
+}
+
+double  PixelRoutingServiceXMLHelper::getSectorVolumeWidth(int index) const
+{
+  if(getChildCount("PixelSvcRoute",index,"sectorVolumeWidth") > 0)
+    return getDouble("PixelSvcRoute",index,"sectorVolumeWidth");
+  return 0.;
+}
+
+bool PixelRoutingServiceXMLHelper::splitLayersInPhi(int index) const
+{
+  if(getChildCount("PixelSvcRoute",index,"splitLayersInPhi") > 0)
+    return getInt("PixelSvcRoute",index,"splitLayersInPhi");
+  return false;
+}

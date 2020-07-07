@@ -39,8 +39,8 @@
 
 
 GeoPixelRingECRingRef::GeoPixelRingECRingRef(int iLayer, int iRing, double ringRadius, double ringOuterRadius,
-					     double zOffset, double phiOffset,
-					     int ringSide, int numModules, std::string moduleType, 
+					     double zOffset, double rOffset, double phiOffset,
+					     int ringSide, int numModules, const std::string &moduleType, 
 					   int diskId, int back_front, SplitMode mode, double inclination)
   : m_layer(iLayer),
     m_ring(iRing),
@@ -49,6 +49,7 @@ GeoPixelRingECRingRef::GeoPixelRingECRingRef(int iLayer, int iRing, double ringR
     m_radius(ringRadius),
     m_outerRadius(ringOuterRadius),
     m_zOffset(zOffset),
+    m_rOffset(rOffset),
     m_phiOffset(phiOffset),
     m_ringSide(ringSide),
     m_numModules(numModules),
@@ -107,7 +108,7 @@ void GeoPixelRingECRingRef::preBuild(const PixelGeoBuilderBasics* basics )
   double moduleRadius = m_radius + ringModule->getModuleSensorLength()*.5*cos(m_inclination);
   double moduleHalfLength = ringModule->Length()*.5;
   rmin = moduleRadius-moduleHalfLength*cos(m_inclination);
-  
+
   if(rmin<m_ringRMin) m_ringRMin = rmin-0.001;
   
   m_ringZShift = (thickChip-m_halfLength)*cos(m_inclination);    
@@ -126,7 +127,7 @@ void GeoPixelRingECRingRef::readoutId(std::string region, int lay, int etaIndex 
   m_readoutEta = etaIndex; 
 }
 
-GeoFullPhysVol* GeoPixelRingECRingRef::Build(const PixelGeoBuilderBasics* basics, int endcapSide, GeoFullPhysVol* envelope, double zshift )
+GeoFullPhysVol* GeoPixelRingECRingRef::Build(const PixelGeoBuilderBasics* basics, int endcapSide, GeoFullPhysVol* envelope, double zshift, double rshift )
 {
  // Check that the prebuild phase is done
   if(!m_bPrebuild) preBuild(basics);
@@ -142,12 +143,14 @@ GeoFullPhysVol* GeoPixelRingECRingRef::Build(const PixelGeoBuilderBasics* basics
   double halflength = m_halfLength+.001;
   if(m_front_back==1) zModuleShift*=-1;
   zModuleShift += zshift + ringModule->getModuleSensorLength()*.5*sin(m_inclination); 
-
+ 
   // This is the radius of the center of the active sensor (also center of the module)
-  double moduleRadius = m_radius + ringModule->getModuleSensorLength()*.5*cos(m_inclination);
+  double moduleRadius = m_radius + ringModule->getModuleSensorLength()*.5*cos(m_inclination) + rshift;
 
   // build ring envelope if needed
   GeoFullPhysVol* ringPhys = envelope;
+
+  double dr = 0.5*fabs(m_rOffset);
   
   if (!ringPhys) {
     const GeoMaterial* air = basics->matMgr()->getMaterial("std::Air");
@@ -163,13 +166,13 @@ GeoFullPhysVol* GeoPixelRingECRingRef::Build(const PixelGeoBuilderBasics* basics
       double tol = 0.5;
       GeoPcon* pcone = new GeoPcon(Sphi,Dphi);
       double h1 = (m_ringRMax-m_ringRMin)*tan(m_inclination);
-      pcone->addPlane(-thick-tol,m_ringRMax,m_ringRMax);
-      pcone->addPlane(+thick+tol,m_ringRMax-2*(thick+tol)/tan(m_inclination),m_ringRMax);
-      pcone->addPlane(-thick-tol+h1,m_ringRMin,m_ringRMin+2*(thick+tol)/tan(m_inclination));
-      pcone->addPlane(thick+tol+h1,m_ringRMin,m_ringRMin);
+      pcone->addPlane(-thick-tol,m_ringRMax-dr, m_ringRMax+dr);
+      pcone->addPlane(+thick+tol,m_ringRMax-2*(thick+tol)/tan(m_inclination)-dr,m_ringRMax+dr);
+      pcone->addPlane(-thick-tol+h1,m_ringRMin-dr,m_ringRMin+2*(thick+tol)/tan(m_inclination)+dr);
+      pcone->addPlane(thick+tol+h1,m_ringRMin-dr,m_ringRMin+dr);
       _ringLog = new GeoLogVol(logStr.str(),pcone,air);
     } else {   
-      const GeoTube* ringTube = new GeoTube(m_ringRMin,m_ringRMax,halflength);
+      const GeoTube* ringTube = new GeoTube(m_ringRMin-dr,m_ringRMax+dr,halflength);
       _ringLog = new GeoLogVol(logStr.str(),ringTube,air);
     }
     ringPhys = new GeoFullPhysVol(_ringLog);

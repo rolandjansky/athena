@@ -114,6 +114,11 @@ void RoutingDyn::createRouteFromXML(int iRoute)
     bBarrel = false;
   }
 
+  int nSectors = m_svcRoutingXMLHelper->getNumSectors(iRoute);
+  float refPhi = m_svcRoutingXMLHelper->getPhiRefFirstSector(iRoute);
+  float sectorWidth = m_svcRoutingXMLHelper->getSectorVolumeWidth(iRoute);
+  bool splitLayers = m_svcRoutingXMLHelper->splitLayersInPhi(iRoute);
+
   int nbSegment = r.size()-1;
   for(int iseg=0 ; iseg<nbSegment; iseg++) {
     msg(MSG::DEBUG)<<"######################################################################################################################"<<endreq;
@@ -122,7 +127,8 @@ void RoutingDyn::createRouteFromXML(int iRoute)
 
     bool bFirst=(iseg==0);
     bool bLast=(iseg==nbSegment-1);
-    RouteParameter param(iRoute,iseg,bBarrel,r[iseg],r[iseg+1], z[iseg],z[iseg+1], layerList, svcThick, bFirst, bLast, svcType, isPhiRouting, EOScardLength, zShift);
+    RouteParameter param(iRoute,iseg,bBarrel,r[iseg],r[iseg+1], z[iseg],z[iseg+1], layerList, svcThick, bFirst, bLast, svcType, isPhiRouting, EOScardLength, zShift,
+			 nSectors, refPhi, sectorWidth, splitLayers);
     createRouteSegment(param);
   }
 }
@@ -214,7 +220,10 @@ void RoutingDyn::organizePredefinedRouteSegment(const HSvcRoute& route)
 	  for (const auto & bl:svcVol[i]->layers()){ newCyl->addLayer(bl); }
         }
     }
-    
+
+    if (svcVol[0]->getNumSectors()>1 || svcVol[0]->splitLayersInPhi()) newCyl->splitIntoSectors( svcVol[0]->getNumSectors(), svcVol[0]->getRefPhiSector(),
+												 svcVol[0]->getSectorWidth(),svcVol[0]->splitLayersInPhi());  
+   
     newRoute.addVolume(newCyl);	
     addVolume(newCyl);
   }
@@ -346,7 +355,11 @@ void RoutingDyn::organizePredefinedRouteSegment(const VSvcRoute& route)
 	  int iVol=itSvc;
 	  for (const auto & bl:svcVol[iVol]->layers()){ newDisk->addLayer(bl); }
 	}
-	      
+
+	if (svcVol[0]->getNumSectors()>1 || svcVol[0]->splitLayersInPhi()) newDisk->splitIntoSectors( svcVol[0]->getNumSectors(), svcVol[0]->getRefPhiSector(),
+												 svcVol[0]->getSectorWidth(),svcVol[0]->splitLayersInPhi());  
+  	      
+
 	newRoute.addVolume(newDisk);	
 	addVolume(newDisk);
       }
@@ -428,6 +441,8 @@ void RoutingDyn::createVerticalRoute(const RouteParameter& param)
 
   int routeId = param.getRouteId();
   int segId = param.getSegmentId();
+  int nSectors = param.getNumSectors();
+  bool splitLayers = param.splitLayersInPhi();
   std::string r1 = param.getR1(); 
   std::string r2 = param.getR2();
   std::string z1 = param.getZ1();
@@ -504,6 +519,8 @@ void RoutingDyn::createVerticalRoute(const RouteParameter& param)
       svcVol->addLayers(m_bplc[layer]);
     else
       svcVol->addLayer(m_eplc[layer]);
+ 
+    if (nSectors>1 || splitLayers) svcVol->splitIntoSectors( nSectors, param.getPhiRefFirstSector(),param.getSectorVolumeWidth(),splitLayers);  
     
     if(bSvcGrouped)
       route.addVolume(svcVol);
@@ -530,7 +547,9 @@ void RoutingDyn::createHorizontalRoute(const RouteParameter& param)
 {
   int routeId = param.getRouteId();
   int segId = param.getSegmentId();
-  std::string r1 = param.getR1(); 
+  int nSectors = param.getNumSectors();
+  bool splitLayers = param.splitLayersInPhi();
+   std::string r1 = param.getR1(); 
   std::string r2 = param.getR2();
   std::string z1 = param.getZ1();
   std::string z2 = param.getZ2();
@@ -609,6 +628,8 @@ void RoutingDyn::createHorizontalRoute(const RouteParameter& param)
       svcVol->addLayers(m_bplc[layer]);
     else
       svcVol->addLayer(m_eplc[layer]);
+
+     if (nSectors>1 || splitLayers) svcVol->splitIntoSectors( nSectors, param.getPhiRefFirstSector(),param.getSectorVolumeWidth(),splitLayers);  
 
     if(bSvcGrouped)
       route.addVolume(svcVol);
