@@ -545,6 +545,38 @@ namespace top {
       event.m_trackJets.sort(top::descendingPtSorter);
     }
 
+    if (m_config->useTracks()) {
+
+      ///-- Need to read const collections for mini-xaod read back --///                                                                                                                                 
+      const xAOD::TrackParticleContainer* calibratedTracks(nullptr);
+      top::check(evtStore()->retrieve(calibratedTracks, m_config->sgKeyTracks(hash)), "Failed to retrieve tracks");
+
+      ///-- Shallow copy and save to TStore --///                                                                                                                                                         
+      if (!evtStore()->contains<xAOD::TrackParticleContainer>(m_config->sgKeyTracksTDS(hash))) {
+
+	std::pair< xAOD::TrackParticleContainer*, xAOD::ShallowAuxContainer* > shallow_tracks = xAOD::shallowCopyContainer(*calibratedTracks);
+
+	xAOD::TReturnCode save = evtStore()->tds()->record(shallow_tracks.first, m_config->sgKeyTracksTDS(hash));
+	xAOD::TReturnCode saveAux =
+          evtStore()->tds()->record(shallow_tracks.second, m_config->sgKeyTracksTDSAux(hash));
+	top::check((save && saveAux), "Failed to store object in TStore");
+      }
+
+      ///-- Pull shallow copy back out of TStore in non-const way --/// 
+      xAOD::TrackParticleContainer* calibratedTracksTDS(nullptr);
+      top::check(evtStore()->retrieve(calibratedTracksTDS, m_config->sgKeyTracksTDS(hash)), "Failed to retrieve tracks");
+
+      for (auto index : currentSystematic.goodTracks()) {
+        event.m_tracks.push_back(calibratedTracksTDS->at(index));
+      }
+
+      //shallow copies aren't sorted!                                                                                                                                                                     
+      //sort only the selected tracks (faster)     
+      event.m_tracks.sort(top::descendingPtSorter);
+
+    }
+
+
     //met
     const xAOD::MissingETContainer* mets(nullptr);
     if (!currentSystematic.isLooseEvent()) {

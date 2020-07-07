@@ -29,6 +29,7 @@
 #include "AsgTools/AnaToolHandle.h"
 
 // Top includes
+#include "TopCPTools/TopTrackCPTools.h"
 #include "TopCPTools/TopGhostTrackCPTools.h"
 #include "TopCPTools/TopFlavorTaggingCPTools.h"
 #include "TopCPTools/TopBoostedTaggingCPTools.h"
@@ -70,6 +71,8 @@ namespace top {
     std::unique_ptr<TauCPTools>              m_tau_CP_tools;
     std::unique_ptr<JetMETCPTools>           m_jetMET_CP_tools;
     std::unique_ptr<GhostTrackCPTools>       m_ghost_track_CP_tools;
+    std::unique_ptr<TrackCPTools>            m_track_CP_tools;
+
   };
 } // namespace
 

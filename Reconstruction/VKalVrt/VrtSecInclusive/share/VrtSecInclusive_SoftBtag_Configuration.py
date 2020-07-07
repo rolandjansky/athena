@@ -1,3 +1,5 @@
+###  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 # File for feeding Reco_tf.py vertexing options for the searches 
 # looking for low pt b-hadrons in the SUSY group.
 
@@ -30,7 +32,7 @@ VrtSecInclusive_SoftB.TwoTrVrtAngleCut                       = 0.7
 VrtSecInclusive_SoftB.twoTrVrtMinDistFromPV                  = 0.2
 VrtSecInclusive_SoftB.PassThroughTrackSelection              = True
 VrtSecInclusive_SoftB.ImpactWrtBL                            = False
-VrtSecInclusive_SoftB.doPVcompatibilityCut                   = False
+VrtSecInclusive_SoftB.DoPVcompatibility                      = True
 VrtSecInclusive_SoftB.RemoveFake2TrkVrt                      = True
 VrtSecInclusive_SoftB.doReassembleVertices                   = False
 VrtSecInclusive_SoftB.doMergeByShuffling                     = False

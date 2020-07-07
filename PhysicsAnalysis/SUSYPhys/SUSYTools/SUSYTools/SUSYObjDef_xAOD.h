@@ -728,6 +728,7 @@ namespace ST {
     asg::AnaToolHandle<IJetCalibrationTool> m_jetCalibTool;
     asg::AnaToolHandle<IJetCalibrationTool> m_jetFatCalibTool;
     asg::AnaToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesTool;
+    asg::AnaToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesPDSmearTool;
     asg::AnaToolHandle<ICPJetUncertaintiesTool> m_fatjetUncertaintiesTool;
     asg::AnaToolHandle<ICPJetUncertaintiesTool> m_TCCjetUncertaintiesTool;
     asg::AnaToolHandle<IJetSelector> m_jetCleaningTool;

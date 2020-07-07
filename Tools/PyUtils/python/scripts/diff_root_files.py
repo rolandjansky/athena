@@ -212,7 +212,6 @@ def main(args):
         n_good = 0
         n_bad = 0
         import collections
-        from itertools import izip
         summary = collections.defaultdict(int)
 
         if args.order_trees:

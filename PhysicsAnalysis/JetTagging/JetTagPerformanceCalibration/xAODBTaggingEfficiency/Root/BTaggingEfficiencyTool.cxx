@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODBTaggingEfficiency/BTaggingEfficiencyTool.h"
@@ -489,7 +489,7 @@ StatusCode BTaggingEfficiencyTool::initialize() {
     ATH_CHECK( m_selectionTool.setProperty("JetAuthor",                    m_jetAuthor) );
     ATH_CHECK( m_selectionTool.setProperty("MinPt",                        m_minPt) );
     ATH_CHECK( m_selectionTool.retrieve() );
-  }
+ }
 
   // if the user decides to ignore these errors, at least make her/him aware of this
   if (m_ignoreOutOfValidityRange) {
@@ -939,6 +939,33 @@ BTaggingEfficiencyTool::listScaleFactorSystematics(bool named) const {
     uncertainties[getLabel(int(flavourID))] = systematics;
   }
   return uncertainties;
+}
+
+CorrectionCode
+BTaggingEfficiencyTool::getEigenRecompositionCoefficientMap(const std::string &label, std::map<std::string, std::map<std::string, float>> & coefficientMap){
+  // Calling EigenVectorRecomposition method in CDI and retrieve recomposition map.
+  // If success, coefficientMap would be filled and return ok.
+  // If failed, return error.
+  // label  :  flavour label
+  // coefficientMap: store returned coefficient map.
+  if (! m_initialised) {
+    ATH_MSG_ERROR("BTaggingEfficiencyTool has not been initialised");
+    return CorrectionCode::Error;
+  }
+  if(label.compare("B") != 0 &&
+     label.compare("C") != 0 &&
+     label.compare("T") != 0 &&
+     label.compare("Light") != 0){
+    ATH_MSG_ERROR("Flavour label is illegal! Label need to be B,C,T or Light.");
+    return CorrectionCode::Error;
+  }
+  CalibrationStatus status = m_CDI->runEigenVectorRecomposition(m_jetAuthor, label, m_OP);
+  if (status != Analysis::kSuccess){
+    ATH_MSG_ERROR("Failure running EigenVectorRecomposition Method.");
+    return CorrectionCode::Error;
+  }
+  coefficientMap = m_CDI->getEigenVectorRecompositionCoefficientMap();
+  return CorrectionCode::Ok;
 }
 
 // WARNING the behaviour of future calls to getEfficiency and friends are modified by this

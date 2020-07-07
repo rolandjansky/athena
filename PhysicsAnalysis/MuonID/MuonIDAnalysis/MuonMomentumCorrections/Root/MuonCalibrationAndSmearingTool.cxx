@@ -2879,10 +2879,15 @@ namespace CP {
           if(reso_Misaligned > reso_AlignedOnly) {
             smear_mod = std::sqrt(std::pow(reso_Misaligned, 2) - std::pow(reso_AlignedOnly, 2));
           }
+          ATH_MSG_VERBOSE("[Direct CB Smearing] smear: " << smear);
+          ATH_MSG_VERBOSE("[Direct CB Smearing] smear_mod: " << smear_mod);
           // Taking 50% difference between perfectly aligned and misaligned samples
-          newSmear = std::sqrt(std::pow(smear, 2) + var*std::pow(0.5*smear_mod, 2)); 
-          if(newSmear<0.) newSmear = 0.;
+          double newSmearSquared = std::pow(smear, 2) + var*std::pow(0.5*smear_mod, 2);
+          if(newSmearSquared>0.) newSmear = std::sqrt(newSmearSquared);
+          else newSmear = 0.;
+          //if(newSmear<0.) newSmear = 0.;
         }
+        ATH_MSG_VERBOSE("[Direct CB Smearing] newSmear: " << newSmear);
         return newSmear; 
     }
     if( DetType == MCAST::DetectorType::MS ) {

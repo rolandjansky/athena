@@ -18,6 +18,7 @@
 #include "TopObjectSelectionTools/JetMC15.h"
 #include "TopObjectSelectionTools/TrackJetMC15.h"
 #include "TopObjectSelectionTools/JetGhostTrackSelection.h"
+#include "TopObjectSelectionTools/TrackSelection.h"
 #include "TopObjectSelectionTools/OverlapRemovalASG.h"
 // R21 specific
 #include "TopObjectSelectionTools/PhotonMC16.h"
@@ -135,6 +136,11 @@ namespace top {
                          2.5,topConfig->ghostTracksVertexAssociation()));
     }
     
+    ///-- Tracks --///                                                                                                                                                                              
+    if (topConfig->useTracks()) {
+      objectSelection->trackSelection(new top::TrackSelection(topConfig->trackPtcut(), topConfig->trackEtacut()));
+    }
+
     ///-- Overlap removal --///
     /// single parameter: boolean to do OR with large-R jets
     if (!topConfig->isTruthDxAOD()) {
