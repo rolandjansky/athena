@@ -9,3 +9,10 @@ atlas_add_library( TrigInDetPattRecoTools
                    PUBLIC_HEADERS TrigInDetPattRecoTools
                    LINK_LIBRARIES TrigInDetPattRecoEvent
                    PRIVATE_LINK_LIBRARIES IRegionSelector TrigInDetEvent )
+
+find_package(Boost)
+
+atlas_add_test( mockSeeds
+                SOURCES test/mockSeeds.cxx
+                LINK_LIBRARIES PathResolver TrigInDetEvent TrigInDetPattRecoEvent TrigInDetPattRecoTools TrigSteeringEvent IRegionSelector )
+

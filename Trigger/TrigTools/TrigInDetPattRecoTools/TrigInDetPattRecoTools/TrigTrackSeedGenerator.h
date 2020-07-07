@@ -9,8 +9,8 @@
 #include<algorithm>
 
 #include "TrigInDetPattRecoTools/TrigCombinatorialSettings.h"
+#include "TrigInDetEvent/TrigSiSpacePointBase.h"
 
-class TrigSiSpacePointBase;
 class TrigInDetTriplet;
 
 
