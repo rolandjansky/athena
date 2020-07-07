@@ -55,6 +55,7 @@ Trk::GaussianSumFitter::GaussianSumFitter(const std::string& type,
   , m_SmootherFailure{ 0 }
   , m_PerigeeFailure{ 0 }
   , m_fitQualityFailure{ 0 }
+  , m_fitSuccess{ 0 }
 {
 
   declareInterface<ITrackFitter>(this);
@@ -161,6 +162,8 @@ Trk::GaussianSumFitter::finalize()
     << "Number of Smoother Failures:              " << m_SmootherFailure << '\n'
     << "Number of MakePerigee Failures:           " << m_PerigeeFailure << '\n'
     << "Number of Trks that fail fitquality test: " << m_fitQualityFailure
+    << '\n'
+    << "Number of successful fits:                " << m_fitSuccess << '\n'
     << '\n'
     << "-----------------------------------------------" << '\n'
     << "Finalisation of " << name() << " was successful");
@@ -323,11 +326,15 @@ Trk::GaussianSumFitter::fit(
               sortedPrepRawDataSet.end(),
               prdComparisonFunction);
   }
+  // Create Extrapolator cache that holds material effects cache;
+  Trk::IMultiStateExtrapolator::Cache extrapolatorCache;
+
 
   // Perform GSF forwards fit
   ForwardTrajectory* forwardTrajectory =
     m_forwardGsfFitter
       ->fitPRD(ctx,
+               extrapolatorCache,
                sortedPrepRawDataSet,
                estimatedParametersNearOrigin,
                particleHypothesis)
@@ -348,7 +355,7 @@ Trk::GaussianSumFitter::fit(
 
   // Perform GSF smoother operation
   SmoothedTrajectory* smoothedTrajectory =
-    m_gsfSmoother->fit(ctx,*forwardTrajectory, particleHypothesis);
+    m_gsfSmoother->fit(ctx, extrapolatorCache, *forwardTrajectory, particleHypothesis);
 
   // Protect against failed smoother fit
   if (!smoothedTrajectory) {
@@ -370,7 +377,7 @@ Trk::GaussianSumFitter::fit(
 
   if (m_makePerigee) {
     const Trk::MultiComponentStateOnSurface* perigeeMultiStateOnSurface =
-      this->makePerigee(ctx,smoothedTrajectory, particleHypothesis);
+      makePerigee(ctx, extrapolatorCache, smoothedTrajectory, particleHypothesis);
     ATH_MSG_DEBUG(
       "perigeeMultiStateOnSurface  :" << perigeeMultiStateOnSurface);
     if (perigeeMultiStateOnSurface) {
@@ -389,11 +396,28 @@ Trk::GaussianSumFitter::fit(
   delete forwardTrajectory;
   // Reverse the order of the TSOS's to make be order flow from inside to out
   std::reverse(smoothedTrajectory->begin(), smoothedTrajectory->end());
+  
+  // Store only TSOS in tracks instead of MCSOS
+  if( !m_StoreMCSOS ){
+    auto slimmedSmoothedTrajectory = std::make_unique<Trk::SmoothedTrajectory>();
+    for( const Trk::TrackStateOnSurface* tsos : *smoothedTrajectory ){
+      slimmedSmoothedTrajectory->push_back( new Trk::TrackStateOnSurface( *tsos ) );
+    }
+    delete smoothedTrajectory;
+    // Create new track
+    Trk::TrackInfo info(Trk::TrackInfo::GaussianSumFilter, particleHypothesis);
+    info.setTrackProperties(TrackInfo::BremFit);
+    info.setTrackProperties(TrackInfo::BremFitSuccessful);
+    ++m_fitSuccess;
+    return std::make_unique<Track>(info, slimmedSmoothedTrajectory.release(), fitQuality);
+  }
+
 
   // Create new track
   Trk::TrackInfo info(Trk::TrackInfo::GaussianSumFilter, particleHypothesis);
   info.setTrackProperties(TrackInfo::BremFit);
   info.setTrackProperties(TrackInfo::BremFitSuccessful);
+  ++m_fitSuccess;
   return std::make_unique<Track>(info, smoothedTrajectory, fitQuality);
 }
 
@@ -465,10 +489,17 @@ Trk::GaussianSumFitter::fit(
          measurementBaseComparisonFunction);
   }
 
+   
+  // Create Extrapolator cache that holds material effects cache;
+  Trk::IMultiStateExtrapolator::Cache extrapolatorCache;
+
+
+
   // Perform GSF forwards fit - new memory allocated in forwards fitter
   ForwardTrajectory* forwardTrajectory =
     m_forwardGsfFitter
       ->fitMeasurements(ctx,
+                        extrapolatorCache,
                         sortedMeasurementSet,
                         estimatedParametersNearOrigin,
                         particleHypothesis)
@@ -490,7 +521,7 @@ Trk::GaussianSumFitter::fit(
   // Perform GSF smoother operation
 
   SmoothedTrajectory* smoothedTrajectory =
-    m_gsfSmoother->fit(ctx, *forwardTrajectory, particleHypothesis, ccot);
+    m_gsfSmoother->fit(ctx, extrapolatorCache, *forwardTrajectory, particleHypothesis, ccot);
 
   // Protect against failed smoother fit
   if (!smoothedTrajectory) {
@@ -513,7 +544,7 @@ Trk::GaussianSumFitter::fit(
 
   if (m_makePerigee) {
     const Trk::MultiComponentStateOnSurface* perigeeMultiStateOnSurface =
-      this->makePerigee(ctx,smoothedTrajectory, particleHypothesis);
+      makePerigee(ctx, extrapolatorCache, smoothedTrajectory, particleHypothesis);
     ATH_MSG_DEBUG(
       "perigeeMultiStateOnSurface  :" << perigeeMultiStateOnSurface);
 
@@ -535,10 +566,27 @@ Trk::GaussianSumFitter::fit(
   // Reverse the order of the TSOS's to make be order flow from inside to out
   std::reverse(smoothedTrajectory->begin(), smoothedTrajectory->end());
 
+
+  // Store only TSOS in tracks instead of MCSOS
+  if( !m_StoreMCSOS ){
+    auto slimmedSmoothedTrajectory = std::make_unique<Trk::SmoothedTrajectory>();
+    for( const Trk::TrackStateOnSurface* tsos : *smoothedTrajectory ){
+      slimmedSmoothedTrajectory->push_back( new Trk::TrackStateOnSurface(*tsos) );
+    }
+    delete smoothedTrajectory;
+    // Create new track
+    Trk::TrackInfo info(Trk::TrackInfo::GaussianSumFilter, particleHypothesis);
+    info.setTrackProperties(TrackInfo::BremFit);
+    info.setTrackProperties(TrackInfo::BremFitSuccessful);
+    ++m_fitSuccess;
+    return std::make_unique<Track>(info, slimmedSmoothedTrajectory.release(), fitQuality);
+  }
+
   // Create new track
   Trk::TrackInfo info(Trk::TrackInfo::GaussianSumFilter, particleHypothesis);
   info.setTrackProperties(TrackInfo::BremFit);
   info.setTrackProperties(TrackInfo::BremFitSuccessful);
+  ++m_fitSuccess;
   return std::make_unique<Track>(info, smoothedTrajectory, fitQuality);
 }
 
@@ -698,6 +746,7 @@ Trk::GaussianSumFitter::fit(const EventContext& ctx,
 const Trk::MultiComponentStateOnSurface*
 Trk::GaussianSumFitter::makePerigee(
   const EventContext& ctx,
+  Trk::IMultiStateExtrapolator::Cache& extrapolatorCache,
   const Trk::SmoothedTrajectory* smoothedTrajectory,
   const Trk::ParticleHypothesis particleHypothesis) const
 {
@@ -733,6 +782,7 @@ Trk::GaussianSumFitter::makePerigee(
   // Extrapolate to perigee, taking material effects considerations into account
   Trk::MultiComponentState stateExtrapolatedToPerigee =
     m_extrapolator->extrapolate(ctx,
+                                extrapolatorCache,
                                 *multiComponentState,
                                 perigeeSurface,
                                 m_directionToPerigee,
@@ -763,7 +813,7 @@ Trk::GaussianSumFitter::makePerigee(
     pattern(0);
   pattern.set(Trk::TrackStateOnSurface::Perigee);
 
-  if (fabs(combinedPerigee->parameters()[Trk::qOverP]) > 1e8) {
+  if (std::abs(combinedPerigee->parameters()[Trk::qOverP]) > 1e8) {
     // Protection against 0-momentum track .. this check should NEVER be needed.
     //actual cutoff is 0.01eV track
     ATH_MSG_ERROR(
