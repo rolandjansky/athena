@@ -1,12 +1,15 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetDD_ServiceVolume_H
 #define InDetDD_ServiceVolume_H
 
-#include <string>
+#include "CxxUtils/checker_macros.h"
+
 #include <cmath>
+#include <mutex>
+#include <string>
 
 class GeoMaterial;
 class GeoShape;
@@ -34,6 +37,7 @@ namespace InDetDD {
 
   public: 
     ServiceVolume();
+    ServiceVolume(const ServiceVolume&);
     void setRmin(double rmin) {m_rmin = rmin; resetGeoShape();} 
     void setRmax(double rmax) {m_rmax = rmax; resetGeoShape();} 
     void setRmin2(double rmin2) {m_rmin2 = rmin2; resetGeoShape();} 
@@ -114,7 +118,7 @@ namespace InDetDD {
     double m_zmax;
     //int m_volId;
     bool m_zsymm;
-    mutable GeoShapeHolder m_geoShape;
+    mutable GeoShapeHolder m_geoShape ATLAS_THREAD_SAFE; // Guarded by m_mutex
     const GeoMaterial * m_material;
     std::string m_materialName;
     std::string m_volName;
@@ -126,7 +130,7 @@ namespace InDetDD {
     int m_nCopies;
     //double m_origLength;
     double m_origVolume;
-    mutable double m_volume;
+    mutable double m_volume ATLAS_THREAD_SAFE; // Guarded by m_mutex
     double m_safety;
     std::string m_region;
     std::string m_label;
@@ -137,6 +141,8 @@ namespace InDetDD {
     int m_envNum;
     int m_envParentNum; 
     double m_zShift;
+
+    mutable std::mutex m_mutex;
   };
   
 } // End namespace 

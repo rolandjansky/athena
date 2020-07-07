@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetServMatGeometryManager_H
 #define InDetServMatGeometryManager_H
 
+#include "CxxUtils/checker_macros.h"
 #include "InDetGeoModelUtils/InDetDDAthenaComps.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 
@@ -14,7 +15,7 @@ class InDetMaterialManager;
 class InDetServMatGeometryManager
 {
 public:
-  InDetServMatGeometryManager(const InDetDD::AthenaComps * athenaComps);
+  InDetServMatGeometryManager(const InDetDD::AthenaComps * athenaComps) ATLAS_CTORDTOR_NOT_THREAD_SAFE; // Thread unsafe InDetDD::AthenaComps::rdbAccessSvc method is used.
  
   ~InDetServMatGeometryManager();
   
