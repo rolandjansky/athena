@@ -13,9 +13,10 @@
 #include "TrkGaussianSumFilter/MultiComponentStateModeCalculator.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include "TrkParameters/TrackParameters.h"
+#include "CxxUtils/phihelper.h"
 
 namespace {
-const double invsqrt2PI = 1. / sqrt(2. * M_PI);
+constexpr double invsqrt2PI = 1. / sqrt(2. * M_PI);
 
 /** bried method to determine the value of the a gaussian distribution at a
  * given value */
@@ -165,11 +166,7 @@ Trk::MultiComponentStateModeCalculator::calculateMode(
       }
       // Ensure that phi is between -pi and pi
       if (i == 2) {
-        if (modes[i] > M_PI) {
-          modes[i] -= 2 * M_PI;
-        } else if (modes[i] < -M_PI) {
-          modes[i] += 2 * M_PI;
-        }
+        modes[i] = CxxUtils::wrapToPi( modes[i] ) ;
       }
     }
   }
@@ -205,9 +202,9 @@ Trk::MultiComponentStateModeCalculator::fillMixture(
       //                           d0=0, z0=1, phi0=2, theta=3, qOverP=4,
       double weight = component->second;
       double mean = componentParameters->parameters()[parameter[i]];
-      // FIXME ATLASRECTS-598 this fabs() should not be necessary... for some
+      // FIXME ATLASRECTS-598 this std::abs() should not be necessary... for some
       // reason cov(qOverP,qOverP) can be negative
-      double sigma = sqrt(fabs((*measuredCov)(parameter[i], parameter[i])));
+      double sigma = sqrt(std::abs((*measuredCov)(parameter[i], parameter[i])));
 
       // Ensure that we don't have any problems with the cyclical nature of phi
       // Use first state as reference point
@@ -254,7 +251,7 @@ Trk::MultiComponentStateModeCalculator::findMode(
     double pdfPreviousMode = pdf(previousMode, i, mixture);
 
     if ((pdfMode + pdfPreviousMode) != 0.0) {
-      tolerance = fabs(pdfMode - pdfPreviousMode) / (pdfMode + pdfPreviousMode);
+      tolerance = std::abs(pdfMode - pdfPreviousMode) / (pdfMode + pdfPreviousMode);
     } else {
       return xStart;
     }
@@ -288,7 +285,7 @@ Trk::MultiComponentStateModeCalculator::findModeGlobal(
 
   double mode(0);
   double maximum(-1);
-  double iterate(fabs(mean / 1000));
+  double iterate(std::abs(mean / 1000));
 
   for (double counter(start); counter < end; counter += iterate) {
     double value(pdf(counter, i, mixture));
@@ -342,7 +339,7 @@ Trk::MultiComponentStateModeCalculator::findRoot(
       e = b - a;
     }
 
-    if (fabs(fc) < fabs(fb)) {
+    if (std::abs(fc) < std::abs(fb)) {
       ac_equal = true;
       a = b;
       b = c;
@@ -352,15 +349,15 @@ Trk::MultiComponentStateModeCalculator::findRoot(
       fc = fa;
     }
 
-    double tol = 0.5 * tolerance * fabs(b);
+    double tol = 0.5 * tolerance * std::abs(b);
     double m = 0.5 * (c - b);
 
-    if (fb == 0 || fabs(m) <= tol) {
+    if (fb == 0 || std::abs(m) <= tol) {
       result = b;
       return true;
     }
 
-    if (fabs(e) < tol || fabs(fa) <= fabs(fb)) {
+    if (std::abs(e) < tol || std::abs(fa) <= std::abs(fb)) {
       // Bounds decreasing too slowly: use bisection
       d = m;
       e = m;
@@ -387,8 +384,8 @@ Trk::MultiComponentStateModeCalculator::findRoot(
         p = -p;
       }
 
-      double min1 = 3 * m * q - fabs(tol * q);
-      double min2 = fabs(e * q);
+      double min1 = 3 * m * q - std::abs(tol * q);
+      double min2 = std::abs(e * q);
       if (2 * p < (min1 < min2 ? min1 : min2)) {
         // Accept the interpolation
         e = d;
@@ -403,7 +400,7 @@ Trk::MultiComponentStateModeCalculator::findRoot(
     a = b;
     fa = fb;
     // Evaluate new trial root
-    if (fabs(d) > tol) {
+    if (std::abs(d) > tol) {
       b += d;
     } else {
       b += (m > 0 ? +tol : -tol);
