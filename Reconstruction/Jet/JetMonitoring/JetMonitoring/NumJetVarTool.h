@@ -28,7 +28,10 @@ public:
   
 private:
 
-  Gaudi::Property<float> m_pTcut = {this,"JetMinPtCut", 0.};
+  Gaudi::Property<float> m_ptCut = {this,"PtCut", 0.};
+  Gaudi::Property<float> m_etCut = {this,"EtCut", 0.};
+  Gaudi::Property<float> m_etaMin = {this,"EtaMin", -10.};
+  Gaudi::Property<float> m_etaMax = {this,"EtaMax", 10.};
   Gaudi::Property<std::string> m_varName {this,"VarName", ""};
   bool m_failureOnMissingContainer;
 

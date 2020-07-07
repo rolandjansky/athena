@@ -17,7 +17,7 @@ NumJetVarTool::NumJetVarTool(const std::string & type, const std::string & name 
 
 StatusCode NumJetVarTool::initialize() {
 
-  if(m_pTcut > 0.) ATH_MSG_INFO("Counting number of jets with " << m_pTcut);
+  ATH_MSG_INFO("Counting number of jets with PtCut: "<<m_ptCut<<", EtCut: "<<m_etCut<<", EtaMin: "<<m_etaMin<<", EtaMax: "<<m_etaMax);
 
   return StatusCode::SUCCESS;
 
@@ -37,7 +37,7 @@ float NumJetVarTool::value(const xAOD::EventInfo & e, const xAOD::JetContainer &
 
   float njets = 0.;
   for (const xAOD::Jet* jet : jets) {
-    if (jet->pt() >= m_pTcut*1000.) {
+    if (jet->pt() >= m_ptCut*1000. && jet->p4().Et() >= m_etCut*1000. && fabs(jet->eta()) >= m_etaMin && fabs(jet->eta()) <= m_etaMax ) {
       njets++;
     }
   }
