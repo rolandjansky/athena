@@ -208,6 +208,8 @@ public:
         return m_link->fullSize();
     }    
 
+    void prepareItr() const { m_link->wait(); }
+
     /// return number of collections
     virtual size_t numberOfCollections() const override final{
         return IdentifiableContainerBase::numberOfCollections();
