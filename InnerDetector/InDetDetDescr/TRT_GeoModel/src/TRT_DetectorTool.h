@@ -24,7 +24,7 @@ namespace InDetDD {
   class AthenaComps;
 }
 
-class TRT_DetectorTool : public GeoModelTool {
+class TRT_DetectorTool final : public GeoModelTool {
 
 public:
 
