@@ -175,13 +175,13 @@ transToPers (State& state,
           pers.m_elementIndex  = persIdx;
         }
       }
-    }
 #ifdef  ELLINK_DEBUG
-    msg << MSG::INFO << "ElementLinkCnv_p3::transToPer(): SG Container="
-        << ", Key Hash=" << pers.m_SGKeyHash
-        << ", IDX=" << pers.m_elementIndex << endmsg;
+      msg << MSG::INFO << "ElementLinkCnv_p3::transToPer(): SG Container="
+          << ", Key Hash=" << pers.m_SGKeyHash
+          << ", IDX=" << pers.m_elementIndex << endmsg;
 #endif
-    return;
+      return;
+    }
   }
 
   Link_t tmp = trans;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -15,7 +15,7 @@
 
 #include "SCT_GeoModel/SCT_Ski.h"
 #include "SCT_GeoModel/SCT_PowerTape.h"
-#include "SCT_GeoModel/SCT_Module.h"  // 28th Mar 2005 S.Mima modified.
+#include "SCT_GeoModel/SCT_Module.h"
 
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoLogVol.h"
@@ -84,11 +84,6 @@ SCT_SkiPowerTape::build()
   double ltot = 0.;
   for (int iModule = 0; iModule < m_ski->modulesPerSki(); iModule++) {
     
-    // Position of center of hybrid:
-    // 15th Aug 2005 S.Mima modified.
-    //    double baseBoardPos =  m_ski->zPos(iModule) + m_ski->module()->baseBoardCenter();
-
-
     // Position PowerTapes
     // These run from the nearest interlink to the edge of the dogleg
     double tapeLength, tapeMid, tapeStart, tapeEnd;
@@ -104,9 +99,6 @@ SCT_SkiPowerTape::build()
     if (m_ski->zPos(iModule) > 0) {
 
       // Tape runs from high z end to edge of dogleg. NB width of dogleg is in z-direction
-      // 15th Aug 2005 S.Mima modified.
-      //      tapeStart  = baseBoardPos + 0.5 * m_ski->dogleg()->width();
-      //      tapeEnd    = 0.5 * m_length;
       tapeStart  = m_ski->zPos(iModule) + m_ski->coolingBlockOffsetZ() + m_powerTapeStartPointOffset;
       tapeEnd    = 0.5 * m_length;
       
@@ -116,9 +108,6 @@ SCT_SkiPowerTape::build()
     } else {
 
       // Tape runs from low z end to edge of dogleg. NB width of dogleg is in z-direction
-      // 15th Aug 2005 S.Mima modified.
-      //      tapeStart  =  baseBoardPos - 0.5 * m_ski->dogleg()->width();
-      //      tapeEnd    =  -0.5 * m_length;
       tapeStart  =  m_ski->zPos(iModule) + m_ski->coolingBlockOffsetZ() - m_powerTapeStartPointOffset;
       tapeEnd    =  -0.5 * m_length;
    
@@ -129,7 +118,6 @@ SCT_SkiPowerTape::build()
 
     tapeLength = std::abs(tapeEnd - tapeStart);
     tapeMid = 0.5 * (tapeEnd + tapeStart);
-    //    std::cout << "Tape length = " << tapeLength << std::endl;
 
 
     // Make sure that first half are negative and secand half are positive.
@@ -143,7 +131,6 @@ SCT_SkiPowerTape::build()
     // Create the tape
 
     // Label tape with M# at end of string
-    //std::ostringstream label; label << "PowerTapeM" << iModule + 1; 
     SCT_PowerTape powerTape(getName()+"PowerTapeM"+intToString(iModule + 1), tapeLength,
                             m_detectorManager, m_geometryManager, m_materials);
     

@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file MuonEventTPCnv/test/MMPrepDataCnv_p1_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -41,6 +39,7 @@ void compare (const Muon::MuonCluster& p1,
 void compare (const Muon::MMPrepData& p1,
               const Muon::MMPrepData& p2)
 {
+  assert (p1.author() == p2.author());
   compare (static_cast<const Muon::MuonCluster&>(p1),
            static_cast<const Muon::MuonCluster&>(p2));
   assert (p1.detectorElement() == p2.detectorElement());
@@ -80,6 +79,7 @@ void test1()
                            rdoList,
                            new Amg::MatrixX(cov),
                            nullptr);
+  trans1.setAuthor (Muon::MMPrepData::ConstraintuTPCClusterBuilder);
                           
   testit (trans1);
 }

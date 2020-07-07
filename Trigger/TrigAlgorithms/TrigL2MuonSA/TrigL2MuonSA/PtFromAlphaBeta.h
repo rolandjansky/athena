@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_PTFROMALPHABETA_H
@@ -20,16 +20,11 @@ class PtFromAlphaBeta: public AthAlgTool
 {
  public:
     
-  static const InterfaceID& interfaceID();
-
   PtFromAlphaBeta(const std::string& type, 
 		  const std::string& name,
 		  const IInterface*  parent);
     
-  ~PtFromAlphaBeta();
-    
-  virtual StatusCode initialize();
-  virtual StatusCode finalize  ();
+  virtual StatusCode initialize() override;
 
   void setMCFlag(BooleanProperty use_mcLUT,
 		 const TrigL2MuonSA::PtEndcapLUTSvc* ptEndcapLUTSvc);
@@ -54,7 +49,7 @@ class PtFromAlphaBeta: public AthAlgTool
     Gaudi::Property< bool > m_avoid_misaligned_cscs {
 	this, "AvoidMisalignedCSCs", true, "avoid using the 2 new chambers, whose alignment is not completed"};
 
-    const ToolHandle<PtEndcapLUT>*    m_ptEndcapLUT;
+    const ToolHandle<PtEndcapLUT>*    m_ptEndcapLUT{nullptr};
       
 };
 

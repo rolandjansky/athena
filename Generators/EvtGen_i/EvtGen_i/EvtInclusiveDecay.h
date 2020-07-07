@@ -71,28 +71,28 @@ class EvtInclusiveDecay:public GenBase {
 		std::string xmlpath(void); 		
 	private:
 	
-		StatusCode traverseDecayTree(HepMC::GenParticle* p,
+		StatusCode traverseDecayTree(HepMC::GenParticlePtr p,
 					     bool isToBeRemoved,
-					     std::set<HepMC::GenVertex*>& visited,
+					     std::set<HepMC::GenVertexPtr>& visited,
 					     std::set<int>& toBeDecayed);
-		void removeDecayTree(HepMC::GenEvent* hepMC, HepMC::GenParticle* p);
-		void decayParticle(HepMC::GenEvent* hepMC, HepMC::GenParticle* p);
-		void addEvtGenDecayTree(HepMC::GenEvent* hepMC, HepMC::GenParticle* part,
+		void removeDecayTree(HepMC::GenEvent* hepMC, HepMC::GenParticlePtr p);
+		void decayParticle(HepMC::GenEvent* hepMC, HepMC::GenParticlePtr p);
+		void addEvtGenDecayTree(HepMC::GenEvent* hepMC, HepMC::GenParticlePtr part,
 					EvtParticle* evtPart, EvtVector4R treeStart,
                                         double momentumScaleFactor = 1.0);
 
-		bool isToBeDecayed(const HepMC::GenParticle* p, bool doCrossChecks);
+		bool isToBeDecayed(const HepMC::GenParticlePtr p, bool doCrossChecks);
 		bool isDefaultB(const int pId) const;
     
     bool passesUserSelection(HepMC::GenEvent* hepMC);
-    double invMass(const HepMC::GenParticle* p1, const HepMC::GenParticle* p2);
+    double invMass(const HepMC::GenParticlePtr p1, const HepMC::GenParticlePtr p2);
 
 		// Utility functions to print HepMC record for debugging with optional
 		// coloring by status code and highlighting of particles in a specific list of barcodes
 		void printHepMC(HepMC::GenEvent* hepMC, std::set<int>* barcodeList = 0);
-		unsigned int printTree(HepMC::GenParticle* p, std::set<HepMC::GenVertex*>& visited,
+		unsigned int printTree(HepMC::GenParticlePtr p, std::set<HepMC::GenVertexPtr>& visited,
 				       int level, std::set<int>* barcodeList = 0);
-		std::string pdgName(const HepMC::GenParticle* p, bool statusHighlighting = false, std::set<int>* barcodeList = 0);
+		std::string pdgName(const HepMC::GenParticlePtr p, bool statusHighlighting = false, std::set<int>* barcodeList = 0);
       
 		// StoreGate access
 		//		StoreGateSvc* m_sgSvc;

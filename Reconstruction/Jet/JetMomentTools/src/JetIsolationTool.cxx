@@ -7,7 +7,6 @@
 #include "JetMomentTools/JetIsolationTool.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "JetUtils/JetDistances.h"
-#include "JetRec/PseudoJetGetterRegistry.h"
 #include <sstream>
 
 using std::string;
@@ -236,9 +235,8 @@ using namespace jet::JetIsolation;
 //**********************************************************************
 
 JetIsolationTool::JetIsolationTool(const string& name) 
-: JetModifierBase(name), m_hpjg("") {
+: JetModifierBase(name) {
   declareProperty( "IsolationCalculations", m_isolationCodes);
-  declareProperty("PseudoJetGetter", m_hpjg);
 }
 
 //**********************************************************************
@@ -282,10 +280,12 @@ StatusCode JetIsolationTool::initialize() {
   }
 
   ATH_MSG_INFO("Initialized JetIsolationTool " << name());
-  if ( m_hpjg.empty() ) {
-    ATH_MSG_INFO("  Pseudojet getter will found using JetInput");
+  if ( m_pjsin.empty() ) {
+    ATH_MSG_ERROR("  No input pseudojet collection supplied");
+    return StatusCode::FAILURE;
   } else {
-    ATH_MSG_INFO("  Pseudojet getter: " << m_hpjg->name());
+    ATH_MSG_INFO("  Input pseudojet collection: " << m_pjsin.key());
+    ATH_CHECK(m_pjsin.initialize());
   }
   ATH_MSG_INFO("  Isolation calculations: " << m_isolationCodes);
 
@@ -299,33 +299,9 @@ StatusCode JetIsolationTool::modify(xAOD::JetContainer& jets) const {
   ATH_MSG_DEBUG("Modifying jets in container with size " << jets.size());
   if ( jets.empty() ) return StatusCode::SUCCESS;
 
-  // Find the pseudojet getter.
-  // If one is not supplied, the InputType field for the first jet is used
-  // to locate the appropriate tool.
-  const IPseudoJetGetter* ppjg = nullptr;
-  int iinp = -1;
-  if ( m_hpjg.empty() ) {
-    iinp = jets[0]->getAttribute<int>("InputType");
-    auto iiinp = static_cast<xAOD::JetInput::Type>(iinp);
-    string sinp = xAOD::JetInput::typeName(iiinp);
-    ATH_MSG_DEBUG("Jet input type is " << sinp);
-    ppjg = PseudoJetGetterRegistry::find(sinp);
-    if ( ppjg == nullptr ) {
-      ATH_MSG_WARNING("Unable to retrieve pseudojet getter for input index/name "
-                      << iinp << "/" << sinp);
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_DEBUG("Found pseudojet getter " << ppjg->name());
-  } else {
-    ppjg = &*m_hpjg;
-  }
-  if ( ppjg == nullptr ) {
-    ATH_MSG_WARNING("Unable to retrieve pseudojet getter.");
-    return StatusCode::FAILURE;
-  }
-    
   // Fetch the input pseudojets.
-  const PseudoJetVector* inputConstits = ppjg->get();
+  auto pjsin = SG::makeHandle(m_pjsin);
+  const PseudoJetContainer* inputConstits = pjsin.get();
   ATH_MSG_DEBUG("Retrieved input count is " << inputConstits->size());
 
   // adapt the calculators to these jets (radius, input type, etc...)
@@ -341,11 +317,10 @@ StatusCode JetIsolationTool::modify(xAOD::JetContainer& jets) const {
   for ( xAOD::Jet* pjet : jets ) {
 
     // Check this jet has the same inputs.
-    int jinp = pjet->getAttribute<int>("InputType");
-    if ( m_hpjg.empty() && jinp != iinp ) {
-      ATH_MSG_WARNING("Jets have inconsistent inputs: " << iinp << " and " << jinp);
-      continue;
-    }
+    // int jinp = pjet->getAttribute<int>("InputType");
+    // This needs to be reimplemented when we decide how to better
+    // encode this information -- right now this can't be matched
+    // to the input PseudoJetContainer
 
     // Create jet position.
     jet::ParticlePosition jetPos(pjet);
@@ -358,7 +333,7 @@ StatusCode JetIsolationTool::modify(xAOD::JetContainer& jets) const {
 
     ATH_MSG_VERBOSE("Jet eta=" << jetPos.x() << ", phi=" << jetPos.y());
     for ( unsigned int ippj=0; ippj<inputConstits->size(); ++ippj ) {
-      const PseudoJet* ppj = &(inputConstits->at(ippj));
+      const PseudoJet* ppj = &(inputConstits->casVectorPseudoJet()->at(ippj));
       const xAOD::IParticle* ppar = nullptr;
       string label = "none";
       if ( ppj->has_user_info<jet::IConstituentUserInfo>() ) {

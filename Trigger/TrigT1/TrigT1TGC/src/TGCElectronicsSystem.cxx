@@ -36,6 +36,7 @@ void TGCElectronicsSystem::distributeSignal(LVL1TGCTrigger::TGCEvent* event)
 TGCElectronicsSystem::TGCElectronicsSystem(TGCArguments* tgcargs)
   :m_DB(0),
    m_tmdb(0),
+   m_nsw(0),
    m_tgcArgs(tgcargs)
 {
   for(int side=0; side < NumberOfSide; side++){
@@ -54,10 +55,16 @@ TGCElectronicsSystem::TGCElectronicsSystem(TGCArguments* tgcargs)
 					     bool                ):
   m_DB(database),
   m_tmdb(0),
+  m_nsw(0),
   m_tgcArgs(tgcargs)
 { 
   // TileMu
   m_tmdb = new TGCTMDB();
+
+  // NSW
+  if(tgcargs->USE_NSW() && tgcargs->useRun3Config()){
+    m_nsw.reset(new TGCNSW());
+  }
 
   int SectorId;
   LVL1TGCTrigger::TGCRegionType RegionType;
@@ -71,7 +78,9 @@ TGCElectronicsSystem::TGCElectronicsSystem(TGCArguments* tgcargs)
         m_sector[side][oct][mod] = new TGCSector(tgcArgs(),SectorId, RegionType, 
 						 forwardBackward, 
 						 m_DB,
-						 m_tmdb);
+						 m_tmdb,
+						 m_nsw
+						 );
       } // loop module
     } // loop octant
   } //loop side
@@ -187,7 +196,7 @@ TGCElectronicsSystem::~TGCElectronicsSystem()
     } // loop octant
   } // loop side
 
-  if (m_tmdb) delete m_tmdb;
+  if (m_tmdb){ delete m_tmdb;}
 }
 
 // hiddedn copy constructor

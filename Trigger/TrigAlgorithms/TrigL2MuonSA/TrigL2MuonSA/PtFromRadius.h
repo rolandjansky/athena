@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_PTFROMRADIUS_H
@@ -19,17 +19,10 @@ class PtFromRadius: public AthAlgTool
 {
  public:
   
-  static const InterfaceID& interfaceID();
-
   PtFromRadius(const std::string& type, 
 	       const std::string& name,
 	       const IInterface*  parent);
   
-  ~PtFromRadius();
-  
-  virtual StatusCode initialize();
-  virtual StatusCode finalize  ();
-
   void setMCFlag(BooleanProperty  m_use_mcLUT,
 		 const TrigL2MuonSA::PtBarrelLUTSvc* ptBarrelLUTSvc);
   
@@ -39,9 +32,9 @@ class PtFromRadius: public AthAlgTool
   StatusCode setPt(TrigL2MuonSA::TrackPattern& trackPattern);
   
  private:
-  BooleanProperty  m_use_mcLUT;
+  BooleanProperty  m_use_mcLUT{0};
   
-  const ToolHandle<PtBarrelLUT>*    m_ptBarrelLUT;
+  const ToolHandle<PtBarrelLUT>*   m_ptBarrelLUT{nullptr};
 };
  
 } // namespace PtFromRadius

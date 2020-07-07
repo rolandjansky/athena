@@ -5,8 +5,9 @@
 // $Id: PMGSherpaVjetsSysTool.cxx.cxx 2016-07-12 tripiana $
 
 // ROOT include(s):
-#include <TKey.h>
-#include <TIterator.h>
+#include "TKey.h"
+#include "TIterator.h"
+#include "TH2F.h"
 
 // EDM include(s):
 #include "xAODEventInfo/EventInfo.h"
@@ -325,6 +326,64 @@ namespace PMGTools {
     if( MCID>=361051 && MCID<361054 ){ pType=SysParType::GammaJets;   return 5; }    
     if( MCID>=361054 && MCID<361057 ){ pType=SysParType::GammaJets;   return 6; }    
     if( MCID>=361057 && MCID<361061 ){ pType=SysParType::GammaJets;   return 7; }    
+
+
+    //Check Znunu 2.2.1 samples
+    if( MCID>=364142 && MCID<364145 ){ pType=SysParType::Znunu;   return 1; }
+    if( MCID>=364145 && MCID<364148 ){ pType=SysParType::Znunu;   return 2; }    
+    if( MCID>=364148 && MCID<364151 ){ pType=SysParType::Znunu;   return 3; }    
+    if( MCID>=364151 && MCID<364154 ){ pType=SysParType::Znunu;   return 4; }    
+    if( MCID==364154  ){ pType=SysParType::Znunu;   return 5; }    
+    if( MCID==364155  ){ pType=SysParType::Znunu;   return 7; }    
+
+    //Check Zee 2.2.1 samples
+    if( MCID>=364114 && MCID<364117 ){ pType=SysParType::Zll;   return 1; }
+    if( MCID>=364117 && MCID<364120 ){ pType=SysParType::Zll;   return 2; }    
+    if( MCID>=364120 && MCID<364123 ){ pType=SysParType::Zll;   return 3; }    
+    if( MCID>=364123 && MCID<364126 ){ pType=SysParType::Zll;   return 4; }    
+    if( MCID==364126 ){ pType=SysParType::Zll;   return 5; }    
+    if( MCID==364127 ){ pType=SysParType::Zll;   return 7; }    
+
+    //Check Zmumu 2.2.1 samples
+    if( MCID>=364100 && MCID<364103 ){ pType=SysParType::Zll;   return 1; }
+    if( MCID>=364103 && MCID<364106 ){ pType=SysParType::Zll;   return 2; }    
+    if( MCID>=364106 && MCID<364109 ){ pType=SysParType::Zll;   return 3; }    
+    if( MCID>=364109 && MCID<364112 ){ pType=SysParType::Zll;   return 4; }    
+    if( MCID==364112 ){ pType=SysParType::Zll;   return 5; }    
+    if( MCID==364113 ){ pType=SysParType::Zll;   return 7; }    
+
+    //Check Ztautau 2.2.1 samples
+    if( MCID>=364128 && MCID<364131 ){ pType=SysParType::Zll;   return 1; }
+    if( MCID>=364131 && MCID<364134 ){ pType=SysParType::Zll;   return 2; }    
+    if( MCID>=364134 && MCID<364137 ){ pType=SysParType::Zll;   return 3; }    
+    if( MCID>=364137 && MCID<364140 ){ pType=SysParType::Zll;   return 4; }    
+    if( MCID==364140 ){ pType=SysParType::Zll;   return 5; }    
+    if( MCID==364141 ){ pType=SysParType::Zll;   return 7; }    
+
+    //Check Wenu 2.2.1 samples
+    if( MCID>=364170 && MCID<364173 ){ pType=SysParType::Wlnu;   return 1; }
+    if( MCID>=364173 && MCID<364176 ){ pType=SysParType::Wlnu;   return 2; }    
+    if( MCID>=364176 && MCID<364179 ){ pType=SysParType::Wlnu;   return 3; }    
+    if( MCID>=364179 && MCID<364182 ){ pType=SysParType::Wlnu;   return 4; }    
+    if( MCID==364182 ){ pType=SysParType::Wlnu;   return 5; }    
+    if( MCID==364183 ){ pType=SysParType::Wlnu;   return 7; }    
+
+    //Check Wmunu 2.2.1 samples
+    if( MCID>=364156 && MCID<364159 ){ pType=SysParType::Wlnu;   return 1; }
+    if( MCID>=364159 && MCID<364162 ){ pType=SysParType::Wlnu;   return 2; }    
+    if( MCID>=364162 && MCID<364165 ){ pType=SysParType::Wlnu;   return 3; }    
+    if( MCID>=364165 && MCID<364168 ){ pType=SysParType::Wlnu;   return 4; }    
+    if( MCID==364168  ){ pType=SysParType::Wlnu;   return 5; }    
+    if( MCID==364169  ){ pType=SysParType::Wlnu;   return 7; }    
+
+    //Check Wtaunu 2.2.1 samples
+    if( MCID>=364184 && MCID<364187 ){ pType=SysParType::Wlnu;   return 1; }
+    if( MCID>=364187 && MCID<364190 ){ pType=SysParType::Wlnu;   return 2; }    
+    if( MCID>=364190 && MCID<364193 ){ pType=SysParType::Wlnu;   return 3; }    
+    if( MCID>=364193 && MCID<364196 ){ pType=SysParType::Wlnu;   return 4; }    
+    if( MCID==364196  ){ pType=SysParType::Wlnu;   return 5; }    
+    if( MCID==364197  ){ pType=SysParType::Wlnu;   return 7; }    
+
 
     return -1;
   }

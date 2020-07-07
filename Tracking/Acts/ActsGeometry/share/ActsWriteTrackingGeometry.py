@@ -72,6 +72,12 @@ trkGeomSvc = ActsTrackingGeometrySvc()
 trkGeomSvc.BarrelMaterialBins = [40, 60] # phi z
 trkGeomSvc.EndcapMaterialBins = [50, 20] # phi r
 trkGeomSvc.OutputLevel = INFO
+trkGeomSvc.BuildSubDetectors = [
+  "Pixel",
+  "SCT",
+  # "TRT",
+  # "Calo",
+]
 ServiceMgr += trkGeomSvc
 
 import MagFieldServices.SetupField
@@ -87,12 +93,16 @@ trkGeomTool.OutputLevel = INFO;
 # alg.TrackingGeometryTool = trkGeomTool
 # job += alg
 
+mActsMaterialJsonWriterTool = CfgMgr.ActsMaterialJsonWriterTool("ActsMaterialJsonWriterTool")
+mActsMaterialJsonWriterTool.OutputLevel = VERBOSE
+mActsMaterialJsonWriterTool.FilePath = "geometry-maps.json"
 
 from ActsGeometry.ActsGeometryConf import ActsWriteTrackingGeometry
 alg = ActsWriteTrackingGeometry(OutputLevel = VERBOSE)
 alg.TrackingGeometryTool = trkGeomTool
 alg.ObjWriterTool.OutputDirectory = "obj"
 alg.ObjWriterTool.SubDetectors = ["Pixel", "SCT"]
+alg.MaterialJsonWriterTool = mActsMaterialJsonWriterTool
 
 job += alg
 
@@ -106,4 +116,3 @@ if hasattr(ServiceMgr,"AthenaHiveEventLoopMgr"):
 
 
 theApp.EvtMax = 1
-

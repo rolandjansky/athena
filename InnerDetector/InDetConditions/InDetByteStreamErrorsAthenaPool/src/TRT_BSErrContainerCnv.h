@@ -15,11 +15,11 @@
 #include "InDetByteStreamErrors/TRT_BSErrContainer.h"
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
-#include "InDetByteStreamErrorsAthenaPool/TRT_BSErrContainer_p1.h"
-#include "TRT_BSErrContainerCnv_p1.h"
+#include "InDetByteStreamErrorsAthenaPool/TRT_BSErrContainer_p2.h"
+#include "TRT_BSErrContainerCnv_p2.h"
 
 // the latest persistent representation type of DataCollection:
-typedef  TRT_BSErrContainer_p1  TRT_BSErrContainer_PERS;
+typedef  TRT_BSErrContainer_p2  TRT_BSErrContainer_PERS;
 typedef  T_AthenaPoolCustomCnv<TRT_BSErrContainer, TRT_BSErrContainer_PERS >   TRT_BSErrContainerCnvBase;
 
 class TRT_BSErrContainerCnv : public TRT_BSErrContainerCnvBase {
@@ -30,6 +30,6 @@ protected:
   virtual TRT_BSErrContainer_PERS*   createPersistent (TRT_BSErrContainer* transCont);
   virtual TRT_BSErrContainer*       createTransient ();
 
-  TRT_BSErrContainerCnv_p1  m_TPConverter;
+  TRT_BSErrContainerCnv_p2  m_TPConverter;
 };
 #endif

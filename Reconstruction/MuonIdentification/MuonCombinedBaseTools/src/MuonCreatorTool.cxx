@@ -4,10 +4,7 @@
 
 /////////////////////////////////////////////////////////////////////////////
 // MuonCreatorTool
-//  AlgTool performing MS hit reallocation for a likely spectrometer-indet 
-//  match which has given combined fit problems.
-//  Extrapolates indet track to MS.
-//  Returns a combined track with full track fit.
+//  Creates xAOD::Muon objects from muon candidates
 //
 //  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
@@ -889,7 +886,7 @@ namespace MuonCombined {
       else ATH_MSG_WARNING("new Track Collection link invalid");
     }
     if(!tp){
-      // create extrapolated track particle without a link to the track
+      // create track particle without a link to the track
       tp = m_particleCreator->createParticle( **trackLink, &trackParticleContainer, 0, xAOD::muon );
     }
 
@@ -1096,7 +1093,25 @@ namespace MuonCombined {
 	for(auto map : tagMaps){
           if (map) {
             const TagBase* tag=map->getTag(candidate);
-            if(tag) tags.push_back(tag);
+            if(tag){
+	      //A quick check for MuGirl muons to make sure the caloExtension is there
+	      if(tag->author()==xAOD::Muon::MuGirl){
+		const MuGirlTag* muGirlTag = static_cast<const MuGirlTag*>(tag);
+		if(muGirlTag->combinedTrack()){
+		  std::unique_ptr<xAOD::TrackParticle> combtp(m_particleCreator->createParticle(muGirlTag->combinedTrackLink(),nullptr,nullptr,xAOD::muon));
+		  std::unique_ptr<Trk::CaloExtension> caloExtension = m_caloExtTool->caloExtension(*combtp);
+		  if(!caloExtension){
+		    ATH_MSG_WARNING("failed to get a calo extension for this MuGirl muon, don't use it");
+		    continue;
+		  }
+		  if( caloExtension->caloLayerIntersections().empty()){
+		    ATH_MSG_WARNING("failed to retrieve any calo layers for this MuGirl muon, don't use it");
+		    continue;
+		  }
+		}
+	      }
+	      tags.push_back(tag);
+	    }
           }
 	}
         if( !tags.empty() ) {
@@ -1630,13 +1645,16 @@ namespace MuonCombined {
     }
 
     // get ParticleCellAssociation
-    ATH_MSG_DEBUG(" Selected track: pt " << tp->pt() << " eta " << tp->eta() << " phi " << tp->phi() );
+    ATH_MSG_DEBUG(" Selected track: pt " << tp->pt() << " eta " << tp->eta() << " phi " << tp->phi());
 
     std::unique_ptr<Trk::CaloExtension> caloExtension =m_caloExtTool->caloExtension(*tp);
     if(!caloExtension){
       ATH_MSG_WARNING("Can not get caloExtension.");
       return;
     };
+
+    if( caloExtension->caloLayerIntersections().empty())
+      ATH_MSG_DEBUG( "Received a caloExtension object without track extrapolation");
 
     SG::ReadHandle<CaloCellContainer> container(m_cellContainerName);
 

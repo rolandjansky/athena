@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MMHitAnalysis.h"
@@ -9,7 +9,6 @@
 #include "GeoAdaptors/GeoMuonHits.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MMReadoutElement.h"
-#include "MuonIdHelpers/MmIdHelper.h"
 #include "MuonSimEvent/MicromegasHitIdHelper.h"
 #include "MuonSimEvent/MMSimHitCollection.h"
 #include "MuonSimEvent/MMSimHit.h"

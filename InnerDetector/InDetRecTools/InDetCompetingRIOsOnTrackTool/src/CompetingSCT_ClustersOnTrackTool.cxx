@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -112,14 +112,14 @@ const InDet::CompetingSCT_ClustersOnTrack* InDet::CompetingSCT_ClustersOnTrackTo
 
     ATH_MSG_DEBUG("********* in createCompetingROT() ********** ");
     // vector of ROTs
-    std::vector< const InDet::SCT_ClusterOnTrack* >* ROTvector = new std::vector<const InDet::SCT_ClusterOnTrack*>;
+    std::vector< const InDet::SCT_ClusterOnTrack* > ROTvector;
     // vector of assignmentProbs
-    std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb > *assgnProbVector = new std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb >;
+    auto assgnProbVector = std::make_unique<std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb >>();
     // type of TRT_BaseElement to check if all RIOs are of same type
     //InDetDD::TRT_BaseElement::Type* TRTtype = 0;
     const Trk::Surface* detElementSurface = 0;
     const Trk::TrackParameters* trkParAtRIOsurface = 0;
-    const Trk::TrackParameters* newTrackParameters = 0;
+    std::unique_ptr<const Trk::TrackParameters> newTrackParameters;
     bool isBarrel = true;
     // maxium assignment propability for choosing the surface....
     //Trk::CompetingRIOsOnTrack::AssignmentProb maximumAssignProb = 0;
@@ -131,12 +131,11 @@ const InDet::CompetingSCT_ClustersOnTrack* InDet::CompetingSCT_ClustersOnTrackTo
                                 << trkPar.associatedSurface().center().z() << ")");
     // ----------------------
     // loop over all given PrepRawData
-    std::list<const Trk::PrepRawData*>::const_iterator rioIter = RIO_List.begin();
-    for (; rioIter!=RIO_List.end(); ++rioIter) {
-        // check if given pointer is not NULL
-        const InDet::SCT_Cluster* riopointer = dynamic_cast<const InDet::SCT_Cluster*>(*rioIter);
+    for (const Trk::PrepRawData* rio : RIO_List) {
+        // check if given pointer is not nullptr
+        const InDet::SCT_Cluster* riopointer = dynamic_cast<const InDet::SCT_Cluster*>(rio);
         if (!riopointer) {
-            //ATH_MSG_WARNING("That's mean: given list of PrepRawData* contains a NULL pointer resp. not a SCT_Cluster!");
+            //ATH_MSG_WARNING("That's mean: given list of PrepRawData* contains a nullptr resp. not a SCT_Cluster!");
             ATH_MSG_WARNING("Given list of PrepRawData* contains a non SCT_Cluster!");
             ATH_MSG_WARNING("Entry will therefore be ignored!");
             continue;
@@ -163,24 +162,20 @@ const InDet::CompetingSCT_ClustersOnTrack* InDet::CompetingSCT_ClustersOnTrackTo
             } else {
                 // first create trkParameter on the Surface of the RIO
                 // clone TrkParameters without error to force the extrapolator to do propagation without error matrix
-                const Trk::TrackParameters* trkParWithoutError = trkPar.clone();
+                std::unique_ptr<const Trk::TrackParameters> trkParWithoutError{trkPar.clone()};
                 // extrapolate to RIO surface
                 ATH_MSG_VERBOSE("Try to propagate TrackParameters to compROT surface");
-                newTrackParameters = m_extrapolator->extrapolateDirectly((trkParWithoutError ? *trkParWithoutError : trkPar), *detElementSurface,
-                                                                        Trk::anyDirection, // propagate in any direction
-                                                                        false, //do noBoundaryCheck!
-                                                                        Trk::nonInteracting); // without material interaction
-                delete trkParWithoutError;
-                trkParWithoutError = 0;
+                newTrackParameters.reset(m_extrapolator->extrapolateDirectly((trkParWithoutError ? *trkParWithoutError : trkPar),
+                                                                             *detElementSurface,
+                                                                             Trk::anyDirection, // propagate in any direction
+                                                                             false, //do noBoundaryCheck!
+                                                                             Trk::nonInteracting)); // without material interaction
                 if (!newTrackParameters){
                     ATH_MSG_ERROR("TrackParameters could not be propagated to PrepRawData surface");
-                    delete ROTvector;
-                    // FIXME: delete entries of ROT vector
-                    delete assgnProbVector;
                     return 0;
                 } // end if (extrapolation failed)
                 // const Trk::AtaStraightLine* trkParAtRIOsurface1 = new Trk::AtaStraightLine(trkPar.position(), trkPar.momentum(), trkPar.charge(), *RIOsurfacePointer);
-                trkParAtRIOsurface = newTrackParameters;
+                trkParAtRIOsurface = newTrackParameters.get();
                 ATH_MSG_VERBOSE("propagated TrackParameters on RIO surface: GP ("
                                         << trkParAtRIOsurface->position().x() << ", "
                                         << trkParAtRIOsurface->position().y() << ", "
@@ -209,7 +204,7 @@ const InDet::CompetingSCT_ClustersOnTrack* InDet::CompetingSCT_ClustersOnTrackTo
         } else {
             //ATH_MSG_VERBOSE("Created ROT");
             // add ROT to vector of ROTs
-            ROTvector->push_back(rot);
+            ROTvector.push_back(rot);
             // call weightcalculator and calc assignment probabilty:
             ATH_MSG_VERBOSE("Call weight calculator for non-normalized assignment probability");
             Trk::CompetingRIOsOnTrack::AssignmentProb assgnProb = m_WeightCalculator->calculateWeight(*trkParAtRIOsurface, *rot, beta);
@@ -222,42 +217,37 @@ const InDet::CompetingSCT_ClustersOnTrack* InDet::CompetingSCT_ClustersOnTrackTo
 //             }
         }// end else (!rot)
     } // end for loop
-    delete newTrackParameters;
 
     // -------------------------------------
     // test if at least one ROT was created:
-    if (ROTvector->size() <= 0) {
+    if (ROTvector.size() <= 0) {
         ATH_MSG_ERROR("No valid SCT_ClusterOnTrack could be created:");
         ATH_MSG_ERROR("CompetingSCT_ClustersOnTrack creation aborted!");
         //clean-up
-        delete ROTvector;
-        delete assgnProbVector;
         return 0;
     }
-    ATH_MSG_DEBUG("List of competing SCT_ ROTs contains "<< ROTvector->size() << " SCT_ClustersOnTrack");
+    ATH_MSG_DEBUG("List of competing SCT_ ROTs contains "<< ROTvector.size() << " SCT_ClustersOnTrack");
 
     // -----------------------------------
     // normalize assignment probabilities:
     // copy ROTvector to base class vector (vector of RIO_OnTrack) because vector<> does not know inheritance structure
-    std::vector< const Trk::RIO_OnTrack* >* baseROTvector = new std::vector<const Trk::RIO_OnTrack*>;
-    std::vector< const InDet::SCT_ClusterOnTrack*>::const_iterator rotIter = ROTvector->begin();
-    for (; rotIter!=ROTvector->end(); ++rotIter) {
-        baseROTvector->push_back(*rotIter);
+    std::vector< const Trk::RIO_OnTrack* > baseROTvector;
+    for (const InDet::SCT_ClusterOnTrack* rot : ROTvector) {
+        baseROTvector.push_back(rot);
     }
     // call normalize()
     if (isBarrel) {
         ATH_MSG_DEBUG("Call weight calculator for normalization now (Barrel cut)");
-        m_WeightCalculator->normalize(*assgnProbVector, baseROTvector, beta, m_jo_BarrelCutValue);
+        m_WeightCalculator->normalize(*assgnProbVector, &baseROTvector, beta, m_jo_BarrelCutValue);
     } else {
         ATH_MSG_DEBUG("Call weight calculator for normalization now (end-cap cut)");
-        m_WeightCalculator->normalize(*assgnProbVector, baseROTvector, beta, m_jo_EndCapCutValue);
+        m_WeightCalculator->normalize(*assgnProbVector, &baseROTvector, beta, m_jo_EndCapCutValue);
     }
-    delete baseROTvector;
 
     // ---------------------------------------
     // create CompetingSCT_ClustersOnTrack
     //return (new CompetingSCT_ClustersOnTrack(assocSurface, ROTvector, assgnProbVector, effectiveLocalPar, effectiveErrMat, ROTsHaveCommonSurface));
-    CompetingSCT_ClustersOnTrack* theCompetingROT = new CompetingSCT_ClustersOnTrack(ROTvector, assgnProbVector);
+    CompetingSCT_ClustersOnTrack* theCompetingROT = new CompetingSCT_ClustersOnTrack(std::move(ROTvector), assgnProbVector.release());
     if (msgLvl(MSG::VERBOSE)) testCompetingROT(*theCompetingROT);
     return theCompetingROT;
 }
@@ -286,7 +276,7 @@ void InDet::CompetingSCT_ClustersOnTrackTool::updateCompetingROT(
         return;
     }
     // new vector of assignmentProbs
-    std::vector< InDet::CompetingSCT_ClustersOnTrack::AssignmentProb >* assgnProbVector = new std::vector< InDet::CompetingSCT_ClustersOnTrack::AssignmentProb >;
+    auto assgnProbVector = std::make_unique<std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb >>();
     // maxium assignment propability to update the index
     Trk::CompetingRIOsOnTrack::AssignmentProb maximumAssignProb = 0;
     unsigned int maximumAssignProbIndex = 0;
@@ -295,7 +285,7 @@ void InDet::CompetingSCT_ClustersOnTrackTool::updateCompetingROT(
                                 << trkPar.associatedSurface().center().x() << ", "
                                 << trkPar.associatedSurface().center().y() << ", "
                                 << trkPar.associatedSurface().center().z() << ")");
-    const Trk::TrackParameters* newTrackParameters = 0;
+    std::unique_ptr<const Trk::TrackParameters> newTrackParameters;
     const Trk::TrackParameters* trkParAtROTsurface = 0;
     // ---------------------------------------------------
     // get trackParameters on the surface of the compROT
@@ -315,22 +305,20 @@ void InDet::CompetingSCT_ClustersOnTrackTool::updateCompetingROT(
     } else {
         // first create trkParameter on the Surface of the compROT
         // clone TrkParameters without error to force the extrapolator to do propagation without error matrix
-        const Trk::TrackParameters* trkParWithoutError = trkPar.clone();
+        std::unique_ptr<const Trk::TrackParameters> trkParWithoutError{trkPar.clone()};
         ATH_MSG_VERBOSE("Try to propagate TrackParameters to compROT surface");
-        newTrackParameters = m_extrapolator->extrapolateDirectly((trkParWithoutError ? *trkParWithoutError : trkPar), compROT->associatedSurface(),
-                                                                Trk::anyDirection, // propagate in any direction
-                                                                false, //do noBoundaryCheck!
-                                                                Trk::nonInteracting); // without material interaction
-        delete trkParWithoutError;
-        trkParWithoutError = 0;
+        newTrackParameters.reset(m_extrapolator->extrapolateDirectly((trkParWithoutError ? *trkParWithoutError : trkPar),
+                                                                     compROT->associatedSurface(),
+                                                                     Trk::anyDirection, // propagate in any direction
+                                                                     false, //do noBoundaryCheck!
+                                                                     Trk::nonInteracting)); // without material interaction
         if (!newTrackParameters){
             ATH_MSG_ERROR("TrackParameters could not be propagated to compROT surface:");
             ATH_MSG_ERROR("    CompetingSCT_ClustersOnTrack could not be updated!");
-            delete assgnProbVector;
             return;
         } // end if (extrapolation failed)
         // const Trk::AtaStraightLine* trkParAtRIOsurface1 = new Trk::AtaStraightLine(trkPar.position(), trkPar.momentum(), trkPar.charge(), *RIOsurfacePointer);
-        trkParAtROTsurface = newTrackParameters;
+        trkParAtROTsurface = newTrackParameters.get();
         ATH_MSG_VERBOSE("propagated TrackParameters on compROT surface: GP ("
                                 << trkParAtROTsurface->position().x() << ", "
                                 << trkParAtROTsurface->position().y() << ", "
@@ -354,26 +342,23 @@ void InDet::CompetingSCT_ClustersOnTrackTool::updateCompetingROT(
             maximumAssignProbIndex = i;
         }
     } // end for loop
-    delete newTrackParameters;
     if (maximumAssignProb > 0. ) {
         // -----------------------------------
         // normalize assignment probabilities:
         // copy ROTvector to base class vector (vector of RIO_OnTrack) because vector<> does not know inheritance structure
-        std::vector< const Trk::RIO_OnTrack* >* baseROTvector = new std::vector<const Trk::RIO_OnTrack*>;
-        std::vector< const InDet::SCT_ClusterOnTrack* >::const_iterator rotIter = compROT->containedROTs().begin();
-        for (; rotIter!=compROT->containedROTs().end(); ++rotIter) {
-            baseROTvector->push_back(*rotIter);
+        std::vector< const Trk::RIO_OnTrack* > baseROTvector;
+        for (const InDet::SCT_ClusterOnTrack* rot : compROT->containedROTs()) {
+            baseROTvector.push_back(rot);
         }
         // call normalize()
         ATH_MSG_VERBOSE("normalize the assignment probabilities");
         if(compROT->rioOnTrack(0).detectorElement()->isBarrel()) {
             ATH_MSG_DEBUG("Call weight calculator for normalization now (Barrel cut)");
-            m_WeightCalculator->normalize(*assgnProbVector, baseROTvector, beta, m_jo_BarrelCutValue);
+            m_WeightCalculator->normalize(*assgnProbVector, &baseROTvector, beta, m_jo_BarrelCutValue);
         } else {
             ATH_MSG_DEBUG("Call weight calculator for normalization now (end-cap cut)");
-            m_WeightCalculator->normalize(*assgnProbVector, baseROTvector, beta, m_jo_EndCapCutValue);
+            m_WeightCalculator->normalize(*assgnProbVector, &baseROTvector, beta, m_jo_EndCapCutValue);
         }
-        delete baseROTvector;
     } else {
         ATH_MSG_VERBOSE("all ROTs have probability 0.");
         maximumAssignProbIndex = 0;
@@ -382,7 +367,7 @@ void InDet::CompetingSCT_ClustersOnTrackTool::updateCompetingROT(
     // update the competingROT
     // set new assignment probabilities
     delete compROT->m_assignProb;
-    compROT->m_assignProb = assgnProbVector;
+    compROT->m_assignProb = assgnProbVector.release();
     // update maximum assign prob index:
     compROT->m_indexMaxAssignProb = maximumAssignProbIndex;
     // delete global position (will be recreated by the competingROT itself)
@@ -410,13 +395,9 @@ void InDet::CompetingSCT_ClustersOnTrackTool::reequipCompetingROT
     ATH_MSG_WARNING( "inconsistent use of reequipCompetingROT() " );
     return;
   }
-  std::vector<const InDet::SCT_ClusterOnTrack*>::const_iterator
-    rotIter = cst->m_containedChildRots->begin();
-  for (; rotIter!=cst->m_containedChildRots->end(); ++rotIter)
-    delete (*rotIter);
-  delete cst->m_containedChildRots;
-  cst->m_containedChildRots = new std::vector<const InDet::SCT_ClusterOnTrack*>;
-  cst->m_containedChildRots->push_back(newCluster);
+  for (const InDet::SCT_ClusterOnTrack* rot : cst->m_containedChildRots) delete rot;
+  cst->m_containedChildRots.clear();
+  cst->m_containedChildRots.push_back(newCluster);
 
   this->updateCompetingROT(*modifiableCompROT, trkPar, beta);
 }
@@ -523,7 +504,7 @@ StatusCode InDet::CompetingSCT_ClustersOnTrackTool::updateCompetingROTprobs(
     // update the competingROT 
     // set new assignment probabilities 
     delete compROT->m_assignProb; 
-    std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb >* assgnProbVector = new std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb >(assignmentProbs); 
+    auto assgnProbVector = std::make_unique<std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb >>();
     // update maximum assign prob index: 
     double maximumAssignProb = 0.; 
     compROT->m_indexMaxAssignProb = 0; 
@@ -538,7 +519,7 @@ StatusCode InDet::CompetingSCT_ClustersOnTrackTool::updateCompetingROTprobs(
             (*(assgnProbVector))[i] = 0.; 
         } 
     } // end for loop 
-    compROT->m_assignProb = assgnProbVector; 
+    compROT->m_assignProb = assgnProbVector.release(); 
     // delete global position (will be recreated by the competingROT itself) 
     if (compROT->m_globalPosition) {
         compROT->m_globalPosition.release().reset(); 

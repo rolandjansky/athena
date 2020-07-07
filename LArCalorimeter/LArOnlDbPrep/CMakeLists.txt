@@ -31,7 +31,7 @@ atlas_add_component( LArOnlDbPrep
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} CaloIdentifier CaloTriggerToolLib AthenaBaseComps GaudiKernel LArRecConditions LArCablingLib CaloDetDescrLib StoreGateLib SGtests AthenaPoolUtilities LArCOOLConditions LArIdentifier )
+                     LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} CaloIdentifier CaloTriggerToolLib AthenaBaseComps GaudiKernel LArRecConditions LArCablingLib CaloDetDescrLib StoreGateLib SGtests AthenaPoolUtilities LArCOOLConditions LArIdentifier CaloInterfaceLib )
 
 # Install files from the package:
 atlas_install_headers( LArOnlDbPrep )

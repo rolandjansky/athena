@@ -1,55 +1,51 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////////
-//// MuonClusterSegmentFinder.h (c) ATLAS Detector software
-//// Author: N.Bernard <nathan.rogers.bernard@cern.ch>
-/////////////////////////////////////////////////////////////////////////
 #ifndef MUON_MUONCLUSTERSEGMENTFINDER_H
 #define MUON_MUONCLUSTERSEGMENTFINDER_H
 
-// STL includes
-#include <string>
-#include <vector>
+#include "MuonSegmentMakerToolInterfaces/IMuonClusterSegmentFinder.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
-// EDM
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
+#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "TrkFitterInterfaces/ITrackFitter.h"
+#include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
+#include "MuonRecToolInterfaces/IMuonTrackCleaner.h"
+#include "MuonRecToolInterfaces/IMuonTrackToSegmentTool.h"
+#include "MuonRecToolInterfaces/IMuonSegmentMaker.h"
+#include "MuonSegmentMakerToolInterfaces/IMuonSegmentOverlapRemovalTool.h"
+#include "MuonRecToolInterfaces/IMuonPRDSelectionTool.h"
+#include "MuonClusterization/IMuonClusterizationTool.h"
+#include "MuonPrepRawDataProviderTools/MuonLayerHashProviderTool.h"
 #include "MuonSegment/MuonSegment.h"
 #include "MuonPrepRawData/MuonCluster.h"
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
-
-// helpers
 #include "MuonDetDescrUtils/MuonSectorMapping.h"
 #include "MuonSegmentMakerUtils/MuonSegmentKey.h"
 #include "MuonSegmentMakerUtils/CompareMuonSegmentKeys.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-
-// FrameWork includes
-#include "MuonSegmentMakerToolInterfaces/IMuonClusterSegmentFinder.h"
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
-
 #include "MuonPrepRawData/RpcPrepDataCollection.h"
 #include "MuonPrepRawData/TgcPrepDataCollection.h"
 #include "TrkParameters/TrackParameters.h"
-
 #include "MuonLinearSegmentMakerUtilities/ClusterNtuple.h"
 
+#include <string>
+#include <vector>
 
-// fwd declares
 class TTree;
 class TFile;
-class PRD_MultiTruthCollection;
 
 namespace Trk {
   class Track;
   class MeasurementBase;
-  class ITrackFitter;
-  class ITrackAmbiguityProcessorTool;
 }
 
 namespace Muon {
@@ -87,22 +83,11 @@ namespace Muon {
     std::vector<std::vector<const MuonClusterOnTrack*>> m_resolvedhits;
   };
 
-  class MuonIdHelperTool;
-  class MuonEDMPrinterTool;
-  class MuonLayerHashProviderTool;
-  class IMuonPRDSelectionTool;
-  class IMuonSegmentMaker;
-  class IMuonClusterOnTrackCreator;
-  class IMuonTrackToSegmentTool;
-  class IMuonTrackCleaner;
-  class IMuonSegmentOverlapRemovalTool;
-  class IMuonClusterizationTool;
-
   class MuonClusterSegmentFinder : virtual public IMuonClusterSegmentFinder, public AthAlgTool{
   public:
     /** Default AlgTool functions */
     MuonClusterSegmentFinder(const std::string& type, const std::string& name, const IInterface* parent);
-    virtual ~MuonClusterSegmentFinder();
+    virtual ~MuonClusterSegmentFinder()=default;
     StatusCode initialize();
     StatusCode finalize();
 
@@ -124,7 +109,7 @@ namespace Muon {
 		      const PRD_MultiTruthCollection* tgcTruthColl) const;
 
   private:
-    ToolHandle<MuonIdHelperTool>                      m_idHelper; 
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     ToolHandle<MuonEDMPrinterTool>                    m_printer; 
     ToolHandle<MuonLayerHashProviderTool>             m_layerHashProvider;
     ToolHandle<IMuonPRDSelectionTool>                 m_muonPRDSelectionTool;

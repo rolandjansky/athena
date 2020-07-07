@@ -1,23 +1,22 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //vitrual interface for all the Muon RPC technologies 
-//
+
 #ifndef IRPCConditionsSvc_h
 #define IRPCConditionsSvc_h
-//Gaudi Includes
-#include "GaudiKernel/IInterface.h"
 
-//STL includes
+#include "GaudiKernel/IInterface.h"
+#include "AthenaKernel/IOVSvcDefs.h"
+
 #include <list>
 #include <string>
-#include "AthenaKernel/IOVSvcDefs.h"
-//forward declarations
-class Identifier;
-class IdentifierHash;
-class StatusCode;
+#include <vector>
+#include <map>
 
+class Identifier;
+class StatusCode;
 
 class IRPCConditionsSvc: virtual public IInterface{
 public:

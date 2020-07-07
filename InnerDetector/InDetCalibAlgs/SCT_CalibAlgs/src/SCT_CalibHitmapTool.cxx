@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -28,11 +28,10 @@
 #include "TFileCollection.h"
 #include "THashList.h"
 
-using namespace std;
 using namespace SCT_CalibAlgs;
-static const string pathRoot{"/HitMaps/"};
-static const string detectorNames[] {"negativeEndcap", "barrel", "positiveEndcap"};
-static const string detectorPaths[] {"SCTEC/", "SCTB/","SCTEA/"};
+static const std::string pathRoot{"/HitMaps/"};
+static const std::string detectorNames[] {"negativeEndcap", "barrel", "positiveEndcap"};
+static const std::string detectorPaths[] {"SCTEC/", "SCTB/","SCTEA/"};
 
 SCT_CalibHitmapTool::SCT_CalibHitmapTool(const std::string& type, const std::string& name, const IInterface* parent):
    base_class(type, name, parent)
@@ -57,10 +56,6 @@ StatusCode
 SCT_CalibHitmapTool::finalize() {
    ATH_MSG_VERBOSE("SCT_CalibHitmapSvc::finalize()");
 
-   delete m_sct_waferHash;
-   delete m_sct_rdoGroupSize;
-   delete m_sct_firstStrip;
-
    return StatusCode::SUCCESS;
 }
 
@@ -69,7 +64,7 @@ SCT_CalibHitmapTool::book() {
    bool result{true};
    //pointers to the histos are deleted by m_thistSvc methods
    m_phistoVector.clear();
-   string histoName{pathRoot + "GENERAL/"};
+   std::string histoName{pathRoot + "GENERAL/"};
    //histogram for numbers of events
    m_numberOfEventsHisto = new TH1I{"events", "Events", 1, 0.5, 1.5};
    if (m_thistSvc->regHist(histoName.c_str(), m_numberOfEventsHisto).isFailure()) {
@@ -84,8 +79,8 @@ SCT_CalibHitmapTool::book() {
    for (; waferItr not_eq m_waferItrEnd; ++waferItr) {
       const Identifier& waferId{*waferItr};
       const int bec{m_pSCTHelper->barrel_ec(waferId)};
-      const string formattedPosition{formatPosition(waferId, m_pSCTHelper)};
-      std::string histotitle{string{"SCT "} + detectorNames[bec2Index(bec)] + string{" Hitmap: plane "} + formattedPosition};
+      const std::string formattedPosition{formatPosition(waferId, m_pSCTHelper)};
+      std::string histotitle{std::string{"SCT "} + detectorNames[bec2Index(bec)] + std::string{" Hitmap: plane "} + formattedPosition};
       std::string name{hitmapPaths[bec2Index(m_pSCTHelper->barrel_ec(waferId))] + formattedPosition};
       TH1F* hitmapHisto_tmp{new TH1F{TString{formattedPosition}, TString{histotitle}, nbins, firstStrip-0.5, lastStrip+0.5}};
 
@@ -120,7 +115,7 @@ SCT_CalibHitmapTool::read(const std::string& fileName) {
    SCT_ID::const_id_iterator waferItr{m_waferItrBegin};
    for (; waferItr not_eq m_waferItrEnd; ++waferItr) {
       const Identifier& waferId{*waferItr};
-      const string formattedPosition{formatPosition(waferId, m_pSCTHelper)};
+      const std::string formattedPosition{formatPosition(waferId, m_pSCTHelper)};
       std::string name{detectorPaths[bec2Index(m_pSCTHelper->barrel_ec(waferId))] + formattedPosition};
       TH1F* hitmapHisto_tmp{static_cast<TH1F*>(fileHitmap->Get(name.c_str()))};
       if (hitmapHisto_tmp==nullptr) {
@@ -143,11 +138,11 @@ SCT_CalibHitmapTool::fill(const bool fromData) {
    m_numberOfEventsHisto->Fill(1);
 
    //--- Fill hitmap
-   const int MaxEntry{static_cast<int>(m_sct_waferHash->size())};
+   const int MaxEntry{static_cast<int>(m_sct_waferHash.size())};
    for (int i{0}; i != MaxEntry; ++i) {
-      const int theFirstStrip{(*m_sct_firstStrip)[i]};
-      const int endStrip{(*m_sct_rdoGroupSize)[i] + theFirstStrip};
-      const int index{(*m_sct_waferHash)[i]};
+      const int theFirstStrip{m_sct_firstStrip[i]};
+      const int endStrip{m_sct_rdoGroupSize[i] + theFirstStrip};
+      const int index{m_sct_waferHash[i]};
       TH1F* pThisHisto{m_phistoVector[index]};
       for (int strip{theFirstStrip}; strip!=endStrip; ++strip) {
          pThisHisto->Fill(strip);

@@ -473,10 +473,9 @@ StatusCode CBNTAA_DetailedCellInfo::CBNT_execute()
 
   MCparticleCollectionCIter ip;
 
- for(ip=particles.begin();ip<particles.end();++ip){
+ for(auto par: particles){
 
 	log << MSG::INFO << "entering the for loop" << endmsg;
-	const HepMC::GenParticle* par=*ip;
 	double charge = 0;
 
 	HepPDT::ParticleData* ap = m_particleDataTable->particle( abs( par->pdg_id() ) );
@@ -491,15 +490,11 @@ StatusCode CBNTAA_DetailedCellInfo::CBNT_execute()
 
  	log << MSG::INFO <<" id="<<par->pdg_id()<<" stat="<<par->status()<<" pt="<<par->momentum().perp()<<" eta="<<par->momentum().eta()<<" phi="<<par->momentum().phi()<<" charge="<<charge<< endmsg;
 
-  HepMC::GenVertex* pvtx = par->production_vertex();
-//    double eta=(*par)->particle()->momentum().eta();
-//    double phi=(*par)->particle()->momentum().phi();
+  auto pvtx = par->production_vertex();
 
 
   Trk::GlobalPosition pos(HepLorentzVector(pvtx->position().x(),pvtx->position().y(),pvtx->position().z(),pvtx->position().t()));
   Trk::GlobalMomentum mom(HepLorentzVector(par->momentum().px(),par->momentum().py(),par->momentum().pz(),par->momentum().e()));
-//  Trk::GlobalPosition pos(pvtx->position());
-//  Trk::GlobalMomentum mom(par->momentum());
   Trk::Perigee candidatePerigee(pos,mom,charge,pos);
   FastShowerCellBuilderTool* the_FastShowerCellBuilderTool=dynamic_cast<FastShowerCellBuilderTool*>(&(*m_FastShowerCellBuilderTool));
 
@@ -531,25 +526,11 @@ StatusCode CBNTAA_DetailedCellInfo::CBNT_execute()
   break;  
  }
 
-//return StatusCode::SUCCESS;
-//    int* test=0; // Durch diese Zeile bricht die Reconstrucktion nach demn 1. Event ab
-//    *test=0; 	
 
 return StatusCode::SUCCESS; 
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
 
 StatusCode CBNTAA_DetailedCellInfo::CBNT_clear()
 {
@@ -593,11 +574,6 @@ StatusCode CBNTAA_DetailedCellInfo::CBNT_clear()
   if (m_saveTimeInfo) m_timeCells->clear() ;
   if (m_saveId) m_offId->clear();
   if (m_saveQInfo) m_qCells->clear() ;
-
-  
-
-  
-
 
 
  return StatusCode::SUCCESS;

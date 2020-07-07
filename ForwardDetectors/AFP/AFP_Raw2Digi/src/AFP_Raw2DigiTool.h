@@ -42,9 +42,9 @@ public:
   unsigned int decodeTimeOverThresholdSi (const unsigned int input, const unsigned int discConfig) const;
   
 protected:
-  std::string m_rawDataContainerName;
-  std::string m_AFPSiHitsContainerName;
-  std::string m_AFPHitsContainerNameToF;
+  SG::ReadHandleKey<AFP_RawContainer> m_rawDataContainerName{this, "rawDataContainerName", "AFP_RawData"};
+  SG::WriteHandleKey<xAOD::AFPSiHitContainer> m_AFPSiHitsContainerName{this, "AFPSiHitsContainerName", "AFPSiHitContainer"};
+  SG::WriteHandleKey<xAOD::AFPToFHitContainer> m_AFPHitsContainerNameToF{this, "AFPHitsContainerNameToF", "AFPToFHitContainer"};
 
   /// @brief Factor converting signal to time
   ///

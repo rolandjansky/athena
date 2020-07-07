@@ -61,8 +61,8 @@ if 'theRTTisRunningMe' in dir() and theRTTisRunningMe:
 	print "input data to be set up by RTT"
 	del ByteStreamInputSvc
 else:
-	ByteStreamInputSvc.FullFileName = BSRDOInput
-	print ByteStreamInputSvc.FullFileName
+	EventSelector.Input = BSRDOInput
+	print EventSelector.Input
 # algorithm to measure vmem size
 theApp.DLLs += [ "TrigTestTools" ]
 theApp.TopAlg += [ "MemAuditAlg" ]

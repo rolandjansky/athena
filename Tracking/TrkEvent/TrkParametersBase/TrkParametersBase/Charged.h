@@ -28,7 +28,7 @@ namespace Trk
   {
   public:
     /** Default constructor */
-    Charged(const double& charge = 1.):
+   Charged(const double& charge = 1.):
       m_charge(charge)
     {}
 
@@ -39,7 +39,7 @@ namespace Trk
     Charged(Charged&&) = default;
 
     /** Destructor */
-    ~Charged() {}
+    ~Charged() = default;
 
     /** Assignment operator */
     Charged& operator=(const Charged&) = default;
@@ -56,7 +56,7 @@ namespace Trk
     /** Equality operator */
     bool operator==(const Charged& rOther) const
     {
-      static const double tolerance = 1e-8;
+      constexpr double tolerance = 1e-8;
       return fabs(charge() - rOther.charge()) < tolerance;
     }
 

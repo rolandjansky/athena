@@ -35,10 +35,10 @@ namespace Monitored {
       auto cutMaskAccessor = cutMaskValuePair.second;
 
       auto histogram = this->histogram<TProfile2D>();
-      const auto valuesVector1{m_monVariables[0].get().getVectorRepresentation()};
-      const auto valuesVector2{m_monVariables[1].get().getVectorRepresentation()};
-      const auto valuesVector3{m_monVariables[2].get().getVectorRepresentation()};
-      std::scoped_lock lock(*m_mutex);
+      const IMonitoredVariable& var1 = m_monVariables[0].get();
+      const IMonitoredVariable& var2 = m_monVariables[1].get();
+      const IMonitoredVariable& var3 = m_monVariables[2].get();
+
       /*HERE NEED TO INCLUDE CASE IN WHICH SOME VARIABLES ARE SCALAR AND SOME VARIABLES ARE VECTORS
       unsigned i(0);
       if (m_variable1->size() != m_variable2->size() || m_variable1->size() != m_variable3->size() || m_variable2->size() != m_variable3->size() ) {
@@ -46,26 +46,22 @@ namespace Monitored {
       }*/
 
       //For now lets just consider the case in which all variables are of the same length
-      if ( m_monWeight && m_monWeight->getVectorRepresentation().size()==valuesVector1.size() ) {
+      if ( m_monWeight && m_monWeight->size()==var1.size() ) {
         // Weighted fill
-        const auto weightVector{m_monWeight->getVectorRepresentation()};
-        double value1,value2,value3,weight;
-        size_t idx = 0;
-        for (const auto& zipped : boost::combine(valuesVector1,valuesVector2,valuesVector3,weightVector)) {
-          if (cutMaskAccessor(idx++)) { 
-            boost::tie(value1,value2,value3,weight) = zipped;
-            histogram->Fill(value1,value2,value3,weight);
+        for (unsigned i = 0; i < var1.size(); ++i) {
+          if (cutMaskAccessor(i)) {
+            histogram->Fill(var1.get(i), var2.get(i), var3.get(i), m_monWeight->get(i));
           }
         }
       } else {
         // Unweighted fill
-        for (unsigned i = 0; i < std::size(valuesVector1); ++i) {
+        for (unsigned i = 0; i < var1.size(); ++i) {
           if (cutMaskAccessor(i)) {
-            histogram->Fill(valuesVector1[i], valuesVector2[i], valuesVector3[i]);
+            histogram->Fill(var1.get(i), var2.get(i), var3.get(i));
           }
         }
       }
-      return std::size(valuesVector1);
+      return var1.size();
     }
   };
 }

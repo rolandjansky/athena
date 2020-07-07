@@ -6,17 +6,8 @@
 
 #include <iostream>
 
-#include "AtlasHepMC/GenEvent.h"
-#include "AtlasHepMC/IO_GenEvent.h"
-#include "AtlasHepMC/GenParticle.h"
-#include "AtlasHepMC/GenVertex.h"
-#include "AtlasHepMC/IO_AsciiParticles.h"
-#include "AtlasHepMC/SimpleVector.h"
-#include "CLHEP/Vector/LorentzVector.h"
-
 #include "TH1.h"
 #include "TMath.h"
-#include "TLorentzVector.h"
 
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/ClusterSequence.hh"
@@ -25,7 +16,6 @@
 
 #include "../HepMCAnalysis_i/UserAnalysis.h"
 
-using namespace std;
 
 // ---------------------------------------------------------------------- 
 UserAnalysis::UserAnalysis(): 
@@ -55,7 +45,7 @@ int UserAnalysis::Init(double maxEta, double minPt)
 int UserAnalysis::Process(HepMC::GenEvent *event)
 { 
   if (event->event_number() % 1000 == 0) {
-    cout << "Processing event " << event->event_number() << endl;
+    std::cout << "Processing event " << event->event_number() << std::endl;
   }
   
   m_h_njets->Fill(m_inclusive_jets.size());

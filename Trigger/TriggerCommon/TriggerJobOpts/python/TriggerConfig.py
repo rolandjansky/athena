@@ -1,5 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from collections import OrderedDict
 from builtins import str
@@ -8,8 +7,6 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.CFElements import seqAND, seqOR, flatAlgorithmSequences, getSequenceChildren, isSequence, hasProp, getProp
 from AthenaCommon.Logging import logging
 __log = logging.getLogger('TriggerConfig')
-from AthenaCommon.Constants import DEBUG
-__log.setLevel(DEBUG)
 import six
 def __isCombo(alg):
     return hasProp( alg, "MultiplicitiesMap" )  # alg.getType() == 'ComboHypo':
@@ -53,7 +50,7 @@ def collectHypos( steps ):
 def __decisionsFromHypo( hypo ):
     """ return all chains served by this hypo and the key of produced decision object """
     from TrigCompositeUtils.TrigCompositeUtils import isLegId
-    __log.info("Hypo type is combo {}".format( __isCombo( hypo ) ) )
+    __log.debug("Hypo type is combo {}".format( __isCombo( hypo ) ) )
     if __isCombo( hypo ):
         return [key for key in list(hypo.MultiplicitiesMap.keys()) if not isLegId(key)], hypo.HypoOutputDecisions[0]
     else: # regular hypos
@@ -288,7 +285,12 @@ def triggerOutputCfg(flags, decObj, decObjHypoOut, summaryAlg):
         # For now use old svcMgr interface as this service is not available from acc.getService()
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         hltEventLoopMgr = svcMgr.HltEventLoopMgr
-        hltEventLoopMgr.ResultMaker.MakerTools = [conf2toConfigurable(t) for t in acc.popPrivateTools()]
+        hltEventLoopMgr.ResultMaker.MakerTools = []
+        for tool in acc.popPrivateTools():
+            if 'StreamTagMaker' in tool.getName():
+                hltEventLoopMgr.ResultMaker.StreamTagMaker = conf2toConfigurable(tool)
+            else:
+                hltEventLoopMgr.ResultMaker.MakerTools += [ conf2toConfigurable(tool) ]
     elif offlineWriteBS:
         __log.info("Configuring offline ByteStream HLT output")
         acc = triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=True)
@@ -358,7 +360,8 @@ def triggerBSOutputCfg(flags, decObj, decObjHypoOut, summaryAlg, offline=False):
         from TrigOutputHandling.TrigOutputHandlingConfig import HLTResultMTMakerCfg
         HLTResultMTMakerAlg=CompFactory.HLTResultMTMakerAlg
         hltResultMakerTool = HLTResultMTMakerCfg()
-        hltResultMakerTool.MakerTools = [bitsmaker, stmaker, serialiser] # TODO: stmaker likely not needed for offline BS writing
+        hltResultMakerTool.StreamTagMaker = stmaker
+        hltResultMakerTool.MakerTools = [bitsmaker, serialiser]
         hltResultMakerAlg = HLTResultMTMakerAlg()
         hltResultMakerAlg.ResultMaker = hltResultMakerTool
         acc.addEventAlgo( hltResultMakerAlg )

@@ -1,57 +1,38 @@
-# $Id: CMakeLists.txt 774010 2016-09-20 07:09:26Z krasznaa $
-################################################################################
-# Package: xAODCaloEvent
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# Declare the package name:
+# Declare the package name.
 atlas_subdir( xAODCaloEvent )
 
-# Extra dependencies, based on what environment we're in:
+# Extra dependencies and sources, based on what environment we're in.
+set( extra_libs )
+set( extra_sources )
 if( NOT XAOD_ANALYSIS AND NOT SIMULATIONBASE AND NOT GENERATIONBASE )
-   set( extra_deps Calorimeter/CaloEvent )
    set( extra_libs CaloEvent )
-endif()
-
-if (BUILDVP1LIGHT)
-    if( BUILDVP1LIGHT_DIST STREQUAL "ubuntu")
-        set( extra_libs ${extra_libs} GenVector )
-    endif()
-endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Calorimeter/CaloGeoHelpers
-   Control/AthContainers
-   Control/CxxUtils
-   DetectorDescription/GeoPrimitives
-   Event/xAOD/xAODBase
-   Event/xAOD/xAODCore
-   Control/AthLinks
-   ${extra_deps} )
-
-# External dependencies:
-find_package( Eigen )
-find_package( ROOT COMPONENTS Core GenVector )
-
-# Extra source(s), based on what environment we are in:
-if( NOT XAOD_ANALYSIS AND NOT SIMULATIONBASE AND NOT GENERATIONBASE )
    set( extra_sources src/*.cxx )
 endif()
+
+# External dependencies.
+find_package( ROOT COMPONENTS Core GenVector )
+find_package( xAODUtilities )
 
 # Component(s) in the package:
 atlas_add_library( xAODCaloEvent
    xAODCaloEvent/*.h xAODCaloEvent/versions/*.h Root/*.cxx ${extra_sources}
    PUBLIC_HEADERS xAODCaloEvent
-   INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-   LINK_LIBRARIES ${EIGEN_LIBRARIES} ${ROOT_LIBRARIES} CaloGeoHelpers AthContainers
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} CaloGeoHelpers AthContainers
    CxxUtils GeoPrimitives xAODBase xAODCore AthLinks ${extra_libs} )
+
+atlas_add_xaod_smart_pointer_dicts(
+   INPUT xAODCaloEvent/selection.xml
+   OUTPUT _selectionFile
+   CONTAINERS "xAOD::CaloClusterContainer_v1" "xAOD::CaloTowerContainer_v1" )
 
 atlas_add_dictionary( xAODCaloEventDict
    xAODCaloEvent/xAODCaloEventDict.h
-   xAODCaloEvent/selection.xml
-   LINK_LIBRARIES xAODCaloEvent
+   ${_selectionFile}
+   LINK_LIBRARIES xAODCore xAODCaloEvent
    EXTRA_FILES Root/dict/*.cxx )
 
-# Generate CLIDs for the library explicitly:
+# Generate CLIDs for the library explicitly.
 atlas_generate_cliddb( xAODCaloEvent )

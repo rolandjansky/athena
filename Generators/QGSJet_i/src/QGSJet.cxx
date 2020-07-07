@@ -222,9 +222,14 @@ StatusCode QGSJet::genInitialize()
   qgsjet_rndm_stream = "QGSJet";
 
     // setup HepMC
+#ifdef HEPMC3
+   /* This ifdef   is used for consistency */
+   /* HepMC3 Does not need a setup here */
+#else
     HepMC::HEPEVT_Wrapper::set_sizeof_int(sizeof( int ));
     HepMC::HEPEVT_Wrapper::set_sizeof_real( 8 );
     HepMC::HEPEVT_Wrapper::set_max_number_entries(10000);    // as used in crmc-aaa.f!!!
+#endif
 
   m_events = 0;
 
@@ -299,29 +304,33 @@ StatusCode QGSJet::fillEvt( HepMC::GenEvent* evt )
 
 
   HepMC::HEPEVT_Wrapper::set_event_number(m_events);
+#ifdef HEPMC3
+  HepMC::HEPEVT_Wrapper::HEPEVT_to_GenEvent(evt);
+#else 
   HepMC::IO_HEPEVT hepio;
 
  
   hepio.set_trust_mothers_before_daughters(0);
   hepio.set_print_inconsistency_errors(0);
   hepio.fill_next_event(evt);
-  evt->set_random_states( m_seeds );
+#endif
+  HepMC::set_random_states(evt, m_seeds );
 
   evt->weights().push_back(1.0); 
   GeVToMeV(evt);
   
-  std::vector<HepMC::GenParticle*> beams;
+  std::vector<HepMC::GenParticlePtr> beams;
 
-  for (HepMC::GenEvent::particle_const_iterator p = evt->particles_begin(); p != evt->particles_end(); ++p) {
-    if ((*p)->status() == 4) {
-      beams.push_back(*p);
+  for (auto p: *evt) {
+    if (p->status() == 4) {
+      beams.push_back(p);
     }
   } 
 
+ if (beams.size()>=2){
   evt->set_beam_particles(beams[0], beams[1]); 
+ }
 
-  //an integer ID uniquely specifying the signal process (i.e. MSUB in Pythia)
-  // std::cout<<"obecny sig_proc_id " << evt->signal_process_id() << std::endl;
    int sig_id = -1;
    switch (int(c2evt_.typevt))
     {
@@ -336,7 +345,7 @@ StatusCode QGSJet::fillEvt( HepMC::GenEvent* evt )
     default: ATH_MSG_INFO( "Signal ID not recognised for setting HEPEVT \n");
     }
 
-  evt->set_signal_process_id(sig_id);
+  HepMC::set_signal_process_id(evt,sig_id);
    
 
  return StatusCode::SUCCESS;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArGeoCode/LArMaterialManager.h"
@@ -504,5 +504,138 @@ void LArMaterialManager::buildMaterials()
   msg << MSG::INFO<< "EMEC G10FeInner radiation length " << G10FeInner->getRadLength() << endmsg;
 #endif
 
+  }
+
+  // Materials for Barrel and Endcap Signal Feedthroughs
+  {
+    GeoMaterial* myIron   = m_storedManager->getMaterial("std::Iron");
+    GeoMaterial* myCopper = m_storedManager->getMaterial("std::Copper");
+    GeoMaterial* myKapton = m_storedManager->getMaterial("std::Kapton");
+    GeoMaterial* myAlu    = m_storedManager->getMaterial("std::Aluminium");
+    GeoMaterial* myLAr    = m_storedManager->getMaterial("std::LiquidArgon");
+    GeoElement* O  = m_storedManager->getElement("Oxygen");
+    GeoElement* Na = m_storedManager->getElement("Potassium");
+    GeoElement* Si = m_storedManager->getElement("Silicon");
+    GeoElement* Ca = m_storedManager->getElement("Calcium");
+
+    GeoMaterial* myGlass = new GeoMaterial("PinCarrierGlas",2.40*Gaudi::Units::g/Gaudi::Units::cm3);
+    myGlass->add(O ,0.459800);
+    myGlass->add(Na,0.096441);
+    myGlass->add(Si,0.336553);
+    myGlass->add(Ca,0.107205);
+    myGlass->lock();
+    m_storedManager->addMaterial("LAr",myGlass);
+
+    // Average material for Warm Flange
+    /* contains
+     * bolt ring 1.88 kg Al
+     * seal ring 5.84 kg Fe
+     * heater    1.00 kg Al
+     * plate     8.67 kg - 2*(0.478+0.540) kg = 6.634 kg Fe
+     * pin carr. 2.036 kg mixture Fe+ glass (36g) + Cu (170g)
+     *
+     * hardcoded volume = 37*170^2*pi = 3766141 mm^3
+     */
+    const double wflange_total = 1.88 + 5.84 + 1.0 + 6.634 + 2.036;
+    GeoMaterial* warm_flange = new GeoMaterial("FT::WarmFlange",
+        wflange_total*Gaudi::Units::kg / (3766141.*Gaudi::Units::mm3)
+    );
+    warm_flange->add(myAlu, 2.88 / wflange_total);
+    warm_flange->add(myIron, (5.84 + 6.634 + 1.83) / wflange_total);
+    warm_flange->add(myCopper, 0.17 / wflange_total);
+    warm_flange->add(myGlass, 0.036 / wflange_total);
+    warm_flange->lock();
+    m_storedManager->addMaterial("LAr", warm_flange);
+
+    // Average material for Cold Flange
+    /* contains
+     * plate     11.21 kg - 2*(0.478+0.540) kg = 9.174 kg Fe
+     * pin carr. 2.036 kg mixture Fe+ glass (36g) + Cu (170g)
+     *
+     * hardcoded volume = 35*141.5^2*pi = 2201561 mm^3
+     */
+  {
+    const double m = 11.21;
+    const double mGlass = 0.036;
+    const double mCopper = 0.170;
+    const double mFe = m - mGlass - mCopper;
+    GeoMaterial* cold_flange = new GeoMaterial("FT::ColdFlange",
+        m*Gaudi::Units::kg / (2201561.*Gaudi::Units::mm3)
+    );
+    cold_flange->add(myIron, mFe / m);
+    cold_flange->add(myCopper, mCopper / m);
+    cold_flange->add(myGlass, mGlass / m);
+    cold_flange->lock();
+    m_storedManager->addMaterial("LAr", cold_flange);
+  }
+
+    /*  bellow is iron + vacuum
+        as geometry described in DMConstruction,
+        bellow also includes cuff ring and some part of seal ring
+        0.511 kg bellow
+        0.840 kg cuff ring
+        0        seal ring (sum whole ring to warm flange)
+        hardcoded volume is 225*pi*(229^2 - (229 - 15)^2)/4 = 1253790 mm^3
+    */
+    GeoMaterial* bellow_mat = new GeoMaterial("FT::Bellow",
+      1.351*Gaudi::Units::kg / (1253790.*Gaudi::Units::mm3)
+    );
+    bellow_mat->add(myIron, 1.);
+    bellow_mat->lock();
+    m_storedManager->addMaterial("LAr", bellow_mat);
+
+    /* vacuum cables are kapton+copper placed in vacuum,
+       insulation is ignored yet (btw different for barrel and EC)
+       3.928 kg Cu       (0.5657)
+       3.015 kg Polymide (0.4343)
+       ------------------
+       6.943 kg total
+       hardcoded volume is 225*pi*(229 - 15)^2/4 = 8092821 mm^3
+
+    */
+    GeoMaterial* vacuum_cables_mat = new GeoMaterial("FT::VacuumCables",
+      6.943*Gaudi::Units::kg / (8092821.*Gaudi::Units::mm3)
+    );
+    vacuum_cables_mat->add(myCopper, 0.5657);
+    vacuum_cables_mat->add(myKapton, 0.4343);
+    vacuum_cables_mat->lock();
+    m_storedManager->addMaterial("LAr", vacuum_cables_mat);
+
+    /* cables
+     * 0.215 cm^3 per 1m copper
+     * 0.735 cm^3 per 1m kapton
+     * 2.90 g per 1m = 100*pi*(0.11/2)^2 = 0.95 cm^3
+     */
+    const double vCopper = 0.215;
+    const double vKapton = 0.735;
+    const double mCopper = vCopper*8.96;
+    const double mKapton = vKapton*1.3;
+    const double m = mCopper + mKapton;
+    GeoMaterial* cable_mat = new GeoMaterial("FT::Cable",
+        m*Gaudi::Units::g / ((vCopper + vKapton)*Gaudi::Units::cm3)
+    );
+    cable_mat->add(myCopper, mCopper / m);
+    cable_mat->add(myKapton, mKapton / m);
+    cable_mat->lock();
+    m_storedManager->addMaterial("LAr", cable_mat);
+
+    /* pigtail cables are cables + LAr
+     *
+     */
+    const double v = M_PI*(13.3/2)*(13.3/2);
+    const double vc = M_PI*(.11/2)*(.11/2)*1920;
+    const double va = v - vc;
+    const double mc = vc * 2.9/0.95;
+    const double ma = va * 1.392;
+    GeoMaterial* pigtail_mat = new GeoMaterial("FT::Pigtail",
+        (mc + ma)*Gaudi::Units::g / (v*Gaudi::Units::cm3)
+    );
+    msg << MSG::DEBUG << pigtail_mat->getName() << " "
+        << pigtail_mat->getDensity() / (Gaudi::Units::g/Gaudi::Units::cm3)
+        << endmsg;
+    pigtail_mat->add(cable_mat, mc / (mc + ma));
+    pigtail_mat->add(myLAr, ma / (mc + ma));
+    pigtail_mat->lock();
+    m_storedManager->addMaterial("LAr", pigtail_mat);
   }
 }

@@ -6,10 +6,6 @@
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
-#include "RPCcablingInterface/IRPCcablingServerSvc.h"
-#include "RPCcablingInterface/IRPCcablingSvc.h"
-#include "RPCcablingInterface/CablingRPCBase.h"
-#include "RPCcablingInterface/RpcPadIdHash.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonTrigCoinData/RpcCoinDataContainer.h"
 #include "TrkSurfaces/Surface.h"
@@ -29,7 +25,6 @@ Muon::RpcRdoToPrepDataToolCore::RpcRdoToPrepDataToolCore( const std::string& typ
     AthAlgTool( type, name, parent ),
     m_etaphi_coincidenceTime(0.),         //!< time for phi*eta coincidence 
     m_overlap_timeTolerance(0.),          //!< tolerance of the timing calibration 
-    m_processingData(false),              //!< data or MC 
     m_producePRDfromTriggerWords(false),  //!< if 1 store as prd the trigger hits 
     m_solvePhiAmbiguities(true),          //!< toggle on/off the removal of phi ambiguities
     m_doingSecondLoopAmbigColls(false),   //!< true if running a second loop over ambiguous collections in RoI-based mode
@@ -45,7 +40,6 @@ Muon::RpcRdoToPrepDataToolCore::RpcRdoToPrepDataToolCore( const std::string& typ
   // declare any properties here
   declareProperty("etaphi_coincidenceTime",    m_etaphi_coincidenceTime     = 20.);//!< 15 ns should be the max.diff. in prop.time in phi and eta strips
   declareProperty("overlap_timeTolerance",     m_overlap_timeTolerance      = 10.);//!<  3 ns is the resolution of the RPC readout electronics
-  declareProperty("processingData",            m_processingData             = false);
   declareProperty("solvePhiAmbiguities",       m_solvePhiAmbiguities        = true);
   declareProperty("produceRpcCoinDatafromTriggerWords",m_producePRDfromTriggerWords = true);
   declareProperty("reduceCablingOverlap",      m_reduceCablingOverlap       = true);
@@ -84,7 +78,6 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::initialize() {
   ATH_MSG_INFO("package version = "<<PACKAGE_VERSION);
 
   ATH_MSG_INFO("properties are ");
-  ATH_MSG_INFO("processingData                     "<<m_processingData);
   ATH_MSG_INFO("produceRpcCoinDatafromTriggerWords "<<m_producePRDfromTriggerWords);
   ATH_MSG_INFO("reduceCablingOverlap               "<<m_reduceCablingOverlap);
   ATH_MSG_INFO("solvePhiAmbiguities                "<<m_solvePhiAmbiguities );
@@ -101,47 +94,14 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::initialize() {
   /// get the detector descriptor manager
   ATH_CHECK(detStore()->retrieve(m_muonMgr));
   ATH_MSG_VERBOSE("MuonDetectorManager retrieved");
-  
-  // Get RpcRdoDecoderTool
   ATH_CHECK(m_rpcRdoDecoderTool.retrieve());  
-
   ATH_CHECK(m_idHelperSvc.retrieve());
-
   ATH_CHECK(m_rpcReadKey.initialize());
-
-  // get RPC cablingSvc
-  const IRPCcablingServerSvc* RpcCabGet = nullptr;
-  ATH_CHECK(service("RPCcablingServerSvc", RpcCabGet));
-  ATH_MSG_VERBOSE(" RPCcablingServerSvc retrieved");
-  ATH_CHECK(RpcCabGet->giveCabling(m_rpcCabling));
-  ATH_MSG_VERBOSE("RPCcablingSvc obtained: " << (dynamic_cast<const Service*>(m_rpcCabling))->name());
-  std::string svcName=m_rpcCabling->rpcCabSvcType();
-  ATH_MSG_VERBOSE("Rpc Cabling Svc name is "<<svcName);
-  // LBTAG 29/01/10: case RPCcabling or RPCcablingSim
-  if (svcName.find("sim")!=std::string::npos) {
-    // LBTAG 29/01/10: case RPCcabling
-    if (svcName.find("simulationLikeInitialization")!=std::string::npos) m_processingData = true;
-    // LBTAG 29/01/10: case MuonRPC_Cabling maps from files
-    else if (svcName.find("simLike_MapsFromFiles")!=std::string::npos) m_processingData = true;
-    // LBTAG 29/01/10: case RPCcablingSim
-    else m_processingData = false;
-  }
-  // LBTAG 29/01/10: case MuonRPC_Cabling maps from COOL
-  else {
-    //Data-Style Cabling Svc 
-    m_processingData = true;
-  }
-  
-
   ATH_CHECK(m_readKey.initialize(m_RPCInfoFromDb));
-
-  // check if initializing of DataHandle objects success
   ATH_CHECK(m_rdoContainerKey.initialize());
-
   ATH_CHECK(m_rpcPrepDataContainerKey.initialize());
-
   ATH_CHECK(m_rpcCoinDataContainerKey.initialize());
-   
+  ATH_CHECK(m_eventInfo.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -232,8 +192,7 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::decode( std::vector<IdentifierHash>& 
   }    
                                                     
   ///////////// here the RDO container is retrieved and filled -whatever input type we start with- => check the size 
-  RpcPadContainer::const_iterator rdoColli;
-  if (rdoContainerHandle->begin() == rdoContainerHandle->end()) {
+  if (rdoContainerHandle->numberOfCollections() == 0) {
     // empty pad container - no rpc rdo in this event
     ATH_MSG_WARNING("Empty pad container - no rpc rdo in this event ");
     return StatusCode::SUCCESS;
@@ -260,12 +219,9 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::decode( std::vector<IdentifierHash>& 
     // seeded decoding
     if (sizeVectorRequested != 0) {
       ATH_MSG_DEBUG("Start loop over pads hashes - seeded mode ");
-      RpcPadContainer::const_iterator rdoColli;
-      const RpcPad* rdoColl;
-      for (std::vector<IdentifierHash>::iterator iPadHash  = rdoHashVec.begin(); iPadHash != rdoHashVec.end(); ++iPadHash) {
-        rdoColli =  rdoContainerHandle->indexFind(*iPadHash);
-        if(rdoColli != rdoContainerHandle->end()) {
-          rdoColl = *rdoColli;
+      for (std::vector<IdentifierHash>::const_iterator iPadHash  = rdoHashVec.begin(); iPadHash != rdoHashVec.end(); ++iPadHash) {
+        const RpcPad* rdoColl =  rdoContainerHandle->indexFindPtr(*iPadHash);
+        if(rdoColl != nullptr) {
           ++ipad;
        
           ATH_MSG_DEBUG("A new pad here n. "<<ipad<<", online id " << (int)(rdoColl->identifyHash()) << ", with " << rdoColl->size() <<" CM inside ");
@@ -341,17 +297,17 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::decode( std::vector<IdentifierHash>& 
   for (std::vector<IdentifierHash>::const_iterator ii=idWithDataVect.begin(); ii!=idWithDataVect.end();++ii) {    
     ++nn;
     ATH_MSG_VERBOSE("hash = "<<(int)(*ii)<<" is the "<<nn<<"-th in this event ");
-    RpcPrepDataContainer::const_iterator rpcColli = m_rpcPrepDataContainer->indexFind(*ii);
-    if (rpcColli != m_rpcPrepDataContainer->end()) {      
-      if (!(*rpcColli)->empty()) {	
+    auto rpcColl = m_rpcPrepDataContainer->indexFindPtr(*ii);
+    if (rpcColl != nullptr) {
+      if (!rpcColl->empty()) {
 	temIdWithDataVect.push_back(*ii);
 	ATH_MSG_VERBOSE("Accepting non empty coll. "
-			<<m_idHelperSvc->rpcIdHelper().show_to_string((*rpcColli)->identify())
+			<<m_idHelperSvc->rpcIdHelper().show_to_string(rpcColl->identify())
 			<<" hash = "<<(int)*ii<<" in PREPDATA container at "<<m_rpcPrepDataContainer);
       }
       else {	
 	ATH_MSG_DEBUG("Removing from the rpc prep data container empty coll. "
-		      <<m_idHelperSvc->rpcIdHelper().show_to_string((*rpcColli)->identify())
+		      <<m_idHelperSvc->rpcIdHelper().show_to_string(rpcColl->identify())
 		      <<" hash = "<<(int)*ii<<" in PREPDATA container at "<<m_rpcPrepDataContainer);
 	delete m_rpcPrepDataContainer->removeCollection(*ii); // from Scott Snyder #43275 // fix mem.leak
       }            
@@ -484,15 +440,12 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::decode( const std::vector<uint32_t>& 
     // seeded decoding (for full scan, use the hashId-based method)
     ATH_MSG_DEBUG("Start loop over pads hashes - seeded mode ");
     
-    RpcPadContainer::const_iterator rdoColli;
-    const RpcPad* rdoColl;
     for (IdentifierHash padHashId : rdoHashVec) {
-      rdoColli = rdoContainerHandle->indexFind(padHashId);
-      if (rdoColli == rdoContainerHandle->end()) {
+      const RpcPad*  rdoColl = rdoContainerHandle->indexFindPtr(padHashId);
+      if (rdoColl == nullptr) {
         ATH_MSG_DEBUG("Requested pad with online id " << (unsigned int)padHashId << " not found in the rdoContainerHandle.");
         continue;
       }
-      rdoColl = *rdoColli;
       ++ipad;
       ATH_MSG_DEBUG("A new pad here n." << ipad << ", online id " << (int)(rdoColl->identifyHash()) << ", with " << rdoColl->size() <<" CM inside ");
       CHECK(
@@ -531,18 +484,18 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::decode( const std::vector<uint32_t>& 
   for (IdentifierHash hashId : idWithDataVect) {   
     ++nn;
     ATH_MSG_VERBOSE("collection n. " << nn << " has hashId = " << (unsigned int)hashId);
-    RpcPrepDataContainer::const_iterator rpcColli = m_rpcPrepDataContainer->indexFind(hashId);
-    if (rpcColli != m_rpcPrepDataContainer->end()) {
-      if (!(*rpcColli)->empty()) {
+    auto rpcColl = m_rpcPrepDataContainer->indexFindPtr(hashId);
+    if (rpcColl != nullptr) {
+      if (!rpcColl->empty()) {
         temIdWithDataVect.push_back(hashId);
         ATH_MSG_VERBOSE("Accepting non empty coll. "
-                     << m_idHelperSvc->rpcIdHelper().show_to_string((*rpcColli)->identify())
+                     << m_idHelperSvc->rpcIdHelper().show_to_string(rpcColl->identify())
                      << " hashId = " << (unsigned int)hashId
                      << " in PREPDATA container at " << m_rpcPrepDataContainer);
       }
       else {
         ATH_MSG_DEBUG("Removing from the rpc prep data container empty coll. "
-                   << m_idHelperSvc->rpcIdHelper().show_to_string((*rpcColli)->identify())
+                   << m_idHelperSvc->rpcIdHelper().show_to_string(rpcColl->identify())
                    << " hashId = " << (unsigned int)hashId
                    << " in PREPDATA container at " << m_rpcPrepDataContainer);
         delete m_rpcPrepDataContainer->removeCollection(hashId);
@@ -594,7 +547,8 @@ void Muon::RpcRdoToPrepDataToolCore::printInputRdo()
   ATH_MSG_INFO("--------------------------------------------------------------------------------------------");
   
   int ipad = 0;
-  const RpcPad * rdoColl;
+  const RpcPad* rdoColl=nullptr;
+  SG::ReadHandle<xAOD::EventInfo> evtInfo(m_eventInfo);
   for (RpcPadContainer::const_iterator rdoColli = rdoContainerHandle->begin(); rdoColli!=rdoContainerHandle->end(); ++rdoColli) {
     // loop over all elements of the pad container 
     rdoColl = *rdoColli;
@@ -623,14 +577,14 @@ void Muon::RpcRdoToPrepDataToolCore::printInputRdo()
     for (; itCM != itCM_e ; ++itCM) {
       icm++;
       bool etaview = false;
-      if (m_processingData) etaview = true;
+      if (!evtInfo->eventType(xAOD::EventInfo::IS_SIMULATION)) etaview = true;
       bool highPtCm = false;
       // Get CM online Id
       uint16_t cmaId = (*itCM)->onlineId();
       if (cmaId<4) {
 	if (cmaId<2) {    
 	  etaview = true;
-	  if (m_processingData) {
+	  if (!evtInfo->eventType(xAOD::EventInfo::IS_SIMULATION)) {
 	    etaview = false;
 	  }
 	}
@@ -639,7 +593,7 @@ void Muon::RpcRdoToPrepDataToolCore::printInputRdo()
 	highPtCm = true;
 	if (cmaId<6) {
 	  etaview = true;
-	  if (m_processingData) {
+	  if (!evtInfo->eventType(xAOD::EventInfo::IS_SIMULATION)) {
 	    etaview = false;
 	  }
 	}
@@ -691,11 +645,8 @@ void Muon::RpcRdoToPrepDataToolCore::printPrepData()
   int icteta = 0;
   int icttrg = 0;
   ATH_MSG_INFO("--------------------------------------------------------------------------------------------");
-  for (IdentifiableContainer<Muon::RpcPrepDataCollection>::const_iterator rpcColli = m_rpcPrepDataContainer->begin();
-       rpcColli!=m_rpcPrepDataContainer->end(); ++rpcColli) {
+  for (const Muon::RpcPrepDataCollection* rpcColl : *m_rpcPrepDataContainer) {
 
-    const Muon::RpcPrepDataCollection* rpcColl = *rpcColli;
-        
     if ( rpcColl->size() > 0 ) {
       ATH_MSG_INFO("PrepData Collection ID "<<m_idHelperSvc->rpcIdHelper().show_to_string(rpcColl->identify()));
       RpcPrepDataCollection::const_iterator it_rpcPrepData;
@@ -851,16 +802,20 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::processPad(const RpcPad *rdoColl,
   RpcPrepDataCollection * collection(0);
   RpcCoinDataCollection * collectionTrg(0);
   IdentifierHash rpcHashId;
+
+  SG::ReadCondHandle<RpcCablingCondData> cablingCondData{m_rpcReadKey, Gaudi::Hive::currentContext()};
+  const RpcCablingCondData* rpcCabling{*cablingCondData};
   
   // For each pad, loop on the coincidence matrices
   RpcPad::const_iterator itCM   = rdoColl->begin();
   RpcPad::const_iterator itCM_e = rdoColl->end();
   int icm = 0;
+  SG::ReadHandle<xAOD::EventInfo> evtInfo(m_eventInfo);
   for (; itCM != itCM_e ; ++itCM) {
 
     icm++;
     bool etaview = false;
-    if (m_processingData) etaview = true;
+    if (!evtInfo->eventType(xAOD::EventInfo::IS_SIMULATION)) etaview = true;
     bool highPtCm = false;
     // Get CM online Id
     uint16_t cmaId = (*itCM)->onlineId();
@@ -870,7 +825,7 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::processPad(const RpcPad *rdoColl,
       ATH_MSG_DEBUG(" low pt ");
       if (cmaId<2) {
 	etaview = true;
-	if (m_processingData) {
+	if (!evtInfo->eventType(xAOD::EventInfo::IS_SIMULATION)) {
 	  etaview = false;
 	}
 	ATH_MSG_DEBUG( " eta view = "<<etaview);
@@ -885,7 +840,7 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::processPad(const RpcPad *rdoColl,
       highPtCm = true;
       if (cmaId<6) {
 	etaview = true;
-	if (m_processingData) {
+	if (!evtInfo->eventType(xAOD::EventInfo::IS_SIMULATION)) {
 	  etaview = false;
 	}
 	ATH_MSG_DEBUG(" eta view = "<<etaview);
@@ -941,7 +896,7 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::processPad(const RpcPad *rdoColl,
       // here decode (get offline ids for the online indices of this hit)
       double time = 0.;
       std::vector<Identifier>* digitVec = 
-	m_rpcRdoDecoderTool->getOfflineData(rpcChan, sectorId, padId, cmaId, time);
+	m_rpcRdoDecoderTool->getOfflineData(rpcChan, sectorId, padId, cmaId, time, rpcCabling);
       time += (double)m_timeShift;
       
       if (!digitVec) {

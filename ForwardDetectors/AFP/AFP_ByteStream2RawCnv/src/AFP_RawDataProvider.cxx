@@ -14,15 +14,8 @@ const std::vector<unsigned int> AFP_RawDataProvider::s_robIDs = {AFP_ROBID::side
 AFP_RawDataProvider::AFP_RawDataProvider(const std::string &name,
                                          ISvcLocator *pSvcLocator)
     : AthAlgorithm(name, pSvcLocator),
-      m_robDataProvider("ROBDataProviderSvc", name),
-      m_rawDataTool("AFP_RawDataProviderTool")
+      m_robDataProvider("ROBDataProviderSvc", name)
 {
-
-  declareProperty("AFP_RawContainerKey",
-                  m_AFP_RawContainerKey = "AFP_RawData",
-		  "Name under which AFP_RawContainer object will be saved in StoreGate");
-  
-  declareProperty("ProviderTool", m_rawDataTool);
 }
 
 AFP_RawDataProvider::~AFP_RawDataProvider() {}
@@ -43,22 +36,15 @@ StatusCode AFP_RawDataProvider::initialize() {
     ATH_MSG_DEBUG("Retrieved service " << m_rawDataTool);
   }
 
+  ATH_CHECK(m_AFP_RawContainerKey.initialize());
+
   return StatusCode::SUCCESS;
 }
 
 StatusCode AFP_RawDataProvider::execute() {
   ATH_MSG_DEBUG("AFP_RawDataProvider::EXECUTE");
-  AFP_RawContainer *container = new AFP_RawContainer;
+  auto container = std::make_unique<AFP_RawContainer>();
   ATH_MSG_DEBUG("Created AFP RDO Container");
-
-  StatusCode recordSC =
-      evtStore()->record(container, m_AFP_RawContainerKey);
-  if (recordSC.isFailure()) {
-    ATH_MSG_WARNING("Unable to record AFP RDO Container");
-    return StatusCode::SUCCESS;
-  } else {
-    ATH_MSG_DEBUG("AFP RDO Container recorded");
-  }
 
   std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *> listOfRobf;
 
@@ -66,7 +52,7 @@ StatusCode AFP_RawDataProvider::execute() {
   ATH_MSG_DEBUG(" ROB ID " << std::hex << s_robIDs<<std::dec);
   ATH_MSG_DEBUG(" Number of ROB fragments is " << listOfRobf.size());
 
-  if (m_rawDataTool->convert(listOfRobf, container).isFailure()) {
+  if (m_rawDataTool->convert(listOfRobf, container.get()).isFailure()) {
     ATH_MSG_WARNING("Bytestream conversion into raw failed");
     return StatusCode::SUCCESS;
   } else {
@@ -74,6 +60,15 @@ StatusCode AFP_RawDataProvider::execute() {
                   << container->collectionsToF().size());
     ATH_MSG_DEBUG(" Number of silicon collections in container is "
                   << container->collectionsSi().size());
+  }
+
+  SG::WriteHandle<AFP_RawContainer> writeHandle{m_AFP_RawContainerKey};
+  StatusCode recordSC = writeHandle.record(std::move(container));
+  if (recordSC.isFailure()) {
+    ATH_MSG_WARNING("Unable to record AFP RDO Container");
+    return StatusCode::SUCCESS;
+  } else {
+    ATH_MSG_DEBUG("AFP RDO Container recorded");
   }
 
   return StatusCode::SUCCESS;

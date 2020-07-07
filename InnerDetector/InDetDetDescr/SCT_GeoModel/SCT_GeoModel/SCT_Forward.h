@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GEOMODEL_SCT_FORWARD_H
@@ -7,6 +7,7 @@
 
 #include "SCT_GeoModel/SCT_ComponentFactory.h"
 
+#include <memory>
 #include <vector>
 
 class SCT_FwdModule;
@@ -69,9 +70,9 @@ private:
   double m_outerRadiusCylinderServices;
 
   // Child detector elements
-  std::vector <SCT_FwdWheel *> m_wheels;
+  std::vector<std::unique_ptr<SCT_FwdWheel>> m_wheels;
 
-  std::vector <SCT_FwdModule *> m_modules;
+  std::vector<std::unique_ptr<SCT_FwdModule>> m_modules;
   
 };
 

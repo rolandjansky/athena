@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GEOMODEL_SCT_MODULE_H
@@ -9,6 +9,7 @@
 #include "SCT_GeoModel/SCT_ComponentFactory.h"
 #include "GeoModelKernel/GeoDefinitions.h"
 
+#include <memory>
 #include <string>
 
 class GeoMaterial;
@@ -48,8 +49,8 @@ public:
   double env2Width()     const {return m_env2Width;}
   double env2Length()    const {return m_env2Length;}
 
-  const GeoTrf::Vector3D * env1RefPointVector() const {return m_env1RefPointVector;}
-  const GeoTrf::Vector3D * env2RefPointVector() const {return m_env2RefPointVector;}
+  const GeoTrf::Vector3D * env1RefPointVector() const {return m_env1RefPointVector.get();}
+  const GeoTrf::Vector3D * env2RefPointVector() const {return m_env2RefPointVector.get();}
 
   double sensorGap()    const {return m_sensorGap;}
   double stereoInner()  const {return m_stereoInner;}
@@ -61,9 +62,9 @@ public:
   double baseBoardOffsetY() const {return m_baseBoardOffsetY;}
   double baseBoardOffsetZ() const {return m_baseBoardOffsetZ;}
 
-  const SCT_InnerSide * innerSide() const {return m_innerSide;}
-  const SCT_OuterSide * outerSide() const {return m_outerSide;}
-  const SCT_BaseBoard * baseBoard() const {return m_baseBoard;}
+  const SCT_InnerSide * innerSide() const {return m_innerSide.get();}
+  const SCT_OuterSide * outerSide() const {return m_outerSide.get();}
+  const SCT_BaseBoard * baseBoard() const {return m_baseBoard.get();}
 
  
 private:
@@ -90,21 +91,19 @@ private:
   double m_stereoInner;
   double m_stereoOuter;
   double m_stereoAngle;
-  //int  m_stereoSign;
   int    m_upperSide;
   double m_safety;
 
-  SCT_InnerSide * m_innerSide;
-  SCT_OuterSide * m_outerSide;
-  SCT_BaseBoard * m_baseBoard;
-  //const SCT_Sensor          * m_sensor; // 14:00 Thu 14th Jul 2005 D.Naito removed.
+  std::unique_ptr<SCT_InnerSide> m_innerSide;
+  std::unique_ptr<SCT_OuterSide> m_outerSide;
+  std::unique_ptr<SCT_BaseBoard> m_baseBoard;
 
-  GeoTrf::Transform3D * m_innerSidePos;
-  GeoTrf::Transform3D * m_outerSidePos;
-  GeoTrf::Translate3D * m_baseBoardPos; // 6th Apr 2005 S.Mima
+  std::unique_ptr<GeoTrf::Transform3D> m_innerSidePos;
+  std::unique_ptr<GeoTrf::Transform3D> m_outerSidePos;
+  std::unique_ptr<GeoTrf::Translate3D> m_baseBoardPos;
 
-  GeoTrf::Vector3D * m_env1RefPointVector;
-  GeoTrf::Vector3D * m_env2RefPointVector;
+  std::unique_ptr<GeoTrf::Vector3D> m_env1RefPointVector;
+  std::unique_ptr<GeoTrf::Vector3D> m_env2RefPointVector;
 
 };
 

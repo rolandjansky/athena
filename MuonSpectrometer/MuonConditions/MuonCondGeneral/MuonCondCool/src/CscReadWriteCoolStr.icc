@@ -15,7 +15,6 @@
  */
 
 #include "MuonCondData/CscCondDataCollection.h"
-#include "MuonIdHelpers/CscIdHelper.h"
 #include "AthenaKernel/errorcheck.h"
 
 namespace MuonCalib {
@@ -23,7 +22,7 @@ namespace MuonCalib {
   template<typename data_type>
     StatusCode CscReadWriteCoolStr::procParameter3(std::istream & input, const std::string & name, const std::string & cat, const int & nBits, const int & shiftBits) {
       
-      m_log << MSG::INFO <<  "Processing parameter " << name << " for entry to CSC COOL database. Using version 3 processing" << endmsg;
+      ATH_MSG_INFO("Processing parameter " << name << " for entry to CSC COOL database. Using version 3 processing");
       //Retrieve collection of this parameter if we have seen it before.
       //Create new one if we have.
 
@@ -70,8 +69,7 @@ namespace MuonCalib {
 
       if(!coll)
       {
-        m_log << MSG::ERROR << "Collection is NULL in procParameter! This is a bug!" 
-          << endmsg;
+        ATH_MSG_ERROR("Collection is NULL in procParameter! This is a bug!");
         return StatusCode::RECOVERABLE;
       }
 
@@ -85,7 +83,7 @@ namespace MuonCalib {
 
         input >> std::hex >>  idString >> std::dec;
 
-        m_log << MSG::VERBOSE << "storing id " << idString << endmsg;
+        ATH_MSG_VERBOSE("storing id " << idString);
 
         //Check if at end of this parameter 
         if(idString == "<END_PAR>")
@@ -94,22 +92,22 @@ namespace MuonCalib {
         unsigned int index;
         if(!m_cscCoolStrSvc->stringIdToIndex(idString, cat, index).isSuccess())
         {
-          m_log << MSG::ERROR << "Failed at forming index from " << idString << endmsg;
+          ATH_MSG_ERROR("Failed at forming index from " << idString);
           return StatusCode::RECOVERABLE;
         }
-        m_log << MSG::DEBUG << "Reading index " << index << " (calculated from " << idString
-          <<  ")" << endmsg;
+        ATH_MSG_DEBUG("Reading index " << index << " (calculated from " << idString
+          <<  ")");
 
         if(index >= coll->getSize()){
-          m_log << MSG::ERROR << "Index " << index << " is above maximum of " 
-            << coll->getSize() -1 << endmsg;
+          ATH_MSG_ERROR("Index " << index << " is above maximum of " 
+            << coll->getSize() -1);
           return StatusCode::RECOVERABLE;
         }
 
         input >> datum;
 
-        m_log << MSG::VERBOSE << "Storing datum " << datum 
-          <<  " at index " << index << endmsg;
+        ATH_MSG_VERBOSE("Storing datum " << datum 
+          <<  " at index " << index);
 
         if(nBits >0) {
           data_type refDatum;
@@ -127,10 +125,10 @@ namespace MuonCalib {
 
 
         CscCondData<data_type> * condData = new CscCondData<data_type>(datum); 
-        if( (*coll)[index] != NULL && nBits <=0)
+        if( (*coll)[index] && nBits <=0)
         {
-          m_log << MSG::WARNING << "Writing to same index more than once (" << index 
-            << ") with value of " << datum << ". Overwriting previous value." << endmsg;
+          ATH_MSG_WARNING("Writing to same index more than once (" << index 
+            << ") with value of " << datum << ". Overwriting previous value.");
         }
 
         //Datavector will automatically delete old entry if its there
@@ -143,7 +141,7 @@ namespace MuonCalib {
   template<typename data_type>
     StatusCode CscReadWriteCoolStr::procParameter4(std::istream & input, const std::string & name, const std::string & cat, const int & nBits, const int & shiftBits) {
       
-      m_log << MSG::INFO <<  "Processing parameter " << name << " for entry to CSC COOL database. Using version 4 processing" << endmsg;
+      ATH_MSG_INFO("Processing parameter " << name << " for entry to CSC COOL database. Using version 4 processing");
       //Retrieve collection of this parameter if we have seen it before.
       //Create new one if we have.
 
@@ -190,8 +188,7 @@ namespace MuonCalib {
 
       if(!coll)
       {
-        m_log << MSG::ERROR << "Collection is NULL in procParameter! This is a bug!" 
-          << endmsg;
+        ATH_MSG_ERROR("Collection is NULL in procParameter! This is a bug!");
         return StatusCode::RECOVERABLE;
       }
 
@@ -211,7 +208,7 @@ namespace MuonCalib {
         if(cat != "CHANNEL"  && cat != "ASM"){
           //since we are assuming index = hash Id, we don't know what to do if we get 
           //a parameter that isn't one value per channel
-          m_log << MSG::FATAL << " category " << cat << " is not yet supported for input file type 04-00"  << endmsg;
+          ATH_MSG_FATAL(" category " << cat << " is not yet supported for input file type 04-00");
           return StatusCode::FAILURE;
         }
 
@@ -252,28 +249,28 @@ namespace MuonCalib {
             else if(direction == 'Y'  || direction == 'y')
               measuresPhi = 1;
             else{
-              m_log << MSG::FATAL << "Direction " << direction << " isn't valid!" << endmsg;
+              ATH_MSG_FATAL("Direction " << direction << " isn't valid!");
               return StatusCode::FAILURE;
             }
 
-            m_log << MSG::DEBUG << "looking up channel id for sector " << sector << " stationName " << stationName << " stationEta " << stationEta << " stationPhi " << stationPhi << " chamberLayer " << chamberLayer << " wireLayer " << wireLayer << " measuresPhi " << measuresPhi << " channel " << channel << endmsg;
+            ATH_MSG_DEBUG("looking up channel id for sector " << sector << " stationName " << stationName << " stationEta " << stationEta << " stationPhi " << stationPhi << " chamberLayer " << chamberLayer << " wireLayer " << wireLayer << " measuresPhi " << measuresPhi << " channel " << channel);
 
-            Identifier chanId = m_muonIdHelperTool->cscIdHelper().channelID(stationName, stationEta, stationPhi, 
+            Identifier chanId = m_idHelperSvc->cscIdHelper().channelID(stationName, stationEta, stationPhi, 
                 chamberLayer, wireLayer, measuresPhi, channel);
             IdentifierHash hash;
-            m_muonIdHelperTool->cscIdHelper().get_channel_hash(chanId, hash);
+            m_idHelperSvc->cscIdHelper().get_channel_hash(chanId, hash);
             unsigned int index = (int)hash;
 
-            m_log << MSG::DEBUG << "Reading index " << index << endmsg;
+            ATH_MSG_DEBUG("Reading index " << index);
 
             if(index >= coll->getSize()){
-              m_log << MSG::ERROR << "Index " << index << " is above maximum of " 
-                << coll->getSize() -1 << endmsg;
+              ATH_MSG_ERROR("Index " << index << " is above maximum of " 
+                << coll->getSize() -1);
               return StatusCode::RECOVERABLE;
             }
 
-            m_log << MSG::VERBOSE << "Storing datum " << datum 
-              <<  " at index " << index << endmsg;
+            ATH_MSG_VERBOSE("Storing datum " << datum 
+              <<  " at index " << index);
 
             if(nBits >0) {
               data_type refDatum;
@@ -292,10 +289,10 @@ namespace MuonCalib {
             //Store value in CSC Conditions data handle
             //(Values stored this way rather than raw in vector to allow data_type independant vectors of CscCondDataBase)
             CscCondData<data_type> * condData = new CscCondData<data_type>(datum); 
-            if( (*coll)[index] != NULL && nBits <=0)
+            if( (*coll)[index] && nBits <=0)
             {
-              m_log << MSG::WARNING << "Writing to same index more than once (" << index 
-                << ") with value of " << datum << ". Overwriting previous value." << endmsg;
+              ATH_MSG_WARNING("Writing to same index more than once (" << index 
+                << ") with value of " << datum << ". Overwriting previous value.");
             }
 
             //Datavector will automatically delete old entry if its there
@@ -340,10 +337,10 @@ namespace MuonCalib {
             //loop through all strips this ASM covers
             for(int layer_i = layerSince; layer_i < layerUntil; layer_i++){
               for(int strip_i = stripSince; strip_i < stripUntil ; strip_i++){
-                Identifier chanId = m_muonIdHelperTool->cscIdHelper().channelID(stationName, stationEta, stationPhi, 
+                Identifier chanId = m_idHelperSvc->cscIdHelper().channelID(stationName, stationEta, stationPhi, 
                     chamberLayer, layer_i, measuresPhi, strip_i);
                 IdentifierHash hash;
-                m_muonIdHelperTool->cscIdHelper().get_channel_hash(chanId, hash);
+                m_idHelperSvc->cscIdHelper().get_channel_hash(chanId, hash);
 
                 //assuming hashId = index
                 int index = hash;
@@ -366,10 +363,10 @@ namespace MuonCalib {
                 //Store value in CSC Conditions data handle
                 //(Values stored this way rather than raw in vector to allow data_type independant vectors of CscCondDataBase)
                 CscCondData<data_type> * condData = new CscCondData<data_type>(datum); 
-                if( (*coll)[index] != NULL && nBits <=0)
+                if( (*coll)[index] && nBits <=0)
                 {
-                  m_log << MSG::WARNING << "Writing to same index more than once (" << index 
-                    << ") with value of " << datum << ". Overwriting previous value." << endmsg;
+                  ATH_MSG_WARNING("Writing to same index more than once (" << index 
+                    << ") with value of " << datum << ". Overwriting previous value.");
                 }
 
                 //Datavector will automatically delete old entry if its there

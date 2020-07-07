@@ -516,10 +516,10 @@ SCTHitEffMonTool::fillHistograms() {
     if (solenoidOn and failCut(perigee->pT() >= m_minPt, "track cut: Min Pt")) {
       continue;
     }
-    if (not m_isCosmic and failCut(fabs(d0) <= m_maxD0, "track cut: max D0")) {
+    if (not m_isCosmic and failCut(std::abs(d0) <= m_maxD0, "track cut: max D0")) {
       continue;
     }
-    if (m_maxZ0sinTheta and failCut(fabs(z0 * sin(perigeeTheta)) <= m_maxZ0sinTheta, "track cut: Max Z0sinTheta")) {
+    if (m_maxZ0sinTheta and failCut(std::abs(z0 * sin(perigeeTheta)) <= m_maxZ0sinTheta, "track cut: Max Z0sinTheta")) {
       continue;
     }
     nTrkGood++;
@@ -552,10 +552,10 @@ SCTHitEffMonTool::fillHistograms() {
     if (failCut(perigee->pT() >= m_minPt, "track cut: Min Pt")) {
       continue;
     }
-    if (not m_isCosmic and failCut(fabs(d0) <= m_maxD0, "track cut: max D0")) {
+    if (not m_isCosmic and failCut(std::abs(d0) <= m_maxD0, "track cut: max D0")) {
       continue;
     }
-    if (m_maxZ0sinTheta and failCut(fabs(z0 * sin(perigeeTheta)) <= m_maxZ0sinTheta, "track cut: Max Z0sinTheta")) {
+    if (m_maxZ0sinTheta and failCut(std::abs(z0 * sin(perigeeTheta)) <= m_maxZ0sinTheta, "track cut: Max Z0sinTheta")) {
       continue;
     }
 
@@ -673,7 +673,7 @@ SCTHitEffMonTool::fillHistograms() {
 
       if (tsos->type(Trk::TrackStateOnSurface::Measurement) or tsos->type(Trk::TrackStateOnSurface::Outlier)) {
         eff = 1.;
-      } else if (tsos->type(Trk::TrackStateOnSurface::Hole) and (fabs(trackHitResidual) < distCut)) {
+      } else if (tsos->type(Trk::TrackStateOnSurface::Hole) and (std::abs(trackHitResidual) < distCut)) {
         eff = 1.;
       }
 
@@ -761,7 +761,7 @@ SCTHitEffMonTool::fillHistograms() {
       int ndf{trackWithHoles->fitQuality()->numberDoF()};
       double chi2_div_ndf{ndf > 0. ? chi2 / ndf : -1.};
 
-      if (failCut(fabs(phiUp) <= m_maxPhiAngle, "hit cut: incidence angle")) {
+      if (failCut(std::abs(phiUp) <= m_maxPhiAngle, "hit cut: incidence angle")) {
         continue;
       }
 
@@ -993,7 +993,7 @@ SCTHitEffMonTool::getResidual(const Identifier& surfaceID, const Trk::TrackParam
           std::unique_ptr<const Trk::ResidualPull> residualPull{m_residualPullCalculator->residualPull(rio.get(), trkParam,
                                                                                                        Trk::ResidualPull::Unbiased)};
           if (not residualPull) continue;
-          if (fabs(residualPull->residual()[Trk::loc1]) < fabs(trackHitResidual)) {
+          if (std::abs(residualPull->residual()[Trk::loc1]) < std::abs(trackHitResidual)) {
             trackHitResidual = residualPull->residual()[Trk::loc1];
           }
         }

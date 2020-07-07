@@ -1764,8 +1764,6 @@ void AnalysisConfig_Ntuple::book() {
 	m_provider->msg(MSG::INFO) << "[91;1m" << " booking ntuple" << "[m" << endmsg;
 	m_provider->msg(MSG::INFO) << "[91;1m" << " trying to create new ntple file" << "[m" << endmsg;
 
-	gDirectory->pwd();
-
 	/// save the current directory so we can return there after
 	TDirectory* dir = gDirectory;
 
@@ -1783,8 +1781,6 @@ void AnalysisConfig_Ntuple::book() {
 	} 
 
 	m_provider->msg(MSG::INFO) << "book() Writing to file " << outputFileName << endmsg;
-
-	gDirectory->pwd();
 
 	if ( first_open || genericFlag() ) {
 		/// create a brand new ntple

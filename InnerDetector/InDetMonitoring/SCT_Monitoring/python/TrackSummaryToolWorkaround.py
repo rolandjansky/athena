@@ -77,7 +77,6 @@ def TrackSummaryToolWorkaround(flags):
     result.addPublicTool(InDetTestPixelLayerTool)
     InDetHoleSearchTool = CompFactory.InDet.InDetTrackHoleSearchTool(name = "InDetHoleSearchTool",
                                                           Extrapolator = InDetExtrapolator,
-                                                          PixelSummaryTool = InDetPixelConditionsSummaryTool,
                                                           usePixel      = flags.Detector.GeometryPixel,
                                                           useSCT        = flags.Detector.GeometrySCT,
                                                           CountDeadModulesAfterLastHit = True,

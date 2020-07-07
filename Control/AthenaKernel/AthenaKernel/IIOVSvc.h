@@ -56,7 +56,7 @@ public:
    * @param[in] fcn      a boost::function object holding the callback function and the object it operates on
    * @param[in] trigger  request immediate callback of fcn  (default false)
    */
-  virtual StatusCode regFcn(SG::DataProxy *dp, const CallBackID c, 
+  virtual StatusCode regFcn(SG::DataProxy *dp, const CallBackID& c, 
 			    const IOVSvcCallBackFcn& fcn, 
 			    bool trigger=false) = 0;
 
@@ -67,7 +67,7 @@ public:
    * @param[in] fcn2     a boost::function object holding the callback function and the object it operates on
    * @param[in] trigger  request immediate callback of fcn  (default false)
    */
-  virtual StatusCode regFcn(const CallBackID c1, const CallBackID c2, 
+  virtual StatusCode regFcn(const CallBackID& c1, const CallBackID& c2, 
 			    const IOVSvcCallBackFcn& fcn2, 
 			    bool trigger=false ) = 0;
 
@@ -78,7 +78,7 @@ public:
    * @param[in] fcn2     a boost::function object holding the callback function and the object it operates on
    * @param[in] trigger  request immediate callback of fcn  (default false)
    */
-  virtual StatusCode regFcn(const std::string &toolName, const CallBackID c2, 
+  virtual StatusCode regFcn(const std::string &toolName, const CallBackID& c2, 
   			    const IOVSvcCallBackFcn& fcn2, 
   			    bool trigger=false) = 0;
 

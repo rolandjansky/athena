@@ -20,7 +20,7 @@ def setMinimalCaloSetup() :
 def _algoHLTCaloCell(name="HLTCaloCellMaker", inputEDM='', outputEDM='CellsClusters', RoIMode=True, OutputLevel=ERROR) :
    if not inputEDM:
       from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
-      inputEDM = mapThresholdToL1RoICollection("FS")
+      inputEDM = mapThresholdToL1RoICollection("FSNOSEED")
    setMinimalCaloSetup()
    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
    from TrigCaloRec.TrigCaloRecConfig import HLTCaloCellMaker

@@ -770,7 +770,7 @@ bool CSCSegmValAlg::isCscSegment( const Muon::MuonSegment* seg ) const {
     if( !rot ) {
       continue;
     }
-    if( m_idHelperSvc->cscIdHelper().is_csc( rot->identify() ) ) isCsc=true;
+    if( m_idHelperSvc->isCsc( rot->identify() ) ) isCsc=true;
   }
 
   return isCsc;
@@ -793,7 +793,7 @@ unsigned int CSCSegmValAlg::cscHits( const Muon::MuonSegment* seg ) const {
     if( !rot ) {
       continue;
     }
-    if( m_idHelperSvc->cscIdHelper().is_csc( rot->identify() ) ) ++nrHits;
+    if( m_idHelperSvc->isCsc( rot->identify() ) ) ++nrHits;
   }
 
   return nrHits ;

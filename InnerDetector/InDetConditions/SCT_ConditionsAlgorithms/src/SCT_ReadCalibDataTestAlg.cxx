@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file SCT_ReadCalibDataTestAlg.cxx Implementation file for SCT_ReadCalibDataTestAlg class
@@ -7,18 +7,17 @@
     adapted first to test a tool and the a service
 */
 
-// Include SCT_ReadCalibDataTestAlg and Svc
+// Include SCT_ReadCalibDataTestAlg
 #include "SCT_ReadCalibDataTestAlg.h"
 
 // Include Athena stuff
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
 
-// Include Gaudi stuff
-
 // Include STL stuff
-#include <vector>
+#include <cstdint>
 #include <string>
+#include <vector>
 
 //----------------------------------------------------------------------
 SCT_ReadCalibDataTestAlg::SCT_ReadCalibDataTestAlg(const std::string& name, ISvcLocator* pSvcLocator) :
@@ -109,10 +108,10 @@ StatusCode SCT_ReadCalibDataTestAlg::execute(const EventContext& ctx) const
     int ngood{0};
     int nbad{0};
     //Loop over all wafers using hashIds from the cabling service
-    std::vector<boost::uint32_t> listOfRODs;
+    std::vector<std::uint32_t> listOfRODs;
     m_cabling->getAllRods(listOfRODs, ctx);
-    std::vector<boost::uint32_t>::iterator rodIter{listOfRODs.begin()};
-    std::vector<boost::uint32_t>::iterator rodEnd{listOfRODs.end()};
+    std::vector<std::uint32_t>::iterator rodIter{listOfRODs.begin()};
+    std::vector<std::uint32_t>::iterator rodEnd{listOfRODs.end()};
     for (; rodIter != rodEnd; ++rodIter) {
       std::vector<IdentifierHash> listOfHashes;
       m_cabling->getHashesForRod(listOfHashes, *rodIter, ctx);

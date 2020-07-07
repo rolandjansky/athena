@@ -1,4 +1,4 @@
-#include "JetTagMonitoring/JetTagMonitoring.h"
+#include "../JetTagMonitoring.h"
 #include "../JetTagMonitorAlgorithm.h"
 
 DECLARE_COMPONENT( JetTagMonitoring )

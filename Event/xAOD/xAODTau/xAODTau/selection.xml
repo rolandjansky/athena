@@ -1,129 +1,74 @@
-<!-- $Id: selection.xml 767396 2016-08-11 02:39:30Z griffith $ -->
+<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
 <lcgdict>
 
-  <!-- TauJet_v1 dictionaries: -->
-  <class name="xAOD::TauJet_v1" />
+   <!-- xAOD::TauJet interface type(s). -->
+   <class name="xAOD::TauJet_v1" />
+   <class name="xAOD::TauJetContainer_v1"
+          id="93CCE680-47C0-11E3-997C-02163E00A614" />
+   <class name="xAOD::TauJet_v2" />
+   <class name="xAOD::TauJetContainer_v2"
+          id="AACF5DF5-2D1A-4678-9188-756C27314E2F" />
+   <class name="xAOD::TauJet_v3" />
+   <class name="xAOD::TauJetContainer_v3"
+          id="9A1207C5-E25F-4974-A9D6-A51DB37F09F9" />
+   <typedef name="xAOD::TauJet" />
+   <typedef name="xAOD::TauJetContainer" />
 
-  <class name="xAOD::TauJetContainer_v1"
-         id="93CCE680-47C0-11E3-997C-02163E00A614" />
-  <class name="xAOD::TauJetAuxContainer_v1"
-         id="EA3CE9A0-18D8-49FD-B978-62857D8D8FD0" />
+   <!-- xAOD::TauJet auxiliary type(s). -->
+   <class name="xAOD::TauJetAuxContainer_v1"
+          id="EA3CE9A0-18D8-49FD-B978-62857D8D8FD0" />
+   <class name="xAOD::TauJetAuxContainer_v2"
+          id="2853B3D8-136E-444D-AB48-24B1A0E13083" />
+   <class name="xAOD::TauJetAuxContainer_v3"
+          id="77AA6800-DDAD-44E8-AD90-003D48082A94" />
+   <typedef name="xAOD::TauJetAuxContainer" />
 
-  <class name="DataLink<xAOD::TauJetContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::TauJetContainer_v1> >" />
+   <!-- Tell ROOT that it should automatically convert between smart pointer -->
+   <!-- types. -->
+   <read sourceClass="DataLink<xAOD::TauJetContainer_v1>" version="[1-]"
+         targetClass="DataLink<xAOD::TauJetContainer_v2>"
+         source="" target="" />
+   <read sourceClass="DataLink<xAOD::TauJetContainer_v1>" version="[1-]"
+         targetClass="DataLink<xAOD::TauJetContainer_v3>"
+         source="" target="" />
+   <read sourceClass="DataLink<xAOD::TauJetContainer_v2>" version="[2-]"
+         targetClass="DataLink<xAOD::TauJetContainer_v3>"
+         source="" target="" />
+   <read sourceClass="ElementLink<xAOD::TauJetContainer_v1>" version="[1-]"
+         targetClass="ElementLink<xAOD::TauJetContainer_v2>"
+         source="" target="" />
+   <read sourceClass="ElementLink<xAOD::TauJetContainer_v1>" version="[1-]"
+         targetClass="ElementLink<xAOD::TauJetContainer_v3>"
+         source="" target="" />
+   <read sourceClass="ElementLink<xAOD::TauJetContainer_v2>" version="[2-]"
+         targetClass="ElementLink<xAOD::TauJetContainer_v3>"
+         source="" target="" />
 
-  <class name="ElementLink<xAOD::TauJetContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::TauJetContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::TauJetContainer_v1> > >" />
+   <!-- xAOD::DiTauJet interface type(s). -->
+   <class name="xAOD::DiTauJet_v1" />
+   <class name="xAOD::DiTauJetContainer_v1"
+         id="0AD18017-0347-4F89-976E-6DA3149DA622" />
+   <typedef name="xAOD::DiTauJet" />
+   <typedef name="xAOD::DiTauJetContainer" />
 
-  <!-- TauJet_v2 dictionaries: -->
-  <class name="xAOD::TauJet_v2" />
+   <!-- xAOD::DiTauJet auxiliary type(s). -->
+   <class name="xAOD::DiTauJetAuxContainer_v1"
+         id="52A49486-FE88-4448-87E0-5878B69975D1" />
+   <typedef name="xAOD::DiTauJetAuxContainer" />
 
-  <class name="xAOD::TauJetContainer_v2"
-         id="AACF5DF5-2D1A-4678-9188-756C27314E2F" />
-  <class name="xAOD::TauJetAuxContainer_v2"
-         id="2853B3D8-136E-444D-AB48-24B1A0E13083" />
+   <!-- xAOD::TauTrack interface type(s). -->
+   <class name="xAOD::TauTrack_v1" />
+   <class name="xAOD::TauTrackContainer_v1"
+         id="A45C1CC2-E6BE-4D99-BB49-3CE80AACEDDA" />
+   <typedef name="xAOD::TauTrack" />
+   <typedef name="xAOD::TauTrackContainer" />
 
-  <class name="DataLink<xAOD::TauJetContainer_v2>" />
-  <class name="std::vector<DataLink<xAOD::TauJetContainer_v2> >" />
+   <!-- xAOD::TauTrack auxiliary type(s). -->
+   <class name="xAOD::TauTrackAuxContainer_v1"
+         id="E36C4BCF-0180-461F-8767-46768A7F3573" />
+   <typedef name="xAOD::TauTrackAuxContainer" />
 
-  <class name="ElementLink<xAOD::TauJetContainer_v2>" />
-  <class name="std::vector<ElementLink<xAOD::TauJetContainer_v2> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::TauJetContainer_v2> > >" />
-
-
-  <!-- TauJet_v3 dictionaries: -->
-  <class name="xAOD::TauJet_v3" />
-
-  <class name="xAOD::TauJetContainer_v3"
-         id="9A1207C5-E25F-4974-A9D6-A51DB37F09F9" />
-  <class name="xAOD::TauJetAuxContainer_v3"
-         id="77AA6800-DDAD-44E8-AD90-003D48082A94" />
-
-  <class name="DataLink<xAOD::TauJetContainer_v3>" />
-  <class name="std::vector<DataLink<xAOD::TauJetContainer_v3> >" />
-
-  <class name="ElementLink<xAOD::TauJetContainer_v3>" />
-  <class name="std::vector<ElementLink<xAOD::TauJetContainer_v3> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::TauJetContainer_v3> > >" />
-
-
-  <!-- Tell ROOT that it should automatically convert the v1 smart pointer -->
-  <!-- types into v2 types. Making it possible to read back other objects -->
-  <!-- from older files that are pointing at TauJets. -->
-  <read sourceClass="DataLink<xAOD::TauJetContainer_v1>" version="[1-]"
-        targetClass="DataLink<xAOD::TauJetContainer_v2>"
-        source="" target="" />
-  <read sourceClass="DataLink<xAOD::TauJetContainer_v1>" version="[1-]"
-        targetClass="DataLink<xAOD::TauJetContainer_v3>"
-        source="" target="" />
-  <read sourceClass="DataLink<xAOD::TauJetContainer_v2>" version="[2-]"
-        targetClass="DataLink<xAOD::TauJetContainer_v3>"
-        source="" target="" />
-  <read sourceClass="ElementLink<xAOD::TauJetContainer_v1>" version="[1-]"
-        targetClass="ElementLink<xAOD::TauJetContainer_v2>"
-        source="" target="" />
-  <read sourceClass="ElementLink<xAOD::TauJetContainer_v1>" version="[1-]"
-        targetClass="ElementLink<xAOD::TauJetContainer_v3>"
-        source="" target="" />
-  <read sourceClass="ElementLink<xAOD::TauJetContainer_v2>" version="[2-]"
-        targetClass="ElementLink<xAOD::TauJetContainer_v3>"
-        source="" target="" />
-
-
-  <!-- DiTauJet_v1 dictionaries: -->
-  <class name="xAOD::DiTauJet_v1" />
-
-  <class name="xAOD::DiTauJetContainer_v1"
-        id="0AD18017-0347-4F89-976E-6DA3149DA622" />
-  <class name="xAOD::DiTauJetAuxContainer_v1"
-        id="52A49486-FE88-4448-87E0-5878B69975D1" />
-
-  <class name="DataLink<xAOD::DiTauJetContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::DiTauJetContainer_v1> >" />
-
-  <class name="ElementLink<xAOD::DiTauJetContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::DiTauJetContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::DiTauJetContainer_v1> > >" />
-
-
-  <!-- TauTrack_v1 dictionaries: -->
-  <class name="xAOD::TauTrack_v1" />
-
-  <class name="xAOD::TauTrackContainer_v1"
-        id="A45C1CC2-E6BE-4D99-BB49-3CE80AACEDDA" />
-  <class name="xAOD::TauTrackAuxContainer_v1"
-        id="E36C4BCF-0180-461F-8767-46768A7F3573" />
-
-  <class name="DataLink<xAOD::TauTrackContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::TauTrackContainer_v1> >" />
-
-  <class name="ElementLink<xAOD::TauTrackContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::TauTrackContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::TauTrackContainer_v1> > >" />
-
-  <!--Add Helper Functions -->
-  <function pattern="xAOD::TauHelpers::*" />
-  
-  <!-- Suppress the unwanted classes found by ROOT 6. -->
-  <!-- Hopefully we can remove these extra lines at one point... -->
-  <exclusion>
-    <class name="SG::IConstAuxStore" />
-    <class name="DataLink<SG::IConstAuxStore>" />
-    <class name="DataVector<xAOD::IParticle>" />
-    <class name="ElementLink<DataVector<xAOD::IParticle> >" />
-    <class pattern="xAOD::TrackParticle*" />
-    <class pattern="DataVector<xAOD::TrackParticle*" />
-    <class pattern="ElementLink<DataVector<xAOD::TrackParticle*" />
-    <class pattern="xAOD::Vertex*" />
-    <class pattern="DataVector<xAOD::Vertex*" />
-    <class pattern="ElementLink<DataVector<xAOD::Vertex*" />
-    <class pattern="xAOD::Jet*" />
-    <class pattern="DataVector<xAOD::Jet*" />
-    <class pattern="ElementLink<DataVector<xAOD::Jet*" />
-    <class pattern="xAOD::PFO*" />
-    <class pattern="DataVector<xAOD::PFO*" />
-    <class pattern="ElementLink<DataVector<xAOD::PFO*" />
-  </exclusion>
+   <!-- Helper function(s). -->
+   <function pattern="xAOD::TauHelpers::*" />
 
 </lcgdict>

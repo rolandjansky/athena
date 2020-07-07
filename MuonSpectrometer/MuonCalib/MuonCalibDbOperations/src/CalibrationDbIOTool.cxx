@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //this
@@ -133,15 +133,10 @@ StatusCode CalibrationDbIOTool::WriteT0(MdtTubeFitContainer* t0, const NtupleSta
       return StatusCode::FAILURE;
     }
     m_data_connections[1]->OpenConnection();
-    std::cout<<"."<<std::endl;
     CalibT0DbOperations t0_op(*m_data_connections[1]);
-    std::cout<<"."<<std::endl;
     std::vector<int> val(0);
-    std::cout<<"."<<std::endl;
     if(!t0_op.WriteT0Chamber(it, t0, val, m_headid, m_sitename)) {
-      std::cout<<"."<<std::endl;
       log << MSG::FATAL <<"Writing t0 failed!"<<endmsg;
-      std::cout<<"."<<std::endl;
       return StatusCode::FAILURE;
     }
   }

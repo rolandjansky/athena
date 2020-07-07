@@ -18,6 +18,7 @@
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 #include "MuonMDT_CnvTools/IMDT_RDO_Decoder.h"
 #include "MdtCalibSvc/MdtCalibrationTool.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include <string>
 
@@ -27,7 +28,6 @@ class MdtCalibHit;
 
 namespace MuonGM
 {    
-  class MuonDetectorManager;
   class MdtReadoutElement;
 }
 
@@ -62,26 +62,20 @@ namespace Muon
     StatusCode decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect ) override;
     //new decode method for Rob based readout
     StatusCode decode( const std::vector<uint32_t>& robIds ) override;
-     
-    virtual StatusCode processCsm(const MdtCsm *rdoColl, std::vector<IdentifierHash>& idWithDataVect, const MdtCsm *rdoColl2 = nullptr);
-
-    Muon::MdtDriftCircleStatus getMdtDriftRadius(const MdtDigit * digit, double& radius, double& errRadius, const MuonGM::MdtReadoutElement * descriptor);
- 
-    // + TWIN TUBE
-    virtual StatusCode processCsmTwin(const MdtCsm *rdoColll, std::vector<IdentifierHash>& idWithDataVect);
-    // method to get the twin tube 2nd coordinate
-    Muon::MdtDriftCircleStatus getMdtTwinPosition(const MdtDigit * prompt_digit, const MdtDigit * twin_digit, 
-                                                  double& radius, double& errRadius, 
-                                                  double& zTwin, double& errZTwin, bool& twinIsPrompt);
-            
-    // - TWIN TUBE
 
     // dump methods for debugging
     virtual void printInputRdo() override;
     virtual void printPrepData() override;
       
   protected:
-    
+    virtual StatusCode processCsm(const MdtCsm* rdoColl, std::vector<IdentifierHash>& idWithDataVect, const MuonGM::MuonDetectorManager* muDetMgr, const MdtCsm* rdoColl2=nullptr);
+
+    Muon::MdtDriftCircleStatus getMdtDriftRadius(const MdtDigit* digit, double& radius, double& errRadius, const MuonGM::MdtReadoutElement* descriptor, const MuonGM::MuonDetectorManager* muDetMgr);
+ 
+    virtual StatusCode processCsmTwin(const MdtCsm *rdoColll, std::vector<IdentifierHash>& idWithDataVect, const MuonGM::MuonDetectorManager* muDetMgr);
+    // method to get the twin tube 2nd coordinate
+    Muon::MdtDriftCircleStatus getMdtTwinPosition(const MdtDigit* prompt_digit, const MdtDigit* twin_digit, double& radius, double& errRadius, double& zTwin, double& errZTwin, bool& twinIsPrompt, const MuonGM::MuonDetectorManager* muDetMgr);
+
     // adds the container to StoreGate, return false is the adding false. 
     enum SetupMdtPrepDataContainerStatus {
       FAILED = 0, ADDED, ALREADYCONTAINED
@@ -106,9 +100,7 @@ namespace Muon
         
     /// MDT calibration service
     ToolHandle<MdtCalibrationTool> m_calibrationTool;
-    MdtCalibrationSvcSettings* m_mdtCalibSvcSettings; 
-    MdtCalibHit* m_calibHit;
-    double m_invSpeed;
+    MdtCalibrationSvcSettings* m_mdtCalibSvcSettings;
 
     /// MdtPrepRawData containers
     Muon::MdtPrepDataContainer* m_mdtPrepDataContainer;
@@ -146,6 +138,8 @@ namespace Muon
     void initDeadChannels(const MuonGM::MdtReadoutElement* mydetEl);
 
     SG::ReadCondHandleKey<MuonMDT_CablingMap> m_readKey{this, "ReadKey", "MuonMDT_CablingMap", "Key of MuonMDT_CablingMap"};
+
+    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_muDetMgrKey {this, "DetectorManagerKey", "MuonDetectorManager", "Key of input MuonDetectorManager condition data"}; 
 
   }; 
 } // end of namespace

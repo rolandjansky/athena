@@ -882,6 +882,14 @@ const Amg::Transform3D & MdtReadoutElement::fromIdealToDeformed(int multilayer, 
 }
 
 
+#if defined(FLATTEN) && defined(__GNUC__)
+// We compile this package with optimization, even in debug builds; otherwise,
+// the heavy use of Eigen makes it too slow.  However, from here we may call
+// to out-of-line Eigen code that is linked from other DSOs; in that case,
+// it would not be optimized.  Avoid this by forcing all Eigen code
+// to be inlined here if possible.
+__attribute__ ((flatten))
+#endif
 Amg::Transform3D
 MdtReadoutElement::deformedTransform (int multilayer, int tubelayer, int tube) const
 {
@@ -1181,6 +1189,14 @@ MdtReadoutElement::posOnDefChamWire( const Amg::Vector3D& locAMDBPos,
 // Function to apply AsBuilt parameter correction to wire center and end position
 // For definitions of AsBuilt parameters see Florian Bauer's talk:
 // http://atlas-muon-align.web.cern.ch/atlas-muon-align/endplug/asbuilt.pdf
+#if defined(FLATTEN) && defined(__GNUC__)
+// We compile this package with optimization, even in debug builds; otherwise,
+// the heavy use of Eigen makes it too slow.  However, from here we may call
+// to out-of-line Eigen code that is linked from other DSOs; in that case,
+// it would not be optimized.  Avoid this by forcing all Eigen code
+// to be inlined here if possible.
+__attribute__ ((flatten))
+#endif
 void MdtReadoutElement::wireEndpointsAsBuilt(Amg::Vector3D& locAMDBWireEndP, Amg::Vector3D& locAMDBWireEndN, int multilayer, int tubelayer, int tube) const
 {
   const MdtAsBuiltPar* params = parentMuonStation()->getMdtAsBuiltParams();

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -16,7 +16,7 @@ namespace Trk
 {
 
   CaloCellSelectorMinPerp::CaloCellSelectorMinPerp(double coneSize ):
-    m_caloExtension(0),
+    m_caloExtension(nullptr),
     m_coneSize( coneSize ),
     m_perp2cut(0) {
   }

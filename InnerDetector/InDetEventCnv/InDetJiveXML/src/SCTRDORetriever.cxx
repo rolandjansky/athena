@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetJiveXML/SCTRDORetriever.h"
@@ -24,9 +24,8 @@ namespace JiveXML {
    **/
   SCTRDORetriever::SCTRDORetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    m_typeName("SCTRDO"),
-    m_geo("JiveXML::InDetGeoModelTool/InDetGeoModelTool",this){
-
+    m_typeName("SCTRDO")
+  {
     //Declare the interface
     declareInterface<IDataRetriever>(this);
 
@@ -108,7 +107,7 @@ namespace JiveXML {
         //Get the hit detector element
         const InDetDD::SiDetectorElement *element = elements->getDetectorElement(waferHash);
         //Make sure we got the detector element
-        if (element == NULL){
+        if (element == nullptr){
           msg(MSG::WARNING) << "Unable to obtain detector element for SCT_RDO hit with id " << id << endmsg;
           continue ;
         }

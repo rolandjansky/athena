@@ -61,6 +61,9 @@ include( "LArDetDescr/LArDetDescr_joboptions.py" )
 include("TileConditions/TileConditions_jobOptions.py" )
 include("LArConditionsCommon/LArConditionsCommon_MC_jobOptions.py")
 
+from LArRecUtils.LArMCSymCondAlg import LArMCSymCondAlgDefault
+LArMCSymCondAlgDefault()
+
 from CaloCondPhysAlgs.CaloCondPhysAlgsConf import LArMinBiasAlg
 larMinBiasAlg = LArMinBiasAlg()
 larMinBiasAlg.datasetID_lowPt =119995

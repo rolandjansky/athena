@@ -1,19 +1,16 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCalibUtils/RtDataFromFile.h"
 #include "MuonCalibStl/DeleteObject.h"
-#define M_MAX_RTS 100000
 
+#include <TString.h> // for Form
 #include <string>
 
+#define M_MAX_RTS 100000
+
 namespace MuonCalib {
-  RtDataFromFile::~RtDataFromFile()
-  {
-    //delete rt relations 
-    //std::for_each(m_rtRelations.begin(),m_rtRelations.end(),DeleteObject());
-  }
   
   std::istream& RtDataFromFile::read( std::istream& is )
   {
@@ -23,12 +20,10 @@ namespace MuonCalib {
     // read number of rts in file
     is >> version >> rts_str;
 
-    unsigned long int pos = 0; 
+    unsigned long int pos = 0;
     std::string::size_type start = rts_str.find_first_not_of(" ",pos); 
-    if(start == std::string::npos) { 
-      std::cout << "RtDataFromFile::read -- problems extracting m_rts -- crashing." << std::endl; 
-      throw;       
-    } 
+    if(start == std::string::npos) throw std::runtime_error(Form("File: %s, Line: %d\nRtDataFromFile::read() - problems extracting m_rts, exiting", __FILE__, __LINE__));
+
     std::string::size_type stop = rts_str.find_first_of(" ",start+1); 
     if (stop == std::string::npos) stop = rts_str.size(); 
     m_rts = std::stoi(rts_str.substr(start,stop-start),nullptr); 
@@ -55,17 +50,14 @@ namespace MuonCalib {
     
   std::ostream& RtDataFromFile::write( std::ostream& os , int region) const 	 
   { 	 
-    if( m_rts != m_rtRelations.size() ){ 	 
-      std::cout << "RtDataFromFile::write ERROR <inconsistent rt count>" 	 
-		<< std::endl; 	 
+    if( m_rts != m_rtRelations.size() ){
+      MsgStream log(Athena::getMessageSvc(),"RtDataFromFile");
+      log<<MSG::WARNING<<"write() <inconsistent rt count>"<<endmsg;
     } 	 
-    if( region >= static_cast<int>(m_rts) ) { 	 
-      std::cout << "RtDataFromFile::write ERROR <requested not existent region>" 	 
-		<< std::endl; 	 
+    if( region >= static_cast<int>(m_rts) ) {
+      MsgStream log(Athena::getMessageSvc(),"RtDataFromFile");
+      log<<MSG::WARNING<<"write() <requested not existent region>"<<endmsg;
     } 	 
-    
-    // os << "v0.0 " << 1 ;//<< std::endl; 	 
-    
     os << "v" << m_major_version << "." << m_minor_version << " 1" ;// full info added 	 
     
     if( m_fullInfo[region] ) os << *(m_fullInfo[region]); 	 
@@ -76,11 +68,9 @@ namespace MuonCalib {
   std::ostream& RtDataFromFile::write( std::ostream& os ) const
   {
     if( m_rts != m_rtRelations.size() ){
-      std::cout << "RtDataFromFile::write ERROR <inconsistent rt count>" 
-		<< std::endl;
+      MsgStream log(Athena::getMessageSvc(),"RtDataFromFile");
+      log<<MSG::WARNING<<"write() <inconsistent rt count>"<<endmsg;
     }
-
-    //   os << "v0.0 " << m_rts ;//<< std::endl;
     	 
     os << "v1.0 " << m_rts ;// full info added
     
@@ -93,15 +83,14 @@ namespace MuonCalib {
 
   void RtDataFromFile::write_forDB( FILE *frt, FILE *frtt, FILE *frtr, FILE *frts , int region) const          
   {    
-    if( m_rts != m_rtRelations.size() ){       
-      std::cout << "RtDataFromFile::write_forDB ERROR <inconsistent rt count>"         
-              << std::endl;    
+    if( m_rts != m_rtRelations.size() ){
+      MsgStream log(Athena::getMessageSvc(),"RtDataFromFile");
+      log<<MSG::WARNING<<"write_forDB() <inconsistent rt count>"<<endmsg;
     }          
-    if( region >= static_cast<int>(m_rts) ) {    
-      std::cout << "RtDataFromFile::write_forDB ERROR <requested not existent region>"         
-              << std::endl;    
+    if( region >= static_cast<int>(m_rts) ) {
+      MsgStream log(Athena::getMessageSvc(),"RtDataFromFile");
+      log<<MSG::WARNING<<"write_forDB() <requested not existent region>"<<endmsg;
     }                  
-    std::cout<<"RtDataFromFile::write_forDB "<<std::endl;
     if( m_fullInfo[region] ){
       (m_fullInfo[region])->write_forDB(frt);
     }
@@ -114,8 +103,8 @@ namespace MuonCalib {
   void RtDataFromFile::write_forDB( FILE *frt, FILE *frtt, FILE *frtr, FILE *frts ) const
   {
     if( m_rts != m_rtRelations.size() ){
-      std::cout << "RtDataFromFile::write ERROR <inconsistent rt count>" 
-              << std::endl;
+      MsgStream log(Athena::getMessageSvc(),"RtDataFromFile");
+      log<<MSG::WARNING<<"write_forDB() <inconsistent rt count>"<<endmsg;
     }
     
     for( unsigned int i=0;i<m_rtRelations.size();++i ){  

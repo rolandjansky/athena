@@ -2,15 +2,12 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/* *******************************************************************************
-      GsfSmoother.h  -  description
-      -----------------------------
-begin                : Wednesday 9th March 2005
-author               : atkinson
-email                : Tom.Atkinson@cern.ch
-decription           : Class definition for the GSF smoother
-**********************************************************************************
-*/
+/**
+ * @file   GsfSmoother.h
+ * @date   Friday 25th February 2005
+ * @author Tom Athkinson, Anthony Morley, Christos Anastopoulos
+ * @brief  Class definition for the GSF smoother
+ */
 
 #ifndef TrkGsfSmoother_H
 #define TrkGsfSmoother_H
@@ -56,6 +53,7 @@ public:
 
   /** Gsf smoother method */
   virtual SmoothedTrajectory* fit(
+    const EventContext& ctx,
     const ForwardTrajectory&,
     const ParticleHypothesis particleHypothesis = nonInteracting,
     const CaloCluster_OnTrack* ccot = nullptr) const;
@@ -67,6 +65,7 @@ private:
 
   /** Methof to add the CaloCluster onto the track */
   MultiComponentState addCCOT(
+    const EventContext& ctx,
     const Trk::TrackStateOnSurface* currentState,
     const Trk::CaloCluster_OnTrack* ccot,
     Trk::SmoothedTrajectory* smoothedTrajectory) const;

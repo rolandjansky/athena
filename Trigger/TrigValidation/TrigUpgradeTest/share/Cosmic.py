@@ -37,10 +37,11 @@ inputMakerAlg.InputMakerInputDecisions = [  mapThresholdToL1DecisionCollection("
 inputMakerAlg.InputMakerOutputDecisions =  'DUMMYOUTDEC' 
 
 
-print inputMakerAlg
+print(inputMakerAlg)
 
+VDV = None
 from TrigInDetConfig.InDetSetup import makeInDetAlgs
-viewAlgs = makeInDetAlgs(whichSignature=signatureName, rois=inputMakerAlg.InViewRoIs, doFTF= False )
+viewAlgs, VDV = makeInDetAlgs(whichSignature=signatureName, rois=inputMakerAlg.InViewRoIs, doFTF= False )
 
 #TODO add additional EFID tracking 
 from AthenaCommon.CFElements import seqAND

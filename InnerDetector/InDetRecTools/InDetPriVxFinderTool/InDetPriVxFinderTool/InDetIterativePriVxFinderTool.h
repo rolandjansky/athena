@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -9,11 +9,11 @@
  * @author Giacinto Piacquadio (Freiburg University)
  *
  *
- * This class provides an implementation for a primary 
- * vertex finding tool, which uses the Adaptive Vertex 
- * Fitter to reject outliers not belonging to the primary 
+ * This class provides an implementation for a primary
+ * vertex finding tool, which uses the Adaptive Vertex
+ * Fitter to reject outliers not belonging to the primary
  * vertex interaction.
- * 
+ *
  * ------------------------------------------------------
  * Changes:
  *
@@ -30,129 +30,136 @@
  *
  ***************************************************************************/
 
-//implemented using as template the InDetPriVxFinderTool class of A. Wildauer and F. Akesson
+// implemented using as template the InDetPriVxFinderTool class of A. Wildauer
+// and F. Akesson
 
 #ifndef INDETPRIVXFINDERTOOL_INDETITERATIVEPRIVXFINDERTOOL_H
 #define INDETPRIVXFINDERTOOL_INDETITERATIVEPRIVXFINDERTOOL_H
 
-#include "InDetRecToolInterfaces/IVertexFinder.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "TrkTrack/TrackCollection.h" // type def ...
-#include "TrkParticleBase/TrackParticleBaseCollection.h" // type def ...
-#include "TrkParameters/TrackParameters.h"
-#include "StoreGate/ReadCondHandleKey.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "InDetRecToolInterfaces/IVertexFinder.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "TrkParameters/TrackParameters.h"
+#include "TrkTrack/TrackCollection.h"                    // type def ...
 /**
- * Forward declarations 
+ * Forward declarations
  */
- 
-#include "xAODTracking/VertexFwd.h"
+
+#include "xAODTracking/TrackParticleContainerFwd.h"
 #include "xAODTracking/TrackParticleFwd.h"
 #include "xAODTracking/VertexContainerFwd.h"
-#include "xAODTracking/TrackParticleContainerFwd.h"
+#include "xAODTracking/VertexFwd.h"
 
-namespace Trk
-{
- class IVertexFitter;
- class Track;
- class TrackParticleBase;
- class ITrackLink;
- class IVertexSeedFinder;
- class IImpactPoint3dEstimator;
+namespace Trk {
+class IVertexFitter;
+class Track;
+class ITrackLink;
+class IVertexSeedFinder;
+class IImpactPoint3dEstimator;
 // class IVertexTrackCompatibilityEstimator;
 // class ImpactPoint3dAtaPlaneFactory;
- class IVertexLinearizedTrackFactory;
+class IVertexLinearizedTrackFactory;
 //  class ITrkDistanceFinder;
-  
- class IVxCandidateXAODVertex;
+
+class IVxCandidateXAODVertex;
 }
 
-namespace InDet
+namespace InDet {
+class IInDetTrackSelectionTool;
+
+class InDetIterativePriVxFinderTool
+  : public AthAlgTool
+  , virtual public IVertexFinder
 {
-  class IInDetTrackSelectionTool;
-  
- class InDetIterativePriVxFinderTool : public AthAlgTool, virtual public IVertexFinder
- {
 
 public:
+  /**
+   * Constructor
+   */
 
-   /**
-    * Constructor
-    */
-   
-   InDetIterativePriVxFinderTool(const std::string& t, const std::string& n, const IInterface*  p);
-   
-   /**
-    * Destructor
-    */
-   
-   virtual ~InDetIterativePriVxFinderTool();
-    
-   StatusCode initialize();
+  InDetIterativePriVxFinderTool(const std::string& t,
+                                const std::string& n,
+                                const IInterface* p);
 
-   /** 
-    * Finding method.
-    * Has as input a track collection and as output 
-    * a VxContainer.
-    */
+  /**
+   * Destructor
+   */
 
-   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const TrackCollection* trackTES);
-   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const Trk::TrackParticleBaseCollection* trackTES);
-   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const xAOD::TrackParticleContainer* trackParticles);
+  virtual ~InDetIterativePriVxFinderTool();
 
-   StatusCode finalize();
-   
- private:
+  virtual StatusCode initialize() override;
 
-   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const std::vector<Trk::ITrackLink*> & trackVector) const;
-
-   void removeCompatibleTracks(xAOD::Vertex * myxAODVertex,
-                               std::vector<const Trk::TrackParameters*> & perigeesToFit,
-                               std::vector<Trk::ITrackLink*> & seedTracks) const;
-
-   void removeAllFrom(std::vector<const Trk::TrackParameters*> & perigeesToFit,
-                      std::vector<Trk::ITrackLink*> & seedTracks) const;
-
-   double compatibility(const Trk::TrackParameters& measPerigee,
-                        const xAOD::Vertex & vertex) const;
-
-   void countTracksAndNdf(xAOD::Vertex * myxAODVertex,
-                          double & ndf, int & ntracks) const;
-
-   ToolHandle< Trk::IVertexFitter > m_iVertexFitter;
-   ToolHandle< InDet::IInDetTrackSelectionTool > m_trkFilter;
-   ToolHandle< Trk::IVertexSeedFinder > m_SeedFinder;
-   ToolHandle< Trk::IImpactPoint3dEstimator > m_ImpactPoint3dEstimator;
-   ToolHandle< Trk::IVertexLinearizedTrackFactory > m_LinearizedTrackFactory;
-   
-   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
-
-   bool m_useBeamConstraint;
-   double m_significanceCutSeeding;
-   double m_maximumChi2cutForSeeding;
-   double m_maxVertices;
-
-   bool m_createSplitVertices;
-   int m_splitVerticesTrkInvFraction; ///< Integer: 1./fraction of tracks to be assigned to the tag split vertex 
-
-   bool m_reassignTracksAfterFirstFit;
-
-   bool m_doMaxTracksCut; 
-   unsigned int m_maxTracks;
-
-   void SGError(std::string errService);
-
-   /**
-    * Internal method to print the parameters setting
-    */
-
-   virtual void printParameterSettings();
+  /**
+   * Finding method.
+   * Has as input a track collection and as output
+   * a VxContainer.
+   */
+  using IVertexFinder::findVertex;
+  virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(
+    const TrackCollection* trackTES) const override;
  
+  virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(
+    const xAOD::TrackParticleContainer* trackParticles) const override;
 
+  virtual StatusCode finalize() override;
 
+private:
+  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(
+    const std::vector<Trk::ITrackLink*>& trackVector) const;
 
- };//end of class definitions
-}//end of namespace definitions
+  void removeCompatibleTracks(
+    xAOD::Vertex* myxAODVertex,
+    std::vector<const Trk::TrackParameters*>& perigeesToFit,
+    std::vector<Trk::ITrackLink*>& seedTracks) const;
+
+  void removeAllFrom(std::vector<const Trk::TrackParameters*>& perigeesToFit,
+                     std::vector<Trk::ITrackLink*>& seedTracks) const;
+
+  double compatibility(const Trk::TrackParameters& measPerigee,
+                       const xAOD::Vertex& vertex) const;
+
+  void countTracksAndNdf(xAOD::Vertex* myxAODVertex,
+                         double& ndf,
+                         int& ntracks) const;
+
+  ToolHandle<Trk::IVertexFitter> m_iVertexFitter;
+  ToolHandle<InDet::IInDetTrackSelectionTool> m_trkFilter;
+  ToolHandle<Trk::IVertexSeedFinder> m_SeedFinder;
+  ToolHandle<Trk::IImpactPoint3dEstimator> m_ImpactPoint3dEstimator;
+  ToolHandle<Trk::IVertexLinearizedTrackFactory> m_LinearizedTrackFactory;
+
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey{
+    this,
+    "BeamSpotKey",
+    "BeamSpotData",
+    "SG key for beam spot"
+  };
+
+  bool m_useBeamConstraint;
+  double m_significanceCutSeeding;
+  double m_maximumChi2cutForSeeding;
+  double m_maxVertices;
+
+  bool m_createSplitVertices;
+  int m_splitVerticesTrkInvFraction; ///< Integer: 1./fraction of tracks to be
+                                     ///< assigned to the tag split vertex
+
+  bool m_reassignTracksAfterFirstFit;
+
+  bool m_doMaxTracksCut;
+  unsigned int m_maxTracks;
+
+  void SGError(const std::string& errService);
+
+  /**
+   * Internal method to print the parameters setting
+   */
+
+  virtual void printParameterSettings();
+
+}; // end of class definitions
+} // end of namespace definitions
 #endif
-                                                                                                             
+

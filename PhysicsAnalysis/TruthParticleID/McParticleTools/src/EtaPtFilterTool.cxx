@@ -208,7 +208,7 @@ StatusCode EtaPtFilterTool::buildGenEvent( const HepMC::GenEvent* in,
   return StatusCode::SUCCESS;
 }
 
-bool EtaPtFilterTool::isAccepted( const HepMC::GenParticle* mc ) const
+bool EtaPtFilterTool::isAccepted( HepMC::ConstGenParticlePtr mc ) const
 {
   if ( 0 == mc ) {
     return false;

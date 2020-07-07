@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloAsymRingsBuilder.cxx 732388 2016-03-25 03:38:54Z ssnyder $
 // =================================================================================
 #include "CaloAsymRingsBuilder.h"
 //#include "CaloRingsBuilder.h"
@@ -33,6 +32,7 @@
 #include <algorithm>
 #include <math.h>
 #include <cfloat>
+#include <sstream>
 
 namespace Ringer {
 
@@ -108,12 +108,18 @@ StatusCode CaloAsymRingsBuilder::initialize()
   } catch ( const std::runtime_error &e) {
     ATH_MSG_ERROR("Could not add collection bounderies due to: " << e.what() );
     ATH_MSG_ERROR("RawConfCollection is: ");
-    xAOD::RingSetConf::print(m_rsRawConfCol, msg(), MSG::ERROR);
+    std::ostringstream str;
+    xAOD::RingSetConf::print(m_rsRawConfCol, str);
+    ATH_MSG_ERROR(str.str());
     return StatusCode::FAILURE;
   }
 
   // Print our collection
-  xAOD::RingSetConf::print(m_rsRawConfCol, msg(), MSG::DEBUG);
+  if (msgLevel() <= MSG::DEBUG){
+    std::ostringstream str;
+    xAOD::RingSetConf::print(m_rsRawConfCol, str);
+    ATH_MSG_DEBUG(str.str());
+  }
 
   return StatusCode::SUCCESS;
 }

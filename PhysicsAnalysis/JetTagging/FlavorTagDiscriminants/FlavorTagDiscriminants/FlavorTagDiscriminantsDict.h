@@ -8,6 +8,7 @@
 // This file includes all the header files that you need to create
 // dictionaries for.
 
+#include "FlavorTagDiscriminants/HbbTagTool.h"
 #include "FlavorTagDiscriminants/DL2Tool.h"
 #include "FlavorTagDiscriminants/BTagAugmenterTool.h"
 #include "FlavorTagDiscriminants/BTagMuonAugmenterTool.h"

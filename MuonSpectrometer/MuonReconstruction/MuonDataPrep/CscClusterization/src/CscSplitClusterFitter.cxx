@@ -1,22 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// CscSplitClusterFitter.cxx
 #include "CscSplitClusterFitter.h"
-#include "CscClusterization/ICscClusterFitter.h"
+
 #include "MuonPrepRawData/CscClusterStatus.h"
 #include "MuonPrepRawData/CscPrepData.h"
 #include "MuonPrepRawData/CscStripPrepData.h"
 #include "MuonReadoutGeometry/CscReadoutElement.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonIdHelpers/CscIdHelper.h"
 
 #include <sstream>
 #include <iomanip>
 
-using std::string;
-using std::vector;
 using Muon::CscClusterStatus;
 using Muon::CscPrepData;
 using Muon::CscStripPrepData;
@@ -29,38 +24,10 @@ typedef std::vector<Result> Results;
 enum CscStation { UNKNOWN_STATION, CSS, CSL };
 enum CscPlane { CSS_ETA, CSL_ETA, CSS_PHI, CSL_PHI, UNKNOWN_PLANE };
 
-#if 0
-namespace {
-  string splane(CscPlane plane) {
-    switch(plane) {
-    case CSS_ETA: return "CSS eta";
-    case CSL_ETA: return "CSL eta";
-    case CSS_PHI: return "CSS phi";
-    case CSL_PHI: return "CSL phi";
-    case UNKNOWN_PLANE: return "no such plane";
-    }
-    return "no such plane";
-  }
-
-  CscPlane findPlane(int station, bool measphi){
-    if ( station == 1 ) {
-      if ( measphi ) return CSS_PHI;
-      else return CSS_ETA;
-    } else if ( station == 2 ) {
-      if ( measphi ) return CSL_PHI;
-      else return CSL_ETA;
-    }
-    return UNKNOWN_PLANE;
-  }
-}
-#endif
-
-    
 //******************************************************************************
 
-CscSplitClusterFitter::
-CscSplitClusterFitter(string type, string aname, const IInterface* parent)
-: AthAlgTool(type, aname, parent),
+CscSplitClusterFitter::CscSplitClusterFitter(std::string type, std::string aname, const IInterface* parent) :
+  AthAlgTool(type, aname, parent),
   m_pfitter_def("SimpleCscClusterFitter/SimpleCscClusterFitter"),
   m_pfitter_prec("QratCscClusterFitter/QratCscClusterFitter")
 {
@@ -73,15 +40,10 @@ CscSplitClusterFitter(string type, string aname, const IInterface* parent)
 
 //**********************************************************************
 
-CscSplitClusterFitter::~CscSplitClusterFitter() { }
-
-//**********************************************************************
-
 StatusCode CscSplitClusterFitter::initialize() {
+  ATH_MSG_DEBUG ("Initalizing " << name());
   
-  ATH_MSG_DEBUG ( "Initalizing " << name() );
-  
-  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_CHECK(m_idHelperSvc.retrieve());
 
   // Retrieve the default cluster fitting tool.
   if ( m_pfitter_def.retrieve().isFailure() )   {
@@ -117,19 +79,14 @@ Results CscSplitClusterFitter::fit(const StripFitList& sfits) const {
   // Use the first strip to extract the layer parameters.
   const CscStripPrepData* pstrip = sfits[0].strip;
   Identifier idStrip0 = pstrip->identify();
-  bool measphi = m_muonIdHelperTool->cscIdHelper().CscIdHelper::measuresPhi(idStrip0);
-  //  double pitch = pro->cathodeReadoutPitch(0, measphi);
-  //  unsigned int maxstrip = pro->maxNumberOfStrips(measphi);
-  //  unsigned int strip0 = m_muonIdHelperTool->cscIdHelper().strip(idStrip0) - 1;
-  //  unsigned int station = m_muonIdHelperTool->cscIdHelper().stationName(idStrip0) - 49;    // 1=CSS, 2=CSL
-  //  CscPlane plane = findPlane(station, measphi);
+  bool measphi = m_idHelperSvc->cscIdHelper().CscIdHelper::measuresPhi(idStrip0);
   
   // Display input strips.
   ATH_MSG_DEBUG ( "CscStrip fittter input has " << nstrip << " strips" );
 
   for (unsigned int istrip=0; istrip<nstrip; ++istrip ) {
     Identifier id = sfits[istrip].strip->identify();
-    ATH_MSG_VERBOSE ( "  " << istrip << " " << m_muonIdHelperTool->cscIdHelper().strip(id) << " " << sfits[istrip].charge );
+    ATH_MSG_VERBOSE ( "  " << istrip << " " << m_idHelperSvc->cscIdHelper().strip(id) << " " << sfits[istrip].charge );
   }
   // Find the peak strip and valley strip
   // Loop over strips 
@@ -384,14 +341,6 @@ Results CscSplitClusterFitter::fit(const StripFitList& sfits) const {
 
 Results CscSplitClusterFitter::fit(const StripFitList& sfits, double) const {
   return fit(sfits);
-}
-
-//**********************************************************************
-
-StatusCode CscSplitClusterFitter::finalize(){
-
-  ATH_MSG_VERBOSE ( "Goodbye" );
-  return StatusCode::SUCCESS;
 }
 
 //**********************************************************************

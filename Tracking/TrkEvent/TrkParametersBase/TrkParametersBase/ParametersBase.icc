@@ -16,83 +16,277 @@
 
 namespace Trk
 {
-  template<int DIM,class T>
-  Amg::Vector2D ParametersBase<DIM,T>::localPosition() const
-  {
-    return Amg::Vector2D(parameters()[Trk::loc1],parameters()[Trk::loc2]);    
+
+namespace {
+template<typename T>
+int
+sgn(const T& val)
+{
+  return (val > 0) - (val < 0);
+}
+}
+
+//Helper protected ctor*/
+template<int DIM, class T>
+ParametersBase<DIM, T>::ParametersBase(
+  const AmgVector(DIM) parameters,
+  AmgSymMatrix(DIM)* covariance,
+  const Amg::Vector3D& position,
+  const Amg::Vector3D& momentum,
+  const T chargeDef)
+  : m_parameters(parameters)
+  , m_covariance(covariance)
+  , m_position(position)
+  , m_momentum(momentum)
+  , m_chargeDef(chargeDef)
+{}
+
+//Helper protected ctor
+template<int DIM, class T >
+Trk::ParametersBase<DIM, T>::ParametersBase(const Amg::Vector3D& position,
+                                            const Amg::Vector3D& momentum,
+                                            AmgSymMatrix(DIM) * covariance)
+  : m_parameters()
+  , m_covariance(covariance)
+  , m_position(position)
+  , m_momentum(momentum)
+  , m_chargeDef{}
+{}
+// Protected Constructor with local arguments - persistency only
+template<int DIM, class T>
+Trk::ParametersBase<DIM, T>::ParametersBase(const AmgVector(DIM) & parameters,
+                                            AmgSymMatrix(DIM) * covariance)
+  : m_parameters(parameters)
+  , m_covariance(covariance)
+  , m_position{}
+  , m_momentum{}
+  , m_chargeDef{}
+{
+  float qop = m_parameters[Trk::qOverP];
+  // decide the sign of the charge
+  if (qop < 0.) {
+    m_chargeDef.setCharge(-1);
   }
-  
-  template<int DIM,class T>
-  MsgStream& ParametersBase<DIM,T>::dump(MsgStream& sl) const 
-  {
-    sl << std::setiosflags(std::ios::fixed);
-    sl << std::setprecision(7);
-    sl << " * TrackParameters on Surface" << std::endl;
-    sl << " * loc1  : " << parameters()[Trk::loc1] << std::endl;
-    sl << " * loc2  : " << parameters()[Trk::loc2] << std::endl;
-    sl << " * phi   : " << parameters()[Trk::phi] << std::endl;
-    sl << " * Theta : " << parameters()[Trk::theta] << std::endl;
-    sl << " * q/p   : " << parameters()[Trk::qOverP] << std::endl;
-    if (parameters().rows() > 5 ) {
-      sl << " * mass  : " << parameters()[Trk::trkMass] << " (extended parameters)" << std::endl;
+  double p = 0.0;
+  if (qop != 0.) {
+    p = fabs(1. / qop);
+  } else {
+    // qop is unphysical. No momentum measurement.
+    p = InvalidParam::INVALID_P;
+    qop = InvalidParam::INVALID_QOP;
+  }
+  // fill momentum & then position using the surface
+  m_momentum = Amg::Vector3D(
+    p * cos(m_parameters[Trk::phi]) * sin(m_parameters[Trk::theta]),
+    p * sin(m_parameters[Trk::phi]) * sin(m_parameters[Trk::theta]),
+    p * cos(m_parameters[Trk::theta]));
+}
+
+template<int DIM, class T>
+const AmgVector(DIM) & 
+ParametersBase<DIM, T>::parameters() const
+{
+  return m_parameters;
+}
+
+template<int DIM, class T>
+const AmgSymMatrix(DIM)* 
+ParametersBase<DIM, T>::covariance() const
+{
+  return m_covariance.get();
+}
+
+template<int DIM, class T>
+const Amg::Vector3D&
+ParametersBase<DIM, T>::position() const
+{
+  return m_position;
+}
+
+template<int DIM, class T>
+const Amg::Vector3D&
+ParametersBase<DIM, T>::momentum() const
+{
+  return m_momentum;
+}
+
+template<int DIM, class T>
+double
+ParametersBase<DIM, T>::pT() const
+{
+  return momentum().perp();
+}
+
+template<int DIM, class T>
+double
+ParametersBase<DIM, T>::eta() const
+{
+  return momentum().eta();
+}
+
+template<int DIM, class T>
+constexpr bool
+ParametersBase<DIM, T>::isCharged() const
+{
+  if constexpr (std::is_same<T, Trk::Neutral>::value) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
+template<int DIM, class T>
+double
+ParametersBase<DIM, T>::charge() const
+{
+  return m_chargeDef.charge();
+}
+
+template<int DIM, class T>
+Amg::Vector2D
+ParametersBase<DIM, T>::localPosition() const
+{
+  return Amg::Vector2D(parameters()[Trk::loc1], parameters()[Trk::loc2]);
+}
+
+template<int DIM, class T>
+void
+ParametersBase<DIM, T>::updateParameters(const AmgVector(DIM) & updatedParameters,
+                                         AmgSymMatrix(DIM) * updatedCovariance)
+{
+  // update the covariance
+  if (updatedCovariance) {
+    // make sure we did not receive what we already hold
+    if (updatedCovariance != m_covariance.get()) {
+      m_covariance.reset(updatedCovariance);
     }
-    sl << " * charge: " << charge() << std::endl;
-    sl << " * covariance matrix = " << covariance() << std::endl;
-    sl << " * corresponding global parameters:" << std::endl;
-    sl << " *    position  (x,  y,  z ) = ("
-       << position().x() << ", " 
-       << position().y() << ", " 
-       << position().z() << ")" << std::endl;
-    sl << " *    momentum  (px, py, pz) = ("
-       << momentum().x() << ", " 
-       << momentum().y() << ", " 
-       << momentum().z() << ")" << std::endl;
-    sl << std::setprecision(-1);
-    sl << "associated surface:" << std::endl;
-    sl << associatedSurface() << std::endl;
-    return sl;
+  }
+  this->updateParametersHelper(updatedParameters);
+}
+
+// update function
+template<int DIM, class T>
+void
+ParametersBase<DIM, T>::updateParameters(const AmgVector(DIM) & updatedParameters,
+                                         const AmgSymMatrix(DIM) & updatedCovariance)
+{
+  // if the covariance is there update in place
+  if (m_covariance) {
+    (*m_covariance) = updatedCovariance;
+  } else { // otherwise create one
+    m_covariance = std::make_unique<AmgSymMatrix(DIM)>(updatedCovariance);
+  }
+  this->updateParametersHelper(updatedParameters);
+}
+/** equality operator */
+template<int DIM, class T>
+bool
+ParametersBase<DIM, T>::operator==(const ParametersBase<DIM, T>& rhs) const
+{
+  // tolerance for comparisons
+  constexpr double tolerance = 1e-8;
+
+  // compare parameters
+  if (!this->parameters().isApprox(rhs.parameters(), tolerance)) {
+    return false;
   }
 
-  template<int DIM,class T>
-  std::ostream& ParametersBase<DIM,T>::dump(std::ostream& sl) const 
-  {
-    sl << std::setiosflags(std::ios::fixed);
-    sl << std::setprecision(7);
-    sl << " * TrackParameters on Surface" << std::endl;
-    sl << " * loc1  : " << parameters()[Trk::loc1] << std::endl;
-    sl << " * loc2  : " << parameters()[Trk::loc2] << std::endl;
-    sl << " * phi   : " << parameters()[Trk::phi] << std::endl;
-    sl << " * Theta : " << parameters()[Trk::theta] << std::endl;
-    sl << " * q/p   : " << parameters()[Trk::qOverP] << std::endl;
-    if (parameters().rows() > 5 ) {
-      sl << " * mass  : " << parameters()[Trk::trkMass] << " (extended parameters)" << std::endl;
-    }
-    sl << " * charge: " << charge() << std::endl;
-    sl << " * covariance matrix = " << covariance() << std::endl;
-    sl << " * corresponding global parameters:" << std::endl;
-    sl << " *    position  (x,  y,  z ) = ("
-       << position().x() << ", " 
-       << position().y() << ", " 
-       << position().z() << ")" << std::endl;
-    sl << " *    momentum  (px, py, pz) = ("
-       << momentum().x() << ", " 
-       << momentum().y() << ", " 
-       << momentum().z() << ")" << std::endl;
-    sl << std::setprecision(-1);
-    sl << "associated surface:" << std::endl;
-    sl << associatedSurface() << std::endl;
-    return sl;
+  // compare covariance
+  if (((this->covariance() != nullptr) && (rhs.covariance() != nullptr) &&
+       !this->covariance()->isApprox(*rhs.covariance(), tolerance)) ||
+      (!this->covariance() !=
+       !rhs.covariance())) { // <-- this is: covariance() XOR
+                                  // pCast->covariance()
+    return false;
   }
 
-  template<int DIM,class T>
-  MsgStream& operator<<(MsgStream& sl,const Trk::ParametersBase<DIM,T>& p)
-  {
-    return p.dump(sl);
+  // compare position
+  if (!this->position().isApprox(rhs.position(), tolerance)) {
+    return false;
   }
 
-  template<int DIM,class T>
-  std::ostream& operator<<(std::ostream& sl,const Trk::ParametersBase<DIM,T>& p)
-  {
-    return p.dump(sl);
+  // compare momentum
+  if (!this->momentum().isApprox(rhs.momentum(), tolerance)) {
+    return false;
   }
+
+  // compare charge definition
+  if (m_chargeDef != rhs.m_chargeDef) {
+    return false;
+  }
+
+  return true;
+}
+
+template<int DIM, class T>
+MsgStream&
+ParametersBase<DIM, T>::dump(MsgStream& sl) const
+{
+  sl << std::setiosflags(std::ios::fixed);
+  sl << std::setprecision(7);
+  sl << " * TrackParameters on Surface" << std::endl;
+  sl << " * loc1  : " << parameters()[Trk::loc1] << std::endl;
+  sl << " * loc2  : " << parameters()[Trk::loc2] << std::endl;
+  sl << " * phi   : " << parameters()[Trk::phi] << std::endl;
+  sl << " * Theta : " << parameters()[Trk::theta] << std::endl;
+  sl << " * q/p   : " << parameters()[Trk::qOverP] << std::endl;
+  if (parameters().rows() > 5) {
+    sl << " * mass  : " << parameters()[Trk::trkMass]
+       << " (extended parameters)" << std::endl;
+  }
+  sl << " * charge: " << charge() << std::endl;
+  sl << " * covariance matrix = " << covariance() << std::endl;
+  sl << " * corresponding global parameters:" << std::endl;
+  sl << " *    position  (x,  y,  z ) = (" << position().x() << ", "
+     << position().y() << ", " << position().z() << ")" << std::endl;
+  sl << " *    momentum  (px, py, pz) = (" << momentum().x() << ", "
+     << momentum().y() << ", " << momentum().z() << ")" << std::endl;
+  sl << std::setprecision(-1);
+  sl << "associated surface:" << std::endl;
+  sl << associatedSurface() << std::endl;
+  return sl;
+}
+
+template<int DIM, class T>
+std::ostream&
+ParametersBase<DIM, T>::dump(std::ostream& sl) const
+{
+  sl << std::setiosflags(std::ios::fixed);
+  sl << std::setprecision(7);
+  sl << " * TrackParameters on Surface" << std::endl;
+  sl << " * loc1  : " << parameters()[Trk::loc1] << std::endl;
+  sl << " * loc2  : " << parameters()[Trk::loc2] << std::endl;
+  sl << " * phi   : " << parameters()[Trk::phi] << std::endl;
+  sl << " * Theta : " << parameters()[Trk::theta] << std::endl;
+  sl << " * q/p   : " << parameters()[Trk::qOverP] << std::endl;
+  if (parameters().rows() > 5) {
+    sl << " * mass  : " << parameters()[Trk::trkMass]
+       << " (extended parameters)" << std::endl;
+  }
+  sl << " * charge: " << charge() << std::endl;
+  sl << " * covariance matrix = " << covariance() << std::endl;
+  sl << " * corresponding global parameters:" << std::endl;
+  sl << " *    position  (x,  y,  z ) = (" << position().x() << ", "
+     << position().y() << ", " << position().z() << ")" << std::endl;
+  sl << " *    momentum  (px, py, pz) = (" << momentum().x() << ", "
+     << momentum().y() << ", " << momentum().z() << ")" << std::endl;
+  sl << std::setprecision(-1);
+  sl << "associated surface:" << std::endl;
+  sl << associatedSurface() << std::endl;
+  return sl;
+}
+
+template<int DIM, class T>
+MsgStream&
+operator<<(MsgStream& sl, const Trk::ParametersBase<DIM, T>& p)
+{
+  return p.dump(sl);
+}
+
+template<int DIM, class T>
+std::ostream&
+operator<<(std::ostream& sl, const Trk::ParametersBase<DIM, T>& p)
+{
+  return p.dump(sl);
+}
 } // end of namespace Trk

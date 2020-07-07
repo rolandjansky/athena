@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETCONVERSIONFINDERTOOLS_SINGLETRACKCONVERSION_H
@@ -35,17 +35,19 @@ namespace InDet {
     virtual ~SingleTrackConversionTool();
     
     static const InterfaceID& interfaceID();
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
     
     /** Build single track conversion candidate. Trk::Track interface.  */
-    xAOD::Vertex* buildSingleTrackConversion(const Trk::Track* track);
+    xAOD::Vertex* buildSingleTrackConversion(const Trk::Track* track) const;
     /** Select single track conversion candidates.  Trk::Track interface. */
-    bool selectSingleTrackConversion(const Trk::Track* track);
+    bool selectSingleTrackConversion(const Trk::Track* track) const;
     /** Build single track conversion candidate. xAOD::TrackParticle interface.  */
-    xAOD::Vertex* buildSingleTrackParticleConversion(const xAOD::TrackParticle*, xAOD::VertexContainer* container );
+    xAOD::Vertex* buildSingleTrackParticleConversion(
+      const xAOD::TrackParticle*,
+      xAOD::VertexContainer* container) const;
     /** Select single track conversion candidates.  xAOD::TrackParticle. */
-    bool selectSingleTrackParticleConversion(const xAOD::TrackParticle*);
+    bool selectSingleTrackParticleConversion(const xAOD::TrackParticle*) const;
     
   protected:
     ToolHandle <InDet::ConversionFinderUtils> m_helpertool; /** Conversion helper tool. */

@@ -10,9 +10,10 @@
 
 #include "TrkVertexSeedFinderUtils/Trk2dDistanceSeeder.h"
 #include "TrkVertexSeedFinderUtils/TwoTracks.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "TrkParameters/TrackParameters.h"
 #include "GaudiKernel/SystemOfUnits.h"
+#include "GaudiKernel/EventContext.h"
+#include "MagFieldElements/AtlasFieldCache.h"
 #include <math.h>
 #include <TMath.h>
 
@@ -99,10 +100,8 @@ namespace Trk
 {
   Trk2dDistanceSeeder::Trk2dDistanceSeeder(const std::string& t, const std::string& n, const IInterface*  p) : 
     AthAlgTool(t,n,p),
-    m_solveAmbiguityUsingZ(true),
-    m_magFieldSvc("AtlasFieldSvc", n)
+    m_solveAmbiguityUsingZ(true)
   {   
-    declareProperty("MagFieldSvc",     m_magFieldSvc);
     declareProperty("SolveAmbiguityUsingZ",m_solveAmbiguityUsingZ);
     declareInterface<Trk2dDistanceSeeder>(this);
   }
@@ -112,7 +111,7 @@ namespace Trk
   StatusCode Trk2dDistanceSeeder::initialize() 
   { 
     ATH_CHECK( AlgTool::initialize() );
-    ATH_CHECK( m_magFieldSvc.retrieve() );
+    ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
     ATH_MSG_DEBUG( "Initialize successful" );
     return StatusCode::SUCCESS;
   }
@@ -128,8 +127,14 @@ StatusCode Trk2dDistanceSeeder::finalize()
   Trk2dDistanceSeeder::GetSeed (const TwoTracks & mytracks,
                                 TwoPoints* twopoints /*=nullptr*/) const
   {
-    const double bfield1 = getBField (mytracks.getFirstPerigee());
-    const double bfield2 = getBField (mytracks.getSecondPerigee());
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, Gaudi::Hive::currentContext()};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+
+    MagField::AtlasFieldCache fieldCache;
+    fieldCondObj->getInitializedCache (fieldCache);
+
+    const double bfield1 = getBField (mytracks.getFirstPerigee(), fieldCache);
+    const double bfield2 = getBField (mytracks.getSecondPerigee(), fieldCache);
 
     //phitanpoca here means not the tan to poca (which is phi0) but the direction from perigee to the center of curvature (I don't know 
     //why I chose this strange name, sorry!)
@@ -374,14 +379,15 @@ StatusCode Trk2dDistanceSeeder::finalize()
   }
 
 
-  double Trk2dDistanceSeeder::getBField (const Perigee& p) const
+  double Trk2dDistanceSeeder::getBField (const Perigee& p, MagField::AtlasFieldCache& cache) const
   {
     double magnFieldVect[3];
     double posXYZ[3];
     posXYZ[0] = p.associatedSurface().center().x();
     posXYZ[1] = p.associatedSurface().center().y();
     posXYZ[2] = p.associatedSurface().center().z();
-    m_magFieldSvc->getField(posXYZ,magnFieldVect);
+
+    cache.getField(posXYZ,magnFieldVect);
     const double bfield = magnFieldVect[2]*299.792;//should be in GeV/mm
     if (bfield==0. || isnan(bfield)) {
       ATH_MSG_DEBUG( "Could not find a magnetic field different from zero: very very strange" );

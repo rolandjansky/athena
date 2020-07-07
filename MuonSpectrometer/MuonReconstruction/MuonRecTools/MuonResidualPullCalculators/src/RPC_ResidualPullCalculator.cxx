@@ -1,58 +1,27 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// RPC_ResidualPullCalculator.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-
 #include "RPC_ResidualPullCalculator.h"
+
 #include "TrkEventUtils/IdentifierExtractor.h"
 #include "TrkEventPrimitives/LocalParameters.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 //================ Constructor =================================================
 
-Muon::RPC_ResidualPullCalculator::RPC_ResidualPullCalculator(const std::string& t,
-			  const std::string& n,
-			  const IInterface*  p )
-  :
-  AthAlgTool(t,n,p),
-  m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
+Muon::RPC_ResidualPullCalculator::RPC_ResidualPullCalculator(const std::string& t, const std::string& n, const IInterface* p) :
+    AthAlgTool(t,n,p)
 {
   declareInterface<IResidualPullCalculator>(this);
 }
-
-//================ Destructor =================================================
-
-Muon::RPC_ResidualPullCalculator::~RPC_ResidualPullCalculator()
-{}
-
 
 //================ Initialisation =================================================
 
 StatusCode Muon::RPC_ResidualPullCalculator::initialize()
 {
-  
-  StatusCode sc = AlgTool::initialize();
-  if (sc.isFailure()) return sc;
-
-  sc = m_idHelper.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR (" Cannot retrieve " << m_idHelper);
-    return StatusCode::FAILURE;
-  }
-
+  ATH_CHECK(m_idHelperSvc.retrieve());
   ATH_MSG_DEBUG ("initialize() successful in " << name());
   return StatusCode::SUCCESS;
-}
-
-//================ Finalisation =================================================
-
-StatusCode Muon::RPC_ResidualPullCalculator::finalize()
-{
-  StatusCode sc = AlgTool::finalize();
-  return sc;
 }
 
 //================ calculate residuals for RPC ==================================
@@ -66,7 +35,7 @@ void Muon::RPC_ResidualPullCalculator::residuals(
   if (!trkPar || !measurement) return;
   if (residuals.size()<1) residuals.resize(1);
   Identifier ID = Trk::IdentifierExtractor::extract(measurement);
-  if( ID.is_valid() && m_idHelper->isRpc(ID) ) {
+  if( ID.is_valid() && m_idHelperSvc->isRpc(ID) ) {
 
     if (measurement->localParameters().parameterKey() == 1) {
       // convention to be interpreted by TrkValTools: 2nd coordinate codes orientation of RPC
@@ -94,7 +63,7 @@ const Trk::ResidualPull* Muon::RPC_ResidualPullCalculator::residualPull(
   if (!trkPar || !measurement) return 0;
 
   Identifier ID = Trk::IdentifierExtractor::extract(measurement);
-  if( ID.is_valid() && m_idHelper->isRpc(ID) ) {
+  if( ID.is_valid() && m_idHelperSvc->isRpc(ID) ) {
 
     // if no covariance for the track parameters is given the pull calculation is not valid
     const AmgSymMatrix(5)* trkCov = trkPar->covariance();
@@ -126,7 +95,7 @@ const Trk::ResidualPull* Muon::RPC_ResidualPullCalculator::residualPull(
                                  resType);
 
     // create the Trk::ResidualPull.
-    ATH_MSG_DEBUG ( "Calculating Pull for channel " << m_idHelper->toString(ID) << " residual " << residual[Trk::loc1] << " pull " << pull[Trk::loc1] );
+    ATH_MSG_DEBUG ( "Calculating Pull for channel " << m_idHelperSvc->toString(ID) << " residual " << residual[Trk::loc1] << " pull " << pull[Trk::loc1] );
     return new Trk::ResidualPull(residual, pull, pullIsValid, resType, 1);
 
   } else {

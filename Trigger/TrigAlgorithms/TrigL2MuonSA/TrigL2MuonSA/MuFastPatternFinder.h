@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUFASTPATTERNFINDER_H
@@ -7,16 +7,14 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
 #include "GeoPrimitives/GeoPrimitives.h"
-
 #include "MdtCalibSvc/MdtCalibrationTool.h"
-
 #include "TrigL2MuonSA/MuonRoad.h"
 #include "TrigL2MuonSA/MdtData.h"
 #include "TrigL2MuonSA/TrackData.h"
-
-#include "MuonIdHelpers/MuonIdHelperTool.h"
-
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -39,19 +37,12 @@ struct MdtLayerHits
 class MuFastPatternFinder: public AthAlgTool
 {
    public:
-      
-      static const InterfaceID& interfaceID();
-
-   public:
 
       MuFastPatternFinder(const std::string& type, 
 			   const std::string& name,
 			   const IInterface*  parent);
     
-      ~MuFastPatternFinder();
-    
-      virtual StatusCode initialize();
-      virtual StatusCode finalize  ();
+      virtual StatusCode initialize() override;
     
    private:
 
@@ -64,16 +55,11 @@ class MuFastPatternFinder: public AthAlgTool
 			      TrigL2MuonSA::MdtHits&        mdtHits,
 			      std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns);
 
-      void setGeometry(bool use_new_geometry);
-
    private:
       // MDT calibration service
-      ToolHandle<MdtCalibrationTool> m_mdtCalibrationTool;
+      ToolHandle<MdtCalibrationTool> m_mdtCalibrationTool{this, "CalibrationTool", "MdtCalibrationTool"};
 
-      // Id helper
-      ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
-         "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
-
+      ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 };
 
 // --------------------------------------------------------------------------------

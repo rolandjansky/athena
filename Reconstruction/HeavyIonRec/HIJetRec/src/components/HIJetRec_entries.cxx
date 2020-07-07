@@ -13,7 +13,6 @@
 #include "HIJetRec/HIJetDiscriminatorTool.h"
 #include "HIJetRec/HIJetSignificanceTool.h"
 #include "HIJetRec/HIUEModulatorTool.h"
-#include "HIJetRec/HIClusterPseudoJetGetter.h"
 
 #ifndef XAOD_ANALYSIS
 DECLARE_COMPONENT( HIClusterMaker )
@@ -31,5 +30,4 @@ DECLARE_COMPONENT( HIJetMaxOverMeanTool )
 DECLARE_COMPONENT( HIJetDiscriminatorTool )
 DECLARE_COMPONENT( HIJetSignificanceTool )
 DECLARE_COMPONENT( HIUEModulatorTool )
-DECLARE_COMPONENT( HIClusterPseudoJetGetter )
 

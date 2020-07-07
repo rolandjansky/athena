@@ -1,29 +1,23 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
 #include "MuonPatternSegmentMaker/MuonPatternCalibration.h"
 
-#include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include <iostream>
-#include <sstream>
-#include <vector>
-#include <map>
-#include <set>
-
 #include "MuonPattern/MuonPatternChamberIntersect.h"
-
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
-
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 #include "MuonReadoutGeometry/CscReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 
-namespace Muon {
+#include <iostream>
+#include <sstream>
+#include <set>
 
+namespace Muon {
 
   MuonPatternCalibration::MuonPatternCalibration(const std::string& t,const std::string& n,const IInterface* p)  :  
     AthAlgTool(t,n,p),
@@ -48,23 +42,14 @@ namespace Muon {
     declareProperty("RemoveDoubleMdtHits",m_removeDoubleMdtHits = true);
   }
 
-  MuonPatternCalibration::~MuonPatternCalibration()
-  {
-  }
-
   StatusCode MuonPatternCalibration::initialize() {
-    if( AthAlgTool::initialize().isFailure() ) return StatusCode::FAILURE;
-
     ATH_MSG_VERBOSE("MuonPatternCalibration::Initializing");
- 
     ATH_CHECK(m_mdtCreator.retrieve());
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_clusterCreator.retrieve());
-
     ATH_CHECK(m_keyRpc.initialize());
     ATH_CHECK(m_keyTgc.initialize());
-
     return StatusCode::SUCCESS; 
   }
   

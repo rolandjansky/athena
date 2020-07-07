@@ -45,7 +45,7 @@ atlas_add_component( TRT_CalibTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} Identifier GaudiKernel InDetRawData CommissionEvent AthenaBaseComps StoreGateLib AtlasDetDescr EventPrimitives xAODEventInfo xAODTracking TRT_ConditionsData TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry InDetPrepRawData InDetRIO_OnTrack TrkEventPrimitives TrkParameters TrkPrepRawData TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkToolInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} Identifier GaudiKernel InDetRawData CommissionEvent AthenaBaseComps StoreGateLib AtlasDetDescr EventPrimitives xAODEventInfo xAODTracking TRT_ConditionsData TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry InDetPrepRawData InDetRIO_OnTrack TrkEventPrimitives TrkParameters TrkPrepRawData TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkToolInterfaces TRT_DriftFunctionToolLib )
 
 # Install files from the package:
 atlas_install_headers( TRT_CalibTools )

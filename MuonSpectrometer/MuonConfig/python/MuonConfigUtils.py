@@ -52,10 +52,10 @@ def SetupMuonStandaloneConfigFlags(args):
 def SetupMuonStandaloneCA(args,ConfigFlags):
     # When running from a pickled file, athena inserts some services automatically. So only use this if running now.
     if args.run:
-        from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
-        cfg = MainServicesThreadedCfg(ConfigFlags)
+        from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+        cfg = MainServicesCfg(ConfigFlags)
         msgService = cfg.getService('MessageSvc')
-        msgService.Format = "S:%s E:%e % F%78W%S%7W%R%T  %0W%M"
+        msgService.Format = "S:%s E:%e % F%128W%S%7W%R%T  %0W%M"
     else:
         cfg=ComponentAccumulator()
 

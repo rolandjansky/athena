@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -35,6 +35,8 @@
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
+
+#include <cmath>
 
 namespace InDet{
 
@@ -91,7 +93,7 @@ namespace InDet{
     declareMonitoredStdContainer("SctOccupancyHashId",  m_occupancyHashId);
     
 
-    m_clusterCollection = NULL;
+    m_clusterCollection = nullptr;
 
     // error strategy
     //
@@ -231,7 +233,7 @@ namespace InDet{
     //initialisation of monitored quantities
     m_numSctIds = 0;
     m_numSctClusters = 0;
-    m_clusterCollection = NULL;
+    m_clusterCollection = nullptr;
     m_listOfSctIds.clear();
     m_ClusHashId.clear();
     m_SctBSErr.clear();
@@ -307,7 +309,7 @@ namespace InDet{
     }
     
     if (!roi){
-      ATH_MSG_WARNING( "Received NULL RoI" );
+      ATH_MSG_WARNING( "Received nullptr RoI" );
       return HLT::NAV_ERROR;
     }
     
@@ -321,7 +323,7 @@ namespace InDet{
     if ( RoiPhiWidth<-M_PI ) RoiPhiWidth += 1e-7;
 
     if (!roi->isFullscan()){
-      if( fabs(RoiEtaWidth/2. - m_etaHalfWidth) > 0.02) {
+      if( std::abs(RoiEtaWidth/2. - m_etaHalfWidth) > 0.02) {
 	ATH_MSG_DEBUG( "ROI range is different from configuration: " );
 	ATH_MSG_DEBUG( "eta width = " << RoiEtaWidth << "; with etaPlus = " << roi->etaPlus() << "; etaMinus = " << roi->etaMinus() );
 	ATH_MSG_DEBUG( "etaHalfWidth from config: " << m_etaHalfWidth );

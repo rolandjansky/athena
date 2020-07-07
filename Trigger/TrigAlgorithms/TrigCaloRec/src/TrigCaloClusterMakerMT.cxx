@@ -126,10 +126,10 @@ StatusCode TrigCaloClusterMakerMT::execute()
   auto time_clusMaker = Monitored::Timer("TIME_ClustMaker");
   auto time_clusCorr = Monitored::Timer("TIME_ClustCorr");
 
+  // Start timer
+  time_tot.start();
 
-
-
-    ATH_MSG_DEBUG("in TrigCaloClusterMakerMT::execute()" );
+  ATH_MSG_DEBUG("in TrigCaloClusterMakerMT::execute()" );
 
   bool isSW=false;
   
@@ -159,7 +159,7 @@ StatusCode TrigCaloClusterMakerMT::execute()
   auto mon_badCells = Monitored::Collection("N_BAD_CELLS",N_BAD_CELLS );
   auto mon_engFrac = Monitored::Collection("ENG_FRAC_MAX",N_BAD_CELLS );
   auto mon_size = Monitored::Collection("size",sizeVec );
-  auto monitorIt = Monitored::Group( m_monTool, time_clusMaker,  time_clusCorr, mon_container_size, mon_clusEt,
+  auto monitorIt = Monitored::Group( m_monTool, time_tot, time_clusMaker,  time_clusCorr, mon_container_size, mon_clusEt,
 					    mon_clusPhi, mon_clusEta, mon_clusSignalState, mon_clusSize, 
 					    mon_badCells, mon_engFrac, mon_size);	    
 
@@ -325,6 +325,9 @@ StatusCode TrigCaloClusterMakerMT::execute()
     ATH_MSG_DEBUG(" REGTEST: Last Cluster phi = " << (pCaloClusterContainer->back())->phi() );
     mon_container_size = pCaloClusterContainer->size(); // fill monitored variable
   }
+
+  // Stop timer
+  time_tot.stop();
   
   return StatusCode::SUCCESS; 
 }

@@ -65,6 +65,9 @@ GenerateMenu.overwriteSignaturesWith(L1Only)
 include("RecExCommon/RecExCommon_topOptions.py")
 #-----------------------------------------------------------
 
+from LumiBlockComps.LumiBlockMuWriterDefault import LumiBlockMuWriterDefault
+LumiBlockMuWriterDefault()
+
 #------------------------------------------------------------
 include("TriggerTest/TriggerTestCommon.py")
 #------------------------------------------------------------

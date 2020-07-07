@@ -1,26 +1,28 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-##=============================================================================
-## Name:        ConfiguredAsgForwardElectronIsEMSelectors
-##
-## Author:      Karsten Koeneke (CERN), Jovan Mitrevski (UCSC)
-## Created:     Dec. 2011
-##
-## Description: Apply the default configurations for the AsgForwardElectronIsEMSelector,  but allow for overwriting them with user-defined values.
-##
-##=============================================================================
+__doc__ = """
+Name:        ConfiguredAsgForwardElectronIsEMSelectors
+
+Author:      Karsten Koeneke (CERN), Jovan Mitrevski (UCSC)
+Created:     Dec. 2011
+
+Description: Apply the default configurations for the
+AsgForwardElectronIsEMSelector,  but allow for overwriting
+them with user-defined values.
+"""
 
 # Import the needed general stuff
-from PATCore.HelperUtils import *
+from PATCore.HelperUtils import SetToolProperties
 from AthenaCommon import CfgMgr
 import sys
-import six
 
 # Import the needed stuff specific to the ElectronPhotonSelectorTools
-from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AsgForwardElectronIsEMSelector
-from ElectronPhotonSelectorTools.ForwardElectronIsEMSelectorMapping import ForwardElectronIsEMMap, forwardelectronPIDmenu
+from ElectronPhotonSelectorTools.ForwardElectronIsEMSelectorMapping import (
+    ForwardElectronIsEMMap, forwardelectronPIDmenu)
 
-def ConfiguredAsgForwardElectronIsEMSelector( name, quality, menu=forwardelectronPIDmenu.menuMC15, **kw ):
+
+def ConfiguredAsgForwardElectronIsEMSelector(
+        name, quality, menu=forwardelectronPIDmenu.menuMC15, **kw):
     """
     Configure the AsgForwardElectronIsEMSelector with the quality cuts
     and allow for (re-)setting of all provided cuts.
@@ -28,12 +30,13 @@ def ConfiguredAsgForwardElectronIsEMSelector( name, quality, menu=forwardelectro
     try:
         ntuple = ForwardElectronIsEMMap(quality, menu)
     except KeyError:
-        sys.stderr.write("Fwd Electron quality not found. Please use an egammaIDQuality (ElectronPhotonSelectorTools/egammaPIDdefs.h).\n This function only supports standard electron IDs, and not photon or forward IDs\n")
+        sys.stderr.write(
+            " Fwd Electron quality not found."
+            " Please use an egammaIDQuality"
+            " (ElectronPhotonSelectorTools/egammaPIDdefs.h).\n"
+            " This function only supports standard electron IDs,"
+            " and not photon or forward IDs\n")
         raise
-
-    # Get the label for user data
-    tmpName = six.get_function_code(ntuple[1]).co_name
-    labelName = "is" + ((tmpName.split("Selector")[0]).split("IsEM")[1])
 
     # Create and instance of the tool
     tool = CfgMgr.AsgForwardElectronIsEMSelector(name, **kw)
@@ -43,11 +46,7 @@ def ConfiguredAsgForwardElectronIsEMSelector( name, quality, menu=forwardelectro
     tool.isEMMask = ntuple[0]
 
     # Get all provided properties and overwrite the default values with them
-    SetToolProperties( tool, **kw )
+    SetToolProperties(tool, **kw)
 
-    #print tool
+    # print tool
     return tool
-
-
-
-

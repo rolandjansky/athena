@@ -49,8 +49,8 @@ if __name__=="__main__":
     ConfigFlags.lock()
 
     cfg=ComponentAccumulator()
-    from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
-    cfg.merge( TrigBSReadCfg(ConfigFlags) )
+    from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+    cfg.merge( ByteStreamReadCfg(ConfigFlags) )
 
     from LArGeoAlgsNV.LArGMConfig import LArGMCfg
     cfg.merge(LArGMCfg(ConfigFlags))

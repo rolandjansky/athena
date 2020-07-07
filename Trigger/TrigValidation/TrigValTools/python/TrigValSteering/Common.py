@@ -17,10 +17,11 @@ from AthenaCommon.Utils.unixtools import FindFile
 trigvalsteering_logging_level = logging.INFO
 
 # Dictionary of required prefixes identifying a package, see ATR-19735
-package_prefix_dict = {'TriggerTest':      'trig_',
-                       'TrigP1Test':       'trigP1_',
-                       'TrigAnalysisTest': 'trigAna_',
-                       'TrigUpgradeTest':  'trigUpgr_'}
+package_prefix_dict = {'TriggerTest':         'trig_',
+                       'TrigP1Test':          'trigP1_',
+                       'TrigAnalysisTest':    'trigAna_',
+                       'TrigUpgradeTest':     'trigUpgr_',
+                       'TrigInDetValidation': 'trigID_'}
 
 # Log file with all art-result statements
 art_result_summary = 'art-result-summary.log'

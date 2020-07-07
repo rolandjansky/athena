@@ -51,24 +51,19 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         # --------------------
         # define here the names of the steps and obtain the chainStep configuration
         # --------------------
-        etcut1step          = [ self.getFastCalo(doRinger=False) ]
-        etcut_sequence      = [ self.getFastCalo(doRinger=False), self.getFastElectron(), self.getPrecisionCaloElectron()]
-        electron_sequence   = [ self.getFastCalo(), self.getFastElectron(), self.getPrecisionCaloElectron(), self.getPrecisionElectron()]
-        etcut_noringer_sequence      = [ self.getFastCalo(doRinger=False), self.getFastElectron(), self.getPrecisionCaloElectron()]
-        electron_noringer_sequence   = [ self.getFastCalo(doRinger=False), self.getFastElectron(), self.getPrecisionCaloElectron(), self.getPrecisionElectron()]
 
         stepDictionary = {
-                'etcut1step': etcut1step,
-                'etcut'     : etcut_sequence,
-                'lhloose'   : electron_sequence,
-                'lhvloose'  : electron_sequence,
-                'lhmedium'  : electron_sequence,
-                'lhtight'   : electron_sequence,
-                'etcutnoringer'     : etcut_noringer_sequence,
-                'lhloosenoringer'   : electron_noringer_sequence,
-                'lhvloosenoringer'  : electron_noringer_sequence,
-                'lhmediumnoringer'  : electron_noringer_sequence,
-                'lhtightnoringer'   : electron_noringer_sequence,
+                'etcut1step': ['getFastCaloNoRinger'],
+                'etcut'     : ['getFastCaloNoRinger', 'getFastElectron', 'getPrecisionCaloElectron'],
+                'lhloose'   : ['getFastCaloRinger', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                'lhvloose'  : ['getFastCaloRinger', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                'lhmedium'  : ['getFastCaloRinger', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                'lhtight'   : ['getFastCaloRinger', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                'etcutnoringer'     : ['getFastCaloNoRinger', 'getFastElectron', 'getPrecisionCaloElectron'],
+                'lhloosenoringer'   : ['getFastCaloNoRinger', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                'lhvloosenoringer'  : ['getFastCaloNoRinger', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                'lhmediumnoringer'  : ['getFastCaloNoRinger', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                'lhtightnoringer'   : ['getFastCaloNoRinger', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
                 }
 
         log.debug('electron chain part = ' + str(self.chainPart))
@@ -83,12 +78,10 @@ class ElectronChainConfiguration(ChainConfigurationBase):
         else:
             raise RuntimeError("Chain configuration unknown for electron chain with key: " + key )
         
-
-        chainSteps = []
-
         for step in steps:
             log.debug('Adding electron trigger step ' + str(step))
-            chainSteps+=[step]
+            chainstep = getattr(self, step)()
+            chainSteps+=[chainstep]
 
         myChain = self.buildChain(chainSteps) 
         
@@ -98,13 +91,14 @@ class ElectronChainConfiguration(ChainConfigurationBase):
     # Configuration of electron steps
     # --------------------
 
-    def getFastCalo(self, doRinger=True):
-        if doRinger:
-            stepName       = "FastCaloRinger_electron"
-            fastCaloCfg    = electronFastCaloRingerCfg
-        else:
-            stepName       = "FastCalo_electron"
-            fastCaloCfg = electronFastCaloCfg
+    def getFastCaloRinger(self):
+        stepName       = "FastCaloRinger_electron"
+        fastCaloRingerCfg    = electronFastCaloRingerCfg
+        return self.getStep(1,stepName,[ fastCaloRingerCfg ])
+
+    def getFastCaloNoRinger(self):
+        stepName       = "FastCalo_electron"
+        fastCaloCfg    = electronFastCaloCfg
         return self.getStep(1,stepName,[ fastCaloCfg])
 
     def getFastElectron(self):

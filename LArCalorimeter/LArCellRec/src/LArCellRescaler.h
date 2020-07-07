@@ -12,6 +12,7 @@
 #include "CaloConditions/CaloCellFactor.h"
 #include "StoreGate/DataHandle.h"  
 #include "AthenaKernel/IOVSvcDefs.h"
+#include "CxxUtils/checker_macros.h"
 #include <string>
 
 class CaloCell;
@@ -28,7 +29,9 @@ ToolSvc.LArCellRescaler.CorrectionKey="myCorrectionKey"
 
 */
 
-class LArCellRescaler : public CaloCellCorrection {
+//Not safe due to callbacks
+class ATLAS_NOT_THREAD_SAFE LArCellRescaler : public CaloCellCorrection
+{
 
 public:
   

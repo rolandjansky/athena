@@ -114,7 +114,7 @@ for trackCollection in trackCollections:
                 tracksName = trackCollection,
                 useExtendedPlots = True,
                 triggerChainName = "all",
-                VxPrimContainerName = InDetKeys.PrimaryVertices()
+                VxPrimContainerName = InDetKeys.xAODVertexContainer()
         )
         #ToolSvc += InDetAlignMonGenericTracks
         InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonGenericTracks ]

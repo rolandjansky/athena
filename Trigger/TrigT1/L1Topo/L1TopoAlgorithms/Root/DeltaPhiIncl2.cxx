@@ -74,6 +74,9 @@ TCS::DeltaPhiIncl2::initialize() {
    // create strings for histogram names
    std::vector<std::ostringstream> MyAcceptHist(numberOutputBits());
    std::vector<std::ostringstream> MyRejectHist(numberOutputBits());
+   int dphi_bin=100;
+   float dphi_min=0;
+   float dphi_max=3.4;
    
    for (unsigned int i=0;i<numberOutputBits();i++) {
      MyAcceptHist[i] << "Accept" << p_DeltaPhiMin[i] << "DPHI" << p_DeltaPhiMax[i];
@@ -86,8 +89,8 @@ TCS::DeltaPhiIncl2::initialize() {
      const std::string& MyTitle1 = MyAcceptHist[i].str();
      const std::string& MyTitle2 = MyRejectHist[i].str();
      
-     registerHist(m_histAcceptDPhi2[i] = new TH1F(MyTitle1.c_str(),MyTitle1.c_str(),100,0,3.4));
-     registerHist(m_histRejectDPhi2[i] = new TH1F(MyTitle2.c_str(),MyTitle2.c_str(),100,0,3.4));
+     registerHist(m_histAcceptDPhi2[i] = new TH1F(MyTitle1.c_str(),MyTitle1.c_str(),dphi_bin,dphi_min,dphi_max));
+     registerHist(m_histRejectDPhi2[i] = new TH1F(MyTitle2.c_str(),MyTitle2.c_str(),dphi_bin,dphi_min,dphi_max));
    }
    return StatusCode::SUCCESS;
 }
@@ -97,7 +100,7 @@ TCS::DeltaPhiIncl2::initialize() {
 TCS::StatusCode
 TCS::DeltaPhiIncl2::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
                              const std::vector<TCS::TOBArray *> & output,
-                             Decision & decison )
+                             Decision & decision )
 {
     if( input.size() == 2) {
         std::vector<bool> iaccept (numberOutputBits());
@@ -115,21 +118,19 @@ TCS::DeltaPhiIncl2::processBitCorrect( const std::vector<TCS::TOBArray const *> 
                         if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
                         if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
                         accept = deltaPhi >= p_DeltaPhiMin[i] && deltaPhi <= p_DeltaPhiMax[i];
+			const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
+			const bool fillReject = fillHistos() and not fillAccept;
+			const bool alreadyFilled = decision.bit(i);
                         if( accept ) {
-                            decison.setBit(i, true);
+                            decision.setBit(i, true);
                             output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));
-                            //if (i == 0) {
-                            if (!iaccept[i]) {
-                                iaccept[i]=1;
-                                m_histAcceptDPhi2[i]->Fill(deltaPhi);
-                            }
-                            //}
-                        }
-                        else {
-                            //if (i==0)
-                            m_histRejectDPhi2[i]->Fill(deltaPhi);
-                        }
-                        TRG_MSG_DEBUG("DeltaPhi = " << deltaPhi << " -> " 
+			}
+ 			if(fillAccept and not alreadyFilled) {
+			  fillHist1D(m_histAcceptDPhi2[i]->GetName(),deltaPhi);
+			} else if(fillReject) {
+			  fillHist1D(m_histRejectDPhi2[i]->GetName(),deltaPhi);
+			}
+                       TRG_MSG_DEBUG("DeltaPhiIncl2 = " << deltaPhi << " -> " 
                                       << (accept?"pass":"fail"));
                     }
                 }
@@ -144,7 +145,7 @@ TCS::DeltaPhiIncl2::processBitCorrect( const std::vector<TCS::TOBArray const *> 
 TCS::StatusCode
 TCS::DeltaPhiIncl2::process( const std::vector<TCS::TOBArray const *> & input,
                              const std::vector<TCS::TOBArray *> & output,
-                             Decision & decison )
+                             Decision & decision )
 {
     if( input.size() == 2) {
         std::vector<bool> iaccept (numberOutputBits());
@@ -162,21 +163,19 @@ TCS::DeltaPhiIncl2::process( const std::vector<TCS::TOBArray const *> & input,
                         if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
                         if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
                         accept = deltaPhi >= p_DeltaPhiMin[i] && deltaPhi <= p_DeltaPhiMax[i];
+ 			const bool fillAccept = fillHistos() and (fillHistosBasedOnHardware() ? getDecisionHardwareBit(i) : accept);
+			const bool fillReject = fillHistos() and not fillAccept;
+			const bool alreadyFilled = decision.bit(i);
                         if( accept ) {
-                            decison.setBit(i, true);
+                            decision.setBit(i, true);
                             output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));
-                            //if (i == 0) {
-                            if (!iaccept[i]) {
-                                iaccept[i]=1;
-                                m_histAcceptDPhi2[i]->Fill(deltaPhi);
-                            }
-                            //}
-                        }
-                        else {
-                            //if (i==0)
-                            m_histRejectDPhi2[i]->Fill(deltaPhi);
-                        }
-                        TRG_MSG_DEBUG("DeltaPhi = " << deltaPhi << " -> " 
+			}
+ 			if(fillAccept and not alreadyFilled) {
+			  fillHist1D(m_histAcceptDPhi2[i]->GetName(),deltaPhi);
+			} else if(fillReject) {
+			  fillHist1D(m_histRejectDPhi2[i]->GetName(),deltaPhi);
+			}
+                        TRG_MSG_DEBUG("DeltaPhiIncl2 = " << deltaPhi << " -> " 
                                       << (accept?"pass":"fail"));
                     }
                 }

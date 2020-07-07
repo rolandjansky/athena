@@ -168,7 +168,7 @@ StatusCode PileupFilterTool::selectSpclMcBarcodes()
 
   // Get all of the generated particles (does not have Geant secondaries)
 
-  std::vector<const HepMC::GenParticle*> particles;
+  std::vector<HepMC::ConstGenParticlePtr> particles;
   if ( m_includeSimul ) {
     sc = m_tesIO->getMC(particles,  m_mcEventsReadHandleKey.key());
   } else {

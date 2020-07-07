@@ -7,7 +7,7 @@ import sys
 
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
+from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from InDetOverlay.TRTOverlayConfig import TRTOverlayCfg
 from OverlayConfiguration.OverlayTestHelpers import \
@@ -27,7 +27,7 @@ defaultTestFlags(ConfigFlags, args)
 postprocessAndLockFlags(ConfigFlags, args)
 
 # Construct our accumulator to run
-acc = MainServicesThreadedCfg(ConfigFlags)
+acc = MainServicesCfg(ConfigFlags)
 acc.merge(PoolReadCfg(ConfigFlags))
 
 # Add event and truth overlay (needed downstream)

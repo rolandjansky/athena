@@ -11,6 +11,9 @@
 #include <cmath>
 #include <vector>
 
+#include "TF1.h"
+
+
 static const InterfaceID IID_INSWCalibTool("Muon::INSWCalibTool",1,0);
 
 namespace NSWCalib { 
@@ -43,6 +46,7 @@ namespace Muon {
     
     virtual StatusCode calibrate(const Muon::MM_RawData* mmRawData, const Amg::Vector3D& globalPos, NSWCalib::CalibratedStrip& calibStrip) const = 0;
 
+    virtual StatusCode mmGasProperties(float &vDrift, float &longDiff, float &transDiff, float &interactionDensityMean, float &interactionDensitySigma, TF1* &lorentzAngleFunction) const = 0;
   };
   
 }

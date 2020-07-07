@@ -51,5 +51,4 @@ ALFA_ODHit::~ALFA_ODHit() {}
 int ALFA_ODHit::GetTrackID() const 
 {
   return 22;  
-// return m_partLink.barcode();
 }

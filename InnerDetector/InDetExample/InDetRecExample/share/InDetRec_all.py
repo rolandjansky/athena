@@ -56,7 +56,7 @@ if globalflags.InputFormat() == 'bytestream':
   # configure converters, including cabling
   include("InDetRecExample/InDetReadBS_jobOptions.py")
   if 'athenaCommonFlags' in dir() and athenaCommonFlags.FilesInput():
-    ServiceMgr.ByteStreamInputSvc.FullFileName  = athenaCommonFlags.FilesInput()
+    ServiceMgr.EventSelector.Input  = athenaCommonFlags.FilesInput()
 else:
   # set up pool reading
   import AthenaPoolCnvSvc.ReadAthenaPool
@@ -204,8 +204,6 @@ if 'doWriteBS' in dir() and doWriteBS:
 if doWriteESD or doWriteAOD or ('doCopyRDO' in dir() and doCopyRDO):
   # --- load setup
   from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-  # --- check dictionary
-  ServiceMgr.AthenaSealSvc.CheckDictionary = True
 
 # MC truth information
   if doWriteESD or doWriteAOD:

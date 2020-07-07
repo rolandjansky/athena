@@ -85,7 +85,7 @@ StatusCode GenericMonitoringTool::book() {
     ATH_MSG_DEBUG( "Monitoring for variable " << def.name << " prepared" );
   }
 
-  if ( fillers.empty() ) {
+  if ( fillers.empty() && m_failOnEmpty ) {
     std::string hists;
     for (const auto &h : m_histograms) hists += (h+",");
     ATH_MSG_ERROR("No monitored variables created based on histogram definition: [" << hists <<
@@ -110,10 +110,11 @@ namespace Monitored {
     }
 }
 
-std::vector<std::shared_ptr<HistogramFiller>> GenericMonitoringTool::getHistogramsFillers(const std::vector<std::reference_wrapper<IMonitoredVariable>>& monitoredVariables) const {
+
+void GenericMonitoringTool::invokeFillers(const std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>& monitoredVariables) const {
 
   // stage 1: get candidate fillers (assume generally we get only a few variables)
-  std::vector<const HistogramFiller*> candidates;
+  std::vector<HistogramFiller*> candidates;
   for (const auto& monValue : monitoredVariables) {
     const auto& match = m_fillerMap.find(monValue.get().name());
     if (match != m_fillerMap.end()) {
@@ -126,10 +127,7 @@ std::vector<std::shared_ptr<HistogramFiller>> GenericMonitoringTool::getHistogra
   // dedup vector (yes, this is faster than using std::set above)
   std::sort(candidates.begin(), candidates.end());
   candidates.erase(std::unique(candidates.begin(), candidates.end()), candidates.end());
-
   // stage 2: refine for fillers that have all variables set
-  std::vector<std::shared_ptr<HistogramFiller>> result;
-  result.reserve(candidates.size());
   std::vector<std::reference_wrapper<IMonitoredVariable>> variables;
   variables.reserve(3); // enough for all current fillers
 
@@ -190,14 +188,13 @@ std::vector<std::shared_ptr<HistogramFiller>> GenericMonitoringTool::getHistogra
                     << "\n  Asked to fill from mon. vars: " << monitoredVariables);
       continue;
     }
-    HistogramFiller* fillerCopy(filler->clone());
-    fillerCopy->setMonitoredVariables(std::move(variables));
-    fillerCopy->setMonitoredWeight(weight);
-    fillerCopy->setMonitoredCutMask(cutmask);
-    result.emplace_back(fillerCopy);
-  }
-
-  return result;
+    
+    std::scoped_lock guard(m_fillMutex);
+    filler->setMonitoredVariables(std::move(variables));
+    filler->setMonitoredWeight(weight);
+    filler->setMonitoredCutMask(cutmask);
+    filler->fill();    
+  }  
 }
 
 uint32_t GenericMonitoringTool::runNumber() {

@@ -59,6 +59,12 @@ if hasattr(runArgs, "saveAllBranches"):
 else:
     saveAllBranches = False
 
+## Sets the number of truth particles copied to ntuples
+if hasattr(runArgs, "NTruthParticles"):
+    NTruthParticles = runArgs.NTruthParticles;
+else:
+    NTruthParticles = 1
+
 #==============================================================
 # Job Configuration parameters:
 #==============================================================

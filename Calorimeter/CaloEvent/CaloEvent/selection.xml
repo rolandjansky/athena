@@ -1,3 +1,4 @@
+<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
 <lcgdict>
 
   <class name="CaloCellContainer" id="24626824-1DB4-4CDF-9B41-1B54114BE498" >
@@ -34,7 +35,6 @@
   <class name="CaloClusterMomentStore::CaloClusterMomentIterator" />
 
   <class name="CaloShower" />
-  <class name="CaloSampling" />
   <class name="CaloSamplingData" />
 
   <class name="CaloShowerContainer" 

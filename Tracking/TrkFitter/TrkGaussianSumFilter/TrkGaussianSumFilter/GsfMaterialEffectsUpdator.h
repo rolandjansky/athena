@@ -2,15 +2,12 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/*********************************************************************************
-                        GsfMaterialEffectsUpdator.h  -  description
-                        -------------------------------------------
-begin                : Wednesday 9th January 2005
-author               : atkinson
-email                : Tom.Atkinson@cern.ch
-decription           : Material effects for the GsfExtrapolator. It is an Alg
-                        Tool inheriting from IAlgTool
-*********************************************************************************/
+/**
+ * @file   GsfMaterialEffectsUpdator.h
+ * @date   Wednesday 9th January 2005
+ * @author Tom Athkinson, Anthony Morley, Christos Anastopoulos
+ * @brief Material effects for the GsfExtrapolator.
+ */
 
 #ifndef TrkGsfMaterialEffectsUpdator_H
 #define TrkGsfMaterialEffectsUpdator_H

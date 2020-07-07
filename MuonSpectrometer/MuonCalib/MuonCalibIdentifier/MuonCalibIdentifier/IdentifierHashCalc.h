@@ -1,6 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
+#ifndef MUONCALIBIDENTIFIER_IDENTIFIERHASHCALC_H
+#define MUONCALIBIDENTIFIER_IDENTIFIERHASHCALC_H
 
 /***************************************************************************
  * Identifier hashes
@@ -15,16 +18,12 @@
 * makes identifier hashes based on identifier fields using calculations. 
 */
 
-#ifndef MUONCALIBIDENTIFIER_IDENTIFIERHASHCALC_H
-# define MUONCALIBIDENTIFIER_IDENTIFIERHASHCALC_H
-// std
+#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
+
 #include <limits.h>
 #include <iostream>
 #include <iomanip>
-// other packages
-
-// this package
-
 
 template <class T>
 class IdentifierHashCalc {
@@ -189,34 +188,36 @@ template <class T>
 bool IdentifierHashCalc<T>::checkValidity() const {
    // check that table is non-empty
    if ( !size() ) {
-      std::cout << "IdentifierHashCalc<T>::checkValidity() WARNING: Table is empty." << std::endl;
+      MsgStream log(Athena::getMessageSvc(),"IdentifierHashCalc");
+      log<<MSG::WARNING<<"IdentifierHashCalc<T>::checkValidity() Table is empty."<<endmsg;
       return false;
    }
    // check that tables are each other's inverse
    unsigned int nErrors = 0;
+#ifdef IDENTIFIERHASHCALC_DEBUG
+   MsgStream log(Athena::getMessageSvc(),"IdentifierHashCalc");
+#endif
    for ( unsigned int i = 0; i < size(); ++i ) {
       HashType iHash(i);
       IdType id = getIdentifier( iHash );
       unsigned int hash = getHash( id );
       if ( hash	!= i ) {
-	 std::cout << "IdentifierHashCalc<T>::checkValidity() ERROR: getIdentifier("
-		   << i << ")=0x" << std::hex << id << std::dec
-		   << " whereas getHash(" << std::hex << id << std::dec << ")=" << hash
-		   << std::endl;
-	 ++nErrors;
+#ifndef IDENTIFIERHASHCALC_DEBUG
+         MsgStream log(Athena::getMessageSvc(),"IdentifierHashCalc");
+#endif
+         log<<MSG::WARNING<<"IdentifierHashCalc<T>::checkValidity() getIdentifier(" << i << ")=0x" << std::hex << id << std::dec << " whereas getHash(" << std::hex << id << std::dec << ")=" << hash<<endmsg;
+         ++nErrors;
       } else {
 #ifdef IDENTIFIERHASHCALC_DEBUG
-	 std::cout << "hash=" << i
-		   << " <--> id=0x" << std::hex << id << std::dec << ": OK" << std::endl;
+         log<<MSG::DEBUG<<"hash=" << i << " <--> id=0x" << std::hex << id << std::dec << ": OK"<<endmsg;
 #endif
       }
    }
 #ifdef IDENTIFIERHASHCALC_DEBUG
    if ( nErrors ) {
-      std::cout << "IdentifierHashCalc<T>::checkValidity() ERROR: table contains "
-		<< nErrors << " errors." << std::endl;
+      log<<MSG::WARNING<<"IdentifierHashCalc<T>::checkValidity() table contains " << nErrors << " errors." << endmsg;
    } else {
-      std::cout << "IdentifierHashCalc<T>::checkValidity(): table OK" << std::endl;
+      log<<MSG::DEBUG<<"IdentifierHashCalc<T>::checkValidity(): table OK"<<endmsg;
    }
 #endif
    

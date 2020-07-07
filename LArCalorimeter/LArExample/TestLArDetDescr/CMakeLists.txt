@@ -27,7 +27,7 @@ atlas_add_component( TestLArDetDescr
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} CaloDetDescrLib CaloIdentifier AthenaBaseComps GaudiKernel CaloGeoHelpers CaloTTDetDescr StoreGateLib SGtests LArIdentifier )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} CaloDetDescrLib CaloIdentifier AthenaBaseComps GaudiKernel CaloGeoHelpers CaloTTDetDescr StoreGateLib SGtests LArIdentifier CaloTrackingGeometryLib )
 
 # Install files from the package:
 atlas_install_headers( TestLArDetDescr )

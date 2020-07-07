@@ -23,4 +23,3 @@ defaultWriter.writeMuonReceiverPulseShape(tag)
 
 #=== close the database connection
 db.closeDatabase()
-

@@ -27,11 +27,12 @@
 // Base class
 #include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
 
-#include <vector>
-#include <stdexcept> // For throw stuff
 #include "InDetReadoutGeometry/SiCellId.h"
 #include "CLHEP/Geometry/Vector3D.h" // For unused phiMeasureSegment
 #include "CLHEP/Geometry/Transform3D.h"
+
+#include <stdexcept> // For throw stuff
+#include <vector>
 
 namespace Trk {
 class RectangleBounds;
@@ -53,8 +54,8 @@ public:
                    const double &stripStart,
                    const double &stripEnd);
 
-    ~StripAnnulusDesign();
- 
+    ~StripAnnulusDesign() = default;
+
     HepGeom::Point3D<double> sensorCenter() const;
 
     // Copy constructor and assignment:
@@ -157,7 +158,7 @@ private:
     double m_pitch;
     double m_stripStartRadius;
     double m_stripEndRadius;
-    Trk::RectangleBounds *m_bounds;
+    std::unique_ptr<Trk::RectangleBounds> m_bounds;
 };
 
 ///////////////////////////////////////////////////////////////////

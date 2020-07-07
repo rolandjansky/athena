@@ -2,8 +2,9 @@
  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
-#include "MuonEfficiencyCorrections/HistHandler.h"
+#include <MuonEfficiencyCorrections/HistHandler.h>
 #include <MuonEfficiencyCorrections/UtilFunctions.h>
+
 #include <iostream>
 #include <cmath>
 #include <cstdint>
@@ -12,9 +13,7 @@
 #include <TH1.h>
 #include <TH2Poly.h>
 
-ANA_MSG_SOURCE (msgMuonEfficiency, "MuonEfficiency")
 namespace CP {
-     using namespace msgMuonEfficiency;
     //###########################################################################################################
     //                                                   AxisHandlerProvider
     //###########################################################################################################
@@ -44,6 +43,68 @@ namespace CP {
             Error("AxisHandlerProvider", "nullptr pointer passed");
         }
         return std::make_unique<UndefinedAxisHandler>();
+    }
+  
+  
+    CorrectionCode PtAxisHandler::GetBinningParameter(const xAOD::Muon & mu, float & value) const {
+        value = mu.pt() / 1000.;
+        return CorrectionCode::Ok;
+    }
+    CorrectionCode ChargeAxisHandler::GetBinningParameter(const xAOD::Muon & mu, float & value) const {
+        value = mu.charge();
+        return CorrectionCode::Ok;
+    }
+    CorrectionCode EtaAxisHandler::GetBinningParameter(const xAOD::Muon & mu, float & value) const {
+        value = mu.eta();
+        return CorrectionCode::Ok;
+    }
+    CorrectionCode AbsEtaAxisHandler::GetBinningParameter(const xAOD::Muon & mu, float & value) const {
+        value = std::abs(mu.eta());
+        return CorrectionCode::Ok;
+    }
+    CorrectionCode PhiAxisHandler::GetBinningParameter(const xAOD::Muon & mu, float & value) const {
+        value = mu.phi();
+        return CorrectionCode::Ok;
+    }
+    void dRJetAxisHandler::set_close_jet_decorator(const std::string& decor_name){
+        m_close_jet_decor = decor_name;
+    }
+    
+    std::string dRJetAxisHandler::m_close_jet_decor = "dRJet";
+    dRJetAxisHandler::dRJetAxisHandler():
+            m_acc(m_close_jet_decor){}
+    
+    CorrectionCode dRJetAxisHandler::GetBinningParameter(const xAOD::Muon & mu, float & value) const {
+        static std::atomic<unsigned int> warned = {0};
+        static const SG::AuxElement::ConstAccessor<float> acc_dR_deriv("DFCommonJetDr");
+        if (acc_dR_deriv.isAvailable(mu)){
+            value = acc_dR_deriv(mu);
+        }else if( m_acc.isAvailable(mu) ) {
+            // decoration available in DxAOD
+            value = m_acc(mu);
+            if (warned < 5){
+                Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "The DFCommonJetDr jet decoration is not available in the derivaiton will fall back to %s",m_close_jet_decor.c_str());
+                ++warned;
+            }
+        } else {
+            // decoration not available 
+            value = -2.; 
+            // We want these warnings to be printed few times per job, so that they're visible, then stop before log file's size blows up 
+            if (warned<5){
+                Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "The %s decoration has not been found for the Muon. Isolation scale-factors are now also binned in #Delta R(jet,#mu)", m_close_jet_decor.c_str());
+                Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "using the closest calibrated AntiKt4EMTopo jet with p_{T}>20~GeV and surving the standard OR criteria.");
+                Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "You should decorate your muon appropiately before passing to the tool, and use dRJet = -1 in case there is no jet in an event.");
+                Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "For the time being the inclusive scale-factor is going to be returned.");
+                Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "In future derivations, muons will also be decorated centrally with DFCommonJetDr, for your benefit.");
+                Warning("MuonEfficiencyCorrections::dRJetAxisHandler()", "You can define custom jet decorations via the 'CloseJetDRDecorator' property of the MuonEfficiencyCorrections tool");
+                ++warned;
+            }
+        }
+        return CorrectionCode::Ok;
+    }
+    
+    CorrectionCode UndefinedAxisHandler::GetBinningParameter(const xAOD::Muon &, float &) const  {
+        return CorrectionCode::Error;
     }
     //###########################################################################################################
     //                                                   HistHandler
@@ -104,7 +165,7 @@ namespace CP {
     bool HistHandler_TH1::isOverFlowBin(int b) const { return b == 0 || b >= nBins() -1; }
     std::string HistHandler_TH1::GetBinName(unsigned int bin) const {
         TAxis* xAx = GetHist()->GetXaxis();
-        return Form("%s_%.2f-%.2f", xAx->GetTitle(), xAx->GetBinLowEdge(bin), xAx->GetBinUpEdge(bin));
+        return Form("%s_%.2f_to_%.2f", xAx->GetTitle(), xAx->GetBinLowEdge(bin), xAx->GetBinUpEdge(bin));
     }
     CorrectionCode HistHandler_TH1::FindBin(const xAOD::Muon & muon, int & bin) const {
         if (!GetHist()) {
@@ -179,7 +240,7 @@ namespace CP {
         GetHist()->GetBinXYZ(bin, x, y, z);
         TAxis* xAx = GetHist()->GetXaxis();
         TAxis* yAx = GetHist()->GetYaxis();
-        return Form("%s_%.2f-%.2f--%s_%.2f-%.2f",
+        return Form("%s_%.2f_to_%.2f_times_%s_%.2f_to_%.2f",
                 //xAxis
                 xAx->GetTitle(), xAx->GetBinLowEdge(x), xAx->GetBinUpEdge(x),
                 //yAxis
@@ -254,7 +315,7 @@ namespace CP {
         TAxis* xAx = GetHist()->GetXaxis();
         TAxis* yAx = GetHist()->GetYaxis();
         TAxis* zAx = GetHist()->GetZaxis();
-        return Form("%s_%.2f-%.2f--%s_%.2f-%.2f--%s_%.2f-%.2f",
+        return Form("%s_%.2f_to_%.2f_times_%s_%.2f_to_%.2f_times_%s_%.2f_to_%.2f",
         //xAxis
                 xAx->GetTitle(), xAx->GetBinLowEdge(x), xAx->GetBinUpEdge(x),
                 //yAxis
@@ -322,10 +383,8 @@ namespace CP {
         GetHist()->GetBinXYZ(bin, x, y, z);
         TAxis* xAx = GetHist()->GetXaxis();
         TAxis* yAx = GetHist()->GetYaxis();
-        return Form("%s_%.2f-%.2f--%s_%.2f-%.2f",
-        //xAxis
+        return Form("%s_%.2f_to_%.2f__times_%s_%.2f_to_%.2f",
                 xAx->GetTitle(), xAx->GetBinLowEdge(x), xAx->GetBinUpEdge(x),
-                //yAxis
                 yAx->GetTitle(), yAx->GetBinLowEdge(y), yAx->GetBinUpEdge(y));
     }
 } // namespace CP

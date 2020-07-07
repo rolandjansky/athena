@@ -13,7 +13,7 @@
 /////////////////////////////////////////////////////////////
 
 
-#include "egammaPerformance/egammaMonToolBase.h"
+#include "egammaMonToolBase.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -80,7 +80,20 @@ StatusCode egammaMonToolBase::initialize()
     }
   }
 
+  ATH_CHECK( m_EventInfoKey.initialize() );
+
   return sc;
+}
+
+unsigned int egammaMonToolBase::getCurrentLB()
+{
+  SG::ReadHandle<xAOD::EventInfo> evtInfo{m_EventInfoKey};
+  if (evtInfo.isValid()) {
+    return evtInfo->lumiBlock();
+  } 
+    ATH_MSG_ERROR("couldn't retrieve event info");
+    return -1;
+  
 }
 
 StatusCode egammaMonToolBase::bookHistograms()

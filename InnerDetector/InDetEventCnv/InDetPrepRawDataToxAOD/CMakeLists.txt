@@ -41,7 +41,7 @@ atlas_add_component( InDetPrepRawDataToxAOD
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib GaudiKernel AthenaBaseComps StoreGateLib SGtests Identifier InDetByteStreamErrors PixelConditionsData xAODTracking TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry TRT_ReadoutGeometry InDetRawData InDetSimData InDetPrepRawData InDetSimEvent TrkSurfaces TrkTruthData )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib GaudiKernel AthenaBaseComps StoreGateLib SGtests Identifier InDetByteStreamErrors PixelConditionsData xAODTracking TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry TRT_ReadoutGeometry InDetRawData InDetSimData InDetPrepRawData InDetSimEvent TrkSurfaces TrkTruthData TRT_DriftFunctionToolLib PixelCablingLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

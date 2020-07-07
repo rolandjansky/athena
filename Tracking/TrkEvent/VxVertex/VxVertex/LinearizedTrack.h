@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////
@@ -153,7 +153,7 @@ namespace Trk
    * Note that m_ExpectedCovarianceAtPOCA stores a covariance matrix, this function
    * will just invert it. No caching mechanism is implemented for now.
    */
-   const AmgSymMatrix(5) expectedWeightAtPCA() const;
+   AmgSymMatrix(5) expectedWeightAtPCA() const;
    
   /**
    * Access to the parameters at point of closest approach

@@ -39,11 +39,13 @@ class TauRecToolBase : public asg::AsgTool, virtual public ITauToolBase {
   //-----------------------------------------------------------------
   //! Execute - called for each tau candidate
   //-----------------------------------------------------------------
-  virtual StatusCode execute(xAOD::TauJet& pTau) override;
+  virtual StatusCode execute(xAOD::TauJet& pTau) const override;
   virtual StatusCode executeVertexFinder(xAOD::TauJet& pTau, 
                                          const xAOD::VertexContainer* vertexContainer = nullptr, 
                                          const xAOD::TrackParticleContainer* trackContainer = nullptr) override;
-  virtual StatusCode executeTrackFinder(xAOD::TauJet& pTau, const xAOD::TrackParticleContainer* trackContainer = nullptr) override;  
+  virtual StatusCode executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrackContainer& tauTrackContainer, const xAOD::TrackParticleContainer* trackContainer = nullptr) override;
+  virtual StatusCode executeTrackClassifier(xAOD::TauJet& pTau, xAOD::TauTrackContainer& tauTrackContainer) const override;
+  virtual StatusCode executeRNNTrackClassifier(xAOD::TauJet& pTau, xAOD::TauTrackContainer& tauTrackContainer) override;
   virtual StatusCode executeShotFinder(xAOD::TauJet& pTau, xAOD::CaloClusterContainer& shotClusterContainer, xAOD::PFOContainer& PFOContainer ) override;
 #ifndef XAOD_ANALYSIS
   virtual StatusCode executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& caloCellContainer, std::vector<CaloCell*>& map ) override;

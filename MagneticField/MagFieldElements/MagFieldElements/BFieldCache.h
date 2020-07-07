@@ -15,8 +15,8 @@
 #define BFIELDCACHE_H
 
 #include "MagFieldElements/BFieldVector.h"
+#include "CxxUtils/restrict.h"
 #include <cmath>
-#include <iostream>
 
 class BFieldCache
 {
@@ -57,20 +57,27 @@ public:
     m_invphi = 1.0 / (phimax - phimin);
   }
   // set the field values at each corner (rescale for current scale factor)
-  void setField(int i,
-                const BFieldVector<double>& field,
+  void setField(const std::array<BFieldVector<double>,8>& field,
                 double scaleFactor = 1.0)
   {
-    for (int j = 0; j < 3; j++) {
-      m_field[j][i] = scaleFactor * field[j];
+    // We pass array of 8 elements with 3 entries
+    // Which go to 3x8 matrix
+    for (int i = 0; i < 8; ++i) {
+      for (int j = 0; j < 3; ++j) {
+        m_field[j][i] = scaleFactor * field[i][j];
+      }
     }
   }
-  void setField(int i,
-                const BFieldVector<short>& field,
+  
+  void setField(const std::array<BFieldVector<short>,8>& field,
                 double scaleFactor = 1.0)
   {
-    for (int j = 0; j < 3; j++) {
-      m_field[j][i] = scaleFactor * field[j];
+    // We pass array of 8 elements with 3 entries
+    // Which go to 3x8 matrix
+    for (int i = 0; i < 8; ++i) {
+      for (int j = 0; j < 3; ++j) {
+        m_field[j][i] = scaleFactor * field[i][j];
+      }
     }
   }
   // set the multiplicative factor for the field vectors
@@ -87,11 +94,11 @@ public:
   }
   // interpolate the field and return B[3].
   // also compute field derivatives if deriv[9] is given.
-  void getB(const double* xyz,
+  void getB(const double* ATH_RESTRICT xyz,
             double r,
             double phi,
-            double* B,
-            double* deriv = nullptr) const;
+            double* ATH_RESTRICT B,
+            double* ATH_RESTRICT deriv = nullptr) const;
 
 private:
   double m_zmin, m_zmax;          // bin range in z

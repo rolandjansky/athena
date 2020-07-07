@@ -1,58 +1,52 @@
+<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
 <lcgdict>
+   <!-- xAOD::PFO interface type(s). -->
+   <class name="xAOD::PFO_v1" />
+   <class name="xAOD::PFOContainer_v1"
+          id="476378BF-054D-499E-9CC9-000F501B30F2" />
+   <typedef name="xAOD::PFO" />
+   <typedef name="xAOD::PFOContainer" />
 
-  <!-- PFO_v1 dictionaries: -->
-  <class name="xAOD::PFO_v1" />
+   <!-- xAOD::PFO auxiliary type(s). -->
+   <class name="xAOD::PFOAuxContainer_v1"
+          id="F691F845-4A3D-466A-9187-FED7837D9372" />
+   <typedef name="xAOD::PFOAuxContainer" />
 
-  <class name="xAOD::PFOContainer_v1"
-         id="476378BF-054D-499E-9CC9-000F501B30F2" />
+   <!-- xAOD::TrackCaloCluster interface type(s). -->
+   <class name="xAOD::TrackCaloCluster_v1" />
+   <class name="xAOD::TrackCaloClusterContainer_v1"
+          id="84C52180-1AC0-4877-BAD3-B5C7A71F9125"/>
+   <typedef name="xAOD::TrackCaloCluster" />
+   <typedef name="xAOD::TrackCaloClusterContainer" />
 
-  <class name="xAOD::PFOAuxContainer_v1"
-         id="F691F845-4A3D-466A-9187-FED7837D9372" />
+   <!-- xAOD::TrackCaloCluster auxiliary type(s). -->
+   <class name="xAOD::TrackCaloClusterAuxContainer_v1"
+          id="E3492C37-2469-4346-BCBA-7A18CACD46AC"/>
+   <typedef name="xAOD::TrackCaloClusterAuxContainer" />
+
+
+  <!-- FlowElement interface type(s): -->
+  <class name="xAOD::FlowElement_v1" />
+  <class name="xAOD::FlowElementContainer_v1"
+         id="68F99A1F-96F4-4339-BEB7-46A6E7A5E351"/>
+
+  <typedef name="xAOD::FlowElement" />
+  <typedef name="xAOD::FlowElementContainer" />
   
-  <!-- TrackCaloCluster_v1 dictionaries: -->
-  <class name="xAOD::TrackCaloCluster_v1" />
-  
-  <class name="xAOD::TrackCaloClusterAuxContainer_v1"
-         id="E3492C37-2469-4346-BCBA-7A18CACD46AC"/>
-  <class name="xAOD::TrackCaloClusterContainer_v1"
-         id="84C52180-1AC0-4877-BAD3-B5C7A71F9125"/>
+  <!-- FlowElement interface type(s): -->
+  <class name="xAOD::FlowElementAuxContainer_v1"
+         id="5015F3F7-901A-44FD-9FF2-93EEA1DAE686"/>
+  <typedef name="xAOD::FlowElementAuxContainer" />
+   
+   
+   <!-- Other type(s). -->
+   <enum pattern="xAOD::PFODetails::*" />
 
-  <!-- Link types pointing at clusters: -->
-  <class name="DataLink<xAOD::PFOContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::PFOContainer_v1> >" />
-
-  <class name="ElementLink<xAOD::PFOContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::PFOContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::PFOContainer_v1> > >" />
-
-  <class name="ElementLink<xAOD::IParticleContainer>" />
-  <class name="std::vector< ElementLink<xAOD::IParticleContainer> >" />
-  <class name="std::vector<std::vector< ElementLink<xAOD::IParticleContainer> > >" />
-    
-  <enum pattern="xAOD::PFODetails::*" />
-  <class name="std::vector<xAOD::PFODetails::PFOLeptonType>" />
-
-  <!-- All smart pointer dictionaries for xAOD::IParticle -->
-  <class name="DataLink<xAOD::TrackCaloClusterContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::TrackCaloClusterContainer_v1> >" />
- 
-  <class name="ElementLink<xAOD::TrackCaloClusterContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::TrackCaloClusterContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::TrackCaloClusterContainer_v1> > >" />
-
-  <!-- Extra types needed -->
-  <class name="std::pair<ElementLink<DataVector<xAOD::CaloCluster_v1> >,double>" />
-  <class name="std::vector<std::vector<std::pair<ElementLink<DataVector<xAOD::CaloCluster_v1> >,double> > >" />
-  <!-- Suppress the unwanted classes found by ROOT 6. -->
-  <!-- Hopefully we can remove these extra lines at one point... -->
-  <exclusion>
-    <class name="SG::IConstAuxStore" />
-    <class name="DataLink<SG::IConstAuxStore>" />
-    <class name="DataVector<xAOD::IParticle>" />
-    <class name="ElementLink<DataVector<xAOD::IParticle> >" />
-    <class pattern="xAOD::Vertex*" />
-    <class pattern="DataVector<xAOD::Vertex*" />
-    <class pattern="ElementLink<DataVector<xAOD::Vertex*" />
-  </exclusion>
+   <!-- Weird/bad types used by the PFO reconstruction as attributes on -->
+   <!-- xAOD::PFO objects. :-( -->
+   <class name="std::pair<ElementLink<xAOD::CaloClusterContainer_v1>,double>" />
+   <class name="std::vector<std::pair<ElementLink<xAOD::CaloClusterContainer_v1>,double> >" />
+   <class name="std::vector<std::vector<std::pair<ElementLink<xAOD::CaloClusterContainer_v1>,double> > >" />
+   <class name="std::vector<xAOD::PFODetails::PFOLeptonType>" />
 
 </lcgdict>

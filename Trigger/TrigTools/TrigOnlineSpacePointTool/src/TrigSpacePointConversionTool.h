@@ -21,7 +21,6 @@
 class AtlasDetectorID;
 class SCT_ID;
 class PixelID;
-class IRegSelSvc;
 
 
 class ITrigL2LayerNumberTool;
@@ -39,7 +38,7 @@ class TrigSpacePointConversionTool : virtual public ITrigSpacePointConversionToo
 
   //concrete implementations
 
-  virtual StatusCode getSpacePoints(const IRoiDescriptor&, std::vector<TrigSiSpacePointBase>&, int&, int&) const override final;
+  virtual StatusCode getSpacePoints(const IRoiDescriptor&, std::vector<TrigSiSpacePointBase>&, int&, int&, const EventContext& ctx) const override final;
 
  protected:
 
@@ -48,9 +47,6 @@ class TrigSpacePointConversionTool : virtual public ITrigSpacePointConversionToo
   const AtlasDetectorID* m_atlasId;
   const SCT_ID*  m_sctId;
   const PixelID* m_pixelId;
-
-  //  std::string    m_regionSelectorName;
-  //  IRegSelSvc*    m_regionSelector;
 
   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
@@ -62,8 +58,8 @@ class TrigSpacePointConversionTool : virtual public ITrigSpacePointConversionToo
   bool m_useBeamTilt;
   bool m_useNewScheme;
 
-  void shiftSpacePoints(std::vector<TrigSiSpacePointBase>&) const;
-  void transformSpacePoints(std::vector<TrigSiSpacePointBase>&) const;
+  void shiftSpacePoints(std::vector<TrigSiSpacePointBase>&, const EventContext&) const;
+  void transformSpacePoints(std::vector<TrigSiSpacePointBase>&, const EventContext&) const;
 
   /// new region selector tools
   ToolHandle<IRegSelTool> m_regsel_pix;

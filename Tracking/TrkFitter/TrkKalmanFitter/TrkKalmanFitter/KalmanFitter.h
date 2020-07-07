@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -16,6 +16,7 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/EventContext.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkEventUtils/TrkParametersComparisonFunction.h"
 #include "TrkFitterUtils/ProtoTrackStateOnSurface.h"
@@ -34,7 +35,7 @@
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include <array>
-
+#include <memory>
 class AtlasDetectorID;            //!< to identify measurements
 
 namespace Trk {
@@ -72,56 +73,67 @@ namespace Trk {
     virtual ~KalmanFitter();
 
     // standard Athena methods
-    StatusCode initialize();
-    StatusCode finalize();
-   
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
+    /*
+     * Bring in default impl with
+     * EventContext for now
+     */
+    using ITrackFitter::fit;
+
     //! refit a track
-    virtual Track* fit(const Track&,
-                       const RunOutlierRemoval  runOutlier=false,
-                       const ParticleHypothesis matEffects=Trk::nonInteracting
-                       ) const;
+    virtual std::unique_ptr<Track> fit(
+      const EventContext& ctx,
+      const Track&,
+      const RunOutlierRemoval runOutlier = false,
+      const ParticleHypothesis matEffects = Trk::nonInteracting) const override;
 
     //! fit a set of PrepRawData objects
-    virtual Track* fit(const PrepRawDataSet&,
-                       const TrackParameters&,
-                       const RunOutlierRemoval  runOutlier=false,
-                       const ParticleHypothesis matEffects=Trk::nonInteracting
-                       ) const;
-    
+    virtual std::unique_ptr<Track> fit(
+      const EventContext& ctx,
+      const PrepRawDataSet&,
+      const TrackParameters&,
+      const RunOutlierRemoval runOutlier = false,
+      const ParticleHypothesis matEffects = Trk::nonInteracting) const override;
+
     //! fit a set of MeasurementBase objects
-    virtual Track* fit(const MeasurementSet&,
-                       const TrackParameters&,
-                       const RunOutlierRemoval  runOutlier=false,
-                       const ParticleHypothesis matEffects=Trk::nonInteracting
-                       ) const;
-    
+    virtual std::unique_ptr<Track> fit(
+      const EventContext& ctx,
+      const MeasurementSet&,
+      const TrackParameters&,
+      const RunOutlierRemoval runOutlier = false,
+      const ParticleHypothesis matEffects = Trk::nonInteracting) const override;
+
     //! extend a track fit including a new set of PrepRawData objects
-    virtual Track* fit(const Track&,
-                       const PrepRawDataSet&,
-                       const RunOutlierRemoval  runOutlier=false,
-                       const ParticleHypothesis matEffects=Trk::nonInteracting
-                       ) const;
+    virtual std::unique_ptr<Track> fit(
+      const EventContext& ctx,
+      const Track&,
+      const PrepRawDataSet&,
+      const RunOutlierRemoval runOutlier = false,
+      const ParticleHypothesis matEffects = Trk::nonInteracting) const override;
 
     //! extend a track fit including a new set of MeasurementBase objects
-    virtual Track* fit(const Track&,
-                       const MeasurementSet&,
-                       const RunOutlierRemoval  runOutlier=false,
-                       const ParticleHypothesis matEffects=Trk::nonInteracting
-                       ) const;
+    virtual std::unique_ptr<Track> fit(
+      const EventContext& ctx,
+      const Track&,
+      const MeasurementSet&,
+      const RunOutlierRemoval runOutlier = false,
+      const ParticleHypothesis matEffects = Trk::nonInteracting) const override;
 
     //! combined track fit
-    virtual Track* fit(const Track&,
-                       const Track&,
-                       const RunOutlierRemoval  runOutlier=false,
-                       const ParticleHypothesis matEffects=Trk::nonInteracting
-                       ) const;
+    virtual std::unique_ptr<Track> fit(
+      const EventContext& ctx,
+      const Track&,
+      const Track&,
+      const RunOutlierRemoval runOutlier = false,
+      const ParticleHypothesis matEffects = Trk::nonInteracting) const override;
 
     /** @brief retrieve statuscode of last fit.
 
         particularly designed for accessing a more detailed reason for
         failed fits, which otherwise are indicated only by the returned
         NULL pointer. */
-    virtual Trk::FitterStatusCode statusCodeOfLastFit() const;
+    virtual Trk::FitterStatusCode statusCodeOfLastFit() const override;
 
   ///////////////////////////////////////////////////////////////////
   // Private methods:
@@ -133,11 +145,12 @@ private:
                                                  ) const;
 
     //! method providing the filter code common to all interfaces
-    bool                       iterateKalmanFilter(const Trk::TrackParameters*&,
-                                                   FitQuality*&,
-                                                   const RunOutlierRemoval,
-                                                   const Trk::KalmanMatEffectsController&,
-                                                   const double& this_eta=0.0) const;
+    bool iterateKalmanFilter(const EventContext& ctx,
+                             const Trk::TrackParameters*&,
+                             FitQuality*&,
+                             const RunOutlierRemoval,
+                             const Trk::KalmanMatEffectsController&,
+                             const double& this_eta = 0.0) const;
 
     //! method providing a 2nd concept for iterating, by internal annealing
     bool                       invokeAnnealingFilter(const Trk::TrackParameters*&,
@@ -152,11 +165,12 @@ private:
                                                     const TrackParameters&) const;
 
     //! method to create a track which is common to all interfaces
-    Trk::Track*                makeTrack(const Trk::FitQuality*,
-                                         const Trk::TrackParameters&,
-                                         const Trk::KalmanMatEffectsController*,
-                                         const double&,
-					 const Trk::TrackInfo*) const;
+    Trk::Track* makeTrack(const EventContext& ctx,
+                          const Trk::FitQuality*,
+                          const Trk::TrackParameters&,
+                          const Trk::KalmanMatEffectsController*,
+                          const double&,
+                          const Trk::TrackInfo*) const;
 
     //! special method to build Perigee parameters from the track
     const TrackStateOnSurface* makePerigee(const SmoothedTrajectory*,
@@ -164,19 +178,26 @@ private:
                                            const ParticleHypothesis matEffects=Trk::nonInteracting) const;
 
     //! special method to build Perigee parameters from the internal KF trajectory
-    const TrackStateOnSurface* internallyMakePerigee(const PerigeeSurface&,
-                                                     const ParticleHypothesis) const;
+    const TrackStateOnSurface* internallyMakePerigee(
+      const EventContext& ctx,
+      const PerigeeSurface&,
+      const ParticleHypothesis) const;
 
     //! special method to build reference parameters at other surface than PerigeeSf
-    const TrackStateOnSurface* makeReferenceState(const Surface&,
-                                                  const ParticleHypothesis) const;
-		
+    const TrackStateOnSurface* makeReferenceState(
+      const EventContext& ctx,
+      const Surface&,
+      const ParticleHypothesis) const;
+
     //! call a validation tool from the TrkValidation package
-    void callValidation( int iterationIndex, const Trk::ParticleHypothesis  matEffects,
-                         FitterStatusCode fitStatCode=Trk::FitterStatusCode::Success ) const;
-  ///////////////////////////////////////////////////////////////////
-  // Private data:
-  ///////////////////////////////////////////////////////////////////
+    void callValidation(
+      const EventContext& ctx,
+      int iterationIndex,
+      const Trk::ParticleHypothesis matEffects,
+      FitterStatusCode fitStatCode = Trk::FitterStatusCode::Success) const;
+    ///////////////////////////////////////////////////////////////////
+    // Private data:
+    ///////////////////////////////////////////////////////////////////
     mutable MsgStream             m_log;         //!< msgstream as private member (-> speed)
 
     //! extrapolation tool: does propagation and applies material effects

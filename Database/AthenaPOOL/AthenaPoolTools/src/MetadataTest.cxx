@@ -21,7 +21,7 @@ MetadataTest::MetadataTest(const std::string& name, ISvcLocator* pSvcLocator) :
    m_hkey("CutBookkeepers","MetaDataStore"),
    m_hinckey("IncompleteCutBookkeepers","MetaDataStore"),
    m_eihkey("StreamAOD","MetaDataStore"),
-   m_bshkey("ByteStreamMetadata","MetaDataStore"),
+   m_metadataStore("StoreGateSvc/MetaDataStore", name),
    m_esidone(false),
    m_inputstream("StreamAOD")
 {
@@ -40,7 +40,7 @@ StatusCode MetadataTest::start()
    ATH_CHECK( m_hkey.initialize() );  
    ATH_CHECK( m_hinckey.initialize() );  
    ATH_CHECK( m_eihkey.initialize() );
-   ATH_CHECK( m_bshkey.initialize() );
+   ATH_CHECK( m_metadataStore.retrieve() );
    m_esidone = false;
    return StatusCode::SUCCESS;
 }
@@ -85,8 +85,8 @@ StatusCode MetadataTest::execute()
 
      ATH_MSG_INFO("== BYTESTREAMMETADATACONTAINER CHECKS ==");
      // create handle, get pointer to object
-     SG::ReadMetaHandle<ByteStreamMetadataContainer> bskey(m_bshkey,this->getContext());
-     const ByteStreamMetadataContainer* bsmc(*bskey);
+     const ByteStreamMetadataContainer* bsmc = 
+       m_metadataStore->tryConstRetrieve<ByteStreamMetadataContainer>("ByteStreamMetadata");
      if (bsmc!=nullptr) {
        ATH_MSG_INFO("ByteStreamMetadataContainer size " << bsmc->size());
        for (auto it = bsmc->begin(); it != bsmc->end(); ++it) {

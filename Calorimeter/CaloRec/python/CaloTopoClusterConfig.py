@@ -369,10 +369,10 @@ if __name__=="__main__":
 
     ConfigFlags.lock()
 
-    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg 
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 
-    cfg=MainServicesThreadedCfg(ConfigFlags)
+    cfg=MainServicesCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
     # from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
     # cfg.mergeAll(IOVDbSvcCfg(ConfigFlags))

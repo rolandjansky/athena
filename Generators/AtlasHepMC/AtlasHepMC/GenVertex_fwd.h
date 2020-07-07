@@ -3,8 +3,16 @@
 */
 #ifndef ATLASHEPMC_GENVERTEXFWD_H
 #define ATLASHEPMC_GENVERTEXFWD_H
+#ifdef HEPMC3
+#include "HepMC3/GenVertex_fwd.h"
+namespace HepMC {
+typedef HepMC3::GenVertexPtr GenVertexPtr;
+typedef HepMC3::ConstGenVertexPtr ConstGenVertexPtr;
+}
+#else
 namespace HepMC {
 class GenVertex;
 typedef HepMC::GenVertex* GenVertexPtr;
 }
+#endif
 #endif

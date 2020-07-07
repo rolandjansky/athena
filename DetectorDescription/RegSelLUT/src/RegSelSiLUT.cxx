@@ -134,8 +134,8 @@ void RegSelSiLUT::initialise() {
     m_SubDet.push_back( RegSelSubDetector(subdetid[i]) );
     m_idmap.insert( std::map<int, int>::value_type(subdetid[i], i) );
 
-    int ii = subdetid.size()-1-i; 
-    std::cout << "\tsubdet " << ii << "\tid " << subdetid[ii] << std::endl;
+    //int ii = subdetid.size()-1-i; 
+    //std::cout << "\tsubdet " << ii << "\tid " << subdetid[ii] << std::endl;
   }
 	
   

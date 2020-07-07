@@ -53,10 +53,10 @@ namespace Trk
     m_scatteringLogCoeff(0.038),            // Coulomb scattering constant
     m_sectorMaxPhi(0.28),
     m_stationMaxGap(0.6 * Gaudi::Units::meter),
-    m_calorimeterVolume(0),
-    m_indetVolume(0),
-    m_spectrometerEntrance(0),
-    m_messageHelper(0) {
+    m_calorimeterVolume(nullptr),
+    m_indetVolume(nullptr),
+    m_spectrometerEntrance(nullptr),
+    m_messageHelper(nullptr) {
     m_messageHelper = new MessageHelper(*this);
     declareInterface<IMaterialAllocator>(this);
     declareProperty("Extrapolator", m_extrapolator);
@@ -102,35 +102,35 @@ namespace Trk
     if (m_extrapolator.retrieve().isFailure()) {
       ATH_MSG_FATAL("Failed to retrieve tool " << m_extrapolator);
       return StatusCode::FAILURE;
-    } else {
+    } 
       ATH_MSG_INFO("Retrieved tool " << m_extrapolator);
-    }
+    
     if (m_intersector.retrieve().isFailure()) {
       ATH_MSG_FATAL("Failed to retrieve tool " << m_intersector);
       return StatusCode::FAILURE;
-    } else {
+    } 
       ATH_MSG_INFO("Retrieved tool " << m_intersector);
-    }
+    
 
     // retrieve services
     if (m_trackingGeometrySvc.retrieve().isFailure()) {
       ATH_MSG_FATAL("Failed to retrieve Svc " << m_trackingGeometrySvc);
       return StatusCode::FAILURE;
-    } else {
+    } 
       ATH_MSG_INFO("Retrieved Svc " << m_trackingGeometrySvc);
-    }
+    
 
     // need to create the IndetExit and MuonEntrance TrackingVolumes
     if (m_trackingVolumesSvc.retrieve().isFailure()) {
       ATH_MSG_FATAL("Failed to retrieve Svc " << m_trackingVolumesSvc);
       return StatusCode::FAILURE;
-    } else {
+    } 
       ATH_MSG_INFO("Retrieved Svc " << m_trackingVolumesSvc);
       m_calorimeterVolume = new Volume(
         m_trackingVolumesSvc->volume(ITrackingVolumesSvc::MuonSpectrometerEntryLayer));
       m_indetVolume = new Volume(
         m_trackingVolumesSvc->volume(ITrackingVolumesSvc::CalorimeterEntryLayer));
-    }
+    
 
     if (m_useStepPropagator > 0 && m_stepPropagator.retrieve().isFailure()) {
       ATH_MSG_FATAL("Failed to retrieve Svc " << m_stepPropagator);
@@ -184,9 +184,9 @@ namespace Trk
     // check if leading scatterer(s) already present or need to be added (up to delimiter)
     bool energyGain = false;
     bool haveDelimiter = false;
-    const TrackSurfaceIntersection* intersection = 0;
+    const TrackSurfaceIntersection* intersection = nullptr;
     int leadingScatterers = 0;
-    Trk::FitMeasurement* leadingScatterer = 0;
+    Trk::FitMeasurement* leadingScatterer = nullptr;
     for (std::vector<Trk::FitMeasurement*>::const_iterator m = measurements.begin();
          m != measurements.end();
          ++m) {
@@ -209,10 +209,10 @@ namespace Trk
       // find first measurement after delimiter
       haveDelimiter = false;
       Amg::Vector3D endPosition = fitParameters.vertex();
-      const Surface* firstMeasurementSurface = 0;
-      Trk::FitMeasurement* leadingOutlier = 0;
+      const Surface* firstMeasurementSurface = nullptr;
+      Trk::FitMeasurement* leadingOutlier = nullptr;
       std::vector<Trk::FitMeasurement*> leadingOutliers;
-      const Surface* surface = 0;
+      const Surface* surface = nullptr;
       for (std::vector<Trk::FitMeasurement*>::const_iterator m = measurements.begin();
            m != measurements.end();
            ++m) {
@@ -248,12 +248,12 @@ namespace Trk
                                      charge,
                                      fitParameters.vertex());
       bool haveMaterial = false;
-      const std::vector<const TrackStateOnSurface*>* indetMaterial = 0;
+      const std::vector<const TrackStateOnSurface*>* indetMaterial = nullptr;
       if (haveDelimiter && intersection && surface && m_indetVolume->inside(endPosition)) {
         // debug
         if (msgLvl(MSG::VERBOSE)) {
-          Amg::Vector3D direction = intersection->direction();
-          Amg::Vector3D startPosition = intersection->position();
+          const Amg::Vector3D& direction = intersection->direction();
+          const Amg::Vector3D& startPosition = intersection->position();
           ATH_MSG_VERBOSE(" addLeadingMaterial: using extrapolateM from distance "
                           << direction.dot(fitParameters.position() - startPosition));
         }
@@ -292,10 +292,10 @@ namespace Trk
 
         // clean up after previous attempt
         deleteMaterial(indetMaterial, garbage);
-        indetMaterial = 0;
+        indetMaterial = nullptr;
 
-        std::vector<const TrackStateOnSurface*>* indetMaterialF = 0;
-        const std::vector<const TrackStateOnSurface*>* indetMaterialR = 0;
+        std::vector<const TrackStateOnSurface*>* indetMaterialF = nullptr;
+        const std::vector<const TrackStateOnSurface*>* indetMaterialR = nullptr;
         CurvilinearUVT uvt(intersection->direction());
         Amg::Vector2D localPos;
         PlaneSurface* plane = new PlaneSurface(intersection->position(), uvt);
@@ -336,7 +336,7 @@ namespace Trk
               haveMaterial = true;
             }
             indetMaterial = indetMaterialF;
-            indetMaterialF = 0;
+            indetMaterialF = nullptr;
           }
         }
         delete indetMaterialR;
@@ -402,7 +402,7 @@ namespace Trk
 
       // create scatterer FitMeasurement's corresponding to leading material
       // (intersector running inwards to give parameters with qOverP update)
-      FitMeasurement* leadingMeas = 0;
+      FitMeasurement* leadingMeas = nullptr;
       if (indetMaterial && !indetMaterial->empty()) {
         std::vector<const TrackStateOnSurface*>::const_reverse_iterator r = indetMaterial->rbegin();
         for (; r != indetMaterial->rend(); ++r) {
@@ -489,10 +489,10 @@ namespace Trk
                    && leadingOutlier->intersection(FittedTrajectory).position().perp() > radius) {
               leadingOutliers.pop_back();
               measurements.insert(measurements.begin(), leadingOutlier);
-              if (leadingOutliers.size()) {
+              if (!leadingOutliers.empty()) {
                 leadingOutlier = leadingOutliers.back();
               } else {
-                leadingOutlier = 0;
+                leadingOutlier = nullptr;
               }
             }
           }
@@ -545,11 +545,11 @@ namespace Trk
         }
       } else {
         delete intersection;
-        intersection = 0;
+        intersection = nullptr;
       }
       delete perigee;
       deleteMaterial(indetMaterial, garbage);
-      indetMaterial = 0;
+      indetMaterial = nullptr;
     }
 
     // integrate X0, energy loss and contribution to covariance (from leading scatterer towards perigee)
@@ -722,14 +722,14 @@ namespace Trk
       if (!m_trackingGeometrySvc) {
         // missing TrackingGeometrySvc - no leading material will be added
         m_messageHelper->printWarning(0);
-        return 0;
-      } else {
+        return nullptr;
+      } 
         createSpectrometerEntranceOnce();
-      }
+      
     }
 
     // check input parameters are really in the spectrometer
-    if (m_calorimeterVolume->inside(spectrometerParameters.position())) return 0;
+    if (m_calorimeterVolume->inside(spectrometerParameters.position())) return nullptr;
 
     const TrackParameters* entranceParameters =
       m_extrapolator->extrapolateToVolume(spectrometerParameters,
@@ -745,7 +745,7 @@ namespace Trk
                       << spectrometerParameters.position().z()
                       << "  with p " << std::setw(8) << std::setprecision(3)
                       << spectrometerParameters.momentum().mag() / Gaudi::Units::GeV);
-      return 0;
+      return nullptr;
     }
 
     const Surface& entranceSurface = entranceParameters->associatedSurface();
@@ -759,7 +759,7 @@ namespace Trk
                            garbage);
     delete entranceParameters;
     if (!extrapolatedTSOS
-        || !extrapolatedTSOS->size()
+        || extrapolatedTSOS->empty()
         || !extrapolatedTSOS->front()->trackParameters()) {
       ATH_MSG_VERBOSE(std::setiosflags(std::ios::fixed)
                       << "leadingSpectrometerTSOS: no material found from RZ"
@@ -770,7 +770,7 @@ namespace Trk
                       << "  with p " << std::setw(8) << std::setprecision(3)
                       << spectrometerParameters.momentum().mag() / Gaudi::Units::GeV);
       delete extrapolatedTSOS;
-      return 0;
+      return nullptr;
     }
 
     std::vector<FitMeasurement*>    leadingMeasurements;
@@ -796,9 +796,9 @@ namespace Trk
     // convert back to TSOS
     std::vector<FitMeasurement*>::iterator m = leadingMeasurements.begin();
     for (; m != leadingMeasurements.end(); ++m)
-      leadingTSOS->push_back(new TrackStateOnSurface(0,
-                                                     0,
-                                                     0,
+      leadingTSOS->push_back(new TrackStateOnSurface(nullptr,
+                                                     nullptr,
+                                                     nullptr,
                                                      (**m).materialEffects()->clone()));
 
     deleteMaterial(extrapolatedTSOS, garbage);
@@ -843,8 +843,8 @@ namespace Trk
         startDirection.dot((**m).intersection(FittedTrajectory).position() - startPosition);
       if (distance < previousDistance) distance += m_orderingTolerance;
       previousDistance = distance - m_orderingTolerance;
-      measurementOrder.push_back(std::make_pair(distance, *m));
-      originalOrder.push_back(std::make_pair(distance, *m));
+      measurementOrder.emplace_back(distance, *m);
+      originalOrder.emplace_back(distance, *m);
     }
     std::sort(measurementOrder.begin(), measurementOrder.end(), compareByDistance());
     std::vector< std::pair<double, FitMeasurement*> >::const_iterator orig = originalOrder.begin();
@@ -937,7 +937,7 @@ namespace Trk
                                                                                    parameterVector[Trk::loc2],
                                                                                    parameterVector[Trk::phi],
                                                                                    parameterVector[Trk::theta],
-                                                                                   parameterVector[Trk::qOverP], 0);
+                                                                                   parameterVector[Trk::qOverP], nullptr);
 
     for (std::vector<Trk::FitMeasurement*>::reverse_iterator r = measurements.rbegin();
          r != measurements.rend();
@@ -1005,7 +1005,7 @@ namespace Trk
     // FIXME: modify aggregation function: no aggregation in EC toroid region (~11m)
     // FIXME: single scatterer in outer delimited pair
     //printMeasurements(measurements);
-    FitMeasurement* previous = 0;
+    FitMeasurement* previous = nullptr;
     double previousDistance = 0.;
 
     Amg::Vector3D startDirection;
@@ -1115,7 +1115,7 @@ namespace Trk
                                           const TrackParameters& parameters,
                                           const Surface& surface,
                                           PropDirection dir,
-                                          BoundaryCheck boundsCheck,
+                                          const BoundaryCheck& boundsCheck,
                                           ParticleHypothesis particleHypothesis,
                                           Garbage_t& garbage) const {
     // fix up material duplication appearing after recent TrackingGeometry speed-up
@@ -1124,7 +1124,7 @@ namespace Trk
 
     if (!TGMaterial || TGMaterial->empty()) return TGMaterial;
 
-    std::vector<const TrackStateOnSurface*>* duplicates = 0;
+    std::vector<const TrackStateOnSurface*>* duplicates = nullptr;
     std::vector<const TrackStateOnSurface*>* material = new std::vector<const TrackStateOnSurface*>;
     material->reserve(TGMaterial->size());
     std::vector<const TrackStateOnSurface*>::const_iterator tg = TGMaterial->begin();
@@ -1167,7 +1167,7 @@ namespace Trk
 
     // loop over measurements to define portions of track needing indet material
     double endIndetDistance = 0.;
-    FitMeasurement* endIndetMeasurement = 0;
+    FitMeasurement* endIndetMeasurement = nullptr;
     double qOverP = startParameters.charge() / startParameters.momentum().mag();
 
     Amg::Vector3D startDirection = startParameters.momentum().unit();
@@ -1349,7 +1349,7 @@ namespace Trk
     }
 
     // firstly: add the material belonging to each measurement layer (and skip leading material)
-    FitMeasurement* leadingDelimiter = 0;
+    FitMeasurement* leadingDelimiter = nullptr;
     Amg::Vector3D nextMomentum(0., 0., 0.);
     Amg::Vector3D nextPosition(0., 0., 0.);
     m = measurements.begin();
@@ -1361,9 +1361,9 @@ namespace Trk
       Amg::Vector3D direction = (**m).intersection(FittedTrajectory).direction();
       Amg::Vector3D position = (**m).intersection(FittedTrajectory).position();
       double closestDistance = direction.dot(position - startPosition);
-      const MaterialEffectsOnTrack* materialEffects = 0;
-      const TrackParameters* materialParameters = 0;
-      const Surface* materialSurface = 0;
+      const MaterialEffectsOnTrack* materialEffects = nullptr;
+      const TrackParameters* materialParameters = nullptr;
+      const Surface* materialSurface = nullptr;
 
       // find the closest material TSOS (inside radial tolerance)
       for (; s != indetMaterialEnd; ++s) {
@@ -1384,7 +1384,7 @@ namespace Trk
           --m;
           if (std::abs(nextDistance) < distance && distance > tolerance) {
             if (s != indetMaterial->begin()) --s;
-            materialSurface = 0;
+            materialSurface = nullptr;
             break;
           }
           closestDistance = distance;
@@ -1405,7 +1405,7 @@ namespace Trk
       if (!materialSurface) continue;
 
       // or if it's already been allocated upstream
-      if (surfaces.size() && materialSurface == surfaces.back()) continue;
+      if (!surfaces.empty() && materialSurface == surfaces.back()) continue;
 
       // skip leading material during the fit (up to and including first measurement)
       // insert an materialDelimiter so the leading material can be allocated after the fit converges
@@ -1427,7 +1427,7 @@ namespace Trk
 
       // insert material at measurement surface
       const std::bitset<MaterialEffectsBase::NumberOfMaterialEffectsTypes> typePattern;
-      const Trk::EnergyLoss* energyLoss = 0;
+      const Trk::EnergyLoss* energyLoss = nullptr;
       if (materialEffects->energyLoss()) energyLoss = materialEffects->energyLoss()->clone();
       MaterialEffectsOnTrack* meot = new MaterialEffectsOnTrack(materialEffects->thicknessInX0(),
                                                                 energyLoss,
@@ -1537,11 +1537,11 @@ namespace Trk
                                          double /*particleMass*/) const {
     // aggregation possible in indet and MS. Frequent occurrence in MS
     ATH_MSG_INFO("segment material aggregation " << material.size());
-    FitMeasurement* measurement1 = 0;
-    FitMeasurement* measurement2 = 0;
-    if (!material.size()) return std::pair<FitMeasurement*, FitMeasurement*>(measurement1, measurement2);
+    FitMeasurement* measurement1 = nullptr;
+    FitMeasurement* measurement2 = nullptr;
+    if (material.empty()) return std::pair<FitMeasurement*, FitMeasurement*>(measurement1, measurement2);
 
-    Amg::Vector3D* referencePosition = 0;
+    Amg::Vector3D* referencePosition = nullptr;
 
 
     int adjacentScatterers = 0;
@@ -1775,8 +1775,8 @@ namespace Trk
     bool haveAggregation = false;
     bool makeAggregation = false;
     double maxDistance = 0.;
-    FitMeasurement* measurement1 = 0;
-    FitMeasurement* measurement2 = 0;
+    FitMeasurement* measurement1 = nullptr;
+    FitMeasurement* measurement2 = nullptr;
     double totalDistance = 0.;
     double totalDistanceSq = 0.;
     double totalEnergyDeposit = 0.;
@@ -1870,7 +1870,7 @@ namespace Trk
 //          msg() << "  distance out of bounds: range " << distance
 //            << " to " << 0. << endmsg;
           } else {
-            FitMeasurement* after = 0;
+            FitMeasurement* after = nullptr;
             FitMeasurement* before = *start;
             double previousDistance = 0.;
             haveAggregation = true;
@@ -1960,8 +1960,8 @@ namespace Trk
                 if (measurement1) aggregateScatterers.push_back(measurement1);
                 if (measurement2) aggregateScatterers.push_back(measurement2);
                 if (keepCurrentMeas) aggregateScatterers.push_back(*m);
-                measurement1 = 0;
-                measurement2 = 0;
+                measurement1 = nullptr;
+                measurement2 = nullptr;
                 break;
               }
               before = *s;
@@ -2091,7 +2091,7 @@ namespace Trk
   MaterialAllocator::measurementFromTSOS(const TrackStateOnSurface& tsos,
                                          double outgoingEnergy,
                                          double particleMass) const {
-    if (!tsos.trackParameters() || !tsos.materialEffectsOnTrack()) return 0;
+    if (!tsos.trackParameters() || !tsos.materialEffectsOnTrack()) return nullptr;
 
     double deltaE = outgoingEnergy - tsos.trackParameters()->momentum().mag();
     double thicknessInX0 = tsos.materialEffectsOnTrack()->thicknessInX0();
@@ -2113,7 +2113,7 @@ namespace Trk
     ATH_MSG_VERBOSE("measurements and material:  distance        X0   deltaE            E        pT"
                     << "           R      phi         Z  DoF      phi    theta");
 
-    if (!measurements.size()) return;
+    if (measurements.empty()) return;
 
     std::vector<Trk::FitMeasurement*>::iterator m = measurements.begin();
     while (m != measurements.end()
@@ -2296,8 +2296,8 @@ namespace Trk
     ATH_MSG_DEBUG(" spectrometerMaterial: ALARM no material found on track can happen for MuGirl");
 
     // material has to be added: need inner and outer TrackParameters
-    FitMeasurement* innerMeasurement = 0;
-    FitMeasurement* outerMeasurement = 0;
+    FitMeasurement* innerMeasurement = nullptr;
+    FitMeasurement* outerMeasurement = nullptr;
     for (m = measurements.begin(); m != measurements.end(); ++m) {
       if (!(**m).isPositionMeasurement() || (**m).isOutlier()) continue;
       Amg::Vector3D position = (**m).intersection(FittedTrajectory).position();
@@ -2320,13 +2320,13 @@ namespace Trk
         // missing TrackingGeometrySvc - no spectrometer material added
         m_messageHelper->printWarning(2);
         return;
-      } else {
+      } 
         createSpectrometerEntranceOnce();
-      }
+      
     }
 
     // entranceParameters are at the MS entrance surface (0 if perigee downstream)
-    TrackSurfaceIntersection* entranceIntersection = 0;
+    TrackSurfaceIntersection* entranceIntersection = nullptr;
     std::unique_ptr<const TrackParameters> entranceParameters;
     MsgStream log(msgSvc(), name());
     if (m_calorimeterVolume->inside(startParameters.position())) {
@@ -2398,7 +2398,7 @@ namespace Trk
 
     double endSpectrometerDistance = startDirection.dot(
       measurements.back()->intersection(FittedTrajectory).position() - startPosition);
-    const std::vector<const TrackStateOnSurface*>* spectrometerMaterial = 0;
+    const std::vector<const TrackStateOnSurface*>* spectrometerMaterial = nullptr;
 
 // protect the momentum to avoid excessive Eloss
 
@@ -2416,7 +2416,7 @@ namespace Trk
                                                                                    parameterVector[Trk::loc2],
                                                                                    parameterVector[Trk::phi],
                                                                                    parameterVector[Trk::theta],
-                                                                                   parameterVector[Trk::qOverP], 0));
+                                                                                   parameterVector[Trk::qOverP], nullptr));
 
     if (entranceParameters) {
       const Surface& entranceSurface = entranceParameters->associatedSurface();
@@ -2480,7 +2480,7 @@ namespace Trk
     if (!spectrometerMaterial || spectrometerMaterial->empty()) {
       m_messageHelper->printWarning(5);
       delete spectrometerMaterial;
-      spectrometerMaterial = 0;
+      spectrometerMaterial = nullptr;
     } else {
       std::vector<const TrackStateOnSurface*>::const_reverse_iterator s =
         spectrometerMaterial->rbegin();

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -23,13 +23,6 @@
 #include "GaudiKernel/ListItem.h"
 
 #include "TrigHLTJetHypo/TrigEFRazorAllTE.h"
-
-//PS #include "JetEvent/JetCollection.h"
-//PS #include "JetEvent/Jet.h"
-//PS #include "FourMomUtils/P4DescendingSorters.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-
-//PS #include "TrigSteeringEvent/TrigPassBits.h"
 
 #include "TrigMissingEtEvent/TrigMissingET.h"
 

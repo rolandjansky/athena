@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUFASTSTEERING_H
@@ -35,7 +35,6 @@
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
-//using namespace TrigL2MuonSA;
 
 class IRegSelSvc;
 class Incident;
@@ -61,7 +60,6 @@ class MuFastSteering : public HLT::FexAlgo,
   
   /** Constructor */
   MuFastSteering(const std::string& name, ISvcLocator* svc);
-  ~MuFastSteering();
   
   /** hltStop() */
   HLT::ErrorCode hltStop();
@@ -87,9 +85,6 @@ class MuFastSteering : public HLT::FexAlgo,
 			       DataVector<xAOD::TrigComposite>&			outputComposite );
 
   int L2MuonAlgoMap(const std::string& name);
-  
-  /** A function which clears internal data for a new event */
-  void clearEvent();
 
   // handler for "UpdateAfterFork" actions
   void handle(const Incident& incident);
@@ -230,12 +225,14 @@ class MuFastSteering : public HLT::FexAlgo,
   Gaudi::Property< float > m_dPhisurrRoI { this, "dPhisurrRoI", 99, "phi range to find surrounding L1 RoIs" };
   Gaudi::Property< float > m_dEtasurrRoI { this, "dEtasurrRoI", 99, "eta range to find surrounding L1 RoIs" };
 
-  //ECRegions whichECRegion(const float eta, const float phi) const;
   float getRoiSizeForID(bool isEta, const xAOD::L2StandAloneMuon* muonSA);
 
   Gaudi::Property< bool > m_allowOksConfig { this, "AllowOksConfig", true, ""};
   Gaudi::Property< std::string > m_calBufferName { this, "MuonCalBufferName", "/tmp/testOutput", ""};
   Gaudi::Property< int > m_calBufferSize { this, "MuonCalBufferSize", 1024*1024, ""};
+
+  // Enable to fill FS RoI for ID (cosmic run)
+  Gaudi::Property< bool > m_fill_FSIDRoI { this, "FILL_FSIDRoI", false, "Fill FS RoI for ID (will be used in cosmic run)"};
 
   //adding a part of DataHandle for AthenaMT
   //ReadHandle xAOD::EventInfo

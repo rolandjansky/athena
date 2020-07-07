@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SGCOMPS_FOLDER_H
@@ -46,8 +46,8 @@ namespace SG {
   public:
     /// \name structors
     //@{
-    Folder(const std::string& name, 
-	   const std::string& type,
+    Folder(const std::string& type,
+	   const std::string& name,
 	   const IInterface* parent);
     virtual ~Folder() override;
     //@}

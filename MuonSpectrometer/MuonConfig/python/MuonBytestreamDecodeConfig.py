@@ -228,8 +228,8 @@ if __name__=="__main__":
     cfg=ComponentAccumulator()
     
     # Seem to need this to read BS properly
-    from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
-    cfg.merge(TrigBSReadCfg(ConfigFlags ))
+    from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+    cfg.merge(ByteStreamReadCfg(ConfigFlags ))
 
     # Schedule Rpc data decoding
     rpcdecodingAcc = RpcBytestreamDecodeCfg( ConfigFlags ) 

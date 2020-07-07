@@ -55,8 +55,5 @@ theApp.EvtMax                   = 1
 #--------------------------------------------------------------
 import AthenaPoolCnvSvc.WriteAthenaPool
 
-# Check the dictionary in memory for completeness
-svcMgr.AthenaSealSvc.CheckDictionary = TRUE
-
 
 

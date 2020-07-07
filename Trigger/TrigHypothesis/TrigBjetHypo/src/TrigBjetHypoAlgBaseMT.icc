@@ -2,6 +2,71 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+
+
+template < class CONTAINER >
+StatusCode TrigBjetHypoAlgBaseMT::retrieveCollectionFromView( const EventContext& context,
+	   			  			      ElementLinkVector< CONTAINER >& EL,
+				   			      const SG::ReadHandleKey< CONTAINER >& inputKey,
+				   			      const TrigCompositeUtils::Decision* prevDecision ) const {
+
+  ElementLink< ViewContainer > viewEL = prevDecision->objectLink< ViewContainer >( TrigCompositeUtils::viewString() );
+  ATH_CHECK( viewEL.isValid() );
+  ATH_MSG_DEBUG( "Retrieved View" );
+
+  SG::ReadHandle< CONTAINER > Handle = ViewHelper::makeHandle( *viewEL, inputKey, context );
+  ATH_CHECK( Handle.isValid() );
+  ATH_MSG_DEBUG ( "EventView " << (*viewEL)->name() << " has object's container of size: " << Handle->size() );
+
+  for ( unsigned int index(0); index < Handle->size(); index++ ) {
+    ElementLink< CONTAINER > toAdd = ViewHelper::makeLink< CONTAINER >( *viewEL, Handle, index );
+    ATH_CHECK( toAdd.isValid() );	
+    EL.push_back( toAdd );
+  }   
+	
+  return StatusCode::SUCCESS;
+}
+
+template < class CONTAINER >
+StatusCode TrigBjetHypoAlgBaseMT::retrieveObjectFromNavigation( const std::string& linkName,
+	   							ElementLink< CONTAINER >& EL,
+	   							const TrigCompositeUtils::Decision* prevDecision )  const {
+
+    const std::vector< TrigCompositeUtils::LinkInfo< CONTAINER > > myObj = 
+    	  TrigCompositeUtils::findLinks< CONTAINER >( prevDecision, linkName.c_str(), TrigDefs::lastFeatureOfType);
+
+    if ( myObj.size() != 1 ) {
+      ATH_MSG_ERROR( "Did not find only 1 object for link `" << linkName << "` stored in navigation!" );
+      return StatusCode::FAILURE;
+    }
+
+    ATH_CHECK( myObj.at(0).isValid() );
+    EL = myObj.at(0).link;	     
+    
+    return StatusCode::SUCCESS;
+}
+
+template < class CONTAINER >
+StatusCode TrigBjetHypoAlgBaseMT::retrieveCollectionFromNavigation( const std::string& linkName,
+                                                    		    ElementLinkVector< CONTAINER >& objELs,
+								    const TrigCompositeUtils::DecisionContainer* prevDecisionContainer )  const {
+
+  for ( const TrigCompositeUtils::Decision *prevDecision : *prevDecisionContainer ) {
+    ElementLink< CONTAINER > objEL;
+    CHECK( retrieveObjectFromNavigation( linkName.c_str(), objEL, prevDecision ) );
+    objELs.push_back( objEL ) ;
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+
+
+
+
+
+
+
 template < class CONTAINER >
 StatusCode TrigBjetHypoAlgBaseMT::retrieveObjectFromStoreGate( const EventContext& context,
 							       ElementLinkVector< CONTAINER >& ELs,

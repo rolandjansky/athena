@@ -23,7 +23,6 @@ void IDC_WriteHandleBase::ReleaseLock(){
 
 //Running code
    assert(m_atomic->load() != ABORTstate);
-   assert(m_mut->counter >= 0);
    lockguard lk(m_mut->mutex);
    m_atomic->compare_exchange_strong(waitstate, ABORTstate);
    m_mut->condition.notify_all();

@@ -2,14 +2,12 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/*************************************************************************************
-                        IMaterialMixtureConvolution.h  -  description
-                        ----------------------------------------------
-begin                : Thursday 7th September 2006
-author               : atkinson
-email                : Tom.Atkinson@cern.ch
-decription           : Abstract base class for convolution of material effects
-************************************************************************************/
+/**
+ * @file   IMaterialMixtureConvolution.h
+ * @date   Thursday 7th September 2006
+ * @author Anthony Morley, Christos Anastopoulos
+ * @brief  Abstract base class for convolution of material effects
+ */
 
 #ifndef TrkIMaterialMixtureConvolution_H
 #define TrkIMaterialMixtureConvolution_H

@@ -24,7 +24,9 @@ author Christopher.Marino <Christopher.Marino@cern.ch>
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "TRT_ConditionsServices/ITRT_CalDbTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
+// MagField cache
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MagFieldElements/AtlasFieldCache.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "InDetLowBetaInfo/InDetLowBetaContainer.h"
 #include "TrkTrack/TrackCollection.h"
@@ -84,7 +86,8 @@ namespace InDet
     /** trying to get ahold of the TRT calib DB: */
     ToolHandle<ITRT_CalDbTool> m_trtconddbTool;
 
-    ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle;
+      // Read handle for conditions object to get the field cache
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
 
   private: // Functions/variables for using TrtToolsBetaLiklihood, see TrtToolsWrapper.cxx
     

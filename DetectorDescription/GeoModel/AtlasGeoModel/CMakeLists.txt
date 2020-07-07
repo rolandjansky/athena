@@ -20,8 +20,8 @@ if( NOT SIMULATIONBASE AND NOT GENERATIONBASE )
   atlas_add_test( AtlasGeoModelConfig    SCRIPT python -m AtlasGeoModel.GeoModelConfig POST_EXEC_SCRIPT nopost.sh )
   atlas_add_test( HITS_InputGeo_test
                   SCRIPT test/AtlasGeometryConfig_HITS_test.py
-                  PROPERTIES TIMEOUT 300 )
+                  PROPERTIES TIMEOUT 600 )
   atlas_add_test( AOD_InputGeo_test
                   SCRIPT test/AtlasGeometryConfig_AOD_test.py
-                  PROPERTIES TIMEOUT 300 )
+                  PROPERTIES TIMEOUT 600 )
 endif()

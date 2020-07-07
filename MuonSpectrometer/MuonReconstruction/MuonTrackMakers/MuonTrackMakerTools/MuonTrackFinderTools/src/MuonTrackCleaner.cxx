@@ -52,11 +52,12 @@ namespace Muon {
     ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
     ATH_CHECK( m_extrapolator.retrieve() );
+    ATH_CHECK( m_slextrapolator.retrieve() );
     ATH_CHECK( m_pullCalculator.retrieve() );
     ATH_CHECK( m_mdtRotCreator.retrieve() );
     ATH_CHECK( m_compRotCreator.retrieve() );
     ATH_CHECK( m_measurementUpdator.retrieve() );
-    ATH_CHECK( m_magFieldSvc.retrieve() );
+    ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
 
     return StatusCode::SUCCESS;
   }
@@ -883,7 +884,21 @@ namespace Muon {
     state.nIdHits = 0;
     state.nPseudoMeasurements = 0;
     state.nPhiConstraints = 0;
-    state.slFit =  !m_magFieldSvc->toroidOn() || m_edmHelperSvc->isSLTrack( track );
+
+    MagField::AtlasFieldCache    fieldCache;
+    // Get field cache object
+    EventContext ctx = Gaudi::Hive::currentContext();
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+
+    if (fieldCondObj == nullptr) {
+      ATH_MSG_ERROR("Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+      return;
+    }
+    fieldCondObj->getInitializedCache (fieldCache);
+    
+    state.slFit =  !fieldCache.toroidOn() || m_edmHelperSvc->isSLTrack( track );
+    if(m_use_slFit) state.slFit = true;
 
     // loop over track and calculate residuals
     const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
@@ -1181,7 +1196,8 @@ namespace Muon {
 	ATH_MSG_DEBUG("updated competing ROT");
 	info.cleanedCompROT = std::move(updatedCompRot);
 	if( info.cleanedCompROT->associatedSurface() != meas->associatedSurface() ){
-	  const Trk::TrackParameters* exPars=m_extrapolator->extrapolate(*pars,info.cleanedCompROT->associatedSurface(),Trk::anyDirection,false,Trk::muon);
+	  const Trk::TrackParameters* exPars= state.slFit ? m_slextrapolator->extrapolate(*pars,info.cleanedCompROT->associatedSurface(),Trk::anyDirection,false,Trk::muon) :
+                                                      m_extrapolator->extrapolate(*pars,info.cleanedCompROT->associatedSurface(),Trk::anyDirection,false,Trk::muon);
 	  if( !exPars ){
 	    ATH_MSG_WARNING("Update of comp rot parameters failed, keeping old ones" );
 	    info.cleanedCompROT.reset();
@@ -1319,7 +1335,7 @@ namespace Muon {
     }
 
     // update sl fit configuration if track has ID hits or vertex constraint
-    if( state.slFit && (state.hasVertexConstraint || state.nIdHits > 0 ) && m_magFieldSvc->solenoidOn() ) {
+    if( !m_use_slFit && state.slFit && (state.hasVertexConstraint || state.nIdHits > 0 ) && fieldCache.solenoidOn() ) {
       state.slFit = false;
     }
 
@@ -1327,9 +1343,9 @@ namespace Muon {
     if(state.hasVertexConstraint || state.nIdHits ) {
       if( state.hasVertexConstraint ) ATH_MSG_DEBUG(" Track has vertex contraint:");
       if( state.nIdHits > 0 )         ATH_MSG_DEBUG(" Track has  ID Hits: " << state.nIdHits);
-      if( m_magFieldSvc->solenoidOn() ) ATH_MSG_DEBUG(" Solenoid On");
+      if( fieldCache.solenoidOn() ) ATH_MSG_DEBUG(" Solenoid On");
       else               ATH_MSG_DEBUG(" Solenoid Off");
-      if( m_magFieldSvc->toroidOn() )   ATH_MSG_DEBUG(" Toroid On");
+      if( fieldCache.toroidOn() )   ATH_MSG_DEBUG(" Toroid On");
       else               ATH_MSG_DEBUG(" Toroid Off");
       if( state.slFit )  ATH_MSG_DEBUG(" Use SL fit");
       else               ATH_MSG_DEBUG(" Use curved fit");

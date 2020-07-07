@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MM__CLUSTER_ON_TRACK_P1_TRK_H
@@ -10,10 +10,10 @@
 // file:   MM_ClusterOnTrack_p1.h
 //
 //-----------------------------------------------------------------------------
+#include <vector>
+
 #include "AthenaPoolUtilities/TPObjRef.h"
 #include "DataModelAthenaPool/ElementLink_p3.h"
-
-
 namespace Muon
 {
     /** Version 1 of the persistent class representing the transient class Muon::MM_ClusterOnTrack */
@@ -32,6 +32,9 @@ namespace Muon
       
       /** position along strip (double in transient world)*/
       float m_positionAlongStrip;
+      std::vector<float> m_stripDriftDists;
+      std::vector<float> m_stripDriftDistErrors_0_0;
+      std::vector<float> m_stripDriftDistErrors_1_1;
    };
 }
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -187,10 +187,7 @@ def LArEMBSensitiveDetectorCfg(ConfigFlags,name="LArEMBSensitiveDetector", **kwa
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
 
     # Hook for fast simulation
-    #from G4AtlasApps.SimFlags import simFlags
-    #kwargs.setdefault("UseFrozenShowers", simFlags.LArParameterization()>0)
-
-    #Note - frozen showers to be migrated later
+    kwargs.setdefault("UseFrozenShowers", ConfigFlags.Sim.LArParameterization > 0)
 
     from LArG4Barrel.LArG4BarrelConfigNew import EMBPresamplerCalculatorCfg, EMBCalculatorCfg
     result.merge(EMBPresamplerCalculatorCfg(ConfigFlags))
@@ -224,9 +221,7 @@ def LArEMECSensitiveDetectorCfg(ConfigFlags, name="LArEMECSensitiveDetector", **
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
 
     # Hook for fast simulation
-    #kwargs.setdefault("UseFrozenShowers", simFlags.LArParameterization()>0)
-
-    #Note - frozen showers to be migrated later
+    kwargs.setdefault("UseFrozenShowers", ConfigFlags.Sim.LArParameterization > 0)
 
     from LArG4EC.LArG4ECConfigNew import EMECPosInnerWheelCalculatorCfg, EMECNegInnerWheelCalculatorCfg, EMECPosOuterWheelCalculatorCfg, EMECNegOuterWheelCalculatorCfg, EMECPresamplerCalculatorCfg, EMECPosBackOuterBarretteCalculatorCfg, EMECNegBackOuterBarretteCalculatorCfg
 
@@ -271,10 +266,7 @@ def LArFCALSensitiveDetectorCfg(ConfigFlags, name="LArFCALSensitiveDetector", **
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
 
     # Hook for fast simulation
-    #from G4AtlasApps.SimFlags import simFlags
-    #kwargs.setdefault("UseFrozenShowers", simFlags.LArParameterization()>0)
-
-    #Note - frozen showers to be migrated later
+    kwargs.setdefault("UseFrozenShowers", ConfigFlags.Sim.LArParameterization > 0)
 
     from LArG4FCAL.LArG4FCALConfigNew import FCAL1CalculatorCfg, FCAL2CalculatorCfg, FCAL3CalculatorCfg
 

@@ -420,12 +420,11 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
       //std::vector<int>::iterator idIt = m_listOfPixIds.begin();
       for( ; hashIt != hashItEnd; ++hashIt ){
         // get single pixel collection -> pixSpCollIt
-        SpacePointContainer::const_iterator pixSpCollIt = pixCont->indexFind( (*hashIt) );
-        if( pixSpCollIt == pixCont->end() ) continue;
-        if( (*pixSpCollIt) == NULL ) continue;
+        auto pixSpCollIt = pixCont->indexFindPtr( (*hashIt) );
+        if( pixSpCollIt == NULL ) continue;
 
         // identify a module/wafer
-        Identifier pixid = (*pixSpCollIt)->identify();
+        Identifier pixid = pixSpCollIt->identify();
 
         // If B-layer only mode, then enforce layer 0
         if (m_doOnlyBLayer == true && m_pixHelper->layer_disk(pixid) != 0) continue;
@@ -433,8 +432,8 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
         int bec = m_pixHelper->barrel_ec(pixid);
 
         // retrieve number of pixel SP/CL per collection
-        SpacePointCollection::const_iterator spItEnd = (*pixSpCollIt)->end();
-        SpacePointCollection::const_iterator spIt = (*pixSpCollIt)->begin();
+        SpacePointCollection::const_iterator spItEnd = pixSpCollIt->end();
+        SpacePointCollection::const_iterator spIt = pixSpCollIt->begin();
 
         for( ; spIt != spItEnd; ++spIt ){
           const Trk::SpacePoint* pSP = (*spIt);
@@ -638,16 +637,15 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
       std::vector<IdentifierHash>::iterator sctItEnd = m_listOfSctIds.end();
       std::vector<IdentifierHash>::iterator sctIt = m_listOfSctIds.begin();
       for ( ; sctIt != sctItEnd; ++sctIt ) {
-        SpacePointContainer::const_iterator sctSpCollIt = sctCont->indexFind( (*sctIt) );
+        auto sctSpCollIt = sctCont->indexFindPtr( (*sctIt) );
 
-        if( sctSpCollIt == sctCont->end() ) continue;
-        if( (*sctSpCollIt) == NULL ) continue;
+        if( sctSpCollIt == NULL ) continue;
 
         const std::vector<Identifier>& rdoList();
-        m_nSctSP = (*sctSpCollIt)->size();
+        m_nSctSP = sctSpCollIt->size();
 
         // returns detector element identifier
-        Identifier sctid = (*sctSpCollIt)->identify();
+        Identifier sctid = sctSpCollIt->identify();
 
         int bec = (int)m_sctHelper->barrel_ec(sctid);
 

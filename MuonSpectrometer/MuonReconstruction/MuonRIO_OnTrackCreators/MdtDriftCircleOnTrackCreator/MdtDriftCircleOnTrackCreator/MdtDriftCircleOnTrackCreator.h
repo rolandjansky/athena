@@ -1,46 +1,33 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-//  Header file for class  MdtOnTrackTool 
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-// Interface for MuonDriftCircleOnTrack production
-// (for MDT technology)
-///////////////////////////////////////////////////////////////////
-// Version 1.0 18/07/2004 
-///////////////////////////////////////////////////////////////////
 
 #ifndef MUON_MDTDRIFTCIRCLEONTRACKCREATOR_H
 #define MUON_MDTDRIFTCIRCLEONTRACKCREATOR_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/PhysicalConstants.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "GaudiKernel/PhysicalConstants.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonRIO_OnTrack/MuonDriftCircleErrorStrategy.h"
-
+#include "MdtCalibSvc/MdtCalibrationTool.h"
+#include "MdtCalibSvc/MdtCalibrationDbTool.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkSpaceTimePoint/SpaceTimePoint.h"
+
 #include <bitset>
 #include <string>
 
-class Identifier;
-class MdtIdHelper;
-class MdtCalibrationTool;
-class MdtCalibrationDbTool;
 class MdtCalibrationSvcSettings;
 class MdtCalibrationSvcInput;
-class MsgStream;
 
 namespace Muon {
 
     class MdtPrepData;
-    class MuonIdHelperTool;
 
     /**Interface for the reconstruction to MDT calibration and alignment corrections. It should be used by 
               reconstruction and pattern recognition to create Muon::MdtDriftCircleOnTrack (s).
@@ -83,9 +70,9 @@ namespace Muon {
     public:
 
       MdtDriftCircleOnTrackCreator(const std::string&,const std::string&,const IInterface*);
-      virtual ~MdtDriftCircleOnTrackCreator ();
+      virtual ~MdtDriftCircleOnTrackCreator()=default;
       virtual StatusCode initialize();
-      virtual StatusCode finalize  ();
+      virtual StatusCode finalize();
 
       /** @brief Calibrate a MdtPrepData object. The result is stored in a new MdtDriftCircleOnTrack object.
       Included calibrations:
@@ -201,18 +188,16 @@ namespace Muon {
       
       double muonErrorStrategy(const MuonDriftCircleErrorStrategy* myStrategy, double sigmaR, const Identifier& id) const;
       
-      ToolHandle<Muon::MuonIdHelperTool>   m_idHelper;
+      ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
       ToolHandle<MdtCalibrationTool> m_mdtCalibrationTool;
       ToolHandle<MdtCalibrationDbTool> m_mdtCalibrationDbTool;
 
       // Configuration variables
       bool                                 m_doMdt; //!< Process MDT ROTs
       int                                  m_timeCorrectionType; //!< Defined in TimingMode enum.
-      //bool                                 m_scaleErrorManually; //!< if set to true errors will be scaled with 'FixedErrorScale' + FixedError
       bool                                 m_discardMaskedHits; //!< if set to true, do not create ROTs for masked hits
 
       // Constants for use during calculations
-      double                               m_invSpeed; //!< Inverse speed of light (used in default tof correction: timing mode=0)
       double                               m_fixedError; //!< Error used when m_doFixed error =true or m_scaleErrorManually = true
       double                               m_globalToLocalTolerance; 
       

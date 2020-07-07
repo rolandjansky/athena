@@ -99,8 +99,7 @@ StatusCode VHtoVVDiLepFilter::filterEvent() {
   return StatusCode::SUCCESS;
 }
 
-
-void VHtoVVDiLepFilter::findAncestor(const HepMC::GenVertex* searchvertex,
+void VHtoVVDiLepFilter::findAncestor(const HepMC::GenVertexPtr searchvertex,
                                      int targetPDGID, int& n_okPDGChild) {
   std::vector<int> foundCodes;
   if (!searchvertex) return;

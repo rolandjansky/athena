@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -95,7 +95,7 @@ Amg::Transform3D* Trk::LineSaggingDescriptor::correctedSurfaceTransform(const Am
   // new z direction - build d(sag)/d(z)
   //double dsagdz = 8.0*s*sagMax/wireLengthSquare;
   // and the vector
-  Amg::Vector3D newLineDir(lineDirection);
+  const Amg::Vector3D& newLineDir(lineDirection);
   // build the other vectors
   Amg::Vector3D newLineY(newLineDir.cross(sagDir)); 
   // build the x vector

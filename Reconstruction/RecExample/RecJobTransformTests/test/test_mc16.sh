@@ -1,6 +1,7 @@
 #!/bin/sh
 #
 # art-description: Reco_tf runs on mc16, based on recon tag r9364 MC16a
+# art-athena-mt: 4
 # art-type: grid
 # art-include: 21.0/Athena
 # art-include: 21.0-TrigMC/Athena

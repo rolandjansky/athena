@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -30,7 +30,7 @@ class MonitoredScalarTestSuite {
         REGISTER_TEST_CASE(test_shouldAcceptCustomTypeAndReturnOriginalValue),
         REGISTER_TEST_CASE(test_shouldAllowToProvideRepresentationConverter),
         REGISTER_TEST_CASE(test_shouldAllowToChangeUnderlayingValue),
-        REGISTER_TEST_CASE(test_shouldReturnSingleElementVectorRepresentation),
+        REGISTER_TEST_CASE(test_shouldReturnSingleElement),
       };
     }
 
@@ -60,10 +60,9 @@ class MonitoredScalarTestSuite {
 
     void test_shouldAllowToProvideRepresentationConverter() { 
       auto phi = Monitored::Scalar<double>("phi", 4.123456789012345, [](double value) { return value * 1000; }); 
-      std::vector<double> representation = phi.getVectorRepresentation();
 
       assert(phi == 4.123456789012345);
-      assert(representation[0] == 4123.456789012345);
+      assert(phi.get(0) == 4123.456789012345);
     }
 
     void test_shouldAllowToChangeUnderlayingValue() { 
@@ -74,12 +73,11 @@ class MonitoredScalarTestSuite {
       assert(phi == 5.5);
     }
 
-    void test_shouldReturnSingleElementVectorRepresentation() { 
-      auto phi = Monitored::Scalar("phi", 4.2); 
-      std::vector<double> representation = phi.getVectorRepresentation();
+    void test_shouldReturnSingleElement() {
+      auto phi = Monitored::Scalar("phi", 4.2);
 
-      assert(size(representation) == 1);
-      assert(representation[0] == 4.2);
+      assert(phi.size() == 1);
+      assert(phi.get(0) == 4.2);
     }
 
   // ==================== Helper methods ====================

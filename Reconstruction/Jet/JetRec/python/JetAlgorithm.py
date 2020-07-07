@@ -155,9 +155,11 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
                         Tools=[jtm.jetconstit])
 
   # Add all the PseudoJetAlgorithms now
-  from JetRec.JetRecConf import PseudoJetAlgorithm
+  # To avoid massive refactoring and to preserve familiarity,
+  # kept calling things "getters", but these are already
+  # PseudoJetAlgorithms as we eliminated the wrappers
   for getter in jtm.allGetters:
-    job += PseudoJetAlgorithm("pjalg_"+getter.Label,PJGetter=getter)
+    job += getter
 
   # Then, add all event shape tools in separate algs
   for evstool in jtm.allEDTools:

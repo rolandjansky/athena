@@ -1,90 +1,72 @@
-<!-- $Id: selection.xml 706292 2015-11-06 05:33:24Z ssnyder $ -->
+<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
 <lcgdict>
 
-  <!-- dictionaries: -->
+   <!-- xAOD::L2StandAloneMuon interface type(s). -->
+   <class name="xAOD::L2StandAloneMuon_v1" />
+   <class name="xAOD::L2StandAloneMuonContainer_v1"
+          id="645BDBC3-44EE-486B-8783-96F93FA2550B" />
+   <class name="xAOD::L2StandAloneMuon_v2" />
+   <class name="xAOD::L2StandAloneMuonContainer_v2"
+          id="6B02C486-CB3B-4762-89CA-60B210FC5AAF" />
+   <typedef name="xAOD::L2StandAloneMuon" />
+   <typedef name="xAOD::L2StandAloneMuonContainer" />
 
-  <!-- L2StandAloneMuon_v1 -->
-  <class name="xAOD::L2StandAloneMuon_v1" />
+   <!-- Tell ROOT that it should automatically convert between smart pointer -->
+   <!-- types. -->
+   <read sourceClass="DataLink<xAOD::L2StandAloneMuonContainer_v1>"
+         version="[1-]"
+         targetClass="DataLink<xAOD::L2StandAloneMuonContainer_v2>"
+         source="" target="" />
+   <read sourceClass="ElementLink<xAOD::L2StandAloneMuonContainer_v1>"
+         version="[1-]"
+         targetClass="ElementLink<xAOD::L2StandAloneMuonContainer_v2>"
+         source="" target="" />
 
-  <class name="xAOD::L2StandAloneMuonContainer_v1"
-         id="645BDBC3-44EE-486B-8783-96F93FA2550B" />
-  <class name="xAOD::L2StandAloneMuonAuxContainer_v1"
-         id="69F56941-D2B5-4C70-BFBD-605CB64A3DB8" />
+   <!-- xAOD::L2StandAloneMuon auxiliary type(s). -->
+   <class name="xAOD::L2StandAloneMuonAuxContainer_v1"
+          id="69F56941-D2B5-4C70-BFBD-605CB64A3DB8" />
+   <class name="xAOD::L2StandAloneMuonAuxContainer_v2"
+          id="39CA616A-16BF-4CCE-8885-3D68CE7BC3B0" />
+   <typedef name="xAOD::L2StandAloneMuonAuxContainer" />
 
-  <class name="DataLink<xAOD::L2StandAloneMuonContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::L2StandAloneMuonContainer_v1> >" />
+   <!-- xAOD::L2IsoMuon interface type(s). -->
+   <class name="xAOD::L2IsoMuon_v1" />
+   <class name="xAOD::L2IsoMuonContainer_v1"
+          id="D3AD2358-29B9-48D1-B181-89D4DA39B5CC" />
+   <typedef name="xAOD::L2IsoMuon" />
+   <typedef name="xAOD::L2IsoMuonContainer" />
 
-  <class name="ElementLink<xAOD::L2StandAloneMuonContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::L2StandAloneMuonContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::L2StandAloneMuonContainer_v1> > >" />
+   <!-- xAOD::L2IsoMuon auxiliary type(s). -->
+   <class name="xAOD::L2IsoMuonAuxContainer_v1"
+          id="09310901-41D9-49FB-A131-5AC73A9EA455" />
+   <typedef name="xAOD::L2IsoMuonAuxContainer" />
 
-  <!-- L2StandAloneMuon_v2 -->
-  <class name="xAOD::L2StandAloneMuon_v2" />
+   <!-- xAOD::L2CombinedMuon interface type(s). -->
+   <class name="xAOD::L2CombinedMuon_v1" />
+   <class name="xAOD::L2CombinedMuonContainer_v1"
+          id="91ECD1FA-3B9F-4F80-BBD1-698DCC7C9477" />
+   <typedef name="xAOD::L2CombinedMuon" />
+   <typedef name="xAOD::L2CombinedMuonContainer" />
 
-  <class name="xAOD::L2StandAloneMuonContainer_v2"
-         id="6B02C486-CB3B-4762-89CA-60B210FC5AAF" />
-  <class name="xAOD::L2StandAloneMuonAuxContainer_v2"
-         id="39CA616A-16BF-4CCE-8885-3D68CE7BC3B0" />
+   <!-- xAOD::L2CombinedMuon auxiliary type(s). -->
+   <class name="xAOD::L2CombinedMuonAuxContainer_v1"
+          id="0A7A1CB4-A5D3-4447-BE1A-F4DA14D5891B" />
+   <typedef name="xAOD::L2CombinedMuonAuxContainer" />
 
-  <class name="DataLink<xAOD::L2StandAloneMuonContainer_v2>" />
-  <class name="std::vector<DataLink<xAOD::L2StandAloneMuonContainer_v2> >" />
-
-  <class name="ElementLink<xAOD::L2StandAloneMuonContainer_v2>" />
-  <class name="std::vector<ElementLink<xAOD::L2StandAloneMuonContainer_v2> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::L2StandAloneMuonContainer_v2> > >" />
-
-  <!-- L2IsoMuon -->
-  <class name="xAOD::L2IsoMuon_v1" />
-
-  <class name="xAOD::L2IsoMuonContainer_v1"
-         id="D3AD2358-29B9-48D1-B181-89D4DA39B5CC" />
-  <class name="xAOD::L2IsoMuonAuxContainer_v1"
-         id="09310901-41D9-49FB-A131-5AC73A9EA455" />
-
-  <class name="DataLink<xAOD::L2IsoMuonContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::L2IsoMuonContainer_v1> >" />
-
-  <class name="ElementLink<xAOD::L2IsoMuonContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::L2IsoMuonContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::L2IsoMuonContainer_v1> > >" />
-
-  <!-- L2CombinedMuon -->
-  <class name="xAOD::L2CombinedMuon_v1" />
-
-  <class name="xAOD::L2CombinedMuonContainer_v1"
-         id="91ECD1FA-3B9F-4F80-BBD1-698DCC7C9477" />
-  <class name="xAOD::L2CombinedMuonAuxContainer_v1"
-         id="0A7A1CB4-A5D3-4447-BE1A-F4DA14D5891B" />
-
-  <class name="DataLink<xAOD::L2CombinedMuonContainer_v1>" />
-  <class name="std::vector<DataLink<xAOD::L2CombinedMuonContainer_v1> >" />
-
-  <class name="ElementLink<xAOD::L2CombinedMuonContainer_v1>" />
-  <class name="std::vector<ElementLink<xAOD::L2CombinedMuonContainer_v1> >" />
-  <class name="std::vector<std::vector<ElementLink<xAOD::L2CombinedMuonContainer_v1> > >" />
-
-  <read sourceClass="xAOD::L2CombinedMuonAuxContainer_v1"
-        targetClass="xAOD::L2CombinedMuonAuxContainer_v1"
-        checksum="[1033889070]"
-        source="std::vector<ElementLink<xAOD::L2StandAloneMuonContainer_v1> > muSATrackLink"
-        target="muSATrackLink" >
-    <![CDATA[
-       muSATrackLink.clear();
-       muSATrackLink.reserve (onfile.muSATrackLink.size());
-       for (const ElementLink<xAOD::L2StandAloneMuonContainer_v1>& el : 
-            onfile.muSATrackLink)
-       {
-         muSATrackLink.emplace_back (el.key(), el.index(), el.source());
-       }
-    ]]>
-  </read>
-
-  <!-- Suppress the unwanted classes found by ROOT 6. -->
-  <!-- Hopefully we can remove these extra lines at one point... -->
-  <exclusion>
-    <class name="SG::IConstAuxStore" />
-    <class name="DataLink<SG::IConstAuxStore>" />
-    <class name="DataVector<xAOD::IParticle>" />
-  </exclusion>
+   <read sourceClass="xAOD::L2CombinedMuonAuxContainer_v1"
+         targetClass="xAOD::L2CombinedMuonAuxContainer_v1"
+         checksum="[1033889070]"
+         source="std::vector<ElementLink<xAOD::L2StandAloneMuonContainer_v1> > muSATrackLink"
+         target="muSATrackLink" >
+     <![CDATA[
+        muSATrackLink.clear();
+        muSATrackLink.reserve (onfile.muSATrackLink.size());
+        for (const ElementLink<xAOD::L2StandAloneMuonContainer_v1>& el :
+             onfile.muSATrackLink)
+        {
+          muSATrackLink.emplace_back (el.key(), el.index(), el.source());
+        }
+     ]]>
+   </read>
 
 </lcgdict>

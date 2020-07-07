@@ -72,8 +72,8 @@ private:
                       const TruthParticle* previousPart=NULL );
 
   /** Get the mother of a TruthParticle */
-  bool getDaughters( const HepMC::GenParticle* genPart, 
-                     std::vector<const HepMC::GenParticle* > &daughters );
+  bool getDaughters( HepMC::ConstGenParticlePtr genPart, 
+                     std::vector<HepMC::ConstGenParticlePtr > &daughters );
 
 
 private:

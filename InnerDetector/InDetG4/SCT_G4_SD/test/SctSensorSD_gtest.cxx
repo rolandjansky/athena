@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "src/SctSensorSD.h"
@@ -118,7 +118,7 @@ TEST_F( SctSensorSDtest, indexMethod )
   G4String name = "logicalName";
   G4LogicalVolume fLogical(box, material, name);
   G4String name1 = "physicalName";
-  G4VPhysicalVolume* pPhysical = NULL;
+  G4VPhysicalVolume* pPhysical = nullptr;
   G4MyPhysicalVolume physicalVolume(0, G4ThreeVector(0,0,0), name1, &fLogical, pPhysical);
   physicalVolume.SetCopyNo(1000);
   G4int nReplica = 2;

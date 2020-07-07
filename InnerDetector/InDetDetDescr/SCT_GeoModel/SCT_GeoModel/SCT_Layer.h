@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -11,6 +11,7 @@
 
 #include "SCT_GeoModel/SCT_ComponentFactory.h"
 
+#include <memory>
 #include <string>
 
 class GeoMaterial;
@@ -42,7 +43,7 @@ public:
             const SCT_GeometryManager* geometryManager,
             SCT_MaterialManager* materials);
 
-  ~SCT_Layer();
+  virtual ~SCT_Layer();
   //Explicitly disallow copy, assign to appease coverity
   SCT_Layer(const SCT_Layer &) = delete;
   SCT_Layer & operator=(const SCT_Layer &) = delete;
@@ -103,19 +104,19 @@ private:
   double m_phiScorpion;
   double m_zScorpion;
 
-  SCT_Module       * m_module;
-  SCT_Ski          * m_ski;
-  SCT_Clamp        * m_clamp;
-  SCT_CoolingEnd   * m_coolingEnd;
-  SCT_Bracket      * m_bracket;
-  SCT_Harness      * m_harness;
-  SCT_SkiPowerTape * m_skiPowerTape;
-  SCT_SkiAux       * m_skiAux;
-  SCT_Flange       * m_flange;
-  SCT_SupportCyl   * m_supportCyl;
-  SCT_FSIEndJewel  * m_endJewel;
-  SCT_FSIScorpion  * m_scorpion;
-  SCT_FSIFibreMask * m_fibreMask;
+  SCT_Module* m_module;
+  std::unique_ptr<SCT_Ski> m_ski;
+  std::unique_ptr<SCT_Clamp> m_clamp;
+  std::unique_ptr<SCT_CoolingEnd> m_coolingEnd;
+  std::unique_ptr<SCT_Bracket> m_bracket;
+  std::unique_ptr<SCT_Harness> m_harness;
+  std::unique_ptr<SCT_SkiPowerTape> m_skiPowerTape;
+  std::unique_ptr<SCT_SkiAux> m_skiAux;
+  std::unique_ptr<SCT_Flange> m_flange;
+  std::unique_ptr<SCT_SupportCyl> m_supportCyl;
+  std::unique_ptr<SCT_FSIEndJewel> m_endJewel;
+  std::unique_ptr<SCT_FSIScorpion> m_scorpion;
+  std::unique_ptr<SCT_FSIFibreMask> m_fibreMask;
 
 };
 

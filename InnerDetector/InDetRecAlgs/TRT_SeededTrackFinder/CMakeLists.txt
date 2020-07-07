@@ -26,7 +26,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( TRT_SeededTrackFinder
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetRecToolInterfaces TrkSegment TrkTrack TrkExInterfaces TrkFitterInterfaces InDetRIO_OnTrack SiSPSeededTrackFinderData TrkEventPrimitives TrkPseudoMeasurementOnTrack TrkEventUtils)
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetRecToolInterfaces TrkSegment TrkTrack TrkExInterfaces TrkFitterInterfaces InDetRIO_OnTrack SiSPSeededTrackFinderData TrkEventPrimitives TrkPseudoMeasurementOnTrack TrkEventUtils BeamSpotConditionsData )
 
 # Install files from the package:
 atlas_install_headers( TRT_SeededTrackFinder )

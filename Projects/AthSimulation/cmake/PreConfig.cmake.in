@@ -2,6 +2,12 @@
 # Pre-config script to propagate variables to downstream projects
 #
 
+# Set up the project's flake8 usage.
+set( ATLAS_FLAKE8 @ATLAS_FLAKE8@
+   CACHE STRING "Default flake8 command" )
+set( ATLAS_PYTHON_CHECKER @ATLAS_PYTHON_CHECKER@
+   CACHE STRING "Python checker command to run during Python module compilation" )
+
 # Due to the way CMake handles propagation of targets to dependees,
 # any "external" that is used through imported targets in the build need
 # to be imported explicitly here.

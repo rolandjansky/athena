@@ -43,16 +43,16 @@ public:
   /** Copy constructor */
   EMDatabaseID(const EMDatabaseID& ob);
   /** Constructor via unique id-string*/
-  EMDatabaseID(std::string id);
+  EMDatabaseID(const std::string& id);
   /** Constructor via unique id-string*/
   EMDatabaseID(EMDatabaseIDDescriptor &id);
   /** Constructor via 8 Identifiers for performance parameters which have been determined in a specific run*/
-  EMDatabaseID(std::string Object, std::string Container, std::string Type, std::string Channel, std::string Author, std::string RecoSWV, std::string Tag, long start, long end);
+  EMDatabaseID(const std::string& Object, const std::string& Container, const std::string& Type, const std::string& Channel, const std::string& Author, const std::string& RecoSWV, const std::string& Tag, long start, long end);
   /** Constructor via 7 Identifiers for performance parameters which have been determined in Monte Carlo Simulation*/
-  EMDatabaseID(std::string Object, std::string Container, std::string Type, std::string Channel, std::string Author, std::string RecoSWV, std::string Tag, std::string SimSWV);
+  EMDatabaseID(const std::string& Object, const std::string& Container, const std::string& Type, const std::string& Channel, const std::string& Author, const std::string& RecoSWV, const std::string& Tag, const std::string& SimSWV);
   
   // this constructor is used for object retrieval; it only contains the subset that is needed
-  EMDatabaseID(std::string Object, std::string Type, std::string Tag);
+  EMDatabaseID(const std::string& Object, const std::string& Type, const std::string& Tag);
 
   /** Destructor*/
   ~EMDatabaseID();
@@ -67,12 +67,12 @@ public:
   /** Set given ID to this object*/
   void set(const EMDatabaseID& ob);
   /** Set ID of this object via 8 Identifiers which describe a specific data-run*/
-  void set(std::string Object, std::string Container, std::string Type, std::string Channel, std::string Author, std::string RecoSWV, std::string Tag, long start, long end);
+  void set(const std::string& Object, const std::string& Container, const std::string& Type, const std::string& Channel, const std::string& Author, const std::string& RecoSWV, const std::string& Tag, long start, long end);
   /** Set ID of this object via 7 Identifiers which describe a Monte Carlo sample*/
-  void set(std::string Object, std::string Container, std::string Type, std::string Channel, std::string Author, std::string RecoSWV, std::string Tag, std::string SimSWV);
+  void set(const std::string& Object, const std::string& Container, const std::string& Type, const std::string& Channel, const std::string& Author, const std::string& RecoSWV, const std::string& Tag, const std::string& SimSWV);
 
   // this constructor is used for object retrieval; it only contains the subset that is needed
- void set(std::string Object, std::string Type, std::string Tag);
+ void set(const std::string& Object, const std::string& Type, const std::string& Tag);
 
   /** Clear all ID-informations*/
   void clear();

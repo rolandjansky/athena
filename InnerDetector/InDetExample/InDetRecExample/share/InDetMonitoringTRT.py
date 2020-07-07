@@ -88,8 +88,13 @@ InDetTRT_Monitoring_Tool = TRT_Monitoring_Tool (name                         = "
                                                 min_si_hits                  = minSiHitCut, # default = 3
                                                 min_pixel_hits               = minPixHitCut, # default = 1
                                                 min_sct_hits                 = 0,
-                                                min_trt_hits                 = 10
+                                                min_trt_hits                 = 10,
+                                                TrigDecisionObjectName       = "xTrigDecision" if DQMonFlags.useTrigger else ""
                                                 )
+
+if globalflags.DataSource == 'geant4':
+  #No ByteStream error in MC case
+  InDetTRT_Monitoring_Tool.ByteStreamErrors=""
 
 if jobproperties.Beam.beamType()=='collisions':
   from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool

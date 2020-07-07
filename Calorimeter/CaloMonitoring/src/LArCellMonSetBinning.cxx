@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CaloMonitoring/LArCellMonTool.h"
+#include "LArCellMonTool.h"
 using namespace CaloMonitoring;
 
 void LArCellMonTool::setLArCellBinning() {

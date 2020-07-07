@@ -8,6 +8,7 @@
 /** @file ByteStreamEventStorageInputSvc.h
  *  @brief This file contains the class definition for the ByteStreamEventStorageInputSvc class.
  *  @author Peter van Gemmeren <gemmeren@anl.gov>
+ *  @author Frank Berghaus <fberghaus@anl.gov>
  **/
 
 // Include files.
@@ -15,111 +16,115 @@
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "ByteStreamData/RawEvent.h"
 #include "AthenaKernel/SlotSpecificObj.h"
-#include "EventStorage/DataReader.h"
 
 // FrameWork includes
 #include "GaudiKernel/ServiceHandle.h"
 
+namespace EventStorage
+{
+  class DataReader;
+}
 class StoreGateSvc;
+class DataHeaderElement;
+
 
 /** @class ByteStreamEventStorageInputSvc
  *  @brief This class is the ByteStreamInputSvc for reading events written by EventStorage.
  **/
-class ByteStreamEventStorageInputSvc :
-	public ByteStreamInputSvc {
+class ByteStreamEventStorageInputSvc
+: public ByteStreamInputSvc
+{
 public:
-   /// Constructors:
-   ByteStreamEventStorageInputSvc(const std::string& name, ISvcLocator* svcloc);
+  /// Constructors:
+  ByteStreamEventStorageInputSvc(const std::string& name,
+      ISvcLocator* pSvcLocator);
 
-   /// Destructor.
-   virtual ~ByteStreamEventStorageInputSvc();
+  /// Destructor.
+  virtual ~ByteStreamEventStorageInputSvc();
 
-   /// Required of all Gaudi Services
-   virtual StatusCode initialize();
-   virtual StatusCode stop();
-   /// Required of all Gaudi Services
-   virtual StatusCode finalize();
+  /// Required of all Gaudi Services
+  virtual StatusCode initialize();
+  virtual StatusCode stop      ();
+  virtual StatusCode finalize  ();
 
-   /// Required of all Gaudi services:  see Gaudi documentation for details
-   StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
+  /// Required of all Gaudi services:  see Gaudi documentation for details
+  StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
 
-   /// Implementation of the ByteStreamInputSvc interface methods.
-   virtual const RawEvent* currentEvent() const;
-   virtual const RawEvent* nextEvent();            //!< ++, new
-   virtual const RawEvent* previousEvent();        //!< --, old
-   virtual       void setEvent(void* data, unsigned int eventStatus);
+  /// Implementation of the ByteStreamInputSvc interface methods.
+  virtual const RawEvent* currentEvent () const;
+  virtual const RawEvent* nextEvent    (); //!< ++, new
+  virtual const RawEvent* previousEvent(); //!< --, old
+  virtual void            setEvent     (void* data, unsigned int eventStatus);
 
-   /// Return the current event status
-   virtual unsigned int currentEventStatus() const;
-   virtual void validateEvent(); 
+  /// Return the current event status
+  virtual unsigned int currentEventStatus() const;
+  virtual void         validateEvent     (); 
 
+  virtual long positionInBlock   ();
+  virtual std::pair<long,std::string> getBlockIterator(const std::string fileName);
+  void         closeBlockIterator(bool clearMetadata=true);
+  bool         setSequentialRead ();
+  bool         ready             () const;
+  StatusCode   generateDataHeader();
 
-   virtual long positionInBlock();
-   virtual std::pair<long,std::string> getBlockIterator(const std::string fileName);
-   void         closeBlockIterator(bool clearMetadata=true);
-   bool         setSequentialRead();
-   bool         ready();
-   StatusCode   generateDataHeader();
-
-private: // internal member functions
-   bool loadMetadata();
 
 private: // data
-   std::mutex m_readerMutex;
+  std::mutex m_readerMutex;
 
-   struct EventCache {
-     ~EventCache();
-     RawEvent*          rawEvent = 0;            //!< current event
-     unsigned int       eventStatus = 0;   //!< check_tree() status of the current event
-     long long int      eventOffset = 0;   //!< event offset within a file, can be -1          
-   };
+  struct EventCache {
+    std::unique_ptr<RawEvent> rawEvent    = nullptr; //!< current event
+    unsigned int              eventStatus = 0;       //!< check_tree() status of the current event
+    long long int             eventOffset = 0;       //!< event offset within a file, can be -1
+    void                      releaseEvent();        //!< deletes fragments and raw event
+    virtual                   ~EventCache();         //!< calls releaseEvent
+  };
 
-   SG::SlotSpecificObj<EventCache> m_eventsCache;
+  SG::SlotSpecificObj<EventCache> m_eventsCache;
 
-   //int                m_totalEventCounter; //!< event Counter
-   DataReader*        m_reader;        //!< DataReader from EventStorage
+  std::unique_ptr<EventStorage::DataReader>  m_reader; //!< DataReader from EventStorage
 
-   mutable std::vector<int>     m_numEvt;    //!< number of events in that file
-   mutable std::vector<int>     m_firstEvt;  //!< event number of first event in that file
-   mutable std::vector<long long int> m_evtOffsets;  //!< offset for event i in that file
-   unsigned int                 m_evtInFile;
-   long long int      m_evtFileOffset = 0;   //!< last read in event offset within a file, can be -1     
-   // Event back navigation info
-   std::string        m_fileGUID;      //!< current file GUID
+  mutable std::vector<long long int> m_evtOffsets;  //!< offset for event i in that file
+  unsigned int       m_evtInFile;
+  long long int      m_evtFileOffset;   //!< last read in event offset within a file, can be -1     
+  // Event back navigation info
+  std::string        m_fileGUID;      //!< current file GUID
 
 
-   /// Pointer to StoreGate
-   ServiceHandle<StoreGateSvc> m_sgSvc; //!< StoreGateSvc
-   ServiceHandle<StoreGateSvc> m_mdSvc; //!< StoreGateSvc
-   ServiceHandle<IROBDataProviderSvc> m_robProvider;
 
 private: // properties
-   std::vector<std::string>	m_vExplicitFile;  //!< prefix of the file names
+  /// Pointer to StoreGate
+  ServiceHandle<StoreGateSvc>                m_storeGate;     //!< StoreGateSvc
+  ServiceHandle<StoreGateSvc>                m_inputMetadata; //!< StoreGateSvc
+  ServiceHandle<IROBDataProviderSvc>         m_robProvider;
+  Gaudi::Property<bool>                      m_sequential;    //!< enable sequential reading.
+  Gaudi::Property<bool>                      m_dump;
+  Gaudi::Property<float>                     m_wait;
+  Gaudi::Property<bool>                      m_valEvent;
+  Gaudi::Property<std::string>               m_eventInfoKey;
 
-   std::vector<std::string>::const_iterator m_itFullFile; //!< iter  for full filename
-
-   bool               m_sequential;    //!< enable sequential reading.
-   int                m_fileCount;     //!< number of files to process.
-   std::string        m_fullFile;      //!< current full file name
-
-   Gaudi::Property<bool>    m_dump;          //!< flag for Dump fragments
-   Gaudi::Property<float>      m_wait;          //!< Number of seconds to wait if the input is in the wait state.
-   Gaudi::Property<bool>    m_valEvent;      //!< switch on check_tree() call when reading events.
-   Gaudi::Property<bool>    m_procBadEvent;  //!< DEFUNCT process bad events, which fail check_tree().
-   Gaudi::Property<int>    m_maxBadEvts;    //!< DEFUNCT number of bad events allowed before quitting.
-   Gaudi::Property<std::string> m_eventInfoKey{this, "EventInfoKey", "EventInfo", ""};
 
 private: // internal helper functions
+  StatusCode loadMetadata    ();
+  void       buildFragment   (EventCache* cache, char* data, uint32_t eventSize, bool validate) const;
+  bool       readerReady     () const;
+  bool       ROBFragmentCheck(const RawEvent*) const;
+  unsigned   validateEvent   (const RawEvent* const rawEvent) const;
+  void       setEvent        (const EventContext& context, void* data, unsigned int eventStatus);
 
-   void buildFragment( EventCache* cache, void* data, uint32_t eventSize, bool validate ) const;
-   void releaseEvent( EventCache* );
-   bool readerReady();
-   bool ROBFragmentCheck( const RawEvent* ) const;
-   unsigned validateEvent( const RawEvent* rawEvent ) const;
-   void setEvent( const EventContext& context, void* data, unsigned int eventStatus );
-   
-   enum Advance{ PREVIOUS = -1, NEXT = 1 };
-   const RawEvent* getEvent( Advance step );
+  enum Advance{ PREVIOUS = -1, NEXT = 1 };
+  const RawEvent* getEvent( Advance step );
+  std::unique_ptr<DataHeaderElement> makeBSProvenance() const;
+
+  template<typename T>
+  StatusCode deleteEntry(const std::string& key)
+  {
+    if (m_storeGate->contains<T>(key)) {
+      const T* tmp = m_storeGate->tryConstRetrieve<T>(key);
+      if (tmp != nullptr) ATH_CHECK(m_storeGate->remove<T>(tmp));
+    }
+    return StatusCode::SUCCESS;
+  }
+
 };
 
-#endif
+#endif // BYTESTREAMEVENTSTORAGEINPUTSVC_H

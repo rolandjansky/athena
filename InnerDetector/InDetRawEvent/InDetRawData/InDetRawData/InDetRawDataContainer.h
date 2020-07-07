@@ -34,6 +34,8 @@ public:
   // Constructor with parameters:
   InDetRawDataContainer(unsigned int max);
 
+  InDetRawDataContainer(unsigned int max, EventContainers::Mode);
+
   InDetRawDataContainer(EventContainers::IdentifiableCache<CollectionT>*);
   
   // Destructor:

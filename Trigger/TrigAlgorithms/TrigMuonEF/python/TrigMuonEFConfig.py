@@ -1,7 +1,5 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
 # TrigMuonEF configurables
 #
 from TrigMuonEF.TrigMuonEFConf import *
@@ -14,6 +12,8 @@ from AthenaCommon import CfgMgr
 from AthenaCommon import CfgGetter
 from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon.SystemOfUnits import GeV,mm
+from AthenaCommon.Logging import logging
+log = logging.getLogger('TrigMuonEFConfig')
 
 from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
 
@@ -659,8 +659,7 @@ def TMEF_TrackIsolationTool(name='TMEF_isolationTool',**kwargs):
         trkseltool.CutLevel='Loose'
     elif 'TightTSel' in name:
         trkseltool.CutLevel='TightPrimary'
-    print ('TMEF_TrackIsolationTool added trackselection tool:')
-    print (trkseltool)
+    log.debug('TMEF_TrackIsolationTool added trackselection tool:\n%s', trkseltool)
     kwargs.setdefault('TrackSelectionTool',trkseltool)
     return TrigMuonEFTrackIsolationTool(name, **kwargs)
 

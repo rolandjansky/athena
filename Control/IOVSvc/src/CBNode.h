@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IOVSVC_CBNODE_H
@@ -53,7 +53,7 @@ public:
   typedef std::set<CBNode*, CBNode::nodeOrder> nodeSet;
 
   CBNode() = delete;
-  CBNode(std::string name, CBNode* parent);
+  CBNode(const std::string& name, CBNode* parent);
   CBNode(const SG::DataProxy* proxy, const std::string& name, CBNode* parent);
   CBNode(BFCN* fcn, const CallBackID& cb, CBNode* parent);
   ~CBNode();

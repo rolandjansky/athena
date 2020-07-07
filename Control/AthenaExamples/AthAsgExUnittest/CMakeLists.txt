@@ -1,34 +1,18 @@
-
-#
-#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-#
-
-################################################################################
-# Package: MyPackage
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthAsgExUnittest )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-			  Control/AthenaBaseComps
-                          Control/AthAnalysisBaseComps
-                          Control/AthToolSupport/AsgTools
-                          Event/xAOD/xAODJet
-                          AtlasTest/GoogleTestTools )
 
 # Libraries in the package:
 atlas_add_library( AthAsgExUnittestLib
                    MyPackage/*.h src/*.cxx
                    Root/*.cxx
-                   PUBLIC_HEADERS AthAsgExUnittest
+                   NO_PUBLIC_HEADERS
                    LINK_LIBRARIES GaudiKernel AsgTools AthAnalysisBaseCompsLib )
+
 atlas_add_component( AthAsgExUnittest
                      src/components/*.cxx
-                     LINK_LIBRARIES GaudiKernel AsgTools AthAsgExUnittestLib )
+                     LINK_LIBRARIES AthAsgExUnittestLib )
 
 # Add tests:
 atlas_add_test( gt_AthAsgExUnittest
@@ -37,7 +21,7 @@ atlas_add_test( gt_AthAsgExUnittest
 
 atlas_add_test( gt_AthExUnittest
   SOURCES test/gt_AthExUnittest.cxx
-  LINK_LIBRARIES GaudiKernel GoogleTestTools AthenaBaseComps )
+  LINK_LIBRARIES GaudiKernel GoogleTestTools AthenaBaseComps AsgTools )
 
 atlas_add_test( gt_MockxAODJet
   SOURCES test/gt_MockxAODJet.cxx
@@ -46,5 +30,3 @@ atlas_add_test( gt_MockxAODJet
 atlas_add_test( gt_xAODJet
   SOURCES test/gt_xAODJet.cxx
   LINK_LIBRARIES xAODJet GoogleTestTools )
-
-

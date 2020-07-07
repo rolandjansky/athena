@@ -65,8 +65,7 @@ InDetTrigParticleCreatorToolWithSummary = \
                                    Extrapolator = InDetTrigExtrapolator,
                                    TrackSummaryTool = InDetTrigTrackSummaryToolSharedHits,
                                    KeepParameters = True,
-                                   ComputeAdditionalInfo = True,
-                                   UpdateTrack = False
+                                   ComputeAdditionalInfo = True
                                    )
 
 ToolSvc += InDetTrigParticleCreatorToolWithSummary
@@ -78,8 +77,7 @@ InDetTrigParticleCreatorToolWithSummaryTRTPid = \
                                    Extrapolator = InDetTrigExtrapolator,
                                    TrackSummaryTool = InDetTrigTrackSummaryToolSharedHitsWithTRTPid,
                                    KeepParameters = True,
-                                   ComputeAdditionalInfo = True,
-                                   UpdateTrack = False
+                                   ComputeAdditionalInfo = True
                                    )
 
 ToolSvc += InDetTrigParticleCreatorToolWithSummaryTRTPid
@@ -91,8 +89,7 @@ InDetTrigParticleCreatorToolParams = \
     Trk__TrackParticleCreatorTool( name = "InDetTrigParticleCreatorToolParams",
                                    Extrapolator = InDetTrigExtrapolator,
                                    TrackSummaryTool = InDetTrigTrackSummaryToolSharedHits,
-                                   KeepParameters = True,
-                                   UpdateTrack = False
+                                   KeepParameters = True
                                    )
 
 ToolSvc += InDetTrigParticleCreatorToolParams
@@ -104,8 +101,7 @@ InDetTrigParticleCreatorToolFTF = \
                                    Extrapolator = InDetTrigExtrapolator,
                                    TrackSummaryTool = InDetTrigFastTrackSummaryTool,
                                    KeepParameters = True,
-                                   ComputeAdditionalInfo = True,
-                                   UpdateTrack = False
+                                   ComputeAdditionalInfo = True
                                    )
 
 ToolSvc += InDetTrigParticleCreatorToolFTF

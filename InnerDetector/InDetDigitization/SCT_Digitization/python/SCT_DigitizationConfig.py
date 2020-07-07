@@ -124,7 +124,7 @@ def getSCT_FrontEnd(name="SCT_FrontEnd", **kwargs):
     sct_ReadCalibChipDataToolSetup = SCT_ReadCalibChipDataToolSetup()
     sct_ReadCalibChipDataToolSetup.setup()
     kwargs.setdefault("SCT_ReadCalibChipDataTool", sct_ReadCalibChipDataToolSetup.getTool())
-    # DataCompressionMode: 1 is level mode x1x (default), 2 is edge mode 01x, 3 is expanded any hit xxx
+    # DataCompressionMode: 1 is level mode X1X (default), 2 is edge mode 01X, 3 is any hit mode (1XX|X1X|XX1)
     from AthenaCommon.BeamFlags import jobproperties
     if digitizationFlags.PileUpPremixing:
         kwargs.setdefault("DataCompressionMode", 3)

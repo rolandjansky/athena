@@ -17,7 +17,8 @@
 #include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 
-#include "MagFieldInterfaces/IMagFieldSvc.h"
+// For magneticfield
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 
 #include "TrkParameters/TrackParameters.h"
 
@@ -78,7 +79,9 @@ namespace Muon {
     ToolHandle<Trk::IExtrapolator>      m_muonExtrapolator;
     ToolHandle<Trk::IExtrapolator>      m_muonExtrapolator2; // Moved from MuonEDMHelperSvc, not sure if it should be private/separate from m_muonExtrapolator
 
-    ServiceHandle<MagField::IMagFieldSvc>    m_magFieldSvc; 
+    // Read handle for conditions object to get the field cache
+    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj",
+                                                                               "Name of the Magnetic Field conditions object key"};
     ServiceHandle<Trk::ITrackingGeometrySvc> m_trackingGeometrySvc;
 
     ServiceHandle<Muon::IMuonEDMHelperSvc>           m_edmHelperSvc {this, "edmHelper", 

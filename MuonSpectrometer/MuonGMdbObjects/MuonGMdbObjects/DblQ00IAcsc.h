@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************
@@ -10,25 +10,24 @@
  // entered: 07/28/04
  // comment: CSC internal alignment parameters - class to read from DB
 
-#include <string>
-
 #ifndef DBLQ00_IACSC_H
 #define DBLQ00_IACSC_H
 
 #include "RDBAccessSvc/IRDBQuery.h"
+
 #include <memory>
+#include <string>
 
-namespace MuonGM
-{
-    
+class AmdcDb;
 
+namespace MuonGM {
 class DblQ00IAcsc {
-
 public:
     DblQ00IAcsc();
     ~DblQ00IAcsc();
     DblQ00IAcsc(std::unique_ptr<IRDBQuery>&&);
     DblQ00IAcsc(std::string asciiFileName);
+    DblQ00IAcsc(AmdcDb* iacsc);
     
     void WriteIAcscToAsciiFile(std::string filename);
 

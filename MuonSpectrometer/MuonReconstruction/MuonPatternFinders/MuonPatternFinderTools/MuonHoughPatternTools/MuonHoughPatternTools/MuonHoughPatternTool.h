@@ -5,11 +5,9 @@
 #ifndef MUONHOUGHPATTERNTOOLS_MUONHOUGHPATTERNTOOL_H
 #define MUONHOUGHPATTERNTOOLS_MUONHOUGHPATTERNTOOL_H
 
-#include "MuonHoughPatternEvent/MuonHoughMathUtils.h"
-#include "MuonHoughPatternEvent/MuonHoughPatternCollection.h"
 #include "MuonHoughPatternTools/IMuonHoughPatternTool.h"
-
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "MuonHoughPatternEvent/MuonHoughMathUtils.h"
 
 class MuonHoughTransformSteering;
 class MuonHoughTransformer;

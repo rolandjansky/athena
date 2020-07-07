@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #coding: UTF8
 """
 Prints out a table, padded to make it pretty.

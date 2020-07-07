@@ -162,6 +162,9 @@ namespace HLT {
     /// Add module ID to the list of truncated results
     void addTruncatedModuleId(const uint16_t moduleId);
 
+    // ------------------------- Extra helper methods --------------------------
+    /// If there is at least one stream tag set, it means the event is accepted
+    bool isAccepted() const {return !m_streamTags.empty();}
 
   private:
     // ------------------------- Private data members --------------------------

@@ -27,6 +27,10 @@ class MdtDigitToMdtRDO : public AthReentrantAlgorithm {
  private:
 
   StatusCode fill_MDTdata(const EventContext& ctx) const;
+
+  // NOTE: although this function has no clients in release 22, currently the Run2 trigger simulation is still run in
+  //       release 21 on RDOs produced in release 22. Since release 21 accesses the TagInfo, it needs to be written to the
+  //       RDOs produced in release 22. The fillTagInfo() function thus needs to stay in release 22 until the workflow changes
   StatusCode fillTagInfo() const;
 
  protected:

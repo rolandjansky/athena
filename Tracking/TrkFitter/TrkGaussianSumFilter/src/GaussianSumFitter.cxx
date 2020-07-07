@@ -2,14 +2,11 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/* *******************************************************************************
-      GaussianSumFitter.cxx  -  description
-      -------------------------------------
-begin                : Monday 7th March 2005
-author               : amorley atkinson
-email                : Anthony.Morley@cern.ch Tom.Atkinson@cern.ch
-decription           : Implementation code for Gaussian Sum Fitter class
-**********************************************************************************
+/**
+ * @file GaussianSumFitter.cxx 
+ * @begin         Monday 7th March 2005
+ * @author        Anthony Morley, Tom  Atkinson, Christos Anastopoulos
+ * @brief         Implementation code for Gaussian Sum Fitter class
 */
 
 #include "TrkGaussianSumFilter/GaussianSumFitter.h"
@@ -26,7 +23,6 @@ decription           : Implementation code for Gaussian Sum Fitter class
 
 #include "TrkCaloCluster_OnTrack/CaloCluster_OnTrack.h"
 #include "TrkEventPrimitives/FitQuality.h"
-#include "TrkFitterUtils/TrackFitInputPreparator.h"
 #include "TrkMaterialOnTrack/EstimatedBremOnTrack.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentStateOnSurface.h"
 #include "TrkPrepRawData/PrepRawData.h"
@@ -51,8 +47,8 @@ Trk::GaussianSumFitter::GaussianSumFitter(const std::string& type,
   , m_doHitSorting(true)
   , m_directionToPerigee(Trk::oppositeMomentum)
   , m_trkParametersComparisonFunction(nullptr)
-  , m_chronoSvc("ChronoStatSvc", name)
   , m_inputPreparator(nullptr)
+  , m_chronoSvc("ChronoStatSvc", name)
   , m_FitPRD{ 0 }
   , m_FitMeasurementBase{ 0 }
   , m_ForwardFailure{ 0 }
@@ -118,18 +114,11 @@ Trk::GaussianSumFitter::initialize()
                                   m_sortingReferencePoint[2]);
 
   m_trkParametersComparisonFunction =
-    new Trk::TrkParametersComparisonFunction(referencePosition);
-
-  if (!m_trkParametersComparisonFunction) {
-    ATH_MSG_FATAL("Request to instansiate the ClosestTrackParametersFinder "
-                  "object failed... Exiting!");
-    return StatusCode::FAILURE;
-  }
+    std::make_unique<Trk::TrkParametersComparisonFunction>(referencePosition);
 
   // Configure forward fitter
   sc = m_forwardGsfFitter->configureTools(
     m_extrapolator, m_updator, m_rioOnTrackCreator);
-
   if (sc.isFailure()) {
     ATH_MSG_FATAL("Could not configure the forwards GSF fitter... Exiting!");
     return StatusCode::FAILURE;
@@ -137,7 +126,6 @@ Trk::GaussianSumFitter::initialize()
 
   // Configure smoother
   sc = m_gsfSmoother->configureTools(m_extrapolator, m_updator);
-
   if (sc.isFailure()) {
     ATH_MSG_FATAL("Could not configure the GSF smoother... Exiting!");
     return StatusCode::FAILURE;
@@ -151,7 +139,7 @@ Trk::GaussianSumFitter::initialize()
   m_PerigeeFailure = 0;     // Number of MakePerigee Failures:
   m_fitQualityFailure = 0;
 
-  m_inputPreparator = new TrackFitInputPreparator();
+  m_inputPreparator = std::make_unique<TrackFitInputPreparator>();
 
   ATH_MSG_INFO("Initialisation of " << name() << " was successful");
 
@@ -161,65 +149,46 @@ Trk::GaussianSumFitter::initialize()
 StatusCode
 Trk::GaussianSumFitter::finalize()
 {
-
-  // Delete dynamic memory
-  delete m_trkParametersComparisonFunction;
-  delete m_inputPreparator;
-
-  msg(MSG::INFO) << "-----------------------------------------------" << endmsg;
-  msg(MSG::INFO) << "            Some Brief GSF Statistics          " << endmsg;
-  msg(MSG::INFO) << "-----------------------------------------------" << endmsg;
-
-  msg(MSG::INFO) << "Number of Fit PrepRawData Calls:          " << m_FitPRD
-                 << endmsg;
-  msg(MSG::INFO) << "Number of Fit MeasurementBase Calls:      "
-                 << m_FitMeasurementBase << endmsg;
-  msg(MSG::INFO) << "Number of Forward Fit Failures:           "
-                 << m_ForwardFailure << endmsg;
-  msg(MSG::INFO) << "Number of Smoother Failures:              "
-                 << m_SmootherFailure << endmsg;
-  msg(MSG::INFO) << "Number of MakePerigee Failures:           "
-                 << m_PerigeeFailure << endmsg;
-  msg(MSG::INFO) << "Number of Trks that fail fitquality test: "
-                 << m_fitQualityFailure << endmsg;
-  msg(MSG::INFO) << "-----------------------------------------------" << endmsg;
-
-  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endmsg;
-
+  ATH_MSG_INFO(
+    "-----------------------------------------------"
+    << '\n'
+    << "            Some Brief GSF Statistics          " << '\n'
+    << "-----------------------------------------------" << '\n'
+    << "Number of Fit PrepRawData Calls:          " << m_FitPRD << '\n'
+    << "Number of Fit MeasurementBase Calls:      " << m_FitMeasurementBase
+    << '\n'
+    << "Number of Forward Fit Failures:           " << m_ForwardFailure << '\n'
+    << "Number of Smoother Failures:              " << m_SmootherFailure << '\n'
+    << "Number of MakePerigee Failures:           " << m_PerigeeFailure << '\n'
+    << "Number of Trks that fail fitquality test: " << m_fitQualityFailure
+    << '\n'
+    << "-----------------------------------------------" << '\n'
+    << "Finalisation of " << name() << " was successful");
   return StatusCode::SUCCESS;
 }
 
-/* ======================================================================================================
-   Refitting of a track
-=========================================================================================================
+/* 
+ * Refitting of a track
 */
-
-Trk::Track*
+std::unique_ptr<Trk::Track>
 Trk::GaussianSumFitter::fit(
+  const EventContext& ctx,
   const Trk::Track& inputTrack,
   const Trk::RunOutlierRemoval outlierRemoval,
   const Trk::ParticleHypothesis particleHypothesis) const
 {
-
-  if (msgLvl(MSG::VERBOSE)) {
-    msg() << "Trk::GaussianSumFilter::fit() - Refitting a track" << endmsg;
-  }
-
   // Start the timer
   Chrono chrono(&(*m_chronoSvc), name());
 
   // Check that the input track has well defined parameters
   if (inputTrack.trackParameters()->empty()) {
-    msg(MSG::FATAL)
-      << "No estimation of track parameters near origin... Exiting!" << endmsg;
+    ATH_MSG_FATAL("No estimation of track parameters near origin... Exiting!");
     return nullptr;
   }
-
   // Check that the input track has associated MeasurementBase objects
   if (inputTrack.trackStateOnSurfaces()->empty()) {
-    msg(MSG::FATAL) << "Attempting to fit track to empty MeasurementBase "
-                       "collection... Exiting!"
-                    << endmsg;
+    ATH_MSG_FATAL("Attempting to fit track to empty MeasurementBase "
+                  "collection... Exiting!");
     return nullptr;
   }
 
@@ -228,11 +197,6 @@ Trk::GaussianSumFitter::fit(
     *(std::min_element(inputTrack.trackParameters()->begin(),
                        inputTrack.trackParameters()->end(),
                        *m_trkParametersComparisonFunction));
-
-  if (msgLvl(MSG::VERBOSE)) {
-    msg() << "Estimation parameters near reference point: "
-          << *parametersNearestReference << endmsg;
-  }
 
   // If refitting of track is at the MeasurementBase level
   // extract the MeasurementBase from the input track and create a new vector
@@ -264,7 +228,8 @@ Trk::GaussianSumFitter::fit(
     }
 
     // Apply GSF fit to MeasurementBase objects
-    return fit(measurementSet,
+    return fit(ctx,
+               measurementSet,
                *parametersNearestReference,
                outlierRemoval,
                particleHypothesis);
@@ -312,63 +277,60 @@ Trk::GaussianSumFitter::fit(
   }
 
   // Apply GSF fit to PrepRawData objects
-  return fit(prepRawDataSet,
+  return fit(ctx,
+             prepRawDataSet,
              *parametersNearestReference,
              outlierRemoval,
              particleHypothesis);
 }
 
-/* ==================================================================================================================
+/*
    Fitting of a set of PrepRawData objects
-=====================================================================================================================
 */
 
-Trk::Track*
+std::unique_ptr<Trk::Track>
 Trk::GaussianSumFitter::fit(
+  const EventContext& ctx,
   const Trk::PrepRawDataSet& prepRawDataSet,
   const Trk::TrackParameters& estimatedParametersNearOrigin,
   const Trk::RunOutlierRemoval outlierRemoval,
   const Trk::ParticleHypothesis particleHypothesis) const
 {
-
-  ATH_MSG_VERBOSE(
-    "Trk::GaussianSumFilter::fit() - Fitting a set of PrepRawData objects"
-    << '\n'
-    << "Material effects switch: " << particleHypothesis << '\n'
-    << "Outlier removal switch:  " << outlierRemoval);
-
   ++m_FitPRD;
+
+  if (outlierRemoval) {
+    ATH_MSG_DEBUG(
+      "Outlier removal not yet implemented for the Gaussian Sum Filter");
+  }
 
   // Start the timer
   Chrono chrono(&(*m_chronoSvc), name());
-
   // Protect against empty PrepRawDataSet object
   if (prepRawDataSet.empty()) {
     ATH_MSG_FATAL("PrepRawData set for fit is empty... Exiting!");
     return nullptr;
   }
 
-  // A const stl container cannot be sorted. This will re-cast it so that it
-  // can.
   Trk::PrepRawDataSet sortedPrepRawDataSet = PrepRawDataSet(prepRawDataSet);
 
   if (m_doHitSorting) {
-    Trk::PrepRawDataComparisonFunction* prdComparisonFunction =
-      new Trk::PrepRawDataComparisonFunction(
+    Trk::PrepRawDataComparisonFunction prdComparisonFunction =
+      Trk::PrepRawDataComparisonFunction(
         estimatedParametersNearOrigin.position(),
         estimatedParametersNearOrigin.momentum());
+
     std::sort(sortedPrepRawDataSet.begin(),
               sortedPrepRawDataSet.end(),
-              *prdComparisonFunction);
-
-    delete prdComparisonFunction;
+              prdComparisonFunction);
   }
 
   // Perform GSF forwards fit
   ForwardTrajectory* forwardTrajectory =
     m_forwardGsfFitter
-      ->fitPRD(
-        sortedPrepRawDataSet, estimatedParametersNearOrigin, particleHypothesis)
+      ->fitPRD(ctx,
+               sortedPrepRawDataSet,
+               estimatedParametersNearOrigin,
+               particleHypothesis)
       .release();
 
   if (!forwardTrajectory) {
@@ -384,11 +346,9 @@ Trk::GaussianSumFitter::fit(
     return nullptr;
   }
 
-  ATH_MSG_VERBOSE("*** Forward GSF fit passed! ***");
-
   // Perform GSF smoother operation
   SmoothedTrajectory* smoothedTrajectory =
-    m_gsfSmoother->fit(*forwardTrajectory, particleHypothesis);
+    m_gsfSmoother->fit(ctx,*forwardTrajectory, particleHypothesis);
 
   // Protect against failed smoother fit
   if (!smoothedTrajectory) {
@@ -398,11 +358,8 @@ Trk::GaussianSumFitter::fit(
     return nullptr;
   }
 
-  ATH_MSG_VERBOSE("*** GSF smoother fit passed! ***");
-
   // Outlier m_logic and track finalisation
   const FitQuality* fitQuality = buildFitQuality(*smoothedTrajectory);
-
   if (!fitQuality) {
     ATH_MSG_DEBUG("Chi squared could not be calculated... Bailing");
     ++m_fitQualityFailure;
@@ -411,16 +368,9 @@ Trk::GaussianSumFitter::fit(
     return nullptr;
   }
 
-  Track* fittedTrack = nullptr;
-
-  if (outlierRemoval) {
-    ATH_MSG_DEBUG(
-      "Outlier removal not yet implemented for the Gaussian Sum Filter");
-  }
-
   if (m_makePerigee) {
     const Trk::MultiComponentStateOnSurface* perigeeMultiStateOnSurface =
-      this->makePerigee(smoothedTrajectory, particleHypothesis);
+      this->makePerigee(ctx,smoothedTrajectory, particleHypothesis);
     ATH_MSG_DEBUG(
       "perigeeMultiStateOnSurface  :" << perigeeMultiStateOnSurface);
     if (perigeeMultiStateOnSurface) {
@@ -444,43 +394,30 @@ Trk::GaussianSumFitter::fit(
   Trk::TrackInfo info(Trk::TrackInfo::GaussianSumFilter, particleHypothesis);
   info.setTrackProperties(TrackInfo::BremFit);
   info.setTrackProperties(TrackInfo::BremFitSuccessful);
-  fittedTrack = new Track(info, smoothedTrajectory, fitQuality);
-
-  if (fittedTrack) {
-    ATH_MSG_VERBOSE("Fitting of a set of PrepRawData objects is successful"
-                    << '\n'
-                    << "Track fit chi squared... " << fitQuality->chiSquared()
-                    << '\n'
-                    << "Track fit number of degrees of freedom... "
-                    << fitQuality->numberDoF());
-  } else {
-    ATH_MSG_DEBUG("Trk::GaussianSumFilter::fit() failed!");
-  }
-  return fittedTrack;
+  return std::make_unique<Track>(info, smoothedTrajectory, fitQuality);
 }
 
-/* ================================================================================================
-   Fitting of a set of MeasurementBase objects
-==============
-====================================================================================
-*/
+/*
+ * Fitting of a set of MeasurementBase objects
+ */
 
-Trk::Track*
+std::unique_ptr<Trk::Track>
 Trk::GaussianSumFitter::fit(
+  const EventContext& ctx,
   const Trk::MeasurementSet& measurementSet,
   const Trk::TrackParameters& estimatedParametersNearOrigin,
   const Trk::RunOutlierRemoval outlierRemoval,
   const Trk::ParticleHypothesis particleHypothesis) const
 {
 
+  if (outlierRemoval) {
+    ATH_MSG_DEBUG(
+      "Outlier removal not yet implemented for the Gaussian Sum Filter");
+  }
+
+
   // Start the timer
   Chrono chrono(&(*m_chronoSvc), name());
-
-  ATH_MSG_VERBOSE(
-    "Trk::GaussianSumFilter::fit() - Fitting a set of MeasurementBase objects"
-    << '\n'
-    << "Material effects switch: " << particleHypothesis << '\n'
-    << "Outlier removal switch:  " << outlierRemoval);
 
   ++m_FitMeasurementBase;
   // Protect against empty PrepRawDataSet object
@@ -527,11 +464,14 @@ Trk::GaussianSumFitter::fit(
          sortedMeasurementSet.end(),
          measurementBaseComparisonFunction);
   }
+
   // Perform GSF forwards fit - new memory allocated in forwards fitter
   ForwardTrajectory* forwardTrajectory =
     m_forwardGsfFitter
-      ->fitMeasurements(
-        sortedMeasurementSet, estimatedParametersNearOrigin, particleHypothesis)
+      ->fitMeasurements(ctx,
+                        sortedMeasurementSet,
+                        estimatedParametersNearOrigin,
+                        particleHypothesis)
       .release();
 
   if (!forwardTrajectory) {
@@ -547,11 +487,10 @@ Trk::GaussianSumFitter::fit(
     return nullptr;
   }
 
-  ATH_MSG_VERBOSE("*** Forward GSF fit passed! ***");
-
   // Perform GSF smoother operation
+
   SmoothedTrajectory* smoothedTrajectory =
-    m_gsfSmoother->fit(*forwardTrajectory, particleHypothesis, ccot);
+    m_gsfSmoother->fit(ctx, *forwardTrajectory, particleHypothesis, ccot);
 
   // Protect against failed smoother fit
   if (!smoothedTrajectory) {
@@ -560,7 +499,6 @@ Trk::GaussianSumFitter::fit(
     delete forwardTrajectory;
     return nullptr;
   }
-  ATH_MSG_VERBOSE("*** GSF smoother fit passed! ***");
 
   // Outlier m_logic and track finalisation
   const FitQuality* fitQuality = buildFitQuality(*smoothedTrajectory);
@@ -573,13 +511,9 @@ Trk::GaussianSumFitter::fit(
     return nullptr;
   }
 
-  if (outlierRemoval) {
-    ATH_MSG_DEBUG(
-      "Outlier removal not yet implemented for the Gaussian Sum Filter");
-  }
   if (m_makePerigee) {
     const Trk::MultiComponentStateOnSurface* perigeeMultiStateOnSurface =
-      this->makePerigee(smoothedTrajectory, particleHypothesis);
+      this->makePerigee(ctx,smoothedTrajectory, particleHypothesis);
     ATH_MSG_DEBUG(
       "perigeeMultiStateOnSurface  :" << perigeeMultiStateOnSurface);
 
@@ -605,38 +539,22 @@ Trk::GaussianSumFitter::fit(
   Trk::TrackInfo info(Trk::TrackInfo::GaussianSumFilter, particleHypothesis);
   info.setTrackProperties(TrackInfo::BremFit);
   info.setTrackProperties(TrackInfo::BremFitSuccessful);
-  Track* fittedTrack = new Track(info, smoothedTrajectory, fitQuality);
-
-  if (fittedTrack) {
-    ATH_MSG_DEBUG("Fitting of a set of MeasurementBase objects is successful"
-                  << '\n'
-                  << "Track fit chi squared... " << fitQuality->chiSquared()
-                  << '\n'
-                  << "Track fit number of degrees of freedom... "
-                  << fitQuality->numberDoF());
-  } else {
-    ATH_MSG_DEBUG("Trk::GaussianSumFilter::fit() failed!");
-  }
-  return fittedTrack;
+  return std::make_unique<Track>(info, smoothedTrajectory, fitQuality);
 }
 
-Trk::Track*
-Trk::GaussianSumFitter::fit(const Track& intrk,
+std::unique_ptr<Trk::Track>
+Trk::GaussianSumFitter::fit(const EventContext& ctx,
+                            const Track& intrk,
                             const PrepRawDataSet& addPrdColl,
                             const RunOutlierRemoval runOutlier,
                             const ParticleHypothesis matEffects) const
 {
 
-  ATH_MSG_VERBOSE("--> enter GaussianSumFitter::fit(Track,PrdSet,,)"
-                  << '\n'
-                  << "    with Track from author = "
-                  << intrk.info().dumpInfo());
-
   // protection, if empty PrepRawDataSet
   if (addPrdColl.empty()) {
     ATH_MSG_WARNING(
       "client tries to add an empty PrepRawDataSet to the track fit.");
-    return fit(intrk, runOutlier, matEffects);
+    return fit(ctx, intrk, runOutlier, matEffects);
   }
 
   /*  determine the Track Parameter which is the start of the trajectory,
@@ -664,24 +582,23 @@ Trk::GaussianSumFitter::fit(const Track& intrk,
 
   delete inputPreparator;
 
-  return fit(orderedPRDColl, *estimatedStartParameters, runOutlier, matEffects);
+  return fit(
+    ctx, orderedPRDColl, *estimatedStartParameters, runOutlier, matEffects);
 }
 
-Trk::Track*
-Trk::GaussianSumFitter::fit(const Track& inputTrack,
+std::unique_ptr<Trk::Track>
+Trk::GaussianSumFitter::fit(const EventContext& ctx,
+                            const Track& inputTrack,
                             const MeasurementSet& measurementSet,
                             const RunOutlierRemoval runOutlier,
                             const ParticleHypothesis matEffects) const
 {
 
-  ATH_MSG_VERBOSE("Trk::GaussianSumFilter::fit() - Refitting a track with a "
-                  "additional information ");
-
   // protection, if empty MeasurementSet
   if (measurementSet.empty()) {
     ATH_MSG_WARNING(
       "Client tries to add an empty MeasurementSet to the track fit.");
-    return fit(inputTrack, runOutlier, matEffects);
+    return fit(ctx, inputTrack, runOutlier, matEffects);
   }
 
   // Check that the input track has well defined parameters
@@ -707,11 +624,13 @@ Trk::GaussianSumFitter::fit(const Track& inputTrack,
     inputTrack, measurementSet, true, false);
 
   // Apply GSF fit to MeasurementBase objects
-  return fit(combinedMS, *parametersNearestReference, runOutlier, matEffects);
+  return fit(
+    ctx, combinedMS, *parametersNearestReference, runOutlier, matEffects);
 }
 
-Trk::Track*
-Trk::GaussianSumFitter::fit(const Track& intrk1,
+std::unique_ptr<Trk::Track>
+Trk::GaussianSumFitter::fit(const EventContext& ctx,
+                            const Track& intrk1,
                             const Track& intrk2,
                             const RunOutlierRemoval runOutlier,
                             const ParticleHypothesis matEffects) const
@@ -720,16 +639,14 @@ Trk::GaussianSumFitter::fit(const Track& intrk1,
   // protection against not having measurements on the input tracks
   if (!intrk1.trackStateOnSurfaces() || !intrk2.trackStateOnSurfaces() ||
       intrk1.trackStateOnSurfaces()->size() < 2) {
-    msg(MSG::WARNING) << "called to refit empty track or track with too little "
-                         "information, reject fit"
-                      << endmsg;
+    ATH_MSG_WARNING("called to refit empty track or track with too little "
+                    "information, reject fit");
     return nullptr;
   }
 
   if (!intrk1.trackParameters() || intrk1.trackParameters()->empty()) {
-    msg(MSG::WARNING) << "input #1 fails to provide track parameters for "
-                         "seeding the GXF, reject fit"
-                      << endmsg;
+    ATH_MSG_WARNING("input #1 fails to provide track parameters for "
+                    "seeding the GXF, reject fit");
     return nullptr;
   }
 
@@ -775,11 +692,12 @@ Trk::GaussianSumFitter::fit(const Track& intrk1,
     ms.push_back((*itStates2)->measurementOnTrack());
   }
 
-  return fit(ms, *minPar, runOutlier, matEffects);
+  return fit(ctx, ms, *minPar, runOutlier, matEffects);
 }
 
 const Trk::MultiComponentStateOnSurface*
 Trk::GaussianSumFitter::makePerigee(
+  const EventContext& ctx,
   const Trk::SmoothedTrajectory* smoothedTrajectory,
   const Trk::ParticleHypothesis particleHypothesis) const
 {
@@ -807,7 +725,7 @@ Trk::GaussianSumFitter::makePerigee(
   }
   // Extrapolate to perigee, taking material effects considerations into account
   Trk::MultiComponentState stateExtrapolatedToPerigee =
-    m_extrapolator->extrapolate(Gaudi::Hive::currentContext(),
+    m_extrapolator->extrapolate(ctx,
                                 *multiComponentState,
                                 perigeeSurface,
                                 m_directionToPerigee,
@@ -828,11 +746,6 @@ Trk::GaussianSumFitter::makePerigee(
   // Calculate the mode of the q/p distribution
   double modeQoverP = 0;
 
-  if (modeQoverP) {
-    ATH_MSG_VERBOSE(
-      "Calculated mode is stored by default in the Perigee Parameters"
-      << "and is NO Longer Stored as a seperate Parameter");
-  }
   // Determine the combined state as well to be passed to the
   // MultiComponentStateOnSurface object
   std::unique_ptr<Trk::TrackParameters> combinedPerigee =
@@ -844,9 +757,8 @@ Trk::GaussianSumFitter::makePerigee(
   pattern.set(Trk::TrackStateOnSurface::Perigee);
 
   if (fabs(combinedPerigee->parameters()[Trk::qOverP]) > 1e8) {
-    // GC: protection against 0-momentum track .. this check should NEVER be
-    // needed.
-    //    actual cutoff is 0.01eV track
+    // Protection against 0-momentum track .. this check should NEVER be needed.
+    //actual cutoff is 0.01eV track
     ATH_MSG_ERROR(
       "makePerigee() about to return with 0 momentum!! Returning null instead");
     return nullptr;
@@ -870,7 +782,6 @@ Trk::GaussianSumFitter::buildFitQuality(
   const Trk::SmoothedTrajectory& smoothedTrajectory) const
 {
 
-  ATH_MSG_VERBOSE("Gsf fitQuality");
   double chiSquared = 0.;
   int numberDoF = -5;
 

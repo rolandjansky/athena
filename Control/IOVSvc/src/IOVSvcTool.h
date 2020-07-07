@@ -91,15 +91,15 @@ public:
   virtual const std::string& getStoreName() const override { return m_storeName; }
 
   // register callback functions
-  virtual StatusCode regFcn(SG::DataProxy *dp, const CallBackID c,
+  virtual StatusCode regFcn(SG::DataProxy *dp, const CallBackID& c,
                             const IOVSvcCallBackFcn& fcn, bool trigger = false) override;
 
-  virtual StatusCode regFcn(const CallBackID c1,
-                            const CallBackID c2, const IOVSvcCallBackFcn& fcn2,
+  virtual StatusCode regFcn(const CallBackID& c1,
+                            const CallBackID& c2, const IOVSvcCallBackFcn& fcn2,
                             bool trigger = false) override;
 
   virtual StatusCode regFcn(const IAlgTool* ia,
-                            const CallBackID c2, const IOVSvcCallBackFcn& fcn2,
+                            const CallBackID& c2, const IOVSvcCallBackFcn& fcn2,
                             bool trigger = false) override;
 
   // Update Range from dB

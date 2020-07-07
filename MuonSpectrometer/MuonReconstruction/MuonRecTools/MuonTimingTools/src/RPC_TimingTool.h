@@ -1,13 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RPC_TIMINGTOOL_H
 #define RPC_TIMINGTOOL_H
 
-#include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonRecToolInterfaces/IMuonHitTimingTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 /** @class RPC_TimingTool
     
@@ -16,24 +17,17 @@
     @author MCP projects
 */
 
-
 namespace Muon{
 
   class MuonClusterOnTrack;
-  class MuonIdHelperTool;
   
   class RPC_TimingTool : virtual public Muon::IMuonHitTimingTool, public AthAlgTool{
   public:
     RPC_TimingTool(const std::string&, const std::string&, const IInterface*);
 
-    /** default destructor **/
-    virtual ~RPC_TimingTool();
+    virtual ~RPC_TimingTool()=default;
 
-    /** standard initialization method **/
     virtual StatusCode initialize();
-    
-    /** standard finalization method **/
-    virtual StatusCode finalize();
 
     /** Calculate the time offset of a given set of hits wrt to the current bunch */
     TimingResult calculateTimingResult( const std::vector<const MuonClusterOnTrack*>& hits ) const;
@@ -45,7 +39,7 @@ namespace Muon{
     /** calculate error on the RPC time */
     double getError(const Muon::MuonClusterOnTrack&) const ; 
 
-    ToolHandle<MuonIdHelperTool> m_idHelper;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
   };
 }

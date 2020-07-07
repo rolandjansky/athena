@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -76,7 +76,7 @@ StatusCode CaloLCOutOfClusterTool::initialize()
   //--- check sampling names to use exclude in correction
   std::vector<std::string>::iterator samplingIter = m_invalidSamplingNames.begin(); 
   std::vector<std::string>::iterator samplingIterEnd = m_invalidSamplingNames.end(); 
-  for(; samplingIter!=samplingIterEnd; samplingIter++) { 
+  for(; samplingIter!=samplingIterEnd; ++samplingIter) { 
     int theSampling(CaloSampling::Unknown);
     for (unsigned int jsamp = 0;jsamp< CaloSampling::Unknown; jsamp++) {
       if ( *samplingIter == CaloSamplingHelper::getSamplingName((CaloSampling::CaloSample)jsamp)) {
@@ -105,17 +105,17 @@ StatusCode CaloLCOutOfClusterTool::initialize()
 
   msg(MSG::INFO) << "Samplings to exclude from the out-of-cluster weighting:";
   samplingIter = m_invalidSamplingNames.begin(); 
-  for(; samplingIter!=samplingIterEnd; samplingIter++)  
+  for(; samplingIter!=samplingIterEnd; ++samplingIter)  
     msg() << " " << *samplingIter;
   msg() << endmsg;
 
   if(m_interpolate) {
     msg(MSG::INFO) << "Interpolation is ON, dimensions: ";
-    for(std::vector<std::string>::iterator it=m_interpolateDimensionNames.begin(); it!=m_interpolateDimensionNames.end(); it++){
+    for(std::vector<std::string>::iterator it=m_interpolateDimensionNames.begin(); it!=m_interpolateDimensionNames.end(); ++it){
       msg() << " " << (*it);
     }
     msg() << endmsg;
-    for(std::vector<std::string>::iterator it=m_interpolateDimensionNames.begin(); it!=m_interpolateDimensionNames.end(); it++){
+    for(std::vector<std::string>::iterator it=m_interpolateDimensionNames.begin(); it!=m_interpolateDimensionNames.end(); ++it){
       CaloLocalHadDefs::LocalHadDimensionId id = CaloLCCoeffHelper::getDimensionId( (*it) );
       if(id!=CaloLocalHadDefs::DIMU_UNKNOWN) {
         m_interpolateDimensions.push_back(int(id));
@@ -177,7 +177,7 @@ StatusCode CaloLCOutOfClusterTool::weight(CaloCluster *theCluster, const EventCo
   // steps
   std::set<int>::const_iterator ivSamplingIter = m_invalidSamplings.begin(); 
   std::set<int>::const_iterator ivSamplingIterEnd = m_invalidSamplings.end(); 
-  for(; ivSamplingIter!=ivSamplingIterEnd; ivSamplingIter++) {
+  for(; ivSamplingIter!=ivSamplingIterEnd; ++ivSamplingIter) {
     eEM       -= theCluster->eSample((CaloCluster::CaloSample)(*ivSamplingIter));
     eWeighted -= theCluster->eSample((CaloCluster::CaloSample)(*ivSamplingIter));
   }

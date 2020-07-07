@@ -2,10 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// TruthIsolationTool.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-
 #ifndef DERIVATIONFRAMEWORK_TRUTHISOLATIONTOOL_H
 #define DERIVATIONFRAMEWORK_TRUTHISOLATIONTOOL_H
 
@@ -42,6 +38,10 @@ namespace DerivationFramework {
       std::vector<int> m_excludeFromCone;
       /// Parameter: name of output variable
       std::string m_isoVarNamePrefix;
+      /// Parameter: Include non-interacting particles?
+      bool m_includeNonInteracting;
+      /// Parameter: Use variable radius?
+      bool m_variableR;
 
       std::vector<float> *m_coneSizesSort;
       std::vector<float> *m_coneSizes2;

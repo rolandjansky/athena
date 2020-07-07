@@ -24,7 +24,6 @@ typedef std::map<std::string, long> memory_map_t;  // Component : Memory Measure
  * Inline function prototypes
  */
 inline memory_map_t operator-(memory_map_t& map1, memory_map_t& map2);
-inline bool doesDirectoryExist(const std::string dir);
 
 /*
  * Necessary tools
@@ -39,6 +38,8 @@ memory_map_t get_mem_stats();
 // Efficient memory measurements
 double get_malloc();
 double get_vmem();
+// Simple check if directory exists
+bool doesDirectoryExist(const std::string dir);
 
 // Step name and Component name pairs. Ex: Initialize - StoreGateSvc
 struct StepComp {
@@ -53,15 +54,11 @@ struct StepComp {
 
 // Basic Measurement
 struct Measurement {
-  typedef std::map<int, Measurement> event_meas_map_t;  // Event number: Measurement
 
   // Variables to store measurements
   double cpu_time, wall_time; // Timing
   memory_map_t mem_stats; // Memory: Vmem, Rss, Pss, Swap
-  int vmem, malloc; // Memory: Vmem, Malloc (faster than above)
-
-  // Event level measurements
-  event_meas_map_t eventLevel_meas_map;  // [Event count so far]: Measurement
+  double vmem, malloc; // Memory: Vmem, Malloc (faster than above)
 
   // Peak values for Vmem, Rss and Pss
   long vmemPeak = LONG_MIN;
@@ -75,9 +72,7 @@ struct Measurement {
     wall_time = get_wall_time();
 
     // Memory 
-    if (doesDirectoryExist("/proc")) {
-      mem_stats = get_mem_stats();
-    }
+    mem_stats = get_mem_stats();
   }
 
   // Capture component-level measurements
@@ -91,35 +86,24 @@ struct Measurement {
 
     // Efficient Memory Measurements
     malloc = get_malloc();
-    if (doesDirectoryExist("/proc")) {
-      vmem = get_vmem();
-    }
+    vmem = get_vmem();
   }
 
   // Capture event-level measurements 
-  void capture_event(int eventCount) {
+  void capture_event() {
     // Timing 
     cpu_time = get_process_cpu_time();
     wall_time = get_wall_time();
-    Measurement meas;
 
-    if (doesDirectoryExist("/proc")) {
-      mem_stats = get_mem_stats();
-      meas.mem_stats = mem_stats;
+    // Memory
+    mem_stats = get_mem_stats();
 
-      if (mem_stats["vmem"] > vmemPeak) vmemPeak = mem_stats["vmem"];
-      if (mem_stats["rss"] > rssPeak) rssPeak = mem_stats["rss"];
-      if (mem_stats["pss"] > pssPeak) pssPeak = mem_stats["pss"];
-    }
-
-    meas.cpu_time = cpu_time;
-    meas.wall_time = wall_time;
-
-    // Capture for event level measurements
-    eventLevel_meas_map[eventCount] = meas;
+    if (mem_stats["vmem"] > vmemPeak) vmemPeak = mem_stats["vmem"];
+    if (mem_stats["rss"] > rssPeak) rssPeak = mem_stats["rss"];
+    if (mem_stats["pss"] > pssPeak) pssPeak = mem_stats["pss"];
   }
 
-  Measurement() : cpu_time{0.}, wall_time{0.}, vmem{0}, malloc{0} {
+  Measurement() : cpu_time{0.}, wall_time{0.}, vmem{0.}, malloc{0.} {
     mem_stats["vmem"] = 0; mem_stats["pss"] = 0; mem_stats["rss"] = 0; mem_stats["swap"] = 0;
   }
 };
@@ -134,8 +118,8 @@ struct MeasurementData {
   double m_tmp_wall, m_delta_wall;
   memory_map_t m_memMon_tmp_map;
   memory_map_t m_memMon_delta_map;
-  int m_tmp_vmem, m_delta_vmem;
-  int m_tmp_malloc, m_delta_malloc;
+  double m_tmp_vmem, m_delta_vmem;
+  double m_tmp_malloc, m_delta_malloc;
 
   // This map is used to store the event level measurements
   event_meas_map_t m_eventLevel_delta_map;
@@ -149,7 +133,7 @@ struct MeasurementData {
     m_tmp_wall = meas.wall_time;
 
     // Non-efficient memory measurements
-    if (doesDirectoryExist("/proc")) m_memMon_tmp_map = meas.mem_stats;
+    m_memMon_tmp_map = meas.mem_stats;
   }
 
   // [Component Level Monitoring - Serial Steps] : Record the measurement for the current state
@@ -158,7 +142,7 @@ struct MeasurementData {
     m_delta_wall = meas.wall_time - m_tmp_wall;
 
     // Non-efficient memory measurements
-    if (doesDirectoryExist("/proc")) m_memMon_delta_map = meas.mem_stats - m_memMon_tmp_map;
+    m_memMon_delta_map = meas.mem_stats - m_memMon_tmp_map;
   }
 
   // [Component Level Monitoring] : Start
@@ -172,7 +156,7 @@ struct MeasurementData {
 
     // Efficient memory measurements
     m_tmp_malloc = meas.malloc;
-    if (doesDirectoryExist("/proc")) m_tmp_vmem = meas.vmem;
+    m_tmp_vmem = meas.vmem;
   } 
 
   // [Component Level Monitoring] : Stop
@@ -190,20 +174,17 @@ struct MeasurementData {
 
     // Efficient memory measurements
     m_delta_malloc += meas.malloc - m_tmp_malloc;
-    if (doesDirectoryExist("/proc")) m_delta_vmem += meas.vmem - m_tmp_vmem;
+    m_delta_vmem += meas.vmem - m_tmp_vmem;
   } 
 
   // [Event Level Monitoring - Parallel Steps] : Record the measurement for the current checkpoint
-  void record_event(Measurement& meas, int eventCount) {
-    m_eventLevel_delta_map[eventCount].cpu_time = meas.eventLevel_meas_map[eventCount].cpu_time;
-    m_eventLevel_delta_map[eventCount].wall_time = meas.eventLevel_meas_map[eventCount].wall_time - m_offset_wall;
+  void record_event(const Measurement& meas, int eventCount) {
+    // Timing
+    m_eventLevel_delta_map[eventCount].cpu_time = meas.cpu_time;
+    m_eventLevel_delta_map[eventCount].wall_time = meas.wall_time - m_offset_wall;
 
-    if (doesDirectoryExist("/proc")) {
-      m_eventLevel_delta_map[eventCount].mem_stats["vmem"] = meas.eventLevel_meas_map[eventCount].mem_stats["vmem"];
-      m_eventLevel_delta_map[eventCount].mem_stats["rss"] = meas.eventLevel_meas_map[eventCount].mem_stats["rss"];
-      m_eventLevel_delta_map[eventCount].mem_stats["pss"] = meas.eventLevel_meas_map[eventCount].mem_stats["pss"];
-      m_eventLevel_delta_map[eventCount].mem_stats["swap"] = meas.eventLevel_meas_map[eventCount].mem_stats["swap"];
-    }
+    // Memory
+    m_eventLevel_delta_map[eventCount].mem_stats = meas.mem_stats;
   }
 
   void set_wall_time_offset(double wall_time_offset) { m_offset_wall = wall_time_offset; }
@@ -243,16 +224,16 @@ struct MeasurementData {
   double getDeltaWall() const { return m_delta_wall; }
   void add2DeltaWall(double val) { m_delta_wall += val; }
 
-  int getDeltaVmem() const { return m_delta_vmem; }
-  void add2DeltaVmem(int val) { m_delta_vmem += val; }
+  double getDeltaVmem() const { return m_delta_vmem; }
+  void add2DeltaVmem(double val) { m_delta_vmem += val; }
 
-  int getDeltaMalloc() const { return m_delta_malloc; }
-  void add2DeltaMalloc(int val) { m_delta_malloc += val; }
+  double getDeltaMalloc() const { return m_delta_malloc; }
+  void add2DeltaMalloc(double val) { m_delta_malloc += val; }
 
-  long getMemMonDeltaMap(std::string mem_stat) { return m_memMon_delta_map[mem_stat]; }
+  long getMemMonDeltaMap(std::string mem_stat) const { return m_memMon_delta_map.at(mem_stat); }
 
   MeasurementData() : m_call_count{0}, m_tmp_cpu{0.}, m_delta_cpu{0.}, m_tmp_wall{0.}, m_delta_wall{0.},
-   m_tmp_vmem{0}, m_delta_vmem{0}, m_tmp_malloc{0}, m_delta_malloc{0}, m_offset_wall{0.} {
+    m_tmp_vmem{0.}, m_delta_vmem{0.}, m_tmp_malloc{0.}, m_delta_malloc{0.}, m_offset_wall{0.} {
     m_memMon_tmp_map["vmem"] = 0; m_memMon_tmp_map["pss"] = 0; m_memMon_tmp_map["rss"] = 0; m_memMon_tmp_map["swap"] = 0;
     m_memMon_delta_map["vmem"] = 0; m_memMon_delta_map["pss"] = 0; m_memMon_delta_map["rss"] = 0; m_memMon_delta_map["swap"] = 0;
   }
@@ -297,49 +278,67 @@ inline double PMonMT::get_wall_time() {
  */
 
 // Read from proc's smaps file. It is costly to do this operation too often.
+// In a realistic RAWtoESD job, the smaps for the the whole application can get large.
+// Therefore, this operation might take about 100 ms per call, which is fairly substantial.
+// However, this is one of the most reliable way to get PSS.
+// Therefore, keep it as is but don't call it too often!
 inline memory_map_t PMonMT::get_mem_stats() {
+  // Result object
   memory_map_t result;
-  std::string fileName = "/proc/self/smaps";
-  std::ifstream smaps_file(fileName);
 
-  std::string line;
-  std::string key;
-  std::string value;
+  // Zero initialize
+  result["vmem"] = result["rss"] = result["pss"] = result["swap"] = 0;
 
-  while (getline(smaps_file, line)) {
-    std::stringstream ss(line);
-    ss >> key >> value;
+  // This is the input where we read the stats from
+  static const std::string fileName = "/proc/self/smaps";
+  std::ifstream smaps_file{fileName};
 
-    if (key == "Size:") {
-      result["vmem"] += stol(value);
-    }
-    if (key == "Rss:") {
-      result["rss"] += stol(value);
-    }
-    if (key == "Pss:") {
-      result["pss"] += stol(value);
-    }
-    if (key == "Swap:") {
-      result["swap"] += stol(value);
+  std::string line{}, key{}, value{};
+
+  // Loop over the file
+  while (smaps_file) {
+    // Read interesting key value pairs
+    smaps_file >> key >> value;
+    smaps_file.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
+
+    if(smaps_file) {
+      if (key == "Size:") {
+        result["vmem"] += std::stol(value);
+      }
+      if (key == "Rss:") {
+        result["rss"] += std::stol(value);
+      }
+      if (key == "Pss:") {
+        result["pss"] += std::stol(value);
+      }
+      if (key == "Swap:") {
+        result["swap"] += std::stol(value);
+      }
     }
   }
+
   return result;
 }
 
 // This operation is less costly than the previous one. Since statm is a much smaller file compared to smaps.
 inline double PMonMT::get_vmem() {
-  const std::string fileName = "/proc/self/statm";
-  std::ifstream statm_file(fileName);
+  // Result
+  double result = 0.;
 
-  std::string vmem_in_pages;  // vmem measured in pages
-  std::string line;
+  // This is where we read the stats from
+  static const std::string fileName = "/proc/self/statm";
+  std::ifstream statm_file{fileName};
+
+  std::string vmem_in_pages{}, line{};  // vmem measured in pages
+
+  // We simply get the first line
   if (getline(statm_file, line)) {
-    std::stringstream ss(line);
+    std::stringstream ss{line};
     ss >> vmem_in_pages;  // The first number in this file is the vmem measured in pages
   }
 
-  const double page_size = sysconf(_SC_PAGESIZE) / 1024.0;  // page size in KB
-  const double result = stod(vmem_in_pages) * page_size;
+  static const double page_size = sysconf(_SC_PAGESIZE) / 1024.0;  // page size in KB
+  result = std::stod(vmem_in_pages) * page_size;
 
   return result;
 }
@@ -391,7 +390,10 @@ inline memory_map_t operator-(memory_map_t& map1, memory_map_t& map2) {
   return result_map;
 }
 
-inline bool doesDirectoryExist(const std::string dir) {
+/*
+ * Simple check if a given directory exists
+ */
+inline bool PMonMT::doesDirectoryExist(const std::string dir) {
   struct stat buffer;
   return (stat(dir.c_str(), &buffer) == 0);
 }

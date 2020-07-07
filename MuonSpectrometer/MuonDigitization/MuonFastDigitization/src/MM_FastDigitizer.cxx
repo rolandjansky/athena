@@ -1,62 +1,94 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//Gaudi - Core
-#include "StoreGate/StoreGateSvc.h"
+#include "MM_FastDigitizer.h"
 
-//Inputs
+#include "StoreGate/StoreGateSvc.h"
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonSimData/MuonSimData.h"
-
-//Outputs
 #include "MuonPrepRawData/MMPrepDataContainer.h"
 #include "MuonPrepRawData/MMPrepData.h"
-
-#include "MM_FastDigitizer.h"
 #include "MuonSimEvent/MM_SimIdToOfflineId.h"
 #include "MuonSimEvent/MMSimHitCollection.h"
 #include "MuonSimEvent/MicromegasHitIdHelper.h"
-
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MMReadoutElement.h"
-#include "MuonIdHelpers/MmIdHelper.h"
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "MuonAGDDDescription/MMDetectorDescription.h"
 #include "MuonAGDDDescription/MMDetectorHelper.h"
 
-#include "Identifier/Identifier.h"
-#include "TH1.h"
-#include "TTree.h"
-#include "TFile.h"
-
-//Random Numbers
-#include "AthenaKernel/IAtRndmGenSvc.h"
-#include "CLHEP/Random/RandGauss.h"
-
-
-#include <string>
 #include <sstream>
 #include <iostream>
 #include <fstream>
 
+#include "TTree.h"
+#include "TFile.h"
+
 using namespace Muon;
 /*******************************************************************************/ 
-  MM_FastDigitizer::MM_FastDigitizer(const std::string& name, ISvcLocator* pSvcLocator)
-: AthAlgorithm(name, pSvcLocator) , m_activeStore(NULL) , m_detManager(NULL) , m_idHelper(NULL)
-  , m_file(NULL) , m_ntuple(NULL) , m_dlx(0.) , m_dly(0.) , m_dlz(0.)
-  , m_sulx(0.) , m_suly(0.) , m_tsulx(0.) , m_tsuly(0.) , m_tsulz(0.) , m_stsulx(0.) , m_stsuly(0.) , m_stsulz(0.)
-  , m_ang(0.) , m_shift(0.) , m_suresx(0.) , m_suresy(0.) , m_err(0.) , m_res(0.)
-  , m_pull(0.) , m_is(0) , m_seta(0) , m_sphi(0) , m_sml(0) , m_sl(0) , m_ss(0) , m_ieta(0) , m_iphi(0) , m_iml(0) , m_il(0)
-  , m_ich(0) , m_istr(0) , m_exitcode(0) , m_mode(0) , m_pdg(0) , m_trkid(0) , m_gpx(0.) , m_gpy(0.) , m_gpz(0.)
-  , m_gpr(0.) , m_gpp(0.) , m_dgpx(0.) , m_dgpy(0.) , m_dgpz(0.), m_dgpr(0.) , m_dgpp(0.) , m_tofCorrection(0.)
-  , m_bunchTime(0.) , m_globalHitTime(0.) , m_e(0.) , m_edep(0.) , m_surfcentx(0.) , m_surfcenty(0.) , m_surfcentz(0.)
-  , m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool" )
-  , m_muonClusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator")
-  , m_rndmSvc("AtRndmGenSvc", name )
-  , m_rndmEngine(0)
-  , m_inputObjectName("MicromegasSensitiveDetector")
-  , m_sdoName("MMfast_SDO")
+MM_FastDigitizer::MM_FastDigitizer(const std::string& name, ISvcLocator* pSvcLocator) :
+    AthAlgorithm(name, pSvcLocator),
+    m_activeStore(nullptr),
+    m_detManager(nullptr),
+    m_file(nullptr),
+    m_ntuple(nullptr),
+    m_dlx(0.),
+    m_dly(0.),
+    m_dlz(0.),
+    m_sulx(0.),
+    m_suly(0.),
+    m_tsulx(0.),
+    m_tsuly(0.),
+    m_tsulz(0.),
+    m_stsulx(0.),
+    m_stsuly(0.),
+    m_stsulz(0.),
+    m_ang(0.),
+    m_shift(0.),
+    m_suresx(0.),
+    m_suresy(0.),
+    m_err(0.),
+    m_res(0.),
+    m_pull(0.),
+    m_is(0),
+    m_seta(0),
+    m_sphi(0),
+    m_sml(0),
+    m_sl(0),
+    m_ss(0),
+    m_ieta(0),
+    m_iphi(0),
+    m_iml(0),
+    m_il(0),
+    m_ich(0),
+    m_istr(0),
+    m_exitcode(0),
+    m_mode(0),
+    m_pdg(0),
+    m_trkid(0),
+    m_gpx(0.),
+    m_gpy(0.),
+    m_gpz(0.),
+    m_gpr(0.),
+    m_gpp(0.),
+    m_dgpx(0.),
+    m_dgpy(0.),
+    m_dgpz(0.),
+    m_dgpr(0.),
+    m_dgpp(0.),
+    m_tofCorrection(0.),
+    m_bunchTime(0.),
+    m_globalHitTime(0.),
+    m_e(0.),
+    m_edep(0.),
+    m_surfcentx(0.),
+    m_surfcenty(0.),
+    m_surfcentz(0.),
+    m_muonClusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
+    m_rndmSvc("AtRndmGenSvc", name ),
+    m_rndmEngine(0),m_inputObjectName("MicromegasSensitiveDetector"),
+    m_sdoName("MMfast_SDO")
 {
   declareProperty("InputObjectName", m_inputObjectName  =  "MicromegasSensitiveDetector", "name of the input object");
   declareProperty("RndmEngine",  m_rndmEngineName, "Random engine name");
@@ -69,47 +101,20 @@ using namespace Muon;
   declareProperty("MicroTPC", m_microTPC = true,  "Turn on microTPC mode"  );
 }
 /*******************************************************************************/ 
-MM_FastDigitizer::~MM_FastDigitizer()  {
-}
-/*******************************************************************************/ 
 StatusCode MM_FastDigitizer::initialize() {
-  StatusCode status(StatusCode::SUCCESS);
-
   // initialize transient event store
   ATH_MSG_DEBUG ( "Retrieved StoreGateSvc." );
-
-  ATH_CHECK( service("ActiveStoreSvc", m_activeStore) );
-  ATH_CHECK( m_muonClusterCreator.retrieve() );
-  ATH_CHECK( m_sdoName.initialize() );
-
+  ATH_CHECK(service("ActiveStoreSvc", m_activeStore));
+  ATH_CHECK(m_muonClusterCreator.retrieve());
+  ATH_CHECK(m_sdoName.initialize());
   // initialize transient detector store and MuonGeoModel OR MuonDetDescrManager
-  StoreGateSvc* detStore=0;
-  m_detManager=0;
-  status = serviceLocator()->service("DetectorStore", detStore);
-  if (status.isSuccess()) {
-    if(detStore->contains<MuonGM::MuonDetectorManager>( "Muon" )){
-
-      status = detStore->retrieve(m_detManager);
-      if (status.isFailure()) {
-        ATH_MSG_FATAL ( "Could not retrieve MuonGeoModelDetectorManager!" );
-        return status;
-      }
-      else {
-        ATH_MSG_DEBUG ( "Retrieved MuonGeoModelDetectorManager from StoreGate" );
-        //initialize the MmIdHelper
-        m_idHelper  = m_detManager->mmIdHelper();
-        if(!m_idHelper) return status;
-        ATH_MSG_DEBUG ( "Retrieved MmIdHelper " << m_idHelper );
-      }
-    }
+  StoreGateSvc* detStore=nullptr;
+  ATH_CHECK(serviceLocator()->service("DetectorStore", detStore));
+  if(detStore->contains<MuonGM::MuonDetectorManager>("Muon")) {
+      ATH_CHECK(detStore->retrieve(m_detManager));
+      ATH_MSG_DEBUG ( "Retrieved MuonGeoModelDetectorManager from StoreGate" );
   }
-  else {
-    ATH_MSG_FATAL ( "Could not retrieve DetectorStore!" );
-    return status;
-  }
-
-  ATH_CHECK( m_idHelperTool.retrieve() );
-
+  ATH_CHECK(m_idHelperSvc.retrieve());
   // check the input object name
   if (m_inputObjectName=="") {
     ATH_MSG_FATAL ( "Property InputObjectName not set !" );
@@ -188,15 +193,11 @@ StatusCode MM_FastDigitizer::initialize() {
 }
 /*******************************************************************************/ 
 StatusCode MM_FastDigitizer::execute() {
-
-
-
-
   // Create and record the SDO container in StoreGate
   SG::WriteHandle<MuonSimDataCollection> h_sdoContainer(m_sdoName);
   ATH_CHECK( h_sdoContainer.record ( std::make_unique<MuonSimDataCollection>() ) );
 
-  MMPrepDataContainer* prdContainer = new MMPrepDataContainer(m_idHelper->module_hash_max());
+  MMPrepDataContainer* prdContainer = new MMPrepDataContainer(m_idHelperSvc->mmIdHelper().module_hash_max());
   std::string key = "MM_Measurements";
   ATH_MSG_DEBUG(" Done! Total number of MM chambers with PRDS: " << prdContainer->numberOfCollections() << " key " << key);
   ATH_CHECK( evtStore()->record(prdContainer,key) );
@@ -206,18 +207,15 @@ StatusCode MM_FastDigitizer::execute() {
     return StatusCode::SUCCESS;
   }
   // as the MMPrepDataContainer only allows const accesss, need a local vector as well.
-  std::vector<MMPrepDataCollection*> localMMVec(m_idHelper->module_hash_max());
+  std::vector<MMPrepDataCollection*> localMMVec(m_idHelperSvc->mmIdHelper().module_hash_max());
 
   const DataHandle< MMSimHitCollection > collGMSH;
-  if ( evtStore()->retrieve( collGMSH,m_inputObjectName ).isFailure()) {
-    ATH_MSG_WARNING("No MM hits found in SG");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(evtStore()->retrieve( collGMSH,m_inputObjectName ));
 
   ATH_MSG_DEBUG( "Retrieved " <<  collGMSH->size() << " MM hits!");
 
   // Get the MicroMegas Id hit helper
-  MM_SimIdToOfflineId simToOffline(*m_idHelper);
+  MM_SimIdToOfflineId simToOffline(&m_idHelperSvc->mmIdHelper());
 
   std::map<Identifier,int> hitsPerChannel;
   int nhits = 0;
@@ -254,34 +252,33 @@ StatusCode MM_FastDigitizer::execute() {
     Identifier layid = simToOffline.convert(simId);
 
     // sanity checks
-    if( !m_idHelper->is_mm(layid) ){
-      ATH_MSG_WARNING("MM id is not a mm id! " << m_idHelperTool->toString(layid));
+    if( !m_idHelperSvc->isMM(layid) ){
+      ATH_MSG_WARNING("MM id is not a mm id! " << m_idHelperSvc->toString(layid));
     }
-    if( !m_idHelper->is_muon(layid) ){
-      ATH_MSG_WARNING("MM id is not a muon id! " << m_idHelperTool->toString(layid));
+    if( !m_idHelperSvc->isMuon(layid) ){
+      ATH_MSG_WARNING("MM id is not a muon id! " << m_idHelperSvc->toString(layid));
     }
-    if( m_idHelper->is_mdt(layid)||m_idHelper->is_rpc(layid)||m_idHelper->is_tgc(layid)||m_idHelper->is_csc(layid)||m_idHelper->is_stgc(layid) ){
-      ATH_MSG_WARNING("MM id has wrong technology type! " << m_idHelper->is_mdt(layid) << " " << m_idHelper->is_rpc(layid)
-          << " " << m_idHelper->is_tgc(layid) << " " << m_idHelper->is_csc(layid) << " " << m_idHelper->is_stgc(layid) );
+    if( m_idHelperSvc->isMdt(layid)||m_idHelperSvc->isRpc(layid)||m_idHelperSvc->isTgc(layid)||m_idHelperSvc->isCsc(layid)||m_idHelperSvc->issTgc(layid) ){
+      ATH_MSG_WARNING("MM id has wrong technology type!");
     }
     
     // remove hits in masked multiplet
-    if( m_maskMultiplet == m_idHelperTool->stgcIdHelper().multilayer(layid) ) continue; 
+    if( m_maskMultiplet == m_idHelperSvc->stgcIdHelper().multilayer(layid) ) continue; 
 
     // get readout element
     const MuonGM::MMReadoutElement* detEl = m_detManager->getMMReadoutElement(layid);
     if( !detEl ){
-      ATH_MSG_WARNING("Failed to retrieve detector element for: " << m_idHelperTool->toString(layid) );
+      ATH_MSG_WARNING("Failed to retrieve detector element for: " << m_idHelperSvc->toString(layid) );
       continue;
     }
 
     // collections stored per readout element
     IdentifierHash hash;
-    m_idHelper->get_module_hash(layid, hash);
+    m_idHelperSvc->mmIdHelper().get_module_hash(layid, hash);
     MuonPrepDataCollection<Muon::MMPrepData>* col  = localMMVec[hash];
     if( !col ){
       col = new MMPrepDataCollection(hash);
-      col->setIdentifier(m_idHelper->channelID(m_idHelper->parentID(layid), m_idHelper->multilayer(layid),1,1) );
+      col->setIdentifier(m_idHelperSvc->mmIdHelper().channelID(m_idHelperSvc->mmIdHelper().parentID(layid), m_idHelperSvc->mmIdHelper().multilayer(layid),1,1) );
       if( prdContainer->addCollection(col,hash).isFailure() ){
         ATH_MSG_WARNING("Failed to add collection with hash " << (int)hash );
         delete col;col=0;
@@ -308,29 +305,26 @@ StatusCode MM_FastDigitizer::execute() {
     Amg::Vector3D slpos = surf.transform().inverse()*hpos;
 
     // Get MM_READOUT from MMDetectorDescription
-    char side = ((int)m_idHelper->stationEta(layid)) < 0 ? 'C' : 'A';
-    char sector_l = ((std::string)m_idHelper->stationNameString(m_idHelper->stationName(layid))).substr(2,1)=="L" ? 'L' : 'S';
+    char side = ((int)m_idHelperSvc->mmIdHelper().stationEta(layid)) < 0 ? 'C' : 'A';
+    char sector_l = ((std::string)m_idHelperSvc->mmIdHelper().stationNameString(m_idHelperSvc->mmIdHelper().stationName(layid))).substr(2,1)=="L" ? 'L' : 'S';
     MMDetectorHelper aHelper;
-    MMDetectorDescription* mm = aHelper.Get_MMDetector(sector_l, abs((int)m_idHelper->stationEta(layid)), (int)m_idHelper->stationPhi(layid), (int)m_idHelper->multilayer(layid), side);
+    MMDetectorDescription* mm = aHelper.Get_MMDetector(sector_l, abs((int)m_idHelperSvc->mmIdHelper().stationEta(layid)), (int)m_idHelperSvc->mmIdHelper().stationPhi(layid), (int)m_idHelperSvc->mmIdHelper().multilayer(layid), side);
     MMReadoutParameters roParam = mm->GetReadoutParameters();
 
     Amg::Vector3D  ldir = surf.transform().inverse().linear()*Amg::Vector3D(hit.globalDirection().x(), hit.globalDirection().y(), hit.globalDirection().z());
     Amg::Vector3D  ldirTime;
     // the stereo angle vector stores the angles in rad. the vector indices are 0,1,2,3 which map to layers 1,2,3,4
-    if ( std::abs( (roParam.stereoAngle).at(m_idHelper->gasGap(layid)-1) ) > 0. )
+    if ( std::abs( (roParam.stereoAngle).at(m_idHelperSvc->mmIdHelper().gasGap(layid)-1) ) > 0. )
       ldirTime = ldir;
     else
       ldirTime = surf.transform().inverse().linear()*Amg::Vector3D(hit.globalDirection().x(), hit.globalDirection().y(), -hit.globalDirection().z());
 
     double scale;//, scaletop;
-//    double gasgap = 5.;
     
     if (m_microTPC) scale = 0;
     else scale = -slpos.z()/ldir.z();
-//    scaletop = (gasgap+slpos.z())/ldir.z();
 
     Amg::Vector3D hitOnSurface = slpos + scale*ldir;
-//    Amg::Vector3D hitOnTopSurface = slpos + scaletop*ldir;
     Amg::Vector3D hitOnSurfaceGlobal = surf.transform()*hitOnSurface;
 
     // account for time offset 
@@ -371,7 +365,7 @@ StatusCode MM_FastDigitizer::execute() {
     Amg::Vector3D repos = detEl->globalPosition();
     MicromegasHitIdHelper* hitHelper = MicromegasHitIdHelper::GetHelper();
 
-    std::string stName = m_idHelper->stationNameString(m_idHelper->stationName(layid));
+    std::string stName = m_idHelperSvc->mmIdHelper().stationNameString(m_idHelperSvc->mmIdHelper().stationName(layid));
     int isSmall = stName[2] == 'S';
     m_dlx = lpos.x();
     m_dly = lpos.y();
@@ -396,10 +390,10 @@ StatusCode MM_FastDigitizer::execute() {
     m_sml  = hitHelper->GetMultiLayer(simId);
     m_sl  = hitHelper->GetLayer(simId);
     m_ss  = hitHelper->GetSide(simId);
-    m_ieta = m_idHelper->stationEta(layid);
-    m_iphi = m_idHelper->stationPhi(layid);
-    m_iml  = m_idHelper->multilayer(layid);
-    m_il  = m_idHelper->gasGap(layid);
+    m_ieta = m_idHelperSvc->mmIdHelper().stationEta(layid);
+    m_iphi = m_idHelperSvc->mmIdHelper().stationPhi(layid);
+    m_iml  = m_idHelperSvc->mmIdHelper().multilayer(layid);
+    m_il  = m_idHelperSvc->mmIdHelper().gasGap(layid);
     m_ich = -99999;
     m_istr  = -99999;
     m_exitcode = 0;
@@ -441,7 +435,7 @@ StatusCode MM_FastDigitizer::execute() {
     //int LastStripNumber = detEl->stripNumber(posOnTopSurf, layid);
 
     if( stripNumber == -1 ){
-      ATH_MSG_WARNING("Failed to obtain strip number " << m_idHelperTool->toString(layid) );
+      ATH_MSG_WARNING("Failed to obtain strip number " << m_idHelperSvc->toString(layid) );
       ATH_MSG_WARNING(" pos " << posOnSurf << " z " << slpos.z() ); 
       m_exitcode = 2;
       m_ntuple->Fill();
@@ -450,8 +444,8 @@ StatusCode MM_FastDigitizer::execute() {
 
     // Recalculate the Identifier using the strip number
     // here need to use parent ID to avoid creating corrupted identifiers
-    Identifier parentID = m_idHelper->parentID(layid);
-    Identifier id = m_idHelper->channelID(parentID, m_idHelper->multilayer(layid), m_idHelper->gasGap(layid),stripNumber,m_checkIds);
+    Identifier parentID = m_idHelperSvc->mmIdHelper().parentID(layid);
+    Identifier id = m_idHelperSvc->mmIdHelper().channelID(parentID, m_idHelperSvc->mmIdHelper().multilayer(layid), m_idHelperSvc->mmIdHelper().gasGap(layid),stripNumber,m_checkIds);
 
     // only one hit per channel
     int& counts = hitsPerChannel[id];
@@ -461,7 +455,7 @@ StatusCode MM_FastDigitizer::execute() {
 
 
     if( stripNumber >= detEl->numberOfStrips(layid) ){
-      ATH_MSG_WARNING("Failed to obtain strip number " << m_idHelperTool->toString(layid) );
+      ATH_MSG_WARNING("Failed to obtain strip number " << m_idHelperSvc->toString(layid) );
       ATH_MSG_WARNING(" pos " << posOnSurf << " z " << slpos.z() ); 
       m_exitcode = 3;
       m_ntuple->Fill();
@@ -470,10 +464,10 @@ StatusCode MM_FastDigitizer::execute() {
 
     // Recalculate the Identifier using the strip number
     // here need to use parent ID to avoid creating corrupted identifiers
-    id = m_idHelper->channelID(parentID, m_idHelper->multilayer(layid), m_idHelper->gasGap(layid),stripNumber,m_checkIds);
+    id = m_idHelperSvc->mmIdHelper().channelID(parentID, m_idHelperSvc->mmIdHelper().multilayer(layid), m_idHelperSvc->mmIdHelper().gasGap(layid),stripNumber,m_checkIds);
 
-    if( stripNumber != m_idHelper->channel(id) ) {
-      ATH_MSG_WARNING(" bad stripNumber: in  "  << stripNumber << " from id " << m_idHelper->channel(id));
+    if( stripNumber != m_idHelperSvc->mmIdHelper().channel(id) ) {
+      ATH_MSG_WARNING(" bad stripNumber: in  "  << stripNumber << " from id " << m_idHelperSvc->mmIdHelper().channel(id));
       m_exitcode = 4;
       continue;
     }
@@ -485,7 +479,7 @@ StatusCode MM_FastDigitizer::execute() {
     ATH_MSG_VERBOSE(" Calculated truth hitOnSurfaceGlobal: r " << hitOnSurfaceGlobal.perp() << " phi " << hitOnSurfaceGlobal.phi() << " z " << hitOnSurfaceGlobal.z());
     ATH_MSG_VERBOSE(" detEl: r " << repos.perp() << " phi " << repos.phi() << " z " << repos.z());
     ATH_MSG_VERBOSE(" Surface center: r " << surf.center().perp() << " phi " << surf.center().phi() << " z " << surf.center().z());
-    ATH_MSG_DEBUG(" hit:  " << m_idHelperTool->toString(id) << " hitx " << posOnSurf.x() << " hitOnSurface.x() " << hitOnSurface.x() << " residual " << posOnSurf.x() - hitOnSurface.x()
+    ATH_MSG_DEBUG(" hit:  " << m_idHelperSvc->toString(id) << " hitx " << posOnSurf.x() << " hitOnSurface.x() " << hitOnSurface.x() << " residual " << posOnSurf.x() - hitOnSurface.x()
 		  << " pull " << (posOnSurf.x() - hitOnSurface.x())/resolution );
     Amg::Vector3D CurrentHitInDriftGap = slpos;
     // emulating micro track in the drift volume for microTPC
@@ -510,7 +504,7 @@ StatusCode MM_FastDigitizer::execute() {
       ATH_MSG_VERBOSE(" Prd: r " << prd->globalPosition().perp() << "  phi " << prd->globalPosition().phi() << " z " << prd->globalPosition().z());
     } else {
       for (int loop_direction = -1; loop_direction <=1; loop_direction+=2) {
-        Amg::Vector3D stepInDriftGap = loop_direction * ldir * (roParam.stripPitch/std::cos(roParam.stereoAngle.at(m_idHelper->gasGap(layid)-1) ))/abs(ldir.x());
+        Amg::Vector3D stepInDriftGap = loop_direction * ldir * (roParam.stripPitch/std::cos(roParam.stereoAngle.at(m_idHelperSvc->mmIdHelper().gasGap(layid)-1) ))/abs(ldir.x());
         if (loop_direction == 1) CurrentHitInDriftGap = slpos + stepInDriftGap;
         while (std::abs(CurrentHitInDriftGap.z()) <= roParam.gasThickness) {
           std::unique_ptr<Amg::MatrixX> cov = std::make_unique<Amg::MatrixX>(1,1);
@@ -525,8 +519,8 @@ StatusCode MM_FastDigitizer::execute() {
             CurrentHitInDriftGap += stepInDriftGap;
             continue;
           }
-          id = m_idHelper->channelID(parentID, m_idHelper->multilayer(layid), m_idHelper->gasGap(layid),stripNumber,m_checkIds);
-          if( stripNumber != m_idHelper->channel(id) ) {
+          id = m_idHelperSvc->mmIdHelper().channelID(parentID, m_idHelperSvc->mmIdHelper().multilayer(layid), m_idHelperSvc->mmIdHelper().gasGap(layid),stripNumber,m_checkIds);
+          if( stripNumber != m_idHelperSvc->mmIdHelper().channel(id) ) {
             CurrentHitInDriftGap += stepInDriftGap;
             continue;
           }
@@ -557,29 +551,18 @@ StatusCode MM_FastDigitizer::execute() {
 
 
     m_err = resolution;
-    m_ich = m_idHelper->channel(id);
+    m_ich = m_idHelperSvc->mmIdHelper().channel(id);
     m_istr  = stripNumber;
-
-//     const MuonClusterOnTrack* rot = m_muonClusterCreator->createRIO_OnTrack( *prd, hit.globalPosition() );
-//     if( rot ){
-//       m_res  = rot->localParameters().get(Trk::locX)-hitOnSurface.x();
-//       m_pull = m_res/rot->localErrorMatrix().error(Trk::locX);
-//       delete rot;
-//     }
-
     m_ntuple->Fill();
-    // OLD CODE ENDS HERE
-
   } 
 
-  if( msgLvl(MSG::DEBUG) ){
+  if (msgLvl(MSG::DEBUG)) {
     std::map<Identifier,int>::const_iterator hit = hitsPerChannel.begin();
     std::map<Identifier,int>::const_iterator hit_end = hitsPerChannel.end();
-    msg(MSG::DEBUG) << " number of channels with hit " << hitsPerChannel.size() << " nhits " << nhits << std::endl;
+    ATH_MSG_DEBUG(" number of channels with hit " << hitsPerChannel.size() << " nhits " << nhits);
     for( ;hit!=hit_end;++hit ){
-      msg(MSG::DEBUG) << " " << m_idHelperTool->toString(hit->first) << " ->  " << hit->second << std::endl;
+      ATH_MSG_DEBUG(" " << m_idHelperSvc->toString(hit->first) << " ->  " << hit->second);
     }
-    msg(MSG::DEBUG) << endmsg;
   }
   return StatusCode::SUCCESS;
 }

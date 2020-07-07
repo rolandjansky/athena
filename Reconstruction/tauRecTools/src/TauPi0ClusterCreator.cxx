@@ -16,7 +16,7 @@
 #include "xAODJet/Jet.h"
 
 #include "TauPi0ClusterCreator.h"
-
+#include "tauRecTools/HelperFunctions.h"
 
 using std::vector;
 using std::string;
@@ -421,17 +421,16 @@ bool TauPi0ClusterCreator::setHadronicClusterPFOs(xAOD::TauJet& pTau, xAOD::PFOC
         ATH_MSG_ERROR("Could not retrieve tau jet seed");
         return false;
     }
-    xAOD::JetConstituentVector::const_iterator clusterItr   = tauJetSeed->getConstituents().begin();
-    xAOD::JetConstituentVector::const_iterator clusterItrE  = tauJetSeed->getConstituents().end();
-    for (; clusterItr != clusterItrE; ++clusterItr){
+    std::vector<const xAOD::CaloCluster*> clusterList;
+
+    StatusCode sc = tauRecTools::GetJetClusterList(tauJetSeed, clusterList, m_incShowerSubtr);
+    if (!sc) return false;
+
+    for (auto cluster : clusterList){
         // Procedure: 
         // - Calculate cluster energy in Hcal. This is to treat -ve energy cells correctly
         // - Then set 4momentum via setP4(E/cosh(eta), eta, phi, m). This forces the PFO to have the correct energy and mass
         // - Ignore clusters outside 0.2 cone and those with overall negative energy or negative energy in Hcal
-
-        // Get xAOD::CaloClusters from jet constituent
-        const xAOD::CaloCluster* cluster = dynamic_cast<const xAOD::CaloCluster*>( (*clusterItr)->rawConstituent() );
-        if (!cluster) continue;
 
         // Don't create PFOs for clusters with overall (Ecal+Hcal) negative energy (noise)
         if(cluster->e()<=0.) continue;

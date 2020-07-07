@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARMONTOOLS_LARFEBMON_H
@@ -13,6 +13,8 @@
 #include "Identifier/HWIdentifier.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "LArRecConditions/LArBadChannelCont.h"
+#include "LArRawEvent/LArFebHeaderContainer.h"
+#include "LArRawEvent/LArFebErrorSummary.h"
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
@@ -76,6 +78,9 @@ private:
   const LArOnlineID* m_onlineHelper;
   LArOnlineIDStrHelper* m_strHelper;
   SG::ReadCondHandleKey<LArBadFebCont> m_BFKey{this, "MissingFEBKey", "LArBadFeb", "SG key for missing FEBs"};
+  SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey{this, "EventInfoKey", "EventInfo"};
+  SG::ReadHandleKey<LArFebHeaderContainer> m_LArFebHeaderContainerKey{this, "LArFebHeaderContainerKey", "LArFebHeader"};
+  SG::ReadHandleKey<LArFebErrorSummary> m_LArFebErrorSummaryKey{this, "LArFebErrorSummaryKey", "LArFebErrorSummary"};
   // trig. decision tool
   ToolHandle<Trig::TrigDecisionTool>  m_trigDec;
   bool m_trigok;

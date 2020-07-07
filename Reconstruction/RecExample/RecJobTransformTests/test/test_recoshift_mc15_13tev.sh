@@ -1,6 +1,7 @@
 #!/bin/sh
 #
 # art-description: Xiaohu Sun, Carl Gwilliam and Marie-Helene Genest
+# art-athena-mt: 4
 # art-type: build
 # art-include: 21.0/Athena
 # art-include: 21.0-TrigMC/Athena

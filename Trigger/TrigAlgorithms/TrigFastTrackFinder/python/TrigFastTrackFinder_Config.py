@@ -313,12 +313,19 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         self.doZFinder = InDetTrigSliceSettings[('doZFinder',remapped_type)]
         if (self.doZFinder):
           from IDScanZFinder.IDScanZFinderConf import TrigZFinder
-          theTrigZFinder = TrigZFinder()
+          theTrigZFinder = TrigZFinder( name="TrigZFinder_"+remapped_type )
           theTrigZFinder.NumberOfPeaks = 3
           theTrigZFinder.LayerNumberTool=numberingTool
           
+          if remapped_type == "beamSpot" : 
+            theTrigZFinder.TripletMode = 1
+            theTrigZFinder.TripletDZ   = 1
+            theTrigZFinder.PhiBinSize  = 0.1
+            theTrigZFinder.UseOnlyPixels = True
+            theTrigZFinder.MaxLayer      = 3
+
           theTrigZFinder.FullScanMode = True #TODO: know this from the RoI anyway - should set for every event
-          ToolSvc += theTrigZFinder
+
           self.trigZFinder = theTrigZFinder
           self.doFastZVertexSeeding = True
           self.zVertexResolution = 1

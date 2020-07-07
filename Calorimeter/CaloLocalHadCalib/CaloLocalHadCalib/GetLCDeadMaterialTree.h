@@ -22,6 +22,7 @@
 #include "StoreGate/ReadHandleKey.h"
 #include <vector>
 #include <string>
+#include "CxxUtils/checker_macros.h"
 
 class TTree;
 class TFile;
@@ -30,7 +31,7 @@ class CaloCell_ID;
 class CaloLocalHadCoeff;
 class CaloHadDMCoeffData;
 
-class GetLCDeadMaterialTree : public AthAlgorithm {
+class ATLAS_NOT_THREAD_SAFE GetLCDeadMaterialTree : public AthAlgorithm {
 
   public:
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCLUSTERCORRECTION_CALOSWAPPLYWGTS_G3_H
@@ -26,19 +26,13 @@ Updated:  May 5, 2004    (Sven Menke)
 
 class CaloSwApplyWgts_g3 : public CaloClusterCorrection
 {
+public:
+  /// Inherit constructor.
+  using CaloClusterCorrection::CaloClusterCorrection;
 
- public:
-
-  // constructor 
-  CaloSwApplyWgts_g3(const std::string& type,
-                     const std::string& name,
-                     const IInterface* parent);
-  // destructor 
-  virtual ~CaloSwApplyWgts_g3() override;
-  
   // virtual method in CaloClusterCorrection
-  virtual void makeCorrection(const EventContext& ctx,
-                              xAOD::CaloCluster* cluster) const override;
+  virtual void makeCorrection (const Context& myctx,
+                               xAOD::CaloCluster* cluster) const override;
 
  private:
 

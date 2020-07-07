@@ -119,9 +119,6 @@ if (ReadCOOL):
     IOVDbSvc.OutputLevel = DEBUG
 
 else:
-
-    include("AthenaServices/AthenaSealSvc_joboptions.py")
-    include("LArRawConditions/LArRawConditionsDict_joboptions.py")
     include("AthenaPoolCnvSvc/AthenaPool_jobOptions.py")
 
     EventPersistencySvc = Service( "EventPersistencySvc" )

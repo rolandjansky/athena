@@ -23,9 +23,6 @@
 #include "JetRec/JetSplitter.h"
 #include "JetRec/JetToolRunner.h"
 #include "JetRec/JetTrimmer.h"
-#include "JetRec/MuonSegmentPseudoJetGetter.h"
-#include "JetRec/PseudoJetGetter.h"
-#include "JetRec/PseudoJetGetterRegistry.h"
 
 
 #endif

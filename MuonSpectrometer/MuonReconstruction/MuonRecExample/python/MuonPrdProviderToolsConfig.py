@@ -20,7 +20,6 @@ def RpcPrepDataProviderTool(name="RpcPrepDataProviderTool",**kwargs):
   import MuonCnvExample.MuonCablingConfig
 
   if source == 'data':
-    kwargs["processingData"] = True
     kwargs["reduceCablingOverlap"] = True
     kwargs["produceRpcCoinDatafromTriggerWords"] = True
     kwargs["overlap_timeTolerance"] = 1000

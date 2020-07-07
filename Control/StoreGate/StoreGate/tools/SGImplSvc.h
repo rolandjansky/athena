@@ -247,14 +247,14 @@ public:
   //@{
 
   /// register a callback function(2) with an already registered function(1)
-  StatusCode regFcn (const CallBackID c1,
-                     const CallBackID c2,
+  StatusCode regFcn (const CallBackID& c1,
+                     const CallBackID& c2,
                      const IOVSvcCallBackFcn& fcn,
                      bool trigger = false);
 
   /// register a callback function(2) with an already registered AlgTool
   StatusCode regFcn (const std::string& toolName,
-                     const CallBackID c2,
+                     const CallBackID& c2,
                      const IOVSvcCallBackFcn& fcn,
                      bool trigger = false);
   
@@ -652,7 +652,7 @@ private:
                                      IResetable* ir, SG::DataProxy *&dp);
   bool bindHandleToProxyAndRegister (const CLID& id, const std::string& key,
                                      IResetable* ir, SG::DataProxy *&dp,
-                                     const CallBackID c,
+                                     const CallBackID& c,
                                      const IOVSvcCallBackFcn& fcn,
                                      bool trigger);
 

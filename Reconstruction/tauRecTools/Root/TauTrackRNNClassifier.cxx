@@ -46,18 +46,9 @@ StatusCode TauTrackRNNClassifier::initialize()
 }
 
 //______________________________________________________________________________
-StatusCode TauTrackRNNClassifier::execute(xAOD::TauJet& xTau)
-{
-  // Get track container via link from tau - instead of using read handle (not written to store yet) 
-  // Check that size > 0
-  ElementLink< xAOD::TauTrackContainer > link;
-  xAOD::TauTrackContainer* tauTrackCon = nullptr;
-  if (xTau.allTauTrackLinks().size() > 0) {
-    link = xTau.allTauTrackLinks().at(0); //we don't care about this specific link, just the container
-    tauTrackCon = link.getDataNonConstPtr();
-  }  
+StatusCode TauTrackRNNClassifier::executeRNNTrackClassifier(xAOD::TauJet& xTau, xAOD::TauTrackContainer& tauTrackCon){
 
-  std::vector<xAOD::TauTrack*> vTracks = xAOD::TauHelpers::allTauTracksNonConst(&xTau, tauTrackCon);
+  std::vector<xAOD::TauTrack*> vTracks = xAOD::TauHelpers::allTauTracksNonConst(&xTau, &tauTrackCon);
 
   for (xAOD::TauTrack* xTrack : vTracks)
   {

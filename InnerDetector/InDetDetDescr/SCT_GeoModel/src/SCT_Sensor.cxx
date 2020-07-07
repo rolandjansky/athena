@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_GeoModel/SCT_Sensor.h"
@@ -64,8 +64,6 @@ SCT_Sensor::preBuild()
   // Make the moduleside design for this sensor
   makeDesign();
 
-  m_detectorManager->addDesign(m_design);
-  
   return sensorLog;
 }
 
@@ -104,7 +102,8 @@ SCT_Sensor::makeDesign()
   // The readout side is at the +ve depth direction
   int readoutSide = +1;
 
-  m_design = new SCT_BarrelModuleSideDesign(m_thickness,
+  // m_design will be owned and deleted by SCT_DetectorManager
+  std::unique_ptr<SCT_BarrelModuleSideDesign> design = std::make_unique<SCT_BarrelModuleSideDesign>(m_thickness,
                                             crystals,
                                             diodes,
                                             cells,
@@ -117,6 +116,9 @@ SCT_Sensor::makeDesign()
                                             xPhiStripPatternCenter,
                                             totalDeadLength,
                                             readoutSide);
+  m_design = design.get();
+  m_detectorManager->addDesign(std::move(design));
+
   //
   // Flags to signal if axis can be swapped.
   // For rectangular detector these are all true.
@@ -148,6 +150,8 @@ SCT_Sensor::build(SCT_Identifier id)
 
     SiDetectorElement * detElement;
 
+    // detElement will be owned by SCT_DetectorManager
+    // and will be deleted in destructor of SiDetectorElementCollection in SCT_DetectorManager
     detElement =  new SiDetectorElement(id.getWaferId(), 
                                         m_design, 
                                         sensor,  

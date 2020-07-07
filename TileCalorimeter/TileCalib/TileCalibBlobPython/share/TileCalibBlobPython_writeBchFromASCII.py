@@ -22,7 +22,7 @@ def fillBadChannels(db ,tag, bchFile,
                     since, until=(TileCalibTools.MAXRUN,TileCalibTools.MAXLBK)):
 
     #=== ADC status folder (write to ONLINE from M7 onwards!)
-##    folder = TileCalibTools.getTilePrefix(False)+"STATUS/ADC"
+    ##folder = TileCalibTools.getTilePrefix(False)+"STATUS/ADC"
     folder="/TILE/OFL02/STATUS/ADC"
     #=== create bad channel manager
     mgr = TileBchTools.TileBchMgr()
@@ -37,8 +37,8 @@ def fillBadChannels(db ,tag, bchFile,
     mgr.updateFromFile(bchFile)
 
     #=== add definition for TileBchStatus::isBad from online side
-    #    mgr.addAdcProblem(0, 1, 0,0, TileBchPrbs.IgnoredInDsp)
-    #    mgr.addAdcProblem(0, 1, 0,1, TileBchPrbs.IgnoredInDsp)
+    #mgr.addAdcProblem(0, 1, 0,0, TileBchPrbs.IgnoredInDsp)
+    #mgr.addAdcProblem(0, 1, 0,1, TileBchPrbs.IgnoredInDsp)
 
     #=== print bad channels
     log.info("bad channels after update")
@@ -46,9 +46,9 @@ def fillBadChannels(db ,tag, bchFile,
 
     #=== commit changes
     #--- to ONLINE folder, i.e. tag="" and using onl01 bit pattern
-##    mgr.commitToDb(db, folder, "", TileBchDecoder.BitPat_onl01, os.getlogin(), bchFile, since, until)
+    ##mgr.commitToDb(db, folder, "", TileBchDecoder.BitPat_onl01, os.getlogin(), bchFile, since, until)
     mgr.commitToDb(db, folder, tag, TileBchDecoder.BitPat_ofl01, os.getlogin(), bchFile, since, until)
-##    mgr.commitToDb(db, "/TILE/", "", TileBchDecoder.BitPat_onl01, os.getlogin(), bchFile, since, until)
+    ##mgr.commitToDb(db, "/TILE/", "", TileBchDecoder.BitPat_onl01, os.getlogin(), bchFile, since, until)
 
 
 #===================================================================

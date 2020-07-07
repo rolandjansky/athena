@@ -13,7 +13,7 @@ atlas_depends_on_subdirs(
    Control/AthContainers )
 
 # External dependencies:
-find_package( tdaq-common )
+find_package( tdaq-common COMPONENTS DataReader )
 
 # Treat tdaq-common as an optional dependency:
 set( extra_inc )

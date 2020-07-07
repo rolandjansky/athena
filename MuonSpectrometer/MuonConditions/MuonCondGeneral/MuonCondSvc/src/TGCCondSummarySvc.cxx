@@ -3,26 +3,19 @@
 */
 
 #include "MuonCondSvc/TGCCondSummarySvc.h"
+
 #include <vector>
 #include <list>
 #include <algorithm>
 #include <sstream>
 #include <iterator>
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/StatusCode.h"
-#include "Identifier/IdentifierHash.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-#include "MuonCondInterface/ITGCConditionsSvc.h"
-#include "Identifier/Identifier.h"
 
 // Constructor
 TGCCondSummarySvc::TGCCondSummarySvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthService(name, pSvcLocator), 
   m_reportingServices(name),
-  m_pHelper(0),
   m_detStore("DetectorStore",name),
   m_noReports(true){
-  //  m_reportingServices.push_back("MDT_TGCConditionsSvc"); has to be empty!!!
   declareProperty("ConditionsServices",m_reportingServices);
   declareProperty("DetStore", m_detStore);
 }
@@ -30,55 +23,29 @@ TGCCondSummarySvc::TGCCondSummarySvc( const std::string& name, ISvcLocator* pSvc
 
 StatusCode
 TGCCondSummarySvc::initialize(){
-  StatusCode sc(StatusCode::FAILURE);
   m_noReports = m_reportingServices.empty();  
-  
-  sc = m_detStore.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::FATAL) << "DetectorStore service not found !" << endmsg;
-    return sc;
-  } else {
-    msg(MSG::INFO) << "DetectorStore service found !" << endmsg;
-  }  
-  
- 
+  ATH_CHECK(m_detStore.retrieve());
   if (m_noReports){
-    sc=StatusCode::SUCCESS;
-    msg(MSG::INFO)<<"No services were selected for the TGC summary"<<endmsg;
+    ATH_MSG_DEBUG("No services were selected for the TGC summary");
   } else {
    
-    sc = m_reportingServices.retrieve();
-    if ( sc.isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve " << m_reportingServices << endmsg;
-      return StatusCode::FAILURE;
-    }
-    
+    ATH_CHECK(m_reportingServices.retrieve());
+
     ServiceHandleArray<ITGCConditionsSvc>::const_iterator pSvc= m_reportingServices.begin();
     ServiceHandleArray<ITGCConditionsSvc>::const_iterator pLastSvc= m_reportingServices.end();
     for (;pSvc not_eq pLastSvc; ++pSvc){
       const std::string& svcName = pSvc->name();
-      msg(MSG::INFO)<<"Using "<< svcName << endmsg;
+      ATH_MSG_DEBUG("Using "<< svcName);
       if (m_detStore->regFcn(&ITGCConditionsSvc::initInfo,&**pSvc,
                            &TGCCondSummarySvc::update_TGC,this) != StatusCode::SUCCESS){ 
-        msg(MSG::WARNING)<<"Unable to register call back for "<<svcName<<endmsg; 
+        ATH_MSG_WARNING("Unable to register call back for "<<svcName); 
       } else {
-        msg(MSG::INFO)<<"initInfo registered for call-back for "<<svcName<<endmsg;
+        ATH_MSG_DEBUG("initInfo registered for call-back for "<<svcName);
       }
     }
   }   
-  return sc;
-}
-
-
-
-//Finalize
-StatusCode
-TGCCondSummarySvc::finalize(){
-  msg(MSG::INFO)<<"Thank-you for using the TGCCondSummarySvc, version "<<PACKAGE_VERSION<<endmsg;
-  //Code
   return StatusCode::SUCCESS;
 }
-
 
 StatusCode
 TGCCondSummarySvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
@@ -94,15 +61,12 @@ TGCCondSummarySvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 }
 
 StatusCode TGCCondSummarySvc::update_TGC(IOVSVC_CALLBACK_ARGS){
-
-  msg(MSG::INFO)<<"Register Call Back for TGC System"<<endmsg;
-
+   ATH_MSG_DEBUG("Register Call Back for TGC System");
    return StatusCode::SUCCESS;
 }
 
 StatusCode TGCCondSummarySvc::initInfo(IOVSVC_CALLBACK_ARGS){
-
-  msg(MSG::INFO)<<"Not to be called just dummy"<<endmsg;
+   ATH_MSG_DEBUG("Not to be called just dummy");
    return StatusCode::SUCCESS;
 }
 
@@ -121,8 +85,7 @@ bool TGCCondSummarySvc::isGoodChamber(const Identifier & Id){
   	   (*svc)->deadStationsId().begin(),(*svc)->deadStationsId().end(),Id,Compare);
         if(found) counter++;
       }else{
-	msg(MSG::INFO)<<" Dead Stations from the service are not available "<<(*svc) <<endmsg;
-	
+	ATH_MSG_DEBUG(" Dead Stations from the service are not available "<<(*svc));
       }
     }
   }
@@ -131,12 +94,6 @@ bool TGCCondSummarySvc::isGoodChamber(const Identifier & Id){
   return result;
   
 }
-
-
-
-
-
-
 
 const std::vector<Identifier>& TGCCondSummarySvc::deadStationsId(){
   m_emptyId.clear();
@@ -147,10 +104,9 @@ const std::vector<Identifier>& TGCCondSummarySvc::deadStationsId(){
       if ((*svc)->deadStationsId().size()!=0){
 	return (*svc)->deadStationsId();
       }else{
-	msg(MSG::INFO)<<" Dead Stations from the service  are not availables "<<(*svc) <<endmsg;
+	ATH_MSG_DEBUG(" Dead Stations from the service  are not availables "<<(*svc));
       }
     }
-    
   }
   return m_emptyId; 
 }

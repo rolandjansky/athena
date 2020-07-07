@@ -22,10 +22,6 @@ theApp.EvtMax = 1
 
 include( "AthenaPoolCnvSvc/AthenaPool_jobOptions.py" )
 
-theApp.Dlls   += [ "AthenaPoolCnvSvc" ]
-include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-AthenaSealSvc.CheckDictionary = True 
-include ("DetDescrDictionary/DetDescrDictionaryDict_joboptions.py")
 include("CaloCondAthenaPool/CaloCondAthenaPool_joboptions.py")
 
 from RegistrationServices.OutputConditionsAlg import OutputConditionsAlg

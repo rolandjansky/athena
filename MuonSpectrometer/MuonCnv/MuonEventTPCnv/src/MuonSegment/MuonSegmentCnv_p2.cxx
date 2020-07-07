@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -41,10 +41,6 @@ void MuonSegmentCnv_p2::transToPers( const Muon::MuonSegment *transObj, Muon::Mu
   persObj->m_segment = baseToPersistent( &m_segmentCnv, transObj, log );
   m_localDirCnv.transToPers(&transObj->localDirection(),&persObj->m_localDirection,log);
 
-    //if (transObj->m_localDirection!=0) 
-    //    m_localDirCnv.transToPers(&persObj->m_localDirection,const_cast<Trk::LocalDirection*>(transObj->m_localDirection),log);
-    //else
-    //    log<<MSG::WARNING<<"MuonSegment is apparently missing a LocalDirection. Dumping:"<<*transObj<<endmsg;
   m_surfCnv=0;
   if (transObj->associatedSurface().isFree() ) // if this is a free surface, write it out 'as is'
     persObj->m_associatedSurface = toPersistent(&m_surfCnv, &transObj->associatedSurface(), log);

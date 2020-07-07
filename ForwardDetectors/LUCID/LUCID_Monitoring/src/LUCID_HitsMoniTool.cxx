@@ -1,27 +1,27 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <sstream>
 
-#include "GaudiKernel/IJobOptionsSvc.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/StatusCode.h"
-
-#include "AthenaMonitoring/AthenaMonManager.h"
-#include "LUCID_Monitoring/LUCID_HitsMoniTool.h"
+#include "LUCID_HitsMoniTool.h"
 
 LUCID_HitsMoniTool::LUCID_HitsMoniTool(const std::string& type, const std::string& name, const IInterface* parent): 
   ManagedMonitorToolBase(type, name, parent) 
 {
-  m_LUCID_RawDataContainer = 0;
 }
 
 LUCID_HitsMoniTool::~LUCID_HitsMoniTool() {}
 
+StatusCode LUCID_HitsMoniTool::initialize() {
+  ATH_CHECK( ManagedMonitorToolBase::initialize() );
+  ATH_CHECK( m_LUCID_RawDataContainerKey.initialize() );
+  return StatusCode::SUCCESS;
+}
+
 StatusCode LUCID_HitsMoniTool::bookHistograms() {
   
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " LUCID_HitsMoniTool::bookHistograms " << endmsg;
+  ATH_MSG_DEBUG(" LUCID_HitsMoniTool::bookHistograms ");
   
   m_LUCID_Histos.clear();
   
@@ -103,30 +103,27 @@ StatusCode LUCID_HitsMoniTool::bookHistograms() {
 
 StatusCode LUCID_HitsMoniTool::fillHistograms() {
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " LUCID_HitsMoniTool::fillHistograms " << endmsg;
+  ATH_MSG_DEBUG(" LUCID_HitsMoniTool::fillHistograms ");
 
-  StatusCode sc = evtStore()->retrieve(m_LUCID_RawDataContainer, "Lucid_RawData");
+  SG::ReadHandle<LUCID_RawDataContainer> rawdata{m_LUCID_RawDataContainerKey};
 
-  if (sc.isFailure()) { if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " Could not retireved LUCID_RawDataContainer from StoreGate " << endmsg; return sc; }
-  else                  if (msgLvl(MSG::DEBUG))   msg(MSG::DEBUG)   << " LUCID_RawDataContainer is retireved from StoreGate "        << endmsg;
+  if (!rawdata.isValid()) { ATH_MSG_WARNING(" Could not retireved LUCID_RawDataContainer from StoreGate "); return StatusCode::FAILURE; }
+  else                      ATH_MSG_DEBUG(" LUCID_RawDataContainer is retireved from StoreGate ");
   
-  LUCID_RawDataContainer::const_iterator LUCID_RawData_itr = m_LUCID_RawDataContainer->begin();
-  LUCID_RawDataContainer::const_iterator LUCID_RawData_end = m_LUCID_RawDataContainer->end();
-  
-  for (; LUCID_RawData_itr != LUCID_RawData_end; LUCID_RawData_itr++) {
+  for (const auto& LUCID_RawData_itr : *rawdata) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << (*LUCID_RawData_itr);
+    ATH_MSG_DEBUG(LUCID_RawData_itr);
 
     for (int bxID=0; bxID<3; bxID++) {
       for (int tub=0; tub<m_nLucidTubes; tub++) {
 	
-	bool isTubeFired = (*LUCID_RawData_itr)->isTubeFired(tub, bxID);
+	bool isTubeFired = LUCID_RawData_itr->isTubeFired(tub, bxID);
 	
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) 
-				  << " bxID: " << std::setw(10) << bxID
+	ATH_MSG_DEBUG(
+				     " bxID: " << std::setw(10) << bxID
 				  << " tub: "  << std::setw(10) << tub
 				  << " fire: " << std::setw(10) << isTubeFired
-				  << endmsg;
+				  );
 	
 	if (isTubeFired) m_LUCID_Histos[bxID]->Fill(tub);
       }
@@ -135,8 +132,8 @@ StatusCode LUCID_HitsMoniTool::fillHistograms() {
     int  hitsA, hitsC, hitsT;
     bool coinFlag;
     
-    hitsA    = (*LUCID_RawData_itr)->getNhitsPMTsideA();
-    hitsC    = (*LUCID_RawData_itr)->getNhitsPMTsideC();
+    hitsA    = LUCID_RawData_itr->getNhitsPMTsideA();
+    hitsC    = LUCID_RawData_itr->getNhitsPMTsideC();
     hitsT    = hitsA + hitsC;
     coinFlag = (hitsA>0 && hitsC>0);
     
@@ -148,8 +145,8 @@ StatusCode LUCID_HitsMoniTool::fillHistograms() {
     m_LUCID_Histos[7]->Fill(hitsC*coinFlag);
     m_LUCID_Histos[8]->Fill(hitsT*coinFlag);
 
-    hitsA    = (*LUCID_RawData_itr)->getNhitsFIBsideA();
-    hitsC    = (*LUCID_RawData_itr)->getNhitsFIBsideC();
+    hitsA    = LUCID_RawData_itr->getNhitsFIBsideA();
+    hitsC    = LUCID_RawData_itr->getNhitsFIBsideC();
     hitsT    = hitsA + hitsC;
     coinFlag = (hitsA>0 && hitsC>0);
     
@@ -161,8 +158,8 @@ StatusCode LUCID_HitsMoniTool::fillHistograms() {
     m_LUCID_Histos[13]->Fill(hitsC*coinFlag);
     m_LUCID_Histos[14]->Fill(hitsT*coinFlag);
     
-    hitsA    = (*LUCID_RawData_itr)->getNhitsPMTsideAprevBX();
-    hitsC    = (*LUCID_RawData_itr)->getNhitsPMTsideCprevBX();
+    hitsA    = LUCID_RawData_itr->getNhitsPMTsideAprevBX();
+    hitsC    = LUCID_RawData_itr->getNhitsPMTsideCprevBX();
     hitsT    = hitsA + hitsC;
     coinFlag = (hitsA>0 && hitsC>0);
     
@@ -174,8 +171,8 @@ StatusCode LUCID_HitsMoniTool::fillHistograms() {
     m_LUCID_Histos[19]->Fill(hitsC*coinFlag);
     m_LUCID_Histos[20]->Fill(hitsT*coinFlag);
 
-    hitsA    = (*LUCID_RawData_itr)->getNhitsFIBsideAprevBX();
-    hitsC    = (*LUCID_RawData_itr)->getNhitsFIBsideCprevBX();
+    hitsA    = LUCID_RawData_itr->getNhitsFIBsideAprevBX();
+    hitsC    = LUCID_RawData_itr->getNhitsFIBsideCprevBX();
     hitsT    = hitsA + hitsC;
     coinFlag = (hitsA>0 && hitsC>0);
     
@@ -187,8 +184,8 @@ StatusCode LUCID_HitsMoniTool::fillHistograms() {
     m_LUCID_Histos[25]->Fill(hitsC*coinFlag);
     m_LUCID_Histos[26]->Fill(hitsT*coinFlag);
     
-    hitsA    = (*LUCID_RawData_itr)->getNhitsPMTsideAnextBX();
-    hitsC    = (*LUCID_RawData_itr)->getNhitsPMTsideCnextBX();
+    hitsA    = LUCID_RawData_itr->getNhitsPMTsideAnextBX();
+    hitsC    = LUCID_RawData_itr->getNhitsPMTsideCnextBX();
     hitsT    = hitsA + hitsC;
     coinFlag = (hitsA>0 && hitsC>0);
     
@@ -200,8 +197,8 @@ StatusCode LUCID_HitsMoniTool::fillHistograms() {
     m_LUCID_Histos[31]->Fill(hitsC*coinFlag);
     m_LUCID_Histos[32]->Fill(hitsT*coinFlag);    
 
-    hitsA    = (*LUCID_RawData_itr)->getNhitsFIBsideAnextBX();
-    hitsC    = (*LUCID_RawData_itr)->getNhitsFIBsideCnextBX();
+    hitsA    = LUCID_RawData_itr->getNhitsFIBsideAnextBX();
+    hitsC    = LUCID_RawData_itr->getNhitsFIBsideCnextBX();
     hitsT    = hitsA + hitsC;
     coinFlag = (hitsA>0 && hitsC>0);
     
@@ -219,11 +216,11 @@ StatusCode LUCID_HitsMoniTool::fillHistograms() {
 
 StatusCode LUCID_HitsMoniTool::procHistograms() {
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " LUCID_HitsMoniTool::procHistograms " << endmsg;
+  ATH_MSG_DEBUG(" LUCID_HitsMoniTool::procHistograms ");
 
   if (endOfRunFlag()) {
     
-    msg(MSG::DEBUG) << " m_nEvents: " << m_nEvents << endmsg;
+    ATH_MSG_DEBUG(" m_nEvents: " << m_nEvents);
     
     for (int bxID=0; bxID<3; bxID++) m_LUCID_Histos[18+bxID]->Scale(1./m_nEvents);
   }

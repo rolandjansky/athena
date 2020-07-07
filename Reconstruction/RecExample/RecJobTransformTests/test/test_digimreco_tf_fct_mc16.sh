@@ -1,6 +1,7 @@
 #!/bin/sh
 #
 # art-description: Test of DigiMReco from HITS to AOD/TAG MC16a r10724
+# art-athena-mt: 4
 # art-type: grid
 # art-include: 21.0/Athena
 # art-include: 21.0-TrigMC/Athena

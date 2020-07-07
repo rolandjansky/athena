@@ -43,8 +43,8 @@ if ('updateperiod' not in dir()):
 if ('timeout' not in dir()):
     timeout = 240000
 
-if ('dispersion' not in dir()):
-    dispersion = True
+if ('groupName' not in dir()):
+    groupName = 'RecExOnline'
 
 if ('isserverName' not in dir()):
     isserverName = 'Histogramming'
@@ -187,7 +187,15 @@ else:
 # For offline athena tasks mainly.
 # #################################################
 ByteStreamEmonInputSvc.ExitOnPartitionShutdown = False
-ByteStreamEmonInputSvc.Dispersion = dispersion
+
+# #################################################
+# Set groupName to "RecExOnline" by default so that 
+# each process belonging to the "RecExOnline" group 
+# gets a different set of events.
+# Set groupName to empty to allow other process get 
+# the same events.
+# #################################################
+ByteStreamEmonInputSvc.GroupName = groupName
 
 ByteStreamCnvSvc = Service('ByteStreamCnvSvc')
 theApp.ExtSvc += [ 'ByteStreamCnvSvc' ]

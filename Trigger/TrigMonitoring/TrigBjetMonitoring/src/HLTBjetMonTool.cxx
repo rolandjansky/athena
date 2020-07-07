@@ -127,6 +127,7 @@ StatusCode HLTBjetMonTool::init() {
 
   ATH_CHECK( m_offlineVertexContainerKey.initialize() );
   ATH_CHECK( m_onlineVertexContainerKey.initialize() );
+  ATH_CHECK( m_onlineTrackContainerKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -953,7 +954,7 @@ StatusCode HLTBjetMonTool::book(){
 	      ATH_MSG_DEBUG("     pT: " << (trk->pt())*1.e-3 << " Eta: " << trk->eta() << " Phi: " << trk->phi() << " d0: " << trk->d0() );
 	      if (HistTrack) hist("d0"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(trk->d0());
 	      if (HistTrack) hist("z0"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(trk->z0());
-	      if (HistTrack) hist("ed0"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(Amg::error(trk->definingParametersCovMatrix(), 0));
+	      if (HistTrack) hist("ed0"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(Amg::error(trk->definingParametersCovMatrix(), 0) );
 	      if (HistTrack) hist("ez0"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(Amg::error(trk->definingParametersCovMatrix(), 1));
 	      if (HistTrack) hist("trkPt"+HistExt,"HLT/BjetMon/"+HistDir)->Fill( (trk->pt())*1.e-3 );
 	      if (HistTrack) hist2("trkEtaPhi"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(trk->eta(),trk->phi());
@@ -1043,10 +1044,18 @@ StatusCode HLTBjetMonTool::book(){
 	
       } // Run2 access 
       else { // Run3 access
+
 	ATH_MSG_DEBUG("  ===> Run 3 access for Trigger Item: " << trigItem);
 
-	// online PV from SG
+	// online track container
+	SG::ReadHandle<xAOD::TrackParticleContainer> theTracks(m_onlineTrackContainerKey);
+	// verify the content
+	for ( const xAOD::TrackParticle* track : *theTracks ) {
+	  ATH_MSG_DEBUG( " Pt of track in TrackParticleContainer: " << track->pt() );
+	}
+	
 
+	// online PV from SG
 	int iPV = 0;
 	SG::ReadHandle<xAOD::VertexContainer> vtxContainer(m_onlineVertexContainerKey);
 	for (const xAOD::Vertex* vtx : *vtxContainer) {
@@ -1056,15 +1065,16 @@ StatusCode HLTBjetMonTool::book(){
 	    if(HistPV) hist("PVy_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(vtx->y());
 	    if(HistPV) hist("PVz_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(vtx->z());
 	    iPV++;
+	    if ( Eofflinepv && HistPV && (iPV == 1) ) hist("diffzPV0offPVon"+HistExt,"HLT/BjetMon/"+HistDir)->Fill( vtx->z()-offlinepvz );
 	  } // if vtx type
 	} // loop on vtxContainer
 	ATH_MSG_DEBUG("        Number of vertices from SG: " << iPV );
 	if(HistPV) hist("nPV_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(iPV);
 
-	// Jets and PV through jet link
-	//  std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > onlinejets = m_trigDec->features<xAOD::JetContainer>(trigItem, TrigDefs::Physics, jetKey);
+	// Jets and PV and tracks through jet link
 	std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > onlinejets = m_trigDec->features<xAOD::JetContainer>(trigItem, TrigDefs::Physics, m_onlineBjetContainerKey); // TM 240320
 	int ijet = 0;
+	int itrack = 0;
 	for(const auto jetLinkInfo : onlinejets) {
 	  // jetPt
 	  const xAOD::Jet* jet = *(jetLinkInfo.link);
@@ -1080,13 +1090,41 @@ StatusCode HLTBjetMonTool::book(){
 	    // if(HistPV) hist("PVz_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(vtx->z());
 	  }
 	  ijet++;
-	} // onlinejets
-	ATH_MSG_DEBUG("                 -   nJet: " << ijet);
+
+	  // Tracks associated to triggered jets ( featurs = onlinejets ) courtesy of Tim Martin on 12/05/2020
+	  const auto track_it_pair = m_trigDec->associateToEventView(theTracks, jetLinkInfo.source, "roi");
+	  const xAOD::TrackParticleContainer::const_iterator start_it = track_it_pair.first;
+	  const xAOD::TrackParticleContainer::const_iterator end_it = track_it_pair.second;
+	  int count = 0;
+	  for ( xAOD::TrackParticleContainer::const_iterator it = start_it; it != end_it; ++it) {
+	    count++;
+	    ATH_MSG_DEBUG( " Track " << count << " with pT " << (*it)->pt() <<" from BJet with pT " << (*jetLinkInfo.link)->pt() );
+	    ATH_MSG_DEBUG( " Track " << count << " with pT/eta/phi " << (*it)->pt() << "/" << (*it)->eta() << "/" << (*it)->phi() );
+	    ATH_MSG_DEBUG( " Track " << count << " with d0/sigd0 " << (*it)->d0() << "/" << Amg::error((*it)->definingParametersCovMatrix(), 0) );
+	    ATH_MSG_DEBUG( " Track " << count << " with z0/sigz0 " << (*it)->z0() << "/" << Amg::error((*it)->definingParametersCovMatrix(), 1) );
+	    if (HistTrack) hist("d0"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*it)->d0());
+	    if (HistTrack) hist("z0"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*it)->z0());
+	    if (HistTrack) hist("ed0"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(Amg::error((*it)->definingParametersCovMatrix(), 0) );
+	    if (HistTrack) hist("ez0"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(Amg::error((*it)->definingParametersCovMatrix(), 1) );
+	    if (HistTrack) hist("trkPt"+HistExt,"HLT/BjetMon/"+HistDir)->Fill( ((*it)->pt())*1.e-3 );
+	    if (HistTrack) hist2("trkEtaPhi"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*it)->eta(),(*it)->phi());
+	    float errz0 = Amg::error((*it)->definingParametersCovMatrix(), 1);
+	    if (Eofflinepv && HistTrack) hist("diffz0PV0"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*it)->z0()+(*it)->vz()-offlinepvz);
+	    if ( errz0 >0. && Eofflinepv && HistTrack) hist("sigz0PV"+HistExt,"HLT/BjetMon/"+HistDir)->Fill( ((*it)->z0()+(*it)->vz()-offlinepvz)/errz0 ); 
+	  } // it on tracks
+	  ATH_MSG_DEBUG( "  Number of tracks: " << count );
+	  itrack += count;
+
+	} // jetLinkInfo
+
+	ATH_MSG_DEBUG(" Total number of triggered b-jets: " << ijet);
 	if(HistJet) hist("nJet"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(ijet);	
+	ATH_MSG_DEBUG(" Total number of triggered tracks associated to the b-jets: " << itrack);
+	if (HistTrack) hist("nTrack"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(itrack);
 
       } // else Run3 access
       
-    } // ichain
+    } // trigItem
     
   } // FiredChainNames.empty()
   

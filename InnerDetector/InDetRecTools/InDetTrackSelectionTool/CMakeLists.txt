@@ -93,7 +93,7 @@ if( XAOD_STANDALONE )
       SOURCES test/ut_InDetTrackSelectionTool.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess
-      InDetTrackSelectionToolLib )
+      InDetTrackSelectionToolLib PROPERTIES TIMEOUT 600 )
 endif()
 
 # Install files from the package:

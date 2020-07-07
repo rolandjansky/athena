@@ -37,6 +37,11 @@ install( DIRECTORY ${CMAKE_SOURCE_DIR}/modules/
 set( VP1LightReleaseEnvironment_DIR ${CMAKE_SOURCE_DIR} )
 find_package( VP1LightReleaseEnvironment REQUIRED )
 
+# Set up where to find the xAODUtilities CMake code.
+set( xAODUtilities_DIR
+   "${CMAKE_SOURCE_DIR}/../../Event/xAOD/xAODCore/cmake"
+   CACHE PATH "Directory holding the xAODUtilities module" )
+
 # Set up CTest:
 atlas_ctest_setup()
 

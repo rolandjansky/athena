@@ -20,7 +20,7 @@
 //  #include "SGTools/TransientAddress.h"
 
 //External definitions
-long DetDescr_StorageType=0x44;
+const long DetDescr_StorageType=0x44;
 
 //-------------------------------------------------------------------------
 
@@ -233,14 +233,6 @@ DetDescrCnvSvc::initialize()     {
 
 //-------------------------------------------------------------------------
 
-StoreGateSvc *
-DetDescrCnvSvc::detStore() const
-{
-    return (m_detStore);
-}
-
-//-------------------------------------------------------------------------
-
 /// Create a Generic address using explicit arguments to identify a single object.
 StatusCode DetDescrCnvSvc::createAddress(long            /* svc_type */,
 					 const CLID&          /* clid     */,
@@ -268,10 +260,10 @@ StatusCode DetDescrCnvSvc::createAddress( long /* svc_type */,
 	    return StatusCode::FAILURE;
 	}
 	if (ddAddr->fromString(refAddress).isFailure()) {
-      MsgStream log(msgSvc(),name());
-      log << MSG::FATAL << "Could not assign address " << refAddress << endmsg;
-      return StatusCode::FAILURE;
-    }
+	  MsgStream log(msgSvc(),name());
+	  log << MSG::FATAL << "Could not assign address " << refAddress << endmsg;
+	  return StatusCode::FAILURE;
+	}
     }
     catch(...) {
 	refpAddress = 0;

@@ -187,7 +187,6 @@ MessageSvc.OutputLevel = VERBOSE
     
 # big loop over all directories    
 for i in range(len(EtaSXX)):
-	
     # take care of eta
     #------------------------------
     EtaSXXi= EtaSXX[i].strip('\n')
@@ -223,7 +222,7 @@ for i in range(len(EtaSXX)):
     for j in range(len(EtaSXXmu6)):
         EtaChannel+= 1
         printfunc ("low pt EtaChannel= ", EtaChannel)
-	
+
         EtaSXXmu6[j]=EtaSXXmu6[j].strip('\n')
         fileSuffix= EtaSXXmu6[j].split('_')[4]
         EtaName_CM6= EtaSXXmu6[j].replace('_'+fileSuffix,'')
@@ -250,7 +249,6 @@ for i in range(len(EtaSXX)):
    
     #loop over phi files
     for j in range(len(PhiSXXmu)):
-	    
         PhiChannel+= 1
         printfunc ("PhiChannel= ", PhiChannel)
         PhiSXXmu[j]=PhiSXXmu[j].strip('\n')

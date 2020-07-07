@@ -1,8 +1,9 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from LArG4EC import LArWheelCalculatorEnum
+from LArG4SD.LArG4SDToolConfig import CalibrationDefaultCalculatorCfg
 def CalibrationCalculatorCfg(name="CalibrationCalculator", **kwargs):
     result = ComponentAccumulator()
     result.addService(CompFactory.LArG4.EC.CalibrationCalculator(name, **kwargs))
@@ -53,7 +54,8 @@ def EndcapCryostatCalibrationCalculatorCfg(ConfigFlags, name="EndcapCryostatCali
     return result
 
 def EndcapCryostatCalibrationLArCalculatorCfg(ConfigFlags, name="EndcapCryostatCalibrationLArCalculator", **kwargs):
-    result = ComponentAccumulator()
+    result = CalibrationDefaultCalculatorCfg(ConfigFlags)
+    kwargs.setdefault("CalibrationDefaultCalculator", result.getService("CalibrationDefaultCalculator"))
     result.addService( CompFactory.LArG4.EndcapCryostat.CalibrationLArCalculator(name, **kwargs) )
     return result
 
@@ -63,12 +65,14 @@ def EndcapCryostatCalibrationMixedCalculatorCfg(ConfigFlags, name="EndcapCryosta
     return result
 
 def EMECSupportCalibrationCalculatorCfg(ConfigFlags, name="EMECSupportCalibrationCalculator", **kwargs):
-    result = ComponentAccumulator()
+    result = EndcapCryostatCalibrationLArCalculatorCfg(ConfigFlags)
+    kwargs.setdefault("BackupCalculator", result.getService("EndcapCryostatCalibrationLArCalculator"))
     result.addService( CompFactory.LArG4.EMECSupportCalibrationCalculator(name, **kwargs))
     return result
 
-def EnergyCalculatorCfg(name="EnergyCalculator", **kwargs):
-    result = ComponentAccumulator()
+def EnergyCalculatorCfg(ConfigFlags, name="EnergyCalculator", **kwargs):
+    result = EMECSupportCalibrationCalculatorCfg(ConfigFlags)
+    kwargs.setdefault("SupportCalculator", result.getService("EMECSupportCalibrationCalculator"))
     from AthenaCommon.SystemOfUnits import ns
     kwargs.setdefault("OOTcut", 300.0*ns)
 
@@ -79,36 +83,36 @@ def EMECPosInnerWheelCalculatorCfg(ConfigFlags, name="EMECPosInnerWheelCalculato
     kwargs.setdefault("WheelType", LArWheelCalculatorEnum.InnerAbsorberWheel)
     #kwargs.setdefault("EnergyCorrection", 8) #LArG4::EMEC_ECOR_CHCL1
     kwargs.setdefault("zSide", 1)
-    return EnergyCalculatorCfg(name, **kwargs)
+    return EnergyCalculatorCfg(ConfigFlags, name, **kwargs)
 
 def EMECNegInnerWheelCalculatorCfg(ConfigFlags, name="EMECNegInnerWheelCalculator", **kwargs):
     kwargs.setdefault("WheelType", LArWheelCalculatorEnum.InnerAbsorberWheel)
     #kwargs.setdefault("EnergyCorrection", 8) #LArG4::EMEC_ECOR_CHCL1
     kwargs.setdefault("zSide", -1)
-    return EnergyCalculatorCfg(name, **kwargs)
+    return EnergyCalculatorCfg(ConfigFlags, name, **kwargs)
 
 def EMECPosOuterWheelCalculatorCfg(ConfigFlags, name="EMECPosOuterWheelCalculator", **kwargs):
     kwargs.setdefault("WheelType", LArWheelCalculatorEnum.OuterAbsorberWheel)
     #kwargs.setdefault("EnergyCorrection", 8) #LArG4::EMEC_ECOR_CHCL1
     kwargs.setdefault("zSide", 1)
-    return EnergyCalculatorCfg(name, **kwargs)
+    return EnergyCalculatorCfg(ConfigFlags, name, **kwargs)
 
 def EMECNegOuterWheelCalculatorCfg(ConfigFlags, name="EMECNegOuterWheelCalculator", **kwargs):
     kwargs.setdefault("WheelType", LArWheelCalculatorEnum.OuterAbsorberWheel)
     #kwargs.setdefault("EnergyCorrection", 8) #LArG4::EMEC_ECOR_CHCL1
     kwargs.setdefault("zSide", -1)
-    return EnergyCalculatorCfg(name, **kwargs)
+    return EnergyCalculatorCfg(ConfigFlags, name, **kwargs)
 
 def EMECPosBackOuterBarretteCalculatorCfg(ConfigFlags, name="EMECPosBackOuterBarretteCalculator", **kwargs):
     kwargs.setdefault("WheelType", LArWheelCalculatorEnum.BackOuterBarretteWheel)
     #kwargs.setdefault("EnergyCorrection", 8) #LArG4::EMEC_ECOR_CHCL1
-    return EnergyCalculatorCfg(name, **kwargs)
+    return EnergyCalculatorCfg(ConfigFlags, name, **kwargs)
 
 def EMECNegBackOuterBarretteCalculatorCfg(ConfigFlags, name="EMECNegBackOuterBarretteCalculator", **kwargs):
     kwargs.setdefault("WheelType", LArWheelCalculatorEnum.BackOuterBarretteWheel)
     #kwargs.setdefault("EnergyCorrection", 8) #LArG4::EMEC_ECOR_CHCL1
     kwargs.setdefault("zSide", -1)
-    return EnergyCalculatorCfg(name, **kwargs)
+    return EnergyCalculatorCfg(ConfigFlags, name, **kwargs)
 
 def EMECPosInnerWheelCorrOffCalculatorCfg(ConfigFlags, name="EMECPosInnerWheelCorrOffCalculator", **kwargs):
     kwargs.setdefault("EnergyCorrection", 1) #LArG4::EMEC_ECOR_OFF

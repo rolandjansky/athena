@@ -1,7 +1,7 @@
+// Dear emacs, this is -*- c++ -*-
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
 #ifndef XAODMUON_VERSIONS_MUONSEGMENT_V1_H
 #define XAODMUON_VERSIONS_MUONSEGMENT_V1_H
 
@@ -33,7 +33,7 @@ namespace xAOD {
   class MuonSegment_v1 : public SG::AuxElement {
 
   public:
-    
+
     /// Default constructor
     MuonSegment_v1();
 
@@ -84,22 +84,22 @@ namespace xAOD {
     /// Set the 'Fit Quality' information.
     void setFitQuality(float chiSquared, float numberDoF);
     /// @}
-    
-    /// @name Identification 
+
+    /// @name Identification
 	/// The general muon identification scheme is defined here: https://cds.cern.ch/record/681542/files/com-muon-2002-019.pdf
     /// @{
     /// Returns the sector number
     int sector() const;
     /// Returns the chamber index
-    Muon::MuonStationIndex::ChIndex chamberIndex() const;
+    ::Muon::MuonStationIndex::ChIndex chamberIndex() const;
     /// Returns the eta index, which corresponds to stationEta in the offline identifiers (and the ).
     int etaIndex() const;
     /// Returns the main technology of the segment.
-    Muon::MuonStationIndex::TechnologyIndex technology() const;
+    ::Muon::MuonStationIndex::TechnologyIndex technology() const;
     /// Set the identifier
-    void setIdentifier(int sector, Muon::MuonStationIndex::ChIndex chamberIndex, int etaIndex, Muon::MuonStationIndex::TechnologyIndex technology);
-    /// @}    
-    
+    void setIdentifier(int sector, ::Muon::MuonStationIndex::ChIndex chamberIndex, int etaIndex, ::Muon::MuonStationIndex::TechnologyIndex technology);
+    /// @}
+
     /// @name Hit counts functions
     /// Returns the number of hits
     /// @{
@@ -113,7 +113,7 @@ namespace xAOD {
     void setNHits(int nPrecisionHits, int nPhiLayers, int nTrigEtaLayers);
     /// @}
 
-#if !(defined(GENERATIONBASE) || defined(XAOD_ANALYSIS))        
+#if !(defined(GENERATIONBASE) || defined(XAOD_ANALYSIS))
     const ElementLink< ::Trk::SegmentCollection >& muonSegment() const;
     void setMuonSegment(const ElementLink< ::Trk::SegmentCollection >& segment);
 #endif

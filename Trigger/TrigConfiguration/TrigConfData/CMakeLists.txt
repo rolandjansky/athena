@@ -21,7 +21,7 @@ atlas_add_library ( TrigConfDataSA
                     TrigConfData/*.h src/*.cxx
                     PUBLIC_HEADERS TrigConfData
                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                    LINK_LIBRARIES ${Boost_LIBRARIES}
+                    LINK_LIBRARIES ${Boost_LIBRARIES} CxxUtils
                     DEFINITIONS -DTRIGCONF_STANDALONE
                     )
 

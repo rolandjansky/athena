@@ -171,11 +171,11 @@ if __name__ == '__main__':
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
     #from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
-    cfg = MainServicesSerialCfg()
-    cfg.merge(TrigBSReadCfg(ConfigFlags))
+    from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+    cfg = MainServicesCfg(ConfigFlags)
+    cfg.merge(ByteStreamReadCfg(ConfigFlags))
     from TrigInDetConfig.InDetConfig import TrigInDetConfig
     cfg.merge(TrigInDetConfig(ConfigFlags))
 

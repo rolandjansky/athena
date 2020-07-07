@@ -76,7 +76,7 @@ StatusCode TauElectronVetoVariables::initialize()
 //-------------------------------------------------------------------------
 // Execution
 //-------------------------------------------------------------------------
-StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau)
+StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau) const
 {
     if (pTau.nTracks() < 1) {
         return StatusCode::SUCCESS;

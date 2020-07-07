@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FASTSIDIGITIZATION_PIXELFASTDIGITIZATION_H
@@ -8,7 +8,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-class IPixelFastDigitizationTool;
+class IPileUpTool;
 
 /** Top algorithm class for Pixel digitization */
 class PixelFastDigitization : public AthAlgorithm {
@@ -18,13 +18,15 @@ class PixelFastDigitization : public AthAlgorithm {
   /** Constructor with parameters */
   PixelFastDigitization(const std::string &name,ISvcLocator *pSvcLocator);
 
+  /** Destructor */
+  virtual ~PixelFastDigitization() = default;
+
   /** Basic algorithm methods */
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override final;
+  virtual StatusCode execute() override final;
 
  private:
-   ToolHandle<IPixelFastDigitizationTool> m_digTool;
+  ToolHandle<IPileUpTool> m_digTool{this, "DigitizationTool", "PixelFastDigitizationTool", "AthAlgTool which performs the Pixel digitization"};
 };
 
 #endif // FASTSIDIGITIZATION_PIXELFASTDIGITIZATION_H

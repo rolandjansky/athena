@@ -18,7 +18,7 @@ include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 svcMgr.IOVDbSvc.GlobalTag="COMCOND-BLKPA-RUN1-06"
 
 #Specify the input file(s)
-svcMgr.ByteStreamInputSvc.FullFileName=CafJobInputs[0]
+svcMgr.EventSelector.Input=CafJobInputs[0]
 
 # Specify the object you want to read from ByteStream
 theByteStreamAddressProviderSvc = svcMgr.ByteStreamAddressProviderSvc

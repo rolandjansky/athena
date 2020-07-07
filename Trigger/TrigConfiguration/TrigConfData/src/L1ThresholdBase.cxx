@@ -204,6 +204,11 @@ TrigConf::L1Threshold_Calo::load()
          m_etaDepThrValue.addRangeValue(value, etamin, etamax, priority, /*symmetric=*/ false);
       }
    }
+   catch(std::exception & ex) {
+      std::cerr << "Caught exception when reading threshold values for threshold " << m_name << std::endl
+                << ex.what() << std::endl;
+      throw;
+   }
 }
 
 /*

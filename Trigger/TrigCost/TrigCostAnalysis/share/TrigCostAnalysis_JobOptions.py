@@ -23,8 +23,8 @@ from AthenaCommon.CFElements import seqAND
 decoder = HLTResultMTByteStreamDecoderAlg()
 costDataDeserialiser = TriggerEDMDeserialiserAlg("CostDataTrigDeserialiser")
 
-from TriggerMenuMT.HLTMenuConfig.Menu import EventBuildingInfo
-costDataDeserialiser.ModuleID = EventBuildingInfo.DataScoutingIdentifiers["CostMonDS"]
+from TrigEDMConfig import DataScoutingInfo
+costDataDeserialiser.ModuleID = DataScoutingInfo.DataScoutingIdentifiers["CostMonDS"]
 
 decodingSeq = seqAND("Decoding")
 decodingSeq += decoder

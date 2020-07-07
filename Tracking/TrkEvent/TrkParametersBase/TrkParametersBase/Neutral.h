@@ -25,10 +25,10 @@ namespace Trk
   {
   public:
     /** Default constructor */
-    Neutral() {}
+    Neutral() = default;
 
     /** Default constructor with dummy parameter */
-    Neutral(const double&) {}
+    Neutral(const double&){}
 
     /** Copy constructor */
     Neutral(const Neutral&) = default;
@@ -37,8 +37,8 @@ namespace Trk
     Neutral(Neutral&&) = default;
 
     /** Default destructor */
-    ~Neutral() {}
-    
+    ~Neutral() = default;
+
     /** Assignment operator */
     Neutral& operator=(const Neutral&) = default;
 

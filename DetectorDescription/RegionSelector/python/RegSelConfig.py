@@ -126,8 +126,8 @@ if __name__ == "__main__":
     ConfigFlags.dump()
     ConfigFlags.lock()
 
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
-    cfg=MainServicesSerialCfg() 
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    cfg=MainServicesCfg(ConfigFlags) 
 
     ## move up
 
@@ -136,8 +136,8 @@ if __name__ == "__main__":
     #    cfg.merge( PoolReadCfg( ConfigFlags ) )
 
     
-    from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
-    cfg.merge(TrigBSReadCfg( ConfigFlags ))
+    from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+    cfg.merge(ByteStreamReadCfg( ConfigFlags ))
     
     
     acc = regSelCfg( ConfigFlags )

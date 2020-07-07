@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //  Convert TrackParticle parameters to internal VKalVrt parameters
@@ -34,7 +34,7 @@ namespace Trk {
 
     std::vector<const xAOD::TrackParticle*>::const_iterator   i_ntrk;
     AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
-    const Trk::Perigee*        mPer=0;
+    const Trk::Perigee*        mPer=nullptr;
     double CovVertTrk[15]; std::fill(CovVertTrk,CovVertTrk+15,0.);
     double tmp_refFrameX=0, tmp_refFrameY=0, tmp_refFrameZ=0;
     double fx,fy,BMAG_FIXED;
@@ -53,7 +53,7 @@ namespace Trk {
      for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) {
 //-- (Measured)Perigee in xAOD::TrackParticle
        mPer = &(*i_ntrk)->perigeeParameters(); 
-       if( mPer==0 ) continue; // No perigee!!!
+       if( mPer==nullptr ) continue; // No perigee!!!
        perGlobalPos =  mPer->position();    //Global position of perigee point
        if(fabs(perGlobalPos.z())   > m_IDsizeZ)return StatusCode::FAILURE;   // Crazy user protection
        if(     perGlobalPos.perp() > m_IDsizeR)return StatusCode::FAILURE;
@@ -88,7 +88,7 @@ namespace Trk {
 //-- (Measured)Perigee in TrackParticle
 //
        mPer = &(*i_ntrk)->perigeeParameters(); 
-       if( mPer==0 ) continue; // No perigee!!!
+       if( mPer==nullptr ) continue; // No perigee!!!
        perGlobalPos =  mPer->position();    //Global position of perigee point
        if( !convertAmg5SymMtx(mPer->covariance(), CovVertTrk) ) return StatusCode::FAILURE; //VK no good covariance matrix!;
        state.m_fitField.getMagFld( perGlobalPos.x(), perGlobalPos.y(), perGlobalPos.z(),           // Magnetic field
@@ -140,7 +140,7 @@ namespace Trk {
  {
     std::vector<const xAOD::NeutralParticle*>::const_iterator   i_ntrk;
     AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
-    const  NeutralPerigee*        mPer=0;
+    const  NeutralPerigee*        mPer=nullptr;
     double CovVertTrk[15]; std::fill(CovVertTrk,CovVertTrk+15,0.);
     double tmp_refFrameX=0, tmp_refFrameY=0, tmp_refFrameZ=0;
     double fx,fy,BMAG_FIXED;
@@ -159,7 +159,7 @@ namespace Trk {
      for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) {
 //-- (Measured)Perigee in xAOD::NeutralParticle
        mPer = &(*i_ntrk)->perigeeParameters(); 
-       if( mPer==0 ) continue; // No perigee!!!
+       if( mPer==nullptr ) continue; // No perigee!!!
        perGlobalPos =  mPer->position();    //Global position of perigee point
        if(fabs(perGlobalPos.z())   > m_IDsizeZ)return StatusCode::FAILURE;   // Crazy user protection
        if(     perGlobalPos.perp() > m_IDsizeR)return StatusCode::FAILURE;
@@ -169,7 +169,7 @@ namespace Trk {
        TrkMatControl tmpMat;
        tmpMat.trkRefGlobPos=Amg::Vector3D( perGlobalPos.x(), perGlobalPos.y(), perGlobalPos.z());
        tmpMat.extrapolationType=2;                   // Perigee point strategy
-       tmpMat.TrkPnt=NULL;           //No reference point for neutral particle for the moment
+       tmpMat.TrkPnt=nullptr;           //No reference point for neutral particle for the moment
        tmpMat.prtMass = 139.5702;
        if(counter<(int)state.m_MassInputParticles.size())tmpMat.prtMass = state.m_MassInputParticles[counter];
        tmpMat.TrkID=counter; state.m_trkControl.push_back(tmpMat);
@@ -195,7 +195,7 @@ namespace Trk {
 //-- (Measured)Perigee in TrackParticle
 //
        mPer = &(*i_ntrk)->perigeeParameters(); 
-       if( mPer==0 ) continue; // No perigee!!!
+       if( mPer==nullptr ) continue; // No perigee!!!
        perGlobalPos =  mPer->position();    //Global position of perigee point
        if( !convertAmg5SymMtx(mPer->covariance(), CovVertTrk) ) return StatusCode::FAILURE; //VK no good covariance matrix!;
        state.m_fitField.getMagFld( perGlobalPos.x(), perGlobalPos.y(), perGlobalPos.z(),         // Magnetic field
@@ -248,7 +248,7 @@ namespace Trk {
 
     std::vector<const TrackParticleBase*>::const_iterator   i_ntrk;
     AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
-    const Trk::Perigee*        mPer=0;
+    const Trk::Perigee*        mPer=nullptr;
     double CovVertTrk[15]; std::fill(CovVertTrk,CovVertTrk+15,0.);
     double tmp_refFrameX=0, tmp_refFrameY=0, tmp_refFrameZ=0;
     double fx,fy,BMAG_FIXED;
@@ -267,7 +267,7 @@ namespace Trk {
      for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) {
 //-- (Measured)Perigee in TrackParticle
        mPer = GetPerigee(*i_ntrk); 
-       if( mPer==0 ) continue; // No perigee!!!
+       if( mPer==nullptr ) continue; // No perigee!!!
        perGlobalPos =  mPer->position();    //Global position of perigee point
        if(fabs(perGlobalPos.z())   > m_IDsizeZ)return StatusCode::FAILURE;   // Crazy user protection
        if(     perGlobalPos.perp() > m_IDsizeR)return StatusCode::FAILURE;
@@ -301,7 +301,7 @@ namespace Trk {
 //-- (Measured)Perigee in TrackParticle
 //
        mPer = GetPerigee(*i_ntrk);
-       if( mPer==0 ) continue; // No perigee!!!
+       if( mPer==nullptr ) continue; // No perigee!!!
        VectPerig    =  mPer->parameters(); 
        perGlobalVrt =  mPer->associatedSurface().center();      //Global position of reference point
        perGlobalPos =  mPer->position();    //Global position of perigee point
@@ -354,9 +354,9 @@ namespace Trk {
 
   const Perigee* TrkVKalVrtFitter::GetPerigee( const TrackParticleBase* i_ntrk)  const
   {
-       const Perigee* mPer = 0;
+       const Perigee* mPer = nullptr;
        if(   i_ntrk->definingParameters().associatedSurface().type() == Surface::Perigee
-          && i_ntrk->definingParameters().covariance() != 0 ) 
+          && i_ntrk->definingParameters().covariance() != nullptr ) 
            mPer = dynamic_cast<const Perigee*> (&(i_ntrk->definingParameters()));
        return mPer ;
   }
@@ -364,7 +364,7 @@ namespace Trk {
   {
       std::vector<const TrackParameters*>::const_iterator vpb = i_ntrk->trackParameters().begin();        
       std::vector<const TrackParameters*>::const_iterator vpe = i_ntrk->trackParameters().end();  
-      const TrackParameters* res=0; 
+      const TrackParameters* res=nullptr; 
       double minDst=1000000.; 
       for(;vpb != vpe; ++vpb) {
         if((*vpb)->position().perp()<25.)continue;
@@ -380,8 +380,8 @@ namespace Trk {
 
   const Perigee* TrkVKalVrtFitter::GetPerigee( const TrackParameters* i_ntrk)  const
   {
-       const Perigee* mPer = 0;
-       if(i_ntrk->associatedSurface().type()==Surface::Perigee && i_ntrk->covariance()!= 0 ) 
+       const Perigee* mPer = nullptr;
+       if(i_ntrk->associatedSurface().type()==Surface::Perigee && i_ntrk->covariance()!= nullptr ) 
             mPer = dynamic_cast<const Perigee*> (i_ntrk);
        return mPer;
   }

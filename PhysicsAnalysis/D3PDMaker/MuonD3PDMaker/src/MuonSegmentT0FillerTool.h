@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -15,10 +15,8 @@
 #include "D3PDMakerUtils/BlockFillerTool.h"
 
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-//#include "MuonRecHelperTools/MuonIdHelperTool.h"
-//#include "MuonCalibITools/IIdToFixedIdTool.h"
+
 #include <string>
 
 namespace Trk { 
@@ -54,13 +52,9 @@ private:
   void MuonboyT0CSCSegment(const Muon::MuonSegment* pMuonSegment, float& t0, float& t0Error);
   
   std::string m_muonSegmentT0ContainerKey;
-  // tools
   ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
     "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
     "Handle to the service providing the IMuonEDMHelperSvc interface" };
-  //  ToolHandle<Muon::MuonIdHelperTool>  m_idHelperTool;
-  //  ToolHandle<MuonCalib::IIdToFixedIdTool> m_idToFixedIdTool;
-
 };
 
 } // namespace D3PD

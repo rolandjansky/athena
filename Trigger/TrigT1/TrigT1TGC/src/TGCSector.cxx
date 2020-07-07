@@ -79,7 +79,7 @@ TGCSector::TGCSector( TGCArguments* tgcargs)
     : m_id(0), m_regionType(FORWARD), m_numberOfHit(0), 
       m_sideId(0), m_octantId(0), m_moduleId(0), 
       m_forwardBackward(ForwardSector), 
-      m_SL(0), m_TMDB(0),
+      m_SL(0), m_TMDB(0), m_NSW(0),
       m_tgcArgs(tgcargs)
 {
   for(unsigned int iPatchPanelType=0; iPatchPanelType<NumberOfPatchPanelType; iPatchPanelType++) {
@@ -101,9 +101,11 @@ TGCSector::TGCSector( TGCArguments* tgcargs)
 		       int idIn, TGCRegionType type, 
 		       TGCForwardBackwardType forwardBackward, 
 		       const TGCDatabaseManager* db,
-		       const TGCTMDB*            tm)
+		       const TGCTMDB*            tm,
+		       std::shared_ptr<const TGCNSW>  nsw
+		       )
   : m_id(idIn),m_regionType(type),m_numberOfHit(0),
-    m_TMDB(tm),
+    m_TMDB(tm),m_NSW(nsw),
     m_tgcArgs(tgcargs)
 {
   m_sideId = (idIn/NumberOfModule)/NumberOfOctant;
@@ -137,8 +139,14 @@ TGCSector::TGCSector( TGCArguments* tgcargs)
     // set RPhi and EIFI CoincidenceMap in SectorLogic.
     setRPhiMap(map, mapI);
     
+    // set Tile CoincidenceMap & give Tile buffer to SL
     const TGCTileMuCoincidenceMap* mapTM = db->getTileMuCoincidenceMap();
     setTileMuMap(mapTM);
+
+    // set NSW CoincidenceMap & give NSW buffer to SL
+    std::shared_ptr<const TGCNSWCoincidenceMap> mapNSW = db->getNSWCoincidenceMap(m_sideId, m_octantId,m_moduleId);
+    setNSWMap(mapNSW);
+
   }
 
   // set connection between boards;
@@ -156,7 +164,7 @@ TGCSector::TGCSector( const TGCSector& )
      : m_id(0), m_regionType(FORWARD), m_numberOfHit(0), 
        m_sideId(0), m_octantId(0), m_moduleId(0), 
        m_forwardBackward(ForwardSector), 
-       m_SL(0), m_TMDB(0)  
+       m_SL(0), m_TMDB(0), m_NSW(0)  
 {
   for(unsigned int iPatchPanelType=0; iPatchPanelType<NumberOfPatchPanelType; iPatchPanelType++) {
     m_ASDToPP[iPatchPanelType] = 0;
@@ -291,6 +299,14 @@ void TGCSector::setTileMuMap(const TGCTileMuCoincidenceMap* mapTM)
 {
   if (m_SL) m_SL->setTileMuMap(m_TMDB, mapTM);
 }
+
+
+void TGCSector::setNSWMap(std::shared_ptr<const TGCNSWCoincidenceMap>  mapNSW)
+{
+  if (m_SL) m_SL->setNSWMap(m_NSW, mapNSW);
+}
+
+
 
 
 void TGCSector::connectPPToSB(const TGCConnectionPPToSB* connection)

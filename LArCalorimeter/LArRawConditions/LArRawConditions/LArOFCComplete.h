@@ -62,39 +62,15 @@ class LArOFCComplete: public ILArOFC,
 
   void dumpOFC(std::string output_file_name) const ;
 
-  //Overload the const-get method of the underlying LArConditionsContainer
-  //for speed improvment
-  CONTAINER::ConstReference get(const HWIdentifier id, int gain) const;
 
  private: 
   static const std::vector<float> m_empty;
 
-  //In a typical application of this class, the methods ofc_a,ofc_b,timeBinWidht,etc., 
-  //are called consecutivly for the same cell and gain. Therefore it makes sense to 
-  //cache a pointer to the LArOFCP1 object.
-  //Used by tthe overloaded const-get method
-  struct cache_t {
-    HWIdentifier id;
-    int gain;
-    CONTAINER::ConstReference obj;
-  };
-  mutable cache_t m_cache;
  };
 
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( LArOFCComplete, 101879462, 1) 
 CONDCONT_DEF( LArOFCComplete , 144694594 , ILArOFC );
 
-inline
-LArOFCComplete::CONTAINER::ConstReference
-LArOFCComplete::get(const HWIdentifier id, int gain) const {  
- if (m_cache.id!=id || m_cache.gain!=gain) {
-    m_cache.obj=LArConditionsContainer<LArOFCP1>::get(id,gain);
-    m_cache.id=id;
-    m_cache.gain=gain;
-  }
-  return m_cache.obj;
-}
- 
 
 #endif 

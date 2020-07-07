@@ -1,18 +1,41 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RingSet_v1.cxx 767576 2016-08-11 13:53:42Z ssnyder $ 
+// Local include(s).
 #include "xAODCaloRings/versions/RingSet_v1.h"
-#include "xAODCaloRings/tools/PrintHelperFcns.h"
+
+// EDM include(s).
+#include "xAODCore/AuxStoreAccessorMacros.h"
+
+namespace {
+
+/// Helper operator for printing the contents of float vectors
+std::ostream& operator<< ( std::ostream& out, const std::vector< float >& vec )
+{
+  // A little prefix:
+  out << "[";
+  // Print the contents:
+  for( size_t i = 0; i < vec.size(); ++i ) {
+     out << vec[ i ];
+     if( i < vec.size() - 1 ) {
+        out << ", ";
+     }
+  }
+  // A little postfix:
+  out << "]";
+  // Return the stream:
+  return out;
+}
+
+} // private namespace
 
 namespace xAOD {
 
-namespace {
 // Instantiate the needed accessors:
-SG::AuxElement::Accessor< std::vector<float> > accRingsE("ringsE");
-SG::AuxElement::ConstAccessor< std::vector<float> > constAccRingsE("ringsE");
-} // private namespace
+static const SG::AuxElement::Accessor< std::vector<float> > accRingsE("ringsE");
+static const SG::AuxElement::ConstAccessor< std::vector<float> >
+   constAccRingsE("ringsE");
 
 // @name RingSet_v1 accessors:
 //==============================================================================
@@ -87,14 +110,6 @@ void RingSet_v1::copyTo(std::vector<float> &vec) const {
   vec.insert(vec.end(), ringsE.begin(), ringsE.end());
 }
 
-
-//==============================================================================
-void RingSet_v1::print( MsgStream &stream, MSG::Level level ) const {
-  const std::vector<float> &ringsE = constAccRingsE( *this );
-  if( stream.level() <= level ) {
-    stream << ringsE << endmsg;
-  }
-}
 
 //==============================================================================
 void RingSet_v1::print( std::ostream &stream ) const {
