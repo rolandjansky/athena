@@ -115,7 +115,7 @@ public:
   /** Return the ParametersType enum */
   virtual ParametersType type() const override final;
 
-  /** Return the Surface Type (check SurfaceType enums)*/
+  /** Return the Surface Type enum*/
   virtual int surfaceType() const override final;
 
   /** Return the measurementFrame of the parameters */
