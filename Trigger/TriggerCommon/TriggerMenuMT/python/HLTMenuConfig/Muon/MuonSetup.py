@@ -67,12 +67,19 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
 
   viewAlgs_MuonPRD = []  # These algs should be executed to prepare muon PRDs for muFast and muEF steps.
 
+  # Make sure required objects are still available at whole-event level
+  from AthenaCommon.AlgSequence import AlgSequence
+  topSequence = AlgSequence()
+
   # Load data into the view
   import AthenaCommon.CfgMgr as CfgMgr
   muDataPrepVDV = CfgMgr.AthViews__ViewDataVerifier( "muDataPrepVDV" + postFix )
   muDataPrepVDV.DataObjects = [( 'MdtPrepDataCollection_Cache' , MuonPrdCacheNames.MdtCache ),
                                ( 'RpcPrepDataCollection_Cache' , MuonPrdCacheNames.RpcCache ),
-                               ( 'RpcCoinDataCollection_Cache' , MuonPrdCacheNames.RpcCoinCache )]
+                               ( 'RpcCoinDataCollection_Cache' , MuonPrdCacheNames.RpcCoinCache ),
+                               ( 'TagInfo' , 'DetectorStore+ProcessingTags' )]
+
+  topSequence.SGInputLoader.Load += [ ( 'TagInfo' , 'DetectorStore+ProcessingTags' )]
 
   if MuonGeometryFlags.hasCSC():
     muDataPrepVDV.DataObjects += [( 'CscStripPrepDataCollection_Cache' , MuonPrdCacheNames.CscStripCache )]
@@ -97,6 +104,9 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
     from MuonRdoToPrepData.MuonRdoToPrepDataConf import StgcRdoToStgcPrepData
     StgcRdoToStgcPrepData = StgcRdoToStgcPrepData(name                    = "StgcRdoToStgcPrepData" + postFix)
 
+    muDataPrepVDV.DataObjects += [( 'Muon::STGC_RawDataContainer' , 'StoreGateSvc+sTGCRDO' )]
+    topSequence.SGInputLoader.Load += [( 'Muon::STGC_RawDataContainer' , 'StoreGateSvc+sTGCRDO' )]
+
     viewAlgs_MuonPRD.append( StgcRdoToStgcPrepData )
 
     ### MM RDO data ###
@@ -113,6 +123,9 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
     from MuonRdoToPrepData.MuonRdoToPrepDataConf import MM_RdoToMM_PrepData
     MM_RdoToMM_PrepData = MM_RdoToMM_PrepData(name                    = "MMRdoToMMPrepData" + postFix,
                                             PrintInputRdo = True  )
+
+    muDataPrepVDV.DataObjects += [( 'Muon::MM_RawDataContainer' , 'StoreGateSvc+MMRDO' )]
+    topSequence.SGInputLoader.Load += [( 'Muon::MM_RawDataContainer' , 'StoreGateSvc+MMRDO' )]
 
     viewAlgs_MuonPRD.append(  MM_RdoToMM_PrepData )
 
@@ -161,9 +174,6 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
     CscClusterBuilder = CscThresholdClusterBuilder(name            = "CscThresholdClusterBuilder",
                                                    cluster_builder = CscClusterBuilderTool)
 
-  # Make sure required objects are still available at whole-event level
-  from AthenaCommon.AlgSequence import AlgSequence
-  topSequence = AlgSequence()
 
   if MuonGeometryFlags.hasCSC():
     if globalflags.InputFormat.is_bytestream():
@@ -442,6 +452,14 @@ def muCombRecoSequence( RoIs, name ):
   import AthenaCommon.CfgMgr as CfgMgr
   ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muFastViewDataVerifier")
   ViewVerify.DataObjects = [('xAOD::L2StandAloneMuonContainer','StoreGateSvc+'+muNames.L2SAName)]
+
+  # These objects must be loaded from SGIL if not from CondInputLoader
+  from AthenaCommon.AlgSequence import AlgSequence
+  topSequence = AlgSequence()
+  from IOVDbSvc.CondDB import conddb
+  if not conddb.folderRequested( '/TDAQ/Resources/ATLAS/PIXEL/Modules' ):
+    ViewVerify.DataObjects += [( 'CondAttrListCollection', 'ConditionStore+/TDAQ/Resources/ATLAS/PIXEL/Modules' )]
+    topSequence.SGInputLoader.Load += [( 'CondAttrListCollection', 'ConditionStore+/TDAQ/Resources/ATLAS/PIXEL/Modules' )]
   muCombRecoSequence+=ViewVerify
 
   ### please read out TrigmuCombMTConfig file ###
