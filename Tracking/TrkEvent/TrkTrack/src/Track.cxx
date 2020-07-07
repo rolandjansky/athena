@@ -124,26 +124,35 @@ Trk::Track& Trk::Track::operator= (const Track& rhs)
     }
     //perigee parameters set to invalid
     m_perigeeParameters.reset();
-    
-    //Create the TrackStateVector and the perigeeParamters
-    if( rhs.m_trackStateVector!=nullptr )
-    {
+
+    // Create the TrackStateVector and the perigeeParameters
+    if (rhs.m_trackStateVector != nullptr) {
       m_trackStateVector = new DataVector<const TrackStateOnSurface>;
       m_trackStateVector->reserve(rhs.m_trackStateVector->size());
+     
       TSoS_iterator itTSoSEnd = rhs.m_trackStateVector->end();
-      for( TSoS_iterator itTSoS = rhs.m_trackStateVector->begin();itTSoS!=itTSoSEnd; ++itTSoS){
-        assert(*itTSoS!=0); // check that is defined.
+      for (TSoS_iterator itTSoS = rhs.m_trackStateVector->begin();
+           itTSoS != itTSoSEnd;
+           ++itTSoS) {
+        assert(*itTSoS != nullptr); // check that is defined.
+        //clone and store
         TrackStateOnSurface* tsos = (**itTSoS).clone();
-        m_trackStateVector->push_back( tsos );
-        if(tsos!=nullptr && tsos->type(TrackStateOnSurface::Perigee)){ 
-          const Trk::Perigee*  perigee = dynamic_cast<const Trk::Perigee*>(tsos->trackParameters() ) ;
-          if(perigee!=nullptr){  
-            m_perigeeParameters.store(perigee);//Now they will be valid
+        m_trackStateVector->push_back(tsos);
+        //Check if this a perigee so we can already cache it
+        if (tsos != nullptr && tsos->type(TrackStateOnSurface::Perigee)) {
+          const Trk::Perigee* perigee = nullptr;
+          const Trk::TrackParameters* tp = tsos->trackParameters();
+          if (tp && tp->type() == Trk::AtaSurface &&
+              tp->surfaceType() == Trk::Surface::Perigee) {
+            perigee = static_cast<const Trk::Perigee*> (tp);
+          }
+          if (perigee != nullptr) {
+            m_perigeeParameters.store(perigee); // Now they will be valid
           }
         }
       }
     }
-  }
+  }//!=this
   return *this;
 }
 
@@ -189,25 +198,28 @@ void Trk::Track::findPerigee() const {
 
 void Trk::Track::findPerigeeImpl() const
 {
-  // loop through all passed parameters and, if there is a Perigee in there,
-  // assign it to Perigee parameters. Obviously there should never be more
-  // than one perigee type. I could check for it, but it will make the
-  // code slower which (in my opinion) makes it not worth doing. EJWM
-  // there can be other objects, like VertexOnTrack measurements, with
-  // params at a Perigee surface, thus an additional TSoS type check. AS/WL
+  // loop through all passed parameters and, if there is a at Perigee in there,
+  // assign it to Perigee parameters. There should never be more
+  // than one perigee type.
+  // Note that there can be other objects, like VertexOnTrack measurements, with
+  // params at a Perigee surface, thus the  TSoS check.
 
- const Trk::Perigee* tmpPerigeeParameters=nullptr; 
+  const Trk::Perigee* tmpPerigeeParameters = nullptr; 
   if (m_trackStateVector!=nullptr){
     DataVector<const TrackStateOnSurface>::const_iterator it = 
       m_trackStateVector->begin();
     DataVector<const TrackStateOnSurface>::const_iterator itEnd = 
       m_trackStateVector->end();
-    for( ; it!=itEnd; ++it )
-    {
-      if ((*it)->type(TrackStateOnSurface::Perigee)){
-        tmpPerigeeParameters = dynamic_cast<const Trk::Perigee*>( (*it)->trackParameters() ) ;
-        if(tmpPerigeeParameters!=nullptr){
-        break; // found perigee so stop loop.
+    for (; it != itEnd; ++it) {
+      if ((*it)->type(TrackStateOnSurface::Perigee)) {
+        const Trk::TrackParameters* tp = (*it)->trackParameters();
+        if (tp && tp->type() == Trk::AtaSurface &&
+            tp->surfaceType() == Trk::Surface::Perigee) {
+          tmpPerigeeParameters = static_cast<const Trk::Perigee*>(tp);
+        }
+
+        if (tmpPerigeeParameters != nullptr) {
+          break; // found perigee so stop loop.
         }
       }
     }
@@ -221,13 +233,19 @@ void Trk::Track::findPerigeeImpl() const
 const Trk::Perigee*
 Trk::Track::perigeeParameters() const
 {
+
   if (!m_perigeeParameters.isValid()) {
     // findPerigee performs the setting of the parameters
     // i.e does the CachedValue set
     findPerigeeImpl();
   }
-  // Here the cached value type is a pointer
-  return *(m_perigeeParameters.ptr());
+  
+  //Return payload if valid
+  if(m_perigeeParameters.isValid()){
+    return  *(m_perigeeParameters.ptr());
+  }
+
+  return nullptr;
 }
 
 const DataVector<const Trk::MeasurementBase>* Trk::Track::measurementsOnTrack() const
@@ -249,11 +267,12 @@ const DataVector<const Trk::MeasurementBase>* Trk::Track::measurementsOnTrack() 
         const Trk::MeasurementBase* rot = (*itTSoS)->measurementOnTrack();
         // does it have a measurement ?
         if (rot!=nullptr) { tmpMeasurementVector.push_back( rot );
-}
+        }
       }
     }
     m_cachedMeasurementVector.set(std::move(tmpMeasurementVector));
   }
+
   return m_cachedMeasurementVector.ptr();
 }
 
@@ -354,10 +373,10 @@ std::ostream& Trk::operator << ( std::ostream& sl, const Trk::Track& track)
   std::string name("Track ");
   sl <<name<<"Author = "<<track.info().dumpInfo()<<std::endl;
   if (track.fitQuality()!=nullptr) { sl << *(track.fitQuality() )<<std::endl;
-}
+  }
   if (track.trackSummary()!=nullptr) { sl << *(track.trackSummary())<<std::endl;
   } else { sl << "No TrackSummary available in this track."<<std::endl;
-}
+  }
 
   if (track.trackStateOnSurfaces() !=nullptr)
   { 
