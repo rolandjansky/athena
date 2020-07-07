@@ -2,7 +2,8 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 from AthenaConfiguration.ComponentFactory import CompFactory
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, CAtoGlobalWrapper
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 def RoIBResultByteStreamToolCfg(name, writeBS=False):
   tool = CompFactory.RoIBResultByteStreamTool(name)
@@ -34,6 +35,10 @@ def ExampleL1TriggerByteStreamToolCfg(name, writeBS=False):
   return tool
 
 def L1TriggerByteStreamDecoderCfg(flags):
+  from AthenaCommon.Configurable import Configurable
+  cb = Configurable.configurableRun3Behavior
+  Configurable.configurableRun3Behavior += 1
+
   decoderTools = []
   if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1Phase1:
     roibResultTool = RoIBResultByteStreamToolCfg(name="RoIBResultBSDecoderTool", writeBS=False)
@@ -48,11 +53,12 @@ def L1TriggerByteStreamDecoderCfg(flags):
                                                          DecoderTools=decoderTools)
 
   acc = ComponentAccumulator()
-  acc.addEventAlgo(decoderAlg)
+  acc.addEventAlgo(decoderAlg, primary=True)
+
+  Configurable.configurableRun3Behavior = cb
   return acc
 
 def L1TriggerByteStreamEncoderCfg(flags):
-  from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
   acc = ComponentAccumulator()
 
   if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1Phase1:
@@ -68,12 +74,8 @@ def L1TriggerByteStreamEncoderCfg(flags):
 
 def L1ByteStreamDecodersRecExSetup():
   # Use new-style config from the above functions and import into old-style JO
-  from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
-  from AthenaConfiguration.AllConfigFlags import ConfigFlags
   CAtoGlobalWrapper(L1TriggerByteStreamDecoderCfg,ConfigFlags)
 
 def L1ByteStreamEncodersRecExSetup():
   # Use new-style config from the above functions and import into old-style JO
-  from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
-  from AthenaConfiguration.AllConfigFlags import ConfigFlags
   CAtoGlobalWrapper(L1TriggerByteStreamEncoderCfg,ConfigFlags)
