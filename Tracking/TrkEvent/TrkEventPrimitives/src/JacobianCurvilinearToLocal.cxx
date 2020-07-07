@@ -42,15 +42,15 @@ Trk::JacobianCurvilinearToLocal::JacobianCurvilinearToLocal(const CurvilinearUVT
 /** Calculates the Jacobian
   * for helical track model
   */
-Trk::JacobianCurvilinearToLocal::JacobianCurvilinearToLocal(const Amg::Vector3D& bfield,
-															double qOp,
-                                                            double sinTheta,
-                                                            const CurvilinearUVT& curvUVT,
-                                                            const Amg::Vector3D& locX,
-                                                            const Amg::Vector3D& locY,
-                                                            const Amg::Vector3D& locZ
-                                                            ) :
-  AmgMatrix(5,5)()
+Trk::JacobianCurvilinearToLocal::JacobianCurvilinearToLocal(
+  const Amg::Vector3D& bfield,
+  double qOp,
+  double sinTheta,
+  const CurvilinearUVT& curvUVT,
+  const Amg::Vector3D& locX,
+  const Amg::Vector3D& locY,
+  const Amg::Vector3D& locZ)
+  : AmgMatrix(5, 5)()
 {
     this->setIdentity();
     
@@ -88,8 +88,6 @@ Trk::JacobianCurvilinearToLocal::JacobianCurvilinearToLocal(const Amg::Vector3D&
 }
 
 
-Trk::JacobianCurvilinearToLocal::~JacobianCurvilinearToLocal()
-{}
 
 /**Overload of << operator for both, MsgStream and std::ostream for debug output*/ 
 MsgStream& Trk::operator << ( MsgStream& sl, const Trk::JacobianCurvilinearToLocal& jac)

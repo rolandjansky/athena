@@ -10,38 +10,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include <string>
 
-Trk::FitQuality::FitQuality()
-	:
-	m_chiSquared(0.0),
-	m_numberDoF(0)
-{
-}
-
-Trk::FitQuality::FitQuality(double chiSquared, int numberDoF)
-	:
-	m_chiSquared(double(chiSquared)),
-	m_numberDoF(numberDoF)
-{
- 
-}
-
-Trk::FitQuality::FitQuality(double chiSquared, double numberDoF):
-	                                m_chiSquared(chiSquared),
-	                                  m_numberDoF(numberDoF)
-{
-}
-
-
-Trk::FitQuality::FitQuality(const FitQuality& rhs)
-{
-	m_chiSquared=rhs.m_chiSquared;
-	m_numberDoF= rhs.m_numberDoF;
-}
-
-Trk::FitQuality::~FitQuality()
-{
-}
-
 /**Overload of << operator for both, MsgStream and std::ostream for debug output*/ 
 MsgStream& Trk::operator << ( MsgStream& sl, const Trk::FitQuality& fq)
 { 
