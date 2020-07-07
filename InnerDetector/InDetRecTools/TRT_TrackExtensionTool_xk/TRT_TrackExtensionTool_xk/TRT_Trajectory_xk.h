@@ -70,7 +70,8 @@ namespace InDet{
 	       double,
 	       double,
 	       double,
-               double);
+         double,
+         double);
 
       void set(Trk::MagneticFieldProperties&, const AtlasFieldCacheCondObj*);
 
@@ -176,7 +177,7 @@ namespace InDet{
       // min pT cut for TRT Segment trajectory
       ///////////////////////////////////////////////////////////////////
      
-      double                           m_minTRTSegmentpT = 3000.; //min pT check for initial segment
+      double                           m_minTRTSegmentpT; //min pT check for initial segment
 
       ///////////////////////////////////////////////////////////////////
       // Methods

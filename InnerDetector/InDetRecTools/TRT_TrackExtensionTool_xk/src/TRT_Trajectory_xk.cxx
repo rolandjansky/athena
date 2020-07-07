@@ -24,7 +24,8 @@ void  InDet::TRT_Trajectory_xk::set
  double roadwidth                       ,
  double zvertexwidth                    ,
  double impact                          ,
- double scale                           )
+ double scale                           ,
+ double minTRTSegmentpT                 )
 {
   m_proptool     = pr                 ;
   m_updatortool  = up                 ;
@@ -33,6 +34,7 @@ void  InDet::TRT_Trajectory_xk::set
   m_impact       = fabs(impact      ) ;
   m_scale_error  = fabs(scale       ) ;
   for(int i=0; i!=400; ++i) m_elements[i].set(m,pr,up,riod,rion,m_scale_error);
+  m_minTRTSegmentpT = minTRTSegmentpT ;
 }
 
 void  InDet::TRT_Trajectory_xk::set
@@ -518,7 +520,6 @@ Trk::TrackSegment* InDet::TRT_Trajectory_xk::convert()
 {
 
   // Test quality of propagation to perigee
-  //
   if(fabs(m_parameters.pT()) < m_minTRTSegmentpT) return 0;
 
   const Trk::Surface* sur = m_parameters.associatedSurface();

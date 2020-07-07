@@ -49,7 +49,7 @@ InDet::TRT_TrackExtensionTool_xk::TRT_TrackExtensionTool_xk
   m_parameterization= true               ;
   m_scale_error     = 2.                 ;
   declareInterface<ITRT_TrackExtensionTool>(this);
-
+  m_minTRTSegmentpT = 300.               ;
   declareProperty("RoadTool"               ,m_roadtool        );
   declareProperty("PropagatorTool"         ,m_proptool        );
   declareProperty("UpdatorTool"            ,m_updatortool     );
@@ -69,6 +69,7 @@ InDet::TRT_TrackExtensionTool_xk::TRT_TrackExtensionTool_xk
   declareProperty("MagneticFieldMode"      ,m_fieldmode       );
   declareProperty("MinNumberSCTclusters"   ,m_minNumberSCT    );
   declareProperty("MinNumberPIXclusters"   ,m_minNumberPIX    );
+  declareProperty("minTRTSegmentpT"        ,m_minTRTSegmentpT );
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -342,7 +343,8 @@ InDet::TRT_TrackExtensionTool_xk::newEvent(const EventContext& ctx) const
                                 m_roadwidth,
                                 m_zVertexWidth,
                                 m_impact,
-                                m_scale_error);
+                                m_scale_error,
+                                m_minTRTSegmentpT);
   event_data->m_measurement.reserve(200);
 
   return std::unique_ptr<InDet::ITRT_TrackExtensionTool::IEventData>(event_data.release());

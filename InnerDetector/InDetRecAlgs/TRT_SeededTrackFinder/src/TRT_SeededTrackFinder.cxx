@@ -200,7 +200,6 @@ StatusCode InDet::TRT_SeededTrackFinder::execute_r (const EventContext& ctx) con
         if ( c->energy()/cosh(c->globalPosition().eta()) < m_clusterEt) {
           continue;
         }
-        //std::cout << "Got calo cluster wooooooo" << std::endl;
         double eta = c->globalPosition().eta();
         double phi = c->globalPosition().phi();
         //double z = beamZ;

@@ -1160,6 +1160,10 @@ def getInDetTRT_TrackExtensionTool_xk(name='InDetTRT_ExtensionTool', TrackingCut
                        RoadWidth             = 20.,
                        UseParameterization   = InDetNewTrackingCuts.useParameterizedTRTCuts(),
                        maxImpactParameter    = 500 if InDetFlags.doBeamHalo() or InDetFlags.doBeamGas() else 50) # single beam running, open cuts
+    if (InDetNewTrackingCuts.RoISeededBackTracking()):
+        kwargs=setDefaults(kwargs,
+                           minTRTSegmentpT   = 3000)
+
     from TRT_TrackExtensionTool_xk.TRT_TrackExtensionTool_xkConf import InDet__TRT_TrackExtensionTool_xk
     return InDet__TRT_TrackExtensionTool_xk(the_name, **kwargs)
 
