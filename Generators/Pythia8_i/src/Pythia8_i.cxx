@@ -40,7 +40,9 @@ using boost::assign::operator+=;
   #define PYTHIA8_NWEIGHTS nVariationGroups
   #define PYTHIA8_WEIGHT getGroupWeight
   #define PYTHIA8_WLABEL getGroupName
-  #define PYTHIA8_CONVERSION 1.0e9
+  #if PYTHIA_VERSION_INTEGER < 8244
+    #define PYTHIA8_CONVERSION 1.0e9
+  #endif 
   #endif
 #endif
 
