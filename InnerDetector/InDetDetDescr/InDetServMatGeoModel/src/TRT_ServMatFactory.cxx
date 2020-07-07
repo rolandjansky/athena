@@ -28,6 +28,8 @@
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
+#include "CxxUtils/checker_macros.h"
+
 #include <sstream>
 #include <iostream>
 
@@ -44,7 +46,7 @@ TRT_ServMatFactory::~TRT_ServMatFactory()
 
 
 //## Other Operations (implementation)
-void TRT_ServMatFactory::create(GeoPhysVol *mother)
+void TRT_ServMatFactory::create ATLAS_NOT_THREAD_SAFE (GeoPhysVol *mother) // Thread unsafe rdbAccessSvc method is used.
 {
 
   msg(MSG::DEBUG) << "Building TRT Service Material" << endmsg;
