@@ -36,7 +36,8 @@ class RD53BEncodingAlg : public AthAlgorithm {
 
  private:
    
-  const static int N_LAYERS=5;
+  static const int N_LAYERS=5;
+  static constexpr float s_pitch50x50=0.050;
   
   enum LayerType {
     INVALID_LAYER=-1, INNERMOST, NEXT_TO_INNERMOST, OUTER, N_TYPES    

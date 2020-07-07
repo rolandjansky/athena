@@ -173,7 +173,7 @@ void RD53BEncodingAlg::fillChipMaps() {
       
       const float phiPitch = design->phiPitch();
       bool use50x50 = true;
-      if (phiPitch < 0.050)
+      if (phiPitch < s_pitch50x50)
         use50x50 = false;        
       
       std::vector<ChipMap> chip_maps = std::vector<ChipMap>(chips, ChipMap(columnsPerChip, rowsPerChip, use50x50));
