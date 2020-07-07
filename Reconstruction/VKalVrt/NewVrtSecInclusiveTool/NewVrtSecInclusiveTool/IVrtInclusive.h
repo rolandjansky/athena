@@ -14,9 +14,6 @@
    Tool creates a derivative object VxSecVKalVertexInfo which contains also additional variables
    see  Tracking/TrkEvent/VxSecVertex/VxSecVertex/VxSecVKalVertexInfo.h
    
-
-
-
     Author: Vadim Kostyukhin
     e-mail: vadim.kostyukhin@cern.ch
 
@@ -45,9 +42,17 @@ namespace Rec {
     public:
       static const InterfaceID& interfaceID() { return IID_IVrtInclusive;}
 //---------------------------------------------------------------------------
-//Interface itself
 
-      virtual Trk::VxSecVertexInfo* findAllVertices( const std::vector<const xAOD::TrackParticle*> & inputTracks,
+  /** @class IVrtInclusive
+
+    Interface class for inclusive vertex reconstruction.
+    All secondary vertices produced in a phase space around Primary Vertex(PV) and resulted in secondary tracks 
+    provided by inputTracks collection are returned in Trk::VxSecVertexInfo.
+    Interface assumes that necessary TrackParticles can be pre-selected by user before calling the actual tool implementation
+    with default track quality cuts.
+    
+  */
+      virtual std::unique_ptr<Trk::VxSecVertexInfo> findAllVertices( const std::vector<const xAOD::TrackParticle*> & inputTracks,
                                                      const xAOD::Vertex & PV) const =0;
 
   };

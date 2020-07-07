@@ -130,7 +130,6 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
 
 //Destructor---------------------------------------------------------------
     NewVrtSecInclusiveTool::~NewVrtSecInclusiveTool(){
-     if(m_compatibilityGraph)delete m_compatibilityGraph;
      ATH_MSG_DEBUG("NewVrtSecInclusiveTool destructor called");
    }
 
@@ -306,6 +305,7 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
 
   StatusCode NewVrtSecInclusiveTool::finalize()
   {
+    if(m_compatibilityGraph)delete m_compatibilityGraph;
     ATH_MSG_DEBUG("NewVrtSecInclusiveTool finalize()");
     return StatusCode::SUCCESS; 
   }
@@ -313,13 +313,10 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
 
 
 
-  Trk::VxSecVertexInfo* NewVrtSecInclusiveTool::findAllVertices (
-           const std::vector<const xAOD::TrackParticle*> & InpTrk,
-           const xAOD::Vertex & PrimVrt ) const 
+  std::unique_ptr<Trk::VxSecVertexInfo> NewVrtSecInclusiveTool::findAllVertices (
+           const std::vector<const xAOD::TrackParticle*> & inpTrk,
+           const xAOD::Vertex & primVrt ) const 
   {
-    std::vector<double>     Results;
-    std::vector<const xAOD::TrackParticle*>            SelSecTrk;
-    std::vector< std::vector<const xAOD::TrackParticle*> >  SelSecTrkPerVrt;
     std::vector<xAOD::Vertex*> listVrtSec(0);
 
     if(m_fillHist && m_curTup){  
@@ -329,8 +326,8 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
     };
 
     workVectorArrxAOD * tmpVectxAOD=new workVectorArrxAOD();
-    tmpVectxAOD->InpTrk.resize(InpTrk.size());
-    std::copy(InpTrk.begin(),InpTrk.end(), tmpVectxAOD->InpTrk.begin());
+    tmpVectxAOD->inpTrk.resize(inpTrk.size());
+    std::copy(inpTrk.begin(),inpTrk.end(), tmpVectxAOD->inpTrk.begin());
     tmpVectxAOD->BeamX=m_beamService->beamPos().x();
     tmpVectxAOD->BeamY=m_beamService->beamPos().y();
     tmpVectxAOD->BeamZ=m_beamService->beamPos().z();
@@ -338,13 +335,13 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
     tmpVectxAOD->tanBeamTiltY=tan(m_beamService->beamTilt(1));
     
 
-    listVrtSec = GetVrtSecMulti(tmpVectxAOD,PrimVrt);
+    listVrtSec = GetVrtSecMulti(tmpVectxAOD,primVrt);
     delete tmpVectxAOD;
 
 
 
     std::vector<const xAOD::IParticle*>  iparTrkV0(0); 
-    Trk::VxSecVertexInfo* res =  new Trk::VxSecVertexInfo( listVrtSec );
+    std::unique_ptr<Trk::VxSecVertexInfo> res = std::make_unique<Trk::VxSecVertexInfo>(Trk::VxSecVertexInfo(listVrtSec));
 
     if(m_fillHist && m_tuple){  m_tuple->Fill(); };
 

@@ -23,13 +23,13 @@ namespace Rec{
                                                     const xAOD::Vertex & PrimVrt)
    const
    {    
-    std::vector<const xAOD::TrackParticle*>& InpTrk          = xAODwrk->InpTrk;
-    std::vector<const xAOD::TrackParticle*>& SelectedTracks  = xAODwrk->listSelTracks;
+    std::vector<const xAOD::TrackParticle*>& inpTrk          = xAODwrk->inpTrk;
+    std::vector<const xAOD::TrackParticle*>& selectedTracks  = xAODwrk->listSelTracks;
     std::vector<const xAOD::TrackParticle*>::const_iterator   i_ntrk;
-    std::vector<double> Impact,ImpactError;
+    std::vector<double> impact,impactError;
     std::multimap<double,const xAOD::TrackParticle*> orderedTrk;
-    if(m_fillHist){ m_hb_ntrkInput->Fill( InpTrk.size()+0.1, m_w_1);}
-    for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) {
+    if(m_fillHist){ m_hb_ntrkInput->Fill( inpTrk.size()+0.1, m_w_1);}
+    for (i_ntrk = inpTrk.begin(); i_ntrk < inpTrk.end(); ++i_ntrk) {
 //
 //-- Perigee in TrackParticle
 //
@@ -57,23 +57,23 @@ namespace Rec{
           if( !((*i_ntrk)->summaryValue(outPixHits,xAOD::numberOfPixelOutliers)))  outPixHits=0;
 
           Amg::Vector3D perigeePos=mPer.position();
-          double ImpactA0=sqrt( (perigeePos.x()-PrimVrt.x())*(perigeePos.x()-PrimVrt.x())
+          double impactA0=sqrt( (perigeePos.x()-PrimVrt.x())*(perigeePos.x()-PrimVrt.x())
                                +(perigeePos.y()-PrimVrt.y())*(perigeePos.y()-PrimVrt.y()) );
-          double ImpactZ=perigeePos.z()-PrimVrt.z();
+          double impactZ=perigeePos.z()-PrimVrt.z();
           if(m_fillHist){  
-            m_hb_trkD0->Fill( ImpactA0, m_w_1);
-            m_hb_trkZ ->Fill( ImpactZ, m_w_1);
+            m_hb_trkD0->Fill( impactA0, m_w_1);
+            m_hb_trkZ ->Fill( impactZ, m_w_1);
           }
-          if(fabs(ImpactZ)>m_cutZVrt) continue;
-          if(ImpactA0>m_cutA0)        continue;
+          if(fabs(impactZ)>m_cutZVrt) continue;
+          if(impactA0>m_cutA0)        continue;
           if(m_fillHist){ m_hb_trkSelect->Fill( 3., m_w_1);}
      
           double bX=xAODwrk->BeamX + (perigeePos.z()-xAODwrk->BeamZ)*xAODwrk->tanBeamTiltX;
           double bY=xAODwrk->BeamY + (perigeePos.z()-xAODwrk->BeamZ)*xAODwrk->tanBeamTiltY;
-          double ImpactBeam=sqrt( (perigeePos.x()-bX)*(perigeePos.x()-bX) + (perigeePos.y()-bY)*(perigeePos.y()-bY));
+          double impactBeam=sqrt( (perigeePos.x()-bX)*(perigeePos.x()-bX) + (perigeePos.y()-bY)*(perigeePos.y()-bY));
 //----Anti-pileup
-          double SignifBeam = ImpactBeam    / sqrt(CovTrkMtx00);
-          if(SignifBeam < m_antiPileupSigRCut) continue;   // cut against tracks from pileup vertices
+          double signifBeam = impactBeam    / sqrt(CovTrkMtx00);
+          if(signifBeam < m_antiPileupSigRCut) continue;   // cut against tracks from pileup vertices
           if(m_fillHist){ m_hb_trkSelect->Fill( 4., m_w_1);}
 //----
           if(PixelHits	    < m_cutPixelHits) 		continue;
@@ -82,15 +82,15 @@ namespace Rec{
           if(BLayHits	    < m_cutBLayHits) 		continue;
           if(m_fillHist){ m_hb_trkSelect->Fill( 5., m_w_1);}
 //----
-          orderedTrk.emplace(SignifBeam,*i_ntrk);
-          SelectedTracks.push_back(*i_ntrk);
+          orderedTrk.emplace(signifBeam,*i_ntrk);
+          selectedTracks.push_back(*i_ntrk);
       }
 //---- Order tracks according to pt
-//      AnalysisUtils::Sort::pT (SelectedTracks)     
+//      AnalysisUtils::Sort::pT (selectedTracks)     
 //---- Order tracks according to ranks
       std::map<double,const xAOD::TrackParticle*>::reverse_iterator rt=orderedTrk.rbegin();
-      SelectedTracks.resize(orderedTrk.size());
-      for ( int cntt=0; rt!=orderedTrk.rend(); ++rt,++cntt) {SelectedTracks[cntt]=(*rt).second;}
+      selectedTracks.resize(orderedTrk.size());
+      for ( int cntt=0; rt!=orderedTrk.rend(); ++rt,++cntt) {selectedTracks[cntt]=(*rt).second;}
       return;
    }
 

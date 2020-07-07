@@ -20,29 +20,29 @@
 namespace Rec{  
 
 
-  void NewVrtSecInclusiveTool::printWrkSet(const std::vector<WrkVrt> *, const std::string ) const {
-/*  void NewVrtSecInclusiveTool::printWrkSet(const std::vector<WrkVrt> *WrkVrtSet, const std::string name) const {
+//  void NewVrtSecInclusiveTool::printWrkSet(const std::vector<WrkVrt> *, const & std::string ) const {
+  void NewVrtSecInclusiveTool::printWrkSet(const std::vector<WrkVrt> *WrkVrtSet, const std::string &name) const {
     int nGoodV=0;
     for(int iv=0; iv<(int)WrkVrtSet->size(); iv++) {
       std::cout<<name
       <<"= "<<(*WrkVrtSet)[iv].vertex[0]
       <<", "<<(*WrkVrtSet)[iv].vertex[1]
       <<", "<<(*WrkVrtSet)[iv].vertex[2]
-      <<" NTrk="<<(*WrkVrtSet)[iv].SelTrk.size()
+      <<" NTrk="<<(*WrkVrtSet)[iv].selTrk.size()
       <<" is good="<<std::boolalpha<<(*WrkVrtSet)[iv].Good<<std::noboolalpha
-      <<"  Chi2="<<(*WrkVrtSet)[iv].Chi2
+      <<"  Chi2="<<(*WrkVrtSet)[iv].chi2
       <<"  Mass="<<(*WrkVrtSet)[iv].vertexMom.M()
       <<"  detached="<<(*WrkVrtSet)[iv].detachedTrack
-      <<"  proj.dist="<<(*WrkVrtSet)[iv].ProjectedVrt
+      <<"  proj.dist="<<(*WrkVrtSet)[iv].projectedVrt
       <<" trk=";
-      for(int kk=0; kk<(int)(*WrkVrtSet)[iv].SelTrk.size(); kk++) {
-                std::cout<<", "<<(*WrkVrtSet)[iv].SelTrk[kk];}
-      //for(int kk=0; kk<(int)(*WrkVrtSet)[iv].SelTrk.size(); kk++) {
-      //          std::cout<<", "<<MomAtVrt((*WrkVrtSet)[iv].TrkAtVrt[kk]).Perp();}
+      for(int kk=0; kk<(int)(*WrkVrtSet)[iv].selTrk.size(); kk++) {
+                std::cout<<", "<<(*WrkVrtSet)[iv].selTrk[kk];}
+      //for(int kk=0; kk<(int)(*WrkVrtSet)[iv].selTrk.size(); kk++) {
+      //          std::cout<<", "<<MomAtVrt((*WrkVrtSet)[iv].trkAtVrt[kk]).Perp();}
       std::cout<<'\n';
       if((*WrkVrtSet)[iv].Good)nGoodV++;
     }
-    std::cout<<name<<" N="<<nGoodV<<'\n'; */
+    std::cout<<name<<" N="<<nGoodV<<'\n'; 
   }
 
                /*  Technicalities */
@@ -54,7 +54,7 @@ namespace Rec{
 
   
   double NewVrtSecInclusiveTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
-                                          const std::vector<double> SecVrtErr, double& Signif)
+                                          const std::vector<double> SecVrtErr, double& signif)
   const
   {
     double distx =  PrimVrt.x()- SecVrt.x();
@@ -75,19 +75,19 @@ namespace Rec{
 
     AmgSymMatrix(3)  WgtMtx = PrimCovMtx.inverse();
 
-    Signif = distx*WgtMtx(0,0)*distx
+    signif = distx*WgtMtx(0,0)*distx
             +disty*WgtMtx(1,1)*disty
             +distz*WgtMtx(2,2)*distz
          +2.*distx*WgtMtx(0,1)*disty
          +2.*distx*WgtMtx(0,2)*distz
          +2.*disty*WgtMtx(1,2)*distz;
-    Signif=sqrt(fabs(Signif));
-    if( Signif!=Signif ) Signif = 0.;
+    signif=sqrt(fabs(signif));
+    if( signif!=signif ) signif = 0.;
     return sqrt(distx*distx+disty*disty+distz*distz);
   }
 
   double NewVrtSecInclusiveTool::VrtVrtDist2D(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
-                                          const std::vector<double> SecVrtErr, double& Signif)
+                                          const std::vector<double> SecVrtErr, double& signif)
   const
   {
     double distx =  PrimVrt.x()- SecVrt.x();
@@ -103,11 +103,11 @@ namespace Rec{
 
     AmgSymMatrix(2)  WgtMtx = CovMtx.inverse();
 
-    Signif = distx*WgtMtx(0,0)*distx
+    signif = distx*WgtMtx(0,0)*distx
             +disty*WgtMtx(1,1)*disty
          +2.*distx*WgtMtx(0,1)*disty;
-    Signif=sqrt(fabs(Signif));
-    if( Signif!=Signif ) Signif = 0.;
+    signif=sqrt(fabs(signif));
+    if( signif!=signif ) signif = 0.;
     return sqrt(distx*distx+disty*disty);
   }
 
@@ -116,7 +116,6 @@ namespace Rec{
                                             const Amg::Vector3D & Vrt2, const std::vector<double>  & VrtErr2)
   const
   {
-    double Signif;
     double distx =  Vrt1.x()- Vrt2.x();
     double disty =  Vrt1.y()- Vrt2.y();
     double distz =  Vrt1.z()- Vrt2.z();
@@ -132,15 +131,16 @@ namespace Rec{
     AmgSymMatrix(3)  WgtMtx = PrimCovMtx.inverse();
 
 
-    Signif =   distx*WgtMtx(0,0)*distx
+    double signif = 
+               distx*WgtMtx(0,0)*distx
               +disty*WgtMtx(1,1)*disty
               +distz*WgtMtx(2,2)*distz
            +2.*distx*WgtMtx(0,1)*disty
            +2.*distx*WgtMtx(0,2)*distz
            +2.*disty*WgtMtx(1,2)*distz;
-    Signif=sqrt(fabs(Signif));
-    if(Signif != Signif)  Signif = 0.;
-    return Signif;
+    signif=sqrt(fabs(signif));
+    if(signif != signif)  signif = 0.;
+    return signif;
   }
 //
   double NewVrtSecInclusiveTool::PntPntDist(const Amg::Vector3D & Vrt1, const Amg::Vector3D & Vrt2) const
@@ -151,7 +151,7 @@ namespace Rec{
     return sqrt(dx*dx+dy*dy*dz*dz);
   }
 //--------------------------------------------------
-// Significance along some direction
+// significance along some direction
 //--------------------------------------------------
 double NewVrtSecInclusiveTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
                                            const std::vector<double> SecVrtErr, const TLorentzVector & Dir)
@@ -176,16 +176,16 @@ double NewVrtSecInclusiveTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Am
  
      AmgSymMatrix(3)  WgtMtx = PrimCovMtx.inverse();
  
-     double Signif = distx*WgtMtx(0,0)*distx
+     double signif = distx*WgtMtx(0,0)*distx
                     +disty*WgtMtx(1,1)*disty
                     +distz*WgtMtx(2,2)*distz
                  +2.*distx*WgtMtx(0,1)*disty
                  +2.*distx*WgtMtx(0,2)*distz
                  +2.*disty*WgtMtx(1,2)*distz;
-     Signif=sqrt(fabs(Signif));
-     if( Signif!=Signif ) Signif = 0.;
-     if(projDist<0)Signif=-Signif;
-     return Signif;
+     signif=sqrt(fabs(signif));
+     if( signif!=signif ) signif = 0.;
+     if(projDist<0)signif=-signif;
+     return signif;
    }
 
 //----------------------------
@@ -208,7 +208,7 @@ double NewVrtSecInclusiveTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Am
     /* Gives correct mass assignment in case of nonequal masses*/
 
 
-   double NewVrtSecInclusiveTool::massV0(std::vector< std::vector<double> >& TrkAtVrt,
+   double NewVrtSecInclusiveTool::massV0(const std::vector< std::vector<double> >& TrkAtVrt,
                                double massP, double massPi )
    const
    {
@@ -228,13 +228,13 @@ double NewVrtSecInclusiveTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Am
 
 
 
-  TLorentzVector NewVrtSecInclusiveTool::MomAtVrt(const std::vector< double >& InpTrk) 
+  TLorentzVector NewVrtSecInclusiveTool::MomAtVrt(const std::vector< double >& inpTrk) 
   const
   {
-     double api=1./fabs(InpTrk[2]);
-     double px = cos ( InpTrk[0]) * sin(InpTrk[1])*api;
-     double py = sin ( InpTrk[0]) * sin(InpTrk[1])*api;
-     double pz =                    cos(InpTrk[1])*api;
+     double api=1./fabs(inpTrk[2]);
+     double px = cos ( inpTrk[0]) * sin(inpTrk[1])*api;
+     double py = sin ( inpTrk[0]) * sin(inpTrk[1])*api;
+     double pz =                    cos(inpTrk[1])*api;
      double ee = sqrt( px*px + py*py + pz*pz + m_massPi*m_massPi);
      return TLorentzVector(px,py,pz,ee); 
    }
@@ -341,28 +341,28 @@ double NewVrtSecInclusiveTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Am
 
   double NewVrtSecInclusiveTool::distToMatLayerSignificance(Vrt2Tr & Vrt) const
   {
-     if(Vrt.FitVertex.perp()<20.) return 1.e9;
-     double normP=1./Vrt.Momentum.P();
-     Amg::Vector3D momentumP(Vrt.Momentum.Px()*normP,Vrt.Momentum.Py()*normP,Vrt.Momentum.Pz()*normP);
+     if(Vrt.fitVertex.perp()<20.) return 1.e9;
+     double normP=1./Vrt.momentum.P();
+     Amg::Vector3D momentumP(Vrt.momentum.Px()*normP,Vrt.momentum.Py()*normP,Vrt.momentum.Pz()*normP);
      Amg::Vector3D momentumN=-momentumP;
      
      const Trk::Layer * someLayer  = 0;
      const Trk::Layer * nextLayerP = 0;
      const Trk::Layer * nextLayerN = 0;
-     auto volume = m_extrapolator->trackingGeometry()->lowestTrackingVolume(Vrt.FitVertex);
-     someLayer = volume->associatedLayer(Vrt.FitVertex);
+     auto volume = m_extrapolator->trackingGeometry()->lowestTrackingVolume(Vrt.fitVertex);
+     someLayer = volume->associatedLayer(Vrt.fitVertex);
      auto material =  someLayer->layerMaterialProperties();
      if(material){
        nextLayerP=someLayer;
      } else {
-       nextLayerP = someLayer->nextLayer(Vrt.FitVertex,momentumP);
+       nextLayerP = someLayer->nextLayer(Vrt.fitVertex,momentumP);
        if(nextLayerP){ if(!nextLayerP->layerMaterialProperties())nextLayerP=0; }
-       nextLayerN = someLayer->nextLayer(Vrt.FitVertex,momentumN);
+       nextLayerN = someLayer->nextLayer(Vrt.fitVertex,momentumN);
        if(nextLayerN){ if(!nextLayerN->layerMaterialProperties())nextLayerN=0; }
      }
      momentumP *= 1.e5;   //100GeV to have straight trajectory
      double charge = 1.;
-     const Trk::Perigee pseudoVrtPart(Vrt.FitVertex, momentumP, charge, Vrt.FitVertex);
+     const Trk::Perigee pseudoVrtPart(Vrt.fitVertex, momentumP, charge, Vrt.fitVertex);
 
      const Trk::TrackParameters * extrapParP=0; //along momentum
      const Trk::TrackParameters * extrapParN=0; //backward
@@ -372,20 +372,20 @@ double NewVrtSecInclusiveTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Am
                      nextLayerN->surfaceRepresentation(), Trk::anyDirection, false, Trk::nonInteractingMuon) ;}
 
      float distanceP=1.e9, distanceN=1.e9;
-     if(extrapParP)distanceP=PntPntDist(extrapParP->position(), Vrt.FitVertex);
-     if(extrapParN)distanceN=PntPntDist(extrapParN->position(), Vrt.FitVertex);
+     if(extrapParP)distanceP=PntPntDist(extrapParP->position(), Vrt.fitVertex);
+     if(extrapParN)distanceN=PntPntDist(extrapParN->position(), Vrt.fitVertex);
      if(distanceP==1.e9 && distanceN==1.e9) return 1.e9;
 
      //std::pair<const Trk::TrackParameters*,const Trk::Layer*> next= 
      //         m_extrapolator->extrapolateToNextActiveLayer(pseudoVrtPart,Trk::anyDirection,true,Trk::pion) ;
 
-     double Signif=1.e9;
+     double signif=1.e9;
      std::vector<double> pntCovar={1.e-2,0.,1.e-2,0.,0.,4.e-2};
-     if(distanceP<distanceN)Signif=VrtVrtDist(Vrt.FitVertex, Vrt.ErrorMatrix, extrapParP->position(), pntCovar);
-     else                   Signif=VrtVrtDist(Vrt.FitVertex, Vrt.ErrorMatrix, extrapParN->position(), pntCovar);
+     if(distanceP<distanceN)signif=VrtVrtDist(Vrt.fitVertex, Vrt.errorMatrix, extrapParP->position(), pntCovar);
+     else                   signif=VrtVrtDist(Vrt.fitVertex, Vrt.errorMatrix, extrapParN->position(), pntCovar);
      delete extrapParP;
      delete extrapParN;
-     return Signif;
+     return signif;
   }
 
  

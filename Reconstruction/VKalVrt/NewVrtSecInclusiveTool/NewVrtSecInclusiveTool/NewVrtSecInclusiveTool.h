@@ -63,8 +63,7 @@ namespace Rec {
   struct workVectorArrxAOD{
         std::vector<const xAOD::TrackParticle*> listSelTracks;  // Selected tracks after quality cuts
         std::vector<const xAOD::TrackParticle*> tmpListTracks;
-        std::vector<const xAOD::TrackParticle*> TracksForFit;   // Input to vertex fitter
-        std::vector<const xAOD::TrackParticle*> InpTrk;         // All tracks provided to tool
+        std::vector<const xAOD::TrackParticle*> inpTrk;         // All tracks provided to tool
         double BeamX=0.;
         double BeamY=0.;
         double BeamZ=0.;
@@ -88,8 +87,8 @@ namespace Rec {
 
 
 
-      Trk::VxSecVertexInfo* findAllVertices(const std::vector<const xAOD::TrackParticle*> & inputTracks,
-                                            const xAOD::Vertex & primaryVertex) const;
+      std::unique_ptr<Trk::VxSecVertexInfo> findAllVertices(const std::vector<const xAOD::TrackParticle*> & inputTracks,
+                                                                                     const xAOD::Vertex & primaryVertex) const final;
 //------------------------------------------------------------------------------------------------------------------
 // Private data and functions
 //
@@ -179,8 +178,9 @@ namespace Rec {
       double m_massLam{};
       std::string m_instanceName;
 
-//-------------------------------------------
-//For ntuples (only for development/tuning!)
+//=======================================================================================
+// Functions and structure below are for algorithm development, debugging and calibration
+// NOT USED IN PRODUCTION!
 
      int notFromBC(int PDGID) const;
      const xAOD::TruthParticle * getPreviousParent(const xAOD::TruthParticle * child, int & ParentPDG) const;
@@ -240,20 +240,21 @@ namespace Rec {
        float NVrtBDT[maxNVrt];
      };
      DevTuple*  m_curTup;
+//
+// End of development stuff
+//============================================================
+
 
      struct Vrt2Tr 
-     {   int i=0, j=0;
+     {   
          int badVrt=0;
-         Amg::Vector3D     FitVertex;
-         TLorentzVector    Momentum;
+         Amg::Vector3D     fitVertex;
+         TLorentzVector    momentum;
          long int   vertexCharge;
-         std::vector<double> ErrorMatrix;
-         std::vector<double> Chi2PerTrk;
-         std::vector< std::vector<double> > TrkAtVrt;
-         double Signif3D=0.;
-         double Signif3DProj=0.;
-         double Signif2D=0.;
-         double Chi2=0.;
+         std::vector<double> errorMatrix;
+         std::vector<double> chi2PerTrk;
+         std::vector< std::vector<double> > trkAtVrt;
+         double chi2=0.;
          double dRSVPV=-1.;
      };
 
@@ -264,17 +265,17 @@ namespace Rec {
       float m_chiScale[11]{};
       struct WrkVrt 
      {   bool Good=true;
-         std::deque<long int> SelTrk;
+         std::deque<long int> selTrk;
          Amg::Vector3D     vertex;
          TLorentzVector    vertexMom;
          long int   vertexCharge{};
          std::vector<double> vertexCov;
-         std::vector<double> Chi2PerTrk;
-         std::vector< std::vector<double> > TrkAtVrt;
-         double Chi2{};
+         std::vector<double> chi2PerTrk;
+         std::vector< std::vector<double> > trkAtVrt;
+         double chi2{};
          int nCloseVrt=0;
          double dCloseVrt=1000000.;
-	 double ProjectedVrt=0.;
+	 double projectedVrt=0.;
          int detachedTrack=-1;
       };
 
@@ -289,28 +290,28 @@ namespace Rec {
 
       double MaxOfShared(std::vector<WrkVrt> *WrkVrtSet, 
                          std::vector< std::deque<long int> > *TrkInVrt,
-			 long int & SelectedTrack,
-			 long int & SelectedVertex) const;
+			 long int & selectedTrack,
+			 long int & selectedVertex) const;
       void RemoveTrackFromVertex(std::vector<WrkVrt> *WrkVrtSet, 
                                  std::vector< std::deque<long int> > *TrkInVrt,
-				 long int & SelectedTrack,
-				 long int & SelectedVertex) const;
+				 long int selectedTrack,
+				 long int selectedVertex) const;
 //
 //
 
-      void printWrkSet(const std::vector<WrkVrt> * WrkSet, const std::string name ) const;
+      void printWrkSet(const std::vector<WrkVrt> * WrkSet, const std::string &name ) const;
 
 //
 // Gives correct mass assignment in case of nonequal masses
-      double massV0( std::vector< std::vector<double> >& TrkAtVrt, double massP, double massPi ) const;
+      double massV0(const std::vector< std::vector<double> >& TrkAtVrt, double massP, double massPi ) const;
 
 
-      TLorentzVector MomAtVrt(const std::vector<double>& InpTrk) const; 
-      double           VrtRadiusError(const Amg::Vector3D & SecVrt, const std::vector<double>  & VrtErr) const;
+      TLorentzVector MomAtVrt(const std::vector<double>& inpTrk) const; 
+      double           VrtRadiusError(const Amg::Vector3D & secVrt, const std::vector<double>  & vrtErr) const;
 
-      int   nTrkCommon( std::vector<WrkVrt> *WrkVrtSet, int V1, int V2) const;
-      double minVrtVrtDist( std::vector<WrkVrt> *WrkVrtSet, int & V1, int & V2) const;
-      double minVrtVrtDistNext( std::vector<WrkVrt> *WrkVrtSet, int & V1, int & V2) const;
+      int   nTrkCommon( std::vector<WrkVrt> *WrkVrtSet, int indexV1, int indexV2) const;
+      double minVrtVrtDist( std::vector<WrkVrt> *WrkVrtSet, int & indexV1, int & indexV2) const;
+      double minVrtVrtDistNext( std::vector<WrkVrt> *WrkVrtSet, int & indexV1, int & indexV2) const;
       bool isPart( std::deque<long int> test, std::deque<long int> base) const;
       void Clean1TrVertexSet(std::vector<WrkVrt> *WrkVrtSet) const;
 
