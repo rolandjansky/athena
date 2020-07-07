@@ -147,6 +147,7 @@ def TMEF_iPatFitter(name='TMEF_iPatFitter',**kwargs):
     kwargs.setdefault("MaterialAllocator", "TMEF_MaterialAllocator")
     from InDetRecExample import TrackingCommon
     kwargs.setdefault("SolenoidalIntersector",TrackingCommon.getSolenoidalIntersector())
+    kwargs.setdefault("TrackSummaryTool", 'TMEF_TrackSummaryTool')
     return CfgMgr.Trk__iPatFitter(name,**kwargs)
 
 
@@ -375,6 +376,7 @@ def TMEF_MuonCreatorTool(name="TMEF_MuonCreatorTool",**kwargs):
     kwargs.setdefault("FillTimingInformation",False)
     kwargs.setdefault("MuonSelectionTool", "")
     kwargs.setdefault("TrackQuery", "TMEF_MuonTrackQuery")
+    kwargs.setdefault("TrackSummaryTool", "TMEF_TrackSummaryTool")
     return CfgMgr.MuonCombined__MuonCreatorTool(name,**kwargs)
 
 def TMEF_MuonCandidateTrackBuilderTool(name="TMEF_MuonCandidateTrackBuilderTool",**kwargs):
@@ -391,8 +393,7 @@ def TMEF_MuonClusterSegmentFinder(name="TMEF_MuonClusterSegmentFinder", **kwargs
 
 def TMEF_MuonClusterSegmentFinderTool(name="TMEF_MuonClusterSegmentFinderTool", extraFlags=None,**kwargs):
     import MuonCombinedRecExample.CombinedMuonTrackSummary
-    from AthenaCommon.AppMgr import ToolSvc
-    kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
+    kwargs.setdefault("TrackSummaryTool", "TMEF_TrackSummaryTool")
     return CfgMgr.Muon__MuonClusterSegmentFinderTool(name,**kwargs)
 
 def TMEF_MuonLayerSegmentFinderTool(name="TMEF_MuonLayerSegmentFinderTool",**kwargs):
