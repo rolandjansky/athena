@@ -4,7 +4,7 @@
 
 //Dear emacs, this is -*-c++-*- 
 #ifndef LARATHENAPOOL_LARLATOMEHEADERCONTAINERCNV_H
-#define LARATHENAPOOL_LARLATOMECONTAINERCNV_H
+#define LARATHENAPOOL_LARLATOMEHEADERCONTAINERCNV_H
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 #include "LArRawEvent/LArLATOMEHeaderContainer.h"
@@ -18,10 +18,10 @@ class LArLATOMEHeaderContainerCnv : public LArLATOMEHeaderContainerCnvBase
 {
 public:
   LArLATOMEHeaderContainerCnv(ISvcLocator*);
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 protected:
   virtual LArLATOMEHeaderContainer* createTransient() override final;
-  virtual LArLATOMEHeaderContainerPERS* createPersistent(LArLATOMEHeaderContainer*);
+  virtual LArLATOMEHeaderContainerPERS* createPersistent(LArLATOMEHeaderContainer*) override;
 private:
   pool::Guid   m_p1_guid;
   
