@@ -10,31 +10,14 @@
 #include <tuple>
 
 void ChipMap_RD53B::fillChipMap(int eta, int phi, int tot) {
-  eta = correctEta(eta);
-  if (eta<0) return;
-  phi = correctPhi(phi);
-  if (phi<0) return;
-  
   m_fired_pixels.at(eta).at(phi) = true;
-  int mytot = tot/16.+1;
-  m_tots.at(eta).at(phi) = mytot>15 ? 15 : mytot;
-  
-//   // TESTING
-//   m_tots.at(eta).at(phi) = tot;
-
+  m_tots.at(eta).at(phi) = tot;
   m_nfired_pixels++;
 }
 
 int ChipMap_RD53B::getCoreIndex(int eta, int phi) {
-  // check if eta and phi are valids, if not return a not valid core
-  eta = correctEta(eta);
-  if (eta<0) return -1;
-  phi = correctPhi(phi);
-  if (phi<0) return -1;
-  
   int myccol = getCcol(eta);
-  int mycrow = getCrow(phi);
-  
+  int mycrow = getCrow(phi);  
   return getCore(myccol, mycrow);  
 }
 
@@ -53,18 +36,6 @@ int ChipMap_RD53B::getCore(int ccol, int crow) {
 
 int ChipMap_RD53B::getTotalChannels() {
   return m_cols*m_rows; 
-}
-
-int ChipMap_RD53B::correctEta(int eta) {
-  if (eta < (m_cols+m_n_colsbtwchips) and eta > (m_cols-1)) return -1;
-  if (eta > (m_cols-1)) return eta-(m_cols+m_n_colsbtwchips);    
-  return eta;
-}
-
-int ChipMap_RD53B::correctPhi(int phi) {
-  if (phi < (m_rows+m_n_rowsbtwchips) and phi > (m_rows-1)) return -1;    
-  if (phi > (m_rows-1)) return phi-(m_rows+m_n_rowsbtwchips);
-  return phi;
 }
 
 void ChipMap_RD53B::fillCores() {

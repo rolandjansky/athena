@@ -20,10 +20,11 @@ RD53BEncodingTool::RD53BEncodingTool(const std::string& t,
                                      const IInterface* p) :
   AthAlgTool(t,n,p),
   m_pixIdHelper(nullptr),
-  m_addresscompression(true),
-  m_compression(true),
+  m_addressCompression(true),
+  m_bitTreeCompression(true),
   m_suppressToT(false),
   m_auroraFactor(1.04),
+  m_safetyFactor(1.25),
   m_eventsPerStream(1),
   m_testevent(0),
   m_path("/RD53BCompressed/"),
@@ -34,12 +35,12 @@ RD53BEncodingTool::RD53BEncodingTool(const std::string& t,
 { 
   declareInterface<RD53BEncodingTool>(this);
   
-  declareProperty("DoAddressCompression"  , m_addresscompression);
-  declareProperty("DoBitTreeCompression"  , m_compression       );
+  declareProperty("DoAddressCompression"  , m_addressCompression);
+  declareProperty("DoBitTreeCompression"  , m_bitTreeCompression);
   declareProperty("DoToTSuppression"      , m_suppressToT       );
-  declareProperty("DoExpertPlots"         , m_doExpertPlots     );
   declareProperty("EventsPerStream"       , m_eventsPerStream   );
-  declareProperty("AuroraFactor"          , m_auroraFactor      );  
+  declareProperty("AuroraFactor"          , m_auroraFactor      ); 
+  declareProperty("SafetyFactor"          , m_safetyFactor      ); 
   declareProperty("Path"                  , m_path              );
   declareProperty("TestStreamCreation"    , m_testStream        );
   declareProperty("TestStreamFileName"    , m_testFileName    ="testStream");
@@ -48,6 +49,7 @@ RD53BEncodingTool::RD53BEncodingTool(const std::string& t,
   declareProperty("TestModuleEta"         , m_testModuleEta   =1);
   declareProperty("TestModulePhi"         , m_testModulePhi   =0);
   declareProperty("Debug"                 , m_debug             );
+  declareProperty("DoExpertPlots"         , m_doExpertPlots     );
 }
 
 StatusCode RD53BEncodingTool::finalize() {
@@ -113,25 +115,10 @@ void RD53BEncodingTool::fillStreams(std::vector<ChipMap>& chip_maps, Identifier 
 void RD53BEncodingTool::fillStreams(ChipMap& chip_map, Identifier Id, int chip, int event) {
   int streams_per_event = 0;
   
-  int barrel_endcap(m_pixIdHelper->barrel_ec(Id));
-  int layer_disk(m_pixIdHelper->layer_disk(Id));
-  int eta_module(m_pixIdHelper->eta_module(Id));
-  int phi_module(m_pixIdHelper->phi_module(Id));
-  
-  //TODO: TEMPORARELY
-  // TO BE TEMPORARELY USED TO TRANSLATE THE INDICES
-  // WAITING FOR SAMPLES WITH ATLAS-P2-ITK-22-02-00
-  // WHEN UPDATING THIS, CHANGE THE ABOVE INDICES TO CONST
-  if (barrel_endcap==2) {
-    if (layer_disk>29) {
-      layer_disk = layer_disk-28;          
-    }  else if (layer_disk>16) {
-      eta_module=layer_disk;
-      layer_disk=1;
-    } else {
-      std::swap(layer_disk, eta_module);
-    }
-  }
+  const int barrel_endcap(m_pixIdHelper->barrel_ec(Id));
+  const int layer_disk(m_pixIdHelper->layer_disk(Id));
+  const int eta_module(m_pixIdHelper->eta_module(Id));
+  const int phi_module(m_pixIdHelper->phi_module(Id));
   
   bool doPrint = (m_debug and  barrel_endcap == m_testBarrelEndcap and layer_disk == m_testLayerDisc and eta_module == m_testModuleEta and phi_module==m_testModulePhi and chip==0);
   
@@ -274,7 +261,7 @@ void RD53BEncodingTool::testStream(ChipMap& chipmap,
       // 2) get the tot for the selected core
       
       // 1) get the bit map length
-      std::string bitmap_bits = chipmap.getBitTreeString(ccol, crow, m_compression);
+      std::string bitmap_bits = chipmap.getBitTreeString(ccol, crow, m_bitTreeCompression);
       // 1.1) if needed, skip the cores without hits
       if (bitmap_bits=="") continue;
       
@@ -328,7 +315,7 @@ void RD53BEncodingTool::testStream(ChipMap& chipmap,
       float address = 0;
       std::string string_to_add = "";     
       
-      if (m_addresscompression) {
+      if (m_addressCompression) {
         address += islast_isneighbour;       
         
         // 2) if it is the first ccol you need to add the ccol tag
@@ -609,7 +596,7 @@ void RD53BEncodingTool::createStream(ChipMap& chipmap,
       // 2) get the tot for the selected core
       
       // 1) get the bit map length
-      const float bitmap = chipmap.getBitTree(ccol, crow, m_compression);
+      const float bitmap = chipmap.getBitTree(ccol, crow, m_bitTreeCompression);
       // 1.1) if needed, skip the cores without hits
       if (bitmap==0.) continue;
 
@@ -628,7 +615,7 @@ void RD53BEncodingTool::createStream(ChipMap& chipmap,
       // 1) add 2 bits for islast and isneighbour bits
       float address = 0;
       
-      if (m_addresscompression) {
+      if (m_addressCompression) {
         address += islast_isneighbour;
        
         // 2) if it is the first ccol you need to add the ccol tag
@@ -789,7 +776,7 @@ void RD53BEncodingTool::fillHistograms(ChipMap chipmap, int streams_per_event, f
       int previous_row = -10; // use a default negative value
       for (int crow = 0; crow < chipmap.getCrows(); crow++) {
         const int core = chipmap.getCore(ccol,crow);      
-        const float bitmap = chipmap.getBitTree(ccol, crow, m_compression);
+        const float bitmap = chipmap.getBitTree(ccol, crow, m_bitTreeCompression);
         if (bitmap==0.) continue;
         const float tot = m_suppressToT ? 0. : chipmap.getToTBitsCore(core);
         const float data = bitmap+tot;
@@ -817,26 +804,11 @@ void RD53BEncodingTool::fillDataRates() {
   for (auto& id_streams: m_stream_map.getStreams()) {
     const Identifier& id = id_streams.first;
     std::vector<Stream>& chip_streams = id_streams.second;
-    int barrel_endcap = m_pixIdHelper->barrel_ec(id);
-    int eta_module = m_pixIdHelper->eta_module(id);
-    int layer_disk = m_pixIdHelper->layer_disk(id);
+    const int barrel_endcap = m_pixIdHelper->barrel_ec(id);
+    const int eta_module = m_pixIdHelper->eta_module(id);
+    const int layer_disk = m_pixIdHelper->layer_disk(id);
     const bool isBarrel = m_pixIdHelper->is_barrel(id);
     const Region region = isBarrel ? BARREL : ENDCAP;
-    
-    //TODO: TEMPORARELY
-    // TO BE TEMPORARELY USED TO TRANSLATE THE INDICES
-    // WAITING FOR SAMPLES WITH ATLAS-P2-ITK-22-02-00
-    // WHEN UPDATING THIS, CHANGE THE ABOVE INDICES TO CONST
-    if (barrel_endcap==2) {
-      if (layer_disk>29) {
-        layer_disk = layer_disk-28;          
-      }  else if (layer_disk>16) {
-        eta_module=layer_disk;
-        layer_disk=1;
-      } else {
-        std::swap(layer_disk, eta_module);
-      }
-    }
     
     float z = m_module_z_layer[region].at(layer_disk).at(eta_module);
     for (auto& single_streams : chip_streams) {
@@ -882,6 +854,7 @@ void RD53BEncodingTool::fillDataRates() {
         m_p_streamlength_per_stream[layer_disk][region]->Fill(z,length);
         m_p_streamlength_per_stream_incl_prot[layer_disk][region]->Fill(z,length*m_auroraFactor);
         m_p_datarate[layer_disk][region]->Fill(z,length*m_auroraFactor/float(m_eventsPerStream));
+        m_p_datarate_w_safety_factor[layer_disk][region]->Fill(z,length*m_auroraFactor/float(m_eventsPerStream)*m_safetyFactor);
         m_p_cores_per_stream[layer_disk][region]->Fill(z,cores.at(stream));
         m_p_perc_orphans_per_stream[layer_disk][region]->Fill(z,current_orphans/length*100.);
         m_p_perc_tot_per_stream[layer_disk][region]->Fill(z,tots.at(stream)/length*100.);
@@ -966,13 +939,17 @@ StatusCode RD53BEncodingTool::bookHistograms(std::vector < std::vector < float >
       m_p_streamlength_per_stream[layer][region]->StatOverflows();
       CHECK(m_thistSvc->regHist(m_path + m_p_streamlength_per_stream[layer][region]->GetName(), m_p_streamlength_per_stream[layer][region]));
       
-      m_p_streamlength_per_stream_incl_prot[layer][region] = new TProfile(("m_p_streamlength_per_stream_incl_prot_"+m_regionLabels[region]+"_"+std::to_string(layer)).c_str(), (m_regionLabels[region]+" Stream Length ( +"+std::to_string(m_auroraFactor)+"%) - Layer "+std::to_string(layer)+"; z[mm]; <stream length> [bits]").c_str(), int(bins.size()-1), &bins[0]);
+      m_p_streamlength_per_stream_incl_prot[layer][region] = new TProfile(("m_p_streamlength_per_stream_incl_prot_"+m_regionLabels[region]+"_"+std::to_string(layer)).c_str(), (m_regionLabels[region]+" Stream Length + "+std::to_string(int((m_auroraFactor-1.)*100))+"% - Layer "+std::to_string(layer)+"; z[mm]; <stream length> [bits] + "+std::to_string(int((m_auroraFactor-1.)*100))+"%").c_str(), int(bins.size()-1), &bins[0]);
       m_p_streamlength_per_stream_incl_prot[layer][region]->StatOverflows();
       CHECK(m_thistSvc->regHist(m_path + m_p_streamlength_per_stream_incl_prot[layer][region]->GetName(), m_p_streamlength_per_stream_incl_prot[layer][region])); 
       
       m_p_datarate[layer][region] = new TProfile(("m_p_datarate_"+m_regionLabels[region]+"_"+std::to_string(layer)).c_str(), (m_regionLabels[region]+" Datarate (@ 1 MHz) - Layer "+std::to_string(layer)+"; z[mm]; <Datarate [Mb/s] (@ 1 MHz)>").c_str(), int(bins.size()-1), &bins[0]);
       m_p_datarate[layer][region]->StatOverflows();
       CHECK(m_thistSvc->regHist(m_path + m_p_datarate[layer][region]->GetName(), m_p_datarate[layer][region])); 
+      
+      m_p_datarate_w_safety_factor[layer][region] = new TProfile(("m_p_datarate_w_safety_factor_"+m_regionLabels[region]+"_"+std::to_string(layer)).c_str(), (m_regionLabels[region]+" Datarate (@ 1 MHz) + "+std::to_string(int((m_safetyFactor-1.)*100))+"% - Layer "+std::to_string(layer)+"; z[mm]; <Datarate [Mb/s] (@ 1 MHz)> + "+std::to_string(int((m_safetyFactor-1.)*100))+"%").c_str(), int(bins.size()-1), &bins[0]);
+      m_p_datarate_w_safety_factor[layer][region]->StatOverflows();
+      CHECK(m_thistSvc->regHist(m_path + m_p_datarate_w_safety_factor[layer][region]->GetName(), m_p_datarate_w_safety_factor[layer][region]));       
       
       m_p_cores_per_stream[layer][region] = new TProfile(("m_p_cores_per_stream_"+m_regionLabels[region]+"_"+std::to_string(layer)).c_str(), (m_regionLabels[region]+" Cores - Layer "+std::to_string(layer)+"; z[mm]; <cores/stream>").c_str(), int(bins.size()-1), &bins[0]);
       m_p_cores_per_stream[layer][region]->StatOverflows();
@@ -1022,7 +999,7 @@ StatusCode RD53BEncodingTool::bookHistograms(std::vector < std::vector < float >
       m_h2_streamlength_per_stream[layer][region]->StatOverflows();
       CHECK(m_thistSvc->regHist(m_path + m_h2_streamlength_per_stream[layer][region]->GetName(), m_h2_streamlength_per_stream[layer][region])); 
       
-      m_h2_streamlength_per_stream_incl_prot[layer][region] = new TH2F(("m_h2_streamlength_per_stream_incl_prot_"+m_regionLabels[region]+"_"+std::to_string(layer)).c_str(), (m_regionLabels[region]+" Stream Length ( + "+std::to_string(m_auroraFactor)+"%) - Layer "+std::to_string(layer)+"; z[mm]; stream length [bits] ("+std::to_string(m_auroraFactor)+"%)").c_str(), int(bins.size()-1), &bins[0], 10000*m_eventsPerStream, 0., 10000.*m_eventsPerStream);
+      m_h2_streamlength_per_stream_incl_prot[layer][region] = new TH2F(("m_h2_streamlength_per_stream_incl_prot_"+m_regionLabels[region]+"_"+std::to_string(layer)).c_str(), (m_regionLabels[region]+" Stream Length + "+std::to_string(int((m_auroraFactor-1.)*100))+"% - Layer "+std::to_string(layer)+"; z[mm]; stream length [bits] + "+std::to_string(int((m_auroraFactor-1.)*100))+"%").c_str(), int(bins.size()-1), &bins[0], 10000*m_eventsPerStream, 0., 10000.*m_eventsPerStream);
       m_h2_streamlength_per_stream_incl_prot[layer][region]->StatOverflows();
       CHECK(m_thistSvc->regHist(m_path + m_h2_streamlength_per_stream_incl_prot[layer][region]->GetName(), m_h2_streamlength_per_stream_incl_prot[layer][region])); 
       

@@ -17,19 +17,25 @@ public:
   //   - rows: number of rows in the chip
   //   - cols_core: number of columns in a core
   //   - rows_core: number of rows in a core
-  //   THE FOLLOWING PARAMETERS ARE USED SINCE FOR ITK STEP3 
-  //   QUAD CHIP MODULES ARE SIMULATED AS BIG SINGLE CHIP MODULES
-  //   - n_colsbtwchips: number of active columns between chips on a quad
-  //   - n_rowsbtwchips: number of active rows between chips on a quad
-  
-  ChipMap_RD53B(int cols, int rows, 
-          int cols_core, int rows_core, 
-          int n_colsbtwchips=4, int n_rowsbtwchips=4, bool use50x50=true):
+  ChipMap_RD53B(int cols, int rows, bool use50x50=true):
           m_cols(cols), m_rows(rows),
-          m_cols_core(cols_core), m_rows_core(rows_core),
-          m_n_colsbtwchips(n_colsbtwchips), m_n_rowsbtwchips(n_rowsbtwchips), m_use50x50(use50x50)
+          m_use50x50(use50x50)
           {
+            // the definition of the cols_core and rows_core depends on the pitch size
+            // such that the core area is the same
+            // In the RD53B manual you have:
+            // - 8 x 2 (cols x rows) quarter cores for 50x50 pixels
+            // - 4 x 4 (cols x rows) quarter cores for 100x25 pixels
+            
             // SETTING ALL QUANTITIES
+            if (m_use50x50) {
+             m_cols_core = 8;
+             m_rows_core = 2;             
+            } else {
+              m_cols_core = 4;
+              m_rows_core = 4;
+            }
+            
             m_ccols = m_cols/m_cols_core;
             m_crows = m_rows/m_rows_core;            
             m_fired_pixels =  std::vector < std::vector < bool > >(m_cols, std::vector < bool > (m_rows, false) );
@@ -92,9 +98,6 @@ private:
                                                           std::string& new_result, bool do_compression, bool do_rightLeft = true);
   std::string isHalfFired(int min_eta, int max_eta,
                           int min_phi, int max_phi);
-  
-  int correctEta(int eta);  
-  int correctPhi(int phi);
   
 };
 
