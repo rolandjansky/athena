@@ -928,10 +928,6 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
                   if( auxio ) {
                      // collect dynamic Aux selection (parse the line, attributes separated by dot)
                      std::set<std::string> attributes;
-                     // Start by resetting the object. This is needed in case a
-                     // previous stream set some selection on it that we don't
-                     // need here.
-                     auxio->selectAux( attributes );
                      if( aux_attr.size() ) {
                         std::stringstream ss(aux_attr);
                         std::string attr;
@@ -944,10 +940,13 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
                            }
                         }
                         // don't let keys with wildcard overwrite existing selections
-                        if( auxio->getSelectedAuxIDs().size() == auxio->getDynamicAuxIDs().size()
-                            || item_key.find('*') == string::npos )
-                           auxio->selectAux(attributes);
+                        // MN: TODO: this condition was always true - need a better check
+                        //if( auxio->getSelectedAuxIDs().size() == auxio->getDynamicAuxIDs().size()
+                        //    || item_key.find('*') == string::npos )
+                        //   auxio->selectAux(attributes);
                      }
+                     // Reset selection even if empty - in case we write multiple streams 
+                     auxio->selectAux( attributes );
                   }
                   // Here comes the compression logic using SG::IAuxStoreCompression
                   // similar to that of SG::IAuxStoreIO above
