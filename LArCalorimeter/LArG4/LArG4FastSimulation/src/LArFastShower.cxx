@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArFastShower.h"
@@ -9,6 +9,8 @@
 #include "LArG4Code/EnergySpot.h"
 
 #include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 #include "AtlasHepMC/IO_GenEvent.h"
 
 #include <stdexcept>
@@ -339,11 +341,11 @@ HepMC::GenEvent * LArFastShower::GetGenEvent(const G4FastTrack &fastTrack)
   // new event. Signal processing = 0, event number "next"
   HepMC::GenEvent* ge = new HepMC::GenEvent( 0, ++m_eventNum);
   // vertex. Position of the shower, time = 0
-  HepMC::GenVertex* gv = new HepMC::GenVertex(
+  HepMC::GenVertexPtr gv = HepMC::newGenVertexPtr(
       HepMC::FourVector(showerPos.x(), showerPos.y(), showerPos.z(), 0) );
   ge->add_vertex(gv);
   // particle. FourVector of the shower, pdgcode, status = 1
-  HepMC::GenParticle* gp = new HepMC::GenParticle(
+  HepMC::GenParticlePtr gp = HepMC::newGenParticlePtr(
       HepMC::FourVector(showerMom.x(), showerMom.y(), showerMom.z(), energy),
       pdgcode, 1 );
   gv->add_particle_out(gp);
