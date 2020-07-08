@@ -45,6 +45,9 @@ def MuonClusterOnTrackCreator(name="MuonClusterOnTrackCreator",**kwargs):
 
     return CfgMgr.Muon__MuonClusterOnTrackCreator(name,**kwargs)
 
+def MMClusterOnTrackCreator(name="MMClusterOnTrackCreator",**kwargs):
+    return CfgMgr.Muon__MMClusterOnTrackCreator(name,**kwargs)
+
 
 def CscClusterOnTrackCreator(name="CscClusterOnTrackCreator",**kwargs):
     kwargs.setdefault("CscStripFitter", getPublicTool("CalibCscStripFitter") )
