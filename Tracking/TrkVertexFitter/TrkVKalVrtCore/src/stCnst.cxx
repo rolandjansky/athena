@@ -27,44 +27,19 @@ void applyConstraints(VKVertex * vk)
   int NTRK=vk->TrackList.size();
   for(int ic=0; ic<NCEntries; ic++){
     vk->ConstraintList[ic]->applyConstraint();
-                 //std::cout<<(*pnt_cnst)<<'\n';
-/*//-------------------------------------
-       int ici=1;  double aa0=vk->ConstraintList[ic]->aa[ici];
-       double der1,der2,der3;
-       for(int it=0; it<NTRK; it++){
-          vk->TrackList[it]->cnstP[0] += 0.0001; calcPointConstraint( pnt_cnst ); 
-          vk->TrackList[it]->cnstP[0] -= 0.0001;
-          der1=(vk->ConstraintList[ic]->aa[ici]-aa0)/0.0001;
-          vk->TrackList[it]->cnstP[1] += 0.0001; calcPointConstraint( pnt_cnst ); 
-          vk->TrackList[it]->cnstP[1] -= 0.0001;
-          der2=(vk->ConstraintList[ic]->aa[ici]-aa0)/0.0001;
-          vk->TrackList[it]->cnstP[2] *= 1.001;  calcPointConstraint( pnt_cnst ); 
-          vk->TrackList[it]->cnstP[2] /= 1.001;
-          der3=(vk->ConstraintList[ic]->aa[ici]-aa0)/(vk->TrackList[it]->cnstP[2]*0.001);
-          std::cout<<"Numerical deriv it="<<it<<"  "<<der1<<", "<<der2<<", "<<der3<<'\n';
-       }
-       vk->cnstV[0] += 0.001; calcPointConstraint( pnt_cnst ); 
-       vk->cnstV[0] -= 0.001; der1=(vk->ConstraintList[ic]->aa[ici]-aa0)/0.001;
-       vk->cnstV[1] += 0.001; calcPointConstraint( pnt_cnst ); 
-       vk->cnstV[1] -= 0.001; der2=(vk->ConstraintList[ic]->aa[ici]-aa0)/0.001;
-       vk->cnstV[2] += 0.001; calcPointConstraint( pnt_cnst ); 
-       vk->cnstV[2] -= 0.001; der3=(vk->ConstraintList[ic]->aa[ici]-aa0)/0.001;
-       std::cout<<"Numerical deriv vrt="<<der1<<", "<<der2<<", "<<der3<<'\n';
-*///------------------------------------------
-     
   }      
 //
 // Effect of symmetrization
 //
     for(int ii=0; ii<(int)vk->ConstraintList.size();ii++){
        for(int ic=0; ic<(int)vk->ConstraintList[ii]->NCDim; ic++){
-         vk->ConstraintList[ii]->h0t[ic].X /= 2. ;
-         vk->ConstraintList[ii]->h0t[ic].Y /= 2. ;
-         vk->ConstraintList[ii]->h0t[ic].Z /= 2. ;
+         vk->ConstraintList[ii]->h0t[ic].X *= 0.5 ;
+         vk->ConstraintList[ii]->h0t[ic].Y *= 0.5 ;
+         vk->ConstraintList[ii]->h0t[ic].Z *= 0.5 ;
          for(int it=0; it<NTRK; it++){
-	    vk->ConstraintList[ii]->f0t.at(it)[ic].X /= 2. ;
-	    vk->ConstraintList[ii]->f0t[it][ic].Y    /= 2. ;
-	    vk->ConstraintList[ii]->f0t[it][ic].Z    /= 2. ;
+	    vk->ConstraintList[ii]->f0t.at(it)[ic].X *= 0.5 ;
+	    vk->ConstraintList[ii]->f0t[it][ic].Y    *= 0.5 ;
+	    vk->ConstraintList[ii]->f0t[it][ic].Z    *= 0.5 ;
          }
        }
     }
