@@ -58,12 +58,22 @@ if is_mc_or_overlay :
         theCalibTool.CalibSequence='EtaJES'
         theCalibTool.lock()
 
+#Import the map tool - it will have to harvest configuration along the path
+from HIEventUtils.HIEventUtilsConf import HIEventShapeMapTool
+theMapTool=HIEventShapeMapTool()
+
 if not HIJetFlags.DoCellBasedSubtraction():
     #Make new event shape at tower level
     from HIGlobal.HIGlobalConf import HIEventShapeMaker
     from HIGlobal.HIGlobalConf import HIEventShapeFillerTool
     #EventShapeKey set to point to weighted container, can remove code on L16
     EventShapeKey=jobproperties.HIGlobalFlags.EventShapeKey()+'Weighted'
+    #Wrapping up
+    theMapTool.ContainerName=EventShapeKey
+    EquipMapTool(map_tool=theMapTool, shape_name=EventShapeKey, suffix='iter0')
+    EquipMapTool(map_tool=theMapTool, shape_name=EventShapeKey, suffix='iter1')
+    jtm.add(theMapTool)
+    
     ESAlg_W=HIEventShapeMaker("ESAlg_W")
     ESAlg_W.OutputContainerKey=EventShapeKey
     ESAlg_W.UseCaloCell=False
@@ -90,6 +100,7 @@ if not HIJetFlags.DoCellBasedSubtraction():
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += HITowerWeightTool()
     ESFiller.TowerWeightTool=TWTool
+    ESFiller.EventShapeMapTool=theMapTool
 
     #Add to top sequence
     ESAlg_W.HIEventShapeFillerTool=ESFiller
