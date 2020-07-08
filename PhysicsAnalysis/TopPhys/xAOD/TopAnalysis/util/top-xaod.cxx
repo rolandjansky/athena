@@ -264,6 +264,24 @@ int main(int argc, char** argv) {
       topConfig->setMapIndex(ShowerIndex);
       topConfig->setShoweringAlgorithm(tdp.getShowering(topConfig->getDSID()));
     }
+    // check year
+    {
+      xAOD::TEvent xaodEvent(xAOD::TEvent::kClassAccess);
+      top::check(xaodEvent.readFrom(testFile.get()), "Failed to read file in");
+      const unsigned int entries = xaodEvent.getEntries();
+      if (entries > 0) {
+        xaodEvent.getEntry(0);
+        const xAOD::EventInfo* eventInfo(nullptr);
+        top::check(xaodEvent.retrieve(eventInfo, topConfig->sgKeyEventInfo()), "Failed to retrieve EventInfo");
+        const unsigned int runnumber = eventInfo->runNumber();
+        const std::string thisYear = topConfig->getYear(runnumber, isMC);
+        topConfig->SetYear(thisYear);
+      } else {
+        topConfig->SetYear("UNKNOWN");
+      }
+      topConfig->SetTriggersToYear(isMC);
+    }
+
   } //close and delete the ptr to testFile
 
 
@@ -275,6 +293,7 @@ int main(int argc, char** argv) {
   // Read metadata
   std::unique_ptr<TFile> metadataInitFile(TFile::Open(filenames[0].c_str()));
   top::check(xaodEvent.readFrom(metadataInitFile.get()), "xAOD::TEvent readFrom failed");
+
 
   // Setup all asg::AsgTools
   top::TopToolStore topTools("top::TopToolStore");

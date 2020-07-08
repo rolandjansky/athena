@@ -157,17 +157,6 @@ namespace top {
     float beam_pos_sigma_y = eventInfo->beamPosSigmaY();
     float beam_pos_sigma_xy = eventInfo->beamPosSigmaXY();
 
-    ///--- Need to know the year for each event until MCP have consistent recommendations for all years ---///
-    unsigned int runnumber = -999999;
-    if (m_config->isMC()) {
-      top::check(eventInfo->isAvailable<unsigned int>(
-                   "RandomRunNumber"), "Require that RandomRunNumber decoration is available.");
-      runnumber = eventInfo->auxdataConst<unsigned int>("RandomRunNumber");
-    } else {
-      runnumber = eventInfo->runNumber();
-    }
-    const std::string thisYear = m_config->getYear(runnumber);
-
     ///-- Get base muons and tracks from xAOD --///
     const xAOD::MuonContainer* xaod(nullptr);
     top::check(evtStore()->retrieve(xaod, m_config->sgKeyMuons()), "Failed to retrieve Muons");

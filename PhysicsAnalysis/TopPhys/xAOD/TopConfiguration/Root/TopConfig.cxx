@@ -457,7 +457,8 @@ namespace top {
     m_useBadBatmanCleaning(true),
     m_badBatmanCleaningMin(276262),
     m_badBatmanCleaningMax(311481),
-    m_useEventLevelJetCleaningTool(false) {
+    m_useEventLevelJetCleaningTool(false),
+    m_year("UNKNOWN") {
     m_allSelectionNames = std::shared_ptr<std::vector<std::string> > (new std::vector<std::string> );
 
     m_systHashPhotons = std::shared_ptr<std::unordered_set<std::size_t> > (new std::unordered_set<std::size_t> );
@@ -3678,17 +3679,57 @@ namespace top {
   }
 
   // Function to return the year of data taking based on either run number (data) or random run number (MC)
-  const std::string TopConfig::getYear(unsigned int runnumber) {
+  std::string TopConfig::getYear(unsigned int runnumber, const bool isMC) {
+
+    if (isMC) {
+      // mc16a - returning only 2015 but is really a mix of 15 + 16
+      if (runnumber == 284500) return "2015";
+      
+      // mc16d
+      if (runnumber == 300000) return "2017";
+      
+      // mc16e
+      if (runnumber == 310000) return "2018";
+
+      return "UNKNOWN";
+    }
+    
+    // Set of runNumbers for data
     // 2015 : 266904 - 284484
     if (runnumber >= 266904 && runnumber <= 284484) return "2015";
 
     // 2016 : 296939 - 311481
     if (runnumber >= 296939 && runnumber <= 311481) return "2016";
 
-    // 2017 : 324320 - 999999
-    if (runnumber >= 324320) return "2017";
+    // 2017 : 324320 - 348835
+    if (runnumber >= 324320 && runnumber <= 348835) return "2017";
 
-    return "ERROR";
+    // 2018 : > 348835 
+    if (runnumber > 348835 && runnumber < 999999) return "2018";
+    
+    return "UNKNOWN";
+  }
+
+  void TopConfig::SetTriggersToYear(const bool isMC) {
+    if (m_year == "UNKNOWN") return;
+
+    std::string year2("");
+    if (isMC && m_year == "2015") year2 = "2016";
+    if (isMC && m_year == "2016") year2 = "2015";
+
+    auto removeYears = [](std::unordered_map<std::string,std::vector<std::string> >& trig, const std::string& year1, const std::string& year2) {
+      auto itr = trig.begin();
+      while (itr != trig.end()) {
+        if ((*itr).first != year1 && (*itr).first != year2) {
+          itr = trig.erase(itr);
+        } else {
+          itr++;
+        }
+      }
+    };
+
+    removeYears(m_trigGlobalConfiguration.trigger, m_year, year2);
+    removeYears(m_trigGlobalConfiguration.trigger_loose, m_year, year2);
   }
 
   void TopConfig::setGlobalTriggerConfiguration(std::vector<std::string> electron_trigger_systematics,
