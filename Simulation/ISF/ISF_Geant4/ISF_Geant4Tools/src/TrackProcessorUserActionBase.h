@@ -64,13 +64,13 @@ private:
 
   /// Set the following information as the currently traced particle
   void setCurrentParticle(ISF::ISFParticle* baseISFParticle,
-                          HepMC::GenParticle* truthPrimary,
-                          HepMC::GenParticle* truthCurrentlyTraced);
+                          HepMC::GenParticlePtr truthPrimary,
+                          HepMC::GenParticlePtr truthCurrentlyTraced);
 
   /// Classify the particle represented by the given set of truth links
-  TrackClassification classify(const HepMC::GenParticle* primaryTruthParticle,
-                               const HepMC::GenParticle* generationZeroTruthParticle,
-                               const HepMC::GenParticle* currentlyTracedHepPart,
+  TrackClassification classify(HepMC::ConstGenParticlePtr primaryTruthParticle,
+                               HepMC::ConstGenParticlePtr generationZeroTruthParticle,
+                               HepMC::ConstGenParticlePtr currentlyTracedHepPart,
                                int regenerationNumber) const;
 
   /// The most recent ISFParticle ancestor that triggers the currently processed G4Track
