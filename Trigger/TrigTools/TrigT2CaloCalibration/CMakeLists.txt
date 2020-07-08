@@ -41,17 +41,6 @@ atlas_add_component( TrigT2CaloCalibration
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} TrigT2CaloCalibrationLib )
 
-atlas_add_poolcnv_library( TrigT2CaloCalibrationPoolCnv
-                           FILES TrigT2CaloCalibration/T2CaloJetCalib_dBObj.h
-                           INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                           LINK_LIBRARIES ${ROOT_LIBRARIES} TrigT2CaloCalibrationLib )
-
-atlas_add_dictionary( TrigT2CaloCalibrationDict
-                      TrigT2CaloCalibration/TrigT2CaloCalibrationDict.h
-                      TrigT2CaloCalibration/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES}  TrigT2CaloCalibrationLib )
-
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
