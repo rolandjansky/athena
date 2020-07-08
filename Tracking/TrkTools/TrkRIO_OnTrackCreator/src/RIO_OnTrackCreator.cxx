@@ -61,97 +61,67 @@ StatusCode Trk::RIO_OnTrackCreator::initialize()
   if (AlgTool::initialize().isFailure()) return StatusCode::FAILURE; 
 
   if (m_mode != "all" && m_mode != "indet" &&m_mode != "muon") {
-    ATH_MSG_FATAL("Mode is set to wrong value " << m_mode << endreq);
+    ATH_MSG_FATAL("Mode is set to wrong value " << m_mode);
     return StatusCode::FAILURE;
   }
 
-  ATH_MSG_INFO( " RIO_OnTrackCreator job configuration:" << std::endl
-		 << std::endl << " (i) The following RIO correction "
-		 << "tools configured (depends on mode = "<< m_mode <<"):" << std::endl
-		 << "     Pixel      : " << m_PixClusCor << std::endl
-		 << "     SCT        : " << m_SctClusCor << std::endl
-		 << "     TRT        : " << m_TRT_Cor       << std::endl
-		 << "     MDT        : " << m_MuonDriftCircleCor << std::endl
-		 << "     CSC/RPC/TGC/sTGC: " << m_MuonClusterCor << std::endl
-		 << "     MM: " << m_MmClusterCor << std::endl
-		 << endreq);
+  ATH_MSG_INFO("RIO_OnTrackCreator job configuration:" << std::endl
+     << std::endl << " (i) The following RIO correction "
+     << "tools configured (depends on mode = "<< m_mode <<"):" << std::endl
+     << "     Pixel      : " << m_PixClusCor << std::endl
+     << "     SCT        : " << m_SctClusCor << std::endl
+     << "     TRT        : " << m_TRT_Cor       << std::endl
+     << "     MDT        : " << m_MuonDriftCircleCor << std::endl
+     << "     CSC/RPC/TGC/sTGC: " << m_MuonClusterCor << std::endl
+     << "     MM: " << m_MmClusterCor);
 
   // Get the correction tool to create Pixel/SCT/TRT RIO_onTrack
 
   if (m_mode == "all" || m_mode == "indet") {
-
     if (!m_PixClusCor.empty()) {
-      if ( m_PixClusCor.retrieve().isFailure() ) {
-        ATH_MSG_FATAL("Failed to retrieve tool " << m_PixClusCor << endreq);
-	      return StatusCode::FAILURE;
-      } else {
-        ATH_MSG_INFO( "Retrieved tool " << m_PixClusCor << endreq);
-      }
+      ATH_CHECK(m_PixClusCor.retrieve());
+      ATH_MSG_INFO("Retrieved tool " << m_PixClusCor);
     } else {
       m_doPixel = false;
     }
 
     if (!m_SctClusCor.empty()) {
-      if ( m_SctClusCor.retrieve().isFailure() ) {
-         ATH_MSG_FATAL("Failed to retrieve tool " << m_SctClusCor << endreq);
-         return StatusCode::FAILURE;
-      } else {
-        ATH_MSG_INFO("Retrieved tool " << m_SctClusCor << endreq);
-      }
+      ATH_CHECK(m_SctClusCor.retrieve());
+      ATH_MSG_INFO("Retrieved tool " << m_SctClusCor);
     } else {
       m_doSCT = false;
     }
 
     if (!m_TRT_Cor.empty()) {
-      if ( m_TRT_Cor.retrieve().isFailure() ) {
-         ATH_MSG_FATAL("Failed to retrieve tool " << m_TRT_Cor << endreq);
-         return StatusCode::FAILURE;
-      } else {
-        ATH_MSG_INFO("Retrieved tool " << m_TRT_Cor << endreq);
-      }
+      ATH_CHECK(m_TRT_Cor.retrieve());
+      ATH_MSG_INFO("Retrieved tool " << m_TRT_Cor);
     } else {
       m_doTRT = false;
     }
   }
-  
+
   if (m_mode == "all" || m_mode == "muon") {
+    ATH_CHECK(m_MuonDriftCircleCor.retrieve());
+    ATH_MSG_INFO("Retrieved tool " << m_MuonDriftCircleCor);
 
-    if ( m_MuonDriftCircleCor.retrieve().isFailure() ) {
-      ATH_MSG_FATAL("Failed to retrieve tool " << m_MuonDriftCircleCor << endreq);
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_INFO("Retrieved tool " << m_MuonDriftCircleCor << endreq);
-    }
+    ATH_CHECK(m_MuonClusterCor.retrieve());
+    ATH_MSG_INFO("Retrieved tool " << m_MuonClusterCor);
 
-    if ( m_MuonClusterCor.retrieve().isFailure() ) {
-      ATH_MSG_FATAL( "Failed to retrieve tool " << m_MuonClusterCor << endreq);
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_INFO("Retrieved tool " << m_MuonClusterCor << endreq);
-    }
-    
-    if ( m_MmClusterCor.retrieve().isFailure() ) {
-      ATH_MSG_FATAL( "Failed to retrieve tool " << m_MmClusterCor << endreq);
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_INFO("Retrieved tool " << m_MmClusterCor << endreq);
-    }
+    ATH_CHECK(m_MmClusterCor.retrieve());
+    ATH_MSG_INFO("Retrieved tool " << m_MmClusterCor);
   }
-  
+
   // Set up ATLAS ID helper to be able to identify the RIO's det-subsystem.
-  if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
-    ATH_MSG_ERROR ("Could not get AtlasDetectorID helper" );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(detStore()->retrieve(m_idHelper, "AtlasID"));
 
-  ATH_MSG_INFO("initialize() successful in " << name() << endreq);
+  ATH_MSG_INFO("initialize() successful in " << name());
   return StatusCode::SUCCESS;
 }
 
 // finalise
 StatusCode Trk::RIO_OnTrackCreator::finalize()
 {
-  ATH_MSG_INFO("finalize() successful in " << name() << endreq);
+  ATH_MSG_INFO("finalize() successful in " << name());
   return StatusCode::SUCCESS;
 }
 
