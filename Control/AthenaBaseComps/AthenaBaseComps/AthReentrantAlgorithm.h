@@ -136,6 +136,14 @@ class AthReentrantAlgorithm
    */
   virtual const DataObjIDColl& extraOutputDeps() const override;
 
+  virtual bool filterPassed() const {
+    return execState( Gaudi::Hive::currentContext() ).filterPassed();
+  }
+
+  virtual void setFilterPassed( bool state ) const {
+    execState( Gaudi::Hive::currentContext() ).setFilterPassed( state );
+  }
+
 
  private: 
 
