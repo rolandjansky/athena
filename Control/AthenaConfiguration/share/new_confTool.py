@@ -32,7 +32,7 @@ def main(args):
             sys.exit("ERROR, can diff exactly two files at a time, got: %s" % args.file)
         configRef = _loadSingleFile(args.file[0])
         configChk = _loadSingleFile(args.file[1])
-        _compareConfig(configRef, configChk)
+        _compareConfig(configRef, configChk, args)
 
 
 def _loadSingleFile(fname):
