@@ -83,7 +83,6 @@ namespace InDet {
 
       StatusCode execute_r (const EventContext& ctx) const;
   
-  //    ServiceHandle<IRegSelSvc>          m_regionSelector;      //!< region selector service
       ///////////////////////////////////////////////////////////////////
       /* Protected data                                                */
       ///////////////////////////////////////////////////////////////////
