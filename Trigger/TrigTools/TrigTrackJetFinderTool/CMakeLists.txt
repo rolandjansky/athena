@@ -21,7 +21,7 @@ atlas_add_library( TrigTrackJetFinderToolLib
                    TrigTrackJetFinderTool/*.h
                    INTERFACE
                    PUBLIC_HEADERS TrigTrackJetFinderTool
-                   LINK_LIBRARIES AthenaBaseComps GaudiKernel Particle TrigInDetEvent TrkTrack )
+                   LINK_LIBRARIES AthenaBaseComps GaudiKernel Particle TrigInDetEvent TrigInDetToolInterfacesLib TrkTrack )
 
 atlas_add_component( TrigTrackJetFinderTool
                      src/*.cxx
