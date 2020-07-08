@@ -207,6 +207,11 @@ def ApplySubtractionToClusters(**kwargs) :
     jtm.jetrecs += [theAlg]
     jtm.HIJetRecs+=[theAlg]
 
+#New util - adds maps keys to the maps tool before initialization
+def EquipMapTool(map_tool, shape_name, **kwargs) :
+    out_shape_name=shape_name
+    if 'suffix' in kwargs.keys() : out_shape_name+='_%s' % kwargs['suffix']
+    map_tool.JetIterNames+=[ shape_name, out_shape_name ]
 
 def AddIteration(seed_container,shape_name, **kwargs) :
 
@@ -239,6 +244,7 @@ def AddIteration(seed_container,shape_name, **kwargs) :
     iter_tool.Modulator=mod_tool
     iter_tool.ShallowCopy=False
     iter_tool.ModulationEventShapeKey=mod_shape_key
+    iter_tool.EventShapeMapTool=jtm.theMapTool
 
     if 'track_jet_seeds' in kwargs.keys() :
         iter_tool.TrackJetSeedContainerKey=kwargs['track_jet_seeds']
