@@ -68,8 +68,8 @@ namespace Rec{
           if(impactA0>m_cutA0)        continue;
           if(m_fillHist){ m_hb_trkSelect->Fill( 3., m_w_1);}
      
-          double bX=xAODwrk->BeamX + (perigeePos.z()-xAODwrk->BeamZ)*xAODwrk->tanBeamTiltX;
-          double bY=xAODwrk->BeamY + (perigeePos.z()-xAODwrk->BeamZ)*xAODwrk->tanBeamTiltY;
+          double bX=xAODwrk->beamX + (perigeePos.z()-xAODwrk->beamZ)*xAODwrk->tanBeamTiltX;
+          double bY=xAODwrk->beamY + (perigeePos.z()-xAODwrk->beamZ)*xAODwrk->tanBeamTiltY;
           double impactBeam=sqrt( (perigeePos.x()-bX)*(perigeePos.x()-bX) + (perigeePos.y()-bY)*(perigeePos.y()-bY));
 //----Anti-pileup
           double signifBeam = impactBeam    / sqrt(CovTrkMtx00);

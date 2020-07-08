@@ -64,7 +64,7 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
     m_calibFileName("Fake2TrVertexReject.MVA.v01.root"),
     m_SV2T_BDT(nullptr),
     m_beamService("BeamCondSvc",name),
-    m_fitterSvc("Trk::TrkVKalVrtFitter/VertexFitterTool",this)
+    m_fitSvc("Trk::TrkVKalVrtFitter/VertexFitterTool",this)
    {
 //
 // Declare additional interface
@@ -116,7 +116,7 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
     declareProperty("calibFileName", m_calibFileName, " MVA calibration file for 2-track fake vertices removal" );
 
     declareProperty("BeamSpotSvc",         m_beamService, "Name of the BeamSpot service");
-    declareProperty("VertexFitterTool",    m_fitterSvc, "Name of the Vertex Fitter tool");
+    declareProperty("VertexFitterTool",    m_fitSvc, "Name of the Vertex Fitter tool");
 //
     m_massPi  =  Trk::ParticleMasses().mass[Trk::pion];
     m_massP   =  Trk::ParticleMasses().mass[Trk::proton];
@@ -140,17 +140,17 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
 
      //------------------------------------------
      ATH_CHECK( m_beamService.retrieve() );
-     ATH_CHECK(m_extrapolator.retrieve());
+     ATH_CHECK( m_extrapolator.retrieve() );
 
-     if (m_fitterSvc.retrieve().isFailure()) {
-        ATH_MSG_DEBUG("Can't find Trk::TrkVKalVrtFitter");
-        return StatusCode::FAILURE;
-     } else ATH_MSG_DEBUG("NewVrtSecInclusiveTool TrkVKalVrtFitter found");
-     m_fitSvc = dynamic_cast<Trk::TrkVKalVrtFitter*>(&(*m_fitterSvc));
-     if(!m_fitSvc){
-        ATH_MSG_DEBUG(" No implemented Trk::ITrkVKalVrtFitter interface");
-        return StatusCode::FAILURE;
-     }
+     ATH_CHECK( m_fitSvc.retrieve() );
+
+     //ATH_CHECK( m_fitterSvc.retrieve() );
+     ATH_MSG_DEBUG("NewVrtSecInclusiveTool TrkVKalVrtFitter found");
+     //m_fitSvc = dynamic_cast<Trk::TrkVKalVrtFitter*>(&(*m_fitterSvc));
+     //if(!m_fitSvc){
+     //   ATH_MSG_DEBUG(" No implemented Trk::ITrkVKalVrtFitter interface");
+     //   return StatusCode::FAILURE;
+     //}
 
 //------------------------------------------       
 //
@@ -328,9 +328,9 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
     workVectorArrxAOD * tmpVectxAOD=new workVectorArrxAOD();
     tmpVectxAOD->inpTrk.resize(inpTrk.size());
     std::copy(inpTrk.begin(),inpTrk.end(), tmpVectxAOD->inpTrk.begin());
-    tmpVectxAOD->BeamX=m_beamService->beamPos().x();
-    tmpVectxAOD->BeamY=m_beamService->beamPos().y();
-    tmpVectxAOD->BeamZ=m_beamService->beamPos().z();
+    tmpVectxAOD->beamX=m_beamService->beamPos().x();
+    tmpVectxAOD->beamY=m_beamService->beamPos().y();
+    tmpVectxAOD->beamZ=m_beamService->beamPos().z();
     tmpVectxAOD->tanBeamTiltX=tan(m_beamService->beamTilt(0));
     tmpVectxAOD->tanBeamTiltY=tan(m_beamService->beamTilt(1));
     

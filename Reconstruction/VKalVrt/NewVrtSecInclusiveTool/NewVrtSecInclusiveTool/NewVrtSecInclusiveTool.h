@@ -64,9 +64,9 @@ namespace Rec {
         std::vector<const xAOD::TrackParticle*> listSelTracks;  // Selected tracks after quality cuts
         std::vector<const xAOD::TrackParticle*> tmpListTracks;
         std::vector<const xAOD::TrackParticle*> inpTrk;         // All tracks provided to tool
-        double BeamX=0.;
-        double BeamY=0.;
-        double BeamZ=0.;
+        double beamX=0.;
+        double beamY=0.;
+        double beamZ=0.;
         double tanBeamTiltX=0.;
         double tanBeamTiltY=0.;
   };
@@ -167,9 +167,10 @@ namespace Rec {
       std::unique_ptr<MVAUtils::BDT> m_SV2T_BDT;
 
       ServiceHandle< IBeamCondSvc > m_beamService; 
-      ToolHandle<Trk::IVertexFitter>  m_fitterSvc;
+      //ToolHandle<Trk::IVertexFitter>  m_fitterSvc;
       ToolHandle<Trk::IExtrapolator>  m_extrapolator{this,"ExtrapolatorName","Trk::Extrapolator/Extrapolator"};
-      Trk::TrkVKalVrtFitter*   m_fitSvc{};
+      ToolHandle<Trk::TrkVKalVrtFitter>  m_fitSvc;
+      //Trk::TrkVKalVrtFitter*   m_fitSvc{};
 
       double m_massPi {};
       double m_massP {};
@@ -283,7 +284,7 @@ namespace Rec {
 //   Private technical functions
 //
 //
-      std::vector<xAOD::Vertex*> GetVrtSecMulti(  workVectorArrxAOD *, const xAOD::Vertex  & PrimVrt) const;
+      std::vector<xAOD::Vertex*> GetVrtSecMulti(  workVectorArrxAOD * inpParticlesxAOD, const xAOD::Vertex  & primVrt) const;
 
       void  TrackClassification(std::vector<WrkVrt> *WrkVrtSet, 
                                 std::vector< std::deque<long int> > *TrkInVrt) const;
