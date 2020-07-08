@@ -242,9 +242,7 @@ class CheckLogStep(Step):
 
     def configure(self, test):
         if self.config_file is None:
-            if test.package_name == 'TrigUpgradeTest':
-                self.config_file = 'checklogTrigUpgradeTest.conf'
-            elif test.package_name == 'TrigP1Test':
+            if test.package_name == 'TrigP1Test':
                 self.config_file = 'checklogTrigP1Test.conf'
             elif test.package_name == 'TrigValTools':
                 self.config_file = 'checklogTrigValTools.conf'
