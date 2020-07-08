@@ -61,7 +61,7 @@ public:
   // enums
   //////////////////////////////////////////////////////////////////////////
   enum EDataBaseType {kOldDB,kNewDB};
-  enum EstCalc  {kAlgStandard,kAlgScalingToXe,kAlgReweight,kAlgReweightTrunkOne};
+  enum EstCalc  {kAlgStandard,kAlgReweight,kAlgReweightTrunkOne};
   enum EToTEstimatorType {kToTLargerIsland,kToTHighOccupancy,kToTHighOccupancySmart};
 
 private:
@@ -84,8 +84,7 @@ private:
 
   int  m_whichToTEstimatorAlgo;     // If true - use getToTNewApproach(), else - use getToTlargerIsland()
   int  m_useTrackPartWithGasType;   // If kUnset - use any gas for dEdX calculation;
-  int  m_toolScenario;              // Algorithm type for dEdX estimator calculation:
-  bool m_applyMimicToXeCorrection;  // Possibility to apply mimicToXenon function for any algorithm. For kAlgScalingToXe that always true.
+  int  m_toolScenario;              // Algorithm type for dEdX estimator calculation;
 
 
   // Event info
@@ -132,7 +131,7 @@ public:
 protected:
   /** 
    * @brief function to define what is a good hit to be used for dEdx calculation
-   * cuts on track level can be made later by the user. Also returns the length in the straw.
+   * cuts on track level can be made latekAlgStandardr by the user. Also returns the length in the straw.
    * @param trackState measurement on track
    * @param length length in straw
    * @return decision
@@ -259,28 +258,6 @@ protected:
    * @return ToT
    */
   int TrailingEdge_v3(unsigned int BitPattern) const;
-
-  /**
-   * @brief function to compute correction factor to mimic ToT Ar to the Xe
-   * @param driftradius
-   * @param straw layer index
-   * @param sign for positive or negative side
-   * @param gas type variable (0-Xe,1-Ar,2-Kr)
-   * @param bool variable to specify whether data or MC correction
-   * @return correction
-   */
-  double mimicToXeHit_Endcap(EGasType gasType, double driftRadius, int Layer, int sign) const;
-
-  /**
-   * @brief function to compute correction factor to mimic ToT Ar to the Xe
-   * @param driftradius
-   * @param layer index
-   * @param straw layer index
-   * @param gas type variable (0-Xe,1-Ar,2-Kr)
-   * @param bool variable to specify whether data or MC correction
-   * @return correction
-   */
-  double mimicToXeHit_Barrel(EGasType gasType, double driftRadius, int Layer, int Strawlayer) const;
     
   /**
    * @brief return gas type for that hit
@@ -368,44 +345,30 @@ private:
 public:
   // Setters and getters
 
-  void SetDefaultConfiguration();
+  void  setDefaultConfiguration();
 
-  bool  GetStatusRSCorrection() const         { return m_corrected;         }
-  bool  GetStatusUseHThits() const            { return m_useHThits;         }
+  bool  getStatusRSCorrection() const         { return m_corrected;         }
+  bool  getStatusUseHThits() const            { return m_useHThits;         }
 
-  void  SetLargerIslandToTEstimatorAlgo()           { m_whichToTEstimatorAlgo=kToTLargerIsland;        }
-  void  SetHighOccupancyToTEstimatorAlgo()          { m_whichToTEstimatorAlgo=kToTHighOccupancy;       }
-  void  SetHighOccupancySmartToTEstimatorAlgo()     { m_whichToTEstimatorAlgo=kToTHighOccupancySmart;  }
-  bool  GetStatusToTEstimatorAlgo() const           { return m_whichToTEstimatorAlgo;                  }
+  void  setStatusToTEstimatorAlgo(EToTEstimatorType totType)   { m_whichToTEstimatorAlgo = totType; }
+  bool  getStatusToTEstimatorAlgo() const                      { return m_whichToTEstimatorAlgo;    }
 
-  void  SetMinRtrack(float minRtrack)         { m_trackConfig_minRtrack=minRtrack;}
-  float GetMinRtrack() const                  { return m_trackConfig_minRtrack;   }
+  void  setMinRtrack(float minRtrack)         { m_trackConfig_minRtrack=minRtrack;}
+  float getMinRtrack() const                  { return m_trackConfig_minRtrack;   }
 
-  void  SetMaxRtrack(float maxRtrack)         { m_trackConfig_maxRtrack=maxRtrack;}
-  float GetMaxRtrack() const                  { return m_trackConfig_maxRtrack;   }
+  void  setMaxRtrack(float maxRtrack)         { m_trackConfig_maxRtrack=maxRtrack;}
+  float getMaxRtrack() const                  { return m_trackConfig_maxRtrack;   }
 
-  void  SwitchOnUseZeroRHitCut()              { m_useZeroRHitCut=true;   }
-  void  SwitchOffUseZeroRHitCut()             { m_useZeroRHitCut=false;  }
-  bool  GetStatusUseZeroRHitCut() const       { return m_useZeroRHitCut; }
+  void  setStatusUseZeroRHitCut(bool value)   { m_useZeroRHitCut = value; }
+  bool  getStatusUseZeroRHitCut() const       { return m_useZeroRHitCut; }
 
-  void  SetXenonFordEdXCalculation()          { m_useTrackPartWithGasType=kXenon;   }
-  void  SetArgonFordEdXCalculation()          { m_useTrackPartWithGasType=kArgon;   }
-  void  SetKryptonFordEdXCalculation()        { m_useTrackPartWithGasType=kKrypton; }
-  void  UnsetGasTypeFordEdXCalculation()      { m_useTrackPartWithGasType=kUnset;   }
-  int   GetGasTypeFordEdXCalculation() const  { return m_useTrackPartWithGasType;   }
+  void  setGasTypeFordEdXCalculation(EGasType gasType) { m_useTrackPartWithGasType = gasType; }
+  int   getGasTypeFordEdXCalculation() const           { return m_useTrackPartWithGasType;    }
 
-  void  UseStandardAlgorithm()                { m_toolScenario=kAlgStandard;         }
-  void  UseScalingAlgorithm()                 { m_toolScenario=kAlgScalingToXe; SwitchOnMimicToXeCorrection(); }
-  void  UseReweightingAlgorithm()             { m_toolScenario=kAlgReweight;         }
-  void  UseReweightingAlgorithmTrunkOne()     { m_toolScenario=kAlgReweightTrunkOne; }
-  int   GetStatusAlgorithm() const            { return m_toolScenario;               }
+  void  setAlgorithm(EstCalc alg)             { m_toolScenario=alg;    }
+  int   getAlgorithm() const                  { return m_toolScenario; }
 
-  void  SwitchOnMimicToXeCorrection()         { m_applyMimicToXeCorrection=true;   }
-  void  SwitchOffMimicToXeCorrection()        { m_applyMimicToXeCorrection=false;  }
-  bool  GetStatusMimicToXeCorrection() const  { return m_applyMimicToXeCorrection; }
-
-
-  void  ShowDEDXSetup() const;
+  void  showDEDXSetup() const;
 
   
 };

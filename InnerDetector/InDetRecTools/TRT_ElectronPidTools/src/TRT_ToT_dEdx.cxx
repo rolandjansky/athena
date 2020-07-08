@@ -49,7 +49,7 @@ TRT_ToT_dEdx::TRT_ToT_dEdx(const std::string& t, const std::string& n, const IIn
   declareProperty("AssociationTool", m_assoTool);
   declareProperty("TRT_LocalOccupancyTool", m_localOccTool);
   
-  SetDefaultConfiguration();
+  setDefaultConfiguration();
 
   m_timingProfile         = nullptr;
   m_trtId                                         = nullptr;
@@ -57,7 +57,7 @@ TRT_ToT_dEdx::TRT_ToT_dEdx(const std::string& t, const std::string& n, const IIn
 
 
 
-void TRT_ToT_dEdx::SetDefaultConfiguration()
+void TRT_ToT_dEdx::setDefaultConfiguration()
 {
   declareProperty("TRT_dEdx_divideByL",m_divideByL=true);
   declareProperty("TRT_dEdx_useHThits",m_useHThits=true);
@@ -65,7 +65,6 @@ void TRT_ToT_dEdx::SetDefaultConfiguration()
   declareProperty("TRT_dEdx_whichToTEstimatorAlgo",m_whichToTEstimatorAlgo=kToTLargerIsland);
   declareProperty("TRT_dEdx_useTrackPartWithGasType",m_useTrackPartWithGasType=kUnset);
   declareProperty("TRT_dEdx_toolScenario",m_toolScenario=kAlgReweightTrunkOne);
-  declareProperty("TRT_dEdx_applyMimicToXeCorrection",m_applyMimicToXeCorrection=false);
   declareProperty("TRT_dEdx_trackConfig_maxRtrack",m_trackConfig_maxRtrack=1.85);
   declareProperty("TRT_dEdx_trackConfig_minRtrack",m_trackConfig_minRtrack=0.15);
   declareProperty("TRT_dEdx_useZeroRHitCut",m_useZeroRHitCut=true);
@@ -74,25 +73,24 @@ void TRT_ToT_dEdx::SetDefaultConfiguration()
 
 
 
-void TRT_ToT_dEdx::ShowDEDXSetup() const
+void TRT_ToT_dEdx::showDEDXSetup() const
 {
-  ATH_MSG_DEBUG("//////////////////////////////////////////////////////////////////");
-  ATH_MSG_DEBUG("///              TRT_ToT_Tool setup configuration              ///");
-  ATH_MSG_DEBUG(" ");
-  ATH_MSG_DEBUG("m_divideByL                     ="<<m_divideByL<<"");
-  ATH_MSG_DEBUG("m_useHThits                     ="<<m_useHThits<<"");
-  ATH_MSG_DEBUG("m_corrected                     ="<<m_corrected<<"");
-  ATH_MSG_DEBUG("m_whichToTEstimatorAlgo         ="<<m_whichToTEstimatorAlgo<<"");
-  ATH_MSG_DEBUG("m_useTrackPartWithGasType       ="<<m_useTrackPartWithGasType<<"");
-  ATH_MSG_DEBUG("m_toolScenario                  ="<<m_toolScenario<<"");
-  ATH_MSG_DEBUG("m_applyMimicToXeCorrection      ="<<m_applyMimicToXeCorrection<<"");
-  ATH_MSG_DEBUG(" ");
-  ATH_MSG_DEBUG("m_trackConfig_minRtrack         ="<<m_trackConfig_minRtrack<<"");
-  ATH_MSG_DEBUG("m_trackConfig_maxRtrack         ="<<m_trackConfig_maxRtrack<<"");
-  ATH_MSG_DEBUG("m_useZeroRHitCut                ="<<m_useZeroRHitCut<<"");
-  ATH_MSG_DEBUG("m_isData                        ="<<m_isData<<"");
-  ATH_MSG_DEBUG(" ");
-  ATH_MSG_DEBUG("//////////////////////////////////////////////////////////////////");
+  ATH_MSG_INFO("//////////////////////////////////////////////////////////////////");
+  ATH_MSG_INFO("///              TRT_ToT_Tool setup configuration              ///");
+  ATH_MSG_INFO(" ");
+  ATH_MSG_INFO("m_divideByL                     ="<<m_divideByL<<"");
+  ATH_MSG_INFO("m_useHThits                     ="<<m_useHThits<<"");
+  ATH_MSG_INFO("m_corrected                     ="<<m_corrected<<"");
+  ATH_MSG_INFO("m_whichToTEstimatorAlgo         ="<<m_whichToTEstimatorAlgo<<"");
+  ATH_MSG_INFO("m_useTrackPartWithGasType       ="<<m_useTrackPartWithGasType<<"");
+  ATH_MSG_INFO("m_toolScenario                  ="<<m_toolScenario<<"");
+  ATH_MSG_INFO(" ");
+  ATH_MSG_INFO("m_trackConfig_minRtrack         ="<<m_trackConfig_minRtrack<<"");
+  ATH_MSG_INFO("m_trackConfig_maxRtrack         ="<<m_trackConfig_maxRtrack<<"");
+  ATH_MSG_INFO("m_useZeroRHitCut                ="<<m_useZeroRHitCut<<"");
+  ATH_MSG_INFO("m_isData                        ="<<m_isData<<"");
+  ATH_MSG_INFO(" ");
+  ATH_MSG_INFO("//////////////////////////////////////////////////////////////////");
 }
 
 
@@ -148,24 +146,7 @@ StatusCode TRT_ToT_dEdx::initialize()
     return StatusCode::FAILURE;
   }
       
-  //  ShowDEDXSetup();  
-
-  ATH_MSG_INFO("//////////////////////////////////////////////////////////////////");
-  ATH_MSG_INFO("///              TRT_ToT_Tool setup configuration              ///");
-  ATH_MSG_INFO(" ");
-  ATH_MSG_INFO("m_useHThits                     ="<<m_useHThits<<"");
-  ATH_MSG_INFO("m_corrected                     ="<<m_corrected<<"");
-  ATH_MSG_INFO("m_whichToTEstimatorAlgo         ="<<m_whichToTEstimatorAlgo<<"");
-  ATH_MSG_INFO("m_useTrackPartWithGasType       ="<<m_useTrackPartWithGasType<<"");
-  ATH_MSG_INFO("m_toolScenario                  ="<<m_toolScenario<<"");
-  ATH_MSG_INFO("m_applyMimicToXeCorrection      ="<<m_applyMimicToXeCorrection<<"");
-  ATH_MSG_INFO(" ");
-  ATH_MSG_INFO("m_trackConfig_minRtrack         ="<<m_trackConfig_minRtrack<<"");
-  ATH_MSG_INFO("m_trackConfig_maxRtrack         ="<<m_trackConfig_maxRtrack<<"");
-  ATH_MSG_INFO("m_useZeroRHitCut                ="<<m_useZeroRHitCut<<"");
-  ATH_MSG_INFO("m_isData                        ="<<m_isData<<"");
-  ATH_MSG_INFO(" ");
-  ATH_MSG_INFO("//////////////////////////////////////////////////////////////////");
+  showDEDXSetup();
 
   ATH_MSG_INFO ( name() << " initialize() successful" );    
   return StatusCode::SUCCESS;
@@ -280,6 +261,7 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, EOccupancyCorrection correcti
   }
 
   //    Average interactions per crossing for the current BCID
+  // TODO: we should really not hard-code a mu to nVtx conversion
   double mu = eventInfoDecor(0);
   if(m_isData) {
     nVtx = 1.3129 + 0.716194*mu + (-0.00475074)*mu*mu;
@@ -302,7 +284,7 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, EOccupancyCorrection correcti
 
   double correctionFactor = 1.;
   
-  if(m_toolScenario==kAlgStandard || m_toolScenario==kAlgScalingToXe) {
+  if (m_toolScenario==kAlgStandard) {
     std::vector<double> vecToT;
     double ToTsum = 0;
 
@@ -458,7 +440,7 @@ double TRT_ToT_dEdx::usedHits(const Trk::Track* track) const
   DataVector<const Trk::TrackStateOnSurface>::const_iterator itr  = vtsos->begin();
   DataVector<const Trk::TrackStateOnSurface>::const_iterator itre = vtsos->end();  
   
-  if (m_toolScenario==kAlgStandard || m_toolScenario==kAlgScalingToXe) {
+  if (m_toolScenario==kAlgStandard) {
     int nhits =0;
 
     for ( ; itr!=itre ; ++itr) {
@@ -809,36 +791,7 @@ TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackStateOnSurface* itr, double leng
   if(gasType==kUnset) {
     ATH_MSG_ERROR("correctToT_corrRZ(const Trk::TrackStateOnSurface *itr):: Gas type in straw is kUnset! Return ToT = 0");
     return 0;
-  }  
-  
-  if(m_applyMimicToXeCorrection || m_toolScenario==kAlgScalingToXe)
-    {
-      if(gasType!=kXenon) // mimic to Xenon ToT, so we skip Xenon hits
-        {     
-          double mimicCorr = 0.;
-          if (abs(HitPart)==1) // Barrel
-            mimicCorr=mimicToXeHit_Barrel(gasType, HitRtrack, Layer, StrawLayer);
-          else // End-cap
-            mimicCorr=mimicToXeHit_Endcap(gasType, HitRtrack, Layer, HitPart); 
-
-          if(mimicCorr==0.)
-            {
-              ATH_MSG_FATAL("correctToT_corrRZ():: mimicCorr = "<<mimicCorr<<"");
-              throw std::exception();
-            }
-          ToT/=mimicCorr;
-
-          if(m_whichToTEstimatorAlgo==kToTLargerIsland){
-            if(ToT<3.125) ToT = 3.125;
-            if(ToT>75)    ToT = 75;
-          }else{
-            if(ToT<3.125) ToT = 3.125;
-            if(ToT>62.5)  ToT = 62.5;
-          }
-
-          gasType=kXenon; // After mimic correction we work with that hit as Xenon hit.
-        }  
-    }
+  }
  
   if(m_divideByL && length>0) ToT = ToT/length;
   if(!m_corrected) return ToT;
@@ -893,25 +846,6 @@ double TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackParameters* trkP,const In
   unsigned int BitPattern = driftcircle->prepRawData()->getWord();
   double ToT = getToT(BitPattern);
   if(ToT==0) return false; // If ToT for this hit equal 0, skip it.
-  
-  if(m_applyMimicToXeCorrection==true || m_toolScenario==kAlgScalingToXe) {
-    if(gasType!=kXenon) // mimic to Xenon ToT, so we skip Xenon hits
-    {     
-      if (abs(HitPart)==1) // Barrel
-        ToT/=mimicToXeHit_Barrel(gasType, HitRtrack, Layer, StrawLayer);
-      else // End-cap
-        ToT/=mimicToXeHit_Endcap(gasType, HitRtrack, Layer, HitPart); 
-
-      if(m_whichToTEstimatorAlgo==kToTLargerIsland){
-        if (ToT<3.125) ToT = 3.125;
-        if (ToT>75)    ToT = 75;
-      } else {
-        if (ToT<3.125) ToT = 3.125;
-        if (ToT>62.5)  ToT = 62.5;
-      }
-      gasType = kXenon; // After mimic correction we work with that hit as Xenon hit.
-    }  
-  }
 
   const Amg::Vector3D& gp = driftcircle->globalPosition();
   double HitR = sqrt( gp.x() * gp.x() + gp.y() * gp.y() );
@@ -1379,84 +1313,6 @@ int TRT_ToT_dEdx::TrailingEdge_v3(unsigned int BitPattern) const
   if (24 == i) return i;
 
   return (23 - i);
-}
-
- 
-double TRT_ToT_dEdx::mimicToXeHit_Endcap(EGasType gasType, double driftRadius, int Layer, int sign) const
-{
-  SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
-  const TRTDedxcorrection* dEdxCorrection{*readHandle};
-  if(dEdxCorrection==nullptr)
-    {
-      ATH_MSG_ERROR(" mimicToXeHit_Endcap: Could not find any dEdxCorrection in CondStore. Return zero.");
-      return 0;
-    }
-
-
-  double r = fabs(driftRadius); 
-  double a; 
-
-  float rCopy = r;
-  rCopy*=10;
-  int rBin = int(rCopy);
-  if(rBin<0 || rBin>19)
-    {
-      ATH_MSG_FATAL("mimicToXeHit_Endcap():: rBin = "<<rBin<<" and out of range [0,19].");
-      throw std::exception();
-    }
-
-  int side = 0; // A side
-  if(sign <0) side =1; // C side
-  if(m_isData)
-    a = dEdxCorrection->paraEndMimicToXeDATA[gasType][(side*14+Layer)*20+(rBin)];
-  else
-    a = dEdxCorrection->paraEndMimicToXeMC[gasType][(side*14+Layer)*20+(rBin)];
-
-  ATH_MSG_DEBUG("mimicToXeHit_Endcap():: isData = " << m_isData << " gasTypeInStraw = " << gasType
-                << " side = " << side << " Layer = " << Layer << " rBin = " << rBin <<" BINPOS = " << (side*14+Layer)*20+(rBin) 
-                << " a = " << a << "" );
-
-  return a;
-}
-
-double TRT_ToT_dEdx::mimicToXeHit_Barrel(EGasType gasType, double driftRadius, int Layer, int Strawlayer) const 
-{
-
-  SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
-  const TRTDedxcorrection* dEdxCorrection{*readHandle};
-  if(dEdxCorrection==nullptr)
-    {
-      ATH_MSG_ERROR(" mimicToXeHit_Barrel: Could not find any dEdxCorrection in CondStore. Return zero.");
-      return 0;
-    }
-
-  double r = fabs(driftRadius); 
-  double a;  
-
-  float rCopy = r;
-  rCopy*=10;
-  int rBin = int(rCopy);
-  if(rBin<0 || rBin>19)
-    {
-      ATH_MSG_FATAL("mimicToXeHit_Barrel():: rBin = "<<rBin<<" and out of range [0,19].");
-      throw std::exception();
-    }
-
-  if(Layer==0 && Strawlayer<9){ // short straws
-    if(m_isData)
-      a = dEdxCorrection->paraShortMimicToXeDATA[gasType][Strawlayer*20+(rBin)];
-    else
-      a = dEdxCorrection->paraShortMimicToXeMC[gasType][Strawlayer*20+(rBin)];
-  }else{
-    if(m_isData)
-      a = dEdxCorrection->paraLongMimicToXeDATA[gasType][Layer*30*20+Strawlayer*20+(rBin)];
-    else
-      a = dEdxCorrection->paraLongMimicToXeMC[gasType][Layer*30*20+Strawlayer*20+(rBin)];
-  }
-
-  ATH_MSG_DEBUG("mimicToXeHit_Barrel():: isData = " << m_isData << " Layer = " << Layer << " Strawlayer = " << Strawlayer << " rBin = " << rBin << " a = " << a << "" );
-
-  return a;
 }
 
 double TRT_ToT_dEdx::hitOccupancyCorrection(const Trk::TrackStateOnSurface *itr) const
