@@ -249,3 +249,9 @@ if jobproperties.eflowRecFlags.usePFEGammaPFOAssoc:
    from eflowRec.eflowRecConf import PFEGammaPFOAssoc
    PFEGammaPFOAssoc=PFEGammaPFOAssoc("PFEGammaPFOAssoc")
    topSequence += PFEGammaPFOAssoc
+
+#Add new FlowElement creator
+from eflowRec.eflowRecConf import PFChargedFlowElementCreatorAlgorithm
+PFChargedFlowElementCreatorAlgorithm = PFChargedFlowElementCreatorAlgorithm("PFChargedFlowElementCreatorAlgorithm")
+topSequence += PFChargedFlowElementCreatorAlgorithm 
+
