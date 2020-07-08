@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           Control/SGTools
                           Control/StoreGate
+                          Control/CxxUtils
                           Event/ByteStreamCnvSvcBase
                           Event/ByteStreamData
                           Event/EventInfo
@@ -41,7 +42,7 @@ atlas_add_component( TrigT1CaloByteStream
                      src/xaod/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${ROOT_LIBRARIES} AsgTools AthContainers xAODTrigL1Calo GaudiKernel AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test EventInfo ZdcByteStreamLib TrigT1CaloEventLib TrigT1CaloUtilsLib TrigT1Interfaces )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${ROOT_LIBRARIES} AsgTools AthContainers xAODTrigL1Calo GaudiKernel AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test EventInfo ZdcByteStreamLib TrigT1CaloEventLib TrigT1CaloUtilsLib TrigT1Interfaces CxxUtils )
 
 atlas_add_dictionary( TrigT1CaloByteStreamDict
                       TrigT1CaloByteStream/TrigT1CaloByteStreamDict.h
