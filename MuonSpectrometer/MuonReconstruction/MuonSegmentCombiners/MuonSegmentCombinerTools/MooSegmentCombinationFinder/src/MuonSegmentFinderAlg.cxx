@@ -33,6 +33,7 @@ MuonSegmentFinderAlg::MuonSegmentFinderAlg(const std::string& name, ISvcLocator*
   m_clusterSegMaker("Muon::MuonClusterSegmentFinder/MuonClusterSegmentFinder"),
   m_segmentOverlapRemovalTool("Muon::MuonSegmentOverlapRemovalTool/MuonSegmentOverlapRemovalTool"),
   m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
+  m_mmClusterCreator("Muon::MMClusterOnTrackCreator/MMClusterOnTrackCreator"),
   m_clusterSegMakerNSW("Muon::MuonClusterSegmentFinderTool/MuonClusterSegmentFinderTool"),
   m_truthSummaryTool("Muon::MuonTruthSummaryTool/MuonTruthSummaryTool"),
   m_csc2dSegmentFinder("Csc2dSegmentMaker/Csc2dSegmentMaker"),
@@ -45,6 +46,7 @@ MuonSegmentFinderAlg::MuonSegmentFinderAlg(const std::string& name, ISvcLocator*
   declareProperty("MuonPatternSegmentMaker", m_patternSegmentMaker);
   declareProperty("SegmentMaker",m_segmentMaker);
   declareProperty("ClusterCreator",m_clusterCreator);
+  declareProperty("MMClusterCreator",m_mmClusterCreator);
   declareProperty("MuonClusterSegmentFinderTool",m_clusterSegMakerNSW);
   declareProperty("MuonTruthSummaryTool",m_truthSummaryTool);
   declareProperty("Csc2dSegmentMaker", m_csc2dSegmentFinder);
@@ -260,9 +262,15 @@ void MuonSegmentFinderAlg::createSegmentsFromClusters(Muon::MuonPatternCombinati
       if( !cl ) continue;
       int sector = m_idHelperTool->sector(id);
       std::vector<const Muon::MuonClusterOnTrack*>& clusters = clustersPerSector[sector];
-      const Muon::MuonClusterOnTrack* clust = m_clusterCreator->createRIO_OnTrack( *cl, cl->globalPosition() );
-      
-      clusters.push_back(clust);
+      if(m_idHelperTool->issTgc((*pit)->identify())){
+        const Muon::MuonClusterOnTrack* clust = m_clusterCreator->createRIO_OnTrack( *cl, cl->globalPosition() );
+        clusters.push_back(clust);
+
+      }
+      if(m_idHelperTool->isMM((*pit)->identify())){
+        const Muon::MuonClusterOnTrack* clust = m_mmClusterCreator->createRIO_OnTrack( *cl, cl->globalPosition() );
+        clusters.push_back(clust);
+      }
     }
   }
   
