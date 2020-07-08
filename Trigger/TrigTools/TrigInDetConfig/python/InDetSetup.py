@@ -56,12 +56,19 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
                                     ( 'SpacePointCache' , InDetCacheNames.SpacePointCachePix ),
                                     ( 'SpacePointCache' , InDetCacheNames.SpacePointCacheSCT ),
                                     ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTBSErrCacheKey ),
-                                    ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+                                    ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
+                                    ( 'TagInfo' , 'DetectorStore+ProcessingTags' )]
+    
     viewAlgs.append( ViewDataVerifier )
 
     # Load RDOs if we aren't loading bytestream
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
+
+    topSequence.SGInputLoader.Load += [ ( 'TagInfo' , 'DetectorStore+ProcessingTags' ) ]
+
+
+
     if not globalflags.InputFormat.is_bytestream():
       ViewDataVerifier.DataObjects +=   [( 'PixelRDO_Container' , InDetKeys.PixelRDOs() ),
                                          ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() ),
@@ -69,6 +76,13 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
       topSequence.SGInputLoader.Load += [( 'PixelRDO_Container' , InDetKeys.PixelRDOs() ),
                                          ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() ),
                                          ( 'IDCInDetBSErrContainer' , InDetKeys.SCT_ByteStreamErrs() )]
+
+    # These objects must be loaded from SGIL if not from CondInputLoader
+    from IOVDbSvc.CondDB import conddb
+    if not conddb.folderRequested( '/TDAQ/Resources/ATLAS/PIXEL/Modules' ):
+      ViewDataVerifier.DataObjects += [( 'CondAttrListCollection', 'ConditionStore+/TDAQ/Resources/ATLAS/PIXEL/Modules' )]
+      topSequence.SGInputLoader.Load += [( 'CondAttrListCollection', 'ConditionStore+/TDAQ/Resources/ATLAS/PIXEL/Modules' )]
+      
 
   from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
   from AthenaCommon.AppMgr import ToolSvc
