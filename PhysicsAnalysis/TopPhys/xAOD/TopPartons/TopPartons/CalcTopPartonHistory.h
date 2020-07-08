@@ -39,7 +39,7 @@ namespace top {
   class CalcTopPartonHistory: public asg::AsgTool {
   public:
     explicit CalcTopPartonHistory(const std::string& name);
-    virtual ~CalcTopPartonHistory(){};
+    virtual ~CalcTopPartonHistory() {};
 
     CalcTopPartonHistory(const CalcTopPartonHistory& rhs) = delete;
     CalcTopPartonHistory(CalcTopPartonHistory&& rhs) = delete;

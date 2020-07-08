@@ -4,7 +4,6 @@
 
 #include "TopPartons/CalcTtbarPartonHistory.h"
 #include "TopConfiguration/TopConfig.h"
-#include <iostream>
 
 namespace top {
   CalcTtbarPartonHistory::CalcTtbarPartonHistory(const std::string& name) : CalcTopPartonHistory(name) {}
