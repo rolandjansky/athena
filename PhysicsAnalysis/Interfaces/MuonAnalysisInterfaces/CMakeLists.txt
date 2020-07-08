@@ -15,7 +15,7 @@ atlas_add_library( MuonAnalysisInterfacesLib
    MuonAnalysisInterfaces/*.h
    INTERFACE
    PUBLIC_HEADERS MuonAnalysisInterfaces
-   LINK_LIBRARIES AsgTools xAODEventInfo xAODMuon PATCoreLib )
+   LINK_LIBRARIES AsgTools xAODEventInfo xAODMuon PATCoreLib PATInterfaces )
 
 atlas_add_dictionary( MuonAnalysisInterfacesDict
    MuonAnalysisInterfaces/MuonAnalysisInterfacesDict.h
