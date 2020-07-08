@@ -28,7 +28,7 @@ namespace xAOD {
     using IParticle::IParticle;
     
     typedef unsigned long  signal_t; // 32-bit minimum
-    typedef unsigned short vertex_t;
+    typedef short vertex_t;
     using IParticle::FourMom_t ;
     
     /// Enum to encode the nature of the object this FlowElement represents
