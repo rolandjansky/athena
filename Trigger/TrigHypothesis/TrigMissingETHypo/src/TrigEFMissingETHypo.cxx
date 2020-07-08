@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -9,7 +9,6 @@
 //
 // AUTHOR:  Kyle Cranmer, Florian Bernlochner
 //
-//  $Id: TrigEFMissingETHypo.cxx,v 1.26 2009-03-25 17:04:03 casadei Exp $
 // ********************************************************************
 //
 #include <list>
@@ -20,6 +19,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ListItem.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include "TrigEFMissingETHypo.h"
 
@@ -27,7 +27,6 @@
 #include "TrigMissingEtEvent/TrigMissingET.h"
 #include "xAODTrigMissingET/TrigMissingET.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
 
 class ISvcLocator;
 
@@ -40,8 +39,8 @@ TrigEFMissingETHypo::TrigEFMissingETHypo(const std::string& name, ISvcLocator* p
 
   declareProperty("METLabel", m_featureLabel = "TrigEFMissingET", "label for the MET feature in the HLT Navigation");
 
-  declareProperty("MissingETCut", m_MEtCut   =  200*CLHEP::GeV, "cut value for the MissingEt [MeV]");
-  declareProperty("SumETCut",     m_SumEtCut = 1000*CLHEP::GeV, "cut value for the SumEt [MeV]");
+  declareProperty("MissingETCut", m_MEtCut   =  200*Gaudi::Units::GeV, "cut value for the MissingEt [MeV]");
+  declareProperty("SumETCut",     m_SumEtCut = 1000*Gaudi::Units::GeV, "cut value for the SumEt [MeV]");
   declareProperty("SigCut",       m_SigCut   = 30, "cut value for the SumEt");
   declareProperty("CutType",      m_CutType  = -3.0,     "val<-1.5 => MissingEt OR SumEt; -1.5<val<-0.5 => MissingEt AND SumEt; -0.5<val<0.5 => reject all events .5<val => Significance" );
 
@@ -50,7 +49,7 @@ TrigEFMissingETHypo::TrigEFMissingETHypo(const std::string& name, ISvcLocator* p
   declareProperty("doOnlyCalcCentralMET", m_doOnlyCalcCentralMET = false, "only use central MET" );
 
   declareProperty("doL1L2FEBTest", m_doL1L2FEBTest = false, "Use L2=L1 values to Trigger FEB if MET values disagree by more than L1L2FEBTolerance GeV (for FEB only!)" );
-  declareProperty("L1L2FEBTolerance", m_L1L2FEBTolerance = 100*CLHEP::GeV, "L2=L1 vs FEB tolerance in GeV" );
+  declareProperty("L1L2FEBTolerance", m_L1L2FEBTolerance = 100*Gaudi::Units::GeV, "L2=L1 vs FEB tolerance in GeV" );
 
   declareProperty("doLArH11off", m_doLArH11off = false, "LAr H11 crate is off" );
   declareProperty("doLArH12off", m_doLArH12off = false, "LAr H12 crate is off" );
@@ -65,11 +64,11 @@ TrigEFMissingETHypo::TrigEFMissingETHypo(const std::string& name, ISvcLocator* p
   declareProperty("significanceSlope",  m_significanceSlope  = 1, "slope of xs");
   declareProperty("significanceQuadr",  m_significanceQuadr  = 0, "quadratic term of xs");
 
-  declareProperty("xsMETmin",  m_xsMETmin = 10*CLHEP::GeV, "Minimum Value for MET in xs chains");  
-  declareProperty("xsSETmin",  m_xsSETmin = 16*CLHEP::GeV, "Minimum Value for MET in xs chains");  
+  declareProperty("xsMETmin",  m_xsMETmin = 10*Gaudi::Units::GeV, "Minimum Value for MET in xs chains");
+  declareProperty("xsSETmin",  m_xsSETmin = 16*Gaudi::Units::GeV, "Minimum Value for MET in xs chains");
 
-  declareProperty("xsMETok",   m_xsMETok = 64*CLHEP::GeV,   "MET value for acceptance in xs chains" );
-  declareProperty("xsSETok",   m_xsSETok = 6500*CLHEP::GeV, "SET value for acceptance in xs chains" );
+  declareProperty("xsMETok",   m_xsMETok = 64*Gaudi::Units::GeV,   "MET value for acceptance in xs chains" );
+  declareProperty("xsSETok",   m_xsSETok = 6500*Gaudi::Units::GeV, "SET value for acceptance in xs chains" );
 
   m_bitMask = 0;
   declareProperty("bitMaskComp", m_bitMaskComp = 0, "bit mask to enable rejection based on the component level status flag" );
@@ -574,8 +573,8 @@ HLT::ErrorCode TrigEFMissingETHypo::hltExecute(const HLT::TriggerElement* output
   float SIG = 0;
   if( SET > 0 )
     {
-      float SIG_numerator   = MET/CLHEP::GeV;
-      float SIG_denominator = m_significanceOffset + m_significanceSlope*sqrt(SET/CLHEP::GeV) + m_significanceQuadr*(SET/CLHEP::GeV);
+      float SIG_numerator   = MET/Gaudi::Units::GeV;
+      float SIG_denominator = m_significanceOffset + m_significanceSlope*sqrt(SET/Gaudi::Units::GeV) + m_significanceQuadr*(SET/Gaudi::Units::GeV);
       SIG = SIG_numerator/SIG_denominator;
     }
   else SIG=0;
