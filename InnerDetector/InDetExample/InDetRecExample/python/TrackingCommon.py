@@ -1162,7 +1162,7 @@ def getInDetTRT_TrackExtensionTool_xk(name='InDetTRT_ExtensionTool', TrackingCut
                        maxImpactParameter    = 500 if InDetFlags.doBeamHalo() or InDetFlags.doBeamGas() else 50) # single beam running, open cuts
     if (InDetNewTrackingCuts.RoISeededBackTracking()):
         kwargs=setDefaults(kwargs,
-                           minTRTSegmentpT   = 6000.*0.75) #75% of the calo roi cluster Et requirement for RoISeededBackTracking
+                           minTRTSegmentpT   = InDetNewTrackingCuts.minRoIClusterEt()*0.50) #50% of the calo roi cluster Et requirement for RoISeededBackTracking
 
     from TRT_TrackExtensionTool_xk.TRT_TrackExtensionTool_xkConf import InDet__TRT_TrackExtensionTool_xk
     return InDet__TRT_TrackExtensionTool_xk(the_name, **kwargs)

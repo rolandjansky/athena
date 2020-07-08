@@ -202,23 +202,18 @@ StatusCode InDet::TRT_SeededTrackFinder::execute_r (const EventContext& ctx) con
         }
         double eta = c->globalPosition().eta();
         double phi = c->globalPosition().phi();
-        //double z = beamZ;
         double roiPhiMin = phi -.25;
         double roiPhiMax = phi +.25;
         double roiEtaMin = eta -.1;
         double roiEtaMax = eta +.1;
-        //double roiZMin = beamZ -300;
-        //double roiZMax = beamZ +300;
-        roi = new RoiDescriptor( roiEtaMin, roiEtaMax, roiPhiMin, roiPhiMax);
-        //TODO Pick which roi to use
-        //roi = new RoiDescriptor( eta, roiEtaMin, roiEtaMax,phi, roiPhiMin ,roiPhiMax,z,roiZMin,roiZMax);
+        double roiZMin = beamZ -300;
+        double roiZMax = beamZ +300;
+        roi = new RoiDescriptor( eta, roiEtaMin, roiEtaMax,phi, roiPhiMin ,roiPhiMax, beamZ,roiZMin,roiZMax);
         roiComp->push_back(roi);
       }
     }
     std::vector<IdentifierHash> listOfSCTIds;
     std::vector<IdentifierHash> listOfPixIds;
-    //TODO To include Pixel or not
-    //m_regionSelector->DetHashIDList(PIXEL, *roiComp, listOfPixIds );
     m_regionSelector->DetHashIDList(SCT, *roiComp, listOfSCTIds );
     event_data_p = m_trackmaker->newRegion(ctx, combinatorialData, listOfPixIds, listOfSCTIds);
   } else {

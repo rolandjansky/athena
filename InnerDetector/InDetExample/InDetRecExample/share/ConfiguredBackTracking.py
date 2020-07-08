@@ -64,8 +64,7 @@ class ConfiguredBackTracking:
                                                         NeighborSearch         = True,
                                                         LoadFull               = False,
                                                         DoCosmics              = InDetFlags.doCosmics(),
-                                                        pTmin                  = NewTrackingCuts.minSecondaryPt(),
-                                                        CaloClusterEt          = 6000.)
+                                                        pTmin                  = NewTrackingCuts.minSecondaryPt())
             # InDetTRT_SeededSpacePointFinder.OutputLevel = VERBOSE
 
          elif InDetFlags.loadSimpleTRTSeededSPFinder():
@@ -161,8 +160,6 @@ class ConfiguredBackTracking:
          # TRT seeded back tracking algorithm
          from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
          InDetRegSelSvc             = RegSelSvcDefault()
-         #TODO Figure out if we want to use pixels too
-         #InDetRegSelSvc.enablePixel = DetFlags.pixel_on()
          InDetRegSelSvc.enableSCT   = DetFlags.SCT_on()
 
          ServiceMgr += InDetRegSelSvc
@@ -194,7 +191,8 @@ class ConfiguredBackTracking:
                                                                    FinalStatistics       = False,
                                                                    OutputSegments        = False,
                                                                    InputSegmentsLocation = InDetKeys.TRT_Segments(),
-                                                                   OutputTracksLocation  = self.__TRTSeededTracks)
+                                                                   OutputTracksLocation  = self.__TRTSeededTracks,
+                                                                   CaloClusterEt         = NewTrackingCuts.minRoIClusterEt())
          
          if (NewTrackingCuts.RoISeededBackTracking()):
             InDetTRT_SeededTrackFinder.RegionSelectionSvc = InDetRegSelSvc
