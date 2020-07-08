@@ -68,8 +68,7 @@ void applyConstraints(VKVertex * vk)
          }
        }
     }
-    return;
-}
+    }
 
 
  VKConstraintBase::VKConstraintBase(const int NC,int NTRK, VKContraintType t, VKVertex* vrt): NCDim(NC), NTrk(NTRK),
@@ -78,7 +77,7 @@ void applyConstraints(VKVertex * vk)
   }
 
 
-  VKConstraintBase::~VKConstraintBase(){}
+  VKConstraintBase::~VKConstraintBase()= default;
   std::ostream &  operator << ( std::ostream& out, const VKConstraintBase & cnst  )
   {
         int NTRK=cnst.f0t.size();
@@ -114,7 +113,7 @@ void applyConstraints(VKVertex * vk)
     for(int i=0; i<(int)listTrk.size(); i++) m_usedParticles.push_back(listTrk[i]);
     m_originVertex = vk;
   }
-  VKMassConstraint::~VKMassConstraint(){}
+  VKMassConstraint::~VKMassConstraint()= default;
   std::ostream &  operator << ( std::ostream& out, const VKMassConstraint & cnst  )
   {
         const VKVertex * vk = cnst.getOriginVertex();
@@ -139,7 +138,7 @@ void applyConstraints(VKVertex * vk)
   VKPhiConstraint::VKPhiConstraint(int NTRK, VKVertex *vk):
     VKConstraintBase(1,NTRK, VKContraintType::Phi, vk)
   {m_originVertex = vk;}
-  VKPhiConstraint::~VKPhiConstraint(){}
+  VKPhiConstraint::~VKPhiConstraint()= default;
   std::ostream &  operator << ( std::ostream& out, const VKPhiConstraint & cnst  )
   {     const VKVertex * vk = cnst.getOriginVertex();
 	//out.setf( std::ios::scientific); out.precision(7); out << std::endl;
@@ -153,7 +152,7 @@ void applyConstraints(VKVertex * vk)
   VKThetaConstraint::VKThetaConstraint(int NTRK, VKVertex *vk):
     VKConstraintBase(1,NTRK, VKContraintType::Theta, vk)
   {m_originVertex = vk;}
-  VKThetaConstraint::~VKThetaConstraint(){}
+  VKThetaConstraint::~VKThetaConstraint()= default;
   std::ostream &  operator << ( std::ostream& out, const VKThetaConstraint & cnst  )
   {     const VKVertex * vk = cnst.getOriginVertex();
 	//out.setf( std::ios::scientific); out.precision(7); out << std::endl;
@@ -171,7 +170,7 @@ void applyConstraints(VKVertex * vk)
   { m_originVertex = vk;m_targetVertex[0]=vrt[0]; m_targetVertex[1]=vrt[1]; m_targetVertex[2]=vrt[2];
     m_onlyZ=onlyZ;  // For Z only constraint
   }
-  VKPointConstraint::~VKPointConstraint(){}
+  VKPointConstraint::~VKPointConstraint()= default;
   std::ostream &  operator << ( std::ostream& out, const VKPointConstraint & cnst  )
   {     const VKVertex * vk = cnst.getOriginVertex();
 	//out.setf( std::ios::scientific); out.precision(7); out << std::endl;
@@ -194,7 +193,7 @@ void applyConstraints(VKVertex * vk)
   VKPlaneConstraint::VKPlaneConstraint(int NTRK, double a, double b, double c, double d, VKVertex *vk):
     VKConstraintBase(1,NTRK, VKContraintType::Plane, vk)
   {m_A=a; m_B=b; m_C=c; m_D=d; }
-  VKPlaneConstraint::~VKPlaneConstraint(){}
+  VKPlaneConstraint::~VKPlaneConstraint()= default;
   std::ostream &  operator << ( std::ostream& out, const VKPlaneConstraint & cnst  )
   {     const VKVertex * vk = cnst.getOriginVertex();
 	//out.setf( std::ios::scientific); out.precision(7); out << std::endl;
