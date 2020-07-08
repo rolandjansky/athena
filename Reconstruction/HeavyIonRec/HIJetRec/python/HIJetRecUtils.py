@@ -241,7 +241,7 @@ def EquipMapTool(map_tool, shape_name, **kwargs) :
     out_shape_name=shape_name
     if 'suffix' in kwargs.keys() : out_shape_name+='_%s' % kwargs['suffix']
     map_tool.JetIterNames+=[ shape_name, out_shape_name ]
-    
+
 def AddIteration(seed_container,shape_name, **kwargs) :
 
     out_shape_name=shape_name
