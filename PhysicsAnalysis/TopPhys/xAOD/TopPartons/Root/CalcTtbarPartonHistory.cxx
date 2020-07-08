@@ -4,6 +4,7 @@
 
 #include "TopPartons/CalcTtbarPartonHistory.h"
 #include "TopConfiguration/TopConfig.h"
+#include <iostream>
 
 namespace top {
   CalcTtbarPartonHistory::CalcTtbarPartonHistory(const std::string& name) : CalcTopPartonHistory(name) {}
@@ -19,6 +20,7 @@ namespace top {
     TLorentzVector WpDecay2;
     int WpDecay1_pdgId;
     int WpDecay2_pdgId;
+    std::cout<<"CALCULATE TOP"<<std::endl;
     bool event_top = CalcTopPartonHistory::topWb(truthParticles, 6, t_before, t_after, Wp, b, WpDecay1, WpDecay1_pdgId,
                                                  WpDecay2, WpDecay2_pdgId);
     bool event_top_SC = CalcTopPartonHistory::topAfterFSR_SC(truthParticles, 6, t_after_SC);
@@ -30,6 +32,7 @@ namespace top {
     TLorentzVector WmDecay2;
     int WmDecay1_pdgId;
     int WmDecay2_pdgId;
+    std::cout<<"CALCULATE ANTITOP"<<std::endl;
     bool event_topbar = CalcTopPartonHistory::topWb(truthParticles, -6, tbar_before, tbar_after, Wm, bbar, WmDecay1,
                                                     WmDecay1_pdgId, WmDecay2, WmDecay2_pdgId);
     bool event_topbar_SC = CalcTopPartonHistory::topAfterFSR_SC(truthParticles, -6, tbar_after_SC);
@@ -137,10 +140,66 @@ namespace top {
 
   StatusCode CalcTtbarPartonHistory::execute() {
     // Get the Truth Particles
+    std::cout<<"++++"<<std::endl;
     const xAOD::TruthParticleContainer* truthParticles(nullptr);
+    ConstDataVector<DataVector<xAOD::TruthParticle_v1> > *tempParticles  =0;
+    if(m_config->getDerivationStream() == "PHYS") //in DAOD_PHYS we don't have the truth particles container
+    {
+      
+      const xAOD::TruthParticleContainer* truthTop(nullptr);
+      const xAOD::TruthParticleContainer* truthBottom(nullptr);
+      const xAOD::TruthParticleContainer* truthBosonsWithDecayParticles(nullptr);
+      const xAOD::TruthParticleContainer* truthBoson(nullptr);
+      
+      ATH_CHECK(evtStore()->retrieve(truthTop,"TruthTop" ));
+      ATH_CHECK(evtStore()->retrieve(truthBottom, "TruthBottom" ));
+      ATH_CHECK(evtStore()->retrieve(truthBosonsWithDecayParticles,"TruthBosonsWithDecayParticles" ));
+      ATH_CHECK(evtStore()->retrieve(truthBoson,"TruthBoson" ));
 
-    ATH_CHECK(evtStore()->retrieve(truthParticles, m_config->sgKeyMCParticle()));
-
+      tempParticles = new ConstDataVector<DataVector<xAOD::TruthParticle_v1> > (SG::VIEW_ELEMENTS);
+      for(const xAOD::TruthParticle *p : *truthBottom) tempParticles->push_back(p);
+      for(const xAOD::TruthParticle *p : *truthTop) tempParticles->push_back(p);
+      for(const xAOD::TruthParticle *p : *truthBosonsWithDecayParticles) 
+      {
+        if(!p->isW()) continue;
+        tempParticles->push_back(p);
+      }
+      for(const xAOD::TruthParticle *p : *truthBoson)
+      {
+        if(!p->isW()) continue;
+        
+        //we have to associate bosons in TruthBoson collection with those in TruthBosonsWithDecayParticles, because only the latter have links to children
+        for(const xAOD::TruthParticle *p2 : *truthBosonsWithDecayParticles) 
+        tempParticles->push_back(p);
+      }
+      
+      muon->auxdecor<const xAOD::TruthParticle*>("truthPartonMotherLink"
+      truthParticles = tempParticles->asDataVector();
+      
+    }
+    else  //otherwise we retrieve the container as usual
+    {
+      ATH_CHECK(evtStore()->retrieve(truthParticles, m_config->sgKeyMCParticle()));
+    }
+    
+    //std::cout<<"----"<<std::endl;
+    //for(auto p: *truthParticles)
+    //{
+      
+      //std::cout<<"pdgId="<<p->pdgId()<<" status="<<p->status()<<" bar="<<p->barcode()<<" ";
+      //std::cout<<"nCh="<<p->nChildren()<<" ";
+      //for(unsigned int ich=0; ich<p->nChildren(); ich++)
+      //{
+        //std::cout<<(p->child(ich) ? p->child(ich)->pdgId() : 0)<<" ";
+      //}
+      //std::cout<<"nPa="<<p->nParents()<<" ";
+      //for(unsigned int ich=0; ich<p->nParents(); ich++)
+      //{
+        //std::cout<<(p->parent(ich) ? p->parent(ich)->pdgId() : 0)<<" ";
+      //}
+      //std::cout<<std::endl;
+    //}
+    
     // Create the partonHistory xAOD object
     xAOD::PartonHistoryAuxContainer* partonAuxCont = new xAOD::PartonHistoryAuxContainer {};
     xAOD::PartonHistoryContainer* partonCont = new xAOD::PartonHistoryContainer {};
@@ -151,7 +210,9 @@ namespace top {
 
     // Recover the parton history for ttbar events
     ttbarHistorySaver(truthParticles, ttbarPartonHistory);
-
+    
+    if(tempParticles) delete tempParticles;
+    
     // Save to StoreGate / TStore
     std::string outputSGKey = m_config->sgKeyTopPartonHistory();
     std::string outputSGKeyAux = outputSGKey + "Aux.";

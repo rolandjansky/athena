@@ -869,7 +869,7 @@ namespace top {
       settings->retrieve("ForceNominalWeightFallbackIndex", m_forceWeightIndex);
 
       // Save the Top Parton History
-      if (this->useTruthParticles() && settings->value("TopPartonHistory") != "False") this->setTopPartonHistory();
+      if (settings->value("TopPartonHistory") != "False") this->setTopPartonHistory();
       
       // Perform parton-level selection and save particle level objects
       bool topPartonLevel=true;

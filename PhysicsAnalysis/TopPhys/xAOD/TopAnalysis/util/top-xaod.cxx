@@ -665,9 +665,11 @@ int main(int argc, char** argv) {
         // This will be saved for every event
 
         // Run topPartonHistory
-        if (topConfig->doTopPartonHistory()) top::check(
+        if (topConfig->doTopPartonHistory())
+        {
+           top::check(
             topPartonHistory->execute(), "Failed to execute topPartonHistory");
-
+        }
         // calculate PDF weights
         if (topConfig->doLHAPDF()) top::check(PDF_SF->execute(),
                                               "Failed to execute PDF SF");

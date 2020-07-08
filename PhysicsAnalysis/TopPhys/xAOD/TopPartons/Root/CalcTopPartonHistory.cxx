@@ -129,6 +129,24 @@ namespace top {
     bool hasB = false;
     bool hasWdecayProd1 = false;
     bool hasWdecayProd2 = false;
+    
+    std::cout<<"--rechecking--"<<std::endl;
+    for(auto p: *truthParticles)
+    {
+      
+      std::cout<<"pointer="<<p<<" pdgId="<<p->pdgId()<<" status="<<p->status()<<" barcode="<<p->barcode()<<" ";
+      std::cout<<"nChildren="<<p->nChildren()<<"; the children are: ";
+      for(unsigned int ich=0; ich<p->nChildren(); ich++)
+      {
+        std::cout<<" (pointer="<<p->child(ich)<<", pdgId="<<(p->child(ich) ? p->child(ich)->pdgId() : 0)<<", barcode="<<(p->child(ich) ? p->child(ich)->barcode() : 0)<<", nChildren="<<(p->child(ich) ? p->child(ich)->nChildren() : 0)<<")";
+      }
+      //std::cout<<" nParents="<<p->nParents()<<" ";
+      //for(unsigned int ich=0; ich<p->nParents(); ich++)
+      //{
+      //  std::cout<<(p->parent(ich) ? p->parent(ich)->pdgId() : 0)<<" ";
+      //}
+      std::cout<<std::endl;
+    }
 
     for (const xAOD::TruthParticle* particle : *truthParticles) {
       if (particle->pdgId() != start) continue;
@@ -148,12 +166,16 @@ namespace top {
         if (abs(topChildren->pdgId()) == 24) {
           W_p4 = topChildren->p4();  // W boson after FSR
           hasW = true;
+          
 
           // demanding the last W after FSR
+          std::cout<<"W before FSR status="<<topChildren->status()<<" pt="<<topChildren->pt()<<" bar="<<topChildren->barcode()<<" nCh="<<topChildren->nChildren()<<std::endl;
           topChildren = findAfterFSR(topChildren);
-
+          std::cout<<"W after FSR status="<<topChildren->status()<<" pt="<<topChildren->pt()<<" bar="<<topChildren->barcode()<<" nCh="<<topChildren->nChildren()<<std::endl;
+          
           for (size_t q = 0; q < topChildren->nChildren(); ++q) {
             const xAOD::TruthParticle* WChildren = topChildren->child(q);
+            std::cout<<"found children "<<WChildren->pdgId()<<std::endl;
             if (abs(WChildren->pdgId()) < 17) {
               if (WChildren->pdgId() > 0) {
                 Wdecay1_p4 = WChildren->p4();
@@ -172,9 +194,13 @@ namespace top {
         } //else if
       } //for (size_t k=0; k < particle->nChildren(); k++)
 
-      if (hasT && hasW && hasB && hasWdecayProd1 && hasWdecayProd2) return true;
+      if (hasT && hasW && hasB && hasWdecayProd1 && hasWdecayProd2){
+         std::cout<<"RETURNING TRUE"<<std::endl;
+         return true;
+       }
     } //for (const xAOD::TruthParticle* particle : *truthParticles)
-
+    
+    std::cout<<"hasT="<<hasT<<" hasW="<<hasW<<" hasB="<<hasB<<" hasWdecayProd1="<<hasWdecayProd1<<" hasWdecayProd2="<<hasWdecayProd2<<std::endl;
     return false;
   }
 
