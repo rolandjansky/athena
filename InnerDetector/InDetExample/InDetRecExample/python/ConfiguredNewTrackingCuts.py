@@ -1161,7 +1161,7 @@ class ConfiguredNewTrackingCuts :
       print('* rejectShortExtensions       :  ', self.__rejectShortExtensions)
       print('* SiExtensionsCuts            :  ', self.__SiExtensionCuts)
       if self.__RoISeededBackTracking:
-        print('* min CaloCluster Et        :  ', self.__minRoIClusterEt)
+        print('* min CaloCluster Et          :  ', self.__minRoIClusterEt)
       print('*')
     if self.__useTRT:
       print('* useParameterizedTRTCuts     :  ', self.__useParameterizedTRTCuts)
