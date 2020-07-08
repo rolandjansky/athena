@@ -12,6 +12,7 @@
 #include <sstream>
 
 #include "TrigCostAnalysis/TableConstructors/AlgorithmTableConstructor.h"
+#include "TrigCostAnalysis/TableConstructors/GlobalTableConstructor.h"
 
 #include "TFile.h"
 #include "TString.h"
@@ -51,12 +52,14 @@ void exportDirectory(TFile* file, const std::vector<TString>& dir, float walltim
   TString exportName = constructCSVName(dir);
   msg() << MSG::DEBUG << "  Do Histo for " << exportName << endmsg;
 
-  AlgorithmTableConstructor atc("Algorithm_HLT");
   std::string table;
-
   const TString rootDir = dir.at(0) + "/" + dir.at(1) + "/";
   if (dir.at(1) == "Algorithm_HLT") {
+    AlgorithmTableConstructor atc("Algorithm_HLT");
     table = atc.getTable(file, rootDir, walltime);
+  } else if (dir.at(1) == "Global_HLT") {
+    GlobalTableConstructor gtc("Global_HLT");
+    table = gtc.getTable(file, rootDir, walltime);
   }
 
   std::ofstream fstream(exportName.Data());
@@ -104,6 +107,7 @@ void exploreTree(TFile* file, const size_t level = 0, std::vector<TString> dir =
         exploreTree(file, level + 1, dir);
       } else {
         exportDirectory(file, dir, walltime);
+        dir.pop_back();
       }
     } else if (name.First("_walltime") != kNPOS) {
       // This is fine

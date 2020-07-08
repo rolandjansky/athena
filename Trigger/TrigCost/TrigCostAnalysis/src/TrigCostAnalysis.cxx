@@ -5,10 +5,13 @@
 #include "GaudiKernel/ThreadLocalContext.h"
 #include "TrigConfHLTData/HLTUtils.h"
 
+#include "PathResolver/PathResolver.h"
+
 #include "TrigCostAnalysis.h"
 #include "CostData.h"
 
 #include "monitors/MonitorAlgorithm.h"
+#include "monitors/MonitorGlobal.h"
 
 TrigCostAnalysis::TrigCostAnalysis( const std::string& name, ISvcLocator* pSvcLocator ) :
   AthHistogramAlgorithm(name, pSvcLocator),
@@ -35,8 +38,14 @@ StatusCode  TrigCostAnalysis::initialize() {
   }
 
   ATH_CHECK( m_TimeRangeLengthLB > 0 );
-  if (m_hashDictionaryFromFile) {
-    TrigConf::HLTUtils::file2hashes();
+
+  if (not m_additionalHashMap.empty()) {
+    std::string hashFile = PathResolverFindCalibFile( m_additionalHashMap );
+    if (hashFile.empty()) {
+      ATH_MSG_WARNING("Could not retrieve " << m_additionalHashMap << ", won't load additional hash maps.");
+    } else {
+      TrigConf::HLTUtils::file2hashes(hashFile);
+    }
   }
   
   return StatusCode::SUCCESS;
@@ -123,24 +132,30 @@ StatusCode TrigCostAnalysis::execute() {
     ATH_MSG_DEBUG("Not monitoring event");
     return StatusCode::SUCCESS;
 
-  } else {
-
-    ATH_MSG_DEBUG("Monitoring event " << context.eventID().event_number() << " in range " << range->getName());
-    
-    SG::ReadHandle<xAOD::TrigCompositeContainer> costDataHandle(m_costDataKey, context);
-    ATH_CHECK( costDataHandle.isValid() );
-
-    CostData costData;
-    ATH_CHECK( costData.set(costDataHandle.get()) );
-    if (!m_enhancedBiasTool.name().empty()) {
-      costData.setEventLivetime( m_enhancedBiasTool->getEBLiveTime(context) );
-    }
-
-    ATH_CHECK( range->newEvent( costData, getWeight(context) ) );
-
   }
 
-  if (checkDoFullEventDump(context)) {
+  ATH_MSG_DEBUG("Monitoring event " << context.eventID().event_number() << " in LB " << context.eventID().lumi_block() << " in range " << range->getName());
+  
+  SG::ReadHandle<xAOD::TrigCompositeContainer> costDataHandle(m_costDataKey, context);
+  ATH_CHECK( costDataHandle.isValid() );
+
+  const uint32_t onlineSlot = getOnlineSlot( costDataHandle.get() );
+  CostData costData;
+  ATH_CHECK( costData.set(costDataHandle.get(), onlineSlot) );
+  costData.setLb( context.eventID().lumi_block() );
+  if (!m_enhancedBiasTool.name().empty()) {
+    double liveTime = m_enhancedBiasTool->getEBLiveTime(context);
+    bool liveTimeIsPerEvent = true;
+    if (liveTime == 0.0) { // Note: This comes from a direct "return 0.", hence no delta
+      liveTime = m_enhancedBiasTool->getLBLength(context);
+      liveTimeIsPerEvent = false;
+    }
+    costData.setLivetime( liveTime, liveTimeIsPerEvent );
+  }
+
+  ATH_CHECK( range->newEvent( costData, getWeight(context) ) );
+
+  if (checkDoFullEventDump(context, onlineSlot)) {
     ATH_CHECK( dumpEvent(context) );
   }
 
@@ -148,18 +163,13 @@ StatusCode TrigCostAnalysis::execute() {
 }
 
 
-bool TrigCostAnalysis::checkDoFullEventDump(const EventContext& context) {
-  if (m_fullEventDumps < m_maxFullEventDumps) {
-    const uint64_t start = context.eventID().event_number() - m_fullEventDumpExtraTimeSlices;
-    const uint64_t stop  = context.eventID().event_number() + m_fullEventDumpExtraTimeSlices;
-    for (uint64_t i = start; i <= stop; ++i ) {
-      if (i % m_fullEventDumpProbability == 0) {
-        if (i == context.eventID().event_number()) {
-          ++m_fullEventDumps;
-        }
-        return true;
-      }
-    }
+bool TrigCostAnalysis::checkDoFullEventDump(const EventContext& context, const uint32_t onlineSlot) {
+  if (onlineSlot == 0
+    and m_fullEventDumps < m_maxFullEventDumps 
+    and context.eventID().event_number() % m_fullEventDumpProbability == 0)
+  {
+    ++m_fullEventDumps;
+    return true;
   }
   return false;
 }
@@ -171,6 +181,11 @@ StatusCode TrigCostAnalysis::registerMonitors(MonitoredRange* range) {
     std::unique_ptr<MonitorAlgorithm> monitor = std::make_unique<MonitorAlgorithm>("Algorithm_HLT", range);
     ATH_CHECK( range->addMonitor(std::move(monitor)) );
     ATH_MSG_DEBUG("Registering Algorithm_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
+  }
+  if (m_doMonitorGlobal) {
+    std::unique_ptr<MonitorGlobal> monitor = std::make_unique<MonitorGlobal>("Global_HLT", range);
+    ATH_CHECK( range->addMonitor(std::move(monitor)) );
+    ATH_MSG_DEBUG("Registering Global_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
   }
   // if (m_do...) {}
   return StatusCode::SUCCESS;
@@ -199,8 +214,6 @@ StatusCode TrigCostAnalysis::getRange(const EventContext& context, MonitoredRang
   std::unordered_map<std::string, std::unique_ptr<MonitoredRange>>::iterator it;
   it = m_monitoredRanges.find(rangeName);
 
-  ATH_MSG_DEBUG("Event's range string is:" << rangeName << ". Already exists? " << (it != m_monitoredRanges.end() ? "Y" : "N"));
-
   // If we don't have a MonitoredRange with this name, try and make one.
   if (it == m_monitoredRanges.end()) {
     if (m_monitoredRanges.size() < m_maxTimeRange) {
@@ -217,6 +230,25 @@ StatusCode TrigCostAnalysis::getRange(const EventContext& context, MonitoredRang
 
   range = it->second.get(); // Pointer to MonitoredRange
   return StatusCode::SUCCESS;
+}
+
+uint32_t TrigCostAnalysis::getOnlineSlot(const xAOD::TrigCompositeContainer* costCollection) const {
+  // Online, Slot 0 can be configured as the master-slot. In this mode, events in Slot 0
+  // hoover up data about algorithm executions in other slots too.
+  // This all-slots data stored in the master slot is exploited by dumpEvent, and some specialist monitors.
+  // Other monitors will want to avoid it for fear of double-counting 
+  if (costCollection->size() == 0) {
+    return 0;
+  }
+  const uint32_t initialSlot = costCollection->at(0)->getDetail<uint32_t>("slot");
+  for ( const xAOD::TrigComposite* tc : *costCollection ) {
+    const uint32_t algSlot = tc->getDetail<uint32_t>("slot");
+    if (algSlot == 0 or algSlot != initialSlot) {
+      return 0; // If we see a zero, or two different slot numbers, then we're in the master slot
+    }
+  }
+  // If we saw exclusivly one non-zero slot, then we're in that slot
+  return initialSlot;
 }
 
 
