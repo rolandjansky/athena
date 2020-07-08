@@ -9,6 +9,7 @@
 #include "HIEventUtils/HIEventShapeIndex.h"
 #include "HIEventUtils/HIEventShapeSummaryUtils.h"
 #include "xAODCore/ShallowCopy.h"
+#include "HIEventUtils/HIEventShapeMapTool.h"
 
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
@@ -53,20 +54,22 @@ int HIEventShapeJetIteration::execute() const
   xAOD::HIEventShapeContainer* output_shape=nullptr;
   getShapes(input_shape,output_shape,true).ignore();
 
-  const HIEventShapeIndex* es_index = HIEventShapeMap::getIndex(m_inputEventShapeKey.key());
+  const HIEventShapeIndex* es_index = m_eventShapeMapTool->getIndex(m_inputEventShapeKey.key());
   //New implementation after moving away from mutable
   ATH_MSG_INFO("HIEventShapeJetIteration: found index for  " << m_inputEventShapeKey.key());
 
   if(es_index==nullptr)
   {
+    //TODO replace w/ a consistency check on binning
     ATH_MSG_INFO("No HIEventShapeIndex w/ name " << m_inputEventShapeKey.key() << " adding it to the map");
     HIEventShapeIndex* h = new HIEventShapeIndex();
     h->setBinning(input_shape);
     es_index = HIEventShapeMap::insert( m_inputEventShapeKey.key(), *h );
   }
 
-  const HIEventShapeIndex* other_index = HIEventShapeMap::getIndex(m_outputEventShapeKey.key());
+  const HIEventShapeIndex* other_index = m_eventShapeMapTool->getIndex(m_outputEventShapeKey.key());
   if(!other_index) {
+   ATH_MSG_FATAL("No HIEventShapeIndex w/ name " << m_outputEventShapeKey.key() << " adding it to the map");
    HIEventShapeMap::getMap()->insert( m_outputEventShapeKey.key(), *es_index );
  }
   //End of new implementation
@@ -190,7 +193,7 @@ void HIEventShapeJetIteration::updateShape(xAOD::HIEventShapeContainer* output_s
   {
     ATH_MSG_INFO("Problem, null pointer");
 
-    es_index=HIEventShapeMap::getIndex(m_inputEventShapeKey.key());
+    es_index= m_eventShapeMapTool->getIndex(m_inputEventShapeKey.key());
     if(es_index==nullptr)
     {
       HIEventShapeIndex* h=new HIEventShapeIndex();
