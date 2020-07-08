@@ -64,7 +64,8 @@ class ConfiguredBackTracking:
                                                         NeighborSearch         = True,
                                                         LoadFull               = False,
                                                         DoCosmics              = InDetFlags.doCosmics(),
-                                                        pTmin                  = NewTrackingCuts.minSecondaryPt())
+                                                        pTmin                  = NewTrackingCuts.minSecondaryPt(),
+                                                        CaloClusterEt          = 6000.)
             # InDetTRT_SeededSpacePointFinder.OutputLevel = VERBOSE
 
          elif InDetFlags.loadSimpleTRTSeededSPFinder():

@@ -43,6 +43,10 @@ namespace InDet {
       MsgStream&    dumptools(MsgStream&    out) const;
       MsgStream&    dumpevent(MsgStream&    out, int nsegments) const;
 
+    /// @name Flags to configure SiSPSeededTrackFinder
+    //@{
+    BooleanProperty m_useZvertexTool{this, "useZvertexTool", true}; 
+
       Gaudi::Property<bool>                         m_useCaloSeeds
        {this, "useCaloSeeds",          false,  "Use calo seeds to find TRT segments"};
 

@@ -142,6 +142,8 @@ class ConfiguredTRTSegmentFinding:
                                                                     SegmentsMakerTool   = InDetTRT_TrackSegmentsMaker,
                                                                     SegmentsLocation    = BarrelSegments,
                                                                     useCaloSeeds        = True,
+                                                                    CaloClusterEt       = 6000.,
+                                                                    MinNumberDriftCircles = NewTrackingCuts.minSecondaryTRTonTrk(), 
                                                                     InputClusterContainerName = InDetKeys.CaloClusterROIContainer())
 
      else:
