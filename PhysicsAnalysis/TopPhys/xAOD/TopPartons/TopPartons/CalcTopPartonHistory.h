@@ -39,7 +39,7 @@ namespace top {
   class CalcTopPartonHistory: public asg::AsgTool {
   public:
     explicit CalcTopPartonHistory(const std::string& name);
-    virtual ~CalcTopPartonHistory() {}
+    virtual ~CalcTopPartonHistory(){};
 
     CalcTopPartonHistory(const CalcTopPartonHistory& rhs) = delete;
     CalcTopPartonHistory(CalcTopPartonHistory&& rhs) = delete;
@@ -86,12 +86,33 @@ namespace top {
 
     ///Return true when particle is a top before FSR
     bool hasParticleIdenticalParent(const xAOD::TruthParticle* particle);
-
+    
     virtual StatusCode execute();
   protected:
     std::shared_ptr<top::TopConfig> m_config;
 
     void fillEtaBranch(xAOD::PartonHistory* partonHistory, std:: string branchName, TLorentzVector& tlv);
+    
+    std::unique_ptr<ConstDataVector<DataVector<xAOD::TruthParticle_v1> > > m_tempParticles; //used to build container from multiple collections
+    
+    ///in DAOD_PHYS we don't have the TruthParticles collection, so we have to build a TruthParticleContainer by merging several collections
+    /// this method has to use some tricks, like the helper m_tempParticles ConstDataVector, due to the desing of DataVector, see https://twiki.cern.ch/twiki/bin/view/AtlasComputing/DataVector
+    StatusCode buildContainerFromMultipleCollections(const xAOD::TruthParticleContainer* &out_cont, const std::vector<std::string> &collections);
+    
+    ///currently in DAOD_PHYS TruthTop have links to Ws from the TruthBoson collection, which have no link to their decay products;
+    ///we have therefore to associate the W from the TruthBoson collections to those in the TruthBosonsWithDecayParticles collection.
+    ///This method will use the helper method decorateCollectionWithLinksToAnotherCollection to decorate bosons in the TruthBoson collection with 
+    ///"AT_linkToTruthBosonsWithDecayParticles", which is a link to the same bosons in the TruthBosonsWithDecayParticles collection
+    StatusCode linkBosonCollections();
+    
+    ///helper method to handle retriveing the truth particle linked in the decoration of another particle
+    void getTruthParticleLinkedFromDecoration(const xAOD::TruthParticle* &part, const std::string &decorationName);
+    
+  private:
+    ///helper method currently used in DAOD_PHYS to link particles from a given collection to the same particles included in another collection;
+    ///needed because particles may be duplicated in different collections, but their navigation links may only be there in some of them...
+    StatusCode decorateCollectionWithLinksToAnotherCollection(const std::string &collectionToDecorate, const std::string &collectionToLink, const std::string &nameOfDecoration);
+    
   };
 }
 

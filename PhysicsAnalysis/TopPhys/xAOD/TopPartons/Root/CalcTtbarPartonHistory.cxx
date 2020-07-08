@@ -146,30 +146,11 @@ namespace top {
     if(m_config->getDerivationStream() == "PHYS") //in DAOD_PHYS we don't have the truth particles container
     {
       //the functions ued in this class always start from the top, so it's enough to do the following
-      ATH_CHECK(evtStore()->retrieve(truthParticles,"TruthTop" ));
+      std::vector<std::string> collections = {"TruthTop"};
+      ATH_CHECK(buildContainerFromMultipleCollections(truthParticles, collections));
       
-      //the problem we have is that TruthTop have links to Ws from the TruthBoson collection, which have no link to their decay products
-      //we have therefore to associate the W from the TruthBoson collections to those in the TruthBosonsWithDecayParticles collection
-      const xAOD::TruthParticleContainer* truthBosonsWithDecayParticles(nullptr);
-      const xAOD::TruthParticleContainer* truthBoson(nullptr);
-      ATH_CHECK(evtStore()->retrieve(truthBosonsWithDecayParticles,"TruthBosonsWithDecayParticles" ));
-      ATH_CHECK(evtStore()->retrieve(truthBoson,"TruthBoson" ));
-
-      for(const xAOD::TruthParticle *p : *truthBoson)
-      {
-        if(!p->isW()) continue;
-        
-        const xAOD::TruthParticle* link =0;
-        for(const xAOD::TruthParticle *p2 : *truthBosonsWithDecayParticles)
-        {
-          if(p->pdgId()==p2->pdgId() && p->barcode()==p2->barcode())
-          {
-            link=p2;
-            break;
-          }
-        } 
-        p->auxdecor<const xAOD::TruthParticle*>("AT_linkToTruthBosonsWithDecayParticlesW")=link;
-      }
+      //we need to be able to navigate from the Ws to their decayProducts, see CalcTopPartonHistory.h for details
+      ATH_CHECK(linkBosonCollections());
       
     }
     else  //otherwise we retrieve the container as usual
