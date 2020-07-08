@@ -33,9 +33,9 @@ namespace PixelCoralClientUtils {
   //static unsigned int columnsPerFEI4 = 80;   // number of columns per FEI4
   //static unsigned int rowsPerFEI4    = 336;   // number of rows per FEI4
   const unsigned int nmtype(5);
-  static unsigned int columnsPerFEIX[5]={18,80,132,80,132}; // number of columns per FEI3, 4, 50, 51, 52 
-  static unsigned int rowsPerFEIX[5]={164, 336, 672, 339, 678}; // number of rows per FEI3, 4, 50, 51, 52
-  static unsigned int rowsRdoPerFEIX[5]={160, 336, 672, 336, 672}; // number of rows readout per FEI3, 4, 50, 51, 52
+  static const unsigned int columnsPerFEIX[5]={18,80,132,80,132}; // number of columns per FEI3, 4, 50, 51, 52 
+  static const unsigned int rowsPerFEIX[5]={164, 336, 672, 339, 678}; // number of rows per FEI3, 4, 50, 51, 52
+  static const unsigned int rowsRdoPerFEIX[5]={160, 336, 672, 336, 672}; // number of rows readout per FEI3, 4, 50, 51, 52
 
 class ModuleSpecialPixelMap;
 
@@ -46,7 +46,7 @@ class ModuleSpecialPixelMap;
     its IdentifierHash.
 */
 
-class ATLAS_NOT_THREAD_SAFE DetectorSpecialPixelMap : public std::vector<ModuleSpecialPixelMap*>{ // Thread unsafe ModuleSpecialPixelMap class is used.
+class DetectorSpecialPixelMap : public std::vector<ModuleSpecialPixelMap*>{
    
  public: 
    DetectorSpecialPixelMap();
@@ -100,7 +100,7 @@ class ATLAS_NOT_THREAD_SAFE DetectorSpecialPixelMap : public std::vector<ModuleS
 
 **/
 
-class ATLAS_NOT_THREAD_SAFE ModuleSpecialPixelMap : private std::map<unsigned int, unsigned int>{ // static member variable is used.
+class ModuleSpecialPixelMap : private std::map<unsigned int, unsigned int>{
 
  public:
    friend class ::ModuleSpecialPixelMap;
@@ -195,9 +195,6 @@ class ATLAS_NOT_THREAD_SAFE ModuleSpecialPixelMap : private std::map<unsigned in
    //!< automatically identify regions of pixels with the same status and mark them
    void setNeighbourFlags();
    //!< fill the information about special neighbouring pixels, bits 25 - 28
-
-   static bool m_markSpecialRegions;
-   //!< switch for automatic identification of special regions
 
    typedef std::map<unsigned int, unsigned int>::iterator iterator;
    //!< std::map iterators are forwarded for access to all special pixels on a module
