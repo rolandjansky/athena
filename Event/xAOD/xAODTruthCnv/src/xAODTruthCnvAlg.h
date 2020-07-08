@@ -103,11 +103,11 @@ namespace xAODMaker {
       std::vector<ElementLink<xAOD::TruthParticleContainer> > outgoingEL;
     };
     /// Convenience handle for a map of vtx ptrs -> connected particles
-    typedef std::map<const HepMC::GenVertexPtr, VertexParticles> VertexMap;
+    typedef std::map<HepMC::ConstGenVertexPtr, VertexParticles> VertexMap;
 
     /// These functions do not set up ELs, just the other variables
-    static void fillVertex(xAOD::TruthVertex *tv, const HepMC::GenVertexPtr gv);
-    static void fillParticle(xAOD::TruthParticle *tp, const HepMC::GenParticlePtr gp);
+    static void fillVertex(xAOD::TruthVertex *tv, HepMC::ConstGenVertexPtr gv);
+    static void fillParticle(xAOD::TruthParticle *tp, HepMC::ConstGenParticlePtr gp);
 
     /// The key of the input AOD truth container
     SG::ReadHandleKey<McEventCollection> m_aodContainerKey{ 
