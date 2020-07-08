@@ -18,7 +18,7 @@ using TrigCompositeUtils::newDecisionIn;
 
 RoRSeqFilter::RoRSeqFilter( const std::string& name, 
   ISvcLocator* pSvcLocator ) :
-  ::AthAlgorithm( name, pSvcLocator )
+  ::AthReentrantAlgorithm( name, pSvcLocator )
 {}
 
 
@@ -71,10 +71,10 @@ StatusCode RoRSeqFilter::initialize()
 }
 
 
-StatusCode RoRSeqFilter::execute() {  
+StatusCode RoRSeqFilter::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
-  auto inputHandles  = m_inputKeys.makeHandles();
-  auto outputHandles = m_outputKeys.makeHandles();
+  auto inputHandles  = m_inputKeys.makeHandles(ctx);
+  auto outputHandles = m_outputKeys.makeHandles(ctx);
 
   std::vector<std::string> inputNames({"exec", "anyvalid"});
   std::vector<bool> inputStats({true, false}); // position 0 for number of execs, always true, bool at position 1 is set later
@@ -109,7 +109,7 @@ StatusCode RoRSeqFilter::execute() {
     createAndStore(outputHandles[0]);
     DecisionContainer* output = outputHandles[0].ptr();
     for ( auto inputKey: m_inputKeys ) {
-      auto inputHandle = SG::makeHandle( inputKey );
+      auto inputHandle = SG::makeHandle( inputKey, ctx );
       if( inputHandle.isValid() )
         passCounter += copyPassing( *inputHandle,  *output );
     }
@@ -119,7 +119,7 @@ StatusCode RoRSeqFilter::execute() {
 
     for ( auto inputKey: m_inputKeys ) {
       // already made handles, so this code could be simplified to a loop over inputHandles.
-      auto inputHandle = SG::makeHandle( inputKey );
+      auto inputHandle = SG::makeHandle( inputKey, ctx );
 
       if( not inputHandle.isValid() ) {
         ATH_MSG_DEBUG( "InputHandle "<< inputKey.key() <<" not present" );
