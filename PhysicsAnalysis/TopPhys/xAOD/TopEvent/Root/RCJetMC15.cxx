@@ -616,11 +616,6 @@ void RCJetMC15::getPflowConstituent(std::vector<fastjet::PseudoJet>& clusters, c
   clusters.clear();
   std::vector<const xAOD::TrackParticle*> jetTracks;
 
-  //The primary vertex z is needed to evaluate delta z0
-  float primary_vertex_z = event.m_info->auxdataConst<float>("AnalysisTop_PRIVTX_z_position");
-
-
-
 
   for (auto subjet : rcjet->getConstituents()) {
     const xAOD::Jet* subjet_raw = static_cast<const xAOD::Jet*>(subjet->rawConstituent());

@@ -2107,9 +2107,6 @@ namespace top {
     std::string m_decoKeyJetGhostTrack;
     std::vector<std::string> m_jetGhostTrackSystematics;
     std::vector<std::uint32_t> m_jetGhostTrackRunPeriods;
-    float m_ghostTrackspT;
-    std::string m_ghostTracksVertexAssociation;
-    std::string m_ghostTracksQuality;
 
     std::string m_sgKeyInDetTrackParticles;    
     std::string m_sgKeyTracks;
@@ -2205,6 +2202,11 @@ namespace top {
     bool m_doForwardJVTInMETCalculation;
     bool m_saveFailForwardJVTJets;
     std::string m_fJVTWP;
+    
+    //Ghost tracks quality
+    float m_ghostTrackspT;
+    std::string m_ghostTracksVertexAssociation;
+    std::string m_ghostTracksQuality;
 
     // Large R jet configuration
     float m_largeRJetPtcut; // large R jet object selection pT cut
