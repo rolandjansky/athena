@@ -246,7 +246,7 @@ StatusCode ParticleLevelRCJetObjectLoader::execute(const top::ParticleLevelEvent
             if (m_config->sgKeyJetsTDS(m_config->nominalHashValue(),
                                        false).find("AntiKt4EMPFlowJets") != std::string::npos) {
               
-              const xAOD::TruthParticle* tp = static_cast<const xAOD::TruthParticle*>(clus_itr->rawConstituent());  
+              const xAOD::TruthParticle* tp = dynamic_cast<const xAOD::TruthParticle*>(clus_itr->rawConstituent());  
             
               // Do not use charged particles
               if (tp->charge() == 0) continue;
