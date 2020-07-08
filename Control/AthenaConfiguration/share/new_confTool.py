@@ -1,3 +1,6 @@
+#
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 import json
 import pickle
 import sys
@@ -9,35 +12,35 @@ from GaudiConfig2 import Configurable
 def main(args):
     if args.printComps:
         for fileName in args.file:
-            conf = _loadSingleFile(fileName, args)
+            conf = _loadSingleFile(fileName)
             conf.printConfig()
 
     if args.printConf:
         for fileName in args.file:
-            conf = _loadSingleFile(fileName, args)
+            conf = _loadSingleFile(fileName)
             conf.printConfig(withDetails=True)
 
     if args.toPickle:
         if len(args.file) != 1:
             sys.exit("ERROR, can convert single file at a time, got: %s" % args.file)
-        conf = _loadSingleFile(args.file[0], args)
+        conf = _loadSingleFile(args.file[0])
         with open(args.toPickle, "wb") as oFile:
             conf.store(oFile)
 
     if args.diff:
         if len(args.file) != 2:
             sys.exit("ERROR, can diff exactly two files at a time, got: %s" % args.file)
-        configRef = _loadSingleFile(args.file[0], args)
-        configChk = _loadSingleFile(args.file[1], args)
-        _compareConfig(configRef, configChk, args)
+        configRef = _loadSingleFile(args.file[0])
+        configChk = _loadSingleFile(args.file[1])
+        _compareConfig(configRef, configChk)
 
 
-def _loadSingleFile(fname, args):
+def _loadSingleFile(fname):
     conf = None
     if fname.endswith(".pkl"):
         with open(fname, "rb") as input_file:
             conf = pickle.load(input_file)
-        print("Read pickle file: {}".format(fname))
+        print("Read pickle file: {}".format(fname)) 
     else:
         sys.exit("File format not supported.")
 
@@ -188,7 +191,7 @@ def _getStrDescriptor(obj):
 
 
 def _getFlattenedProperties(obj):
-    properties = _getValuedProperties(obj)
+    properties = _getPropertyValues(obj)
     propstr = ""
     for key, val in sorted(six.iteritems(properties)):
         if isinstance(val, Configurable):
@@ -208,7 +211,7 @@ def _getFlattenedProperties(obj):
     return propstr
 
 
-def _getValuedProperties(obj):
+def _getPropertyValues(obj):
     props = {}
     for name, proxy in sorted(six.iteritems(obj._descriptors)):
         value = proxy.__get__(obj, "")
