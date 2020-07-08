@@ -42,9 +42,9 @@ if( XAOD_STANDALONE OR XAOD_ANALYSIS )
       PRIVATE_INCLUDE_DIRS ${FASTJETCONTRIB_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} ${Boost_LIBRARIES}
       AthLinks AsgTools CxxUtils xAODCaloEvent xAODEventInfo xAODPFlow xAODEgamma xAODTau
-      xAODTracking xAODParticleEvent AsgDataHandlesLib
+      xAODTracking xAODParticleEvent AsgDataHandlesLib  MVAUtils
       PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} ${LWTNN_LIBRARIES} FourMomUtils xAODJet
-      PathResolver MVAUtils )
+      PathResolver )
 else()
    atlas_add_library( tauRecToolsLib
       tauRecTools/*.h Root/*.cxx tauRecTools/lwtnn/*.h Root/lwtnn/*.cxx  ${tauRecToolsLibCintDict}
@@ -54,9 +54,9 @@ else()
       PRIVATE_INCLUDE_DIRS ${FASTJETCONTRIB_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} ${Boost_LIBRARIES}
       AthLinks AsgTools CxxUtils xAODCaloEvent xAODEventInfo xAODPFlow xAODEgamma xAODTau
-      xAODTracking xAODParticleEvent CaloUtilsLib Particle AsgDataHandlesLib
-      PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} ${LWTNN_LIBRARIES} FourMomUtils xAODJet
-      PathResolver MVAUtils ElectronPhotonSelectorToolsLib )
+      xAODTracking xAODParticleEvent CaloUtilsLib Particle AsgDataHandlesLib MVAUtils
+      PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} ${LWTNN_LIBRARIES} FourMomUtils xAODJet BeamSpotConditionsData 
+      PathResolver ElectronPhotonSelectorToolsLib )
 endif()
 
 if( NOT XAOD_STANDALONE )

@@ -32,7 +32,7 @@ class HIJetConstituentModifierTool : public JetModifierBase {
 
   virtual StatusCode initialize() override;
   // Inherited method to modify a jet.
-  virtual int modifyJet(xAOD::Jet& jet) const;
+  virtual int modifyJet(xAOD::Jet& jet) const override;
 
  private:
    /// \brief Name of input cluster container

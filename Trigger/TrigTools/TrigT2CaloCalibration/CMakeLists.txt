@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloConditions
                           Calorimeter/CaloGeoHelpers
                           Calorimeter/CaloRec
+                          Calorimeter/CaloUtils
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           Control/StoreGate
@@ -32,7 +33,7 @@ atlas_add_library( TrigT2CaloCalibrationLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigT2CaloCalibration
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES CaloConditions CaloGeoHelpers AthenaBaseComps AthenaKernel AthenaPoolUtilities xAODTrigCalo GaudiKernel TrigCaloEvent CaloClusterCorrectionLib CaloRecLib StoreGateLib SGtests CaloDetDescrLib AthenaPoolCnvSvcLib RegistrationServicesLib
+                   LINK_LIBRARIES CaloConditions CaloGeoHelpers AthenaBaseComps AthenaKernel AthenaPoolUtilities xAODTrigCalo GaudiKernel TrigCaloEvent CaloClusterCorrectionLib CaloRecLib CaloUtilsLib StoreGateLib SGtests CaloDetDescrLib AthenaPoolCnvSvcLib RegistrationServicesLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} EventInfo )
 
 atlas_add_component( TrigT2CaloCalibration

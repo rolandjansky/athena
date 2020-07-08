@@ -2,7 +2,6 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from BTagging.BTaggingFlags import BTaggingFlags
 from JetTagTools.JetFitterVariablesFactoryConfig import JetFitterVariablesFactoryCfg
 #from BTagging.MSVVariablesFactoryConfig import MSVVariablesFactoryCfg
 
@@ -46,8 +45,8 @@ def BTagLightSecVtxToolCfg(flags, Name, JetCollection, SVandAssoc = {""}, TimeSt
     options.setdefault('SecVtxFinderTrackNameList', secVtxFinderTrackNameList)
     options.setdefault('SecVtxFinderxAODBaseNameList', secVtxFinderxAODBaseNameList)
     options['BTagVxSecVertexInfoNames'] = VxSecVertexInfoNameList
-    options.setdefault('PrimaryVertexName', BTaggingFlags.PrimaryVertexCollectionName)
-    options.setdefault('vxPrimaryCollectionName', BTaggingFlags.PrimaryVertexCollectionName)
+    options.setdefault('PrimaryVertexName', flags.BTagging.PrimaryVertexCollectionName)
+    options.setdefault('vxPrimaryCollectionName', flags.BTagging.PrimaryVertexCollectionName)
     options.setdefault('JetFitterVariableFactory', jetFitterVF)
     options['JetSecVtxLinkName'] = jetcol + '.' + OutputFilesSVname
     options['JetJFVtxLinkName'] = jetcol + '.' + OutputFilesJFVxname

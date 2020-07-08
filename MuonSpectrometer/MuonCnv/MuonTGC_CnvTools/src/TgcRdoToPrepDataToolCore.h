@@ -15,12 +15,14 @@
 #include "MuonRDO/TgcRdoContainer.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "TGCcablingInterface/ITGCcablingSvc.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include <string>
+#include <vector>
 
 namespace MuonGM 
 {
-  class MuonDetectorManager;
   class TgcReadoutElement; 
 }
 
@@ -302,8 +304,7 @@ namespace Muon
       /** Get SL local position */
       const Amg::Vector2D* getSLLocalPosition(const MuonGM::TgcReadoutElement* readout, const Identifier, const double eta, const double phi) const; 
 
-      /** muon detector manager */
-      const MuonGM::MuonDetectorManager* m_muonMgr;
+      SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_muDetMgrKey {this, "DetectorManagerKey", "MuonDetectorManager", "Key of input MuonDetectorManager condition data"}; 
 
       ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
       

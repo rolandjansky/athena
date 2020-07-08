@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigL2MuonSA/PtEndcapLUT.h"
+#include "PtEndcapLUT.h"
 #include "CLHEP/Vector/TwoVector.h"
 #include <fstream>
 #include <sstream>

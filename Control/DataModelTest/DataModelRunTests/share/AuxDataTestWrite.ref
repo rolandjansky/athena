@@ -114,7 +114,7 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #18, run #0 18 events
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #0 19 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #19, run #0 19 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
-Stream1              INFO Records written: 21
+Stream1              INFO Metadata records written: 21
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 auxdata.root         INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   CREATE    [ROOT_All] 601EDFE0-1D4C-374B-9E5C-E7843B21C21B

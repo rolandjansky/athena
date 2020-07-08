@@ -1137,7 +1137,7 @@ StatusCode ISF_HitAnalysis::execute()
 
  //Retrieve and save MuonEntryLayer information 
  const TrackRecordCollection *MuonEntry = nullptr;
- ATH_CHECK(evtStore()->retrieve(MuonEntry, "MuonEntryLayer"));
+ sc = evtStore()->retrieve(MuonEntry, "MuonEntryLayer");
  if (sc.isFailure())
  {
  ATH_MSG_WARNING( "Couldn't read MuonEntry from StoreGate");
@@ -1200,7 +1200,7 @@ StatusCode ISF_HitAnalysis::execute()
   {
    LArHitContainer::const_iterator hi;
    int hitnumber = 0;
-   for (hi=(*iter).begin();hi!=(*iter).end();hi++)
+   for (hi=(*iter).begin();hi!=(*iter).end();++hi)
    {
           hitnumber++;
           GeoLArHit ghit(**hi);
@@ -1745,7 +1745,7 @@ std::vector<Trk::HitInfo>* ISF_HitAnalysis::caloHits(const HepMC::GenParticle& p
    int sample=(*it).detID;
    Amg::Vector3D hitPos = (*it).trackParms->position();
    ATH_MSG_DEBUG(" HIT: layer="<<sample<<" sample="<<sample-3000<<" eta="<<hitPos.eta()<<" phi="<<hitPos.phi()<<" d="<<hitPos.mag());
-   it++;
+   ++it;
   }
  }
 

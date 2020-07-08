@@ -7,7 +7,9 @@ def TRTMonitoringRun3RAW_AlgConfig(inputFlags):
 
     from AthenaConfiguration.ComponentFactory import CompFactory
     algTRTMonitoringRun3RAW = helper.addAlgorithm(CompFactory.TRTMonitoringRun3RAW_Alg,
-                                               'AlgTRTMonitoringRun3RAW')
+                                                  'AlgTRTMonitoringRun3RAW',
+                                                  ByteStreamErrors= "" if inputFlags.isMC else "TRT_ByteStreamErrs"
+                                              )
 
     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 

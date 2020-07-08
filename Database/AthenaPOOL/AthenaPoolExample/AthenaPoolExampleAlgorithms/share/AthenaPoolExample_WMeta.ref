@@ -966,7 +966,7 @@ MetaDataHdrForm...  DEBUG Opened container MetaDataHdrForm(DataHeaderForm) of ty
 SimplePoolFile5...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm) [20?]  (17 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
 ClassIDSvc           INFO  getRegistryEntries: read 7 CLIDRegistry entries for module ALL
-Stream1              INFO Records written: 21
+Stream1              INFO Metadata records written: 21
 Stream1             DEBUG Leaving incident handler for MetaDataStop
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   CREATE    [ROOT_All] ????

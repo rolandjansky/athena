@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -706,7 +706,7 @@ namespace InDet{
       std::vector<double> Chi2PerTrk,VKPerigee,CovPerigee,closeVrtSig(0),closeVrtCh2(0);
       //TLorentzVector   Momentum;
       std::vector<double> Impact,ImpactError;
-      double             Chi2, Signif3D, Dist2D, JetVrtDir;
+      double             Signif3D, Dist2D, JetVrtDir;
       long int           Charge;
       int i,j;
       StatusCode sc; sc.setChecked();
@@ -726,7 +726,7 @@ namespace InDet{
       std::vector<int> hitIBL(NTracks,0), hitBL(NTracks,0);
       std::vector<double> TrackSignif(NTracks),TrkSig3D(NTracks);
       std::vector< std::vector<float> > trkScore(NTracks);
-      AmgVector(5) tmpPerigee; tmpPerigee<<0.,0.,0.,0.,0.;
+      AmgVector(5) tmpPerigee; tmpPerigee.setZero();
       for (i=0; i<NTracks; i++) {
          TrkSig3D[i] = m_fitSvc->VKalGetImpact(SelectedTracks[i], PrimVrt.position(), 1, Impact, ImpactError);
          tmpPerigee = GetPerigee(SelectedTracks[i])->parameters(); 
@@ -948,7 +948,7 @@ namespace InDet{
 	          ListSecondTracks.push_back(SelectedTracks[i]);
 	          ListSecondTracks.push_back(SelectedTracks[j]);
 	          closeVrtSig.push_back(Signif3D);
-	          closeVrtCh2.push_back(Chi2);
+	          closeVrtCh2.push_back(tmpVrt.Chi2);
                 }
 	     }
          }

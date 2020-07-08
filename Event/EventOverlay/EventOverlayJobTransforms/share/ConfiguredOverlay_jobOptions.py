@@ -28,7 +28,7 @@ from OverlayCommonAlgs.OverlayFlags import overlayFlags
 pileUpEventLoopMgr = PileUpEventLoopMgr()
 pileUpEventLoopMgr.OutStreamType = "AthenaOutputStream"
 
-print "================  DetFlags  ================ "
+printfunc ("================  DetFlags  ================ ")
 DetFlags.Print()
 
 if overlayFlags.isDataOverlay():

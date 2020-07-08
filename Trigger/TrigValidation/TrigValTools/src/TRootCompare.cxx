@@ -161,6 +161,9 @@ void TRootCompare::processKey(TDirectory& dir, TKey& key)
     else { // histograms do not match
       m_noMatch.push_back(keyPath.Data());
 
+      // Skip drawing if no output was requested
+      if (!m_outFile && m_psFile.Length()==0) return;
+
       m_can->Clear();
       m_can->Divide(2,1);
       m_can->cd(1)->SetPad(0,1,1,0.90);

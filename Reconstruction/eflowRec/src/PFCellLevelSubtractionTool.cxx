@@ -44,7 +44,7 @@ using namespace eflowSubtract;
 PFCellLevelSubtractionTool::PFCellLevelSubtractionTool(const std::string& type,const std::string& name,const IInterface* parent) :
   base_class( type, name, parent),
   m_binnedParameters(nullptr)
-{ 
+{
 }
 
 PFCellLevelSubtractionTool::~PFCellLevelSubtractionTool() {
@@ -55,10 +55,6 @@ StatusCode PFCellLevelSubtractionTool::initialize(){
 
   if (m_matchingTool.retrieve().isFailure()) {
     msg(MSG::WARNING) << "Cannot find PFTrackClusterMatchingTool" << endmsg;
-  }
-
-  if (m_matchingToolForPull_015.retrieve().isFailure()) {
-    msg(MSG::WARNING) << "Cannot find PFTrackClusterMatchingTool_2" << endmsg;
   }
 
   if (m_matchingToolForPull_02.retrieve().isFailure()) {
@@ -76,6 +72,12 @@ StatusCode PFCellLevelSubtractionTool::initialize(){
     return StatusCode::SUCCESS;
   }
 
+  m_trkpos.reset( dynamic_cast<PFMatch::TrackEtaPhiInFixedLayersProvider*>(PFMatch::TrackPositionFactory::Get("EM2EtaPhi").release()) );
+  if(!m_trkpos.get()) {
+    ATH_MSG_ERROR("Failed to get TrackPositionProvider for cluster preselection!");
+    return StatusCode::FAILURE;
+  }
+
   return StatusCode::SUCCESS;
 
 }
@@ -88,6 +90,7 @@ void PFCellLevelSubtractionTool::execute(eflowCaloObjectContainer* theEflowCaloO
   data.caloObjects = theEflowCaloObjectContainer;
   data.tracks = recTrackContainer;
   data.clusters = recClusterContainer;
+  data.clusterLUT.fill(*recClusterContainer);
   
   /* Add each track to its best matching cluster's eflowCaloObject */
   matchAndCreateEflowCaloObj(m_nMatchesInCellLevelSubtraction, data);
@@ -114,30 +117,39 @@ unsigned int PFCellLevelSubtractionTool::matchAndCreateEflowCaloObj(unsigned int
   for (unsigned int iTrack=0; iTrack<nTrack; ++iTrack) {
     eflowRecTrack *thisEfRecTrack = static_cast<eflowRecTrack*>(data.tracks->at(iTrack));
 
+    // Preselect clusters in a local cone
+    eflowRecMatchTrack matchTrack(thisEfRecTrack);
+    PFMatch::EtaPhi etaphi = m_trkpos->getPosition(&matchTrack);
+    float tracketa = etaphi.getEta();
+    float trackphi = etaphi.getPhiD();
+    float dRpresel = 0.4; // Some safety margin, but still << full detector
+    std::vector<eflowRecCluster*> nearbyClusters = data.clusterLUT.clustersInCone(tracketa,trackphi,dRpresel);
+
      /* Add cluster matches needed for pull calculation*/
-    std::vector<eflowRecCluster*> bestClusters_015 = m_matchingToolForPull_015->doMatches(thisEfRecTrack, data.clusters, -1);
-    std::vector<eflowRecCluster*> bestClusters_02 = m_matchingToolForPull_02->doMatches(thisEfRecTrack, data.clusters, -1);
+    std::vector<std::pair<eflowRecCluster*,float> > bestClusters_02 = m_matchingToolForPull_02->doMatches(thisEfRecTrack, data.clusters, -1);
 
-    for (unsigned int imatch=0; imatch < bestClusters_015.size(); ++imatch) {
-      eflowTrackClusterLink* trackClusterLink = eflowTrackClusterLink::getInstance(thisEfRecTrack, bestClusters_015.at(imatch));
-      thisEfRecTrack->addAlternativeClusterMatch(trackClusterLink,"cone_015");    
-    }
-
-    for (unsigned int imatch=0; imatch < bestClusters_02.size(); ++imatch) {
-      eflowTrackClusterLink* trackClusterLink = eflowTrackClusterLink::getInstance(thisEfRecTrack, bestClusters_02.at(imatch));
+    for (auto& matchpair : bestClusters_02) {
+      eflowRecCluster* theCluster = matchpair.first;
+      float distancesq = matchpair.second;
+      eflowTrackClusterLink* trackClusterLink = eflowTrackClusterLink::getInstance(thisEfRecTrack, theCluster);
+      if(distancesq<0.15*0.15) {
+	// Narrower cone is a subset of the selected clusters
+	// Distance returned is deltaR^2
+	thisEfRecTrack->addAlternativeClusterMatch(trackClusterLink,"cone_015");
+      }
       thisEfRecTrack->addAlternativeClusterMatch(trackClusterLink,"cone_02");    
     }
 
-    std::vector<eflowRecCluster*> bestClusters = m_matchingTool->doMatches(thisEfRecTrack, data.clusters, n);
+    std::vector<std::pair<eflowRecCluster*,float> > bestClusters = m_matchingTool->doMatches(thisEfRecTrack, data.clusters, n);
     if (bestClusters.empty()) { continue; }
 
     /* Matched cluster: create TrackClusterLink and add it to both the track and the cluster (eflowCaloObject will be created later) */
     nMatches++;
-    for (unsigned int imatch=0; imatch < bestClusters.size(); ++imatch) {
-    eflowTrackClusterLink* trackClusterLink = eflowTrackClusterLink::getInstance(thisEfRecTrack, bestClusters.at(imatch));
-    thisEfRecTrack->addClusterMatch(trackClusterLink);
-    bestClusters.at(imatch)->addTrackMatch(trackClusterLink);
-    
+    for (auto& matchpair : bestClusters) {
+      eflowRecCluster* theCluster = matchpair.first;
+      eflowTrackClusterLink* trackClusterLink = eflowTrackClusterLink::getInstance(thisEfRecTrack, theCluster);
+      thisEfRecTrack->addClusterMatch(trackClusterLink);
+      theCluster->addTrackMatch(trackClusterLink);
     }
   
   }

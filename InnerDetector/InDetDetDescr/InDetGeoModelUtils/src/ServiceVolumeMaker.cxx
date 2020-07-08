@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "InDetGeoModelUtils/ServiceVolumeMaker.h"
@@ -218,11 +218,11 @@ namespace InDetDD {
   }
 
   std::vector<double>
-  ServiceVolumeMakerMgr::readLayerShift() const {
+  ServiceVolumeMakerMgr::readLayerShift ATLAS_NOT_THREAD_SAFE () const { // Thread unsafe IRDBAccessSvc* InDetDD::AthenaComps::rdbAccessSvc() const is used.
     std::vector<double> layerShift;
 
     IRDBAccessSvc* rdbSvc = m_athenaComps->rdbAccessSvc();
-    IGeoDbTagSvc* geoDbTag = m_athenaComps->geoDbTagSvc();
+    const IGeoDbTagSvc* geoDbTag = m_athenaComps->geoDbTagSvc();
 
     DecodeVersionKey versionKey(geoDbTag, "Pixel");
     std::string detectorKey = versionKey.tag();

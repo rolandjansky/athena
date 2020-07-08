@@ -82,6 +82,11 @@ StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, SG
 
   } // end of: for ( auto inputKey: decisionInputs() )
 
+  // Print some debug messages summarising the content of the outputHandles.
+  if (msgLvl(MSG::DEBUG)) {
+    debugPrintOut(context, outputHandle);
+  }
+
   return StatusCode::SUCCESS;
 }
 

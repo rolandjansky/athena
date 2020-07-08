@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file SCTLorentzMonAlg_jobOptions.py
@@ -18,6 +18,9 @@ myMonAlg.TriggerChain = ''
 
 # Set InDetTrackSummaryTool to TrackSummaryTool of SCTLorentzMonAlg
 myMonAlg.TrackSummaryTool = InDetTrackSummaryTool
+
+myMonAlg.AssociationTool = InDetPrdAssociationTool
+myMonAlg.RejectSharedHits = False
 
 # Add a generic monitoring tool (a "group" in old language). The returned 
 # object here is the standard GenericMonitoringTool.

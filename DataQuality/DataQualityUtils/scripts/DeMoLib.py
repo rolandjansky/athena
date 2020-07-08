@@ -1,10 +1,10 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # Author : Benjamin Trocme (LPSC - Grenoble) - 2017
 # Auxiliary libraries used DemoUpdate, DeMoStatus and DemoScan
 ##################################################################
 
 from ROOT import THStack
-from ROOT import TCanvas,TLegend
+from ROOT import TCanvas
 from ROOT import kYellow,kOrange,kRed,kBlue,kPink,kMagenta,kGreen,kSpring,kViolet,kAzure,kCyan,kTeal,kBlack
 
 #import gb
@@ -234,7 +234,7 @@ def initialize(system,yearTag,partitions,defects0,defectVeto,veto,signOff,year =
 #################################### Pixel defects
   if system == "Pixel":
     partitions["color"] = {'IBL':kYellow-9,'LAYER0':kYellow,'BARREL':kOrange,'ENDCAPC':kOrange-3,'ENDCAPA':kRed-3}
-    partitions["list"] = partitions["color"].keys()
+    partitions["list"] = list(partitions["color"])
 
     defects0["prefix"] = ["PIXEL"]
     # Partition intolerable and tolerable defects - Order determines what defect is proeminent
@@ -268,7 +268,7 @@ def initialize(system,yearTag,partitions,defects0,defectVeto,veto,signOff,year =
 # https://twiki.cern.ch/twiki/bin/view/Atlas/SCTOfflineMonitoringShifts#List_of_Defects
   if system == "SCT":
     partitions["color"] = {}
-    partitions["list"] = partitions["color"].keys()
+    partitions["list"] = list(partitions["color"])
 
     defects0["prefix"] = ["SCT"]
     # Partition intolerable and tolerable defects - Order determines what defect is proeminent
@@ -322,10 +322,10 @@ def initialize(system,yearTag,partitions,defects0,defectVeto,veto,signOff,year =
 # https://twiki.cern.ch/twiki/bin/view/Atlas/TRTDQDefects
   if system == "TRT":
     partitions["color"] = {}
-    partitions["list"] = partitions["color"].keys()
+    partitions["list"] = list(partitions["color"].keys())
 
     defects0["prefix"] = ["TRT"]
-    # Partition intolerable and tolerable defects - Order determines what defect is proeminent
+    # Pa intolerable and tolerable defects - Order determines what defect is proeminent
     defects0["partIntol"] = []
     defects0["partTol"] = []
     # Global intolerable and tolerable defects
@@ -377,7 +377,7 @@ def initialize(system,yearTag,partitions,defects0,defectVeto,veto,signOff,year =
     similarTags["Reproc_2018.roughVeto"]="/2018 Reproc. (rough veto)"
 
     partitions["color"] = { 'EMBA':kYellow-9,'EMBC':kYellow,'EMECA':kOrange,'EMECC':kOrange-3,'HECA':kRed-3,'HECC':kRed+2,'FCALA':kBlue-3,'FCALC':kBlue+2}
-    partitions["list"] = partitions["color"].keys()
+    partitions["list"] = list(partitions["color"])
 
     defects0["prefix"] = ["LAR","CALO_ONLINEDB"]
     # Partition intolerable and tolerable defects - Order determines what defect is proeminent
@@ -441,7 +441,7 @@ def initialize(system,yearTag,partitions,defects0,defectVeto,veto,signOff,year =
 # https://twiki.cern.ch/twiki/bin/view/Atlas/TileDQLeaderManual#Global_Tile_Defects
   if system == "Tile":
     partitions["color"] = { 'EBA':kYellow-9,'EBC':kYellow,'LBA':kOrange,'LBC':kOrange-3}
-    partitions["list"] = partitions["color"].keys()
+    partitions["list"] = list(partitions["color"])
 
     defects0["prefix"] = ["TILE"]
     # Partition intolerable and tolerable defects - Order determines what defect is proeminent
@@ -476,7 +476,7 @@ def initialize(system,yearTag,partitions,defects0,defectVeto,veto,signOff,year =
   if system == "CSC":
     partitions["color"] = {"EA":kYellow-9,'EC':kRed-3}
                            
-    partitions["list"] = partitions["color"].keys()
+    partitions["list"] = list(partitions["color"])
 
     defects0["prefix"] = ["MS_CSC"]
     # Partition intolerable and tolerable defects - Order determines what defect is proeminent
@@ -506,7 +506,7 @@ def initialize(system,yearTag,partitions,defects0,defectVeto,veto,signOff,year =
   if system == "MDT":
     partitions["color"] = {"EA":kYellow-9,'EC':kRed-3,'BA':kBlue-3,'BC':kOrange-3}
                            
-    partitions["list"] = partitions["color"].keys()
+    partitions["list"] = list(partitions["color"])
 
     defects0["prefix"] = ["MS_MDT"]
     # Partition intolerable and tolerable defects - Order determines what defect is proeminent
@@ -536,7 +536,7 @@ def initialize(system,yearTag,partitions,defects0,defectVeto,veto,signOff,year =
   if system == "RPC":
     partitions["color"] = {'BA':kBlue-3,'BC':kOrange-3}
                            
-    partitions["list"] = partitions["color"].keys()
+    partitions["list"] = list(partitions["color"])
 
     defects0["prefix"] = ["MS_RPC"]
     # Partition intolerable and tolerable defects - Order determines what defect is proeminent
@@ -572,7 +572,7 @@ def initialize(system,yearTag,partitions,defects0,defectVeto,veto,signOff,year =
   if system == "TGC":
     partitions["color"] = {"EA":kYellow-9,'EC':kRed-3}
 
-    partitions["list"] = partitions["color"].keys()
+    partitions["list"] = list(partitions["color"])
 
     defects0["prefix"] = ["MS_TGC"]
     # Partition intolerable and tolerable defects - Order determines what defect is proeminent
@@ -627,7 +627,7 @@ def initialize(system,yearTag,partitions,defects0,defectVeto,veto,signOff,year =
 #################################### ID defects
   if system == "IDGlobal":
     partitions["color"] = {}
-    partitions["list"] = partitions["color"].keys()
+    partitions["list"] = list(partitions["color"])
 
     defects0["prefix"] = ["ID"]
     # Partition intolerable and tolerable defects - Order determines what defect is proeminent
@@ -664,7 +664,7 @@ def initialize(system,yearTag,partitions,defects0,defectVeto,veto,signOff,year =
                             'B':kYellow-9,'CR':kRed-3,'E':kBlue-3, # Tau partitions
                             'CALB':kYellow-9,'CALEA':kRed-3,'CALC':kBlue-3} # CaloGlobal partitions
                             
-    partitions["list"] = partitions["color"].keys()
+    partitions["list"] = list(partitions["color"])
 
     defects0["prefix"] = ["JET","EGAMMA","MET","TAU","CALO_"]
     # Partition intolerable and tolerable defects - Order determines what defect is proeminent
@@ -708,7 +708,7 @@ def initialize(system,yearTag,partitions,defects0,defectVeto,veto,signOff,year =
   if system == "BTag":
     partitions["color"] = { } # No partition needed
                             
-    partitions["list"] = partitions["color"].keys()
+    partitions["list"] = list(partitions["color"])
 
     defects0["prefix"] = ["BTAG"]
     # Partition intolerable and tolerable defects - Order determines what defect is proeminent
@@ -747,7 +747,7 @@ def initialize(system,yearTag,partitions,defects0,defectVeto,veto,signOff,year =
 # https://twiki.cern.ch/twiki/bin/view/Atlas/DataQualityTriggerDefects
   if system == "Trig_L1":
     partitions["color"] = {}
-    partitions["list"] = partitions["color"].keys()
+    partitions["list"] = list(partitions["color"])
 
     defects0["prefix"] = ["TRIG_L1"]
     # Partition intolerable and tolerable defects - Order determines what defect is proeminent
@@ -785,7 +785,7 @@ def initialize(system,yearTag,partitions,defects0,defectVeto,veto,signOff,year =
 #################################### Trig_HLT defects
   if system == "Trig_HLT":
     partitions["color"] = {}
-    partitions["list"] = partitions["color"].keys()
+    partitions["list"] = list(partitions["color"])
 
     defects0["prefix"] = ["TRIG_HLT"]
     # Partition intolerable and tolerable defects - Order determines what defect is proeminent
@@ -827,7 +827,7 @@ def initialize(system,yearTag,partitions,defects0,defectVeto,veto,signOff,year =
       defectVeto["description"][iDef] = iDef
 
 # Define color if not yet done
-  if not (defectVeto.has_key("color")):
+  if not ("color" in defectVeto):
     colors = [kBlue-4,kOrange-7,kTeal+1,kRed+1,kMagenta+2,kPink-3,kYellow+1,kGreen-2,kSpring-6,kViolet-4,kAzure-8,kCyan+1,
               kBlue-2,kOrange+1,kTeal+7,kRed+3,kMagenta-2,kPink+1,kYellow-1,kGreen+4,kSpring-2,kViolet+1,kAzure-2,kCyan-5,
               kBlue+2,kOrange+5,kTeal-4,kRed-5,kMagenta-6,kPink+6,kYellow-5,kGreen-6,kSpring+4,kViolet+6,kAzure+4,kCyan+4,]
@@ -843,7 +843,7 @@ def initialize(system,yearTag,partitions,defects0,defectVeto,veto,signOff,year =
     baseTag = iSimilar.split(".")[0]
     yearTag["description"][iSimilar] = similarTags[iSimilar]
     yearTag["defect"][iSimilar] = yearTag["defect"][baseTag] 
-    if (yearTag["veto"].has_key(baseTag)):
+    if (baseTag in yearTag["veto"]):
       yearTag["veto"][iSimilar] = yearTag["veto"][baseTag] 
 
   return True

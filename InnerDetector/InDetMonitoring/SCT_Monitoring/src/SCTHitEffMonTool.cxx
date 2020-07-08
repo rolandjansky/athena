@@ -978,10 +978,9 @@ SCTHitEffMonTool::getResidual(const Identifier& surfaceID, const Trk::TrackParam
     return trackHitResidual;
   }
   IdentifierHash idh{m_sctId->wafer_hash(surfaceID)};
-  InDet::SCT_ClusterContainer::const_iterator containerIterator{p_sctclcontainer->indexFind(idh)};
-  InDet::SCT_ClusterContainer::const_iterator containerEnd{p_sctclcontainer->end()};
-  if (containerIterator != containerEnd) {
-    for (const InDet::SCT_Cluster* cluster: **containerIterator) {
+  const InDet::SCT_ClusterCollection *containerIterator{p_sctclcontainer->indexFindPtr(idh)};
+  if (containerIterator != nullptr) {
+    for (const InDet::SCT_Cluster* cluster: *containerIterator) {
       if ((cluster==nullptr) or (cluster->detectorElement()==nullptr)) {
         ATH_MSG_WARNING("nullptr to RIO or detElement");
         continue;

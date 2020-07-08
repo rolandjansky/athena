@@ -24,6 +24,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetEventCnv/PixelRawDataByteStreamCnv
                           InnerDetector/InDetEventCnv/SCT_RawDataByteStreamCnv
                           InnerDetector/InDetEventCnv/TRT_RawDataByteStreamCnv
+                          InnerDetector/InDetConditions/TRT_ConditionsServices
                           Trigger/TrigEvent/TrigSteeringEvent )
 
 # Component(s) in the package:

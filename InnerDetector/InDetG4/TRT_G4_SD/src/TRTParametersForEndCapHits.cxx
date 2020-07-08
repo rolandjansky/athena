@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Class header
@@ -102,7 +102,7 @@ void TRTParametersForEndCapHits::DefineParameters() const
 
 // Called by TRTParametersForEndCapHits
 
-void TRTParametersForEndCapHits::PrintParameters() const
+void TRTParametersForEndCapHits::PrintParameters ATLAS_NOT_THREAD_SAFE () const // Thread unsafe TRTOutputFile class is used.
 {
   if (m_verboseLevel>5) { G4cout << "######### Method TRTParametersForEndCapHits::PrintParameters" << G4endl; }
 

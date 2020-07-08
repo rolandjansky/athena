@@ -5,34 +5,6 @@
 # Declare the package name:
 atlas_subdir( LArG4H6SD )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-                          Calorimeter/CaloG4Sim
-                          Calorimeter/CaloSimEvent
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/StoreGate
-                          Database/RDBAccessSvc
-                          DetectorDescription/GeoModel/GeoModelInterfaces
-                          DetectorDescription/GeoModel/GeoModelUtilities
-                          DetectorDescription/Identifier
-                          Generators/GeneratorObjects
-                          LArCalorimeter/LArG4/LArG4Code
-                          LArCalorimeter/LArG4/LArG4RunControl
-                          LArCalorimeter/LArG4TB/LArG4TBSimEvent
-                          LArCalorimeter/LArGeoModel/LArReadoutGeometry
-                          LArCalorimeter/LArSimEvent
-                          Simulation/G4Atlas/G4AtlasInterfaces
-                          Simulation/G4Atlas/G4AtlasTools
-                          Simulation/G4Sim/SimHelpers
-                          Simulation/HitManagement
-                          Simulation/G4Sim/MCTruth
-                          TestBeam/TBEvent
-                          Tools/PathResolver 
-                          Generators/AtlasHepMC )
-
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )

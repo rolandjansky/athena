@@ -40,7 +40,7 @@ for option in defaultOptions:
     else:        
         print(' %20s = (Default) %s' % (option, getattr(opt, option)))
 
-
+TriggerFlags.generateMenuDiagnostics=True
 
 topSequence = AlgSequence()
 if opt.doMenu is True:
@@ -70,4 +70,3 @@ dumpSequence( topSequence )
 
 theApp.EvtMax = 4
 
-TriggerFlags.generateMenuDiagnostics=True

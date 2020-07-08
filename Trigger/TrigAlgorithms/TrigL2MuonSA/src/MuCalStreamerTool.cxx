@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigL2MuonSA/MuCalStreamerTool.h"
+#include "MuCalStreamerTool.h"
 
 #include <cmath>
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TrigHLTMonitoring.HLTMonTriggerList import HLTMonTriggerList
 hltmonList = HLTMonTriggerList()
@@ -90,7 +90,6 @@ if hltmonList.cosmic_mode :
         #monGroups.append("HLT_bphys_misc")
     #pass
 
-from AthenaCommon.AppMgr import ToolSvc
 def TrigBphysMonitoringTool():
     from TrigBphysMonitoring.TrigBphysMonitoringConf import HLTXAODBphysMonTool
     from TrigHLTMonitoring.HLTMonTriggerList import hltmonList
@@ -158,8 +157,6 @@ def TrigBphysMonitoringTool():
                                   pTErr_max           =  10.
                                   )
     
-    from AthenaCommon.AppMgr import ToolSvc
-    #ToolSvc += HLTBphysMon
     items = [ HLTBphysMon ]
     return items
 

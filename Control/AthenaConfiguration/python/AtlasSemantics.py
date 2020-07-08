@@ -31,6 +31,22 @@ class AppendListSemantics(GaudiConfig2.semantics.SequenceSemantics):
         a.extend(b)
         return a
 
+class MapMergeNoReplaceSemantics(GaudiConfig2.semantics.MappingSemantics):
+    '''
+    Extend the mapping-semantics with a merge-method that merges two mappings as long as they do not have different values for the same key
+    Use 'mapMergeNoReplace<T>' as fifth parameter of the Gaudi::Property<T> constructor
+    to invoke this merging method.
+    '''
+    __handled_types__ = (re.compile(r"^mapMergeNoReplace<.*>$"),)
+    def __init__(self, cpp_type, name=None):
+        super(MapMergeNoReplaceSemantics, self).__init__(cpp_type, name)
+
+    def merge(self,a,b):
+        for k in b.keys():
+            if k in a and b[k] != a[k]:
+                raise ValueError('conflicting values in map under key %r and %r %r' % (k, b[k], a[k]))
+            a[k] = b[k]
+        return a
 
 class VarHandleSematics(GaudiConfig2.semantics.StringSemantics):
     '''
@@ -205,12 +221,13 @@ GaudiConfig2.semantics.SEMANTICS.append(ToolHandleArraySemantics)
 GaudiConfig2.semantics.SEMANTICS.append(PublicHandleSemantics)
 GaudiConfig2.semantics.SEMANTICS.append(PublicHandleArraySemantics)
 GaudiConfig2.semantics.SEMANTICS.append(SubAlgoSemantics)
+GaudiConfig2.semantics.SEMANTICS.append(MapMergeNoReplaceSemantics)
 
 
 #For some obscure reason, _ListHelper object never compare equal. Therefore PropertySemantics merge() method fails
 def _sequencemerge(instance,a,b):
     if a.data != b.data:
-        raise ValueError('cannot merge values %r and %r' % (a, b))
+        raise ValueError('cannot merge sequence of values %r and %r' % (a, b))
     else:
         return a
     

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CSCRDOTOCSCPREPDATA_H
@@ -10,7 +10,7 @@
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include "MuonPrepRawData/CscStripPrepDataContainer.h"
 /** Algorithm to decode RDO into CscStripPrepData
  - get the RDO container from Storegate
@@ -38,7 +38,7 @@ private:
   bool                                    m_print_prepData; //!<< If true, will dump information about the resulting PRDs.  
   bool m_seededDecoding;
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
-  ServiceHandle<IRegSelSvc> m_regionSelector; //<! pointer to RegionSelectionSvc
+  ToolHandle<IRegSelTool> m_regsel_csc; //<! pointer to RegionSelectionTool
   SG::WriteHandleKey<Muon::CscStripPrepDataContainer> m_cscCollection;
 };
 

@@ -58,6 +58,7 @@ Trk::GsfMaterialMixtureConvolution::finalize()
 
 Trk::MultiComponentState
 Trk::GsfMaterialMixtureConvolution::update(
+  std::vector<Trk::IMultiStateMaterialEffects::Cache>&,
   const Trk::MultiComponentState& multiComponentState,
   const Trk::Layer& layer,
   Trk::PropDirection direction,
@@ -113,6 +114,7 @@ Trk::GsfMaterialMixtureConvolution::update(
     QuickCloseComponentsMultiStateMerger::merge(
       std::move(cache.multiComponentState), m_maximumNumberOfComponents);
 
+  ATH_MSG_DEBUG("UPDATE update N in: " <<  multiComponentState.size() <<" N out: "<< mergedState.size() );
   if (mergedState.empty()) {
     return {};
   }
@@ -128,6 +130,7 @@ Trk::GsfMaterialMixtureConvolution::update(
 
 Trk::MultiComponentState
 Trk::GsfMaterialMixtureConvolution::preUpdate(
+  std::vector<Trk::IMultiStateMaterialEffects::Cache>&,
   const Trk::MultiComponentState& multiComponentState,
   const Trk::Layer& layer,
   Trk::PropDirection direction,
@@ -159,7 +162,7 @@ Trk::GsfMaterialMixtureConvolution::preUpdate(
 
     Trk::MultiComponentState updatedState = m_updator->preUpdateState(
       *component, layer, direction, particleHypothesis);
-
+     ATH_MSG_DEBUG("PREUPDATE update component result size:  " <<  updatedState.size() );
     if (updatedState.empty()) {
       continue;
     }
@@ -172,11 +175,12 @@ Trk::GsfMaterialMixtureConvolution::preUpdate(
         "Component could not be added to the state in the assembler");
     }
   }
-
+  ATH_MSG_DEBUG("PREUPDATE before merge N: " <<  cache.multiComponentState.size()  );
   Trk::MultiComponentState mergedState =
     QuickCloseComponentsMultiStateMerger::merge(
       std::move(cache.multiComponentState), m_maximumNumberOfComponents);
 
+  ATH_MSG_DEBUG("PREUPDATE update N in: " <<  multiComponentState.size() <<" N out: "<< mergedState.size() );
   if (mergedState.empty()) {
     return {};
   }
@@ -192,6 +196,7 @@ Trk::GsfMaterialMixtureConvolution::preUpdate(
 
 Trk::MultiComponentState
 Trk::GsfMaterialMixtureConvolution::postUpdate(
+  std::vector<Trk::IMultiStateMaterialEffects::Cache>&,
   const Trk::MultiComponentState& multiComponentState,
   const Trk::Layer& layer,
   Trk::PropDirection direction,
@@ -243,6 +248,7 @@ Trk::GsfMaterialMixtureConvolution::postUpdate(
     QuickCloseComponentsMultiStateMerger::merge(
       std::move(cache.multiComponentState), m_maximumNumberOfComponents);
 
+  ATH_MSG_DEBUG("POSTUPDATE update N in: " <<  multiComponentState.size() <<" N out: "<< mergedState.size() );
   if (mergedState.empty()) {
     return {};
   }

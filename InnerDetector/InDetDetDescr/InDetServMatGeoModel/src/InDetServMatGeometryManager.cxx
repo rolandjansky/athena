@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/InDetServMatGeometryManager.h"
@@ -19,7 +19,7 @@ InDetServMatGeometryManager::InDetServMatGeometryManager(const InDetDD::AthenaCo
   
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initializing InDetServMatGeometryManager" << endmsg;
    
-  IGeoDbTagSvc *geoDbTag = m_athenaComps->geoDbTagSvc();
+  const IGeoDbTagSvc *geoDbTag = m_athenaComps->geoDbTagSvc();
   IRDBAccessSvc *rdbSvc = m_athenaComps->rdbAccessSvc();
 
   // Get version tag and node for Pixel.

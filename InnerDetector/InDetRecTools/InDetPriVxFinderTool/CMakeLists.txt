@@ -46,7 +46,8 @@ atlas_add_component( InDetPriVxFinderTool
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODTracking 
                      GaudiKernel InDetRecToolInterfaces PATCoreLib TrkParameters TrkParticleBase TrkTrack CxxUtils AthContainers GeoPrimitives 
                      EventPrimitives TrkSurfaces TrkEventPrimitives TrkLinks TrkTrackSummary VxMultiVertex VxVertex 
-                     TrkVertexFitterInterfaces TrkVertexFittersLib BeamSpotConditionsData StoreGateLib)
+                     TrkVertexFitterInterfaces TrkVertexFittersLib BeamSpotConditionsData StoreGateLib
+                     InDetTrackSelectionToolLib )
 
 # Install files from the package:
 atlas_install_headers( InDetPriVxFinderTool )

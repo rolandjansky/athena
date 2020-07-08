@@ -247,16 +247,10 @@ StatusCode TRTCalibrationMgr::finalize()
 	return StatusCode::SUCCESS;
 }
 
-StatusCode TRTCalibrationMgr::streamOutCalibObjects() const
+StatusCode TRTCalibrationMgr::streamOutCalibObjects()
 {
   ATH_MSG_INFO( "entering streamOutCalibObjects " );
-  StatusCode sc;
-  
-
-  IAthenaOutputStreamTool*  streamer=const_cast<IAthenaOutputStreamTool*>(&(*m_streamer));
-
-
-  sc = streamer->connectOutput();
+  StatusCode sc = m_streamer->connectOutput();
   if (sc.isFailure()) {
     ATH_MSG_ERROR("Could not connect stream to output");
     return( StatusCode::FAILURE);
@@ -266,13 +260,13 @@ StatusCode TRTCalibrationMgr::streamOutCalibObjects() const
   typeKeys.push_back( IAthenaOutputStreamTool::TypeKeyPair(StrawT0Container::classname(),m_par_t0containerkey)) ;
   typeKeys.push_back( IAthenaOutputStreamTool::TypeKeyPair(RtRelationContainer::classname(),m_par_rtcontainerkey)) ;
   
-  sc = streamer->streamObjects(typeKeys);
+  sc = m_streamer->streamObjects(typeKeys);
   if (sc.isFailure()) {
     ATH_MSG_ERROR("Could not stream out Containers ");
     return( StatusCode::FAILURE);
   }
   
-  sc = streamer->commitOutput();
+  sc = m_streamer->commitOutput();
   if (sc.isFailure()) {
     ATH_MSG_ERROR("Could not commit output stream");
     return( StatusCode::FAILURE);

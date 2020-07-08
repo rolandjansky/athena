@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigL2MuonSA/AlignmentBarrelLUT.h"
+#include "AlignmentBarrelLUT.h"
 #include<fstream>
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"

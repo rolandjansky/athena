@@ -14,7 +14,7 @@ caloRingerFlags.doWriteRingsToFile = True
 from CaloRingerAlgs.CaloRingerAlgorithmBuilder import CaloRingerAlgorithmBuilder
 CRAlgBuilder = CaloRingerAlgorithmBuilder(disable = True)
 from CaloRingerAlgs.CaloRingerMetaDataBuilder import CaloRingerMetaDataBuilder
-CRMetaBuilder = CaloRingerMetaDataBuilder()
+CRMetaBuilder = CaloRingerMetaDataBuilder(disable=True)
 
 # Make sure all MetaData algoritms have the ringerOutputLevel
 if CRMetaBuilder.usable():

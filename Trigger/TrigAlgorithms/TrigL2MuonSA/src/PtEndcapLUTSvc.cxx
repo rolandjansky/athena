@@ -4,7 +4,7 @@
 
 #include "GaudiKernel/ISvcLocator.h"
 
-#include "TrigL2MuonSA/PtEndcapLUTSvc.h"
+#include "PtEndcapLUTSvc.h"
 #include "PathResolver/PathResolver.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"

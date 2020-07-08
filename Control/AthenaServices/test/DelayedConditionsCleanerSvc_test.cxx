@@ -26,7 +26,7 @@
 #include "GaudiKernel/Service.h"
 #include "tbb/global_control.h"
 #include "tbb/concurrent_queue.h"
-#include "tbb/task.h"
+#include "tbb/task_group.h"
 #include <list>
 #include <algorithm>
 #include <iostream>
@@ -490,47 +490,17 @@ void CCS::checkFin (bool threaded) const
 }
 
 
-class EventTask
-  : public tbb::task
+void eventTask (const EventContext& ctx,
+                CCS& ccs,
+                Athena::IRCUSvc& rcu,
+                work_queue_t& wqueue)
 {
-public:
-  EventTask (const EventContext& ctx,
-             CCS& ccs,
-             Athena::IRCUSvc& rcu,
-             work_queue_t& wqueue);
+  ccs.load (ctx);
+  ccs.check (ctx);
 
-  tbb::task* execute() override;
-
-
-private:
-  EventContext m_ctx;
-  CCS& m_ccs;
-  IIncidentListener& m_rcu;
-  work_queue_t& m_wqueue;
-};
-
-
-EventTask::EventTask (const EventContext& ctx,
-                      CCS& ccs,
-                      Athena::IRCUSvc& rcu,
-                      work_queue_t& wqueue)
-  : m_ctx (ctx),
-    m_ccs (ccs),
-    m_rcu (dynamic_cast<IIncidentListener&>(rcu)),
-    m_wqueue (wqueue)
-{
-}
-
-
-tbb::task* EventTask::execute()
-{
-  m_ccs.load (m_ctx);
-  m_ccs.check (m_ctx);
-
-  Incident inc ("test", IncidentType::EndEvent, m_ctx);
-  m_rcu.handle (inc);
-  m_wqueue.push (m_ctx.slot());
-  return nullptr;
+  Incident inc ("test", IncidentType::EndEvent, ctx);
+  dynamic_cast<IIncidentListener&>(rcu).handle (inc);
+  wqueue.push (ctx.slot());
 }
 
 
@@ -599,6 +569,7 @@ void Tester::event_loop (CCS& ccs, const std::vector<size_t>& evnums)
     m_ready.push (i);
   }
 
+  tbb::task_group tg;
   size_t nev = evnums.size();
   for (size_t ievt=0; ievt < nev; ievt++) {
     size_t slot;
@@ -608,9 +579,7 @@ void Tester::event_loop (CCS& ccs, const std::vector<size_t>& evnums)
 
     assert (m_cleaner.event (ctx, m_allowAsync).isSuccess() );
 
-    tbb::task* t = new (tbb::task::allocate_root())
-      EventTask (ctx, ccs, m_rcu, m_ready);
-    tbb::task::enqueue (*t);
+    tg.run ([&, ctx] { eventTask (ctx, ccs, m_rcu, m_ready); });
   }
 
   // Wait for all tasks to complete.
@@ -618,6 +587,7 @@ void Tester::event_loop (CCS& ccs, const std::vector<size_t>& evnums)
     size_t slot;
     m_ready.pop (slot);
   }
+  tg.wait();
 
   ccs.checkFin (true);
 }
@@ -653,7 +623,7 @@ int main()
   errorcheck::ReportMessage::hideErrorLocus();
   std::cout << "DelayedConditionsCleanerSvc_test\n";
   ISvcLocator* svcloc = 0;
-  if (!Athena_test::initGaudi("DelayedConditionsCleanerSvc_test.txt", svcloc)) {
+  if (!Athena_test::initGaudi("AthenaServices/DelayedConditionsCleanerSvc_test.txt", svcloc)) {
     std::cerr << "This test can not be run" << std::endl;
     return 1;
   }  

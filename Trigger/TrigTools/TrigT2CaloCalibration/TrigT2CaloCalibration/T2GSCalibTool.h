@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -23,46 +23,40 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/Property.h"
 
-#include "CaloRec/ToolWithConstantsMixin.h"
+#include "CaloUtils/ToolWithConstants.h"
 
 #include "TrigT2CaloCalibration/IT2HadCalibTool.h"
 
 #include <vector>
 #include <math.h>
 
-class T2GSCalibTool : virtual public IT2HadCalibTool, 
-                               public AthAlgTool,
-                               public CaloRec::ToolWithConstantsMixin 
+class T2GSCalibTool : 
+  public extends<CaloUtils::ToolWithConstants<AthAlgTool>,
+                 IT2HadCalibTool>
 {
  public:
    /** Constructor */
    T2GSCalibTool(const std::string&,const std::string&,const IInterface*); 
    /** Destructor */
-   ~T2GSCalibTool();
+   virtual ~T2GSCalibTool();
    /** athena initialize method */
-   StatusCode initialize();
+   virtual StatusCode initialize() override;
    /** athena finalize method */
-   StatusCode finalize(); 
+   virtual StatusCode finalize() override;
    
-   // These ones must be redefined for ToolWithConstantsMixin
-   using AthAlgTool::setProperty;
-   virtual StatusCode setProperty (const std::string& propname,
-                                   const std::string& value);  
-   virtual StatusCode setProperty (const Property& p); 
-
    /** @brief Returns the response for each calo layer 
    * @param[in] Fraction of jet energy deposited in the layer
    * @param[in] Jet energy after JES calibration
    * @param[in] Eta position of the jet
    */
-   double c_energy(double fLayer,double jetEnergy,double eta);
-   double c_febenergy(double fLayer,double jetEnergy,double eta);
+   virtual double c_energy(double fLayer,double jetEnergy,double eta) override;
+   virtual double c_febenergy(double fLayer,double jetEnergy,double eta) override;
 
  private:
    
    MsgStream m_log;
 
-   CaloRec::Array<3>                 m_calibConstants;
+   Constant<CxxUtils::Array<3> >    m_calibConstants { this, "CalibConstants"};
    std::vector<double>               m_etaBins;
    std::vector<std::vector<double> > m_ptBins;
    std::vector<std::vector<double> > m_propertyBins;

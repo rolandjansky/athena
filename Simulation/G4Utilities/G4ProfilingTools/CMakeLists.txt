@@ -5,14 +5,6 @@
 # Declare the package name:
 atlas_subdir( G4ProfilingTools )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaKernel
-                          Simulation/G4Atlas/G4AtlasTools
-			  Simulation/G4Atlas/G4AtlasInterfaces )
-
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )

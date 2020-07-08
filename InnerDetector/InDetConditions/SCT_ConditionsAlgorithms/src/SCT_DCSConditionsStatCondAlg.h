@@ -61,7 +61,7 @@ class SCT_DCSConditionsStatCondAlg : public AthReentrantAlgorithm
   StringProperty m_chanstatCut{this, "StateCut", "NORM"};
   FloatProperty m_hvLowLimit{this, "HVCutLow", 0.0};
   FloatProperty m_hvUpLimit{this, "HVCutUp", 1000000.0};
-  BooleanProperty m_useHV{this, "UseDefaultHV", false};
+  BooleanProperty m_useDefaultHV{this, "UseDefaultHV", false};
   FloatProperty m_useHVLowLimit{this, "useHVLow", 19.};
   FloatProperty m_useHVUpLimit{this, "useHVUp", 1000000.0};
   StringProperty m_useHVChanCut{this, "useHVChan", "LOOSE"};

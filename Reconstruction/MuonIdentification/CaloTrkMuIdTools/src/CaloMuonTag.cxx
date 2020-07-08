@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTrkMuIdTools/CaloMuonTag.h"
@@ -25,7 +25,10 @@ m_numRejected(0)
 ///////////////////////////////////////////////////////////////////////////////
 // Destructor
 ///////////////////////////////////////////////////////////////////////////////
-CaloMuonTag::~CaloMuonTag(){}
+CaloMuonTag::~CaloMuonTag()
+{
+  delete m_hist; m_hist = nullptr; // TFile::Get new's so this needs to be deleted
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // initialize
@@ -41,6 +44,7 @@ StatusCode CaloMuonTag::initialize()
 	std::string rootFilePath = PathResolver::find_file("CaloTag.CutConfig.root","DATAPATH");
 	TFile* rootFile = TFile::Open(rootFilePath.c_str(), "READ");
 	ATH_CHECK(getHist(rootFile, m_tagMode.c_str(), m_hist));
+  rootFile->Close(); delete rootFile; rootFile = nullptr; // don't need the file anymore
 	// Read cut names from histogram
 	m_numCuts = m_hist->GetYaxis()->GetNbins();
 	if (m_numCuts == 0) {

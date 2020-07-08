@@ -77,7 +77,7 @@ namespace Muon {
     /** @brief Returns an invalid hash */
     virtual IdentifierHash idDE() const override;
 
-    virtual bool rioType(Trk::RIO_OnTrackType::Type type) const override
+    virtual bool rioType(Trk::RIO_OnTrackType::Type type) const override final
     {
       return (type == Trk::RIO_OnTrackType::MuonCluster);
     }

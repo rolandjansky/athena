@@ -131,7 +131,7 @@ namespace Trk {
       }
       const Perigee*          mPer = dynamic_cast<const Perigee*>(endPer);
       const AtaStraightLine*  Line = dynamic_cast<const AtaStraightLine*>(endPer);
-      AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
+      AmgVector(5) VectPerig; VectPerig.setZero();
       const AmgSymMatrix(5) *CovMtx=nullptr;
       if( mPer ){
         VectPerig = mPer->parameters(); 

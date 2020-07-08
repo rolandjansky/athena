@@ -22,7 +22,7 @@
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
 #include "TrigInDetToolInterfaces/ITrigVertexFitter.h"
-#include "TrigVertexFitter/TrigVertexFitter.h"
+#include "TrigVertexFitter.h"
 
 
 TrigVertexFitter::TrigVertexFitter(const std::string& t, 

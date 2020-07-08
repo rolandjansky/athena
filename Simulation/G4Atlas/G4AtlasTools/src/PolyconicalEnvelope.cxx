@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Base class
@@ -16,19 +16,8 @@
 
 PolyconicalEnvelope::PolyconicalEnvelope(const std::string& type, const std::string& name, const IInterface* parent)
   : DetectorGeometryBase(type,name,parent)
-  , m_materialName("Air")
-  , m_surfaceNr(0)
-  , m_startphi(0.)
-  , m_deltaphi(360.*CLHEP::deg)
 {
   ATH_MSG_VERBOSE( "PolyconicalEnvelope constructor for " << name );
-  declareProperty("Material",m_materialName,"Envelope Material");
-  declareProperty("NSurfaces",m_surfaceNr,"Nr. of surfaces in Z");
-  declareProperty("InnerRadii",m_innerRadii,"Envelope inner radii");
-  declareProperty("OuterRadii",m_outerRadii,"Envelope outer radii");
-  declareProperty("ZSurfaces",m_ZSurfaces,"Envelope surface Zs");
-  declareProperty("StartPhi", m_startphi, "");
-  declareProperty("DeltaPhi", m_deltaphi, "");
 }
 
 void PolyconicalEnvelope::BuildGeometry()
@@ -38,7 +27,7 @@ void PolyconicalEnvelope::BuildGeometry()
   // Get nist material manager
   G4NistManager* nist = G4NistManager::Instance();
 
-  G4Material* mat = nist->FindOrBuildMaterial(m_materialName);
+  G4Material* mat = nist->FindOrBuildMaterial(m_materialName.value());
 
   if (!m_surfaceNr) m_surfaceNr=m_ZSurfaces.size();
 
@@ -63,9 +52,9 @@ void PolyconicalEnvelope::BuildGeometry()
       ov[i]=m_outerRadii[i];
     }
 
-  G4VSolid* envSolid=new G4Polycone(m_detectorName,m_startphi,m_deltaphi,m_surfaceNr,zv,iv,ov);
+  G4VSolid* envSolid=new G4Polycone(m_detectorName.value(),m_startphi,m_deltaphi,m_surfaceNr,zv,iv,ov);
 
-  G4LogicalVolume* logicWorld = new G4LogicalVolume(envSolid,mat,m_detectorName);
+  G4LogicalVolume* logicWorld = new G4LogicalVolume(envSolid,mat,m_detectorName.value());
 
   m_envelope.theEnvelope=logicWorld;
 

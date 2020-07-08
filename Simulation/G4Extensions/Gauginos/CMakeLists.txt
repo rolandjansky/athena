@@ -5,12 +5,6 @@
 # Declare the package name:
 atlas_subdir( Gauginos )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Control/AthenaBaseComps
-                          GaudiKernel
-                          Simulation/G4Atlas/G4AtlasInterfaces )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Geant4 )

@@ -109,7 +109,7 @@ private:
   using Propagator = Acts::Propagator<Acts::EigenStepper<ATLASMagneticFieldWrapper>, Acts::Navigator>;
   using TrackLinearizer = Acts::HelicalTrackLinearizer<Propagator>;
   using VertexFitter = Acts::AdaptiveMultiVertexFitter<TrackWrapper, TrackLinearizer>;
-  using VertexSeedFinder = Acts::TrackDensityVertexFinder<VertexFitter, Acts::GaussianTrackDensity>;
+  using VertexSeedFinder = Acts::TrackDensityVertexFinder<VertexFitter, Acts::GaussianTrackDensity<TrackWrapper>>;
   using VertexFinder = Acts::AdaptiveMultiVertexFinder<VertexFitter, VertexSeedFinder>;
 
   std::shared_ptr<VertexFinder> m_vertexFinder = nullptr;

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigL2MuonSA/CscDataPreparator.h"
+#include "CscDataPreparator.h"
 
 #include "StoreGate/ActiveStoreSvc.h"
 #include "xAODTrigMuon/TrigMuonDefs.h"

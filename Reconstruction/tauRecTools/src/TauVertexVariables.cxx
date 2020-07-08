@@ -55,7 +55,7 @@ StatusCode TauVertexVariables::finalize() {
 //-----------------------------------------------------------------------------
 // Execution
 //-----------------------------------------------------------------------------
-StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::VertexContainer& pSecVtxContainer) {
+StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::VertexContainer& pSecVtxContainer) const {
   ATH_MSG_DEBUG("execut()");
 	
   // impact parameter variables for standard tracks
@@ -169,7 +169,7 @@ StatusCode TauVertexVariables::executeVertexVariables(xAOD::TauJet& pTau, xAOD::
 //-------------------------------------------------------------------------
 // calculate the transverse flight path significance
 //-------------------------------------------------------------------------
-double TauVertexVariables::trFlightPathSig(const xAOD::TauJet& pTau, const xAOD::Vertex& secVertex) {
+double TauVertexVariables::trFlightPathSig(const xAOD::TauJet& pTau, const xAOD::Vertex& secVertex) const {
 
   const xAOD::Vertex* pVertex = 0;
   if (pTau.vertexLink()) pVertex = *pTau.vertexLink();

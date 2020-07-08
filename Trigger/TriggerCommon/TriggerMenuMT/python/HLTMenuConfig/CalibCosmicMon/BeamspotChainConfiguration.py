@@ -9,8 +9,8 @@ from TrigStreamerHypo.TrigStreamerHypoConfigMT import StreamerHypoToolMTgenerato
 from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlgMT
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 from AthenaCommon.CFElements import seqAND
-from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm, ViewCreatorInitialROITool
-
+from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool
 
 #----------------------------------------------------------------
 
@@ -48,6 +48,12 @@ def allTE_trkfast( signature="FS" ):
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
         topSequence.SGInputLoader.Load += [( 'TagInfo' , 'DetectorStore+ProcessingTags' )]
+
+        # These objects must be loaded from SGIL if not from CondInputLoader
+        from IOVDbSvc.CondDB import conddb
+        if not conddb.folderRequested( '/TDAQ/Resources/ATLAS/PIXEL/Modules' ):
+          viewVerify.DataObjects += [( 'CondAttrListCollection', 'ConditionStore+/TDAQ/Resources/ATLAS/PIXEL/Modules' )]
+          topSequence.SGInputLoader.Load += [( 'CondAttrListCollection', 'ConditionStore+/TDAQ/Resources/ATLAS/PIXEL/Modules' )]
 
         beamspotSequence = seqAND( "beamspotSequence_"+signature, viewAlgs+[vertexAlg] )
         inputMakerAlg.ViewNodeName = beamspotSequence.name()

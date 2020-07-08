@@ -42,7 +42,7 @@ if hasattr( runArgs, 'inputZeroBiasBSFile'):
     svcMgr.EventSelector.Input=runArgs.inputZeroBiasBSFile
 else:
     svcMgr.EventSelector.Input=runArgs.inputBS_SKIMFile
-print ByteStreamInputSvc
+printfunc (ByteStreamInputSvc)
 
 # ---------------------------
 # Service to write out BS events
@@ -56,7 +56,7 @@ for n in range(0,runArgs.noutputs):
         else: myn=str(n)
         bsOutputSvc=ByteStreamEventStorageOutputSvc("BSESOutputSvc"+myn,OutputDirectory='./',SimpleFileName=getattr(runArgs,"outputBS_TRIGSKIM"+myn+"File"))
     svcMgr += bsOutputSvc
-    print bsOutputSvc
+    printfunc (bsOutputSvc)
 
 # ---------------------------
 BSFilterLog.info( '**** ByteStreamFilter configuration' )
@@ -130,7 +130,7 @@ topSequence += OutputStreamBSCopy
 
 OutputStreamBSCopy.AcceptAlgs =["BSFilter"] 
 
-print topSequence
+printfunc (topSequence)
 
 # ---------------------------
 # Post-include/exec

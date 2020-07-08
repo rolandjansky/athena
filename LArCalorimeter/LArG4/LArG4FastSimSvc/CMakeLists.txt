@@ -5,12 +5,6 @@
 # Declare the package name:
 atlas_subdir( LArG4FastSimSvc )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          GaudiKernel 
-                          Generators/AtlasHepMC )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Geant4 )

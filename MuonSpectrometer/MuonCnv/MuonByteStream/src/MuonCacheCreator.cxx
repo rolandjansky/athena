@@ -22,11 +22,13 @@ MuonCacheCreator::MuonCacheCreator(const std::string &name,ISvcLocator *pSvcLoca
 }
 
 StatusCode MuonCacheCreator::initialize() {
+  ATH_CHECK( m_idHelperSvc.retrieve() );
   ATH_CHECK( m_MdtCsmCacheKey.initialize(!m_MdtCsmCacheKey.key().empty()) );
-  ATH_CHECK( m_CscCacheKey.initialize(!m_CscCacheKey.key().empty()) );
+  if (!m_CscCacheKey.key().empty() && !m_idHelperSvc->hasCSC()) {
+    ATH_MSG_WARNING("CscCacheKey is non-empty ("<<m_CscCacheKey.key()<<") but layout has no CSC chambers! Looks like something is wrongly configured.");
+  } else ATH_CHECK( m_CscCacheKey.initialize(!m_CscCacheKey.key().empty()) );
   ATH_CHECK( m_RpcCacheKey.initialize(!m_RpcCacheKey.key().empty()) );
   ATH_CHECK( m_TgcCacheKey.initialize(!m_TgcCacheKey.key().empty()) );
-  ATH_CHECK( m_idHelperSvc.retrieve() );
   return StatusCode::SUCCESS;
 }
 
@@ -53,7 +55,7 @@ StatusCode MuonCacheCreator::execute (const EventContext& ctx) const {
     ATH_MSG_DEBUG("Created cache container " << m_MdtCsmCacheKey);
   }
   // Create the CSC cache container
-  if (!m_CscCacheKey.key().empty()) {
+  if (m_idHelperSvc->hasCSC() && !m_CscCacheKey.key().empty()) {
      ATH_CHECK(createContainer(m_CscCacheKey,    m_idHelperSvc->cscIdHelper().module_hash_max(), ctx));
      ATH_MSG_DEBUG("Created cache container " << m_CscCacheKey);
    }

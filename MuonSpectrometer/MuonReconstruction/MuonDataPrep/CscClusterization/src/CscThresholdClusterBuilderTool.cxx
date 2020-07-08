@@ -226,7 +226,7 @@ StatusCode CscThresholdClusterBuilderTool::getClusters(std::vector<IdentifierHas
 StatusCode CscThresholdClusterBuilderTool::getClusters(IdentifierHash givenHashId, std::vector<IdentifierHash>& decodedIds, Muon::CscPrepDataContainer *pclusters) {
 
   // identifiers of collections already decoded and stored in the container will be skipped
-  if (pclusters->indexFind(givenHashId) != pclusters->end()) {
+  if (pclusters->indexFindPtr(givenHashId) != nullptr) {
     decodedIds.push_back(givenHashId);
     ATH_MSG_DEBUG ( "A collection already exists in the container for offline id hash. "
                     << (int) givenHashId );
@@ -247,14 +247,13 @@ StatusCode CscThresholdClusterBuilderTool::getClusters(IdentifierHash givenHashI
 
   //**********************************************
   // retrieve specific collection for the givenID
-  CscStripPrepDataContainer::const_iterator it_coll = pdigcon->indexFind(givenHashId);
-  if (pdigcon->end() ==  it_coll) {
+  const CscStripPrepDataCollection * col = pdigcon->indexFindPtr(givenHashId);
+  if (nullptr ==  col) {
     unsigned int coll_hash = givenHashId;
     ATH_MSG_WARNING ( "Specific CSC Strip PrepData collection retrieving failed for collection hash = "
                       << coll_hash );
     return StatusCode::SUCCESS;
   }
-  const CscStripPrepDataCollection * col = *it_coll;
   
   ATH_MSG_DEBUG ( "Retrieved " << col->size() << " CSC Strip PrepDatas." );
   
@@ -339,7 +338,7 @@ StatusCode CscThresholdClusterBuilderTool::getClusters(std::vector<IdentifierHas
        icol!=con.end(); ++icol) {
     const CscStripPrepDataCollection& col = **icol;
     //check if the collection is already used    
-    if (pclusters->indexFind(col.identifyHash()) != pclusters->end()) {
+    if (pclusters->indexFindPtr(col.identifyHash()) != nullptr) {
       //store the identifier hash and continue
       decodedIds.push_back(col.identifyHash());
       continue;      

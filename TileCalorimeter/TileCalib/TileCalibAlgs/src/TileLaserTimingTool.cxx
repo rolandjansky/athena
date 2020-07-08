@@ -367,13 +367,12 @@ StatusCode TileLaserTimingTool::execute() {
     for (; itColl != itCollEnd; ++itColl) {
       // Get the digits collection for the drawer corresponding to the raw channel
       frag = (*itColl)->identify();
-      TileDigitsContainer::const_iterator digiCollIt = digitsCnt->indexFind(
-          digitsCnt->hashFunc()(frag));
-      if (digiCollIt == digitsCnt->end()) {
+      auto digiCollIt = digitsCnt->indexFindPtr(digitsCnt->hashFunc()(frag));
+      if (digiCollIt == nullptr) {
         ATH_MSG_ERROR( " unable to get TileDigitsCollection for drawer:" << drawerIdStr(frag) );
 
       } else {
-        digiColl = *digiCollIt;
+        digiColl = digiCollIt;
         colls = (*itColl)->size();
         ATH_MSG_VERBOSE( "execute() colls:" << colls
                          << " digiColl->size:" << digiColl->size()

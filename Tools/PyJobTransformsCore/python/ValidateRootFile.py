@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -17,16 +17,16 @@ def checkPFCorruption(filename,verbose=False):
         print ("ERROR can't access file",filename)
         return -1
 
-    ROOT = RootUtils.import_root()
+    ROOT = RootUtils.import_root()  # noqa: F841
     from ROOT import TFile,TTree
     
     try:
         f=TFile.Open(filename)
-    except:
+    except Exception:
         print ("Can't open file",filename)
         return -1
 
-    nEvents=n=None
+    n=None
 
     keys=f.GetListOfKeys()
     for k in keys:
@@ -34,7 +34,7 @@ def checkPFCorruption(filename,verbose=False):
             tn=k.GetName()
             t=f.Get(tn)
             if not isinstance(t,TTree): return
-        except:
+        except Exception:
             print ("Can't get tree %s from file %s",tn,fn)
             f.Close()
             return -1
@@ -52,9 +52,6 @@ def checkPFCorruption(filename,verbose=False):
                     print ("Checking event",i)
         print ("Tree %s: %i event(s) ok" % (tn,n))
 
-        # Use CollectionTree determine the number of events
-        if tn=='CollectionTree': 
-            nEvents=n
         pass #end of loop over trees
 
     f.Close()

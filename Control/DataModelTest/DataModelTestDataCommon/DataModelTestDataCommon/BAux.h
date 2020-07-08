@@ -1,10 +1,8 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file DataModelTestDataCommon/BAux.h
  * @author scott snyder <snyder@bnl.gov>
@@ -31,6 +29,7 @@ struct BAux
   int m_x;
 
   /// Flag that we should _not_ use the xAOD pool converter for this type.
+  // cppcheck-suppress duplInheritedMember
   static constexpr bool supportsThinning = false;
 };
 

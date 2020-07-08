@@ -5,17 +5,6 @@
 # Declare the package name:
 atlas_subdir( ISF_Event )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          AtlasTest/TestTools
-                          Control/AthenaBaseComps
-                          DetectorDescription/AtlasDetDescr
-                          DetectorDescription/GeoPrimitives
-                          Generators/AtlasHepMC
-                          Generators/GeneratorObjects
-                          GaudiKernel
-                          Simulation/Barcode/BarcodeEvent )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Eigen )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef COOLCORALCLIENT
@@ -14,13 +14,15 @@
 #include "CoolKernel/IDatabaseSvc.h"
 #include "ConfDBif.h"
 
+#include "CxxUtils/checker_macros.h"
+
 namespace coral {
   class ISessionProxy;
 }
 
 //using namespace cool;
 
-class COOLCORALClient {
+class ATLAS_NOT_THREAD_SAFE COOLCORALClient { // Thread unsafe coral::AttributeList is used.
 
 protected:
   std::string m_connString;

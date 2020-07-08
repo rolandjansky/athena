@@ -26,6 +26,7 @@
 #include "AthenaBaseComps/AthService.h"
 
 #include <map>
+#include <atomic>
 
 // Forward declarations
 class IIncidentSvc;
@@ -165,15 +166,14 @@ private: // internal member functions
    void fireEndFileIncidents(bool isLastFile) const;
 
 private: // data
-   mutable EventContextAthenaPool* m_beginIter{};
    EventContextAthenaPool*         m_endIter{};
 
    ServiceHandle<ActiveStoreSvc> m_activeStoreSvc{this, "ActiveStoreSvc", "ActiveStoreSvc", ""};
 
-   mutable PoolCollectionConverter* m_poolCollectionConverter{};
-   mutable pool::ICollectionCursor* m_headerIterator{};
-   mutable Guid m_guid{};
-   mutable std::map<SG::SourceID, int> m_activeEventsPerSource;
+   mutable PoolCollectionConverter* m_poolCollectionConverter ATLAS_THREAD_SAFE {};
+   mutable pool::ICollectionCursor* m_headerIterator ATLAS_THREAD_SAFE {};
+   mutable Guid m_guid ATLAS_THREAD_SAFE {};
+   mutable std::map<SG::SourceID, int> m_activeEventsPerSource ATLAS_THREAD_SAFE;
 
    ServiceHandle<IAthenaPoolCnvSvc> m_athenaPoolCnvSvc{this, "AthenaPoolCnvSvc", "AthenaPoolCnvSvc", ""};
    ServiceHandle<IIncidentSvc> m_incidentSvc{this, "IncidentSvc", "IncidentSvc", ""};
@@ -196,7 +196,7 @@ private: // properties
    Gaudi::Property<std::string> m_attrListKey{this, "AttributeListKey", "Input", ""};
    /// InputCollections, vector with names of the input collections.
    Gaudi::Property<std::vector<std::string>> m_inputCollectionsProp{this, "InputCollections", {}, ""};
-   mutable std::vector<std::string>::const_iterator m_inputCollectionsIterator;
+   mutable std::vector<std::string>::const_iterator m_inputCollectionsIterator ATLAS_THREAD_SAFE;
    void inputCollectionsHandler(Property&);
    /// Query, query string.
    Gaudi::Property<std::string> m_query{this, "Query", "", ""};
@@ -226,17 +226,17 @@ private: // properties
    Gaudi::CheckedProperty<int> m_initTimeStamp{this, "InitialTimeStamp", 0, ""};
    Gaudi::Property<int> m_timeStampInterval{this, "TimeStampInterval", 0, ""};
 
-   mutable long m_curCollection{};
-   mutable std::vector<int> m_numEvt;
-   mutable std::vector<int> m_firstEvt;
+   mutable std::atomic_long m_curCollection{};
+   mutable std::vector<int> m_numEvt ATLAS_THREAD_SAFE;
+   mutable std::vector<int> m_firstEvt ATLAS_THREAD_SAFE;
 
    /// SkipEvents, numbers of events to skip: default = 0.
    Gaudi::Property<int> m_skipEvents{this, "SkipEvents", 0, ""};
    Gaudi::Property<std::vector<long>> m_skipEventSequenceProp{this, "SkipEventSequence", {}, ""};
-   mutable std::vector<long> m_skipEventSequence;
+   mutable std::vector<long> m_skipEventSequence ATLAS_THREAD_SAFE;
 
-   mutable int m_evtCount{}; // internal count of events
-   mutable bool m_firedIncident{};
+   mutable std::atomic_int m_evtCount{}; // internal count of events
+   mutable std::atomic_bool m_firedIncident{};
 
    typedef std::mutex CallMutex;
    mutable CallMutex m_callLock;

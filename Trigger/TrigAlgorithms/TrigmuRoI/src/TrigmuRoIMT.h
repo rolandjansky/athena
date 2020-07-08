@@ -6,7 +6,7 @@
 #define TRIGMUROI_TRIGMUROIMT_H
 
 #include "TrigT1Interfaces/RecMuonRoiSvc.h"
-#include "TrigMuonRoITools/ITrigMuonRoITool.h"
+#include "TrigMuonToolInterfaces/ITrigMuonRoITool.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 #include "AthenaBaseComps/AthAlgorithm.h"

@@ -40,7 +40,7 @@ EMBremFit::~EMBremFit()
 { }
 
 // interfaces
-std::string EMBremFit::s_className = ClassName<EMBremFit>::name();
+const std::string EMBremFit::s_className = ClassName<EMBremFit>::name();
 const std::string& EMBremFit::className() const
 {
   return s_className;

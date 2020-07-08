@@ -5,23 +5,20 @@
 #ifndef MUONTGC_CNVTOOLS_STGCRDOTOPREPDATATOOLCORE
 #define MUONTGC_CNVTOOLS_STGCRDOTOPREPDATATOOLCORE
 
+#include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
 
 #include "MuonRDO/STGC_RawDataContainer.h"
 #include "MuonPrepRawData/sTgcPrepDataContainer.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "STgcClusterization/ISTgcClusterBuilderTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include <string>
-
-namespace MuonGM 
-{
-  class MuonDetectorManager;
-  class TgcReadoutElement; 
-}
+#include <vector>
 
 namespace Muon 
 {
@@ -73,8 +70,7 @@ namespace Muon
 
       void processRDOContainer(std::vector<IdentifierHash>& idWithDataVect);
 
-      /** muon detector manager */
-      const MuonGM::MuonDetectorManager* m_muonMgr;
+      SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_muDetMgrKey {this, "DetectorManagerKey", "MuonDetectorManager", "Key of input MuonDetectorManager condition data"}; 
 
       ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 

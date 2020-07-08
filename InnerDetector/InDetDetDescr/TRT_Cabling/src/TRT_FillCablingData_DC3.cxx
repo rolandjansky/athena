@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -47,6 +47,7 @@
 #include "eformat/SourceIdentifier.h"  // change to new eformat v3
 #include "PathResolver/PathResolver.h"
 
+#include "CxxUtils/checker_macros.h"
 
 using eformat::helper::SourceIdentifier; 
 using namespace std;
@@ -78,7 +79,7 @@ const InterfaceID& TRT_FillCablingData_DC3::interfaceID( )
 
 
   // Initialisation
-StatusCode TRT_FillCablingData_DC3::initialize( )
+StatusCode TRT_FillCablingData_DC3::initialize ATLAS_NOT_THREAD_SAFE ( ) // thread unsafe TRT_FillCablingData_DC3::defineTables is used.
 {
   ATH_MSG_INFO( "TRT_FillCablingData_DC3::initialize" ); 
 
@@ -172,7 +173,7 @@ void TRT_FillCablingData_DC3::defineParameters()
 
 
   // Fill Tables with IDs for all straws
-void TRT_FillCablingData_DC3::defineTables()
+void TRT_FillCablingData_DC3::defineTables ATLAS_NOT_THREAD_SAFE () // thread unsafe std::exit is used.
 {
    ATH_MSG_INFO( "In defineTables" ); 
 

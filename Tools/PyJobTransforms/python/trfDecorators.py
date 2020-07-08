@@ -1,6 +1,6 @@
 from future import standard_library
 standard_library.install_aliases()
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @Package PyJobTrasforms.trfDecorators
 #  @brief Some useful decorators used by the transforms
@@ -110,7 +110,7 @@ def sigUsrStackTrace(func):
         pass
     
     def sigHandler(signum, frame):
-        msg.info('Handling signal %d in sigHandler' % signum)
+        msg.info('Handling signal %d in sigHandler', signum)
         raise SigUsr1
     
     def signal_wrapper(*args, **kwargs):
@@ -153,11 +153,11 @@ def timelimited(timeout=None, retry=1, timefactor=1.5, sleeptime=10, defaultrc=N
             try:
                 result = func(*args, **kwargs)
                 queue.put((True, result))
-            except:
+            except Exception:
                 exc0=exc_info()[0]
                 exc1=exc_info()[1]
                 exc2=traceback.format_exc()
-                msg.warning('In time limited function %s an exception occurred' % (func.__name__))
+                msg.warning('In time limited function %s an exception occurred', func.__name__)
                 msg.warning('Original traceback:')
                 msg.warning(exc2)            
                 queue.put((False,(exc0, exc1, exc2))) 
@@ -187,7 +187,7 @@ def timelimited(timeout=None, retry=1, timefactor=1.5, sleeptime=10, defaultrc=N
                 
             n=0
             while n<=lretry:
-                msg.info('Try %i out of %i (time limit %s s) to call %s.' % (n+1, retry+1, ltimeout, func.__name__))
+                msg.info('Try %i out of %i (time limit %s s) to call %s.', n+1, retry+1, ltimeout, func.__name__)
                 starttime = time.time()
                 q=mp.Queue(maxsize=1)
                 nargs = (q,) + args
@@ -197,23 +197,23 @@ def timelimited(timeout=None, retry=1, timefactor=1.5, sleeptime=10, defaultrc=N
                     # Wait for function to run and return, but with a timeout
                     flag,result = q.get(block=True, timeout=ltimeout)
                     proc.join(60)
-                    msg.info('Executed call within %d s.' % (time.time()-starttime))
+                    msg.info('Executed call within %d s.', time.time()-starttime)
                     if flag:
                         return result
                     else:
-                        msg.warning('But an exception occurred in function %s.' % (func.__name__))
-                        msg.warning('Returning default return code %s.' % ldefaultrc)
+                        msg.warning('But an exception occurred in function %s.', func.__name__)
+                        msg.warning('Returning default return code %s.', ldefaultrc)
                         return ldefaultrc
                 except queue.Empty:
                     # Our function did not run in time - kill increase timeout
-                    msg.warning('Timeout limit of %d s reached. Kill subprocess and its children.' % ltimeout)
+                    msg.warning('Timeout limit of %d s reached. Kill subprocess and its children.', ltimeout)
                     parent=proc.pid
                     pids=[parent]
                     pids.extend(trfUtils.listChildren(parent=parent, listOrphans = False))
                     trfUtils.infanticide(pids)
                     proc.join(60) # Ensure cleanup
                     if n!=lretry:
-                        msg.info('Going to sleep for %d s.' % lsleeptime)                    
+                        msg.info('Going to sleep for %d s.', lsleeptime)                    
                         time.sleep(lsleeptime)
                     n+=1
                     ltimeout*=ltimefactor
@@ -223,7 +223,7 @@ def timelimited(timeout=None, retry=1, timefactor=1.5, sleeptime=10, defaultrc=N
                     msg.error(errMsg)
                     raise TransformInternalException(trfExit.nameToCode("TRF_EXTERNAL"), errMsg)
 
-            msg.warning('All %i tries failed!' % n)
+            msg.warning('All %i tries failed!', n)
             raise TransformTimeoutException(trfExit.nameToCode('TRF_EXEC_TIMEOUT'), 'Timeout in function %s' % (func.__name__))
             
         return funcWithTimeout

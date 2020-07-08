@@ -105,8 +105,12 @@ trackgetters = [jtm.trackget]
 emgetters = [jtm.emget]
 lcgetters = [jtm.lcget]
 if jetFlags.useTracks():
-  emgetters = [jtm.emoriginget]
-  lcgetters = [jtm.lcoriginget]
+  if jetFlags.useVertices():
+    emgetters = [jtm.emoriginget]
+    lcgetters = [jtm.lcoriginget]
+  else:
+    emgetters = [jtm.emget]
+    lcgetters = [jtm.lcget]
   emgetters += [jtm.gtrackget]
   lcgetters += [jtm.gtrackget]
   empfgetters += [jtm.gtrackget]
@@ -200,13 +204,15 @@ ungroomed_modifiers += [jtm.ecpsfrac]
 if jetFlags.useCaloQualityTool():
   ungroomed_modifiers += [jtm.caloqual_cluster]
 if jetFlags.useTracks():
-  ungroomed_modifiers += [jtm.trkmoms]
-  ungroomed_modifiers += [jtm.trksummoms]
-  ungroomed_modifiers += [jtm.jvf]
-  ungroomed_modifiers += [jtm.jvt]
+  if jetFlags.useVertices():
+    ungroomed_modifiers += [jtm.trkmoms]
+    ungroomed_modifiers += [jtm.trksummoms]
+    ungroomed_modifiers += [jtm.jvf]
+    ungroomed_modifiers += [jtm.jvt]
+    ungroomed_modifiers += [jtm.jetorigin_setpv]
   ungroomed_modifiers += [jtm.charge]
   ungroomed_modifiers += ["trackassoc"]
-  ungroomed_modifiers += [jtm.jetorigin_setpv]
+  
 if jetFlags.useTruth():
   if jetFlags.detailLevel()>=JetContentDetail.Full:
     # only at this detail level are the truth jets build. We can then schedule the TruthAssociation calculation :

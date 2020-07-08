@@ -94,9 +94,10 @@ namespace Trk {
       virtual const Amg::Vector3D& globalPosition() const override = 0;
 
       /** Extended method checking the type*/
-       virtual bool type(MeasurementBaseType::Type type) const override {
-         return (type==MeasurementBaseType::RIO_OnTrack);
-       }
+      virtual bool type(MeasurementBaseType::Type type) const override final
+      {
+        return (type == MeasurementBaseType::RIO_OnTrack);
+      }
 
       /** Method checking the Rio On Track type*/
       virtual bool rioType(RIO_OnTrackType::Type type) const = 0;

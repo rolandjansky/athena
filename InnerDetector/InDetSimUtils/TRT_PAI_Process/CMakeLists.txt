@@ -5,16 +5,6 @@
 # Declare the package name:
 atlas_subdir( TRT_PAI_Process )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          GaudiKernel
-                          PRIVATE
-                          Control/StoreGate
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
-			  InnerDetector/InDetDetDescr/TRT_ReadoutGeometry)
-
 # External dependencies:
 find_package( CLHEP )
 

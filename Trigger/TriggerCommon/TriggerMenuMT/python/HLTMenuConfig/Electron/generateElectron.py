@@ -42,7 +42,7 @@ def generateChains( flags,  chainDict ):
 
     accCalo.printConfig()
 
-    fastCaloStep = ChainStep(firstStepName, [fastCaloSequence])
+    fastCaloStep = ChainStep(name=firstStepName, Sequences=[fastCaloSequence], chainDicts=[chainDict])
 
 
     secondStepName = getChainStepName('Electron', 2)
@@ -75,7 +75,7 @@ def generateChains( flags,  chainDict ):
 
     fastInDetSequence.createHypoTools(chainDict)
 
-    fastInDetStep = ChainStep( secondStepName, [fastInDetSequence] )
+    fastInDetStep = ChainStep( name=secondStepName, Sequences=[fastInDetSequence], chainDicts=[chainDict])
 
     l1Thresholds=[]
     for part in chainDict['chainParts']:

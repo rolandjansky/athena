@@ -5,16 +5,6 @@
 # Declare the package name:
 atlas_subdir( McEventCollectionFilter )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Control/AthenaBaseComps
-                          DetectorDescription/GeoPrimitives
-                          GaudiKernel
-                          Generators/AtlasHepMC
-                          Generators/GeneratorObjects
-                          InnerDetector/InDetSimEvent
-                          MuonSpectrometer/MuonSimEvent )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Eigen )

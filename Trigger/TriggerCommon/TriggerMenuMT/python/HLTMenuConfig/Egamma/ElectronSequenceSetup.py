@@ -10,7 +10,8 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFr
 # Until such time as FS and RoI collections do not interfere, a hacky fix
 #from AthenaCommon.CFElements import parOR, seqAND
 from AthenaCommon.CFElements import seqAND
-from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm, ViewCreatorInitialROITool
+from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 def fastElectronSequence(ConfigFlags):
@@ -25,7 +26,13 @@ def fastElectronSequence(ConfigFlags):
     # Required to satisfy data dependencies
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import CaloMenuDefs  
     viewVerify.DataObjects += [( 'xAOD::TrigEMClusterContainer' , 'StoreGateSvc+' + CaloMenuDefs.L2CaloClusters ),
-                               ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+EMIDRoIs' )]
+                               ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+'+RoIs )]
+
+    from IOVDbSvc.CondDB import conddb
+    if not conddb.folderRequested( "/PIXEL/DCS/FSMSTATUS"):
+      viewVerify.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATUS' )]
+    if not conddb.folderRequested( "/PIXEL/DCS/FSMSTATE"):
+      viewVerify.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATE' )]
     
     TrackParticlesName = ""
     for viewAlg in viewAlgs:

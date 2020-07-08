@@ -1,15 +1,17 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_DIGITIZATION_TRTELECTRONICSNOISE_H
 #define TRT_DIGITIZATION_TRTELECTRONICSNOISE_H
 
-#include <vector>
-
 #include "AthenaKernel/MsgStreamMember.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "CLHEP/Random/RandomEngine.h"
+
+#include <vector>
+
 class TRTDigSettings;
 
 /**
@@ -113,7 +115,7 @@ private:
   double m_fractionOfSlowNoise;
   unsigned int m_nbins_periodic;
 
-  mutable Athena::MsgStreamMember m_msg;
+  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
 
   /**
    * Initialize signal shaping.

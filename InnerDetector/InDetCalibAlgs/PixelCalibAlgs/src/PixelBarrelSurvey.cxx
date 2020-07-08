@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelCalibAlgs/PixelBarrelSurvey.h"
@@ -164,7 +164,7 @@ StatusCode PixelBarrelSurvey::execute() {
 	disto[j]=theStave->module[i].disto[j];
       m_distorsions->add(hashID,disto);
     }
-    theStave++;
+    ++theStave;
   }
   delete[] disto;
   
@@ -240,7 +240,7 @@ StatusCode PixelBarrelSurvey::finalize() {
     distfile << std::hex << "0x" << id;
     for ( int j=0; j<m_distorsions->size(); j++) distfile << " " << disto[j];
     distfile << std::endl;
-    i++;
+    ++i;
   }
   outfile.close();
   distfile.close();

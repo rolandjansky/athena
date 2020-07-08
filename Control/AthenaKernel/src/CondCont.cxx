@@ -11,6 +11,7 @@
 
 #include "AthenaKernel/CondCont.h"
 #include "AthenaKernel/getMessageSvc.h"
+#include "AthenaKernel/ExtendedEventContext.h"
 #include "CxxUtils/AthUnlikelyMacros.h"
 #include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/MsgStream.h"
@@ -19,6 +20,169 @@
 
 /// Default name of the global conditions cleaner service.
 std::string CondContBase::s_cleanerSvcName = "Athena::ConditionsCleanerSvc";
+
+
+/**
+ * @brief Test if two ranges overlap, and adjust if needed.
+ * @param ctx Event context passed to emplace().
+ * @param oldRange An existing range in the container.
+ * @param newRange New range being added.
+ *
+ * Returns one of:
+ *   0 -- no overlap between the ranges; NEWRANGE is unmodified.
+ *   1 -- ranges overlap.  NEWRANGE has been adjusted to avoid the overlap.
+ *        If the start of NEWRANGE is changed, it must
+ *        only be moved forward (increased), never backwards.
+ *  -1 -- duplicate: NEWRANGE is entirely inside OLDRANGE.
+ *        Delete the new range.         
+ */
+int CondContBase::Compare::overlap (const EventContext& ctx,
+                                    const RangeKey& oldRange,
+                                    RangeKey& newRange) const
+{
+  //                              |--- oldRange ---|
+  //  |--- newRange ---|
+  if (newRange.m_stop <= oldRange.m_start) {
+    return 0;
+  }
+        
+  //  |--- oldRange ---|
+  //                        |--- newRange ---|
+  if (oldRange.m_stop <= newRange.m_start) {
+    return 0;
+  }
+
+  //   |---     oldRange    ---|
+  //      |--- newRange ---|
+  if (newRange.m_start >= oldRange.m_start &&
+      newRange.m_stop <= oldRange.m_stop)
+  {
+    return -1;
+  }
+
+  // Current IOV key.
+  key_type cur;
+  if (newRange.m_range.start().isTimeStamp()) {
+    cur = keyFromTimestamp (ctx.eventID());
+  }
+  else {
+    EventIDBase eid = ctx.eventID();
+    if (ctx.hasExtension()) {
+      EventIDBase::number_type conditionsRun =
+        Atlas::getExtendedEventContext (ctx).conditionsRun();
+      if (conditionsRun != EventIDBase::UNDEFNUM) {
+        eid.set_run_number (conditionsRun);
+      }
+    }
+    cur = keyFromRunLBN (eid);
+  }
+
+  // Either this:
+  //      |---     oldRange    ---|
+  //                 |--- newRange ---|
+  //
+  // Or this
+  //      |---     oldRange    ---|
+  //  |---               newRange ---|
+  //  with the current IOV key after the end of oldRange.
+  //
+  // In either case, we start the start of newRange to the end of oldRange.
+  if (newRange.m_stop > oldRange.m_stop &&
+      (newRange.m_start >= oldRange.m_start ||
+       cur > oldRange.m_stop))
+  {
+    newRange.m_start = oldRange.m_stop;
+    if (oldRange.m_range.stop().isTimeStamp()) {
+      // If this is a mixed key, we need to copy only the timestamp part.
+      EventIDBase oldId = oldRange.m_range.stop();
+      EventIDBase newId = newRange.m_range.start();
+      newRange.m_range = EventIDRange (EventIDBase (newId.run_number(),
+                                                    newId.event_number(),
+                                                    oldId.time_stamp(),
+                                                    oldId.time_stamp_ns_offset(),
+                                                    newId.lumi_block(),
+                                                    newId.bunch_crossing_id()),
+                                       newRange.m_range.stop());
+    }
+    else {
+      newRange.m_range = EventIDRange (oldRange.m_range.stop(),
+                                       newRange.m_range.stop());
+    }
+  }
+
+
+  //              |---     oldRange    ---|
+  //      |--- newRange  ---|
+  else if (newRange.m_start < oldRange.m_start &&
+           newRange.m_stop > oldRange.m_start)
+  {
+    // Change the end of newRange to the start of oldRange.
+    newRange.m_stop = oldRange.m_start;
+    if (oldRange.m_range.start().isTimeStamp()) {
+      // If this is a mixed key, we need to copy only the timestamp part.
+      EventIDBase oldId = oldRange.m_range.start();
+      EventIDBase newId = newRange.m_range.stop();
+      newRange.m_range = EventIDRange (newRange.m_range.start(),
+                                       EventIDBase (newId.run_number(),
+                                                    newId.event_number(),
+                                                    oldId.time_stamp(),
+                                                    oldId.time_stamp_ns_offset(),
+                                                    newId.lumi_block(),
+                                                    newId.bunch_crossing_id()));
+    }
+    else {
+      newRange.m_range = EventIDRange (newRange.m_range.start(),
+                                       oldRange.m_range.start());
+    }
+  }
+
+  // Should have handled all cases by now!
+  else {
+    std::abort();
+  }
+
+  return 1;
+}
+
+
+/**
+ * @brief Possibly extend an existing range at the end.
+ * @param range THe existing range.
+ * @param newRange Range being added.
+ *
+ * Returns one of:
+ *   0 -- no change was made to RANGE.
+ *   1 -- RANGE was extended. 
+ *  -1 -- newRange is a duplicate.
+ */
+int CondContBase::Compare::extendRange (RangeKey& range,
+                                        const RangeKey& newRange) const
+{
+  //      |--- range ---|
+  //  |--- newRange ....
+  if (newRange.m_start < range.m_start) {
+    return 0;
+  }
+
+  //      |--- range ---|
+  //                         |--- newRange ....
+  if (newRange.m_start > range.m_stop) {
+    return 0;
+  }
+
+  //      |--- range ----------------|
+  //         |--- newRange ---|
+  if (newRange.m_stop <= range.m_stop) {
+    return -1;
+  }
+
+  //      |--- range ----|
+  //         |--- newRange ---|
+  range.m_stop = newRange.m_stop;
+  range.m_range = EventIDRange (range.m_range.start(),
+                                newRange.m_range.stop());
+  return 1;
+}
 
 
 /**

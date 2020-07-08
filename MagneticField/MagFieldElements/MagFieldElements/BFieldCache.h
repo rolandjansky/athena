@@ -14,8 +14,8 @@
 #ifndef BFIELDCACHE_H
 #define BFIELDCACHE_H
 
-#include "MagFieldElements/BFieldVector.h"
 #include "CxxUtils/restrict.h"
+#include "MagFieldElements/BFieldVector.h"
 #include <cmath>
 
 class BFieldCache
@@ -57,7 +57,7 @@ public:
     m_invphi = 1.0 / (phimax - phimin);
   }
   // set the field values at each corner (rescale for current scale factor)
-  void setField(const std::array<BFieldVector<double>,8>& field,
+  void setField(const std::array<BFieldVector<double>, 8>& field,
                 double scaleFactor = 1.0)
   {
     // We pass array of 8 elements with 3 entries
@@ -68,8 +68,8 @@ public:
       }
     }
   }
-  
-  void setField(const std::array<BFieldVector<short>,8>& field,
+
+  void setField(const std::array<BFieldVector<short>, 8>& field,
                 double scaleFactor = 1.0)
   {
     // We pass array of 8 elements with 3 entries
@@ -80,9 +80,11 @@ public:
       }
     }
   }
+
   // set the multiplicative factor for the field vectors
   void setBscale(double bscale) { m_scale = bscale; }
   float bscale() { return m_scale; }
+
   // test if (z, r, phi) is inside this bin
   bool inside(double z, double r, double phi) const
   {
@@ -101,13 +103,13 @@ public:
             double* ATH_RESTRICT deriv = nullptr) const;
 
 private:
-  double m_zmin, m_zmax;          // bin range in z
-  double m_rmin, m_rmax;          // bin range in r
-  double m_phimin, m_phimax;      // bin range in phi
-  float m_invz, m_invr, m_invphi; // 1/(bin size) in z, r, phi
-  float m_field[3][8];            // (Bz,Br,Bphi) at 8 corners of the bin
-  float m_scale;                  // unit of m_field in kT
+  double m_zmin, m_zmax;           // bin range in z
+  double m_rmin, m_rmax;           // bin range in r
+  double m_phimin, m_phimax;       // bin range in phi
+  double m_invz, m_invr, m_invphi; // 1/(bin size) in z, r, phi
+  double m_field[3][8];            // (Bz,Br,Bphi) at 8 corners of the bin
+  double m_scale;                  // unit of m_field in kT
 };
 
-#include "BFieldCache.icc"
+#include "MagFieldElements/BFieldCache.icc"
 #endif

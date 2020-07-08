@@ -137,7 +137,7 @@ StorageSvc           INFO EventStreamInfo_p3 [11DF1B8C-0DEE-4687-80D7-E74B520ACB
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
 StorageSvc           INFO xAOD::EventFormat_v1 [0EFE2D2C-9E78-441D-9A87-9EE2B908AC81]
 ClassIDSvc           INFO  getRegistryEntries: read 18 CLIDRegistry entries for module ALL
-Thinned1             INFO Records written: 21
+Thinned1             INFO Metadata records written: 21
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 xaodthinned1.root    INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   CREATE    [ROOT_All] 3D5A890E-EFC8-C74D-A801-2046E6EBA75B

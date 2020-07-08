@@ -1,8 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "eflowRec/PFONeutralCreatorAlgorithm.h"
+
+#include <algorithm>
 
 #include "eflowRec/eflowCaloObject.h"
 #include "eflowRec/eflowRecCluster.h"
@@ -11,7 +13,7 @@
 #include "xAODPFlow/PFOAuxContainer.h"
 
 PFONeutralCreatorAlgorithm::PFONeutralCreatorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator)
+  AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -26,29 +28,51 @@ StatusCode PFONeutralCreatorAlgorithm::initialize(){
   
 }
 
-StatusCode PFONeutralCreatorAlgorithm::execute(){
+StatusCode PFONeutralCreatorAlgorithm::execute(const EventContext& ctx) const {
 
   ATH_MSG_DEBUG("Executing");
 
-  SG::WriteHandle<xAOD::PFOContainer> neutralPFOContainerWriteHandle(m_neutralPFOContainerWriteHandleKey);
-  ATH_CHECK(neutralPFOContainerWriteHandle.record(std::make_unique<xAOD::PFOContainer>(),std::make_unique<xAOD::PFOAuxContainer>()));
-  std::unique_ptr<SG::WriteHandle<xAOD::PFOContainer> > p_neutralPFOContainerWriteHandle_nonModified(nullptr);
-  if (m_LCMode) {
-    p_neutralPFOContainerWriteHandle_nonModified = std::make_unique<SG::WriteHandle<xAOD::PFOContainer> >(m_neutralPFOContainerWriteHandleKey_nonModified);
-    ATH_CHECK(p_neutralPFOContainerWriteHandle_nonModified->record(std::make_unique<xAOD::PFOContainer>(),std::make_unique<xAOD::PFOAuxContainer>()));
-  }
-  
   /* Create Neutral PFOs from all eflowCaloObjects */
-  SG::ReadHandle<eflowCaloObjectContainer> eflowCaloObjectContainerReadHandle(m_eflowCaloObjectContainerReadHandleKey);
+  SG::ReadHandle<eflowCaloObjectContainer> eflowCaloObjectContainerReadHandle(m_eflowCaloObjectContainerReadHandleKey,ctx);
+
+  // Always create at least one PFO container & aux
+  auto neutralPFOContainer = std::make_unique<xAOD::PFOContainer>();
+  auto neutralPFOContainerAux = std::make_unique<xAOD::PFOAuxContainer>();
+  neutralPFOContainer->setStore(neutralPFOContainerAux.get());
+  // The non-modified container is only used for LC PFOs
+  std::unique_ptr<xAOD::PFOContainer> neutralPFOContainer_nonModified(nullptr);
+  std::unique_ptr<xAOD::PFOAuxContainer> neutralPFOContainerAux_nonModified(nullptr);
+  if(m_LCMode) {
+    neutralPFOContainer_nonModified = std::make_unique<xAOD::PFOContainer>();
+    neutralPFOContainerAux_nonModified = std::make_unique<xAOD::PFOAuxContainer>();
+    neutralPFOContainer->setStore(neutralPFOContainerAux_nonModified.get());
+  }
+
   ATH_MSG_DEBUG("Looping over eflowCaloObjects");
-  for (auto thisEflowCaloObject : *eflowCaloObjectContainerReadHandle) createNeutralPFO(*thisEflowCaloObject, neutralPFOContainerWriteHandle, p_neutralPFOContainerWriteHandle_nonModified.get());
+  // Create PFOs and fill the containers
+  for (auto thisEflowCaloObject : *eflowCaloObjectContainerReadHandle) {
+    if( createNeutralPFO(*thisEflowCaloObject, neutralPFOContainer.get(), neutralPFOContainer_nonModified.get()).isFailure() ) {
+      ATH_MSG_WARNING("Problem encountered while creating neutral PFOs");
+      return StatusCode::SUCCESS;
+    }
+  }
+
+  // Record the output containers
+  SG::WriteHandle<xAOD::PFOContainer> neutralPFOContainerWriteHandle(m_neutralPFOContainerWriteHandleKey,ctx);
+  std::sort(neutralPFOContainer->begin(), neutralPFOContainer->end(), [] (const xAOD::PFO* pfo1, const xAOD::PFO* pfo2) {return pfo1->pt()>pfo2->pt();});
+  ATH_CHECK( neutralPFOContainerWriteHandle.record(std::move(neutralPFOContainer),std::move(neutralPFOContainerAux)) );
+  if(m_LCMode) {
+    std::sort(neutralPFOContainer_nonModified->begin(), neutralPFOContainer_nonModified->end(), [] (const xAOD::PFO* pfo1, const xAOD::PFO* pfo2) {return pfo1->pt()>pfo2->pt();});
+    SG::WriteHandle<xAOD::PFOContainer> neutralPFOContainerWriteHandle_nonModified(m_neutralPFOContainerWriteHandleKey,ctx);
+    ATH_CHECK( neutralPFOContainerWriteHandle_nonModified.record(std::move(neutralPFOContainer_nonModified),std::move(neutralPFOContainerAux_nonModified)) );
+  }
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode PFONeutralCreatorAlgorithm::finalize(){ return StatusCode::SUCCESS; }
 
-void PFONeutralCreatorAlgorithm::createNeutralPFO(const eflowCaloObject& energyFlowCaloObject,SG::WriteHandle<xAOD::PFOContainer>& neutralPFOContainerWriteHandle, SG::WriteHandle<xAOD::PFOContainer>* neutralPFOContainerWriteHandle_nonModified){
+StatusCode PFONeutralCreatorAlgorithm::createNeutralPFO(const eflowCaloObject& energyFlowCaloObject, xAOD::PFOContainer* neutralPFOContainer, xAOD::PFOContainer* neutralPFOContainer_nonModified) const {
 
   unsigned int nClusters = energyFlowCaloObject.nClusters();
 
@@ -72,12 +96,17 @@ void PFONeutralCreatorAlgorithm::createNeutralPFO(const eflowCaloObject& energyF
     xAOD::PFO* thisPFO = new xAOD::PFO();
     if (m_LCMode) {
       if (thisEfRecCluster->isTouchable()) {
-        neutralPFOContainerWriteHandle->push_back(thisPFO);
+        neutralPFOContainer->push_back(thisPFO);
       } else {
-	(*neutralPFOContainerWriteHandle_nonModified)->push_back(thisPFO);
+	if(neutralPFOContainer_nonModified) {
+	  neutralPFOContainer_nonModified->push_back(thisPFO);
+	} else {
+	  ATH_MSG_WARNING("Got a nullptr for non-modified nPFO container!");
+	  return StatusCode::FAILURE;
+	}
       }
     } else {
-      neutralPFOContainerWriteHandle->push_back(thisPFO);
+      neutralPFOContainer->push_back(thisPFO);
     }
 
     ATH_MSG_VERBOSE("  Get original cluster link");
@@ -278,9 +307,10 @@ void PFONeutralCreatorAlgorithm::createNeutralPFO(const eflowCaloObject& energyF
       thisPFO->setAttribute(myAttribute_TIMING, clusterTiming);
     }
   }
+  return StatusCode::SUCCESS;
 }
 
-void PFONeutralCreatorAlgorithm::addMoment(const xAOD::CaloCluster::MomentType& momentType, const xAOD::PFODetails::PFOAttributes& pfoAttribute, const xAOD::CaloCluster& theCluster, xAOD::PFO& thePFO){
+void PFONeutralCreatorAlgorithm::addMoment(const xAOD::CaloCluster::MomentType& momentType, const xAOD::PFODetails::PFOAttributes& pfoAttribute, const xAOD::CaloCluster& theCluster, xAOD::PFO& thePFO) const {
 
   double moment = 0.0;
   bool isRetrieved = theCluster.retrieveMoment(momentType, moment);

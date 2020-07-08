@@ -17,7 +17,6 @@
 #include "TRT_ConditionsServices/ITRT_ConditionsSvc.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 #include "TRT_ConditionsServices/ITRT_DAQ_ConditionsSvc.h"
-#include "TRT_ConditionsServices/ITRT_ByteStream_ConditionsSvc.h"
 #include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 

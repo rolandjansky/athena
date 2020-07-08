@@ -36,6 +36,7 @@
 
 //Athena
 #include "AtlasDetDescr/AtlasDetectorID.h"
+#include "CxxUtils/checker_macros.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/TRT_ID.h"
@@ -138,7 +139,7 @@ private:
     ToolHandle<IInDetVertexTruthMatchTool> m_vtxValidTool;
     ToolHandle<IAthSelectionTool> m_truthSelectionTool;
     mutable std::mutex  m_mutex;
-    mutable CutFlow     m_truthCutFlow;
+    mutable CutFlow     m_truthCutFlow ATLAS_THREAD_SAFE; // Guarded by m_mutex
     std::vector<int> m_prospectsMatched;
     float m_lowProb;
     float m_highProb;
