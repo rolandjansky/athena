@@ -13,8 +13,7 @@ from PartPropSvc.PartPropSvcConf import PartPropSvc
 include("ParticleBuilderOptions/McAOD_PoolCnv_jobOptions.py")
 include("EventAthenaPool/EventAthenaPool_joboptions.py")
 
-#detDescrVersion = "ATLAS-P2-ITK-22-02-00"
-detDescrVersion = "ATLAS-P2-ITK-22-00-00"
+detDescrVersion = "ATLAS-P2-ITK-22-02-00"
 
 # build GeoModel
 from AthenaCommon.GlobalFlags import globalflags
@@ -23,13 +22,13 @@ globalflags.DetDescrVersion = detDescrVersion
 from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
 TrkDetFlags.InDetBuildingOutputLevel = VERBOSE
 
+from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
+SLHC_Flags.UseLocalGeometry = True
+
 include("InDetSLHC_Example/preInclude.SLHC.py")
 include("InDetSLHC_Example/preInclude.SiliconOnly.py")
 
-SLHC_Flags.LayoutOption = 'InclinedAlternative'
-include("InDetSLHC_Example/preInclude.SLHC_Setup_InclBrl_4.py")
-
-#include("InDetSLHC_Example/preInclude.SLHC_Setup.py")
+include("InDetSLHC_Example/preInclude.SLHC_Setup.py")
 include("InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py")
 
 from AtlasGeoModel import SetGeometryVersion 
@@ -46,7 +45,7 @@ GeoModelSvc.AtlasVersion = detDescrVersion
 import os
 from glob import glob
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-athenaCommonFlags.FilesInput = glob("/eos/atlas/atlascerngroupdisk/perf-idtracking/21.9/RDO/user.ncalace.Step3p1.ttbar.mu200/RDO.user.ncalace.Step3p1.ttbar.mu200.*.pool.root")   
+athenaCommonFlags.FilesInput = glob("/eos/user/n/ncalace/21.9-changing-th/RDO.mu200.0.pool.root")   
 print "CHECK FilesInput --> ", athenaCommonFlags.FilesInput()
 
 ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput()
@@ -81,7 +80,7 @@ encodingCompBTNS1.DoToTSuppression    =False
 encodingCompBTNS1.TestStreamFileName  ="TestStream_compBTNS1"
 encodingCompBTNS1.TestStreamCreation  =False
 encodingCompBTNS1.Debug               =False
-encodingCompBTNS1.OutputLevel         =INFO
+encodingCompBTNS1.OutputLevel         =DEBUG
 ToolSvc += encodingCompBTNS1
 
 encodingTools = [encodingCompBTNS1]
@@ -96,7 +95,7 @@ encodingAlg = RD53BEncodingAlg()
 encodingAlg.Use50x50 = True
 encodingAlg.RD53BEncodingTools=encodingTools
 encodingAlg.Path="/Validation/"
-encodingAlg.OutputLevel=INFO
+encodingAlg.OutputLevel=DEBUG
 topSequence += RD53BEncodingAlg()
 
 #----------------------------
@@ -113,8 +112,7 @@ from RecExConfig.AutoConfiguration import *
 ConfigureFieldAndGeo()
 include("RecExCond/AllDet_detDescr.py")
 
-include("InDetSLHC_Example/postInclude.SLHC_Setup_InclBrl_4.py")
-#include("InDetSLHC_Example/postInclude.SLHC_Setup_ITK.py")
+include("InDetSLHC_Example/postInclude.SLHC_Setup_ITK.py")
 
 from AthenaCommon.ConfigurationShelve import saveToAscii
 saveToAscii("config.reco.txt")

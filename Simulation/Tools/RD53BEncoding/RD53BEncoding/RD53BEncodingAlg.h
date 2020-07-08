@@ -36,22 +36,31 @@ class RD53BEncodingAlg : public AthAlgorithm {
 
  private:
    
-  const static int N_LAYERS=5;
+  static const int N_LAYERS=5;
+  static constexpr float s_pitch50x50=0.050;
   
   enum LayerType {
     INVALID_LAYER=-1, INNERMOST, NEXT_TO_INNERMOST, OUTER, N_TYPES    
-  };
-  
-  enum Region {
-    INVALID_REGION=-1, BARREL, ENDCAP, N_REGIONS
   };
   
   std::map<int, std::string > m_layerTypeLabels {
     {INVALID_LAYER, "invalid"}, {INNERMOST, "innermost"}, {NEXT_TO_INNERMOST, "nextToInnermost"}, {OUTER, "outer"}
   };
   
+  enum Region {
+    INVALID_REGION=-1, BARREL, ENDCAP, N_REGIONS
+  };
+  
   std::map<int, std::string > m_regionLabels {
     {INVALID_REGION, "invalid"}, {BARREL, "barrel"}, {ENDCAP, "endcap"}
+  };
+  
+  enum ChipType {
+    INVALID_CHIP=-1, SINGLE, QUAD, N_CHIPS
+  };
+  
+  std::map<int, std::string > m_chipLabels {
+    {INVALID_CHIP, "invalid"}, {SINGLE, "single"}, {QUAD, "quad"}
   };
    
   StatusCode bookHistograms();
@@ -60,8 +69,6 @@ class RD53BEncodingAlg : public AthAlgorithm {
   
   void fillChipMaps();  
   
-  int findChip(int eta, int phi);
-
   const InDetDD::PixelDetectorManager*           m_pixelManager;                   //!< the Si Detector Manager
   const PixelID*                                 m_pixIdHelper;                    //!< pixel Id Helper 
   
@@ -70,20 +77,10 @@ class RD53BEncodingAlg : public AthAlgorithm {
   ServiceHandle<ITHistSvc> m_thistSvc;
    
   // checks the chip numbering and core numbering
-  TH2* m_chips[N_REGIONS][N_TYPES];
-  TH2* m_cores_on_chip[N_REGIONS][N_TYPES];
+  TH2* m_chips[N_REGIONS][N_TYPES][N_CHIPS];
+  TH2* m_cores_on_chip[N_REGIONS][N_TYPES][N_CHIPS];
   
   ToolHandleArray< RD53BEncodingTool > m_encodingTools;
-  
-  int m_split_chip_eta;
-  int m_split_chip_phi;  
-  int m_cols        ;
-  int m_rows        ;  
-  int m_cols_core   ;
-  int m_rows_core   ;
-  int m_colsbtwchips;
-  int m_rowsbtwchips;
-  bool m_use50x50;
   
   int m_event;
 

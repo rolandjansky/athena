@@ -189,8 +189,6 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
     circuitsPhi<<" "<< circuitsEta<<" "<< rowsPerChip <<" "<< colsPerChip<<" *"<<circuitsEta);
   ATH_MSG_DEBUG("readout geo : ------------------------------------------------------------------------");
 
-  double cellRowPerCirc = circuitsPhi*rowsPerChip;
-
   TerminateXML();
 
   ATH_MSG_DEBUG("readout geo : ------------------------------------------------------------------------");
@@ -217,7 +215,6 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
     circuitsPhi<<" "<<
     circuitsEta<<" "<<
     colsPerChip<<" "<<
-    cellRowPerCirc<<" "<<
     colsPerChip<<" "<<
     rowsPerChip<<" "<<
     electrons<<" "<<
@@ -227,7 +224,7 @@ PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basic
 						     circuitsPhi,
 						     circuitsEta,
 						     colsPerChip,
-						     cellRowPerCirc,
+						     rowsPerChip,
 						     colsPerChip,
 						     rowsPerChip,
 						     fullMatrix,

@@ -30,13 +30,7 @@ struct StreamMap {
     return true;
   };
   
-  Stream& getStream(Identifier id, int chip) {
-//     if (m_streamMap.find(id)==m_streamMap.end()) {
-//       std::cout << "ERROR!!! Identifier not found in the StreamMap!" << std::endl;
-//       std::cout << "-------- returning empty Stream --------" << std::endl;
-//       return Stream(id, chip);
-//     }
-    
+  Stream& getStream(Identifier id, int chip) {    
     return m_streamMap[id].at(chip);
   } 
   
