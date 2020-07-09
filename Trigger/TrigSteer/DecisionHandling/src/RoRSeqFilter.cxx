@@ -78,8 +78,10 @@ StatusCode RoRSeqFilter::execute(const EventContext& ctx) const {
 
   std::vector<std::string> inputNames({"exec", "anyvalid"});
   std::vector<bool> inputStats({true, false}); // position 0 for number of execs, always true, bool at position 1 is set later
+  inputNames.reserve(inputHandles.size() + 2);
+  inputStats.reserve(inputHandles.size() + 2);
   bool validInputs = false;
-  for ( auto inputHandle: inputHandles ) {
+  for ( auto& inputHandle: inputHandles ) {
     inputNames.push_back(inputHandle.name());
     if( inputHandle.isValid() ) {// this is because input is implicit
       validInputs = true;
@@ -108,7 +110,7 @@ StatusCode RoRSeqFilter::execute(const EventContext& ctx) const {
     ATH_MSG_DEBUG( "Recording " <<  m_outputKeys[ 0 ].key() ); 
     createAndStore(outputHandles[0]);
     DecisionContainer* output = outputHandles[0].ptr();
-    for ( auto inputHandle: inputHandles) {
+    for ( auto& inputHandle: inputHandles) {
       if( inputHandle.isValid() ) {
         passCounter += copyPassing( *inputHandle,  *output );
       }
@@ -117,7 +119,7 @@ StatusCode RoRSeqFilter::execute(const EventContext& ctx) const {
 
   } else { // Not merging inputs
 
-    for ( auto inputHandle: inputHandles ) {
+    for ( auto& inputHandle: inputHandles ) {
 
       if( not inputHandle.isValid() ) {
         ATH_MSG_DEBUG( "InputHandle "<< inputHandle.key() <<" not present" );
@@ -137,7 +139,7 @@ StatusCode RoRSeqFilter::execute(const EventContext& ctx) const {
   setFilterPassed( passCounter != 0 );
   ATH_MSG_DEBUG( "Filter " << ( filterPassed() ? "passed" : "rejected") <<"; creating "<< outputIndex<<" valid outDecisions DH:");
   if (msgLvl(MSG::DEBUG)){
-    for (auto output: outputHandles){
+    for (auto& output: outputHandles){
       if( output.isValid() ) ATH_MSG_DEBUG(" "<<output.key());
     }
   }
