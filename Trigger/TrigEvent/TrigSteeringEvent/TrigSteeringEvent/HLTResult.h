@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #pragma once
@@ -483,11 +483,11 @@ namespace HLT {
     
     std::map<unsigned int, std::set<std::pair<CLID, std::string> > > m_modID_id_name; // map from rob module ID to class ID and collection name
 
-    mutable std::vector<unsigned int> m_navigationResultCuts;
+    std::vector<unsigned int> m_navigationResultCuts;
 
-    mutable std::vector<unsigned int> m_navigationResultCuts_DSonly;
+    std::vector<unsigned int> m_navigationResultCuts_DSonly;
 
-    mutable HLTExtraData* m_extraData;     //!< object for m_extras deserialization (on demand)
+    HLTExtraData* m_extraData;     //!< object for m_extras deserialization (on demand)
 
   };
   
