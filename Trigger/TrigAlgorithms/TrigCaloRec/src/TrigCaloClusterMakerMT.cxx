@@ -109,11 +109,11 @@ TrigCaloClusterMakerMT::TrigCaloClusterMakerMT(const std::string& name, ISvcLoca
     // python?)
     AlgTool* algtool = dynamic_cast<AlgTool*> (clproc.get());
     if (clproc->name().find("CaloTopoClusterMaker") != std::string::npos) {
-      if (!algtool || algtool->setProperty( StringProperty("CellsName", m_inputCellsKey.key())).isFailure()) {
-        ATH_MSG_ERROR("ERROR setting the CellsName in the offline tool");
-        // I'm pretty sure that by policy this should be a failure?
-        return StatusCode::SUCCESS;
+      if (!algtool) {
+        ATH_MSG_ERROR("Could not cast " << clproc->name() << " to an AlgTool!");
+        return StatusCode::FAILURE;
       }
+      ATH_CHECK(algtool->setProperty(StringProperty("CellsName", m_inputCellsKey.key())));
     }
     if (clproc->name().find("trigslw") != std::string::npos)
       m_isSW = true;
@@ -122,13 +122,8 @@ TrigCaloClusterMakerMT::TrigCaloClusterMakerMT(const std::string& name, ISvcLoca
   for (ToolHandle<CaloClusterProcessor>& clcorr : m_clusterCorrections) {
     ISetCaloCellContainerName* setter = 
       dynamic_cast<ISetCaloCellContainerName*> (clcorr.get());
-    if (setter) {
-      if (setter->setCaloCellContainerName(m_inputCellsKey.key()).isFailure()) {
-        ATH_MSG_ERROR("ERROR setting the CaloCellContainer name in the offline tool");
-        // Again, this should be a failure
-        return StatusCode::SUCCESS;
-      }
-    }
+    if (setter) 
+      ATH_CHECK(setter->setCaloCellContainerName(m_inputCellsKey.key()));
   }
 
   ATH_MSG_DEBUG("Initialization of TrigCaloClusterMakerMT completed successfully");
@@ -207,8 +202,6 @@ StatusCode TrigCaloClusterMakerMT::execute(const EventContext& ctx) const
 
   for (const ToolHandle<CaloClusterCollectionProcessor>& clproc : m_clusterMakers) {
     
-    // JTB: TO DO: The offline tools should be changed to set declare ReadHandles 
-    
 #if 0
     else if(clproc->name().find("trigslw") != std::string::npos){
       if(!algtool || algtool->setProperty( StringProperty("CaloCellContainer",cells.name()) ).isFailure()) { 
@@ -224,12 +217,8 @@ StatusCode TrigCaloClusterMakerMT::execute(const EventContext& ctx) const
     }
 #endif
       
-
-    if ( clproc->execute(ctx, pCaloClusterContainer).isFailure() ) {
-      ATH_MSG_ERROR("Error executing tool " << clproc->name() );
-    } else {
-      ATH_MSG_VERBOSE("Executed tool " << clproc->name() );
-    }
+    ATH_CHECK(clproc->execute(ctx, pCaloClusterContainer));
+    ATH_MSG_VERBOSE("Executed tool " << clproc->name() );
 
   }
   time_clusMaker.stop();
@@ -262,20 +251,12 @@ StatusCode TrigCaloClusterMakerMT::execute(const EventContext& ctx) const
   for (const ToolHandle<CaloClusterProcessor>& clcorr : m_clusterCorrections) {
 
     for (xAOD::CaloCluster* cl : *pCaloClusterContainer) {
-      bool exec = false;
-      if      ( (fabsf(cl->eta0())<1.45)  && (clcorr->name().find("37") != std::string::npos ) ) exec=true;
-      else if ( (fabsf(cl->eta0())>=1.45) && (clcorr->name().find("55") != std::string::npos ) ) exec=true;
-      else exec = false;
-      if (!m_isSW) exec=true;
-      if ( exec ) {
-      if ( clcorr->execute(ctx, cl).isFailure() ) {
-        ATH_MSG_ERROR("Error executing correction tool " <<  clcorr->name() );
-	//        return HLT::TOOL_FAILURE;
-	return StatusCode::SUCCESS;
-      } else {
-	ATH_MSG_VERBOSE("Executed correction tool " << clcorr->name() );
+      if (!m_isSW
+          || std::abs(cl->eta0()) < 1.45  && clcorr->name().find("37") != std::string::npos
+          || std::abs(cl->eta0()) >= 1.45 && clcorr->name().find("55") != std::string::npos) {
+        ATH_CHECK(clcorr->execute(ctx, cl) );
+        ATH_MSG_VERBOSE("Executed correction tool " << clcorr->name());
       }
-      } // Check conditions
     }
   }
   time_clusCorr.stop();
