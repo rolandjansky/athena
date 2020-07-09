@@ -617,7 +617,7 @@ class ThresholdValue(object):
         for rv in listOfThrValues:
             if rv.priority != self.priority:
                 continue
-            if (self.etamax >= rv.etamin) and (self.etamin <= rv.etamax):
+            if (self.etamax > rv.etamin) and (self.etamin < rv.etamax):
                 # overlaps with existing range of the same priority
                 raise RuntimeError( "ThresholdValue %s: Range eta %i - %i (priority %i) overlaps with existing range of the same priority" % \
                                     (self.name, self.etamin, self.etamax, self.priority) )
