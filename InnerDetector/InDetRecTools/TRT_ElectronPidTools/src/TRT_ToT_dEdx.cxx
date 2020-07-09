@@ -8,7 +8,6 @@
 #include "TRT_ElectronPidTools/TRT_ToT_dEdx.h"
 #include "TRT_ElectronPidTools/TRT_ToT_Corrections.h"
 
-
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
 
@@ -777,48 +776,49 @@ TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackStateOnSurface* itr, double leng
   }
 
   Identifier DCId = driftcircle->identify();
-  unsigned int BitPattern = driftcircle->prepRawData()->getWord();
-  double ToT = getToT(BitPattern);
-  if(ToT==0) {
-    ATH_MSG_WARNING("correctToT_corrRZ(const Trk::TrackStateOnSurface *itr):: ToT="<<ToT<<". We must cut that hit in isGoodHit() !");
+  //unsigned int BitPattern = driftcircle->prepRawData()->getWord();
+  //double ToT = getToT(BitPattern);
+  double timeOverThreshold = driftcircle->timeOverThreshold();
+  if(timeOverThreshold==0) {
+    ATH_MSG_WARNING("correctToT_corrRZ(const Trk::TrackStateOnSurface *itr):: ToT="<<timeOverThreshold<<". We must cut that hit in isGoodHit() !");
     return 0;
   }
-  int HitPart =  m_trtId->barrel_ec(DCId);
+  int hitPart =  m_trtId->barrel_ec(DCId);
   int StrawLayer = m_trtId->straw_layer(DCId);
   int Layer = m_trtId->layer_or_wheel(DCId);
-  double HitRtrack = fabs(trkP->parameters()[Trk::locR]);
+  double hitRtrack = fabs(trkP->parameters()[Trk::locR]);
   EGasType gasType = gasTypeInStraw(itr);  
   if(gasType==kUnset) {
     ATH_MSG_ERROR("correctToT_corrRZ(const Trk::TrackStateOnSurface *itr):: Gas type in straw is kUnset! Return ToT = 0");
     return 0;
   }
  
-  if(m_divideByL && length>0) ToT = ToT/length;
-  if(!m_corrected) return ToT;
+  if(m_divideByL && length>0) timeOverThreshold = timeOverThreshold/length;
+  if(!m_corrected) return timeOverThreshold;
   /* else correct */
            
-  double HitZ = driftcircle->globalPosition().z();
+  double hitZ = driftcircle->globalPosition().z();
   double trackx =  driftcircle->globalPosition().x();
   double tracky =  driftcircle->globalPosition().y();
-  double HitRpos = sqrt(trackx*trackx+tracky*tracky);
+  double hitPosR = sqrt(trackx*trackx+tracky*tracky);
   
   /** @todo implement possiblity to set the scaling factor run-by-run from database, 
       should probably be done later on track- level */
   double ToTmip = 1;
   double valToT = 0;
   if(m_divideByL){
-    if (abs(HitPart)==1) // Barrel
-      valToT = fitFuncBarrel_corrRZL(gasType, HitRtrack,HitZ, Layer, StrawLayer);
+    if (abs(hitPart)==1) // Barrel
+      valToT = fitFuncBarrel_corrRZL(gasType, hitRtrack, hitZ, Layer, StrawLayer);
     else // End-cap
-      valToT = fitFuncEndcap_corrRZL(gasType, HitRtrack,HitRpos,Layer, HitZ>0?1:(HitZ<0?-1:0));   
+      valToT = fitFuncEndcap_corrRZL(gasType, hitRtrack, hitPosR, Layer, hitZ>0?1:(hitZ<0?-1:0));
   }else{
-    if (abs(HitPart)==1) // Barrel
-      valToT = fitFuncBarrel_corrRZ(gasType, HitRtrack,HitZ, Layer, StrawLayer);
+    if (abs(hitPart)==1) // Barrel
+      valToT = fitFuncBarrel_corrRZ(gasType, hitRtrack, hitZ, Layer, StrawLayer);
     else // End-cap
-      valToT = fitFuncEndcap_corrRZ(gasType, HitRtrack,HitRpos,Layer, HitZ>0?1:(HitZ<0?-1:0));
+      valToT = fitFuncEndcap_corrRZ(gasType, hitRtrack, hitPosR, Layer, hitZ>0?1:(hitZ<0?-1:0));
   } 
   if (std::isinf(valToT)) return 0.;
-  if (valToT!=0) return ToTmip*ToT/valToT;
+  if (valToT!=0) return ToTmip*timeOverThreshold/valToT;
   return 0.;
 }
 
