@@ -25,9 +25,8 @@ void CscCalibDataContainer::push_back(CscCalibData* calibData) {
   IdentifierHash channelHash = calibData->idHash(); 
   // I don't think there's any need for this any more. EJWM
   // Not sure if the "Identifier existing" check is important though
-     MyBase::const_iterator it = MyBase::indexFind(channelHash);
-     if(it!=MyBase::end()) {
-       const CscCalibDataCollection* const_coll = (*it)  ;
+     const CscCalibDataCollection* const_coll = MyBase::indexFindPtr(channelHash);
+     if(const_coll!=nullptr) {
        CscCalibDataCollection * coll = const_cast<CscCalibDataCollection*>(const_coll);
        coll->push_back(calibData); 
      } else {

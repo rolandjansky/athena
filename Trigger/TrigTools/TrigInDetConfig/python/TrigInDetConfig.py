@@ -172,6 +172,7 @@ def TrigInDetCondConfig( flags ):
   BeamSpotCondAlg=CompFactory.BeamSpotCondAlg
   acc.addCondAlgo(BeamSpotCondAlg( "BeamSpotCondAlg" ))
 
+
   from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
   mfsc = MagneticFieldSvcCfg(flags)
   acc.merge( mfsc )
@@ -185,6 +186,10 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
   acc.merge(TrigInDetCondConfig(flags))
 
   from InDetRecExample.InDetKeys import InDetKeys
+
+  # Region selector tool for SCT
+  from RegionSelector.RegSelToolConfig import regSelTool_SCT_Cfg
+  RegSelTool_SCT = acc.popToolsAndMerge(regSelTool_SCT_Cfg(flags))
 
   #Only add raw data decoders if we're running over raw data
   isMC = flags.Input.isMC
@@ -237,6 +242,8 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
     InDetSCTRawDataProvider.isRoI_Seeded = True
     InDetSCTRawDataProvider.RoIs = roisKey
     InDetSCTRawDataProvider.RDOCacheKey = InDetCacheNames.SCTRDOCacheKey
+
+    InDetSCTRawDataProvider.RegSelTool = RegSelTool_SCT
 
     acc.addEventAlgo(InDetSCTRawDataProvider)
 
@@ -334,6 +341,8 @@ def TrigInDetConfig( flags, roisKey="EMRoIs", signatureName='' ):
   InDetSCT_Clusterization.RoIs = roisKey
   InDetSCT_Clusterization.ClusterContainerCacheKey = InDetCacheNames.SCT_ClusterKey
 
+  InDetSCT_Clusterization.RegSelTool = RegSelTool_SCT
+
   acc.addEventAlgo(InDetSCT_Clusterization)
 
 
@@ -417,8 +426,8 @@ if __name__ == "__main__":
     l1DecoderAcc, l1DecoderAlg = L1DecoderCfg( ConfigFlags )
     acc.addEventAlgo(l1DecoderAlg)
     acc.merge(l1DecoderAcc)
-    from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
-    acc.merge(TrigBSReadCfg(ConfigFlags))
+    from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+    acc.merge(ByteStreamReadCfg(ConfigFlags))
 
     acc.merge( TrigInDetConfig( ConfigFlags ) )
     from RegionSelector.RegSelConfig import regSelCfg

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonEventTPCnv/MuonRDO/MM_RawDataContainerCnv_p1.h"
@@ -40,7 +40,7 @@ void  Muon::MM_RawDataContainerCnv_p1::persToTrans(const Muon::MM_RawDataContain
   if (DEBUG) log<<MSG::VERBOSE<<"MM_RawDataContainerCnv_p1::persToTrans with MM_RawDataContainer_p1 with this many collections "<<numColl<<std::endl;
     
   MM_RawDataCollection* coll = nullptr;
-  for ( const MM_RawDataCollection_p1 collection : *persCont){
+  for ( const MM_RawDataCollection_p1& collection : *persCont){
 
     coll = new MM_RawDataCollection(collection.m_idHash);
     if ( transCont->addCollection(coll,collection.m_idHash).isFailure() ) {

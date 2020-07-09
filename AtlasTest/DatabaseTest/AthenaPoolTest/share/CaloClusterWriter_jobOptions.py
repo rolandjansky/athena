@@ -69,8 +69,6 @@ topSequence += LArCellContFakeWriter( "LArCellContFakeWriter" )
 from AthenaPoolTest.AthenaPoolTestConf import CaloClusterFakeWriter
 topSequence += CaloClusterFakeWriter( "CaloClusterFakeWriter" )
 
-# Check the dictionary in memory for completeness
-#AthenaSealSvc.CheckDictionary = true;
 #--------------------------------------------------------------
 # Output options
 #--------------------------------------------------------------

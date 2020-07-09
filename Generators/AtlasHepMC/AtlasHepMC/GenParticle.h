@@ -35,7 +35,7 @@ template <class T> void suggest_barcode(T p, int i){p->add_attribute("barcode",s
 #include "HepMC/GenParticle.h"
 namespace HepMC {
 typedef GenParticle* GenParticlePtr;
-typedef GenParticle* ConstGenParticlePtr;
+typedef const GenParticle* ConstGenParticlePtr;
 inline GenParticlePtr newGenParticlePtr(const HepMC::FourVector &mom = HepMC::FourVector(0.0,0.0,0.0,0.0), int pid = 0, int status = 0) {
     return new HepMC::GenParticle(mom,pid,status);
 }
@@ -48,6 +48,7 @@ namespace Print {
 inline void line(std::ostream& os,const GenParticle& p){p.print(os);}
 inline void line(std::ostream& os,const GenParticle* p){p->print(os);}
 }
+inline std::ostream& operator<<( std::ostream& os, const GenParticle* p ) { if (p) return os<<(*p); else return os;} 
 }
 #endif
 #endif

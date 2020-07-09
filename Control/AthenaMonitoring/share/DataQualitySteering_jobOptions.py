@@ -142,6 +142,7 @@ if DQMonFlags.doMonitoring():
    if DQMonFlags.doCaloMon():
       try:
          include("CaloMonitoring/CaloAllMonitoring_jobOptions.py")
+         include("CaloMonitoring/CaloNewMonitoring_jobOptions.py")
       except Exception:
          treatException("DataQualitySteering_jobOptions.py: exception when setting up Calo monitoring")
 

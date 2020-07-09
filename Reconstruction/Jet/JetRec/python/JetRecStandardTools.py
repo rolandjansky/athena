@@ -338,7 +338,7 @@ ctm.add( ChargedHadronSubtractionTool("CHSTool", InputType = xAODType.ParticleFl
 
 # Options to disable dependence on primary vertex container
 # for PFO corrections (e.g. when running cosmics)
-if not jetFlags.useTracks:
+if not (jetFlags.useTracks and jetFlags.useVertices):
   ctm.modifiersMap['correctPFO'].CorrectNeutral=False
   ctm.modifiersMap['chsPFO'].IgnoreVertex=True
 
@@ -696,7 +696,7 @@ jtm += JetConstitFourMomTool(
 jtm += JetConstitFourMomTool(
   "constitfourmom_emtopo",
   JetScaleNames = ["DetectorEtaPhi","JetLCScaleMomentum"],
-  AltConstitColls = ["CaloCalTopoClusters","LCOriginTopoClusters" if jetFlags.useTracks() else "CaloCalTopoClusters"],
+  AltConstitColls = ["CaloCalTopoClusters","LCOriginTopoClusters" if (jetFlags.useTracks() and jetFlags.useVertices()) else "CaloCalTopoClusters"],
   AltConstitScales = [CaloClusterStates["UNCALIBRATED"],CaloClusterStates["CALIBRATED"]],
   AltJetScales = ["",""]
   )

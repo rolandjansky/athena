@@ -39,7 +39,7 @@ cat - > indet_std_plots <<EOF
 # from AthenaMonitoring import DQMonFlags;
 # DQMonFlags.doStreamAwareMon=False
 from InDetRecExample.InDetJobProperties import InDetFlags
-InDetFlags.doStandardPlots.set_Value_and_Lock(True);
+InDetFlags.doPhysValMon.set_Value_and_Lock(True);
 EOF
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -210,7 +210,7 @@ void iFatras::HitCreatorTRT::createSimHit(const ISF::ISFParticle& isp, const Trk
            int layer     = m_trtIdHelper->straw_layer(hitId);
            int istraw    = m_trtIdHelper->straw(hitId);
                       
-           TRTHitIdHelper* hitid_helper = TRTHitIdHelper::GetHelper();
+           const TRTHitIdHelper* hitid_helper = TRTHitIdHelper::GetHelper();
            int hitID = hitid_helper->buildHitId( barrel_endcap, ispos, ringwheel, phisector,layer,istraw);
            
            TRTUncompressedHit

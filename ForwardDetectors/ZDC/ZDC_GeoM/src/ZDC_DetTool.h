@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ZDCDETTOOL_H
@@ -8,7 +8,7 @@
 #include "GeoModelUtilities/GeoModelTool.h"
 #include "AthenaKernel/MsgStreamMember.h"
 
-class ZDC_DetTool : public GeoModelTool 
+class ZDC_DetTool final : public GeoModelTool 
 {
 
 public:

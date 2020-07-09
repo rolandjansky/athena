@@ -2,8 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigL2MuonSA/TgcRoadDefiner.h"
-#include "TrigL2MuonSA/MdtRegion.h"
+#include "TgcRoadDefiner.h"
+#include "MdtRegion.h"
 #include "xAODTrigMuon/L2StandAloneMuonAuxContainer.h"
 #include "xAODTrigMuon/TrigMuonDefs.h"
 

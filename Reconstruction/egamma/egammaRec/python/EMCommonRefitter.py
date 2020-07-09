@@ -32,9 +32,9 @@ def getGSFTrackFitter():
 
     # Set up the GSF
     from TrkGaussianSumFilter.TrkGaussianSumFilterConf import (
-        Trk__GsfMaterialMixtureConvolution)
+        Trk__GsfMaterialMixtureConvolutionLM)
 
-    GsfMaterialUpdator = Trk__GsfMaterialMixtureConvolution(name='GsfMaterialUpdator',MaximumNumberOfComponents=12)
+    GsfMaterialUpdator = Trk__GsfMaterialMixtureConvolutionLM(name='GsfMaterialUpdator',MaximumNumberOfComponents=12)
 
     from TrkGaussianSumFilter.TrkGaussianSumFilterConf import (
         Trk__GsfExtrapolator)

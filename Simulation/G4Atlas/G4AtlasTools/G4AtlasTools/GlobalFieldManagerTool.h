@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASTOOLS_GlobalFieldManagerTool_H
@@ -35,7 +35,8 @@ class GlobalFieldManagerTool : public G4FieldManagerToolBase
   protected:
 
     /// Tight muon stepping parameters via the field manager's configure for track
-    bool m_useTightMuonStepping;
+    Gaudi::Property<bool> m_useTightMuonStepping{this, "UseTightMuonStepping", false,
+        "Use tight muon stepping parameters by default"};
 
     /// My field manager -- populated only in the case that we use tight muon stepping
     thread_utils::ThreadLocalOwner<G4FieldManager> m_fieldMgrHolder;

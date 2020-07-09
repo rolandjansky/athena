@@ -27,7 +27,7 @@
 
 #include "GeoModelDBManager/GMDBManager.h"
 
-#include "GeoWrite/DumpGeoModelActionLocal.h"
+#include "GeoModelWrite/WriteGeoModel.h" //DumpGeoModelActionLocal.h"
 
 #include <QCoreApplication>
 #include <QtCore/QStringList>
@@ -219,7 +219,7 @@ void GeoExporter::init()
 
    std::cout << "Dumping the GeoModel geometry to the DB file..." << std::endl;
   // Dump the tree volumes into a DB
-  DumpGeoModelActionLocal dumpGeoModelGraph(db); // init the GeoModel node action
+  GeoModelIO::WriteGeoModel dumpGeoModelGraph(db); // init the GeoModel node action
   world->exec(&dumpGeoModelGraph); // visit all GeoModel nodes
   std::cout << "Saving the GeoModel tree to the DB." << std::endl;
   dumpGeoModelGraph.saveToDB(); // save to the SQlite DB file

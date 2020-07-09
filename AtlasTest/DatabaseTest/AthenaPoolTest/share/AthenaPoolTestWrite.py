@@ -32,15 +32,6 @@ svcMgr.CoreDumpSvc.FatalHandler = 438
 import AthenaPoolCnvSvc.WriteAthenaPool
 
 #--------------------------------------------------------------
-# JobOptions for the loading of the AthenaSealSvc
-#--------------------------------------------------------------
-
-# Add in dictionary name:
-#svcMgr.AthenaSealSvc = Service( "AthenaSealSvc" )
-#AthenaSealSvc.DictNames += [ "SealCLHEPDict" ]
-# Check the dictionary in memory for completeness
-svcMgr.AthenaSealSvc.CheckDictionary = True
-#--------------------------------------------------------------
 # Event related parameters
 #--------------------------------------------------------------
 theApp.EvtMax = 5
@@ -104,7 +95,6 @@ svcMgr.MessageSvc.debugLimit  = 100000
 
 #rds svcMgr.ClassIDSvc = Service( "ClassIDSvc" )
 #rds svcMgr.ClassIDSvc.OutputLevel = 3
-svcMgr.AthenaSealSvc.OutputLevel = WARNING
 
 from AthenaServices import AthenaServicesConf
 AthenaEventLoopMgr = AthenaServicesConf.AthenaEventLoopMgr()

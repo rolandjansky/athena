@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -73,7 +73,7 @@ namespace InDet{
     return tl;
   }
 
-  void InDetVKalVxInJetTool::printWrkSet(const std::vector<WrkVrt> *, const std::string ) const {
+  void InDetVKalVxInJetTool::printWrkSet(const std::vector<WrkVrt> *, const std::string& ) const {
 /*  void InDetVKalVxInJetTool::printWrkSet(const std::vector<WrkVrt> *WrkVrtSet, const std::string name) const {
     int nGoodV=0;
     for(int iv=0; iv<(int)WrkVrtSet->size(); iv++) {
@@ -127,7 +127,7 @@ namespace InDet{
   }
 
   double InDetVKalVxInJetTool::VrtVrtDist(const Trk::RecVertex & PrimVrt, const Amg::Vector3D & SecVrt, 
-                                          const std::vector<double> SecVrtErr, double& Signif)
+                                          const std::vector<double>& SecVrtErr, double& Signif)
   const
   {
     double distx =  PrimVrt.position().x()- SecVrt.x();
@@ -159,7 +159,7 @@ namespace InDet{
   }
   
   double InDetVKalVxInJetTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
-                                          const std::vector<double> SecVrtErr, double& Signif)
+                                          const std::vector<double>& SecVrtErr, double& Signif)
   const
   {
     double distx =  PrimVrt.x()- SecVrt.x();
@@ -192,7 +192,7 @@ namespace InDet{
   }
 
   double InDetVKalVxInJetTool::VrtVrtDist2D(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
-                                          const std::vector<double> SecVrtErr, double& Signif)
+                                          const std::vector<double>& SecVrtErr, double& Signif)
   const
   {
     double distx =  PrimVrt.x()- SecVrt.x();
@@ -220,7 +220,7 @@ namespace InDet{
 // Significance along jet direction
 //--------------------------------------------------
   double InDetVKalVxInJetTool::VrtVrtDist(const Trk::RecVertex & PrimVrt, const Amg::Vector3D & SecVrt, 
-                                          const std::vector<double> SecVrtErr, const TLorentzVector & JetDir)
+                                          const std::vector<double>& SecVrtErr, const TLorentzVector & JetDir)
   const
   {
     Amg::Vector3D jetDir(JetDir.Vect().Unit().X(), JetDir.Vect().Unit().Y(), JetDir.Vect().Unit().Z());
@@ -258,7 +258,7 @@ namespace InDet{
 // Significance along jet direction
 //--------------------------------------------------
   double InDetVKalVxInJetTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
-                                          const std::vector<double> SecVrtErr, const TLorentzVector & JetDir)
+                                          const std::vector<double>& SecVrtErr, const TLorentzVector & JetDir)
   const
   {
     Amg::Vector3D jetDir(JetDir.Vect().Unit().X(), JetDir.Vect().Unit().Y(), JetDir.Vect().Unit().Z());
@@ -401,7 +401,7 @@ namespace InDet{
      double sx=SumP.Px()/Norm; double sy=SumP.Py()/Norm; double sz=SumP.Pz()/Norm;
 
      double px=0.,py=0.,pz=0.,ee=0.; double scale;
-     AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
+     AmgVector(5) VectPerig; VectPerig.setZero();
      for (int i = 0; i < (int)InpTrk.size(); ++i) {
        if( InpTrk[i]== NULL ){ continue; } 
        VectPerig = InpTrk[i]->parameters(); 
@@ -428,7 +428,7 @@ namespace InDet{
      double sx=Dir.x()/Norm; double sy=Dir.y()/Norm; double sz=Dir.z()/Norm;
 
      double px=0.,py=0.,pz=0.,ee=0.; double scale;
-     AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
+     AmgVector(5) VectPerig; VectPerig.setZero();
      for (int i = 0; i < (int)InpTrk.size(); ++i) {
        if( InpTrk[i] == NULL ){ continue; } 
        VectPerig = InpTrk[i]->parameters(); 
@@ -466,7 +466,7 @@ namespace InDet{
   TLorentzVector InDetVKalVxInJetTool::TotalMom(const std::vector<const Trk::Perigee*>& InpTrk) 
   const
   {
-     AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
+     AmgVector(5) VectPerig; VectPerig.setZero();
      double px=0.,py=0.,pz=0.,ee=0.;
      for (int i = 0; i < (int)InpTrk.size(); ++i) {
        if( InpTrk[i] == NULL ){ continue; } 

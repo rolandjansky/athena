@@ -13,7 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
-# Component(s) in the package:
+#Component(s) in the package:
 atlas_add_library( TrkParameters
                    src/*.cxx
                    PUBLIC_HEADERS TrkParameters
@@ -27,3 +27,11 @@ atlas_add_dictionary( TrkParametersDict
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                       LINK_LIBRARIES ${ROOT_LIBRARIES} TrkSurfaces TrkParametersBase TrkParameters )
 
+
+#Executables for tests
+atlas_add_executable( TrkParameters_testConstExprMethods
+	              test/testConstExpr.cxx 
+		      LINK_LIBRARIES TrkParameters)
+#Executables for tests
+atlas_add_test( ut_TrkParameters_testConstExprMethods
+	        SCRIPT TrkParameters_testConstExprMethods)

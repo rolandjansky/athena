@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-import sys, time, os, re, argparse
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
+import sys, argparse
 from TrigConfMuctpi.XMLReader import MioctGeometryXMLReader
 
 def readXML(filename):
@@ -53,26 +53,26 @@ def writeXML(geometry, dettype):
     outfile = infile.replace(".","_%s." % dettype)
 
     if dettype == 'RPC':
-        sectorFilter = lambda s : s['name'].startswith('B')
+        sectorFilter = lambda s : s['name'].startswith('B')  # noqa: E731
     else:
-        sectorFilter = lambda s : s['name'].startswith('E') or s['name'].startswith('F')
+        sectorFilter = lambda s : s['name'].startswith('E') or s['name'].startswith('F')  # noqa: E731
 
     f = open(outfile,"write")
 
-    print >> f, '<?xml version="1.0" ?>\n'
-    print >> f, '<!DOCTYPE MuCTPiGeometry SYSTEM "MUCTPIGeometry.dtd">\n'
-    print >> f, geometry.MuCTPiGeometry
+    print('<?xml version="1.0" ?>\n', file=f)
+    print('<!DOCTYPE MuCTPiGeometry SYSTEM "MUCTPIGeometry.dtd">\n', file=f)
+    print(geometry.MuCTPiGeometry, file=f)
     for mioct in geometry.getMIOCTs():
-        print >> f, mioctAsXML(mioct, 4, sectorFilter, stats)
+        print(mioctAsXML(mioct, 4, sectorFilter, stats), file=f)
 
-    print >> f, "</%s>" % geometry.MuCTPiGeometry.tag
+    print("</%s>" % geometry.MuCTPiGeometry.tag, file=f)
     stats['miocts'] = len(geometry.getMIOCTs())
-    print "Wrote %s" % outfile
+    print("Wrote %s" % outfile)
 
-    print "Numbers for %s" % dettype
-    print "#MIOCTs  : %i" % stats['miocts']
-    print "#Sectors : %i" % stats['sectors']
-    print "#ROIs    : %i" % stats['rois']
+    print("Numbers for %s" % dettype)
+    print("#MIOCTs  : %i" % stats['miocts'])
+    print("#Sectors : %i" % stats['sectors'])
+    print("#ROIs    : %i" % stats['rois'])
 
     f.close()
 
@@ -80,7 +80,7 @@ def writeXML(geometry, dettype):
 
 def main(args):
 
-    print "Using input %s" % args.infile
+    print("Using input %s" % args.infile)
     geometry = readXML( args.infile )
 
     writeXML(geometry, "RPC")

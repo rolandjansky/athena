@@ -14,7 +14,6 @@
 #include "AthenaKernel/IThinningHdlr.h"
 #include "AthenaKernel/ISlimmingHdlr.h"
 #include "AthenaKernel/IValgrindSvc.h"
-#include "AthenaKernel/IAthenaSealSvc.h"
 #include "AthenaKernel/IDictLoaderSvc.h"
 #include "AthenaKernel/IEvtIdModifierSvc.h"
 #include "GaudiKernel/IIoComponent.h"

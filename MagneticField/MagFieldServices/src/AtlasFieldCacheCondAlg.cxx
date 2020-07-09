@@ -40,7 +40,7 @@ MagField::AtlasFieldCacheCondAlg::initialize() {
     ATH_CHECK( m_condSvc.retrieve() );
 
     // Read Handle for the current
-    ATH_CHECK( m_currInputKey.initialize() );
+    ATH_CHECK( m_currInputKey.initialize (m_useDCS) );
 
     // Read handle for the field map cond object
     ATH_CHECK( m_mapCondObjInputKey.initialize() );

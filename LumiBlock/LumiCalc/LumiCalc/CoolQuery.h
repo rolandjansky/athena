@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef COOLQUERY_H
@@ -80,7 +80,7 @@ class IOVData {
   T getValue(IOVTime time);
 
   // Useful for LAr calculation, returns list of IOV-data pairs which intersect given range
-  typename std::list<std::pair<IOVRange, T > > getOverlap(IOVRange range);
+  typename std::list<std::pair<IOVRange, T > > getOverlap(const IOVRange& range);
 
   // Insert element
   void add(IOVRange range, T val);
@@ -143,13 +143,13 @@ T IOVData<T>::getValue(IOVTime time) {
 
   // OK, suck it up and find the best value by stepping through entire list
   // Make sure we start on a valid value
-  if ( m_last == data.end() ) m_last--;
+  if ( m_last == data.end() ) --m_last;
 
   // Step forward looking for a match
   if (m_last->first.stop() <= time) {
 
     // if (verbose) cout << "Search upwards" << endl;
-    for (++m_last; m_last != data.end(); m_last++) {
+    for (++m_last; m_last != data.end(); ++m_last) {
       // if (verbose) cout << m_last->first << endl;
       if ((m_lastData = (m_last->first).isInRange(time))) return m_last->second;
     }
@@ -178,7 +178,7 @@ T IOVData<T>::getValue(IOVTime time) {
 }
 
 template <class T> 
-std::list<std::pair<IOVRange, T> > IOVData<T>::getOverlap(IOVRange range) {
+std::list<std::pair<IOVRange, T> > IOVData<T>::getOverlap(const IOVRange& range) {
 
   std::list<std::pair<IOVRange, T> > mydata;
   mydata.clear();
@@ -196,7 +196,7 @@ std::list<std::pair<IOVRange, T> > IOVData<T>::getOverlap(IOVRange range) {
   std::pair<IOVRange, T> val;
 
   // Loop over elements
-  for (elem = m_last; elem != data.end(); elem++) {
+  for (elem = m_last; elem != data.end(); ++elem) {
 
     val = *elem;
 

@@ -52,6 +52,8 @@ CREATED:  July 2011
 
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 
+#include "CxxUtils/checker_macros.h"
+
 #include <map>
 #include <vector>
 
@@ -78,7 +80,7 @@ namespace Trk{
 typedef std::pair<const xAOD::Vertex* , int> VxPos;
 
 
-class IDPerfMonEoverP : public AthAlgorithm
+class ATLAS_NOT_THREAD_SAFE IDPerfMonEoverP : public AthAlgorithm // Many mutable member variables are used without protection.
 {
  public:
 

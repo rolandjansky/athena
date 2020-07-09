@@ -5,21 +5,6 @@
 # Declare the package name:
 atlas_subdir( LArG4GenShowerLib )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/AthContainers
-                          Control/StoreGate
-                          GaudiKernel
-                          Simulation/G4Atlas/G4AtlasTools
-                          Simulation/G4Atlas/G4AtlasInterfaces
-                          LArCalorimeter/LArG4/LArG4Code
-                          PRIVATE
-                          DetectorDescription/GeoModel/GeoModelInterfaces
-                          Generators/GeneratorObjects
-                          LArCalorimeter/LArG4/LArG4ShowerLib )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Geant4 )

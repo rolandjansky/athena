@@ -82,9 +82,9 @@ namespace CP
     std::unique_ptr<ISelectionAccessor> m_selectionAccessor;
 
 
-    /// \brief the \ref TAccept we are using
+    /// \brief the \ref asg::AcceptInfo we are using
   private:
-    Root::TAccept m_accept;
+    asg::AcceptInfo m_accept;
   };
 }
 

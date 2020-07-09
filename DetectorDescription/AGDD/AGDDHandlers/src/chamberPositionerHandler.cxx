@@ -1,11 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDHandlers/chamberPositionerHandler.h"
 #include "AGDDKernel/AGDDDetectorStore.h"
 #include "AGDDKernel/AGDDDetectorPositioner.h"
 #include "AGDDKernel/AGDDDetector.h"
+#include "GeoModelKernel/Units.h"
+
 #include <iostream>
 
 #include "CLHEP/Vector/Rotation.h"
@@ -47,9 +49,6 @@ void chamberPositionerHandler::ElementHandle()
 	int etaIndex=getAttributeAsInt("etaIndex",0);
 	
 	double dPhi=360./iWedge;
-	
-
-	const double degrad=M_PI/180.;
 
 	if (iSectors.size()!= (unsigned int) iWedge) throw;
 	
@@ -66,15 +65,15 @@ void chamberPositionerHandler::ElementHandle()
 			if (type=="ENDCAP") 
 			{
 				//	fix to ensure right order of planes			
-				crot.rotateZ(180.*degrad);
+				crot.rotateZ(180.*GeoModelKernelUnits::degree);
 				//
-				crot.rotateY(90*degrad);
-				crot.rotateZ(Wedge*degrad);
+				crot.rotateY(90*GeoModelKernelUnits::degree);
+				crot.rotateZ(Wedge*GeoModelKernelUnits::degree);
 			}
 			else 
-				crot.rotateZ(Wedge*degrad);
- 			double x=radius*cos(Wedge*degrad);
- 			double y=radius*sin(Wedge*degrad);
+				crot.rotateZ(Wedge*GeoModelKernelUnits::degree);
+ 			double x=radius*cos(Wedge*GeoModelKernelUnits::degree);
+ 			double y=radius*sin(Wedge*GeoModelKernelUnits::degree);
  			double zpos=zPos;
  			cvec=CLHEP::Hep3Vector(x,y,zpos);
  			AGDDDetectorPositioner *p __attribute__((__unused__));
@@ -101,16 +100,16 @@ void chamberPositionerHandler::ElementHandle()
             if (type=="ENDCAP")
             {
 				//	fix to ensure right order of planes			
-				crot.rotateZ(180.*degrad);
+				crot.rotateZ(180.*GeoModelKernelUnits::degree);
 				//
-                crot.rotateY(90*degrad);
-                crot.rotateZ(-Wedge*degrad);
-				crot.rotateX(180.*degrad);
+                crot.rotateY(90*GeoModelKernelUnits::degree);
+                crot.rotateZ(-Wedge*GeoModelKernelUnits::degree);
+				crot.rotateX(180.*GeoModelKernelUnits::degree);
             }
             else
-                crot.rotateZ(Wedge*degrad);
-            double x=radius*cos(Wedge*degrad);
-            double y=radius*sin(Wedge*degrad);
+                crot.rotateZ(Wedge*GeoModelKernelUnits::degree);
+            double x=radius*cos(Wedge*GeoModelKernelUnits::degree);
+            double y=radius*sin(Wedge*GeoModelKernelUnits::degree);
             double zpos=zPos;
             cvec=CLHEP::Hep3Vector(x,y,-zpos);
             AGDDDetectorPositioner *p __attribute__((__unused__));

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelStaveTypes_H
@@ -43,7 +43,7 @@ private :
 
   std::map<int,int> m_maxSector;
   
-  static Datum s_defaultDatum;
+  static const Datum s_defaultDatum;
 
 };
 

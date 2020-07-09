@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -12,9 +12,12 @@
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h" //for IRDBRecordset_ptr typedef
 #include "AthenaKernel/MsgStreamMember.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <string>
 #include <vector>
+
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // Legacy code
 
 class GeoLogVol;
 class GeoVPhysVol;

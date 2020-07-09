@@ -39,6 +39,7 @@
 #include <algorithm>
 #include <iterator>
 #include <sstream>
+#include <memory>
 
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
 
@@ -581,7 +582,7 @@ CaloTopoClusterMaker::execute(const EventContext& ctx,
   //Create temporary list of proto-clusters 
   //Clusters below Et cut will be dropped. 
   //The remaining clusters will be sorted in E_t before storing 
-  std::vector<CaloProtoCluster*> sortClusters;
+  std::vector<std::unique_ptr<CaloProtoCluster> > sortClusters;
   sortClusters.reserve (myHashClusters.size());
 
   for (HashCluster* tmpCluster : myHashClusters) {
@@ -595,25 +596,24 @@ CaloTopoClusterMaker::execute(const EventContext& ctx,
 	addCluster = true;
     }
     if ( addCluster) {
-      CaloProtoCluster* myCluster = new CaloProtoCluster(cellCollLink);
+      std::unique_ptr<CaloProtoCluster> myCluster = std::make_unique<CaloProtoCluster>(cellCollLink);
+      //CaloProtoCluster* myCluster = new CaloProtoCluster(cellCollLink);
       myCluster->getCellLinks()->reserve(tmpCluster->size());
 
       for (CaloTopoTmpClusterCell* cell : *tmpCluster) {
-	size_t iCell = cell->getCaloCell();
+	const size_t iCell = cell->getCaloCell();
 	myCluster->addCell(iCell,1.);
       }
-      float cl_et = myCluster->et();
+      const float cl_et = myCluster->et();
       if ( (m_seedCutsInAbsE ? std::abs(cl_et) : cl_et) > m_clusterEtorAbsEtCut ) {
-	sortClusters.push_back(myCluster);
+	sortClusters.push_back(std::move(myCluster));
       } 
-      else {
-	delete myCluster;
-      }
     }
   }
 
   // Sort the clusters according to Et 
-  std::sort(sortClusters.begin(),sortClusters.end(),[](CaloProtoCluster* pc1, CaloProtoCluster* pc2) {
+  std::sort(sortClusters.begin(),sortClusters.end(),[](const std::unique_ptr<CaloProtoCluster>& pc1, 
+						       const std::unique_ptr<CaloProtoCluster>& pc2) {
       //As in CaloUtils/CaloClusterEtSort. 
       //assign to volatile to avoid excess precison on in FP unit on x386 machines
       volatile double et1(pc1->et());
@@ -625,11 +625,10 @@ CaloTopoClusterMaker::execute(const EventContext& ctx,
  // add to cluster container
   clusColl->reserve(sortClusters.size());
 
-  for (CaloProtoCluster* protoCluster: sortClusters) {
+  for (const auto& protoCluster: sortClusters) {
     xAOD::CaloCluster* xAODCluster=new xAOD::CaloCluster();
     clusColl->push_back(xAODCluster);
     xAODCluster->addCellLink(protoCluster->releaseCellLinks());//Hand over ownership to xAOD::CaloCluster
-    delete protoCluster;
     xAODCluster->setClusterSize(m_clusterSize);
     CaloClusterKineHelper::calculateKine(xAODCluster,false,true); //No weight at this point! 
   }

@@ -1,18 +1,15 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## Merge_tf.py - Transform for merging any data type
 
-import os.path
 import sys
 import time
 
-import logging
-
 # Setup core logging here
 from PyJobTransforms.trfLogger import msg
-msg.info('logging set in %s' % sys.argv[0])
+msg.info('logging set in %s', sys.argv[0])
 
 from PyJobTransforms.transform import transform
 from PyJobTransforms.trfExe import athenaExecutor, hybridPOOLMergeExecutor
@@ -22,7 +19,6 @@ from RecJobTransforms.recTransformUtils import addCommonRecTrfArgs
 from PyJobTransforms.trfExe import DQMergeExecutor
 from PyJobTransforms.trfExe import tagMergeExecutor
 from PyJobTransforms.trfExe import bsMergeExecutor
-from PyJobTransforms.trfExe import NTUPMergeExecutor
 from PyJobTransforms.trfArgs import addD3PDArguments, addExtraDPDTypes
 from PATJobTransforms.PATTransformUtils import addNTUPMergeSubsteps, addPhysValidationMergeFiles
 from PATJobTransforms.PATTransformUtils import addDAODArguments, addDAODMergerSubsteps
@@ -33,14 +29,14 @@ import PyJobTransforms.trfArgClasses as trfArgClasses
 @sigUsrStackTrace
 def main():
 
-    msg.info('This is %s' % sys.argv[0])
+    msg.info('This is %s', sys.argv[0])
 
     trf = getTransform()
     trf.parseCmdLineArgs(sys.argv[1:])
     trf.execute()
     trf.generateReport()
 
-    msg.info("%s stopped at %s, trf exit code %d" % (sys.argv[0], time.asctime(), trf.exitCode))
+    msg.info("%s stopped at %s, trf exit code %d", sys.argv[0], time.asctime(), trf.exitCode)
     sys.exit(trf.exitCode)
 
 def getTransform():
@@ -75,7 +71,6 @@ def getTransform():
 
     # Add HITSMerge only if SimuJobTransforms is available
     try:
-        from SimuJobTransforms.simTrfArgs import addForwardDetTrfArgs
         from SimuJobTransforms.SimTransformUtils import addHITSMergeArguments
         addHITSMergeArguments(trf.parser)
         simStepSet = set()

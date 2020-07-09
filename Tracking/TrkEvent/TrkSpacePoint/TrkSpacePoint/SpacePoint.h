@@ -69,16 +69,17 @@ namespace Trk{
     double phi() const ;
 	
     /**Interface method to get the associated Surface*/
-    virtual const Surface& associatedSurface() const override;
+    virtual const Surface& associatedSurface() const override final;
        
     /**Interface method to get the global Position*/
-    virtual const Amg::Vector3D& globalPosition() const override;
+    virtual const Amg::Vector3D& globalPosition() const override final; 
        
     /** Clone */
     virtual SpacePoint* clone() const override = 0;       
 
     /** Extended method checking the type*/
-    virtual bool type(MeasurementBaseType::Type type) const override {
+    virtual bool type(MeasurementBaseType::Type type) const override final
+    {
       return (type==MeasurementBaseType::SpacePoint);
     }
 

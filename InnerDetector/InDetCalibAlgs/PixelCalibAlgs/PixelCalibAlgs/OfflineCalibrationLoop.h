@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef OfflineCalibrationLoop_h
 #define OfflineCalibrationLoop_h
 
+#include "CxxUtils/checker_macros.h"
 #include "PixelCalibAlgs/PixelNtupleTracks.h"
 
 class string;
@@ -18,7 +19,7 @@ class PixelChargeInterpolationValidation;
 
 class OfflineCalibrationLoop;
 
-class OfflineCalibrationLoop: public PixelNtupleTracks {
+class ATLAS_NOT_THREAD_SAFE OfflineCalibrationLoop: public PixelNtupleTracks { // Thread unsafe PixelChargeInterpolationCalibration class is used.
 
 public :
 	// Modified stuff

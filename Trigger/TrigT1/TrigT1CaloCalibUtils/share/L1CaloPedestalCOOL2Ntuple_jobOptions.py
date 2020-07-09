@@ -78,11 +78,6 @@ theApp.EvtMax = 1
 #--------------------------------------------------------------
 include ( "IOVDbSvc/IOVDbSvc_jobOptions.py" )
 
-# Check the dictionary in memory for completeness
-AthenaSealSvc = Service( "AthenaSealSvc" )
-AthenaSealSvc.CheckDictionary = TRUE
-
-
 #--------------------------------------------------------------
 # Input options
 #--------------------------------------------------------------

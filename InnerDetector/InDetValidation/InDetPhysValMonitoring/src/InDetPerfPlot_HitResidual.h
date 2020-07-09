@@ -11,6 +11,7 @@
 
 
 // std includes
+#include <atomic>
 #include <string>
 #include <vector>
 #include "TProfile.h"
@@ -60,6 +61,8 @@ private:
   TH1* m_pully[N_SUBDETECTORS][N_REGIONS];
   TH1* m_phiWidth[N_SUBDETECTORS][N_REGIONS];
   TH1* m_etaWidth[N_SUBDETECTORS][N_REGIONS];
+
+  mutable std::atomic<int> m_warnCount{0};
 };
 
 

@@ -246,7 +246,7 @@ HLT::ErrorCode InDetTrigAmbiguitySolver::hltFinalize() {
 //--------------------------------------------------------------------
 
 // Broken out as a separate function to avoid thread-safety checker warnings.
-HLT::ErrorCode InDetTrigAmbiguitySolver::savePRDtoTrackMap ATLAS_NOT_THREAD_SAFE
+HLT::ErrorCode InDetTrigAmbiguitySolver::savePRDtoTrackMap ATLAS_NOT_THREAD_SAFE // IPRDtoTrackMapExchangeTool.h declares setPRDtoTrackMap method is ATLAS_NOT_THREAD_SAFE.
   (std::unique_ptr<Trk::PRDtoTrackMap> map)
 {
   const EventContext& ctx = Gaudi::Hive::currentContext();

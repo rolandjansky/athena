@@ -19,14 +19,7 @@
 #include  "TrkVKalVrtFitter/VKalVrtAtlas.h"
 #include  "TrkVKalVrtCore/TrkVKalVrtCore.h"
 
-//#include  "xAODTracking/NeutralParticleContainer.h"
-//#include  "xAODTracking/TrackParticleContainer.h"
-//#include  "xAODTracking/VertexContainer.h"
-
-#include  "TrkParameters/TrackParameters.h" 
 #include  "TrkNeutralParameters/NeutralParameters.h"
-//#include  "VxVertex/ExtendedVxCandidate.h"
-#include  "MagFieldInterfaces/IMagFieldSvc.h"
 // MagField cache
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 //
@@ -34,7 +27,6 @@
 #include <mutex>
 //
 class IChronoStatSvc;
-class IMagFieldAthenaSvc;
 
 namespace Trk{
 
@@ -86,56 +78,58 @@ namespace Trk{
         virtual StatusCode finalize() override;
 
         TrkVKalVrtFitter(const std::string& t, const std::string& name, const IInterface*  parent);
-        virtual ~TrkVKalVrtFitter(); 
+        virtual ~TrkVKalVrtFitter();
 
-//
-// IVertexFitter interface
-//
-        virtual xAOD::Vertex * fit(const std::vector<const Track*> & vectorTrk,
-                                   const Amg::Vector3D& startingPoint) const override;
+        //
+        // IVertexFitter interface
+        //
 
-        virtual xAOD::Vertex * fit(const std::vector<const Track*>& vectorTrk,
-                                   const xAOD::Vertex& constraint) const override;
+        virtual xAOD::Vertex* fit(
+          const std::vector<const TrackParameters*>& perigeeList,
+          const Amg::Vector3D& startingPoint) const override;
 
-        virtual xAOD::Vertex * fit(const std::vector<const TrackParameters*> & perigeeList,
-                                   const Amg::Vector3D& startingPoint) const override;
+        virtual xAOD::Vertex* fit(
+          const std::vector<const TrackParameters*>& perigeeList,
+          const std::vector<const NeutralParameters*>& /*neutralPerigeeList*/,
+          const Amg::Vector3D& startingPoint) const override;
 
-        virtual xAOD::Vertex * fit(const std::vector<const TrackParameters*> & perigeeList,
-                                   const std::vector<const NeutralParameters*> & /*neutralPerigeeList*/,
-                                   const Amg::Vector3D& startingPoint) const override;
- 
-        virtual xAOD::Vertex * fit(const std::vector<const TrackParameters*> & perigeeList,
-                                   const xAOD::Vertex& constraint) const override;
+        virtual xAOD::Vertex* fit(
+          const std::vector<const TrackParameters*>& perigeeList,
+          const xAOD::Vertex& constraint) const override;
 
-        virtual xAOD::Vertex * fit(const std::vector<const TrackParameters*> & perigeeList,
-                                   const std::vector<const NeutralParameters*> & /*neutralPerigeeList*/,
-                                   const xAOD::Vertex& constraint) const override;
+        virtual xAOD::Vertex* fit(
+          const std::vector<const TrackParameters*>& perigeeList,
+          const std::vector<const NeutralParameters*>& /*neutralPerigeeList*/,
+          const xAOD::Vertex& constraint) const override;
 
-        /*--------------   Interface for xAOD    -------------*/ 
-        virtual xAOD::Vertex * fit(const EventContext& ctx,
-                                   const std::vector<const xAOD::TrackParticle*>& vectorTrk, 
-                                   const Amg::Vector3D& startingPoint) const override;
-        virtual xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, 
-                                   const xAOD::Vertex& constraint) const override;
+        virtual std::unique_ptr<xAOD::Vertex> fit(
+          const EventContext& ctx,
+          const std::vector<const xAOD::TrackParticle*>& vectorTrk,
+          const Amg::Vector3D& startingPoint) const override;
 
-        virtual xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>   & vectorTrk,
-                                   const std::vector<const xAOD::NeutralParticle*> & vectorNeu, 
-                                   const Amg::Vector3D& startingPoint) const override;
-        virtual xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>   & vectorTrk, 
-                                   const std::vector<const xAOD::NeutralParticle*> & vectorNeu, 
-                                   const xAOD::Vertex& constraint) const override;
+        virtual xAOD::Vertex* fit(
+          const std::vector<const xAOD::TrackParticle*>& vectorTrk,
+          const xAOD::Vertex& constraint) const override;
+
+        virtual xAOD::Vertex* fit(
+          const std::vector<const xAOD::TrackParticle*>& vectorTrk,
+          const std::vector<const xAOD::NeutralParticle*>& vectorNeu,
+          const Amg::Vector3D& startingPoint) const override;
+
+        virtual xAOD::Vertex* fit(
+          const std::vector<const xAOD::TrackParticle*>& vectorTrk,
+          const std::vector<const xAOD::NeutralParticle*>& vectorNeu,
+          const xAOD::Vertex& constraint) const override;
+
+        virtual xAOD::Vertex* fit(
+          const std::vector<const TrackParameters*>&) const override;
+       
+        virtual xAOD::Vertex* fit(
+          const std::vector<const TrackParameters*>&,
+          const std::vector<const Trk::NeutralParameters*>&) const override;
 
 
-        virtual xAOD::Vertex * fit(const std::vector<const TrackParticleBase*> & vectorTrk,
-                                   const Amg::Vector3D & startingPoint) const override;
-
-        virtual xAOD::Vertex * fit(const std::vector<const TrackParticleBase*>& vectorTrk,
-                                   const xAOD::Vertex& constraint) const override;
-
-        virtual xAOD::Vertex * fit(const std::vector<const TrackParameters*> & ) const override;
-        virtual xAOD::Vertex * fit(const std::vector<const TrackParameters*> &, const std::vector<const Trk::NeutralParameters*> & ) const override;
-        virtual xAOD::Vertex * fit(const std::vector<const Track*>& ) const override;
-
+        /*--------------  Additional  xAOD  interfaces -------------*/
         xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, 
                            const Amg::Vector3D& constraint,
                            IVKalState& istate) const;

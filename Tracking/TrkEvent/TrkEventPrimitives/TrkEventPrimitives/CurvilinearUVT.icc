@@ -1,0 +1,40 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+namespace Trk {
+
+inline CurvilinearUVT::CurvilinearUVT(const Amg::Vector3D& dir)
+  : m_curvT(dir)
+{
+  // make it safe for tracks progressing along the z axis
+  if (std::abs(dir.normalized().dot(Amg::Vector3D::UnitZ())) < 0.99) {
+    Amg::Vector3D curvZcrossT = -(m_curvT.cross(Amg::Vector3D::UnitZ()));
+    m_curvU = curvZcrossT.normalized();
+    m_curvV = m_curvT.cross(m_curvU);
+  } else {
+    Amg::Vector3D curvZcrossT = -(m_curvT.cross(Amg::Vector3D::UnitX()));
+    m_curvU = curvZcrossT.normalized();
+    m_curvV = m_curvT.cross(m_curvU);
+  }
+}
+
+inline const Amg::Vector3D&
+CurvilinearUVT::curvU() const
+{
+  return (m_curvU);
+}
+
+inline const Amg::Vector3D&
+CurvilinearUVT::curvV() const
+{
+  return (m_curvV);
+}
+
+inline const Amg::Vector3D&
+CurvilinearUVT::curvT() const
+{
+  return (m_curvT);
+}
+
+}

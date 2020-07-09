@@ -19,8 +19,8 @@
 #include <string>
 
 
-typedef std::vector<const HepMC::GenParticle*> MCParticleCollection;
-typedef std::vector<const HepMC::GenParticle*>::const_iterator MCParticleCollectionCIter;
+typedef std::vector<HepMC::ConstGenParticlePtr> MCParticleCollection;
+typedef std::vector<HepMC::ConstGenParticlePtr>::const_iterator MCParticleCollectionCIter;
 
 
 namespace TruthHelper {

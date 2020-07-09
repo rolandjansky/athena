@@ -88,6 +88,7 @@ conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/MUR", "/SCT/DAQ/Config/MUR")
 
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ReadoutTestAlg
 SCT_ReadoutTestAlg = SCT_ReadoutTestAlg()
+SCT_ReadoutTestAlg.SCT_ReadoutTool.SCT_CablingTool = ''
 
 # Module type and link status
 #SCT_ReadoutTestAlg.ModuleId = 143704064   # Endcap (default is barrel)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /**
  *  @file  LArCellDeadOTXCorr.cxx
@@ -124,42 +124,9 @@ LArCellDeadOTXCorr::LArCellDeadOTXCorr(
 	declareProperty("useL1CaloDB", m_useL1CaloDBProp = false);
 	declareProperty("ignoredTTs", m_ignoredTTs);
 	declareProperty("CaloTriggerTowerService",m_ttSvc);
-	declareConstant("etaCalibrationSizes", m_etaCalibrationSizes);
-	declareConstant("etaCalibrations", m_etaCalibrations);
-	declareConstant("energyCalibrationTypes", m_energyCalibrationTypes);
-	declareConstant("energyCalibrations", m_energyCalibrations);
-	
-	finish_ctor();
 
         m_useL1CaloDB = m_useL1CaloDBProp;
 }
-
-StatusCode
-LArCellDeadOTXCorr::setProperty (const std::string& propname,
-                                    const std::string& value)
-{
-  CHECK( AthAlgTool::setProperty (propname, value) );
-  CHECK( CaloRec::ToolWithConstantsMixin::setProperty (propname, value) );
-  return StatusCode::SUCCESS;
-}
-
-
-/**
- * @brief Method to set a property value.
- * @param p The property name/value to set.
- *
- * Defined here as required by @c ToolWithConstantsMixin.
- */
-StatusCode
-LArCellDeadOTXCorr::setProperty (const Property& p)
-{
-  CHECK( AthAlgTool::setProperty (p) );
-  CHECK( CaloRec::ToolWithConstantsMixin::setProperty (p) );
-  return StatusCode::SUCCESS;
-}
-
-
-
 
 LArCellDeadOTXCorr::~LArCellDeadOTXCorr() {}
 
@@ -175,8 +142,7 @@ StatusCode LArCellDeadOTXCorr::initialize()
 {
         ATH_MSG_INFO ("Initializing LArCellDeadOTXCorr");
 
-	CHECK( AthAlgTool::initialize() );
-	CHECK( CaloRec::ToolWithConstantsMixin::initialize() );
+	CHECK( base_class::initialize() );
 
 		
 	ATH_CHECK(m_TTLocation.initialize());
@@ -219,6 +185,12 @@ StatusCode  LArCellDeadOTXCorr::process (CaloCellContainer* cellCont,
 {
         ATH_MSG_DEBUG (" in process...");
 
+        Context myctx = context (ctx);
+        CxxUtils::Array<1> etaCalibrationSizes = m_etaCalibrationSizes(myctx);
+        CxxUtils::Array<1> etaCalibrations = m_etaCalibrations(myctx);
+        CxxUtils::Array<1> energyCalibrationTypes = m_energyCalibrationTypes(myctx);
+        CxxUtils::Array<1> energyCalibrations = m_energyCalibrations(myctx);
+
 	SG::ReadCondHandle<LArBadFebCont> badFebHdl{m_badFebKey,ctx};
 	const LArBadFebCont* badFebs=*badFebHdl;
 
@@ -226,9 +198,9 @@ StatusCode  LArCellDeadOTXCorr::process (CaloCellContainer* cellCont,
 	const LArOnOffIdMapping* cabling=*cablingHdl;
 
 	if (msgLvl(MSG::DEBUG)) {
-	  msg(MSG::DEBUG) << " Nb of eta calibration factors found : "<<m_etaCalibrations.size() << endmsg;
-	  for(unsigned int i=0;i<m_etaCalibrations.size();i++) {
-	    msg(MSG::DEBUG) << "calibration["<<i<<"] = "<<m_etaCalibrations[i] << endmsg;
+	  msg(MSG::DEBUG) << " Nb of eta calibration factors found : "<<etaCalibrations.size() << endmsg;
+	  for(unsigned int i=0;i<etaCalibrations.size();i++) {
+	    msg(MSG::DEBUG) << "calibration["<<i<<"] = "<<etaCalibrations[i] << endmsg;
 	  }
 	}
 
@@ -473,7 +445,11 @@ StatusCode  LArCellDeadOTXCorr::process (CaloCellContainer* cellCont,
 					{
 						unsigned int lutPed = (getDBPedestal ? l1CaloPprLutContainer->pprLut(coolChannelId)->pedValue() : 32);
 
-						tt_energy = getL1Energy(tt->adc(), (int)lutPed, eta, 0);
+						tt_energy = getL1Energy(etaCalibrationSizes,
+                                                                        etaCalibrations,
+                                                                        energyCalibrationTypes,
+                                                                        energyCalibrations,
+                                                                        tt->adc(), (int)lutPed, eta, 0);
 
 						if(tt_energy>0.)
 						{
@@ -491,7 +467,11 @@ StatusCode  LArCellDeadOTXCorr::process (CaloCellContainer* cellCont,
 					double eta = tt->eta();
 					unsigned int lutPed = (getDBPedestal ? l1CaloPprLutContainer->pprLut(coolChannelId)->pedValue() : 32);
 
-					tt_energy = getL1Energy(tt->adc(), (int)lutPed, eta, 1);
+					tt_energy = getL1Energy(etaCalibrationSizes,
+                                                                etaCalibrations,
+                                                                energyCalibrationTypes,
+                                                                energyCalibrations,
+                                                                tt->adc(), (int)lutPed, eta, 1);
 					if(tt_energy>0.)
 					{
 						double thetaTT = 2.*atan(exp(-1.*eta));
@@ -768,7 +748,11 @@ LArCellDeadOTXCorr::getInitialFitParameters(const std::vector<uint_least16_t> & 
 }
 
 
-double LArCellDeadOTXCorr::getL1Energy(const std::vector<uint_least16_t> & ADCsamples, int pedestal, double eta, int type) const
+double LArCellDeadOTXCorr::getL1Energy(const CxxUtils::Array<1>& etaCalibrationSizes,
+                                       const CxxUtils::Array<1>& etaCalibrations,
+                                       const CxxUtils::Array<1>& energyCalibrationTypes,
+                                       const CxxUtils::Array<1>& energyCalibrations,
+                                       const std::vector<uint_least16_t> & ADCsamples, int pedestal, double eta, int type) const
 {
 	double energy = 0;
 	int nbSamples = ADCsamples.size();
@@ -827,17 +811,23 @@ double LArCellDeadOTXCorr::getL1Energy(const std::vector<uint_least16_t> & ADCsa
 		energy = max0*0.25;
 
 	//-- we apply eta and energy corrections
-	double etaCal = getEtaCalibration(eta, type);
+	double etaCal = getEtaCalibration(etaCalibrationSizes,
+                                          etaCalibrations,
+                                          eta, type);
 	if(etaCal!=0.)
 		energy /= etaCal;
 
-	double energyCal = getEnergyCalibration(eta, type, energy);
+	double energyCal = getEnergyCalibration(energyCalibrationTypes,
+                                                energyCalibrations,
+                                                eta, type, energy);
 	energy *= energyCal;
 
 	return energy;
 }
 
-double LArCellDeadOTXCorr::getEtaCalibration(double eta, int type) const
+double LArCellDeadOTXCorr::getEtaCalibration(const CxxUtils::Array<1>& etaCalibrationSizes,
+                                             const CxxUtils::Array<1>& etaCalibrations,
+                                             double eta, int type) const
 {
 	unsigned int totalEtaSize = 0;
 
@@ -846,21 +836,21 @@ double LArCellDeadOTXCorr::getEtaCalibration(double eta, int type) const
 	int hecEtaSize = 0;
 	//int fcalEtaSize = 0;
 
-	for(unsigned int i=0;i<m_etaCalibrationSizes.size();i++)
-		totalEtaSize += m_etaCalibrationSizes[i];
+	for(unsigned int i=0;i<etaCalibrationSizes.size();i++)
+		totalEtaSize += etaCalibrationSizes[i];
 	
 
-	if(totalEtaSize != m_etaCalibrations.size())
+	if(totalEtaSize != etaCalibrations.size())
 	{
                 ATH_MSG_WARNING ("The number of eta-dependent calibration factors is not consistent with the given sizes for each calorimeter parts.");
 		ATH_MSG_WARNING ("Eta-dependent calibrations will not be applied");
 	}
 	else
 	{
-		barrelEtaSize = (m_etaCalibrationSizes.size()>0 ? m_etaCalibrationSizes[0] : 0);
-		emecEtaSize = (m_etaCalibrationSizes.size()>1 ? m_etaCalibrationSizes[1] : 0);
-		hecEtaSize = (m_etaCalibrationSizes.size()>2 ? m_etaCalibrationSizes[2] : 0);
-		//fcalEtaSize = (m_etaCalibrationSizes.size()>3 ? m_etaCalibrationSizes[3] : 0);
+		barrelEtaSize = (etaCalibrationSizes.size()>0 ? etaCalibrationSizes[0] : 0);
+		emecEtaSize = (etaCalibrationSizes.size()>1 ? etaCalibrationSizes[1] : 0);
+		hecEtaSize = (etaCalibrationSizes.size()>2 ? etaCalibrationSizes[2] : 0);
+		//fcalEtaSize = (etaCalibrationSizes.size()>3 ? etaCalibrationSizes[3] : 0);
 	}
 
 	int region = TTID_regionIndex(eta);
@@ -927,14 +917,16 @@ double LArCellDeadOTXCorr::getEtaCalibration(double eta, int type) const
 	}
 
 	if(doCorr)
-		calibration = m_etaCalibrations[shift+ieta];
+		calibration = etaCalibrations[shift+ieta];
 
 
 	return calibration;
 }
 
 
-double LArCellDeadOTXCorr::getEnergyCalibration(double eta, int type, double energy) const
+double LArCellDeadOTXCorr::getEnergyCalibration(const CxxUtils::Array<1>& energyCalibrationTypes,
+                                                const CxxUtils::Array<1>& energyCalibrations,
+                                                double eta, int type, double energy) const
 {
 	unsigned int totalEnergySize = 0;
 
@@ -948,24 +940,24 @@ double LArCellDeadOTXCorr::getEnergyCalibration(double eta, int type, double ene
 	int hecEnergyType = -1;
 	//int fcalEnergyType = -1;
 
-	for(unsigned int i=0;i<m_energyCalibrationTypes.size();i++)
+	for(unsigned int i=0;i<energyCalibrationTypes.size();i++)
 	{
-		std::map<int, int>::const_iterator it = m_typeSizeMapping.find(m_energyCalibrationTypes[i]);
+		std::map<int, int>::const_iterator it = m_typeSizeMapping.find(energyCalibrationTypes[i]);
 		if(it!=m_typeSizeMapping.end())
 			totalEnergySize += it->second;
 
 	}
-	if(totalEnergySize != m_energyCalibrations.size())
+	if(totalEnergySize != energyCalibrations.size())
 	{
                 ATH_MSG_WARNING ("The number of parameters for the energy-dependent calibrations is not consistent with the given parametrizations for each calorimeter parts");
 		ATH_MSG_WARNING ("Energy-dependent calibrations will not be applied");
 	}
 	else
 	{
-		barrelEnergyType = (m_energyCalibrationTypes.size()>0 ? m_energyCalibrationTypes[0] : -1);
-		emecEnergyType = (m_energyCalibrationTypes.size()>1 ? m_energyCalibrationTypes[1] : -1);
-		hecEnergyType = (m_energyCalibrationTypes.size()>2 ? m_energyCalibrationTypes[2] : -1);
-		//fcalEnergyType = (m_energyCalibrationTypes.size()>3 ? m_energyCalibrationTypes[3] : -1);
+		barrelEnergyType = (energyCalibrationTypes.size()>0 ? energyCalibrationTypes[0] : -1);
+		emecEnergyType = (energyCalibrationTypes.size()>1 ? energyCalibrationTypes[1] : -1);
+		hecEnergyType = (energyCalibrationTypes.size()>2 ? energyCalibrationTypes[2] : -1);
+		//fcalEnergyType = (energyCalibrationTypes.size()>3 ? energyCalibrationTypes[3] : -1);
 
 
 		std::map<int, int>::const_iterator itBarrel = m_typeSizeMapping.find(barrelEnergyType);
@@ -1015,11 +1007,11 @@ double LArCellDeadOTXCorr::getEnergyCalibration(double eta, int type, double ene
 	{
 		case 0 : //exponential 
 			{
-				double threshold = m_energyCalibrations[shift];
-				double yShift = m_energyCalibrations[shift + 1];
-				double max = m_energyCalibrations[shift + 2];
-				double variation = m_energyCalibrations[shift + 3];
-				double xShift = m_energyCalibrations[shift + 4];
+				double threshold = energyCalibrations[shift];
+				double yShift = energyCalibrations[shift + 1];
+				double max = energyCalibrations[shift + 2];
+				double variation = energyCalibrations[shift + 3];
+				double xShift = energyCalibrations[shift + 4];
 				if(energy<threshold) energy = threshold; //threshold on the calibration
 				calibration = yShift+ max*exp(variation*(energy - xShift));
 				break;

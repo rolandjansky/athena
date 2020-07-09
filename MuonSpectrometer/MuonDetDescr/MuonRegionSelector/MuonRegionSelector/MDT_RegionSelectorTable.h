@@ -1,6 +1,6 @@
 // emacs: this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 //
 //   @file    MDT_RegionSelectorTable.h        
@@ -45,7 +45,7 @@ public:
   StatusCode initialize();
   StatusCode finalize();
   
-  virtual RegSelSiLUT* getLUT() const;
+  virtual RegSelSiLUT* getLUT();
 
 private:
   

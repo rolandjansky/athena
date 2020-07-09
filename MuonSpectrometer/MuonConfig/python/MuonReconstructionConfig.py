@@ -24,7 +24,7 @@ if __name__=="__main__":
     args = SetupMuonStandaloneArguments()
     ConfigFlags = SetupMuonStandaloneConfigFlags(args)
     cfg = SetupMuonStandaloneCA(args,ConfigFlags)
-          
+
     # Run the actual test.
     acc = MuonReconstructionCfg(ConfigFlags)
     cfg.merge(acc)

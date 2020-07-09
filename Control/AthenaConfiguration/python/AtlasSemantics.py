@@ -7,6 +7,15 @@ import re
 import collections
 import copy
 
+# collections.Sequence is deprecated as of python 3.3.
+# As of 3.9, need to get it from collections.abc.
+# But that doesn't exist in py2.
+try:
+    from collections import abc
+    Sequence = abc.Sequence
+except ImportError:
+    Sequence = collections.Sequence
+
 class AppendListSemantics(GaudiConfig2.semantics.SequenceSemantics):
     '''
     Extend the sequence-semantics with a merge-method that appends the lists
@@ -22,6 +31,22 @@ class AppendListSemantics(GaudiConfig2.semantics.SequenceSemantics):
         a.extend(b)
         return a
 
+class MapMergeNoReplaceSemantics(GaudiConfig2.semantics.MappingSemantics):
+    '''
+    Extend the mapping-semantics with a merge-method that merges two mappings as long as they do not have different values for the same key
+    Use 'mapMergeNoReplace<T>' as fifth parameter of the Gaudi::Property<T> constructor
+    to invoke this merging method.
+    '''
+    __handled_types__ = (re.compile(r"^mapMergeNoReplace<.*>$"),)
+    def __init__(self, cpp_type, name=None):
+        super(MapMergeNoReplaceSemantics, self).__init__(cpp_type, name)
+
+    def merge(self,a,b):
+        for k in b.keys():
+            if k in a and b[k] != a[k]:
+                raise ValueError('conflicting values in map under key %r and %r %r' % (k, b[k], a[k]))
+            a[k] = b[k]
+        return a
 
 class VarHandleSematics(GaudiConfig2.semantics.StringSemantics):
     '''
@@ -106,7 +131,7 @@ class PublicHandleArraySemantics(GaudiConfig2.semantics.PropertySemantics):
         super(PublicHandleArraySemantics, self).__init__(cpp_type,name)
         
     def store(self, value):
-        if not isinstance(value,collections.Sequence) and not isinstance(value,set):
+        if not isinstance(value,Sequence) and not isinstance(value,set):
             value=[value,]
 
         newValue=[]
@@ -172,7 +197,7 @@ class SubAlgoSemantics(GaudiConfig2.semantics.PropertySemantics):
         super(SubAlgoSemantics, self).__init__(cpp_type,name)
         
     def store(self,value):
-        if not isinstance(value,collections.Sequence):
+        if not isinstance(value,Sequence):
             value=[value,]
         
         for v in value:
@@ -196,12 +221,13 @@ GaudiConfig2.semantics.SEMANTICS.append(ToolHandleArraySemantics)
 GaudiConfig2.semantics.SEMANTICS.append(PublicHandleSemantics)
 GaudiConfig2.semantics.SEMANTICS.append(PublicHandleArraySemantics)
 GaudiConfig2.semantics.SEMANTICS.append(SubAlgoSemantics)
+GaudiConfig2.semantics.SEMANTICS.append(MapMergeNoReplaceSemantics)
 
 
 #For some obscure reason, _ListHelper object never compare equal. Therefore PropertySemantics merge() method fails
 def _sequencemerge(instance,a,b):
     if a.data != b.data:
-        raise ValueError('cannot merge values %r and %r' % (a, b))
+        raise ValueError('cannot merge sequence of values %r and %r' % (a, b))
     else:
         return a
     

@@ -66,7 +66,7 @@
 
 
 
-#include "TrigBjetMonitoring/HLTBjetMonTool.h"
+#include "HLTBjetMonTool.h"
 
 #include "TrigTrackJetFinderTool/ITrigTrackJetFinderTool.h"
 
@@ -1083,7 +1083,9 @@ StatusCode HLTBjetMonTool::book(){
 	  if(HistJet) hist2("jetEtaPhi"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(jet->eta(),jet->phi());
 	  // zPV associated to the jets in the same event: they are the same for every jet in the same event so only the first zPV should be plotted
 	  if (ijet == 0) {
-	    auto vertexLinkInfo = TrigCompositeUtils::findLink<xAOD::VertexContainer>(jetLinkInfo.source, "EFHistoPrmVtx"); // CV 200120
+	    std::string vtxname = m_onlineVertexContainerKey.key();
+	    if ( vtxname.find("HLT_")==0 ) vtxname.erase(0,4);
+	    auto vertexLinkInfo = TrigCompositeUtils::findLink<xAOD::VertexContainer>(jetLinkInfo.source, vtxname ); // CV 200120
 	    ATH_CHECK( vertexLinkInfo.isValid() ) ; // TM 200120
 	    const xAOD::Vertex* vtx = *(vertexLinkInfo.link);
 	    ATH_MSG_DEBUG("        PVz_jet from jet link info: " << vtx->z());

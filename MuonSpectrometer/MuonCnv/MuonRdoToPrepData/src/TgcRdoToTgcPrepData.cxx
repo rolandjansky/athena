@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /// Author: Takashi Kubota
@@ -19,7 +19,7 @@ TgcRdoToTgcPrepData::TgcRdoToTgcPrepData(const std::string& name, ISvcLocator* p
   m_setting(0),
   m_seededDecoding(false),
   m_roiCollectionKey("OutputRoIs"),
-  m_regionSelector("RegSelSvc",name),
+  m_regsel_tgc("RegSelTool/RegSelTool_TGC",this),
   m_tgcCollection("TGC_Measurements")
 {
   declareProperty("DecodingTool",       m_tool,       "tgc rdo to prep data conversion tool" );
@@ -28,7 +28,7 @@ TgcRdoToTgcPrepData::TgcRdoToTgcPrepData(const std::string& name, ISvcLocator* p
   declareProperty("Setting",            m_setting,        "0 is default unseeded decoding"); 
   declareProperty("DoSeededDecoding",   m_seededDecoding, "If true decode only in RoIs");
   declareProperty("RoIs",               m_roiCollectionKey, "RoIs to read in");
-  declareProperty("RegionSelectorSvc",  m_regionSelector, "Region Selector");
+  declareProperty("RegSel_TGC", m_regsel_tgc);
   declareProperty("OutputCollection",   m_tgcCollection);
 
   // m_setting=314321 means 
@@ -89,8 +89,8 @@ StatusCode TgcRdoToTgcPrepData::initialize(){
   if(m_seededDecoding){
     ATH_CHECK(m_roiCollectionKey.initialize());
     ATH_CHECK(m_tgcCollection.initialize());
-    if (m_regionSelector.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Unable to retrieve RegionSelector Svc");
+    if (m_regsel_tgc.retrieve().isFailure()) {
+      ATH_MSG_FATAL("Unable to retrieve m_regsel_tgc");
       return StatusCode::FAILURE;
     }
   }
@@ -116,7 +116,7 @@ StatusCode TgcRdoToTgcPrepData::execute() {
       std::vector<IdentifierHash> tgchashids;
       std::vector<IdentifierHash> hash_ids_withData;
       for(auto roi : *muonRoI){
-	m_regionSelector->DetHashIDList(TGC,*roi,tgchashids);
+	m_regsel_tgc->HashIDList(*roi,tgchashids);
 	if(tgchashids.size()!=0){
 	  ATH_CHECK(m_tool->decode(tgchashids, hash_ids_withData));
 	  tgchashids.clear();

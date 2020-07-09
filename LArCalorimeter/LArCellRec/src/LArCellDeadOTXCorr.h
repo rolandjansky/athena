@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -36,7 +36,7 @@
 #include "CaloInterface/ICaloCellMakerTool.h"
 #include "Identifier/Identifier.h"
 #include "CaloConditions/Array.h"
-#include "CaloRec/ToolWithConstantsMixin.h"
+#include "CaloUtils/ToolWithConstants.h"
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
 #include "StoreGate/ReadCondHandle.h"
 
@@ -69,8 +69,7 @@ class L1CaloCondSvc;
  * Known cell energies in the trigger tower are removed to this trigger energy, and the result is uniformly divided into the missing layer.
  */
 class LArCellDeadOTXCorr
-: public extends<AthAlgTool, ICaloCellMakerTool>,
-  public CaloRec::ToolWithConstantsMixin
+: public extends<CaloUtils::ToolWithConstants<AthAlgTool>, ICaloCellMakerTool>
 {
 
 	public:
@@ -86,11 +85,6 @@ class LArCellDeadOTXCorr
                                              const EventContext& ctx) const override;
 		virtual StatusCode finalize() override;
 
-		using AthAlgTool::setProperty;
-
-		virtual StatusCode setProperty (const std::string& propname,
-				const std::string& value) override;
-		virtual StatusCode setProperty (const Property& p) override;
 
 
 	private:
@@ -101,10 +95,14 @@ class LArCellDeadOTXCorr
     bool m_useL1CaloDBProp;
     mutable std::atomic<bool> m_useL1CaloDB;
 
-    CaloRec::Array<1> m_etaCalibrationSizes;
-    CaloRec::Array<1> m_energyCalibrationTypes;
-    CaloRec::Array<1> m_etaCalibrations;
-    CaloRec::Array<1> m_energyCalibrations;
+    Constant<CxxUtils::Array<1> > m_etaCalibrationSizes
+    { this, "etaCalibrationSizes" };
+    Constant<CxxUtils::Array<1> > m_energyCalibrationTypes
+    { this, "energyCalibrationTypes" };
+    Constant<CxxUtils::Array<1> > m_etaCalibrations
+    { this, "etaCalibrations" };
+    Constant<CxxUtils::Array<1> > m_energyCalibrations
+    { this, "energyCalibrations" };
 
     static const std::map<int, int> m_typeSizeMapping;
 
@@ -174,7 +172,11 @@ class LArCellDeadOTXCorr
      * Energy is first estimated with a Landau-Landau fit; then a calibration
      * factor depending on eta and the energy is applied.
      */
-    double getL1Energy(const std::vector<uint_least16_t>& ADCsamples,
+    double getL1Energy(const CxxUtils::Array<1>& etaCalibrationSizes,
+                       const CxxUtils::Array<1>& etaCalibrations,
+                       const CxxUtils::Array<1>& energyCalibrationTypes,
+                       const CxxUtils::Array<1>& energyCalibrations,
+                       const std::vector<uint_least16_t>& ADCsamples,
                        int pedestal,
                        double eta,
                        int type) const;
@@ -184,8 +186,12 @@ class LArCellDeadOTXCorr
                                  double& maxPos,
                                  unsigned int& TTADCMaxIndex) const;
 
-    double getEtaCalibration(double eta, int type) const;
-    double getEnergyCalibration(double eta, int type, double energy) const;
+    double getEtaCalibration(const CxxUtils::Array<1>& etaCalibrationSizes,
+                             const CxxUtils::Array<1>& etaCalibrations,
+                             double eta, int type) const;
+    double getEnergyCalibration(const CxxUtils::Array<1>& energyCalibrationTypes,
+                                const CxxUtils::Array<1>& energyCalibrations,
+                                double eta, int type, double energy) const;
     double getMaxOverSumRatio(const std::vector<uint_least16_t>& ADCsamples,
                               int pedestal) const;
 

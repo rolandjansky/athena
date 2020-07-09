@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT2CALOCALIBRATION_EGAMMASSHAPECALIBRATION
@@ -8,7 +8,7 @@
 #include "TrigT2CaloCalibration/IEgammaCalibration.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/MsgStream.h"
-#include "CaloRec/ToolWithConstantsMixin.h"
+#include "CaloUtils/ToolWithConstants.h"
 #include "CaloConditions/Array.h"
 //#include "TrigT2CaloCommon/Calo_Def.h"
 #include "CaloClusterCorrection/CaloClusterCorrectionCommon.h"
@@ -20,38 +20,29 @@
 //--------------------------------------------
 // class EgammaSshapeCalibration
 //--------------------------------------------
-class EgammaSshapeCalibration : virtual public IEgammaCalibration, 
-				virtual public AthAlgTool, 
-				public CaloRec::ToolWithConstantsMixin
+class EgammaSshapeCalibration :
+  public extends<CaloUtils::ToolWithConstants<AthAlgTool>,
+                 IEgammaCalibration>          
 {  
  public:
-  
-  /** Constructor */
-  EgammaSshapeCalibration(const std::string &type,
-			  const std::string &name, 
-			  const IInterface* parent);
-  /** Destructor */
-  virtual ~EgammaSshapeCalibration() {}
+
+  /// Inherit constructor.
+  using base_class::base_class;
   
   /** Initialization of the tool */
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
   
   /** Finalization of the tool */
-  StatusCode finalize();
+  virtual StatusCode finalize() override;
   
   /** Virtual function from IEgammaCalibration */
-  virtual void makeCorrection(xAOD::TrigEMCluster*, const void*);
+  virtual void makeCorrection(xAOD::TrigEMCluster*, const void*) override;
 
-  /** Set Property necessary */
-  using AthAlgTool::setProperty;
-  StatusCode setProperty(const std::string&,const std::string&);  
-  StatusCode setProperty(const Property&);
-  
  private:
   void docalc(int,
 	      const CaloClusterCorrectionCommon::TableBuilder&,
-	      const CaloRec::Array<1>&, 
-	      CaloRec::WritableArray<2>&,
+	      const CxxUtils::Array<1>&, 
+	      CxxUtils::WritableArray<2>&,
 	      int&);
   
  private:
@@ -98,7 +89,7 @@ class EgammaSshapeCalibration : virtual public IEgammaCalibration,
   /// is exactly 0, for any e and r, then this energy/region is skipped.
   /// (This is usually because insufficient statistics were available
   /// to get a good fit.)
-  CaloRec::Array<4> m_correction;
+  Constant<CxxUtils::Array<4> > m_correction { this, "correction" };
   
   /// Calibration constant: table of regions.  For each region, we have:
   ///  - Lower @f$|\eta|@f$ for the region.
@@ -110,7 +101,7 @@ class EgammaSshapeCalibration : virtual public IEgammaCalibration,
   ///
   /// If the forms variable is provided, then the functional form is
   /// taken from there instead of from here.
-  CaloRec::Array<2> m_regions;
+  Constant<CxxUtils::Array<2> > m_regions { this, "regions" };
   enum {
     REG_LO = 0,
     REG_HI = 1,
@@ -120,17 +111,17 @@ class EgammaSshapeCalibration : virtual public IEgammaCalibration,
   };
   
   /** Table of energies at which the correction was tabulated. */
-  CaloRec::Array<1>  m_energies;  				     
+  Constant<CxxUtils::Array<1> >  m_energies { this, "energies" };
   
   /** Degree of the polynomial interpolation in energy. */
-  int  m_energy_degree; 
+  Constant<int>  m_energy_degree { this, "energy_degree", 3 };
   
-  bool m_isRange_barrel;
+  Constant<bool> m_isRange_barrel { this, "rangeBarrel" };
 
   /// Calibration constant: Functional form to use per region per energy.
   /// If this is empty, the form is taken instead from the region table
   /// (and is thus same for  all energies).
-  CaloRec::Array<2> m_forms;
+  Constant<CxxUtils::Array<2> > m_forms { this, "forms" };
 };
 
 #endif

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigL2MuonSA/MdtDataPreparator.h"
+#include "MdtDataPreparator.h"
 
 #include "CxxUtils/phihelper.h"
 
@@ -17,7 +17,7 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 
-#include "TrigL2MuonSA/MdtRegionDefiner.h"
+#include "MdtRegionDefiner.h"
 
 #include "xAODTrigMuon/TrigMuonDefs.h"
 
@@ -83,8 +83,10 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::initialize()
 
   ATH_CHECK( m_readKey.initialize() );
 
-  // retrieve the mdtidhelper
-  ATH_CHECK( detStore()->retrieve(m_muonMgr,"Muon") );
+  ATH_CHECK(m_muDetMgrKey.initialize());
+
+  const MuonGM::MuonDetectorManager* muonDetMgr=nullptr;
+  ATH_CHECK( detStore()->retrieve(muonDetMgr,"Muon") );
   ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore.");
   ATH_CHECK( m_idHelperSvc.retrieve() );
 
@@ -99,10 +101,10 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::initialize()
     for(int phi=6; phi<8; phi++) { // phi sectors - BMGs are ony in (6 aka 12) and (7 aka 14)
       for(int eta=1; eta<4; eta++) { // eta sectors - BMGs are in eta 1 to 3
 	for(int side=-1; side<2; side+=2) { // side - both sides have BMGs
-	  if( !m_muonMgr->getMuonStation("BMG", side*eta, phi) ) continue;
-	  for(int roe=1; roe<=( m_muonMgr->getMuonStation("BMG", side*eta, phi) )->nMuonReadoutElements(); roe++) { // iterate on readout elemets
+	  if( !muonDetMgr->getMuonStation("BMG", side*eta, phi) ) continue;
+	  for(int roe=1; roe<=( muonDetMgr->getMuonStation("BMG", side*eta, phi) )->nMuonReadoutElements(); roe++) { // iterate on readout elemets
 	    const MuonGM::MdtReadoutElement* mdtRE =
-	      dynamic_cast<const MuonGM::MdtReadoutElement*> ( ( m_muonMgr->getMuonStation("BMG", side*eta, phi) )->getMuonReadoutElement(roe) ); // has to be an MDT
+	      dynamic_cast<const MuonGM::MdtReadoutElement*> ( ( muonDetMgr->getMuonStation("BMG", side*eta, phi) )->getMuonReadoutElement(roe) ); // has to be an MDT
 	    if(mdtRE) initDeadChannels(mdtRE);
 	  }
 	}
@@ -130,9 +132,6 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::prepareData(const LVL1::RecMuonRoI* 
 							TrigL2MuonSA::MdtHits&   mdtHits_normal,
 							TrigL2MuonSA::MdtHits&   mdtHits_overlap)
 {
-
-  m_mdtRegionDefiner->setMdtGeometry(m_muonMgr);
-
   // define regions
   ATH_CHECK( m_mdtRegionDefiner->getMdtRegions(p_roi, rpcFitResult, muonRoad, mdtRegion) );
 
@@ -152,9 +151,6 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::prepareData(const LVL1::RecMuonRoI* 
 							TrigL2MuonSA::MdtHits&            mdtHits_normal,
 							TrigL2MuonSA::MdtHits&            mdtHits_overlap)
 {
-
-  m_mdtRegionDefiner->setMdtGeometry(m_muonMgr);
-  
   // define regions
   ATH_CHECK( m_mdtRegionDefiner->getMdtRegions(p_roi, tgcFitResult, muonRoad, mdtRegion) );
 
@@ -174,6 +170,8 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtHits(const LVL1::RecMuonRoI*  
 						       TrigL2MuonSA::MdtHits& mdtHits_normal,
 						       TrigL2MuonSA::MdtHits& mdtHits_overlap)
 {
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> muDetMgrHandle{m_muDetMgrKey};
+  const MuonGM::MuonDetectorManager* muDetMgr = muDetMgrHandle.cptr();
   if (m_use_mdtcsm) {
 
     // preload ROBs
@@ -277,7 +275,7 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtHits(const LVL1::RecMuonRoI*  
     ATH_MSG_DEBUG("decoding MdtCsm (normal)...");
     bool Endcap_Mid=false;
     for(unsigned int i=0; i<v_mdtCsms_normal.size(); i++) {
-      if (!decodeMdtCsm(v_mdtCsms_normal[i], mdtHits_normal, muonRoad)) return StatusCode::FAILURE;
+      if (!decodeMdtCsm(v_mdtCsms_normal[i], mdtHits_normal, muonRoad, muDetMgr)) return StatusCode::FAILURE;
       if(muonRoad.isEndcap){
         int midN=0;
         for(unsigned int ti=0; ti<mdtHits_normal.size(); ti++){
@@ -288,12 +286,12 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtHits(const LVL1::RecMuonRoI*  
     }
     ATH_MSG_DEBUG("decoding MdtCsm (overlap)...");
     for(unsigned int i=0; i<v_mdtCsms_overlap.size(); i++) {
-      if (!decodeMdtCsm(v_mdtCsms_overlap[i],mdtHits_overlap, muonRoad)) return StatusCode::FAILURE;
+      if (!decodeMdtCsm(v_mdtCsms_overlap[i],mdtHits_overlap, muonRoad, muDetMgr)) return StatusCode::FAILURE;
     }
     
     if(Endcap_Mid || v_mdtCsms_normal.size() == 0){
       for(unsigned int i=0; i<v_mdtCsms_overlap.size(); i++) {
-        if (!decodeMdtCsm(v_mdtCsms_overlap[i],mdtHits_normal, muonRoad)) return StatusCode::FAILURE;
+        if (!decodeMdtCsm(v_mdtCsms_overlap[i],mdtHits_normal, muonRoad, muDetMgr)) return StatusCode::FAILURE;
       }
     }
 
@@ -323,7 +321,7 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtHits(const LVL1::RecMuonRoI*  
       m_regionSelector->DetROBIDListUint(MDT, v_robIds);
     }
 
-    ATH_CHECK( collectMdtHitsFromPrepData(mdtHashList, v_robIds, mdtHits_normal, muonRoad) );
+    ATH_CHECK( collectMdtHitsFromPrepData(mdtHashList, v_robIds, mdtHits_normal, muonRoad, muDetMgr) );
 
   }
 
@@ -380,9 +378,9 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtCsm(const MdtCsmContainer* pMd
       ml_id = m_idHelperSvc->mdtIdHelper().multilayerID(tmp_id, processingDetEl);
       m_idHelperSvc->mdtIdHelper().get_detectorElement_hash(ml_id, v_idHash_corr);
     }
-    MdtCsmContainer::const_iterator pCsmIt = pMdtCsmContainer->indexFind(v_idHash_corr);
+    auto pCsmIt = pMdtCsmContainer->indexFindPtr(v_idHash_corr);
     
-    if( pCsmIt==pMdtCsmContainer->end() ) {
+    if( pCsmIt==nullptr ) {
       if(processingDetEl == 1){
 	if ( m_idHelperSvc->mdtIdHelper().stationName(ml_id) == 53 ) processingDetEl = 2;   //if this is BME, the 2nd layer should be checked next
 	else ++i;
@@ -393,7 +391,7 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtCsm(const MdtCsmContainer* pMd
       continue;
     }
     if( BMEpresent ){
-      Identifier elementId = ((*pCsmIt)->identify());
+      Identifier elementId = (pCsmIt->identify());
       // if there are BMEs it's also required to process there 2nd CSM
       if( m_idHelperSvc->mdtIdHelper().stationName(elementId) == 53 ) { // is BME chamber
         // do the loop once again with the SAME iterator, but for the 2nd multilayer
@@ -407,14 +405,14 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtCsm(const MdtCsmContainer* pMd
       }
     }
 
-    v_mdtCsms.push_back(*pCsmIt);
+    v_mdtCsms.push_back(pCsmIt);
     ATH_MSG_DEBUG("MDT Collection hash " << v_idHash_corr
 		  << " associated to:  SubDet 0x" << MSG::hex
-		  << (*pCsmIt)->SubDetId() << " MRod 0x"
-		  << (*pCsmIt)->MrodId() << " Link 0x"
-		  << (*pCsmIt)->CsmId() << MSG::dec);
+		  << pCsmIt->SubDetId() << " MRod 0x"
+		  << pCsmIt->MrodId() << " Link 0x"
+		  << pCsmIt->CsmId() << MSG::dec);
     ATH_MSG_DEBUG("Number of digit in  MDT Collection "
-		  << v_idHash_corr << ": " << (*pCsmIt)->size());
+		  << v_idHash_corr << ": " << pCsmIt->size());
     
     if(processingDetEl == 1) ++i;
   }
@@ -427,7 +425,7 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtCsm(const MdtCsmContainer* pMd
 
 bool TrigL2MuonSA::MdtDataPreparator::decodeMdtCsm(const MdtCsm* csm,
 						   TrigL2MuonSA::MdtHits& mdtHits,
-						   const TrigL2MuonSA::MuonRoad& muonRoad)
+						   const TrigL2MuonSA::MuonRoad& muonRoad, const MuonGM::MuonDetectorManager* muDetMgr)
 {    
 
    if( csm->empty() ) return true;
@@ -502,7 +500,7 @@ bool TrigL2MuonSA::MdtDataPreparator::decodeMdtCsm(const MdtCsm* csm,
        continue;
      }
      
-     m_mdtReadout = m_muonMgr->getMdtRElement_fromIdFields(StationName, StationEta, StationPhi,MultiLayer);
+     m_mdtReadout = muDetMgr->getMdtRElement_fromIdFields(StationName, StationEta, StationPhi,MultiLayer);
      if (!m_mdtReadout) {
        ++amt;
        continue;
@@ -541,7 +539,7 @@ bool TrigL2MuonSA::MdtDataPreparator::decodeMdtCsm(const MdtCsm* csm,
      if(m_BMGpresent) {
        Identifier tubeId = m_idHelperSvc->mdtIdHelper().channelID(StationName, StationEta, StationPhi, MultiLayer, Layer, Tube);
        if(m_idHelperSvc->mdtIdHelper().stationName(tubeId) == m_BMGid ) {
-         std::map<Identifier, std::vector<Identifier> >::iterator myIt = m_DeadChannels.find( m_muonMgr->getMdtReadoutElement(tubeId)->identify() );
+         std::map<Identifier, std::vector<Identifier> >::iterator myIt = m_DeadChannels.find( muDetMgr->getMdtReadoutElement(tubeId)->identify() );
          if( myIt != m_DeadChannels.end() ){
            if( std::find( (myIt->second).begin(), (myIt->second).end(), tubeId) != (myIt->second).end() ) {
              ATH_MSG_DEBUG("Skipping tube with identifier " << m_idHelperSvc->mdtIdHelper().show_to_string(tubeId) );
@@ -815,7 +813,8 @@ void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesEndcap(const TrigL2MuonSA::M
 StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std::vector<IdentifierHash>& v_idHash,
 								       std::vector<uint32_t>& v_robIds,
 								       TrigL2MuonSA::MdtHits& mdtHits,
-								       const TrigL2MuonSA::MuonRoad& muonRoad)
+								       const TrigL2MuonSA::MuonRoad& muonRoad,
+                       const MuonGM::MuonDetectorManager* muDetMgr)
 {
   if(m_doDecoding) {
     if(m_decodeBS) {
@@ -847,23 +846,23 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std
 
   for(const IdentifierHash& id : v_idHash) {
 
-    Muon::MdtPrepDataContainer::const_iterator MDTcoll = mdtPrds->indexFind(id);
+    auto MDTcoll = mdtPrds->indexFindPtr(id);
 
-    if( MDTcoll == mdtPrds->end() ) {
+    if( MDTcoll == nullptr ) {
       ATH_MSG_DEBUG("MDT prep data collection not found in Hash ID" << (int)id);
       continue;
     }
 
-    if( (*MDTcoll)->size() == 0 ) {
+    if( MDTcoll->size() == 0 ) {
       ATH_MSG_DEBUG("MDT prep data collection is empty in Hash ID" << (int)id);
       continue;
     }
 
-    mdtCols.push_back(*MDTcoll);
+    mdtCols.push_back(MDTcoll);
 
     ATH_MSG_DEBUG("Selected Mdt Collection: "
-		  << m_idHelperSvc->mdtIdHelper().show_to_string((*MDTcoll)->identify())
-		  << " with size " << (*MDTcoll)->size()
+		  << m_idHelperSvc->mdtIdHelper().show_to_string(MDTcoll->identify())
+		  << " with size " << MDTcoll->size()
 		  << "in Hash ID" << (int)id);
   }
 
@@ -918,7 +917,7 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std
 
       double R = -99999., Z = -99999.;
       if(m_BMGpresent && m_idHelperSvc->mdtIdHelper().stationName(id) == m_BMGid ) {
-        std::map<Identifier, std::vector<Identifier> >::iterator myIt = m_DeadChannels.find( m_muonMgr->getMdtReadoutElement(id)->identify() );
+        std::map<Identifier, std::vector<Identifier> >::iterator myIt = m_DeadChannels.find( muDetMgr->getMdtReadoutElement(id)->identify() );
         if( myIt != m_DeadChannels.end() ){
           if( std::find( (myIt->second).begin(), (myIt->second).end(), id) != (myIt->second).end() ) {
             ATH_MSG_DEBUG("Skipping tube with identifier " << m_idHelperSvc->mdtIdHelper().show_to_string(id) );

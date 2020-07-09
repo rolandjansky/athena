@@ -1,5 +1,5 @@
 #!/usr/bin env python
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # Script to browse the unmerged HIST files and correlate the number of entries in a region defined by (x;y,delta) arguments
 # Uses the pathExtract library to extract the EOS path
 # See the twiki: https://twiki.cern.ch/twiki/bin/viewauth/Atlas/UsingDQInframerge
@@ -34,15 +34,15 @@
 #                        [delta] (if not provided use global)
 # Author : Benjamin Trocme (LPSC Grenoble) / 2017
 
-import os, sys  
-import string
+from __future__ import print_function
+import os, sys
 import argparse
-import xmlrpclib
+from six.moves import xmlrpc_client as xmlrpclib
 
 from DataQualityUtils import pathExtract         
 
-from ROOT import TFile,TCanvas,TBox,TPaveText,TColor
-from ROOT import TH1,TH2,TH1I,TH1D,TH2D
+from ROOT import TFile,TCanvas,TBox,TPaveText
+from ROOT import TH1D,TH2D
 from ROOT import kBlue,kGreen,kRed
 from ROOT import gStyle
 
@@ -88,9 +88,9 @@ if args.arg5 != "":
   tag = args.arg5
 else: # Try to retrieve the data project tag via atlasdqm
   if (not os.path.isfile("atlasdqmpass.txt")):
-    print "To retrieve the data project tag, you need to generate an atlasdqm key and store it in this directory as atlasdqmpass.txt (yourname:key)"
-    print "To generate a kay, go here : https://atlasdqm.cern.ch/dqauth/"
-    print "You can also define by hand the data project tag with the option -t"
+    print("To retrieve the data project tag, you need to generate an atlasdqm key and store it in this directory as atlasdqmpass.txt (yourname:key)")
+    print("To generate a key, go here : https://atlasdqm.cern.ch/dqauth/")
+    print("You can also define by hand the data project tag with the option -t")
     sys.exit()
   passfile = open("atlasdqmpass.txt")
   passwd = passfile.read().strip(); passfile.close()
@@ -98,8 +98,8 @@ else: # Try to retrieve the data project tag via atlasdqm
   s = xmlrpclib.ServerProxy(passurl)
   run_spec = {'stream': 'physics_CosmicCalo', 'proc_ver': 1,'source': 'tier0', 'low_run': runNumber, 'high_run':runNumber}
   run_info= s.get_run_information(run_spec)
-  if '%d'%runNumber not in run_info.keys() or len(run_info['%d'%runNumber])<2:
-    print "Unable to retrieve the data project tag via atlasdqm... Please double check your atlasdqmpass.txt or define it by hand with -t option"
+  if '%d'%runNumber not in list(run_info.keys()) or len(run_info['%d'%runNumber])<2:
+    print("Unable to retrieve the data project tag via atlasdqm... Please double check your atlasdqmpass.txt or define it by hand with -t option")
     sys.exit()
   tag = run_info['%d'%runNumber][1]
 
@@ -113,7 +113,7 @@ b_WebdisplayPath = False
 if len(args.arg11): # The histograms ROOT file paths are directly provided 
   hArgs = args.arg11
 elif len(args.arg12): # The histograms paths are provided as webdisplay paths
-  print "I will have to retrieve the ROOT file path of histograms"
+  print("I will have to retrieve the ROOT file path of histograms")
   b_WebdisplayPath = True
   hArgs = args.arg12
   passfile = open("/afs/cern.ch/user/l/larmon/public/atlasdqmpass.txt")
@@ -122,7 +122,7 @@ elif len(args.arg12): # The histograms paths are provided as webdisplay paths
   prefix = {'express':'express_','Egamma':'physics_','CosmicCalo':'physics_','JetTauEtmiss':'physics_','Main':'physics_','ZeroBias':'physics_','MinBias':'physics_'}
   run_spec = {'run_list':[runNumber],'stream':"%s%s"%(prefix[stream],stream)}
 else:
-  print "You need to define at least 1 histogram..."
+  print("You need to define at least 1 histogram...")
   sys.exit()
 
 histos = {}
@@ -132,7 +132,7 @@ histoTypes = ["1d","2d"]
 
 runFilePath = "root://eosatlas.cern.ch/%s"%(pathExtract.returnEosHistPath(runNumber,stream,amiTag,tag)).rstrip()
 if ("FILE NOT FOUND" in runFilePath):
-  print "No merged file found..."
+  print("No merged file found...")
   sys.exit()
 
 f = TFile.Open(runFilePath)
@@ -147,7 +147,7 @@ histoMerged = {}
 nLB=2500
 nbHitInHot = {}
 
-for iArg in xrange(len(hArgs)): # Loop on histogram arguments
+for iArg in range(len(hArgs)): # Loop on histogram arguments
   if hArgs[iArg] in histoTypes: # I found a new histogram - Process the next arguments
     if hArgs[iArg] == "1d": 
       regionBins = []
@@ -246,15 +246,15 @@ for iArg in xrange(len(hArgs)): # Loop on histogram arguments
       nbHitInHot[tmp_path] = [0.] * nLB
 
 for iHisto in histos.keys():
-  print iHisto,histos[iHisto]
+  print(iHisto,histos[iHisto])
 
 # Extract all the unmerged files available with the LB range
 lbFilePathList = pathExtract.returnEosHistPathLB(runNumber,lowerLumiBlock,upperLumiBlock,stream,amiTag,tag)
 
-print "I have found the merged HIST file %s"%(runFilePath)
-print "I have found %d unmerged HIST files"%(len(lbFilePathList))
-print "The first one is root://eosatlas.cern.ch/%s"%(lbFilePathList[0])
-print "The last one is root://eosatlas.cern.ch/%s"%(lbFilePathList[-1])
+print("I have found the merged HIST file %s"%(runFilePath))
+print("I have found %d unmerged HIST files"%(len(lbFilePathList)))
+print("The first one is root://eosatlas.cern.ch/%s"%(lbFilePathList[0]))
+print("The last one is root://eosatlas.cern.ch/%s"%(lbFilePathList[-1]))
 
 # Loop on all unmerged files
 # and store number of hits per histogram
@@ -297,7 +297,7 @@ for iPath in histos.keys():
     corr = "%s_%s"%(iPath,iPath2)
     corr2 = "%s_%s"%(iPath2,iPath)
     if (iPath != iPath2 and corr2 not in hCorrel.keys()): # Correlation plots
-      print "====== I am checking correlation between %s and %s"%(iPath.split("/")[-1],iPath2.split("/")[-1])
+      print("====== I am checking correlation between %s and %s"%(iPath.split("/")[-1],iPath2.split("/")[-1]))
       
       hCorrel[corr] = TH2D("Correlation_%s"%corr,"Correlation_%s"%corr,50,min(nbHitInHot[iPath])-1,max(nbHitInHot[iPath])+1,50,min(nbHitInHot[iPath2])-1,max(nbHitInHot[iPath2])+1)
       hCorrel[corr].SetXTitle(iPath.split("/")[-1])
@@ -323,7 +323,7 @@ for iPath in histos.keys():
       for iLB in listLB:
         if (nbHitInHot[iPath][iLB] !=0 or nbHitInHot[iPath2][iLB] != 0.):
           hCorrel[corr].Fill(nbHitInHot[iPath][iLB],nbHitInHot[iPath2][iLB])
-          print "LB: %d -> %.2f / %.2f"%(iLB,nbHitInHot[iPath][iLB],nbHitInHot[iPath2][iLB])
+          print("LB: %d -> %.2f / %.2f"%(iLB,nbHitInHot[iPath][iLB],nbHitInHot[iPath2][iLB]))
         if nbHitRatio[corr][iLB]!= -999:
           hRatio[corr].Fill(nbHitRatio[corr][iLB])
         if nbHitRatio[corr2][iLB]!= -999:
@@ -368,30 +368,30 @@ for iPath in histos.keys():
       hEvol[iPath].Draw("P HIST")
 
   
-print "====== Summary data"
+print("====== Summary data")
 already = []
 for iPath in histos.keys():
   for iPath2 in histos.keys():
     corr = "%s_%s"%(iPath,iPath2)
     corr2 = "%s_%s"%(iPath2,iPath)
     if (iPath != iPath2 and corr2 not in already): # Correlation plots
-      print "====== %s vs %s"%(iPath.split("/")[-1],iPath2.split("/")[-1])
-      print "Correlation factor: %.3f"%(hCorrel[corr].GetCorrelationFactor())
+      print("====== %s vs %s"%(iPath.split("/")[-1],iPath2.split("/")[-1]))
+      print("Correlation factor: %.3f"%(hCorrel[corr].GetCorrelationFactor()))
       
       fractionNonZero = hRatio[corr].Integral(2,100)/hRatio[corr].Integral(1,100)
       if fractionNonZero != 0.:
         meanNonZero = hRatio[corr].GetMean()/fractionNonZero
       else:
         meanNonZero = 0.
-      print "When there is at least one entry in %s (%d LBs), there are %.1f %% of events with an entry in %s - Mean ratio: %.2f"%(iPath2.split("/")[-1],hRatio[corr].Integral(1,100),fractionNonZero*100.,iPath.split("/")[-1],meanNonZero)
+      print("When there is at least one entry in %s (%d LBs), there are %.1f %% of events with an entry in %s - Mean ratio: %.2f"%(iPath2.split("/")[-1],hRatio[corr].Integral(1,100),fractionNonZero*100.,iPath.split("/")[-1],meanNonZero))
       
       fractionNonZero = hRatio[corr2].Integral(2,100)/hRatio[corr2].Integral(1,100)
       if fractionNonZero != 0.:
         meanNonZero = hRatio[corr2].GetMean()/fractionNonZero
       else:
         meanNonZero = 0.
-      print "When there is at least one entry in %s (%d LBs), there are %.1f %% of events with an entry in %s - Mean ratio: %.2f"%(iPath.split("/")[-1],hRatio[corr2].Integral(1,100),fractionNonZero*100.,iPath2.split("/")[-1],meanNonZero)
+      print("When there is at least one entry in %s (%d LBs), there are %.1f %% of events with an entry in %s - Mean ratio: %.2f"%(iPath.split("/")[-1],hRatio[corr2].Integral(1,100),fractionNonZero*100.,iPath2.split("/")[-1],meanNonZero))
       
       already.append(corr)
 
-raw_input("I am done...")
+input("I am done...")

@@ -80,7 +80,7 @@
 #include "xAODTau/TauJet.h"
 
 
-#include "TrigValAlgs/TrigEDMChecker.h"
+#include "TrigEDMChecker.h"
 
 #include "xAODTrigMinBias/TrigSpacePointCountsContainer.h"
 #include "xAODTrigMinBias/TrigSpacePointCounts.h"

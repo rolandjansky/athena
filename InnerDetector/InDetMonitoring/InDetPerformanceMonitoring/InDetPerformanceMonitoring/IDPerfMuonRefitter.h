@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IDPerfMuonRefitterTER_H
@@ -43,9 +43,9 @@ class IDPerfMuonRefitter : public AthAlgorithm
   std::string m_outputTracksName;
 
 
-  mutable int m_N_Muons;
-  mutable int m_N_MuonsRefit;
-  mutable int m_N_MuonRefitFailures;
+  int m_N_Muons;
+  int m_N_MuonsRefit;
+  int m_N_MuonRefitFailures;
 
   PerfMonServices::CONTAINERS m_container;
 

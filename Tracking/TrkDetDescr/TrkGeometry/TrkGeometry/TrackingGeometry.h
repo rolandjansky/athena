@@ -60,6 +60,9 @@ namespace Trk {
     /** Give the GeometryBuilder friend rights */  
     friend class GeometryBuilder;
     friend class IGeometryBuilder;
+    
+    friend class GeometryBuilderCond;
+    friend class IGeometryBuilderCond;
   
     public :
       /** Constructor */
@@ -212,5 +215,8 @@ namespace Trk {
 } // end of namespace
 
 CLASS_DEF(Trk::TrackingGeometry, 167645219, 1)
+#include "AthenaKernel/CondCont.h" 
+CONDCONT_DEF( Trk::TrackingGeometry , 119021535 );
+
 
 #endif //TRKGEOMETRY_TRACKINGGEOMETRY_H

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGTRTHTHCOUNTER_H
@@ -18,7 +18,6 @@
 */
 
 class TRT_ID;
-class IRegSelSvc;
 class ITrigTRT_DriftCircleProviderTool;
 class IdentifierHash;
 
@@ -37,7 +36,6 @@ class TrigTRTHTHCounter: public HLT::FexAlgo {
 
   
   const TRT_ID *m_trtHelper;                     //!<  TRT ID helper
-  //  ServiceHandle<IRegSelSvc>    m_regionSelector; //!<  region selector service
 
   std::vector<IdentifierHash> m_listOfTrtIds;    //!<  IDs of DE from regionSelector
 

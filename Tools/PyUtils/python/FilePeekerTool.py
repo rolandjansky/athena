@@ -265,7 +265,7 @@ class FilePeekerTool():
                         spec   = a.specification()
                         a_type = spec.typeName()
                         if a_type.find('string') >= 0:
-                            a_data = a.data('string')()
+                            a_data = a.data['string']()
 #                           a_data = getattr(a, 'data<std::basic_string<char> >') ()
                             try:
                                 a_data = eval(a_data,{},{})
@@ -274,7 +274,7 @@ class FilePeekerTool():
                                 pass
 #                           print (spec.name(),a_data, file=stdout)
                         else:
-                            a_data = a.data(a_type)()
+                            a_data = a.data[a_type]()
                         #print ("%s: %s  %s" (spec.name(), a_data, type(a_data) ), file=stdout)
                         attr_data.append( (spec.name(), a_data) )
                     attrs.append(dict(attr_data))

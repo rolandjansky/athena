@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
   InnerDetector/InDetConditions/InDetConditionsSummaryService
   PRIVATE
   Control/AthenaBaseComps
+  Control/CxxUtils
   Control/SGTools
   Database/AthenaPOOL/AthenaPoolUtilities
   Database/RegistrationServices
@@ -44,7 +45,7 @@ atlas_add_component( PixelConditionsTools
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} PixelConditionsToolsLib AthenaKernel GeoPrimitives GaudiKernel AthenaBaseComps 
-                     SGTools AthenaPoolUtilities DetDescrConditions Identifier PixelCablingLib PixelConditionsData InDetIdentifier 
+                     CxxUtils SGTools AthenaPoolUtilities DetDescrConditions Identifier PixelCablingLib PixelConditionsData InDetIdentifier 
                      GeoModelUtilities InDetReadoutGeometry PathResolver PixelGeoModelLib InDetByteStreamErrors  )
 
 # Install files from the package:

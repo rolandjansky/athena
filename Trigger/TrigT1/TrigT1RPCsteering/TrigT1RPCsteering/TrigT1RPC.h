@@ -71,10 +71,10 @@ private:
   
   BooleanProperty m_useRun3Config{this,"useRun3Config",false};         // flag for using switch between Run3 and Run2 configurations
   
-  StatusCode fill_RPCdata(RPCsimuData&, const RpcCablingCondData* readCdo);
+  StatusCode fill_RPCdata(RPCsimuData&, const RpcCablingCondData* readCdo, const MuonGM::MuonDetectorManager* muDetMgr);
 
  private:
-  const MuonGM::MuonDetectorManager* m_MuonMgr;
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_muDetMgrKey {this, "DetectorManagerKey", "MuonDetectorManager", "Key of input MuonDetectorManager condition data"}; 
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
   SG::ReadCondHandleKey<RpcCablingCondData> m_readKey{this, "ReadKey", "RpcCablingCondData", "Key of RpcCablingCondData"};

@@ -20,7 +20,7 @@ atlas_add_component( Rivet_i
     ${RIVET_INCLUDE_DIRS} ${YODA_INCLUDE_DIRS}
    LINK_LIBRARIES ${FASTJET_LIBRARIES} ${ROOT_LIBRARIES} AtlasHepMCLib
    ${RIVET_LIBRARIES} ${YODA_LIBRARIES} AthenaBaseComps GaudiKernel
-   AthenaKernel GeneratorObjects PathResolver EventInfo )
+   AthenaKernel GeneratorObjects GenInterfaces PathResolver EventInfo )
 
 # Install file(s) from the package.
 atlas_install_scripts( share/setupRivet )

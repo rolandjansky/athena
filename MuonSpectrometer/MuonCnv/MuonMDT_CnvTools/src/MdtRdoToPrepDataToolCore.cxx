@@ -199,9 +199,9 @@ void Muon::MdtRdoToPrepDataToolCore::processRDOContainer( std::vector<Identifier
   for(unsigned int iHash = 0; iHash < m_idHelperSvc->mdtIdHelper().module_hash_max(); iHash++){
     handlePRDHash( IdentifierHash(iHash), *rdoContainer, idWithDataVect);
   }
-  //for (MdtCsmContainer::const_iterator rdoColli = rdoContainer->begin(); rdoColli!=rdoContainer->end(); ++rdoColli) {
+  //for (MdtCsmContainer::const_iterator rdoColl = rdoContainer->begin(); rdoColl!=rdoContainer->end(); ++rdoColl) {
 //
-  //  handlePRDHash( (*rdoColli)->identifyHash(), *rdoContainer, idWithDataVect);
+  //  handlePRDHash( (*rdoColl)->identifyHash(), *rdoContainer, idWithDataVect);
   //}
 
 }
@@ -221,7 +221,10 @@ bool Muon::MdtRdoToPrepDataToolCore::handlePRDHash( IdentifierHash hash, const M
   if (m_BMEpresent) { // after BMEs were installed, the RDOs are indexed by the detectorElement hash of a multilayer
     Identifier elementId;
     IdContext tmp_context = m_idHelperSvc->mdtIdHelper().module_context();
-    m_idHelperSvc->mdtIdHelper().get_id(hash, elementId, &tmp_context);
+    if(m_idHelperSvc->mdtIdHelper().get_id(hash, elementId, &tmp_context)){
+      ATH_MSG_DEBUG("Found invalid elementId");
+      return false;
+    }
 
     Identifier multilayerId = m_idHelperSvc->mdtIdHelper().multilayerID(elementId, 1); //first multilayer
     IdentifierHash multilayerHash;
@@ -236,30 +239,30 @@ bool Muon::MdtRdoToPrepDataToolCore::handlePRDHash( IdentifierHash hash, const M
       m_idHelperSvc->mdtIdHelper().get_detectorElement_hash(multilayerId2, multilayerHash2);
       IdentifierHash rdoHash2 = multilayerHash2;
       // Retrieve the two RDO
-      MdtCsmContainer::const_iterator rdoColli  = rdoContainer.indexFind(rdoHash);
-      MdtCsmContainer::const_iterator rdoColli2 = rdoContainer.indexFind(rdoHash2);
-      if( rdoColli != rdoContainer.end() && rdoColli2 != rdoContainer.end() ) {
+      auto rdoColl  = rdoContainer.indexFindPtr(rdoHash);
+      auto rdoColl2 = rdoContainer.indexFindPtr(rdoHash2);
+      if( rdoColl != nullptr && rdoColl2 != nullptr ) {
         // Handle both at once
-        if(processCsm(*rdoColli, idWithDataVect, muDetMgr, *rdoColli2).isFailure()){
+        if(processCsm(rdoColl, idWithDataVect, muDetMgr, rdoColl2).isFailure()){
           ATH_MSG_WARNING("processCsm failed for RDO id " 
-            << (unsigned long long)((*rdoColli)->identify().get_compact()) << " and " 
-            << (unsigned long long)((*rdoColli2)->identify().get_compact()));
+            << (unsigned long long)(rdoColl->identify().get_compact()) << " and " 
+            << (unsigned long long)(rdoColl2->identify().get_compact()));
           return false;
         }
       }
-      else if(rdoColli != rdoContainer.end()){
+      else if(rdoColl != nullptr){
         // Handle just one
         ATH_MSG_DEBUG("Only one RDO container was found for hash " << hash << " despite BME - Missing " << rdoHash2 );
-        if ( processCsm(*rdoColli, idWithDataVect, muDetMgr).isFailure() ) {
-          ATH_MSG_WARNING("processCsm failed for RDO id " << (unsigned long long)((*rdoColli)->identify().get_compact()));
+        if ( processCsm(rdoColl, idWithDataVect, muDetMgr).isFailure() ) {
+          ATH_MSG_WARNING("processCsm failed for RDO id " << (unsigned long long)(rdoColl->identify().get_compact()));
           return false;
         }
       }
-      else if(rdoColli2 != rdoContainer.end()){
+      else if(rdoColl2 != nullptr){
         // Handle just one
         ATH_MSG_DEBUG("Only one RDO container was found for hash " << hash << " despite BME - Missing " << rdoHash );
-        if ( processCsm(*rdoColli2, idWithDataVect, muDetMgr).isFailure() ) {
-          ATH_MSG_WARNING("processCsm failed for RDO id " << (unsigned long long)((*rdoColli)->identify().get_compact()));
+        if ( processCsm(rdoColl2, idWithDataVect, muDetMgr).isFailure() ) {
+          ATH_MSG_WARNING("processCsm failed for RDO id " << (unsigned long long)(rdoColl->identify().get_compact()));
           return false;
         }
       }
@@ -269,20 +272,20 @@ bool Muon::MdtRdoToPrepDataToolCore::handlePRDHash( IdentifierHash hash, const M
     } // End of m_BMEpresent
     else{
       // process CSM if data was found
-      MdtCsmContainer::const_iterator rdoColli = rdoContainer.indexFind(rdoHash);
-      if( rdoColli != rdoContainer.end() ) {
-        if ( processCsm(*rdoColli, idWithDataVect, muDetMgr).isFailure() ) {
-          ATH_MSG_WARNING("processCsm failed for RDO id " << (unsigned long long)((*rdoColli)->identify().get_compact()));
+      auto rdoColl = rdoContainer.indexFindPtr(rdoHash);
+      if( rdoColl != nullptr ) {
+        if ( processCsm(rdoColl, idWithDataVect, muDetMgr).isFailure() ) {
+          ATH_MSG_WARNING("processCsm failed for RDO id " << (unsigned long long)(rdoColl->identify().get_compact()));
           return false;
         }
       } else ATH_MSG_DEBUG("handlePRDHash: hash id " << (unsigned int)(hash) << " not found in RDO container");
     } 
   } else { // using pre-BME data
     // process CSM if data was found
-    MdtCsmContainer::const_iterator rdoColli = rdoContainer.indexFind(rdoHash);
-    if( rdoColli != rdoContainer.end() ) {
-      if ( processCsm(*rdoColli, idWithDataVect, muDetMgr).isFailure() ) {
-        ATH_MSG_WARNING("processCsm failed for RDO id " << (unsigned long long)((*rdoColli)->identify().get_compact()));
+    auto rdoColl = rdoContainer.indexFindPtr(rdoHash);
+    if( rdoColl != nullptr ) {
+      if ( processCsm(rdoColl, idWithDataVect, muDetMgr).isFailure() ) {
+        ATH_MSG_WARNING("processCsm failed for RDO id " << (unsigned long long)(rdoColl->identify().get_compact()));
         return false;
       }
     } else ATH_MSG_DEBUG("handlePRDHash: hash id " << (unsigned int)(hash) << " not found in RDO container");

@@ -203,11 +203,14 @@ StatusCode BSignalFilter::filterEvent()
 		  // ** Reject whole event if any of B-hadrons in the event is not decayed **
 		  if( part->status() == 1 || part->status() == 899 ) { acceptEvent = false; }
 
-		  HepMC::GenVertex::particle_iterator firstParent, lastParent, thisParent;
-		  firstParent = part->production_vertex()->particles_begin(HepMC::parents);
-		  lastParent  = part->production_vertex()->particles_end(HepMC::parents);
-
-		  for( thisParent = firstParent; thisParent != lastParent++; ++thisParent )
+#ifdef HEPMC3
+		  auto  firstParent = part->production_vertex()->particles_in().begin();
+		  auto lastParent  = part->production_vertex()->particles_in().end();
+#else
+		  auto  firstParent = part->production_vertex()->particles_begin(HepMC::parents);
+		  auto lastParent  = part->production_vertex()->particles_end(HepMC::parents);
+#endif
+		  for(auto  thisParent = firstParent; thisParent != lastParent++; ++thisParent )
                     {
 		      int parentID = (*thisParent)->pdg_id();
 		      if (MC::PID::isBottomMeson(parentID) || MC::PID::isBottomBaryon(parentID) ) motherIsB = true;
@@ -426,8 +429,13 @@ void BSignalFilter::FindAllChildren(HepMC::ConstGenParticlePtr mother,std::strin
 	return;
       }
   }
+#ifdef HEPMC3
+ auto firstChild = mother->end_vertex()->particles_out().begin();
+ auto lastChild  = mother->end_vertex()->particles_out().end();
+#else
  auto firstChild = mother->end_vertex()->particles_begin(HepMC::children);
  auto lastChild  = mother->end_vertex()->particles_end(HepMC::children);
+#endif
 
   int childCnt = 0;
   std::string childIDStr;

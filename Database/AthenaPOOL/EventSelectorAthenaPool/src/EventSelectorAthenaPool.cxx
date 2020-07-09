@@ -341,8 +341,6 @@ StatusCode EventSelectorAthenaPool::start() {
    } else {
       m_headerIterator = &m_poolCollectionConverter->executeQuery(/*m_query.value()*/);
    }
-   delete m_beginIter; m_beginIter = nullptr;
-   m_beginIter = new EventContextAthenaPool(this);
    delete m_endIter;   m_endIter   = nullptr;
    m_endIter = new EventContextAthenaPool(nullptr);
    return(StatusCode::SUCCESS);
@@ -388,7 +386,6 @@ StatusCode EventSelectorAthenaPool::finalize() {
          }
       }
    }
-   delete m_beginIter; m_beginIter = nullptr;
    delete m_endIter;   m_endIter   = nullptr;
    m_headerIterator = nullptr;
    if (m_poolCollectionConverter != nullptr) {
@@ -753,9 +750,8 @@ StatusCode EventSelectorAthenaPool::seek(Context& /*ctxt*/, int evtNum) const {
          }
          // Create DataHeader iterators
          m_headerIterator = &m_poolCollectionConverter->executeQuery();
-         delete m_beginIter; m_beginIter = nullptr;
-         m_beginIter = new EventContextAthenaPool(this);
-         next(*m_beginIter).ignore();
+         EventContextAthenaPool* beginIter = new EventContextAthenaPool(this);
+         next(*beginIter).ignore();
          ATH_MSG_DEBUG("Token " << m_headerIterator->eventRef().toString());
       } catch (std::exception &e) {
          m_headerIterator = nullptr;
@@ -883,6 +879,10 @@ StatusCode EventSelectorAthenaPool::share(int evtnum) {
 
 //________________________________________________________________________________
 StatusCode EventSelectorAthenaPool::readEvent(int maxevt) {
+   if (m_eventStreamingTool.empty()) {
+      ATH_MSG_ERROR("No AthenaSharedMemoryTool configured for readEvent()");
+      return(StatusCode::FAILURE);
+   }
    ATH_MSG_VERBOSE("Called read Event " << maxevt);
    IEvtSelector::Context* ctxt = new EventContextAthenaPool(this);
    for (int i = 0; i < maxevt || maxevt == -1; ++i) {
@@ -905,11 +905,12 @@ StatusCode EventSelectorAthenaPool::readEvent(int maxevt) {
       while (m_athenaPoolCnvSvc->readData().isSuccess()) {
          ATH_MSG_VERBOSE("Called last readData, while marking last event in readEvent()");
       }
-// Nothing to do right now, trigger alternative (e.g. caching) here? Currently just fast loop.
+      usleep(1000);
       sc = m_eventStreamingTool->putEvent(0, 0, 0, 0);
    }
    if (!sc.isSuccess()) {
       ATH_MSG_ERROR("Cannot put last Event marker to AthenaSharedMemoryTool");
+      return(StatusCode::FAILURE);
    } else {
       sc = m_athenaPoolCnvSvc->readData();
       while (sc.isSuccess() || sc.isRecoverable()) {

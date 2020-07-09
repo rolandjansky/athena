@@ -565,6 +565,7 @@ namespace Trk
     ExtrapolationType type = FittedTrajectory;
     std::unique_ptr<const TrackSurfaceIntersection> intersection {parameters.intersection()};
 
+    const TrackSurfaceIntersection* startIntersection = intersection.get();
     int hit = measurements.size();
     for (MeasurementSet::const_iterator m = measurementSet.begin();
          m != measurementSet.end();
@@ -572,7 +573,7 @@ namespace Trk
       std::unique_ptr<const TrackSurfaceIntersection> newIntersection{
         m_stepPropagator->intersectSurface(ctx,
                                            (**m).associatedSurface(),
-                                           intersection.get(),
+                                           startIntersection,
                                            qOverP,
                                            m_stepField,
                                            Trk::muon)
@@ -609,9 +610,11 @@ namespace Trk
         intersection = std::make_unique<TrackSurfaceIntersection>(*intersection);
       }
       auto measurement = std::make_unique<FitMeasurement>(hit, nullptr, *m);
-      measurement->intersection(type, intersection.get());
+      measurement->intersection(type, intersection.release());
       measurement->qOverP(qOverP);
       measurements.push_back(measurement.release());
+      //remember the last intersection for the next loop iteration
+      startIntersection=&(measurements.back()->intersection(type));
     }
 
     // reorder if necessary

@@ -11,7 +11,7 @@ export SLOTS=1
 export JOBOPTION="TrigUpgradeTest/EmuStepProcessingTest.py"
 export REGTESTEXP="TrigSignatureMoniMT.*INFO HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*|TriggerSummaryStep.*+++ leg.*"
 export DOPERFMON=0
-export ATHENAOPTS=" -l DEBUG"
+export ATHENAOPTS=' -l DEBUG -c "DoMenu=False"'
 export REGTESTREF=`find_data.py TrigUpgradeTest/emu_step_processing.ref`
 
 

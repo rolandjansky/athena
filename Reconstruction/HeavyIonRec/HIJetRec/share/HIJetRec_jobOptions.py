@@ -39,8 +39,8 @@ if not jetFlags.useTruth():
 jetFlags.useTruth.set_Value_and_Lock(is_mc_or_overlay)
 
 
-#Tower level subtraction
-HIJetFlags.DoCellBasedSubtraction.set_Value_and_Lock(False)
+#Tower level subtraction - made it false by default to avoid confusion
+#HIJetFlags.DoCellBasedSubtraction.set_Value_and_Lock(False)
 
 jetFlags.useTracks.set_Value_and_Lock(True)
 #HIP mode
@@ -108,12 +108,12 @@ if jetFlags.useTruth():
             inputcontent = objKeyStore['inputFile'].list()
             for t in inputcontent :
                 if tname in t:
-                    print 'Truth collection %s already exists, no need to rebuild it' % tname
+                    print("Truth collection %s already exists, no need to rebuild it" % tname)
                     collExists=True
                     break
         if collExists: continue
         f=jtm.addJetFinder(tname,"AntiKt", R,"truth", ptmin= HIJetFlags.TruthJetPtMin())
-        print 'Adding %s' %tname
+        print("Adding %s" %tname)
         AddToOutputList(tname)
         #jtm.HIJetRecs+=[f]
 
@@ -143,13 +143,13 @@ modulator0=iter0.Modulator
 subtr1=MakeSubtractionTool(iter0.OutputEventShapeKey,modulator=modulator0)
 
 #now iterate
-print 'Now moving to iteration 1'
+print("Now moving to iteration 1")
 
 seeds1=jtm.addJetCopier("%s_%s1" % (seed_prefix,HIJetFlags.SeedSuffix()),"%s_Unsubtracted" % seed_prefix,[subtr1,jtm.HICalibMap[seed_prefix],jtm.jetfilHISeeds],shallow=False)
 jtm.HIJetRecs+=[seeds1]
 iteration_dict=dict(suffix="iter1")
 if jetFlags.useTracks() and HIJetFlags.TrackJetSeeds() : iteration_dict['track_jet_seeds']=HIJetFlags.TrackJetContainerName()
-print 'Adding iteration 1'
+print("Adding iteration 1")
 iter1=AddIteration(seed_container=seeds1.OutputContainer,shape_name=EventShapeKey,**iteration_dict)
 
 HIJetFlags.IteratedEventShapeKey=iter1.OutputEventShapeKey
@@ -160,11 +160,6 @@ jtm.modulator=modulator1
 subtr1=MakeSubtractionTool(iter0.OutputEventShapeKey,moment_name="NoIteration",momentOnly=True,modulator=modulator0)
 #main subtractor
 subtr2=MakeSubtractionTool(HIJetFlags.IteratedEventShapeKey(),modulator=modulator1)
-
-#put subtraction tool at the FRONT of the jet modifiers list
-hi_tools=[subtr1,subtr2]
-hi_tools+=GetFlowMomentTools(iter1.OutputEventShapeKey,iter1.ModulationEventShapeKey)
-
 
 #==========#==========#==========#==========#==========#==========
 #special addition for egamma
@@ -177,10 +172,18 @@ if not HIJetFlags.DoCellBasedSubtraction():
     cell_level_shape_key=iter_egamma.OutputEventShapeKey
     #HIJetFlags.IteratedEventShapeKey=iter_egamma.OutputEventShapeKey
 
-#Subtraction for egamma and to get layers
-ApplySubtractionToClusters(name="HIClusterSubtraction_egamma", event_shape_key=cell_level_shape_key, cluster_key=ClusterKey, modulator=modulator1, CalculateMoments=True, useClusters=False)
+cluster_key_eGamma_deep=ClusterKey+"_eGamma_deep"
+cluster_key_final_deep=cluster_key_eGamma_deep+"_Cluster_deep"
+#Subtraction for egamma and to get layers - here no origin correction yet (done in the next stage)
+ApplySubtractionToClusters(name="HIClusterSubtraction_egamma", event_shape_key=cell_level_shape_key, cluster_key=ClusterKey, output_cluster_key=cluster_key_eGamma_deep, modulator=modulator1, CalculateMoments=True, useClusters=False, apply_origin_correction=False)
 #Cluster subtraction for jets
-ApplySubtractionToClusters(event_shape_key=HIJetFlags.IteratedEventShapeKey(), update_only=True, cluster_key=ClusterKey, modulator=modulator1, CalculateMoments=False, useClusters=True)
+ApplySubtractionToClusters(event_shape_key=HIJetFlags.IteratedEventShapeKey(), cluster_key=cluster_key_eGamma_deep, output_cluster_key=cluster_key_final_deep, modulator=modulator1, CalculateMoments=False, useClusters=True, apply_origin_correction=HIJetFlags.ApplyOriginCorrection())
+
+#put subtraction tool at the FRONT of the jet modifiers list
+hi_tools=[subtr1,subtr2]
+hi_tools+=GetFlowMomentTools(iter1.OutputEventShapeKey,iter1.ModulationEventShapeKey)
+hi_tools+=[GetConstituentsModifierTool(name="HIJetConstituentModifierTool", cluster_key=cluster_key_final_deep, apply_origin_correction=HIJetFlags.ApplyOriginCorrection())]
+
 ###
 #subtracted algorithms
 #make main jets from unsubtr collections w/ same R, add modifiers for subtraction
@@ -243,9 +246,9 @@ if HIJetFlags.DoHIBTagging():
             jetname.JetModifiers += [ btagger ]
             jetname.lock()
             if BTaggingFlags.OutputLevel < 3:
-              print ConfInstance.getJetCollectionTool(jet[:-4])
+              print(ConfInstance.getJetCollectionTool(jet[:-4]))
           except AttributeError as error:
-            print '#BTAG# --> ' + str(error)
+            print("#BTAG# --> " + str(error))
             NotInJetToolManager.append(AuthorSubString[i])
 
       if len(NotInJetToolManager) > 0:

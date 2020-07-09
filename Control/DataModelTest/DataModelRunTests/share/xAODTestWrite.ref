@@ -147,7 +147,7 @@ StorageSvc           INFO xAOD::EventFormat_v1 [0EFE2D2C-9E78-441D-9A87-9EE2B908
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
 StorageSvc           INFO DMTest::S1 [230C025C-A8BB-4C8A-9C82-04C9C3D92384]
 ClassIDSvc           INFO  getRegistryEntries: read 11 CLIDRegistry entries for module ALL
-Stream1              INFO Records written: 21
+Stream1              INFO Metadata records written: 21
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 xaoddata.root        INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   CREATE    [ROOT_All] 09C287A7-069C-0B4A-B1D3-690168ACB9F3

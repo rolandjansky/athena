@@ -66,11 +66,11 @@ namespace iFatras {
 	typename std::vector < const Trk::PrepRawDataContainer< Trk::PrepRawDataCollection< PrdT > >* >::const_iterator pmtVecCollIterE = coll.end();
 	for ( ; pmtVecCollIter != pmtVecCollIterE; ++pmtVecCollIter ){
 	  // find the collection
-	  typename Trk::PrepRawDataContainer< Trk::PrepRawDataCollection< PrdT > >::const_iterator prdCollIter = (*pmtVecCollIter)->indexFind(ideHash);
-	  if (!(*prdCollIter))
+	  auto prdCollIter = (*pmtVecCollIter)->indexFindPtr(ideHash);
+	  if (!prdCollIter)
 	    continue;
 	    
-	  const Trk::PrepRawDataCollection< PrdT >* prdCollection = (*prdCollIter);
+	  const Trk::PrepRawDataCollection< PrdT >* prdCollection = prdCollIter;
 	  // search for the PRD in the collection --- do a loop, can be done better with std::find probably
 	  // iterate through the collections
 	  typename Trk::PrepRawDataCollection< PrdT >::const_iterator prdIter  = prdCollection->begin();

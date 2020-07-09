@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StoreGate/StoreGate.h"
@@ -88,13 +88,13 @@ StoreGate::activeStoreSvc() {
 }
 
 StoreGateSvc*
-StoreGate::pointer(std::string sgID) {
+StoreGate::pointer(const std::string& sgID) {
   return getStore(sgID);
 }
 
 
 StoreGateSvc& 
-StoreGate::instance(std::string sgID) {
+StoreGate::instance(const std::string& sgID) {
   StoreGateSvc* ptr(pointer(sgID));
   if (0 == ptr) {
     throw std::runtime_error("Could not locate required StoreGate instance");

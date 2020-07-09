@@ -163,8 +163,8 @@ def L1DecoderCfg(flags):
     acc = ComponentAccumulator()
 
     decoderAlg = CompFactory.L1Decoder()
-    decoderAlg.RoIBResult = "RoIBResult" if flags.Trigger.decodeLegacyL1 else ""
-    decoderAlg.L1TriggerResult = "L1TriggerResult" if flags.Trigger.decodePhaseIL1 else ""
+    decoderAlg.RoIBResult = "RoIBResult" if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1Phase1 else ""
+    decoderAlg.L1TriggerResult = "L1TriggerResult" if flags.Trigger.enableL1Phase1 else ""
     decoderAlg.L1DecoderSummaryKey = "L1DecoderSummary" # Transient, consumed by DecisionSummaryMakerAlg
     decoderAlg.ctpUnpacker = CompFactory.CTPUnpackingTool( ForceEnableAllChains = flags.Trigger.L1Decoder.forceEnableAllChains,
                                                MonTool = CTPUnpackingMonitoring(512, 200) )
@@ -198,7 +198,7 @@ def L1DecoderCfg(flags):
         acc.merge( L1TriggerByteStreamDecoderCfg(flags) )
 
     # Add the algorithm creating L1TriggerResult which is the input to L1Decoder (Run-3 L1)
-    if flags.Trigger.decodePhaseIL1:
+    if flags.Trigger.enableL1Phase1:
         acc.addEventAlgo( getL1TriggerResultMaker() )
 
     Configurable.configurableRun3Behavior -= 1

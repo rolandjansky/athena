@@ -5,24 +5,6 @@
 # Declare the package name:
 atlas_subdir( TileGeoG4SD )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          TileCalorimeter/TileDetDescr
-                          TileCalorimeter/TileSimEvent
-                          
-                          PRIVATE
-                          Calorimeter/CaloIdentifier
-                          Control/StoreGate
-                          TileCalorimeter/TileG4/TileG4Interfaces
-                          Calorimeter/CaloDetDescr
-                          Control/CxxUtils
-                          DetectorDescription/GeoModel/GeoModelInterfaces
-                          DetectorDescription/GeoModel/GeoModelUtilities
-                          GaudiKernel
-                          Simulation/G4Atlas/G4AtlasTools
-                          TileCalorimeter/TileGeoModel
-                          Tools/PathResolver )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Geant4 )

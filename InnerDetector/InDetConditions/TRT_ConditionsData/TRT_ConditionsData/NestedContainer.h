@@ -333,7 +333,8 @@ namespace TRTCond
     }
     void print() const {
       printindent() ;
-      std::cout << "level = " << ExpandedIdentifier::name(NestingLevel) << " (" << NestingLevel << ")"  << std::endl ;
+      ExpandedIdentifier id;
+      std::cout << "level = " << id.name(NestingLevel) << " (" << NestingLevel << ")"  << std::endl ;
       for(unsigned int i=0; i< m_daughters.size(); ++i) {
 	printindent() ;
 	std::cout << "daughter " << i << std::endl ;

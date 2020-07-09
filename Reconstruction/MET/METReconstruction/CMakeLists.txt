@@ -45,7 +45,7 @@ include_directories(src)
 atlas_add_component( METReconstruction
                      Root/*.cxx src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools FourMomUtils xAODCaloEvent xAODEgamma xAODJet xAODMissingET xAODMuon xAODPFlow xAODTracking xAODTruth GaudiKernel RecoToolInterfaces CaloEvent AthContainers AthenaBaseComps EventPrimitives xAODTau TruthUtils PATCoreLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools FourMomUtils xAODCaloEvent xAODEgamma xAODJet xAODMissingET xAODMuon xAODPFlow xAODTracking xAODTruth GaudiKernel RecoToolInterfaces CaloEvent AthContainers AthenaBaseComps EventPrimitives xAODTau TruthUtils PATCoreLib METRecoInterface PFlowUtilsLib InDetTrackSelectionToolLib TrackVertexAssociationToolLib )
 
 atlas_add_dictionary( METReconstructionDict
        		      METReconstruction/METReconstructionAthDict.h

@@ -54,8 +54,8 @@ flags.lock()
 from AthenaCommon.Constants import INFO,DEBUG,WARNING
 acc = MainServicesCfg( flags )
 
-from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
-acc.merge(TrigBSReadCfg( flags ))
+from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+acc.merge(ByteStreamReadCfg( flags ))
 
 
 from TrigUpgradeTest.TriggerHistSvcConfig import TriggerHistSvcConfig

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelDetectorFactoryDC2_h
@@ -9,6 +9,7 @@
 #include "InDetGeoModelUtils/InDetDetectorFactoryBase.h" 
 // readout includes:
 #include "PixelReadoutGeometry/PixelDetectorManager.h"
+#include "CxxUtils/checker_macros.h"
 
 class PixelSwitches;
 class PixelGeoModelAthenaComps;
@@ -19,7 +20,7 @@ class PixelDetectorFactoryDC2 : public InDetDD::DetectorFactoryBase {
   
   // Constructor:
   PixelDetectorFactoryDC2(const PixelGeoModelAthenaComps * athenaComps,
-			  const PixelSwitches & switches);
+			  const PixelSwitches & switches) ATLAS_CTORDTOR_NOT_THREAD_SAFE; // Thread unsafe InDetDD::DetectorFactoryBase::detStore method is used.
   
   // Destructor:
   ~PixelDetectorFactoryDC2();

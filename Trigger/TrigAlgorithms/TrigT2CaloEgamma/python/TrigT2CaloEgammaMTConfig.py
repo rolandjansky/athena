@@ -30,7 +30,7 @@ def fastL2EgammaClusteringAlg( flags, roisKey="EMCaloRoIs", doRinger=False):
     acc.addPublicTool( samp1 )
 
     sampe = EgammaReEmEnFex('FaAlgoEmEnFexConfig')
-    sampe.ExtraInputs+=[( 'LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' )]
+    sampe.ExtraInputs=[( 'LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' )]
     acc.addPublicTool( sampe )
 
     samph = EgammaReHadEnFex('FaAlgoHadEnFexConfig')

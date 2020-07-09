@@ -5,14 +5,6 @@
 # Declare the package name:
 atlas_subdir( Quirks )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Simulation/G4Atlas/G4AtlasInterfaces
-                          Simulation/G4Atlas/G4AtlasTools )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Geant4 )

@@ -3,7 +3,7 @@ from __future__ import print_function
 
 import shutil, re
 
-from dqu_subprocess import apply as _local_apply
+from .dqu_subprocess import apply as _local_apply
 
 def _dolsrwrapper(fname):
     import ROOT

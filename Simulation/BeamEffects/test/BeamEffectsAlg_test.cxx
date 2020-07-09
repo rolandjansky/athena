@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -13,12 +13,8 @@
 // Framework
 #include "TestTools/initGaudi.h"
 
-// ATLAS C++
-
 // Google Test
 #include "gtest/gtest.h"
-// Google Mock
-// #include "gmock/gmock.h"
 
 // HepMC includes
 #include "AtlasHepMC/GenEvent.h"
@@ -73,15 +69,6 @@ namespace SimTesting {
       return m_alg->patchSignalProcessVertex(std::forward<Args>(args)...);
     }
 
-    // template<typename... Args>
-    // StatusCode setupReadHandleKeyVector(Args&&... args) const {
-    //   return m_alg->setupReadHandleKeyVector(std::forward<Args>(args)...);
-    // }
-
-    // template<typename... Args>
-    // void mergeCollections(Args&&... args) const {
-    //   m_alg->mergeCollections(std::forward<Args>(args)...);
-    // }
     Simulation::BeamEffectsAlg* m_alg{};
     StoreGateSvc* m_sg{};
   };   // BeamEffectsAlg_test fixture
@@ -113,7 +100,7 @@ namespace SimTesting {
   TEST_F(BeamEffectsAlg_test, signal_process_vertex_exists) {
     HepMC::GenEvent ge;
     CLHEP::HepLorentzVector myPos( 1.0, 1.0, 1.0, 1.0);
-    HepMC::GenVertex *myVertex = new HepMC::GenVertex( myPos, -1 );
+    HepMC::GenVertexPtr  myVertex = HepMC::newGenVertexPtr( myPos, -1 );
     ge.set_signal_process_vertex( myVertex );
     ASSERT_TRUE( patchSignalProcessVertex(ge).isSuccess() );
     ASSERT_TRUE( ge.signal_process_vertex()==myVertex );
@@ -122,7 +109,7 @@ namespace SimTesting {
   TEST_F(BeamEffectsAlg_test, add_signal_process_vertex_atlasG4) {
     HepMC::GenEvent ge;
     CLHEP::HepLorentzVector myPos( 1.0, 1.0, 1.0, 1.0);
-    HepMC::GenVertex *myVertex = new HepMC::GenVertex( myPos, -1 );
+    HepMC::GenVertexPtr  myVertex = HepMC::newGenVertexPtr( myPos, -1 );
     ge.add_vertex( myVertex );
     ASSERT_TRUE( ge.signal_process_vertex()==nullptr );
     ASSERT_TRUE( m_alg->setProperty( "ISFRun", false).isSuccess()  );
@@ -134,8 +121,8 @@ namespace SimTesting {
   TEST_F(BeamEffectsAlg_test, add_signal_process_vertex_isfG4) {
     HepMC::GenEvent ge;
     CLHEP::HepLorentzVector myPos( 1.0, 1.0, 1.0, 1.0);
-    HepMC::GenVertex *myVertex = new HepMC::GenVertex( myPos, -1 );
-    HepMC::GenVertex *dummyVertex = new HepMC::GenVertex();
+    HepMC::GenVertexPtr  myVertex = HepMC::newGenVertexPtr( myPos, -1 );
+    HepMC::GenVertexPtr  dummyVertex = HepMC::newGenVertexPtr();
     ge.add_vertex( myVertex );
     ASSERT_TRUE( ge.signal_process_vertex()==nullptr );
     ASSERT_TRUE( m_alg->setProperty( "ISFRun", true).isSuccess()  );
@@ -155,18 +142,18 @@ namespace SimTesting {
     inputTestDataHandle->push_back(new HepMC::GenEvent());
     HepMC::GenEvent& ge = *(inputTestDataHandle->at(0));
     CLHEP::HepLorentzVector myPos( 0.0, 0.0, 0.0, 0.0);
-    HepMC::GenVertex *myVertex = new HepMC::GenVertex( myPos, -1 );
+    HepMC::GenVertexPtr  myVertex = HepMC::newGenVertexPtr( myPos, -1 );
     HepMC::FourVector fourMomentum1( 0.0, 0.0, 1.0, 1.0*CLHEP::TeV);
-    HepMC::GenParticle* inParticle1 = new HepMC::GenParticle(fourMomentum1, 2, 10);
+    HepMC::GenParticlePtr  inParticle1 = HepMC::newGenParticlePtr(fourMomentum1, 2, 10);
     myVertex->add_particle_in(inParticle1);
     HepMC::FourVector fourMomentum2( 0.0, 0.0, -1.0, 1.0*CLHEP::TeV);
-    HepMC::GenParticle* inParticle2 = new HepMC::GenParticle(fourMomentum2, -2, 10);
+    HepMC::GenParticlePtr  inParticle2 = HepMC::newGenParticlePtr(fourMomentum2, -2, 10);
     myVertex->add_particle_in(inParticle2);
     HepMC::FourVector fourMomentum3( 0.0, 1.0, 0.0, 1.0*CLHEP::TeV);
-    HepMC::GenParticle* inParticle3 = new HepMC::GenParticle(fourMomentum3, 2, 10);
+    HepMC::GenParticlePtr  inParticle3 = HepMC::newGenParticlePtr(fourMomentum3, 2, 10);
     myVertex->add_particle_out(inParticle3);
     HepMC::FourVector fourMomentum4( 0.0, -1.0, 0.0, 1.0*CLHEP::TeV);
-    HepMC::GenParticle* inParticle4 = new HepMC::GenParticle(fourMomentum4, -2, 10);
+    HepMC::GenParticlePtr  inParticle4 = HepMC::newGenParticlePtr(fourMomentum4, -2, 10);
     myVertex->add_particle_out(inParticle4);
     ge.add_vertex( myVertex );
     ge.set_signal_process_vertex( myVertex );

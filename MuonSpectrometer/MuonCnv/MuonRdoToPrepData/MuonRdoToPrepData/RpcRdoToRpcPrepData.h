@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RPCRDOTORPCPREPDATA_H
@@ -13,7 +13,7 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
-#include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 /** Algorithm to decode RDO into RpcPrepData, using the Muon::RpcRdoToRpcPrepDataTool 
  @author Ketevi A. Assamagan
@@ -41,7 +41,7 @@ private:
     bool                                    m_print_prepData; //!<< If true, will dump information about the resulting PRDs.
     bool m_seededDecoding;
     SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
-    ServiceHandle<IRegSelSvc> m_regionSelector; //<! pointer to RegionSelectionSvc
+    ToolHandle<IRegSelTool> m_regsel_rpc; //<! pointer to RegionSelectionTool
     SG::WriteHandleKey<Muon::RpcPrepDataContainer> m_rpcCollection;
 
 };

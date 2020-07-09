@@ -15,6 +15,7 @@
 #include <string>
 
 class ISvcLocator;
+class IHepMCWeightSvc;
 //class ITHistSvc;
 
 
@@ -54,6 +55,9 @@ private:
 
   /// A pointer to the THistSvc
   //ServiceHandle<ITHistSvc> m_histSvc;
+
+  /// A pointer to the HepMCWeightSvc
+  ServiceHandle<IHepMCWeightSvc> m_hepMCWeightSvc;
 
   /// The stream name for storing the output plots under (default "/Rivet")
   std::string m_stream;
@@ -105,6 +109,12 @@ private:
 
   ///Skip variation weights and only run nominal
   bool m_skipweights;
+
+  /// String of weight names (or regex) to select multiweights
+  //std::string m_matchWeights;
+
+  /// String of weight names (or regex) to veto multiweights
+  //std::string m_unmatchWeights;
 
   ///Weight cap to set allowed maximum for weights 
   double m_weightcap;

@@ -1,0 +1,162 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+namespace Trk {
+
+/** Return the surface type */
+inline Surface::SurfaceType
+StraightLineSurface::type() const
+{
+  return Surface::Line;
+}
+
+/** Return the surface type static constexpr */
+inline constexpr Surface::SurfaceType
+StraightLineSurface::staticType()
+{
+  return Surface::Line;
+}
+
+/** Use the Surface as a ParametersBase constructor, from local parameters -
+ * charged */
+inline ParametersT<5, Charged, StraightLineSurface>*
+StraightLineSurface::createTrackParameters(double l1,
+                                           double l2,
+                                           double phi,
+                                           double theta,
+                                           double qop,
+                                           AmgSymMatrix(5) * cov) const
+{
+  return new ParametersT<5, Charged, StraightLineSurface>(
+    l1, l2, phi, theta, qop, *this, cov);
+}
+
+/** Use the Surface as a ParametersBase constructor, from global parameters -
+ * charged*/
+inline ParametersT<5, Charged, StraightLineSurface>*
+StraightLineSurface::createTrackParameters(const Amg::Vector3D& position,
+                                           const Amg::Vector3D& momentum,
+                                           double charge,
+                                           AmgSymMatrix(5) * cov) const
+{
+  return new ParametersT<5, Charged, StraightLineSurface>(
+    position, momentum, charge, *this, cov);
+}
+
+/** Use the Surface as a ParametersBase constructor, from local parameters -
+ * neutral */
+inline ParametersT<5, Neutral, StraightLineSurface>*
+StraightLineSurface::createNeutralParameters(double l1,
+                                             double l2,
+                                             double phi,
+                                             double theta,
+                                             double qop,
+                                             AmgSymMatrix(5) * cov) const
+{
+  return new ParametersT<5, Neutral, StraightLineSurface>(
+    l1, l2, phi, theta, qop, *this, cov);
+}
+
+/** Use the Surface as a ParametersBase constructor, from global parameters -
+ * neutral */
+inline ParametersT<5, Neutral, StraightLineSurface>*
+StraightLineSurface::createNeutralParameters(const Amg::Vector3D& position,
+                                             const Amg::Vector3D& momentum,
+                                             double charge,
+                                             AmgSymMatrix(5) * cov) const
+{
+  return new ParametersT<5, Neutral, StraightLineSurface>(
+    position, momentum, charge, *this, cov);
+}
+
+/** Use the Surface as a ParametersBase constructor, from local parameters */
+template<int DIM, class T>
+ParametersT<DIM, T, StraightLineSurface>*
+StraightLineSurface::createParameters(double l1,
+                                      double l2,
+                                      double phi,
+                                      double theta,
+                                      double qop,
+                                      AmgSymMatrix(DIM) * cov) const
+{
+  return new ParametersT<DIM, T, StraightLineSurface>(
+    l1, l2, phi, theta, qop, *this, cov);
+}
+
+/** Use the Surface as a ParametersBase constructor, from global parameters */
+template<int DIM, class T>
+ParametersT<DIM, T, StraightLineSurface>*
+StraightLineSurface::createParameters(const Amg::Vector3D& position,
+                                      const Amg::Vector3D& momentum,
+                                      double charge,
+                                      AmgSymMatrix(DIM) * cov) const
+{
+  return new ParametersT<DIM, T, StraightLineSurface>(
+    position, momentum, charge, *this, cov);
+}
+
+inline StraightLineSurface*
+StraightLineSurface::clone() const
+{
+  return new StraightLineSurface(*this);
+}
+
+inline const SurfaceBounds&
+StraightLineSurface::bounds() const
+{
+  if (m_bounds.get())
+    return *(m_bounds.get());
+  if (Surface::m_associatedDetElement &&
+      Surface::m_associatedDetElementId.is_valid()) {
+    return m_associatedDetElement->bounds(Surface::m_associatedDetElementId);
+  }
+  if (Surface::m_associatedDetElement)
+    return m_associatedDetElement->bounds();
+  return s_boundless;
+}
+
+inline bool
+StraightLineSurface::insideBounds(const Amg::Vector2D& locpos,
+                                  double tol1,
+                                  double tol2) const
+{
+  if (!(m_bounds.get()) && !Surface::m_associatedDetElement)
+    return true;
+  return (fabs(locpos[locR]) < bounds().r() + tol1 &&
+          bounds().insideLoc2(locpos, tol2));
+}
+
+inline bool
+StraightLineSurface::insideBoundsCheck(const Amg::Vector2D& locpos,
+                                       const BoundaryCheck& bchk) const
+{
+  return StraightLineSurface::insideBounds(
+    locpos, bchk.toleranceLoc1, bchk.toleranceLoc2);
+}
+
+inline const Amg::Vector3D&
+StraightLineSurface::lineDirection() const
+{
+  if (!m_lineDirection) {
+    m_lineDirection.set(
+      std::make_unique<Amg::Vector3D>(transform().rotation().col(2)));
+  }
+  return (*m_lineDirection);
+}
+
+/** the pathCorrection for derived classes with thickness */
+inline double
+StraightLineSurface::pathCorrection(const Amg::Vector3D&,
+                                    const Amg::Vector3D&) const
+{
+  return 1.;
+}
+
+/** Return properly formatted class name for screen output */
+inline std::string
+StraightLineSurface::name() const
+{
+  return "Trk::StraightLineSurface";
+}
+
+}

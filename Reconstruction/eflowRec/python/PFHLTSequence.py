@@ -9,7 +9,7 @@ log = logging.getLogger('PFHLTSequence')
 # Use the appropriate containers based on what config is desired
 trackvtxcontainers = {
     "offline":  ("InDetTrackParticles","PrimaryVertices"),
-    "ftf":      ("HLT_IDTrack_FS_FTF","HLT_EFHistoPrmVtx"),
+    "ftf":      ("HLT_IDTrack_FS_FTF","HLT_IDVertex_FS"),
     }
 
 # PFTrackSelector
@@ -95,8 +95,7 @@ def getPFAlg(clustersin,tracktype):
     # cluster is needed to recover the full track expected energy
     # Reuse the default E/P subtraction tool
     PFRecoverSplitShowersTool = eflowRecConf.PFRecoverSplitShowersTool("PFRecoverSplitShowersTool",
-        eflowCellEOverPTool = CellEOverPTool,
-        PFTrackClusterMatchingTool = getPFMatchingTool("MatchingTool_RecoverSS",0.2)
+        eflowCellEOverPTool = CellEOverPTool
         )
 
     # Configure moment calculation using topocluster moment calculator

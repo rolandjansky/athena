@@ -46,6 +46,8 @@ inline GenVertexPtr newGenVertexPtr(const HepMC::FourVector &pos = HepMC::FourVe
     return new HepMC::GenVertex(pos,i);
 }
 inline int barcode(ConstGenVertexPtr p){ return p->barcode();}
+inline void* raw_pointer(GenVertexPtr p){ return p;}
+inline std::ostream& operator<<( std::ostream& os, const GenVertex* v ) { if (v) return os<<(*v); else return os;} 
 }
 #endif
 #endif

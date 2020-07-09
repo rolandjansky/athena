@@ -22,6 +22,8 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
+#include "InDetByteStreamErrors/TRT_BSErrContainer.h"
+          
 #include <string>
 
 class TRTRawDataProviderTool;
@@ -61,6 +63,7 @@ private:
   bool m_roiSeeded;
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
   SG::WriteHandleKey<TRT_RDO_Container> m_rdoContainerKey;
+  SG::WriteHandleKey<TRT_BSErrContainer> m_bsErrContKey;
 
 };
 

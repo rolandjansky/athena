@@ -13,7 +13,7 @@ rec.doDPD.set_Value_and_Lock(False)
 if not jobproperties.HIRecExampleFlags.ppMode :
 
    if rec.doESD :
-      print "Applying HI ESD flags mods"
+      print("Applying HI ESD flags mods")
 
       # AO general
       rec.Commissioning.set_Value_and_Lock(True)
@@ -51,7 +51,7 @@ if not jobproperties.HIRecExampleFlags.ppMode :
          jobproperties.egammaRecFlags.cellContainerName.set_On()
          jobproperties.egammaRecFlags.cellContainerName.set_Value_and_Lock("SubtractedCells")
 
-         print 'AO: CaloRecFlags doCaloCluster=False'
+         print("AO: CaloRecFlags doCaloCluster=False")
          jobproperties.CaloRecFlags.doCaloCluster=False  # not working?
          jobproperties.CaloRecFlags.doEmCluster=False
          #turning off TopoClusters
@@ -90,9 +90,9 @@ if not jobproperties.HIRecExampleFlags.ppMode :
       ptCutVal = 0.5
       if jobproperties.HIRecExampleFlags.ptCutOn():
          ptCutVal = jobproperties.HIRecExampleFlags.ptCut()
-         print "ptCutOn: Modify ptCutVal to ", ptCutVal," GeV"
+         print("ptCutOn: Modify ptCutVal to ", ptCutVal," GeV")
          if ( rec.triggerStream() == "HardProbes" ) or ( globalflags.DataSource == "geant4" ):
-            print "Modify ConfiguredNewTrackingCuts__minPT to ", ptCutVal," GeV"
+            print("Modify ConfiguredNewTrackingCuts__minPT to ", ptCutVal," GeV")
             from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
             InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("HeavyIon")
             InDetNewTrackingCuts._ConfiguredNewTrackingCuts__minPT = ptCutVal * Units.GeV

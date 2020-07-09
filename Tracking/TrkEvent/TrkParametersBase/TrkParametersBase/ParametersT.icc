@@ -14,15 +14,6 @@
 
 namespace Trk {
 
-namespace {
-template<typename T>
-int
-sgn(const T& val)
-{
-  return (val > 0) - (val < 0);
-}
-}
-
 // Constructor with local arguments - uses global <-> local for parameters
 template<int DIM, class T, class S>
 ParametersT<DIM, T, S>::ParametersT(double loc1,
@@ -32,7 +23,11 @@ ParametersT<DIM, T, S>::ParametersT(double loc1,
                                     double qop,
                                     const S& surface,
                                     AmgSymMatrix(DIM) * cov)
-  : ParametersBase<DIM, T>({}, cov, {}, {}, sgn(qop))
+  : ParametersBase<DIM, T>(AmgVector(DIM)::Zero(),
+                           cov,
+                           Amg::Vector3D::Zero(),
+                           Amg::Vector3D::Zero(),
+                           sgn(qop))
   , m_surface(nullptr)
 {
   m_surface.reset((surface.isFree() ? surface.clone() : &surface));
@@ -64,8 +59,8 @@ ParametersT<DIM, T, S>::ParametersT(const AmgVector(DIM) & parameters,
                                     AmgSymMatrix(DIM) * cov)
   : ParametersBase<DIM, T>(parameters,
                            cov,
-                           {},
-                           {},
+                           Amg::Vector3D::Zero(),
+                           Amg::Vector3D::Zero(),
                            sgn(parameters[Trk::qOverP]))
   , m_surface(nullptr)
 {
@@ -99,7 +94,7 @@ ParametersT<DIM, T, S>::ParametersT(const Amg::Vector3D& pos,
                                     double charge,
                                     const S& surface,
                                     AmgSymMatrix(DIM) * cov)
-  : ParametersBase<DIM, T>({}, cov, pos, mom, charge)
+  : ParametersBase<DIM, T>(AmgVector(DIM)::Zero(), cov, pos, mom, charge)
   , m_surface(surface.isFree() ? surface.clone() : &surface)
 {
   // get the local parameters via the surface
@@ -130,7 +125,11 @@ Trk::ParametersT<DIM, T, S>::ParametersT(const Amg::Vector3D& pos,
                                          double qop,
                                          const S& surface,
                                          AmgSymMatrix(DIM) * cov)
-  : ParametersBase<DIM, T>({}, cov, pos, {}, 1.)
+  : ParametersBase<DIM, T>(AmgVector(DIM)::Zero(),
+                           cov,
+                           pos,
+                           Amg::Vector3D::Zero(),
+                           1.)
   , m_surface(surface.isFree() ? surface.clone() : &surface)
 {
   // decide the sign of the charge
@@ -199,6 +198,21 @@ ParametersT<DIM, T, S>::operator=(const ParametersT<DIM, T, S>& rhs)
   }
   return *this;
 }
+/** Test to see if there's a surface there. */
+template<int DIM, class T, class S>
+bool
+ParametersT<DIM, T, S>::hasSurface() const
+{
+  return m_surface != nullptr;
+}
+
+/** Access to the Surface method */
+template<int DIM, class T, class S>
+const S&
+ParametersT<DIM, T, S>::associatedSurface() const
+{
+  return *m_surface;
+}
 
 /** equality operator */
 template<int DIM, class T, class S>
@@ -223,6 +237,29 @@ ParametersT<DIM, T, S>::operator==(const ParametersBase<DIM, T>& rhs) const
 
   // return compatibility of base class parts
   return ParametersBase<DIM, T>::operator==(rhs);
+}
+/** clone */
+template<int DIM, class T, class S>
+ParametersT<DIM, T, S>*
+ParametersT<DIM, T, S>::clone() const
+{
+  return new ParametersT<DIM, T, S>(*this);
+}
+
+/** Return the ParametersType enum */
+template<int DIM, class T, class S>
+ParametersType
+ParametersT<DIM, T, S>::type() const
+{
+  return Trk::AtaSurface;
+}
+
+/** Return the Surface Type (check SurfaceType enums)*/
+template<int DIM, class T, class S>
+int
+ParametersT<DIM, T, S>::surfaceType() const
+{
+  return S::staticType();
 }
 
 // return the measurementFrame

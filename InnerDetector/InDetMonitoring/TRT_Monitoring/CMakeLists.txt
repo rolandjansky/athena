@@ -23,6 +23,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTrigger
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           InnerDetector/InDetConditions/TRT_ConditionsServices
+			  InnerDetector/InDetConditions/InDetByteStreamErrors
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
 			  InnerDetector/InDetDetDescr/TRT_ReadoutGeometry

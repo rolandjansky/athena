@@ -5,7 +5,7 @@
 // L1CPMTowerTools.cxx,  
 ///////////////////////////////////////////////////////////////////
 
-#include "TrigT1CaloTools/L1CPMTowerTools.h"
+#include "L1CPMTowerTools.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "TrigT1CaloEvent/TriggerTower_ClassDEF.h"
 #include "TrigT1CaloUtils/TriggerTowerKey.h"

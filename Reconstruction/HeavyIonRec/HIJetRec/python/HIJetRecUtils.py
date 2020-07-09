@@ -145,6 +145,8 @@ def ApplySubtractionToClusters(**kwargs) :
     if 'cluster_key' in kwargs.keys() : cluster_key=kwargs['cluster_key']
     else : cluster_key=HIJetFlags.HIClusterKey()
 
+    if 'output_cluster_key' in kwargs.keys() : output_cluster_key=kwargs['output_cluster_key']
+    else : cluster_key=cluster_key+".deepCopy"
 
     if 'modulator' in kwargs.keys() : mod_tool=kwargs['modulator']
     else : mod_tool=GetNullModulator()
@@ -152,18 +154,26 @@ def ApplySubtractionToClusters(**kwargs) :
     if 'update_only' in kwargs.keys() : update_only = kwargs['update_only']
     else : update_only = False
 
+    if 'apply_origin_correction' in kwargs.keys() : apply_origin_correction=kwargs['apply_origin_correction']
+    else : apply_origin_correction=HIJetFlags.ApplyOriginCorrection()
+
+    do_cluster_moments=False
+    if 'CalculateMoments' in kwargs.keys() : do_cluster_moments=kwargs['CalculateMoments']
+
     HIClusterSubtraction=CompFactory.HIClusterSubtraction
     toolName='HIClusterSubtraction'
     if 'name' in kwargs.keys() : toolName = kwargs['name']
+
     theAlg=HIClusterSubtraction(toolName)
     theAlg.ClusterKey=cluster_key
+    theAlg.OutClusterKey=output_cluster_key
     theAlg.EventShapeKey=event_shape_key
     theAlg.Subtractor=GetSubtractorTool(**kwargs)
     theAlg.Modulator=mod_tool
     theAlg.UpdateOnly=update_only
+    theAlg.SetMoments=do_cluster_moments
+    theAlg.ApplyOriginCorrection=apply_origin_correction
 
-    do_cluster_moments=False
-    if 'CalculateMoments' in kwargs.keys() : do_cluster_moments=kwargs['CalculateMoments']
     if do_cluster_moments :
         CaloClusterMomentsMaker=CompFactory.CaloClusterMomentsMaker
         from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
@@ -207,6 +217,25 @@ def ApplySubtractionToClusters(**kwargs) :
     jtm.jetrecs += [theAlg]
     jtm.HIJetRecs+=[theAlg]
 
+def GetConstituentsModifierTool(**kwargs) :
+    #For the cluster key, same exact logic as used for ApplySubtractionToClusters
+    if 'cluster_key' in kwargs.keys() : cluster_key=kwargs['cluster_key']
+    else : cluster_key=HIJetFlags.HIClusterKey()
+
+    if 'apply_origin_correction' in kwargs.keys() : apply_origin_correction=kwargs['apply_origin_correction']
+    else : apply_origin_correction=HIJetFlags.ApplyOriginCorrection()
+
+    HIJetConstituentModifierTool=CompFactory.HIJetConstituentModifierTool
+    toolName='HIJetConstituentModifierTool'
+    if 'name' in kwargs.keys() : toolName = kwargs['name']
+
+    cmod=HIJetConstituentModifierTool(toolName)
+    cmod.ClusterKey=cluster_key
+    cmod.Subtractor=GetSubtractorTool(**kwargs)
+    cmod.ApplyOriginCorrection=apply_origin_correction
+
+    jtm.add(cmod)
+    return cmod
 
 def AddIteration(seed_container,shape_name, **kwargs) :
 
@@ -273,14 +302,16 @@ def JetAlgFromTools(rtools, suffix="HI",persistify=True) :
         topsequence += JetAlgorithm("jetalgconstit"+suffix,
                                     Tools=[jtm.jetrunconstitHI])
 
-    #### test : add the PseudoJetAlgorithm
-    from JetRec.JetRecConf import PseudoJetAlgorithm
+    # Add the PseudoJetAlgorithm
+    # To avoid massive refactoring and to preserve familiarity,
+    # jet guys kept calling things "getters", but these are already
+    # PseudoJetAlgorithms as they eliminated the wrappers 
     for getter in jtm.allGetters:
-        print ('Adding PseudoJetAlgorithm for PseudoJetGetter %s' % getter.name)
+        print ('Adding PseudoJetAlgorithm %s' % getter.name)
         print ('Input Container %s' % getter.InputContainer)
         print ('Output Container %s' % getter.OutputContainer)
         print ('Label %s' % getter.Label)
-        topsequence += PseudoJetAlgorithm("pjalg_"+suffix+getter.Label,PJGetter=getter)
+        topsequence += getter
 
     runner=JetToolRunner("jetrun"+suffix,
                          Tools=rtools,
@@ -383,6 +414,7 @@ def GetHIModifierList(coll_name='AntiKt4HIJets',prepend_tools=[],append_tools=[]
     if coll_name not in jtm.HICalibMap.keys() :
         print ('Calibration for R=%d not available using default R=0.4 calibration')
         coll_name='AntiKt4HIJets'
+
     mod_list=prepend_tools
     mod_list+=[jtm.HICalibMap[coll_name]]
     mod_list+=jtm.modifiersMap['HI']

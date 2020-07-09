@@ -418,7 +418,7 @@ def getGhostPJGAlg(ghostdef):
 # Function for configuring the jet algorithm and builders, given the
 # set of dependencies
 #
-def getJetAlgorithm(jetname, jetdef, pjs, modlist):
+def getJetAlgorithm(jetname, jetdef, pjs, modlist, monTool = None):
     jetlog.debug("Configuring JetAlgorithm \"jetalg_{0}\"".format(jetname))
 
     builder = getJetBuilder()
@@ -433,6 +433,7 @@ def getJetAlgorithm(jetname, jetdef, pjs, modlist):
         mods.append(mod)
 
     rectool = getJetRecTool(jetname,finder,pjs,mods)
+    if monTool: rectool.MonTool = monTool
 
     jetalg = CompFactory.JetAlgorithm("jetalg_"+jetname)
     jetalg.Tools = [rectool]

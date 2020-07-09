@@ -16,7 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigMuonEvent
                           Trigger/TrigSteer/TrigInterfaces
                           Trigger/TrigT1/TrigT1Interfaces
-                          Trigger/TrigTools/TrigMuonRoITools
+                          Trigger/TrigTools/TrigMuonToolInterfaces
                           PRIVATE
                           Control/AthenaKernel
                           Control/AthenaMonitoring

@@ -1,23 +1,22 @@
 #! /usr/bin/env python
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # Author : Benjamin Trocme (LPSC - Grenoble) - 2017
 # Displays the year cumulated stats (GRL runs)
 ##################################################################
 
-import os,sys  
-from time import localtime, strftime
+from __future__ import print_function
+import os,sys
 
 from ROOT import TFile
-from ROOT import TProfile,TH1F
 from ROOT import TCanvas
 from ROOT import gStyle,gPad
-from ROOT import kBlack,kOrange,kGreen
+from ROOT import kBlack
 
 sys.path.append("/afs/cern.ch/user/l/larmon/public/prod/Misc")
 
 from gb import MakeTH1,SetXLabel,MakeTProfile
 
-from DeMoLib import strLumi, plotStack, initialize
+from DeMoLib import plotStack, initialize
 
 global debug
 debug = False
@@ -65,7 +64,6 @@ def ATLASLabel(x,y,text=""):
 ########################################################################
 # Main script
 from argparse import RawTextHelpFormatter,ArgumentParser
-from ROOT import gROOT
 
 parser = ArgumentParser(description='',formatter_class=RawTextHelpFormatter)
 parser.add_argument('-y','--year',dest='parser_year',default = ["2018"],nargs='*',help='Year [Default: 2018]',action='store')
@@ -105,7 +103,7 @@ for iYear in args.parser_year:
 yearTagList.sort()
 
 if len(yearTagList) == 0:
-  print "No year / tag matching - Please check YearStats directory"
+  print("No year / tag matching - Please check YearStats directory")
   sys.exit()
 
 options = {}
@@ -147,7 +145,7 @@ subperiodNb = {}
 runsCharact = {}
 
 for iYT in yearTagList:
-  print "I am treating the following year/tag:%s"%iYT
+  print("I am treating the following year/tag:%s"%iYT)
 
   canvasResults[iYT] = {}
   legendResults[iYT] = {}
@@ -168,7 +166,7 @@ for iYT in yearTagList:
     runsCharact[iYT]['Number'] += 1
 
   runsCharact[iYT]['Range']="%d->%d / GRL only"%(runsCharact[iYT]['Low'],runsCharact[iYT]['High'])
-  print "I found %d runs in this year/tag (%s)"%(runsCharact[iYT]['Number'],runsCharact[iYT]['Range'])
+  print("I found %d runs in this year/tag (%s)"%(runsCharact[iYT]['Number'],runsCharact[iYT]['Range']))
 
   if (options['plotYearStats'] or options['plotYearStatsLarge']):
     if options['approvedPlots']:
@@ -255,12 +253,12 @@ for iYT in yearTagList:
       gPad.SetGrid(1)
       h1PeriodLett_IntLuminosity[iYT].Draw("P HIST")
       for iBin in range(1,h1PeriodLett_IntLuminosity[iYT].GetNbinsX()):
-        print "Period %s: %.3f pb-1"%(h1PeriodLett_IntLuminosity[iYT].GetXaxis().GetBinLabel(iBin),h1PeriodLett_IntLuminosity[iYT].GetBinContent(iBin))
+        print("Period %s: %.3f pb-1"%(h1PeriodLett_IntLuminosity[iYT].GetXaxis().GetBinLabel(iBin),h1PeriodLett_IntLuminosity[iYT].GetBinContent(iBin)))
     else:
       canvasResults[iYT]['intLumi']= TCanvas( "c_intLumi_%s"%(iYT),"Integrated luminosity per period", 200, 10, 1000, 500)
       h1Period_IntLuminosity[iYT].Draw("P HIST")
       for iBin in range(1,h1Period_IntLuminosity[iYT].GetNbinsX()):
-        print "Period %s: %.3f pb-1"%(h1Period_IntLuminosity[iYT].GetXaxis().GetBinLabel(iBin),h1Period_IntLuminosity[iYT].GetBinContent(iBin))
+        print("Period %s: %.3f pb-1"%(h1Period_IntLuminosity[iYT].GetXaxis().GetBinLabel(iBin),h1Period_IntLuminosity[iYT].GetBinContent(iBin)))
 
     canvasResults[iYT]['intLumi'].SetGridy(1)
 
@@ -316,4 +314,3 @@ if (yearTagNb >= 2 and (options['plotYearStats'] or options['plotYearStatsLarge'
     plotStack("veto--Year--%s"%legendHeader,h1YearTag_Veto,veto["all"],defectVeto["description"],h1YearTag_IntLuminosity,options['lumiNotPercent'],stackResults,canvasResults,legendResults,False,True,options['approvedPlots'])
     if options['approvedPlots']:
       ATLASLabel(0.1,0.81,"Internal")
-  

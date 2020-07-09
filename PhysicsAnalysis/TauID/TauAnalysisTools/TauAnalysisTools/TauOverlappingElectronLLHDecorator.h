@@ -1,3 +1,5 @@
+#ifndef XAOD_STANDALONE
+
 // Dear emacs, this is -*- c++ -*-
 
 /*
@@ -87,3 +89,5 @@ private:
 } // namespace TauAnalysisTools
 
 #endif // TAUANALYSISTOOLS_TAUOVERLAPPINGELECTRONLLHDECORATOR_H
+
+#endif

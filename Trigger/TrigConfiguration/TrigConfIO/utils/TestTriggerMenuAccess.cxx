@@ -274,11 +274,15 @@ bool testHLTMenu(const string & filename) {
          printComma = true;
       }
       cout << endl;
-      cout << "streams:" << endl;
+      cout << "streams:" << endl << "  ";
+      printComma = false;
       for( auto & s : ch.streams() ) {
-         cout << "  " << s["type"] << "_" << s["name"] 
-              << (s["obeyLB"]=="yes" ? " (obeys LB" : " (does not obey LB") << " and has prescale " << s["prescale"] << ")" << endl;
+         if (printComma)
+            cout << ", ";
+         cout << s;
+         printComma = true;
       }
+      cout << endl;
       cout << "and groups:" << endl << "  ";
       printComma = false;
       for( auto & g : ch.groups() ) {
@@ -288,6 +292,16 @@ bool testHLTMenu(const string & filename) {
          printComma = true;
       }
       cout << endl;
+      if(--np==0) break;
+   }
+   vector<TrigConf::DataStructure> streams = hltmenu.streams();
+   cout << "Menu has " << streams.size() << " streams, going to print the first 3." << endl;
+   np = 3;
+   for( auto & s : streams ) {
+      cout << "  " << s["type"] << "_" << s["name"]
+           << (s["obeyLB"]=="true" ? " (obeys LB" : " (does not obey LB") << ")"
+           << (s["forceFullEventBuilding"]=="true" ? " (forces FullEventBuilding" : " (does not force FullEventBuilding") << ")"
+           << endl;
       if(--np==0) break;
    }
    return true;

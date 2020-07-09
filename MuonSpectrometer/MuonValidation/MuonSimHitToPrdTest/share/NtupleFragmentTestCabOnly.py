@@ -87,6 +87,8 @@ ToolSvc += RpcRdoToPrepDataTool
 from MuonRdoToPrepData.MuonRdoToPrepDataConf import RpcRdoToRpcPrepData
 RpcRdoToRpcPrepData = RpcRdoToRpcPrepData()
 RpcRdoToRpcPrepData.PrintPrepData = False
+from RegionSelector.RegSelToolConfig import makeRegSelTool_RPC
+RpcRdoToRpcPrepData.RegSel_RPC = makeRegSelTool_RPC()
 #
 topSequence += RpcRdoToRpcPrepData
 ######################## end of RPC rdo to prd 

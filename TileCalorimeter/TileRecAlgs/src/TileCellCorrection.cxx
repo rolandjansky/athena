@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -30,7 +30,7 @@ CaloCell_ID::SUBCALO TileCellCorrection::m_caloIndex = CaloCell_ID::TILE;
 /**
  * Constructor
  */
-TileCellCorrection::TileCellCorrection(const std::string name,
+TileCellCorrection::TileCellCorrection(const std::string& name,
     ISvcLocator* pSvcLocator)
   : AthService(name, pSvcLocator)
   , m_caloCellContainerID("AllCalo")

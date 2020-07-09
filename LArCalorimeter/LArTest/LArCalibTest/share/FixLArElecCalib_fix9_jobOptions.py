@@ -103,14 +103,6 @@ EventSelector.FirstEvent=1
 
 include( "AthenaPoolCnvSvc/AthenaPool_jobOptions.py" )
 
-theApp.Dlls   += [ "AthenaPoolCnvSvc" ]
-theApp.Dlls   += [ "LArCondAthenaPoolPoolCnv" ]
-include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-# AthenaSealSvc.CheckDictAtInit = True
-
-#include ("LArRawConditions/LArRawConditionsDict_joboptions.py")
-#include ("LArTools/LArToolsDict_joboptions.py")
-
 theApp.EvtMax=1 
 
 MessageSvc = svcMgr.MessageSvc

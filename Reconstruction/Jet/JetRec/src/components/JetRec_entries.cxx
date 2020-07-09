@@ -16,6 +16,9 @@
 #include "JetRec/JetSplitter.h"
 #include "JetRec/JetTrimmer.h"
 #include "JetRec/JetPruner.h"
+#include "JetRec/JetSoftDrop.h"
+#include "JetRec/JetBottomUpSoftDrop.h"
+#include "JetRec/JetRecursiveSoftDrop.h"
 #include "JetRec/JetReclusterer.h"
 #include "JetRec/FastJetInterfaceTool.h"
 
@@ -27,7 +30,6 @@
 #include "JetRec/JetConstitRemover.h"
 #include "JetRec/JetClusterer.h"
 #include "JetRec/JetCopier.h"
-#include "JetRec/JetGroomer.h"
 
 DECLARE_COMPONENT( JetToolRunner )
 DECLARE_COMPONENT( JetRecTool )
@@ -40,6 +42,9 @@ DECLARE_COMPONENT( JetFilterTool )
 DECLARE_COMPONENT( JetSplitter )
 DECLARE_COMPONENT( JetTrimmer )
 DECLARE_COMPONENT( JetPruner )
+DECLARE_COMPONENT( JetSoftDrop )
+DECLARE_COMPONENT( JetBottomUpSoftDrop )
+DECLARE_COMPONENT( JetRecursiveSoftDrop )
 DECLARE_COMPONENT( JetReclusterer )
 DECLARE_COMPONENT( FastJetInterfaceTool )
 DECLARE_COMPONENT( JetPseudojetRetriever )
@@ -48,7 +53,6 @@ DECLARE_COMPONENT( JetPseudojetCopier )
 DECLARE_COMPONENT( JetConstitRemover )
 DECLARE_COMPONENT( JetClusterer )
 DECLARE_COMPONENT( JetCopier )
-DECLARE_COMPONENT( JetGroomer )
 DECLARE_COMPONENT( PseudoJetMerger )
 
 DECLARE_COMPONENT( JetAlgorithm )

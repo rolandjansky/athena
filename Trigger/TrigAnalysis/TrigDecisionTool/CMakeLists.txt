@@ -1,70 +1,7 @@
-################################################################################
-# Package: TrigDecisionTool
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigDecisionTool )
-
-# Declare the package's dependencies:
-if( XAOD_STANDALONE )
-   atlas_depends_on_subdirs(
-      PUBLIC
-      Control/AthToolSupport/AsgTools
-      Event/xAOD/xAODBase
-      Event/xAOD/xAODTrigger
-      Trigger/TrigConfiguration/TrigConfHLTData
-      Trigger/TrigConfiguration/TrigConfInterfaces
-      Trigger/TrigConfiguration/TrigConfL1Data
-      Trigger/TrigEvent/TrigDecisionInterface
-      Trigger/TrigEvent/TrigRoiConversion
-      Trigger/TrigEvent/TrigNavStructure
-      PRIVATE
-      Trigger/TrigEvent/TrigSteeringEvent )
-elseif( XAOD_ANALYSIS )
-   atlas_depends_on_subdirs(
-      PUBLIC
-      Control/AthToolSupport/AsgTools
-      Control/StoreGate
-      Event/EventInfo
-      Event/xAOD/xAODBase
-      Event/xAOD/xAODTrigger
-      GaudiKernel
-      Trigger/TrigConfiguration/TrigConfHLTData
-      Trigger/TrigConfiguration/TrigConfInterfaces
-      Trigger/TrigConfiguration/TrigConfL1Data
-      Trigger/TrigEvent/TrigDecisionInterface
-      Trigger/TrigEvent/TrigRoiConversion
-      Trigger/TrigEvent/TrigNavStructure
-      PRIVATE
-      Control/AthenaBaseComps
-      Control/AthenaKernel
-      Trigger/TrigEvent/TrigSteeringEvent )
-else()
-   atlas_depends_on_subdirs(
-      PUBLIC
-      Control/AthToolSupport/AsgTools
-      Control/StoreGate
-      Event/EventInfo
-      Event/xAOD/xAODBase
-      Event/xAOD/xAODTrigger
-      GaudiKernel
-      PhysicsAnalysis/AnalysisTrigger/AnalysisTriggerEvent
-      Trigger/TrigConfiguration/TrigConfHLTData
-      Trigger/TrigConfiguration/TrigConfInterfaces
-      Trigger/TrigConfiguration/TrigConfL1Data
-      Trigger/TrigEvent/TrigDecisionEvent
-      Trigger/TrigEvent/TrigDecisionInterface
-      Trigger/TrigEvent/TrigMuonEvent
-      Trigger/TrigEvent/TrigRoiConversion
-      Trigger/TrigEvent/TrigNavStructure
-      Trigger/TrigEvent/TrigNavigation
-      Trigger/TrigEvent/TrigStorageDefinitions
-      Trigger/TrigSteer/TrigCompositeUtils
-      PRIVATE
-      Control/AthenaBaseComps
-      Control/AthenaKernel
-      Trigger/TrigEvent/TrigSteeringEvent )
-endif()
 
 # External dependencies:
 find_package( Boost )
@@ -127,6 +64,6 @@ if( NOT XAOD_STANDALONE AND NOT XAOD_ANALYSIS )
 endif()
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_scripts( share/checkTriggerEDM.py
    share/checkTriggerProcessingErrors.py )
