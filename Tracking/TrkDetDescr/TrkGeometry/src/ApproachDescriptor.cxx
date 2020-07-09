@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,7 +13,7 @@ const Trk::ApproachSurfaces* Trk::ApproachDescriptor::approachSurfaces(const Amg
 {
   // return the single approach surfaces
   if (m_approachSurfaces)
-    return (m_approachSurfaces);
+    return (m_approachSurfaces.get());
   // there's new surface given
   if (m_approachSurfaceArraySurface){
     Trk::Intersection asInter = m_approachSurfaceArraySurface->straightLineIntersection(pos,dir);
