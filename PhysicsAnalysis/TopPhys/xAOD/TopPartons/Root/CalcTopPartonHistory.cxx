@@ -14,14 +14,14 @@ namespace top {
     asg::AsgTool(name),
     m_config(nullptr) {
     declareProperty("config", m_config);
-    m_tempParticles= std::unique_ptr<ConstDataVector<DataVector<xAOD::TruthParticle_v1> > >(new ConstDataVector<DataVector<xAOD::TruthParticle_v1> > (SG::VIEW_ELEMENTS));
+    m_tempParticles= std::make_unique<ConstDataVector<DataVector<xAOD::TruthParticle_v1> > >(SG::VIEW_ELEMENTS);
   }
   
   StatusCode CalcTopPartonHistory::buildContainerFromMultipleCollections(const xAOD::TruthParticleContainer* &out_cont, const std::vector<std::string> &collections)
   {
     m_tempParticles->clear();
     
-    for(std::string collection : collections)
+    for(const std::string& collection : collections)
     {
       const xAOD::TruthParticleContainer* cont=nullptr;
       ATH_CHECK(evtStore()->retrieve(cont,collection));
