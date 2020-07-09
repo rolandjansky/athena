@@ -560,5 +560,8 @@ if __name__=="__main__":
     f.close()
     
     if args.run:
-        cfg.run(20)
+        sc = cfg.run(20)
+        if not sc.isSuccess():
+            import sys
+            sys.exit("Execution failed")
         
