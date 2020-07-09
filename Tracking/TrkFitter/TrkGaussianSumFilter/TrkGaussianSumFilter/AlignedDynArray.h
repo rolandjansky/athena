@@ -78,11 +78,8 @@ struct AlignedDynArray
   const_pointer buffer() const noexcept;
 
   /// index array operators
-  reference operator[](const std::size_t pos) noexcept;
-  const_reference operator[](const std::size_t pos) const noexcept;
-
-  ///  number of elements/size
-  size_type size() const noexcept;
+  reference operator[](size_type pos) noexcept;
+  const_reference operator[](size_type pos) const noexcept;
 
   /// iterator pointing to the first element
   iterator begin() noexcept;
@@ -96,10 +93,17 @@ struct AlignedDynArray
   /// const iterator pointing to the past-the-end  element
   const_iterator end() const noexcept;
 
+  ///  number of elements/size
+  size_type size() const noexcept;
+
+  /// returns true is size == 0
+  bool empty() const noexcept;
+
+
 private:
   void cleanup() noexcept;
-  T* m_buffer = nullptr;
-  size_t m_size = 0;
+  pointer m_buffer = nullptr;
+  size_type m_size = 0;
 };
 
 } // namespace GSFUtils

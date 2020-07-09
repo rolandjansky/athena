@@ -71,14 +71,14 @@ template<typename T, size_t ALIGNMENT>
 inline typename AlignedDynArray<T, ALIGNMENT>::pointer
 AlignedDynArray<T, ALIGNMENT>::buffer() noexcept
 {
-  return std::addressof(m_buffer[0]);
+  return m_buffer;
 }
 
 template<typename T, size_t ALIGNMENT>
 inline typename AlignedDynArray<T, ALIGNMENT>::const_pointer
 AlignedDynArray<T, ALIGNMENT>::buffer() const noexcept
 {
-  return std::addressof(m_buffer[0]);
+  return m_buffer;
 }
 
 template<typename T, size_t ALIGNMENT>
@@ -97,6 +97,35 @@ inline typename AlignedDynArray<T, ALIGNMENT>::const_reference
 }
 
 template<typename T, size_t ALIGNMENT>
+inline typename AlignedDynArray<T, ALIGNMENT>::iterator
+AlignedDynArray<T, ALIGNMENT>::begin() noexcept
+{
+  return iterator(buffer());
+}
+
+template<typename T, size_t ALIGNMENT>
+inline typename AlignedDynArray<T, ALIGNMENT>::const_iterator
+AlignedDynArray<T, ALIGNMENT>::begin() const noexcept
+{
+
+  return const_iterator(buffer());
+}
+
+template<typename T, size_t ALIGNMENT>
+inline typename AlignedDynArray<T, ALIGNMENT>::iterator
+AlignedDynArray<T, ALIGNMENT>::end() noexcept
+{
+  return iterator(buffer() + m_size);
+}
+
+template<typename T, size_t ALIGNMENT>
+inline typename AlignedDynArray<T, ALIGNMENT>::const_iterator
+AlignedDynArray<T, ALIGNMENT>::end() const noexcept
+{
+  return const_iterator(buffer() + m_size);
+}
+
+template<typename T, size_t ALIGNMENT>
 inline typename AlignedDynArray<T, ALIGNMENT>::size_type
 AlignedDynArray<T, ALIGNMENT>::size() const noexcept
 {
@@ -104,31 +133,9 @@ AlignedDynArray<T, ALIGNMENT>::size() const noexcept
 }
 
 template<typename T, size_t ALIGNMENT>
-inline typename AlignedDynArray<T, ALIGNMENT>::iterator
-AlignedDynArray<T, ALIGNMENT>::begin() noexcept
+bool AlignedDynArray<T, ALIGNMENT>::empty() const noexcept
 {
-  return std::addressof(m_buffer[0]);
-}
-
-template<typename T, size_t ALIGNMENT>
-inline typename AlignedDynArray<T, ALIGNMENT>::const_iterator
-AlignedDynArray<T, ALIGNMENT>::begin() const noexcept
-{
-  return std::addressof(m_buffer[0]);
-}
-
-template<typename T, size_t ALIGNMENT>
-inline typename AlignedDynArray<T, ALIGNMENT>::iterator
-AlignedDynArray<T, ALIGNMENT>::end() noexcept
-{
-  return std::addressof(m_buffer[m_size]);
-}
-
-template<typename T, size_t ALIGNMENT>
-inline typename AlignedDynArray<T, ALIGNMENT>::const_iterator
-AlignedDynArray<T, ALIGNMENT>::end() const noexcept
-{
-  return std::addressof(m_buffer[m_size]);
+  return (size() == 0);
 }
 
 // private cleanup helper
@@ -137,7 +144,7 @@ inline void
 AlignedDynArray<T, ALIGNMENT>::cleanup() noexcept
 {
   if (m_buffer) {
-    for (std::size_t pos = 0; pos < m_size; ++pos) {
+    for (size_type pos = 0; pos < m_size; ++pos) {
       m_buffer[pos].~T();
     }
     std::free(m_buffer);
