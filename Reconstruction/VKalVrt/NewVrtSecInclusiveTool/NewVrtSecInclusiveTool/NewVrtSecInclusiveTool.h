@@ -284,16 +284,16 @@ namespace Rec {
 //   Private technical functions
 //
 //
-      std::vector<xAOD::Vertex*> GetVrtSecMulti(  workVectorArrxAOD * inpParticlesxAOD, const xAOD::Vertex  & primVrt) const;
+      std::vector<xAOD::Vertex*> getVrtSecMulti(  workVectorArrxAOD * inpParticlesxAOD, const xAOD::Vertex  & primVrt) const;
 
-      void  TrackClassification(std::vector<WrkVrt> *WrkVrtSet, 
+      void  trackClassification(std::vector<WrkVrt> *WrkVrtSet, 
                                 std::vector< std::deque<long int> > *TrkInVrt) const;
 
-      double MaxOfShared(std::vector<WrkVrt> *WrkVrtSet, 
+      double maxOfShared(std::vector<WrkVrt> *WrkVrtSet, 
                          std::vector< std::deque<long int> > *TrkInVrt,
 			 long int & selectedTrack,
 			 long int & selectedVertex) const;
-      void RemoveTrackFromVertex(std::vector<WrkVrt> *WrkVrtSet, 
+      void removeTrackFromVertex(std::vector<WrkVrt> *WrkVrtSet, 
                                  std::vector< std::deque<long int> > *TrkInVrt,
 				 long int selectedTrack,
 				 long int selectedVertex) const;
@@ -336,16 +336,12 @@ namespace Rec {
  
       double distToMatLayerSignificance(Vrt2Tr & Vrt) const;
 
-
-      template <class Trk>
-      void RemoveDoubleEntries(std::vector<const Trk*>& ) const;
-
-      StatusCode RefitVertex( std::vector<WrkVrt> *WrkVrtSet, int SelectedVertex,
+      StatusCode refitVertex( std::vector<WrkVrt> *WrkVrtSet, int SelectedVertex,
                               std::vector<const xAOD::TrackParticle*> & SelectedTracks,
                               Trk::IVKalState& istate,
                               bool ifCovV0) const;
 
-      double RefitVertex( WrkVrt &Vrt,std::vector<const xAOD::TrackParticle*> & SelectedTracks,
+      double refitVertex( WrkVrt &Vrt,std::vector<const xAOD::TrackParticle*> & SelectedTracks,
                           Trk::IVKalState& istate,
                           bool ifCovV0) const;
  
@@ -362,12 +358,12 @@ namespace Rec {
                                  Trk::IVKalState& istate,
                                  bool ifCovV0) const;
 
-      void SelGoodTrkParticle( workVectorArrxAOD * xAODwrk,
+      void selGoodTrkParticle( workVectorArrxAOD * xAODwrk,
                                const xAOD::Vertex  & PrimVrt) const;
 
 
 
-      void Select2TrVrt(std::vector<const xAOD::TrackParticle*>  & SelectedTracks,
+      void select2TrVrt(std::vector<const xAOD::TrackParticle*>  & SelectedTracks,
                         const xAOD::Vertex       & PrimVrt) const;
 
 
@@ -375,20 +371,8 @@ namespace Rec {
      int   getIBLHit(const xAOD::TrackParticle* Part) const;
      int   getBLHit(const xAOD::TrackParticle* Part) const;
 
-
-
-     StatusCode GetTrkFitWeights(std::vector<double> & wgt, const Trk::IVKalState& istate) const;
    };
 
-
-  template <class Trk>
-  void NewVrtSecInclusiveTool::RemoveDoubleEntries(std::vector<const Trk*>& ListTracks) const
-  {
-    typename std::vector<const Trk*>::iterator   TransfEnd;
-    sort(ListTracks.begin(),ListTracks.end());
-    TransfEnd =  unique(ListTracks.begin(),ListTracks.end());
-    ListTracks.erase( TransfEnd, ListTracks.end());
-  }     
 
   struct clique_visitor
   {

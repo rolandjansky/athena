@@ -58,7 +58,7 @@ namespace Rec{
       StatusCode sc; sc.setChecked();
 //=== To get robust definition of most bad outlier
       m_fitSvc->setRobustness(5, istate);
-      sc = RefitVertex( WrkVrtSet, iv, AllTracks, istate, false);
+      sc = refitVertex( WrkVrtSet, iv, AllTracks, istate, false);
       if(sc.isFailure()){ (*WrkVrtSet)[iv].Good=false; return; }
       m_fitSvc->setRobustness(0, istate);
 //--------------------------------------------------
@@ -100,7 +100,7 @@ namespace Rec{
            WrkVrtSet->push_back(newvrt);
       }
       (*WrkVrtSet)[iv].selTrk.erase( (*WrkVrtSet)[iv].selTrk.begin() + SelT ); //remove track
-      sc = RefitVertex( WrkVrtSet, iv, AllTracks, istate, false);
+      sc = refitVertex( WrkVrtSet, iv, AllTracks, istate, false);
       if( sc.isFailure() ) {(*WrkVrtSet)[iv].Good=false; /*std::cout<<" Wrong vertex"<<'\n';*/}
    }
 
@@ -149,7 +149,7 @@ namespace Rec{
    }
    
    
-   void NewVrtSecInclusiveTool::TrackClassification(std::vector<WrkVrt> *WrkVrtSet, 
+   void NewVrtSecInclusiveTool::trackClassification(std::vector<WrkVrt> *WrkVrtSet, 
                                              std::vector< std::deque<long int> > *TrkInVrt)
    const
    { 
@@ -166,7 +166,7 @@ namespace Rec{
    }
 
 
-   double NewVrtSecInclusiveTool::MaxOfShared(std::vector<WrkVrt> *WrkVrtSet, 
+   double NewVrtSecInclusiveTool::maxOfShared(std::vector<WrkVrt> *WrkVrtSet, 
                                        std::vector< std::deque<long int> > *TrkInVrt,
 				       long int & SelectedTrack,
 				       long int & SelectedVertex)
@@ -235,7 +235,7 @@ namespace Rec{
    }
 
 
-   void NewVrtSecInclusiveTool::RemoveTrackFromVertex(std::vector<WrkVrt> *WrkVrtSet, 
+   void NewVrtSecInclusiveTool::removeTrackFromVertex(std::vector<WrkVrt> *WrkVrtSet, 
                                        std::vector< std::deque<long int> > *TrkInVrt,
 				       long int selectedTrack,
 				       long int selectedVertex)
@@ -515,7 +515,7 @@ namespace Rec{
         if (SelT<0) return 0; 
         (*WrkVrtSet)[V].detachedTrack=(*WrkVrtSet)[V].selTrk[SelT];
         (*WrkVrtSet)[V].selTrk.erase( (*WrkVrtSet)[V].selTrk.begin() + SelT ); //remove track
-        StatusCode sc = RefitVertex( WrkVrtSet, V, AllTrackList, istate, ifCovV0);
+        StatusCode sc = refitVertex( WrkVrtSet, V, AllTrackList, istate, ifCovV0);
         if(sc.isFailure())return 0.;
         Prob=TMath::Prob( (*WrkVrtSet)[V].chi2, 2*(NTrk-1)-3);
       }
@@ -525,7 +525,7 @@ namespace Rec{
 
 
 
-   StatusCode NewVrtSecInclusiveTool::RefitVertex( std::vector<WrkVrt> *WrkVrtSet,
+   StatusCode NewVrtSecInclusiveTool::refitVertex( std::vector<WrkVrt> *WrkVrtSet,
                                                  int SelectedVertex,
                                                  std::vector<const xAOD::TrackParticle*> & selectedTracks,
                                                  Trk::IVKalState& istate,
@@ -567,7 +567,7 @@ namespace Rec{
 
 
 
-   double NewVrtSecInclusiveTool::RefitVertex(WrkVrt &Vrt,
+   double NewVrtSecInclusiveTool::refitVertex(WrkVrt &Vrt,
                                             std::vector<const xAOD::TrackParticle*> & selectedTracks,
                                             Trk::IVKalState& istate,
                                             bool ifCovV0) const

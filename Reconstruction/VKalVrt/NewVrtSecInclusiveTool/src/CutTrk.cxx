@@ -19,7 +19,7 @@ namespace Rec{
 //==============================================================================================================
 //          xAOD based stuff
 //
-   void NewVrtSecInclusiveTool::SelGoodTrkParticle( workVectorArrxAOD * xAODwrk,
+   void NewVrtSecInclusiveTool::selGoodTrkParticle( workVectorArrxAOD * xAODwrk,
                                                     const xAOD::Vertex & PrimVrt)
    const
    {    

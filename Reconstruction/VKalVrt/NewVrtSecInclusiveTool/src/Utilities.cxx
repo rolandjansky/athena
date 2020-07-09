@@ -240,13 +240,6 @@ double NewVrtSecInclusiveTool::VrtVrtDist(const xAOD::Vertex & PrimVrt, const Am
    }
 
 
-
-  StatusCode NewVrtSecInclusiveTool::GetTrkFitWeights(std::vector<double> & wgt,
-                                                    const Trk::IVKalState& istate) const
-  {
-    return m_fitSvc->VKalGetTrkWeights(wgt, istate);
-  }
-
 /*************************************************************************************************************/
   int   NewVrtSecInclusiveTool::getIBLHit(const xAOD::TrackParticle* Part) const
   {

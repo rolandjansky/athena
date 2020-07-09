@@ -29,7 +29,7 @@ namespace Rec{
 //   Template routine for 2track secondary vertices selection
 //
 
-    void NewVrtSecInclusiveTool::Select2TrVrt(std::vector<const xAOD::TrackParticle*>  & selectedTracks,
+    void NewVrtSecInclusiveTool::select2TrVrt(std::vector<const xAOD::TrackParticle*>  & selectedTracks,
                                   const xAOD::Vertex                 & PrimVrt)
     const
     {

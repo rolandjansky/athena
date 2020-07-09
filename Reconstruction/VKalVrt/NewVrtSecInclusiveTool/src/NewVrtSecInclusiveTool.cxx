@@ -138,19 +138,11 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
      ATH_MSG_DEBUG( "Initialising NewVrtSecInclusiveTool- Package version: " << PACKAGE_VERSION ); 
      m_compatibilityGraph = new boost::adjacency_list<boost::listS, boost::vecS, boost::undirectedS>();
 
-     //------------------------------------------
      ATH_CHECK( m_beamService.retrieve() );
      ATH_CHECK( m_extrapolator.retrieve() );
 
      ATH_CHECK( m_fitSvc.retrieve() );
-
-     //ATH_CHECK( m_fitterSvc.retrieve() );
      ATH_MSG_DEBUG("NewVrtSecInclusiveTool TrkVKalVrtFitter found");
-     //m_fitSvc = dynamic_cast<Trk::TrkVKalVrtFitter*>(&(*m_fitterSvc));
-     //if(!m_fitSvc){
-     //   ATH_MSG_DEBUG(" No implemented Trk::ITrkVKalVrtFitter interface");
-     //   return StatusCode::FAILURE;
-     //}
 
 //------------------------------------------       
 //
@@ -335,7 +327,7 @@ NewVrtSecInclusiveTool::NewVrtSecInclusiveTool(const std::string& type,
     tmpVectxAOD->tanBeamTiltY=tan(m_beamService->beamTilt(1));
     
 
-    listVrtSec = GetVrtSecMulti(tmpVectxAOD,primVrt);
+    listVrtSec = getVrtSecMulti(tmpVectxAOD,primVrt);
     delete tmpVectxAOD;
 
 

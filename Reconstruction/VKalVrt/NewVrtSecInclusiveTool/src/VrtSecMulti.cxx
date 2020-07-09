@@ -25,7 +25,7 @@
 namespace Rec{
 
 
-   std::vector<xAOD::Vertex*> NewVrtSecInclusiveTool::GetVrtSecMulti(  workVectorArrxAOD * xAODwrk,
+   std::vector<xAOD::Vertex*> NewVrtSecInclusiveTool::getVrtSecMulti(  workVectorArrxAOD * xAODwrk,
                                                                       const xAOD::Vertex & PrimVrt )
    const
    {
@@ -36,7 +36,7 @@ namespace Rec{
       int i,j;
       inpNPart=xAODwrk->inpTrk.size();
       std::vector<const xAOD::NeutralParticle*> neutralPartDummy(0);
-      ATH_MSG_DEBUG( "GetVrtSecMulti() called with NPart=" << inpNPart);
+      ATH_MSG_DEBUG( "getVrtSecMulti() called with NPart=" << inpNPart);
    
       std::vector<xAOD::Vertex*>  finalVertices(0); 
 
@@ -44,7 +44,7 @@ namespace Rec{
    
    
       long int NTracks = 0;
-      SelGoodTrkParticle( xAODwrk, PrimVrt);
+      selGoodTrkParticle( xAODwrk, PrimVrt);
       NTracks = xAODwrk->listSelTracks.size();
 
       if( NTracks < 2 ) { return finalVertices;} // 0,1 selected track => nothing to do!
@@ -61,7 +61,7 @@ namespace Rec{
 //                     Find 2track vertices
 //
 
-      Select2TrVrt(xAODwrk->listSelTracks, PrimVrt);
+      select2TrVrt(xAODwrk->listSelTracks, PrimVrt);
 
 //---
       ATH_MSG_DEBUG(" Defined edges in the graph="<< num_edges(*m_compatibilityGraph));
@@ -132,11 +132,6 @@ namespace Rec{
 //    tie(neighbourIt, neighbourEnd) = adjacent_vertices(*vertexIt, *m_compatibilityGraph); 
 //    for (; neighbourIt != neighbourEnd; ++neighbourIt) std::cout << *neighbourIt << " ";   std::cout << "\n"; }
 //==================================================================================
-//------------ Debug
-//    std::vector<const xAOD::TrackParticle*> tempTrk(0);
-//    for(auto & iv : (*WrkVrtSet)){ if(iv.Good){for(auto & it : iv.selTrk)tempTrk.push_back(xAODwrk->listSelTracks.at(it));}}
-//    RemoveDoubleEntries(tempTrk);
-//
 //========= Initial cleaning of solutions
 //-Remove worst track from vertices with very bad Chi2
     bool disassembled=false;
@@ -158,7 +153,7 @@ namespace Rec{
         int it_bad=mostHeavyTrk(iv,xAODwrk->listSelTracks);
         if(it_bad>-1){
 	  iv.selTrk.erase( iv.selTrk.begin() + it_bad );
-	  RefitVertex(iv, xAODwrk->listSelTracks, *state, false);
+	  refitVertex(iv, xAODwrk->listSelTracks, *state, false);
      } } }
 //-Remove vertices fully contained in other vertices 
     while( (*WrkVrtSet).size()>1 ){
@@ -239,10 +234,10 @@ namespace Rec{
     double foundMaxT; long int SelectedTrack, SelectedVertex;
     int foundV1, foundV2;
     
-    TrackClassification( WrkVrtSet, TrkInVrt);
+    trackClassification( WrkVrtSet, TrkInVrt);
 
     state = m_fitSvc->makeState();
-    while((foundMaxT=MaxOfShared( WrkVrtSet, TrkInVrt, SelectedTrack, SelectedVertex))>0) {
+    while((foundMaxT=maxOfShared( WrkVrtSet, TrkInVrt, SelectedTrack, SelectedVertex))>0) {
  //std::cout << "MAX="<<foundMaxT<<", "<<SelectedTrack<<", "<<SelectedVertex<<'\n';
  //std::cout << "VRT="<<minVrtVrtDist( WrkVrtSet, foundV1, foundV2)<<", "<<foundV1<<", "<<foundV2<<'\n';
  //printWrkSet(WrkVrtSet,"Iterat");
@@ -275,12 +270,12 @@ namespace Rec{
 	     if(vrtMerged){
                delete TrkInVrt;
                TrkInVrt = new std::vector< std::deque<long int> >(NTracks);  
-               TrackClassification( WrkVrtSet, TrkInVrt);
+               trackClassification( WrkVrtSet, TrkInVrt);
 	       continue;  // Something was merged => goto next cycle. Otherwise break the found track-vertex link
 	     }
 	  }
-          RemoveTrackFromVertex(WrkVrtSet, TrkInVrt, SelectedTrack, SelectedVertex);
-          sc = RefitVertex( WrkVrtSet, SelectedVertex, xAODwrk->listSelTracks, *state, false);
+          removeTrackFromVertex(WrkVrtSet, TrkInVrt, SelectedTrack, SelectedVertex);
+          sc = refitVertex( WrkVrtSet, SelectedVertex, xAODwrk->listSelTracks, *state, false);
           if( sc.isFailure() ) { (*WrkVrtSet)[SelectedVertex].Good=false;  continue; } //bad vertex
           (*WrkVrtSet)[SelectedVertex].projectedVrt=MomProjDist((*WrkVrtSet)[SelectedVertex].vertex, PrimVrt, (*WrkVrtSet)[SelectedVertex].vertexMom);
           if( (*WrkVrtSet)[SelectedVertex].projectedVrt<0. && (*WrkVrtSet)[SelectedVertex].selTrk.size()==2 )
@@ -335,7 +330,7 @@ namespace Rec{
       for(auto &onetVrt : (*WrkVrtSet)){ if(!onetVrt.Good || onetVrt.selTrk.size()!=1) continue;
         if(ntrVrt.detachedTrack==onetVrt.selTrk[0]){   
 	  WrkVrt newV(ntrVrt); newV.selTrk.push_back(ntrVrt.detachedTrack);
-          vProb = RefitVertex( newV, xAODwrk->listSelTracks, *state, true);
+          vProb = refitVertex( newV, xAODwrk->listSelTracks, *state, true);
 	  if( vProb>probVrtMergeLimit && newV.vertexMom.M()<m_VrtMassLimit ){ onetVrt.Good=false; ntrVrt=newV;  ntrVrt.detachedTrack=-1;}
 	  break;
     } } }
@@ -344,7 +339,7 @@ namespace Rec{
       for(auto &jVrt : (*WrkVrtSet)){ if(!jVrt.Good || jVrt.selTrk.size()!=1) continue;
         if(iVrt.detachedTrack==jVrt.selTrk[0]){   
 	  WrkVrt newV(iVrt); newV.selTrk.push_back(iVrt.detachedTrack);
-          vProb = RefitVertex( newV, xAODwrk->listSelTracks, *state, true);
+          vProb = refitVertex( newV, xAODwrk->listSelTracks, *state, true);
 	  if( vProb>probVrtMergeLimit && newV.vertexMom.M()<m_VrtMassLimit ){ jVrt.Good=false; iVrt=newV;  iVrt.detachedTrack=-1;}
 	  break;
     } } }
@@ -353,7 +348,7 @@ namespace Rec{
         for(auto &onetVrt  : (*WrkVrtSet)){ if(!onetVrt.Good || onetVrt.selTrk.size()!=1) continue;
 	  if(onetVrt.detachedTrack==tr){
 	    WrkVrt newV(ntrVrt); newV.selTrk.push_back(onetVrt.selTrk[0]);
-            vProb = RefitVertex( newV, xAODwrk->listSelTracks, *state, true);
+            vProb = refitVertex( newV, xAODwrk->listSelTracks, *state, true);
 	    if( vProb>probVrtMergeLimit && newV.vertexMom.M()<m_VrtMassLimit ){ onetVrt.Good=false; ntrVrt=newV;}
     } } } }
     for(auto & curVrt : (*WrkVrtSet) ) {
@@ -374,11 +369,6 @@ namespace Rec{
           }
        }
     }
-//------------ Debug
-//    std::vector<const xAOD::TrackParticle*> tempTrk(0);
-//    for(auto & iv : (*WrkVrtSet)){ if(iv.Good){for(auto & it : iv.selTrk)tempTrk.push_back(xAODwrk->listSelTracks.at(it));}}
-//    RemoveDoubleEntries(tempTrk);
-//
 //-----  Vertices with >1 tracks
     for(int iv=0; iv<(int)WrkVrtSet->size(); iv++) {
           WrkVrt & curVrt=(*WrkVrtSet)[iv];
