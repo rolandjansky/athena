@@ -60,8 +60,7 @@ class ISvcLocator;
 /////////////////////////////////////////////////////////////////////
 //
 TrigCaloClusterMakerMT::TrigCaloClusterMakerMT(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator),
-    m_pCaloClusterContainer(NULL)
+  : AthAlgorithm(name, pSvcLocator)
 {
 }
 

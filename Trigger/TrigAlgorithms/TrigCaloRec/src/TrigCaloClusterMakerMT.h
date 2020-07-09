@@ -57,10 +57,6 @@ class TrigCaloClusterMakerMT : public AthAlgorithm {
   // Following used for testing only :
   //bool        m_useMeaningfullNames;      
   std::string m_clustersOutputName;
- 
-
-  //Other members  
-  xAOD::CaloClusterContainer* m_pCaloClusterContainer;
 
 //   double m_Eta;
 //   double m_Phi;
@@ -108,10 +104,5 @@ class TrigCaloClusterMakerMT : public AthAlgorithm {
       "Decor_ncells",                // decorator name
       "nCells",                      // default value
       "Decorator containing the number of cells associated to a cluster"};
-  
-public:
-
-  inline xAOD::CaloClusterContainer* GetClusterContainer() const {return m_pCaloClusterContainer;}
-
 };
 #endif
