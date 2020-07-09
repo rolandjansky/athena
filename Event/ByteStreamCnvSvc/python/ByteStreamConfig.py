@@ -25,7 +25,7 @@ from AthenaCommon.Logging import logging
 from AthenaServices.MetaDataSvcConfig import MetaDataSvcCfg
 
 
-def byteStreamReadCfg(flags, type_names=None):
+def ByteStreamReadCfg(flags, type_names=None):
     """Set up to read from a bytestream file
 
     The function adds the components required to read events and metadata from
@@ -98,7 +98,7 @@ def byteStreamReadCfg(flags, type_names=None):
     return result
 
 
-def byteStreamWriteCfg(flags, type_names=None):
+def ByteStreamWriteCfg(flags, type_names=None):
     """Set up output stream in RAW/bytestream format
 
     Configure components responsible for writing bytestream format. Write job
@@ -161,11 +161,11 @@ def main():
     config_flags.Output.doWriteBS = True
     config_flags.lock()
 
-    read = ByteStreamReadCfg(ConfigFlags)
+    read = ByteStreamReadCfg(config_flags)
     read.store(open("test.pkl", "wb"))
     print("All OK")
 
-    write = ByteStreamWriteCfg(ConfigFlags)
+    write = ByteStreamWriteCfg(config_flags)
     write.printConfig()
     log.info("Write setup OK")
 
