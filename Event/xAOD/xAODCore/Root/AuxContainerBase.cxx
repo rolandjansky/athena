@@ -112,8 +112,8 @@ namespace xAOD {
       // Protect against self-assignment:
       if( this == &rhs ) return *this;
 
-      // Keep the source unmutable during copy
-      guard_t guard( rhs.m_mutex );
+      // Keep the objects locked during copy
+      std::scoped_lock  lck{m_mutex, rhs.m_mutex};
       m_selection = rhs.m_selection;
       m_compression = rhs.m_compression;
 
