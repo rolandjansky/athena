@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // InDetAlignTrackSelTool.h
@@ -126,8 +126,8 @@ int InDetAlignTrackSelTool::nShared(const Trk::Track& track) const {
   ATH_MSG_DEBUG( "in nShared()" ) ;
   int nshared=0, nshpix, nshsct;
 
-  const Trk::TrackSummary* summary = m_trackSumTool->createSummary(track);
-  if(summary==0){
+  std::unique_ptr<Trk::TrackSummary> summary = m_trackSumTool->summary(track);
+  if(!summary){
     ATH_MSG_ERROR( "Could not create TrackSummary" ) ;
     nshared = 1000;
   }
@@ -143,7 +143,6 @@ int InDetAlignTrackSelTool::nShared(const Trk::Track& track) const {
 
     nshared = nshpix + nshsct;
   }
-  delete summary;
   return nshared;
 }
 
@@ -153,7 +152,7 @@ int InDetAlignTrackSelTool::nHoles(const Trk::Track& track) const {
   ATH_MSG_DEBUG( "in nHoles() " ) ;
   int nholes=0, nhpix, nhsct;
 
-  const Trk::TrackSummary* summary = m_trackSumTool->createSummary(track);
+  std::unique_ptr<Trk::TrackSummary> summary = m_trackSumTool->summary(track);
   if(summary==0){
     ATH_MSG_ERROR( "Could not create TrackSummary" ) ;
     nholes = 1000;
@@ -173,7 +172,6 @@ int InDetAlignTrackSelTool::nHoles(const Trk::Track& track) const {
 
     nholes =  nhpix + nhsct;
   }
-  delete summary;
   return nholes;
 }
 
