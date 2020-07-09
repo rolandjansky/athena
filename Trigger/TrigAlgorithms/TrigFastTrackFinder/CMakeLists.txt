@@ -35,7 +35,10 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkEventUtils
                           Trigger/TrigEvent/TrigInDetPattRecoEvent
                           Trigger/TrigTools/TrigInDetToolInterfaces
-                          Trigger/TrigTools/TrigTimeAlgs )
+                          Trigger/TrigTools/TrigTimeAlgs 
+			  Trigger/TrigAccel/TrigAccelEvent
+			  Trigger/TrigAccel/TrigInDetAccel/TrigInDetAccelerationTool
+			  Trigger/TrigAccel/TrigInDetAccel/TrigInDetAccelerationService)
 
 # External dependencies:
 find_package( TBB )

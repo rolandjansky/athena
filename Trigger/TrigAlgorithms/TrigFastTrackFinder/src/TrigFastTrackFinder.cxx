@@ -61,6 +61,12 @@
 #include "TrigInDetToolInterfaces/ITrigZFinder.h"
 
 #include "SiSpacePointsSeed/SiSpacePointsSeed.h"
+
+//for GPU acceleration
+
+#include "TrigInDetAccelerationTool/ITrigInDetAccelerationTool.h"
+#include "TrigInDetAccelerationService/ITrigInDetAccelerationSvc.h"
+
 #include "TrigFastTrackFinder.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "CxxUtils/phihelper.h"
@@ -69,6 +75,11 @@
 
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "GaudiKernel/ThreadLocalContext.h"
+
+//for GPU acceleration
+
+#include "TrigAccelEvent/TrigInDetAccelEDM.h"
+#include "TrigAccelEvent/TrigInDetAccelCodes.h"
 
 TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* pSvcLocator) : 
 
@@ -80,6 +91,8 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   m_trigInDetTrackFitter("TrigInDetTrackFitter"),
   m_trigZFinder("TrigZFinder/TrigZFinder", this ),
   m_trackSummaryTool("Trk::ITrackSummaryTool/ITrackSummaryTool"),
+  m_accelTool("TrigInDetAccelerationTool"), 
+  m_accelSvc("TrigInDetAccelerationSvc", name),
   m_doCloneRemoval(true),
   m_useBeamSpot(true),
   m_doZFinder(false),
@@ -95,7 +108,8 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   m_sctId(0),
   m_idHelper(0),
   m_particleHypothesis(Trk::pion),
-  m_useNewLayerNumberScheme(false)
+  m_useNewLayerNumberScheme(false), 
+  m_useGPU(false)
 {
 
   /** Doublet finding properties. */
@@ -156,6 +170,8 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
 
 
   declareProperty("useNewLayerNumberScheme", m_useNewLayerNumberScheme = false);
+
+  declareProperty("useGPU", m_useGPU = false);
 
   // declare monitoring histograms
 
@@ -279,6 +295,28 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
 
   ATH_MSG_DEBUG(" Feature set recorded with Key " << m_attachedFeatureName);
   ATH_MSG_DEBUG(" doResMon " << m_doResMonitoring);
+
+  if(m_useGPU) {//for GPU acceleration
+    sc = m_accelSvc.retrieve();
+    if(sc.isFailure()) {
+      ATH_MSG_ERROR("Could not retrieve "<<m_accelSvc); 
+      m_useGPU = false;
+    }
+    if(!m_accelSvc->isReady()) {
+      ATH_MSG_INFO("Acceleration service not ready - no GPU found"); 
+      m_useGPU = false;
+    }
+    else {
+      sc = m_accelTool.retrieve();
+      if(sc.isFailure()) {
+        ATH_MSG_ERROR("Could not retrieve "<<m_accelTool); 
+        m_useGPU = false;
+      }
+    }
+  }
+
+  ATH_MSG_INFO("Use GPU acceleration : "<<std::boolalpha<<m_useGPU);
+  
   ATH_MSG_DEBUG(" Initialized successfully"); 
   return HLT::OK;
 }
@@ -508,20 +546,31 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
 
   mnt_timer_TripletMaking.start();
 
-  TRIG_TRACK_SEED_GENERATOR seedGen(m_tcs);
+  std::vector<TrigInDetTriplet*> triplets;
 
-  seedGen.loadSpacePoints(convertedSpacePoints);
+  if(!m_useGPU) {
 
-  if (m_doZFinder && m_doFastZVseeding) {
-    seedGen.createSeeds(tmpRoi.get(), vZv);
+    TRIG_TRACK_SEED_GENERATOR seedGen(m_tcs);
+
+    seedGen.loadSpacePoints(convertedSpacePoints);
+
+    if (m_doZFinder && m_doFastZVseeding) {
+      seedGen.createSeeds(tmpRoi.get(), vZv);
+    }
+    else {
+      seedGen.createSeeds(tmpRoi.get());
+    }
+
+    seedGen.getSeeds(triplets);
   }
   else {
-    seedGen.createSeeds(tmpRoi.get());
+    //GPU offloading begins ...
+
+    makeSeedsOnGPU(m_tcs, tmpRoi.get(), convertedSpacePoints, triplets);
+
+    //GPU offloading ends ...
   }
-
-  std::vector<TrigInDetTriplet*> triplets;
-  seedGen.getSeeds(triplets);
-
+  
   ATH_MSG_DEBUG("number of triplets: " << triplets.size());
   mnt_timer_TripletMaking.stop();
   mnt_roi_lastStageExecuted = 4;
@@ -1203,3 +1252,48 @@ void TrigFastTrackFinder::runResidualMonitoring(const Trk::Track& track) const {
   }
 }
 
+void TrigFastTrackFinder::makeSeedsOnGPU(const TrigCombinatorialSettings& tcs, const IRoiDescriptor* roi, const std
+::vector<TrigSiSpacePointBase>& vsp, std::vector<TrigInDetTriplet*>& output) const {
+  
+  output.clear();
+
+  TrigAccel::DATA_EXPORT_BUFFER* dataBuffer = new TrigAccel::DATA_EXPORT_BUFFER(5000);//i.e. 5KB
+
+  size_t actualSize = m_accelTool->exportSeedMakingJob(tcs, roi, vsp, *dataBuffer);
+
+  ATH_MSG_DEBUG("SeedMakingJob is ready, data size for transfer = " <<actualSize);
+
+  std::shared_ptr<TrigAccel::OffloadBuffer> pBuff = std::make_shared<TrigAccel::OffloadBuffer>(dataBuffer);
+  
+  TrigAccel::Work* pJob = m_accelSvc->createWork(TrigAccel::InDetJobControlCode::MAKE_SEEDS, pBuff);
+
+  if(pJob) {
+    ATH_MSG_DEBUG("Work item created for task "<<TrigAccel::InDetJobControlCode::MAKE_SEEDS);
+    
+    pJob->run();
+    
+    
+    std::shared_ptr<TrigAccel::OffloadBuffer> pOB = pJob->getOutput();
+    
+    TrigAccel::OUTPUT_SEED_STORAGE* pOutput = reinterpret_cast<TrigAccel::OUTPUT_SEED_STORAGE *>(pOB->m_rawBuffer);
+    
+    ATH_MSG_DEBUG("Found "<<pOutput->m_nSeeds<<" triplets on GPU");
+
+    int nTriplets = pOutput->m_nSeeds;
+
+    //copy seeds into the output buffer
+
+    output.clear();
+
+    for(int k=0;k<nTriplets;k++) {
+      const TrigSiSpacePointBase& SPi = vsp[pOutput->m_innerIndex[k]];
+      const TrigSiSpacePointBase& SPm = vsp[pOutput->m_middleIndex[k]];
+      const TrigSiSpacePointBase& SPo = vsp[pOutput->m_outerIndex[k]];
+      TrigInDetTriplet* t = new TrigInDetTriplet(SPi, SPm, SPo, pOutput->m_Q[k]);
+      output.push_back(t);
+    }
+  }
+
+  delete pJob;
+  delete dataBuffer;
+}

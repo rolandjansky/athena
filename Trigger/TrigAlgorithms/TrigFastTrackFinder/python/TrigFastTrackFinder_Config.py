@@ -185,6 +185,24 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         self.LayerNumberTool = numberingTool
         
         from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
+
+        # GPU offloading config begins 
+
+        #GPU_key = ('useGPU', remapped_type)
+        #self.useGPU = InDetTrigSliceSettings[GPU_key]
+        
+        self.useGPU = False
+        
+        #if type == "FS" : self.useGPU = True
+        
+        if self.useGPU :
+            from TrigInDetAccelerationTool.TrigInDetAccelerationToolConf import TrigInDetAccelerationTool
+            accelTool = TrigInDetAccelerationTool(name = "TrigInDetAccelerationTool_FTF")
+            ToolSvc += accelTool
+            
+        
+        # GPU offloading config ends
+
         self.doResMon = InDetTrigSliceSettings[('doResMon',remapped_type)]
 
         # switch between Run-2/3 monitoring
