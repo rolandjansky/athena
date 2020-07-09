@@ -71,7 +71,7 @@ SCTLorentzMonTool::SCTLorentzMonTool(const string &type, const string &name,
   m_phiVsNstrips_Side_100{},
   m_phiVsNstrips_Side_111{},
   m_holeSearchTool("InDet::InDetTrackHoleSearchTool"),
-  m_rejectTrackHoles(true),
+  m_getTrackHoles(false),
   m_pSCTHelper(nullptr),
   m_sctmgr(nullptr) {
   m_stream = "/stat";
@@ -79,7 +79,7 @@ SCTLorentzMonTool::SCTLorentzMonTool(const string &type, const string &name,
   declareProperty("TrackToVertexTool", m_trackToVertexTool); // for TrackToVertexTool
   m_numberOfEvents = 0;
   declareProperty("HoleSearch", m_holeSearchTool);
-  declareProperty("RejectTrackHoles", m_rejectTrackHoles);
+  declareProperty("GetTrackHoles", m_getTrackHoles);
 }
 
 // ====================================================================================================
@@ -189,33 +189,27 @@ SCTLorentzMonTool::fillHistograms() {
   TrackCollection::const_iterator trkend = tracks->end();
 
   for (; trkitr != trkend; ++trkitr) {
-    // Get track
-    const Trk::Track *track = m_holeSearchTool->getTrackWithHoles(**trkitr);
-    if (not track) {
-      ATH_MSG_WARNING ("track pointer is invalid");
-      continue;
-    }
-
+    // get track
     const Trk::Track * track2 = (*trkitr);
     if (not track2) {
-      ATH_MSG_ERROR("no pointer to track2!!!");
-      continue;
+        ATH_MSG_ERROR("no pointer to track2!!!");
+        continue;
     }
-
     // Get pointer to track state on surfaces
-    const DataVector<const Trk::TrackStateOnSurface> *trackStates = track->trackStateOnSurfaces();
+    const DataVector<const Trk::TrackStateOnSurface> *trackStates = track2->trackStateOnSurfaces();
     if (not trackStates) {
       msg(MSG::WARNING) << "for current track, TrackStateOnSurfaces == Null, no data will be written for this track" <<
         endmsg;
       continue;
     }
-
+    
     const Trk::TrackSummary *summary = track2->trackSummary();
-    if (not summary) {
-      msg(MSG::WARNING) << " null trackSummary" << endmsg;
-      continue;
+    if (not summary){
+        msg(MSG::WARNING) << " null trackSummary" << endmsg;
+        continue;
     }
-
+    
+    /// getting the hits in SCT Barrel, may require for the track selection
     unsigned int nSCTBarrel = 0;
     for (const Trk::TrackStateOnSurface* tsos : *trackStates) {
       if (not tsos->type(Trk::TrackStateOnSurface::Measurement)) continue; // Not a hit
@@ -233,40 +227,64 @@ SCTLorentzMonTool::fillHistograms() {
 
       if (bec==0) nSCTBarrel++; // This SCT hit is in Barrel
     }
+    
+    const Trk::Perigee *perigee = track2->perigeeParameters();
+    if(not perigee)continue;
+    /// selecting the tracks, the pT cut on tracks is applied later
+    bool passesCuts = true;
+    if ((AthenaMonManager::dataType() == AthenaMonManager::cosmics) &&
+        (summary->get(Trk::numberOfSCTHits) > 6)//  SCTHits >6
+    ) {
+        passesCuts = true;
+    }// 01.02.2015
+    /// cuts used by Arka for tighter selection:
+    /// d0 < 1 mm, pT > 500 MeV, N_hit(SCT barrel) >= 8, N_hit(Pixel) >= 2
+    /// cuts used by Arka for looser selection:
+    /// d0 < 1 mm, pT > 500 MeV, N_hit(SCT in any region) >=7 , N_hit(Pixel) >= 2
+    else if ((track2->perigeeParameters()->parameters()[Trk::qOverP] < 0.) && // use negative track only
+        (std::abs(perigee->parameters()[Trk::d0]) < 1.) && // d0 < 1mm
+        //(std::abs( perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta]) ) < 1.) // another way to implement d0 < 1mm
+        (summary->get(Trk::numberOfSCTHits) > 6) && // SCTHits >6
+        (summary->get(Trk::numberOfPixelHits) > 1) // nPixelHits > 1
+    ){
+        passesCuts = true;
+    }else{
+        passesCuts = false;
+    }
+      
+    if(not passesCuts)continue;
+      
+    const Trk::Track *track = nullptr;
+    if(m_getTrackHoles){
+        // Get track with holes for the tracks passing the selection
+        track = m_holeSearchTool->getTrackWithHoles(**trkitr);
+    }
+    else{
+        // get track without holes
+        track = track2;
+    }
+    
+    if (not track) {
+      ATH_MSG_WARNING ("track pointer is invalid");
+      continue;
+    }
+
 
     DataVector<const Trk::TrackStateOnSurface>::const_iterator endit = trackStates->end();
     for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it = trackStates->begin(); it != endit; ++it) {
       /// selection of tracks
-      const Trk::Perigee *perigee = track->perigeeParameters();
       const Trk::TrackParameters *trkp = dynamic_cast<const Trk::TrackParameters *>((*it)->trackParameters());
       if (not trkp){
           msg(MSG::WARNING) << " Null pointer to MeasuredTrackParameters" << endmsg;
           continue;
       }
-      bool passesCuts = true;
-      if ((AthenaMonManager::dataType() == AthenaMonManager::cosmics) &&
-            (trkp->momentum().mag() > 500.) &&  // Pt > 500MeV
-            (summary->get(Trk::numberOfSCTHits) > 6)// && // SCTHits >6
-            ) {
-        passesCuts = true;
-      }// 01.02.2015
-      /// cuts used by Arka for tighter selection:
-      /// d0 < 1 mm, pT > 500 MeV, N_hit(SCT barrel) >= 8, N_hit(Pixel) >= 2
-      /// cuts used by Arka for looser selection:
-      /// d0 < 1 mm, pT > 500 MeV, N_hit(SCT in any region) >=7 , N_hit(Pixel) >= 2
-      else if ((track->perigeeParameters()->parameters()[Trk::qOverP] < 0.) && // use negative track only
-                (std::abs(perigee->parameters()[Trk::d0]) < 1.) && // d0 < 1mm
-                //(std::abs( perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta]) ) < 1.) // another way to implement d0 < 1mm
-                (trkp->momentum().perp() > 500.) &&   // Pt > 500MeV
-                (summary->get(Trk::numberOfSCTHits) > 6)// // SCTHits >6
-                ) {
-          passesCuts = true;
-      }else {
-          passesCuts = false;
-      }
-      if (passesCuts && perigee) {
+      
+      /// selecting track momentum greater than 500
+      if(trkp->momentum().perp() < 500.) continue;
+      
+      if (true) {
           // working on hits
-          if ((*it)->type(Trk::TrackStateOnSurface::Measurement)) {
+        if ((*it)->type(Trk::TrackStateOnSurface::Measurement)) {
             const InDet::SiClusterOnTrack *clus =
             dynamic_cast<const InDet::SiClusterOnTrack *>((*it)->measurementOnTrack());
             if (clus) { // Is it a SiCluster? If yes...
@@ -339,9 +357,8 @@ SCTLorentzMonTool::fillHistograms() {
                 }// end if SCT
             } // end if clus..
         } // end if((*it)->type(Trk::TrackStateOnSurface::Measurement)){
-        // working on holes
-        else if((*it)->type(Trk::TrackStateOnSurface::Hole)) {
-            if(m_rejectTrackHoles)continue;
+        // working on holes only if we want to
+        else if(m_getTrackHoles && (*it)->type(Trk::TrackStateOnSurface::Hole)) {
             Identifier surfaceID;
             surfaceID = surfaceOnTrackIdentifier(*it);
             if(not m_pSCTHelper->is_sct(surfaceID)) continue; //We only care about SCT
@@ -401,7 +418,7 @@ SCTLorentzMonTool::fillHistograms() {
                 m_phiVsNstrips_Side_111_eta[layer][side][etaIndex]->Fill(phiToWafer, nStrip, 1.);
             }
         } // if((*it)->type(Trk::TrackStateOnSurface::Measurement)){
-      }// end if passesCuts and perigee
+      }// end if perigee
     } // end of for loop trackStates
     delete track;
     track=0;
