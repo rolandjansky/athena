@@ -3,6 +3,12 @@ import six
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
+from AthenaCommon import Constants
+msgLvl = "VERBOSE"
+from AthenaCommon.Logging import log
+log.setLevel(msgLvl)
+
+
 from METReconstruction.METRecoFlags import metFlags
 from AthenaCommon.BeamFlags import jobproperties
 from RecExConfig.RecFlags import rec
@@ -36,8 +42,11 @@ topSequence += assocAlg
 from METUtilities.METMakerConfig import getMETMakerAlg
 metConfigs = list(metFlags.METAssocConfigs().keys())
 metConfigs.sort()
+
 for key in metConfigs:
     conf = metFlags.METAssocConfigs()[key]
     if not conf.doTruth:
         makerAlg = getMETMakerAlg(conf.suffix)
         topSequence += makerAlg
+
+svcMgr.StoreGateSvc.Dump=True

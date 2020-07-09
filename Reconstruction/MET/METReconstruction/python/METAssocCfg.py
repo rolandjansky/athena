@@ -49,7 +49,6 @@ def getAssociator(config,suffix,doPFlow=False,
     if doModClus:
         modLCClus = modClusColls['LC{0}Clusters'.format(modConstKey)]
         modEMClus = modClusColls['EM{0}Clusters'.format(modConstKey)]
-    from AthenaCommon.AppMgr import ToolSvc
     # Construct tool and set defaults for case-specific configuration
     if config.objType == 'Ele':
         from ROOT import met
@@ -175,8 +174,8 @@ class METAssocConfig:
 
         self.trkisotool = CompFactory.getComp("xAOD::TrackIsolationTool")("TrackIsolationTool_MET")
         self.trkisotool.TrackSelectionTool = self.trkseltool # As configured above
-	from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg  
-	extrapCfg = AtlasExtrapolatorCfg(inputFlags)
+        from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg  
+        extrapCfg = AtlasExtrapolatorCfg(inputFlags)
         CaloExtensionTool= CompFactory.getComp("Trk::ParticleCaloExtensionTool")(Extrapolator = extrapCfg.popPrivateTools())
         CaloCellAssocTool =  CompFactory.getComp("Rec::ParticleCaloCellAssociationTool")(ParticleCaloExtensionTool = CaloExtensionTool)
         self.caloisotool = CompFactory.getComp("xAOD::CaloIsolationTool")("CaloIsolationTool_MET",

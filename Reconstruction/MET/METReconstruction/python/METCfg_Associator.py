@@ -35,7 +35,7 @@ def METAssociator_Cfg(configFlags):
                    AssocConfig('Soft')]
     cfg_akt4lc = METAssocConfig('AntiKt4LCTopo',
                                 configFlags,
-				associators,
+                                associators,
                                 doPFlow=False,
                                 modConstKey=modConstKey,
                                 modClusColls=modClusColls

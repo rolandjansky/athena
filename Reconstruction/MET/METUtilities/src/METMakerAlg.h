@@ -77,7 +77,7 @@ namespace met {
     SG::ReadHandleKey<xAOD::MissingETContainer>           m_CoreMetKey;
 
     SG::WriteHandleKey<xAOD::MissingETContainer> m_metKey;
-    SG::ReadHandle<xAOD::MissingETAssociationMap> m_metMap;
+    SG::ReadHandleKey<xAOD::MissingETAssociationMap> m_metMapKey;
 
 
     bool m_doTruthLep;

@@ -145,7 +145,7 @@ class METConfig:
         print prefix, 'Setting up builders for MET config '+self.suffix
         for config in buildconfigs:
             if config.objType in self.builders:
-                print prefix, 'Config '+self.suffix+' already contains a builder of type '+config.objType
+                print( prefix, 'Config '+self.suffix+' already contains a builder of type '+config.objType)
                 raise LookupError
             else:
                 builder = getBuilder(config,self.suffix,self.doTracks,self.doCells,
