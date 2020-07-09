@@ -108,25 +108,23 @@ StatusCode RoRSeqFilter::execute(const EventContext& ctx) const {
     ATH_MSG_DEBUG( "Recording " <<  m_outputKeys[ 0 ].key() ); 
     createAndStore(outputHandles[0]);
     DecisionContainer* output = outputHandles[0].ptr();
-    for ( auto inputKey: m_inputKeys ) {
-      auto inputHandle = SG::makeHandle( inputKey, ctx );
-      if( inputHandle.isValid() )
+    for ( auto inputHandle: inputHandles) {
+      if( inputHandle.isValid() ) {
         passCounter += copyPassing( *inputHandle,  *output );
+      }
     }
     outputIndex++;
 
   } else { // Not merging inputs
 
-    for ( auto inputKey: m_inputKeys ) {
-      // already made handles, so this code could be simplified to a loop over inputHandles.
-      auto inputHandle = SG::makeHandle( inputKey, ctx );
+    for ( auto inputHandle: inputHandles ) {
 
       if( not inputHandle.isValid() ) {
-        ATH_MSG_DEBUG( "InputHandle "<< inputKey.key() <<" not present" );
+        ATH_MSG_DEBUG( "InputHandle "<< inputHandle.key() <<" not present" );
       } else if ( inputHandle->empty() ) {
-        ATH_MSG_DEBUG( "InputHandle "<< inputKey.key() <<" contains all rejected decisions, skipping" );
+        ATH_MSG_DEBUG( "InputHandle "<< inputHandle.key() <<" contains all rejected decisions, skipping" );
       } else {
-        ATH_MSG_DEBUG( "Checking inputHandle: "<< inputKey.key() <<" has " << inputHandle->size() <<" elements");
+        ATH_MSG_DEBUG( "Checking inputHandle: "<< inputHandle.key() <<" has " << inputHandle->size() <<" elements");
         createAndStore(outputHandles[outputIndex]);
         DecisionContainer* output = outputHandles[outputIndex].ptr();
         passCounter += copyPassing( *inputHandle, *output );  
@@ -134,7 +132,6 @@ StatusCode RoRSeqFilter::execute(const EventContext& ctx) const {
       }
       outputIndex++; // Keep the mapping of inputKey<->outputKey correct
     }
-
   }
 
   setFilterPassed( passCounter != 0 );
