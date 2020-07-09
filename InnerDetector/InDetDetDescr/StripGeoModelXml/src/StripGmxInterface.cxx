@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StripGeoModelXml/StripGmxInterface.h"
@@ -7,12 +7,7 @@
 #include <cstdlib>
 #include <sstream>
 
-//#define CANNOT_DEPEND_ON_INDETSIMEVENT
-//#ifdef CANNOT_DEPEND_ON_INDETSIMEVENT
-#include "StripGeoModelXml/SiHitIdGmx.h"
-//#else
-//#include "InDetSimEvent/SiHitIdHelper.h"
-//#endif
+#include "InDetSimEvent/SiHitIdHelper.h"
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IMessageSvc.h"
@@ -35,7 +30,7 @@ StripGmxInterface::StripGmxInterface(InDetDD::SCT_DetectorManager *detectorManag
     m_commonItems(commonItems),
     m_waferTree(waferTree) {
     // Logging: ref https://wiki.bnl.gov/dayabay/index.php?title=Logging
-    // Turn on logging in job-options with: MessageSvc.setDebug += {"SCT_GmxInterface"}
+    // Turn on logging in job-options with: MessageSvc.setDebug += {"StripGmxInterface"}
     ServiceHandle<IMessageSvc> msgh("MessageSvc", "StripGmxInterface");
 
     m_log = new MsgStream(&(*msgh), "StripGmxInterface");
@@ -48,18 +43,7 @@ StripGmxInterface::~StripGmxInterface() {
 int StripGmxInterface::sensorId(map<string, int> &index) {
 //
 //    Return the Simulation HitID (nothing to do with "ATLAS Identifiers" aka "Offline Identifiers"
-//
-//#ifdef CANNOT_DEPEND_ON_INDETSIMEVENT
-    const SiHitIdGmx id(SCT_HitIndex, index["barrel_endcap"], index["layer_wheel"], index["eta_module"], index["phi_module"], 
-                        index["side"]);
-    *m_log << MSG::DEBUG  << "Index list: " << index["barrel_endcap"] << " " << index["layer_wheel"] << " " << 
-                                       index["eta_module"] << " " << index["phi_module"] << " " << index["side"] << endmsg;
-    *m_log << MSG::DEBUG << "hitIdOfWafer = " << std::hex << id.id() << std::dec << endmsg;
-    *m_log << MSG::DEBUG << "\n" << id.print() << endmsg;
-
-    return id.id(); 
-    //#else
-    /*
+    
     int hitIdOfWafer = SiHitIdHelper::GetHelper()->buildHitId(SCT_HitIndex, index["barrel_endcap"], index["layer_wheel"], 
                                                               index["eta_module"], index["phi_module"], index["side"]);
 
@@ -72,19 +56,7 @@ int StripGmxInterface::sensorId(map<string, int> &index) {
                                       " phi = " << SiHitIdHelper::GetHelper()->getPhiModule(hitIdOfWafer) << 
                                       " side = " << SiHitIdHelper::GetHelper()->getSide(hitIdOfWafer) << endmsg; 
     return hitIdOfWafer;
-    */
-    //#endif
-
-/* Not offline compact id's:
-    const SCT_ID *sctIdHelper = dynamic_cast<const SCT_ID *> (m_commonItems->getIdHelper());
-    Identifier id = sctIdHelper->wafer_id(index["barrel_endcap"], index["layer_wheel"], index["phi_module"], 
-                                          index["eta_module"], index["side"]);
-    return id.get_identifier32().get_compact();
-*/
-/* Not hashes:
-    IdentifierHash hashId = sctIdHelper->wafer_hash(id);
-    return hashId;
-*/
+    
 }
 
 
@@ -185,16 +157,18 @@ double length(25.0);
 //
 //    Make Sensor Design and add to DetectorManager
 //
-    //   ADA   const InDetDD::StripBoxDesign *design = new InDetDD::StripBoxDesign(stripDirection, fieldDirection, thickness, readoutSide,
-    //   ADA                                                                       carrier, nRows, nStrips, pitch, length);
+//   ADA    const InDetDD::StripBoxDesign *design = new InDetDD::StripBoxDesign(stripDirection, fieldDirection, thickness, readoutSide,
+//   ADA                                                                        carrier, nRows, nStrips, pitch, length);
     std::unique_ptr<InDetDD::StripBoxDesign> design=std::make_unique<InDetDD::StripBoxDesign>(stripDirection, fieldDirection,
-									thickness, readoutSide,carrier, nRows, nStrips, pitch, 
-									length);
-    //   ADA   m_detectorManager->addDesign(dynamic_cast<const InDetDD::SiDetectorDesign*> (design));
+                                                                        thickness, readoutSide,carrier, nRows, nStrips, pitch,
+                                                                        length);
+
+//   ADA    m_detectorManager->addDesign(dynamic_cast<const InDetDD::SiDetectorDesign*> (design));
     m_detectorManager->addDesign(std::move(design));
 //
 //    Add to map for addSensor routine
 //
+//   ADA    m_geometryMap[typeName] = design;
     m_geometryMap[typeName] = design.get();
 }
 
@@ -304,15 +278,16 @@ vector<double> endR;
 //
 //    Make Sensor Design and add it to the DetectorManager
 //
-    //   ADA   const InDetDD::StripStereoAnnulusDesign *design = new InDetDD::StripStereoAnnulusDesign(stripDirection, fieldDirection,
-    //   ADA     thickness, readoutSide, carrier, nRows, nStrips, phiPitch, startR, endR, stereoAngle, centreR); 
+//   ADA    const InDetDD::StripStereoAnnulusDesign *design = new InDetDD::StripStereoAnnulusDesign(stripDirection, fieldDirection,
+//   ADA     thickness, readoutSide, carrier, nRows, nStrips, phiPitch, startR, endR, stereoAngle, centreR); 
     std::unique_ptr<InDetDD::StripStereoAnnulusDesign> design=std::make_unique<InDetDD::StripStereoAnnulusDesign>(stripDirection,
-	fieldDirection,thickness, readoutSide, carrier, nRows, nStrips, phiPitch, startR, endR, stereoAngle, centreR); 
-    //   ADA   m_detectorManager->addDesign(dynamic_cast <const InDetDD::SiDetectorDesign*> (design));
+        fieldDirection,thickness, readoutSide, carrier, nRows, nStrips, phiPitch, startR, endR, stereoAngle, centreR);
+//   ADA    m_detectorManager->addDesign(dynamic_cast <const InDetDD::SiDetectorDesign*> (design));
     m_detectorManager->addDesign(std::move(design));
 //
 //    Add to map for addSensor routine
 //
+//   ADA    m_geometryMap[typeName] = design;
     m_geometryMap[typeName] = design.get();
 }
 

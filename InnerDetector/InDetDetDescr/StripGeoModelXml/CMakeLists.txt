@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
                           InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
+                          InnerDetector/InDetSimEvent
                           PRIVATE
                           Control/CLIDSvc
                           Control/SGTools
@@ -37,7 +38,7 @@ atlas_add_library( StripGeoModelXmlLib
                    src/*.cxx
                    PUBLIC_HEADERS StripGeoModelXml
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} 
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaKernel GeoModelXml GeoModelUtilities GaudiKernel InDetGeoModelUtils InDetReadoutGeometry SCT_ReadoutGeometry SCT_ReadoutGeometry StoreGateLib SGtests
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaKernel GeoModelXml GeoModelUtilities GaudiKernel InDetGeoModelUtils InDetReadoutGeometry SCT_ReadoutGeometry SCT_ReadoutGeometry StoreGateLib InDetSimEvent
                    PRIVATE_LINK_LIBRARIES SGTools AthenaPoolUtilities DetDescrConditions Identifier InDetIdentifier PathResolver)
 
 atlas_add_component( StripGeoModelXml

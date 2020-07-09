@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StripGeoModelXml/StripDetectorFactory.h"
@@ -50,8 +50,7 @@ StripDetectorFactory::StripDetectorFactory(InDetDD::AthenaComps *athenaComps,
 //
 //   Set Detector Manager SCT version information
 //
-    //   ADA   DecodeVersionKey versionKey(geoModelSvc(), "SCT");
-    DecodeVersionKey versionKey(geoDbTagSvc(),"SCT");
+    DecodeVersionKey versionKey(geoDbTagSvc(), "SCT");
     IRDBRecordset_ptr switchSet = rdbAccessSvc()->getRecordsetPtr("SctSwitches", versionKey.tag(), versionKey.node());
     const IRDBRecord *switches = (*switchSet)[0];
     string layout = "SLHC";
@@ -62,7 +61,6 @@ StripDetectorFactory::StripDetectorFactory(InDetDD::AthenaComps *athenaComps,
     if (!switches->isFieldNull("DESCRIPTION")) {
         description = switches->getString("DESCRIPTION");
     }
-    //   ADA   string versionTag = rdbAccessSvc()->getChildTag("SCT", versionKey.tag(), versionKey.node(), false);
     string versionTag = rdbAccessSvc()->getChildTag("SCT", versionKey.tag(), versionKey.node());
     string versionName = switches->getString("VERSIONNAME");
     int versionMajorNumber = 0;
@@ -119,9 +117,11 @@ void StripDetectorFactory::create(GeoPhysVol *world) {
 //   Add the tree-top to the detector manager. This also makes it appear as SCT in VP1.
 //   It is probably the last (most recently added) thing in the world PV so loop from the
 //   back looking for our subdetector name.
+   
 //
     unsigned int nChildren = world->getNChildVols();
-    for (int iChild = nChildren - 1; iChild; --iChild) {
+
+    for (int iChild = nChildren - 1; iChild>=0; --iChild) {
         if (world->getNameOfChildVol(iChild) == "SCT") {
             // The * converts from a ConstPVLink to a reference to a GeoVPhysVol;
             // the & takes its address.
@@ -137,15 +137,14 @@ void StripDetectorFactory::create(GeoPhysVol *world) {
 }
 
 string StripDetectorFactory::getBlob() {
-    //   ADA   DecodeVersionKey versionKey(geoModelSvc(), "SCT");
-    DecodeVersionKey versionKey(geoDbTagSvc(),"SCT");
+    DecodeVersionKey versionKey(geoDbTagSvc(), "SCT");
     std::string versionTag  = versionKey.tag();
     std::string versionNode = versionKey.node();
     msg(MSG::INFO) << "getBlob: versionTag = " << versionTag << endmsg;
     msg(MSG::INFO) << "getBlob: versionNode = " << versionNode << endmsg;
 
     IRDBAccessSvc *accessSvc = m_athenaComps->rdbAccessSvc();
-    //   ADA   const IRDBRecordset *recordSetSct = accessSvc->getRecordset("ITKXDD", versionTag, versionNode);
+    //   ADA  accessSvc->connect();
     IRDBRecordset_ptr recordSetSct = accessSvc->getRecordsetPtr("ITKXDD", versionTag, versionNode);
     if (!recordSetSct || recordSetSct->size() == 0) {
         msg(MSG::FATAL) << "getBlob: Unable to obtain SCT recordSet" << endmsg;
@@ -153,7 +152,7 @@ string StripDetectorFactory::getBlob() {
     }
     const IRDBRecord *recordSct =  (*recordSetSct)[0];
     string sctString = recordSct->getString("XMLCLOB");
-    //  accessSvc->shutdown();
+    //   ADA  accessSvc->disconnect();
 
     return sctString;
 }
@@ -165,7 +164,7 @@ InDetDD::SCT_DetectorManager * StripDetectorFactory::getDetectorManager() const 
 void StripDetectorFactory::doNumerology() {
     InDetDD::SiNumerology n;
 
-    msg(MSG::INFO) << "\n\nStrip Numerology:\n===============\n\nNumber of parts is " << m_waferTree.nParts() << endl << endl;
+    msg(MSG::INFO) << "\n\nSCT Numerology:\n===============\n\nNumber of parts is " << m_waferTree.nParts() << endl << endl;
 
     bool barrelDone = false;
     for (int b = -1; b <= 1; ++b) {
@@ -287,8 +286,8 @@ void StripDetectorFactory::doNumerology() {
         break;
         // To be added: case InDetDD::timedependent_run2:, see SCT_GeoModel
         default:
-            msg(MSG::FATAL) << "Alignment requested for unknown alignment folder type in SCT_DetectorFactory." << endmsg;
-            throw std::runtime_error("Wrong alignment folder type for SCT_DetectorFactory in StripGeoModelXml.");
+            msg(MSG::FATAL) << "Alignment requested for unknown alignment folder type in StripDetectorFactory." << endmsg;
+            throw std::runtime_error("Wrong alignment folder type for StripDetectorFactory in StripGeoModelXml.");
         }
     }
 

@@ -8,7 +8,7 @@
 #include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetGeoModelUtils/InDetDDAthenaComps.h"
 #include "InDetReadoutGeometry/SiCommonItems.h"
-//  ADA   #include "InDetCondServices/ISiLorentzAngleSvc.h"
+//   ADA   #include "InDetCondServices/ISiLorentzAngleSvc.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
@@ -40,7 +40,7 @@ StripDetectorTool::StripDetectorTool(const std::string &type,
     m_rdbAccessSvc("RDBAccessSvc", name),
     m_geometryDBSvc("InDetGeometryDBSvc", name),
     m_geoDbTagSvc{"GeoDbTagSvc", name}
-    //   ADA    m_lorentzAngleSvc("SCTLorentzAngleSvc", name) 
+    //   ADA   m_lorentzAngleSvc("SCTLorentzAngleSvc", name) 
     {
 //
 // Get parameter values from jobOptions file
@@ -99,13 +99,12 @@ StatusCode StripDetectorTool::create() {
 //
     m_athenaComps = new InDetDD::AthenaComps("StripGeoModelXml");
     m_athenaComps->setDetStore(&*(detStore()));
-    //   ADA   following line commented out as there is no method anymore to store GeoModelSvc
     //   ADA   m_athenaComps->setGeoModelSvc(&*m_geoModelSvc);
     m_athenaComps->setRDBAccessSvc(&*m_rdbAccessSvc);
     m_athenaComps->setGeometryDBSvc(&*m_geometryDBSvc);
 
     m_commonItems = new InDetDD::SiCommonItems(idHelper);
-    //   ADA   m_commonItems->setLorentzAngleSvc(m_lorentzAngleSvc);
+    //   ADA  m_commonItems->setLorentzAngleSvc(m_lorentzAngleSvc);
 //
 //    Get options from python
 //
@@ -115,8 +114,7 @@ StatusCode StripDetectorTool::create() {
 //
 //   Get the version
 //
-    //   ADA   DecodeVersionKey versionKey(&*m_geoModelSvc, "SCT");
-    DecodeVersionKey versionKey(&*m_geoDbTagSvc,"SCT");
+    DecodeVersionKey versionKey(&*m_geoModelSvc, "SCT");
     if (versionKey.tag() == "AUTO"){
         msg(MSG::ERROR) << "Atlas version tag is AUTO. You must set a version-tag like ATLAS_P2_ITK-00-00-00." << endmsg;
         return StatusCode::FAILURE;
@@ -176,18 +174,18 @@ StatusCode StripDetectorTool::create() {
 //    And retrieve the LorentzAngleService. Has to be after the symLink just made,
 //    which has to be after the manager is made by the DetectorFactory.
 //
-/*   ADA    if (m_lorentzAngleSvc.empty()) {
-        msg(MSG::INFO) << "Lorentz angle service not requested." << endmsg;
-    }
-    else {
-        sc = m_lorentzAngleSvc.retrieve();
-        if (sc.isFailure()) {
-            msg(MSG::INFO) << "Could not retrieve Lorentz angle service:" <<  m_lorentzAngleSvc << endmsg;
-        }
-        else {
-            msg(MSG::INFO) << "Lorentz angle service retrieved: " << m_lorentzAngleSvc << endmsg;
-        }
-    }   */
+//    if (m_lorentzAngleSvc.empty()) {
+//        msg(MSG::INFO) << "Lorentz angle service not requested." << endmsg;
+//    }
+//    else {
+//        sc = m_lorentzAngleSvc.retrieve();
+//        if (sc.isFailure()) {
+//            msg(MSG::INFO) << "Could not retrieve Lorentz angle service:" <<  m_lorentzAngleSvc << endmsg;
+//        }
+//        else {
+//            msg(MSG::INFO) << "Lorentz angle service retrieved: " << m_lorentzAngleSvc << endmsg;
+//        }
+//    }
 
     return StatusCode::SUCCESS;
 }
