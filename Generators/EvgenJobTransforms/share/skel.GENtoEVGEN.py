@@ -347,47 +347,25 @@ else:
     evgenLog.info(' nEventsPerJob set to ' + str(evgenConfig.nEventsPerJob)  )
 
 if evgenConfig.minevents > 0 :
-    raise RunTimeError("evgenConfig.minevents is obsolete and should be removed from the JOs")
+    raise RuntimeError("evgenConfig.minevents is obsolete and should be removed from the JOs")
 
 if evgenConfig.nEventsPerJob < 1:
-    raise RunTimeError("evgenConfig.nEventsPerJob must be at least 1")
-elif evgenConfig.nEventsPerJob > 20000:
-    raise RunTimeError("evgenConfig.nEventsPerJob can be max. 20000")
+    raise RuntimeError("evgenConfig.nEventsPerJob must be at least 1")
+elif evgenConfig.nEventsPerJob > 100000:
+    raise RuntimeError("evgenConfig.nEventsPerJob can be max. 100000")
 else:
     allowed_nEventsPerJob_lt1000 = [1, 2, 5, 10, 20, 25, 50, 100, 200, 500, 1000]
     msg = "evgenConfig.nEventsPerJob = %d: " % evgenConfig.nEventsPerJob
-# introduced due to PRODSYS-788, commented out on 06.07.18 obo Dominic
-#    if multiInput !=0 :
-#        dummy_nEventsPerJob = evgenConfig.nEventsPerJob*(multiInput)
-#        evgenLog.info('Replacing input nEventsPerJob '+str(evgenConfig.nEventsPerJob)+' with calculated '+str(dummy_nEventsPerJob))
-#        evgenConfig.nEventsPerJob = dummy_nEventsPerJob
 
-    if evgenConfig.nEventsPerJob >= 1000 and evgenConfig.nEventsPerJob % 1000 != 0 and 10000 % evgenConfig.nEventsPerJob != 0 :
-# introduced due to PRODSYS-788, commented out on 06.07.18 obo Dominic
-#        rest1000 = evgenConfig.nEventsPerJob % 1000
-#        if multiInput !=0 :
-#            rounding=1
-#            if rest1000 < 1000-rest1000:
-#                evgenLog.info('Replacing nEventsPerJob '+str(evgenConfig.nEventsPerJob)+' with roundeded '+str(evgenConfig.nEventsPerJob-rest1000))
-#                evgenConfig.nEventsPerJob = evgenConfig.nEventsPerJob-rest1000
-#            else:
-#                evgenLog.info('Replacing input nEventsPerJob '+str(evgenConfig.nEventsPerJob)+' with calculated '+str(evgenConfig.nEventsPerJob-rest1000+1000))
-#                evgenConfig.nEventsPerJob = evgenConfig.nEventsPerJob-rest1000+1000
-#        else:    
-           msg += "nEventsPerJob in range >= 1K must be a multiple of 1K and a divisor of 10K"
+    if evgenConfig.nEventsPerJob >= 1000 and evgenConfig.nEventsPerJob <=10000 and (evgenConfig.nEventsPerJob % 1000 != 0 or 10000 % evgenConfig.nEventsPerJob != 0) :
+           msg += "nEventsPerJob in range [1K, 10K] must be a multiple of 1K and a divisor of 10K"
+           raise RuntimeError(msg)
+    elif evgenConfig.nEventsPerJob > 10000  and evgenConfig.nEventsPerJob % 10000 != 0:
+           msg += "nEventsPerJob >10K must be a multiple of 10K"
            raise RuntimeError(msg)
     elif evgenConfig.nEventsPerJob < 1000 and evgenConfig.nEventsPerJob not in allowed_nEventsPerJob_lt1000:
-# introduced due to PRODSYS-788, commented out on 06.07.18 obo Dominic
-#        if multiInput !=0:
-#           rounding=1
-#           round_nEventsPerJob=min(allowed_nEventsPerJob_lt1000,key=lambda x:abs(x-evgenConfig.nEventsPerJob))
-#           evgenLog.info('Replacing nEventsPerJob lt 1000 '+str(evgenConfig.nEventsPerJob)+' with rounded '+str(round_nEventsPerJob))
-#           evgenConfig.nEventsPerJob=round_nEventsPerJob
-#        else:
            msg += "nEventsPerJob in range <= 1000 must be one of %s" % allowed_nEventsPerJob_lt1000
            raise RuntimeError(msg)
-#    else:
-#    postSeq.CountHepMC.RequestedOutput = evgenConfig.nEventsPerJob if runArgs.maxEvents == -1 or rounding==1 else runArgs.maxEvents
     postSeq.CountHepMC.RequestedOutput = evgenConfig.nEventsPerJob if runArgs.maxEvents == -1  else runArgs.maxEvents
     evgenLog.info('Requested output events '+str(postSeq.CountHepMC.RequestedOutput))
 
