@@ -41,11 +41,12 @@ primary_bphys = [
 
 if TriggerFlags.EDMDecodingVersion == 3 :
   monitoring_bphys = [
-                      'HLT_2mu10_bJpsimumu_L12MU10',
-                      'HLT_2mu10_bUpsimumu_L12MU10',
+                      'HLT_2mu4_bJpsimumu_L12MU4',
+                      'HLT_2mu4_bUpsimumu_L12MU4',
+                      'HLT_2mu4_bDimu_L12MU4',
                      ]
   primary_bphys = [
-                    'HLT_2mu10_bJpsimumu_L12MU10',
+                    'HLT_2mu4_bDimu_L12MU4',
                   ]
 
 primary_bphys_pp = primary_bphys
