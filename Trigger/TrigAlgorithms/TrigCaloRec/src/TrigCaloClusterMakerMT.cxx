@@ -251,9 +251,9 @@ StatusCode TrigCaloClusterMakerMT::execute(const EventContext& ctx) const
   for (const ToolHandle<CaloClusterProcessor>& clcorr : m_clusterCorrections) {
 
     for (xAOD::CaloCluster* cl : *pCaloClusterContainer) {
-      if (!m_isSW
-          || std::abs(cl->eta0()) < 1.45  && clcorr->name().find("37") != std::string::npos
-          || std::abs(cl->eta0()) >= 1.45 && clcorr->name().find("55") != std::string::npos) {
+      if (!m_isSW ||
+          (std::abs(cl->eta0()) < 1.45  && clcorr->name().find("37") != std::string::npos) ||
+          (std::abs(cl->eta0()) >= 1.45 && clcorr->name().find("55") != std::string::npos) ) {
         ATH_CHECK(clcorr->execute(ctx, cl) );
         ATH_MSG_VERBOSE("Executed correction tool " << clcorr->name());
       }
