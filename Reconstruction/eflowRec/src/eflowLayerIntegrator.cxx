@@ -197,6 +197,10 @@ void eflowLayerIntegrator::measureCluster(const xAOD::CaloCluster* clus, const e
 void eflowLayerIntegrator::measureCell(const CaloCell* cell, const eflowTrackCaloPoints& trackCalo) {
   const CaloDetDescrElement* caloDetDescrElement = cell->caloDDE();
   if (!caloDetDescrElement) return;
+  //very rarely a calorimeter cell has zero volume - in such cases one cannot calculate an energy fensity.
+  //This is expected to happen for certain cells, for example presampler barrel or some tile gap cells.
+  //See https://its.cern.ch/jira/browse/ATR-20919 for discussion of this bug.
+  if ( caloDetDescrElement->volume() < 1e-6 ) return;
 
   eflowCaloENUM layer = eflowCalo::translateSampl(caloDetDescrElement->getSampling());
   if (eflowCalo::Unknown == layer) { return; }
@@ -220,7 +224,6 @@ void eflowLayerIntegrator::measureCell(const CaloCell* cell, const eflowTrackCal
     eflowRange etaRange(dEta - etaWidth/2.0, dEta + etaWidth/2.0);
     eflowRange phiRange(dPhi - phiWidth/2.0, dPhi+phiWidth/2.0);
 
-//    const double weight = m_integrator->integrate(etaRange, phiRange);
     const double weight     = m_integratorLookup->integrate(etaRange, phiRange);
 
     m_singleClusterIntegral[layer] += weight * cell->energy() / caloDetDescrElement->volume();

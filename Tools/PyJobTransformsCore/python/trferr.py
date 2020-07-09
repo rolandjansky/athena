@@ -14,7 +14,6 @@ __all__ = [ 'TransformError', 'TransformDefinitionError', 'TransformArgumentErro
 import re
 import os
 from PyJobTransformsCore import fileutil, trfconsts, AtlasErrorCodes, VTimer
-from PyJobTransformsCore.envutil import find_library, examine_library, find_in_stack
 from PyJobTransformsCore.TransformLogger import TransformLogger
 from AthenaCommon.Include import IncludeError
 
@@ -40,6 +39,8 @@ _shLibREs = [ re.compile(r'[cC]ould not load module ' + _libraryRE),
 
 def examineLoadLibrary(lib):
     """Return tuple (acronym,diagnosis) for library <lib>"""
+    from PyJobTransformsCore.envutil import examine_library
+
     # turn module name into library name
     if not lib.startswith('lib') and not lib.endswith('.so'):
         lib = 'lib' + lib + '.so'
@@ -554,7 +555,8 @@ class TransformErrorHandler(TransformLogger):
     def handleDllLoadError(self,e):
         # try to find the guilty one
         import subprocess
-        from PyJobTransformsCore.trfutil import TRACEBACK_TEXT
+        from PyJobTransformsCore.trfutil import TRACEBACK_TEXT, find_in_stack
+        from PyJobTransformsCore.envutil import find_library
 
         mess = None
         diag = None

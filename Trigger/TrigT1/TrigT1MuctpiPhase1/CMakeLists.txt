@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PhysicsAnalysis/AnalysisTrigger/AnalysisTriggerEvent
                           Tools/PathResolver
                           Control/CxxUtils
+                          Event/xAOD/xAODTrigger
                           Trigger/TrigConfiguration/TrigConfInterfaces
                           Trigger/TrigConfiguration/TrigConfL1Data
                           Trigger/TrigConfiguration/TrigConfMuctpi
@@ -28,7 +29,7 @@ atlas_add_component( TrigT1MuctpiPhase1
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${XERCESC_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel AnalysisTriggerEvent PathResolver TrigConfL1Data TrigConfMuctpi TrigT1Interfaces TrigT1Result )
+                     LINK_LIBRARIES ${XERCESC_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel AnalysisTriggerEvent PathResolver TrigConfL1Data TrigConfMuctpi TrigT1Interfaces TrigT1Result xAODTrigger )
 
 # Install files from the package:
 atlas_install_headers( TrigT1MuctpiPhase1 )

@@ -151,6 +151,14 @@ bool FixHepMC::isLoop(const HepMC::GenParticlePtr p) {
   if (p->production_vertex() == p->end_vertex() && p->end_vertex() != NULL) return true;
   if (m_loopByBC && p->production_vertex()) {
     /// @todo Use new particle MC::parents(...) tool
+#ifdef HEPMC3
+    for (auto itrParent: p->production_vertex()->particles_out()) {
+      if ( HepMC::barcode(itrParent) > HepMC::barcode(p) ) {
+        ATH_MSG_VERBOSE("Found a loop (a la Sherpa sample) via barcode.");
+        return true; // Cannot vectorize, but this is a pretty short loop
+      } // Check on barcodes
+    } // Loop over parent particles
+#else
     for (HepMC::GenVertex::particle_iterator itrParent = p->production_vertex()->particles_begin(HepMC::parents);
          itrParent != p->production_vertex()->particles_end(HepMC::parents); ++itrParent) {
       if ( (*itrParent)->barcode() > p->barcode() ) {
@@ -158,6 +166,7 @@ bool FixHepMC::isLoop(const HepMC::GenParticlePtr p) {
         return true; // Cannot vectorize, but this is a pretty short loop
       } // Check on barcodes
     } // Loop over parent particles
+#endif
   } // Has a production vertex
   return false;
 }

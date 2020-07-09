@@ -8,6 +8,6 @@ StreamAllP           INFO Found HelperTools = PrivateToolHandleArray(['MakeEvent
 StreamAllP           INFO Data output: AthenaPoolMultiTest_Propagate.root
 StreamAllP           INFO I/O reinitialization...
 StorageSvc           INFO EventStreamInfo_p3 [11DF1B8C-0DEE-4687-80D7-E74B520ACBB4]
-StreamAllP           INFO Records written: 21
+StreamAllP           INFO Metadata records written: 21
 ItemListSvc         DEBUG STREAM StreamAllP has (7) items
 ItemListSvc         DEBUG    - EventStreamInfo_StreamAllP

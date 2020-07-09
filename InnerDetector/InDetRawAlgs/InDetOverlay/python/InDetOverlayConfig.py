@@ -115,6 +115,8 @@ def getTRTSDOOverlay(name="TRTSDOOverlay", **kwargs):
 def getBCMOverlay(name="BCMOverlay", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
+    kwargs.setdefault("isDataOverlay", overlayFlags.isDataOverlay())
+
     if overlayFlags.isOverlayMT():
         kwargs.setdefault("BkgInputKey", overlayFlags.bkgPrefix() + "BCM_RDOs");
         kwargs.setdefault("SignalInputKey", overlayFlags.sigPrefix() + "BCM_RDOs");

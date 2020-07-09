@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "OraclePixGeoManager.h"
@@ -74,12 +74,12 @@ OraclePixGeoManager::OraclePixGeoManager(const PixelGeoModelAthenaComps * athena
 }
 
 void
-OraclePixGeoManager::init()
+OraclePixGeoManager::init ATLAS_NOT_THREAD_SAFE () // Thread unsafe InDetDD::AthenaComps::rdbAccessSvc method is used.
 {
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Using ORACLE PIXEL GEOMETRY MANAGER" << endmsg;
 
   IRDBAccessSvc *rdbSvc = athenaComps()->rdbAccessSvc();
-  IGeoDbTagSvc *geoDbTag = athenaComps()->geoDbTagSvc();
+  const IGeoDbTagSvc *geoDbTag = athenaComps()->geoDbTagSvc();
 
   // Get version tag and node for Pixel.
   DecodeVersionKey versionKey(geoDbTag,"Pixel");
@@ -222,7 +222,7 @@ InDetMaterialManager* OraclePixGeoManager::getMaterialManager()
   return m_pMatMgr;
 }
 
-PixelLegacyManager * OraclePixGeoManager::legacyManager() const
+PixelLegacyManager * OraclePixGeoManager::legacyManager ATLAS_NOT_THREAD_SAFE () const // const method returns non-const pointer.
 {
   return m_legacyManager;
 }
@@ -244,7 +244,7 @@ OraclePixGeoManager::~OraclePixGeoManager()
 
 
 InDetDD::SiCommonItems * 
-OraclePixGeoManager::commonItems() const
+OraclePixGeoManager::commonItems ATLAS_NOT_THREAD_SAFE () const // const method returns non-const pointer.
 {
   return m_commonItems;
 }
@@ -415,7 +415,7 @@ bool OraclePixGeoManager::Alignable() const {
 }
 
 
-PixelDetectorManager* OraclePixGeoManager::GetPixelDDManager() {
+PixelDetectorManager* OraclePixGeoManager::GetPixelDDManager ATLAS_NOT_THREAD_SAFE () { // Thread unsafe InDetDD::AthenaComps::detStore method is used.
   if(m_pDDmgr == NULL) {
     //
     // retrieve the pointer to the DD manager

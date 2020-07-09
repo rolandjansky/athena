@@ -30,6 +30,8 @@
 #include "MuonRecToolInterfaces/IMuonHitSummaryTool.h"
 
 #include <vector>
+#include <atomic>
+
 class TTree;
 class TFile;
 class IIncidentSvc;
@@ -55,30 +57,30 @@ namespace Muon {
     virtual StatusCode initialize() override;
     
     /** add a new TrackParticle with it's muon system extension */
-    bool addTrackParticle(  const xAOD::TrackParticle& indetTrackParticle, const MuonSystemExtension& muonSystemExtention ) override;
+    bool addTrackParticle(  const xAOD::TrackParticle& indetTrackParticle, const MuonSystemExtension& muonSystemExtention ) const override;
 
     /** add a new segment */
-    bool add( const MuonSystemExtension::Intersection& intersection, const MuonSegment& segment, int stage ) override;
+    bool add( const MuonSystemExtension::Intersection& intersection, const MuonSegment& segment, int stage ) const override;
 
     /** add a new hough maximum */
-    bool add( const MuonSystemExtension::Intersection& intersection, const MuonHough::MuonLayerHough::Maximum& maximum ) override;
+    bool add( const MuonSystemExtension::Intersection& intersection, const MuonHough::MuonLayerHough::Maximum& maximum ) const override;
 
     /** add a new prd */
-    bool add( const MuonSystemExtension::Intersection& intersection, const Trk::PrepRawData& prd, float expos, float expos_err ) override;
+    bool add( const MuonSystemExtension::Intersection& intersection, const Trk::PrepRawData& prd, float expos, float expos_err ) const override;
 
     /** add a new time measurement */
-    bool addTimeMeasurement( const MuonSystemExtension::Intersection& intersection, const Trk::MeasurementBase& meas ) override;
+    bool addTimeMeasurement( const MuonSystemExtension::Intersection& intersection, const Trk::MeasurementBase& meas ) const override;
 
     /** add a new time measurement */
     bool addTimeMeasurement( const MuonSystemExtension::Intersection& intersection, const Identifier& id,
-                             const Amg::Vector3D& gpos, float time, float errorTime ) override;
+                             const Amg::Vector3D& gpos, float time, float errorTime ) const override;
 
     /** add StauHits to ntuple */
-    bool addTimeMeasurements( const xAOD::TrackParticle& indetTrackParticle, const MuGirlNS::StauHits& stauHits ) override;
+    bool addTimeMeasurements( const xAOD::TrackParticle& indetTrackParticle, const MuGirlNS::StauHits& stauHits ) const override;
 
     /** add a new muon candidate */
     bool addMuonCandidate( const xAOD::TrackParticle& indetTrackParticle, const MuonCandidate* candidate, 
-                           Trk::Track* combinedTrack, int ntimes, float beta, float chi2ndof, int stage ) override;
+                           Trk::Track* combinedTrack, int ntimes, float beta, float chi2ndof, int stage ) const override;
 
     /**  incident service handle for EndEvent */
     virtual void handle(const Incident& inc) override;
@@ -111,13 +113,14 @@ namespace Muon {
     ToolHandle<IMuonHitTimingTool>         m_hitTimingTool; 
     ServiceHandle< IIncidentSvc >          m_incidentSvc;
 
-    std::vector<const xAOD::TrackParticle*> m_trackParticles;
-    std::map< const Trk::TrackParameters*, unsigned int > m_trackParticleIndexLookup;
+    // the following members are supposed to be used in 1-thread debugging, thus, not in production and not with mutliple threads
+    mutable std::vector<const xAOD::TrackParticle*> m_trackParticles;
+    mutable std::map< const Trk::TrackParameters*, unsigned int > m_trackParticleIndexLookup;
 
-    MuonInsideOutValidationNtuple m_ntuple;
+    mutable MuonInsideOutValidationNtuple m_ntuple;
     TTree* m_tree;
 
-    unsigned int m_candidateCounter;
+    mutable std::atomic<unsigned int> m_candidateCounter;
 
     bool m_isMC;
   };

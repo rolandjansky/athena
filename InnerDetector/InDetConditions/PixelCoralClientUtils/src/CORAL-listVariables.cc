@@ -1,7 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "CxxUtils/checker_macros.h"
 #include "PixelCoralClientUtils/CoralClient.hh"
 #include <string>
 #include <vector>
@@ -40,7 +41,7 @@
   };
 
 
-int main(int argc, char **argv){
+int main ATLAS_NOT_THREAD_SAFE (int argc, char **argv){ // Thread unsafe PixCoralClient class is used.
 
   CAN::SerialNumber_t analysis_id = 0;
   std::vector<std::string> connectivity_name;

@@ -10,6 +10,7 @@ atlas_depends_on_subdirs(
    PUBLIC
    Control/AthenaBaseComps
    Control/AthenaKernel
+   Control/CxxUtils
    Database/RDBAccessSvc
    DetectorDescription/GeoModel/GeoModelInterfaces
    DetectorDescription/GeoModel/GeoModelUtilities
@@ -35,7 +36,7 @@ atlas_add_library( PixelGeoModelLib
    PixelGeoModel/*.h src/*.cxx
    PUBLIC_HEADERS PixelGeoModel
    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-   LINK_LIBRARIES ${EIGEN_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaBaseComps AthenaKernel 
+   LINK_LIBRARIES ${EIGEN_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils
    GeoModelUtilities Identifier GaudiKernel InDetGeoModelUtils
    InDetReadoutGeometry PixelReadoutGeometry
    PRIVATE_LINK_LIBRARIES SGTools StoreGateLib DetDescrConditions

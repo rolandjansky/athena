@@ -97,7 +97,7 @@ public:
 
   /** Returns true if Charged or false if Neutral
    */
-  constexpr bool isCharged () const;
+  constexpr bool isCharged() const;
   /** Returns the charge
    * */
   double charge() const;
@@ -107,7 +107,8 @@ public:
   Amg::Vector2D localPosition() const;
 
   /** Update parameters and covariance.
-   * Uses NVI: Derived classes override the
+   * 
+   * Derived classes override the
    * implementation via updateParametersHelper
    */
   void updateParameters(const AmgVector(DIM) &, AmgSymMatrix(DIM) * = nullptr);
@@ -115,7 +116,8 @@ public:
   /** Update parameters  and covariance , passing covariance by ref. A
    * covariance is created if one does not exist.  Otherwise in place update
    * occurs via assignment.
-   * Uses NVI: Derived classes override the
+   *
+   * Derived classes override the
    * implementation via updateParametersHelper
    */
   void updateParameters(const AmgVector(DIM) &, const AmgSymMatrix(DIM) &);
@@ -123,10 +125,10 @@ public:
   //** equality operator */
   virtual bool operator==(const ParametersBase<DIM, T>&) const;
 
-  /** Test to see if there's a surface there. */
+  /** Test to see if there's a not null surface ptr. */
   virtual bool hasSurface() const = 0;
 
-  /** Access to the Surface method */
+  /** Access to the Surface associated to the Parameters*/
   virtual const Surface& associatedSurface() const = 0;
 
   /** Return the measurement frame - this is needed for alignment, in
@@ -135,12 +137,16 @@ public:
      transform */
   virtual Amg::RotationMatrix3D measurementFrame() const = 0;
 
-  /** Pseudo constructor - avoids excessive type-casting.
+  /** clone method for polymorphic deep copy 
        @return new object copied from the concrete type of this object.*/
   virtual ParametersBase<DIM, T>* clone() const = 0;
 
   /** Return the ParametersType enum */
   virtual ParametersType type() const = 0;
+
+  /** Returns the Surface Type enum for the surface used
+   * to define the derived class*/
+  virtual int surfaceType() const = 0;
 
   /** Dumps relevant information about the track parameters into the ostream */
   virtual MsgStream& dump(MsgStream& out) const;
@@ -168,10 +174,26 @@ protected:
   ParametersBase(const AmgVector(DIM) & parameters,
                  AmgSymMatrix(DIM) * covariance = nullptr);
 
+  /*
+   * Default Move ctor/assignment, private can be used
+   * only by derived classes.
+   */
   ParametersBase(ParametersBase&&) = default;
   ParametersBase& operator=(ParametersBase&&) = default;
 
-  /* Helper to factor in update of parameters*/
+  /*
+   * Default copy ctor/assignment
+   * Deleted due unique_ptr.
+   *
+   * Derived classes can implement them explicitly.
+   * Polymorphic deep copy can happen via the clone
+   * method
+   */
+  ParametersBase(const ParametersBase&) = delete;
+  ParametersBase& operator=(const ParametersBase&) = delete;
+
+  /* Helper implementing the specific per derived class logic for
+   * the update of parameters*/
   virtual void updateParametersHelper(const AmgVector(DIM) &) = 0;
 
   AmgVector(DIM) m_parameters; //!< contains the n parameters

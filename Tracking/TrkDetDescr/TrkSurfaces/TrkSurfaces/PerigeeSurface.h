@@ -128,6 +128,10 @@ public:
   /** Return the surface type */
   virtual SurfaceType type() const override final;
 
+  /** Return the surface type static constexpr */
+  static constexpr SurfaceType staticType() ;
+
+
   /**Return method for transfromation, overwrites the transform() form base
    * class*/
   virtual const Amg::Transform3D& transform() const override;
@@ -157,7 +161,7 @@ public:
      into the global frame. for calculating the global position, a momentum
      direction has to be provided as well, use the appropriate function!
        */
-  virtual const Amg::Vector3D* localToGlobal(
+  const Amg::Vector3D* localToGlobal(
     const LocalParameters& locpos) const;
 
   /** This method is the true local->global transformation.<br>
@@ -166,20 +170,20 @@ public:
       The choice between the two possible canditates is done by the sign of the
      radius
       */
-  virtual const Amg::Vector3D* localToGlobal(const LocalParameters& locpos,
-                                             const Amg::Vector3D& glomom) const;
+  const Amg::Vector3D* localToGlobal(const LocalParameters& locpos,
+                                     const Amg::Vector3D& glomom) const;
 
   /** LocalToGlobal method without dynamic memory allocation */
   virtual void localToGlobal(const Amg::Vector2D& locp,
                              const Amg::Vector3D& mom,
-                             Amg::Vector3D& glob) const override;
+                             Amg::Vector3D& glob) const override final;
 
   /** GlobalToLocal method without dynamic memory allocation - boolean checks if
      on surface \image html SignOfDriftCircleD0.gif
   */
   virtual bool globalToLocal(const Amg::Vector3D& glob,
                              const Amg::Vector3D& mom,
-                             Amg::Vector2D& loc) const override;
+                             Amg::Vector2D& loc) const override final;
 
   /** fast straight line intersection schema - standard: provides closest
      intersection and (signed) path length forceDir is to provide the closest
@@ -215,18 +219,18 @@ public:
     const Amg::Vector3D& pos,
     const Amg::Vector3D& dir,
     bool forceDir = false,
-    Trk::BoundaryCheck bchk = false) const override;
+    Trk::BoundaryCheck bchk = false) const override final;
 
   /** fast straight line distance evaluation to Surface */
   virtual DistanceSolution straightLineDistanceEstimate(
     const Amg::Vector3D& pos,
-    const Amg::Vector3D& dir) const override;
+    const Amg::Vector3D& dir) const override final;
 
   /** fast straight line distance evaluation to Surface - with bound option*/
   virtual DistanceSolution straightLineDistanceEstimate(
     const Amg::Vector3D& pos,
     const Amg::Vector3D& dir,
-    bool Bound) const override;
+    bool Bound) const override final;
 
   /** the pathCorrection for derived classes with thickness */
   virtual double pathCorrection(const Amg::Vector3D&,

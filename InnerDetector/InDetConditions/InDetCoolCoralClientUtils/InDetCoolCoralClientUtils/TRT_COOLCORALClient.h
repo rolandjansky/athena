@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_COOLCORALCLIENT_H
@@ -11,7 +11,7 @@
 #include <vector>                       // for vector
 #include "CoolCoralClient.h"            // for COOLCORALClient
 
-class TRT_COOLCORALClient : private COOLCORALClient {
+class ATLAS_NOT_THREAD_SAFE TRT_COOLCORALClient : private COOLCORALClient { // Thread unsafe coral::AttributeList is used.
 
  public:
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELSTAVESUPPORT_H
@@ -11,10 +11,10 @@
 #include "GeoModelKernel/GeoSimplePolygonBrep.h"
 #include "GeoModelKernel/GeoTransform.h"
 
-class GeoPixelStaveSupport :  public GeoVPixelFactory {
+class ATLAS_NOT_THREAD_SAFE GeoPixelStaveSupport :  public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
 
 public:  
-  virtual GeoVPhysVol* getPhysVol() const = 0;
+  virtual GeoVPhysVol* getPhysVol ATLAS_NOT_THREAD_SAFE () const = 0; // const method returns non-const pointer.
   virtual const GeoTrf::Transform3D & transform() const = 0;
   virtual double thicknessP() const = 0;
   virtual double thicknessN() const = 0;

@@ -25,10 +25,6 @@ DetectorFieldManagerTool::DetectorFieldManagerTool(const std::string& type,
                                                    const IInterface* parent)
   : G4FieldManagerToolBase(type, name, parent)
 {
-  declareProperty("LogicalVolumes", m_volumeList,
-                  "List of volumes to which the field will be applied");
-  declareProperty("MuonOnlyField", m_muonOnlyField,
-                  "Only muons experience the magnetic field");
 }
 
 //-----------------------------------------------------------------------------

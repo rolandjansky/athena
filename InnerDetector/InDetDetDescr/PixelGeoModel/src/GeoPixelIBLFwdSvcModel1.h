@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELIBLFWDSVCMODEL1_H
@@ -16,7 +16,7 @@
 
 class GeoTransform;
 
-class GeoPixelIBLFwdSvcModel1 :  public GeoVPixelFactory {
+class ATLAS_NOT_THREAD_SAFE GeoPixelIBLFwdSvcModel1 :  public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
 
 public:  
 

@@ -578,15 +578,11 @@ InDetAdaptiveMultiPriVxFinderTool::findVertex(
            trkAtVtxIter != trkAtVtxend;
            ++trkAtVtxIter) {
         // for now using the compatibility at stage before end...
-        ATH_MSG_VERBOSE("The compatibility value of the track "
-                        << *trkAtVtxIter << " is "
-                        << (*trkAtVtxIter)->vtxCompatibility());
         if (((*trkAtVtxIter)->vtxCompatibility() < m_maxVertexChi2 &&
              m_useFastCompatibility) ||
             ((*trkAtVtxIter)->weight() > m_minweight &&
              (*trkAtVtxIter)->trackQuality().chiSquared() < m_maxVertexChi2 &&
              !m_useFastCompatibility)) {
-          ATH_MSG_VERBOSE("Eliminating incompatible track");
 
           std::vector<const Trk::ITrackLink*>::iterator foundTrack = seedtrkend;
           for (std::vector<const Trk::ITrackLink*>::iterator seedtrkiter =
@@ -598,17 +594,13 @@ InDetAdaptiveMultiPriVxFinderTool::findVertex(
               foundTrack = seedtrkiter;
             }
           }
-          ATH_MSG_VERBOSE("Trying to find track now");
           if (foundTrack != seedtrkend) {
-            ATH_MSG_VERBOSE("Track found: eliminating it");
             seedTracks.erase(foundTrack);
 
             // update end and begin??? should I? yes, he can copy, regenerate,
             // you don't know!
             seedtrkbegin = seedTracks.begin();
             seedtrkend = seedTracks.end();
-
-            ATH_MSG_VERBOSE("Remaining seeds: " << seedTracks.size());
           }
         }
       }
@@ -618,13 +610,10 @@ InDetAdaptiveMultiPriVxFinderTool::findVertex(
       double highestcompatibility = 0;
       Trk::VxTrackAtVertex* trackHighestCompatibility = nullptr;
 
-      ATH_MSG_VERBOSE("Analyzing new vertex");
-
       for (std::vector<Trk::VxTrackAtVertex*>::iterator trkAtVtxIter =
              trkAtVtxbegin;
            trkAtVtxIter != trkAtVtxend;
            ++trkAtVtxIter) {
-        ATH_MSG_VERBOSE("Checking new track for compatibility");
         const Trk::ITrackLink* foundTrack = nullptr;
         for (std::vector<const Trk::ITrackLink*>::const_iterator seedtrkiter =
                seedtrkbegin;
@@ -637,7 +626,6 @@ InDetAdaptiveMultiPriVxFinderTool::findVertex(
         }
         if (foundTrack != nullptr) {
           double compatibility = (*trkAtVtxIter)->vtxCompatibility();
-          ATH_MSG_VERBOSE("New track has compatibility: " << compatibility);
           if (compatibility > highestcompatibility) {
             highestcompatibility = compatibility;
             trackHighestCompatibility = *trkAtVtxIter;
@@ -937,14 +925,12 @@ InDetAdaptiveMultiPriVxFinderTool::findVertex(
          ++tracksIter) {
 
       // only set link if track link is to an xAOD::TrackParticle
-
-      // why do we need dynamic_cast here?
-      Trk::LinkToXAODTrackParticle* linkToXAODTP =
-        dynamic_cast<Trk::LinkToXAODTrackParticle*>(
-          (*tracksIter).trackOrParticleLink());
+      Trk::LinkToXAODTrackParticle* linkToXAODTP = nullptr;
+      Trk::ITrackLink* tmpLink = (*tracksIter).trackOrParticleLink();
+      if (tmpLink->type() == Trk::ITrackLink::ToxAODTrackParticle) {
+        linkToXAODTP = static_cast<Trk::LinkToXAODTrackParticle*>(tmpLink);
+      }
       if (linkToXAODTP) {
-        ATH_MSG_VERBOSE(
-          "Iterating over new vertex in fixing xAOD::TrackParticle links... ");
         (*vxIter)->addTrackAtVertex(*linkToXAODTP, (*tracksIter).weight());
       }
     }
@@ -995,10 +981,6 @@ InDetAdaptiveMultiPriVxFinderTool::findVertex(
     if (i > 0) {
       (*theVertexContainer)[i]->setVertexType(xAOD::VxType::PileUp);
     }
-    ATH_MSG_VERBOSE("Vertex at z ="
-                    << (*theVertexContainer)[i]->position().z()
-                    << " with ntracks: "
-                    << (*theVertexContainer)[i]->vxTrackAtVertex().size());
   }
   return std::make_pair(theVertexContainer, theVertexAuxContainer);
 }

@@ -20,7 +20,7 @@
 #include "StoreGate/StoreGateSvc.h"
 
 
-void PixelGangedClusterAmbiguitiesCnv_p1::transToPers ATLAS_NOT_THREAD_SAFE
+void PixelGangedClusterAmbiguitiesCnv_p1::transToPers ATLAS_NOT_THREAD_SAFE // Thread unsafe DataHandle class is used.
 (const InDet::PixelGangedClusterAmbiguities* transObj, InDet::PixelGangedClusterAmbiguities_p1* persObj, MsgStream &log)
 {
 //   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing InDet::PixelGangedClusterAmbiguities" << endmsg;

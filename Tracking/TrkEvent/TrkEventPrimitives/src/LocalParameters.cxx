@@ -87,24 +87,6 @@ Trk::LocalParameters::LocalParameters(const std::vector<Trk::DefinedParameter >&
   
 }
 
-Trk::LocalParameters::LocalParameters(const Trk::LocalParameters& lpars) :
-  Amg::VectorX(lpars),
-  m_parameterkey(lpars.m_parameterkey)
-{}
-
-Trk::LocalParameters::~LocalParameters()
-{}
-
-Trk::LocalParameters& Trk::LocalParameters::operator=(const Trk::LocalParameters& lpars)
-{
-  
-  if (this!=&lpars){
-     Amg::VectorX::operator=(lpars);
-     m_parameterkey = lpars.m_parameterkey;
-  }
-  return (*this);
-}
-
 const Amg::MatrixX& Trk::LocalParameters::reductionMatrix() const 
  { return s_projectionMatrices.reductionMatrix(m_parameterkey); }
 

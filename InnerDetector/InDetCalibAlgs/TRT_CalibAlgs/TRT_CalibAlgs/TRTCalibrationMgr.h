@@ -72,7 +72,7 @@ public:
   virtual StatusCode initialize(void) override;
   virtual StatusCode execute(void) override;
   virtual StatusCode finalize(void) override;
-  StatusCode streamOutCalibObjects() const;
+  StatusCode streamOutCalibObjects();
 
 private:
 

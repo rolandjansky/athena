@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BEAMPIPEDETECTORTOOL_H
@@ -8,7 +8,7 @@
 #include "GeoModelUtilities/GeoModelTool.h"
 class BeamPipeDetectorManager;
 
-class BeamPipeDetectorTool : public GeoModelTool 
+class BeamPipeDetectorTool final : public GeoModelTool 
 {
  public:
 

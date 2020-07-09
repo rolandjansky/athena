@@ -10,7 +10,7 @@ namespace LVL1MUCTPIPHASE1 {
   MUCTPI_AthAlg::MUCTPI_AthAlg( const std::string& name, ISvcLocator* pSvcLocator )
     :
     AthAlgorithm(name, pSvcLocator),
-    m_muctpiTool("LVL1MUCTPIPHASE1::MUCTPI_AthTool/LVL1MUCTPIPHASE1__MUCTPI_AthTool")
+    m_muctpiTool("LVL1MUCTPIPHASE1__MUCTPI_AthTool/MUCTPI_AthTool")
   {
     // Init message
     ATH_MSG_INFO( "=======================================" );

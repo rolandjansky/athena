@@ -15,6 +15,7 @@
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkFitterUtils/FitterTypes.h"
 #include "TrkGaussianSumFilter/IForwardGsfFitter.h"
+#include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include "TrkParameters/TrackParameters.h"
 
@@ -24,7 +25,6 @@
 namespace Trk {
 
 class IMultiStateMeasurementUpdator;
-class IMultiStateExtrapolator;
 class IRIO_OnTrackCreator;
 class Surface;
 
@@ -58,6 +58,7 @@ public:
   /** Forward GSF fit using PrepRawData */
   virtual std::unique_ptr<ForwardTrajectory> fitPRD(
     const EventContext& ctx,
+    IMultiStateExtrapolator::Cache&, 
     const PrepRawDataSet&,
     const TrackParameters&,
     const ParticleHypothesis particleHypothesis =
@@ -66,6 +67,7 @@ public:
   /** Forward GSF fit using MeasurementSet */
   virtual std::unique_ptr<ForwardTrajectory> fitMeasurements(
     const EventContext& ctx,
+    IMultiStateExtrapolator::Cache&, 
     const MeasurementSet&,
     const TrackParameters&,
     const ParticleHypothesis particleHypothesis =
@@ -78,6 +80,7 @@ private:
   /** Progress one step along the fit */
   bool stepForwardFit(
     const EventContext& ctx,
+    IMultiStateExtrapolator::Cache&, 
     ForwardTrajectory*,
     const PrepRawData*,
     const MeasurementBase*,

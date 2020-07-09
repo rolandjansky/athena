@@ -167,6 +167,9 @@ public:
   /** Return the surface type */
   virtual SurfaceType type() const override final;
 
+  /** Return the surface type static constexpr */
+  static constexpr SurfaceType staticType() ;
+
   /** Returns a global reference point:
      For the Cylinder this is @f$ (R*cos(\phi), R*sin(\phi),0)*transform() @f$
      Where  @f$ \phi @f$ denotes the averagePhi() of the cylinderBounds.
@@ -202,7 +205,7 @@ public:
 
   /** Specialized for CylinderSurface : LocalParameters to Vector2D */
   virtual Amg::Vector2D localParametersToPosition(
-    const LocalParameters& locpars) const override;
+    const LocalParameters& locpars) const override final; 
 
   /** Specialized for CylinderSurface : LocalToGlobal method without dynamic
    * memory allocation */
@@ -247,7 +250,7 @@ public:
     const Amg::Vector3D& pos,
     const Amg::Vector3D& dir,
     bool forceDir = false,
-    Trk::BoundaryCheck bchk = false) const override;
+    Trk::BoundaryCheck bchk = false) const override final;
 
   /** fast distance to Surface */
   virtual DistanceSolution straightLineDistanceEstimate(

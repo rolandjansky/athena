@@ -3,6 +3,7 @@
 #
 
 from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.Logging import logging
 log = logging.getLogger('MTCalibPebConfig.py')
 
@@ -94,20 +95,30 @@ class MTCalibPebHypoOptions:
         self.PEBROBList = []
         self.PEBSubDetList = []
         self.CreateRandomData = {}
+        self.EnableL1Phase1 = False  # Sets ConfigFlags.Trigger.enableL1Phase1
+        self.EnableL1CaloLegacy = True  # Sets ConfigFlags.Trigger.enableL1CaloLegacy
 
 
 default_options = MTCalibPebHypoOptions()
 
 
-def make_l1_seq():
-    all_algs = []
+def make_l1_seq(options=default_options):
+    from AthenaCommon.CFElements import seqOR
+    l1_seq = seqOR('l1Seq')
+
+    # Configure L1 decoding flags
+    ConfigFlags.Trigger.enableL1Phase1 = options.EnableL1Phase1
+    ConfigFlags.Trigger.enableL1CaloLegacy = options.EnableL1CaloLegacy
 
     # Create inputs for L1Decoder from ByteStream
-    from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1ByteStreamDecodersRecExSetup
-    L1ByteStreamDecodersRecExSetup()
+    from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1TriggerByteStreamDecoderCfg
+    acc = L1TriggerByteStreamDecoderCfg(ConfigFlags)
+    l1_seq += conf2toConfigurable(acc.getPrimary())
+    acc.wasMerged()
 
-    from L1Decoder.L1DecoderConfig import getL1TriggerResultMaker
-    all_algs.append(conf2toConfigurable(getL1TriggerResultMaker()))
+    if ConfigFlags.Trigger.enableL1Phase1:
+        from L1Decoder.L1DecoderConfig import getL1TriggerResultMaker
+        l1_seq += conf2toConfigurable(getL1TriggerResultMaker())
 
     # Set menu for L1ConfigSvc
     from TriggerJobOpts.TriggerFlags import TriggerFlags
@@ -132,10 +143,11 @@ def make_l1_seq():
     l1decoder = L1Decoder()
     l1decoder.ctpUnpacker = ctpUnpacker
     l1decoder.prescaler = psEmulation
-    all_algs.append(l1decoder)
+    l1decoder.RoIBResult = "RoIBResult" if ConfigFlags.Trigger.enableL1CaloLegacy or not ConfigFlags.Trigger.enableL1Phase1 else ""
+    l1decoder.L1TriggerResult = "L1TriggerResult" if ConfigFlags.Trigger.enableL1Phase1 else ""
+    l1_seq += l1decoder
 
-    from AthenaCommon.CFElements import seqOR
-    return seqOR('l1Seq', all_algs)
+    return l1_seq
 
 
 def make_hypo_alg(name):

@@ -214,7 +214,7 @@ StatusCode AthenaOutputStream::initialize() {
       ATH_MSG_FATAL("Could not locate default store");
       return(status);
    } else {
-      ATH_MSG_DEBUG("Found " << m_dataStore.type() << " store.");
+      ATH_MSG_DEBUG("Found " << m_dataStore.typeAndName() << " store.");
    }
    assert(static_cast<bool>(m_dataStore));
    if (!m_metadataItemList.value().empty()) {
@@ -223,7 +223,7 @@ StatusCode AthenaOutputStream::initialize() {
          ATH_MSG_FATAL("Could not locate metadata store");
          return(status);
       } else {
-         ATH_MSG_DEBUG("Found " << m_metadataStore.type() << " store.");
+         ATH_MSG_DEBUG("Found " << m_metadataStore.typeAndName() << " store.");
       }
       assert(static_cast<bool>(m_metadataStore));
    }
@@ -258,7 +258,7 @@ StatusCode AthenaOutputStream::initialize() {
       ATH_MSG_FATAL("Cannot find " << m_streamer);
       return(status);
    }
-   status = m_streamer->connectServices(m_dataStore.type(), m_persName, m_extendProvenanceRecord);
+   status = m_streamer->connectServices(m_dataStore.typeAndName(), m_persName, m_extendProvenanceRecord);
    if (status.isFailure()) {
       ATH_MSG_FATAL("Unable to connect services");
       return(status);
@@ -460,7 +460,7 @@ void AthenaOutputStream::writeMetaData(const std::string outputFN)
    ATH_MSG_DEBUG("metadataItemList: " << m_metadataItemList.value() );
    if (!m_metadataItemList.value().empty()) {
       m_currentStore = &m_metadataStore;
-      StatusCode status = streamer->connectServices(m_metadataStore.type(), m_persName, false);
+      StatusCode status = streamer->connectServices(m_metadataStore.typeAndName(), m_persName, false);
       if (status.isFailure()) {
          throw GaudiException("Unable to connect metadata services", name(), StatusCode::FAILURE);
       }
@@ -478,7 +478,7 @@ void AthenaOutputStream::writeMetaData(const std::string outputFN)
       }
       m_outputAttributes.clear();
       m_currentStore = &m_dataStore;
-      status = streamer->connectServices(m_dataStore.type(), m_persName, m_extendProvenanceRecord);
+      status = streamer->connectServices(m_dataStore.typeAndName(), m_persName, m_extendProvenanceRecord);
       if (status.isFailure()) {
          throw GaudiException("Unable to re-connect services", name(), StatusCode::FAILURE);
       }
@@ -486,7 +486,7 @@ void AthenaOutputStream::writeMetaData(const std::string outputFN)
       if ((pAsIProp->setProperty(m_itemList)).isFailure()) {
          throw GaudiException("Folder property [itemList] not found", name(), StatusCode::FAILURE);
       }
-      ATH_MSG_INFO("Records written: " << m_events);
+      ATH_MSG_INFO("Metadata records written: " << m_events);
    }
 }
 
@@ -562,7 +562,7 @@ StatusCode AthenaOutputStream::write() {
          st->addRef();
          streamer = dynamic_cast<IAthenaOutputStreamTool*>( st );
          if( streamer->initialize().isFailure()
-             || streamer->connectServices(m_dataStore.type(), m_persName, m_extendProvenanceRecord).isFailure() ) {
+             || streamer->connectServices(m_dataStore.typeAndName(), m_persName, m_extendProvenanceRecord).isFailure() ) {
             ATH_MSG_FATAL("Unable to initialize OutputStreamTool for " << outputFN );
             return StatusCode::FAILURE;
          }
@@ -928,10 +928,6 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
                   if( auxio ) {
                      // collect dynamic Aux selection (parse the line, attributes separated by dot)
                      std::set<std::string> attributes;
-                     // Start by resetting the object. This is needed in case a
-                     // previous stream set some selection on it that we don't
-                     // need here.
-                     auxio->selectAux( attributes );
                      if( aux_attr.size() ) {
                         std::stringstream ss(aux_attr);
                         std::string attr;
@@ -944,10 +940,13 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
                            }
                         }
                         // don't let keys with wildcard overwrite existing selections
-                        if( auxio->getSelectedAuxIDs().size() == auxio->getDynamicAuxIDs().size()
-                            || item_key.find('*') == string::npos )
-                           auxio->selectAux(attributes);
+                        // MN: TODO: this condition was always true - need a better check
+                        //if( auxio->getSelectedAuxIDs().size() == auxio->getDynamicAuxIDs().size()
+                        //    || item_key.find('*') == string::npos )
+                        //   auxio->selectAux(attributes);
                      }
+                     // Reset selection even if empty - in case we write multiple streams 
+                     auxio->selectAux( attributes );
                   }
                   // Here comes the compression logic using SG::IAuxStoreCompression
                   // similar to that of SG::IAuxStoreIO above

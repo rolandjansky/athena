@@ -23,7 +23,6 @@ Muon::MmRdoToPrepDataToolCore::MmRdoToPrepDataToolCore(const std::string& t,
 					       const IInterface*  p )
   :
   AthAlgTool(t,n,p),
-  m_muonMgr(nullptr),
   m_fullEventDone(false),
   m_mmPrepDataContainer(nullptr),
   m_clusterBuilderTool("Muon::SimpleMMClusterBuilderTool/SimpleMMClusterBuilderTool",this),
@@ -45,16 +44,12 @@ Muon::MmRdoToPrepDataToolCore::MmRdoToPrepDataToolCore(const std::string& t,
 
 StatusCode Muon::MmRdoToPrepDataToolCore::initialize()
 {  
-  ATH_MSG_DEBUG(" in initialize()");
- 
-  ATH_CHECK(detStore()->retrieve(m_muonMgr));
-  
+  ATH_MSG_DEBUG(" in initialize()");  
   ATH_CHECK(m_idHelperSvc.retrieve());
-
   // check if the initialization of the data container is success
   ATH_CHECK(m_mmPrepDataContainerKey.initialize());
   ATH_CHECK(m_rdoContainerKey.initialize());
-
+  ATH_CHECK(m_muDetMgrKey.initialize());
   ATH_MSG_INFO("initialize() successful in " << name());
   return StatusCode::SUCCESS;
 }
@@ -111,6 +106,10 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(const MM_RawDataColl
 
     const MM_RawData* rdo = *it;
     const Identifier rdoId = rdo->identify();
+    if (!m_idHelperSvc->isMM(rdoId)) {
+      ATH_MSG_WARNING("given Identifier "<<rdoId.get_compact()<<" ("<<m_idHelperSvc->mmIdHelper().print_to_string(rdoId)<<") is no MicroMega Identifier, continuing");
+      continue;
+    }
     ATH_MSG_DEBUG(" dump rdo " << m_idHelperSvc->toString(rdoId ));
     
     int channel = rdo->channel();
@@ -121,8 +120,13 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(const MM_RawDataColl
     ATH_MSG_DEBUG(" channel RDO " << channel << " channel from rdoID " << m_idHelperSvc->mmIdHelper().channel(rdoId));
     rdoList.push_back(prdId);
 
+    // TODO: this needs to be replaced by SG::ReadCondHandle<MuonGM::MuonDetectorManager>
+    // will do it in a follow-up MR, since for now, we need to get the Run2 detectors running, so skip MicroMegas for now
+    const MuonGM::MuonDetectorManager* muDetMgrNominal=nullptr;
+    ATH_CHECK(detStore()->retrieve(muDetMgrNominal));
+
     // get the local and global positions
-    const MuonGM::MMReadoutElement* detEl = m_muonMgr->getMMReadoutElement(layid);
+    const MuonGM::MMReadoutElement* detEl = muDetMgrNominal->getMMReadoutElement(layid);
     Amg::Vector2D localPos;
 
     bool getLocalPos = detEl->stripPosition(prdId,localPos);

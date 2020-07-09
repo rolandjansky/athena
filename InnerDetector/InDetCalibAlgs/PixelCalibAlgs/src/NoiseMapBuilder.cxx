@@ -17,6 +17,9 @@
 // geometry
 #include "InDetIdentifier/PixelID.h"
 
+// Thread safety check
+#include "CxxUtils/checker_macros.h"
+
 // ROOT
 #include "TH2.h"
 #include "TString.h" 
@@ -311,7 +314,7 @@ StatusCode NoiseMapBuilder::registerHistograms(){
 // execute
 //
 //=========================================================
-StatusCode NoiseMapBuilder::execute(){
+StatusCode NoiseMapBuilder::execute ATLAS_NOT_THREAD_SAFE (){ // Thread unsafe DataHandle template is used.
   ATH_MSG_DEBUG( "Executing NoiseMapBuilder" );
 
   // retrieve EventInfo

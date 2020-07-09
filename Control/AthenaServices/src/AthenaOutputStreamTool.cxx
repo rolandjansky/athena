@@ -122,7 +122,7 @@ StatusCode AthenaOutputStreamTool::connectServices(const std::string& dataStore,
    // Release old data store
    if (m_store.isValid()) {
       if (m_store.release().isFailure()) {
-         ATH_MSG_ERROR("Could not release " << m_store.type() << " store");
+         ATH_MSG_ERROR("Could not release " << m_store.typeAndName() << " store");
       }
    }
    m_store = ServiceHandle<StoreGateSvc>(dataStore, this->name());
@@ -143,7 +143,7 @@ StatusCode AthenaOutputStreamTool::connectServices(const std::string& dataStore,
 StatusCode AthenaOutputStreamTool::connectServices() {
    // Find the data store
    if (m_store.retrieve().isFailure() || m_store == 0) {
-      ATH_MSG_ERROR("Could not locate " << m_store.type() << " store");
+      ATH_MSG_ERROR("Could not locate " << m_store.typeAndName() << " store");
       return(StatusCode::FAILURE);
    }
    return(StatusCode::SUCCESS);

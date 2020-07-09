@@ -17,7 +17,7 @@
 #include <xercesc/dom/DOM.hpp>                  // DOMxxx
 
 #include "CxxUtils/checker_macros.h"
-ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // Not sure if usage of Xerces-C++ here is thread safe.
 // The following warning message is given if checked:
 // warning: Use of static expression 'xercesc_3_1::XMLPlatformUtils::fgMemoryManager'
 // of type 'xercesc_3_1::MemoryManager*' within function

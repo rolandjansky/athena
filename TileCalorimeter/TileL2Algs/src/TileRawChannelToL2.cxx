@@ -78,23 +78,22 @@ StatusCode TileRawChannelToL2::execute() {
     for (const TileL2* l2 : *l2Container) {
 
       msg(MSG::VERBOSE) << "frag ID = 0x" << MSG::hex << l2->identify() << MSG::dec
-                      << "  phi = " << l2->phi(0)
-                      << "  Et = " << l2->Et()
-                      << "  word = 0x" << MSG::hex << l2->val(0) << MSG::dec << endmsg;
+                        << "  phi = " << l2->phi(0)
+                        << "  Et = " << l2->Et() << endmsg;
 
       for (unsigned int i = 0; i < l2->NMuons(); ++i) {
         msg(MSG::VERBOSE) << "Muon found:"
-                        << " frag ID = 0x" << MSG::hex << l2->identify() << MSG::dec
-                        << " word1 = 0x" << MSG::hex << l2->val(1 + 2 * i) << MSG::dec
-                        << " word2 = 0x" << MSG::hex << l2->val(2 + 2 * i) << MSG::dec
-                        << " eta = " << l2->eta(i)
-                        << " phi = " << l2->phi(i) << endmsg;
+                          << " frag ID = 0x" << MSG::hex << l2->identify()
+                          << " word1 = 0x" << l2->val(2 * i)
+                          << " word2 = 0x" << l2->val(2 * i + 1) << MSG::dec
+                          << " eta = " << l2->eta(i)
+                          << " phi = " << l2->phi(i) << endmsg;
 
         msg(MSG::VERBOSE) << "Muon found:"
-                        << " E[0] = " << l2->enemu0(i) << " MeV"
-                        << " E[1] = " << l2->enemu1(i) << " MeV"
-                        << " E[2] = " << l2->enemu2(i) << " MeV"
-                        << " QF = " << l2->qual(i) << endmsg;
+                          << " E[0] = " << l2->enemu0(i) << " MeV"
+                          << " E[1] = " << l2->enemu1(i) << " MeV"
+                          << " E[2] = " << l2->enemu2(i) << " MeV"
+                          << " QF = " << l2->qual(i) << endmsg;
 
       }
     }

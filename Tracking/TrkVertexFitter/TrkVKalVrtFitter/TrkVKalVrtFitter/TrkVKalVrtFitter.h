@@ -102,7 +102,7 @@ namespace Trk{
           const std::vector<const NeutralParameters*>& /*neutralPerigeeList*/,
           const xAOD::Vertex& constraint) const override;
 
-        virtual xAOD::Vertex* fit(
+        virtual std::unique_ptr<xAOD::Vertex> fit(
           const EventContext& ctx,
           const std::vector<const xAOD::TrackParticle*>& vectorTrk,
           const Amg::Vector3D& startingPoint) const override;

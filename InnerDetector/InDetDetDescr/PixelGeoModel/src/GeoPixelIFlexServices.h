@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELIFLEXSERVICES_H
@@ -14,7 +14,7 @@
 
 class GeoTransform;
 
-class GeoPixelIFlexServices :  public GeoVPixelFactory {
+class ATLAS_NOT_THREAD_SAFE GeoPixelIFlexServices :  public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
 
 public:  
 

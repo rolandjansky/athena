@@ -15,6 +15,7 @@
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkFitterUtils/FitterTypes.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
+#include "TrkGaussianSumFilter/IMultiStateExtrapolator.h" 
 
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/IAlgTool.h"
@@ -23,7 +24,6 @@
 namespace Trk {
 
 class IMultiStateMeasurementUpdator;
-class IMultiStateExtrapolator;
 class CaloCluster_OnTrack;
 
 static const InterfaceID InterfaceID_GsfSmoother("GsfSmoother", 1, 0);
@@ -48,6 +48,7 @@ public:
   /** Gsf smoother method */
   virtual SmoothedTrajectory* fit(
     const EventContext& ctx,
+    Trk::IMultiStateExtrapolator::Cache&,
     const ForwardTrajectory&,
     const ParticleHypothesis particleHypothesis = nonInteracting,
     const CaloCluster_OnTrack* ccot = nullptr) const = 0;

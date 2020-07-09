@@ -34,9 +34,9 @@ class ParametersT;
 /**
  @class SlidingDiscSurface
  Class for a Calo DiscSurface with variable depth in the ATLAS detector.
- The variable depth is stored as a binned vector of shifts of the center along the normal.
- Local eta bin is defined by locR and z position for base transform ( corrected for misalignement ).
- Inherits from DiscSurface.
+ The variable depth is stored as a binned vector of shifts of the center along
+ the normal. Local eta bin is defined by locR and z position for base transform
+ ( corrected for misalignement ). Inherits from DiscSurface.
 
  @author sarka.todorova@cern.ch
  */
@@ -61,7 +61,8 @@ public:
   SlidingDiscSurface(const SlidingDiscSurface& psf);
 
   /**Copy Constructor with shift*/
-  SlidingDiscSurface(const SlidingDiscSurface& psf, const Amg::Transform3D& transf);
+  SlidingDiscSurface(const SlidingDiscSurface& psf,
+                     const Amg::Transform3D& transf);
 
   /**Constructor */
   SlidingDiscSurface(const DiscSurface& surf,
@@ -76,32 +77,45 @@ public:
   SlidingDiscSurface& operator=(const SlidingDiscSurface& dsf);
 
   /**Equality operator*/
-  bool operator==(const Surface& sf) const;
+  virtual bool operator==(const Surface& sf) const override;
 
   /** Virtual constructor*/
-  virtual SlidingDiscSurface* clone() const;
+  virtual SlidingDiscSurface* clone() const override;
 
-  /** This method returns true if the GlobalPosition is on the Surface for both, within
-    or without check of whether the local position is inside boundaries or not */
-  bool isOnSurface(const Amg::Vector3D& glopo, BoundaryCheck bchk = true, double tol1 = 0., double tol2 = 0.) const;
+  /** This method returns true if the GlobalPosition is on the Surface for both,
+    within or without check of whether the local position is inside boundaries
+    or not */
+  virtual bool isOnSurface(const Amg::Vector3D& glopo,
+                           BoundaryCheck bchk = true,
+                           double tol1 = 0.,
+                           double tol2 = 0.) const override;
 
-  /** Specialized for DiscSurface: LocalToGlobal method without dynamic memory allocation */
-  void localToGlobal(const Amg::Vector2D& locp, const Amg::Vector3D& mom, Amg::Vector3D& glob) const;
+  /** Specialized for DiscSurface: LocalToGlobal method without dynamic memory
+   * allocation */
+  virtual void localToGlobal(const Amg::Vector2D& locp,
+                             const Amg::Vector3D& mom,
+                             Amg::Vector3D& glob) const override;
 
-  /** Specialized for DiscSurface: GlobalToLocal method without dynamic memory allocation - boolean checks if on surface
+  /** Specialized for DiscSurface: GlobalToLocal method without dynamic memory
+   * allocation - boolean checks if on surface
    */
-  bool globalToLocal(const Amg::Vector3D& glob, const Amg::Vector3D& mom, Amg::Vector2D& loc) const;
+  virtual bool globalToLocal(const Amg::Vector3D& glob,
+                             const Amg::Vector3D& mom,
+                             Amg::Vector2D& loc) const override;
 
-  /** fast straight line intersection schema - standard: provides closest intersection and (signed) path length
-      forceDir is to provide the closest forward solution
+  /** fast straight line intersection schema - standard: provides closest
+     intersection and (signed) path length forceDir is to provide the closest
+     forward solution
 
       <b>mathematical motivation:</b>
 
       the equation of the plane is given by: <br>
       @f$ \vec n \cdot \vec x = \vec n \cdot \vec p,@f$ <br>
-      where @f$ \vec n = (n_{x}, n_{y}, n_{z})@f$ denotes the normal vector of the plane,
-      @f$ \vec p = (p_{x}, p_{y}, p_{z})@f$ one specific point on the plane and @f$ \vec x = (x,y,z) @f$ all possible
-     points on the plane.<br> Given a line with:<br>
+      where @f$ \vec n = (n_{x}, n_{y}, n_{z})@f$ denotes the normal vector of
+     the plane,
+      @f$ \vec p = (p_{x}, p_{y}, p_{z})@f$ one specific point on the plane and
+     @f$ \vec x = (x,y,z) @f$ all possible points on the plane.<br> Given a line
+     with:<br>
       @f$ \vec l(u) = \vec l_{1} + u \cdot \vec v @f$, <br>
       the solution for @f$ u @f$ can be written:
       @f$ u = \frac{\vec n (\vec p - \vec l_{1})}{\vec n \vec v}@f$ <br>
@@ -111,10 +125,15 @@ public:
    */
 
   /** fast straight line distance evaluation to Surface */
-  DistanceSolution straightLineDistanceEstimate(const Amg::Vector3D& pos, const Amg::Vector3D& dir) const;
+  virtual DistanceSolution straightLineDistanceEstimate(
+    const Amg::Vector3D& pos,
+    const Amg::Vector3D& dir) const override;
 
   /** fast straight line distance evaluation to Surface - with bound option*/
-  DistanceSolution straightLineDistanceEstimate(const Amg::Vector3D& pos, const Amg::Vector3D& dir, bool Bound) const;
+  virtual DistanceSolution straightLineDistanceEstimate(
+    const Amg::Vector3D& pos,
+    const Amg::Vector3D& dir,
+    bool Bound) const override;
 
   /**This method allows access to the bin utility*/
   const Trk::BinUtility* binUtility() const { return m_etaBin; }
@@ -123,7 +142,10 @@ public:
   const std::vector<float>* offset() const { return m_depth; }
 
   /** Return properly formatted class name for screen output */
-  std::string name() const { return "Trk::SlidingDiscSurface"; }
+  virtual std::string name() const override
+  {
+    return "Trk::SlidingDiscSurface";
+  }
 
 protected: //!< data members
   const std::vector<float>* m_depth;
