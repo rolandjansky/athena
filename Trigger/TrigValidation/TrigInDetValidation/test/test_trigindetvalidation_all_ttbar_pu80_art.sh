@@ -1,5 +1,5 @@
 #!/bin/bash
-# art-description: art job for all_ttbar_pu40
+# art-description: art job for all_ttbar_pu80
 # art-include: 21.3/Athena
 # art-include: 21.9/Athena
 # art-include: master/Athena
@@ -21,7 +21,7 @@
 # art-output: cost-perEvent
 # art-output: cost-perCall-chain
 # art-output: cost-perEvent-chain
-# art-input:  mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7193
+# art-input:  mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7195
 # art-output: *.dat 
 # art-output: *.root
 # art-output: *.log
@@ -206,7 +206,7 @@ ls -l
 
 
 
-export RTTJOBNAME=TrigInDetValidation_all_ttbar_pu40
+export RTTJOBNAME=TrigInDetValidation_all_ttbar_pu80
 
 jobList=
 
@@ -393,7 +393,7 @@ timestamp "TIDArdict"
 fi
 
 
-TIDArun-art.sh data-all.root data-all_ttbar_pu40-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig -d HLTEF-plots-electron  2>&1 | tee TIDArun_2.log
+TIDArun-art.sh data-all.root data-all_ttbar_pu80-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig -d HLTEF-plots-electron  2>&1 | tee TIDArun_2.log
 echo "art-result: $? TIDArun_2"
 
 
@@ -402,7 +402,7 @@ timestamp "TIDArun-art.sh"
 
 
 
-TIDArun-art.sh data-all.root data-all_ttbar_pu40-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF -d HLTL2-plots-electron  2>&1 | tee TIDArun_3.log
+TIDArun-art.sh data-all.root data-all_ttbar_pu80-reference.root HLT_e24_medium_idperf_InDetTrigTrackingxAODCnv_Electron_FTF -d HLTL2-plots-electron  2>&1 | tee TIDArun_3.log
 echo "art-result: $? TIDArun_3"
 
 
@@ -411,7 +411,7 @@ timestamp "TIDArun-art.sh"
 
 
 
-TIDArun-art.sh data-all.root data-all_ttbar_pu40-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig -d HLTEF-plots-electron-lowpt  2>&1 | tee TIDArun_4.log
+TIDArun-art.sh data-all.root data-all_ttbar_pu80-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_IDTrig -d HLTEF-plots-electron-lowpt  2>&1 | tee TIDArun_4.log
 echo "art-result: $? TIDArun_4"
 
 
@@ -420,7 +420,7 @@ timestamp "TIDArun-art.sh"
 
 
 
-TIDArun-art.sh data-all.root data-all_ttbar_pu40-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF -d HLTL2-plots-electron-lowpt  2>&1 | tee TIDArun_5.log
+TIDArun-art.sh data-all.root data-all_ttbar_pu80-reference.root HLT_e5_loose_idperf_InDetTrigTrackingxAODCnv_Electron_FTF -d HLTL2-plots-electron-lowpt  2>&1 | tee TIDArun_5.log
 echo "art-result: $? TIDArun_5"
 
 
@@ -429,7 +429,7 @@ timestamp "TIDArun-art.sh"
 
 
 
-TIDArun-art.sh data-all.root data-all_ttbar_pu40-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig -d HLTEF-plots-muon  2>&1 | tee TIDArun_6.log
+TIDArun-art.sh data-all.root data-all_ttbar_pu80-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig -d HLTEF-plots-muon  2>&1 | tee TIDArun_6.log
 echo "art-result: $? TIDArun_6"
 
 
@@ -438,7 +438,7 @@ timestamp "TIDArun-art.sh"
 
 
 
-TIDArun-art.sh data-all.root data-all_ttbar_pu40-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF -d HLTL2-plots-muon  2>&1 | tee TIDArun_7.log
+TIDArun-art.sh data-all.root data-all_ttbar_pu80-reference.root HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF -d HLTL2-plots-muon  2>&1 | tee TIDArun_7.log
 echo "art-result: $? TIDArun_7"
 
 
@@ -447,7 +447,7 @@ timestamp "TIDArun-art.sh"
 
 
 
-TIDArun-art.sh data-all.root data-all_ttbar_pu40-reference.root HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_FTF HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_IDTrig HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauIso_FTF_forID3 HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_Tau_IDTrig_forID3 -d HLTEF-plots-tau  2>&1 | tee TIDArun_8.log
+TIDArun-art.sh data-all.root data-all_ttbar_pu80-reference.root HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_FTF HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_IDTrig HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauIso_FTF_forID3 HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_Tau_IDTrig_forID3 -d HLTEF-plots-tau  2>&1 | tee TIDArun_8.log
 echo "art-result: $? TIDArun_8"
 
 
@@ -456,7 +456,7 @@ timestamp "TIDArun-art.sh"
 
 
 
-TIDArun-art.sh data-all.root data-all_ttbar_pu40-reference.root HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_FTF HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauCore_FTF_forID1 HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauIso_FTF_forID3 -d HLTL2-plots-tau  2>&1 | tee TIDArun_9.log
+TIDArun-art.sh data-all.root data-all_ttbar_pu80-reference.root HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_FTF HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauCore_FTF_forID1 HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauIso_FTF_forID3 -d HLTL2-plots-tau  2>&1 | tee TIDArun_9.log
 echo "art-result: $? TIDArun_9"
 
 
@@ -465,7 +465,7 @@ timestamp "TIDArun-art.sh"
 
 
 
-TIDArun-art.sh data-all.root data-all_ttbar_pu40-reference.root HLT_j55_boffperf_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID -d HLTEF-plots-bjet  2>&1 | tee TIDArun_10.log
+TIDArun-art.sh data-all.root data-all_ttbar_pu80-reference.root HLT_j55_boffperf_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID -d HLTEF-plots-bjet  2>&1 | tee TIDArun_10.log
 echo "art-result: $? TIDArun_10"
 
 
@@ -474,7 +474,7 @@ timestamp "TIDArun-art.sh"
 
 
 
-TIDArun-art.sh data-all.root data-all_ttbar_pu40-reference.root HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_boffperf_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi -d HLTL2-plots-bjet  2>&1 | tee TIDArun_11.log
+TIDArun-art.sh data-all.root data-all_ttbar_pu80-reference.root HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_boffperf_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi -d HLTL2-plots-bjet  2>&1 | tee TIDArun_11.log
 echo "art-result: $? TIDArun_11"
 
 
