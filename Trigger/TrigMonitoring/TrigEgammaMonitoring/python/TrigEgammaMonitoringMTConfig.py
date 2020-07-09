@@ -106,13 +106,12 @@ class TrigEgammaMonAlgBuilder:
       self.activate_electron=True
       self.activate_photon=True
 
-    
+
+
   def configure(self):
     self.setProperties()
     self.configureMonitor()
     self.configureHistograms()
-
-
 
 
 
@@ -178,6 +177,7 @@ class TrigEgammaMonAlgBuilder:
     self.electronList = monitoring_electron
     self.photonList   = monitoring_photon
     self.tpList       = monitoringTP_electron
+    
     self.jpsiList     = []
     self.tagItems     = [] #monitoring_tags 
     self.jpsitagItems = [] #monitoring_jpsitags
@@ -420,13 +420,18 @@ class TrigEgammaMonAlgBuilder:
 
   def bookEvent(self, monAlg, analysis):
 
-    #cutLabels = ["Events","LAr","RetrieveElectrons","TwoElectrons","PassTrigger","EventWise","Success"]
-    #probeLabels=["Electrons","NotTag","OS","SS","ZMass","HasTrack","HasCluster","Eta","Et","IsGoodOQ","GoodPid","NearbyJet","Isolated"]
+    cutLabels = ["Events","LAr","RetrieveElectrons","TwoElectrons","PassTrigger","EventWise","Success"]
+    probeLabels=["Electrons","NotTag","OS","SS","ZMass","HasTrack","HasCluster","Eta","Et","IsGoodOQ","GoodPid","NearbyJet","Isolated"]
+    tagLabels=["Electrons","HasTrack","HasCluster","GoodPid","Et","Eta","IsGoodOQ","PassTrigger","MatchTrigger"]
+    
     # Create mon group.  The group name should be the path name for map
     monGroup = self.addGroup( monAlg, 'Event', self.basePath+'/Expert/Event' )
-    monGroup.defineHistogram(analysis+"_CutCounter", type='TH1I', path='/', title="Event Selection; Cut ; Count",xbins=6, xmin=0, xmax=6)
-    monGroup.defineHistogram(analysis+"_TagCutCounter", type='TH1F', path='', title="Number of Probes; Cut ; Count",xbins=12, xmin=0, xmax=12)
-    monGroup.defineHistogram(analysis+"_ProbeCutCounter", type='TH1F', path='', title="Number of Probes; Cut ; Count",xbins=12, xmin=0, xmax=12)
+    monGroup.defineHistogram(analysis+"_CutCounter", type='TH1I', path='/', title="Event Selection; Cut ; Count",
+        xbins=len(cutLabels), xmin=0, xmax=len(cutLabels), xlabels=cutLabels)
+    monGroup.defineHistogram(analysis+"_TagCutCounter", type='TH1F', path='', title="Number of Probes; Cut ; Count",
+        xbins=len(tagLabels), xmin=0, xmax=len(tagLabels), xlabels=tagLabels)
+    monGroup.defineHistogram(analysis+"_ProbeCutCounter", type='TH1F', path='', title="Number of Probes; Cut ; Count",
+        xbins=len(probeLabels), xmin=0, xmax=len(probeLabels), xlabels=probeLabels)
     monGroup.defineHistogram(analysis+"_Mee", type='TH1F', path='/', title="Offline M(ee); m_ee [GeV] ; Count",xbins=50, xmin=monAlg.ZeeLowerMass, xmax=monAlg.ZeeUpperMass)
 
 
