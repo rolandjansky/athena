@@ -153,6 +153,186 @@ class TRT_DriftCircle :   public Trk::PrepRawData
  MsgStream&    operator << (MsgStream& stream,    const TRT_DriftCircle& prd);
  std::ostream& operator << (std::ostream& stream, const TRT_DriftCircle& prd);
 
+
+///////////////////////////////////////////////////////////////////
+// Inline methods:
+///////////////////////////////////////////////////////////////////
+
+inline unsigned int TRT_DriftCircle::getWord() const
+{
+       return m_word;
+}
+
+inline int TRT_DriftCircle::driftTimeBin() const
+{
+  unsigned  mask = 0x02000000;
+  unsigned  word_LE = m_word>>6;
+  word_LE = word_LE<<6;
+ 
+  mask >>=1;
+  bool SawZero = false;
+  int i;
+  for(i=1;i<18;++i)
+  { 
+    if      (  (word_LE & mask) && SawZero) break;
+    else if ( !(word_LE & mask) ) SawZero = true; 
+    mask>>=1;
+    if(i==7 || i==15) mask>>=1;
+  }
+  if(i==18) i=0;
+  return i;
+}  
+
+inline int TRT_DriftCircle::trailingEdge() const
+{
+  unsigned mask = 0x00000001;
+  unsigned mask_word = 0x0001fff0; // 11111111 1 11110000   
+  unsigned mask_last_bit =0x10; //10000
+  
+  unsigned word_TE = m_word & mask_word;
+  
+  bool SawZero=true;
+  bool SawZero1=false;
+  bool SawZero2=false;
+  bool SawUnit1=false;
+  int i=0;
+  int j=0;
+  int k=0;
+  
+  if(word_TE & mask_last_bit) 
+  {
+  
+	for (j = 0; j < 11; ++j)
+	{
+		mask_last_bit=mask_last_bit<<1;
+		
+		if(j==3) mask_last_bit=mask_last_bit<<1;
+		
+		if ( !(word_TE & mask_last_bit) )
+		{
+			SawZero2 = true;
+			break;			
+		}
+	}
+	
+	if(SawZero2 == false) return 19;
+
+	if(SawZero2 == true){
+		for (k = j+1; k < 11; ++k)
+		{
+			mask_last_bit=mask_last_bit<<1;
+
+			if(k==3) mask_last_bit=mask_last_bit<<1;
+
+			if ( word_TE & mask_last_bit )
+			{
+				SawUnit1 = true;
+				break;					
+			}
+		} 
+	}
+	
+	if(SawUnit1 == false && SawZero2 == true) return 19;
+	
+  }
+  
+  //+++++++++++++++++++++++++++++++++++++
+  
+  for (i = 0; i < 24; ++i)
+  {
+  
+	if(!(word_TE & mask) && i>3)
+	{
+	  SawZero1 = true;
+	}
+    if(SawZero1){  
+		if ( (word_TE & mask) && SawZero )
+			break;
+		else if ( !(word_TE & mask) )
+			SawZero = true;
+    }
+    mask <<= 1;
+    if (i == 7 || i == 15)
+      mask <<= 1;
+  }
+ 
+  if ( 24 == i )
+    return i;
+
+  return (23 - i);
+
+}
+
+inline bool TRT_DriftCircle::highLevel() const 
+{
+  return (m_word & 0x04020100);
+}
+
+
+inline bool
+TRT_DriftCircle::firstBinHigh() const 
+{ 
+  return (m_word & 0x02000000);
+}
+
+inline bool
+TRT_DriftCircle::lastBinHigh() const
+{
+  return (m_word & 0x1);
+}
+
+inline double TRT_DriftCircle::timeOverThreshold() const
+{
+  unsigned long mask = 0x02000000;
+  unsigned int best_length = 0;
+  unsigned int current_length = 0;
+  unsigned int k = 0;
+
+  //Set 4 last bits to zero (to match data and MC bitmasks)
+  unsigned int mask_last_bits=0xFFFFFF0;  // 1 1 11111111 1 11111111 1 11110000
+  unsigned int BitPattern0 = m_word & mask_last_bits;
+
+  //shift bitmask to the right until end;
+  while (true) {
+    if (BitPattern0 & mask) {
+      ++current_length;
+    }
+    else {
+      // remember longest island
+      if (current_length > best_length)
+        best_length = current_length;
+      current_length = 0;
+    }
+    if (!mask)
+      break;
+    assert(k < 24);
+    mask >>= 1;
+    if (k == 7 || k == 15)
+      mask >>= 1;
+    ++k;
+  }
+  assert(k == 24);
+  return best_length*3.125; 
+}
+
+inline double TRT_DriftCircle::rawDriftTime() const
+{
+  return (driftTimeBin()+0.5)*3.125;
+}
+
+inline bool TRT_DriftCircle::driftTimeValid() const
+{
+  return m_word & 0x08000000; 
+}
+
+inline void TRT_DriftCircle::setDriftTimeValid(bool valid)
+{
+  unsigned maskfalse = 0xF7FFFFFF; 
+  unsigned masktrue  = 0x08000000; 
+  if( valid ) {
+    m_word |= masktrue;
+  } else {
+    m_word &= maskfalse; }
 }
 
 #include "InDetPrepRawData/TRT_DriftCircle.icc"

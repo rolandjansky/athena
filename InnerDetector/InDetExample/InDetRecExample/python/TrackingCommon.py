@@ -1055,9 +1055,6 @@ def getInDetTrackSummaryToolSharedHits(name='InDetTrackSummaryToolSharedHits',**
     from InDetRecExample.InDetJobProperties import InDetFlags
     kwargs = setDefaults(kwargs,
                          doSharedHits           = InDetFlags.doSharedHits(),
-                         TRTdEdx_DivideByL      = True, # default is True
-                         TRTdEdx_useHThits      = True, # default is True
-                         TRTdEdx_corrected      = True, # default is True
                          minTRThitsForTRTdEdx   = 1)    # default is 1
 
     return getInDetTrackSummaryTool( name, **kwargs)

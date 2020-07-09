@@ -61,7 +61,6 @@ void TRT_ToT_dEdx::setDefaultConfiguration()
   declareProperty("TRT_dEdx_divideByL",m_divideByL=true);
   declareProperty("TRT_dEdx_useHThits",m_useHThits=true);
   declareProperty("TRT_dEdx_corrected",m_corrected=true);
-  declareProperty("TRT_dEdx_whichToTEstimatorAlgo",m_whichToTEstimatorAlgo=kToTLargerIsland);
   declareProperty("TRT_dEdx_useTrackPartWithGasType",m_useTrackPartWithGasType=kUnset);
   declareProperty("TRT_dEdx_toolScenario",m_toolScenario=kAlgReweightTrunkOne);
   declareProperty("TRT_dEdx_trackConfig_maxRtrack",m_trackConfig_maxRtrack=1.85);
@@ -80,7 +79,6 @@ void TRT_ToT_dEdx::showDEDXSetup() const
   ATH_MSG_INFO("m_divideByL                     ="<<m_divideByL<<"");
   ATH_MSG_INFO("m_useHThits                     ="<<m_useHThits<<"");
   ATH_MSG_INFO("m_corrected                     ="<<m_corrected<<"");
-  ATH_MSG_INFO("m_whichToTEstimatorAlgo         ="<<m_whichToTEstimatorAlgo<<"");
   ATH_MSG_INFO("m_useTrackPartWithGasType       ="<<m_useTrackPartWithGasType<<"");
   ATH_MSG_INFO("m_toolScenario                  ="<<m_toolScenario<<"");
   ATH_MSG_INFO(" ");
@@ -231,10 +229,10 @@ bool TRT_ToT_dEdx::isGoodHit(const Trk::TrackStateOnSurface* trackState, double&
     if(m_useTrackPartWithGasType != gasTypeInStraw(trackState)) return false;
   }
 
-  unsigned int BitPattern = driftcircle->prepRawData()->getWord();
-  double ToT = getToT(BitPattern);
+  //unsigned int BitPattern = driftcircle->prepRawData()->getWord();
+  //double ToT = getToT(BitPattern);
 
-  if (ToT==0) return false; // If ToT for this hit equal 0, skip it.
+  if (driftcircle->prepRawData()->timeOverThreshold()==0.) return false; // If ToT for this hit equal 0, skip it.
   
   return true;
 }
@@ -697,24 +695,6 @@ ITRT_ToT_dEdx::EGasType TRT_ToT_dEdx::gasTypeInStraw(const InDet::TRT_DriftCircl
   return GasType;
 }
 
-double TRT_ToT_dEdx::getToT(unsigned int BitPattern) const
-{
-  if (m_whichToTEstimatorAlgo == kToTLargerIsland) {
-    return getToTlargerIsland(BitPattern);
-  }
-
-  if (m_whichToTEstimatorAlgo == kToTHighOccupancy) {
-    return getToTHighOccupancy(BitPattern);
-  }
-
-  if (m_whichToTEstimatorAlgo == kToTHighOccupancySmart) {
-    return getToTHighOccupancySmart(BitPattern);
-  }
-
-  ATH_MSG_FATAL("getToT():: No ToT estimator case for m_whichToTEstimatorAlgo"<<m_whichToTEstimatorAlgo<<"");
-  throw std::exception();
-}
-
 /////////////////////////////////
 // Corrections
 /////////////////////////////////
@@ -776,9 +756,7 @@ TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackStateOnSurface* itr, double leng
   }
 
   Identifier DCId = driftcircle->identify();
-  //unsigned int BitPattern = driftcircle->prepRawData()->getWord();
-  //double ToT = getToT(BitPattern);
-  double timeOverThreshold = driftcircle->timeOverThreshold();
+  double timeOverThreshold = driftcircle->prepRawData()->timeOverThreshold();
   if(timeOverThreshold==0) {
     ATH_MSG_WARNING("correctToT_corrRZ(const Trk::TrackStateOnSurface *itr):: ToT="<<timeOverThreshold<<". We must cut that hit in isGoodHit() !");
     return 0;
@@ -843,9 +821,8 @@ double TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackParameters* trkP,const In
       return false;
   }
 
-  unsigned int BitPattern = driftcircle->prepRawData()->getWord();
-  double ToT = getToT(BitPattern);
-  if(ToT==0) return false; // If ToT for this hit equal 0, skip it.
+  double timeOverThreshold = driftcircle->prepRawData()->timeOverThreshold();
+  if(timeOverThreshold == 0.) return false; // If ToT for this hit equal 0, skip it.
 
   const Amg::Vector3D& gp = driftcircle->globalPosition();
   double HitR = sqrt( gp.x() * gp.x() + gp.y() * gp.y() );
@@ -857,7 +834,7 @@ double TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackParameters* trkP,const In
     valToT = fitFuncBarrel_corrRZ(gasType, HitRtrack,HitZ, Layer, StrawLayer);
   else // End-cap
     valToT = fitFuncEndcap_corrRZ(gasType, HitRtrack ,HitR,Layer, HitZ>0?1:(HitZ<0?-1:0));
-  return ToTmip*ToT/valToT;
+  return ToTmip*timeOverThreshold/valToT;
 }
 
 double TRT_ToT_dEdx::fitFuncBarrel_corrRZ(EGasType gasType, double driftRadius,double zPosition, int Layer, int StrawLayer) const
@@ -1100,219 +1077,6 @@ double TRT_ToT_dEdx::fitFuncBarrel_corrRZL(EGasType gasType, double driftRadius,
   if (zPosition>0) result = T0pos+T1+slope*z;
 
   return result;
-}
-
-double TRT_ToT_dEdx::getToTlargerIsland(unsigned int BitPattern) const 
-{
-  unsigned long mask = 0x02000000;
-  unsigned int best_length = 0;
-  unsigned int current_length = 0;
-  unsigned int k = 0;
-
-  //Set 4 last bits to zero (to match data and MC bitmasks)
-  unsigned int mask_last_bits=0xFFFFFF0;  // 1 1 11111111 1 11111111 1 11110000
-  unsigned int BitPattern0 =BitPattern & mask_last_bits;
-
-  //shift bitmask to the right until end;
-  while (true) {
-    if (BitPattern0 & mask) {
-      ++current_length;
-    }
-    else {
-      // remember longest island
-      if (current_length > best_length)
-        best_length = current_length;
-      current_length = 0;
-    }
-    if (!mask)
-      break;
-    assert(k < 24);
-    mask >>= 1;
-    if (k == 7 || k == 15)
-      mask >>= 1;
-    ++k;
-  }
-  assert(k == 24);
-  return best_length*3.125; 
-}
-
-double TRT_ToT_dEdx::getToTonly1bits(unsigned int BitPattern) const 
-{
-  /********  Islands ********/
-  unsigned  mask2 = 0x02000000;
-  int k2;
-  int i_island = 0;
-  std::vector<int> StartIsland;
-  std::vector<int> EndIsland;
-  std::vector<int> LengthIsland;
-  bool StartedIsland = false;
-  bool EndedIsland = true;
-  for(k2=0;k2<24;++k2) {
-    if ( !(BitPattern & mask2) ) {
-      if (StartedIsland) {
-        EndIsland.push_back(k2-1);
-        LengthIsland.push_back(EndIsland[i_island]-StartIsland[i_island]+1);
-        i_island = i_island+1;
-        EndedIsland = true;
-        StartedIsland = false;
-      }
-      mask2>>=1;
-      if (k2==7 || k2==15) mask2>>=1;
-    } else {
-      if (EndedIsland) {
-        StartIsland.push_back(k2);
-        StartedIsland = true;
-        EndedIsland = false;
-      }
-      if (k2==23) {
-        EndIsland.push_back(k2);
-        LengthIsland.push_back(EndIsland[i_island]-StartIsland[i_island]+1);
-      }
-      mask2>>=1;
-      if (k2==7 || k2==15) mask2>>=1;
-    }
-  }
-  
-  // ToT using only bits set to 1 (remove all 0)
-  double ToT_only1bits = 0;
-  for (unsigned int m=0 ; m<StartIsland.size() ; m++) {
-    ToT_only1bits = ToT_only1bits + LengthIsland[m]*3.125;
-  }
-  
-  return ToT_only1bits;
-}
-
-double TRT_ToT_dEdx::getToTHighOccupancy(unsigned int BitPattern) const 
-{
-  int LE = DriftTimeBin_v2(BitPattern);
-  int TE = TrailingEdge_v2(BitPattern);
-  if ( (0 == LE) || (24 == LE) || (24 == TE) || (0 == TE) || (23 == LE) )
-    return 0;
-
-  return (double) (TE-LE+1)*3.125; 
-}
-
-int TRT_ToT_dEdx::DriftTimeBin_v2(unsigned int BitPattern) const
-{
-  unsigned  mask = 0x02000000;
-  unsigned  word_LE = BitPattern>>6;
-  word_LE = word_LE<<6;
- 
-  mask >>=1;
-  bool SawZero = false;
-  int i;
-  for(i=1;i<18;++i)
-    { 
-      if      (  (word_LE & mask) && SawZero) break;
-      if ( !(word_LE & mask) ) SawZero = true; 
-      mask>>=1;
-      if(i==7 || i==15) mask>>=1;
-    }
-  if(i==18) i=0;
-  return i;
-}
-
-int TRT_ToT_dEdx::TrailingEdge_v2(unsigned int BitPattern) const
-{
-  unsigned mask = 0x00000001;
-  unsigned mask_word = 0x0001fff0;
-  unsigned word_TE = BitPattern & mask_word;
-  //bool SawZero=false;
-  bool SawZero=true;
-  int i;
-  for (i = 0; i < 24; ++i)
-    {
-      if ( (word_TE & mask) && SawZero )
-        break;
-      if ( !(word_TE & mask) )
-        SawZero = true;
-
-      mask <<= 1;
-      if (i == 7 || i == 15)
-        mask <<= 1;
-    }
- 
-  if ( 24 == i )
-    return i;
-
-  return (23 - i);
-}
-
-double TRT_ToT_dEdx::getToTHighOccupancySmart(unsigned int BitPattern) const 
-{
-  int LE = DriftTimeBin_v2(BitPattern);
-  int TE = TrailingEdge_v3(BitPattern);
-  if ( (0 == LE) || (24 == LE) || (24 == TE) || (0 == TE) || (23 == LE) )
-    return 0;
-
-  return (double) (TE-LE+1)*3.125; 
-}
-
-int TRT_ToT_dEdx::TrailingEdge_v3(unsigned int BitPattern) const
-{
-  unsigned mask = 0x00000001;
-  unsigned mask_word = 0x0001fff0; // 11111111 1 11110000   
-  unsigned mask_last_bit =0x10; //10000
-  
-  unsigned word_TE = BitPattern & mask_word;
-  
-  bool SawZero=true;
-  bool SawZero1=false;
-  bool SawZero2=false;
-  bool SawUnit1=false;
-  int i=0;
-  int j=0;
-  int k=0;
-  
-  if (word_TE & mask_last_bit) {
-    for (j = 0; j < 11; ++j) {
-      mask_last_bit=mask_last_bit<<1;          
-      if (j==3) mask_last_bit=mask_last_bit<<1;
-                
-      if (!(word_TE & mask_last_bit)) {
-        SawZero2 = true;
-        break;                  
-      }
-    }
-        
-    if(!SawZero2) return 19;
-
-    if(SawZero2){
-      for (k = j+1; k < 11; ++k) {
-        mask_last_bit=mask_last_bit<<1;
-        if (k==3) mask_last_bit=mask_last_bit<<1;
-
-        if (word_TE & mask_last_bit) {
-          SawUnit1 = true;
-          break;                                  
-        }
-      }
-    }
-        
-    if (!SawUnit1 && SawZero2) return 19; 
-  }
-  
-  //+++++++++++++++++++++++++++++++++++++
-  
-  for (i = 0; i < 24; ++i) {
-    if (!(word_TE & mask) && i>3) {
-      SawZero1 = true;
-    }
-
-    if (SawZero1) {  
-      if ((word_TE & mask) && SawZero) {
-        break;
-      } else if (!(word_TE & mask)) {
-        SawZero = true;
-      }
-    }
-    mask <<= 1;
-    if (i == 7 || i == 15) mask <<= 1;
-  }
- 
-  if (24 == i) return i;
-
-  return (23 - i);
 }
 
 double TRT_ToT_dEdx::hitOccupancyCorrection(const Trk::TrackStateOnSurface *itr) const

@@ -62,7 +62,6 @@ public:
   //////////////////////////////////////////////////////////////////////////
   enum EDataBaseType {kOldDB,kNewDB};
   enum EstCalc  {kAlgStandard,kAlgReweight,kAlgReweightTrunkOne};
-  enum EToTEstimatorType {kToTLargerIsland,kToTHighOccupancy,kToTHighOccupancySmart};
 
 private:
   SG::ReadDecorHandleKey<xAOD::EventInfo> m_rdhkEvtInfo {this
@@ -82,7 +81,6 @@ private:
   bool m_divideByL;                 // If true - divide ToT to the L of track in straw.
   bool m_useHThits;                 // If true - use HT hit for dEdX estimator calculation
 
-  int  m_whichToTEstimatorAlgo;     // If true - use getToTNewApproach(), else - use getToTlargerIsland()
   int  m_useTrackPartWithGasType;   // If kUnset - use any gas for dEdX calculation;
   int  m_toolScenario;              // Algorithm type for dEdX estimator calculation;
 
@@ -209,55 +207,6 @@ protected:
    */
   double correctToT_corrRZ(const Trk::TrackStateOnSurface *itr) const;
   double correctToT_corrRZ(const Trk::TrackStateOnSurface *itr, double length) const;
-
-  /**
-   * @brief compute ToT time for largest island
-   * @param bitpattern
-   * @return ToT
-   */
-  double getToTlargerIsland(unsigned int BitPattern) const;
-
-  /**
-   * @brief compute ToT time counting only 1 bits
-   * @param bitpattern
-   * @return ToT
-   */
-  double getToTonly1bits(unsigned int BitPattern) const;
-
-  /**
-   * @brief compute ToT time using special validity gate. Also take in account new LE and TE selection 
-   * @param bitpattern
-   * @return ToT
-   */
-  double getToTHighOccupancy(unsigned int BitPattern) const;
-
-  /**
-   * @brief LE for getToTHighOccupancy()
-   * @param bitpattern
-   * @return ToT
-   */
-  int DriftTimeBin_v2(unsigned int BitPattern) const;
-
-  /**
-   * @brief TE for getToTHighOccupancy()
-   * @param bitpattern
-   * @return ToT
-   */
-  int TrailingEdge_v2(unsigned int BitPattern) const;
-
-  /**
-   * @brief same as getToTHighOccupancy(), but use TrailingEdge_v3() with search of second TE
-   * @param bitpattern
-   * @return ToT
-   */
-  double getToTHighOccupancySmart(unsigned int BitPattern) const;
-
-  /**
-   * @brief TE for getToTHighOccupancy() with search second TE
-   * @param bitpattern
-   * @return ToT
-   */
-  int TrailingEdge_v3(unsigned int BitPattern) const;
     
   /**
    * @brief return gas type for that hit
@@ -330,13 +279,6 @@ private:
    */
   double fitFuncBarrel_corrRZL(EGasType gasType, double driftRadius,double zPosition, int Layer, int StrawLayer) const;
 
-  /**
-   * @brief choose estimator algo using m_whichToTEstimatorAlgo and return ToT from bitpattern.
-   * @param bitpattern
-   * @return ToT
-   */
-  double getToT(unsigned int BitPattern) const;
-
   /* Calibration functions for occupancy corrections */
   double hitOccupancyCorrection(const Trk::TrackStateOnSurface *itr) const;
   double trackOccupancyCorrection(const Trk::Track* track,  bool useHThits) const;
@@ -349,9 +291,6 @@ public:
 
   bool  getStatusRSCorrection() const         { return m_corrected;         }
   bool  getStatusUseHThits() const            { return m_useHThits;         }
-
-  void  setStatusToTEstimatorAlgo(EToTEstimatorType totType)   { m_whichToTEstimatorAlgo = totType; }
-  bool  getStatusToTEstimatorAlgo() const                      { return m_whichToTEstimatorAlgo;    }
 
   void  setMinRtrack(float minRtrack)         { m_trackConfig_minRtrack=minRtrack;}
   float getMinRtrack() const                  { return m_trackConfig_minRtrack;   }
