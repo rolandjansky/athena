@@ -147,7 +147,7 @@ try:
    import ctypes
    from ctypes.util import find_library as ctypes_find_library
    libc = ctypes.cdll.LoadLibrary( ctypes_find_library('c') )
-   libc.prctl( 15, 'athena.py', 0, 0, 0 )
+   libc.prctl( 15, b'athena.py', 0, 0, 0 )
 except Exception:
    pass            # don't worry about it failing ...
 
