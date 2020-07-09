@@ -407,7 +407,7 @@ StatusCode FFJetSmearingTool::getMatchedTruthJet(xAOD::Jet* jet_reco, xAOD::Jet&
         return StatusCode::FAILURE;
     }
 
-    double dRmax_truthJet = 1.00;// matching condition
+    double dRmax_truthJet = 0.75;// matching condition
     double dRmin=9999; //we will take the closest jet reco-truth
 
     //Loop over the truth jets in the event to match
@@ -418,7 +418,7 @@ StatusCode FFJetSmearingTool::getMatchedTruthJet(xAOD::Jet* jet_reco, xAOD::Jet&
 
         double dR=jet_reco->p4().DeltaR(jet_truth->p4());
 
-        if(dR < dRmax_truthJet){
+        if(dRmax_truthJet < 0 || dR < dRmax_truthJet){//dRmax_truthJet < 0 the closest truth jet is used as matched dRmax_truthJet < 0 
             if( dR < dRmin ){
                 dRmin=dR;
                 xAOD::JetFourMom_t p4 = jet_truth->jetP4();
@@ -427,7 +427,7 @@ StatusCode FFJetSmearingTool::getMatchedTruthJet(xAOD::Jet* jet_reco, xAOD::Jet&
         }
     }
 
-    if(dRmin < 9999)  return StatusCode::SUCCESS; //A matching truth jet has been found
+    if(dRmin < 999)  return StatusCode::SUCCESS; //A matching truth jet has been found
 
     return StatusCode::FAILURE; //No asociated truth jet has been found in the event
 } 
@@ -472,7 +472,7 @@ LargeRJetTruthLabel::TypeEnum jetTruthLabel = LargeRJetTruthLabel::intToEnum(acc
     else if(jetTruthLabel == LargeRJetTruthLabel::notruth)    
     {
         jetTopology="no_match";
-        ATH_MSG_DEBUG("No truth jet match with this reco jet. The jet will not be smeared.");//applyCorrention should fail for the same reason before arriving here. This message should never be shown
+        ATH_MSG_DEBUG("No truth jet match with this reco jet. The jet will not be smeared.");
     }
   
     else jetTopology="QCD"; //We should never arrive here 
