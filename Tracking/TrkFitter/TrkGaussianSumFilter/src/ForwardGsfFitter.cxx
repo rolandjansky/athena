@@ -290,9 +290,9 @@ Trk::ForwardGsfFitter::stepForwardFit(
   if (extrapolatedState.empty()) {
     ATH_MSG_DEBUG("Extrapolation failed... returning false");
     return false;
-  } 
+  } else {
     ATH_MSG_DEBUG("Extrapolation worked... state size: "<< extrapolatedState.size() );
-  
+  }
   // =======================
   // Measurement Preparation
   // =======================
@@ -329,9 +329,9 @@ Trk::ForwardGsfFitter::stepForwardFit(
   if (updatedState.empty()) {
     ATH_MSG_DEBUG("Measurement update of the state failed... Exiting!");
     return false;
-  } 
+  } else {
     ATH_MSG_DEBUG("Measurement update of the state worked : " << updatedState.size() );
-  
+  }
   // Bail if the fit quality is not defined:
   if (!fitQuality) {
     ATH_MSG_DEBUG(

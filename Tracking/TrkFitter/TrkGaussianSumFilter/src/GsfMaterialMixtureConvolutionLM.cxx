@@ -366,7 +366,7 @@ Trk::MultiComponentState  Trk::GsfMaterialMixtureConvolutionLM::update(
     
     ++nMerges;
  
-    const AmgVector(5)& firstParameters = stateVector;
+    const AmgVector(5) firstParameters = stateVector;
     const double firstWeight     = caches[stateIndex].weights[materialIndex]; 
 
     Trk::MultiComponentStateCombiner::combineParametersWithWeight( caches[stateIndex].deltaParameters[materialIndex], 

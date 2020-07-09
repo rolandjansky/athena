@@ -20,7 +20,7 @@ namespace {
 
 using namespace Trk;
 // expansion and reduction matrices set
-const ProjectionMatricesSet reMatrices(5);
+static const ProjectionMatricesSet reMatrices(5);
 
 template<int DIM>
 std::pair<double, double>
