@@ -311,18 +311,21 @@ else:
     evgenLog.info(' nEventsPerJob set to ' + str(evgenConfig.nEventsPerJob)  )
 
 if evgenConfig.minevents > 0 :
-    raise RunTimeError("evgenConfig.minevents is obsolete and should be removed from the JOs")
+    raise RuntimeError("evgenConfig.minevents is obsolete and should be removed from the JOs")
 
 if evgenConfig.nEventsPerJob < 1:
-    raise RunTimeError("evgenConfig.nEventsPerJob must be at least 1")
-elif evgenConfig.nEventsPerJob > 20000:
-    raise RunTimeError("evgenConfig.nEventsPerJob can be max. 20000")
+    raise RuntimeError("evgenConfig.nEventsPerJob must be at least 1")
+elif evgenConfig.nEventsPerJob > 100000:
+    raise RuntimeError("evgenConfig.nEventsPerJob can be max. 100000")
 else:
-    allowed_nEventsPerJob_lt1000 = [1, 2, 5, 10, 20, 25, 50, 100, 200, 500, 1000]   
+    allowed_nEventsPerJob_lt1000 = [1, 2, 5, 10, 20, 25, 50, 100, 200, 500, 1000]
     msg = "evgenConfig.nEventsPerJob = %d: " % evgenConfig.nEventsPerJob
 
-    if evgenConfig.nEventsPerJob >= 1000 and evgenConfig.nEventsPerJob % 1000 != 0 and 10000 % evgenConfig.nEventsPerJob != 0 :
-           msg += "nEventsPerJob in range >= 1K must be a multiple of 1K and a divisor of 10K"
+    if evgenConfig.nEventsPerJob >= 1000 and evgenConfig.nEventsPerJob <=10000 and (evgenConfig.nEventsPerJob % 1000 != 0 or 10000 % evgenConfig.nEventsPerJob != 0) :
+           msg += "nEventsPerJob in range [1K, 10K] must be a multiple of 1K and a divisor of 10K"
+           raise RuntimeError(msg)
+    elif evgenConfig.nEventsPerJob > 10000  and evgenConfig.nEventsPerJob % 10000 != 0:
+           msg += "nEventsPerJob >10K must be a multiple of 10K"
            raise RuntimeError(msg)
     elif evgenConfig.nEventsPerJob < 1000 and evgenConfig.nEventsPerJob not in allowed_nEventsPerJob_lt1000:
            msg += "nEventsPerJob in range <= 1000 must be one of %s" % allowed_nEventsPerJob_lt1000
