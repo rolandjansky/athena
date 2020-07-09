@@ -19,7 +19,7 @@
 #ifndef TRIGCALOREC_TRIGCALOCLUSTERMAKERMT_H
 #define TRIGCALOREC_TRIGCALOCLUSTERMAKERMT_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "CaloEvent/CaloClusterContainer.h"
 #include "CaloRec/CaloClusterCollectionProcessor.h"
 #include "CaloRec/CaloClusterProcessor.h"
@@ -36,7 +36,7 @@ class CaloClusterProcessor;
 class CaloClusterContainer;
 class CaloCellLinkContainer;
 
-class TrigCaloClusterMakerMT : public AthAlgorithm {
+class TrigCaloClusterMakerMT : public AthReentrantAlgorithm {
 
  public:
 
@@ -45,7 +45,7 @@ class TrigCaloClusterMakerMT : public AthAlgorithm {
 
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
-  virtual StatusCode execute() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
 
  private:
 
@@ -104,5 +104,7 @@ class TrigCaloClusterMakerMT : public AthAlgorithm {
       "Decor_ncells",                // decorator name
       "nCells",                      // default value
       "Decorator containing the number of cells associated to a cluster"};
+
+  bool m_isSW{false};
 };
 #endif
