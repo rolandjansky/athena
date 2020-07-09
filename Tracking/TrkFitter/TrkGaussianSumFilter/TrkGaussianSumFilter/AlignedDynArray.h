@@ -18,6 +18,7 @@ namespace GSFUtils {
  * if we have a std implementing ideas from
  * http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0886r0.pdf
  * prb we do not need this
+ * Can be used to express that we return aligned ouputs
  */
 #if defined(__GNUC__) && !defined(__CLING__) && !defined(__ICC)
 #define GSF_ALIGN_RETURN(X) __attribute__((assume_aligned(X)))
@@ -72,9 +73,9 @@ struct AlignedDynArray
   ~AlignedDynArray();
 
   /// Get the underlying buffer
-  pointer buffer() noexcept GSF_ALIGN_RETURN(ALIGNMENT);
+  pointer buffer() noexcept;
   /// Get the underlying buffer
-  const_pointer buffer() const noexcept GSF_ALIGN_RETURN(ALIGNMENT) ;
+  const_pointer buffer() const noexcept;
 
   /// index array operators
   reference operator[](const std::size_t pos) noexcept;
@@ -84,16 +85,16 @@ struct AlignedDynArray
   size_type size() const noexcept;
 
   /// iterator pointing to the first element
-  iterator begin() noexcept GSF_ALIGN_RETURN(ALIGNMENT);
+  iterator begin() noexcept;
 
   /// const iterator pointing to the first element
-  const_iterator begin() const noexcept GSF_ALIGN_RETURN(ALIGNMENT);
+  const_iterator begin() const noexcept;
   
   /// iterator pointing to the past-the-end  element
-  iterator end() noexcept GSF_ALIGN_RETURN(ALIGNMENT);
+  iterator end() noexcept;
  
   /// const iterator pointing to the past-the-end  element
-  const_iterator end() const noexcept GSF_ALIGN_RETURN(ALIGNMENT);
+  const_iterator end() const noexcept;
 
 private:
   void cleanup() noexcept;
