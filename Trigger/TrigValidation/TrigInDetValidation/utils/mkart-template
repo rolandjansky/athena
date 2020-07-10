@@ -80,7 +80,12 @@ for xmlfile in $FILES; do
 
     file=test_$(echo $_file | tr '[:upper:]' '[:lower:]' )
       
-    outfile="$OUTDIR/$file.sh"
+    jobbase=$file
+    if [ $ART -ne 0 ]; then
+        outfile="$OUTDIR/${file}_art.sh"
+    else
+        outfile="$OUTDIR/$file.sh"
+    fi
 
     if [ -z $DATASET ]; then 
 	SAMPLE=$(grep include $xmlfile | grep sample | grep -v "<\!-" | head -1 | sed 's|.* \"||g' | sed 's|\".*||g')
@@ -117,6 +122,9 @@ for xmlfile in $FILES; do
     echo "# art-description: art job for $(echo $_file | sed 's|TrigInDetValidation_||g')" >> $outfile 
     if [ $ART -eq 1 ]; then
       echo "# art-include: 21.3/Athena" >>  $outfile
+      echo "# art-include: 21.9/Athena" >>  $outfile
+      echo "# art-include: master/Athena" >>  $outfile
+      echo "# art-html https://atlas-art-data.web.cern.ch/atlas-art-data/scripts/TrigInDetValidation/TIDAart/?jobdir=" >>  $outfile
     fi
     echo "# art-type: grid"       >>  $outfile 
     echo "# art-input:  $(basename $(dirname $DATASET))" >>  $outfile 
@@ -158,8 +166,6 @@ for xmlfile in $FILES; do
 
     	 if ( echo $cmdlineflags | grep -q EventMax ); then 
 
-	     jobbase=$( basename $outfile .sh)
-	    
  	     events=$(echo $cmdlineflags | sed 's|.*EventMax[[:space:]]*=[[:space:]]*\([0-9]*[[:space:]]*\);.*|\1|g' | sed 's|EventMax[[:space:]]*=[[:space:]]*\([0-9]*\)[[:space:]]*.*|\1|g' )
  	     newevents=$( echo "2*$events" | bc )
 	     [ -e utils/art-events.dat ] && newevents=$(grep "$jobbase " utils/art-events.dat | awk '{print $2}')
