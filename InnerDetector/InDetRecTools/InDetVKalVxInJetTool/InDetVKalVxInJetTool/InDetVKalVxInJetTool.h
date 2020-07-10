@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -47,6 +47,7 @@
 #include <boost/graph/undirected_graph.hpp>
 #include <boost/graph/bron_kerbosch_all_cliques.hpp>
 //
+#include "InDetRecToolInterfaces/IInDetEtaDependentCutsSvc.h"
 #include  "Particle/TrackParticle.h"
 #include  "xAODTracking/TrackParticleContainer.h"
 //
@@ -253,10 +254,13 @@ namespace InDet {
 
 
       ToolHandle < Trk::IVertexFitter >       m_fitterSvc;
-//      ToolHandle < Trk::ITrkVKalVrtFitter >   m_fitSvc;
       ToolHandle < Trk::ITrackToVertexIPEstimator > m_trackToVertexIP;
       ToolHandle< Trk::ITrackParticleCreatorTool > m_trkPartCreator;
-//      ToolHandle< IInDetMaterialRejection > m_materialMap;
+
+      bool m_useEtaDependentCuts;
+      /** service to get cut values depending on different variable */
+      ServiceHandle<InDet::IInDetEtaDependentCutsSvc>     m_etaDependentCutsSvc;
+
       Trk::TrkVKalVrtFitter*   m_fitSvc;
  
 
@@ -339,8 +343,15 @@ namespace InDet {
       void printWrkSet(const std::vector<WrkVrt> * WrkSet, const std::string name ) const;
 
 
-      StatusCode CutTrk(double,double, double , double , double , 
-         long int ,long int ,long int , long int ) const;
+      StatusCode CutTrkRelax(double, double,
+			     double, double,
+			     long int, long int,
+			     double) const;
+      StatusCode CutTrk(double, double, double,
+			double, double, double,
+			long int, long int, long int, bool,
+			double, double,
+			double, double, double) const;
       double ConeDist(const AmgVector(5) & , const TLorentzVector & ) const;
 //
 // Gives correct mass assignment in case of nonequal masses

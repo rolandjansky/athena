@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -42,6 +42,8 @@ namespace InDet {
       declareProperty("minPTBrem",               m_minPTBrem            =     {1000.0}); // min pT for brem reocvery
       declareProperty("phiWidthBrem",            m_phiWidthBrem         =        {0.3}); // phi Width of road for brem (cut for brem)
       declareProperty("etaWidthBrem",            m_etaWidthBrem         =        {0.2}); // cut for brem
+      declareProperty("minInnermostPixelHits",   m_minInPixelHits       =          {0}); // min number of pixel hits in innermost layer
+      declareProperty("minStripHits",            m_minStripHits         =          {0}); // min number of strip hits
     
     }
 
@@ -97,7 +99,9 @@ namespace InDet {
                                                                &m_minSiNotShared      ,
                                                                &m_maxHolesGapPattern  ,
                                                                &m_maxHolesPattern     ,
-                                                               &m_nWeightedClustersMin};
+                                                               &m_nWeightedClustersMin,
+                                                               &m_minInPixelHits,
+                                                               &m_minStripHits};
       
       // checking if the set of cuts makes sense
       if (checkSize(sets_of_cuts_d).isFailure())
@@ -119,7 +123,9 @@ namespace InDet {
       ATH_MSG_INFO ("maxShared: " << m_maxShared);
       ATH_MSG_INFO ("maxZImpact: " << m_maxZImpact);
       ATH_MSG_INFO ("minClusters: " << m_minClusters);
+      ATH_MSG_INFO ("minInnermostPixelHits: " << m_minInPixelHits);
       ATH_MSG_INFO ("minPixelHits: " << m_minPixelHits);
+      ATH_MSG_INFO ("minStripHits: " << m_minStripHits);
       ATH_MSG_INFO ("minPT: " << m_minPT);
       ATH_MSG_INFO ("minPTBrem: " << m_minPTBrem);
       ATH_MSG_INFO ("minSiNotShared: " << m_minSiNotShared);
@@ -129,7 +135,6 @@ namespace InDet {
       ATH_MSG_INFO ("phiWidthBrem: " << m_phiWidthBrem);
       ATH_MSG_INFO ("Xi2max: " << m_Xi2max);
       ATH_MSG_INFO ("Xi2maxNoAdd: " << m_Xi2maxNoAdd);                
-      
 
       return StatusCode::SUCCESS;
     }
@@ -252,8 +257,8 @@ namespace InDet {
           
         case InDet::CutName::minPixelHits:
           cut = m_minPixelHits;
-          
           break;
+
         case InDet::CutName::maxHoles:
           cut = m_maxHoles;
           break;
@@ -282,6 +287,14 @@ namespace InDet {
           cut = m_nWeightedClustersMin;
           break;
         
+        case InDet::CutName::minInPixelHits:
+          cut = m_minInPixelHits;
+          break;
+
+        case InDet::CutName::minStripHits:
+          cut = m_minStripHits;
+          break;
+
         default:
           ATH_MSG_ERROR("CutName not recognized. Cuts will remain unchanged.");
           break;
@@ -317,6 +330,10 @@ namespace InDet {
     double  InDetEtaDependentCutsSvc::getMaxPrimaryImpactAtEta(double eta) {
       return getValueAtEta<double>(m_maxPrimaryImpact, eta);
     }
+
+  double  InDetEtaDependentCutsSvc::getMaxChi2AtEta(double eta) {
+      return getValueAtEta<double>(m_Xi2max, eta);
+    }
       
     int     InDetEtaDependentCutsSvc::getMinSiHitsAtEta       (double eta) {
       return getValueAtEta<int>(m_minClusters, eta);
@@ -348,6 +365,14 @@ namespace InDet {
     
     int     InDetEtaDependentCutsSvc::getMaxSharedAtEta  (double eta) {
       return getValueAtEta<int>(m_maxShared, eta);
+    }
+
+    int     InDetEtaDependentCutsSvc::getMinInnermostPixelHitsAtEta    (double eta) {
+      return getValueAtEta<int>(m_minInPixelHits, eta);
+    }
+
+    int     InDetEtaDependentCutsSvc::getMinStripHitsAtEta    (double eta) {
+      return getValueAtEta<int>(m_minStripHits, eta);
     }
       
 }   // end namespace
