@@ -1,9 +1,12 @@
 //eflowRec includes
 #include "eflowRec/PFChargedFlowElementCreatorAlgorithm.h"
+#include "eflowRec/eflowRecCluster.h"
 #include "eflowRec/eflowRecTrack.h"
+#include "eflowRec/eflowTrackClusterLink.h"
 
 //EDM includes
 #include "xAODBase/IParticleContainer.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODPFlow/FlowElementAuxContainer.h"
 #include "xAODPFlow/PFODefs.h"
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -98,6 +101,54 @@ void PFChargedFlowElementCreatorAlgorithm::createChargedFlowElements(const eflow
 
     /* Set the 4-vector of the xAOD::PFO */
     thisFE->setP4(efRecTrack->getTrack()->pt(), etaPhi.first, etaPhi.second, efRecTrack->getTrack()->m());
+
+    ATH_MSG_DEBUG("Created charged PFO with E, pt, eta and phi of " << thisFE->e() << ", " << thisFE->pt() << ", " << thisFE->eta() << " and " << thisFE->phi());
+
+    /* Add the amount of energy the track was expected to deposit in the calorimeter - this is needed to calculate the charged weight in the jet finding */
+    const SG::AuxElement::Accessor<float> accTracksExpectedEnergyDeposit("eflowRec_tracksExpectedEnergyDeposit");
+    accTracksExpectedEnergyDeposit(*thisFE) = efRecTrack->getEExpect();
+    ATH_MSG_DEBUG("Have set that PFO's expected energy deposit to be " << efRecTrack->getEExpect());
+
+    /* Flag if this track was in a dense environment for later checking */
+    //There is an issue using bools - when written to disk they convert to chars. So lets store the bool as an int.
+    const SG::AuxElement::Accessor<int> accIsInDenseEnvironment("eflowRec_isInDenseEnvironment");
+    accIsInDenseEnvironment(*thisFE) = efRecTrack->isInDenseEnvironment();
+
+     /* Optionally we add the links to clusters to the xAOD::PFO */
+    if (true == addClusters){
+
+      std::vector<std::pair<eflowTrackClusterLink*,float> > trackClusterLinkPairs = energyFlowCaloObject.efRecLink();
+
+      std::vector<eflowTrackClusterLink*> thisTracks_trackClusterLinks = efRecTrack->getClusterMatches();
+
+      /** Each eflowCaloObject has a list of clusters for all the tracks it represents.
+       *  We only want the subset of the clusters matched to this track, and collect these in thisTracks_trackClusterLinksSubtracted.
+       */
+
+      std::vector<eflowTrackClusterLink*> thisTracks_trackClusterLinksSubtracted;
+
+      //Create vector of pairs which map each CaloCluster to the ratio of its new energy to unstracted energy
+      std::vector<std::pair<ElementLink<xAOD::CaloClusterContainer>, double> > vectorClusterToSubtractedEnergies;
+
+      for (auto trackClusterLink : thisTracks_trackClusterLinks){
+        for (auto trackClusterLinkPair : trackClusterLinkPairs){
+          if (!m_eOverPMode && trackClusterLinkPair.first == trackClusterLink && !std::isnan(trackClusterLinkPair.second)) {
+            thisTracks_trackClusterLinksSubtracted.push_back(trackClusterLink);
+            eflowRecCluster* efRecCluster = trackClusterLinkPair.first->getCluster();
+            ElementLink<xAOD::CaloClusterContainer> theOriginalClusterLink = efRecCluster->getOriginalClusElementLink();
+              ElementLink<xAOD::CaloClusterContainer> theSisterClusterLink = (*theOriginalClusterLink)->getSisterClusterLink();
+            if (theSisterClusterLink.isValid()) vectorClusterToSubtractedEnergies.push_back(std::pair(theSisterClusterLink,trackClusterLinkPair.second));
+            else vectorClusterToSubtractedEnergies.push_back(std::pair(theOriginalClusterLink,trackClusterLinkPair.second));
+          }
+          else if (m_eOverPMode) thisTracks_trackClusterLinksSubtracted.push_back(trackClusterLink);
+        }
+      }
+
+      //sort the vectorClusterToSubtractedEnergies in order of subtracted energy ratio from low (most subtracted) to high (least subtracted)
+      std::sort(vectorClusterToSubtractedEnergies.begin(),vectorClusterToSubtractedEnergies.end(), [](auto const& a, auto const&b){return a.second < b.second;});
+      //now split this into two vectors, ready to be used by the FlowElement
+
+    }
 
   }//loop over eflowRecTracks
 
