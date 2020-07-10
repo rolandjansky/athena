@@ -13,6 +13,10 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( CLHEP )
 
-# Install files from the package:
-atlas_install_headers( TRT_CalibData )
+atlas_add_library( TRT_CalibData
+                   TRT_CalibData/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS TRT_CalibData
+                   LINK_LIBRARIES TRT_ConditionsData InDetIdentifier )
+
 
