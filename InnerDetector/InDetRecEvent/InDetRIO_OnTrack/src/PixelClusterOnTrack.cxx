@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -30,6 +30,9 @@ InDet::PixelClusterOnTrack::PixelClusterOnTrack(
   m_detEl( RIO->detectorElement() )
 {
   m_rio.setElement(RIO);
+
+  // Set global position
+  m_globalPosition = associatedSurface().localToGlobalPos(localParameters());
 }
 
 // Constructor with parameters
@@ -68,8 +71,10 @@ InDet::PixelClusterOnTrack::PixelClusterOnTrack
   m_hasClusterAmbiguity (hasClusterAmbiguity),
   m_isFake (isFake),
   m_energyLoss (energyLoss),
-  m_detEl (nullptr)
+  m_detEl ((*RIO)->detectorElement())
 {
+  // Set global position
+  m_globalPosition = associatedSurface().localToGlobalPos(localParameters());
 }
     
 

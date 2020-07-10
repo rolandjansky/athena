@@ -35,6 +35,7 @@ if TriggerFlags.doID():
    # Pixel
    StreamBS.ItemList += ["PixelRDO_Container#*"]
    StreamBS.ExtraInputs += [('PixelHitDiscCnfgData','ConditionStore+PixelHitDiscCnfgData')]
+   StreamBS.ExtraInputs += [('PixelCablingCondData','ConditionStore+PixelCablingCondData')]
 
 if TriggerFlags.doCalo():
    # LAr
