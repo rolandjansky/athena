@@ -43,7 +43,7 @@ StatusCode ParticleFilter::filterEvent() {
             // Count only particles not decaying to themselves
             bool notSelfDecay = true;
             if (pitr->end_vertex()) {
-              for (auto  child: pitr->end_vertex()) {
+              for (auto  child: *(pitr->end_vertex())) {
                 if ( child->pdg_id() == pitr->pdg_id() && HepMC::barcode(child)!=HepMC::barcode(pitr) && HepMC::barcode(child) < 100000) {
                   notSelfDecay = false;
                   break;

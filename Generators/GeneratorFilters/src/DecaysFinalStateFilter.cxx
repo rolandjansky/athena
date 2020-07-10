@@ -67,7 +67,7 @@ StatusCode DecaysFinalStateFilter::filterEvent() {
 
       if (!part->end_vertex()) continue;
 
-      for (auto opitr: part->end_vertex()) {
+      for (auto opitr: *(part->end_vertex())) {
         int apid = std::abs(opitr->pdg_id());
         if (apid == 1 || apid == 2 || apid == 3 || apid == 4 || apid ==5) nQuarks++;
         if (apid == 11 || apid == 13 || apid == 15) nChargedLeptons++;

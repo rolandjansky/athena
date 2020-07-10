@@ -202,7 +202,7 @@ string DecayModeFilter::printChain(HepMC::GenParticlePtr parent) const {
   HepMC::GenParticlePtr foundChild(NULL);
   int SMchild_PDG(0);
   if (!parent->end_vertex()) return ss.str();
-  for ( auto  child: parent->end_vertex()) {
+  for ( auto  child: *(parent->end_vertex())) {
     if (std::abs(child->pdg_id()) < 1000) SMchild_PDG = std::abs(child->pdg_id());
     else foundChild = child;
   }
@@ -256,7 +256,7 @@ void DecayModeFilter::countChain(HepMC::GenParticlePtr parent, int& length,
   if (!parent) return;
   if (parent->end_vertex())
   {
-  for ( auto child: parent->end_vertex()) {
+  for (auto child: *(parent->end_vertex())) {
     if (std::abs(child->pdg_id()) < 1000){
       SMchild_PDG = std::abs(child->pdg_id());
       nSMParticles++;

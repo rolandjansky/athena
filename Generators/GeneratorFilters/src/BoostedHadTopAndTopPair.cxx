@@ -141,7 +141,7 @@ bool BoostedHadTopAndTopPair::isHadronic(HepMC::ConstGenParticlePtr part) const{
 
   auto end = part->end_vertex();
   if (end) {
-  for(auto firstChild: end){
+  for(auto firstChild: *end){
     if( std::abs(firstChild->pdg_id()) <= 5 ) return true;
   }
   }
@@ -154,7 +154,7 @@ bool BoostedHadTopAndTopPair::isFinalParticle(HepMC::ConstGenParticlePtr part) c
   auto end = part->end_vertex();
   if(end){
     int type = part->pdg_id();
-    for(auto  firstChild: end){
+    for(auto  firstChild: *end){
       if( firstChild->pdg_id() == type ) return false;
     }
   }
@@ -169,7 +169,7 @@ HepMC::FourVector BoostedHadTopAndTopPair::momentumBofW(HepMC::ConstGenParticleP
 
   HepMC::FourVector b(0,0,0,0);
 if (prod) { 
- for( auto firstChild: prod){
+ for( auto firstChild: *prod){
     if( std::abs( firstChild->pdg_id() ) == 5 ){
     b.set(firstChild->momentum().x(), firstChild->momentum().y(), firstChild->momentum().z(), firstChild->momentum().t());
     }

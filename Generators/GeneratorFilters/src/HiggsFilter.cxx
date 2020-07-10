@@ -70,7 +70,7 @@ StatusCode HiggsFilter::filterEvent() {
         int n_daughters =  decayVtx->particles_out_size();
 #endif
 	if( n_daughters < 2 ) continue;
-	for ( auto child_mcpart: decayVtx) {
+	for ( auto child_mcpart: *decayVtx) {
 	      if ( std::abs(child_mcpart->pdg_id()) != 5 ) continue;
 	      if ( pitr->pdg_id() ==  25 ) {
 		N_Higgs++;
