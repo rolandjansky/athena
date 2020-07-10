@@ -262,13 +262,11 @@ void MuonSegmentFinderAlg::createSegmentsFromClusters(Muon::MuonPatternCombinati
       if( !cl ) continue;
       int sector = m_idHelperTool->sector(id);
       std::vector<const Muon::MuonClusterOnTrack*>& clusters = clustersPerSector[sector];
-      if(m_idHelperTool->issTgc((*pit)->identify())){
-        const Muon::MuonClusterOnTrack* clust = m_clusterCreator->createRIO_OnTrack( *cl, cl->globalPosition() );
-        clusters.push_back(clust);
-
-      }
-      if(m_idHelperTool->isMM((*pit)->identify())){
+      if (m_idHelperTool->isMM((*pit)->identify())) {
         const Muon::MuonClusterOnTrack* clust = m_mmClusterCreator->createRIO_OnTrack( *cl, cl->globalPosition() );
+        clusters.push_back(clust);
+      } else {  //  must be an sTGC prd
+        const Muon::MuonClusterOnTrack* clust = m_clusterCreator->createRIO_OnTrack( *cl, cl->globalPosition() );
         clusters.push_back(clust);
       }
     }
