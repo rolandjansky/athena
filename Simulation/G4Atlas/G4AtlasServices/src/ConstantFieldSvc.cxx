@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ConstantFieldSvc.h"
@@ -10,10 +10,6 @@
 ConstantFieldSvc::ConstantFieldSvc(const std::string& name, ISvcLocator* pSvcLocator)
   : G4MagFieldSvcBase(name, pSvcLocator)
 {
-  // What are the units??
-  declareProperty("FieldX", m_fieldX=0., "Field X component");
-  declareProperty("FieldY", m_fieldY=0., "Field Y component");
-  declareProperty("FieldZ", m_fieldZ=0., "Field Z component");
 }
 
 StatusCode ConstantFieldSvc::initialize()
