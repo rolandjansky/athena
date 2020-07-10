@@ -116,13 +116,13 @@ namespace Muon {
 									 const Amg::Vector3D& GP) const
 
   {
-    MuonClusterOnTrack* MClT = 0;
+    MuonClusterOnTrack* MClT = nullptr;
  
     // check whether PrepRawData has detector element, if not there print warning 
     const Trk::TrkDetElementBase* EL = RIO.detectorElement();
     if( !EL ){
       ATH_MSG_WARNING ( "RIO does not have associated detectorElement!, cannot produce ROT" );
-      return 0;
+      return nullptr;
     }
 
     // MuClusterOnTrack production
@@ -192,7 +192,7 @@ namespace Muon {
       const RpcPrepData* MClus   = dynamic_cast<const RpcPrepData*> (&RIO);
       if (!MClus) {
 	ATH_MSG_WARNING ( "RIO not of type RpcPrepData, cannot create ROT" );
-	return 0;
+	return nullptr;
       }
         
       bool measphi = m_idHelper->measuresPhi(RIO.identify());
@@ -246,7 +246,7 @@ namespace Muon {
       const TgcPrepData* MClus   = dynamic_cast<const TgcPrepData*> (&RIO);
       if (!MClus) {
 	ATH_MSG_WARNING ( "RIO not of type TgcPrepData, cannot create ROT" );
-	return 0;
+	return nullptr;
       }
 
       // calculation of 2D error matrix for TGC phi strips
@@ -297,7 +297,7 @@ namespace Muon {
       const CscPrepData* MClus   = dynamic_cast<const CscPrepData*> (&RIO);
       if (!MClus) {
 	ATH_MSG_WARNING ( "RIO not of type CscPrepData, cannot create ROT" );
-	return 0;
+	return nullptr;
       }
 
       bool measphi = m_idHelper->measuresPhi(RIO.identify());
@@ -319,22 +319,13 @@ namespace Muon {
       // current not changing CscClusterStatus but passing status of RIO
       MClT = new CscClusterOnTrack(MClus,locpar,loce,positionAlongStrip,MClus->status(),MClus->timeStatus());
 
-    }else if( m_idHelper->isMM(RIO.identify()) ){
-      // cast to MMPrepData
-      const MMPrepData* MClus   = dynamic_cast<const MMPrepData*> (&RIO);
-      if (!MClus) {
-	        ATH_MSG_WARNING ( "RIO not of type MMPrepData, cannot create ROT" );
-	        return 0;
-      }
-      MClT = new MMClusterOnTrack(MClus,locpar,loce,positionAlongStrip);
-
     }else if( m_idHelper->issTgc(RIO.identify()) ){
 
       // cast to sTgcPrepData
       const sTgcPrepData* MClus   = dynamic_cast<const sTgcPrepData*> (&RIO);
       if (!MClus) {
       	ATH_MSG_WARNING ( "RIO not of type sTgcPrepData, cannot create ROT" );
-      	return 0;
+      	return nullptr;
       }
 
       
@@ -345,11 +336,12 @@ namespace Muon {
 
   const MuonClusterOnTrack* MuonClusterOnTrackCreator::
   createRIO_OnTrack(const Trk::PrepRawData& RIO, const Amg::Vector3D& GP, const Amg::Vector3D&) const {
-    return createRIO_OnTrack(RIO,GP);
+
+    return createRIO_OnTrack(RIO, GP);
   }
 
   const MuonClusterOnTrack* MuonClusterOnTrackCreator::correct(const Trk::PrepRawData& RIO,const Trk::TrackParameters& TP) const 
-  {
-    return createRIO_OnTrack(RIO,TP.position(),TP.momentum());
+  {  
+    return createRIO_OnTrack(RIO,TP.position());
   }
 }
