@@ -36,17 +36,23 @@ public:
   // Destructor:
   virtual ~TRT_LoLumRawData();
 
-    // High level threshold:
+  // High level threshold:
   virtual bool highLevel() const;
   virtual bool highLevel(int /* BX */) const;
 
-    // Time over threshold in ns for valid digits; zero otherwise:
-  virtual double timeOverThreshold() const;
+  // Time over threshold in ns for valid digits; zero otherwise:
+  virtual double timeOverThreshold() const {
+    return timeOverThreshold(m_word);
+  };
 
-    // drift time in bin
-  virtual int driftTimeBin() const;   // Position of first leading edge
+  // drift time in bin
+  virtual int driftTimeBin() const {
+    return driftTimeBin(m_word);
+  };
 
-  virtual int trailingEdge() const;   // Position of last trailing edge
+  virtual int trailingEdge() const {
+    return trailingEdge(m_word);
+  };
 
   virtual bool firstBinHigh() const;  // True if first time bin is high
   virtual bool lastBinHigh() const;   // True if last time bin is high
@@ -60,6 +66,32 @@ public:
   ///////////////////////////////////////////////////////////////////
   // Static methods:
   ///////////////////////////////////////////////////////////////////
+
+protected:
+  // width of the drift time bins
+  static const double m_driftTimeBinWidth;
+
+  // bit masks used in interpretation of bit pattern
+  static const unsigned int m_maskFourLastBits;
+  static const unsigned int m_maskThreeLastBits;
+
+public:
+  // width of the drift time bins
+  static double getDriftTimeBinWidth() {
+    return m_driftTimeBinWidth;
+  };
+
+  // Find the relevant island of bits from the bit pattern, defined as the largest island with the earliest leading edge
+  static bool findLargestIsland(unsigned int word, unsigned int& leadingEdge, unsigned int& trailingEdge);
+
+  // Determine the drift time bin, i.e. the leading edge of the relevant island, from the bit pattern
+  static unsigned int driftTimeBin(unsigned int word);
+
+  // Determine the trailing edge of the relevant island from the bit pattern
+  static unsigned int trailingEdge(unsigned int word);
+
+  // Determine the time over threshold, i.e. width of the relevant island, in ns from the bit pattern
+  static double timeOverThreshold(unsigned int word);
 
   // Create a new TRT_LoLumRawData and return a pointer to it:
   //  static TRT_LoLumRawData *newObject(const Identifier rdoId, const unsigned int word);
