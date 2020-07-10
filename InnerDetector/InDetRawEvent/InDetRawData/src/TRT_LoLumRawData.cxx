@@ -54,7 +54,7 @@ unsigned int TRT_LoLumRawData::trailingEdge(unsigned int word) {
 double TRT_LoLumRawData::timeOverThreshold(unsigned int word) {
   unsigned int leadingEdge=0, trailingEdge=0;
   if (findLargestIsland(word, leadingEdge, trailingEdge)) {
-    return (trailingEdge - leadingEdge) * m_driftTimeBinWidth;
+    return (trailingEdge - leadingEdge + 1) * m_driftTimeBinWidth;
   };
   return 0.;
 }
