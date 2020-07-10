@@ -46,8 +46,8 @@ namespace G4UA
     {
       // Why a const_cast???
       // This is an ugly way to communicate the GenParticle...
-      HepMC::GenParticle* part =
-        const_cast<HepMC::GenParticle*>( trackHelper.GetTrackInformation()->
+      HepMC::GenParticlePtr part =
+        const_cast<HepMC::GenParticlePtr>( trackHelper.GetTrackInformation()->
                                          GetHepMCParticle() );
 
       // Assign the GenParticle to the EventInformation.

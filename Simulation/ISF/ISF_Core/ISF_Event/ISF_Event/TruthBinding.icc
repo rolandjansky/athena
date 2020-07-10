@@ -1,18 +1,18 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // this file contains all ITruthBinding inline methods
 
 namespace ISF {
   /** constructor setting all truth particle pointers to the given particle */
-  TruthBinding::TruthBinding(HepMC::GenParticle* allTruthP) :
+  TruthBinding::TruthBinding(HepMC::GenParticlePtr allTruthP) :
     m_truthParticle(allTruthP),
     m_primaryTruthParticle(allTruthP),
     m_generationZeroTruthParticle(allTruthP) { }
 
   /** constructor setting all truth particle pointers individually */
-  TruthBinding::TruthBinding(HepMC::GenParticle* truthP, HepMC::GenParticle* primaryTruthP, HepMC::GenParticle* genZeroTruthP) :
+  TruthBinding::TruthBinding(HepMC::GenParticlePtr truthP, HepMC::GenParticlePtr primaryTruthP, HepMC::GenParticlePtr genZeroTruthP) :
     m_truthParticle(truthP),
     m_primaryTruthParticle(primaryTruthP),
     m_generationZeroTruthParticle(genZeroTruthP) { }
@@ -91,14 +91,14 @@ namespace ISF {
   }
 
   /** pointer to the particle in the simulation truth */
-  HepMC::GenParticle* TruthBinding::getTruthParticle() const { return m_truthParticle; }
-  void                TruthBinding::setTruthParticle(HepMC::GenParticle* p) { m_truthParticle = p; }
+  HepMC::GenParticlePtr TruthBinding::getTruthParticle() const { return m_truthParticle; }
+  void                TruthBinding::setTruthParticle(HepMC::GenParticlePtr p) { m_truthParticle = p; }
 
   /** pointer to the primary particle in the simulation truth */
-  HepMC::GenParticle* TruthBinding::getPrimaryTruthParticle() const { return m_primaryTruthParticle; }
+  HepMC::GenParticlePtr TruthBinding::getPrimaryTruthParticle() const { return m_primaryTruthParticle; }
 
   /** pointer to the simulation truth particle before any regeneration (eg. brem) */
-  HepMC::GenParticle* TruthBinding::getGenerationZeroTruthParticle() const { return m_generationZeroTruthParticle; }
-  void                TruthBinding::setGenerationZeroTruthParticle(HepMC::GenParticle* p) { m_generationZeroTruthParticle = p; }
+  HepMC::GenParticlePtr TruthBinding::getGenerationZeroTruthParticle() const { return m_generationZeroTruthParticle; }
+  void                TruthBinding::setGenerationZeroTruthParticle(HepMC::GenParticlePtr p) { m_generationZeroTruthParticle = p; }
 
 } // end ISF namespace

@@ -108,7 +108,7 @@ namespace JiveXML {
         phi.push_back(DataType( (thePhi<0) ? thePhi+=2*M_PI : thePhi ));
         eta.push_back(DataType( particle->momentum().pseudoRapidity() ));
         code.push_back(DataType( particle->pdg_id() ));
-        id.push_back(DataType( particle->barcode() ));
+        id.push_back(DataType( HepMC::barcode(*particle) ));
 
         // Get the vertex information
         auto vertex =  particle->production_vertex();
