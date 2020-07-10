@@ -83,6 +83,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_fitterSvc("Trk::TrkVKalVrtFitter/VertexFitterTool",this),
     m_trackToVertexIP("Trk::TrackToVertexIPEstimator/TrackToVertexIPEstimator"),
     m_trkPartCreator("Trk::TrackParticleCreatorTool/InDetParticleCreatorTool"),
+    m_useEtaDependentCuts(false),
     m_etaDependentCutsSvc("",name)
    {
 //
@@ -187,9 +188,9 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
      m_WorkArray = new VKalVxInJetTemp;
      m_compatibilityGraph = new boost::adjacency_list<boost::listS, boost::vecS, boost::undirectedS>();
 
-     if (not m_etaDependentCutsSvc.name().empty()){
+     m_useEtaDependentCuts = !(m_etaDependentCutsSvc.name().empty());
+     if (m_useEtaDependentCuts){
        ATH_CHECK(m_etaDependentCutsSvc.retrieve());
-       m_useEtaDependentCuts = true;
        ATH_MSG_INFO("Using InDetEtaDependentCutsSvc. Track selections from config not used");
      }
      else{

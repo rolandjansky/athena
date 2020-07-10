@@ -29,6 +29,7 @@ namespace Analysis {
     m_ntri(0),
     m_ntrf(0),
     m_trackToVertexTool("Reco::TrackToVertex"),
+    m_useEtaDependentCuts(false),
     m_etaDependentCutsSvc("",name) {
 
     declareInterface<TrackSelector>(this);
@@ -92,9 +93,9 @@ namespace Analysis {
       ATH_MSG_DEBUG("#BTAG# Retrieved tool " << m_trackToVertexTool);
     }
 
-    if (not m_etaDependentCutsSvc.name().empty()){
+    m_useEtaDependentCuts = !(m_etaDependentCutsSvc.name().empty());
+    if (m_useEtaDependentCuts){
        ATH_CHECK(m_etaDependentCutsSvc.retrieve());
-       m_useEtaDependentCuts = true;
        ATH_MSG_INFO("Using InDetEtaDependentCutsSvc. Track selections from config not used");
      }
      else{
