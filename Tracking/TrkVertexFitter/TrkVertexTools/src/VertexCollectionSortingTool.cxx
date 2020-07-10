@@ -56,7 +56,9 @@ namespace Trk{
     return StatusCode::SUCCESS;
   }
 
-  std::pair<xAOD::VertexContainer*,xAOD::VertexAuxContainer*> VertexCollectionSortingTool::sortVertexContainer( const xAOD::VertexContainer& MyVxCont)
+  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
+  VertexCollectionSortingTool::sortVertexContainer(
+    const xAOD::VertexContainer& MyVxCont) const
   { 
     std::vector<Vertex_pair> MyVertex_pairs;
     
