@@ -147,8 +147,19 @@ void PFChargedFlowElementCreatorAlgorithm::createChargedFlowElements(const eflow
       //sort the vectorClusterToSubtractedEnergies in order of subtracted energy ratio from low (most subtracted) to high (least subtracted)
       std::sort(vectorClusterToSubtractedEnergies.begin(),vectorClusterToSubtractedEnergies.end(), [](auto const& a, auto const&b){return a.second < b.second;});
       //now split this into two vectors, ready to be used by the FlowElement
+      std::vector<ElementLink<xAOD::IParticleContainer> > theClusters;
+      std::vector<float> theClusterWeights;
+      for (auto thePair : vectorClusterToSubtractedEnergies){
+        ElementLink< xAOD::IParticleContainer > theIParticleTrackLink; 
+        theIParticleTrackLink.resetWithKeyAndIndex(thePair.first.persKey(),thePair.first.persIndex()); 
+        theClusters.push_back(theIParticleTrackLink);
+        theClusterWeights.push_back(thePair.second);
+      }
 
-    }
+      //Set the vector of clusters and vector of corresponding energies.
+      thisFE->setOtherObjectLinks(theClusters,theClusterWeights);
+
+    }//if we add clusters
 
   }//loop over eflowRecTracks
 
