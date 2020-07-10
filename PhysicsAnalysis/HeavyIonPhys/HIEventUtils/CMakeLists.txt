@@ -30,7 +30,7 @@ atlas_add_library( HIEventUtilsLib
                    Root/*.cxx
                    PUBLIC_HEADERS HIEventUtils
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-		   LINK_LIBRARIES ${ROOT_LIBRARIES} CaloGeoHelpers AsgTools xAODCaloEvent xAODEventInfo xAODForward xAODHIEvent xAODTracking xAODTrigL1Calo PathResolver PATCoreLib
+		   LINK_LIBRARIES ${ROOT_LIBRARIES} CaloGeoHelpers AsgTools xAODCaloEvent xAODEventInfo xAODForward xAODHIEvent xAODTracking xAODTrigL1Calo PathResolver PATCoreLib InDetTrackSelectionToolLib
                    PRIVATE_LINK_LIBRARIES CxxUtils )
 
 if (NOT XAOD_STANDALONE)
