@@ -12,7 +12,7 @@
 from __future__ import print_function
 
 # input parameters:
-class opt:
+class myopt:
     doMenu          = False # use either menu or manual chain building
 
 
@@ -31,19 +31,20 @@ from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
 # inputMakers: one per each first RecoAlg in a step (so one per step), one input per chain that needs that step
 
 log = logging.getLogger('EmuStepProcessingTest.py')
-log.info('Setup options:')
-defaultOptions = [a for a in dir(opt)]
+log.info('Setup options CACCA: ', globals())
+
+defaultOptions = [a for a in dir(myopt) if not a.startswith('__')]
 for option in defaultOptions:
     if option in globals():
-        setattr(opt, option, globals()[option])
-        print(' %20s = %s' % (option, getattr(opt, option)))
+        setattr(myopt, option, globals()[option])
+        log.info(' %20s = %s' % (option, getattr(myopt, option)))
     else:        
-        print(' %20s = (Default) %s' % (option, getattr(opt, option)))
+        log.info(' %20s = (Default) %s' % (option, getattr(myopt, option)))
 
 TriggerFlags.generateMenuDiagnostics=True
 
 topSequence = AlgSequence()
-if opt.doMenu is True:
+if myopt.doMenu is True:
     generateL1DecoderAndChainsByMenu(topSequence)
 else:
     generateL1DecoderAndChainsManually(topSequence)
