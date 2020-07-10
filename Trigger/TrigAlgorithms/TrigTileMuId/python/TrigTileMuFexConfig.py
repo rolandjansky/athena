@@ -1,12 +1,9 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#from TrigTileMuId.TrigTileMuIdConf import TrigTileMuFex
-from AthenaCommon.GlobalFlags import globalflags
-from AthenaCommon.AppMgr import ServiceMgr
-from TrigTileMuId.TrigTileMuIdMonitoring import *
+from TrigTileMuId import TrigTileMuIdMonitoring
+from TrigTileMuId import TrigTileMuIdConf
 
-
-class TrigTileMuFexConfig (TrigTileMuFex):
+class TrigTileMuFexConfig (TrigTileMuIdConf.TrigTileMuFex):
     __slot__ = []
 
     def __new__( cls, *args, **kwargs ):
@@ -21,7 +18,7 @@ class TrigTileMuFexConfig (TrigTileMuFex):
     def __init__(self, name, *args, **kwargs ):
         super( TrigTileMuFexConfig, self ).__init__( name )
 
-        TrigTileMuFex.__init__(self, name)
+        TrigTileMuIdConf.TrigTileMuFex.__init__(self, name)
 
         self.UseAthenaFieldService = True
 
@@ -41,14 +38,14 @@ class TrigTileMuFexConfig (TrigTileMuFex):
         self.DelPhi_Cut = 0.2
         self.DelEta_Cut = 0.1
         self.Pt_Cut = 2000.0
-                        # Unit(Pt) : MeV
+        # Unit(Pt) : MeV
 
         self.GetTruthMuon = False
         #self.GetTruthMuon = True 
 
-        validation = TrigTileMuFexValidationMonitoring()
-        online     = TrigTileMuFexOnlineMonitoring()
-        cosmic     = TrigTileMuFexCosmicMonitoring()
+        validation = TrigTileMuIdMonitoring.TrigTileMuFexValidationMonitoring()
+        online     = TrigTileMuIdMonitoring.TrigTileMuFexOnlineMonitoring()
+        cosmic     = TrigTileMuIdMonitoring.TrigTileMuFexCosmicMonitoring()
 
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("Time")

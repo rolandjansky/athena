@@ -171,7 +171,7 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         assert(remapped_type is not None)
 
         #Global keys/names for collections 
-        from TrigInDetConfig.InDetTrigCollectionKeys import TrigTRTKeys, TrigPixelKeys, TrigSCTKeys
+        from TrigInDetConfig.InDetTrigCollectionKeys import TrigPixelKeys, TrigSCTKeys
 
 
         self.useNewLayerNumberScheme = True
