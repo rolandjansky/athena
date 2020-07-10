@@ -92,9 +92,8 @@ preexec_all = ';'.join([
 rdo2aod = ExecStep.ExecStep()
 rdo2aod.type = 'Reco_tf'
 rdo2aod.max_events = 1000 # TODO: 2000 events
-#rdo2aod.threads = 1 # TODO: change to 4
-#rdo2aod.concurrent_events = 1 # TODO: change to 4
-rdo2aod.forks = 4 
+rdo2aod.threads = 1 # TODO: change to 4
+rdo2aod.concurrent_events = 4 # TODO: change to 4
 rdo2aod.perfmon = False
 rdo2aod.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG" '
 if local:
