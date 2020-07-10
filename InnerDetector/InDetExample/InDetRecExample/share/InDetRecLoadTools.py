@@ -219,6 +219,13 @@ if InDetFlags.loadRotCreator():
         InDet_SeedToTrackConversion = InDet__SeedToTrackConversionTool( name = "InDet_SeedToTrackConversion")
         ToolSvc += InDet_SeedToTrackConversion
 
+    if InDetFlags.doStoreTrackSeeds() and InDetFlags.doLowPtRoI():
+        from SeedToTrackConversionTool.SeedToTrackConversionToolConf import InDet__SeedToTrackConversionTool
+        InDet_SeedToTrackConversionLowPtRoI = InDet__SeedToTrackConversionTool( name = "InDet_SeedToTrackConversionLowPtRoI", 
+                                                                                TrackPatternRecoInfo = "SiSpacePointsSeedMaker_LowMomentum",
+                                                                                SeedsegmentsOutput = "SiSPLowPtRoISeedSegments")
+        ToolSvc += InDet_SeedToTrackConversionLowPtRoI
+
     if PixelClusterOnTrackToolDigital != None :
        InDetRotCreatorDigital = Trk__RIO_OnTrackCreator(name             = 'InDetRotCreatorDigital',
                                                         ToolPixelCluster = PixelClusterOnTrackToolDigital,
@@ -685,7 +692,7 @@ if InDetFlags.loadFitter():
         #
         # ----------- Global Chi2 Fitter for Low-Pt with different settings 
         #
-        if InDetFlags.doLowPt() or InDetFlags.doVeryLowPt() or (InDetFlags.doTrackSegmentsPixel() and InDetFlags.doMinBias()):
+        if InDetFlags.doLowPt() or InDetFlags.doVeryLowPt() or InDetFlags.doLowPtRoI() or (InDetFlags.doTrackSegmentsPixel() and InDetFlags.doMinBias()):
             InDetTrackFitterLowPt = Trk__GlobalChi2Fitter(name                  = 'InDetTrackFitterLowPt',
                                                           ExtrapolationTool     = InDetExtrapolator,
                                                           NavigatorTool         = InDetNavigator,
@@ -819,7 +826,7 @@ if InDetFlags.loadFitter():
             ToolSvc += InDetTrackFitterTRT
             if (InDetFlags.doPrintConfigurables()):
                 print InDetTrackFitterTRT
-        if InDetFlags.doLowPt() or (InDetFlags.doTrackSegmentsPixel() and InDetFlags.doMinBias()):
+        if InDetFlags.doLowPt() or InDetFlags.doLowPtRoI() or (InDetFlags.doTrackSegmentsPixel() and InDetFlags.doMinBias()):
             ToolSvc+=InDetTrackFitterLowPt
             if (InDetFlags.doPrintConfigurables()):
                 print InDetTrackFitterLowPt
@@ -1356,6 +1363,7 @@ if InDetFlags.doTruth() and (InDetFlags.doStatistics() or InDetFlags.doStandardP
     ToolSvc += InDetTruthToTrack
     if (InDetFlags.doPrintConfigurables()):
         print InDetTruthToTrack
+
 
 # ------------------------------------------------------------
 #

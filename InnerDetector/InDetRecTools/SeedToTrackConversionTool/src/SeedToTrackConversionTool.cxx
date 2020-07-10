@@ -14,6 +14,7 @@
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "SeedToTrackConversionTool/SeedToTrackConversionTool.h"
+#include "AthenaKernel/MsgStreamMember.h"
 
 //================ Constructor =================================================
 
@@ -32,6 +33,7 @@ InDet::SeedToTrackConversionTool::SeedToTrackConversionTool(const std::string& t
   m_nprint = 0;   
   declareInterface<ISeedToTrackConversionTool>(this);
   declareProperty("TrackPatternRecoInfo"    ,m_patternName );
+  declareProperty("SeedsegmentsOutput"    ,m_seedsegmentsOutput );
   //  template for property decalration
   //declareProperty("PropertyName", m_propertyName);
 }
@@ -98,7 +100,8 @@ void InDet::SeedToTrackConversionTool::endEvent()
 {
   // Print event information
   //
-  if (outputLevel()<=0) {
+  Athena::MsgStreamMember msgStream;
+  if (msgStream.get().level() <= MSG::DEBUG) {
     m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
   }
 
@@ -186,7 +189,8 @@ void  InDet::SeedToTrackConversionTool::executeSiSPSeedSegments(const Trk::Track
 MsgStream&  InDet::SeedToTrackConversionTool::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpevent(out); return dumpconditions(out);
+  if(m_nprint)  return dumpevent(out);
+  return dumpconditions(out);
 }
  
 ///////////////////////////////////////////////////////////////////

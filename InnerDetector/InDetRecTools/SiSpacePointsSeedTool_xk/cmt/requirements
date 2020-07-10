@@ -4,7 +4,9 @@ author Igor Gavrilenko <Igor.Gavrilenko@cern.ch>
 
 private
 
+use xAODEventInfo                xAODEventInfo-*          Event/xAOD
 use TrkToolInterfaces      TrkToolInterfaces-*      Tracking/TrkTools   
+use AtlasCLHEP                  AtlasCLHEP-*            External
 
 public
 
