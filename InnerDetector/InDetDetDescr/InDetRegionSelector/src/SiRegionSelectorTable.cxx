@@ -15,6 +15,9 @@
 #include "RegSelLUT/RegSelModule.h" 
 #include "RegSelLUT/RegSelSiLUT.h" 
 
+#include "AthenaKernel/ExtendedEventContext.h"
+#include "GaudiKernel/ThreadLocalContext.h"
+
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include <iostream>
@@ -76,7 +79,12 @@ SiRegionSelectorTable::initialize(){
   ATH_CHECK(m_condCablingKey.initialize());
 
   ATH_MSG_WARNING("So far, this prevents the conditions migration!! The createTable() should NOT be used in the initilization step...");
-  ATH_CHECK(createTable());
+  const EventIDBase::number_type UNDEFNUM = EventIDBase::UNDEFNUM;
+  const EventIDBase::event_number_t UNDEFEVT = EventIDBase::UNDEFEVT;
+  EventContext ctx = Gaudi::Hive::currentContext();
+  ctx.setEventID (EventIDBase (0, UNDEFEVT, UNDEFNUM, 0, 0));
+  Atlas::getExtendedEventContext(ctx).setConditionsRun (0);
+  ATH_CHECK(createTable (ctx));
 
   return StatusCode::SUCCESS;
 }
@@ -101,7 +109,7 @@ RegSelSiLUT* SiRegionSelectorTable::getLUT()
 
 
 StatusCode 
-SiRegionSelectorTable::createTable()
+SiRegionSelectorTable::createTable (const EventContext& ctx)
 {
 
   if ( msgLvl(MSG::DEBUG) )  msg(MSG::DEBUG) << "Creating region selector table"  << endmsg;
@@ -131,7 +139,7 @@ SiRegionSelectorTable::createTable()
   else                        rd = new RegSelSiLUT(RegSelSiLUT::SCT);
 
 
-  SG::ReadCondHandle<PixelCablingCondData> pixCabling(m_condCablingKey);
+  SG::ReadCondHandle<PixelCablingCondData> pixCabling(m_condCablingKey, ctx);
 
   SiDetectorElementCollection::const_iterator iter;
   for (iter = manager->getDetectorElementBegin(); iter != manager->getDetectorElementEnd(); ++iter){
