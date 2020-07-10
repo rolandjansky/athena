@@ -85,7 +85,7 @@ def LCCaloClusterRecoSequence(
 
     The clusters will be created as a shallow copy of the EM level clusters
     """
-    em_sequence, em_clusters = caloClusterRecoSequence(flags=None, RoIs=RoIs)
+    em_sequence, em_clusters = RecoFragmentsPool.retrieve(caloClusterRecoSequence, flags=None, RoIs=RoIs)
     from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterCalibratorMT_LC
     alg = TrigCaloClusterCalibratorMT_LC(
             name,
