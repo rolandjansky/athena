@@ -96,7 +96,7 @@ StatusCode RoRSeqFilter::execute(const EventContext& ctx) const {
   Monitored::Group( m_monTool, inputStat, inputName );
   
   if (!validInputs) {
-    setFilterPassed(false);
+    setFilterPassed(false, ctx);
     ATH_MSG_DEBUG ( "No valid inputs found, filter failed. Return...." );
     return StatusCode::SUCCESS;
   }
@@ -136,8 +136,8 @@ StatusCode RoRSeqFilter::execute(const EventContext& ctx) const {
     }
   }
 
-  setFilterPassed( passCounter != 0 );
-  ATH_MSG_DEBUG( "Filter " << ( filterPassed() ? "passed" : "rejected") <<"; creating "<< outputIndex<<" valid outDecisions DH:");
+  setFilterPassed( passCounter != 0, ctx );
+  ATH_MSG_DEBUG( "Filter " << ( filterPassed(ctx) ? "passed" : "rejected") <<"; creating "<< outputIndex<<" valid outDecisions DH:");
   if (msgLvl(MSG::DEBUG)){
     for (auto& output: outputHandles){
       if( output.isValid() ) ATH_MSG_DEBUG(" "<<output.key());
