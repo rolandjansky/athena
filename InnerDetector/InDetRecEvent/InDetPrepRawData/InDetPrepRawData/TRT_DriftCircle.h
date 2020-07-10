@@ -191,7 +191,7 @@ inline double TRT_DriftCircle::timeOverThreshold() const
 
 inline double TRT_DriftCircle::rawDriftTime() const
 {
-  return TRT_LoLumRawData::driftTimeBin(m_word) * TRT_LoLumRawData::getDriftTimeBinWidth();
+  return (TRT_LoLumRawData::driftTimeBin(m_word)+0.5) * TRT_LoLumRawData::getDriftTimeBinWidth();
 }
 
 inline bool TRT_DriftCircle::driftTimeValid() const
