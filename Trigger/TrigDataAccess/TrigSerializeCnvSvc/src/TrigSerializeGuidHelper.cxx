@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigSerializeGuidHelper.h"
@@ -30,7 +30,7 @@ StatusCode TrigSerializeGuidHelper::ClassNameToInts(const std::string &clname, u
 
   std::string cl = TrigSerializeResult::remapToDictName(clname);
 
-  RootType t = RootType::ByName(cl);
+  RootType t = RootType::ByNameNoQuiet(cl);
   RootPropertyList pl = t.Properties();
   if (pl.HasProperty("ClassID")){
      std::string gecko = pl.PropertyAsString("ClassID");
