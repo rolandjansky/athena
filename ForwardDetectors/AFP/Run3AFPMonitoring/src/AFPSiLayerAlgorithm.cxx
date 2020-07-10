@@ -13,7 +13,9 @@
 #include "xAODForward/AFPStationID.h"
 
 	unsigned int clusterCounter[1000][4][4];
+	unsigned int clusterCounterFront[1000][4][4];
 	int previouslb = -1;
+	int previouslbFront = -1;
 	unsigned int counterForEvents = 0;
 	unsigned int counterForEventsFront = 0;
 	unsigned int counterForEventsEnd = 0;
@@ -71,6 +73,7 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	auto nSiHits = Monitored::Scalar<int>("nSiHits", 1);
 	auto clustersPerPlane = Monitored::Scalar<float>("clustersPerPlane", 1.0);
 	auto clustersPerPlane2 = Monitored::Scalar<float>("clustersPerPlane2", 0.0);
+	auto clustersPerPlaneFront = Monitored::Scalar<float>("clustersPerPlaneFront", 0.0);
 
 	auto pixelRowIDChip = Monitored::Scalar<int>("pixelRowIDChip", 0); 
 	auto pixelColIDChip = Monitored::Scalar<int>("pixelColIDChip", 0); 
@@ -91,10 +94,10 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	//run = GetEventInfo(ctx)->runNumber();
 	++counterForEvents;
 	//std::cout << "\tBCID: " << GetEventInfo(ctx)->bcid() << std::endl;
-	//if(GetEventInfo(ctx)->bcid() == 63)
-	//{
-	//	++counterForEventsFront;
-	//}
+	if(GetEventInfo(ctx)->bcid() == 63)
+	{
+		++counterForEventsFront;
+	}
 	//std::cout << "\t\t" << counterForEvents << " lb:" << lb << std::endl;
 	fill("AFPSiLayerTool", lb, muPerBCID);
 
@@ -221,6 +224,65 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 			{
 				++clusterCounter[lb][cluster.station][cluster.layer];
 			}
+		}
+		
+		// ========== Front BCID ==========
+		if(GetEventInfo(ctx)->bcid() == 63)
+		{
+		for(const auto& cluster : fast.clusters()) 
+		{
+			lb = GetEventInfo(ctx)->lumiBlock();
+			// Time for fill - current and previous lb are different, and the previouslbFront is not -1 (it means - this is not the first lb)
+			if(lb != previouslbFront && previouslbFront != -1)
+			{
+				//std::cout << "\tlb!=previouslbFront" << std::endl;
+				for(int i=0; i<4; i++)
+				{
+					for(int j=0; j<4; j++)
+					{
+						clustersPerPlaneFront = clusterCounterFront[previouslbFront][i][j]*1.0;
+						if(muPerBCID != 0)
+						{
+							clustersPerPlaneFront = clustersPerPlaneFront/(muPerBCID*counterForEventsFront);
+						}
+						else
+							{
+								clustersPerPlaneFront = -99;
+							}
+						std::cout << "\tFILL FRONT" << std::endl;
+						std::cout << "clustersPerPlaneFront (it was zero on cernbox): " << clustersPerPlaneFront << std::endl;
+						fill(m_tools[m_HitmapGroups.at(m_stationnames.at(i)).at(m_pixlayers.at(j))], lb, clustersPerPlaneFront);
+					}
+				}
+				previouslbFront = lb;
+				++clusterCounterFront[lb][cluster.station][cluster.layer];
+				counterForEventsFront=1;
+				
+				//(int i=0; i<4; i++)
+				//{
+					//for(int j=0; j<4; j++)
+					//{
+					//	numberOfClusterStationPlane[i][j] = 0;
+					//}
+				//}
+			}
+			
+			// First time in lumiblock (in plane)
+			else if(clusterCounterFront[lb][cluster.station][cluster.layer] == 0) 
+			{
+				++clusterCounterFront[lb][cluster.station][cluster.layer];
+				
+				previouslbFront = lb;
+				//std::cout << "\tFirst time" << std::endl;
+				//std::cout << "\tLuminosity block: " << lb << std::endl;
+			}
+			
+			// Lumiblock is same, so proceed
+			else if(lb==previouslbFront)	// Same lumiblock
+			{
+				++clusterCounterFront[lb][cluster.station][cluster.layer];
+			}
+		}
 		}
 	
 
