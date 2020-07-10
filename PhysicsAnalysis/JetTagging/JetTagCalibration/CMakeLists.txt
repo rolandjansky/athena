@@ -28,7 +28,7 @@ atlas_add_library( JetTagCalibrationLib
                    PUBLIC_HEADERS JetTagCalibration
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} ${LWTNN_LIBRARIES} AthenaBaseComps GaudiKernel StoreGateLib SGtests FileCatalog MVAUtils
-                   PRIVATE_LINK_LIBRARIES AthenaPoolUtilities )
+                   PRIVATE_LINK_LIBRARIES AthenaPoolUtilities PoolSvcLib )
 
 atlas_add_component( JetTagCalibration
                      src/components/*.cxx
