@@ -157,7 +157,6 @@ class CaloDmDescrManager {
     const CaloDM_ID*    m_caloDM_ID;
     const AtlasDetectorID* m_id_helper;
     StoreGateSvc* m_detStore;
-    static CaloDmDescrManager* s_instance;
 
     CaloDmDescrElement* build_element(const Identifier& cellId, const CaloDmRegion *myRegion);
     StatusCode load_regions(std::string DmRegionFileName);
