@@ -50,16 +50,16 @@ def fastCaloMenuSequence(name, doRinger):
 
 def cellRecoSequence(flags, name="HLTCaloCellMakerFS", RoIs="FSJETRoI", outputName="CaloCellsFS"):
     """ Produce the full scan cell collection """
-    if not inputEDM:
+    if not RoIs:
         from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
-        inputEDM = mapThresholdToL1RoICollection("FSNOSEED")
+        RoIs = mapThresholdToL1RoICollection("FSNOSEED")
     from TrigT2CaloCommon.CaloDef import setMinimalCaloSetup
     setMinimalCaloSetup()
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     from TrigCaloRec.TrigCaloRecConfig import HLTCaloCellMaker
     alg = HLTCaloCellMaker(
             name,
-            RoIs=inputEDM,
+            RoIs=RoIs,
             TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc,
             CellsName=outputName)
     return parOR(name+"RecoSequence", [alg]), alg.CellsName
