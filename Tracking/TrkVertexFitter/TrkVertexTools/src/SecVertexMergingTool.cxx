@@ -70,11 +70,11 @@ namespace Trk{
      "radiiPattern" );
      **/
 
-     SG::AuxElement::Decorator<float> mDecor_sumPt2("sumPt2");
-     SG::AuxElement::Decorator<float> mDecor_mass("mass");
-     SG::AuxElement::Decorator<float> mDecor_energy("ee");
-     SG::AuxElement::Decorator<int> mDecor_nrobbed("nrobbed");
-     SG::AuxElement::Decorator<int> mDecor_intrk("NumInputTrk");
+     static const SG::AuxElement::Decorator<float> mDecor_sumPt2("sumPt2");
+     static const SG::AuxElement::Decorator<float> mDecor_mass("mass");
+     static const SG::AuxElement::Decorator<float> mDecor_energy("ee");
+     static const SG::AuxElement::Decorator<int> mDecor_nrobbed("nrobbed");
+     static const SG::AuxElement::Decorator<int> mDecor_intrk("NumInputTrk");
 
      // add remerged flags to all
      std::vector<bool> remerged(MyVxCont.size(), false);
