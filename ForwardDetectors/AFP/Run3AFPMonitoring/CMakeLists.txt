@@ -12,9 +12,9 @@ atlas_depends_on_subdirs(
         Control/AthenaBaseComps
         Control/AthenaMonitoringKernel
         GaudiKernel
-	Event/xAOD/xAODForward
-	xAODForward/AFPSiHit
-	xAODForward/AFPToFHit	
+        Event/xAOD/xAODForward
+        xAODForward/AFPSiHit
+        xAODForward/AFPToFHit	
         LumiBlock/LumiBlockComps
         LumiBlock/LumiBlockData
         Trigger/TrigEvent/TrigDecisionInterface

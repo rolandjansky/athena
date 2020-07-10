@@ -31,9 +31,9 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     AFPToFGroup = helper.addGroup(afpToFAlgorithm, 'AFPToFTool', 'AFP/')
 
     AFPSiGroup.defineHistogram('lb,nSiHits', title='Total number of hits;lb;total number of Hits', type='TProfile', path='SiT/', xbins=1000, xmin=-0.5, xmax=999.5)
-    AFPSiGroup.defineHistogram('lb,lumiPerBCID', title='Mu;lumiBlock;<mu>', type='TProfile', path='SiT/', xbins=1000, xmin=-0.5, xmax=999.5)
-    #AFPSiGroup.defineHistogram('layerNumber,layerEfficiency', title='LayerEfficiency as a function of a lumiblock;layerNumber;layerEfficiency', type='TH2F', path='SiT/', xbins = 16, xmin=0.5, xmax=16.5, ybins=100, ymin=0, ymax=1)
-    AFPSiGroup.defineHistogram('layerEfficiency', type='TH1F', title='1D layer efficiency;layerEfficiency', path='SiT/', xbins=16, xmin=0.5, xmax=16.5)
+    AFPSiGroup.defineHistogram('lb,muPerBCID', title='<mu>;lumiBlock;<mu>', type='TProfile', path='SiT/', xbins=1000, xmin=-0.5, xmax=999.5)
+    #AFPSiGroup.defineHistogram('layerNumber,layerEfficiency', title='LayerEfficiency;layerNumber', path='SiT/', xbins = 16, xmin=0.5, xmax=16.5, ybins=100, ymin=0, ymax=1)
+    #AFPSiGroup.defineHistogram('layerEfficiency', type='TH1F', title='1D layer efficiency;layerEfficiency', path='SiT/', xbins=16, xmin=0.5, xmax=16.5)
 
     AFPToFGroup.defineHistogram('lb,nTofHits', title='Multiplicity;lb;total number of Hits', type='TProfile', path='ToF/', xbins=1000, xmin=-0.5, xmax=999.5) 
     AFPToFGroup.defineHistogram('numberOfHit_S0', title='Number of hit per bar station 0;bar', path='ToF/', xbins=4, xmin=-0.5, xmax=3.5)
@@ -47,13 +47,15 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     array = helper.addArray([combinedList,layerList], afpSiLayerAlgorithm, 'AFPSiLayerTool', topPath = 'AFP/SiT/')
     array.defineHistogram('pixelColIDChip', title='Hits per column for {0} layer {1};pixelColIDChip', path='PixelColIDChip', xbins=80, xmin=0.5, xmax=80.5)
     array.defineHistogram('pixelRowIDChip', title='Hits per row for {0} Layer {1};pixelRowIDChip', path='PixelRowIDChip', xbins=336, xmin=0.5, xmax=336.5)
-    array.defineHistogram('pixelColIDChip,pixelRowIDChip', title='hitmap for {0} Layer {1};pixelColIDChip;pixelRowIDChip', type='TH2F', path='pixelColRow2D', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)
-    array.defineHistogram('timeOverThreshold', type='TH1F', title='1D Time over threshold for {0} Layer {1};timeOverThreshold', path='SiTimeOverThreshold', xbins=16, xmin=0.5, xmax=16.5)
-    array.defineHistogram('clusterX,clusterY', title='Cluster position in station {0} Layer {1};clusterX;clusterY', type='TH2F', path='Cluster', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)
+    array.defineHistogram('pixelRowIDChip,pixelColIDChip', title='Hitmap for {0} Layer {1};pixelRowIDChip;pixelColIDChip', type='TH2F', path='pixelColRow2D', xbins=336, xmin=0.5, xmax=336.5, ybins=80, ymin=0.5, ymax=80.5)
+    array.defineHistogram('timeOverThreshold', type='TH1F', title='Time over threshold for {0} Layer {1};timeOverThreshold', path='SiTimeOverThreshold', xbins=16, xmin=0.5, xmax=16.5)
+    array.defineHistogram('clusterY,clusterX', title='Cluster position in station {0} Layer {1};clusterX;clusterY', type='TH2F', path='Cluster', xbins=336, xmin=0.0, xmax=17.0, ybins=80, ymin=0.0, ymax=20.0)
+    array.defineHistogram('lb,clustersPerPlane', title='Number of clusters in station {0}, layer {1};lb; clustersPerPlane', type='TH2F', path='clustersPerPlane', xbins=1000, xmin=-0.5, xmax=999.5, ybins=1000, ymin=-0.2, ymax=0.2)
+    array.defineHistogram('lb,clustersPerPlane2', title='Number of clusters in station {0}, layer {1};lb; clustersPerEvent / <mu>', type='TProfile', path='clustersPerPlane2', xbins=1000, xmin=-0.5, xmax=999.5)
 
 
     array = helper.addArray([combinedList], afpSiLayerAlgorithm, 'AFPSiLayerTool', topPath='AFP/SiT/Track/')
-    array.defineHistogram('trackX,trackY', title='Track in station {0};trackX;trackY', type='TH2F', path='Track', xbins=80, xmin=0.5, xmax=80.5, ybins=336, ymin=0.5, ymax=336.5)
+    array.defineHistogram('trackY,trackX', title='Track in station {0};trackX;trackY', type='TH2F', path='Track', xbins=336, xmin=0.0, xmax=17.0, ybins=80, ymin=0.0, ymax=20.0)
 
     arrayOneList = helper.addArray([combinedList], afpToFAlgorithm, 'AFPToFTool', topPath='AFP/ToF/')
     arrayOneList.defineHistogram('trainID,barInTrainID', title='ToF hit bar vs train {0};trainID;barInTrainID', type='TH2F', path='HitBarvsTrain/',xbins=4,xmin=-0.5,xmax=3.5,ybins=4,ymin=-0.5,ymax=3.5)
@@ -82,9 +84,9 @@ if __name__=='__main__':
     #file = '/afs/cern.ch/user/l/ladamczy/public/data18_13TeV.00354309.physics_Main.ESD._lb0130._SFO-1._0001.data.r22'
 
     #ConfigFlags.Input.Files = [nightly+file]
-    ConfigFlags.Input.Files = ['/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/user.ladamczy.00337176.calibration_AFP.AODV1_EXT0/user.ladamczy.21473705.EXT0._000003.xAOD.root']
+    ConfigFlags.Input.Files = ['/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/00361795/data18_13TeV.00361795.calibration_AFP.daq.AOD._lb0000._SFO-8._0004.pool.root']
     ConfigFlags.Input.isMC = False
-    ConfigFlags.Output.HISTFileName = 'AFPOutput4.root'
+    ConfigFlags.Output.HISTFileName = 'AFPOutput20.root'
     
     ConfigFlags.lock()
 
@@ -97,7 +99,7 @@ if __name__=='__main__':
     exampleMonitorAcc = Run3AFPExampleMonitoringConfig(ConfigFlags)
     cfg.merge(exampleMonitorAcc)
 
-    cfg.run(2000) #use cfg.run(20) to only run on first 20 events
+    cfg.run(300000) #use cfg.run(20) to only run on first 20 events
 
 
 

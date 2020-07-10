@@ -55,7 +55,7 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
 	{
 		ATH_MSG_WARNING("evtStore() does not contain hits collection with name " << m_afpToFHitContainerKey);
 		return StatusCode::SUCCESS;
-    }
+	}
 
 	ATH_CHECK( afpToFHitContainer.initialize() );
 
@@ -69,8 +69,8 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
 
 		if(hitsItr->isSideA())
 		{
-	    	numberOfHit_S0 = hitsItr->trainID();
-            fill("AFPToFTool", numberOfHit_S0);
+			numberOfHit_S0 = hitsItr->trainID();
+			fill("AFPToFTool", numberOfHit_S0);
 		}
 		else if(hitsItr->isSideC())
 		{
@@ -80,10 +80,10 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
 
 		if (hitsItr->stationID() == 0 || hitsItr->stationID() == 3)
 		{
-	    	fill(m_tools[m_HitmapGroupsToF.at(m_stationNamesToF.at(hitsItr->stationID()))], trainID, barInTrainID);
-		}	
+			fill(m_tools[m_HitmapGroupsToF.at(m_stationNamesToF.at(hitsItr->stationID()))], trainID, barInTrainID);
+		}
 	}
 
-    return StatusCode::SUCCESS;
+	return StatusCode::SUCCESS;
 }
 
