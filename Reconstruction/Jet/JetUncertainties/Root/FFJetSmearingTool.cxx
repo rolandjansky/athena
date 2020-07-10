@@ -582,7 +582,7 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
         if(m_InfoWarnings < 5) ATH_MSG_DEBUG("No truth jet match with this reco jet. The jet will not be smeared.");
         else if(m_InfoWarnings == 5) ATH_MSG_DEBUG("No truth jet match with this reco jet. The jet will not be smeared. This is the last time this message is shown.");
 
-        return CP::CorrectionCode::Ok; 
+        return CP::CorrectionCode::OutOfValidityRange; 
     }
 
     ATH_MSG_VERBOSE("Matched truth Jet: pt = " << jet_truth_matched.pt()/1000. << ", mass = " << jet_truth_matched.m()/1000. << ", eta = " << jet_truth_matched.eta());
@@ -595,7 +595,7 @@ CP::CorrectionCode FFJetSmearingTool::applyCorrection( xAOD::Jet* jet_reco){
         return CP::CorrectionCode::Error;
     }
     if(jetTopology == "no_match"){
-        return CP::CorrectionCode::Ok;
+        return CP::CorrectionCode::OutOfValidityRange;
     }
 
 
