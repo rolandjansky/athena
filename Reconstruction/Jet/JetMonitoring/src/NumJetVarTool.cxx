@@ -8,7 +8,7 @@
 
 NumJetVarTool::NumJetVarTool(const std::string & type, const std::string & name ,const IInterface* parent):
   AthAlgTool( type, name, parent )
- , m_failureOnMissingContainer(true)
+ , m_failureOnMissingContainer(false)
 {
   declareInterface<IEventHistoVarTool>(this);
   declareProperty("FailureOnMissingContainer", m_failureOnMissingContainer);
