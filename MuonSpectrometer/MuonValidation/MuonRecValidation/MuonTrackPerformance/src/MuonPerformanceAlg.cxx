@@ -2,16 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/***************************************************************************
-MuonPerformanceAlg
-***************************************************************************/
-
 #include "MuonPerformanceAlg.h"
 
-// STL includes
-#include <vector>
-
-// FrameWork includes
 #include "GaudiKernel/IToolSvc.h"
 
 #include "xAODMuon/Muon.h"
@@ -19,16 +11,12 @@ MuonPerformanceAlg
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthParticleAuxContainer.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
-
 #include "xAODMuon/MuonSegmentContainer.h"
 #include "xAODMuon/MuonSegment.h"
 
+#include <vector>
 
-//#include "MuonID/MuonSelectionTool.h"
-
-//  CONSTRUCTOR:
-MuonPerformanceAlg::MuonPerformanceAlg(const std::string& name, ISvcLocator* pSvcLocator)
-  :
+MuonPerformanceAlg::MuonPerformanceAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_writeToFile (false),
   m_nevents(0),
@@ -38,12 +26,8 @@ MuonPerformanceAlg::MuonPerformanceAlg(const std::string& name, ISvcLocator* pSv
   declareProperty("writeToFile",        m_writeToFile = false);
   declareProperty("FileName",           m_fileName = "MuonPerformanceAlg.txt" );
   declareProperty("ConsideredPDGs",             m_pdgsToBeConsidered );
-
-
 }
 
-// INITIALIZE METHOD:
- 
 StatusCode MuonPerformanceAlg::initialize()
 {
 
@@ -600,81 +584,80 @@ void MuonPerformanceAlg::print(std::string txt, const xAOD::Muon* muon)
   ATH_MSG_DEBUG(txt << " run " << m_runNumber << " event " << m_eventNumber << std::endl  << " eta " << muon->eta() << " phi " << muon->phi() << " q*p (GeV) " << muon->charge()*p / 1000. << " pt (GeV) " << muon->pt() / 1000. << " precisionLayers " << nprec << " nr segments " << muon->nMuonSegments() );
 }
 
-/////////////////////////////////////////////////////////////////
-// ATHENA FINALIZE:
-
-
-StatusCode MuonPerformanceAlg::finalize()
-{
+StatusCode MuonPerformanceAlg::finalize() {
+  std::ofstream fileOutput;
+  std::string outfile = "muonPerformance_xAOD.txt";
+  fileOutput.open(outfile.c_str(), std::ios::trunc);
+  std::ostringstream sout;
+  sout.precision(4);
 
   unsigned int width = 9;
   unsigned int precision = 3;
 
-  msg(MSG::INFO) << std::endl;
-  msg(MSG::INFO) <<  " Summary of the xAOD Muon performance "  << std::endl;
-  msg(MSG::INFO) << "  Muon type  #Truth muons   Efficiency #Truth muons   Efficiency #Truth muons   Efficiency" << std::endl;
-  msg(MSG::INFO) << "                        (pt>2)                   (pt>5)                 (pt>10 GeV/c)    " << std::endl;
+  sout << std::endl;
+  sout <<  " Summary of the xAOD Muon performance "  << std::endl;
+  sout << "  Muon type  #Truth muons   Efficiency #Truth muons   Efficiency #Truth muons   Efficiency" << std::endl;
+  sout << "                        (pt>2)                   (pt>5)                 (pt>10 GeV/c)    " << std::endl;
   for ( unsigned int i = 0; i < 12; ++i ) {
     if (  m_ntruth[i] == 0  ) {
-      msg(MSG::INFO) << " " << std::endl;
+      sout << " " << std::endl;
     } else {
-      msg(MSG::INFO) << "    " << m_hitCutString[i];
-      msg(MSG::INFO) << std::setw(width) << std::setprecision(precision);
-      msg(MSG::INFO) << static_cast<double>(m_ntruth[i]);
-      msg(MSG::INFO) << "       ";
-      msg(MSG::INFO) << std::setw(width) << std::setprecision(precision);
-      msg(MSG::INFO) << static_cast<double>(m_nfound[i]) / static_cast<double>(m_ntruth[i]);
-      msg(MSG::INFO) << std::setw(width) << std::setprecision(precision);
-      msg(MSG::INFO) << static_cast<double>(m_ntruth5[i]);
-      msg(MSG::INFO) << "       ";
-      msg(MSG::INFO) << std::setw(width) << std::setprecision(precision);
+      sout << "    " << m_hitCutString[i];
+      sout << std::setw(width) << std::setprecision(precision);
+      sout << static_cast<double>(m_ntruth[i]);
+      sout << "       ";
+      sout << std::setw(width) << std::setprecision(precision);
+      sout << static_cast<double>(m_nfound[i]) / static_cast<double>(m_ntruth[i]);
+      sout << std::setw(width) << std::setprecision(precision);
+      sout << static_cast<double>(m_ntruth5[i]);
+      sout << "       ";
+      sout << std::setw(width) << std::setprecision(precision);
       if (m_ntruth5[i] != 0) {
-        msg(MSG::INFO) << static_cast<double>(m_nfound5[i]) / static_cast<double>(m_ntruth5[i]);
-      } else msg(MSG::INFO) << 0.;
+        sout << static_cast<double>(m_nfound5[i]) / static_cast<double>(m_ntruth5[i]);
+      } else sout << 0.;
 
-      msg(MSG::INFO) << std::setw(width) << std::setprecision(precision);
-      msg(MSG::INFO) << static_cast<double>(m_ntruth10[i]);
-      msg(MSG::INFO) << "       ";
-      msg(MSG::INFO) << std::setw(width) << std::setprecision(precision);
+      sout << std::setw(width) << std::setprecision(precision);
+      sout << static_cast<double>(m_ntruth10[i]);
+      sout << "       ";
+      sout << std::setw(width) << std::setprecision(precision);
       if (m_ntruth10[i] != 0) {
-        msg(MSG::INFO) << static_cast<double>(m_nfound10[i]) / static_cast<double>(m_ntruth10[i]) << std::endl;
-      } else msg(MSG::INFO) << 0. << std::endl;
+        sout << static_cast<double>(m_nfound10[i]) / static_cast<double>(m_ntruth10[i]) << std::endl;
+      } else sout << 0. << std::endl;
     }
   }
-  msg(MSG::INFO) << " The efficiency of the ID is calculated inside |eta| < 2 for the MCP ID hit selection cuts (it uses identified - Combined, Tagged or CaloTagged - muons with an ID track)" << std::endl;
-  msg(MSG::INFO) << " The efficiencies for CB all, MuidCB, MuGirl, Tag and Calo include the MCP ID cuts" << std::endl;
-  msg(MSG::INFO) << " The Tight, Medium and Loose efficiencies include MCP ID cuts for muons |eta| < 2" << std::endl;
-  msg(MSG::INFO) << " The SA 2.0 for |eta| >2 and SA (no ID) for |eta| < 2  doesnot include MCP ID cuts" << std::endl;
-  msg(MSG::INFO) << " The Combined efficiency is defined ID tracks after MCP cuts and requiring at least 1 muon station at truth level" << std::endl;
-  msg(MSG::INFO) << " Fakes are calculated with the selections listed above" << std::endl;
-  msg(MSG::INFO) << std::endl;
+  sout << " The efficiency of the ID is calculated inside |eta| < 2 for the MCP ID hit selection cuts (it uses identified - Combined, Tagged or CaloTagged - muons with an ID track)" << std::endl;
+  sout << " The efficiencies for CB all, MuidCB, MuGirl, Tag and Calo include the MCP ID cuts" << std::endl;
+  sout << " The Tight, Medium and Loose efficiencies include MCP ID cuts for muons |eta| < 2" << std::endl;
+  sout << " The SA 2.0 for |eta| >2 and SA (no ID) for |eta| < 2  doesnot include MCP ID cuts" << std::endl;
+  sout << " The Combined efficiency is defined ID tracks after MCP cuts and requiring at least 1 muon station at truth level" << std::endl;
+  sout << " Fakes are calculated with the selections listed above" << std::endl;
+  sout << std::endl;
 
-  msg(MSG::INFO) << "  Muon type #Fake muons rate #Fake muons rate  #Fake muons rate   " << std::endl;
-  msg(MSG::INFO) << "             (all pt>0,2)           (pt>5)        (pt>10 GeV/c)    " << std::endl;
+  sout << "  Muon type #Fake muons rate #Fake muons rate  #Fake muons rate   " << std::endl;
+  sout << "             (all pt>0,2)           (pt>5)        (pt>10 GeV/c)    " << std::endl;
   for ( unsigned int i = 0; i < 11; ++i ) {
     if (i == 6) continue;
     if (  m_nevents == 0 ) {
-      msg(MSG::INFO) << " " << std::endl;
+      sout << " " << std::endl;
     } else {
-      msg(MSG::INFO) << "  " << m_hitCutString[i];
-      msg(MSG::INFO) << std::setw(width) << std::setprecision(precision);
-      msg(MSG::INFO) << static_cast<double>(m_nreco[i] - m_nfoundr[i]);
-      msg(MSG::INFO) << std::setw(width) << std::setprecision(precision);
-      msg(MSG::INFO) << static_cast<double>(m_nreco[i] - m_nfoundr[i]) / static_cast<double>(m_nevents);
-      msg(MSG::INFO) << std::setw(width) << std::setprecision(precision);
-      msg(MSG::INFO) << static_cast<double>(m_nreco5[i] - m_nfoundr5[i]);
-      msg(MSG::INFO) << std::setw(width) << std::setprecision(precision);
-      msg(MSG::INFO) << static_cast<double>(m_nreco5[i] - m_nfoundr5[i]) / static_cast<double>(m_nevents);
-      msg(MSG::INFO) << std::setw(width) << std::setprecision(precision);
-      msg(MSG::INFO) << static_cast<double>(m_nreco10[i] - m_nfoundr10[i]);
-      msg(MSG::INFO) << std::setw(width) << std::setprecision(precision);
-      msg(MSG::INFO) <<  static_cast<double>(m_nreco10[i] - m_nfoundr10[i]) / static_cast<double>(m_nevents) << std::endl;
+      sout << "  " << m_hitCutString[i];
+      sout << std::setw(width) << std::setprecision(precision);
+      sout << static_cast<double>(m_nreco[i] - m_nfoundr[i]);
+      sout << std::setw(width) << std::setprecision(precision);
+      sout << static_cast<double>(m_nreco[i] - m_nfoundr[i]) / static_cast<double>(m_nevents);
+      sout << std::setw(width) << std::setprecision(precision);
+      sout << static_cast<double>(m_nreco5[i] - m_nfoundr5[i]);
+      sout << std::setw(width) << std::setprecision(precision);
+      sout << static_cast<double>(m_nreco5[i] - m_nfoundr5[i]) / static_cast<double>(m_nevents);
+      sout << std::setw(width) << std::setprecision(precision);
+      sout << static_cast<double>(m_nreco10[i] - m_nfoundr10[i]);
+      sout << std::setw(width) << std::setprecision(precision);
+      sout << static_cast<double>(m_nreco10[i] - m_nfoundr10[i]) / static_cast<double>(m_nevents) << std::endl;
     }
   }
-
-  msg(MSG::INFO) << std::endl;
-  msg(MSG::INFO) << endmsg;
-
+  sout << std::endl;
+  fileOutput << sout.str() << std::endl;
+  fileOutput.close();
   return StatusCode::SUCCESS;
 }
 

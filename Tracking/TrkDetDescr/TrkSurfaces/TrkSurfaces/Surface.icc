@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 namespace Trk {
@@ -96,34 +96,62 @@ Surface::onSurface(const T& pars, const Trk::BoundaryCheck& bcheck) const
   return isOnSurface(pars.position(), bcheck);
 }
 
-// common to all surface, uses memory optized method
-inline const Amg::Vector3D*
+/// Local to Global implementations
+
+// From Local position
+inline Amg::Vector3D*
 Surface::localToGlobal(const Amg::Vector2D& locpos) const
 {
   Amg::Vector3D* gPosition = new Amg::Vector3D;
   localToGlobal(locpos, Amg::Vector3D(1., 1., 1.), *gPosition);
   return gPosition;
 }
-// common to all surfaces uses memory optimized method
-inline const Amg::Vector3D*
+inline Amg::Vector3D
+Surface::localToGlobalPos(const Amg::Vector2D& locpos) const
+{
+  Amg::Vector3D gPosition;
+  localToGlobal(locpos, Amg::Vector3D(1., 1., 1.), gPosition);
+  return gPosition;
+}
+
+// From local position and momentum
+inline Amg::Vector3D*
 Surface::localToGlobal(const Amg::Vector2D& locpos,
                        const Amg::Vector3D& glomom) const
 {
-  Amg::Vector3D* gPosition = new Amg::Vector3D;
+  Amg::Vector3D* gPosition = new Amg::Vector3D(0., 0., 0.);
   localToGlobal(locpos, glomom, *gPosition);
   return gPosition;
 }
-// common to all surface, uses memory optized method
-inline const Amg::Vector3D*
+inline Amg::Vector3D
+Surface::localToGlobalPos(const Amg::Vector2D& locpos,
+                          const Amg::Vector3D& glomom) const
+{
+  Amg::Vector3D gPosition(0., 0., 0.);
+  localToGlobal(locpos, glomom, gPosition);
+  return gPosition;
+}
+
+// From Local parameters
+inline Amg::Vector3D*
 Surface::localToGlobal(const LocalParameters& locpars) const
 {
-  Amg::Vector3D* gPosition = new Amg::Vector3D;
+  Amg::Vector3D* gPosition = new Amg::Vector3D(0., 0., 0.);
   localToGlobal(
     localParametersToPosition(locpars), Amg::Vector3D(1., 1., 1.), *gPosition);
   return gPosition;
 }
-// common to all surfaces uses memory optimized method
-inline const Amg::Vector3D*
+inline Amg::Vector3D
+Surface::localToGlobalPos(const LocalParameters& locpars) const
+{
+  Amg::Vector3D gPosition(0., 0., 0.);
+  localToGlobal(
+    localParametersToPosition(locpars), Amg::Vector3D(1., 1., 1.), gPosition);
+  return gPosition;
+}
+
+// From Local parameters and momementum
+inline Amg::Vector3D*
 Surface::localToGlobal(const LocalParameters& locpars,
                        const Amg::Vector3D& glomom) const
 {
@@ -131,8 +159,17 @@ Surface::localToGlobal(const LocalParameters& locpars,
   localToGlobal(localParametersToPosition(locpars), glomom, *gPosition);
   return gPosition;
 }
+inline Amg::Vector3D
+Surface::localToGlobalPos(const LocalParameters& locpars,
+                          const Amg::Vector3D& glomom) const
+{
+  Amg::Vector3D gPosition(0., 0., 0.);
+  localToGlobal(localParametersToPosition(locpars), glomom, gPosition);
+  return gPosition;
+}
+
 // common to all surfaces, uses memory optized method
-inline const Amg::Vector2D*
+inline Amg::Vector2D*
 Surface::globalToLocal(const Amg::Vector3D& glopos, double) const
 {
   Amg::Vector2D* lPosition = new Amg::Vector2D(0., 0.);
@@ -142,7 +179,7 @@ Surface::globalToLocal(const Amg::Vector3D& glopos, double) const
   return nullptr;
 }
 // common to all surfaces, uses memory optized method
-inline const Amg::Vector2D*
+inline Amg::Vector2D*
 Surface::globalToLocal(const Amg::Vector3D& glopos,
                        const Amg::Vector3D& glomom) const
 {

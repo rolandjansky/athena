@@ -24,7 +24,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "TrigTrackJetFinderTool/ITrigTrackJetFinderTool.h"
+#include "TrigInDetToolInterfaces/ITrigTrackJetFinderTool.h"
 
 #include "TrigInDetEvent/TrigInDetTrack.h"
 #include "Particle/TrackParticle.h"

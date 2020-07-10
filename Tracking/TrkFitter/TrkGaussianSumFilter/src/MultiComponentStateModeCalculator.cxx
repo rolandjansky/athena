@@ -14,9 +14,12 @@
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include "TrkParameters/TrackParameters.h"
 #include "CxxUtils/phihelper.h"
+#include <cmath>
 
 namespace {
-constexpr double invsqrt2PI = 1. / sqrt(2. * M_PI);
+//note: sqrt is not constexpr; although gcc might accept it, clang doesn't.
+//but cmath constants can still be used..
+constexpr double invsqrt2PI = M_2_SQRTPI/(2.*M_SQRT2);//1. / sqrt(2. * M_PI);
 
 /** bried method to determine the value of the a gaussian distribution at a
  * given value */

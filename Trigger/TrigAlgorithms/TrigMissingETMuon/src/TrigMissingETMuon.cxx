@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -22,7 +22,7 @@
 
 #include "xAODMuon/MuonContainer.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "TrigT1Interfaces/RecEnergyRoI.h"
 #include "TrigSteeringEvent/Enums.h"
 #include "TrigMissingEtEvent/TrigMissingET.h"
@@ -215,7 +215,7 @@ HLT::ErrorCode TrigMissingETMuon::hltExecute(std::vector<std::vector<HLT::Trigge
 
         // Minimum pt cut
         float Et = fabs(muon->pt());
-        if (Et/CLHEP::GeV < m_muonptcut) continue;
+        if (Et/Gaudi::Units::GeV < m_muonptcut) continue;
 
         // Reject muons without IDtracks
         const xAOD::TrackParticle* idtrk = muon->trackParticle( xAOD::Muon::TrackParticleType::InnerDetectorTrackParticle );

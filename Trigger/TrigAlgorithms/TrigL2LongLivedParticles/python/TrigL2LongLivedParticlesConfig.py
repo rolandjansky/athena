@@ -1,13 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TrigL2LongLivedParticles.TrigL2LongLivedParticlesConf import MuonCluster
 from TrigL2LongLivedParticles.TrigL2LongLivedParticlesConf import MuonClusterIsolation
 from TrigL2LongLivedParticles.TrigL2LongLivedParticlesConf import TrigMuonJetFex
 from TrigL2LongLivedParticles.TrigL2LongLivedParticlesConf import TrigJetSplitter
 from TrigL2LongLivedParticles.TrigL2LongLivedParticlesConf import TrigBHremoval
-
-from AthenaCommon.GlobalFlags import globalflags
-from AthenaCommon.AppMgr import ServiceMgr
 
 
 def getJetSplitterInstance( instance, logratio, pufixlogratio ):

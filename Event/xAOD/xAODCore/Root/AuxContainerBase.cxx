@@ -48,21 +48,22 @@ namespace xAOD {
    ///
    AuxContainerBase::AuxContainerBase( const AuxContainerBase& parent )
       : SG::IAuxStore(),
-        m_selection( parent.m_selection ),
-        m_compression( parent.m_compression ),
         m_auxids(), m_vecs(), m_store( 0 ), m_storeIO( 0 ),
         m_ownsStore( true ),
-        m_locked( false ),
-        m_name( parent.m_name ) {
+        m_locked( false )
+   {
+      // Keep the source unmutable during copy
+      guard_t guard( parent.m_mutex );
+      m_selection = parent.m_selection;
+      m_compression = parent.m_compression;
+      m_name = parent.m_name;
 
       // Unfortunately the dynamic variables can not be copied this easily...
       if( parent.m_store ) {
          // cppcheck-suppress copyCtorPointerCopying
-         m_store = parent.m_store;
          m_ownsStore = false;
+         m_store = parent.m_store;
          m_storeIO = dynamic_cast< SG::IAuxStoreIO* >( m_store );
-         m_selection = parent.m_selection;
-         m_compression = parent.m_compression;
          m_auxids = m_store->getAuxIDs();
       }
    }
@@ -111,6 +112,8 @@ namespace xAOD {
       // Protect against self-assignment:
       if( this == &rhs ) return *this;
 
+      // Keep the objects locked during copy
+      std::scoped_lock  lck{m_mutex, rhs.m_mutex};
       m_selection = rhs.m_selection;
       m_compression = rhs.m_compression;
 

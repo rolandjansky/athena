@@ -85,6 +85,7 @@ if ( doMuonOutliers ) :
     ToolSvc += RotCreator
     ToolSvc.RotCreator.Mode = "muon"
     ToolSvc.RotCreator.ToolMuonCluster = 'MuonClusterOnTrackTool'
+    ToolSvc.RotCreator.ToolMuonMMCluster = 'MMClusterOnTrackTool'
     print RotCreator
 
     ToolSvc.MuonHolesOnTrackTool.RIO_OnTrackCreator = RotCreator

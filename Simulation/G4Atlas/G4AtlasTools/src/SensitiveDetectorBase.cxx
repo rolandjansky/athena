@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // STL includes
@@ -23,13 +23,7 @@ SensitiveDetectorBase::SensitiveDetectorBase(const std::string& type,
                                              const std::string& name,
                                              const IInterface* parent)
   : base_class(type,name,parent)
-#ifndef G4MULTITHREADED
-  , m_SD(nullptr)
-#endif
 {
-  declareProperty("LogicalVolumeNames", m_volumeNames);
-  declareProperty("NoVolumes", m_noVolumes=false);
-  declareProperty("OutputCollectionNames", m_outputCollectionNames);
 }
 
 // Athena method used to set up the SDs for the current worker thread.
@@ -42,7 +36,7 @@ StatusCode SensitiveDetectorBase::initializeSD()
   if(m_volumeNames.empty() != m_noVolumes) {
     ATH_MSG_ERROR("Initializing SD from " << name() << ", NoVolumes = "
                   << (m_noVolumes? "true" : "false") << ", but LogicalVolumeNames = "
-                  << m_volumeNames);
+                  << m_volumeNames.value());
     return StatusCode::FAILURE;
   }
 
@@ -63,7 +57,7 @@ StatusCode SensitiveDetectorBase::initializeSD()
   setSD(sd);
 
   // Assign the SD to our list of volumes
-  ATH_CHECK( assignSD( getSD(), m_volumeNames ) );
+  ATH_CHECK( assignSD( getSD(), m_volumeNames.value() ) );
 
   ATH_MSG_DEBUG( "Initialized and added SD " << name() );
   return StatusCode::SUCCESS;

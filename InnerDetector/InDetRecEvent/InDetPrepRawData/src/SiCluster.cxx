@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -73,7 +73,7 @@ SiCluster::SiCluster(const SiCluster& RIO):
 {
         // copy only if it exists
         if (RIO.m_globalPosition) {
-                m_globalPosition.set(std::make_unique<Amg::Vector3D>(*RIO.m_globalPosition));
+                m_globalPosition.store(std::make_unique<Amg::Vector3D>(*RIO.m_globalPosition));
         }
 }
 
@@ -94,7 +94,7 @@ SiCluster& SiCluster::operator=(const SiCluster& RIO){
                 Trk::PrepRawData::operator= (RIO);
 		m_width = RIO.m_width;
 		if (RIO.m_globalPosition) {
-                        m_globalPosition.set(std::make_unique<Amg::Vector3D>(*RIO.m_globalPosition));
+                        m_globalPosition.store(std::make_unique<Amg::Vector3D>(*RIO.m_globalPosition));
                 } else if (m_globalPosition) {
                         m_globalPosition.release().reset();
                 }

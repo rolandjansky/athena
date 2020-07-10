@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file InDetGlobalPixelTool.cxx
@@ -147,17 +147,12 @@ StatusCode InDetGlobalPixelTool::fillHistograms()
 	  if (msgLvl(MSG::ERROR) ) msg(MSG::ERROR) << "no pointer to track!!!" << endmsg;
 	  break;
 	}
-      const Trk::TrackSummary* summary = m_trkSummaryTool->createSummary(*track);
+      std::unique_ptr<Trk::TrackSummary> summary = m_trkSummaryTool->summary(*track);
       if ( summary->get(Trk::numberOfPixelHits) == 0 )
       {
-	  delete summary;
 	  continue;
       }
                
-      else
-      {
-	  delete summary;
-      }
       const Trk::TrackParameters *trkParameters = 0;
 
       //get the track state on surfaces (a vector, on element per surface) and loop over it

@@ -1,12 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 from AthenaCommon.SystemOfUnits import GeV
 from TrigCaloHypo.TrigCaloHypoConf import TrigEFCaloHypoNoise
 from LArCellRec.LArCellRecConf import LArNoisyROTool
-from LArBadChannelTool.LArBadChannelToolConf import LArBadChanLegacyTool
 from IOVDbSvc.CondDB import conddb
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
 from LArCabling.LArCablingAccess import LArOnOffIdMapping
 LArOnOffIdMapping()

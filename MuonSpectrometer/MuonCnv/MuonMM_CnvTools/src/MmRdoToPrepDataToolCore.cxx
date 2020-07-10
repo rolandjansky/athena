@@ -97,6 +97,14 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(const MM_RawDataColl
 
   }
 
+  // MuonDetectorManager from the conditions store
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_muDetMgrKey};
+  const MuonGM::MuonDetectorManager* MuonDetMgr = DetectorManagerHandle.cptr(); 
+  if(MuonDetMgr==nullptr){
+    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+    return StatusCode::FAILURE;
+  }
+ 
   std::vector<MMPrepData> MMprds;
   // convert the RDO collection to a PRD collection
   MM_RawDataCollection::const_iterator it = rdoColl->begin();
@@ -119,14 +127,9 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(const MM_RawDataColl
     Identifier prdId = m_idHelperSvc->mmIdHelper().channelID(parentID, m_idHelperSvc->mmIdHelper().multilayer(rdoId), m_idHelperSvc->mmIdHelper().gasGap(rdoId),channel);
     ATH_MSG_DEBUG(" channel RDO " << channel << " channel from rdoID " << m_idHelperSvc->mmIdHelper().channel(rdoId));
     rdoList.push_back(prdId);
-
-    // TODO: this needs to be replaced by SG::ReadCondHandle<MuonGM::MuonDetectorManager>
-    // will do it in a follow-up MR, since for now, we need to get the Run2 detectors running, so skip MicroMegas for now
-    const MuonGM::MuonDetectorManager* muDetMgrNominal=nullptr;
-    ATH_CHECK(detStore()->retrieve(muDetMgrNominal));
-
+ 
     // get the local and global positions
-    const MuonGM::MMReadoutElement* detEl = muDetMgrNominal->getMMReadoutElement(layid);
+    const MuonGM::MMReadoutElement* detEl = MuonDetMgr->getMMReadoutElement(layid);
     Amg::Vector2D localPos;
 
     bool getLocalPos = detEl->stripPosition(prdId,localPos);
@@ -143,7 +146,7 @@ StatusCode Muon::MmRdoToPrepDataToolCore::processCollection(const MM_RawDataColl
       continue;
     }
     NSWCalib::CalibratedStrip calibStrip;
-    ATH_CHECK (m_calibTool->calibrate(rdo, globalPos, calibStrip));
+    ATH_CHECK (m_calibTool->calibrateStrip(rdo, calibStrip));
 
     const Amg::Vector3D globalDir(globalPos.x(), globalPos.y(), globalPos.z());
     Trk::LocalDirection localDir;

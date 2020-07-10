@@ -11,7 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Tracking/TrkEvent/VxSecVertex
                           Trigger/TrigSteer/TrigInterfaces
-                          Trigger/TrigTools/TrigTrackJetFinderTool
+                          Trigger/TrigTools/TrigInDetToolInterfaces
                           PRIVATE
                           Control/AthContainers
                           Control/CxxUtils
