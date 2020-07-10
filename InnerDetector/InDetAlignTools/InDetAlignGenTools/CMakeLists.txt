@@ -51,13 +51,17 @@ find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 find_package( Eigen )
 find_package( HepPDT )
 
+atlas_add_library( InDetAlignGenToolsLib
+                   InDetAlignGenTools/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS InDetAlignGenTools
+                   LINK_LIBRARIES GaudiKernel CxxUtils Identifier AthenaKernel AthenaBaseComps InDetAlignTrkInfo EventPrimitives GeoPrimitives AthContainers TrkTrack AthenaPoolUtilities InDetPrepRawData InDetReadoutGeometry StoreGateLib TrkToolInterfaces InDetAlignToolInterfaces TrkEventUtils TrkEventPrimitives )
+
+
 # Component(s) in the package:
 atlas_add_component( InDetAlignGenTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}  ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CORAL_LIBRARIES} ${HEPPDT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib ${EIGEN_LIBRARIES} AthenaBaseComps AthenaPoolUtilities GeoPrimitives Identifier EventPrimitives InDetAlignTrkInfo InDetPrepRawData TrkEventPrimitives TrkEventUtils TrkTrack TrkExInterfaces TrkToolInterfaces AthenaKernel AthContainers AtlasDetDescr CxxUtils DetDescrConditions GaudiKernel InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry SCT_ReadoutGeometry TRT_ReadoutGeometry TrkMeasurementBase TrkParameters TrkPrepRawData TrkRIO_OnTrack TrkTrackSummary TrkTruthData TrkFitterInterfaces EventContainers TrackRecordLib )
-
-# Install files from the package:
-atlas_install_headers( InDetAlignGenTools )
+                     LINK_LIBRARIES ${CORAL_LIBRARIES} ${HEPPDT_LIBRARIES} ${CLHEP_LIBRARIES} InDetAlignGenToolsLib AtlasHepMCLib ${EIGEN_LIBRARIES} TrkExInterfaces AtlasDetDescr DetDescrConditions InDetIdentifier PixelReadoutGeometry SCT_ReadoutGeometry TRT_ReadoutGeometry TrkMeasurementBase TrkParameters TrkPrepRawData TrkRIO_OnTrack TrkTrackSummary TrkTruthData TrkFitterInterfaces EventContainers TrackRecordLib RegistrationServicesLib )
 
