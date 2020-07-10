@@ -132,8 +132,8 @@ namespace DerivationFramework {
       std::vector<SG::WriteDecorHandleKey<xAOD::EventInfo> > m_trtPhaseDecorKey;
       enum ETRTFloatDecor {kTRTdEdxDecor,
                            kTRTusedHitsDecor,
-                           kTRTdEdx_noHT_divByLDecor,
-                           kTRTusedHits_noHT_divByLDecor,
+                           /*kTRTdEdx_noHT_divByLDecor,*/
+                           /*kTRTusedHits_noHT_divByLDecor,*/
                            kNTRTFloatDecor};
      std::vector<SG::WriteDecorHandleKey<xAOD::TrackParticleContainer> > m_trackTRTFloatDecorKeys;
      enum EPixFloatDecorKeys {kTrkIBLXDecor, kTrkIBLYDecor, kTrkIBLZDecor,

@@ -161,8 +161,8 @@ namespace DerivationFramework {
        names.resize(kNTRTFloatDecor);
        names[kTRTdEdxDecor]="ToT_dEdx";
        names[kTRTusedHitsDecor]="ToT_usedHits";
-       names[kTRTdEdx_noHT_divByLDecor]="ToT_dEdx_noHT_divByL";
-       names[kTRTusedHits_noHT_divByLDecor]="ToT_usedHits_noHT_divByL";
+       //names[kTRTdEdx_noHT_divByLDecor]="ToT_dEdx_noHT_divByL";
+       //names[kTRTusedHits_noHT_divByLDecor]="ToT_usedHits_noHT_divByL";
        createDecoratorKeys(*this,m_containerName, m_sgName, names, m_trackTRTFloatDecorKeys);
     }
     ATH_CHECK( m_trtPhaseKey.initialize() );
@@ -340,10 +340,10 @@ namespace DerivationFramework {
 
       if ( m_storeTRT && m_TRTdEdxTool.isEnabled() ) {
 	// for dEdx studies
-        trackTRTFloatDecorators[kTRTdEdxDecor] (*track)                 = m_TRTdEdxTool->dEdx( trkTrack, true, true, true);
-        trackTRTFloatDecorators[kTRTusedHitsDecor] (*track)             = m_TRTdEdxTool->usedHits( trkTrack, true, true);
-        trackTRTFloatDecorators[kTRTdEdx_noHT_divByLDecor] (*track)     = m_TRTdEdxTool->dEdx( trkTrack, true, false, true);
-        trackTRTFloatDecorators[kTRTusedHits_noHT_divByLDecor] (*track) = m_TRTdEdxTool->usedHits( trkTrack, true, false);
+        trackTRTFloatDecorators[kTRTdEdxDecor] (*track)                 = m_TRTdEdxTool->dEdx(trkTrack);
+        trackTRTFloatDecorators[kTRTusedHitsDecor] (*track)             = m_TRTdEdxTool->usedHits(trkTrack);
+        //trackTRTFloatDecorators[kTRTdEdx_noHT_divByLDecor] (*track)     = m_TRTdEdxTool->dEdx(trkTrack);
+        //trackTRTFloatDecorators[kTRTusedHits_noHT_divByLDecor] (*track) = m_TRTdEdxTool->usedHits(trkTrack);
       }
 
       // Track extrapolation
