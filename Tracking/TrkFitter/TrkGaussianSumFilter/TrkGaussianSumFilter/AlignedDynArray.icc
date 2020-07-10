@@ -141,7 +141,7 @@ bool AlignedDynArray<T, ALIGNMENT>::empty() const noexcept
 // private cleanup helper
 template<typename T, size_t ALIGNMENT>
 inline void
-AlignedDynArray<T, ALIGNMENT>::cleanup() noexcept
+AlignedDynArray<T, ALIGNMENT>::cleanup()
 {
   if (m_buffer) {
     for (size_type pos = 0; pos < m_size; ++pos) {

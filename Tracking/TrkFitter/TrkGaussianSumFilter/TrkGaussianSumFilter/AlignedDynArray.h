@@ -73,20 +73,20 @@ struct AlignedDynArray
   ~AlignedDynArray();
 
   /// Get the underlying buffer
-  pointer buffer() noexcept;
+  pointer buffer() noexcept GSF_ALIGN_RETURN(ALIGNMENT);
   /// Get the underlying buffer
-  const_pointer buffer() const noexcept;
+  const_pointer buffer() const noexcept GSF_ALIGN_RETURN(ALIGNMENT);
 
   /// index array operators
   reference operator[](size_type pos) noexcept;
   const_reference operator[](size_type pos) const noexcept;
 
   /// iterator pointing to the first element
-  iterator begin() noexcept;
+  iterator begin() noexcept GSF_ALIGN_RETURN(ALIGNMENT);
 
   /// const iterator pointing to the first element
-  const_iterator begin() const noexcept;
-  
+  const_iterator begin() const noexcept GSF_ALIGN_RETURN(ALIGNMENT);
+
   /// iterator pointing to the past-the-end  element
   iterator end() noexcept;
  
@@ -101,7 +101,7 @@ struct AlignedDynArray
 
 
 private:
-  void cleanup() noexcept;
+  void cleanup();
   pointer m_buffer = nullptr;
   size_type m_size = 0;
 };
