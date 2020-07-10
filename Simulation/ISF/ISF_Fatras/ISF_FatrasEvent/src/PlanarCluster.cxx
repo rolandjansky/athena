@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -60,7 +60,7 @@ namespace iFatras {
     m_detEl( RIO.m_detEl )
   {
     // copy only if it exists
-    if (RIO.m_globalPosition) m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*RIO.m_globalPosition));
+    if (RIO.m_globalPosition) m_globalPosition.store(std::make_unique<const Amg::Vector3D>(*RIO.m_globalPosition));
   }
 
   //assignment operator
@@ -68,7 +68,7 @@ namespace iFatras {
     if (&RIO !=this) {
       static_cast<Trk::PrepRawData&>(*this) = RIO;
       m_width = RIO.m_width;
-      if (RIO.m_globalPosition) m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*RIO.m_globalPosition));
+      if (RIO.m_globalPosition) m_globalPosition.store(std::make_unique<const Amg::Vector3D>(*RIO.m_globalPosition));
       else if (m_globalPosition) m_globalPosition.release().reset();
       m_detEl =  RIO.m_detEl ;
       }

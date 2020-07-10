@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -40,7 +40,7 @@ namespace iFatras {
     m_idDE(idDE),
     m_detEl( RIO->detectorElement() )
   {
-    m_globalPosition.set(std::make_unique<const Amg::Vector3D>(globalPosition));
+    m_globalPosition.store(std::make_unique<const Amg::Vector3D>(globalPosition));
     m_rio.setElement(RIO);
   }
   
@@ -64,7 +64,7 @@ namespace iFatras {
     m_detEl(rot.m_detEl),
     m_globalPosition()
   {
-    if (rot.m_globalPosition) m_globalPosition.set(std::make_unique<Amg::Vector3D>(*rot.m_globalPosition));
+    if (rot.m_globalPosition) m_globalPosition.store(std::make_unique<Amg::Vector3D>(*rot.m_globalPosition));
   }
 
   // assignment operator:
@@ -74,7 +74,7 @@ namespace iFatras {
       m_rio            = rot.m_rio;
       m_idDE           = rot.m_idDE;
       m_detEl          = rot.m_detEl;
-      if (rot.m_globalPosition) m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*rot.m_globalPosition));
+      if (rot.m_globalPosition) m_globalPosition.store(std::make_unique<const Amg::Vector3D>(*rot.m_globalPosition));
       else if (m_globalPosition) m_globalPosition.release().reset();
     }
     return *this;
