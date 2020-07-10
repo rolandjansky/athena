@@ -39,7 +39,6 @@ msg = logging.getLogger(__name__)
 from PyJobTransforms.trfJobOptions import JobOptionsTemplate
 from PyJobTransforms.trfUtils import asetupReport, unpackDBRelease, setupDBRelease, cvmfsDBReleaseCheck, forceToAlphaNum
 from PyJobTransforms.trfUtils import ValgrindCommand, isInteractiveEnv, calcCpuTime, calcWallTime, calcMemFull
-from PyJobTransforms.trfUtils import bind_port
 from PyJobTransforms.trfExitCodes import trfExit
 from PyJobTransforms.trfLogger import stdLogLevels
 from PyJobTransforms.trfMPTools import detectAthenaMPProcs, athenaMPOutputHandler
@@ -184,7 +183,6 @@ class transformExecutor(object):
         self._exeStart = self._exeStop = None
         self._valStart = self._valStop = None
         self._memStats = {}
-        self._memFullStats = ''
         self._eventCount = None
         self._athenaMP = None
         self._athenaMT = None
@@ -384,8 +382,8 @@ class transformExecutor(object):
 
     @property
     def memFullEval(self):
-        if self._memFullStats:
-            return calcMemFull(self._memFullStats)
+        if self._memFullFile:
+            return calcMemFull(self._memFullFile)
         else:
             return 'cant read full mem file'
 
@@ -773,12 +771,6 @@ class scriptExecutor(transformExecutor):
                 msg.warning('Failed to load JSON memory summmary file {0}: {1}'.format(self._memSummaryFile, e))
                 self._memMonitor = False
                 self._memStats = {}
-            try:
-                self._memFullStats = open(self._memFullFile)
-            except Exception as e:
-                msg.warning('Failed to load JSON memory full file {0}: {1}'.format(self._memFullFile, e))
-                self._memMonitor = False
-                self._memFullStats = 'could not open mem.full file!!'
 
     def validate(self):
         if self._valStart is None:
@@ -818,6 +810,14 @@ class scriptExecutor(transformExecutor):
         self._valStop = os.times()
         msg.debug('valStop time is {0}'.format(self._valStop))
 
+        ## check memory monitor results
+        # add information to the exit message if an excess has seen
+        fitResult = trfValidation.memoryMonitorReport().fitToMem(self._memFullFile)
+        if fitResult and self._errMsg:
+            msg.error('Excess in memory monitor parameter(s)')
+            self._errMsg = self._errMsg + "; high slope : {0}".format(fitResult['slope'])
+        #raise trfExceptions.TransformLogfileErrorException(trfExit.nameToCode('TRF_EXEC_LOGERROR'),
+        #                                                          'Fatal error in memory monitor: "{0}"'.format(exitErrorMessage))
 
 
 class athenaExecutor(scriptExecutor):
