@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, TrigGenericMonitoringToolConfig
 from AthenaCommon.SystemOfUnits import GeV
@@ -7,7 +7,7 @@ cuts=['Input','Has EmuTopoInfo','Opposite Charge','Common Vertex','dPhi','dR','m
 
 labelsDescription = ''
 for c in cuts:
-	labelsDescription += c+':'
+    labelsDescription += c+':'
 
 
 class TrigEFElectronMuonAngleOnlineFexMonitoring(TrigGenericMonitoringToolConfig):

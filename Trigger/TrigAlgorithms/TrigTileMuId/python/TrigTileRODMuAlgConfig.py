@@ -1,10 +1,11 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from TrigTileMuId import TrigTileMuIdConf
 
-class TrigTileRODMuAlg_L2(TrigTileRODMuAlg):
+class TrigTileRODMuAlg_L2(TrigTileMuIdConf.TrigTileRODMuAlg):
     __slot__ = []
     def __init__(self, name='TrigTileRODMuAlg_L2'):
-        TrigTileRODMuAlg.__init__(self, name)
+        TrigTileMuIdConf.TrigTileRODMuAlg.__init__(self, name)
 
         self.ReadRoIsFromL1 = True
         #self.ReadRoIsFromL1 = False
@@ -44,10 +45,10 @@ class TrigTileRODMuAlg_L2(TrigTileRODMuAlg):
 
         self.AthenaMonTools = [ time, cosmic, validation, online ]
 
-class TrigTileRODMuAlg_All(TrigTileRODMuAlg):
+class TrigTileRODMuAlg_All(TrigTileMuIdConf.TrigTileRODMuAlg):
     __slot__ = []
     def __init__(self, name='TrigTileRODMuAlg_All'):
-        TrigTileRODMuAlg.__init__(self, name)
+        TrigTileMuIdConf.TrigTileRODMuAlg.__init__(self, name)
 
         self.ReadRoIsFromL1 = True
         #self.ReadRoIsFromL1 = False

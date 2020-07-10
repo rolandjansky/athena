@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -14,6 +14,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 //#include "TrigSteeringEvent/TriggerElement.h"
 
@@ -24,7 +25,6 @@
 
 #include "TrigL2JetHypo.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
 
 class ISvcLocator;
 
@@ -35,7 +35,7 @@ class ISvcLocator;
 TrigL2JetHypo::TrigL2JetHypo(const std::string& name, ISvcLocator* pSvcLocator):
   HLT::HypoAlgo(name, pSvcLocator) {
 
-  declareProperty("Etcut_L2",   m_EtCut_L2 = 20*CLHEP::GeV, "cut value for L2 jet et"); // Default: 20 GeV
+  declareProperty("Etcut_L2",   m_EtCut_L2 = 20*Gaudi::Units::GeV, "cut value for L2 jet et"); // Default: 20 GeV
   declareProperty("doMonitoring_L2", m_doMonitoring = false, "switch on/off monitoring" );
   declareProperty("AcceptAll",      m_acceptAll=false);
   //declareProperty("histoPath", m_path = "/stat/Monitoring/EventFilter" );
@@ -52,9 +52,9 @@ TrigL2JetHypo::TrigL2JetHypo(const std::string& name, ISvcLocator* pSvcLocator):
   declareProperty("applyCleaningToHighEtJets",   m_applyCleaningToHighEtJets = true);
   declareProperty("applyCleaningToLowEtJets",    m_applyCleaningToLowEtJets = true);
   // Et-threshold: if(applyCleaningToHighEtJets==false) then don't apply cleaning cuts to jets with Et > highEtThreshold:
-  declareProperty("cleaningHighEtThreshold",     m_cleaningHighEtThreshold = 1000.*CLHEP::GeV);
+  declareProperty("cleaningHighEtThreshold",     m_cleaningHighEtThreshold = 1000.*Gaudi::Units::GeV);
   // Et-threshold: if(applyCleaningToLowEtJets==false) then don't apply cleaning cuts to jets with Et < lowEtThreshold:
-  declareProperty("cleaningLowEtThreshold",      m_cleaningLowEtThreshold = 20.*CLHEP::GeV);
+  declareProperty("cleaningLowEtThreshold",      m_cleaningLowEtThreshold = 20.*Gaudi::Units::GeV);
   // threshold for number of leading cells in hecf > m_leadingCellsThr &&  nLeadingCells <= m_leadingCellsThr cut:
   declareProperty("leadingCellsThr", m_leadingCellsThr = 1);
   // hecf threshold for cut in combination with nLeadingCells (i.e. hecf > m_hecfThrN &&  nLeadingCells <= m_leadingCellsThr):

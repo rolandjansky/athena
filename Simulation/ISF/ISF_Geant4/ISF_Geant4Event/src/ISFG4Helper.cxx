@@ -11,6 +11,8 @@
 #include "G4EventManager.hh"
 #include "G4Event.hh"
 
+#include "AtlasHepMC/GenParticle.h"
+
 // G4Atlas includes
 #include "MCTruth/EventInformation.h"
 #include "MCTruth/TrackBarcodeInfo.h"
@@ -73,7 +75,7 @@ TrackInformation*
 iGeant4::ISFG4Helper::attachTrackInfoToNewG4Track( G4Track& aTrack,
                                                     const ISF::ISFParticle& baseIsp,
                                                     TrackClassification classification,
-                                                    HepMC::GenParticle *nonRegeneratedTruthParticle)
+                                                    HepMC::GenParticlePtr nonRegeneratedTruthParticle)
 {
   if ( aTrack.GetUserInformation() ) {
     G4ExceptionDescription description;

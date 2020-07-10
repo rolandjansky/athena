@@ -25,9 +25,9 @@ namespace ISF {
     TruthBinding() = delete;
 
     /** constructor setting all truth particle pointers to the given particle */
-    inline TruthBinding(HepMC::GenParticle* allTruthP);
+    inline TruthBinding(HepMC::GenParticlePtr allTruthP);
     /** constructor setting all truth particle pointers individually */
-    inline TruthBinding(HepMC::GenParticle* truthP, HepMC::GenParticle* primaryTruthP, HepMC::GenParticle* genZeroTruthP);
+    inline TruthBinding(HepMC::GenParticlePtr truthP, HepMC::GenParticlePtr primaryTruthP, HepMC::GenParticlePtr genZeroTruthP);
 
     /** copy constructors */
     inline TruthBinding(const TruthBinding &rhs);
@@ -46,20 +46,20 @@ namespace ISF {
     inline ~TruthBinding();
 
     /** pointer to the particle in the simulation truth */
-    inline HepMC::GenParticle* getTruthParticle() const;
-    inline void                setTruthParticle(HepMC::GenParticle* p);
+    inline HepMC::GenParticlePtr getTruthParticle() const;
+    inline void                setTruthParticle(HepMC::GenParticlePtr p);
 
     /** pointer to the primary particle in the simulation truth */
-    inline HepMC::GenParticle* getPrimaryTruthParticle() const;
+    inline HepMC::GenParticlePtr getPrimaryTruthParticle() const;
 
     /** pointer to the simulation truth particle before any regeneration happened (eg. brem) */
-    inline HepMC::GenParticle* getGenerationZeroTruthParticle() const;
-    inline void                setGenerationZeroTruthParticle(HepMC::GenParticle* p);
+    inline HepMC::GenParticlePtr getGenerationZeroTruthParticle() const;
+    inline void                setGenerationZeroTruthParticle(HepMC::GenParticlePtr p);
 
   private:
-    HepMC::GenParticle*   m_truthParticle;               //!< pointer to particle in MC truth
-    HepMC::GenParticle*   m_primaryTruthParticle;        //!< pointer to corresponding primary (generator) particle
-    HepMC::GenParticle*   m_generationZeroTruthParticle; //!< pointer to corresponding truth particle before any regenration
+    HepMC::GenParticlePtr   m_truthParticle{};               //!< pointer to particle in MC truth
+    HepMC::GenParticlePtr   m_primaryTruthParticle{};        //!< pointer to corresponding primary (generator) particle
+    HepMC::GenParticlePtr   m_generationZeroTruthParticle{}; //!< pointer to corresponding truth particle before any regenration
   };
 
 } // end of namespace

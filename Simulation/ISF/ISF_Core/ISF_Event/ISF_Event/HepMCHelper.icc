@@ -29,7 +29,7 @@ HepMC::IteratorRange ISF::HepMCHelper::convertIteratorRange( int intItRange ) {
   else                    return ( HepMC::parents   );
 }
 
-const HepMC::GenParticle * ISF::HepMCHelper::findRealtiveWithPDG( const HepMC::GenParticle &genParticle,
+HepMC::ConstGenParticlePtr ISF::HepMCHelper::findRealtiveWithPDG( const HepMC::GenParticle &genParticle,
                                                                   const HepMC::IteratorRange &relation,
                                                                   const std::set<int> &relativesPDG     ) {
 
@@ -39,7 +39,7 @@ const HepMC::GenParticle * ISF::HepMCHelper::findRealtiveWithPDG( const HepMC::G
   // loop over relatives
   HepMC::GenVertex::particle_iterator       partIt  = relativesRng.begin();
   const HepMC::GenVertex::particle_iterator partEnd = relativesRng.end();
-  const HepMC::GenParticle *curRelative = 0;
+  HepMC::ConstGenParticlePtr curRelative{};
   bool  found = false;
   for ( ; (!found) && (partIt!=partEnd) ; ++partIt) {
     curRelative = (*partIt) ;

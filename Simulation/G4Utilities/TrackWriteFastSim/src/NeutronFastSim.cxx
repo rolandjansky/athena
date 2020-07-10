@@ -51,7 +51,7 @@ G4bool NeutronFastSim::ModelTrigger(const G4FastTrack& fastTrack)
 
   // Not a neutron... Pick it up if the primary had eta>6.0
   EventInformation *eventInfo=static_cast<EventInformation*>(G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
-  HepMC::GenParticle *gp = eventInfo->GetCurrentPrimary();
+  HepMC::GenParticlePtr gp = eventInfo->GetCurrentPrimary();
   if (fabs(gp->momentum().eta())>m_etaCut && gp->barcode()<200000){
     return true;
   } else {
