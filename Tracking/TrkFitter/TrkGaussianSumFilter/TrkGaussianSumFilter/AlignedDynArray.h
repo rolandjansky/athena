@@ -61,9 +61,9 @@ struct AlignedDynArray
   AlignedDynArray& operator=(AlignedDynArray const&) = delete;
 
   /// Constructor default initializing elements
-  explicit AlignedDynArray(size_t n);
+  explicit AlignedDynArray(size_type n);
   /// Constructor initializing elements to value
-  explicit AlignedDynArray(size_t n, const T& value);
+  explicit AlignedDynArray(size_type n, const T& value);
 
   /// Move copy constructor
   AlignedDynArray(AlignedDynArray&&) noexcept;
