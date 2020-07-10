@@ -7,10 +7,12 @@
 
 
 #include "AthenaBaseComps/AthAlgTool.h"
-
-#include "GaudiKernel/Service.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include "TrackData.h"
 #include "TgcFitResult.h"
@@ -18,13 +20,8 @@
 #include "CscData.h"
 #include "CscRegUtils.h"
 
+#include <string>
 #include <vector>
-
-
-namespace MuonGM{
-  class MuonDetectorManager;
-}
-
 
 namespace TrigL2MuonSA{
 
@@ -69,7 +66,7 @@ namespace TrigL2MuonSA{
     ReturnCode	FindSuperPointCsc( const TrigL2MuonSA::CscHits &cscHits, std::vector<TrigL2MuonSA::TrackPattern> &v_trackPatterns, const TrigL2MuonSA::TgcFitResult &tgcFitResult, const TrigL2MuonSA::MuonRoad &muroad);
 
 
-    ReturnCode make_segment(int mod_hash, TrigL2MuonSA::CscHits clusters[8], CscSegment &cscsegment, CscSegment &cscsegment_noip );
+    ReturnCode make_segment(int mod_hash, TrigL2MuonSA::CscHits clusters[8], CscSegment &cscsegment, CscSegment &cscsegment_noip, const MuonGM::MuonDetectorManager* muDetMgr);
 
     ReturnCode make_2dsegment(int measphi, const localCscHit &ip_loc,const std::vector<localCscHit> hits_loc[4], local2dSegment &seg2d_eta,local2dSegment &local2d_noip, int &nhite);
 
@@ -92,8 +89,8 @@ namespace TrigL2MuonSA{
     UtilTools m_util;
     ToolHandle<CscRegDict> m_cscregdict {
       this, "CscRegDict", "TrigL2MuonSA::CscRegDict", ""};
-    const MuonGM::MuonDetectorManager *m_muonMgr {nullptr};
-
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
+    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_muDetMgrKey {this, "DetectorManagerKey", "MuonDetectorManager", "Key of input MuonDetectorManager condition data"}; 
 
     //properties
     Gaudi::Property< bool > m_use_geometry {

@@ -537,7 +537,7 @@ namespace xAOD {
   /// Get the v<const pointer> to a given tauTrack collection associated with this tau
   std::vector<const TauTrack*> TauJet_v3::tracksWithMask(unsigned int mask )const {
   std::vector<const TauTrack*> trks;
-    for(const ElementLink< xAOD::TauTrackContainer > link : tauTrackAcc(*this) ){
+    for(const ElementLink< xAOD::TauTrackContainer >& link : tauTrackAcc(*this) ){
       const TauTrack* trk = *link;
       if(trk->flagWithMask(mask)){
 	trks.push_back(trk);

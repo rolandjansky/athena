@@ -24,22 +24,22 @@ CscSegmentMaker::CscSegmentMaker(const std::string& type, const std::string& nam
 }
 
 
-StatusCode CscSegmentMaker :: initialize(){
-
-  ATH_CHECK( m_cscregdict.retrieve() );
-
-  ATH_CHECK( detStore()->retrieve(m_muonMgr) );
-
+StatusCode CscSegmentMaker::initialize(){
+  ATH_CHECK(m_cscregdict.retrieve());
+  ATH_CHECK(m_muDetMgrKey.initialize());
+  ATH_CHECK(m_idHelperSvc.retrieve());
   return StatusCode::SUCCESS;
 }
 
 
-ReturnCode CscSegmentMaker :: FindSuperPointCsc( const TrigL2MuonSA::CscHits &cscHits,
+ReturnCode CscSegmentMaker::FindSuperPointCsc( const TrigL2MuonSA::CscHits &cscHits,
                                                 std::vector<TrigL2MuonSA::TrackPattern> &v_trackPatterns,
                                                 const TrigL2MuonSA::TgcFitResult &tgcFitResult,
                                                 const TrigL2MuonSA::MuonRoad &muroad)
 {
   ATH_MSG_DEBUG( "FindSuperPointCsc" );
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> muDetMgrHandle{m_muDetMgrKey};
+  const MuonGM::MuonDetectorManager* muDetMgr = muDetMgrHandle.cptr();
   
   if( !cscHits.empty() ){
     
@@ -83,7 +83,7 @@ ReturnCode CscSegmentMaker :: FindSuperPointCsc( const TrigL2MuonSA::CscHits &cs
           
 	  //making segment
 	  CscSegment cscsegment, cscsegment_noip;
-	  if (this->make_segment(hashSP, clusters[hashSP] , cscsegment, cscsegment_noip) != ReturnCode::FAILURE  ){
+	  if (this->make_segment(hashSP, clusters[hashSP] , cscsegment, cscsegment_noip, muDetMgr) != ReturnCode::FAILURE  ){
 	    found_segment=true;
 	    (*itTrack).hashID_CSC = hashSP;
 
@@ -141,9 +141,9 @@ ReturnCode CscSegmentMaker :: FindSuperPointCsc( const TrigL2MuonSA::CscHits &cs
 
 
 
-ReturnCode  CscSegmentMaker :: make_segment(int mod_hash, TrigL2MuonSA::CscHits clusters[8],
+ReturnCode  CscSegmentMaker::make_segment(int mod_hash, TrigL2MuonSA::CscHits clusters[8],
                                             CscSegment &cscsegment,
-                                            CscSegment &cscsegment_noip)
+                                            CscSegment &cscsegment_noip, const MuonGM::MuonDetectorManager* muDetMgr)
 {
   ATH_MSG_DEBUG("################################## make_segment #####################################");
   
@@ -158,10 +158,8 @@ ReturnCode  CscSegmentMaker :: make_segment(int mod_hash, TrigL2MuonSA::CscHits 
  
   Amg::Transform3D gToLocal;
   if(m_use_geometry){
-    const CscIdHelper *idHelper = m_muonMgr->cscIdHelper();
-
-    Identifier Id = idHelper->channelID(m_cscregdict->stationName(mod_hash), m_cscregdict->stationEta(mod_hash),m_cscregdict->stationPhi(mod_hash),2/*chamberLayer*/, 1, 0, 1);
-    const MuonGM::CscReadoutElement *csc = m_muonMgr->getCscReadoutElement(Id);
+    Identifier Id = m_idHelperSvc->cscIdHelper().channelID(m_cscregdict->stationName(mod_hash), m_cscregdict->stationEta(mod_hash),m_cscregdict->stationPhi(mod_hash),2/*chamberLayer*/, 1, 0, 1);
+    const MuonGM::CscReadoutElement *csc = muDetMgr->getCscReadoutElement(Id);
     if (csc == NULL){
       ATH_MSG_DEBUG( "Csc Readout Element not found ---- skip");
       return ReturnCode::FAILURE;
@@ -260,7 +258,7 @@ ReturnCode  CscSegmentMaker :: make_segment(int mod_hash, TrigL2MuonSA::CscHits 
 }
 
 
-  ReturnCode CscSegmentMaker :: make_2dsegment(int measphi, const localCscHit &ip_loc, const std::vector<localCscHit> hits_loc[4],
+  ReturnCode CscSegmentMaker::make_2dsegment(int measphi, const localCscHit &ip_loc, const std::vector<localCscHit> hits_loc[4],
                                              local2dSegment &seg2d,
                                              local2dSegment &seg2d_ipremoved,
                                              int &nhit)
@@ -321,11 +319,11 @@ ReturnCode  CscSegmentMaker :: make_segment(int mod_hash, TrigL2MuonSA::CscHits 
   
   if( this->fit_clusters(measphi,seg2d.localHits,seg2d_ipremoved)!=ReturnCode::SUCCESS ) return ReturnCode::FAILURE;
   
-  return ReturnCode :: SUCCESS;
+  return ReturnCode::SUCCESS;
   
 }
 
-ReturnCode CscSegmentMaker :: make_2dseg4hit(int measphi, const localCscHit &ip_loc,
+ReturnCode CscSegmentMaker::make_2dseg4hit(int measphi, const localCscHit &ip_loc,
                                              std::vector<localCscHit>  hits_loc[4], //removing hits used in fit with 4 hits
                                              std::vector<local2dSegment> &seg2d_4hitCollection,
                                              int &nhit)
@@ -392,7 +390,7 @@ ReturnCode CscSegmentMaker :: make_2dseg4hit(int measphi, const localCscHit &ip_
 }
 
 
-ReturnCode CscSegmentMaker :: make_2dseg3hit(int measphi, const localCscHit &ip_loc,
+ReturnCode CscSegmentMaker::make_2dseg3hit(int measphi, const localCscHit &ip_loc,
                                              const std::vector<localCscHit> hits_loc[4],
                                              std::vector<local2dSegment> &seg2d_3hitCollection,
                                              int &nhit)
@@ -453,7 +451,7 @@ ReturnCode CscSegmentMaker :: make_2dseg3hit(int measphi, const localCscHit &ip_
 }
 
 
-ReturnCode CscSegmentMaker :: fit_clusters(int measphi, const std::vector<localCscHit> &hits_fit, local2dSegment &seg2d){
+ReturnCode CscSegmentMaker::fit_clusters(int measphi, const std::vector<localCscHit> &hits_fit, local2dSegment &seg2d){
   
   
   double S=0.;
@@ -533,7 +531,7 @@ ReturnCode CscSegmentMaker :: fit_clusters(int measphi, const std::vector<localC
 
 
 
-ReturnCode CscSegmentMaker :: make_4dsegment(const local2dSegment &seg2d_eta,
+ReturnCode CscSegmentMaker::make_4dsegment(const local2dSegment &seg2d_eta,
                                              const local2dSegment &seg2d_phi,
                                              Amg::Vector3D &seg_pos,
                                              Amg::Vector3D &seg_dir)
@@ -580,7 +578,7 @@ ReturnCode CscSegmentMaker :: make_4dsegment(const local2dSegment &seg2d_eta,
 
 
 
-ReturnCode CscSegmentMaker :: getModuleSP(int mod_hashes[2], const TrigL2MuonSA::TgcFitResult &tgcFitResult, int phibin, const MuonRoad &muroad, const int hash_clusters[32]){
+ReturnCode CscSegmentMaker::getModuleSP(int mod_hashes[2], const TrigL2MuonSA::TgcFitResult &tgcFitResult, int phibin, const MuonRoad &muroad, const int hash_clusters[32]){
   ATH_MSG_DEBUG("getModuleSP()");
   
   
@@ -625,7 +623,7 @@ ReturnCode CscSegmentMaker :: getModuleSP(int mod_hashes[2], const TrigL2MuonSA:
 }
 
 
-CscSegment CscSegmentMaker :: segmentAtFirstLayer(int mod_hash, TrigL2MuonSA::CscSegment *mu_seg){
+CscSegment CscSegmentMaker::segmentAtFirstLayer(int mod_hash, TrigL2MuonSA::CscSegment *mu_seg){
   
   
   double alpha = m_cscregdict->displacement(mod_hash);
@@ -647,7 +645,7 @@ CscSegment CscSegmentMaker :: segmentAtFirstLayer(int mod_hash, TrigL2MuonSA::Cs
 
 
 
-ReturnCode CscSegmentMaker :: display_hits(const std::vector<localCscHit> localHits[4]){
+ReturnCode CscSegmentMaker::display_hits(const std::vector<localCscHit> localHits[4]){
   
   
   for(unsigned int ilyr=0; ilyr<4; ++ilyr){
@@ -665,7 +663,7 @@ ReturnCode CscSegmentMaker :: display_hits(const std::vector<localCscHit> localH
 
 
 
-CscSegment :: CscSegment(){
+CscSegment::CscSegment(){
 
   m_x=0.;
   m_y=0.;
@@ -681,7 +679,7 @@ CscSegment :: CscSegment(){
   m_chisquare_phi=0.;
 }
 
-ReturnCode CscSegment :: set(double x, double y, double z, double px, double py, double pz, double chisquare, double chisquare_phi)
+ReturnCode CscSegment::set(double x, double y, double z, double px, double py, double pz, double chisquare, double chisquare_phi)
 {
   
   m_x=x;
@@ -700,7 +698,7 @@ ReturnCode CscSegment :: set(double x, double y, double z, double px, double py,
   
 }
 
-ReturnCode CscSegment :: set( Amg::Vector3D &seg_pos, Amg::Vector3D &seg_dir, double chisquare, double chisquare_phi)
+ReturnCode CscSegment::set( Amg::Vector3D &seg_pos, Amg::Vector3D &seg_dir, double chisquare, double chisquare_phi)
 {
   
   m_x = seg_pos(Amg::x);
@@ -721,7 +719,7 @@ ReturnCode CscSegment :: set( Amg::Vector3D &seg_pos, Amg::Vector3D &seg_dir, do
 
 
 
-bool CscSegment :: isClean(){
+bool CscSegment::isClean(){
   
   bool eta_clean=false;
   bool phi_clean=false;

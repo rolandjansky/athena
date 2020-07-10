@@ -28,13 +28,6 @@ def fastElectronSequence(ConfigFlags):
     viewVerify.DataObjects += [( 'xAOD::TrigEMClusterContainer' , 'StoreGateSvc+' + CaloMenuDefs.L2CaloClusters ),
                                ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+'+RoIs )]
 
-    from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
-    topSequence = AlgSequence()
-    condSeq = AthSequencer( "AthCondSeq" )
-    if not hasattr( condSeq, 'SCT_DCSConditionsStatCondAlg' ):
-      viewVerify.DataObjects += [( 'SCT_DCSStatCondData' , 'ConditionStore+SCT_DCSStatCondData' )]
-      topSequence.SGInputLoader.Load += [( 'SCT_DCSStatCondData' , 'ConditionStore+SCT_DCSStatCondData' )]
-
     from IOVDbSvc.CondDB import conddb
     if not conddb.folderRequested( "/PIXEL/DCS/FSMSTATUS"):
       viewVerify.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATUS' )]

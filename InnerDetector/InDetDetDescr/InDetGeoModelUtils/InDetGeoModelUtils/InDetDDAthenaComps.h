@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetGeoModelUtils_InDetDDAthenaComps_H
@@ -7,6 +7,7 @@
 
 // Message Stream Member
 #include "AthenaKernel/MsgStreamMember.h"
+#include "CxxUtils/checker_macros.h"
 class  StoreGateSvc;
 class  IGeoDbTagSvc;
 class  IRDBAccessSvc;
@@ -34,13 +35,18 @@ public:
   void setGeometryDBSvc(IGeometryDBSvc *);
 
   StoreGateSvc * detStore() const;
-  IGeoDbTagSvc * geoDbTagSvc() const;
+  const IGeoDbTagSvc * geoDbTagSvc() const;
   IRDBAccessSvc * rdbAccessSvc() const;
-  IGeometryDBSvc * geomDB() const;
+  const IGeometryDBSvc * geomDB() const;
+  
+  StoreGateSvc * detStore();
+  IGeoDbTagSvc * geoDbTagSvc();
+  IRDBAccessSvc * rdbAccessSvc();
+  IGeometryDBSvc * geomDB();
   
 private:
   //Declaring private message stream member.
-  mutable Athena::MsgStreamMember m_msg;
+  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
   
   StoreGateSvc * m_detStore;
   IGeoDbTagSvc * m_geoDbTagSvc;
@@ -49,22 +55,42 @@ private:
 
 };
 
-inline StoreGateSvc * AthenaComps::detStore() const
+inline StoreGateSvc * AthenaComps::detStore ATLAS_NOT_THREAD_SAFE () const
 {
   return m_detStore;
 }
 
-inline IGeoDbTagSvc * AthenaComps::geoDbTagSvc() const
+inline const IGeoDbTagSvc * AthenaComps::geoDbTagSvc() const
 {
   return m_geoDbTagSvc;
 }
 
-inline IRDBAccessSvc * AthenaComps::rdbAccessSvc() const
+inline IRDBAccessSvc * AthenaComps::rdbAccessSvc ATLAS_NOT_THREAD_SAFE () const
 {
   return m_rdbAccessSvc;
 }
 
-inline IGeometryDBSvc * AthenaComps::geomDB() const
+inline const IGeometryDBSvc * AthenaComps::geomDB() const
+{
+  return m_geometryDBSvc;
+}
+
+inline StoreGateSvc * AthenaComps::detStore()
+{
+  return m_detStore;
+}
+
+inline IGeoDbTagSvc * AthenaComps::geoDbTagSvc()
+{
+  return m_geoDbTagSvc;
+}
+
+inline IRDBAccessSvc * AthenaComps::rdbAccessSvc()
+{
+  return m_rdbAccessSvc;
+}
+
+inline IGeometryDBSvc * AthenaComps::geomDB()
 {
   return m_geometryDBSvc;
 }

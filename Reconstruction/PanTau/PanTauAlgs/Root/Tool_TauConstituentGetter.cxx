@@ -23,7 +23,7 @@ PanTau::Tool_TauConstituentGetter::Tool_TauConstituentGetter(
     const std::string& name ) :
         asg::AsgTool(name),
         m_Tool_InformationStore("PanTau::Tool_InformationStore/Tool_InformationStore"),
-        m_Tool_InputConverter(this,"PanTau::Tool_InputConverter/Tool_InputConverter")
+        m_Tool_InputConverter("PanTau::Tool_InputConverter/Tool_InputConverter", this)
 {
     declareProperty("Tool_InformationStore",    m_Tool_InformationStore,   "Link to tool with all information");
     declareProperty("Tool_InputConverter",      m_Tool_InputConverter,     "Link to tool to convert into TauConstituents");

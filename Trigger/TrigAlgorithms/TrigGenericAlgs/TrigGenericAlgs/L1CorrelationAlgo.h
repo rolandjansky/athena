@@ -25,7 +25,7 @@
 
 /// for muon tests
 #include "TrigT1Interfaces/RecMuonRoiSvc.h"
-#include "TrigMuonRoITools/ITrigMuonRoITool.h"
+#include "TrigMuonToolInterfaces/ITrigMuonRoITool.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
 
 #include "xAODTrigger/TrigComposite.h"

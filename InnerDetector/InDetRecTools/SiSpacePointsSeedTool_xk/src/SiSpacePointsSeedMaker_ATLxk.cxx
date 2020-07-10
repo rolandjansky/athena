@@ -1641,7 +1641,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
     bool abortBottomLoop=false;
     for (int cell=0; !abortBottomLoop && cell<numberBottomCells; ++cell) {
       /// in each cell, loop over the space points
-      for (iter_otherSP=iter_bottomCands[cell]; iter_otherSP!=iter_endBottomCands[cell]; ++iter_otherSP) {
+      for (iter_otherSP=iter_bottomCands[cell]; !abortBottomLoop && iter_otherSP!=iter_endBottomCands[cell]; ++iter_otherSP) {
         
         /// evaluate the radial distance between the central and bottom SP
         const float& Rb =(*iter_otherSP)->radius();
@@ -1688,7 +1688,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
     /// again, loop over cells of interest, this time for the top SP candidate
     for (int cell=0; !abortTopLoop && cell<numberTopCells; ++cell) {
       /// loop over each SP in each cell 
-      for (iter_otherSP=iter_topCands[cell]; iter_otherSP!=iter_endTopCands[cell]; ++iter_otherSP) {
+      for (iter_otherSP=iter_topCands[cell]; !abortTopLoop && iter_otherSP!=iter_endTopCands[cell]; ++iter_otherSP) {
   
         /// evaluate the radial distance, 
         float Rt =(*iter_otherSP)->radius();

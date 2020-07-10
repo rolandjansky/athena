@@ -41,7 +41,7 @@ atlas_add_library( TrkVertexSeedFinderUtilsLib
    INTERFACE
    PUBLIC_HEADERS TrkVertexSeedFinderUtils
    LINK_LIBRARIES AthenaBaseComps GaudiKernel TrkParameters GeoPrimitives
-   VxVertex TrkParticleBase xAODTracking )
+   VxVertex TrkParticleBase xAODTracking BeamSpotConditionsData )
 
 atlas_add_component( TrkVertexSeedFinderUtils
    src/*.cxx src/components/*.cxx

@@ -41,49 +41,8 @@ namespace MuonCombined {
   }
 
   MuonStauRecoTool::MuonStauRecoTool(const std::string& type, const std::string& name, const IInterface* parent):
-    AthAlgTool(type,name,parent),
-    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_segmentMaker("Muon::DCMathSegmentMaker/DCMathSegmentMaker"),
-    m_segmentMakerT0Fit("Muon::DCMathSegmentMaker/DCMathT0FitSegmentMaker"),
-    m_segmentMatchingTool("Muon::MuonLayerSegmentMatchingTool/MuonLayerSegmentMatchingTool"),
-    m_recoValidationTool(""),
-    m_trackAmbibuityResolver("Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"),
-    m_hitTimingTool("Muon::MuonHitTimingTool/MuonHitTimingTool"),
-    m_muonPRDSelectionTool("Muon::MuonPRDSelectionTool/MuonPRDSelectionTool"),
-    m_muonPRDSelectionToolStau("Muon::MuonPRDSelectionTool/MuonPRDSelectionToolStau"),
-    m_mdtCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
-    m_mdtCreatorStau("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreatorStau"),
-    m_insideOutRecoTool("MuonCombined::MuonInsideOutRecoTool/MuonInsideOutRecoTool"),
-    m_updator("Trk::KalmanUpdator/KalmanUpdator"),
-    m_calibrationDbTool("MdtCalibrationDbTool", this)
+    AthAlgTool(type,name,parent)
   {
-    declareInterface<IMuonCombinedInDetExtensionTool>(this);
-
-    declareProperty("MuonEDMPrinterTool",m_printer );
-    declareProperty("MuonSegmentMaker",m_segmentMaker );    
-    declareProperty("MuonSegmentMakerT0Fit",m_segmentMakerT0Fit );    
-    declareProperty("MuonLayerSegmentMatchingTool",m_segmentMatchingTool );    
-    declareProperty("MuonRecoValidationTool",m_recoValidationTool );    
-    declareProperty("TrackAmbiguityProcessor",m_trackAmbibuityResolver );    
-    declareProperty("MuonHitTimingTool",m_hitTimingTool);
-    declareProperty("MuonPRDSelectionTool", m_muonPRDSelectionTool );
-    declareProperty("MuonPRDSelectionToolStau", m_muonPRDSelectionToolStau );
-    declareProperty("MdtDriftCircleOnTrackCreator", m_mdtCreator );
-    declareProperty("MdtDriftCircleOnTrackCreatorStau", m_mdtCreatorStau );
-    declareProperty("Updator", m_updator );
-    declareProperty("MuonInsideOutRecoTool", m_insideOutRecoTool );
-    declareProperty("MdtCalibrationDbTool", m_calibrationDbTool );
-    declareProperty("DoSummary", m_doSummary = false );
-    declareProperty("ConsideredPDGs", m_pdgsToBeConsidered );
-    declareProperty("UseTruthMatching", m_useTruthMatching = false );
-    declareProperty("DoTruth", m_doTruth = false );
-    declareProperty("PtThreshold", m_ptThreshold = 10000. );
-    declareProperty("HoughAssociationPullCut", m_houghAssociationPullCut = 5);
-    declareProperty("UseSegmentMDTT", m_segmentMDTT = true );
-    declareProperty("MDTTAssocationCut", m_mdttBetaAssociationCut = 0.4 );
-    declareProperty("RPCAssocationCut", m_rpcBetaAssociationCut = 0.2 );
-    declareProperty("SegmentAssocationCut", m_segmentBetaAssociationCut = 0.2 );
-    declareProperty("IgnoreSiAssociatedCandidates", m_ignoreSiAssocated = true );
   }
 
   StatusCode MuonStauRecoTool::initialize() {

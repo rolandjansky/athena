@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/SCT_ServMatFactoryDC3.h"
@@ -28,6 +28,8 @@
 #include "GeoModelKernel/Units.h"
 #include "GaudiKernel/PhysicalConstants.h"
 
+#include "CxxUtils/checker_macros.h"
+
 #define TRTELEMENTSINEL 9
 #define SCTELEMENTSINEL 8
 
@@ -40,7 +42,7 @@ SCT_ServMatFactoryDC3::SCT_ServMatFactoryDC3(const InDetDD::AthenaComps * athena
 }
 
 //## Other Operations (implementation)
-void SCT_ServMatFactoryDC3::create(GeoPhysVol *mother)
+void SCT_ServMatFactoryDC3::create ATLAS_NOT_THREAD_SAFE (GeoPhysVol *mother) // Thread unsafe rdbAccessSvc and materialManager methods are used.
 {
 
   msg(MSG::DEBUG) << "Building SCT Service Material" << endmsg;
@@ -242,7 +244,8 @@ const GeoShape* SCT_ServMatFactoryDC3::createShape(int volType,
   return IDShape;
 }
 
-const GeoMaterial* SCT_ServMatFactoryDC3::createMaterial(const std::string & name,
+const GeoMaterial* SCT_ServMatFactoryDC3::createMaterial ATLAS_NOT_THREAD_SAFE // Thread unsafe materialManager method is used.
+                                                  (const std::string & name,
 						   int volType, 
 						   double fractionRL,
 						   double rmin1, 

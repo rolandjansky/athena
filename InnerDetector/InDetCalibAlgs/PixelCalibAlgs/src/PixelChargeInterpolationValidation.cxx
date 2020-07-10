@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelChargeInterpolationValidation_C
@@ -598,7 +598,7 @@ void PixelChargeInterpolationValidation::Fill(int Layer, double GeVTrkPt,
 		double Phi, double CSphi, double digResPhi, double ResPhi, double ErrPhi, Double_t PullPhi,
 		double Eta, double CSeta, double digResEta, double ResEta, double ErrEta, Double_t PullEta, double Charge){
 
-	static std::vector< float >parameters(3);
+        std::vector< float >parameters(3);
 	parameters[LayerIndex] = Layer;
 	parameters[AngleIndex] = Eta;
 	parameters[ClustersizeIndex] = CSeta;
@@ -625,7 +625,7 @@ void PixelChargeInterpolationValidation::Fill(int Layer, double GeVTrkPt,
 	m_charge_phi->Fill(float(Charge), parameters);
 
 	if( Layer < NLAYERS){ 
-		static std::vector< float >parameters_Layer(2);
+                std::vector< float >parameters_Layer(2);
 		if(GeVTrkPt < 10E10) parameters_Layer[0] = GeVTrkPt;
 		else parameters_Layer[0] = 1.;
 
@@ -640,7 +640,7 @@ void PixelChargeInterpolationValidation::Fill(int Layer, double GeVTrkPt,
 		m_phiPull_Layer[Layer]->Fill(float(PullPhi), parameters_Layer);
 	}
 
-	static std::vector< float >parameters_Clustersize(1);
+	std::vector< float >parameters_Clustersize(1);
 
 	if( int(CSeta)-1 < NCLUSSIZES){ 
 		parameters_Clustersize[0] = Eta;

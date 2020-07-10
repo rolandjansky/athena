@@ -9,6 +9,7 @@ atlas_subdir( PixelCalibAlgs )
 atlas_depends_on_subdirs(
    PUBLIC
    Control/AthenaBaseComps
+   Control/CxxUtils
    GaudiKernel
    InnerDetector/InDetRecEvent/InDetPrepRawData
    PRIVATE
@@ -42,7 +43,7 @@ atlas_add_library( PixelCalibAlgsLib
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
    DEFINITIONS ${CLHEP_DEFINITIONS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps
+   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps CxxUtils
    GaudiKernel InDetPrepRawData
    PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaPoolUtilities CoralDB
    DetDescrConditions Identifier EventInfo PixelConditionsData InDetIdentifier

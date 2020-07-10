@@ -47,7 +47,7 @@ StatusCode TauTrackFinder::finalize() {
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrackContainer& tauTrackCon, const xAOD::TrackParticleContainer* trackContainer) {
+StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrackContainer& tauTrackCon, const xAOD::TrackParticleContainer* trackContainer) const {
   
   std::vector<const xAOD::TrackParticle*> tauTracks;
   std::vector<const xAOD::TrackParticle*> wideTracks;
@@ -222,7 +222,7 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 TauTrackFinder::TauTrackType TauTrackFinder::tauTrackType( const xAOD::TauJet& pTau,
         const xAOD::TrackParticle& trackParticle,
-        const xAOD::Vertex* primaryVertex)
+        const xAOD::Vertex* primaryVertex) const
 {
     double dR = Tau1P3PKineUtils::deltaR(pTau.eta(),pTau.phi(),trackParticle.eta(),trackParticle.phi());
 
@@ -247,7 +247,7 @@ void TauTrackFinder::getTauTracksFromPV( const xAOD::TauJet& pTau,
         const xAOD::Vertex* primaryVertex,
         std::vector<const xAOD::TrackParticle*> &tauTracks,
         std::vector<const xAOD::TrackParticle*> &wideTracks,
-        std::vector<const xAOD::TrackParticle*> &otherTracks)
+        std::vector<const xAOD::TrackParticle*> &otherTracks) const
 {
     for (xAOD::TrackParticleContainer::const_iterator tpcItr = trackParticleCont.begin(); tpcItr != trackParticleCont.end(); ++tpcItr) {
         const xAOD::TrackParticle *trackParticle = *tpcItr;
@@ -267,7 +267,7 @@ void TauTrackFinder::getTauTracksFromPV( const xAOD::TauJet& pTau,
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-StatusCode TauTrackFinder::extrapolateToCaloSurface(xAOD::TauJet& pTau) {
+StatusCode TauTrackFinder::extrapolateToCaloSurface(xAOD::TauJet& pTau) const {
 
     Trk::TrackParametersIdHelper parsIdHelper;
 
@@ -381,7 +381,7 @@ void TauTrackFinder::removeOffsideTracksWrtLeadTrk(std::vector<const xAOD::Track
                            std::vector<const xAOD::TrackParticle*> &wideTracks,
                            std::vector<const xAOD::TrackParticle*> &otherTracks,
                            const xAOD::Vertex* tauOrigin,
-                           double maxDeltaZ0)
+                           double maxDeltaZ0) const
 {
     float MAX=1e5;
 
@@ -435,7 +435,7 @@ void TauTrackFinder::removeOffsideTracksWrtLeadTrk(std::vector<const xAOD::Track
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-float TauTrackFinder::getZ0(const xAOD::TrackParticle* track, const xAOD::Vertex* vertex)
+float TauTrackFinder::getZ0(const xAOD::TrackParticle* track, const xAOD::Vertex* vertex) const
 {
     float MAX=1e5;
 

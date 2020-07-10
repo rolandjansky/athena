@@ -16,7 +16,8 @@ namespace InDet {
     maxHoles, maxPixelHoles, maxPrimaryImpact, maxSctHoles, 
     maxShared, maxZImpact, minClusters, minPixelHits, minPT,
     minPTBrem, minSiNotShared, maxHolesGapPattern, maxHolesPattern,
-    nWeightedClustersMin, phiWidthBrem, Xi2max, Xi2maxNoAdd
+    nWeightedClustersMin, phiWidthBrem, Xi2max, Xi2maxNoAdd,
+    numberOfCutCategories
   };
   
   class IInDetEtaDependentCutsSvc : virtual public IInterface {
@@ -33,10 +34,8 @@ namespace InDet {
     virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIF)=0;
     
     virtual void getValue(const InDet::CutName cutName, std::vector < double >& cut) = 0;
-    virtual void getValue(const InDet::CutName cutName,    std::vector < int >& cut) = 0;
+    virtual void getValue(const InDet::CutName cutName, std::vector < int >& cut) = 0;
 
-    template <class T>    
-      void getValue(const InDet::CutName /*cutName*/, T& /*cut*/, const double /*eta*/) {}
     
     virtual double  getMaxEta() const                         = 0;
     virtual double  getMinPtAtEta           (const double eta) const = 0;

@@ -16,11 +16,12 @@
 
 #include "StoreGate/ReadHandle.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "CxxUtils/checker_macros.h"
 
 class TTree; 
 class IegammaTrkRefitterTool;
 
-class IDPerfMonZmumu : public AthAlgorithm
+class ATLAS_NOT_THREAD_SAFE IDPerfMonZmumu : public AthAlgorithm // Thread unsafe ZmumuEvent class is used.
 {
  public:
   // Constructors & destructors

@@ -88,6 +88,13 @@ PerigeeSurface::type() const
   return Surface::Perigee;
 }
 
+/** Return the surface type static constexpr */
+inline constexpr Surface::SurfaceType
+PerigeeSurface::staticType()
+{
+  return Surface::Perigee;
+}
+
 inline PerigeeSurface*
 PerigeeSurface::clone() const
 {

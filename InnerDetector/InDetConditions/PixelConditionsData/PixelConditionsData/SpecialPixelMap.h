@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELCONDITIONSDATA_SPECIALPIXELMAP_H
@@ -9,6 +9,7 @@
 
 #include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/CondCont.h"
+#include "CxxUtils/checker_macros.h"
 #include<map>
 #include<string>
 
@@ -34,7 +35,7 @@ class ModuleSpecialPixelMap;
     status codes. A ModuleSpecialPixelMap is accessed by its IdentifierHash.
  */
 
-class DetectorSpecialPixelMap : public PixelCoralClientUtils::DetectorSpecialPixelMap{
+class ATLAS_NOT_THREAD_SAFE DetectorSpecialPixelMap : public PixelCoralClientUtils::DetectorSpecialPixelMap{ // Thread unsafe PixelCoralClientUtils::DetectorSpecialPixelMap class is used.
 
  public: 
   DetectorSpecialPixelMap();
@@ -61,7 +62,7 @@ class DetectorSpecialPixelMap : public PixelCoralClientUtils::DetectorSpecialPix
  */
 
 
-class ModuleSpecialPixelMap : public PixelCoralClientUtils::ModuleSpecialPixelMap{
+class ATLAS_NOT_THREAD_SAFE ModuleSpecialPixelMap : public PixelCoralClientUtils::ModuleSpecialPixelMap{ // Thread unsafe PixelCoralClientUtils::ModuleSpecialPixelMap class is used.
 
  public:
    ModuleSpecialPixelMap();

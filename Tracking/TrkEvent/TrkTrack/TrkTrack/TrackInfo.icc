@@ -1,0 +1,109 @@
+/*
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ */
+
+namespace Trk {
+// set methods
+inline void
+Trk::TrackInfo::setTrackProperties(const TrackProperties& property)
+{
+  //   std::cout<<"Set track properties "<<std::endl;
+  m_properties.set(property);
+  if (property == BremFitSuccessful && m_particleHypo == undefined) {
+    m_particleHypo = electron;
+  }
+}
+
+inline void
+Trk::TrackInfo::setPatternRecognitionInfo(
+  const TrackPatternRecoInfo& patternReco)
+{
+  m_patternRecognition.set(patternReco);
+}
+
+inline void
+Trk::TrackInfo::setTrackFitter(const TrackFitter& fitter)
+{
+  m_fitter = (fitter < NumberOfTrackFitters) ? fitter : Unknown;
+}
+
+inline void
+Trk::TrackInfo::setParticleHypothesis(const ParticleHypothesis& hypothesis)
+{
+  m_particleHypo = hypothesis;
+}
+
+// access methods
+inline const Trk::TrackInfo::TrackFitter&
+Trk::TrackInfo::trackFitter() const
+{
+  return m_fitter;
+}
+
+inline Trk::ParticleHypothesis
+Trk::TrackInfo::particleHypothesis() const
+{
+  return m_particleHypo;
+}
+
+inline bool
+Trk::TrackInfo::trackProperties(const TrackProperties& property) const
+{
+  return m_properties.test(property);
+}
+
+inline bool
+Trk::TrackInfo::patternRecoInfo(const TrackPatternRecoInfo& pattern) const
+{
+  return m_patternRecognition.test(pattern);
+}
+
+inline TrackInfo*
+TrackInfo::clone() const
+{
+  return new TrackInfo(*this);
+}
+
+inline std::string
+TrackInfo::dumpBitsProperties() const
+{
+  return m_properties
+    .to_string<char, std::char_traits<char>, std::allocator<char>>();
+}
+
+inline std::string
+TrackInfo::dumpBitsPatternRecoInfo() const
+{
+  return m_patternRecognition
+    .to_string<char, std::char_traits<char>, std::allocator<char>>();
+}
+
+inline const std::bitset<TrackInfo::NumberOfTrackProperties>&
+TrackInfo::properties() const
+{
+  return m_properties;
+}
+
+inline const std::bitset<TrackInfo::NumberOfTrackRecoInfo>&
+TrackInfo::patternRecognition() const
+{
+  return m_patternRecognition;
+}
+
+inline void
+TrackInfo::addPatternRecoAndProperties(const TrackInfo& rhs)
+{
+  // merging information by means of bitwise "or"
+  addPatternReco(rhs);
+  m_properties = m_properties | rhs.m_properties;
+}
+
+inline void
+TrackInfo::addPatternReco(const TrackInfo& rhs)
+{
+  // merging information by means of bitwise "or"
+  m_patternRecognition = m_patternRecognition | rhs.m_patternRecognition;
+}
+
+} // end of namespace Trk
+

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -36,7 +36,7 @@ GeoPixelDetailedStaveSupport::GeoPixelDetailedStaveSupport()
 
 }
 
-GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
+GeoVPhysVol* GeoPixelDetailedStaveSupport::Build ATLAS_NOT_THREAD_SAFE () { // Thread unsafe GeoPixelSiCrystal and GeoPixelModule classes are used.
 
   m_gmt_mgr->msg(MSG::INFO) <<"Build detailed stave support description :  layout "<<m_gmt_mgr->PixelStaveLayout()<<endmsg;
 

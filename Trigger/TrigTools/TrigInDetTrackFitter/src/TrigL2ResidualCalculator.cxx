@@ -39,7 +39,7 @@
 
 //#include "TrigInDetToolInterfaces/ITrigL2ResidualCalculator.h"
 #include "TrigInDetToolInterfaces/TrigL2HitResidual.h"
-#include "TrigInDetTrackFitter/TrigL2ResidualCalculator.h"
+#include "TrigL2ResidualCalculator.h"
 
 TrigL2ResidualCalculator::TrigL2ResidualCalculator(const std::string& t, 
 					   const std::string& n,

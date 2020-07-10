@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/InDetServMatFactory.h"
@@ -37,6 +37,8 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/PhysicalConstants.h"
 
+#include "CxxUtils/checker_macros.h"
+
 #include <iostream>
 
 InDetServMatFactory::InDetServMatFactory(const InDetDD::AthenaComps * athenaComps)
@@ -54,7 +56,7 @@ InDetServMatFactory::~InDetServMatFactory()
 
 
 //## Other Operations (implementation)
-void InDetServMatFactory::create(GeoPhysVol *world )
+void InDetServMatFactory::create ATLAS_NOT_THREAD_SAFE (GeoPhysVol *world ) // Thread unsafe rdbAccessSvc method and InDetMaterialManager constructor are used.
 {
 
   // create a new det manager

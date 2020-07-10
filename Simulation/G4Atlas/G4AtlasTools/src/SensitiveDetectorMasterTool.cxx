@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <mutex>
@@ -9,10 +9,7 @@ SensitiveDetectorMasterTool::SensitiveDetectorMasterTool(const std::string& type
                                                          const std::string& name,
                                                          const IInterface* parent)
   : base_class(type, name, parent)
-  , m_senDetTools(this)
 {
-  declareProperty( "SensitiveDetectors", m_senDetTools,
-                   "Tool handle array of all sensitive detector tools" );
 }
 
 StatusCode SensitiveDetectorMasterTool::initialize()
