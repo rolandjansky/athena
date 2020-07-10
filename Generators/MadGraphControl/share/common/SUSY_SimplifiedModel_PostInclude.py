@@ -1,5 +1,11 @@
 # This comes after all Simplified Model setup files
 from MadGraphControl.MadGraphUtils import SUSY_Generation,modify_param_card,check_reset_proc_number
+from MadGraphControl.MadGraphUtilsHelpers import get_physics_short
+
+phys_short = get_physics_short()
+
+if 'rpv' in phys_short.lower() and not 'import ' in process:
+    raise RuntimeError('Please import a model when using an RPV decay; these are not handled by the standard MSSM model in MadGraph')
 
 # Set maximum number of events if the event multiplier has been modified
 if evt_multiplier>0:
@@ -17,8 +23,6 @@ if ktdurham is not None:
     run_settings.update({'ktdurham':ktdurham})
 
 # systematic variation
-from MadGraphControl.MadGraphUtilsHelpers import get_physics_short
-phys_short = get_physics_short()
 if 'scup' in phys_short:
     syst_mod=dict_index_syst[0]
 elif 'scdw' in phys_short:
