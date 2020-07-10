@@ -5,7 +5,7 @@
 //
 //  !!!!!! Problem with calibration constants for mean ToT on the tracks (norm_ ...) !!!!!!!
 //
-#include "TRT_ElectronPidTools/TRT_ToT_dEdx.h"
+#include "TRT_ToT_dEdx.h"
 #include "TRT_ElectronPidTools/TRT_ToT_Corrections.h"
 
 #include "GaudiKernel/MsgStream.h"

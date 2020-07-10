@@ -12,7 +12,7 @@
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "StoreGate/ReadDecorHandleKey.h"
 
-#include "ITRT_ToT_dEdx.h"
+#include "TRT_ElectronPidTools/ITRT_ToT_dEdx.h"
 
 #include "TrkTrack/Track.h"
 
@@ -26,7 +26,7 @@
 #include "TRT_ReadoutGeometry/TRT_DetElementContainer.h"
 
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
-#include "ITRT_LocalOccupancy.h"
+#include "TRT_ElectronPidTools/ITRT_LocalOccupancy.h"
 
 /*
   Tool to calculate dE/dx variable for PID
@@ -100,9 +100,6 @@ private:
 public:
   /** AlgTool like constructor */
   TRT_ToT_dEdx(const std::string&,const std::string&,const IInterface*);
-  TRT_ToT_dEdx(const std::string& t, const std::string& n, const IInterface* p, 
-               bool useHThits, bool corrected, bool useHighOccToTAlgo, 
-               float minRtrack, float maxRtrack, bool useZeroRHitCut);
   
   /** Virtual destructor*/
   virtual ~TRT_ToT_dEdx();
