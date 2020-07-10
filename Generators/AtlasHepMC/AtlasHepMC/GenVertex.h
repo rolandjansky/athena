@@ -6,6 +6,13 @@
 #ifdef HEPMC3
 #include "HepMC3/GenVertex.h"
 #include "HepMC3/PrintStreams.h"
+namespace HepMC3
+{
+inline std::vector<HepMC3::GenParticlePtr>::const_iterator  begin(HepMC3::GenVertexPtr& e){ return v.particles_out().begin(); }
+inline std::vector<HepMC3::GenParticlePtr>::const_iterator  end(HepMC3::GenVertexPtr& e){ return v.particles_out().end(); }
+inline std::vector<HepMC3::ConstGenParticlePtr>::const_iterator  begin(HepMC3::ConstGenVertexPtr& v){ return v.particles_out().begin(); }
+inline std::vector<HepMC3::ConstGenParticlePtr>::const_iterator  end(HepMC3::ConstGenVertexPtr& v){ return v.particles_out().end(); }
+}
 namespace HepMC {
 typedef HepMC3::GenVertexPtr GenVertexPtr;
 typedef HepMC3::ConstGenVertexPtr ConstGenVertexPtr;
@@ -40,6 +47,8 @@ inline void* raw_pointer(GenVertexPtr p){ return p.get();}
 #else
 #include "HepMC/GenVertex.h"
 namespace HepMC {
+inline GenVertex::particles_out_const_iterator  begin(const HepMC::GenVertex& v){ return v.particles_out_const_begin(); }
+inline GenVertex::particles_out_const_iterator  end(const HepMC::GenVertex& v){ return v.particles_out_const_end(); }
 typedef HepMC::GenVertex* GenVertexPtr;
 typedef const HepMC::GenVertex* ConstGenVertexPtr;
 inline GenVertexPtr newGenVertexPtr(const HepMC::FourVector &pos = HepMC::FourVector(0.0,0.0,0.0,0.0), const int i=0) {
