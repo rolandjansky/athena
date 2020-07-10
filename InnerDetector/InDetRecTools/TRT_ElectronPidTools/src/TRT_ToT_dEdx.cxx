@@ -648,6 +648,7 @@ double TRT_ToT_dEdx::mass(const Trk::TrackStateOnSurface *itr, const double pTrk
 }
 
 /* returns gas type for given straw */
+// TODO: move this functionality to TRT_StrawStatusSummaryTool.
 ITRT_ToT_dEdx::EGasType TRT_ToT_dEdx::gasTypeInStraw(const Trk::TrackStateOnSurface *itr) const
 {
   const Trk::MeasurementBase* trkM = itr->measurementOnTrack();
