@@ -171,7 +171,7 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         assert(remapped_type is not None)
 
         #Global keys/names for collections 
-        from TrigInDetConfig.InDetTrigCollectionKeys import TrigTRTKeys, TrigPixelKeys, TrigSCTKeys
+        from TrigInDetConfig.InDetTrigCollectionKeys import TrigPixelKeys, TrigSCTKeys
 
 
         self.useNewLayerNumberScheme = True
@@ -187,9 +187,6 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
 
         # GPU offloading config begins 
-
-        #GPU_key = ('useGPU', remapped_type)
-        #self.useGPU = InDetTrigSliceSettings[GPU_key]
         
         self.useGPU = False
         

@@ -78,7 +78,7 @@ StatusCode TrigInDetAccelerationSvc::initialize() {
   for(int i=0;i<3;i++) m_layerInfo[i].clear();
 
   ATH_MSG_INFO("TrigInDetAccelerationSvc: created OffloadFactory, factory id = "<<std::hex<<m_pWF->getFactoryId()<<std::dec);
-
+  
   /*    
    * Ask to be informed at the beginning of a new run so that we    
    * can collect geometry, conditions, etc. and copy them to on-GPU data structures   
@@ -89,9 +89,8 @@ StatusCode TrigInDetAccelerationSvc::initialize() {
   int priority = 100;   
   if( sc.isSuccess() ) {     
     incsvc->addListener( this, "BeginRun", priority);   
-  }   
-
-
+  }
+  
   return StatusCode::SUCCESS;
 } 
 

@@ -13,6 +13,11 @@ atlas_add_component( TrigInDetAccelerationTool
                      src/components/*.cxx
                      LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetIdentifier TrigInDetEvent TrigSteeringEvent TrigInDetPattRecoTools AthenaBaseComps InDetIdentifier TrigInDetPattRecoEvent TrigAccelEvent TrigInDetAccelerationServiceLib)
 
-# Install files from the package:
-atlas_install_headers( TrigInDetAccelerationTool )
+atlas_add_library( TrigInDetAccelerationToolLib
+		     src/*.cxx
+                     src/components/*.cxx
+ 		     INTERFACE
+ 		     PUBLIC_HEADERS TrigInDetAccelerationTool
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetIdentifier TrigInDetEvent TrigSteeringEvent TrigInDetPattRecoTools AthenaBaseComps InDetIdentifier TrigInDetPattRecoEvent TrigAccelEvent TrigInDetAccelerationServiceLib)
+
 

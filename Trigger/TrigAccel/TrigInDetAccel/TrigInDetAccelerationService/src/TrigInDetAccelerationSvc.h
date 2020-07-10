@@ -5,7 +5,6 @@
 #ifndef TRIGINDETACCELERATIONSERVICE_TRIGINDETACCELERATIONSVC_H
 #define TRIGINDETACCELERATIONSERVICE_TRIGINDETACCELERATIONSVC_H
 
-
 #include "GaudiKernel/IIncidentListener.h" 
 #include "GaudiKernel/IIncidentSvc.h" 
 
@@ -35,7 +34,6 @@ class TrigInDetAccelerationSvc : public extends<AthService, ITrigInDetAccelerati
   
   virtual StatusCode initialize() override;   
   virtual StatusCode finalize() override;
-  
   virtual void handle(const Incident&) override;
 
   virtual bool isReady() const override {
