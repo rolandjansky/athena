@@ -193,6 +193,8 @@ namespace CP {
 
             /// Points to the current systematic configuration
             const CP::SystematicSet* m_sysConfig;
+            std::string m_SystName;
+            float m_SysVar;
 
     }; // Class FFJetSmearingTool
 

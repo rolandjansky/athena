@@ -223,7 +223,7 @@ config.makeTool (ffjetsmearingtool, cleanup);
 
 
     //Set output level threshold (1=VERBOSE, 2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL, 7=ALWAYS)
-    ffjetsmearingtool.setProperty ("OutputLevel", MSG::FATAL);
+    ffjetsmearingtool.setProperty ("OutputLevel", MSG::ERROR);
 
     if(want_to_debug==true){
         ffjetsmearingtool.setProperty ("OutputLevel", MSG::VERBOSE);
@@ -439,7 +439,7 @@ config.makeTool (ffjetsmearingtool, cleanup);
             //Give a TruthLabel to the jets. We will need it in the FFSmearingTool to apply the uncertainties of one jet topology or another
             m_JetTruthLabelingTool.modify(*(jets_shallowCopy.first));
 	
-            std::cout << "Start the loop over the jets " << std::endl;
+            if(want_to_debug==true)std::cout << "Start the loop over the jets " << std::endl;
 
             bool lead_jet = true;//to fill the histogram
 
