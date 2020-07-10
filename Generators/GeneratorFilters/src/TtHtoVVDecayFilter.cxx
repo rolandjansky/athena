@@ -67,9 +67,6 @@ StatusCode TtHtoVVDecayFilter::filterEvent() {
     for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
 
       for (size_t iParent=0; iParent < m_PDGParent.size(); iParent++) {
-        //ATH_MSG_INFO(" Parent to match?  pdg = " << m_PDGParent[iParent] << " status = " << m_StatusParent[iParent] );
-        //if ( abs((*pitr)->pdg_id()) == m_PDGParent[iParent] ) ATH_MSG_INFO(" particle to check  pdg = " << abs((*pitr)->pdg_id()) << " status = " << (*pitr)->status() );
-
         if ( abs((*pitr)->pdg_id()) == m_PDGParent[iParent] && (*pitr)->status() == m_StatusParent[iParent]) { // if find a parent here
           HepMC::GenVertex::particle_iterator firstMother = (*pitr)->production_vertex()->particles_begin(HepMC::parents);
           HepMC::GenVertex::particle_iterator endMother = (*pitr)->production_vertex()->particles_end(HepMC::parents);

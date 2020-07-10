@@ -144,6 +144,7 @@ bool BoostedHadTopAndTopPair::isHadronic(HepMC::ConstGenParticlePtr part) const{
   for(auto firstChild: end){
     if( std::abs(firstChild->pdg_id()) <= 5 ) return true;
   }
+  }
   return false;
 }
 
