@@ -18,8 +18,8 @@
  **   Created:  27 Jul 2017
  **************************************************************************/ 
 
-#ifndef TRIG_TrigL2ElectronFexMT_H 
-#define TRIG_TrigL2ElectronFexMT_H
+#ifndef TRIG_TrigEgammaFastElectronFexMT_H 
+#define TRIG_TrigEgammaFastElectronFexMT_H
 
 // standard stuff
 #include <vector>
@@ -52,23 +52,23 @@
 //{ class IParticleCaloExtensionTool; } 
 
 /**
- * \class TrigL2ElectronFexMT 
- * \brief TrigL2ElectronFexMT is a Trigger Fex Algorithm that retrieves the L2 TrigEMCluster
+ * \class TrigEgammaFastElectronFexMT 
+ * \brief TrigEgammaFastElectronFexMT is a Trigger Fex Algorithm that retrieves the L2 TrigEMCluster
  * container and the L2 TrackCollection containers and then creates a TrigElectron Container 
  * with a subset of calorimeter-ID selection variables that are calculated (eg. E/p)
  * TrigL2ElectronFexMT will apply some very loose selection cuts to the TrigElectronContainer created
  * which is of TrigParticle type TrigElectron
- * The TrigElectron conatiner will then be retrieved by the hypothesis algorithm TrigL2ElectronHypo
+ * The TrigElectron conatiner will then be retrieved by the hypothesis algorithm TrigEgammaFastElectronHypo
  * that will perform the corresponding L2 electron selection
  *
  */
 
-class TrigL2ElectronFexMT : public AthAlgorithm  {
+class TrigEgammaFastElectronFexMT : public AthAlgorithm  {
   
  public:
 
-  TrigL2ElectronFexMT(const std::string & name, ISvcLocator* pSvcLocator);
-  ~TrigL2ElectronFexMT();
+  TrigEgammaFastElectronFexMT(const std::string & name, ISvcLocator* pSvcLocator);
+  ~TrigEgammaFastElectronFexMT();
 
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;

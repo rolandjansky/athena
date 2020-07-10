@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGEGAMMAHYPO_TRIGL2CALOHYPOALGMT_H
-#define TRIGEGAMMAHYPO_TRIGL2CALOHYPOALGMT_H 1
+#ifndef TRIGEGAMMAHYPO_TRIGEGAMMAFASTCALOHYPOALGMT_H
+#define TRIGEGAMMAHYPO_TRIGEGAMMAFASTCALOHYPOALGMT_H 1
 
 #include <string>
 
@@ -16,25 +16,25 @@
 #include "xAODTrigRinger/TrigRingerRingsContainer.h"
 
 
-#include "ITrigL2CaloHypoTool.h"
+#include "ITrigEgammaFastCaloHypoTool.h"
 
 /**
- * @class TrigL2CaloHypoAlgMT
+ * @class TrigEgammaFastCaloHypoAlgMT
  * @brief Implements egamma calo selection for the new HLT framework
  **/
-class TrigL2CaloHypoAlgMT : public ::HypoBase {
+class TrigEgammaFastCaloHypoAlgMT : public ::HypoBase {
  public: 
 
-  TrigL2CaloHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
+  TrigEgammaFastCaloHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
 
   virtual StatusCode  initialize() override;
   virtual StatusCode  execute( const EventContext& context ) const override;
 
  private: 
-  ToolHandleArray< ITrigL2CaloHypoTool > m_hypoTools { this, "HypoTools", {}, "Hypo tools" };
+  ToolHandleArray< ITrigEgammaFastCaloHypoTool > m_hypoTools { this, "HypoTools", {}, "Hypo tools" };
      
   SG::ReadHandleKey< xAOD::TrigEMClusterContainer > m_clustersKey { this, "CaloClusters", "CaloClusters", "CaloClusters in view" };
   SG::ReadHandleKey<xAOD::TrigRingerRingsContainer> m_ringsKey { this, "RingerKey","HLT_FastCaloRinger","Point to RingerKey"};
 }; 
 
-#endif //> !TRIGEGAMMAHYPO_TESTTRIGL2CALOHYPOALG_H
+#endif //> !TRIGEGAMMAHYPO_TESTTRIGEGAMMAFASTCALOHYPOALG_H

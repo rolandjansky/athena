@@ -16,7 +16,7 @@
 #include "TrigL2PhotonHypoTool.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "DecisionHandling/HypoBase.h"
-#include "ITrigL2CaloHypoTool.h"
+#include "ITrigEgammaFastCaloHypoTool.h"
 
 
 /**

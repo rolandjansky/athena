@@ -13,7 +13,7 @@ class CaloMenuDefs(object):
 
 
 def fastCaloSequence(doRinger):
-    """ Creates L2 Fast Calo sequence"""
+    """ Creates Fast Calo sequence"""
     # EV creator
     from TrigT2CaloCommon.CaloDef import fastCaloEVCreator
     (fastCaloViewsMaker, InViewRoIs) = fastCaloEVCreator()
@@ -28,20 +28,20 @@ def fastCaloSequence(doRinger):
 
 
 def fastCaloMenuSequence(name, doRinger):
-    """ Creates L2 Fast Calo  MENU sequence
+    """ Creates Egamma Fast Calo  MENU sequence
     The Hypo name changes depending on name, so for different implementations (Electron, Gamma,....)
     The doRinger flag is to use or not the Ringer hypo
     """
     (sequence, fastCaloViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(fastCaloSequence, {'doRinger' : doRinger})
     # check if use Ringer and are electron because there aren't ringer for photons yet:
     # hypo
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlgMT
-    theFastCaloHypo = TrigL2CaloHypoAlgMT(name+"L2CaloHypo")
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastCaloHypoAlgMT
+    theFastCaloHypo = TrigEgammaFastCaloHypoAlgMT(name+"EgammaFastCaloHypo")
     theFastCaloHypo.CaloClusters = sequenceOut
     CaloMenuDefs.L2CaloClusters = sequenceOut
 
-    from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromDict
+    from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoToolFromDict
     return MenuSequence( Sequence    = sequence,
                          Maker       = fastCaloViewsMaker,
                          Hypo        = theFastCaloHypo,
-                         HypoToolGen = TrigL2CaloHypoToolFromDict )
+                         HypoToolGen = TrigEgammaFastCaloHypoToolFromDict )

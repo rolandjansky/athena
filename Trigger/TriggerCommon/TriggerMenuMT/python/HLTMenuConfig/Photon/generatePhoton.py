@@ -6,7 +6,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CAMenuSequence, \
     ChainStep, Chain, getChainStepName, createStepView
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromDict
+from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoToolFromDict
 from TrigEgammaHypo.TrigL2PhotonHypoTool import TrigL2PhotonHypoToolFromDict
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
@@ -34,7 +34,7 @@ def generateChains(flags, chainDict):
     fastCaloSequence = CAMenuSequence( Sequence = l2CaloReco.sequence(),
                                      Maker = l2CaloReco.inputMaker(),
                                      Hypo = l2CaloHypo,
-                                     HypoToolGen = TrigL2CaloHypoToolFromDict,
+                                     HypoToolGen = TrigEgammaFastCaloHypoToolFromDict,
                                      CA = accCalo )
 
     fastCaloSequence.createHypoTools(chainDict)

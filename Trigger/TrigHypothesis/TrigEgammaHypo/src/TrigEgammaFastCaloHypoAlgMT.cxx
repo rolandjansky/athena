@@ -3,19 +3,19 @@
 */
 
 #include "GaudiKernel/Property.h"
-#include "TrigL2CaloHypoAlgMT.h"
+#include "TrigEgammaFastCaloHypoAlgMT.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "AthViews/ViewHelper.h"
 
 using namespace TrigCompositeUtils;
 
-TrigL2CaloHypoAlgMT::TrigL2CaloHypoAlgMT( const std::string& name, 
+TrigEgammaFastCaloHypoAlgMT::TrigEgammaFastCaloHypoAlgMT( const std::string& name, 
 					  ISvcLocator* pSvcLocator ) :
   ::HypoBase( name, pSvcLocator ) {}
 
 
-StatusCode TrigL2CaloHypoAlgMT::initialize() {
+StatusCode TrigEgammaFastCaloHypoAlgMT::initialize() {
 
   ATH_CHECK( m_hypoTools.retrieve() );
   
@@ -29,7 +29,7 @@ StatusCode TrigL2CaloHypoAlgMT::initialize() {
 }
 
 
-StatusCode TrigL2CaloHypoAlgMT::execute( const EventContext& context ) const {  
+StatusCode TrigEgammaFastCaloHypoAlgMT::execute( const EventContext& context ) const {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
   ATH_CHECK( previousDecisionsHandle.isValid() );
@@ -43,7 +43,7 @@ StatusCode TrigL2CaloHypoAlgMT::execute( const EventContext& context ) const {
   auto decisions = outputHandle.ptr();
 
   // input for decision
-  std::vector<ITrigL2CaloHypoTool::ClusterInfo> toolInput;
+  std::vector<ITrigEgammaFastCaloHypoTool::FastClusterInfo> toolInput;
 
   // loop over previous decisions
   size_t counter=0;

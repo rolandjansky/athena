@@ -3,18 +3,18 @@
 */
 #include "TrigCompositeUtils/Combinators.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
-#include "TrigL2CaloHypoToolMult.h"
+#include "TrigEgammaFastCaloHypoToolMult.h"
 
 using namespace TrigCompositeUtils;
-TrigL2CaloHypoToolMult::TrigL2CaloHypoToolMult( const std::string& type, 
+TrigEgammaFastCaloHypoToolMult::TrigEgammaFastCaloHypoToolMult( const std::string& type, 
 						const std::string& name, 
 						const IInterface* parent )
   : base_class( type, name, parent ),
     m_decisionId( HLT::Identifier::fromToolName( name ) ) {}
 
-TrigL2CaloHypoToolMult::~TrigL2CaloHypoToolMult() {}
+TrigEgammaFastCaloHypoToolMult::~TrigEgammaFastCaloHypoToolMult() {}
 
-StatusCode TrigL2CaloHypoToolMult::initialize() {
+StatusCode TrigEgammaFastCaloHypoToolMult::initialize() {
   if(  m_subTools.size() <= 1 ) {
     ATH_MSG_ERROR( "Number of sub tools " << m_subTools.size() << ", while it has to be > 1, otherwise this is not a multiplicity selection" );
     return StatusCode::FAILURE;
@@ -23,7 +23,7 @@ StatusCode TrigL2CaloHypoToolMult::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigL2CaloHypoToolMult::decide( std::vector<ITrigL2CaloHypoTool::ClusterInfo>& input )  const {
+StatusCode TrigEgammaFastCaloHypoToolMult::decide( std::vector<ITrigEgammaFastCaloHypoTool::FastClusterInfo>& input )  const {
   HLT::Index2DVec passingSelection( m_subTools.size() );
   ATH_MSG_DEBUG( "Applying selection of multiplicity " << m_subTools.size() );
 

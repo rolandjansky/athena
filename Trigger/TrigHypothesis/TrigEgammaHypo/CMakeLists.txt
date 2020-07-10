@@ -19,12 +19,12 @@ atlas_add_component( TrigEgammaHypo
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-extensions=ATL900,ATL901 )
 
 # Unit tests:
-atlas_add_test( TrigL2CaloHypoToolConfig
-   SCRIPT python -m TrigEgammaHypo.TrigL2CaloHypoTool
+atlas_add_test( TrigEgammaFastCaloHypoToolConfig
+   SCRIPT python -m TrigEgammaHypo.TrigEgammaFastCaloHypoTool
    POST_EXEC_SCRIPT nopost.sh )
 
-atlas_add_test( TrigL2ElectronHypoToolConfig
-   SCRIPT python -m TrigEgammaHypo.TrigL2ElectronHypoTool
+atlas_add_test( TrigEgammaFastElectronHypoToolConfig
+   SCRIPT python -m TrigEgammaHypo.TrigEgammaFastElectronHypoTool
    POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( TrigL2PhotonHypoToolConfig

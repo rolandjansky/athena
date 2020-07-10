@@ -13,15 +13,15 @@
 #include "TrigEgammaHypo/TrigEFPhotonHypo.h"
 #include "TrigEgammaHypo/TrigEFTrackHypo.h"
 #include "TrigEgammaHypo/TrigL2CaloLayersHypo.h"
-#include "../TrigL2CaloHypoAlgMT.h"
-#include "../TrigL2CaloHypoToolInc.h"
+#include "../TrigEgammaFastCaloHypoAlgMT.h"
+#include "../TrigEgammaFastCaloHypoToolInc.h"
 #include "../TrigEgammaPrecisionCaloHypoToolInc.h"
 #include "../TrigEgammaPrecisionPhotonHypoToolInc.h"
 #include "../TrigEgammaPrecisionElectronHypoToolInc.h"
-#include "../TrigL2CaloHypoToolMult.h"
-#include "../TrigL2ElectronHypoTool.h"
-#include "../TrigL2ElectronFexMT.h"
-#include "../TrigL2ElectronHypoAlgMT.h"
+#include "../TrigEgammaFastCaloHypoToolMult.h"
+#include "../TrigEgammaFastElectronHypoTool.h"
+#include "../TrigEgammaFastElectronFexMT.h"
+#include "../TrigEgammaFastElectronHypoAlgMT.h"
 #include "../TrigL2PhotonHypoAlgMT.h"
 #include "../TrigL2PhotonHypoTool.h"
 #include "../TrigEgammaPrecisionCaloHypoAlgMT.h"
@@ -46,16 +46,16 @@ DECLARE_COMPONENT( TrigEFElectronHypo )
 DECLARE_COMPONENT( TrigEFPhotonHypo )
 DECLARE_COMPONENT( TrigEFTrackHypo )
 DECLARE_COMPONENT( TrigL2CaloLayersHypo )
-DECLARE_COMPONENT( TrigL2CaloHypoAlgMT )
-DECLARE_COMPONENT( TrigL2ElectronHypoAlgMT )
+DECLARE_COMPONENT( TrigEgammaFastCaloHypoAlgMT )
+DECLARE_COMPONENT( TrigEgammaFastElectronHypoAlgMT )
 DECLARE_COMPONENT( TrigL2PhotonHypoAlgMT )
-DECLARE_COMPONENT( TrigL2CaloHypoToolInc )
+DECLARE_COMPONENT( TrigEgammaFastCaloHypoToolInc )
 DECLARE_COMPONENT( TrigEgammaPrecisionCaloHypoToolInc )
 DECLARE_COMPONENT( TrigEgammaPrecisionPhotonHypoToolInc )
 DECLARE_COMPONENT( TrigEgammaPrecisionElectronHypoToolInc )
-DECLARE_COMPONENT( TrigL2CaloHypoToolMult )
-DECLARE_COMPONENT( TrigL2ElectronHypoTool )
-DECLARE_COMPONENT( TrigL2ElectronFexMT )
+DECLARE_COMPONENT( TrigEgammaFastCaloHypoToolMult )
+DECLARE_COMPONENT( TrigEgammaFastElectronHypoTool )
+DECLARE_COMPONENT( TrigEgammaFastElectronFexMT )
 DECLARE_COMPONENT( TrigL2PhotonHypoTool )
 DECLARE_COMPONENT( TrigEgammaPrecisionCaloHypoAlgMT )
 DECLARE_COMPONENT( TrigEgammaPrecisionCaloHypoToolMult )
