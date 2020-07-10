@@ -201,11 +201,12 @@ namespace Trk
     if (&vertex1==myJetCandidate.getPrimaryVertex()) {
       mergeVertexToPrimaryInJetCandidate(vertex2,myJetCandidate);
       return *myJetCandidate.getPrimaryVertex();
-    } if (&vertex2==myJetCandidate.getPrimaryVertex()) {
-      mergeVertexToPrimaryInJetCandidate(vertex1,myJetCandidate);
+    }
+    if (&vertex2 == myJetCandidate.getPrimaryVertex()) {
+      mergeVertexToPrimaryInJetCandidate(vertex1, myJetCandidate);
       return *myJetCandidate.getPrimaryVertex();
     }
-    
+
     addTracksOfFirstVertexToSecondVertex(vertex2,vertex1);
 
     //now you need to *delete* the second vertex in copyOfRecVertexPositions and 

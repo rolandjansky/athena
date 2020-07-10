@@ -561,34 +561,44 @@ namespace Trk
       ok = false;
       ATH_MSG_WARNING("Numvertex of primary vertex not correctly initialized. "
                       "Not proceeding with the fit!");
-      }
-      //      if (std::abs(myPrimary->getLinearizationPosition(void))>1e-6) {
-      //	ATH_MSG_WARNING( "Primary vertex linearization point is not zero as it should be!" );
-      //      }
+    }
 
-      const std::vector<VxTrackAtVertex*> & primaryVectorTracks=myPrimary->getTracksAtVertex();
-      
-      sizeprimary=primaryVectorTracks.size();
+    const std::vector<VxTrackAtVertex*>& primaryVectorTracks =
+      myPrimary->getTracksAtVertex();
 
-      ok =  (std::find(primaryVectorTracks.begin(), primaryVectorTracks.end(),nullptr) == primaryVectorTracks.end());
-      if (not ok) ATH_MSG_WARNING( "One of the VxTrackAtVertex is a null pointer. Not proceeding with the fit!" );
+    sizeprimary = primaryVectorTracks.size();
 
-      if (!ok) {
-        return false;
-      }
-    //end if else rimary==0
-    
-    //check std::vector<VxVertexOnJetAxis*> (if pointers are not empty and if all associated tracks are not empty)
-    const std::vector<VxVertexOnJetAxis*> & tracksOfVertex=myJetCandidate->getVerticesOnJetAxis();
-
-    auto badVertex=[](VxVertexOnJetAxis* pVertex){return (pVertex==nullptr) or (pVertex->getNumVertex() < 0);}; 
-    ok=(std::find_if(tracksOfVertex.begin(), tracksOfVertex.end(), badVertex) == tracksOfVertex.end());
+    ok = (std::find(primaryVectorTracks.begin(),
+                    primaryVectorTracks.end(),
+                    nullptr) == primaryVectorTracks.end());
     if (not ok)
+      ATH_MSG_WARNING("One of the VxTrackAtVertex is a null pointer. Not "
+                      "proceeding with the fit!");
+
+    if (!ok) {
+      return false;
+    }
+    // end if else rimary==0
+
+    // check std::vector<VxVertexOnJetAxis*> (if pointers are not empty and if
+    // all associated tracks are not empty)
+    const std::vector<VxVertexOnJetAxis*>& tracksOfVertex =
+      myJetCandidate->getVerticesOnJetAxis();
+
+    auto badVertex = [](VxVertexOnJetAxis* pVertex) {
+      return (pVertex == nullptr) or (pVertex->getNumVertex() < 0);
+    };
+    ok =
+      (std::find_if(tracksOfVertex.begin(), tracksOfVertex.end(), badVertex) ==
+       tracksOfVertex.end());
+    if (not ok) {
       ATH_MSG_WARNING(
         "One of the VxTrackAtVertex is a null pointer or uninitialized. Not "
         "proceeding with the fit!"); // Two error messages combined into one
-
-    if (not ok) return false;
+    }
+    if (not ok) {
+      return false;
+    }
     
     //now check if there is some track at least to do the fit...
 
@@ -619,8 +629,8 @@ namespace Trk
     //check if all the diagonal values of the covariance matrix are not zero
     for (int i=0;i<myPosition.rows();i++) {
       if (std::abs(myErrorMatrix(i,i))<1e-20) {
-	ATH_MSG_WARNING ("Value of cov matrix component n. " << i << " has a value smaller than 1e-8. Not considered as possible. Not performing fit...");
-	return false;
+        ATH_MSG_WARNING ("Value of cov matrix component n. " << i << " has a value smaller than 1e-8. Not considered as possible. Not performing fit...");
+        return false;
       }
     }
 
@@ -641,7 +651,8 @@ namespace Trk
 
     if (firstVertex==PrimaryVertex) {
       return fastProbabilityOfMergingWithPrimary(secondVertex,myJetCandidate);
-    } if (secondVertex==PrimaryVertex) {
+    } 
+    if (secondVertex==PrimaryVertex) {
       return fastProbabilityOfMergingWithPrimary(firstVertex,myJetCandidate);
     }
 
