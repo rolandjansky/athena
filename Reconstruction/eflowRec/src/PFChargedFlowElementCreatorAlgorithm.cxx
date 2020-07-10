@@ -52,8 +52,9 @@ void PFChargedFlowElementCreatorAlgorithm::createChargedFlowElements(const eflow
       if (!efRecTrack->isSubtracted()){ continue; }
     }
 
-    /* Create new xAOD::FlowElement */
+    /* Create new xAOD::FlowElement and set the type to charged PFlow */
     xAOD::FlowElement* thisFE = new xAOD::FlowElement();
+    thisFE->setSignalType(xAOD::FlowElement::SignalType::ChargedPFlow);
     chargedFlowElementContainerWriteHandle->push_back(thisFE);
 
     /* Get the track elementLink and add it to the xAOD:FE. 
@@ -67,6 +68,22 @@ void PFChargedFlowElementCreatorAlgorithm::createChargedFlowElements(const eflow
 
     //Now set the charge
     thisFE->setCharge(efRecTrack->getTrack()->charge());
+
+    std::pair<double,double> etaPhi(0.0,0.0);
+
+    if (m_eOverPMode){
+      /* In EOverPMode want charged eflowObjects to have extrapolated eta,phi as coordinates
+       * (needed for analysis of EOverP Data) */
+      etaPhi = efRecTrack->getTrackCaloPoints().getEM2etaPhi();
+        
+    } else {
+      /* In normal mode we want the track eta,phi at the perigee */
+      etaPhi.first = efRecTrack->getTrack()->eta();
+      etaPhi.second = efRecTrack->getTrack()->phi();
+    }
+
+    /* Set the 4-vector of the xAOD::PFO */
+    thisFE->setP4(efRecTrack->getTrack()->pt(), etaPhi.first, etaPhi.second, efRecTrack->getTrack()->m());
 
   }//loop over eflowRecTracks
 

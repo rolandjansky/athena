@@ -15,7 +15,11 @@ PhysValPFO_neutral_EM = PhysValPFO("PhysValPFO_neutral")
 PhysValPFO_neutral_EM.OutputLevel = WARNING
 PhysValPFO_neutral_EM.DetailLevel = 10
 PhysValPFO_neutral_EM.EnableLumi = False
-PhysValPFO_neutral_EM.PFOContainerName="JetETMissNeutralParticleFlowObjects";
+PhysValPFO_neutral_EM.PFOContainerName="JetETMissNeutralParticleFlowObjects"
 PhysValPFO_neutral_EM.useNeutralPFO = True
 
 monMan.AthenaMonTools += [ PhysValPFO_neutral_EM ]
+
+from PFODQA.PFODQAConf import PhysValFlowElement
+PhysValFlowElement = PhysValFlowElement("PhysValFlowElement_Charged")
+monMan.AthenaMonTools += [PhysValFlowElement]
