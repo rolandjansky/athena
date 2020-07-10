@@ -39,7 +39,7 @@
 
 #include "CxxUtils/checker_macros.h"
 
-#include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
 
 class MsgStream;
@@ -124,8 +124,12 @@ namespace InDet {
       SG::ReadHandleKey<CaloClusterROI_Collection>  m_caloKey
        {this, "InputClusterContainerName", "InDetCaloClusterROIs", "Location of the optional Calo cluster seeds."};
 
-      ServiceHandle<IRegSelSvc> m_regionSelector{ this, "RegSelSvc", "RegSelSvc/RegSelSvc", "Region selector service instance" };
-      float m_clusterEt;
+      ToolHandle<IRegSelTool> m_regionSelector{ this, "RegSelTool", "RegSelTool/RegSel_SCT", "Region selector service instance" };
+      
+      float m_clusterEt;         //!< min Et of CaloCluster for ROISeeding
+      float m_deltaEta;          //!< delta Eta used for RoI creation
+      float m_deltaPhi;          //!< delta Phi used for RoI creation
+      float m_deltaZ;            //!< delta Z used for RoI creation
       /** Global Counters for final algorithm statistics */
       struct Stat_t {
          enum ECounter {

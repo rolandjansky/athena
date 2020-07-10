@@ -240,6 +240,7 @@ class ConfiguredNewTrackingCuts :
       # Calo cluster Et for RoI seeded backtracking for TRT segment finding
       # and for TRT-si extensions
       self.__minRoIClusterEt         = 6000. * Units.MeV
+      self.__minSecondaryPt          = 3.0 * Units.GeV  # Increase pT cut used for back-tracking to match calo-RoI
 
     if self.__indetflags.cutLevel() >= 20:
       print('--------> FATAL ERROR, cut level undefined, abort !')

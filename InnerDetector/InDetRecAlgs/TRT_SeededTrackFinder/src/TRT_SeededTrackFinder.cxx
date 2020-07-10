@@ -72,9 +72,10 @@ InDet::TRT_SeededTrackFinder::TRT_SeededTrackFinder
   declareProperty("maxZImp"           ,m_maxZImp            = 250. );
   declareProperty("Extrapolator"      ,m_extrapolator              );
   declareProperty("CaloSeededRoI"     ,m_caloSeededRoI=false       );
-  declareProperty("RegionSelectionSvc",m_regionSelector            );
-  declareProperty("CaloClusterEt"     ,m_clusterEt=3000.           );   
-
+  declareProperty("CaloClusterEt"     ,m_clusterEt=3000.           );
+  declareProperty("dEtaCaloRoI"       ,m_deltaEta=0.1              );
+  declareProperty("dPhiCaloRoI"       ,m_deltaPhi=0.25             );
+  declareProperty("dZCaloRoI"         ,m_deltaZ=300                );
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -109,12 +110,14 @@ StatusCode InDet::TRT_SeededTrackFinder::initialize()
 
   ATH_CHECK(  m_SegmentsKey.initialize()) ;  /** TRT segments to use */
   ATH_CHECK( m_outTracksKey.initialize());
- 
-  if ( m_caloSeededRoI ) {
-     CHECK( m_regionSelector.retrieve() );
-     ATH_CHECK( m_caloKey.initialize(m_caloSeededRoI) );
-  }
 
+  if(m_caloSeededRoI){
+    ATH_CHECK( m_regionSelector.retrieve());
+    ATH_CHECK( m_caloKey.initialize(m_caloSeededRoI) );
+  } else {
+    m_regionSelector.disable();
+  }
+  
   // Get output print level
   //
   if(msgLvl(MSG::DEBUG)) {
@@ -200,21 +203,22 @@ StatusCode InDet::TRT_SeededTrackFinder::execute_r (const EventContext& ctx) con
         if ( c->energy()/cosh(c->globalPosition().eta()) < m_clusterEt) {
           continue;
         }
+
         double eta = c->globalPosition().eta();
         double phi = c->globalPosition().phi();
-        double roiPhiMin = phi -.25;
-        double roiPhiMax = phi +.25;
-        double roiEtaMin = eta -.1;
-        double roiEtaMax = eta +.1;
-        double roiZMin = beamZ -300;
-        double roiZMax = beamZ +300;
-        roi = new RoiDescriptor( eta, roiEtaMin, roiEtaMax,phi, roiPhiMin ,roiPhiMax, beamZ,roiZMin,roiZMax);
+        double roiPhiMin = phi -m_deltaPhi;
+        double roiPhiMax = phi +m_deltaPhi;
+        double roiEtaMin = eta -m_deltaEta;
+        double roiEtaMax = eta +m_deltaEta;
+        double roiZMin = beamZ -m_deltaZ;
+        double roiZMax = beamZ +m_deltaZ;
+        roi = new RoiDescriptor( eta, roiEtaMin, roiEtaMax,phi, roiPhiMin ,roiPhiMax, beamZ, roiZMin,roiZMax);
         roiComp->push_back(roi);
       }
     }
     std::vector<IdentifierHash> listOfSCTIds;
     std::vector<IdentifierHash> listOfPixIds;
-    m_regionSelector->DetHashIDList(SCT, *roiComp, listOfSCTIds );
+    m_regionSelector->HashIDList(*roiComp, listOfSCTIds );
     event_data_p = m_trackmaker->newRegion(ctx, combinatorialData, listOfPixIds, listOfSCTIds);
   } else {
     event_data_p = m_trackmaker->newEvent(ctx, combinatorialData);

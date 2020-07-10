@@ -158,14 +158,7 @@ class ConfiguredBackTracking:
          self.__TRTSeededTracks = InDetKeys.TRTSeededTracks()
          #
          # TRT seeded back tracking algorithm
-         from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
-         InDetRegSelSvc             = RegSelSvcDefault()
-         InDetRegSelSvc.enableSCT   = DetFlags.SCT_on()
-
-         ServiceMgr += InDetRegSelSvc
-         if (InDetFlags.doPrintConfigurables()):
-           printfunc (InDetRegSelSvc)
-
+         
 
          from AthenaCommon import CfgGetter
          from TRT_SeededTrackFinder.TRT_SeededTrackFinderConf import InDet__TRT_SeededTrackFinder
@@ -195,7 +188,8 @@ class ConfiguredBackTracking:
                                                                    CaloClusterEt         = NewTrackingCuts.minRoIClusterEt())
          
          if (NewTrackingCuts.RoISeededBackTracking()):
-            InDetTRT_SeededTrackFinder.RegionSelectionSvc = InDetRegSelSvc
+            from RegionSelector.RegSelToolConfig import makeRegSelTool_SCT
+            InDetTRT_SeededTrackFinder.RegSelTool = makeRegSelTool_SCT()
             InDetTRT_SeededTrackFinder.CaloSeededRoI = True
          # InDetTRT_SeededTrackFinder.OutputLevel = VERBOSE
          topSequence += InDetTRT_SeededTrackFinder
