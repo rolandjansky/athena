@@ -5,6 +5,8 @@
 //EDM includes
 #include "xAODBase/IParticleContainer.h"
 #include "xAODPFlow/FlowElementAuxContainer.h"
+#include "xAODPFlow/PFODefs.h"
+#include "xAODCore/AuxStoreAccessorMacros.h"
 
 PFChargedFlowElementCreatorAlgorithm::PFChargedFlowElementCreatorAlgorithm(const std::string& name, ISvcLocator* pSvcLocator) :
   AthReentrantAlgorithm(name,pSvcLocator)
@@ -75,7 +77,19 @@ void PFChargedFlowElementCreatorAlgorithm::createChargedFlowElements(const eflow
       /* In EOverPMode want charged eflowObjects to have extrapolated eta,phi as coordinates
        * (needed for analysis of EOverP Data) */
       etaPhi = efRecTrack->getTrackCaloPoints().getEM2etaPhi();
-        
+
+      /*add information to xAOD*/
+      const SG::AuxElement::Accessor<int> accLHED("eflowRec_layerHED");
+      accLHED(*thisFE) = efRecTrack->getLayerHED();
+
+      const SG::AuxElement::Accessor<std::vector<int> > accCellOrderVector("eflowRec_layerVectorCellOrdering");
+      accCellOrderVector(*thisFE) = efRecTrack->getLayerCellOrderVector();
+
+      const SG::AuxElement::Accessor<std::vector<float> > accRadiusCellOrderVector("eflowRec_radiusVectorCellOrdering");
+      accRadiusCellOrderVector(*thisFE) = efRecTrack->getRadiusCellOrderVector();
+
+      const SG::AuxElement::Accessor<std::vector<float> > accAvgEDensityCellOrderVector("eflowRec_avgEdensityVectorCellOrdering");
+      accAvgEDensityCellOrderVector(*thisFE) = efRecTrack->getAvgEDensityCellOrderVector();
     } else {
       /* In normal mode we want the track eta,phi at the perigee */
       etaPhi.first = efRecTrack->getTrack()->eta();
