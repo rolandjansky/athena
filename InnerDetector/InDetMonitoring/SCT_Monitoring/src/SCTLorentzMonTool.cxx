@@ -211,11 +211,11 @@ SCTLorentzMonTool::fillHistograms() {
     ){
         passesCuts = true;
     }// 01.02.2015
-    else if ((origTrack->perigeeParameters()->parameters()[Trk::qOverP] < 0.) && // use negative track only
+    else if ((perigee->parameters()[Trk::qOverP] < 0.) && // use negative track only
         (std::abs(perigee->parameters()[Trk::d0]) < 1.) && // d0 < 1mm
         //(std::abs( perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta]) ) < 1.) // another way to implement d0 < 1mm
-        (summary->get(Trk::numberOfSCTHits) > 6) && // SCTHits >6
-        (summary->get(Trk::numberOfPixelHits) > 1) // nPixelHits > 1
+        (summary->get(Trk::numberOfSCTHits) > 6) // SCTHits >6
+        //&& (summary->get(Trk::numberOfPixelHits) > 1) // nPixelHits > 1 may be used if needed. 
     ){
         passesCuts = true;
     }else{
@@ -227,7 +227,7 @@ SCTLorentzMonTool::fillHistograms() {
     const Trk::Track *track = nullptr;
     if(m_getTrackHoles){
         // Get track with holes for the tracks passing the selection
-        track = m_holeSearchTool->getTrackWithHoles(**trkitr);
+        track = m_holeSearchTool->getTrackWithHoles(*origTrack);
     }
     else{
         // get track without holes
@@ -254,7 +254,7 @@ SCTLorentzMonTool::fillHistograms() {
       /// selection of tracks
       const Trk::TrackParameters *trkp = dynamic_cast<const Trk::TrackParameters *>((*it)->trackParameters());
       if (not trkp){
-          msg(MSG::WARNING) << " Null pointer to MeasuredTrackParameters" << endmsg;
+          ATH_MSG_DEBUG(" Null pointer to MeasuredTrackParameters");
           continue;
       }
       
