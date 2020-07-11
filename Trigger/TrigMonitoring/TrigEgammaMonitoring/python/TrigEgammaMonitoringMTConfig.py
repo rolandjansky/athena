@@ -609,7 +609,7 @@ class TrigEgammaMonAlgBuilder:
     self.addHistogram(monGroup, TH1F("eta", "eta; eta ; Count", 50, -2.47, 2.47))
 
     if self.detailedHistograms:
-      self.addHistogram(monGroup, TH2F("eta,res_et", "E_{T} resolution as function of #eta; #eta; (E_{T}(on)-E_{T}(off))/E_{T}(off); Count",25, -2.47, 2.47,50, -0.1, 0.1))
+      self.addHistogram(monGroup, TH2F("eta,res_et", "E_{T} resolution as function of #eta; #eta; (E_{T}(on)-E_{T}(off))/E_{T}(off); Count",50, -2.47, 2.47,50, -0.1, 0.1))
     
 
 
@@ -620,7 +620,7 @@ class TrigEgammaMonAlgBuilder:
     self.addHistogram(monGroup, TH1F("eta", "#eta; #eta ; Count", 50, -2.47, 2.47))
     self.addHistogram(monGroup, TH1F("res_et", "E_{T} resolution; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 100, -0.1, 0.1))
     if self.detailedHistograms:
-      self.addHistogram(monGroup, TH2F("eta,res_et", "E_{T} resolution as function of #eta; #eta; (E_{T}(on)-E_{T}(off))/E_{T}(off); Count",25, -2.47, 2.47,50, -0.1, 0.1))
+      self.addHistogram(monGroup, TH2F("eta,res_et", "E_{T} resolution as function of #eta; #eta; (E_{T}(on)-E_{T}(off))/E_{T}(off); Count",50, -2.47, 2.47,50, -0.1, 0.1))
 
 
 
@@ -651,68 +651,62 @@ class TrigEgammaMonAlgBuilder:
     if self.detailedHistograms:
       # Book all 2D histograms
       self.addHistogram(monGroup, TH2F("et,res_etVsEt", "E_{T} resolution as function of E_{T}; E_{T} [GeV]; (E_{T}(on)-E_{T}(off))/E_{T}(off); Count",
-                  25, 0., 100.,
-                  50, -0.1, 0.1))
+                  50, 0., 100.,
+                  100, -0.1, 0.1))
       self.addHistogram(monGroup, TH2F("eta,res_et", "E_{T} resolution as function of #eta; #eta; (E_{T}(on)-E_{T}(off))/E_{T}(off); Count",
                   50, -2.47, 2.47,
-                  50, -0.1, 0.1))
+                  100, -0.1, 0.1))
       self.addHistogram(monGroup, TH2F("eta,res_f3", "L2Calo f3 resolution as function of #eta; #eta; (f3(on)-f3(off))/f3(off); Count",
                   50, -2.47, 2.47,
-                  50, -0.05, 0.05))
+                  20, -0.05, 0.05))
       self.addHistogram(monGroup, TH2F("et,res_f3", "L2Calo f3 resolution as function of E_{T}; E_{T} [GeV]; (f3(on)-f3(off))/f3(off); Count",
                   50, 0., 100.,
-                  50, -0.05, 0.05))
+                  20, -0.05, 0.05))
       self.addHistogram(monGroup, TH2F("eta,res_f1", "L2Calo f1 resolution as function of #eta; #eta; (f1(on)-f1(off))/f1(off); Count",
                   50, -2.47, 2.47,
-                  50, -0.05, 0.05))
+                  20, -0.05, 0.05))
       self.addHistogram(monGroup, TH2F("et,res_f1", "L2Calo f1 resolution as function of E_{T}; E_{T} [GeV]; (f1(on)-f1(off))/f1(off); Count",
                   50, 0., 100.,
-                  50, -0.05, 0.05))
+                  20, -0.05, 0.05))
       self.addHistogram(monGroup, TH2F("eta,res_weta2", "L2Calo weta2 resolution as function of #eta; #eta; (weta2(on)-weta2(off))/weta2(off); Count",
                   50, -2.47, 2.47,
-                  50, -0.05, 0.05))
+                  20, -0.05, 0.05))
       self.addHistogram(monGroup, TH2F("et,res_weta2", "L2Calo weta2 resolution as function of E_{T}; E_{T} [GeV]; (weta2(on)-weta2(off))/weta2(off); Count",
                   50, 0., 100.,
-                  50, -0.05, 0.05))
-      self.addHistogram(monGroup, TH2F("eta,res_weta1", "L2Calo weta1 resolution as function of #eta; #eta; (weta1(on)-weta1(off))/weta1(off); Count",
-                  50, -2.47, 2.47,
-                  50, -0.05, 0.05))
-      self.addHistogram(monGroup, TH2F("et,res_weta1", "L2Calo weta1 resolution as function of E_{T}; E_{T} [GeV]; (weta1(on)-weta1(off))/weta1(off); Count",
-                  50, 0., 100.,
-                  50, -0.05, 0.05))
+                  20, -0.05, 0.05))
       self.addHistogram(monGroup, TH2F("eta,res_Reta", "L2Calo Reta resolution as function of #eta; #eta; (Reta(on)-Reta(off))/Reta(off); Count",
                   50, -2.47, 2.47,
-                  50, -0.05, 0.05))
+                  20, -0.05, 0.05))
       self.addHistogram(monGroup, TH2F("et,res_Reta", "L2Calo Reta resolution as function of E_{T}; E_{T} [GeV]; (Reta(on)-Reta(off))/Reta(off); Count",
                   50, 0., 100.,
-                  50, -0.05, 0.05))
+                  20, -0.05, 0.05))
       self.addHistogram(monGroup, TH2F("eta,res_Rhad1", "L2Calo E_{T} Rhad1 resolution as function of #eta; #eta; (Rhad1(on)-Rhad1(off))/Rhad1(off); Count",
                   50, -2.47, 2.47,
-                  50, -10, 10))
+                  20, -10, 10))
       self.addHistogram(monGroup, TH2F("et,res_Rhad1", "L2Calo E_{T} RHad1 resolution as function of E_{T}; E_{T} [GeV]; (Rhad1(on)-Rhad1(off))/Rhad1(off); Count",
                   50, 0., 100.,
-                  50, -10, 10))
+                  20, -10, 10))
       self.addHistogram(monGroup, TH2F("eta,res_Rhad", "L2Calo E_{T} Rhad resolution as function of #eta; #eta; (Rhad(on)-Rhad(off))/Rhad(off); Count",
                   50, -2.47, 2.47,
-                  50, -10, 10))
+                  20, -10, 10))
       self.addHistogram(monGroup, TH2F("et,res_Rhad", "L2Calo E_{T} RHad resolution as function of E_{T}; E_{T} [GeV]; (Rhad(on)-Rhad(off))/Rhad(off); Count",
                   50, 0., 100.,
-                  50, -10, 10))
+                  20, -10, 10))
       self.addHistogram(monGroup, TH2F("eta,res_ethad1", "L2Calo E_{T} Had1 resolution as function of #eta; #eta; (ethad1(on)-ethad1(off))/ethad1(off); Count",
                   50, -2.47, 2.47,
-                  50, -0.5, 0.5))
+                  20, -0.5, 0.5))
       self.addHistogram(monGroup, TH2F("et,res_ethad1", "L2Calo E_{T} Had1 resolution as function of E_{T}; E_{T} [GeV]; (ethad1(on)-ethad1(off))/ethad1(off); Count",
                   50, 0., 100.,
-                  50, -0.5, 0.5))
+                  20, -0.5, 0.5))
       self.addHistogram(monGroup, TH2F("eta,res_ethad", "L2Calo E_{T} Had resolution as function of #eta; #eta; (ethad(on)-ethad(off))/ethad(off); Count",
                   50, -2.47, 2.47,
-                  50, -0.5, 0.5))
+                  20, -0.5, 0.5))
       self.addHistogram(monGroup, TH2F("et,res_ethad", "L2Calo E_{T} Had resolution as function of E_{T}; E_{T} [GeV]; (ethad(on)-ethad(off))/ethad(off); Count",
                   50, 0., 100.,
-                  50, -0.5, 0.5))
+                  20, -0.5, 0.5))
       self.addHistogram(monGroup, TH2F("eta,res_eratio", "L2Calo eratio resolution as function of #eta; #eta; (eratio(on)-eratio(off))/eratio(off); Count",
                   50, -2.47, 2.47,
-                  50, -0.001, 0.001))
+                  20, -0.001, 0.001))
       self.addHistogram(monGroup, TH2F("et,res_eratio", "L2Calo eratio resolution as function of E_{T}; E_{T} [GeV]; (eratio(on)-eratio(off))/eratio(off); Count",
                   50, 0., 100.,
                   50, -0.001, 0.001))
@@ -753,8 +747,8 @@ class TrigEgammaMonAlgBuilder:
     self.addHistogram(monGroup, TH1F("res_etInEta3", "HLT E_{T} resolution in #eta = [1.8#div2.45]; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 200, -0.1, 0.1))
  
     if self.detailedHistograms:
-      self.addHistogram(monGroup, TH2F("eta,res_et", "E_{T} resolution as function of #eta; #eta; (E_{T}(on)-E_{T}(off))/E_{T}(off); Count",25, -2.47, 2.47,50, -0.1, 0.1))
-      self.addHistogram(monGroup, TH2F("et,res_et", "E_{T} resolution as function of E_{T}; E_{T} [GeV]; (E_{T}(on)-E_{T}(off))/E_{T}(off); Count",25, 0., 100.,50, -0.1, 0.1))
+      self.addHistogram(monGroup, TH2F("eta,res_et", "E_{T} resolution as function of #eta; #eta; (E_{T}(on)-E_{T}(off))/E_{T}(off); Count",50, -2.47, 2.47,100, -0.1, 0.1))
+      self.addHistogram(monGroup, TH2F("et,res_et", "E_{T} resolution as function of E_{T}; E_{T} [GeV]; (E_{T}(on)-E_{T}(off))/E_{T}(off); Count",50, 0., 100.,100, -0.1, 0.1))
 
 
 
