@@ -64,6 +64,30 @@ InDet::TRT_DriftCircleOnTrack::TRT_DriftCircleOnTrack(
   }
 }
 
+//Constructor used by the converter
+InDet::TRT_DriftCircleOnTrack::TRT_DriftCircleOnTrack(
+  const ElementLinkToIDCTRT_DriftCircleContainer& RIO,
+  const Trk::LocalParameters& driftRadius,
+  const Amg::MatrixX& errDriftRadius,
+  IdentifierHash idDE,
+  const Identifier& id,
+  double predictedLocZ,
+  float localAngle,
+  const Trk::DriftCircleStatus status,
+  bool highLevel,
+  double timeOverThreshold)
+  : Trk::RIO_OnTrack(driftRadius, errDriftRadius, id)
+  , m_globalPosition{}
+  , m_localAngle(localAngle)
+  , m_positionAlongWire(predictedLocZ)
+  , m_rio(RIO)
+  , m_idDE(idDE)
+  , m_status(status)
+  , m_highLevel(highLevel)
+  , m_timeOverThreshold(timeOverThreshold)
+  , m_detEl(nullptr)
+{}
+
 // Destructor:
 InDet::TRT_DriftCircleOnTrack::~TRT_DriftCircleOnTrack()
 {}
@@ -147,9 +171,18 @@ const Trk::Surface& InDet::TRT_DriftCircleOnTrack::associatedSurface() const
     return (m_detEl->surface(identify())); 
 }
 
+const Amg::Vector3D& InDet::TRT_DriftCircleOnTrack::globalPosition() const { 
+  
+  return m_globalPosition;
+}
+
+
+//Global Position Helper for the converter
 void
 InDet::TRT_DriftCircleOnTrack::setGlobalPositionHelper() 
 {
+
+  //default
   Amg::Vector3D loc3Dframe(0., 0., m_positionAlongWire);
   if (side() != Trk::NONE) {
     // get global position where track and drift radius intersect.
@@ -162,9 +195,10 @@ InDet::TRT_DriftCircleOnTrack::setGlobalPositionHelper()
     double y = localParameters()[Trk::driftRadius]*std::cos(m_localAngle);
     */
     // get local position
-    Amg::Vector3D loc3Dframe(x, y, m_positionAlongWire);
+    loc3Dframe = Amg::Vector3D(x, y, m_positionAlongWire);
   }
 
+  //We need a surface for the global position
   const Trk::StraightLineSurface* slsf =
     dynamic_cast<const Trk::StraightLineSurface*>(&(associatedSurface()));
   if (slsf) {
@@ -176,14 +210,16 @@ InDet::TRT_DriftCircleOnTrack::setGlobalPositionHelper()
   }
 }
 
-void InDet::TRT_DriftCircleOnTrack::setValues(const Trk::TrkDetElementBase* detEl, const Trk::PrepRawData*)
+//set Values to be used by the converter
+void
+InDet::TRT_DriftCircleOnTrack::setValues(const Trk::TrkDetElementBase* detEl,
+                                         const Trk::PrepRawData*)
 {
     m_detEl = dynamic_cast<const InDetDD::TRT_BaseElement* >(detEl);
-}
-
-const Amg::Vector3D& InDet::TRT_DriftCircleOnTrack::globalPosition() const { 
-  
-  return m_globalPosition;
+    // If we have a m_detEL we can set the global position
+    if (m_detEl) {
+      setGlobalPositionHelper();
+    }
 }
 
 MsgStream& InDet::TRT_DriftCircleOnTrack::dump( MsgStream& sl ) const

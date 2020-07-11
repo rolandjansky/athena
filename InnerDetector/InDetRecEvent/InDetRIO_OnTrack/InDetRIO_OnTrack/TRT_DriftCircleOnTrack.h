@@ -77,6 +77,20 @@ namespace InDet{
                               const Trk::DriftCircleStatus status);
 
 
+      /**
+       * Constructor used by the TP converters
+       */
+      TRT_DriftCircleOnTrack( const ElementLinkToIDCTRT_DriftCircleContainer& RIO,
+                              const Trk::LocalParameters& driftRadius,
+                              const Amg::MatrixX& errDriftRadius,
+                              IdentifierHash idDE,
+                              const Identifier& id,
+                              double predictedLocZ,
+                              float localAngle,
+                              const Trk::DriftCircleStatus status,
+                              bool highLevel,
+                              double timeOverThreshold);
+
       /**Destructor */
       virtual ~TRT_DriftCircleOnTrack();
 		
@@ -144,14 +158,16 @@ namespace InDet{
       float localAngle() const;
       float positionAlongWire() const;
 
-      /** @brief Uses the passed loc3Dframe to calculate and set the global coord of this hit. 
-       The detector element surface is used*/
-      void setGlobalPositionHelper();   
- 
+
     private:
     /** ONLY for use in custom convertor
       Allows the custom convertor to reset values when persistying/reading back RoTs*/
       virtual void setValues(const Trk::TrkDetElementBase* detEl, const Trk::PrepRawData* prd) override;
+ 
+      /** @calculate and set the global coord of this hit. 
+       The detector element surface is used. Can be used from the convertor
+       after setValues if the element is constructed without a detEl*/
+      void setGlobalPositionHelper();   
  
       /** global position to be cached */
       Amg::Vector3D m_globalPosition;
