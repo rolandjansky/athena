@@ -923,6 +923,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillHLTElectronResolution(const std::st
       const float feta = abs(onl_eta);
       const float onl_et = getEt(onl)/Gaudi::Units::GeV;
       const float avgmu=lbAverageInteractionsPerCrossing( Gaudi::Hive::currentContext() );
+      const float dummy=dummy;
 
       eta_vec.push_back( onl_eta );
       et_vec.push_back( onl_et );
@@ -931,7 +932,10 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillHLTElectronResolution(const std::st
       val_off=getTrack_pt(off);
       if(val_off!=0.){
           res_pt_vec.push_back( (getTrack_pt(off)-val_off)/val_off );
-      }     
+      }else{
+      }
+
+
       val_off=getEt(off);
       if(val_off!=0.){
           res_et_vec.push_back( (getEt(onl)-val_off)/val_off  );
@@ -944,61 +948,103 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillHLTElectronResolution(const std::st
           else if( feta >= 1.8 && feta < 2.45 )
               res_etInEta3_vec.push_back((getEt(onl)-val_off)/val_off);
       }
+
       val_off=off->eta();
       if(val_off!=0.){
           res_eta_vec.push_back( (onl_eta-val_off)/val_off );
+      }else{
+          res_eta_vec.push_back( dummy );
       }
+
       val_off=off->phi();
       if(val_off!=0.){ 
           res_phi_vec.push_back(  (onl->phi()-val_off)/val_off );
+      }else{
+          res_phi_vec.push_back(dummy );
       }
+
       val_off=getShowerShape_ethad(off);
       if(val_off!=0.) {
           res_ethad_vec.push_back((getShowerShape_ethad(onl)-val_off)/val_off);
+      }else{
+          res_ethad_vec.push_back( dummy );
       }
+
       val_off=getShowerShape_ethad1(off);
       if(val_off!=0){
           res_ethad1_vec.push_back((getShowerShape_ethad1(onl)-val_off)/val_off);
+      }else{
+          res_ethad1_vec.push_back( dummy);
       }
+
       val_off=getShowerShape_Rhad(off);
       if(val_off!=0.){
           res_Rhad_vec.push_back(  (getShowerShape_Rhad(onl)-val_off)/val_off );
+      }else{
+          res_Rhad_vec.push_back( dummy );
       }
+
       val_off=getShowerShape_Rhad1(off);
       if(val_off!=0.){
           res_Rhad1_vec.push_back(  (getShowerShape_Rhad1(onl)-val_off)/val_off );
+      }else{
+          res_Rhad1_vec.push_back( dummy );
       }
+
       val_off=getShowerShape_Reta(off);
       if(val_off!=0.){
           res_Reta_vec.push_back(  (getShowerShape_Reta(onl)-val_off)/val_off );
+      }else{
+          res_Reta_vec.push_back( dummy );
       }
+
       val_off=getShowerShape_Rphi(off);
       if(val_off!=0.){
           res_Rphi_vec.push_back(  (getShowerShape_Rphi(onl)-val_off)/val_off );
+      }else{
+          res_Rphi_vec.push_back(  (getShowerShape_Rphi(onl)-val_off)/val_off );
       }
+
       val_off=getShowerShape_weta1(off);
       if(val_off!=0.){
           res_weta1_vec.push_back( (getShowerShape_weta1(onl)-val_off)/val_off );
+      }else{
+          res_weta1_vec.push_back( dummy );
       }
+
       val_off=getShowerShape_weta2(off);
       if(val_off!=0.){
           res_weta2_vec.push_back( (getShowerShape_weta2(onl)-val_off)/val_off );
+      }else{
+          res_weta2_vec.push_back( dummy );
       }
+
       val_off=getShowerShape_wtots1(off);
       if(val_off!=0.){
           res_wtots1_vec.push_back( (getShowerShape_wtots1(onl)-val_off)/val_off );
+      }else{
+          res_wtots1_vec.push_back( dummy );
       }
+
       val_off=getShowerShape_f1(off);
       if(val_off!=0.){
           res_f1_vec.push_back(  (getShowerShape_f1(onl)-val_off)/val_off );
+      }else{
+          res_f1_vec.push_back(dummy );
       }
+
       val_off=getShowerShape_f3(off);
       if(val_off!=0.){
           res_f3_vec.push_back( (getShowerShape_f3(onl)-val_off)/val_off );
+      }else{
+          res_f3_vec.push_back( dummy );
       }
+
       val_off=getShowerShape_Eratio(off);
       if(val_off!=0.){
           res_eratio_vec.push_back(  (getShowerShape_Eratio(onl)-val_off)/val_off );
+      }else{
+          res_eratio_vec.push_back( dummy );
       }
 
 
@@ -1007,28 +1053,52 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillHLTElectronResolution(const std::st
       //
 
       val_off=getTrack_pt(off);
-      if(val_off!=0.) 
+      if(val_off!=0.){
         res_pt_vec.push_back(  (getTrack_pt(onl)-val_off)/val_off );
+      }else{
+        res_pt_vec.push_back( dummy );
+      }
+        
       val_off=getEt(off);
-      if(val_off!=0.) 
+      if(val_off!=0.) {
         res_et_vec.push_back(  (getEt(onl)-val_off)/val_off );
+      }else{
+        res_et_vec.push_back(  dummy );
+      }
+      
       val_off=getCaloTrackMatch_deltaEta1(off);
-      if(val_off!=0.) 
+      if(val_off!=0.) {
         res_deta1_vec.push_back( (getCaloTrackMatch_deltaEta1(onl)-val_off)/val_off );
+      }else{
+        res_deta1_vec.push_back( dummy );
+      }
+      
       val_off=getCaloTrackMatch_deltaEta2(off);
       res_deta2_vec.push_back( (getCaloTrackMatch_deltaEta2(onl)-val_off)/val_off );
       val_off=getCaloTrackMatch_deltaPhi2(off);
-      if(val_off!=0.) 
+      if(val_off!=0.) {
         res_dphi2_vec.push_back(  (getCaloTrackMatch_deltaPhi2(onl)-val_off)/val_off );
+      }else{
+        res_dphi2_vec.push_back(dummy );
+      }
+      
       val_off=getCaloTrackMatch_deltaPhiRescaled2(off);
       res_dphiresc_vec.push_back( (getCaloTrackMatch_deltaPhiRescaled2(onl)-val_off)/val_off );
       // Absolute resolution for impact parameter
       val_off=getTrack_d0(off);
-      if(val_off!=0.) 
+      if(val_off!=0.) {
         res_d0_vec.push_back(  getTrack_d0(onl)-val_off );
+      }else{
+        res_d0_vec.push_back(  dummy );
+      }
+      
       val_off=getD0sig(off);
-      if(val_off!=0.) 
+      if(val_off!=0.) {
         res_d0sig_vec.push_back(  getD0sig(onl)-val_off );
+      }else{
+        res_d0sig_vec.push_back(  dummy );
+      }
+      
       // Absolute resolution on track summary ints/floats 
       val_off=getTrackSummaryFloat_eProbabilityHT(off);
       res_eprobht_vec.push_back( (getTrackSummaryFloat_eProbabilityHT(onl)-val_off) );
@@ -1041,16 +1111,18 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillHLTElectronResolution(const std::st
       if(filliso){
 
         float val_off=getIsolation_ptcone20(off);
-        if (getEt(onl) > 0. && getEt(off) > 0.){ 
-          // Fill 2D here
-        }
         if (val_off > 0.) {
             res_ptcone20_vec.push_back((getIsolation_ptcone20(onl)-val_off)/val_off);
             if (getEt(onl) > 0. && getEt(off) > 0.) {
                 const float reliso_onl=getIsolation_ptcone20(onl)/getEt(onl);
                 const float reliso_off=getIsolation_ptcone20(off)/getEt(off);
                 res_ptcone20_rel_vec.push_back((reliso_onl-reliso_off)/reliso_off);
+            }else{
+                res_ptcone20_rel_vec.push_back(dummy);
             }
+        }else{
+            res_ptcone20_vec.push_back(dummy);
+            res_ptcone20_rel_vec.push_back(dummy);
         }
 
         // ptvarcone20 isolation
@@ -1061,7 +1133,12 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillHLTElectronResolution(const std::st
                 const float reliso_onl=getIsolation_ptvarcone20(onl)/getEt(onl);
                 const float reliso_off=getIsolation_ptvarcone20(off)/getEt(off);
                 res_ptvarcone20_rel_vec.push_back((reliso_onl-reliso_off)/reliso_off);
+            }else{
+                res_ptvarcone20_rel_vec.push_back(dummy);
             }
+        }else{
+            res_ptvarcone20_vec.push_back(dummy);
+            res_ptvarcone20_rel_vec.push_back(dummy);
         }
 
       }
@@ -1215,6 +1292,7 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillHLTPhotonResolution(const std::stri
       const float onl_eta=onl->eta();
       const float feta = abs(onl_eta);
       const float onl_et = getCluster_et(onl)/Gaudi::Units::GeV;
+      const float dummy=dummy;
 
       const float avgmu=lbAverageInteractionsPerCrossing( Gaudi::Hive::currentContext() );
       et_vec.push_back( onl_et );
@@ -1233,10 +1311,8 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillHLTPhotonResolution(const std::stri
               res_etInEta2_vec.push_back((getCluster_et(onl)-val_off)/val_off);
           else if( feta >= 1.8 && feta < 2.45 )
               res_etInEta3_vec.push_back((getCluster_et(onl)-val_off)/val_off);
-      
 
           if(xAOD::EgammaHelpers::isConvertedPhoton(off)){
-
               res_et_cnv_vec.push_back((getCluster_et(onl)-val_off)/val_off);
               if( feta < 1.37 )
                   res_cnv_etInEta0_vec.push_back((getCluster_et(onl)-val_off)/val_off);
@@ -1246,7 +1322,6 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillHLTPhotonResolution(const std::stri
                   res_cnv_etInEta2_vec.push_back((getCluster_et(onl)-val_off)/val_off);
               else if( feta >= 1.8 && feta < 2.45 )
                   res_cnv_etInEta3_vec.push_back((getCluster_et(onl)-val_off)/val_off);
-
           }else{
               res_et_uncnv_vec.push_back((getCluster_et(onl)-val_off)/val_off);
               if( feta < 1.37 )
@@ -1257,64 +1332,105 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillHLTPhotonResolution(const std::stri
                   res_uncnv_etInEta2_vec.push_back((getCluster_et(onl)-val_off)/val_off);
               else if( feta >= 1.8 && feta < 2.45 )
                   res_uncnv_etInEta3_vec.push_back((getCluster_et(onl)-val_off)/val_off);
-
           }
       }
+
       val_off=off->eta();
       if(val_off!=0.){
           res_eta_vec.push_back( (onl_eta-val_off)/val_off ) ;
+      }else{
+          res_eta_vec.push_back( dummy ) ;
       }
+
       val_off=off->phi();
       if(val_off!=0.){ 
           res_phi_vec.push_back(  (onl->phi()-val_off)/val_off );
+      }else{
+          res_phi_vec.push_back(dummy );
       }
+
       val_off=getShowerShape_ethad(off);
       if(val_off!=0.) {
           res_ethad_vec.push_back((getShowerShape_ethad(onl)-val_off)/val_off);
+      }else{
+          res_ethad_vec.push_back(dummy);
       }
+
       val_off=getShowerShape_ethad1(off);
       if(val_off!=0){
           res_ethad1_vec.push_back((getShowerShape_ethad1(onl)-val_off)/val_off);
+      }else{
+          res_ethad1_vec.push_back(dummy);
       }
+
       val_off=getShowerShape_Rhad(off);
       if(val_off!=0.){
           res_Rhad_vec.push_back(  (getShowerShape_Rhad(onl)-val_off)/val_off );
+      }else{
+          res_Rhad_vec.push_back(dummy );
       }
+
       val_off=getShowerShape_Rhad1(off);
       if(val_off!=0.){
           res_Rhad1_vec.push_back(  (getShowerShape_Rhad1(onl)-val_off)/val_off );
+      }else{
+          res_Rhad1_vec.push_back(dummy );
       }
+
       val_off=getShowerShape_Reta(off);
       if(val_off!=0.){
           res_Reta_vec.push_back(  (getShowerShape_Reta(onl)-val_off)/val_off );
+      }else{
+          res_Reta_vec.push_back( dummy );
       }
+
       val_off=getShowerShape_Rphi(off);
       if(val_off!=0.){
           res_Rphi_vec.push_back(  (getShowerShape_Rphi(onl)-val_off)/val_off );
+      }else{
+          res_Rphi_vec.push_back(dummy );
       }
+
       val_off=getShowerShape_weta1(off);
       if(val_off!=0.){
           res_weta1_vec.push_back( (getShowerShape_weta1(onl)-val_off)/val_off );
+      }else{
+          res_weta1_vec.push_back( dummy );
       }
+
       val_off=getShowerShape_weta2(off);
       if(val_off!=0.){
           res_weta2_vec.push_back( (getShowerShape_weta2(onl)-val_off)/val_off );
+      }else{
+          res_weta2_vec.push_back(dummy);
       }
+
       val_off=getShowerShape_wtots1(off);
       if(val_off!=0.){
           res_wtots1_vec.push_back( (getShowerShape_wtots1(onl)-val_off)/val_off );
+      }else{
+          res_wtots1_vec.push_back( dummy );
       }
+
       val_off=getShowerShape_f1(off);
       if(val_off!=0.){
           res_f1_vec.push_back(  (getShowerShape_f1(onl)-val_off)/val_off );
+      }else{
+          res_f1_vec.push_back( dummy );
       }
+
       val_off=getShowerShape_f3(off);
       if(val_off!=0.){
           res_f3_vec.push_back( (getShowerShape_f3(onl)-val_off)/val_off );
+      }else{
+          res_f3_vec.push_back( dummy );
       }
+
       val_off=getShowerShape_Eratio(off);
       if(val_off!=0.){
           res_eratio_vec.push_back(  (getShowerShape_Eratio(onl)-val_off)/val_off);
+      }else{
+          res_eratio_vec.push_back( dummy);
       }
    
 
@@ -1329,9 +1445,12 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillHLTPhotonResolution(const std::stri
                 const float reliso_onl=getIsolation_topoetcone20(onl)/etonl;
                 const float reliso_off=getIsolation_topoetcone20(off)/etoff;
                 res_topoetcone20_rel_vec.push_back((reliso_onl-reliso_off)/reliso_off);
+            }else{
+                res_topoetcone20_rel_vec.push_back(dummy);
             }
-        }
-        if (etonl > 0. && etoff > 0.) {
+        }else{
+            res_topoetcone20_vec.push_back(dummy);
+            res_topoetcone20_rel_vec.push_back(dummy);
         }
       }
 
@@ -1434,26 +1553,33 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillL2CaloResolution(const std::string 
 
         if(!onl)  continue;
         
+        et_vec.push_back(onl->et()*1e-3);
+        eta_vec.push_back(onl->eta());
+        const float dummy=-999;
+       
         float val_off=0.;
 
         val_off=off->caloCluster()->et();
         if(val_off!=0.){
             res_et_vec.push_back(((onl->et())-val_off)/val_off);
+        }else{
+            res_et_vec.push_back(dummy);
         }
+
         val_off=off->caloCluster()->eta();
         if(val_off!=0.){
             res_eta_vec.push_back((onl->eta()-val_off)/val_off);
+        }else{
+            res_eta_vec.push_back(dummy);
         }
+
         val_off=off->caloCluster()->phi();
         if(val_off!=0.){
             res_phi_vec.push_back((onl->phi()-val_off)/val_off);
+        }else{
+            res_phi_vec.push_back((onl->phi()-val_off)/val_off);
         }
-
         
-        et_vec.push_back(onl->et()*1e-3);
-
-        eta_vec.push_back(onl->eta());
-
         float elonl_ethad = onl->energy( CaloSampling::HEC0 ); elonl_ethad += onl->energy( CaloSampling::HEC1 );
         elonl_ethad += onl->energy( CaloSampling::HEC2 ); elonl_ethad += onl->energy( CaloSampling::HEC3 );
         elonl_ethad += onl->energy( CaloSampling::TileBar0 ); elonl_ethad += onl->energy( CaloSampling::TileExt0 ); 
@@ -1463,49 +1589,75 @@ void TrigEgammaMonitorAnalysisAlgorithm::fillL2CaloResolution(const std::string 
         val_off=getShowerShape_ethad(off);
         if(val_off!=0.){
             res_ethad_vec.push_back((elonl_ethad-val_off)/val_off);
+        }else{
+            res_ethad_vec.push_back(dummy);
         }
+
         val_off=getShowerShape_ethad1(off);
         if(val_off!=0.){
             res_ethad1_vec.push_back(( (onl->ehad1()/TMath::Abs(onl->eta()) )-val_off)/val_off);
+        }else{
+            res_ethad1_vec.push_back(dummy);
         }
+
         float elonl_Rhad = elonl_ethad / onl->energy() ;
         val_off=getShowerShape_Rhad(off);
         if(val_off!=0.){
             res_Rhad_vec.push_back(( elonl_Rhad-val_off)/val_off);
+        }else{
+            res_Rhad_vec.push_back(dummy);
         }
+
         float elonl_Rhad1 = onl->ehad1() / onl->energy() ;
         val_off=getShowerShape_Rhad1(off);
         if(val_off!=0.){
             res_Rhad1_vec.push_back(( elonl_Rhad1-val_off)/val_off);
+        }else{
+            res_Rhad1_vec.push_back(dummy);
         }
+
         float onl_reta= 999.0;
         if ( fabsf ( onl->e277() ) > 0.01 ) onl_reta = onl->e237() / onl->e277();
         val_off=getShowerShape_Reta(off);
         if(val_off!=0.){
             res_Reta_vec.push_back( (onl_reta -val_off)/val_off);
+        }else{
+            res_Reta_vec.push_back(dummy);
         }
+
         val_off=getShowerShape_weta2(off);
         if(val_off!=0.){
             res_weta2_vec.push_back(( (onl->weta2())-val_off)/val_off);
+        }else{
+            res_weta2_vec.push_back(dummy);
         }
+
         float onl_f1 = onl->energy(CaloSampling::EMB1)+onl->energy(CaloSampling::EME1);
         onl_f1 /= onl->energy();
         val_off=getShowerShape_f1(off);
         if(val_off!=0.){
             res_f1_vec.push_back(( (onl_f1)-val_off)/val_off);
+        }else{
+            res_f1_vec.push_back(dummy);
         }
+
         float onl_f3 = onl->energy(CaloSampling::EMB3)+onl->energy(CaloSampling::EME3);
         onl_f3 /= onl->energy();
         val_off=getShowerShape_f3(off);
         if(val_off!=0.){
             res_f3_vec.push_back(( (onl_f3)-val_off)/val_off);
+        }else{
+            res_f3_vec.push_back(dummy);
         }
+
         float onl_eratio = 999.0;
         if ( fabsf(onl->emaxs1() + onl->e2tsts1()) > 0.01 ) 
             onl_eratio = (onl->emaxs1() - onl->e2tsts1()) / (onl->emaxs1() + onl->e2tsts1());
         val_off=getShowerShape_Eratio(off);
         if(val_off!=0.){
             res_eratio_vec.push_back(( (onl_eratio)-val_off)/val_off);
+        }else{
+            res_eratio_vec.push_back(dummy);
         }
 
     }// Loop over all pair objects
