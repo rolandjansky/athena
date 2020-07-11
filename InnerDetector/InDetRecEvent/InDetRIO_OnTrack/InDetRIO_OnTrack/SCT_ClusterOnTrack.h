@@ -92,7 +92,13 @@ namespace InDet{
                           const IdentifierHash& idDE,
                           const Amg::Vector3D& globalPosition,
                           bool isbroad=false); 
-      
+
+      /*
+       * Constuctor used by P->T converter.
+       * The P->T converter calls the
+       * setValues method to complete the object
+       * e.g set/reset the DetectorElement 
+       */
       SCT_ClusterOnTrack( const ElementLinkToIDCSCT_ClusterContainer& RIO,
                           const Trk::LocalParameters& locpars, 
                           const Amg::MatrixX& locerr, 
