@@ -11,7 +11,7 @@
 
  **************************************************************************/ 
 
-#include "TrigL2PhotonFexMT.h"
+#include "TrigEgammaFastPhotonFexMT.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODTrigCalo/TrigEMClusterAuxContainer.h"
 #include "xAODTrigEgamma/TrigPhotonContainer.h"
@@ -20,27 +20,27 @@
 class ISvcLocator;
 
 
-TrigL2PhotonFexMT::TrigL2PhotonFexMT(const std::string & name, ISvcLocator* pSvcLocator)
+TrigEgammaFastPhotonFexMT::TrigEgammaFastPhotonFexMT(const std::string & name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
 {
 }
 
 
-TrigL2PhotonFexMT::~TrigL2PhotonFexMT()
+TrigEgammaFastPhotonFexMT::~TrigEgammaFastPhotonFexMT()
 {}
 
 
-StatusCode TrigL2PhotonFexMT::initialize()
+StatusCode TrigEgammaFastPhotonFexMT::initialize()
 {
 
   ATH_CHECK( m_roiCollectionKey.initialize() );
   ATH_CHECK( m_TrigEMClusterContainerKey.initialize() );
-  ATH_CHECK(m_outputPhotonsKey.initialize());
+  ATH_CHECK( m_outputPhotonsKey.initialize() );
   return  StatusCode::SUCCESS;
 }
 
 
-StatusCode TrigL2PhotonFexMT::execute()
+StatusCode TrigEgammaFastPhotonFexMT::execute()
 {
   using namespace xAOD;
   auto ctx = getContext();
@@ -119,6 +119,3 @@ StatusCode TrigL2PhotonFexMT::execute()
   return StatusCode::SUCCESS;
 
 }
-
-
-

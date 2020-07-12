@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGEGAMMAHYPO_TRIGL2PHOTONHYPOTOOL_H
-#define TRIGEGAMMAHYPO_TRIGL2PHOTONHYPOTOOL_H 1
+#ifndef TRIGEGAMMAHYPO_TRIGEGAMMAFASTPHOTONHYPOTOOL_H
+#define TRIGEGAMMAHYPO_TRIGEGAMMAFASTPHOTONHYPOTOOL_H 1
 
 #include "GaudiKernel/Property.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -19,17 +19,15 @@
  * @brief 
  **/
 
-class TrigL2PhotonHypoTool : virtual public ::AthAlgTool
+class TrigEgammaFastPhotonHypoTool : virtual public ::AthAlgTool
 { 
  public: 
-  TrigL2PhotonHypoTool( const std::string& type, 
+  TrigEgammaFastPhotonHypoTool( const std::string& type, 
 			  const std::string& name, 
 			  const IInterface* parent );
 
-  virtual ~TrigL2PhotonHypoTool();
+  virtual ~TrigEgammaFastPhotonHypoTool();
   virtual StatusCode initialize() override;
-
-
 
   struct PhotonInfo {
     TrigCompositeUtils::Decision* decision;
@@ -49,10 +47,6 @@ class TrigL2PhotonHypoTool : virtual public ::AthAlgTool
 
   StatusCode markPassing( std::vector<PhotonInfo>& input, const std::set<size_t>& passing ) const;
 
-
-
-
-  
  private:
   HLT::Identifier m_decisionId;
 

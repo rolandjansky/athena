@@ -27,6 +27,6 @@ atlas_add_test( TrigEgammaFastElectronHypoToolConfig
    SCRIPT python -m TrigEgammaHypo.TrigEgammaFastElectronHypoTool
    POST_EXEC_SCRIPT nopost.sh )
 
-atlas_add_test( TrigL2PhotonHypoToolConfig
-   SCRIPT python -m TrigEgammaHypo.TrigL2PhotonHypoTool
+atlas_add_test( TrigEgammaFastPhotonHypoToolConfig
+   SCRIPT python -m TrigEgammaHypo.TrigEgammaFastPhotonHypoTool
    POST_EXEC_SCRIPT nopost.sh )

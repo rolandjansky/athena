@@ -2,7 +2,7 @@
 #include "TrigEgammaHypo/TrigL2ElectronFex.h"
 #include "TrigEgammaHypo/TrigL2PhotonFex.h"
 #include "TrigEgammaHypo/TrigL2ElectronHypo.h"
-#include "../TrigL2PhotonFexMT.h"
+#include "../TrigEgammaFastPhotonFexMT.h"
 #include "TrigEgammaHypo/TrigL2PhotonHypo.h"
 #include "TrigEgammaHypo/TrigEFDielectronMassHypo.h"
 #include "TrigEgammaHypo/TrigEFDielectronMassFex.h"
@@ -22,8 +22,8 @@
 #include "../TrigEgammaFastElectronHypoTool.h"
 #include "../TrigEgammaFastElectronFexMT.h"
 #include "../TrigEgammaFastElectronHypoAlgMT.h"
-#include "../TrigL2PhotonHypoAlgMT.h"
-#include "../TrigL2PhotonHypoTool.h"
+#include "../TrigEgammaFastPhotonHypoAlgMT.h"
+#include "../TrigEgammaFastPhotonHypoTool.h"
 #include "../TrigEgammaPrecisionCaloHypoAlgMT.h"
 #include "../TrigEgammaPrecisionCaloHypoToolMult.h"
 #include "../TrigEgammaPrecisionPhotonHypoAlgMT.h"
@@ -35,7 +35,7 @@ DECLARE_COMPONENT( TrigL2CaloHypo )
 DECLARE_COMPONENT( TrigL2ElectronFex )
 DECLARE_COMPONENT( TrigL2PhotonFex )
 DECLARE_COMPONENT( TrigL2ElectronHypo )
-DECLARE_COMPONENT( TrigL2PhotonFexMT )
+DECLARE_COMPONENT( TrigEgammaFastPhotonFexMT )
 DECLARE_COMPONENT( TrigL2PhotonHypo )
 DECLARE_COMPONENT( TrigEFDielectronMassHypo )
 DECLARE_COMPONENT( TrigEFDielectronMassFex )
@@ -48,7 +48,7 @@ DECLARE_COMPONENT( TrigEFTrackHypo )
 DECLARE_COMPONENT( TrigL2CaloLayersHypo )
 DECLARE_COMPONENT( TrigEgammaFastCaloHypoAlgMT )
 DECLARE_COMPONENT( TrigEgammaFastElectronHypoAlgMT )
-DECLARE_COMPONENT( TrigL2PhotonHypoAlgMT )
+DECLARE_COMPONENT( TrigEgammaFastPhotonHypoAlgMT )
 DECLARE_COMPONENT( TrigEgammaFastCaloHypoToolInc )
 DECLARE_COMPONENT( TrigEgammaPrecisionCaloHypoToolInc )
 DECLARE_COMPONENT( TrigEgammaPrecisionPhotonHypoToolInc )
@@ -56,7 +56,7 @@ DECLARE_COMPONENT( TrigEgammaPrecisionElectronHypoToolInc )
 DECLARE_COMPONENT( TrigEgammaFastCaloHypoToolMult )
 DECLARE_COMPONENT( TrigEgammaFastElectronHypoTool )
 DECLARE_COMPONENT( TrigEgammaFastElectronFexMT )
-DECLARE_COMPONENT( TrigL2PhotonHypoTool )
+DECLARE_COMPONENT( TrigEgammaFastPhotonHypoTool )
 DECLARE_COMPONENT( TrigEgammaPrecisionCaloHypoAlgMT )
 DECLARE_COMPONENT( TrigEgammaPrecisionCaloHypoToolMult )
 DECLARE_COMPONENT( TrigEgammaPrecisionPhotonHypoAlgMT )
