@@ -139,7 +139,7 @@ def generatePhotonsCfg( flags ):
     fastCaloSequence = MenuSequence( Sequence    = l2CaloReco.sequence(),
                                      Maker       = l2CaloReco.inputMaker(),
                                      Hypo        = l2CaloHypo,
-                                     HypoToolGen = TrigL2CaloHypoToolFromDict )
+                                     HypoToolGen = TrigEgammaFastCaloHypoToolFromDict )
 
     fastCaloStep = ChainStep( "Photon_step1", [fastCaloSequence] )
 
@@ -148,7 +148,7 @@ def generatePhotonsCfg( flags ):
     l2PhotonReco = RecoFragmentsPool.retrieve( l2PhotonRecoCfg, flags )
     acc.merge( l2PhotonReco )
     
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFasthotonHypoAlgMT
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastPhotonHypoAlgMT
     l2PhotonHypo = TrigEgammaFastPhotonHypoAlgMT()
     l2PhotonHypo.Photons = "L2Photons"
     l2PhotonHypo.RunInView=True
