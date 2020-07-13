@@ -146,7 +146,8 @@ namespace top {
     {
       //the functions ued in this class always start from the top, so it's enough to do the following
       std::vector<std::string> collections = {"TruthTop"};
-      ATH_CHECK(buildContainerFromMultipleCollections(truthParticles, collections));
+      ATH_CHECK(buildContainerFromMultipleCollections(collections,"AT_TTbarPartonHistory_TruthParticles"));
+      ATH_CHECK(evtStore()->retrieve(truthParticles, "AT_TTbarPartonHistory_TruthParticles"));
       
       //we need to be able to navigate from the Ws to their decayProducts, see CalcTopPartonHistory.h for details
       ATH_CHECK(linkBosonCollections());

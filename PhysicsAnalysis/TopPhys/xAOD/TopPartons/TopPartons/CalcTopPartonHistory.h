@@ -94,11 +94,10 @@ namespace top {
     void fillEtaBranch(xAOD::PartonHistory* partonHistory, std:: string branchName, TLorentzVector& tlv);
     
     ///used to build container from multiple collections
-    std::unique_ptr<ConstDataVector<DataVector<xAOD::TruthParticle_v1> > > m_tempParticles; 
     
-    ///in DAOD_PHYS we don't have the TruthParticles collection, so we have to build a TruthParticleContainer by merging several collections
+    ///in DAOD_PHYS we don't have the TruthParticles collection, so we have to build a TruthParticleContainer (named out_contName) by merging several collections; this is stored in the evtStore
     /// this method has to use some tricks, like the helper m_tempParticles ConstDataVector, due to the desing of DataVector, see https://twiki.cern.ch/twiki/bin/view/AtlasComputing/DataVector
-    StatusCode buildContainerFromMultipleCollections(const xAOD::TruthParticleContainer* &out_cont, const std::vector<std::string> &collections);
+    StatusCode buildContainerFromMultipleCollections(const std::vector<std::string> &collections, const std::string& out_contName);
     
     ///currently in DAOD_PHYS TruthTop have links to Ws from the TruthBoson collection, which have no link to their decay products;
     ///we have therefore to associate the W from the TruthBoson collections to those in the TruthBosonsWithDecayParticles collection.

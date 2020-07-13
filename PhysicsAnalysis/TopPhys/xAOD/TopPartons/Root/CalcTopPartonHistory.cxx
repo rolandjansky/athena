@@ -14,21 +14,23 @@ namespace top {
     asg::AsgTool(name),
     m_config(nullptr) {
     declareProperty("config", m_config);
-    m_tempParticles= std::make_unique<ConstDataVector<DataVector<xAOD::TruthParticle_v1> > >(SG::VIEW_ELEMENTS);
   }
   
-  StatusCode CalcTopPartonHistory::buildContainerFromMultipleCollections(const xAOD::TruthParticleContainer* &out_cont, const std::vector<std::string> &collections)
+  StatusCode CalcTopPartonHistory::buildContainerFromMultipleCollections(const std::vector<std::string> &collections, const std::string& out_contName)
   {
-    m_tempParticles->clear();
+    ConstDataVector<DataVector<xAOD::TruthParticle_v1> > *out_cont = new ConstDataVector<DataVector<xAOD::TruthParticle_v1> > (SG::VIEW_ELEMENTS);
     
     for(const std::string& collection : collections)
     {
       const xAOD::TruthParticleContainer* cont=nullptr;
       ATH_CHECK(evtStore()->retrieve(cont,collection));
-      for(const xAOD::TruthParticle* p : *cont) m_tempParticles->push_back(p);
+      for(const xAOD::TruthParticle* p : *cont) out_cont->push_back(p);
     }
     
-    out_cont=m_tempParticles->asDataVector();
+    //we give control of the container to the store, because in this way we are able to retrieve it as a const data vector, see https://twiki.cern.ch/twiki/bin/view/AtlasComputing/DataVector#ConstDataVector
+    xAOD::TReturnCode save = evtStore()->tds()->record(out_cont,out_contName);
+    if (!save) return StatusCode::FAILURE;
+
     return StatusCode::SUCCESS;
   }
   
