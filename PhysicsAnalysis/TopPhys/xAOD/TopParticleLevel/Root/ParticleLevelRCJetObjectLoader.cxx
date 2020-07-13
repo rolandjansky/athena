@@ -248,7 +248,7 @@ StatusCode ParticleLevelRCJetObjectLoader::execute(const top::ParticleLevelEvent
               
               const xAOD::TruthParticle* tp = dynamic_cast<const xAOD::TruthParticle*>(clus_itr->rawConstituent());  
             
-              if( tp == NULL) 
+              if( tp == nullptr) 
                   continue;
             
               // Do not use charged particles
