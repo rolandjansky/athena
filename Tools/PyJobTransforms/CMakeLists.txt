@@ -17,7 +17,7 @@ atlas_install_scripts( scripts/HelloWorld_tf.py )
 atlas_install_generic( share/*.db
                        DESTINATION share
                        EXECUTABLE )
-foreach( test Echo_tf EVNTMerge_tf HISTMerge_tf LogFileScanner Sleep_tf
+foreach( test Echo_tf LogFileScanner Sleep_tf
          transform trfAMI trfArgs trfDecorators trfEnv
          trfExceptions trfExe trfExitCodes trfFileUtils trfGraph trfJobOptions trfLogger
          trfMPTools trfReports trfReportsSignaledExit trfSignal trfSignatures
@@ -30,7 +30,7 @@ foreach( test Echo_tf EVNTMerge_tf HISTMerge_tf LogFileScanner Sleep_tf
 endforeach()
 
 if( NOT SIMULATIONBASE AND NOT GENERATIONBASE )
-  foreach( test RAWMerge_tf
+  foreach( test HISTMerge_tf RAWMerge_tf
            trfSubstepIntegration )
      atlas_add_test( ${test}
         SCRIPT test/test_${test}.py
@@ -40,6 +40,12 @@ if( NOT SIMULATIONBASE AND NOT GENERATIONBASE )
   atlas_add_test( HelloWorldTrf
         SCRIPT test/test_HelloWorldTrf.sh
 	)	
+endif()
+
+if( NOT SIMULATIONBASE )
+  atlas_add_test( EVNTMerge_tf
+        SCRIPT test/test_EVNTMerge_tf.py
+  )
 endif()
 
 #The following tests currently fail in master and should be revised
