@@ -48,7 +48,7 @@ namespace top {
     ///Store the four-momentum of the post-FSR top or anti-top found using statusCodes
     ///This would only work if there is at most one "true" top of each charge (i.e. won't work for SS tops or 4 tops)
     ///This code was adapted from the 7TeV parton-level differential ttbar routine:
-    // https://svnweb.cern.ch/trac/atlasphys-top/browser/Physics/Top/Software/MCvalidation/Rivet/Rivet2.X/trunk/routines/ATLAS_2014_I1304289/ATLAS_2014_I1304289.cc
+    /// https://svnweb.cern.ch/trac/atlasphys-top/browser/Physics/Top/Software/MCvalidation/Rivet/Rivet2.X/trunk/routines/ATLAS_2014_I1304289/ATLAS_2014_I1304289.cc
     bool topAfterFSR_SC(const xAOD::TruthParticleContainer* truthParticles, int start,
                         TLorentzVector& top_afterFSR_SC_p4);
 
@@ -93,7 +93,8 @@ namespace top {
 
     void fillEtaBranch(xAOD::PartonHistory* partonHistory, std:: string branchName, TLorentzVector& tlv);
     
-    std::unique_ptr<ConstDataVector<DataVector<xAOD::TruthParticle_v1> > > m_tempParticles; //used to build container from multiple collections
+    ///used to build container from multiple collections
+    std::unique_ptr<ConstDataVector<DataVector<xAOD::TruthParticle_v1> > > m_tempParticles; 
     
     ///in DAOD_PHYS we don't have the TruthParticles collection, so we have to build a TruthParticleContainer by merging several collections
     /// this method has to use some tricks, like the helper m_tempParticles ConstDataVector, due to the desing of DataVector, see https://twiki.cern.ch/twiki/bin/view/AtlasComputing/DataVector
@@ -106,7 +107,7 @@ namespace top {
     StatusCode linkBosonCollections();
     
     ///helper method to handle retriveing the truth particle linked in the decoration of another particle
-    void getTruthParticleLinkedFromDecoration(const xAOD::TruthParticle* &part, const std::string &decorationName);
+    const xAOD::TruthParticle* getTruthParticleLinkedFromDecoration(const xAOD::TruthParticle* part, const std::string &decorationName);
     
   private:
     ///helper method currently used in DAOD_PHYS to link particles from a given collection to the same particles included in another collection;

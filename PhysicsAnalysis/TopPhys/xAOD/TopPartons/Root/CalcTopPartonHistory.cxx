@@ -61,14 +61,14 @@ namespace top {
     return StatusCode::SUCCESS;
   }
   
-  void CalcTopPartonHistory::getTruthParticleLinkedFromDecoration(const xAOD::TruthParticle* &part, const std::string &decorationName)
+  const xAOD::TruthParticle* CalcTopPartonHistory::getTruthParticleLinkedFromDecoration(const xAOD::TruthParticle* part, const std::string &decorationName)
   {
-    if(!part->isAvailable<const xAOD::TruthParticle*>(decorationName)) return;
+    if(!part->isAvailable<const xAOD::TruthParticle*>(decorationName)) return part;
   
     const xAOD::TruthParticle* link=part->auxdecor<const xAOD::TruthParticle*>(decorationName);
-    if(link) part=link;
+    if(link) return link;
     
-    return;
+    return part;
   }
 
   ///Store the four-momentum of the post-FSR top or anti-top found using statusCodes
@@ -209,7 +209,7 @@ namespace top {
           
           //for DAOD_PHYS we have to use a special procedure to associate W bosons linked from the top to those in the TruthBosonsWithDecayParticles collection, which have the correct links for their decay products
           //this is better explained in the head; this will work only if the class calling this function has called linkBosonCollections() before
-          if(m_config->getDerivationStream() == "PHYS") getTruthParticleLinkedFromDecoration(topChildren,"AT_linkToTruthBosonsWithDecayParticles");
+          if(m_config->getDerivationStream() == "PHYS") topChildren=getTruthParticleLinkedFromDecoration(topChildren,"AT_linkToTruthBosonsWithDecayParticles");
           
           for (size_t q = 0; q < topChildren->nChildren(); ++q) {
             const xAOD::TruthParticle* WChildren = topChildren->child(q);
