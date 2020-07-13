@@ -229,8 +229,7 @@ namespace Trk{
       if (old_residual_cov.determinant() == 0. ) {
         ATH_MSG_ERROR ("The old_residual matrix inversion failed");
         ATH_MSG_ERROR ("same vertex as before is returned");
-        const Trk::RecVertexPositions& r_vtx(myPosition);
-        return r_vtx;
+        return Trk::RecVertexPositions(myPosition);
       }
       //      AmgSymMatrix(5) old_residual_cov_inv = old_residual_cov.inverse().eval();
       AmgSymMatrix(5) old_residual_cov_inv = old_residual_cov.inverse().eval();
