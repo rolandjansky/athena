@@ -7,6 +7,7 @@
 
 #include <GaudiKernel/DeclareFactoryEntries.h>
 
+#include <AsgAnalysisAlgorithms/AsgIntValueSelectionTool.h>
 #include <AsgAnalysisAlgorithms/AsgFlagSelectionTool.h>
 #include <AsgAnalysisAlgorithms/AsgPtEtaSelectionTool.h>
 #include <AsgAnalysisAlgorithms/AsgCutBookkeeperAlg.h>
@@ -29,6 +30,7 @@
 #include <AsgAnalysisAlgorithms/TreeFillerAlg.h>
 #include <AsgAnalysisAlgorithms/TreeMakerAlg.h>
 
+DECLARE_NAMESPACE_TOOL_FACTORY (CP, AsgIntValueSelectionTool)
 DECLARE_NAMESPACE_TOOL_FACTORY (CP, AsgFlagSelectionTool)
 DECLARE_NAMESPACE_TOOL_FACTORY (CP, AsgPtEtaSelectionTool)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgCutBookkeeperAlg)
@@ -52,6 +54,7 @@ DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, TreeFillerAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, TreeMakerAlg)
 
 DECLARE_FACTORY_ENTRIES(AsgAnalysisAlgorithms) {
+  DECLARE_NAMESPACE_ALGTOOL (CP, AsgIntValueSelectionTool)
   DECLARE_NAMESPACE_ALGTOOL (CP, AsgFlagSelectionTool)
   DECLARE_NAMESPACE_ALGTOOL (CP, AsgPtEtaSelectionTool)
   DECLARE_NAMESPACE_ALGORITHM (CP, AsgCutBookkeeperAlg)
