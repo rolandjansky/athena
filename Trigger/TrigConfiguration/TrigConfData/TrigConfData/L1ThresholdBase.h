@@ -196,22 +196,33 @@ namespace TrigConf {
       /** Destructor */
       virtual ~L1Threshold_Calo() = default;
 
-      /** Accessor to the threshold value for eta-dependent threholds
+      // Accessors to the threshold value for eta-dependent threholds
+
+      /* @brief Accessor to the threshold value in GeV
        * @param eta the eta value should be given for potentially eta-dependent thresholds
+       * @returns threshold in GeV
        */
       virtual float thrValue(int eta = 0) const;
 
+      /* @brief Accessor to the threshold value in energy units
+       * @param eta the eta value should be given for potentially eta-dependent thresholds
+       * @returns threshold in energy units
+       */
       virtual unsigned int thrValueCounts(int eta = 0) const;
 
+      /* @brief Accessor to the threshold value in MeV
+       * @param eta the eta value should be given for potentially eta-dependent thresholds
+       * @returns threshold in MeV
+       */
       virtual unsigned int thrValueMeV(int eta = 0) const;
 
-      /** access to the list of ThresholdValues */
+      /** access to the list of ThresholdValues in GeV */
       virtual ValueWithEtaDependence<float> thrValues() const;
 
       /** access to the list of ThresholdValues in MeV */
       virtual const ValueWithEtaDependence<unsigned int> & thrValuesMeV() const;      
 
-      /** access to the list of ThresholdValues in counts */
+      /** access to the list of ThresholdValues in energy units */
       virtual ValueWithEtaDependence<unsigned int> thrValuesCounts() const;      
 
    protected:
