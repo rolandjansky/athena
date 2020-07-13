@@ -11,7 +11,9 @@
 #include "CostData.h"
 
 #include "monitors/MonitorAlgorithm.h"
+#include "monitors/MonitorAlgorithmClass.h"
 #include "monitors/MonitorGlobal.h"
+#include "monitors/MonitorThreadOccupancy.h"
 
 TrigCostAnalysis::TrigCostAnalysis( const std::string& name, ISvcLocator* pSvcLocator ) :
   AthHistogramAlgorithm(name, pSvcLocator),
@@ -66,8 +68,11 @@ StatusCode TrigCostAnalysis::start() {
     for (const auto& alg : sequencer.second) {
       // Data stored in Gaudi format of "AlgClassType/AlgInstanceName"
       size_t breakPoint = alg.second.data().find("/");
-      const std::string algType = alg.second.data().substr(0, breakPoint);
+      std::string algType = alg.second.data().substr(0, breakPoint);
       const std::string algName = alg.second.data().substr(breakPoint+1, alg.second.data().size());
+      while(algType.find(":") != std::string::npos) {
+        algType.replace(algType.find(":"), 1, "_");
+      }
       m_algTypeMap[ TrigConf::HLTUtils::string2hash(algName, "ALG") ] = algType;
       ATH_MSG_VERBOSE("AlgType:" << algType << ", AlgName:" << algName );
       if (algType.find("EventViewCreatorAlgorithm") != std::string::npos) {
@@ -143,6 +148,7 @@ StatusCode TrigCostAnalysis::execute() {
   CostData costData;
   ATH_CHECK( costData.set(costDataHandle.get(), onlineSlot) );
   costData.setLb( context.eventID().lumi_block() );
+  costData.setTypeMap( m_algTypeMap );
   if (!m_enhancedBiasTool.name().empty()) {
     double liveTime = m_enhancedBiasTool->getEBLiveTime(context);
     bool liveTimeIsPerEvent = true;
@@ -178,14 +184,20 @@ bool TrigCostAnalysis::checkDoFullEventDump(const EventContext& context, const u
 StatusCode TrigCostAnalysis::registerMonitors(MonitoredRange* range) {
   ATH_CHECK(range != nullptr);
   if (m_doMonitorAlgorithm) {
-    std::unique_ptr<MonitorAlgorithm> monitor = std::make_unique<MonitorAlgorithm>("Algorithm_HLT", range);
-    ATH_CHECK( range->addMonitor(std::move(monitor)) );
+    ATH_CHECK( range->addMonitor(std::make_unique<MonitorAlgorithm>("Algorithm_HLT", range)) );
     ATH_MSG_DEBUG("Registering Algorithm_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
   }
+  if (m_doMonitorAlgorithmClass) {
+    ATH_CHECK( range->addMonitor(std::make_unique<MonitorAlgorithmClass>("Algorithm_Class_HLT", range)) );
+    ATH_MSG_DEBUG("Registering Algorithm_Class_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
+  }
   if (m_doMonitorGlobal) {
-    std::unique_ptr<MonitorGlobal> monitor = std::make_unique<MonitorGlobal>("Global_HLT", range);
-    ATH_CHECK( range->addMonitor(std::move(monitor)) );
+    ATH_CHECK( range->addMonitor(std::make_unique<MonitorGlobal>("Global_HLT", range)) );
     ATH_MSG_DEBUG("Registering Global_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
+  }
+  if (m_doMonitorThreadOccupancy) {
+    ATH_CHECK( range->addMonitor(std::make_unique<MonitorThreadOccupancy>("Thread_Occupancy_HLT", range)) );
+    ATH_MSG_DEBUG("Registering Thread_Occupancy_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
   }
   // if (m_do...) {}
   return StatusCode::SUCCESS;
@@ -257,8 +269,7 @@ StatusCode TrigCostAnalysis::dumpEvent(const EventContext& context) const {
   SG::ReadHandle<xAOD::TrigCompositeContainer> costDataHandle(m_costDataKey, context);
 
   std::stringstream ss;
-  size_t algID = 0, threadCounter = 0;
-  std::unordered_map<uint32_t, size_t> threadToCounterMap;
+  size_t algID = 0;
 
   for ( const xAOD::TrigComposite* tc : *costDataHandle ) {
     const uint64_t start = tc->getDetail<uint64_t>("start"); // in mus
@@ -266,14 +277,10 @@ StatusCode TrigCostAnalysis::dumpEvent(const EventContext& context) const {
     const uint32_t slot  = tc->getDetail<uint32_t>("slot");
     const uint64_t start_ms_round = std::llround( start * 1e-3 ); // in ms
     const uint64_t stop_ms_round  = std::llround( stop  * 1e-3 ); // in ms
-
     const uint32_t threadID = tc->getDetail<uint32_t>("thread");
-    if (threadToCounterMap.count(threadID) == 0) {
-      threadToCounterMap[threadID] = threadCounter++;
-    }
 
     ss << "{id:" << algID++;
-    ss << ", group:" << threadToCounterMap[threadID];
+    ss << ", group:" << threadID;
     ss << ", className:'slot" << slot << "'";
     ss << ", content:'" << TrigConf::HLTUtils::hash2string( tc->getDetail<TrigConf::HLTHash>("alg"), "ALG");
     ss << "<br>" << TrigConf::HLTUtils::hash2string( tc->getDetail<TrigConf::HLTHash>("store"), "STORE") << "'";

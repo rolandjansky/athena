@@ -85,10 +85,16 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
       "Maximum number of allowed time ranges" };
 
     Gaudi::Property<bool> m_doMonitorAlgorithm { this, "DoMonitorAlgs", true,
-      "Monitor individual algorithms" };
+      "Monitor individual algorithms by instance name" };
+
+    Gaudi::Property<bool> m_doMonitorAlgorithmClass { this, "DoMonitorAlgClass", true,
+      "Monitor individual algorithms by instance class type name" };      
 
     Gaudi::Property<bool> m_doMonitorGlobal { this, "DoMonitorGlobal", true,
       "Monitor global event properties" };
+
+    Gaudi::Property<bool> m_doMonitorThreadOccupancy { this, "DoMonitorThreadOccupancy", true,
+      "Monitor algorithm occupancy load of individual threads in an MT execution environment" };
 
     Gaudi::Property<bool> m_useEBWeights { this, "UseEBWeights", true,
       "Apply Enhanced Bias weights" };
