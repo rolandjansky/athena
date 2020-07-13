@@ -183,9 +183,13 @@ if DetFlags.pixel_on():
 
     if not hasattr(condSeq, 'PixelCablingCondAlg'):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelCablingCondAlg
-        condSeq += PixelCablingCondAlg(name="PixelCablingCondAlg",
-                                       MappingFile=IdMappingDat,
-                                       RodIDForSingleLink40=rodIDForSingleLink40)
+        alg = PixelCablingCondAlg(name="PixelCablingCondAlg",
+                                  MappingFile=IdMappingDat,
+                                  RodIDForSingleLink40=rodIDForSingleLink40)
+        if (not conddb.folderRequested("/PIXEL/CablingMap") and
+            not conddb.folderRequested("/PIXEL/Onl/CablingMap")):
+            alg.ReadKey = ''
+        condSeq += alg
 
     if not athenaCommonFlags.isOnline():
         if not conddb.folderRequested('/PIXEL/PixdEdx'):
