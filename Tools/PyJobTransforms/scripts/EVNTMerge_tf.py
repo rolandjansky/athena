@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## AODMerge_tf.py - AOD merger with optional TAG and DPD outputs
 #  N.B. Do need clarification as to if AODtoDPD is ever run in parallel with AOD merging 
@@ -10,11 +10,9 @@ from __future__ import print_function
 import sys
 import time
 
-import logging
-
 # Setup core logging here
 from PyJobTransforms.trfLogger import msg
-msg.info('logging set in %s' % sys.argv[0])
+msg.info('logging set in %s', sys.argv[0])
 
 from PyJobTransforms.transform import transform
 from PyJobTransforms.trfExe import athenaExecutor
@@ -27,14 +25,14 @@ import PyJobTransforms.trfArgClasses as trfArgClasses
 @sigUsrStackTrace
 def main():
     
-    msg.info('This is %s' % sys.argv[0])
+    msg.info('This is %s', sys.argv[0])
 
     trf = getTransform()
     trf.parseCmdLineArgs(sys.argv[1:])
     trf.execute()
     trf.generateReport()
 
-    msg.info("%s stopped at %s, trf exit code %d" % (sys.argv[0], time.asctime(), trf.exitCode))
+    msg.info("%s stopped at %s, trf exit code %d", sys.argv[0], time.asctime(), trf.exitCode)
     sys.exit(trf.exitCode)
 
 def getTransform():

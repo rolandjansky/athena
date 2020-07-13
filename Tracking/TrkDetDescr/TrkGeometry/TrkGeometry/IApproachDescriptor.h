@@ -13,7 +13,7 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkDetDescrUtils/BinnedArray.h"
-
+#include <memory>
 namespace Trk {
     
     /**
@@ -31,10 +31,14 @@ namespace Trk {
         // Desctructur with cleanup
         ~ApproachSurfaces() 
          { 
-             for (auto& sf : (*this))
+             for (auto& sf : (*this)){
+               //delete when not owned by
+               //Tracking Geometry
+               if (sf && sf->isFree()) {
                  delete sf;
+               }
+             }
          }
-        
     };
     
      /**
@@ -49,23 +53,31 @@ namespace Trk {
     class IApproachDescriptor {
       public: 
         // Default constructor
-        IApproachDescriptor(ApproachSurfaces* aSurfaces, bool rebuild=true) :
-            m_approachSurfaces(aSurfaces),
-            m_approachSurfaceArraySurface(nullptr),
-            m_approachSurfaceArray(nullptr),
-            m_rebuild(rebuild)
+        IApproachDescriptor(std::unique_ptr<ApproachSurfaces> aSurfaces,
+                            bool rebuild = true)
+          : m_approachSurfaces(std::move(aSurfaces))
+          , m_approachSurfaceArraySurface(nullptr)
+          , m_approachSurfaceArray(nullptr)
+          , m_rebuild(rebuild)
         {}
         
         // Default constructor
-        IApproachDescriptor(BinnedArray<ApproachSurfaces>* aSurfaceArray, Surface* aSurfaceArraySurface = nullptr):
-            m_approachSurfaces(nullptr),
-            m_approachSurfaceArraySurface(aSurfaceArraySurface),
-            m_approachSurfaceArray(aSurfaceArray),
-            m_rebuild(false)
+        IApproachDescriptor(
+          std::unique_ptr<BinnedArray<ApproachSurfaces>> aSurfaceArray,
+          Surface* aSurfaceArraySurface = nullptr)
+          : m_approachSurfaces(nullptr)
+          , m_approachSurfaceArraySurface(aSurfaceArraySurface)
+          , m_approachSurfaceArray(std::move(aSurfaceArray))
+          , m_rebuild(false)
         {}
         
-       // Virtual destructor
-        virtual ~IApproachDescriptor() {}
+        virtual ~IApproachDescriptor() {
+          //Delet if not free 
+          if (m_approachSurfaceArraySurface &&
+              m_approachSurfaceArraySurface->isFree()) {
+            delete m_approachSurfaceArraySurface;
+          }
+        }
 
         // register Layer
         void registerLayer(const Layer& lay);
@@ -93,12 +105,11 @@ namespace Trk {
         {}
         
       protected:
-        ApproachSurfaces*                m_approachSurfaces;
-        Surface*                         m_approachSurfaceArraySurface;
-        BinnedArray<ApproachSurfaces>*   m_approachSurfaceArray;
-        bool                             m_rebuild;
+        std::unique_ptr<ApproachSurfaces> m_approachSurfaces;
+        Surface* m_approachSurfaceArraySurface;
+        std::unique_ptr<BinnedArray<ApproachSurfaces>> m_approachSurfaceArray;
+        bool m_rebuild;
     };
-
 
     inline bool IApproachDescriptor::rebuild() const { return m_rebuild; }    
     

@@ -189,8 +189,9 @@ DbStatus RootTreeContainer::writeObject( ActionList::value_type& action )
              auto *store = reinterpret_cast<SG::IAuxStoreIO*>( (char*)dsc.object + dsc.aux_iostore_IFoffset );
              // cout << "---    store object= " <<hex << store <<dec << " in " << dsc.branch->GetName()  <<endl;
              // cout << "       obj=" << hex << dsc.object << dec << "  offset=" <<  dsc.aux_iostore_IFoffset << endl;
-             log << DbPrintLvl::Debug << "       Attributes= " << store->getSelectedAuxIDs().size() << DbPrint::endmsg;
-             for(SG::auxid_t id : store->getSelectedAuxIDs()) {
+             const SG::auxid_set_t selection = store->getSelectedAuxIDs(); 
+             log << DbPrintLvl::Debug << "       Attributes= " << selection.size() << DbPrint::endmsg;
+             for(SG::auxid_t id : selection) {
                 BranchDesc&       newBrDsc( m_auxBranchMap[id] );
                 if( !newBrDsc.branch ) {
                    auto &reg = SG::AuxTypeRegistry::instance();
@@ -219,7 +220,6 @@ DbStatus RootTreeContainer::writeObject( ActionList::value_type& action )
                    num_bytes += bytes_out;
                 }
              }
-             store->selectAux( std::set<std::string>() );
           }
           dsc.rows_written++;
           break;

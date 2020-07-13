@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelCoralClientUtils/PCDDb.h"
@@ -27,6 +27,8 @@
 #include "RelationalAccess/ITableSchemaEditor.h"
 #include "RelationalAccess/IBulkOperation.h"
 #include "RelationalAccess/SchemaException.h"
+
+#include "CxxUtils/checker_macros.h"
 
 // std lib
 #include <fstream>
@@ -80,7 +82,7 @@ PCDDb::~PCDDb()
   }
 }
 
-bool PCDDb::init(std::string tag, int revision)
+bool PCDDb::init ATLAS_NOT_THREAD_SAFE (std::string tag, int revision) // Thread unsafe coral::AttributeList class is used.
 {
   if (m_verbose) cout << "PCDDb::init(" << tag << ", " << revision << ")" << endl;
 

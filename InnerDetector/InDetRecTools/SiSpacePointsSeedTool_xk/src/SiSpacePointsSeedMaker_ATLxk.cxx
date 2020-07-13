@@ -1641,7 +1641,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
     bool abortBottomLoop=false;
     for (int cell=0; !abortBottomLoop && cell<numberBottomCells; ++cell) {
       /// in each cell, loop over the space points
-      for (iter_otherSP=iter_bottomCands[cell]; iter_otherSP!=iter_endBottomCands[cell]; ++iter_otherSP) {
+      for (iter_otherSP=iter_bottomCands[cell]; !abortBottomLoop && iter_otherSP!=iter_endBottomCands[cell]; ++iter_otherSP) {
         
         /// evaluate the radial distance between the central and bottom SP
         const float& Rb =(*iter_otherSP)->radius();
@@ -1688,7 +1688,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
     /// again, loop over cells of interest, this time for the top SP candidate
     for (int cell=0; !abortTopLoop && cell<numberTopCells; ++cell) {
       /// loop over each SP in each cell 
-      for (iter_otherSP=iter_topCands[cell]; iter_otherSP!=iter_endTopCands[cell]; ++iter_otherSP) {
+      for (iter_otherSP=iter_topCands[cell]; !abortTopLoop && iter_otherSP!=iter_endTopCands[cell]; ++iter_otherSP) {
   
         /// evaluate the radial distance, 
         float Rt =(*iter_otherSP)->radius();
@@ -1850,7 +1850,13 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
         * Note that below, the variable R is the radial coordinate fo the central SP, 
         * corresponding to r_central in the notation above. 
         **/
-        float d0  = std::abs((A-B*R)*R);
+	float d0 = 0;         
+	if(std::abs(B) < 1e-10) d0  = std::abs((A-B*R)*R);         
+	else{
+	  float x0 = -A/(2.*B);
+	  float rTrack = std::sqrt(onePlusAsquare/BSquare)*.5;
+	  d0 = std::abs(-rTrack + std::sqrt(rTrack*rTrack +2*x0*R +R*R));
+	}
 
         /// apply d0 cut to seed 
         if (d0 <= d0max) {
@@ -2081,9 +2087,13 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newOneSeed
  InDet::SiSpacePointForSeed*& p3, float z, float seedCandidateQuality) const
 {
   /// get the worst seed so far 
-  std::multimap<float,InDet::SiSpacePointsProSeed*>::reverse_iterator l = data.mapOneSeeds_Pro.rbegin();
-  float worstQualityInMap = (*l).first;
-  InDet::SiSpacePointsProSeed* worstSeedSoFar = (*l).second;
+  float worstQualityInMap = std::numeric_limits<float>::min();
+  InDet::SiSpacePointsProSeed* worstSeedSoFar = nullptr;
+  if (!data.mapOneSeeds_Pro.empty()) {
+    std::multimap<float,InDet::SiSpacePointsProSeed*>::reverse_iterator l = data.mapOneSeeds_Pro.rbegin();
+    worstQualityInMap = (*l).first;
+    worstSeedSoFar = (*l).second;
+  }
   /// There are three cases where we simply add our new seed to the list and push it into the map: 
     /// a) we have not yet reached our max number of seeds 
   if (data.nOneSeeds < m_maxOneSize

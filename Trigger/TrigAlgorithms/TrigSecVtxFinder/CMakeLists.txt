@@ -11,7 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigSteer/TrigInterfaces
                           Trigger/TrigTools/TrigInDetVxInJetTool
                           Trigger/TrigTools/TrigTimeAlgs
-                          Trigger/TrigTools/TrigTrackJetFinderTool
+                          Trigger/TrigTools/TrigInDetToolInterfaces
                           InnerDetector/InDetConditions/BeamSpotConditionsData
                           PRIVATE
                           Control/CxxUtils

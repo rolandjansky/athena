@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LARFSAMPLP
@@ -20,7 +20,7 @@ class LArfSamplP
 {
 public: 
 
-    LArfSamplP() : m_fSampl(-999999999) {}
+    LArfSamplP() : m_fSampl(-9999999) {}
     LArfSamplP(float f) : m_fSampl(f) {}
     bool isEmpty() const { return m_fSampl < -9999 ; } ;
     float         m_fSampl;

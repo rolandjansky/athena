@@ -1012,7 +1012,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
 					       inAngle_XZ,
 					       inAngle_YZ,
 					       localMagneticField,
-					       detectorReadoutElement->numberOfMissingBottomStrips(layerID),
+					       detectorReadoutElement->numberOfMissingBottomStrips(layerID)+1,
 					       detectorReadoutElement->numberOfStrips(layerID)-detectorReadoutElement->numberOfMissingTopStrips(layerID),
 					       m_idHelperSvc->mmIdHelper().gasGap(layerID),
 					       m_eventTime+m_globalHitTime
@@ -1251,14 +1251,14 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
     MmDigitCollection* digitCollection = nullptr;
     // put new collection in storegate
     // Get the messaging service, print where you are
-    MmDigitContainer::const_iterator it_coll = digitContainer->indexFind(moduleHash );
-    if (digitContainer->end() ==  it_coll) {
+    const MmDigitCollection* coll = digitContainer->indexFindPtr(moduleHash );
+    if (nullptr ==  coll) {
       digitCollection = new MmDigitCollection( elemId, moduleHash );
       digitCollection->push_back(std::move(newDigit));
       ATH_CHECK(digitContainer->addCollection(digitCollection, moduleHash ) );
     }
     else {
-      digitCollection = const_cast<MmDigitCollection*>( *it_coll );
+      digitCollection = const_cast<MmDigitCollection*>( coll );
       digitCollection->push_back(std::move(newDigit));
     }
     

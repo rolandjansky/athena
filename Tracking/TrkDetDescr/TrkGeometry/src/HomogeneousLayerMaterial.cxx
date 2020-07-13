@@ -26,7 +26,7 @@ Trk::HomogeneousLayerMaterial::HomogeneousLayerMaterial(const Trk::HomogeneousLa
 {}
 
 Trk::HomogeneousLayerMaterial::~HomogeneousLayerMaterial()
-{}
+= default;
 
 
 Trk::HomogeneousLayerMaterial& Trk::HomogeneousLayerMaterial::operator=(const Trk::HomogeneousLayerMaterial& lmp)

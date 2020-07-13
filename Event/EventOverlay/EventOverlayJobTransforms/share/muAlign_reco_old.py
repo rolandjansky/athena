@@ -1,6 +1,6 @@
 
 #use muon alignments
-print "Haas: Reading muon alignment constants from DB for reco"
+printfunc ("Haas: Reading muon alignment constants from DB for reco")
 
 #from IOVDbSvc.CondDB import conddb
 #conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/BARREL','/MUONALIGN/MDT/BARREL')
@@ -20,15 +20,15 @@ print "Haas: Reading muon alignment constants from DB for reco"
 #ToolSvc += MuonAlignmentDbTool
 #MGM_AlignmentDbTool = ToolSvc.MGM_AlignmentDbTool
 #MGM_AlignmentDbTool.OutputLevel=DEBUG
-#print MGM_AlignmentDbTool
+#printfunc (MGM_AlignmentDbTool)
 from AtlasGeoModel.MuonGM import GeoModelSvc
 MuonDetectorTool = GeoModelSvc.DetectorTools[ "MuonDetectorTool" ]
 MuonDetectorTool.UseConditionDb = 1
 MuonDetectorTool.OutputLevel=DEBUG
 
 MuonDetectorTool.EnableFineClashFixing = 0 #this should be on for g4?
-print MuonDetectorTool
-print GeoModelSvc
-print ToolSvc
+printfunc (MuonDetectorTool)
+printfunc (GeoModelSvc)
+printfunc (ToolSvc)
 
 

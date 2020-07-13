@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #################################################################################################
 #  file: TrigJetMonitoring_physics.py
@@ -137,8 +137,8 @@ if (pp) or (mc):
                   "a4tcemsubjesISFS"  : "HLT_xAOD__JetContainer_a4tcemsubjesISFS",
                   "a4tclcwjesFS"    : "HLT_xAOD__JetContainer_a4tclcwjesFS",
                   "a4GSC" : "HLT_xAOD__JetContainer_GSCJet",
-		  "a10r_tcemsubjesISFS": "HLT_xAOD__JetContainer_a10r_tcemsubjesISFS",
-		  "a4tcemnojcalibFS": "HLT_xAOD__JetContainer_a4tcemnojcalibFS",
+                  "a10r_tcemsubjesISFS": "HLT_xAOD__JetContainer_a10r_tcemsubjesISFS",
+                  "a4tcemnojcalibFS": "HLT_xAOD__JetContainer_a4tcemnojcalibFS",
                   "a10tclcwsubjesFS"   : "HLT_xAOD__JetContainer_a10tclcwsubjesFS",
                   "a10ttclcwjesFS"   : "HLT_xAOD__JetContainer_a10ttclcwjesFS",
                   "a4tcemsubjesISFSftk"  : "HLT_xAOD__JetContainer_a4tcemsubjesISFSftk",
@@ -799,7 +799,7 @@ def TrigJetMonitoringTool():
             histoPathBase        = "/Trigger/HLT",
             JetMonBase           = "/HLT/JetMon",
             DoL1Efficiency       = True,         # w.r.t offline
-	    DoOfflineJets        = True,         # fill offline jet plots
+            DoOfflineJets        = True,         # fill offline jet plots
             DoHLTEfficiency      = True,         # w.r.t offline (HLT eff = L1 & HLT)
  #           EnableLumi           = True,        # Enable Luminosity Tool
  #           DoLumiWeight         = True,        # Decide to apply luminosity weights                       
@@ -967,8 +967,8 @@ def TrigJetMonitoringTool():
             ## Out-of-time Calo Jet Energy (not to exceed X ns)
             #DoOFMaxJetTimeCut = True,
             #OFMaxTimens = 50.
-        );
-  from AthenaCommon.AppMgr import ToolSvc
+        )
+  #from AthenaCommon.AppMgr import ToolSvc
   #from AthenaCommon import CfgMgr
 
  # from TrigHLTMonitoring.HLTMonFlags import HLTMonFlags
@@ -984,7 +984,7 @@ def TrigJetMonitoringTool():
                                           #ConfigTool = ToolSvc.xAODConfigTool,
                                           #TrigDecisionKey = "xTrigDecision" )
 
-  list = [ HLTJetMon ];
+  list = [ HLTJetMon ]
   return list
 
 

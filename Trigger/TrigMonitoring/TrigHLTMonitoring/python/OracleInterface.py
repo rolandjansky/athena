@@ -5,7 +5,6 @@
 
 from __future__ import print_function
 
-import sys
 # needed for oracle database connection
 import cx_Oracle
 # for converting configuration dictionaries into strings (for storing in the database as CLOB) and vice versa
@@ -61,7 +60,7 @@ class OracleInterface:
         # where unicode is found, convert it to str
         if type(input1) is str:
             return input1
-        elif type(input1) is unicode:
+        elif type(input1) is unicode:      # noqa: F821 (obsolete code)
             return str(input1)
         elif type(input1) is list:
             for n, item in enumerate(input1):
@@ -92,7 +91,7 @@ class OracleInterface:
                             listvalue[x] = self.__unicode_to_str__(json.loads(value[x].read()))
                     value = tuple(listvalue)
                 result.append(value)
-        except:
+        except Exception:
             for value in self.cursor.result:
                 if len(value) > 1:
                     listvalue = list(value)
@@ -111,7 +110,7 @@ class OracleInterface:
         try:
             self.cursor.execute(query,parameters_dict)
             self.conn.commit()
-        except:
+        except Exception:
             print ("Insert into DB failed. Your connection is probably of the wrong type")
 
 
@@ -669,7 +668,7 @@ class OracleInterface:
 
             # return the return list
             return return_list
-        except:
+        except Exception:
             print ("Cannot get database table and column names. Your database connection is probably of the wrong type.")
 
 
@@ -792,7 +791,7 @@ class OracleInterface:
         for smk in results:
             smk_ids.append(smk[0])
         smk_ids.sort()
-        if print_list==True:
+        if print_list is True:
             for smk in smk_ids:
                 print (smk)
         return smk_ids
@@ -806,7 +805,7 @@ class OracleInterface:
         for mck in results:
             mck_ids.append(mck[0])
         mck_ids.sort()
-        if print_list==True:
+        if print_list is True:
             for mck in mck_ids:
                 print (mck)
         return mck_ids
@@ -820,7 +819,7 @@ class OracleInterface:
         for smck in results:
             smck_ids.append(smck[0])
         smck_ids.sort()
-        if print_list==True:
+        if print_list is True:
             for smck in smck_ids:
                 print (smck)
         return smck_ids

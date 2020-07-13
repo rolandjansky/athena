@@ -44,6 +44,7 @@ def MuonGeoModelCfg(flags):
             acc.merge(addFolders( flags, ['/MUONALIGN/TGC/SIDEC'], 'MUONALIGN_OFL', className='CondAttrListCollection'))
 
         MuonAlign = MuonAlignmentCondAlg()
+        if flags.Muon.MuonTrigger: MuonAlign.DoRecRoiSvcUpdate = True # this should be removed as soon as RPC/TGCRecRoiSvc are migrated to use the MuonDetectorCondAlg
         MuonAlign.ParlineFolders = ["/MUONALIGN/MDT/BARREL",
                                     "/MUONALIGN/MDT/ENDCAP/SIDEA",
                                     "/MUONALIGN/MDT/ENDCAP/SIDEC",

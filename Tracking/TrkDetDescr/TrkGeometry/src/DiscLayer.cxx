@@ -10,7 +10,6 @@
 #include "TrkGeometry/DiscLayer.h"
 #include "TrkGeometry/LayerMaterialProperties.h"
 #include "TrkGeometry/MaterialProperties.h"
-#include "TrkGeometry/ApproachDescriptor.h"
 #include "TrkVolumes/CylinderVolumeBounds.h"
 #include "TrkSurfaces/DiscBounds.h"
 #include "TrkParameters/TrackParameters.h"
@@ -97,18 +96,16 @@ Trk::DiscLayer::DiscLayer(const Trk::DiscLayer& dlay, const Amg::Transform3D& tr
     if (m_surfaceArray) buildApproachDescriptor();    
 }
 
-Trk::DiscLayer::~DiscLayer() {
-  delete m_approachDescriptor;
-}
-
 Trk::DiscLayer& Trk::DiscLayer::operator=(const DiscLayer& dlay)
 {
   if (this!=&dlay){
         // call the assignments of the base classes
         Trk::DiscSurface::operator=(dlay);
         Trk::Layer::operator=(dlay);
-        delete m_approachDescriptor;
-        if (m_surfaceArray) buildApproachDescriptor();
+        m_approachDescriptor.reset();
+        if (m_surfaceArray) {
+          buildApproachDescriptor();
+        }
         DiscSurface::associateLayer(*this);
    }
   return(*this);
@@ -148,8 +145,9 @@ void Trk::DiscLayer::moveLayer(Amg::Transform3D& shift)  {
        m_center.store(std::make_unique<Amg::Vector3D>(m_transform->translation()));
        m_normal.store(std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2)));
        // rebuild that - deletes the current one
-       if (m_approachDescriptor &&  m_approachDescriptor->rebuild()) 
-           buildApproachDescriptor();       
+       if (m_approachDescriptor &&  m_approachDescriptor->rebuild()) {
+         buildApproachDescriptor();
+       }
 }
 
 void Trk::DiscLayer::resizeLayer(const VolumeBounds& bounds, double envelope)  {
@@ -233,10 +231,9 @@ const Trk::Surface& Trk::DiscLayer::surfaceOnApproach(const Amg::Vector3D& pos,
 
 /** build approach surfaces */
 void Trk::DiscLayer::buildApproachDescriptor(){
-    // delete the current approach descriptor
-    delete m_approachDescriptor;
+
     // create the surface container   
-    Trk::ApproachSurfaces* aSurfaces = new Trk::ApproachSurfaces;
+    auto aSurfaces = std::make_unique<Trk::ApproachSurfaces>();
     // get the center
     const auto halfThickness=0.5*thickness()*normal();
     const Amg::Vector3D aspPosition(center()+halfThickness);
@@ -255,7 +252,8 @@ void Trk::DiscLayer::buildApproachDescriptor(){
             sIter->setOwner(Trk::TGOwn);
         }
     }
-    m_approachDescriptor = new Trk::ApproachDescriptor(aSurfaces);
+    //The approach descriptor takes owneship
+    m_approachDescriptor = std::make_unique<Trk::ApproachDescriptor>(std::move(aSurfaces));
 }
 
 void Trk::DiscLayer::resizeAndRepositionLayer(const VolumeBounds& vBounds, const Amg::Vector3D& vCenter, double envelope)  {

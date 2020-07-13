@@ -87,7 +87,7 @@ combine(GSFUtils::Component1D& updated, GSFUtils::Component1D& removed)
   removed.mean = 1e10;
   removed.cov = 1e10;
   removed.invCov = 1e10;
-  removed.weight = 1;
+  removed.weight = -1;
 }
 
 /**
@@ -108,17 +108,32 @@ recalculateDistances(const Component1D* componentsIn,
 
   const int32_t j = mini;
   const int32_t indexConst = (j - 1) * j / 2;
-  // Rows
+  //This is the component that has been updated
+  //so we calculate distances wrt.
   const Component1D componentJ = components[j];
+  
+  // Rows
   for (int32_t i = 0; i < j; ++i) {
     const Component1D componentI = components[i];
     const int32_t index = indexConst + i;
+    //This component has been merged to/removed
+    //so keep the distance wrt to it max always
+    if (componentI.weight < 0) {
+      distances[index] = std::numeric_limits<float>::max();
+      continue;
+    }
     distances[index] = symmetricKL(componentI, componentJ);
   }
   // Columns
   for (int32_t i = j + 1; i < n; ++i) {
-    const int32_t index = (i - 1) * i / 2 + j;
     const Component1D componentI = components[i];
+    const int32_t index = (i - 1) * i / 2 + j;
+    //This component has been merged to/removed
+    //so keep the distance wrt to it max always
+    if (componentI.weight < 0) {
+      distances[index] = std::numeric_limits<float>::max();
+      continue;
+    }
     distances[index] = symmetricKL(componentI, componentJ);
   }
 }

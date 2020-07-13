@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -7,8 +7,8 @@
 #include "LArG4ShowerLib/TestShowerLib.h"
 
 // CLHEP incldues
-#include <HepMC/GenParticle.h>
-#include <HepMC/GenVertex.h>
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 
 //#include <algorithm>
 //#include <functional>
@@ -153,7 +153,7 @@ namespace ShowerLib {
 	  return 0.0;
   }
 
-bool TestShowerLib::storeShower(const HepMC::GenParticle* genParticle, const Shower* shower)
+bool TestShowerLib::storeShower(HepMC::ConstGenParticlePtr genParticle, const Shower* shower)
   {
 	  if (m_filled) {
 		  std::cout << "ERROR: filled" << std::endl;

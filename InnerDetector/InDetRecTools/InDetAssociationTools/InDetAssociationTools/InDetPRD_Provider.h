@@ -65,12 +65,11 @@ namespace InDet {
                             const Identifier& ideh, const IdentifierHash& ideHash ) const 
         {
           // find the collection
-          typename Trk::PrepRawDataContainer< Trk::PrepRawDataCollection< PrdT > >::const_iterator prdCollIter = cont.indexFind(ideHash);
-          if ( prdCollIter == cont.end() ){
+          const Trk::PrepRawDataCollection< PrdT >* prdCollection = cont.indexFindPtr(ideHash);
+          if ( prdCollection == nullptr ){
               ATH_MSG_VERBOSE("PRD Collection to IdentifierHash could not be found. Return 0.");
               return 0;
           }
-          const Trk::PrepRawDataCollection< PrdT >* prdCollection = (*prdCollIter);
           // search for the PRD in the collection --- do a loop, can be done better with std::find probably
           const PrdT* prd = 0;
           // iterate through the collections

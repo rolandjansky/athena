@@ -25,4 +25,4 @@ find_package( Eigen )
 atlas_add_component( TRT_RecoConditionsServices
                      src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} GaudiKernel TrkParameters AthenaBaseComps StoreGateLib SGtests InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry TRT_ConditionsServicesLib )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} GaudiKernel TrkParameters AthenaBaseComps StoreGateLib SGtests InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry TRT_ConditionsServicesLib InDetRecToolInterfaces )

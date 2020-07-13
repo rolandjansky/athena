@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##############################
 # L2 Electron and Photon Calorimeter Hypothesis Algorithm Configuration:
@@ -86,7 +86,7 @@ class L2CaloHypo_EtCut (TrigL2CaloHypoBase):
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
 
-	#L2 Threshold moved to 3 GeV within HLT threshold 
+        #L2 Threshold moved to 3 GeV within HLT threshold
         self.ETthr          = [(float(threshold) -  3)*GeV]*9
         # No other cuts applied
         self.dETACLUSTERthr = 9999.

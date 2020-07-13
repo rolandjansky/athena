@@ -129,11 +129,17 @@ if DetFlags.pixel_on():
 
     if not hasattr(condSeq, "PixelDCSCondStateAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStateAlg
-        condSeq += PixelDCSCondStateAlg(name="PixelDCSCondStateAlg")
+        alg = PixelDCSCondStateAlg(name="PixelDCSCondStateAlg")
+        if athenaCommonFlags.isOnline():
+            alg.ReadKeyState = ''
+        condSeq += alg
 
     if not hasattr(condSeq, "PixelDCSCondStatusAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStatusAlg
-        condSeq += PixelDCSCondStatusAlg(name="PixelDCSCondStatusAlg")
+        alg = PixelDCSCondStatusAlg(name="PixelDCSCondStatusAlg")
+        if athenaCommonFlags.isOnline():
+            alg.ReadKeyStatus = ''
+        condSeq += alg
 
     if athenaCommonFlags.isOnline():
         if not conddb.folderRequested("/TDAQ/Resources/ATLAS/PIXEL/Modules"):

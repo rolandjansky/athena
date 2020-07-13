@@ -246,7 +246,7 @@ class transform(object):
 
     ## @brief Parse command line arguments for a transform
     def parseCmdLineArgs(self, args):
-        msg.info('Transform command line was: %s' % ' '.join(shQuoteStrings(sys.argv)))
+        msg.info('Transform command line was: %s', ' '.join(shQuoteStrings(sys.argv)))
 
         try:
             # Use the argparse infrastructure to get the actual command line arguments
@@ -363,7 +363,7 @@ class transform(object):
             setRootLoggerLevel(stdLogLevels['DEBUG'])
         elif 'loglevel' in self._argdict:
             if self._argdict['loglevel'] in stdLogLevels:
-                msg.info("Loglevel option found - setting root logger level to %s" % 
+                msg.info("Loglevel option found - setting root logger level to %s", 
                          logging.getLevelName(stdLogLevels[self._argdict['loglevel']]))
                 setRootLoggerLevel(stdLogLevels[self._argdict['loglevel']])
             else:
@@ -741,7 +741,7 @@ class transform(object):
             ('fileValidation' in self._argdict and self._argdict['fileValidation'].value is False) or
             ('inputFileValidation' in self._argdict and self._argdict['inputFileValidation'].value is False)
             ):
-            msg.info('Standard input file validation turned off for transform %s.' % self.name)
+            msg.info('Standard input file validation turned off for transform %s.', self.name)
         else:
             msg.info('Validating input files')
             if 'parallelFileValidation' in self._argdict:
@@ -762,7 +762,7 @@ class transform(object):
             ('fileValidation' in self._argdict and self._argdict['fileValidation'].value is False) or
             ('outputFileValidation' in self._argdict and self._argdict['outputFileValidation'].value is False)
             ):
-            msg.info('Standard output file validation turned off for transform %s.' % self.name)
+            msg.info('Standard output file validation turned off for transform %s.', self.name)
         else:
             msg.info('Validating output files')
             if 'parallelFileValidation' in self._argdict:

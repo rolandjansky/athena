@@ -792,16 +792,16 @@ InDetIterativePriVxFinderTool::findVertex(
           (*tracksIter).setOrigTrack(*origtrkiter);
 
           // See if the trklink is to an xAOD::TrackParticle
-          
-          //Why we need dynamicC_cast here?
-          Trk::LinkToXAODTrackParticle* linkToXAODTP =
-            dynamic_cast<Trk::LinkToXAODTrackParticle*>(*origtrkiter);
+          Trk::LinkToXAODTrackParticle* linkToXAODTP = nullptr;
+          Trk::ITrackLink* tmpLink = (*tracksIter).trackOrParticleLink();
+          if (tmpLink->type() == Trk::ITrackLink::ToxAODTrackParticle) {
+            linkToXAODTP = static_cast<Trk::LinkToXAODTrackParticle*>(tmpLink);
+          }
 
           // If track is an xAOD::TrackParticle, set directly in xAOD::Vertex
           if (linkToXAODTP) {
             (*vxIter)->addTrackAtVertex(*linkToXAODTP, (*tracksIter).weight());
-          } // TODO: else write in a warning? (if tracks were Trk::Tracks or
-            // Trk::TrackParticleBase)
+          } 
 
           origTracks.erase(origtrkiter);
           origtrkbegin = origTracks.begin();

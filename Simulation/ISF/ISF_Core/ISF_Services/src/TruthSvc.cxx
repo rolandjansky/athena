@@ -132,12 +132,12 @@ StatusCode ISF::TruthSvc::initializeTruthCollection()
 }
 
 /** Delete child vertex */
-void ISF::TruthSvc::deleteChildVertex(HepMC::GenVertex* vertex) const {
-  std::vector<HepMC::GenVertex*> verticesToDelete;
+void ISF::TruthSvc::deleteChildVertex(HepMC::GenVertexPtr vertex) const {
+  std::vector<HepMC::GenVertexPtr> verticesToDelete;
   verticesToDelete.resize(0);
   verticesToDelete.push_back(vertex);
   for ( unsigned short i = 0; i<verticesToDelete.size(); ++i ) {
-    HepMC::GenVertex* vtx = verticesToDelete.at(i);
+    HepMC::GenVertexPtr vtx = verticesToDelete.at(i);
     for (HepMC::GenVertex::particles_out_const_iterator iter = vtx->particles_out_const_begin();
          iter != vtx->particles_out_const_end(); ++iter) {
       if( (*iter) && (*iter)->end_vertex() ) {
@@ -292,7 +292,7 @@ void ISF::TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) const {
       ATH_MSG_INFO("New QS GenVertex 1: " << *(newVtx.get()) );
 #endif
       HepMC::GenEvent *mcEvent = parentBeforeIncident->parent_event();
-      newVtx->suggest_barcode( this->maxGeneratedVertexBarcode(mcEvent)-1 );
+      HepMC::suggest_barcode(newVtx.get(), this->maxGeneratedVertexBarcode(mcEvent)-1 );
 #ifdef DEBUG_TRUTHSVC
       ATH_MSG_INFO("New QSGenVertex 2: " << *(newVtx.get()) );
 #endif
@@ -332,8 +332,8 @@ void ISF::TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) const {
     ATH_MSG_VERBOSE("Existing vertex has " << nVertexChildren << " children. " <<
                  "Number of secondaries in current truth incident = " << numSec);
   }
-  const std::vector<HepMC::GenParticle*> childParticleVector = (isQuasiStableVertex) ? MC::findChildren(ti.parentParticle()) : std::vector<HepMC::GenParticle*>();
-  std::vector<HepMC::GenParticle*> matchedChildParticles;
+  const std::vector<HepMC::GenParticlePtr> childParticleVector = (isQuasiStableVertex) ? MC::findChildren(ti.parentParticle()) : std::vector<HepMC::GenParticlePtr>();
+  std::vector<HepMC::GenParticlePtr> matchedChildParticles;
   for ( unsigned short i=0; i<numSec; ++i) {
 
     bool writeOutChild = isQuasiStableVertex || m_passWholeVertex || ti.childPassedFilters(i);
@@ -430,7 +430,7 @@ HepMC::GenVertex *ISF::TruthSvc::createGenVertexFromTruthIncident( ISF::ITruthIn
   }
   int vtxID = 1000 + static_cast<int>(processCode);
   std::unique_ptr<HepMC::GenVertex> vtx = std::make_unique<HepMC::GenVertex>( ti.position(), vtxID, weights );
-  vtx->suggest_barcode( vtxbcode );
+  HepMC::suggest_barcode( vtx.get(), vtxbcode );
 
   if (parent->end_vertex()){
     if(!m_quasiStableParticlesIncluded) {

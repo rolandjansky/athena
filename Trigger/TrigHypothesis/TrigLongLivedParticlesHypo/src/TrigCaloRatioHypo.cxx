@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************************
@@ -23,7 +23,7 @@
 
 #include "CxxUtils/fpcompare.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
@@ -31,7 +31,7 @@
 TrigCaloRatioHypo::TrigCaloRatioHypo(const std::string& name, ISvcLocator* pSvcLocator):
   HLT::HypoAlgo(name, pSvcLocator) {
 
-  declareProperty("EtCut",       m_etCut = 30*CLHEP::GeV, "cut value forthe jet et"); 
+  declareProperty("EtCut",       m_etCut = 30*Gaudi::Units::GeV, "cut value forthe jet et");
   declareProperty("LogRatioCut", m_logRatioCut = 1.2, "cut value for the jet energy ratio"); 
   declareProperty("PtMinID",     m_ptCut = 2000.0, "minimum track Pt in MeV for the isolation requirement");
   declareProperty("TrackCut",    m_trackCut = 0, "minimum number of tracks for the isolation requirement");
@@ -165,7 +165,7 @@ HLT::ErrorCode TrigCaloRatioHypo::hltExecute(const HLT::TriggerElement* outputTE
     
     if (jetEt > m_etCut && std::fabs(jetEta) <= m_etaCut) {
       
-      m_jetEt.push_back(jetEt/CLHEP::GeV);
+      m_jetEt.push_back(jetEt/Gaudi::Units::GeV);
       m_jetEta.push_back(jetEta); 
       m_jetPhi.push_back(jetPhi);
       m_logRatio = jetRatio;
@@ -177,7 +177,7 @@ HLT::ErrorCode TrigCaloRatioHypo::hltExecute(const HLT::TriggerElement* outputTE
       
     if (jetEt > m_etCut && std::fabs(jetEta) <= m_etaCut && jetRatio <= m_logRatioCut) {
 	
-      m_jetEt.push_back(jetEt/CLHEP::GeV);
+      m_jetEt.push_back(jetEt/Gaudi::Units::GeV);
       m_jetEta.push_back(jetEta); 
       m_jetPhi.push_back(jetPhi);
       m_logRatio = jetRatio;

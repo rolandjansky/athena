@@ -82,7 +82,7 @@ from PyUtils.MetaReaderPeeker import convert_metadata_items, metadata
 metaItemDict = convert_metadata_items(layout='dict')
 
 if CRAlgBuilder.usable() or (metaItemDict and any( ['RingSetConf' in key for key in metaItemDict ] )):
-  MetaDataBuilder = CaloRingerMetaDataBuilder()
+  MetaDataBuilder = CaloRingerMetaDataBuilder(disable=True)
 
   # Make sure all MetaData algoritms have the ringerOutputLevel
   if MetaDataBuilder.usable():

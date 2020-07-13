@@ -42,8 +42,8 @@ class TauRecToolBase : public asg::AsgTool, virtual public ITauToolBase {
   virtual StatusCode execute(xAOD::TauJet& pTau) const override;
   virtual StatusCode executeVertexFinder(xAOD::TauJet& pTau, 
                                          const xAOD::VertexContainer* vertexContainer = nullptr, 
-                                         const xAOD::TrackParticleContainer* trackContainer = nullptr) override;
-  virtual StatusCode executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrackContainer& tauTrackContainer, const xAOD::TrackParticleContainer* trackContainer = nullptr) override;
+                                         const xAOD::TrackParticleContainer* trackContainer = nullptr) const override;
+  virtual StatusCode executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrackContainer& tauTrackContainer, const xAOD::TrackParticleContainer* trackContainer = nullptr) const override;
   virtual StatusCode executeTrackClassifier(xAOD::TauJet& pTau, xAOD::TauTrackContainer& tauTrackContainer) const override;
   virtual StatusCode executeRNNTrackClassifier(xAOD::TauJet& pTau, xAOD::TauTrackContainer& tauTrackContainer) override;
   virtual StatusCode executeShotFinder(xAOD::TauJet& pTau, xAOD::CaloClusterContainer& shotClusterContainer, xAOD::PFOContainer& PFOContainer ) override;
@@ -54,7 +54,7 @@ class TauRecToolBase : public asg::AsgTool, virtual public ITauToolBase {
 					      xAOD::PFOContainer& hadronicPFOContainer, 
 					      xAOD::CaloClusterContainer& caloClusterContainer, 
 					      const xAOD::CaloClusterContainer& pCaloClusterContainer ) override;
-  virtual StatusCode executeVertexVariables(xAOD::TauJet& pTau, xAOD::VertexContainer& vertexContainer ) override;  
+  virtual StatusCode executeVertexVariables(xAOD::TauJet& pTau, xAOD::VertexContainer& vertexContainer ) const override;  
   virtual StatusCode executePi0ClusterScaler(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer, xAOD::PFOContainer& chargedPFOContainer ) override;  
   virtual StatusCode executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer) override;
   virtual StatusCode executePanTau(xAOD::TauJet& pTau, xAOD::ParticleContainer& particleContainer) override;
@@ -62,7 +62,7 @@ class TauRecToolBase : public asg::AsgTool, virtual public ITauToolBase {
   //-----------------------------------------------------------------
   //! Event finalizer - called at the end of each event
   //-----------------------------------------------------------------
-  virtual StatusCode eventFinalize() override;
+  virtual StatusCode eventFinalize() const override;
 
   //-----------------------------------------------------------------
   //! Finalizer

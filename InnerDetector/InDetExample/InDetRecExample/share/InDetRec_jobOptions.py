@@ -928,19 +928,20 @@ else:
 #        InDetTruthTrackCreation.OutputLevel = VERBOSE
         topSequence += InDetTruthTrackCreation
 
-        # --- add the truth to the truth tracks ;-)
-        include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
-        InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.PseudoTracks(),
+        if  InDetFlags.doSplitReco() :
+          # --- add the truth to the truth tracks ;-)
+          include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
+          InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.PseudoTracks(),
                                                      InDetKeys.PseudoDetailedTracksTruth(),
                                                      InDetKeys.PseudoTracksTruth(),
                                                      PixelClusterTruth,
                                                      SCT_ClusterTruth,
                                                      TRT_DriftCircleTruth)
 
-        from TrkTruthToTrack.TrkTruthToTrackConf import Trk__TruthToTrack
-        InDetTruthToTrack  = Trk__TruthToTrack(name         = "InDetTruthToTrack",
+          from TrkTruthToTrack.TrkTruthToTrackConf import Trk__TruthToTrack
+          InDetTruthToTrack  = Trk__TruthToTrack(name         = "InDetTruthToTrack",
                                                Extrapolator = TrackingCommon.getInDetExtrapolator())
-        ToolSvc += InDetTruthToTrack
+          ToolSvc += InDetTruthToTrack
     
         # Register the track collections for further processing - only if new tracking has not been running
         if not InDetFlags.doNewTracking():
@@ -1289,7 +1290,7 @@ else:
         InDetValidationPU = ConfiguredInDetValidation("PU",True,InDetFlags.doTruth(),cuts,[InDetKeys.PseudoTracks()],[InDetKeys.PseudoTracksTruth()],McEventCollectionKey="TruthEvent_PU")
 
     # ntuple creation for validation purposes    
-    if (InDetFlags.doNtupleCreation() or InDetFlags.doStandardPlots()) or InDetFlags.doPhysValMon():
+    if (InDetFlags.doNtupleCreation() or InDetFlags.doPhysValMon()):
       include("InDetRecExample/InDetRecNtupleCreation.py")
 
     # D3PD Creation

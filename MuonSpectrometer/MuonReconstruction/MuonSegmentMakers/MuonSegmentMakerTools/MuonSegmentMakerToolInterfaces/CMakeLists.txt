@@ -22,6 +22,9 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( Eigen )
 
-# Install files from the package:
-atlas_install_headers( MuonSegmentMakerToolInterfaces )
+atlas_add_library( MuonSegmentMakerToolInterfaces
+                   MuonSegmentMakerToolInterfaces/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS MuonSegmentMakerToolInterfaces
+                   LINK_LIBRARIES  GaudiKernel MuonPrepRawData TrkTruthData MuonRIO_OnTrack TrkSegment MuonPattern MuonSegment MuonLayerEvent MuonRecToolInterfaces Identifier MuonEDM_AssociationObjects GeoPrimitives EventPrimitives )
 

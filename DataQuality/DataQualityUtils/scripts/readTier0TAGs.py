@@ -1,6 +1,6 @@
 #!/usr/bin env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # Simple script to extract the path of the TAG outputs of Tier0 monitoring, 
 # open them and chain them in a single TChain
 # Uses the pathExtract library to extract the EOS path
@@ -15,9 +15,9 @@ import os, sys
 import argparse
 
 from DataQualityUtils import pathExtract         
-import xmlrpclib
+from six.moves import xmlrpc_client as xmlrpclib
 
-from ROOT import TFile,TChain
+from ROOT import TChain
 from ROOT import gStyle
 
 gStyle.SetPalette(1)
@@ -41,9 +41,9 @@ if args.tag != "":
   tag = args.tag
 else: # Try to retrieve the data project tag via atlasdqm
   if (not os.path.isfile("atlasdqmpass.txt")):
-    print "To retrieve the data project tag, you need to generate an atlasdqm key and store it in this directory as atlasdqmpass.txt (yourname:key)"
-    print "To generate a kay, go here : https://atlasdqm.cern.ch/dqauth/"
-    print "You can also define by hand the data project tag wit hthe option -t"
+    print("To retrieve the data project tag, you need to generate an atlasdqm key and store it in this directory as atlasdqmpass.txt (yourname:key)")
+    print("To generate a kay, go here : https://atlasdqm.cern.ch/dqauth/")
+    print("You can also define by hand the data project tag wit hthe option -t")
     sys.exit()
   passfile = open("atlasdqmpass.txt")
   passwd = passfile.read().strip(); passfile.close()
@@ -52,7 +52,7 @@ else: # Try to retrieve the data project tag via atlasdqm
   run_spec = {'stream': 'physics_CosmicCalo', 'proc_ver': 1,'source': 'tier0', 'low_run': runNumber, 'high_run':runNumber}
   run_info= s.get_run_information(run_spec)
   if '%d'%runNumber not in run_info.keys() or len(run_info['%d'%runNumber])<2:
-    print "Unable to retrieve the data project tag via atlasdqm... Please double check your atlasdqmpass.txt or define it by hand with -t option"
+    print("Unable to retrieve the data project tag via atlasdqm... Please double check your atlasdqmpass.txt or define it by hand with -t option")
     sys.exit()
   tag = run_info['%d'%runNumber][1]
 
@@ -64,12 +64,11 @@ tree = TChain("POOLCollectionTree")
 
 file = {}
 for fileNames in listOfFiles:
-  print "Adding %s"%(fileNames)
+  print("Adding %s"%(fileNames))
   tree.AddFile("root://eosatlas/%s"%(fileNames))
 
 entries = tree.GetEntries()
 if entries != 0:
-  print "The chained tree contains %d entries"%(entries)
+  print("The chained tree contains %d entries"%(entries))
 else:
-  print "Empty chain..."
-
+  print("Empty chain...")

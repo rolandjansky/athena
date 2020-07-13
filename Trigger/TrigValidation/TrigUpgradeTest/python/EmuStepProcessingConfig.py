@@ -102,7 +102,6 @@ def generateEmuEvents():
     data['l1emroi'][1]   =  '1,1,0,EM3,EM5,EM7,EM20,EM50,EM100; 2.,-1.2,0,EM3,EM5,EM7; 3.,0.2,0,EM3;'
     data['emclusters'][1]=  'eta:1,phi:1,et:180000; eta:1,phi:-1.2,et:6000; eta:0.5,phi:-1.2,et:3000;'
     data['l1muroi'][1]   =  '2,0.5,0,MU6; 3,0.5,0,MU6;'
-    #data['l1muroi'][1]   =  '0,0,0,MU0;'
     data['msmu'][1]      = 'eta:-1.2,phi:0.7,pt:1500,pt2:1500; eta:-1.1,phi:0.6,pt:1500,pt2:1500;'
 
     # event 2: 2e+ 3mu : HLT_TestChain5_ev1_TestChain8_ev1_2TestChain6_muv1_L1EM3_EM5_L12MU6, HLT_TestChain6_muv1_TestChain10_ev1_L1MU6_EM5
@@ -112,19 +111,21 @@ def generateEmuEvents():
                              HLT_TestChain8_muv1step_L1MU6 \
                              HLT_TestChain5_ev1_L1EM3 \
                              HLT_TestChain8_ev1_L1EM5 \
+                             HLT_TestChain6_muEmpty2_L1MU6 \
                              HLT_TestChain6_muv1_TestChain10_ev1_L1MU6_EM5 \
                              HLT_TestChain6_muv2_TestChain8_ev2_L1MU6_EM5 \
                              HLT_2TestChain6_muv1_L12MU6 \
-                             HLT_2TestChain6_muEmpty_L12MU6 \
+                             HLT_2TestChain6_muEmpty1_L12MU6 \
                              HLT_TestChain6_muv1_TestChain10_muv1_L12MU6 \
                              HLT_2TestChain4_muv1_dr_L12MU6 HLT_e5_e8_L12EM3 \
-                             HLT_TestChain5_ev1_TestChain8_ev1_2TestChain6_muv1_L1EM3_EM5_L12MU6 \
-                             HLT_TestChain6_muv1_TestChain6_muEmpty_L1MU6 \
+                             HLT_TestChain5_ev1_TestChain8_ev1_2TestChain6_muv1_L1EM3_L1EM5_L12MU6 \
+                             HLT_TestChain10_muEmpty1_TestChain6_muEmpty1_L12MU6 \
+                             HLT_TestChain10_muv1_TestChain6_muEmpty1_L1MU6 \
                              HLT_TestChain6_muv1_TestChain5_ev1_dr_L12MU6'
     data['l1emroi'][2]   =  '2,0.2,0,EM3,EM5,EM7,EM15,EM20,EM50,EM100; 1,-1.1,0,EM3,EM5,EM7,EM15,EM20,EM50;'
     data['emclusters'][2]=  'eta:0.5,phi:0,et:120000; eta:1,phi:-1.2,et:65000;'
     data['l1muroi'][2]   =  '2,0.5,0,MU6,MU8; 3,0.5,0,MU6,MU8,MU10;2.2,0.6,0,MU6;'
-    data['msmu'][2]      =  'eta:-1.2,phi:0.7,pt:6500,pt2:8500; eta:-1.1,phi:0.6,pt:8500,pt2:8500;eta:-1.1,phi:0.6,pt:8500,pt2:8500;'
+    data['msmu'][2]      =  'eta:-1.2,phi:0.7,pt:6500,pt2:8500; eta:-1.1,phi:0.6,pt:10500,pt2:8500;eta:-1.1,phi:0.6,pt:8500,pt2:8500;'
 
     #event 3: 1e + 1mu; HLT_TestChain6_muv1_TestChain10_ev1_L1MU6_EM5 does not pass because of e10
     data['ctp'] [3]      =  'HLT_TestChain20_muv1_L1MU10 \
@@ -199,14 +200,14 @@ def generateChainsManually():
         step_mu32  = ChainStep("Step3_mu32", [mu32] )
         step_mu41  = ChainStep("Step4_mu41", [mu41] )
         
-        step_empy= ChainStep("Step2_empty")
+        step_empy= ChainStep("Step2_mu1empty", multiplicity=[])
 
         MuChains  = [
             makeChain(name='HLT_TestChain8_muv1step_L1MU6',  L1Thresholds=["MU6"],  ChainSteps=[step_mu11]),
             makeChain(name='HLT_TestChain8_muv1_L1MU10',    L1Thresholds=["MU10"],   ChainSteps=[step_mu11 , step_mu21 , step_mu31, step_mu41] ),
             makeChain(name='HLT_TestChain20_muv1_L1MU10',   L1Thresholds=["MU10"],   ChainSteps=[step_mu11 , step_mu21 , step_mu31, step_mu41] ),
             makeChain(name='HLT_TestChain10_muv2_L1MU10',   L1Thresholds=["MU10"],   ChainSteps=[step_mu11 , step_mu22 , step_mu31] ),
-            makeChain(name='HLT_TestChain6_muEmpty_L1MU6',     L1Thresholds=["MU6"],    ChainSteps=[step_mu11 , step_empy , step_mu32, step_mu41] ), 
+            makeChain(name='HLT_TestChain6_muEmpty2_L1MU6',     L1Thresholds=["MU6"],    ChainSteps=[step_mu11 , step_empy , step_mu32, step_mu41] ), 
             ]
             
 
@@ -221,6 +222,7 @@ def generateChainsManually():
         el22 = elMenuSequence(step="2",reconame="v2", hyponame="v2")
         el23 = elMenuSequence(step="2",reconame="v2", hyponame="v3")
         el31 = elMenuSequence(step="3",reconame="v1", hyponame="v1")
+        el41 = elMenuSequence(step="4",reconame="v1", hyponame="v1")
 
         # gamma
         gamm11 = gamMenuSequence("1", reconame="v1", hyponame="v1")
@@ -240,10 +242,12 @@ def generateChainsManually():
     if doCombo:
         emptySeq1 = EmptyMenuSequence("step1EmptySeqence")
         emptySeq2 = EmptyMenuSequence("step2EmptySeqence")
+        
         if not doElectron:
             from TrigUpgradeTest.HLTSignatureConfig import elMenuSequence        
             el11 = elMenuSequence(step="1",reconame="v1", hyponame="v1")    
             el21 = elMenuSequence(step="2",reconame="v1", hyponame="v1")
+            el41 = elMenuSequence(step="4",reconame="v1", hyponame="v1")
             
         if not doMuon:
             from TrigUpgradeTest.HLTSignatureConfig import muMenuSequence
@@ -270,7 +274,9 @@ def generateChainsManually():
             # This is an example of a chain running in "serial"
             makeChain(name='HLT_TestChain6_muv1_TestChain10_ev1_L1MU6_EM5',  L1Thresholds=["MU6","EM5"], ChainSteps=[
                 ChainStep("Step1_mu_em_serial", [mu11, emptySeq1], multiplicity=[1,1]),
-                ChainStep("Step2_mu_em_serial", [emptySeq2, el21], multiplicity=[1,1])] ),
+                ChainStep("Step2_mu_em_serial", [emptySeq2, el21], multiplicity=[1,1]),
+                ChainStep("Step3_mu_em_serial", multiplicity=[]),
+                ChainStep("Step4_mu_em_serial", [mu41, el41],  multiplicity=[1,1])] ),
 
             makeChain(name='HLT_TestChain6_muv2_TestChain8_ev2_L1MU6_EM5', L1Thresholds=["MU6","EM5"], ChainSteps=[
                 ChainStep("Step1_mu2_em", [mu12, el11], multiplicity=[1,1]),
@@ -280,7 +286,7 @@ def generateChainsManually():
                 ChainStep("Step1_2emAs",   [el11, el11], multiplicity=[1,1]),
                 ChainStep("Step2_2emAs",   [el21, el21], multiplicity=[1,1]) ]),
                 
-            makeChain(name='HLT_TestChain5_ev1_TestChain8_ev1_2TestChain6_muv1_L1EM3_EM5_L12MU6',   L1Thresholds=["EM3","EM5","MU6"], ChainSteps=[
+            makeChain(name='HLT_TestChain5_ev1_TestChain8_ev1_2TestChain6_muv1_L1EM3_L1EM5_L12MU6',   L1Thresholds=["EM3","EM5","MU6"], ChainSteps=[
                 ChainStep("Step1_2em_2mu",   [el11,el11,mu11], multiplicity=[1,1,2]),
                 ChainStep("Step2_2em_2mu",   [el21,el21,mu21], multiplicity=[1,1,2]) ]),
 
@@ -292,8 +298,8 @@ def generateChainsManually():
                 ChainStep("Step1_2muAs",   [mu11,mu11], multiplicity=[1,1]),
                 ChainStep("Step2_2muAs",   [mu21,mu21], multiplicity=[1,1]) ]),
                 
-            makeChain(name='HLT_2TestChain6_muEmpty_L12MU6',   L1Thresholds=["MU6"], ChainSteps=[
-                ChainStep("Step1_2mu_empty",  multiplicity=[2]),
+            makeChain(name='HLT_2TestChain6_muEmpty1_L12MU6',   L1Thresholds=["MU6"], ChainSteps=[
+                ChainStep("Step1_2mu_empty",  multiplicity=[]),#[2]
                 ChainStep("Step2_2mu", [mu21], multiplicity=[2]) ]),
 
             makeChain(name='HLT_TestChain6_muv1_TestChain5_ev1dr_L12MU6',  L1Thresholds=["MU6","EM5"], ChainSteps=[
@@ -303,10 +309,13 @@ def generateChainsManually():
             makeChain(name='HLT_2TestChain4_muv1dr_L12MU6', L1Thresholds=["MU6"], ChainSteps=[
                 ChainStep("Step1_2mu",    [mu11], multiplicity=[2], comboToolConfs=[dimuDrComboHypoTool]),
                 ChainStep("Step2_2mu22",  [mu22], multiplicity=[2]) ] ),
-                                                                                       
-            makeChain(name='HLT_TestChain6_muv1_TestChain6_muEmpty_L1MU6', L1Thresholds=["MU6", "FSNOSEED"], ChainSteps=[
-                ChainStep("Step1_2muAs",   [mu11, mu11], multiplicity=[1,1]),
+
+            # FSNOSEED not implemented in emulation
+            #  L1Thresholds=["MU6", "MU6"],
+            makeChain(name='HLT_TestChain10_muEmpty1_TestChain6_muEmpty1_L12MU6', L1Thresholds=["MU6", "MU6"],  ChainSteps=[
+                ChainStep("Step1_2muAs_empty", multiplicity=[]),
                 ChainStep("Step2_2muAs",   [mu21, mu21], multiplicity=[1,1]) ])
+        
                                                                               
             ]
 

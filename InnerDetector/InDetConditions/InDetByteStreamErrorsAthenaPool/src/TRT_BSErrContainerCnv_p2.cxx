@@ -11,7 +11,7 @@
 
 #include <iostream>
 
-void TRT_BSErrContainerCnv_p2::transToPers ATLAS_NOT_THREAD_SAFE (const TRT_BSErrContainer* transCont, TRT_BSErrContainer_p2* persCont, MsgStream & /* log */) 
+void TRT_BSErrContainerCnv_p2::transToPers(const TRT_BSErrContainer* transCont, TRT_BSErrContainer_p2* persCont, MsgStream & /* log */) 
 {
    for (const uint32_t id: transCont->getMissingErrorSet()) {
      persCont->m_missingError.push_back(id);

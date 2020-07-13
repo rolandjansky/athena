@@ -200,11 +200,11 @@ namespace Muon {
 	  if( (hits.neta > 0 && hits.nphi == 0) || (hits.nphi > 0 && hits.neta == 0) ){
 	    if( m_idHelperSvc->isRpc(id) && m_rpcPrdContainer ){
 	      
-	      RpcPrepDataContainer::const_iterator pos = m_rpcPrdContainer->indexFind(chit->first);
-	      if( pos == m_rpcPrdContainer->end() ) ATH_MSG_DEBUG("RpcPrepDataCollection not found in container!!");
+	      auto pos = m_rpcPrdContainer->indexFindPtr(chit->first);
+	      if( pos == nullptr ) ATH_MSG_DEBUG("RpcPrepDataCollection not found in container!!");
 	      else{
-		RpcPrepDataCollection::const_iterator rpcit = (*pos)->begin();
-		RpcPrepDataCollection::const_iterator rpcit_end = (*pos)->end();
+		RpcPrepDataCollection::const_iterator rpcit = pos->begin();
+		RpcPrepDataCollection::const_iterator rpcit_end = pos->end();
 		for( ;rpcit!=rpcit_end;++rpcit ){
 		  if( clusterIds.count( (*rpcit)->identify() ) ) continue;
 		  const MuonCluster* clus = dynamic_cast<const MuonCluster*>(*rpcit);
@@ -213,11 +213,11 @@ namespace Muon {
 		}
 	      }
 	    }else if( m_idHelperSvc->isTgc(id) && m_tgcPrdContainer ){
-	      TgcPrepDataContainer::const_iterator pos = m_tgcPrdContainer->indexFind(chit->first);
-	      if( pos == m_tgcPrdContainer->end() ) ATH_MSG_DEBUG("TgcPrepDataCollection not found in container!!");
+	      auto pos = m_tgcPrdContainer->indexFindPtr(chit->first);
+	      if( pos == nullptr ) ATH_MSG_DEBUG("TgcPrepDataCollection not found in container!!");
 	      else{
-		TgcPrepDataCollection::const_iterator tgcit = (*pos)->begin();
-		TgcPrepDataCollection::const_iterator tgcit_end = (*pos)->end();
+		TgcPrepDataCollection::const_iterator tgcit = pos->begin();
+		TgcPrepDataCollection::const_iterator tgcit_end = pos->end();
 		for( ;tgcit!=tgcit_end;++tgcit ){
 		  if( clusterIds.count( (*tgcit)->identify() ) ) continue;
 		  const MuonCluster* clus = dynamic_cast<const MuonCluster*>(*tgcit);

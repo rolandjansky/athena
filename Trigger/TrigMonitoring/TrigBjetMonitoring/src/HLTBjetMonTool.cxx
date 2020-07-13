@@ -66,9 +66,9 @@
 
 
 
-#include "TrigBjetMonitoring/HLTBjetMonTool.h"
+#include "HLTBjetMonTool.h"
 
-#include "TrigTrackJetFinderTool/ITrigTrackJetFinderTool.h"
+#include "TrigInDetToolInterfaces/ITrigTrackJetFinderTool.h"
 
 #include "GaudiKernel/ListItem.h"
 

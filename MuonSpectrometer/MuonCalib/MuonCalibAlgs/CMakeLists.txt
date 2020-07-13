@@ -48,8 +48,8 @@ atlas_add_library( MuonCalibAlgsLib
                    PUBLIC_HEADERS MuonCalibAlgs
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}  ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES AthenaBaseComps GaudiKernel MuonCalibEventBase StoreGateLib SGtests MuonIdHelpersLib CscClusterizationLib
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib ${EIGEN_LIBRARIES} GeoPrimitives EventInfo xAODEventInfo GeneratorObjects LArRecEvent MuonCalibEvent MuonCalibITools MuonCalibIdentifier MuonCalibNtuple MuonReadoutGeometry MuonDigitContainer MuonRDO MuonPrepRawData MuonTrigCoinData MuonSimData TileEvent TileIdentifier TrkEventPrimitives TrigT1Result )
+                   LINK_LIBRARIES AthenaBaseComps GaudiKernel MuonCalibEventBase StoreGateLib SGtests MuonIdHelpersLib CscClusterizationLib MuonPrdSelectorLib 
+                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib ${EIGEN_LIBRARIES} GeoPrimitives EventInfo xAODEventInfo GeneratorObjects LArRecEvent MuonCalibEvent MuonCalibITools MuonCalibIdentifier MuonCalibNtuple MuonReadoutGeometry MuonDigitContainer MuonRDO MuonPrepRawData MuonTrigCoinData MuonSimData TileEvent TileIdentifier TrkEventPrimitives TrigT1Result TrackRecordLib )
 
 atlas_add_component( MuonCalibAlgs
                      src/components/*.cxx

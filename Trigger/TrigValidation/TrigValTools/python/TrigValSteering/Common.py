@@ -68,3 +68,8 @@ def check_job_options(jo_path):
     # Try to find the file in JOBOPTSEARCHPATH
     found = FindFile(jo_path, os.environ['JOBOPTSEARCHPATH'].split(os.pathsep), os.R_OK)
     return found is not None
+
+
+@memoize
+def running_in_CI():
+    return os.environ.get('gitlabTargetBranch') is not None

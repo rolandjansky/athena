@@ -248,11 +248,11 @@ StatusCode TRT_RodDecoder::finalize() {
  * ----------------------------------------------------------
  */
 StatusCode
-TRT_RodDecoder::fillCollection ATLAS_NOT_THREAD_SAFE ( const ROBFragment* robFrag,
+TRT_RodDecoder::fillCollection ATLAS_NOT_THREAD_SAFE // Non-thread-safe function 'StatusCode TRT_RodDecoder::update()' called
+                               ( const ROBFragment* robFrag,
 				 TRT_RDO_Container* rdoIdc,
 				 TRT_BSErrContainer* bsErr,
 				 const std::vector<IdentifierHash>* vecHash )
-// Non-thread-safe function 'StatusCode TRT_RodDecoder::update()' called
 {
 
   std::lock_guard<std::mutex> lock(m_cacheMutex);
@@ -1700,8 +1700,7 @@ TableFilename
  * Read Compression Table from DB on IOV change
  */
 StatusCode
-TRT_RodDecoder::update ATLAS_NOT_THREAD_SAFE ()
-// Non-thread-safe function 'AthenaAttributeList::AthenaAttributeList(const coral::AttributeList&)' called
+TRT_RodDecoder::update ATLAS_NOT_THREAD_SAFE () // Non-thread-safe function 'AthenaAttributeList::AthenaAttributeList(const coral::AttributeList&)' called
 {  
 
   /*

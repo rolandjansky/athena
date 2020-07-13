@@ -91,7 +91,7 @@ StatusCode XtoVVDecayFilter::filterEvent() {
 }
 
 
-void XtoVVDecayFilter::FindAncestor(const HepMC::GenVertexPtr searchvertex,
+void XtoVVDecayFilter::FindAncestor(HepMC::ConstGenVertexPtr searchvertex,
                                     int targetPDGID, bool& okPDGChild1, bool& okPDGChild2) {
   if (!searchvertex) return;
 #ifdef HEPMC3

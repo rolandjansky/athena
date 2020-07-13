@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_G4Utilities/TRTParametersOfBarrelStraws.hh"
@@ -91,7 +91,7 @@ void TRTParametersOfBarrelStraws::DefineParameters()
 
 // Called by TRTParametersOfBarrelStraws
 
-void TRTParametersOfBarrelStraws::PrintParameters() const
+void TRTParametersOfBarrelStraws::PrintParameters ATLAS_NOT_THREAD_SAFE () const // Thread unsafe TRTUtilities and TRTOutputFile classes are used.
 {
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTParametersOfBarrelStraws::PrintParameters"
 						<< endmsg;

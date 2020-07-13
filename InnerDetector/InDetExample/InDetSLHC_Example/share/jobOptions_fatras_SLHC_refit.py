@@ -317,7 +317,7 @@ InDetFlags.doTrkNtuple      = True
 #InDetFlags.doVtxNtuple      = True
 #InDetFlags.doConvVtxNtuple  = True
 #InDetFlags.doV0VtxNtuple    = True
-#InDetFlags.doStandardPlots   = True
+#InDetFlags.doPhysValMon   = True
 InDetFlags.doSGDeletion      = False
 
 from InDetRecExample.InDetKeys import InDetKeys

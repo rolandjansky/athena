@@ -42,6 +42,41 @@ StatusCode WMultiLeptonFilter::filterEvent() {
   for (itr = events()->begin(); itr!=events()->end(); ++itr) {
     // Loop over all particles in the event
     const HepMC::GenEvent* genEvt = (*itr);
+#ifdef HEPMC3
+    for (auto pitr: genEvt->particles()) {
+      if ( std::abs(pitr->pdg_id())!= 24 || pitr->status() != 3) continue;
+        bool fromhiggs = false;
+        bool fromtop   = false;
+        for( auto thisMother: pitr->production_vertex()->particles_in()) {
+          ATH_MSG_DEBUG(" W barcode "   << HepMC::barcode(pitr) << "  status = "  << pitr->status());
+          ATH_MSG_DEBUG(" a W mother "  << thisMother->pdg_id()<< " barcode = " << HepMC::barcode(thisMother));
+          if ( thisMother->pdg_id() == 25 )     fromhiggs  = true;
+          if ( std::abs(thisMother->pdg_id()) == 6 ) fromtop    = true;
+          ATH_MSG_DEBUG(" W from " << fromhiggs << "  "  << fromtop);
+        }
+        for (auto thisChild: pitr->end_vertex()->particles_out()) {
+          if   (std::abs(thisChild->pdg_id()) == 11)  {
+            if (fromhiggs) NLeptonsH++;
+            if (fromtop)   NLeptonsT++;
+            if (fromhiggs && (thisChild->pdg_id() == -11) )  m_H_WPlus_e++;
+            if (fromhiggs && (thisChild->pdg_id() ==  11) )  m_H_WMinus_e++;
+            if (fromtop   && (thisChild->pdg_id() == -11) )  m_T_WPlus_e++;
+            if (fromtop   && (thisChild->pdg_id() ==  11) )  m_T_WMinus_e++;
+            ATH_MSG_DEBUG(" electron from W ");
+          }
+
+          if   (std::abs(thisChild->pdg_id()) == 13)  {
+            if (fromhiggs) NLeptonsH++;
+            if (fromtop)   NLeptonsT++;
+            if (fromhiggs && (thisChild->pdg_id() == -13) )  m_H_WPlus_m++;
+            if (fromhiggs && (thisChild->pdg_id() ==  13) )  m_H_WMinus_m++;
+            if (fromtop   && (thisChild->pdg_id() == -13) )  m_T_WPlus_m++;
+            if (fromtop   && (thisChild->pdg_id() ==  13) )  m_T_WMinus_m++;
+            ATH_MSG_DEBUG(" muon from W ");
+          }
+        }
+	}
+#else
     for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
       if ( abs((*pitr)->pdg_id()) == 24 && (*pitr)->status() == 3) {
         HepMC::GenVertex::particle_iterator firstMother = (*pitr)->production_vertex()->particles_begin(HepMC::parents);
@@ -82,6 +117,7 @@ StatusCode WMultiLeptonFilter::filterEvent() {
         }
       }
     }
+#endif
   }
   // NB. no taus!
 

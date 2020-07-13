@@ -135,6 +135,7 @@ TrackTruthSelectionTool::accept(const xAOD::TruthParticle* p) const {
   if (m_pdgId > -1) {
     acceptData.setCutResult("pdgId", (std::fabs(p->pdgId()) == m_pdgId));// 3-18-16 normally on, disabled for testing
   }
+  std::lock_guard<std::mutex> lock{m_mutex}; // To guard m_numTruthPassedCuts
   // Book keep cuts
   for (const auto& cut : m_cuts) {
     unsigned int pos = acceptData.getCutPosition(cut.first);

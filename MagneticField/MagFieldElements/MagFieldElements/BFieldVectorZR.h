@@ -14,6 +14,7 @@
 #ifndef BFIELDVECTORZR_H
 #define BFIELDVECTORZR_H
 #include <array>
+#include <cstdlib>
 class BFieldVectorZR
 {
 public:
@@ -26,19 +27,19 @@ public:
   ~BFieldVectorZR() = default;
 
   //constructor
-  BFieldVectorZR(float Bz, float Br)
+  BFieldVectorZR(double Bz, double Br)
     : m_B{ Bz, Br }
   {}
   // setter
-  void set(float Bz, float Br) { m_B = { Bz, Br }; }
+  void set(double Bz, double Br) { m_B = { Bz, Br }; }
   // accessors
-  float z() const { return m_B[0]; }
-  float r() const { return m_B[1]; }
+  double z() const { return m_B[0]; }
+  double r() const { return m_B[1]; }
   // array-like accessor
-  float operator[](size_t i) const { return m_B[i]; }
+  double operator[](size_t i) const { return m_B[i]; }
 
 private:
-  std::array<float, 2> m_B;
+  std::array<double, 2> m_B;
 };
 
 #endif

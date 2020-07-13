@@ -393,9 +393,6 @@ StatusCode InDet::TRT_TrackExtensionTool_DAF::elementWiseExtension(int beginInde
     const double squaredMaxBarrelRIOdistance = m_jo_roadwidth * m_jo_roadwidth;
     const double squaredMaxEndcapRIOdistance = m_jo_roadwidth * m_jo_roadwidth;
 
-    // -----------------------
-    // get all the RIOs on the detElements
-    InDet::TRT_DriftCircleContainer::const_iterator containerIterator;
 
     double lastEndCapZ = -10000.;
     // create a new list of RIOs
@@ -445,17 +442,17 @@ StatusCode InDet::TRT_TrackExtensionTool_DAF::elementWiseExtension(int beginInde
         // get the id of the detElement
         IdentifierHash detElementID = event_data.m_detectorElements[index]->identifyHash();
         // get the driftCircleCollection belonging to this id
-        containerIterator = event_data.m_trtcontainer->indexFind(detElementID);
+        auto container = event_data.m_trtcontainer->indexFindPtr(detElementID);
 
-        if(containerIterator==event_data.m_trtcontainer->end()) {
+        if(container==nullptr) {
             ATH_MSG_DEBUG("for the current detectorElement no DriftCircleContainer seems to exist");
             continue;
         }
 
-        ATH_MSG_DEBUG( "There are "  << (*containerIterator)->size() << " entries in the TRT_DriftCircleCollection" );
+        ATH_MSG_DEBUG( "There are "  << container->size() << " entries in the TRT_DriftCircleCollection" );
         // loop over RIOs in the collection
-        InDet::TRT_DriftCircleCollection::const_iterator driftCircleIterator = (*containerIterator)->begin();
-        for (; driftCircleIterator != (*containerIterator)->end(); driftCircleIterator++) {
+        InDet::TRT_DriftCircleCollection::const_iterator driftCircleIterator = container->begin();
+        for (; driftCircleIterator != container->end(); driftCircleIterator++) {
             // get the straw center of the RIO
             Amg::Vector3D strawGlobPos( event_data.m_detectorElements[index]->center( (*driftCircleIterator)->identify() ) );
             ATH_MSG_DEBUG("straw center at: ("<< strawGlobPos.x() <<", "<< strawGlobPos.y() << ")" );
@@ -580,25 +577,22 @@ InDet::TRT_TrackExtensionTool_DAF::groupedBarrelExtension(int beginIndex,
     ATH_MSG_DEBUG("looping over detElements to get the DriftCircles" );
     int createdGroupCounter=0;
 
-    // -----------------------
-    // get all the RIOs on the detElements
-    InDet::TRT_DriftCircleContainer::const_iterator containerIterator;
     // loop over detElements
     for(int index = beginIndex+1; index <= endIndex; ++index) {
         ATH_MSG_VERBOSE("trying to get detElement for index "<< index );
         // get the id of the detElement
         IdentifierHash detElementID = event_data.m_detectorElements[index]->identifyHash();
         // get the driftCircleCollection belonging to this id
-        containerIterator = event_data.m_trtcontainer->indexFind(detElementID);
+        auto container = event_data.m_trtcontainer->indexFindPtr(detElementID);
         // loop over RIOs in the collection
-        if(containerIterator==event_data.m_trtcontainer->end()) {
+        if(container==nullptr) {
             ATH_MSG_DEBUG("for the current detectorElement no DriftCircleContainer seems to exist");
             continue;
         }
-        ATH_MSG_DEBUG( "There are "  << (*containerIterator)->size() << " entries in the TRT_DriftCircleCollection" );
+        ATH_MSG_DEBUG( "There are "  << container->size() << " entries in the TRT_DriftCircleCollection" );
 
-        InDet::TRT_DriftCircleCollection::const_iterator driftCircleIterator = (*containerIterator)->begin();
-        for (; driftCircleIterator != (*containerIterator)->end(); driftCircleIterator++) {
+        InDet::TRT_DriftCircleCollection::const_iterator driftCircleIterator = container->begin();
+        for (; driftCircleIterator != container->end(); driftCircleIterator++) {
             // get the straw center of the RIO
             Amg::Vector3D strawGlobPos( event_data.m_detectorElements[index]->center( (*driftCircleIterator)->identify() ) );
             strawGlobPos[Amg::z]=0.;

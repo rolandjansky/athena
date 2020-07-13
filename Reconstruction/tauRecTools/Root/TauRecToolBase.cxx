@@ -149,12 +149,12 @@ StatusCode TauRecToolBase::execute(xAOD::TauJet&) const {
   return StatusCode::FAILURE;
 }
 
-StatusCode TauRecToolBase::executeVertexFinder(xAOD::TauJet&, const xAOD::VertexContainer*, const xAOD::TrackParticleContainer*) {
+StatusCode TauRecToolBase::executeVertexFinder(xAOD::TauJet&, const xAOD::VertexContainer*, const xAOD::TrackParticleContainer*) const {
   ATH_MSG_ERROR("function not implemented");
   return StatusCode::FAILURE;
 }
 
-StatusCode TauRecToolBase::executeTrackFinder(xAOD::TauJet&, xAOD::TauTrackContainer&, const xAOD::TrackParticleContainer*) {
+StatusCode TauRecToolBase::executeTrackFinder(xAOD::TauJet&, xAOD::TauTrackContainer&, const xAOD::TrackParticleContainer*) const {
   ATH_MSG_ERROR("function not implemented");
   return StatusCode::FAILURE;
 }
@@ -189,7 +189,7 @@ StatusCode TauRecToolBase::executePi0ClusterCreator(xAOD::TauJet& /*pTau*/, xAOD
   return StatusCode::FAILURE;
 }
 
-StatusCode TauRecToolBase::executeVertexVariables(xAOD::TauJet& /*pTau*/, xAOD::VertexContainer& /*vertexContainer*/ ) {
+StatusCode TauRecToolBase::executeVertexVariables(xAOD::TauJet& /*pTau*/, xAOD::VertexContainer& /*vertexContainer*/ ) const {
   ATH_MSG_ERROR("function not implemented");
   return StatusCode::FAILURE;
 }
@@ -210,7 +210,7 @@ StatusCode TauRecToolBase::executePanTau(xAOD::TauJet& /*pTau*/, xAOD::ParticleC
 }
 
 //________________________________________
-StatusCode TauRecToolBase::eventFinalize(){
+StatusCode TauRecToolBase::eventFinalize() const {
   return StatusCode::SUCCESS;
 }
 

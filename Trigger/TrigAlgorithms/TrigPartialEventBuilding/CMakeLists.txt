@@ -1,30 +1,18 @@
-################################################################################
-# Package: TrigPartialEventBuilding
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name
 atlas_subdir( TrigPartialEventBuilding )
-
-# Declare the package's dependencies
-atlas_depends_on_subdirs( PUBLIC
-                          Trigger/TrigSteer/DecisionHandling
-                          Trigger/TrigSteer/TrigCompositeUtils
-                          Trigger/TrigEvent/TrigSteeringEvent
-                          PRIVATE
-                          Control/CxxUtils )
 
 # Component(s) in the package
 atlas_add_library( TrigPartialEventBuildingLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigPartialEventBuilding
-                   LINK_LIBRARIES DecisionHandlingLib TrigSteeringEvent TrigCompositeUtilsLib )
+                   PRIVATE_LINK_LIBRARIES CxxUtils IRegionSelector
+                   LINK_LIBRARIES AthenaBaseComps DecisionHandlingLib TrigCompositeUtilsLib TrigSteeringEvent )
 
 atlas_add_component( TrigPartialEventBuilding
                      src/components/*.cxx
                      LINK_LIBRARIES TrigPartialEventBuildingLib )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
-
-# Tests
-#atlas_add_test( )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-extensions=ATL900,ATL901 )

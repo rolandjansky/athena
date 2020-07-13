@@ -1,16 +1,18 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_G4_SD_TRTProcessingOfBarrelHits_hh
 #define TRT_G4_SD_TRTProcessingOfBarrelHits_hh
+
+#include "CxxUtils/checker_macros.h"
 
 class TRTParameters;
 class TRTSensitiveDetector;
 
 class G4Step;
 
-class TRTProcessingOfBarrelHits
+class ATLAS_NOT_THREAD_SAFE TRTProcessingOfBarrelHits // Thread unsafe TRTParameters and TRTSensitiveDetector classes are used.
 {
   friend class TRTParametersForBarrelHits;
 

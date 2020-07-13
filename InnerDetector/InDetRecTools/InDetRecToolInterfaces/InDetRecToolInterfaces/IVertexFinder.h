@@ -55,35 +55,28 @@ public:
   virtual ~IVertexFinder(){};
   static const InterfaceID& interfaceID() { return IID_IVertexFinder; }
 
-  /*
-   * For MT we have 2 sets , one with EventContext and one without
-   * Implementation really need to overload only one
-   * The clients can call either
-   */
-
-  virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-  findVertex(const EventContext& ctx, const TrackCollection* trackTES) const
-  {
-
-    (void)(ctx); // We do not use ctx
-    return findVertex(trackTES);
-  }
-
-  /** Find vertex from xAOD::TrackParticleContainer.
+  /** Find vertex from Trk::TrackCollection.
    * @param EventContext
-   * @param trackParticles input track container
+   * @param  input track container
    * @return a pair of newly created container and auxiliary store
    */
   virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
   findVertex(const EventContext& ctx,
-             const xAOD::TrackParticleContainer* trackParticles) const
-  {
-    (void)(ctx); // We do not use ctx
-    return findVertex(trackParticles);
-  }
+             const TrackCollection* trackTES) const = 0;
+
+  /** Find vertex from xAOD::TrackParticleContainer.
+   * @param EventContext
+   * @param input track particle container
+   * @return a pair of newly created container and auxiliary store
+   */
+  virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
+  findVertex(const EventContext& ctx,
+             const xAOD::TrackParticleContainer* trackParticles) const = 0;
 
   /* 
-   * Non Event context aware methods
+   * Non Event context aware methods.
+   * Can be remove when all clients move to EventContext 
+   * aware calls
    */
 
   virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LARWAVEDERIVEDQUANTITIESP_H
@@ -12,13 +12,13 @@ class LArWaveDerivedQuantitiesP
  public:
 
   LArWaveDerivedQuantitiesP() : 
-    m_baseline(-999999999),
-    m_maxAmp(-999999999), 
-    m_tmaxAmp(-999999999), 
-    m_width(-999999999), 
-    m_rT0(-999999999), 
-    m_posLobe(-999999999),
-    m_jitter(-999999999),
+    m_baseline(-9999999),
+    m_maxAmp(-9999999), 
+    m_tmaxAmp(-9999999), 
+    m_width(-9999999), 
+    m_rT0(-9999999), 
+    m_posLobe(-9999999),
+    m_jitter(-9999999),
     m_flag(0)
     {};
     

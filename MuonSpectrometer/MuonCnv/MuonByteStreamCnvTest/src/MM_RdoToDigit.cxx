@@ -76,8 +76,8 @@ StatusCode MM_RdoToDigit::decodeMM( const Muon::MM_RawDataCollection * rdoColl, 
 
 
       if (oldId != elementId) {
-        MmDigitContainer::const_iterator it_coll = mmContainer->indexFind(coll_hash);
-        if (mmContainer->end() ==  it_coll) {
+        const MmDigitCollection * coll = mmContainer->indexFindPtr(coll_hash);
+        if (nullptr ==  coll) {
           MmDigitCollection * newCollection =
             new MmDigitCollection(elementId,coll_hash);
           newCollection->push_back(newDigit);
@@ -87,7 +87,7 @@ StatusCode MM_RdoToDigit::decodeMM( const Muon::MM_RawDataCollection * rdoColl, 
                              << " in StoreGate!"  );
         }
         else {
-          MmDigitCollection * oldCollection ATLAS_THREAD_SAFE = const_cast<MmDigitCollection*>(*it_coll); // FIXME
+          MmDigitCollection * oldCollection ATLAS_THREAD_SAFE = const_cast<MmDigitCollection*>(coll); // FIXME
           oldCollection->push_back(newDigit);
           collection = oldCollection;
         }

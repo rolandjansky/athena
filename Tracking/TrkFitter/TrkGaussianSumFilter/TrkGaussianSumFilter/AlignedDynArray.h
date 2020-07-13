@@ -61,6 +61,12 @@ public:
   /// size of allocated buffer
   std::size_t size() const noexcept;
 
+
+  typedef T* iterator;
+  typedef const T* const_iterator;
+  iterator begin() { return &m_buffer[0]; }
+  iterator end() { return &m_buffer[m_size]; }
+
 private:
   void cleanup() noexcept;
   T* m_buffer = nullptr;

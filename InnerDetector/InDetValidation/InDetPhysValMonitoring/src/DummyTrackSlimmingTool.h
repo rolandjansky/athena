@@ -8,6 +8,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkToolInterfaces/ITrackSlimmingTool.h"
+#include "CxxUtils/checker_macros.h"
 
 class DummyTrackSlimmingTool: virtual public Trk::ITrackSlimmingTool, public AthAlgTool
 {
@@ -35,7 +36,7 @@ public:
      @return A 'slimmed' version of 'track', where exactly what information is copied depends on how the tool is
         configured
    */
-  virtual Trk::Track* slim(const Trk::Track& track) const override;
+  virtual Trk::Track* slim ATLAS_NOT_THREAD_SAFE (const Trk::Track& track) const override; // ITrackSlimmingTool.h declares this method is ATLAS_NOT_THREAD_SAFE.
   virtual std::unique_ptr<Trk::Track> slimCopy(const Trk::Track& track) const override;
   virtual void slimTrack(Trk::Track&) const override;
 

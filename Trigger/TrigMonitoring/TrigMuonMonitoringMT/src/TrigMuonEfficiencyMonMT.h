@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMUONMONITORINGMT_TRIGMUONEFFICIENCYMONMT_H
@@ -32,9 +32,6 @@ class TrigMuonEfficiencyMonMT : public TrigMuonMonitorAlgorithm{
 
   // tools
   ToolHandle<MuonMatchingTool> m_matchTool {this, "MuonMatchingTool", "MuonMatchingTool", "Tool for matching offline and online objects"};
-
-  // ReadHandles
-  SG::ReadHandleKey<xAOD::MuonRoIContainer> m_MuonRoIContainerKey {this, "MuonRoIContainerName", "LVL1MuonRoIs", "Level 1 muon container"};
 
   // properties
   Gaudi::Property<std::string> m_eff_method {this, "Method", "", "Method to measure efficiency e.g. \"TagAndProbe\", \"Bootstrap\""};

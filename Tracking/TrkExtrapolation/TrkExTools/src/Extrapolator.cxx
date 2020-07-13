@@ -830,7 +830,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
             }
           } else if (confLays) {
             std::vector<const Trk::Layer*>::const_iterator lIt = confLays->begin();
-            for (; lIt != confLays->end(); ++lIt++) {
+            for (; lIt != confLays->end(); ++lIt) {
               cache.m_layers.emplace_back(&((*lIt)->surfaceRepresentation()), true);
               cache.m_navigLays.emplace_back((*iTer)->trackingVolume(), *lIt);
             }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CopyMcEventCollection.h"
@@ -8,7 +8,6 @@
 CopyMcEventCollection::CopyMcEventCollection(const std::string &name, ISvcLocator *pSvcLocator)
   : AthReentrantAlgorithm(name, pSvcLocator)
 {
-  declareProperty("RemoveBkgHardScatterTruth", m_removeBkgHardScatterTruth=true);
 }
 
 StatusCode CopyMcEventCollection::initialize()
@@ -69,7 +68,7 @@ StatusCode CopyMcEventCollection::execute(const EventContext& ctx) const
   // Copy background GenEvents if configured
   if (!m_bkgInputKey.key().empty()) {
     McEventCollection::const_iterator it = bkgContainerPtr->begin();
-    if (m_removeBkgHardScatterTruth) {
+    if (m_removeBkgHardScatterTruth.value()) {
       ++it;
     }
     for ( ; it != bkgContainerPtr->end(); ++it) {
