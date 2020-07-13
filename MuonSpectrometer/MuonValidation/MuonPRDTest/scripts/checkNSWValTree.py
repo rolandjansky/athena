@@ -43,10 +43,10 @@ if __name__ == "__main__":
         nPRDMM = 0
         nPRDSTGC = 0
     for i in range(nEntries):
-    	inputTree.GetEntry(i)
+        inputTree.GetEntry(i)
         nHitsMM += inputTree.Hits_MM_n
         nHitsSTGC += inputTree.Hits_sTGC_n
-    	nDigitsMM += inputTree.Digits_MM
+        nDigitsMM += inputTree.Digits_MM
         nDigitsSTGC += inputTree.Digits_sTGC
         nSDOMM += inputTree.SDO_MM
         nSDOSTGC += inputTree.SDO_sTGC

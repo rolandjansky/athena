@@ -29,13 +29,6 @@ from AthenaCommon.AppMgr import theApp
 import AthenaPoolCnvSvc.WriteAthenaPool
 
 #--------------------------------------------------------------
-# JobOptions for the loading of the AthenaSealSvc
-#--------------------------------------------------------------
-
-# Add in dictionary name:
-# Check the dictionary in memory for completeness
-svcMgr.AthenaSealSvc.CheckDictionary = True
-#--------------------------------------------------------------
 # Event related parameters
 #--------------------------------------------------------------
 theApp.EvtMax = 5
@@ -103,8 +96,6 @@ printfunc ("Stream2.ItemList ",Stream2.ItemList)
 #--------------------------------------------------------------
 svcMgr.MessageSvc.OutputLevel = WARNING
 svcMgr.MessageSvc.debugLimit  = 100000
-
-svcMgr.AthenaSealSvc.OutputLevel = WARNING
 
 from AthenaServices import AthenaServicesConf
 AthenaEventLoopMgr = AthenaServicesConf.AthenaEventLoopMgr()

@@ -48,7 +48,7 @@ EMTrackFit::~EMTrackFit()
 }
 
 // interfaces
-std::string EMTrackFit::s_className = ClassName<EMTrackFit>::name();
+const std::string EMTrackFit::s_className = ClassName<EMTrackFit>::name();
 const std::string& EMTrackFit::className() const
 {
   return s_className;

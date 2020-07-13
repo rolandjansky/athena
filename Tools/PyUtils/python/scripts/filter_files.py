@@ -13,6 +13,7 @@ __author__ = "Sebastien Binet"
 
 ### imports -------------------------------------------------------------------
 import PyUtils.acmdlib as acmdlib
+import six
 
 @acmdlib.command(
     name='filter-files'
@@ -83,7 +84,7 @@ def main(args):
         
         selection = []
         for item in args.selection:
-            if not isinstance(item, (tuple, list, int, int)):
+            if not isinstance(item, (tuple, list) + six.integer_types):
                 raise TypeError('type: %r' % type(item))
 
             if isinstance(item, (tuple, list)):

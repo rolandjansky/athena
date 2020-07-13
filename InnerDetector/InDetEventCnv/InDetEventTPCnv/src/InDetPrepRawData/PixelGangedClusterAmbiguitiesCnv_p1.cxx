@@ -20,7 +20,7 @@
 #include "StoreGate/StoreGateSvc.h"
 
 
-void PixelGangedClusterAmbiguitiesCnv_p1::transToPers ATLAS_NOT_THREAD_SAFE
+void PixelGangedClusterAmbiguitiesCnv_p1::transToPers ATLAS_NOT_THREAD_SAFE // Thread unsafe DataHandle class is used.
 (const InDet::PixelGangedClusterAmbiguities* transObj, InDet::PixelGangedClusterAmbiguities_p1* persObj, MsgStream &log)
 {
 //   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing InDet::PixelGangedClusterAmbiguities" << endmsg;
@@ -57,11 +57,11 @@ void PixelGangedClusterAmbiguitiesCnv_p1::transToPers ATLAS_NOT_THREAD_SAFE
     
     // loop over dhs
     for ( ; dh!=dhEnd; dh++ ) 		  {
-      InDet::PixelClusterContainer::const_iterator coll = dh->indexFind(idHash); //matching collection
+      auto coll = dh->indexFindPtr(idHash); //matching collection
       // does coll exist?
       // check prd exists in collection
       // check idhaspointer value the same.
-      if ( (coll!=dh->end())&& ((*coll)->size()>index) && (pixelCluster==(**coll)[index]) ){
+      if ( (coll!=nullptr)&& (coll->size()>index) && (pixelCluster==(*coll)[index]) ){
 	// okay, so we found the correct PRD in the container.
 	// Now set the name to the container correctly
 	persObj->m_pixelClusterContainerName = dh.key();

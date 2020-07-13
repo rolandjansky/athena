@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // BeamCondSvc.cxx - service giving beamspot data
@@ -7,6 +7,7 @@
 
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "CoralBase/AttributeListException.h"
+#include "CxxUtils/checker_macros.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "BeamCondSvc.h"
 
@@ -61,7 +62,7 @@ StatusCode BeamCondSvc::queryInterface(const InterfaceID& riid, void** ppvInterf
   return StatusCode::SUCCESS;
 }
 
-StatusCode BeamCondSvc::initialize()
+StatusCode BeamCondSvc::initialize ATLAS_NOT_THREAD_SAFE () // Thread unsafe AthenaAttributeList class and StoreGateSvc::regFcn method are used.
 {
   // service initialisation - get parameters, setup default cache
   // and register for condDB callbacks if needed
@@ -132,7 +133,8 @@ void BeamCondSvc::initCache(int status, float x, float y, float z,
 #endif
 }
 
-bool BeamCondSvc::fillRec() const {
+bool BeamCondSvc::fillRec ATLAS_NOT_THREAD_SAFE () const { // Thread unsafe AthenaAttributeList class is used.
+
   // fill beamspot information from jobOptions into TDS AttributeList
   // for registration into conditions database
   // for use in updating database only

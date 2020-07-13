@@ -2,7 +2,6 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from BTagging.BTaggingFlags import BTaggingFlags
 from JetTagTools.BTagTrackToVertexIPEstimatorConfig import BTagTrackToVertexIPEstimatorCfg
 from JetTagTools.SVForIPToolConfig import SVForIPToolCfg
 from JetTagTools.IPDetailedTrackGradeFactoryConfig import IPDetailedTrackGradeFactoryCfg
@@ -20,7 +19,7 @@ def IP3DTagCfg( flags, name = 'IP3DTag', scheme = '', useBTagFlagsDefaults = Tru
     The following options have BTaggingFlags defaults:
 
     Runmodus                            default: BTagging.RunModus
-    referenceType                       default: BTaggingFlags.ReferenceType
+    referenceType                       default: BTagging.ReferenceType
     impactParameterView                 default: "3D"
     trackGradePartitions                default: [ "Good", "BlaShared", "PixShared", "SctShared", "0HitBLayer" ]
     RejectBadTracks                     default: False
@@ -40,12 +39,6 @@ def IP3DTagCfg( flags, name = 'IP3DTag', scheme = '', useBTagFlagsDefaults = Tru
 
     if (scheme == ""): 
         if useBTagFlagsDefaults:
-            grades= [ "0HitIn0HitNInExp2","0HitIn0HitNInExpIn","0HitIn0HitNInExpNIn","0HitIn0HitNIn",
-                  "0HitInExp", "0HitIn",
-                  "0HitNInExp", "0HitNIn",
-                  "InANDNInShared", "PixShared", "SctShared",
-                  "InANDNInSplit", "PixSplit",
-                  "Good"]
             trackToVertexIPEstimator = acc.popToolsAndMerge(BTagTrackToVertexIPEstimatorCfg(flags, 'TrkToVxIPEstimator'))
             svForIPTool = acc.popToolsAndMerge(SVForIPToolCfg('SVForIPTool'))
             trackGradeFactory = acc.popToolsAndMerge(IPDetailedTrackGradeFactoryCfg('IP3DDetailedTrackGradeFactory'))
@@ -55,10 +48,10 @@ def IP3DTagCfg( flags, name = 'IP3DTag', scheme = '', useBTagFlagsDefaults = Tru
             trackVertexAssociationTool = acc.popToolsAndMerge(SpecialTrackAssociatorCfg('SpecialTrackAssociator'))
 
             defaults = { 'Runmodus'                         : flags.BTagging.RunModus,
-                     'referenceType'                    : BTaggingFlags.ReferenceType,
+                     'referenceType'                    : flags.BTagging.ReferenceType,
                      'jetPtMinRef'                      : flags.BTagging.JetPtMinRef,
                      'impactParameterView'              : '3D',
-                     'trackGradePartitions'             : grades,
+                     'trackGradePartitions'             : flags.BTagging.Grades,
                      'RejectBadTracks'                  : True,
                      'jetCollectionList'                : [], #used only in reference mode
                      'unbiasIPEstimation'               : False,

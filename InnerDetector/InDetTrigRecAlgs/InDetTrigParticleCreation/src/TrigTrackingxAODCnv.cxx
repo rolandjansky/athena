@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ITHistSvc.h"
@@ -17,7 +17,6 @@
 #include "Particle/TrackParticleContainer.h"
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "IRegionSelector/IRegSelSvc.h"
 #include "TrkTrackSummary/TrackSummary.h"
 
 #include "Identifier/Identifier.h"

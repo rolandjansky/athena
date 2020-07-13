@@ -24,7 +24,7 @@ if __name__=="__main__":
     args = SetupMuonStandaloneArguments()
     ConfigFlags = SetupMuonStandaloneConfigFlags(args)
     cfg = SetupMuonStandaloneCA(args,ConfigFlags)
-          
+
     # Run the actual test.
     acc = MuonReconstructionCfg(ConfigFlags)
     cfg.merge(acc)
@@ -66,4 +66,7 @@ if __name__=="__main__":
     f.close()
     
     if args.run:
-        cfg.run(20)
+        sc = cfg.run(20)
+        if not sc.isSuccess():
+            import sys
+            sys.exit("Execution failed")

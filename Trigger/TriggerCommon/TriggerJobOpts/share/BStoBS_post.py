@@ -1,8 +1,8 @@
-##
-## Job option fragment to merge input bytestream with HLT result
-##
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
+# Job option fragment to merge input bytestream with HLT result
+#
 
-from RecExConfig.RecFlags import rec
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
@@ -23,6 +23,8 @@ from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamMergeOutputSvc
 mergeSvc=ByteStreamMergeOutputSvc(ByteStreamOutputSvc='ByteStreamEventStorageOutputSvc',
                                   ByteStreamInputSvc='ByteStreamInputSvc',
                                   overWriteHeader=True)
+
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 svcMgr+=mergeSvc
 
 StreamBSFileOutput.OutputFile = "ByteStreamMergeOutputSvc"

@@ -5,13 +5,6 @@
 # Declare the package name:
 atlas_subdir( MCTruthAlgs )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          GaudiKernel
-                          PRIVATE
-                          Simulation/G4Sim/TrackRecord )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( HepPDT )

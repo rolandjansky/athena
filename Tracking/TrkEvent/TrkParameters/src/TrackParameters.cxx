@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -10,6 +10,7 @@
 
 namespace Trk {
 
+ //explicit intantiation
  template class ParametersBase<5,Charged>;
 
  template class ParametersT<5,Charged,PlaneSurface>;
@@ -18,7 +19,7 @@ namespace Trk {
  template class ParametersT<5,Charged,ConeSurface>;
  template class ParametersT<5,Charged,PerigeeSurface>;
  template class ParametersT<5,Charged,StraightLineSurface>;
-  template class CurvilinearParametersT<5,Charged,PlaneSurface>;
+ template class CurvilinearParametersT<5,Charged,PlaneSurface>;
 
 }
 

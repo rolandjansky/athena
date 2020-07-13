@@ -267,7 +267,7 @@ std::vector<Trk::HitInfo>* FastCaloSimCaloExtrapolation::caloHits(const TFCSTrut
           int sample=(*it).detID;
           Amg::Vector3D hitPos = (*it).trackParms->position();
           ATH_MSG_DEBUG(" HIT: layer="<<sample<<" sample="<<sample-3000<<" eta="<<hitPos.eta()<<" phi="<<hitPos.phi()<<" d="<<hitPos.mag());
-          it++;
+          ++it;
         }
     }
 
@@ -277,7 +277,7 @@ std::vector<Trk::HitInfo>* FastCaloSimCaloExtrapolation::caloHits(const TFCSTrut
       int sample=(*it2).detID;
       Amg::Vector3D hitPos = (*it2).trackParms->position();
       ATH_MSG_DEBUG(" HIT: layer="<<sample<<" sample="<<sample-3000<<" eta="<<hitPos.eta()<<" phi="<<hitPos.phi()<<" r="<<hitPos.perp()<<" z="<<hitPos[Amg::z]);
-      it2++;
+      ++it2;
     }
 
   // Extrapolation may fail for very low pT charged particles. Enforce charge 0 to prevent this 
@@ -437,7 +437,7 @@ bool FastCaloSimCaloExtrapolation::get_calo_surface(TFCSExtrapolationState& resu
       std::vector<Trk::HitInfo>::iterator it = hitVector->begin();
 
       while (it != hitVector->end() && it->detID != (3000+sample) )
-        it++;
+        ++it;
 
       if(it==hitVector->end()) continue;
 
@@ -482,7 +482,7 @@ bool FastCaloSimCaloExtrapolation::get_calo_surface(TFCSExtrapolationState& resu
       std::vector<Trk::HitInfo>::iterator it = hitVector->begin();
 
       while( it < hitVector->end() && (*it).detID != 3 )
-        it++;   // to be updated
+        ++it;   // to be updated
 
       if (it==hitVector->end())
         return false;  // no calo intersection, abort
@@ -528,7 +528,7 @@ bool FastCaloSimCaloExtrapolation::get_calo_etaphi(TFCSExtrapolationState& resul
   std::vector<Trk::HitInfo>::iterator it = hitVector->begin();
 
   while( it!= hitVector->end() && it->detID != (3000+sample) )
-    it++;
+    ++it;
 
   //while ((*it).detID != (3000+sample) && it < hitVector->end() )  it++;
 
@@ -603,7 +603,7 @@ bool FastCaloSimCaloExtrapolation::get_calo_etaphi(TFCSExtrapolationState& resul
         {
           Amg::Vector3D hitPos1 = (*it).trackParms->position();
           int sid1=(*it).detID;
-          it++;
+          ++it;
           Amg::Vector3D hitPos2 = (*it).trackParms->position();
           int sid2=(*it).detID;
           double eta_avg=0.5*(hitPos1.eta()+hitPos2.eta());
@@ -712,7 +712,7 @@ bool FastCaloSimCaloExtrapolation::rz_cylinder_get_calo_etaphi(std::vector<Trk::
       Amg::Vector3D hitPos1 = (*it).trackParms->position();
       Amg::Vector3D hitMom1 = (*it).trackParms->momentum();
       int sid1=(*it).detID;
-      it++;
+      ++it;
       Amg::Vector3D hitPos2 = (*it).trackParms->position();
       Amg::Vector3D hitMom2 = (*it).trackParms->momentum();
       int sid2=(*it).detID;

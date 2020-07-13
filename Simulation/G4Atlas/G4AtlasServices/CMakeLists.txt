@@ -5,16 +5,6 @@
 # Declare the package name:
 atlas_subdir( G4AtlasServices )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          MagneticField/MagFieldInterfaces
-                          Simulation/G4Atlas/G4AtlasInterfaces
-                          Simulation/G4Atlas/G4AtlasTools
-                          Simulation/G4Utilities/G4PhysicsLists )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Geant4 )
@@ -37,7 +27,6 @@ atlas_add_test( G4AtlasFieldServices_test
 atlas_add_test( G4AtlasServicesConfig_test
                 SCRIPT test/G4AtlasServicesConfig_test.py
                 PROPERTIES TIMEOUT 300 )
-
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py

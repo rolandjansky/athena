@@ -110,7 +110,7 @@ TileRawChannelOF1Corrector::process (TileMutableRawChannelContainer& rchCont) co
       std::vector<bool> noDigits(TileCalibUtils::MAX_CHAN, true);
       if (digitsContainer) {
         IdentifierHash fragHash = (digitsContainer->hashFunc())(fragId);
-        const TileDigitsCollection* digitsCollection = *(digitsContainer->indexFind(fragHash));
+        const TileDigitsCollection* digitsCollection = digitsContainer->indexFindPtr(fragHash);
         if (digitsCollection->getFragBCID() != 0xDEAD) {
           ATH_MSG_VERBOSE(TileCalibUtils::getDrawerString(ros, drawer) << ": digits in bytestream => check digits");
           checkDigits = true;

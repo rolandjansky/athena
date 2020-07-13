@@ -95,13 +95,9 @@ ATH_MSG_DEBUG("SCTTracksMonAlg::fillHistograms()");
 
     int local_scthits{0};
     int scthits_on_trk{0}; // Breaks out of loop if track has less than 3 sct hits
-    std::unique_ptr<const Trk::TrackSummary> trkSum = std::make_unique<const Trk::TrackSummary>(*(track->trackSummary()));
+    std::unique_ptr<const Trk::TrackSummary> trkSum = m_trackSummaryTool->summary (*track);
     if (trkSum==nullptr) {
-      trkSum.reset(m_trackSummaryTool->createSummary(*track)); //creates new object on heap
-      if (trkSum==nullptr) {
-        ATH_MSG_WARNING("Trk::TrackSummary is null and cannot be created by " << m_trackSummaryTool.name());
-        continue;
-      }
+      ATH_MSG_WARNING("Trk::TrackSummary is null and cannot be created by " << m_trackSummaryTool.name());
     }
 
     if (trkSum) {

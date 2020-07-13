@@ -52,12 +52,11 @@ class DiTauBuilder(Configured):
         from InDetRecExample.InDetJobProperties import InDetFlags
         from JetRec.JetRecFlags import jetFlags
         if (InDetFlags.doVertexFinding() and jetFlags.useTracks()) or diTauFlags.doVtxFinding:
+            topSequence += DiTauAlgs.getTVATool()
             tools.append(DiTauAlgs.getVertexFinder())
-            pass
         tools.append(DiTauAlgs.getDiTauTrackFinder())
         if diTauFlags.doCellFinding:
             tools.append(DiTauAlgs.getCellFinder(self.write_jet_cells, self.write_subjet_cells))
-            pass
 
         if not diTauFlags.doCellFinding:
             self.use_cells = False

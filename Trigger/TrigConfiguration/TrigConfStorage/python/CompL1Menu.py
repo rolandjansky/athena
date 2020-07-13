@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+from __future__ import print_function
 import sys
 
 from TrigConfStorage.CompareMenuXML import CompareMenuXML
@@ -88,7 +88,7 @@ class CompareL1XML(CompareMenuXML):
             self.ignoreAttr['PrescaledClock'] = ['version']
 
         else:
-            print >>self, "Don't know about comparison environment %s. Should be nothing, 'cool' or 'rtt'" % self.exlusionset
+            print("Don't know about comparison environment %s. Should be nothing, 'cool' or 'rtt'" % self.exlusionset, file=self)
             sys.exit(0)
 
         self.doc1 = self.parseFile(files[0])
@@ -97,5 +97,5 @@ class CompareL1XML(CompareMenuXML):
 
     def diff(self):
         equal = super(CompareL1XML,self).diff(self.doc1, self.doc2)
-        print >> self, "LVL1 menus are%s equal" % ('' if equal else ' not')
+        print("LVL1 menus are%s equal" % ('' if equal else ' not'), file=self)
         return ""

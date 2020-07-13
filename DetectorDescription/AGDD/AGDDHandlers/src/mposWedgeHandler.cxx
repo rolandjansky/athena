@@ -1,9 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDHandlers/mposWedgeHandler.h"
 #include "AGDDKernel/AGDDPositioner.h"
+#include "GeoModelKernel/Units.h"
+
 #include <iostream>
 
 #include "CLHEP/Vector/Rotation.h"
@@ -25,8 +27,6 @@ void mposWedgeHandler::ElementHandle()
 	
 	CLHEP::Hep3Vector cvec;
 	CLHEP::HepRotation crot;
-
-	const double degrad=M_PI/180.;
 	
 	double radius=0;
 	for (int i=0;i<iWedge;i++)
@@ -35,9 +35,9 @@ void mposWedgeHandler::ElementHandle()
 		if ((int)iSectors[i]==0) continue;
 	    CLHEP::Hep3Vector cvec;
 	    CLHEP::HepRotation crot;
-		crot.rotateZ(Wedge*degrad);
-		double x=radius*cos(Wedge*degrad);
-		double y=radius*sin(Wedge*degrad);
+		crot.rotateZ(Wedge*GeoModelKernelUnits::degree);
+		double x=radius*cos(Wedge*GeoModelKernelUnits::degree);
+		double y=radius*sin(Wedge*GeoModelKernelUnits::degree);
 		double zpos=0;
 		cvec=CLHEP::Hep3Vector(x,y,zpos);
 

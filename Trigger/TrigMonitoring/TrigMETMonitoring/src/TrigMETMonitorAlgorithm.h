@@ -24,6 +24,8 @@ class TrigMETMonitorAlgorithm : public AthMonitorAlgorithm {
   virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
 
  private:
+  double signed_log(double e, double epsilon) const;
+
   SG::ReadHandleKey<xAOD::MissingETContainer> m_offline_met_key;
 
   SG::ReadHandleKey<xAOD::EnergySumRoI> m_lvl1_roi_key;

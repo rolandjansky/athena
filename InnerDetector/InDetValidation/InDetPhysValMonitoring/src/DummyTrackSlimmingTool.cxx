@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DummyTrackSlimmingTool.h"
@@ -25,5 +25,11 @@ std::unique_ptr<Trk::Track>
 DummyTrackSlimmingTool::slimCopy(const Trk::Track& track) const{
   return std::make_unique<Trk::Track>(track);
 }
+
+void
+DummyTrackSlimmingTool::slimTrack(Trk::Track&) const{
+}
+
+
 
 

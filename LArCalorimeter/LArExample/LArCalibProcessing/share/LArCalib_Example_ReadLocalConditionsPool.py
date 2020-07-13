@@ -4,12 +4,9 @@
 #
 ###################################################################
 
-include("AthenaServices/AthenaSealSvc_joboptions.py")
 include("AthenaPoolCnvSvc/AthenaPool_jobOptions.py")
 include("LArAthenaPool/LArAthenaPool_joboptions.py" )
 include("LArCondAthenaPool/LArCondAthenaPool_joboptions.py") 
-
-#AthenaSealSvc.CheckDictionary = True 
 
 CondProxyProvider = Service("CondProxyProvider")
 ProxyProviderSvc  = Service("ProxyProviderSvc")

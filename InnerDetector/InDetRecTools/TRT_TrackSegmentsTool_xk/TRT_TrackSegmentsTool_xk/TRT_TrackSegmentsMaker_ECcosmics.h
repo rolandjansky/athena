@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -62,7 +62,7 @@ namespace InDet{
 
       @author Christian.Schmitt@cern.ch
    */
-  class ATLAS_NOT_THREAD_SAFE TRT_TrackSegmentsMaker_ECcosmics :
+  class ATLAS_NOT_THREAD_SAFE TRT_TrackSegmentsMaker_ECcosmics : // This class read and write gErrorIgnoreLevel without a global lock for ROOT.
     virtual public ITRT_TrackSegmentsMaker, public AthAlgTool
     {
       ///////////////////////////////////////////////////////////////////

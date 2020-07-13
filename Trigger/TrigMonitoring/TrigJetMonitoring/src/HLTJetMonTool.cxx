@@ -5,7 +5,7 @@
 
 #include "StoreGate/StoreGateSvc.h"
 
-#include "TrigJetMonitoring/HLTJetMonTool.h"
+#include "HLTJetMonTool.h"
 
 #include "TrigDecisionTool/ChainGroup.h"
 #include "TrigDecisionTool/Feature.h"

@@ -17,21 +17,8 @@ include( "AthenaCommon/Atlas_Gen.UnixStandardJob.py" )
 #--------------------------------------------------------------
 include( "AthenaPoolCnvSvc/WriteAthenaPool_jobOptions.py" )
 
-#--------------------------------------------------------------
-# JobOptions for the loading of the AthenaSealSvc
-#--------------------------------------------------------------
-include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-
-# Dictionaries for AthenaSealSvc:
-include( "EventInfo/EventInfoDict_joboptions.py" )
-
 include( "AthenaPoolTestData/AthenaPoolTestDataDict_joboptions.py" )
 
-# Add in dictionary name:
-AthenaSealSvc = Service( "AthenaSealSvc" )
-AthenaSealSvc.DictNames += [ "SealCLHEPDict" ]
-# Check the dictionary in memory for completeness
-#AthenaSealSvc.CheckDictionary = TRUE
 #--------------------------------------------------------------
 # Event related parameters
 #--------------------------------------------------------------
@@ -74,7 +61,6 @@ MessageSvc.OutputLevel = 3
 MessageSvc.debugLimit  = 100000
 ClassIDSvc = Service( "ClassIDSvc" )
 ClassIDSvc.OutputLevel = 3
-AthenaSealSvc.OutputLevel = 3
 AthenaPoolTestDataWriter = Algorithm( "AthenaPoolTestDataWriter" )
 AthenaPoolTestDataWriter.OutputLevel = 2
 

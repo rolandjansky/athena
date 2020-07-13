@@ -43,7 +43,12 @@ public:
   AtlasFieldCache(double solFieldScale,
                   double torFieldScale,
                   const AtlasFieldMap* fieldMap);
+
+  /**
+   * Move-able but not copy-able
+   */
   AtlasFieldCache& operator=(AtlasFieldCache&& other) = default;
+  AtlasFieldCache(AtlasFieldCache&& other) = default;
   ~AtlasFieldCache() = default;
 
   /// Temporary flag for switching between 'old' and 'new' magField usage
@@ -55,36 +60,21 @@ public:
   inline void getField(const double* ATH_RESTRICT xyz,
                        double* ATH_RESTRICT bxyz,
                        double* ATH_RESTRICT deriv = nullptr);
+
   inline void getFieldZR(const double* ATH_RESTRICT xyz,
                          double* ATH_RESTRICT bxyz,
                          double* ATH_RESTRICT deriv = nullptr);
 
   /** status of the magnets */
   bool solenoidOn() const;
-  bool toroidOn() const; 
+  bool toroidOn() const;
 
 private:
   AtlasFieldCache(const AtlasFieldCache& other) = delete;
   AtlasFieldCache& operator=(const AtlasFieldCache& other) = delete;
-  AtlasFieldCache(AtlasFieldCache&& other) = delete;
 
   bool fillFieldCache(double z, double r, double phi);
   bool fillFieldCacheZR(double z, double r);
-
-  /// magnetic field scales from currents
-  double m_solScale{ 1 };
-  double m_torScale{ 1 };
-  double m_scaleToUse{ 1 };
-  // Solenoid zone ID number - needed to set solScale. Assumes only one Solenoid
-  // zone!
-  int m_solZoneId{ -1 };
-
-  /// handle to the magnetic field service - not owner
-  const AtlasFieldMap* m_fieldMap;
-
-  /// Pointer to the conductors in the current field zone (to compute
-  /// Biot-Savart component) Owned by AtlasFieldMap.
-  const std::vector<BFieldCond>* m_cond{ nullptr };
 
   /// Full 3d field
   BFieldCache m_cache3d;
@@ -92,9 +82,25 @@ private:
   /// Fast 2d field
   BFieldCacheZR m_cacheZR;
 
+  /// magnetic field scales from currents
+  double m_solScale{ 1 };
+  double m_torScale{ 1 };
+  double m_scaleToUse{ 1 };
+
+  /// handle to the magnetic field service - not owner
+  const AtlasFieldMap* m_fieldMap{ nullptr };
+
+  /// Pointer to the conductors in the current field zone (to compute
+  /// Biot-Savart component) Owned by AtlasFieldMap.
+  const std::vector<BFieldCond>* m_cond{ nullptr };
+
   // fast 2d map (made of one zone)
   /// Owned by AtlasFieldMap.
   const BFieldMeshZR* m_meshZR{ nullptr };
+
+  // Solenoid zone ID number - needed to set solScale. Assumes only one Solenoid
+  // zone!
+  int m_solZoneId{ -1 };
 };
 
 } // namespace MagField

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETGEOMODELUTILS_TOPLEVELPLACEMENTS_H
@@ -41,7 +41,7 @@ private:
   std::map<std::string, Part *> m_parts;
   bool m_noTopLevelTable;
 
-  static GeoTrf::Transform3D s_identityTransform;
+  static const GeoTrf::Transform3D s_identityTransform;
 };
 
 #endif // INDETGEOMODELUTILS_TOPLEVELPLACEMENTS_H

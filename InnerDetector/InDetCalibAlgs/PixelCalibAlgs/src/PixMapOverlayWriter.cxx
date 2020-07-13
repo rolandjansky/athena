@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // conditions
@@ -11,6 +11,8 @@
 
 // geometry
 #include "InDetIdentifier/PixelID.h"
+
+#include "CxxUtils/checker_macros.h"
 
 // CoralDB
 #include "CoralDB/CoralDB.h"
@@ -69,7 +71,7 @@ StatusCode PixMapOverlayWriter::initialize(){
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixMapOverlayWriter::execute(){
+StatusCode PixMapOverlayWriter::execute ATLAS_NOT_THREAD_SAFE (){ // Thread unsafe ModuleSpecialPixelMap class is used.
 
   auto spm = std::make_unique<DetectorSpecialPixelMap>();
   for(unsigned int i = 0; i < m_pixelID->wafer_hash_max(); i++){

@@ -15,17 +15,12 @@
 #ifndef MUIDCALOISOLATIONTOOLS_MUIDTRACKISOLATION_H
 #define MUIDCALOISOLATIONTOOLS_MUIDTRACKISOLATION_H
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
+#include "MuidInterfaces/IMuidTrackIsolation.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "MuidInterfaces/IMuidTrackIsolation.h"
 #include "TrkTrack/TrackCollection.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "TrkExInterfaces/IIntersector.h"
-#include "GaudiKernel/ConcurrencyFlags.h"
-
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
 namespace Trk
 {
@@ -52,10 +47,6 @@ public:
        get the number of tracks and summed momentum
        in a cone at the production vertex or around the muon calo intersect*/
     std::pair<int,double>		trackIsolation(double eta, double phi) const;
-
-    /**IMuidTrackIsolation interface:
-       get the momentum of the most energetic track in the cone*/
-    double				maxP(void) const;
   
 private:
     // isolation without extrapolation to calo
@@ -76,22 +67,11 @@ private:
     SG::ReadHandleKey<TrackCollection>  m_inDetTracksLocation{this,"InDetTracksLocation","Tracks","ID tracks"};
     // FIXME: mutable
     ToolHandle<Trk::IIntersector>	m_intersector{this,"RungeKuttaIntersector","Trk::RungeKuttaIntersector/RungeKuttaIntersector"};
-    mutable std::atomic<double>	m_maxP;
     Gaudi::Property<double>	m_minPt{this,"MinPt",1.0*Gaudi::Units::GeV};
     Gaudi::Property<double>	m_trackCone{this,"TrackCone",0.2};
     Gaudi::Property<bool>		m_trackExtrapolation{this,"TrackExtrapolation",false};
     
 };
-
-//<<<<<< INLINE PUBLIC MEMBER FUNCTIONS                                 >>>>>>
-
-inline double
-MuidTrackIsolation::maxP(void) const
-{ 
-  if (Gaudi::Concurrency::ConcurrencyFlags::concurrent())
-    ATH_MSG_WARNING("MuidTrackIsolation::maxP() does not return trustable value in MT");
-  return m_maxP; 
-}
 
 }	// end of namespace
 

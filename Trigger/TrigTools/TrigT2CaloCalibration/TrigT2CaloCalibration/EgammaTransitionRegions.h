@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT2CALOCALIBRATION_EGAMMATRANSITIONREGIONS
@@ -10,7 +10,7 @@
 #include "GaudiKernel/MsgStream.h"
 
 // Specific for this calibration
-#include "CaloRec/ToolWithConstantsMixin.h"
+#include "CaloUtils/ToolWithConstants.h"
 #include "CaloConditions/Array.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
@@ -20,53 +20,37 @@
 
 
 /** General Interface for calibrations at the LVL2 Egamma Calo Fex algo */
-class EgammaTransitionRegions  : virtual public IEgammaCalibration,
-	virtual public AthAlgTool, public CaloRec::ToolWithConstantsMixin {
+class EgammaTransitionRegions  :
+  public extends<CaloUtils::ToolWithConstants<AthAlgTool>,
+                 IEgammaCalibration>          
+{
 	public:
-	/** Constructor */
-	EgammaTransitionRegions (const std::string & type, const std::string & name,
-		const IInterface* parent) : AthAlgTool(type,name,parent),
-	CaloRec::ToolWithConstantsMixin() {
-    declareInterface<IEgammaCalibration>(this);
-    declareConstant("correction",      m_correction);
-    declareConstant("etamin_TR00",     m_etamin_TR00);
-    declareConstant("etamax_TR00",     m_etamax_TR00);
-    declareConstant("etamin_TR08",     m_etamin_TR08);
-    declareConstant("etamax_TR08",     m_etamax_TR08);
-    declareConstant("use_raw_eta",     m_use_raw_eta);
-    finish_ctor();
-	}
-	virtual ~EgammaTransitionRegions() { }
+        /// Inherit constructor.
+        using base_class::base_class;
 
 	/** Initialization of the tool */
-	StatusCode initialize();
+        virtual StatusCode initialize() override;
 
 	/** Finalization of the tool */
-	StatusCode finalize();
+	virtual StatusCode finalize() override;
 
-	/** Set Property necessary */
-        using AthAlgTool::setProperty;
-	StatusCode setProperty(const std::string&,
-		const std::string&);
-	StatusCode setProperty(const Property&);
 
 	/** method to perform the correction. The correction
 		type is defined by the tool which also uses
 		this interface. In some cases, the tool needs
 		more than the cluster to perform the calibration.
 		This can be passed via the void pointer */
-	virtual void makeCorrection(xAOD::TrigEMCluster*, const void* v=NULL);
+	virtual void makeCorrection(xAOD::TrigEMCluster*, const void* v=nullptr) override;
 
 	private:
 	MsgStream* m_log;
 	// Correction Variables
-	CaloRec::Array<2>  m_correction;// on CalibHits m_correction' size is 3
-	float m_etamin_TR00;
-	float m_etamax_TR00;
-	float m_etamin_TR08;
-	float m_etamax_TR08;
-	bool m_use_raw_eta;
-
+        Constant<CxxUtils::Array<2> >  m_correction  { this, "correction" };
+        Constant<float>                m_etamin_TR00 { this, "etamin_TR00" };
+        Constant<float>                m_etamax_TR00 { this, "etamax_TR00" };
+        Constant<float>                m_etamin_TR08 { this, "etamin_TR08" };
+        Constant<float>                m_etamax_TR08 { this, "etamax_TR08" };
+        Constant<bool>                 m_use_raw_eta { this, "use_raw_eta" };
 };
 
 #endif

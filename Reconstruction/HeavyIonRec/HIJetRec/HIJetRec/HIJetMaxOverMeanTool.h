@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // HIJetMaxOverMeanTool.h
@@ -20,21 +20,33 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "JetRec/JetModifierBase.h"
+#include "StoreGate/WriteDecorHandleKey.h"
+#include "JetInterface/IJetDecorator.h"
+#include "AsgTools/AsgTool.h"
 
-class HIJetMaxOverMeanTool : public JetModifierBase
+class HIJetMaxOverMeanTool : public asg::AsgTool,
+                             virtual public IJetDecorator
 {
 
   ASG_TOOL_CLASS0(HIJetMaxOverMeanTool)
 
 public:
-    
+
   HIJetMaxOverMeanTool(const std::string& t);
 
-  /// \brief Implementing abstract methods from base
-  int modifyJet(xAOD::Jet& jet) const;
+  virtual StatusCode initialize() override;
 
-    
+  //The modifyJet function has to be replaced by decorate
+  //virtual int modifyJet(xAOD::Jet& ) const ;
+  virtual StatusCode decorate(const xAOD::JetContainer& jets) const override;
+
+private:
+
+  SG::WriteDecorHandleKey< xAOD::JetContainer > m_jetMaxConstituentETKey { this, "MaxConstituentETKey", "MaxConstituentET", "Key for MaxConstituentET tile Jet attribute"};
+  SG::WriteDecorHandleKey< xAOD::JetContainer > m_jetMaxOverMeanKey { this, "MaxOverMeanKey", "MaxOverMean", "Key for MaxOverMean tile Jet attribute"};
+
+  Gaudi::Property<std::string> m_jetContainerName{this, "JetContainer", "", "SG key for the input jet container"};
+
 };
 
 #endif

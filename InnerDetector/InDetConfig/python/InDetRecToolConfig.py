@@ -30,14 +30,6 @@ def InDetTrackHoleSearchToolCfg(flags, name = 'InDetHoleSearchTool', **kwargs):
     kwargs.setdefault("Extrapolator", tmpAcc.getPrimary())
     result.merge(tmpAcc)
 
-  if ('PixelSummaryTool' not in kwargs):
-    if flags.Detector.PixelOn:
-      tmpAcc = PixelConditionsSummaryToolCfg(flags)
-      kwargs.setdefault("PixelSummaryTool", tmpAcc.popPrivateTools())
-      result.merge(tmpAcc)
-    else:
-      kwargs.setdefault("PixelSummaryTool", None)
-
   if ('SctSummaryTool' not in kwargs):
     if flags.Detector.SCTOn:
       tmpAcc = InDetSCT_ConditionsSummaryToolCfg(flags)

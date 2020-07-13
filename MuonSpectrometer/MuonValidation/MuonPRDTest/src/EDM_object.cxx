@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <vector>
@@ -108,8 +108,11 @@ void EDM_object::update_efficiency ( int maximum_difference ) {
 	uint nMatches = 0;
 	size_t n_obj = size();
 	m_total += n_obj;
+	bool isMatched;
 	for (uint i = 0; i < n_obj; ++i) {
-		nMatches += abs( m_channel->at(i) - m_matchedchannel->at(i) ) <= maximum_difference;
+		// default matched channel value is -10. If not set to any other value, it is always a mismatch
+		isMatched = m_matchedchannel->at(i) < 0 || abs( m_channel->at(i) - m_matchedchannel->at(i) ) <= maximum_difference;
+		nMatches += isMatched;
 	}
 	m_mismatches += (n_obj - nMatches);
 }

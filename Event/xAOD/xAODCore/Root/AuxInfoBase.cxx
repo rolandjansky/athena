@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: AuxInfoBase.cxx 793737 2017-01-24 20:11:10Z ssnyder $
@@ -47,18 +47,21 @@ namespace xAOD {
    ///
    AuxInfoBase::AuxInfoBase( const AuxInfoBase& parent )
       : SG::IAuxStore(),
-        m_selection( parent.m_selection ),
         m_auxids(), m_vecs(), m_store( 0 ), m_storeIO( 0 ),
         m_ownsStore( true ),
-        m_locked( false ),
-        m_name( parent.m_name ) {
+        m_locked( false )
+   {
+      // Keep the source unmutable during copy
+      guard_t guard( parent.m_mutex );
+      m_selection = parent.m_selection;
+      m_name = parent.m_name;
 
       // Unfortunately the dynamic variables can not be copied this easily...
       if( parent.m_store ) {
-         m_store = parent.m_store;
+         // cppcheck-suppress copyCtorPointerCopying
          m_ownsStore = false;
+         m_store = parent.m_store;
          m_storeIO = dynamic_cast< SG::IAuxStoreIO* >( m_store );
-         m_selection = parent.m_selection;
          m_auxids.insert( m_store->getAuxIDs().begin(),
                           m_store->getAuxIDs().end() );
       }
@@ -108,6 +111,9 @@ namespace xAOD {
       // Protect against self-assignment:
       if( this == &rhs ) return *this;
 
+      // Keep the source unmutable during copy
+      std::scoped_lock  lck{m_mutex, rhs.m_mutex};
+
       m_selection = rhs.m_selection;
 
       // Clean up after the old dynamic store:
@@ -121,8 +127,8 @@ namespace xAOD {
 
       // Take posession of the new dynamic store:
       if( rhs.m_store ) {
-         m_store = rhs.m_store;
          m_ownsStore = false;
+         m_store = rhs.m_store;
          m_storeIO = dynamic_cast< SG::IAuxStoreIO* >( m_store );
          m_auxids.insert (m_store->getAuxIDs());
       }

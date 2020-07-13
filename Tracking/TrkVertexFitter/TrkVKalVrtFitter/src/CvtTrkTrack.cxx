@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //  Convert TrkTrack parameters to internal VKalVrt parameters
@@ -35,7 +35,7 @@ namespace Trk{
                                State& state) const
  {
     std::vector<const Track*>::const_iterator   i_ntrk;
-    AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0;
+    AmgVector(5) VectPerig; VectPerig.setZero();
     const  Perigee* mPer;
     double CovVertTrk[15]; std::fill(CovVertTrk,CovVertTrk+15,0.);
     double tmp_refFrameX=0, tmp_refFrameY=0, tmp_refFrameZ=0;
@@ -53,7 +53,7 @@ namespace Trk{
     Amg::Vector3D perGlobalVrt,perGlobalPos;
     state.m_trkControl.clear();
     for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) {
-       mPer = (*i_ntrk)->perigeeParameters(); if( mPer == 0 ){ continue; } 
+       mPer = (*i_ntrk)->perigeeParameters(); if( mPer == nullptr ){ continue; } 
        perGlobalPos =  mPer->position(); //Global position of perigee point
        if(fabs(perGlobalPos.z())   > m_IDsizeZ)return StatusCode::FAILURE;   // Crazy user protection
        if(     perGlobalPos.perp() > m_IDsizeR)return StatusCode::FAILURE;
@@ -90,7 +90,7 @@ namespace Trk{
 //
     for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) {
        long int TrkID=ntrk;
-       mPer = (*i_ntrk)->perigeeParameters(); if( mPer == 0 ){ continue; } 
+       mPer = (*i_ntrk)->perigeeParameters(); if( mPer == nullptr ){ continue; } 
        VectPerig = mPer->parameters(); 
        perGlobalPos =  mPer->position();    //Global position of perigee point
        //VK//perGlobalVrt =  mPer->vertex();      //Global position of reference point
@@ -148,7 +148,7 @@ namespace Trk{
     DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces 
 	= new DataVector<const Trk::TrackStateOnSurface>;
     const Trk::TrackStateOnSurface* trackSOS =
-	    new Trk::TrackStateOnSurface(0, perigee, 0,  0);
+	    new Trk::TrackStateOnSurface(nullptr, perigee, nullptr,  nullptr);
 	trackStateOnSurfaces->push_back(trackSOS);
 	
 //    Trk::Track::TrackAuthor author = Trk::Track::unknown;

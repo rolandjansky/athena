@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBTPCnv/TBTailCatcherCnv_p1.h"
@@ -66,7 +66,7 @@ TBTailCatcherCnv_p1::transToPers(const TBTailCatcher* trans,
   TBScintillatorCont::const_iterator scintIt_e = trans->end();
 
   // copy all the scints from the trans to the pers
-  for (; scintIt!=scintIt_e; scintIt++) {
+  for (; scintIt!=scintIt_e; ++scintIt) {
     const TBScintillator * scint = * scintIt;
 
     // fill in the scint properties

@@ -19,6 +19,9 @@ if( XAOD_STANDALONE OR XAOD_ANALYSIS )
       Event/xAOD/xAODJet
       Event/xAOD/xAODMissingET
       Event/xAOD/xAODTracking
+      Event/xAOD/xAODTruth
+      InnerDetector/InDetRecTools/InDetTrackSelectionTool
+      InnerDetector/InDetRecTools/TrackVertexAssociationTool
       Reconstruction/Jet/JetEDM
       Reconstruction/Jet/JetInterface
       Reconstruction/Jet/JetRec
@@ -39,6 +42,9 @@ else()
       Event/xAOD/xAODJet
       Event/xAOD/xAODMissingET
       Event/xAOD/xAODTracking
+      Event/xAOD/xAODTruth
+      InnerDetector/InDetRecTools/InDetTrackSelectionTool
+      InnerDetector/InDetRecTools/TrackVertexAssociationTool
       Reconstruction/Jet/JetEDM
       Reconstruction/Jet/JetInterface
       Reconstruction/Jet/JetRec
@@ -66,8 +72,8 @@ atlas_add_library( JetMomentToolsLib
    PUBLIC_HEADERS JetMomentTools
    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES}
-   AsgTools xAODCaloEvent xAODJet xAODMissingET xAODTracking JetEDM JetInterface
-   JetRecLib JetUtils
+   AsgTools xAODCaloEvent xAODJet xAODMissingET xAODTracking xAODTruth JetEDM JetInterface TrackVertexAssociationToolLib
+   JetRecLib JetUtils  PFlowUtilsLib
    PRIVATE_LINK_LIBRARIES CaloGeoHelpers xAODEventInfo xAODPFlow PathResolver )
 
 if( NOT XAOD_STANDALONE )

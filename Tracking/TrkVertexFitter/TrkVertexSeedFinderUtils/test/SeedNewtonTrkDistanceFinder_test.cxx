@@ -80,8 +80,8 @@ void test1 (Trk::ITrkDistanceFinder& tool)
   assert( op );
   pp = op.value();
 
-  assertVec3D (pp.first,  { -27.3934, -27.3934, 0 });
-  assertVec3D (pp.second, { -27.3934, -27.3934, 0 });
+  assertVec3D(pp.first, { 30.3934, 30.3934, 0 });
+  assertVec3D(pp.second, { 30.3934, 30.3934, 0 });
 
   Amg::Vector3D pos3a { 10, 2, 2 };
   Amg::Vector3D mom3a { 10000, 30000, 50000 };

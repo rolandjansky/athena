@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelDetectorFactory.h"
@@ -61,11 +61,11 @@ PixelDetectorFactory::PixelDetectorFactory(const PixelGeoModelAthenaComps * athe
    
   // Create SiCommonItems ans store it in geometry manager. 
   // These are items that are shared by all elements
-  SiCommonItems * commonItems = new SiCommonItems(athenaComps->getIdHelper());
-  m_geometryManager->setCommonItems(commonItems);
+  std::unique_ptr<SiCommonItems> commonItems{std::make_unique<SiCommonItems>(athenaComps->getIdHelper())};
+  m_geometryManager->setCommonItems(commonItems.get());
 
   // Add SiCommonItems to PixelDetectorManager to hold and delete it.
-  m_detectorManager->setCommonItems(commonItems);
+  m_detectorManager->setCommonItems(std::move(commonItems));
  
   // Determine if initial layer and tag from the id dict are consistent
   bool initialLayoutIdDict = (m_detectorManager->tag() == "initial_layout");
@@ -114,7 +114,7 @@ PixelDetectorFactory::~PixelDetectorFactory()
 
 
 //## Other Operations (implementation)
-void PixelDetectorFactory::create(GeoPhysVol *world)
+void PixelDetectorFactory::create ATLAS_NOT_THREAD_SAFE (GeoPhysVol *world) // Thread usnafe GeoPixelEnvelope class is used.
 {
   if(msgLvl(MSG::INFO)) {
     msg(MSG::INFO) << "Building Pixel Detector" << endmsg;

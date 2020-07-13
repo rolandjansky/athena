@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCLUSTERCORRECTION_CALOSWGAP_G3_H
@@ -34,23 +34,17 @@ Updated:  June, 2004    (sss)
 class CaloSwGap_g3 : public CaloClusterCorrection,
                      public ISetCaloCellContainerName
 {
-
- public:
+public:
+  /// Inherit constructor
+  using CaloClusterCorrection::CaloClusterCorrection;
  
-  // constructor 
-  CaloSwGap_g3(const std::string& type,
-               const std::string& name,
-               const IInterface* parent);
-  // destructor 
-  virtual ~CaloSwGap_g3() override;
-
   /**
    * @brief Standard Gaudi initialize method.
    */
   virtual StatusCode initialize() override;
 
-  virtual void makeCorrection(const EventContext& ctx,
-                              xAOD::CaloCluster* cluster) const override;
+  virtual void makeCorrection (const Context& myctx,
+                               xAOD::CaloCluster* cluster) const override;
 
 
   /**
@@ -61,15 +55,15 @@ class CaloSwGap_g3 : public CaloClusterCorrection,
 
 
  private:
-
   CaloSwGap_g3() = delete;
  
-  float             m_etamin_crack;
-  float             m_etamax_crack;
-  CaloRec::Array<1> m_scint_weight;
-  CaloRec::Array<1> m_correction;
+  Constant<float>             m_etamin_crack   { this, "etamin_crack", "" };
+  Constant<float>             m_etamax_crack   { this, "etamax_crack", "" };
+  Constant<CxxUtils::Array<1> > m_scint_weight { this, "scint_weight", "" };
+  Constant<CxxUtils::Array<1> > m_correction   { this, "correction",   "" };
 
   /// Property: The name of the container in which to look to find tile cells.
-  SG::ReadHandleKey<CaloCellContainer> m_cells_name;
+  SG::ReadHandleKey<CaloCellContainer> m_cells_name
+  { this, "cells_name", "AllCalo", "" };
 };
 #endif

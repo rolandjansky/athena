@@ -1,15 +1,16 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_DIGITIZATION_TRTTIMECORRECTION_H
 #define TRT_DIGITIZATION_TRTTIMECORRECTION_H
 
-#include <vector>
-#include "TRT_ConditionsServices/ITRT_CalDbTool.h"
 #include "AthenaKernel/MsgStreamMember.h"
+#include "CxxUtils/checker_macros.h"
 #include "Identifier/Identifier.h"
+#include "TRT_ConditionsServices/ITRT_CalDbTool.h"
 
+#include <vector>
 
 namespace InDetDD {
   class TRT_DetectorManager;
@@ -145,7 +146,7 @@ private:
 
   const ITRT_CalDbTool* m_trtcaldbtool;
 
-  mutable Athena::MsgStreamMember m_msg;
+  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
 
 };
 

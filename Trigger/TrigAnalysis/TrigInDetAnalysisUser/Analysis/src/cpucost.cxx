@@ -4,7 +4,7 @@
  **     @author  ben sowden
  **     @date    Mon 04 Aug 2014 10:45:00 BST
  **
- **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  **/
 
 
@@ -33,6 +33,8 @@
 #include "TDirectory.h"
 
 #include "computils.h"
+
+
 
 /// Prints usage instructions to standard output and returns given status
 int usage(const std::string& name, int status) {
@@ -275,6 +277,8 @@ int main(int argc, char** argv) {
     // Loop over input algorithms
     //    for (unsigned int algorithm = 0; algorithm < algorithms.size(); ++algorithm) {
     for (unsigned int algorithm = algorithms.size(); algorithm-- ; ) {
+      
+      if ( algorithms[algorithm].find("LumiBlock")!=std::string::npos ) continue;
 
       std::cout << "\nmain() processing algorithm : " << algorithms[algorithm] << std::endl;
 

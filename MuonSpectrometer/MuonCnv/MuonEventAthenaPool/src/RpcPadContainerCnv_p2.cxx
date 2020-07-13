@@ -103,9 +103,9 @@ void  RpcPadContainerCnv_p2::persToTrans(const RpcPadContainer_p2* persCont, Rpc
         RpcPad* coll = new RpcPad;
         cnv.persToTrans( &( persCont->m_pads[icoll]), coll, log);
         // another check - see if already added
-        RpcPadContainer::const_iterator it = transCont->indexFind(coll->identifyHash());
-        if (it!=transCont->end() ) {
-            log << MSG::WARNING<<"Collection with hash="<<coll->identifyHash()<<" already exists in container (with "<<(*it)->size()<<" elements). "
+        auto ptr = transCont->indexFindPtr(coll->identifyHash());
+        if (ptr!=nullptr ) {
+            log << MSG::WARNING<<"Collection with hash="<<coll->identifyHash()<<" already exists in container (with "<<ptr->size()<<" elements). "
                 << "Will therefore DISCARD this collection which has "<<coll->size()<<" elements)!"<<endmsg;
             delete coll;
         } else {

@@ -5,18 +5,6 @@
 # Declare the package name:
 atlas_subdir( LArG4MiniFCAL )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          PRIVATE
-                          Calorimeter/CaloG4Sim
-                          Control/AthenaKernel
-                          Control/StoreGate
-                          Database/RDBAccessSvc
-                          DetectorDescription/GeoModel/GeoModelInterfaces
-                          DetectorDescription/Identifier
-                          GaudiKernel
-                          LArCalorimeter/LArG4/LArG4Code )
-
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )

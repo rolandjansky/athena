@@ -55,38 +55,33 @@ atlas_add_test( AthenaOutputStream_test
    src/OutputStreamSequencerSvc.cxx src/MetaDataSvc.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES TestTools AsgTools AthenaKernel SGTools StoreGateLib GaudiKernel AthenaBaseComps PersistentDataModel
-   LOG_IGNORE_PATTERN "^AthenaRootStrea... +(INFO|DEBUG)|^AthenaSealSvc +DEBUG|^SGAudSvc +(INFO|DEBUG)|of type DataHistory|DEBUG Recorded object|object modifiable when retrieved|^ToolSvc +DEBUG Service base class initialized|^ServiceManager +DEBUG Initializing service|^IncidentSvc *DEBUG Adding .* listener|DecisionSvc +DEBUG|^IoComponentMgr +(INFO|DEBUG)|DBReplicaSvc|^HistogramPersis.*DEBUG|^ItemListSvc +(INFO|DEBUG)|Info File PoolFileCatalog.xml does not exist|DataModelCompatSvc::initialize|^ProxyProviderSvc +DEBUG|^DataModelCompatSvc +DEBUG|^AthenaOutputStreamVERBOSE|^AthenaOutputStream +DEBUG|^TimelineSvc +DEBUG"
-   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+   LOG_IGNORE_PATTERN "^AthenaRootStrea... +(INFO|DEBUG)|^SGAudSvc +(INFO|DEBUG)|of type DataHistory|DEBUG Recorded object|object modifiable when retrieved|^ToolSvc +DEBUG Service base class initialized|^ServiceManager +DEBUG Initializing service|^IncidentSvc *DEBUG Adding .* listener|DecisionSvc +DEBUG|^IoComponentMgr +(INFO|DEBUG)|DBReplicaSvc|^HistogramPersis.*DEBUG|^ItemListSvc +(INFO|DEBUG)|Info File PoolFileCatalog.xml does not exist|DataModelCompatSvc::initialize|^ProxyProviderSvc +DEBUG|^DataModelCompatSvc +DEBUG|^AthenaOutputStreamVERBOSE|^AthenaOutputStream +DEBUG|^TimelineSvc +DEBUG" )
+# Avoid spurious ubsan warnings.
+set_target_properties( AthenaServices_AthenaOutputStream_test PROPERTIES ENABLE_EXPORTS True )
 
 atlas_add_test( FPEControlSvc_test
    SOURCES test/FPEControlSvc_test.cxx
-   LINK_LIBRARIES TestTools AthenaKernel GaudiKernel
-   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+   LINK_LIBRARIES TestTools AthenaKernel GaudiKernel )
 
 atlas_add_test( AthenaEventLoopMgr_test
    SOURCES test/AthenaEventLoopMgr_test.cxx
-   LINK_LIBRARIES TestTools AsgTools AthenaKernel GaudiKernel EventInfo AthenaBaseComps
-   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+   LINK_LIBRARIES TestTools AsgTools AthenaKernel GaudiKernel EventInfo AthenaBaseComps )
 
 atlas_add_test( ConditionsCleanerSvc_test
   SOURCES test/ConditionsCleanerSvc_test.cxx
-  LINK_LIBRARIES TestTools AthenaKernel GaudiKernel AthenaBaseComps
-  ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+  LINK_LIBRARIES TestTools AthenaKernel GaudiKernel AthenaBaseComps )
 
 atlas_add_test( RCUSvc_test
    SOURCES test/RCUSvc_test.cxx
-   LINK_LIBRARIES TestTools AsgTools AthenaKernel GaudiKernel EventInfo AthenaBaseComps
-   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+   LINK_LIBRARIES TestTools AsgTools AthenaKernel GaudiKernel EventInfo AthenaBaseComps )
 
 atlas_add_test( DelayedConditionsCleanerSvc_test
    SOURCES test/DelayedConditionsCleanerSvc_test.cxx
-   LINK_LIBRARIES TestTools AsgTools AthenaKernel GaudiKernel EventInfo AthenaBaseComps
-   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+   LINK_LIBRARIES TestTools AsgTools AthenaKernel GaudiKernel EventInfo AthenaBaseComps )
 
 atlas_add_test( ThinningCacheTool_test
    SOURCES test/ThinningCacheTool_test.cxx
-   LINK_LIBRARIES TestTools AsgTools AthenaKernel GaudiKernel EventInfo AthenaBaseComps
-   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+   LINK_LIBRARIES TestTools AsgTools AthenaKernel GaudiKernel EventInfo AthenaBaseComps )
 
 atlas_add_test( TestStopRun
    SCRIPT test/TestStopRun.sh
@@ -124,8 +119,14 @@ atlas_install_joboptions( share/AthTPCnvSvc_test.py
    share/AthDictLoaderSvc_test.py
    share/ReadAthenaPoolSeek_jobOptions.py
    share/AthenaJobOptionsSvc_jobOptions.py
-   share/AthenaSealSvc_joboptions.py
-   share/test_tpcnvdb.py )
+   share/test_tpcnvdb.py 
+   share/AthenaOutputStream_test.txt 
+   share/FPEControlSvc_test.txt 
+   share/AthenaEventLoopMgr_test.txt 
+   share/ConditionsCleanerSvc_test.txt
+   share/RCUSvc_test.txt
+   share/DelayedConditionsCleanerSvc_test.txt
+   share/ThinningCacheTool_test.txt )
 
 # Need to make sure that python file installation happens before genconf
 # in order for our custom __init__.py to be installed correctly.

@@ -29,7 +29,7 @@
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
 #include "TrigInDetToolInterfaces/ITrigVertexingTool.h"
-#include "TrigVertexFitter/TrigL2VertexFitter.h"
+#include "TrigL2VertexFitter.h"
 
 TrigL2VertexFitter::TrigL2VertexFitter(const std::string& t, 
 				       const std::string& n,

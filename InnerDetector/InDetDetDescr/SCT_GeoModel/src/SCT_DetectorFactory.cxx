@@ -78,12 +78,16 @@ SCT_DetectorFactory::SCT_DetectorFactory(const SCT_GeoModelAthenaComps * athenaC
   // Create the material manager
   m_materials = std::make_unique<SCT_MaterialManager>(m_db.get());
 
+  // Create the Si common items
+  std::unique_ptr<InDetDD::SiCommonItems> commonItems{std::make_unique<InDetDD::SiCommonItems>(athenaComps->getIdHelper())};
+
   // Create the geometry manager.
   m_geometryManager = std::make_unique<SCT_GeometryManager>(m_db.get());
   m_geometryManager->setOptions(options);
+  m_geometryManager->setCommonItems(commonItems.get());
 
   // Add SiCommonItems to SCT_DetectorManager to hold and delete it.
-  m_detectorManager->setCommonItems(m_geometryManager->commonItems());
+  m_detectorManager->setCommonItems(std::move(commonItems));
 
   m_useDynamicAlignFolders = options.dynamicAlignFolders();
  

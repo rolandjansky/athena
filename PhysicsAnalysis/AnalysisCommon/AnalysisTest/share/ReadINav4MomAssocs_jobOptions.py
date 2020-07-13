@@ -77,10 +77,6 @@ include( "ParticleBuilderOptions/AOD_PoolCnv_jobOptions.py" )
 
 PoolSvc = Service( "PoolSvc" )
 
-AthenaSealSvc = Service("AthenaSealSvc")
-AthenaSealSvc.CheckDictionary = True
-AthenaSealSvc.OutputLevel     = DEBUG
-
 # Run OutputStream as an algorithm
 theApp.TopAlg   += [ "AthenaOutputStream/Stream1" ]
 # Must make sure that no OutStream's have been declared
@@ -94,7 +90,6 @@ Stream1.OutputFile = "assocs.readback.pool.root"
 Stream1.ItemList += [ "EventInfo#*" ]
 
 PoolSvc.OutputLevel        = WARNING
-AthenaSealSvc.OutputLevel  = WARNING
 
 ##############################################################
 #

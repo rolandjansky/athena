@@ -20,7 +20,7 @@ atlas_add_library( EgammaAnalysisInterfacesLib
    INTERFACE
    PUBLIC_HEADERS EgammaAnalysisInterfaces
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma PATInterfaces PATCoreLib)
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma PATInterfaces PATCoreLib AsgAnalysisInterfaces )
 
 atlas_add_dictionary( EgammaAnalysisInterfacesDict
    EgammaAnalysisInterfaces/EgammaAnalysisInterfacesDict.h

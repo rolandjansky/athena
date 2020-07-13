@@ -72,7 +72,7 @@ namespace InDet {
   }
 
   // -------------------------------------------------------------
-  TrackPairsSelector::~TrackPairsSelector() {}
+  TrackPairsSelector::~TrackPairsSelector() = default;
 
   // -------------------------------------------------------------
   const InterfaceID& TrackPairsSelector::interfaceID() {

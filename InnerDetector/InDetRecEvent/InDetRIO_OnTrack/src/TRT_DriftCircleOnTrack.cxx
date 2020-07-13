@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -112,7 +112,7 @@ InDet::TRT_DriftCircleOnTrack::TRT_DriftCircleOnTrack( const InDet::TRT_DriftCir
   m_detEl(rot.m_detEl)
 {
   if (rot.m_globalPosition) {
-    m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*(rot.m_globalPosition)));
+    m_globalPosition.store(std::make_unique<const Amg::Vector3D>(*(rot.m_globalPosition)));
   }
 }
 
@@ -122,7 +122,7 @@ InDet::TRT_DriftCircleOnTrack& InDet::TRT_DriftCircleOnTrack::operator=( const I
   if ( &rot != this) {
     Trk::RIO_OnTrack::operator= (rot);
     if (rot.m_globalPosition) {
-      m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*(rot.m_globalPosition)));
+      m_globalPosition.store(std::make_unique<const Amg::Vector3D>(*(rot.m_globalPosition)));
     } else if (m_globalPosition) {
       m_globalPosition.release().reset();
     }

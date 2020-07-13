@@ -6,7 +6,6 @@
 #define MUONRDOTOPREPDATA_RPCRDOTOPREPDATATOOLCORE_H
 
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
-
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -21,16 +20,12 @@
 #include "RPC_CondCabling/RpcCablingCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include <string>
 #include <set>
 
 #define maxOfflineHash 600 // actually 593
-
-namespace MuonGM
-{
-  class MuonDetectorManager;
-}
 
 namespace Muon {
 
@@ -84,8 +79,7 @@ protected:
   bool m_RPCInfoFromDb;                 //!< correct time prd from cool db
   // end of configurable options 
 
-  /// Muon Detector Descriptor
-  const MuonGM::MuonDetectorManager* m_muonMgr;
+  SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_muDetMgrKey {this, "DetectorManagerKey", "MuonDetectorManager", "Key of input MuonDetectorManager condition data"}; 
   
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
  

@@ -31,7 +31,7 @@ MuonScatteringAngleSignificanceTool::MuonScatteringAngleSignificanceTool(
     const IInterface*       parent)
     : AthAlgTool		(type, name, parent),
       m_fitter			(""),
-      m_trackingVolumesSvc	("TrackingVolumesSvc/TrackingVolumesSvc",name),
+      m_trackingVolumesSvc	("TrackingVolumesSvc",name),
       m_calorimeterVolume	(0),
       m_indetVolume		(0),
       m_inDetOnly		(true),

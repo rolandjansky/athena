@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_DetDescrDB_ParameterInterface.h"
@@ -53,7 +53,7 @@ TRT_DetDescrDB_ParameterInterface::~TRT_DetDescrDB_ParameterInterface() {
 }
 
 //_________________________________________________________________________________________
-void TRT_DetDescrDB_ParameterInterface::SetValues() {
+void TRT_DetDescrDB_ParameterInterface::SetValues ATLAS_NOT_THREAD_SAFE () { // Thread unsafe AthenaComps::rdbAccessSvc const method is used.
 
   /////////////////////////////////////////////////////////////////////////////////////////
   //                                 Initialize Services                                 //
@@ -503,7 +503,7 @@ const GeoTrf::Transform3D &
 TRT_DetDescrDB_ParameterInterface::partTransform(const std::string & partName) const
 {
   if (m_placements) return m_placements->transform(partName);
-  static GeoTrf::Transform3D unitTransform = GeoTrf::Transform3D::Identity();
+  static const GeoTrf::Transform3D unitTransform = GeoTrf::Transform3D::Identity();
   return unitTransform;
 }
 

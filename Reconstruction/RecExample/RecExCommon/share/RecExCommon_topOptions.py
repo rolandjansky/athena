@@ -557,9 +557,9 @@ if rec.readESD() and rec.doESD():
 if rec.doTrigger:
     if globalflags.DataSource() == 'data'and globalflags.InputFormat == 'bytestream':
         try:
-            include("TriggerJobOpts/BStoESD_Tier0_HLTConfig_jobOptions.py")
+            include("TrigTier0/BStoESD_Tier0_HLTConfig_jobOptions.py")
         except Exception:
-            treatException("Could not import TriggerJobOpts/BStoESD_Tier0_HLTConfig_jobOptions.py . Switching trigger off !" )
+            treatException("Could not import TrigTier0/BStoESD_Tier0_HLTConfig_jobOptions.py . Switching trigger off !" )
             recAlgs.doTrigger=False
     else:
         try:
@@ -844,17 +844,6 @@ if rec.doPersint()  :
 # gathering info from all the reco algorithms
 #
 
-
-
-
-# check dictionary all the time
-ServiceMgr.AthenaSealSvc.CheckDictionary = True
-if not rec.doCheckDictionary():
-    ServiceMgr.AthenaSealSvc.OutputLevel=WARNING
-
-
-
-#
 #
 #now write out Transient Event Store content in POOL
 #

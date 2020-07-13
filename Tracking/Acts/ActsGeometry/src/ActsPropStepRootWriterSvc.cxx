@@ -26,9 +26,6 @@ StatusCode
 ActsPropStepRootWriterSvc::initialize()
 {
 
-  ATH_MSG_INFO("Starting writer thread");
-  m_doEnd = false;
-  m_writeThread = std::thread(&ActsPropStepRootWriterSvc::writeThread, this);
 
   std::string filePath = m_filePath;
   m_outputFile = TFile::Open(filePath.c_str(), "RECREATE");
@@ -63,10 +60,7 @@ ActsPropStepRootWriterSvc::initialize()
 StatusCode 
 ActsPropStepRootWriterSvc::finalize()
 {
-  ATH_MSG_INFO("Waiting for writer thread to finish.");
-  m_doEnd = true;
-  m_writeThread.join();
-  ATH_MSG_INFO("Writer thread has terminated.");
+  end();
 
   return StatusCode::SUCCESS;
 }
@@ -82,7 +76,7 @@ ActsPropStepRootWriterSvc::write(const StepVector& steps)
   //for(size_t i=0;i<ecells.size();++i) {
     //m_queue.emplace_back(ctx.eventID().event_number(), std::move(ecells[i]));
   //}
-  m_queue.emplace_back(ctx.eventID().event_number(), steps);
+  doWrite(steps, ctx.eventID().event_number());
 }
 
 void

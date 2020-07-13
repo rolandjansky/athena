@@ -9,6 +9,7 @@ from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
 
+from InDetOverlay.BCMOverlayConfig import BCMOverlayCfg
 from InDetOverlay.PixelOverlayConfig import PixelOverlayCfg
 from InDetOverlay.SCTOverlayConfig import SCTOverlayCfg
 from InDetOverlay.TRTOverlayConfig import TRTOverlayCfg
@@ -59,6 +60,8 @@ def OverlayMainCfg(configFlags):
     acc.merge(CopyTrackRecordCollectionsCfg(configFlags))
 
     # Inner detector
+    if configFlags.Detector.OverlayBCM:
+        acc.merge(BCMOverlayCfg(configFlags))
     if configFlags.Detector.OverlayPixel:
         acc.merge(PixelOverlayCfg(configFlags))
     if configFlags.Detector.OverlaySCT:

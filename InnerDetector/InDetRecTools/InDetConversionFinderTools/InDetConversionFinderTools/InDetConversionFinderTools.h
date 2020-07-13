@@ -72,11 +72,13 @@ public:
   using IVertexFinder::findVertex;
   //!< Conversion candidate reconstruction for Trk::Tracks.
   virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-  findVertex(const TrackCollection* trk_coll) const override;
+  findVertex(const EventContext& ctx,
+             const TrackCollection* trk_coll) const override;
 
   /** Conversion candidate reconstruction for Trk::TrackParticle (default)  */
   virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
-  findVertex(const xAOD::TrackParticleContainer* trk_coll) const override;
+  findVertex(const EventContext& ctx,
+             const xAOD::TrackParticleContainer* trk_coll) const override;
 
 protected:
  

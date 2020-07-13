@@ -281,7 +281,8 @@ SCTErrMonAlg::fillByteStreamErrors(const EventContext& ctx) const {
   }
   
   // Coverage check is time consuming and run at the first event of each lumi block.
-  if (m_coverageCheck and m_firstEventOfLB[pEvent->lumiBlock()]) {
+  if (m_coverageCheck and
+      (not m_coverageCheckOnlyFirtsEventOfLB or m_firstEventOfLB[pEvent->lumiBlock()])) {
     m_firstEventOfLB[pEvent->lumiBlock()] = false;
     ATH_MSG_DEBUG("Detector Coverage calculation starts" );
 

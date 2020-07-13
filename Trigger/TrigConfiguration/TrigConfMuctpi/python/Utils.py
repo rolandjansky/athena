@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import logging
 
@@ -38,8 +38,8 @@ def findFileInXMLPATH(filename):
     filename = str(filename)
 
     mlog = getLogger(__name__)
-    mlog.debug("Searching for XML file %s" % filename)
-    if filename.find('./') is 0: ## this expected to be local file, name starts from ./
+    mlog.debug("Searching for XML file %s", filename)
+    if filename.find('./')==0: ## this expected to be local file, name starts from ./
         return filename
     else:
         mlog.debug("XML file is not in local directory")
@@ -50,7 +50,7 @@ def findFileInXMLPATH(filename):
             return filename
 
         ## search XMLPATH path
-        if not environ.has_key('XMLPATH'): ## XMLPATH is not known ... no search is performed
+        if 'XMLPATH' not in environ: ## XMLPATH is not known ... no search is performed
             mlog.info("XML file: "+filename + " not found and XMLPATH not given" )
             return filename
 

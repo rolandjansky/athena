@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELSICRYSTAL_H
@@ -17,7 +17,7 @@ namespace InDetDD {
   class PixelDiodeMatrix;
 }
 
-class GeoPixelSiCrystal : public GeoVPixelFactory {
+class ATLAS_NOT_THREAD_SAFE GeoPixelSiCrystal : public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
  public:
   GeoPixelSiCrystal(bool isBLayer, bool isModule3D=false);
   virtual GeoVPhysVol* Build();

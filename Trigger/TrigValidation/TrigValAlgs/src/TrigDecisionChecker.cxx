@@ -5,7 +5,7 @@
 /** R.Goncalo - 21/10/2007 - add tests for TrigDecisionTool:
  TrigDecisionChecker based on TrigDecisionMaker/TrigDecisionTest */
 
-#include "TrigValAlgs/TrigDecisionChecker.h"
+#include "TrigDecisionChecker.h"
 
 // EDM
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"

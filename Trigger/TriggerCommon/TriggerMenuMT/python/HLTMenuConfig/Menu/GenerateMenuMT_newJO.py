@@ -5,6 +5,8 @@ from AthenaCommon.CFElements import seqAND
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import generateDecisionTreeOld
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig_newJO import generateDecisionTree
 from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
+from TriggerMenuMT.HLTMenuConfig.Menu.ChainMerging import mergeChainDefs
+from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitInterSignatureChainDict
 from six import iteritems
 
 from AthenaCommon.Logging import logging
@@ -52,32 +54,50 @@ def generateMenu( flags ):
         if len(value) == 0:
             continue
 
+        signatureName = name.split('.')[-1]
+        signatures = []
 
         # fill the map[signature, generating function]
+        if signatureName== 'combined':
+            for chain in cfgFlag.get():
+                signatures += dictFromChainName(chain)['signatures']
+        else:
+            signatures = [signatureName]
 
-        signature = name.split('.')[-1]
-        fillGeneratorsMap( signatureToGenerator, signature )
+        for sig in signatures:
+            fillGeneratorsMap( signatureToGenerator, sig.lower() )
 
-        if signature not in signatureToGenerator:
-            log.warning('Generator for {} is missing. Chain dict will not be built'.format(signature))
-            continue
-
+        # call generating function and pass to CF builder
         for chain in cfgFlag.get():
-            
-            chainDict = dictFromChainName( chain )
+            # TODO topo threshold
+            mainChainDict = dictFromChainName( chain )
             
             counter += 1
-            chainDict['chainCounter'] = counter
+            mainChainDict['chainCounter'] = counter
 
-            allChainDicts.append(chainDict)
-            # TODO topo threshold
+            allChainDicts.append(mainChainDict)
 
-            # call generating function and pass to CF builder
+            chainDicts = splitInterSignatureChainDict(mainChainDict)
+            listOfChainConfigs = []
 
-            chainConfig = signatureToGenerator[signature](flags, chainDict)
-            TriggerConfigHLT.registerChain( chainDict, chainConfig )
-            menuChains.append( chainConfig )
+            for chainDict in chainDicts:
+                signature = chainDict['signature'].lower()
 
+                if signature not in signatureToGenerator:
+                    log.warning('Generator for {} is missing. Chain dict will not be built'.format(signature))
+                    continue
+
+                chainConfig = signatureToGenerator[signature](flags, chainDict)
+                listOfChainConfigs.append(chainConfig)
+
+            if len(listOfChainConfigs) > 1:
+                theChainConfig = mergeChainDefs(listOfChainConfigs, mainChainDict)
+
+            else:
+                theChainConfig = listOfChainConfigs[0]
+
+            TriggerConfigHLT.registerChain( mainChainDict, theChainConfig )
+            menuChains.append( theChainConfig )
 
     log.info('Obtained Menu Chain objects')
 

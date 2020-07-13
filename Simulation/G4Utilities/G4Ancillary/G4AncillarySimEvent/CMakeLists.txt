@@ -5,12 +5,6 @@
 # Declare the package name:
 atlas_subdir( G4AncillarySimEvent )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Generators/GeneratorObjects
-                          Simulation/HitManagement )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )

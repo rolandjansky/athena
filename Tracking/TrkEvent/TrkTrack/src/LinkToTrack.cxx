@@ -3,32 +3,35 @@
 */
 
 #include "TrkTrack/LinkToTrack.h"
-#include "TrkTrack/TrackCollection.h"
 #include "TrkTrack/Track.h"
+#include "TrkTrack/TrackCollection.h"
 
+namespace Trk {
+LinkToTrack::LinkToTrack()
+  : ElementLink<TrackCollection>()
+{}
 
-namespace Trk
+LinkToTrack::LinkToTrack(ElementLink<TrackCollection>& link)
+  : ElementLink<TrackCollection>(link)
+{}
+
+const TrackParameters*
+LinkToTrack::parameters() const
 {
-	LinkToTrack::LinkToTrack() : ElementLink<TrackCollection>()
-	{}
+  if (isValid()) {
+    const Trk::Track* trk = this->cachedElement();
+    if (nullptr != trk) {
+      return trk->perigeeParameters();
+    }
+    return nullptr;
+  }
+  return nullptr;
+} // end of parameters method
 
-	LinkToTrack::LinkToTrack ( ElementLink<TrackCollection>& link ) : ElementLink<TrackCollection> ( link )
-	{}
+Trk::LinkToTrack*
+Trk::LinkToTrack::clone() const
+{
+  return new LinkToTrack(*this);
+}
 
-        const TrackParameters* LinkToTrack::parameters() const
-	{
-		if ( isValid() )
-		{
-			const Trk::Track * trk = this->cachedElement();
-			if ( nullptr != trk ) { return dynamic_cast<const Trk::TrackParameters* > ( trk->perigeeParameters() );}
-			return nullptr;
-		}
-		return nullptr;
-	}//end of parameters method
-
-        Trk::LinkToTrack* Trk::LinkToTrack::clone() const
-	{
-		return new LinkToTrack ( *this );
-	}
-
-}//end of namespace definitions
+} // end of namespace definitions

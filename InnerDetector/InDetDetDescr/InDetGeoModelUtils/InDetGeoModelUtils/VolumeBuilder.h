@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetGeoModelUtils_VolumeBuilder_H
@@ -8,6 +8,7 @@
 #include "InDetGeoModelUtils/VolumeSplitterUtils.h"
 #include "InDetGeoModelUtils/VolumeSplitter.h"
 #include "AthenaKernel/MsgStreamMember.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <string>
 #include <vector>
@@ -58,7 +59,7 @@ namespace InDetDD {
   private:
     //const GeoShape * getShape(const ServiceVolume & param, double & volume);
     
-    mutable Athena::MsgStreamMember m_msg;
+    mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
     std::string m_region;
     double m_zcenter;
     const std::vector<const ServiceVolume *>* m_services;

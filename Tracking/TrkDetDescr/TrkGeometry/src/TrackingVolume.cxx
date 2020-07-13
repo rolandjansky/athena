@@ -895,10 +895,14 @@ void Trk::TrackingVolume::createBoundarySurfaces ATLAS_NOT_THREAD_SAFE ()
 	            m_boundarySurfaces->push_back(Trk::SharedObject<const Trk::BoundarySurface<Trk::TrackingVolume> >
 				      (new Trk::BoundarySubtractedPlaneSurface<Trk::TrackingVolume>(in, out, *spsf)));    
 	    delete spsf; continue;
-      } else if (psf){ m_boundarySurfaces->push_back(Trk::SharedObject<const Trk::BoundarySurface<Trk::TrackingVolume> >
-                                      (new Trk::BoundaryPlaneSurface<Trk::TrackingVolume>(in, out, *psf)));    
-                     delete psf; continue;
-      }        
+      }
+      if (psf) {
+        m_boundarySurfaces->push_back(
+          Trk::SharedObject<const Trk::BoundarySurface<Trk::TrackingVolume>>(
+            new Trk::BoundaryPlaneSurface<Trk::TrackingVolume>(in, out, *psf)));
+        delete psf;
+        continue;
+      }
 
       const Trk::DiscSurface*       dsf = dynamic_cast<const Trk::DiscSurface*>(*surfIter);
       if (dsf) {
@@ -915,13 +919,18 @@ void Trk::TrackingVolume::createBoundarySurfaces ATLAS_NOT_THREAD_SAFE ()
           m_boundarySurfaces->push_back(Trk::SharedObject<const Trk::BoundarySurface< Trk::TrackingVolume> >
             (new Trk::BoundarySubtractedCylinderSurface<Trk::TrackingVolume>(inner, outer, *scsf)));
           delete scsf; continue;
-      } else if (csf) {
-          Trk::TrackingVolume* inner = (sfCounter == 4 && sfNumber > 3) ? nullptr : this;
-          Trk::TrackingVolume* outer = (inner) ? nullptr : this;
-          m_boundarySurfaces->push_back(Trk::SharedObject<const Trk::BoundarySurface< Trk::TrackingVolume> >
-            (new Trk::BoundaryCylinderSurface<Trk::TrackingVolume>(inner, outer, *csf)));
-          delete csf; continue;
-      } 
+      }
+      if (csf) {
+        Trk::TrackingVolume* inner =
+          (sfCounter == 4 && sfNumber > 3) ? nullptr : this;
+        Trk::TrackingVolume* outer = (inner) ? nullptr : this;
+        m_boundarySurfaces->push_back(
+          Trk::SharedObject<const Trk::BoundarySurface<Trk::TrackingVolume>>(
+            new Trk::BoundaryCylinderSurface<Trk::TrackingVolume>(
+              inner, outer, *csf)));
+        delete csf;
+        continue;
+      }
     }
 
   } else {
@@ -1231,7 +1240,7 @@ void Trk::TrackingVolume::synchronizeLayers ATLAS_NOT_THREAD_SAFE (MsgStream& ms
             else 
                 clayIter->resizeLayer(volumeBounds(),envelope);
         }  else
-            msgstream << MSG::WARNING << "  ---> found 0 pointer to layer, indicates problem." << endmsg;
+            msgstream << MSG::WARNING << "  ---> found 0 pointer to layer in Volume [ "<<volumeName()<<" ], indicates problem." << endmsg;
   }
   // case b : container volume -> step down
   const Trk::BinnedArray< Trk::TrackingVolume >* confVolumes = confinedVolumes();
@@ -1247,12 +1256,23 @@ void Trk::TrackingVolume::compactify ATLAS_NOT_THREAD_SAFE (size_t& cSurfaces, s
   const Trk::BinnedArray< Trk::Layer >* confLayers = confinedLayers();
   if (confLayers){
     const std::vector<const Trk::Layer*>& layers = confLayers->arrayObjects();
-    for (auto& clayIter : layers ) clayIter->compactify(cSurfaces,tSurfaces);
+    for (auto& clayIter : layers ) {
+      if (&(*clayIter)!=nullptr) 
+        clayIter->compactify(cSurfaces,tSurfaces);
+      else 
+        std::cout<<"WARNING: Attempt to compactify nullptr layer in volume : "<<volumeName()<<std::endl;
+    }
   }
   // confined 'unordered' layers
   const std::vector<const Trk::Layer* >* confArbLayers = confinedArbitraryLayers();
-  if (confArbLayers)
-      for (auto& calayIter : (*confArbLayers ) ) calayIter->compactify(cSurfaces,tSurfaces);
+  if (confArbLayers) {
+      for (auto& calayIter : (*confArbLayers ) ) {
+        if (&(*calayIter)!=nullptr) 
+          calayIter->compactify(cSurfaces,tSurfaces);
+        else 
+          std::cout<<"WARNING: Attempt to compactify nullptr layer."<<std::endl;
+      }
+  }
   // confined volumes
   const Trk::BinnedArray< Trk::TrackingVolume >* confVolumes = confinedVolumes();
   if (confVolumes){

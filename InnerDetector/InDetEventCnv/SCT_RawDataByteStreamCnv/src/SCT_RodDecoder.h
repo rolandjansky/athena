@@ -37,7 +37,7 @@ class SCT_RodDecoderErrorsHelper;
 class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
 {
   /** Temp object to help with trigger caching. */
-  struct CacheHelper{
+  struct CacheHelper {
     IdentifierHash skipHash, lastHash;
     const std::vector<IdentifierHash>* vecHash;
   };
@@ -83,32 +83,85 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
                             N_STRIPS_PER_CHIP = 128,
                             N_STRIPS_PER_SIDE = N_CHIPS_PER_SIDE*N_STRIPS_PER_CHIP,
   };
+
+  /** Struct to hold data shared in methods used in fillCollection method */
+  struct SharedData {
+    bool condensedMode{true}; // Condensed mode or Expanded mode for each link if superCondensedMode is false
+
+    // Variables necessary for makeRDO
+    int strip{0};
+    int groupSize{0};
+    int timeBin{0};
+    IdentifierHash linkIDHash; // Determined from header and changed for links using Rx redundancy
+    int errors{0}; // Encodes the errors on the header (bit 4: error in condensed mode 1st hit, bit 5: error in condensed mode 2nd hit)
+    CacheHelper cache; // For the trigger
+    std::vector<int> errorHit;
+
+    int side{0};
+    int oldSide{-1};
+    int oldStrip{-1};
+    int linkNumber{0}; // Determined from header and may be changed for links using Rx redundancy
+
+    std::array<bool, N_STRIPS_PER_SIDE*N_SIDES> saved;
+
+    // For MissingLinkHeaderError
+    bool foundMissingLinkHeaderError{false};
+    std::unordered_set<IdentifierHash> foundHashes;
+
+    bool foundHeader{false};
+
+    void reset() {
+      strip = 0;
+      oldStrip = -1;
+      oldSide = -1;
+      groupSize = 0;
+      errors = 0;
+      saved.fill(false);
+      errorHit.clear();
+    };
+    void setOld() {
+      oldStrip = strip;
+      oldSide = side;
+      groupSize = 0;
+    }
+    void setSaved(const bool isOld, const int code) {
+      if (isOld) {
+        saved[oldSide*N_STRIPS_PER_SIDE + oldStrip] = code;
+      }
+      else {
+        saved[   side*N_STRIPS_PER_SIDE +    strip] = code;
+      }
+    }
+    bool isSaved(const bool isOld) {
+      if (isOld) {
+        return saved[oldSide*N_STRIPS_PER_SIDE + oldStrip];
+      }
+      else {
+        return saved[   side*N_STRIPS_PER_SIDE +    strip];
+      }
+    }
+  };
+
   /**
    * @brief Builds RawData RDO and adds to RDO container
    *
    * Method that builds the RawData RDO and add it to the collection rdoIdc and cache are 
    * updated based on other arguments. 
-   * Method has 3 possible return values:
+   * @return Method has 3 possible return values:
    *   1 if RDO was successfully created
    *   0 if collection was deliberately skipped (for trigger)
    *  -1 if there was an error in the decoding - will be passed on as StatusCode::RECOVERABLE by fillCollection()
    *
-   * @param strip Strip number info for the RDO.
-   * @param groupSize Group size info for the RDO.
-   * @param timeBin Time bin info for RDO.
-   * @param collIDHash IdentifierHash for the wafer/side/FE-link where the RDO exists
-   * @param errors Error info.
+   * @param isOld if true use data.oldStrip, otherwise use data.strip.
+   * @param data Struct to hold data shared in methods used in fillCollection method
    * @param rdoIDCont RDO ID Container to be filled.
    * @param cache Cache.
-   * @param errorHit Hit error info.
    * @param errorsCache - the cache to be filled for a given ID
    */
-  int makeRDO(int strip, int groupSize, int timeBin,
-              const IdentifierHash& collIDHash,
-              int errors,
+  int makeRDO(const bool isOld,
+              const SharedData& data,
               ISCT_RDO_Container& rdoIDCont,
               CacheHelper& cache,
-              const std::vector<int>& errorHit,
 	      SCT_RodDecoderErrorsHelper& errorsCache) const;
 
   /**
@@ -143,6 +196,129 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
   StatusCode setFirstTempMaskedChip(const IdentifierHash& hashID, 
                                     unsigned int firstTempMaskedChip, 
                                     SCT_RodDecoderErrorsHelper& errs) const;
+
+  /**
+   * @brief Process header word
+   *
+   * @param inData input 16 bit data word for header
+   * @param robID ROB ID
+   * @param data Struct to hold data shared in methods used in fillCollection method
+   * @param rdoIDCont RDO ID Container to be filled.
+   * @param cache Cache.
+   * @param errs SCT_RodDecoderErrorsHelper to fill IDCInDetBSErrContainer
+   * @param hasError false means no error, true means at least one error
+   * @param breakNow to tell if need to break after this method execution.
+   */
+  StatusCode processHeader(const uint16_t inData,
+                           const uint32_t robID,
+                           SharedData& data,
+                           ISCT_RDO_Container& rdoIDCont,
+                           CacheHelper& cache,
+                           SCT_RodDecoderErrorsHelper& errs,
+                           bool& hasError,
+                           bool& breakNow) const;
+
+  /**
+   * @brief Process hit word in Super-Condensed mode
+   *
+   * @param inData input 16 bit data word for header
+   * @param robID ROB ID
+   * @param data Struct to hold data shared in methods used in fillCollection method
+   * @param rdoIDCont RDO ID Container to be filled.
+   * @param cache Cache.
+   * @param errs SCT_RodDecoderErrorsHelper to fill IDCInDetBSErrContainer
+   * @param hasError false means no error, true means at least one error
+   */
+  StatusCode processSuperCondensedHit(const uint16_t inData,
+                                      const uint32_t robID,
+                                      SharedData& data,
+                                      ISCT_RDO_Container& rdoIDCont,
+                                      CacheHelper& cache,
+                                      SCT_RodDecoderErrorsHelper& errs,
+                                      bool& hasError) const;
+
+  /**
+   * @brief Process hit word in Condensed mode
+   *
+   * @param inData input 16 bit data word for header
+   * @param robID ROB ID
+   * @param data Struct to hold data shared in methods used in fillCollection method
+   * @param rdoIDCont RDO ID Container to be filled.
+   * @param cache Cache.
+   * @param errs SCT_RodDecoderErrorsHelper to fill IDCInDetBSErrContainer
+   * @param hasError false means no error, true means at least one error
+   */
+  StatusCode processCondensedHit(const uint16_t inData,
+                                 const uint32_t robID,
+                                 SharedData& data,
+                                 ISCT_RDO_Container& rdoIDCont,
+                                 CacheHelper& cache,
+                                 SCT_RodDecoderErrorsHelper& errs,
+                                 bool& hasError) const;
+
+  /**
+   * @brief Process hit word in Expanded mode
+   *
+   * @param inData input 16 bit data word for header
+   * @param robID ROB ID
+   * @param data Struct to hold data shared in methods used in fillCollection method
+   * @param rdoIDCont RDO ID Container to be filled.
+   * @param cache Cache.
+   * @param errs SCT_RodDecoderErrorsHelper to fill IDCInDetBSErrContainer
+   * @param hasError false means no error, true means at least one error
+   */
+  StatusCode processExpandedHit(const uint16_t inData,
+                                const uint32_t robID,
+                                SharedData& data,
+                                ISCT_RDO_Container& rdoIDCont,
+                                CacheHelper& cache,
+                                SCT_RodDecoderErrorsHelper& errs,
+                                bool& hasError) const;
+
+  /**
+   * @brief Process ABCD error
+   *
+   * @param inData input 16 bit data word for header
+   * @param robID ROB ID
+   * @param data Struct to hold data shared in methods used in fillCollection method
+   * @param errs SCT_RodDecoderErrorsHelper to fill IDCInDetBSErrContainer
+   * @param hasError false means no error, true means at least one error
+   */
+  StatusCode processABCDError(const uint16_t inData,
+                              const uint32_t robID,
+                              SharedData& data,
+                              SCT_RodDecoderErrorsHelper& errs,
+                              bool& hasError) const;
+
+  /**
+   * @brief Process raw data word
+   *
+   * @param inData input 16 bit data word for header
+   * @param robID ROB ID
+   * @param data Struct to hold data shared in methods used in fillCollection method
+   * @param errs SCT_RodDecoderErrorsHelper to fill IDCInDetBSErrContainer
+   * @param hasError false means no error, true means at least one error
+   */
+  StatusCode processRawData(const uint16_t inData,
+                            const uint32_t robID,
+                            SharedData& data,
+                            SCT_RodDecoderErrorsHelper& errs,
+                            bool& hasError) const;
+
+  /**
+   * @brief Process trailer word
+   *
+   * @param inData input 16 bit data word for header
+   * @param robID ROB ID
+   * @param data Struct to hold data shared in methods used in fillCollection method
+   * @param errs SCT_RodDecoderErrorsHelper to fill IDCInDetBSErrContainer
+   * @param hasError false means no error, true means at least one error
+   */
+  StatusCode processTrailer(const uint16_t inData,
+                            const uint32_t robID,
+                            SharedData& data,
+                            SCT_RodDecoderErrorsHelper& errs,
+                            bool& hasError) const;
 
   /** Identifier helper class for the SCT subdetector that creates compact Identifier objects and 
       IdentifierHash or hash IDs. Also allows decoding of these IDs. */

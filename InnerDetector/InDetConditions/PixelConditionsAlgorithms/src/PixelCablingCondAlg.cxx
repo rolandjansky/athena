@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelCablingCondAlg.h"
@@ -51,7 +51,7 @@ StatusCode PixelCablingCondAlg::initialize() {
   const EventIDBase::number_type UNDEFNUM = EventIDBase::UNDEFNUM;
   const EventIDBase::event_number_t UNDEFEVT = EventIDBase::UNDEFEVT;
   EventIDRange rangeW (EventIDBase (0, UNDEFEVT, UNDEFNUM, 0, 0),
-                       EventIDBase (UNDEFNUM-1, UNDEFEVT, UNDEFNUM, 0, 0));
+                       EventIDBase (1, UNDEFEVT, UNDEFNUM, 0, 0));
 
   // Signed values
   int barrel_ec, eta_module;

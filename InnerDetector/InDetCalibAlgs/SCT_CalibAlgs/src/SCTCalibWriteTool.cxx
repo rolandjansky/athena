@@ -177,7 +177,8 @@ SCTCalibWriteTool::addNumber(const string numStr, const unsigned long long numbe
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 StatusCode
-SCTCalibWriteTool::createCondObjects ATLAS_NOT_THREAD_SAFE (const Identifier& wafer_id, const SCT_ID* sctId, const int samplesize, const std::string& defectType, const float threshold, const std::string& defectList) const {
+SCTCalibWriteTool::createCondObjects ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
+(const Identifier& wafer_id, const SCT_ID* sctId, const int samplesize, const std::string& defectType, const float threshold, const std::string& defectList) const {
    if (!m_writeCondObjs) {
       return StatusCode::SUCCESS;
    }
@@ -205,7 +206,7 @@ SCTCalibWriteTool::createCondObjects ATLAS_NOT_THREAD_SAFE (const Identifier& wa
 ////////////////////////////////////////////////////////////////////////////////
 
 StatusCode
-SCTCalibWriteTool::createListStrip ATLAS_NOT_THREAD_SAFE
+SCTCalibWriteTool::createListStrip ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
                                   (const Identifier& wafer_id,
                                    const SCT_ID* sctId,
                                    const int samplesize,
@@ -242,7 +243,8 @@ SCTCalibWriteTool::createListStrip ATLAS_NOT_THREAD_SAFE
 ////////////////////////////////////////////////////////////////////////////////
 
 StatusCode
-SCTCalibWriteTool::createListChip ATLAS_NOT_THREAD_SAFE (const Identifier& wafer_id, const SCT_ID* sctId, const int samplesize, const std::string& defectType, const float threshold, const std::string& defectList) const {
+SCTCalibWriteTool::createListChip ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
+(const Identifier& wafer_id, const SCT_ID* sctId, const int samplesize, const std::string& defectType, const float threshold, const std::string& defectList) const {
    if (!m_writeCondObjs) {
       return StatusCode::SUCCESS;
    }
@@ -272,7 +274,8 @@ SCTCalibWriteTool::createListChip ATLAS_NOT_THREAD_SAFE (const Identifier& wafer
 ////////////////////////////////////////////////////////////////////////////////
 
 StatusCode
-SCTCalibWriteTool::createListEff ATLAS_NOT_THREAD_SAFE (const Identifier& wafer_id,const SCT_ID* sctId, const int samplesize, const float eff) const {
+SCTCalibWriteTool::createListEff ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
+(const Identifier& wafer_id,const SCT_ID* sctId, const int samplesize, const float eff) const {
    if (!m_writeCondObjs) {
       return StatusCode::SUCCESS;
    }
@@ -298,7 +301,8 @@ SCTCalibWriteTool::createListEff ATLAS_NOT_THREAD_SAFE (const Identifier& wafer_
 ///////////////////////////////////////////////////////////////////////////////////
 
 StatusCode
-SCTCalibWriteTool::createListNO ATLAS_NOT_THREAD_SAFE (const Identifier& wafer_id, const SCT_ID* sctId, const int samplesize, const float noise_occ) const {
+SCTCalibWriteTool::createListNO ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
+(const Identifier& wafer_id, const SCT_ID* sctId, const int samplesize, const float noise_occ) const {
    if (!m_writeCondObjs) {
       return StatusCode::SUCCESS;
    }
@@ -321,7 +325,8 @@ SCTCalibWriteTool::createListNO ATLAS_NOT_THREAD_SAFE (const Identifier& wafer_i
 ///////////////////////////////////////////////////////////////////////////////////
 
 StatusCode
-SCTCalibWriteTool::createListRawOccu ATLAS_NOT_THREAD_SAFE (const Identifier& wafer_id, const SCT_ID* sctId, const int samplesize, const float raw_occu) const {
+SCTCalibWriteTool::createListRawOccu ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
+(const Identifier& wafer_id, const SCT_ID* sctId, const int samplesize, const float raw_occu) const {
    if (!m_writeCondObjs) {
       return StatusCode::SUCCESS;
    }
@@ -344,7 +349,8 @@ SCTCalibWriteTool::createListRawOccu ATLAS_NOT_THREAD_SAFE (const Identifier& wa
 ///////////////////////////////////////////////////////////////////////////////////
 
 StatusCode
-SCTCalibWriteTool::createListBSErr ATLAS_NOT_THREAD_SAFE (const Identifier& wafer_id,const SCT_ID* sctId,const int samplesize, const std::string& errorList, const std::string& probList) const {
+SCTCalibWriteTool::createListBSErr ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
+(const Identifier& wafer_id,const SCT_ID* sctId,const int samplesize, const std::string& errorList, const std::string& probList) const {
    if (!m_writeCondObjs) {
       return StatusCode::SUCCESS;
    }
@@ -387,7 +393,8 @@ SCTCalibWriteTool::createListBSErr ATLAS_NOT_THREAD_SAFE (const Identifier& wafe
 ///////////////////////////////////////////////////////////////////////////////////
 
 StatusCode
-SCTCalibWriteTool::createListLA ATLAS_NOT_THREAD_SAFE (const Identifier& wafer_id,const SCT_ID* sctId,const int samplesize,int module, const float lorentz, const float err_lorentz, const float chisq, const float fitParam_a, const float err_a, const float fitParam_b, const float err_b, const float fitParam_sigma, const float err_sigma, const float MCW, const float err_MCW) const {
+SCTCalibWriteTool::createListLA ATLAS_NOT_THREAD_SAFE // Thread unsafe CondAttrListCollection::add is used.
+(const Identifier& wafer_id,const SCT_ID* sctId,const int samplesize,int module, const float lorentz, const float err_lorentz, const float chisq, const float fitParam_a, const float err_a, const float fitParam_b, const float err_b, const float fitParam_sigma, const float err_sigma, const float MCW, const float err_MCW) const {
    if (!m_writeCondObjs) return StatusCode::SUCCESS;
    int barrel_ec{sctId->barrel_ec(wafer_id)};
    int layer{sctId->layer_disk(wafer_id)};

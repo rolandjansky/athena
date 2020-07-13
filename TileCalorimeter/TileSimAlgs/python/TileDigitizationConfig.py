@@ -49,10 +49,17 @@ def TileDigitizationCfg(flags):
     if not flags.Digitization.PileUpPremixing and flags.Output.doWriteRDO:
         from TileRecUtils.TileRawChannelMakerConfig import TileRawChannelMakerOutputCfg
         acc.merge( TileRawChannelMakerOutputCfg(flags, streamName = 'RDO') )
+    else:
+        from TileRecUtils.TileRawChannelMakerConfig import TileRawChannelMakerCfg
+        acc.merge( TileRawChannelMakerCfg(flags) )
 
-        if flags.Digitization.DoDigiTruth:
+    if flags.Digitization.DoDigiTruth:
+        if flags.Output.doWriteRDO:
             from TileRecUtils.TileRawChannelMakerConfig import TileRawChannelMakerDigiHSTruthOutputCfg
             acc.merge( TileRawChannelMakerDigiHSTruthOutputCfg(flags, streamName = 'RDO') )
+        else:
+            from TileRecUtils.TileRawChannelMakerConfig import TileRawChannelMakerDigiHSTruthCfg
+            acc.merge( TileRawChannelMakerDigiHSTruthCfg(flags) )
 
     return acc
 

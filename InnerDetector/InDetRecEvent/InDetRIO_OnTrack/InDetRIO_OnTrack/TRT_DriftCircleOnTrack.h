@@ -104,7 +104,7 @@ namespace InDet{
       */
       virtual const Trk::Surface& associatedSurface() const override;
 
-      virtual bool rioType(Trk::RIO_OnTrackType::Type type) const override
+      virtual bool rioType(Trk::RIO_OnTrackType::Type type) const override final
       {
         return (type==Trk::RIO_OnTrackType::TRT_DriftCircle);
       }

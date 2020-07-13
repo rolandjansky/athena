@@ -33,10 +33,6 @@ if DetFlags.ID_on():
     include ( "InDetEventCnvTools/InDetEventCnvTools_jobOptions.py" )
     include( "InDetEventAthenaPool/InDetEventAthenaPool_joboptions.py" )
     include( "TrkEventAthenaPool/TrkEventAthenaPool_joboptions.py" )
-    #kludge needed because of DetailedTruthMap
-    #svcMgr.AthenaSealSvc.DictNames   += [ "TrkTrackDict" ]
-
-
     if rec.doTruth():
         include ("TrackParticleTruthAthenaPool/TrackParticleTruthAthenaPool_joboptions.py")
 

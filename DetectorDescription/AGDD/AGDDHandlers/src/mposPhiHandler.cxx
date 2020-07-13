@@ -1,9 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDHandlers/mposPhiHandler.h"
 #include "AGDDKernel/AGDDPositioner.h"
+#include "GeoModelKernel/Units.h"
+
 #include <iostream>
 
 #include "CLHEP/Vector/Rotation.h"
@@ -54,30 +56,26 @@ void mposPhiHandler::ElementHandle()
 	CLHEP::HepRotation crot;
 	
 	vvv=getAttributeAsVector("rot",res);
-	const double deg=M_PI/180.;
 	if (res) 
 	{
-		crot.rotateX(vvv[0]*deg);
-		crot.rotateY(vvv[1]*deg);
-		crot.rotateZ(vvv[2]*deg);
+		crot.rotateX(vvv[0]*GeoModelKernelUnits::degree);
+		crot.rotateY(vvv[1]*GeoModelKernelUnits::degree);
+		crot.rotateZ(vvv[2]*GeoModelKernelUnits::degree);
 	}
-
-	const double degrad=M_PI/180.;
 	
 	for (int i=0;i<icopy;i++)
 	{
 		CLHEP::Hep2Vector position(rad,lateral_displacement);
 	    CLHEP::Hep3Vector cvec;
-//	    CLHEP::HepRotation crot;
 		double phi=phi0+dphi*i;
-		position.rotate(phi*degrad);
+		position.rotate(phi*GeoModelKernelUnits::degree);
 
 		double x=position.x();
 		double y=position.y();
 		
 		cvec=CLHEP::Hep3Vector(x,y,zpos);
-		if (s!="false"&&i>0) crot.rotateZ(dphi*degrad);
-		if (s!="false"&&i==0) crot.rotateZ(phi0*degrad);
+		if (s!="false"&&i>0) crot.rotateZ(dphi*GeoModelKernelUnits::degree);
+		if (s!="false"&&i==0) crot.rotateZ(phi0*GeoModelKernelUnits::degree);
 
 		p=new AGDDPositioner(volume,crot,cvec);
 	}

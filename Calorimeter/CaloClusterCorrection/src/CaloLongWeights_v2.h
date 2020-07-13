@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCLUSTERCORRECTION_CALOLONGWEIGHTS_V2_H
@@ -25,13 +25,11 @@ PURPOSE:  correction for the energy lost behind the calorimeter,
 class CaloLongWeights_v2 : public CaloClusterCorrectionCommon
 {
 public:
-  // constructor 
-  CaloLongWeights_v2 (const std::string& type,
-                     const std::string& name,
-                     const IInterface* parent);
+  /// Inherit constructor.
+  using CaloClusterCorrectionCommon::CaloClusterCorrectionCommon;
 
  
-  virtual void makeTheCorrection (const EventContext& ctx,
+  virtual void makeTheCorrection (const Context& myctx,
                                   xAOD::CaloCluster* cluster,
                                   const CaloDetDescrElement* elt,
                                   float eta,
@@ -44,12 +42,12 @@ public:
  private:
 
 
-  CaloRec::Array<3>     m_correction;
-  CaloRec::Array<1>     m_energies;
-  int m_degree;
-  float m_etamax;
-  float m_barrel_frontier;
-  float m_endcap_frontier;
+  Constant<CxxUtils::Array<3> > m_correction      { this, "correction", "" };
+  Constant<CxxUtils::Array<1> > m_energies        { this, "energies",   "" };
+  Constant<int>                 m_degree          { this, "degree",     "" };
+  Constant<float>               m_etamax          { this, "EtaMax",     "" };
+  Constant<float>               m_barrel_frontier { this, "EtaBarrel",  "" };
+  Constant<float>               m_endcap_frontier { this, "EtaEndCap",  "" };
 };
 
 #endif

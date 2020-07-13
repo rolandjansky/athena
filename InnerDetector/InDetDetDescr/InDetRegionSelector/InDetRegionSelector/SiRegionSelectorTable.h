@@ -32,11 +32,11 @@ public:
   StatusCode initialize();
   StatusCode finalize();
   
-  virtual RegSelSiLUT* getLUT() const;
+  virtual RegSelSiLUT* getLUT();
 
 private:
   
-  StatusCode createTable();
+  StatusCode createTable (const EventContext& ctx);
   
   RegSelSiLUT*   m_regionLUT;
 

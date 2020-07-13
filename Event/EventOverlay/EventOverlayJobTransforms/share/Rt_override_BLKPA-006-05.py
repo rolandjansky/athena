@@ -22,7 +22,7 @@ conddb.blockFolder("/TRT/Cond/DigVers")
 conddb.addFolderWithTag("TRT_OFL","/TRT/Cond/DigVers","TRTCondDigVers-Collisions-01",force=True,forceMC=True)
 
 ###################################################
-print "Haas: RT OVERRIDE, for COMCOND-BLKPA-006-05"
+printfunc ("Haas: RT OVERRIDE, for COMCOND-BLKPA-006-05")
 
 #use data TRT T0 constants
 conddb.blockFolder("/TRT/Calib/T0")

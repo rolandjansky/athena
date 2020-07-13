@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LARCABLELENGTHP
@@ -20,7 +20,7 @@
 class  LArCableLengthP{
 public:
 
-    LArCableLengthP() : m_CableLength(-999999999) {} 
+    LArCableLengthP() : m_CableLength(-9999999) {} 
     LArCableLengthP(float f) 
 	    : m_CableLength(f) {} 
     bool isEmpty() const { return m_CableLength < -9999 ; } ;

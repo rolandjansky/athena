@@ -239,5 +239,5 @@ if hasattr(runArgs, 'AMITag'):
         ServiceMgr.TagInfoMgr.ExtraTagValuePairs.update({"AMITag" : runArgs.AMITag})
 
 #================================================================
-print "\nOverlay: OutputStream = \n", outStream
-print "\nOverlay: ServiceMgr = \n", ServiceMgr
+OverlayLog.info("\nOverlay: OutputStream = \n" + str(outStream))
+OverlayLog.info("\nOverlay: ServiceMgr = \n" + str(ServiceMgr))

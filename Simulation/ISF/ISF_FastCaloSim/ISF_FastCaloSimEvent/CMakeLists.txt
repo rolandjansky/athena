@@ -6,18 +6,6 @@
 # Declare the package name:
 atlas_subdir( ISF_FastCaloSimEvent )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthContainers
-   Control/AthenaKernel
-   Control/AthenaBaseComps
-   Calorimeter/CaloGeoHelpers
-   TileCalorimeter/TileSimEvent
-   PRIVATE
-   Calorimeter/CaloDetDescr
-   GaudiKernel )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( HepPDT )

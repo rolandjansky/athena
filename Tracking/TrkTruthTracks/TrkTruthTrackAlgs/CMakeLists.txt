@@ -21,5 +21,5 @@ atlas_add_component( TrkTruthTrackAlgs
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS 
-                     LINK_LIBRARIES AtlasHepMCLib AthenaBaseComps GaudiKernel TrkSegment TrkTrack TrkToolInterfaces )
+                     LINK_LIBRARIES AtlasHepMCLib AthenaBaseComps GaudiKernel TrkSegment TrkTrack TrkToolInterfaces TrkTruthTrackInterfaces )
 

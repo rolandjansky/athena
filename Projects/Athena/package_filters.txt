@@ -45,7 +45,6 @@
 - PhysicsAnalysis/TopPhys/xAOD/.*
 - PhysicsAnalysis/TrackingID/InDetTrackSystematicsTools
 - Reconstruction/Jet/JetAnalysisTools/JetTileCorrection
-- Reconstruction/Jet/JetJvtEfficiency
 - Reconstruction/Jet/JetReclustering
 - Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
 
@@ -70,7 +69,6 @@
 - MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibTools
 - MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibValidation
 - MuonSpectrometer/MuonCalib/MuonCalibAlgs
-- MuonSpectrometer/MuonCalib/MuonCalibDbScripts
 - MuonSpectrometer/MuonCalib/MuonCalibJobTransforms
 - MuonSpectrometer/MuonCalib/MuonCalibStandAlone/CalibNtupleAnalysisAlg
 - MuonSpectrometer/MuonCalib/MuonCalibStandAlone/MuonCalibStandAloneExtraTools

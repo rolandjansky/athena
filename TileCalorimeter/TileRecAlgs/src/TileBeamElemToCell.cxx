@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -50,9 +50,7 @@ TileBeamElemToCell::TileBeamElemToCell(const std::string& name, ISvcLocator* pSv
   , m_tileInfo(0)
   , m_tileMgr(0)
 {
-  m_infoName = "TileInfo";
-
-  declareProperty("TileInfoName", m_infoName);                     // name of TileInfo store
+  declareProperty("TileInfoName", m_infoName = "TileInfo");                     // name of TileInfo store
 }
 
 TileBeamElemToCell::~TileBeamElemToCell()

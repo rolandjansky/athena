@@ -18,14 +18,20 @@ if( XAOD_STANDALONE )
       PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEventInfo
       xAODTrigger TrigConfL1Data TrigConfInterfaces )
 else()
+   atlas_add_library( TrigBunchCrossingToolLib
+      TrigBunchCrossingTool/*.h
+      INTERFACE
+      PUBLIC_HEADERS TrigBunchCrossingTool
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools TrigAnalysisInterfaces TrigConfInterfaces )
+
    atlas_add_component( TrigBunchCrossingTool
       TrigBunchCrossingTool/*.h src/*.cxx Root/*.h Root/*.cxx
       Root/json/*.h Root/json/*.inl
       src/components/*.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AsgTools
-      TrigAnalysisInterfaces TrigConfInterfaces GaudiKernel AthenaKernel
-      AthenaPoolUtilities xAODEventInfo xAODTrigger TrigConfL1Data )
+      LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaKernel AthenaPoolUtilities CxxUtils
+      GaudiKernel TrigBunchCrossingToolLib TrigConfL1Data xAODEventInfo xAODTrigger )
 endif()
 
 atlas_add_test( ut_static_bunch_tool_test

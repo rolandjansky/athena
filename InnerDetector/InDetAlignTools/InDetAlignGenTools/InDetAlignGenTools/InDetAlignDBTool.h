@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETALIGNGENTOOLS_ALIGNDBTOOL_H
@@ -36,6 +36,7 @@
 #include "GaudiKernel/ServiceHandle.h" 
 #include "InDetAlignGenTools/IInDetAlignDBTool.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "CxxUtils/checker_macros.h"
 
 class PixelID;
 class SCT_ID;
@@ -46,7 +47,8 @@ namespace InDetDD {
   class SCT_DetectorManager;
 }
 
-class InDetAlignDBTool: virtual public IInDetAlignDBTool, public AthAlgTool {
+class ATLAS_NOT_THREAD_SAFE InDetAlignDBTool: // Global variables and const_cast are used.
+virtual public IInDetAlignDBTool, public AthAlgTool {
  public:
   InDetAlignDBTool(const std::string& type, const std::string& name,
 		 const IInterface* parent);

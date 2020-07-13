@@ -20,7 +20,10 @@ class TrigByteStreamInputSvc(_TrigByteStreamInputSvc):
                                      xbins=1, xmin=0, xmax=1)
         self.MonTool.defineHistogram('TIME_getNext', path='EXPERT', type='TH1F',
                                      title='Time of DataCollector::getNext() calls;Time [ms];N calls',
-                                     xbins=100, xmin=0, xmax=100)
+                                     xbins=400, xmin=0, xmax=200)
+        self.MonTool.defineHistogram('TIME_getNext;TIME_getNext_extRange', path='EXPERT', type='TH1F',
+                                     title='Time of DataCollector::getNext() calls;Time [ms];N calls',
+                                     xbins=400, xmin=0, xmax=2000)
         self.MonTool.defineHistogram('getNext_LBN,getNext_noEvent;NoEventFraction', path='EXPERT', type='TProfile',
                                      title='Fraction of getNext calls returning NO_EVENT;Lumi Block;Event fraction',
                                      xbins=100, xmin=0, xmax=100, opt='kCanRebin')

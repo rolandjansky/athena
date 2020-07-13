@@ -38,9 +38,6 @@ theApp.OutStreamType = "AthenaOutputStream"
 Stream1 = Algorithm( "Stream1" )
 Stream1.EvtConversionSvc = "AthenaPoolCnvSvc"
                                  
-include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-AthenaSealSvc.CheckDictionary = True
- 
 # Output file name
 Stream1.OutputFile = "AOD_Trigger.root"
 

@@ -6,9 +6,16 @@ def LArCollisionTimeMonConfigOld(inputFlags):
     from AthenaMonitoring.AthMonitorCfgHelper import AthMonitorCfgHelperOld
     from LArMonitoring.LArMonitoringConf import LArCollisionTimeMonAlg
     
+    larColTime_hist_path='LArCollisionTimeNewAlg'
 
     helper = AthMonitorCfgHelperOld(inputFlags, 'LArCollisionTimeMonAlgOldCfg')
-    LArCollisionTimeMonConfigCore(helper, LArCollisionTimeMonAlg,inputFlags)
+    LArCollisionTimeMonConfigCore(helper, LArCollisionTimeMonAlg,inputFlags,larColTime_hist_path)
+
+    larColTime_hist_path='LArClusterCollisionTimeNewAlg'
+    LArCollisionTimeMonConfigCore(helper, LArCollisionTimeMonAlg,inputFlags,larColTime_hist_path)
+    helper.monSeq.LArClusterCollisionTimeMonAlg.Key = "ClusterCollTime"
+    helper.monSeq.LArClusterCollisionTimeMonAlg.nCells = 0
+
     return helper.result()
 
 def LArCollisionTimeMonConfig(inputFlags):
@@ -22,16 +29,25 @@ def LArCollisionTimeMonConfig(inputFlags):
     from LArCellRec.LArCollisionTimeConfig import LArCollisionTimeCfg
     cfg = LArCollisionTimeCfg(inputFlags)
 
+    larColTime_hist_path='LArCollisionTimeNewAlg'
+
     from AthenaConfiguration.ComponentFactory import CompFactory
-    LArCollisionTimeMonConfigCore(helper, CompFactory.LArCollisionTimeMonAlg,inputFlags)
+    LArCollisionTimeMonConfigCore(helper, CompFactory.LArCollisionTimeMonAlg,inputFlags,larColTime_hist_path)
+
+    larClusColTime_hist_path='LArClusterCollisionTimeNewAlg'
+    LArCollisionTimeMonConfigCore(helper, CompFactory.LArCollisionTimeMonAlg('LArClusterCollisionTimeMonAlg'),inputFlags,larClusColTime_hist_path)
+    for algo in helper.monSeq.Members:
+       if algo.name == 'LArClusterCollisionTimeMonAlg':
+           algo.Key = "ClusterCollTime"
+           algo.nCells = 0
 
     cfg.merge(helper.result())
     return cfg
 
-def LArCollisionTimeMonConfigCore(helper, algoinstance,inputFlags):
+def LArCollisionTimeMonConfigCore(helper, algoinstance,inputFlags,larColTime_hist_path):
 
 
-    larCollTimeMonAlg = helper.addAlgorithm(algoinstance,'larCollTimeMonAlg')
+    larCollTimeMonAlg = helper.addAlgorithm(algoinstance,larColTime_hist_path[0:-6]+'MonAlg')
 
 
     collTimeGroupName="LArCollisionTimeMonGroup"
@@ -53,7 +69,6 @@ def LArCollisionTimeMonConfigCore(helper, algoinstance,inputFlags):
     from LArMonitoring.GlobalVariables import lArDQGlobals
 
 
-    larColTime_hist_path='LArCollisionTimeNewAlg/'
     timeUnitName='ps'
     if timeUnit == Units.nanosecond:
         timeUnitName='ns'
@@ -256,15 +271,23 @@ if __name__=='__main__':
     from LArCellRec.LArCollisionTimeConfig import LArCollisionTimeCfg
     cfg.merge(LArCollisionTimeCfg(ConfigFlags))
     cfg.getEventAlgo("LArCollisionTimeAlg").cutIteration=False
+    # add cluster collision time algo
+    # cluster config is still missing
+    #from LArClusterRec.LArClusterSwConfig import LArClusterSwConfig
+    #cfg.merge(LArClusterSwConfig(ConfigFlags))
+    from LArClusterRec.LArClusterCollisionTimeConfig import LArClusterCollisionTimeCfg
+    cfg.merge(LArClusterCollisionTimeCfg(ConfigFlags))
 
     from LumiBlockComps.BunchCrossingCondAlgConfig import BunchCrossingCondAlgCfg
     cfg.merge(BunchCrossingCondAlgCfg(ConfigFlags))
 
     import AthenaCommon.SystemOfUnits as Units
     collmon=LArCollisionTimeMonConfig(ConfigFlags)
-    collmon.getEventAlgo("larCollTimeMonAlg").timeDiffCut=5.0*Units.nanosecond
-    collmon.getEventAlgo("larCollTimeMonAlg").nCells=1
-    collmon.getEventAlgo("larCollTimeMonAlg").TrainFrontDistance=int(30*Units.nanosecond)
+    collmon.getEventAlgo("LArCollisionTimeMonAlg").timeDiffCut=5.0*Units.nanosecond
+    collmon.getEventAlgo("LArCollisionTimeMonAlg").nCells=1
+    collmon.getEventAlgo("LArCollisionTimeMonAlg").TrainFrontDistance=int(30*Units.nanosecond)
+    collmon.getEventAlgo("LArClusterCollisionTimeMonAlg").nCells=0
+    collmon.getEventAlgo("LArClusterCollisionTimeMonAlg").TrainFrontDistance=int(30*Units.nanosecond)
     cfg.merge(collmon) 
 
     ConfigFlags.dump()

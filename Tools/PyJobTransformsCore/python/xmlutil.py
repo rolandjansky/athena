@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -48,7 +48,7 @@ class XMLNode:
     def __init__(self,name,contents=None):
         self.__name = name
         self.__contents = None
-        if contents != None: self.setContents(contents)
+        if contents is not None: self.setContents(contents)
         self.__attributes = {}
 
 

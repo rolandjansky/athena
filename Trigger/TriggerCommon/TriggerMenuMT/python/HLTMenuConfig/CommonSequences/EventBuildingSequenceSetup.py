@@ -7,7 +7,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu import EventBuildingInfo
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep, MenuSequence
 from TrigPartialEventBuilding.TrigPartialEventBuildingConf import PEBInfoWriterAlg
 from TrigPartialEventBuilding.TrigPartialEventBuildingConfig import StaticPEBInfoWriterToolCfg, RoIPEBInfoWriterToolCfg
-from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
+from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorInitialROITool
 from libpyeformat_helper import SubDetector
 from AthenaCommon.CFElements import seqAND, findAlgorithm
 from AthenaCommon.Logging import logging
@@ -104,6 +104,7 @@ def pebInfoWriterTool(name, eventBuildType):
 
 def pebInputMaker(eventBuildType):
     maker = InputMakerForRoI("IMpeb_"+eventBuildType)
+    maker.RoITool = ViewCreatorInitialROITool()
     maker.RoIs = "pebInputRoI_" + eventBuildType
     return maker
 

@@ -114,7 +114,7 @@ EMTrackMatch::~EMTrackMatch()
 /// interface methods
 const std::string& EMTrackMatch::className() const
 {
-  static std::string className = ClassName<EMTrackMatch>::name();
+  static const std::string className = ClassName<EMTrackMatch>::name();
   return className;
 }
 

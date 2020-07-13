@@ -1,11 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConf import *
-from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoMonitoring import *
-from AthenaCommon.SystemOfUnits import MeV, GeV
-from AthenaCommon.AppMgr import ToolSvc
-from AthenaCommon.Logging import logging
-
+import TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConf as Conf
+from AthenaCommon.SystemOfUnits import GeV
 
 
 def getCaloRatioHypoInstance( instance, threshold, logratio, dotrackiso):
@@ -25,7 +21,7 @@ def getCaloRatioHypoInstance( instance, threshold, logratio, dotrackiso):
                           name=name )
 
 
-class MuonClusterHypoConfig (MuonClusterHypo):
+class MuonClusterHypoConfig (Conf.MuonClusterHypo):
     __slots__ = []
     def __init__(self, name, maxEta, midEta):
 
@@ -38,7 +34,7 @@ class MuonClusterHypoConfig (MuonClusterHypo):
         self.maxEta              = maxEta
         self.midEta              = midEta
 
-class MuonClusterIsolationHypoConfig (MuonClusterIsolationHypo):
+class MuonClusterIsolationHypoConfig (Conf.MuonClusterIsolationHypo):
     __slots__ = []
     def __init__(self, name, maxEta, midEta, numJet, numTrk, doIsolation):
         super( MuonClusterIsolationHypoConfig, self ).__init__( name )
@@ -63,7 +59,7 @@ class MuonClusterIsolationHypoConfig (MuonClusterIsolationHypo):
         self.nTrk                = numTrk
         self.doIsolation         = doIsolation
 
-class L2HVJetHypoAllCutsBase (TrigL2HVJetHypoAllCuts):
+class L2HVJetHypoAllCutsBase (Conf.TrigL2HVJetHypoAllCuts):
     __slots__ = []
     def __init__(self, name):
         super( L2HVJetHypoAllCutsBase, self ).__init__( name )
@@ -114,7 +110,7 @@ class L2HVJetHypoAllCuts_doCleaning (L2HVJetHypoAllCuts):
         self.jetTimeCellsThr = 25
 
 
-class L2HVJetHypoBase (TrigL2HVJetHypo):
+class L2HVJetHypoBase (Conf.TrigL2HVJetHypo):
     __slots__ = []
     def __init__(self, name):
         super( L2HVJetHypoBase, self ).__init__( name )
@@ -165,7 +161,7 @@ class L2HVJetHypo_doCleaning (L2HVJetHypo):
         self.jetTimeCellsThr = 25
 
 
-class L2HVJetHypoTrkBase (TrigL2HVJetHypoTrk):
+class L2HVJetHypoTrkBase (Conf.TrigL2HVJetHypoTrk):
     __slots__ = []
     def __init__(self, name):
         super( L2HVJetHypoTrkBase, self ).__init__( name )
@@ -187,7 +183,7 @@ class L2HVJetHypoTrk (L2HVJetHypoTrkBase):
         super( L2HVJetHypoTrk, self ).__init__( name )
 
 
-class TrigNewLoFHypoConfig (TrigNewLoFHypo):
+class TrigNewLoFHypoConfig (Conf.TrigNewLoFHypo):
     __slots__ = []
     def __init__(self, name = "TrigNewLoFHypoConfig"):
         super( TrigNewLoFHypoConfig, self ).__init__( name )
@@ -197,7 +193,7 @@ class TrigNewLoFHypoConfig (TrigNewLoFHypo):
         self.LoFCellContSize     = 4
 
 
-class TrigLoFRemovalHypoConfig (TrigLoFRemovalHypo):
+class TrigLoFRemovalHypoConfig (Conf.TrigLoFRemovalHypo):
     __slots__ = []
     def __init__(self, name = "TrigLoFRemovalHypoConfig"):
         super( TrigLoFRemovalHypoConfig, self ).__init__( name )
@@ -217,7 +213,7 @@ class TrigLoFRemovalHypoConfig (TrigLoFRemovalHypo):
         self.LoFCellContSize     = 4
 
 
-class CaloRatioHypo (TrigCaloRatioHypo):
+class CaloRatioHypo (Conf.TrigCaloRatioHypo):
     __slots__ = []
     def __init__(self, threshold, logratio, dotrackiso, name):
         super( CaloRatioHypo, self ).__init__( name )

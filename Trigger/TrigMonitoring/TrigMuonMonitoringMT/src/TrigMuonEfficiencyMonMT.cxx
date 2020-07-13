@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigMuonEfficiencyMonMT.h"
@@ -15,7 +15,6 @@ TrigMuonEfficiencyMonMT :: TrigMuonEfficiencyMonMT(const std::string& name, ISvc
 StatusCode TrigMuonEfficiencyMonMT :: initialize(){
   StatusCode sc = TrigMuonMonitorAlgorithm::initialize();
   ATH_CHECK( m_matchTool.retrieve() );
-  ATH_CHECK( m_MuonRoIContainerKey.initialize() );
 
   // Pairing HLT and L1
   unsigned int nchains = m_monitored_chains.size();
@@ -61,17 +60,6 @@ StatusCode TrigMuonEfficiencyMonMT :: fillVariablesPerOfflineMuonPerChain(const 
   auto muEta = Monitored::Scalar<float>(m_group+"_muEta");
   auto muPhi = Monitored::Scalar<float>(m_group+"_muPhi");
 
-
-  SG::ReadHandle<xAOD::MuonRoIContainer> rois(m_MuonRoIContainerKey, ctx);
-  if (! rois.isValid() ) {
-    ATH_MSG_ERROR("evtStore() does not contain xAOD::MuonRoI collection with name "<< m_MuonRoIContainerKey);
-    return StatusCode::FAILURE;
-  }
-  if(rois->getConstStore()==nullptr){
-    xAOD::MuonRoIContainer *ncptr = const_cast<xAOD::MuonRoIContainer*>(rois.get());
-    ncptr->setStore(DataLink<SG::IConstAuxStore>(m_MuonRoIContainerKey.key()+"Aux.", ctx));
-  }
-
   muPt = mu->pt()/1e3;
   muEta = mu->eta();
   muPhi = mu->phi();
@@ -79,12 +67,13 @@ StatusCode TrigMuonEfficiencyMonMT :: fillVariablesPerOfflineMuonPerChain(const 
   auto L1pass = Monitored::Scalar<bool>(m_group+"_L1pass",false);
   auto L2SApass = Monitored::Scalar<bool>(m_group+"_L2SApass",false);
   auto L2CBpass = Monitored::Scalar<bool>(m_group+"_L2CBpass",false);
-  auto EFpass = Monitored::Scalar<bool>(m_group+"_EFpass",false);
+  auto EFSApass = Monitored::Scalar<bool>(m_group+"_EFSApass",false);
+  auto EFCBpass = Monitored::Scalar<bool>(m_group+"_EFCBpass",false);
 
 
   if(m_doL1){
     bool activestate = false;
-    ATH_CHECK( m_matchTool->matchL1(mu, rois, m_l1seeds.at(chain), activestate) );
+    m_matchTool->matchL1(mu, ctx, m_l1seeds.at(chain), activestate);
     L1pass = activestate;
   } else {
     L1pass = true;
@@ -94,7 +83,7 @@ StatusCode TrigMuonEfficiencyMonMT :: fillVariablesPerOfflineMuonPerChain(const 
   if(L1pass){
     if(m_doL2SA){
       bool activestate = false;
-      ATH_CHECK( m_matchTool->matchSA(mu, chain, activestate) );
+      m_matchTool->matchSA(mu, chain, activestate);
       L2SApass = activestate;
     } else {
       L2SApass = true;
@@ -105,7 +94,7 @@ StatusCode TrigMuonEfficiencyMonMT :: fillVariablesPerOfflineMuonPerChain(const 
   if(L2SApass){
     if(m_doL2CB){
       bool activestate = false;
-      ATH_CHECK( m_matchTool->matchCB(mu, chain, activestate) );
+      m_matchTool->matchCB(mu, chain, activestate);
       L2CBpass = activestate;
     } else {
       L2CBpass = true;
@@ -116,22 +105,34 @@ StatusCode TrigMuonEfficiencyMonMT :: fillVariablesPerOfflineMuonPerChain(const 
   if(L2CBpass){
     if(m_doEF){
       bool activestate = false;
-      ATH_CHECK( m_matchTool->matchEF(mu, chain, activestate) );
-      EFpass = activestate;
+      m_matchTool->matchEFSA(mu, chain, activestate);
+      EFSApass = activestate;
     } else {
-      EFpass = true;
+      EFSApass = true;
     }
   }
-  ATH_MSG_DEBUG("L1pass:" << L1pass << " L2SAPass:" << L2SApass << " L2CBpass:" << L2CBpass << " EFpass:" << EFpass);
+
+
+  if(EFSApass){
+    if(m_doEF){
+      bool activestate = false;
+      m_matchTool->matchEF(mu, chain, activestate);
+      EFCBpass = activestate;
+    } else {
+      EFCBpass = true;
+    }
+  }
+
+  ATH_MSG_DEBUG("L1pass:" << L1pass << " L2SAPass:" << L2SApass << " L2CBpass:" << L2CBpass << " EFSApass:" << EFSApass <<  " EFCBpass:" << EFCBpass);
 
 
   //// Cuts based on the offline muon's features ////
   // Inclusive
-  fill(m_group, muPt, L1pass, L2SApass, L2CBpass, EFpass);
+  fill(m_group, muPt, L1pass, L2SApass, L2CBpass, EFSApass, EFCBpass);
 
   // Plateau
   if(muPt>m_thresholds.at(chain)){
-    fill(m_group, muEta, muPhi,  L1pass, L2SApass, L2CBpass, EFpass);
+    fill(m_group, muEta, muPhi, L1pass, L2SApass, L2CBpass, EFSApass, EFCBpass);
   }
 
 
@@ -189,8 +190,8 @@ StatusCode TrigMuonEfficiencyMonMT :: selectMuonsTagAndProbe(SG::ReadHandle<xAOD
     bool pass1 = false;
     bool pass2 = false;
 
-    ATH_CHECK(m_matchTool->matchEF(dimu.first, m_tag_trig, pass1));
-    ATH_CHECK(m_matchTool->matchEF(dimu.second, m_tag_trig, pass2));
+    m_matchTool->matchEF(dimu.first, m_tag_trig, pass1);
+    m_matchTool->matchEF(dimu.second, m_tag_trig, pass2);
     
     if(pass1){
       if(std::find(probes.begin(), probes.end(), dimu.second)==probes.end()){

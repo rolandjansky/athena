@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -32,9 +32,6 @@ namespace Trk {
       /**Explicit constructor for 1-dimensional vector */
       ProjectionMatricesSet(int maxdim);
       
-      /** Virtual destructor */
-      virtual ~ProjectionMatricesSet();
-      
       /**Expansion matrix return*/
       const Amg::MatrixX& expansionMatrix(int mtx) const;
       
@@ -45,16 +42,16 @@ namespace Trk {
       int accessor(int mtx, ParamDefs par) const;
       
     private:
-     int                                          m_maxdim;
-     std::vector<const Amg::MatrixX*>             m_expansions;
-     std::vector<const Amg::MatrixX*>             m_reductions;
-     std::vector< std::vector<int> >              m_accessors;
+      int                             m_maxdim;
+      std::vector<Amg::MatrixX> m_expansions;
+      std::vector<Amg::MatrixX> m_reductions;
+      std::vector<std::vector<int>>   m_accessors;
      
   };    
 
-inline const Amg::MatrixX& ProjectionMatricesSet::expansionMatrix(int mtx) const { return (*m_expansions[mtx]); }
+inline const Amg::MatrixX& ProjectionMatricesSet::expansionMatrix(int mtx) const { return m_expansions[mtx]; }
 
-inline const Amg::MatrixX& ProjectionMatricesSet::reductionMatrix(int mtx) const { return (*m_reductions[mtx]); }
+inline const Amg::MatrixX& ProjectionMatricesSet::reductionMatrix(int mtx) const { return m_reductions[mtx]; }
     
 inline int ProjectionMatricesSet::accessor(int mtx, ParamDefs par) const { return (par-(m_accessors[mtx])[par]); }
 

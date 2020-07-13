@@ -20,6 +20,9 @@
 // Tested AthAlgorithm
 #include "../InDetOverlay/BCMOverlay.h"
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY; // Use of global g_svcLoc is not thread safe.
+
 namespace OverlayTesting {
 
   // needed every time an AthAlgorithm, AthAlgTool or AthService is instantiated

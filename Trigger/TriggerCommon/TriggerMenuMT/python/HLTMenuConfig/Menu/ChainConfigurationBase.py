@@ -50,7 +50,12 @@ class ChainConfigurationBase(object):
         for sequenceCfg in sequenceCfgArray:
             seqArray.append( RecoFragmentsPool.retrieve( sequenceCfg, None))
         return ChainStep(stepName, seqArray, [self.mult], [self.dict], comboHypoCfg=comboHypoCfg, comboToolConfs=comboTools)
-    
+
+    def getEmptyStep(self, stepID, stepPartName):
+        stepName = 'Step%d'%stepID + '_%d'%self.mult + stepPartName
+        log.debug("Configuring empty step " + stepName)        
+        return ChainStep(stepName, [],  multiplicity=[] )
+ 
     def buildChain(self, chainSteps):
         myChain = Chain(name = self.chainName,
                         ChainSteps = chainSteps,

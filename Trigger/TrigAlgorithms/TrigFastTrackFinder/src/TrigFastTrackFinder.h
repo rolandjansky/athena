@@ -34,18 +34,14 @@
 #include "AthenaMonitoringKernel/Monitored.h"
 
 class ITrigL2LayerNumberTool;
-class ITrigL2LayerSetPredictorTool;
 class ITrigSpacePointConversionTool;
 class ITrigL2ResidualCalculator;
 class ITrigInDetTrackFitter;
 class ITrigZFinder;
-class IRegSelSvc;
 class TrigRoiDescriptor;
-class TrigSiSpacePointBase;
 class Identifier;
 namespace InDet { 
-  class SiSpacePointsSeed;
-  class ISiTrackMaker; 
+  class ISiTrackMaker;
   class SiTrackMakerEventData_xk;
 }
 
@@ -54,9 +50,6 @@ namespace Trk {
   class SpacePoint;
 }
 
-class TrigL2LayerSetLUT;
-class TrigSpacePointStorage;
-class TrigInDetTriplet;
 class PixelID;
 class SCT_ID;
 class AtlasDetectorID;
@@ -83,6 +76,9 @@ class TrigFastTrackFinder : public HLT::FexAlgo {
 
   double trackQuality(const Trk::Track* Tr) const;
   void filterSharedTracks(std::vector<std::tuple<bool, double, Trk::Track*>>& QT) const;
+
+  virtual bool isClonable() const override { return true; }
+  virtual unsigned int cardinality() const override { return 0; }//Mark as re-entrant
 
 protected: 
 

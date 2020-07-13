@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PFlowUtils/IWeightPFOTool.h"
@@ -17,6 +17,7 @@
 #include "JetMomentTools/JetVertexTaggerTool.h"
 #include "JetMomentTools/JetWidthTool.h"
 #include "JetMomentTools/JetCaloEnergies.h"
+#include "JetMomentTools/JetQGTaggerVariableTool.h"
 
 #ifdef __CINT__
 
@@ -39,6 +40,6 @@
 #pragma link C++ class JetVertexTaggerTool+;
 #pragma link C++ class JetWidthTool+;
 #pragma link C++ class JetCaloEnergies+;
-
+#pragma link C++ class JetQGTaggerVariableTool+;
 
 #endif

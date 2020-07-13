@@ -57,11 +57,6 @@ theApp.AuditAlgorithms = True
 theApp.AuditServices   = True
 
 #--------------------------------------------------------------
-# Load AthenaSealSvc
-#--------------------------------------------------------------
-ServiceMgr.AthenaSealSvc.CheckDictionary = True
-
-#--------------------------------------------------------------
 # Setup geometry and conditions tag
 # - Chosen from magnet current info
 #--------------------------------------------------------------

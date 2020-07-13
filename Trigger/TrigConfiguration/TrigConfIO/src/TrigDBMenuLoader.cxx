@@ -16,6 +16,26 @@ namespace {
    getL1QueryDefinitions() {
       std::vector<TrigConf::QueryDefinition> queries;
 
+      { // query for table dev1
+         queries.emplace_back();
+         auto & q = queries.back();
+         // tables
+         q.addToTableList ( "SUPER_MASTER_TABLE", "SMT" );
+         q.addToTableList ( "L1_MENU", "L1TM" );
+         // bind vars
+         q.extendBinding<int>("smk");
+         // conditions
+         q.extendCondition("SMT.SMT_ID = :smk");
+         q.extendCondition(" AND SMT.SMT_L1_MENU_ID = L1TM.L1TM_ID");
+         // attributes
+         q.extendOutput<std::string>( "SMT.SMT_NAME" );
+         q.extendOutput<int>        ( "SMT.SMT_VERSION" );
+         q.extendOutput<int>        ( "SMT.SMT_L1_MENU_ID" );
+         q.extendOutput<coral::Blob>( "L1TM.L1TM_DATA" );
+         // the field with the data
+         q.setDataName("L1TM.L1TM_DATA");
+      }
+
       { // query for table dev2
          queries.emplace_back();
          auto & q = queries.back();
@@ -34,32 +54,32 @@ namespace {
          // the field with the data
          q.setDataName("L1MT.L1MT_MENU");
       }
-
-      { // query for table dev1
-         queries.emplace_back();
-         auto & q = queries.back();
-         // tables
-         q.addToTableList ( "SUPER_MASTER_TABLE", "SMT" );
-         q.addToTableList ( "L1_MENU", "L1MT" );
-         // bind vars
-         q.extendBinding<int>("smk");
-         // conditions
-         q.extendCondition("SMT.SMT_ID = :smk");
-         q.extendCondition(" AND SMT.SMT_L1_MENU_ID = L1MT.L1TM_ID");
-         // attributes
-         q.extendOutput<std::string>( "SMT.SMT_NAME" );
-         q.extendOutput<int>        ( "SMT.SMT_VERSION" );
-         q.extendOutput<int>        ( "SMT.SMT_L1_MENU_ID" );
-         q.extendOutput<coral::Blob>( "L1MT.L1TM_DATA" );
-         // the field with the data         
-         q.setDataName("L1MT.L1TM_DATA");
-      }
       return queries;
    }
 
    std::vector<TrigConf::QueryDefinition>
    getHLTQueryDefinitions() {
       std::vector<TrigConf::QueryDefinition> queries;
+
+      { // query for table dev1
+         queries.emplace_back();
+         auto & q = queries.back();
+         // tables
+         q.addToTableList ( "SUPER_MASTER_TABLE", "SMT" );
+         q.addToTableList ( "HLT_MENU", "HTM" );
+         // bind vars
+         q.extendBinding<int>("smk");
+         // conditions
+         q.extendCondition("SMT.SMT_ID = :smk");
+         q.extendCondition(" AND SMT.SMT_HLT_MENU_ID = HTM.HTM_ID");
+         // attributes
+         q.extendOutput<std::string>( "SMT.SMT_NAME" );
+         q.extendOutput<int>        ( "SMT.SMT_VERSION" );
+         q.extendOutput<int>        ( "SMT.SMT_HLT_MENU_ID" );
+         q.extendOutput<coral::Blob>( "HTM.HTM_DATA" );
+         // the field with the data
+         q.setDataName("HTM.HTM_DATA");
+      }
 
       { // query for table dev2
          queries.emplace_back();
@@ -78,26 +98,6 @@ namespace {
          q.extendOutput<coral::Blob>( "HMT.HMT_MENU" );
          // the field with the data
          q.setDataName("HMT.HMT_MENU");
-      }
-
-      { // query for table dev1
-         queries.emplace_back();
-         auto & q = queries.back();
-         // tables
-         q.addToTableList ( "SUPER_MASTER_TABLE", "SMT" );
-         q.addToTableList ( "HLT_MENU", "HMT" );
-         // bind vars
-         q.extendBinding<int>("smk");
-         // conditions
-         q.extendCondition("SMT.SMT_ID = :smk");
-         q.extendCondition(" AND SMT.SMT_HLT_MENU_ID = HMT.HTM_ID");
-         // attributes
-         q.extendOutput<std::string>( "SMT.SMT_NAME" );
-         q.extendOutput<int>        ( "SMT.SMT_VERSION" );
-         q.extendOutput<int>        ( "SMT.SMT_HLT_MENU_ID" );
-         q.extendOutput<coral::Blob>( "HMT.HTM_DATA" );
-         // the field with the data         
-         q.setDataName("HMT.HTM_DATA");
       }
       return queries;
    }
@@ -130,6 +130,11 @@ TrigConf::TrigDBMenuLoader::loadL1Menu ( unsigned int smk,
          break;
       }
       catch(coral::QueryException & ex) {
+         TRG_MSG_INFO("Trying next query after coral::QueryException caught ( " << ex.what() <<" )" );
+         continue;
+      }
+      catch(std::exception & ex) {
+         TRG_MSG_INFO("Trying next query after std::exception caught ( " << ex.what() <<" )" );
          continue;
       }
    }
@@ -167,6 +172,11 @@ TrigConf::TrigDBMenuLoader::loadHLTMenu ( unsigned int smk,
          break;
       }
       catch(coral::QueryException & ex) {
+         TRG_MSG_INFO("Trying next query after coral::QueryException caught ( " << ex.what() <<" )" );
+         continue;
+      }
+      catch(std::exception & ex) {
+         TRG_MSG_INFO("Trying next query after std::exception caught ( " << ex.what() <<" )" );
          continue;
       }
    }

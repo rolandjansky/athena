@@ -1,20 +1,20 @@
 #! /usr/bin/env python
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # Author : Benjamin Trocme (LPSC - Grenoble) - 2017
 # Displays the run affected per defect type
 # Perform run by run differences for difference tags
 ##################################################################
 
+from __future__ import print_function
 import os,sys  
 from math import fabs
 from re import match
 from time import strftime,gmtime
 
 from ROOT import TFile
-from ROOT import TH1F
 from ROOT import TCanvas
 from ROOT import kTeal
-from ROOT import gStyle,gROOT,gPad
+from ROOT import gStyle,gPad
 
 
 sys.path.append("/afs/cern.ch/user/l/larmon/public/prod/Misc")
@@ -30,7 +30,6 @@ debug = False
 ########################################################################
 ########################################################################
 # Main script
-import os,sys  
 
 from argparse import RawTextHelpFormatter,ArgumentParser
 
@@ -89,21 +88,21 @@ for iYear in args.parser_year:
           runGRL[yearTag].append(int(iRun)) # used only to determine if a run belongs to GRL in recap defects - Data in loss*.txt file NOT reliable
         fRunList.close()
       else:
-        print "No GRL list found... Please create it"
+        print("No GRL list found... Please create it")
         sys.exit()
 
 if len(args.parser_year) == 1:
   singleYear = True
 else:
   singleYear = False
-  if (options['plotDiff2tags']):
-    print "To compare two tags, you must choose only one year. Exiting..."
+  if args.parser_diff2tags:
+    print("To compare two tags, you must choose only one year. Exiting...")
     sys.exit()
 
 yearTagList.sort()
 
 if len(yearTagList) == 0:
-  print "No year / tag matching - Please check YearStats directory"
+  print("No year / tag matching - Please check YearStats directory")
   sys.exit()
 
 options = {}
@@ -114,9 +113,9 @@ if options['defect'] == [""] and options['veto'] == [""]:
   options['veto'] = veto["all"]
 else:
   if options['defect'][0] not in grlDef["intol"] and options['veto'][0] not in veto["all"]:
-    print "Defect/veto not found. Please check..."
-    print "Defect: ",grlDef["intol"] 
-    print "Veto: ",veto["all"]
+    print("Defect/veto not found. Please check...")
+    print("Defect: ",grlDef["intol"]) 
+    print("Veto: ",veto["all"])
     sys.exit()
   if options['defect'] == [""]:
     options['defect'] = []
@@ -148,8 +147,8 @@ if (options['plotDiff2tags'] and options['restrictTagRuns'] in yearTagProperties
   for iline in fRuns.readlines():
     runsFilter.append(int(iline))
   fRuns.close()
-  print "I am considering only the %d runs of %s"%(len(runsFilter),options['restrictTagRuns'])
-  print runsFilter
+  print("I am considering only the %d runs of %s"%(len(runsFilter),options['restrictTagRuns']))
+  print(runsFilter)
 
 options['minLumiYearStatsDefect'] = args.parser_minLumiLPR
 options['retrieveComments'] = args.parser_retrieveComments
@@ -213,7 +212,7 @@ h1_loss_rLPR = {}
 atlasReady = {}
 
 for iYT in yearTagList:
-  print "I am treating the following year/tag:%s"%iYT
+  print("I am treating the following year/tag:%s"%iYT)
 
   canvasResults[iYT] = {}
   legendResults[iYT] = {}
@@ -223,7 +222,7 @@ for iYT in yearTagList:
   if options['plotDiff2tags']:
     yearStatsArchiveFilename = '%s/TProfiles.root'%(yearTagDir[iYT])
     if not (os.path.exists(yearStatsArchiveFilename)):
-      print "No %s found - > Skipping"%yearStatsArchiveFilename
+      print("No %s found - > Skipping"%yearStatsArchiveFilename)
       continue
     
     file[iYT] = TFile(yearStatsArchiveFilename)
@@ -254,18 +253,17 @@ for iYT in yearTagList:
         
       # Check if a dat loss file is associated to this veto/defect
       if os.path.exists(lossFileName):
-        print "I am reading the %s file"%lossFileName
+        print("I am reading the %s file"%lossFileName)
         runsLPR[iYT][iDefVeto] = []
         lossLPR[iYT][iDefVeto] = []
         loss_rLPR[iYT][iDefVeto] = []
         f2 = open(lossFileName,'r')
-        tmpLines = f2.readlines()
-        tmpLines.sort()
+        tmpLines = sorted(f2.readlines())
         for iline in tmpLines: # Loop on all lines of the loss-[defect/veto].dat files
           if defVetoType[iDefVeto] == "Intolerable defect":
-            read = match("(\d+) \((\d+) ub-1.*\) -> (\d+.\d+) pb-1 \D+(\d+.\d+)\D+",iline)
+            read = match(r"(\d+) \((\d+) ub-1.*\) -> (\d+.\d+) pb-1 \D+(\d+.\d+)\D+",iline)
           else:# Veto loss is never recoverable (not tolerable defects)
-            read = match("(\d+) \((\d+) ub-1.*\) -> (\d+.\d+) pb-1",iline)
+            read = match(r"(\d+) \((\d+) ub-1.*\) -> (\d+.\d+) pb-1",iline)
           # retrieve the run number
           runnumber = int(read.group(1))
           # If the runs filter is activated (i.e. runsFilter != 0), check if the runs must be filtered
@@ -291,7 +289,7 @@ for iYT in yearTagList:
             lossLPR[iYT][iDefVeto].append(lostLumi)
             loss_rLPR[iYT][iDefVeto].append(recovLumi)
             if options['retrieveComments'] and "defect" in defVetoType[iDefVeto]: # retrieve comments for defects
-              print "@%d"%(runnumber)
+              print("@%d"%(runnumber))
               db = DefectsDB(tag=yearTagProperties["defect"][yearTagTag[iYT]])
               system_defects = []
               for iPrefix in grlDef["prefix"]:
@@ -311,7 +309,7 @@ for iYT in yearTagList:
                         defectUntilLumiAtlasReady = iLumiBlock+1
                         if defectSinceLumiAtlasReady == -1:
                           defectSinceLumiAtlasReady = iLumiBlock
-                    print defectSinceLumiAtlasReady,defectUntilLumiAtlasReady
+                    print(defectSinceLumiAtlasReady,defectUntilLumiAtlasReady)
                     if defectSinceLumiAtlasReady == -1: # Whole defect was outside ATLAS ready - Skip it
                       continue
                     
@@ -403,7 +401,7 @@ if options['plotLossPerRun'] and options['retrieveComments']:
   for iDef in options['defect']:
     if (iDef in h1_lossLPR[iYT].keys()): # This protection is needed as defRecap may have duplication in some rare cases. See Muon system with "MDT_ROD_PROBLEM_1" and "RPC_PROBLEM_1"
       if ("b-1" in defRecap[iDef]):# At least one data loss in the whole YearStats for this defect 
-        print defRecap[iDef]
+        print(defRecap[iDef])
         f.write(defRecap[iDef])
         fHtml.write("%s</tr>"%defRecapHtml[iDef].replace("LUMILOSTTOBEREPLACED",strLumi(h1_lossLPR[iYT][iDef].Integral(),"pb^{-1}")))
         if options['savePage1']:
@@ -422,17 +420,17 @@ if options['plotLossPerRun'] and options['retrieveComments']:
 
 # Compare defects/veto run by run (if the year is the same for both) 
 if (len(yearTagList) == 2 and options['plotDiff2tags'] and singleYear):
-  print "I am now comparing run by run the defects and their affected luminosity"
+  print("I am now comparing run by run the defects and their affected luminosity")
   
   # First basic check about the datasets used in both tags
   YT0 = yearTagList[0]
   YT1 = yearTagList[1]
   if (subperiodNb[YT0] != subperiodNb[YT1]):
-    print "Warning : different number of subperiods..."
+    print("Warning : different number of subperiods...")
   else:
     for iBin in range(subperiodNb[YT0]):
       if (h1Period_IntLuminosity[YT0].GetBinContent(iBin) != h1Period_IntLuminosity[YT1].GetBinContent(iBin)):
-        print "Warning : different luminosities in bin %s/%s: %f vs %f"%(h1Period_IntLuminosity[YT0].GetXaxis().GetBinLabel(iBin),h1Period_IntLuminosity[YT1].GetXaxis().GetBinLabel(iBin),h1Period_IntLuminosity[YT0].GetBinContent(iBin),h1Period_IntLuminosity[YT1].GetBinContent(iBin))
+        print("Warning : different luminosities in bin %s/%s: %f vs %f"%(h1Period_IntLuminosity[YT0].GetXaxis().GetBinLabel(iBin),h1Period_IntLuminosity[YT1].GetXaxis().GetBinLabel(iBin),h1Period_IntLuminosity[YT0].GetBinContent(iBin),h1Period_IntLuminosity[YT1].GetBinContent(iBin)))
   
   runs_diff2tags = {}
   lumi_diff2tags = {}
@@ -460,9 +458,9 @@ if (len(yearTagList) == 2 and options['plotDiff2tags'] and singleYear):
       else: 
         iYT2=yearTagList[0]
         sign = -1      
-      if (runsLPR[iYT].has_key(iDefVeto) and not runsLPR[iYT2].has_key(iDefVeto)):
+      if (iDefVeto in runsLPR[iYT] and iDefVeto not in runsLPR[iYT2]):
         for irun in range(len(runsLPR[iYT][iDefVeto])):
-          print "%s contains %s %s (%.6f pb-1) for run %d but %s does not!"%(iYT,defOrVeto,iDefVeto,lossLPR[iYT][iDefVeto][irun],runsLPR[iYT][iDefVeto][irun],iYT2)
+          print("%s contains %s %s (%.6f pb-1) for run %d but %s does not!"%(iYT,defOrVeto,iDefVeto,lossLPR[iYT][iDefVeto][irun],runsLPR[iYT][iDefVeto][irun],iYT2))
           defVeto_type = "%s_miss_%s"%(iDefVeto,iYT2)
           defOrVeto_type = "%s_miss_%s"%(defOrVeto,iYT2)
 
@@ -470,10 +468,10 @@ if (len(yearTagList) == 2 and options['plotDiff2tags'] and singleYear):
           if runsLPR[iYT][iDefVeto][irun] not in runs_diff2tags[defOrVeto_type]:
             runs_diff2tags[defOrVeto_type].append(runsLPR[iYT][iDefVeto][irun])
             
-      if (runsLPR[iYT].has_key(iDefVeto) and runsLPR[iYT2].has_key(iDefVeto)):
+      if (iDefVeto in runsLPR[iYT] and iDefVeto in runsLPR[iYT2]):
         for irun in range(len(runsLPR[iYT][iDefVeto])):
           if runsLPR[iYT][iDefVeto][irun] not in runsLPR[iYT2][iDefVeto]:
-            print "%s contains %s %s (%.6f pb-1) for run %d but %s does not!"%(iYT,defOrVeto,iDefVeto,lossLPR[iYT][iDefVeto][irun],runsLPR[iYT][iDefVeto][irun],iYT2)
+            print("%s contains %s %s (%.6f pb-1) for run %d but %s does not!"%(iYT,defOrVeto,iDefVeto,lossLPR[iYT][iDefVeto][irun],runsLPR[iYT][iDefVeto][irun],iYT2))
             defVeto_type = "%s_miss_%s"%(iDefVeto,iYT2)
             defOrVeto_type = "%s_miss_%s"%(defOrVeto,iYT2)
 
@@ -483,7 +481,7 @@ if (len(yearTagList) == 2 and options['plotDiff2tags'] and singleYear):
           else:
             irun2 = runsLPR[iYT2][iDefVeto].index(runsLPR[iYT][iDefVeto][irun])
             if (lossLPR[iYT][iDefVeto][irun] != lossLPR[iYT2][iDefVeto][irun2] and firstYT):
-              print "%s contains %s %s (%.6f pb-1) for run %d; %s also but with a different luminosity %.6f pb-1!"%(iYT,defOrVeto,iDefVeto,lossLPR[iYT][iDefVeto][irun],runsLPR[iYT][iDefVeto][irun],iYT2,lossLPR[iYT2][iDefVeto][irun2])
+              print("%s contains %s %s (%.6f pb-1) for run %d; %s also but with a different luminosity %.6f pb-1!"%(iYT,defOrVeto,iDefVeto,lossLPR[iYT][iDefVeto][irun],runsLPR[iYT][iDefVeto][irun],iYT2,lossLPR[iYT2][iDefVeto][irun2]))
               defVeto_type = "%s_diff"%(iDefVeto)
               defOrVeto_type = "%s_diff"%(defOrVeto)
 
@@ -569,4 +567,3 @@ if (len(yearTagList) == 2 and options['plotDiff2tags'] and singleYear):
         c_diffTwoYT[defOrVeto_type].cd(2)
         leg_diffTwoYT[defOrVeto_type].SetHeader(suffixTitle[iSuffix])
         leg_diffTwoYT[defOrVeto_type].Draw()
-    

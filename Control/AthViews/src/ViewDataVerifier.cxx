@@ -19,7 +19,7 @@ namespace AthViews {
 
 ViewDataVerifier::ViewDataVerifier( const std::string& name,
                       ISvcLocator* pSvcLocator ) : 
-  ::AthAlgorithm( name, pSvcLocator )
+  ::AthReentrantAlgorithm( name, pSvcLocator )
 {
 }
 
@@ -53,10 +53,10 @@ StatusCode ViewDataVerifier::initialize()
   return sc;
 }
 
-StatusCode ViewDataVerifier::execute()
+StatusCode ViewDataVerifier::execute(const EventContext& ctx) const
 {  
   // Retrieve the current view from the EventContext
-  auto viewProxy = Atlas::getExtendedEventContext(getContext()).proxy();
+  auto viewProxy = Atlas::getExtendedEventContext(ctx).proxy();
 
   ATH_MSG_DEBUG( "Executing " << name() << " running with store " << viewProxy->name() );
 

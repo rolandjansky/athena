@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKADAPTIVEFITTERTOOLS_ADAPTIVEVERTEXFITTER_H
@@ -84,6 +84,9 @@ namespace Trk
   class AdaptiveVertexFitter : public extends<AthAlgTool, IVertexFitter>
   {
   public:
+    // The following 'using' can be removed when IVertexFitter::fit has been fully migrated to the one with the EventContext
+    using Trk::IVertexFitter::fit;
+  
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
     
@@ -101,39 +104,6 @@ namespace Trk
     
     virtual ~AdaptiveVertexFitter();
     
-    /**
-     *Interface for Tracks with starting seed/linearization point
-     */    
-
-    virtual xAOD::Vertex * fit(const std::vector<const Trk::Track*> & vectorTrk,
-			       const Amg::Vector3D & startingPoint) const override;
-    
-    /**
-     * Interface for Track with vertex constraint 
-     * the position of the constraint has to be provided, and 
-     * NOT the starting point 
-     */
-    
-    virtual xAOD::Vertex * fit(const std::vector<const Trk::Track*>& vectorTrk,
-                               const xAOD::Vertex& constraint) const override;
-    
-    /**
-     *Interface for TrackParticleBase with starting seed/linearization point
-     */    
-
-    virtual xAOD::Vertex * fit(const std::vector<const Trk::TrackParticleBase*> & vectorTrk,
-			       const Amg::Vector3D & startingPoint) const override;
-    
-    /**
-     * Interface for TrackParticleBase with vertex constraint 
-     * the position of the constraint has to be provided, and 
-     * NOT the starting point 
-     */
-    
-    virtual xAOD::Vertex * fit(const std::vector<const Trk::TrackParticleBase*>& vectorTrk,
-                               const xAOD::Vertex& constraint) const override;
-   
-
     /** 
      *Interface for xAOD::TrackParticle with starting point 
      */
@@ -156,64 +126,69 @@ namespace Trk
 			       const xAOD::Vertex& constraint)  const override
     {return fit(vectorTrk, std::vector<const xAOD::NeutralParticle*>(), constraint);};
 
-    
     /**
      * Interface for MeasuredPerigee with starting point
      */
-    virtual xAOD::Vertex * fit(const std::vector<const Trk::TrackParameters*> & perigeeList, 
-			       const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList,
-                               const Amg::Vector3D& startingPoint) const override;
-    virtual xAOD::Vertex * fit(const std::vector<const Trk::TrackParameters*> & perigeeList, const Amg::Vector3D& startingPoint) const override;
-    
+    virtual xAOD::Vertex* fit(
+      const std::vector<const Trk::TrackParameters*>& perigeeList,
+      const std::vector<const Trk::NeutralParameters*>& neutralPerigeeList,
+      const Amg::Vector3D& startingPoint) const override;
+    virtual xAOD::Vertex* fit(
+      const std::vector<const Trk::TrackParameters*>& perigeeList,
+      const Amg::Vector3D& startingPoint) const override;
+
     /**
-     * Interface for MeasuredPerigee with vertex constraint 
+     * Interface for MeasuredPerigee with vertex constraint
      */
-    virtual xAOD::Vertex * fit(const std::vector<const Trk::TrackParameters*> & perigeeList, 
-			       const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList,
-                               const xAOD::Vertex& constraint) const override;
-    virtual xAOD::Vertex * fit(const std::vector<const Trk::TrackParameters*> & perigeeList, const xAOD::Vertex& constraint) const override;
-    
+    virtual xAOD::Vertex* fit(
+      const std::vector<const Trk::TrackParameters*>& perigeeList,
+      const std::vector<const Trk::NeutralParameters*>& neutralPerigeeList,
+      const xAOD::Vertex& constraint) const override;
+    virtual xAOD::Vertex* fit(
+      const std::vector<const Trk::TrackParameters*>& perigeeList,
+      const xAOD::Vertex& constraint) const override;
+
     /**
      * fit providing vector of tracks, constraint and startingPoint
      */
-    
-    xAOD::Vertex * fit(const std::vector<const Trk::Track*> & Vectortrk,
-		       const xAOD::Vertex& constraint,
-		       const Amg::Vector3D & startingPoint) const;
+
+    xAOD::Vertex* fit(const std::vector<const Trk::Track*>& Vectortrk,
+                      const xAOD::Vertex& constraint,
+                      const Amg::Vector3D& startingPoint) const;
 
     /**
      * fit providing vector of ParametersBase, constraint and startingPoint
      */
-    
-    xAOD::Vertex * fit(const std::vector<const Trk::TrackParameters*> & perigeeList, const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList,
-		       const xAOD::Vertex& constraint,
-		       const Amg::Vector3D & startingPoint) const;
+
+    xAOD::Vertex* fit(
+      const std::vector<const Trk::TrackParameters*>& perigeeList,
+      const std::vector<const Trk::NeutralParameters*>& neutralPerigeeList,
+      const xAOD::Vertex& constraint,
+      const Amg::Vector3D& startingPoint) const;
     xAOD::Vertex * fit(const std::vector<const Trk::TrackParameters*> & perigeeList,
 		       const xAOD::Vertex& constraint,
 		       const Amg::Vector3D & startingPoint) const;
 
-    /**
-     * fit providing vector of Tracks
-     */
 
-    xAOD::Vertex * fit(const std::vector<const Trk::Track*> & vectorTrk) const override;
     
     /**
      * fit providing vector of TrackParameters and NeutralParameters
      */
 
-    xAOD::Vertex * fit(const std::vector<const Trk::TrackParameters*> & perigeeList, const std::vector<const Trk::NeutralParameters*> & neutralPerigeeList) const override;
-    xAOD::Vertex * fit(const std::vector<const Trk::TrackParameters*> & perigeeList) const override;
+    xAOD::Vertex* fit(
+      const std::vector<const Trk::TrackParameters*>& perigeeList,
+      const std::vector<const Trk::NeutralParameters*>& neutralPerigeeList)
+      const override;
+    xAOD::Vertex* fit(const std::vector<const Trk::TrackParameters*>&
+                        perigeeList) const override;
 
     /**
      * fit providing vector of TrackParticleBase
      */
 
-    xAOD::Vertex * fit(const std::vector<const Trk::TrackParticleBase*> & perigeeList) const;
+    xAOD::Vertex* fit(
+      const std::vector<const Trk::TrackParticleBase*>& perigeeList) const;
 
-
-    
-   
   private:
 
     /**
@@ -243,18 +218,7 @@ namespace Trk
                        bool IsConstraint=false,
                        bool IsStartingPoint=false) const;
  
-    /**
-     * Internal method for fitting a list of Tracks, with or without constraint and 
-     * starting point
-     */
-    
-    xAOD::Vertex * _fit(const std::vector<const Trk::TrackParticleBase*> & VectorTrk,
-                       const xAOD::Vertex& constraint=xAOD::Vertex(),
-                       const Amg::Vector3D & startingPoint=Amg::Vector3D(),
-                       bool IsConstraint=false,
-                       bool IsStartingPoint=false) const;
-
-    /**
+   /**
      * Internal method, called by the two _fit internal functions, in order to perform the fit, 
      * after having initialized the input (constraint + seed). The real fit happens here.
      */

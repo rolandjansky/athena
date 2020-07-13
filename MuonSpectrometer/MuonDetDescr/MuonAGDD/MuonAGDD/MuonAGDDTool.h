@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonAGDDTool_H
@@ -20,8 +20,7 @@ class IToolSvc;
 class MuonAGDDTool: public AGDDToolBase
 {
 public:
-	MuonAGDDTool(const std::string& type, const std::string& name, 
-				 const IInterface* parent);
+	MuonAGDDTool(const std::string& type, const std::string& name, const IInterface* parent);
 	virtual StatusCode construct();
 	
 	virtual StatusCode initialize();
@@ -32,6 +31,8 @@ private:
 	std::vector<std::string> m_structuresFromFlags;
 	std::string m_outFileType;
 	std::string m_outPREsqlName;
+	std::string m_DBFileName;
+	std::string m_agdd2GeoSvcName;
 
 	bool m_readAGDD;
 	bool m_dumpAGDD;

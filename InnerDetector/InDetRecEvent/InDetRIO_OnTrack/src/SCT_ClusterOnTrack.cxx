@@ -23,9 +23,13 @@ InDet::SCT_ClusterOnTrack::SCT_ClusterOnTrack(const InDet::SCT_Cluster* RIO,
            bool isbroad) : 
   SiClusterOnTrack(locpars, locerr, idDE, RIO->identify(),isbroad) //call base class constructor
 {
-  m_detEl=nullptr;
+  m_detEl=RIO->detectorElement();
   m_positionAlongStrip=std::numeric_limits<double>::quiet_NaN();
   m_rio.setElement(RIO);
+
+  // Set global position
+  Amg::Vector2D lpos(localParameters().get(Trk::locX), m_positionAlongStrip);
+  m_globalPosition = detectorElement()->surface(identify()).localToGlobalPos(lpos);
 }
 
 // Constructor with parameters
@@ -60,17 +64,21 @@ InDet::SCT_ClusterOnTrack::SCT_ClusterOnTrack( const ElementLinkToIDCSCT_Cluster
                      idDE,
                      id,
                      isbroad),
-    m_rio (RIO),
-    m_detEl (nullptr),
+    m_rio(RIO),
+    m_detEl((*RIO)->detectorElement()),
     m_positionAlongStrip (positionAlongStrip)
-{}
+{
+  // Set global position
+  Amg::Vector2D lpos(localParameters().get(Trk::locX), m_positionAlongStrip);
+  m_globalPosition = detectorElement()->surface(identify()).localToGlobalPos(lpos);
+}
 
 
 // Default constructor:
 InDet::SCT_ClusterOnTrack::SCT_ClusterOnTrack():
   SiClusterOnTrack(),
   m_rio(),
-  m_detEl(0),
+  m_detEl(nullptr),
   m_positionAlongStrip(std::numeric_limits<double>::quiet_NaN())
 {}
 
@@ -85,20 +93,6 @@ void InDet::SCT_ClusterOnTrack::setValues(const Trk::TrkDetElementBase* detEl, c
     m_detEl = dynamic_cast< const InDetDD::SiDetectorElement* >(detEl);
 }
   
-const  Amg::Vector3D& InDet::SCT_ClusterOnTrack::globalPosition() const
-  {
-   //checking whether the globalposition is available
-   if (not m_globalPosition)
-   {
-    
-    // calculate global position from the position of the strip and the position along the strip
-     Amg::Vector2D lpos( localParameters().get(Trk::locX), m_positionAlongStrip );
-     m_globalPosition.set(std::unique_ptr<const Amg::Vector3D>(detectorElement()->surface( identify() ).localToGlobal( lpos )));            
-   }
-    
-   return (*m_globalPosition);
-} 
-
 MsgStream& InDet::SCT_ClusterOnTrack::dump( MsgStream& sl ) const
 {
   SiClusterOnTrack::dump(sl);// use dump(...) from SiClusterOnTrack

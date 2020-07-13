@@ -9,6 +9,9 @@ atlas_subdir( MuonSegmentMakerInterfaces )
 atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel )
 
-# Install files from the package:
-atlas_install_headers( MuonSegmentMakerInterfaces )
+atlas_add_library( MuonSegmentMakerInterfacesLib
+                   MuonSegmentMakerInterfaces/*.h
+                   INTERFACE
+                   PUBLIC_HEADERS MuonSegmentMakerInterfaces
+                   LINK_LIBRARIES AthenaKernel GaudiKernel )
 

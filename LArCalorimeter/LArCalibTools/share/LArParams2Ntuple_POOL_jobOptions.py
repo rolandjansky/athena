@@ -88,10 +88,6 @@ ToolSvc.LArRoI_Map.Print = False
 #
 # Read in from POOL file
 #
-include("AthenaServices/AthenaSealSvc_joboptions.py")
-include("LArRawConditions/LArRawConditionsDict_joboptions.py")
-AthenaSealSvc.CheckDictionary = True 
-
 include("AthenaPoolCnvSvc/AthenaPool_jobOptions.py")
 theApp.Dlls += ["EventSelectorAthenaPool"] 
 theApp.Dlls += [ "LArAthenaPoolPoolCnv" ]
@@ -107,9 +103,6 @@ CondProxyProvider.OutputLevel = DEBUG
 
 EventPersistencySvc = Service( "EventPersistencySvc" )
 EventPersistencySvc.CnvServices += [ "AthenaPoolCnvSvc" ]
-
-include( "AthenaServices/AthenaSealSvc_joboptions.py" )
-include( "LArRawConditions/LArRawConditionsDict_joboptions.py" )
 
 PoolSvc = Service ( "PoolSvc" )
 PoolSvc.ReadCatalog += [ "xmlcatalog_file:"+PoolFileCatalog ]

@@ -10,7 +10,6 @@
 #define TRKRIO_ONTRACK_SICLUSTERONTRACK_H
 
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
-#include "CxxUtils/CachedUniquePtr.h"
 #include "Identifier/IdentifierHash.h"
 
 class SiClusterOnTrackCnv_p1;
@@ -105,7 +104,7 @@ namespace InDet {
       /** The IdentifierHash - probably not used*/
       IdentifierHash                      m_idDE;
       /** The global position */
-      CxxUtils::CachedUniquePtr<const Amg::Vector3D> m_globalPosition;
+      Amg::Vector3D m_globalPosition;
       bool m_isbroad;
   };
 

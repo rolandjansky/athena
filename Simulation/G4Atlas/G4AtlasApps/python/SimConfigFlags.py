@@ -30,7 +30,7 @@ def createSimConfigFlags():
     #in simflags
     scf.addFlag("Sim.ReleaseGeoModel",True)
     scf.addFlag("Sim.RecordFlux",False)
-    scf.addFlag("Sim.TruthStrategy","MC12") #todo - needs to have some extra functionality!
+    scf.addFlag("Sim.TruthStrategy", "MC12")
     scf.addFlag("Sim.G4Commands",["/run/verbose 2"])
     #in atlasflags
     scf.addFlag("Sim.FlagAbortedEvents",False)
@@ -67,9 +67,33 @@ def createSimConfigFlags():
     scf.addFlag("Sim.G4EquationOfMotion", "")
     scf.addFlag("Sim.UsingGeant4", True)
 
+    # for cosmics
+    #  volume(s) used to do cosmics filtering
+    #  G4 volume names from {"Muon", "Calo", "InnerDetector", "TRT_Barrel", "TRT_EC", "SCT_Barrel", "Pixel"}
+    scf.addFlag("Sim.CosmicFilterVolumeNames", ["InnerDetector"])
+    scf.addFlag("Sim.CosmicFilterID", "13") # PDG ID to be filtered
+    scf.addFlag("Sim.CosmicFilterPTmin", "5000") # min pT filtered in cosmics processing (MeV)
+    scf.addFlag("Sim.CosmicFilterPTmax", "6000") # max pT filtered in cosmics processing (MeV)
+
     # For ISF
     scf.addFlag("Sim.ISFRun",False)
     scf.addFlag("Sim.ISF.HITSMergingRequired", True)
     scf.addFlag("Sim.ISF.Simulator", "ATLFASTII")
+    scf.addFlag("Sim.ISF.DoTimeMonitoring", True) # bool: run time monitoring
+    scf.addFlag("Sim.ISF.ValidationMode", False) # bool: run ISF internal validation checks
+
+    scf.addFlag("Sim.FastCalo.ParamsInputFilename", "FastCaloSim/MC16/TFCSparam_v011.root") # filename of the input parametrizations file
+    scf.addFlag("Sim.FastCalo.CaloCellsName", "AllCalo") # StoreGate collection name for FastCaloSim hits
+    
+    scf.addFlag("Sim.FastShower.InputCollection", "TruthEvent") # StoreGate collection name of modified TruthEvent for legayc FastCaloSim use
+
+    # FastChain
+    # Setting the BCID for Out-of-Time PU events, list of int
+    scf.addFlag("Sim.FastChain.BCID", [1])
+    # weights for Out-of-Time PU events
+    scf.addFlag("Sim.FastChain.PUWeights_lar_em", [1.0]) # LAr EM
+    scf.addFlag("Sim.FastChain.PUWeights_lar_hec", [1.0]) # LAr HEC
+    scf.addFlag("Sim.FastChain.PUWeights_lar_bapre", [1.0]) # LAr Barrel presampler
+    scf.addFlag("Sim.FastChain.PUWeights_tile", [1.0]) # Tile
 
     return scf

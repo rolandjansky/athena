@@ -23,7 +23,7 @@ class LArDetectorManager;
     align() which applies misalignments on top of the 'regular' geometry.
 */
 
-class LArDetectorToolNV : public GeoModelTool {
+class LArDetectorToolNV final : public GeoModelTool {
  public:
     // Standard Constructor
     LArDetectorToolNV( const std::string& type, const std::string& name, const IInterface* parent );

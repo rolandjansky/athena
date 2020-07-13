@@ -19,8 +19,6 @@
 #include "GeoModelKernel/GeoDefinitions.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
-#include "CLHEP/Geometry/Transform3D.h"
-
 #include "LArGeoCode/LArMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelUtilities/GeoDBUtils.h"

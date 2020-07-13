@@ -1,15 +1,7 @@
-# $Id: CMakeLists.txt 727053 2016-03-01 14:24:32Z krasznaa $
-################################################################################
-# Package: TrigHLTJetHypoUnitTests
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigHLTJetHypoUnitTests )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PRIVATE
-   Trigger/TrigHypothesis/TrigHLTJetHypo )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Physics )
@@ -18,18 +10,14 @@ find_package( GMock )
 atlas_add_library( TrigHLTJetHypoUnitTestsLib
                    src/*.cxx
                    exerciser/*.cxx
-                   PUBLIC_HEADERS TrigHLTJetHypoUnitTests
-                   # PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES xAODJet GaudiKernel TrigParticle TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib DecisionHandlingLib TrigHLTJetHypoLib 
-                   # PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
-		   )
+                   NO_PUBLIC_HEADERS
+                   LINK_LIBRARIES TrigHLTJetHypoLib
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel xAODJet )
 
 atlas_add_component( TrigHLTJetHypoUnitTests
                      exerciser/components/*.cxx
-                     LINK_LIBRARIES  TrigHLTJetHypoUnitTestsLib)
+                     LINK_LIBRARIES TrigHLTJetHypoUnitTestsLib)
 		     
-atlas_install_headers( TrigHLTJetHypoUnitTests )
-
 # Test(s) in the package:
 atlas_add_test( TrigHLTJetHypoTimerTest
    SOURCES src/Timer.cxx
@@ -55,9 +43,7 @@ atlas_add_test( TrigHLTJetHypoUnitTests
    tests/xAODJetCollectorTest.cxx
    tests/PartitionsGrouperTest.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} GoogleTestTools ${GMOCK_LIBRARIES}
-   TrigHLTJetHypoLib
-   TrigHLTJetHypoUnitTestsLib)
+   LINK_LIBRARIES ${ROOT_LIBRARIES} GoogleTestTools ${GMOCK_LIBRARIES} TrigHLTJetHypoLib TrigHLTJetHypoUnitTestsLib )
    
 # Install files from the package:
-atlas_install_python_modules( python/*.py ) 
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
