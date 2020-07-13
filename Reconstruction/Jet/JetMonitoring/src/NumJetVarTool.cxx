@@ -23,7 +23,7 @@ StatusCode NumJetVarTool::initialize() {
 
 }
 
-float NumJetVarTool::value(const xAOD::EventInfo & e, const xAOD::JetContainer & jets) const {
+float NumJetVarTool::value(const xAOD::EventInfo & /*eventinfo not used in this implementation*/, const xAOD::JetContainer & jets) const {
   
   if ( jets.empty() ) {
     if (m_failureOnMissingContainer){
