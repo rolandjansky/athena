@@ -189,13 +189,13 @@ namespace Muon {
     std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
     std::set<IdentifierHash>::const_iterator chit_end = chIdHs.end();
     for( ;chit!=chit_end;++chit ){
-      MdtPrepDataContainer::const_iterator colIt = mdtPrdContainer->indexFind(*chit);
-      if( colIt == mdtPrdContainer->end() ){
+      auto collptr = mdtPrdContainer->indexFindPtr(*chit);
+      if( collptr == nullptr ){
 	continue;
       }
       
       // reserve space for the new PRDs
-      mdtPrds.insert( mdtPrds.end(), (*colIt)->begin(), (*colIt)->end() );
+      mdtPrds.insert( mdtPrds.end(), collptr->begin(), collptr->end() );
     }
 
     return mdtPrds;
@@ -219,16 +219,16 @@ namespace Muon {
     std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
     std::set<IdentifierHash>::const_iterator chit_end = chIdHs.end();
     for( ;chit!=chit_end;++chit ){
-      MdtPrepDataContainer::const_iterator colIt = mdtPrdContainer->indexFind(*chit);
-      if( colIt == mdtPrdContainer->end() || (*colIt)->empty() ){
+      auto collptr = mdtPrdContainer->indexFindPtr(*chit);
+      if( collptr == nullptr || collptr->empty() ){
 	continue;
       }
       ATH_MSG_DEBUG(" Adding for:   " 
-		    << m_idHelperSvc->toStringChamber( (*colIt)->front()->identify() ) << "  size " 
-		    << (*colIt)->size());
+		    << m_idHelperSvc->toStringChamber( collptr->front()->identify() ) << "  size " 
+		    << collptr->size());
       
       // reserve space for the new PRDs
-      target.push_back(*colIt);
+      target.push_back(collptr);
     }
   }
 
@@ -251,16 +251,16 @@ namespace Muon {
     std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
     std::set<IdentifierHash>::const_iterator chit_end = chIdHs.end();
     for( ;chit!=chit_end;++chit ){
-      RpcPrepDataContainer::const_iterator colIt = rpcPrdContainer->indexFind(*chit);
-      if( colIt == rpcPrdContainer->end() || (*colIt)->empty() ){
+      auto collptr = rpcPrdContainer->indexFindPtr(*chit);
+      if( collptr == nullptr || collptr->empty() ){
 	continue;
       }
       ATH_MSG_DEBUG(" Adding for:   " 
-		    << m_idHelperSvc->toStringChamber( (*colIt)->front()->identify() ) << "  size " 
-		    << (*colIt)->size());
+		    << m_idHelperSvc->toStringChamber( collptr->front()->identify() ) << "  size " 
+		    << collptr->size());
       
       // reserve space for the new PRDs
-      target.push_back(*colIt);
+      target.push_back(collptr);
     }
   }
 
@@ -283,16 +283,16 @@ namespace Muon {
     std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
     std::set<IdentifierHash>::const_iterator chit_end = chIdHs.end();
     for( ;chit!=chit_end;++chit ){
-      TgcPrepDataContainer::const_iterator colIt = tgcPrdContainer->indexFind(*chit);
-      if( colIt == tgcPrdContainer->end() || (*colIt)->empty() ){
+      auto collptr = tgcPrdContainer->indexFindPtr(*chit);
+      if( collptr == nullptr || collptr->empty() ){
 	continue;
       }
       ATH_MSG_DEBUG(" Adding for:   " 
-		    << m_idHelperSvc->toStringChamber( (*colIt)->front()->identify() ) << "  size " 
-		    << (*colIt)->size());
+		    << m_idHelperSvc->toStringChamber( collptr->front()->identify() ) << "  size " 
+		    << collptr->size());
 
       // reserve space for the new PRDs
-      target.push_back(*colIt);
+      target.push_back(collptr);
     }
   }
 
@@ -320,17 +320,17 @@ namespace Muon {
     std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
     std::set<IdentifierHash>::const_iterator chit_end = chIdHs.end();
     for( ;chit!=chit_end;++chit ){
-      CscPrepDataContainer::const_iterator colIt = cscPrdContainer->indexFind(*chit);
-      if( colIt == cscPrdContainer->end() || (*colIt)->empty() ){
+      auto collptr = cscPrdContainer->indexFindPtr(*chit);
+      if( collptr == nullptr || collptr->empty() ){
 	continue;
       }
       
       ATH_MSG_DEBUG(" Adding for:   " 
-		    << m_idHelperSvc->toStringChamber( (*colIt)->front()->identify() ) << "  size " 
-		    << (*colIt)->size());
+		    << m_idHelperSvc->toStringChamber( collptr->front()->identify() ) << "  size " 
+		    << collptr->size());
 
       // reserve space for the new PRDs
-      target.push_back(*colIt);
+      target.push_back(collptr);
     }
   }
 
@@ -360,16 +360,16 @@ namespace Muon {
     std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
     std::set<IdentifierHash>::const_iterator chit_end = chIdHs.end();
     for( ;chit!=chit_end;++chit ){
-      sTgcPrepDataContainer::const_iterator colIt = stgcPrdContainer->indexFind(*chit);
-      if( colIt == stgcPrdContainer->end() || (*colIt)->empty() ){                                                                                                           
+      auto collptr = stgcPrdContainer->indexFindPtr(*chit);
+      if( collptr == nullptr || collptr->empty() ){
         continue;
       }
       ATH_MSG_DEBUG(" Adding for:   "
-                    << m_idHelperSvc->toStringChamber( (*colIt)->front()->identify() ) << "  size "
-                    << (*colIt)->size());
+                    << m_idHelperSvc->toStringChamber( collptr->front()->identify() ) << "  size "
+                    << collptr->size());
 
       // reserve space for the new PRDs                                                                                                                                                                
-      target.push_back(*colIt);
+      target.push_back(collptr);
     }
 
     if(chIdHs.size()==0) {
@@ -412,15 +412,15 @@ namespace Muon {
     std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
     std::set<IdentifierHash>::const_iterator chit_end = chIdHs.end();
     for ( ; chit != chit_end; ++chit ) {
-      MMPrepDataContainer::const_iterator colIt = mmPrdContainer->indexFind(*chit);
-      if ( colIt == mmPrdContainer->end() || (*colIt)->empty() ) {
+      auto collptr = mmPrdContainer->indexFindPtr(*chit);
+      if ( collptr == nullptr || collptr->empty() ) {
 	continue;
       }
       ATH_MSG_DEBUG(" Adding for:   "
-		    << m_idHelperSvc->toStringChamber( (*colIt)->front()->identify() ) << "  size "
-		    << (*colIt)->size());
+		    << m_idHelperSvc->toStringChamber( collptr->front()->identify() ) << "  size "
+		    << collptr->size());
       
-      target.push_back(*colIt);
+      target.push_back(collptr);
     }
     
     if(chIdHs.size()==0) {

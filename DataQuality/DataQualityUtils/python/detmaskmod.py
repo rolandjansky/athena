@@ -88,12 +88,12 @@ def decode(mask):
     dm = eformat.helper.DetectorMask(mask)
     rv = []
     for keys, value in detmaskmap.items():
-        if type(keys) == str:
+        if isinstance(keys, str):
             keys = [keys]
         if reduce(operator.or_,
                   [dm.is_set(getSubDetectorObj(key)) for key in keys]):
             flags = value
-            if type(flags) == str:
+            if isinstance(flags, str):
                 flags = [flags]
             rv += list(flags)
 
@@ -104,12 +104,12 @@ def decodeBlack(mask, defects=False):
     rv = []
     dmap = detmaskmap if not defects else detmaskmap_defects
     for keys, value in sorted(dmap.items()):
-        if type(keys) == str:
+        if isinstance(keys, str):
             keys = [keys]
         if reduce(operator.and_,
                   [not dm.is_set(getSubDetectorObj(key)) for key in keys]):
             flags = value
-            if type(flags) == str:
+            if isinstance(flags, str):
                 flags = [flags]
             rv += list(flags)
 

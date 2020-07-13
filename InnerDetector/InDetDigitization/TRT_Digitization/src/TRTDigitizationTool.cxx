@@ -89,7 +89,7 @@ TRTDigitizationTool::~TRTDigitizationTool() {
 }
 
 //_____________________________________________________________________________
-StatusCode TRTDigitizationTool::initialize ATLAS_NOT_THREAD_SAFE ()
+StatusCode TRTDigitizationTool::initialize ATLAS_NOT_THREAD_SAFE () // Thread unsafe detStore()->regFcn (callback) is used.
 {
 
   ATH_MSG_DEBUG ( name()<<"::initialize() begin" );

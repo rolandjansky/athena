@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeneratorFilters/DecayLengthFilter.h"
@@ -30,6 +30,40 @@ StatusCode DecayLengthFilter::filterEvent() {
   CHECK(evtStore()->retrieve( McEventCollection, m_McEventCollectionName));
 
   const HepMC::GenEvent* theGenEvent = *(McEventCollection->begin()); //supose ther is only one, no pile-up
+#ifdef HEPMC3
+  setFilterPassed(false);
+
+  //First, find special vertices
+  int nFound(0);
+  for(auto  vtx_iter:  theGenEvent->vertices()) {
+
+    // now look for displaced vertices
+    if(vtx_iter->particles_in().size()!=1) continue; // chi decays have only one in particle (the chi)
+    if(vtx_iter->particles_out().size()<2) continue; // we don't want replication entries
+    if(vtx_iter->position().x()==0 && vtx_iter->position().y()==0 && vtx_iter->position().z()==0) continue;
+
+    auto inParticle = vtx_iter->particles_in().front();
+    if(inParticle->pdg_id()!=m_particle_id) continue;
+
+    nFound++;
+
+    if(nFound>2) {
+      ATH_MSG_WARNING("More than 2 displaced vertices found !!!"); //should never happen
+      break;
+    }
+
+    auto decayVertex = vtx_iter;
+    auto creationVertex = inParticle->production_vertex();
+
+    double distR = std::sqrt( std::pow(creationVertex->position().x() - decayVertex->position().x(),2) + std::pow(creationVertex->position().y() - decayVertex->position().y(),2) );
+    double distZ = creationVertex->position().z() - decayVertex->position().z();
+    ATH_MSG_DEBUG("distR " << distR << ", distZ " << distZ);
+
+    //accept all events with at least one of the two decays in the orimeter
+    if( isAccepted( distR, distZ) )
+      setFilterPassed(true);
+  }
+#else
   HepMC::GenEvent::vertex_const_iterator vtx_iter = theGenEvent->vertices_begin();
   HepMC::GenEvent::vertex_const_iterator vtx_end = theGenEvent->vertices_end();
 
@@ -48,7 +82,6 @@ StatusCode DecayLengthFilter::filterEvent() {
     if((*inParticle)->pdg_id()!=m_particle_id) continue;
 
     nFound++;
-    //std::cout << "found the chi " << nFound << std::endl;
 
     if(nFound>2) {
       ATH_MSG_WARNING("More than 2 displaced vertices found !!!"); //should never happen
@@ -58,7 +91,7 @@ StatusCode DecayLengthFilter::filterEvent() {
     HepMC::GenVertexPtr decayVertex = *vtx_iter;
     HepMC::GenVertexPtr creationVertex = (*inParticle)->production_vertex();
 
-    float distR = sqrt( pow(creationVertex->position().x() - decayVertex->position().x(),2) + pow(creationVertex->position().y() - decayVertex->position().y(),2) );
+    float distR = std::sqrt( std::pow(creationVertex->position().x() - decayVertex->position().x(),2) + std::pow(creationVertex->position().y() - decayVertex->position().y(),2) );
     float distZ = creationVertex->position().z() - decayVertex->position().z();
     ATH_MSG_DEBUG("distR " << distR << ", distZ " << distZ);
 
@@ -66,6 +99,7 @@ StatusCode DecayLengthFilter::filterEvent() {
     if( isAccepted( distR, distZ) )
       setFilterPassed(true);
   }
+#endif
 
   return StatusCode::SUCCESS;
 }

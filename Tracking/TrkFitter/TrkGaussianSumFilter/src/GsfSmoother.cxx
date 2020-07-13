@@ -65,6 +65,7 @@ Trk::GsfSmoother::configureTools(
 
 Trk::SmoothedTrajectory*
 Trk::GsfSmoother::fit(const EventContext& ctx,
+                      Trk::IMultiStateExtrapolator::Cache& extrapolatorCache,
                       const ForwardTrajectory& forwardTrajectory,
                       const ParticleHypothesis particleHypothesis,
                       const Trk::CaloCluster_OnTrack* ccot) const
@@ -249,6 +250,7 @@ Trk::GsfSmoother::fit(const EventContext& ctx,
 
     Trk::MultiComponentState extrapolatedState =
       m_extrapolator->extrapolate(ctx,
+                                  extrapolatorCache,   
                                   updatedState,
                                   measurement->associatedSurface(),
                                   Trk::oppositeMomentum,

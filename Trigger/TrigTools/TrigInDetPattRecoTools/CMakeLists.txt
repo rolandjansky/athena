@@ -1,21 +1,18 @@
-################################################################################
-# Package: TrigInDetPattRecoTools
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigInDetPattRecoTools )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Trigger/TrigEvent/TrigInDetEvent
-                          Trigger/TrigEvent/TrigInDetPattRecoEvent
-                          PRIVATE
-                          DetectorDescription/IRegionSelector )
 
 # Component(s) in the package:
 atlas_add_library( TrigInDetPattRecoTools
                    src/*.cxx
                    PUBLIC_HEADERS TrigInDetPattRecoTools
-                   LINK_LIBRARIES TrigInDetEvent TrigInDetPattRecoEvent
-                   PRIVATE_LINK_LIBRARIES IRegionSelector )
+                   LINK_LIBRARIES TrigInDetPattRecoEvent
+                   PRIVATE_LINK_LIBRARIES IRegionSelector TrigInDetEvent )
+
+find_package(Boost)
+
+atlas_add_test( mockSeeds
+                SOURCES test/mockSeeds.cxx
+                LINK_LIBRARIES PathResolver TrigInDetEvent TrigInDetPattRecoEvent TrigInDetPattRecoTools TrigSteeringEvent IRegionSelector )
 

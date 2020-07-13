@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -50,8 +50,13 @@ namespace Simulation
     bool allOK = true;
 
     // loop over the vertices in the GenEvent
+#ifdef HEPMC3
+    auto vtxIt  = ge.vertices().begin();
+    auto vtxEnd = ge.vertices().end();
+#else
     auto vtxIt  = ge.vertices_begin();
     auto vtxEnd = ge.vertices_end();
+#endif
     for( ; vtxIt != vtxEnd; ++vtxIt) {
       // for quick access:
       const HepMC::FourVector &curPos = (*vtxIt)->position();

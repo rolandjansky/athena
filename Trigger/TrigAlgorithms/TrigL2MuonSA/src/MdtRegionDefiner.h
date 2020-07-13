@@ -10,6 +10,8 @@
 
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include "TgcFit.h"
 #include "TgcData.h"
@@ -22,7 +24,6 @@
 #include <string>
 
 namespace MuonGM {
-     class MuonDetectorManager;
      class MdtReadoutElement;
      class MuonStation;
 }
@@ -43,8 +44,6 @@ namespace TrigL2MuonSA {
     
     virtual StatusCode initialize() override;
 
-    // function using the new cabling/geometry
-    void setMdtGeometry(const MuonGM::MuonDetectorManager* muonMgr) {m_muonMgr = muonMgr;};
     void setRpcGeometry(bool use_rpc){m_use_rpc = use_rpc;};
     
   public:
@@ -83,7 +82,8 @@ namespace TrigL2MuonSA {
 
   private:
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-    const MuonGM::MuonDetectorManager* m_muonMgr {nullptr}; // assined by setMdtGeometry()
+    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_muDetMgrKey {this, "DetectorManagerKey", "MuonDetectorManager", "Key of input MuonDetectorManager condition data"}; 
+
     const MuonGM::MdtReadoutElement* m_mdtReadout {nullptr};
     const MuonGM::MuonStation* m_muonStation {nullptr};
     

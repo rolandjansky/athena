@@ -1,4 +1,3 @@
-
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
@@ -46,14 +45,13 @@ using namespace TMath;
 #define BCM_LVL1A 18
 
 //Some variables
-static unsigned int bcid_start 				= 0; //to choose the first bcid displayed
-static unsigned int bcids_displayed 			= 3570; //to choose the number of bcids displayed when bcid as x-axis
-static unsigned int bcid_max 				= 0;
-static signed int ecr_start                             = 0;    //to chose the first ECR displayed
-static unsigned int ecrs_displayed                      = 256;  //to chose the number of ecrs displayed when ECR as X-axis
+static const unsigned int bcid_start 				= 0; //to choose the first bcid displayed
+static const unsigned int bcids_displayed 			= 3570; //to choose the number of bcids displayed when bcid as x-axis
+static const signed int ecr_start                             = 0;    //to chose the first ECR displayed
+static const unsigned int ecrs_displayed                      = 256;  //to chose the number of ecrs displayed when ECR as X-axis
 static const unsigned int bc_readout			= 31;   // length of read out per L1A, at the moment 31 BCs re read out
-static unsigned int lb_start 				= 0;
-static unsigned int lb_max				= 5000;
+static const unsigned int lb_start 				= 0;
+static const unsigned int lb_max				= 5000;
 
 // the declare property can be used to make variables accessible through python
 InDetGlobalBCMTool::InDetGlobalBCMTool(
@@ -592,7 +590,7 @@ bool deltat_data::operator<(const deltat_data &data){
 }
 
 bool bcid_select(const deltat_data &data){
-  return (data.bcid <bcid_max);
+  return (data.bcid <data.bcid_max);
 }
 
 StatusCode InDetGlobalBCMTool::fillHistograms(){
@@ -1069,7 +1067,10 @@ StatusCode InDetGlobalBCMTool::fillHistograms(){
 	    }
 	  }//end of bcid if
 	}//end of c loop
-	bcid_max=(positions_A[gain].front()).bcid;
+    // Need to set bcid_max before using bcid_select method
+    for (deltat_data& data : positions_C[gain]) {
+      data.bcid_max = (positions_A[gain].front()).bcid;
+    }
 	positions_C[gain].remove_if(bcid_select);
 	positions_A[gain].pop_front();
       }//end of a loop

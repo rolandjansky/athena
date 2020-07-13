@@ -17,7 +17,7 @@ atlas_add_library( TRT_G4Utilities
                    PUBLIC_HEADERS TRT_G4Utilities
                    PRIVATE_INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES AthenaKernel
+                   LINK_LIBRARIES AthenaKernel CxxUtils
                    PRIVATE_LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} PathResolver )
 
 # Install files from the package:

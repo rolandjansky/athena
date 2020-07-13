@@ -20,7 +20,6 @@ email                : edward.moyse@cern.ch
 #include "CxxUtils/checker_macros.h"
 
 class MsgStream;
-
 class TrackCollectionCnv;
 class TrackStateOnSurfaceCnv_p3;
 
@@ -154,7 +153,13 @@ namespace Trk
                  */
 
             };
-    
+
+            enum Variety
+            {
+              SingleComponent = 0,
+              MultiComponent = 1,
+              Align = 2
+            };
             /**
              * Default ctor for POOL. Do not use!
              */
@@ -265,6 +270,11 @@ namespace Trk
              */
             bool type( const TrackStateOnSurfaceType& type ) const;
 
+            /** Use this method to find if this is a Signle,Multi or Align
+             * TrackStateOnsurface
+             */
+            virtual Trk::TrackStateOnSurface::Variety variety() const;
+
             /**
              * Use this method to set persistification hints.
              * @throw logic_error if the type is not a persistification flag.
@@ -295,26 +305,24 @@ namespace Trk
             const std::bitset<NumberOfTrackStateOnSurfaceTypes>& types() const;
             
             const Trk::Surface& surface() const;
-
-            bool isSane() const; //!< Used to perform sanity checks on this object (i.e. all consistuents are on the same surface). Returns 'true' if it seems okay.
-            
+            //!< Used to perform sanity checks on this object (i.e. all consistuents are on the same surface). Returns 'true' if it seems okay.
+            bool isSane() const;             
         private:
 
-	    /** DO NOT USE THIS CONSTRUCTOR */
+            /** DO NOT USE THIS CONSTRUCTOR */
             TrackStateOnSurface (const MeasurementBase *meas, 
                                  const TrackParameters *trackParameter, 
                                  const FitQualityOnSurface *fitQoS, const MaterialEffectsBase *materialEffects, 
                                  const TrackStateOnSurfaceType type);
-
-
             /** set sensible default flags*/
             void setFlags();
+           
             const FitQualityOnSurface      *m_fitQualityOnSurface;
             const TrackParameters          *m_trackParameters;
             const MeasurementBase          *m_measurementOnTrack;
             const MaterialEffectsBase      *m_materialEffectsOnTrack;
             const AlignmentEffectsOnTrack  *m_alignmentEffectsOnTrack;
-            std::bitset<NumberOfTrackStateOnSurfaceTypes>                    m_typeFlags;
+            std::bitset<NumberOfTrackStateOnSurfaceTypes> m_typeFlags;
     };
 
     /**Overload of << operator for MsgStream for debug output*/ 
@@ -324,57 +332,6 @@ namespace Trk
     std::ostream& operator << ( std::ostream& sl, const TrackStateOnSurface& tsos);
 }
 
-inline Trk::TrackStateOnSurface* Trk::TrackStateOnSurface::clone() const
-{
-    return new TrackStateOnSurface(*this) ;
-}
-
-inline const Trk::FitQualityOnSurface* Trk::TrackStateOnSurface::fitQualityOnSurface() const
-{
-    return m_fitQualityOnSurface;
-}
-
-
-inline const Trk::TrackParameters* Trk::TrackStateOnSurface::trackParameters() const
-{ 
-    return m_trackParameters;
-}
-
-inline const Trk::MeasurementBase* Trk::TrackStateOnSurface::measurementOnTrack() const
-{
-    return m_measurementOnTrack;
-}
-
-inline const Trk::MaterialEffectsBase *Trk::TrackStateOnSurface::materialEffectsOnTrack() const
-{
-    return m_materialEffectsOnTrack;
-}
-
-inline const Trk::AlignmentEffectsOnTrack *Trk::TrackStateOnSurface::alignmentEffectsOnTrack() const
-{
-    return m_alignmentEffectsOnTrack;
-}
-
-
-inline bool Trk::TrackStateOnSurface::type( const TrackStateOnSurfaceType& type ) const
-{
-    if (type==NumberOfTrackStateOnSurfaceTypes || type==Unknown) { return false;}
-    return m_typeFlags.test(type);
-}
-
-inline void Trk::TrackStateOnSurface::setFlags()
-{
-    if (m_measurementOnTrack) { m_typeFlags.set(Measurement,true); }
-    if (m_materialEffectsOnTrack) { m_typeFlags.set(InertMaterial,true); }
-    if (m_alignmentEffectsOnTrack) { m_typeFlags.set(Alignment,true); }
-    if (m_trackParameters) { m_typeFlags.set(Parameter,true); }
-    if (m_fitQualityOnSurface) { m_typeFlags.set(FitQuality,true); }
-}
-
-inline const std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>& 
-Trk::TrackStateOnSurface::types() const
-{
-    return m_typeFlags;
-}
+#include "TrkTrack/TrackStateOnSurface.icc"
 
 #endif

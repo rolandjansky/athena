@@ -3,6 +3,8 @@
 # Authors: Ben Smart (ben.smart@cern.ch), Xanthe Hoad (xanthe.hoad@cern.ch)
 # See https://twiki.cern.ch/twiki/bin/view/Atlas/MaDQM for more information
 
+# flake8: noqa (obsolete code)
+
 from __future__ import print_function
 
 import sys

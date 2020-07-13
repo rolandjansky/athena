@@ -142,6 +142,9 @@ public:
   /** Return the surface type */
   virtual SurfaceType type() const override final;
 
+  /** Return the surface type static constexpr */
+  static constexpr SurfaceType staticType() ;
+
   /** Return the measurement frame - this is needed for alignment, in particular
     for StraightLine and Perigee Surface
     - the default implementation is the the RotationMatrix3D of the transform */
@@ -181,19 +184,19 @@ public:
 
   /** Specialized for ConeSurface : LocalParameters to Vector2D */
   virtual Amg::Vector2D localParametersToPosition(
-    const LocalParameters& locpars) const override;
+    const LocalParameters& locpars) const override final;
 
   /** Specialized for ConeSurface : LocalToGlobal method without dynamic memory
    * allocation */
   virtual void localToGlobal(const Amg::Vector2D& locp,
                              const Amg::Vector3D& mom,
-                             Amg::Vector3D& glob) const override;
+                             Amg::Vector3D& glob) const override final;
 
   /** Specialized for ConeSurface : GlobalToLocal method without dynamic memory
    * allocation - boolean checks if on surface */
   virtual bool globalToLocal(const Amg::Vector3D& glob,
                              const Amg::Vector3D& mom,
-                             Amg::Vector2D& loc) const override;
+                             Amg::Vector2D& loc) const override final; 
 
   /** fast straight line intersection schema - provides closest intersection and
   (signed) path length
@@ -231,18 +234,18 @@ public:
     const Amg::Vector3D& pos,
     const Amg::Vector3D& dir,
     bool forceDir = false,
-    BoundaryCheck bchk = false) const override;
+    BoundaryCheck bchk = false) const override final;
 
   /** fast straight line distance to Surface */
   virtual DistanceSolution straightLineDistanceEstimate(
     const Amg::Vector3D& pos,
-    const Amg::Vector3D& dir) const override;
+    const Amg::Vector3D& dir) const override final;
 
   /** fast straight line distance to Surface - with bounds options */
   virtual DistanceSolution straightLineDistanceEstimate(
     const Amg::Vector3D& pos,
     const Amg::Vector3D& dir,
-    bool bound) const override;
+    bool bound) const override final;
 
   /** the pathCorrection for derived classes with thickness */
   virtual double pathCorrection(const Amg::Vector3D&,

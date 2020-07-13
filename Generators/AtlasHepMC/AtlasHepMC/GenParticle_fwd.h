@@ -13,6 +13,7 @@ typedef HepMC3::ConstGenParticlePtr ConstGenParticlePtr;
 namespace HepMC {
 class GenParticle;
 typedef GenParticle* GenParticlePtr;
+typedef const GenParticle* ConstGenParticlePtr;
 }
 #endif
 #endif

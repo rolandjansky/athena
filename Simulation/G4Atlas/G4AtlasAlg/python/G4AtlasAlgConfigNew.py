@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from G4AtlasServices.G4AtlasServicesConfigNew import DetectorGeometrySvcCfg, PhysicsListSvcCfg
-from ISF_Services.ISF_ServicesConfigNew import MC15aPlusTruthServiceCfg, GeoIDSvcCfg, InputConverterCfg
+from ISF_Services.ISF_ServicesConfigNew import MC15aPlusTruthServiceCfg, InputConverterCfg
+from ISF_Services.ISF_ServicesCoreConfigNew import GeoIDSvcCfg
 from G4AtlasTools.G4AtlasToolsConfigNew import SensitiveDetectorMasterToolCfg, FastSimulationMasterToolCfg
 from G4AtlasServices.G4AtlasUserActionConfigNew import UserActionSvcCfg
 from G4AtlasApps.G4Atlas_MetadataNew import writeSimulationParametersMetadata

@@ -28,7 +28,7 @@ atlas_add_component( MdtSegmentT0Fitter
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel MdtCalibSvcLib TrkDriftCircleMath MdtCalibData MuonCalibToolsLib MuonReadoutGeometry MuonIdHelpersLib MuonPrepRawData MuonRIO_OnTrack )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel MdtCalibSvcLib TrkDriftCircleMath MdtCalibData MuonCalibToolsLib MuonReadoutGeometry MuonIdHelpersLib MuonPrepRawData MuonRIO_OnTrack MuonSegmentMakerInterfacesLib )
 
 # Install files from the package:
 atlas_install_headers( MdtSegmentT0Fitter )

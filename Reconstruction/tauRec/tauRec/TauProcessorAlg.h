@@ -47,8 +47,6 @@ class TauProcessorAlg: public AthAlgorithm
 
     private:
        
-	void setEmptyTauTrack(xAOD::TauJet* &tauJet, xAOD::TauTrackContainer* tauTrackCont);				 
-
     Gaudi::Property<double> m_maxEta {this, "MaxEta", 2.5, "maximum eta for jet seed"};
     Gaudi::Property<double> m_minPt {this, "MinPt", 10 * Gaudi::Units::GeV, "minimum pT for jet seed"};
 

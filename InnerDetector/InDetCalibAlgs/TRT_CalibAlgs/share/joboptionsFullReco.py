@@ -155,7 +155,7 @@ InDetFlags.doMonitoringAlignment = False
 #InDetFlags.doPerfMon = True
 
 # --- activate creation of standard plots
-#InDetFlags.doStandardPlots  = True
+#InDetFlags.doPhysValMon  = True
 
 # --- produce various ntuples (all in one root file)
 InDetFlags.doTrkNtuple      = False

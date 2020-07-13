@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 import sys,os
 
 __doc__ = """Print the full path of the requested shared library, as found in LD_LIBRARY_PATH.
@@ -7,7 +8,7 @@ The 'lib' prefix and 'so' suffix can be omitted. If no match if found, nothing i
 
 def usage():
     use = "usage: %s <library> [library]" % os.path.basename(sys.argv[0])
-    print use + os.linesep*2 + __doc__
+    print(use + os.linesep*2 + __doc__)
 
 if len(sys.argv) <= 1:
     usage()
@@ -20,8 +21,4 @@ except ImportError:
 
 for lib in sys.argv[1:]:
     full = find_libraries(lib)
-    for f in full: print f
-
-
-
-
+    for f in full: print(f)

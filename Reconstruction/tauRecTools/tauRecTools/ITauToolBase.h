@@ -50,8 +50,8 @@ class ITauToolBase : virtual public asg::IAsgTool
   virtual StatusCode execute(xAOD::TauJet& pTau) const = 0;
   virtual StatusCode executeVertexFinder(xAOD::TauJet& pTau, 
                                          const xAOD::VertexContainer* vertexContainer = nullptr, 
-                                         const xAOD::TrackParticleContainer* trackContainer = nullptr) = 0;
-  virtual StatusCode executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrackContainer& tauTrackContainer, const xAOD::TrackParticleContainer* trackContainer = nullptr) = 0;
+                                         const xAOD::TrackParticleContainer* trackContainer = nullptr) const = 0;
+  virtual StatusCode executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrackContainer& tauTrackContainer, const xAOD::TrackParticleContainer* trackContainer = nullptr) const = 0;
   virtual StatusCode executeTrackClassifier(xAOD::TauJet& pTau, xAOD::TauTrackContainer& tauTrackContainer) const = 0;
   virtual StatusCode executeRNNTrackClassifier(xAOD::TauJet& pTau, xAOD::TauTrackContainer& tauTrackContainer) = 0;
   virtual StatusCode executeShotFinder(xAOD::TauJet& pTau, xAOD::CaloClusterContainer& shotClusterContainer, xAOD::PFOContainer& PFOContainer ) = 0;
@@ -62,7 +62,7 @@ class ITauToolBase : virtual public asg::IAsgTool
 					      xAOD::PFOContainer& hadronicPFOContainer, 
 					      xAOD::CaloClusterContainer& caloClusterContainer, 
 					      const xAOD::CaloClusterContainer& pCaloClusterContainer ) = 0;
-  virtual StatusCode executeVertexVariables(xAOD::TauJet& pTau, xAOD::VertexContainer& vertexContainer ) = 0;  
+  virtual StatusCode executeVertexVariables(xAOD::TauJet& pTau, xAOD::VertexContainer& vertexContainer ) const = 0;  
   virtual StatusCode executePi0ClusterScaler(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer, xAOD::PFOContainer& chargedPFOContainer ) = 0;  
   virtual StatusCode executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer) = 0;
   virtual StatusCode executePanTau(xAOD::TauJet& pTau, xAOD::ParticleContainer& particleContainer) =0;
@@ -70,7 +70,7 @@ class ITauToolBase : virtual public asg::IAsgTool
   //-----------------------------------------------------------------
   //! Event finalizer - called at the end of each event
   //-----------------------------------------------------------------
-  virtual StatusCode eventFinalize() = 0;
+  virtual StatusCode eventFinalize() const = 0;
 
   //-----------------------------------------------------------------
   //! Finalizer

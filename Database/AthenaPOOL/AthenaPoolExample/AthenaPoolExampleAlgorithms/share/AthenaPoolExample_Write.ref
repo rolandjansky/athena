@@ -1197,7 +1197,7 @@ MetaDataHdrForm...  DEBUG Opened container MetaDataHdrForm(DataHeaderForm) of ty
 SimplePoolFile1...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm) [20?]  (d , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
 ClassIDSvc           INFO  getRegistryEntries: read 7 CLIDRegistry entries for module ALL
-Stream1              INFO Records written: 21
+Stream1              INFO Metadata records written: 21
 Stream1             DEBUG Leaving incident handler for MetaDataStop
 Stream2             DEBUG slot 0  handle() incident type: MetaDataStop
 Stream2             DEBUG addItemObjects(167728019,"Stream2") called
@@ -1234,7 +1234,7 @@ MetaDataHdrForm...  DEBUG Branch container 'DataHeaderForm'
 MetaDataHdrForm...  DEBUG Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
 SimplePoolFile2...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm) [20?]  (c , ffffffff)
 SimplePoolFile2...  DEBUG ---->ClassID:????
-Stream2              INFO Records written: 21
+Stream2              INFO Metadata records written: 21
 Stream2             DEBUG Leaving incident handler for MetaDataStop
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     UPDATE    [ROOT_All] 
@@ -1299,7 +1299,7 @@ AthenaPoolCnvSvc    DEBUG setAttribute failed for BRANCH_BASKET_SIZE to 256000 f
 PoolSvc             DEBUG Failed to get ContainerHandle to set POOL property.
 AthenaPoolCnvSvc    DEBUG setAttribute failed for BRANCH_BASKET_SIZE to 1024000 for db: EmptyPoolFile.root and cont: POOLContainerForm(DataHeaderForm)
 AthenaPoolCnvSvc    DEBUG commitOutput failed process POOL container attributes.
-Stream3              INFO Records written: 1
+Stream3              INFO Metadata records written: 1
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   CREATE    [ROOT_All] ????
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     UPDATE    [ROOT_All] 

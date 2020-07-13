@@ -1,23 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// IMuonTGMeasTool.h, (c) ATLAS Detector Softwareop 
-///////////////////////////////////////////////////////////////////
 
 #ifndef MUONTGRECTOOLS_IMUONTGMEASTOOL_H
 #define MUONTGRECTOOLS_IMUONTGMEASTOOL_H
 
-// Gaudi
 #include "GaudiKernel/IAlgTool.h"
-
 #include "TrkGeometry/TrackingGeometry.h"
-
 #include "MuonTGRecTools/MuonTGHits.h"
 #include "MuonTGRecTools/MuonTGSegments.h"
-
-//Amg
 #include "EventPrimitives/EventPrimitives.h"
 
 namespace Muon{
@@ -42,7 +33,6 @@ public:
   static const InterfaceID& interfaceID()
      { return IID_IMuonTGMeasTool; };
 
-  virtual void updateAssocMeas( MuonTGHits*, MuonTGSegments* ) const=0;
   virtual const std::vector<const Trk::PrepRawData*>* getMeasurementOnLayer(const Trk::Layer* lay) const=0;
   virtual const std::vector<const Trk::PrepRawData*>* getEtaPhiMeasurementOnLayer(const Trk::Layer* lay, bool phi) const=0;
   virtual const std::vector<const Trk::Segment*>* getSegments(const Trk::DetachedTrackingVolume* station) const=0;

@@ -822,7 +822,7 @@ MetaDataHdrForm...  DEBUG Branch container 'DataHeaderForm'
 MetaDataHdrForm...  DEBUG Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
 SimplePoolRepli...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm) [20?]  (9 , ffffffff)
 SimplePoolRepli...  DEBUG ---->ClassID:????
-Stream1              INFO Records written: 21
+Stream1              INFO Metadata records written: 21
 Stream1             DEBUG Leaving incident handler for MetaDataStop
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   CREATE    [ROOT_All] ????
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     UPDATE    [ROOT_All] 

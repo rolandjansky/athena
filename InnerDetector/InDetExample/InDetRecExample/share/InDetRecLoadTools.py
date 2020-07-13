@@ -495,7 +495,7 @@ if InDetFlags.doPattern() and InDetFlags.doCosmics():
 # ------------------------------------------------------------
 
 # id rec stat processing and trk+pixel ntuple creation need this tool if truth is on
-if InDetFlags.doTruth() and (InDetFlags.doStatistics() or InDetFlags.doStandardPlots() or InDetFlags.doPhysValMon() or InDetFlags.doNtupleCreation()):
+if InDetFlags.doTruth() and (InDetFlags.doStatistics() or InDetFlags.doPhysValMon() or InDetFlags.doNtupleCreation()):
     #
     # --- load truth to track tool
     #
@@ -899,45 +899,45 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
   #
   # -----------------------------------------
 
-  if ( (InDetFlags.primaryVertexSetup() == 'IterativeFinding') or
-         (InDetFlags.primaryVertexSetup() == 'GaussIterativeFinding' ) ):
-    #
-    # --- load adaptive primary vertex finder
-    #
-    from InDetPriVxFinderTool.InDetPriVxFinderToolConf import InDet__InDetIterativePriVxFinderTool
-    InDetPriVxFinderTool = InDet__InDetIterativePriVxFinderTool(name                     = "InDetIterativePriVxFinderTool",
-                                                                VertexFitterTool         = InDetVxFitterTool,
-                                                                TrackSelector            = InDetTrackSelectorTool,
-                                                                SeedFinder               = InDetVtxSeedFinder,
-                                                                ImpactPoint3dEstimator   = InDetImpactPoint3dEstimator,
-                                                                LinearizedTrackFactory   = InDetLinFactory,
-                                                                useBeamConstraint        = InDetFlags.useBeamConstraint(),
-                                                                significanceCutSeeding   = 12,
-                                                                maximumChi2cutForSeeding = 49,
-                                                                maxVertices              = 200,
-                                                                doMaxTracksCut           = InDetPrimaryVertexingCuts.doMaxTracksCut(),
-                                                                MaxTracks                = InDetPrimaryVertexingCuts.MaxTracks()
-                                                                )
-
-  elif (InDetFlags.primaryVertexSetup() == 'AdaptiveMultiFinding' or
-        InDetFlags.primaryVertexSetup() == 'GaussAdaptiveMultiFinding' ):
+  if (InDetFlags.primaryVertexSetup() == 'AdaptiveMultiFinding' or
+          InDetFlags.primaryVertexSetup() == 'GaussAdaptiveMultiFinding'):
     #
     # --- load adaptive multi primary vertex finder
     #
     from InDetPriVxFinderTool.InDetPriVxFinderToolConf import InDet__InDetAdaptiveMultiPriVxFinderTool
-    InDetPriVxFinderTool = InDet__InDetAdaptiveMultiPriVxFinderTool(name              = "InDetAdaptiveMultiPriVxFinderTool",
-                                                                    SeedFinder        = InDetVtxSeedFinder,
-                                                                    VertexFitterTool  = InDetVxFitterTool,
-                                                                    TrackSelector     = InDetTrackSelectorTool,
-                                                                    useBeamConstraint = InDetFlags.useBeamConstraint(),
-                                                                    selectiontype     = 0,
-                                                                    TracksMaxZinterval = 3,#mm 
-                                                                    do3dSplitting     = InDetFlags.doPrimaryVertex3DFinding())
+    InDetPriVxFinderTool = InDet__InDetAdaptiveMultiPriVxFinderTool(
+        name="InDetAdaptiveMultiPriVxFinderTool",
+        SeedFinder=InDetVtxSeedFinder,
+        VertexFitterTool=InDetVxFitterTool,
+        TrackSelector=InDetTrackSelectorTool,
+        useBeamConstraint=InDetFlags.useBeamConstraint(),
+        selectiontype=0,
+        TracksMaxZinterval=3,  # mm
+        do3dSplitting=InDetFlags.doPrimaryVertex3DFinding())
 
+  else:
+    #
+    # --- The default is to load the adaptive primary vertex finder
+    #
+    from InDetPriVxFinderTool.InDetPriVxFinderToolConf import InDet__InDetIterativePriVxFinderTool
+    InDetPriVxFinderTool = InDet__InDetIterativePriVxFinderTool(
+        name="InDetIterativePriVxFinderTool",
+        VertexFitterTool=InDetVxFitterTool,
+        TrackSelector=InDetTrackSelectorTool,
+        SeedFinder=InDetVtxSeedFinder,
+        ImpactPoint3dEstimator=InDetImpactPoint3dEstimator,
+        LinearizedTrackFactory=InDetLinFactory,
+        useBeamConstraint=InDetFlags.useBeamConstraint(),
+        significanceCutSeeding=12,
+        maximumChi2cutForSeeding=49,
+        maxVertices=200,
+        doMaxTracksCut=InDetPrimaryVertexingCuts.doMaxTracksCut(),
+        MaxTracks=InDetPrimaryVertexingCuts.MaxTracks()
+    )
 
   ToolSvc += InDetPriVxFinderTool
   if (InDetFlags.doPrintConfigurables()):
-    printfunc (InDetPriVxFinderTool)
+    printfunc(InDetPriVxFinderTool)
 
   # -----------------------------------------
   #

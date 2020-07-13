@@ -11,7 +11,7 @@
 
 #include <iostream>
 
-void TRT_BSErrContainerCnv_p1::transToPers ATLAS_NOT_THREAD_SAFE (const TRT_BSErrContainer*, TRT_BSErrContainer_p1* , MsgStream & /* log */) 
+void TRT_BSErrContainerCnv_p1::transToPers(const TRT_BSErrContainer*, TRT_BSErrContainer_p1* , MsgStream & /* log */) 
 {
   throw std::runtime_error("Obsolete TRT_BSErrContainerCnv_p1::transToPers() not implemented");
   return; 

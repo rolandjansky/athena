@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -31,6 +31,7 @@ author Christopher.Marino <Christopher.Marino@cern.ch>
 #include "InDetLowBetaInfo/InDetLowBetaContainer.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TRT_ElectronPidTools/ITRT_ToT_dEdx.h"
+#include "CxxUtils/checker_macros.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -55,7 +56,8 @@ namespace InDet
 {
 
 
-  class LowBetaAlg:public AthAlgorithm {
+  class ATLAS_NOT_THREAD_SAFE LowBetaAlg: // This class is thread unsafe because this class uses thread unsafe TrtToolBetaLiklihood class.
+public AthAlgorithm {
   public:
     LowBetaAlg (const std::string& name, ISvcLocator* pSvcLocator);
     StatusCode initialize();

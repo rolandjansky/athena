@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonEventTPCnv/MuonRDO/STGC_RawDataContainerCnv_p1.h"
@@ -39,7 +39,7 @@ void  Muon::STGC_RawDataContainerCnv_p1::persToTrans(const Muon::STGC_RawDataCon
   if (DEBUG) log<<MSG::VERBOSE<<"STGC_RawDataContainerCnv_p1::persToTrans with STGC_RawDataContainer_p1 with this many collections "<<numColl<<std::endl;
     
   STGC_RawDataCollection* coll = nullptr;
-  for ( const STGC_RawDataCollection_p1 collection : *persCont){
+  for ( const STGC_RawDataCollection_p1& collection : *persCont){
     coll = new STGC_RawDataCollection(collection.m_idHash);
     if ( transCont->addCollection(coll,collection.m_idHash).isFailure() ) {
       log << MSG::WARNING << "Could not add the sTGC collection during persistent->transient conversion" << std::endl;

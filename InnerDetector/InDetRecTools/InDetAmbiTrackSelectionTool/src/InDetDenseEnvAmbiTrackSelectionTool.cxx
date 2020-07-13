@@ -117,10 +117,10 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::newEvent(CacheEntry* ent) const
 }
 
 //============================================================================================
-std::tuple<Trk::Track*,bool> InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack ATLAS_NOT_THREAD_SAFE (const Trk::Track* ptrTrack,
+std::tuple<Trk::Track*,bool> InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack ATLAS_NOT_THREAD_SAFE // This method uses thread unsafe updatePixelClusterInformation method and is not thread safe.
+                                                                                           (const Trk::Track* ptrTrack, 
                                                                                             const Trk::TrackScore score,
                                                                                             Trk::PRDtoTrackMap &prd_to_track_map) const
-// This method uses thread unsafe updatePixelClusterInformation method and is not thread safe.
 {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   std::lock_guard<std::mutex> lock{m_mutex};
@@ -1256,8 +1256,7 @@ Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::createSubTrack( const st
 
 
 //==========================================================================================
-void InDet::InDetDenseEnvAmbiTrackSelectionTool::updatePixelClusterInformation ATLAS_NOT_THREAD_SAFE (TSoS_Details& tsosDetails) const
-// This method uses const_cast and is not thread safe.
+void InDet::InDetDenseEnvAmbiTrackSelectionTool::updatePixelClusterInformation ATLAS_NOT_THREAD_SAFE (TSoS_Details& tsosDetails) const // This method uses const_cast and is not thread safe.
 {
 
   for (unsigned int index(0);  index  < tsosDetails.nTSoS; ++index ){

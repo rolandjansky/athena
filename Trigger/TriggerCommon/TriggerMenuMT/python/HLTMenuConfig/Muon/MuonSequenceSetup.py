@@ -123,7 +123,6 @@ def muCombAlgSequence(ConfigFlags):
 
     ### get ID tracking and muComb reco sequences ###    
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import muCombRecoSequence, muonIDFastTrackingSequence
-    muFastIDRecoSequence = muonIDFastTrackingSequence( l2muCombViewsMaker.InViewRoIs , "")
     muCombRecoSequence, sequenceOut = muCombRecoSequence( l2muCombViewsMaker.InViewRoIs, "FTF" )
  
     #Filter algorithm to run muComb only if non-Bphysics muon chains are active
@@ -136,6 +135,18 @@ def muCombAlgSequence(ConfigFlags):
     muonChainFilter.L2MuCombContainer = sequenceOut
 
     muCombFilterSequence = seqAND("l2muCombFilterSequence", [muonChainFilter, muCombRecoSequence])
+
+    extraLoads = []
+    from IOVDbSvc.CondDB import conddb
+    if not conddb.folderRequested( '/PIXEL/DCS/FSMSTATUS' ):
+      extraLoads += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATUS' )]
+    if not conddb.folderRequested( '/PIXEL/DCS/FSMSTATE' ):
+      extraLoads += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATE' )]
+
+    for decision in muonChainFilter.InputDecisions:
+      extraLoads += [( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+'+decision )]
+
+    muFastIDRecoSequence = muonIDFastTrackingSequence( l2muCombViewsMaker.InViewRoIs , "", extraLoads )
     muCombIDSequence = parOR("l2muCombIDSequence", [muFastIDRecoSequence, muCombFilterSequence])
 
     l2muCombViewsMaker.ViewNodeName = muCombIDSequence.name()

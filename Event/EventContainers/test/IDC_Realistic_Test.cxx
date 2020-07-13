@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "EventContainers/IdentifiableContainerMT.h"
 #include <vector>
@@ -190,7 +190,7 @@ public:
             std::abort();
         }
         //Check random access method
-        for(const auto x : hashes) {
+        for(const auto& x : hashes) {
             auto p = container.indexFindPtr(x);
             int j =0;
             for(auto q : *p) {

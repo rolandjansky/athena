@@ -654,8 +654,8 @@ def getInDetGsfMaterialUpdator(name='InDetGsfMaterialUpdator', **kwargs) :
     if 'MaximumNumberOfComponents' not in kwargs :
         kwargs=setDefaults(kwargs, MaximumNumberOfComponents = 12)
 
-    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
-    return Trk__GsfMaterialMixtureConvolution (name = the_name, **kwargs)
+    from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolutionLM
+    return Trk__GsfMaterialMixtureConvolutionLM (name = the_name, **kwargs)
 
 
 @makePublicTool

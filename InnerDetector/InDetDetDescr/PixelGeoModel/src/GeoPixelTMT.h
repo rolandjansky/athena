@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELTMT_H
@@ -9,6 +9,7 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/GeoDefinitions.h"
 #include "AthenaKernel/MsgStreamMember.h"
+#include "CxxUtils/checker_macros.h"
 
 class GeoShape;
 
@@ -18,7 +19,7 @@ public:
   GeoPixelTMT();
   virtual ~GeoPixelTMT();
   virtual GeoVPhysVol* Build();
-  virtual GeoVPhysVol* getPhysVol() const {return m_physVol;}
+  virtual GeoVPhysVol* getPhysVol ATLAS_NOT_THREAD_SAFE () const {return m_physVol;} // const method returns non-const pointer.
   virtual const GeoTrf::Transform3D & transform() const {return m_transform;}
   virtual double thicknessP() const {return 0;} // Use ladder thickness from database
   virtual double thicknessN() const {return 0;} // Use ladder thickness from database
@@ -40,7 +41,7 @@ private:
 
   GeoVPhysVol* m_physVol;
   GeoTrf::Transform3D m_transform;
-  mutable Athena::MsgStreamMember m_msg;
+  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
 };
 
 #endif

@@ -45,7 +45,7 @@ def makeGRL(run, defect, fname):
     print('done')
     print('Query defects...', end='')
     ddb = DQDefects.DefectsDB('COOLOFL_GLOBAL/%s' % dbinstance, tag=tag)
-    ignores = set([_ for _ in ddb.defect_names if 'UNCHECKED' in _])
+    ignores = {_ for _ in ddb.defect_names if 'UNCHECKED' in _}
     try:
         defectiovs = ddb.retrieve(since = min(runs) << 32 | 1,
                                   until = max(runs) << 32 | 0xffffffff,

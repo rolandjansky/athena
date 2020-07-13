@@ -43,7 +43,6 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/PixelID.h" 
 
-#include "TrigInDetPattRecoEvent/TrigL2TimeoutException.h"
 #include "TrigInDetPattRecoEvent/TrigInDetTriplet.h"
 
 

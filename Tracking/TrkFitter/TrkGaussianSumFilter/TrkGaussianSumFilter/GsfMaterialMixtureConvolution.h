@@ -44,21 +44,24 @@ public:
   virtual StatusCode finalize() override;
 
   //!< Convolution with full material properties
-  virtual MultiComponentState update(const MultiComponentState&,
+  virtual MultiComponentState update(std::vector<Trk::IMultiStateMaterialEffects::Cache>&, 
+                                     const MultiComponentState&,
                                      const Layer&,
                                      PropDirection direction = anyDirection,
                                      ParticleHypothesis particleHypothesis =
                                        nonInteracting) const override final;
 
   //!< Convolution with pre-measurement-update material properties
-  virtual MultiComponentState preUpdate(const MultiComponentState&,
+  virtual MultiComponentState preUpdate(std::vector<Trk::IMultiStateMaterialEffects::Cache>&, 
+                                        const MultiComponentState&,
                                         const Layer&,
                                         PropDirection direction = anyDirection,
                                         ParticleHypothesis particleHypothesis =
                                           nonInteracting) const override final;
 
   //!< Convolution with post-measurement-update material properties
-  virtual MultiComponentState postUpdate(const MultiComponentState&,
+  virtual MultiComponentState postUpdate(std::vector<Trk::IMultiStateMaterialEffects::Cache>&,
+                                         const MultiComponentState&,
                                          const Layer&,
                                          PropDirection direction = anyDirection,
                                          ParticleHypothesis particleHypothesis =

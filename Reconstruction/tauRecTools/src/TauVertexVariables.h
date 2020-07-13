@@ -33,13 +33,13 @@ public:
     ~TauVertexVariables();
     
     virtual StatusCode initialize() override;
-    virtual StatusCode executeVertexVariables(xAOD::TauJet& pTau, xAOD::VertexContainer& pVertexContainer) override; 
+    virtual StatusCode executeVertexVariables(xAOD::TauJet& pTau, xAOD::VertexContainer& pVertexContainer) const override; 
     virtual StatusCode finalize() override;
     //-------------------------------------------------------------
     //! determines the transverse flight path significance from
     //! the primary vertex and the secondary vertex of tau candidate
     //-------------------------------------------------------------
-    double trFlightPathSig(const xAOD::TauJet& pTau, const xAOD::Vertex& secVertex);
+    double trFlightPathSig(const xAOD::TauJet& pTau, const xAOD::Vertex& secVertex) const;
 
 private:
     ToolHandle<Trk::ITrackToVertexIPEstimator> m_trackToVertexIPEstimator {this, "TrackToVertexIPEstimator", ""};

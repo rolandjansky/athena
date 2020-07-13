@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EventInformation_H
@@ -27,13 +27,13 @@ public:
         const G4ThreeVector GetVertexPosition() const;
         void Print() const {}
 
-        void SetCurrentPrimary(HepMC::GenParticle *p) {m_currentPrimary=p;}
+        void SetCurrentPrimary(HepMC::GenParticlePtr p) {m_currentPrimary=p;}
 
-        void SetCurrentlyTraced(HepMC::GenParticle *p) {m_currentlyTraced=p;}
+        void SetCurrentlyTraced(HepMC::GenParticlePtr p) {m_currentlyTraced=p;}
 
-        HepMC::GenParticle *GetCurrentPrimary() const {return m_currentPrimary;}
+        HepMC::GenParticlePtr GetCurrentPrimary() const {return m_currentPrimary;}
 
-        HepMC::GenParticle *GetCurrentlyTraced() const {return m_currentlyTraced;}
+        HepMC::GenParticlePtr GetCurrentlyTraced() const {return m_currentlyTraced;}
         int SecondaryParticleBarCode() {m_secondaryParticleBarCode++;
                                         return m_secondaryParticleBarCode;}
         int SecondaryVertexBarCode() {m_secondaryVertexBarCode--;
@@ -50,8 +50,8 @@ private:
         int m_secondaryParticleBarCode;
         int m_secondaryVertexBarCode;
         HepMC::GenEvent *m_theEvent;
-        HepMC::GenParticle *m_currentPrimary;
-        HepMC::GenParticle *m_currentlyTraced;
+        HepMC::GenParticlePtr m_currentPrimary;
+        HepMC::GenParticlePtr m_currentlyTraced;
         // These two are used by calibration hits as event-level flags
         // They correspond to the last barcode and step processed by an SD
         // Both are needed, because a particle might have only one step

@@ -315,12 +315,12 @@ namespace Muon {
       std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
       std::set<IdentifierHash>::const_iterator chit_end = chIdHs.end();
       for( ;chit!=chit_end;++chit ){
-	TgcPrepDataContainer::const_iterator colIt = prdContainer->indexFind(*chit);
-	if( colIt == prdContainer->end() || !*colIt ) {
+	auto collptr = prdContainer->indexFindPtr(*chit);
+	if( collptr == nullptr  ) {
 	  ATH_MSG_VERBOSE("Could not find collection ");
 	  continue;
 	}
-	const TgcPrepDataCollection& col = **colIt;
+	const TgcPrepDataCollection& col = *collptr;
 	ATH_MSG_VERBOSE("Found collection: " << m_idHelperSvc->toStringChamber(col.identify()) << " size " << col.size() );
 	TgcPrepDataCollection::const_iterator hit = col.begin();
 	TgcPrepDataCollection::const_iterator hit_end = col.end();
@@ -356,10 +356,10 @@ namespace Muon {
       std::set<IdentifierHash>::const_iterator chit = chIdHs.begin();
       std::set<IdentifierHash>::const_iterator chit_end = chIdHs.end();
       for( ;chit!=chit_end;++chit ){
-	RpcPrepDataContainer::const_iterator colIt = prdContainer->indexFind(*chit);
-	if( colIt == prdContainer->end() || !*colIt ) continue;
+	auto collptr = prdContainer->indexFindPtr(*chit);
+	if( collptr == nullptr ) continue;
 	
-	const RpcPrepDataCollection& col = **colIt;
+	const RpcPrepDataCollection& col = *collptr;
 	RpcPrepDataCollection::const_iterator hit = col.begin();
 	RpcPrepDataCollection::const_iterator hit_end = col.end();
 	for( ;hit!=hit_end;++hit ){
@@ -2353,9 +2353,9 @@ namespace Muon {
 	ATH_MSG_WARNING("No MDT prd collection retrieved");
 	return 0;
       }
-      MdtPrepDataContainer::const_iterator colIt = prdContainer->indexFind(colHash);
-      if( colIt == prdContainer->end() || !*colIt ) return 0;
-      const MdtPrepDataCollection& col = **colIt;
+      auto collptr = prdContainer->indexFindPtr(colHash);
+      if( collptr == nullptr ) return 0;
+      const MdtPrepDataCollection& col = *collptr;
       MdtPrepDataCollection::const_iterator mdtIt = col.begin();
       MdtPrepDataCollection::const_iterator mdtIt_end = col.end();
       for( ;mdtIt!=mdtIt_end;++mdtIt ){

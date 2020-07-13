@@ -24,7 +24,7 @@ conddb.addFolderWithTag("TRT_OFL","/TRT/Cond/DigVers","TRTCondDigVers-Collisions
 
 
 ###################################################
-print "RT OVERRIDE, for OFLCOND-MC16-SDR-26 MC condition tag "
+printfunc ("RT OVERRIDE, for OFLCOND-MC16-SDR-26 MC condition tag ")
 #See https://atlas-tagservices.cern.ch/tagservices/RunBrowser/runBrowserReport/rBR_CB_Report.php?CBAction=GlobalTagReport&cbgt=OFLCOND-MC16-SDR-26
 # https://atlas-tagservices.cern.ch/tagservices/RunBrowser/runBrowserReport/rBR_CB_Report.php?CBAction=GlobalTagReport&cbgt=CONDBR2-BLKPA-2018-12
 
@@ -36,7 +36,7 @@ conddb.blockFolder("/LAR/BadChannelsOfl/MissingFEBs");
 conddb.addFolderWithTag("LAR_OFL","/LAR/BadChannels/MissingFEBs","LArBadChannelsMissingFEBs-IOVDEP-04",force=True,forceMC=True)
 
 if not "EOJT_alignMC" in globals():
-    print "EOJT_alignMC not found in globals(), so aligning ID to data conditions"
+    printfunc ("EOJT_alignMC not found in globals(), so aligning ID to data conditions")
     #conddb.blockFolder("/TRT/Align")
     #conddb.addFolderWithTag("TRT_OFL","/TRT/Align","TRTAlign-RUN2-BLK-UPD4-10",force=True,forceData=True)
     #conddb.blockFolder("/LAR/Align")
@@ -44,7 +44,7 @@ if not "EOJT_alignMC" in globals():
     #conddb.blockFolder("/Indet/Align")
     #conddb.addFolderWithTag("INDET_OFL","/Indet/Align","InDetAlign-RUN2-BLK-UPD4-13",force=True,forceData=True)
 else:
-    print "EOJT_alignMC found in globals(), so aligning ID to MC conditions"
+    printfunc ("EOJT_alignMC found in globals(), so aligning ID to MC conditions")
     conddb.blockFolder("/TRT/Align")
     conddb.addFolderWithTag("TRT_OFL","/TRT/Align","TRTAlign-RUN2-BLK-UPD4-13",force=True,forceMC=True)
     conddb.blockFolder("/LAR/Align")
@@ -58,10 +58,10 @@ else:
 
 #to run overlay chain with trigger                      
 if (hasattr(runArgs, "triggerConfig") and runArgs.triggerConfig!="NONE") or (hasattr(recAlgs,'doTrigger') and recAlgs.doTrigger() and DetFlags.LVL1_on()):
-    print "running with trigger  " 
+    printfunc ("running with trigger  " )
     conddb.addOverride("/GLOBAL/Onl/BTagCalib/RUN12","BTagCalibRUN12Onl-08-40")
 else:
-    print "running with no trigger  "
+    printfunc ("running with no trigger  ")
 
 if DetFlags.writeRDOPool.pixel_on():
     conddb.addFolder("PIXEL_OFL","/PIXEL/PixReco")
@@ -70,7 +70,7 @@ conddb.blockFolder("/PIXEL/PixdEdx")
 conddb.addFolderWithTag("PIXEL_OFL","/PIXEL/PixdEdx","PixdEdx-SIM-RUN124-000-00",force=True,forceMC=True)
 mcIDoverlay=False
 if mcIDoverlay:
-    print "ACH777: Using MC overlay Lorentz DB settings"
+    printfunc ("ACH777: Using MC overlay Lorentz DB settings")
     conddb.blockFolder("/PIXEL/DCS/HV")
     conddb.addFolderWithTag("DCS_OFL","/PIXEL/DCS/HV","PixDCSHV-SIM-MC16-000-07",force=True,forceMC=True)
     conddb.blockFolder("/PIXEL/DCS/TEMPERATURE")
@@ -81,7 +81,7 @@ if mcIDoverlay:
     conddb.addFolderWithTag("DCS_OFL","/SCT/DCS/MODTEMP","SctDcsModtemp-MC16",force=True,forceMC=True)
 mcIDoverlay2=False
 if mcIDoverlay2:
-    print "ACH777: Using more MC overlay ID DB settings"
+    printfunc ("ACH777: Using more MC overlay ID DB settings")
     conddb.blockFolder("/Indet/PixelDist")
     conddb.addFolderWithTag("INDET_OFL","/Indet/PixelDist","InDetPixelDist-nominal",force=True,forceMC=True)
     conddb.blockFolder("/PIXEL/PixelClustering/PixelClusNNCalib")
@@ -113,13 +113,13 @@ dofolderoverrides = True
 runN=365681
 lumiBlock=500
 if dofolderoverrides:
-	print "ACH - overriding folder access patterns"
+	printfunc ("ACH - overriding folder access patterns")
 	conddb.dumpFolderTags('myconddb.txt',True)
 
 overlaylongfolders = []
 def setrunforfolder(name):
 	if conddb.folderRequested(name):
-            print "setting run to "+str(runN)+" and lumiblock "+str(lumiBlock)
+            printfunc ("setting run to "+str(runN)+" and lumiblock "+str(lumiBlock))
             frnTag="<forceRunNumber>"+str(runN)+"</forceRunNumber>"
             flbTag="<forceLumiblockNumber>"+str(lumiBlock)+"</forceLumiblockNumber>"
             conddb.addMarkup(name,frnTag)
@@ -218,7 +218,7 @@ if dofolderoverrides:
 	setrunforfolder("/RPC/TRIGGER/CM_THR_PHI")
 	setrunforfolder("/TRT/AlignL2")
 
-print "set run "+str(runN)+" and lumiblock "+str(lumiBlock)+" for folders: ", overlaylongfolders
+printfunc ("set run "+str(runN)+" and lumiblock "+str(lumiBlock)+" for folders: "+str(overlaylongfolders))
 
 
 

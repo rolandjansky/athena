@@ -48,6 +48,9 @@ def MuonClusterOnTrackCreator(name="MuonClusterOnTrackCreator",**kwargs):
 
     return CfgMgr.Muon__MuonClusterOnTrackCreator(name,**kwargs)
 
+def MMClusterOnTrackCreator(name="MMClusterOnTrackCreator",**kwargs):
+    return CfgMgr.Muon__MMClusterOnTrackCreator(name,**kwargs)
+
 def getMuonRIO_OnTrackErrorScalingCondAlg() :
     error_scaling_def=["CSCRIO_OnTrackErrorScaling:/MUON/TrkErrorScalingCSC"]
     return getRIO_OnTrackErrorScalingCondAlg( name                = "MuonRIO_OnTrackErrorScalingCondAlg",
@@ -385,7 +388,10 @@ def MuonClusterSegmentFinderTool(name="MuonClusterSegmentFinderTool", extraFlags
     kwargs.setdefault("SLFitter","Trk::GlobalChi2Fitter/MCTBSLFitterMaterialFromTrack")
     import MuonCombinedRecExample.CombinedMuonTrackSummary
     from AthenaCommon.AppMgr import ToolSvc
-    kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
+    if TriggerFlags.MuonSlice.doTrigMuonConfig:
+        kwargs.setdefault("TrackSummaryTool", "MuonTrackSummaryTool" )
+    else:
+        kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
     return CfgMgr.Muon__MuonClusterSegmentFinderTool(name,**kwargs)
 
 def DCMathSegmentMaker(name='DCMathSegmentMaker',extraFlags=None,**kwargs):

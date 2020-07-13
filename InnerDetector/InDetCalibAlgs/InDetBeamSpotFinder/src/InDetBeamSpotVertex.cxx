@@ -4,17 +4,19 @@
 
 #include "InDetBeamSpotVertex.h"
 #include "GaudiKernel/ITHistSvc.h"
-
+#include "CxxUtils/checker_macros.h"
 #include "VxVertex/VxCandidate.h"
 #include "VxVertex/VxContainer.h"
 #include <random>
 #include <cmath>
 #include <algorithm>
+#include <mutex>
 
 using namespace InDet;
 
 namespace BeamSpot {
-  const std::vector<  BeamSpot::VrtHolder > * vertexData;
+  std::mutex mutex;
+  const std::vector<  BeamSpot::VrtHolder > * vertexData ATLAS_THREAD_SAFE;
   void myFCN_LLsolver( Int_t &, Double_t *, Double_t &, Double_t *, Int_t); // FCN for LL
   void myFCN_LLsolverNorm( Int_t &, Double_t *, Double_t &, Double_t *, Int_t); // FCN for LL
   double norm_xMin(-1e8), norm_xMax(1e8), norm_yMin(-1e8), norm_yMax(1e8) , norm_zMin(-1e8), norm_zMax(1e8);
@@ -369,7 +371,7 @@ bool InDetBeamSpotVertex::solveLL() {
   arglist[0] = 2;
   minuit->mnexcm("SET STR",arglist,1,errFlag);
 
-
+  std::lock_guard<std::mutex> lock(BeamSpot::mutex); // To protect global BeamSpot::vertexData
   // Insert the likelihood function
   // need to make the data accessible to it
   BeamSpot::vertexData = &m_vertexData;
@@ -511,7 +513,6 @@ bool InDetBeamSpotVertex::applyOutlierRemoval() {
     ATH_MSG_INFO( "No vertices found" );
     return false;
   }
-  static int rCount(0); // counter used for recussive mode
 
   
   // determine simple means
@@ -728,7 +729,7 @@ bool InDetBeamSpotVertex::applyOutlierRemoval() {
     m_getLLres = llSolve; // allow the log-likelihood accessor values to returned, if sucessful
   }
 
-  if ( llSolve and rCount > 0 ) {
+  if ( llSolve and m_rCount > 0 ) {
     ATH_MSG_INFO( "Log-Likelihood fit converged in outlier removal. Exiting outlier removal." );
     return true;
   }
@@ -858,7 +859,7 @@ bool InDetBeamSpotVertex::applyOutlierRemoval() {
   } // for
   
   // if no vertices removed and ll fit still fails, then we continue to have a problem ... 
-  if (fCount == 0 && m_useLL && !llSolve && rCount !=0 ) { // if first iteration, we have another iteration later.
+  if (fCount == 0 && m_useLL && !llSolve && m_rCount !=0 ) { // if first iteration, we have another iteration later.
     ATH_MSG_WARNING( "No vertices removed and fit still fails - most likely final result will fail"  );
     
     // this is our 'last-ditch approach'. Split the collection of vertices into two 'random' sets and solve for each.
@@ -946,19 +947,19 @@ bool InDetBeamSpotVertex::applyOutlierRemoval() {
   
   
   // recursive mode
-  ATH_MSG_DEBUG( " Recursive debug: Loop: " << rCount << ". Number of failed vertices: " << fCount );
+  ATH_MSG_DEBUG( " Recursive debug: Loop: " << m_rCount << ". Number of failed vertices: " << fCount );
   
-  ++rCount;
-  if ( fCount > 0 || ( fCount == 0 && rCount == 1 && !llSolve)) { // if failed vertices or, no failed, first iteration, and no succesful fit
-    if ( rCount > m_maxOutlierLoops) {
-      ATH_MSG_WARNING( "OutlierRemoval: Reached maximum number of recursive loops: " << rCount 
+  ++m_rCount;
+  if ( fCount > 0 || ( fCount == 0 && m_rCount == 1 && !llSolve)) { // if failed vertices or, no failed, first iteration, and no succesful fit
+    if ( m_rCount > m_maxOutlierLoops) {
+      ATH_MSG_WARNING( "OutlierRemoval: Reached maximum number of recursive loops: " << m_rCount 
         << ". No more iterations performed." );
     } else {
-      ATH_MSG_DEBUG( "OutlierRemoval: Entering recursive loop: " << rCount );
+      ATH_MSG_DEBUG( "OutlierRemoval: Entering recursive loop: " << m_rCount );
       applyOutlierRemoval();
     } // if entering loop
   } // if fails > 0
-  --rCount;
+  --m_rCount;
   return true;
 } // outlier removal
 

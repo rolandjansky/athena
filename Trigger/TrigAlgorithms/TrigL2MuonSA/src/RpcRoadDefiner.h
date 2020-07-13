@@ -9,7 +9,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "TrigMuonBackExtrapolator/ITrigMuonBackExtrapolator.h"
+#include "TrigMuonToolInterfaces/ITrigMuonBackExtrapolator.h"
 #include "RpcData.h"
 #include "RpcPatFinder.h"
 #include "MuonRoad.h"

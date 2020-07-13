@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <mutex>
@@ -16,25 +16,22 @@
 
 static std::mutex sgMutex;
 
-// This class is singleton and static method and variable are used.
-ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
-
 //
 // private constructor
 SiHitIdHelper::SiHitIdHelper() :HitIdHelper() {
   Initialize();
 }
 
-SiHitIdHelper* SiHitIdHelper::GetHelper() {
-#ifdef G4MULTITHREADED
+const SiHitIdHelper* SiHitIdHelper::GetHelper ATLAS_NOT_THREAD_SAFE () { // static variable helperPtr is used.
+  #ifdef G4MULTITHREADED
   // Context-specific singleton
-  static Gaudi::Hive::ContextSpecificPtr<SiHitIdHelper> helperPtr;
-  if(!helperPtr) helperPtr = new SiHitIdHelper();
+  static Gaudi::Hive::ContextSpecificPtr<const SiHitIdHelper> helperPtr;
+  if (!helperPtr) helperPtr = new SiHitIdHelper();
   return helperPtr.get();
-#else
-  static SiHitIdHelper helper;
+  #else
+  static const SiHitIdHelper helper;
   return &helper;
-#endif
+  #endif
 }
 
 void SiHitIdHelper::Initialize() {

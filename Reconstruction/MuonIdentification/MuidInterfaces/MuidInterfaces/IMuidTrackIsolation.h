@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -44,9 +44,6 @@ public:
        in a cone at the production vertex or around the muon calo intersect*/
     virtual std::pair<int,double>	trackIsolation (double eta, double phi) const = 0;
 
-    /**IMuidTrackIsolation interface:
-       get the momentum of the most energetic track in the cone*/
-    virtual double			maxP (void) const = 0;
 };
 
 }	// end of namespace

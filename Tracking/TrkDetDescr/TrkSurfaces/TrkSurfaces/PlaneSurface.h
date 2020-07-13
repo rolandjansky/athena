@@ -143,6 +143,9 @@ public:
   /** Return the surface type */
   virtual SurfaceType type() const override final;
 
+  /** Return the surface type static constexpr */
+  static constexpr SurfaceType staticType() ;
+
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * charged */
   virtual ParametersT<5, Charged, PlaneSurface>* createTrackParameters(
@@ -221,14 +224,14 @@ public:
    * allocation */
   virtual void localToGlobal(const Amg::Vector2D& locp,
                              const Amg::Vector3D& mom,
-                             Amg::Vector3D& glob) const override;
+                             Amg::Vector3D& glob) const override final;
 
   /** Specified for PlaneSurface: GlobalToLocal method without dynamic memory
    * allocation - boolean checks if on surface
    */
   virtual bool globalToLocal(const Amg::Vector3D& glob,
                              const Amg::Vector3D& mom,
-                             Amg::Vector2D& loc) const override;
+                             Amg::Vector2D& loc) const override final;
 
   /** This method transforms a local direction wrt the plane to a global
    * direction */
@@ -265,18 +268,18 @@ public:
     const Amg::Vector3D& pos,
     const Amg::Vector3D& dir,
     bool forceDir,
-    Trk::BoundaryCheck bchk) const override;
+    Trk::BoundaryCheck bchk) const override final;
 
   /** fast straight line distance evaluation to Surface */
   virtual DistanceSolution straightLineDistanceEstimate(
     const Amg::Vector3D& pos,
-    const Amg::Vector3D& dir) const override;
+    const Amg::Vector3D& dir) const override final;
 
   /** fast straight line distance evaluation to Surface - with bound option*/
   virtual DistanceSolution straightLineDistanceEstimate(
     const Amg::Vector3D& pos,
     const Amg::Vector3D& dir,
-    bool Bound) const override;
+    bool Bound) const override final;
 
   /** Return properly formatted class name for screen output */
   virtual std::string name() const override ;

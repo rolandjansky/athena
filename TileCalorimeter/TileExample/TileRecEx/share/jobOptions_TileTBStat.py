@@ -7,6 +7,7 @@
 from os import system,popen
 from subprocess import check_output
 from subprocess import CalledProcessError
+import six
 
 from AthenaCommon.AppMgr import theApp
 svcMgr = theApp.serviceMgr()
@@ -113,8 +114,10 @@ if not 'InputDirectory' in dir():
             Year = 2017
         elif RunNumber < 367980:
             Year = 2018
-        else:
+        elif RunNumber < 374260:
             Year = 2019
+        else:
+            Year = 2020
 
 
         if 'RunStream' in dir():
@@ -176,6 +179,7 @@ def FindFile(path, runinput, filter):
         log.warn('Seems there are no such directory: ' + path)
 
 
+    files = [six.ensure_str(f) for f in files]
     for file_name in (files):
         try:
             good=(not file_name in open('/afs/cern.ch/user/t/tilebeam/ARR/bad_data_files').read())
@@ -273,7 +277,7 @@ DetFlags.readRDOBS.Tile_setOn()
 DetFlags.Print()
 
 from AthenaCommon.GlobalFlags import jobproperties
-if RUN2: jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-04-00-00"
+if RUN2: jobproperties.Global.DetDescrVersion = "ATLAS-R2-2016-01-00-01"
 else:    jobproperties.Global.DetDescrVersion = "ATLAS-R1-2012-02-00-00"
 tbstat_log.info( "DetDescrVersion = %s" % (jobproperties.Global.DetDescrVersion()) )
 
@@ -289,8 +293,8 @@ if RUN2: rec.projectName = "data15_tilecomm"
 else:    rec.projectName = "data12_tilecomm"
 
 from IOVDbSvc.CondDB import conddb
-if MC:     conddb.setGlobalTag("OFLCOND-RUN12-SDR-25")
-elif RUN2: conddb.setGlobalTag("CONDBR2-BLKPA-2018-03")
+if MC:     conddb.setGlobalTag("OFLCOND-RUN12-SDR-35")
+elif RUN2: conddb.setGlobalTag("CONDBR2-BLKPA-2018-16")
 else:      conddb.setGlobalTag("COMCOND-BLKPA-RUN1-06")
 
 #=============================================================

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # None of this works, but keep it around in case someone wants to resurrect it later...
 # - PO 20180419
@@ -23,7 +23,7 @@ class DQUTestCase(unittest.TestCase):
         inlist = os.path.join(TESTING_DIR, 'test_merging')
         self.outfile = os.path.join(outdir, 'data09_calophys.00128005.physics_CosmicMuons.root')
         rv = os.system('cd %s ; DQHistogramMerge.py %s %s True' % (outdir, inlist, self.outfile))
-        self.failUnless(rv==0, "DQHistogramMerge.py return code is nonzero")
+        self.assertTrue(rv==0, "DQHistogramMerge.py return code is nonzero")
         
     def test02_WebDisplay(self):
         '''Test that a terminal web display job works'''
@@ -34,7 +34,7 @@ class DQUTestCase(unittest.TestCase):
         outdir = os.environ.get('TMPDIR', '.')
         infile = os.path.join(TESTING_DIR, 'data09_calophys.00128005.physics_CosmicMuons.root')
         rv = os.system('cd %s ; DQWebDisplay.py %s TestDisplay 123' % (outdir, infile))
-        self.failUnless(rv==0, "DQWebDisplay.py return code is nonzero")
+        self.assertTrue(rv==0, "DQWebDisplay.py return code is nonzero")
         
     def test_03_WebDisplay(self):
         '''Test that a terminal web display job works in temporary accumulation mode'''
@@ -55,7 +55,7 @@ class DQUTestCase(unittest.TestCase):
         shutil.copy(infile, os.path.join(cachedir, cachefilename))
 
         rv = os.system('cd %s ; DQWebDisplay.py %s TestDisplay 123 True' % (outdir, infile))
-        self.failUnless(rv==0, "DQWebDisplay.py return code is nonzero")
+        self.assertTrue(rv==0, "DQWebDisplay.py return code is nonzero")
 
     def tearDown(self):
         try:

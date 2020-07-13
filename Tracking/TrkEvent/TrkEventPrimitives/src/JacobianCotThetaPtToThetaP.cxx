@@ -23,8 +23,6 @@ Trk::JacobianCotThetaPtToThetaP::JacobianCotThetaPtToThetaP(const double cotThet
 }
 
 
-Trk::JacobianCotThetaPtToThetaP::~JacobianCotThetaPtToThetaP()
-{}
 
 
 

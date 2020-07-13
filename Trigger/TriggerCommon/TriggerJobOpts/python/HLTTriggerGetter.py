@@ -141,7 +141,7 @@ class HLTSimulationGetter(Configured):
         if jobproperties.Global.InputFormat() == 'bytestream':
             # Decode ROIB::RoIBResult from ByteStream
             from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1ByteStreamDecodersRecExSetup
-            L1ByteStreamDecodersRecExSetup(enableRun2L1=True, enableRun3L1=False)
+            L1ByteStreamDecodersRecExSetup()
 
         log.info("Loading RegionSelector")
         from AthenaCommon.AppMgr import ServiceMgr

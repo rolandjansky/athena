@@ -280,7 +280,7 @@ Splitter3            INFO L1 failed
 Triggered            INFO EventInfo event: 19 run: 0
 Triggered            INFO L1 passed
 StorageSvc           INFO EventStreamInfo_p3 [11DF1B8C-0DEE-4687-80D7-E74B520ACBB4]
-StreamAll            INFO Records written: 21
+StreamAll            INFO Metadata records written: 21
 Splitter1            INFO in finalize()
 Splitter2            INFO in finalize()
 Splitter3            INFO in finalize()

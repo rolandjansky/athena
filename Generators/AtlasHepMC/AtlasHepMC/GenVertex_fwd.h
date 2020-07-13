@@ -13,6 +13,7 @@ typedef HepMC3::ConstGenVertexPtr ConstGenVertexPtr;
 namespace HepMC {
 class GenVertex;
 typedef HepMC::GenVertex* GenVertexPtr;
+typedef const HepMC::GenVertex* ConstGenVertexPtr;
 }
 #endif
 #endif

@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TrigEgammaMuonCombHypo.TrigEgammaMuonCombHypoConf import TrigL2ElectronMuonAngleFexAlgo, TrigL2ElectronMuonAngleHypo
 from AthenaCommon.SystemOfUnits import GeV
-from TrigEgammaMuonCombHypo.TrigL2ElectronMuonAngleHypoMonitoring import *
+import TrigEgammaMuonCombHypo.TrigL2ElectronMuonAngleHypoMonitoring as mon
 
 class TrigL2ElectronMuonAngleFex ( TrigL2ElectronMuonAngleFexAlgo ):
     __slots__ = []
@@ -20,7 +20,7 @@ class TrigL2ElectronMuonAngleFex ( TrigL2ElectronMuonAngleFexAlgo ):
         self.LowerMassCut=0.0*GeV
         self.UpperMassCut=999.0*GeV
 
-        self.AthenaMonTools = [ TrigL2ElectronMuonAngleOnlineMonitoring(), TrigL2ElectronMuonAngleValidationMonitoring_emutopo() ] 
+        self.AthenaMonTools = [ mon.TrigL2ElectronMuonAngleOnlineMonitoring(), mon.TrigL2ElectronMuonAngleValidationMonitoring_emutopo() ]
 
 # new cuts as presented at TGM on April 20
 class TrigL2ElectronMuonAngleHypo_tight (TrigL2ElectronMuonAngleHypo ):  # tight selection
@@ -46,7 +46,7 @@ class TrigL2ElectronMuonAngleHypo_tight (TrigL2ElectronMuonAngleHypo ):  # tight
         self.LowerMassCut=1.5*GeV
         self.UpperMassCut=10.0*GeV
         
-        self.AthenaMonTools = [ TrigL2ElectronMuonAngleOnlineMonitoring(), TrigL2ElectronMuonAngleValidationMonitoring_emutopo() ] 
+        self.AthenaMonTools = [ mon.TrigL2ElectronMuonAngleOnlineMonitoring(), mon.TrigL2ElectronMuonAngleValidationMonitoring_emutopo() ]
         
 class TrigL2ElectronMuonAngleHypo_medium (TrigL2ElectronMuonAngleHypo ):  # medium selection
     __slots__ = []
@@ -71,7 +71,7 @@ class TrigL2ElectronMuonAngleHypo_medium (TrigL2ElectronMuonAngleHypo ):  # medi
         self.LowerMassCut=1.5*GeV
         self.UpperMassCut=10.0*GeV
         
-        self.AthenaMonTools = [ TrigL2ElectronMuonAngleOnlineMonitoring(), TrigL2ElectronMuonAngleValidationMonitoring_emutopo() ] 
+        self.AthenaMonTools = [ mon.TrigL2ElectronMuonAngleOnlineMonitoring(), mon.TrigL2ElectronMuonAngleValidationMonitoring_emutopo() ]
 
 class TrigL2ElectronMuonAngleHypo_loose (TrigL2ElectronMuonAngleHypo ):  # loose selection
     __slots__ = []
@@ -96,7 +96,7 @@ class TrigL2ElectronMuonAngleHypo_loose (TrigL2ElectronMuonAngleHypo ):  # loose
         self.LowerMassCut=1.0*GeV
         self.UpperMassCut=20.0*GeV
         
-        self.AthenaMonTools = [ TrigL2ElectronMuonAngleOnlineMonitoring(), TrigL2ElectronMuonAngleValidationMonitoring_emutopo() ] 
+        self.AthenaMonTools = [ mon.TrigL2ElectronMuonAngleOnlineMonitoring(), mon.TrigL2ElectronMuonAngleValidationMonitoring_emutopo() ]
 
 #algorithms configured in TriggerMenuPython - to prevent athena crash in the transition period  
 
@@ -124,7 +124,7 @@ class TrigL2ElectronMuonAngleHypo_e5mu4 (TrigL2ElectronMuonAngleHypo ):  # tight
         self.LowerMassCut=1.5*GeV
         self.UpperMassCut=10.0*GeV
         
-        self.AthenaMonTools = [ TrigL2ElectronMuonAngleOnlineMonitoring(), TrigL2ElectronMuonAngleValidationMonitoring_emutopo() ] 
+        self.AthenaMonTools = [ mon.TrigL2ElectronMuonAngleOnlineMonitoring(), mon.TrigL2ElectronMuonAngleValidationMonitoring_emutopo() ]
         
 class TrigL2ElectronMuonAngleHypo_e5mu4_medium (TrigL2ElectronMuonAngleHypo ):  # medium selection
     __slots__ = []
@@ -149,5 +149,4 @@ class TrigL2ElectronMuonAngleHypo_e5mu4_medium (TrigL2ElectronMuonAngleHypo ):  
         self.LowerMassCut=1.5*GeV
         self.UpperMassCut=10.0*GeV
         
-        self.AthenaMonTools = [ TrigL2ElectronMuonAngleOnlineMonitoring(), TrigL2ElectronMuonAngleValidationMonitoring_emutopo() ] 
-        
+        self.AthenaMonTools = [ mon.TrigL2ElectronMuonAngleOnlineMonitoring(), mon.TrigL2ElectronMuonAngleValidationMonitoring_emutopo() ]

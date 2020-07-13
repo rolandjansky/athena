@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTDigCondBase.h"
@@ -69,7 +69,7 @@ void TRTDigCondBase::initialize(CLHEP::HepRandomEngine* rndmEngine) {
   ATH_MSG_INFO ( "TRTDigCondBase::initialize()" );
 
   //id helpers:
-  TRTHitIdHelper *hitid_helper(TRTHitIdHelper::GetHelper());
+  const TRTHitIdHelper *hitid_helper(TRTHitIdHelper::GetHelper());
 
   //We loop through all of the detector elements registered in the manager
   InDetDD::TRT_DetElementCollection::const_iterator it(m_detmgr->getDetectorElementBegin());

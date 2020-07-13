@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDBASETOOLS_MUONCALOTAGTOOL_H
@@ -43,7 +43,7 @@ namespace MuonCombined {
 
   public:
     MuonCaloTagTool(const std::string& type, const std::string& name, const IInterface* parent);
-    virtual ~MuonCaloTagTool(void); // destructor
+    virtual ~MuonCaloTagTool()=default;
   
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
@@ -51,15 +51,15 @@ namespace MuonCombined {
     /**IMuonCombinedInDetExtensionTool interface: extend ID candidate */    
     virtual
       void extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks, TrackCollection* meTracks, 
-		   Trk::SegmentCollection* segments ) override;
+		   Trk::SegmentCollection* segments ) const override;
 
     virtual
       void extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap,
 		   const CaloCellContainer* caloCellContainer,
-		   const xAOD::CaloClusterContainer* caloClusterContainer) override;
+		   const xAOD::CaloClusterContainer* caloClusterContainer) const override;
 
     virtual void extendWithPRDs(const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, IMuonCombinedInDetExtensionTool::MuonPrdData prdData,
-				TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments) override;
+				TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments) const override;
 
 
   private:
@@ -68,7 +68,7 @@ namespace MuonCombined {
     const Trk::TrackParameters* getTrackParameters(const Trk::Track* trk) const;
     bool selectTrack(const Trk::Track* trk, const Trk::Vertex* vertex) const;
     bool selectCosmic(const Trk::Track* ptcl) const;
-    bool applyTrackIsolation(const xAOD::TrackParticle& tp);
+    bool applyTrackIsolation(const xAOD::TrackParticle& tp) const;
     void showTrackInfo(const Trk::TrackParameters* par) const;
     
     // --- StoreGate keys ---

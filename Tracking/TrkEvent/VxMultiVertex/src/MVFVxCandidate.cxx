@@ -47,10 +47,8 @@ namespace Trk {
 
 
 
-  MVFVxCandidate::MVFVxCandidate(const MVFVxCandidate& rhs) :
-    VxCandidate(rhs),
-    m_fitInfo(rhs.m_fitInfo),
-    m_initialized(rhs.m_initialized) {}
+  MVFVxCandidate::MVFVxCandidate(const MVFVxCandidate& rhs) 
+    = default;
 
   MVFVxCandidate& MVFVxCandidate::operator= (const MVFVxCandidate& rhs)
   {
@@ -64,7 +62,7 @@ namespace Trk {
   }
   
   MVFVxCandidate::~MVFVxCandidate()
-  {}
+  = default;
   
   MsgStream& MVFVxCandidate::dump(MsgStream& sl) const {
     sl << "Printing Trk::MVFVxCandidate:" << endmsg;

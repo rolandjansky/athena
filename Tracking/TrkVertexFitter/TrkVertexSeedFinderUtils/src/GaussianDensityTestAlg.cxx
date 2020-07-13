@@ -162,7 +162,7 @@ void GaussianDensityTestAlg::selectTracks(const xAOD::TrackParticleContainer* tr
     if (selectionPassed)
     {
       ElementLink<xAOD::TrackParticleContainer> link;
-      link.setElement(const_cast<xAOD::TrackParticle*>(*itr));
+      link.setElement(*itr);
       Trk::LinkToXAODTrackParticle * linkTT = new Trk::LinkToXAODTrackParticle(link);
       linkTT->setStorableObject(*trackParticles);
       trackVector.push_back(linkTT);

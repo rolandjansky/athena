@@ -15,13 +15,14 @@
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "CscCalibTools/ICscCalibTool.h"
 #include "MuonCSC_CnvTools/ICSC_RDO_Decoder.h"
-#include <string>
+#include "StoreGate/ReadCondHandleKey.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
-namespace MuonGM {
-  class MuonDetectorManager;
-}
+#include <string>
+#include <vector>
 
 class CscRawDataContainer;
+
 ////////////////////////////////////////////////////////////////////////////////////////
 /// Author: Ketevi A. Assamagan
 /// BNL, April 03, 2005
@@ -62,9 +63,8 @@ namespace Muon {
     virtual StatusCode decode(const CscRawDataContainer* rdo, 
 		      std::vector<IdentifierHash>& decodedIdhs);
     virtual StatusCode decode( const std::vector<uint32_t>& ) {return StatusCode::FAILURE;}
-    
-    /// Muon Detector Descriptor
-    const MuonGM::MuonDetectorManager* m_muonMgr;
+
+    SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_muDetMgrKey {this, "DetectorManagerKey", "MuonDetectorManager", "Key of input MuonDetectorManager condition data"}; 
     
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     

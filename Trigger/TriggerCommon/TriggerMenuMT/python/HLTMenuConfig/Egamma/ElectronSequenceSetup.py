@@ -26,7 +26,13 @@ def fastElectronSequence(ConfigFlags):
     # Required to satisfy data dependencies
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import CaloMenuDefs  
     viewVerify.DataObjects += [( 'xAOD::TrigEMClusterContainer' , 'StoreGateSvc+' + CaloMenuDefs.L2CaloClusters ),
-                               ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+EMIDRoIs' )]
+                               ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+'+RoIs )]
+
+    from IOVDbSvc.CondDB import conddb
+    if not conddb.folderRequested( "/PIXEL/DCS/FSMSTATUS"):
+      viewVerify.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATUS' )]
+    if not conddb.folderRequested( "/PIXEL/DCS/FSMSTATE"):
+      viewVerify.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATE' )]
     
     TrackParticlesName = ""
     for viewAlg in viewAlgs:
