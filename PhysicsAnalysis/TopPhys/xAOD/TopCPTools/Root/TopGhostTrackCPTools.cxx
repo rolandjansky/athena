@@ -76,7 +76,7 @@ namespace top {
     if (asg::ToolStore::contains<InDet::InDetTrackSelectionTool>(m_TrkSelName)) {
       m_trackseltool = asg::ToolStore::get<InDet::InDetTrackSelectionTool>(m_TrkSelName);
     } else {
-    auto selTool = std::make_unique<InDet::InDetTrackSelectionTool>( m_TrkSelName ,m_config->ghostTracksQuality());    
+      auto selTool = std::make_unique<InDet::InDetTrackSelectionTool>( m_TrkSelName ,m_config->ghostTracksQuality());    
       top::check(selTool -> initialize(), "Failed to initialize InDetTrackSelectionTool for GA tracks");
       m_trackseltool = selTool.release();
       ATH_MSG_INFO("Creating selection tool " + m_TrkSelName);
