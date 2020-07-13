@@ -7,7 +7,7 @@
 
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "TrigMuonBackExtrapolator/ITrigMuonBackExtrapolator.h"
+#include "TrigMuonToolInterfaces/ITrigMuonBackExtrapolator.h"
 
 
 

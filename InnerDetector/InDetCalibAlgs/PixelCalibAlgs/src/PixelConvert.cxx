@@ -1,8 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelCalibAlgs/PixelConvert.h"
+#include "CxxUtils/checker_macros.h"
 #include <algorithm>
 
 namespace PixelConvert {
@@ -399,7 +400,7 @@ namespace PixelConvert {
    * file named as in the string datafile initialized above.
    */
 
-  int ReadMap(const std::string& filename ) {
+  int ReadMap ATLAS_NOT_THREAD_SAFE (const std::string& filename ) { // Global variables are used.
     std::cerr << "INFO: Opening data file " << filename << std::endl; 
     std::ifstream f(filename.c_str());
     if ( !f.good() ) {
@@ -432,7 +433,7 @@ namespace PixelConvert {
     return 0;
   }
 
-  unsigned int GetID(const unsigned int moduleID) {
+  unsigned int GetID ATLAS_NOT_THREAD_SAFE (const unsigned int moduleID) { // Global variables are used.
     // if maps are not previously loaded, read in the file 
     if ( !hashIndex || !SNIndex ) ReadMap(datafile);
     if ( moduleID>=510000 && moduleID<=519999 ) 

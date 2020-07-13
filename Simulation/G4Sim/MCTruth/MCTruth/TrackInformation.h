@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrackInformation_H
@@ -14,11 +14,11 @@ namespace ISF {
 class TrackInformation: public VTrackInformation {
 public:
 	TrackInformation();
-	TrackInformation(const HepMC::GenParticle*,const ISF::ISFParticle* baseIsp=0);
-	const HepMC::GenParticle *GetHepMCParticle() const;
+	TrackInformation(HepMC::ConstGenParticlePtr,const ISF::ISFParticle* baseIsp=0);
+	HepMC::ConstGenParticlePtr GetHepMCParticle() const;
 	const ISF::ISFParticle *GetBaseISFParticle() const;
 	int GetParticleBarcode() const;
-	void SetParticle(const HepMC::GenParticle*);
+	void SetParticle(HepMC::ConstGenParticlePtr);
 	void SetBaseISFParticle(const ISF::ISFParticle*);
 	void SetReturnedToISF(bool returned) {m_returnedToISF=returned;};
 	bool GetReturnedToISF() const {return m_returnedToISF;};
@@ -26,7 +26,7 @@ public:
 	int GetRegenerationNr() const {return m_regenerationNr;};
 private:
 	int m_regenerationNr;
-	const HepMC::GenParticle *m_theParticle;
+	HepMC::ConstGenParticlePtr m_theParticle;
 	const ISF::ISFParticle *m_theBaseISFParticle;
 	bool m_returnedToISF;
 };

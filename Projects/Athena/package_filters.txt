@@ -69,7 +69,6 @@
 - MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibTools
 - MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibValidation
 - MuonSpectrometer/MuonCalib/MuonCalibAlgs
-- MuonSpectrometer/MuonCalib/MuonCalibDbScripts
 - MuonSpectrometer/MuonCalib/MuonCalibJobTransforms
 - MuonSpectrometer/MuonCalib/MuonCalibStandAlone/CalibNtupleAnalysisAlg
 - MuonSpectrometer/MuonCalib/MuonCalibStandAlone/MuonCalibStandAloneExtraTools

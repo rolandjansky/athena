@@ -5,18 +5,14 @@
 #ifndef MUON_MUONINSIDEOUTRECOTOOL_H
 #define MUON_MUONINSIDEOUTRECOTOOL_H
 
-#include "MuonLayerEvent/MuonLayerRecoData.h"
-#include "MuonPrepRawDataProviderTools/MuonLayerHashProviderTool.h"
-#include "xAODTracking/VertexContainer.h"
-
-
-
-#include <vector>
-
+#include "MuonCombinedToolInterfaces/IMuonCombinedInDetExtensionTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include "MuonLayerEvent/MuonLayerRecoData.h"
+#include "MuonPrepRawDataProviderTools/MuonLayerHashProviderTool.h"
+#include "xAODTracking/VertexContainer.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonLayerSegmentFinderTool.h"
 #include "MuonCombinedToolInterfaces/IMuonLayerSegmentMatchingTool.h"
@@ -27,8 +23,10 @@
 #include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
 #include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
-#include "MuonCombinedToolInterfaces/IMuonCombinedInDetExtensionTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
+
+#include <string>
+#include <vector>
 
 namespace Muon {
   struct MuonCandidate;
@@ -86,20 +84,19 @@ namespace MuonCombined {
 			     Muon::MuonStationIndex::LayerIndex layerIndex, const Muon::MuonPrepDataContainer< COL >* input, std::vector<const COL*>& output ) const;
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-    ToolHandle<Muon::MuonEDMPrinterTool>             m_printer; 
-    ToolHandle<Muon::IMuonLayerSegmentFinderTool>    m_segmentFinder;
-    ToolHandle<Muon::IMuonLayerSegmentMatchingTool>  m_segmentMatchingTool;
-    ToolHandle<Muon::IMuonLayerAmbiguitySolverTool>  m_ambiguityResolver;
-    ToolHandle<Muon::IMuonCandidateTrackBuilderTool> m_candidateTrackBuilder;
-    ToolHandle<Muon::IMuonRecoValidationTool>        m_recoValidationTool;
-    ToolHandle<Rec::ICombinedMuonTrackBuilder>       m_trackFitter;
-    ToolHandle<Trk::ITrackAmbiguityProcessorTool>    m_trackAmbiguityResolver;
-    ToolHandle<Muon::MuonLayerHashProviderTool>      m_layerHashProvider;
-    ToolHandle<Trk::IExtendedTrackSummaryTool>       m_trackSummaryTool;    
+    ToolHandle<Muon::MuonEDMPrinterTool> m_printer{this,"MuonEDMPrinterTool","Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
+    ToolHandle<Muon::IMuonLayerSegmentFinderTool>    m_segmentFinder{this,"MuonLayerSegmentFinderTool","Muon::MuonLayerSegmentFinderTool/MuonLayerSegmentFinderTool"};
+    ToolHandle<Muon::IMuonLayerSegmentMatchingTool>  m_segmentMatchingTool{this,"MuonLayerSegmentMatchingTool","Muon::MuonLayerSegmentMatchingTool/MuonLayerSegmentMatchingTool"};
+    ToolHandle<Muon::IMuonLayerAmbiguitySolverTool>  m_ambiguityResolver{this,"MuonLayerAmbiguitySolverTool","Muon::MuonLayerAmbiguitySolverTool/MuonLayerAmbiguitySolverTool"};
+    ToolHandle<Muon::IMuonCandidateTrackBuilderTool> m_candidateTrackBuilder{this,"MuonCandidateTrackBuilderTool","Muon::MuonCandidateTrackBuilderTool/MuonCandidateTrackBuilderTool"};
+    ToolHandle<Muon::IMuonRecoValidationTool>        m_recoValidationTool{this,"MuonRecoValidationTool",""};
+    ToolHandle<Rec::ICombinedMuonTrackBuilder>       m_trackFitter{this,"MuonTrackBuilder","Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder"};
+    ToolHandle<Trk::ITrackAmbiguityProcessorTool>    m_trackAmbiguityResolver{this,"TrackAmbiguityProcessor","Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"};
+    ToolHandle<Muon::MuonLayerHashProviderTool>      m_layerHashProvider{this,"MuonLayerHashProviderTool","Muon::MuonLayerHashProviderTool"};
+    ToolHandle<Trk::IExtendedTrackSummaryTool>       m_trackSummaryTool{this,"TrackSummaryTool","MuonTrackSummaryTool"};
     
-    /** id pt cut */
-    double m_idTrackMinPt;
-    bool m_ignoreSiAssocated;
+    Gaudi::Property<double> m_idTrackMinPt{this,"IDTrackMinPt",2500};
+    Gaudi::Property<bool> m_ignoreSiAssocated{this,"IgnoreSiAssociatedCandidates",true};
 
     // vertex container key
     SG::ReadHandleKey<xAOD::VertexContainer> m_vertexKey { this, "VertexContainer", "PrimaryVertices", "vertex container key" };

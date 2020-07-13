@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PixelChargeInterpolationHistograms_C
@@ -152,7 +152,7 @@ int PixelChargeInterpolationHistograms::Fill(int DetType, double GeVTrkPt,
 		double alpha, double DeltaRow, double resphi, double OmegaPhi){
 	
 		
-	static std::vector<double> Pars(3);
+	std::vector<double> Pars(3);
 	if(GeVTrkPt == 0) return -1; 
 
 	if( DeltaCol > 1){ // otherwise none to share with!

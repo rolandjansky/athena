@@ -796,12 +796,17 @@ SGImplSvc::proxy(const CLID& id) const
 DataProxy* 
 SGImplSvc::proxy(const CLID& id, bool checkValid) const
 { 
-  lock_t lock (m_mutex);
-  DataProxy* dp = m_pStore->proxy(id);
-  if (0 == dp && 0 != m_pPPS) {
-    dp = m_pPPS->retrieveProxy(id, string("DEFAULT"), *m_pStore);
+  DataProxy* dp = nullptr;
+  {
+    lock_t lock (m_mutex);
+    dp = m_pStore->proxy(id);
+    if (0 == dp && 0 != m_pPPS) {
+      dp = m_pPPS->retrieveProxy(id, string("DEFAULT"), *m_pStore);
+    }
   }
   /// Check if it is valid
+  // Be sure to release the lock before this.
+  // isValid() may call back to the store, so we could otherwise deadlock..
   if (checkValid && 0 != dp) {
     // FIXME: For keyless retrieve, this checks only the first instance
     // of the CLID in store. If that happens to be invalid, but the second
@@ -820,11 +825,16 @@ SGImplSvc::proxy(const CLID& id, const string& key) const
 DataProxy*
 SGImplSvc::proxy(const CLID& id, const string& key, bool checkValid) const
 { 
-  lock_t lock (m_mutex);
-  DataProxy* dp = m_pStore->proxy(id, key);
-  if (0 == dp && 0 != m_pPPS) {
-    dp = m_pPPS->retrieveProxy(id, key, *m_pStore);
+  DataProxy* dp = nullptr;
+  {
+    lock_t lock (m_mutex);
+    dp = m_pStore->proxy(id, key);
+    if (0 == dp && 0 != m_pPPS) {
+      dp = m_pPPS->retrieveProxy(id, key, *m_pStore);
+    }
   }
+  // Be sure to release the lock before this.
+  // isValid() may call back to the store, so we could otherwise deadlock..
   if (checkValid && 0 != dp && !(dp->isValid())) dp = 0;
   return dp;
 }

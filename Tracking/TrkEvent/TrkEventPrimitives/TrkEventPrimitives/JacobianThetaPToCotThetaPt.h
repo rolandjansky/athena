@@ -41,7 +41,6 @@ namespace Trk {
   class JacobianThetaPToCotThetaPt : public AmgMatrix(5,5) {
     public:
       JacobianThetaPToCotThetaPt(const double theta, const double qp);
-      ~JacobianThetaPToCotThetaPt();
   };
 
 } // end of namespace

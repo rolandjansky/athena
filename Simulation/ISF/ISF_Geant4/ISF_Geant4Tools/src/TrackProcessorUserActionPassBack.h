@@ -55,17 +55,17 @@ namespace G4UA{
       Config m_config;
 
       /** create a new TruthBinding object for the given G4Track (may return 0 if unable) */
-      ISF::TruthBinding* newTruthBinding(const G4Track* aTrack, HepMC::GenParticle* truthParticle) const;
+      ISF::TruthBinding* newTruthBinding(const G4Track* aTrack, HepMC::GenParticlePtr truthParticle) const;
 
       ISF::ISFParticle* newISFParticle(G4Track* aTrack,
                                        const ISF::ISFParticle* parent,
-                                       HepMC::GenParticle* truthParticle,
+                                       HepMC::GenParticlePtr truthParticle,
                                        AtlasDetDescr::AtlasRegion nextGeoID);
 
       /** kills the given G4Track, converts it into an ISFParticle and returns it to the ISF particle broker */
       void returnParticleToISF( G4Track *aTrack,
                                 const ISF::ISFParticle *parentISP,
-                                HepMC::GenParticle* truthParticle,
+                                HepMC::GenParticlePtr truthParticle,
                                 AtlasDetDescr::AtlasRegion nextGeoID );
 
       ISF::IParticleBroker                *m_particleBrokerQuick; //!< quickaccess avoiding gaudi ovehead

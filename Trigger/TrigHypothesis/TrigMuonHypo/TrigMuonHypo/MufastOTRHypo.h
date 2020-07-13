@@ -7,7 +7,7 @@
 
 #include <string>
 #include "TrigInterfaces/HypoAlgo.h"
-#include "TrigMuonRoITools/ITrigMuonRoITool.h"
+#include "TrigMuonToolInterfaces/ITrigMuonRoITool.h"
 
 class StoreGateSvc;
 class TriggerElement;

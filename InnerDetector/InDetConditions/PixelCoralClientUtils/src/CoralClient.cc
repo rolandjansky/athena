@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////
@@ -18,10 +18,11 @@ fill the DB, read it back
 
 #include <assert.h>
 #include <cstring>
+#include <string>
 
 // definition of table types
 enum ETableTypeId {kBoolType, kUIntType, kFloatType, kAvresType, kPixelMapType, kCalibData, kNTableTypes};
-const char *s_tableTypeName[kNTableTypes]={"BOOL","UINT","FLOAT","AVRES","SPECIALPIXELS","CALIBDATA"};
+const std::string s_tableTypeName[kNTableTypes]={"BOOL","UINT","FLOAT","AVRES","SPECIALPIXELS","CALIBDATA"};
 
 /** Returns the string used to identify a particular type
  */
@@ -1154,7 +1155,7 @@ template <> inline void extendAttributeList<CAN::AverageResult_t>(coral::Attribu
 
 
 // special handling for PixelMap_t
-template <> inline void addValueToRow<PixelMap_t>(coral::AttributeList &attribute_list, const PixelMap_t &value) {
+template <> inline void addValueToRow<PixelMap_t> ATLAS_NOT_THREAD_SAFE (coral::AttributeList &attribute_list, const PixelMap_t &value) { // Thread unsafe PixCoralClient class is used.
   attribute_list["VALUE"].setValue(PixCoralClient::PixelMapToCLOB(value));
 }
 
@@ -1949,7 +1950,7 @@ namespace PixA {
 
 
 
-  unsigned int encodePixelID(unsigned int mod_column, unsigned int mod_row) {
+  unsigned int encodePixelID ATLAS_NOT_THREAD_SAFE (unsigned int mod_column, unsigned int mod_row) { // Thread unsafe ModuleSpecialPixelMap class is used.
     unsigned int chip = 0, column = 0, row = 0;
 
     PixelCoord_t pix(mod_column, mod_row);

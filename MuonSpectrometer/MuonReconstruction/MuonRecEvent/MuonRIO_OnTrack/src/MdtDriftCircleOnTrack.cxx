@@ -49,7 +49,7 @@ Muon::MdtDriftCircleOnTrack::MdtDriftCircleOnTrack(
 
   const Trk::StraightLineSurface* slsf = dynamic_cast<const Trk::StraightLineSurface*>(&(m_detEl->surface(RIO->identify())));
  
-  if(slsf) m_globalPosition.set(std::unique_ptr<const Amg::Vector3D>(slsf->localToGlobal(locPos, predictedTrackDirection, positionAlongWire)));
+  if(slsf) m_globalPosition.store(std::unique_ptr<const Amg::Vector3D>(slsf->localToGlobal(locPos, predictedTrackDirection, positionAlongWire)));
   Amg::Vector3D loc_gDirection = predictedTrackDirection; 
    
   //scaling the direction with drift radius   
@@ -153,7 +153,7 @@ Muon::MdtDriftCircleOnTrack::MdtDriftCircleOnTrack( const Muon::MdtDriftCircleOn
     m_driftTime(rot.m_driftTime),
     m_errorStrategy(rot.m_errorStrategy)
 {
-    if ( rot.m_globalPosition ) m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*rot.m_globalPosition));
+    if ( rot.m_globalPosition ) m_globalPosition.store(std::make_unique<const Amg::Vector3D>(*rot.m_globalPosition));
     if ( rot.m_saggedSurface!=0 ) m_saggedSurface= new Trk::StraightLineSurface( *(rot.m_saggedSurface) );
 }
 
@@ -163,7 +163,7 @@ Muon::MdtDriftCircleOnTrack& Muon::MdtDriftCircleOnTrack::operator=( const Muon:
     if ( &rot != this)
     {
         Trk::RIO_OnTrack::operator=(rot);//base class ass. op.
-        if (rot.m_globalPosition) m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*rot.m_globalPosition));
+        if (rot.m_globalPosition) m_globalPosition.store(std::make_unique<const Amg::Vector3D>(*rot.m_globalPosition));
         else if (m_globalPosition) m_globalPosition.release().reset();
         delete m_saggedSurface;
         if( rot.m_saggedSurface!=0 )

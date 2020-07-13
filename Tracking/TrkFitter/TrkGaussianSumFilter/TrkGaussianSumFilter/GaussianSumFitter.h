@@ -12,6 +12,7 @@
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkEventUtils/TrkParametersComparisonFunction.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
+#include "TrkGaussianSumFilter/IMultiStateExtrapolator.h" 
 #include "TrkFitterUtils/FitterTypes.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkFitterUtils/TrackFitInputPreparator.h"
@@ -28,7 +29,6 @@
 namespace Trk {
 class IMultiStateMeasurementUpdator;
 class MultiComponentStateOnSurface;
-class IMultiStateExtrapolator;
 class IForwardGsfFitter;
 class IGsfSmoother;
 class FitQuality;
@@ -115,6 +115,7 @@ private:
   /** Produces a perigee from a smoothed trajectory */
   const MultiComponentStateOnSurface* makePerigee(
     const EventContext& ctx,
+    Trk::IMultiStateExtrapolator::Cache&,
     const SmoothedTrajectory*,
     const ParticleHypothesis particleHypothesis = nonInteracting) const;
 
@@ -150,7 +151,14 @@ private:
                                           "GsfSmoother",
                                           "Trk::GsfSmoother/GsfSmoother",
                                           "" };
-
+  
+  Gaudi::Property<bool> m_StoreMCSOS{
+    this,
+    "StoreMCSOS",
+    false,
+    "Store multicomponent state or single state in final trajectory"
+  };
+ 
   bool m_reintegrateOutliers;
   bool m_makePerigee;
   bool m_refitOnMeasurementBase;
@@ -173,6 +181,10 @@ private:
   mutable std::atomic<int> m_PerigeeFailure;
   // Number of Tracks that fail fit Quailty test
   mutable std::atomic<int> m_fitQualityFailure;
+  // Number of Tracks that are successfull
+  mutable std::atomic<int> m_fitSuccess;
+
+
 };
 
 } // end Trk namespace

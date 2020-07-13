@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -21,6 +21,7 @@
 #include "TrkTrack/TrackCollection.h"
 
 // ATLAS headers
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/IInterface.h"
 
 
@@ -49,7 +50,7 @@ IDPerfMuonRefitter::~IDPerfMuonRefitter()
 {}
 
 
-StatusCode IDPerfMuonRefitter::initialize()
+StatusCode IDPerfMuonRefitter::initialize ATLAS_NOT_THREAD_SAFE () // Thread unsafe PerfMonServices class is used.
 {
   // Setup the services
   ISvcLocator* pxServiceLocator = serviceLocator();
@@ -80,7 +81,7 @@ StatusCode IDPerfMuonRefitter::initialize()
 
 
 
-StatusCode IDPerfMuonRefitter::execute()
+StatusCode IDPerfMuonRefitter::execute ATLAS_NOT_THREAD_SAFE () // Thread unsafe PerfMonServices class is used.
 {
   const xAOD::MuonContainer* pxMuonContainer = PerfMonServices::getContainer<xAOD::MuonContainer>( m_container );
   if (!pxMuonContainer){

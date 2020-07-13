@@ -14,6 +14,7 @@
 #ifndef BFIELDVECTORZR_H
 #define BFIELDVECTORZR_H
 #include <array>
+#include <cstdlib>
 class BFieldVectorZR
 {
 public:

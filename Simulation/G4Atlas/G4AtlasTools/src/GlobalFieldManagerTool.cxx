@@ -26,8 +26,6 @@ GlobalFieldManagerTool::GlobalFieldManagerTool(const std::string& type,
                                                const IInterface* parent)
   : G4FieldManagerToolBase(type, name, parent)
 {
-  declareProperty("UseTightMuonStepping", m_useTightMuonStepping=false,
-                  "Use tight muon stepping parameters by default");
 }
 
 //-----------------------------------------------------------------------------

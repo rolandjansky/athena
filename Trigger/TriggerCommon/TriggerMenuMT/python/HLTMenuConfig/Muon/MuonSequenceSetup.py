@@ -143,11 +143,6 @@ def muCombAlgSequence(ConfigFlags):
     if not conddb.folderRequested( '/PIXEL/DCS/FSMSTATE' ):
       extraLoads += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATE' )]
 
-    from AthenaCommon.AlgSequence import AthSequencer
-    condSeq = AthSequencer( "AthCondSeq" )
-    if not hasattr( condSeq, 'SCT_DCSConditionsStatCondAlg' ):
-      extraLoads += [( 'SCT_DCSStatCondData' , 'ConditionStore+SCT_DCSStatCondData' )]
-
     for decision in muonChainFilter.InputDecisions:
       extraLoads += [( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+'+decision )]
 
