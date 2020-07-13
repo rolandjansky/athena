@@ -202,7 +202,8 @@ def generateSubDetectorList():
     #if DetFlags.Muon_on(): #HACK
     #    SubDetectorList += ['MUONQ02'] #FIXME rename to MUON when safe #HACK
     #SubDetectorList += generateFwdSubDetectorList() #FIXME Fwd Detectors not supported yet.
-    SubDetectorList += ['HGTD']
+    if hasattr(DetFlags.simulate, 'HGTD_on') and DetFlags.simulate.HGTD_on():
+        SubDetectorList += ['HGTD']
     return SubDetectorList
 
 def getATLAS(name="Atlas", **kwargs):
