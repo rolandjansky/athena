@@ -17,7 +17,7 @@ namespace top {
   public:
     JetGhostTrackSelection(const double ptcut, const double etamax, const std::string vertexassociation);
     ~JetGhostTrackSelection();
-    virtual bool passSelection(const xAOD::TrackParticle&, const xAOD::Vertex&) override;
+    virtual bool passSelection(const xAOD::TrackParticle&, const xAOD::Vertex&) const override;
     virtual void print(std::ostream& os) const override;
   private:
     //Include selection on pt and eta  

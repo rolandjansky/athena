@@ -248,11 +248,14 @@ StatusCode ParticleLevelRCJetObjectLoader::execute(const top::ParticleLevelEvent
               
               const xAOD::TruthParticle* tp = dynamic_cast<const xAOD::TruthParticle*>(clus_itr->rawConstituent());  
             
+              if( tp == NULL) 
+                  continue;
+            
               // Do not use charged particles
               if (tp->charge() == 0) continue;
               
               //Apply same track selection used at reco-level
-              if ((clus_itr->pt() < m_config->ghostTrackspT()) || ( std::fabs(clus_itr->eta()) > 2.5 ) )  continue;
+              if ((clus_itr->pt() < m_config->ghostTrackspT()) || ( std::abs(clus_itr->eta()) > 2.5 ) )  continue;
             }
 
             clusters.push_back(fastjet::PseudoJet(temp_p4.Px(), temp_p4.Py(), temp_p4.Pz(), temp_p4.E()));

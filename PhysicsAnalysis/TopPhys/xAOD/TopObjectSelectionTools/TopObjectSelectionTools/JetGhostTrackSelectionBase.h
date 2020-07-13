@@ -14,7 +14,7 @@ namespace top {
     virtual ~JetGhostTrackSelectionBase();
 
     ///For the main analysis object selection
-    virtual bool passSelection(const xAOD::TrackParticle&, const xAOD::Vertex&) = 0;
+    virtual bool passSelection(const xAOD::TrackParticle&, const xAOD::Vertex&) const = 0;
     ///Because everybody likes to know what object definitions they ran with
     virtual void print(std::ostream&) const = 0;
   };

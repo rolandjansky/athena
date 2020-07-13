@@ -48,7 +48,7 @@ namespace top {
   JetGhostTrackSelection::~JetGhostTrackSelection() {
   }
 
-  bool JetGhostTrackSelection::passSelection(const xAOD::TrackParticle& track, const xAOD::Vertex& primaryVertex) {
+  bool JetGhostTrackSelection::passSelection(const xAOD::TrackParticle& track, const xAOD::Vertex& primaryVertex) const {
       
    // Track quality requirements   
     if (track.pt() < m_ptcut) return false;
