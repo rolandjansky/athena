@@ -5,6 +5,11 @@
 #ifndef MUONTGC_CNVTOOLS_TGCRDOTOPREPDATATOOL_H
 #define MUONTGC_CNVTOOLS_TGCRDOTOPREPDATATOOL_H
 
+/// This code is only used in the single-thread setup   
+/// As such, deactivating the check in this file        
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
 #include "TgcRdoToPrepDataToolCore.h"
 
 namespace Muon 
