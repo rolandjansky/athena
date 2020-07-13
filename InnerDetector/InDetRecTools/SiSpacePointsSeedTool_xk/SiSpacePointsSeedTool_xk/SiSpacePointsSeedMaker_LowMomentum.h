@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -17,6 +17,8 @@
 #define SiSpacePointsSeedMaker_LowMomentum_H
 
 #include <list>
+#include <set>
+#include <cmath>
 #include "GaudiKernel/ServiceHandle.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -128,6 +130,7 @@ namespace InDet {
       bool                        m_useOverlap                    ;
       bool                        m_useassoTool                   ;
       bool                        m_trigger                       ;
+      bool                        m_isvertex                      ;
       int                         m_outputlevel                   ;
       int                         m_nprint                        ;
       int                         m_state                         ;
@@ -201,7 +204,7 @@ namespace InDet {
       InDet::SiSpacePointsSeed*                       m_OneSeeds  ;
       int                                             m_maxOneSize;
       int                                             m_nOneSeeds ;
-      std::list<float>                                l_vertex    ;
+      std::set<float>                                l_vertex    ;
  
       ///////////////////////////////////////////////////////////////////
       // Beam geometry
@@ -286,15 +289,14 @@ namespace InDet {
   inline bool SiSpacePointsSeedMaker_LowMomentum::isZCompatible  
     (float& Zv,float& R,float& T)
     {
-      if(Zv < m_zmin || Zv > m_zmax) return false;
+      if(Zv < m_zminU || Zv > m_zmaxU) return false;
+      if(!m_isvertex) return true;
 
-      std::list<float>::iterator v=l_vertex.begin(),ve=l_vertex.end(); 
-      if(v==ve) return true;      
+      std::set<float>::iterator v=l_vertex.begin(),ve=l_vertex.end(); 
 
-      float dZmin = fabs((*v)-Zv); ++v;
-
-      for(; v!=ve; ++v) {
-	float dZ = fabs((*v)-Zv); if(dZ<dZmin) dZmin=dZ;
+      float dZmin = std::abs((*v)-Zv); 
+      for(++v; v!=ve; ++v) {
+	float dZ = std::abs((*v)-Zv); if(dZ >= dZmin) break; dZmin=dZ;
       }
       return dZmin < (m_dzver+m_dzdrver*R)*sqrt(1.+T*T);
     }

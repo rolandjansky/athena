@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimParametrization/ISF_HitAnalysis.h"
@@ -1131,7 +1131,7 @@ StatusCode ISF_HitAnalysis::execute()
 
  //Retrieve and save MuonEntryLayer information 
  const TrackRecordCollection *MuonEntry = nullptr;
- ATH_CHECK(evtStore()->retrieve(MuonEntry, "MuonEntryLayer"));
+ sc = evtStore()->retrieve(MuonEntry, "MuonEntryLayer");
  if (sc.isFailure())
  {
  ATH_MSG_WARNING( "Couldn't read MuonEntry from StoreGate");

@@ -432,7 +432,7 @@ class ConfiguredNewTrackingCuts :
       self.__minClusters      = 5
       self.__minSiNotShared   = 4
       self.__maxShared        = 1   # cut is now on number of shared modules
-      self.__minPixel         = 2   # At least one pixel hit for low-pt (ass seeded on pixels!)                
+      self.__minPixel         = 2   # At least two pixel hit for low-pt (association seeded on pixels!)                
       self.__maxHoles         = 2
       self.__maxPixelHoles    = 1
       self.__maxSctHoles      = 2
@@ -444,6 +444,24 @@ class ConfiguredNewTrackingCuts :
       if self.__indetflags.doMinBias():
         self.__maxPT            = 1000000 * Units.GeV # Won't accept None *NEEDS FIXING*
         self.__maxPrimaryImpact = 100.0 * Units.mm
+
+    # --- change defaults for low pt tracking within selected roi
+    if mode == "LowPtRoI":
+      self.__extension        = "LowPtRoI" # this runs parallel to NewTracking
+      self.__minPT            = 0.050 * Units.GeV
+      self.__maxPT            = self.__minPT + 0.8 * Units.GeV # some overlap
+      self.__minClusters      = 5
+      self.__minSiNotShared   = 4
+      self.__maxShared        = 1   # cut is now on number of shared modules
+      self.__minPixel         = 2   # At least two pixel hit for low-pt (association seeded on pixels!)                
+      self.__maxHoles         = 2
+      self.__maxPixelHoles    = 1
+      self.__maxSctHoles      = 2
+      self.__maxDoubleHoles   = 1
+      self.__radMax           = 600. * Units.mm
+      self.__nHolesMax        = self.__maxHoles
+      self.__nHolesGapMax     = self.__maxHoles # not as tight as 2*maxDoubleHoles
+
  
     if mode == "SLHCConversionFinding":
       self.__extension        = "SLHCConversionFinding" # this runs parallel to NewTracking
@@ -478,7 +496,7 @@ class ConfiguredNewTrackingCuts :
       self.__minClusters      = 3
       self.__minSiNotShared   = 3
       self.__maxShared        = 1   # cut is now on number of shared modules
-      self.__minPixel         = 3   # At least one pixel hit for low-pt (ass seeded on pixels!)                
+      self.__minPixel         = 3   # At least three pixel hit for low-pt (association seeded on pixels!)                
       self.__maxHoles         = 1
       self.__maxPixelHoles    = 1
       self.__maxSctHoles      = 1
@@ -1123,6 +1141,8 @@ class ConfiguredNewTrackingCuts :
     print '* min eta                     :  ', self.__minEta
     print '* max eta                     :  ', self.__maxEta
     if self.__mode=="LowPt":
+      print '* max PT                      :  ', self.__maxPT, ' MeV'
+    if self.__mode=="LowPtRoI":
       print '* max PT                      :  ', self.__maxPT, ' MeV'
     print '*'
     print '* NewTracking cuts:'
