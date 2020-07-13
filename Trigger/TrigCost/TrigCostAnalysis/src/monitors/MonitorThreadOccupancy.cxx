@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MonitorThreadOccupancy.h"
@@ -14,7 +14,7 @@ MonitorThreadOccupancy::MonitorThreadOccupancy(const std::string& name, const Mo
 StatusCode MonitorThreadOccupancy::newEvent(const CostData& data, const float weight) {
 
   // Only look at events in the master slot
-  if (not data.isMaterSlot()) {
+  if (not data.isMasterSlot()) {
     return StatusCode::SUCCESS;
   }
 
