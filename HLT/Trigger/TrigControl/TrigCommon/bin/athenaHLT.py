@@ -178,7 +178,7 @@ def HLTMPPy_cfgdict(args):
    cdict = {}
    cdict['HLTMPPU'] = {
       'application_name' : 'athenaHLT-%d' % os.getpid(),  # unique name required to avoid interference
-      'extra_params' : ["dumpFDs=1", "dumpThreads=1"] if args.debug_fork else None,
+      'extra_params' : ["SkipFinalizeWorker=0"],
       'interactive' : args.interactive,
       'log_root' : os.getcwd(),
       'log_name' : ('' if args.unique_log_files else 'athenaHLT:'),
@@ -191,6 +191,8 @@ def HLTMPPy_cfgdict(args):
       'soft_timeout_fraction' : 0.95,
       'hltresultSizeMb': args.hltresult_size
    }
+   if args.debug_fork:
+      cdict['HLTMPPU']['extra_params'] += ["dumpFDs=1", "dumpThreads=1"]
    if args.debug:
       cdict['HLTMPPU']['debug'] = args.debug
 

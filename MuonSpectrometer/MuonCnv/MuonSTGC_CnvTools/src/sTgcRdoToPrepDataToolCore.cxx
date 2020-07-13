@@ -83,6 +83,15 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(const STGC_RawData
   std::vector<sTgcPrepData> sTgcPadPrds;
   // convert the RDO collection to a PRD collection
   STGC_RawDataCollection::const_iterator it = rdoColl->begin();
+  
+  // MuonDetectorManager from the conditions store
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> detMgrHandle{m_muDetMgrKey};
+  const MuonGM::MuonDetectorManager* muonDetMgr = detMgrHandle.cptr(); 
+  if(!muonDetMgr){
+    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
+    return StatusCode::FAILURE;
+  }
+  
   for ( ; it != rdoColl->end() ; ++it ) {
 
     ATH_MSG_DEBUG("Adding a new sTgc PrepRawData");
@@ -95,14 +104,9 @@ StatusCode Muon::sTgcRdoToPrepDataToolCore::processCollection(const STGC_RawData
     }
     std::vector<Identifier> rdoList;
     rdoList.push_back(rdoId);
-
-    // TODO: this needs to be replaced by SG::ReadCondHandle<MuonGM::MuonDetectorManager>
-    // will do it in a follow-up MR, since for now, we need to get the Run2 detectors running, so skip sTGCs for now
-    const MuonGM::MuonDetectorManager* muDetMgrNominal=nullptr;
-    ATH_CHECK(detStore()->retrieve(muDetMgrNominal));
     
     // get the local and global positions
-    const MuonGM::sTgcReadoutElement* detEl = muDetMgrNominal->getsTgcReadoutElement(rdoId);
+    const MuonGM::sTgcReadoutElement* detEl = muonDetMgr->getsTgcReadoutElement(rdoId);
     Amg::Vector2D localPos;
 
     bool getLocalPos = detEl->stripPosition(rdoId,localPos);
