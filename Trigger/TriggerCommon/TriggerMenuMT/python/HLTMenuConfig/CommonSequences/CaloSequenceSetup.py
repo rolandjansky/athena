@@ -57,11 +57,10 @@ def cellRecoSequence(flags, name="HLTCaloCellMakerFS", RoIs="FSJETRoI", outputNa
     setMinimalCaloSetup()
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     from TrigCaloRec.TrigCaloRecConfig import HLTCaloCellMaker
-    alg = HLTCaloCellMaker(
-            name,
-            RoIs=RoIs,
-            TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc,
-            CellsName=outputName)
+    alg = HLTCaloCellMaker(name)
+    alg.RoIs=RoIs
+    alg.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
+    alg.CellsName=outputName
     return parOR(name+"RecoSequence", [alg]), alg.CellsName
 
 def caloClusterRecoSequence(
@@ -74,8 +73,8 @@ def caloClusterRecoSequence(
             name,
             doMoments=True,
             doLC=False,
-            cells=cells_name,
-            CaloClusters = recordable(outputName))
+            cells=cells_name)
+    alg.CaloClusters = recordable(outputName)
     return parOR(name+"RecoSequence", [cell_sequence, alg]), alg.CaloClusters
 
 def LCCaloClusterRecoSequence(
@@ -90,6 +89,7 @@ def LCCaloClusterRecoSequence(
     alg = TrigCaloClusterCalibratorMT_LC(
             name,
             InputClusters = em_clusters,
-            OutputClusters = recordable(outputName))
+            OutputClusters = recordable(outputName),
+            OutputCellLinks = outputName+"_cellLinks")
     return parOR(name+"RecoSequence", [em_sequence, alg]), alg.OutputClusters
 

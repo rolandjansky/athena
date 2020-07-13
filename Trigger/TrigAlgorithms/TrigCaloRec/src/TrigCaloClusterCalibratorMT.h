@@ -22,6 +22,7 @@
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "CaloRec/CaloClusterProcessor.h"
+#include "CaloEvent/CaloClusterCellLinkContainer.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/ReadDecorHandleKey.h"
@@ -46,6 +47,10 @@ class TrigCaloClusterCalibratorMT : public AthReentrantAlgorithm {
     SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outputClustersKey{
       this, "OutputClusters", "",
       "The output, calibrated calocluster container"};
+
+    SG::WriteHandleKey<CaloClusterCellLinkContainer> m_outputCellLinksKey{
+      this, "OutputCellLinks", "",
+      "The output cell links containing the updated weights"};
 
     ToolHandle<GenericMonitoringTool> m_monTool{
       this, "MonTool", "", "The monitoring tool"};
