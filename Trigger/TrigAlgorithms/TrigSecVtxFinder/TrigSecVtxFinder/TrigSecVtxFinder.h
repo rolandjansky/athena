@@ -19,7 +19,7 @@
 #include "TrigTimeAlgs/TrigTimer.h"
 #include "TrigInterfaces/FexAlgo.h"
 
-#include "TrigTrackJetFinderTool/ITrigTrackJetFinderTool.h"
+#include "TrigInDetToolInterfaces/ITrigTrackJetFinderTool.h"
 #include "TrigInDetVxInJetTool/ITrigInDetVxInJetTool.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
 

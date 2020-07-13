@@ -33,7 +33,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( TRT_TrackExtensionTool_DAF
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetPrepRawData InDetRecToolInterfaces TrkGeometry TrkParameters StoreGateLib SGtests InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry MagFieldInterfaces TrkMeasurementBase TrkTrack TrkExInterfaces TrkToolInterfaces MagFieldElements MagFieldConditions )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetPrepRawData InDetRecToolInterfaces TrkGeometry TrkParameters StoreGateLib SGtests InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry MagFieldInterfaces TrkMeasurementBase TrkTrack TrkExInterfaces TrkToolInterfaces MagFieldElements MagFieldConditions InDetCompetingRIOsOnTrackToolLib )
 
 # Install files from the package:
 atlas_install_headers( TRT_TrackExtensionTool_DAF )

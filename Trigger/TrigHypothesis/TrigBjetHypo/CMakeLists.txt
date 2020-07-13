@@ -17,7 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigInDetEvent
                           Trigger/TrigSteer/TrigInterfaces
                           Trigger/TrigSteer/TrigCompositeUtils
-                          Trigger/TrigTools/TrigTrackJetFinderTool
+                          Trigger/TrigTools/TrigInDetToolInterfaces
 			  Control/AthViews
                           InnerDetector/InDetConditions/BeamSpotConditionsData
                           PRIVATE

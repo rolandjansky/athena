@@ -1,4 +1,4 @@
-#include "TrigTrackJetFinderTool/TrigTrackJetFinderTool.h"
+#include "../TrigTrackJetFinderTool.h"
 
 DECLARE_COMPONENT( TrigTrackJetFinderTool )
 

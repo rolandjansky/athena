@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -23,10 +23,9 @@ Trk::SubtractedPlaneLayer::SubtractedPlaneLayer(const SubtractedPlaneSurface* su
   Layer(laymatprop, thickness, olap, laytyp) 
 {}
   
-Trk::SubtractedPlaneLayer::SubtractedPlaneLayer(const Trk::SubtractedPlaneLayer& play):
-  SubtractedPlaneSurface(play),
-  Layer(play)
-{}
+Trk::SubtractedPlaneLayer::SubtractedPlaneLayer(const Trk::SubtractedPlaneLayer& play)
+  
+= default;
 
 Trk::SubtractedPlaneLayer::SubtractedPlaneLayer(const Trk::SubtractedPlaneLayer& play, const Amg::Transform3D& transf):
   SubtractedPlaneSurface(play,transf),

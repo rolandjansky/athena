@@ -172,7 +172,7 @@ if ( True ) :
   TestMonTool.releaseMetaData = d['nightly name'] + " " + d['nightly release'] + " " + d['date'] + " " + d['platform'] + " " + d['release']
   TestMonTool.outputFileName="TrkNtuple.root"
   HLTMonManager.AthenaMonTools += [ TestMonTool ]
-  print TestMonTool
+  print (TestMonTool)
 
 
 print ("configured everything")

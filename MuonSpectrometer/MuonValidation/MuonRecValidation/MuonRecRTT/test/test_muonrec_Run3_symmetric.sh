@@ -10,7 +10,8 @@
 # art-output: trkPerformance_ExtrapolatedMuonTracks.txt
 # art-output: trkPerformance_MSOnlyExtrapolatedMuonTracks.txt
 # art-output: trkPerformance_CombinedMuonTracks.txt
-# art-output: log.RAWtoESD
+# art-output: muonPerformance_segments.txt
+# art-output: muonPerformance_xAOD.txt
 # art-output: warningCount.txt
 # art-output: NSWRecoCheck.txt
 # art-output: NSWPRDValAlg.reco.ntuple.root

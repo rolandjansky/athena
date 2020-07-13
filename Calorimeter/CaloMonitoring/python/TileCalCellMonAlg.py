@@ -82,11 +82,11 @@ def TileCalCellMonAlgConfig(inputFlags, **kwargs):
 
     # 2) Configure histograms with occupancy maps over threshold (4 noise sigma) per Tile sample
     samplesWithoutE = ['A', 'BC', 'D', '']
-    noiseEtaPhiArray = helper.addArray([len(samplesWithoutE)], tileCalCellMonAlg, 'CellNoiseXEtaVSPhi', topPath = topPath)
+    noiseEtaPhiArray = helper.addArray([len(samplesWithoutE)], tileCalCellMonAlg, 'CellsNoiseXEtaVSPhi', topPath = topPath)
     for postfix, tool in noiseEtaPhiArray.Tools.items():
         sample = samplesWithoutE[int( postfix.split('_')[1] )]
         title = ('Number of Tile Cells %s' % sample) + ' with E > 4 sigma (DB);#eta;#phi'
-        name = 'eta,phi;CellNoiseXEtaVSPhi' + (sample + 'cells' if sample else '')
+        name = 'eta,phi;CellsNoiseXEtaVSPhi' + (sample + 'cells' if sample else '')
         tool.defineHistogram(name, title = title, type = 'TH2F',
                              xbins = 17, xmin = -1.7, xmax = 1.7,
                              ybins = 64, ymin = -3.14, ymax = 3.14)

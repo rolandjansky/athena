@@ -5,15 +5,14 @@
 // **************************************************
 //
 // NAME:     ITrigTrackJetFinderTool.h
-// PACKAGE:  Trigger/TrigTools/TrigTrackJetFinderTool
 //
 // AUTHOR:   Andrea Coccaro
 // MAIL:     Andrea.Coccaro@ge.infn.it
 // 
 // **************************************************
 
-#ifndef ITRIGTRACKJETFINDERTOOL_H
-#define ITRIGTRACKJETFINDERTOOL_H
+#ifndef TRIGINDETTOOLINTERFACES_ITRIGTRACKJETFINDERTOOL_H
+#define TRIGINDETTOOLINTERFACES_ITRIGTRACKJETFINDERTOOL_H
 
 #include "GaudiKernel/IAlgTool.h"
 

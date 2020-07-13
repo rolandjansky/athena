@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, TrigGenericMonitoringToolConfig
 
@@ -55,10 +55,6 @@ class TrigEFElectronHypoValidationMonitoring(TrigGenericMonitoringToolConfig):
         for c in cuts:
             labelsDescription +=  c+':'
 
-	#AT Aug2011: deactivate histogram egIsEM - outdated
-        #self.Histograms += [ defineHistogram('egIsEM', 	type='TH1I', title="EFElectronHypo isEM; Cut",
-        #                                     xbins=3, xmin=0.5, xmax=3.5, labels=labelsDescription)]
-    
         self.Histograms += [ defineHistogram('El_ClusterEt', 	type='TH1F', title="EFElectron Hypo Cluster E_{T}; E_{T}^{em} [MeV]",
                                             xbins=50, xmin=-2000, xmax=100000) ]
      
@@ -248,10 +244,7 @@ class TrigEFElectronHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
         for c in cuts:
             labelsDescription +=  c+':'
 
-	#AT Aug2011: deactivate histogram egIsEM - outdated
-        #self.Histograms += [ defineHistogram('egIsEM', 	type='TH1I', title="EFElectronHypo isEM; Cut",
-        #                                     xbins=3, xmin=0.5, xmax=3.5, labels=labelsDescription)]
-        
+
         self.Histograms += [ defineHistogram('El_ClusterEt', 	type='TH1F', title="EFElectron Hypo Cluster E_{T}; E_{T}^{em} [MeV]",
                                             xbins=50, xmin=-2000, xmax=100000) ]
                                              
@@ -275,8 +268,7 @@ class TrigEFElectronHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('El_PtCone20', 	type='TH1F', title="EFElectron Hypo Pt in a ring of DR<0.20 above noise (excluding electron PT); PT [MeV]",
                                              xbins=60, xmin=-10000, xmax=50000 ) ] 
 
-                                									
-        
+
 class TrigEFElectronHypoCosmicMonitoring(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="TrigEFElectronHypoCosmicMonitoring"):
         """ defines histograms for cosmic """
@@ -336,10 +328,7 @@ class TrigEFElectronHypoCosmicMonitoring(TrigGenericMonitoringToolConfig):
         for c in cuts:
             labelsDescription +=  c+':'
 
-	#AT Aug2011: deactivate histogram egIsEM - outdated
-        #self.Histograms += [ defineHistogram('egIsEM', 	type='TH1I', title="EFElectronHypo isEM; Cut",
-        #                                     xbins=3, xmin=0.5, xmax=3.5, labels=labelsDescription)]
-        
+
         self.Histograms += [ defineHistogram('El_ClusterEt', 	type='TH1F', title="EFElectron Hypo Cluster E_{T}; E_{T}^{em} [MeV]",
                                             xbins=50, xmin=-2000, xmax=100000) ]
      

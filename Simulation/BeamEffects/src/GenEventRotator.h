@@ -4,10 +4,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// GenEventRotator.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-
 #ifndef ISF_HEPMC_GENEVENTROTATOR_H
 #define ISF_HEPMC_GENEVENTROTATOR_H 1
 
