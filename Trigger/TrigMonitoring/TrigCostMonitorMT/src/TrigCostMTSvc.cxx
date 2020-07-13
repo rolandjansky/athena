@@ -299,7 +299,7 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
     result &= tc->setDetail("thread", m_threadToCounterMap[threadID]);
     result &= tc->setDetail("slot", ap.m_slot);
     result &= tc->setDetail("roi", ap.m_algROIID);
-    result &= tc->setDetail("start", ap.m_algStartTime.microsecondsSinceEpoch());
+    result &= tc->setDetail("start", startTime);
     result &= tc->setDetail("stop", stopTime);
     if (!result) ATH_MSG_WARNING("Failed to append one or more details to trigger cost TC");
   }
