@@ -20,8 +20,8 @@
 #include "TrigSteeringEvent/Enums.h"
 #include "TrigSteeringEvent/GenericResult.h"
 #include "AthenaKernel/IClassIDSvc.h"
-
 #include "AthenaKernel/CLASS_DEF.h"
+#include "CxxUtils/checker_macros.h"
 
 /****************************************************************************************
  * (June 2006; comments on documentation to: Andreas.Hoecker@cern.ch)
@@ -304,7 +304,7 @@ namespace HLT {
      * @brief Return object representing the extra payload
      */
     HLTExtraData& getExtraData();
-    inline const HLTExtraData& getExtraData() const {
+    inline const HLTExtraData& getExtraData ATLAS_NOT_THREAD_SAFE () const {
       return const_cast<HLTResult*>(this)->getExtraData();
     }
 
