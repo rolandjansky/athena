@@ -74,7 +74,7 @@ uint32_t CostData::onlineSlot() const {
   return m_slot;
 }
 
-bool CostData::isMaterSlot() const {
+bool CostData::isMasterSlot() const {
   return (onlineSlot() == 0);
 }
 

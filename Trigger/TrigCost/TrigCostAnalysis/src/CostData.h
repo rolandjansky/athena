@@ -89,7 +89,7 @@ class CostData {
     /**
      * @return True if event was processed in the master slot (0), and hence contains cost data spanning all concurrent slots
      */
-    bool isMaterSlot() const;
+    bool isMasterSlot() const;
 
     /**
      * @brief Getter of the total algorithm CPU time in the event. 

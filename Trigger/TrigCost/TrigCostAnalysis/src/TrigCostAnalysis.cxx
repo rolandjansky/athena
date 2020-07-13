@@ -161,7 +161,7 @@ StatusCode TrigCostAnalysis::execute() {
 
   ATH_CHECK( range->newEvent( costData, getWeight(context) ) );
 
-  if (checkDoFullEventDump(context, onlineSlot)) {
+  if (checkDoFullEventDump(context, costData)) {
     ATH_CHECK( dumpEvent(context) );
   }
 
@@ -169,8 +169,8 @@ StatusCode TrigCostAnalysis::execute() {
 }
 
 
-bool TrigCostAnalysis::checkDoFullEventDump(const EventContext& context, const uint32_t onlineSlot) {
-  if (onlineSlot == 0
+bool TrigCostAnalysis::checkDoFullEventDump(const EventContext& context, const CostData& costData) {
+  if (costData.isMasterSlot()
     and m_fullEventDumps < m_maxFullEventDumps 
     and context.eventID().event_number() % m_fullEventDumpProbability == 0)
   {

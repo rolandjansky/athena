@@ -122,11 +122,10 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
     /**
      * @brief Check if event dumping should be performed for the current event.
      * @param[in] context Event context.
-     * @param[in] onelineSlot The slot used to process the event in the trigger.
-     *                        We only dump slot 0 as these events cary payload data for all events.
+     * @param[in] costData We only dump the master-slot (slot:0) as these events cary payload data for all slots / all threads.
      * @return True, if the event should be dumped.
      */
-    bool checkDoFullEventDump(const EventContext& context, const uint32_t onlineSlot);
+    bool checkDoFullEventDump(const EventContext& context, const CostData& costData);
 
     /**
      * @brief Return or construct and return a Range for the Context. Might return nullptr range.
