@@ -51,7 +51,7 @@ public:
         }
 
         [[nodiscard]] StatusCode addOrDelete(std::unique_ptr<T> ptr){
-           if(ATH_UNLIKELY(m_IDC_ptr==nullptr)) return StatusCode::FAILURE;
+           if(ATH_UNLIKELY(m_hashId >= m_IDC_ptr->m_link->fullSize())) return StatusCode::FAILURE;
            StatusCode sc = m_IDC_ptr->addLock(std::move(ptr), m_hashId);
            IDC_WriteHandleBase::ReleaseLock();
            return sc;

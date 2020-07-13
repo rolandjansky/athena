@@ -5,6 +5,7 @@
 #include "EventContainers/InternalOfflineMap.h"
 #include <algorithm>
 #include "EventContainers/IDC_WriteHandleBase.h"
+#include "CxxUtils/AthUnlikelyMacros.h"
 
 using namespace EventContainers;
 typedef I_InternalIDC::InternalConstItr InternalConstItr;
@@ -21,7 +22,7 @@ bool InternalOfflineMap::tryAddFromCache(IdentifierHash hash)
 }
 
 void InternalOfflineMap::wait() const {
-   std::lock_guard lock (m_waitMutex);
+   std::scoped_lock lock (m_waitMutex);
    if(m_needsupdate == false) return;
    m_map.clear();
    m_map.reserve(m_fullMap.size());
@@ -84,7 +85,6 @@ void InternalOfflineMap::cleanUp(deleter_f* deleter) noexcept {
 }
 
 bool InternalOfflineMap::insert(IdentifierHash hashId, const void* ptr) {
-    if(hashId >= m_maxsize) return false;
     auto &mapptr = m_fullMap[hashId];
     if(mapptr!=nullptr) return false; //already present
     mapptr = ptr;
@@ -93,7 +93,6 @@ bool InternalOfflineMap::insert(IdentifierHash hashId, const void* ptr) {
 }
 
 const void* InternalOfflineMap::findIndexPtr(IdentifierHash hashId) const noexcept{
-    if(hashId >= m_maxsize) return nullptr;
     auto search = m_fullMap.find(hashId);
     if(search!=m_fullMap.cend()) return search->second;
     return nullptr;
@@ -101,11 +100,8 @@ const void* InternalOfflineMap::findIndexPtr(IdentifierHash hashId) const noexce
 
 StatusCode InternalOfflineMap::addLock(IdentifierHash hashId, const void* ptr) {
     bool added = insert(hashId, ptr);
-    if(!added) {
-#ifndef NDEBUG
-        std::cout << "IDC WARNING Deletion shouldn't occur in addLock paradigm" << std::endl;
-#endif
-        return StatusCode::FAILURE;
+    if(ATH_UNLIKELY(!added)) {
+      throw std::runtime_error("IDC WARNING Deletion shouldn't occur in addLock paradigm");
     }
     return StatusCode::SUCCESS;
 }
