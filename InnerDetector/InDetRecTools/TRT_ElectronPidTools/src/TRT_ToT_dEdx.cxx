@@ -59,8 +59,8 @@ TRT_ToT_dEdx::TRT_ToT_dEdx(const std::string& t, const std::string& n, const IIn
 void TRT_ToT_dEdx::setDefaultConfiguration()
 {
   declareProperty("TRT_dEdx_divideByL",m_divideByL=true);
-  declareProperty("TRT_dEdx_useHThits",m_useHThits=true);
   declareProperty("TRT_dEdx_corrected",m_corrected=true);
+  declareProperty("TRT_dEdx_correctionType",m_correctionType=kTrackBased);
   declareProperty("TRT_dEdx_useTrackPartWithGasType",m_useTrackPartWithGasType=kUnset);
   declareProperty("TRT_dEdx_toolScenario",m_toolScenario=kAlgReweightTrunkOne);
   declareProperty("TRT_dEdx_trackConfig_maxRtrack",m_trackConfig_maxRtrack=1.85);
@@ -77,8 +77,8 @@ void TRT_ToT_dEdx::showDEDXSetup() const
   ATH_MSG_INFO("///              TRT_ToT_Tool setup configuration              ///");
   ATH_MSG_INFO(" ");
   ATH_MSG_INFO("m_divideByL                     ="<<m_divideByL<<"");
-  ATH_MSG_INFO("m_useHThits                     ="<<m_useHThits<<"");
   ATH_MSG_INFO("m_corrected                     ="<<m_corrected<<"");
+  ATH_MSG_INFO("m_correctionType                ="<<m_correctionType<<"");
   ATH_MSG_INFO("m_useTrackPartWithGasType       ="<<m_useTrackPartWithGasType<<"");
   ATH_MSG_INFO("m_toolScenario                  ="<<m_toolScenario<<"");
   ATH_MSG_INFO(" ");
@@ -159,7 +159,7 @@ StatusCode TRT_ToT_dEdx::finalize()
   return StatusCode::SUCCESS;
 }
 
-bool TRT_ToT_dEdx::isGoodHit(const Trk::TrackStateOnSurface* trackState, double& length) const
+bool TRT_ToT_dEdx::isGoodHit(const Trk::TrackStateOnSurface* trackState, bool useHitsHT, double& length) const
 {
   const Trk::MeasurementBase* trkM = trackState->measurementOnTrack();
   if (!trkM)  {
@@ -220,7 +220,7 @@ bool TRT_ToT_dEdx::isGoodHit(const Trk::TrackStateOnSurface* trackState, double&
 
   if (m_divideByL and length < 1.7) return false; // Length in the straw
 
-  if (!m_useHThits) {
+  if (!useHitsHT) {
     int TrtHl = driftcircle->highLevel();
     if (TrtHl==1) return false; 
   }
@@ -237,16 +237,8 @@ bool TRT_ToT_dEdx::isGoodHit(const Trk::TrackStateOnSurface* trackState, double&
   return true;
 }
 
-double TRT_ToT_dEdx::dEdx(const Trk::Track* track, EOccupancyCorrection correctionType) const
-{
-  ////////////////////////////////////////////////////
-  // Different cases for correctionType            //
-  // kRSOnly: only r-S calibration                  //
-  // kHitBased: Hit-based occupancy calibration     //
-  // kTrackBased: Track-based occupancy calibration //
-  // kGlobal: Global occupancy calibration          //
-  ////////////////////////////////////////////////////
-  
+double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool useHitsHT) const
+{ 
   ATH_MSG_DEBUG("dEdx()");
 
   double nVtx=-1.;
@@ -287,9 +279,9 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, EOccupancyCorrection correcti
 
     for ( ; itr!=itre ; ++itr) {
       double length = 0;
-      if ( isGoodHit((*itr), length)) {
+      if ( isGoodHit((*itr), useHitsHT, length)) {
 	      double ToT_correct = correctToT_corrRZ(*itr, length);
-	      if (correctionType == ITRT_ToT_dEdx::EOccupancyCorrection::kHitBased){
+	      if (m_correctionType == kHitBased){
 	        correctionFactor = hitOccupancyCorrection(*itr);
 	        ToT_correct*=correctionFactor;
 	      }
@@ -308,8 +300,8 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, EOccupancyCorrection correcti
     if (nhits<1) return 0.0;
 
     ToTsum = std::accumulate(vecToT.begin(), vecToT.end(), 0);
-    if (correctionType == ITRT_ToT_dEdx::EOccupancyCorrection::kTrackBased) {
-      correctionFactor=trackOccupancyCorrection(track, m_useHThits);
+    if (m_correctionType == kTrackBased) {
+      correctionFactor=trackOccupancyCorrection(track, useHitsHT);
     } else {
       correctionFactor=correctNormalization(nVtx);
     }
@@ -328,10 +320,10 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, EOccupancyCorrection correcti
 
     for ( ; itr!=itre ; ++itr) {
       double length=0;
-      if (isGoodHit((*itr), length)) {
+      if (isGoodHit((*itr), useHitsHT, length)) {
         gasType=gasTypeInStraw(*itr);
 	      double ToT_correct = correctToT_corrRZ(*itr, length);
-	      if (correctionType == ITRT_ToT_dEdx::EOccupancyCorrection::kHitBased) {
+	      if (m_correctionType == kHitBased) {
           correctionFactor = hitOccupancyCorrection(*itr);
         }
 	      ToT_correct*=correctionFactor;
@@ -407,8 +399,8 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, EOccupancyCorrection correcti
     ToTsumKr = (nhitsKr>0) ? ToTsumKr/nhitsKr : 0;
     double ToTsum = ToTsumXe*nhitsXe + ToTsumAr*nhitsAr + ToTsumKr*nhitsKr;
 
-	  if (correctionType == ITRT_ToT_dEdx::EOccupancyCorrection::kTrackBased) {
-      correctionFactor = trackOccupancyCorrection(track, m_useHThits);
+	  if (m_correctionType == kTrackBased) {
+      correctionFactor = trackOccupancyCorrection(track, useHitsHT);
     } else {
       correctionFactor = correctNormalization(nVtx);
     }
@@ -421,7 +413,7 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, EOccupancyCorrection correcti
   return 0.;
 }
 
-double TRT_ToT_dEdx::usedHits(const Trk::Track* track) const
+double TRT_ToT_dEdx::usedHits(const Trk::Track* track, bool useHitsHT) const
 {
   ATH_MSG_DEBUG("usedHits()");
   EGasType gasType = kUnset;
@@ -442,7 +434,7 @@ double TRT_ToT_dEdx::usedHits(const Trk::Track* track) const
 
     for ( ; itr!=itre ; ++itr) {
       double length=0;
-      if (isGoodHit((*itr), length)) {
+      if (isGoodHit((*itr), useHitsHT, length)) {
         nhits++;
       }
     } 
@@ -460,7 +452,7 @@ double TRT_ToT_dEdx::usedHits(const Trk::Track* track) const
 
     for ( ; itr!=itre ; ++itr) {
       double length=0;
-      if ( isGoodHit((*itr), length)) {
+      if ( isGoodHit((*itr), useHitsHT, length)) {
         gasType=gasTypeInStraw(*itr);
         if (gasType==kXenon) {
           nhitsXe++;
@@ -649,7 +641,7 @@ double TRT_ToT_dEdx::mass(const Trk::TrackStateOnSurface *itr, const double pTrk
 
 /* returns gas type for given straw */
 // TODO: move this functionality to TRT_StrawStatusSummaryTool.
-ITRT_ToT_dEdx::EGasType TRT_ToT_dEdx::gasTypeInStraw(const Trk::TrackStateOnSurface *itr) const
+TRT_ToT_dEdx::EGasType TRT_ToT_dEdx::gasTypeInStraw(const Trk::TrackStateOnSurface *itr) const
 {
   const Trk::MeasurementBase* trkM = itr->measurementOnTrack();
   if (!trkM)  {
@@ -674,7 +666,7 @@ ITRT_ToT_dEdx::EGasType TRT_ToT_dEdx::gasTypeInStraw(const Trk::TrackStateOnSurf
   return gasTypeInStraw(driftcircle);
 }
 
-ITRT_ToT_dEdx::EGasType TRT_ToT_dEdx::gasTypeInStraw(const InDet::TRT_DriftCircleOnTrack *driftcircle) const
+TRT_ToT_dEdx::EGasType TRT_ToT_dEdx::gasTypeInStraw(const InDet::TRT_DriftCircleOnTrack *driftcircle) const
 {
   Identifier DCid = driftcircle->identify();  
   
@@ -723,17 +715,7 @@ double TRT_ToT_dEdx::correctNormalization(double nVtx) const
   return (slope*dEdxCorrection->normNzero[gasType]+offset)/(slope*nVtx+offset+shift);
 }
 
-double TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackStateOnSurface *itr) const
-{
-  double length=0;
-  if(isGoodHit(itr, length)) {
-    return correctToT_corrRZ(itr, length);
-  }
-  return 0;
-}
-
-double
-TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackStateOnSurface* itr, double length) const
+double TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackStateOnSurface* itr, double length) const
 {
   const Trk::MeasurementBase* trkM = itr->measurementOnTrack();
   const Trk::TrackParameters* trkP = itr->trackParameters();
@@ -799,43 +781,6 @@ TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackStateOnSurface* itr, double leng
   if (std::isinf(valToT)) return 0.;
   if (valToT!=0) return ToTmip*timeOverThreshold/valToT;
   return 0.;
-}
-
-double TRT_ToT_dEdx::correctToT_corrRZ(const Trk::TrackParameters* trkP,const InDet::TRT_DriftCircleOnTrack *driftcircle, int HitPart,int Layer,int StrawLayer) const
-{
-  if (trkP==nullptr) return false; 
-  if (!driftcircle) return false;
-  if (driftcircle->prepRawData()==nullptr) return 0;
-  double HitRtrack = fabs(trkP->parameters()[Trk::locR]);
-  double Trt_RHit = fabs(driftcircle->localParameters()[Trk::driftRadius]);
-  if (m_useZeroRHitCut && Trt_RHit==0) return false;                                     // tube hit
-  if ((HitRtrack >= m_trackConfig_maxRtrack) || (HitRtrack <= m_trackConfig_minRtrack)) return false;    // drift radius close to wire or wall
-  if (!m_useHThits) {
-    int TrtHl = driftcircle->highLevel();
-    if (TrtHl==1) return false; 
-  }            
-
-  EGasType gasType = gasTypeInStraw(driftcircle);  
-  if(m_useTrackPartWithGasType!=kUnset) // don't preselect hits
-  {
-    if(m_useTrackPartWithGasType!=gasType)
-      return false;
-  }
-
-  double timeOverThreshold = driftcircle->prepRawData()->timeOverThreshold();
-  if(timeOverThreshold == 0.) return false; // If ToT for this hit equal 0, skip it.
-
-  const Amg::Vector3D& gp = driftcircle->globalPosition();
-  double HitR = sqrt( gp.x() * gp.x() + gp.y() * gp.y() );
-  double HitZ = gp.z();
-  double ToTmip = 1;
-  double valToT = 1;
-
-  if (abs(HitPart)==1) // Barrel
-    valToT = fitFuncBarrel_corrRZ(gasType, HitRtrack,HitZ, Layer, StrawLayer);
-  else // End-cap
-    valToT = fitFuncEndcap_corrRZ(gasType, HitRtrack ,HitR,Layer, HitZ>0?1:(HitZ<0?-1:0));
-  return ToTmip*timeOverThreshold/valToT;
 }
 
 double TRT_ToT_dEdx::fitFuncBarrel_corrRZ(EGasType gasType, double driftRadius,double zPosition, int Layer, int StrawLayer) const
@@ -1164,7 +1109,7 @@ double TRT_ToT_dEdx::hitOccupancyCorrection(const Trk::TrackStateOnSurface *itr)
   return ToTmip*valToT;
 }
 
-double TRT_ToT_dEdx::trackOccupancyCorrection(const Trk::Track* track,  bool useHThits) const
+double TRT_ToT_dEdx::trackOccupancyCorrection(const Trk::Track* track,  bool useHitsHT) const
 {
   SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
   const TRTDedxcorrection* dEdxCorrection{*readHandle};
@@ -1182,8 +1127,11 @@ double TRT_ToT_dEdx::trackOccupancyCorrection(const Trk::Track* track,  bool use
   else if (index > 99) index = 99;   // upper bound corresponding to eta = +2
 
   //Function of the from f(x)=a+b*x+c*x^2 was used as a fitting function, separately for tracks with and without excluding HT hits
-  if (!useHThits) corr=dEdxCorrection->trackOccPar0[index]+dEdxCorrection->trackOccPar1[index]*trackOcc+dEdxCorrection->trackOccPar2[index]*pow(trackOcc,2);
-  else corr=dEdxCorrection->trackOccPar0NoHt[index]+dEdxCorrection->trackOccPar1NoHt[index]*trackOcc+dEdxCorrection->trackOccPar2NoHt[index]*pow(trackOcc,2);
+  if (useHitsHT) {
+    corr=dEdxCorrection->trackOccPar0[index]+dEdxCorrection->trackOccPar1[index]*trackOcc+dEdxCorrection->trackOccPar2[index]*pow(trackOcc,2);
+  } else {
+    corr=dEdxCorrection->trackOccPar0NoHt[index]+dEdxCorrection->trackOccPar1NoHt[index]*trackOcc+dEdxCorrection->trackOccPar2NoHt[index]*pow(trackOcc,2);
+  }
 
   return corr;
 }

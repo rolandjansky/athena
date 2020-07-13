@@ -62,6 +62,8 @@ public:
   //////////////////////////////////////////////////////////////////////////
   enum EDataBaseType {kOldDB,kNewDB};
   enum EstCalc  {kAlgStandard,kAlgReweight,kAlgReweightTrunkOne};
+  enum EOccupancyCorrection{kRSOnly, kHitBased, kTrackBased, kGlobal};
+  enum EGasType {kXenon,kArgon,kKrypton,kUnset};
 
 private:
   SG::ReadDecorHandleKey<xAOD::EventInfo> m_rdhkEvtInfo {this
@@ -79,10 +81,17 @@ private:
 
   bool m_corrected;                 // If true - make correction using rs-distributions
   bool m_divideByL;                 // If true - divide ToT to the L of track in straw.
-  bool m_useHThits;                 // If true - use HT hit for dEdX estimator calculation
 
   int  m_useTrackPartWithGasType;   // If kUnset - use any gas for dEdX calculation;
   int  m_toolScenario;              // Algorithm type for dEdX estimator calculation;
+  int  m_correctionType;            // Type of dEdx correction
+  ////////////////////////////////////////////////////
+  // Different cases for correctionType            //
+  // kRSOnly: only r-S calibration                  //
+  // kHitBased: Hit-based occupancy calibration     //
+  // kTrackBased: Track-based occupancy calibration //
+  // kGlobal: Global occupancy calibration          //
+  ////////////////////////////////////////////////////
 
 
   // Event info
@@ -111,27 +120,29 @@ public:
   /**
    * @brief function to calculate sum ToT normalised to number of used hits
    * @param track pointer to track
-   * @param correctionType choice of occupancy correction
+   * @param useHitsHT decide if HT hits should be used in the estimate
    * @return dEdx value
    */
-  double dEdx(const Trk::Track* track, EOccupancyCorrection correctionType=EOccupancyCorrection::kTrackBased) const;
+  double dEdx(const Trk::Track* track, bool useHThits=true) const;
 
   /**
    * @brief function to calculate number of used hits
    * @param track pointer
+   * @param useHitsHT decide if HT hits should be used in the estimate
    * @return nHits
    */
-  double usedHits(const Trk::Track* track) const;
+  double usedHits(const Trk::Track* track, bool useHThits=true) const;
 
 protected:
   /** 
    * @brief function to define what is a good hit to be used for dEdx calculation
    * cuts on track level can be made latekAlgStandardr by the user. Also returns the length in the straw.
    * @param trackState measurement on track
+   * @param useHitsHT decide if HT hits should be used in the estimate
    * @param length length in straw
    * @return decision
    */
-  bool isGoodHit(const Trk::TrackStateOnSurface* trackState, double& length) const;
+  bool isGoodHit(const Trk::TrackStateOnSurface* trackState, bool useHitsHT, double& length) const;
 
   /**
    * @brief correct overall dEdx normalization on track level
@@ -184,16 +195,6 @@ public:
 
 protected:
   /**
-   * @brief function to correct ToT/L used by the PIDTool parameters obtimized to be consistend with existing functions
-   * @param track parameter object
-   * @param trift circle object
-   * @param number to decide whether it is barrel or endcap
-   * @param number to identify layer ID
-   * @param number to identify strawlayer id
-   * @return corrected ToT/L (returns 0 if hit criteria are not fulfilled)
-   */
-  double correctToT_corrRZ(const Trk::TrackParameters* trkP, const InDet::TRT_DriftCircleOnTrack *driftcircle, int HitPart, int Layer, int StrawLayer) const;
-  /**
    * @brief main function to correct ToT values on hit level as a function of track radius and z-position
    * @param track on surface object
    * @param bool variable to specify whether ToT or ToT/L correction
@@ -202,7 +203,6 @@ protected:
    * @param bool variable whether mimic ToT to other gas hits shoule be used 
    * @return corrected value for ToT
    */
-  double correctToT_corrRZ(const Trk::TrackStateOnSurface *itr) const;
   double correctToT_corrRZ(const Trk::TrackStateOnSurface *itr, double length) const;
     
   /**
@@ -286,8 +286,11 @@ public:
 
   void  setDefaultConfiguration();
 
-  bool  getStatusRSCorrection() const         { return m_corrected;         }
-  bool  getStatusUseHThits() const            { return m_useHThits;         }
+  void  setStatusCorrection(bool value)       { m_corrected = value;        }
+  bool  getStatusCorrection() const           { return m_corrected;         }
+
+  void  setCorrectionType(EOccupancyCorrection value)  { m_correctionType = value;        }
+  bool  getCorrectionType() const                      { return m_correctionType;         }
 
   void  setMinRtrack(float minRtrack)         { m_trackConfig_minRtrack=minRtrack;}
   float getMinRtrack() const                  { return m_trackConfig_minRtrack;   }
