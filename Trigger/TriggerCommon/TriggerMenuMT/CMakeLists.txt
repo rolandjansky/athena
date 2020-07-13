@@ -135,12 +135,12 @@ atlas_add_test( generateMenuMT SCRIPT bash test_HLTmenu.sh
 #atlas_add_test( emu_step_processing
 #		SCRIPT scripts/test_emu_step_processing.sh
 #		LOG_SELECT_PATTERN "TrigSignatureMoniMT.*INFO HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*|TriggerSummaryStep.*+++ leg.*"
-		)
+#		)
 
 #atlas_add_test( emu_step_menu_processing
 #		SCRIPT scripts/test_emu_step_menu_processing.sh
 #		LOG_SELECT_PATTERN "TrigSignatureMoniMT.*INFO HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*|TriggerSummaryStep.*+++ leg.*"
-		) 
+#		) 
 
 
 #----------------------------------
