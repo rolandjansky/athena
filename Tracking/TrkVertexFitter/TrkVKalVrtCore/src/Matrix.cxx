@@ -270,9 +270,9 @@ void scaleg(double *g, double *scale, long int N, long int mfirst)
     for (i__ = 1; i__ <= N; ++i__) {
 	scale[i__] = 1.;
 	if (g_ref(i__, i__) == 0.)  			continue;
-	tmp = sqrt(fabs(g_ref(i__, i__)));
+	tmp = std::sqrt(fabs(g_ref(i__, i__)));
 	//scale[i__] = 1./tmp;           g_ref(i__, i__) = d_sign( 1., g_ref(i__, i__)); //VK old version -> diag==1
-	scale[i__] = 1./sqrt(tmp);   g_ref(i__, i__) = d_sign( tmp, g_ref(i__, i__));  //VK new version -> diag=sqrt(diag_old)
+	scale[i__] = 1./std::sqrt(tmp);   g_ref(i__, i__) = d_sign( tmp, g_ref(i__, i__));  //VK new version -> diag=sqrt(diag_old)
     }
 
     if (N <= 1) return;
@@ -414,8 +414,8 @@ double vkPythag(double a, double b)
 	double absa,absb;
 	absa=fabs(a);
 	absb=fabs(b);
-	if (absa > absb) return absa*sqrt(1.0+(absb/absa)*absb/absa);
-	return (absb == 0.0 ? 0.0 : absb*sqrt(1.0+(absa/absb)*absa/absb));
+	if (absa > absb) return absa*std::sqrt(1.0+(absb/absa)*absb/absa);
+	return (absb == 0.0 ? 0.0 : absb*std::sqrt(1.0+(absa/absb)*absa/absb));
 }
 
 void vkSVDCmp(double **a, int m, int n, double w[], double **v)
@@ -437,7 +437,7 @@ void vkSVDCmp(double **a, int m, int n, double w[], double **v)
 					s += a[k][i]*a[k][i];
 				}
 				f=a[i][i];
-				g = -SIGN(sqrt(s),f);
+				g = -SIGN(std::sqrt(s),f);
 				h=f*g-s;
 				a[i][i]=f-g;
 				for (j=l;j<=n;j++) {
@@ -458,7 +458,7 @@ void vkSVDCmp(double **a, int m, int n, double w[], double **v)
 					s += a[i][k]*a[i][k];
 				}
 				f=a[i][l];
-				g = -SIGN(sqrt(s),f);
+				g = -SIGN(std::sqrt(s),f);
 				h=f*g-s;
 				a[i][l]=f-g;
 				for (k=l;k<=n;k++) rv1[k]=a[i][k]/h;
@@ -742,10 +742,10 @@ int vkjacobi(double **a, int n, double d[], double **v)
 						t=(a[ip][iq])/h;
 					else {
 						theta=0.5*h/(a[ip][iq]);
-						t=1.0/(fabs(theta)+sqrt(1.0+theta*theta));
+						t=1.0/(fabs(theta)+std::sqrt(1.0+theta*theta));
 						if (theta < 0.0) t = -t;
 					}
-					c=1.0/sqrt(1+t*t);
+					c=1.0/std::sqrt(1+t*t);
 					s=t*c;
 					tau=s/(1.0+c);
 					h=t*a[ip][iq];

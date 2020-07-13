@@ -41,7 +41,7 @@ namespace Trk
 
     Amg::Vector3D getSingleVtxPositionWithSignFlip(const Amg::VectorX & myPosition,
 					           int numVertex,
-					           bool signfliptreatment) {
+					           bool signFlipTreatment) {
 
       int numbRow=numRow(numVertex);
       double xv=myPosition[Trk::jet_xv];
@@ -56,7 +56,7 @@ namespace Trk
 	  dist=dist/fabs(dist)*300./sin(theta);
 	}
 	if (dist<0) {
-	  if (signfliptreatment) {
+	  if (signFlipTreatment) {
 	    dist=-dist;
 	  } else {
 	    dist=0.;
@@ -341,7 +341,7 @@ namespace Trk
   }
 
   void JetFitterInitializationHelper::linearizeAllTracks(VxJetCandidate* myJetCandidate,
-							 bool signfliptreatment,
+							 bool signFlipTreatment,
 							 double maxdistance) const {
 
     const VertexPositions & myLinVertexPosition=myJetCandidate->getLinearizationVertexPositions();
@@ -385,7 +385,7 @@ namespace Trk
     for (std::vector<VxVertexOnJetAxis*>::const_iterator VtxIter=VtxBegin;VtxIter!=VtxEnd;++VtxIter) {
 
       int numVertex=(*VtxIter)->getNumVertex();
-      Amg::Vector3D secondaryVertexPos(getSingleVtxPositionWithSignFlip(myPosition,numVertex,signfliptreatment));      
+      Amg::Vector3D secondaryVertexPos(getSingleVtxPositionWithSignFlip(myPosition,numVertex,signFlipTreatment));      
 
 //      std::cout << " Considering linearization at n. vertex " << numVertex << " pos " << secondaryVertexPos << std::endl;
       

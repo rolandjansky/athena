@@ -256,12 +256,7 @@ namespace Trk{
       } else {
         ndf+=sign*1.;
       }
-
-      //add the chi2 to the previous chi2
-      //Trk::RecVertexPositions r_vtx(new_vrt_weight_times_position,erm,ndf,0.,true);//ndf, chi2);
-      Trk::RecVertexPositions r_vtx(new_vrt_pos,new_vrt_cov,ndf,chi2);
-
-      return r_vtx;
+      return Trk::RecVertexPositions(new_vrt_pos,new_vrt_cov,ndf,chi2);
 
     } 
     
@@ -278,8 +273,7 @@ namespace Trk{
       if(myPosition.covariancePosition().determinant() ==0.0) {
         ATH_MSG_WARNING ("The vertex-positions covariance matrix is not invertible");
         ATH_MSG_WARNING ("The copy of initial vertex returned");
-        const Trk::RecVertexPositions& r_vtx(myPosition);
-        return r_vtx;
+        return Trk::RecVertexPositions(myPosition);
       }
 #ifdef KalmanVertexUpdate_OLD
       const Amg::VectorX & old_vrt_pos = myPosition.position();
@@ -299,19 +293,10 @@ namespace Trk{
         ATH_MSG_WARNING(" The determinant of the track covariance matrix is zero or negative: " << trackParametersWeight.determinant());
       }
 
-    
-//      if (old_full_vrt_weight.determinant()<=0)  
-//      {
-//        ATH_MSG_WARNING(" The determinant of the vertex full weight matrix is zero or negative: " << old_full_vrt_weight.determinant());
-//      }
-
-
-//      std::cout << " WEIGHT MATRIX of POS " << old_full_vrt_weight << std::endl;
 
       Amg::MatrixX         old_vrt_weight(numrow_toupdate+1,numrow_toupdate+1);
       old_vrt_weight = old_full_vrt_weight.block(0,0,numrow_toupdate+1,numrow_toupdate+1);
 
-//      std::cout << " Reduced Weight of POS " << old_vrt_weight << std::endl;
 
 #endif
 
@@ -320,16 +305,14 @@ namespace Trk{
       AmgSymMatrix(3) S = B.transpose()*(trackParametersWeight*B);
 
 
-//      std::cout << " Matrix S " << S << std::endl;
 
       if(S.determinant() ==0.0) {
         ATH_MSG_WARNING ("The S matrix is not invertible");
         ATH_MSG_WARNING ("A copy of initial vertex returned");
-        const Trk::RecVertexPositions& r_vtx(myPosition);
-        return r_vtx;
-      } S = S.inverse().eval();
+        return Trk::RecVertexPositions(myPosition);
+      }
+      S = S.inverse().eval();
 
-//      std::cout << " Matrix S after inversion " << S << std::endl;
 
       //G_b = G_k - G_k*B_k*W_k*B_k^(T)*G_k  
 
@@ -337,7 +320,6 @@ namespace Trk{
 	//gB=gB/2.0+gB.transpose().eval()/2.0;
 
 
-//      std::cout << " gB " << gB << std::endl;
 
 #ifdef Updator_DEBUG
       std::cout<<"Gain factor obtained: "<<trackParametersWeight*(B*(S*B.transpose()))*trackParametersWeight.transpose()<<std::endl;
@@ -592,7 +574,8 @@ namespace Trk{
     if(S.determinant() ==0.0) {
       ATH_MSG_ERROR ("The matrix S is not invertible, return chi2 0");
       return -0.;
-    } S = S.inverse().eval();
+    } 
+    S = S.inverse().eval();
 
     //refitted track momentum  
     Amg::Vector3D newTrackMomentum = S*B.transpose()*trackParametersWeight*(trackParameters - constantTerm - A*new_vrt_position);
@@ -708,7 +691,7 @@ namespace Trk{
     int numRows=new_vrt_weight.rows();
     if (numRows<=6) {
       if(new_vrt_weight.determinant() ==0)
-// if |A|==0; then A is not invertible;
+        // if |A|==0; then A is not invertible;
       {
         throw std::string("The reduced weight matrix is not invertible. Previous vertex returned ");
       }
@@ -726,13 +709,10 @@ namespace Trk{
         B(i,j-5)=new_vrt_weight(i,j);
       }
     }
-//    std::cout << " weight matrix: " << new_vrt_weight << std::endl;
-//    std::cout << " non diag upper right elem: " << B << std::endl;
 
     // CLHEP::HepSymMatrix D=new_vrt_weight.sub(6,numRows);
     Amg::MatrixX D = new_vrt_weight.block(5,5,numRows-5,numRows-5); // will be of dim (numrows-5)
 
-   //std::cout << " D "<<std::endl << D << std::endl;
     
     // Eigen::DiagonalMatrix<double,Eigen::Dynamic> DdiagINV(D.rows()); // was CLHEP::HepDiagMatrix
 //    if (numRows>6 && D.isDiagonal(/*precision<scalar>=*/1e-7))
@@ -767,15 +747,12 @@ namespace Trk{
     }
 //      D=D.inverse().eval();
 
-//    std::cout << " D after inversion " << D << std::endl;
-
     Amg::MatrixX E = A - B*(D*B.transpose());
     if (E.determinant() == 0.) {
       throw std::string("Cannot invert E matrix...");
     }
     E=E.inverse().eval();
 
-//    std::cout << " E " << E << std::endl;
     
     Amg::MatrixX finalWeight(numRows,numRows); 
     finalWeight.setZero();
@@ -786,7 +763,6 @@ namespace Trk{
     finalWeight.block(5,5,D.rows(),D.rows()) = 
         D+(D*((B.transpose()*(E*B))*D.transpose()));
 
-//    std::cout << " finalWeight " << finalWeight << std::endl;
 
 //    Amg::MatrixX normalInversion=new_vrt_weight.inverse().eval();
 //    Amg::MatrixX smartInversion=finalWeight;
@@ -804,7 +780,6 @@ namespace Trk{
 	}
       }
     }
-    if (mismatch) std::cout << " mismatch, normalInv: " << normalInversion << " smartInv " << smartInversion << " det 1 " << normalInversion.determinant() << " det 2 " << smartInversion.determinant() << std::endl;
 */
 
 //    new_vrt_weight = new_vrt_weight.inverse().eval();//finalWeight;//MODIFIED!!
