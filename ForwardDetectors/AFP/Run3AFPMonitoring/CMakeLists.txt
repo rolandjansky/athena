@@ -14,7 +14,7 @@ atlas_depends_on_subdirs(
         GaudiKernel
         Event/xAOD/xAODForward
         xAODForward/AFPSiHit
-        xAODForward/AFPToFHit	
+        xAODForward/AFPToFHit
         LumiBlock/LumiBlockComps
         LumiBlock/LumiBlockData
         Trigger/TrigEvent/TrigDecisionInterface
@@ -51,6 +51,8 @@ atlas_add_component( Run3AFPMonitoring
         LumiBlockData
         TrigDecisionToolLib
         xAODForward
+        #xAODTrigger
+        #Trigger
         AthenaKernel
         SGAudCore
         AthenaPoolUtilities

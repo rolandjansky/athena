@@ -49,17 +49,23 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     array.defineHistogram('pixelRowIDChip', title='Hits per row for {0} Layer {1};pixelRowIDChip', path='PixelRowIDChip', xbins=336, xmin=0.5, xmax=336.5)
     array.defineHistogram('pixelRowIDChip,pixelColIDChip', title='Hitmap for {0} Layer {1};pixelRowIDChip;pixelColIDChip', type='TH2F', path='pixelColRow2D', xbins=336, xmin=0.5, xmax=336.5, ybins=80, ymin=0.5, ymax=80.5)
     array.defineHistogram('timeOverThreshold', type='TH1F', title='Time over threshold for {0} Layer {1};timeOverThreshold', path='SiTimeOverThreshold', xbins=16, xmin=0.5, xmax=16.5)
-    array.defineHistogram('clusterY,clusterX', title='Cluster position in station {0} Layer {1};x (mm];y (mm]', type='TH2F', path='Cluster', xbins=336, xmin=0.0, xmax=17.0, ybins=80, ymin=0.0, ymax=20.0)
-    array.defineHistogram('lb,clustersPerPlane', title='Number of clusters in station {0}, layer {1};lb; clustersPerPlane', type='TH2F', path='clustersPerPlane', xbins=1000, xmin=-0.5, xmax=999.5, ybins=1000, ymin=-0.2, ymax=0.2)
-    array.defineHistogram('lb,clustersPerPlaneFront', title='(Front BCID) Number of clusters in station {0}, layer {1};lb; clustersPerPlane', type='TH2F', path='clustersPerPlaneFront', xbins=1000, xmin=-0.5, xmax=999.5, ybins=1000, ymin=-0.2, ymax=0.2)
+    array.defineHistogram('clusterY,clusterX', title='Cluster position in station {0} Layer {1};x [mm];y [mm]', type='TH2F', path='Cluster', xbins=336, xmin=0.0, xmax=17.0, ybins=80, ymin=0.0, ymax=20.0)
+    array.defineHistogram('lb,clustersPerPlane', title='Number of clusters in station {0}, layer {1};lb; clustersPerPlane', type='TH2F', path='clustersPerPlane', xbins=1000, xmin=-0.5, xmax=999.5, ybins=1000, ymin=-0.2, ymax=1.0)
+    array.defineHistogram('lb,clustersPerPlaneFront', title='(Front BCID) Number of clusters in station {0}, layer {1};lb; clustersPerPlane', type='TH2F', path='clustersPerPlaneFront', xbins=1000, xmin=-0.5, xmax=999.5, ybins=1000, ymin=-0.2, ymax=1.0)
+    array.defineHistogram('lb,clustersPerPlaneEnd', title='(End BCID) Number of clusters in station {0}, layer {1};lb; clustersPerPlane', type='TH2F', path='clustersPerPlaneEnd', xbins=1000, xmin=-0.5, xmax=999.5, ybins=1000, ymin=-0.2, ymax=1.0)
+    array.defineHistogram('lb,clustersPerPlaneMiddle', title='(Middle BCID) Number of clusters in station {0}, layer {1};lb; clustersPerPlane', type='TH2F', path='clustersPerPlaneMiddle', xbins=1000, xmin=-0.5, xmax=999.5, ybins=1000, ymin=-0.2, ymax=1.0)
     array.defineHistogram('lb,clustersPerPlane2', title='Number of clusters in station {0}, layer {1};lb; clustersPerEvent / <mu>', type='TProfile', path='clustersPerPlane2', xbins=1000, xmin=-0.5, xmax=999.5)
 
 
-    array = helper.addArray([combinedList], afpSiLayerAlgorithm, 'AFPSiLayerTool', topPath='AFP/SiT/Track/')
-    array.defineHistogram('trackY,trackX', title='Track in station {0};x (mm];y (mm]', type='TH2F', path='Track', xbins=336, xmin=0.0, xmax=17.0, ybins=80, ymin=0.0, ymax=20.0)
+    array = helper.addArray([combinedList], afpSiLayerAlgorithm, 'AFPSiLayerTool', topPath='AFP/SiT/')
+    array.defineHistogram('trackY,trackX', title='Track in AFP station {0};x [mm];y [mm]', type='TH2F', path='Track', xbins=336, xmin=0.0, xmax=17.0, ybins=80, ymin=0.0, ymax=20.0)
+    array.defineHistogram('lb,clustersPerStation', title ='Number of clusters in station {0};lb; clustersPerStation', type='TH2F', path='clustersPerStation', xbins=1000, xmin=-0.5, xmax=999.5, ybins=1000, ymin=-0.2, ymax=1.0)
+    array.defineHistogram('lb,clustersPerStationFront', title ='(Front) Number of clusters in station {0};lb; clustersPerStation', type='TH2F', path='clustersPerStation', xbins=1000, xmin=-0.5, xmax=999.5, ybins=1000, ymin=-0.2, ymax=1.0)
+    array.defineHistogram('lb,clustersPerStationEnd', title ='(End) Number of clusters in station {0};lb; clustersPerStation', type='TH2F', path='clustersPerStation', xbins=1000, xmin=-0.5, xmax=999.5, ybins=1000, ymin=-0.2, ymax=1.0)
+    array.defineHistogram('lb,clustersPerStationMiddle', title ='(Middle) Number of clusters in station {0};lb; clustersPerStation', type='TH2F', path='clustersPerStation', xbins=1000, xmin=-0.5, xmax=999.5, ybins=1000, ymin=-0.2, ymax=1.0)
 
     arrayOneList = helper.addArray([combinedList], afpToFAlgorithm, 'AFPToFTool', topPath='AFP/ToF/')
-    arrayOneList.defineHistogram('trainID,barInTrainID', title='ToF hit bar vs train {0};trainID;barInTrainID', type='TH2F', path='HitBarvsTrain/',xbins=4,xmin=-0.5,xmax=3.5,ybins=4,ymin=-0.5,ymax=3.5)
+    arrayOneList.defineHistogram('barInTrainID,trainID', title='ToF hit bar vs train {0};barInTrainID;trainID', type='TH2F', path='HitBarvsTrain/',xbins=4,xmin=-0.5,xmax=3.5,ybins=4,ymin=-0.5,ymax=3.5)
 
     # Finalize. The return value should be a tuple of the ComponentAccumulator
     return helper.result()
@@ -85,9 +91,9 @@ if __name__=='__main__':
     #file = '/afs/cern.ch/user/l/ladamczy/public/data18_13TeV.00354309.physics_Main.ESD._lb0130._SFO-1._0001.data.r22'
 
     #ConfigFlags.Input.Files = [nightly+file]
-    ConfigFlags.Input.Files = ['/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/user.ladamczy.00337176.calibration_AFP.AODV1_EXT0/user.ladamczy.21473705.EXT0._000003.xAOD.root']
+    ConfigFlags.Input.Files = ['/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_4/aod0.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_4/aod1.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_4/aod2.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_4/aod3.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_4/aod4.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_5/aod0.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_5/aod1.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_5/aod2.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_5/aod3.pool.root','/eos/atlas/atlascerngroupdisk/det-afp/xAODCalibrationStream/2017/new_run_5/aod4.pool.root']
     ConfigFlags.Input.isMC = False
-    ConfigFlags.Output.HISTFileName = 'AFPOutput21.root'
+    ConfigFlags.Output.HISTFileName = 'AFPOutput32.root'
     
     ConfigFlags.lock()
 
@@ -100,7 +106,7 @@ if __name__=='__main__':
     exampleMonitorAcc = Run3AFPExampleMonitoringConfig(ConfigFlags)
     cfg.merge(exampleMonitorAcc)
 
-    cfg.run(10000) #use cfg.run(20) to only run on first 20 events
+    cfg.run()
 
 
 

@@ -11,6 +11,7 @@
 #include "xAODForward/AFPSiHitContainer.h"
 #include "xAODForward/AFPSiHit.h"
 
+
 #include "TRandom3.h"
 
 class AFPSiLayerAlgorithm : public AthMonitorAlgorithm {
@@ -24,6 +25,7 @@ private:
 	std::map<std::string,std::map<std::string,int>> m_HitmapGroups;
 	std::map<std::string,int> m_TrackGroup; 
 	SG::ReadHandleKey<xAOD::AFPSiHitContainer> m_afpHitContainerKey;
+	
 
 protected:
 	std::vector<std::string> m_pixlayers = { "P0", "P1", "P2", "P3"};

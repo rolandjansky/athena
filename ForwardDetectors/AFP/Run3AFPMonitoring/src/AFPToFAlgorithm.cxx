@@ -80,7 +80,7 @@ StatusCode AFPToFAlgorithm::fillHistograms( const EventContext& ctx ) const {
 
 		if (hitsItr->stationID() == 0 || hitsItr->stationID() == 3)
 		{
-			fill(m_tools[m_HitmapGroupsToF.at(m_stationNamesToF.at(hitsItr->stationID()))], trainID, barInTrainID);
+			fill(m_tools[m_HitmapGroupsToF.at(m_stationNamesToF.at(hitsItr->stationID()))], barInTrainID, trainID);
 		}
 	}
 
