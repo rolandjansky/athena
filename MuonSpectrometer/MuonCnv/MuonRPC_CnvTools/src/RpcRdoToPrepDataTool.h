@@ -5,6 +5,14 @@
 #ifndef MUONRDOTOPREPDATA_RPCRDOTOPREPDATATOOL_H
 #define MUONRDOTOPREPDATA_RPCRDOTOPREPDATATOOL_H
 
+/// This code is used in both MT and single-thread                      
+/// However the MT code uses the const cast in a single-thread          
+/// mode by transfering the contents to a thread-safe container         
+/// in order to prevent complex adjustments in the core decode functions
+/// As such, it should not be flagged at this stage as unsafe           
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
 #include "RpcRdoToPrepDataToolCore.h"
 
 namespace Muon {
