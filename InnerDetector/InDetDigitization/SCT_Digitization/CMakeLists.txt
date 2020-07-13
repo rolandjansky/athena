@@ -5,32 +5,6 @@
 # Declare the package name:
 atlas_subdir( SCT_Digitization )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Commission/CommissionEvent
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/PileUpTools
-                          DetectorDescription/Identifier
-                          Event/xAOD/xAODEventInfo
-                          GaudiKernel
-                          InnerDetector/InDetConditions/InDetCondTools
-                          InnerDetector/InDetDigitization/SiDigitization
-                          InnerDetector/InDetRawEvent/InDetRawData
-                          InnerDetector/InDetSimEvent
-                          Simulation/HitManagement
-                          PRIVATE
-                          Control/StoreGate
-                          Generators/GeneratorObjects
-                          InnerDetector/InDetConditions/InDetConditionsSummaryService
-                          InnerDetector/InDetConditions/SCT_ConditionsTools
-                          InnerDetector/InDetConditions/SiPropertiesTool
-                          InnerDetector/InDetDetDescr/InDetIdentifier
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
-			  InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
-                          InnerDetector/InDetDetDescr/SCT_ModuleDistortions
-                          InnerDetector/InDetRawEvent/InDetSimData )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
@@ -48,7 +22,6 @@ atlas_add_test( SCT_DigitizationMT_test
                 ENVIRONMENT THREADS=10 )
 
 # Install files from the package:
-atlas_install_headers( SCT_Digitization )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 
