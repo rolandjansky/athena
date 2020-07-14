@@ -139,6 +139,9 @@ def Lvl1SimulationSequence( flags = None ):
         muctpi = L1Muctpi()
         muctpi.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
 
+    # Sets up and configures the muon alignment and detector manager
+    from MuonRecExample import MuonAlignConfig # noqa: F401
+
     l1MuonSim = seqAND("l1MuonSim", [
         
         MuonRdoToMuonDigit( "MuonRdoToMuonDigit",

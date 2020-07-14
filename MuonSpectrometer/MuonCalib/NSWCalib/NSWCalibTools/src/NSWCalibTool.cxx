@@ -140,12 +140,9 @@ StatusCode Muon::NSWCalibTool::calibrateStrip(const Muon::MM_RawData* mmRawData,
 {
   Identifier rdoId = mmRawData->identify();
 
-  // @TODO: for the shifter: this code will be used as soon as the NSW is built in the MuonDetectorCondAlg
-  // for now, we will need to use the nominal manager from the detectorStore to run
-  // SG::ReadCondHandle<MuonGM::MuonDetectorManager> muDetMgrHandle{m_muDetMgrKey};
-  // const MuonGM::MuonDetectorManager* muDetMgr = muDetMgrHandle.cptr();
-  const MuonGM::MuonDetectorManager* muDetMgr=nullptr;
-  ATH_CHECK(detStore()->retrieve(muDetMgr));
+  // MuonDetectorManager from the conditions store
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> muDetMgrHandle{m_muDetMgrKey};
+  const MuonGM::MuonDetectorManager* muDetMgr = muDetMgrHandle.cptr();
 
   //get globalPos
   Amg::Vector3D globalPos;
