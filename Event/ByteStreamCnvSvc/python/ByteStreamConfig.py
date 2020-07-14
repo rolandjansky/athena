@@ -6,14 +6,19 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.TestDefaults import defaultTestFiles
+from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaCommon.Configurable import Configurable
+from AthenaCommon.Logging import logging
 from AthenaServices.MetaDataSvcConfig import MetaDataSvcCfg
+
+LOG = logging.getLogger('ByteStreamConfig')
 
 
 def ByteStreamReadCfg(flags, type_names=None):
     """Creates resultumulator for BS reading
     """
     result = ComponentAccumulator()
+
     bytestream_conversion = CompFactory.ByteStreamCnvSvc()
     result.addService(bytestream_conversion)
 
@@ -69,45 +74,70 @@ def ByteStreamReadCfg(flags, type_names=None):
     return result
 
 
-def ByteStreamWriteCfg(flags, type_names=[]):
+def ByteStreamWriteCfg(flags, type_names=None):
+    """func level docstring goes here
+    """
+    all_runs = set(flags.Input.RunNumber)
+    assert (
+        len(all_runs) == 1
+    ), "Input is from multiple runs, do not know which one to use {}".format(
+        all_runs
+    )
+
     result = ComponentAccumulator("AthOutSeq")
-    outputSvc = CompFactory.ByteStreamEventStorageOutputSvc()
-    outputSvc.MaxFileMB = 15000
-    # event (beyond which it creates a new file)
-    outputSvc.MaxFileNE = 15000000
-    outputSvc.OutputDirectory = "./"
-    outputSvc.AppName = "Athena"
+
+    event_storage_output = CompFactory.ByteStreamEventStorageOutputSvc(
+        MaxFileMB=15000,
+        MaxFileNE=15000000,  # event (beyond which it creates a new file)
+        OutputDirectory="./",
+        AppName="Athena",
+        RunNumber=all_runs.pop(),
+    )
+    result.addService(event_storage_output)
     # release variable depends the way the env is configured
     # FileTag = release
-    allRuns = set(flags.Input.RunNumber)
-    assert (
-        len(allRuns) == 1
-    ), "The input is from multiple runs, do not know which one to use {}".format(
-        allRuns
+
+    bytestream_conversion = CompFactory.ByteStreamCnvSvc(
+        name="ByteStreamCnvSvc",
+        ByteStreamOutputSvcList=[event_storage_output.getName()],
     )
-    outputSvc.RunNumber = allRuns.pop()
-
-    bytestream_conversion = CompFactory.ByteStreamCnvSvc("ByteStreamCnvSvc")
-
-    bytestream_conversion.ByteStreamOutputSvcList = [outputSvc.getName()]
-    streamAlg = CompFactory.AthenaOutputStream(
-        "BSOutputStreamAlg",
-        EvtConversionSvc=bytestream_conversion.getName(),
-        OutputFile="ByteStreamEventStorageOutputSvc",
-        ItemList=type_names,
-    )
-
-    result.addService(outputSvc)
     result.addService(bytestream_conversion)
-    result.addEventAlgo(streamAlg, primary=True)
+
+    output_stream = CompFactory.AthenaOutputStream(
+        name="BSOutputStreamAlg",
+        EvtConversionSvc=bytestream_conversion.name,
+        OutputFile="ByteStreamEventStorageOutputSvc",
+        ItemList=type_names if type_names else list(),
+    )
+    result.addEventAlgo(output_stream, primary=True)
+
     return result
 
 
-if __name__ == "__main__":
+def main():
+    """Implement running simple functional test"""
     Configurable.configurableRun3Behavior = True
 
     ConfigFlags.Input.Files = defaultTestFiles.RAW
+    ConfigFlags.Output.doWriteBS = True
+    ConfigFlags.lock()
 
-    acc = ByteStreamReadCfg(ConfigFlags)
-    acc.store(open("test.pkl", "wb"))
+    read = ByteStreamReadCfg(ConfigFlags)
+    read.store(open("test.pkl", "wb"))
     print("All OK")
+
+    write = ByteStreamWriteCfg(ConfigFlags)
+    write.printConfig()
+    LOG.info("Write setup OK")
+
+    acc = MainServicesCfg(ConfigFlags)
+    acc.merge(read)
+    acc.merge(write)
+    acc.printConfig()
+    LOG.info("Config OK")
+
+    acc.run(10)
+
+
+if __name__ == "__main__":
+    main()
