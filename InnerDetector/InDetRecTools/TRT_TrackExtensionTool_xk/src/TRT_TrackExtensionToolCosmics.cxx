@@ -319,18 +319,18 @@ void InDet::TRT_TrackExtensionToolCosmics::analyze_tpars(const std::vector<const
 	  
 	  //check if this PRD exists
 	  // get the driftCircleCollection belonging to this id
-	  InDet::TRT_DriftCircleContainer::const_iterator containerIterator = event_data.m_trtcontainer->indexFind(detElements[i+1]);
+	  const InDet::TRT_DriftCircleCollection *container = event_data.m_trtcontainer->indexFindPtr(detElements[i+1]);
 	  
-	  if(containerIterator==event_data.m_trtcontainer->end()) {
+	  if(container==nullptr) {
 	    msg(MSG::DEBUG)<<"for the current detectorElement no DriftCircleContainer seems to exist: "<<m_trtid->show_to_string(m_trtid->layer_id(detElements[i+1]))<<endmsg;
 	    continue;
 	  }
 	  
-	  msg(MSG::DEBUG)<< "There are "  << (*containerIterator)->size() << " entries in the TRT_DriftCircleCollection "<<m_trtid->show_to_string(m_trtid->layer_id(detElements[i+1])) <<endmsg;
+	  msg(MSG::DEBUG)<< "There are "  << container->size() << " entries in the TRT_DriftCircleCollection "<<m_trtid->show_to_string(m_trtid->layer_id(detElements[i+1])) <<endmsg;
 	  
 	  //take the closest one in case it satisfies some default cuts
-	  InDet::TRT_DriftCircleCollection::const_iterator driftCircleIterator = (*containerIterator)->begin();
-	  for (; driftCircleIterator != (*containerIterator)->end(); driftCircleIterator++) {
+	  InDet::TRT_DriftCircleCollection::const_iterator driftCircleIterator = container->begin();
+	  for (; driftCircleIterator != container->end(); driftCircleIterator++) {
 
 	    //get the associated surface of the driftcircle
 	    const Trk::Surface &dc_surface=(*driftCircleIterator)->detectorElement()->surface((*driftCircleIterator)->identify());

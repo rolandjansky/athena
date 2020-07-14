@@ -40,6 +40,32 @@ InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string& sDir, co
     m_resolutionPlotSecd = std::unique_ptr<InDetPerfPlot_Resolution>(new InDetPerfPlot_Resolution(this, "Tracks/Matched/Resolutions/Secondary"));
     m_hitsMatchedTracksPlots = std::unique_ptr<InDetPerfPlot_Hits>(new InDetPerfPlot_Hits(this, "Tracks/Matched/HitsOnTracks"));
     m_vertexTruthMatchingPlots = std::unique_ptr<InDetPerfPlot_VertexTruthMatching>(new InDetPerfPlot_VertexTruthMatching(this, "Vertices/AllPrimaryVertices", m_iDetailLevel));
+
+    //Split by track author
+    m_effSiSPSeededFinderPlots = std::unique_ptr<InDetPerfPlot_Efficiency>(new InDetPerfPlot_Efficiency(this, "TracksByAuthor/SiSPSeededFinder/Tracks/Efficiency"));
+    m_effInDetExtensionProcessorPlots = std::unique_ptr<InDetPerfPlot_Efficiency>(new InDetPerfPlot_Efficiency(this, "TracksByAuthor/InDetExtensionProcessor/Tracks/Efficiency"));
+    m_effTRTSeededTrackFinderPlots = std::unique_ptr<InDetPerfPlot_Efficiency>(new InDetPerfPlot_Efficiency(this, "TracksByAuthor/TRTSeededTrackFinder/Tracks/Efficiency"));
+    m_effTRTStandalonePlots = std::unique_ptr<InDetPerfPlot_Efficiency>(new InDetPerfPlot_Efficiency(this, "TracksByAuthor/TRTStandalone/Tracks/Efficiency"));
+    m_effSiSpacePointsSeedMaker_LargeD0Plots = std::unique_ptr<InDetPerfPlot_Efficiency>(new InDetPerfPlot_Efficiency(this, "TracksByAuthor/SiSpacePointsSeedMaker_LargeD0/Tracks/Efficiency"));
+
+    m_fakeSiSPSeededFinderPlots = std::unique_ptr<InDetPerfPlot_FakeRate>(new InDetPerfPlot_FakeRate(this, "TracksByAuthor/SiSPSeededFinder/Tracks/FakeRate"));
+    m_fakeInDetExtensionProcessorPlots = std::unique_ptr<InDetPerfPlot_FakeRate>(new InDetPerfPlot_FakeRate(this, "TracksByAuthor/InDetExtensionProcessor/Tracks/FakeRate"));
+    m_fakeTRTSeededTrackFinderPlots = std::unique_ptr<InDetPerfPlot_FakeRate>(new InDetPerfPlot_FakeRate(this, "TracksByAuthor/TRTSeededTrackFinder/Tracks/FakeRate"));
+    m_fakeTRTStandalonePlots = std::unique_ptr<InDetPerfPlot_FakeRate>(new InDetPerfPlot_FakeRate(this, "TracksByAuthor/TRTStandalone/Tracks/FakeRate"));
+    m_fakeSiSpacePointsSeedMaker_LargeD0Plots = std::unique_ptr<InDetPerfPlot_FakeRate>(new InDetPerfPlot_FakeRate(this, "TracksByAuthor/SiSpacePointsSeedMaker_LargeD0/Tracks/FakeRate"));
+
+    m_trkParaSiSPSeededFinderPlots = std::unique_ptr<InDetPerfPlot_TrackParameters>(new InDetPerfPlot_TrackParameters(this, "TracksByAuthor/SiSPSeededFinder/Tracks/Parameters"));
+    m_trkParaInDetExtensionProcessorPlots = std::unique_ptr<InDetPerfPlot_TrackParameters>(new InDetPerfPlot_TrackParameters(this, "TracksByAuthor/InDetExtensionProcessor/Tracks/Parameters"));
+    m_trkParaTRTSeededTrackFinderPlots = std::unique_ptr<InDetPerfPlot_TrackParameters>(new InDetPerfPlot_TrackParameters(this, "TracksByAuthor/TRTSeededTrackFinder/Tracks/Parameters"));
+    m_trkParaTRTStandalonePlots = std::unique_ptr<InDetPerfPlot_TrackParameters>(new InDetPerfPlot_TrackParameters(this, "TracksByAuthor/TRTStandalone/Tracks/Parameters"));
+    m_trkParaSiSpacePointsSeedMaker_LargeD0Plots = std::unique_ptr<InDetPerfPlot_TrackParameters>(new InDetPerfPlot_TrackParameters(this, "TracksByAuthor/SiSpacePointsSeedMaker_LargeD0/Tracks/Parameters"));
+
+    m_resSiSPSeededFinderPlots = std::unique_ptr<InDetPerfPlot_Resolution>(new InDetPerfPlot_Resolution(this, "TracksByAuthor/SiSPSeededFinder/Tracks/Resolution"));
+    m_resInDetExtensionProcessorPlots = std::unique_ptr<InDetPerfPlot_Resolution>(new InDetPerfPlot_Resolution(this, "TracksByAuthor/InDetExtensionProcessor/Tracks/Resolution"));
+    m_resTRTSeededTrackFinderPlots = std::unique_ptr<InDetPerfPlot_Resolution>(new InDetPerfPlot_Resolution(this, "TracksByAuthor/TRTSeededTrackFinder/Tracks/Resolution"));
+    m_resTRTStandalonePlots = std::unique_ptr<InDetPerfPlot_Resolution>(new InDetPerfPlot_Resolution(this, "TracksByAuthor/TRTStandalone/Tracks/Resolution"));
+    m_resSiSpacePointsSeedMaker_LargeD0Plots = std::unique_ptr<InDetPerfPlot_Resolution>(new InDetPerfPlot_Resolution(this, "TracksByAuthor/SiSpacePointsSeedMaker_LargeD0/Tracks/Resolution"));
+
   }
 
   //A lot of Jets... do we need these at all???
@@ -65,6 +91,26 @@ InDetRttPlots::fill(const xAOD::TrackParticle& particle, const xAOD::TruthPartic
     } else if (barcode >= 200000 && prob > 0.7 && m_iDetailLevel >= 200) {
         m_resolutionPlotSecd->fill(particle, truthParticle);
     }
+
+    if(m_iDetailLevel >= 200 and (barcode < 200000 and barcode != 0 and prob > 0.5)){
+      std::bitset<xAOD::TrackPatternRecoInfo::NumberOfTrackRecoInfo>  patternInfo = particle.patternRecoInfo();
+    
+      bool isSiSpSeededFinder = patternInfo.test(0);
+      bool isInDetExtensionProcessor = patternInfo.test(3);
+      bool isTRTSeededTrackFinder = patternInfo.test(4);
+      bool isTRTStandalone = patternInfo.test(20);
+      bool isSiSpacePointsSeedMaker_LargeD0 = patternInfo.test(49);
+
+      if(isSiSpSeededFinder and not isInDetExtensionProcessor) m_resSiSPSeededFinderPlots->fill(particle, truthParticle);
+      if(isInDetExtensionProcessor and not (isTRTSeededTrackFinder or isSiSpacePointsSeedMaker_LargeD0)) m_resInDetExtensionProcessorPlots->fill(particle, truthParticle);
+      if(isTRTSeededTrackFinder and not isTRTStandalone) m_resTRTSeededTrackFinderPlots->fill(particle, truthParticle);
+      if(isTRTStandalone) m_resTRTStandalonePlots->fill(particle, truthParticle);
+      if(isSiSpacePointsSeedMaker_LargeD0) m_resSiSpacePointsSeedMaker_LargeD0Plots->fill(particle, truthParticle);
+
+    }
+
+
+
   }
  
   if(m_iDetailLevel >= 200){
@@ -85,6 +131,24 @@ InDetRttPlots::fill(const xAOD::TrackParticle& particle) {
   m_hitEffPlot.fill(particle);
   // fill pt plots
   m_trackParameters.fill(particle);
+  if(m_iDetailLevel >= 200){
+    std::bitset<xAOD::TrackPatternRecoInfo::NumberOfTrackRecoInfo>  patternInfo = particle.patternRecoInfo();
+    
+    bool isSiSpSeededFinder = patternInfo.test(0);
+    bool isInDetExtensionProcessor = patternInfo.test(3);
+    bool isTRTSeededTrackFinder = patternInfo.test(4);
+    bool isTRTStandalone = patternInfo.test(20);
+    bool isSiSpacePointsSeedMaker_LargeD0 = patternInfo.test(49);
+
+    if(isSiSpSeededFinder and not isInDetExtensionProcessor) m_trkParaSiSPSeededFinderPlots->fill(particle);
+    else if(isInDetExtensionProcessor and not (isTRTSeededTrackFinder or isSiSpacePointsSeedMaker_LargeD0)) m_trkParaInDetExtensionProcessorPlots->fill(particle);
+    else if(isTRTSeededTrackFinder and not isTRTStandalone) m_trkParaTRTSeededTrackFinderPlots->fill(particle);
+    else if(isTRTStandalone) m_trkParaTRTStandalonePlots->fill(particle);
+    else if(isSiSpacePointsSeedMaker_LargeD0) m_trkParaSiSpacePointsSeedMaker_LargeD0Plots->fill(particle);
+
+  }
+
+
   m_hitsRecoTracksPlots.fill(particle);
 }
 
@@ -104,8 +168,35 @@ InDetRttPlots::fill(const xAOD::TruthParticle& truthParticle) {
 
 
 void
-InDetRttPlots::fillEfficiency(const xAOD::TruthParticle& truth, const bool isGood, const unsigned int /*nMuEvents*/) {
+InDetRttPlots::fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::TrackParticle& track, const bool isGood, const unsigned int /*nMuEvents*/) {
   m_effPlots.fill(truth, isGood);
+
+  if(m_iDetailLevel >= 200){
+    if(isGood){
+      std::bitset<xAOD::TrackPatternRecoInfo::NumberOfTrackRecoInfo>  patternInfo = track.patternRecoInfo();
+    
+      bool isSiSpSeededFinder = patternInfo.test(0);
+      bool isInDetExtensionProcessor = patternInfo.test(3);
+      bool isTRTSeededTrackFinder = patternInfo.test(4);
+      bool isTRTStandalone = patternInfo.test(20);
+      bool isSiSpacePointsSeedMaker_LargeD0 = patternInfo.test(49);
+
+      if(isSiSpSeededFinder and not isInDetExtensionProcessor) m_effSiSPSeededFinderPlots->fill(truth, isGood);
+      if(isInDetExtensionProcessor and not (isTRTSeededTrackFinder or isSiSpacePointsSeedMaker_LargeD0)) m_effInDetExtensionProcessorPlots->fill(truth, isGood);
+      if(isTRTSeededTrackFinder and not isTRTStandalone) m_effTRTSeededTrackFinderPlots->fill(truth, isGood);
+      if(isTRTStandalone) m_effTRTStandalonePlots->fill(truth, isGood);
+      if(isSiSpacePointsSeedMaker_LargeD0) m_effSiSpacePointsSeedMaker_LargeD0Plots->fill(truth, isGood);
+    } else {
+      m_effSiSPSeededFinderPlots->fill(truth, isGood);
+      m_effInDetExtensionProcessorPlots->fill(truth, isGood);
+      m_effTRTSeededTrackFinderPlots->fill(truth, isGood);
+      m_effTRTStandalonePlots->fill(truth, isGood);
+      m_effSiSpacePointsSeedMaker_LargeD0Plots->fill(truth, isGood);
+
+    }
+    
+  }
+
 }
 
 //
@@ -116,7 +207,25 @@ void
 InDetRttPlots::fillFakeRate(const xAOD::TrackParticle& track, const bool isFake, const bool isAssociatedTruth){
 
   m_missingTruthFakePlots.fill(track, !isAssociatedTruth);
-  if(isAssociatedTruth) m_fakePlots.fill(track, isFake);
+  if(isAssociatedTruth) {
+    m_fakePlots.fill(track, isFake);
+
+    if(m_iDetailLevel >= 200){
+      std::bitset<xAOD::TrackPatternRecoInfo::NumberOfTrackRecoInfo>  patternInfo = track.patternRecoInfo();
+      
+      bool isSiSpSeededFinder = patternInfo.test(0);
+      bool isInDetExtensionProcessor = patternInfo.test(3);
+      bool isTRTSeededTrackFinder = patternInfo.test(4);
+      bool isTRTStandalone = patternInfo.test(20);
+      bool isSiSpacePointsSeedMaker_LargeD0 = patternInfo.test(49);
+
+      if(isSiSpSeededFinder and not isInDetExtensionProcessor) m_fakeSiSPSeededFinderPlots->fill(track, isFake); //No extensions 
+      if(isInDetExtensionProcessor and not (isTRTSeededTrackFinder or isSiSpacePointsSeedMaker_LargeD0)) m_fakeInDetExtensionProcessorPlots->fill(track, isFake); //Extensions but not Back-tracking
+      if(isTRTSeededTrackFinder and not isTRTStandalone) m_fakeTRTSeededTrackFinderPlots->fill(track, isFake); //BackTracking
+      if(isTRTStandalone) m_fakeTRTStandalonePlots->fill(track, isFake); //TRT standalone
+      if(isSiSpacePointsSeedMaker_LargeD0) m_fakeSiSpacePointsSeedMaker_LargeD0Plots->fill(track, isFake); //ANT
+    }
+  }
 
 }
 

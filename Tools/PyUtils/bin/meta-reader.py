@@ -166,8 +166,8 @@ def _main():
 		if is_json:
 			print(json.dumps(metadata, indent=indent))
 		else:
-			enc = sys.stdout.encoding.lower()
-			ascii = not sys.stdout.isatty() or enc.find('ansi') >= 0 or enc.find('ascii') >= 0
+			enc = sys.stdout.encoding
+			ascii = not sys.stdout.isatty() or not enc or enc.lower().find('ansi') >= 0 or enc.lower().find('ascii') >= 0
 			_tree_print(metadata, indent= indent, pad= 18, dict_sort='key', list_max_items = 8, ascii = True)
 			print(_tree_print(metadata, indent= indent, pad= 18, dict_sort='key', list_max_items = 8, ascii = ascii))
 

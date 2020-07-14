@@ -5,16 +5,6 @@
 # Declare the package name:
 atlas_subdir( ISF_FatrasEventAthenaPool )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          PRIVATE
-                          Database/AthenaPOOL/AthenaPoolCnvSvc
-                          Database/AtlasSealCLHEP
-                          GaudiKernel
-                          Simulation/ISF/ISF_Fatras/ISF_FatrasEvent
-                          Simulation/ISF/ISF_Fatras/ISF_FatrasEventTPCnv )
-
 # Component(s) in the package:
 atlas_add_poolcnv_library( ISF_FatrasEventAthenaPoolPoolCnv
                            src/*.cxx

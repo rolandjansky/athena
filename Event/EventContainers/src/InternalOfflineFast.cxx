@@ -77,7 +77,7 @@ void InternalOfflineFast::cleanUp(deleter_f* deleter) noexcept {
     }
     else {
       for(size_t i=0 ;i < m_fullMap.size(); ++i){
-         if(m_fullMap[i]) deleter(m_fullMap[i]);
+         if(m_fullMap[i]) { deleter(m_fullMap[i]); m_fullMap[i] = nullptr; }
       }
     }
     m_map.clear();

@@ -11,31 +11,15 @@
 
 #include <iostream>
 
-void TRT_BSErrContainerCnv_p1::transToPers ATLAS_NOT_THREAD_SAFE (const TRT_BSErrContainer* transCont, TRT_BSErrContainer_p1* persCont, MsgStream & /* log */) 
+void TRT_BSErrContainerCnv_p1::transToPers(const TRT_BSErrContainer*, TRT_BSErrContainer_p1* , MsgStream & /* log */) 
 {
-  TRT_BSErrContainer::const_iterator it = transCont->begin();
-  TRT_BSErrContainer::const_iterator itEnd = transCont->end();
-  (persCont->m_bsErrs).reserve(transCont->size());
-
-  for (; it != itEnd; ++it) {
-    // FIXME: Should change type of m_bsErrs, but don't want to cause possible
-    // back-compatibility problems.
-    std::pair<uint8_t, uint32_t>* ptr = const_cast<std::pair<uint8_t, uint32_t>*> (*it);
-    (persCont->m_bsErrs).push_back(ptr);
-  }
-  return;
+  throw std::runtime_error("Obsolete TRT_BSErrContainerCnv_p1::transToPers() not implemented");
+  return; 
 }
 
-void  TRT_BSErrContainerCnv_p1::persToTrans(const TRT_BSErrContainer_p1* persCont, TRT_BSErrContainer* transCont, MsgStream & /* log */) 
+void  TRT_BSErrContainerCnv_p1::persToTrans(const TRT_BSErrContainer_p1* , TRT_BSErrContainer* , MsgStream & /* log */) 
 {
-
-  std::vector<std::pair<uint8_t, uint32_t>* >::const_iterator it = (persCont->m_bsErrs).begin();
-  std::vector<std::pair<uint8_t, uint32_t>* >::const_iterator itEnd = (persCont->m_bsErrs).end();
-  transCont->reserve((persCont->m_bsErrs).size());
-
-  for (; it != itEnd; ++it) {
-    transCont->push_back(*it);
-  }
+  throw std::runtime_error("Obsolete TRT_BSErrContainerCnv_p1::persToTrans() not implemented");
   return;
 
 }

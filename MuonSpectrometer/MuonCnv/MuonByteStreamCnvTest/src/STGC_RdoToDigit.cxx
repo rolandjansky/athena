@@ -76,8 +76,8 @@ StatusCode STGC_RdoToDigit::decodeSTGC( const Muon::STGC_RawDataCollection * rdo
 
 
       if (oldId != elementId) {
-        sTgcDigitContainer::const_iterator it_coll = stgcContainer->indexFind(coll_hash);
-        if (stgcContainer->end() ==  it_coll) {
+        const sTgcDigitCollection * coll = stgcContainer->indexFindPtr(coll_hash);
+        if (nullptr ==  coll) {
           sTgcDigitCollection * newCollection =
             new sTgcDigitCollection(elementId,coll_hash);
           newCollection->push_back(newDigit);
@@ -87,7 +87,7 @@ StatusCode STGC_RdoToDigit::decodeSTGC( const Muon::STGC_RawDataCollection * rdo
                              << " in StoreGate!"  );
         }
         else {
-          sTgcDigitCollection * oldCollection ATLAS_THREAD_SAFE = const_cast<sTgcDigitCollection*>(*it_coll); //FIXME
+          sTgcDigitCollection * oldCollection ATLAS_THREAD_SAFE = const_cast<sTgcDigitCollection*>(coll); //FIXME
           oldCollection->push_back(newDigit);
           collection = oldCollection;
         }

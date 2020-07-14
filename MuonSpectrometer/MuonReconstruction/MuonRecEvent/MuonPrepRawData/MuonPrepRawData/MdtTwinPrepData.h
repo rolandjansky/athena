@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -129,7 +129,7 @@ namespace Muon
       m_tdcTwin = RIO.tdcTwin();
       m_adcTwin = RIO.adcTwin();
       if (RIO.m_globalPosition){
-	m_globalPosition.set(std::make_unique<Amg::Vector3D>(*RIO.m_globalPosition));
+	m_globalPosition.store(std::make_unique<Amg::Vector3D>(*RIO.m_globalPosition));
       }
  
     }

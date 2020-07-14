@@ -92,7 +92,7 @@ namespace JiveXML {
       for ( ; ParticleItr!=(*McEvtCollItr)->particles_end(); ++ParticleItr ) {
 
         //Get the particle
-        HepMC::GenParticle* particle = (*ParticleItr);
+        auto particle = (*ParticleItr);
         
         //Additional cuts for decaying particles
         if ( particle->end_vertex() ) {
@@ -108,10 +108,10 @@ namespace JiveXML {
         phi.push_back(DataType( (thePhi<0) ? thePhi+=2*M_PI : thePhi ));
         eta.push_back(DataType( particle->momentum().pseudoRapidity() ));
         code.push_back(DataType( particle->pdg_id() ));
-        id.push_back(DataType( particle->barcode() ));
+        id.push_back(DataType( HepMC::barcode(*particle) ));
 
         // Get the vertex information
-        HepMC::GenVertex* vertex =  particle->production_vertex();
+        auto vertex =  particle->production_vertex();
         if (vertex) {
           auto pos=vertex->position();
           rhoVertex.push_back(DataType( std::sqrt(pos.x()*pos.x()+pos.y()*pos.y()+pos.z()*pos.z())*Gaudi::Units::mm/Gaudi::Units::cm ));

@@ -55,7 +55,6 @@ class ITRT_CalDbTool;
 class ITRT_StrawStatusSummaryTool;
 class ITRT_ConditionsSvc;
 class ITRT_DAQ_ConditionsSvc;
-class ITRT_ByteStream_ConditionsSvc;
 class ITRT_StrawNeighbourSvc;
 
 class TRTMonitoringRun3ESD_Alg : public AthMonitorAlgorithm {

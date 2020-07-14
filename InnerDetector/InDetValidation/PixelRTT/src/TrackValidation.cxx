@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CosmicTrackValidation_C
@@ -112,7 +112,7 @@ int CosmicTrackValidation::Read(){
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-int CosmicTrackValidation::Write(){
+int CosmicTrackValidation::Write ATLAS_NOT_THREAD_SAFE (){ // Thread unsafe MultiHisto<ht>::Write method is used.
 
 	TDirectory *current = gDirectory;
 	TDirectory *globaldir = current->mkdir(m_globaldirname.c_str());
@@ -146,7 +146,7 @@ bool CosmicTrackValidation::Fill(Int_t Layer, Double_t GeVTrkPt, Double_t Angle,
 	//if( fabs(Residual) < sqrt((0.5/GeVTrkPt)*(0.5/GeVTrkPt) 
         //    + 5*HighPtRes*5*HighPtRes) ){
 		passed = kTRUE;
-		static std::vector<Double_t> Pars(3);
+                std::vector<Double_t> Pars(3);
 		//Pars[1] = ClusterSize;
 		Pars[0] = Layer;
 		m_AngleProfile->Fill(Angle,nhits,Pars);

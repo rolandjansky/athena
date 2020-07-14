@@ -7,6 +7,10 @@
 #include "xAODTracking/TrackingPrimitives.h"
 #include "PathResolver/PathResolver.h"
 
+namespace {
+  static constexpr double const MeVtoGeV = 1./1000.;
+}
+
 namespace CP {
   
   MuonSelectionTool::MuonSelectionTool( const std::string& name )
@@ -41,6 +45,12 @@ namespace CP {
 		     "MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuGirl_EVEN.weights.xml");
     declareProperty( "MVAreaderFile_ODD_MuGirl", m_MVAreaderFile_ODD_MuGirl =
 		     "MuonSelectorTools/190118_PrelimLowPtMVA/LowPtMVA_Weights/BDTG_9JAN2019_MuGirl_ODD.weights.xml");
+
+    //switch to cut away the tail of very large smearing in MC to mimic the effect of the bad muon veto for 2-station muons in the high-pT selection
+    declareProperty( "DoBadMuonVetoMimic", m_doBadMuonVetoMimic = false );
+
+    //file for bad muon veto mimic cut functions
+    declareProperty( "BMVcutFile", m_BMVcutFile = "MuonSelectorTools/180620_BMVmimicCutFunctions/BMVmimicCutFunctions.root");
 
 
     // DEVELOPEMENT MODE: EXPERTS ONLY!!! 
@@ -206,7 +216,30 @@ namespace CP {
     ATH_CHECK( getHist( file.get(),"tightWP_highPt_rhoCuts",m_tightWP_highPt_rhoCuts) ) ;
     // 
     file->Close();
-  
+
+    
+    //Read bad muon veto efficiency histograms
+    std::string BMVcutFile_fullPath = PathResolverFindCalibFile(m_BMVcutFile);
+
+    ATH_MSG_INFO( "Reading bad muon veto cut functions from " << BMVcutFile_fullPath  );
+    // 
+    std::unique_ptr<TFile> BMVfile ( TFile::Open( BMVcutFile_fullPath.c_str() ,"READ"));
+
+    if( !BMVfile->IsOpen() ){
+      ATH_MSG_ERROR( "Cannot read bad muon veto cut function file from " << BMVcutFile_fullPath );
+      return StatusCode::FAILURE;
+    }
+
+    m_BMVcutFunction_barrel = std::unique_ptr<TF1>( (TF1*)BMVfile->Get("BMVcutFunction_barrel") );
+    m_BMVcutFunction_endcap = std::unique_ptr<TF1>( (TF1*)BMVfile->Get("BMVcutFunction_endcap") );
+
+    BMVfile->Close();
+
+    if (!m_BMVcutFunction_barrel || !m_BMVcutFunction_endcap) {
+      ATH_MSG_ERROR( "Cannot read bad muon veto cut functions");
+      return StatusCode::FAILURE;
+    }
+
 
     //Set up TMVA readers for MVA-based low-pT working point
     //E and O refer to even and odd event numbers to avoid applying the MVA on events used for training
@@ -232,7 +265,7 @@ namespace CP {
     m_readerO_MUGIRL->BookMVA("BDTG", weightPath_ODD_MuGirl);
 
     ATH_CHECK( m_eventInfo.initialize() );
-    
+
     // Return gracefully:
     return StatusCode::SUCCESS;
   }
@@ -312,7 +345,7 @@ namespace CP {
       ATH_MSG_VERBOSE( "Muon type: calorimeter-tagged" );
     else if(mu.muonType() == xAOD::Muon::SiliconAssociatedForwardMuon)
       ATH_MSG_VERBOSE( "Muon type: silicon-associated forward" );
-    ATH_MSG_VERBOSE( "Muon pT [GeV]: " << mu.pt()/1000. );
+    ATH_MSG_VERBOSE( "Muon pT [GeV]: " << mu.pt()*MeVtoGeV );
     ATH_MSG_VERBOSE( "Muon eta: " << mu.eta() );
     ATH_MSG_VERBOSE( "Muon phi: " << mu.phi() );
 
@@ -497,7 +530,7 @@ namespace CP {
       }
 
       // Improvement for Loose targeting low-pT muons (pt<7 GeV)
-      if ( mu.pt()/1000.<7. && std::abs(mu.eta())<1.3 && nprecisionLayers>0 && (mu.author()==xAOD::Muon::MuGirl && mu.isAuthor(xAOD::Muon::MuTagIMO)) ) {
+      if ( mu.pt()*MeVtoGeV<7. && std::abs(mu.eta())<1.3 && nprecisionLayers>0 && (mu.author()==xAOD::Muon::MuGirl && mu.isAuthor(xAOD::Muon::MuTagIMO)) ) {
 	ATH_MSG_VERBOSE( "Muon passed selection for loose working point at low pT" );
 	return xAOD::Muon::Loose;
       }
@@ -725,7 +758,7 @@ namespace CP {
     }
 
     // applying Medium selection above pT = 18 GeV 
-    if( mu.pt()/1000.>18. ) {
+    if( mu.pt()*MeVtoGeV>18. ) {
       ATH_MSG_VERBOSE( "pT > 18 GeV - apply medium selection" );
       if( thisMu_quality <= xAOD::Muon::Medium ) {
 	ATH_MSG_VERBOSE( "Muon passed low-pT selection" );
@@ -1092,7 +1125,7 @@ namespace CP {
   bool MuonSelectionTool::passedErrorCutCB( const xAOD::Muon& mu ) const {
     // ::
     if( mu.muonType() != xAOD::Muon::Combined ) return false;
-    // :: 
+    // ::
     double start_cut = 2.5;
     double abs_eta = std::abs(mu.eta());
 
@@ -1141,7 +1174,7 @@ namespace CP {
     const xAOD::TrackParticle* cbtrack = mu.trackParticle( xAOD::Muon::CombinedTrackParticle );
     if( cbtrack ) {
       // ::
-      double pt_CB = (cbtrack->pt() / 1000. < 5000.) ? cbtrack->pt() / 1000. : 5000.; // GeV
+      double pt_CB = (cbtrack->pt()*MeVtoGeV < 5000.) ? cbtrack->pt()*MeVtoGeV : 5000.; // GeV
       double qOverP_CB = cbtrack->qOverP();
       double qOverPerr_CB = std::sqrt( cbtrack->definingParametersCovMatrix()(4,4) );
       // sigma represents the average expected error at the muon's pt/eta 
@@ -1159,8 +1192,48 @@ namespace CP {
       }
     }
     // :: 
+    if( m_use2stationMuonsHighPt && m_doBadMuonVetoMimic && nprecisionLayers == 2) {
+      
+      SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfo);
+      
+      if (eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION)) {
+	ATH_MSG_DEBUG("The current event is a MC event. Use bad muon veto mimic.");
+	return passErrorCutCB && passedBMVmimicCut(mu);
+      }
+    }
+
+    // :: 
     return passErrorCutCB;
   }
+
+
+  bool MuonSelectionTool::passedBMVmimicCut( const xAOD::Muon& mu ) const {
+
+    TF1* cutFunction;
+    double p1,p2;
+    if (std::abs(mu.eta()) < 1.05) {
+      cutFunction = m_BMVcutFunction_barrel.get();
+      p1 = 0.066265;
+      p2 = 0.000210047;
+    }
+    else {
+      cutFunction = m_BMVcutFunction_endcap.get();
+      p1 = 0.0629747;
+      p2 = 0.000196466;
+    }
+
+    double qOpRelResolution = std::hypot(p1,p2*mu.primaryTrackParticle()->pt()*MeVtoGeV);
+
+    double qOverPabs_unsmeared = std::abs(mu.primaryTrackParticle()->definingParameters()[4]);
+    double qOverPabs_smeared = 1.0 / (mu.pt() * std::cosh(mu.eta()));
+
+    if ( (qOverPabs_smeared - qOverPabs_unsmeared) / (qOpRelResolution*qOverPabs_unsmeared) < cutFunction->Eval(mu.primaryTrackParticle()->pt()*MeVtoGeV) )
+      return false;
+    else
+      return true;
+  }
+
+
 
   bool MuonSelectionTool::passedMuonCuts( const xAOD::Muon& mu ) const {
     // ::
@@ -1260,7 +1333,8 @@ namespace CP {
   bool MuonSelectionTool::passTight( const xAOD::Muon& mu, float rho, float oneOverPSig ) const
   {
     float symmetric_eta = std::abs( mu.eta() );
-    float pt = mu.pt() / 1000.0; // GeV                                                                                                                                                                                                                                                                                                                                     
+    float pt = mu.pt()*MeVtoGeV; // GeV
+
     // Impose pT and eta cuts; the bounds of the cut maps  
     if( pt < 4.0 || symmetric_eta >= 2.5 ) return false;
     ATH_MSG_VERBOSE( "Muon is passing tight WP kinematic cuts with pT,eta " << mu.pt() << "  ,  " << mu.eta()  );

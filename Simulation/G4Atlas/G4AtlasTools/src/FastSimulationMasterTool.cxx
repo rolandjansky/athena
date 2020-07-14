@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Base class
@@ -12,9 +12,7 @@
 
 FastSimulationMasterTool::FastSimulationMasterTool(const std::string& type, const std::string& name, const IInterface* parent)
   : base_class(type,name,parent)
-  , m_FastSimList(this)
 {
-  declareProperty( "FastSimulations" , m_FastSimList , "Tool handle array of fast simulation tools" );
 }
 
 StatusCode FastSimulationMasterTool::initializeFastSims(){

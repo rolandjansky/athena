@@ -8,7 +8,7 @@
 #include <string>
 #include "TrigInterfaces/HypoAlgo.h"
 
-#include "TrigMuonBackExtrapolator/ITrigMuonBackExtrapolator.h"
+#include "TrigMuonToolInterfaces/ITrigMuonBackExtrapolator.h"
 
 class StoreGateSvc;
 class TriggerElement;

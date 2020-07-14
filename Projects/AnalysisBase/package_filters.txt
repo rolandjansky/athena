@@ -94,7 +94,7 @@
 + PhysicsAnalysis/MuonID/MuonIDAnalysis/.*
 + PhysicsAnalysis/MuonID/MuonSelectorTools
 + PhysicsAnalysis/TauID/DiTauMassTools
-#+ PhysicsAnalysis/TauID/TauAnalysisTools
++ PhysicsAnalysis/TauID/TauAnalysisTools
 + PhysicsAnalysis/TrackingID/.*
 + Reconstruction/EventShapes/EventShapeInterface
 #+ Reconstruction/Jet/BoostedJetTaggers
@@ -116,6 +116,7 @@
 + Reconstruction/egamma/egammaMVACalib
 + Reconstruction/egamma/egammaRecEvent
 + Reconstruction/tauRecTools
++ Reconstruction/PanTau/PanTauAlgs
 + Tools/ART
 + Tools/DirectIOART
 + Tools/PathResolver

@@ -528,7 +528,7 @@ std::vector<SiHit> PixelPrepDataToxAOD::findAllHitsCompatibleWithCluster( const 
     else
     {
 	bool foundHit = false;
-	for ( const auto barcodeSDOColl : trkBCs )
+	for ( const auto& barcodeSDOColl : trkBCs )
 	{
 	    for ( const auto barcode : barcodeSDOColl )
 	    {

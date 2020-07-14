@@ -71,6 +71,8 @@ def BCM_OverlayDigitizationTool(name="BCM_OverlayDigitizationTool",**kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     if overlayFlags.isOverlayMT():
         kwargs.setdefault("OnlyUseContainerName", False)
+    # Disable the noise
+    kwargs.setdefault("ModNoise", [ 0., 0., 0., 0., 0., 0., 0., 0. ])
     return BCM_DigitizationTool(name,**kwargs)
 
 def BCM_OverlayDigitization(name="BCM_OverlayDigitization",**kwargs):

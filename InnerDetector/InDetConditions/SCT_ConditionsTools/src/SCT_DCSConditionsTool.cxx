@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // New SCT_DCSConditions Tool, based on existing tool in SCT_ConditionsAlgs
@@ -29,13 +29,12 @@ StatusCode SCT_DCSConditionsTool::initialize() {
   }
   
   // Read Cond Handle Keys
-  if ((m_readAllDBFolders and m_returnHVTemp) or m_returnHVTemp) {
-    ATH_CHECK(m_condKeyHV.initialize());
-    ATH_CHECK(m_condKeyTemp0.initialize());
-  }
-  if ((m_readAllDBFolders and m_returnHVTemp) or (not m_readAllDBFolders and not m_returnHVTemp)) {
-    ATH_CHECK(m_condKeyState.initialize());
-  }
+  bool useHVTemp = (m_readAllDBFolders and m_returnHVTemp) or m_returnHVTemp;
+  ATH_CHECK(m_condKeyHV.initialize (useHVTemp));
+  ATH_CHECK(m_condKeyTemp0.initialize (useHVTemp));
+
+  bool useState = (m_readAllDBFolders and m_returnHVTemp) or (not m_readAllDBFolders and not m_returnHVTemp);
+  ATH_CHECK(m_condKeyState.initialize(useState));
 
   return StatusCode::SUCCESS;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetMultipleVertexSeedFinder_SlidingWindowMultiSeedFinder_H
@@ -55,7 +55,7 @@ namespace InDet
     
    float m_clusterLength;
    float m_breakingDistance;
-   mutable float m_addingDistance;
+   float m_addingDistance;
    bool   m_useMaxInCluster;
    int m_ignoreLevel;
    bool m_ignoreBeamSpot;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_G4_SD_TRTSensitiveDetector_h
@@ -8,6 +8,7 @@
 // Base class
 #include "G4VSensitiveDetector.hh"
 
+#include "CxxUtils/checker_macros.h"
 #include "InDetSimEvent/TRTUncompressedHitCollection.h"
 #include "StoreGate/WriteHandle.h"
 #include <gtest/gtest_prod.h>
@@ -15,13 +16,12 @@
 class TRTParameters;
 class TRTProcessingOfBarrelHits;
 class TRTProcessingOfEndCapHits;
-class TRTOutputFile;
 
 class G4HCofThisEvent;
 class G4Step;
 class G4TouchableHistory;
 
-class TRTSensitiveDetector : public G4VSensitiveDetector
+class ATLAS_NOT_THREAD_SAFE TRTSensitiveDetector : public G4VSensitiveDetector // Thread unsafe TRTParameters, TRTProcessingOfBarrelHits, TRTProcessingOfEndCapHits classes is used.
 {
  FRIEND_TEST( TRTSensitiveDetectortest, Initialize);
  FRIEND_TEST( TRTSensitiveDetectortest, ProcessHits );

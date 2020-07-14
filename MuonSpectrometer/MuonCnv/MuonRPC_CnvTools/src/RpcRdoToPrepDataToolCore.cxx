@@ -4,7 +4,6 @@
 
 #include "RpcRdoToPrepDataToolCore.h"
 
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonTrigCoinData/RpcCoinDataContainer.h"
@@ -31,7 +30,6 @@ Muon::RpcRdoToPrepDataToolCore::RpcRdoToPrepDataToolCore( const std::string& typ
     m_reduceCablingOverlap(true),         //!< toggle on/off the overlap removal
     m_timeShift(0.),                      //!< any global time shift ?!
     m_decodeData(true),                   //!< toggle on/off the decoding of RPC RDO into RpcPrepData
-    m_muonMgr(nullptr),
     m_rpcRdoDecoderTool("Muon::RpcRDO_Decoder", this),
     m_fullEventDone(false)
 {
@@ -90,10 +88,6 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::initialize() {
   ATH_MSG_INFO("etaphi_coincidenceTime             "<<m_etaphi_coincidenceTime);
   ATH_MSG_INFO("overlap_timeTolerance              "<<m_overlap_timeTolerance );
   ATH_MSG_INFO("Correct prd time from cool db      "<<m_RPCInfoFromDb         );
-    
-  /// get the detector descriptor manager
-  ATH_CHECK(detStore()->retrieve(m_muonMgr));
-  ATH_MSG_VERBOSE("MuonDetectorManager retrieved");
   ATH_CHECK(m_rpcRdoDecoderTool.retrieve());  
   ATH_CHECK(m_idHelperSvc.retrieve());
   ATH_CHECK(m_rpcReadKey.initialize());
@@ -102,6 +96,7 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::initialize() {
   ATH_CHECK(m_rpcPrepDataContainerKey.initialize());
   ATH_CHECK(m_rpcCoinDataContainerKey.initialize());
   ATH_CHECK(m_eventInfo.initialize());
+  ATH_CHECK(m_muDetMgrKey.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -192,8 +187,7 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::decode( std::vector<IdentifierHash>& 
   }    
                                                     
   ///////////// here the RDO container is retrieved and filled -whatever input type we start with- => check the size 
-  RpcPadContainer::const_iterator rdoColli;
-  if (rdoContainerHandle->begin() == rdoContainerHandle->end()) {
+  if (rdoContainerHandle->numberOfCollections() == 0) {
     // empty pad container - no rpc rdo in this event
     ATH_MSG_WARNING("Empty pad container - no rpc rdo in this event ");
     return StatusCode::SUCCESS;
@@ -220,12 +214,9 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::decode( std::vector<IdentifierHash>& 
     // seeded decoding
     if (sizeVectorRequested != 0) {
       ATH_MSG_DEBUG("Start loop over pads hashes - seeded mode ");
-      RpcPadContainer::const_iterator rdoColli;
-      const RpcPad* rdoColl;
-      for (std::vector<IdentifierHash>::iterator iPadHash  = rdoHashVec.begin(); iPadHash != rdoHashVec.end(); ++iPadHash) {
-        rdoColli =  rdoContainerHandle->indexFind(*iPadHash);
-        if(rdoColli != rdoContainerHandle->end()) {
-          rdoColl = *rdoColli;
+      for (std::vector<IdentifierHash>::const_iterator iPadHash  = rdoHashVec.begin(); iPadHash != rdoHashVec.end(); ++iPadHash) {
+        const RpcPad* rdoColl =  rdoContainerHandle->indexFindPtr(*iPadHash);
+        if(rdoColl != nullptr) {
           ++ipad;
        
           ATH_MSG_DEBUG("A new pad here n. "<<ipad<<", online id " << (int)(rdoColl->identifyHash()) << ", with " << rdoColl->size() <<" CM inside ");
@@ -301,17 +292,17 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::decode( std::vector<IdentifierHash>& 
   for (std::vector<IdentifierHash>::const_iterator ii=idWithDataVect.begin(); ii!=idWithDataVect.end();++ii) {    
     ++nn;
     ATH_MSG_VERBOSE("hash = "<<(int)(*ii)<<" is the "<<nn<<"-th in this event ");
-    RpcPrepDataContainer::const_iterator rpcColli = m_rpcPrepDataContainer->indexFind(*ii);
-    if (rpcColli != m_rpcPrepDataContainer->end()) {      
-      if (!(*rpcColli)->empty()) {	
+    auto rpcColl = m_rpcPrepDataContainer->indexFindPtr(*ii);
+    if (rpcColl != nullptr) {
+      if (!rpcColl->empty()) {
 	temIdWithDataVect.push_back(*ii);
 	ATH_MSG_VERBOSE("Accepting non empty coll. "
-			<<m_idHelperSvc->rpcIdHelper().show_to_string((*rpcColli)->identify())
+			<<m_idHelperSvc->rpcIdHelper().show_to_string(rpcColl->identify())
 			<<" hash = "<<(int)*ii<<" in PREPDATA container at "<<m_rpcPrepDataContainer);
       }
       else {	
 	ATH_MSG_DEBUG("Removing from the rpc prep data container empty coll. "
-		      <<m_idHelperSvc->rpcIdHelper().show_to_string((*rpcColli)->identify())
+		      <<m_idHelperSvc->rpcIdHelper().show_to_string(rpcColl->identify())
 		      <<" hash = "<<(int)*ii<<" in PREPDATA container at "<<m_rpcPrepDataContainer);
 	delete m_rpcPrepDataContainer->removeCollection(*ii); // from Scott Snyder #43275 // fix mem.leak
       }            
@@ -444,15 +435,12 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::decode( const std::vector<uint32_t>& 
     // seeded decoding (for full scan, use the hashId-based method)
     ATH_MSG_DEBUG("Start loop over pads hashes - seeded mode ");
     
-    RpcPadContainer::const_iterator rdoColli;
-    const RpcPad* rdoColl;
     for (IdentifierHash padHashId : rdoHashVec) {
-      rdoColli = rdoContainerHandle->indexFind(padHashId);
-      if (rdoColli == rdoContainerHandle->end()) {
+      const RpcPad*  rdoColl = rdoContainerHandle->indexFindPtr(padHashId);
+      if (rdoColl == nullptr) {
         ATH_MSG_DEBUG("Requested pad with online id " << (unsigned int)padHashId << " not found in the rdoContainerHandle.");
         continue;
       }
-      rdoColl = *rdoColli;
       ++ipad;
       ATH_MSG_DEBUG("A new pad here n." << ipad << ", online id " << (int)(rdoColl->identifyHash()) << ", with " << rdoColl->size() <<" CM inside ");
       CHECK(
@@ -491,18 +479,18 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::decode( const std::vector<uint32_t>& 
   for (IdentifierHash hashId : idWithDataVect) {   
     ++nn;
     ATH_MSG_VERBOSE("collection n. " << nn << " has hashId = " << (unsigned int)hashId);
-    RpcPrepDataContainer::const_iterator rpcColli = m_rpcPrepDataContainer->indexFind(hashId);
-    if (rpcColli != m_rpcPrepDataContainer->end()) {
-      if (!(*rpcColli)->empty()) {
+    auto rpcColl = m_rpcPrepDataContainer->indexFindPtr(hashId);
+    if (rpcColl != nullptr) {
+      if (!rpcColl->empty()) {
         temIdWithDataVect.push_back(hashId);
         ATH_MSG_VERBOSE("Accepting non empty coll. "
-                     << m_idHelperSvc->rpcIdHelper().show_to_string((*rpcColli)->identify())
+                     << m_idHelperSvc->rpcIdHelper().show_to_string(rpcColl->identify())
                      << " hashId = " << (unsigned int)hashId
                      << " in PREPDATA container at " << m_rpcPrepDataContainer);
       }
       else {
         ATH_MSG_DEBUG("Removing from the rpc prep data container empty coll. "
-                   << m_idHelperSvc->rpcIdHelper().show_to_string((*rpcColli)->identify())
+                   << m_idHelperSvc->rpcIdHelper().show_to_string(rpcColl->identify())
                    << " hashId = " << (unsigned int)hashId
                    << " in PREPDATA container at " << m_rpcPrepDataContainer);
         delete m_rpcPrepDataContainer->removeCollection(hashId);
@@ -652,11 +640,8 @@ void Muon::RpcRdoToPrepDataToolCore::printPrepData()
   int icteta = 0;
   int icttrg = 0;
   ATH_MSG_INFO("--------------------------------------------------------------------------------------------");
-  for (IdentifiableContainer<Muon::RpcPrepDataCollection>::const_iterator rpcColli = m_rpcPrepDataContainer->begin();
-       rpcColli!=m_rpcPrepDataContainer->end(); ++rpcColli) {
+  for (const Muon::RpcPrepDataCollection* rpcColl : *m_rpcPrepDataContainer) {
 
-    const Muon::RpcPrepDataCollection* rpcColl = *rpcColli;
-        
     if ( rpcColl->size() > 0 ) {
       ATH_MSG_INFO("PrepData Collection ID "<<m_idHelperSvc->rpcIdHelper().show_to_string(rpcColl->identify()));
       RpcPrepDataCollection::const_iterator it_rpcPrepData;
@@ -1110,8 +1095,9 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::processPad(const RpcPad *rdoColl,
             }
           }
         }
-	      // det element
-	      const RpcReadoutElement *descriptor = m_muonMgr->getRpcReadoutElement(channelId);
+        SG::ReadCondHandle<MuonGM::MuonDetectorManager> muDetMgrHandle{m_muDetMgrKey};
+        const MuonGM::MuonDetectorManager* muDetMgr = muDetMgrHandle.cptr();
+        const RpcReadoutElement* descriptor = muDetMgr->getRpcReadoutElement(channelId);
 	      
 	      // here check validity
 	      // if invalid, reset flags

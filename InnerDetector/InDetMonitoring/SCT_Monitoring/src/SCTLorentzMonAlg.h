@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCTLORENTZMONALG_H
@@ -12,8 +12,9 @@
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
-#include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkTrack/TrackCollection.h"
+#include "TrkToolInterfaces/ITrackSummaryTool.h"
+#include "TrkToolInterfaces/IPRD_AssociationTool.h"
 
 class SCT_ID;
 
@@ -31,10 +32,13 @@ class SCTLorentzMonAlg : public AthMonitorAlgorithm {
   const SCT_ID* m_pSCTHelper{nullptr};
 
   ToolHandle<Trk::ITrackSummaryTool> m_trackSummaryTool{this, "TrackSummaryTool", "InDetTrackSummaryTool"};
+  ToolHandle<Trk::IPRD_AssociationTool> m_assoTool{this, "AssociationTool", "InDet::InDetPRD_AssociationToolGangedPixels"};
 
   /// Name of the Track collection to use
   SG::ReadHandleKey<TrackCollection> m_tracksName{this, "tracksName", "CombinedInDetTracks"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
+
+  BooleanProperty m_rejectSharedHits{this, "RejectSharedHits", false};
 
   int findAnglesToWaferSurface(const float (&vec)[3],
                                const float& sinAlpha,

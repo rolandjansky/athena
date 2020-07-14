@@ -302,12 +302,9 @@ StatusCode LArTTL1Maker::initialize()
   ATH_CHECK(m_fSamplKey.initialize());
 
   //Initialize read-handle keys
-  if (!m_PileUp) {
-    for (auto& dhk : m_xxxHitContainerName) {
-      ATH_CHECK(dhk.initialize());
-    }
+  for (auto& dhk : m_xxxHitContainerName) {
+    ATH_CHECK(dhk.initialize( !m_PileUp ));
   }
-
   
   ATH_CHECK(m_EmTTL1ContainerName.initialize());
   ATH_CHECK(m_HadTTL1ContainerName.initialize());

@@ -138,7 +138,7 @@ InDetPhysHitDecoratorAlg::decorateTrack(const xAOD::TrackParticle &particle,
                                          std::vector< SG::WriteDecorHandle<xAOD::TrackParticleContainer,std::vector<float> > > &float_decor,
                                          std::vector< SG::WriteDecorHandle<xAOD::TrackParticleContainer,std::vector<int> > > &int_decor) const
 {
-  static int trackNumber(0);
+  int trackNumber(0);
 
   typedef std::tuple<int, int, int, float, float, float, float, int, int, int> SingleResult_t;
   typedef std::vector<SingleResult_t> TrackResult_t;
@@ -424,7 +424,6 @@ const Trk::TrackParameters*
 InDetPhysHitDecoratorAlg::getUnbiasedTrackParameters(const Trk::TrackParameters* trkParameters,
                                                       const Trk::MeasurementBase* measurement,
                                                       bool &isUnbiased) const {
-  static bool alreadyWarned(false);
   const Trk::TrackParameters* unbiasedTrkParameters(trkParameters);
 
   if (!m_updatorHandle.empty() && (isUnbiased)) {
@@ -437,11 +436,11 @@ InDetPhysHitDecoratorAlg::getUnbiasedTrackParameters(const Trk::TrackParameters*
         ATH_MSG_INFO(  "Could not get unbiased track parameters, use normal parameters" );
         isUnbiased = false;
       }
-    } else if (not alreadyWarned) {
+    } else if (not m_alreadyWarned) {
       // warn only once!
       ATH_MSG_WARNING("TrackParameters contain no covariance, unbiased track states can not be calculated "
                       "(ie. pulls and residuals will be too small)" );
-      alreadyWarned = true;
+      m_alreadyWarned = true;
       isUnbiased = false;
     } else {
       isUnbiased = false;

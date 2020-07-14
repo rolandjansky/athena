@@ -150,7 +150,7 @@ int main()
 {
   std::cout << "AthenaServices/ThinningCacheTool_test\n";
   ISvcLocator* svcloc = nullptr;
-  if (!Athena_test::initGaudi("ThinningCacheTool_test.txt", svcloc)) {
+  if (!Athena_test::initGaudi("AthenaServices/ThinningCacheTool_test.txt", svcloc)) {
     std::cerr << "This test can not be run" << std::endl;
     return 1;
   }  

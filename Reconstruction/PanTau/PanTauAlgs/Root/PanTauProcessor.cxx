@@ -35,11 +35,11 @@ PanTau::PanTauProcessor::PanTauProcessor(const std::string& name)
         
     //Initialise members for tools
     m_Tool_InformationStore("PanTau::Tool_InformationStore/Tool_InformationStore"),
-    m_Tool_TauConstituentGetter(this,"PanTau::Tool_TauConstituentGetter/Tool_TauConstituentGetter"),
-    m_Tool_TauConstituentSelector(this,"PanTau::Tool_TauConstituentSelector/Tool_TauConstituentSelector"),
-    m_Tool_FeatureExtractor(this,"PanTau::Tool_FeatureExtractor/Tool_FeatureExtractor"),
-    m_Tool_DecayModeDeterminator(this,"PanTau::Tool_DecayModeDeterminator/Tool_DecayModeDeterminator"),
-    m_Tool_DetailsArranger(this,"PanTau::Tool_DetailsArranger/Tool_DetailsArranger")
+    m_Tool_TauConstituentGetter("PanTau::Tool_TauConstituentGetter/Tool_TauConstituentGetter", this),
+    m_Tool_TauConstituentSelector("PanTau::Tool_TauConstituentSelector/Tool_TauConstituentSelector", this),
+    m_Tool_FeatureExtractor("PanTau::Tool_FeatureExtractor/Tool_FeatureExtractor", this),
+    m_Tool_DecayModeDeterminator("PanTau::Tool_DecayModeDeterminator/Tool_DecayModeDeterminator", this),
+    m_Tool_DetailsArranger("PanTau::Tool_DetailsArranger/Tool_DetailsArranger", this)
 {
     
     //Connect python variables to member functions...

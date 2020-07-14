@@ -5,16 +5,6 @@
 # Declare the package name:
 atlas_subdir( TrackWriteFastSim )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/StoreGate
-                          Simulation/G4Sim/TrackRecord
-                          PRIVATE
-                          GaudiKernel
-                          Simulation/G4Atlas/G4AtlasInterfaces
-                          Simulation/G4Atlas/G4AtlasTools
-                          Simulation/G4Sim/MCTruth )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Geant4 )

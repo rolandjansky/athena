@@ -28,7 +28,7 @@
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
 #include "TrigInDetToolInterfaces/ITrigInDetTrackExtrapolator.h"
-#include "TrigInDetTrackExtrapolator/TrigInDetTrackExtrapolator.h"
+#include "TrigInDetTrackExtrapolator.h"
 
 TrigInDetTrackExtrapolator::TrigInDetTrackExtrapolator(const std::string& t, 
 						       const std::string& n,

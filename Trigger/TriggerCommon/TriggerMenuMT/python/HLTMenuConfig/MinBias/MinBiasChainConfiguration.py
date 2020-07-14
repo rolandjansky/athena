@@ -12,7 +12,8 @@ from AthenaCommon.CFElements import seqAND
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
 from TrigInDetConfig.InDetSetup import makeInDetAlgs
 from TrigEDMConfig.TriggerEDMRun3 import recordable
-from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm, ViewCreatorInitialROITool
+from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool
 from AthenaCommon.GlobalFlags import globalflags
 #----------------------------------------------------------------
 # fragments generating configuration will be functions in New JO,
@@ -58,7 +59,7 @@ class MinBiasChainConfig(ChainConfigurationBase):
                                  ( 'TagInfo' , 'DetectorStore+ProcessingTags' )]
 
         # Make sure required objects are still available at whole-event level
-        from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
+        from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
         topSequence.SGInputLoader.Load += [( 'SCT_ID' , 'DetectorStore+SCT_ID' ),
                                            ( 'PixelID' , 'DetectorStore+PixelID' ),
@@ -74,10 +75,6 @@ class MinBiasChainConfig(ChainConfigurationBase):
         if not conddb.folderRequested( '/PIXEL/DCS/FSMSTATUS' ):
           verifier.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATUS' )]
           topSequence.SGInputLoader.Load += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATUS' )]
-        condSeq = AthSequencer( "AthCondSeq" )
-        if not hasattr( condSeq, 'SCT_DCSConditionsStatCondAlg' ):
-          verifier.DataObjects += [( 'SCT_DCSStatCondData' , 'ConditionStore+SCT_DCSStatCondData' )]
-          topSequence.SGInputLoader.Load += [( 'SCT_DCSStatCondData' , 'ConditionStore+SCT_DCSStatCondData' )]
 
         SpList = idAlgs[:-2]
 

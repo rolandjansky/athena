@@ -1,10 +1,9 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from BTagging.BTagTrackToJetAssociatorConfig import BTagTrackToJetAssociatorCfg
 from BTagging.BTagMuonToJetAssociatorConfig import BTagMuonToJetAssociatorCfg
-from BTagging.BTaggingFlags import BTaggingFlags
 
 Analysis__BTagTrackAssociation=CompFactory.Analysis.BTagTrackAssociation
 
@@ -13,6 +12,7 @@ def BTagTrackAssociationCfg(flags, name, JetCollection, TaggerList, options={}):
     acc=ComponentAccumulator()
 
     # Setup associators
+    doStandardAssoc = True
     BTagTrackToJetAssociatorList = []
     BTagTrackToJetAssocNameList = []
     if 'IP2D' in TaggerList or 'IP3D' in TaggerList:
@@ -49,7 +49,7 @@ def BTagTrackAssociationCfg(flags, name, JetCollection, TaggerList, options={}):
     options.setdefault('MuonToJetAssociatorList', MuonToJetAssociatorList)
     options.setdefault('MuonToJetAssocNameList', MuonToJetAssocNameList)
     options.setdefault('MuonContainerNameList', MuonContainerNameList)
-    options.setdefault('BTagAssociation', BTaggingFlags.doStandardAssoc)
+    options.setdefault('BTagAssociation', doStandardAssoc)
     options['name'] = name
     tool = Analysis__BTagTrackAssociation(**options)
 

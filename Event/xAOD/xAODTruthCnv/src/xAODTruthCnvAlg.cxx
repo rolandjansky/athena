@@ -402,7 +402,7 @@ namespace xAODMaker {
     
     
     // A helper to set up a TruthVertex (without filling the ELs)
-    void xAODTruthCnvAlg::fillVertex(xAOD::TruthVertex* tv, const HepMC::GenVertexPtr gv) {
+    void xAODTruthCnvAlg::fillVertex(xAOD::TruthVertex* tv, HepMC::ConstGenVertexPtr gv) {
         tv->setId(gv->id());
         tv->setBarcode(HepMC::barcode(gv));
         
@@ -419,7 +419,7 @@ namespace xAODMaker {
     
     
     // A helper to set up a TruthParticle (without filling the ELs)
-    void xAODTruthCnvAlg::fillParticle(xAOD::TruthParticle* tp, const HepMC::GenParticlePtr gp) {
+    void xAODTruthCnvAlg::fillParticle(xAOD::TruthParticle* tp, HepMC::ConstGenParticlePtr gp) {
         tp->setPdgId(gp->pdg_id());
         tp->setBarcode(HepMC::barcode(gp));
         tp->setStatus(gp->status());

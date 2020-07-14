@@ -36,11 +36,6 @@ PFRecoverSplitShowersTool::~PFRecoverSplitShowersTool() {}
 
 StatusCode PFRecoverSplitShowersTool::initialize(){
 
-  if (m_matchingTool.retrieve().isFailure()){
-    ATH_MSG_WARNING("Couldn't retrieve PFTrackClusterMatchingTool");
-    return StatusCode::SUCCESS;
-  }
-
   if (m_theEOverPTool.retrieve().isFailure()){
     ATH_MSG_WARNING("Cannot find eflowEOverPTool");
     return StatusCode::SUCCESS;
@@ -54,12 +49,14 @@ StatusCode PFRecoverSplitShowersTool::initialize(){
   return StatusCode::SUCCESS;
 }
 
-void PFRecoverSplitShowersTool::execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer*, eflowRecClusterContainer*) const {
+void PFRecoverSplitShowersTool::execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer* eflowRecTracks, eflowRecClusterContainer* eflowRecClusters) const {
 
   ATH_MSG_DEBUG("Executing");
 
   eflowData data;
   data.caloObjects = theEflowCaloObjectContainer;
+  data.tracksToRecover.reserve(eflowRecTracks->size());
+  data.clustersToConsider.reserve(eflowRecClusters->size());
 
   fillTracksToRecover(data);
   fillClustersToConsider(data);
@@ -91,12 +88,10 @@ void PFRecoverSplitShowersTool::fillClustersToConsider(eflowData& data) const {
         if (0 == (int)theCellLink->size()){ continue; }
 
         thisEflowCaloObject->efRecCluster(i)->clearTrackMatches();
-        data.clustersToConsider.push_back(thisEflowCaloObject->efRecCluster(i));
+        data.clustersToConsider.insert(thisEflowCaloObject->efRecCluster(i));
         thisEflowCaloObject->clearClusters();
     }
   }
-
-  std::sort(data.clustersToConsider.begin(),data.clustersToConsider.end(),eflowRecCluster::SortDescendingPt());
 }
 
 void PFRecoverSplitShowersTool::fillTracksToRecover(eflowData& data) const {
@@ -163,26 +158,35 @@ unsigned int PFRecoverSplitShowersTool::matchAndCreateEflowCaloObj(eflowData& da
       const xAOD::TrackParticle* track = thisEfRecTrack->getTrack();
       ATH_MSG_DEBUG("Recovering charged EFO with e,pt, eta and phi " << track->e() << ", " << track->pt() << ", " << track->eta() << " and " << track->phi());
     }
-    /* Get list of matched clusters */
-    std::vector<eflowRecCluster*> matchedClusters = m_matchingTool->doMatches(thisEfRecTrack, data.clustersToConsider, -1);
+    // Get list of matched clusters in the dR<0.2 cone -- already identified
+    const std::vector<eflowTrackClusterLink*>* matchedClusters_02 = thisEfRecTrack->getAlternativeClusterMatches("cone_02");
+    if (!matchedClusters_02) { continue; }
 
     if (msgLvl(MSG::DEBUG)){
-      for (auto thisEFRecCluster : matchedClusters) ATH_MSG_DEBUG("Have matched cluster with e, pt, eta, phi of " << thisEFRecCluster->getCluster()->e() << ", " <<  thisEFRecCluster->getCluster()->eta() << ", " << thisEFRecCluster->getCluster()->eta() << " and " << thisEFRecCluster->getCluster()->phi());
+      for (auto trkClusLink : *matchedClusters_02) {
+	const eflowRecCluster* thisEFRecCluster = trkClusLink->getCluster();
+	ATH_MSG_DEBUG("Have matched cluster with e, pt, eta, phi of " << thisEFRecCluster->getCluster()->e() << ", " <<  thisEFRecCluster->getCluster()->eta() << ", " << thisEFRecCluster->getCluster()->eta() << " and " << thisEFRecCluster->getCluster()->phi());
+      }
     }
 
-    if (matchedClusters.empty()) { continue; }
+    if (matchedClusters_02->empty()) { continue; }
 
     /* Matched cluster: create TrackClusterLink and add it to both the track and the cluster (eflowCaloObject will be created later) */
-    for (auto efRecCluster : matchedClusters){
-      eflowTrackClusterLink* trackClusterLink = eflowTrackClusterLink::getInstance(thisEfRecTrack,efRecCluster);
+    for (auto trkClusLink : *matchedClusters_02){
+      eflowRecCluster* thisEFRecCluster = trkClusLink->getCluster();
+      // Look up whether this cluster is intended for recovery
+      if( data.clustersToConsider.find(trkClusLink->getCluster()) == data.clustersToConsider.end() ) {continue;}
+      eflowTrackClusterLink* trackClusterLink = eflowTrackClusterLink::getInstance(thisEfRecTrack,thisEFRecCluster);
       thisEfRecTrack->addClusterMatch(trackClusterLink);
-      efRecCluster->addTrackMatch(trackClusterLink);
+      thisEFRecCluster->addTrackMatch(trackClusterLink);
     }
   }
 
   /* Create all eflowCaloObjects that contain eflowRecCluster */
   eflowCaloObjectMaker makeCaloObject;
-  unsigned int nCaloObjects = makeCaloObject.makeTrkCluCaloObjects(data.tracksToRecover, data.clustersToConsider,
+  std::vector<eflowRecCluster*> v_clustersToConsider(data.clustersToConsider.begin(),data.clustersToConsider.end());
+  std::sort(v_clustersToConsider.begin(),v_clustersToConsider.end(),eflowRecCluster::SortDescendingPt());
+  unsigned int nCaloObjects = makeCaloObject.makeTrkCluCaloObjects(data.tracksToRecover, v_clustersToConsider,
 								   data.caloObjects);
   ATH_MSG_DEBUG("PFRecoverSplitShowersTool created " << nCaloObjects << " CaloObjects");
 
@@ -214,9 +218,10 @@ void PFRecoverSplitShowersTool::performSubtraction(eflowCaloObject* thisEflowCal
     matchedClusters.clear();
     std::vector<eflowTrackClusterLink*> links = thisEfRecTrack->getClusterMatches();
     for ( auto thisEFlowTrackClusterLink : links) matchedClusters.push_back(thisEFlowTrackClusterLink->getCluster());
+    std::sort(matchedClusters.begin(),matchedClusters.end(),eflowRecCluster::SortDescendingPt());
 
     if (msgLvl(MSG::DEBUG)){
-      for (auto thisClus : matchedClusters) ATH_MSG_DEBUG("Cluster with e,pt, eta and phi of " << thisClus->getCluster()->e() << ", "<< thisClus->getCluster()->pt() << ", " << thisClus->getCluster()->eta() << " and " << thisClus->getCluster()->phi() << " will be subtracted");
+      for (auto thisClus : matchedClusters) ATH_MSG_DEBUG("Cluster " << thisClus->getCluster()->index() << " with e,pt, eta and phi of " << thisClus->getCluster()->e() << ", "<< thisClus->getCluster()->pt() << ", " << thisClus->getCluster()->eta() << " and " << thisClus->getCluster()->phi() << " will be subtracted");
     }
     /* Do subtraction */
     std::vector<std::pair<xAOD::CaloCluster*, bool> > clusterSubtractionList;
@@ -255,7 +260,7 @@ void PFRecoverSplitShowersTool::performSubtraction(eflowCaloObject* thisEflowCal
           else clusterSubtractedEnergyRatios.push_back(NAN);
         }
 
-	      pfSubtractionStatusSetter.markSubtractionStatus(clusterSubtractionList, clusterSubtractedEnergyRatios, *thisEflowCaloObject);
+	pfSubtractionStatusSetter.markSubtractionStatus(clusterSubtractionList, clusterSubtractedEnergyRatios, *thisEflowCaloObject);
 	
         } 
 

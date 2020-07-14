@@ -3,7 +3,7 @@
 */
 
 
-#include "TrigL2MuonSA/CscRegUtils.h"
+#include "CscRegUtils.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 

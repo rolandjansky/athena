@@ -4,7 +4,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 def MuonCombinedInDetExtensionAlg(flags, name="MuonCombinedInDetExtensionAlg",**kwargs):
-    from MuonCombinedRecToolsConfig import MuonCaloTagToolCfg
+    from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCaloTagToolCfg
     tools = []
     result = ComponentAccumulator()
     if flags.MuonCombined.doCaloTrkMuId:
@@ -22,7 +22,7 @@ def MuonCombinedInDetExtensionAlg(flags, name="MuonCombinedInDetExtensionAlg",**
     return result
 
 def MuonCaloTagAlgCfg(flags, name="MuonCaloTagAlg",**kwargs):
-    from MuonCombinedRecToolsConfig import MuonCaloTagToolCfg
+    from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCaloTagToolCfg
     
     tools=[]
     result = MuonCaloTagToolCfg(flags)
@@ -41,7 +41,7 @@ def MuonCaloTagAlgCfg(flags, name="MuonCaloTagAlg",**kwargs):
     return result
 
 def MuonSegmentTagAlgCfg(flags, name="MuonSegmentTagAlg", **kwargs ):
-    # from MuonCombinedRecToolsConfig import MuonCaloTagToolCfg FIXME
+    # from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCaloTagToolCfg FIXME
 
     result = MuonSegmentTagToolCfg(flags)
     muon_segment_tag_tool = result.getPrimary()
@@ -97,7 +97,7 @@ def MuonSegmentTagToolCfg(flags, name="MuonSegmentTagTool", **kwargs ):
 
 
 def MuonInsideOutRecoAlgCfg(flags, name="MuonInsideOutRecoAlg", **kwargs ):
-    from MuonCombinedRecToolsConfig import MuonInsideOutRecoToolCfg
+    from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonInsideOutRecoToolCfg
 
     tools = []
     result = MuonInsideOutRecoToolCfg(flags)
@@ -116,7 +116,7 @@ def MuonInsideOutRecoAlgCfg(flags, name="MuonInsideOutRecoAlg", **kwargs ):
     return result
 
 def MuGirlStauAlgCfg(flags, name="MuGirlStauAlg",**kwargs):
-    from MuonCombinedRecToolsConfig import MuonStauRecoToolCfg
+    from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonStauRecoToolCfg
     result = MuonStauRecoToolCfg(flags)
     tools = [result.getPrimary()]
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
@@ -133,7 +133,7 @@ def MuGirlStauAlgCfg(flags, name="MuGirlStauAlg",**kwargs):
 
 
 def MuonCombinedMuonCandidateAlgCfg(flags, name="MuonCombinedMuonCandidateAlg", **kwargs ):
-    from MuonCombinedRecToolsConfig import MuonCandidateToolCfg
+    from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCandidateToolCfg
 
     result = ComponentAccumulator()
 
@@ -155,7 +155,7 @@ def MuonCombinedMuonCandidateAlgCfg(flags, name="MuonCombinedMuonCandidateAlg", 
 
 def MuonCombinedInDetCandidateAlg(flags, name="MuonCombinedInDetCandidateAlg",**kwargs ):
     # FIXME - need to have InDet flags set at this point to know if doForwardTracks is true. 
-    from MuonCombinedRecToolsConfig import MuonCombinedInDetDetailedTrackSelectorToolCfg
+    from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCombinedInDetDetailedTrackSelectorToolCfg
     from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
 
     result = MuonCombinedInDetDetailedTrackSelectorToolCfg(flags)
@@ -224,7 +224,7 @@ def recordMuonCreatorAlgObjs (kw):
 
 
 def MuonCreatorAlgCfg( flags, name="MuonCreatorAlg",**kwargs ):
-    from MuonCombinedRecToolsConfig import MuonCreatorToolCfg
+    from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCreatorToolCfg
     result = MuonCreatorToolCfg(flags, FillTimingInformation=False)
     kwargs.setdefault("MuonCreatorTool",result.popPrivateTools())
     # recordMuonCreatorAlgObjs (kwargs)
@@ -240,7 +240,7 @@ def MuonCreatorAlgCfg( flags, name="MuonCreatorAlg",**kwargs ):
     return result
 
 def StauCreatorAlgCfg(flags, name="StauCreatorAlg", **kwargs ):
-    from MuonCombinedRecToolsConfig import MuonCreatorToolCfg
+    from MuonCombinedConfig.MuonCombinedRecToolsConfig import MuonCreatorToolCfg
     result = MuonCreatorToolCfg(flags, BuildStauContainer=True)
     kwargs.setdefault("MuonCreatorTool",result.popPrivateTools())
     kwargs.setdefault("MuonContainerLocation","Staus")
@@ -398,5 +398,8 @@ if __name__=="__main__":
     # f.close()
     
     if args.run:
-        cfg.run(20)
+        sc = cfg.run(20)
+        if not sc.isSuccess():
+            import sys
+            sys.exit("Execution failed")
         

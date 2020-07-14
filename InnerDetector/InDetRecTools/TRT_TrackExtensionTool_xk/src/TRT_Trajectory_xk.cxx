@@ -65,7 +65,6 @@ void InDet::TRT_Trajectory_xk::initiateForPrecisionSeed
   m_xi2             = 0.;
   m_parameters      = Tp;
 
-  InDet::TRT_DriftCircleContainer::const_iterator w;
   InDet::TRT_DriftCircleCollection::const_iterator ti,te;
 
   std::vector<const InDetDD::TRT_BaseElement*>::iterator d=De.begin(),de=De.end();
@@ -90,10 +89,10 @@ void InDet::TRT_Trajectory_xk::initiateForPrecisionSeed
 
   for(i=Gp.begin(); i!=ie; ++i) {
 
-    IdentifierHash id = (*d)->identifyHash(); w=(*TRTc).indexFind(id);
+    IdentifierHash id = (*d)->identifyHash(); auto w=(*TRTc).indexFindPtr(id);
     bool q;
-    if(w!=(*TRTc).end() && (*w)->begin()!=(*w)->end()) {
-      ti = (*w)->begin(); te = (*w)->end  ();
+    if(w!=nullptr && w->begin()!=w->end()) {
+      ti = w->begin(); te = w->end  ();
 
       q = m_elements[m_nElements].initiateForPrecisionSeed(true,(*d),ti,te,(*i),A,m_roadwidth2);
       if(q && m_elements[m_nElements].isCluster()) ++m_naElements;
@@ -148,7 +147,6 @@ void InDet::TRT_Trajectory_xk::initiateForTRTSeed
   m_xi2             = 0.;
   m_parameters      = Tp;
 
-  InDet::TRT_DriftCircleContainer::const_iterator w;
   InDet::TRT_DriftCircleCollection::const_iterator ti,te;
 
   std::vector<const InDetDD::TRT_BaseElement*>::iterator d=De.begin(),de=De.end();
@@ -173,11 +171,11 @@ void InDet::TRT_Trajectory_xk::initiateForTRTSeed
 
   for(i=Gp.begin(); i!=ie; ++i) {
 
-    IdentifierHash id = (*d)->identifyHash(); w=(*TRTc).indexFind(id);
+    IdentifierHash id = (*d)->identifyHash(); auto w=(*TRTc).indexFindPtr(id);
     bool q;
-    if(w!=(*TRTc).end() && (*w)->begin()!=(*w)->end()) {
+    if(w!=nullptr && w->begin()!=w->end()) {
 
-      ti = (*w)->begin(); te = (*w)->end  ();
+      ti = w->begin(); te = w->end  ();
       q = m_elements[m_lastRoad].initiateForTRTSeed(1,(*d),ti,te,(*i),A,m_roadwidth2);
       if(m_elements [m_lastRoad].isCluster()) ++m_naElements;
 

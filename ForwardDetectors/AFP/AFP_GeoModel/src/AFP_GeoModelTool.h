@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AFP_GeoModelTool_H
@@ -13,7 +13,7 @@
 
 #define COOLFOLDER_BPM "/TDAQ/OLC/ALFA"
 
-class AFP_GeoModelTool : public GeoModelTool
+class AFP_GeoModelTool final : public GeoModelTool
 {
 
  public:

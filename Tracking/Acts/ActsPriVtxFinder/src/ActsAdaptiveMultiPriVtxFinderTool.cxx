@@ -100,14 +100,14 @@ ActsAdaptiveMultiPriVtxFinderTool::initialize()
     TrackLinearizer linearizer(ltConfig);
 
     // Set up Gaussian track density
-    Acts::GaussianTrackDensity::Config trackDensityConfig;
+    Acts::GaussianTrackDensity<TrackWrapper>::Config trackDensityConfig;
     trackDensityConfig.d0MaxSignificance = m_gaussianMaxD0Significance;
     trackDensityConfig.z0MaxSignificance = m_gaussianMaxZ0Significance;
-    Acts::GaussianTrackDensity trackDensity(trackDensityConfig);
+    Acts::GaussianTrackDensity<TrackWrapper> trackDensity(trackDensityConfig);
 
     // Vertex seed finder
     VertexSeedFinder::Config seedFinderConfig;
-    seedFinderConfig.trackDensityEstimator = trackDensity;
+    //seedFinderConfig.trackDensityEstimator = trackDensity;
     VertexSeedFinder seedFinder(seedFinderConfig, extractParameters);
     VertexFinder::Config finderConfig(std::move(fitter), seedFinder,
       ipEst, linearizer);
@@ -301,12 +301,7 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, std::vect
       xAODVtx->makePrivateStore();
       xAODVtx->setPosition(vtx.position());
       xAODVtx->setCovariancePosition(vtx.covariance());
-      // TODO: remove this 1.e9 subtraction once acts bug fix is in.
-      double tempChi2 = vtx.fitQuality().first;
-      if(tempChi2 >= 1.e9){
-        tempChi2 -= 1.e9;
-      }
-      xAODVtx->setFitQuality(tempChi2, vtx.fitQuality().second);
+      xAODVtx->setFitQuality(vtx.fitQuality().first, vtx.fitQuality().second);
 
       const auto& tracks = vtx.tracks();
       std::vector<Trk::VxTrackAtVertex>* trkAtVtxVec = &(xAODVtx->vxTrackAtVertex());

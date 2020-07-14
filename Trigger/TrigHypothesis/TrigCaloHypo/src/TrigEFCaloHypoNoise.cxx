@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -20,6 +20,8 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ListItem.h"
+#include "GaudiKernel/SystemOfUnits.h"
+
 #include "xAODEventInfo/EventInfo.h"
 #include "LArRecEvent/LArNoisyROSummary.h"
 
@@ -32,7 +34,6 @@
 #include "hltinterface/IInfoRegister.h"
 #include "hltinterface/ContainerFactory.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
 
 class ISvcLocator;
 
@@ -43,7 +44,7 @@ class ISvcLocator;
 TrigEFCaloHypoNoise::TrigEFCaloHypoNoise(const std::string& name, ISvcLocator* pSvcLocator):
   HLT::HypoAlgo(name, pSvcLocator), m_isInterface(false), m_noisyROTool("",this),m_hasFebs(false) {
 
-  declareProperty("Etcut",   m_EtCut = 40*CLHEP::GeV); // Default: 40 GeV
+  declareProperty("Etcut",   m_EtCut = 40*Gaudi::Units::GeV); // Default: 40 GeV
   declareProperty("doMonitoring", m_doMonitoring = false );
   declareProperty("AcceptAll",      m_acceptAll=false);
   declareProperty("NoiseTool",   m_noisyROTool);

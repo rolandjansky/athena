@@ -267,7 +267,7 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
       //printWrkSet(WrkVrtSet,"InitialVrts");
       //for(auto ku : vrtWithCommonTrk)std::cout<<" nCom="<<ku.first<<" v1="<<ku.second.first<<" v2="<<ku.second.second<<'\n';
       //===========================================
-      for(icvrt=vrtWithCommonTrk.rbegin(); icvrt!=vrtWithCommonTrk.rend(); icvrt++){ 
+      for(icvrt=vrtWithCommonTrk.rbegin(); icvrt!=vrtWithCommonTrk.rend(); ++icvrt){ 
           int nTCom=(*icvrt).first;
           int iv=(*icvrt).second.first;
           int jv=(*icvrt).second.second;
@@ -656,7 +656,7 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
       for(int it=0; it<(int)nonusedTrk.size(); it++){ if(matchSV[it].indVrt==iv){addTrk[matchSV[it].Signif3D]=it;} }
       std::map<double,int>::iterator atrk=addTrk.begin();
       if(addTrk.size()>0){       if(atrk->first<4.){newV.SelTrk.push_back(nonusedTrk[atrk->second]);addedT=true;}}
-      if(addTrk.size()>1){atrk++;if(atrk->first<4.){newV.SelTrk.push_back(nonusedTrk[atrk->second]);}}
+      if(addTrk.size()>1){++atrk;if(atrk->first<4.){newV.SelTrk.push_back(nonusedTrk[atrk->second]);}}
       if(addedT){ if     (xAODwrk)vProb = RefitVertex( newV, xAODwrk->listJetTracks, *state, true);
                   else if(RECwork)vProb = RefitVertex( newV, RECwork->listJetTracks, *state, true); 
                  if(vProb>0.01)GoodVertices[iv]=newV;
@@ -1019,7 +1019,7 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
 	std::deque<long int>::iterator it;
 //std::cout<<" In Found ="<<SelectedTrack<<", "<<SelectedVertex<<'\n';
 	for(it=(*WrkVrtSet).at(SelectedVertex).SelTrk.begin(); 
-	    it!=(*WrkVrtSet)[SelectedVertex].SelTrk.end();     it++) {
+	    it!=(*WrkVrtSet)[SelectedVertex].SelTrk.end();     ++it) {
 	    if( (*it) == SelectedTrack ) { 
 	       (*WrkVrtSet)[SelectedVertex].SelTrk.erase(it); break;
 	    }     
@@ -1027,7 +1027,7 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
 	}   
 
 	for(it=(*TrkInVrt).at(SelectedTrack).begin(); 
-	    it!=(*TrkInVrt)[SelectedTrack].end();     it++) {
+	    it!=(*TrkInVrt)[SelectedTrack].end();     ++it) {
 	    if( (*it) == SelectedVertex ) { 
 	       (*TrkInVrt)[SelectedTrack].erase(it); break;
 	    }     
@@ -1036,7 +1036,7 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
 //Check if track is removed from 2tr vertex => then sharing of track left should also be decreased
         if( (*WrkVrtSet)[SelectedVertex].SelTrk.size() == 1){
 	   long int LeftTrack=(*WrkVrtSet)[SelectedVertex].SelTrk[0];  // track left in 1tr vertex
-	   for(it=(*TrkInVrt).at(LeftTrack).begin();  it!=(*TrkInVrt)[LeftTrack].end();  it++) {
+	   for(it=(*TrkInVrt).at(LeftTrack).begin();  it!=(*TrkInVrt)[LeftTrack].end();  ++it) {
 	      if( (*it) == SelectedVertex ) { 
 	       (*TrkInVrt)[LeftTrack].erase(it); break;
 	      }     
@@ -1377,7 +1377,7 @@ const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not com
    const
    {
       std::deque<long int>::iterator trk=test.begin();
-      for(trk=test.begin(); trk!=test.end(); trk++)
+      for(trk=test.begin(); trk!=test.end(); ++trk)
          if(std::find(base.begin(), base.end(), (*trk)) == base.end()) return false;  //element not found => test is not part of base
       return true;
    }

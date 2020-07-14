@@ -954,7 +954,6 @@ def sync_Trigger2Reco():
     if  recAlgs.doTrigger() and rec.readRDO() and not globalflags.InputFormat()=='bytestream':
         include( "TriggerJobOpts/TransientBS_DetFlags.py" )
 
-    from RecExConfig.RecFlags import rec
     if globalflags.InputFormat() == 'bytestream':
         TriggerFlags.readBS = True
         TriggerFlags.doLVL1 = False

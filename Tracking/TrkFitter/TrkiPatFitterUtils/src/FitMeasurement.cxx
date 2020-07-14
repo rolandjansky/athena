@@ -88,12 +88,6 @@ FitMeasurement::FitMeasurement (int		       	hitIndex,
       m_weight			(1.),
       m_weight2			(1.)
 {
-    // initialize intersection array
-    for (int typ = 0; typ != ExtrapolationTypes; ++typ)
-    {
-	m_intersection[typ] = 0;
-    }
-
     double sigma	= 0.;
     if (m_numberDoF > 0) sigma	= Amg::error(measurementBase->localCovariance(),locX);
     double sigma2	= 0.;
@@ -258,11 +252,6 @@ FitMeasurement::FitMeasurement (const MaterialEffectsBase*	materialEffects,
 
     if(calo) m_type = calorimeterScatterer;
 
-    for (int typ = 0; typ != ExtrapolationTypes; ++typ)
-    {
-	m_intersection[typ] = 0;
-    }
-
     // set any energy loss
     const EnergyLoss* energyLoss	= 0;
     const ScatteringAngles* scattering	= 0;
@@ -392,12 +381,7 @@ FitMeasurement::FitMeasurement (double				radiationThickness,
     if (! surface) delete m_surface;
     m_surface = &m_materialEffects->associatedSurface();
 
-    // initialize intersections
-    for (int typ = 0; typ != ExtrapolationTypes; ++typ)
-    {
-	m_intersection[typ] = 0;
-    }
-    m_intersection[FittedTrajectory] = new TrackSurfaceIntersection(position,direction,0.);
+    m_intersection[FittedTrajectory] = std::make_unique<TrackSurfaceIntersection>(position,direction,0.);
 }
 
 // constructor for adding (mis-)alignment effects
@@ -456,14 +440,9 @@ FitMeasurement::FitMeasurement (const AlignmentEffectsOnTrack*	alignmentEffects,
     if (m_sigmaMinus) m_weight	= 1./m_sigmaMinus;
     if (m_sigmaPlus)  m_weight2	= 1./m_sigmaPlus;
 				      
-    // initialize intersections
-    for (int typ = 0; typ != ExtrapolationTypes; ++typ)
-    {
-    	m_intersection[typ] = 0;
-    }
-    m_intersection[FittedTrajectory] = new TrackSurfaceIntersection(position,
-    								    direction,
-    								    0.);
+    m_intersection[FittedTrajectory] = std::make_unique<TrackSurfaceIntersection>(position,
+										  direction,
+										  0.);
 }
     
 // constructor creating placeholder Surface for delimiting material aggregation
@@ -523,14 +502,9 @@ FitMeasurement::FitMeasurement (const TrackSurfaceIntersection&	intersection,
     CurvilinearUVT uvt(intersection.direction());
     m_surface = new PlaneSurface(m_position,uvt); 
 
-    // initialize intersections
-    for (int typ = 0; typ != ExtrapolationTypes; ++typ)
-    {
-	m_intersection[typ] = 0;
-    }
-    m_intersection[FittedTrajectory] = new TrackSurfaceIntersection(m_position,
-								    intersection.direction(),
-								    0.);
+    m_intersection[FittedTrajectory] = std::make_unique<TrackSurfaceIntersection>(m_position,
+										  intersection.direction(),
+										  0.);
 }
     
 // other TrackStateOnSurface types
@@ -593,11 +567,6 @@ FitMeasurement::FitMeasurement (const TrackStateOnSurface&	TSOS)
 // 	m_type = MSperigee;
 //     }
     
-    // initialize intersection array
-    for (int typ = 0; typ != ExtrapolationTypes; ++typ)
-    {
-	m_intersection[typ] = 0;
-    }
 }
     
 // SiliconTracker constructor (from iPatRec)
@@ -655,11 +624,6 @@ FitMeasurement::FitMeasurement (int			hitIndex,
       m_weight			(1.),
       m_weight2			(1.)
 {
-    // initialize intersection array
-    for (int typ = 0; typ != ExtrapolationTypes; ++typ)
-    {
-	m_intersection[typ] = 0;
-    }
 
     // pixel has 2-D measurement
     if (type == pixelCluster)
@@ -776,12 +740,6 @@ FitMeasurement::FitMeasurement (int	       		hitIndex,
       m_weight			(1.),
       m_weight2			(1.)
 {
-    // initialize intersection array
-    for (int typ = 0; typ != ExtrapolationTypes; ++typ)
-    {
-	m_intersection[typ] = 0;
-    }
-
     m_sensorDirection		= new Amg::Vector3D(m_surface->transform().rotation().col(2));
 
     // add protection against junk input
@@ -935,10 +893,6 @@ FitMeasurement::FitMeasurement (const TrackParameters&	perigee)
 	// std::cout << " weight :" << std::endl;
     }
 
-    for (int typ = 0; typ != ExtrapolationTypes; ++typ)
-    {
-	m_intersection[typ] = 0;
-    }
 }
 
 // transverseVertex constructor
@@ -993,16 +947,11 @@ FitMeasurement::FitMeasurement (double			d0,
       m_weight			(1./sigma),
       m_weight2			(1.)
 {
-    for (int typ = 0; typ != ExtrapolationTypes; ++typ)
-    {
-	m_intersection[typ] = 0;
-    }
 }
 
 // destructor
 FitMeasurement::~FitMeasurement (void)
 {
-    for (int typ = 0; typ != ExtrapolationTypes; ++typ) delete m_intersection[typ];
     delete m_minimizationDirection;
     delete m_normal;
     delete m_perigee;
@@ -1017,9 +966,9 @@ void
 FitMeasurement::intersection (ExtrapolationType type,
 			      const TrackSurfaceIntersection* value)
 {
-    if (type!=FittedTrajectory) delete m_intersection[type];
-    m_intersection[type] = value;
+  m_intersection[type].reset(value);
 }
+
 
 void
 FitMeasurement::printHeading (MsgStream& log) const

@@ -1,21 +1,23 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef G4ATLASTOOLS_REGIONCREATOR_H 
+#ifndef G4ATLASTOOLS_REGIONCREATOR_H
 #define G4ATLASTOOLS_REGIONCREATOR_H
 
 // Base classes
 #include "G4AtlasInterfaces/IRegionCreator.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
+#include "GaudiKernel/SystemOfUnits.h"
+
 // STL library
 #include <string>
 
 /** @class RegionCreator RegionCreator.h "G4AtlasTools/RegionCreator.h"
- *  
+ *
  *  Concrete Tool to create G4 Physics Regions
- * 
+ *
  *  @author ADA
  *  @date   2015-03-23
  */
@@ -27,18 +29,16 @@ public:
   ~RegionCreator() {}
 
   StatusCode initialize();
-  
-  void Dump();
-  
-private:
-  std::string m_regionName;
 
-  double m_gammaCut=1.;
-  double m_electronCut=1.;
-  double m_positronCut=1.;
-  double m_protonCut=1.;
-  
-  std::vector<std::string> m_logicalVolumes;
+  void Dump();
+
+private:
+   Gaudi::Property<std::string> m_regionName{this, "RegionName", "", "Region name (same as the Tool name if not set)"};
+  Gaudi::Property<double> m_gammaCut{this, "GammaCut", 1.*Gaudi::Units::mm, "Cut to be applied for gammas"};
+  Gaudi::Property<double> m_electronCut{this, "ElectronCut", 1., "Cut to be applied for electrons"};
+  Gaudi::Property<double> m_positronCut{this, "PositronCut", 1., "Cut to be applied for positrons"};
+  Gaudi::Property<double> m_protonCut{this, "ProtonCut", 1., "Cut to be applied for gammas"};
+  Gaudi::Property<std::vector<std::string> > m_logicalVolumes{this, "VolumeList", {}, "List of volumes to be included in this region"};
 };
 
 #endif

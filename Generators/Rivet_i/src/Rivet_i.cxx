@@ -10,6 +10,7 @@
 #include "AtlasHepMC/GenEvent.h"
 
 #include "GeneratorObjects/McEventCollection.h"
+#include "GenInterfaces/IHepMCWeightSvc.h"
 #include "AthenaKernel/errorcheck.h"
 #include "PathResolver/PathResolver.h"
 
@@ -37,6 +38,7 @@ using namespace std;
 
 Rivet_i::Rivet_i(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
+  m_hepMCWeightSvc("HepMCWeightSvc", name),
   m_analysisHandler(0),
   m_init(false)
 {
@@ -53,6 +55,8 @@ Rivet_i::Rivet_i(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty("IgnoreBeamCheck", m_ignorebeams=false);
   declareProperty("DoRootHistos", m_doRootHistos=false);
   declareProperty("SkipWeights", m_skipweights=false);
+  //declareProperty("MatchWeights", m_matchWeights="");
+  //declareProperty("UnmatchWeights", m_unmatchWeights="");
   declareProperty("WeightCap", m_weightcap=-1.0);
 }
 
@@ -122,6 +126,8 @@ StatusCode Rivet_i::initialize() {
   assert(m_analysisHandler);
   m_analysisHandler->setIgnoreBeams(m_ignorebeams); //< Whether to do beam ID/energy consistency checks
   m_analysisHandler->skipMultiWeights(m_skipweights); //< Whether to skip weights or not
+  //m_analysisHandler->selectMultiWeights(m_matchWeights); //< Only run on a subset of the multi-weights
+  //m_analysisHandler->deselectMultiWeights(m_unmatchWeights); //< Veto a subset of the multi-weights
   if (m_weightcap>0) m_analysisHandler->setWeightCap(m_weightcap);
 
   // Set Rivet native log level to match Athena
@@ -250,47 +256,33 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
     modEvent->set_event_number(eventNumber);
   }
 
+  // weight-name cleaning
 #ifdef HEPMC3
-std::vector<std::string>  old_names=event->weight_names();
-std::vector<std::string>  new_names;
-std::string str;
-for ( auto s: old_names) { str+=s; str+=" ";}
-    std::vector<std::pair<std::string,std::string> > w_subs = {
-      {" nominal ",""},
-      {" set = ","_"},
-      {" = ","_"},
-      {"=",""},
-      {",",""},
-      {".",""},
-      {":",""},
-      {" ","_"},
-      {"#","num"},
-      {"\n","_"},
-      {"/","over"}
-    };
-    std::regex re("(([^()]+))"); // Regex for stuff enclosed by parentheses ()
-    for (std::sregex_iterator i = std::sregex_iterator(str.begin(), str.end(), re);
-         i != std::sregex_iterator(); ++i ) {
-      std::smatch m = *i;
-      std::vector<std::string> temp = ::split(m.str(), "[,]");
-      if (temp.size() == 2 || temp.size() == 3) {
-        std::string wname = temp[0];
-        if (temp.size() == 3)  wname += "," + temp[1];
-        double value = old_wc[wname];
-        for (const auto& sub : w_subs) {
-          size_t start_pos = wname.find(sub.first);
-          while (start_pos != std::string::npos) {
-            wname.replace(start_pos, sub.first.length(), sub.second);
-            start_pos = wname.find(sub.first);
-          }
-        }
-        new_wc[wname];
-        new_wc.back() = value;
+  std::vector<std::string>  w_names = event->weight_names();
+  std::vector<std::pair<std::string,std::string> > w_subs = {
+    {" nominal ",""},
+    {" set = ","_"},
+    {" = ","_"},
+    {"=",""},
+    {",",""},
+    {".",""},
+    {":",""},
+    {" ","_"},
+    {"#","num"},
+    {"\n","_"},
+    {"/","over"}
+  };
+  for (std::string& wname : w_names) {
+    for (const auto& sub : w_subs) {
+      size_t start_pos = wname.find(sub.first);
+      while (start_pos != std::string::npos) {
+        wname.replace(start_pos, sub.first.length(), sub.second);
+        start_pos = wname.find(sub.first);
       }
     }
-modEvent->run_info()->set_weight_names(new_names);
+  }
+  modEvent->run_info()->set_weight_names(w_names);
 #else
-  // weight-name cleaning
   const HepMC::WeightContainer& old_wc = event->weights();
   std::ostringstream stream;
   old_wc.print(stream);
@@ -299,6 +291,12 @@ modEvent->run_info()->set_weight_names(new_names);
   // then it doesn't use named weights
   // --> no need for weight-name cleaning
   if (str.size() > 1) {
+    vector<string> orig_order(m_hepMCWeightSvc->weightNames().size());
+    for (const auto& item : m_hepMCWeightSvc->weightNames()) {
+      orig_order[item.second] = item.first;
+    }
+    map<string, double> new_name_to_value;
+    map<string, string> old_name_to_new_name;
     HepMC::WeightContainer& new_wc = modEvent->weights();
     new_wc.clear();
     vector<pair<string,string> > w_subs = {
@@ -322,6 +320,7 @@ modEvent->run_info()->set_weight_names(new_names);
       if (temp.size() == 2 || temp.size() == 3) {
         string wname = temp[0];
         if (temp.size() == 3)  wname += "," + temp[1];
+        string old_name = string(wname);
         double value = old_wc[wname];
         for (const auto& sub : w_subs) {
           size_t start_pos = wname.find(sub.first);
@@ -330,9 +329,13 @@ modEvent->run_info()->set_weight_names(new_names);
             start_pos = wname.find(sub.first);
           }
         }
-        new_wc[wname];
-        new_wc.back() = value;
+        new_name_to_value[wname] = value;
+        old_name_to_new_name[old_name] = wname;
       }
+    }
+    for (const string& old_name : orig_order) {
+      const string& new_name = old_name_to_new_name[old_name];
+      new_wc[ new_name ] = new_name_to_value[new_name];
     }
     // end of weight-name cleaning
   }

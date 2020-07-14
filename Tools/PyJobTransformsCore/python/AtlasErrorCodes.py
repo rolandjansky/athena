@@ -268,7 +268,7 @@ class ErrorInfo( object ):
         if not tb: return None
         short_tb = []
         for frame_info in tb:
-            if not 'AthenaCommon/Include.py' in frame_info[ 0 ]:
+            if 'AthenaCommon/Include.py' not in frame_info[ 0 ]:
                 short_tb.append( frame_info )
         return short_tb
 
@@ -285,7 +285,7 @@ class ErrorInfo( object ):
         if self.code == 0:
             self.backtrace = None
             self.severity = None
-        elif self.severity == None:
+        elif self.severity is None:
             self.severity = FATAL
 
     ## Errors occur when certain events are being processed.
@@ -331,19 +331,18 @@ class ErrorInfo( object ):
 #  @return List of ErrorPattern instances or @c None
 def getErrorPatterns( release ):
     global __errorPatterns
-    releaseType = type( release )
-    if releaseType.__name__ == 'str':
+    if isinstance(release, str):
         total_pats = [] # list of recognised error patterns
         for rel, pats in __errorPatterns.items():
             if rel.match( release ):
                 total_pats += pats
         return total_pats
-    elif releaseType == type( re.compile( 'test' ) ):
+    elif isinstance(release, re.Pattern):
         for rel, pats in __errorPatterns.items():
             if rel.pattern == release.pattern:
                 return pats
     else:
-        raise KeyError( 'getErrorPatterns() takes either a string or a compiled regular expression. Got an %s instead.' % releaseType.__name__ )
+        raise KeyError( 'getErrorPatterns() takes either a string or a compiled regular expression. Got an %s instead.' % type(release).__name__ )
     return None
 
 ## Retrieve error filter patterns for a given release.
@@ -352,19 +351,18 @@ def getErrorPatterns( release ):
 #  @return List of compiled regular expression isntances or @c None
 def getIgnorePatterns( release ):
     global __ignorePatterns
-    releaseType = type( release )
-    if releaseType == str:
+    if isinstance(release, str):
         total_pats = [] # list of possible patterns to ignore
         for rel, pats in __ignorePatterns.items():
             if rel.match( release ): 
                 total_pats += pats  
         return total_pats
-    elif releaseType == type( re.compile( 'test' ) ):
+    elif isinstance(release, re.Pattern):
         for rel, pats in __ignorePatterns.items():
             if rel.pattern == release.pattern:
                 return pats
     else:
-        raise KeyError( 'getIgnorePatterns() takes either a string or a compiled regular expression. Got an %s instead.' % releaseType.__name__ )
+        raise KeyError( 'getIgnorePatterns() takes either a string or a compiled regular expression. Got an %s instead.' % type(release).__name__ )
     return None
 
 ## Add an ErrorPattern instance to a specific release.
@@ -659,7 +657,7 @@ def matchErrorPattern(line,release):
     if release:
         try:
             release3 = '.'.join(release.split('.')[:3])
-        except:
+        except Exception:
             release3 = release
         rels.insert(0,release3)
     for rel in rels:
@@ -690,7 +688,7 @@ def matchIgnorePattern(line,release):
         try:
             # reduce 4-digit to 3-digit release
             release3 = '.'.join(release.split('.')[:3])
-        except:
+        except Exception:
             release3 = release
         rels.insert(0,release3)
     for rel in rels:

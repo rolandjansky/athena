@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBECInnerModuleTool.h"
@@ -68,13 +68,13 @@ StatusCode TBECInnerModuleTool::initializeSD()
   m_roptSD   = new LArG4SimpleSD("LAr::EMEC::InnerModule::SDin_ropt", &*m_emecinnercalc, m_timeBinType , m_timeBinWidth);
 
   std::map<G4VSensitiveDetector*,std::vector<std::string>*> configuration;
-  configuration[m_gapadjSD] = &m_volumeNames;
-  configuration[m_gapoldSD] = &m_volumeNames;
-  configuration[m_gap_eSD]  = &m_volumeNames;
-  configuration[m_gap_sSD]  = &m_volumeNames;
-  configuration[m_gap_seSD] = &m_volumeNames;
-  configuration[m_chcollSD] = &m_volumeNames;
-  configuration[m_roptSD]   = &m_volumeNames;
+  configuration[m_gapadjSD] = &(m_volumeNames.value());
+  configuration[m_gapoldSD] = &(m_volumeNames.value());
+  configuration[m_gap_eSD]  = &(m_volumeNames.value());
+  configuration[m_gap_sSD]  = &(m_volumeNames.value());
+  configuration[m_gap_seSD] = &(m_volumeNames.value());
+  configuration[m_chcollSD] = &(m_volumeNames.value());
+  configuration[m_roptSD]   = &(m_volumeNames.value());
   setupAllSDs(configuration);
     
   // Make sure the helpers are all set up

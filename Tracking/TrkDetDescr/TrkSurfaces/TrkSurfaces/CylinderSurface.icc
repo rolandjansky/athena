@@ -1,0 +1,178 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+namespace Trk {
+
+/** Return the surface type */
+inline Surface::SurfaceType
+CylinderSurface::type() const
+{
+  return Surface::Cylinder;
+}
+
+/** Return the surface type static constexpr */
+inline constexpr Surface::SurfaceType
+CylinderSurface::staticType()
+{
+  return Surface::Cylinder;
+}
+
+
+/** Use the Surface as a ParametersBase constructor, from local parameters -
+ * charged */
+inline ParametersT<5, Charged, CylinderSurface>*
+CylinderSurface::createTrackParameters(double l1,
+                                       double l2,
+                                       double phi,
+                                       double theta,
+                                       double qop,
+                                       AmgSymMatrix(5) * cov) const
+{
+  return new ParametersT<5, Charged, CylinderSurface>(
+    l1, l2, phi, theta, qop, *this, cov);
+}
+
+/** Use the Surface as a ParametersBase constructor, from global parameters -
+ * charged*/
+inline ParametersT<5, Charged, CylinderSurface>*
+CylinderSurface::createTrackParameters(const Amg::Vector3D& position,
+                                       const Amg::Vector3D& momentum,
+                                       double charge,
+                                       AmgSymMatrix(5) * cov) const
+{
+  return new ParametersT<5, Charged, CylinderSurface>(
+    position, momentum, charge, *this, cov);
+}
+
+/** Use the Surface as a ParametersBase constructor, from local parameters -
+ * neutral */
+inline ParametersT<5, Neutral, CylinderSurface>*
+CylinderSurface::createNeutralParameters(double l1,
+                                         double l2,
+                                         double phi,
+                                         double theta,
+                                         double qop,
+                                         AmgSymMatrix(5) * cov) const
+{
+  return new ParametersT<5, Neutral, CylinderSurface>(
+    l1, l2, phi, theta, qop, *this, cov);
+}
+
+/** Use the Surface as a ParametersBase constructor, from global parameters -
+ * neutral */
+inline ParametersT<5, Neutral, CylinderSurface>*
+CylinderSurface::createNeutralParameters(const Amg::Vector3D& position,
+                                         const Amg::Vector3D& momentum,
+                                         double charge,
+                                         AmgSymMatrix(5) * cov) const
+{
+  return new ParametersT<5, Neutral, CylinderSurface>(
+    position, momentum, charge, *this, cov);
+}
+
+/** Use the Surface as a ParametersBase constructor, from local parameters */
+template<int DIM, class T>
+ParametersT<DIM, T, CylinderSurface>*
+CylinderSurface::createParameters(double l1,
+                                  double l2,
+                                  double phi,
+                                  double theta,
+                                  double qop,
+                                  AmgSymMatrix(DIM) * cov) const
+{
+  return new ParametersT<DIM, T, CylinderSurface>(
+    l1, l2, phi, theta, qop, *this, cov);
+}
+
+/** Use the Surface as a ParametersBase constructor, from global parameters */
+template<int DIM, class T>
+const ParametersT<DIM, T, CylinderSurface>*
+CylinderSurface::createParameters(const Amg::Vector3D& position,
+                                  const Amg::Vector3D& momentum,
+                                  double charge,
+                                  AmgSymMatrix(DIM) * cov) const
+{
+  return new ParametersT<DIM, T, CylinderSurface>(
+    position, momentum, charge, *this, cov);
+}
+
+inline CylinderSurface*
+CylinderSurface::clone() const
+{
+  return new CylinderSurface(*this);
+}
+
+inline const Amg::Vector3D&
+CylinderSurface::normal() const
+{
+  return Surface::normal();
+}
+
+inline const Amg::Vector3D*
+CylinderSurface::normal(const Amg::Vector2D& lp) const
+{
+  double phi = lp[Trk::locRPhi] / (bounds().r());
+  Amg::Vector3D localNormal(cos(phi), sin(phi), 0.);
+  return new Amg::Vector3D(transform().rotation() * localNormal);
+}
+
+inline double
+CylinderSurface::pathCorrection(const Amg::Vector3D& pos,
+                                const Amg::Vector3D& mom) const
+{
+  // the global normal vector is pos-center.unit() - at the z of the position
+  // @TODO make safe for tilt
+  Amg::Vector3D pcT(pos.x() - center().x(), pos.y() - center().y(), 0.);
+  Amg::Vector3D normalT(pcT.unit()); // transverse normal
+  double cosAlpha = normalT.dot(mom.unit());
+  return (cosAlpha != 0 ? fabs(1. / cosAlpha)
+                        : 1.); // ST undefined for cosAlpha=0
+}
+
+inline const CylinderBounds&
+CylinderSurface::bounds() const
+{
+  return *(m_bounds.get());
+}
+
+inline bool
+CylinderSurface::hasBounds() const
+{
+  return m_bounds.get() != nullptr;
+}
+
+inline bool
+CylinderSurface::insideBounds(const Amg::Vector2D& locpos,
+                              double tol1,
+                              double tol2) const
+{
+  return bounds().inside(locpos, tol1, tol2);
+}
+
+inline bool
+CylinderSurface::insideBoundsCheck(const Amg::Vector2D& locpos,
+                                   const BoundaryCheck& bchk) const
+{
+  return bounds().inside(locpos, bchk);
+}
+
+inline Amg::Vector2D
+CylinderSurface::localParametersToPosition(const LocalParameters& locpars) const
+{
+  if (locpars.contains(Trk::locRPhi) && locpars.contains(Trk::locZ))
+    return Amg::Vector2D(locpars[Trk::locRPhi], locpars[Trk::locZ]);
+  if (locpars.contains(Trk::locRPhi))
+    return Amg::Vector2D(locpars[Trk::locRPhi], 0.);
+  if (locpars.contains(Trk::locZ))
+    return Amg::Vector2D(bounds().r(), locpars[Trk::locZ]);
+  return Amg::Vector2D(bounds().r(), 0.);
+}
+
+inline std::string
+CylinderSurface::name() const
+{
+  return "Trk::CylinderSurface";
+}
+
+}

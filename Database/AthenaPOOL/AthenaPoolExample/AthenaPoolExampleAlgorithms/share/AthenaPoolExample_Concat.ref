@@ -1638,7 +1638,7 @@ MetaDataHdrForm...  DEBUG Opened container MetaDataHdrForm(DataHeaderForm) of ty
 SimplePoolFile1...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm) [20?]  (16 , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
 ClassIDSvc           INFO  getRegistryEntries: read 7 CLIDRegistry entries for module ALL
-Stream1              INFO Records written: 21
+Stream1              INFO Metadata records written: 21
 Stream1             DEBUG Leaving incident handler for MetaDataStop
 Stream2             DEBUG slot 0  handle() incident type: MetaDataStop
 Stream2             DEBUG addItemObjects(167728019,"Stream2") called
@@ -1675,7 +1675,7 @@ MetaDataHdrForm...  DEBUG Branch container 'DataHeaderForm'
 MetaDataHdrForm...  DEBUG Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
 SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm) [20?]  (9 , ffffffff)
 SimplePoolFile3...  DEBUG ---->ClassID:????
-Stream2              INFO Records written: 21
+Stream2              INFO Metadata records written: 21
 Stream2             DEBUG Leaving incident handler for MetaDataStop
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   CREATE    [ROOT_All] ????

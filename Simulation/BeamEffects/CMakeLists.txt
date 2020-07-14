@@ -5,20 +5,6 @@
 # Declare the package name:
 atlas_subdir( BeamEffects )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          InnerDetector/InDetConditions/BeamSpotConditionsData
-                          PRIVATE
-                          AtlasTest/TestTools
-                          Control/AthenaBaseComps
-                          Control/StoreGate
-                          Event/EventInfo
-                          Generators/AtlasHepMC
-                          Generators/GeneratorObjects
-                          InnerDetector/InDetConditions/InDetBeamSpotService
-                          Simulation/Interfaces/HepMC_Interfaces )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( GTest )

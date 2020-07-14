@@ -79,6 +79,7 @@ from TrkRIO_OnTrackCreator.TrkRIO_OnTrackCreatorConf import Trk__RIO_OnTrackCrea
 TMEF_MuonRotCreatorCosmic =  Trk__RIO_OnTrackCreator("TMEF_MuonRotCreatorCosmic",
                                                      ToolMuonDriftCircle = TMEF_MdtDriftCircleOnTrackCreatorCosmic,
                                                      ToolMuonCluster     = "MuonClusterOnTrackCreator"    ,
+                                                     ToolMuonMMCluster   = "MMClusterOnTrackCreator"    ,
                                                      Mode                = 'muon'
                                                      )
 

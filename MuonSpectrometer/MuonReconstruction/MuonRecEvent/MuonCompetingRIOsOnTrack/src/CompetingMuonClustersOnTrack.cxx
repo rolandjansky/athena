@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@ namespace Muon {
     m_containedChildRots(0),
     m_associatedSurface(0)
   {
-    if (compROT.m_globalPosition) m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*compROT.m_globalPosition));
+    if (compROT.m_globalPosition) m_globalPosition.store(std::make_unique<const Amg::Vector3D>(*compROT.m_globalPosition));
     
     m_containedChildRots = new std::vector< const MuonClusterOnTrack* >;
     std::vector< const MuonClusterOnTrack* >::const_iterator rotIter = compROT.m_containedChildRots->begin();
@@ -106,7 +106,7 @@ namespace Muon {
               MuonClusterOnTrack* mrot = dynamic_cast<MuonClusterOnTrack*>(rot);
               if( mrot ) m_containedChildRots->push_back( mrot );
           }
-          if (compROT.m_globalPosition) m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*compROT.m_globalPosition));
+          if (compROT.m_globalPosition) m_globalPosition.store(std::make_unique<const Amg::Vector3D>(*compROT.m_globalPosition));
           else if (m_globalPosition) m_globalPosition.release().reset();
 
           delete m_associatedSurface;

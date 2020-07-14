@@ -2216,7 +2216,7 @@ int main(int argc, char** argv)
   
   //  hcorr->Finalise(Resplot::FitPoisson);
 
-  hcorr->Finalise(); 
+  hcorr->Finalise(Resplot::FitNull95); 
   hcorr->Write();
 
   for ( int i=analyses.size() ; i-- ; ) { 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LUCIDDETECTORTOOL_H
@@ -8,7 +8,7 @@
 #include "GeoModelUtilities/GeoModelTool.h"
 class LUCID_DetectorManager;
 
-class LUCID_DetectorTool: public GeoModelTool  {
+class LUCID_DetectorTool final : public GeoModelTool  {
 
  public:
   

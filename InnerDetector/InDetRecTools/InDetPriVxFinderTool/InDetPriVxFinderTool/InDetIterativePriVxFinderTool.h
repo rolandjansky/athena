@@ -97,16 +97,19 @@ public:
    * a VxContainer.
    */
   using IVertexFinder::findVertex;
-  virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(
-    const TrackCollection* trackTES) const override;
- 
-  virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(
-    const xAOD::TrackParticleContainer* trackParticles) const override;
+  virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
+  findVertex(const EventContext& ctx,
+             const TrackCollection* trackTES) const override;
+
+  virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
+  findVertex(const EventContext& ctx,
+             const xAOD::TrackParticleContainer* trackParticles) const override;
 
   virtual StatusCode finalize() override;
 
 private:
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(
+    const EventContext& ctx,
     const std::vector<Trk::ITrackLink*>& trackVector) const;
 
   void removeCompatibleTracks(

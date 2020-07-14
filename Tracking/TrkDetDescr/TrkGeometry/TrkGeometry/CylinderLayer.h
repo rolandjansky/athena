@@ -18,6 +18,7 @@ class MsgStream;
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkDetDescrUtils/BinnedArray.h"
 #include "TrkEventPrimitives/PropDirection.h"
+#include "TrkGeometry/ApproachDescriptor.h"
 // STL sorting
 #include <algorithm>
 
@@ -26,7 +27,6 @@ namespace Trk {
 class CylinderBounds;
 class LayerMaterialProperties;
 class OverlapDescriptor;
-class IApproachDescriptor;
 
   /**
    @class CylinderLayer
@@ -115,7 +115,7 @@ class IApproachDescriptor;
         CylinderLayer& operator=(const CylinderLayer&);
                       
         /**Destructor*/
-        virtual ~CylinderLayer() override;
+        virtual ~CylinderLayer() = default;
                 
         /** Transforms the layer into a Surface representation for extrapolation */
         virtual const CylinderSurface& surfaceRepresentation() const override;
@@ -179,7 +179,7 @@ class IApproachDescriptor;
 
      protected:
        /** surfaces on approach to the layer */
-       IApproachDescriptor*  m_approachDescriptor;
+       std::unique_ptr<IApproachDescriptor>  m_approachDescriptor;
        
        
   };

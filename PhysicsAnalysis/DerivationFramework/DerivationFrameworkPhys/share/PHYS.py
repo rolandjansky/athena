@@ -46,7 +46,7 @@ if (DerivationFrameworkIsMonteCarlo):
                                                                   ParticleSelectionString = "(abs(TruthParticles.pdgId) == 4)",
                                                                   Do_Compress             = True)
    ToolSvc += PHYSTruthCharmTool
-   from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
+   #from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
    SeqPHYS += CfgMgr.DerivationFramework__CommonAugmentation("PHYSTruthCharmKernel",AugmentationTools=[PHYSTruthCharmTool])
    # Add HF particles
    addHFAndDownstreamParticles(SeqPHYS)
@@ -189,22 +189,20 @@ addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqPHYS,algname="QGTaggerToolPF
 #====================================================================
 # Add our sequence to the top sequence
 #====================================================================
-# Ideally, this should come at the end of the job, but the tau additions
-# below make it such that we need it here
+# Ideally, this should come at the end of the job
 DerivationFrameworkJob += SeqPHYS
 
 #====================================================================
 # Tau   
 #====================================================================
-'''
-# Schedule low-pt di-tau reconstruction (needs AntiKt2PV0TrackJets)
+# Add low-pt di-tau reconstruction
 from DerivationFrameworkTau.TauCommon import addDiTauLowPt
-addDiTauLowPt()
+addDiTauLowPt(Seq=SeqPHYS)
 
 # Low-pt di-tau thinning
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
 PHYSDiTauLowPtThinningTool = DerivationFramework__GenericObjectThinning(name            = "PHYSDiTauLowPtThinningTool",
-                                                                        ThinningService = PHYSThinningHelper.ThinningSvc(),
+                                                                        StreamName      = PHYSStream.Name,
                                                                         ContainerName   = "DiTauJetsLowPt",
                                                                         SelectionString = "DiTauJetsLowPt.nSubjets > 1")
 ToolSvc += PHYSDiTauLowPtThinningTool
@@ -212,20 +210,20 @@ thinningTools.append(PHYSDiTauLowPtThinningTool)
 
 # ID tracks associated with low-pt ditau
 PHYSDiTauLowPtTPThinningTool = DerivationFramework__DiTauTrackParticleThinning(name                    = "PHYSDiTauLowPtTPThinningTool",
-                                                                               ThinningService         = PHYSThinningHelper.ThinningSvc(),
+                                                                               StreamName              = PHYSStream.Name,
                                                                                DiTauKey                = "DiTauJetsLowPt",
                                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                                SelectionString         = "DiTauJetsLowPt.nSubjets > 1")
 ToolSvc += PHYSDiTauLowPtTPThinningTool
 thinningTools.append(PHYSDiTauLowPtTPThinningTool)
-'''
+
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #====================================================================
 # Add the kernel for thinning (requires the objects be defined)
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("PHYSKernel",
-                                                                       ThinningTools = thinningTools)
+#from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+SeqPHYS += CfgMgr.DerivationFramework__DerivationKernel("PHYSKernel",
+                                                        ThinningTools = thinningTools)
 
 
 #====================================================================
@@ -273,7 +271,7 @@ PHYSSlimmingHelper.SmartCollections = ["Electrons",
                                        #"MET_Baseline_AntiKt4EMPFlow",
                                        "TauJets",
                                        "DiTauJets",
-                                       #"DiTauJetsLowPt",
+                                       "DiTauJetsLowPt",
                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                        #"AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
                                        #"BTagging_AntiKtVR30Rmax4Rmin02Track_201903"

@@ -24,8 +24,9 @@ muonCombinedRecFlags.doStatisticalCombination = False
 muonCombinedRecFlags.doCombinedFit = True
 muonRecFlags.enableErrorTuning = False
 
-from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm, \
-  ViewCreatorInitialROITool, ViewCreatorPreviousROITool, ViewCreatorNamedROITool, \
+from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool, \
+  ViewCreatorPreviousROITool, ViewCreatorNamedROITool, \
   ViewCreatorFSROITool, ViewCreatorCentredOnIParticleROITool, ViewCreatorFetchFromViewROITool
 
 #muon container names (for RoI based sequences)
@@ -122,7 +123,6 @@ def muCombAlgSequence(ConfigFlags):
 
     ### get ID tracking and muComb reco sequences ###    
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import muCombRecoSequence, muonIDFastTrackingSequence
-    muFastIDRecoSequence = muonIDFastTrackingSequence( l2muCombViewsMaker.InViewRoIs , "")
     muCombRecoSequence, sequenceOut = muCombRecoSequence( l2muCombViewsMaker.InViewRoIs, "FTF" )
  
     #Filter algorithm to run muComb only if non-Bphysics muon chains are active
@@ -135,6 +135,18 @@ def muCombAlgSequence(ConfigFlags):
     muonChainFilter.L2MuCombContainer = sequenceOut
 
     muCombFilterSequence = seqAND("l2muCombFilterSequence", [muonChainFilter, muCombRecoSequence])
+
+    extraLoads = []
+    from IOVDbSvc.CondDB import conddb
+    if not conddb.folderRequested( '/PIXEL/DCS/FSMSTATUS' ):
+      extraLoads += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATUS' )]
+    if not conddb.folderRequested( '/PIXEL/DCS/FSMSTATE' ):
+      extraLoads += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATE' )]
+
+    for decision in muonChainFilter.InputDecisions:
+      extraLoads += [( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+'+decision )]
+
+    muFastIDRecoSequence = muonIDFastTrackingSequence( l2muCombViewsMaker.InViewRoIs , "", extraLoads )
     muCombIDSequence = parOR("l2muCombIDSequence", [muFastIDRecoSequence, muCombFilterSequence])
 
     l2muCombViewsMaker.ViewNodeName = muCombIDSequence.name()
@@ -323,41 +335,6 @@ def muEFCBSequence():
                          Hypo        = trigMuonEFCBHypo,
                          HypoToolGen = TrigMuonEFCombinerHypoToolFromDict )
 
-########################
-### EF CB with dimuon ##
-### mass cuts         ##
-########################
-def muEFCBInvMassSequence():
-
-    from AthenaCommon import CfgMgr
-    invMassRecoSequence = parOR("muInvMViewNode")
-    
-    invMViewsMaker = EventViewCreatorAlgorithm("IMmuinvm")
-    #
-    invMViewsMaker.RoIsLink = "roi" # Merge based on L2SA muon
-    invMViewsMaker.RoITool = ViewCreatorPreviousROITool() # Spawn EventViews on L2SA muon ROI 
-    #
-    invMViewsMaker.Views = "muInvMViewRoIs"
-    invMViewsMaker.InViewRoIs = "muInvMRoIs"
-    #
-    invMViewsMaker.RequireParentView = True
-    invMViewsMaker.ViewFallThrough = True
-    
-    ViewVerifyEFCB = CfgMgr.AthViews__ViewDataVerifier("muInvMViewDataVerifier")
-    ViewVerifyEFCB.DataObjects = [( 'xAOD::MuonContainer' , 'StoreGateSvc+'+muNames.EFCBName )]
-    invMassRecoSequence += ViewVerifyEFCB
-    invMassSequence = seqAND( "muInvMSequence", [invMViewsMaker, invMassRecoSequence] )
-
-    invMViewsMaker.ViewNodeName = invMassRecoSequence.name()
-
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFInvMassHypoAlg, TrigMuonEFInvMassHypoToolFromDict
-
-    trigMuonEFInvMHypo = TrigMuonEFInvMassHypoAlg( "TrigMuonEFInvMassHypoAlg" )
-    trigMuonEFInvMHypo.MuonDecisions = muNames.EFCBName
-    return MenuSequence( Sequence    = invMassSequence,
-                         Maker       = invMViewsMaker,
-                         Hypo        = trigMuonEFInvMHypo,
-                         HypoToolGen = TrigMuonEFInvMassHypoToolFromDict )
 
 ######################
 ### EF SA full scan ###

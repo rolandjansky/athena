@@ -30,44 +30,42 @@ namespace InDet {
       InDetEtaDependentCutsSvc(const std::string& name, ISvcLocator* sl); 
       
       /// Destructor: 
-      virtual ~InDetEtaDependentCutsSvc(); 
+      virtual ~InDetEtaDependentCutsSvc() override final; 
       
-      virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIF); 
+      virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIF) final; 
       
-      StatusCode  initialize();
-      StatusCode  finalize();
+      StatusCode  initialize() override final;
+      StatusCode  finalize() override final;
       
-      void getValue(const InDet::CutName cutName, std::vector < double >& cut);
-      void getValue(const InDet::CutName cutName,    std::vector < int >& cut);
+      void getValue(const InDet::CutName cutName, std::vector < double >& cut) override final;
+      void getValue(const InDet::CutName cutName,    std::vector < int >& cut) override final;
       
-      template <class T>
-      T getValueAtEta(const std::vector< T > cuts, const double eta) const;
-    
-      template <class T>    
-      void getValue(const InDet::CutName cutName, T& cut, const double eta);
-      
-      double  getMaxEta() const;
-      double  getMinPtAtEta           (const double eta) const;
-      double  getMaxZImpactAtEta      (const double eta) const;
-      double  getMaxPrimaryImpactAtEta(const double eta) const;
-      int     getMinSiHitsAtEta       (const double eta) const;
-      int     getMinSiNotSharedAtEta  (const double eta) const;
-      int     getMaxSharedAtEta       (const double eta) const;
-      int     getMinPixelHitsAtEta    (const double eta) const;
-      int     getMaxSiHolesAtEta      (const double eta) const;
-      int     getMaxPixelHolesAtEta   (const double eta) const;
-      int     getMaxSctHolesAtEta     (const double eta) const;
-      int     getMaxDoubleHolesAtEta  (const double eta) const;
+      double  getMaxEta() const override final;
+      double  getMinPtAtEta           (const double eta) const override final;
+      double  getMaxZImpactAtEta      (const double eta) const override final;
+      double  getMaxPrimaryImpactAtEta(const double eta) const override final;
+      int     getMinSiHitsAtEta       (const double eta) const override final;
+      int     getMinSiNotSharedAtEta  (const double eta) const override final;
+      int     getMaxSharedAtEta       (const double eta) const override final;
+      int     getMinPixelHitsAtEta    (const double eta) const override final;
+      int     getMaxSiHolesAtEta      (const double eta) const override final;
+      int     getMaxPixelHolesAtEta   (const double eta) const override final;
+      int     getMaxSctHolesAtEta     (const double eta) const override final;
+      int     getMaxDoubleHolesAtEta  (const double eta) const override final;
       
       
     /////////////////////////////////////////////////////////////////// 
     // Private data: 
     /////////////////////////////////////////////////////////////////// 
     private: 
+      template <class T>
+      T getValueAtEta(const std::vector< T > cuts, const double eta) const{
+        return cuts.at(getIndexByEta(eta)); //will throw a range error if eta > maxEta
+      }
       
       int getIndexByEta(const double eta) const;
       
-      DoubleArrayProperty   m_etaBins              {this, "etaBins"             , {0.0, 4.0}, "eta bins (highest eta is maxEta)"         };
+      DoubleArrayProperty   m_etaBins              {this, "etaBins"             , {4.0}     , "eta bins (highest eta is maxEta)"         };
       DoubleArrayProperty   m_minPT                {this, "minPT"               , {900.0}   , "min pT [MeV]"                             };
       DoubleArrayProperty   m_maxPrimaryImpact     {this, "maxPrimaryImpact"    , {2.0}     , "max Rphi IP (primaries) [mm]"             };
       DoubleArrayProperty   m_maxZImpact           {this, "maxZImpact"          , {200.0}   , "max Z IP [mm]"                            };

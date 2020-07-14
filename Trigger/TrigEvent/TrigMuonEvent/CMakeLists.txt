@@ -18,7 +18,7 @@ atlas_add_sercnv_library( TrigMuonEventxAODSerCnv
                           FILES xAODMuon/MuonContainer.h xAODMuon/MuonAuxContainer.h xAODTrigMuon/L2StandAloneMuonContainer.h xAODTrigMuon/L2StandAloneMuonAuxContainer.h xAODTrigMuon/L2CombinedMuonContainer.h xAODTrigMuon/L2CombinedMuonAuxContainer.h xAODTrigMuon/L2IsoMuonContainer.h xAODTrigMuon/L2IsoMuonAuxContainer.h
                           TYPES_WITH_NAMESPACE xAOD::MuonContainer xAOD::MuonAuxContainer xAOD::L2StandAloneMuonContainer xAOD::L2StandAloneMuonAuxContainer xAOD::L2CombinedMuonContainer xAOD::L2CombinedMuonAuxContainer xAOD::L2IsoMuonContainer xAOD::L2IsoMuonAuxContainer
                           CNV_PFX xAOD
-                          LINK_LIBRARIES TrigMuonEvent )
+                          LINK_LIBRARIES TrigMuonEvent xAODMuon xAODTrigMuon )
 
 atlas_add_dictionary( TrigMuonEvent_cDict
                       TrigMuonEvent/TrigMuonEvent_cDict.h

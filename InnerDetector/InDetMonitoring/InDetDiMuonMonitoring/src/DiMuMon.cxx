@@ -7,6 +7,8 @@
 
 #include "DiMuMon.h"
 
+#include "CxxUtils/checker_macros.h"
+
 #include <math.h>
 
 #include "TF1.h"
@@ -241,7 +243,7 @@ StatusCode DiMuMon::bookHistograms()
 }
 
 
-StatusCode DiMuMon::fillHistograms()
+StatusCode DiMuMon::fillHistograms ATLAS_NOT_THREAD_SAFE () // const_cast is used.
 {
 
   const double muonMass = 105.66*Gaudi::Units::MeV;
@@ -449,7 +451,7 @@ StatusCode DiMuMon::fillHistograms()
 }
 
 
-StatusCode DiMuMon::procHistograms()
+StatusCode DiMuMon::procHistograms ATLAS_NOT_THREAD_SAFE () // Thread unsafe DiMuMon::iterativeGausFit is used.
 {
 
 
@@ -481,7 +483,7 @@ StatusCode DiMuMon::procHistograms()
 }
 
 
-void DiMuMon::iterativeGausFit (TH2F* hin, std::vector<TH1F*> hout, int mode){
+void DiMuMon::iterativeGausFit ATLAS_NOT_THREAD_SAFE (TH2F* hin, std::vector<TH1F*> hout, int mode){ // Global gStyle is used.
   // a canvas may be needed when implmenting this into the post-processing file
   TString hname =  hin->GetName();
   TString psName = hname + m_triggerChainName + ".ps";

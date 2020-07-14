@@ -24,6 +24,9 @@
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
+
+#include "CxxUtils/checker_macros.h"
+
 #include <iostream>
 
 
@@ -38,7 +41,7 @@ PixelServMatFactory::~PixelServMatFactory()
 
 
 //## Other Operations (implementation)
-void PixelServMatFactory::create(GeoPhysVol *mother)
+void PixelServMatFactory::create ATLAS_NOT_THREAD_SAFE (GeoPhysVol *mother) // Thread unsafe rdbAccessSvc and materialManager methods are used.
 {
   msg(MSG::DEBUG) << "Building Pixel Service Material" << endmsg; 
   

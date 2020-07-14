@@ -5,7 +5,7 @@
 // conditions
 #include "PixelCalibAlgs/PixelChargeToTConversion.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h" 
-
+#include "CxxUtils/checker_macros.h"
 #include "PixelGeoModel/IBLParameterSvc.h" 
 #include "InDetIdentifier/PixelID.h"
 #include "InDetPrepRawData/PixelCluster.h"
@@ -42,7 +42,7 @@ StatusCode PixelChargeToTConversion::initialize(){
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelChargeToTConversion::execute(){
+StatusCode PixelChargeToTConversion::execute ATLAS_NOT_THREAD_SAFE (){ // const_cast is used.
   const EventContext &ctx = Gaudi::Hive::currentContext();
   SG::ReadHandle<InDet::PixelClusterContainer> pixel_container( m_pixelsClustersKey, ctx);
   if (!pixel_container.isValid())
@@ -86,6 +86,7 @@ StatusCode PixelChargeToTConversion::execute(){
       const PixelID* pixelIDp=dynamic_cast<const PixelID*>(aid);
       if (!pixelIDp){
         ATH_MSG_ERROR("Could not get PixelID pointer");
+        return StatusCode::FAILURE;
       } 
       const PixelID& pixelID = *pixelIDp;
 

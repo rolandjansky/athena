@@ -6,8 +6,8 @@
 #include <cmath>
 
 #include "TrigL2MuonSA/RpcDataPreparator.h"
-#include "TrigL2MuonSA/RpcData.h"
-#include "TrigL2MuonSA/RecMuonRoIUtils.h"
+#include "RpcData.h"
+#include "RecMuonRoIUtils.h"
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"

@@ -4,7 +4,7 @@
 
 #include <cmath>
 
-#include "TrigL2MuonSA/RpcRoadDefiner.h"
+#include "RpcRoadDefiner.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 

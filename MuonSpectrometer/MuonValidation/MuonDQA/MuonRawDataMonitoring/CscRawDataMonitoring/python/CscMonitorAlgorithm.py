@@ -67,17 +67,13 @@ def CscMonitoringConfig(inputFlags):
     # from MyDomainPackage.MyDomainPackageConf import MyDomainTool
     # exampleMonAlg.MyDomainTool = MyDomainTool()
     from MuonConfig.MuonCalibConfig import CscCalibToolCfg
-    cscClusMonAlg.CscCalibTool = CscCalibToolCfg(inputFlags).popPrivateTools()
+    calibtool = result.popToolsAndMerge( CscCalibToolCfg(inputFlags) )
+    cscClusMonAlg.CscCalibTool = calibtool
 
     from MuonConfig.MuonSegmentFindingConfig import CalibCscStripFitterCfg
-    cscClusMonAlg.CSCStripFitter = CalibCscStripFitterCfg(inputFlags).popPrivateTools()
-    cscPrdMonAlg.CSCStripFitter = CalibCscStripFitterCfg(inputFlags).popPrivateTools()
-
-    #strp = CalibCscStripFitterCfg(inputFlags)
-    #strp.popPrivateTools()
-    #result.merge(strp)
-
-    
+    stripfitter = result.popToolsAndMerge( CalibCscStripFitterCfg(inputFlags) ) 
+    cscClusMonAlg.CSCStripFitter = stripfitter
+    cscPrdMonAlg.CSCStripFitter = stripfitter
  
     # Add a generic monitoring tool (a "group" in old language). The returned 
     # object here is the standard GenericMonitoringTool.

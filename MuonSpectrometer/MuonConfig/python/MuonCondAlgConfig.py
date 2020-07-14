@@ -98,6 +98,7 @@ def CscCondDbAlgCfg(flags, **kwargs):
     result  = ComponentAccumulator()
     folders = ["/CSC/FTHOLD", "/CSC/NOISE", "/CSC/PED", "/CSC/PSLOPE", "/CSC/RMS", "/CSC/STAT", "/CSC/T0BASE", "/CSC/T0PHASE"]
     scheme  = "CSC_OFL"
+    kwargs['ReadKey_HV'] = '' # Never used at present 
     if flags.Common.isOnline:
         kwargs["isOnline"  ] = True
         kwargs['isData'    ] = True
@@ -107,6 +108,8 @@ def CscCondDbAlgCfg(flags, **kwargs):
         kwargs['ReadKey_PS'] = '/CSC/PSLOPE'
         kwargs['ReadKey_RM'] = '/CSC/RMS'
         kwargs['ReadKey_ST'] = '/CSC/STAT'
+        kwargs['ReadKey_TB'] = ''
+        kwargs['ReadKey_TP'] = ''
         folders = ["/CSC/ONL/FTHOLD", "/CSC/ONL/NOISE", "/CSC/ONL/PED", "/CSC/ONL/PSLOPE", "/CSC/ONL/RMS", "/CSC/ONL/STAT"]
         scheme  = "CSC_ONL"
     else:

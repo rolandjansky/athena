@@ -69,7 +69,8 @@ def _makeRegSelTool( detector, enable, CondAlgConstructor ):
 
 
 
-# inner detector toold
+# inner detector tools
+
 def makeRegSelTool_Pixel() :
     from AthenaCommon.DetFlags import DetFlags
     enabled = DetFlags.detdescr.pixel_on()
@@ -175,8 +176,6 @@ def makeRegSelTool_TILE() :
 
 ##### new JO counterparts
 
-# muon spectrometer
-
 def regSelToolCfg(flags, detector, CondAlg, CablingConfigCfg=0):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     ca = ComponentAccumulator()
@@ -185,6 +184,13 @@ def regSelToolCfg(flags, detector, CondAlg, CablingConfigCfg=0):
     ca.setPrivateTools(_createRegSelTool(detector, True))
     ca.addCondAlgo(_createRegSelCondAlg(detector, CondAlg))
     return ca
+
+# inner detector
+
+def regSelTool_SCT_Cfg(flags):
+    return regSelToolCfg(flags, "SCT", CompFactory.SiRegSelCondAlg)
+
+# muon spectrometer
 
 def regSelTool_MDT_Cfg(flags):
     from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg

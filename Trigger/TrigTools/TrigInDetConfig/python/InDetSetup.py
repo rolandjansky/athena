@@ -133,6 +133,9 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
     InDetSCTRawDataProvider.RDOCacheKey = InDetCacheNames.SCTRDOCacheKey
     InDetSCTRawDataProvider.BSErrCacheKey = InDetCacheNames.SCTBSErrCacheKey
 
+    from RegionSelector.RegSelToolConfig import makeRegSelTool_SCT
+    InDetSCTRawDataProvider.RegSelTool = makeRegSelTool_SCT()
+
     viewAlgs.append(InDetSCTRawDataProvider)
 
     # load the SCTEventFlagWriter
@@ -251,6 +254,8 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
   InDetSCT_Clusterization.RoIs = rois
   InDetSCT_Clusterization.ClusterContainerCacheKey = InDetCacheNames.SCT_ClusterKey
 
+  from RegionSelector.RegSelToolConfig import makeRegSelTool_SCT
+  InDetSCT_Clusterization.RegSelTool = makeRegSelTool_SCT()
 
   viewAlgs.append(InDetSCT_Clusterization)
 

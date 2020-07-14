@@ -86,6 +86,7 @@ constexpr size_t alignment = 32;
 
 /**
  * @brief struct representing 1D component
+ * Negative weight means invalidated component
  */
 struct Component1D
 {

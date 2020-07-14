@@ -25,7 +25,7 @@ conddb.blockFolder("/TRT/Cond/DigVers")
 conddb.addFolderWithTag("TRT_OFL","/TRT/Cond/DigVers","TRTCondDigVers-Collisions-01",force=True,forceMC=True)
 
 ###################################################
-print "Haas: RT OVERRIDE, old conditions (from Rt_override.py)"
+printfunc ("Haas: RT OVERRIDE, old conditions (from Rt_override.py)")
 #See https://twiki.cern.ch/twiki/pub/AtlasComputing/ConditionsTagComCondBlkpa00611/checkDB_COMCOND-BLKPA-006-11-17.2.10.6.txt
 
 #use data TRT T0 constants

@@ -107,7 +107,8 @@ public:
     virtual void setLocalParametersAndErrorMatrix();
 
     /** Extended method checking the type*/
-    virtual bool type(MeasurementBaseType::Type type) const override{
+    virtual bool type(MeasurementBaseType::Type type) const override final
+    {
       return (type==MeasurementBaseType::CompetingRIOsOnTrack);
     }
 

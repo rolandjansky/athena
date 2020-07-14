@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # -*- coding: utf-8 -*-
 # vim:fenc=utf-8
 #
@@ -13,6 +13,8 @@
 # Configuration should be updated and kept in this package for monitoring
 # Provide all triggers to be monitored
 # Provide list of categories and shifter plots
+
+# flake8: noqa   (obsolete code)
 
 # Provide function that is called by HLTMonitoring
 # Returns the name of tool in ToolSvc

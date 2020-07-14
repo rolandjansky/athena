@@ -32,7 +32,7 @@
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
-#include "TrigVertexFitter/TrigVertexingTool.h"
+#include "TrigVertexingTool.h"
 
 TrigVertexingTool::TrigVertexingTool(const std::string& t, 
 				     const std::string& n,

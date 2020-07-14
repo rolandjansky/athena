@@ -24,8 +24,7 @@ namespace InDet {
 
   // Constructor with parameters:
   SCT_Clusterization::SCT_Clusterization(const std::string& name, ISvcLocator* pSvcLocator) :
-    AthReentrantAlgorithm(name, pSvcLocator),
-    m_regionSelector{"RegSelSvc", name}
+    AthReentrantAlgorithm(name, pSvcLocator)
   {
     // Get parameter values from jobOptions file
     declareProperty("ClusterContainerCacheKey", m_clusterContainerCacheKey="");
@@ -61,6 +60,8 @@ namespace InDet {
     if (m_roiSeeded.value()) {
       ATH_CHECK(m_roiCollectionKey.initialize());
       ATH_CHECK(m_regionSelector.retrieve());
+    } else {
+      m_regionSelector.disable();
     }
 
     return StatusCode::SUCCESS;
@@ -161,7 +162,7 @@ namespace InDet {
         std::vector<IdentifierHash> listOfSCTIds;
         for (; roi!=roiE; ++roi) {
 	  listOfSCTIds.clear(); //Prevents needless memory reallocations
-          m_regionSelector->DetHashIDList(SCT, **roi, listOfSCTIds);
+          m_regionSelector->HashIDList(**roi, listOfSCTIds);
           ATH_MSG_VERBOSE(**roi);     
           ATH_MSG_VERBOSE( "REGTEST: SCT : Roi contains " << listOfSCTIds.size() << " det. Elements" );
           for (size_t i{0}; i < listOfSCTIds.size(); i++) {

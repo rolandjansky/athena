@@ -7,7 +7,7 @@ atlas_subdir( TrigmuRoI )
 atlas_add_component( TrigmuRoI
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps AthenaMonitoringKernelLib CxxUtils GaudiKernel TrigInterfacesLib TrigMuonRoIToolsLib TrigNavigationLib TrigSteeringEvent TrigT1Interfaces TrigT1Result )
+                     LINK_LIBRARIES AthenaBaseComps AthenaMonitoringKernelLib CxxUtils GaudiKernel TrigInterfacesLib TrigMuonToolInterfaces TrigNavigationLib TrigSteeringEvent TrigT1Interfaces TrigT1Result )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

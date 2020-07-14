@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOPIXELSERVICES_H
@@ -14,7 +14,7 @@ namespace InDetDD {
   class ServiceVolume;
 }
 
-class GeoPixelServices : public GeoVPixelFactory {
+class ATLAS_NOT_THREAD_SAFE GeoPixelServices : public GeoVPixelFactory { // Thread unsafe GeoVPixelFactory class is used.
 public:
   GeoPixelServices(InDetDD::Zone * envelopeZone = 0);
   ~GeoPixelServices();

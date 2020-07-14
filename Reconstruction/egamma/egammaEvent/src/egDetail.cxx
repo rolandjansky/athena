@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaEvent/egDetail.h"
@@ -45,7 +45,7 @@ bool egDetail::hasBoolParameter(egammaParameters::ParamDef) const
 
 const std::string& egDetail::className() const
 {
-  static std::string name;
+  static const std::string name;
   return name;
 }
 

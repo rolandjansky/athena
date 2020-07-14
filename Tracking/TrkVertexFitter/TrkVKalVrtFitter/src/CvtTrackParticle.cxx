@@ -33,7 +33,7 @@ namespace Trk {
  {
 
     std::vector<const xAOD::TrackParticle*>::const_iterator   i_ntrk;
-    AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
+    AmgVector(5) VectPerig; VectPerig.setZero();
     const Trk::Perigee*        mPer=nullptr;
     double CovVertTrk[15]; std::fill(CovVertTrk,CovVertTrk+15,0.);
     double tmp_refFrameX=0, tmp_refFrameY=0, tmp_refFrameZ=0;
@@ -139,7 +139,7 @@ namespace Trk {
                                       State& state) const
  {
     std::vector<const xAOD::NeutralParticle*>::const_iterator   i_ntrk;
-    AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
+    AmgVector(5) VectPerig; VectPerig.setZero();
     const  NeutralPerigee*        mPer=nullptr;
     double CovVertTrk[15]; std::fill(CovVertTrk,CovVertTrk+15,0.);
     double tmp_refFrameX=0, tmp_refFrameY=0, tmp_refFrameZ=0;
@@ -247,7 +247,7 @@ namespace Trk {
  {
 
     std::vector<const TrackParticleBase*>::const_iterator   i_ntrk;
-    AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
+    AmgVector(5) VectPerig; VectPerig.setZero();
     const Trk::Perigee*        mPer=nullptr;
     double CovVertTrk[15]; std::fill(CovVertTrk,CovVertTrk+15,0.);
     double tmp_refFrameX=0, tmp_refFrameY=0, tmp_refFrameZ=0;

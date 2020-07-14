@@ -88,14 +88,15 @@ class TestChainConfiguration(ChainConfigurationBase):
             'muv1step': ['Step_mu11'],
             'muv1':     ['Step_mu11', 'Step_mu21', 'Step_mu31', 'Step_mu41'], 
             'muv2':     ['Step_mu11', 'Step_mu22', 'Step_mu31'],
-            'muEmpty' : ['Step_mu11' ,'Step_empty' ,'Step_mu32', 'Step_mu41'],
-            'muv1dr' : ['Step_mu11Dr', 'Step_mu21'],
+            'muEmpty1': ['Step_empty1', 'Step_mu21'],
+            'muEmpty2': ['Step_mu11'  ,'Step_empty2' ,'Step_mu32', 'Step_mu41'],
+            'muv1dr' :  ['Step_mu11Dr', 'Step_mu21'],
             #egamma
             'ev1':     ['Step_em11', 'Step_em21', 'Step_em31'],
             'ev2':     ['Step_em11', 'Step_em22'], 
             'ev3':     ['Step_em11', 'Step_em23'],
             'gv1':     ['Step_gam11'],
-            'ev1dr' : ['Step_em11Dr', 'Step_em21Dr']
+            'ev1dr' :  ['Step_em11Dr', 'Step_em21Dr']
         }
 
         log.debug('test chain part = ' + str(self.chainPart))
@@ -144,9 +145,11 @@ class TestChainConfiguration(ChainConfigurationBase):
     def Step_mu41(self):
         return self.getStep(4,"mu11",[ muCfg411 ])
 
-    def Step_empty(self):
-        return self.getStep(2, "empty", [])
+    def Step_empty1(self):
+        return self.getEmptyStep(1,'empty')
 
+    def Step_empty2(self):
+        return self.getEmptyStep(2,'empty')
 
     # Electrons
 

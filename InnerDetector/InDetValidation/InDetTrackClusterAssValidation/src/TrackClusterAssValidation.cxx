@@ -756,6 +756,8 @@ MsgStream& InDet::TrackClusterAssValidation::dumpevent( MsgStream& out, const In
 
 void InDet::TrackClusterAssValidation::newClustersEvent(const EventContext& ctx,InDet::TrackClusterAssValidation::EventData_t &event_data) const
 {
+  std::lock_guard<std::mutex> lock(m_statMutex);
+
   // Get pixel clusters container
   //
   std::unique_ptr<SG::ReadHandle<SiClusterContainer> >       pixelcontainer;

@@ -41,12 +41,14 @@ inline void* raw_pointer(GenVertexPtr p){ return p.get();}
 #include "HepMC/GenVertex.h"
 namespace HepMC {
 typedef HepMC::GenVertex* GenVertexPtr;
-typedef HepMC::GenVertex* const  ConstGenVertexPtr;
+typedef const HepMC::GenVertex* ConstGenVertexPtr;
 inline GenVertexPtr newGenVertexPtr(const HepMC::FourVector &pos = HepMC::FourVector(0.0,0.0,0.0,0.0), const int i=0) {
     return new HepMC::GenVertex(pos,i);
 }
 inline int barcode(ConstGenVertexPtr p){ return p->barcode();}
 inline void* raw_pointer(GenVertexPtr p){ return p;}
+inline const void* raw_pointer(ConstGenVertexPtr p){ return p;}
+inline std::ostream& operator<<( std::ostream& os, const GenVertex* v ) { if (v) return os<<(*v); else return os;} 
 }
 #endif
 #endif

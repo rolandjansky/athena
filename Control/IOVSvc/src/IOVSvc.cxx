@@ -463,7 +463,7 @@ IOVSvc::setRangeInDB(const CLID& clid, const std::string& key,
 
 StatusCode 
 IOVSvc::regFcn(SG::DataProxy* dp, 
-               const CallBackID c, 
+               const CallBackID& c, 
                const IOVSvcCallBackFcn& fcn,
                bool trigger) {
 
@@ -481,8 +481,8 @@ IOVSvc::regFcn(SG::DataProxy* dp,
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 StatusCode 
-IOVSvc::regFcn(const CallBackID c1,
-               const CallBackID c2, const IOVSvcCallBackFcn& fcn2, 
+IOVSvc::regFcn(const CallBackID& c1,
+               const CallBackID& c2, const IOVSvcCallBackFcn& fcn2, 
                bool trigger) {
 
 
@@ -509,7 +509,7 @@ IOVSvc::regFcn(const CallBackID c1,
 
 StatusCode 
 IOVSvc::regFcn(const std::string& toolName,
-               const CallBackID c2, const IOVSvcCallBackFcn& fcn2, 
+               const CallBackID& c2, const IOVSvcCallBackFcn& fcn2, 
                bool trigger) {
 
   IAlgTool *ia;

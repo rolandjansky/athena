@@ -118,7 +118,7 @@ class DefaultL1MuctpiPhase1Tool( LVL1MUCTPIPHASE1__MUCTPI_AthTool ):
     self.RunPeriod = "UNDEFINED"
     self.FlaggingMode = False
     self.MultiplicityStrategyName = "INCLUSIVE"
-    self.GeometryXMLFile = "TrigT1MuctpiPhase1/L1MuonGeometry.xml"
+    self.GeometryXMLFile = "TrigConfMuctpi/L1MuonGeometry_20200629.xml"
 
     # Decide which LUT to use, based on which run we are simulating:
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags

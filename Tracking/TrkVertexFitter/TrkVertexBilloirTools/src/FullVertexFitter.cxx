@@ -374,11 +374,13 @@ namespace Trk
 				if ( mom_at_Origin[iRP] ( 1 ) > M_PI )
 				{
 					mom_at_Origin[iRP] ( 1 ) = 2*M_PI - mom_at_Origin[iRP] ( 1 );
+                                        // cppcheck-suppress identicalInnerCondition; false positive
 					if ( mom_at_Origin[iRP] ( 0 ) >= 0 )   mom_at_Origin[iRP] ( 0 )  += ( mom_at_Origin[iRP] ( 0 ) >0 ) ? -M_PI : M_PI;
 				}
 				if ( mom_at_Origin[iRP] ( 1 ) < 0.0 )
 				{
 					mom_at_Origin[iRP] ( 1 )  = - mom_at_Origin[iRP] ( 1 );
+                                        // cppcheck-suppress identicalInnerCondition; false positive
 					if ( mom_at_Origin[iRP] ( 0 ) >= 0 )  mom_at_Origin[iRP] ( 0 ) += ( mom_at_Origin[iRP] ( 0 ) >0 ) ? -M_PI : M_PI;
 				}
 

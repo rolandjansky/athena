@@ -13,7 +13,7 @@
 
 #include "TrigT1Interfaces/RecMuonRoiSvc.h"
 
-#include "TrigMuonRoITools/ITrigMuonRoITool.h"
+#include "TrigMuonToolInterfaces/ITrigMuonRoITool.h"
 
 #include <string>
 #include <stdint.h>

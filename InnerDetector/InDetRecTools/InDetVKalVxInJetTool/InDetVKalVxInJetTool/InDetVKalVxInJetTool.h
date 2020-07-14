@@ -101,8 +101,8 @@ namespace InDet {
 		     std::vector<const Rec::TrackParticle*>    TrkFromV0;
   };
 
-//This tool should not be used in a reentrant algorithm because of the mutable m_NRefPVTrk
-  class ATLAS_NOT_THREAD_SAFE InDetVKalVxInJetTool : public AthAlgTool, virtual public ISecVertexInJetFinder{
+  class ATLAS_NOT_THREAD_SAFE InDetVKalVxInJetTool : //This tool should not be used in a reentrant algorithm because of the mutable m_NRefPVTrk
+    public AthAlgTool, virtual public ISecVertexInJetFinder{
 
 
   public:
@@ -405,7 +405,7 @@ namespace InDet {
 //
 //
 
-      void printWrkSet(const std::vector<WrkVrt> * WrkSet, const std::string name ) const;
+      void printWrkSet(const std::vector<WrkVrt> * WrkSet, const std::string& name ) const;
 
 
       StatusCode CutTrk(double,double, double , double , double , 
@@ -443,15 +443,15 @@ namespace InDet {
       double JetProjDist(Amg::Vector3D &SecVrt, const xAOD::Vertex &PrimVrt, const TLorentzVector &JetDir) const;
 
       double VrtVrtDist(const Trk::RecVertex & PrimVrt, const Amg::Vector3D & SecVrt, 
-                                  const std::vector<double> VrtErr,double& Signif ) const;
+                                  const std::vector<double>& VrtErr,double& Signif ) const;
       double VrtVrtDist(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
-                                  const std::vector<double> VrtErr,double& Signif ) const;
+                                  const std::vector<double>& VrtErr,double& Signif ) const;
       double VrtVrtDist2D(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
-                                  const std::vector<double> VrtErr,double& Signif ) const;
+                                  const std::vector<double>& VrtErr,double& Signif ) const;
       double VrtVrtDist(const Trk::RecVertex & PrimVrt, const Amg::Vector3D & SecVrt, 
-                                  const std::vector<double> SecVrtErr, const TLorentzVector & JetDir) const;
+                                  const std::vector<double>& SecVrtErr, const TLorentzVector & JetDir) const;
       double VrtVrtDist(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
-                                  const std::vector<double> SecVrtErr, const TLorentzVector & JetDir) const;
+                                  const std::vector<double>& SecVrtErr, const TLorentzVector & JetDir) const;
       double VrtVrtDist(const Amg::Vector3D & Vrt1, const std::vector<double>& VrtErr1,
                         const Amg::Vector3D & Vrt2, const std::vector<double>& VrtErr2) const;
  

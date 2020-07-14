@@ -31,7 +31,6 @@ MdtRdoToMdtPrep...   INFO Processing configuration for layouts with BMG chambers
 MdtRdoToMdtPrep...   INFO Processing configuration for layouts with BME chambers.
 MdtRdoToMdtPrep...   INFO Processing configuration for layouts with BMG chambers.
 MdtRdoToMdtPrep...   INFO Retrieved DecodingTool = PrivateToolHandle('Muon::MdtRdoToPrepDataToolMT/MdtRdoToMdtPrepDataTool')
-CscRdoToCscPrep...   INFO The Geometry version is MuonSpectrometer-R.08.01
 CscRdoToCscPrep...   INFO Retrieved CscRdoToCscPrepDataTool = PrivateToolHandle('Muon::CscRdoToCscPrepDataToolMT/CscRdoToCscPrepDataTool')
 MdtRawDataProvi...   INFO Fraction of fills that use the cache = 0
 TgcRawDataProvi...   INFO Fraction of fills that use the cache = 0

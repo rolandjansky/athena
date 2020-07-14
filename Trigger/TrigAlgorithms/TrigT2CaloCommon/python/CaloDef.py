@@ -119,6 +119,7 @@ def clusterFSInputMaker( ):
   RoIs = 'FSJETRoI'
   from AthenaConfiguration.ComponentFactory import CompFactory
   InputMakerAlg = CompFactory.InputMakerForRoI("IMclusterFS", RoIsLink="initialRoI")
+  InputMakerAlg.RoITool = CompFactory.ViewCreatorInitialROITool()
   InputMakerAlg.RoIs=RoIs
   return InputMakerAlg
 
@@ -143,11 +144,13 @@ def HLTRoITopoRecoSequence(RoIs):
     import AthenaCommon.CfgMgr as CfgMgr
     HLTRoITopoRecoSequenceVDV = CfgMgr.AthViews__ViewDataVerifier("HLTRoITopoRecoSequenceVDV")
     HLTRoITopoRecoSequenceVDV.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+PrecisionCaloRoIs' ),
-                                             ( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' )]
+                                             ( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' ),
+                                             ( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' )]
 
     # Make sure BCID average still available at whole-event level
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
+    topSequence.SGInputLoader.Load += [( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorrRecomputed' )]
     if not hasattr( topSequence, "CaloBCIDAvgAlg" ):
       topSequence.SGInputLoader.Load += [( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' )]
 

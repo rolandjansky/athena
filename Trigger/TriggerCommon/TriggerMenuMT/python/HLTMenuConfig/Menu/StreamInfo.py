@@ -47,7 +47,8 @@ _all_streams = [
     StreamInfo('HardProbes', 'physics', True, True),
     StreamInfo('MinBias', 'physics', True, True),
     # Special stream to be used only for special chains rejecting all events like timeburner
-    StreamInfo('DISCARD', 'unknown', False, False)
+    StreamInfo('DISCARD', 'unknown', False, False),
+    StreamInfo('ZeroBias', 'physics', True, True)
 ]
 
 

@@ -46,7 +46,7 @@ atlas_add_component( egammaAlgs
 		     MCTruthClassifierLib CaloGeoHelpers CaloUtilsLib CaloDetDescrLib AthenaKernel  StoreGateLib 
 		     xAODTracking InDetReadoutGeometry EgammaAnalysisInterfacesLib egammaRecEvent egammaUtils
 		     TrkToolInterfaces InDetRecToolInterfaces FourMomUtils RecoToolInterfaces TrkTrack 
-		     TrkPseudoMeasurementOnTrack InDetConversionFinderToolsLib TrkCaloExtension)
+		     TrkPseudoMeasurementOnTrack InDetConversionFinderToolsLib TrkCaloExtension egammaInterfacesLib )
 	     
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
