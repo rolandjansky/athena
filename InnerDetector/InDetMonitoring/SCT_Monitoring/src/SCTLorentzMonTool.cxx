@@ -64,6 +64,7 @@ namespace{//anonymous namespace for functions at file scope
 SCTLorentzMonTool::SCTLorentzMonTool(const string &type, const string &name,
                                      const IInterface *parent) : SCTMotherTrigMonTool(type, name, parent),
                                                                  m_trackToVertexTool("Reco::TrackToVertex", this), // for TrackToVertexTool
+                                                                 m_getTrackHoles(true),
                                                                  m_phiVsNstrips{},
   m_phiVsNstrips_100{},
   m_phiVsNstrips_111{},
@@ -71,7 +72,6 @@ SCTLorentzMonTool::SCTLorentzMonTool(const string &type, const string &name,
   m_phiVsNstrips_Side_100{},
   m_phiVsNstrips_Side_111{},
   m_holeSearchTool("InDet::InDetTrackHoleSearchTool"),
-  m_getTrackHoles(true),
   m_pSCTHelper(nullptr),
   m_sctmgr(nullptr) {
   m_stream = "/stat";
