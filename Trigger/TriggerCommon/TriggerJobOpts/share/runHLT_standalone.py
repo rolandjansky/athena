@@ -163,16 +163,16 @@ else:   # athenaHLT
 
 # Set final Cond/Geo tag based on input file, command line or default
 globalflags.DetDescrVersion = opt.setDetDescr or TriggerFlags.OnlineGeoTag()
+ConfigFlags.GeoModel.AtlasVersion = globalflags.DetDescrVersion()
 globalflags.ConditionsTag = opt.setGlobalTag or TriggerFlags.OnlineCondTag()
-ConfigFlags.GeoModel.AtlasVersion = opt.setDetDescr or TriggerFlags.OnlineGeoTag()
-ConfigFlags.IOVDb.GlobalTag = opt.setGlobalTag or TriggerFlags.OnlineCondTag()
+ConfigFlags.IOVDb.GlobalTag = globalflags.ConditionsTag()
 
 # Other defaults
 jobproperties.Beam.beamType = 'collisions'
-ConfigFlags.Beam.Type = 'collisions'
+ConfigFlags.Beam.Type = jobproperties.Beam.beamType()
 jobproperties.Beam.bunchSpacing = 25
 globalflags.DatabaseInstance='CONDBR2' if opt.useCONDBR2 else 'COMP200'
-ConfigFlags.IOVDb.DatabaseInstance='CONDBR2' if opt.useCONDBR2 else 'COMP200'
+ConfigFlags.IOVDb.DatabaseInstance=globalflags.DatabaseInstance()
 athenaCommonFlags.isOnline.set_Value_and_Lock(opt.isOnline)
 
 log.info('Configured the following global flags:')
