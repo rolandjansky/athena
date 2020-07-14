@@ -73,15 +73,15 @@ StatusCode TrigCaloClusterCalibratorMT::execute(const EventContext& ctx) const
     // which is only finalized into an element link into the persistent
     // container later. Therefore while we have a modifiable cluster, it has to
     // have this local pointer present...
-    for (auto itrPair = std::make_tuple(inputClusters->begin(), outputClusters->begin());
-         itrPair != std::make_tuple(inputClusters->end(), outputClusters->end());
-         ++std::get<0>(itrPair), ++std::get<1>(itrPair)) {
-      const CaloClusterCellLink* inputLinks = (**std::get<0>(itrPair)).getCellLinks();
+    for (auto itrPair = std::make_pair(inputClusters->begin(), outputClusters->begin());
+         itrPair != std::make_pair(inputClusters->end(), outputClusters->end());
+         ++itrPair.first, ++itrPair.second) {
+      const CaloClusterCellLink* inputLinks = (**itrPair.first).getCellLinks();
       if (!inputLinks) {
         ATH_MSG_ERROR("Failed to read the cell links from the input clusters!");
         return StatusCode::FAILURE;
       }
-      (**std::get<1>(itrPair)).addCellLink(std::make_unique<CaloClusterCellLink>(*inputLinks));
+      (**itrPair.second).addCellLink(std::make_unique<CaloClusterCellLink>(*inputLinks));
     }
   }
 
