@@ -16,8 +16,6 @@
 
 #include "TrigInterfaces/FexAlgo.h"
 
-#include "GaudiKernel/ToolHandle.h"
-
 #include "xAODMuon/Muon.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTrigBphys/TrigBphys.h"

@@ -23,8 +23,6 @@
 #include "TrigEFBEEXFex.h"
 
 #include <math.h>
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "AthenaKernel/Timeout.h"
@@ -386,26 +384,16 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
     
     ATH_MSG_VERBOSE("AcceptAll is set to : " << (m_acceptAll ? "True, taking all events " : "False, applying selection" ));    
     // Retrieve event info
-    int IdRun   = 0;
+//    int IdRun   = 0;
     int IdEvent = 0;
     
     // JW - Try to get the xAOD event info
-    const EventInfo* pEventInfo(0);
     const xAOD::EventInfo *evtInfo(0);
     if ( store()->retrieve(evtInfo).isFailure() ) {
-        ATH_MSG_DEBUG("Failed to get xAOD::EventInfo " );
-        // now try the old event ifo
-        if ( store()->retrieve(pEventInfo).isFailure() ) {
-            ATH_MSG_DEBUG("Failed to get EventInfo " );
-            m_mon_Errors.push_back( ERROR_No_EventInfo );
-        } else {
-            IdRun   = pEventInfo->event_ID()->run_number();
-            IdEvent = pEventInfo->event_ID()->event_number();
-            ATH_MSG_DEBUG(" Run " << IdRun << " Event " << IdEvent << " using algo " << "m_lepAlgo");
-        }// found old event info
+        ATH_MSG_WARNING("Failed to get xAOD::EventInfo " );
     }else { // found the xAOD event info
         ATH_MSG_DEBUG(" Run " << evtInfo->runNumber() << " Event " << evtInfo->eventNumber() << " using algo m_lepAlgo" );
-        IdRun   = evtInfo->runNumber();
+//        IdRun   = evtInfo->runNumber();
         IdEvent = evtInfo->eventNumber();
     } // get event info
     
