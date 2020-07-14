@@ -41,8 +41,8 @@
   class SecVertexMergingTool : public AthAlgTool, virtual public IVertexMergingTool
   {
   public:
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override; 
+    virtual StatusCode finalize() override;
     
     /**
      * constructor
@@ -57,16 +57,16 @@
     /**
      *Merging  
      */
-    virtual std::pair<xAOD::VertexContainer*,xAOD::VertexAuxContainer*> mergeVertexContainer(const xAOD::VertexContainer& MyVxCont);
+    virtual std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
+    mergeVertexContainer(const xAOD::VertexContainer& MyVxCont) const override;
 
-        
   private:
     
     int m_Compatidime ;  // Lianyou added
     float m_minDist ;
     ToolHandle< Trk::IVertexFitter > m_iVertexFitter;
 
-    bool checkCompatibility( const xAOD::Vertex * vx1, const xAOD::Vertex * vx2 );
+    bool checkCompatibility( const xAOD::Vertex * vx1, const xAOD::Vertex * vx2 ) const;
      
   }; //end of class description
  }//end of namespace definition
