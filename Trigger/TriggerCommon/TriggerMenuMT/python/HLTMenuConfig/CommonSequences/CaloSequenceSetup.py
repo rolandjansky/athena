@@ -89,7 +89,7 @@ def LCCaloClusterRecoSequence(
     alg = TrigCaloClusterCalibratorMT_LC(
             name,
             InputClusters = em_clusters,
-            OutputClusters = recordable(outputName),
+            OutputClusters = outputName,
             OutputCellLinks = outputName+"_cellLinks")
     return parOR(name+"RecoSequence", [em_sequence, alg]), alg.OutputClusters
 
