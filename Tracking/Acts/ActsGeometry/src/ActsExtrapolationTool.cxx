@@ -80,7 +80,7 @@ ActsExtrapolationTool::initialize()
 
     ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
 
-    BField_t bField(m_fieldCacheCondObjInputKey);
+    BField_t bField;
     auto stepper = Acts::EigenStepper<BField_t>(std::move(bField));
     auto propagator = Acts::Propagator<decltype(stepper), Acts::Navigator>(std::move(stepper),
                                                                       std::move(navigator));
@@ -114,7 +114,7 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
   using namespace Acts::UnitLiterals;
   ATH_MSG_VERBOSE(name() << "::" << __FUNCTION__ << " begin");
 
-  Acts::MagneticFieldContext mctx;
+  Acts::MagneticFieldContext mctx = getMagneticFieldContext(ctx);
   const ActsGeometryContext& gctx
     = m_trackingGeometryTool->getGeometryContext(ctx);
 

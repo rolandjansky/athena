@@ -60,9 +60,7 @@ ActsAdaptiveMultiPriVtxFinderTool::initialize()
     Acts::Navigator navigator(trackingGeometry);
 
     using BField_t = ATLASMagneticFieldWrapper;
-    ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
-    BField_t bField(m_fieldCacheCondObjInputKey);
-
+    BField_t bField;
     auto stepper = Acts::EigenStepper<BField_t>(std::move(bField));
     auto propagator = std::make_shared<Propagator>(std::move(stepper), 
       std::move(navigator));
