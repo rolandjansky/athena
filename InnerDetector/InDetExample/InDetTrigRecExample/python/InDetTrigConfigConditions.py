@@ -189,16 +189,15 @@ class PixelConditionsServicesSetup:
     #########################
     # TDAQ Conditions Setup #
     #########################
-    TrigPixelTDAQConditionsTool = None
-    PixelTDAQFolder   = "/TDAQ/Resources/ATLAS/PIXEL/Modules"
     if self.useTDAQ:
+      PixelTDAQFolder   = "/TDAQ/Resources/ATLAS/PIXEL/Modules"
       PixelTDAQInstance = "TDAQ_ONL"
       if not conddb.folderRequested(PixelTDAQFolder):
         conddb.addFolder(PixelTDAQInstance, PixelTDAQFolder, className="CondAttrListCollection")
 
-    if not hasattr(condSeq, "PixelTDAQCondAlg"):
-      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelTDAQCondAlg
-      condSeq += PixelTDAQCondAlg(name="PixelTDAQCondAlg", ReadKey=PixelTDAQFolder)
+      if not hasattr(condSeq, "PixelTDAQCondAlg"):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelTDAQCondAlg
+        condSeq += PixelTDAQCondAlg(name="PixelTDAQCondAlg", ReadKey=PixelTDAQFolder)
 
     ############################
     # Conditions Summary Setup #

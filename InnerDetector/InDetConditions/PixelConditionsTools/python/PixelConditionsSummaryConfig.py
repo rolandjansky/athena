@@ -6,7 +6,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 from PixelConditionsAlgorithms.PixelConditionsConfig import (
-    PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg, PixelTDAQCondAlgCfg 
+    PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg
 # NEW FOR RUN3 , PixelDeadMapCondAlgCfg
 )
 
@@ -17,7 +17,6 @@ def PixelConditionsSummaryCfg(flags, name="PixelConditionsSummary", **kwargs):
     acc.merge(PixelDCSCondStateAlgCfg(flags))
     acc.merge(PixelDCSCondStatusAlgCfg(flags))
 # NEW FOR RUN3    acc.merge(PixelDeadMapCondAlgCfg(flags))
-    acc.merge(PixelTDAQCondAlgCfg(flags))
     acc.setPrivateTools(CompFactory.PixelConditionsSummaryTool(name=name + "Tool", **kwargs))
     return acc
 
