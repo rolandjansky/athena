@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASSERVICES_StandardFieldSvc_H
@@ -41,7 +41,7 @@ class AtlasField : public G4MagneticField
 
     /// Pointer to the magnetic field service.
     /// We use a raw pointer here to avoid ServiceHandle overhead.
-    MagField::IMagFieldSvc* m_magFieldSvc;
+    MagField::IMagFieldSvc* m_magFieldSvc{};
 };
 
 
@@ -57,7 +57,7 @@ class StandardFieldSvc final : public G4MagFieldSvcBase
     /// Standard constructor
     StandardFieldSvc(const std::string& name, ISvcLocator* pSvcLocator);
     /// Empty destructor
-    ~StandardFieldSvc() {}
+    ~StandardFieldSvc() = default;
 
     /// Athena method. called at initialization time, being customized here.
     StatusCode initialize() override final;
@@ -70,7 +70,7 @@ class StandardFieldSvc final : public G4MagFieldSvcBase
   private:
 
     /// Handle to the ATLAS magnetic field service
-    ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
+    ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc{this, "MagneticFieldSvc", "MagField::AtlasFieldSvc/AtlasFieldSvc"};
 
 };
 
