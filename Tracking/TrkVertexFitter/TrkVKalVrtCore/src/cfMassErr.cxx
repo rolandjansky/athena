@@ -4,9 +4,9 @@
    Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
 #include "TrkVKalVrtCore/CommonPars.h"
 #include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
+#include <cmath>
 
 namespace Trk {
 
@@ -67,7 +67,6 @@ void cfmasserr(VKVertex * vk, int *list, double BMAG, double *MASS, double *sigM
   if((*MASS)<1.e-10)  (*MASS) = 1.e-10;
   (*MASS)   = sqrt(*MASS);
   (*sigM) = sqrt(covM2) / 2. / (*MASS);
-  return;
 }
 
 
