@@ -70,6 +70,7 @@ class DetFlags:
             self._flag_TRT   = False
             self._flag_BCM   = False
             self._flag_DBM   = False
+            self._flag_HGTD = False
             # Forward
             self._flag_Lucid = False
             self._flag_ZDC = False
@@ -144,6 +145,7 @@ class DetFlags:
             self.TRT_setOn()
             self.BCM_setOn()
             self.DBM_setOn()
+            self.HGTD_setOn() # TODO: should of course only happen during Phase-II jobs - understand how to protect before committing! /CO
         def ID_setOff (self):
             self.bpipe_setOff()
             self.pixel_setOff()
@@ -151,12 +153,13 @@ class DetFlags:
             self.TRT_setOff()
             self.BCM_setOff()
             self.DBM_setOff()
+            self.HGTD_setOff()
         def Calo_setOn (self):
             self.em_setOn()
             self.HEC_setOn()
             self.FCal_setOn()
             self.Tile_setOn()
-            self.MBTS_setOn()
+            self.MBTS_setOn() # TODO: should not be allowed when HGTD is on. Need to support at all at HL-LHC?
         def Calo_setOff (self):
             self.em_setOff()
             self.HEC_setOff()
@@ -212,9 +215,9 @@ class DetFlags:
         def Forward_allOn (self):
             return self.ALFA_on() & self.ZDC_on() & self.Lucid_on() & self.AFP_on() & self.FwdRegion_on()
         def ID_on (self):
-            return self.bpipe_on() | self.pixel_on() | self.SCT_on() | self.TRT_on() | self.BCM_on() | self.DBM_on()
+            return self.bpipe_on() | self.pixel_on() | self.SCT_on() | self.TRT_on() | self.BCM_on() | self.DBM_on() | self.HGTD_on()
         def ID_allOn (self):
-            return self.bpipe_on() & self.pixel_on() & self.SCT_on() & self.TRT_on() & self.BCM_on() & self.DBM_on()
+            return self.bpipe_on() & self.pixel_on() & self.SCT_on() & self.TRT_on() & self.BCM_on() & self.DBM_on() # TODO: Add HGTD, but should this be upgrade aware? Should probably return true if Run-2 job where HGTD isn't on, right? I don't see this for Micromegas below though... /CO
         def LAr_on (self):
             return self.em_on() | self.HEC_on() | self.FCal_on() 
         def LAr_allOn (self):
@@ -345,6 +348,10 @@ class DetFlags:
         cls._setAllTask('DBM','setOn')
     def DBM_setOff (cls):
         cls._setAllTask('DBM','setOff')
+    def HGTD_setOn (cls):
+        cls._setAllTask('HGTD','setOn')
+    def HGTD_setOff (cls):
+        cls._setAllTask('HGTD','setOff')
 
     def ALFA_setOn (cls):
         cls._setAllTask('ALFA','setOn')
@@ -456,7 +463,7 @@ class DetFlags:
         cls._setAllTask('Muon','setOff')
 
     def all_setOn (cls):
-        cls._setAllTask('all','setOn')
+        cls._setAllTask('all','setOn') # TODO: how can one protect against turning both MBTS and HGTD on? /CO
     def all_setOff (cls):
         cls._setAllTask('all','setOff')
 
@@ -481,6 +488,8 @@ class DetFlags:
         return cls._anyTask_on('BCM')
     def DBM_on (cls):
         return cls._anyTask_on('DBM')
+    def HGTD_on (cls):
+        return cls._anyTask_on('HGTD')
 
     def ALFA_on (cls):
         return cls._anyTask_on('ALFA')
@@ -546,7 +555,7 @@ class DetFlags:
 
     # show flags
     def Print (cls):
-        id  =["bpipe","pixel","SCT","TRT","BCM","DBM"]
+        id  =["bpipe","pixel","SCT","TRT","BCM","DBM","HGTD"]
         forward=["Lucid", "ZDC", "ALFA", "AFP", "FwdRegion"]
         calo=["em","HEC","FCal","Tile","MBTS"]
         muon=["MDT","CSC","TGC","RPC","sTGC","Micromegas"]
@@ -554,7 +563,7 @@ class DetFlags:
         l1=["LVL1"]
         bf=["BField"]
         ftk=["FTK"]
-        # crate detectors row and format
+        # create detectors row and format
         item=[]
         item.append("")
         format = "%13s :"
@@ -596,6 +605,8 @@ class DetFlags:
     BCM_setOff   = classmethod(BCM_setOff)
     DBM_setOn    = classmethod(DBM_setOn)
     DBM_setOff   = classmethod(DBM_setOff)
+    HGTD_setOn   = classmethod(HGTD_setOn)
+    HGTD_setOff   = classmethod(HGTD_setOff)
     ALFA_setOn = classmethod(ALFA_setOn)
     ALFA_setOff= classmethod(ALFA_setOff)
     AFP_setOn = classmethod(AFP_setOn)
@@ -656,6 +667,7 @@ class DetFlags:
     TRT_on       = classmethod(TRT_on)
     BCM_on       = classmethod(BCM_on)
     DBM_on       = classmethod(DBM_on)
+    HGTD_on      = classmethod(HGTD_on)
     ALFA_on      = classmethod(ALFA_on)
     AFP_on       = classmethod(AFP_on)
     ZDC_on       = classmethod(ZDC_on)
