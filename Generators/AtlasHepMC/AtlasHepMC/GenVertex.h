@@ -45,6 +45,10 @@ typedef const HepMC::GenVertex* ConstGenVertexPtr;
 inline GenVertexPtr newGenVertexPtr(const HepMC::FourVector &pos = HepMC::FourVector(0.0,0.0,0.0,0.0), const int i=0) {
     return new HepMC::GenVertex(pos,i);
 }
+namespace Print {
+inline void line(std::ostream& os,const GenVertex& v){v.print(os);}
+inline void line(std::ostream& os,const GenVertex* v){v->print(os);}
+}
 inline int barcode(ConstGenVertexPtr p){ return p->barcode();}
 inline void* raw_pointer(GenVertexPtr p){ return p;}
 inline const void* raw_pointer(ConstGenVertexPtr p){ return p;}
