@@ -21,7 +21,9 @@ def LVL1CaloMonitoringConfig(flags):
     if isData and flags.DQ.Environment not in ('tier0Raw', 'AOD'):
         from TrigT1CaloMonitoring.CpmMonitorAlgorithm import CpmMonitoringConfig
         from TrigT1CaloMonitoring.PprMonitorAlgorithm import PprMonitoringConfig
+
         result.merge(CpmMonitoringConfig(flags))
+        result.merge(PprMonitoringConfig(flags))
 
 
     return result

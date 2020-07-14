@@ -130,9 +130,9 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     vec_EM_cpET_5.push_back(cpET > 5);
     vec_EM_cpET_5_noDuplicates.push_back((cpET > 5) && !isDuplicate);
     vec_EM_jepET_0.push_back(jepET > 0);
-    vec_EM_jepET_0_noDuplicates.push_back((cpET > 0) && !isDuplicate);
+    vec_EM_jepET_0_noDuplicates.push_back((jepET > 0) && !isDuplicate);
     vec_EM_jepET_5.push_back(jepET > 5);
-    vec_EM_jepET_5_noDuplicates.push_back((cpET > 5) && !isDuplicate); 
+    vec_EM_jepET_5_noDuplicates.push_back((jepET > 5) && !isDuplicate); 
       
 
     // -------- ADC hitmaps per timeslice --------
