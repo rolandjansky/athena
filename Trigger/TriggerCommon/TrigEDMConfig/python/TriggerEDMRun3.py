@@ -327,7 +327,7 @@ TriggerHLTListRun3 = [
     ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersFS',                  'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
     ('xAOD::CaloClusterTrigAuxContainer#HLT_TopoCaloClustersFSAux.nCells', 'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
     ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersLCFS',                  'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
-    ('xAOD::ShallowAuxContainer#HLT_TopoCaloClustersLCFSAux.', 'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
+    ('xAOD::ShallowAuxContainer#HLT_TopoCaloClustersLCFSAux.calE.calEta.calPhi.calM', 'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
 
     # tau
     # will enable when needed
