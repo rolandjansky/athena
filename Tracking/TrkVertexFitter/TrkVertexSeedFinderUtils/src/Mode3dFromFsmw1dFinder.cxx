@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 //Author: Lianyou Shan <lianyou.shan@cern.ch>
 //#define Mode3dFromFsmw1d_DEBUG
@@ -1269,7 +1269,7 @@ void
 Mode3dFromFsmw1dFinder::Mode3dFromFsmw1dInfo::pushIndices
   (const std::vector< std::pair<int,int> >& modes)
 {
-  for (const std::pair<int,int> p : modes) {
+  for (const std::pair<int,int>& p : modes) {
     m_UsedCrossingPointsIndices.push_back( p.first ) ;
   }
 }

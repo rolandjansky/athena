@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetMomentTools/JetVoronoiDiagramHelpers.h"
@@ -128,7 +128,7 @@ namespace JetVoronoiDiagramHelpers{
 
     size_t Diagram::findPointIndex(const Point &a) const{
         size_t index=0;
-        for (const Point b: m_voro_vtx){
+        for (const Point& b: m_voro_vtx){
             if (a==b) return index;
             index++;
         }
