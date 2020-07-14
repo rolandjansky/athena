@@ -31,7 +31,7 @@ def JetTagCalibCfg(ConfigFlags, scheme="", TaggerList = [], **kwargs):
 
     newChannel = kwargs.get("NewChannel")
     if newChannel:
-        CalibrationChannelAliases.append(newChannel)
+        CalibrationChannelAliases+=newChannel
 
     #IP2D
     grades= ConfigFlags.BTagging.Grades
