@@ -11,53 +11,51 @@ HIEventShapeMapTool::HIEventShapeMapTool(const std::string& n) : asg::AsgTool(n)
 }
 
 StatusCode HIEventShapeMapTool::initialize(){
-  //The idea is that the tool is being configured w/ all the necessary info and intialiazed accordingly
-  //This is to prevent access and changes afterwards, that have to be mutexed
-  HIEventShapeIndex index_1;
+
+  HIEventShapeIndex index_1, index_2;
   index_1.setBinning(HIEventShapeIndex::COMPACT);
-  //What was done before at level of HIEventShapeFillerTool
-  ATH_CHECK(insert(m_containerName,index_1));
-  //Now the HIEventShapeJetIteration - here we depend from the initialization flags
-  std::vector < HIEventShapeIndex > index_i;
-  if( m_useCaloCell == true || (m_useCaloCell == false && m_useClusters == false) ){
-    for(int i = 0; i < (int)m_JetIterNames.size(); i++)
-    {
-      index_i.push_back(HIEventShapeIndex());
-      index_i.back().setBinning(HIEventShapeIndex::COMPACT);
-      ATH_CHECK(insert(m_JetIterNames[i],index_i.back()));
-    }
-  }
-  else if ( m_useCaloCell == false && m_useClusters == true ){
-    for(int i = 0; i < (int)m_JetIterNames.size(); i++)
-    {
-      index_i.push_back(HIEventShapeIndex());
-      index_i.back().setBinning(HIEventShapeIndex::TOWER);
-      ATH_CHECK(insert(m_JetIterNames[i],index_i.back()));
-    }
-  }
+  index_2.setBinning(HIEventShapeIndex::TOWER);
+  m_map[ IHIEventShapeMapTool::COMPACT ] = index_1;
+  m_map[ IHIEventShapeMapTool::TOWER   ] = index_2;
+
   return StatusCode::SUCCESS;
 }
 
-StatusCode HIEventShapeMapTool::insert(std::string key, const HIEventShapeIndex& index, bool clobber)
+const HIEventShapeIndex* HIEventShapeMapTool::getIndex(IHIEventShapeMapTool::BinningScheme key) const
 {
-  std::map<std::string,HIEventShapeIndex>::iterator mItr=getMap().find(key);
-  if(mItr!=getMap().end())
-  {
-    if(clobber) mItr->second=index;
-  }
-  else mItr=getMap().insert(std::pair<std::string,HIEventShapeIndex>(key,index)).first;
-  //return &(mItr->second);
-  return StatusCode::SUCCESS;
-}
+  std::string myKey;
+  if(key == IHIEventShapeMapTool::COMPACT) myKey="COMPACT";
+  else if (key == IHIEventShapeMapTool::TOWER ) myKey="TOWER";
+  else myKey = "UNKNOWN SHAPE";
 
-const HIEventShapeIndex* HIEventShapeMapTool::getIndex(std::string key) const
-{
-  auto itr=getMap().find(key);
-  if(itr==getMap().end()) return nullptr;
+  auto itr=m_map.find(key);
+  if(itr==m_map.end()) {
+    ATH_MSG_ERROR("HIEventShapeMapTool failed to find map w/ format  " << myKey);
+    return nullptr;
+  }
   return &(itr->second);
 }
 
-bool HIEventShapeMapTool::hasKey(std::string key)
+const HIEventShapeIndex* HIEventShapeMapTool::getIndexFromShape(const xAOD::HIEventShapeContainer* shape) const
 {
-  return (getMap().find(key)!=getMap().end());
+  ATH_MSG_INFO("In getIndexFromShape, Shape size " << shape->size() << " And TOWER is: " << (HI::TowerBins::numLayers()*HI::TowerBins::numEtaBins()));
+  if(shape->size() == IHIEventShapeMapTool::TOWER){
+    //TOWER
+    auto itr = m_map.find( IHIEventShapeMapTool::TOWER );
+    return &(itr->second);
+  }
+  else if(shape->size() == IHIEventShapeMapTool::COMPACT){
+    //COMPACT
+    auto itr = m_map.find( IHIEventShapeMapTool::COMPACT );
+    return &(itr->second);
+  }
+  else {
+    ATH_MSG_FATAL("Event Shape w/ unknown binning! Not TOWER or COMPACT. Not possible to get Index");
+    return nullptr;
+  }
+}
+
+bool HIEventShapeMapTool::hasKey(IHIEventShapeMapTool::BinningScheme key)
+{
+  return (m_map.find(key)!=m_map.end());
 }
