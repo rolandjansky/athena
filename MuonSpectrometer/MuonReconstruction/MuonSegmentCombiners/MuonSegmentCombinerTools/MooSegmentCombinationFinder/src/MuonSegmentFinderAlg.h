@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MOOSEGMENTFINDERS_MUOSEGMENTFINDERALGS_H
@@ -58,6 +58,7 @@ class MuonSegmentFinderAlg : public AthAlgorithm
   ToolHandle<Muon::IMuonClusterSegmentFinder>     m_clusterSegMaker;
   ToolHandle<Muon::IMuonSegmentOverlapRemovalTool> m_segmentOverlapRemovalTool;
   ToolHandle<Muon::IMuonClusterOnTrackCreator>    m_clusterCreator;  //<! pointer to muon cluster rio ontrack creator
+  ToolHandle<Muon::IMuonClusterOnTrackCreator>    m_mmClusterCreator;  //<! pointer to mm cluster rio ontrack creator
   ToolHandle<Muon::IMuonClusterSegmentFinderTool> m_clusterSegMakerNSW;
   ToolHandle<Muon::IMuonTruthSummaryTool>         m_truthSummaryTool;
   ToolHandle<ICscSegmentFinder>                  m_csc2dSegmentFinder;

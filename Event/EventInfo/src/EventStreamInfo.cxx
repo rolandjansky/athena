@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 /** @file EventStreamInfo.cxx
@@ -99,7 +99,7 @@ EventStreamInfo::print(MsgStream& log) const {
   }
   log << MSG::DEBUG << endmsg;
   log << MSG::DEBUG << "EventStreamInfo Processing Tags: ";
-  for (const std::string tag : m_processingTags) {
+  for (const std::string& tag : m_processingTags) {
     log << MSG::DEBUG << tag << ", ";
   }
   log << MSG::DEBUG << endmsg;

@@ -118,6 +118,9 @@ AthenaHiveEventLoopMgr::AthenaHiveEventLoopMgr(const std::string& nam,
   declareProperty("UseSecondaryEventNumber", m_useSecondaryEventNumber = false,
                   "In case of DoubleEventSelector use event number from secondary input");
 
+  declareProperty("FirstEventAlone", m_firstEventAlone = true,
+                  "process all of first event before scheduling any more");
+
   m_scheduledStop = false;
 
 }
@@ -785,6 +788,8 @@ StatusCode AthenaHiveEventLoopMgr::nextEvent(int maxevt)
   bool loop_ended=false;
   StatusCode sc(StatusCode::SUCCESS,true);
 
+  bool newEvtAllowed = ! m_firstEventAlone;
+  
   // Calculate runtime
   auto start_time = tbb::tick_count::now();
   auto secsFromStart = [&start_time]()->double{
@@ -798,6 +803,7 @@ StatusCode AthenaHiveEventLoopMgr::nextEvent(int maxevt)
     }
     
     if ( ( !m_terminateLoop ) && // The events are not finished with an unlimited number of events
+         (newEvtAllowed || createdEvts == 0) &&       // Launch first event alone
 	 ( (createdEvts < maxevt) or (maxevt<0) ) &&  // The events are not finished with a limited number of events
 	 (m_schedulerSvc->freeSlots()>0) ){ // There are still free slots in the scheduler
       
@@ -843,6 +849,7 @@ StatusCode AthenaHiveEventLoopMgr::nextEvent(int maxevt)
       } else {
 	// keep going!
       }
+      newEvtAllowed = true;
       
     }
   } // end main loop on finished events  

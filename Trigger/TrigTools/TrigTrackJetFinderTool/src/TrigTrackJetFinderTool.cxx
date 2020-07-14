@@ -13,7 +13,7 @@
 // 
 // *********************************************************
 
-#include "TrigTrackJetFinderTool/TrigTrackJetFinderTool.h"
+#include "TrigTrackJetFinderTool.h"
 #include "TMath.h"
 
 using namespace std;

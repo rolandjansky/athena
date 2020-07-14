@@ -49,7 +49,7 @@ class ISFG4Helper {
   static TrackInformation* attachTrackInfoToNewG4Track( G4Track& aTrack,
                                    const ISF::ISFParticle& baseIsp,
                                    TrackClassification classification,
-                                   HepMC::GenParticle *nonRegeneratedTruthParticle = nullptr);
+                                   HepMC::GenParticlePtr nonRegeneratedTruthParticle = nullptr);
   
   /** return pointer to current EventInformation */
   static EventInformation* getEventInformation();

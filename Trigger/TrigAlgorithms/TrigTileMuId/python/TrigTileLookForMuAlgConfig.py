@@ -1,13 +1,12 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-
+from TrigTileMuId import TrigTileMuIdConf
 from AthenaCommon.SystemOfUnits import MeV
 
-
-class TrigTileLookForMuAlg_L2(TrigTileLookForMuAlg):
+class TrigTileLookForMuAlg_L2(TrigTileMuIdConf.TrigTileLookForMuAlg):
     __slot__ = []
     def __init__(self, name='TrigTileLookForMuAlg_L2'):
-        TrigTileLookForMuAlg.__init__(self, name)
+        TrigTileMuIdConf.TrigTileLookForMuAlg.__init__(self, name)
 
         #self.ReadRoIsFromL1 = False
         self.ReadRoIsFromL1 = True
@@ -123,10 +122,10 @@ class TrigTileLookForMuAlg_L2(TrigTileLookForMuAlg):
         self.AthenaMonTools = [ time, cosmic, validation, online ] 
 
 
-class TrigTileLookForMuAlg_All(TrigTileLookForMuAlg):
+class TrigTileLookForMuAlg_All(TrigTileMuIdConf.TrigTileLookForMuAlg):
     __slot__ = []
     def __init__(self, name='TrigTileLookForMuAlg_All'):
-        TrigTileLookForMuAlg.__init__(self, name)
+        TrigTileMuIdConf.TrigTileLookForMuAlg.__init__(self, name)
 
         #self.ReadRoIsFromL1 = False
         self.ReadRoIsFromL1 = True

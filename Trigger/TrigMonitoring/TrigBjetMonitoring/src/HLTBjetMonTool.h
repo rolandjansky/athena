@@ -22,7 +22,7 @@
 
 
 
-#include "TrigTrackJetFinderTool/ITrigTrackJetFinderTool.h"
+#include "TrigInDetToolInterfaces/ITrigTrackJetFinderTool.h"
 
 
 #include "TrigDecisionTool/TrigDecisionTool.h"

@@ -48,6 +48,9 @@ def MuonClusterOnTrackCreator(name="MuonClusterOnTrackCreator",**kwargs):
 
     return CfgMgr.Muon__MuonClusterOnTrackCreator(name,**kwargs)
 
+def MMClusterOnTrackCreator(name="MMClusterOnTrackCreator",**kwargs):
+    return CfgMgr.Muon__MMClusterOnTrackCreator(name,**kwargs)
+
 def getMuonRIO_OnTrackErrorScalingCondAlg() :
     error_scaling_def=["CSCRIO_OnTrackErrorScaling:/MUON/TrkErrorScalingCSC"]
     return getRIO_OnTrackErrorScalingCondAlg( name                = "MuonRIO_OnTrackErrorScalingCondAlg",
