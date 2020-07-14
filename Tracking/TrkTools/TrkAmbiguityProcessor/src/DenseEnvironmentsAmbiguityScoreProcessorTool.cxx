@@ -54,9 +54,7 @@ Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::~DenseEnvironmentsAmbiguitySc
 StatusCode Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::initialize()
 {
   StatusCode sc = StatusCode::SUCCESS;
-
   ATH_CHECK( m_scoringTool.retrieve());
-
   ATH_CHECK( m_assoTool.retrieve()) ;
   ATH_CHECK( m_assoToolNotGanged.retrieve( DisableTool{m_assoToolNotGanged.empty()} )) ;
   ATH_CHECK( m_assoMapName.initialize(!m_assoMapName.key().empty()) );
@@ -68,8 +66,8 @@ StatusCode Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::initialize()
   ATH_CHECK( m_splitClusterMapKey_last.initialize(!m_splitClusterMapKey_last.key().empty()) );
   ATH_CHECK( m_splitClusterMapKey.initialize(!m_splitClusterMapKey.key().empty()) );
 
-  if (m_etaBounds.size() != TrackStat3::nRegions-1) {
-     ATH_MSG_FATAL("There must be exactly " << (TrackStat3::nRegions-1) << " eta bounds but "
+  if (m_etaBounds.size() != TrackStat3::nRegions) {
+     ATH_MSG_FATAL("There must be exactly " << (TrackStat3::nRegions) << " eta bounds but "
                    << m_etaBounds.size() << " are set." );
      return StatusCode::FAILURE;
   }
@@ -148,10 +146,8 @@ void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::addNewTracks(std::vector
 {
   TrackStat3 stat(m_etaBounds);
   stat.newEvent();
-
   std::unique_ptr<Trk::PRDtoTrackMap> prd_to_track_map( m_assoTool->createPRDtoTrackMap() );
   PrdSignatureSet prdSigSet;  
-
   ATH_MSG_DEBUG ("Number of tracks at Input: "<<tracks->size());
  
   for(const Track* a_track : *tracks) {
@@ -368,8 +364,8 @@ Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::dumpStat(MsgStream &out) cons
    out << m_stat.dumpRegions("  - candidates rejected as double :",    EStatType::kNcandDouble,iw);
    out << "------------------------------------------------------------------------------------" << "\n";
    out << std::setiosflags(std::ios::fixed | std::ios::showpoint) << std::setprecision(2)
-       << "    definition: ( 0.0 < Barrel < " << m_etaBounds[TrackStat3::iBarrel-1] << " < Transition < " << m_etaBounds[TrackStat3::iTransi-1]
-       << " < Endcap < " << m_etaBounds[TrackStat3::iEndcap-1] << " < Forward < " << m_etaBounds[TrackStat3::iForwrd-1] << " )" << "\n";
+       << "    definition: ( 0.0 < Barrel < " << m_etaBounds[TrackStat3::iBarrel] << " < Transition < " << m_etaBounds[TrackStat3::iTransi]
+       << " < Endcap < " << m_etaBounds[TrackStat3::iEndcap] << " < Forward < " << m_etaBounds[TrackStat3::iForwrd] << " )" << "\n";
    out << "------------------------------------------------------------------------------------" << "\n";
    out << std::setprecision(ss);
 }
