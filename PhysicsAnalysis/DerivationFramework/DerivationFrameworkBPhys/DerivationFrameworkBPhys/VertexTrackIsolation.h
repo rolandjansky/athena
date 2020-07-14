@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -31,6 +31,9 @@ namespace DerivationFramework {
       StatusCode finalize();
       
       virtual StatusCode addBranches() const;
+
+      bool isSame(const xAOD::Vertex* theVtx1, const xAOD::Vertex* theVtx2) const;
+      bool isContainedIn(const xAOD::Vertex* theVtx, const std::vector<const xAOD::Vertex*> &theColl) const;
       
     private:
 
@@ -40,7 +43,9 @@ namespace DerivationFramework {
 	std::vector<unsigned int> m_cones;
 	std::vector<std::string> m_passFlags;
 	int m_vertexType; 	//Which type of primary vertices should be used? (7 = 0b111 are all at the moment)
-	      
+
+        bool m_doIsoPerTrk;
+        int m_removeDuplicate;
   }; 
 }
 
