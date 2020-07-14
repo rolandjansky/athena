@@ -319,7 +319,7 @@ ActsExtrapolationTool::propagate(const EventContext& ctx,
   using namespace Acts::UnitLiterals;
   ATH_MSG_VERBOSE(name() << "::" << __FUNCTION__ << " begin");
 
-  Acts::MagneticFieldContext mctx;
+  Acts::MagneticFieldContext mctx = getMagneticFieldContext(ctx);
   const ActsGeometryContext& gctx
     = m_trackingGeometryTool->getGeometryContext(ctx);
 

@@ -57,6 +57,8 @@ ActsAdaptiveMultiPriVtxFinderTool::initialize()
     std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry
     = m_trackingGeometryTool->trackingGeometry();
 
+    ATH_CHECK( m_extrapolationTool.retrieve() );
+
     Acts::Navigator navigator(trackingGeometry);
 
     using BField_t = ATLASMagneticFieldWrapper;
@@ -216,7 +218,7 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, std::vect
     Acts::Surface::makeShared<Acts::PerigeeSurface>(beamSpotPos);
 
     // TODO: Get the correct magnetic field context
-    Acts::MagneticFieldContext magFieldContext;
+    Acts::MagneticFieldContext magFieldContext = m_extrapolationTool.getMagneticFieldContext(ctx);
 
     const auto& geoContext
     = m_trackingGeometryTool->getGeometryContext(ctx).any();
