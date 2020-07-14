@@ -14,7 +14,6 @@
 // Implementation provided by A. Zalite, February 2003
 ///////////////////////////////////////////////////////////////////
 
-#include <new>
 #include "InDetRawData/TRT_LoLumRawData.h"
 #include "InDetRawData/TRT_RDORawData.h"
 
@@ -71,18 +70,21 @@ bool TRT_LoLumRawData::findLargestIsland(unsigned int word, unsigned int& leadin
   bool SawZero = false;
   unsigned int k = 1;
   leadingEdge=0, trailingEdge=0;
+  unsigned int currentLeadingEdge=0, currentTrailingEdge=0;
 
   // shift bitmask to the right until end
   while (true) {
     if (!(wordLE & mask) && !SawZero) SawZero = true; // search for the first 0 to 1 transition
     if (SawZero) {
       if (wordLE & mask){
-        if (currentLength==0) leadingEdge=k;
-        trailingEdge=k;
+        if (currentLength==0) currentLeadingEdge=k;
+        currentTrailingEdge=k;
         ++currentLength;
       } else { /* remember longest island */
-        if (currentLength >= bestLength && leadingEdge<18 && trailingEdge>7 && currentLength>2) {
+        if (currentLength >= bestLength && currentLeadingEdge<18 && currentTrailingEdge>7 && currentLength>2) {
           bestLength = currentLength;
+          leadingEdge = currentLeadingEdge;
+          trailingEdge = currentTrailingEdge;
         }
         currentLength = 0;
       }
