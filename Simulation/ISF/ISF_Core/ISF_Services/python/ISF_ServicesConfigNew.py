@@ -20,7 +20,10 @@ from ISF_HepMC_Tools.ISF_HepMC_ToolsConfigNew import (
     ParticleSimWhiteListCfg,
 )
 from BarcodeServices.BarcodeServicesConfigNew import BarcodeSvcCfg
-
+from ISF_Geant4CommonTools.ISF_Geant4CommonToolsConfigNew import (
+    EntryLayerToolCfg, AFIIEntryLayerToolCfg
+)
+from ISF_Tools.ISF_ToolsConfigNew import ParticleOrderingToolCfg
 
 def GenParticleFiltersToolCfg(ConfigFlags):
     result = ComponentAccumulator()
@@ -62,6 +65,39 @@ def LongLivedInputConverterCfg(ConfigFlags, name="ISF_LongLivedInputConverter", 
     kwargs.setdefault("GenParticleFilters", gpfilt)
     kwargs.setdefault("QuasiStableParticlesIncluded", True)
     return InputConverterCfg(name, **kwargs)
+
+
+def ParticleBrokerSvcNoOrderingCfg(ConfigFlags, name="ISF_ParticleBrokerSvcNoOrdering", **kwargs):
+    result = EntryLayerToolCfg(ConfigFlags)
+    kwargs.setdefault("EntryLayerTool", result.popPrivateTools())
+    kwargs.setdefault("GeoIDSvc", result.getService("ISF_GeoIDSvc"))
+    kwargs.setdefault("AlwaysUseGeoIDSvc", False)
+    kwargs.setdefault("ValidateGeoIDs", ConfigFlags.ISF.ValidationMode)
+    kwargs.setdefault("ValidationOutput", ConfigFlags.ISF.ValidationMode)
+    kwargs.setdefault("ValidationStreamName", "ParticleBroker")
+    
+    baracc = BarcodeSvcCfg(ConfigFlags)
+    kwargs.setdefault("BarcodeService", baracc.getPrimary())
+    result.merge(baracc)
+    
+    result.addService(CompFactory.ISF.ParticleBrokerDynamicOnReadIn(name, **kwargs))
+    return result
+
+
+def ParticleBrokerSvcCfg(ConfigFlags, name="ISF_ParticleBrokerSvc", **kwargs):
+    # comment copied from old config
+    #kwargs.setdefault("ParticleOrderingTool", "ISF_InToOutSubDetOrderingTool")
+    result = ParticleOrderingToolCfg(ConfigFlags)
+    kwargs.setdefault("ParticleOrderingTool", result.popPrivateTools())
+    result.merge(ParticleBrokerSvcNoOrderingCfg(name, **kwargs))
+    return result
+
+
+def AFIIParticleBrokerSvcCfg(ConfigFlags, name="ISF_AFIIParticleBrokerSvc", **kwargs):
+    result = AFIIEntryLayerToolCfg(ConfigFlags)
+    kwargs.setdefault("EntryLayerTool", result.popPrivateTools())
+    result.merge(ParticleBrokerSvcCfg(name, **kwargs))
+    return result
 
 
 # Generic Truth Service Configurations
