@@ -73,8 +73,8 @@ class MemorySnooper(PyAthena.Alg):
         self.now = now
 
         pid = os.getpid()
-        statm = string.split(open('/proc/%d/statm' % pid, 'r').readlines()[0] )
-        stat = string.split(open('/proc/%d/stat' % pid, 'r').readlines()[0] )
+        statm = open('/proc/%d/statm' % pid, 'r').readlines()[0].split()
+        stat = open('/proc/%d/stat' % pid, 'r').readlines()[0].split()
         print ('*** The Application is in %s with %d kB of VMMEM and %d kB of RSS' % (app_phase,int(stat[22])/1048.576, int(statm[1])*4))
         self.file.write("%d %d %d %f\n" %  (self.eventNumber, int(stat[22])/1048.576, int(statm[1])*4, elapsed_time) )
 
@@ -90,8 +90,8 @@ class MemorySnooper(PyAthena.Alg):
         self.now = now
 
         pid = os.getpid()
-        statm = string.split(open('/proc/%d/statm' % pid, 'r').readlines()[0] )
-        stat = string.split(open('/proc/%d/stat' % pid, 'r').readlines()[0] )
+        statm = open('/proc/%d/statm' % pid, 'r').readlines()[0].split()
+        stat = open('/proc/%d/stat' % pid, 'r').readlines()[0].split()
         if (int(stat[22])/1048.576 != self.memoV or int(statm[0])*4 != self.memoR):
             self.memoV = int(stat[22])/1048.576
             self.memoR = int(statm[0])*4
