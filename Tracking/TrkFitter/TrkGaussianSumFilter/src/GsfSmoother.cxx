@@ -226,7 +226,7 @@ Trk::GsfSmoother::fit(const EventContext& ctx,
     forwardTrajectory.rbegin() + 1;
   Trk::ForwardTrajectory::const_reverse_iterator lasttrackStateOnSurface =
     forwardTrajectory.rend() - 1;
-  // TSOS that the cluster measuremenet will added on after .. can’t be teh last
+  // TSOS that the cluster measuremenet will added on after .. cannot be teh last
   // as the impact parameters will be compromised
   Trk::ForwardTrajectory::const_reverse_iterator secondLastTrackStateOnSurface =
     forwardTrajectory.rend() - 2;

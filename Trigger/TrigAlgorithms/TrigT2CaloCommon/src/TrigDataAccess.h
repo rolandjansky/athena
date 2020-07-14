@@ -297,7 +297,7 @@ protected:
     ServiceHandle<IROBDataProviderSvc>         m_robDataProvider;
 
   /** iterators to LArCells type depending on
-      access wa§y (IDC or Cont) */
+      access way (IDC or Cont) */
   LArTT_Selector<LArCellCont>* m_sel;
   LArTT_Selector<LArCellCont>* m_sellarfull;
   LArTT_Selector<LArCellCont>* m_selem;

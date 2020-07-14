@@ -134,15 +134,15 @@ void FakesWeights::SetupWeighter(int channel, std::string aReal, std::string aFa
   std::cout << "--------------------------------------------------------" << std::endl;
   std::cout << "  FakesWeights::INFO: Setting-up Matrix Method Weighter." << std::endl;
   if(channel==EJETS)  std::cout << "    channel:  e+jets" << std::endl;
-  if(channel==MUJETS) std::cout << "    channel:  µ+jets" << std::endl;
+  if(channel==MUJETS) std::cout << "    channel:  mu+jets" << std::endl;
   if(channel==EE)     std::cout << "    channel:  ee" << std::endl;
-  if(channel==MUMU)   std::cout << "    channel:  µµ" << std::endl;
-  if(channel==EMU)    std::cout << "    channel:  eµ" << std::endl;
+  if(channel==MUMU)   std::cout << "    channel:  mumu" << std::endl;
+  if(channel==EMU)    std::cout << "    channel:  emu" << std::endl;
   if(channel==EMU){
     std::cout << "    real eff(e): " << aReal << std::endl;
     std::cout << "    fake eff(e): " << aFake << std::endl;    
-    std::cout << "    real eff(µ): " << aReal2 << std::endl;
-    std::cout << "    fake eff(µ): " << aFake2 << std::endl;    
+    std::cout << "    real eff(mu): " << aReal2 << std::endl;
+    std::cout << "    fake eff(mu): " << aFake2 << std::endl;    
   }
   else{
     std::cout << "    real eff: " << aReal << std::endl;
@@ -201,7 +201,7 @@ void FakesWeights::SetupWeighter(int channel, std::string aReal, std::string aFa
   // setup firt lepton, for all the channels
   _EffSet[0]->SetupEff(aReal);
   _EffSet[1]->SetupEff(aFake);
-  // setup the second lepton in the same way as the first one for ee and µµ, but following aReal2/aFake2 for eµ
+  // setup the second lepton in the same way as the first one for ee and mumu, but following aReal2/aFake2 for emu
   if(channel==EE || channel==EMU || channel==MUMU){
     if(aReal2!="") _EffSet[2]->SetupEff(aReal2);
     else _EffSet[2]->SetupEff(aReal);

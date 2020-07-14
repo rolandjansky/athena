@@ -125,7 +125,7 @@ void  MuonStation::updateBlineFixedPointInAmdbLRS()
 	  // Correct for tube staggering on barrel side C
 	  double shiftInZ = -0.5 * mdtRE->tubePitch();
 
-	  // in addition, correct for 35µm glue width incorrectly applied
+	  // in addition, correct for 35mum glue width incorrectly applied
 	  double multilayerRealSize = 0;
 	  for (int ilayer=1; ilayer<=2; ++ilayer) {
 	    double val;

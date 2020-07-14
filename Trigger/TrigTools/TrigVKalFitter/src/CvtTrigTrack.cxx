@@ -112,7 +112,7 @@
        if(CovI[1][1] < 1.e-30) CovI[2][2] = 3.0e-4;                 // 1deg   phi
        if(CovI[2][2] < 1.e-30) CovI[1][1] = 4.0e-4;                 // 200mkm   Z
        if(CovI[3][3] < 1.e-30) CovI[3][3] = 1.0e-4;                 // 0.01   eta
-       if(CovI[4][4] < 1.e-30) CovI[4][4] = 1.0e-4*std::pow(PtVert,4);   // 0.01*Pt²  Pt error
+       if(CovI[4][4] < 1.e-30) CovI[4][4] = 1.0e-4*std::pow(PtVert,4);   // 0.01*Pt  Pt error
 
            /* D(new)/D(old) */
 

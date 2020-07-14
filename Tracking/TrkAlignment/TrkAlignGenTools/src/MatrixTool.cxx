@@ -860,7 +860,7 @@ namespace Trk {
   void MatrixTool::storeInTFile(TString filename)
   {
     //Store reults in a single TFile....
-    //Including Matrix Vector Hitmap.. Soluton EV’s etc.
+    //Including Matrix Vector Hitmap.. Soluton EVs etc.
     
     ATH_MSG_INFO("Writing Results to a TFile");
     

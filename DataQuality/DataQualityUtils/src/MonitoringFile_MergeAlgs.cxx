@@ -80,7 +80,7 @@ void MonitoringFile::merge_effAsPerCent( TH2& a, const TH2& b )
   // a and b are efficiency histogramming with percentage stored
   // den/num are a number of events
   // BinContent = n/d*100 
-  // BinError   = (1/d2) * sqrt( d*n*(d-n) )
+  // BinError  =  (1/d2) * sqrt( d*n*(d-n) )
 
   // First extract the denominator
   // It is supposed to be the same for all bins
@@ -232,7 +232,7 @@ void MonitoringFile::merge_effAsPerCentAlt( TH1& a, const TH1& b )
   // a and b are efficiency histogramming with percentage stored
   // den/num are a number of events
   // BinContent = n/d*100
-  // BinError   = (1/d2) * sqrt( d*n*(d-n) )
+  // BinError  = (1/d2) * sqrt( d*n*(d-n) )
 
   // Verify histogram compatibility
   if (a.GetDimension() != b.GetDimension()) {

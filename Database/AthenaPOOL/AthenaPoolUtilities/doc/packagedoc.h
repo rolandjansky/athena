@@ -39,7 +39,7 @@ package as an example.
 @verbatim
    package InDetEventAthenaPool
 
-   author  Davide Costanzo <Davide.Costanzo@cern.ch>
+   author  Davide Costanzo <Davide.Costanzo@cern.ch>
 
    use AtlasPolicy          AtlasPolicy-* 
    use AthenaPoolUtilities  AthenaPoolUtilities-00-*   Database/AthenaPOOL

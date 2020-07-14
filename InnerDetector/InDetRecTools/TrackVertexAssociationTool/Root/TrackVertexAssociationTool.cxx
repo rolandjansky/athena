@@ -141,7 +141,7 @@ StatusCode TrackVertexAssociationTool::initialize()
   } else {
     ATH_MSG_INFO("Cut on d0: " << m_d0_cut << "\t(d0_cut)");
   }
-  ATH_MSG_INFO("Cut on Δz * sin θ: " << m_dzSinTheta_cut << "\t(dzSinTheta_cut)");
+  ATH_MSG_INFO("Cut on deltaz * sin theta: " << m_dzSinTheta_cut << "\t(dzSinTheta_cut)");
 
   ATH_MSG_INFO("Allow UsedInFit MatchStatus: " << m_doUsedInFit << "\t(doUsedInFit)");
   ATH_MSG_INFO("Require VxType::PriVtx for unique match: " << m_requirePriVtx << "\t(requirePriVtx)");
@@ -236,7 +236,7 @@ TrackVertexAssociationTool::MatchStatus TrackVertexAssociationTool::isMatch(cons
   float trk_z0 = trk.z0();
   float beamspot_z0 = trk.vz();
   float theta = trk.theta();
-  // calculate Δz * sin θ
+  // calculate deltaz * sin theta
   dzSinTheta = fabs((trk_z0 - vx_z0 + beamspot_z0) * sin(theta));
 
   // If vertex fit information is flagged to be used,

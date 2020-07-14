@@ -123,7 +123,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(const EventContext& ctx, Even
       * allows to set the circle-radius to pT conversion factor.
       * 
       * See for example ATLAS-CONF-2010-072 
-      * R[mm] =pT[GeV] / (3·10−4×B[T]) =  pT[MeV] / (300 *Bz[kT])
+      * R[mm] =pT[GeV] / (3*10^-4*B[T]) =  pT[MeV] / (300 *Bz[kT])
       * 
       * We actually estimate the circle diameter, 2R, in the seeding. 
       * So what we want is: 2R = pT[MeV] x 2  / (300 x Bz) = K x pT[MeV]. 
@@ -134,7 +134,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(const EventContext& ctx, Even
     }
     /** helper variables allowing us to directly apply our pt cut on the variables
     * available at seed level. 
-    * ipt2K is 1 / (K * 0.9 * pt cut)² 
+    * ipt2K is 1 / (K * 0.9 * pt cut)^2 
     **/ 
     data.ipt2K = m_ipt2/(data.K*data.K);
     /// related to the mysterious magic number, m_COF{134*.05*9}
@@ -1761,7 +1761,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
       data.R [i]   = dr;      ///< inverse distance to central SP
       data.U [i]   = x*r2;    ///< transformed U coordinate  
       data.V [i]   = y*r2;    ///< transformed V coordinate 
-      data.Er[i]   = ((covz0+sp->covz())+(tz*tz)*(covr0+sp->covr()))*r2;    ///< 1/r² (cov(z)) + 1/r²sin²theta cov(r)
+      data.Er[i]   = ((covz0+sp->covz())+(tz*tz)*(covr0+sp->covr()))*r2;    ///< 1/r^2 (cov(z)) + 1/r^2sin^2theta cov(r)
     }
 
     /// tweak covariance matrix elements
@@ -1780,13 +1780,13 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
       float  Tzb  = data.Tz[b];       ///< 1/sintheta estimate from central+bottom SP
       float  Rb2r = data.R [b]*covr0; ///< inverse distance times covariance on r coordinate
       float  Rb2z = data.R [b]*covz0; ///< inverse distance times covariance on z coordinate
-      float  Erb  = data.Er[b];       ///< 1/r² (cov(z)) + 1/r²sin²theta cov(r)
+      float  Erb  = data.Er[b];       ///< 1/r^2 (cov(z)) + 1/r^2 sin^theta cov(r)
       float  Vb   = data.V [b];       ///< v-coordinate of bottom SP  
       float  Ub   = data.U [b];       ///< u-coordinate of bottom SP
-      float  Tzb2 = (1.+Tzb*Tzb);     ///< 1+1/sin²theta 
-      float sTzb2 = sqrt(Tzb2);       ///< sqrt (1+1/sin²theta)
-      float  CSA  = Tzb2*COFK;        ///< magic number x (1+1+sin²theta) 
-      float ICSA  = Tzb2*ipt2C;       ///< magic number x inverse of 90% of the pt cut, squared x (1+1+sin²theta) 
+      float  Tzb2 = (1.+Tzb*Tzb);     ///< 1+1/sin^2theta 
+      float sTzb2 = sqrt(Tzb2);       ///< sqrt (1+1/sin^2theta)
+      float  CSA  = Tzb2*COFK;        ///< magic number x (1+1+sin^2theta) 
+      float ICSA  = Tzb2*ipt2C;       ///< magic number x inverse of 90% of the pt cut, squared x (1+1+sin^2theta) 
       /// max IP
       float d0max  = maxd0cut;
       /// for strips, apply the strip version of the IP cut 
@@ -1801,7 +1801,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
         if (dT > ICSA) continue;    
 
         /** 
-        * The following exploits the transformation u:=x/(x²+y²); v:=y/(x²+y²); 
+        * The following exploits the transformation u:=x/(x^2+y^2); v:=y/(x^2+y^2); 
         * This is applied on the x,y coordinates in the frame described above, where the 
         * origin is put in the central SP and the x axis defined to point directly away from the IP.
         * 
@@ -1809,7 +1809,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
         * a linear function V = (-x0/y0) x U + 1/(2y0) =: A x U + B.
         * Here, x0 and y0 describe the center point of the circle in the x-y frame. 
         * As the origin of the x-y frame (the middle space point of our seed) is on the circle, 
-        * we have x0²+y0²=R² with circle radius R. 
+        * we have x0^2+y0^2=R^2 with circle radius R. 
         * 
         * For our seed, we can experimentally obtain A as the slope of the linear function, 
         * delta V / delta U, 
@@ -1818,8 +1818,8 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
         * B is then obtained by inserting the obtained A into the 
         * linear equation for the bottom SP, A x U + B = V --> B = V - A x U 
         * 
-        * With x0²+y0²=R², and x0=-A/2B and y0=1/2B, the radius of the circle is 
-        * then obtained as (2R)²=(1+A²)/B². 
+        * With x0^2+y0^2=R^2, and x0=-A/2B and y0=1/2B, the radius of the circle is 
+        * then obtained as (2R)^2=(1+A^2)/B^2. 
         **/ 
         float deltaU  = data.U[t]-Ub;
         if (deltaU == 0.) continue;       ///< delta U = 0 blocks the evaluation of A. 
@@ -1828,8 +1828,8 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
         float onePlusAsquare  = 1.+A*A;
         float BSquare  = B*B;
         /** With this radius (and pT) estimate, we can apply our pt cut. 
-         * Reminder, ipt2K is 1 / (K x 0.9 x pt-cut)², where K translates pt into 2R. 
-         * So here we can apply the pt cut directly on the (2R)² estimate without
+         * Reminder, ipt2K is 1 / (K x 0.9 x pt-cut)^2, where K translates pt into 2R. 
+         * So here we can apply the pt cut directly on the (2R)^2 estimate without
          * the extra overhead of conversion / division
          **/ 
         if (BSquare  > ipt2K*onePlusAsquare || dT*onePlusAsquare > BSquare*CSA) continue;
@@ -1838,14 +1838,14 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
         * The reasoning is that, in the x-y frame with the central SP as origin and 
         * the x axis pointing away from the IP, we have for the distance between
         * the IP and the middle of the circle: 
-        * (x0 - r_central)²+y0² = (R + d0)², 
+        * (x0 - r_central)^2+y0^2 = (R + d0)^2, 
         * with R being the circle radius and r_central 
         * the radial location of the central SP, placing the IP at IP at (-r_central, 0). 
         * 
-        * First simplify using R² =x0²+y0², then apply the approximation d0²/R² ~ 0. 
+        * First simplify using R^2 =x0^2+y0^2, then apply the approximation d0^2/R^2 ~ 0. 
         * 
         * Finally, consider that locally close to the central SP, the circle is parallel to the x axis, 
-        * so A = 0 --> expand (2R)²=(1+A²)/B² around this point to obtain 
+        * so A = 0 --> expand (2R)^2=(1+A^2)/B^2 around this point to obtain 
         * d0 = r_central x (r_central x B - A). 
         * Note that below, the variable R is the radial coordinate fo the central SP, 
         * corresponding to r_central in the notation above. 

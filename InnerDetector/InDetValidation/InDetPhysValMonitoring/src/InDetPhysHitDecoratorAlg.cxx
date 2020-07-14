@@ -28,7 +28,7 @@
 #include <limits>
 
 // ref:
-// ​https://svnweb.cern.ch/trac/atlasoff/browser/Tracking/TrkEvent/TrkParametersBase/trunk/TrkParametersBase/CurvilinearParametersT.h
+// https://svnweb.cern.ch/trac/atlasoff/browser/Tracking/TrkEvent/TrkParametersBase/trunk/TrkParametersBase/CurvilinearParametersT.h
 
 
 InDetPhysHitDecoratorAlg::InDetPhysHitDecoratorAlg(const std::string& name, ISvcLocator* pSvcLocator) :

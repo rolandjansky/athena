@@ -226,7 +226,7 @@ int MissingCellListTool::execute() const {
 //    if (inc.type()=="BeginEvent") {
 //      ATH_MSG(DEBUG) << " got begining event" << endmsg;
 //      m_needSetup = true;
-//      //if(prepareCellList().isFailure()) ATH_MSG(ERROR)<< " Couldń t build missing cell list !!"<<endmsg;
+//      //if(prepareCellList().isFailure()) ATH_MSG(ERROR)<< " Could not build missing cell list !!"<<endmsg;
 //    }
    
 //  }

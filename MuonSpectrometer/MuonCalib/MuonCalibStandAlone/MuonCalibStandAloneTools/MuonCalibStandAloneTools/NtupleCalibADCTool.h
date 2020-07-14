@@ -12,7 +12,7 @@
 //   2009.03.06   Add new array histogram for studing the ADC varation with differnet segment AngleXZ
 //   2009.06.22   Test the current version in new package, working on the producting of timeslewing coefficient
 //   2009.07.02   v320 input_svc ->T0 and RT , slewing factor from r_MDT_residual_vs_ADC[15]
-//   2009.07.15   v330 TS_factor[15] change range.  Range 0 to 0.5, 0.5~1.5£¬13.5~15
+//   2009.07.15   v330 TS_factor[15] change range.  Range 0 to 0.5, 0.5~1.5 13.5~15
 //   2009.07.23   v400 introduce the TS_cor and reset the driftRadius before the refit. new plot Residual_vs_Radius[3]
 //   2009.08.27   v440 new plot  radius_vs_distanceTowire  ->> check the bugs on the NTUP filling
 //   2009.08.31   v500 running version except r_MDT_residual_vs_ADC[15]
