@@ -9,8 +9,7 @@ from PixelConditionsAlgorithms.PixelConditionsConfig import (
     PixelCablingCondAlgCfg, PixelChargeCalibCondAlgCfg, PixelConfigCondAlgCfg, 
     PixelDCSCondHVAlgCfg, PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg, 
     PixelDCSCondTempAlgCfg, PixelDistortionAlgCfg, 
-    PixelHitDiscCnfgAlgCfg, PixelOfflineCalibCondAlgCfg, PixelReadoutSpeedAlgCfg, 
-    PixelTDAQCondAlgCfg
+    PixelHitDiscCnfgAlgCfg, PixelOfflineCalibCondAlgCfg, PixelReadoutSpeedAlgCfg
 # NEW FOR RUN3    PixelDeadMapCondAlgCfg, PixelChargeLUTCalibCondAlgCfg
 )
 
@@ -171,7 +170,6 @@ def PixelDigitizationBasicToolCfg(flags, name="PixelDigitizationBasicTool", **kw
     acc.merge(PixelDCSCondStateAlgCfg(flags))
     acc.merge(PixelDCSCondStatusAlgCfg(flags))
 # NEW FOR RUN3    acc.merge(PixelDeadMapCondAlgCfg(flags))
-    acc.merge(PixelTDAQCondAlgCfg(flags))
     # offline calibration
     acc.merge(PixelDistortionAlgCfg(flags))
     acc.merge(PixelOfflineCalibCondAlgCfg(flags))

@@ -8,13 +8,13 @@ if( XAOD_STANDALONE )
    atlas_add_library( TrigSteeringEvent
       TrigSteeringEvent/*.h Root/*.cxx
       PUBLIC_HEADERS TrigSteeringEvent
-      LINK_LIBRARIES AthContainers AsgTools RoiDescriptor xAODCore
+      LINK_LIBRARIES AthContainers AsgTools CxxUtils RoiDescriptor xAODCore
       TrigConfHLTData )
 elseif( XAOD_ANALYSIS )
    atlas_add_library( TrigSteeringEvent
       TrigSteeringEvent/*.h Root/*.cxx src/*.cxx
       PUBLIC_HEADERS TrigSteeringEvent
-      LINK_LIBRARIES AthContainers AsgTools AthenaKernel RoiDescriptor
+      LINK_LIBRARIES AthContainers AsgTools AthenaKernel CxxUtils RoiDescriptor
       xAODCore GaudiKernel TrigConfHLTData )
 
    atlas_add_dictionary( TrigSteeringEventDict
@@ -30,7 +30,7 @@ else()
       TrigSteeringEvent/*.h Root/*.cxx src/*.cxx
       PUBLIC_HEADERS TrigSteeringEvent
       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
-      LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AsgTools AthContainers AthenaBaseComps AthenaKernel GaudiKernel RoiDescriptor TrigConfHLTData xAODCore
+      LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AsgTools AthContainers AthenaBaseComps AthenaKernel CxxUtils GaudiKernel RoiDescriptor TrigConfHLTData xAODCore
       PRIVATE_LINK_LIBRARIES TrigT1Interfaces xAODTrigger TrigNavigationLib )
 
    atlas_add_dictionary( TrigSteeringEventDict

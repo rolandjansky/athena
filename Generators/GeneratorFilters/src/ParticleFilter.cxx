@@ -35,21 +35,16 @@ StatusCode ParticleFilter::filterEvent() {
   int nParts = 0;
   for (McEventCollection::const_iterator itr = events()->begin(); itr != events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
-    for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
-      if (abs((*pitr)->pdg_id()) == m_PDGID && (m_StatusReq == -1 || (*pitr)->status() == m_StatusReq)) {
-	    if ((*pitr)->momentum().perp() >= m_Ptmin &&
-            fabs((*pitr)->momentum().pseudoRapidity()) <= m_EtaRange &&
-            (*pitr)->momentum().e() <= m_EnergyRange) {
-	      if ((!m_Exclusive)&&(m_MinParts == 1)) // Found at least one particle and we have an inclusive requirement
-               return StatusCode::SUCCESS;
-          else {
+    for (auto pitr: *genEvt) {
+      if (std::abs(pitr->pdg_id()) != m_PDGID || !(m_StatusReq == -1 || pitr->status() == m_StatusReq)) continue;
+      if (pitr->momentum().perp() >= m_Ptmin && std::abs(pitr->momentum().pseudoRapidity()) <= m_EtaRange && pitr->momentum().e() <= m_EnergyRange) {
+      if ((!m_Exclusive)&&(m_MinParts == 1))  return StatusCode::SUCCESS; // Found at least one particle and we have an inclusive requirement
+              
             // Count only particles not decaying to themselves
             bool notSelfDecay = true;
-            if ((*pitr)->end_vertex()) {
-              HepMC::GenVertex::particle_iterator child = (*pitr)->end_vertex()->particles_begin(HepMC::children);
-              HepMC::GenVertex::particle_iterator childE = (*pitr)->end_vertex()->particles_end(HepMC::children);
-              for (; child != childE; ++child) {
-                if ( (*child)->pdg_id() == (*pitr)->pdg_id() && (*child)->barcode()!=(*pitr)->barcode() && (*child)->barcode() < 100000) {
+            if (pitr->end_vertex()) {
+              for (auto  child: *(pitr->end_vertex())) {
+                if ( child->pdg_id() == pitr->pdg_id() && HepMC::barcode(child)!=HepMC::barcode(pitr) && HepMC::barcode(child) < 100000) {
                   notSelfDecay = false;
                   break;
                 }
@@ -57,8 +52,6 @@ StatusCode ParticleFilter::filterEvent() {
             }
             if (notSelfDecay) nParts++;
           }
-        }
-      }
     }
   }
    if (m_Exclusive)

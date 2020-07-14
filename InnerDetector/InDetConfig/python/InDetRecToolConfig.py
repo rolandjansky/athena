@@ -102,7 +102,7 @@ def InDetExtrapolatorCfg(flags, name='InDetExtrapolator', **kwargs) :
 
 def PixelConditionsSummaryToolCfg(flags, name = "InDetPixelConditionsSummaryTool", **kwargs):
     #FIXME - fix the duplication in TrigInDetConfig.py and PixelConditionsSummaryConfig.py
-    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelConfigCondAlgCfg, PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg, PixelTDAQCondAlgCfg
+    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelConfigCondAlgCfg, PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg
 
     kwargs.setdefault( "UseByteStream", not flags.Input.isMC)
 
@@ -114,7 +114,6 @@ def PixelConditionsSummaryToolCfg(flags, name = "InDetPixelConditionsSummaryTool
     result.merge(PixelConfigCondAlgCfg(flags))
     result.merge(PixelDCSCondStateAlgCfg(flags))
     result.merge(PixelDCSCondStatusAlgCfg(flags))
-    result.merge(PixelTDAQCondAlgCfg(flags))
 
     result.setPrivateTools(CompFactory.PixelConditionsSummaryTool(name, **kwargs))
     return result

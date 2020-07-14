@@ -25,7 +25,7 @@ namespace Trk
     m_cutoffFreqDenominator_z(  1         ) ,
     m_angularCutoffParameter(   0.75      ) ,
     m_wx(0.0f), m_wy(0.0f), m_wz(0.0f), m_filttot(0), 
-    m_plan_r2c(NULL), m_plan_c2r(NULL)	          {
+    m_plan_r2c(nullptr), m_plan_c2r(nullptr)	          {
 
     declareProperty("xbins"                   , m_xbins                    );
     declareProperty("ybins"                   , m_ybins                    );

@@ -21,8 +21,8 @@ int PGraph::pgraphm_(long int *weit, long int *edges, long int *nodes,
 
 
 
-#define teit_ref(a_1,a_2) m_teit[(a_2)*2 + a_1 - 3]
-#define weit_ref(a_1,a_2) weit[(a_2)*2 + a_1]
+#define teit_ref(a_1,a_2) m_teit[(a_2)*2 + (a_1) - 3]
+#define weit_ref(a_1,a_2) weit[(a_2)*2 + (a_1)]
 
 
 /* * Modified version of CERNLIB V401 PGRAPH routine. */
@@ -377,7 +377,6 @@ L999:
 /* L30: */
     }
     *newlng = k;
-    return;
 }
 
 } /* End of VKalVrtCore namespace */
