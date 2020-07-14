@@ -336,12 +336,11 @@ namespace Muon {
 
   const MuonClusterOnTrack* MuonClusterOnTrackCreator::
   createRIO_OnTrack(const Trk::PrepRawData& RIO, const Amg::Vector3D& GP, const Amg::Vector3D&) const {
-
     return createRIO_OnTrack(RIO, GP);
   }
 
   const MuonClusterOnTrack* MuonClusterOnTrackCreator::correct(const Trk::PrepRawData& RIO,const Trk::TrackParameters& TP) const 
   {  
-    return createRIO_OnTrack(RIO,TP.position());
+    return createRIO_OnTrack(RIO, TP.position(), TP.momentum());
   }
 }
