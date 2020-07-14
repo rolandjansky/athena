@@ -181,13 +181,8 @@ ToolSvc += EGAMCOM_caloFillRect711
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__AsgSelectionToolWrapper
 from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGSelectionToolWrapper
 from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGElectronLikelihoodToolWrapper
+
 # decorate electrons with the output of LH very loose
-#ElectronPassLHVeryLoose = DerivationFramework__EGSelectionToolWrapper( name = "ElectronPassLHVeryLoose",
-#                                                                       EGammaSelectionTool = ElectronLHSelectorVeryLoose,
-#                                                                       EGammaFudgeMCTool = "",
-#                                                                       CutType = "",
-#                                                                       StoreGateEntryName = "DFCommonElectronsLHVeryLoose",
-#                                                                       ContainerName = "Electrons")
 ElectronPassLHVeryLoose = DerivationFramework__EGElectronLikelihoodToolWrapper( name = "ElectronPassLHVeryLoose",
                                                                           EGammaElectronLikelihoodTool = ElectronLHSelectorVeryLoose,
                                                                           EGammaFudgeMCTool = "",
@@ -199,12 +194,6 @@ ToolSvc += ElectronPassLHVeryLoose
 print(ElectronPassLHVeryLoose)
 
 # decorate electrons with the output of LH loose
-#ElectronPassLHLoose = DerivationFramework__EGSelectionToolWrapper( name = "ElectronPassLHLoose",
-#                                                                   EGammaSelectionTool = ElectronLHSelectorLoose,
-#                                                                   EGammaFudgeMCTool = "",
-#                                                                   CutType = "",
-#                                                                   StoreGateEntryName = "DFCommonElectronsLHLoose",
-#                                                                   ContainerName = "Electrons")
 ElectronPassLHLoose = DerivationFramework__EGElectronLikelihoodToolWrapper( name = "ElectronPassLHLoose",
                                                                           EGammaElectronLikelihoodTool = ElectronLHSelectorLoose,
                                                                           EGammaFudgeMCTool = "",
@@ -216,12 +205,6 @@ ToolSvc += ElectronPassLHLoose
 print(ElectronPassLHLoose)
 
 # decorate electrons with the output of LH loose+BL
-#ElectronPassLHLooseBL = DerivationFramework__EGSelectionToolWrapper( name = "ElectronPassLHLooseBL",
-#                                                                     EGammaSelectionTool = ElectronLHSelectorLooseBL,
-#                                                                     EGammaFudgeMCTool = "",
-#                                                                     CutType = "",
-#                                                                     StoreGateEntryName = "DFCommonElectronsLHLooseBL",
-#                                                                     ContainerName = "Electrons")
 ElectronPassLHLooseBL = DerivationFramework__EGElectronLikelihoodToolWrapper( name = "ElectronPassLHLooseBL",
                                                                           EGammaElectronLikelihoodTool = ElectronLHSelectorLooseBL,
                                                                           EGammaFudgeMCTool = "",
@@ -233,12 +216,6 @@ ToolSvc += ElectronPassLHLooseBL
 print (ElectronPassLHLooseBL)
 
 # decorate electrons with the output of LH medium
-#ElectronPassLHMedium = DerivationFramework__EGSelectionToolWrapper( name = "ElectronPassLHMedium",
-#                                                                    EGammaSelectionTool = ElectronLHSelectorMedium,
-#                                                                    EGammaFudgeMCTool = "",
-#                                                                    CutType = "",
-#                                                                    StoreGateEntryName = "DFCommonElectronsLHMedium",
-#                                                                    ContainerName = "Electrons")
 ElectronPassLHMedium = DerivationFramework__EGElectronLikelihoodToolWrapper( name = "ElectronPassLHMedium",
                                                                           EGammaElectronLikelihoodTool = ElectronLHSelectorMedium,
                                                                           EGammaFudgeMCTool = "",
@@ -250,12 +227,6 @@ ToolSvc += ElectronPassLHMedium
 print(ElectronPassLHMedium)
 
 # decorate electrons with the output of LH tight
-#ElectronPassLHTight = DerivationFramework__EGSelectionToolWrapper( name = "ElectronPassLHTight",
-#                                                                   EGammaSelectionTool = ElectronLHSelectorTight,
-#                                                                   EGammaFudgeMCTool = "",
-#                                                                   CutType = "",
-#                                                                   StoreGateEntryName = "DFCommonElectronsLHTight",
-#                                                                   ContainerName = "Electrons")
 ElectronPassLHTight = DerivationFramework__EGElectronLikelihoodToolWrapper( name = "ElectronPassLHTight",
                                                                           EGammaElectronLikelihoodTool = ElectronLHSelectorTight,
                                                                           EGammaFudgeMCTool = "",
@@ -395,7 +366,7 @@ ElectronAmbiguity = DF_EGEAT(name               = "ElectronAdditionnalAmbiguity"
 ToolSvc += ElectronAmbiguity
 
 #
-# Commented ForwardElectronPassLHLoose, ForwardElectronPassLHMedium, ForwardElectronPassLHTight, ElectronPassECIDS tools due to they are not available in R22
+# Commented ForwardElectronPassLHLoose, ForwardElectronPassLHMedium, ForwardElectronPassLHTight, ElectronPassECIDS tools due to they are not available in R22 yet
 #
 # list of all the decorators so far
 EGAugmentationTools = [DFCommonPhotonsDirection,
@@ -416,13 +387,12 @@ if  rec.doTruth():
     # Decorate Electron with bkg electron type/origin
     from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier as BkgElectronMCTruthClassifier    
     BkgElectronMCTruthClassifier.barcodeG4Shift=(DerivationFrameworkSimBarcodeOffset+1)
+    BkgElectronMCTruthClassifier.ParticleCaloExtensionTool=""
 
     from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__BkgElectronClassification  
     BkgElectronClassificationTool = DerivationFramework__BkgElectronClassification (name = "BkgElectronClassificationTool",
                                                                                     MCTruthClassifierTool = BkgElectronMCTruthClassifier,
                                                                                     barcodeCut=DerivationFrameworkSimBarcodeOffset)
-
-
     ToolSvc += BkgElectronClassificationTool
     print(BkgElectronClassificationTool)
     EGAugmentationTools.append(BkgElectronClassificationTool)
@@ -458,9 +428,10 @@ if  rec.doTruth():
     from JetRec.JetRecStandard import jtm
     tc=configEventDensityTool("EDTruthCentralTool", jtm.truthget.Label,
                               0.5,
+                              AbsRapidityMin  = 0.0,
                               AbsRapidityMax      = 1.5,
                               OutputContainer     = "TruthIsoCentralEventShape",
-                              OutputLevel = 3,
+                              OutputLevel = 3
     )                             
     ToolSvc += tc
 
