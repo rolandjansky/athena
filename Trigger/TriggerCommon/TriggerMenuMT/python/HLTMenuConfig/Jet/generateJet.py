@@ -7,6 +7,17 @@ import pprint
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Jet.generateJet' )
 
+def HLTCaloCellMakerCfg( cellsname, cdaSvc ):
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    cellmaker = CompFactory.HLTCaloCellMaker("HLTCaloCellMaker_FS")
+    cellmaker.RoIs = "FSJETRoI"
+    cellmaker.TrigDataAccessMT = cdaSvc
+    cellmaker.CellsName = cellsname
+
+    result = ComponentAccumulator()
+    result.addEventAlgo(cellmaker)
+    return result
+
 def generateChains( flags, chainDict ):
 
     stepName = getChainStepName('Jet', 1)
@@ -27,14 +38,10 @@ def generateChains( flags, chainDict ):
 
     cellsname = "CaloCellsFS"
     clustersname = "HLT_CaloTopoClustersFS"
+    
+    cellmakerCfg = HLTCaloCellMakerCfg(cellsname, cdaSvc)
 
-    from AthenaConfiguration.ComponentFactory import CompFactory
-    cellmaker = CompFactory.HLTCaloCellMaker("HLTCaloCellMaker_FS")
-    cellmaker.RoIs = "FSJETRoI"
-    cellmaker.TrigDataAccessMT = cdaSvc
-    cellmaker.CellsName = cellsname
-
-    inEventReco.addRecoAlg(cellmaker)
+    inEventReco.mergeReco( cellmakerCfg )
 
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
     inEventReco.mergeReco( CaloTopoClusterCfg( flags,
@@ -66,6 +73,7 @@ def generateChains( flags, chainDict ):
 
     #hypo
     from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolFromDict
+    from AthenaConfiguration.ComponentFactory import CompFactory
     hypo = CompFactory.TrigJetHypoAlgMT("TrigJetHypoAlgMT_a4tcem_subjesIS")
     jetsfullname = jetprefix+TrigAntiKt4EMTopoSubJES.basename+jetsuffix+"Jets"
     hypo.Jets = jetsfullname
