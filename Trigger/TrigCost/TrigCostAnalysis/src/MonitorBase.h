@@ -77,6 +77,13 @@ class MonitorBase{
     TH1* bookGetPointer(TH1* hist, const std::string& tDir = "") const;
 
     /**
+     * @brief Check if a counter of a given name exists.
+     * @param[in] name Name of Counter.
+     * @return True if counter already exists.  
+     */
+    bool counterExists(const std::string& name) const;
+
+    /**
      * @brief Retrieve counter by name. If no such counter exists, a new one will be instanced and returned.
      * @param[in] name Name of Counter.
      * @return Mutable base-class pointer to Counter.  
