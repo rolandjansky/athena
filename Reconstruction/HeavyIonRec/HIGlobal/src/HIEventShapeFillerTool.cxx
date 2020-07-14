@@ -33,7 +33,7 @@ StatusCode HIEventShapeFillerTool::initializeCollection(xAOD::HIEventShapeContai
    //tool is initialized only once
    if(!m_index)
    {
-     m_index=m_eventShapeMapTool->getIndex(getContainerName());
+     m_index=m_eventShapeMapTool->getIndex( IHIEventShapeMapTool::COMPACT );
    }
    //fix this to have proper name passing
    //use tool to initialize event shape object
