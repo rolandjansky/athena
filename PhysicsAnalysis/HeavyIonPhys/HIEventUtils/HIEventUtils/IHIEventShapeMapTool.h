@@ -7,6 +7,7 @@
 
 #include "xAODHIEvent/HIEventShape.h"
 #include "HIEventUtils/HIEventShapeIndex.h"
+#include "xAODHIEvent/HIEventShapeContainer.h"
 #include "AsgTools/IAsgTool.h"
 #include "AsgTools/AsgTool.h"
 
@@ -18,18 +19,16 @@ class IHIEventShapeMapTool : virtual public asg::AsgTool
     ASG_TOOL_INTERFACE(IHIEventShapeMapTool)
 
     public:
+    enum BinningScheme{ TOWER = 100, COMPACT = 562 };
 
     virtual ~IHIEventShapeMapTool() {};
 
     virtual StatusCode initialize() = 0;
-    virtual StatusCode insert(std::string key, const HIEventShapeIndex& index, bool clobber=false) = 0;
-    virtual const HIEventShapeIndex* getIndex(std::string key) const  = 0;
-    virtual bool hasKey(std::string key)  = 0;
+    virtual const HIEventShapeIndex* getIndex(IHIEventShapeMapTool::BinningScheme key) const  = 0;
+    virtual const HIEventShapeIndex* getIndexFromShape(const xAOD::HIEventShapeContainer* shape) const = 0;
 
-    virtual std::map<std::string,HIEventShapeIndex> getMap() const { return m_map; }
+    virtual bool hasKey(IHIEventShapeMapTool::BinningScheme key)  = 0;
 
-    private:
-    std::map<std::string,HIEventShapeIndex> m_map;
 
 };
 #endif
