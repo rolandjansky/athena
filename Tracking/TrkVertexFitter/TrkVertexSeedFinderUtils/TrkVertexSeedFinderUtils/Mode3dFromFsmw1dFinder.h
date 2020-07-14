@@ -48,7 +48,7 @@ namespace Trk
      * @param vy Primary vertex y-coordinate.
      * @param points List of points with weights.
      */
-    virtual const Amg::Vector3D
+    virtual Amg::Vector3D
     getMode (const double vx,
              const double vy,
              const std::vector<Trk::PositionAndWeight>& points) const override;
@@ -64,7 +64,7 @@ namespace Trk
      *                  additional information.  May be left null if additional
      *                  information is not available.
      */
-    virtual const Amg::Vector3D
+    virtual Amg::Vector3D
     getMode (const double vx,
              const double vy,
              const std::vector<Trk::PositionAndWeight>& points,
@@ -78,7 +78,7 @@ namespace Trk
      * @param vy Primary vertex y-coordinate.
      * @param points List of points --- unweighted!
      */
-    virtual const Amg::Vector3D
+    virtual Amg::Vector3D
     getMode (const double vx,
              const double vy,
              const std::vector<Amg::Vector3D>& points) const override;
@@ -94,7 +94,7 @@ namespace Trk
      *                  additional information.  May be left null if additional
      *                  information is not available.
      */
-    virtual const Amg::Vector3D
+    virtual Amg::Vector3D
     getMode (const double vx,
              const double vy,
              const std::vector<Amg::Vector3D>& points,
@@ -106,7 +106,7 @@ namespace Trk
     class Mode3dFromFsmw1dInfo;
 
 
-    const Amg::Vector3D
+    Amg::Vector3D
     getMode(Mode3dFromFsmw1dInfo& info,
             const double vx,
             const double vy,
@@ -156,25 +156,25 @@ namespace Trk
     getFsmw1dMode( std::vector<IndexedWeighted> &, int ) const ;
 
 
-    const Amg::Vector3D
+    Amg::Vector3D
     getClosestPair (Mode3dFromFsmw1dInfo& info,
                     const std::vector<Trk::PositionAndWeight>& vectorOfPoints,
                     const double vx, const double vy) const;
 
 
-    const Amg::Vector3D
+    Amg::Vector3D
     Mode2Seed( Mode3dFromFsmw1dInfo& info,
                const std::vector<Trk::PositionAndWeight>& vectorOfPoints,
                const VeVecIndices & ) const;
 
 
-    const Amg::Vector3D
+    Amg::Vector3D
     Mode2Seed( Mode3dFromFsmw1dInfo& info,
                const std::vector<Trk::PositionAndWeight>& vectorOfPoints,
                const VeVecIndices &, const VeVecIndices & ) const;
 
 
-    const Amg::Vector3D
+    Amg::Vector3D
     Mode2Seed( Mode3dFromFsmw1dInfo& info,
                const std::vector<Trk::PositionAndWeight>& vectorOfPoints,
                const VeVecIndices &, const VeVecIndices &, const VeVecIndices & ) const;

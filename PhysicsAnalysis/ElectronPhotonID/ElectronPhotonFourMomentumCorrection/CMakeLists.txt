@@ -8,12 +8,14 @@ atlas_subdir( ElectronPhotonFourMomentumCorrection )
 
 # Environment specific extra dependencies:
 set( extra_dep )
+set( extra_libs )
 if( XAOD_STANDALONE )
    set( extra_dep Control/xAODRootAccess )
 else()
    set( extra_dep Control/AthenaBaseComps
       Control/AthAnalysisBaseComps
       GaudiKernel )
+   set( extra_libs AthAnalysisBaseCompsLib )
 endif()
 
 # Declare the package's dependencies:
@@ -49,7 +51,7 @@ atlas_add_library( ElectronPhotonFourMomentumCorrectionLib
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODCaloEvent xAODEgamma
    xAODEventInfo PATInterfaces EgammaAnalysisInterfacesLib PATCoreLib egammaUtils
-   egammaMVACalibAnalysisLib xAODTruth
+   egammaMVACalibAnalysisLib xAODTruth ${extra_libs}
    PRIVATE_LINK_LIBRARIES xAODTracking xAODMetaData egammaLayerRecalibTool
    PathResolver )
 

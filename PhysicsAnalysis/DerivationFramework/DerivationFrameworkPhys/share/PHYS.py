@@ -229,18 +229,11 @@ SeqPHYS += CfgMgr.DerivationFramework__DerivationKernel("PHYSKernel",
 #====================================================================
 # FLAVOUR TAGGING   
 #====================================================================
-# Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
-# addVRJets(SeqPHYS)
-# addVRJets(SeqPHYS, training='201903')
-#addVRJetsTCC(DerivationFrameworkJob, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet",
-#             VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track",
-#             ghostArea = 0 , ptmin = 2000, ptminFilter = 2000,
-#             variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
-# add xbb taggers
-# from DerivationFrameworkFlavourTag.HbbCommon import addRecommendedXbbTaggers
-# addRecommendedXbbTaggers(SeqPHYS, ToolSvc)
 
-# FlavorTagInit(JetCollections  = [ 'AntiKt4EMTopoJets','AntiKt4EMPFlowJets'], Sequencer = SeqPHYS)
+from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollection
+
+FtagJetCollection('AntiKt4EMPFlowJets',SeqPHYS)
+
 
 #====================================================================
 # TC-LVT Vertices 
@@ -264,9 +257,7 @@ PHYSSlimmingHelper.SmartCollections = ["Electrons",
                                        "InDetTrackParticles",
                                        "AntiKt4EMTopoJets",
                                        "AntiKt4EMPFlowJets",
-                                       #"BTagging_AntiKt4EMTopo_201810",
-                                       #"BTagging_AntiKt4EMPFlow_201810",
-                                       #"BTagging_AntiKt4EMPFlow_201903",
+                                       "BTagging_AntiKt4EMPFlow",
                                        #"MET_Baseline_AntiKt4EMTopo",
                                        #"MET_Baseline_AntiKt4EMPFlow",
                                        "TauJets",

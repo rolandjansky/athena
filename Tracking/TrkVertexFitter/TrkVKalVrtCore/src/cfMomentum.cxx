@@ -2,10 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrkVKalVrtCore/VKalVrtBMag.h"
 #include "TrkVKalVrtCore/CommonPars.h"
 #include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
-#include <math.h>
+#include "TrkVKalVrtCore/VKalVrtBMag.h"
+#include <cmath>
 #include <iostream>
 
 namespace Trk {

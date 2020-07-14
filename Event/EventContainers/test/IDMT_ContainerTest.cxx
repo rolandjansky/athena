@@ -13,6 +13,9 @@
 
 // define a bunch of fake data classes 
 using namespace std;
+
+static EventContainers::Mode s_mode;
+
 namespace IDC_TEST
 {
 
@@ -80,8 +83,8 @@ namespace IDC_TEST
         typedef IdentifiableContainerMT<MyCollection>  MyType; 
 
         // constructor 
-        MyCollectionContainer( int m ) :
-                IdentifiableContainerMT<MyCollection>(m)   {    
+        MyCollectionContainer( int m, EventContainers::Mode mode ) :
+                IdentifiableContainerMT<MyCollection>(m, mode)   {    
              
         }
 
@@ -135,7 +138,7 @@ int ID_ContainerTest::initialize()
 { 
     // we own the Container 
 
-    m_container = new MyCollectionContainer(m_ncollections);
+    m_container = new MyCollectionContainer(m_ncollections, s_mode);
 
     std::cout <<" Collection, Skip = " << m_ncollections<<" "<<m_nskip<<std::endl;
     std::cout <<" Test level =  " << m_test<<std::endl;
@@ -501,7 +504,7 @@ int ID_ContainerTest::execute(){
  
 
 {
-   auto container2 = new MyCollectionContainer(m_ncollections);
+   auto container2 = new MyCollectionContainer(m_ncollections, s_mode);
    int itemsadded=0;
    for (int coll =0; coll <hfmax; coll=coll+(1+skip) ){
         MyID id(coll); 
@@ -535,7 +538,7 @@ int ID_ContainerTest::execute(){
     }
     delete container2; container2 = nullptr;
 //Test Empty
-    MyCollectionContainer* dempty = new MyCollectionContainer(100); 
+    MyCollectionContainer* dempty = new MyCollectionContainer(100, s_mode); 
     if(dempty->begin() != dempty->end()){
        std::cout << __FILE__ << " empty container not working see LINE " << __LINE__ << std::endl; std::abort();
     }
@@ -615,14 +618,14 @@ int ID_ContainerTest::execute(){
     delete cache;
 
 
-    auto containerordertest = new MyCollectionContainer(500);
-    containerordertest->addCollection(nullptr, 4).ignore();
-    containerordertest->addCollection(nullptr, 3).ignore();
-    containerordertest->addCollection(nullptr, 2).ignore();
-    containerordertest->addCollection(nullptr, 1).ignore();
-    containerordertest->addCollection(nullptr, 5).ignore();
-    containerordertest->addCollection(nullptr, 4).ignore(); //Deliberate duplicate
-    containerordertest->addCollection(nullptr, 7).ignore();
+    auto containerordertest = new MyCollectionContainer(500, s_mode);
+    containerordertest->addCollection(new MyCollection, 4).ignore();
+    containerordertest->addCollection(new MyCollection, 3).ignore();
+    containerordertest->addCollection(new MyCollection, 2).ignore();
+    containerordertest->addCollection(new MyCollection, 1).ignore();
+    containerordertest->addCollection(new MyCollection, 5).ignore();
+    containerordertest->addCollection(new MyCollection, 4).ignore(); //Deliberate duplicate
+    containerordertest->addCollection(new MyCollection, 7).ignore();
 
     auto hashes  = containerordertest->GetAllCurrentHashes();
     size_t last =0;
@@ -643,6 +646,7 @@ int ID_ContainerTest::execute(){
     }
     if(containerordertest->numberOfCollections() != 6){
         std::cout << "Duplicate got added " << std::endl;
+        std::cout << "numberOfCollections = " << containerordertest->numberOfCollections()  << " not 6" << std::endl;
         std::abort();
     }
 
@@ -658,9 +662,14 @@ int main (int /*argc*/, char** /*argv[]*/)
 {  
 
     ID_ContainerTest test;
-    test.initialize();
-    for (unsigned int i = 0; i < 5; i++) test.execute();
-    test.finalize();
+    for(auto x : { EventContainers::Mode::OfflineLowMemory, EventContainers::Mode::OfflineFast, 
+        EventContainers::Mode::OfflineMap }){
+       s_mode = x;
+       std::cout <<" container mode " << static_cast<int>(s_mode) << std::endl;
+       test.initialize();
+       for (unsigned int i = 0; i < 5; i++) test.execute();
+       test.finalize();
+    }
     EventContainers::IdentifiableContTemp<MyCollection> emptyContContainer(10); //Put here to test compilation of IdentifiableContTemp
     emptyContContainer.cleanup();
     return 0;

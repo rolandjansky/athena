@@ -25,7 +25,6 @@
 
 #include "AthenaKernel/Timeout.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-//#include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include <TH1F.h>
 //#include <TH2F.h>

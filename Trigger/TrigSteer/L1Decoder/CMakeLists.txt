@@ -26,7 +26,3 @@ atlas_install_scripts( test/test* )
 # Tests:
 atlas_add_test( L1DecoderNJOTest SCRIPT python -m L1Decoder.L1DecoderConfig
                 PROPERTIES TIMEOUT 300 )
-
-atlas_add_test( L1DecoderTest
-                SCRIPT test/test_l1decoder.sh
-                PROPERTIES TIMEOUT 1200 )

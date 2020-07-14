@@ -2,10 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
 #include "TrkVKalVrtCore/CommonPars.h"
-#include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
 #include "TrkVKalVrtCore/Derivt.h"
+#include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
+#include <cmath>
 #include <iostream>
 
 namespace Trk {
@@ -36,14 +36,14 @@ int getFullVrtCov(VKVertex * vk, double *ader, double *dcv, double verr[6][6])
     extern void FullMTXfill( VKVertex* , double *);
     extern void vkSVDCmp(double**, int, int, double*, double**);
 
-    TWRK    * t_trk=0;
+    TWRK    * t_trk=nullptr;
     long int NTRK = vk->TrackList.size();
     long int IERR=0;
     long int NVar = (NTRK + 1) * 3;
-    if(vk->passNearVertex && vk->ConstraintList.size()==0) {
+    if(vk->passNearVertex && vk->ConstraintList.empty()) {
                                  /*  Fit is with "pass near" constraint and then */
                                  /*     matrix is already present                */
-    } else if ( vk->ConstraintList.size()>0  && useWeightScheme ) {
+    } else if ( !vk->ConstraintList.empty()  && useWeightScheme ) {
 /*  Full matrix inversion i */
 //
         FullMTXfill( vk, ader);
@@ -259,7 +259,7 @@ int getFullVrtCov(VKVertex * vk, double *ader, double *dcv, double verr[6][6])
 	    }
 	}
 //for(int ii=1; ii<=9; ii++)std::cout<<ader_ref(ii,ii)<<", "; std::cout<<__func__<<" fast full m NEW"<<'\n';        
-        if( vk->ConstraintList.size()>0  && !useWeightScheme ){
+        if( !vk->ConstraintList.empty()  && !useWeightScheme ){
 //---------------------------------------------------------------------
 // Covariance matrix with constraints a la Avery.
 // ader_ref() should contain nonconstraint covariance matrix
