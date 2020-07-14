@@ -6,7 +6,7 @@
 #define TRIGT2CALOCALIBRATION_EGAMMAHITSCALIBRATION
 
 #include "TrigT2CaloCalibration/IEgammaCalibration.h"
-#include "TrigT2CaloCalibration/EgammaHitsShowerDepth.h"
+#include "EgammaHitsShowerDepth.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/MsgStream.h"
 
