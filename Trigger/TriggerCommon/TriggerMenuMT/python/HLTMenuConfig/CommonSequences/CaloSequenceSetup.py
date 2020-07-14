@@ -48,6 +48,7 @@ def fastCaloMenuSequence(name, doRinger):
                          Hypo        = theFastCaloHypo,
                          HypoToolGen = TrigEgammaFastCaloHypoToolFromDict )
 
+
 def cellRecoSequence(flags, name="HLTCaloCellMakerFS", RoIs="FSJETRoI", outputName="CaloCellsFS"):
     """ Produce the full scan cell collection """
     if not RoIs:
