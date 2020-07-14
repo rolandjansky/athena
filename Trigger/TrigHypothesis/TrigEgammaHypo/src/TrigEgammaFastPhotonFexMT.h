@@ -4,8 +4,8 @@
 
 
 
-#ifndef TRIG_TrigL2PhotonFexMT_H 
-#define TRIG_TrigL2PhotonFexMT_H
+#ifndef TRIG_TrigEgammaFastPhotonFexMT_H 
+#define TRIG_TrigEgammaFastPhotonFexMT_H
 
 // athena stuff
 #include "GaudiKernel/IToolSvc.h"
@@ -35,20 +35,20 @@
 
 
 /**
- * \class TrigL2PhotonFexMT  
- * \brief TrigL2PhotonFex is an HLT Fex Algorithm that creates TrigPhotons 
+ * \class TrigEgammaFastPhotonFexMT  
+ * \brief TrigEgammaFastPhotonFex is an HLT Fex Algorithm that creates TrigPhotons 
  * from the the L2 TrigEMClusters that passed the TrigL2CaloHypo.
  * The TrigPhotons will then be retrieved by the hypothesis algorithm TrigL2PhotonHypo
  * that will perform the corresponding L2 photon selection
  *
  */
 
-class TrigL2PhotonFexMT : public AthAlgorithm {
+class TrigEgammaFastPhotonFexMT : public AthAlgorithm {
   
  public:
   
-  TrigL2PhotonFexMT(const std::string & name, ISvcLocator* pSvcLocator);
-  ~TrigL2PhotonFexMT();
+  TrigEgammaFastPhotonFexMT(const std::string & name, ISvcLocator* pSvcLocator);
+  ~TrigEgammaFastPhotonFexMT();
   
   virtual StatusCode initialize() override;
   virtual StatusCode execute() override;

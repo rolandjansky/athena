@@ -7,17 +7,17 @@
 #include "TrigCompositeUtils/Combinators.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 
-#include "TrigL2ElectronHypoTool.h"
+#include "TrigEgammaFastElectronHypoTool.h"
 
 using namespace TrigCompositeUtils;
 
-TrigL2ElectronHypoTool::TrigL2ElectronHypoTool( const std::string& type, 
+TrigEgammaFastElectronHypoTool::TrigEgammaFastElectronHypoTool( const std::string& type, 
 						const std::string& name, 
 						const IInterface* parent ) 
   : AthAlgTool( type, name, parent ),
     m_decisionId( HLT::Identifier::fromToolName( name ) ) {}
 
-StatusCode TrigL2ElectronHypoTool::initialize()  {
+StatusCode TrigEgammaFastElectronHypoTool::initialize()  {
   
   if ( !m_monTool.empty() ) CHECK( m_monTool.retrieve() );
 
@@ -46,9 +46,9 @@ StatusCode TrigL2ElectronHypoTool::initialize()  {
 }
 
 
-TrigL2ElectronHypoTool::~TrigL2ElectronHypoTool() {}
+TrigEgammaFastElectronHypoTool::~TrigEgammaFastElectronHypoTool() {}
 
-bool TrigL2ElectronHypoTool::decideOnSingleObject( const xAOD::TrigElectron* electron, 
+bool TrigEgammaFastElectronHypoTool::decideOnSingleObject( const xAOD::TrigElectron* electron, 
 						   size_t cutIndex ) const {
   auto cutCounter = Monitored::Scalar<int>( "CutCounter", -1 );  
   auto cutIndexM  = Monitored::Scalar<int>( "CutIndex", cutIndex );  // one can do 2D plots for each cut independently
@@ -122,7 +122,7 @@ bool TrigL2ElectronHypoTool::decideOnSingleObject( const xAOD::TrigElectron* ele
 
 }
 
-StatusCode TrigL2ElectronHypoTool::inclusiveSelection( std::vector<ElectronInfo>& input ) const {
+StatusCode TrigEgammaFastElectronHypoTool::inclusiveSelection( std::vector<ElectronInfo>& input ) const {
     for ( auto i: input ) {
       if ( i.previousDecisionIDs.count( m_decisionId.numeric() ) == 0 ) continue; // the decision was negative or not even made in previous stage
 
@@ -135,7 +135,7 @@ StatusCode TrigL2ElectronHypoTool::inclusiveSelection( std::vector<ElectronInfo>
 }
 
 
-StatusCode TrigL2ElectronHypoTool::markPassing( std::vector<ElectronInfo>& input, const std::set<size_t>& passing ) const {
+StatusCode TrigEgammaFastElectronHypoTool::markPassing( std::vector<ElectronInfo>& input, const std::set<size_t>& passing ) const {
 
   for ( auto idx: passing ) 
     addDecisionID( m_decisionId.numeric(), input[idx].decision );
@@ -143,7 +143,7 @@ StatusCode TrigL2ElectronHypoTool::markPassing( std::vector<ElectronInfo>& input
 }
 
 
-StatusCode TrigL2ElectronHypoTool::multiplicitySelection( std::vector<ElectronInfo>& input ) const {
+StatusCode TrigEgammaFastElectronHypoTool::multiplicitySelection( std::vector<ElectronInfo>& input ) const {
   HLT::Index2DVec passingSelection( m_multiplicity );
   
   for ( size_t cutIndex = 0; cutIndex < m_multiplicity; ++ cutIndex ) {
@@ -186,7 +186,7 @@ StatusCode TrigL2ElectronHypoTool::multiplicitySelection( std::vector<ElectronIn
   return markPassing( input, passingIndices );
 }
 
-StatusCode TrigL2ElectronHypoTool::decide(  std::vector<ElectronInfo>& input )  const {
+StatusCode TrigEgammaFastElectronHypoTool::decide(  std::vector<ElectronInfo>& input )  const {
   // handle the simplest and most common case ( multiplicity == 1 ) in easiest possible manner
   if ( m_trackPt.size() == 1 ) {
     return inclusiveSelection( input );

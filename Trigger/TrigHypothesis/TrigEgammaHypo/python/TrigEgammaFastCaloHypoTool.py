@@ -13,7 +13,7 @@ _possibleSel  = { 'tight':'Tight', 'medium':'Medium', 'loose':'Loose', 'vloose':
 
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger('TrigL2CaloHypoTool')
+log = logging.getLogger('TrigEgammaFastCaloHypoTool')
 
 def _GetPath( cand, sel, basepath = 'RingerSelectorTools/TrigL2_20180903_v9' ):
     
@@ -39,7 +39,7 @@ def _IncTool(name, cand, threshold, sel):
 
     possibleSel = L2CaloCutMaps( threshold ).MapsHADETthr.keys()
     from AthenaConfiguration.ComponentFactory import CompFactory
-    tool = CompFactory.TrigL2CaloHypoToolInc( name )
+    tool = CompFactory.TrigEgammaFastCaloHypoToolInc( name )
     tool.AcceptAll = False
     tool.UseRinger = False
     
@@ -164,11 +164,11 @@ def _IncTool(name, cand, threshold, sel):
 
 def _MultTool(name):
     from AthenaConfiguration.ComponentFactory import CompFactory
-    return CompFactory.TrigL2CaloHypoToolMult( name )
+    return CompFactory.TrigEgammaFastCaloHypoToolMult( name )
 
 
 
-def TrigL2CaloHypoToolFromDict( d ):
+def TrigEgammaFastCaloHypoToolFromDict( d ):
     """ Use menu decoded chain dictionary to configure the tool """
     cparts = [i for i in d['chainParts'] if ((i['signature']=='Electron') or (i['signature']=='Photon'))]
 
@@ -202,38 +202,38 @@ def TrigL2CaloHypoToolFromDict( d ):
         return _IncTool( name, __cand( cparts[0]), __th( cparts[0]),  __sel( cparts[0]))
 
 
-def TrigL2CaloHypoToolFromName( name, conf ):
+def TrigEgammaFastCaloHypoToolFromName( name, conf ):
     """ To be phased out """
     """ set the name of the HypoTool (name=chain) and figure out the threshold and selection from conf """
 
     from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
     decodedDict = dictFromChainName(conf)
 
-    return TrigL2CaloHypoToolFromDict( decodedDict )
+    return TrigEgammaFastCaloHypoToolFromDict( decodedDict )
 
 
 if __name__ == "__main__":
     TriggerFlags.enableMonitoring=['Validation']
 
-    t = TrigL2CaloHypoToolFromName( "HLT_e10_etcut_L1EM3","HLT_e10_etcut_L1EM3" )
+    t = TrigEgammaFastCaloHypoToolFromName( "HLT_e10_etcut_L1EM3","HLT_e10_etcut_L1EM3" )
     assert t, "cant configure EtCut"
 
 
-    t = TrigL2CaloHypoToolFromName( "HLT_2e5_etcut_L12EM3", "HLT_2e5_etcut_L12EM3" )
+    t = TrigEgammaFastCaloHypoToolFromName( "HLT_2e5_etcut_L12EM3", "HLT_2e5_etcut_L12EM3" )
     assert t, "cant configure symmetric selection"
     assert len(t.SubTools) == 2, "Sub-tools not configured"
 
-    t = TrigL2CaloHypoToolFromName( "HLT_3e5_etcut_L13EM3", "HLT_3e5_etcut_L13EM3" )
+    t = TrigEgammaFastCaloHypoToolFromName( "HLT_3e5_etcut_L13EM3", "HLT_3e5_etcut_L13EM3" )
     assert t, "cant configure symmetric selection"
     assert len(t.SubTools) == 3, "Sub-tools not configured"
 
     # Asymmetric chais not working with this. Commenting out for now
-    # t = TrigL2CaloHypoToolFromName( "HLT_e3_etcut_e5_etcut_L12EM3",  "HLT_e3_etcut_e5_etcut_L12EM3" )
+    # t = TrigEgammaFastCaloHypoToolFromName( "HLT_e3_etcut_e5_etcut_L12EM3",  "HLT_e3_etcut_e5_etcut_L12EM3" )
     # assert t, "cant configure asymmetric selection"
     # assert len(t.SubTools) == 2, "Sub-tools not configured"
 
-    t = TrigL2CaloHypoToolFromName( "HLT_e3_etcut_e5_etcut_mu6_L1EM3_MU3",  "HLT_e3_etcut_e5_etcut_L1EM3_MU3" )
+    t = TrigEgammaFastCaloHypoToolFromName( "HLT_e3_etcut_e5_etcut_mu6_L1EM3_MU3",  "HLT_e3_etcut_e5_etcut_L1EM3_MU3" )
     assert t, "cant configure asymmetric selection for combined chains"
     assert len(t.SubTools) == 2, "Sub-tools not configured"
 
-    log.info("TrigL2CaloHypoToolFromName ALL OK" )
+    log.info("TrigEgammaFastCaloHypoToolFromName ALL OK" )

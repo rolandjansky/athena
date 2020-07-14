@@ -3,7 +3,7 @@
 */
 
 #include "GaudiKernel/Property.h"
-#include "TrigL2PhotonHypoAlgMT.h"
+#include "TrigEgammaFastPhotonHypoAlgMT.h"
 #include "AthViews/ViewHelper.h"
 
 
@@ -17,12 +17,12 @@ using TrigCompositeUtils::linkToPrevious;
 using TrigCompositeUtils::viewString;
 using TrigCompositeUtils::featureString;
 
-TrigL2PhotonHypoAlgMT::TrigL2PhotonHypoAlgMT( const std::string& name, 
+TrigEgammaFastPhotonHypoAlgMT::TrigEgammaFastPhotonHypoAlgMT( const std::string& name, 
 				      ISvcLocator* pSvcLocator ) :
   ::HypoBase( name, pSvcLocator ) {}
 
 
-StatusCode TrigL2PhotonHypoAlgMT::initialize() {
+StatusCode TrigEgammaFastPhotonHypoAlgMT::initialize() {
   ATH_CHECK( m_hypoTools.retrieve() );
   
   ATH_CHECK( m_photonsKey.initialize() );
@@ -31,7 +31,7 @@ StatusCode TrigL2PhotonHypoAlgMT::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigL2PhotonHypoAlgMT::execute( const EventContext& context ) const {
+StatusCode TrigEgammaFastPhotonHypoAlgMT::execute( const EventContext& context ) const {
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
   ATH_CHECK( previousDecisionsHandle.isValid() );
@@ -61,7 +61,7 @@ StatusCode TrigL2PhotonHypoAlgMT::execute( const EventContext& context ) const {
   SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context ); 
   auto decisions = outputHandle.ptr();
 
-  std::vector<TrigL2PhotonHypoTool::PhotonInfo> hypoToolInput;
+  std::vector<TrigEgammaFastPhotonHypoTool::PhotonInfo> hypoToolInput;
  
   for ( auto previousDecision: *previousDecisionsHandle ) {
     //previousDecision->objectLink< ViewContainer >( "view" );
@@ -96,7 +96,7 @@ StatusCode TrigL2PhotonHypoAlgMT::execute( const EventContext& context ) const {
       DecisionIDContainer clusterDecisionIDs;
       decisionIDs( previousDecisionsHandle->at( origCluster->second ), clusterDecisionIDs );
       
-      hypoToolInput.emplace_back( TrigL2PhotonHypoTool::PhotonInfo{ d, *photonIter,  origCluster->first, clusterDecisionIDs } );
+      hypoToolInput.emplace_back( TrigEgammaFastPhotonHypoTool::PhotonInfo{ d, *photonIter,  origCluster->first, clusterDecisionIDs } );
     }
   }
 
@@ -109,5 +109,3 @@ StatusCode TrigL2PhotonHypoAlgMT::execute( const EventContext& context ) const {
 
   return StatusCode::SUCCESS;
 }
-
-

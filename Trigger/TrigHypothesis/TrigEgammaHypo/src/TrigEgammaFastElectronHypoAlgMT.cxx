@@ -3,7 +3,7 @@
 */
 #include <map>
 #include "GaudiKernel/Property.h"
-#include "TrigL2ElectronHypoAlgMT.h"
+#include "TrigEgammaFastElectronHypoAlgMT.h"
 #include "AthViews/ViewHelper.h"
 
 
@@ -19,12 +19,12 @@ using TrigCompositeUtils::featureString;
 using TrigCompositeUtils::findLink;
 using TrigCompositeUtils::LinkInfo;
 
-TrigL2ElectronHypoAlgMT::TrigL2ElectronHypoAlgMT( const std::string& name, 
+TrigEgammaFastElectronHypoAlgMT::TrigEgammaFastElectronHypoAlgMT( const std::string& name, 
 			  ISvcLocator* pSvcLocator ) : 
   ::HypoBase( name, pSvcLocator ) {}
 
 
-StatusCode TrigL2ElectronHypoAlgMT::initialize() {
+StatusCode TrigEgammaFastElectronHypoAlgMT::initialize() {
   CHECK( m_hypoTools.retrieve() );
   
   CHECK( m_electronsKey.initialize() );
@@ -33,7 +33,7 @@ StatusCode TrigL2ElectronHypoAlgMT::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigL2ElectronHypoAlgMT::execute( const EventContext& context ) const {
+StatusCode TrigEgammaFastElectronHypoAlgMT::execute( const EventContext& context ) const {
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
   ATH_CHECK( previousDecisionsHandle.isValid() );
@@ -60,7 +60,7 @@ StatusCode TrigL2ElectronHypoAlgMT::execute( const EventContext& context ) const
   ATH_MSG_DEBUG( "Cluster ptr to decision map has size " << clusterToIndexMap.size() );
 
   // prepare imput for tools
-  std::vector<TrigL2ElectronHypoTool::ElectronInfo> hypoToolInput;
+  std::vector<TrigEgammaFastElectronHypoTool::ElectronInfo> hypoToolInput;
  
   for ( auto previousDecision: *previousDecisionsHandle ) {
       // get View
@@ -93,7 +93,7 @@ StatusCode TrigL2ElectronHypoAlgMT::execute( const EventContext& context ) const
       DecisionIDContainer clusterDecisionIDs;
       decisionIDs( previousDecisionsHandle->at( origCluster->second ), clusterDecisionIDs );
       
-      hypoToolInput.emplace_back( TrigL2ElectronHypoTool::ElectronInfo{ d, *electronIter,  origCluster->first, clusterDecisionIDs } );
+      hypoToolInput.emplace_back( TrigEgammaFastElectronHypoTool::ElectronInfo{ d, *electronIter,  origCluster->first, clusterDecisionIDs } );
     }
   }
 

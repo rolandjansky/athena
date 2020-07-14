@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGEGAMMAHYPO_TRIGL2CALOHYPOTOOLMULT_H
-#define TRIGEGAMMAHYPO_TRIGL2CALOHYPOTOOLMULT_H 1
+#ifndef TRIGEGAMMAHYPO_TRIGEGAMMFASTCALOHYPOTOOLMULT_H
+#define TRIGEGAMMAHYPO_TRIGEGAMMAFASTCALOHYPOTOOLMULT_H 1
 
 //#include "GaudiKernel/IAlgTool.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -12,7 +12,7 @@
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
-#include "ITrigL2CaloHypoTool.h"
+#include "ITrigEgammaFastCaloHypoTool.h"
 
 
 
@@ -21,18 +21,18 @@
  * @brief 
  **/
 
-class TrigL2CaloHypoToolMult : public extends<AthAlgTool, ITrigL2CaloHypoTool> { 
+class TrigEgammaFastCaloHypoToolMult : public extends<AthAlgTool, ITrigEgammaFastCaloHypoTool> { 
  public: 
-  TrigL2CaloHypoToolMult( const std::string& type, 
+  TrigEgammaFastCaloHypoToolMult( const std::string& type, 
 			  const std::string& name, 
 			  const IInterface* parent );
 
-  virtual ~TrigL2CaloHypoToolMult();
+  virtual ~TrigEgammaFastCaloHypoToolMult();
   virtual StatusCode initialize() override;
 
-  virtual StatusCode decide( std::vector<ITrigL2CaloHypoTool::ClusterInfo>& input )  const override;
+  virtual StatusCode decide( std::vector<ITrigEgammaFastCaloHypoTool::FastClusterInfo>& input )  const override;
 
-  virtual bool decide( const ITrigL2CaloHypoTool::ClusterInfo& ) const override { 
+  virtual bool decide( const ITrigEgammaFastCaloHypoTool::FastClusterInfo& ) const override { 
     REPORT_MESSAGE(MSG::ERROR) << "this method should never be called";
     return false;
   }
@@ -40,8 +40,8 @@ class TrigL2CaloHypoToolMult : public extends<AthAlgTool, ITrigL2CaloHypoTool> {
  private:
   HLT::Identifier m_decisionId;
 
-  ToolHandleArray<ITrigL2CaloHypoTool> m_subTools { this, "SubTools", {}, "Sub tools performing cuts" };
+  ToolHandleArray<ITrigEgammaFastCaloHypoTool> m_subTools { this, "SubTools", {}, "Sub tools performing cuts" };
   
 }; 
 
-#endif //> !TRIGEGAMMAHYPO_TRIGL2CALOHYPOTOOLMULT_H
+#endif //> !TRIGEGAMMAHYPO_TRIGEgammaFastCALOHYPOTOOLMULT_H

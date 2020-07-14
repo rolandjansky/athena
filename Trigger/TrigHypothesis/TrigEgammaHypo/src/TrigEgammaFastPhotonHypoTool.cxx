@@ -8,17 +8,17 @@
 #include "TrigCompositeUtils/Combinators.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 
-#include "TrigL2PhotonHypoTool.h"
+#include "TrigEgammaFastPhotonHypoTool.h"
 
 using namespace TrigCompositeUtils;
 
-TrigL2PhotonHypoTool::TrigL2PhotonHypoTool( const std::string& type, 
+TrigEgammaFastPhotonHypoTool::TrigEgammaFastPhotonHypoTool( const std::string& type, 
 						const std::string& name, 
 						const IInterface* parent ) 
   : AthAlgTool( type, name, parent ),
     m_decisionId( HLT::Identifier::fromToolName( name ) ) {}
 
-StatusCode TrigL2PhotonHypoTool::initialize()  {
+StatusCode TrigEgammaFastPhotonHypoTool::initialize()  {
   
   //  if ( !m_monTool.empty() ) CHECK( m_monTool.rerthrieve() );
 
@@ -36,7 +36,9 @@ StatusCode TrigL2PhotonHypoTool::initialize()  {
   ATH_MSG_DEBUG( "dETACLUSTERthr = " << m_detacluster );
 
 
-  std::vector<size_t> sizes( {m_eTthr.size(), m_eT2thr.size(), m_hadeTthr.size(), m_hadeT2thr.size(), m_carcorethr.size(), m_caeratiothr.size() } );   
+  std::vector<size_t> sizes( {m_eTthr.size(), m_eT2thr.size(), 
+                              m_hadeTthr.size(), m_hadeT2thr.size(),
+                              m_carcorethr.size(), m_caeratiothr.size() } );   
 
 if ( *std::min_element( sizes.begin(), sizes.end() ) != *std::max_element( sizes.begin(), sizes.end() )  ) {     
   ATH_MSG_ERROR( "Missconfiguration, cut properties listed above ( when DEBUG ) have different dimensions shortest: " <<  *std::min_element( sizes.begin(), sizes.end() ) << " longest " << *std::max_element( sizes.begin(), sizes.end() ) );     
@@ -46,10 +48,10 @@ if ( *std::min_element( sizes.begin(), sizes.end() ) != *std::max_element( sizes
 }
 
 
-TrigL2PhotonHypoTool::~TrigL2PhotonHypoTool() {}
+TrigEgammaFastPhotonHypoTool::~TrigEgammaFastPhotonHypoTool() {}
 
 
-bool TrigL2PhotonHypoTool::decideOnSingleObject( const xAOD::TrigPhoton* photon,size_t cutIndex ) const {
+bool TrigEgammaFastPhotonHypoTool::decideOnSingleObject( const xAOD::TrigPhoton* photon,size_t cutIndex ) const {
 
   auto cutCounter = Monitored::Scalar<int>( "CutCounter", -1 );
   auto cutIndexM  = Monitored::Scalar<int>( "CutIndex", cutIndex );
@@ -184,7 +186,7 @@ bool TrigL2PhotonHypoTool::decideOnSingleObject( const xAOD::TrigPhoton* photon,
   
 }
 
-StatusCode TrigL2PhotonHypoTool::inclusiveSelection( std::vector<PhotonInfo>& input ) const {
+StatusCode TrigEgammaFastPhotonHypoTool::inclusiveSelection( std::vector<PhotonInfo>& input ) const {
   for ( auto i: input ) {
     if ( i.previousDecisionIDs.count( m_decisionId.numeric() ) == 0 ) continue; // the decision was negative or not even made in previous stage
 
@@ -197,7 +199,7 @@ StatusCode TrigL2PhotonHypoTool::inclusiveSelection( std::vector<PhotonInfo>& in
 }
 
 
-StatusCode TrigL2PhotonHypoTool::markPassing( std::vector<PhotonInfo>& input, const std::set<size_t>& passing ) const {
+StatusCode TrigEgammaFastPhotonHypoTool::markPassing( std::vector<PhotonInfo>& input, const std::set<size_t>& passing ) const {
 
   for ( auto idx: passing ) 
     addDecisionID( m_decisionId.numeric(), input[idx].decision );
@@ -205,7 +207,7 @@ StatusCode TrigL2PhotonHypoTool::markPassing( std::vector<PhotonInfo>& input, co
 }
 
 
-StatusCode TrigL2PhotonHypoTool::decide(  std::vector<PhotonInfo>& input )  const {
+StatusCode TrigEgammaFastPhotonHypoTool::decide(  std::vector<PhotonInfo>& input )  const {
   if ( m_multiplicity == 1 ) {
       return inclusiveSelection( input );
 

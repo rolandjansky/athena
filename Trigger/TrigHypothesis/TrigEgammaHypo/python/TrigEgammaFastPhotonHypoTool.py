@@ -6,23 +6,23 @@ from AthenaCommon.Include import Include
 # flake8: noqa 
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 from AthenaCommon.Logging import logging
-log = logging.getLogger('TrigL2PhotonHypoTool')
+log = logging.getLogger('TrigEgammaFastPhotonHypoTool')
 
-def TrigL2PhotonHypoToolFromDict( chainDict ):
+def TrigEgammaFastPhotonHypoToolFromDict( chainDict ):
     """ Use menu decoded chain dictionary to configure the tool """
     thresholds = sum([ [cpart['threshold']]*int(cpart['multiplicity']) for cpart in chainDict['chainParts']], [])
 
     name = chainDict['chainName']
     from AthenaConfiguration.ComponentFactory import CompFactory
-    tool = CompFactory.TrigL2PhotonHypoTool(name)
+    tool = CompFactory.TrigEgammaFastPhotonHypoTool(name)
 
     monTool = GenericMonitoringTool("MonTool"+name)
-    monTool.defineHistogram('CutCounter', type='TH1I', path='EXPERT', title="L2Photon Hypo Cut Counter;Cut Counter", xbins=8, xmin=-1.5, xmax=7.5, opt="kCumulative")
-    monTool.defineHistogram('PtCalo', type='TH1F', path='EXPERT', title="L2Photon Hypo p_{T}^{calo} [MeV];p_{T}^{calo} [MeV];Nevents", xbins=50, xmin=0, xmax=100000)
-    monTool.defineHistogram('CaloEta', type='TH1F', path='EXPERT', title="L2Photon Hypo #eta^{calo} ; #eta^{calo};Nevents", xbins=200, xmin=-2.5, xmax=2.5)
-    monTool.defineHistogram('CaloPhi', type='TH1F', path='EXPERT', title="L2Photon Hypo #phi^{calo} ; #phi^{calo};Nevents", xbins=320, xmin=-3.2, xmax=3.2)
+    monTool.defineHistogram('CutCounter', type='TH1I', path='EXPERT', title="FastPhoton Hypo Cut Counter;Cut Counter", xbins=8, xmin=-1.5, xmax=7.5, opt="kCumulative")
+    monTool.defineHistogram('PtCalo', type='TH1F', path='EXPERT', title="FastPhoton Hypo p_{T}^{calo} [MeV];p_{T}^{calo} [MeV];Nevents", xbins=50, xmin=0, xmax=100000)
+    monTool.defineHistogram('CaloEta', type='TH1F', path='EXPERT', title="FastPhoton Hypo #eta^{calo} ; #eta^{calo};Nevents", xbins=200, xmin=-2.5, xmax=2.5)
+    monTool.defineHistogram('CaloPhi', type='TH1F', path='EXPERT', title="FastPhoton Hypo #phi^{calo} ; #phi^{calo};Nevents", xbins=320, xmin=-3.2, xmax=3.2)
 
-    monTool.HistPath = 'L2PhotonHypo/'+tool.getName()
+    monTool.HistPath = 'FastPhotonHypo/'+tool.getName()
     tool.MonTool = monTool
 
     nt = len( thresholds )
@@ -40,7 +40,7 @@ def TrigL2PhotonHypoToolFromDict( chainDict ):
     return tool
 
 
-def TrigL2PhotonHypoToolFromName( name, conf ):
+def TrigEgammaFastPhotonHypoToolFromName( name, conf ):
     """ provides configuration of the hypo tool giben the chain name
     The argument will be replaced by "parsed" chain dict. For now it only serves simplest chain HLT_eXYZ.
     """
@@ -48,11 +48,11 @@ def TrigL2PhotonHypoToolFromName( name, conf ):
     from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
     decodedDict = dictFromChainName(conf)
         
-    return TrigL2PhotonHypoToolFromDict( decodedDict )
+    return TrigEgammaFastPhotonHypoToolFromDict( decodedDict )
 
 
 if __name__ == "__main__":
-    tool = TrigL2PhotonHypoToolFromName("HLT_g5_etcut_L1EM3", "HLT_g5_etcut_L1EM3")   
+    tool = TrigEgammaFastPhotonHypoToolFromName("HLT_g5_etcut_L1EM3", "HLT_g5_etcut_L1EM3")   
     assert tool, "Not configured simple tool"
 
     log.info("ALL OK")

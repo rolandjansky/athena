@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGEGAMMAHYPO_ITRIGL2CALOHYPOTOOL_H
-#define TRIGEGAMMAHYPO_ITRIGL2CALOHYPOTOOL_H 1
+#ifndef TRIGEGAMMAHYPO_ITRIGEGAMMAFASTCALOHYPOTOOL_H
+#define TRIGEGAMMAHYPO_ITRIGEGAMMAFASTCALOHYPOTOOL_H 1
 
 #include "GaudiKernel/IAlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -16,20 +16,20 @@
 
 
 /**
- * @class Base for tools dooing L2 Calo Hypo selection
+ * @class Base for tools dooing Egamma Fast Calo Hypo selection
  * @brief 
  **/
 
-class ITrigL2CaloHypoTool
+class ITrigEgammaFastCaloHypoTool
   : virtual public ::IAlgTool
 { 
 
  public: 
-  DeclareInterfaceID(ITrigL2CaloHypoTool, 1, 0);
-  virtual ~ITrigL2CaloHypoTool(){}
+  DeclareInterfaceID(ITrigEgammaFastCaloHypoTool, 1, 0);
+  virtual ~ITrigEgammaFastCaloHypoTool(){}
 
-  struct ClusterInfo {
-  ClusterInfo( TrigCompositeUtils::Decision* d, 
+  struct FastClusterInfo {
+  FastClusterInfo( TrigCompositeUtils::Decision* d, 
                const TrigRoiDescriptor* r, 
                const xAOD::TrigEMCluster* c,
 	       const xAOD::TrigRingerRings* ring,
@@ -56,13 +56,13 @@ class ITrigL2CaloHypoTool
    * There will be many tools called often to perform this quick operation and we do not want to pay for polymorphism which we do not need to use.
    * Will actually see when N obj hypos will enter the scene
    **/
-  virtual StatusCode decide( std::vector<ClusterInfo>& input )  const = 0;
+  virtual StatusCode decide( std::vector<FastClusterInfo>& input )  const = 0;
 
   /**
    * @brief Makes a decision for a single object
    * The decision needs to be returned
    **/ 
-  virtual bool decide( const ClusterInfo& i ) const = 0;
+  virtual bool decide( const FastClusterInfo& i ) const = 0;
 
  protected:
 
@@ -70,4 +70,4 @@ class ITrigL2CaloHypoTool
 }; 
 
 
-#endif //> !TRIGEGAMMAHYPO_ITRIGL2CALOHYPOTOOL_H
+#endif //> !TRIGEGAMMAHYPO_ITRIGEGAMMAFASTCALOHYPOTOOL_H

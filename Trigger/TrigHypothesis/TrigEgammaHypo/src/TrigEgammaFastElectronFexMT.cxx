@@ -20,7 +20,7 @@
  **************************************************************************/
 
 #include "TrkCaloExtension/CaloExtensionHelpers.h" 
-#include "TrigL2ElectronFexMT.h"
+#include "TrigEgammaFastElectronFexMT.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODTrigCalo/TrigEMClusterAuxContainer.h"
 #include "AthenaMonitoringKernel/Monitored.h"
@@ -32,7 +32,7 @@ inline const DataVector<xAOD::TrigElectron>** dvec_cast(SRC** ptr) {
 } 
 
 
-TrigL2ElectronFexMT::TrigL2ElectronFexMT(const std::string & name, ISvcLocator* pSvcLocator)
+TrigEgammaFastElectronFexMT::TrigEgammaFastElectronFexMT(const std::string & name, ISvcLocator* pSvcLocator)
     : AthAlgorithm(name, pSvcLocator)
 {
 
@@ -40,11 +40,11 @@ TrigL2ElectronFexMT::TrigL2ElectronFexMT(const std::string & name, ISvcLocator* 
 }
 
 
-TrigL2ElectronFexMT::~TrigL2ElectronFexMT()
+TrigEgammaFastElectronFexMT::~TrigEgammaFastElectronFexMT()
 {}
 
 
-StatusCode TrigL2ElectronFexMT::initialize()
+StatusCode TrigEgammaFastElectronFexMT::initialize()
 {
   ATH_MSG_DEBUG("Initialization:");
 
@@ -85,7 +85,7 @@ ATH_CHECK( m_outputElectronsKey.initialize() );
 }
 
 
-StatusCode TrigL2ElectronFexMT::finalize()
+StatusCode TrigEgammaFastElectronFexMT::finalize()
 {
     if (m_extrapolator_failed)
         ATH_MSG_INFO("track extrapolation failed " << m_extrapolator_failed << " times");
@@ -94,7 +94,7 @@ StatusCode TrigL2ElectronFexMT::finalize()
 }
 
 
-StatusCode TrigL2ElectronFexMT::execute() {
+StatusCode TrigEgammaFastElectronFexMT::execute() {
  using namespace xAOD;   
 
  ATH_MSG_DEBUG( "Executing " <<name());
@@ -301,7 +301,7 @@ StatusCode TrigL2ElectronFexMT::execute() {
   return StatusCode::SUCCESS;
 }
 
-bool TrigL2ElectronFexMT::extrapolate(const xAOD::TrigEMCluster *clus, const xAOD::TrackParticle *trk, double &etaAtCalo, double &phiAtCalo){
+bool TrigEgammaFastElectronFexMT::extrapolate(const xAOD::TrigEMCluster *clus, const xAOD::TrackParticle *trk, double &etaAtCalo, double &phiAtCalo){
     CaloExtensionHelpers::LayersToSelect layersToSelect; 
     layersToSelect.insert(CaloSampling::CaloSample::EMB2); 
     layersToSelect.insert(CaloSampling::CaloSample::EME2); 

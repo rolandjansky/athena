@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGEGAMMAHYPO_TRIGL2CALOHYPOTOOLINC_H
-#define TRIGEGAMMAHYPO_TRIGL2CALOHYPOTOOLINC_H 1
+#ifndef TRIGEGAMMAHYPO_TRIGEGAMMAFASTCALOHYPOTOOLINC_H
+#define TRIGEGAMMAHYPO_TRIGEGAMMAFASTCALOHYPOTOOLINC_H 1
 
 //#include "GaudiKernel/IAlgTool.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -17,25 +17,29 @@
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
-#include "ITrigL2CaloHypoTool.h"
+#include "ITrigEgammaFastCaloHypoTool.h"
 
 /**
  * @class Implementation of the Egamma selection for CaloClusters
  * @brief 
  **/
 
-class TrigL2CaloHypoToolInc : public extends<AthAlgTool, ITrigL2CaloHypoTool> { 
+class TrigEgammaFastCaloHypoToolInc : public extends<AthAlgTool, ITrigEgammaFastCaloHypoTool> { 
  public: 
-  TrigL2CaloHypoToolInc( const std::string& type, 
+  TrigEgammaFastCaloHypoToolInc( const std::string& type, 
 			 const std::string& name, 
 			 const IInterface* parent );
 
-  virtual ~TrigL2CaloHypoToolInc();
+  virtual ~TrigEgammaFastCaloHypoToolInc();
   virtual StatusCode initialize() override;
 
-  virtual StatusCode decide( std::vector<ITrigL2CaloHypoTool::ClusterInfo>& input )  const override;
+  virtual StatusCode decide( std::vector<ITrigEgammaFastCaloHypoTool::FastClusterInfo>& input )  const override;
 
-  virtual bool decide( const ITrigL2CaloHypoTool::ClusterInfo& i ) const override;
+  virtual bool decide( const ITrigEgammaFastCaloHypoTool::FastClusterInfo& i ) const override;
+
+  // ringer and cutbased selectors
+  virtual bool decide_cutbased( const ITrigEgammaFastCaloHypoTool::FastClusterInfo& i ) const;
+  virtual bool decide_ringer( const ITrigEgammaFastCaloHypoTool::FastClusterInfo& i ) const;
 
  private:
   Ringer::RingerSelectorTool        m_selectorTool;
@@ -67,4 +71,4 @@ class TrigL2CaloHypoToolInc : public extends<AthAlgTool, ITrigL2CaloHypoTool> {
   int findCutIndex( float eta ) const;
 }; 
 
-#endif //> !TRIGEGAMMAHYPO_TRIGL2CALOHYPOTOOL_H
+#endif //> !TRIGEGAMMAHYPO_TRIGEGAMMAFASTCALOHYPOTOOLINC_H

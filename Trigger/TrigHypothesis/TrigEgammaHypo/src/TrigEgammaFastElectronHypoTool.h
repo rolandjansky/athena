@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGEGAMMAHYPO_TRIGL2ELECTRONHYPOTOOL_H
-#define TRIGEGAMMAHYPO_TRIGL2ELECTRONHYPOTOOL_H 1
+#ifndef TRIGEGAMMAHYPO_TRIGEGAMMAFASTELECTRONHYPOTOOL_H
+#define TRIGEGAMMAHYPO_TRIGEGAMMAFASTELECTRONHYPOTOOL_H 1
 
 #include "GaudiKernel/Property.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -19,14 +19,14 @@
  * @brief 
  **/
 
-class TrigL2ElectronHypoTool : virtual public ::AthAlgTool
+class TrigEgammaFastElectronHypoTool : virtual public ::AthAlgTool
 { 
  public: 
-  TrigL2ElectronHypoTool( const std::string& type, 
+  TrigEgammaFastElectronHypoTool( const std::string& type, 
 			  const std::string& name, 
 			  const IInterface* parent );
 
-  virtual ~TrigL2ElectronHypoTool();
+  virtual ~TrigEgammaFastElectronHypoTool();
   virtual StatusCode initialize() override;
 
 
@@ -85,4 +85,4 @@ class TrigL2ElectronHypoTool : virtual public ::AthAlgTool
   ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "", "Monitoring tool" };
 }; 
 
-#endif //> !TRIGEGAMMAHYPO_TRIGL2CALOHYPOTOOL_H
+#endif //> !TRIGEGAMMAHYPO_TRIGEGAMMAFASTCALOHYPOTOOL_H
