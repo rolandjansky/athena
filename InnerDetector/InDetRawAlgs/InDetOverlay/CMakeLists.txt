@@ -38,7 +38,6 @@ atlas_add_component( InDetOverlay
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps IDC_OverlayBase GaudiKernel InDetRawData StoreGateLib SGtests GeneratorObjects InDetBCM_RawData InDetIdentifier InDetSimData TrkTrack TRT_ConditionsServicesLib TRT_ElectronPidToolsLib)
 
 # Install files from the package:
-atlas_install_headers( InDetOverlay )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/StoreGateTestCommon.txt )
 
