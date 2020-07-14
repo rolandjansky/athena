@@ -127,56 +127,62 @@ def makeInDetPrecisionTracking( whichSignature,
   #                        Ambiguity solving stage
 
   from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator
-  from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetAmbiScoringTool
-  InDetTrigAmbiScoringTool =  InDet__InDetAmbiScoringTool( name                        = '%sScoringTool%s'%(algNamePrefix, signature) ,
-                                                           Extrapolator                = InDetTrigExtrapolator,
-                                                           doEmCaloSeed                = False,
-                                                           SummaryTool                 = SummaryTool_config)
+ # from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetAmbiScoringTool
+ # InDetTrigAmbiScoringTool =  InDet__InDetAmbiScoringTool( name                        = '%sScoringTool%s'%(algNamePrefix, signature) ,
+ #                                                          Extrapolator                = InDetTrigExtrapolator,
+ #                                                          doEmCaloSeed                = False,
+ #                                                          SummaryTool                 = SummaryTool_config)
 
-  ToolSvc += InDetTrigAmbiScoringTool
-
-
-  #TODO: Need option to change scoring tool based on the slice (beamgas)
-  
-  from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigAmbiTrackSelectionTool
-
-  from InDetRecExample import TrackingCommon as TrackingCommon
-  from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__DenseEnvironmentsAmbiguityScoreProcessorTool as ScoreProcessorTool
-  InDetTrigAmbiguityScoreProcessor = ScoreProcessorTool(     name               = '%sAmbiguityScoreProcessor%s'%(algNamePrefix, signature),
-                                                             ScoringTool        = InDetTrigAmbiScoringTool,
-                                                             AssociationTool    = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels(),
-                                                             SelectionTool      = InDetTrigAmbiTrackSelectionTool)
+ # ToolSvc += InDetTrigAmbiScoringTool
 
 
-  from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguityScore
-  InDetTrigAmbiguityScore = Trk__TrkAmbiguityScore(name                    = '%sAmbiguityScore%s'%(algNamePrefix, signature),
-                                                   TrackInput              = [ inputFTFtracks ],
-                                                   TrackOutput             = 'ScoredMap'+signature,
-                                                   AmbiguityScoreProcessor = InDetTrigAmbiguityScoreProcessor 
-  ) 
-         
-  
-  
+ # #TODO: Need option to change scoring tool based on the slice (beamgas)
+ # 
+ # from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigAmbiTrackSelectionTool
+
+ # from InDetRecExample import TrackingCommon as TrackingCommon
+ # from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__DenseEnvironmentsAmbiguityScoreProcessorTool as ScoreProcessorTool
+ # InDetTrigAmbiguityScoreProcessor = ScoreProcessorTool(     name               = '%sAmbiguityScoreProcessor%s'%(algNamePrefix, signature),
+ #                                                            ScoringTool        = InDetTrigAmbiScoringTool,
+ #                                                            AssociationTool    = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels(),
+ #                                                            SelectionTool      = InDetTrigAmbiTrackSelectionTool)
+
+
+ # from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguityScore
+ # InDetTrigAmbiguityScore = Trk__TrkAmbiguityScore(name                    = '%sAmbiguityScore%s'%(algNamePrefix, signature),
+ #                                                  TrackInput              = [ inputFTFtracks ],
+ #                                                  TrackOutput             = 'ScoredMap'+signature,
+ #                                                  AmbiguityScoreProcessor = InDetTrigAmbiguityScoreProcessor 
+ # ) 
+ #        
+ # 
+ # 
   from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackFitter
-  from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__SimpleAmbiguityProcessorTool as ProcessorTool
-  InDetTrigMTAmbiguityProcessor = ProcessorTool(name             = '%sAmbiguityProcessor%s' %(algNamePrefix,signature),
-                                                Fitter           = InDetTrigTrackFitter,
-                                                ScoringTool      = InDetTrigAmbiScoringTool,
-                                                AssociationTool  = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels(),
-                                                TrackSummaryTool = SummaryTool_config,
-                                                SelectionTool    = InDetTrigAmbiTrackSelectionTool)
-  
-  ToolSvc += InDetTrigMTAmbiguityProcessor
-  
-  
-  from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguitySolver
-  InDetTrigMTAmbiguitySolver = Trk__TrkAmbiguitySolver(name               = '%sAmbiguitySolver%s' %(algNamePrefix,signature),
-                                                       TrackInput         = 'ScoredMap'+signature,
-                                                       TrackOutput        = nameAmbiTrackCollection, 
-                                                       AmbiguityProcessor = InDetTrigMTAmbiguityProcessor)
-  
+ # from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__SimpleAmbiguityProcessorTool as ProcessorTool
+ # InDetTrigMTAmbiguityProcessor = ProcessorTool(name             = '%sAmbiguityProcessor%s' %(algNamePrefix,signature),
+ #                                               Fitter           = InDetTrigTrackFitter,
+ #                                               ScoringTool      = InDetTrigAmbiScoringTool,
+ #                                               AssociationTool  = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels(),
+ #                                               TrackSummaryTool = SummaryTool_config,
+ #                                               SelectionTool    = InDetTrigAmbiTrackSelectionTool)
+ # 
+ # ToolSvc += InDetTrigMTAmbiguityProcessor
+ # 
+ # 
+ # from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguitySolver
+ # InDetTrigMTAmbiguitySolver = Trk__TrkAmbiguitySolver(name               = '%sAmbiguitySolver%s' %(algNamePrefix,signature),
+ #                                                      TrackInput         = 'ScoredMap'+signature,
+ #                                                      TrackOutput        = nameAmbiTrackCollection, 
+ #                                                      AmbiguityProcessor = InDetTrigMTAmbiguityProcessor)
 
-  ptAlgs.extend( [ InDetTrigAmbiguityScore, InDetTrigMTAmbiguitySolver] )
+
+  from .InDetTrigCommon import TrkAmbiguityScore_builder, TrkAmbiguitySolver_builder
+  ambiguityScore  = TrkAmbiguityScore_builder( signature )
+
+  ambiguitySolver = TrkAmbiguitySolver_builder( signature )
+
+  #ptAlgs.extend( [ InDetTrigAmbiguityScore, InDetTrigMTAmbiguitySolver] )
+  ptAlgs.extend( [ ambiguityScore, ambiguitySolver ] )
   if doTRTextension:
 
             proxySignature = whichSignature
@@ -303,7 +309,7 @@ def makeInDetPrecisionTracking( whichSignature,
             #TODO: do I need a new fitter for this? Or can I use the same one?
             #TODO In Run2 option for cosmic
             #InDetTrigExtensionFitter = InDetTrigTrackFitter
-            #from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetAmbiScoringTool
+            from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetAmbiScoringTool
             InDetTrigExtScoringTool = InDet__InDetAmbiScoringTool(name               = '%sExtScoringTool%s'%(algNamePrefix, signature),
                                                                   Extrapolator       = InDetTrigExtrapolator,
                                                                   SummaryTool        = SummaryTool_config,
