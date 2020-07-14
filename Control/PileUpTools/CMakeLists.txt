@@ -5,18 +5,6 @@
 # Declare the package name:
 atlas_subdir( PileUpTools )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/AthLinks
-                          Control/SGTools
-                          Control/StoreGate
-                          Event/EventInfo
-                          Event/xAOD/xAODEventInfo
-                          Event/xAOD/xAODCnvInterfaces
-                          GaudiKernel )
-
 # Component(s) in the package:
 atlas_add_library( PileUpToolsLib
                    src/*.cxx
@@ -24,7 +12,7 @@ atlas_add_library( PileUpToolsLib
                    LINK_LIBRARIES AthenaBaseComps AthenaKernel
                    AthLinks SGTools
                    EventInfo xAODEventInfo xAODCnvInterfaces
-                   GaudiKernel StoreGateLib SGtests ) 
+                   GaudiKernel StoreGateLib SGtests )
 
 atlas_add_component( PileUpTools
                      src/components/*.cxx
