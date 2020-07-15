@@ -18,7 +18,7 @@ namespace Pythia8{
 
 Pythia8_UserHooks::UserHooksFactory::Creator<Pythia8::DecayToSUEP> DecayToSUEPCreator("DecayToSUEP");
 
-#define SUEP_DEBUG 1
+#define SUEP_DEBUG 0
 
 namespace Pythia8{
 
@@ -144,7 +144,6 @@ namespace Pythia8{
     double pmax=sqrt(2+2*sqrt(1+A*A))/A; // compute the location of the maximum, to split the range 
         
     tolerance tol = 0.00001;
-    //TODO: remove boost dependency if possible
     p_plus = (bisect(boost::bind(&Suep_shower::test_fun, this, _1),pmax,50.0, tol)).first; // first root
     p_minus = (bisect(boost::bind(&Suep_shower::test_fun, this, _1), 0.0,pmax, tol)).first; // second root
     lambda_plus = - f(p_plus)/fp(p_plus);
@@ -306,7 +305,6 @@ namespace Pythia8{
 	particleFound=true;
 
 	//setup SUEP shower
-	//TODO: could get m_mass later from event record if not defined as input, need to massage initialization function of Seup_shower class though
 	static Suep_shower suep_shower(m_darkMesonMass(settingsPtr), m_darkTemperature(settingsPtr), m_mass(settingsPtr));
 
 #ifdef SUEP_DEBUG
@@ -363,9 +361,6 @@ namespace Pythia8{
     } else {
       std::cout << "[SEUP_DEBUG] " << "All Done for this event." << std::endl;
     }
-#endif
-
-#ifdef SUEP_DEBUG
     std::cout << "[SUEP_DEBUG] Printing event after adding SUEP:" << std::endl;
     for (int ii=0; ii < process.size(); ++ii) {
       std::cout << "[SUEP_DEBUG] " << ii << ": id=" << process[ii].id() << ", Final=" << process[ii].isFinal() << ", mayDecay=" << process[ii].mayDecay() << ", Status=" << process[ii].status() << ", daughter1=" << process[ii].daughter1() << ", daughter2=" << process[ii].daughter2() << std::endl;
