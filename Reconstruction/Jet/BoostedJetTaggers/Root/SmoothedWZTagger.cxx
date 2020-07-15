@@ -20,25 +20,19 @@ SmoothedWZTagger::SmoothedWZTagger( const std::string& name ) :
   m_dec_mcutH("mcutH"),
   m_dec_d2cut("d2cut"),
   m_dec_ntrkcut("ntrkcut"),
-  m_dec_weight("weightdec"),
   m_dec_accept("acceptdec")
 {
 
   m_tagType=""; // Replace base class default value
 
-  declareProperty( "JetEtaMax",             m_jetEtaMax = 2.0);
+  declareProperty( "JetEtaMax",             m_jetEtaMax = 2.0,      "Eta cut to define fiducial phase space for the tagger");
 
-  declareProperty( "MassCutLowFunc",      m_strMassCutLow="" , "");
-  declareProperty( "MassCutHighFunc",     m_strMassCutHigh="" , "");
-  declareProperty( "D2CutFunc",           m_strD2Cut="" , "");
+  declareProperty( "MassCutLowFunc",      m_strMassCutLow="" ,      "Lower mass cut");
+  declareProperty( "MassCutHighFunc",     m_strMassCutHigh="" ,     "Higher mass cut");
+  declareProperty( "D2CutFunc",           m_strD2Cut="" ,           "Upper cut on D2");
 
-  declareProperty( "NtrkCutFunc",         m_strNtrkCut="", "");
+  declareProperty( "NtrkCutFunc",         m_strNtrkCut="",          "Upper cut on Ntrk");
 
-  // tagging scale factors
-  declareProperty( "WeightDecorationName",      m_weightdecorationName = "SF");
-  declareProperty( "WeightFile",                m_weightFileName = "");
-  declareProperty( "WeightHistogramName",       m_weightHistogramName = "");
-  declareProperty( "WeightFlavors",             m_weightFlavors = "");
 }
 
 SmoothedWZTagger::~SmoothedWZTagger() {}
@@ -104,13 +98,14 @@ StatusCode SmoothedWZTagger::initialize(){
       m_weightdecorationName = configReader.GetValue("WeightDecorationName", "");
       m_weightFileName = configReader.GetValue("WeightFile", "");
       m_weightHistogramName = configReader.GetValue("WeightHistogramName", "");
+      m_efficiencyHistogramName = configReader.GetValue("EfficiencyHistogramName", "");
       m_weightFlavors = configReader.GetValue("WeightFlavors", "");
     
       // get truth label name information
       m_truthLabelName = configReader.GetValue("TruthLabelName" , "R10TruthLabel_R21Consolidated");
 
       if ( m_calibArea.compare("Local") == 0 ){
-        m_weightConfigPath = PathResolverFindCalibFile(("BoostedJetTaggers/SmoothedWZTaggers/Rel21/"+m_weightFileName).c_str());      
+	m_weightConfigPath = PathResolverFindCalibFile(("$WorkDir_DIR/data/BoostedJetTaggers/SmoothedWZTaggers/"+m_weightFileName).c_str());      
       } else if ( m_calibArea.find("eos") != std::string::npos) {
         m_weightConfigPath = PathResolverFindCalibFile((m_calibArea+"/"+m_weightFileName).c_str());
       } else {
@@ -153,6 +148,10 @@ StatusCode SmoothedWZTagger::initialize(){
     dec_name = m_decorationName+"_"+m_weightdecorationName;
     ATH_MSG_INFO( "  "<<dec_name<<" : tagging SF" );
     m_dec_weight     = SG::AuxElement::Decorator<float>((dec_name).c_str());
+    dec_name = m_decorationName+"_effSF";
+    m_dec_effSF      = SG::AuxElement::Decorator<float>((dec_name).c_str());
+    dec_name = m_decorationName+"_efficiency";
+    m_dec_efficiency = SG::AuxElement::Decorator<float>((dec_name).c_str());
     dec_name = m_decorationName+"_accept";
     m_dec_accept     = SG::AuxElement::Decorator<int>((dec_name).c_str());
     m_acc_truthLabel = std::make_unique< SG::AuxElement::ConstAccessor<int> >((m_truthLabelName).c_str());
@@ -177,6 +176,7 @@ StatusCode SmoothedWZTagger::initialize(){
     ATH_MSG_INFO( "weightdecorationName  : "<<m_weightdecorationName );
     ATH_MSG_INFO( "weightFile            : "<<m_weightFileName );
     ATH_MSG_INFO( "weightHistogramName   : "<<m_weightHistogramName );
+    ATH_MSG_INFO( "efficiencyHistogramName : "<<m_efficiencyHistogramName );
     ATH_MSG_INFO( "weightFlavors         : "<<m_weightFlavors );
     ATH_MSG_INFO( "TruthLabelName        : "<<m_truthLabelName );
   }
@@ -214,6 +214,9 @@ StatusCode SmoothedWZTagger::initialize(){
     std::string flavor;
     while(std::getline(ss, flavor, ',')){
       m_weightHistograms.insert( std::make_pair( flavor, (TH2D*)m_weightConfig->Get((m_weightHistogramName+"_"+flavor).c_str()) ) );
+      if ( !m_efficiencyHistogramName.empty() ){
+	m_efficiencyHistograms.insert( std::make_pair( flavor, (TH2D*)m_weightConfig->Get((m_efficiencyHistogramName+"_"+flavor).c_str()) ) );
+      }
       ATH_MSG_INFO( ("Tagging SF histogram for "+flavor+" is installed."));
     }
 
@@ -421,9 +424,30 @@ Root::TAccept& SmoothedWZTagger::tag(const xAOD::Jet& jet) const {
   }
 
   if ( m_calcSF && m_decorate ){
+    float effSF=1.0;
+    float efficiency=1.0;
     if ( m_IsMC ){
-      m_dec_weight(jet) = getWeight(jet);
+      std::tie(effSF, efficiency) = getWeight(jet);
       m_dec_accept(jet) = myCutResultForSF;
+      if ( m_weightFlavors.find("fail") != std::string::npos ) {
+	// inefficiency SF is automatically decorated.
+	m_dec_weight(jet) = effSF;
+      } else {
+	if ( m_accept ) {
+	  // calculate efficiency SF
+	  m_dec_weight(jet) = effSF;
+	} else {
+	  // calculate inefficiency SF
+	  if ( m_efficiencyHistogramName.empty() ){
+	    // If inefficiency SF is not available, SF is always 1.0
+	    m_dec_weight(jet) = 1.0;
+	  } else if ( efficiency < 1.0 ) {
+	    m_dec_weight(jet) = (1. - effSF*efficiency)/(1. - efficiency);
+	  } else {
+	    m_dec_weight(jet) = 1.0;
+	  }
+	}
+      }
     }else{
       m_dec_weight(jet) = 1.0;
       m_dec_accept(jet) = myCutResultForSF;
@@ -436,16 +460,15 @@ Root::TAccept& SmoothedWZTagger::tag(const xAOD::Jet& jet) const {
 
 }
 
-double SmoothedWZTagger::getWeight(const xAOD::Jet& jet) const {
+std::pair<double, double> SmoothedWZTagger::getWeight(const xAOD::Jet& jet) const {
     if ( jet.pt()*0.001 < m_jetPtMin ||
 	 jet.pt()*0.001 > m_jetPtMax ||
-	 fabs(jet.eta())>m_jetEtaMax ) return 1.0;
+	 fabs(jet.eta())>m_jetEtaMax ) return std::make_pair( 1.0, 1.0 );
 
     std::string truthLabelStr;
     LargeRJetTruthLabel::TypeEnum jetContainment=LargeRJetTruthLabel::intToEnum((*m_acc_truthLabel)(jet));
     if( m_weightHistograms.count("t_qqb") ) {
       // full-contained top tagger
-      if ( !m_accept ) return 1.0;
 
       if( jetContainment==LargeRJetTruthLabel::tqqb ){
 	truthLabelStr="t_qqb";
@@ -475,7 +498,6 @@ double SmoothedWZTagger::getWeight(const xAOD::Jet& jet) const {
 
     }else if( m_weightHistograms.count("V_qq") ){
       // W/Z tagger or inclusive top tagger
-      if ( !m_accept ) return 1.0;
 
       if( jetContainment==LargeRJetTruthLabel::tqqb || jetContainment==LargeRJetTruthLabel::other_From_t ){
 	truthLabelStr="t";
@@ -494,17 +516,21 @@ double SmoothedWZTagger::getWeight(const xAOD::Jet& jet) const {
     }
     if ( logmOverPt > 0 ) logmOverPt=0;
     double SF=1.0;
+    double eff=1.0;
     if( m_weightHistograms.count(truthLabelStr.c_str()) ){
       int pt_mPt_bin=(m_weightHistograms.find(truthLabelStr.c_str())->second)->FindBin(jet.pt()*0.001, logmOverPt);
       SF=(m_weightHistograms.find(truthLabelStr.c_str())->second)->GetBinContent(pt_mPt_bin);
+      if ( !m_efficiencyHistogramName.empty() ){
+	eff=(m_efficiencyHistograms.find(truthLabelStr.c_str())->second)->GetBinContent(pt_mPt_bin);
+      }
     } else {
       ATH_MSG_DEBUG("SF for truth label for "+truthLabelStr+" is not available. Just return 1.0");
-      return 1.0;      
+      return std::make_pair( 1.0, 1.0 );      
     }
     if ( SF < 1e-3 ) {
       ATH_MSG_DEBUG("(pt, m/pt) is out of range for SF calculation. Just return 1.0");
-      return 1.0;
-    } else return SF;
+      return std::make_pair( 1.0, 1.0 );
+    } else return std::make_pair( SF, eff );
 }
 
 StatusCode SmoothedWZTagger::finalize(){
