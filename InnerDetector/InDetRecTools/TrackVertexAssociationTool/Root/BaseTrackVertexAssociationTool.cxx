@@ -29,7 +29,7 @@ StatusCode BaseTrackVertexAssociationTool::initialize()
   ATH_CHECK( m_eventInfo.initialize() );
 
   ATH_MSG_INFO("Cut on d0 significance: " << m_d0sig_cut << "\t(d0sig_cut)");
-  ATH_MSG_INFO("Cut on deltaz * sin theta: " << m_dzSinTheta_cut << "\t(dzSinTheta_cut)");
+  ATH_MSG_INFO("Cut on Δz * sin θ: " << m_dzSinTheta_cut << "\t(dzSinTheta_cut)");
 
   ATH_MSG_WARNING("BaseTrackVertexAssociationTool is being depricated. Please use the new TrackVertexAssociationTool instead.");
 
@@ -129,7 +129,7 @@ bool BaseTrackVertexAssociationTool::isMatch(const xAOD::TrackParticle &trk,
   if (m_d0sig_cut >= 0 && fabs(d0sig) > m_d0sig_cut)
     return false;
 
-  // calculate deltaz * sin theta
+  // calculate Δz * sin θ
   dzSinTheta = fabs((trk_z0 - vx_z0 + beamspot_z0) * sin(theta));
   if (m_dzSinTheta_cut >= 0 && dzSinTheta > m_dzSinTheta_cut)
     return false;

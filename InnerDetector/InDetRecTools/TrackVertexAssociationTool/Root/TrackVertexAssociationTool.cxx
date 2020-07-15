@@ -141,7 +141,7 @@ StatusCode TrackVertexAssociationTool::initialize()
   } else {
     ATH_MSG_INFO("Cut on d0: " << m_d0_cut << "\t(d0_cut)");
   }
-  ATH_MSG_INFO("Cut on deltaz * sin theta: " << m_dzSinTheta_cut << "\t(dzSinTheta_cut)");
+  ATH_MSG_INFO("Cut on Δz * sin θ: " << m_dzSinTheta_cut << "\t(dzSinTheta_cut)");
 
   ATH_MSG_INFO("Allow UsedInFit MatchStatus: " << m_doUsedInFit << "\t(doUsedInFit)");
   ATH_MSG_INFO("Require VxType::PriVtx for unique match: " << m_requirePriVtx << "\t(requirePriVtx)");
