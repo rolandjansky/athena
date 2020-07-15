@@ -52,11 +52,13 @@ StatusCode BuildTruthTaus::initialize()
   ATH_MSG_INFO( "Initializing BuildTruthTaus" );
   m_sNewTruthTauContainerNameAux = m_sNewTruthTauContainerName + "Aux.";
 
+  // The following properties are only available in athena
 #ifndef XAOD_ANALYSIS
   ATH_CHECK(m_tMCTruthClassifier.setProperty("ParticleCaloExtensionTool", ""));
   ATH_CHECK(m_tMCTruthClassifier.setProperty("TruthInConeTool", ""));
 #endif
-
+  
+  ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tMCTruthClassifier, MCTruthClassifier));
   ATH_CHECK(m_tMCTruthClassifier.initialize());
 
   return StatusCode::SUCCESS;
