@@ -64,7 +64,8 @@ TrigConf::L1Connector::update()
             m_lineByName[name] = & m_triggerLines[fpga][clock].back();
          }
       }
-   }   
+   }
+   m_isLegacy = getAttribute<bool>("legacy", true, false);
 }
 
 

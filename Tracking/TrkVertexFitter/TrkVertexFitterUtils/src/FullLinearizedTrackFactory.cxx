@@ -29,7 +29,7 @@ namespace Trk
     declareInterface<IVertexLinearizedTrackFactory>(this);    
   }
 
-  FullLinearizedTrackFactory::~FullLinearizedTrackFactory() {}
+  FullLinearizedTrackFactory::~FullLinearizedTrackFactory() = default;
 
   StatusCode FullLinearizedTrackFactory::initialize() 
   { 
@@ -57,7 +57,7 @@ namespace Trk
 
   LinearizedTrack * FullLinearizedTrackFactory::linearizedTrack(const TrackParameters *  trackPars,
                                                                  const Amg::Vector3D& linPoint) const {
-    if (!trackPars) return NULL;
+    if (!trackPars) return nullptr;
     //perigee surface        
     Amg::Vector3D lp =linPoint;
     const PerigeeSurface perigeeSurface(lp);
@@ -77,8 +77,8 @@ namespace Trk
     const TrackParameters* parsAtVertex = 
       m_extrapolator->extrapolate(*trackPars, perigeeSurface, Trk::anyDirection, true, Trk::pion, mode);
 
-    if (dynamic_cast<const Trk::Perigee*>(parsAtVertex)==0 ||
-        parsAtVertex->covariance()==0 ) {
+    if (dynamic_cast<const Trk::Perigee*>(parsAtVertex)==nullptr ||
+        parsAtVertex->covariance()==nullptr ) {
       ATH_MSG_INFO ("Could not extrapolate Perigee to vertex pos: x " << lp.x() << " y " <<
                     lp.y() << " z " << lp.z() << ". Normal if outside ID acceptance ");
 
@@ -86,7 +86,7 @@ namespace Trk
         if (parsAtVertex) delete parsAtVertex; // in case extrapolation made other parameters
         parsAtVertex = trackPars->clone();
       } else {
-        delete parsAtVertex; return 0;
+        delete parsAtVertex; return nullptr;
       }
     }
 
@@ -235,7 +235,7 @@ namespace Trk
   LinearizedTrack * FullLinearizedTrackFactory::linearizedTrack(const NeutralParameters *  neutralPars,
                                                                 const Amg::Vector3D& linPoint) const
   { 
-    if (!neutralPars) return NULL;
+    if (!neutralPars) return nullptr;
     Amg::Vector3D lp =linPoint;
     PerigeeSurface perigeeSurface(lp);
  
@@ -251,8 +251,8 @@ namespace Trk
     const NeutralParameters* parsAtVertex =
       m_extrapolator->extrapolate(*neutralPars, perigeeSurface, Trk::anyDirection, true);
 
-    if (dynamic_cast<const Trk::NeutralPerigee*>(parsAtVertex)==0 ||
-        parsAtVertex->covariance()==0 ) {
+    if (dynamic_cast<const Trk::NeutralPerigee*>(parsAtVertex)==nullptr ||
+        parsAtVertex->covariance()==nullptr ) {
       ATH_MSG_INFO ("Could not extrapolate Perigee to vertex pos: x " << lp.x() << " y " <<
                     lp.y() << " z " << lp.z() << ". Should not happen. ");
 
@@ -260,7 +260,7 @@ namespace Trk
         if (parsAtVertex) delete parsAtVertex; // in case extrapolation made other parameters
         parsAtVertex = neutralPars->clone();
       } else {
-        delete parsAtVertex; return 0;
+        delete parsAtVertex; return nullptr;
       }
     }
 

@@ -88,6 +88,11 @@ def pebInfoWriterTool(name, eventBuildType):
                          SubDetector.TDAQ_CALO_JET_PROC_DAQ, # = 0x74
                          SubDetector.TDAQ_CALO_JET_PROC_ROI # = 0x75
         ])
+    elif 'AlfaPEB' in eventBuildType:
+        tool = StaticPEBInfoWriterToolCfg(name)
+        tool.addSubDets([SubDetector.FORWARD_ALPHA,
+                         SubDetector.TDAQ_CTP
+        ])
     elif eventBuildType in DataScoutingInfo.getAllDataScoutingIdentifiers():
         # Pure DataScouting configuration
         tool = StaticPEBInfoWriterToolCfg(name)

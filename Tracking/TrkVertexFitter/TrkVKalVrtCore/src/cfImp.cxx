@@ -2,9 +2,9 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
-#include "TrkVKalVrtCore/TrkVKalVrtCore.h"
 #include "TrkVKalVrtCore/Propagator.h"
+#include "TrkVKalVrtCore/TrkVKalVrtCore.h"
+#include <cmath>
 #include <iostream>
 
 namespace Trk {

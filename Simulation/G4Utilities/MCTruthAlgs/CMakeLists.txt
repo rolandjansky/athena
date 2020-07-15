@@ -21,8 +21,7 @@ atlas_add_library( MCTruthAlgsLib
 
 atlas_add_component( MCTruthAlgs
                      src/components/*.cxx
-                     INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel MCTruthAlgsLib )
+                     LINK_LIBRARIES MCTruthAlgsLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

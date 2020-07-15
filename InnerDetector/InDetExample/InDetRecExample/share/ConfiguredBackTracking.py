@@ -19,6 +19,7 @@ class ConfiguredBackTracking:
       # get ToolSvc and topSequence
       #
       from AthenaCommon.AppMgr                import ToolSvc
+      from AthenaCommon.AppMgr                import ServiceMgr
       from AthenaCommon.AlgSequence           import AlgSequence
       topSequence = AlgSequence()
 
@@ -157,7 +158,8 @@ class ConfiguredBackTracking:
          self.__TRTSeededTracks = InDetKeys.TRTSeededTracks()
          #
          # TRT seeded back tracking algorithm
-         #
+         
+
          from AthenaCommon import CfgGetter
          from TRT_SeededTrackFinder.TRT_SeededTrackFinderConf import InDet__TRT_SeededTrackFinder
          import InDetRecExample.TrackingCommon as TrackingCommon
@@ -182,7 +184,13 @@ class ConfiguredBackTracking:
                                                                    FinalStatistics       = False,
                                                                    OutputSegments        = False,
                                                                    InputSegmentsLocation = InDetKeys.TRT_Segments(),
-                                                                   OutputTracksLocation  = self.__TRTSeededTracks)
+                                                                   OutputTracksLocation  = self.__TRTSeededTracks,
+                                                                   CaloClusterEt         = NewTrackingCuts.minRoIClusterEt())
+         
+         if (NewTrackingCuts.RoISeededBackTracking()):
+            from RegionSelector.RegSelToolConfig import makeRegSelTool_SCT
+            InDetTRT_SeededTrackFinder.RegSelTool = makeRegSelTool_SCT()
+            InDetTRT_SeededTrackFinder.CaloSeededRoI = True
          # InDetTRT_SeededTrackFinder.OutputLevel = VERBOSE
          topSequence += InDetTRT_SeededTrackFinder
          if (InDetFlags.doPrintConfigurables()):

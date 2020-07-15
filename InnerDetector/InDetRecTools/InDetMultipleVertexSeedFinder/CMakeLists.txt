@@ -26,7 +26,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( InDetMultipleVertexSeedFinder
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetRecToolInterfaces EventPrimitives xAODTracking InDetMultipleVertexSeedFinderUtilsLib TrkParticleBase TrkTrack VxVertex TrkExInterfaces TrkToolInterfaces TrkVertexFitterInterfaces )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetRecToolInterfaces EventPrimitives xAODTracking InDetMultipleVertexSeedFinderUtilsLib TrkParticleBase TrkTrack VxVertex TrkExInterfaces TrkToolInterfaces TrkVertexFitterInterfaces InDetBeamSpotServiceLib )
 
 # Install files from the package:
 atlas_install_headers( InDetMultipleVertexSeedFinder )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigOnlineMonitor/TrigMuCTPiROBMonitor.h"
@@ -10,7 +10,6 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "AthenaKernel/Timeout.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-#include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
 #include "AthenaMonitoringKernel/OHLockedHist.h"
 #include "EventInfo/TriggerInfo.h"
 #include "EventInfo/EventInfo.h"
@@ -168,31 +167,14 @@ StatusCode TrigMuCTPiROBMonitor::initialize(){
 
 
   // Locate the ROBDataProviderSvc
-  StatusCode sc = m_robDataProviderSvc.retrieve();
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR( "Could not find ROBDataProviderSvc" );
-    return sc;
-  } else {
-    // Setup the L2 ROB Data Provider Service when configured
-    m_trigROBDataProviderSvc = SmartIF<ITrigROBDataProviderSvc>( &*m_robDataProviderSvc );
-    if (m_trigROBDataProviderSvc.isValid()) {
-      ATH_MSG_DEBUG( "A ROBDataProviderSvc implementing the Level-2 interface ITrigROBDataProviderSvc was found." );
-    } else {
-      ATH_MSG_DEBUG( "No ROBDataProviderSvc implementing the Level-2 interface ITrigROBDataProviderSvc was found." );
-    }
-  }
+  ATH_CHECK( m_robDataProviderSvc.retrieve() );
 
   // Build the vectors with ROB Ids to retrieve
-  if (m_trigROBDataProviderSvc.isValid()) {                // L2 (retrieve only RoIB version)
-    m_ctpRobIds.push_back(m_lvl1CTPROBid.value());
-    m_muCTPiRobIds.push_back(m_lvl1MuCTPiROBid.value());
-  } else {                                                 // EF (retrieve RoIB+DAQ version)
-    m_ctpRobIds.push_back(m_lvl1CTPROBid.value());
-    m_ctpRobIds.push_back(m_daqCTPROBid.value());
+  m_ctpRobIds.push_back(m_lvl1CTPROBid.value());
+  m_ctpRobIds.push_back(m_daqCTPROBid.value());
 
-    m_muCTPiRobIds.push_back(m_lvl1MuCTPiROBid.value());
-    m_muCTPiRobIds.push_back(m_daqMuCTPiROBid.value());
-  }
+  m_muCTPiRobIds.push_back(m_lvl1MuCTPiROBid.value());
+  m_muCTPiRobIds.push_back(m_daqMuCTPiROBid.value());
 
   return StatusCode::SUCCESS;
 }
@@ -274,160 +256,157 @@ StatusCode TrigMuCTPiROBMonitor::execute() {
   }
 
   // compare the the RoIB and DAQ RoIs when running in EF
-  if (!m_trigROBDataProviderSvc.isValid()) { // not running in L2 (obsolete in merged HLT, leave for reference)
+  // Total number of RoIs is different
+  if (m_lvl1muCTPIRoIs.size() != m_daqmuCTPIRoIs.size()) {
+    ATH_MSG_DEBUG(   " ---> RoI Number mismatch:"
+                     << " number of RoIB RoIs = " << m_lvl1muCTPIRoIs.size()
+                     << " number of DAQ  RoIs = " << m_daqmuCTPIRoIs.size());
+    float diff_roi = float(m_lvl1muCTPIRoIs.size())- float(m_daqmuCTPIRoIs.size());
+    if (m_hist_differenceRoIs) m_hist_differenceRoIs->Fill(diff_roi, 1.);
+  }
 
-    // Total number of RoIs is different
-    if (m_lvl1muCTPIRoIs.size() != m_daqmuCTPIRoIs.size()) {
-      ATH_MSG_DEBUG(   " ---> RoI Number mismatch:"
-                       << " number of RoIB RoIs = " << m_lvl1muCTPIRoIs.size()   
-                       << " number of DAQ  RoIs = " << m_daqmuCTPIRoIs.size());
-      float diff_roi = float(m_lvl1muCTPIRoIs.size())- float(m_daqmuCTPIRoIs.size());
-      if (m_hist_differenceRoIs) m_hist_differenceRoIs->Fill(diff_roi, 1.);
-    }
+  // Comparison of Barrel RoIs
+  if ((m_lvl1muCTPIHash_Barrel.size() != 0) && (m_daqmuCTPIHash_Barrel.size() != 0)) {
+    sort(m_lvl1muCTPIHash_Barrel.begin(),m_lvl1muCTPIHash_Barrel.end());
+    sort(m_daqmuCTPIHash_Barrel.begin(), m_daqmuCTPIHash_Barrel.end() );
 
-    // Comparison of Barrel RoIs
-    if ((m_lvl1muCTPIHash_Barrel.size() != 0) && (m_daqmuCTPIHash_Barrel.size() != 0)) {
-      sort(m_lvl1muCTPIHash_Barrel.begin(),m_lvl1muCTPIHash_Barrel.end());
-      sort(m_daqmuCTPIHash_Barrel.begin(), m_daqmuCTPIHash_Barrel.end() );
-
-      if ( !equal(m_daqmuCTPIHash_Barrel.begin(), m_daqmuCTPIHash_Barrel.end(), m_lvl1muCTPIHash_Barrel.begin()) ) {
-        ATH_MSG_DEBUG(   " ---> RoI mismatch for BARREL: Hash = RoI-ID*1000 + Sector_ID + hemisphere*"
-                         << m_Number_Of_Barrel_Units.value() << "\n" 
-                         << " Hash for RoIB RoIs = " << m_lvl1muCTPIHash_Barrel << "\n"   
-                         << " Hash for DAQ  RoIs = " << m_daqmuCTPIHash_Barrel);
-	std::vector<uint32_t> only_in_RoIB(m_lvl1muCTPIHash_Barrel.size()), 
-	                      only_in_DAQ(m_daqmuCTPIHash_Barrel.size());
-	std::vector<uint32_t>::iterator only_in_RoIB_it, only_in_DAQ_it; 
-	only_in_RoIB_it = set_difference( m_lvl1muCTPIHash_Barrel.begin(), m_lvl1muCTPIHash_Barrel.end(), 
-					  m_daqmuCTPIHash_Barrel.begin() , m_daqmuCTPIHash_Barrel.end() , 
-					  only_in_RoIB.begin());
-	for (std::vector<uint32_t>::iterator it=only_in_RoIB.begin(); it != only_in_RoIB_it; ++it) {
-	  std::ostringstream ost;
-	  ost << *it;
-      if (m_hist_muCTPiL1_Problem_Barrel_Hash) {
-	    oh_scoped_lock_histogram lock;
-	    m_hist_muCTPiL1_Problem_Barrel_Hash->Fill((ost.str()).c_str(), 1.);
-	    m_hist_muCTPiL1_Problem_Barrel_Hash->LabelsDeflate("X");
-	  }
-	}
-
-	only_in_DAQ_it   = set_difference( m_daqmuCTPIHash_Barrel.begin() , m_daqmuCTPIHash_Barrel.end() , 
-					   m_lvl1muCTPIHash_Barrel.begin(), m_lvl1muCTPIHash_Barrel.end(),
-					   only_in_DAQ.begin());
-	for (std::vector<uint32_t>::iterator it=only_in_DAQ.begin(); it != only_in_DAQ_it; ++it) {
-	  std::ostringstream ost;
-	  ost << *it;
-	  if (m_hist_muCTPiDaq_Problem_Barrel_Hash) {
-	    oh_scoped_lock_histogram lock;
-	    m_hist_muCTPiDaq_Problem_Barrel_Hash->Fill((ost.str()).c_str(), 1.);
-	    m_hist_muCTPiDaq_Problem_Barrel_Hash->LabelsDeflate("X");
-	  }
-	}
-
-	ATH_MSG_DEBUG(   " ---> RoI mismatch for BARREL: Hash = RoI-ID*1000 + Sector_ID + hemisphere*" 
-		      << m_Number_Of_Barrel_Units.value() << "\n" 
-		      << " Hash for RoIs which are only in the RoIB list = " << only_in_RoIB << "\n"   
-		      << " Hash for RoIs which are only in the DAQ  list = " << only_in_DAQ   
-		       );
+    if ( !equal(m_daqmuCTPIHash_Barrel.begin(), m_daqmuCTPIHash_Barrel.end(), m_lvl1muCTPIHash_Barrel.begin()) ) {
+      ATH_MSG_DEBUG(   " ---> RoI mismatch for BARREL: Hash = RoI-ID*1000 + Sector_ID + hemisphere*"
+                       << m_Number_Of_Barrel_Units.value() << "\n"
+                       << " Hash for RoIB RoIs = " << m_lvl1muCTPIHash_Barrel << "\n"
+                       << " Hash for DAQ  RoIs = " << m_daqmuCTPIHash_Barrel);
+      std::vector<uint32_t> only_in_RoIB(m_lvl1muCTPIHash_Barrel.size()),
+        only_in_DAQ(m_daqmuCTPIHash_Barrel.size());
+      std::vector<uint32_t>::iterator only_in_RoIB_it, only_in_DAQ_it;
+      only_in_RoIB_it = set_difference( m_lvl1muCTPIHash_Barrel.begin(), m_lvl1muCTPIHash_Barrel.end(),
+                                        m_daqmuCTPIHash_Barrel.begin() , m_daqmuCTPIHash_Barrel.end() ,
+                                        only_in_RoIB.begin());
+      for (std::vector<uint32_t>::iterator it=only_in_RoIB.begin(); it != only_in_RoIB_it; ++it) {
+        std::ostringstream ost;
+        ost << *it;
+        if (m_hist_muCTPiL1_Problem_Barrel_Hash) {
+          oh_scoped_lock_histogram lock;
+          m_hist_muCTPiL1_Problem_Barrel_Hash->Fill((ost.str()).c_str(), 1.);
+          m_hist_muCTPiL1_Problem_Barrel_Hash->LabelsDeflate("X");
+        }
       }
-    }
 
-    // Comparison of Endcap RoIs
-    if ((m_lvl1muCTPIHash_Endcap.size() != 0) && (m_daqmuCTPIHash_Endcap.size() != 0)) {
-      sort(m_lvl1muCTPIHash_Endcap.begin(),m_lvl1muCTPIHash_Endcap.end());
-      sort(m_daqmuCTPIHash_Endcap.begin(), m_daqmuCTPIHash_Endcap.end() );
-
-      if ( !equal(m_daqmuCTPIHash_Endcap.begin(), m_daqmuCTPIHash_Endcap.end(), m_lvl1muCTPIHash_Endcap.begin()) ) {
-        ATH_MSG_DEBUG(   " ---> RoI mismatch for ENDCAP: Hash = RoI-ID*1000 + Sector_ID + hemisphere*"
-                         << m_Number_Of_Endcap_Units.value() << "\n" 
-                         << " Hash for RoIB RoIs = " << m_lvl1muCTPIHash_Endcap << "\n"   
-                         << " Hash for DAQ  RoIs = " << m_daqmuCTPIHash_Endcap);
-
-	std::vector<uint32_t> only_in_RoIB(m_lvl1muCTPIHash_Endcap.size()), 
-	                      only_in_DAQ(m_daqmuCTPIHash_Endcap.size());
-	std::vector<uint32_t>::iterator only_in_RoIB_it, only_in_DAQ_it; 
-	only_in_RoIB_it = set_difference( m_lvl1muCTPIHash_Endcap.begin(), m_lvl1muCTPIHash_Endcap.end(), 
-					  m_daqmuCTPIHash_Endcap.begin() , m_daqmuCTPIHash_Endcap.end() , 
-					  only_in_RoIB.begin());
-	for (std::vector<uint32_t>::iterator it=only_in_RoIB.begin(); it != only_in_RoIB_it; ++it) {
-	  std::ostringstream ost;
-	  ost << *it;
-	  if (m_hist_muCTPiL1_Problem_Endcap_Hash) {
-	    oh_scoped_lock_histogram lock;
-	    m_hist_muCTPiL1_Problem_Endcap_Hash->Fill((ost.str()).c_str(), 1.);
-	    m_hist_muCTPiL1_Problem_Endcap_Hash->LabelsDeflate("X");
-	  }
-	}
-
-	only_in_DAQ_it   = set_difference( m_daqmuCTPIHash_Endcap.begin() , m_daqmuCTPIHash_Endcap.end() , 
-					   m_lvl1muCTPIHash_Endcap.begin(), m_lvl1muCTPIHash_Endcap.end(),
-					   only_in_DAQ.begin());
-	for (std::vector<uint32_t>::iterator it=only_in_DAQ.begin(); it != only_in_DAQ_it; ++it) {
-	  std::ostringstream ost;
-	  ost << *it;
-	  if (m_hist_muCTPiDaq_Problem_Endcap_Hash) {
-	    oh_scoped_lock_histogram lock;
-	    m_hist_muCTPiDaq_Problem_Endcap_Hash->Fill((ost.str()).c_str(), 1.);
-	    m_hist_muCTPiDaq_Problem_Endcap_Hash->LabelsDeflate("X");
-	  }
-	}
-
-	ATH_MSG_DEBUG(   " ---> RoI mismatch for ENDCAP: Hash = RoI-ID*1000 + Sector_ID + hemisphere*" 
-		      << m_Number_Of_Endcap_Units.value() << "\n" 
-		      << " Hash for RoIs which are only in the RoIB list = " << only_in_RoIB << "\n"   
-		      << " Hash for RoIs which are only in the DAQ  list = " << only_in_DAQ   
-		       );
+      only_in_DAQ_it   = set_difference( m_daqmuCTPIHash_Barrel.begin() , m_daqmuCTPIHash_Barrel.end() ,
+                                         m_lvl1muCTPIHash_Barrel.begin(), m_lvl1muCTPIHash_Barrel.end(),
+                                         only_in_DAQ.begin());
+      for (std::vector<uint32_t>::iterator it=only_in_DAQ.begin(); it != only_in_DAQ_it; ++it) {
+        std::ostringstream ost;
+        ost << *it;
+        if (m_hist_muCTPiDaq_Problem_Barrel_Hash) {
+          oh_scoped_lock_histogram lock;
+          m_hist_muCTPiDaq_Problem_Barrel_Hash->Fill((ost.str()).c_str(), 1.);
+          m_hist_muCTPiDaq_Problem_Barrel_Hash->LabelsDeflate("X");
+        }
       }
+
+      ATH_MSG_DEBUG(   " ---> RoI mismatch for BARREL: Hash = RoI-ID*1000 + Sector_ID + hemisphere*"
+                       << m_Number_Of_Barrel_Units.value() << "\n"
+                       << " Hash for RoIs which are only in the RoIB list = " << only_in_RoIB << "\n"
+                       << " Hash for RoIs which are only in the DAQ  list = " << only_in_DAQ
+                       );
     }
+  }
 
-    // Comparison of Forward RoIs
-    if ((m_lvl1muCTPIHash_Forward.size() != 0) && (m_daqmuCTPIHash_Forward.size() != 0)) {
-      sort(m_lvl1muCTPIHash_Forward.begin(),m_lvl1muCTPIHash_Forward.end());
-      sort(m_daqmuCTPIHash_Forward.begin(), m_daqmuCTPIHash_Forward.end() );
+  // Comparison of Endcap RoIs
+  if ((m_lvl1muCTPIHash_Endcap.size() != 0) && (m_daqmuCTPIHash_Endcap.size() != 0)) {
+    sort(m_lvl1muCTPIHash_Endcap.begin(),m_lvl1muCTPIHash_Endcap.end());
+    sort(m_daqmuCTPIHash_Endcap.begin(), m_daqmuCTPIHash_Endcap.end() );
 
-      if ( !equal(m_daqmuCTPIHash_Forward.begin(), m_daqmuCTPIHash_Forward.end(), m_lvl1muCTPIHash_Forward.begin()) ) {
-	ATH_MSG_DEBUG(   " ---> RoI mismatch for FORWARD: Hash = RoI-ID*1000 + Sector_ID + hemisphere*"
-		      << m_Number_Of_Forward_Units.value() << "\n" 
-		      << " Hash for RoIB RoIs = " << m_lvl1muCTPIHash_Forward << "\n"   
-		      << " Hash for DAQ  RoIs = " << m_daqmuCTPIHash_Forward   
-		       );
-	std::vector<uint32_t> only_in_RoIB(m_lvl1muCTPIHash_Forward.size()), 
-	                      only_in_DAQ(m_daqmuCTPIHash_Forward.size());
-	std::vector<uint32_t>::iterator only_in_RoIB_it, only_in_DAQ_it; 
-	only_in_RoIB_it = set_difference( m_lvl1muCTPIHash_Forward.begin(), m_lvl1muCTPIHash_Forward.end(), 
-					  m_daqmuCTPIHash_Forward.begin() , m_daqmuCTPIHash_Forward.end() , 
-					  only_in_RoIB.begin());
-	for (std::vector<uint32_t>::iterator it=only_in_RoIB.begin(); it != only_in_RoIB_it; ++it) {
-	  std::ostringstream ost;
-	  ost << *it;
-	  if (m_hist_muCTPiL1_Problem_Forward_Hash) {
-	    oh_scoped_lock_histogram lock;
-	    m_hist_muCTPiL1_Problem_Forward_Hash->Fill((ost.str()).c_str(), 1.);
-	    m_hist_muCTPiL1_Problem_Forward_Hash->LabelsDeflate("X");
-	  }
-	}
+    if ( !equal(m_daqmuCTPIHash_Endcap.begin(), m_daqmuCTPIHash_Endcap.end(), m_lvl1muCTPIHash_Endcap.begin()) ) {
+      ATH_MSG_DEBUG(   " ---> RoI mismatch for ENDCAP: Hash = RoI-ID*1000 + Sector_ID + hemisphere*"
+                       << m_Number_Of_Endcap_Units.value() << "\n"
+                       << " Hash for RoIB RoIs = " << m_lvl1muCTPIHash_Endcap << "\n"
+                       << " Hash for DAQ  RoIs = " << m_daqmuCTPIHash_Endcap);
 
-	only_in_DAQ_it   = set_difference( m_daqmuCTPIHash_Forward.begin() , m_daqmuCTPIHash_Forward.end() , 
-					   m_lvl1muCTPIHash_Forward.begin(), m_lvl1muCTPIHash_Forward.end(),
-					   only_in_DAQ.begin());
-	for (std::vector<uint32_t>::iterator it=only_in_DAQ.begin(); it != only_in_DAQ_it; ++it) {
-	  std::ostringstream ost;
-	  ost << *it;
-	  if (m_hist_muCTPiDaq_Problem_Forward_Hash) {
-	    oh_scoped_lock_histogram lock;
-	    m_hist_muCTPiDaq_Problem_Forward_Hash->Fill((ost.str()).c_str(), 1.);
-	    m_hist_muCTPiDaq_Problem_Forward_Hash->LabelsDeflate("X");
-	  }
-	}
-
-	ATH_MSG_DEBUG(   " ---> RoI mismatch for FORWARD: Hash = RoI-ID*1000 + Sector_ID + hemisphere*" 
-		      << m_Number_Of_Forward_Units.value() << "\n" 
-		      << " Hash for RoIs which are only in the RoIB list = " << only_in_RoIB << "\n"   
-		      << " Hash for RoIs which are only in the DAQ  list = " << only_in_DAQ   
-		       );
+      std::vector<uint32_t> only_in_RoIB(m_lvl1muCTPIHash_Endcap.size()),
+        only_in_DAQ(m_daqmuCTPIHash_Endcap.size());
+      std::vector<uint32_t>::iterator only_in_RoIB_it, only_in_DAQ_it;
+      only_in_RoIB_it = set_difference( m_lvl1muCTPIHash_Endcap.begin(), m_lvl1muCTPIHash_Endcap.end(),
+                                        m_daqmuCTPIHash_Endcap.begin() , m_daqmuCTPIHash_Endcap.end() ,
+                                        only_in_RoIB.begin());
+      for (std::vector<uint32_t>::iterator it=only_in_RoIB.begin(); it != only_in_RoIB_it; ++it) {
+        std::ostringstream ost;
+        ost << *it;
+        if (m_hist_muCTPiL1_Problem_Endcap_Hash) {
+          oh_scoped_lock_histogram lock;
+          m_hist_muCTPiL1_Problem_Endcap_Hash->Fill((ost.str()).c_str(), 1.);
+          m_hist_muCTPiL1_Problem_Endcap_Hash->LabelsDeflate("X");
+        }
       }
+
+      only_in_DAQ_it   = set_difference( m_daqmuCTPIHash_Endcap.begin() , m_daqmuCTPIHash_Endcap.end() ,
+                                         m_lvl1muCTPIHash_Endcap.begin(), m_lvl1muCTPIHash_Endcap.end(),
+                                         only_in_DAQ.begin());
+      for (std::vector<uint32_t>::iterator it=only_in_DAQ.begin(); it != only_in_DAQ_it; ++it) {
+        std::ostringstream ost;
+        ost << *it;
+        if (m_hist_muCTPiDaq_Problem_Endcap_Hash) {
+          oh_scoped_lock_histogram lock;
+          m_hist_muCTPiDaq_Problem_Endcap_Hash->Fill((ost.str()).c_str(), 1.);
+          m_hist_muCTPiDaq_Problem_Endcap_Hash->LabelsDeflate("X");
+        }
+      }
+
+      ATH_MSG_DEBUG(   " ---> RoI mismatch for ENDCAP: Hash = RoI-ID*1000 + Sector_ID + hemisphere*"
+                       << m_Number_Of_Endcap_Units.value() << "\n"
+                       << " Hash for RoIs which are only in the RoIB list = " << only_in_RoIB << "\n"
+                       << " Hash for RoIs which are only in the DAQ  list = " << only_in_DAQ
+                       );
     }
-  } // end test for L2
+  }
+
+  // Comparison of Forward RoIs
+  if ((m_lvl1muCTPIHash_Forward.size() != 0) && (m_daqmuCTPIHash_Forward.size() != 0)) {
+    sort(m_lvl1muCTPIHash_Forward.begin(),m_lvl1muCTPIHash_Forward.end());
+    sort(m_daqmuCTPIHash_Forward.begin(), m_daqmuCTPIHash_Forward.end() );
+
+    if ( !equal(m_daqmuCTPIHash_Forward.begin(), m_daqmuCTPIHash_Forward.end(), m_lvl1muCTPIHash_Forward.begin()) ) {
+      ATH_MSG_DEBUG(   " ---> RoI mismatch for FORWARD: Hash = RoI-ID*1000 + Sector_ID + hemisphere*"
+                       << m_Number_Of_Forward_Units.value() << "\n"
+                       << " Hash for RoIB RoIs = " << m_lvl1muCTPIHash_Forward << "\n"
+                       << " Hash for DAQ  RoIs = " << m_daqmuCTPIHash_Forward
+                       );
+      std::vector<uint32_t> only_in_RoIB(m_lvl1muCTPIHash_Forward.size()),
+        only_in_DAQ(m_daqmuCTPIHash_Forward.size());
+      std::vector<uint32_t>::iterator only_in_RoIB_it, only_in_DAQ_it;
+      only_in_RoIB_it = set_difference( m_lvl1muCTPIHash_Forward.begin(), m_lvl1muCTPIHash_Forward.end(),
+                                        m_daqmuCTPIHash_Forward.begin() , m_daqmuCTPIHash_Forward.end() ,
+                                        only_in_RoIB.begin());
+      for (std::vector<uint32_t>::iterator it=only_in_RoIB.begin(); it != only_in_RoIB_it; ++it) {
+        std::ostringstream ost;
+        ost << *it;
+        if (m_hist_muCTPiL1_Problem_Forward_Hash) {
+          oh_scoped_lock_histogram lock;
+          m_hist_muCTPiL1_Problem_Forward_Hash->Fill((ost.str()).c_str(), 1.);
+          m_hist_muCTPiL1_Problem_Forward_Hash->LabelsDeflate("X");
+        }
+      }
+
+      only_in_DAQ_it   = set_difference( m_daqmuCTPIHash_Forward.begin() , m_daqmuCTPIHash_Forward.end() ,
+                                         m_lvl1muCTPIHash_Forward.begin(), m_lvl1muCTPIHash_Forward.end(),
+                                         only_in_DAQ.begin());
+      for (std::vector<uint32_t>::iterator it=only_in_DAQ.begin(); it != only_in_DAQ_it; ++it) {
+        std::ostringstream ost;
+        ost << *it;
+        if (m_hist_muCTPiDaq_Problem_Forward_Hash) {
+          oh_scoped_lock_histogram lock;
+          m_hist_muCTPiDaq_Problem_Forward_Hash->Fill((ost.str()).c_str(), 1.);
+          m_hist_muCTPiDaq_Problem_Forward_Hash->LabelsDeflate("X");
+        }
+      }
+
+      ATH_MSG_DEBUG(   " ---> RoI mismatch for FORWARD: Hash = RoI-ID*1000 + Sector_ID + hemisphere*"
+                       << m_Number_Of_Forward_Units.value() << "\n"
+                       << " Hash for RoIs which are only in the RoIB list = " << only_in_RoIB << "\n"
+                       << " Hash for RoIs which are only in the DAQ  list = " << only_in_DAQ
+                       );
+    }
+  }
 
 
   // if the event shows errors, set the DEBUG stream tag when requested
@@ -492,8 +471,6 @@ StatusCode TrigMuCTPiROBMonitor::finalize() {
     delete m_daqmuCTPIResult;
     m_daqmuCTPIResult=0;
   }
-
-  m_trigROBDataProviderSvc.reset();
 
   return StatusCode::SUCCESS;
 }
@@ -688,195 +665,192 @@ StatusCode TrigMuCTPiROBMonitor::start() {
       }
     }
 
-    if (!m_trigROBDataProviderSvc.isValid()) { // Define DAQ histograms only when not running in L2
-      // *-- DAQ Endcap 
-      histTitle = m_histProp_muCTPi_Endcap_SectorID.value().title()+std::string("_DAQ_")+strHemisphere[hemisphere];
-      m_hist_muCTPiDaq_Endcap_SectorID[hemisphere] = new TH1F ( histTitle.c_str(),
-                                                                (histTitle+";Sector Id").c_str(),
-                                                                m_histProp_muCTPi_Endcap_SectorID.value().bins(),
-                                                                m_histProp_muCTPi_Endcap_SectorID.value().lowEdge(),
-                                                                m_histProp_muCTPi_Endcap_SectorID.value().highEdge());
-      if (m_hist_muCTPiDaq_Endcap_SectorID[hemisphere]) {
-        if( rootHistSvc->regHist(path + m_hist_muCTPiDaq_Endcap_SectorID[hemisphere]->GetName(), 
-                                 m_hist_muCTPiDaq_Endcap_SectorID[hemisphere]).isFailure() ) {
-          ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_muCTPiDaq_Endcap_SectorID[hemisphere]->GetName() );
-        }
+    // *-- DAQ Endcap
+    histTitle = m_histProp_muCTPi_Endcap_SectorID.value().title()+std::string("_DAQ_")+strHemisphere[hemisphere];
+    m_hist_muCTPiDaq_Endcap_SectorID[hemisphere] = new TH1F ( histTitle.c_str(),
+                                                              (histTitle+";Sector Id").c_str(),
+                                                              m_histProp_muCTPi_Endcap_SectorID.value().bins(),
+                                                              m_histProp_muCTPi_Endcap_SectorID.value().lowEdge(),
+                                                              m_histProp_muCTPi_Endcap_SectorID.value().highEdge());
+    if (m_hist_muCTPiDaq_Endcap_SectorID[hemisphere]) {
+      if( rootHistSvc->regHist(path + m_hist_muCTPiDaq_Endcap_SectorID[hemisphere]->GetName(),
+                               m_hist_muCTPiDaq_Endcap_SectorID[hemisphere]).isFailure() ) {
+        ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_muCTPiDaq_Endcap_SectorID[hemisphere]->GetName() );
       }
-      // *-- DAQ Forward 
-      histTitle = m_histProp_muCTPi_Forward_SectorID.value().title()+std::string("_DAQ_")+strHemisphere[hemisphere];
-      m_hist_muCTPiDaq_Forward_SectorID[hemisphere] = new TH1F ( histTitle.c_str(),
-                                                                 (histTitle+";Sector Id").c_str(),
-                                                                 m_histProp_muCTPi_Forward_SectorID.value().bins(),
-                                                                 m_histProp_muCTPi_Forward_SectorID.value().lowEdge(),
-                                                                 m_histProp_muCTPi_Forward_SectorID.value().highEdge());
-      if (m_hist_muCTPiDaq_Forward_SectorID[hemisphere]) {
-        if( rootHistSvc->regHist(path + m_hist_muCTPiDaq_Forward_SectorID[hemisphere]->GetName(), 
-                                 m_hist_muCTPiDaq_Forward_SectorID[hemisphere]).isFailure() ) {
-          ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_muCTPiDaq_Forward_SectorID[hemisphere]->GetName() );
-        }
+    }
+    // *-- DAQ Forward
+    histTitle = m_histProp_muCTPi_Forward_SectorID.value().title()+std::string("_DAQ_")+strHemisphere[hemisphere];
+    m_hist_muCTPiDaq_Forward_SectorID[hemisphere] = new TH1F ( histTitle.c_str(),
+                                                               (histTitle+";Sector Id").c_str(),
+                                                               m_histProp_muCTPi_Forward_SectorID.value().bins(),
+                                                               m_histProp_muCTPi_Forward_SectorID.value().lowEdge(),
+                                                               m_histProp_muCTPi_Forward_SectorID.value().highEdge());
+    if (m_hist_muCTPiDaq_Forward_SectorID[hemisphere]) {
+      if( rootHistSvc->regHist(path + m_hist_muCTPiDaq_Forward_SectorID[hemisphere]->GetName(),
+                               m_hist_muCTPiDaq_Forward_SectorID[hemisphere]).isFailure() ) {
+        ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_muCTPiDaq_Forward_SectorID[hemisphere]->GetName() );
       }
-      // *-- DAQ Barrel
-      histTitle = m_histProp_muCTPi_Barrel_SectorID.value().title()+std::string("_DAQ_")+strHemisphere[hemisphere];
-      m_hist_muCTPiDaq_Barrel_SectorID[hemisphere] = new TH1F ( histTitle.c_str(),
-                                                                (histTitle+";Sector Id").c_str(),
-                                                                m_histProp_muCTPi_Barrel_SectorID.value().bins(),
-                                                                m_histProp_muCTPi_Barrel_SectorID.value().lowEdge(),
-                                                                m_histProp_muCTPi_Barrel_SectorID.value().highEdge());
-      if (m_hist_muCTPiDaq_Barrel_SectorID[hemisphere]) {
-        if( rootHistSvc->regHist(path + m_hist_muCTPiDaq_Barrel_SectorID[hemisphere]->GetName(), 
-                                 m_hist_muCTPiDaq_Barrel_SectorID[hemisphere]).isFailure() ) {
-          ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_muCTPiDaq_Barrel_SectorID[hemisphere]->GetName() );
-        }
+    }
+    // *-- DAQ Barrel
+    histTitle = m_histProp_muCTPi_Barrel_SectorID.value().title()+std::string("_DAQ_")+strHemisphere[hemisphere];
+    m_hist_muCTPiDaq_Barrel_SectorID[hemisphere] = new TH1F ( histTitle.c_str(),
+                                                              (histTitle+";Sector Id").c_str(),
+                                                              m_histProp_muCTPi_Barrel_SectorID.value().bins(),
+                                                              m_histProp_muCTPi_Barrel_SectorID.value().lowEdge(),
+                                                              m_histProp_muCTPi_Barrel_SectorID.value().highEdge());
+    if (m_hist_muCTPiDaq_Barrel_SectorID[hemisphere]) {
+      if( rootHistSvc->regHist(path + m_hist_muCTPiDaq_Barrel_SectorID[hemisphere]->GetName(),
+                               m_hist_muCTPiDaq_Barrel_SectorID[hemisphere]).isFailure() ) {
+        ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_muCTPiDaq_Barrel_SectorID[hemisphere]->GetName() );
       }
-    } // end check for L2
+    }
   } // end loop over hemispheres
 
-  if (!m_trigROBDataProviderSvc.isValid()) { // Define RoIB-DAQ comparison histograms only when not running in L2
+
     // *-- Number of muCTPi RoIs
     // *-- DAQ
-    histTitle = m_histProp_NumberOfRoIs.value().title()+std::string("_DAQ");
-    m_hist_NumberOfRoIs_DAQ = new TH1F ( histTitle.c_str(),
-                                         (histTitle+";Number of RoIs").c_str(),
-                                         m_histProp_NumberOfRoIs.value().bins(),
-                                         m_histProp_NumberOfRoIs.value().lowEdge(),
-                                         m_histProp_NumberOfRoIs.value().highEdge());
-    if (m_hist_NumberOfRoIs_DAQ) {
-      if( rootHistSvc->regHist(path + m_hist_NumberOfRoIs_DAQ->GetName(), m_hist_NumberOfRoIs_DAQ).isFailure() ) {
-        ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_NumberOfRoIs_DAQ->GetName() );
+  histTitle = m_histProp_NumberOfRoIs.value().title()+std::string("_DAQ");
+  m_hist_NumberOfRoIs_DAQ = new TH1F ( histTitle.c_str(),
+                                       (histTitle+";Number of RoIs").c_str(),
+                                       m_histProp_NumberOfRoIs.value().bins(),
+                                       m_histProp_NumberOfRoIs.value().lowEdge(),
+                                       m_histProp_NumberOfRoIs.value().highEdge());
+  if (m_hist_NumberOfRoIs_DAQ) {
+    if( rootHistSvc->regHist(path + m_hist_NumberOfRoIs_DAQ->GetName(), m_hist_NumberOfRoIs_DAQ).isFailure() ) {
+      ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_NumberOfRoIs_DAQ->GetName() );
+    }
+  }
+
+  // *-- Sector_ID vs. Pad_Id for Barrel RoIs from DAQ
+  for (unsigned int threshold=0; threshold <= NUMBER_OF_PT_THRESHOLDS; ++threshold) {
+    histTitle = std::string("Sector_ID_vs_Pad_ID_Barrel_DAQ_Threshold_")+strThreshold[threshold];
+    m_hist_muCTPiDaq_Barrel_SectorID_Pad[threshold] =
+      new TH2F ( histTitle.c_str(),
+                 (histTitle+";(pad_ID+1)*(2*hemispere-1);SD id;").c_str(),
+                 17,-8,8,
+                 m_Number_Of_Barrel_Units.value(), 0, m_Number_Of_Barrel_Units.value());
+    if (m_hist_muCTPiDaq_Barrel_SectorID_Pad[threshold]) {
+      if( rootHistSvc->regHist(path + m_hist_muCTPiDaq_Barrel_SectorID_Pad[threshold]->GetName(),
+                               m_hist_muCTPiDaq_Barrel_SectorID_Pad[threshold]).isFailure() ) {
+        ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_muCTPiDaq_Barrel_SectorID_Pad[threshold]->GetName() );
       }
     }
-
-    // *-- Sector_ID vs. Pad_Id for Barrel RoIs from DAQ
-    for (unsigned int threshold=0; threshold <= NUMBER_OF_PT_THRESHOLDS; ++threshold) {
-      histTitle = std::string("Sector_ID_vs_Pad_ID_Barrel_DAQ_Threshold_")+strThreshold[threshold];
-      m_hist_muCTPiDaq_Barrel_SectorID_Pad[threshold] = 
-        new TH2F ( histTitle.c_str(),
-                   (histTitle+";(pad_ID+1)*(2*hemispere-1);SD id;").c_str(),
-                   17,-8,8,
-                   m_Number_Of_Barrel_Units.value(), 0, m_Number_Of_Barrel_Units.value());
-      if (m_hist_muCTPiDaq_Barrel_SectorID_Pad[threshold]) {
-        if( rootHistSvc->regHist(path + m_hist_muCTPiDaq_Barrel_SectorID_Pad[threshold]->GetName(), 
-                                 m_hist_muCTPiDaq_Barrel_SectorID_Pad[threshold]).isFailure() ) {
-          ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_muCTPiDaq_Barrel_SectorID_Pad[threshold]->GetName() );
-        }
-      }
-    } // end loop over threshold
+  } // end loop over threshold
 
     // *-- Profile: Difference of BCID to event BCID as function of Sector_ID vs. Pad_Id for Barrel RoIs from DAQ
-    histTitle = std::string("Difference_BCID_for_Sector_ID_vs_Pad_ID_Barrel_DAQ_ROB");
-    m_hist_muCTPiDaq_Barrel_SectorID_Pad_DeltaBCID = new TProfile2D(histTitle.c_str(),
-								    (histTitle+";(pad_ID+1)*(2*hemispere-1);SD id;").c_str(),
-								    17,-8,8,
-								    m_Number_Of_Barrel_Units.value(), 0, m_Number_Of_Barrel_Units.value(), -10., 10.);
-    if (m_hist_muCTPiDaq_Barrel_SectorID_Pad_DeltaBCID) {
-      if( rootHistSvc->regHist(path + m_hist_muCTPiDaq_Barrel_SectorID_Pad_DeltaBCID->GetName(), 
-                               m_hist_muCTPiDaq_Barrel_SectorID_Pad_DeltaBCID).isFailure() ) {
-        ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_muCTPiDaq_Barrel_SectorID_Pad_DeltaBCID->GetName() );
-      }
+  histTitle = std::string("Difference_BCID_for_Sector_ID_vs_Pad_ID_Barrel_DAQ_ROB");
+  m_hist_muCTPiDaq_Barrel_SectorID_Pad_DeltaBCID = new TProfile2D(histTitle.c_str(),
+                                                                  (histTitle+";(pad_ID+1)*(2*hemispere-1);SD id;").c_str(),
+                                                                  17,-8,8,
+                                                                  m_Number_Of_Barrel_Units.value(), 0, m_Number_Of_Barrel_Units.value(), -10., 10.);
+  if (m_hist_muCTPiDaq_Barrel_SectorID_Pad_DeltaBCID) {
+    if( rootHistSvc->regHist(path + m_hist_muCTPiDaq_Barrel_SectorID_Pad_DeltaBCID->GetName(),
+                             m_hist_muCTPiDaq_Barrel_SectorID_Pad_DeltaBCID).isFailure() ) {
+      ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_muCTPiDaq_Barrel_SectorID_Pad_DeltaBCID->GetName() );
     }
+  }
 
-    // *-- Difference # of RoIs in RoIB - DAQ ROB
-    m_hist_differenceRoIs = new TH1F (m_histProp_differenceRoIs.value().title().c_str(),
-                                      (m_histProp_differenceRoIs.value().title()+";Difference (RoIB-DAQ) RoIs").c_str(),
-                                      m_histProp_differenceRoIs.value().bins(),
-                                      m_histProp_differenceRoIs.value().lowEdge(),
-                                      m_histProp_differenceRoIs.value().highEdge());
-    if (m_hist_differenceRoIs) {
-      if( rootHistSvc->regHist(path + m_hist_differenceRoIs->GetName(), m_hist_differenceRoIs).isFailure() ) {
-        ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_differenceRoIs->GetName() );
-      }
+  // *-- Difference # of RoIs in RoIB - DAQ ROB
+  m_hist_differenceRoIs = new TH1F (m_histProp_differenceRoIs.value().title().c_str(),
+                                    (m_histProp_differenceRoIs.value().title()+";Difference (RoIB-DAQ) RoIs").c_str(),
+                                    m_histProp_differenceRoIs.value().bins(),
+                                    m_histProp_differenceRoIs.value().lowEdge(),
+                                    m_histProp_differenceRoIs.value().highEdge());
+  if (m_hist_differenceRoIs) {
+    if( rootHistSvc->regHist(path + m_hist_differenceRoIs->GetName(), m_hist_differenceRoIs).isFailure() ) {
+      ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_differenceRoIs->GetName() );
     }
+  }
 
-    // *-- Barrel: Hash for RoIs which are only in RoIB ROB
-    histTitle = m_histProp_Problem_Barrel_Hash.value().title()+std::string("_RoIB_ROB");
-    m_hist_muCTPiL1_Problem_Barrel_Hash = new TH1F (histTitle.c_str(),
-                                                    (histTitle+";RoI_ID*1000 + Sector_ID + hemisphere*32").c_str(),
-                                                    m_histProp_Problem_Barrel_Hash.value().bins(),
-                                                    m_histProp_Problem_Barrel_Hash.value().lowEdge(),
-                                                    m_histProp_Problem_Barrel_Hash.value().highEdge());
-    if (m_hist_muCTPiL1_Problem_Barrel_Hash) {
-      m_hist_muCTPiL1_Problem_Barrel_Hash->SetCanExtend(TH1::kAllAxes);
-      if( rootHistSvc->regHist(path + m_hist_muCTPiL1_Problem_Barrel_Hash->GetName(), 
-                               m_hist_muCTPiL1_Problem_Barrel_Hash).isFailure() ) {
-        ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_muCTPiL1_Problem_Barrel_Hash->GetName() );
-      }
+  // *-- Barrel: Hash for RoIs which are only in RoIB ROB
+  histTitle = m_histProp_Problem_Barrel_Hash.value().title()+std::string("_RoIB_ROB");
+  m_hist_muCTPiL1_Problem_Barrel_Hash = new TH1F (histTitle.c_str(),
+                                                  (histTitle+";RoI_ID*1000 + Sector_ID + hemisphere*32").c_str(),
+                                                  m_histProp_Problem_Barrel_Hash.value().bins(),
+                                                  m_histProp_Problem_Barrel_Hash.value().lowEdge(),
+                                                  m_histProp_Problem_Barrel_Hash.value().highEdge());
+  if (m_hist_muCTPiL1_Problem_Barrel_Hash) {
+    m_hist_muCTPiL1_Problem_Barrel_Hash->SetCanExtend(TH1::kAllAxes);
+    if( rootHistSvc->regHist(path + m_hist_muCTPiL1_Problem_Barrel_Hash->GetName(),
+                             m_hist_muCTPiL1_Problem_Barrel_Hash).isFailure() ) {
+      ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_muCTPiL1_Problem_Barrel_Hash->GetName() );
     }
+  }
 
-    // *-- Barrel: Hash for RoIs which are only in DAQ ROB
-    histTitle = m_histProp_Problem_Barrel_Hash.value().title()+std::string("_DAQ_ROB");
-    m_hist_muCTPiDaq_Problem_Barrel_Hash = new TH1F (histTitle.c_str(),
-                                                     (histTitle+";RoI_ID*1000 + Sector_ID + hemisphere*32").c_str(),
-                                                     m_histProp_Problem_Barrel_Hash.value().bins(),
-                                                     m_histProp_Problem_Barrel_Hash.value().lowEdge(),
-                                                     m_histProp_Problem_Barrel_Hash.value().highEdge());
-    if (m_hist_muCTPiDaq_Problem_Barrel_Hash) {
-      m_hist_muCTPiDaq_Problem_Barrel_Hash->SetCanExtend(TH1::kAllAxes);
-      if( rootHistSvc->regHist(path + m_hist_muCTPiDaq_Problem_Barrel_Hash->GetName(), 
-                               m_hist_muCTPiDaq_Problem_Barrel_Hash).isFailure() ) {
-        ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_muCTPiDaq_Problem_Barrel_Hash->GetName() );
-      }
+  // *-- Barrel: Hash for RoIs which are only in DAQ ROB
+  histTitle = m_histProp_Problem_Barrel_Hash.value().title()+std::string("_DAQ_ROB");
+  m_hist_muCTPiDaq_Problem_Barrel_Hash = new TH1F (histTitle.c_str(),
+                                                   (histTitle+";RoI_ID*1000 + Sector_ID + hemisphere*32").c_str(),
+                                                   m_histProp_Problem_Barrel_Hash.value().bins(),
+                                                   m_histProp_Problem_Barrel_Hash.value().lowEdge(),
+                                                   m_histProp_Problem_Barrel_Hash.value().highEdge());
+  if (m_hist_muCTPiDaq_Problem_Barrel_Hash) {
+    m_hist_muCTPiDaq_Problem_Barrel_Hash->SetCanExtend(TH1::kAllAxes);
+    if( rootHistSvc->regHist(path + m_hist_muCTPiDaq_Problem_Barrel_Hash->GetName(),
+                             m_hist_muCTPiDaq_Problem_Barrel_Hash).isFailure() ) {
+      ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_muCTPiDaq_Problem_Barrel_Hash->GetName() );
     }
+  }
 
-    // *-- Endcap: Hash for RoIs which are only in RoIB ROB
-    histTitle = m_histProp_Problem_Endcap_Hash.value().title()+std::string("_RoIB_ROB");
-    m_hist_muCTPiL1_Problem_Endcap_Hash = new TH1F (histTitle.c_str(),
-                                                    (histTitle+";RoI_ID*1000 + Sector_ID + hemisphere*48").c_str(),
-                                                    m_histProp_Problem_Endcap_Hash.value().bins(),
-                                                    m_histProp_Problem_Endcap_Hash.value().lowEdge(),
-                                                    m_histProp_Problem_Endcap_Hash.value().highEdge());
-    if (m_hist_muCTPiL1_Problem_Endcap_Hash) {
-      m_hist_muCTPiL1_Problem_Endcap_Hash->SetCanExtend(TH1::kAllAxes);
-      if( rootHistSvc->regHist(path + m_hist_muCTPiL1_Problem_Endcap_Hash->GetName(), 
-                               m_hist_muCTPiL1_Problem_Endcap_Hash).isFailure() ) {
-        ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_muCTPiL1_Problem_Endcap_Hash->GetName() );
-      }
+  // *-- Endcap: Hash for RoIs which are only in RoIB ROB
+  histTitle = m_histProp_Problem_Endcap_Hash.value().title()+std::string("_RoIB_ROB");
+  m_hist_muCTPiL1_Problem_Endcap_Hash = new TH1F (histTitle.c_str(),
+                                                  (histTitle+";RoI_ID*1000 + Sector_ID + hemisphere*48").c_str(),
+                                                  m_histProp_Problem_Endcap_Hash.value().bins(),
+                                                  m_histProp_Problem_Endcap_Hash.value().lowEdge(),
+                                                  m_histProp_Problem_Endcap_Hash.value().highEdge());
+  if (m_hist_muCTPiL1_Problem_Endcap_Hash) {
+    m_hist_muCTPiL1_Problem_Endcap_Hash->SetCanExtend(TH1::kAllAxes);
+    if( rootHistSvc->regHist(path + m_hist_muCTPiL1_Problem_Endcap_Hash->GetName(),
+                             m_hist_muCTPiL1_Problem_Endcap_Hash).isFailure() ) {
+      ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_muCTPiL1_Problem_Endcap_Hash->GetName() );
     }
+  }
 
-    // *-- Endcap: Hash for RoIs which are only in DAQ ROB
-    histTitle = m_histProp_Problem_Endcap_Hash.value().title()+std::string("_DAQ_ROB");
-    m_hist_muCTPiDaq_Problem_Endcap_Hash = new TH1F (histTitle.c_str(),
-						     (histTitle+";RoI_ID*1000 + Sector_ID + hemisphere*48").c_str(),
-						     m_histProp_Problem_Endcap_Hash.value().bins(),
-						     m_histProp_Problem_Endcap_Hash.value().lowEdge(),
-						     m_histProp_Problem_Endcap_Hash.value().highEdge());
-    if (m_hist_muCTPiDaq_Problem_Endcap_Hash) {
-      m_hist_muCTPiDaq_Problem_Endcap_Hash->SetCanExtend(TH1::kAllAxes);
-      if( rootHistSvc->regHist(path + m_hist_muCTPiDaq_Problem_Endcap_Hash->GetName(), 
-                               m_hist_muCTPiDaq_Problem_Endcap_Hash).isFailure() ) {
-        ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_muCTPiDaq_Problem_Endcap_Hash->GetName() );
-      }
+  // *-- Endcap: Hash for RoIs which are only in DAQ ROB
+  histTitle = m_histProp_Problem_Endcap_Hash.value().title()+std::string("_DAQ_ROB");
+  m_hist_muCTPiDaq_Problem_Endcap_Hash = new TH1F (histTitle.c_str(),
+                                                   (histTitle+";RoI_ID*1000 + Sector_ID + hemisphere*48").c_str(),
+                                                   m_histProp_Problem_Endcap_Hash.value().bins(),
+                                                   m_histProp_Problem_Endcap_Hash.value().lowEdge(),
+                                                   m_histProp_Problem_Endcap_Hash.value().highEdge());
+  if (m_hist_muCTPiDaq_Problem_Endcap_Hash) {
+    m_hist_muCTPiDaq_Problem_Endcap_Hash->SetCanExtend(TH1::kAllAxes);
+    if( rootHistSvc->regHist(path + m_hist_muCTPiDaq_Problem_Endcap_Hash->GetName(),
+                             m_hist_muCTPiDaq_Problem_Endcap_Hash).isFailure() ) {
+      ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_muCTPiDaq_Problem_Endcap_Hash->GetName() );
     }
+  }
 
-    // *-- Forward: Hash for RoIs which are only in RoIB ROB
-    histTitle = m_histProp_Problem_Forward_Hash.value().title()+std::string("_RoIB_ROB");
-    m_hist_muCTPiL1_Problem_Forward_Hash = new TH1F (histTitle.c_str(),
-						    (histTitle+";RoI_ID*1000 + Sector_ID + hemisphere*24").c_str(),
-						     m_histProp_Problem_Forward_Hash.value().bins(),
-						     m_histProp_Problem_Forward_Hash.value().lowEdge(),
-						     m_histProp_Problem_Forward_Hash.value().highEdge());
-    if (m_hist_muCTPiL1_Problem_Forward_Hash) {
-      m_hist_muCTPiL1_Problem_Forward_Hash->SetCanExtend(TH1::kAllAxes);
-      if( rootHistSvc->regHist(path + m_hist_muCTPiL1_Problem_Forward_Hash->GetName(), 
-                               m_hist_muCTPiL1_Problem_Forward_Hash).isFailure() ) {
-        ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_muCTPiL1_Problem_Forward_Hash->GetName() );
-      }
+  // *-- Forward: Hash for RoIs which are only in RoIB ROB
+  histTitle = m_histProp_Problem_Forward_Hash.value().title()+std::string("_RoIB_ROB");
+  m_hist_muCTPiL1_Problem_Forward_Hash = new TH1F (histTitle.c_str(),
+                                                   (histTitle+";RoI_ID*1000 + Sector_ID + hemisphere*24").c_str(),
+                                                   m_histProp_Problem_Forward_Hash.value().bins(),
+                                                   m_histProp_Problem_Forward_Hash.value().lowEdge(),
+                                                   m_histProp_Problem_Forward_Hash.value().highEdge());
+  if (m_hist_muCTPiL1_Problem_Forward_Hash) {
+    m_hist_muCTPiL1_Problem_Forward_Hash->SetCanExtend(TH1::kAllAxes);
+    if( rootHistSvc->regHist(path + m_hist_muCTPiL1_Problem_Forward_Hash->GetName(),
+                             m_hist_muCTPiL1_Problem_Forward_Hash).isFailure() ) {
+      ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_muCTPiL1_Problem_Forward_Hash->GetName() );
     }
+  }
 
-    // *-- Forward: Hash for RoIs which are only in DAQ ROB
-    histTitle = m_histProp_Problem_Forward_Hash.value().title()+std::string("_DAQ_ROB");
-    m_hist_muCTPiDaq_Problem_Forward_Hash = new TH1F (histTitle.c_str(),
-						      (histTitle+";RoI_ID*1000 + Sector_ID + hemisphere*24").c_str(),
-						      m_histProp_Problem_Forward_Hash.value().bins(),
-						      m_histProp_Problem_Forward_Hash.value().lowEdge(),
-						      m_histProp_Problem_Forward_Hash.value().highEdge());
-    if (m_hist_muCTPiDaq_Problem_Forward_Hash) {
-      m_hist_muCTPiDaq_Problem_Forward_Hash->SetCanExtend(TH1::kAllAxes);
-      if( rootHistSvc->regHist(path + m_hist_muCTPiDaq_Problem_Forward_Hash->GetName(), 
-                               m_hist_muCTPiDaq_Problem_Forward_Hash).isFailure() ) {
-        ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_muCTPiDaq_Problem_Forward_Hash->GetName() );
-      }
+  // *-- Forward: Hash for RoIs which are only in DAQ ROB
+  histTitle = m_histProp_Problem_Forward_Hash.value().title()+std::string("_DAQ_ROB");
+  m_hist_muCTPiDaq_Problem_Forward_Hash = new TH1F (histTitle.c_str(),
+                                                    (histTitle+";RoI_ID*1000 + Sector_ID + hemisphere*24").c_str(),
+                                                    m_histProp_Problem_Forward_Hash.value().bins(),
+                                                    m_histProp_Problem_Forward_Hash.value().lowEdge(),
+                                                    m_histProp_Problem_Forward_Hash.value().highEdge());
+  if (m_hist_muCTPiDaq_Problem_Forward_Hash) {
+    m_hist_muCTPiDaq_Problem_Forward_Hash->SetCanExtend(TH1::kAllAxes);
+    if( rootHistSvc->regHist(path + m_hist_muCTPiDaq_Problem_Forward_Hash->GetName(),
+                             m_hist_muCTPiDaq_Problem_Forward_Hash).isFailure() ) {
+      ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_muCTPiDaq_Problem_Forward_Hash->GetName() );
     }
-  } // end check for L2
+  }
 
 
   // release histogramming service

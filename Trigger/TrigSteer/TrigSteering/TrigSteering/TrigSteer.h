@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -38,8 +38,6 @@
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
 
 #include "AthenaMonitoring/IMonitorToolBase.h"
-#include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
-#include "TrigROBDataProviderSvc/ITrigROBDataProviderSvcPrefetch.h"
 #include "GaudiKernel/SmartIF.h"
 #include "EventInfo/TriggerInfo.h"
 #include "AthenaKernel/Timeout.h"
@@ -221,9 +219,6 @@ namespace HLT {
       ServiceHandle<TrigConf::ITrigConfigSvc>   m_configSvc;                   //!< TrigConfiguration Service
       ServiceHandle<TrigConf::IL1TopoConfigSvc> m_l1topoConfigSvc;             //!< TrigConfiguration Service of L1Topo
       ServiceHandle<IROBDataProviderSvc>        m_robDataProvider;             //!< ROB data provider (for ROB pre-fetching)
-      SmartIF <ITrigROBDataProviderSvc>         m_trigROBDataProvider;         //!< Trig ROB data provider (for Event Building)
-      SmartIF <ITrigROBDataProviderSvcPrefetch> m_trigROBDataProviderPrefetch; //!< Trig ROB data provider with ROB prefetching interface
-
 
       ToolHandle<Navigation> m_navigation;                //!< HLT Navigation, taking care of all TriggerElements and the links etc.
       ServiceHandle<IScalerSvc> m_scalerSvc;              //!< Scaler manager, to produce scaler objects to use in chain prescale/passthrough.

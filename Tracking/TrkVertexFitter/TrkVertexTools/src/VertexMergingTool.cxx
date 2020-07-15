@@ -39,7 +39,8 @@ namespace Trk{
    }///EndOfInitialize
 
 
-  std::pair<xAOD::VertexContainer*,xAOD::VertexAuxContainer*> VertexMergingTool::mergeVertexContainer(const xAOD::VertexContainer& MyVxCont) {
+  std::pair<xAOD::VertexContainer*,xAOD::VertexAuxContainer*> VertexMergingTool::mergeVertexContainer(const xAOD::VertexContainer& MyVxCont) const
+  {
 
     ATH_MSG_DEBUG("Run vertex remerging");
 
@@ -123,7 +124,7 @@ namespace Trk{
  
   }
 
-  bool VertexMergingTool::checkCompatibility( const xAOD::Vertex * vx1, const xAOD::Vertex * vx2 ) {
+  bool VertexMergingTool::checkCompatibility( const xAOD::Vertex * vx1, const xAOD::Vertex * vx2 ) const {
 
     double z1 = vx1->z();
     double z2 = vx2->z();

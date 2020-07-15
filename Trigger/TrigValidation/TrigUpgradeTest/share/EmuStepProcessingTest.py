@@ -31,14 +31,14 @@ from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
 # inputMakers: one per each first RecoAlg in a step (so one per step), one input per chain that needs that step
 
 log = logging.getLogger('EmuStepProcessingTest.py')
-log.info('Setup options:')
-defaultOptions = [a for a in dir(opt)]
+
+defaultOptions = [a for a in dir(opt) if not a.startswith('__')]
 for option in defaultOptions:
     if option in globals():
         setattr(opt, option, globals()[option])
-        print(' %20s = %s' % (option, getattr(opt, option)))
+        log.info(' %20s = %s' % (option, getattr(opt, option)))
     else:        
-        print(' %20s = (Default) %s' % (option, getattr(opt, option)))
+        log.info(' %20s = (Default) %s' % (option, getattr(opt, option)))
 
 TriggerFlags.generateMenuDiagnostics=True
 

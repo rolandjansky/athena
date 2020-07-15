@@ -101,7 +101,7 @@ atlas_add_test( ReadFromFileMetaData_test
 atlas_add_test( IOVDbFolder_test
    SOURCES test/IOVDbFolder_test.cxx src/FolderTypes.cxx
    src/IOVDbStringFunctions.cxx src/IOVDbParser.cxx src/IOVDbConn.cxx
-   src/IOVDbFolder.cxx src/IOVDbParser.cxx src/IovStore.cxx
+   src/IOVDbFolder.cxx src/IovStore.cxx
    src/ReadFromFileMetaData.cxx src/IOVDbCoolFunctions.cxx src/TagFunctions.cxx
    src/Cool2Json.cxx src/Base64Codec.cxx src/Json2Cool.cxx src/IOVDbSvcCurl.cxx
    src/BasicFolder.cxx src/IOVDbResolveTag.cxx src/CrestFunctions.cxx

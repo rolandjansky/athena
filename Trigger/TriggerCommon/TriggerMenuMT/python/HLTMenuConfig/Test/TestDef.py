@@ -89,6 +89,7 @@ class TestChainConfiguration(ChainConfigurationBase):
             'muv1':     ['Step_mu11', 'Step_mu21', 'Step_mu31', 'Step_mu41'], 
             'muv2':     ['Step_mu11', 'Step_mu22', 'Step_mu31'],
             'muEmpty1': ['Step_empty1', 'Step_mu21'],
+            #'muEmpty1': ['Step_empty1', 'Step_mu11'], # try to break 'Step_mu21'],
             'muEmpty2': ['Step_mu11'  ,'Step_empty2' ,'Step_mu32', 'Step_mu41'],
             'muv1dr' :  ['Step_mu11Dr', 'Step_mu21'],
             #egamma

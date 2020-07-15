@@ -6,10 +6,10 @@
 // for combined (X,Y,Z,Px,Py,Pz) vector after vertex fit 
 //
 //-----------------------------------------------------
-#include <math.h>
-#include "TrkVKalVrtCore/VKalVrtBMag.h"
 #include "TrkVKalVrtCore/CommonPars.h"
 #include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
+#include "TrkVKalVrtCore/VKalVrtBMag.h"
+#include <cmath>
 
 namespace Trk {
 

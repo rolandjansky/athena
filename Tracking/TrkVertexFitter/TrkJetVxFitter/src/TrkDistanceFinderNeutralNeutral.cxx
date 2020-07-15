@@ -32,7 +32,7 @@ StatusCode TrkDistanceFinderNeutralNeutral::finalize()
 }
 
 
-TrkDistanceFinderNeutralNeutral::~TrkDistanceFinderNeutralNeutral() { }
+TrkDistanceFinderNeutralNeutral::~TrkDistanceFinderNeutralNeutral() = default;
 
 std::pair<Amg::Vector3D,double>  
 TrkDistanceFinderNeutralNeutral::getPointAndDistance(const Trk::NeutralTrack& neutralaxis,
@@ -43,8 +43,8 @@ TrkDistanceFinderNeutralNeutral::getPointAndDistance(const Trk::NeutralTrack& ne
   const Trk::NeutralTrack& neutraltrk2=neutraltrk;
 
   Amg::Vector3D DeltaR0(neutraltrk1.position()-neutraltrk2.position());
-  Amg::Vector3D Mom1(neutraltrk1.momentum());
-  Amg::Vector3D Mom2(neutraltrk2.momentum());
+  const Amg::Vector3D& Mom1(neutraltrk1.momentum());
+  const Amg::Vector3D& Mom2(neutraltrk2.momentum());
 
   double p1p2=Mom1.dot(Mom2);
   double p1DR0=Mom1.dot(DeltaR0);
