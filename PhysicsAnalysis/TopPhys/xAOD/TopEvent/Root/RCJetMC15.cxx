@@ -624,11 +624,10 @@ void RCJetMC15::getPflowConstituent(std::vector<fastjet::PseudoJet>& clusters, c
     
 
     jetTracks.clear();
+    
     jetTracks = subjet_raw->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(event.m_hashValue));
     bool haveJetTracks = jetTracks.size() != 0;
 
-    
-    
     if (haveJetTracks) {
       
       for ( const xAOD::TrackParticle* jet: jetTracks ){
@@ -648,8 +647,7 @@ void RCJetMC15::getPflowConstituent(std::vector<fastjet::PseudoJet>& clusters, c
       }
     } else {
       ATH_MSG_WARNING(
-        "The link to the ghost matched tracks to the PFlow jets are missing, unable to calculate the substructure");
-      break;
-    }
+        "RCJETMC15::No remaining tracks associated to the PFlow jet");
+          }
   }
 }

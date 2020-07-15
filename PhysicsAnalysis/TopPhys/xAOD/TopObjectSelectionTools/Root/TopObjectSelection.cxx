@@ -616,7 +616,7 @@ void TopObjectSelection::applySelectionPreOverlapRemovalJetGhostTracks() {
       
       for (auto jetPtr : *jets)
       {
-            if (std::fabs(jetPtr->eta()) > 2.5)
+            if (std::abs(jetPtr->eta()) > 2.5)
                 continue;
             if (jetPtr->pt() < m_config->jetPtGhostTracks() )
                 continue;
@@ -650,7 +650,6 @@ void TopObjectSelection::applySelectionPreOverlapRemovalJetGhostTracks() {
             }
             
         }
-
     }
   }
 
@@ -996,11 +995,12 @@ void TopObjectSelection::applySelectionPreOverlapRemovalJetGhostTracks() {
                                         "TopObjectSelection::applyOverlapRemovalPostSelection() failed to retrieve jets for ghost matching");
         
         unsigned int index= -1;
+        
         for (const auto& jetPtr : *xaod_jet_ga){
             
             index=index+1;
             
-            if (std::fabs(jetPtr->eta()) > 2.5)
+            if (std::abs(jetPtr->eta()) > 2.5)
                 continue;
             if (jetPtr->pt() < m_config->jetPtGhostTracks() )
                 continue;

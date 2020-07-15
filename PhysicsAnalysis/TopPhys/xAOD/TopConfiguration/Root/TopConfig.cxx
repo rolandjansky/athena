@@ -1289,7 +1289,10 @@ namespace top {
     // Jet configuration
     this->jetPtcut(std::stof(settings->value("JetPt")));
     this->jetEtacut(std::stof(settings->value("JetEta")));
-    this->jetPtGhostTracks(std::stof(settings->value("JetPtGhostTracks")));
+    this->jetPtGhostTracks(std::stof(settings->value("JetPtGhostTracks")),std::stof(settings->value("JetPt")));
+    if ( m_jetPtcut <= std::stof(settings->value("JetPtGhostTracks"))+5000){  
+        ATH_MSG_WARNING("jetPtGhostTracks set to " << m_jetPtGhostTracks <<" to ensure that all the selected jets have the ghost tracks associated");
+    }
     this->jetEtaGhostTracks(std::stof(settings->value("JetEtaGhostTracks")));
     this->jetUncertainties_NPModel(settings->value("JetUncertainties_NPModel"));
     this->jetUncertainties_QGFracFile(settings->value("JetUncertainties_QGFracFile"));

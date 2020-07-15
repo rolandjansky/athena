@@ -1051,9 +1051,14 @@ namespace top {
       }
     }
 
-    inline virtual void jetPtGhostTracks(const float pt) {
+    inline virtual void jetPtGhostTracks(const float pt, const float small_jet_pt) {
       if (!m_configFixed) {
-        m_jetPtGhostTracks = pt;
+        if ( small_jet_pt >= pt+4999){  
+            m_jetPtGhostTracks = pt;
+        }
+        else {
+            m_jetPtGhostTracks = (small_jet_pt - 5000) > 20000 ? (small_jet_pt - 5000) : 20000;
+        }
       }
     }
     

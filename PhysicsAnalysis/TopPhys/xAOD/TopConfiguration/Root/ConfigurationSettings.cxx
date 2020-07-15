@@ -176,8 +176,8 @@ namespace top {
     registerParameter("SaveFailForwardJVTJets", "Save the jets that failed the fJVT cut? \'False\' (default), or \'True\'", "False");
     
     registerParameter("JetPtGhostTracks",
-                      "Jet pT threshold for ghost track systematic variations calculation (in MeV). Default 30 GeV.",
-                      "30000.");
+                      "Jet pT threshold for ghost track systematic variations calculation (in MeV). Default 25 GeV.",
+                      "25000.");
     registerParameter("JetEtaGhostTracks",
                       "Jet eta threshold for ghost track systematic variations calculation. Default 2.5",
                       "2.5");
