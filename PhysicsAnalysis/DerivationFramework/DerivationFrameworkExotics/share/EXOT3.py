@@ -375,9 +375,23 @@ ExCoMJetCollection__SubJet = addExKtCoM(exot3Seq, ToolSvc, ExKtJetCollection__Fa
 
 BTaggingFlags.CalibrationChannelAliases += [
                                             "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo"]
+
+largeRJetAlgs = [
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20",
+    "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20",
+    ]
+
+largeRJetCollections = []
+for alg in largeRJetAlgs:
+  largeRJetCollections.append(alg+"Jets")
+
+# Add truth labeling to groomed large-R jet collections
+if isMC:
+  for alg in largeRJetAlgs:
+    addJetTruthLabel(jetalg=alg,sequence=exot3Seq,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Consolidated")
+
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet
 # A wrapper function which does all the necessary steps
-largeRJetCollections = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets","AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets"]
 addVRJets(exot3Seq, largeRColls = largeRJetCollections)
 addVRJets(exot3Seq, largeRColls = largeRJetCollections, training='201903') #new trackjet training!
 
