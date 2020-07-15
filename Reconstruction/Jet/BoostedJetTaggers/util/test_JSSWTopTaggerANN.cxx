@@ -235,7 +235,7 @@ int main( int argc, char* argv[] ) {
       if(verbose) std::cout<<"Printing jet score : " << jetSC->auxdata<float>("ANNTagger_Score") << std::endl;
       if(verbose) std::cout<<"result masspasslow  = "<<res.getCutResult("PassMassLow")<<std::endl;
       if(verbose) std::cout<<"result masspasshigh = "<<res.getCutResult("PassMassHigh")<<std::endl;
-      truthLabel = jetSC->auxdata<int>("FatjetTruthLabel");
+      truthLabel = jetSC->auxdata<int>("R10TruthLabel_R21Consolidated");
 
       pass = res;
       sf = jetSC->auxdata<float>("ANNTagger_SF");

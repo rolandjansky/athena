@@ -171,8 +171,10 @@ int main( int argc, char* argv[] ) {
   ASG_SET_ANA_TOOL_TYPE( m_Tagger, SmoothedWZTagger);
   m_Tagger.setName("MyTagger");
   if(verbose) m_Tagger.setProperty("OutputLevel", MSG::DEBUG);
-  m_Tagger.setProperty( "CalibArea", "SmoothedWZTaggers/Rel21/");
-  m_Tagger.setProperty( "ConfigFile",   "SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16d_20190410.dat");
+  //m_Tagger.setProperty( "CalibArea", "SmoothedWZTaggers/Rel21/");
+  //m_Tagger.setProperty( "ConfigFile",   "SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16d_20190410.dat");
+  m_Tagger.setProperty( "CalibArea", "Local");
+  m_Tagger.setProperty( "ConfigFile",   "SmoothedWZTaggers/temp_SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16d.dat");
   m_Tagger.setProperty( "IsMC", m_IsMC );
   m_Tagger.retrieve();
 
@@ -208,19 +210,27 @@ int main( int argc, char* argv[] ) {
       if(verbose) std::cout<<"Testing W Tagger "<<std::endl;
       const Root::TAccept& res = m_Tagger->tag( *jetSC );
       if(verbose) std::cout<<"jet pt              = "<<jetSC->pt()<<std::endl;
-      if(verbose) std::cout<<"jet ntrk              = "<<jetSC->auxdata<int>("ParentJetNTrkPt500")<<std::endl;      
+      if(verbose) std::cout<<"jet ntrk              = "<<jetSC->auxdata<int>("ParentJetNTrkPt500")<<std::endl;     
+      truthLabel = jetSC->auxdata<int>("R10TruthLabel_R21Consolidated");
+
       if(verbose) std::cout<<"RunningTag : "<<res<<std::endl;
       if(verbose) std::cout<<"result d2pass       = "<<res.getCutResult("PassD2")<<std::endl;
       if(verbose) std::cout<<"result ntrkpass     = "<<res.getCutResult("PassNtrk")<<std::endl;
       if(verbose) std::cout<<"result masspasslow  = "<<res.getCutResult("PassMassLow")<<std::endl;
       if(verbose) std::cout<<"result masspasshigh = "<<res.getCutResult("PassMassHigh")<<std::endl;
-      truthLabel = jetSC->auxdata<int>("FatjetTruthLabel");
+      truthLabel = jetSC->auxdata<int>("R10TruthLabel_R21Consolidated");
 
       pass = res;
       pt = jetSC->pt();
       m  = jetSC->m();
       eta = jetSC->eta();
       ntrk = jetSC->auxdata<int>("ParentJetNTrkPt500");
+      sf = jetSC->auxdata<float>("SmoothWContained50_SF");
+      std::cout << "pass " << pass
+		<< " truthLabel " << truthLabel
+		<< " sf " << sf
+		<< " eff " << jetSC->auxdata<float>("SmoothWContained50_effMC")
+		<< std::endl;
 
       Tree->Fill();
     }
