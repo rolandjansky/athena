@@ -114,7 +114,7 @@ def generateCaloSensitiveDetectorList():
             SensitiveDetectorList += [ 'MinBiasScintillatorSD' ]
         from G4AtlasApps.SimFlags import simFlags
         if simFlags.CalibrationRun.get_Value() in ['LAr', 'LAr+Tile']:
-            SensitiveDetectorList += [ 'LArDeadSensitiveDetector','LArInactiveSensitiveDetector','LArActiveSensitiveDetetcor' ]
+            SensitiveDetectorList += [ 'LArDeadSensitiveDetector','LArInactiveSensitiveDetector','LArActiveSensitiveDetector' ]
         elif simFlags.CalibrationRun.get_Value() == 'DeadLAr':
             SensitiveDetectorList += [ 'LArDeadSensitiveDetector' ]
 
