@@ -143,7 +143,7 @@ namespace TrigConf {
       /** Destructor */
       virtual ~L1Threshold() = default;
 
-      virtual std::string className() const
+      virtual std::string className() const override
       { return "L1Threshold"; }
 
       /** Accessor to the threshold type */
