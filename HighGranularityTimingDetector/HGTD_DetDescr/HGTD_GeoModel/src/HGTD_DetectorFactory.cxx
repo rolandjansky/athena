@@ -69,8 +69,10 @@ void HGTD_DetectorFactory::create(GeoPhysVol* world) {
     // TODO: deal with recording "StoredPhysVol" and "StoredAlignX" (xfHGTDPos + xfHGTDNeg)
 
     world->add( new GeoNameTag("HGTD_Pos"));
+    world->add( new GeoTransform(HepGeom::TranslateZ3D( 3482.5))); // TODO: take from db! Also needs tweak?
     world->add(HGTD_EnvelopePos);
     world->add( new GeoNameTag("HGTD_Neg"));
+    world->add( new GeoTransform(HepGeom::TranslateZ3D(-3482.5))); // TODO: take from db! Also needs tweak?
     world->add( new GeoTransform(HepGeom::RotateY3D(180.0*CLHEP::deg)));
     world->add(HGTD_EnvelopeNeg);
 
@@ -140,14 +142,14 @@ GeoFullPhysVol* HGTD_DetectorFactory::createEnvelope(bool bPos) {
         }
 
         // these aren't in the db yet or are incorrect as of now, need to be added by hand for now
-        m_cylVolPars["HGTD::PeriphElec"].zHalf = 1.;
-        m_cylVolPars["HGTD::PeriphElec"].zOffsetLocal = 2.;//space wrt cooling layer
-        m_cylVolPars["HGTD_mother"].rMin= 100;
-        m_cylVolPars["HGTD::ToleranceBack"].rMax= 900;
+        m_cylVolPars["HGTD::PeriphElec"].zHalf = 1.; // TODO: needs more accurate numbers from real PEB design, to be added to db
+        m_cylVolPars["HGTD::PeriphElec"].zOffsetLocal = 2.;//space wrt cooling layer, as above
+        m_cylVolPars["HGTD_mother"].rMin= 100; // TODO: should go into db
+        m_cylVolPars["HGTD::ToleranceBack"].rMax= 900; // TODO: does this make sense? Tolerance does not end at given radius...
         m_cylVolPars["HGTD::InnerRCover"]  = {"HGTD::InnerRCover", 115., 120., 105./2, -10., "sct::CFiberSupport"}; // not yet in db!
         m_cylVolPars["HGTD::OuterRCover"]  = {"HGTD::OuterRCover", 995., 1000., 82./2, -6.5, "sct::CFiberSupport"}; // not yet in db!
-        m_cylVolPars["HGTD::CoolingTube"] = {"HGTD::CoolingTubes", 0, 0, 2.0, 0, "std::SSteel"};
-        m_cylVolPars["HGTD::CoolingTubeFluid"] = {"HGTD::CoolingTubeFluid", 0, 0, 1.5, 0, "pix::CO2_Liquid"};
+        m_cylVolPars["HGTD::CoolingTube"] = {"HGTD::CoolingTubes", 0, 0, 2.0, 0, "std::SSteel"}; // TODO: add to db
+        m_cylVolPars["HGTD::CoolingTubeFluid"] = {"HGTD::CoolingTubeFluid", 0, 0, 1.5, 0, "pix::CO2_Liquid"}; // TODO: add to db
 
         // hack after fix of ASIC thickness (and material) in HGTD-TDR-01 tag (ATLAS-P2-ITK-17-04-02 and later)
         double moduleSpaceHalfZ = 0.0;
@@ -155,6 +157,7 @@ GeoFullPhysVol* HGTD_DetectorFactory::createEnvelope(bool bPos) {
         m_boxVolPars["HGTD::ModuleSpace"] = {"HGTD::ModuleSpace", 11, 20, moduleSpaceHalfZ, 0, "std::Air"};
 
         // These parameters are not in the db (yet) and don't fit into the cylinder or box structures used above
+	// TODO: put these (and others needed for three-ring layout) into a separate table in the db?
         m_hgtdPars = { 320., // rMid
                        640., // rOuter - only used in one place, and there 20 mm is added to it...
                        15.,  // diskRotation (in degrees)

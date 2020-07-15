@@ -4,7 +4,9 @@
 
 #include "HGTD_ReadoutGeometry/HGTD_DetectorManager.h"
 
-HGTD_DetectorManager::HGTD_DetectorManager(){}
+HGTD_DetectorManager::HGTD_DetectorManager(){
+  setName("HGTD");
+}
 
 HGTD_DetectorManager::~HGTD_DetectorManager(){}
 

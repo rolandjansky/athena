@@ -73,6 +73,10 @@ def getCavernInfraGeoDetectorTool(name='CavernInfra', **kwargs):
     kwargs.setdefault("DetectorName", "CavernInfra")
     return CfgMgr.GeoDetectorTool(name, **kwargs)
 
+def getHGTDGeoDetectorTool(name='HGTD', **kwargs):
+    kwargs.setdefault("DetectorName", "HGTD")
+    return CfgMgr.GeoDetectorTool(name, **kwargs)
+
 def getIDETEnvelope(name="IDET", **kwargs):
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
@@ -198,6 +202,8 @@ def generateSubDetectorList():
     #if DetFlags.Muon_on(): #HACK
     #    SubDetectorList += ['MUONQ02'] #FIXME rename to MUON when safe #HACK
     #SubDetectorList += generateFwdSubDetectorList() #FIXME Fwd Detectors not supported yet.
+    if hasattr(DetFlags.simulate, 'HGTD_on') and DetFlags.simulate.HGTD_on():
+        SubDetectorList += ['HGTD']
     return SubDetectorList
 
 def getATLAS(name="Atlas", **kwargs):
