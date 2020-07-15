@@ -12,7 +12,8 @@ CostData::CostData() :
   m_liveTime(1.),
   m_lb(0),
   m_slot(0),
-  m_liveTimeIsPerEvent(false) {
+  m_liveTimeIsPerEvent(false),
+  m_typeMapPtr(nullptr) {
 }
 
 
@@ -82,3 +83,20 @@ float CostData::liveTime() const {
   return m_liveTime;
 }
 
+
+const std::string& CostData::algNameToClassType(size_t algNameHash) const {
+  const static std::string unknown = "UNKNOWN_CLASS";
+  if (m_typeMapPtr == nullptr) {
+    return unknown;
+  }
+  const auto it = m_typeMapPtr->find(algNameHash);
+  if (it == m_typeMapPtr->end()) {
+    return unknown;
+  }
+  return it->second;
+}
+
+
+void CostData::setTypeMap( const std::unordered_map<uint32_t, std::string>& typeMap ) {
+  m_typeMapPtr = &typeMap;
+}

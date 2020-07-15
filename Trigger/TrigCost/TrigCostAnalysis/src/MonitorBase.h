@@ -95,12 +95,12 @@ class MonitorBase{
      * @param[in] data Access to event data
      * @param[in] weight Global event weight
      */
-    virtual StatusCode newEvent(const CostData& data, const float weight = 1.) = 0;
+    virtual StatusCode newEvent(const CostData& data, float weight = 1.) = 0;
 
     /**
      * @brief Called by the framework. Causes per-Event Variables to fill their histograms with their accumulated data.
      */
-    StatusCode endEvent();
+    virtual StatusCode endEvent(float weight = 1.);
 
   protected:
 
@@ -112,11 +112,12 @@ class MonitorBase{
      */
     virtual std::unique_ptr<CounterBase> newCounter(const std::string& name) = 0; 
 
+    std::unordered_map< std::string, std::unique_ptr<CounterBase> > m_counters; //!< Storage of Monitor's collection of Counters. Keyed by name.
+
   private:
 
     const std::string m_name; //!< Monitor's name
     const MonitoredRange* m_parent; //!< Monitor's parent Range. Cached non-owning const ptr.
-    std::unordered_map< std::string, std::unique_ptr<CounterBase> > m_counters; //!< Storage of Monitor's collection of Counters. Keyed by name.
 
 };
 
