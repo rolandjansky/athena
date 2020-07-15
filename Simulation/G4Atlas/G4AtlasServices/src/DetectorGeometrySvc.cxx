@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -24,27 +24,17 @@
 // #include "G4ClassicalRK4.hh"
 
 DetectorGeometrySvc::DetectorGeometrySvc( const std::string& name, ISvcLocator* pSvcLocator )
-  : base_class(name,pSvcLocator),
-    m_detTool("",this),
-    m_detConstruction("",this),
-    m_regionCreators(this),
-    m_parallelWorlds(this),
-    m_configurationTools(this),
-    m_fieldManagers(this),
-    m_activateParallelWorlds(false)
+  : base_class(name,pSvcLocator)
+  ,  m_regionCreators(this)
+  ,  m_parallelWorlds(this)
+  ,  m_configurationTools(this)
+  ,  m_fieldManagers(this)
 {
-  declareProperty( "World" , m_detTool , "Tool handle of the top-of-the-tree detector geometry tool" );
-  declareProperty( "DetectorConstruction" , m_detConstruction , "Tool handle of the DetectorConstruction" );
-  declareProperty( "RegionCreators" , m_regionCreators , "Tools to define G4 physics regions" );
-  declareProperty( "ParallelWorlds" , m_parallelWorlds , "Tools to define G4 parallel worlds" );
-  declareProperty( "ActivateParallelWorlds",m_activateParallelWorlds,"Toggle on/off the G4 parallel geometry system");
-  declareProperty( "FieldManagers",m_fieldManagers,"field managers used");
-  declareProperty( "GeometryConfigurationTools",m_configurationTools,"Tools for geometry configuration");
   ATH_MSG_DEBUG( "DetectorGeometrySvc being created!" );
-}
-
-DetectorGeometrySvc::~DetectorGeometrySvc()
-{
+  declareProperty( "RegionCreators", m_regionCreators , "Tools to define G4 physics regions" );
+  declareProperty( "ParallelWorlds", m_parallelWorlds , "Tools to define G4 parallel worlds" );
+  declareProperty( "FieldManagers", m_fieldManagers,"field managers used");
+  declareProperty( "GeometryConfigurationTools",m_configurationTools,"Tools for geometry configuration");
 }
 
 StatusCode DetectorGeometrySvc::initialize(){

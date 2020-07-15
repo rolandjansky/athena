@@ -841,6 +841,10 @@ class ChainStep(object):
     """Class to describe one step of a chain; if multiplicity is greater than 1, the step is combo/combined.  Set one multiplicity value per sequence"""
     def __init__(self, name,  Sequences=[], multiplicity=[1], chainDicts=[], comboHypoCfg=ComboHypoCfg, comboToolConfs=[]):
 
+        # include cases of emtpy steps with multiplicity = [] or multiplicity=[0,0,0///]
+        if sum(multiplicity)==0:
+            multiplicity=[]
+
         # sanity check on inputs
         if len(Sequences) != len(multiplicity):
             raise RuntimeError("Tried to configure a ChainStep %s with %i Sequences and %i multiplicities. These lists must have the same size" % (name, len(Sequences), len(multiplicity)) )

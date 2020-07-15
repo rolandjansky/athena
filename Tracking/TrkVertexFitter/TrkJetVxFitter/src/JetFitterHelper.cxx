@@ -41,7 +41,7 @@ namespace Trk
   }
 
     
-  JetFitterHelper::~JetFitterHelper() {}
+  JetFitterHelper::~JetFitterHelper() = default;
 
 
   StatusCode JetFitterHelper::initialize() {
@@ -68,7 +68,7 @@ namespace Trk
 
     std::vector<VxTrackAtVertex*> tracksOfSecondVertex(second.getTracksAtVertex());
 
-    const std::vector<VxTrackAtVertex*> tracksOfFirstVertex(first.getTracksAtVertex());
+    const std::vector<VxTrackAtVertex*>& tracksOfFirstVertex(first.getTracksAtVertex());
 
     const std::vector<VxTrackAtVertex*>::const_iterator tracksBegin=tracksOfFirstVertex.begin();
     const std::vector<VxTrackAtVertex*>::const_iterator tracksEnd=tracksOfFirstVertex.end();
@@ -139,7 +139,7 @@ namespace Trk
     double newNDF=positionToUpdate.fitQuality().numberDoF()+1;
     //double newNDF=positionToUpdate.doubleNdf()+1.;//fitQuality().numberDoF()+1;
 
-    Amg::MatrixX symmetrizedMatrix(newCovPosition);
+    const Amg::MatrixX& symmetrizedMatrix(newCovPosition);
     positionToUpdate=Trk::RecVertexPositions(newPosition, symmetrizedMatrix, newNDF, newChi2);
   }
 
@@ -201,11 +201,12 @@ namespace Trk
     if (&vertex1==myJetCandidate.getPrimaryVertex()) {
       mergeVertexToPrimaryInJetCandidate(vertex2,myJetCandidate);
       return *myJetCandidate.getPrimaryVertex();
-    } else if (&vertex2==myJetCandidate.getPrimaryVertex()) {
-      mergeVertexToPrimaryInJetCandidate(vertex1,myJetCandidate);
+    }
+    if (&vertex2 == myJetCandidate.getPrimaryVertex()) {
+      mergeVertexToPrimaryInJetCandidate(vertex1, myJetCandidate);
       return *myJetCandidate.getPrimaryVertex();
     }
-    
+
     addTracksOfFirstVertexToSecondVertex(vertex2,vertex1);
 
     //now you need to *delete* the second vertex in copyOfRecVertexPositions and 
@@ -282,7 +283,7 @@ namespace Trk
     
     VxVertexOnJetAxis* primaryVertexPtr(myJetCandidate.getPrimaryVertex());
 
-    if (primaryVertexPtr==0) {
+    if (primaryVertexPtr==nullptr) {
       ATH_MSG_WARNING ("Pointer to the primary vertex is 0. No merging with primary vertex possible.");
       return;
     }

@@ -2,11 +2,11 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
-#include "TrkVKalVrtCore/ForCFT.h"
 #include "TrkVKalVrtCore/CommonPars.h"
-#include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
 #include "TrkVKalVrtCore/Derivt.h"
+#include "TrkVKalVrtCore/ForCFT.h"
+#include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
+#include <cmath>
 #include <iostream>
 
 namespace Trk {
@@ -30,7 +30,7 @@ int vtcfitc( VKVertex * vk )
     long int IERR = 0;
     long int totNC=0;  //total number of constraints
     long int NTRK = vk->TrackList.size();
-    if (vk->ConstraintList.size()  == 0) {return 0;}
+    if (vk->ConstraintList.empty()) {return 0;}
 //
     double dxyz[3]={vk->dxyz0[0],vk->dxyz0[1],vk->dxyz0[2]}; //nonconstraint vertex shift
 //
@@ -250,7 +250,7 @@ int vtcfitc( VKVertex * vk )
 //
 double getCnstValues2( VKVertex * vk )
 {
-    if (vk->ConstraintList.size()==0) return 0.;
+    if (vk->ConstraintList.empty()) return 0.;
     double sumSQ=0.;
     for(int ii=0; ii<(int)vk->ConstraintList.size();ii++){
        for(int ic=0; ic<(int)vk->ConstraintList[ii]->NCDim; ic++){

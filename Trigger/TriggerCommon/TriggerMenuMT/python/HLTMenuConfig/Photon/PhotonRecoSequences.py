@@ -82,7 +82,7 @@ def l2PhotonAlgCfg( flags ):
     #from TrigEgammaHypo.TrigL2PhotonFexMTConfig import L2PhotonFex_1
     from AthenaConfiguration.ComponentFactory import CompFactory
 
-    photonFex= CompFactory.TrigL2PhotonFexMT("L2PhotonFex_1")
+    photonFex= CompFactory.TrigEgammaFastPhotonFexMT("EgammaFastPhotonFex_1")
     #photonFex= L2PhotonFex_1()
     photonFex.TrigEMClusterName = recordable("HLT_L2CaloEMClusters")
     photonFex.PhotonsName = recordable("HLT_L2Photons")
@@ -123,7 +123,7 @@ def l2PhotonRecoCfg( flags ):
 def l2PhotonHypoCfg( flags, Photons='Unspecified', RunInView=True):
     from AthenaConfiguration.ComponentFactory import CompFactory
 
-    l2PhotonHypo = CompFactory.TrigL2PhotonHypoAlgMT()
+    l2PhotonHypo = CompFactory.TrigEgammaFastPhotonHypoAlgMT()
     l2PhotonHypo.Photons = Photons
     l2PhotonHypo.RunInView = RunInView
 
@@ -135,9 +135,9 @@ def generatePhotonsCfg( flags ):
     acc = ComponentAccumulator()
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, ChainStep, Chain, RecoFragmentsPool
 
-    from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromDict
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlgMT
-    l2CaloHypo              = TrigL2CaloHypoAlgMT("L2PhotonCaloHypo")
+    from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoToolFromDict
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastCaloHypoAlgMT
+    l2CaloHypo              = TrigEgammaFastCaloHypoAlgMT("EgammaFastPhotonCaloHypo")
     l2CaloHypo.CaloClusters = 'L2CaloEMClusters'
 
 
@@ -150,7 +150,7 @@ def generatePhotonsCfg( flags ):
     fastCaloSequence = MenuSequence( Sequence    = l2CaloReco.sequence(),
                                      Maker       = l2CaloReco.inputMaker(),
                                      Hypo        = l2CaloHypo,
-                                     HypoToolGen = TrigL2CaloHypoToolFromDict )
+                                     HypoToolGen = TrigEgammaFastCaloHypoToolFromDict )
 
     fastCaloStep = ChainStep( "Photon_step1", [fastCaloSequence] )
 
@@ -159,17 +159,17 @@ def generatePhotonsCfg( flags ):
     l2PhotonReco = RecoFragmentsPool.retrieve( l2PhotonRecoCfg, flags )
     acc.merge( l2PhotonReco )
     
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2PhotonHypoAlgMT
-    l2PhotonHypo = TrigL2PhotonHypoAlgMT()
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastPhotonHypoAlgMT
+    l2PhotonHypo = TrigEgammaFastPhotonHypoAlgMT()
     l2PhotonHypo.Photons = "L2Photons"
     l2PhotonHypo.RunInView=True
 
-    from TrigEgammaHypo.TrigL2PhotonHypoTool import TrigL2PhotonHypoToolFromDict
+    from TrigEgammaHypo.TrigEgammaFastPhotonHypoTool import TrigEgammaFastPhotonHypoToolFromDict
 
     l2PhotonSequence = MenuSequence( Sequence    = l2PhotonReco.sequence(),
                                      Maker       = l2PhotonReco.inputMaker(),
                                      Hypo        = l2PhotonHypo,
-                                     HypoToolGen = TrigL2PhotonHypoToolFromDict )
+                                     HypoToolGen = TrigEgammaFastPhotonHypoToolFromDict )
 
     l2PhotonStep = ChainStep( "Photon_step2", [ l2PhotonSequence] )
     

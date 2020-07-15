@@ -131,6 +131,18 @@ atlas_add_test( generateMenuMT SCRIPT bash test_HLTmenu.sh
                 PROPERTIES TIMEOUT 4000 
               )
 
+# prparing to move the emulation tests from TUT
+#atlas_add_test( emu_step_processing
+#		SCRIPT scripts/test_emu_step_processing.sh
+#		LOG_SELECT_PATTERN "TrigSignatureMoniMT.*INFO HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*|TriggerSummaryStep.*+++ leg.*"
+#		)
+
+#atlas_add_test( emu_step_menu_processing
+#		SCRIPT scripts/test_emu_step_menu_processing.sh
+#		LOG_SELECT_PATTERN "TrigSignatureMoniMT.*INFO HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*|TriggerSummaryStep.*+++ leg.*"
+#		) 
+
+
 #----------------------------------
 # List of menus to be created:
 atlas_build_lvl1_trigger_menu( LS2_v1 )

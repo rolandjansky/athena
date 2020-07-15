@@ -5,15 +5,6 @@
 # Declare the package name:
 atlas_subdir( SiDigitization )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Control/AthAllocators
-                          DetectorDescription/Identifier
-                          GaudiKernel
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
-                          InnerDetector/InDetSimEvent )
-
 # Component(s) in the package:
 atlas_add_library( SiDigitization
                    src/SiChargedDiode.cxx

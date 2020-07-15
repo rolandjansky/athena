@@ -1089,7 +1089,7 @@ def getInDetTRT_ExtensionToolCosmics(name='InDetTRT_ExtensionToolCosmics',**kwar
                          TRT_ClustersContainer = InDetKeys.TRT_DriftCircles(),
                          SearchNeighbour       = False,  # needs debugging!!!
                          RoadWidth             = 10.)
-
+                            
     from TRT_TrackExtensionTool_xk.TRT_TrackExtensionTool_xkConf import InDet__TRT_TrackExtensionToolCosmics
     return InDet__TRT_TrackExtensionToolCosmics(name                  = the_name, **kwargs)
 
@@ -1160,6 +1160,10 @@ def getInDetTRT_TrackExtensionTool_xk(name='InDetTRT_ExtensionTool', TrackingCut
                        RoadWidth             = 20.,
                        UseParameterization   = InDetNewTrackingCuts.useParameterizedTRTCuts(),
                        maxImpactParameter    = 500 if InDetFlags.doBeamHalo() or InDetFlags.doBeamGas() else 50) # single beam running, open cuts
+    if (InDetNewTrackingCuts.RoISeededBackTracking()):
+        kwargs=setDefaults(kwargs,
+                           minTRTSegmentpT   = InDetNewTrackingCuts.minSecondaryPt()) #50% of the calo roi cluster Et requirement for RoISeededBackTracking
+
     from TRT_TrackExtensionTool_xk.TRT_TrackExtensionTool_xkConf import InDet__TRT_TrackExtensionTool_xk
     return InDet__TRT_TrackExtensionTool_xk(the_name, **kwargs)
 

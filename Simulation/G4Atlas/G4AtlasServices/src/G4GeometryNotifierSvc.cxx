@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "G4GeometryNotifierSvc.h"
@@ -8,14 +8,8 @@
 #include "LVNotifier.h"
 
 G4GeometryNotifierSvc::G4GeometryNotifierSvc( const std::string& name, ISvcLocator* pSvcLocator )
-  : base_class(name,pSvcLocator),
-    m_activateLVNotifier(false),
-    m_activatePVNotifier(false),
-    lvNotifier(nullptr),
-    pvNotifier(nullptr)
+  : base_class(name,pSvcLocator)
 {
-  declareProperty( "ActivateLVNotifier",m_activateLVNotifier,"Toggle on/off the G4 LV notifier");
-  declareProperty( "ActivatePVNotifier",m_activatePVNotifier,"Toggle on/off the G4 PV notifier");
   ATH_MSG_DEBUG( "G4GeometryNotifierSvc being created!" );
 }
 

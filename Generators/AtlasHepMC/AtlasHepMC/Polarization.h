@@ -26,6 +26,13 @@ inline Polarization polarization(HepMC3::GenParticlePtr a){
     double theta=(theta_A?theta_A->value():0.0);
 	return Polarization(theta,phi);
 }
+inline Polarization polarization(HepMC3::ConstGenParticlePtr a){
+	std::shared_ptr<HepMC3::DoubleAttribute> phi_A =a->attribute<HepMC3::DoubleAttribute>("phi");
+	std::shared_ptr<HepMC3::DoubleAttribute> theta_A=a->attribute<HepMC3::DoubleAttribute>("theta");
+    double phi=(phi_A?phi_A->value():0.0);
+    double theta=(theta_A?theta_A->value():0.0);
+	return Polarization(theta,phi);
+}
 template<class T> void  set_polarization( T a,  Polarization b) 
 {
 a->add_attribute("phi",std::make_shared<HepMC3::DoubleAttribute>(b.phi())); 

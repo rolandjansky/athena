@@ -4,7 +4,6 @@
 
 #include "TrigEgammaMonitorElectronAlgorithm.h"
 
-
 using namespace Trig;
 
 
@@ -61,7 +60,6 @@ StatusCode TrigEgammaMonitorElectronAlgorithm::fillHistograms( const EventContex
  
 
         std::vector< std::pair<const xAOD::Egamma*, const TrigCompositeUtils::Decision*>> pairObjs;
-        
         if ( executeNavigation( ctx, info.trigName,info.trigThrHLT,info.trigPidType, pairObjs).isFailure() ) 
         {
             ATH_MSG_WARNING("executeNavigation Fails");
@@ -70,14 +68,13 @@ StatusCode TrigEgammaMonitorElectronAlgorithm::fillHistograms( const EventContex
 
 
 
-
         fillDistributions( pairObjs, info );
         fillEfficiencies( pairObjs, info );
+        fillResolutions( pairObjs, info );
 
 
         ATH_MSG_DEBUG("End Chain Analysis ============================= " << trigger);
     } // End loop over trigger list
-    
     
     return StatusCode::SUCCESS;
 }

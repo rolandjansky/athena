@@ -27,6 +27,8 @@ class IEnhancedBiasWeighter : public virtual DerivationFramework::IAugmentationT
       virtual double   getEBLiveTime(const EventContext& context) const = 0;
       virtual double   getLBLumi(const xAOD::EventInfo* eventInfo) const = 0;
       virtual double   getLBLumi(const EventContext& context) const = 0;
+      virtual double   getLBLength(const xAOD::EventInfo* eventInfo) const = 0;
+      virtual double   getLBLength(const EventContext& context) const = 0;
       virtual double   getAverageLumi() const = 0;
       virtual double   getAverageMu() const = 0;
       virtual double   getDeadtime() const = 0;

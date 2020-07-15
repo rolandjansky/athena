@@ -54,7 +54,7 @@ class ChainConfigurationBase(object):
     def getEmptyStep(self, stepID, stepPartName):
         stepName = 'Step%d'%stepID + '_%d'%self.mult + stepPartName
         log.debug("Configuring empty step " + stepName)        
-        return ChainStep(stepName, [],  multiplicity=[] )
+        return ChainStep(stepName, Sequences=[], multiplicity=[] ,chainDicts=[self.dict])
  
     def buildChain(self, chainSteps):
         myChain = Chain(name = self.chainName,

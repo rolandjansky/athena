@@ -5,9 +5,9 @@
 #include "TrkVKalVrtCore/CommonPars.h"
 #include "TrkVKalVrtCore/Derivt.h"
 #include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
-#include <iostream>
-#include <math.h>
 #include <algorithm>
+#include <cmath>
+#include <iostream>
 
 namespace Trk {
 

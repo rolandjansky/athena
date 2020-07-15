@@ -35,6 +35,10 @@ TH1* MonitorBase::bookGetPointer(TH1* hist, const std::string& tDir) const {
 }
 
 
+bool MonitorBase::counterExists(const std::string& name) const {
+  return (m_counters.count(name) == 1);
+}
+
 CounterBase* MonitorBase::getCounter(const std::string& name) {
   auto it = m_counters.find(name);
   if (it != m_counters.end()) {
