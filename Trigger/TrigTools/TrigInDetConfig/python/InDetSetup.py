@@ -77,13 +77,6 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
                                          ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() ),
                                          ( 'IDCInDetBSErrContainer' , InDetKeys.SCT_ByteStreamErrs() )]
 
-    # These objects must be loaded from SGIL if not from CondInputLoader
-    from IOVDbSvc.CondDB import conddb
-    if not conddb.folderRequested( '/TDAQ/Resources/ATLAS/PIXEL/Modules' ):
-      ViewDataVerifier.DataObjects += [( 'CondAttrListCollection', 'ConditionStore+/TDAQ/Resources/ATLAS/PIXEL/Modules' )]
-      topSequence.SGInputLoader.Load += [( 'CondAttrListCollection', 'ConditionStore+/TDAQ/Resources/ATLAS/PIXEL/Modules' )]
-      
-
   from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
   from AthenaCommon.AppMgr import ToolSvc
 
