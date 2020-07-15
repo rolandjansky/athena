@@ -12,13 +12,6 @@
 
 #include <math.h>
 
-#include "GaudiKernel/StatusCode.h"
-
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
-//#include "TrigMuonEvent/CombinedMuonFeature.h"
-
 #include "TrigL2MultiMuFex.h"
 
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
@@ -29,8 +22,6 @@
 
 #include "TrigInDetToolInterfaces/ITrigVertexingTool.h"
 #include "TrigInDetEvent/TrigL2Vertex.h"
-
-#include "TrigParticle/TrigL2Bphys.h"
 
 #include "Constants.h"
 #include "BtrigUtils.h"
