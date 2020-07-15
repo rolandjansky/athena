@@ -1,12 +1,11 @@
 #
 #  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
-import math
 
 def PprMonitoringConfig(inputFlags):
     '''Function to configure LVL1 Ppr algorithm in the monitoring system.'''
 
-    #import math 
+    import math 
     # get the component factory - used for getting the algorithms
     from AthenaConfiguration.ComponentFactory import CompFactory
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -151,4 +150,8 @@ if __name__=='__main__':
     cfg.printConfig(withDetails=False, summariseProps = True)
 
     nevents=-1
-    cfg.run(nevents)
+    status = cfg.run(nevents)
+    if status.isFailure():
+        import sys
+        sys.exit(-1)
+
