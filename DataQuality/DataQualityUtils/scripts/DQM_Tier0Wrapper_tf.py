@@ -45,7 +45,8 @@
 ##                      configuration file paths relative to basename
 ##     12) 'productionMode': string ('True'/'False', default: 'True')
 ##         ('True': run as if on Tier-0. 'False': Assume testing.)
-##     13) 'servers': string (e.g. 'aiatlas009.cern.ch,aiatlas039.cern.ch,aiatlas016.cern.ch')
+##     13) 'servers': string with comma-separated server names to override normal config
+##         (e.g. 'aiatlas009.cern.ch,aiatlas039.cern.ch,aiatlas016.cern.ch')
 ##
 ## (C) N. Boelaert, L. Goossens, A. Nairz, P. Onyisi, S. Schaetzel, M. Wilson 
 ##     (April 2008 - July 2010)
