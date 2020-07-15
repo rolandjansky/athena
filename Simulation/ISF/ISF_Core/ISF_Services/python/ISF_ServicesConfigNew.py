@@ -70,8 +70,8 @@ def LongLivedInputConverterCfg(ConfigFlags, name="ISF_LongLivedInputConverter", 
 def ParticleBrokerSvcNoOrderingCfg(ConfigFlags, name="ISF_ParticleBrokerSvcNoOrdering", **kwargs):
     result = ComponentAccumulator()
     if "EntryLayerTool" not in kwargs:
-        tool = acc.popToolsAndMerge(EntryLayerToolCfg(ConfigFlags))
-        kwargs.setdefault("EntryLayerTool", result.popPrivateTools())
+        tool = result.popToolsAndMerge(EntryLayerToolCfg(ConfigFlags))
+        kwargs.setdefault("EntryLayerTool", tool)
         kwargs.setdefault("GeoIDSvc", result.getService("ISF_GeoIDSvc"))
     # assume "GeoIDSvc" has been set alongside "EntryLayerTool"
     kwargs.setdefault("AlwaysUseGeoIDSvc", False)
