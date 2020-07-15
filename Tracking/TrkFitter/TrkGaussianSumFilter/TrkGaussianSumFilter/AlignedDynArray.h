@@ -13,12 +13,12 @@
 #include <cstdlib>
 #include <memory>
 namespace GSFUtils {
+
 /*
- * GCC and Clang provide) the the attribute
- * if we have a std implementing ideas from
+ * Use GCC and Clang attributes to express that we return aligned ouputs
+ * If we have a std implementing ideas from
  * http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0886r0.pdf
- * prb we do not need this
- * Can be used to express that we return aligned ouputs
+ * prb we do not need this.
  */
 #if defined(__GNUC__) && !defined(__CLING__) && !defined(__ICC)
 #define GSF_ALIGN_RETURN(X) __attribute__((assume_aligned(X)))
@@ -53,32 +53,41 @@ struct AlignedDynArray
   typedef std::size_t size_type;
   typedef std::ptrdiff_t difference_type;
   /// @}
+
   /// Deleted default constructor
   AlignedDynArray() = delete;
+  
   /// Deleted default copy constructor
   AlignedDynArray(AlignedDynArray const&) = delete;
+  
   /// Deleted default assignment operator
   AlignedDynArray& operator=(AlignedDynArray const&) = delete;
 
-  /// Constructor default initializing elements
+  /// Constructor with default initializing elements
   explicit AlignedDynArray(size_type n);
+ 
   /// Constructor initializing elements to value
   explicit AlignedDynArray(size_type n, const T& value);
 
   /// Move copy constructor
   AlignedDynArray(AlignedDynArray&&) noexcept;
+ 
   /// Move assignment operator
   AlignedDynArray& operator=(AlignedDynArray&&) noexcept;
+ 
   /// Destructor
   ~AlignedDynArray();
 
   /// Get the underlying buffer
   pointer buffer() noexcept GSF_ALIGN_RETURN(ALIGNMENT);
-  /// Get the underlying buffer
+
+  /// Get the underlying buffer  (const)
   const_pointer buffer() const noexcept GSF_ALIGN_RETURN(ALIGNMENT);
 
-  /// index array operators
+  /// index array operator
   reference operator[](size_type pos) noexcept;
+  
+  /// index array operator (const)
   const_reference operator[](size_type pos) const noexcept;
 
   /// iterator pointing to the first element
@@ -101,8 +110,13 @@ struct AlignedDynArray
 
 
 private:
+  /// Helper method for calling the dtor for the elements
   void cleanup();
+
+  ///Pointer to the underlying buffer
   pointer m_buffer = nullptr;
+  
+  ///Num of elements/size
   size_type m_size = 0;
 };
 
