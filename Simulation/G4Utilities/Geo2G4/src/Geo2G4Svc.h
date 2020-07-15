@@ -19,7 +19,7 @@
 #include <map>
 #include <memory>
 
-typedef std::map< std::string, std::unique_ptr<VolumeBuilder>, std::less<std::string> > BuilderMap;
+typedef std::unordered_map<std::string, std::unique_ptr<VolumeBuilder>> BuilderMap;
 
 /// @todo NEEDS DOCUMENTATION
 class Geo2G4Svc: public extends<AthService, IGeo2G4Svc, IIncidentListener>
