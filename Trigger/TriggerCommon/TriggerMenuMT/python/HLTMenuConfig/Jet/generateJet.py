@@ -85,7 +85,7 @@ def generateChains( flags, chainDict ):
                                 HypoToolGen = trigJetHypoToolFromDict,
                                 CA = acc)
 
-    jetStep = ChainStep(stepName, [jetSequence])
+    jetStep = ChainStep(name=stepName, Sequences=[jetSequence], chainDicts=[chainDict])
 
     l1Thresholds=[]
     for part in chainDict['chainParts']:
@@ -95,6 +95,6 @@ def generateChains( flags, chainDict ):
 
     acc.printConfig()
 
-    chain = Chain( chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ jetStep ] )
+    chain = Chain( chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[jetStep] )
 
     return chain

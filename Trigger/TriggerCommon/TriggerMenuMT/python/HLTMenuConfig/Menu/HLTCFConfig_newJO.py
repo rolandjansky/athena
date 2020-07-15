@@ -169,6 +169,7 @@ def generateDecisionTree(chains):
                 # Filters linking
                 filterAlg = getFilterAlg( stepCounter, step.name )
                 filterAlg.Chains = addAndAssureUniqness( filterAlg.Chains, chain.name, "{} filter alg chains".format( filterAlg.name ) )
+
                 if stepCounter == 1:
                     filterAlg.Input = addAndAssureUniqness( filterAlg.Input, chain.L1decisions[0], "{} L1 input".format( filterAlg.name ) )
                 else: # look into the previous step
@@ -192,8 +193,13 @@ def generateDecisionTree(chains):
                 hypoAlg.HypoOutputDecisions = assureUnsetOrTheSame( hypoAlg.HypoOutputDecisions, hypoOutName,
                     "{} hypo output".format( hypoAlg.name )  )
 
-                hypoAlg.HypoTools.append( sequence._hypoToolConf.confAndCreate( TriggerConfigHLT.getChainDictFromChainName( chain.name ) ) )
-
+                from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainInDict
+                listOfChainDictsLegs = splitChainInDict(chain.name)
+                legs = [part['chainName'] for part in listOfChainDictsLegs]
+                log.info("LEGS: %s" % legs)
+                for chainDictLeg in listOfChainDictsLegs:
+                    log.info("CHAIN DICT %s" % chainDictLeg )
+                    hypoAlg.HypoTools.append( sequence._hypoToolConf.confAndCreate(chainDictLeg) )
 
     for chain in chains:
         for stepCounter, step in enumerate( chain.steps, 1 ):

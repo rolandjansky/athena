@@ -37,8 +37,6 @@ def generateChains(flags, chainDict):
                                      HypoToolGen = TrigL2CaloHypoToolFromDict,
                                      CA = accCalo )
 
-    fastCaloSequence.createHypoTools(chainDict)
-
     fastCaloStep = ChainStep(firstStepName, [fastCaloSequence])
 
 
@@ -62,8 +60,6 @@ def generateChains(flags, chainDict):
                                      Hypo = l2PhotonHypo,
                                      HypoToolGen = TrigL2PhotonHypoToolFromDict,
                                      CA = accPhoton )
-
-    l2PhotonSequence.createHypoTools(chainDict)
 
     l2PhotonStep = ChainStep(secondStepName, [l2PhotonSequence])
 

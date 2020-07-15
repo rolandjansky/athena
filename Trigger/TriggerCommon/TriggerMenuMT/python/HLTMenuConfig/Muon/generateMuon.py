@@ -125,8 +125,6 @@ def generateChains( flags, chainDict ):
                                      HypoToolGen = TrigMufastHypoToolFromDict,
                                      CA = acc )
 
-    l2muFastSequence.createHypoTools(chainDict)
-
     l2muFastStep = ChainStep( name=stepName, Sequences=[l2muFastSequence], chainDicts=[chainDict] )
 
     ### Set muon step2 ###
@@ -182,8 +180,6 @@ def generateChains( flags, chainDict ):
                                      Hypo = fakeHypoAlg, 
                                      HypoToolGen = makeFakeHypoTool,
                                      CA = accMS )
-
-    efmuMSSequence.createHypoTools(chainDict)
 
     efmuMSStep = ChainStep( name=stepEFMSName, Sequences=[efmuMSSequence], chainDicts=[chainDict] )
 
