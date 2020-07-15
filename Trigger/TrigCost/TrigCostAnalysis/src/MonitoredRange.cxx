@@ -53,7 +53,7 @@ StatusCode MonitoredRange::addMonitor(std::unique_ptr<MonitorBase> monitor) {
 StatusCode MonitoredRange::newEvent(const CostData& data, const float weight) {
   for (auto& monitor : getMonitors()) {
     ATH_CHECK(monitor->newEvent(data, weight));
-    ATH_CHECK(monitor->endEvent());
+    ATH_CHECK(monitor->endEvent(weight));
   }
   ATH_CHECK(m_cachedLifetimeHistPtr != nullptr);
   const bool isNewLB = m_seenLB.insert( data.lb() ).second; // .second is true if a new element was inserted

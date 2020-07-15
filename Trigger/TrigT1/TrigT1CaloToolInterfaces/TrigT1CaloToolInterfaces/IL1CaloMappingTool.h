@@ -10,24 +10,17 @@
 
 namespace LVL1 {
 
-static const InterfaceID IID_IL1CaloMappingTool("LVL1::IL1CaloMappingTool", 1, 0);
-
 class IL1CaloMappingTool : virtual public IAlgTool {
 
- public:
-   static const InterfaceID& interfaceID();
+public:
+   DeclareInterfaceID (IL1CaloMappingTool, 1, 0);
 
    virtual bool mapping(int crate, int module, int channel,
-                        double& eta, double& phi, int& layer) = 0;
+                        double& eta, double& phi, int& layer) const = 0;
    virtual bool mapping(double eta, double phi, int layer,
-                        int& crate, int& module, int& channel) = 0;
+                        int& crate, int& module, int& channel) const = 0;
       
 };
-
-inline const InterfaceID& IL1CaloMappingTool::interfaceID()
-{ 
-  return IID_IL1CaloMappingTool;
-}
 
 } // end of namespace
 

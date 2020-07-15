@@ -416,13 +416,13 @@ def configSteeringOPI(topSeq, name, config, log):
             trigSteer.LvlConverterTool.Lvl1ResultAccessTool.ignorePrescales=True
             log.info('Set '+name+'.LvlConverterTool.Lvl1ResultAccessTool.ignorePrescales=True')
         
-            if trigSteer.LvlConverterTool.properties().has_key('ignoreL1Prescales'):
+            if 'ignoreL1Prescales' in trigSteer.LvlConverterTool.properties():
                 trigSteer.LvlConverterTool.ignoreL1Prescales = True
                 log.info('Set '+name+'.LvlConverterTool.ignoreL1Prescales = True')
             else:
                 log.info('Missing property: '+name+'.LvlConverterTool.ignoreL1Prescales')            
 
-    if trigSteer.properties().has_key('OPITools'):
+    if 'OPITools' in trigSteer.properties():
         for tool in trigSteer.OPITools:
             if tool.getType().count('TrigCostTool'):
                 tool.writeAlways = True
@@ -484,7 +484,7 @@ def setSteerDebug(name, option, log):
     if hasattr(topSeq, name):
         trigSteer = getattr(topSeq, name)
         
-        if not trigSteer.properties().has_key('OPITools'):
+        if not 'OPITools' in trigSteer.properties():
             return
         
         for tool in trigSteer.OPITools:
@@ -562,13 +562,13 @@ def postSetupOnlineCost():
         topSeq.TrigSteer_L2.doOperationalInfo=steeringL2_online_doOperationalInfo
         log.info('Set TrigSteer_L2.doOperationalInfo='+str(topSeq.TrigSteer_L2.doOperationalInfo))
 
-        if topSeq.TrigSteer_L2.properties().has_key('OPITools'):
+        if 'OPITools' in topSeq.TrigSteer_L2.properties():
             for tool in topSeq.TrigSteer_L2.OPITools:
                 if tool.getType().count('TrigCostTool'):
                     tool.doOperationalInfo = steeringL2_online_doOperationalInfo
                     log.info('Set '+tool.name()+'.doOperationalInfo='+str(topSeq.TrigSteer_L2.doOperationalInfo))
         
-        if svcMgr.ROBDataProviderSvc.properties().has_key('doDetailedROBMonitoring'):
+        if 'doDetailedROBMonitoring' in svcMgr.ROBDataProviderSvc.properties():
             svcMgr.ROBDataProviderSvc.doDetailedROBMonitoring = True
             log.info('Set ROBDataProviderSvc.doDetailedROBMonitoring=True')
             
@@ -576,7 +576,7 @@ def postSetupOnlineCost():
         topSeq.TrigSteer_EF.doOperationalInfo=steeringEF_online_doOperationalInfo
         log.info('Set TrigSteer_EF.doOperationalInfo='+str(topSeq.TrigSteer_EF.doOperationalInfo))
 
-        if topSeq.TrigSteer_EF.properties().has_key('OPITools'):
+        if 'OPITools' in topSeq.TrigSteer_EF.properties():
             for tool in topSeq.TrigSteer_EF.OPITools:
                 if tool.getType().count('TrigCostTool'):
                     tool.doOperationalInfo = steeringEF_online_doOperationalInfo
@@ -586,13 +586,13 @@ def postSetupOnlineCost():
         topSeq.TrigSteer_HLT.doOperationalInfo=steeringHLT_online_doOperationalInfo
         log.info('Set TrigSteer_HLT.doOperationalInfo='+str(topSeq.TrigSteer_HLT.doOperationalInfo))
 
-        if topSeq.TrigSteer_HLT.properties().has_key('OPITools'):
+        if 'OPITools' in topSeq.TrigSteer_HLT.properties():
             for tool in topSeq.TrigSteer_HLT.OPITools:
                 if tool.getType().count('TrigCostTool'):
                     tool.doOperationalInfo = steeringHLT_online_doOperationalInfo
                     log.info('Set '+tool.name()+'.doOperationalInfo='+str(topSeq.TrigSteer_HLT.doOperationalInfo))
         
-        if svcMgr.ROBDataProviderSvc.properties().has_key('doDetailedROBMonitoring'):
+        if 'doDetailedROBMonitoring' in svcMgr.ROBDataProviderSvc.properties():
             svcMgr.ROBDataProviderSvc.doDetailedROBMonitoring = True
             log.info('Set ROBDataProviderSvc.doDetailedROBMonitoring=True')
         else:
@@ -628,7 +628,7 @@ def postSetupCostForCAF():
     topSeq = AlgSequence()
     
     if hasattr(topSeq, 'TrigSteer_L2'):        
-        if topSeq.TrigSteer_L2.properties().has_key('OPITools'):
+        if 'OPITools' in topSeq.TrigSteer_L2.properties():
             for tool in topSeq.TrigSteer_L2.OPITools:
                 if tool.getType().count('TrigCostTool'):
                     tool.writeAlways = True
@@ -636,7 +636,7 @@ def postSetupCostForCAF():
                     log.info('Set '+tool.name()+'.writeAlways = True')
 
     if hasattr(topSeq, 'TrigSteer_EF'):
-        if topSeq.TrigSteer_EF.properties().has_key('OPITools'):
+        if 'OPITools' in topSeq.TrigSteer_EF.properties():
             for tool in topSeq.TrigSteer_EF.OPITools:
                 if tool.getType().count('TrigCostTool'):
                     tool.writeAlways = True
@@ -644,7 +644,7 @@ def postSetupCostForCAF():
                     log.info('Set '+tool.name()+'.writeAlways = True')
                     
     if hasattr(topSeq, 'TrigSteer_HLT'):
-        if topSeq.TrigSteer_HLT.properties().has_key('OPITools'):
+        if 'OPITools' in topSeq.TrigSteer_HLT.properties():
             for tool in topSeq.TrigSteer_HLT.OPITools:
                 if tool.getType().count('TrigCostTool'):
                     tool.writeAlways = True
@@ -661,21 +661,21 @@ def postSetupEBWeighting():
     topSeq = AlgSequence()
     
     if hasattr(topSeq, 'TrigSteer_L2'):        
-        if topSeq.TrigSteer_L2.properties().has_key('OPITools'):
+        if 'OPITools' in topSeq.TrigSteer_L2.properties():
             for tool in topSeq.TrigSteer_L2.OPITools:
                 if tool.getType().count('TrigCostTool'):
                     tool.doEBWeight = True
                     log.info('Set '+tool.name()+'.doEBWeight = True')
 
     if hasattr(topSeq, 'TrigSteer_EF'):
-        if topSeq.TrigSteer_EF.properties().has_key('OPITools'):
+        if 'OPITools' in topSeq.TrigSteer_EF.properties():
             for tool in topSeq.TrigSteer_EF.OPITools:
                 if tool.getType().count('TrigCostTool'):
                     tool.doEBWeight = True
                     log.info('Set '+tool.name()+'.doEBWeight = True')
                     
     if hasattr(topSeq, 'TrigSteer_HLT'):
-        if topSeq.TrigSteer_HLT.properties().has_key('OPITools'):
+        if 'OPITools' in topSeq.TrigSteer_HLT.properties():
             for tool in topSeq.TrigSteer_HLT.OPITools:
                 if tool.getType().count('TrigCostTool'):
                     tool.doEBWeight = True

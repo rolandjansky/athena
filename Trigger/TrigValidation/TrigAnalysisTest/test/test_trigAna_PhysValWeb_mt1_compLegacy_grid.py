@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# art-description: Test of transform RDO->RDO_TRIG->ESD->AOD with AthenaMT and AOD->NTUP_PHYSVAL with serial athena to produce webdisplay
+# art-description: Test of transform RDO->RDO_TRIG->ESD->AOD with AthenaMT and AOD->NTUP_PHYSVAL with serial athena to produce webdisplay (comparing with legacy menu)
 # art-type: grid
 # art-include: master/Athena
 # art-output: *.txt
@@ -54,7 +54,7 @@ test.check_steps = CheckSteps.default_check_steps(test)
 
 download=CheckSteps.DownloadRefStep()
 download.artpackage = 'TrigAnalysisTest'
-download.artjobname = 'test_trigAna_PhysValWeb_mt1_grid.py'
+download.artjobname = 'test_trigAna_PhysValWeb_grid.py'
 download.required=True
 test.check_steps.append(download)
 

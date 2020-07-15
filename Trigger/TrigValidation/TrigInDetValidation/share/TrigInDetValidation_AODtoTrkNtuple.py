@@ -162,7 +162,7 @@ if ( True ) :
 
     "HLT_tau.*_idperf.*:HLT_IDTrack_TauCore_FTF",
     "HLT_tau.*_idperf.*:HLT_IDTrack_TauIso_FTF",
-    "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_IDTrig"
+    "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_IDTrig",
     "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_FTF"
 
     ]
