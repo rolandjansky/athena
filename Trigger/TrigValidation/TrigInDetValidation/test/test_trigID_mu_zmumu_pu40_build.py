@@ -24,7 +24,7 @@ for opt,arg in opts:
 
         
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
-from TrigInDetValidation.TrigInDetArtSteps import TrigInDetAna, TrigInDetdictStep, TrigInDetCompStep
+from TrigInDetValidation.TrigInDetArtSteps import TrigInDetAna, TrigInDetdictStep, TrigInDetCompStep, TrigInDetCpuCostStep
 
 chains = [
     'HLT_mu6_idperf_L1MU6',
@@ -97,6 +97,14 @@ comp2=TrigInDetCompStep('CompareStep2')
 comp2.chains='HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig'
 comp2.output_dir = 'HLT-plots-IDTrig'
 test.check_steps.append(comp2)
+
+cpucost=TrigInDetCpuCostStep('CpuCostStep1')
+test.check_steps.append(cpucost)
+
+cpucost2=TrigInDetCpuCostStep('CpuCostStep2')
+cpucost2.args += '  -p FastTrack'
+cpucost2.output_dir = 'times-FTF' 
+test.check_steps.append(cpucost2)
 
 
 import sys

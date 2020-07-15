@@ -178,11 +178,16 @@ public:
                              Amg::Vector2D& loc) const override final;
 
   /** Special method for StraightLineSurface - providing a different z estimate
+   Performs memory allocation the caller owns the ptr
    */
-  const Amg::Vector3D* localToGlobal(
-    const Trk::LocalParameters& locpars,
-    const Amg::Vector3D& glomom,
-    double locZ) const;
+  Amg::Vector3D* localToGlobal(const Trk::LocalParameters& locpars,
+                               const Amg::Vector3D& glomom,
+                               double locZ) const;
+  /** Special method for StraightLineSurface - providing a different z estimate
+   */
+  Amg::Vector3D localToGlobalPos(const Trk::LocalParameters& locpars,
+                                 const Amg::Vector3D& glomom,
+                                 double locZ) const;
 
   /** Special method for StraightLineSurface - provides the Line direction from
    * cache: speedup */

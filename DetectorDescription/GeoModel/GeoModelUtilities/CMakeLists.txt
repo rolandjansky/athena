@@ -6,27 +6,16 @@
 atlas_subdir( GeoModelUtilities )
 
 if(NOT BUILDVP1LIGHT)
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Database/RDBAccessSvc
-                          DetectorDescription/GeoModel/GeoModelInterfaces
-                          PRIVATE
-                          GaudiKernel )
-
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
 find_package( Eigen )
-find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 find_package( GeoModelCore )
 
 # Component(s) in the package:
 atlas_add_library( GeoModelUtilities
                    src/*.cxx
                    PUBLIC_HEADERS GeoModelUtilities
-                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${GEOMODELCORE_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${EIGEN_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaBaseComps SGTools GeoModelInterfaces
+                   INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS} ${GEOMODELCORE_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaBaseComps SGTools GeoModelInterfaces
                    PRIVATE_LINK_LIBRARIES GaudiKernel )
 
 atlas_add_test( GeoGetIds_test

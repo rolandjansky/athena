@@ -478,17 +478,3 @@ def PixelReadoutSpeedAlgCfg(flags, name="PixelReadoutSpeedAlg", **kwargs):
     acc.addCondAlgo(CompFactory.PixelReadoutSpeedAlg(name, **kwargs))
     return acc
 
-def PixelTDAQCondAlgCfg(flags, name="PixelTDAQCondAlg", **kwargs):
-    """Return a ComponentAccumulator with configured PixelTDAQCondAlg"""
-    acc = ComponentAccumulator()
-    if flags.Common.isOnline:
-        acc.merge(addFolders(flags, "/TDAQ/Resources/ATLAS/PIXEL/Modules", "TDAQ_ONL", className="CondAttrListCollection"))
-        kwargs.setdefault("ReadKey", "/TDAQ/Resources/ATLAS/PIXEL/Modules")
-    else:
-        kwargs.setdefault("ReadKey", "")
-    kwargs.setdefault("PixelModuleData", "PixelModuleData")
-    kwargs.setdefault("WriteKey", "PixelTDAQCondData")
-    acc.addCondAlgo(CompFactory.PixelTDAQCondAlg(name, **kwargs))
-    return acc
-
-

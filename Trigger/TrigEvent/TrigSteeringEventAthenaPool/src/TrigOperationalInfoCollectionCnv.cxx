@@ -26,7 +26,6 @@ TrigOperationalInfoCollectionCnv::~TrigOperationalInfoCollectionCnv()
 TrigOperationalInfoCollection_PERS* TrigOperationalInfoCollectionCnv::createPersistent(TrigOperationalInfoCollection* transObj) 
 {
   MsgStream mlog(msgSvc(), "TrigOperationalInfoCollectionConverter" );
-  mlog << MSG::DEBUG << "TrigOperationalInfoCollectionCnv::createPersistent" << endmsg;
 
   TrigOperationalInfoCollection_PERS *persObj = m_impl->m_TPConverter_tlp1.createPersistent( transObj, mlog );
   
@@ -37,26 +36,21 @@ TrigOperationalInfoCollection_PERS* TrigOperationalInfoCollectionCnv::createPers
 TrigOperationalInfoCollection* TrigOperationalInfoCollectionCnv::createTransient() 
 {
   MsgStream mlog(msgSvc(), "TrigOperationalInfoCollectionConverter" );
-  mlog << MSG::DEBUG << "TrigOperationalInfoCollectionCnv::createTransient " << endmsg;
-  
-  static pool::Guid tlp1_guid("7D5A0227-E28B-4228-83C5-22F8BBB90BBF");
-  static pool::Guid p1_guid("B6C95F89-C1B9-4B9D-A533-F6F4B57BD277");
+
+  static const pool::Guid tlp1_guid("7D5A0227-E28B-4228-83C5-22F8BBB90BBF");
+  static const pool::Guid p1_guid("B6C95F89-C1B9-4B9D-A533-F6F4B57BD277");
   
   TrigOperationalInfoCollection *trans_obj(0);
   
   if( compareClassGuid(tlp1_guid) ) {
     
-    mlog << MSG::DEBUG << "TrigOperationalInfoCollectionCnv::reading tlp1 persistent object" << endmsg;
     std::unique_ptr< TrigOperationalInfoCollection_tlp1 >   col_vect( this->poolReadObject< TrigOperationalInfoCollection_tlp1 >() );
-    mlog << MSG::DEBUG << "TrigOperationalInfoCollectionCnv::reading tlp1 persistent object pointer" <<  col_vect.get() << endmsg;
     trans_obj = m_impl->m_TPConverter_tlp1.createTransient( col_vect.get(), mlog );
     
   }
   else if( compareClassGuid(p1_guid) ) {
     
-    mlog << MSG::DEBUG << "TrigOperationalInfoCollectionCnv::reading p1 persistent object" << endmsg;
     std::unique_ptr< TrigOperationalInfoCollection_p1 >   col_vect( this->poolReadObject< TrigOperationalInfoCollection_p1 >() );
-    mlog << MSG::DEBUG << "TrigOperationalInfoCollectionCnv::reading p1 persistent object pointer" <<  col_vect.get() << endmsg;
     trans_obj = m_impl->m_TPConverter.createTransient( col_vect.get(), mlog );
     
   }

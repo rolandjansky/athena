@@ -6,16 +6,24 @@
 #include "TrigSteeringEventTPCnv/TrigPassBitsCollection_p1.h"
 #include "TrigSteeringEventTPCnv/TrigPassBitsCollectionCnv_p1.h"
 
-static TrigPassBitsCollectionCnv_p1   TPconverter1;
+struct TrigPassBitsCollection_impl
+{
+  TrigPassBitsCollectionCnv_p1 m_TPconverter_p1;
+};
+
+TrigPassBitsCollectionCnv::TrigPassBitsCollectionCnv( ISvcLocator *svcloc ) :
+  TrigPassBitsCollectionCnvBase(svcloc),
+  m_impl(std::make_unique<TrigPassBitsCollection_impl>())
+{}
+
+TrigPassBitsCollectionCnv::~TrigPassBitsCollectionCnv() = default;
 
 //createPersistent 
 TrigPassBitsCollection_PERS * TrigPassBitsCollectionCnv::createPersistent( TrigPassBitsCollection *transObj)
 {
   MsgStream mlog(msgSvc(), "TrigPassBitsCollectionConverter" );
   
-  mlog << MSG::DEBUG << "TrigPassBitsCollectionCnv::createPersistent called" << endmsg;
-  
-  TrigPassBitsCollection_PERS * p_cont = TPconverter1.createPersistent( transObj, mlog );
+  TrigPassBitsCollection_PERS * p_cont = m_impl->m_TPconverter_p1.createPersistent( transObj, mlog );
   
   return p_cont;
   
@@ -27,16 +35,13 @@ TrigPassBitsCollection * TrigPassBitsCollectionCnv::createTransient()
 {
   MsgStream mlog(msgSvc(), "TrigPassBitsCollectionConverter" );
   
-  mlog << MSG::DEBUG << "TrigPassBitsCollectionCnv::createTransient called" << endmsg;
-  
-  static pool::Guid p1_guid( "E6E4F396-D696-4C1C-A0C4-7766E0AF9BB5" );
+  static const pool::Guid p1_guid( "E6E4F396-D696-4C1C-A0C4-7766E0AF9BB5" );
 
   //  TrigPassBitsCollection *p_collection = 0;
   if( compareClassGuid( p1_guid ) )     
   {
          std::unique_ptr< TrigPassBitsCollection_p1 > col_vect( poolReadObject< TrigPassBitsCollection_p1 >() );
-	 //         std::cout << "Reading MFC p1" << std::endl;
-         return TPconverter1.createTransient( col_vect.get(), mlog ) ;
+         return m_impl->m_TPconverter_p1.createTransient( col_vect.get(), mlog ) ;
   }
   else  throw std::runtime_error( "Unsupported persistent version of TrigPassBitsCollection" );
   

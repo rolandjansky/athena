@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGEVENTATHENAPOOL_TRIGPASSFLAGSCONTAINER_CNV_H
@@ -9,23 +9,26 @@
 #include "TrigSteeringEvent/TrigPassFlagsCollection.h"
 #include "TrigSteeringEventTPCnv/TrigPassFlagsCollection_p1.h"
 
-typedef TrigPassFlagsCollection_p1   TrigPassFlagsCollection_PERS;
+#include <memory>
 
+typedef TrigPassFlagsCollection_p1   TrigPassFlagsCollection_PERS;
 typedef T_AthenaPoolCustomCnv<TrigPassFlagsCollection, TrigPassFlagsCollection_PERS> TrigPassFlagsCollectionCnvBase;
+struct TrigPassFlagsCollectionCnv_impl;
 
 class TrigPassFlagsCollectionCnv : public TrigPassFlagsCollectionCnvBase {
 
   friend class CnvFactory<TrigPassFlagsCollectionCnv>;
 
- protected:
-
 public:
-  TrigPassFlagsCollectionCnv( ISvcLocator *svcloc ): TrigPassFlagsCollectionCnvBase(svcloc){}
+  TrigPassFlagsCollectionCnv( ISvcLocator *svcloc );
+  ~TrigPassFlagsCollectionCnv();
 protected:
 
   virtual TrigPassFlagsCollection_PERS *createPersistent( TrigPassFlagsCollection *transObj);
   virtual TrigPassFlagsCollection      *createTransient();
 
+private:
+  std::unique_ptr<TrigPassFlagsCollectionCnv_impl> m_impl;
 };
 
 #endif //TRIGPASSBITSCONTAINER_CNV_H

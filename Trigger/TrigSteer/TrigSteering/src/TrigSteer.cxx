@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -69,7 +69,6 @@
 #include "GaudiKernel/StatusCode.h"
 
 #include "TrigSteeringEvent/TrigOperationalInfo.h"
-#include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
 
 #include "L1TopoCoreSim/TopoSteering.h"
 #include "L1TopoConfig/L1TopoMenu.h"
@@ -152,23 +151,6 @@ StatusCode TrigSteer::initialize()
    ATH_MSG_DEBUG("start initialize");
 
    CHECK( m_robDataProvider.retrieve());
-  
-   // Setup the HLT ROB Data Provider Service when configured
-   ATH_MSG_INFO(" Enable ROB prefetching = " << m_enableRobRequestPreparation);
-   if ( m_robDataProvider.isValid() ) {
-      m_trigROBDataProvider = SmartIF<ITrigROBDataProviderSvc>( &*m_robDataProvider );
-      if (m_trigROBDataProvider.isValid()) {
-        ATH_MSG_INFO(" A ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found.");
-      } else {
-        ATH_MSG_INFO(" No ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found.");
-      }
-      m_trigROBDataProviderPrefetch = SmartIF<ITrigROBDataProviderSvcPrefetch>( &*m_robDataProvider );
-      if (m_trigROBDataProviderPrefetch.isValid()) {
-        ATH_MSG_INFO(" A ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvcPrefetch was found.");
-      } else {
-        ATH_MSG_INFO(" No ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvcPrefetch was found.");
-      }
-   }
 
    // get the navigation tool
    CHECK(m_navigation.retrieve());
@@ -184,8 +166,6 @@ StatusCode TrigSteer::initialize()
    m_config->setStoreGate(&*evtStore());
    m_config->setSteeringOPILevel(m_doOperationalInfo);
    m_config->setRobRequestInfo(new RobRequestInfo());
-   // allow the ROBDataProviderSvc access to the RobRequestInfo object
-   if (m_trigROBDataProviderPrefetch.isValid()) m_trigROBDataProviderPrefetch->setRobRequestInfo( m_config->robRequestInfo() ); 
 
    // set the trigger level of this instance
    if (m_hltLevel == "L2")          m_config->setHLTLevel(HLT::L2);
@@ -427,9 +407,6 @@ StatusCode TrigSteer::finalize()
    m_sequences.clear();
    m_algos.clear();
    ATH_MSG_DEBUG("finalized sequences");
-
-   // reset the Robrequestinfo object in the ROB data provider
-   if (m_trigROBDataProviderPrefetch.isValid()) m_trigROBDataProviderPrefetch->setRobRequestInfo( 0 ); 
 
    delete m_config; m_config=0;
 
@@ -717,8 +694,8 @@ void  TrigSteer::doPrefetching(bool &secondPass, bool& noError){
 
 
   //  skip if the event is already in cache
-  if (m_trigROBDataProvider.isValid()) {
-    if (m_trigROBDataProvider->isEventComplete()){ // this is return always treu for offline running
+  if (m_robDataProvider.isValid()) {
+    if (m_robDataProvider->isEventComplete(Gaudi::Hive::currentContext())){ // this is return always treu for offline running
       ATH_MSG_DEBUG("Event is complete");
       if ( m_strategyEB == 0){ // return for online, do the prefetching for testing EBstrategy=1
         ATH_MSG_DEBUG("Event is complete; do not pre-fetch data for online running");
@@ -910,12 +887,11 @@ void TrigSteer::runChains(bool secondPass) {
 
 
 void TrigSteer::issueEventBuildingRequest(int step) {
-  // issue the EB request through the TrigROBDataProviderSvc
+  // issue the EB request
   // only if not already requested 
-  // for offline running, just set the EB step, doing nothing else
 
   // check if complete event has been already requested (by DCM or Steering)
-  if (m_trigROBDataProvider.isValid() && m_trigROBDataProvider->isEventComplete()) {
+  if (m_robDataProvider->isEventComplete(Gaudi::Hive::currentContext())) {
     if ( m_stepForEB == 0 ){ // record this step as negative, in case EB is not called by the steering
       m_stepForEB = (-1.) * step;
       if (m_config->getMsgLvl() <=MSG::DEBUG) 
@@ -932,17 +908,10 @@ void TrigSteer::issueEventBuildingRequest(int step) {
   if (m_doTiming) m_timerCallEB->stop();
   m_stepForEB = step;
 
-  // return if running is offline 
-  if (!m_trigROBDataProvider.isValid()) {
-    if (m_config->getMsgLvl() <=MSG::DEBUG) 
-      ATH_MSG_DEBUG("Request of Event Building is issued for offline running at step " << m_stepForEB); 
-    return;
-  }
-
   // issue the EB
   if (m_config->getMsgLvl() <=MSG::DEBUG) 
     ATH_MSG_DEBUG("Going to issue Event Building at step " << m_stepForEB); 
-  m_trigROBDataProvider->collectCompleteEventData(name());
+  m_robDataProvider->collectCompleteEventData(Gaudi::Hive::currentContext(), name());
 
   return;
 }

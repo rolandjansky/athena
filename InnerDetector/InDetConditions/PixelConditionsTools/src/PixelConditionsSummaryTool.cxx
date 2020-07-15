@@ -26,12 +26,11 @@ StatusCode PixelConditionsSummaryTool::initialize(){
 
   ATH_CHECK(m_condDCSStateKey.initialize());
   ATH_CHECK(m_condDCSStatusKey.initialize());
-// ATH_CHECK(m_BSErrContReadKey.initialize(m_useByteStream && !m_BSErrContReadKey.empty()));
   ATH_CHECK(m_BSErrContReadKey.initialize(SG::AllowEmpty));
 
   ATH_CHECK(detStore()->retrieve(m_pixelID,"PixelID"));
 
-  ATH_CHECK(m_condTDAQKey.initialize());
+  ATH_CHECK(m_condTDAQKey.initialize( !m_condTDAQKey.empty() ));
   ATH_CHECK(m_condDeadMapKey.initialize());
   ATH_CHECK(m_pixelCabling.retrieve());
 
@@ -180,7 +179,7 @@ bool PixelConditionsSummaryTool::isActive(const IdentifierHash& moduleHash, cons
   }
   if (!isDCSActive) { return false; }
 
-  if (SG::ReadCondHandle<PixelTDAQData>(m_condTDAQKey,ctx)->getModuleStatus(moduleHash)) { return false; }
+  if (!m_condTDAQKey.empty() && SG::ReadCondHandle<PixelTDAQData>(m_condTDAQKey)->getModuleStatus(moduleHash)) { return false; }
 
   if (SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey,ctx)->getModuleStatus(moduleHash)) { return false; }
 
@@ -198,7 +197,7 @@ bool PixelConditionsSummaryTool::isActive(const IdentifierHash& moduleHash, cons
   }
   if (!isDCSActive) { return false; }
 
-  if (SG::ReadCondHandle<PixelTDAQData>(m_condTDAQKey,ctx)->getModuleStatus(moduleHash)) { return false; }
+  if (!m_condTDAQKey.empty() && SG::ReadCondHandle<PixelTDAQData>(m_condTDAQKey)->getModuleStatus(moduleHash)) { return false; }
 
   if (SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey,ctx)->getModuleStatus(moduleHash)) { return false; }
 
@@ -248,7 +247,7 @@ bool PixelConditionsSummaryTool::isGood(const Identifier& elementId, const InDet
   }
   if (!isDCSGood) { return false; }
 
-  if (SG::ReadCondHandle<PixelTDAQData>(m_condTDAQKey, ctx)->getModuleStatus(moduleHash)) { return false; }
+  if (!m_condTDAQKey.empty() && SG::ReadCondHandle<PixelTDAQData>(m_condTDAQKey)->getModuleStatus(moduleHash)) { return false; }
 
   if (SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey, ctx)->getModuleStatus(moduleHash)) { return false; }
 
@@ -278,7 +277,7 @@ bool PixelConditionsSummaryTool::isGood(const IdentifierHash& moduleHash, const 
   }
   if (!isDCSGood) { return false; }
 
-  if (SG::ReadCondHandle<PixelTDAQData>(m_condTDAQKey, ctx)->getModuleStatus(moduleHash)) { return false; }
+  if (!m_condTDAQKey.empty() && SG::ReadCondHandle<PixelTDAQData>(m_condTDAQKey)->getModuleStatus(moduleHash)) { return false; }
 
   if (SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey, ctx)->getModuleStatus(moduleHash)) { return false; }
 
@@ -303,7 +302,7 @@ bool PixelConditionsSummaryTool::isGood(const IdentifierHash & moduleHash, const
   }
   if (!isDCSGood) { return false; }
 
-  if (SG::ReadCondHandle<PixelTDAQData>(m_condTDAQKey, ctx)->getModuleStatus(moduleHash)) { return false; }
+  if (!m_condTDAQKey.empty() && SG::ReadCondHandle<PixelTDAQData>(m_condTDAQKey)->getModuleStatus(moduleHash)) { return false; }
 
   if (SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey, ctx)->getModuleStatus(moduleHash)) { return false; }
 

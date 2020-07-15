@@ -79,8 +79,8 @@ StatusCode PadTriggerLookupTool::lookup_pad_triggers(const std::vector<std::shar
     );
 
     //use only active sectors selected by the pads / event
-    for(const size_t &side : activeSides){//0:C 1:A
-        for(const size_t &sector : activeSectors){//{1...16} odd:L even:S
+    for(const int &side : activeSides){//0:C 1:A
+        for(const int &sector : activeSectors){//{1...16} odd:L even:S
             ATH_CHECK( LookupSectorTriggers(pads,side,sector,triggers));
         }
     }

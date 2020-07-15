@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #pragma once
@@ -15,7 +15,6 @@
  * moved from TrigSteering package
  *
  * File and Version Information:
- * $Id: Chain.h,v 1.44 2009-02-16 15:47:04 tbold Exp $
  **********************************************************************************/
 
 #ifndef TRIGSTEERINGEVENT_CHAIN_H
@@ -47,7 +46,7 @@ class TrigTimer;
 
 namespace HLT {
 
-  static std::string no_config = "no config";
+  static const std::string no_config = "no config";
 
   // taht is for backward compatibility of TDT, once new TDT will be available it can be removed from steering
   enum ChainStatus { ChainInvalid=0, ConfigOnlyChain, ChainOK };

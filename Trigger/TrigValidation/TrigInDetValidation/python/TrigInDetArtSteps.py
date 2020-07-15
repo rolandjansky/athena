@@ -11,6 +11,7 @@ import os
 
 from TrigAnalysisTest.TrigAnalysisSteps import AthenaCheckerStep
 from TrigValTools.TrigValSteering.Step import Step
+from TrigValTools.TrigValSteering.CheckSteps import RefComparisonStep
 
 ##################################################
 # Additional exec (athena) steps
@@ -52,14 +53,14 @@ class TrigInDetdictStep(Step):
         super(TrigInDetdictStep, self).configure(test)
 
 
-class TrigInDetCompStep(Step):
+class TrigInDetCompStep(RefComparisonStep):
     '''
     Execute TIDAcomparitor for data.root files.
     '''
     def __init__(self, name='TrigInDetComp'):
         super(TrigInDetCompStep, self).__init__(name)
         self.input_file = 'data-hists.root'
-        self.ref_file = 'data-hists.root'   #### need to add reference file here 
+#        self.ref_file = 'data-hists.root'   #### need to add reference file here 
         self.output_dir = 'HLT-plots'
         self.chains = ' '
         self.args = ''
@@ -68,6 +69,34 @@ class TrigInDetCompStep(Step):
         self.executable = 'TIDAcomparitor'
     
     def configure(self, test):
-        self.args += self.input_file+' '+self.ref_file+' '+self.chains+' -d '+self.output_dir
+        if (self.reference == None):
+            # if no referenc found, use input file as reference
+            self.args += self.input_file+' '+self.input_file+' '+self.chains+' -d '+self.output_dir
+        else:
+            self.args += self.input_file+' '+self.ref_file+' '+self.chains+' -d '+self.output_dir
         super(TrigInDetCompStep, self).configure(test)
+
+
+class TrigInDetCpuCostStep(RefComparisonStep):
+    '''
+    Execute TIDAcpucost for expert-monitoring.root files.
+    '''
+    def __init__(self, name='TrigInDetCpuCost'):
+        super(TrigInDetCpuCostStep, self).__init__(name)
+        self.input_file = 'expert-monitoring.root'
+##        self.ref_file = 'expert-monitoring.root'   #### need to add reference file here 
+        self.output_dir = 'times'
+        self.args = '--auto '
+        self.auto_report_result = True
+        self.required = True
+        self.executable = 'TIDAcpucost'
+    
+    def configure(self, test):
+        #self.args += self.input_file+' '+self.ref_file+' '+' -o '+self.output_dir
+        if (self.reference == None):
+            # if not reference found, run with "--noref" option
+            self.args += ' {} --noref -o {} '.format(self.input_file,self.output_dir)
+        else:
+            self.args += ' {} {} -o {} '.format(self.input_file,self.reference,self.output_dir)
+        super(TrigInDetCpuCostStep, self).configure(test)
 

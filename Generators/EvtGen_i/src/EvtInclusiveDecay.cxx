@@ -212,6 +212,25 @@ StatusCode EvtInclusiveDecay::execute() {
     // NOTE: In order to ensure repeatability, we use a std::set of barcodes to obtain
     //       an ordered list of particles to be decayed by EvtGen.
     std::set<HepMC::GenVertexPtr> visited;
+#ifdef HEPMC3
+    std::set<HepMC::GenParticlePtr> toBeDecayed;
+    for (auto p: hepMC->particles()) {
+      if ( (!p->production_vertex()) ||
+	   (p->production_vertex()->particles_in().size() == 0) ) {
+	StatusCode sc = traverseDecayTree(p,false,visited,toBeDecayed);
+	if (sc.isFailure())
+	  return StatusCode::FAILURE;
+      }
+    }
+    // Print HepMC in tree format if desired (before doing anything)
+    if (m_printHepMCBeforeEvtGen) {
+      msg(MSG::INFO) << "Printing HepMC record at " << hepMC << " BEFORE running EvtGen:" << endmsg;
+      if (m_printHepMCHighLightTopLevelDecays)
+	printHepMC(hepMC,&toBeDecayed);
+      else
+	printHepMC(hepMC);
+    }
+#else
     std::set<int> toBeDecayed;
     for (HepMC::GenEvent::particle_iterator itp = hepMC->particles_begin(); itp != hepMC->particles_end(); ++itp) {
       HepMC::GenParticle* p = *itp;
@@ -231,11 +250,21 @@ StatusCode EvtInclusiveDecay::execute() {
       else
 	printHepMC(hepMC);
     }
+#endif
 
     // Decay selected particles
     bool eventPassesCuts(false);
     int loopCounter(0);
     while( !eventPassesCuts && loopCounter < m_maxNRepeatedDecays ) {
+#ifdef HEPMC3
+      for (auto p: toBeDecayed) {
+        if (p==0) {
+          msg(MSG::ERROR ) << "Overlapping decay tree for particle" << p <<endmsg;
+          return StatusCode::FAILURE;
+        }
+        decayParticle(hepMC,p);
+      }
+#else
       for (std::set<int>::iterator itb = toBeDecayed.begin(); itb!=toBeDecayed.end(); ++itb) {
         auto p = hepMC->barcode_to_particle(*itb);
         if (p==0) {
@@ -244,6 +273,7 @@ StatusCode EvtInclusiveDecay::execute() {
         }
         decayParticle(hepMC,p);
       }
+#endif
       
       if(m_applyUserSelection)
         eventPassesCuts = passesUserSelection(hepMC);
@@ -255,8 +285,13 @@ StatusCode EvtInclusiveDecay::execute() {
     } 
 
     // Store the number of decay attempts in event weights std::map, only if repeated decays enabled
+#ifdef HEPMC3
+    if(m_maxNRepeatedDecays > 1)
+      hepMC->weight("nEvtGenDecayAttempts") = loopCounter;
+#else
     if(m_maxNRepeatedDecays > 1)
       hepMC->weights()["nEvtGenDecayAttempts"] = loopCounter;
+#endif
     // Print HepMC in tree format if desired (after finishing all EvtGen decays)
     if (m_printHepMCAfterEvtGen) {
       msg(MSG::INFO)  << "Printing HepMC record at " << hepMC << " AFTER running EvtGen:" << endmsg;
@@ -316,14 +351,25 @@ StatusCode EvtInclusiveDecay::finalize() {
 // by EvtGen (with its decay tree being deleted beforehand), we cannot use HepMC's
 // "descendant" iterator.
 //
+#ifdef HEPMC3
+StatusCode EvtInclusiveDecay::traverseDecayTree(HepMC::GenParticlePtr p,
+						bool isToBeRemoved,
+						std::set<HepMC::GenVertexPtr>& visited,
+						std::set<HepMC::GenParticlePtr>& toBeDecayed) {
+#else
 StatusCode EvtInclusiveDecay::traverseDecayTree(HepMC::GenParticlePtr p,
 						bool isToBeRemoved,
 						std::set<HepMC::GenVertexPtr>& visited,
 						std::set<int>& toBeDecayed) {
+#endif
   ATH_MSG_VERBOSE("Inspecting: " << pdgName(p) << "   barcode:"<< HepMC::barcode(p));
   if (!isToBeRemoved) {
     if (isToBeDecayed(p,true)) {
+#ifdef HEPMC3
+      toBeDecayed.insert(p);
+#else
       toBeDecayed.insert(HepMC::barcode(p));
+#endif
       isToBeRemoved = true;
       ATH_MSG_VERBOSE("Selected particle for decay: " << pdgName(p) << " (barcode " << HepMC::barcode(p) << ")");
 
@@ -335,28 +381,32 @@ StatusCode EvtInclusiveDecay::traverseDecayTree(HepMC::GenParticlePtr p,
     }
   }
   auto v = p->end_vertex();
+#ifdef HEPMC3
+  if (v) {
+    if (visited.insert(v).second) {
+      if ( isToBeRemoved && (v->particles_in().size()>1) && m_checkDecayTree ) {
+	ATH_MSG_WARNING("Found particle to be decayed with vertex with >1 incoming mother particles in decay tree");
+	ATH_MSG_WARNING( ([&p, &v](){  std::stringstream ss;   HepMC::Print::line(ss,p); HepMC::Print::line(ss,v);  return ss.str();})());
+      }
+      for (auto itp: v->particles_out()) {
+        ATH_CHECK(traverseDecayTree(itp,isToBeRemoved,visited,toBeDecayed) );      
+      }
+    }
+  }
+#else
   if (v) {
     if (visited.insert(v).second) {
       if ( isToBeRemoved && (v->particles_in_size()>1) && m_checkDecayTree ) {
 	// This is normal for Herwig but should not occur for Pythia
 	ATH_MSG_WARNING("Found particle to be decayed with vertex with >1 incoming mother particles in decay tree");
-	if (msgLvl(MSG::WARNING)) {
-	  std::cout << std::endl;
-	  p->print();
-	  v->print();
-	  std::cout << std::endl;
-	  //return StatusCode::FAILURE;
-	}
+	ATH_MSG_WARNING( ([&p, &v](){  std::stringstream ss;   HepMC::Print::line(ss,p); HepMC::Print::line(ss,v);  return ss.str();})());
       }
-      for (HepMC::GenVertex::particle_iterator itp = v->particles_begin(HepMC::children);
-	                                       itp != v->particles_end(HepMC::children);
-                                               ++itp) {
-	StatusCode sc = traverseDecayTree(*itp,isToBeRemoved,visited,toBeDecayed);
-	if (sc.isFailure())
-	  return StatusCode::FAILURE;
+      for (auto itp = v->particles_begin(HepMC::children); itp != v->particles_end(HepMC::children); ++itp) {
+        ATH_CHECK(traverseDecayTree(*itp,isToBeRemoved,visited,toBeDecayed) );
       }
     }
   }
+#endif
   return StatusCode::SUCCESS;
 }
 
@@ -368,6 +418,12 @@ StatusCode EvtInclusiveDecay::traverseDecayTree(HepMC::GenParticlePtr p,
 void EvtInclusiveDecay::removeDecayTree(HepMC::GenEvent* hepMC, HepMC::GenParticlePtr p) {
   auto v = p->end_vertex();
   if (v) {
+#ifdef HEPMC3
+    //This is recursive in HepMC3. But explicit deletion is allowed as well.
+    hepMC->remove_vertex(v);
+    p->set_status(1);   // For now, flag particle as undecayed (stable)
+    ATH_MSG_DEBUG("Removed existing " << pdgName(p) << " (barcode " << HepMC::barcode(p) << ")" );
+#else
     std::set<int> vtxBarCodesToDelete;
     vtxBarCodesToDelete.insert(v->barcode());
     for (HepMC::GenVertex::vertex_iterator itv = v->vertices_begin(HepMC::descendants);
@@ -382,6 +438,7 @@ void EvtInclusiveDecay::removeDecayTree(HepMC::GenEvent* hepMC, HepMC::GenPartic
     p->set_status(1);   // For now, flag particle as undecayed (stable)
     ATH_MSG_DEBUG("Removed existing " << pdgName(p) << " (barcode " << p->barcode() << ")" 
 		  << " decay tree with " << vtxBarCodesToDelete.size() << " vertices");
+#endif
   }
 }
 
@@ -479,7 +536,11 @@ bool EvtInclusiveDecay::isToBeDecayed(const HepMC::GenParticlePtr p, bool doCros
   int stat = p->status();
   int nDaughters = 0;
   auto v = p->end_vertex();
+#ifdef HEPMC3
+  if (v) nDaughters = v->particles_out().size();
+#else
   if (v) nDaughters = v->particles_out_size();
+#endif
 
   // Ignore documentation lines
   if (stat == 3) return false;
@@ -521,11 +582,17 @@ bool EvtInclusiveDecay::isToBeDecayed(const HepMC::GenParticlePtr p, bool doCros
   if (m_prohibitRemoveSelfDecay && nDaughters>0) {
     // For now, check only children - this should be sufficient and checking all
     // descendants would be very expensive.
+#ifdef HEPMC3
+    for (auto  itd: v->particles_out()) {
+      if (std::abs(itd->pdg_id()) == std::abs(id)) return false;
+    }
+#else
     for (HepMC::GenVertex::particle_iterator itd = v->particles_begin(HepMC::children);
 	                                     itd != v->particles_end(HepMC::children);
                                              ++itd) {
       if (abs((*itd)->pdg_id()) == abs(id)) return false;
     }
+#endif
   }
 
   // Check blackList
@@ -572,9 +639,8 @@ bool EvtInclusiveDecay::passesUserSelection(HepMC::GenEvent* hepMC) {
   bool passed(false);
   std::vector<HepMC::GenParticlePtr> *muons = new std::vector<HepMC::GenParticlePtr>;
 
-  for (HepMC::GenEvent::particle_iterator itp = hepMC->particles_begin(); itp != hepMC->particles_end(); ++itp) {
-    HepMC::GenParticle* p = *itp;
-    if( abs(p->pdg_id()) == 13 )
+  for ( auto p:  *hepMC) {
+    if( std::abs(p->pdg_id()) == 13 )
       muons->push_back(p);
   }
   
@@ -622,6 +688,25 @@ double EvtInclusiveDecay::invMass(const HepMC::GenParticlePtr p1, const HepMC::G
 // colors to denote the status of particles and to indicate which particles
 // are selected by the job options to be decayed by EvtGen.
 //
+#ifdef HEPMC3
+void EvtInclusiveDecay::printHepMC(HepMC::GenEvent* hepMC, std::set<HepMC::GenParticlePtr>* barcodeList) {
+  std::set<HepMC::GenVertexPtr> visited;
+  unsigned int nParticlesFound = 0;
+  unsigned int nTreesFound = 0;
+  for (auto p: *hepMC) {
+    if ( (!p->production_vertex()) ||
+	 (p->production_vertex()->particles_in().size() == 0) ) {
+      nTreesFound++;
+      std::cout << "\n    Found new partial decay tree:\n" << std::endl;
+      unsigned int nParticlesVisited = printTree(p,visited,1,barcodeList);
+      std::cout << "\n    " << nParticlesVisited << " particles in this subtree" << std::endl;
+      nParticlesFound += nParticlesVisited;
+    }
+  }
+  std::cout << "\n    Total of " << nParticlesFound << " particles found in "
+	    << nTreesFound << " decay subtrees in HepMC event record\n" << std::endl;
+}
+#else
 void EvtInclusiveDecay::printHepMC(HepMC::GenEvent* hepMC, std::set<int>* barcodeList) {
   std::set<HepMC::GenVertexPtr> visited;
   unsigned int nParticlesFound = 0;
@@ -640,6 +725,7 @@ void EvtInclusiveDecay::printHepMC(HepMC::GenEvent* hepMC, std::set<int>* barcod
   std::cout << "\n    Total of " << nParticlesFound << " particles found in "
 	    << nTreesFound << " decay subtrees in HepMC event record\n" << std::endl;
 }
+#endif
 
 unsigned int EvtInclusiveDecay::printTree(HepMC::GenParticlePtr p,
 				 std::set<HepMC::GenVertexPtr>& visited, int level, std::set<int>* barcodeList) {
@@ -647,6 +733,28 @@ unsigned int EvtInclusiveDecay::printTree(HepMC::GenParticlePtr p,
   for (int i=0; i<level; i++) std::cout << "    ";
   std::cout << pdgName(p,m_printHepMCHighlighted,barcodeList);
   auto v = p->end_vertex();
+#ifdef HEPMC3
+  if (v) {
+    if (v->particles_in().size() > 1)
+      std::cout << " [interaction: " << v->particles_in().size() << " particles, barcode " << HepMC::barcode(v) << "]    -->   ";
+    else
+      std::cout << "   -->   ";
+    if (visited.insert(v).second) {
+      for (auto itp: v->particles_out()) {
+	std::cout << pdgName(itp,m_printHepMCHighlighted,barcodeList) << "   ";
+      }
+      std::cout << std::endl;
+      for (auto itp: v->particles_out()) {
+	if (itp->end_vertex())
+	  nParticlesVisited += printTree(itp, visited, level+1, barcodeList);
+	else
+	  nParticlesVisited++;
+      }
+    } else
+      std:: cout << "see above" << std::endl;
+  } else
+    std::cout << "   no decay vertex\n" << std::endl;
+#else  
   if (v) {
     if (v->particles_in_size() > 1)
       std::cout << " [interaction: " << v->particles_in_size() << " particles, barcode " << v->barcode() << "]    -->   ";
@@ -671,6 +779,7 @@ unsigned int EvtInclusiveDecay::printTree(HepMC::GenParticlePtr p,
       std:: cout << "see above" << std::endl;
   } else
     std::cout << "   no decay vertex\n" << std::endl;
+#endif
   return nParticlesVisited;
 }
 

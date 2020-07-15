@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGSTREAMCNVSVCBASE_TRIGSTREAMADDRESS_H
@@ -27,10 +27,11 @@ public:
   virtual ~TrigStreamAddress() {}; 
 
   TrigStreamAddress(const CLID& clid, const std::string& fname,
-		  const std::string& cname, int p1=0,int p2=0 );
+                    const std::string& cname, int p1=0,int p2=0 );
 
   TrigStreamAddress(const CLID& clid ) ;
 
+  static constexpr long storageType() { return 0x51; }
   void add(const std::vector<uint32_t> &a);
   const std::vector<uint32_t> & get() const;
   const std::string sgkey() const { return m_key;}

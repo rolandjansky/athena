@@ -2,9 +2,9 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
-#include "TrkVKalVrtCore/ForCFT.h"
 #include "TrkVKalVrtCore/CommonPars.h"
+#include "TrkVKalVrtCore/ForCFT.h"
+#include <cmath>
 #include <iostream>
 
 namespace Trk {
@@ -160,7 +160,7 @@ void ForCFT::vksetUsePlaneCnst(double a, double b, double c, double d) noexcept 
 
 void ForCFT::setmasscnst_(long int *ncnsttrk, long int *indextrk, double  *wmcnst) noexcept
 {
-    if (indextrk==0) return;  //Protection!  Track indices start from 1 (not 0)!
+    if (indextrk==nullptr) return;  //Protection!  Track indices start from 1 (not 0)!
     --indextrk;
 
     ++nmcnst;

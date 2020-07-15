@@ -5,26 +5,6 @@
 # Declare the package name:
 atlas_subdir( MuonGeoModel )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Control/StoreGate
-                          DetectorDescription/GeoModel/GeoModelInterfaces
-                          DetectorDescription/GeoModel/GeoModelUtilities
-			              DetectorDescription/GeoPrimitives
-                          GaudiKernel
-                          MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondInterface
-                          MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
-                          MuonSpectrometer/MuonGMdbObjects
-                          Amdcsimrec/AmdcDb
-                          PRIVATE
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          Database/RDBAccessSvc
-                          DetectorDescription/AGDD/AGDDKernel
-                          DetectorDescription/IdDictDetDescr
-                          MuonSpectrometer/MuonDetDescr/MuonAGDDDescription
-                          MuonSpectrometer/MuonDetDescr/MuonDetDescrUtils
-                          MuonSpectrometer/MuonIdHelpers )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )

@@ -116,13 +116,24 @@ StatusCode DecayModeFilter::filterEvent() {
   McEventCollection::const_iterator itr;
   for (itr = events()->begin(); itr != events()->end(); ++itr) {
     const HepMC::GenEvent* theGenEvent = *(events()->begin());
+#ifdef HEPMC3
+    auto  vtx_begin = ((HepMC::GenEvent*)theGenEvent)->vertices().begin();
+    auto  vtx_end = ((HepMC::GenEvent*)theGenEvent)->vertices().end();
+#else
     HepMC::GenEvent::vertex_const_iterator vtx_begin = theGenEvent->vertices_begin();
     HepMC::GenEvent::vertex_const_iterator vtx_end = theGenEvent->vertices_end();
+#endif
     for (auto vtx_iter=vtx_begin; vtx_iter!=vtx_end; ++vtx_iter) {
       // Look for initial vertex
+#ifdef HEPMC3
+      if ((*vtx_iter)->particles_in().size() != 2) continue;
+      if ((*vtx_iter)->particles_out().size() < 2) continue;
+      auto outParticle = (*vtx_iter)->particles_out().begin();
+#else
       if ((*vtx_iter)->particles_in_size() != 2) continue;
       if ((*vtx_iter)->particles_out_size() < 2) continue;
       auto outParticle = (*vtx_iter)->particles_out_const_begin();
+#endif
       auto parent1 = *outParticle;
       auto parent2 = *(++outParticle);
       ATH_MSG_DEBUG("Two in, two out: "  << parent1->pdg_id() << " " << parent2->pdg_id());
@@ -185,15 +196,15 @@ StatusCode DecayModeFilter::filterEvent() {
 
 
 string DecayModeFilter::printChain(HepMC::GenParticlePtr parent) const {
+  if (!parent) return std::string("");
   std::stringstream ss;
-  ss << " " << abs(parent->pdg_id()) << " ->  ";
+  ss << " " << std::abs(parent->pdg_id()) << " ->  ";
   HepMC::GenParticlePtr foundChild(NULL);
   int SMchild_PDG(0);
-  HepMC::GenVertex::particle_iterator child = parent->end_vertex()->particles_begin(HepMC::children);
-  HepMC::GenVertex::particle_iterator end_child = parent->end_vertex()->particles_end(HepMC::children);
-  for (; child != end_child; ++child) {
-    if (abs((*child)->pdg_id()) < 1000) SMchild_PDG = abs((*child)->pdg_id());
-    else foundChild = *child;
+  if (!parent->end_vertex()) return ss.str();
+  for ( auto  child: *(parent->end_vertex())) {
+    if (std::abs(child->pdg_id()) < 1000) SMchild_PDG = std::abs(child->pdg_id());
+    else foundChild = child;
   }
   ss << (foundChild ? abs(foundChild->pdg_id()) : -9999) << " (" << SMchild_PDG << ") ";
   if (foundChild && abs(foundChild->pdg_id()) != 1000022) ss << printChain(foundChild);
@@ -242,14 +253,16 @@ void DecayModeFilter::countChain(HepMC::GenParticlePtr parent, int& length,
                                  int& Nchi2, int& NW,int& NZ,int& NH, int& Nse, int& Nsmu, int& Nstau, int& nChargedLeptons, int& nSMParticles) const {
   HepMC::GenParticlePtr foundChild=nullptr;
   int SMchild_PDG(0);
-  HepMC::GenVertex::particle_iterator child = parent->end_vertex()->particles_begin(HepMC::children);
-  HepMC::GenVertex::particle_iterator end_child = parent->end_vertex()->particles_end(HepMC::children);
-  for (; child != end_child; ++child) {
-    if (abs((*child)->pdg_id()) < 1000){
-      SMchild_PDG = abs((*child)->pdg_id());
+  if (!parent) return;
+  if (parent->end_vertex())
+  {
+  for (auto child: *(parent->end_vertex())) {
+    if (std::abs(child->pdg_id()) < 1000){
+      SMchild_PDG = std::abs(child->pdg_id());
       nSMParticles++;
     }
-    if (abs((*child)->pdg_id()) > 1000000) foundChild = *child;
+    if (std::abs(child->pdg_id()) > 1000000) foundChild = child;
+  }
   }
   if (!foundChild) {
     length = 0;

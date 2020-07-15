@@ -141,6 +141,10 @@ void AnalysisConfigMT_Ntuple::loop() {
 		      chainNames.push_back( ChainString(selectChains[iselected]) );
 
 		      m_provider->msg(MSG::INFO) << "[91;1m" << "Matching chain " << selectChains[iselected] << "[m" << endmsg;
+
+		      /// if this has a cosmic chain, set the fiducial radius to be very large to 
+		      /// allow the production vertex of the cosmic to be included
+		      if ( selectChains[iselected].find("cosmic")!=std::string::npos ) m_fiducial_radius = 1e10; 
 		     
 		  }
 		  
@@ -148,8 +152,8 @@ void AnalysisConfigMT_Ntuple::loop() {
 		}
 		
 		m_chainNames = chainNames;
-	}
 
+	}
 
 	Filter_AcceptAll filter;
 	/// FIXME: should really have hardcoded limits encoded as 
@@ -163,7 +167,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 	//tau filtering done separately to include mothers
 	if ( m_TruthPdgId!=0 && m_TruthPdgId!=15 ) truthFilter = &filter_pdgIdpTeta;
 
-	TrigTrackSelector selectorTruth( truthFilter ); 
+	TrigTrackSelector selectorTruth( truthFilter, m_fiducial_radius ); 
 
 	TrigTrackSelector selectorRef( &filter_etaPT ); 
 	TrigTrackSelector selectorTest( &filter ); 
@@ -306,11 +310,9 @@ void AnalysisConfigMT_Ntuple::loop() {
 	if ( m_mcTruth && m_TruthPdgId!=15) { 
 		m_provider->msg(MSG::INFO) << "getting Truth" << endmsg; 
 		if ( m_provider->evtStore()->retrieve(truthMap, "TrigInDetTrackTruthMap").isFailure()) {
-		        // m_provider->msg(MSG::WARNING) << "TrigInDetTrackTruthMap not found" << endmsg;
 			m_hasTruthMap = false;
 		}
 		else {
-			m_provider->msg(MSG::INFO) << "TrigInDetTrackTruthMap found" << endmsg;
 			m_hasTruthMap = true;
 		}
 		if (m_provider->evtStore()->contains<TruthParticleContainer>("INav4MomTruthEvent")) {
@@ -331,6 +333,11 @@ void AnalysisConfigMT_Ntuple::loop() {
 		else if (m_provider->evtStore()->contains<xAOD::TruthParticleContainer>("TruthParticles")) {
 			/// anything else?
 		        selectTracks<xAOD::TruthParticleContainer>( &selectorTruth, "TruthParticles" );
+			foundTruth = true;
+		}
+		else if (m_provider->evtStore()->contains<xAOD::TruthParticleContainer>("")) {
+			/// anything else?
+		        selectTracks<xAOD::TruthParticleContainer>( &selectorTruth, "" );
 			foundTruth = true;
 		}
 		else { 
@@ -616,7 +623,8 @@ void AnalysisConfigMT_Ntuple::loop() {
 	
 	for ( unsigned ichain=0 ; ichain<m_chainNames.size() ; ichain++ ) {  
 	  
-	  m_provider->msg(MSG::INFO)<< "chain:\t" << m_chainNames[ichain] << endmsg;
+	  /// keep this printout here, but commented for usefull debug purposes ...
+	  //	  m_provider->msg(MSG::INFO)<< "chain:\t" << m_chainNames[ichain] << endmsg;
 
 	  /// get the chain, collection and TE names and track index 
 
@@ -879,11 +887,11 @@ void AnalysisConfigMT_Ntuple::loop() {
 		    chainName.find("HLT_")==std::string::npos ) continue;
 
 		
-		m_provider->msg(MSG::INFO) << "chain " << chainName 
-					   << "\tprescale " << (*m_tdt)->getPrescale(chainName)
-					   << "\tpass "     << (*m_tdt)->isPassed(chainName) << " physics " 
-					   << "  (req dec " << (*m_tdt)->isPassed(chainName, decisiontype_ ) << " dec type " << decisiontype_ << ")"
-					   << endmsg;
+		m_provider->msg(MSG::DEBUG) << "chain " << chainName 
+					    << "\tprescale " << (*m_tdt)->getPrescale(chainName)
+					    << "\tpass "     << (*m_tdt)->isPassed(chainName) << " physics " 
+					    << "  (req dec " << (*m_tdt)->isPassed(chainName, decisiontype_ ) << " dec type " << decisiontype_ << ")"
+					    << endmsg;
 		
 		/// now decide whether we want all the TEs for this chain, or just those 
 		/// that are still active

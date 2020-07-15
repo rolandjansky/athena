@@ -57,6 +57,8 @@ class TestConfiguration:
             "outputRAWFile": "../draw.root",
             "outputESDFile": "../esd.root",
             "outputAODFile": "../aod.root",
+            "conditionsTag": "CONDBR2-BLKPA-2017-10",
+            "geometryVersion": "ATLAS-R2-2016-01-00-01",
         }
         self.preIncludeContent = textwrap.dedent("""\
         from AthenaCommon.JobProperties import jobproperties
@@ -105,7 +107,8 @@ class TestConfiguration:
         """build dictionary construct transform command from"""
         assert step in STEPS, "{} not one of {}".format(step, STEPS)
 
-        common_opts = ["AMI", "preInclude"]
+        common_opts = ["AMI", "preInclude", "execOnly", "conditionsTag",
+                       "geometryVersion"]
         cmd_config = {
             k: self.options[k] for k in common_opts if k in self.options
         }
@@ -387,10 +390,7 @@ def makeInputConfig(test_config):
         array[-1] = 'pool.root'
         output_file = '.'.join(array)
         output_file = output_file.replace('RAW', 'ESD')
-        input_config.options["outputESDFile"] = "{}/{}".format(
-            os.getcwd(),
-            output_file,
-        )
+        input_config.options["outputESDFile"] = output_file
         result += [input_config]
     return result
 
@@ -421,6 +421,7 @@ def compareMetadata(step, target, reference):
         MSG.error(
             "failed to read metadata from: %s and/or %s", target, reference
         )
+        print("art-result: 1 {}".format(step))
 
 
 def runTest(config, step, verbose):
