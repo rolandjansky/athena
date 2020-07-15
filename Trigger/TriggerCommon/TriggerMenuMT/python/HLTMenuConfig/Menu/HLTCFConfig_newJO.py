@@ -73,29 +73,16 @@ def generateDecisionTree(chains):
         """
 
         filtersStep = getFiltersStepSeq( stepNumber )
-        singleRecSeq = getSingleMenuSeq( stepNumber, stepName )
+        singleMenuSeq = getSingleMenuSeq( stepNumber, stepName )
 
         filterName = CFNaming.filterName( stepName )
         filterAlg = CompFactory.RoRSeqFilter( filterName )
 
         acc.addEventAlgo( filterAlg, sequenceName=filtersStep.name )
-        acc.addEventAlgo( filterAlg, sequenceName=singleRecSeq.name )
+        acc.addEventAlgo( filterAlg, sequenceName=singleMenuSeq.name )
 
         log.debug('Creted filter {}'.format(filterName))
         return filterAlg
-
-    @memoize
-    def getComboHypo( stepNumber, step ):
-        """
-        Returns, if need be created, combo hypo for a given step
-        """
-
-        # todo: change name to be retrieved via CFNaming
-        #   so based on input hypos
-        comboHypoName = step.combo.name
-        comboHypo = CompFactory.ComboHypo(comboHypoName)
-
-        return comboHypo
             
     @memoize
     def findInputMaker( stepCounter, stepName ):
@@ -156,11 +143,6 @@ def generateDecisionTree(chains):
             hypoAlg.HypoInputDecisions  = ""
             hypoAlg.HypoOutputDecisions = ""
 
-            if step.isCombo:
-                comboHypo = getComboHypo( stepCounter, step )
-                comboHypo.HypoInputDecisions  = []
-                comboHypo.HypoOutputDecisions = []
-
     # connect all outputs (decision DF)
     for chain in chains:
         for stepCounter, step in enumerate( chain.steps, 1 ):
@@ -193,13 +175,17 @@ def generateDecisionTree(chains):
                 hypoAlg.HypoOutputDecisions = assureUnsetOrTheSame( hypoAlg.HypoOutputDecisions, hypoOutName,
                     "{} hypo output".format( hypoAlg.name )  )
 
-                from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainInDict
-                listOfChainDictsLegs = splitChainInDict(chain.name)
-                legs = [part['chainName'] for part in listOfChainDictsLegs]
-                log.info("LEGS: %s" % legs)
-                for chainDictLeg in listOfChainDictsLegs:
-                    log.info("CHAIN DICT %s" % chainDictLeg )
-                    hypoAlg.HypoTools.append( sequence._hypoToolConf.confAndCreate(chainDictLeg) )
+                # Hypo Tools
+                if step.isCombo:
+                    from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainInDict
+                    chainDictLeg = splitChainInDict(chain.name)[seqCounter]
+                    hypoAlg.HypoTools.append( sequence._hypoToolConf.confAndCreate( chainDictLeg ) )
+
+                    # to be deleted after ComboHypos will be properly configured and included in DF
+                    hypoAlg.HypoTools.append( sequence._hypoToolConf.confAndCreate( TriggerConfigHLT.getChainDictFromChainName( chain.name ) ) )
+                else:
+                    hypoAlg.HypoTools.append( sequence._hypoToolConf.confAndCreate( TriggerConfigHLT.getChainDictFromChainName( chain.name ) ) )
+
 
     for chain in chains:
         for stepCounter, step in enumerate( chain.steps, 1 ):
