@@ -25,6 +25,4 @@ def LVL1CaloMonitoringConfig(flags):
         result.merge(CpmMonitoringConfig(flags))
         result.merge(PprMonitoringConfig(flags))
 
-        result.merge(CpmMonitoringConfig(flags))
-
     return result
