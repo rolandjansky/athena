@@ -6,7 +6,6 @@
 from .InDetTrigCollectionKeys import TrigTRTKeys, TrigPixelKeys
 
 from InDetRecExample.TrackingCommon import setDefaults
-from AthenaCommon.AppMgr import ToolSvc
 
 #TODO 
 #need to implement this in both FTF and PT
@@ -232,7 +231,9 @@ class TrackSummaryTool_builder(Trk__TrackSummaryTool):
       @TODO add more description
    """
    def __init__(self, name="TrackSummaryTool", signature=''):
+      self.signature = signature #str Parameter (muon, bjet, etc) that helps to determine specific settings of the tool
 
+      #Building name of the class from prefix + name + suffix
       self.prefix = get_name_prefix( )
       self.suffix = get_name_suffix( signature )
       super(Trk__TrackSummaryTool, self ).__init__( '%s%s%s'%(self.prefix,name,self.suffix) )
@@ -242,7 +243,7 @@ class TrackSummaryTool_builder(Trk__TrackSummaryTool):
       #Atm it seems that the only difference between signatures is really either shared or no shared hits (any others?)
       
       #Option to take into consideration hits that are shared between tracks (Allowing only for ele/tau atm)
-      self.doSharedHits = self.do_shared_hits(signature)
+      self.doSharedHits = self.do_shared_hits()
 
       #This seems to be mostly on for the trigger, are there any instances where it is used? Compare with Run2
       self.doHolesInDet = True
@@ -251,26 +252,33 @@ class TrackSummaryTool_builder(Trk__TrackSummaryTool):
       #Set subtools
 
       #Only subtool being used is the helper which contains all the functionality that is being called by TrackSummryTool (TST)
-      self.load_summary_tool_helper(signature)
+      self.load_summary_tool_helper()
+
+      self.load_dedx_tool()
+
+      self.load_trtElectronPIDTool_tool()
+
+      self.load_pixelToTPID_tool()
 
 
-   def do_shared_hits(self,signature):
-      return ( (signature == "electron") or ("tau" in signature) )
+   def do_shared_hits(self):
+      return ( (self.signature == "electron") or ("tau" in self.signature) )
       #Should this be steered through TrigFlags instead?
       #InDetTrigFlags.doSharedHits(),
 
    #Configure and loads track summary helper tool 
-   def load_summary_tool_helper(self,signature):
+   def load_summary_tool_helper(self, **kwargs):
 
+      from AthenaCommon.AppMgr import ToolSvc
       #TODO: Go through each tool loaded in here and create getter/ use offline getter
-      from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigHoleSearchTool, InDetTrigPrdAssociationTool, InDetTrigTRTStrawStatusSummaryTool, InDetTrigTRT_ElectronPidTool, InDetTrigTestBLayerTool, InDetTrigTRT_ToT_dEdx
+      from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigHoleSearchTool, InDetTrigPrdAssociationTool, InDetTrigTRTStrawStatusSummaryTool,  InDetTrigTestBLayerTool 
 
-      kwargs = setDefaults( 
+      kwargs =  setDefaults(  kwargs, 
                               HoleSearch         = InDetTrigHoleSearchTool,
                               AssoTool           = InDetTrigPrdAssociationTool,
                               TRTStrawSummarySvc = InDetTrigTRTStrawStatusSummaryTool,
-                              PixelToTPIDTool    = None, #Normally take from InDetTrigPixelToTPIDTool which is also None atm
-                             )
+                              #PixelToTPIDTool    = None #Normally take from InDetTrigPixelToTPIDTool which is also None atm
+                           )            
 
       summaryHelper = None
       #Either calls summary helper with or without shared hit configuration
@@ -278,42 +286,58 @@ class TrackSummaryTool_builder(Trk__TrackSummaryTool):
 
          #Arg that are being passed to indet getter
          #These tools are necessary for the shared hit version of the helper
-         kwargs = setDefaults(
-               TRT_ElectronPidTool    = InDetTrigTRT_ElectronPidTool,         
-               TestBLayerTool         = InDetTrigTestBLayerTool,
-               TRT_ToT_dEdxTool       = InDetTrigTRT_ToT_dEdx
+         kwargs = setDefaults( kwargs,
+                               TestBLayerTool         = InDetTrigTestBLayerTool,
                )  
 
          from InDetRecExample.TrackingCommon import getInDetSummaryHelperSharedHits
-         summaryHelper = getInDetSummaryHelperSharedHits( name = "InDetTrigSummaryHelperSharedHits" + signature, **kwargs )
-
+         summaryHelper = getInDetSummaryHelperSharedHits( name = "InDetTrigSummaryHelperSharedHits" + self.signature, **kwargs )
       else:
-
          kwargs = setDefaults(kwargs,
-               TestBLayerTool         = None,
-               TRT_ElectronPidTool    = None,         # we don't want to use those tools during pattern
-               TRT_ToT_dEdxTool       = None,         # dito
-               )
-
+                              TestBLayerTool         = None,
+                             )
          from InDetRecExample.TrackingCommon import getInDetSummaryHelper
-         summaryHelper = getInDetSummaryHelper( name ="InDetTrigSummaryHelper" + signature, **kwargs )
+         summaryHelper = getInDetSummaryHelper( name ="InDetTrigSummaryHelper" + self.signature, **kwargs )
 
-      ToolSvc += summaryHelper #Private?
+      #ToolSvc += summaryHelper #Private? Already loaded in the TrackingCommon?
       self.InDetSummaryHelperTool = summaryHelper 
+     
       
+
+   def load_trtElectronPIDTool_tool(self):
+      trtElectronPIDtool       = None   #Default
+      if self.doSharedHits:
+               from InDetTrigRecExample.InDetTrigConfigRecLoadTools import  InDetTrigTRT_ElectronPidTool
+               trtElectronPIDtool       = InDetTrigTRT_ElectronPidTool
+
+      self.TRT_ElectronPidTool = trtElectronPIDtool
       
+   def load_dedx_tool(self):
+
+      dxdeTool       = None   #Default
+      if self.doSharedHits:
+               from InDetTrigRecExample.InDetTrigConfigRecLoadTools import  InDetTrigTRT_ToT_dEdx
+               dxdeTool       = InDetTrigTRT_ToT_dEdx
+
+      self.TRT_ToT_dEdxTool = dxdeTool
+
+   def load_pixelToTPID_tool(self):
+      #Should this not have some setting for shared version? Offline does
+      self.PixelToTPIDTool    = None #Normally take from InDetTrigPixelToTPIDTool which seems to be  just None atm
 
 #--------------------------------------------------------------------------------------
 ## Scoring tools
 
 #Maybe this bit can be adapted using just offline getters
-
 def get_ambiScoringToolBase( name='AmbiScoringTool', signature='', **kwargs) :
+    print "Working on signature: %s" %signature
     from InDetRecExample.TrackingCommon import makeName
     #NewTrackingCuts = kwargs.pop("NewTrackingCuts")
     #TODO: add InDetTrigMT to offline common tracking naming functions/make our own
     #the_name=makeName(name,kwargs)
     
+
+    #Some specific pT cut settings for signatures
     from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
     ptintcut = InDetTrigSliceSettings[('pTmin',signature)]
     if signature=='minBias':
@@ -321,6 +345,7 @@ def get_ambiScoringToolBase( name='AmbiScoringTool', signature='', **kwargs) :
     elif signature=='minBias400':
       ptintcut = 0.95*InDetTrigSliceSettings[('pTmin',signature)]
 
+    #TODO retrieve new extrapolator? Use offline version?
     from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator
     from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTRTDriftCircleCut
 
@@ -446,14 +471,20 @@ class TrkAmbiguityProcessor_builder(Trk__SimpleAmbiguityProcessorTool):
    
 
    def load_scoring_tool(self,signature):
+
+      from AthenaCommon.AppMgr import ToolSvc
       trkSummaryTool = TrackSummaryTool_builder( name = '%sTrkSummaryTool%s' %(self.prefix,self.suffix), signature = signature )
 
       #TODO: Here based on some parameter (for instance name/signature) we should get different type of scoring tool (for cosmic, collision physics)
-      self.ScoringTool = get_ambiScoringTool( name = '%sAmbiScoringTool%s'%(self.prefix, self.suffix),
+      scoreTool = get_ambiScoringTool( name = '%sAmbiScoringTool%s'%(self.prefix, self.suffix),
                                               signature = signature,
                                               #Extrapolator = InDetTrigExtrapolator #This is default
                                               SummaryTool  =  trkSummaryTool,
-                                             )
+                                     )
+
+      ToolSvc  += scoreTool #Should turn in the private?
+      self.ScoringTool = scoreTool
+
    def load_association_tool(self):
       from InDetTrigRecExample.InDetTrigConfigRecLoadTools import  InDetTrigPrdAssociationTool
       self.AssociationTool =   InDetTrigPrdAssociationTool
@@ -503,16 +534,16 @@ class TrkAmbiguitySolver_builder(Trk__TrkAmbiguitySolver):
          self.TrackInput   = self.get_track_input_name(signature)
          self.TrackOutput  = self.get_track_output_name(signature)
 
-   def get_track_output_name(signature):
+   def get_track_output_name(self,signature):
       return  "%s%sTrkTrack%s" %('HLT_ID', 'AmbSol', signature)
 
-   def get_track_input_name(signature):
+   def get_track_input_name(self,signature):
       return  "ScoredMap%s" %(signature)
 
    #------------------------------------------------------------------
    # Loading subtools
    def load_ambi_processor(self, signature):
-      ambiguityProcessor = TrkAmbiguityProcessor_builder( signature ) 
+      ambiguityProcessor = TrkAmbiguityProcessor_builder( name = 'AmbiguityProcessor' ,signature = signature ) 
       ToolSvc += ambiguityProcessor #Should this be private ?
       self.AmbiguityProcessor = ambiguityProcessor
       
@@ -528,10 +559,14 @@ class TrkAmbiguityScoreProcessor_builder(Trk__DenseEnvironmentsAmbiguityScorePro
       @TODO add more description
    """
    def __init__(self, name="AmbiguityScoreProcessor", signature=''):
+      self.signature = signature #str Parameter (muon, bjet, etc) that helps to determine specific settings of the tool
 
+      #Building name of the class from prefix + name + suffix
       self.prefix = get_name_prefix( )
       self.suffix = get_name_suffix( signature )
       super(Trk__DenseEnvironmentsAmbiguityScoreProcessorTool, self ).__init__( '%s%s%s'%(self.prefix,name,self.suffix) )
+
+      #print 'Signature in processor: %s' %signature
 
       #-----------------------
       #Set alg/tool parameters
@@ -540,20 +575,25 @@ class TrkAmbiguityScoreProcessor_builder(Trk__DenseEnvironmentsAmbiguityScorePro
       #Set subtools
       self.load_association_tool()
 
-      self.load_scoring_tool(signature)
+      self.load_scoring_tool()
 
       self.load_trk_selection_tool()
       
 
-   def load_scoring_tool(self,signature):
-      trkSummaryTool = TrackSummaryTool_builder( name = '%sTrkSummaryTool%s' %(self.prefix,self.suffix), signature= signature )
+   def load_scoring_tool(self):
+      trkSummaryTool = TrackSummaryTool_builder( name = '%sTrkSummaryTool%s' %(self.prefix,self.suffix), signature= self.signature )
 
+      from AthenaCommon.AppMgr import ToolSvc
       #TODO: Here based on some parameter (for instance name/signature) we should get different type of scoring tool (for cosmic, collision physics)
-      self.ScoringTool = get_ambiScoringTool( name = '%sAmbiScoringTool%s'%(self.prefix, self.suffix),
-                                              signature = signature,
+      scoreTool = get_ambiScoringTool( name = '%sAmbiScoringTool%s'%(self.prefix, self.suffix),
+                                              signature = self.signature,
                                               #Extrapolator = InDetTrigExtrapolator #This is default
                                               SummaryTool  =  trkSummaryTool,
-                                             )
+                                      )
+
+      ToolSvc  += scoreTool #Should turn in the private?
+      self.ScoringTool = scoreTool
+
    def load_association_tool(self):
       from InDetTrigRecExample.InDetTrigConfigRecLoadTools import  InDetTrigPrdAssociationTool
       self.AssociationTool =   InDetTrigPrdAssociationTool
@@ -574,39 +614,43 @@ class TrkAmbiguityScore_builder(Trk__TrkAmbiguityScore):
       @TODO add more description
    """
    def __init__(self, name="AmbiguityScore", signature=''):
+      self.signature = signature #str Parameter (muon, bjet, etc) that helps to determine specific settings of the tool
 
+      #Building name of the class from prefix + name + suffix
       prefix = get_name_prefix( )
       suffix = get_name_suffix( signature )
       super(Trk__TrkAmbiguityScore, self ).__init__( '%s%s%s'%(prefix,name,suffix) )
+
+      #print 'Signature in builder: %s' %signature
 
       #-----------------------
       #Set alg/tool parameters
 
       #Set input/output names
-      self.set_track_collections( signature )
+      self.set_track_collections( )
 
       #-----------------------
       #Set subtools
-
-      self.load_ambi_processor(signature)
+      self.load_ambi_score_processor()
       
 
    #------------------------------------------------------------------
    # Track collection naming convention 
-   def set_track_collections( self, signature ):
-         self.TrackInput   = [ self.get_track_input_name(signature) ]
-         self.TrackOutput  = self.get_track_output_name(signature)
+   def set_track_collections( self ):
+         self.TrackInput   = [ self.get_track_input_name()  ]
+         self.TrackOutput  =   self.get_track_output_name()
 
-   def get_track_output_name(signature):
-      return  "%s%sTrkTrack%s" %('HLT_ID', 'AmbSol', signature)
+   def get_track_output_name(self):
+      return  "%s%sTrkTrack%s" %('HLT_ID', 'AmbSol', self.signature)
 
-   def get_track_input_name(signature):
-      return  "ScoredMap%s" %(signature)
+   def get_track_input_name(self):
+      return  "ScoredMap%s" %(self.signature)
 
    #------------------------------------------------------------------
    # Loading subtools
-   def load_ambi_score_processor(self, signature):
-      ambiguityScoreProcessor = TrkAmbiguityScoreProcessor_builder(signature)
+   def load_ambi_score_processor(self):
+      from AthenaCommon.AppMgr import ToolSvc
+      ambiguityScoreProcessor = TrkAmbiguityScoreProcessor_builder( name = "AmbiguityScoreProcessor", signature = self.signature)
       ToolSvc += ambiguityScoreProcessor #Should this be private ?
       self.AmbiguityScoreProcessor = ambiguityScoreProcessor
 
