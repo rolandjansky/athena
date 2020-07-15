@@ -147,9 +147,7 @@ except:
     DetFlags.LVL1_setOff() # LVL1 is not part of G4 sim
     DetFlags.Truth_setOn()
     DetFlags.Forward_setOff() # Forward dets are off by default
-    checkHGTDOff = getattr(DetFlags, 'HGTD_setOff', None)
-    if checkHGTDOff is not None:
-        checkHGTDOff() #Default for now
+    DetFlags.HGTD_setOff() # HGTD off by default for now
 
 ## Configure Forward Detector DetFlags based on command-line options
 from AthenaCommon.DetFlags import DetFlags
@@ -170,11 +168,7 @@ if hasattr(runArgs, "ZDCOn"):
         DetFlags.ZDC_setOn()
 if hasattr(runArgs, "HGTDOn"):
     if runArgs.HGTDOn:
-        checkHGTDOn = getattr(DetFlags, 'HGTD_setOn', None)
-        if checkHGTDOn is not None:
-            checkHGTDOn()
-        else:
-            atlasG4log.warning('The HGTD DetFlag is not supported in this release')
+        DetFlags.HGTD_setOn()
 
 DetFlags.Print()
 

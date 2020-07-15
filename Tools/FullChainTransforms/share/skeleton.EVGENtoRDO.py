@@ -162,9 +162,7 @@ DetFlags.Forward_setOff() # Forward dets are off by default
 DetFlags.Micromegas_setOff()
 DetFlags.sTGC_setOff()
 DetFlags.FTK_setOff()
-checkHGTDOff = getattr(DetFlags, 'HGTD_setOff', None)
-if checkHGTDOff is not None:
-    checkHGTDOff() #Default for now
+DetFlags.HGTD_setOff() # Default for now
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Print()

@@ -145,7 +145,7 @@ class DetFlags:
             self.TRT_setOn()
             self.BCM_setOn()
             self.DBM_setOn()
-            self.HGTD_setOn() # TODO: should of course only happen during Phase-II jobs - understand how to protect before committing! /CO
+            self.HGTD_setOn()
         def ID_setOff (self):
             self.bpipe_setOff()
             self.pixel_setOff()
@@ -159,7 +159,7 @@ class DetFlags:
             self.HEC_setOn()
             self.FCal_setOn()
             self.Tile_setOn()
-            self.MBTS_setOn() # TODO: should not be allowed when HGTD is on. Need to support at all at HL-LHC?
+            self.MBTS_setOn()
         def Calo_setOff (self):
             self.em_setOff()
             self.HEC_setOff()

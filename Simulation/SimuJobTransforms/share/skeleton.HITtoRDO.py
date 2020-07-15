@@ -302,10 +302,7 @@ if hasattr(runArgs,"LucidOn") or hasattr(runArgs,"ALFAOn") or hasattr(runArgs,"Z
         DetFlags.ZDC_setOff() #Default for now
         DetFlags.AFP_setOff() #Default for now
         DetFlags.FwdRegion_setOff() #Default for now
-        checkHGTDOff = getattr(DetFlags, 'HGTD_setOff', None)
-        if checkHGTDOff is not None:
-            checkHGTDOff() #Default for now
-
+        DetFlags.HGTD_setOff() #Default for now
 
     if hasattr(runArgs,"LucidOn"):
         if not runArgs.LucidOn:
@@ -324,12 +321,7 @@ if hasattr(runArgs,"LucidOn") or hasattr(runArgs,"ALFAOn") or hasattr(runArgs,"Z
             DetFlags.FwdRegion_setOn()
     if hasattr(runArgs, "HGTDOn"):
         if runArgs.HGTDOn:
-            checkHGTDOn = getattr(DetFlags, 'HGTD_setOn', None)
-            if checkHGTDOn is not None:
-                checkHGTDOn()
-            else:
-                digilog.warning('The HGTD DetFlag is not supported in this release')
-
+            DetFlags.HGTD_setOn()
 
 def NoTriggerConfig(runArgs):
     if hasattr(runArgs,"triggerConfig"):
