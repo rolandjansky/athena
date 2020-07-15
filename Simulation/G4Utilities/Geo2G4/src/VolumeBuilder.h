@@ -31,9 +31,9 @@ class VolumeBuilder
 
   // flag controlling Parameterization to Parameterization translation
   void SetParam(bool flag){m_paramOn = flag;}
-  bool GetParam(){return m_paramOn;}
+  bool GetParam() const {return m_paramOn;}
 
-  virtual G4LogicalVolume* Build(PVConstLink pv, OpticalVolumesMap* optical_volumes = 0) = 0;
+  virtual G4LogicalVolume* Build(PVConstLink pv, OpticalVolumesMap* optical_volumes = 0) const = 0;
 
  protected:
   bool m_paramOn;
