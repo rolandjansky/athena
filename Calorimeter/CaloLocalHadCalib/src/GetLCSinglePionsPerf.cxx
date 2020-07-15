@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -975,13 +975,13 @@ int GetLCSinglePionsPerf::fill_moments (const xAOD::CaloClusterContainer& clusCo
   reading calibration containers
   ******************************************** */
   std::vector<const CaloCalibrationHitContainer *> v_cchc;
-  for (const SG::ReadHandleKey<CaloCalibrationHitContainer> k : m_CalibrationHitContainerNames) {
+  for (const SG::ReadHandleKey<CaloCalibrationHitContainer>& k : m_CalibrationHitContainerNames) {
     SG::ReadHandle<CaloCalibrationHitContainer> cchc (k, ctx);
     v_cchc.push_back(cchc.cptr());
   }
 
   std::vector<const CaloCalibrationHitContainer *> v_dmcchc;
-  for (const SG::ReadHandleKey<CaloCalibrationHitContainer> k : m_DMCalibrationHitContainerNames) {
+  for (const SG::ReadHandleKey<CaloCalibrationHitContainer>& k : m_DMCalibrationHitContainerNames) {
     SG::ReadHandle<CaloCalibrationHitContainer> cchc (k, ctx);
     v_dmcchc.push_back(cchc.cptr());
   }
@@ -1202,13 +1202,13 @@ int GetLCSinglePionsPerf::fill_calibhits (const xAOD::CaloClusterContainer& clus
   reading calibration containers
   ******************************************** */
   std::vector<const CaloCalibrationHitContainer *> v_cchc;
-  for (const SG::ReadHandleKey<CaloCalibrationHitContainer> k : m_CalibrationHitContainerNames) {
+  for (const SG::ReadHandleKey<CaloCalibrationHitContainer>& k : m_CalibrationHitContainerNames) {
     SG::ReadHandle<CaloCalibrationHitContainer> cchc (k, ctx);
     v_cchc.push_back(cchc.cptr());
   }
 
   std::vector<const CaloCalibrationHitContainer *> v_dmcchc;
-  for (const SG::ReadHandleKey<CaloCalibrationHitContainer> k : m_DMCalibrationHitContainerNames) {
+  for (const SG::ReadHandleKey<CaloCalibrationHitContainer>& k : m_DMCalibrationHitContainerNames) {
     SG::ReadHandle<CaloCalibrationHitContainer> cchc (k, ctx);
     v_dmcchc.push_back(cchc.cptr());
   }
