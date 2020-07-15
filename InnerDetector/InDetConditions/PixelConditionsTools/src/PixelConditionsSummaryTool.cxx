@@ -179,7 +179,7 @@ bool PixelConditionsSummaryTool::isActive(const IdentifierHash& moduleHash, cons
   }
   if (!isDCSActive) { return false; }
 
-  if (!m_condTDAQKey.empty() && SG::ReadCondHandle<PixelTDAQData>(m_condTDAQKey)->getModuleStatus(moduleHash)) { return false; }
+  if (!m_condTDAQKey.empty() && SG::ReadCondHandle<PixelTDAQData>(m_condTDAQKey,ctx)->getModuleStatus(moduleHash)) { return false; }
 
   if (SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey,ctx)->getModuleStatus(moduleHash)) { return false; }
 
@@ -197,7 +197,7 @@ bool PixelConditionsSummaryTool::isActive(const IdentifierHash& moduleHash, cons
   }
   if (!isDCSActive) { return false; }
 
-  if (!m_condTDAQKey.empty() && SG::ReadCondHandle<PixelTDAQData>(m_condTDAQKey)->getModuleStatus(moduleHash)) { return false; }
+  if (!m_condTDAQKey.empty() && SG::ReadCondHandle<PixelTDAQData>(m_condTDAQKey,ctx)->getModuleStatus(moduleHash)) { return false; }
 
   if (SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey,ctx)->getModuleStatus(moduleHash)) { return false; }
 
@@ -247,7 +247,7 @@ bool PixelConditionsSummaryTool::isGood(const Identifier& elementId, const InDet
   }
   if (!isDCSGood) { return false; }
 
-  if (!m_condTDAQKey.empty() && SG::ReadCondHandle<PixelTDAQData>(m_condTDAQKey)->getModuleStatus(moduleHash)) { return false; }
+  if (!m_condTDAQKey.empty() && SG::ReadCondHandle<PixelTDAQData>(m_condTDAQKey,ctx)->getModuleStatus(moduleHash)) { return false; }
 
   if (SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey, ctx)->getModuleStatus(moduleHash)) { return false; }
 
@@ -277,7 +277,7 @@ bool PixelConditionsSummaryTool::isGood(const IdentifierHash& moduleHash, const 
   }
   if (!isDCSGood) { return false; }
 
-  if (!m_condTDAQKey.empty() && SG::ReadCondHandle<PixelTDAQData>(m_condTDAQKey)->getModuleStatus(moduleHash)) { return false; }
+  if (!m_condTDAQKey.empty() && SG::ReadCondHandle<PixelTDAQData>(m_condTDAQKey,ctx)->getModuleStatus(moduleHash)) { return false; }
 
   if (SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey, ctx)->getModuleStatus(moduleHash)) { return false; }
 
@@ -302,7 +302,7 @@ bool PixelConditionsSummaryTool::isGood(const IdentifierHash & moduleHash, const
   }
   if (!isDCSGood) { return false; }
 
-  if (!m_condTDAQKey.empty() && SG::ReadCondHandle<PixelTDAQData>(m_condTDAQKey)->getModuleStatus(moduleHash)) { return false; }
+  if (!m_condTDAQKey.empty() && SG::ReadCondHandle<PixelTDAQData>(m_condTDAQKey,ctx)->getModuleStatus(moduleHash)) { return false; }
 
   if (SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey, ctx)->getModuleStatus(moduleHash)) { return false; }
 
