@@ -41,8 +41,8 @@ namespace Pythia8{
     DecayToSUEP(): 
       m_pdgId("DecayToSUEP:PDGId", 25), 
       m_mass("DecayToSUEP:Mass", 125.0),
-      m_darkMesonMass("DecayToSUEP:DarkMesonMass", 1000.), 
-      m_darkTemperature("DecayToSUEP:DarkTemperature", 1000.) {
+      m_darkMesonMass("DecayToSUEP:DarkMesonMass", 1.), 
+      m_darkTemperature("DecayToSUEP:DarkTemperature", 1.) {
       
       std::cout<<"**********************************************************"<<std::endl;
       std::cout<<"*                                                        *"<<std::endl;
@@ -291,17 +291,18 @@ namespace Pythia8{
     //First, find the particle to decay
     bool particleFound=false;
 
-    for (int ii=0; ii < process.size(); ++ii) {
-
 #ifdef SUEP_DEBUG
-      std::cout << "[SUEP_DEBUG] " << ii << ": id=" << process[ii].id() << ", Final=" << process[ii].isFinal() << ", pT=" << process[ii].pT() << std::endl;
+    for (int ii=0; ii < process.size(); ++ii) {
+      std::cout << "[SUEP_DEBUG] " << ii << ": id=" << process[ii].id() << ", Final=" << process[ii].isFinal() << ", Status=" << process[ii].status() << ", daughter1=" << process[ii].daughter1() << ", daughter2=" << process[ii].daughter2() << std::endl;
+    }
 #endif
 
-      if ( (process[ii].id() == m_pdgId(settingsPtr)) and (process[ii].isFinal()) ) {
+    for (int ii=0; ii < process.size(); ++ii) {
+      //      if ( (process[ii].id() == m_pdgId(settingsPtr)) and (process[ii].isFinal()) ) {
+      if ( (process[ii].id() == m_pdgId(settingsPtr)) and (process[ii].daughter1()!=process[ii].daughter2() && process[ii].daughter1()>0 && process[ii].daughter2()>0) ) {
 
 	Vec4 higgs4mom, mesonmom;
-	vector< vector <double> > suep_shower4momenta;
-	int originalEventSize = process.size();
+	vector< vector <double> > suep_shower4momenta;	
 	particleFound=true;
 
 	//setup SUEP shower
@@ -311,6 +312,12 @@ namespace Pythia8{
 #ifdef SUEP_DEBUG
 	std::cout << "[SUEP_DEBUG] " << "Particle (pdgId=" << m_pdgId(settingsPtr) << ", isFinal=True) found. Decaying to SUEP now." << std::endl;
 #endif
+
+	// First undo decay
+	process[ii].undoDecay();
+
+	int originalEventSize = process.size();
+
 	// Generate the shower, output are 4 vectors in the rest frame of the shower
 	higgs4mom=process[ii].p();
 	suep_shower4momenta=suep_shower.generate_shower();
@@ -355,6 +362,13 @@ namespace Pythia8{
       std::cout << "[SUEP_DEBUG] " << "Particle " << m_pdgId(settingsPtr) << " not found. Nothing to decay to SUEP for this event." << std::endl;
     } else {
       std::cout << "[SEUP_DEBUG] " << "All Done for this event." << std::endl;
+    }
+#endif
+
+#ifdef SUEP_DEBUG
+    std::cout << "[SUEP_DEBUG] Printing event after adding SUEP:" << std::endl;
+    for (int ii=0; ii < process.size(); ++ii) {
+      std::cout << "[SUEP_DEBUG] " << ii << ": id=" << process[ii].id() << ", Final=" << process[ii].isFinal() << ", mayDecay=" << process[ii].mayDecay() << ", Status=" << process[ii].status() << ", daughter1=" << process[ii].daughter1() << ", daughter2=" << process[ii].daughter2() << std::endl;
     }
 #endif
 
