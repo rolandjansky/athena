@@ -653,8 +653,8 @@ TrigSignatureMoniMT                                INFO HLT_xe100_pfsum_L1XE50 #
 TrigSignatureMoniMT                                INFO -- #1890237897 Events         10         10         2          -          -          -          -          -          2
 TrigSignatureMoniMT                                INFO -- #1890237897 Features                             2          -          -          -          -          -
 TrigSignatureMoniMT                                INFO HLT_xe100_tcpufit_L1XE50 #2803198799
-TrigSignatureMoniMT                                INFO -- #2803198799 Events         10         10         3          -          -          -          -          -          3
-TrigSignatureMoniMT                                INFO -- #2803198799 Features                             3          -          -          -          -          -
+TrigSignatureMoniMT                                INFO -- #2803198799 Events         10         10         6          -          -          -          -          -          6
+TrigSignatureMoniMT                                INFO -- #2803198799 Features                             6          -          -          -          -          -
 TrigSignatureMoniMT                                INFO HLT_xe100_trkmht_L1XE50 #1055916731
 TrigSignatureMoniMT                                INFO -- #1055916731 Events         10         10         4          -          -          -          -          -          4
 TrigSignatureMoniMT                                INFO -- #1055916731 Features                             4          -          -          -          -          -
@@ -665,14 +665,14 @@ TrigSignatureMoniMT                                INFO HLT_xe110_tc_em_L1XE50 #
 TrigSignatureMoniMT                                INFO -- #607113828 Events          10         10         5          -          -          -          -          -          5
 TrigSignatureMoniMT                                INFO -- #607113828 Features                              5          -          -          -          -          -
 TrigSignatureMoniMT                                INFO HLT_xe110_tcpufit_L1XE50 #892853397
-TrigSignatureMoniMT                                INFO -- #892853397 Events          10         10         3          -          -          -          -          -          3
-TrigSignatureMoniMT                                INFO -- #892853397 Features                              3          -          -          -          -          -
+TrigSignatureMoniMT                                INFO -- #892853397 Events          10         10         6          -          -          -          -          -          6
+TrigSignatureMoniMT                                INFO -- #892853397 Features                              6          -          -          -          -          -
 TrigSignatureMoniMT                                INFO HLT_xe30_cell_L1XE10 #1649696554
 TrigSignatureMoniMT                                INFO -- #1649696554 Events         19         19         17         -          -          -          -          -          17
 TrigSignatureMoniMT                                INFO -- #1649696554 Features                             17         -          -          -          -          -
 TrigSignatureMoniMT                                INFO HLT_xe30_cell_xe30_tcpufit_L1XE10 #3768353779
-TrigSignatureMoniMT                                INFO -- #3768353779 Events         19         19         15         -          -          -          -          -          15
-TrigSignatureMoniMT                                INFO -- #3768353779 Features                             15         -          -          -          -          -
+TrigSignatureMoniMT                                INFO -- #3768353779 Events         19         19         14         -          -          -          -          -          14
+TrigSignatureMoniMT                                INFO -- #3768353779 Features                             14         -          -          -          -          -
 TrigSignatureMoniMT                                INFO HLT_xe30_mht_L1XE10 #3626903018
 TrigSignatureMoniMT                                INFO -- #3626903018 Events         19         19         19         -          -          -          -          -          19
 TrigSignatureMoniMT                                INFO -- #3626903018 Features                             19         -          -          -          -          -
@@ -680,8 +680,8 @@ TrigSignatureMoniMT                                INFO HLT_xe30_pfsum_L1XE10 #9
 TrigSignatureMoniMT                                INFO -- #998713382 Events          19         19         14         -          -          -          -          -          14
 TrigSignatureMoniMT                                INFO -- #998713382 Features                              14         -          -          -          -          -
 TrigSignatureMoniMT                                INFO HLT_xe30_tcpufit_L1XE10 #1583719916
-TrigSignatureMoniMT                                INFO -- #1583719916 Events         19         19         15         -          -          -          -          -          15
-TrigSignatureMoniMT                                INFO -- #1583719916 Features                             15         -          -          -          -          -
+TrigSignatureMoniMT                                INFO -- #1583719916 Events         19         19         14         -          -          -          -          -          14
+TrigSignatureMoniMT                                INFO -- #1583719916 Features                             14         -          -          -          -          -
 TrigSignatureMoniMT                                INFO HLT_xe30_trkmht_L1XE10 #2468872349
 TrigSignatureMoniMT                                INFO -- #2468872349 Events         19         19         17         -          -          -          -          -          17
 TrigSignatureMoniMT                                INFO -- #2468872349 Features                             17         -          -          -          -          -
@@ -689,5 +689,5 @@ TrigSignatureMoniMT                                INFO HLT_xe65_cell_L1XE50 #53
 TrigSignatureMoniMT                                INFO -- #531141817 Events          10         10         7          -          -          -          -          -          7
 TrigSignatureMoniMT                                INFO -- #531141817 Features                              7          -          -          -          -          -
 TrigSignatureMoniMT                                INFO HLT_xe65_cell_xe110_tcpufit_L1XE50 #115518400
-TrigSignatureMoniMT                                INFO -- #115518400 Events          10         10         3          -          -          -          -          -          3
-TrigSignatureMoniMT                                INFO -- #115518400 Features                              3          -          -          -          -          -
+TrigSignatureMoniMT                                INFO -- #115518400 Events          10         10         5          -          -          -          -          -          5
+TrigSignatureMoniMT                                INFO -- #115518400 Features                              5          -          -          -          -          -

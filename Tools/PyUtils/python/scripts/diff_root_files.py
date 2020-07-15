@@ -317,13 +317,13 @@ def main(args):
             if not in_synch:
                 if _is_detailed():
                     if d_old:
-                        print('::sync-old %s' %'.'.join(["%03i"%ientry]+map(str,
-                                                                            d_old[2])))
+                        print('::sync-old %s' %'.'.join(["%03i"%ientry]+list(map(str,
+                                                                             d_old[2]))))
                     else:
                         print('::sync-old ABSENT')
                     if d_new:
-                        print('::sync-new %s' %'.'.join(["%03i"%jentry]+map(str,
-                                                                            d_new[2])))
+                        print('::sync-new %s' %'.'.join(["%03i"%jentry]+list(map(str,
+                                                                             d_new[2]))))
                     else:
                         print('::sync-new ABSENT')
                     pass
@@ -387,9 +387,9 @@ def main(args):
                 continue
             
             if not args.order_trees:
-                n = '.'.join(map(str, ["%03i"%ientry]+name))
+                n = '.'.join(list(map(str, ["%03i"%ientry]+name)))
             else:
-                n = '.'.join(map(str, ["%03i.%03i"%(ientry,jentry)]+name))
+                n = '.'.join(list(map(str, ["%03i.%03i"%(ientry,jentry)]+name)))
             diff_value = 'N/A'
             try:
                 diff_value = 50.*(iold-inew)/(iold+inew)

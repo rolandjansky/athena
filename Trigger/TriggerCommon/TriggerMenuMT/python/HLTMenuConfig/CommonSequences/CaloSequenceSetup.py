@@ -2,13 +2,15 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool, MenuSequence
-from AthenaCommon.CFElements import seqAND
+from AthenaCommon.CFElements import seqAND, parOR
+from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 
 class CaloMenuDefs(object):
       """Static Class to collect all string manipulations in Calo sequences """
       from TrigEDMConfig.TriggerEDMRun3 import recordable
       L2CaloClusters= recordable("HLT_L2CaloEMClusters")
+
 
 
 
@@ -45,3 +47,49 @@ def fastCaloMenuSequence(name, doRinger):
                          Maker       = fastCaloViewsMaker,
                          Hypo        = theFastCaloHypo,
                          HypoToolGen = TrigEgammaFastCaloHypoToolFromDict )
+
+
+def cellRecoSequence(flags, name="HLTCaloCellMakerFS", RoIs="FSJETRoI", outputName="CaloCellsFS"):
+    """ Produce the full scan cell collection """
+    if not RoIs:
+        from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
+        RoIs = mapThresholdToL1RoICollection("FSNOSEED")
+    from TrigT2CaloCommon.CaloDef import setMinimalCaloSetup
+    setMinimalCaloSetup()
+    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+    from TrigCaloRec.TrigCaloRecConfig import HLTCaloCellMaker
+    alg = HLTCaloCellMaker(name)
+    alg.RoIs=RoIs
+    alg.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
+    alg.CellsName=outputName
+    return parOR(name+"RecoSequence", [alg]), alg.CellsName
+
+def caloClusterRecoSequence(
+        flags, name="HLTCaloClusterMakerFS", RoIs="FSJETRoI",
+        outputName="HLT_TopoCaloClustersFS"):
+    """ Create the EM-level fullscan clusters """
+    cell_sequence, cells_name = RecoFragmentsPool.retrieve(cellRecoSequence, flags=None, RoIs=RoIs)
+    from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMakerMT_topo
+    alg = TrigCaloClusterMakerMT_topo(
+            name,
+            doMoments=True,
+            doLC=False,
+            cells=cells_name)
+    alg.CaloClusters = recordable(outputName)
+    return parOR(name+"RecoSequence", [cell_sequence, alg]), alg.CaloClusters
+
+def LCCaloClusterRecoSequence(
+        flags, name="HLTCaloClusterCalibratorLCFS", RoIs="FSJETRoI",
+        outputName="HLT_TopoCaloClustersLCFS"):
+    """ Create the LC calibrated fullscan clusters
+
+    The clusters will be created as a shallow copy of the EM level clusters
+    """
+    em_sequence, em_clusters = RecoFragmentsPool.retrieve(caloClusterRecoSequence, flags=None, RoIs=RoIs)
+    from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterCalibratorMT_LC
+    alg = TrigCaloClusterCalibratorMT_LC(
+            name,
+            InputClusters = em_clusters,
+            OutputClusters = outputName,
+            OutputCellLinks = outputName+"_cellLinks")
+    return parOR(name+"RecoSequence", [em_sequence, alg]), alg.OutputClusters
