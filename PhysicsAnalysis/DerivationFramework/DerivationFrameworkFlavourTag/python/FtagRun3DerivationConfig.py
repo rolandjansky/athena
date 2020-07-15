@@ -75,7 +75,6 @@ def FtagJetCollection(jetcol, seq):
 
     
     acc.merge( JetBTaggingAlgCfg(cfgFlags, JetCollection = jetcol_name_without_Jets, PrimaryVertexCollectionName="PrimaryVertices", TaggerList = taggerlist, SVandAssoc = SecVertexingAndAssociators) )
-    #acc.merge( JetBTaggingAlgCfg(cfgFlags, JetCollection = jetcol_name_without_Jets, TaggerList = taggerlist, SVandAssoc = SecVertexingAndAssociators) )
     
 
 
