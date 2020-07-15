@@ -146,7 +146,7 @@ int ResPullValidation::Read(){
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-int ResPullValidation::Write ATLAS_NOT_THREAD_SAFE (){ // Thread unsafe MultiHisto<ht>::Write method is used.
+int ResPullValidation::Write(){
 
 	TDirectory *current = gDirectory;
 	TDirectory *globaldir = current->mkdir(m_globaldirname.c_str());
