@@ -594,7 +594,7 @@ void TopObjectSelection::applySelectionPreOverlapRemovalJetGhostTracks() {
     
     for (auto currentSystematic : *m_config->systMapJetGhostTrack()) {
       
-    // At this point some specific jet collection doesn't exist for tracking systematic so use the nominal collection to retrieve the ghost tracks
+    // At this point some specific jet collection doesn't exist for tracking systematic so use the nominal jet collection to retrieve the ghost tracks
       std::unordered_map<std::size_t, std::string>::const_iterator jetsyst_name = jetsystematic.find(currentSystematic.first);
       if (jetsyst_name == jetsystematic.end()) {
          jetsyst_name = jetsystematic.find(m_nominalHashValue); 
@@ -616,10 +616,7 @@ void TopObjectSelection::applySelectionPreOverlapRemovalJetGhostTracks() {
       
       for (auto jetPtr : *jets)
       {
-            if (std::abs(jetPtr->eta()) > 2.5)
-                continue;
-            if (jetPtr->pt() < m_config->jetPtGhostTracks() )
-                continue;
+            if(!m_jetGhostTrackSelection->JetConsideredForGhostTrackSelection(jetPtr->pt(),jetPtr->eta())) continue;
 
             
             std::vector<const xAOD::TrackParticle*> jetTracks;
@@ -996,14 +993,13 @@ void TopObjectSelection::applySelectionPreOverlapRemovalJetGhostTracks() {
         
         unsigned int index= -1;
         
-        for (const auto& jetPtr : *xaod_jet_ga){
+        for (const auto jetPtr : *xaod_jet_ga){
             
             index=index+1;
             
-            if (std::abs(jetPtr->eta()) > 2.5)
+            if(!m_jetGhostTrackSelection->JetConsideredForGhostTrackSelection(jetPtr->pt(),jetPtr->eta()))
                 continue;
-            if (jetPtr->pt() < m_config->jetPtGhostTracks() )
-                continue;
+            
             if (std::find(goodJets.begin(), goodJets.end(), index) == goodJets.end()){ 
                 continue;
             }

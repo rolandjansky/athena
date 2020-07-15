@@ -133,7 +133,7 @@ namespace top {
     ///-- Ghost Track Jets --///
     if (topConfig->useJetGhostTrack()) {
       objectSelection->jetGhostTrackSelection(new top::JetGhostTrackSelection(topConfig->ghostTrackspT(),
-                         2.5,topConfig->ghostTracksVertexAssociation()));
+                         2.5,topConfig->ghostTracksVertexAssociation(),topConfig->jetPtGhostTracks(), 2.5));
     }
     
     ///-- Tracks --///                                                                                                                                                                              

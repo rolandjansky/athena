@@ -639,9 +639,9 @@ void RCJetMC15::getPflowConstituent(std::vector<fastjet::PseudoJet>& clusters, c
           if(jet->auxdataConst< char >("passPreORSelection") != 1){
             continue;
           }
-         
+          
           temp_p4.SetPtEtaPhiE(jet->pt(), jet->eta(), jet->phi(), jet->e());
-          clusters.push_back(fastjet::PseudoJet(temp_p4.Px(), temp_p4.Py(), temp_p4.Pz(), temp_p4.E()));
+          clusters.emplace_back(fastjet::PseudoJet(temp_p4.Px(), temp_p4.Py(), temp_p4.Pz(), temp_p4.E()));
     
         }
       }

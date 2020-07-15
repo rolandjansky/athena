@@ -18,9 +18,11 @@ using namespace TopObjectSelectionTools;
 
 namespace top {
 
-  JetGhostTrackSelection::JetGhostTrackSelection(const double ptcut, const double etamax, const std::string vertexassociation) :
+  JetGhostTrackSelection::JetGhostTrackSelection(const double ptcut, const double etamax, const std::string vertexassociation, const double ptcut_jet, const double etacut_jet ) :
     m_ptcut(ptcut),
     m_etamax(etamax),
+    m_ptcut_jet(ptcut_jet),
+    m_etamax_jet(etacut_jet),
     m_vertexassociation(vertexassociation),
     m_trkseltool("top::GhostTrackCPTools::TrkSelTool")
   {
@@ -65,6 +67,16 @@ namespace top {
 
     return true;
   }
+  
+  bool JetGhostTrackSelection::JetConsideredForGhostTrackSelection(double pt, const double eta) const{
+    if ( (pt > m_ptcut_jet) && (std::abs(eta) < m_etamax_jet) ){
+        return true;
+    }
+    else {
+        return false;
+    }
+      
+  }
 
   void JetGhostTrackSelection::print(std::ostream& os) const {
     os << "Ghost Associated Track \n"
@@ -73,4 +85,6 @@ namespace top {
        << "    * |d0| < " << m_d0
        << "    * |z0sintheta| < " << m_z0sintheta;
   }
+  
+  
 }
