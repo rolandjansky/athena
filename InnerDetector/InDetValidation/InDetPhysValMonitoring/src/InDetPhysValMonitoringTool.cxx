@@ -679,7 +679,6 @@ InDetPhysValMonitoringTool::getTruthParticles() {
       const auto& links = event->truthParticleLinks();
       tempVec.reserve(event->nTruthParticles());
       for (const auto& link : links) {
-        tempVec.push_back(*link);
         if (link == nullptr) {
             ATH_MSG_WARNING("Broken link to truth in HardScatter configuration");
             continue;
