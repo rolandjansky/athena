@@ -117,8 +117,8 @@ StatusCode DecayModeFilter::filterEvent() {
   for (itr = events()->begin(); itr != events()->end(); ++itr) {
     const HepMC::GenEvent* theGenEvent = *(events()->begin());
 #ifdef HEPMC3
-    auto  vtx_begin = ((HepMC::GenEvent*)theGenEvent)->vertices().begin();
-    auto  vtx_end = ((HepMC::GenEvent*)theGenEvent)->vertices().end();
+    auto  vtx_begin = theGenEvent->vertices().begin();
+    auto  vtx_end = theGenEvent->vertices().end();
 #else
     HepMC::GenEvent::vertex_const_iterator vtx_begin = theGenEvent->vertices_begin();
     HepMC::GenEvent::vertex_const_iterator vtx_end = theGenEvent->vertices_end();
@@ -195,24 +195,24 @@ StatusCode DecayModeFilter::filterEvent() {
 }
 
 
-string DecayModeFilter::printChain(HepMC::GenParticlePtr parent) const {
+string DecayModeFilter::printChain(HepMC::ConstGenParticlePtr parent) const {
   if (!parent) return std::string("");
   std::stringstream ss;
   ss << " " << std::abs(parent->pdg_id()) << " ->  ";
-  HepMC::GenParticlePtr foundChild(NULL);
+  HepMC::ConstGenParticlePtr foundChild=nullptr;
   int SMchild_PDG(0);
   if (!parent->end_vertex()) return ss.str();
   for ( auto  child: *(parent->end_vertex())) {
     if (std::abs(child->pdg_id()) < 1000) SMchild_PDG = std::abs(child->pdg_id());
     else foundChild = child;
   }
-  ss << (foundChild ? abs(foundChild->pdg_id()) : -9999) << " (" << SMchild_PDG << ") ";
+  ss << (foundChild ? std::abs(foundChild->pdg_id()) : -9999) << " (" << SMchild_PDG << ") ";
   if (foundChild && abs(foundChild->pdg_id()) != 1000022) ss << printChain(foundChild);
   return ss.str();
 }
 
  
-void DecayModeFilter::analyzeChain(HepMC::GenParticlePtr parent, bool& isDirect, bool& isBosonic, bool& isLeptonic, bool& isDirect3body) {
+void DecayModeFilter::analyzeChain(HepMC::ConstGenParticlePtr parent, bool& isDirect, bool& isBosonic, bool& isLeptonic, bool& isDirect3body) {
   int length(0), Nchi2(0), NW(0), NZ(0), NH(0), Nse(0), Nsmu(0), Nstau(0), nChargedLeptons(0), nSMParticles(0);
   countChain(parent, length, Nchi2, NW, NZ, NH, Nse, Nsmu, Nstau, nChargedLeptons, nSMParticles);
 
@@ -249,9 +249,9 @@ void DecayModeFilter::analyzeChain(HepMC::GenParticlePtr parent, bool& isDirect,
 }
 
 
-void DecayModeFilter::countChain(HepMC::GenParticlePtr parent, int& length,
+void DecayModeFilter::countChain(HepMC::ConstGenParticlePtr parent, int& length,
                                  int& Nchi2, int& NW,int& NZ,int& NH, int& Nse, int& Nsmu, int& Nstau, int& nChargedLeptons, int& nSMParticles) const {
-  HepMC::GenParticlePtr foundChild=nullptr;
+  HepMC::ConstGenParticlePtr foundChild=nullptr;
   int SMchild_PDG(0);
   if (!parent) return;
   if (parent->end_vertex())
@@ -268,9 +268,9 @@ void DecayModeFilter::countChain(HepMC::GenParticlePtr parent, int& length,
     length = 0;
     return;
   }
-  countPIDs(abs(foundChild->pdg_id()),SMchild_PDG, Nchi2, NW,NZ,NH, Nse,Nsmu,Nstau,nChargedLeptons);
+  countPIDs(std::abs(foundChild->pdg_id()),SMchild_PDG, Nchi2, NW,NZ,NH, Nse,Nsmu,Nstau,nChargedLeptons);
   if (!isIn(m_producedParticles_PDG,abs(foundChild->pdg_id()))) length += 1; //allow serveral strong-sparticle steps
-  if (!isIn( m_LSPs_PDG, abs(foundChild->pdg_id()))) {
+  if (!isIn( m_LSPs_PDG, std::abs(foundChild->pdg_id()))) {
     countChain(foundChild,length, Nchi2, NW,NZ,NH, Nse,Nsmu,Nstau,nChargedLeptons,nSMParticles);
   }
 }
