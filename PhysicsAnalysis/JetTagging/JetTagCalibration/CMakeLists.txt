@@ -36,6 +36,7 @@ atlas_add_component( JetTagCalibration
                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GaudiKernel FileCatalog AthenaPoolUtilities JetTagCalibrationLib )
 
 # Install files from the package:
+atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( share/*.db )
 

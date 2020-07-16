@@ -68,13 +68,13 @@ def FtagJetCollection(jetcol, seq):
     SecVertexingAndAssociators = {'JetFitter':'BTagTrackToJetAssociator','SV1':'BTagTrackToJetAssociator'}
     for k, v in SecVertexingAndAssociators.items():
 
-        acc.merge(JetSecVtxFindingAlgCfg(cfgFlags, jetcol_name_without_Jets, "InDetTrackParticles", k, v))
+        acc.merge(JetSecVtxFindingAlgCfg(cfgFlags, jetcol_name_without_Jets, "PrimaryVertices", k, v))
 
         
-        acc.merge(JetSecVertexingAlgCfg(cfgFlags, jetcol_name_without_Jets, "InDetTrackParticles", k, v))
+        acc.merge(JetSecVertexingAlgCfg(cfgFlags, jetcol_name_without_Jets, "PrimaryVertices", k, v))
 
     
-    acc.merge( JetBTaggingAlgCfg(cfgFlags, JetCollection = jetcol_name_without_Jets, TaggerList = taggerlist, SVandAssoc = SecVertexingAndAssociators) )
+    acc.merge( JetBTaggingAlgCfg(cfgFlags, JetCollection = jetcol_name_without_Jets, PrimaryVertexCollectionName="PrimaryVertices", TaggerList = taggerlist, SVandAssoc = SecVertexingAndAssociators) )
     
 
 
