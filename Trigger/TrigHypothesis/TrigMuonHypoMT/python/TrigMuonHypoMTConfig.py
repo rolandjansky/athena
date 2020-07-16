@@ -254,6 +254,20 @@ def TrigMufastHypoToolFromDict( chainDict ):
 
     return tool
 
+def TrigMufastHypoToolwORFromDict( chainDict ):
+
+    if 'lateMu' in chainDict['chainParts'][0]['chainPartName']:
+       thresholds = ['passthrough']
+    else:
+        thresholds = getThresholdsFromDict( chainDict )
+    config = TrigMufastHypoConfig()
+    tool = config.ConfigurationHypoTool( chainDict['chainName'], thresholds )
+    # Setup MonTool for monitored variables in AthenaMonitoring package
+    tool.ApplyOR = True
+    addMonitoring( tool, TrigMufastHypoMonitoring, 'TrigMufastHypoTool', chainDict['chainName'] )
+
+    return tool
+
 
 class TrigMufastHypoConfig(object):
 
@@ -322,6 +336,22 @@ class TrigMufastHypoConfig(object):
 
                     except LookupError:
                         raise Exception('MuFast Hypo Misconfigured: threshold %r not supported' % thvaluename)
+
+        # Overlap Removal
+        # cut defintion
+        tool.RequireDR       = True
+        tool.RequireMass     = True
+        tool.RequireSameSign = True
+        # BB
+        tool.DRThresBB       = 0.05
+        tool.MassThresBB     = 0.20
+        # BE
+        tool.DRThresBE       = 0.05
+        tool.MassThresBE     = 0.20
+        # EE
+        tool.EtaBinsEC       = [0, 1.9, 2.1, 9.9]
+        tool.DRThresEC       = [0.06, 0.05, 0.05]
+        tool.MassThresEC     = [0.20, 0.15, 0.10]
 
         return tool
 

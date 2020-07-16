@@ -86,19 +86,12 @@ def muFastOvlpRmSequence():
     trigMufastHypo = TrigMufastHypoAlg("TrigL2MufastHypoAlg")
     trigMufastHypo.MuonL2SAInfoFromMuFastAlg = sequenceOut
 
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolFromDict
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolwORFromDict
 
-    ### set up MuSAOverlapRemoval ###
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigL2MuonOverlapRemoverMufastAlg
-    trigL2MuonOverlapRemover = TrigL2MuonOverlapRemoverMufastAlg("TrigL2MuonOverlapRemoverMufastAlg")
-    trigL2MuonOverlapRemover.L2MuonOverlapInfoFromMuFastAlg = sequenceOut
-
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigL2MuonOverlapRemoverMufastToolFromDict
-  
     return MenuSequence( Sequence    = l2muFastSequence,
                          Maker       = l2MuViewsMaker,
-                         Hypo        = [trigMufastHypo, trigL2MuonOverlapRemover],
-                         HypoToolGen = [TrigMufastHypoToolFromDict, TrigL2MuonOverlapRemoverMufastToolFromDict] )
+                         Hypo        = trigMufastHypo,
+                         HypoToolGen = TrigMufastHypoToolwORFromDict )
 
 
 #-----------------------------------------------------#
