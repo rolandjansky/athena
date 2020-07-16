@@ -68,7 +68,7 @@ def l2MuCombRecoCfg(flags):
     muCombAcc = ComponentAccumulator()
     muCombAcc.addEventAlgo(alg)
 
-    reco.addRecoAlg(muCombAcc)
+    reco.mergeReco(muCombAcc)
     reco.merge(acc)
 
     return reco
