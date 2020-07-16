@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import Logging
-from ...parameters import atlas_common
+from ...parameters import powheg_atlas_common
 from ..powheg_V2 import PowhegV2
 
 ## Get handle to Athena logging
@@ -101,7 +101,7 @@ class bb(PowhegV2):
         self.add_keyword("pdfreweight")
         self.add_keyword("ptsqmin")
         self.add_keyword("ptsupp")
-        self.add_keyword("qmass", atlas_common.mass.b, name="mass_b", description="b-quark mass in GeV")
+        self.add_keyword("qmass", powheg_atlas_common.mass.b, name="mass_b", description="b-quark mass in GeV")
         self.add_keyword("radregion")
         self.add_keyword("rand1")
         self.add_keyword("rand2")

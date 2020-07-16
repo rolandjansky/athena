@@ -28,9 +28,9 @@ topSequence.Pythia8_i.UserProcess = "qqbar2emu"
 #topSequence.Pythia8_i.Commands += ['Random:setSeed = on']
 #topSequence.Pythia8_i.Commands += ['Random:seed = 123456789']
 
-#topSequence.Pythia8_i.CollisionEnergy = 10000
+#topSequence.Pythia8_i.CollisionEnergy = 13000
 
-from TruthExamples.TruthExamplesConf import DumpMC
+from TruthIO.TruthIOConf import DumpMC
 topSequence += DumpMC()
 
 

@@ -56,9 +56,10 @@ StatusCode HepMCTruthReader::execute() {
 
     if (cntr==0) {
       HepMC::GenVertex* signalProcessVtx = genEvt->signal_process_vertex();
-      ATH_MSG_INFO("Signal process vertex position: (" << signalProcessVtx->position().x() 
-		   << ", " << signalProcessVtx->position().y() << ", " << signalProcessVtx->position().z() << "). Pointer: " 
-		   << signalProcessVtx);
+      ATH_MSG_INFO("Signal process vertex position: (" << (signalProcessVtx?signalProcessVtx->position().x():0)
+		   << ", " << (signalProcessVtx?signalProcessVtx->position().y():0)
+           << ", " << (signalProcessVtx?signalProcessVtx->position().z():0)
+           << "). Pointer: " << signalProcessVtx);
     }
 
     printEvent(genEvt);

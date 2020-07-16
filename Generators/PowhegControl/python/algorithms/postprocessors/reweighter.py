@@ -81,9 +81,15 @@ def reweighter(process, weight_groups, powheg_LHE_output):
     if os.path.isfile("pwgcounters.dat"):
         shutil.copy("pwgcounters.dat", "pwgcounters.dat.bak")
 
-    # .. and also backup unweighted events
+    # ... the Powheg input card
     try:
-        shutil.copy(powheg_LHE_output, "{}.unweighted".format(powheg_LHE_output))
+        shutil.copy("powheg.input", "powheg.input.before_reweighting")
+    except IOError:
+        raise IOError("Powheg input card ('powheg.input') cannot be found at the start of reweighting. In a normal setup, PowhegControl generates this input card. Its absence is probably a sign of problems --- please investigate or contact the PowhegControl experts.")
+
+    # ... and also backup unweighted events
+    try:
+        shutil.copy(powheg_LHE_output, "{}.before_reweighting".format(powheg_LHE_output))
     except IOError:
         raise IOError("Nominal LHE file could not be found. Probably POWHEG-BOX crashed during event generation.")
 
@@ -128,12 +134,18 @@ def reweighter(process, weight_groups, powheg_LHE_output):
             # Allow RES processes to do their reweighting with manyseeds enabled, or they will look for the wrong files
             if process.parameters_by_name("manyseeds")[0].value == 1:
                 if process.powheg_version == "RES":
+                    os.system('cp reweighting_input.xml backup_of_reweighting_input.xml')
+                    os.system('cp powheg.input powheg.input.for_reweighting')
                     multicore_untimed(process)
                 else:
                     FileParser("powheg.input").text_replace("manyseeds .*", "manyseeds 0")
                     FileParser("powheg.input").text_replace("parallelstage .*", "parallelstage -1")
+                    os.system('cp reweighting_input.xml backup_of_reweighting_input.xml')
+                    os.system('cp powheg.input powheg.input.for_reweighting')
                     singlecore_untimed(process)
             else:
+                os.system('cp reweighting_input.xml backup_of_reweighting_input.xml')
+                os.system('cp powheg.input powheg.input.for_reweighting')
                 singlecore_untimed(process)
 
             # Move the reweighted file back

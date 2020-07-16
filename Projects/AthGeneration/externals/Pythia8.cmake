@@ -1,5 +1,5 @@
 #
-# File specifying the location of Pythia 8 to use.
+#  File specifying the location of Pythia 8 to use.
 #
 
 message( INFO "Setting Pythia8 env. variables from AthGeneration" )

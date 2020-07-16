@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 ## Generators providing input events via the LHEF format (MC@NLO produces LHEF
 ## when used in connection with Herwig++, which is fine since this variable is
@@ -7,7 +7,7 @@ lhefGenerators = ["Lhef", # generic name: prefer to use the names below
                   "aMcAtNlo", "McAtNlo", "Powheg", "PowHel", "MadGraph", "CompHep", "CalcHep","Geneva",
                   "Whizard", "MCFM", "JHU", "MEtop", "Charybdis", "Charybdis2", "BCVEGPY", "Dire4Pythia8", 
                   "BlackMax", "QBH", "gg2ww", "gg2zz", "gg2vv", "HvyN", "VBFNLO", "FPMC", "ProtosLHEF",
-                  "BCVEGPY", "STRINGS"]
+                  "BCVEGPY", "STRINGS", "Phantom"]
 
 ## A more general list of generators which provide partonic input, including non-LHEF ones
 inputGenerators = lhefGenerators + ["Alpgen", "Protos"]
@@ -27,11 +27,11 @@ mainGenerators += ["Exhume", "Phojet", "Epos", "QGSJet"]
 mainGenerators += ["ParticleGenerator", "ParticleGun"]
 mainGenerators += ["CosmicGenerator", "BeamHaloGenerator"]
 ## Heavy ion generators
-mainGenerators += ["Superchic","Starlight", "Hijing", "Hydjet", "Reldis", "Pyquen"]
+mainGenerators += ["AMPT","Superchic","Starlight", "Hijing", "Hydjet", "Reldis", "Pyquen"]
 ## Misc generators
 mainGenerators += ["AcerMC", "TopRex", "LPair"]
 ## Reading in fully-formed events
-mainGenerators += ["HepMCAscii"]
+mainGenerators += ["HepMCAscii", "ReadMcAscii"]
 
 ## Special QED and decay afterburners
 afterburnerGenerators = ["Photos", "Photospp", "Tauola", "TauolaPP", "Tauolapp", "EvtGen", "ParticleDecayer"]
@@ -123,6 +123,8 @@ class EvgenConfig(TransformConfig):
     extraSaveItems = ListOfStrings("List of extra StreamEVGEN items to save in output file - note occurs AFTER doNotSaveItems are removed")
     inputFilesPerJob = Integer("number of input files per job",0, AllowedExpression("value >= 0"))
     nEventsPerJob = Integer("number of input events per job",0, AllowedExpression("value >= 0"))
+    obsolete = Boolean("Are JOs/common fragment obsolete", False)
+    PDGparams = Boolean("Do we use the standard PDG values for masses, widths etc. ", False)
 
     def __init__(self, name="evgenConfig"):
         TransformConfig.__init__(self, name)
@@ -132,7 +134,7 @@ class EvgenConfig(TransformConfig):
         self.maxeventsstrategy = "ABORT"
         self.specialConfig = "NONE"
 # for the sake of Generate_tf leave minevents for a while
-        self.minevents = 5000
+        self.minevents = 0
 
     ## Explicitly block MC11/12 settings of efficiency, input*base, or weighting attrs
     def __setattr__(self, name, value):

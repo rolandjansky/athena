@@ -1,6 +1,6 @@
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
-"""Functionality core of the Generate_tf transform"""
+"""Functionality core of the Gen_tf transform"""
 
 ##==============================================================
 ## Basic configuration
@@ -70,14 +70,35 @@ evgenLog = logging.getLogger('Gen_tf')
 evgenLog.debug("****************** CHECKING EVENT GENERATION ARGS *****************")
 evgenLog.debug(str(runArgs))
 
+if hasattr(runArgs, "runNumber"):
+   evgenLog.warning("##########################################################################" )
+   evgenLog.warning("runNumber - no longer a valid argument, do not use it ! " )
+   evgenLog.warning("##########################################################################")
+
+if hasattr(runArgs, "inputGenConfFile"):
+   raise RuntimeError("inputGenConfFile is invalid !! Gridpacks and config. files/links to be put into DSID directory ")
+
+if hasattr(runArgs, "inputGeneratorFile"):
+   evgenLog.info("inputGeneratorFile used " + runArgs.inputGeneratorFile)
+ 
+if hasattr(runArgs, "outputYODAFile"):
+    evgenLog.info("outputYODAFile specified " + runArgs.outputYODAFile)
+
 ## Ensure that an output name has been given
 # TODO: Allow generation without writing an output file (if outputEVNTFile is None)?
 if not hasattr(runArgs, "outputEVNTFile") and not hasattr(runArgs, "outputEVNT_PreFile"):
-    raise RuntimeError("No output evgen EVNT or EVNT_Pre file provided.")
+    if hasattr(runArgs, "outputYODAFile"):
+        evgenLog.info("No outputEVNTFile specified but outputYODAFile is used")
+        evgenLog.info("Will run GENtoEVGEN without saving the output EVNT file, asuming a valid outputYODAFile will be produced")
+    else:
+        raise RuntimeError("No output evgen EVNT or EVNT_Pre file provided.")
 
 ## Ensure that mandatory args have been supplied (complain before processing the includes)
 if not hasattr(runArgs, "ecmEnergy"):
     raise RuntimeError("No center of mass energy provided.")
+else:
+    evgenLog.info(' ecmEnergy = ' + str(runArgs.ecmEnergy) )
+
 if not hasattr(runArgs, "randomSeed"):
     raise RuntimeError("No random seed provided.")
 #if not hasattr(runArgs, "runNumber"):
@@ -132,8 +153,8 @@ if not hasattr(postSeq, "CountHepMC"):
 #postSeq.CountHepMC.RequestedOutput = evgenConfig.nEventsPerJob if runArgs.maxEvents == -1 else runArgs.maxEvents
 
 postSeq.CountHepMC.FirstEvent = runArgs.firstEvent
-postSeq.CountHepMC.CorrectHepMC = False
-postSeq.CountHepMC.CorrectEventID = False
+postSeq.CountHepMC.CorrectHepMC = True
+postSeq.CountHepMC.CorrectEventID = True
 
 ## Print out the contents of the first 5 events (after filtering)
 # TODO: Allow configurability from command-line/exec/include args
@@ -158,6 +179,8 @@ if hasattr(runArgs, "rivetAnas"):
     anaSeq += Rivet_i()
     anaSeq.Rivet_i.Analyses = runArgs.rivetAnas
     anaSeq.Rivet_i.DoRootHistos = True
+    if hasattr(runArgs, "outputYODAFile"):
+        anaSeq.Rivet_i.HistoFile = runArgs.outputYODAFile
 
 ##==============================================================
 ## Pre- and main config parsing
@@ -198,24 +221,12 @@ print "Using JOBOPTSEARCHPATH (as seen in skeleton) = '%s'" % (os.environ["JOBOP
 FIRST_DIR = (os.environ['JOBOPTSEARCHPATH']).split(":")[0]
 #print "The first search dir = ", FIRST_DIR
 
-dsid_param = runArgs.jobConfig[0]
-#evgenLog.info("dsid_param " + dsid_param)
-dsid = os.path.basename(dsid_param)
-#evgenLog.info("dsid " + dsid)
-#BaseCvmfsPath = "/cvmfs/atlas.cern.ch/repo/sw/Generators/MC16JobOptions/"
-##if len(dsid)==6 and dsid.isdigit(): #only dsid is provided, add cvmfs folder like 123xxx to JOBOPTSEARCHPATH
-#dsid_part=dsid
-#Jodir = dsid[:3]+'xxx'
-#JoCvmfsPath = os.path.join(BaseCvmfsPath, Jodir)
-#JoCvmfsDsid = os.path.join(JoCvmfsPath, dsid)
-#jofiles = [f for f in os.listdir(JoCvmfsDsid) if (f.startswith('mc') and f.endswith('.py'))]
 jofiles = [f for f in os.listdir(FIRST_DIR) if (f.startswith('mc') and f.endswith('.py'))]
 #print "JO file ",jofiles
 ## Only permit one JO file in each dsid folder
 if len(jofiles) !=1:
     evgenLog.error("You must supply one and only one jobOption file in DSID directory")
     sys.exit(1)
-#jofile = dsid + '/' + jofiles[0]
 jofile = jofiles[0]
 
 joparts = (os.path.basename(jofile)).split(".")
@@ -233,7 +244,7 @@ if joparts[0].startswith("mc") and all(c in string.digits for c in joparts[0][2:
     ## Check the length limit on the physicsShort portion of the filename
     jo_physshortpart = joparts[1]
     if len(jo_physshortpart) > 50:
-        evgenLog.error(jofile + " contains a physicsShort field of more than 60 characters: please rename.")
+        evgenLog.error(jofile + " contains a physicsShort field of more than 50 characters: please rename.")
         sys.exit(1)
     ## There must be at least 2 physicsShort sub-parts separated by '_': gens, (tune)+PDF, and process
     jo_physshortparts = jo_physshortpart.split("_")
@@ -266,6 +277,10 @@ evgenLog.info(".transform =                  Gen_tf")
 
 ## Sort and check generator name / JO name consistency
 ##
+## Check that the common fragments are not obsolete:
+if evgenConfig.obsolete:
+    evgenLog.error("JOs or icludes are obsolete, please check them")
+    sys.exit(1)
 ## Check that the generators list is not empty:
 if not evgenConfig.generators:
     evgenLog.error("No entries in evgenConfig.generators: invalid configuration, please check your JO")
@@ -323,44 +338,34 @@ rounding = 0
 if hasattr(runArgs,'inputGeneratorFile') and ',' in runArgs.inputGeneratorFile:   multiInput = runArgs.inputGeneratorFile.count(',')+1
 else:
    multiInput = 0
-   
+# check if default nEventsPerJob used 
+if not evgenConfig.nEventsPerJob:
+    evgenLog.info('#############################################################')
+    evgenLog.info(' !!!! no nEventsPerJob set !!!  The default 10000 used. !!! ') 
+    evgenLog.info('#############################################################')
+else:
+    evgenLog.info(' nEventsPerJob set to ' + str(evgenConfig.nEventsPerJob)  )
+
+if evgenConfig.minevents > 0 :
+    raise RuntimeError("evgenConfig.minevents is obsolete and should be removed from the JOs")
+
 if evgenConfig.nEventsPerJob < 1:
-    raise RunTimeError("evgenConfig.nEventsPerJob must be at least 1")
+    raise RuntimeError("evgenConfig.nEventsPerJob must be at least 1")
+elif evgenConfig.nEventsPerJob > 100000:
+    raise RuntimeError("evgenConfig.nEventsPerJob can be max. 100000")
 else:
     allowed_nEventsPerJob_lt1000 = [1, 2, 5, 10, 20, 25, 50, 100, 200, 500, 1000]
     msg = "evgenConfig.nEventsPerJob = %d: " % evgenConfig.nEventsPerJob
-# introduced due to PRODSYS-788, commented out on 06.07.18 obo Dominic
-#    if multiInput !=0 :
-#        dummy_nEventsPerJob = evgenConfig.nEventsPerJob*(multiInput)
-#        evgenLog.info('Replacing input nEventsPerJob '+str(evgenConfig.nEventsPerJob)+' with calculated '+str(dummy_nEventsPerJob))
-#        evgenConfig.nEventsPerJob = dummy_nEventsPerJob
 
-    if evgenConfig.nEventsPerJob >= 1000 and evgenConfig.nEventsPerJob % 1000 != 0:
-# introduced due to PRODSYS-788, commented out on 06.07.18 obo Dominic
-#        rest1000 = evgenConfig.nEventsPerJob % 1000
-#        if multiInput !=0 :
-#            rounding=1
-#            if rest1000 < 1000-rest1000:
-#                evgenLog.info('Replacing nEventsPerJob '+str(evgenConfig.nEventsPerJob)+' with roundeded '+str(evgenConfig.nEventsPerJob-rest1000))
-#                evgenConfig.nEventsPerJob = evgenConfig.nEventsPerJob-rest1000
-#            else:
-#                evgenLog.info('Replacing input nEventsPerJob '+str(evgenConfig.nEventsPerJob)+' with calculated '+str(evgenConfig.nEventsPerJob-rest1000+1000))
-#                evgenConfig.nEventsPerJob = evgenConfig.nEventsPerJob-rest1000+1000
-#        else:    
-           msg += "nEventsPerJob in range >= 1000 must be a multiple of 1000"
+    if evgenConfig.nEventsPerJob >= 1000 and evgenConfig.nEventsPerJob <=10000 and (evgenConfig.nEventsPerJob % 1000 != 0 or 10000 % evgenConfig.nEventsPerJob != 0) :
+           msg += "nEventsPerJob in range [1K, 10K] must be a multiple of 1K and a divisor of 10K"
+           raise RuntimeError(msg)
+    elif evgenConfig.nEventsPerJob > 10000  and evgenConfig.nEventsPerJob % 10000 != 0:
+           msg += "nEventsPerJob >10K must be a multiple of 10K"
            raise RuntimeError(msg)
     elif evgenConfig.nEventsPerJob < 1000 and evgenConfig.nEventsPerJob not in allowed_nEventsPerJob_lt1000:
-# introduced due to PRODSYS-788, commented out on 06.07.18 obo Dominic
-#        if multiInput !=0:
-#           rounding=1
-#           round_nEventsPerJob=min(allowed_nEventsPerJob_lt1000,key=lambda x:abs(x-evgenConfig.nEventsPerJob))
-#           evgenLog.info('Replacing nEventsPerJob lt 1000 '+str(evgenConfig.nEventsPerJob)+' with rounded '+str(round_nEventsPerJob))
-#           evgenConfig.nEventsPerJob=round_nEventsPerJob
-#        else:
            msg += "nEventsPerJob in range <= 1000 must be one of %s" % allowed_nEventsPerJob_lt1000
            raise RuntimeError(msg)
-#    else:
-#    postSeq.CountHepMC.RequestedOutput = evgenConfig.nEventsPerJob if runArgs.maxEvents == -1 or rounding==1 else runArgs.maxEvents
     postSeq.CountHepMC.RequestedOutput = evgenConfig.nEventsPerJob if runArgs.maxEvents == -1  else runArgs.maxEvents
     evgenLog.info('Requested output events '+str(postSeq.CountHepMC.RequestedOutput))
 
@@ -441,36 +446,40 @@ if evgenConfig.categories:
     else:
         evgenLog.warning("Could not find CategoryList.txt file %s in $JOBOPTSEARCHPATH" % lkwfile)
 
-## Configure POOL streaming to the output EVNT format file
-from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
-#from PoolSvc.PoolSvcConf import PoolSvc
-svcMgr.AthenaPoolCnvSvc.CommitInterval = 10 #< tweak for MC needs
-if hasattr(runArgs, "outputEVNTFile"):
-  poolFile = runArgs.outputEVNTFile
-elif hasattr(runArgs, "outputEVNT_PreFile"):
-  poolFile = runArgs.outputEVNT_PreFile
-else:
-  raise RuntimeError("Output pool file, either EVNT or EVNT_Pre, is not known.")
+if hasattr( runArgs, "outputEVNTFile") or hasattr( runArgs, "outputEVNT_PreFile"):
+    ## Configure POOL streaming to the output EVNT format file
+    from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
+    from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
+    #from PoolSvc.PoolSvcConf import PoolSvc
+    svcMgr.AthenaPoolCnvSvc.CommitInterval = 10 #< tweak for MC needs
+    if hasattr(runArgs, "outputEVNTFile"):
+        poolFile = runArgs.outputEVNTFile
+    elif hasattr(runArgs, "outputEVNT_PreFile"):
+        poolFile = runArgs.outputEVNT_PreFile
+    else:
+        raise RuntimeError("Output pool file, either EVNT or EVNT_Pre, is not known.")
 
-#StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", runArgs.outputEVNTFile)
-StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", poolFile)
+    #StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", runArgs.outputEVNTFile)
+    StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", poolFile)
 
-StreamEVGEN.ForceRead = True
-StreamEVGEN.ItemList += ["EventInfo#*", "McEventCollection#*"]
-StreamEVGEN.RequireAlgs += ["EvgenFilterSeq"]
-## Used for pile-up (remove dynamic variables except flavour labels)
-if evgenConfig.saveJets:
-    StreamEVGEN.ItemList += ["xAOD::JetContainer_v1#*"]
-    StreamEVGEN.ItemList += ["xAOD::JetAuxContainer_v1#*.TruthLabelID.PartonTruthLabelID"]
+    StreamEVGEN.ForceRead = True
+    StreamEVGEN.ItemList += ["EventInfo#*", "McEventCollection#*"]
+    StreamEVGEN.RequireAlgs += ["EvgenFilterSeq"]
+    ## Used for pile-up (remove dynamic variables except flavour labels)
+    if evgenConfig.saveJets:
+        StreamEVGEN.ItemList += ["xAOD::JetContainer_v1#*"]
+        StreamEVGEN.ItemList += ["xAOD::JetAuxContainer_v1#*.TruthLabelID.PartonTruthLabelID"]
 
-# Remove any requested items from the ItemList so as not to write out
-for removeItem in evgenConfig.doNotSaveItems: StreamEVGEN.ItemList.remove( removeItem )
+    # Remove any requested items from the ItemList so as not to write out
+    for removeItem in evgenConfig.doNotSaveItems: StreamEVGEN.ItemList.remove( removeItem )
 
-# Allow (re-)addition to the output stream
-for addItem in evgenConfig.extraSaveItems: StreamEVGEN.ItemList += [ addItem ]
+    # Allow (re-)addition to the output stream
+    for addItem in evgenConfig.extraSaveItems: StreamEVGEN.ItemList += [ addItem ]
 
 ## Set the run numbers
+dsid = os.path.basename(runArgs.jobConfig[0])
+if not dsid.isdigit():
+    dsid = "999999"
 svcMgr.EventSelector.RunNumber = int(dsid)
 #runArgs.runNumber
 # TODO: set EventType::mc_channel_number = runArgs.runNumber
@@ -486,6 +495,7 @@ svcMgr.TagInfoMgr.ExtraTagValuePairs += ["evgenTune", evgenConfig.tune]
 if hasattr( evgenConfig, "hardPDF" ) : svcMgr.TagInfoMgr.ExtraTagValuePairs += ["hardPDF", evgenConfig.hardPDF]
 if hasattr( evgenConfig, "softPDF" ) : svcMgr.TagInfoMgr.ExtraTagValuePairs += ["softPDF", evgenConfig.softPDF]
 if hasattr( runArgs, "randomSeed") :  svcMgr.TagInfoMgr.ExtraTagValuePairs += ["randomSeed", str(runArgs.randomSeed)]
+if hasattr( runArgs, "AMITag") and runArgs.AMITag != "NONE": svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", runArgs.AMITag]
 
 ## Handle beam info
 svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_energy", str(int(runArgs.ecmEnergy*Units.GeV/2.0))]
@@ -562,6 +572,8 @@ elif "ProtosLHEF" in evgenConfig.generators:
 elif "BeamHaloGenerator" in evgenConfig.generators:
     eventsFile = "beamhalogen.events"
 elif "HepMCAscii" in evgenConfig.generators:
+    eventsFile = "events.hepmc"
+elif "ReadMcAscii" in evgenConfig.generators:
     eventsFile = "events.hepmc"
 elif gens_lhef(evgenConfig.generators):
     eventsFile = "events.lhe"
@@ -643,7 +655,7 @@ def mk_symlink(srcfile, dstfile):
 ## Find and symlink dat and event files, so they are available via the name expected by the generator
 if eventsFile or datFile:
     if not hasattr(runArgs, "inputGeneratorFile") or runArgs.inputGeneratorFile == "NONE":
-        raise RuntimeError("%s needs input file (argument inputGeneratorFile)" % runArgs.jobConfigs)
+        raise RuntimeError("%s needs input file (argument inputGeneratorFile)" % runArgs.jobConfig)
     if evgenConfig.inputfilecheck and not re.search(evgenConfig.inputfilecheck, runArgs.inputGeneratorFile):
         raise RuntimeError("inputGeneratorFile=%s is incompatible with inputfilecheck '%s' in %s" %
                            (runArgs.inputGeneratorFile, evgenConfig.inputfilecheck, runArgs.jobConfig))
@@ -725,6 +737,18 @@ def _checkattr(attr, required=False):
             raise RuntimeError("Required " + msg)
         return False
     return True
+if hasattr(runArgs, "outputTXTFile"):
+    # counting the number of events in LHE output
+    with open(eventsFile) as f:
+        contents = f.read()
+        count_ev = contents.count("<event>")
+    print "MetaData: %s = %s" % ("Number of produced LHE events ", count_ev)
+elif hasattr(runArgs, "inputGeneratorFile"):
+    # counting the number of events in LHE output
+    with open(eventsFile) as f:
+        contents = f.read()
+        count_ev = contents.count("<event>")
+    print "MetaData: %s = %s" % ("Number of input LHE events ", count_ev)
 
 if _checkattr("description", required=True):
     msg = evgenConfig.description

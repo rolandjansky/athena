@@ -28,7 +28,8 @@ else:
     PowhegConfig.PDF.extend(range(260001, 260101))                            # Include the NNPDF error set
     PowhegConfig.PDF.extend(range(90901 , 90931 ))                            # Include the PDF4LHC error set
 
-PowhegConfig.nEvents     *= 1.1 # compensate filter efficiency
+#PowhegConfig.nEvents     *= 1.1 # compensate filter efficiency
+PowhegConfig.nEvents=int(7.0*runArgs.maxEvents)
 PowhegConfig.generate()
 
 #--------------------------------------------------------------
@@ -61,17 +62,27 @@ RCtcB = 0.
 RCctW = 0.
 RCctB = 0.
 
+### Nevent adjustment for event filters
+if any("HLepF" in JO for JO in runArgs.jobConfig):
+    PowhegConfig.nEvents = int(7.0*runArgs.maxEvents)
+    print PowhegConfig.nEvents 
+else :
+    raise RuntimeError("Event filter not recognised for this job option")
+
 #t-c-H or t-u-H
-istcH = any("Q2cH" in JO for JO in runArgs.jobConfig)
+istcH = any("Q2cH" in JO for JO in runArgs.jobConfig) or any("Q2cbarH" in JO for JO in runArgs.jobConfig)
 
 # Get the DSID
 thisDSID = runArgs.runNumber
 # Apply the offset
-if istcH:
-    thisDSID = thisDSID - 64
-else:
-    thisDSID = thisDSID - 48
-   
+
+# Temporary fix shift the dsid only if it's not an inclusive H decay sample
+if thisDSID < 411229 or thisDSID > 411232 :
+    if istcH:
+        thisDSID = thisDSID - 64
+    else:
+        thisDSID = thisDSID - 48 
+
 model            = 'TopFCNC-onlyh' #eventually, change for tqZ, tqphoton, tqgluon
 madspin_card_rep = 'madspin_card.dat'
 madspin_in       = 'import run.lhe'
@@ -93,14 +104,22 @@ define All = l+ l- vl vl~ j
 
 ## The W decay
 wtyp = thisDSID%4
-if wtyp == 0:
-    wstr = ', w- > l- vl~'
-elif wtyp == 1:
-    wstr = ', w+ > l+ vl'
-elif wtyp == 2:
-    wstr = ', w- > j j'
-elif wtyp == 3:
-    wstr = ', w+ > j j'
+# Non inclusive H decay
+if not thisDSID >= 411229  and thisDSID <= 411232 :
+    if wtyp == 0:
+        wstr = ', w- > l- vl~'
+    elif wtyp == 1:
+        wstr = ', w+ > l+ vl'
+    elif wtyp == 2:
+        wstr = ', w- > j j'
+    elif wtyp == 3:
+        wstr = ', w+ > j j'
+# Inclusive H decay dsids
+elif thisDSID >= 411229  and thisDSID <= 411232 :
+    if wtyp == 0 or wtyp == 2:
+        wstr = ', w- > All All'
+    if wtyp == 1 or wtyp == 3:
+        wstr = ', w+ > All All'
 else :
     raise RuntimeError("No W decays are generated please check the job option")
 ## The SM top
@@ -111,23 +130,29 @@ else:
     t2str = 'decay t > w+ b'
 
 # the tqH part
-if ( (thisDSID >= 410700 and thisDSID <= 410779) or (thisDSID >= 410588  and thisDSID <= 410595) or (thisDSID >= 411106  and thisDSID <= 411129) ):
+# As last block coding dsids to be used for inclusive H decay
+if ( (thisDSID >= 410700 and thisDSID <= 410779) or (thisDSID >= 410588  and thisDSID <= 410595) or (thisDSID >= 411229  and thisDSID <= 411232 ) ):
 
     keyName = 'Higgs'
 
-    if thisDSID >= 410592 and thisDSID <= 410595 :
-        theDIDS = thisDSID - 410700 + 104
-    elif thisDSID >= 410588 and thisDSID <= 410591:
-        theDIDS = thisDSID - 410700 + 108
-    elif ( thisDSID >= 411106  and thisDSID <= 411129 ):
-        theDIDS = thisDSID - 411106
-    else :
-        theDIDS = thisDSID - 410700
+    # Non inclusive H decay
+    if not thisDSID >= 411229  and thisDSID <= 411232 :
+        if thisDSID >= 410592 and thisDSID <= 410595 :
+            theDIDS = thisDSID - 410700 + 104
+        elif thisDSID >= 410588 and thisDSID <= 410591:
+            theDIDS = thisDSID - 410700 + 108
+        else :
+            theDIDS = thisDSID - 410700
+
+    # Shift condition for the inclusive H decay, turn the DSID negative
+    if thisDSID >= 411229  and thisDSID <= 411232 :            
+        theDIDS = thisDSID - 411233
 
     #semi-manually setting the couplings (for the inclusive H decay cases)..
-    if theDIDS == -4 or theDIDS == -3 :
+    # Changed the if conditions after a proper shift is applied, inclusive H decay
+    if theDIDS == -2 or theDIDS == -1 :
         RCtphi  = 1.
-    elif theDIDS == -2 or theDIDS == -1 :
+    elif theDIDS == -3 or theDIDS == -4 :
         RCtcphi = 1.
     #other channels
     elif theDIDS >= 0 and theDIDS < 20:
@@ -139,14 +164,15 @@ if ( (thisDSID >= 410700 and thisDSID <= 410779) or (thisDSID >= 410588  and thi
     else:
         RCuphi  = 1.
 
+    # Default for channels other than inclusive H decay
     qtyp = theDIDS/20
     if theDIDS >= 40:
         qtyp = (theDIDS-40)/20
-    #For the inclusive H decay samples
+    #For the inclusive H decay samples, 'theDSID' should be negative only for the inclusive H decay
     elif theDIDS <= 0:
-        if theDIDS == -4 or theDIDS == -3 :
+        if theDIDS == -2 or theDIDS == -1 :
             qtyp=1
-        elif theDIDS == -2 or theDIDS == -1 :
+        elif theDIDS == -4 or theDIDS == -3 :
             qtyp=0
 
     if ttyp%2 == 0 and qtyp == 0:
@@ -273,6 +299,14 @@ with open('PowhegOTF._1.events', 'r+') as f:
 #--------------------------------------------------------------
 include('Pythia8_i/Pythia8_A14_NNPDF23LO_EvtGen_Common.py')
 include("Pythia8_i/Pythia8_Powheg_Main31.py")
+
+### Lepton filter
+if any("HLepF" in JO for JO in runArgs.jobConfig):
+    if not hasattr(filtSeq,"LeptonFilter"):
+        from GeneratorFilters.GeneratorFiltersConf import LeptonFilter
+        filtSeq += LeptonFilter()
+    filtSeq.LeptonFilter.Ptcut = 15000.0#MeV
+
 genSeq.Pythia8.Commands += [ 'POWHEG:pThard = 0' ]
 genSeq.Pythia8.Commands += [ 'POWHEG:nFinal = 2' ]
 genSeq.Pythia8.Commands += [ 'POWHEG:pTdef = 2' ]
@@ -280,4 +314,3 @@ genSeq.Pythia8.Commands += [ 'POWHEG:vetoCount = 3' ]
 genSeq.Pythia8.Commands += [ 'POWHEG:pTemt  = 0' ]
 genSeq.Pythia8.Commands += [ 'POWHEG:emitted = 0' ]
 genSeq.Pythia8.Commands += [ 'POWHEG:MPIveto = 0' ]
-

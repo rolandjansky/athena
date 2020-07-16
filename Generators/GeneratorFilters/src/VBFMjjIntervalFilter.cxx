@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration 
 */
-
 // Header for this module
 #include "GeneratorFilters/VBFMjjIntervalFilter.h"
 
@@ -43,6 +42,12 @@ VBFMjjIntervalFilter::VBFMjjIntervalFilter(const std::string& name, ISvcLocator*
   declareProperty("ElectronJetOverlapRemoval", m_electronjetoverlap = true);
   declareProperty("TauJetOverlapRemoval", m_taujetoverlap = false);
   declareProperty("Alpha",m_alpha=log(m_prob2low/m_prob2high)/log(m_mjjlow/m_mjjhigh));
+  declareProperty("ApplyNjet",m_ApplyNjet=false); 
+  declareProperty("Njets", m_NJetsMin=2);  
+  declareProperty("NjetsMax",m_NJetsMax=-1);
+  declareProperty("ApplyWeighting",m_ApplyWeighting=true);
+  declareProperty("ApplyDphi",m_applyDphi=false);
+  declareProperty("dphijjMax",m_dphijj=2.5); 
 }
 
 
@@ -82,7 +87,7 @@ StatusCode VBFMjjIntervalFilter::filterEvent() {
   std::vector<HepMC::GenParticle*> MCTruthPhotonList;
   std::vector<HepMC::GenParticle*> MCTruthElectronList;
   std::vector<TLorentzVector*> MCTruthTauList;
-  for (McEventCollection::const_iterator itr = events()->begin(); itr != events()->end(); ++itr) {
+  for (McEventCollection::const_iterator itr = events_const()->begin(); itr != events_const()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
     for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin();	pitr != genEvt->particles_end(); ++pitr) {
       if (m_photonjetoverlap==true) {
@@ -156,36 +161,57 @@ StatusCode VBFMjjIntervalFilter::filterEvent() {
     }
   }
   filteredJets.sort(High2LowByJetClassPt());
-
-  double eventWeight = 1.0;
-  eventWeight = getEventWeight(&filteredJets);
-  double rnd = rndm->flat();
-  if (1.0/eventWeight < rnd) {
-    setFilterPassed(false);
-    ATH_MSG_DEBUG("Event failed weighting. Weight is " << eventWeight);
-    return StatusCode::SUCCESS;
-  }
-
-  // Get MC event collection for setting weight
-  const DataHandle<McEventCollection> mecc = 0;
-  if ( evtStore()->retrieve( mecc ).isFailure() || !mecc ){
-    setFilterPassed(false);
-    ATH_MSG_ERROR("Could not retrieve MC Event Collection - weight might not work");
-    return StatusCode::SUCCESS;
-  }
-
-  ATH_MSG_INFO("Event passed.  Will weight events " << eventWeight*m_norm);
-  McEventCollection* mec = const_cast<McEventCollection*> (&(*mecc));
-  for (unsigned int i = 0; i < mec->size(); ++i) {
-    if (!(*mec)[i]) continue;
-    double existingWeight = (*mec)[i]->weights().size()>0 ? (*mec)[i]->weights()[0] : 1.;
-    if ((*mec)[i]->weights().size()>0) {
-      (*mec)[i]->weights()[0] = existingWeight*eventWeight*m_norm;
-    } else {
-      (*mec)[i]->weights().push_back( eventWeight*m_norm*existingWeight );
+  if(m_ApplyWeighting){
+    double eventWeight = 1.0;
+    eventWeight = getEventWeight(&filteredJets);
+    double rnd = rndm->flat();
+    if (1.0/eventWeight < rnd) {
+      setFilterPassed(false);
+      ATH_MSG_DEBUG("Event failed weighting. Weight is " << eventWeight);
+      return StatusCode::SUCCESS;
     }
+    
+    // Get MC event collection for setting weight
+    const DataHandle<McEventCollection> mecc = 0;
+    if ( evtStore()->retrieve( mecc ).isFailure() || !mecc ){
+      setFilterPassed(false);
+      ATH_MSG_ERROR("Could not retrieve MC Event Collection - weight might not work");
+      return StatusCode::SUCCESS;
+    }
+    
+    ATH_MSG_INFO("Event passed.  Will weight events " << eventWeight*m_norm);
+    McEventCollection* mec = const_cast<McEventCollection*> (&(*mecc));
+    for (unsigned int i = 0; i < mec->size(); ++i) {
+      if (!(*mec)[i]) continue;
+      double existingWeight = (*mec)[i]->weights().size()>0 ? (*mec)[i]->weights()[0] : 1.;
+      if ((*mec)[i]->weights().size()>0) {
+	(*mec)[i]->weights()[0] = existingWeight*eventWeight*m_norm;
+      } else {
+	(*mec)[i]->weights().push_back( eventWeight*m_norm*existingWeight );
+      }
+    }
+  }//Apply weighting 
+  else {
+    //just compute mjj, dphi etc 
+    bool pass = ApplyMassDphi(&filteredJets);
+    if(!pass){
+      setFilterPassed(false);
+      ATH_MSG_DEBUG("Event failed filter");
+      return StatusCode::SUCCESS; 
+    }
+    if(m_ApplyNjet){
+      if(filteredJets.size()<m_NJetsMin){
+	setFilterPassed(false);
+	return StatusCode::SUCCESS;
+      }
+      if(m_NJetsMax>0){
+	if(filteredJets.size()>m_NJetsMax){
+	  setFilterPassed(false);
+	  return StatusCode::SUCCESS;
+	}
+      }//Njets < 
+    }//Apply Njets filter 
   }
-
   // Made it to the end - success!
   setFilterPassed(true);
   return StatusCode::SUCCESS;
@@ -226,7 +252,18 @@ bool VBFMjjIntervalFilter::checkOverlap(double eta, double phi, std::vector<TLor
   return false;
 }
 
-
+bool VBFMjjIntervalFilter::ApplyMassDphi(xAOD::JetContainer *jets){
+  if(jets->size()<2) return false; 
+  double mjj = (jets->at(0)->p4() + jets->at(1)->p4()).M();
+  double dphi = fabs(jets->at(0)->p4().DeltaPhi(jets->at(1)->p4()));
+  ATH_MSG_INFO("mjj " << mjj << " dphi " << dphi); 
+  bool pass = true; 
+  if(mjj<m_mjjlow)pass=false; 
+  if(mjj>m_mjjhigh)pass=false;
+  if(m_applyDphi && dphi > m_dphijj) pass = false; 
+  
+  return pass; 
+}
 
 
 double VBFMjjIntervalFilter::getEventWeight(xAOD::JetContainer *jets) {
@@ -262,7 +299,7 @@ double VBFMjjIntervalFilter::getEventWeight(xAOD::JetContainer *jets) {
 }
 
 
-TLorentzVector VBFMjjIntervalFilter::sumDaughterNeutrinos( HepMC::GenParticle *part ) {
+ TLorentzVector VBFMjjIntervalFilter::sumDaughterNeutrinos( HepMC::GenParticle *part ) {
   TLorentzVector nu( 0, 0, 0, 0);
 
   if ( ( abs( part->pdg_id() ) == 12 ) || ( abs( part->pdg_id() ) == 14 ) || ( abs( part->pdg_id() ) == 16 ) ) {

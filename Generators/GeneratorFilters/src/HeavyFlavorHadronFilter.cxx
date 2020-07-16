@@ -75,7 +75,7 @@ StatusCode HeavyFlavorHadronFilter::filterEvent() {
 
   std::vector<xAOD::JetContainer::const_iterator> jets;
   if (m_RequireTruthJet) {
-    const xAOD::JetContainer* truthjetTES;
+    const DataHandle<xAOD::JetContainer> truthjetTES = 0;
     CHECK(evtStore()->retrieve( truthjetTES, m_TruthJetContainerName));
     for (xAOD::JetContainer::const_iterator j = truthjetTES->begin(); j != truthjetTES->end() ; ++j) {
       if ((*j)->pt() > m_jetPtMin && fabs((*j)->eta()) < m_jetEtaMax) {
@@ -84,7 +84,7 @@ StatusCode HeavyFlavorHadronFilter::filterEvent() {
     }
   }
 
-  for (McEventCollection::const_iterator itr = events()->begin(); itr != events()->end(); ++itr) {
+  for (McEventCollection::const_iterator itr = events_const()->begin(); itr != events_const()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = *itr;
 
     // Loop over all truth particles in the event

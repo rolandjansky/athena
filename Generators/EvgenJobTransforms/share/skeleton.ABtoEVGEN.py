@@ -1,6 +1,5 @@
-
-#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#
 """Functionality core of the Generate_tf transform"""
 
 ##==============================================================
@@ -104,7 +103,11 @@ from EvgenJobTransforms.EvgenConfig import gens_known, gens_lhef, gen_sortkey, g
 #from EvgenProdTools.EvgenProdToolsConf import FixHepMC
 #if not hasattr(fixSeq, "FixHepMC"):
 #    fixSeq += FixHepMC()
-
+    # Turn everything off!!! This will cause a crash in the afterburner if they are not turned off
+#    fixSeq.FixHepMC.KillLoops = False
+#    fixSeq.FixHepMC.KillPDG0 = False
+#    fixSeq.FixHepMC.CleanDecays = False
+#    fixSeq.FixHepMC.LoopsByBarcode = False
 ## Sanity check the event record (not appropriate for all generators)
 from EvgenProdTools.EvgenProdToolsConf import TestHepMC
 testSeq += TestHepMC(CmEnergy=runArgs.ecmEnergy*Units.GeV)
@@ -388,6 +391,7 @@ svcMgr.EventSelector.RunNumber = runArgs.runNumber
 import EventInfoMgt.EventInfoMgtInit
 svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_energy", str(int(runArgs.ecmEnergy*Units.GeV/2.0))]
 svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_type", 'collisions']
+if hasattr( runArgs, "AMITag") and runArgs.AMITag != "NONE": svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AMITag", runArgs.AMITag]
 
 ## Propagate energy argument to the generators
 # TODO: Standardise energy setting in the GenModule interface

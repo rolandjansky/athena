@@ -67,7 +67,15 @@ class PowhegControl(object):
             if hasattr(run_args, "ecmEnergy"):
                 process_kwargs["beam_energy"] = 0.5 * run_args.ecmEnergy
             if hasattr(run_args, "maxEvents") and run_args.maxEvents > 0:
-                process_kwargs["nEvents"] = int(1.1 * run_args.maxEvents + 0.5)
+                if hasattr(run_args, "outputEVNTFile") or hasattr(run_args, "outputYODAFile"):
+                    process_kwargs["nEvents"] = int(1.1 * run_args.maxEvents + 0.5)
+                else:# default nEvents value is maxEvents for lhe-only production
+                    process_kwargs["nEvents"] = run_args.maxEvents
+            else:#default is 10k events if no --maxEvents was set
+                if hasattr(run_args, "outputEVNTFile") or hasattr(run_args, "outputYODAFile"):
+                    process_kwargs["nEvents"] = 11000 # 10% safety factor if we shower the events
+                else:
+                    process_kwargs["nEvents"] = 10000 # no safety factor for lhe-only production
             if hasattr(run_args, "randomSeed"):
                 process_kwargs["random_seed"] = run_args.randomSeed
             if hasattr(run_args, "outputTXTFile"):
@@ -80,6 +88,9 @@ class PowhegControl(object):
 
         # Load correct process
         self.process = getattr(processes.powheg, process_name)(os.environ["POWHEGPATH"].replace("POWHEG-BOX", ""), **process_kwargs)
+
+        # check if pre-made integration grids will be used or not
+        self.process.check_using_integration_files()
 
         # Expose all keyword parameters as attributes of this config object
         for parameter in self.process.parameters:
@@ -127,7 +138,7 @@ class PowhegControl(object):
 
         @param create_run_card_only    Only generate the run card.
         @param save_integration_grids  Save the integration grids for future reuse.
-        @param use_external_run_card   Use a user-provided run card.
+        @param use_external_run_card   Use a user-provided Powheg run card (powheg.input).
         @param use_XML_reweighting     Use XML-based reweighting.
         """
         self.process.use_XML_reweighting = use_XML_reweighting
@@ -139,6 +150,8 @@ class PowhegControl(object):
         # Run appropriate generation functions
         if not use_external_run_card:
             self._generate_run_card()
+        else:
+            logger.warning("Using native Powheg run card (must be located at './powheg.input' in order for Powheg to find it!) to configure event generation, instead of PowhegControl configuration interface")
         if not create_run_card_only:
             self._generate_events()
 
@@ -276,6 +289,12 @@ class PowhegControl(object):
         # Schedule additional algorithms (eg. quark colour fixer)
         for algorithm in self.process.algorithms:
             self.scheduler.add(algorithm, *extra_args.get(algorithm, []))
+
+        if len(self.process.parameters_by_keyword("for_reweighting")) == 1:
+            if self.process.parameters_by_keyword("for_reweighting")[0].value == 1:
+                self.scheduler.add("LHE file nominal weight updater", *extra_args.get(algorithm, []))
+                logger.info ("Since parameter for_reweighting was set to 1, virtual corrections are added at the reweighting stage only.")
+                logger.info ("Will run LHE file nominal weight updater so that XWGTUP value is updated with value of reweighted nominal weight.")
 
         # Output the schedule
         self.scheduler.print_structure()

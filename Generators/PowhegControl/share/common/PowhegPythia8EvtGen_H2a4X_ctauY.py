@@ -3,7 +3,8 @@
 # SM higgs to BSM products: 25 --> 35
 #--------------------------------------------------------------
 
-evgenConfig.inputfilecheck = "TXT"
+#evgenConfig.inputfilecheck = "TXT"
+#evgenConfig.inputfilecheck = "merged_lhef"
 
 import os, sys, glob
 for f in glob.glob("*.events"):
@@ -21,7 +22,7 @@ for f in glob.glob("*.events"):
     os.system('mv %s %s '%(infile, infile+'.old') )
     os.system('mv %s %s '%(newfile, infile) )
 
-nProcess = -1 # 0: WpH, 1: WmH
+nProcess = -1 # 0: WpH, 1: WmH, 2: ZH, 3: ggZH
 ma = 0.       # 15, 55 GeV
 adecay = 0    # 2, 5, 15
 ctau = 0.     # 1, 10, 100 mm
@@ -112,6 +113,128 @@ elif runArgs.runNumber==309866: # WmH, ma=55GeV, a->uu, ctau=100mm
     ctau = 100.
     adecay = 2
 
+# ZH, a->bb
+elif runArgs.runNumber==312932: # ZH, ma=15GeV, a->bb, ctau=10mm
+    nProcess = 2
+    ma = 15.
+    ctau = 10.
+    adecay = 5
+elif runArgs.runNumber==312933: # ZH, ma=15GeV, a->bb, ctau=100mm
+    nProcess = 2
+    ma = 15.
+    ctau = 100.
+    adecay = 5
+elif runArgs.runNumber==312934: # ZH, ma=15GeV, a->bb, ctau=1000mm
+    nProcess = 2
+    ma = 15.
+    ctau = 1000.
+    adecay = 5
+elif runArgs.runNumber==312935: # ZH, ma=25GeV, a->bb, ctau=10mm
+    nProcess = 2
+    ma = 25.
+    ctau = 10.
+    adecay = 5
+elif runArgs.runNumber==312936: # ZH, ma=25GeV, a->bb, ctau=100mm
+    nProcess = 2
+    ma = 25.
+    ctau = 100.
+    adecay = 5
+elif runArgs.runNumber==312937: # ZH, ma=25GeV, a->bb, ctau=1000mm
+    nProcess = 2
+    ma = 25.
+    ctau = 1000.
+    adecay = 5
+elif runArgs.runNumber==312938: # ZH, ma=35GeV, a->bb, ctau=10mm
+    nProcess = 2
+    ma = 35.
+    ctau = 10.
+    adecay = 5
+elif runArgs.runNumber==312939: # ZH, ma=35GeV, a->bb, ctau=100mm
+    nProcess = 2
+    ma = 35.
+    ctau = 100.
+    adecay = 5
+elif runArgs.runNumber==312940: # ZH, ma=35GeV, a->bb, ctau=1000mm
+    nProcess = 2
+    ma = 35.
+    ctau = 1000.
+    adecay = 5
+elif runArgs.runNumber==312941: # ZH, ma=55GeV, a->bb, ctau=10mm
+    nProcess = 2
+    ma = 55.
+    ctau = 10.
+    adecay = 5
+elif runArgs.runNumber==312942: # ZH, ma=55GeV, a->bb, ctau=100mm
+    nProcess = 2
+    ma = 35.
+    ctau = 100.
+    adecay = 5
+elif runArgs.runNumber==312943: # ZH, ma=55GeV, a->bb, ctau=1000mm
+    nProcess = 2
+    ma = 55.
+    ctau = 1000.
+    adecay = 5
+elif runArgs.runNumber==312944: # ggZH, ma=15GeV, a->bb, ctau=10mm
+    nProcess = 3
+    ma = 15.
+    ctau = 10.
+    adecay = 5
+elif runArgs.runNumber==312945: # ggZH, ma=15GeV, a->bb, ctau=100mm
+    nProcess = 3
+    ma = 15.
+    ctau = 100.
+    adecay = 5
+elif runArgs.runNumber==312946: # ggZH, ma=15GeV, a->bb, ctau=1000mm
+    nProcess = 3
+    ma = 15.
+    ctau = 1000.
+    adecay = 5
+elif runArgs.runNumber==312947: # ggZH, ma=25GeV, a->bb, ctau=10mm
+    nProcess = 3
+    ma = 25.
+    ctau = 10.
+    adecay = 5
+elif runArgs.runNumber==312948: # ggZH, ma=25GeV, a->bb, ctau=100mm
+    nProcess = 3
+    ma = 25.
+    ctau = 100.
+    adecay = 5
+elif runArgs.runNumber==312949: # ggZH, ma=25GeV, a->bb, ctau=1000mm
+    nProcess = 3
+    ma = 25.
+    ctau = 1000.
+    adecay = 5
+elif runArgs.runNumber==312950: # ggZH, ma=35GeV, a->bb, ctau=10mm
+    nProcess = 3
+    ma = 35.
+    ctau = 10.
+    adecay = 5
+elif runArgs.runNumber==312951: # ggZH, ma=35GeV, a->bb, ctau=100mm
+    nProcess = 3
+    ma = 35.
+    ctau = 100.
+    adecay = 5
+elif runArgs.runNumber==312952: # ggZH, ma=35GeV, a->bb, ctau=1000mm
+    nProcess = 3
+    ma = 35.
+    ctau = 1000.
+    adecay = 5
+elif runArgs.runNumber==312953: # ggZH, ma=55GeV, a->bb, ctau=10mm
+    nProcess = 3
+    ma = 55.
+    ctau = 10.
+    adecay = 5
+elif runArgs.runNumber==312954: # ggZH, ma=55GeV, a->bb, ctau=100mm
+    nProcess = 3
+    ma = 55.
+    ctau = 100.
+    adecay = 5
+elif runArgs.runNumber==312955: # ggZH, ma=55GeV, a->bb, ctau=1000mm
+    nProcess = 3
+    ma = 55.
+    ctau = 1000.
+    adecay = 5
+
 #--------------------------------------------------------------
 # Pythia8 showering
 #--------------------------------------------------------------
@@ -124,6 +247,10 @@ if nProcess==0:
     genSeq.Pythia8.UserModes += [ 'Main31:NFinal = 3']
 elif nProcess==1:
     genSeq.Pythia8.UserModes += [ 'Main31:NFinal = 3']
+elif nProcess==2:
+    genSeq.Pythia8.UserModes += [ 'Main31:NFinal = 3']
+elif nProcess==3:
+    genSeq.Pythia8.UserModes += [ 'Main31:NFinal = 2']
 
 #--------------------------------------------------------------
 # Higgs->bbar at Pythia8
@@ -177,6 +304,14 @@ elif nProcess==1:
     elif adecay==2:
         evgenConfig.description = "POWHEG+MiNLO+Pythia8 H+W+jet->l-vuubaruubar production"
         evgenConfig.process = "WmH, H->2a->4u, W->lv"
+elif nProcess==2:
+    if adecay==5:
+        evgenConfig.description = "POWHEG+MiNLO+Pythia8 H+Z+jet->l+l-bbbarbbbar production"
+        evgenConfig.process     = "ZH, H->aa->4b, Z->ll"
+elif nProcess==3:
+    if adecay==5:
+        evgenConfig.description = "POWHEG+Pythia8 gg->H+Z->l+l-bbbarbbbar production"
+        evgenConfig.process     = "gg->ZH, H->aa->4b, Z->ll"
 evgenConfig.keywords    = [ "BSM", "Higgs", "BSMHiggs", "mH125"]
-evgenConfig.contact     = [ 'roger.caminal.armadans@cern.ch' ]
+evgenConfig.contact     = [ 'manfredi.ronzani@cern.ch' ]
 evgenConfig.minevents = 50

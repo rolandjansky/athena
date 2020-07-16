@@ -1,10 +1,10 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from ..external import ExternalVBFNLO
-from ..powheg_V1 import PowhegV1
+from ..powheg_V2 import PowhegV2
 
 
-class VBF_W(PowhegV1):
+class VBF_W(PowhegV2):
     """! Default Powheg configuration for W-boson production through vector boson fusion.
 
     Create a configurable object with all applicable Powheg options.
@@ -70,8 +70,13 @@ class VBF_W(PowhegV1):
         self.add_keyword("rand1")
         self.add_keyword("rand2")
         self.add_keyword("renscfact", self.default_scales[1])
+        self.add_keyword("rwl_add")
+        self.add_keyword("rwl_file")
+        self.add_keyword("rwl_format_rwgt")
+        self.add_keyword("rwl_group_events")
         self.add_keyword("smartsig")
         self.add_keyword("softtest")
+        self.add_keyword("storeinfo_rwgt")
         self.add_keyword("testplots")
         self.add_keyword("testsuda")
         self.add_keyword("ubsigmadetails")

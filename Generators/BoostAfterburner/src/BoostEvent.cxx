@@ -10,11 +10,11 @@
 
 BoostEvent::BoostEvent(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator)
 {
-   declareProperty("McInputKey",     m_inkey="GEN_EVENT");
-   declareProperty("McOutputKey",      m_outkey="BOOSTED_EVENT");
-   declareProperty("BetaX",      m_beta_x=0);
-   declareProperty("BetaY",      m_beta_y=0);
-   declareProperty("BetaZ",      m_beta_z=0);
+  declareProperty("McInputKey",     m_inkey="GEN_EVENT");
+  declareProperty("McOutputKey",      m_outkey="BOOSTED_EVENT");
+  declareProperty("BetaX",      m_beta_x=0);
+  declareProperty("BetaY",      m_beta_y=0);
+  declareProperty("BetaZ",      m_beta_z=0);
 }
 
 StatusCode BoostEvent::initialize()
@@ -25,7 +25,7 @@ StatusCode BoostEvent::initialize()
 		  << std::setw(60) << "BetaX " << m_beta_x << "\n"
 		  << std::setw(60) << "BetaY " << m_beta_y << "\n"
 		  << std::setw(60) << "BetaZ " << m_beta_z << "\n"
-		  << endreq;
+		  << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -34,7 +34,7 @@ StatusCode BoostEvent::execute()
   const McEventCollection* input_collection;
   if ( evtStore()->retrieve(input_collection, m_inkey).isFailure() )
   {
-    msg(MSG::ERROR) << "Could not retrieve truth McEventCollection " << m_inkey << endreq;
+    msg(MSG::ERROR) << "Could not retrieve truth McEventCollection " << m_inkey << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -47,7 +47,7 @@ StatusCode BoostEvent::execute()
   }
 
   //now loop on particles
-  msg(MSG::VERBOSE) << "Boosting event with beta=(" << m_beta_x << "," << m_beta_y << "," << m_beta_z << ")" << endreq;
+  msg(MSG::VERBOSE) << "Boosting event with beta=(" << m_beta_x << "," << m_beta_y << "," << m_beta_z << ")" << endmsg;
   msg(MSG::VERBOSE) << std::setw(10) << "pt"
 		    << std::setw(10) << "E"
 		    << std::setw(10) << "eta"
@@ -56,16 +56,16 @@ StatusCode BoostEvent::execute()
 		    << std::setw(10) << "E'"
 		    << std::setw(10) << "eta'"
 		    << std::setw(10) << "phi'"
-		    << endreq;
+		    << endmsg;
 
   for (McEventCollection::iterator itr = output_collection->begin(); itr!=output_collection->end(); itr++)
   {
     for ( HepMC::GenEvent::particle_iterator particleItr = (*itr)->particles_begin();
 	  particleItr != (*itr)->particles_end(); particleItr++ ) {
       CLHEP::HepLorentzVector momentum((*particleItr)->momentum().px(),
-				(*particleItr)->momentum().py(),
-				(*particleItr)->momentum().pz(),
-				(*particleItr)->momentum().e());
+				       (*particleItr)->momentum().py(),
+				       (*particleItr)->momentum().pz(),
+				       (*particleItr)->momentum().e());
 
       momentum.boost(m_beta_x,m_beta_y,m_beta_z);
       msg(MSG::VERBOSE) << std::setw(10) << (*particleItr)->momentum().perp()
@@ -76,15 +76,47 @@ StatusCode BoostEvent::execute()
 			<< std::setw(10) << momentum.e()
 			<< std::setw(10) << momentum.eta()
 			<< std::setw(10) << momentum.phi()
-			<< endreq;
+			<< endmsg;
 
       (*particleItr)->set_momentum( momentum );
     }
+
+
+
+    for ( HepMC::GenEvent::vertex_iterator vtxItr = (*itr)->vertices_begin();
+	  vtxItr != (*itr)->vertices_end(); vtxItr++ ) {
+      CLHEP::HepLorentzVector position((*vtxItr)->position().x(),
+				       (*vtxItr)->position().y(),
+				       (*vtxItr)->position().z(),
+				       (*vtxItr)->position().t());
+
+
+      position.boost(m_beta_x,m_beta_y,m_beta_z);
+
+      msg(MSG::VERBOSE) << std::setw(10) << (*vtxItr)->position().perp()
+			<< std::setw(10) << (*vtxItr)->position().e()
+			<< std::setw(10) << (*vtxItr)->position().eta()
+			<< std::setw(10) << (*vtxItr)->position().phi()
+			<< std::setw(10) << position.perp()
+			<< std::setw(10) << position.e()
+			<< std::setw(10) << position.eta()
+			<< std::setw(10) << position.phi()
+			<< endmsg;
+
+      (*vtxItr)->set_position( position );
+    }
+
+
   }
+
+
+
+
+
 
   if(evtStore()->record(output_collection, m_outkey).isFailure())
   {
-    msg(MSG::ERROR) << "Could not record boosted McEventCollection " << m_outkey << endreq;
+    msg(MSG::ERROR) << "Could not record boosted McEventCollection " << m_outkey << endmsg;
     return StatusCode::FAILURE;
   }
 

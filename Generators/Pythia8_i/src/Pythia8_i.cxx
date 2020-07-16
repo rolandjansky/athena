@@ -36,11 +36,13 @@ using boost::assign::operator+=;
   #undef PYTHIA8_NWEIGHTS
   #undef PYTHIA8_WEIGHT
   #undef PYTHIA8_WLABEL
-  #undef PYTHIA8_CONVERSION
   #define PYTHIA8_NWEIGHTS nVariationGroups
   #define PYTHIA8_WEIGHT getGroupWeight
   #define PYTHIA8_WLABEL getGroupName
-  #define PYTHIA8_CONVERSION 1.0e9
+  #if PYTHIA_VERSION_INTEGER < 8244
+    #undef PYTHIA8_CONVERSION
+    #define PYTHIA8_CONVERSION 1.0e9
+  #endif 
   #endif
 #endif
 
@@ -323,8 +325,6 @@ StatusCode Pythia8_i::genInitialize() {
   }
 
   StatusCode returnCode = SUCCESS;
-  bool doGuess = m_pythia.settings.word("Merging:process") == "guess";
-  if (doGuess) m_pythia.settings.word("Merging:process","pp>e+e-");
 
   if(canInit){
     canInit = m_pythia.init();
@@ -334,8 +334,6 @@ StatusCode Pythia8_i::genInitialize() {
     returnCode = StatusCode::FAILURE;
     ATH_MSG_ERROR(" *** Unable to initialise Pythia !! ***");
   }
-
-  if (doGuess) m_pythia.settings.word("Merging:process","guess");
 
   m_pythia.particleData.listXML(m_outputParticleDataFile);
 
@@ -449,6 +447,12 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
 
   double phaseSpaceWeight = m_pythia.info.weight();
   double mergingWeight    = m_pythia.info.mergingWeight();
+  // include Enhance userhook weight
+  for(const auto &hook: m_userHooksPtrs) {
+    if (hook->canEnhanceEmission()) {
+      mergingWeight *= hook->getEnhancedEventWeight();
+    }
+  }
   double eventWeight = phaseSpaceWeight*mergingWeight;
 
   ATH_MSG_DEBUG("Event weights: phase space weight, merging weight, total weight = "<<phaseSpaceWeight<<", "<<mergingWeight<<", "<<eventWeight);
@@ -490,8 +494,7 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
 
   size_t firstWeight = (m_doLHE3Weights)? 1: 0;
 
-
-  for(int iw = firstWeight; iw != m_pythia.info.PYTHIA8_NWEIGHTS(); ++iw){
+  for(int iw = firstWeight; iw < m_pythia.info.PYTHIA8_NWEIGHTS(); ++iw){
 
     std::string wtName = ((int)m_showerWeightNames.size() == m_pythia.info.PYTHIA8_NWEIGHTS())? m_showerWeightNames[iw]: "ShowerWt_" + std::to_string(iw);
 

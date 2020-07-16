@@ -1,13 +1,13 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import Logging
-from ..powheg_V1 import PowhegV1
+from ..powheg_V2 import PowhegV2
 
 ## Get handle to Athena logging
 logger = Logging.logging.getLogger("PowhegControl")
 
 
-class ttj(PowhegV1):
+class ttj(PowhegV2):
     """! Default Powheg configuration for top pair production plus one jet.
 
     Create a configurable object with all applicable Powheg options.
@@ -21,7 +21,7 @@ class ttj(PowhegV1):
         @param base_directory: path to PowhegBox code.
         @param kwargs          dictionary of arguments from Generate_tf.
         """
-        super(ttj, self).__init__(base_directory, "ttJ", **kwargs)
+        super(ttj, self).__init__(base_directory, "ttbarj", **kwargs)
 
         # Add parameter validation functions
         self.validation_functions.append("validate_decays")
@@ -32,7 +32,7 @@ class ttj(PowhegV1):
         # Add all keywords for this process, overriding defaults if required
         self.add_keyword("alphaem")
         self.add_keyword("bcut")
-        self.add_keyword("bornktmin", 10.0)
+        self.add_keyword("bornktmin", 5.0)
         self.add_keyword("bornonly")
         self.add_keyword("bornsuppfact", 100.0)
         self.add_keyword("bornzerodamp")
@@ -54,11 +54,14 @@ class ttj(PowhegV1):
         self.add_keyword("compute_rwgt")
         self.add_keyword("elbranching")
         self.add_keyword("facscfact", self.default_scales[0])
+        self.add_keyword("fastbtlbound")
         self.add_keyword("ffltest")
         self.add_keyword("flg_debug")
         self.add_keyword("foldcsi", 2)
         self.add_keyword("foldphi", 2)
         self.add_keyword("foldy", 2)
+        self.add_keyword("fullrwgt")
+        self.add_keyword("fullrwgtmode")
         self.add_keyword("ggproc")
         self.add_keyword("gqbproc")
         self.add_keyword("hdamp")
@@ -95,7 +98,7 @@ class ttj(PowhegV1):
         self.add_keyword("par_isrtinyy")
         self.add_keyword("pdfreweight")
         self.add_keyword("psgen")
-        self.add_keyword("ptmin_jet", 15.0)
+        self.add_keyword("ptmin_jet", 20.0)
         self.add_keyword("ptsqmin")
         self.add_keyword("ptsupp")
         self.add_keyword("qgproc")

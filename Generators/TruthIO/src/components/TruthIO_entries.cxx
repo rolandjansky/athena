@@ -4,12 +4,14 @@
 #include "TruthIO/PrintMC.h"
 #include "TruthIO/PrintHijingPars.h"
 #include "TruthIO/ReadHepEvtFromAscii.h"
+#include "TruthIO/HepMCReadFromFile.h"
 
 DECLARE_ALGORITHM_FACTORY(DumpMC)
 DECLARE_ALGORITHM_FACTORY(PrintMC)
 DECLARE_ALGORITHM_FACTORY(WriteHepMC)
 DECLARE_ALGORITHM_FACTORY(PrintHijingPars)
 DECLARE_ALGORITHM_FACTORY(ReadHepEvtFromAscii)
+DECLARE_ALGORITHM_FACTORY(HepMCReadFromFile)
 
 DECLARE_FACTORY_ENTRIES(GeneratorModules) {
   DECLARE_ALGORITHM(DumpMC)
@@ -17,4 +19,5 @@ DECLARE_FACTORY_ENTRIES(GeneratorModules) {
   DECLARE_ALGORITHM(WriteHepMC)
   DECLARE_ALGORITHM(PrintHijingPars)
   DECLARE_ALGORITHM(ReadHepEvtFromAscii)
+  DECLARE_ALGORITHM(HepMCReadFromFile)
 }

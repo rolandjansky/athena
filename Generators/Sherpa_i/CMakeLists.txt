@@ -2,11 +2,6 @@
 # Package: Sherpa_i
 ################################################################################
 
-#set( SHERPA_VERSION 2.2.5 )
-#set( SHERPA_ROOT ${LCG_RELEASE_DIR}/MCGenerators/sherpa/${SHERPA_VERSION}/${LCG_PLATFORM} )
-#set( SHERPA_ROOT /cvmfs/sft.cern.ch/lcg/releases/LCG_88/MCGenerators/sherpa/${SHERPA_VERSION}/x86_64-slc6-gcc62-opt )
-#set( SHERPA_ROOT /afs/cern.ch/user/f/fsiegert/public/atlas/rel21/sherpa-installation/SHERPA-MC-${SHERPA_VERSION} )
-
 # Declare the package name:
 atlas_subdir( Sherpa_i )
 
@@ -14,6 +9,7 @@ atlas_subdir( Sherpa_i )
 atlas_depends_on_subdirs(
    PUBLIC
    GaudiKernel
+   Generators/EvgenProdTools
    Generators/GeneratorModules
    Generators/TruthUtils
    PRIVATE
@@ -23,6 +19,7 @@ atlas_depends_on_subdirs(
 # External dependencies:
 find_package( CLHEP )
 find_package( HepMC )
+find_package( OpenLoops )
 find_package( Sherpa COMPONENTS SherpaTools SherpaInitialization )
 
 # Remove the --as-needed linker flags:
@@ -36,10 +33,10 @@ atlas_add_component( Sherpa_i
    LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${SHERPA_LIBRARIES}
    GaudiKernel GeneratorModulesLib TruthUtils AthenaBaseComps AthenaKernel )
 
-add_definitions(-DSHERPA_LCGROOT="${SHERPA_LCGROOT}")
-
+# Install file(s) from the package.
 atlas_install_joboptions( share/common/*.py )
 
+# Set (a) Sherpa specific environment variable(s).
 set( SherpaEnvironment_DIR ${CMAKE_CURRENT_SOURCE_DIR}
    CACHE PATH "Location of SherpaEnvironment.cmake" )
 find_package( SherpaEnvironment )

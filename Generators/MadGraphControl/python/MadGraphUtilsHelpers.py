@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-import MadGraphUtils
+import os
 
 def getDictFromCard(card_loc,lowercase=False):
     card=open(card_loc)
@@ -8,7 +8,6 @@ def getDictFromCard(card_loc,lowercase=False):
     for line in iter(card):
         if not line.strip().startswith('#'): # line commented out
             command = line.split('!', 1)[0]
-            comment = line.split('!', 1)[1] if '!' in line else ''
             if '=' in command:
                 setting = command.split('=')[-1].strip()
                 value = '='.join(command.split('=')[:-1]).strip()
@@ -56,7 +55,19 @@ def checkSettingExists(key_,mydict_):
     return key in keys
 
 def is_version_or_newer(args):
-    version=MadGraphUtils.getMadGraphVersion()
+    # also need to find out the version (copied from generate)
+    import os
+    version=None
+    version_file = open(os.environ['MADPATH']+'/VERSION','r')
+
+    for line in version_file:
+        if 'version' in line:
+            version=line.split('=')[1].strip()
+    version_file.close()
+
+    if not version:
+        raise RuntimeError('Failed to find MadGraph/MadGraph5_aMC@NLO version in '+version_file)
+
     vs=[int(v) for v in version.split('.')]
 
     # this is lazy, let's hope there wont be a subversion > 100...
@@ -81,3 +92,26 @@ def isNLO_from_run_card(run_card):
     else:
         f.close()
         return False
+
+def get_runArgs_info(runArgs):
+    if runArgs is None:
+        raise RuntimeError('runArgs must be provided!')
+    if hasattr(runArgs,'ecmEnergy'):
+        beamEnergy = runArgs.ecmEnergy / 2.
+    else:
+        raise RuntimeError("No center of mass energy found in runArgs.")
+    if hasattr(runArgs,'randomSeed'):
+        random_seed = runArgs.randomSeed
+    else:
+        raise RuntimeError("No random seed found in runArgs.")
+    return beamEnergy,random_seed
+
+def get_physics_short():
+    FIRST_DIR = (os.environ['JOBOPTSEARCHPATH']).split(":")[0]
+    jofiles = [f for f in os.listdir(FIRST_DIR) if (f.startswith('mc') and f.endswith('.py'))]
+    if len(jofiles)==0:
+        raise RuntimeError('No job options found in '+FIRST_DIR)
+    joparts = os.path.basename(jofiles[0]).split('.')
+    if len(joparts)<2:
+        raise RuntimeError('Malformed job options file name: '+jofiles[0])
+    return joparts[1]

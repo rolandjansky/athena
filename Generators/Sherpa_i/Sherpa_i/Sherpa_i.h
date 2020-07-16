@@ -53,6 +53,9 @@ protected:
   /// Optional code for plugin library to compile and load at run time
   std::string m_plugincode;
 
+  /// Variation weight cap factor
+  double m_variation_weight_cap;
+
   double m_xsscale;
   bool m_cleanup;
 };

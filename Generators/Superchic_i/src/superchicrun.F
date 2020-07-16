@@ -78,7 +78,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       include 'sAA.f'
       include 'mphi.f'
 
-ccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccc
 
@@ -163,90 +162,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccc
       decay3=.false.
       decay4=.false.
       decay6=.false.
-
-cccccccccccc
-c
-c      do i=1,20
-c         jdahep(1,i)=0
-c         jdahep(2,i)=0
-c      enddo
-c
-cccccccccccccccccccccccccc
-
-c      call inpdf
-c      call supinit
-c      call header
-
-cccccccccccccccccccccccccc
-
-c      if(mes)then
-c         call calcmes
-c         call wfinit
-c      endif
-
-ccccccccccccccccccccccccc
-
-c      if(beam.eq.'el')then
-c         if(sfaci)then
-c            print*,'Error : must have sfaci = .false. for initial-state
-c     &electrons'
-c            stop
-c         endif
-c      endif
-
-ccccccccccccccccccccccccccccccccccccccccccccccccccc
-ccccccccccccccccccccccccccccccccccccccccccccccccccc
-
-c      s=rts**2
-
-c      if(beam.eq.'prot')then
-c         beta=dsqrt(1d0-4d0*mp**2/s)
-c      elseif(beam.eq.'el')then
-c         beta=dsqrt(1d0-4d0*me**2/s)
-c      elseif(beam.eq.'ion'.or.beam.eq.'ionp')then
-c         mion=mp*an
-c         rtsi=rts
-c         si=s
-c      endif
-c
-c      q(1,1)=0d0
-c      q(2,1)=0d0
-c      q(3,1)=rts/2d0*beta
-c      q(4,1)=rts/2d0
-c
-c      q(1,2)=0d0
-c      q(2,2)=0d0
-c      q(3,2)=-rts/2d0*beta
-c      q(4,2)=rts/2d0
-c
-c      if(beam.eq.'ionp')call pAinit
-c      if(beam.eq.'ion')call AAinit
-
-c      if(beam.eq.'prot')then
-c         pdgid(1)=2212
-c         pdgid(2)=2212
-c         pdgid(3)=2212
-c         pdgid(4)=2212
-c      elseif(beam.eq.'el')then
-c         pdgid(1)=11
-c         pdgid(2)=-11
-c         pdgid(3)=11
-c         pdgid(4)=-11
-c      elseif(beam.eq.'ion')then
-c         pdgid(1)=1000000000
-c         pdgid(1)=pdgid(1)+nint(az)*10000
-c         pdgid(1)=pdgid(1)+nint(an)*10
-c         pdgid(2)=pdgid(1)
-c         pdgid(3)=pdgid(1)
-c         pdgid(4)=pdgid(1)
-c      elseif(beam.eq.'ionp')then
-c         pdgid(2)=1000000000
-c         pdgid(2)=pdgid(2)+nint(az)*10000
-c         pdgid(2)=pdgid(2)+nint(an)*10
-c         pdgid(1)=2212
-c         pdgid(3)=pdgid(1)
-c         pdgid(4)=pdgid(2)
-c      endif
 
 ccccccccccccccccccccccccccccccccccccccccccccccc
 cccc     HEPEVT
@@ -354,7 +269,7 @@ ccc   NEW LHE init
          enddo
       enddo
 
-ccccccccc
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
       if(proc.eq.18.or.proc.eq.19.or.proc.eq.20)then
@@ -391,41 +306,12 @@ ccccccccc
 
       nhep=nup
       nup=nup-2
+      if(proc.eq.68)then
+         nhep=7
+         nup=7
+      endif
 
-ccccccccc
-c
-c      surv=1d0
-c      if(beam.eq.'prot'.or.ionqcd.eq.'coh'.or.ionqcd.eq.'incoh')then
-c         call initparsr(isurv)
-c         call readscreen
-c         if(beam.eq.'prot'.or.ionqcd.eq.'incoh')surv=1d0/norm**2
-c      endif
-c
-c      if(qcd)then
-c         call calcsud
-c         call calchg
-c      endif
-c
-c
-c      if(beam.eq.'ion'.or.beam.eq.'ionp')then
-c         call ioninit
-c      endif
-c
-cccccccccccc
-c      if(beam.eq.'ion'.or.beam.eq.'ionp')call ioninit
-
-c      if(beam.eq.'ionp')then
-c         rts=rtspa
-c         s=spa
-c      elseif(beam.eq.'ion')then
-c         rts=rtsaa
-c         beta=dsqrt(1d0-4d0*mp**2/s)
-c         saa=an**2*s
-c         rts=dsqrt(saa)
-c         rts=rts
-c         s=saa        
-c      endif
-
+cccccccccccccccccccccccccccccccccccccccccccccc
 
       nhist=0
       nhistmax=20
@@ -459,7 +345,7 @@ c      endif
       print*,'*****************************************************'
       print*,'Vegas:initialisation run (outputs *bare* crosssection)'
       print*,'******************************************************'
-
+      ncall=ncall1+10000
       CALL VEGAS(cs,AVGI,SD,CHI2A)
 
 
@@ -491,7 +377,7 @@ c      endif
       endif
 
       ITMX=ITMX1
-      NCALL=NCALL1
+      NCALL=NCALL1+1000
       avgi1=avgi
       sd1=sd
 

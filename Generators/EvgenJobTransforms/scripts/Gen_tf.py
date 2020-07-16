@@ -1,9 +1,9 @@
 #! /usr/bin/env python
 
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 """
-# Run event simulation and produce an EVNT file.
+# Run event generation and produce an EVNT file.
 """
 
 import os, sys, time, shutil
@@ -21,13 +21,13 @@ import PyJobTransforms.trfArgClasses as trfArgClasses
 ListOfDefaultPositionalKeys=['--AMIConfig', '--AMITag', '--argJSON', '--asetup', '--athena', '--athenaMPMergeTargetSize', '--athenaopts', '--attempt', '--checkEventCount', '--command', '--dumpJSON', '--dumpPickle', '--ecmEnergy', '--env', '--eventAcceptanceEfficiency', '--evgenJobOpts', '--execOnly', '--fileValidation', '--firstEvent', '--ignoreErrors', '--ignoreFiles', '--ignorePatterns', '--imf', '--inputEVNT_PreFile', '--inputFileValidation', '--inputGenConfFile', '--inputGeneratorFile', '--jobConfig', '--jobid', '--maxEvents', '--orphanKiller', '--outputEVNTFile', '--outputEVNT_PreFile', '--outputFileValidation', '--outputNTUP_TRUTHFile', '--outputTXTFile', '--parallelFileValidation', '--postExec', '--postInclude', '--preExec', '--preInclude', '--printEvts', '--randomSeed', '--reportName', '--reportType', '--rivetAnas', '--runNumber', '--showGraph', '--showPath', '--showSteps', '--skipEvents', '--skipFileValidation', '--skipInputFileValidation', '--skipOutputFileValidation', '--steering', '--taskid', '--tcmalloc', '--valgrind', '--valgrindbasicopts', '--valgrindextraopts', '--lheOnly', '--localPath', '--cleanOut', '--saveList']
 
 class EvgenExecutor(athenaExecutor):
-    "Specialised trf executor class for event generation jobs"
-    def __init__(self, name="generate", skeleton=None, substep=None, inData=set(), outData=set()):
-        athenaExecutor.__init__(self, name=name, skeletonFile=skeleton, substep=substep, tryDropAndReload=False, inData=inData, outData=outData)
+  "Specialised trf executor class for event generation jobs"
+  def __init__(self, name="generate", skeleton=None, substep=None, inData=set(), outData=set()):
+        athenaExecutor.__init__(self, name=name, skeletonFile=skeleton, substep=substep, inputEventTest=False, tryDropAndReload=False, inData=inData, outData=outData)
 #    def __init__(self, name="generate", skeleton="EvgenJobTransforms/skel.GENtoEVGEN.py", substep=None, inData=["inNULL"], outData=["EVNT", "EVNT_Pre", "TXT"]):
 #        athenaExecutor.__init__(self, name=name, skeletonFile=skeleton, substep=substep, tryDropAndReload=False, inData=inData, outData=outData)
 
-    def preExecute(self, input=set(), output=set()):
+  def preExecute(self, input=set(), output=set()):
         "Get input tarball, unpack and set up env if an evgenJobOpts arg was provided."
 
         ## First call the base class preExecute
@@ -55,6 +55,9 @@ class EvgenExecutor(athenaExecutor):
         os.environ['LOCAL_INSTALL_DIR'] = (os.environ['JOBOPTSEARCHPATH']).split(":")[0]
         CommonCvmfsDir = '/cvmfs/atlas.cern.ch/repo/sw/Generators/MCJobOptions/common'
         os.environ["JOBOPTSEARCHPATH"] = CommonCvmfsDir+":"+os.environ["JOBOPTSEARCHPATH"]
+        if os.path.exists('/cvmfs/atlas.cern.ch/repo/sw/Generators/MCJobOptions/common/MadGraphControl/dat/'):
+            datCvmfsDir = '/cvmfs/atlas.cern.ch/repo/sw/Generators/MCJobOptions/common/MadGraphControl/dat/'
+            os.environ["DATAPATH"] = datCvmfsDir+":"+os.environ["DATAPATH"]
 #        msg.info("Using JOBOPTSEARCHPATH = '%s'" % os.environ["LOCAL_INSTALL_DIR"])
         dsidparam = (self._trf.argdict["jobConfig"].value).values()[0][0]
         # Adding cvmfs path to JOBOPTSEARCHPATH
@@ -67,17 +70,21 @@ class EvgenExecutor(athenaExecutor):
             cwd_ful = os.path.join(cwdir, dsidparam)
             if (os.path.isdir(cwd_ful)):
                os.environ["JOBOPTSEARCHPATH"] = cwd_ful+":"+os.environ["JOBOPTSEARCHPATH"]
+               os.environ["DATAPATH"] = cwd_ful+":"+os.environ["DATAPATH"]
             else:               
                cwd_Jodir = os.path.join(cwdir,Jodir)
                cwd_Jodir_ful = os.path.join(cwd_Jodir,dsidparam)
                if (os.path.isdir(cwd_Jodir_ful)):
                   os.environ["JOBOPTSEARCHPATH"] = cwd_Jodir_ful+":"+os.environ["JOBOPTSEARCHPATH"]
+                  os.environ["DATAPATH"] = cwd_Jodir_ful+":"+os.environ["DATAPATH"]
                else:
                   JoCvmfsPath = os.path.join(BaseCvmfsPath, Jodir)
                   JoCvmfsPath_ful = os.path.join(JoCvmfsPath, dsidparam)
                   os.environ["JOBOPTSEARCHPATH"] = JoCvmfsPath_ful+":"+os.environ["JOBOPTSEARCHPATH"]
+                  os.environ["DATAPATH"] = JoCvmfsPath_ful+":"+os.environ["DATAPATH"]
 #                  print '!! JoCvmfsPath_ful ',JoCvmfsPath_ful
-            msg.info("Using JOBOPTSEARCHPATH! = '%s'" % os.environ["JOBOPTSEARCHPATH"])
+#            msg.info("Using JOBOPTSEARCHPATH! = '%s'" % os.environ["JOBOPTSEARCHPATH"])
+#            msg.info("Using DATAPATH! = '%s'" % os.environ["DATAPATH"]) 
             #os.environ["JOBOPTSEARCHPATH"] = os.environ['LOCAL_INSTALL_DIR']+":"+os.environ["JOBOPTSEARCHPATH"]
 #            print "!! Jodir ",Jodir
            
@@ -86,6 +93,7 @@ class EvgenExecutor(athenaExecutor):
 #            dsid_part=os.path.basename(dsidparam)
             if (os.path.isdir(dsidparam)):
                os.environ["JOBOPTSEARCHPATH"] = dsidparam+":"+os.environ["JOBOPTSEARCHPATH"]
+               os.environ["DATAPATH"] = dsidparam+":"+os.environ["DATAPATH"]
             else:
                 msg.error("JOs not found, please check = '%s'" % dsidparam) 
 #                Jodir = dsidparam[:3]+'xxx'
@@ -104,6 +112,7 @@ class EvgenExecutor(athenaExecutor):
                 
 
         msg.info("Using JOBOPTSEARCHPATH = '%s'" % os.environ["JOBOPTSEARCHPATH"])
+        msg.info("Using DATAPATH = '%s'" % os.environ["DATAPATH"])
                 
         if "evgenJobOpts" in self._trf.argdict: ## Use a specified JO tarball
             tarball = self._trf.argdict["evgenJobOpts"].value
@@ -174,7 +183,10 @@ def getTransform():
     exeSet = set()
     msg.info("Transform arguments %s" % sys.argv[1:])
     if "--outputEVNTFile" in str(sys.argv[1:]):
-       exeSet.add(EvgenExecutor(name="generate", skeleton="EvgenJobTransforms/skel.GENtoEVGEN.py", inData=["inNULL"], outData=["EVNT"]))
+       exeSet.add(EvgenExecutor(name="generate", skeleton="EvgenJobTransforms/skel.GENtoEVGEN.py", inData=["inNULL"], outData=["EVNT", "EVNT_Pre", "TXT" ]))
+       msg.info("Output EVNT file")
+    elif "--outputYODAFile" in str(sys.argv[1:]):
+       exeSet.add(EvgenExecutor(name="generate", skeleton="EvgenJobTransforms/skel.GENtoEVGEN.py", inData=["inNULL"], outData=["outNULL", "TXT" ]))
        msg.info("Output EVNT file")
     elif "--outputTXTFile" in str(sys.argv[1:]):
        exeSet.add(EvgenExecutor(name="generate", skeleton="EvgenJobTransforms/skel.GENtoTXT.py", inData=["inNULL"], outData=["TXT"]))
@@ -182,7 +194,7 @@ def getTransform():
     else:
        msg.error("Output cannot be recognised")
 
-    exeSet.add(EvgenExecutor(name="afterburn", skeleton="EvgenJobTransforms/skeleton.ABtoEVGEN.py", inData=["EVNT_Pre"], outData=["EVNT"]))
+    exeSet.add(EvgenExecutor(name="afterburn", skeleton="EvgenJobTransforms/skel.ABtoEVGEN.py", inData=["EVNT_Pre"], outData=["EVNT"]))
     exeSet.add(athenaExecutor(name = "AODtoDPD", skeletonFile = "PATJobTransforms/skeleton.AODtoDPD_tf.py",
                               substep = "a2d", inData = ["EVNT"], outData = ["NTUP_TRUTH"], perfMonFile = "ntuple_AODtoDPD.pmon.gz"))
     trf = transform(executor=exeSet)

@@ -55,6 +55,11 @@ class PowhegV1(PowhegBase):
         ]
 
     @property
+    def mandatory_integration_file_names(self):
+        """! Wildcarded list of integration files that are needed for this process."""
+        return self.integration_file_names
+
+    @property
     def powheg_version(self):
         """! Version of PowhegBox process."""
         return "V1"

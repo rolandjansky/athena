@@ -1,9 +1,0 @@
-#! /usr/bin/env bash
-
-## Any arguments are considered overrides, and will be added at the end
-export TRF_ECHO=True;
-Generate_tf.py --ecmEnergy=8000 --runNumber=107680 --maxEvents=5 \
-    --jobConfig=$JODIR/share/tests/MC14.107680.AlpgenHerwig_AUET2CTEQ6L1_WenuNp0.py \
-    --outputEVNTFile=test_AlpgenHerwigJimmy_WenuNp0.EVNT.pool.root \
-    --inputGeneratorFile=$TESTDATA/group.phys-gener.alpgen214.107680.WenuNp0_CTEQ6L1_8TeV.TXT.mc12_v1._00001.tar.gz \
-    $@

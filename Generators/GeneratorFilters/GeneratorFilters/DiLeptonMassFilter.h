@@ -19,6 +19,7 @@ public:
 
   DiLeptonMassFilter(const std::string& name, ISvcLocator* pSvcLocator);
   virtual StatusCode filterInitialize();
+  virtual StatusCode filterFinalize();
   virtual StatusCode filterEvent();
 
 private:
@@ -31,6 +32,7 @@ private:
   bool   m_allowElecMu;
   bool   m_allowSameCharge;
 
+  int m_AthenaCalls;
 };
 
 #endif

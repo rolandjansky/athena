@@ -33,8 +33,9 @@ TrackRecordGenerator::TrackRecordGenerator(const std::string& name, ISvcLocator*
   declareProperty("TRSmearing", m_smearTR=-1, "Smear the initial position of the track by up to this amount");
   declareProperty("TRPSmearing", m_smearTRp=-1, "Smear the momentum of the track by up to this amount");
   declareProperty("StopParticles", m_stopParticles=false, "Stop the particles and make them decay within 25 ns");
-  declareProperty("stopped_tminus",      m_stopped_tminus =-25. );
-  declareProperty("stopped_tplus",       m_stopped_tplus =25. );
+  declareProperty("stopped_tminus", m_stopped_tminus =-25. );
+  declareProperty("stopped_tplus", m_stopped_tplus =25. );
+  declareProperty("Add_cL", m_add_cL=true, "For stopped particles, shift the time by c times the decay rho");
 }
 
 //--------------------------------------------------------------------------
@@ -149,6 +150,9 @@ StatusCode TrackRecordGenerator::callGenerator() {
 
       double settime=CLHEP::RandFlat::shoot(&randomEngine(),m_stopped_tminus, m_stopped_tplus);
       ATH_MSG_DEBUG( "Setting particle time to something uniform between "<<m_stopped_tminus<<" and "<<m_stopped_tplus<<" ns : " << settime );
+      if (m_add_cL){
+        settime += particle4Position.rho()/CLHEP::c_light;
+      }
       particle4Position.setT(settime*CLHEP::c_light); // ct in mm
     }
 

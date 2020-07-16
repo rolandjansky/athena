@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -24,6 +24,7 @@ FixHepMC::FixHepMC(const string& name, ISvcLocator* pSvcLocator)
 
 
 StatusCode FixHepMC::execute() {
+
   for (McEventCollection::const_iterator ievt = events()->begin(); ievt != events()->end(); ++ievt) {
     HepMC::GenEvent* evt = *ievt;
 
@@ -65,7 +66,6 @@ StatusCode FixHepMC::execute() {
         ATH_MSG_DEBUG( "Found a looper : " );
         if ( msgLvl( MSG::DEBUG ) ) (*ip)->print();
       }
-
       // Check on PDG ID 0
       if ( m_killPDG0 && isPID0(*ip) ) {
         bad_particle = true;
@@ -85,7 +85,6 @@ StatusCode FixHepMC::execute() {
       // Only add to the toremove vector once, even if multiple tests match
       if (bad_particle) toremove.push_back(*ip);
     }
-
     // Escape here if there's nothing more to do, otherwise do the cleaning
     if (toremove.empty()) continue;
     ATH_MSG_DEBUG("Cleaning event record of " << toremove.size() << " bad particles");
