@@ -18,7 +18,8 @@ namespace Pythia8{
 
 Pythia8_UserHooks::UserHooksFactory::Creator<Pythia8::DecayToSUEP> DecayToSUEPCreator("DecayToSUEP");
 
-#define SUEP_DEBUG 0
+// Uncomment the following line to enable debug messages to be printed to std::cout
+//#define SUEP_DEBUG 1
 
 namespace Pythia8{
 
@@ -297,7 +298,6 @@ namespace Pythia8{
 #endif
 
     for (int ii=0; ii < process.size(); ++ii) {
-      //      if ( (process[ii].id() == m_pdgId(settingsPtr)) and (process[ii].isFinal()) ) {
       if ( (process[ii].id() == m_pdgId(settingsPtr)) and (process[ii].daughter1()!=process[ii].daughter2() && process[ii].daughter1()>0 && process[ii].daughter2()>0) ) {
 
 	Vec4 higgs4mom, mesonmom;
