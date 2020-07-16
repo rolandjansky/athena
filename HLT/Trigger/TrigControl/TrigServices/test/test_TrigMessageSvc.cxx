@@ -1,3 +1,11 @@
+#ifdef NDEBUG
+static const int timeout = 3000;
+#undef NDEBUG
+#else
+static const int timeout = 8000;
+#endif
+
+
 #include "../src/TrigMessageSvc.h"
 #include "TestTools/initGaudi.h"
 
@@ -11,13 +19,6 @@
 #include <random>
 #include <chrono>
 #include <cassert>
-
-#ifdef NDEBUG
-static const int timeout = 3000;
-#else
-static const int timeout = 8000;
-#undef NDEBUG
-#endif
 
 constexpr size_t numSources = 1000;
 constexpr size_t numMessages = 50000;
