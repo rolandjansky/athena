@@ -162,7 +162,7 @@ namespace top {
 
     registerParameter("JetPt", "Jet pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
     registerParameter("JetEta", "Absolute Jet eta cut for object selection. Default 2.5.", "2.5");
-
+   
     registerParameter("JVTinMETCalculation",
                       "Perfom a JVT cut on the jets in the MET recalculation? True (default) or False.", "True");
     registerParameter("SaveFailJVTJets", "Save the jets that failed the JVT cut? False (default) or True.", "False");
@@ -174,13 +174,20 @@ namespace top {
     registerParameter("ForwardJVTinMETCalculation",
                       "Use fJVT cut on forward jets to improve resolution in the MET recalculation? \'False\' (default - must set false if using pflow jets with derivations older than P4173), or \'True\'", "False");
     registerParameter("SaveFailForwardJVTJets", "Save the jets that failed the fJVT cut? \'False\' (default), or \'True\'", "False");
-
+    
     registerParameter("JetPtGhostTracks",
-                      "Jet pT threshold for ghost track systematic variations calculation (in MeV). Default 30 GeV.",
-                      "30000.");
+                      "Jet pT threshold for ghost track systematic variations calculation (in MeV). Default 25 GeV.",
+                      "25000.");
     registerParameter("JetEtaGhostTracks",
                       "Jet eta threshold for ghost track systematic variations calculation. Default 2.5",
                       "2.5");
+    registerParameter("GhostTrackspT",
+                      "PT of the ghost tracks associated small-R jets (in MeV). Default 500 MeV.",
+                      "500.");
+    registerParameter("GhostTracksVertexAssociation",
+                      "WP of the ghost track vertex association. Option: none, nominal and tight. Default nominal.","nominal");
+    registerParameter("GhostTracksQuality",
+                      "WP of the ghost track quality. Option: TightPrimary, LoosePrimary. Loose, NoCut. Default TightPrimary.","TightPrimary");
     registerParameter("JetUncertainties_NPModel",
                       "AllNuisanceParameters, CategoryReduction (default), GlobalReduction, StrongReduction - for JetUncertainties",
                       "CategoryReduction");

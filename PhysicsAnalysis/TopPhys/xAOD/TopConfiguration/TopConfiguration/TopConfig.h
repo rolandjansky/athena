@@ -625,7 +625,7 @@ namespace top {
     const std::string& sgKeyPseudoTopLoose(const std::string) const;
 
     // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-    // Jet Ghost-Track Systematics
+    // Jet Ghost-Track Systematics and selection
 
     // The jet decoration name for a given systematic (nominal also possible).
     const std::string& decoKeyJetGhostTrack(const std::size_t hash) const;
@@ -643,6 +643,7 @@ namespace top {
     inline std::shared_ptr<std::unordered_map<std::size_t, CP::SystematicSet> > systMapJetGhostTrack()   const {
       return m_systMapJetGhostTrack;
     }
+    
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
@@ -1050,9 +1051,14 @@ namespace top {
       }
     }
 
-    inline virtual void jetPtGhostTracks(const float pt) {
+    inline virtual void jetPtGhostTracks(const float pt, const float small_jet_pt) {
       if (!m_configFixed) {
-        m_jetPtGhostTracks = pt;
+        if ( small_jet_pt >= pt+4999){  
+            m_jetPtGhostTracks = pt;
+        }
+        else {
+            m_jetPtGhostTracks = (small_jet_pt - 5000) > 20000 ? (small_jet_pt - 5000) : 20000;
+        }
       }
     }
     
@@ -1061,11 +1067,35 @@ namespace top {
         m_jetEtaGhostTracks = eta;
       }
     }
+    
+    inline virtual void ghostTrackspT(const float pt) {
+      if (!m_configFixed) {
+        m_ghostTrackspT = pt;
+      }
+    }
+    
+    inline virtual void ghostTracksVertexAssociation(const std::string& vertexassociation) {
+      if (!m_configFixed) {
+        m_ghostTracksVertexAssociation = vertexassociation;
+      }
+    }
+    
+    inline virtual void ghostTracksQuality(const std::string& ghostTracksQuality) {
+     if (!m_configFixed) {
+        m_ghostTracksQuality = ghostTracksQuality;
+     }
+    }
 
     inline virtual float jetPtcut()  const {return m_jetPtcut;}
     inline virtual float jetEtacut() const {return m_jetEtacut;}
+    
+    inline virtual float ghostTrackspT()  const {return m_ghostTrackspT;}
+    inline virtual const std::string& ghostTracksVertexAssociation()  const {return m_ghostTracksVertexAssociation;}
+    inline virtual const std::string& ghostTracksQuality()  const {return m_ghostTracksQuality;}
+    
     inline virtual float jetPtGhostTracks()  const {return m_jetPtGhostTracks;}
     inline virtual float jetEtaGhostTracks()  const {return m_jetEtaGhostTracks;}
+
 
     inline virtual void largeRJetPtcut(const float pt) {
       if (!m_configFixed) {
@@ -2182,6 +2212,11 @@ namespace top {
     bool m_doForwardJVTInMETCalculation;
     bool m_saveFailForwardJVTJets;
     std::string m_fJVTWP;
+    
+    //Ghost tracks quality
+    float m_ghostTrackspT;
+    std::string m_ghostTracksVertexAssociation;
+    std::string m_ghostTracksQuality;
 
     // Large R jet configuration
     float m_largeRJetPtcut; // large R jet object selection pT cut
