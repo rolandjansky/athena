@@ -328,9 +328,6 @@ else:
                                                         OutputTrackCollection     = InDetKeys.TRT_Tracks_Phase(),
                                                         TrackFitter               = CfgGetter.getPublicTool('InDetTrackFitter'),
                                                         MinNHit                   = InDetNewTrackingCuts.minTRTonly(),
-                                                        CombineTracks             = False,
-                                                        OutputCombiCollection     = "",
-                                                        InputSCTCollection        = "",
                                                         OutlierRemoval            = True,
                                                         MaterialEffects           = False)
         topSequence += InDetTrkSegmenttoTrkPhase

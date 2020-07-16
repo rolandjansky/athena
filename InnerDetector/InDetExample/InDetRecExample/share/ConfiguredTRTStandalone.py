@@ -138,9 +138,6 @@ class ConfiguredTRTStandalone:
                                                         AssociationTool           = TrackingCommon.getInDetPRDtoTrackMapToolGangedPixels() if prd_to_track_map !='' else None,
                                                         InputAssociationMapName   = prd_to_track_map,
                                                         MinNHit                   = NewTrackingCuts.minTRTonly(),
-                                                        CombineTracks             = False,
-                                                        OutputCombiCollection     = "",
-                                                        InputSCTCollection        = "",
                                                         OutlierRemoval            = True,
                                                         MaterialEffects           = False)
       #InDetTrkSegmenttoTrk.OutputLevel = VERBOSE

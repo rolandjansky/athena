@@ -21,6 +21,8 @@
 #include "TrkSegment/SegmentCollection.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
+#include "TrkFitterInterfaces/ITrackFitter.h" 
+#include "TrkExInterfaces/IExtrapolator.h"
 // for shared hits:
 #include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
@@ -30,8 +32,6 @@ class AtlasDetectorID;
 class TRT_ID;
 
 namespace Trk {
-  class ITrackFitter;
-  class IExtrapolator;
   class Track;
   class Segment;
 }
@@ -61,32 +61,29 @@ namespace InDet
     StatusCode finalize();
 
   private:
-    
-    int getNumberReal(const InDet::TRT_DriftCircle*); //!< Get the number of truth particles associated with this hit
+    int getNumberReal(const InDet::TRT_DriftCircle*,const EventContext& ctx) const; //!< Get the number of truth particles associated with this hit
 
 
-    double getRealFraction(const Trk::Segment *segment); //!< Get the fraction of truth hits on this segment
-    double getRealFractionTRT(const Trk::Track *track); //!< Get the fraction of truth TRT hits on this Track
+    double getRealFractionTRT(const Trk::Track *track,const EventContext& ctx) const; //!< Get the fraction of truth TRT hits on this Track
     
-    double getNoiseProbability(const Trk::Track *track); //!< Get the fraction of noise TRT hits on this Track
+    double getNoiseProbability(const Trk::Track *track) const; //!< Get the fraction of noise TRT hits on this Track
     
-    int nTRTHits(const Trk::Track *track); //!< Count number of TRT Hits on track
+    int nTRTHits(const Trk::Track *track) const; //!< Count number of TRT Hits on track
     
-    int nHTHits(const Trk::Track *track); //!< Count number of TRT HT Hits on track
-    
-    
-    bool validateTrack(const Trk::Track *track); //!< Check that this track has the right properties (moves towards positive z and radially inwards)
-    
-    void combineSegments(void);
+    int nHTHits(const Trk::Track *track) const; //!< Count number of TRT HT Hits on track
+
+    void combineSegments(const EventContext& ctx) const;
 
     
     SG::ReadHandleKey<Trk::SegmentCollection> m_inputSegmentCollectionName{this,"InputSegmentsCollection","TrackSegments","RHK to retrieve input track collection"}; //!< Name of the TrackSegment Collection to read in
 
     SG::WriteHandleKey<TrackCollection> m_outputTrackCollectionName{this,"OutputTrackCollection","SegmentTracks","WHK to store output tracks"};  //!< Name of the TrackCollection to write out 
 
-    ToolHandle<Trk::ITrackFitter> m_trackFitter;   //!< The TrackFitter
+    ToolHandle<Trk::ITrackFitter> m_trackFitter
+       {this,"TrackFitter","Trk::KalmanFitter/TrkKalmanFitter",""};          //!< The TrackFitter
 
-    ToolHandle<Trk::IExtrapolator> m_extrapolator; //!< The Extrapolator
+    ToolHandle<Trk::IExtrapolator> m_extrapolator
+       {this,"ExtrapolationTool","Trk::Extrapolator/InDetExtrapolator",""};  //!< The Extrapolator
 
     ToolHandle<Trk::IExtendedTrackSummaryTool> m_trkSummaryTool
        {this, "SummaryTool","",""};
@@ -114,7 +111,7 @@ namespace InDet
     
     double m_noiseratio;                      //!< average percentage of noise in real tracks
     
-    int m_events;                             //!< Event counter
+    mutable std::atomic<int> m_events;        //!< Event counter
     std::map<int,int> m_MapReal;              //!< Map of hits and real tracks
     std::map<int,int> m_MapFake;              //!< Map of hits and fake tracks
     
@@ -129,11 +126,7 @@ namespace InDet
 
     SG::WriteHandleKey<TrackCollection> m_BECCollectionName{this,"BarrelEndcapTracks","TRT_Barrel_EC","WHK to write tracks"};  //!< Name of the combined (TRT Barrel+EC) TrackCollection to write out
 
-    std::string m_dummy;
-    bool m_dummy_bool;
-    
-    
-    int m_n_combined_fit;
+    mutable std::atomic<int> m_n_combined_fit;
 
     
 
