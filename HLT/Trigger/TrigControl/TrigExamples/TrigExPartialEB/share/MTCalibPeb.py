@@ -15,6 +15,7 @@ concurrent = get_opt('concurrent', False)
 # Number of chains
 num_chains = get_opt('num_chains', 3)
 # Configure hypo tool options
+MTCalibPebConfig.default_options.UseRandomSeed = get_opt('UseRandomSeed', False)
 MTCalibPebConfig.default_options.RandomAcceptRate = get_opt('RandomAcceptRate', 0.01)
 MTCalibPebConfig.default_options.BurnTimePerCycleMillisec = get_opt('BurnTimePerCycleMillisec', 20)
 MTCalibPebConfig.default_options.NumBurnCycles = get_opt('NumBurnCycles', 10)
