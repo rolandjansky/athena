@@ -1881,6 +1881,13 @@ namespace top {
     if (m_config->isMC()) m_weight_mc = event.m_info->auxdataConst<float>("AnalysisTop_eventWeight");
 
     if (m_config->isMC()) {
+      
+     if (m_config->doMCGeneratorWeights()) {
+     // delegate to helper function.
+     loadMCGeneratorWeights();
+     }
+  
+        
       m_weight_pileup = m_sfRetriever->pileupSF(event);
 
       m_weight_leptonSF = m_sfRetriever->leptonSF(event, top::topSFSyst::nominal);
