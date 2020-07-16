@@ -296,12 +296,18 @@ namespace MuonGM {
           if( st < 1 ) return false;
           if( st > nch ) return false;
           // We return the position in the center of the strip pitch
-          // in a 3.2mm pitch strip, we return at the centre ie after 1.6mm
-          // for the half strips (either first or last strips), we return after 0.8mm
-          if (st == 1) x = firstPos - 0.5 * firstPitch; // return center of the first strip
+          // in a 3.2mm pitch strip, we return at the centre of the copper ie after 1.6mm
+          // for the half strips (either first or last strips), the centre of the copper is not the centre of the half strip, ie NOT 1.6mm/2 
+          // a half strip is 1.35mm of copper + 0.25mm of "gap" = 1.6mm
+          if (st == 1){ // if First strip
+            if (firstPitch == 1.6) x = firstPos - 0.25 - 0.5 * 1.35; // remove 0.25mm gap and half of the copper pitch for half strips (1.35mm/2) 
+            else x = firstPos - 0.5 * firstPitch; // return center of the first strip
+          }
           else if (st <= nch) x = firstPos + (st-1.5) * inputPitch;
           else return false;
-          if (st == nch && firstPitch == 3.2) x = x - firstPitch/4; // accounts for staggering
+          // If last strip is staggered (first strip is NOT staggered)
+          // remove half the copper to return centre of copper of strip
+          if (st == nch && firstPitch == 3.2) x = x - 1.35 * 0.5; // accounts for staggering
           pos[0] = x;
           pos[1] = 0;
         }
