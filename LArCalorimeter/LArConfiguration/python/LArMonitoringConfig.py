@@ -19,7 +19,8 @@ def LArMonitoringConfig(inputFlags):
     if not inputFlags.Input.isMC:
          acc.merge(LArAffectedRegionsConfig(inputFlags))
          acc.merge(LArNoisyROMonConfig(inputFlags))
-         acc.merge(LArHVCorrMonConfig(inputFlags))
+         if 'online' not in inputFlags.DQ.Environment:
+            acc.merge(LArHVCorrMonConfig(inputFlags))
 
     # algos which can run in ESD but not AOD:
     if inputFlags.DQ.Environment != 'AOD':

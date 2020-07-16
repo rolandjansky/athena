@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // File:  Generators/FlowAfterburnber/CheckFlow_New_Minbias.h
@@ -314,8 +314,7 @@ StatusCode CheckFlow_New_Minbias::execute() {
     }
 
     //EbE vn for ID acceptance end pt>0.5GeV
-    //if(fabs(rapid)<=2.5 &&fabs(pt)>=500){
-    if(fabs(pt)>=500){
+    if(std::abs(pt)>=500){
       tot_ID1++;
       for(int ihar=0;ihar<6;ihar++){
         cos_ID1[ihar]+=cos((ihar+1)*phi);

@@ -148,6 +148,7 @@ namespace InDet{
       Trk::MagneticFieldProperties     m_fieldprop      ; // Magnetic field properties
       SG::ReadHandleKey<TRT_DriftCircleContainer> m_trtname {this,"TRT_ClustersContainer","TRT_DriftCircles","RHK to retrieve TRT_DriftCircleContainer"};
 
+      double                           m_minTRTSegmentpT; // Min pT cut required for TRT Segments
       ///////////////////////////////////////////////////////////////////
       // Methods
       ///////////////////////////////////////////////////////////////////

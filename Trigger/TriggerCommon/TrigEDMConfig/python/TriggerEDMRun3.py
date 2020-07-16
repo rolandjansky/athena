@@ -65,6 +65,19 @@ JetVarsToKeep = ['ActiveArea', 'ActiveArea4vec_eta', 'ActiveArea4vec_m', 'Active
                  'Jvt', 'JVFCorr', 'NumTrkPt500', 'NumTrkPt1000', 'SizeParameter', 'SumPtTrkPt500', 'SumPtTrkPt1000', 'TrackWidthPt1000',]
 JetVars = '.'.join(JetVarsToKeep)
 
+BTagOutput = ['SV1_TrackParticleLinks','IP2D_TrackParticleLinks','IP3D_TrackParticleLinks','BTagTrackToJetAssociator','Muons',
+              'JetFitter_N2Tpair','JetFitter_JFvertices','JetFitter_fittedPosition','JetFitter_fittedCov','JetFitter_tracksAtPVchi2',
+              'JetFitter_tracksAtPVndf','JetFitter_tracksAtPVlinks','JetFitter_massUncorr','JetFitter_chi2','JetFitter_ndof','JetFitter_dRFlightDir',
+              'JetFitter_nVTX','JetFitter_nSingleTracks','JetFitter_nTracksAtVtx','JetFitter_mass','JetFitter_energyFraction','JetFitter_significance3d',
+              'JetFitter_deltaeta','JetFitter_deltaphi','SV1_vertices','SV1_energyTrkInJet','SV1_dstToMatLay','SV1_masssvx','SV1_efracsvx','SV1_N2Tpair',
+              'SV1_NGTinSvx','SV1_badTracksIP','IP2D_sigD0wrtPVofTracks','IP2D_weightBofTracks','IP2D_weightUofTracks','IP2D_weightCofTracks',
+              'IP2D_flagfromV0ofTracks','IP2D_gradeOfTracks','trkSum_ntrk','trkSum_SPt','trkSum_VPt','trkSum_VEta','IP3D_valD0wrtPVofTracks',
+              'IP3D_valZ0wrtPVofTracks','IP3D_sigD0wrtPVofTracks','IP3D_sigZ0wrtPVofTracks','IP3D_weightBofTracks','IP3D_weightUofTracks',
+              'IP3D_weightCofTracks','IP3D_flagfromV0ofTracks','IP3D_gradeOfTracks','SV1_normdist','SV1_significance3d','SV1_deltaR','SV1_Lxy','SV1_L3d',
+              'MV2c10_discriminant','MV2c100_discriminant','jetLink',]
+BTagVars = '.'.join(BTagOutput)
+
+
 TriggerHLTListRun3 = [
 
     # framework/steering
@@ -370,13 +383,21 @@ TriggerHLTListRun3 = [
     # FIXME: add vertex tracks
 
     # bjet jets
-    ('xAOD::JetContainer#HLT_GSCJet',                             'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet', 'inViews:BTagViews'),
-    ('xAOD::JetAuxContainer#HLT_GSCJetAux.',                         'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
+    ('xAOD::JetContainer#HLT_bJets',                             'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet', 'inViews:BTagViews'),
+    ('xAOD::JetAuxContainer#HLT_bJetsAux.btaggingLink',          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
 
 
+    # secvertex for b-jets
+    ('xAOD::VertexContainer#HLT_BTagging_SecVtx',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet', 'inViews:BTagViews'),
+    ('xAOD::VertexAuxContainer#HLT_BTagging_SecVtxAux.',                   'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),  
+
+    # btagvertex for b-jets
+    ('xAOD::BTagVertexContainer#HLT_BTagging_JFVtx',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet', 'inViews:BTagViews'),
+    ('xAOD::BTagVertexAuxContainer#HLT_BTagging_JFVtxAux.',                   'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
+    
     # bjet b-tagging
     ('xAOD::BTaggingContainer#HLT_BTagging',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet', 'inViews:BTagViews'),
-    ('xAOD::BTaggingAuxContainer#HLT_BTaggingAux.',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
+    ('xAOD::BTaggingAuxContainer#HLT_BTaggingAux.'+BTagVars,          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
 
     # MinBias
 

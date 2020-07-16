@@ -13,7 +13,7 @@ from JetTagTools.SpecialTrackAssociatorConfig import SpecialTrackAssociatorCfg
 # import the IPTag configurable
 Analysis__IPTag=CompFactory.Analysis.IPTag
 
-def IP3DTagCfg( flags, name = 'IP3DTag', scheme = '', useBTagFlagsDefaults = True, **options ):
+def IP3DTagCfg( flags, name = 'IP3DTag', PrimaryVertexCollectionName="", scheme = '', useBTagFlagsDefaults = True, **options ):
     """Sets up a IP3DTag tool and returns it.
 
     The following options have BTaggingFlags defaults:
@@ -37,17 +37,16 @@ def IP3DTagCfg( flags, name = 'IP3DTag', scheme = '', useBTagFlagsDefaults = Tru
     options['xAODBaseName'] = 'IP3D'
     options['trackAssociationName'] = 'BTagTrackToJetAssociator'
 
-    if (scheme == ""): 
-        if useBTagFlagsDefaults:
-            trackToVertexIPEstimator = acc.popToolsAndMerge(BTagTrackToVertexIPEstimatorCfg(flags, 'TrkToVxIPEstimator'))
-            svForIPTool = acc.popToolsAndMerge(SVForIPToolCfg('SVForIPTool'))
-            trackGradeFactory = acc.popToolsAndMerge(IPDetailedTrackGradeFactoryCfg('IP3DDetailedTrackGradeFactory'))
-            trackSelectorTool = acc.popToolsAndMerge(IPTrackSelectorCfg(flags, 'IP3DTrackSelector'))
-            likelihood = acc.popToolsAndMerge(NewLikelihoodToolCfg(flags, 'IP3DNewLikelihoodTool', 'IP3D'))
-            inDetTrackSelectionTool = acc.popToolsAndMerge(InDetTrackSelectorCfg('InDetTrackSelector'))
-            trackVertexAssociationTool = acc.popToolsAndMerge(SpecialTrackAssociatorCfg('SpecialTrackAssociator'))
+    if useBTagFlagsDefaults:
+        trackToVertexIPEstimator = acc.popToolsAndMerge(BTagTrackToVertexIPEstimatorCfg(flags, 'TrkToVxIPEstimator'))
+        svForIPTool = acc.popToolsAndMerge(SVForIPToolCfg('SVForIPTool'))
+        trackGradeFactory = acc.popToolsAndMerge(IPDetailedTrackGradeFactoryCfg('IP3DDetailedTrackGradeFactory'))
+        trackSelectorTool = acc.popToolsAndMerge(IPTrackSelectorCfg(flags, 'IP3DTrackSelector'))
+        likelihood = acc.popToolsAndMerge(NewLikelihoodToolCfg(flags, 'IP3DNewLikelihoodTool', 'IP3D', scheme))
+        inDetTrackSelectionTool = acc.popToolsAndMerge(InDetTrackSelectorCfg('InDetTrackSelector'))
+        trackVertexAssociationTool = acc.popToolsAndMerge(SpecialTrackAssociatorCfg('SpecialTrackAssociator', PrimaryVertexCollectionName))
 
-            defaults = { 'Runmodus'                         : flags.BTagging.RunModus,
+        defaults = { 'Runmodus'                         : flags.BTagging.RunModus,
                      'referenceType'                    : flags.BTagging.ReferenceType,
                      'jetPtMinRef'                      : flags.BTagging.JetPtMinRef,
                      'impactParameterView'              : '3D',
@@ -68,8 +67,8 @@ def IP3DTagCfg( flags, name = 'IP3DTag', scheme = '', useBTagFlagsDefaults = Tru
                      'InDetTrackSelectionTool'          : inDetTrackSelectionTool,
                      'TrackVertexAssociationTool'       : trackVertexAssociationTool,
                      }
-            for option in defaults:
-                options.setdefault(option, defaults[option])
+        for option in defaults:
+            options.setdefault(option, defaults[option])
     acc.setPrivateTools(Analysis__IPTag( **options))
    
     return acc

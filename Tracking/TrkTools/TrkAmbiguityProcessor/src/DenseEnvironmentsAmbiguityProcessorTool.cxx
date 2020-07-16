@@ -94,13 +94,10 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::~DenseEnvironmentsAmbiguityProcess
 StatusCode Trk::DenseEnvironmentsAmbiguityProcessorTool::initialize()
 {
   StatusCode sc = StatusCode::SUCCESS;
-
   ATH_CHECK( m_scoringTool.retrieve());
-
   ATH_CHECK( m_assoMapName.initialize(!m_assoMapName.key().empty()));
   ATH_CHECK( m_assoTool.retrieve() );
   ATH_CHECK( m_trackSummaryTool.retrieve( DisableTool{ m_trackSummaryTool.name().empty() } ) );
-
   ATH_CHECK( m_selectionTool.retrieve());
   ATH_CHECK( m_fitterTool.retrieve());
   if (m_fitterTool.empty()){
@@ -128,8 +125,8 @@ StatusCode Trk::DenseEnvironmentsAmbiguityProcessorTool::initialize()
      ATH_CHECK(m_dRMap.initialize() );
   }
 
-  if (m_etaBounds.size() != TrackStat::nRegions-1) {
-     ATH_MSG_FATAL("There must be exactly " << (TrackStat::nRegions-1) << " eta bounds but "
+  if (m_etaBounds.size() != TrackStat::nRegions) {
+     ATH_MSG_FATAL("There must be exactly " << (TrackStat::nRegions) << " eta bounds but "
                    << m_etaBounds.size() << " are set." );
      return StatusCode::FAILURE;
   }
@@ -165,7 +162,6 @@ TrackCollection* Trk::DenseEnvironmentsAmbiguityProcessorTool::process(const Tra
 {
   if (!trackScoreTrackMap) return nullptr;
   // clear prdAssociationTool via selection tool
-
   // @TODO remove :
   std::unique_ptr<Trk::PRDtoTrackMap> prd_to_track_map( m_assoTool->createPRDtoTrackMap() );
   if (!m_assoMapName.key().empty()) {
@@ -178,9 +174,7 @@ TrackCollection* Trk::DenseEnvironmentsAmbiguityProcessorTool::process(const Tra
      }
   }
   std::vector<std::unique_ptr<const Trk::Track> > cleanup_tracks;
-
   reloadHadROIs();
-
   // going to do simple algorithm for now:
   // - take track with highest score
   // - remove shared hits from all other tracks
@@ -198,11 +192,9 @@ TrackCollection* Trk::DenseEnvironmentsAmbiguityProcessorTool::process(const Tra
         m_stat += stat;
      }
   }
-  if(m_applydRcorrection)
-  {
+  if(m_applydRcorrection){
     ATH_MSG_ERROR("applydRcorrection is going to be removed.");
   }
-
   return finalTracks;
 }
 
@@ -213,12 +205,10 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::addTrack(Trk::Track* track, c
                                                             std::multimap<float, TrackPtr > &scoreTrackFitflagMap,
                                                             const Trk::PRDtoTrackMap &prd_to_track_map,
                                                             std::vector<std::unique_ptr<const Trk::Track> >& cleanup_tracks,
-                                        TrackStat &stat) const
-{
+                                        TrackStat &stat) const{
   // compute score
   TrackScore score;
   bool suppressHoleSearch = fitted ? m_suppressHoleSearch : true;
-
   ATH_MSG_DEBUG ("addTrack()::Fitted             "<< fitted);
   if (m_trackSummaryTool.isEnabled()) {
      m_trackSummaryTool->computeAndReplaceTrackSummary(*track,
@@ -288,38 +278,28 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::solveTracks(const TracksScore
                                                                Trk::PRDtoTrackMap &prd_to_track_map,
                                                                TrackCollection &finalTracks,
                                                                std::vector<std::unique_ptr<const Trk::Track> > &cleanup_tracks,
-                                           TrackStat &stat) const
-{
-
+                                           TrackStat &stat) const{
   std::multimap<float, TrackPtr  > scoreTrackFitflagMap;
   for(const std::pair< const Trk::Track *, float> &scoreTrack: trackScoreTrackMap){
      scoreTrackFitflagMap.emplace(scoreTrack.second, TrackPtr(scoreTrack.first) );
      stat.incrementCounterByRegion(EStatType::kNcandidates,scoreTrack.first);
   }
-
   ATH_MSG_DEBUG ("Starting to solve tracks");
-
   // now loop as long as map is not empty
-  while ( !scoreTrackFitflagMap.empty() )
-  {
+  while ( !scoreTrackFitflagMap.empty() ){
     // get current best candidate 
     std::multimap<float, TrackPtr >::iterator itnext = scoreTrackFitflagMap.begin();
     TrackPtr atrack( std::move(itnext->second) );
     float ascore =  itnext->first;
-
     scoreTrackFitflagMap.erase(itnext);
-
     // clean it out to make sure not to many shared hits
     ATH_MSG_DEBUG ("--- Trying next track "<<atrack.track()<<"\t with score "<<-ascore);
     std::unique_ptr<Trk::Track> cleanedTrack;
     auto [cleanedTrack_tmp, keep_orig] = m_selectionTool->getCleanedOutTrack( atrack.track() , -ascore, prd_to_track_map);
     cleanedTrack.reset(cleanedTrack_tmp);
     ATH_MSG_DEBUG ("--- cleaned next track "<< cleanedTrack.get());
-
-
     // cleaned track is input track and fitted
-    if (keep_orig && atrack.fitted())
-    {
+    if (keep_orig && atrack.fitted()){
       // track can be kept as is and is already fitted
        ATH_MSG_DEBUG ("Accepted track "<<atrack.track()<<"\t has score "<<-ascore);
        stat.incrementCounterByRegion(EStatType::kNaccepted, atrack.track() );
@@ -344,63 +324,50 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::solveTracks(const TracksScore
           if (atrack.newTrack()) {
              cleanup_tracks.push_back(std::unique_ptr<const Trk::Track>(atrack.release()) );
           }
-        }
-        else{
+        }else{
           // add track to PRD_AssociationTool
           StatusCode sc = m_assoTool->addPRDs(prd_to_track_map, *atrack);
           if (sc.isFailure()) ATH_MSG_ERROR( "addPRDs() failed" );
           // add to output list 
           finalTracks.push_back( atrack.release() );
         }
-      }
-      else {
+      }else {
         // add track to PRD_AssociationTool
         StatusCode sc = m_assoTool->addPRDs(prd_to_track_map, *atrack);
         if (sc.isFailure()) ATH_MSG_ERROR( "addPRDs() failed" );
         // add to output list 
         finalTracks.push_back( atrack.release() );
       }
-    }
-    else if ( keep_orig)
-    {
+    }else if ( keep_orig){
       // track can be kept as is, but is not yet fitted
       ATH_MSG_DEBUG ("Good track("<< atrack.track() << ") but need to fit this track first, score, add it into map again and retry ! ");
       Trk::Track *refittedTrack = refitTrack(atrack.track(),prd_to_track_map, stat);
       if(refittedTrack) {
          addTrack( refittedTrack, true , scoreTrackFitflagMap, prd_to_track_map, cleanup_tracks, stat);
       }
-
       // remove original copy, but delay removal since some pointer to it or its constituents may still be in used
       if (atrack.newTrack()) {
          cleanup_tracks.push_back(std::unique_ptr<const Trk::Track>(atrack.release()) );
       }
-    }
-    else if ( cleanedTrack ) //cleanedTrack != atrack
-    {
+    } else if ( cleanedTrack ) {//cleanedTrack != atrack
       ATH_MSG_DEBUG ("Candidate excluded, add subtrack to map. Track "<<cleanedTrack.get());
       stat.incrementCounterByRegion(EStatType::kNsubTrack,cleanedTrack.get());
-
       // for this case clenedTrack is a new created object.
       addTrack(cleanedTrack.release(), false, scoreTrackFitflagMap, prd_to_track_map, cleanup_tracks, stat);
-
       // remove original copy, but delay removal since some pointer to it or its constituents may still be in used
       if (atrack.newTrack()) {
          cleanup_tracks.push_back(std::unique_ptr<const Trk::Track>(atrack.release()) );
       }
-    }
-    else
-    {
+    } else {
       // track should be discarded
       ATH_MSG_DEBUG ("Track "<< atrack.track() << " is excluded, no subtrack, reject");
       stat.incrementCounterByRegion(EStatType::kNnoSubTrack,atrack.track());
-
       // remove original copy, but delay removal since some pointer to it or its constituents may still be in used
       if (atrack.newTrack()) {
          cleanup_tracks.push_back(std::unique_ptr<const Trk::Track>(atrack.release()) );
       }
     }
   }
-
   ATH_MSG_DEBUG ("Finished, number of track on output: "<<finalTracks.size());
 }
 
@@ -409,35 +376,30 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::solveTracks(const TracksScore
 //==================================================================================================
 Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitTrack( const Trk::Track* track,
                                                                       Trk::PRDtoTrackMap &prd_to_track_map,
-                                                  TrackStat &stat) const
-{
+                                                  TrackStat &stat) const{
   Trk::Track* newTrack = nullptr;
   if (!m_suppressTrackFit){
-    if (m_refitPrds) 
-    {
+    if (m_refitPrds) {
       // simple case, fit PRD directly
       ATH_MSG_VERBOSE ("Refit track "<<track<<" from PRDs");
       newTrack = refitPrds (track,prd_to_track_map, stat);
-    }
-    else 
-    {
+    }else {
       // ok, we fit ROTs
       ATH_MSG_VERBOSE ("Refit track "<<track<<" from ROTs");
       newTrack = refitRots (track,stat);
     }
   } else {
-    double reXi2 = 0.; int nDF = 0;
+    double reXi2 = 0.; 
+    int nDF = 0;
     const DataVector<const TrackStateOnSurface>* tsos = track->trackStateOnSurfaces();
     DataVector<const TrackStateOnSurface>* vecTsos = new DataVector<const TrackStateOnSurface>();
     // loop over TSOS, copy TSOS and push into vector
     DataVector<const TrackStateOnSurface>::const_iterator iTsos    = tsos->begin();
     DataVector<const TrackStateOnSurface>::const_iterator iTsosEnd = tsos->end(); 
-    for ( ; iTsos != iTsosEnd ; ++iTsos) 
-    {
+    for ( ; iTsos != iTsosEnd ; ++iTsos) {
       const TrackStateOnSurface* newTsos = new TrackStateOnSurface(**iTsos);
       vecTsos->push_back(newTsos);
-      if((*iTsos)->type(Trk::TrackStateOnSurface::Measurement))
-      {  //Get the chi2 and number of hits
+      if((*iTsos)->type(Trk::TrackStateOnSurface::Measurement)){  //Get the chi2 and number of hits
         if ((*iTsos)->fitQualityOnSurface()) {
           reXi2 += (*iTsos)->fitQualityOnSurface()->chiSquared();
           nDF   += (*iTsos)->fitQualityOnSurface()->numberDoF();
@@ -450,18 +412,14 @@ Trk::Track* Trk::DenseEnvironmentsAmbiguityProcessorTool::refitTrack( const Trk:
     Trk::TrackInfo newInfo;
     newInfo.setPatternRecognitionInfo(Trk::TrackInfo::SimpleAmbiguityProcessorTool);
     info.addPatternReco(newInfo); 
-
     newTrack = new Trk::Track(info, vecTsos, fq);  
   }
   
-  if (newTrack!=nullptr) 
-  {
+  if (newTrack!=nullptr) {
     ATH_MSG_DEBUG ("New track "<<newTrack<<" successfully fitted from "<<track);
-  }
-  else { 
+  } else { 
     ATH_MSG_DEBUG ("Fit failed !");
   }  
-  
   return newTrack;
 }
 
@@ -902,8 +860,8 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::dumpStat(MsgStream &out) const{
    }
    out << "------------------------------------------------------------------------------------" << "\n";
    out << std::setiosflags(std::ios::fixed | std::ios::showpoint) << std::setprecision(2)
-       << "    definition: ( 0.0 < Barrel < " << m_etaBounds[TrackStat::iBarrel-1] << " < Transition < " << m_etaBounds[TrackStat::iTransi-1]
-       << " < Endcap < " << m_etaBounds[TrackStat::iEndcap-1] << " < Forward < " << m_etaBounds[TrackStat::iForwrd-1] << " )" << "\n";
+       << "    definition: ( 0.0 < Barrel < " << m_etaBounds[TrackStat::iBarrel] << " < Transition < " << m_etaBounds[TrackStat::iTransi]
+       << " < Endcap < " << m_etaBounds[TrackStat::iEndcap] << " < Forward < " << m_etaBounds[TrackStat::iForwrd] << " )" << "\n";
    out << "------------------------------------------------------------------------------------" << "\n";
    out << std::setprecision(ss);
   }

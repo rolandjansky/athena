@@ -1467,7 +1467,7 @@ FastShowerCellBuilderTool::process_particle(CaloCellContainer* theCellContainer,
         // a relatively small weight.
         ERatioThresh = 4;
       }
-      if(p.E>=ERatioThresh && p.E*Ein>2000) {
+      if(p.E>=ERatioThresh && p.E*Ein>2500) {
         ATH_MSG_WARNING("particle energy/truth="<<p.E);
         ATH_MSG_WARNING(" - "<<particle_info_str.str());
         ATH_MSG_WARNING(" parametrization  : "<< Epara->GetTitle());

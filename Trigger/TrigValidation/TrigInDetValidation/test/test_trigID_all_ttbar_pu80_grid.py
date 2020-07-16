@@ -28,7 +28,7 @@
 
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
-from TrigInDetValidation.TrigInDetArtSteps import TrigInDetAna, TrigInDetdictStep, TrigInDetCompStep
+from TrigInDetValidation.TrigInDetArtSteps import TrigInDetAna, TrigInDetdictStep, TrigInDetCompStep, TrigInDetCpuCostStep
 
 
 import sys,getopt
@@ -149,6 +149,20 @@ comp4=TrigInDetCompStep('CompareStep4')
 comp4.chains='HLT_e5_etcut_L1EM3:HLT_IDTrack_Electron_FTF HLT_e5_etcut_L1EM3:HLT_IDTrack_Electron_IDTrig'
 comp4.output_dir = 'HLT-plots-el-IDTrig'
 test.check_steps.append(comp4)
+
+comp5=TrigInDetCompStep('CompareStep5')
+comp5.chains='HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_TauCore_FTF HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_Tau_IDTrig'
+comp4.output_dir = 'HLT-plots-tau-IDTrig'
+test.check_steps.append(comp5)
+
+
+cpucost=TrigInDetCpuCostStep('CpuCostStep1')
+test.check_steps.append(cpucost)
+
+cpucost2=TrigInDetCpuCostStep('CpuCostStep2')
+cpucost2.args += '  -p FastTrack'
+cpucost2.output_dir = 'times-FTF' 
+test.check_steps.append(cpucost2)
 
 
 import sys

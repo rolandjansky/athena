@@ -5,6 +5,7 @@
 #include "EventContainers/InternalOfflineFast.h"
 #include <algorithm>
 #include "EventContainers/IDC_WriteHandleBase.h"
+#include "CxxUtils/AthUnlikelyMacros.h"
 
 using namespace EventContainers;
 typedef I_InternalIDC::InternalConstItr InternalConstItr;
@@ -21,7 +22,7 @@ bool InternalOfflineFast::tryAddFromCache(IdentifierHash hash)
 }
 
 void InternalOfflineFast::wait() const {
-   std::lock_guard lock (m_waitMutex);
+   std::scoped_lock lock (m_waitMutex);
    if(m_needsupdate == false) return;
    m_map.clear();
    for(size_t i=0 ;i < m_fullMap.size(); ++i){
@@ -84,7 +85,6 @@ void InternalOfflineFast::cleanUp(deleter_f* deleter) noexcept {
 }
 
 bool InternalOfflineFast::insert(IdentifierHash hashId, const void* ptr) {
-    if(hashId >= m_fullMap.size()) return false;
     if(m_fullMap[hashId]!= nullptr) return false; //already in
     m_fullMap[hashId] = ptr;
     m_needsupdate.store(true, std::memory_order_relaxed);
@@ -99,10 +99,7 @@ const void* InternalOfflineFast::findIndexPtr(IdentifierHash hashId) const noexc
 StatusCode InternalOfflineFast::addLock(IdentifierHash hashId, const void* ptr) {
     bool added = insert(hashId, ptr);
     if(!added) {
-#ifndef NDEBUG
-        std::cout << "IDC WARNING Deletion shouldn't occur in addLock paradigm" << std::endl;
-#endif
-        return StatusCode::FAILURE;
+      throw std::runtime_error("IDC WARNING Deletion shouldn't occur in addLock paradigm");
     }
     return StatusCode::SUCCESS;
 }

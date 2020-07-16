@@ -29,6 +29,8 @@ def MV2TagCfg( flags, name = 'MV2c10', scheme = '', useBTagFlagsDefaults = True,
     ForceMV2CalibrationAlias = False
     MV2CalibAlias = 'AntiKt4EMTopo'
     options['xAODBaseName'] = basename
+    if scheme == 'Trig':
+        options['HistosKey'] = 'JetTagTrigCalibHistosKey'
 
     if useBTagFlagsDefaults:
         defaults = { 'Runmodus'                         : flags.BTagging.RunModus,

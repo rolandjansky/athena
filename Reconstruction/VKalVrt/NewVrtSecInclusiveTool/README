@@ -1,0 +1,28 @@
+A tool for inclusive secondary vertex reconstruction in ATLAS ID.
+
+This is an improved version of the VrtSecInclusive algorithm.
+
+Changes with respect to original version:
+
+1) Outdated Graph(CERNLIB) package is replaced by Bron&Kerbosch algorithm from BOOST
+2) Fake(fragmentation+pileup) and hadronic interaction vertices are removed using a dedicated MVA
+3) Additional material interaction rejection is based on the TrackingGeometry material layers
+4) Many improvements in vertex topology resolution
+5) One-track vertices are allowed (e.g. 3 track system, where one track crosses 2 others in different places, 
+     so that 3-track vertex has inacceptable Chi2, will be resolved as 2-track + 1-track vertices).
+     This allows to get 2 vertices in case of e.g. cascade B->D decay with 3 reconstracted tracks in total.
+6) Algorithm is converted to Tool for convenience of usage in other Algorithms.
+7) Several tool configurations suitable for different problems are provided, e.g.:
+        SoftBFinderTool         - targeting Soft b-tagging for SUSY
+	InclusiveBFinderTool    - inclusive B-hadron decay reconstruction (a la CMS/D0) for b-tagging
+	DVFinderTool            - search for displaced vertices produced by exotic particles  
+
+
+Configured finders:
+1) SoftBFinderTool       - looks for all low-pt (>1GeV) B-hadron vertices in event. No jet presence is assumed
+2) InclusiveBFinderTool  - looks for all B-hadron vertices in event with low fake rate. 
+                           Suitable for ttbar and other processes with similar pt-range.
+3) HighPtBFinderTool     - looks for all high-pt B-hadron vertices in event. No jet presence is assumed.
+4) MaterialSVFinderTool  - looks for hadronic interaction vertices in detector material.
+5) DVFinderTool          - looks for heavy displaced vertices in ID volume.
+   

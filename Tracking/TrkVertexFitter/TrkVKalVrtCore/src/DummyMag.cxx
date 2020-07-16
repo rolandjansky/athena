@@ -31,19 +31,19 @@ vkalMagFld::vkalMagFld():
    m_saveBZ=0.;
 }
 
-vkalMagFld::~vkalMagFld() {}
+vkalMagFld::~vkalMagFld() = default;
 
 
-baseMagFld::baseMagFld() {}
-baseMagFld::~baseMagFld() {}
+baseMagFld::baseMagFld() = default;
+baseMagFld::~baseMagFld() = default;
 
 void vkalMagFld::getMagFld(const double X,const double Y,const double Z,
-                           double& bx, double& by, double& bz, const VKalVrtControlBase* FitControl=0 ) const
+                           double& bx, double& by, double& bz, const VKalVrtControlBase* FitControl=nullptr ) const
 {
      bx=by=0.;
      //std::cout<<"In coreMag.field0 Control="<<FitControl<<'\n';
      //std::cout<<"In coreMag.field0 obj="<<FitControl->vk_objMagFld<<" func="<<FitControl->vk_funcMagFld<<'\n';
-     if ( FitControl==0  || (FitControl->vk_funcMagFld == 0 && FitControl->vk_objMagFld==0) ){
+     if ( FitControl==nullptr  || (FitControl->vk_funcMagFld == nullptr && FitControl->vk_objMagFld==nullptr) ){
         bz=m_cnstBMAG;
         return;
      }
@@ -55,12 +55,12 @@ void vkalMagFld::getMagFld(const double X,const double Y,const double Z,
      //std::cout<<" coreMag.field="<<bx<<", "<<by<<", "<<bz<<" obj="<<FitControl->vk_objMagFld<<" func="<<FitControl->vk_funcMagFld<<'\n';
 }
 
-double vkalMagFld::getMagFld(const double xyz[3], const VKalVrtControlBase* FitControl=0 ) const
+double vkalMagFld::getMagFld(const double xyz[3], const VKalVrtControlBase* FitControl=nullptr ) const
 {
      //std::cout<<"In coreMag.field1 Control="<<FitControl<<'\n';
      //std::cout<<"In coreMag.field1 obj="<<FitControl->vk_objMagFld<<" func="<<FitControl->vk_funcMagFld<<'\n';
      double bx=0., by=0., bz=0.;
-     if (  FitControl==0  || (FitControl->vk_funcMagFld == 0 && FitControl->vk_objMagFld==0) ){
+     if (  FitControl==nullptr  || (FitControl->vk_funcMagFld == nullptr && FitControl->vk_objMagFld==nullptr) ){
        bz=m_cnstBMAG;
        return bz;
      }

@@ -83,7 +83,7 @@ def athenaMPOutputHandler(athenaMPFileReport, athenaMPWorkerTopDir, dataDictiona
             mpOutputs.parse(athenaMPFileReport)
         except IOError:
             raise trfExceptions.TransformExecutionException(trfExit.nameToCode("TRF_OUTPUT_FILE_ERROR"), "Missing AthenaMP outputs file {0} (probably athena crashed)".format(athenaMPFileReport))
-        for filesElement in mpOutputs.getroot().getiterator(tag='Files'):
+        for filesElement in mpOutputs.getroot().iter(tag='Files'):
             msg.debug('Examining element {0} with attributes {1}'.format(filesElement, filesElement.attrib))
             originalArg = None 
             startName = filesElement.attrib['OriginalName']
@@ -98,7 +98,7 @@ def athenaMPOutputHandler(athenaMPFileReport, athenaMPWorkerTopDir, dataDictiona
         
             msg.debug('Found matching argument {0}'.format(originalArg))
             fileNameList = []
-            for fileElement in filesElement.getiterator(tag='File'):
+            for fileElement in filesElement.iter(tag='File'):
                 msg.debug('Examining element {0} with attributes {1}'.format(fileElement, fileElement.attrib))
                 fileNameList.append(path.relpath(fileElement.attrib['name']))
 

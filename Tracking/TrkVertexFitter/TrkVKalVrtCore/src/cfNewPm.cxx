@@ -2,11 +2,11 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
-#include <iostream>
-#include "TrkVKalVrtCore/VKalVrtBMag.h"
 #include "TrkVKalVrtCore/Propagator.h"
 #include "TrkVKalVrtCore/TrkVKalUtils.h"
+#include "TrkVKalVrtCore/VKalVrtBMag.h"
+#include <cmath>
+#include <iostream>
 
 namespace Trk {
 
@@ -15,7 +15,7 @@ extern const vkalMagFld  myMagFld;
 
 extern double d_sign(double, double);
 extern void cfnewp(long int *, double *, double *, double *, double *, double *);
-extern void vkgrkuta_(double *, double *, double *, double *, const VKalVrtControlBase* =0 );
+extern void vkgrkuta_(double *, double *, double *, double *, const VKalVrtControlBase* =nullptr );
 
 
 void cfnewpm(double *par, double *xyzStart, double *xyzEnd, double *ustep, double *parn, double *closePoint, const VKalVrtControlBase * CONTROL)
@@ -111,17 +111,6 @@ void cfnewpm(double *par, double *xyzStart, double *xyzEnd, double *ustep, doubl
     closePoint[0] = perig[0] + vout[0];                  // with simple program
     closePoint[1] = perig[1] + vout[1];
     closePoint[2] = perig[2] + vout[2];
-
-//std::cout <<" Exit from cfNewPm="<<dp<<'\n';
-//std::cout <<parn[0]<<'\n';
-//   if(parn[0] == 0.) {
-//std::cout <<dp<<", "<<(*ustep)<<'\n';
-//       for (int jj=0; jj<6;jj++) std::cout <<" vout="<<vout[jj]<<'\n';
-//       for (int jj=0; jj<3;jj++) std::cout <<" xyzst="<<xyzst[jj]<<'\n';
-//       for (int jj=0; jj<5;jj++) std::cout <<" dpar0="<<dpar0[jj]<<'\n';
-//       for (int jj=0; jj<5;jj++) std::cout <<" parn="<<parn[jj]<<'\n';
-//   }
-    return;
 } 
 
 

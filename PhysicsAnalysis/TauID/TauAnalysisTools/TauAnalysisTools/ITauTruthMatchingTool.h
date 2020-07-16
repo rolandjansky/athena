@@ -33,8 +33,9 @@ namespace TauAnalysisTools
 {
 
 class ITauTruthMatchingTool
-  : public virtual asg::IAsgTool
-  , public virtual TauAnalysisTools::IBuildTruthTaus
+  // The order matters, do not switch them !!!
+  : public virtual TauAnalysisTools::IBuildTruthTaus
+  , public virtual asg::IAsgTool
 {
 
   /// Declare the interface that the class provides

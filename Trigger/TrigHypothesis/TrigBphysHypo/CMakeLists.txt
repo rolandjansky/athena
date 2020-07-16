@@ -13,8 +13,6 @@ atlas_depends_on_subdirs( PRIVATE
                           Control/AthViews
                           Control/CxxUtils
                           Control/StoreGate
-                          DetectorDescription/GeoPrimitives
-                          Event/EventInfo
                           Event/FourMomUtils
                           Event/xAOD/xAODEventInfo
                           Event/xAOD/xAODBase
@@ -25,19 +23,11 @@ atlas_depends_on_subdirs( PRIVATE
                           Event/xAOD/xAODTrigger
                           GaudiKernel
                           LumiBlock/LumiBlockComps
-                          PhysicsAnalysis/AnalysisCommon/PATCore
-                          Generators/GeneratorObjects
                           InnerDetector/InDetConditions/BeamSpotConditionsData
-                          InnerDetector/InDetConditions/InDetBeamSpotService
                           InnerDetector/InDetRecTools/InDetConversionFinderTools
                           PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
-                          Reconstruction/Particle
-                          Tracking/TrkEvent/TrkParameters
-                          Tracking/TrkEvent/TrkTrack
-                          Tracking/TrkEvent/VxVertex
                           Tracking/TrkVertexFitter/TrkVKalVrtFitter
                           Trigger/TrigEvent/TrigBphysicsEvent
-                          Trigger/TrigEvent/TrigCaloEvent
                           Trigger/TrigEvent/TrigInDetEvent
                           Trigger/TrigEvent/TrigMuonEvent
                           Trigger/TrigEvent/TrigNavigation
@@ -46,21 +36,19 @@ atlas_depends_on_subdirs( PRIVATE
                           Trigger/TrigSteer/TrigInterfaces
                           Trigger/TrigT1/TrigT1Interfaces
                           Trigger/TrigTools/TrigInDetToolInterfaces
-                          Trigger/TrigTools/TrigTimeAlgs
                           Trigger/TrigSteer/DecisionHandling
                           Trigger/TrigSteer/TrigCompositeUtils)
 
 # External dependencies:
-find_package( CLHEP )
-find_package( Eigen )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_component( TrigBphysHypo
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel AthLinks BeamSpotConditionsData InDetConversionFinderToolsLib DecisionHandlingLib FourMomUtils StoreGateLib SGtests GeoPrimitives EventInfo xAODEventInfo xAODMuon xAODTracking xAODTrigBphys xAODTrigMuon GaudiKernel GeneratorObjects Particle ElectronPhotonSelectorToolsLib TrkParameters TrkTrack VxVertex TrkVKalVrtFitterLib TrigBphysicsEvent TrigCaloEvent TrigInDetEvent TrigMuonEvent TrigNavigationLib TrigParticle TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigTimeAlgsLib AthViews TrigCompositeUtilsLib )
+                     INCLUDE_DIRS 
+                     LINK_LIBRARIES AthenaBaseComps AthenaKernel AthLinks BeamSpotConditionsData ElectronPhotonSelectorToolsLib InDetConversionFinderToolsLib DecisionHandlingLib FourMomUtils StoreGateLib xAODEventInfo xAODMuon xAODTracking xAODTrigBphys xAODTrigMuon GaudiKernel TrkVKalVrtFitterLib TrigBphysicsEvent TrigInDetEvent TrigMuonEvent TrigNavigationLib TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib AthViews TrigCompositeUtilsLib TrigT1Interfaces TrigParticle)
+
+#TrigParticle is needed for linking getRecentFeaturesLinks for some reason
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

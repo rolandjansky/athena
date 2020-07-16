@@ -125,7 +125,7 @@ class ConfiguredNewTrackingCuts :
 
     # --- run back tracking and TRT only in RoI seed regions
     self.__RoISeededBackTracking     = False
-
+    self.__minRoIClusterEt            = 0.
     # --------------------------------------
     # --- TRT Only TRACKING cuts
     # --------------------------------------
@@ -235,7 +235,14 @@ class ConfiguredNewTrackingCuts :
       self.__keepAllConfirmedSeeds  = True
       self.__maxSeedsPerSP          = 1
 
+    
     if self.__indetflags.cutLevel() >= 19:
+      # Calo cluster Et for RoI seeded backtracking for TRT segment finding
+      # and for TRT-si extensions
+      self.__minRoIClusterEt         = 6000. * Units.MeV
+      self.__minSecondaryPt          = 3.0 * Units.GeV  # Increase pT cut used for back-tracking to match calo-RoI
+
+    if self.__indetflags.cutLevel() >= 20:
       print('--------> FATAL ERROR, cut level undefined, abort !')
       import sys
       sys.exit()
@@ -1074,6 +1081,9 @@ class ConfiguredNewTrackingCuts :
   def RoISeededBackTracking( self ) :
     return self.__RoISeededBackTracking
 
+  def minRoIClusterEt( self ) :
+    return self.__minRoIClusterEt
+
   def printInfo( self ) :
     print('****** Inner Detector Track Reconstruction Cuts ************************************')
     print('*')
@@ -1151,6 +1161,8 @@ class ConfiguredNewTrackingCuts :
       print('* TRT segment finder pt bins  :  ', self.__TRTSegFinderPtBins)
       print('* rejectShortExtensions       :  ', self.__rejectShortExtensions)
       print('* SiExtensionsCuts            :  ', self.__SiExtensionCuts)
+      if self.__RoISeededBackTracking:
+        print('* min CaloCluster Et          :  ', self.__minRoIClusterEt)
       print('*')
     if self.__useTRT:
       print('* useParameterizedTRTCuts     :  ', self.__useParameterizedTRTCuts)

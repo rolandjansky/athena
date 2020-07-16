@@ -20,5 +20,3 @@ atlas_add_component( G4CosmicFilter
 # Install files from the package:
 atlas_install_headers( G4CosmicFilter )
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*.py )
-

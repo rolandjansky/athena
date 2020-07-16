@@ -286,7 +286,8 @@ int usage(const std::string& name, int status, const std::string& err_msg="" ) {
   s << "    -np, --noplots            \t do not actually make any plot\n";
   s << "    -q,  --quiet              \t make the plots but do not print them out\n\n";
 
-  s << "         --unscalepix         \t do not scale the number of pixels by 0.5 (scaled by default)\n";
+  s << "         --unscalepix         \t do not scale the number of pixels by 0.5 (unscaled by default)\n";
+  s << "         --scalepix           \t do scale the number of pixels by 0.5 (unscaled by default)\n";
   s << "         --yrange     min max \t use specified y axis range\n";  
   s << "    -xo, --xoffset      value \t relative x offset for the key\n"; 
   s << "    -yp, --ypos         value \t relative yposition for the key\n"; 
@@ -426,7 +427,7 @@ int main(int argc, char** argv) {
   bool notitle     = true;
   bool dochi2      = false;
   bool normref     = false;
-  bool scalepix    = true;
+  bool scalepix    = false;
   bool oldrms      = false;
   bool addchains   = false;
   bool usechainref = false;
@@ -523,6 +524,9 @@ int main(int argc, char** argv) {
     }
     else if ( arg=="--unscalepix" ) { 
       scalepix = false;
+    }
+    else if ( arg=="--scalepix" ) { 
+      scalepix = true;
     }
     else if ( arg=="-ac" || arg=="--addchains" ) { 
       addchains = true;

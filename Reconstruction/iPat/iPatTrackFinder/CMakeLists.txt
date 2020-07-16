@@ -44,7 +44,7 @@ atlas_add_component( iPatTrackFinder
                      src/TrackFinder.cxx
                      src/TrackManager.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps Identifier EventPrimitives GaudiKernel InDetPrepRawData iPatInterfaces iPatTrack InDetReadoutGeometry PixelReadoutGeometry MagFieldElements MagFieldConditions iPatGeometry iPatTrackParameters iPatUtility TrkPrepRawData TrkSpacePoint VxVertex EventContainers StoreGateLib)
+                     LINK_LIBRARIES AthenaBaseComps Identifier EventPrimitives GaudiKernel InDetPrepRawData iPatInterfaces iPatTrack InDetReadoutGeometry PixelReadoutGeometry MagFieldElements MagFieldConditions iPatGeometry iPatTrackParameters iPatUtility TrkPrepRawData TrkSpacePoint VxVertex EventContainers StoreGateLib BeamSpotConditionsData )
 
 # Install files from the package:
 atlas_install_headers( iPatTrackFinder )

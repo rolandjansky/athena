@@ -41,7 +41,3 @@ atlas_add_component( MuonSTGC_CnvTools
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                      LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${EIGEN_LIBRARIES} ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test GaudiKernel AthenaBaseComps Identifier EventPrimitives TGCcablingInterfaceLib MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonRDO MuonPrepRawData MuonTrigCoinData TrkSurfaces STgcClusterizationLib MuonCnvToolInterfacesLib MuonSTGC_CnvToolsLib )
-
-# Install files from the package:
-atlas_install_joboptions( share/*.py )
-

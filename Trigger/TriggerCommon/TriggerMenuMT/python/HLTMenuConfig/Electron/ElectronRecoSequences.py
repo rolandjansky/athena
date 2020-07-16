@@ -14,7 +14,7 @@ def l2CaloRecoCfg( flags ):
 
 def l2CaloHypoCfg( flags, name="UNSPECIFIED", CaloClusters="UNSPECIFIED" ):
     from AthenaConfiguration.ComponentFactory import CompFactory
-    l2CaloHypo                     = CompFactory.TrigL2CaloHypoAlgMT( name )
+    l2CaloHypo                     = CompFactory.TrigEgammaFastCaloHypoAlgMT( name )
     l2CaloHypo.CaloClusters        = CaloClusters
     return l2CaloHypo
 

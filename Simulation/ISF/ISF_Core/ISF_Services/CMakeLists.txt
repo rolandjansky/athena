@@ -99,5 +99,5 @@ atlas_add_test( ISF_ServicesConfigNew_test
 set_target_properties( ISF_Services_TruthSvc_test PROPERTIES ENABLE_EXPORTS True )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 

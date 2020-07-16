@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAMVACALIBANALYSIS_EGAMMAMVATREE
@@ -119,7 +119,7 @@ protected:
     // WARNING: pay attention to iterator/pointer invalidation:
     // first populate container, then access to pointers. Do not mix!
 
-    for (const auto var_name : vars) {
+    for (const auto& var_name : vars) {
       search_var_and_add<float>(var_name, map_string_function, container);
     }
 

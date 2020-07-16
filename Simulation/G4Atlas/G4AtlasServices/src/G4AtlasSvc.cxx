@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "G4AtlasSvc.h"
@@ -13,22 +13,8 @@
 
 G4AtlasSvc::G4AtlasSvc( const std::string& name, ISvcLocator* pSvcLocator )
   : base_class(name,pSvcLocator)
-  , m_detGeoSvc("DetectorGeometrySvc",name)
-  , m_physicsListSvc("PhysicsListSvc",name)
-  , m_userLimitsSvc("UserLimitsSvc", name)
-  , m_isMT(false)
-  , m_activateParallelGeometries(false)
 {
   ATH_MSG_DEBUG( "G4AtlasSvc being created!" );
-  declareProperty("ActivateParallelWorlds",m_activateParallelGeometries,"Toggle on/off the G4 parallel geometry system");
-  declareProperty("DetectorGeometrySvc", m_detGeoSvc );
-  declareProperty("PhysicsListSvc", m_physicsListSvc);
-  declareProperty("UserLimitsSvc", m_userLimitsSvc);
-  declareProperty("isMT", m_isMT);
-}
-
-G4AtlasSvc::~G4AtlasSvc()
-{
 }
 
 StatusCode G4AtlasSvc::initialize(){
@@ -76,6 +62,6 @@ StatusCode G4AtlasSvc::initialize(){
 
 StatusCode G4AtlasSvc::finalize()
 {
-  ATH_MSG_INFO( "G4AtlasSvc being ifinalized!!!" );
+  ATH_MSG_INFO( "G4AtlasSvc being finalized!!!" );
   return StatusCode::SUCCESS;
 }

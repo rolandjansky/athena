@@ -94,10 +94,49 @@ StatusCode VBFForwardJetsFilter::filterEvent() {
   // Get MCTruth Photon/Electon/Tau(HadronicDecay)
   std::vector<HepMC::GenParticlePtr> MCTruthPhotonList;
   std::vector<HepMC::GenParticlePtr> MCTruthElectronList;
-  std::vector<CLHEP::HepLorentzVector*>   MCTruthTauList;
+  std::vector<CLHEP::HepLorentzVector>   MCTruthTauList;
   McEventCollection::const_iterator itr;
   for (itr = events()->begin(); itr!=events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
+#ifdef HEPMC3
+    for (auto pitr: ((HepMC::GenEvent*)genEvt)->particles()) {
+      // photon
+      if ( pitr->pdg_id() == 22 && pitr->status() == 1 &&
+           pitr->momentum().perp() >= m_LGMinPt && std::abs(pitr->momentum().pseudoRapidity()) <= m_LGMaxEta) {
+        MCTruthPhotonList.push_back(pitr);
+        ATH_MSG_INFO("photon pt(Gaudi::Units::GeV) = " << pitr->momentum().perp()/Gaudi::Units::GeV << " eta = " << pitr->momentum().pseudoRapidity());
+      }
+      // electon
+      if ( std::abs(pitr->pdg_id()) == 11 && pitr->status() == 1 &&
+           pitr->momentum().perp() >= m_LGMinPt && std::abs(pitr->momentum().pseudoRapidity()) <= m_LGMaxEta) {
+        MCTruthElectronList.push_back(pitr);
+        ATH_MSG_INFO("electron pt(Gaudi::Units::GeV) = " << pitr->momentum().perp()/Gaudi::Units::GeV << " eta = " << pitr->momentum().pseudoRapidity());
+      }
+      // tau
+      if ( std::abs(pitr->pdg_id()) == 15 && pitr->status() != 3 ) {
+        auto tau = pitr;
+        int leptonic = 0;
+        for (auto beg: tau->end_vertex()->particles_out() ) {
+          if ( beg->production_vertex() != tau->end_vertex() ) continue;
+          if ( std::abs( beg->pdg_id() ) == 12 ) leptonic = 1;
+          if ( std::abs( beg->pdg_id() ) == 14 ) leptonic = 2;
+          if ( std::abs( beg->pdg_id() ) == 15 ) leptonic = 11;
+        }
+
+        if (leptonic == 0) {
+          CLHEP::HepLorentzVector nutau = sumDaughterNeutrinos( tau );
+          CLHEP::HepLorentzVector tauvis = CLHEP::HepLorentzVector(tau->momentum().px()-nutau.px(),
+                                                          tau->momentum().py()-nutau.py(),
+                                                          tau->momentum().pz()-nutau.pz(),
+                                                          tau->momentum().e()-nutau.e());
+          if (tauvis.vect().perp() >= m_LGMinPt && std::abs(tauvis.vect().pseudoRapidity()) <= m_LGMaxEta) {
+            MCTruthTauList.push_back(tauvis);
+            ATH_MSG_INFO("had-tau pt(CLHEP::GeV) = " << tauvis.vect().perp()/CLHEP::GeV << " eta = " << tauvis.vect().pseudoRapidity());
+          } 
+        }
+      }
+    }
+#else
     for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
       // photon
       if ( (*pitr)->pdg_id() == 22 && (*pitr)->status() == 1 &&
@@ -112,7 +151,7 @@ StatusCode VBFForwardJetsFilter::filterEvent() {
         ATH_MSG_INFO("electron pt(Gaudi::Units::GeV) = " << (*pitr)->momentum().perp()/Gaudi::Units::GeV << " eta = " << (*pitr)->momentum().pseudoRapidity());
       }
       // tau
-      if ( abs((*pitr)->pdg_id()) == 15 && (*pitr)->status() != 3 ) {
+      if ( std::abs((*pitr)->pdg_id()) == 15 && (*pitr)->status() != 3 ) {
         HepMC::GenParticle *tau = (*pitr);
         HepMC::GenVertex::particles_out_const_iterator begin = tau->end_vertex()->particles_out_const_begin();
         HepMC::GenVertex::particles_out_const_iterator end = tau->end_vertex()->particles_out_const_end();
@@ -126,19 +165,18 @@ StatusCode VBFForwardJetsFilter::filterEvent() {
 
         if (leptonic == 0) {
           CLHEP::HepLorentzVector nutau = sumDaughterNeutrinos( tau );
-          CLHEP::HepLorentzVector *tauvis = new CLHEP::HepLorentzVector(tau->momentum().px()-nutau.px(),
+          CLHEP::HepLorentzVector tauvis = CLHEP::HepLorentzVector(tau->momentum().px()-nutau.px(),
                                                           tau->momentum().py()-nutau.py(),
                                                           tau->momentum().pz()-nutau.pz(),
                                                           tau->momentum().e()-nutau.e());
-          if (tauvis->vect().perp() >= m_LGMinPt && fabs(tauvis->vect().pseudoRapidity()) <= m_LGMaxEta) {
+          if (tauvis.vect().perp() >= m_LGMinPt && std::abs(tauvis.vect().pseudoRapidity()) <= m_LGMaxEta) {
             MCTruthTauList.push_back(tauvis);
-            ATH_MSG_INFO("had-tau pt(CLHEP::GeV) = " << tauvis->vect().perp()/CLHEP::GeV << " eta = " << tauvis->vect().pseudoRapidity());
-          } else {
-            delete tauvis;
-          }
+            ATH_MSG_INFO("had-tau pt(CLHEP::GeV) = " << tauvis.vect().perp()/CLHEP::GeV << " eta = " << tauvis.vect().pseudoRapidity());
+          } 
         }
       }
     }
+#endif
   }
 
   // Select TruthJets
@@ -226,18 +264,12 @@ StatusCode VBFForwardJetsFilter::filterEvent() {
   ATH_MSG_INFO("Sign   OK? : " << flagSign);
   ATH_MSG_INFO("JJ     OK? : " << flagJJ);
 
-  if (MCTruthTauList.size()) {
-    for (std::vector<CLHEP::HepLorentzVector*>::reverse_iterator i = MCTruthTauList.rbegin(); i != MCTruthTauList.rend(); ++i) {
-      delete *i;
-    }
-  }
-
   setFilterPassed(flagNJets != 0 && flag1stJet != 0 && flag2ndJet != 0 && flagSign != 0 && flagJJ != 0);
   return StatusCode::SUCCESS;
 }
 
 
-CLHEP::HepLorentzVector VBFForwardJetsFilter::sumDaughterNeutrinos( HepMC::GenParticlePtr part ) {
+CLHEP::HepLorentzVector VBFForwardJetsFilter::sumDaughterNeutrinos( HepMC::ConstGenParticlePtr part ) {
   CLHEP::HepLorentzVector nu( 0, 0, 0, 0);
 
   if ( ( abs( part->pdg_id() ) == 12 ) || ( abs( part->pdg_id() ) == 14 ) || ( abs( part->pdg_id() ) == 16 ) ) {
@@ -248,11 +280,9 @@ CLHEP::HepLorentzVector VBFForwardJetsFilter::sumDaughterNeutrinos( HepMC::GenPa
     return nu;
   }
 
-  if ( part->end_vertex() == 0 ) return nu;
+  if ( !part->end_vertex() ) return nu;
 
-  HepMC::GenVertex::particles_out_const_iterator begin = part->end_vertex()->particles_out_const_begin();
-  HepMC::GenVertex::particles_out_const_iterator end = part->end_vertex()->particles_out_const_end();
-  for ( ; begin != end; begin++ ) nu += sumDaughterNeutrinos( *begin );
+  for (auto daughterparticle: *(part->end_vertex())) nu += sumDaughterNeutrinos( daughterparticle );
   return nu;
 }
 
@@ -274,16 +304,16 @@ double VBFForwardJetsFilter::getMinDeltaR(const xAOD::Jet *jet, std::vector<HepM
 }
 
 
-double VBFForwardJetsFilter::getMinDeltaR(const xAOD::Jet *jet, std::vector<CLHEP::HepLorentzVector*> &list) {
+double VBFForwardJetsFilter::getMinDeltaR(const xAOD::Jet *jet, std::vector<CLHEP::HepLorentzVector> &list) {
   double minDR = 999.;
   for (unsigned i=0;i<list.size();++i) {
-    if (list[i]->vect().perp() != 0.) {
-      double dphi = jet->phi()-list[i]->phi();
-      double deta = jet->eta()-list[i]->vect().pseudoRapidity();
+    if (list[i].vect().perp() != 0.) {
+      double dphi = jet->phi()-list[i].phi();
+      double deta = jet->eta()-list[i].vect().pseudoRapidity();
       if (dphi >  M_PI) { dphi -= 2.*M_PI; }
       if (dphi < -M_PI) { dphi += 2.*M_PI; }
-      double dr = sqrt(deta*deta+dphi*dphi);
-      double ratio_pt= fabs((jet->pt()-list[i]->vect().perp())/list[i]->vect().perp());
+      double dr = std::sqrt(deta*deta+dphi*dphi);
+      double ratio_pt= fabs((jet->pt()-list[i].vect().perp())/list[i].vect().perp());
       if (ratio_pt < m_RatioPtJLG && dr < minDR) minDR = dr;
     }
   }
@@ -294,7 +324,7 @@ double VBFForwardJetsFilter::getMinDeltaR(const xAOD::Jet *jet, std::vector<CLHE
 void VBFForwardJetsFilter::removePseudoJets( std::vector<const xAOD::Jet*> &jetList,
                                              std::vector<HepMC::GenParticlePtr> &MCTruthPhotonList,
                                              std::vector<HepMC::GenParticlePtr> &MCTruthElectronList,
-                                             std::vector<CLHEP::HepLorentzVector*>   &MCTruthTauList) {
+                                             std::vector<CLHEP::HepLorentzVector>   &MCTruthTauList) {
   std::vector<const xAOD::Jet*> orgJetList = jetList;
   jetList.clear();
   for (unsigned i=0;i<orgJetList.size();++i) {

@@ -7,7 +7,7 @@ from JetTagTools.MuonCorrectionsToolConfig import MuonCorrectionsToolCfg
 # import the JetVertexCharger configurable
 from JetTagTools.JetTagToolsConf import Analysis__JetVertexCharge
 
-def JetVertexChargeCfg(flags, name = 'JetVertexCharge', useBTagFlagsDefaults = True, **options ):
+def JetVertexChargeCfg(flags, name = 'JetVertexCharge', scheme = '', useBTagFlagsDefaults = True, **options ):
 
     """Sets up a JetVertexCharge tool and returns it.
 
@@ -63,5 +63,8 @@ def JetVertexChargeCfg(flags, name = 'JetVertexCharge', useBTagFlagsDefaults = T
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
+    if scheme == 'Trig':
+        options['HistosKey'] = 'JetTagTrigCalibHistosKey'
     acc.setPrivateTools(Analysis__JetVertexCharge(**options))
     return acc
+

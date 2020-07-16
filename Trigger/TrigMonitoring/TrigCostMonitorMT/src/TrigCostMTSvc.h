@@ -129,12 +129,17 @@ class TrigCostMTSvc : public extends <AthService, ITrigCostMTSvc> {
 
   tbb::concurrent_hash_map<std::thread::id, AlgorithmIdentifier, ThreadHashCompare> m_threadToAlgMap; //!< Keeps track of what is running right now in each thread.
 
+  std::unordered_map<uint32_t, uint32_t> m_threadToCounterMap; //!< Map thread's hash ID to a counting numeral
+  size_t m_threadCounter; //!< Count how many unique thread ID we have seen 
+
   Gaudi::Property<bool>        m_monitorAllEvents{this, "MonitorAllEvents", false, "Monitor every HLT event, e.g. for offline validation."};
   Gaudi::Property<bool>        m_enableMultiSlot{this, "EnableMultiSlot", true, "Monitored events in the MasterSlot collect data from events running in other slots."};
   Gaudi::Property<bool>        m_saveHashes{this, "SaveHashes", false, "Store a copy of the hash dictionary for easier debugging"};
   Gaudi::Property<size_t>      m_masterSlot{this, "MasterSlot", 0, "The slot responsible for saving MultiSlot data"};
   Gaudi::Property<std::string> m_l1DecoderName{this, "L1DecoderName", "L1Decoder", "The name of the Gaudi Configurable of type L1Decoder"};
   Gaudi::Property<std::string> m_decisionSummaryMakerAlgName{this, "DecisionSummaryMakerAlgName", "DecisionSummaryMakerAlg", "The name of the Gaudi Configurable of type DecisionSummaryMakerAlg"};
+
+
 
 };
 
