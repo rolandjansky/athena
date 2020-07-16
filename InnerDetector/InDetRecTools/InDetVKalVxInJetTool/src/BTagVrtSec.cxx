@@ -724,7 +724,7 @@ namespace InDet{
       std::vector<float> covPV=PrimVrt.covariance(); 
       double SignifR=0.,SignifZ=0.;
       std::vector<int> hitIBL(NTracks,0), hitBL(NTracks,0);
-      std::vector<double> TrackSignif(NTracks),TrkSig3D(NTracks);
+      std::vector<double> TrkSig3D(NTracks);
       std::vector< std::vector<float> > trkScore(NTracks);
       AmgVector(5) tmpPerigee; tmpPerigee<<0.,0.,0.,0.,0.;
       for (i=0; i<NTracks; i++) {
@@ -736,7 +736,6 @@ namespace InDet{
 	                                                else{ Impact[1] =  fabs(Impact[1]);}
 	 SignifR = Impact[0]/ sqrt(ImpactError[0]);
 	 SignifZ = Impact[1]/ sqrt(ImpactError[2]);
-  	 TrackSignif[i] = sqrt( SignifR*SignifR + SignifZ*SignifZ);
 	 int hL1=0, nLays=0; getPixelLayers(SelectedTracks[i] , hitIBL[i] , hitBL[i], hL1, nLays );
          //----
          trkScore[i]=m_trackClassificator->trkTypeWgts(SelectedTracks[i], PrimVrt, JetDir);
