@@ -723,7 +723,7 @@ class ItemDef:
         LVL1MenuItem('L1_3jJ35.0ETA23' ).setLogic( jJ350ETA23.x(3) & physcond).setTriggerType(TT.calo)    # noqa: F821
         LVL1MenuItem('L1_3jJ50' ).setLogic( jJ50.x(3) & physcond).setTriggerType(TT.calo)    # noqa: F821
         LVL1MenuItem('L1_4jJ15' ).setLogic( jJ15.x(4) & physcond).setTriggerType(TT.calo)    # noqa: F821
-        LVL1MenuItem('L1_4jJ15.0ETA25' ).setLogic( jJ150ETA25.x(3) & physcond).setTriggerType(TT.calo)    # noqa: F821
+        LVL1MenuItem('L1_4jJ15.0ETA25' ).setLogic( jJ150ETA25.x(4) & physcond).setTriggerType(TT.calo)    # noqa: F821
         LVL1MenuItem('L1_jJ25.0ETA23_2jJ15.31ETA49' ).setLogic( jJ250ETA23 & jJ1531ETA49.x(2) & physcond).setTriggerType(TT.calo)    # noqa: F821
         LVL1MenuItem('L1_jJ40.0ETA25_2jJ25_jJ20.31ETA49' ).setLogic( jJ400ETA25 & jJ25.x(2) & jJ2031ETA49 & physcond).setTriggerType(TT.calo)    # noqa: F821
         LVL1MenuItem('L1_jJ85_3jJ30' ).setLogic( jJ85 & jJ30.x(3) & physcond).setTriggerType(TT.calo)    # noqa: F821
