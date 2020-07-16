@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TrigBphysHypo.TrigBphysHypoConf import TrigL2TrkMassHypo
 
@@ -20,7 +20,7 @@ class L2TrkMassHypo_Jpsimumu (TrigL2TrkMassHypo):
 
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("Time")
-	
+
         self.AthenaMonTools = [ validation, online, time ]
 
 # Jpsi passL2
@@ -49,7 +49,7 @@ class L2TrkMassHypo_Jpsimumu_FS (TrigL2TrkMassHypo):
 
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("Time")
-	
+
         self.AthenaMonTools = [ validation, online, time ]
 
 # Jpsi passL2
@@ -79,7 +79,7 @@ class L2TrkMassHypo_Jpsimumu_loose (TrigL2TrkMassHypo):
 
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("Time")
-	
+
         self.AthenaMonTools = [ validation, online, time ]
 
 # Jpsi loose passL2
@@ -108,7 +108,7 @@ class L2TrkMassHypo_Jpsimumu_looser (TrigL2TrkMassHypo):
 
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("Time")
-	
+
         self.AthenaMonTools = [ validation, online, time ]
 
 # Jpsi loose passL2
@@ -136,7 +136,7 @@ class L2TrkMassHypo_Jpsimumu_loose_FS (TrigL2TrkMassHypo):
 
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("Time")
-	
+
         self.AthenaMonTools = [ validation, online, time ]
 
 
@@ -164,7 +164,7 @@ class L2TrkMassHypo_Upsimumu_FS (TrigL2TrkMassHypo):
 
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("Time")
-	
+
         self.AthenaMonTools = [ validation, online, time ]
 
 
@@ -192,7 +192,7 @@ class L2TrkMassHypo_Upsimumu_loose_FS (TrigL2TrkMassHypo):
 
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("Time")
-	
+
         self.AthenaMonTools = [ validation, online, time ]
 
 
