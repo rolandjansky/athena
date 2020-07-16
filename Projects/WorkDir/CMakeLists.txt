@@ -11,6 +11,15 @@ cmake_minimum_required( VERSION 3.2 FATAL_ERROR )
 # we use the QUIET keyword.
 find_package( AtlasCMake QUIET )
 
+set( PYTHIA8_LCGVERSION 244p3 )
+set( PYTHIA8_LCGROOT    
+ /cvmfs/sft.cern.ch/lcg/releases/LCG_88/MCGenerators/pythia8/${PYTHIA8_LCGVERSION}/${LCG_PLATFORM} )
+set( PYTHIA8_VERSION ${PYTHIA8_LCGVERSION})
+set( PYTHIA8_ROOT    ${PYTHIA8_LCGROOT})
+
+MESSAGE (STATUS "Looking for parent projects ...")
+
+set (CMAKE_FIND_PACKAGE_RESOLVE_SYMLINKS TRUE)
 # Try to figure out what project is our parent. Just using a hard-coded list
 # of possible project names. Basically the names of all the other
 # sub-directories inside the Projects/ directory in the repository.
@@ -29,6 +38,7 @@ foreach( _pp ${_parentProjectNames} )
    endif()
 endforeach()
 
+MESSAGE (STATUS "Setting the parent project ...")
 # Set the parent project name based on the previous findings:
 set( ATLAS_PROJECT ${_defaultParentProject}
    CACHE STRING "The name of the parent project to build against" )
@@ -42,12 +52,15 @@ unset( _parentProjectNames )
 unset( _defaultParentProject )
 unset( _defaultUseFortran )
 
+MESSAGE (STATUS "Looking for project dependencies ...")
 # Find the project that we depend on:
+find_package( AthGenerationExternals REQUIRED )
 find_package( ${ATLAS_PROJECT} REQUIRED )
 
 # Set up CTest:
 atlas_ctest_setup()
 
+MESSAGE (STATUS "Setting up work project directory ...")
 # Set up a work directory project:
 set( _useFortran )
 if( ATLAS_USE_FORTRAN )
@@ -59,12 +72,14 @@ atlas_project( WorkDir ${${ATLAS_PROJECT}_VERSION}
    ${_useFortran} )
 unset( _useFortran )
 
+MESSAGE (STATUS "Setting up runtime environment scripts ...")
 # Set up the runtime environment setup script(s):
 lcg_generate_env( SH_FILE ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh )
 install( FILES ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh
    DESTINATION . )
 
 # Set up CPack:
+set (CMAKE_INSTALL_PREFIX /InstallArea/x86_64-centos7-gcc62-opt) 
 atlas_cpack_setup()
 
 # Remind to set up the environment
