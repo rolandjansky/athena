@@ -45,17 +45,17 @@
     <file>icons/camera.png</file>
   </qresource>
   <qresource prefix="/vp1/images">
-    <file>images/ATLAS-chrome-logo-URL-blue_600px.png</file>
-    <file>images/ATLAS-chrome-logo-URL-blue_450px.png</file>
-    <file>images/ATLAS-chrome-logo-URL-blue_300px.png</file>
-    <file>images/ATLAS-chrome-logo-URL_600px.png</file>
-    <file>images/ATLAS-chrome-logo-URL_450px.png</file>
-    <file>images/ATLAS-chrome-logo-URL_300px.png</file>
     <file>images/ATLAS-Logo-New_1200pixels.png</file>
     <file>images/ATLAS-Logo-New_1000pixels.png</file>
     <file>images/ATLAS-Logo-New_800pixels.png</file>
     <file>images/ATLAS-Logo-New_600pixels.png</file>
     <file>images/ATLAS-Logo-New_450pixels.png</file>
     <file>images/ATLAS-Logo-New_300pixels.png</file>
+    <file>images/ATLAS-Logo-Ref-RGB-transpBkg-1000px.png</file>
+    <file>images/ATLAS-Logo-Ref-RGB-transpBkg-1200px.png</file>
+    <file>images/ATLAS-Logo-Ref-RGB-transpBkg-300px.png</file>
+    <file>images/ATLAS-Logo-Ref-RGB-transpBkg-450px.png</file>
+    <file>images/ATLAS-Logo-Ref-RGB-transpBkg-600px.png</file>
+    <file>images/ATLAS-Logo-Ref-RGB-transpBkg-800px.png</file>
   </qresource>
 </RCC>
