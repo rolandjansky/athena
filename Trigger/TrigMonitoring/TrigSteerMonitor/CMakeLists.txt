@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 780092 2016-10-24 15:34:49Z krasznaa $
 ################################################################################
 # Package: TrigSteerMonitor
 ################################################################################
@@ -52,4 +51,3 @@ atlas_add_component( TrigSteerMonitor
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*.py )

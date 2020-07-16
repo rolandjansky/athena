@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 808750 2017-07-26 19:46:53Z jbossios $
 ################################################################################
 # Package: JetCalibTools
 ################################################################################
@@ -32,8 +31,6 @@ atlas_depends_on_subdirs(
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO Graf Gpad )
-
-atlas_install_generic( share/* DESTINATION data/JetCalibTools )
 
 # Libraries in the package:
 atlas_add_library( JetCalibToolsLib
