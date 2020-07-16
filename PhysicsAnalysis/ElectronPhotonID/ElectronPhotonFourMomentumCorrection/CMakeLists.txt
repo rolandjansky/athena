@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 794027 2017-01-26 15:03:20Z tguillem $
 ###################################################################################
 # Package: ElectronPhotonFourMomentumCorrection
 ###################################################################################
@@ -105,5 +104,3 @@ endif()
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-atlas_install_xmls( data/*.root )
-atlas_install_data( data/*.root )
