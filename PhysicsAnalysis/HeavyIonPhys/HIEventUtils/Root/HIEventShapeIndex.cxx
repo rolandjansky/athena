@@ -95,10 +95,10 @@ unsigned int HIEventShapeIndex::setBinning(const TH2* h2, bool asMask)
 	return count;
 }
 
-unsigned int HIEventShapeIndex::setBinning(HIEventShapeIndex::BinningScheme scheme)
+unsigned int HIEventShapeIndex::setBinning(HI::BinningScheme scheme)
 {
 	unsigned int index=0;
-	if(scheme==TOWER)
+	if(scheme==HI::BinningScheme::TOWER)
 	{
 		for(unsigned int layer=0; layer < static_cast<int>(HI::TowerBins::numLayers()); layer++)
 		{
@@ -112,7 +112,7 @@ unsigned int HIEventShapeIndex::setBinning(HIEventShapeIndex::BinningScheme sche
 			}
 		}
 	}
-	else if(scheme==COMPACT)
+	else if(scheme==HI::BinningScheme::COMPACT)
 	{
 		float deta=HI::TowerBins::getBinSizeEta();
 		for(int layer=0; layer < static_cast<int>(HI::TowerBins::numLayers()); layer++)

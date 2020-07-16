@@ -5,6 +5,7 @@
 #ifndef HIEVENTUTILS_IHIEVENTSHAPEMAPTOOL_H
 #define HIEVENTUTILS_IHIEVENTSHAPEMAPTOOL_H
 
+#include "HIEventUtils/HIEventDefs.h"
 #include "xAODHIEvent/HIEventShape.h"
 #include "HIEventUtils/HIEventShapeIndex.h"
 #include "xAODHIEvent/HIEventShapeContainer.h"
@@ -19,15 +20,14 @@ class IHIEventShapeMapTool : virtual public asg::AsgTool
     ASG_TOOL_INTERFACE(IHIEventShapeMapTool)
 
     public:
-    enum BinningScheme{ TOWER = 100, COMPACT = 562 };
 
     virtual ~IHIEventShapeMapTool() {};
 
     virtual StatusCode initialize() = 0;
-    virtual const HIEventShapeIndex* getIndex(IHIEventShapeMapTool::BinningScheme key) const  = 0;
+    virtual const HIEventShapeIndex* getIndex(HI::BinningScheme key) const  = 0;
     virtual const HIEventShapeIndex* getIndexFromShape(const xAOD::HIEventShapeContainer* shape) const = 0;
 
-    virtual bool hasKey(IHIEventShapeMapTool::BinningScheme key)  = 0;
+    virtual bool hasKey(HI::BinningScheme key)  = 0;
 
 
 };

@@ -5,6 +5,7 @@
 #ifndef HIEVENTUTILS_HIEVENTSHAPEMAPTOOL_H
 #define HIEVENTUTILS_HIEVENTSHAPEMAPTOOL_H
 
+#include "HIEventUtils/HIEventDefs.h"
 #include "xAODHIEvent/HIEventShape.h"
 #include "HIEventUtils/HIEventShapeIndex.h"
 #include "HIEventUtils/IHIEventShapeMapTool.h"
@@ -25,14 +26,14 @@ class HIEventShapeMapTool : virtual public asg::AsgTool, virtual public IHIEvent
   virtual ~HIEventShapeMapTool() {};
 
   virtual StatusCode initialize() override;
-  virtual const HIEventShapeIndex* getIndex(IHIEventShapeMapTool::BinningScheme key) const override;
+  virtual const HIEventShapeIndex* getIndex(HI::BinningScheme key) const override;
   virtual const HIEventShapeIndex* getIndexFromShape(const xAOD::HIEventShapeContainer* shape) const override;
 
-  virtual bool hasKey(BinningScheme key) override;
+  virtual bool hasKey(HI::BinningScheme key) override;
 
   private:
 
-  std::map< IHIEventShapeMapTool::BinningScheme ,HIEventShapeIndex > m_map;
+  std::map< HI::BinningScheme ,HIEventShapeIndex > m_map;
 
 };
 #endif

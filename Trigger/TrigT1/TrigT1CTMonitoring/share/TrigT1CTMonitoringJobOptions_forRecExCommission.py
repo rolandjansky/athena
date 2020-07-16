@@ -46,7 +46,6 @@ from TrigT1CTMonitoring.TrigT1CTMonitoringConfig import *
 from AthenaCommon.AppMgr import ToolSvc as toolSvc
 from TrigT1CTMonitoring.TrigT1CTMonitoringConf import TrigT1CTMonitoring__BSMonitoring as BSMon
 
-isOnline=False
 #-----------ONLINE CODE---------------------
 if isOnline and jp.ConcurrencyFlags.NumThreads() == 0:
     #from TrigServices.TrigServicesConf import TrigMonTHistSvc

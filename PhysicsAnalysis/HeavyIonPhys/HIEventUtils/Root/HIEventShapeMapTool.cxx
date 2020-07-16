@@ -13,19 +13,19 @@ HIEventShapeMapTool::HIEventShapeMapTool(const std::string& n) : asg::AsgTool(n)
 StatusCode HIEventShapeMapTool::initialize(){
 
   HIEventShapeIndex index_1, index_2;
-  index_1.setBinning(HIEventShapeIndex::COMPACT);
-  index_2.setBinning(HIEventShapeIndex::TOWER);
-  m_map[ IHIEventShapeMapTool::COMPACT ] = index_1;
-  m_map[ IHIEventShapeMapTool::TOWER   ] = index_2;
+  index_1.setBinning(HI::BinningScheme::COMPACT);
+  index_2.setBinning(HI::BinningScheme::TOWER);
+  m_map[ HI::BinningScheme::COMPACT ] = index_1;
+  m_map[ HI::BinningScheme::TOWER   ] = index_2;
 
   return StatusCode::SUCCESS;
 }
 
-const HIEventShapeIndex* HIEventShapeMapTool::getIndex(IHIEventShapeMapTool::BinningScheme key) const
+const HIEventShapeIndex* HIEventShapeMapTool::getIndex(HI::BinningScheme key) const
 {
   std::string myKey;
-  if(key == IHIEventShapeMapTool::COMPACT) myKey="COMPACT";
-  else if (key == IHIEventShapeMapTool::TOWER ) myKey="TOWER";
+  if(key == HI::BinningScheme::COMPACT) myKey="COMPACT";
+  else if (key == HI::BinningScheme::TOWER ) myKey="TOWER";
   else myKey = "UNKNOWN SHAPE";
 
   auto itr=m_map.find(key);
@@ -39,14 +39,14 @@ const HIEventShapeIndex* HIEventShapeMapTool::getIndex(IHIEventShapeMapTool::Bin
 const HIEventShapeIndex* HIEventShapeMapTool::getIndexFromShape(const xAOD::HIEventShapeContainer* shape) const
 {
   ATH_MSG_INFO("In getIndexFromShape, Shape size " << shape->size() << " And TOWER is: " << (HI::TowerBins::numLayers()*HI::TowerBins::numEtaBins()));
-  if(shape->size() == IHIEventShapeMapTool::TOWER){
+  if(shape->size() == HI::BinningScheme::TOWER){
     //TOWER
-    auto itr = m_map.find( IHIEventShapeMapTool::TOWER );
+    auto itr = m_map.find( HI::BinningScheme::TOWER );
     return &(itr->second);
   }
-  else if(shape->size() == IHIEventShapeMapTool::COMPACT){
+  else if(shape->size() == HI::BinningScheme::COMPACT){
     //COMPACT
-    auto itr = m_map.find( IHIEventShapeMapTool::COMPACT );
+    auto itr = m_map.find( HI::BinningScheme::COMPACT );
     return &(itr->second);
   }
   else {
@@ -55,7 +55,7 @@ const HIEventShapeIndex* HIEventShapeMapTool::getIndexFromShape(const xAOD::HIEv
   }
 }
 
-bool HIEventShapeMapTool::hasKey(IHIEventShapeMapTool::BinningScheme key)
+bool HIEventShapeMapTool::hasKey(HI::BinningScheme key)
 {
   return (m_map.find(key)!=m_map.end());
 }
