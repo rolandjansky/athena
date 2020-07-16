@@ -30,7 +30,7 @@ foreach( test Echo_tf LogFileScanner Sleep_tf
 endforeach()
 
 if( NOT SIMULATIONBASE AND NOT GENERATIONBASE )
-  foreach( test HISTMerge_tf RAWMerge_tf
+  foreach( test RAWMerge_tf
            trfSubstepIntegration )
      atlas_add_test( ${test}
         SCRIPT test/test_${test}.py
@@ -40,12 +40,6 @@ if( NOT SIMULATIONBASE AND NOT GENERATIONBASE )
   atlas_add_test( HelloWorldTrf
         SCRIPT test/test_HelloWorldTrf.sh
 	)	
-endif()
-
-if( NOT SIMULATIONBASE )
-  atlas_add_test( EVNTMerge_tf
-        SCRIPT test/test_EVNTMerge_tf.py
-  )
 endif()
 
 #The following tests currently fail in master and should be revised
