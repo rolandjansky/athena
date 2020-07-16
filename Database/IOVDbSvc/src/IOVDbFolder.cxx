@@ -33,6 +33,7 @@
 #include "CoraCool/CoraCoolObject.h"
 #include "CoraCool/CoraCoolObjectIter.h"
 
+#include "AthenaKernel/getMessageSvc.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/AthenaAttrListAddress.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
@@ -73,10 +74,10 @@ namespace{
 }
 
 IOVDbFolder::IOVDbFolder(IOVDbConn* conn,
-                         const IOVDbParser& folderprop, MsgStream & /*msg*/,
+                         const IOVDbParser& folderprop, MsgStream& msg,
                          IClassIDSvc* clidsvc, const bool checklock, const bool outputToFile,
                          const std::string & source):
-  
+  AthMessaging(Athena::getMessageSvc(), "IOVDbFolder"),
   p_detStore(0),
   p_clidSvc(clidsvc),
   p_metaDataTool(0),
@@ -119,9 +120,10 @@ IOVDbFolder::IOVDbFolder(IOVDbConn* conn,
   m_retrieved(false),
   m_cachespec(0),
   m_outputToFile{outputToFile},
-  m_source{source},
-  m_msg("IOVDbFolder")
+  m_source{source}
 {
+  // set message same message level as our parent (IOVDbSvc)
+  setLevel(msg.level());
   // extract settings from the properties
   // foldername from the 'unnamed' property
   m_foldername=folderprop.folderName();
@@ -943,7 +945,7 @@ IOVDbFolder::preLoadFolder(StoreGateSvc* detStore, const unsigned int cacheRun, 
     }
   }
   // parse the description string
-  IOVDbParser folderpar(folderdesc,m_msg.get());
+  IOVDbParser folderpar(folderdesc,msg());
   //use the overrides in the folderdescription, return nullptr immediately if something went wrong
   if (not overrideOptionsFromParsedDescription(folderpar)) return nullptr;
   // setup channel list and folder type

@@ -9,8 +9,7 @@
 #define IOVDbSvc_IOVDbFolder_h
 
 #include <string>
-#include "AthenaKernel/MsgStreamMember.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "AthenaBaseComps/AthMessaging.h"
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IOVTime.h"
 #include "AthenaKernel/IOVRange.h"
@@ -38,9 +37,9 @@ class StoreGateSvc;
 class IIOVDbMetaDataTool;
 class CondAttrListCollection;
 
-class IOVDbFolder {
+class IOVDbFolder : public AthMessaging {
 public:
-  IOVDbFolder(IOVDbConn* conn, const IOVDbParser& folderprop, MsgStream & /*msg*/,
+  IOVDbFolder(IOVDbConn* conn, const IOVDbParser& folderprop, MsgStream& msg,
               IClassIDSvc* clidsvc,const bool checkglock, const bool outputToFile=false,
               const std::string & source="COOL_DATABASE");
   ~IOVDbFolder();
@@ -279,23 +278,6 @@ private:
   IOVDbNamespace::IovStore m_iovs;
   const bool m_outputToFile;
   const std::string m_source;
-  
-  protected:
-   /// Log a message using the Athena controlled logging system
-          MsgStream&
-          msg(MSG::Level lvl) const {
-            return m_msg.get() << lvl;
-          }
-       
-          /// Check whether the logging system is active at the provided verbosity level
-          bool
-          msgLvl(MSG::Level lvl) {
-            return m_msg.get().level() <= lvl;
-          }
-       
-          /// Private message stream member
-          mutable Athena::MsgStreamMember m_msg;
-  
 };
 
 inline const std::string& IOVDbFolder::folderName() const {return m_foldername;}
