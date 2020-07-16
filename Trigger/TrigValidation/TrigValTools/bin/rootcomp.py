@@ -158,6 +158,7 @@ def main():
       opts.skip += ["Average Hlt Result size for physics streams"]  # ATR-14330
       opts.skip += ["HltEDMSizes:Events_Without_Truncation"]        # ATR-14330
       opts.skip += ["Trig.*CaloCellMaker.*/TCRec_"] # timing histograms in TrigCaloCellMaker
+      opts.skip += ["HLTFramework/ROBDataProviderSvc"] # RDP histograms differ in MT due to caching
 
    # Default thresholds
    if not opts.threshold:
