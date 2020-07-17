@@ -6,7 +6,7 @@
 // OverlayTTL1 class Implementation
 // ================================================
 
-#include "TrigT1CaloSim/OverlayTTL1.h"
+#include "OverlayTTL1.h"
 
 // Atlas includes
 #include "StoreGate/ReadHandle.h"
