@@ -40,16 +40,16 @@ StatusCode TauAxisSetter::execute(xAOD::TauJet& pTau) const {
   }
 
   // Barycenter is the sum of cluster p4 in the seed jet
-  TLorentzVector baryonCenter;  
+  TLorentzVector baryCenter;  
   
   xAOD::JetConstituentVector constituents = pJetSeed->getConstituents();
   for (const xAOD::JetConstituent* constituent : constituents) {
     TLorentzVector constituentP4;
     constituentP4.SetPtEtaPhiE(constituent->pt(), constituent->eta(), constituent->phi(), constituent->e());
-    baryonCenter += constituentP4;
+    baryCenter += constituentP4;
   }
   
-  ATH_MSG_DEBUG("barycenter (eta, phi): "  << baryonCenter.Eta() << " " << baryonCenter.Phi());
+  ATH_MSG_DEBUG("barycenter (eta, phi): "  << baryCenter.Eta() << " " << baryCenter.Phi());
 
   // Detector axis is the sum of cluster p4 within dR core of the seed jet 
   TLorentzVector tauDetectorAxis;
@@ -59,7 +59,7 @@ StatusCode TauAxisSetter::execute(xAOD::TauJet& pTau) const {
     TLorentzVector constituentP4;
     constituentP4.SetPtEtaPhiE(constituent->pt(), constituent->eta(), constituent->phi(), constituent->e());
     
-    double dR = baryonCenter.DeltaR(constituentP4);
+    double dR = baryCenter.DeltaR(constituentP4);
     if (dR > m_clusterCone) continue;
 
     ElementLink<xAOD::IParticleContainer> linkToCluster;
@@ -88,7 +88,7 @@ StatusCode TauAxisSetter::execute(xAOD::TauJet& pTau) const {
     TLorentzVector tauInterAxis;
 
     std::vector<const xAOD::CaloCluster*> clusterList;
-    ATH_CHECK(tauRecTools::GetJetClusterList(pJetSeed, clusterList, m_incShowerSubtr, baryonCenter, m_clusterCone));
+    ATH_CHECK(tauRecTools::GetJetClusterList(pJetSeed, clusterList, m_incShowerSubtr, baryCenter, m_clusterCone));
     for (auto cluster : clusterList){
       if (pTau.vertexLink()) {
         tauInterAxis += xAOD::CaloVertexedCluster(*cluster, (*pTau.vertexLink())->position()).p4();
