@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT1RPCsteering/TrigT1RPC.h"
+#include "TrigT1RPC.h"
 
 #include "GeneratorObjects/McEventCollection.h"
 #include "AtlasHepMC/GenEvent.h"
