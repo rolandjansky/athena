@@ -7,7 +7,7 @@ atlas_subdir( TrigIDTPMonitor )
 atlas_add_component( TrigIDTPMonitor
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthLinks EventInfo GaudiKernel TrigConfHLTData TrigInterfacesLib TrigSteeringEvent xAODCaloEvent xAODEgamma xAODEventInfo xAODMuon xAODTracking xAODTrigBphys )
+                     LINK_LIBRARIES AthLinks EventInfo GaudiKernel TrigBphysicsEvent TrigConfHLTData TrigInterfacesLib TrigParticle TrigSteeringEvent xAODCaloEvent xAODEgamma xAODEventInfo xAODMuon xAODTracking xAODTrigBphys )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
