@@ -109,7 +109,7 @@ private:
   using Propagator = Acts::Propagator<Acts::EigenStepper<ATLASMagneticFieldWrapper>, Acts::Navigator>;
   using TrackLinearizer = Acts::HelicalTrackLinearizer<Propagator>;
   using VertexFitter = Acts::AdaptiveMultiVertexFitter<TrackWrapper, TrackLinearizer>;
-  using VertexSeedFinder = Acts::TrackDensityVertexFinder<VertexFitter, Acts::GaussianTrackDensity>;
+  using VertexSeedFinder = Acts::TrackDensityVertexFinder<VertexFitter, Acts::GaussianTrackDensity<TrackWrapper>>;
   using VertexFinder = Acts::AdaptiveMultiVertexFinder<VertexFitter, VertexSeedFinder>;
 
   std::shared_ptr<VertexFinder> m_vertexFinder = nullptr;
@@ -144,7 +144,6 @@ private:
   BooleanProperty m_do3dSplitting{this, "do3dSplitting", false, "Do 3d-splitting"};
   DoubleProperty m_maximumVertexContamination{this, "maximumVertexContamination", 0.5, "Max. vertex contamination"};
   DoubleProperty m_looseConstrValue{this, "looseConstrValue", 1e+8, "Loose constraint value"};
-  BooleanProperty m_refitAfterBadVertex{this, "refitAfterBadVertex", false, "Run multivertex refit after bad vertex"};
   BooleanProperty m_useVertexCovForIPEstimation{this, "useVertexCovForIPEstimation", false, "Use seed vertex cov for IPEstimation"};
   BooleanProperty m_useSeedConstraint{this, "useSeedConstraint", true, "Use seed constraint in fit"};
   // Final vertex selection variables

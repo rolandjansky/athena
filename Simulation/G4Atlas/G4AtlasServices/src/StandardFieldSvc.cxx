@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StandardFieldSvc.h"
@@ -16,10 +16,8 @@ AtlasField::AtlasField(MagField::IMagFieldSvc* m)
 //-----------------------------------------------------------------------------
 StandardFieldSvc::StandardFieldSvc(const std::string& name,
                                    ISvcLocator* pSvcLocator)
-  : G4MagFieldSvcBase(name, pSvcLocator),
-    m_magFieldSvc("MagField::AtlasFieldSvc/AtlasFieldSvc", name)
+  : G4MagFieldSvcBase(name, pSvcLocator)
 {
-  declareProperty("MagneticFieldSvc", m_magFieldSvc);
 }
 
 //-----------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -177,9 +177,6 @@ ModuleSpecialPixelMap::ModuleSpecialPixelMap(const char* filename, unsigned int 
     }
   }
 
-  if(m_markSpecialRegions){
-    markSpecialRegions();
-  }
   setNeighbourFlags();
 }
 
@@ -192,9 +189,6 @@ ModuleSpecialPixelMap::ModuleSpecialPixelMap(const std::string& clob, unsigned i
     std::cout << "In ModuleSpecialPixelMap::ModuleSpecialPixelMap(const std::string&) :" 
 	<< " Construction from clob failed" << std::endl;
   }
-  if(m_markSpecialRegions){
-    markSpecialRegions();
-  }
 }
 
 
@@ -206,9 +200,6 @@ ModuleSpecialPixelMap::ModuleSpecialPixelMap(const coral::Blob& blob, unsigned i
   if(statuscode){
     std::cout << "In ModuleSpecialPixelMap::ModuleSpecialPixelMap(const coral::Blob&) :" 
 	<< " Construction from blob failed" << std::endl;
-  }
-  if(m_markSpecialRegions){
-    markSpecialRegions();
   }
 }
 
@@ -223,9 +214,6 @@ ModuleSpecialPixelMap::ModuleSpecialPixelMap(const std::map<unsigned int, unsign
   m_chip_status(chip_status),
   m_column_pair_status(column_pair_status)
 {
-  if(m_markSpecialRegions){
-    markSpecialRegions();
-  }
 }
 
 ModuleSpecialPixelMap::~ModuleSpecialPixelMap(){}
@@ -1678,7 +1666,6 @@ void ModuleSpecialPixelMap::setNeighbourFlags(){
   }
 }
 
-bool ModuleSpecialPixelMap::m_markSpecialRegions = false;
 
 ModuleSpecialPixelMap::size_type ModuleSpecialPixelMap::size() const{
   return std::map<unsigned int, unsigned int>::size();

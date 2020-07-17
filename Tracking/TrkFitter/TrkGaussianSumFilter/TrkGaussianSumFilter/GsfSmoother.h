@@ -54,6 +54,7 @@ public:
   /** Gsf smoother method */
   virtual SmoothedTrajectory* fit(
     const EventContext& ctx,
+    Trk::IMultiStateExtrapolator::Cache&,
     const ForwardTrajectory&,
     const ParticleHypothesis particleHypothesis = nonInteracting,
     const CaloCluster_OnTrack* ccot = nullptr) const;

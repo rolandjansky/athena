@@ -1,6 +1,13 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #--------------------------------------------------------------
 # Write to Transient BS
 #--------------------------------------------------------------
+
+from AthenaCommon.AppMgr import theApp, ServiceMgr
+from AthenaCommon.Include import include
+from AthenaServices.AthenaServicesConf import AthenaOutputStream
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+
 include( "ByteStreamCnvSvc/RDP_ByteStream_jobOptions.py" )
 
 # Configure Transient BS Output Stream. ExtraInputs make sure all data (e.g. conditions)
@@ -12,7 +19,6 @@ StreamBS = AthenaOutputStream("StreamBS",
 #Ensure StreamBS runs before L1Decoder
 transTypeKey = ("TransientBSOutType","StoreGateSvc+TransientBSOutKey")
 StreamBS.ExtraOutputs += [transTypeKey]
-
 
 if not TriggerFlags.fakeLVL1():
    from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1ByteStreamEncodersRecExSetup
@@ -29,6 +35,7 @@ if TriggerFlags.doID():
    # Pixel
    StreamBS.ItemList += ["PixelRDO_Container#*"]
    StreamBS.ExtraInputs += [('PixelHitDiscCnfgData','ConditionStore+PixelHitDiscCnfgData')]
+   StreamBS.ExtraInputs += [('PixelCablingCondData','ConditionStore+PixelCablingCondData')]
 
 if TriggerFlags.doCalo():
    # LAr

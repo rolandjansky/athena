@@ -557,9 +557,9 @@ if rec.readESD() and rec.doESD():
 if rec.doTrigger:
     if globalflags.DataSource() == 'data'and globalflags.InputFormat == 'bytestream':
         try:
-            include("TriggerJobOpts/BStoESD_Tier0_HLTConfig_jobOptions.py")
+            include("TrigTier0/BStoESD_Tier0_HLTConfig_jobOptions.py")
         except Exception:
-            treatException("Could not import TriggerJobOpts/BStoESD_Tier0_HLTConfig_jobOptions.py . Switching trigger off !" )
+            treatException("Could not import TrigTier0/BStoESD_Tier0_HLTConfig_jobOptions.py . Switching trigger off !" )
             recAlgs.doTrigger=False
     else:
         try:

@@ -1,26 +1,25 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MCTruth/PrimaryParticleInformation.h"
 
-PrimaryParticleInformation::PrimaryParticleInformation() 
-  : m_theParticle(0),m_theISFParticle(0),m_regenerationNr(0),m_barcode(-1)
+PrimaryParticleInformation::PrimaryParticleInformation()
 {
 }
 
-PrimaryParticleInformation::PrimaryParticleInformation(const HepMC::GenParticle *p, const ISF::ISFParticle* isp):m_theParticle(p),m_theISFParticle(isp),m_regenerationNr(0),m_barcode(-1)
+PrimaryParticleInformation::PrimaryParticleInformation(HepMC::ConstGenParticlePtr p, const ISF::ISFParticle* isp):m_theParticle(p),m_theISFParticle(isp)
 {
 }
 
-const HepMC::GenParticle* PrimaryParticleInformation::GetHepMCParticle() const
+HepMC::ConstGenParticlePtr PrimaryParticleInformation::GetHepMCParticle() const
 {
-	return m_theParticle;
+  return m_theParticle;
 }
 
 const ISF::ISFParticle* PrimaryParticleInformation::GetISFParticle() const
 {
-	return m_theISFParticle;
+  return m_theISFParticle;
 }
 
 void PrimaryParticleInformation::SuggestBarcode(int bc)
@@ -33,15 +32,15 @@ void PrimaryParticleInformation::SuggestBarcode(int bc)
 
 int PrimaryParticleInformation::GetParticleBarcode() const
 {
-	return m_theParticle?m_theParticle->barcode():m_barcode;
+  return m_theParticle?HepMC::barcode(m_theParticle):m_barcode;
 }
 
-void PrimaryParticleInformation::SetParticle(const HepMC::GenParticle* p)
+void PrimaryParticleInformation::SetParticle(HepMC::ConstGenParticlePtr p)
 {
-	m_theParticle=p;
+  m_theParticle=p;
 }
 
 void PrimaryParticleInformation::SetISFParticle(const ISF::ISFParticle* p)
 {
-	m_theISFParticle=p;
+  m_theISFParticle=p;
 }

@@ -4,7 +4,7 @@
 
 #include "TrigInDetEvent/TrigInDetTrack.h"
 #include "TrigInDetEvent/TrigL2Vertex.h"
-#include "TrigVertexFitter/TrigPrimaryVertexTrack.h"
+#include "TrigPrimaryVertexTrack.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/Track.h"
 

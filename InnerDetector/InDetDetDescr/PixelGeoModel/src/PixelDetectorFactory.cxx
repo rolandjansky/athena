@@ -114,7 +114,7 @@ PixelDetectorFactory::~PixelDetectorFactory()
 
 
 //## Other Operations (implementation)
-void PixelDetectorFactory::create(GeoPhysVol *world)
+void PixelDetectorFactory::create ATLAS_NOT_THREAD_SAFE (GeoPhysVol *world) // Thread usnafe GeoPixelEnvelope class is used.
 {
   if(msgLvl(MSG::INFO)) {
     msg(MSG::INFO) << "Building Pixel Detector" << endmsg;

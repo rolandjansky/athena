@@ -341,8 +341,6 @@ StatusCode EventSelectorAthenaPool::start() {
    } else {
       m_headerIterator = &m_poolCollectionConverter->executeQuery(/*m_query.value()*/);
    }
-   delete m_beginIter; m_beginIter = nullptr;
-   m_beginIter = new EventContextAthenaPool(this);
    delete m_endIter;   m_endIter   = nullptr;
    m_endIter = new EventContextAthenaPool(nullptr);
    return(StatusCode::SUCCESS);
@@ -388,7 +386,6 @@ StatusCode EventSelectorAthenaPool::finalize() {
          }
       }
    }
-   delete m_beginIter; m_beginIter = nullptr;
    delete m_endIter;   m_endIter   = nullptr;
    m_headerIterator = nullptr;
    if (m_poolCollectionConverter != nullptr) {
@@ -753,9 +750,8 @@ StatusCode EventSelectorAthenaPool::seek(Context& /*ctxt*/, int evtNum) const {
          }
          // Create DataHeader iterators
          m_headerIterator = &m_poolCollectionConverter->executeQuery();
-         delete m_beginIter; m_beginIter = nullptr;
-         m_beginIter = new EventContextAthenaPool(this);
-         next(*m_beginIter).ignore();
+         EventContextAthenaPool* beginIter = new EventContextAthenaPool(this);
+         next(*beginIter).ignore();
          ATH_MSG_DEBUG("Token " << m_headerIterator->eventRef().toString());
       } catch (std::exception &e) {
          m_headerIterator = nullptr;

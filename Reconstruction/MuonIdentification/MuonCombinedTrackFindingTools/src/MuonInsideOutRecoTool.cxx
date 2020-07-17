@@ -16,32 +16,10 @@
 namespace MuonCombined {
 
   MuonInsideOutRecoTool::MuonInsideOutRecoTool(const std::string& type, const std::string& name, const IInterface* parent):
-    AthAlgTool(type,name,parent),
-    m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_segmentFinder("Muon::MuonLayerSegmentFinderTool/MuonLayerSegmentFinderTool"),
-    m_segmentMatchingTool("Muon::MuonLayerSegmentMatchingTool/MuonLayerSegmentMatchingTool"),
-    m_ambiguityResolver("Muon::MuonLayerAmbiguitySolverTool/MuonLayerAmbiguitySolverTool"),
-    m_candidateTrackBuilder("Muon::MuonCandidateTrackBuilderTool/MuonCandidateTrackBuilderTool"),
-    m_recoValidationTool(""),
-    m_trackFitter("Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder"),
-    m_trackAmbiguityResolver("Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"),
-    m_layerHashProvider("Muon::MuonLayerHashProviderTool"),
-    m_trackSummaryTool("MuonTrackSummaryTool")
+    AthAlgTool(type,name,parent)
   {
     declareInterface<IMuonCombinedInDetExtensionTool>(this);
     declareInterface<MuonInsideOutRecoTool>(this);
-
-    declareProperty("MuonEDMPrinterTool",m_printer );    
-    declareProperty("MuonLayerSegmentFinderTool",m_segmentFinder );    
-    declareProperty("MuonLayerSegmentMatchingTool",m_segmentMatchingTool );    
-    declareProperty("MuonLayerAmbiguitySolverTool",m_ambiguityResolver );    
-    declareProperty("MuonCandidateTrackBuilderTool",m_candidateTrackBuilder );    
-    declareProperty("MuonRecoValidationTool",m_recoValidationTool );    
-    declareProperty("MuonTrackBuilder",           m_trackFitter );    
-    declareProperty("TrackAmbiguityProcessor",m_trackAmbiguityResolver );    
-    declareProperty("IDTrackMinPt", m_idTrackMinPt = 2500.0 );
-    declareProperty("IgnoreSiAssociatedCandidates", m_ignoreSiAssocated = true );
-    declareProperty("TrackSummaryTool", m_trackSummaryTool );
   }
 
   StatusCode MuonInsideOutRecoTool::initialize() {

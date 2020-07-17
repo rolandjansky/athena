@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASTOOLS_FASTSIMULATIONBASE_H
@@ -48,9 +48,9 @@ class FastSimulationBase : public extends<AthAlgTool, IFastSimulation> {
   G4VFastSimulationModel* getFastSimModel();
 
   /// All the regions to which this fast sim is assigned
-  std::vector<std::string> m_regionNames;
+  Gaudi::Property<std::vector<std::string> > m_regionNames{this, "RegionNames", {}};
   /// This Fast Simulation has no regions associated with it.
-  bool m_noRegions;
+  Gaudi::Property<bool> m_noRegions{this, "NoRegions", false};
 
  private:
 
@@ -66,7 +66,7 @@ class FastSimulationBase : public extends<AthAlgTool, IFastSimulation> {
   FastSimModelThreadMap_t m_fastsimmodelThreadMap;
 #else
   /// The Fast Simulation Model to which this thing corresponds
-  G4VFastSimulationModel* m_FastSimModel;
+  G4VFastSimulationModel* m_FastSimModel{};
 #endif
 };
 

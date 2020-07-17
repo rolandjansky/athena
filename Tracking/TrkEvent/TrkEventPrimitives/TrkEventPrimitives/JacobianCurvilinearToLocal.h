@@ -81,19 +81,14 @@ namespace Trk {
                                   );
      /**Constructor for helix track model
        */
-     JacobianCurvilinearToLocal(  const Amg::Vector3D& bfield,
-								  double qOp,
-								  double sinTheta,               // only necessary if magnetic field is not along z
-                                  const CurvilinearUVT& curvUVT,
-                                  const Amg::Vector3D& locX,
-                                  const Amg::Vector3D& locY,
-                                  const Amg::Vector3D& locZ
-                                  );     
-     /** destructor */
-     ~JacobianCurvilinearToLocal();
-
-    private:
-
+     JacobianCurvilinearToLocal(
+       const Amg::Vector3D& bfield,
+       double qOp,
+       double sinTheta, // only necessary if magnetic field is not along z
+       const CurvilinearUVT& curvUVT,
+       const Amg::Vector3D& locX,
+       const Amg::Vector3D& locY,
+       const Amg::Vector3D& locZ);
  };
 
 /**Overload of << operator for both, MsgStream and std::ostream for debug output*/ 

@@ -12,8 +12,6 @@
 
 #include <math.h>
 
-#include "GaudiKernel/StatusCode.h"
-
 #include "TrigL2TrkMassFex.h"
 
 
@@ -23,8 +21,6 @@
 
 #include "TrigInDetToolInterfaces/ITrigVertexingTool.h"
 #include "TrigInDetEvent/TrigL2Vertex.h"
-
-#include "TrigParticle/TrigL2Bphys.h"
 
 #include "Constants.h"
 #include "BtrigUtils.h"

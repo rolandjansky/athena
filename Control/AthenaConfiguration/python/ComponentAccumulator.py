@@ -827,6 +827,9 @@ def __setProperties( destConfigurableInstance, sourceConf2Instance, indent="" ):
                 pass
             if pvalue is not None:
                 setattr( destConfigurableInstance, pname, conf2toConfigurable( pvalue, indent=__indent( indent ) ) )
+            else:
+                setattr( destConfigurableInstance, pname, pvalue )
+
         else: # plain data
             if isinstance(pvalue,(GaudiConfig2.semantics._ListHelper,GaudiConfig2.semantics._DictHelper)):
                 pvalue=pvalue.data

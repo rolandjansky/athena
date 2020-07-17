@@ -1137,7 +1137,7 @@ StatusCode ISF_HitAnalysis::execute()
 
  //Retrieve and save MuonEntryLayer information 
  const TrackRecordCollection *MuonEntry = nullptr;
- ATH_CHECK(evtStore()->retrieve(MuonEntry, "MuonEntryLayer"));
+ sc = evtStore()->retrieve(MuonEntry, "MuonEntryLayer");
  if (sc.isFailure())
  {
  ATH_MSG_WARNING( "Couldn't read MuonEntry from StoreGate");

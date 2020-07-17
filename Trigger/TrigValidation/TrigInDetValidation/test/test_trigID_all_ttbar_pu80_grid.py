@@ -28,7 +28,7 @@
 
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
-from TrigInDetValidation.TrigInDetArtSteps import TrigInDetAna, TrigInDetdictStep, TrigInDetCompStep
+from TrigInDetValidation.TrigInDetArtSteps import TrigInDetAna, TrigInDetdictStep, TrigInDetCompStep, TrigInDetCpuCostStep
 
 
 import sys,getopt
@@ -103,6 +103,7 @@ rdo2aod.max_events = 1000 # TODO: 2000 events
 rdo2aod.threads = 1 # TODO: change to 4
 rdo2aod.concurrent_events = 1 # TODO: change to 4
 rdo2aod.perfmon = False
+rdo2aod.timeout = 18*3600
 rdo2aod.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG" '
 if local:
     rdo2aod.input = 'ttbar_pu80'   ## This isn't the same sample as the grid test but for not lets use it.
@@ -130,14 +131,38 @@ if ((not exclude) or postproc ):
 # Now the comparitor steps
 comp=TrigInDetCompStep('CompareStep1')
 comp.chains = 'HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF'
-comp.output_dir = 'HLT-plots-FTF'
+comp.output_dir = 'HLT-plots-muon-FTF'
 test.check_steps.append(comp)
  
  
 comp2=TrigInDetCompStep('CompareStep2')
 comp2.chains='HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_IDTrig'
-comp2.output_dir = 'HLT-plots-IDTrig'
+comp2.output_dir = 'HLT-plots-muon-IDTrig'
 test.check_steps.append(comp2)
+
+comp3=TrigInDetCompStep('CompareStep3')
+comp3.chains='HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_Bjet_FTF HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20:HLT_IDTrack_Bjet_IDTrig'
+comp3.output_dir = 'HLT-plots-bjet-IDTrig'
+test.check_steps.append(comp3)
+
+comp4=TrigInDetCompStep('CompareStep4')
+comp4.chains='HLT_e5_etcut_L1EM3:HLT_IDTrack_Electron_FTF HLT_e5_etcut_L1EM3:HLT_IDTrack_Electron_IDTrig'
+comp4.output_dir = 'HLT-plots-el-IDTrig'
+test.check_steps.append(comp4)
+
+comp5=TrigInDetCompStep('CompareStep5')
+comp5.chains='HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_TauCore_FTF HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_Tau_IDTrig'
+comp4.output_dir = 'HLT-plots-tau-IDTrig'
+test.check_steps.append(comp5)
+
+
+cpucost=TrigInDetCpuCostStep('CpuCostStep1')
+test.check_steps.append(cpucost)
+
+cpucost2=TrigInDetCpuCostStep('CpuCostStep2')
+cpucost2.args += '  -p FastTrack'
+cpucost2.output_dir = 'times-FTF' 
+test.check_steps.append(cpucost2)
 
 
 import sys

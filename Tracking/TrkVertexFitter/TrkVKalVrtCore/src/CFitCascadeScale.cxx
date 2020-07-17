@@ -7,12 +7,12 @@
 //  Potentially could be more powerful that currently implemented scheme with exact pointing
 //  Currently is LESS efficient, so for the moment left for future work
 //==========================================================================================
-#include <math.h>
-#include <iostream>
-#include "TrkVKalVrtCore/VKalVrtBMag.h"
+#include "TrkVKalVrtCore/Derivt.h"
 #include "TrkVKalVrtCore/Propagator.h"
 #include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
-#include "TrkVKalVrtCore/Derivt.h"
+#include "TrkVKalVrtCore/VKalVrtBMag.h"
+#include <cmath>
+#include <iostream>
 
 
 namespace Trk {
@@ -24,14 +24,14 @@ extern int cfdinv(double *, double *, long int );
 extern int cfInv5(double *cov, double *wgt );
 extern int  vtcfit( VKVertex * vk);
 extern void  combinedTrack(long int ICH, double *pv0, double *covi, double BMAG, double *paro, double *covo);
-extern int afterFit(VKVertex *, double *, double *, double *, double *, const VKalVrtControlBase* = 0);
+extern int afterFit(VKVertex *, double *, double *, double *, double *, const VKalVrtControlBase* = nullptr);
 extern void applyConstraints(VKVertex * vk);
 extern void FullMTXfill(VKVertex * , double * );
 extern  int FullMCNSTfill(VKVertex * , double * , double * );
 
 extern int getCascadeNPar(CascadeEvent &, int Type=0);
 extern VKTrack * getCombinedVTrack(VKVertex *);
-extern void vpderiv(bool, long int , double *, double *, double *, double *, double *, double *, double *,const VKalVrtControl * =0);
+extern void vpderiv(bool, long int , double *, double *, double *, double *, double *, double *, double *,const VKalVrtControl * =nullptr);
 extern std::vector<double> transformCovar(int , double **, const std::vector<double>& );
 extern double cfVrtDstSig( VKVertex * , bool );
 extern long int getVertexCharge( VKVertex *);
@@ -89,7 +89,7 @@ int fitVertexCascadeScale( VKVertex * vk, double & distToVertex )
    if(vk->nextCascadeVrt){
       FullMTXfill(vk, vk->ader);
       VKTrack * target_trk = getCombinedVTrack(vk);  // get address of combined track
-      if( target_trk == 0 ) return -12;
+      if( target_trk == nullptr ) return -12;
 
       long int Charge=getVertexCharge(vk);
       target_trk->Charge=Charge;
@@ -118,7 +118,7 @@ int fitVertexCascadeScale( VKVertex * vk, double & distToVertex )
    }
 //
 // Save refitted vertex position as target for predecessors
-   if(vk->includedVrt.size()){  // Save fitted vertex as target for "pass near" constraint in previous vertex
+   if(!vk->includedVrt.empty()){  // Save fitted vertex as target for "pass near" constraint in previous vertex
       for(int pseu=0; pseu<(int)vk->includedVrt.size(); pseu++){
 //         vk->includedVrt[pseu]->FVC.vrt[0] = (vk->refIterV[0] + vk->fitV[0] + vk->includedVrt[pseu]->FVC.vrt[0])/2.;
 //         vk->includedVrt[pseu]->FVC.vrt[1] = (vk->refIterV[1] + vk->fitV[1] + vk->includedVrt[pseu]->FVC.vrt[1])/2.;
@@ -139,7 +139,7 @@ int fitVertexCascadeScale( VKVertex * vk, double & distToVertex )
 { 
   extern int translateToFittedPos(CascadeEvent &, double Step=1.);
 
-  VKVertex * vk=0;
+  VKVertex * vk=nullptr;
   long int Iter, IERR, iv;
   int countTrk=0;  // Number of tracks in cascade
   for( iv=0; iv<cascadeEvent_.cascadeNV; iv++){

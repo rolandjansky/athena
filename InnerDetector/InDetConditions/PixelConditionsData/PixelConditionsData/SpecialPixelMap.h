@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELCONDITIONSDATA_SPECIALPIXELMAP_H
@@ -9,6 +9,7 @@
 
 #include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/CondCont.h"
+#include "CxxUtils/checker_macros.h"
 #include<map>
 #include<string>
 

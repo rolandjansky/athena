@@ -379,7 +379,7 @@ def TrigInDetCondCfg( flags ):
       PixelConfigCondAlgCfg, PixelChargeCalibCondAlgCfg, PixelDCSCondHVAlgCfg,
       PixelDCSCondTempAlgCfg, PixelAlignCondAlgCfg, PixelDetectorElementCondAlgCfg,
       PixelHitDiscCnfgAlgCfg, PixelReadoutSpeedAlgCfg, PixelCablingCondAlgCfg,
-      PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg, PixelTDAQCondAlgCfg,
+      PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg,
       PixelDistortionAlgCfg, PixelOfflineCalibCondAlgCfg
 # NEW FOR RUN3    PixelDeadMapCondAlgCfg, PixelChargeLUTCalibCondAlgCfg/
   )
@@ -415,7 +415,6 @@ def TrigInDetCondCfg( flags ):
   acc.merge(PixelDCSCondStateAlgCfg(flags))
   acc.merge(PixelDCSCondStatusAlgCfg(flags))
 # NEW FOR RUN3    acc.merge(PixelDeadMapCondAlgCfg(flags))
-  acc.merge(PixelTDAQCondAlgCfg(flags))
   # offline calibration
   acc.merge(PixelDistortionAlgCfg(flags))
   acc.merge(PixelOfflineCalibCondAlgCfg(flags))

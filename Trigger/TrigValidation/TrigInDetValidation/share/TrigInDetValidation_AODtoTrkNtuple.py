@@ -162,7 +162,7 @@ if ( True ) :
 
     "HLT_tau.*_idperf.*:HLT_IDTrack_TauCore_FTF",
     "HLT_tau.*_idperf.*:HLT_IDTrack_TauIso_FTF",
-    "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_IDTrig"
+    "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_IDTrig",
     "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_FTF"
 
     ]
@@ -172,7 +172,7 @@ if ( True ) :
   TestMonTool.releaseMetaData = d['nightly name'] + " " + d['nightly release'] + " " + d['date'] + " " + d['platform'] + " " + d['release']
   TestMonTool.outputFileName="TrkNtuple.root"
   HLTMonManager.AthenaMonTools += [ TestMonTool ]
-  print TestMonTool
+  print (TestMonTool)
 
 
 print ("configured everything")

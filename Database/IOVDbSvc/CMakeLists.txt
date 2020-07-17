@@ -7,7 +7,7 @@ atlas_subdir( IOVDbSvc )
 find_package( COOL COMPONENTS CoolKernel CoolApplication )
 find_package( CORAL COMPONENTS CoralBase RelationalAccess )
 find_package( ROOT COMPONENTS Core )
-find_package( Boost COMPONENTS unit_test_framework )
+find_package( Boost COMPONENTS unit_test_framework regex )
 find_package( nlohmann_json )
 find_package( CURL )
 
@@ -24,9 +24,9 @@ atlas_add_component( IOVDbSvc
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS}
    ${Boost_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} ${COOL_LIBRARIES}
-   ${CURL_LIBRARIES} nlohmann_json::nlohmann_json GaudiKernel AthenaBaseComps
-   AthenaKernel StoreGateLib FileCatalog AthenaPoolUtilities CoraCool
-   IOVDbDataModel EventInfo EventInfoUtils GeoModelInterfaces
+   ${Boost_LIBRARIES} ${CURL_LIBRARIES} nlohmann_json::nlohmann_json GaudiKernel
+   AthenaBaseComps AthenaKernel StoreGateLib FileCatalog AthenaPoolUtilities
+   CoraCool IOVDbDataModel EventInfo EventInfoUtils GeoModelInterfaces
    IOVDbMetaDataToolsLib EventInfoMgtLib PoolSvcLib IOVDbSvcLib )
 
 # Install files from the package:
@@ -43,27 +43,27 @@ atlas_add_test( IOVDbSvc_test
    PROPERTIES TIMEOUT 300
    LOG_IGNORE_PATTERN "^HistogramPersis.* INFO|^IOVSvc +DEBUG|^IOVSvcTool +DEBUG |Warning in <TFile::Init>: no |Initializing"  )
 
-atlas_add_test( IOVDbSvc_Boost_test                
+atlas_add_test( IOVDbSvc_Boost_test
    SOURCES test/IOVDbSvc_Boost_test.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${ROOT_LIBRARIES}
    GaudiKernel AthenaKernel CxxUtils TestTools StoreGateLib
    LOG_IGNORE_PATTERN "^HistogramPersis.* INFO|^IOVSvc +DEBUG|^IOVSvcTool +DEBUG" )
 
-atlas_add_test( IOVDbConn_test                
+atlas_add_test( IOVDbConn_test
    SOURCES test/IOVDbConn_test.cxx src/IOVDbConn.cxx
    INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${COOL_LIBRARIES} ${Boost_LIBRARIES} ${ROOT_LIBRARIES}
    GaudiKernel CxxUtils TestTools CoraCool
    POST_EXEC_SCRIPT "nopost.sh" )
 
-atlas_add_test( IOVDbStringFunctions_test                
+atlas_add_test( IOVDbStringFunctions_test
    SOURCES test/IOVDbStringFunctions_test.cxx src/IOVDbStringFunctions.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES}
    POST_EXEC_SCRIPT "nopost.sh" )
 
-atlas_add_test( IOVDbParser_test                
+atlas_add_test( IOVDbParser_test
    SOURCES test/IOVDbParser_test.cxx src/IOVDbParser.cxx
    src/IOVDbStringFunctions.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
@@ -71,7 +71,7 @@ atlas_add_test( IOVDbParser_test
    TestTools
    POST_EXEC_SCRIPT "nopost.sh" )
 
-atlas_add_test( FolderTypes_test                
+atlas_add_test( FolderTypes_test
    SOURCES test/FolderTypes_test.cxx src/FolderTypes.cxx
    src/IOVDbStringFunctions.cxx
    INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
@@ -81,7 +81,7 @@ atlas_add_test( FolderTypes_test
    AthenaPoolUtilities
    POST_EXEC_SCRIPT "nopost.sh" )
 
-atlas_add_test( IOVDbCoolFunctions_test                
+atlas_add_test( IOVDbCoolFunctions_test
    SOURCES test/IOVDbCoolFunctions_test.cxx src/IOVDbCoolFunctions.cxx
    src/IOVDbConn.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
@@ -89,7 +89,7 @@ atlas_add_test( IOVDbCoolFunctions_test
    GaudiKernel AthenaKernel CoraCool
    POST_EXEC_SCRIPT "nopost.sh" )
 
-atlas_add_test( ReadFromFileMetaData_test                
+atlas_add_test( ReadFromFileMetaData_test
    SOURCES test/ReadFromFileMetaData_test.cxx src/ReadFromFileMetaData.cxx
    src/FolderTypes.cxx src/IOVDbCoolFunctions.cxx src/IOVDbStringFunctions.cxx
    src/IOVDbConn.cxx
@@ -98,10 +98,10 @@ atlas_add_test( ReadFromFileMetaData_test
    AthenaKernel IOVDbDataModel AthenaPoolUtilities CoraCool CxxUtils TestTools
    POST_EXEC_SCRIPT "nopost.sh" )
 
-atlas_add_test( IOVDbFolder_test                
+atlas_add_test( IOVDbFolder_test
    SOURCES test/IOVDbFolder_test.cxx src/FolderTypes.cxx
    src/IOVDbStringFunctions.cxx src/IOVDbParser.cxx src/IOVDbConn.cxx
-   src/IOVDbFolder.cxx src/IOVDbParser.cxx src/IovStore.cxx
+   src/IOVDbFolder.cxx src/IovStore.cxx
    src/ReadFromFileMetaData.cxx src/IOVDbCoolFunctions.cxx src/TagFunctions.cxx
    src/Cool2Json.cxx src/Base64Codec.cxx src/Json2Cool.cxx src/IOVDbSvcCurl.cxx
    src/BasicFolder.cxx src/IOVDbResolveTag.cxx src/CrestFunctions.cxx
@@ -115,13 +115,13 @@ atlas_add_test( IOVDbFolder_test
    LOG_IGNORE_PATTERN "^HistogramPersis.* INFO|^IOVSvc +DEBUG|^IOVSvcTool +DEBUG"
    POST_EXEC_SCRIPT "nopost.sh" )
 
-atlas_add_test( IovStore_test                
+atlas_add_test( IovStore_test
    SOURCES test/IovStore_test.cxx src/IovStore.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${CORAL_LIBRARIES}
    POST_EXEC_SCRIPT "nopost.sh" )
 
-atlas_add_test( TagFunctions_test                
+atlas_add_test( TagFunctions_test
    SOURCES test/TagFunctions_test.cxx src/TagFunctions.cxx
    src/IOVDbStringFunctions.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
@@ -131,7 +131,7 @@ atlas_add_test( TagFunctions_test
    POST_EXEC_SCRIPT "nopost.sh" )
 
 atlas_add_test( IOVDbSvcCurl_test
-   SOURCES test/IOVDbSvcCurl_test.cxx src/IOVDbSvcCurl.cxx 
+   SOURCES test/IOVDbSvcCurl_test.cxx src/IOVDbSvcCurl.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CURL_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${CURL_LIBRARIES}
    POST_EXEC_SCRIPT "nopost.sh" )
@@ -149,7 +149,7 @@ atlas_add_test( Json2Cool_test
    LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${CORAL_LIBRARIES}
    nlohmann_json::nlohmann_json
    POST_EXEC_SCRIPT "nopost.sh" )
-                
+
 atlas_add_test( Cool2Json_test
    SOURCES test/Cool2Json_test.cxx src/Cool2Json.cxx src/IOVDbConn.cxx
    src/IOVDbParser.cxx src/IOVDbStringFunctions.cxx src/FolderTypes.cxx
@@ -162,7 +162,7 @@ atlas_add_test( Cool2Json_test
    LOG_IGNORE_PATTERN "^HistogramPersis.* INFO|^IOVSvc +DEBUG|^IOVSvcTool +DEBUG"
    POST_EXEC_SCRIPT "nopost.sh" )
 
-atlas_add_test( CrestFunctions_test                
+atlas_add_test( CrestFunctions_test
    SOURCES test/CrestFunctions_test.cxx src/CrestFunctions.cxx
    src/IOVDbSvcCurl.cxx src/IOVDbStringFunctions.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
@@ -171,8 +171,8 @@ atlas_add_test( CrestFunctions_test
    ${CURL_LIBRARIES}
    POST_EXEC_SCRIPT "nopost.sh" )
 
-atlas_add_test( Base64Codec_test                
-   SOURCES test/Base64Codec_test.cxx src/Base64Codec.cxx 
+atlas_add_test( Base64Codec_test
+   SOURCES test/Base64Codec_test.cxx src/Base64Codec.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES}
    POST_EXEC_SCRIPT "nopost.sh" )

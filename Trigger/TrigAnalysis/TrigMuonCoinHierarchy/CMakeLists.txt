@@ -43,6 +43,5 @@ atlas_add_component( TrigMuonCoinHierarchy
                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel MuonRDO MuonPrepRawData MuonTrigCoinData AnalysisTriggerEvent EventInfo TGCcablingInterfaceLib MuonReadoutGeometry MuonIdHelpersLib muonEvent PathResolver TrkCompetingRIOsOnTrack TrkEventUtils TrkRIO_OnTrack TrkTrack TrigT1Result TrigMuonCoinHierarchyLib )
 
 # Install files from the package:
-atlas_install_joboptions( share/*.py )
 atlas_install_runtime( share/mask2/*.txt )
 

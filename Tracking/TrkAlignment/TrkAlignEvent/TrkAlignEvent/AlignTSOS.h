@@ -147,6 +147,9 @@ namespace Trk {
     /** setter for the derivatives w.r.t. the vertex */
     void setDerivativesVtx(std::vector<Amg::VectorX> * derivs) { m_derivativesVtx = derivs; }
 
+    virtual TrackStateOnSurface::Variety variety() const override final {
+      return TrackStateOnSurface::Align;
+    }
    private:
     // private methods
     AlignTSOS();  // don't use this one

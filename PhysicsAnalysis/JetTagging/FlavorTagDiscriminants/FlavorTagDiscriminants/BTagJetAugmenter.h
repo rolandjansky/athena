@@ -66,6 +66,9 @@ public:
 
 private:
   bool jfIsDefaults(const xAOD::BTagging &btag);
+
+  float safelog_prob(float p_up, float p_down);
+  
   typedef SG::AuxElement AE;
 
   AE::Decorator<float> m_pt_uncalib;

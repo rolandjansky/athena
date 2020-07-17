@@ -254,6 +254,14 @@ ParametersT<DIM, T, S>::type() const
   return Trk::AtaSurface;
 }
 
+/** Return the Surface Type (check SurfaceType enums)*/
+template<int DIM, class T, class S>
+int
+ParametersT<DIM, T, S>::surfaceType() const
+{
+  return S::staticType();
+}
+
 // return the measurementFrame
 template<int DIM, class T, class S>
 Amg::RotationMatrix3D

@@ -55,7 +55,7 @@ Trk::TrkAmbiguitySolver::execute()
   if ( !scoredTracksHandle.isValid() )  ATH_MSG_ERROR("Could not read scoredTracks.");
   m_trackInCount += scoredTracksHandle->size();
   std::unique_ptr<TrackCollection> resolvedTracks;
-  if (m_applySolve){
+  if (m_applySolve ){
      resolvedTracks.reset(m_ambiTool->process(scoredTracksHandle.cptr())); //note: take ownership and delete
   }
   else{

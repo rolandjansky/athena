@@ -40,42 +40,15 @@ def MdtMonitoringConfig(inputFlags):
     # helper. Then, the helper will instantiate an instance and set up the 
     # base class configuration following the inputFlags. The returned object 
     # is the algorithm.
-    #MdtRawDataMonAlg.DoMdtEsd = True
     mdtMonAlg = helper.addAlgorithm(CompFactory.MdtRawDataMonAlg,'MdtMonAlg')
     mdtMonAlg.DoMdtEsd = True
-
-    # You can actually make multiple instances of the same algorithm and give 
-    # them different configurations
-    ######anotherExampleMonAlg = helper.addAlgorithm(ExampleMonitorAlgorithm,'AnotherExampleMonAlg')
-
-    # # If for some really obscure reason you need to instantiate an algorithm
-    # # yourself, the AddAlgorithm method will still configure the base 
-    # # properties and add the algorithm to the monitoring sequence.
-    # helper.AddAlgorithm(myExistingAlg)
-
-
-    ### STEP 3 ###
-    # Edit properties of a algorithm
-    #####exampleMonAlg.TriggerChain = ''
-
-    ### STEP 4 ###
-    # Add some tools. N.B. Do not use your own trigger decion tool. Use the
-    # standard one that is included with AthMonitorAlgorithm.
-
-    # # First, add a tool that's set up by a different configuration function. 
-    # # In this case, CaloNoiseToolCfg returns its own component accumulator, 
-    # # which must be merged with the one from this function.
-    # from CaloTools.CaloNoiseToolConfig import CaloNoiseToolCfg
-    # caloNoiseAcc, caloNoiseTool = CaloNoiseToolCfg(inputFlags)
-    # result.merge(caloNoiseAcc)
-    # exampleMonAlg.CaloNoiseTool = caloNoiseTool
-
-    # # Then, add a tool that doesn't have its own configuration function. In
-    # # this example, no accumulator is returned, so no merge is necessary.
-    # from MyDomainPackage.MyDomainPackageConf import MyDomainTool
-    # exampleMonAlg.MyDomainTool = MyDomainTool()
-
-    # Add a generic monitoring tool (a "group" in old language). The returned 
+    mdtMonAlg.DoChamberHist=True
+    mdtMonAlg.maskNoisyTubes = True
+    mdtMonAlg.ADCCut = 80.
+    mdtMonAlg.do_mdtChamberHits=True
+    mdtMonAlg.do_mdttdccut_sector=True
+    mdtMonAlg.do_mdtchamberstatphislice=True
+    # Add a gezneric monitoring tool (a "group" in old language). The returned 
     # object here is the standard GenericMonitoringTool.
     mdtGroup = helper.addGroup(mdtMonAlg,'MdtMonitor','Muon/MuonRawDataMonitoring/MDT/')
 

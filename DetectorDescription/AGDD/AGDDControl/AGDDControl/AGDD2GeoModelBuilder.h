@@ -70,6 +70,17 @@ public:
 private:
 	GeoPhysVol *m_mother;
 	const GeoMaterial* GetMMMaterial(const std::string&);
+
+    /** phi method (cf. EventPrimitives/AmgMatrixBasePlugin.h) */
+    inline double phi(const GeoTrf::Vector3D &vec) const {
+        if (vec.rows() < 2) return 0.;
+        return std::atan2(vec[1],vec[0]);
+    }
+    /** theta method (cf. EventPrimitives/AmgMatrixBasePlugin.h) */
+    inline double theta(const GeoTrf::Vector3D &vec) const {
+        if (vec.rows() < 3) return 0.;
+        return std::atan2(std::hypot(vec[0],vec[1]),vec[2]);
+    }
 };
 
 #endif

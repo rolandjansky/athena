@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Calorimeter/CaloTriggerTool
                           Control/AthenaBaseComps
                           Control/StoreGate
+                          Control/CxxUtils
                           DetectorDescription/Identifier
                           GaudiKernel
                           Trigger/TrigT1/TrigT1CaloToolInterfaces )
@@ -19,5 +20,5 @@ atlas_depends_on_subdirs( PRIVATE
 atlas_add_component( TrigT1CaloMappingTools
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES CaloIdentifier CaloTriggerToolLib AthenaBaseComps StoreGateLib SGtests Identifier GaudiKernel )
+                     LINK_LIBRARIES CxxUtils CaloIdentifier CaloTriggerToolLib AthenaBaseComps StoreGateLib SGtests Identifier GaudiKernel )
 

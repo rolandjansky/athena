@@ -70,6 +70,7 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper, conf2toConfigurable
 from AthenaCommon.AppMgr import theApp, ServiceMgr as svcMgr
+from AthenaCommon.Include import include
 from AthenaCommon.Logging import logging
 log = logging.getLogger('runHLT_standalone.py')
 
@@ -130,6 +131,7 @@ if len(athenaCommonFlags.FilesInput())>0:
     af = athFile.fopen(athenaCommonFlags.FilesInput()[0])
     globalflags.InputFormat = 'bytestream' if af.fileinfos['file_type']=='bs' else 'pool'
     globalflags.DataSource = 'data' if af.fileinfos['evt_type'][0]=='IS_DATA' else 'geant4'
+    ConfigFlags.Input.isMC = False if globalflags.DataSource=='data' else True
     # Set isOnline=False for MC inputs unless specified in the options
     if globalflags.DataSource() != 'data' and 'isOnline' not in globals():
         log.info("Setting isOnline = False for MC input")
@@ -145,6 +147,7 @@ if len(athenaCommonFlags.FilesInput())>0:
 else:   # athenaHLT
     globalflags.InputFormat = 'bytestream'
     globalflags.DataSource = 'data' if not opt.setupForMC else 'data'
+    ConfigFlags.Input.isMC = False
     if '_run_number' not in dir():
         import PyUtils.AthFile as athFile
         from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -160,12 +163,16 @@ else:   # athenaHLT
 
 # Set final Cond/Geo tag based on input file, command line or default
 globalflags.DetDescrVersion = opt.setDetDescr or TriggerFlags.OnlineGeoTag()
+ConfigFlags.GeoModel.AtlasVersion = globalflags.DetDescrVersion()
 globalflags.ConditionsTag = opt.setGlobalTag or TriggerFlags.OnlineCondTag()
+ConfigFlags.IOVDb.GlobalTag = globalflags.ConditionsTag()
 
 # Other defaults
 jobproperties.Beam.beamType = 'collisions'
+ConfigFlags.Beam.Type = jobproperties.Beam.beamType()
 jobproperties.Beam.bunchSpacing = 25
 globalflags.DatabaseInstance='CONDBR2' if opt.useCONDBR2 else 'COMP200'
+ConfigFlags.IOVDb.DatabaseInstance=globalflags.DatabaseInstance()
 athenaCommonFlags.isOnline.set_Value_and_Lock(opt.isOnline)
 
 log.info('Configured the following global flags:')
@@ -242,13 +249,14 @@ from TrigConfigSvc.TrigConfMetaData import TrigConfMetaData
 meta = TrigConfMetaData()
     
 for mod in dir(TriggerJobOpts.Modifiers):
-    if not hasattr(getattr(TriggerJobOpts.Modifiers,mod),'preSetup'): continue
+    if not hasattr(getattr(TriggerJobOpts.Modifiers,mod),'preSetup'):
+        continue
     if mod in dir():  #allow turning on and off modifiers by variable of same name
         if globals()[mod]:
             if mod not in setModifiers:
                 setModifiers+=[mod]
-        else:
-            if mod in setModifiers: setModifiers.remove(mod)
+        elif mod in setModifiers:
+                setModifiers.remove(mod)
     if mod in setModifiers:
         modifierList+=[getattr(TriggerJobOpts.Modifiers,mod)()]
         meta.Modifiers += [mod]    # store in trig conf meta data
@@ -384,7 +392,6 @@ if TriggerFlags.doMuon():
 # ---------------------------------------------------------------
 # ID conditions
 # ---------------------------------------------------------------
-
 if TriggerFlags.doID:
     from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
     InDetTrigFlags.doPixelClusterSplitting = False
@@ -392,10 +399,6 @@ if TriggerFlags.doID:
     # PixelLorentzAngleSvc and SCTLorentzAngleSvc
     from AthenaCommon.Include import include
     include("InDetRecExample/InDetRecConditionsAccess.py")
-
-
-
-isPartition = len(ConfigFlags.Trigger.Online.partitionName) > 0
 
 # ----------------------------------------------------------------
 # Pool input
@@ -433,10 +436,8 @@ from TrigConfigSvc.TrigConfigSvcCfg import generateL1Menu, createL1PrescalesFile
 generateL1Menu()
 createL1PrescalesFileFromMenu()
 
-from TrigConfigSvc.TrigConfigSvcCfg import getL1ConfigSvc,L1ConfigSvcCfg
+from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
 CAtoGlobalWrapper(L1ConfigSvcCfg,None)
-#svcMgr += getL1ConfigSvc()
-
 
 # ---------------------------------------------------------------
 # Level 1 simulation
@@ -444,9 +445,6 @@ CAtoGlobalWrapper(L1ConfigSvcCfg,None)
 if opt.doL1Sim:
     from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
     topSequence += Lvl1SimulationSequence(ConfigFlags)
-
-
-
 
 # ---------------------------------------------------------------
 # HLT prep: RoIBResult and L1Decoder
@@ -476,11 +474,9 @@ if opt.doL1Unpacking:
         from TrigUpgradeTest.TestUtils import L1EmulationTest
         topSequence += L1EmulationTest()
 
-
 # ---------------------------------------------------------------
 # HLT generation
 # ---------------------------------------------------------------
-
 if not opt.createHLTMenuExternally:
 
     from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
@@ -537,12 +533,6 @@ if hasattr(svcMgr.THistSvc, "Output"):
     setTHistSvcOutput(svcMgr.THistSvc.Output)
 
 #-------------------------------------------------------------
-# Apply modifiers
-#-------------------------------------------------------------
-for mod in modifierList:
-    mod.postSetup()
-
-#-------------------------------------------------------------
 # Conditions overrides
 #-------------------------------------------------------------    
 if len(opt.condOverride)>0:
@@ -550,19 +540,16 @@ if len(opt.condOverride)>0:
         log.warning('Overriding folder %s with tag %s', folder, tag)
         conddb.addOverride(folder,tag)
 
-if svcMgr.MessageSvc.OutputLevel<INFO:
+if svcMgr.MessageSvc.OutputLevel < logging.INFO:
     from AthenaCommon.JobProperties import jobproperties
     jobproperties.print_JobProperties('tree&value')
     print(svcMgr)
 
 #-------------------------------------------------------------
-# Use parts of NewJO
-#-------------------------------------------------------------
-from AthenaCommon.Configurable import Configurable
-
 # Output flags
+#-------------------------------------------------------------
 if opt.doWriteRDOTrigger:
-    if isPartition:
+    if ConfigFlags.Trigger.Online.isPartition:
         log.error('Cannot use doWriteRDOTrigger in athenaHLT or partition')
         theApp.exit(1)
     rec.doWriteRDO = False  # RecExCommon flag
@@ -574,14 +561,23 @@ if opt.doWriteBS:
     ConfigFlags.Output.doWriteBS = True  # new JO flag
     ConfigFlags.Trigger.writeBS = True  # new JO flag
 
-ConfigFlags.Input.Files = athenaCommonFlags.FilesInput()
+#-------------------------------------------------------------
 # ID Cache Creators
+#-------------------------------------------------------------
 ConfigFlags.lock()
 from TriggerJobOpts.TriggerConfig import triggerIDCCacheCreatorsCfg
 CAtoGlobalWrapper(triggerIDCCacheCreatorsCfg,ConfigFlags)
 
 
-# Trigger output
+# B-jet output
+if opt.doBjetSlice or opt.forceEnableAllChains:
+    from JetTagCalibration.JetTagCalibConfig import JetTagCalibCfg
+    alias = ["HLT_b->HLT_b,AntiKt4EMTopo"] #"HLT_bJets" is the name of the b-jet JetContainer
+    topSequence += JetTagCalibCfg(ConfigFlags, scheme="Trig", TaggerList=ConfigFlags.BTagging.TrigTaggersList, NewChannel = alias)
+
+#-------------------------------------------------------------
+# Output configuration
+#-------------------------------------------------------------
 if opt.doWriteBS or opt.doWriteRDOTrigger:
     from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectDecisionObjects, collectHypoDecisionObjects, triggerOutputCfg
     from AthenaCommon.CFElements import findAlgorithm,findSubSequence
@@ -630,6 +626,12 @@ include("TriggerTest/disableChronoStatSvcPrintout.py")
 # Enable xAOD::EventInfo decorations for pileup values
 #-------------------------------------------------------------
 include ("LumiBlockComps/LumiBlockMuWriter_jobOptions.py")
+
+#-------------------------------------------------------------
+# Apply modifiers
+#-------------------------------------------------------------
+for mod in modifierList:
+    mod.postSetup()
 
 #-------------------------------------------------------------
 # Print top sequence

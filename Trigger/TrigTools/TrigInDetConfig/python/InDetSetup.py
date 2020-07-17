@@ -56,12 +56,19 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='', rois = 'E
                                     ( 'SpacePointCache' , InDetCacheNames.SpacePointCachePix ),
                                     ( 'SpacePointCache' , InDetCacheNames.SpacePointCacheSCT ),
                                     ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTBSErrCacheKey ),
-                                    ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+                                    ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
+                                    ( 'TagInfo' , 'DetectorStore+ProcessingTags' )]
+    
     viewAlgs.append( ViewDataVerifier )
 
     # Load RDOs if we aren't loading bytestream
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
+
+    topSequence.SGInputLoader.Load += [ ( 'TagInfo' , 'DetectorStore+ProcessingTags' ) ]
+
+
+
     if not globalflags.InputFormat.is_bytestream():
       ViewDataVerifier.DataObjects +=   [( 'PixelRDO_Container' , InDetKeys.PixelRDOs() ),
                                          ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() ),

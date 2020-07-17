@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetServMatGeoModel/InDetServMatBuilderToolSLHC.h"
@@ -18,6 +18,8 @@
 #include "InDetServMatGeoModel/ServicesTracker.h"
 #include "InDetServMatGeoModel/ServicesTrackerBuilder.h"
 #include "InDetServMatGeoModel/ServiceVolume.h"
+
+#include "CxxUtils/checker_macros.h"
 
 //================ Constructor =================================================
 InDetServMatBuilderToolSLHC::InDetServMatBuilderToolSLHC(const std::string& t,
@@ -51,7 +53,7 @@ InDetServMatBuilderToolSLHC::~InDetServMatBuilderToolSLHC()
 
 
 //================ Initialize =================================================
-StatusCode InDetServMatBuilderToolSLHC::initialize()
+StatusCode InDetServMatBuilderToolSLHC::initialize ATLAS_NOT_THREAD_SAFE () // Thread unsafe build method is used.
 {
   
   StatusCode sc = AlgTool::initialize();
@@ -104,13 +106,13 @@ const std::vector<const InDetDD::ServiceVolume *> & InDetServMatBuilderToolSLHC:
   return m_services;
 }
 
-void InDetServMatBuilderToolSLHC::geoInit()
+void InDetServMatBuilderToolSLHC::geoInit ATLAS_NOT_THREAD_SAFE () // Thread unsafe InDetServMatGeometryManager constructor is used.
 {
   m_geoMgr = new InDetServMatGeometryManager(m_athenaComps);
 }
 
 
-void InDetServMatBuilderToolSLHC::build()
+void InDetServMatBuilderToolSLHC::build ATLAS_NOT_THREAD_SAFE () // 
 {
   // Do nothing if services are not to be built.
   geoInit();

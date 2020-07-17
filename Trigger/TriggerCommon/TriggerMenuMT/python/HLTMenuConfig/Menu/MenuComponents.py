@@ -841,6 +841,10 @@ class ChainStep(object):
     """Class to describe one step of a chain; if multiplicity is greater than 1, the step is combo/combined.  Set one multiplicity value per sequence"""
     def __init__(self, name,  Sequences=[], multiplicity=[1], chainDicts=[], comboHypoCfg=ComboHypoCfg, comboToolConfs=[]):
 
+        # include cases of emtpy steps with multiplicity = [] or multiplicity=[0,0,0///]
+        if sum(multiplicity)==0:
+            multiplicity=[]
+
         # sanity check on inputs
         if len(Sequences) != len(multiplicity):
             raise RuntimeError("Tried to configure a ChainStep %s with %i Sequences and %i multiplicities. These lists must have the same size" % (name, len(Sequences), len(multiplicity)) )
@@ -915,11 +919,6 @@ class InEventReco( ComponentAccumulator ):
         """ Merged CA movnig reconstruction algorithms into the right sequence """
         return self.merge( ca, sequenceName=self.recoSeq.getName() )
 
-    def addRecoAlg( self, alg ):
-        """Reconstruction alg to be run per event"""
-        log.warning( "InViewReco.addRecoAlgo: consider using mergeReco that takes care of the CA accumulation and moving algorithms" )
-        self.addEventAlgo( alg, self.recoSeq.name )
-
     def addHypoAlg(self, alg):
         self.addEventAlgo( alg, self.mainSeq.name )
 
@@ -968,11 +967,6 @@ class InViewReco( ComponentAccumulator ):
     def mergeReco( self, ca ):
         """ Merged CA movnig reconstruction algorithms into the right sequence """
         return self.merge( ca, sequenceName=self.viewsSeq.getName() )
-
-    def addRecoAlg( self, alg ):
-        """Reconstruction alg to be run per view"""
-        log.warning( "InViewReco.addRecoAlgo: consider using mergeReco that takes care of the CA accumulation and moving algorithms" )
-        self.addEventAlgo( alg, self.viewsSeq.name )
 
     def addHypoAlg(self, alg):
         self.addEventAlgo( alg, self.mainSeq.name )

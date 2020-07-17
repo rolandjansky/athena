@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,7 @@
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTrack/TrackExtensionMap.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
+#include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
 #include "TrkToolInterfaces/ITrackScoringTool.h"
 
 // Trigger specific stuff
@@ -82,6 +83,8 @@ private:
   ToolHandle< Trk::ITrackFitter > m_ITrackFitter;
   //
 
+  /**\todo make this const, once createSummary method is const*/
+  ToolHandle<Trk::IExtendedTrackSummaryTool> m_trkSummaryTool;
   ToolHandle< Trk::ITrackScoringTool > m_scoringTool;
   TrackCollection*              m_newtracks;
 

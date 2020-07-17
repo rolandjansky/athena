@@ -36,9 +36,10 @@ class CellConfig(AlgConfig):
     
     def __init__(self, **recoDict):
         super(CellConfig, self).__init__(**recoDict)
-        from TrigT2CaloCommon.CaloDef import HLTFSCellMakerRecoSequence
+        from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import cellRecoSequence
         from TrigEFMissingET.TrigEFMissingETConf import HLT__MET__CellFex
-        (cellMakerSeq, cellName) = HLTFSCellMakerRecoSequence()
+        cellMakerSeq, cellName = RecoFragmentsPool.retrieve(
+                cellRecoSequence, flags=None, RoIs=self.inputMaker.RoIs)
 
         self.inputs = [cellMakerSeq]
         self.fexAlg = self._make_fex_alg(
@@ -50,14 +51,18 @@ class TCConfig(AlgConfig):
     def algType(cls):
         return "tc"
 
-    def __init__(self, **recoDict):
-        super(TCConfig, self).__init__(**recoDict)
-        from TrigT2CaloCommon.CaloDef import HLTFSTopoRecoSequence
+    def __init__(self, calib, **recoDict):
+        super(TCConfig, self).__init__(calib=calib, **recoDict)
+        from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import (
+                caloClusterRecoSequence, LCCaloClusterRecoSequence)
         from TrigEFMissingET.TrigEFMissingETConf import HLT__MET__TCFex
-        # TODO - cluster calibration
         RoIs = self.inputMaker.RoIs
-        tcSeq, clusterName = RecoFragmentsPool.retrieve(
-                HLTFSTopoRecoSequence, RoIs)
+        if calib == "em": 
+            tcSeq, clusterName = RecoFragmentsPool.retrieve(
+                    caloClusterRecoSequence, flags = None, RoIs=RoIs)
+        elif calib == "lcw":
+            tcSeq, clusterName = RecoFragmentsPool.retrieve(
+                    LCCaloClusterRecoSequence, flag = None, RoIs=RoIs)
 
         self.inputs = [tcSeq]
         self.fexAlg = self._make_fex_alg(
@@ -69,13 +74,18 @@ class TCPufitConfig(AlgConfig):
     def algType(cls):
         return "tcpufit"
 
-    def __init__(self, **recoDict):
-        super(TCPufitConfig, self).__init__(**recoDict)
-        from TrigT2CaloCommon.CaloDef import HLTFSTopoRecoSequence
+    def __init__(self, calib, **recoDict):
+        super(TCPufitConfig, self).__init__(calib=calib, **recoDict)
+        from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import (
+                caloClusterRecoSequence, LCCaloClusterRecoSequence)
         from TrigEFMissingET.TrigEFMissingETConf import HLT__MET__TCPufitFex
         RoIs = self.inputMaker.RoIs
-        tcSeq, clusterName = RecoFragmentsPool.retrieve(
-                HLTFSTopoRecoSequence, RoIs)
+        if calib == "em": 
+            tcSeq, clusterName = RecoFragmentsPool.retrieve(
+                    caloClusterRecoSequence, flags=None, RoIs=RoIs)
+        elif calib == "lcw":
+            tcSeq, clusterName = RecoFragmentsPool.retrieve(
+                    LCCaloClusterRecoSequence, flags=None, RoIs=RoIs)
 
         self.inputs = [tcSeq]
         self.fexAlg = self._make_fex_alg(
@@ -146,7 +156,8 @@ class PFSumConfig(AlgConfig):
     def __init__(self, **recoDict):
         super(PFSumConfig, self).__init__(**recoDict)
 
-        from TrigT2CaloCommon.CaloDef import HLTFSTopoRecoSequence
+        from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import (
+                caloClusterRecoSequence)
         from eflowRec.PFHLTSequence import PFHLTSequence
         from ..Jet.JetRecoConfiguration import defineJetConstit
         from TrigEFMissingET.TrigEFMissingETConf import HLT__MET__PFSumFex
@@ -156,7 +167,7 @@ class PFSumConfig(AlgConfig):
 
         RoIs = self.inputMaker.RoIs
         tcSeq, clusterName = RecoFragmentsPool.retrieve(
-                HLTFSTopoRecoSequence, RoIs)
+                caloClusterRecoSequence, flags=None, RoIs=RoIs)
         pfseq, pfoPrefix = RecoFragmentsPool.retrieve(
                 PFHLTSequence, None, clustersin = clusterName, tracktype="ftf")
         constit = defineJetConstit(jetRecoDict, pfoPrefix=pfoPrefix)

@@ -1,8 +1,9 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelGeoModelAthenaComps.h"
+#include "CxxUtils/checker_macros.h"
 
 PixelGeoModelAthenaComps::PixelGeoModelAthenaComps()
   : InDetDD::AthenaComps("PixelGeoModel"),
@@ -19,7 +20,7 @@ PixelGeoModelAthenaComps::setBCM(IGeoSubDetTool * bcmTool)
 }
 
 IGeoSubDetTool * 
-PixelGeoModelAthenaComps::bcm() const 
+PixelGeoModelAthenaComps::bcm ATLAS_NOT_THREAD_SAFE () const // const method returns non-const pointer.
 {
   return m_bcmTool;
 }
@@ -31,7 +32,7 @@ PixelGeoModelAthenaComps::setBLM(IGeoSubDetTool * blmTool)
 }
 
 IGeoSubDetTool * 
-PixelGeoModelAthenaComps::blm() const 
+PixelGeoModelAthenaComps::blm ATLAS_NOT_THREAD_SAFE () const // const method returns non-const pointer.
 {
   return m_blmTool;
 }
@@ -43,7 +44,7 @@ PixelGeoModelAthenaComps::setServiceBuilderTool(IInDetServMatBuilderTool * servi
 }
 
 IInDetServMatBuilderTool * 
-PixelGeoModelAthenaComps::serviceBuilderTool() const 
+PixelGeoModelAthenaComps::serviceBuilderTool ATLAS_NOT_THREAD_SAFE () const // const method returns non-const pointer.
 {
   return m_serviceBuilderTool;
 }

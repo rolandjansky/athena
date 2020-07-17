@@ -13,8 +13,6 @@ TrigPassBitsCnv::~TrigPassBitsCnv(){}
 TrigPassBits_PERS* TrigPassBitsCnv::createPersistent(TrigPassBits* transObj) {
     MsgStream mlog(msgSvc(), "TrigPassBitsConverter" );
 
-    mlog << MSG::DEBUG << "TrigPassBitsCnv::createPersistent" << endmsg;
-
     TrigPassBitsCnv_p1   converter;
     TrigPassBits_PERS *persObj = converter.createPersistent( transObj, mlog );
 
@@ -25,10 +23,7 @@ TrigPassBits_PERS* TrigPassBitsCnv::createPersistent(TrigPassBits* transObj) {
 TrigPassBits* TrigPassBitsCnv::createTransient() {
     MsgStream mlog(msgSvc(), "TrigPassBitsConverter" );
 
-    mlog << MSG::DEBUG << "TrigPassBitsCnv::createTransient " << endmsg;
-
-    static pool::Guid p1_guid("391FFE21-5D82-471E-9FFC-B77150142B8F");
-
+    static const pool::Guid p1_guid("391FFE21-5D82-471E-9FFC-B77150142B8F");
 
     if( compareClassGuid(p1_guid) ) {
 

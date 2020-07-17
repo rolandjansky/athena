@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASSERVICES_G4AtlasSvc_H
@@ -19,20 +19,18 @@ class G4AtlasSvc : public extends<AthService , IG4AtlasSvc> {
  public:
   // Standard constructor and destructor
   G4AtlasSvc( const std::string& name, ISvcLocator* pSvcLocator );
-  virtual ~G4AtlasSvc();
+  virtual ~G4AtlasSvc() = default;
 
   // Gaudi methods
   StatusCode initialize() override final;
   StatusCode finalize() override final;
 
  private:
-
-  ServiceHandle<IDetectorGeometrySvc> m_detGeoSvc;
-
-  ServiceHandle<IPhysicsListSvc> m_physicsListSvc;
-  ServiceHandle<IUserLimitsSvc> m_userLimitsSvc;
-  bool m_isMT;
-  bool m_activateParallelGeometries;
+  ServiceHandle<IDetectorGeometrySvc> m_detGeoSvc{this, "DetectorGeometrySvc", "DetectorGeometrySvc"};
+  ServiceHandle<IPhysicsListSvc> m_physicsListSvc{this, "PhysicsListSvc", "PhysicsListSvc"};
+  ServiceHandle<IUserLimitsSvc> m_userLimitsSvc{this, "UserLimitsSvc", "UserLimitsSvc"};
+  Gaudi::Property<bool> m_isMT{this, "isMT", false};
+  Gaudi::Property<bool> m_activateParallelGeometries{this, "ActivateParallelWorlds", false, "Toggle on/off the G4 parallel geometry system"};
 };
 
 #endif

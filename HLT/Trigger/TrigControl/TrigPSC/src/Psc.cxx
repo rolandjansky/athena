@@ -571,6 +571,19 @@ bool psc::Psc::stopRun (const ptree& /*args*/)
     return false;
   }
 
+  // Workers: store histograms at the end of stop as the children may not
+  // go through finalize with SkipFinalizeWorker=1.
+  if (m_workerID != 0) {
+    SmartIF<IService> histsvc = m_svcLoc->service("THistSvc", /*createIf=*/ false);
+    if (histsvc.isValid()) {
+      ERS_LOG("Finalize THistSvc to save histograms");
+      if (histsvc->finalize().isFailure()) {
+        ERS_PSC_ERROR("Error executing finalize for THistSvc");
+      }
+    }
+  }
+
+
   return true;
 }
 
@@ -705,6 +718,8 @@ bool psc::Psc::prepareWorker (const boost::property_tree::ptree& args)
       PyEval_SaveThread();
     }
   }
+
+  m_workerID = args.get<int>("workerId");
 
   ERS_LOG("Individualizing DF properties");
   m_config->prepareWorker(args);

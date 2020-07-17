@@ -141,14 +141,6 @@ if DetFlags.pixel_on():
             alg.ReadKeyStatus = ''
         condSeq += alg
 
-    if athenaCommonFlags.isOnline():
-        if not conddb.folderRequested("/TDAQ/Resources/ATLAS/PIXEL/Modules"):
-            conddb.addFolder("TDAQ_ONL", "/TDAQ/Resources/ATLAS/PIXEL/Modules", className="CondAttrListCollection")
-
-    if not hasattr(condSeq, "PixelTDAQCondAlg"):
-        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelTDAQCondAlg
-        condSeq += PixelTDAQCondAlg(name="PixelTDAQCondAlg")
-
     #####################
     # Calibration Setup #
     #####################

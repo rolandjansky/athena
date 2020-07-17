@@ -156,7 +156,6 @@ StatusCode CheckFlow::initialize(){
 
   m_tesIO = new GenAccessIO();
 
-  // return StatusCode::SUCCESS;
   return result;
 }
 
@@ -180,7 +179,6 @@ StatusCode CheckFlow::execute() {
 
 
   if ( m_sgSvc->retrieve(hijing_pars, "Hijing_event_params").isFailure() ) {
-//  if ( evtStore()->retrieve(hijing_pars, "Hijing_event_params").isFailure() ) {
     msg(MSG::ERROR) << "Could not retrieve Hijing_event_params"
 	   << endmsg;
     return StatusCode::FAILURE;
@@ -188,13 +186,6 @@ StatusCode CheckFlow::execute() {
   float b = hijing_pars->get_b();
   float phiR = hijing_pars->get_bphi();
 
-  //msglog << MSG::DEBUG<<"SOUMYA  "
-  // <<hijing_pars->get_psi(1)
-  // <<"   "<<hijing_pars->get_psi(2)
-  // <<"  "<<hijing_pars->get_psi(3)
-  // <<hijing_pars->get_psi(4)
-  // <<"   "<<hijing_pars->get_psi(5)
-  // <<"  "<<hijing_pars->get_psi(6)  << endmsg;
 
   // Check cut on impact parameter b
   if(b<m_bcut_min || b>m_bcut_max) 

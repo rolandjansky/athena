@@ -866,6 +866,15 @@ def MuonInsideOutRecoToolCfg(flags, name="MuonInsideOutRecoTool", **kwargs ):
     kwargs.setdefault("TrackSummaryTool", acc.getPrimary())
     result.merge(acc)
 
+    acc = CombinedMuonTrackBuilderCfg(flags)
+    kwargs.setdefault("MuonTrackBuilder", acc.getPrimary())
+    result.merge(acc)
+
+    from MuonConfig.MuonRecToolsConfig import MuonAmbiProcessorCfg
+    acc = MuonAmbiProcessorCfg(flags)
+    kwargs.setdefault("TrackAmbiguityProcessor", acc.getPrimary())
+    result.merge(acc)
+
     tool = CompFactory.MuonCombined.MuonInsideOutRecoTool(name, **kwargs)
     result.setPrivateTools(tool)
     return result
@@ -893,11 +902,12 @@ def MuonSegmentSelectionToolCfg(flags, name="MuonSegmentSelectionTool", **kwargs
       kwargs.setdefault("GoodADCFractionCut",  0.5 )
       kwargs.setdefault("MinADCPerSegmentCut", 100 )
     result = ComponentAccumulator()
+    # kwargs.setdefault("Printer", MuonEDMPrinterTool(flags) ) # FIXME - needs property added.
+
     result.setPrivateTools(CompFactory.Muon.MuonSegmentSelectionTool(name, **kwargs))
     return result
 
 def MuonLayerAmbiguitySolverToolCfg(flags, name="MuonLayerAmbiguitySolverTool", **kwargs):
-    # Won't explicitly configure MuonEDMPrinterTool
     result = MuonSegmentSelectionToolCfg(flags)
     segment_selection_tool = result.popPrivateTools()
     kwargs.setdefault("MuonSegmentSelectionTool",segment_selection_tool)
@@ -916,6 +926,8 @@ def MuonLayerAmbiguitySolverToolCfg(flags, name="MuonLayerAmbiguitySolverTool", 
     kwargs.setdefault("MuonSegmentTrackBuilder", muon_segment_track_builder)
     acc.addPublicTool(muon_segment_track_builder)
     result.merge(acc)
+
+    kwargs.setdefault("MuonEDMPrinterTool", MuonEDMPrinterTool(flags) ) 
 
     result.setPrivateTools(CompFactory.Muon.MuonLayerAmbiguitySolverTool(name, **kwargs))
     

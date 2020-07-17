@@ -125,7 +125,7 @@ bool			Signal::s_crashed = false;
 int			Signal::s_inFatal = 0;
 
 /** Used to switch to a raw stack dump if we crash during a backtrace. */
-unsigned long           Signal::s_lastSP = 0;
+thread_local unsigned long           Signal::s_lastSP = 0;
 
 /** The current application name.  */
 const char		*Signal::s_applicationName = 0;
