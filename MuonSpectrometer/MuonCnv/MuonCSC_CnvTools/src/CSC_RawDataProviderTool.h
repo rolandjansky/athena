@@ -8,11 +8,8 @@
 
 #ifndef MUONCSC_CNVTOOLS_CSC_RAWDATAPROVIDERTOOL_H
 #define MUONCSC_CNVTOOLS_CSC_RAWDATAPROVIDERTOOL_H
-
-/// This code is only used in the single-thread setup
-/// As such, deactivating the check in this file     
+    
 #include "CxxUtils/checker_macros.h"
-ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 #include "CSC_RawDataProviderToolCore.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -23,7 +20,8 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 namespace Muon
 {
 
-class CSC_RawDataProviderTool : virtual public IMuonRawDataProviderTool, public CSC_RawDataProviderToolCore
+/// This class is only used in a single-thread mode
+class ATLAS_NOT_THREAD_SAFE CSC_RawDataProviderTool : virtual public IMuonRawDataProviderTool, public CSC_RawDataProviderToolCore
 {
 public:
     CSC_RawDataProviderTool(const std::string& t, const std::string& n, const IInterface* p);
