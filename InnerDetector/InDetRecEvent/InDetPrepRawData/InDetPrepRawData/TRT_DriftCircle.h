@@ -168,7 +168,7 @@ inline int TRT_DriftCircle::trailingEdge() const
 
 inline bool TRT_DriftCircle::highLevel() const 
 {
-  return (m_word & 0x04020100);
+  return TRT_LoLumRawData::highLevel(m_word);
 }
 
 
