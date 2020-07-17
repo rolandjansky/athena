@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************
@@ -20,7 +20,7 @@
 #include "TrigInterfaces/FexAlgo.h"
 
 #include "TrigInDetToolInterfaces/ITrigTrackJetFinderTool.h"
-#include "TrigInDetVxInJetTool/ITrigInDetVxInJetTool.h"
+#include "TrigInDetToolInterfaces/ITrigInDetVxInJetTool.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
 
 #include "CxxUtils/checker_macros.h"
