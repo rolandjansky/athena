@@ -1,24 +1,19 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StandardFieldSvc.h"
+#include "GaudiKernel/ThreadLocalContext.h"
+#include "StoreGate/ReadCondHandle.h"
 
-//-----------------------------------------------------------------------------
-// Constructor for the AtlasField G4 field object
-//-----------------------------------------------------------------------------
-AtlasField::AtlasField(MagField::IMagFieldSvc* m)
-  : m_magFieldSvc(m)
-{}
 
 //-----------------------------------------------------------------------------
 // Constructor for the StandardFieldSvc
 //-----------------------------------------------------------------------------
 StandardFieldSvc::StandardFieldSvc(const std::string& name,
                                    ISvcLocator* pSvcLocator)
-  : G4MagFieldSvcBase(name, pSvcLocator)
-{
-}
+    : G4MagFieldSvcBase(name, pSvcLocator)
+{}
 
 //-----------------------------------------------------------------------------
 // Initialize the service
@@ -26,7 +21,12 @@ StandardFieldSvc::StandardFieldSvc(const std::string& name,
 StatusCode StandardFieldSvc::initialize()
 {
   ATH_MSG_INFO( "Initializing " << name() );
-  ATH_CHECK( m_magFieldSvc.retrieve() );
+
+  // Read handle for AtlasFieldCacheCondObj
+  ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
+    
+  ATH_MSG_INFO( "Initialized " << m_fieldCacheCondObjInputKey.key() );
+  
   return StatusCode::SUCCESS;
 }
 
@@ -36,5 +36,18 @@ StatusCode StandardFieldSvc::initialize()
 G4MagneticField* StandardFieldSvc::makeField()
 {
   ATH_MSG_INFO( "StandardFieldSvc::makeField" );
-  return new AtlasField( &*m_magFieldSvc );
+
+  MagField::AtlasFieldCache fieldCache;
+  SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle(
+    m_fieldCacheCondObjInputKey, Gaudi::Hive::currentContext());
+  const AtlasFieldCacheCondObj* fieldCondObj{ *readHandle };
+  if (fieldCondObj == nullptr) {
+    ATH_MSG_ERROR(
+      "G4MagneticField : Failed to retrieve AtlasFieldCacheCondObj with key "
+      << m_fieldCacheCondObjInputKey.key());
+    return nullptr;
+  }
+
+  AtlasField* af = new AtlasField(fieldCondObj);
+  return (af);
 }
