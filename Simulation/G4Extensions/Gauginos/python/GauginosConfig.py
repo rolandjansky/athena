@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 def getGauginosPhysicsTool(name="GauginosPhysicsTool", **kwargs):
@@ -14,7 +14,7 @@ def getGauginosPhysicsTool(name="GauginosPhysicsTool", **kwargs):
     kwargs.setdefault("NeutralinoLifetime",    GMSBTime);
     ##kwargs.setdefault("NeutralinoShortlived",  False);
 
-    if simFlags.specialConfiguration.get_Value().has_key("GMSBGravitino"):
+    if "GMSBGravitino" in simFlags.specialConfiguration.get_Value():
         GMSBGravitino = eval(simFlags.specialConfiguration.get_Value().get("GMSBGravitino", "0*GeV"))
         kwargs.setdefault("GravitinoMass",       GMSBGravitino);
         ##kwargs.setdefault("GravitinoWidth",       0.0*GeV);
