@@ -50,7 +50,7 @@ def InDetImprovedJetFitterTrackSelectorToolCfg(name, useBTagFlagsDefaults = True
                      'useSharedHitInfo'             : False,
                      'useTrackQualityInfo'          : True,
                      'fitChi2OnNdfMax'              : 3.5,
-                     'TrackSummaryTool'             : None }
+                     'TrackSummaryTool'             : '' }
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name

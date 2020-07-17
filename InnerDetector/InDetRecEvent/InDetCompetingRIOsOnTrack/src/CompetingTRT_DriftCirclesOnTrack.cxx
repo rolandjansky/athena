@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -42,7 +42,7 @@ InDet::CompetingTRT_DriftCirclesOnTrack::CompetingTRT_DriftCirclesOnTrack(const 
     m_containedChildRots->push_back((*rotIter)->clone());
   }
   if (compROT.m_globalPosition) {
-    m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*(compROT.m_globalPosition)));
+    m_globalPosition.store(std::make_unique<const Amg::Vector3D>(*(compROT.m_globalPosition)));
   }
 }
 
@@ -88,7 +88,7 @@ InDet::CompetingTRT_DriftCirclesOnTrack& InDet::CompetingTRT_DriftCirclesOnTrack
     } else {
       m_associatedSurface = 0;
     }
-    if (compROT.m_globalPosition) m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*compROT.m_globalPosition));
+    if (compROT.m_globalPosition) m_globalPosition.store(std::make_unique<const Amg::Vector3D>(*compROT.m_globalPosition));
     else if (m_globalPosition) m_globalPosition.release().reset();
     m_ROTsHaveCommonSurface     = compROT.m_ROTsHaveCommonSurface.load();
     std::vector<const InDet::TRT_DriftCircleOnTrack*>::const_iterator rotIter = compROT.m_containedChildRots->begin();

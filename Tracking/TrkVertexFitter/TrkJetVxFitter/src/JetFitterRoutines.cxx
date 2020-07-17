@@ -87,7 +87,7 @@ namespace Trk
 
 
     
-  JetFitterRoutines::~JetFitterRoutines() {}
+  JetFitterRoutines::~JetFitterRoutines() = default;
 
 
   StatusCode JetFitterRoutines::initialize() {
@@ -167,14 +167,14 @@ namespace Trk
       fieldCondObj->getInitializedCache (fieldCache);
       for (std::vector<VxVertexOnJetAxis*>::const_iterator VtxIter=VtxBegin;VtxIter!=VtxEnd;++VtxIter) {
         VxVertexOnJetAxis* myVertex=(*VtxIter);
-        if (myVertex!=0) {
+        if (myVertex!=nullptr) {
           
           const std::vector<VxTrackAtVertex*> & tracksAtVertex=myVertex->getTracksAtVertex();
           if (tracksAtVertex.size()>1) { 
               ATH_MSG_DEBUG( "Warning in JetFitterInitializationHelper.Number of tracks at vertex is bigger than one, " 
                              << "even during initialization phase. Skipping this vertex (already initialized)..." );
           } 
-          else if (tracksAtVertex.size()==0)
+          else if (tracksAtVertex.empty())
           {
             ATH_MSG_WARNING( "No track at vertex. Internal fitter error. Contact author (GP) ... " );
           }
@@ -230,7 +230,7 @@ namespace Trk
                              " distance to axis " <<  result.second);
             }
             // FIXME   THIS PART IS DEAD IN NEW TRACKING EDM:
-            else if (dynamic_cast<const Trk::NeutralPerigee*>((tracksAtVertex[0]->initialPerigee()))!=0)
+            else if (dynamic_cast<const Trk::NeutralPerigee*>((tracksAtVertex[0]->initialPerigee()))!=nullptr)
             {
               double distOnAxis=-999.;
               std::pair<Amg::Vector3D,double> result;
@@ -436,7 +436,7 @@ namespace Trk
     smoothAllVertices(myJetCandidate);
     
     Trk::VxJetFitterDebugInfo * & myDebugInfo=myJetCandidate->getDebugInfo();
-    if (myDebugInfo!=0) {
+    if (myDebugInfo!=nullptr) {
       delete myDebugInfo;
     }
     myDebugInfo=new VxJetFitterDebugInfo();
@@ -551,45 +551,58 @@ namespace Trk
 
     //check if primaryvertex exists
     const VxVertexOnJetAxis* myPrimary=myJetCandidate->getPrimaryVertex();
-    if (myPrimary==0) {
+    if (myPrimary==nullptr) {
       ATH_MSG_WARNING( "No primary vertex found in VxJetCandidate class. Initialization was not done correctly..." );
       return false;
-    } else {
-      bool ok=true;
-      if (myPrimary->getNumVertex()!=-10) { 
-	ok=false;
-	ATH_MSG_WARNING( "Numvertex of primary vertex not correctly initialized. Not proceeding with the fit!" );
-      }
-      //      if (std::abs(myPrimary->getLinearizationPosition(void))>1e-6) {
-      //	ATH_MSG_WARNING( "Primary vertex linearization point is not zero as it should be!" );
-      //      }
+    }
 
-      const std::vector<VxTrackAtVertex*> & primaryVectorTracks=myPrimary->getTracksAtVertex();
-      
-      sizeprimary=primaryVectorTracks.size();
+    bool ok = true;
+    if (myPrimary->getNumVertex() != -10) {
+      ok = false;
+      ATH_MSG_WARNING("Numvertex of primary vertex not correctly initialized. "
+                      "Not proceeding with the fit!");
+    }
 
-      ok =  (std::find(primaryVectorTracks.begin(), primaryVectorTracks.end(),nullptr) == primaryVectorTracks.end());
-      if (not ok) ATH_MSG_WARNING( "One of the VxTrackAtVertex is a null pointer. Not proceeding with the fit!" );
+    const std::vector<VxTrackAtVertex*>& primaryVectorTracks =
+      myPrimary->getTracksAtVertex();
 
-      if (ok==false) {
-	return false;
-      }
-    }//end if else rimary==0
-    
+    sizeprimary = primaryVectorTracks.size();
 
-    bool ok=true;
-    //check std::vector<VxVertexOnJetAxis*> (if pointers are not empty and if all associated tracks are not empty)
-    const std::vector<VxVertexOnJetAxis*> & tracksOfVertex=myJetCandidate->getVerticesOnJetAxis();
+    ok = (std::find(primaryVectorTracks.begin(),
+                    primaryVectorTracks.end(),
+                    nullptr) == primaryVectorTracks.end());
+    if (not ok)
+      ATH_MSG_WARNING("One of the VxTrackAtVertex is a null pointer. Not "
+                      "proceeding with the fit!");
 
-    auto badVertex=[](VxVertexOnJetAxis* pVertex){return (pVertex==nullptr) or (pVertex->getNumVertex() < 0);}; 
-    ok=(std::find_if(tracksOfVertex.begin(), tracksOfVertex.end(), badVertex) == tracksOfVertex.end());
-    if (not ok) ATH_MSG_WARNING( "One of the VxTrackAtVertex is a null pointer or uninitialized. Not proceeding with the fit!" ); // Two error messages combined into one
+    if (!ok) {
+      return false;
+    }
+    // end if else rimary==0
 
-    if (not ok) return false;
+    // check std::vector<VxVertexOnJetAxis*> (if pointers are not empty and if
+    // all associated tracks are not empty)
+    const std::vector<VxVertexOnJetAxis*>& tracksOfVertex =
+      myJetCandidate->getVerticesOnJetAxis();
+
+    auto badVertex = [](VxVertexOnJetAxis* pVertex) {
+      return (pVertex == nullptr) or (pVertex->getNumVertex() < 0);
+    };
+    ok =
+      (std::find_if(tracksOfVertex.begin(), tracksOfVertex.end(), badVertex) ==
+       tracksOfVertex.end());
+    if (not ok) {
+      ATH_MSG_WARNING(
+        "One of the VxTrackAtVertex is a null pointer or uninitialized. Not "
+        "proceeding with the fit!"); // Two error messages combined into one
+    }
+    if (not ok) {
+      return false;
+    }
     
     //now check if there is some track at least to do the fit...
 
-    if (tracksOfVertex.size()==0&&sizeprimary==0) {
+    if (tracksOfVertex.empty()&&sizeprimary==0) {
       ATH_MSG_DEBUG( "No tracks at primary, no tracks on jet axis. Not proceeding with the fit!" );
       return false;
     }
@@ -616,8 +629,8 @@ namespace Trk
     //check if all the diagonal values of the covariance matrix are not zero
     for (int i=0;i<myPosition.rows();i++) {
       if (std::abs(myErrorMatrix(i,i))<1e-20) {
-	ATH_MSG_WARNING ("Value of cov matrix component n. " << i << " has a value smaller than 1e-8. Not considered as possible. Not performing fit...");
-	return false;
+        ATH_MSG_WARNING ("Value of cov matrix component n. " << i << " has a value smaller than 1e-8. Not considered as possible. Not performing fit...");
+        return false;
       }
     }
 
@@ -638,7 +651,8 @@ namespace Trk
 
     if (firstVertex==PrimaryVertex) {
       return fastProbabilityOfMergingWithPrimary(secondVertex,myJetCandidate);
-    } else if (secondVertex==PrimaryVertex) {
+    } 
+    if (secondVertex==PrimaryVertex) {
       return fastProbabilityOfMergingWithPrimary(firstVertex,myJetCandidate);
     }
 
@@ -653,13 +667,7 @@ namespace Trk
 
     //first get a copy of all vertex positions (this you can't avoid I fear...)
     RecVertexPositions copyOfRecVertexPositions(myJetCandidate->getRecVertexPositions());
-    VertexPositions copyOfLinearizationPositions(myJetCandidate->getLinearizationVertexPositions());
 
-    /*
-    //now copy the primaryVertex and copy the tracks of otherVertex to this new primaryVertex
-    VxVertexOnJetAxis primaryVertex(*myJetCandidate->getPrimaryVertex());
-    m_helper->addTracksOfFirstVertexToSecondVertex(*otherVertex,primaryVertex);
-    */
 
     double oldchi2=copyOfRecVertexPositions.fitQuality().chiSquared();
     double oldndf=copyOfRecVertexPositions.fitQuality().numberDoF();
@@ -704,8 +712,6 @@ namespace Trk
     
     //first get a copy of all vertex positions (this you can't avoid I fear...)
     RecVertexPositions copyOfRecVertexPositions(myJetCandidate->getRecVertexPositions());
-    VertexPositions copyOfLinearizationPositions(myJetCandidate->getLinearizationVertexPositions());
-
     const FitQuality & copyOfRecVertexQuality=copyOfRecVertexPositions.fitQuality();
  
     double oldchi2=copyOfRecVertexQuality.chiSquared();
@@ -719,11 +725,6 @@ namespace Trk
     double phierr=std::sqrt(positionCov(Trk::jet_phi,Trk::jet_phi));
     double thetaerr=std::sqrt(positionCov(Trk::jet_theta,Trk::jet_theta));
 
-    /*
-    //now copy the first vertex and copy the tracks of otherVertex to this new common vertex
-    VxVertexOnJetAxis theCommonVertex(*firstVertex);
-    m_helper->addTracksOfFirstVertexToSecondVertex(*secondVertex,theCommonVertex);
-    */
     
     //now do the merging of the second cluster to the primary vertex...
     m_helper->performKalmanConstraintToMergeVertices(copyOfRecVertexPositions,
@@ -762,7 +763,7 @@ namespace Trk
 						    double deltachi2_convergence) const {
 
     
-    if (firstVertex==0||secondVertex==0||myJetCandidate==0) {
+    if (firstVertex==nullptr||secondVertex==nullptr||myJetCandidate==nullptr) {
       ATH_MSG_WARNING ("zero pointer given to the full probability estimation. No estimation performed, zero prob returned ");
       return 0;
     }
@@ -782,7 +783,7 @@ namespace Trk
     const VxVertexOnJetAxis* primaryOfFirst=myJetCandidate->getPrimaryVertex();
     VxVertexOnJetAxis* primaryOfSecond=newJetCandidate.getPrimaryVertex();
 
-    if (primaryOfFirst==0||primaryOfSecond==0) {
+    if (primaryOfFirst==nullptr||primaryOfSecond==nullptr) {
       ATH_MSG_WARNING ("Empty primary vertex found when estimating fullProbOfMerging. 0 prob returned.");
       return 0;
     }
@@ -798,7 +799,7 @@ namespace Trk
     for (unsigned int s=0;s<sizeOfVertices;s++) {
       const VxVertexOnJetAxis* pointer1=vectorOfOldJetCand[s];
       VxVertexOnJetAxis* pointer2=vectorOfNewJetCand[s];
-      if (pointer1==0||pointer2==0) {
+      if (pointer1==nullptr||pointer2==nullptr) {
 	ATH_MSG_WARNING ("One of the pointers of the original or copied vector of vertices is empty during fullProbOfMerging. Skipping it...");
       } else {
 	oldToNewVtxPointers[pointer1]=pointer2;
@@ -809,7 +810,7 @@ namespace Trk
     VxVertexOnJetAxis* newFirstVertex=oldToNewVtxPointers[firstVertex];
     VxVertexOnJetAxis* newSecondVertex=oldToNewVtxPointers[secondVertex];
 
-    if (newFirstVertex==0||newSecondVertex==0) {
+    if (newFirstVertex==nullptr||newSecondVertex==nullptr) {
       ATH_MSG_WARNING ("No correspondence to the given firstVertex or secondVertex in fullProbOfMerging. Returning 0 prob.");
       return 0.;
     }
@@ -865,14 +866,14 @@ namespace Trk
 						     double deltachi2_convergence,
 						     double threshold_probability) const {
     
-    if (myJetCandidate==0) {
+    if (myJetCandidate==nullptr) {
       ATH_MSG_WARNING( "VxJetCandidate provided is a zero pointer. No compatibility table calculated." );
       return;
     }
     
     //first create the compatibility table object...
     Trk::VxClusteringTable* & clusteringTablePtr(myJetCandidate->getClusteringTable());
-    if (clusteringTablePtr!=0) {
+    if (clusteringTablePtr!=nullptr) {
       delete clusteringTablePtr;
     }
     clusteringTablePtr=new Trk::VxClusteringTable();
@@ -881,7 +882,7 @@ namespace Trk
 
     VxVertexOnJetAxis* primaryVertex=myJetCandidate->getPrimaryVertex();
 
-    if (primaryVertex==0) {
+    if (primaryVertex==nullptr) {
 	ATH_MSG_WARNING( "VxJetCandidate provided has no primary vertex. No compatibility table calculated." );
 	return;
     } 
@@ -913,7 +914,7 @@ namespace Trk
 
       if (fullcomputation) {
 	if (fastProbabilityAndNonLinearity.first>threshold_probability) {
-	  if (fastProbabilityAndNonLinearity.first>highestprobability/100.&&fastProbabilityAndNonLinearity.second==true) {
+	  if (fastProbabilityAndNonLinearity.first>highestprobability/100.&&fastProbabilityAndNonLinearity.second) {
 	    
 	    double fullProbability=fullProbabilityOfMerging(primaryVertex,*VtxIter,
 							   myJetCandidate,num_maxiterations,
@@ -978,7 +979,7 @@ namespace Trk
 #endif	
 	if (fullcomputation) {
 	  if (fastProbabilityAndNonLinearity.first>threshold_probability) {
-	    if (fastProbabilityAndNonLinearity.first>highestprobability/100.&&fastProbabilityAndNonLinearity.second==true) {
+	    if (fastProbabilityAndNonLinearity.first>highestprobability/100.&&fastProbabilityAndNonLinearity.second) {
 	      double fullProbability=fullProbabilityOfMerging(*VtxIter1,*VtxIter2,
 							     myJetCandidate,num_maxiterations,
 							     treat_sign_flip,
@@ -1078,12 +1079,12 @@ namespace Trk
 	  Trk::VxTrackAtVertex* oldPointer=*TracksIter;
 	  TracksIter=tracksAtJetCandidate->erase(TracksIter);
 	  delete oldPointer;
-	  oldPointer=0;
+	  oldPointer=nullptr;
 	  TracksEnd=tracksAtJetCandidate->end();
 	  break; 
-	} else {
+	} 
 	  ++TracksIter;
-	}
+	
       }
     }
 
@@ -1112,9 +1113,9 @@ namespace Trk
 	VerticesEnd=copyOfVerticesAtJetCandidate.end();
 	found=true;
 	break;
-      } else {
+      } 
 	++VerticesIter;
-      }
+      
     }
     
     if (!found) {
@@ -1141,7 +1142,7 @@ namespace Trk
     
     for (std::vector<VxVertexOnJetAxis*>::const_iterator VtxIter=VtxBegin;VtxIter!=VtxEnd;++VtxIter) {
       VxVertexOnJetAxis* myVertex=(*VtxIter);
-      if (myVertex!=0) {
+      if (myVertex!=nullptr) {
         
         double distOnAxis=linPositions[numRow(myVertex->getNumVertex())];
   

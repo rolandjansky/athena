@@ -7,8 +7,6 @@
 #define TRIGL2TRKMASSHYPO_H
 
 #include "TrigInterfaces/HypoAlgo.h"
-#include "TrigT1Interfaces/RecMuonRoI.h" 
-
 #include "Constants.h"
 
 class TriggerElement;

@@ -60,6 +60,10 @@ private:
   };
 
   // ------------------------- Properties --------------------------------------
+  Gaudi::Property<bool> m_useRandomSeed {
+    this, "UseRandomSeed", false,
+    "If true, use random seed for the internal RNG. If false, use a seed based on run/event number and tool name."
+  };
   Gaudi::Property<double> m_acceptRate {
     this, "RandomAcceptRate", -1,
     "Rate of random accepts, <=0 is never, >=1 is always"

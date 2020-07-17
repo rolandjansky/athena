@@ -7,7 +7,7 @@
 *********************************************************************/
 
 #include "TrkVertexFitterUtils/DetAnnealingMaker.h"
-#include <math.h>
+#include <cmath>
 
 namespace {
   double gauss(const double value2, const double error2) {
@@ -49,7 +49,7 @@ namespace Trk
   void DetAnnealingMaker::anneal(AnnealingState& state) const {
 
 //check if there are some temperatures
-    if (m_SetOfTemperatures.size()==0) 
+    if (m_SetOfTemperatures.empty()) 
     {
       ATH_MSG_ERROR( "The vector SetOfTemperatures for the annealing is empty" );
     }

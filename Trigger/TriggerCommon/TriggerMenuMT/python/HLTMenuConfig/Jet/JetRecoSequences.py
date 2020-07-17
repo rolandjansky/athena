@@ -110,8 +110,16 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
 
         # Start by adding the topocluster reco sequence
         # This makes EM clusters!
-        from TrigT2CaloCommon.CaloDef import HLTFSTopoRecoSequence
-        (topoClusterSequence, clustersKey) = RecoFragmentsPool.retrieve(HLTFSTopoRecoSequence,RoIs)
+        from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import (
+                caloClusterRecoSequence, LCCaloClusterRecoSequence)
+        if jetRecoDict["calib"] == "em":
+            topoClusterSequence, clustersKey = RecoFragmentsPool.retrieve(
+                    caloClusterRecoSequence, flags=None, RoIs=RoIs)
+        elif jetRecoDict["calib"] == "lcw":
+            topoClusterSequence, clustersKey = RecoFragmentsPool.retrieve(
+                    LCCaloClusterRecoSequence, flags=None, RoIs=RoIs)
+        else:
+            raise ValueError("Invalid value for calib: '{}'".format(jetRecoDict["calib"]))
         recoSeq += topoClusterSequence
 
         # Set up tracking sequence -- may need to reorganise or relocate

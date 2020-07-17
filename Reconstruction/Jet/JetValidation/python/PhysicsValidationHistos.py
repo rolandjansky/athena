@@ -101,6 +101,15 @@ def commonPhysValTool(container, refcontainer="", onlyKinematics = False, global
 
 	     ]
         
+        if "PFlow" in container:
+            filler.HistoTools += [
+                jhm.tool("SumPtChargedPFOPt500[0]"),
+                jhm.tool("NumChargedPFOPt500[0]"),
+                jhm.tool("NumChargedPFOPt1000[0]"),
+                jhm.tool("ChargedPFOWidthPt1000[0]"),
+            ]
+
+
         if refcontainer:
             # efficiency
             filler.HistoTools += [jhm.effresponse,]

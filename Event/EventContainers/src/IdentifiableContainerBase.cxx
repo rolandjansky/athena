@@ -8,6 +8,7 @@
 #include "EventContainers/InternalOnline.h"
 #include "EventContainers/InternalOffline.h"
 #include "EventContainers/InternalOfflineFast.h"
+#include "EventContainers/InternalOfflineMap.h"
 
 using namespace EventContainers;
 
@@ -27,6 +28,7 @@ using namespace EventContainers;
     m_OnlineMode = false;
     if(mode == Mode::OfflineLowMemory) m_link = std::make_unique<EventContainers::InternalOffline>(max);
     else if(mode == Mode::OfflineFast) m_link = std::make_unique<EventContainers::InternalOfflineFast>(max);
+    else if(mode == Mode::OfflineMap)  m_link = std::make_unique<EventContainers::InternalOfflineMap>(max);
     else{
       throw std::runtime_error("Invalid Mode specified");
     }

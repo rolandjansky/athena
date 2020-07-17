@@ -29,24 +29,15 @@
 
 #include "Constants.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "AthenaKernel/Timeout.h"
-
-//#include "TrigMuonEvent/TrigCombDiMuonContainer.h"
-//#include "TrigMuonEvent/CombinedMuonFeature.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
 
-#include "TrigInDetToolInterfaces/TrigParticleTable.h"                           
-#include "TrigInDetToolInterfaces/ITrigL2VertexFitter.h"                         
+#include "TrigInDetToolInterfaces/ITrigL2VertexFitter.h" 
 #include "TrigInDetEvent/TrigL2Vertex.h"                         
-
-#include "TrigParticle/TrigL2BphysContainer.h"
 
 // additions of xAOD objects
 #include "xAODEventInfo/EventInfo.h"
@@ -412,10 +403,6 @@ TrigL2BMuMuXFex::TrigL2BMuMuXFex(const std::string & name, ISvcLocator* pSvcLoca
   m_trigBphysColl_bxAOD = NULL;
   m_VertexColl = NULL;
   // temporary
-  m_trigBphysColl_kStar = NULL;
-  m_trigBphysColl_phi = NULL;
-  m_trigBphysColl_lambda = NULL;
-  m_trigBphysColl_ds = NULL;
   m_trigBphysColl_kStarxAOD = NULL;
   m_trigBphysColl_phixAOD = NULL;
   m_trigBphysColl_lambdaxAOD = NULL;
@@ -427,12 +414,7 @@ TrigL2BMuMuXFex::TrigL2BMuMuXFex(const std::string & name, ISvcLocator* pSvcLoca
 /*----------------------------------------*/
 TrigL2BMuMuXFex::~TrigL2BMuMuXFex()                                            
 { 
-  if(m_trigBphysColl_b!=NULL) delete m_trigBphysColl_b; 
   if(m_VertexColl!=NULL) delete m_VertexColl;
-  if(m_trigBphysColl_kStar) delete m_trigBphysColl_kStar;
-  if(m_trigBphysColl_phi) delete m_trigBphysColl_phi;
-  if(m_trigBphysColl_lambda) delete m_trigBphysColl_lambda;
-  if(m_trigBphysColl_ds) delete m_trigBphysColl_ds;
 //  if(m_trigBphysColl_kSplus) delete m_trigBphysColl_kSplus;
  
 }

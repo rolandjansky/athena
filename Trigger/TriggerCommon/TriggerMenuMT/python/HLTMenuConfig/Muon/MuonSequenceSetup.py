@@ -126,7 +126,7 @@ def muCombAlgSequence(ConfigFlags):
     muCombRecoSequence, sequenceOut = muCombRecoSequence( l2muCombViewsMaker.InViewRoIs, "FTF" )
  
     #Filter algorithm to run muComb only if non-Bphysics muon chains are active
-    from TrigMuonEF.TrigMuonEFConfig import MuonChainFilterAlg
+    from TrigMuonEF.TrigMuonEFConf import MuonChainFilterAlg
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
     muonChainFilter = MuonChainFilterAlg("FilterBphysChains")
     bphysChains =getBphysChainNames()
@@ -274,7 +274,7 @@ def muEFCBAlgSequence(ConfigFlags):
 
     #By default the EFCB sequence will run both outside-in and 
     #(if zero muons are found) inside-out reconstruction
-    from TrigMuonEF.TrigMuonEFConfig import MuonFilterAlg, MergeEFMuonsAlg
+    from TrigMuonEF.TrigMuonEFConf import MuonFilterAlg, MergeEFMuonsAlg
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFCBRecoSequence, muEFInsideOutRecoSequence
     
     efcbViewsMaker = EventViewCreatorAlgorithm("IMefcbtotal")

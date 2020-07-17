@@ -25,7 +25,7 @@ class TrigBjetMonitorAlgorithm : public AthMonitorAlgorithm {
  private:
   //  Gaudi::Property<bool> m_doRandom {this,"RandomHist",false}; 
   Gaudi::Property<bool> m_doRandom {this,"RandomHist",true};
-  Gaudi::Property<std::string> m_onlineBjetContainerKey {this,"OnlineBJetContainerKey","HLT_GSCJet",
+  Gaudi::Property<std::string> m_onlineBjetContainerKey {this,"OnlineBJetContainerKey","HLT_bJets",
     "The SG key of the online BJet container from the TriggerEDMRun3"};
   //  const std::vector<std::string> m_allChains;
   std::vector<std::string> m_allChains;

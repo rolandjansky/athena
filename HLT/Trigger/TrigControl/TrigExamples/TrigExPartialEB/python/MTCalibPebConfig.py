@@ -85,6 +85,7 @@ rob_access_dict = {
 
 class MTCalibPebHypoOptions:
     def __init__(self):
+        self.UseRandomSeed = False
         self.RandomAcceptRate = -1.0
         self.BurnTimePerCycleMillisec = 0
         self.NumBurnCycles = 0
@@ -161,6 +162,7 @@ def make_hypo_alg(name):
 def make_hypo_tool(name, options=default_options):
     from TrigExPartialEB.TrigExPartialEBConf import MTCalibPebHypoTool
     hypo_tool = MTCalibPebHypoTool(name)
+    hypo_tool.UseRandomSeed             = options.UseRandomSeed
     hypo_tool.RandomAcceptRate          = options.RandomAcceptRate
     hypo_tool.BurnTimePerCycleMillisec  = options.BurnTimePerCycleMillisec
     hypo_tool.NumBurnCycles             = options.NumBurnCycles

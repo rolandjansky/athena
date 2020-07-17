@@ -64,7 +64,7 @@ if __name__=="__main__":
         log.info("{} {} input file: {}".format(run, source, inputfiles[sample]))
         try:
             test_TriggerFlags(sample)
-        except AssertionError as e:
+        except AssertionError:
             sys.exit(1)
             
     log.info("Done with test")

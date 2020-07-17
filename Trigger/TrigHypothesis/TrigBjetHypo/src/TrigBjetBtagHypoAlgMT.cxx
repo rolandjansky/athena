@@ -3,6 +3,7 @@
 */
 
 #include "TrigBjetBtagHypoAlgMT.h"
+#include "EventPrimitives/EventPrimitivesHelpers.h"
 
 
 TrigBjetBtagHypoAlgMT::TrigBjetBtagHypoAlgMT( const std::string& name, 
@@ -195,7 +196,7 @@ StatusCode TrigBjetBtagHypoAlgMT::execute( const EventContext& context ) const {
 StatusCode TrigBjetBtagHypoAlgMT::monitor_jets( const ElementLinkVector<xAOD::JetContainer >& jetELs ) const {
 
   auto monitor_for_jet_pt = Monitored::Collection( "jet_pt", jetELs,
-    [](const ElementLink< xAOD::JetContainer >& jetLink) { return (*jetLink)->pt(); } );
+    [](const ElementLink< xAOD::JetContainer >& jetLink) { return (*jetLink)->pt() / 1000.0 /*Gev*/; } );
   auto monitor_for_jet_eta = Monitored::Collection( "jet_eta", jetELs,
     [](const ElementLink< xAOD::JetContainer >& jetLink) { return (*jetLink)->eta(); } );
   auto monitor_for_jet_phi = Monitored::Collection( "jet_phi", jetELs,
@@ -211,7 +212,7 @@ StatusCode TrigBjetBtagHypoAlgMT::monitor_jets( const ElementLinkVector<xAOD::Je
 StatusCode TrigBjetBtagHypoAlgMT::monitor_tracks( const ElementLinkVector< xAOD::TrackParticleContainer >& trackELs ) const {
 
   auto monitor_for_track_Et = Monitored::Collection( "track_Et", trackELs,
-    [](const ElementLink< xAOD::TrackParticleContainer >& trackLink) { return (*trackLink)->p4().Et(); } );
+    [](const ElementLink< xAOD::TrackParticleContainer >& trackLink) { return (*trackLink)->p4().Et() / 1000.0 /*Gev*/; } );
   auto monitor_for_track_eta = Monitored::Collection( "track_eta", trackELs,
     [](const ElementLink< xAOD::TrackParticleContainer >& trackLink) { return (*trackLink)->eta(); } ); 
   auto monitor_for_track_phi = Monitored::Collection( "track_phi", trackELs,
@@ -223,12 +224,12 @@ StatusCode TrigBjetBtagHypoAlgMT::monitor_tracks( const ElementLinkVector< xAOD:
 
   auto monitor_for_track_d0err = Monitored::Collection( "track_d0err", trackELs,
     [](const ElementLink< xAOD::TrackParticleContainer >& trackLink) {
-      return (*trackLink)->definingParametersCovMatrix()( Trk::d0, Trk::d0 );
+	    return Amg::error( (*trackLink)->definingParametersCovMatrix(), 0);
     } );
 
   auto monitor_for_track_d0sig = Monitored::Collection( "track_d0sig", trackELs,
     [](const ElementLink< xAOD::TrackParticleContainer >& trackLink) {
-      return (*trackLink)->d0() / (*trackLink)->definingParametersCovMatrix()( Trk::d0, Trk::d0 );
+      return (*trackLink)->d0() / Amg::error( (*trackLink)->definingParametersCovMatrix(), 0);
     } );
 
   auto monitor_for_track_z0 = Monitored::Collection( "track_z0", trackELs,
@@ -236,12 +237,12 @@ StatusCode TrigBjetBtagHypoAlgMT::monitor_tracks( const ElementLinkVector< xAOD:
 
   auto monitor_for_track_z0err = Monitored::Collection( "track_z0err", trackELs,
     [](const ElementLink< xAOD::TrackParticleContainer >& trackLink) {
-      return (*trackLink)->definingParametersCovMatrix()( Trk::z0, Trk::z0 );
+	    return Amg::error( (*trackLink)->definingParametersCovMatrix(), 1);
     } );
 
   auto monitor_for_track_z0sig = Monitored::Collection( "track_z0sig", trackELs,
     [](const ElementLink< xAOD::TrackParticleContainer >& trackLink) {
-      return (*trackLink)->z0() / (*trackLink)->definingParametersCovMatrix()( Trk::z0, Trk::z0 );
+      return (*trackLink)->z0() / Amg::error( (*trackLink)->definingParametersCovMatrix(), 1);
     } );
 
   auto monitor_group_for_tracks = Monitored::Group( m_monTool, 

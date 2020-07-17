@@ -8,32 +8,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.SystemOfUnits import mm
 from SubDetectorEnvelopes.SubDetectorEnvelopesConfigNew import EnvelopeDefSvcCfg
-from BarcodeServices.BarcodeServicesConfigNew import BarcodeSvcCfg
 from ISF_Tools.ISF_ToolsConfigNew import ParticleKillerToolCfg
-
-
-def ParticleBrokerSvcNoOrderingCfg(ConfigFlags, name="ISF_ParticleBrokerSvcNoOrdering", **kwargs):
-    kwargs.setdefault("EntryLayerTool", "ISF_EntryLayerTool") # TODO
-    kwargs.setdefault("GeoIDSvc", "ISF_GeoIDSvc") # TODO
-    kwargs.setdefault("AlwaysUseGeoIDSvc", False)
-    kwargs.setdefault("ValidateGeoIDs", ConfigFlags.ISF.ValidationMode)
-    kwargs.setdefault("ValidationOutput", ConfigFlags.ISF.ValidationMode)
-    kwargs.setdefault("ValidationStreamName", "ParticleBroker")
-    result = BarcodeSvcCfg(ConfigFlags)
-    kwargs.setdefault("BarcodeService", result.getPrimary())
-    result.addService(CompFactory.ISF.ParticleBrokerDynamicOnReadIn(name, **kwargs))
-    return result
-
-
-def ParticleBrokerSvcCfg(ConfigFlags, name="ISF_ParticleBrokerSvc", **kwargs):
-    #kwargs.setdefault("ParticleOrderingTool", "ISF_InToOutSubDetOrderingTool")
-    kwargs.setdefault("ParticleOrderingTool", "ISF_ParticleOrderingTool") # TODO
-    return ParticleBrokerSvcNoOrderingCfg(name, **kwargs)
-
-
-def AFIIParticleBrokerSvcCfg(ConfigFlags, name="ISF_AFIIParticleBrokerSvc", **kwargs):
-    kwargs.setdefault("EntryLayerTool", "ISF_AFIIEntryLayerTool") # TODO
-    return ParticleBrokerSvcCfg(name, **kwargs)
 
 
 def ISFEnvelopeDefSvcCfg(ConfigFlags, name="ISF_ISFEnvelopeDefSvc", **kwargs):
@@ -72,7 +47,8 @@ def AFIIGeoIDSvcCfg(ConfigFlags, name="ISF_AFIIGeoIDSvc", **kwargs):
 def ParticleKillerSvcCfg(ConfigFlags, name="ISF_ParticleKillerSvc", **kwargs):
     result = ComponentAccumulator()
     kwargs.setdefault("Identifier", "ParticleKiller")
-    kwargs.setdefault("SimulatorTool", ParticleKillerToolCfg(ConfigFlags))
+    tool = result.popToolsAndMerge(ParticleKillerToolCfg(ConfigFlags))
+    kwargs.setdefault("SimulatorTool", tool)
     svc = CompFactory.ISF.LegacySimSvc(name, **kwargs)
     result.addService(svc)
     return result

@@ -30,7 +30,7 @@ InDet::CompetingSCT_ClustersOnTrack::CompetingSCT_ClustersOnTrack(const InDet::C
         m_containedChildRots.push_back(rot->clone());
     }
     if (compROT.m_globalPosition) {
-        m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*compROT.m_globalPosition));
+        m_globalPosition.store(std::make_unique<const Amg::Vector3D>(*compROT.m_globalPosition));
     }
 }
 
@@ -61,7 +61,7 @@ InDet::CompetingSCT_ClustersOnTrack& InDet::CompetingSCT_ClustersOnTrack::operat
             m_containedChildRots.push_back(rot->clone());
         }
         if (compROT.m_globalPosition) {
-            m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*compROT.m_globalPosition));
+            m_globalPosition.store(std::make_unique<const Amg::Vector3D>(*compROT.m_globalPosition));
         } else if (m_globalPosition) {
             m_globalPosition.release().reset();
         }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "TrigSteeringEventTPCnv/TrigPassFlagsCnv_p1.h"
+#include "CxxUtils/checker_macros.h"
 #include "TestTools/random.h"
 #include "TestTools/leakcheck.h"
 #include "GaudiKernel/MsgStream.h"
@@ -42,7 +43,7 @@ void testit (const TrigPassFlags& trans1)
 }
 
 
-void test1()
+void test1 ATLAS_NOT_REENTRANT ()
 {
   std::cout << "test1\n";
   Athena_test::Leakcheck check;
@@ -60,7 +61,7 @@ void test1()
 }
 
 
-int main()
+int main ATLAS_NOT_REENTRANT ()
 {
   test1();
   return 0;

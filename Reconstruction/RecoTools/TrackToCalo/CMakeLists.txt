@@ -67,5 +67,4 @@ atlas_add_component( TrackToCalo
                      LINK_LIBRARIES GaudiKernel TrackToCaloLib InDetTrackSelectionToolLib 
                      ITrackToVertex TrkLinks VxVertex TrackVertexAssociationToolLib)
 
-atlas_install_joboptions( share/*.py )
 atlas_install_python_modules( python/*.py )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MM_STRUCT_H
@@ -353,7 +353,6 @@ struct evInf_entry{
 
 struct hitData_key{
   hitData_key(int bct=0, double t=0, double gt=0, int vmm=-1,int ev=-1);
-  hitData_key(const hitData_key& key){BC_time=key.BC_time;time=key.time;gtime=key.gtime;VMM_chip=key.VMM_chip;event=key.event;}
   //for these operators, "less" means what you think it means
   //with precedence of quantities the same as order in the constructor
   //in the context of "earlier," it might make sense to say that a hit is earlier if,
@@ -405,7 +404,6 @@ struct evAna_entry{
 struct hitData_info{
   hitData_info(int plane,int station_eta,int strip,MMT_Parameters *par,const TVector3& tru,double tpos,double ppos);
   hitData_info(int the_pl=0,double the_y=0,double the_z=-999);
-  hitData_info(const hitData_info& info){plane=info.plane;y=info.y;z=info.z;slope=info.slope;}
   double mis_dy(int pl,MMT_Parameters *m_par,double tpos,double ppos)const;
   std::string hdr()const;
   std::string str()const;

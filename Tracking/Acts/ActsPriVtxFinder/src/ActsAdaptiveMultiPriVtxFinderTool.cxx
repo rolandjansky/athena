@@ -126,7 +126,6 @@ ActsAdaptiveMultiPriVtxFinderTool::initialize()
     finderConfig.do3dSplitting = m_do3dSplitting;
     finderConfig.maximumVertexContamination = m_maximumVertexContamination;
     finderConfig.looseConstrValue = m_looseConstrValue;
-    finderConfig.refitAfterBadVertex = m_refitAfterBadVertex;
     finderConfig.useVertexCovForIPEstimation = m_useVertexCovForIPEstimation;
     finderConfig.useSeedConstraint = m_useSeedConstraint;
     m_vertexFinder = std::make_shared<VertexFinder>(finderConfig, extractParameters);

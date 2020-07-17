@@ -160,7 +160,7 @@ const{
         }
     }
     ATH_MSG_DEBUG("Found "<< idxClusters.size() <<" clusters");
-    for(const auto idxCluster:idxClusters){
+    for(const auto& idxCluster:idxClusters){
         ATH_MSG_DEBUG("cluster: "<< idxCluster);
     }
 

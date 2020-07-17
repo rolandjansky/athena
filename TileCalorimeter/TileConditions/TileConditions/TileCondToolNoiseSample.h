@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILECONDTOOLNOISESAMPLE_H
@@ -64,8 +64,6 @@ class TileCondToolNoiseSample: public AthAlgTool
 
     SG::ReadCondHandleKey<TileEMScale> m_emScaleKey{this,
         "TileEMScale", "TileEMScale", "Input Tile EMS conditions"};
-
-    bool m_useOnlineNoise;
 };
 
 #endif

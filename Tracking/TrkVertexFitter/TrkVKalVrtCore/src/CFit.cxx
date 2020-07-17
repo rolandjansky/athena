@@ -2,14 +2,14 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
-#include <iostream>
 #include "TrkVKalVrtCore/CommonPars.h"
-#include "TrkVKalVrtCore/VKalVrtBMag.h"
+#include "TrkVKalVrtCore/Derivt.h"
 #include "TrkVKalVrtCore/Propagator.h"
 #include "TrkVKalVrtCore/TrkVKalVrtCore.h"
 #include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
-#include "TrkVKalVrtCore/Derivt.h"
+#include "TrkVKalVrtCore/VKalVrtBMag.h"
+#include <cmath>
+#include <iostream>
 
 namespace Trk {
 
@@ -132,10 +132,7 @@ void fillVertex(VKVertex *vk, int NTRK, long int *ich, double xyz0[3], double (*
       trk->iniP[1]=trk->cnstP[1]=trk->fitP[1]=par0[tk][1];
       trk->iniP[2]=trk->cnstP[2]=trk->fitP[2]=par0[tk][2];
     }
-    vk->setIniV(xyz); vk->setCnstV(xyz);           // initial guess. 0 of course.
-
-    return;
-}
+    vk->setIniV(xyz); vk->setCnstV(xyz);           }
 
 
 bool checkPosition(VKVertex * vk, double vertex[3]){
@@ -147,8 +144,8 @@ bool checkPosition(VKVertex * vk, double vertex[3]){
 }
 
 
-extern int afterFit(VKVertex *, double *, double *, double *, double *, const VKalVrtControlBase* = 0);
-extern void vpderiv(bool, long int , double *, double *, double *, double *, double *, double *, double *, const VKalVrtControl * =0);
+extern int afterFit(VKVertex *, double *, double *, double *, double *, const VKalVrtControlBase* = nullptr);
+extern void vpderiv(bool, long int , double *, double *, double *, double *, double *, double *, double *, const VKalVrtControl * =nullptr);
 extern void cfmasserr(VKVertex* , int*, double, double*, double*);
 extern std::array<double, 4> getFitParticleMom( const VKTrack *, double);
 
@@ -185,7 +182,7 @@ int fitVertex(VKVertex * vk)
     if ( vrtForCFT.usePassNear    )  vk->passNearVertex=true;
     if ( vrtForCFT.usePassNear==2 )  vk->passWithTrkCov=true;
     double zeroV[3]={0.,0.,0.};
-    VKTrack * trk=0;
+    VKTrack * trk=nullptr;
 
     chi2min = 1e15;
 
@@ -399,7 +396,7 @@ int fitVertex(VKVertex * vk)
 
 // Track near vertex constraint recalculation for next fit
 	if ( vk->passNearVertex ) {
-            if(it==1) jerr = afterFit(vk,        0, vk->FVC.dcv, PartMom, VrtMomCov, (vk->vk_fitterControl).get());
+            if(it==1) jerr = afterFit(vk,        nullptr, vk->FVC.dcv, PartMom, VrtMomCov, (vk->vk_fitterControl).get());
             else      jerr = afterFit(vk, vk->ader, vk->FVC.dcv, PartMom, VrtMomCov, (vk->vk_fitterControl).get());
             for( i=0; i<3; i++) dparst[i] = vk->refIterV[i]+vk->fitV[i]; // fitted vertex at global frame
             cfdcopy( PartMom, &dparst[3], 3);

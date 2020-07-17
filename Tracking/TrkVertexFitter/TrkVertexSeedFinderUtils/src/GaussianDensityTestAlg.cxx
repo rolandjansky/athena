@@ -43,7 +43,7 @@ GaussianDensityTestAlg::GaussianDensityTestAlg( const std::string& name,
 // Destructor
 ///////////////
 GaussianDensityTestAlg::~GaussianDensityTestAlg()
-{}
+= default;
 
 // Athena Algorithm's Hooks
 ////////////////////////////
@@ -202,7 +202,7 @@ GaussianDensityTestAlg::findTruth(double mode,
 	        {
 		    auto assocParticle = truthParticleAssoc(**(*lxtp));
 		    ATH_MSG_VERBOSE("Found associated truth particle");
-		    for (auto truthParticle : evt->truthParticleLinks())
+		    for (const auto& truthParticle : evt->truthParticleLinks())
 		    {
 		        if (!truthParticle.isValid()) continue;
 			if (assocParticle == truthParticle)
@@ -265,7 +265,7 @@ GaussianDensityTestAlg::findTruth(double mode,
 	        {
 		    auto assocParticle = truthParticleAssoc(**(*lxtp));
 		    ATH_MSG_VERBOSE("Found associated truth particle");
-		    for (auto truthParticle : evt->truthParticleLinks())
+		    for (const auto& truthParticle : evt->truthParticleLinks())
 		    {
 		        if (!truthParticle.isValid()) continue;
 			if (assocParticle == truthParticle)

@@ -11,6 +11,7 @@
 #include "HepMC3/PrintStreams.h"
 #include "AtlasHepMC/GenVertex.h"
 #include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/SimpleVector.h"
 namespace HepMC3
 {
 inline std::vector<HepMC3::GenParticlePtr>::const_iterator  begin(HepMC3::GenEvent& e){ return e.particles().begin(); }

@@ -34,5 +34,8 @@ test.art_type = 'grid'
 test.exec_steps = [ex]
 test.check_steps = CheckSteps.default_check_steps(test)
 
+# Make RootComp step required
+test.get_step('RootComp').required = True
+
 import sys
 sys.exit(test.run())

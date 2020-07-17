@@ -88,7 +88,11 @@ TrigConf::L1Menu::update()
       for( auto & algo : v ) { 
          m_algorithmsByName[ algo.name() ] = & algo;
          for( const std::string & output : algo.outputs() ) {
-            m_algorithmsByOutput[output] = & algo;
+            // multiplicity outputs (legacy and from multiplicity L1Topo) just have the name of the threshold
+            // outputs from topo algorithms carry the name of the topo board type (TOPO, R2TOPO, MUTOPO) as it is not guarateed that 
+            // legacy and new topo algorithms define different outputs
+            auto key = (path == "MULTTOPO") ? output : (path + "_" + output);
+            m_algorithmsByOutput[key] = & algo;
          }
       }
 

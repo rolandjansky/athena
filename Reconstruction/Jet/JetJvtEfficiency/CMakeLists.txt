@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 782671 2016-11-07 09:27:00Z elmsheus $
 
 # The name of the package:
 atlas_subdir( JetJvtEfficiency )
@@ -43,5 +42,4 @@ atlas_add_dictionary( JetJvtEfficiencyDict
    LINK_LIBRARIES JetJvtEfficiencyLib )
 
 # Install files from the package:
-atlas_install_data( share/*.root )
 atlas_install_python_modules( python/*.py )
