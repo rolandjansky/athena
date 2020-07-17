@@ -117,68 +117,75 @@ StatusCode MuonSegmentPerformanceAlg::execute()
   
 }
 
-void MuonSegmentPerformanceAlg::printRatio( std::string prefix, unsigned int begin, unsigned int end, 
+std::string MuonSegmentPerformanceAlg::printRatio( std::string prefix, unsigned int begin, unsigned int end, 
                                             const std::vector<int> reco, const std::vector<int> truth ) const {
-
+  std::ostringstream sout;
   unsigned int width = 9;
   unsigned int precision = 3;
-  msg(MSG::INFO) << std::endl << prefix;
+  sout << std::endl << prefix;
   for( unsigned int i=begin;i<end;++i ){
-    msg(MSG::INFO) << std::setw(width) << std::setprecision(precision);
-    if(  truth[i] == 0 ) msg(MSG::INFO) << " ";
-    else                 msg(MSG::INFO) <<  static_cast<double>(reco[i])/static_cast<double>(truth[i]);
+    sout << std::setw(width) << std::setprecision(precision);
+    if(  truth[i] == 0 ) sout << " ";
+    else                 sout <<  static_cast<double>(reco[i])/static_cast<double>(truth[i]);
   }
-  msg(MSG::INFO) << std::endl << " #Events        " << " ";
+  sout << std::endl << " #Events        " << " ";
   for( unsigned int i=begin;i<end;++i ){
-    msg(MSG::INFO) << std::setw(width) << std::setprecision(precision);
-    if(  truth[i] == 0 ) msg(MSG::INFO) << " ";
-    else                
-     msg(MSG::INFO) << static_cast<double>(truth[i]);
+    sout << std::setw(width) << std::setprecision(precision);
+    if(  truth[i] == 0 ) sout << " ";
+    else sout << static_cast<double>(truth[i]);
   }
+  return sout.str();
 }
-void MuonSegmentPerformanceAlg::printRatio( std::string prefix, unsigned int begin, unsigned int end, 
+std::string MuonSegmentPerformanceAlg::printRatio( std::string prefix, unsigned int begin, unsigned int end, 
                                             const std::vector<int> reco ) const {
-
+  std::ostringstream sout;
   unsigned int width = 9;
   unsigned int precision = 3;
-  msg(MSG::INFO) << std::endl << prefix;
+  sout << std::endl << prefix;
   for( unsigned int i=begin;i<end;++i ){
-    msg(MSG::INFO) << std::setw(width) << std::setprecision(precision);
-    if(  m_nevents == 0 ) msg(MSG::INFO) << " ";
-    else                  msg(MSG::INFO) <<  static_cast<double>(reco[i])/static_cast<double>(m_nevents);
+    sout << std::setw(width) << std::setprecision(precision);
+    if(  m_nevents == 0 ) sout << " ";
+    else                  sout <<  static_cast<double>(reco[i])/static_cast<double>(m_nevents);
   }
+  return sout.str();
 }
 
-StatusCode MuonSegmentPerformanceAlg::finalize() 
-
-{
+StatusCode MuonSegmentPerformanceAlg::finalize() {
+  std::ofstream fileOutput;
+  std::string outfile = "muonPerformance_segments.txt";
+  fileOutput.open(outfile.c_str(), std::ios::trunc);
+  std::ostringstream sout;
+  sout.precision(4);
   unsigned int width = 9;
-  msg(MSG::INFO) << " Segment finding efficiencies barrel " << std::endl;
-  msg(MSG::INFO)         << " Chambers        ";
+  sout << "Segment finding efficiencies barrel " << std::endl;
+  sout         << " Chambers        ";
   std::string prefix_eff  = " Efficiency ";
   std::string prefix_fake = " Fake rate  ";
-  for( unsigned int i=0;i<Muon::MuonStationIndex::BEE;++i ) msg(MSG::INFO) << std::setw(width) << Muon::MuonStationIndex::chName((Muon::MuonStationIndex::ChIndex)i);
+  for( unsigned int i=0;i<Muon::MuonStationIndex::BEE;++i ) sout << std::setw(width) << Muon::MuonStationIndex::chName((Muon::MuonStationIndex::ChIndex)i);
   for( unsigned int j=0;j<m_nfound.size();++j ){
-    printRatio(prefix_eff+m_hitCutString[j],0,Muon::MuonStationIndex::BEE,m_nfound[j],m_ntruth[j]); 
+    sout << printRatio(prefix_eff+m_hitCutString[j],0,Muon::MuonStationIndex::BEE,m_nfound[j],m_ntruth[j]); 
   }
-  msg(MSG::INFO) << std::endl;
+  sout << std::endl;
   for( unsigned int j=0;j<m_nfound.size();++j ){
-    printRatio(prefix_fake+m_hitCutString[j],0,Muon::MuonStationIndex::BEE,m_nfake[j]); 
+    sout << printRatio(prefix_fake+m_hitCutString[j],0,Muon::MuonStationIndex::BEE,m_nfake[j]); 
   }
-  msg(MSG::INFO) << std::endl << endreq;
+  sout << std::endl << endreq;
 
-  msg(MSG::INFO) << " Segment finding efficiencies endcaps " << std::endl;
-  msg(MSG::INFO) << " Chambers        ";
+  sout << " Segment finding efficiencies endcaps " << std::endl;
+  sout << " Chambers        ";
   for( unsigned int i=Muon::MuonStationIndex::BEE;i<Muon::MuonStationIndex::ChIndexMax;++i ) 
-    msg(MSG::INFO) << std::setw(width) << Muon::MuonStationIndex::chName((Muon::MuonStationIndex::ChIndex)i);
+    sout << std::setw(width) << Muon::MuonStationIndex::chName((Muon::MuonStationIndex::ChIndex)i);
   for( unsigned int j=0;j<m_nfound.size();++j ){
-    printRatio(prefix_eff+m_hitCutString[j],Muon::MuonStationIndex::BEE,Muon::MuonStationIndex::ChIndexMax,m_nfound[j],m_ntruth[j]); 
+    sout << printRatio(prefix_eff+m_hitCutString[j],Muon::MuonStationIndex::BEE,Muon::MuonStationIndex::ChIndexMax,m_nfound[j],m_ntruth[j]); 
   }
-  msg(MSG::INFO) << std::endl;
+  sout << std::endl;
   for( unsigned int j=0;j<m_nfound.size();++j ){
-    printRatio(prefix_fake+m_hitCutString[j],Muon::MuonStationIndex::BEE,Muon::MuonStationIndex::ChIndexMax,m_nfake[j]); 
+    sout << printRatio(prefix_fake+m_hitCutString[j],Muon::MuonStationIndex::BEE,Muon::MuonStationIndex::ChIndexMax,m_nfake[j]); 
   }
-  msg(MSG::INFO) << endreq;
+  sout << std::endl;
+
+  fileOutput << sout.str() << std::endl;
+  fileOutput.close();
   return StatusCode::SUCCESS;
 }
 
