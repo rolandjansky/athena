@@ -16,7 +16,7 @@ atlas_add_component( AthenaServices src/*.cxx src/components/*.cxx
    LINK_LIBRARIES ${Boost_LIBRARIES} ${Python_LIBRARIES} ${YAMPL_LIBRARIES}
    ${CLHEP_LIBRARIES} z TestTools AsgTools AthenaBaseComps AthenaKernel RootUtils CxxUtils
    AthContainers AthContainersInterfaces DataModelRoot Navigation PerfMonEvent PerfMonKernel SGTools
-   StoreGateLib SGtests PersistentDataModel EventInfo xAODEventInfo EventInfoUtils GaudiKernel )
+   StoreGateLib SGtests PersistentDataModel EventInfo xAODCore xAODEventInfo EventInfoUtils GaudiKernel )
 
 # Test library checking the ability to build T/P converters:
 atlas_add_tpcnv_library( AthenaServicesTest src/test/*.cxx
@@ -29,7 +29,7 @@ atlas_add_test( AthenaOutputStream_test
    src/OutputStreamSequencerSvc.cxx src/MetaDataSvc.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES TestTools AsgTools AthenaKernel SGTools StoreGateLib GaudiKernel AthenaBaseComps PersistentDataModel
-   LOG_IGNORE_PATTERN "^AthenaRootStrea... +(INFO|DEBUG)|^SGAudSvc +(INFO|DEBUG)|of type DataHistory|DEBUG Recorded object|object modifiable when retrieved|^ToolSvc +DEBUG Service base class initialized|^ServiceManager +DEBUG Initializing service|^IncidentSvc *DEBUG Adding .* listener|DecisionSvc +DEBUG|^IoComponentMgr +(INFO|DEBUG)|DBReplicaSvc|^HistogramPersis.*DEBUG|^ItemListSvc +(INFO|DEBUG)|Info File PoolFileCatalog.xml does not exist|DataModelCompatSvc::initialize|^ProxyProviderSvc +DEBUG|^DataModelCompatSvc +DEBUG|^AthenaOutputStreamVERBOSE|^AthenaOutputStream +DEBUG|^TimelineSvc +DEBUG" )
+   LOG_IGNORE_PATTERN "^AthenaRootStrea... +(INFO|DEBUG)|^SGAudSvc +(INFO|DEBUG)|of type DataHistory|DEBUG Recorded object|object modifiable when retrieved|^ToolSvc +DEBUG Service base class initialized|^ServiceManager +DEBUG Initializing service|^IncidentSvc *DEBUG Adding .* listener|DecisionSvc +DEBUG|^IoComponentMgr +(INFO|DEBUG)|DBReplicaSvc|^HistogramPersis.*DEBUG|^ItemListSvc +(INFO|DEBUG)|Info File PoolFileCatalog.xml does not exist|DataModelCompatSvc::initialize|^ProxyProviderSvc +DEBUG|^DataModelCompatSvc +DEBUG|^AthenaOutputStreamVERBOSE|^AthenaOutputStream +DEBUG|^TimelineSvc +DEBUG|CLIDRegistry entries" )
 # Avoid spurious ubsan warnings.
 set_target_properties( AthenaServices_AthenaOutputStream_test PROPERTIES ENABLE_EXPORTS True )
 
