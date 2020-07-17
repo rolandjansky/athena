@@ -919,11 +919,6 @@ class InEventReco( ComponentAccumulator ):
         """ Merged CA movnig reconstruction algorithms into the right sequence """
         return self.merge( ca, sequenceName=self.recoSeq.getName() )
 
-    def addRecoAlg( self, alg ):
-        """Reconstruction alg to be run per event"""
-        log.warning( "InViewReco.addRecoAlgo: consider using mergeReco that takes care of the CA accumulation and moving algorithms" )
-        self.addEventAlgo( alg, self.recoSeq.name )
-
     def addHypoAlg(self, alg):
         self.addEventAlgo( alg, self.mainSeq.name )
 
@@ -972,11 +967,6 @@ class InViewReco( ComponentAccumulator ):
     def mergeReco( self, ca ):
         """ Merged CA movnig reconstruction algorithms into the right sequence """
         return self.merge( ca, sequenceName=self.viewsSeq.getName() )
-
-    def addRecoAlg( self, alg ):
-        """Reconstruction alg to be run per view"""
-        log.warning( "InViewReco.addRecoAlgo: consider using mergeReco that takes care of the CA accumulation and moving algorithms" )
-        self.addEventAlgo( alg, self.viewsSeq.name )
 
     def addHypoAlg(self, alg):
         self.addEventAlgo( alg, self.mainSeq.name )
