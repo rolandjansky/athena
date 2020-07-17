@@ -63,7 +63,7 @@ Chain2JetCollDict['Legacy'] = {
   'HLT_3j200'                              : 'HLT_xAOD__JetContainer_a4tcemsubjesISFS',
 }
 
-from JetMonitoring.JetMonitoringConfig import JetMonAlgSpec, HistoSpec, EventHistoSpec, SelectSpec, ToolSpec
+from JetMonitoring.JetMonitoringConfig import JetMonAlgSpec, HistoSpec, EventHistoSpec, SelectSpec, ToolSpec, VarSpec
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 def TrigJetMonConfig(inputFlags):
@@ -182,16 +182,11 @@ def basicJetMonAlgSpec(jetcoll,isOnline,athenaMT):
 
   return Conf
 
-from JetMonitoring.JetStandardHistoSpecs import knownHistos
 # Additional histograms for offline jets
 ExtraOfflineHists = [
   HistoSpec('HECFrac', (50,0,1), title="HECFrac;HEC fraction;Entries" ),
   HistoSpec('EMFrac', (50,0,1), title="EMFrac;EM fraction;Entries" ),
   HistoSpec('Jvt', (50,-0.1,1), title="JVT;JVT;Entries" ),
-  knownHistos.pt.clone('JetConstitScaleMomentum_pt', title='ConstitScale p_{T};ConstitScale p_{T} [GeV];Entries', xvar='JetConstitScaleMomentum_pt:GeV'),
-  knownHistos.eta.clone('JetConstitScaleMomentum_eta', title='ConstitScale #eta;ConstitScale #eta;Entries', xvar='JetConstitScaleMomentum_eta'),
-  knownHistos.phi.clone('JetConstitScaleMomentum_phi', title='ConstitScale #phi;ConstitScale #phi;Entries', xvar='JetConstitScaleMomentum_phi'),
-  knownHistos.m.clone('JetConstitScaleMomentum_m', title='ConstitScale m;ConstitScale mass [GeV];Entries', xvar='JetConstitScaleMomentum_m:GeV'),
   "JVFCorr",
   "JvtRpt",
   "NumTrkPt1000[0]",
@@ -206,16 +201,23 @@ ExtraSmallROnlineHists = [
   HistoSpec('DetectorEta', (100,-5,5), title="DetectorEta;Detector #eta;Entries" ), 
   HistoSpec('ActiveArea', (80,0,0.8), title="ActiveArea;Active Area;Entries" ), 
   HistoSpec('et:GeV;eta',  (100,0,750, 50,-5,5) , title='#eta vs E_{T};E_{T} [GeV];#eta;Entries'),
-  knownHistos.pt.clone('JetConstitScaleMomentum_pt', title='ConstitScale p_{T};ConstitScale p_{T} [GeV];Entries', xvar='JetConstitScaleMomentum_pt:GeV'),
-  knownHistos.eta.clone('JetConstitScaleMomentum_eta', title='ConstitScale #eta;ConstitScale #eta;Entries', xvar='JetConstitScaleMomentum_eta'),
-  knownHistos.phi.clone('JetConstitScaleMomentum_phi', title='ConstitScale #phi;ConstitScale #phi;Entries', xvar='JetConstitScaleMomentum_phi'),
-  knownHistos.m.clone('JetConstitScaleMomentum_m', title='ConstitScale m;ConstitScale mass [GeV];Entries', xvar='JetConstitScaleMomentum_m:GeV'),
   "EM3Frac",
   "Tile0Frac",
 ]
 
 ExtraLargeROnlineHists = [
 ]
+
+#Additional online & offline histograms to include kinematics at various jet calibration scales
+OfflineScaleMomenta = [ "ConstitScale", "EMScale", "PileupScale", "EtaJESScale"]
+OnlineScaleMomenta = [ "ConstitScale" ]
+
+for var in [ "pt", "eta", "phi", "m" ]:
+  for offlinescale in OfflineScaleMomenta:
+    ExtraOfflineHists.append("Jet"+offlinescale+"Momentum_"+var)
+  for onlinescale in OnlineScaleMomenta:
+    ExtraSmallROnlineHists.append("Jet"+onlinescale+"Momentum_"+var)
+
 
 def jetMonitoringConfig(inputFlags,jetcoll,athenaMT):
    '''Function to configures some algorithms in the monitoring system.'''

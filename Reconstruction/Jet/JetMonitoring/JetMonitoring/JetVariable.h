@@ -90,7 +90,13 @@ namespace JetVar {
   template<typename T>
   struct VariableAtt : public Variable {
     VariableAtt(const std::string & name) : Variable(name), m_acc(name) {}
-    virtual float value(const xAOD::Jet & j) const { return m_acc(j)*m_scale;}
+    virtual float value(const xAOD::Jet & j) const { 
+      if ( m_acc.isAvailable( j ) ) return m_acc(j)*m_scale;
+      else {
+        std::cout<<"VariableAtt::value() cannot access variable '"<<m_name<<"'"<<std::endl;
+        return -999.;
+      }
+    }
     Accessor<T> m_acc;    
   };
 
@@ -120,11 +126,25 @@ namespace JetVar {
     virtual bool isVector() const {return m_index==-1;}
 
     // use only if the index is valid
-    virtual float value(const xAOD::Jet & j) const { return m_acc(j)[m_index]*m_scale;}
+    virtual float value(const xAOD::Jet & j) const {
+      if ( m_acc.isAvailable( j ) ) return m_acc(j)[m_index]*m_scale;
+      else {
+        std::cout<<"VariableAtt<std::vector<T>>::value() cannot access variable '"<<m_name<<"["<<std::to_string(m_index)<<"]'"<<std::endl;
+        return -999.;
+      }
+    }
 
     virtual VectorValue vector(const xAOD::Jet &j) const {
-      VectorValue v( new VectorWrapperT(&m_acc(j)) , m_scale ) ;
-      return v;
+      if ( m_acc.isAvailable( j ) ) {
+        VectorValue v( new VectorWrapperT(&m_acc(j)) , m_scale ) ;
+        return v;
+      }
+      else {
+        std::cout<<"VariableAtt<std::vector<T>>::vector() cannot access variable '"<<m_name<<"'"<<std::endl;
+        vect_t dummy(1,-999.);
+        VectorValue junk( new VectorWrapperT(&dummy), m_scale );
+        return junk;
+      }
     }
 
 
