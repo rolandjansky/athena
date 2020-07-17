@@ -42,7 +42,7 @@ class TauAxisSetter : public TauRecToolBase {
     /** @brief Finalization of this tool */
     virtual StatusCode finalize() override;
 
-private:
+  private:
 
     Gaudi::Property<double> m_clusterCone {this, "ClusterCone", 0.2, "cone of tau candidate"};
     Gaudi::Property<bool> m_doVertexCorrection {this, "VertexCorrection", true, "switch of vertex correction"};
