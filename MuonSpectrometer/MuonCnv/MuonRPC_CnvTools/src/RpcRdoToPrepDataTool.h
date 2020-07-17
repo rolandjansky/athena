@@ -11,13 +11,12 @@
 /// in order to prevent complex adjustments in the core decode functions
 /// As such, it should not be flagged at this stage as unsafe           
 #include "CxxUtils/checker_macros.h"
-ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 #include "RpcRdoToPrepDataToolCore.h"
 
 namespace Muon {
-
-class RpcRdoToPrepDataTool : virtual public RpcRdoToPrepDataToolCore {
+/// This class is only used in a single-thread mode
+class ATLAS_NOT_THREAD_SAFE RpcRdoToPrepDataTool : virtual public RpcRdoToPrepDataToolCore {
 public:
   RpcRdoToPrepDataTool( const std::string&, const std::string&, const IInterface* );
   virtual ~RpcRdoToPrepDataTool()=default;

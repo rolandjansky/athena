@@ -4,11 +4,8 @@
 
 #ifndef MUONMdtRdoToPrepDataTool_H
 #define MUONMdtRdoToPrepDataTool_H
-
-/// This code is only used in the single-thread setup   
-/// As such, deactivating the check in this file        
+     
 #include "CxxUtils/checker_macros.h"
-ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 #include "MdtRdoToPrepDataToolCore.h"
 

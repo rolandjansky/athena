@@ -31,7 +31,7 @@ namespace Muon {
 
 /////////////////////////////////////////////////////////////////////////////
 
-class RpcRdoToPrepDataToolCore : virtual public IMuonRdoToPrepDataTool, virtual public AthAlgTool {
+class  RpcRdoToPrepDataToolCore : virtual public IMuonRdoToPrepDataTool, virtual public AthAlgTool {
 public:
 
   RpcRdoToPrepDataToolCore( const std::string&, const std::string&, const IInterface* );

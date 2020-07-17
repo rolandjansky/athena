@@ -1,13 +1,8 @@
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-/// This code is only used in the single-thread setup       
-/// As such, deactivating the check in this file            
+           
 #include "CxxUtils/checker_macros.h"
-ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
-
-
 
 #include "MdtRdoToPrepDataTool.h"
 
@@ -26,7 +21,7 @@ StatusCode Muon::MdtRdoToPrepDataTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-Muon::MdtRdoToPrepDataTool::SetupMdtPrepDataContainerStatus Muon::MdtRdoToPrepDataTool::setupMdtPrepDataContainer()
+Muon::MdtRdoToPrepDataTool::SetupMdtPrepDataContainerStatus Muon::MdtRdoToPrepDataTool::setupMdtPrepDataContainer ATLAS_NOT_THREAD_SAFE()
 {
   if(!evtStore()->contains<Muon::MdtPrepDataContainer>(m_mdtPrepDataContainerKey.key())){	 
     m_fullEventDone=false;
