@@ -105,9 +105,6 @@ InDetTrigTRT_DriftCircleTool = InDet__TRT_DriftCircleTool( name = "InDetTrigTRT_
                                                            ValidityGateSuppression         = False,
                                                            LowGate = LowGate,
                                                            HighGate = HighGate,
-                                                           MaskFirstHTBit                  = False,
-                                                           MaskMiddleHTBit                 = False,
-                                                           MaskLastHTBit                   = False,
                                                            SimpleOutOfTimePileupSupressionArgon = False,# no OOT rejection for argon
                                                            RejectIfFirstBitArgon                = False, # no OOT rejection for argon
                                                            MinTrailingEdgeArgon                 = 0, # no OOT rejection for argon
@@ -115,9 +112,6 @@ InDetTrigTRT_DriftCircleTool = InDet__TRT_DriftCircleTool( name = "InDetTrigTRT_
                                                            ValidityGateSuppressionArgon         = False,# no OOT rejection for argon
                                                            LowGateArgon                         = 0,# no OOT rejection for argon
                                                            HighGateArgon                        = 75*Units.ns,# no OOT rejection for argon
-                                                           MaskFirstHTBitArgon                  = False,
-                                                           MaskMiddleHTBitArgon                 = False,
-                                                           MaskLastHTBitArgon                   = False,
                                                            useDriftTimeHTCorrection        = True,
                                                            
                                                            useDriftTimeToTCorrection       = True, # reenable ToT
