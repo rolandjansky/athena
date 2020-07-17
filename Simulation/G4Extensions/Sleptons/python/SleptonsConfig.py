@@ -15,7 +15,6 @@ where Particle = [STau1Minus, STau1Plus, STau2Minus, STau2Plus, SElectronRMinus,
 """
 def getSleptonsPhysicsTool(name="SleptonsPhysicsTool", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
-    from AthenaCommon.SystemOfUnits import GeV,MeV,eplus,ns
     GMSBStau    = eval(simFlags.specialConfiguration.get_Value().get("GMSBStau", None))
     kwargs.setdefault("G4STau1MinusMass",             GMSBStau)
     kwargs.setdefault("G4STau1PlusMass",              GMSBStau)
@@ -32,7 +31,6 @@ def getSleptonsPhysicsTool(name="SleptonsPhysicsTool", **kwargs):
 
 def getAllSleptonsPhysicsTool(name="AllSleptonsPhysicsTool", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
-    from AthenaCommon.SystemOfUnits import GeV,MeV,eplus,ns
     if "GMSBStau" in simFlags.specialConfiguration.get_Value():
         GMSBStau    = eval(simFlags.specialConfiguration.get_Value().get("GMSBStau", None))
         GMSBStauTime    = eval(simFlags.specialConfiguration.get_Value().get("GMSBStauTime", None))
