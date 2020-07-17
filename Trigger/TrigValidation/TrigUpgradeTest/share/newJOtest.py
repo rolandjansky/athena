@@ -13,9 +13,12 @@ from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior=1
 
 #Temporarily turning off ID geometery until the configuration is fully migrated
-flags.Detector.GeometryPixel = False
-flags.Detector.GeometrySCT   = False
-flags.Detector.GeometryTRT   = False
+flags.Detector.GeometryPixel = True
+flags.Detector.GeometrySCT   = True
+flags.Detector.GeometryTRT   = True
+flags.Detector.GeometryID    = True
+flags.Detector.GeometryBpipe = True
+flags.Detector.GeometryCavern = False
 flags.Detector.GeometryLAr   = True
 flags.Detector.GeometryTile  = True
 flags.Detector.GeometryMDT   = True
@@ -89,7 +92,7 @@ acc.foreach_component("*HLTTop/*GenericMonitoringTool*").OutputLevel = WARNING #
 
 
 
-acc.printConfig(withDetails=False, summariseProps=False)
+acc.printConfig(withDetails=False, summariseProps=True, printDefaults=True)
 
 
 fname = "newJOtest.pkl"
@@ -97,4 +100,8 @@ print( "Storing config in the file {}".format( fname ) )
 with open(fname, "wb") as p:
     acc.store( p )
     p.close()
-acc.run()
+status = acc.run()
+if status.isFailure():
+    import sys
+    sys.exit(-1)
+
