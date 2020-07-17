@@ -2,7 +2,7 @@
 
 from past.builtins import basestring
 import GaudiConfig2.semantics
-from GaudiKernel.GaudiHandles import PrivateToolHandleArray
+from GaudiKernel.GaudiHandles import PrivateToolHandleArray, PublicToolHandle, ServiceHandle
 import re
 import collections
 import copy
@@ -142,13 +142,17 @@ class PublicHandleArraySemantics(GaudiConfig2.semantics.PropertySemantics):
                                     format(value.__component_type__,v, self.name))
                 else:
                     newValue.append("{}/{}".format(v.__cpp_type__,v.name))
+
+            elif isinstance(v,(PublicToolHandle,ServiceHandle)):
+                newValue.append("{}/{}".format(v.getType(),v.getName()))
+
             elif isinstance(v,basestring):
                 #Check if componet is known ...
                 newValue.append(v)
                 pass
             else:
                 raise TypeError('Configurable expected, got {!r} in assignment to {}'.\
-                                format(value,self.name))
+                                format(v,self.name))
         return newValue
             
     def default(self, value):
