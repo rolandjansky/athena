@@ -60,17 +60,12 @@ StatusCode InDet::InDetCosmicScoringTool::finalize()
 
 Trk::TrackScore InDet::InDetCosmicScoringTool::score( const Trk::Track& track, const bool suppressHoleSearch ) const
 {
-  std::unique_ptr<const Trk::TrackSummary> summary;
-  if ( suppressHoleSearch) {
-    ATH_MSG_DEBUG ("Get summary for new Track, suppress HoleSearch");
-    summary = m_trkSummaryTool->summaryNoHoleSearch(track);
-  } else {
-    ATH_MSG_DEBUG ("Get summary for new Track with HoleSearch");
-    summary = m_trkSummaryTool->summary(track);
+  (void) suppressHoleSearch;
+  if (!track.trackSummary()) {
+     ATH_MSG_FATAL("Track without a summary");
   }
-
-  ATH_MSG_VERBOSE( "Track has TrackSummary "<<*summary );
-  Trk::TrackScore score = Trk::TrackScore( simpleScore(track, *summary) );
+  ATH_MSG_VERBOSE( "Track has TrackSummary "<< *track.trackSummary() );
+  Trk::TrackScore score = Trk::TrackScore( simpleScore(track, *track.trackSummary()) );
   ATH_MSG_DEBUG( "Track has Score: "<<score );
   return score;
 }

@@ -1062,6 +1062,10 @@ def getInDetTrackSummaryToolSharedHits(name='InDetTrackSummaryToolSharedHits',**
 
     return getInDetTrackSummaryTool( name, **kwargs)
 
+def getInDetTrackSummaryToolTRTTracks(name='InDetTrackSummaryToolTRTTracks',**kwargs) :
+    # @TODO should switch off PixelToTPID, shared hits (setDefaults(kwargs,doSharedHits=False))
+    return getInDetTrackSummaryToolSharedHits(name, **setDefaults(kwargs,doSharedHits=True))
+
 def getInDetTrigTrackSummaryTool(name='InDetTrackSummaryTool',**kwargs) :
     return getInDetTrackSummaryTool(name,**setDefaults(kwargs,
                                                        namePrefix = "InDetTrig",

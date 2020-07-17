@@ -598,6 +598,7 @@ class TrigExtProcessor_EF( InDet__InDetTrigExtensProcessor ):
 
       
     self.TrackFitter  = InDetTrigExtensionFitter
+    self.SummaryTool  = InDetTrigTrackSummaryTool
     self.ScoringTool  = InDet__InDetAmbiScoringTool('InDetTrigExtScoringTool_'+type)
                                                           
     self.RefitPrds    = not (InDetTrigFlags.refitROT() or (InDetTrigFlags.trtExtensionType() == 'DAF'))
