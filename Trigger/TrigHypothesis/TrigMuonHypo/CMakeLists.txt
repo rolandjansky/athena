@@ -45,5 +45,4 @@ atlas_add_test( TrigMuonHypoConfig SCRIPT python -m  	TrigMuonHypo.TrigMuonHypoC
 # Install files from the package:
 atlas_install_headers( TrigMuonHypo )
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*.py )
 
