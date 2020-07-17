@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 
@@ -20,7 +20,7 @@ def getSleptonsPhysicsTool(name="SleptonsPhysicsTool", **kwargs):
     kwargs.setdefault("G4STau1MinusMass",             GMSBStau)
     kwargs.setdefault("G4STau1PlusMass",              GMSBStau)
 
-    if simFlags.specialConfiguration.get_Value().has_key("GMSBSlepton"):
+    if "GMSBSlepton" in simFlags.specialConfiguration.get_Value():
         GMSBSlepton = eval(simFlags.specialConfiguration.get_Value().get("GMSBSlepton", None))
 
         kwargs.setdefault("G4SElectronRMinusMass",        GMSBSlepton)
@@ -33,30 +33,30 @@ def getSleptonsPhysicsTool(name="SleptonsPhysicsTool", **kwargs):
 def getAllSleptonsPhysicsTool(name="AllSleptonsPhysicsTool", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     from AthenaCommon.SystemOfUnits import GeV,MeV,eplus,ns
-    if simFlags.specialConfiguration.get_Value().has_key("GMSBStau"):
+    if "GMSBStau" in simFlags.specialConfiguration.get_Value():
         GMSBStau    = eval(simFlags.specialConfiguration.get_Value().get("GMSBStau", None))
         GMSBStauTime    = eval(simFlags.specialConfiguration.get_Value().get("GMSBStauTime", None))
         kwargs.setdefault("G4STau1MinusMass",             GMSBStau)
         kwargs.setdefault("G4STau1MinusPDGCode",          1000015)
         kwargs.setdefault("G4STau1MinusStable",           False)
         kwargs.setdefault("G4STau1MinusLifetime",         GMSBStauTime)
-        
+
         kwargs.setdefault("G4STau1PlusMass",              GMSBStau)
         kwargs.setdefault("G4STau1PlusPDGCode",           -1000015)
         kwargs.setdefault("G4STau1PlusStable",            False)
         kwargs.setdefault("G4STau1PlusLifetime",          GMSBStauTime)
-        
+
         kwargs.setdefault("G4STau2MinusMass",             GMSBStau)
         kwargs.setdefault("G4STau2MinusPDGCode",          2000015)
         kwargs.setdefault("G4STau2MinusStable",           False)
         kwargs.setdefault("G4STau2MinusLifetime",         GMSBStauTime)
-        
+
         kwargs.setdefault("G4STau2PlusMass",              GMSBStau)
         kwargs.setdefault("G4STau2PlusPDGCode",           -2000015)
         kwargs.setdefault("G4STau2PlusStable",            False)
         kwargs.setdefault("G4STau2PlusLifetime",          GMSBStauTime)
 
-    if simFlags.specialConfiguration.get_Value().has_key("GMSBSlepton"):
+    if "GMSBSlepton" in simFlags.specialConfiguration.get_Value():
         GMSBSlepton = eval(simFlags.specialConfiguration.get_Value().get("GMSBSlepton", None))
         GMSBSleptonTime = eval(simFlags.specialConfiguration.get_Value().get("GMSBSleptonTime", None))
 
