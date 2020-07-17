@@ -43,5 +43,3 @@ atlas_add_component( TRT_RawDataByteStreamCnv
 
 # Install files from the package:
 atlas_install_headers( TRT_RawDataByteStreamCnv )
-atlas_install_runtime( share/*.dat )
-

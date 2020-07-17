@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 777177 2016-10-07 16:09:43Z krasznaa $
 ################################################################################
 # Package: PileupReweighting
 ################################################################################
@@ -93,5 +92,4 @@ atlas_add_test( ut_PRWDataWeightExample_test
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-atlas_install_data( share/*.root )
 atlas_install_scripts( scripts/PURW_create_actual_mu_profile.py )

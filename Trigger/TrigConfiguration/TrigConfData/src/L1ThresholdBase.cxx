@@ -27,15 +27,7 @@ std::shared_ptr<TrigConf::L1Threshold>
 TrigConf::L1Threshold::createThreshold( const std::string & name, const std::string & type, 
                                         std::weak_ptr<L1ThrExtraInfoBase> extraInfo, const ptree & data )
 {
-
-
-   constexpr auto NIMtypes = { "BCM", "BCMCMB", "LUCID", "ZDC", "BPTX", "CALREQ", "MBTS", "MBTSSI", "NIM" };
-   bool isNIMtype = std::any_of(NIMtypes.begin(), NIMtypes.end(), [&type](const std::string & s){ return type == s; });
-   
-   constexpr auto noSpecialImp = { "JET", "XS", "jJ", "gXE", "jXE", "TOPO", "MULTTOPO", "MUTOPO", "R2TOPO", "ZB" };
-   bool useBaseClass = std::any_of(noSpecialImp.begin(), noSpecialImp.end(), [&type](const std::string & s){ return type == s; });
-
-   if( type == "EM" )
+  if( type == "EM" )
       return std::make_shared<L1Threshold_EM>( name, type, extraInfo, data );
     
    if( type == "TAU" )
@@ -59,11 +51,19 @@ TrigConf::L1Threshold::createThreshold( const std::string & name, const std::str
    if( type == "MU" )
       return std::make_shared<L1Threshold_MU>( name, type, extraInfo, data );
 
+   static const std::string NIMtypes[] = { "BCM", "BCMCMB", "LUCID", "ZDC", "BPTX", "CALREQ", "MBTS", "MBTSSI", "NIM" };
+   bool isNIMtype = std::find(std::begin(NIMtypes), std::end(NIMtypes), type) !=
+     std::end(NIMtypes);
+
    if( isNIMtype )
       return std::make_shared<L1Threshold_NIM>( name, type, extraInfo, data );
 
    if( type == "internal" )
       return std::make_shared<L1Threshold_internal>( name, type, extraInfo, data );
+
+   static const std::string noSpecialImp[] = { "JET", "XS", "jJ", "gXE", "jXE", "TOPO", "MULTTOPO", "MUTOPO", "R2TOPO", "ZB" };
+   bool useBaseClass = std::find(std::begin(noSpecialImp), std::end(noSpecialImp),type) !=
+     std::end(noSpecialImp);
 
    if( useBaseClass )
       return std::make_shared<L1Threshold>( name, type, extraInfo, data );

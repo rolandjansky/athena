@@ -40,9 +40,9 @@ StatusCode TauFilter::filterFinalize() {
 }
 
 
-CLHEP::HepLorentzVector TauFilter::sumDaughterNeutrinos( HepMC::GenParticlePtr part ) {
+CLHEP::HepLorentzVector TauFilter::sumDaughterNeutrinos( HepMC::ConstGenParticlePtr part ) {
   CLHEP::HepLorentzVector nu( 0, 0, 0, 0);
-  if ( ( abs( part->pdg_id() ) == 12 ) || ( abs( part->pdg_id() ) == 14 ) || ( abs( part->pdg_id() ) == 16 ) ) {
+  if ( ( std::abs( part->pdg_id() ) == 12 ) || ( std::abs( part->pdg_id() ) == 14 ) || ( std::abs( part->pdg_id() ) == 16 ) ) {
     nu.setPx(part->momentum().px());
     nu.setPy(part->momentum().py());
     nu.setPz(part->momentum().pz());
@@ -51,9 +51,7 @@ CLHEP::HepLorentzVector TauFilter::sumDaughterNeutrinos( HepMC::GenParticlePtr p
 
   if (part->end_vertex() == 0) return nu;
 
-  HepMC::GenVertex::particles_out_const_iterator begin = part->end_vertex()->particles_out_const_begin();
-  HepMC::GenVertex::particles_out_const_iterator end = part->end_vertex()->particles_out_const_end();
-  for ( ; begin != end; begin++ ) nu += sumDaughterNeutrinos( *begin );
+ for ( auto beg: *(part->end_vertex())) nu += sumDaughterNeutrinos( beg );
 
   return nu;
 }

@@ -34,5 +34,3 @@ atlas_add_component( TrigT1MuctpiPhase1
 # Install files from the package:
 atlas_install_headers( TrigT1MuctpiPhase1 )
 atlas_install_python_modules( python/*.py )
-atlas_install_xmls( data/*.xml )
-

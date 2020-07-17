@@ -257,6 +257,10 @@ class TestAlg (Alg):
         return
 
     def initialize (self):
+        # Work around issue with cling in root 6.20.06 getting confused
+        # by forward declarations.
+        ROOT.xAOD.TriggerTowerContainer_v2
+
         ROOT.ICaloCellMakerTool
         self.tool1 = ROOT.ToolHandle(ROOT.ICaloCellMakerTool)('LArCellDeadOTXCorr/tool1')
         self.tool2 = ROOT.ToolHandle(ROOT.ICaloCellMakerTool)('LArCellDeadOTXCorr/tool2')

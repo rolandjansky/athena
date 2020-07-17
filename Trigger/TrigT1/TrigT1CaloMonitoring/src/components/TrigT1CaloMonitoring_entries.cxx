@@ -2,7 +2,7 @@
 #include "../CpmMonitorAlgorithm.h"
 //#include "../CpmSimMonitorAlgorithm.h"
 //#include "../PpmSimBsMonitorAlgorithm.h"
-//#include "../PprMonitorAlgorithm.h"
+#include "../PprMonitorAlgorithm.h"
 //#include "../PprSpareMonitorAlgorithm.h"
 //#include "../PprStabilityMonitorAlgorithm.h"
 
@@ -37,7 +37,7 @@
 DECLARE_COMPONENT( CpmMonitorAlgorithm )
 //DECLARE_COMPONENT( CpmSimMonitorAlgorithm )
 //DECLARE_COMPONENT( PpmSimBsMonitorAlgorithm )
-//DECLARE_COMPONENT( PprMonitorAlgorithm )
+DECLARE_COMPONENT( PprMonitorAlgorithm )
 //DECLARE_COMPONENT( PprSpareMonitorAlgorithm )
 //DECLARE_COMPONENT( PprStabilityMonitorAlgorithm )
 

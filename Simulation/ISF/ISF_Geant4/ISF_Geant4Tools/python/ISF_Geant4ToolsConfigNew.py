@@ -5,8 +5,9 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.SystemOfUnits import MeV
+from ISF_Services.ISF_ServicesCoreConfigNew import GeoIDSvcCfg, AFIIGeoIDSvcCfg
 from ISF_Services.ISF_ServicesConfigNew import (
-    TruthServiceCfg, GeoIDSvcCfg, AFIIGeoIDSvcCfg,
+    TruthServiceCfg,
     ParticleBrokerSvcCfg, InputConverterCfg,
     LongLivedInputConverterCfg
 )

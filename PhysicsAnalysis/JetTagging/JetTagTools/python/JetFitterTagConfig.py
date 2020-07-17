@@ -31,11 +31,11 @@ def JetFitterTagCfg(flags, name = 'JetFitterTagNN', scheme = '', CombinedIPNN = 
     options['name'] = name
     options['xAODBaseName'] = 'JetFitter'
 
-    if (scheme == ""):
+    if scheme == "" or scheme == "Trig":
         if useBTagFlagsDefaults:
             if not CombinedIPNN:
                 jetFitterNtupleWriterNN = acc.popToolsAndMerge(JetFitterNtupleWriterNNCfg('JetFitterNtupleWriterNN'))
-                jetfitterClassifier = acc.popToolsAndMerge(JetFitterNNToolCfg('JetFitterNNTool'))
+                jetfitterClassifier = acc.popToolsAndMerge(JetFitterNNToolCfg('JetFitterNNTool', scheme))
                 defaults = { 'Runmodus'                         : flags.BTagging.RunModus,
                      'jetCollectionList'                : [], #used only in reference mode
                      'SecVxFinderName'                  : 'JetFitter',
