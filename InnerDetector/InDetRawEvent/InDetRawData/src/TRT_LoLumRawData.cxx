@@ -63,7 +63,7 @@ bool TRT_LoLumRawData::findLargestIsland(unsigned int word, unsigned int& leadin
   unsigned int bestLength = 0;
   unsigned int currentLength = 0;
 
-  // Set 4 last bits to zero (to match data and MC bitmasks)
+  // set 4 last bits to zero (to match data and MC bitmasks)
   unsigned int wordLE = word & m_maskFourLastBits;
 
   mask >>=1;  // 0 0 01000000 0 00000000 0 00000000
@@ -80,8 +80,8 @@ bool TRT_LoLumRawData::findLargestIsland(unsigned int word, unsigned int& leadin
         if (currentLength==0) currentLeadingEdge=k;
         currentTrailingEdge=k;
         ++currentLength;
-      } else { /* remember longest island */
-        if (currentLength >= bestLength && currentLeadingEdge<18 && currentTrailingEdge>7 && currentLength>2) {
+      } else { // remember longest island, ignore islands of length 1 which are very likely noise
+        if (currentLength >= bestLength && currentLeadingEdge<18 && currentLength > 1) {
           bestLength = currentLength;
           leadingEdge = currentLeadingEdge;
           trailingEdge = currentTrailingEdge;
@@ -90,14 +90,13 @@ bool TRT_LoLumRawData::findLargestIsland(unsigned int word, unsigned int& leadin
       }
     }
     mask >>= 1;
-    if (!(mask & m_maskThreeLastBits)) break;
-    if (k == 7 || k == 15) mask >>= 1;
+    if (!(mask & m_maskThreeLastBits)) break; // stop after checking 20 LT bits
+    if (k == 7 || k == 15) mask >>= 1; // ignore HT bits
     assert(k < 20);
     ++k;
   }
   assert(k == 20);
-  // check that we have found useful edges
-  if (leadingEdge>17) leadingEdge=0;
-  if (trailingEdge<8 || trailingEdge> 19) trailingEdge=0;
+  // avoid very early TE, most likely from previous BX. Hit will still be used for tracking if it has a valid LE
+  if (trailingEdge < 8) trailingEdge = 0;
   return leadingEdge && trailingEdge;
 }

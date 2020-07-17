@@ -81,7 +81,7 @@ public:
     return m_driftTimeBinWidth;
   };
 
-  // Find the relevant island of bits from the bit pattern, defined as the largest island with the earliest leading edge
+  // Find the relevant island of bits from the bit pattern, defined as the largest island with the latest leading edge
   static bool findLargestIsland(unsigned int word, unsigned int& leadingEdge, unsigned int& trailingEdge);
 
   // Determine the drift time bin, i.e. the leading edge of the relevant island, from the bit pattern
@@ -93,8 +93,12 @@ public:
   // Determine the time over threshold, i.e. width of the relevant island, in ns from the bit pattern
   static double timeOverThreshold(unsigned int word);
 
-  // Create a new TRT_LoLumRawData and return a pointer to it:
-  //  static TRT_LoLumRawData *newObject(const Identifier rdoId, const unsigned int word);
+  // Check if the middle HT bit is set
+  inline
+  static bool highLevel(unsigned int word) {
+    // return (m_word & 0x04020100); // check any of the three HT bits
+    return (word & 0x00020000); // check only middle HT bit
+  }
 
 public:
   // public default constructor needed for I/O, but should not be
@@ -112,17 +116,15 @@ private:
 // Inline methods:
 ///////////////////////////////////////////////////////////////////
 
-
-
 /*
  * highLevel() -
- * Returns true if there is a high threshold hit in any bunch crossing, false
+ * Returns true if there is a high threshold hit in the middle bunch crossing, false
  * otherwise
  */
 inline 
 bool TRT_LoLumRawData::highLevel() const
 {
-  return (m_word & 0x04020100);
+  return highLevel(m_word);
 }
 
 /*
