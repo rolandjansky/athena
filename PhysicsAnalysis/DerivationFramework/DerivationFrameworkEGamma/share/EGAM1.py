@@ -580,9 +580,10 @@ replaceAODReducedJets(reducedJetList,egam1Seq,"EGAM1")
 #=======================================
 # ADD NON-PROMPT LEPTON VETO ALGORITHMS 
 #=======================================
-import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
-JetTagConfig.ConfigureAntiKt4PV0TrackJets(egam1Seq, "EGAM1")
-egam1Seq += JetTagConfig.GetDecoratePromptLeptonAlgs(name="Electrons")
+import LeptonTaggers.LeptonTaggersConfig as LepTagConfig
+LepTagConfig.ConfigureAntiKt4PV0TrackJets(egam1Seq, "EGAM1")
+egam1Seq += LepTagConfig.GetDecoratePromptLeptonAlgs(name="Electrons")
+egam1Seq += LepTagConfig.GetDecorateImprovedPromptLeptonAlgs(name="Electrons")
 
 
 #====================================================================
