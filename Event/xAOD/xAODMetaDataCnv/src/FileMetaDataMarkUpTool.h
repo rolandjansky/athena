@@ -74,10 +74,10 @@ namespace xAODMaker {
       /// @{
 
       /// Function collecting the metadata from a new input file
-      virtual StatusCode beginInputFile();
+      virtual StatusCode beginInputFile() override;
 
       /// Function writing the collected metadata to the output
-      virtual StatusCode metaDataStop();
+      virtual StatusCode metaDataStop() override;
 
       /// @}
 
