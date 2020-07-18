@@ -180,13 +180,13 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     appendCAtoAthena( monAcc )
 
     # this is a shotcut for now, we always assume we may be writing ESD & AOD outputs, so all gaps will be filled
-
     hltTop += conf2toConfigurable(edmAlg)
-    topSequence += hltTop
 
     # Test the configuration
     from TriggerMenuMT.HLTMenuConfig.Menu.CFValidation import testHLTTree
-    testHLTTree( topSequence )
+    testHLTTree( hltTop )
+
+    topSequence += hltTop
 
 def matrixDisplayOld( allCFSeq ):
     from collections import defaultdict
