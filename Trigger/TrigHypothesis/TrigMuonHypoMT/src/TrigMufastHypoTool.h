@@ -77,7 +77,7 @@ class TrigMufastHypoTool: public ::AthAlgTool {
     double dR(double eta1, double phi1, double eta2, double phi2) const;
     double invMass(double m1, double pt1, double eta1, double phi1,
                    double m2, double pt2, double eta2, double phi2) const;
-    StatusCode chooseBestMuon(std::vector<TrigMufastHypoTool::MuonClusterInfo>& input, /* std::vector<TrigMufastHypoTool::MuonClusterInfo>& uniqueMuon, */ std::vector<unsigned int> mufastResult) const;
+    StatusCode chooseBestMuon(std::vector<TrigMufastHypoTool::MuonClusterInfo>& input, std::vector<unsigned int> mufastResult) const;
 
     float getLocalPhi(float, float, float) const;
     //TrigMufastHypoToolConsts::ECRegions whichECRegion(const float eta, const float phi) const;

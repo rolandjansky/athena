@@ -178,20 +178,13 @@ def muCombOvlpRmSequence():
     trigmuCombHypo = TrigmuCombHypoAlg("TrigL2MuCBHypoAlg")
     trigmuCombHypo.MuonL2CBInfoFromMuCombAlg = sequenceOut
 
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigmuCombHypoToolFromDict
-    
-    ### set up MuSAOverlapRemoval ###
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigL2MuonOverlapRemoverMucombAlg
-    trigL2MuonOverlapRemover = TrigL2MuonOverlapRemoverMucombAlg("TrigL2MuonOverlapRemoverMucombAlg")
-    trigL2MuonOverlapRemover.L2MuonOverlapInfoFromMuCombAlg = sequenceOut
-
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigL2MuonOverlapRemoverMucombToolFromDict
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigmuCombHypoToolwORFromDict
 
     return MenuSequence( Sequence    = l2muCombSequence,
                          Maker       = l2muCombViewsMaker,
-                         Hypo        = [trigmuCombHypo, trigL2MuonOverlapRemover],
-                         HypoToolGen = [TrigmuCombHypoToolFromDict, TrigL2MuonOverlapRemoverMucombToolFromDict] )
- 
+                         Hypo        = trigmuCombHypo,
+                         HypoToolGen = TrigmuCombHypoToolwORFromDict )
+
 
 
 ######################

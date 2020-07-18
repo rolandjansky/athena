@@ -159,8 +159,8 @@ class MuonChainConfiguration(ChainConfigurationBase):
            doOvlpRm = False
 
 
-         # tmp comment out OverlapRm /FP:
-        doOvlpRm= False
+        #  # tmp comment out OverlapRm /FP:
+        # doOvlpRm= False
 
 
         if doOvlpRm:

@@ -350,7 +350,7 @@ StatusCode TrigMufastHypoTool::multiplicitySelection(std::vector<TrigMufastHypoT
       size_t elementIndex{ 0 };      
       for ( auto& i: toolInput ) {
 
-	if(m_applyOR && !i.passOR) {
+	if(!m_acceptAll && m_applyOR && !i.passOR) {
 	  ATH_MSG_DEBUG("skip due to overap, DecisionID " << m_decisionId );
 	  continue;
 	}
@@ -463,7 +463,6 @@ StatusCode TrigMufastHypoTool::checkOverlap(std::vector<TrigMufastHypoTool::Muon
   size_t numMuon = input.size();
   unsigned int i,j;
   std::vector<unsigned int> mufastResult;
-  std::vector<TrigMufastHypoTool::MuonClusterInfo> uniqueMuon;
 
   bool errorWhenIdentifyingOverlap = false;
 
@@ -529,8 +528,7 @@ StatusCode TrigMufastHypoTool::checkOverlap(std::vector<TrigMufastHypoTool::Muon
   ATH_MSG_DEBUG( "nr of unique Muons after muFast overlap removal=" << n_uniqueMuon );
 
   if( numMuon != n_uniqueMuon ){
-    ATH_CHECK(chooseBestMuon(input, // uniqueMuon,
-			     mufastResult));
+    ATH_CHECK(chooseBestMuon(input, mufastResult));
   } else {
     ATH_MSG_DEBUG( "no overlap identified. exitting with all EventViews active" );
     // auto mufastNrActiveEVs  = Monitored::Scalar("NrActiveEVs", -9999.);
@@ -538,14 +536,6 @@ StatusCode TrigMufastHypoTool::checkOverlap(std::vector<TrigMufastHypoTool::Muon
     // mufastNrActiveEVs = n_uniqueMuon;
     // for(i=0; i<numMuon; i++) uniqueMuon.emplace_back(input[i]);
   }
-
-  // if(n_uniqueMuon >= m_multiplicity){
-  //   for(i=0; i<n_uniqueMuon; i++){
-  //     ATH_MSG_DEBUG("Muon event pass through Chain/ID " << m_decisionId );
-  //     TrigCompositeUtils::addDecisionID( m_decisionId, uniqueMuon[i].decision );
-  //   }
-  // }
-  // else ATH_MSG_DEBUG("No muon event passed through selection " << m_decisionId << " because not meet the required number of muons");
 
   return StatusCode::SUCCESS;
 }
@@ -721,8 +711,7 @@ double TrigMufastHypoTool::invMass(double m1, double pt1, double eta1, double ph
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigMufastHypoTool::chooseBestMuon(std::vector<TrigMufastHypoTool::MuonClusterInfo>& input, // std::vector<TrigMufastHypoTool::MuonClusterInfo>& uniqueMuon,
-					      std::vector<unsigned int> mufastResult) const
+StatusCode TrigMufastHypoTool::chooseBestMuon(std::vector<TrigMufastHypoTool::MuonClusterInfo>& input, std::vector<unsigned int> mufastResult) const
 {
   size_t numMuon = input.size();
   unsigned int i,j,k;
@@ -741,6 +730,9 @@ StatusCode TrigMufastHypoTool::chooseBestMuon(std::vector<TrigMufastHypoTool::Mu
     ATH_MSG_DEBUG( "++ i=" << i << ": result=" << mufastResult[i] );
     if( mufastResult[i] != i ) {
       ATH_MSG_DEBUG( "   overlap to some one. skip." );
+
+      input[i].passOR = false;
+
       continue;
     }
     std::vector<unsigned int> others;
@@ -749,7 +741,6 @@ StatusCode TrigMufastHypoTool::chooseBestMuon(std::vector<TrigMufastHypoTool::Mu
     }
     if( others.size() == 1 ) {
       ATH_MSG_DEBUG( "   unique object. keep it active." );
-      // uniqueMuon.emplace_back(input[i]);
       continue;
     }
     else {
@@ -797,7 +788,6 @@ StatusCode TrigMufastHypoTool::chooseBestMuon(std::vector<TrigMufastHypoTool::Mu
 	}
 	if( j == best_ev ){
 	  ATH_MSG_DEBUG( "      EventView( j=" << j << " ) is best one" );
-	  // uniqueMuon.emplace_back(input[i]);
 	}
       }
     }
