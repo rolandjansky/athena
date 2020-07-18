@@ -72,7 +72,7 @@ namespace Muon {
     return StatusCode::SUCCESS;
   }
 
-  Trk::Track* MooTrackBuilder::refit( const Trk::Track& track ) const {
+  Trk::Track* MooTrackBuilder::refit(Trk::Track& track ) const {
 
     // use slFitter for straight line fit, or toroid off, otherwise use normal Fitter
       

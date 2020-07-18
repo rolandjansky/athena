@@ -25,11 +25,11 @@ namespace Muon {
     /** Destructor: */
     virtual ~MuonErrorOptimisationTool() = default; 
 
-    virtual StatusCode  initialize();
-    virtual StatusCode  finalize();
+    virtual StatusCode  initialize() override;
+    virtual StatusCode  finalize() override;
 
     /** optimise the error strategy used for the track */
-    Trk::Track* optimiseErrors( const Trk::Track& track ) const;
+    virtual Trk::Track* optimiseErrors( Trk::Track& track ) const override;
 
   protected:
 
