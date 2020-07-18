@@ -25,21 +25,42 @@ namespace MagField {
     class AtlasFieldMap;
 }
 
-/*
- * This is needed due to the current threading model in simulation.
+/**
+ * The ATLASFieldCacheTLSWrapper
+ * is needed due to the current threading model in simulation.
  *
- * We need a cache returning the field  for a specific position.
- * The cache might needs to be filled
- * or updated when the requested position changes.
+ * In general clients need a MagField::AtlasFieldCache
+ * returning the magnetic field values
+ * for a specific position.
  *
- * Ideally they would be passed by the caller.
- * Actually this is the
- * scheme we use in offline.
- * But this is not yet possible is simulations
+ * The MagField::AtlasFieldCache refer to a specific "cell" and might
+ * need to be filled or updated when the position changes.
+ * In the other hand subsequent calls more often
+ * than not re-use the info from the same "cell".
+ * One can look at MagFieldElements for more details.
  *
- * So we need to wrap the new machinery in a way that mimics
- * the TLS behavious of the to be
- * removed ATLAS svc
+ * Ideally objects would be passed by/be local to the caller.
+ * Actually this is what happens in offline/online
+ * where we moved completely to Condition Objects.
+ * i.e AtlasFieldCacheCondObj.
+ *
+ * But this is not yet possible in simulation.
+ * So we need to wrap things in a way that mimics
+ * the relevant TLS behaviour of the to be removed ATLAS Svc.
+ *
+ * The end result is that for now the ATLASFieldCacheTLSWrapper 
+ * is to be used instead of AtlasFieldCacheCondObj in simulation.
+ *
+ * It has similar payload.
+ * The major difference is that when we use the
+ * condition Object each user of the magnetic field
+ * ends up with its own local MagField::AtlasFieldCache so there is
+ * no need for synchronisation.
+ *
+ * In the other hand here we provide thread-specific
+ * MagField::AtlasFieldCache (s) to allow for the TLS
+ * scheme needed by the simulation.
+ *
  */
 #include <boost/thread/tss.hpp>
 struct ATLASFieldCacheTLSWrapper
@@ -49,15 +70,17 @@ private:
     m_fieldCache_tls{};
 
 public:
+  ///Sclae for solenoid
   double solFieldScale{ 1 };
+  ///Scale for toroid 
   double torFieldScale{ 1 };
+  ///Not owning ptr 
   const MagField::AtlasFieldMap* fieldMap{ nullptr };
 
-  // Set up the thread specific cache
+  /// Method setting up and returning the TLS MagField::AtlasFieldCache
   MagField::AtlasFieldCache& getTLSCache() const
   {
     MagField::AtlasFieldCache* fieldCache = m_fieldCache_tls.get();
-    // if we have none for this thread create one
     if (!fieldCache) {
       fieldCache =
         new MagField::AtlasFieldCache(solFieldScale, torFieldScale, fieldMap);
@@ -66,7 +89,7 @@ public:
     return *fieldCache;
   }
 
-  // forward call to the thread specific cache
+  /// getField method, forwarding to the TLS object
   void getField(const double* point, double* field) const
   {
     MagField::AtlasFieldCache& fieldCache = getTLSCache();
