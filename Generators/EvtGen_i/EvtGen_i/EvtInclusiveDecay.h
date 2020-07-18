@@ -98,12 +98,14 @@ class EvtInclusiveDecay:public GenBase {
 		// coloring by status code and highlighting of particles in a specific list of barcodes
 #ifdef HEPMC3
 		void printHepMC(HepMC::GenEvent* hepMC, std::set<HepMC::GenParticlePtr>* barcodeList = nullptr);
+		unsigned int printTree(HepMC::GenParticlePtr p, std::set<HepMC::GenVertexPtr>& visited, int level, std::set<HepMC::GenParticlePtr>* barcodeList = nullptr);
+		std::string pdgName(const HepMC::GenParticlePtr p, bool statusHighlighting = false, std::set<HepMC::GenParticlePtr>* barcodeList = nullptr);
 #else
 		void printHepMC(HepMC::GenEvent* hepMC, std::set<int>* barcodeList = nullptr);
-#endif
 		unsigned int printTree(HepMC::GenParticlePtr p, std::set<HepMC::GenVertexPtr>& visited,
 				       int level, std::set<int>* barcodeList = 0);
 		std::string pdgName(const HepMC::GenParticlePtr p, bool statusHighlighting = false, std::set<int>* barcodeList = nullptr);
+#endif
       
 		// StoreGate access
 		//		StoreGateSvc* m_sgSvc;

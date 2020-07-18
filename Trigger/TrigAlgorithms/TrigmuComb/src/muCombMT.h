@@ -33,7 +33,7 @@
 #include "StoreGate/WriteHandleKey.h"
 
 #include "TrkExInterfaces/IExtrapolator.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
+//#include "MagFieldInterfaces/IMagFieldSvc.h"
 
 #include "xAODTrigMuon/L2CombinedMuonContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
@@ -43,6 +43,7 @@
 //#include "TrigT1Interfaces/RecMuonRoI.h"
 
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 
 /** Main LVL2 Algorithm. Sided by a xAOD::L2StandaloneMuon, match the muon spectrometer track with an ID track, and produces a xAOD::L2CombinedMuon. */
 class muCombMT : public AthAlgorithm
@@ -89,7 +90,8 @@ class muCombMT : public AthAlgorithm
 
   /** Handle to the Magnetic field service */
   //ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;       //!< helper tool to get the magnetic field
-  MagField::IMagFieldSvc* m_MagFieldSvc; 
+  //MagField::IMagFieldSvc* m_MagFieldSvc; 
+  SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
 
 
   int    drptMatch(double, double, double,

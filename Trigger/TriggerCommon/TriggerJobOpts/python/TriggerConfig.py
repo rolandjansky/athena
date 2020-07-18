@@ -112,7 +112,7 @@ def collectHypoDecisionObjects(hypos, inputs = True, outputs = True):
     for step, stepHypos in six.iteritems (hypos):
         for hypoAlg in stepHypos:
             __log.debug( "Hypo %s with input %s and output %s ",
-                         hypoAlg.name, hypoAlg.HypoInputDecisions, hypoAlg.HypoOutputDecisions )
+                         hypoAlg.getName(), hypoAlg.HypoInputDecisions, hypoAlg.HypoOutputDecisions )
             if isinstance( hypoAlg.HypoInputDecisions, list):
                 if inputs:
                     [ decisionObjects.add( d ) for d in hypoAlg.HypoInputDecisions ]
