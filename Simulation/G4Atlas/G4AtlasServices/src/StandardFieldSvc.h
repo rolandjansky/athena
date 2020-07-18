@@ -18,8 +18,12 @@
 #include "G4MagFieldSvcBase.h"
 
 // MagField cache
-#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "MagFieldElements/AtlasFieldCache.h"
+
+// forward declarations
+namespace MagField {
+    class AtlasFieldMap;
+}
 
 /*
  * This is needed due to the current threading model in simulation.
@@ -53,7 +57,7 @@ public:
   MagField::AtlasFieldCache& getTLSCache() const
   {
     MagField::AtlasFieldCache* fieldCache = m_fieldCache_tls.get();
-    // if we have none for this thread lest create one
+    // if we have none for this thread create one
     if (!fieldCache) {
       fieldCache =
         new MagField::AtlasFieldCache(solFieldScale, torFieldScale, fieldMap);
@@ -76,10 +80,8 @@ class AtlasField : public G4MagneticField
 {
   public:
     /// Construct the field object from conditions object
-    AtlasField(const AtlasFieldCacheCondObj* condObj){
-      m_fieldCache.solFieldScale = condObj->solenoidFieldScaleFactor();
-      m_fieldCache.torFieldScale = condObj->toriodFieldScaleFactor();
-      m_fieldCache.fieldMap= condObj->fieldMap();
+    AtlasField(const MagField::AtlasFieldMap* fieldMap){
+        m_fieldCache.fieldMap = fieldMap;
     }
 
     MagField::AtlasFieldCache& fieldCache() { return m_fieldCache.getTLSCache(); }
@@ -117,13 +119,30 @@ class StandardFieldSvc final : public G4MagFieldSvcBase
 
   private:
 
-  // Read handle for conditions object to get the field cache
-    SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey{
-      this,
-      "AtlasFieldCacheCondObj",
-      "fieldCondObj",
-      "Name of the Magnetic Field conditions object key"
-    };
+    StatusCode createFieldMap();
+
+    // properties taken from AtlasFieldMapCondAlg
+    bool solenoidOn() { return (m_mapSoleCurrent > 0.0); }
+    bool toroidOn()   { return (m_mapToroCurrent > 0.0); }
+
+    /// map file names
+    Gaudi::Property<std::string> m_fullMapFilename {this,
+            "FullMapFile", "MagneticFieldMaps/bfieldmap_7730_20400_14m.root",
+            "File storing the full magnetic field map"};
+    Gaudi::Property<std::string> m_soleMapFilename {this,
+                                                    "SoleMapFile", "MagneticFieldMaps/bfieldmap_7730_0_14m.root",
+                                                    "File storing the solenoid-only magnetic field map"};
+    Gaudi::Property<std::string> m_toroMapFilename {this,
+                                                    "ToroMapFile", "MagneticFieldMaps/bfieldmap_0_20400_14m.root",
+                                                    "File storing the toroid-only magnetic field map"};
+    /// nominal current for the maps
+    Gaudi::Property<double>      m_mapSoleCurrent  {this,
+                                                    "MapSoleCurrent", 7730., "Nominal solenoid current (A)"};
+    Gaudi::Property<double>      m_mapToroCurrent  {this,
+                                                    "MapToroCurrent", 20400., "Nominal toroid current (A)"};
+
+    // field map held locally in svc - in Athena, this would go into a conditions object
+    std::unique_ptr<MagField::AtlasFieldMap> m_fieldMap;
 };
 
 #endif // G4ATLASSERVICES_StandardFieldSvc_H

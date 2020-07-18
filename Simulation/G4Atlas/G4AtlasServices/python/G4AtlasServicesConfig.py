@@ -161,8 +161,8 @@ def getTB_RegionCreatorList():
 
 #########################################################################
 def getStandardFieldSvc(name="StandardField", **kwargs):
-    import MagFieldServices.SetupField  # noqa: F401
-    kwargs.setdefault("MagneticFieldSvc", "AtlasFieldSvc") # TODO This should probably be based on simFlags.MagneticField?
+    # import MagFieldServices.SetupField  # noqa: F401
+    # kwargs.setdefault("MagneticFieldSvc", "AtlasFieldSvc") # TODO This should probably be based on simFlags.MagneticField?
     #kwargs.setdefault("FieldOn", True)
     return CfgMgr.StandardFieldSvc(name, **kwargs)
 
