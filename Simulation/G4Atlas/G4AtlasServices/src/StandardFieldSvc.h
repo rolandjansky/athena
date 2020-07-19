@@ -13,6 +13,7 @@
 
 // Gaudi/Athena
 #include "GaudiKernel/ServiceHandle.h"
+#include "MagFieldInterfaces/IMagFieldSvc.h"
 
 // Base classes
 #include "G4MagFieldSvcBase.h"
@@ -75,26 +76,37 @@ public:
 };
 
 /// @class AtlasField
-/// @brief G4 wrapper around the main ATLAS magnetic field cache.
+/// @brief G4 wrapper around the main ATLAS magnetic field cache or field svc for forward field.
 class AtlasField : public G4MagneticField
 {
   public:
     /// Construct the field object from conditions object
-    AtlasField(const MagField::AtlasFieldMap* fieldMap){
-        m_fieldCache.fieldMap = fieldMap;
+    AtlasField(const MagField::AtlasFieldMap* fieldMap) {
+            m_fieldCache.fieldMap = fieldMap;
     }
+    /// Construct the field object from the IMagFieldSvc
+    AtlasField(MagField::IMagFieldSvc* m) :
+        m_magFieldSvc(m)
+        {}
+            
 
     MagField::AtlasFieldCache& fieldCache() { return m_fieldCache.getTLSCache(); }
 
     /// Implementation of G4 method to retrieve field value
     void GetFieldValue(const double *point, double *field) const
     {
-      m_fieldCache.getField(point, field);
+        if (m_magFieldSvc) m_magFieldSvc->getField(point, field);
+        else               m_fieldCache.getField(point, field);
     }
 
   private:
     /// Field cache TLS Wrapper
     ATLASFieldCacheTLSWrapper   m_fieldCache{};
+
+    /// Pointer to the magnetic field service.
+    /// We use a raw pointer here to avoid ServiceHandle overhead.
+    MagField::IMagFieldSvc* m_magFieldSvc{nullptr};
+    
 };
 
 
@@ -118,6 +130,22 @@ class StandardFieldSvc final : public G4MagFieldSvcBase
     G4MagneticField* makeField() override final;
 
   private:
+
+    // There are two options for the magnetic field:
+    //
+    // 1) For solenoid and toroid, this has moved to use AtlasFieldCache and here we must create and
+    //    same the field map
+    // 2) For the forward quadrupole fields, we preserve the access to the magnetic field service
+    //
+    // The boolean flag UseMagFieldSvc is now used to differentiate between the two cases (default is false)
+    //
+
+    // flag to use magnet field service
+    Gaudi::Property<bool> m_useMagFieldSvc {this, 
+            "UseMagFieldSvc", false, "Use magnetic field service - Should ONLY be used for ForwardRegionFieldSvc"};
+    
+    /// Handle to the the Forward ATLAS magnetic field service
+    ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
 
     StatusCode createFieldMap();
 

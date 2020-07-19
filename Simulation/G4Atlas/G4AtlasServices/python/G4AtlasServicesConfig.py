@@ -168,8 +168,11 @@ def getStandardFieldSvc(name="StandardField", **kwargs):
 
 def getForwardFieldSvc(name="ForwardField", **kwargs):
     #FIXME Once it exists this version should use the new MagField Service defined in ForwardRegionMgField
-    kwargs.setdefault("MagneticFieldSvc", "AtlasFieldSvc")
+    # kwargs.setdefault("MagneticFieldSvc", "AtlasFieldSvc")
+    kwargs.setdefault("MagneticFieldSvc", "ForwardRegionFieldSvc")
     #kwargs.setdefault("FieldOn", True)
+    # Must switch on the use of a field svc to be able to have StandardFieldSvc use ForwardRegionFieldSvc
+    kwargs.setdefault("UseMagFieldSvc", True)
     return CfgMgr.StandardFieldSvc(name, **kwargs)
 
 def getQ1FwdG4FieldSvc(name='Q1FwdG4FieldSvc', **kwargs):

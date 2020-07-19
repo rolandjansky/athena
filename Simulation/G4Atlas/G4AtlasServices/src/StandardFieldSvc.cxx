@@ -22,8 +22,11 @@
 //-----------------------------------------------------------------------------
 StandardFieldSvc::StandardFieldSvc(const std::string& name,
                                    ISvcLocator* pSvcLocator)
-    : G4MagFieldSvcBase(name, pSvcLocator)
-{}
+    : G4MagFieldSvcBase(name, pSvcLocator),
+    m_magFieldSvc("MagField::ForwardRegionFieldSvc/ForwardRegionFieldSvc", name) 
+{
+  declareProperty("MagneticFieldSvc", m_magFieldSvc);
+}
 
 //-----------------------------------------------------------------------------
 // Initialize the service
@@ -32,8 +35,16 @@ StatusCode StandardFieldSvc::initialize()
 {
   ATH_MSG_INFO( "Initializing " << name() );
 
-  // Create field map
-  ATH_CHECK( createFieldMap() );
+  // Either initialize the field map - used for solenoid and toroid, or the field service for the forward field
+  if (m_useMagFieldSvc) {
+      ATH_CHECK( m_magFieldSvc.retrieve() );
+      ATH_MSG_INFO( "initialize: using field service  " << m_magFieldSvc.name() );
+  }
+  else {
+      // Create field map
+      ATH_CHECK( createFieldMap() );
+      ATH_MSG_INFO( "initialize: using created map for field cache  ");
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -45,7 +56,16 @@ G4MagneticField* StandardFieldSvc::makeField()
 {
   ATH_MSG_INFO( "StandardFieldSvc::makeField" );
 
-  AtlasField* af = new AtlasField(m_fieldMap.get());
+  AtlasField* af = 0;
+  
+  // Either initialize the field map - used for solenoid and toroid, or the field service for the forward field
+  if (m_useMagFieldSvc) {
+      af = new AtlasField( &*m_magFieldSvc );
+  }
+  else {
+      af = new AtlasField(m_fieldMap.get());
+  }
+  
   return (af);
 }
 
