@@ -112,7 +112,7 @@ SCTLorentzMonTool::bookHistogramsRecurrent() {                                  
   ATH_CHECK(m_trackToVertexTool.retrieve());
   // Booking  Track related Histograms
   if (bookLorentzHistos().isFailure()) {
-    msg(MSG::WARNING) << "Error in bookLorentzHistos()" << endmsg;                                // hidetoshi 14.01.22
+    ATH_MSG_WARNING("Error in bookLorentzHistos()");                                // hidetoshi 14.01.22
   }
   return StatusCode::SUCCESS;
 }
@@ -137,7 +137,7 @@ SCTLorentzMonTool::bookHistograms() {                                           
   ATH_CHECK(m_trackToVertexTool.retrieve());
   // Booking  Track related Histograms
   if (bookLorentzHistos().isFailure()) {
-    msg(MSG::WARNING) << "Error in bookLorentzHistos()" << endmsg;                                // hidetoshi 14.01.22
+    ATH_MSG_WARNING("Error in bookLorentzHistos()");                                // hidetoshi 14.01.22
   }
   return StatusCode::SUCCESS;
 }
@@ -177,11 +177,11 @@ SCTLorentzMonTool::fillHistograms() {
   const TrackCollection *tracks(0);
   if (evtStore()->contains<TrackCollection> (m_tracksName)) {
     if (evtStore()->retrieve(tracks, m_tracksName).isFailure()) {
-      msg(MSG::WARNING) << " TrackCollection not found: Exit SCTLorentzTool" << m_tracksName << endmsg;
+      ATH_MSG_WARNING(" TrackCollection not found: Exit SCTLorentzTool" << m_tracksName);
       return StatusCode::SUCCESS;
     }
   } else {
-    msg(MSG::WARNING) << "Container " << m_tracksName << " not found.  Exit SCTLorentzMonTool" << endmsg;
+    ATH_MSG_WARNING("Container " << m_tracksName << " not found.  Exit SCTLorentzMonTool");
     return StatusCode::SUCCESS;
   }
 
@@ -198,7 +198,7 @@ SCTLorentzMonTool::fillHistograms() {
     
     const Trk::TrackSummary *summary = origTrack->trackSummary();
     if (not summary){
-        msg(MSG::WARNING) << " null trackSummary" << endmsg;
+        ATH_MSG_WARNING(" null trackSummary");
         continue;
     }
     
@@ -243,8 +243,7 @@ SCTLorentzMonTool::fillHistograms() {
     // Get pointer to track state on surfaces
     const DataVector<const Trk::TrackStateOnSurface> *trackStates = track->trackStateOnSurfaces();
     if (not trackStates) {
-      msg(MSG::WARNING) << "for current track, TrackStateOnSurfaces == Null, no data will be written for this track" <<
-        endmsg;
+      ATH_MSG_WARNING("for current track, TrackStateOnSurfaces == Null, no data will be written for this track");
       continue;
     }
 
@@ -299,7 +298,7 @@ SCTLorentzMonTool::fillHistograms() {
                 pTrack[2] = trkp->momentum().z();
                 int iflag = findAnglesToWaferSurface(pTrack, sinAlpha, clus->identify(), thetaToWafer, phiToWafer);
                 if (iflag < 0) {
-                    msg(MSG::WARNING) << "Error in finding track angles to wafer surface" << endmsg;
+                    ATH_MSG_WARNING("Error in finding track angles to wafer surface");
                     continue; // Let's think about this (later)... continue, break or return?
                 }
                 // Fill profile
