@@ -32,6 +32,5 @@ atlas_add_component( SubDetectorEnvelopes
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} AtlasDetDescr GaudiKernel AthenaBaseComps RDBAccessSvcLib GeoModelInterfaces )
 
 # Install files from the package:
-atlas_install_headers( SubDetectorEnvelopes )
 atlas_install_python_modules( python/*.py )
 
