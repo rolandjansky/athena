@@ -96,7 +96,7 @@ void JetCaloEnergies::fillEperSamplingPFO(xAOD::Jet & jet, std::vector<float> & 
       if ( fabs(constit->charge())>FLT_MIN ){
 	eTot += constit->track(0)->e();
       } else {
-	eTot += constit->eEM();
+	eTot += constit->e();
 	FillESamplingPFO(PreSamplerB);
 	FillESamplingPFO(EMB1);
 	FillESamplingPFO(EMB2);
