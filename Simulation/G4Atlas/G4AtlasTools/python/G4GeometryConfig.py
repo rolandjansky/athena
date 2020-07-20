@@ -98,7 +98,12 @@ def getIDETEnvelope(name="IDET", **kwargs):
       innerRadius = rin*10.*mm # The factor 10 is needed for converting in mm the DB entry
     kwargs.setdefault("InnerRadius", innerRadius)
     kwargs.setdefault("OuterRadius", 1.148*m)
-    kwargs.setdefault("dZ", 347.5*cm)
+    # IDET should not (yet) include the HGTD (3420 mm < |z| < 3545 mm)
+    from AthenaCommon.DetFlags import DetFlags
+    if DetFlags.geometry.HGTD_on():
+        kwargs.setdefault("dZ", 342.0*cm)        
+    else:
+        kwargs.setdefault("dZ", 347.5*cm)
     SubDetectorList=[]
     from AthenaCommon.DetFlags import DetFlags
     if DetFlags.geometry.pixel_on():
@@ -115,15 +120,15 @@ def getIDETEnvelope(name="IDET", **kwargs):
 def getCALOEnvelope(name="CALO", **kwargs):
     kwargs.setdefault("DetectorName", "CALO")
     nSurfaces = 18
-    innerRadii = [41.,41.,41.,41.,41.,41.,120.,120.,1148.,1148.,120.,120.,41.,41.,41.,41.,41.,41.] #FIXME Units?
-    outerRadii = [415.,415,3795.,3795.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,3795.,3795.,415.,415.] #FIXME Units?
+    innerRadii = [   41.,   41.,   41.,  41.,    41.,   41.,  120., 120.,  1148.,1148., 120., 120.,  41.,  41.,  41.,  41.,  41.,  41.] #FIXME Units?
+    outerRadii = [  415.,  415., 3795., 3795., 4251., 4251., 4251., 4251., 4251.,4251.,4251.,4251.,4251.,4251.,3795.,3795., 415., 415.] #FIXME Units?
     zSurfaces  = [-6781.,-6735.,-6735.,-6530.,-6530.,-4587.,-4587.,-3475.,-3475.,3475.,3475.,4587.,4587.,6530.,6530.,6735.,6735.,6781.] #FIXME Units?
     from AthenaCommon.DetFlags import DetFlags
+    # if HGTD is on, the calo envelope should *not* include it (changed from 20.20 to 21.9)
     if hasattr(DetFlags.simulate, 'HGTD_on') and DetFlags.simulate.HGTD_on():
-        nSurfaces = 22
-        innerRadii = [41.,41.,41.,41.,41.,41.,120.,120.,47.,47.,1148.,1148.,47.,47.,120.,120.,41.,41.,41.,41.,41.,41.] #FIXME Units?
-        outerRadii = [415.,415.,3795.,3795.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,3795.,3795.,415.,415.] #FIXME Units?
-        zSurfaces  = [-6781.,-6735.,-6735.,-6530.,-6530.,-4587.,-4587.,-3535.,-3535.,-3475.,-3475., 3475., 3475., 3535, 3535,4587.,4587.,6530.,6530.,6735.,6735.,6781.] #FIXME Units?
+        innerRadii = [   41.,   41.,   41.,   41.,   41.,   41.,  120.,  120., 1148.,1148., 120., 120.,  41.,  41.,  41.,  41.,  41.,  41.] #FIXME Units?
+        outerRadii = [  415.,  415., 3795., 3795., 4251., 4251., 4251., 4251., 4251.,4251.,4251.,4251.,4251.,4251.,3795.,3795., 415., 415.] #FIXME Units?
+        zSurfaces  = [-6781.,-6735.,-6735.,-6530.,-6530.,-4587.,-4587.,-3545.,-3545.,3545.,3545.,4587.,4587.,6530.,6530.,6735.,6735.,6781.] #FIXME Units?
     kwargs.setdefault("NSurfaces", nSurfaces)
     kwargs.setdefault("InnerRadii", innerRadii)
     kwargs.setdefault("OuterRadii", outerRadii)

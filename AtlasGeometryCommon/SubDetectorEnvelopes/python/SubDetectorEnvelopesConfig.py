@@ -28,8 +28,8 @@ def getEnvelopeDefSvc(name="AtlasGeometry_EnvelopeDefSvc", **kwargs):
     from AthenaCommon.DetFlags import DetFlags
     if DetFlags.simulate.HGTD_on():
         BeamPipe.addRZ(   34.3,   3420.0 )
-        BeamPipe.addRZ(   34.3,   3535.0 )
-        BeamPipe.addRZ(  120.0,   3535.0 )
+        BeamPipe.addRZ(   34.3,   3545.0 )
+        BeamPipe.addRZ(  120.0,   3545.0 )
     else:
         BeamPipe.addRZ(   34.3,   3475.0 )
         BeamPipe.addRZ(  120.0,   3475.0 )
@@ -51,24 +51,19 @@ def getEnvelopeDefSvc(name="AtlasGeometry_EnvelopeDefSvc", **kwargs):
     # setup fallback IDEnvelope
     InDet = Volume()
     if DetFlags.simulate.HGTD_on():
-        InDet.addRZ( 1148.,  3420. )
-        InDet.addRZ(  34.3,  3420. )
+        InDet.addRZ( 1148.,  3420. ) # TODO: 3420 --> 3545 when HGTD goes inside IDET
+        InDet.addRZ(  34.3,  3420. ) # TODO: 3420 --> 3545 when HGTD goes inside IDET
     else:
         InDet.addRZ( 1148.,  3475. )
         InDet.addRZ(  34.3,  3475. )
-    print("CO: InDet R and Z values:")
-    print(InDet.getRs())
-    print(InDet.getZs())
     kwargs.setdefault("FallbackInDetR"  , InDet.getRs()        )
     kwargs.setdefault("FallbackInDetZ"  , InDet.getZs()        )
 
     # setup fallback CaloEnvelope
     Calo = Volume()
-    if DetFlags.simulate.HGTD_on():
-        Calo.addRZ( 1148.0,  3420.0 )
-        Calo.addRZ(   47.0,  3420.0 )
-        Calo.addRZ(   47.0,  3535.0 )
-        Calo.addRZ(  120.0,  3535.0 )
+    if DetFlags.simulate.HGTD_on(): # calo should not include HGTD (changed 20.20 --> 21.9)
+        Calo.addRZ( 1148.0,  3545.0 )
+        Calo.addRZ(  120.0,  3545.0 )
     else:
         Calo.addRZ( 1148.0,  3475.0 )
         Calo.addRZ(  120.0,  3475.0 )
