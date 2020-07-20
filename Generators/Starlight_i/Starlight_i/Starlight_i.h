@@ -45,7 +45,9 @@ public:
 protected:
 
     // event counter
-    int m_events;
+    int m_events;   
+    bool         m_lheOutput;
+    unsigned int          m_maxevents;
 
     starlight*       m_starlight;         // pointer to starlight instance
     inputParameters m_inputParameters;   // pointer to parameter instance
@@ -89,6 +91,8 @@ protected:
     bool         m_xsecMethod;
     int          m_nThreads;
     bool         m_pythFullRec;
+    
+    bool starlight2lhef();
 
     // Commands to setup starlight
     CommandVector m_InitializeVector;
