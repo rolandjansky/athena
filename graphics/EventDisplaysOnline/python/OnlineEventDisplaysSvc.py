@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 __doc__ = """This service runs in the online Athena event display threads. It
 manages the distribution of incoming events to the right event display streams.
@@ -71,7 +73,7 @@ class OnlineEventDisplaysSvc( PyAthena.Svc ):
 
 		try:
 			eventInfo = PyEventTools.getEventInfo('EventInfo')
-		except LookupError, err:
+		except LookupError as err:
 			self.msg.error("Could not retrieve EventInfo: %s" % err)
 			return StatusCode.Recoverable
 
@@ -82,7 +84,7 @@ class OnlineEventDisplaysSvc( PyAthena.Svc ):
 
 			# Retrieve trigger info
 			streamTags = eventInfo.streamTags()
-		except Exception, err:
+		except Exception as err:
 			self.msg.error("Exception occured while reading event/trigger info: %s" % err)
 			return StatusCode.Recoverable
 		print(streamTags) # lshi test
@@ -107,19 +109,19 @@ class OnlineEventDisplaysSvc( PyAthena.Svc ):
 				if stream in self.public:
 					ready4physics = ISInfoAny()
 					self.dict.getValue('RunParams.Ready4Physics', ready4physics)
-					print "Ready for physics: %s " % ready4physics.get()
+					print("Ready for physics: %s " % ready4physics.get())
 					runparams = ISObject(self.partition, 'RunParams.RunParams','RunParams')
 					runparams.checkout()
 					physicsReady = ISObject(self.partition, 'RunParams.Ready4Physics','Ready4PhysicsInfo')
 					physicsReady.checkout()
-					print "Ready for physics: %r" % (physicsReady.ready4physics)
+					print("Ready for physics: %r" % (physicsReady.ready4physics))
 					#if ready4physics.get() and physicsReady.ready4physics and runparams.T0_project_tag in self.projecttags:
 					if physicsReady.ready4physics and runparams.T0_project_tag in self.projecttags:
 						streams += ['Public']
 					else:
 						self.msg.debug("RunParams.Ready4Physics is not set, run number is not set, or T0_project_tag is not set to any of %s" % ", ".join(self.projecttags))
 						break
-		except Exception, err:
+		except Exception as err:
 			self.msg.error("Exception occured while reading RunParams.Ready4Physics: %s" % err)
 
 		# Randomize list of streams
@@ -147,7 +149,7 @@ class OnlineEventDisplaysSvc( PyAthena.Svc ):
 					os.chown(self.directory, -1, self.DQMgid)
 					self.msg.info("Created output directory \'%s\' for stream \'%s\'" % (self.directory, self.stream))
 					break
-				except OSError, err:
+				except OSError as err:
 					self.msg.warning("Failed to create output directory \'%s\' for stream \'%s\': %s", (self.directory, self.stream, err.strerror))
 					self.directory = ''
 
@@ -166,7 +168,7 @@ class OnlineEventDisplaysSvc( PyAthena.Svc ):
 
 			# And also for the VP1 event producer algorithm
 			#self.VP1EventProducer.getProperty('DestinationDirectory').setValue(self.directory) # lshi June 22 2020
-		except Exception, err:
+		except Exception as err:
 			self.msg.error("Exception occured while setting job options: %s" % err)
 			return StatusCode.Failure
 
