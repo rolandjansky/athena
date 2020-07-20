@@ -10,7 +10,7 @@ KineHepMcmap::KineHepMcmap ( const HepMC::GenEvent* evt )
 {}
 
 int
-KineHepMcmap::giveParticle_getkine	(HepMC::GenParticlePtr p ) const
+KineHepMcmap::giveParticle_getkine	(HepMC::ConstGenParticlePtr p ) const
 {
     int barcode	= HepMC::barcode(p);
     if (barcode < m_kine_offset)
@@ -24,11 +24,11 @@ KineHepMcmap::giveParticle_getkine	(HepMC::GenParticlePtr p ) const
     }
 }
 
-HepMC::GenParticlePtr
+HepMC::ConstGenParticlePtr
 KineHepMcmap::givekine_getParticle	( const int kine ) const
 {
     if (kine <= 0) return nullptr;
-    for (HepMC::GenParticlePtr  part: *m_evt)
+    for (auto  part: *m_evt)
     {
          if (giveParticle_getkine(part) == kine )  return part;
     }
