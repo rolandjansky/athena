@@ -87,7 +87,6 @@ class OnlineEventDisplaysSvc( PyAthena.Svc ):
 		except Exception as err:
 			self.msg.error("Exception occured while reading event/trigger info: %s" % err)
 			return StatusCode.Recoverable
-		print(streamTags) # lshi test
 
 		# Retrieve the physics stream names from the trigger info
 		streams = []
