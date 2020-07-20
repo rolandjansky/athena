@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TDTExample.cxx 779433 2016-10-20 15:22:56Z rwhite $
@@ -133,7 +133,7 @@ StatusCode Trig::TDTExample::checkTriggerDecision(){
     // Expert methods updates the cache object
     ExpertMethods *em = m_trigDec->ExperimentalAndExpertMethods();
     
-    for(const auto chain:m_cfg_chains){
+    for(const auto& chain:m_cfg_chains){
         //  By default, this returns the "Physics condition
         ATH_MSG_INFO(chain << " Passed " << m_trigDec->isPassed(chain));
         ATH_MSG_INFO(chain << " Passed Physics " << m_trigDec->isPassed(chain,TrigDefs::Physics));
@@ -225,7 +225,7 @@ StatusCode Trig::TDTExample::printLevels() {
     std::vector<std::string> allL1 =m_allL1->getListOfTriggers();
     std::vector<std::string> allHLT = m_allHLT->getListOfTriggers();
     // Create list of configured chains from input list
-    for(const std::string chain:m_allHLT->getListOfTriggers()){
+    for(const std::string& chain:m_allHLT->getListOfTriggers()){
         if(std::find(m_chain_names.begin(), m_chain_names.end(), chain) != m_chain_names.end()){ 
             ATH_MSG_INFO("Found corresponding chain in list " << chain); 
             m_cfg_chains.push_back(chain);
@@ -254,7 +254,7 @@ StatusCode Trig::TDTExample::printChainConfiguration() {
     // Expert TDT method
     // print the trigger chain configuration
     // See TrigConfHLTData/HLTChain.h
-    for(const std::string trigger : m_cfg_chains){
+    for(const std::string& trigger : m_cfg_chains){
 
         const auto trig_conf = m_trigDec->ExperimentalAndExpertMethods()->getChainConfigurationDetails(trigger);
         ATH_MSG_INFO("Chain passes " << m_trigDec->isPassed(trigger));
@@ -310,7 +310,7 @@ StatusCode Trig::TDTExample::electronsAndFlags() {
    std::vector<Feature<xAOD::ElectronContainer> > vec = f.get<xAOD::ElectronContainer>("egamma_Electrons");
    
    // Loop over the features of type ElectornContainer
-   for( const Trig::Feature<xAOD::ElectronContainer> feat : vec ) {
+   for( const Trig::Feature<xAOD::ElectronContainer>& feat : vec ) {
        // Feature label, is the TriggerElement active w/ this feature?
        // For a given feature, feat.te() gives the TriggerElement
        // From the TE, can retrieve other features in the trigger chain
@@ -558,11 +558,11 @@ StatusCode Trig::TDTExample::featuresOfCompositeChain() {
            
    // Range based loop over Combination container
    std::string label;
-   for( const Combination comb : f2.getCombinations()){ 
+   for( const Combination& comb : f2.getCombinations()){ 
        std::vector< Trig::Feature <xAOD::ElectronContainer> > elfeats = comb.get<xAOD::ElectronContainer>();
        ATH_MSG_INFO("Combination has " << elfeats.size() << " Electron features "); 
        
-       for(const Trig::Feature<xAOD::ElectronContainer> els:elfeats){
+       for(const Trig::Feature<xAOD::ElectronContainer>& els:elfeats){
            const xAOD::ElectronContainer *cont = els.cptr(); 
            TrigConf::HLTTriggerElement::getLabel (els.te()->getId(), label );
            ATH_MSG_INFO("Electron feature: " << els.label() 
@@ -582,7 +582,7 @@ StatusCode Trig::TDTExample::featuresOfCompositeChain() {
        
        std::vector< Trig::Feature <xAOD::JetContainer> > jetfeats = comb.get<xAOD::JetContainer>();
        ATH_MSG_INFO("Combination has " << jetfeats.size() << " Jet features ");
-       for(const Trig::Feature<xAOD::JetContainer> jets:jetfeats){
+       for(const Trig::Feature<xAOD::JetContainer>& jets:jetfeats){
            TrigConf::HLTTriggerElement::getLabel (jets.te()->getId(), label );
            ATH_MSG_INFO("Jet feature label " << jets.label() 
                    << " TE Id: " << jets.te()->getId() 
