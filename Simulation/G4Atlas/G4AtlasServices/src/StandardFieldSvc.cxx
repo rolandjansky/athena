@@ -22,11 +22,8 @@
 //-----------------------------------------------------------------------------
 StandardFieldSvc::StandardFieldSvc(const std::string& name,
                                    ISvcLocator* pSvcLocator)
-    : G4MagFieldSvcBase(name, pSvcLocator),
-    m_magFieldSvc("", name) 
-{
-  declareProperty("MagneticFieldSvc", m_magFieldSvc);
-}
+    : G4MagFieldSvcBase(name, pSvcLocator)
+{}
 
 //-----------------------------------------------------------------------------
 // Initialize the service

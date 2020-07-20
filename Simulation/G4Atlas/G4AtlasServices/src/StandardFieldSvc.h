@@ -168,7 +168,7 @@ class StandardFieldSvc final : public G4MagFieldSvcBase
             "UseMagFieldSvc", false, "Use magnetic field service - Should ONLY be used for ForwardRegionFieldSvc"};
     
     /// Handle to the the Forward ATLAS magnetic field service
-    ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
+    ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc {this, "MagneticFieldSvc", ""};
 
     StatusCode createFieldMap();
 
