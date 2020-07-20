@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 /**
  * @file AthenaKernel/getThinningCache.h
@@ -21,6 +21,7 @@ class EventContext;
 
 namespace SG {
   class ThinningCache;
+  class ThinningInfo;
   class ThinningDecisionBase;
 
 
@@ -38,6 +39,26 @@ const SG::ThinningCache* getThinningCache (const EventContext& ctx);
  *        Returns nullptr if there is no current thinning cache.
  */
 const SG::ThinningCache* getThinningCache();
+
+
+/**
+ * @brief Retrieve the current thinning information for @c key.
+ * @brief ctx Event context.
+ * @param key SG key to test.
+ *
+ * Returns nullptr if there is no thinning for @c key.
+ */
+const SG::ThinningInfo* getThinningInfo (const EventContext& ctx,
+                                         const std::string& key);
+
+
+/**
+ * @brief Retrieve the current thinning information for @c key.
+ * @param key SG key to test.
+ *
+ * Returns nullptr if there is no thinning for @c key.
+ */
+const SG::ThinningInfo* getThinningInfo (const std::string& key);
 
 
 /**
