@@ -75,6 +75,7 @@ ISF::PunchThroughTool::PunchThroughTool( const std::string& type,
   m_randomSvc("AtDSFMTGenSvc", name),
   m_pdgInitiators(),
   m_initiatorsMinEnergy(),
+  m_initiatorsEtaRange(),
   m_punchThroughParticles(),
   m_doAntiParticles(),
   m_correlatedParticle(),
@@ -96,6 +97,7 @@ ISF::PunchThroughTool::PunchThroughTool( const std::string& type,
   declareProperty( "FilenameLookupTable",          m_filenameLookupTable   );
   declareProperty( "PunchThroughInitiators",       m_pdgInitiators         );
   declareProperty( "InitiatorsMinEnergy",          m_initiatorsMinEnergy   );
+  declareProperty( "InitiatorsEtaRange",           m_initiatorsEtaRange    );
   declareProperty( "PunchThroughParticles",        m_punchThroughParticles );
   declareProperty( "DoAntiParticles",              m_doAntiParticles       );
   declareProperty( "CorrelatedParticle",           m_correlatedParticle    );
@@ -383,7 +385,7 @@ const ISF::ISFParticleContainer* ISF::PunchThroughTool::computePunchThroughParti
       {   
         if (abs(m_initPs->pdgCode()) == *pdgIt){
           if(sqrt( m_initPs->momentum().mag2() + m_initPs->mass()*m_initPs->mass() ) < *minEnergyIt){
-            ATH_MSG_DEBUG("[ punchthrough ] particle does not meet initiator min energy. Dropping it in the calo.");
+            ATH_MSG_DEBUG("[ punchthrough ] particle does not meet initiator min energy requirement. Dropping it in the calo.");
             return 0;
           }
           break;
@@ -398,9 +400,12 @@ const ISF::ISFParticleContainer* ISF::PunchThroughTool::computePunchThroughParti
       }
   }
 
+  if(m_initPs->position().eta() < m_initiatorsEtaRange.at(0) || m_initPs->position().eta() > m_initiatorsEtaRange.at(1) ){
+    ATH_MSG_DEBUG("[ punchthrough ] particle does not meet initiator eta range requirement. Dropping it in the calo.");
+    return 0;
+  }
 
-
-  //if initial particle is on ID surface, points to the calorimeter and is a punch-through initiator
+  //if initial particle is on ID surface, points to the calorimeter, is a punch-through initiator, meets initiator min enery and eta range
 
   // store initial particle mass
   double mass = m_initPs->mass();
