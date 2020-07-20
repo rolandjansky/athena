@@ -115,7 +115,7 @@ void iGeant4::ISFTrajectory::AppendStep(const G4Step* aStep)
         // ITruthSvc::registerTruthIncident call above
         auto* currentGenPart = eventInfo->GetCurrentlyTraced();
         baseIsp->getTruthBinding()->setTruthParticle( currentGenPart );
-        Barcode::ParticleBarcode newBarcode = currentGenPart->barcode();
+        Barcode::ParticleBarcode newBarcode = HepMC::barcode(currentGenPart);
         baseIsp->setBarcode( newBarcode );
       }
     }
