@@ -295,13 +295,14 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
         }
       }
     }
-  }
 
-  if (m_doSharedHitsTRT) {
-    // used in more than one track ?
-    if ( isShared(prd_to_track_map, m_assoTool, *(rot->prepRawData())) ) {
-      ATH_MSG_DEBUG("shared TRT hit found");
-      information[Trk::numberOfTRTSharedHits]++;
+    if (m_doSharedHitsTRT) {
+       // used in more than one track ?
+      assert(nformation[Trk::numberOfTRTSharedHits]>=0);
+      if ( isShared(prd_to_track_map, m_assoTool, *(rot->prepRawData())) ) {
+          ATH_MSG_DEBUG("shared TRT hit found");
+          information[Trk::numberOfTRTSharedHits]++;
+       }
     }
   }
   return;
