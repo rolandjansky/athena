@@ -10,6 +10,7 @@
 //  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
+#include "TrkTrackSummary/MuonTrackSummary.h"
 #include "MuonCandidateTool.h"
 
 namespace MuonCombined {
@@ -40,6 +41,7 @@ namespace MuonCombined {
     if( !m_trackExtrapolationTool.empty() ) ATH_CHECK(m_trackExtrapolationTool.retrieve());
     else m_trackExtrapolationTool.disable();
     ATH_CHECK(m_ambiguityProcessor.retrieve());
+    ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_beamSpotKey.initialize());
     return StatusCode::SUCCESS;
   }
@@ -89,11 +91,25 @@ namespace MuonCombined {
         else if( !standaloneTrack->perigeeParameters()->covariance() ) ATH_MSG_WARNING(" Track with perigee without covariance " << standaloneTrack);
 	trackLinks[ standaloneTrack ] = std::make_pair(trackLink,standaloneTrack);
       }else{
-	standaloneTrack=new Trk::Track(msTrack);
-	trackLinks[ standaloneTrack ] = std::make_pair(trackLink,nullptr);
-      }      
-      extrapTracks->push_back( standaloneTrack );
-      tracksToBeDeleted.insert( standaloneTrack ); // insert track for deletion
+	//We can create tracks from EM segments+TGC hits
+	//If these are not successfully extrapolated, they are too low quality to be useful
+	//So only make candidates from un-extrapolated tracks if they are not EM-only
+	bool skipTrack=true;
+	for(auto& chs : msTrack.trackSummary()->muonTrackSummary()->chamberHitSummary()){
+	  if(chs.isMdt() && m_idHelperSvc->stationIndex(chs.chamberId())!=Muon::MuonStationIndex::EM){
+	    skipTrack=false;
+	    break;
+	  }
+	}
+	if(!skipTrack){
+	  standaloneTrack=new Trk::Track(msTrack);
+	  trackLinks[ standaloneTrack ] = std::make_pair(trackLink,nullptr);
+	}
+      }
+      if(standaloneTrack){
+	extrapTracks->push_back( standaloneTrack );
+	tracksToBeDeleted.insert( standaloneTrack ); // insert track for deletion
+      }
     }
     ATH_MSG_DEBUG("Finished back-tracking, total number of successfull fits " << ntracks);
 
