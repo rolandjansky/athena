@@ -4,7 +4,9 @@
 atlas_subdir( TrigInDetAnalysisUser )
 
 # External dependencies:
-find_package( ROOT COMPONENTS Core Hist MathCore Graf Gpad RIO Tree )
+find_package( ROOT COMPONENTS Core Hist MathCore Graf Graf3d Gpad RIO Tree )
+
+atlas_disable_as_needed()
 
 # Libraries in the package:
 atlas_add_root_dictionary( Resplot
