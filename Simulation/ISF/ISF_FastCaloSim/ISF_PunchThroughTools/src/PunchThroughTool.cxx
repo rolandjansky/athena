@@ -74,6 +74,7 @@ ISF::PunchThroughTool::PunchThroughTool( const std::string& type,
 : base_class(type, name, parent),
   m_randomSvc("AtDSFMTGenSvc", name),
   m_pdgInitiators(),
+  m_initiatorsMinEnergy(),
   m_punchThroughParticles(),
   m_doAntiParticles(),
   m_correlatedParticle(),
@@ -94,6 +95,7 @@ ISF::PunchThroughTool::PunchThroughTool( const std::string& type,
 
   declareProperty( "FilenameLookupTable",          m_filenameLookupTable   );
   declareProperty( "PunchThroughInitiators",       m_pdgInitiators         );
+  declareProperty( "InitiatorsMinEnergy",          m_initiatorsMinEnergy   );
   declareProperty( "PunchThroughParticles",        m_punchThroughParticles );
   declareProperty( "DoAntiParticles",              m_doAntiParticles       );
   declareProperty( "CorrelatedParticle",           m_correlatedParticle    );
@@ -369,13 +371,24 @@ const ISF::ISFParticleContainer* ISF::PunchThroughTool::computePunchThroughParti
       return 0;
     }
 
+
   // check if the particle's pdg is registered as a punch-through-causing type
   {
     std::vector<int>::const_iterator pdgIt    = m_pdgInitiators.begin();
     std::vector<int>::const_iterator pdgItEnd = m_pdgInitiators.end();
+
+    std::vector<int>::const_iterator minEnergyIt    = m_initiatorsMinEnergy.begin();
     // loop over all known punch-through initiators
-    for ( ; pdgIt != pdgItEnd; ++pdgIt)
-      {   if (abs(m_initPs->pdgCode()) == *pdgIt) break; }
+    for ( ; pdgIt != pdgItEnd; ++pdgIt, ++minEnergyIt)
+      {   
+        if (abs(m_initPs->pdgCode()) == *pdgIt){
+          if(sqrt( m_initPs->momentum().mag2() + m_initPs->mass()*m_initPs->mass() ) < *minEnergyIt){
+            ATH_MSG_DEBUG("[ punchthrough ] particle does not meet initiator min energy. Dropping it in the calo.");
+            return 0;
+          }
+          break;
+        }
+      }
 
     // particle will not cause punch-through -> bail out
     if (pdgIt == pdgItEnd)
@@ -384,6 +397,8 @@ const ISF::ISFParticleContainer* ISF::PunchThroughTool::computePunchThroughParti
         return 0;
       }
   }
+
+
 
   //if initial particle is on ID surface, points to the calorimeter and is a punch-through initiator
 

@@ -667,6 +667,7 @@ def getPunchThroughTool(name="ISF_PunchThroughTool", **kwargs):
     kwargs.setdefault("RandomStreamName"        , ISF_FastCaloSimFlags.RandomStreamName()            )
     kwargs.setdefault("FilenameLookupTable"     , "CaloPunchThroughParametrisation.root"             )
     kwargs.setdefault("PunchThroughInitiators"  , [ 211 ]                                            )
+    kwargs.setdefault("InitiatorsMinEnergy"     , [ 165536 ]                                       )
     kwargs.setdefault("PunchThroughParticles"   , [    2212,     211,      22,      11,      13 ]    )
     kwargs.setdefault("DoAntiParticles"         , [   False,    True,   False,    True,    True ]    )
     #kwargs.setdefault("CorrelatedParticle"      , [     211,    2212,      11,      22,       0 ]    )
