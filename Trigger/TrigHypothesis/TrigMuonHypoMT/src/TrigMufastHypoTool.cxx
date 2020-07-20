@@ -426,27 +426,27 @@ StatusCode TrigMufastHypoTool::applyOverlapRemoval(std::vector<TrigMufastHypoToo
 
   if ( numMuon == 0) {
     ATH_MSG_DEBUG( "No positive previous hypo decision. Not need overlap removal." );
-    // auto mufastNrAllEVs     = Monitored::Scalar("NrAllEVs", -9999.);
-    // auto mufastNrActiveEVs  = Monitored::Scalar("NrActiveEVs", -9999.);
-    // auto monitorIt          = Monitored::Group(m_monTool, mufastNrAllEVs, mufastNrActiveEVs);
-    // mufastNrActiveEVs = numMuon;
-    // mufastNrAllEVs = numMuon;
+    auto mufastNrAllEVs     = Monitored::Scalar("NrAllEVs", -9999.);
+    auto mufastNrActiveEVs  = Monitored::Scalar("NrActiveEVs", -9999.);
+    auto monitorIt          = Monitored::Group(m_monTool, mufastNrAllEVs, mufastNrActiveEVs);
+    mufastNrActiveEVs = numMuon;
+    mufastNrAllEVs = numMuon;
     return StatusCode::SUCCESS;
   }
   else if ( numMuon == 1 ) {
     ATH_MSG_DEBUG("Number of muon event = " << numMuon );
     ATH_MSG_DEBUG("no overlap Removal necessary. exitting with all EventViews active." );
-    // auto mufastNrAllEVs     = Monitored::Scalar("NrAllEVs", -9999.);
-    // auto mufastNrActiveEVs  = Monitored::Scalar("NrActiveEVs", -9999.);
-    // auto monitorIt          = Monitored::Group(m_monTool, mufastNrAllEVs, mufastNrActiveEVs);
-    // mufastNrActiveEVs = numMuon;
-    // mufastNrAllEVs = numMuon;
+    auto mufastNrAllEVs     = Monitored::Scalar("NrAllEVs", -9999.);
+    auto mufastNrActiveEVs  = Monitored::Scalar("NrActiveEVs", -9999.);
+    auto monitorIt          = Monitored::Group(m_monTool, mufastNrAllEVs, mufastNrActiveEVs);
+    mufastNrActiveEVs = numMuon;
+    mufastNrAllEVs = numMuon;
     return StatusCode::SUCCESS;
   } else {
     ATH_MSG_DEBUG("Number of muon event = " << numMuon );
-    // auto mufastNrAllEVs  = Monitored::Scalar("NrAllEVs", -9999.);
-    // auto monitorIt       = Monitored::Group(m_monTool, mufastNrAllEVs);
-    // mufastNrAllEVs = numMuon;
+    auto mufastNrAllEVs  = Monitored::Scalar("NrAllEVs", -9999.);
+    auto monitorIt       = Monitored::Group(m_monTool, mufastNrAllEVs);
+    mufastNrAllEVs = numMuon;
     ATH_CHECK(checkOverlap(toolInput));
     return StatusCode::SUCCESS;
   }
@@ -477,9 +477,9 @@ StatusCode TrigMufastHypoTool::checkOverlap(std::vector<TrigMufastHypoTool::Muon
 	  ATH_MSG_DEBUG( "inconsistentency in muFast overlap removal for more than two objects" );
 	  ATH_MSG_DEBUG( "two objects are judged as different but both were already marked as identical by someone else as: " );
 	  ATH_MSG_DEBUG( "i/j/result[i]/result[j]=" << i << " / " << j << " / " << mufastResult[i] << " / "  << mufastResult[j] );
-	  // auto mufastError  = Monitored::Scalar("MufastError", -9999.);
-	  // auto monitorIt    = Monitored::Group(m_monTool, mufastError);
-	  // mufastError = TrigL2MuonOverlapRemoverToolConsts::errorCode_inconsistent_overlap1;
+	  auto mufastError  = Monitored::Scalar("MufastError", -9999.);
+	  auto monitorIt    = Monitored::Group(m_monTool, mufastError);
+	  mufastError = TrigMufastHypoToolConsts::errorCode_inconsistent_overlap1;
 	  errorWhenIdentifyingOverlap = true;
 	}
       }
@@ -488,9 +488,9 @@ StatusCode TrigMufastHypoTool::checkOverlap(std::vector<TrigMufastHypoTool::Muon
 	  ATH_MSG_DEBUG( "inconsistentency in muFast overlap removal for more than two objects" );
 	  ATH_MSG_DEBUG( "two objects are judged as overlap but only either was already marked as overlap to someone else: " );
 	  ATH_MSG_DEBUG( "i/j/result[i]/result[j]=" << i << " / " << j << " / " << mufastResult[i] << " / "  << mufastResult[j] );
-	  // auto mufastError  = Monitored::Scalar("MufastError", -9999.);
-	  // auto monitorIt    = Monitored::Group(m_monTool, mufastError);
-	  // mufastError = TrigL2MuonOverlapRemoverToolConsts::errorCode_inconsistent_overlap2;
+	  auto mufastError  = Monitored::Scalar("MufastError", -9999.);
+	  auto monitorIt    = Monitored::Group(m_monTool, mufastError);
+	  mufastError = TrigMufastHypoToolConsts::errorCode_inconsistent_overlap2;
 	  errorWhenIdentifyingOverlap = true;
 	}
 	ATH_MSG_DEBUG("   judged as: overlapped objects");
@@ -508,9 +508,9 @@ StatusCode TrigMufastHypoTool::checkOverlap(std::vector<TrigMufastHypoTool::Muon
 
   if( errorWhenIdentifyingOverlap ) {
       ATH_MSG_WARNING( "error when resolving overlap. exitting with all EVs active..." );
-      // auto mufastNrActiveEVs  = Monitored::Scalar("NrActiveEVs", -9999.);
-      // auto monitorIt          = Monitored::Group(m_monTool, mufastNrActiveEVs);
-      // mufastNrActiveEVs = numMuon;
+      auto mufastNrActiveEVs  = Monitored::Scalar("NrActiveEVs", -9999.);
+      auto monitorIt          = Monitored::Group(m_monTool, mufastNrActiveEVs);
+      mufastNrActiveEVs = numMuon;
       // for(i=0; i<numMuon; i++) TrigCompositeUtils::addDecisionID( m_decisionId, toolInput[i].decision );
       return StatusCode::SUCCESS;
    }
@@ -531,9 +531,9 @@ StatusCode TrigMufastHypoTool::checkOverlap(std::vector<TrigMufastHypoTool::Muon
     ATH_CHECK(chooseBestMuon(input, mufastResult));
   } else {
     ATH_MSG_DEBUG( "no overlap identified. exitting with all EventViews active" );
-    // auto mufastNrActiveEVs  = Monitored::Scalar("NrActiveEVs", -9999.);
-    // auto monitorIt          = Monitored::Group(m_monTool, mufastNrActiveEVs);
-    // mufastNrActiveEVs = n_uniqueMuon;
+    auto mufastNrActiveEVs  = Monitored::Scalar("NrActiveEVs", -9999.);
+    auto monitorIt          = Monitored::Group(m_monTool, mufastNrActiveEVs);
+    mufastNrActiveEVs = n_uniqueMuon;
     // for(i=0; i<numMuon; i++) uniqueMuon.emplace_back(input[i]);
   }
 
@@ -547,12 +547,12 @@ bool TrigMufastHypoTool::isOverlap(const xAOD::L2StandAloneMuon *mf1,
 				   const xAOD::L2StandAloneMuon *mf2) const
 {
 
-  // auto mufastDR             = Monitored::Scalar("DR", -9999.);
-  // auto mufastMass           = Monitored::Scalar("Mass", -9999.);
-  // auto mufastDRLog10        = Monitored::Scalar("DRLog10", -9999.);
-  // auto mufastMassLog10      = Monitored::Scalar("MassLog10", -9999.);
+  auto mufastDR             = Monitored::Scalar("DR", -9999.);
+  auto mufastMass           = Monitored::Scalar("Mass", -9999.);
+  auto mufastDRLog10        = Monitored::Scalar("DRLog10", -9999.);
+  auto mufastMassLog10      = Monitored::Scalar("MassLog10", -9999.);
 
-  // auto monitorIt       = Monitored::Group(m_monTool, mufastDR, mufastMass, mufastDRLog10, mufastMassLog10);
+  auto monitorIt       = Monitored::Group(m_monTool, mufastDR, mufastMass, mufastDRLog10, mufastMassLog10);
 
   ATH_MSG_DEBUG( "   ...mF1: pt/eta/phi=" << mf1->pt() << " / " << mf1->etaMS() << " / " << mf1->phiMS() );
   ATH_MSG_DEBUG( "   ...mF2: pt/eta/phi=" << mf2->pt() << " / " << mf2->etaMS() << " / " << mf2->phiMS() );
@@ -620,11 +620,11 @@ bool TrigMufastHypoTool::isOverlap(const xAOD::L2StandAloneMuon *mf1,
   bool dRisClose = false;
   double dr = dR(mf1->etaMS(),mf1->phiMS(),mf2->etaMS(),mf2->phiMS());
 
-  // // for monitoring
-  // mufastDR = dr;
-  // const double monitor_limit = 1e-4;
-  // double dr_mon = (dr>=monitor_limit) ? dr : monitor_limit;
-  // mufastDRLog10 = log10(dr_mon);
+  // for monitoring
+  mufastDR = dr;
+  const double monitor_limit = 1e-4;
+  double dr_mon = (dr>=monitor_limit) ? dr : monitor_limit;
+  mufastDRLog10 = log10(dr_mon);
 
   if( m_requireDR ) {
     if( dr < dRThres ) dRisClose = true;
@@ -636,10 +636,10 @@ bool TrigMufastHypoTool::isOverlap(const xAOD::L2StandAloneMuon *mf1,
   bool massIsClose = false;
   double mass = invMass(TRACK_MASS,mf1->pt(),mf1->etaMS(),mf1->phiMS(),TRACK_MASS,mf2->pt(),mf2->etaMS(),mf2->phiMS());
 
-  // // for monitoring
-  // mufastMass = mass;
-  // double mass_mon = (mass>=monitor_limit) ? mass : monitor_limit;
-  // mufastMassLog10 = log10(mass_mon);
+  // for monitoring
+  mufastMass = mass;
+  double mass_mon = (mass>=monitor_limit) ? mass : monitor_limit;
+  mufastMassLog10 = log10(mass_mon);
 
   if( m_requireMass ) {
     if( mass < massThres ) massIsClose = true;
@@ -716,14 +716,14 @@ StatusCode TrigMufastHypoTool::chooseBestMuon(std::vector<TrigMufastHypoTool::Mu
   size_t numMuon = input.size();
   unsigned int i,j,k;
 
-  // auto mufastNrActiveEVs    = Monitored::Scalar("NrActiveEVs", -9999.);
-  // auto mufastNrOverlapped   = Monitored::Scalar("NrOverlapped", 0);
-  // auto mufastOverlappedEta  = Monitored::Scalar("OverlappedEta", -9999.);
-  // auto mufastOverlappedPhi  = Monitored::Scalar("OverlappedPhi", -9999.);
-  // auto mufastOverlappedPt   = Monitored::Scalar("OverlappedPt", -9999.);
+  auto mufastNrActiveEVs    = Monitored::Scalar("NrActiveEVs", -9999.);
+  auto mufastNrOverlapped   = Monitored::Scalar("NrOverlapped", 0);
+  auto mufastOverlappedEta  = Monitored::Scalar("OverlappedEta", -9999.);
+  auto mufastOverlappedPhi  = Monitored::Scalar("OverlappedPhi", -9999.);
+  auto mufastOverlappedPt   = Monitored::Scalar("OverlappedPt", -9999.);
 
-  // auto monitorIt       = Monitored::Group(m_monTool, mufastNrActiveEVs, mufastNrOverlapped,
-  // 					  mufastOverlappedPt, mufastOverlappedEta, mufastOverlappedPhi);
+  auto monitorIt       = Monitored::Group(m_monTool, mufastNrActiveEVs, mufastNrOverlapped,
+   					  mufastOverlappedPt, mufastOverlappedEta, mufastOverlappedPhi);
 
   ATH_MSG_DEBUG( "--- choose best among overlaps & disable EVs (muFast based) ---" );
   for(i=0; i<numMuon; i++) {
@@ -779,12 +779,12 @@ StatusCode TrigMufastHypoTool::chooseBestMuon(std::vector<TrigMufastHypoTool::Mu
 
 	  input[j].passOR = false;
 
-	  // // monitoring
-	  // const xAOD::L2StandAloneMuon* mf = input[j].muFast;
-	  // mufastNrOverlapped++;
-	  // mufastOverlappedPt = mf->pt();
-	  // mufastOverlappedEta = mf->etaMS();
-	  // mufastOverlappedPhi = mf->phiMS();
+	  // monitoring
+	  const xAOD::L2StandAloneMuon* mf = input[j].muFast;
+	  mufastNrOverlapped++;
+	  mufastOverlappedPt = mf->pt();
+	  mufastOverlappedEta = mf->etaMS();
+	  mufastOverlappedPhi = mf->phiMS();
 	}
 	if( j == best_ev ){
 	  ATH_MSG_DEBUG( "      EventView( j=" << j << " ) is best one" );
@@ -792,7 +792,7 @@ StatusCode TrigMufastHypoTool::chooseBestMuon(std::vector<TrigMufastHypoTool::Mu
       }
     }
   }
-  // mufastNrActiveEVs = numMuon - mufastNrOverlapped;
+   mufastNrActiveEVs = numMuon - mufastNrOverlapped;
 
   return StatusCode::SUCCESS;
 }

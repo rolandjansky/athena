@@ -280,7 +280,7 @@ def TrigMufastHypoToolwORFromDict( chainDict ):
     tool.EtaBinsEC       = [0, 1.9, 2.1, 9.9]
     tool.DRThresEC       = [0.06, 0.05, 0.05]
     tool.MassThresEC     = [0.20, 0.15, 0.10]
-    addMonitoring( tool, TrigMufastHypoMonitoring, 'TrigMufastHypoTool', chainDict['chainName'] )
+    addMonitoring( tool, TrigL2MuonOverlapRemoverMonitoringMufast, 'TrigMufastHypoTool', chainDict['chainName'] )
 
     return tool
 

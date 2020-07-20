@@ -25,7 +25,7 @@ class TrigMufastHypoMonitoring(GenericMonitoringTool):
         self.defineHistogram('XatBe', type='TH1F', path='EXPERT', title="DCA along X; X (cm)",
                              xbins=100, xmin=-1000, xmax=1000)
 
-class TrigL2MuonOverlapRemoverMonitoringMufast(GenericMonitoringTool):
+class TrigL2MuonOverlapRemoverMonitoringMufast(TrigMufastHypoMonitoring):
     def __init__ (self, name):
         super(TrigL2MuonOverlapRemoverMonitoringMufast, self).__init__(name)
 

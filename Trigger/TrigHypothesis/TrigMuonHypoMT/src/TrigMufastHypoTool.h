@@ -20,6 +20,11 @@ class StoreGateSvc;
 
 namespace TrigMufastHypoToolConsts {
 enum ECRegions{ Bulk, WeakBFieldA, WeakBFieldB };
+const int  errorCode_cannot_get_EL         = 1;
+const int  errorCode_EL_not_valid          = 2;
+const int  errorCode_inconsistent_overlap1 = 3;
+const int  errorCode_inconsistent_overlap2 = 4;
+const int  errorCode_cannot_get_RoI        = 5;
 }
 
 // --------------------------------------------------------------------------------
