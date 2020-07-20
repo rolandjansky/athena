@@ -63,7 +63,7 @@ Chain2JetCollDict['Legacy'] = {
   'HLT_3j200'                              : 'HLT_xAOD__JetContainer_a4tcemsubjesISFS',
 }
 
-from JetMonitoring.JetMonitoringConfig import JetMonAlgSpec, HistoSpec, EventHistoSpec, SelectSpec, ToolSpec, VarSpec
+from JetMonitoring.JetMonitoringConfig import JetMonAlgSpec, HistoSpec, EventHistoSpec, SelectSpec, ToolSpec
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 def TrigJetMonConfig(inputFlags):
@@ -212,7 +212,7 @@ ExtraLargeROnlineHists = [
 OfflineScaleMomenta = [ "ConstitScale", "EMScale", "PileupScale", "EtaJESScale"]
 OnlineScaleMomenta = [ "ConstitScale" ]
 
-for var in [ "pt", "eta", "phi", "m" ]:
+for var in [ "pt", "eta", "m" ]:
   for offlinescale in OfflineScaleMomenta:
     ExtraOfflineHists.append("Jet"+offlinescale+"Momentum_"+var)
   for onlinescale in OnlineScaleMomenta:

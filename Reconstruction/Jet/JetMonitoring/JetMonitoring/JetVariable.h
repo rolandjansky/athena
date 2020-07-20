@@ -8,7 +8,6 @@
 #define JETMONITORING_JETVARIABLE_H
 #include <vector>
 
-
 #include "xAODJet/Jet.h"
 
 ///////////////////////////////////////////////////////////
@@ -92,10 +91,7 @@ namespace JetVar {
     VariableAtt(const std::string & name) : Variable(name), m_acc(name) {}
     virtual float value(const xAOD::Jet & j) const { 
       if ( m_acc.isAvailable( j ) ) return m_acc(j)*m_scale;
-      else {
-        std::cout<<"VariableAtt::value() cannot access variable '"<<m_name<<"'"<<std::endl;
-        return -999.;
-      }
+      else return -999.;
     }
     Accessor<T> m_acc;    
   };
@@ -128,10 +124,7 @@ namespace JetVar {
     // use only if the index is valid
     virtual float value(const xAOD::Jet & j) const {
       if ( m_acc.isAvailable( j ) ) return m_acc(j)[m_index]*m_scale;
-      else {
-        std::cout<<"VariableAtt<std::vector<T>>::value() cannot access variable '"<<m_name<<"["<<std::to_string(m_index)<<"]'"<<std::endl;
-        return -999.;
-      }
+      else return -999.;
     }
 
     virtual VectorValue vector(const xAOD::Jet &j) const {
@@ -140,7 +133,6 @@ namespace JetVar {
         return v;
       }
       else {
-        std::cout<<"VariableAtt<std::vector<T>>::vector() cannot access variable '"<<m_name<<"'"<<std::endl;
         vect_t dummy(1,-999.);
         VectorValue junk( new VectorWrapperT(&dummy), m_scale );
         return junk;
