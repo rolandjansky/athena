@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -23,8 +23,8 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
@@ -820,8 +820,8 @@ StatusCode JetEfficienciesMonTool::analyseOfflineJets() {
 	for (Itr_jets jetItr = m_offlineJets->begin(); jetItr != m_offlineJets->end(); ++jetItr) {
 
 		//Keep track of eta, phi and Et as these will be used often
-		//EtOJ = (*jetItr)->et() / CLHEP::GeV;
-		EtOJ = (*jetItr)->p4().Et() / CLHEP::GeV;
+		//EtOJ = (*jetItr)->et() / Gaudi::Units::GeV;
+        EtOJ = (*jetItr)->p4().Et() / Gaudi::Units::GeV;
 		etaOJ = (*jetItr)->eta();
 		fabsEtaOJ = fabs(etaOJ);
 		phiOJ = (*jetItr)->phi();
