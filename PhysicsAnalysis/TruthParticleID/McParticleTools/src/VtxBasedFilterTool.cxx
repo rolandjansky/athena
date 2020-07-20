@@ -189,7 +189,7 @@ StatusCode VtxBasedFilterTool::addVertex( const HepMC::GenVertex* srcVtx,
 
   HepMC::GenVertex * vtx = evt->barcode_to_vertex(srcVtx->barcode());
   if ( 0 == vtx ) {
-    vtx = new HepMC::GenVertex();
+    vtx = HepMC::newGenVertexPtr();
     vtx->set_position( srcVtx->position() );
     vtx->set_id( srcVtx->id() );
     vtx->suggest_barcode( srcVtx->barcode() );
@@ -206,7 +206,7 @@ StatusCode VtxBasedFilterTool::addVertex( const HepMC::GenVertex* srcVtx,
 	++parent ) {
     HepMC::GenParticle * p = evt->barcode_to_particle( (*parent)->barcode() );
     if ( 0 == p ) {
-      p = new HepMC::GenParticle;
+      p = HepMC::newGenParticlePtr();
       p->set_momentum( (*parent)->momentum() );
       p->set_generated_mass( (*parent)->generated_mass() );
       p->set_pdg_id( (*parent)->pdg_id() );
@@ -229,7 +229,7 @@ StatusCode VtxBasedFilterTool::addVertex( const HepMC::GenVertex* srcVtx,
 	++child ) {
     HepMC::GenParticle * p = evt->barcode_to_particle( (*child)->barcode() );
     if ( 0 == p ) {
-      p = new HepMC::GenParticle;
+      p = HepMC::newGenParticlePtr();
       p->set_momentum( (*child)->momentum() );
       p->set_generated_mass( (*child)->generated_mass() );
       p->set_pdg_id( (*child)->pdg_id() );
