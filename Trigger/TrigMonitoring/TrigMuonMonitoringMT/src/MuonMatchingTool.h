@@ -44,6 +44,7 @@ class MuonMatchingTool : public AthAlgTool {
     return L1Items::ERROR;
   }
 
+
   /**
    * @brief Function that searches for a Level 1 muon candidate and judges if it is matched to a given offline muon.
    * @param mu Offline muon around which Level 1 candidates are searched.
@@ -51,7 +52,6 @@ class MuonMatchingTool : public AthAlgTool {
    * @param trigger Considered level 1 threshold name, e.g. L1_MU10, etc.
    * @param pass True if a candidate is found.
    * @return Pointer to the matched candidate. This is @c nullptr when there is no candidate found.
-   * @todo Consider returning a smart pointer to prevent users from deleting the returned pointer as it is owned by StoreGate.
    */
   const xAOD::MuonRoI* matchL1(const xAOD::Muon *mu, const EventContext& ctx, std::string trigger, bool &pass) const;
 
@@ -62,22 +62,19 @@ class MuonMatchingTool : public AthAlgTool {
    * @param pass True if the matched candidate passed the hypothesis step.
    * @return Pointer to the matched candidate. This is @c nullptr when there is no candidate found.
    * Important: a valid pointer doesn't mean that it passed the hypothesis, users should check @c pass for the decision.
-   * @todo Consider returning a smart pointer to prevent users from deleting the returned pointer as it is owned by StoreGate.
    */
-  const xAOD::L2StandAloneMuon* matchSA(const xAOD::Muon *mu, std::string trigger, bool &pass) const;
+  const xAOD::L2StandAloneMuon* matchL2SA(const xAOD::Muon *mu, std::string trigger, bool &pass) const;
 
   /**
    * @brief Function that searches for the L2 standalone muon (L2MuonSA) candidate closest to a given offline muon.
    * @param mu Offline muon around which L2MuonSA candidates are searched.
    * @param trigger Considered chain name, e.g. HLT_mu26_ivarmedium_L1MU20, etc.
-   * @param dR The dR between the offline muon and the L2MuonSA candidate.
-   * @return Pointer to the found candidate. This is @c nullptr when there is no candidate found.
+   * @return LinkInfo to the found candidate. This is inValid link when there is no candidate found.
    * Important: a valid pointer doesn't mean that it passed the hypothesis and matched,
    * users should check @c pass for the decision and @c pass for knowing if it is really matched.
-   * @todo Consider returning a smart pointer to prevent users from deleting the returned pointer as it is owned by StoreGate.
    * @todo Consider improving the argument list.
    */
-  const xAOD::L2StandAloneMuon* matchSA(const xAOD::Muon *mu, std::string trigger, float &dR) const;
+  const TrigCompositeUtils::LinkInfo<xAOD::L2StandAloneMuonContainer> searchL2SALinkInfo(const xAOD::Muon *mu, std::string trigger) const;
 
   /**
    * @brief Function that searches for an L2 combined muon (L2muComb) candidate and judges if it is matched to a given offline muon.
@@ -86,9 +83,19 @@ class MuonMatchingTool : public AthAlgTool {
    * @param pass True if the matched candidate passed the hypothesis step.
    * @return Pointer to the matched candidate. This is @c nullptr when there is no candidate found.
    * Important: a valid pointer doesn't mean that it passed the hypothesis, users should check @c pass for the decision.
-   * @todo Consider returning a smart pointer to prevent users from deleting the returned pointer as it is owned by StoreGate.
    */
-  const xAOD::L2CombinedMuon* matchCB(const xAOD::Muon *mu, std::string trigger, bool &pass) const;
+  const xAOD::L2CombinedMuon* matchL2CB(const xAOD::Muon *mu, std::string trigger, bool &pass) const;
+
+  /**
+   * @brief Function that searches for the L2 combined muon (L2muComb) candidate closest to a given offline muon.
+   * @param mu Offline muon around which L2MuonSA candidates are searched.
+   * @param trigger Considered chain name, e.g. HLT_mu26_ivarmedium_L1MU20, etc.
+   * @return LinkInfo to the found candidate. This is inValid link when there is no candidate found. 
+   * Important: a valid pointer doesn't mean that it passed the hypothesis and matched,
+   * users should check @c pass for the decision and @c pass for knowing if it is really matched.
+   * @todo Consider improving the argument list.
+   */
+  const TrigCompositeUtils::LinkInfo<xAOD::L2CombinedMuonContainer> searchL2CBLinkInfo(const xAOD::Muon *mu, std::string trigger) const;
 
   /**
    * @brief Function that searches for an EF standalone muon (EFSA) candidate and judges if it is matched to a given offline muon.
@@ -97,7 +104,6 @@ class MuonMatchingTool : public AthAlgTool {
    * @param pass True if the matched candidate passed the hypothesis step.
    * @return Pointer to the matched candidate. This is @c nullptr when there is no candidate found.
    * Important: a valid pointer doesn't mean that it passed the hypothesis, users should check @c pass for the decision.
-   * @todo Consider returning a smart pointer to prevent users from deleting the returned pointer as it is owned by StoreGate.
    */
   const xAOD::Muon* matchEFSA(const xAOD::Muon *mu, std::string trigger, bool &pass) const;
 
@@ -108,9 +114,9 @@ class MuonMatchingTool : public AthAlgTool {
    * @param pass True if the matched candidate passed the hypothesis step.
    * @return Pointer to the matched candidate. This is @c nullptr when there is no candidate found.
    * Important: a valid pointer doesn't mean that it passed the hypothesis, users should check @c pass for the decision.
-   * @todo Consider returning a smart pointer to prevent users from deleting the returned pointer as it is owned by StoreGate.
    */
-  const xAOD::Muon* matchEF(const xAOD::Muon *mu, std::string trigger, bool &pass) const;
+  const xAOD::Muon* matchEFCB(const xAOD::Muon *mu, std::string trigger, bool &pass) const;
+
 
   /**
    * @brief Function that searches for an offline muon within @c DR_cut from the given eta-phi (of a online muon)
@@ -118,9 +124,30 @@ class MuonMatchingTool : public AthAlgTool {
    * @param trigEta Eta of the given online muon
    * @param trigPhi Phi of the given online muon
    * @return Pointer to the matched offline muon. This is @c nullptr when there is no muon found.
-   * @todo Consider returning a smart pointer to prevent users from deleting the returned pointer as it is owned by StoreGate.
    */
   const xAOD::Muon* matchOff( const EventContext& ctx, float trigEta, float trigPhi, float DR_cut) const;
+
+  /**
+   * @brief Function that searches for an offline muon matched to L2SA muon from the given eta-phi (of a online muon)
+   * @param ctx Reference to the @c EventContext needed for accessing the @c Muons container.
+   * @param trigEta Eta of the given online muon
+   * @param trigPhi Phi of the given online muon
+   * @return Pointer to the matched offline muon. This is @c nullptr when there is no muon found.
+   */
+  const xAOD::Muon* matchL2SAtoOff( const EventContext& ctx, float trigEta, float trigPhi) const;
+
+  /**
+   * @brief Function that searches for an offline muon matched to L2CB muon from the given eta-phi (of a online muon)
+   * @param ctx Reference to the @c EventContext needed for accessing the @c Muons container.
+   * @param trigEta Eta of the given online muon
+   * @param trigPhi Phi of the given online muon
+   * @return Pointer to the matched offline muon. This is @c nullptr when there is no muon found.
+   */
+  const xAOD::Muon* matchL2CBtoOff( const EventContext& ctx, float trigEta, float trigPhi) const;
+
+
+  bool isMatchedL2SA(const xAOD::L2StandAloneMuon*, const xAOD::Muon*) const;
+  bool isMatchedL2CB(const xAOD::L2CombinedMuon*, const xAOD::Muon*) const;
 
   /**
    * @brief Function to extrapolate a Inner Detector track to the pivot plane i.e. the middle layers of the Muon Spectrometer where the level 1 RoI is defined.
@@ -142,7 +169,24 @@ class MuonMatchingTool : public AthAlgTool {
 
 
  private:
+
+  const float m_L2SAreqdR = 0.25;
+  const float m_L2CBreqdR = 0.03;
+
   // private methods
+  /**
+   * @brief Function that searches for an online muon candidate of type T closest to a given offline muon. 
+   * @param offl Position of the offline muon used for computing dR.
+   * @param trigger Considered chain name, e.g. HLT_mu26_ivarmedium_L1MU20, etc.
+   * @param trigPosForMatchFunc Function pointer that implements cuts for the online muon candidates.
+   * @return LinkInfo to the matched candidate. This is inValid link when there is no candidate found.
+   * Important: a valid pointer doesn't mean that it passed the hypothesis, users should check @c pass for the decision.
+   * @see MuonMatchingTool.icc for the implementation and MuonMatchingTool.cxx for the instantiation.
+   * @todo Consider improving the argument list.
+   */
+  template<class T, class OFFL> const TrigCompositeUtils::LinkInfo<DataVector<T> > searchLinkInfo(const OFFL *offl, std::string trigger, float reqdR, bool &pass,
+				   std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*) = &MuonMatchingTool::trigPosForMatch<T>) const;
+
   /**
    * @brief Function that searches for an online muon candidate of type T and judges if it is matched to a given offline muon.
    * @param offl Position of the offline muon used for computing dR.
@@ -153,10 +197,9 @@ class MuonMatchingTool : public AthAlgTool {
    * @return Pointer to the matched candidate. This is @c nullptr when there is no candidate found.
    * Important: a valid pointer doesn't mean that it passed the hypothesis, users should check @c pass for the decision.
    * @see MuonMatchingTool.icc for the implementation and MuonMatchingTool.cxx for the instantiation.
-   * @todo Consider returning a smart pointer to prevent users from deleting the returned pointer as it is owned by StoreGate.
    * @todo Consider improving the argument list.
    */
-  template<class T, class OFFL> const T* match(const OFFL *offl, std::string trigger, float &reqdR, bool &pass,
+  template<class T, class OFFL> const T* match(const OFFL *offl, std::string trigger, float reqdR, bool &pass,
 				   std::tuple<bool,double,double> (*trigPosForMatchFunc)(const T*) = &MuonMatchingTool::trigPosForMatch<T>) const;
   const Amg::Vector3D offlineMuonAtPivot(const xAOD::Muon *mu) const;
   double FermiFunction(double x, double x0, double w) const;
