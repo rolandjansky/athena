@@ -16,6 +16,7 @@
 #include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecToolInterfaces/IMuonTrackExtrapolationTool.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 namespace MuonCombined {
 
@@ -37,6 +38,7 @@ namespace MuonCombined {
     ToolHandle<Rec::ICombinedMuonTrackBuilder> m_trackBuilder;
     ToolHandle<Muon::IMuonTrackExtrapolationTool> m_trackExtrapolationTool;
     ToolHandle<Trk::ITrackAmbiguityProcessorTool> m_ambiguityProcessor;
+    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
     unsigned int m_extrapolationStrategy;
