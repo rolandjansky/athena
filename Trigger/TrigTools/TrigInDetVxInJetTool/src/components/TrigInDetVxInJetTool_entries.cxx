@@ -1,3 +1,3 @@
-#include "TrigInDetVxInJetTool/TrigInDetVxInJetTool.h"
+#include "../TrigInDetVxInJetTool.h"
 
 DECLARE_COMPONENT( TrigInDetVxInJetTool )

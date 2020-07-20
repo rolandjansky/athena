@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -28,7 +28,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "TrigInDetVxInJetTool/ITrigInDetVxInJetTool.h"
+#include "TrigInDetToolInterfaces/ITrigInDetVxInJetTool.h"
 
 #include "TrigVKalFitter/TrigVKalFitter.h"
 
