@@ -352,29 +352,28 @@ StatusCode TrigmuCombHypoTool::applyOverlapRemoval(std::vector<TrigmuCombHypoToo
 
   if ( numMuon == 0) {
     ATH_MSG_DEBUG( "No positive previous hypo decision. Not need overlap removal." );
-    // auto mucombNrAllEVs     = Monitored::Scalar("NrAllEVs", -9999.);
-    // auto mucombNrActiveEVs  = Monitored::Scalar("NrActiveEVs", -9999.);
-    // auto monitorIt          = Monitored::Group(m_monTool, mucombNrAllEVs, mucombNrActiveEVs);
-    // mucombNrActiveEVs = numMuon;
-    // mucombNrAllEVs = numMuon;
+    auto mucombNrAllEVs     = Monitored::Scalar("NrAllEVs", -9999.);
+    auto mucombNrActiveEVs  = Monitored::Scalar("NrActiveEVs", -9999.);
+    auto monitorIt          = Monitored::Group(m_monTool, mucombNrAllEVs, mucombNrActiveEVs);
+    mucombNrActiveEVs = numMuon;
+    mucombNrAllEVs = numMuon;
     return StatusCode::SUCCESS;
   }
   else if ( numMuon == 1 ) {
     ATH_MSG_DEBUG("Number of muon event = " << numMuon );
     ATH_MSG_DEBUG("no overlap Removal necessary. exitting with all EventViews active." );
-    // auto mucombNrAllEVs     = Monitored::Scalar("NrAllEVs", -9999.);
-    // auto mucombNrActiveEVs  = Monitored::Scalar("NrActiveEVs", -9999.);
-    // auto monitorIt          = Monitored::Group(m_monTool, mucombNrAllEVs, mucombNrActiveEVs);
-    // mucombNrActiveEVs = numMuon;
-    // mucombNrAllEVs = numMuon;
-    // TrigCompositeUtils::addDecisionID(m_decisionId, input[0].decision);
+    auto mucombNrAllEVs     = Monitored::Scalar("NrAllEVs", -9999.);
+    auto mucombNrActiveEVs  = Monitored::Scalar("NrActiveEVs", -9999.);
+    auto monitorIt          = Monitored::Group(m_monTool, mucombNrAllEVs, mucombNrActiveEVs);
+    mucombNrActiveEVs = numMuon;
+    mucombNrAllEVs = numMuon;
     return StatusCode::SUCCESS;
   } else {
     ATH_MSG_DEBUG("Number of muon event = " << numMuon );
-    // auto mucombNrAllEVs  = Monitored::Scalar("NrAllEVs", -9999.);
-    // auto monitorIt       = Monitored::Group(m_monTool, mucombNrAllEVs);
-    // mucombNrAllEVs = numMuon;
-    ATH_CHECK(checkOverlap(input));
+    auto mucombNrAllEVs  = Monitored::Scalar("NrAllEVs", -9999.);
+    auto monitorIt       = Monitored::Group(m_monTool, mucombNrAllEVs);
+    mucombNrAllEVs = numMuon;
+    ATH_CHECK(checkOverlap(toolInput));
     return StatusCode::SUCCESS;
   }
 
@@ -403,9 +402,9 @@ StatusCode TrigmuCombHypoTool::checkOverlap(std::vector<TrigmuCombHypoTool::Comb
 	  ATH_MSG_DEBUG( "inconsistentency in muComb overlap removal for more than two objects" );
 	  ATH_MSG_DEBUG( "two objects are judged as different but both were already marked as identical by someone else as: " );
 	  ATH_MSG_DEBUG( "i/j/result[i]/result[j]=" << i << " / " << j << " / " << mucombResult[i] << " / "  << mucombResult[j] );
-	  // auto mucombError  = Monitored::Scalar("MucombError", -9999.);
-	  // auto monitorIt    = Monitored::Group(m_monTool, mucombError);
-	  // mucombError = TrigL2MuonOverlapRemoverToolConsts::errorCode_inconsistent_overlap1;
+	  auto mucombError  = Monitored::Scalar("MucombError", -9999.);
+	  auto monitorIt    = Monitored::Group(m_monTool, mucombError);
+	  mucombError = TrigmuCombHypoToolConsts::errorCode_inconsistent_overlap1;
 	  errorWhenIdentifyingOverlap = true;
 	}
       }
@@ -414,9 +413,9 @@ StatusCode TrigmuCombHypoTool::checkOverlap(std::vector<TrigmuCombHypoTool::Comb
 	  ATH_MSG_DEBUG( "inconsistentency in muComb based overlap removal for more than two objects" );
 	  ATH_MSG_DEBUG( "two objects are judged as overlap but only either was already marked as overlap to someone else: " );
 	  ATH_MSG_DEBUG( "i/j/result[i]/result[j]=" << i << " / " << j << " / " << mucombResult[i] << " / "  << mucombResult[j] );
-	  // auto mucombError  = Monitored::Scalar("MucombError", -9999.);
-	  // auto monitorIt    = Monitored::Group(m_monTool, mucombError);
-	  // mucombError = TrigL2MuonOverlapRemoverToolConsts::errorCode_inconsistent_overlap2;
+	  auto mucombError  = Monitored::Scalar("MucombError", -9999.);
+	  auto monitorIt    = Monitored::Group(m_monTool, mucombError);
+	  mucombError = TrigmuCombHypoToolConsts::errorCode_inconsistent_overlap2;
 	  errorWhenIdentifyingOverlap = true;
 	}
 	ATH_MSG_DEBUG("   judged as: overlapped objects");
@@ -434,9 +433,9 @@ StatusCode TrigmuCombHypoTool::checkOverlap(std::vector<TrigmuCombHypoTool::Comb
 
   if( errorWhenIdentifyingOverlap ) {
     ATH_MSG_WARNING( "error when resolving overlap. exitting with all EVs active..." );
-    // auto mucombNrActiveEVs  = Monitored::Scalar("NrActiveEVs", -9999.);
-    // auto monitorIt          = Monitored::Group(m_monTool, mucombNrActiveEVs);
-    // mucombNrActiveEVs = numMuon;
+    auto mucombNrActiveEVs  = Monitored::Scalar("NrActiveEVs", -9999.);
+    auto monitorIt          = Monitored::Group(m_monTool, mucombNrActiveEVs);
+    mucombNrActiveEVs = numMuon;
     // for(i=0; i<numMuon; i++) TrigCompositeUtils::addDecisionID( m_decisionId, toolInput[i].decision );
     return StatusCode::SUCCESS;
   }
@@ -457,9 +456,9 @@ StatusCode TrigmuCombHypoTool::checkOverlap(std::vector<TrigmuCombHypoTool::Comb
     ATH_CHECK(chooseBestMuon(input, mucombResult));
   } else {
     ATH_MSG_DEBUG( "no overlap identified. exitting with all EventViews active" );
-    // auto mucombNrActiveEVs  = Monitored::Scalar("NrActiveEVs", -9999.);
-    // auto monitorIt          = Monitored::Group(m_monTool, mucombNrActiveEVs);
-    // mucombNrActiveEVs = n_uniqueMuon;
+    auto mucombNrActiveEVs  = Monitored::Scalar("NrActiveEVs", -9999.);
+    auto monitorIt          = Monitored::Group(m_monTool, mucombNrActiveEVs);
+    mucombNrActiveEVs = n_uniqueMuon;
   }
 
   // if(n_uniqueMuon >= m_multiplicity){
@@ -480,12 +479,12 @@ bool TrigmuCombHypoTool::isOverlap(const xAOD::L2CombinedMuon *combMf1,
 				   const xAOD::L2CombinedMuon *combMf2) const
 {
 
-  // auto mucombDR             = Monitored::Scalar("DR", -9999.);
-  // auto mucombMass           = Monitored::Scalar("Mass", -9999.);
-  // auto mucombDRLog10        = Monitored::Scalar("DRLog10", -9999.);
-  // auto mucombMassLog10      = Monitored::Scalar("MassLog10", -9999.);
+  auto mucombDR             = Monitored::Scalar("DR", -9999.);
+  auto mucombMass           = Monitored::Scalar("Mass", -9999.);
+  auto mucombDRLog10        = Monitored::Scalar("DRLog10", -9999.);
+  auto mucombMassLog10      = Monitored::Scalar("MassLog10", -9999.);
 
-  // auto monitorIt       = Monitored::Group(m_monTool, mucombDR, mucombMass, mucombDRLog10, mucombMassLog10);
+  auto monitorIt       = Monitored::Group(m_monTool, mucombDR, mucombMass, mucombDRLog10, mucombMassLog10);
 
 
   ATH_MSG_DEBUG( "   ...mF1: pt/eta/phi=" << combMf1->pt()/CLHEP::GeV << " / " << combMf1->eta() << " / " << combMf1->phi() );
@@ -538,10 +537,10 @@ bool TrigmuCombHypoTool::isOverlap(const xAOD::L2CombinedMuon *combMf1,
   bool dRisClose = false;
   double dr = dR(combMf1->eta(),combMf1->phi(),combMf2->eta(),combMf2->phi());
 
-  // mucombDR = dr;
-  // const double monitor_limit = 1e-4;
-  // double dr_mon = (dr>=monitor_limit) ? dr : monitor_limit;
-  // mucombDRLog10 = log10(dr_mon);
+  mucombDR = dr;
+  const double monitor_limit = 1e-4;
+  double dr_mon = (dr>=monitor_limit) ? dr : monitor_limit;
+  mucombDRLog10 = log10(dr_mon);
 
   if( m_requireDR ) {
     if( dr < dRThres ) dRisClose = true;
@@ -572,9 +571,9 @@ bool TrigmuCombHypoTool::isOverlap(const xAOD::L2CombinedMuon *combMf1,
   bool massIsClose = false;
   double mass = invMass(TRACK_MASS,combMf1->pt()/CLHEP::GeV,combMf1->eta(),combMf1->phi(),TRACK_MASS,combMf2->pt()/CLHEP::GeV,combMf2->eta(),combMf2->phi());
 
-  // mucombMass = mass;
-  // double mass_mon = (mass>=monitor_limit) ? mass : monitor_limit;
-  // mucombMassLog10 = log10(mass_mon);
+  mucombMass = mass;
+  double mass_mon = (mass>=monitor_limit) ? mass : monitor_limit;
+  mucombMassLog10 = log10(mass_mon);
 
   if( m_requireMass ) {
     if( mass < massThres ) massIsClose = true;
@@ -652,14 +651,14 @@ StatusCode TrigmuCombHypoTool::chooseBestMuon(std::vector<TrigmuCombHypoTool::Co
   size_t numMuon = input.size();
   unsigned int i,j,k;
 
-  // auto mucombNrActiveEVs    = Monitored::Scalar("NrActiveEVs", -9999.);
-  // auto mucombNrOverlapped   = Monitored::Scalar("NrOverlapped", 0);
-  // auto mucombOverlappedEta  = Monitored::Scalar("OverlappedEta", -9999.);
-  // auto mucombOverlappedPhi  = Monitored::Scalar("OverlappedPhi", -9999.);
-  // auto mucombOverlappedPt   = Monitored::Scalar("OverlappedPt", -9999.);
+  auto mucombNrActiveEVs    = Monitored::Scalar("NrActiveEVs", -9999.);
+  auto mucombNrOverlapped   = Monitored::Scalar("NrOverlapped", 0);
+  auto mucombOverlappedEta  = Monitored::Scalar("OverlappedEta", -9999.);
+  auto mucombOverlappedPhi  = Monitored::Scalar("OverlappedPhi", -9999.);
+  auto mucombOverlappedPt   = Monitored::Scalar("OverlappedPt", -9999.);
 
-  // auto monitorIt       = Monitored::Group(m_monTool, mucombNrActiveEVs, mucombNrOverlapped,
-  // 					  mucombOverlappedPt, mucombOverlappedEta, mucombOverlappedPhi);
+  auto monitorIt       = Monitored::Group(m_monTool, mucombNrActiveEVs, mucombNrOverlapped,
+  					  mucombOverlappedPt, mucombOverlappedEta, mucombOverlappedPhi);
 
   ATH_MSG_DEBUG( "--- choose best among overlaps & disable EVs (muComb based) ---" );
   for(i=0; i<numMuon; i++) {
@@ -704,12 +703,12 @@ StatusCode TrigmuCombHypoTool::chooseBestMuon(std::vector<TrigmuCombHypoTool::Co
 
 	  input[j].passOR = false;
 
-	  // // monitoring
-	  // const xAOD::L2CombinedMuon* CombMf = toolInput[j].overlap;
-	  // mucombNrOverlapped++;
-	  // mucombOverlappedPt = CombMf->pt()* CombMf->charge() /CLHEP::GeV;
-	  // mucombOverlappedEta = CombMf->eta();
-	  // mucombOverlappedPhi = CombMf->phi();
+	  // monitoring
+	  const xAOD::L2CombinedMuon* CombMf = input[j].muComb;
+	  mucombNrOverlapped++;
+	  mucombOverlappedPt = CombMf->pt()* CombMf->charge() /CLHEP::GeV;
+	  mucombOverlappedEta = CombMf->eta();
+	  mucombOverlappedPhi = CombMf->phi();
 	}
 	if( j == best_ev ){
 	  ATH_MSG_DEBUG( "      EventView( j=" << j << " ) is best one" );
@@ -717,7 +716,7 @@ StatusCode TrigmuCombHypoTool::chooseBestMuon(std::vector<TrigmuCombHypoTool::Co
       }
     }
   }
-  // mucombNrActiveEVs = numMuon - mucombNrOverlapped;
+  mucombNrActiveEVs = numMuon - mucombNrOverlapped;
 
   return StatusCode::SUCCESS;
 }

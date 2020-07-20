@@ -473,7 +473,7 @@ def TrigmuCombHypoToolwORFromDict( chainDict ):
     tool.MufastDRThres   = [0.4,   0.4,   0.4,   0.4,   0.4]
     tool.MassThres       = [0.004, 0.002, 0.006, 0.006, 0.006]
 
-    addMonitoring( tool, TrigmuCombHypoMonitoring, "TrigmuCombHypoTool", chainDict['chainName'] )
+    addMonitoring( tool, TrigL2MuonOverlapRemoverMonitoringMucomb, "TrigmuCombHypoTool", chainDict['chainName'] )
 
     return tool
 
