@@ -23,7 +23,7 @@
 StandardFieldSvc::StandardFieldSvc(const std::string& name,
                                    ISvcLocator* pSvcLocator)
     : G4MagFieldSvcBase(name, pSvcLocator),
-    m_magFieldSvc("MagField::ForwardRegionFieldSvc/ForwardRegionFieldSvc", name) 
+    m_magFieldSvc("", name) 
 {
   declareProperty("MagneticFieldSvc", m_magFieldSvc);
 }
