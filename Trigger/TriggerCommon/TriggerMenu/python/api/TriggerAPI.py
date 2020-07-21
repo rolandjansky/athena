@@ -170,7 +170,7 @@ class TriggerAPI:
                 cls.privatedbQueries[(period,cls.customGRL)] = cls.dbQueries[(period,cls.customGRL)]
                 if not period & TriggerPeriod.future or TriggerPeriod.isRunNumber(period): 
                     #Don't pickle TM information since it can change, very cheap to retrieve anyway
-                    with open(cls.privatePickleFile, 'w') as f:
+                    with open(cls.privatePickleFile, 'wb') as f:
                         pickle.dump( cls.privatedbQueries , f)
             else:
                 basePeriods = [tp for tp in TriggerPeriod.basePeriods() if tp & period]
@@ -185,7 +185,7 @@ class TriggerAPI:
         for period,grl in cls.dbQueries.keys():
             if TriggerPeriod.isRunNumber(period) or (isinstance(period,TriggerPeriod) and period.isBasePeriod()): continue
             del cls.dbQueries[(period,grl)]
-        with open(cls.privatePickleFile, 'w') as f:
+        with open(cls.privatePickleFile, 'wb') as f:
             pickle.dump( cls.dbQueries , f)
         print (sorted(cls.dbQueries.keys()))
 
