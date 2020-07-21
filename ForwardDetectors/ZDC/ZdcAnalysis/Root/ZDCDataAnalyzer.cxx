@@ -331,46 +331,14 @@ void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::
 
   ZDCPulseAnalyzer* pulseAna_p = m_moduleAnalyzers[side][module].get();
 
-  bool result = pulseAna_p->LoadAndAnalyzeData(HGSamples, LGSamples);
+  // bool result = pulseAna_p->LoadAndAnalyzeData(HGSamples, LGSamples);
   m_dataLoaded[side][module] = true;
 
-  // if (result) {
-  //   if (!pulseAna_p->BadT0() && !pulseAna_p->BadChisq() &&
-  //  !pulseAna_p->fitMinimumAmplitude() && !pulseAna_p->FitFailed()) {
-  //     int moduleMaskBit = 4 * side + module;
-  //     m_moduleMask |= 1 << moduleMaskBit;
-
-  //     float amplitude = pulseAna_p->GetAmplitude();
-  //     float ampError = pulseAna_p->GetAmpError();
-
-  //     m_calibAmplitude[side][module] = amplitude * m_currentECalibCoeff[side][module];
-
-  //     float calibAmpError = ampError * m_currentECalibCoeff[side][module];
-
-  //     float timeCalib = pulseAna_p->GetT0Corr();
-  //     if (pulseAna_p->UseLowGain()) timeCalib -= m_currentT0OffsetsLG[side][module];
-  //     else timeCalib -= m_currentT0OffsetsHG[side][module];
-
-  //     m_calibTime[side][module] = timeCalib;
-
-  //     m_moduleSum[side] += amplitude;
-  //     m_moduleSumErrSq[side] += ampError * ampError;
-
-  //     m_moduleSumPreSample[side] += pulseAna_p->GetPreSampleAmp();
-
-  //     m_calibModuleSum[side] += m_calibAmplitude[side][module];
-  //     m_calibModuleSumErrSq[side] += calibAmpError * calibAmpError;
-
-  //     m_averageTime[side] += m_calibTime[side][module] * m_calibAmplitude[side][module];
-  //   }
-  // }
-  // else {
   if (pulseAna_p->Failed()) {
     (*m_msgFunc_p)(ZDCMsg::Debug, ("ZDCPulseAnalyzer::LoadData() returned fail for event " + std::to_string(m_eventCount) + ", side, module = " + std::to_string(side) + ", " + std::to_string(module)));
 
     m_fail[side] = true;
   }
-  //  }
 
   m_moduleStatus[side][module] = pulseAna_p->GetStatusMask();
 }
@@ -406,51 +374,20 @@ void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::
 
   ZDCPulseAnalyzer* pulseAna_p = m_moduleAnalyzers[side][module].get();
 
-  bool result = false;
-  if (m_delayedOrder[side][module] > 0) {
-    result = pulseAna_p->LoadAndAnalyzeData(HGSamples, LGSamples, HGSamplesDelayed, LGSamplesDelayed);
-  }
-  else {
-    result = pulseAna_p->LoadAndAnalyzeData(HGSamplesDelayed, LGSamplesDelayed, HGSamples, LGSamples);
-  }
-  m_dataLoaded[side][module] = true;
-
-  // if (result) {
-  //   if (!pulseAna_p->BadT0() && !pulseAna_p->BadChisq()) {
-  //     int moduleMaskBit = 4 * side + module;
-  //     m_moduleMask |= 1 << moduleMaskBit;
-
-  //     float amplitude = pulseAna_p->GetAmplitude();
-  //     float ampError = pulseAna_p->GetAmpError();
-
-  //     m_calibAmplitude[side][module] = amplitude * m_currentECalibCoeff[side][module];
-
-  //     float calibAmpError = ampError * m_currentECalibCoeff[side][module];
-
-  //     float timeCalib = pulseAna_p->GetT0Corr();
-  //     if (pulseAna_p->UseLowGain()) timeCalib -= m_currentT0OffsetsLG[side][module];
-  //     else timeCalib -= m_currentT0OffsetsHG[side][module];
-
-  //     m_calibTime[side][module] = timeCalib;
-
-  //     m_moduleSum[side] += amplitude;
-  //     m_moduleSumErrSq[side] += ampError * ampError;
-
-  //     m_moduleSumPreSample[side] += pulseAna_p->GetPreSampleAmp();
-
-  //     m_calibModuleSum[side] += m_calibAmplitude[side][module];
-  //     m_calibModuleSumErrSq[side] += calibAmpError * calibAmpError;
-
-  //     m_averageTime[side] += m_calibTime[side][module] * m_calibAmplitude[side][module];
-  //   }
+  // bool result = false;
+  // if (m_delayedOrder[side][module] > 0) {
+  //   result = pulseAna_p->LoadAndAnalyzeData(HGSamples, LGSamples, HGSamplesDelayed, LGSamplesDelayed);
   // }
   // else {
+  //   result = pulseAna_p->LoadAndAnalyzeData(HGSamplesDelayed, LGSamplesDelayed, HGSamples, LGSamples);
+  // }
+  m_dataLoaded[side][module] = true;
+
   if (pulseAna_p->Failed()) {
     (*m_msgFunc_p)(ZDCMsg::Debug, ("ZDCPulseAnalyzer::LoadData() returned fail for event " + std::to_string(m_eventCount) + ", side, module = " + std::to_string(side) + ", " + std::to_string(module)));
 
     m_fail[side] = true;
   }
-  //  }
 
   m_moduleStatus[side][module] = pulseAna_p->GetStatusMask();
 }
