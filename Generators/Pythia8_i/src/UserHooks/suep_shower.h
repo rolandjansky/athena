@@ -18,7 +18,7 @@ class tolerance {
   _eps(eps) {
   }
   bool operator()(double a, double b) {
-    return (fabs(b - a) <= _eps);
+    return (std::abs(b - a) <= _eps);
   }
  private:
   double _eps;
