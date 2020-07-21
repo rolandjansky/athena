@@ -43,6 +43,9 @@ TrigConf::L1Threshold::createThreshold( const std::string & name, const std::str
 
    if( type == "XE" )
       return std::make_shared<L1Threshold_XE>( name, type, extraInfo, data );
+
+   if( type == "JET" )
+      return std::make_shared<L1Threshold_JET>( name, type, extraInfo, data );
    
    if( type == "XS" )
       return std::make_shared<L1Threshold_XS>( name, type, extraInfo, data );
