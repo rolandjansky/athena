@@ -23,7 +23,7 @@ void ZDCFitWrapper::Initialize(float initialAmp, float initialT0, float ampMin, 
 void ZDCFitWrapper::Initialize(float initialAmp, float initialT0, float ampMin, float ampMax, float fitTmin, float fitTmax, float fitTRef)
 {
   m_adjTLimitsEvent = true;
-  float newTmin = std::max(fitTmin, m_tmin);
+  // float newTmin = std::max(fitTmin, m_tmin);
 
   m_tminAdjust = fitTRef;
 

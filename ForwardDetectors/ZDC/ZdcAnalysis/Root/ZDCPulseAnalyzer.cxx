@@ -766,8 +766,8 @@ bool ZDCPulseAnalyzer::DoAnalysis(bool repass)
           m_minSampleEvt = 1;
 
           Reset(true);
-          bool result = AnalyzeData(m_Nsample * nSampleScale, m_preSampleIdx, m_ADCSamplesLGSub, m_ADCSSampSigLG, m_LGT0CorrParams,
-                                    m_chisqDivAmpCutLG, m_T0CutLowLG, m_T0CutHighLG, deriv2ndThreshLG);
+          // bool result = AnalyzeData(m_Nsample * nSampleScale, m_preSampleIdx, m_ADCSamplesLGSub, m_ADCSSampSigLG, m_LGT0CorrParams,
+                                    // m_chisqDivAmpCutLG, m_T0CutLowLG, m_T0CutHighLG, deriv2ndThreshLG);
         }
       }
 
@@ -1090,7 +1090,7 @@ bool ZDCPulseAnalyzer::AnalyzeData(size_t nSamples, size_t preSampleIdx,
   // Post pulse detection
   //
   if (m_fitFunction == "GeneralPulse") {  // bill
-    int countPP = 0;
+
     for (int isampl = m_minDeriv2ndIndex + 2; isampl < (int) m_samplesDeriv2nd.size(); isampl++) {
       // add small 1e-3 in division to avoid floating overflow
       //

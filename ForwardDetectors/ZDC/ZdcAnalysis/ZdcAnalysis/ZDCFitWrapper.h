@@ -255,11 +255,11 @@ public:
   virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax);
   virtual void SetT0FitLimits(float tMin, float tMax);
 
-  virtual void SetInitialPrePulse(float amp, float t0, float expamp, bool fixPrePulseToZero) {
+  virtual void SetInitialPrePulse(float amp, float t0, float expamp = 0, bool fixPrePulseToZero = false) {
+    (void) expamp;
+    (void) fixPrePulseToZero;
     GetWrapperTF1()->SetParameter(2, std::max(amp, (float) 1.5)); //1.5 here ensures that we're above lower limit
     GetWrapperTF1()->SetParameter(3, t0);
-    expamp = 0;
-    fixPrePulseToZero = false;
   }
 
   virtual void SetPrePulseT0Range(float tmin, float tmax);
@@ -514,11 +514,11 @@ public:
   virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax);
   virtual void SetT0FitLimits(float tMin, float tMax);
 
-  virtual void SetInitialPrePulse(float amp, float t0, float expamp, bool fixPrePulseToZero) {
+  virtual void SetInitialPrePulse(float amp, float t0, float expamp = 0, bool fixPrePulseToZero = false) {
+    (void) expamp;
+    (void) fixPrePulseToZero;
     GetWrapperTF1()->SetParameter(2, std::max(amp, (float) 1.5)); //1.5 here ensures that we're above lower limit
     GetWrapperTF1()->SetParameter(3, t0);
-    expamp = 0;
-    fixPrePulseToZero = false;
   }
 
   virtual void SetPrePulseT0Range(float tmin, float tmax);
@@ -634,11 +634,11 @@ public:
   virtual void DoInitialize(float initialAmp, float initialT0, float ampMin, float ampMax);
   virtual void SetT0FitLimits(float tMin, float tMax);
 
-  virtual void SetInitialPrePulse(float amp, float t0, float expamp, bool fixPrePulseToZero) {
+  virtual void SetInitialPrePulse(float amp, float t0, float expamp, bool fixPrePulseToZero = false) {
+    (void) fixPrePulseToZero;
     GetWrapperTF1()->SetParameter(2, std::max(amp, (float) 1.5)); //1.5 here ensures that we're above lower limit
     GetWrapperTF1()->SetParameter(3, t0);
     GetWrapperTF1()->SetParameter(6, std::max(abs(expamp), (float) 1.5));
-    fixPrePulseToZero = false;
     // GetWrapperTF1()->FixParameter(2, 0.001);
     // std::cout << "-----> expamp = " << expamp << "   amp = " << amp << "   t0 = " << t0 << std::endl;
   }
