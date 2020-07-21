@@ -63,12 +63,13 @@ namespace MagField {
  * scheme needed by the simulation.
  *
  */
-#include <boost/thread/tss.hpp>
 struct ATLASFieldCacheTLSWrapper
 {
 private:
-  mutable boost::thread_specific_ptr<MagField::AtlasFieldCache>
-    m_fieldCache_tls{};
+  MagField::AtlasFieldCache createCache() const
+  {
+    return MagField::AtlasFieldCache(solFieldScale, torFieldScale, fieldMap);
+  }
 
 public:
   ///Sclae for solenoid
@@ -78,16 +79,13 @@ public:
   ///Not owning ptr 
   const MagField::AtlasFieldMap* fieldMap{ nullptr };
 
-  /// Method setting up and returning the TLS MagField::AtlasFieldCache
+  /// Method setting up the TLS 
+  /// and returning ref to 
+  /// the TLS MagField::AtlasFieldCache
   MagField::AtlasFieldCache& getTLSCache() const
   {
-    MagField::AtlasFieldCache* fieldCache = m_fieldCache_tls.get();
-    if (!fieldCache) {
-      fieldCache =
-        new MagField::AtlasFieldCache(solFieldScale, torFieldScale, fieldMap);
-      m_fieldCache_tls.reset(fieldCache);
-    }
-    return *fieldCache;
+    static thread_local MagField::AtlasFieldCache fieldCache = createCache();
+    return fieldCache;
   }
 
   /// getField method, forwarding to the TLS object
