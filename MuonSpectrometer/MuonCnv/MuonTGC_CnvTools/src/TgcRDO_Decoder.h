@@ -9,6 +9,8 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
+#include "CxxUtils/checker_macros.h"
+
 class TgcDigit;
 class TgcRawData;
 class Identifier;
@@ -53,7 +55,7 @@ namespace Muon
     private:
       StatusCode getCabling() const;
 
-      mutable const ITGCcablingSvc *m_cabling;
+      mutable const ITGCcablingSvc *m_cabling ATLAS_THREAD_SAFE;
       bool m_applyPatch;
 
     };

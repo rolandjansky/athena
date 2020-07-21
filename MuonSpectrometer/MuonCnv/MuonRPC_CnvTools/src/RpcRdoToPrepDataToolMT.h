@@ -9,6 +9,7 @@
 #include "MuonPrepRawData/MuonPrepDataCollection_Cache.h"
 #include "MuonTrigCoinData/MuonTrigCoinData_Cache.h"
 
+#include "CxxUtils/checker_macros.h"
 
 namespace Muon {
 
@@ -22,7 +23,7 @@ public:
   virtual StatusCode decode ( const std::vector<uint32_t>& robIds ) override;
   
 protected:
-  virtual StatusCode manageOutputContainers(bool& firstTimeInTheEvent) override;
+  StatusCode manageOutputContainers(bool& firstTimeInTheEvent) override;
   StatusCode transferOutputToCache();
   void printMT();
 

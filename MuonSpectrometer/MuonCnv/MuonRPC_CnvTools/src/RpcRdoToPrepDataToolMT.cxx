@@ -54,7 +54,7 @@ StatusCode Muon::RpcRdoToPrepDataToolMT::finalize()
   return RpcRdoToPrepDataToolCore::finalize();
 }
 
-StatusCode Muon::RpcRdoToPrepDataToolMT::manageOutputContainers ATLAS_THREAD_SAFE (bool& firstTimeInTheEvent)
+StatusCode Muon::RpcRdoToPrepDataToolMT::manageOutputContainers (bool& firstTimeInTheEvent)
 {
   // We will need to retrieve from cache even in different threads
   SG::WriteHandle< Muon::RpcPrepDataContainer >rpcPRDHandle(m_rpcPrepDataContainerKey);
