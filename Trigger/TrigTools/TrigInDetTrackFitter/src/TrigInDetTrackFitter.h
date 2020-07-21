@@ -9,13 +9,13 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-#include "MagFieldInterfaces/IMagFieldSvc.h" 
 #include "TrigInDetToolInterfaces/ITrigInDetTrackFitter.h"
 #include "TrigInDetToolInterfaces/ITrigDkfTrackMakerTool.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
+// MagField cache
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
+#include "MagFieldElements/AtlasFieldCache.h"
 
-
-class TrigTimer;
 
 namespace Trk {	
   class TrkBaseNode;             
@@ -25,9 +25,10 @@ namespace Trk {
   class TrackStateOnSurface;
 }
 
-namespace MagField {	
-	class IMagFieldSvc;
-}
+class AtlasDetectorID;
+class PixelID;
+class SCT_ID;
+class TrigL2HitResidual;
 
 class TrigInDetTrackFitter: public AthAlgTool, virtual public ITrigInDetTrackFitter
 {
@@ -35,14 +36,17 @@ class TrigInDetTrackFitter: public AthAlgTool, virtual public ITrigInDetTrackFit
   TrigInDetTrackFitter( const std::string&, const std::string&, const IInterface* );
   virtual StatusCode initialize();
   virtual StatusCode finalize();
-  Trk::Track* fitTrack(const Trk::Track&, const Trk::ParticleHypothesis& matEffects = Trk::pion) const;
-  void fit(const TrackCollection&, TrackCollection&, const Trk::ParticleHypothesis& matEffects = Trk::pion) const;
+  Trk::Track* fitTrack(const Trk::Track&, MagField::AtlasFieldCache&, const Trk::ParticleHypothesis& matEffects = Trk::pion) const;
+  void fit(const TrackCollection&, TrackCollection&, const EventContext&, const Trk::ParticleHypothesis& matEffects = Trk::pion) const;
+  StatusCode getUnbiasedResiduals(const Trk::Track&, std::vector<TrigL2HitResidual>&, const EventContext&) const;
+
 private:
 
   Trk::TrkTrackState* extrapolate(Trk::TrkTrackState*, 
                                   Trk::TrkPlanarSurface*,
-                                  Trk::TrkPlanarSurface*) const;
-  void getMagneticField(double[3],double*) const;
+                                  Trk::TrkPlanarSurface*,
+                                  MagField::AtlasFieldCache&) const;
+  void getMagneticField(double[3],double*, MagField::AtlasFieldCache&) const;
 
   void correctScale(Trk::TrkTrackState*) const;
 
@@ -57,11 +61,14 @@ private:
   double m_DChi2;
   bool m_doMultScatt;
   bool m_doBremm;
-  bool m_offlineClusters;
   bool m_correctClusterPos;
-  ServiceHandle<MagField::IMagFieldSvc> m_MagFieldSvc;  
   ToolHandle<ITrigDkfTrackMakerTool>    m_trackMaker;
 	ToolHandle<Trk::IRIO_OnTrackCreator>  m_ROTcreator;
+  SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
+  const PixelID* m_pixelId;
+  const SCT_ID* m_sctId;
+  const AtlasDetectorID* m_idHelper;
+
 
 };
 

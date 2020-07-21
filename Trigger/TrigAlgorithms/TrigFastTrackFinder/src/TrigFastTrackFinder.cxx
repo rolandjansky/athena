@@ -54,7 +54,6 @@
 #include "TrigInDetToolInterfaces/ITrigL2LayerNumberTool.h"
 #include "TrigInDetToolInterfaces/ITrigSpacePointConversionTool.h"
 #include "TrigInDetToolInterfaces/ITrigL2SpacePointTruthTool.h"
-#include "TrigInDetToolInterfaces/ITrigL2ResidualCalculator.h"
 #include "TrigInDetToolInterfaces/TrigL2HitResidual.h"
 
 #include "TrigInDetToolInterfaces/ITrigInDetTrackFitter.h"
@@ -86,7 +85,6 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   HLT::FexAlgo(name, pSvcLocator), 
   m_numberingTool("TrigL2LayerNumberTool"), 
   m_spacePointTool("TrigSpacePointConversionTool"),
-  m_trigL2ResidualCalculator("TrigL2ResidualCalculator"),
   m_trackMaker("InDet::SiTrackMaker_xk/InDetTrigSiTrackMaker"),
   m_trigInDetTrackFitter("TrigInDetTrackFitter"),
   m_trigZFinder("TrigZFinder/TrigZFinder", this ),
@@ -161,7 +159,6 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   declareProperty( "initialTrackMaker", m_trackMaker);
   declareProperty( "trigInDetTrackFitter",   m_trigInDetTrackFitter );
   declareProperty( "trigZFinder",   m_trigZFinder );
-  declareProperty( "TrigL2ResidualCalculator",    m_trigL2ResidualCalculator );
 
   declareProperty("TrackSummaryTool", m_trackSummaryTool);
   declareProperty( "doResMon",       m_doResMonitoring = true);
@@ -246,16 +243,6 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
   if(sc.isFailure()) {
     ATH_MSG_ERROR("unable to locate track summary tool");
     return HLT::BAD_JOB_SETUP;
-  }
-
-  if (m_doResMonitoring) {
-    sc = m_trigL2ResidualCalculator.retrieve();
-    if ( sc.isFailure() ) {
-      msg() << MSG::FATAL <<"Unable to locate Residual calculator tool " << m_trigL2ResidualCalculator << endmsg;
-      return HLT::BAD_JOB_SETUP;
-    }
-  } else {
-    m_trigL2ResidualCalculator.disable();
   }
 
   //Get ID helper
@@ -671,7 +658,7 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
 
   mnt_timer_TrackFitter.start(); // Run3 monitoring
 
-  m_trigInDetTrackFitter->fit(initialTracks, outputTracks, m_particleHypothesis);
+  m_trigInDetTrackFitter->fit(initialTracks, outputTracks, ctx, m_particleHypothesis);
 
   if( outputTracks.empty() ) {
     ATH_MSG_DEBUG("REGTEST / No tracks fitted");
@@ -1018,12 +1005,12 @@ void TrigFastTrackFinder::fillMon(const TrackCollection& tracks, const TrigVerte
     // tighter selection for unbiased residuals
     bool goodTrack = std::fabs(pT)>1000. && (nPix + nSct/2) > 3 && nSct > 0;
     if (goodTrack && m_doResMonitoring) {
-      runResidualMonitoring(*track);
+      runResidualMonitoring(*track, ctx);
     }
   }
 }
 
-void TrigFastTrackFinder::runResidualMonitoring(const Trk::Track& track) const {
+void TrigFastTrackFinder::runResidualMonitoring(const Trk::Track& track, const EventContext& ctx) const {
 
   // Run3 monitoring ---------->
   std::vector<float> mnt_layer_IBL;
@@ -1124,7 +1111,7 @@ void TrigFastTrackFinder::runResidualMonitoring(const Trk::Track& track) const {
 
   std::vector<TrigL2HitResidual> vResid;
   vResid.clear();
-  StatusCode scRes = m_trigL2ResidualCalculator->getUnbiasedResiduals(track,vResid);
+  StatusCode scRes = m_trigInDetTrackFitter->getUnbiasedResiduals(track,vResid, ctx);
   if(!scRes.isSuccess()) return;
   for(std::vector<TrigL2HitResidual>::iterator it=vResid.begin();it!=vResid.end();++it) {
     Identifier id = it->identify();
