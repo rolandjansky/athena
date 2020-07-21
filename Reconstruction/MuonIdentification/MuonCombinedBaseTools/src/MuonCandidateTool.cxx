@@ -82,6 +82,22 @@ namespace MuonCombined {
       } else {
          standaloneTrack = m_trackExtrapolationTool->extrapolate(msTrack);
       }
+      if(standaloneTrack){
+	//Reject the track if its fit quality is much (much much) worse than that of the non-extrapolated track
+	if(standaloneTrack->fitQuality()->doubleNumberDoF()==0){
+	  delete standaloneTrack;
+	  standaloneTrack=0;
+	  ATH_MSG_DEBUG("extrapolated track has no DOF, don't use it");
+	}
+	double mschi2=2.5; //a default we should hopefully never have to use (taken from CombinedMuonTrackBuilder)
+	if(msTrack.fitQuality()->doubleNumberDoF()>0) mschi2=msTrack.fitQuality()->chiSquared()/msTrack.fitQuality()->doubleNumberDoF();
+	//choice of 1000 is slightly arbitrary, the point is that the fit should be really be terrible
+	if(standaloneTrack->fitQuality()->chiSquared()/standaloneTrack->fitQuality()->doubleNumberDoF()>1000*mschi2){
+	  delete standaloneTrack;
+	  standaloneTrack=0;
+	  ATH_MSG_DEBUG("extrapolated track has a degraded fit, don't use it");
+        }
+      }
       if (standaloneTrack) {
 	standaloneTrack->info().setParticleHypothesis(Trk::muon);
 	standaloneTrack->info().setPatternRecognitionInfo(Trk::TrackInfo::MuidStandAlone);
