@@ -440,15 +440,15 @@ from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
 CAtoGlobalWrapper(L1ConfigSvcCfg,None)
 
 # ---------------------------------------------------------------
-# Level 1 simulation
-# ---------------------------------------------------------------
-if opt.doL1Sim:
-    from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
-    topSequence += Lvl1SimulationSequence(ConfigFlags)
-
-# ---------------------------------------------------------------
 # HLT prep: RoIBResult and L1Decoder
 # ---------------------------------------------------------------
+
+# main HLT top sequence
+from AthenaCommon.CFElements import seqOR,parOR
+hltTop = seqOR("HLTTop")
+hltBeginSeq = parOR("HLTBeginSeq")
+hltTop += hltBeginSeq
+
 l1decoder = None
 if opt.doL1Unpacking:
     if globalflags.InputFormat.is_bytestream():
@@ -464,15 +464,25 @@ if opt.doL1Unpacking:
         l1decoder.L1TriggerResult = "L1TriggerResult" if opt.enableL1Phase1 else ""
         if opt.enableL1Phase1:
             from L1Decoder.L1DecoderConfig import getL1TriggerResultMaker
-            topSequence += conf2toConfigurable(getL1TriggerResultMaker())
+            hltBeginSeq += conf2toConfigurable(getL1TriggerResultMaker())
         if TriggerFlags.doTransientByteStream():
             transTypeKey = ("TransientBSOutType","StoreGateSvc+TransientBSOutKey")
             l1decoder.ExtraInputs += [transTypeKey]
 
-        topSequence += conf2toConfigurable(l1decoder)
+        hltBeginSeq += conf2toConfigurable(l1decoder)
     else:
         from TrigUpgradeTest.TestUtils import L1EmulationTest
-        topSequence += L1EmulationTest()
+        hltBeginSeq += L1EmulationTest()
+
+topSequence += hltTop
+
+# ---------------------------------------------------------------
+# Level 1 simulation
+# ---------------------------------------------------------------
+if opt.doL1Sim:
+    from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
+    hltBeginSeq += Lvl1SimulationSequence(ConfigFlags)
+
 
 # ---------------------------------------------------------------
 # HLT generation
@@ -566,7 +576,7 @@ if opt.doWriteBS:
 #-------------------------------------------------------------
 ConfigFlags.lock()
 from TriggerJobOpts.TriggerConfig import triggerIDCCacheCreatorsCfg
-CAtoGlobalWrapper(triggerIDCCacheCreatorsCfg,ConfigFlags)
+CAtoGlobalWrapper(triggerIDCCacheCreatorsCfg, ConfigFlags, seqName="HLTBeginSeq")
 
 
 # B-jet output
