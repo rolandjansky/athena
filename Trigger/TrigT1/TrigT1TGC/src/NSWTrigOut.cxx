@@ -10,7 +10,7 @@
 
 #include "TrigT1TGC/NSWTrigOut.h"
 
-#include "TrigT1TGC/TGCArguments.hh"
+#include "TrigT1TGC/TGCArguments.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 namespace LVL1TGCTrigger {

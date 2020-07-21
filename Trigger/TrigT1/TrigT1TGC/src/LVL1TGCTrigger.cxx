@@ -12,15 +12,15 @@
 #include "TrigT1TGC/TGCASDOut.h"
 #include "TrigT1TGC/TGCEvent.h"
 #include "TrigT1TGC/TGCReadoutIndex.h"
-#include "TrigT1TGC/TGCSLSelectorOut.hh"// for Run2
-#include "TrigT1TGC/TGCTrackSelectorOut.h"// for Run3
-#include "TrigT1TGC/TGCElectronicsSystem.hh"
-#include "TrigT1TGC/TGCTimingManager.hh"
-#include "TrigT1TGC/TGCDatabaseManager.hh"
-#include "TrigT1TGC/TGCSector.hh"
-#include "TrigT1TGC/TGCNumbering.hh"
+#include "TrigT1TGC/TGCSLSelectorOut.h" // for Run2
+#include "TrigT1TGC/TGCTrackSelectorOut.h" // for Run3
+#include "TrigT1TGC/TGCElectronicsSystem.h"
+#include "TrigT1TGC/TGCTimingManager.h"
+#include "TrigT1TGC/TGCDatabaseManager.h"
+#include "TrigT1TGC/TGCSector.h"
+#include "TrigT1TGC/TGCNumbering.h"
 #include "TrigT1TGC/TrigT1TGC_ClassDEF.h"
-#include "TrigT1TGC/TGCNumbering.hh"
+#include "TrigT1TGC/TGCNumbering.h"
 #include "TrigT1TGC/TGCTMDBOut.h"
 #include "TrigT1TGC/TGCNSW.h"
 
@@ -1151,7 +1151,7 @@ namespace LVL1TGCTrigger {
   }
   
   ////////////////////////////////////////////////
-  // see TGCNumbering.hh 
+  // see TGCNumbering.h 
   int LVL1TGCTrigger::getLPTTypeInRawData(int type)
   {
     switch(type) {

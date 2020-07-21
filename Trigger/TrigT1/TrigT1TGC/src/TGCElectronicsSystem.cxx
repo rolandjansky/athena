@@ -3,10 +3,10 @@
 */
 
 //$Id: TGCElectronicsSystem.cxx,v 1.13 2009-05-04 11:39:44 isaya Exp $
-#include "TrigT1TGC/TGCElectronicsSystem.hh"
+#include "TrigT1TGC/TGCElectronicsSystem.h"
 #include "TrigT1TGC/TGCASDOut.h"
-#include "TrigT1TGC/TGCDatabaseManager.hh"
-#include "TrigT1TGC/TGCSector.hh"
+#include "TrigT1TGC/TGCDatabaseManager.h"
+#include "TrigT1TGC/TGCSector.h"
 
 #include <iostream>
 #include <vector>

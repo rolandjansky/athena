@@ -2,7 +2,7 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT1TGC/TGCStripTripletSB.hh"
+#include "TrigT1TGC/TGCStripTripletSB.h"
 #include <iostream>
 #include <cstdlib>
 

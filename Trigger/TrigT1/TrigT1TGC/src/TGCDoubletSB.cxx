@@ -2,10 +2,10 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT1TGC/TGCDoubletSB.hh"
-#include "TrigT1TGC/TGCSlaveBoard.hh"
-#include "TrigT1TGC/TGCPatchPanelOut.hh"
-#include "TrigT1TGC/TGCHitPattern.hh"
+#include "TrigT1TGC/TGCDoubletSB.h"
+#include "TrigT1TGC/TGCSlaveBoard.h"
+#include "TrigT1TGC/TGCPatchPanelOut.h"
+#include "TrigT1TGC/TGCHitPattern.h"
 #include <iostream>
 #include <cstdlib>
 

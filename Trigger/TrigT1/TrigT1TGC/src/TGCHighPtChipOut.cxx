@@ -2,8 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT1TGC/TGCHighPtChipOut.hh"
-#include "TrigT1TGC/TGCHighPtBoard.hh"
+#include "TrigT1TGC/TGCHighPtChipOut.h"
+#include "TrigT1TGC/TGCHighPtBoard.h"
 
 namespace LVL1TGCTrigger {
 

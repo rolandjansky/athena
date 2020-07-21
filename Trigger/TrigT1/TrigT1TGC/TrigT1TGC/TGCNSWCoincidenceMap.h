@@ -6,7 +6,7 @@
 #include <string>
 
 #include "GaudiKernel/ToolHandle.h"
-#include "TrigT1TGC/TGCNumbering.hh"
+#include "TrigT1TGC/TGCNumbering.h"
 
 #include "AthenaKernel/MsgStreamMember.h"
 #include "GaudiKernel/MsgStream.h"

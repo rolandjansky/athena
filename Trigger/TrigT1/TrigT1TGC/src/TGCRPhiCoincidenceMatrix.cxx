@@ -2,10 +2,10 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT1TGC/TGCRPhiCoincidenceMatrix.hh"
-#include "TrigT1TGC/TGCRPhiCoincidenceOut.hh"
-#include "TrigT1TGC/TGCRPhiCoincidenceMap.hh"
-#include "TrigT1TGC/TGCSectorLogic.hh"
+#include "TrigT1TGC/TGCRPhiCoincidenceMatrix.h"
+#include "TrigT1TGC/TGCRPhiCoincidenceOut.h"
+#include "TrigT1TGC/TGCRPhiCoincidenceMap.h"
+#include "TrigT1TGC/TGCSectorLogic.h"
 #include <iostream>
 #include <cstdlib>
 

@@ -5,8 +5,8 @@
 #ifndef TrigT1TGC_TGCEIFICoincidenceMap_hh
 #define TrigT1TGC_TGCEIFICoincidenceMap_hh
 
-#include "TrigT1TGC/TGCInnerTrackletSlot.hh"
-#include "TrigT1TGC/TGCArguments.hh"
+#include "TrigT1TGC/TGCInnerTrackletSlot.h"
+#include "TrigT1TGC/TGCArguments.h"
 
 #include "StoreGate/ReadCondHandle.h"
 #include "MuonCondSvc/TGCTriggerData.h"

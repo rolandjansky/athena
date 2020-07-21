@@ -22,7 +22,7 @@
 #include "Identifier/Identifier.h"
 
 // EIFI-SL connection
-#include "TrigT1TGC/TGCInnerTrackletSlotHolder.hh"
+#include "TrigT1TGC/TGCInnerTrackletSlotHolder.h"
 
 #include "StoreGate/ReadCondHandle.h"
 #include "MuonCondSvc/TGCTriggerData.h"
@@ -32,7 +32,7 @@
 
 #include "MuonDigitContainer/TgcDigit.h"
 
-#include "TrigT1TGC/TGCArguments.hh"
+#include "TrigT1TGC/TGCArguments.h"
 #include "MuonDigitContainer/TgcDigitContainer.h"
 
 // Tile-Muon

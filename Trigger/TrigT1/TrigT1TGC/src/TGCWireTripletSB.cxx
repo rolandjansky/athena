@@ -3,7 +3,7 @@
 */
 
 // ref. SOS051V07,S0S052V06 
-#include "TrigT1TGC/TGCWireTripletSB.hh"
+#include "TrigT1TGC/TGCWireTripletSB.h"
 #include <iostream>
 #include <cstdlib>
 

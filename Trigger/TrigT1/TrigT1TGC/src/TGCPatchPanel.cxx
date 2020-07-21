@@ -2,13 +2,13 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT1TGC/TGCPatchPanel.hh"
-#include "TrigT1TGC/TGCPatchPanelOut.hh"
-#include "TrigT1TGC/TGCHitPattern.hh"
-#include "TrigT1TGC/TGCConnectionInPP.hh"
-#include "TrigT1TGC/TGCBIDOut.hh"
+#include "TrigT1TGC/TGCPatchPanel.h"
+#include "TrigT1TGC/TGCPatchPanelOut.h"
+#include "TrigT1TGC/TGCHitPattern.h"
+#include "TrigT1TGC/TGCConnectionInPP.h"
+#include "TrigT1TGC/TGCBIDOut.h"
 #include "TrigT1TGC/TGCASDOut.h"
-#include "TrigT1TGC/TGCDatabaseManager.hh"
+#include "TrigT1TGC/TGCDatabaseManager.h"
 #include <iostream>
 #include <string>
 

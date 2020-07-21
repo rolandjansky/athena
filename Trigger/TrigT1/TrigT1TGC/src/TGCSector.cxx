@@ -2,8 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT1TGC/TGCSector.hh"
-#include "TrigT1TGC/TGCElectronicsSystem.hh"
+#include "TrigT1TGC/TGCSector.h"
+#include "TrigT1TGC/TGCElectronicsSystem.h"
 #include "TrigT1TGC/TGCReadoutIndex.h"
 #include <iostream>
 

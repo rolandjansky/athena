@@ -8,9 +8,9 @@
 #include <ctype.h>
 #include <string>
 
-#include "TrigT1TGC/TGCConnectionASDToPP.hh"
-#include "TrigT1TGC/TGCConnectionPPToSB.hh"
-#include "TrigT1TGC/TGCDatabaseManager.hh"
+#include "TrigT1TGC/TGCConnectionASDToPP.h"
+#include "TrigT1TGC/TGCConnectionPPToSB.h"
+#include "TrigT1TGC/TGCDatabaseManager.h"
 
 #include "PathResolver/PathResolver.h"
 

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT1TGC/TGCHitPattern.hh"
+#include "TrigT1TGC/TGCHitPattern.h"
 #include <iostream>
 #include <cstdlib>
 #include <cstring>

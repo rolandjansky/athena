@@ -3,7 +3,7 @@
 */
 
 // ref. SOS054V06,SOS053V04
-#include "TrigT1TGC/TGCInnerSB.hh"
+#include "TrigT1TGC/TGCInnerSB.h"
 #include <iostream>
 #include <cstdlib>
 

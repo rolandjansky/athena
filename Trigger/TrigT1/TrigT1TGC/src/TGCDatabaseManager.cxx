@@ -2,15 +2,15 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT1TGC/TGCDatabaseManager.hh"
-#include "TrigT1TGC/TGCConnectionPPToSL.hh"
-#include "TrigT1TGC/TGCRPhiCoincidenceMap.hh"
+#include "TrigT1TGC/TGCDatabaseManager.h"
+#include "TrigT1TGC/TGCConnectionPPToSL.h"
+#include "TrigT1TGC/TGCRPhiCoincidenceMap.h"
 #include "TrigT1TGC/TGCEIFICoincidenceMap.h"
-#include "TrigT1TGC/TGCTileMuCoincidenceMap.hh"
+#include "TrigT1TGC/TGCTileMuCoincidenceMap.h"
 #include "TrigT1TGC/TGCNSWCoincidenceMap.h"
-#include "TrigT1TGC/TGCConnectionASDToPP.hh"
-#include "TrigT1TGC/TGCConnectionInPP.hh"
-#include "TrigT1TGC/TGCPatchPanel.hh"
+#include "TrigT1TGC/TGCConnectionASDToPP.h"
+#include "TrigT1TGC/TGCConnectionInPP.h"
+#include "TrigT1TGC/TGCPatchPanel.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
