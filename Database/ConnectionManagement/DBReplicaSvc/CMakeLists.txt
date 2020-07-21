@@ -28,6 +28,3 @@ atlas_add_component( DBReplicaSvc
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
                      LINK_LIBRARIES ${CORAL_LIBRARIES} GaudiKernel AthenaBaseComps PathResolver )
 
-# Install files from the package:
-atlas_install_headers( DBReplicaSvc )
-
