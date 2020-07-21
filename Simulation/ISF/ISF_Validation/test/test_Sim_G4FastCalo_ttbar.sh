@@ -22,7 +22,7 @@ Sim_tf.py \
 --outputHITSFile "test.HITS.pool.root" \
 --maxEvents 250 \
 --imf False \
---preExec 'from ISF_FastCaloSimServices.ISF_FastCaloSimJobProperties import ISF_FastCaloSimFlags;ISF_FastCaloSimFlags.ParamsInputFilename="/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FastCaloSim/MC16/TFCSparam_dev_weightedhits_v12.root"'
+--preExec 'from ISF_FastCaloSimServices.ISF_FastCaloSimJobProperties import ISF_FastCaloSimFlags;ISF_FastCaloSimFlags.ParamsInputFilename="/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FastCaloSim/MC16/TFCSparam_v012.root"'
 
 echo  "art-result: $? simulation"
 
