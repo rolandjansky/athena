@@ -46,6 +46,7 @@ atlas_depends_on_subdirs( PUBLIC
                           AssociationUtils
                           JetJvtEfficiency
                           PMGTools
+			  InDetTrackSelectionTool
                           InDetTrackSystematicsTools
                           BoostedJetTaggers 
 			  FTagAnalysisInterfaces 
@@ -107,6 +108,7 @@ atlas_add_library( TopCPTools Root/*.cxx Root/*.h Root/*.icc
                                   AssociationUtilsLib
                                   JetJvtEfficiencyLib
                                   PMGToolsLib
+				  InDetTrackSelectionToolLib
                                   InDetTrackSystematicsToolsLib
                                   BoostedJetTaggersLib
 				  FTagAnalysisInterfacesLib

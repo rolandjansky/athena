@@ -104,6 +104,7 @@ namespace Prompt
     std::string                                            m_svContainerName;
 
     std::string                                            m_decoratorNameSecVtxLinks;
+    std::string                                            m_decoratorNameDeepMergedSecVtxLinks;
     std::string                                            m_decoratorNameIndexVector;
 
     std::string                                            m_linkNameRefittedPriVtxWithoutLepton;
@@ -134,9 +135,9 @@ namespace Prompt
     // Decorators
     //
     std::unique_ptr<decoratorVecInt_t>                     m_indexVectorDec;
-    std::unique_ptr<decoratorVecInt_t>                     m_indexVectorDecMerge;
     std::unique_ptr<decoratorVecInt_t>                     m_indexVectorDecDeepMerge;
     std::unique_ptr<decoratorVecElemVtx_t>                 m_lepSVElementLinksDec;
+    std::unique_ptr<decoratorVecElemVtx_t>                 m_lepDeepMergedSVElementLinksDec;
   };
 }
 

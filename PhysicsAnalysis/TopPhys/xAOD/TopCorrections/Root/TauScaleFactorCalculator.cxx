@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 // $Id: TauScaleFactorCalculator.cxx 805414 2017-05-24 12:21:29Z yili $
@@ -30,10 +30,6 @@ namespace top {
                "Failed to retrieve tau efficiency corrections tool");
 
     // How to get the recommended/affecting systematics...
-    //CP::SystematicSet m_syst_rec = m_tauEffCorrTool->recommendedSystematics();
-    //for (auto sysname : m_syst_rec.getBaseNames() ) std::cout<<"recommended "<<sysname<<std::endl;
-    //CP::SystematicSet m_syst_aff = m_tauEffCorrTool->affectingSystematics();
-    //for (auto sysname : m_syst_aff.getBaseNames() )  std::cout<<"affecting "<<sysname<<std::endl;
     // Should be empty- but lets be sure
     m_syst_map.clear();
     // Add all recommended systematics to be clear

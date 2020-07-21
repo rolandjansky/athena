@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -99,7 +99,8 @@ namespace Analysis
 				   const std::map<std::string, std::vector<std::string> >& excludeFromEV,
 				   const std::map<std::string, Analysis::EVReductionStrategy> EVReductions,
 				   bool useEV = true, bool useMCMCSF = true,
-				   bool useTopologyRescaling = false, bool useRecommendedEVExclusions = false);
+				   bool useTopologyRescaling = false, bool useRecommendedEVExclusions = false,
+				   bool verbose = true);
 
       /** default constructor for PROOF object retrieval */
       CalibrationDataInterfaceROOT();
@@ -302,6 +303,20 @@ namespace Analysis
 
       // ------------------------------------------------------------------------------------------
 
+      /** run EigenVector Recomposition method */
+      CalibrationStatus runEigenVectorRecomposition(const std::string& author,
+						    const std::string& label,
+						    const std::string& OP,
+						    unsigned int mapindex = 0);
+      
+      CalibrationStatus runEigenVectorRecomposition(const std::string& label,
+						    unsigned int mapindex = 0);
+      
+      /** Get Eigenvector recomposition map after running runEigenVectorRecomposition()*/
+      std::map<std::string, std::map<std::string, float>> getEigenVectorRecompositionCoefficientMap();
+
+      // ------------------------------------------------------------------------------------------
+
       // Utilities
 
       /** retrieve the MC efficiency (central values) object for the given flavour label and operating point.
@@ -412,6 +427,9 @@ namespace Analysis
 
       /** if true, exclude pre-recommended lists of uncertainties from the covariance matrix building, in addition to the above user specified lists **/
       bool m_useRecommendedEVExclusions;
+      
+      /** if true, allow also for some informational (and not only error/warning) messages **/
+      bool m_verbose;
 
       // ------------------------------------------------------------------------------------------
 
@@ -429,6 +447,11 @@ namespace Analysis
       mutable std::map<std::string, HadronisationReferenceHelper*> m_refMap;
       /** store the 'hadronisation' reference for each object (-1 means no reference found) */
       mutable std::vector<int>                                     m_hadronisationReference;
+
+      // ------------------------------------------------------------------------------------------
+
+      // map storing coefficient calculated by EigenRecomposition.
+      std::map<std::string, std::map<std::string, float>> m_coefficientMap;
 
       // ------------------------------------------------------------------------------------------
 

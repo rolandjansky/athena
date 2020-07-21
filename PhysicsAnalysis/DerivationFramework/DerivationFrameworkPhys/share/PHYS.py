@@ -68,6 +68,9 @@ if (DerivationFrameworkIsMonteCarlo):
    # Re-point links on reco objects
    addMiniTruthCollectionLinks(SeqPHYS)
    addPVCollection(SeqPHYS)
+   # Set appropriate truth jet collection for tau truth matching
+   ToolSvc.DFCommonTauTruthMatchingTool.TruthJetContainerName = "AntiKt4TruthDressedWZJets"
+   # SUSY signal
    from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
    if IsSUSYSignal():
       from DerivationFrameworkSUSY.SUSYWeightMetadata import *
@@ -90,20 +93,26 @@ trig_em = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=Trigg
 trig_et = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.el, additionalTriggerType=TriggerType.tau, livefraction=0.8)
 trig_mt = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.mu, additionalTriggerType=TriggerType.tau, livefraction=0.8)
 # Note that this seems to pick up both isolated and non-isolated triggers already, so no need for extra grabs
+trig_txe = TriggerAPI.getLowestUnprescaledAnyPeriod(allperiods, triggerType=TriggerType.tau, additionalTriggerType=TriggerType.xe, livefraction=0.8)
 
 # Merge and remove duplicates
-trigger_names_full = list(set(trig_el+trig_mu+trig_g+trig_tau+trig_em+trig_et+trig_mt))
+trigger_names_full_notau = list(set(trig_el+trig_mu+trig_g+trig_em+trig_et+trig_mt))
+trigger_names_full_tau = list(set(trig_tau+trig_txe))
 
 # Now reduce the list...
 from RecExConfig.InputFilePeeker import inputFileSummary
-trigger_names = []
+trigger_names_notau = []
+trigger_names_tau = []
 for trig_item in inputFileSummary['metadata']['/TRIGGER/HLT/Menu']:
     if not 'ChainName' in trig_item: continue
-    if trig_item['ChainName'] in trigger_names_full: trigger_names += [ trig_item['ChainName'] ]
+    if trig_item['ChainName'] in trigger_names_full_notau: trigger_names_notau += [ trig_item['ChainName'] ]
+    if trig_item['ChainName'] in trigger_names_full_tau:   trigger_names_tau   += [ trig_item['ChainName'] ]
 
 # Create trigger matching decorations
-trigmatching_helper = TriggerMatchingHelper(
-        trigger_list = trigger_names, add_to_df_job=True)
+trigmatching_helper_notau = TriggerMatchingHelper(name='PHYSTriggerMatchingToolNoTau',
+        trigger_list = trigger_names_notau, add_to_df_job=True)
+trigmatching_helper_tau = TriggerMatchingHelper(name='PHYSTriggerMatchingToolTau',
+        trigger_list = trigger_names_tau, add_to_df_job=True, DRThreshold=0.2)
 
 #====================================================================
 # INNER DETECTOR TRACK THINNING
@@ -134,11 +143,12 @@ ToolSvc += PHYSMuonTPThinningTool
 thinningTools.append(PHYSMuonTPThinningTool)
 
 # TauJets thinning
+tau_thinning_expression = "(TauJets.ptFinalCalib >= 13.*GeV) && (TauJets.nTracks>=1) && (TauJets.nTracks<=3) && (TauJets.RNNJetScoreSigTrans>0.01)"
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
 PHYSTauJetsThinningTool = DerivationFramework__GenericObjectThinning(name            = "PHYSTauJetsThinningTool",
                                                                      ThinningService = PHYSThinningHelper.ThinningSvc(),
                                                                      ContainerName   = "TauJets",
-                                                                     SelectionString = "(TauJets.ptFinalCalib >= 13.*GeV) && (TauJets.nTracks>=1) && (TauJets.nTracks<=3)")
+                                                                     SelectionString = tau_thinning_expression)
 ToolSvc += PHYSTauJetsThinningTool
 thinningTools.append(PHYSTauJetsThinningTool)
 
@@ -148,7 +158,7 @@ PHYSTauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name      
                                                                       ThinningService        = PHYSThinningHelper.ThinningSvc(),
                                                                       TauKey                 = "TauJets",
                                                                       InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                      SelectionString        = "(TauJets.ptFinalCalib >= 13.*GeV) && (TauJets.nTracks>=1) && (TauJets.nTracks<=3)",
+                                                                      SelectionString        = tau_thinning_expression,
                                                                       ApplyAnd               = False,
                                                                       DoTauTracksThinning    = True,
                                                                       TauTracksKey           = "TauTracks")
@@ -175,7 +185,12 @@ if (DerivationFrameworkIsMonteCarlo):
    OutputJets["PHYS"].append("AntiKt10TruthTrimmedPtFrac5SmallR20Jets")
 
 replaceAODReducedJets(reducedJetList,SeqPHYS,"PHYS")
-addDefaultTrimmedJets(SeqPHYS,"PHYS",dotruth=DerivationFrameworkIsMonteCarlo)
+add_largeR_truth_jets = DerivationFrameworkIsMonteCarlo and not hasattr(SeqPHYS,'jetalgAntiKt10TruthTrimmedPtFrac5SmallR20')
+addDefaultTrimmedJets(SeqPHYS,"PHYS",dotruth=add_largeR_truth_jets)
+
+# Add large-R jet truth labeling
+if (DerivationFrameworkIsMonteCarlo):
+   addJetTruthLabel(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20",sequence=SeqPHYS,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Consolidated")
 
 addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=SeqPHYS,algname="QGTaggerToolAlg")
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqPHYS,algname="QGTaggerToolPFAlg")
@@ -326,8 +341,7 @@ if DerivationFrameworkIsMonteCarlo:
                                             'TruthHFWithDecayVertices':'xAOD::TruthVertexContainer','TruthHFWithDecayVerticesAux':'xAOD::TruthVertexAuxContainer',
                                             'TruthCharm':'xAOD::TruthParticleContainer','TruthCharmAux':'xAOD::TruthParticleAuxContainer',
                                             'TruthPrimaryVertices':'xAOD::TruthVertexContainer','TruthPrimaryVerticesAux':'xAOD::TruthVertexAuxContainer',
-                                            'AntiKt10TruthTrimmedPtFrac5SmallR20Jets':'xAOD::JetContainer', 'AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux':'xAOD::JetAuxContainer',
-                                            'AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903':'xAOD::JetContainer','BTagging_AntiKtVR30Rmax4Rmin02Track_201903':'xAOD::BTagging'
+                                            'AntiKt10TruthTrimmedPtFrac5SmallR20Jets':'xAOD::JetContainer', 'AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux':'xAOD::JetAuxContainer'
                                            }
 
    from DerivationFrameworkMCTruth.MCTruthCommon import addTruth3ContentToSlimmerTool
@@ -344,7 +358,8 @@ PHYSSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.T
                                       "TruthPrimaryVertices.t.x.y.z"]
 
 # Add trigger matching
-trigmatching_helper.add_to_slimming(PHYSSlimmingHelper)
+trigmatching_helper_notau.add_to_slimming(PHYSSlimmingHelper)
+trigmatching_helper_tau.add_to_slimming(PHYSSlimmingHelper)
 
 # Final construction of output stream
 PHYSSlimmingHelper.AppendContentToStream(PHYSStream)

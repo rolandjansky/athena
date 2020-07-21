@@ -38,14 +38,15 @@ class TRTDetectorFactory_Full : public InDetDD::DetectorFactoryBase  {
   //                                                                           //
   // Constructor:                                                              //
   TRTDetectorFactory_Full(const InDetDD::AthenaComps * athenaComps,            //
-			  ServiceHandle<ITRT_StrawStatusSummarySvc> m_sumSvc,  //
-			  bool useOldActiveGasMixture,                         //
-			  bool DC2CompatibleBarrelCoordinates,                 //
-			  int overridedigversion,                              //
-			  bool alignable,                                      //
-			  bool doArgon,                                        //
-			  bool doKrypton,                                      //
-			  bool useDynamicAlignmentFolders);                    //
+                          ServiceHandle<ITRT_StrawStatusSummarySvc> m_sumSvc,  //
+                          bool useOldActiveGasMixture,                         //
+                          bool DC2CompatibleBarrelCoordinates,                 //
+                          int overridedigversion,                              //
+                          bool alignable,                                      //
+                          bool doArgon,                                        //
+                          bool doKrypton,                                      //
+                          bool useDynamicAlignmentFolders,                     //
+                          bool isSimulation);                                  //
   //                                                                           //
   // Destructor:                                                               //
   ~TRTDetectorFactory_Full();                                                  //
@@ -85,7 +86,7 @@ class TRTDetectorFactory_Full : public InDetDD::DetectorFactoryBase  {
 
   // private helper methods:
   const GeoShape * makeModule ( double length, CLHEP::Hep2Vector corner1 ,  CLHEP::Hep2Vector corner2, CLHEP::Hep2Vector corner3,
-				CLHEP::Hep2Vector corner4, HepGeom::Transform3D & absolutePosition, double shrinkDist=0 ) const;
+                                CLHEP::Hep2Vector corner4, HepGeom::Transform3D & absolutePosition, double shrinkDist=0 ) const;
   //GeoPhysVol * makeStraw( double& activeGasZPosition, bool hasLargeDeadRegion=false ) const;
   GeoPhysVol * makeStraw( double& activeGasZPosition, bool hasLargeDeadRegion=false, ActiveGasMixture gasMixture = GM_XENON) const;
   //GeoFullPhysVol  *makeStrawPlane( size_t w ) const;
@@ -105,6 +106,7 @@ class TRTDetectorFactory_Full : public InDetDD::DetectorFactoryBase  {
   bool m_doArgon;
   bool m_doKrypton;
   bool m_useDynamicAlignFolders;
+  bool m_isSimulation;
 };
 
 #endif // TRTDetectorFactory_Full_h

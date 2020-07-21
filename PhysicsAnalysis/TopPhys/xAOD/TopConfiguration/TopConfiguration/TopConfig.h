@@ -32,6 +32,8 @@
 // Tree Filter
 #include "TopConfiguration/TreeFilter.h"
 
+#include "TopDataPreparation/SampleXsection.h"
+
 namespace top {
   class AodMetaDataAccess;
   class ConfigurationSettings;
@@ -67,6 +69,10 @@ namespace top {
     // TDP path
     void setTDPPath(const std::string& s);
     inline const std::string& getTDPPath() const {return m_topDataPreparationPath;}
+    
+    //showering algorithm
+    void setShoweringAlgorithm(SampleXsection::showering in) { m_showeringAlgo=in; }
+    SampleXsection::showering getShoweringAlgorithm() const {return m_showeringAlgo;}
 
     inline bool recomputeCPvars() const {return m_recomputeCPvars;}
 
@@ -80,6 +86,7 @@ namespace top {
     inline bool useJets()       const {return m_useJets;}
     inline bool useLargeRJets() const {return m_useLargeRJets;}
     inline bool useTrackJets()  const {return m_useTrackJets;}
+    inline bool useTracks()  const {return m_useTracks;}
     inline bool useJetGhostTrack()  const {return m_useJetGhostTrack;}
     inline bool useRCJets()     const {return m_useRCJets;}
     inline bool useVarRCJets()  const {return m_useVarRCJets;}
@@ -120,6 +127,22 @@ namespace top {
     inline void setFilterBranches(const std::vector<std::string>& value) {
       if (!m_configFixed) {
         m_filterBranches = value;
+      }
+    }
+    
+    // List of PartonLevel branches to be removed
+    inline std::vector<std::string> filterPartonLevelBranches() const {return m_filterPartonLevelBranches;}
+    inline void setFilterPartonLevelBranches(const std::vector<std::string>& value) {
+      if (!m_configFixed) {
+        m_filterPartonLevelBranches = value;
+      }
+    }
+    
+    // List of ParticleLevel branches to be removed
+    inline std::vector<std::string> filterParticleLevelBranches() const {return m_filterParticleLevelBranches;}
+    inline void setFilterParticleLevelBranches(const std::vector<std::string>& value) {
+      if (!m_configFixed) {
+        m_filterParticleLevelBranches = value;
       }
     }
 
@@ -316,14 +339,21 @@ namespace top {
     }
 
     inline const std::vector<std::string>& nominalWeightNames() const {return m_nominalWeightNames;}
-    inline void setDetectedNominalWeightName(const std::string& name) {
-      m_detectedNominalWeightName = name;
+    inline void setNominalWeightName(const std::string& name) {
+      m_nominalWeightName = name;
     }
-    inline void setDetectedNominalWeightIndex(size_t index) {
-      m_detectedNominalWeightIndex = index;
+    inline void setNominalWeightIndex(size_t index) {
+      m_nominalWeightIndex = index;
     }
-    inline std::string detectedNominalWeightName() const {return m_detectedNominalWeightName;}
-    inline size_t detectedNominalWeightIndex() const {return m_detectedNominalWeightIndex;}
+    inline std::string nominalWeightName() const {return m_nominalWeightName;}
+    inline size_t nominalWeightIndex() const {return m_nominalWeightIndex;}
+    inline bool forceNominalWeightFallbackIndex() const {return m_forceWeightIndex;}
+
+    inline void setMCweightsVectorSize(size_t weights_size) {
+      m_MCweightsSize = weights_size;
+    }
+
+    inline size_t MCweightsVectorSize() const {return m_MCweightsSize;}
 
     // Top Parton History
     inline bool doTopPartonHistory() const {return m_doTopPartonHistory;}
@@ -341,12 +371,19 @@ namespace top {
     inline bool isTopPartonHistoryRegisteredInNtuple() const {return m_isTopPartonHistoryRegisteredInNtuple;}
     inline void setTopPartonHistoryRegisteredInNtuple()
     {m_isTopPartonHistoryRegisteredInNtuple = true;}
+    
+    inline bool doTopPartonLevel() const {return m_doTopPartonLevel;}
+    inline void setTopPartonLevel(bool in) {
+      if (!m_configFixed) {
+        m_doTopPartonLevel = in;
+      }
+    }
 
     // TopParticleLevel
     inline bool doTopParticleLevel() const {return m_doTopParticleLevel;}
-    inline void setTopParticleLevel() {
+    inline void setTopParticleLevel(bool in) {
       if (!m_configFixed) {
-        m_doTopParticleLevel = true;
+        m_doTopParticleLevel = in;
       }
     }
 
@@ -476,6 +513,7 @@ namespace top {
     virtual void sgKeyJets(const std::string& s);
     virtual void sgKeyLargeRJets(const std::string& s);
     virtual void sgKeyTrackJets(const std::string& s);
+    virtual void sgKeyTracks(const std::string& s);
 
     virtual void sgKeyTruthElectrons(const std::string& s);
     virtual void sgKeyTruthMuons(const std::string& s);
@@ -497,6 +535,9 @@ namespace top {
       }
     }
 
+    inline float jetResponseMatchingDeltaR() const {return m_jetResponseMatchingDeltaR;}
+    inline void setJetResponseMatchingDeltaR(const float value) {m_jetResponseMatchingDeltaR = value;}
+
     inline const std::string& sgKeyEventInfo()  const {return m_sgKeyEventInfo;}
     inline const std::string& sgKeyPrimaryVertices() const {return m_sgKeyPrimaryVertices;}
     inline virtual const std::string& sgKeyPhotons()    const {return m_sgKeyPhotons;}
@@ -509,6 +550,8 @@ namespace top {
     inline virtual const std::string& sgKeyJetsType()   const {return m_sgKeyJetsType;}
     inline virtual const std::string& sgKeyLargeRJets() const {return m_sgKeyLargeRJets;}
     inline virtual const std::string& sgKeyTrackJets()  const {return m_sgKeyTrackJets;}
+    inline virtual const std::string& sgKeyTracks()  const {return m_sgKeyTracks;}
+    inline virtual const std::string& sgKeyTrackJetsType()  const {return m_sgKeyTrackJetsType;}
     inline virtual const std::string& sgKeyMissingEt()  const {return m_sgKeyMissingEt;}
     inline virtual const std::string& sgKeyMissingEtLoose()  const {return m_sgKeyMissingEtLoose;}
     inline const std::string& sgKeyInDetTrackParticles() const {return m_sgKeyInDetTrackParticles;}
@@ -530,6 +573,7 @@ namespace top {
     virtual void decoKeyJetGhostTrack(const std::string& key);
     inline virtual const std::string& decoKeyJetGhostTrack() const {return m_decoKeyJetGhostTrack;}
     virtual void runPeriodJetGhostTrack(const std::vector<std::uint32_t>& vect);
+    virtual void runPeriodTrack(const std::vector<std::uint32_t>& vect);
 
     virtual const std::string& sgKeyPhotons(const std::size_t hash) const;
     virtual const std::string& sgKeyElectrons(const std::size_t hash) const;
@@ -544,6 +588,7 @@ namespace top {
     virtual const std::string& sgKeyJetsStandAlone(const std::size_t hash) const;
     virtual const std::string& sgKeyLargeRJets(const std::size_t hash) const;
     virtual const std::string& sgKeyTrackJets(const std::size_t hash) const;
+    virtual const std::string& sgKeyTracks(const std::size_t hash) const;
     virtual const std::string& sgKeyMissingEt(const std::size_t hash) const;
     virtual const std::string& sgKeyMissingEtLoose(const std::size_t hash) const;
 
@@ -566,6 +611,8 @@ namespace top {
     const std::string& sgKeyLargeRJetsTDSAux(const std::size_t hash) const;
     const std::string& sgKeyTrackJetsTDS(const std::size_t hash) const;
     const std::string& sgKeyTrackJetsTDSAux(const std::size_t hash) const;
+    const std::string& sgKeyTracksTDS(const std::size_t hash) const;
+    const std::string& sgKeyTracksTDSAux(const std::size_t hash) const;
 
     // KLFitter
     const std::string& sgKeyKLFitter(const std::size_t hash) const;
@@ -578,7 +625,7 @@ namespace top {
     const std::string& sgKeyPseudoTopLoose(const std::string) const;
 
     // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-    // Jet Ghost-Track Systematics
+    // Jet Ghost-Track Systematics and selection
 
     // The jet decoration name for a given systematic (nominal also possible).
     const std::string& decoKeyJetGhostTrack(const std::size_t hash) const;
@@ -589,10 +636,14 @@ namespace top {
     // Retrieve run periods for ghost tracks.
     const std::vector<std::uint32_t>& runPeriodsJetGhostTrack() const {return m_jetGhostTrackRunPeriods;}
 
+    // Retrieve run periods for tracks.                                                                                                                                                           
+    const std::vector<std::uint32_t>& runPeriodsTrack() const {return m_trackRunPeriods;}
+
     // Retrieve mapping from systematic hash to CP::SystematicSet.
     inline std::shared_ptr<std::unordered_map<std::size_t, CP::SystematicSet> > systMapJetGhostTrack()   const {
       return m_systMapJetGhostTrack;
     }
+    
     // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
@@ -705,6 +756,12 @@ namespace top {
       }
     }
 
+    inline virtual void enablePromptLeptonImprovedVetoStudies(const std::string& s) {
+      if (!m_configFixed) {
+	m_enablePromptLeptonImprovedVetoStudies = (s == "True" || s == "true");
+      }
+    }
+
     inline virtual const std::string& egammaSystematicModel() {return m_egammaSystematicModel;}
     inline virtual const std::string& electronEfficiencySystematicModel() {return m_electronEfficiencySystematicModel;}
     inline virtual const std::string& electronEfficiencySystematicModelEtaBinning() {
@@ -726,6 +783,7 @@ namespace top {
     inline const std::string& electronIDLooseDecoration() const {return m_electronIDLooseDecoration;}
     inline bool useElectronChargeIDSelection() const {return m_useElectronChargeIDSelection;}
     inline bool useEgammaLeakageCorrection() const {return m_useEgammaLeakageCorrection;}
+    inline bool enablePromptLeptonImprovedVetoStudies() const {return m_enablePromptLeptonImprovedVetoStudies;}
 
     // Fwd electron
     inline virtual void fwdElectronID(const std::string& s) {
@@ -815,12 +873,6 @@ namespace top {
       }
     }
 
-    inline virtual void photonUseRadiativeZ(const bool b) {
-      if (!m_configFixed) {
-        m_photon_configuration.useRadiativeZ = b;
-      }
-    }
-
     // Muon configuration
     inline virtual void muonPtcut(const float pt) {
       if (!m_configFixed) {
@@ -837,6 +889,30 @@ namespace top {
     inline virtual void muonQuality(const std::string& quality) {
       if (!m_configFixed) {
         m_muonQuality = quality;
+      }
+    }
+
+    void muonUseMVALowPt(const bool& UseMVALowPt) {
+      if (!m_configFixed) {
+	m_muonUseMVALowPt = UseMVALowPt;
+      }
+    }
+
+    void muonUse2stationMuonsHighPt(const bool& Use2stationMuonsHighPt) {
+      if (!m_configFixed) {
+	m_muonUse2stationMuonsHighPt = Use2stationMuonsHighPt;
+      }
+    }
+
+    void muonUseMVALowPtLoose(const bool& UseMVALowPtLoose) {
+      if (!m_configFixed) {
+	m_muonUseMVALowPtLoose = UseMVALowPtLoose;
+      }
+    }
+
+    void muonUse2stationMuonsHighPtLoose(const bool& Use2stationMuonsHighPtLoose) {
+      if (!m_configFixed) {
+	m_muonUse2stationMuonsHighPtLoose = Use2stationMuonsHighPtLoose;
       }
     }
 
@@ -870,14 +946,32 @@ namespace top {
       }
     }
 
+    void muonMuonDoSmearing2stationHighPt(const bool& MuonDoSmearing2stationHighPt) {
+      if (!m_configFixed) {
+	m_muonMuonDoSmearing2stationHighPt = MuonDoSmearing2stationHighPt;
+      }
+    }
+
+    void muonMuonDoExtraSmearingHighPt(const bool& MuonDoExtraSmearingHighPt) {
+      if (!m_configFixed) {
+	m_muonMuonDoExtraSmearingHighPt = MuonDoExtraSmearingHighPt;
+      }
+    }
+
     inline virtual float muonPtcut() const {return m_muonPtcut;}
     inline virtual float muonEtacut() const {return m_muonEtacut;}
     inline virtual const std::string& muonQuality() const {return m_muonQuality;}
     inline virtual const std::string& muonQualityLoose() const {return m_muonQualityLoose;}
+    inline virtual bool muonUseMVALowPt() const {return m_muonUseMVALowPt;}
+    inline virtual bool muonUse2stationMuonsHighPt() const {return m_muonUse2stationMuonsHighPt;}
+    inline virtual bool muonUseMVALowPtLoose() const {return m_muonUseMVALowPtLoose;}
+    inline virtual bool muonUse2stationMuonsHighPtLoose() const {return m_muonUse2stationMuonsHighPtLoose;}
     inline virtual const std::string& muonIsolation() const {return m_muonIsolation;}
     inline virtual const std::string& muonIsolationLoose() const {return m_muonIsolationLoose;}
     std::string const& muonIsolationSF() const {return m_muonIsolationSF;}
     std::string const& muonIsolationSFLoose() const {return m_muonIsolationSFLoose;}
+    inline virtual bool muonMuonDoSmearing2stationHighPt() const {return m_muonMuonDoSmearing2stationHighPt;}
+    inline virtual bool muonMuonDoExtraSmearingHighPt() const {return m_muonMuonDoExtraSmearingHighPt;}
 
     // Soft Muon configuration
     inline virtual void softmuonPtcut(const float pt) {
@@ -898,9 +992,21 @@ namespace top {
       }
     }
 
+    void softmuonUseMVALowPt(const bool UseMVALowPtSoftMuon) {
+      if (!m_configFixed) {
+        m_softmuonUseMVALowPt = UseMVALowPtSoftMuon;
+      }
+    }
+
     inline virtual void softmuonDRJetcut(const float DRJet) {
       if (!m_configFixed) {
         m_softmuonDRJetcut = DRJet;
+      }
+    }
+    
+    inline virtual void softmuonDRJetcutUseRapidity(const bool in) {
+      if (!m_configFixed) {
+        m_softmuonDRJetcutUseRapidity = in;
       }
     }
     
@@ -925,7 +1031,9 @@ namespace top {
     inline virtual float softmuonPtcut() const {return m_softmuonPtcut;}
     inline virtual float softmuonEtacut() const {return m_softmuonEtacut;}
     inline virtual const std::string& softmuonQuality() const {return m_softmuonQuality;}
+    inline virtual bool softmuonUseMVALowPt() const {return m_softmuonUseMVALowPt;}
     inline virtual float softmuonDRJetcut() const {return m_softmuonDRJetcut;}
+    inline virtual bool softmuonDRJetcutUseRapidity() const {return m_softmuonDRJetcutUseRapidity;}
     inline virtual bool softmuonAdditionalTruthInfo() const { return m_softmuonAdditionalTruthInfo;}
     inline virtual bool softmuonAdditionalTruthInfoCheckPartonOrigin() const { return m_softmuonAdditionalTruthInfoCheckPartonOrigin;}
     inline virtual bool softmuonAdditionalTruthInfoDoVerbose() const { return m_softmuonAdditionalTruthInfoDoVerbose;}
@@ -943,22 +1051,51 @@ namespace top {
       }
     }
 
-    inline virtual void fwdJetAndMET(const std::string& fwd) {
+    inline virtual void jetPtGhostTracks(const float pt, const float small_jet_pt) {
       if (!m_configFixed) {
-        m_fwdJetAndMET = fwd;
+        if ( small_jet_pt >= pt+4999){  
+            m_jetPtGhostTracks = pt;
+        }
+        else {
+            m_jetPtGhostTracks = (small_jet_pt - 5000) > 20000 ? (small_jet_pt - 5000) : 20000;
+        }
       }
     }
-
-    inline virtual void jetPtGhostTracks(const float pt) {
+    
+    inline virtual void jetEtaGhostTracks(const float eta) {
       if (!m_configFixed) {
-        m_jetPtGhostTracks = pt;
+        m_jetEtaGhostTracks = eta;
       }
+    }
+    
+    inline virtual void ghostTrackspT(const float pt) {
+      if (!m_configFixed) {
+        m_ghostTrackspT = pt;
+      }
+    }
+    
+    inline virtual void ghostTracksVertexAssociation(const std::string& vertexassociation) {
+      if (!m_configFixed) {
+        m_ghostTracksVertexAssociation = vertexassociation;
+      }
+    }
+    
+    inline virtual void ghostTracksQuality(const std::string& ghostTracksQuality) {
+     if (!m_configFixed) {
+        m_ghostTracksQuality = ghostTracksQuality;
+     }
     }
 
     inline virtual float jetPtcut()  const {return m_jetPtcut;}
     inline virtual float jetEtacut() const {return m_jetEtacut;}
-    inline virtual const std::string& fwdJetAndMET() const {return m_fwdJetAndMET;}
+    
+    inline virtual float ghostTrackspT()  const {return m_ghostTrackspT;}
+    inline virtual const std::string& ghostTracksVertexAssociation()  const {return m_ghostTracksVertexAssociation;}
+    inline virtual const std::string& ghostTracksQuality()  const {return m_ghostTracksQuality;}
+    
     inline virtual float jetPtGhostTracks()  const {return m_jetPtGhostTracks;}
+    inline virtual float jetEtaGhostTracks()  const {return m_jetEtaGhostTracks;}
+
 
     inline virtual void largeRJetPtcut(const float pt) {
       if (!m_configFixed) {
@@ -977,6 +1114,12 @@ namespace top {
         m_largeRJetUncertainties_NPModel = largeR_config;
       }
     }
+    
+    inline virtual void largeRJetUncertaintiesConfigDir(const std::string& largeRConfigDir) {
+      if (!m_configFixed) {
+        m_largeRJetUncertaintiesConfigDir = largeRConfigDir;
+      }
+    }
 
     inline virtual void largeRJESJMSConfig(const std::string& largeR_config) {
       if (!m_configFixed) {
@@ -987,6 +1130,7 @@ namespace top {
     inline virtual float largeRJetPtcut()  const {return m_largeRJetPtcut;}
     inline virtual float largeRJetEtacut() const {return m_largeRJetEtacut;}
     inline virtual const std::string& largeRJetUncertainties_NPModel() const {return m_largeRJetUncertainties_NPModel;}
+    inline virtual const std::string& largeRJetUncertaintiesConfigDir() const {return m_largeRJetUncertaintiesConfigDir;}
     inline virtual const std::string& largeRJESJMSConfig() const {return m_largeRJESJMSConfig;}
 
     inline virtual void trackJetPtcut(const float pt) {
@@ -1004,8 +1148,37 @@ namespace top {
     inline virtual float trackJetPtcut()  const {return m_trackJetPtcut;}
     inline virtual float trackJetEtacut() const {return m_trackJetEtacut;}
 
+
+    inline virtual void trackPtcut(const float pt) {
+      if (!m_configFixed) {
+        m_trackPtcut = pt;
+      }
+    }
+
+    inline virtual void trackEtacut(const float eta) {
+      if (!m_configFixed) {
+        m_trackEtacut = eta;
+      }
+    }
+
+    inline virtual void trackQuality(const std::string& quality) {
+      if (!m_configFixed) {
+        m_trackQuality = quality;
+      }
+    }
+
+
+    inline virtual const std::string& trackQuality() const {return m_trackQuality;}
+    inline virtual float trackPtcut()  const {return m_trackPtcut;}
+    inline virtual float trackEtacut() const {return m_trackEtacut;}
+
+
+
+
     inline virtual float RCJetPtcut() const {return m_RCJetPtcut;}
     inline virtual float RCJetEtacut() const {return m_RCJetEtacut;}
+    inline virtual float RCInputJetPtMin() const {return m_RCInputJetPtMin;}
+    inline virtual float RCInputJetEtaMax() const {return m_RCInputJetEtaMax;}
     inline virtual float RCJetTrimcut() const {return m_RCJetTrimcut;}
     inline virtual float RCJetRadius() const {return m_RCJetRadius;}
     inline virtual bool useRCJetSubstructure() const {return m_useRCJetSubstructure;}
@@ -1020,6 +1193,18 @@ namespace top {
     inline virtual void RCJetEtacut(const float eta) {
       if (!m_configFixed) {
         m_RCJetEtacut = eta;
+      }
+    }
+
+    inline virtual void RCInputJetPtMin(const float pt) {
+      if (!m_configFixed) {
+        m_RCInputJetPtMin = pt;
+      }
+    }
+
+    inline virtual void RCInputJetEtaMax(const float eta) {
+      if (!m_configFixed) {
+        m_RCInputJetEtaMax = eta;
       }
     }
 
@@ -1104,19 +1289,11 @@ namespace top {
       }
     }
 
-    inline virtual void jetUncertainties_BunchSpacing(const std::string& s) {
-      if (!m_configFixed) {
-        m_jetUncertainties_BunchSpacing = s;
-      }
-    }
-
-    inline virtual const std::string& jetUncertainties_BunchSpacing() const {return m_jetUncertainties_BunchSpacing;}
 
     virtual void jetUncertainties_NPModel(const std::string& s);
     virtual void jetUncertainties_QGFracFile(const std::string& s);
     virtual void jetUncertainties_QGHistPatterns(const std::string& s);
     inline bool doMultipleJES() const {return m_doMultipleJES;}
-    inline bool doLargeRSmallRCorrelations() const {return m_largeRSmallRCorrelations;}
     inline virtual const std::string& jetUncertainties_NPModel() const {return m_jetUncertainties_NPModel;}
     inline virtual const std::string& jetUncertainties_QGFracFile() const {return m_jetUncertainties_QGFracFile;}
     inline virtual const std::vector<std::string>& jetUncertainties_QGHistPatterns() const {
@@ -1165,8 +1342,34 @@ namespace top {
     inline const std::string& getJVTWP() const {return m_JVTWP;}
     inline void setJVTWP(const std::string& value) {m_JVTWP = value;}
 
+    inline virtual void doForwardJVTinMET(const bool& dofJVT) {
+      if (!m_configFixed) {
+        m_doForwardJVTInMETCalculation = dofJVT;
+      }
+    }
+
+    inline virtual bool doForwardJVTinMET() const {return m_doForwardJVTInMETCalculation;}
+    inline virtual void saveFailForwardJVTJets(const bool& dofJVT) {
+      if (!m_configFixed) {
+        m_saveFailForwardJVTJets = dofJVT;
+      }
+    }
+
+    inline virtual bool saveFailForwardJVTJets() const {return m_saveFailForwardJVTJets;}
+
+    inline const std::string& getfJVTWP() const {return m_fJVTWP;}
+    inline void setfJVTWP(const std::string& value) {m_fJVTWP = value;}
+
     inline virtual float JSF() const {return m_JSF;}
     inline virtual float bJSF() const {return m_bJSF;}
+
+    // MET Configuration
+    inline virtual void METUncertaintiesConfigDir(const std::string& METConfigDir) {
+      if (!m_configFixed) {
+        m_METUncertaintiesConfigDir = METConfigDir;
+      }
+    }
+    inline virtual const std::string& METUncertaintiesConfigDir() const {return m_METUncertaintiesConfigDir;}
 
     // Tau configuration setters
     inline virtual void tauPtcut(const float pt) {
@@ -1305,10 +1508,6 @@ namespace top {
 
     inline const std::string& photonIsolationLoose() {
       return m_photon_configuration_loose.isolation;
-    }
-
-    inline const bool& photonUseRadiativeZ() {
-      return m_photon_configuration.useRadiativeZ;
     }
 
     // inline const std::string& tauJetID() const {return m_tauJetID;}
@@ -1608,6 +1807,7 @@ namespace top {
     virtual void systematicsJets(const std::list<CP::SystematicSet>& syst);
     virtual void systematicsLargeRJets(const std::list<CP::SystematicSet>& syst);
     virtual void systematicsTrackJets(const std::list<CP::SystematicSet>& syst);
+    virtual void systematicsTracks(const std::list<CP::SystematicSet>& syst);
     virtual void systematicsMET(const std::list<CP::SystematicSet>& syst);
 
     virtual void systematicsJetGhostTrack(const std::list<CP::SystematicSet>& syst);
@@ -1652,6 +1852,7 @@ namespace top {
     std::shared_ptr<std::unordered_map<std::size_t, std::string> > systSgKeyMapJets(const bool useLooseLeptonJets) const;
     inline std::shared_ptr<std::unordered_map<std::size_t, std::string> > systSgKeyMapLargeRJets() const {return m_systSgKeyMapLargeRJets;}
     inline std::shared_ptr<std::unordered_map<std::size_t, std::string> > systSgKeyMapTrackJets()  const {return m_systSgKeyMapTrackJets;}
+    inline std::shared_ptr<std::unordered_map<std::size_t, std::string> > systSgKeyMapTracks()  const {return m_systSgKeyMapTracks;}
 
     // TTree names
     inline std::shared_ptr<std::unordered_map<std::size_t, std::string> > systAllTTreeNames() const {return m_systAllTTreeNames;}
@@ -1686,7 +1887,12 @@ namespace top {
     inline void setUseEventLevelJetCleaningTool(const bool value) {m_useEventLevelJetCleaningTool = value;}
 
     // Just a function that might need to be used in multiple places - return the running year (2015, 2016, 2017)
-    const std::string getYear(unsigned int runnumber);
+    std::string getYear(unsigned int runnumber, const bool isMC);
+    
+    const std::string& getYear(){return m_year;}
+    void SetYear(const std::string& year){m_year = year;}
+
+    void SetTriggersToYear(const bool isMC);
 
     // Setter and getter functions for recording whether we have configured the nominal objects
     inline virtual void setNominalAvailable(const bool s) {m_isNominalAvailable = s;}
@@ -1707,6 +1913,8 @@ namespace top {
     inline std::vector<std::string> getGlobalTriggerMuonTools()           const {return m_trigGlobalConfiguration.muon_trigger_tool_names;}
     
     inline const TreeFilter* getTreeFilter() const { return m_treeFilter.get();}
+
+    inline const std::unordered_map<std::string, std::string>& GetMCMCTranslator() const {return m_showerMCMCtranslator;}
     
   private:
     // Prevent any more configuration
@@ -1740,6 +1948,8 @@ namespace top {
     // available. However, we want the systematics to be executed automatically
     // whenever the user has "configured" ghost tracks.
     bool m_useJetGhostTrack;
+
+    bool m_useTracks;
 
     // Are we using particle flow jets
     // Need this as some things aren't supported at the moment
@@ -1775,11 +1985,12 @@ namespace top {
 
     unsigned int m_DSID;
     unsigned int m_MapIndex;
+    SampleXsection::showering m_showeringAlgo;
     bool m_is_sherpa_22_vjets = false;
 
     bool m_isMC;
     bool m_isAFII;
-    std::vector<std::string> m_filterBranches;
+    std::vector<std::string> m_filterBranches, m_filterPartonLevelBranches, m_filterParticleLevelBranches;
     std::string m_generators;
     std::string m_AMITag;
     bool m_isPrimaryxAOD;
@@ -1847,12 +2058,15 @@ namespace top {
     // list of names of nominal weight
     // attempts to find nominal weight in the order as specified here
     std::vector<std::string> m_nominalWeightNames;
-    std::string m_detectedNominalWeightName;
-    size_t m_detectedNominalWeightIndex;
+    std::string m_nominalWeightName;
+    size_t m_nominalWeightIndex;
+    size_t m_MCweightsSize;
+    bool m_forceWeightIndex; // to force useage of index instead of metadata
 
     // Top Parton History
     bool m_doTopPartonHistory;
     bool m_isTopPartonHistoryRegisteredInNtuple;
+    bool m_doTopPartonLevel;
 
     // Top Particle Level
     bool m_doTopParticleLevel;
@@ -1888,9 +2102,10 @@ namespace top {
     std::string m_sgKeyJetsType;
     std::string m_sgKeyLargeRJets;
     std::string m_sgKeyTrackJets;
+    std::string m_sgKeyTrackJetsType;
+
     std::string m_sgKeyMissingEt;
     std::string m_sgKeyMissingEtLoose;
-    std::string m_sgKeyInDetTrackParticles;
 
     std::string m_sgKeyTruthEvent;
     std::string m_sgKeyMCParticle;
@@ -1910,6 +2125,15 @@ namespace top {
     std::string m_decoKeyJetGhostTrack;
     std::vector<std::string> m_jetGhostTrackSystematics;
     std::vector<std::uint32_t> m_jetGhostTrackRunPeriods;
+
+    std::string m_sgKeyInDetTrackParticles;    
+    std::string m_sgKeyTracks;
+    std::string m_sgKeyTracksType;
+    std::vector<std::uint32_t> m_trackRunPeriods;
+
+    
+
+    float m_jetResponseMatchingDeltaR;
 
     // special: allow to dump the systematics-shifted b-tagging SFs in the systematics trees
     bool m_dumpBtagSystsInSystTrees;
@@ -1937,6 +2161,7 @@ namespace top {
     std::string m_electronIDLooseDecoration;
     bool m_useElectronChargeIDSelection;
     bool m_useEgammaLeakageCorrection;
+    bool m_enablePromptLeptonImprovedVetoStudies;
 
     //Fwd electron configuration
     float m_fwdElectronPtcut;
@@ -1947,25 +2172,31 @@ namespace top {
     int m_fwdElectronBCIDCleaningMinRun;
     int m_fwdElectronBCIDCleaningMaxRun;
 
-
-
     // Muon configuration
     float m_muonPtcut; // muon object selection pT cut
     float m_muonEtacut; // muon object selection (abs) eta cut
     std::string m_muonQuality; // muon quality used in object selection
+    bool m_muonUseMVALowPt; //to turn on MVA for low-pT muons
+    bool m_muonUse2stationMuonsHighPt; //to allow muon reco with 2-station
     std::string m_muonQualityLoose; // loose muon quality used in object selection
+    bool m_muonUseMVALowPtLoose; //to turn on MVA for low-pT muons (loose tree)
+    bool m_muonUse2stationMuonsHighPtLoose; //to allow muon reco with 2-station (loose tree)
     std::string m_muonIsolation;
     std::string m_muonIsolationLoose;
     std::string m_muonIsolationSF;
     std::string m_muonIsolationSFLoose;
     int m_muon_d0SigCut;
     float m_muon_delta_z0;
+    bool m_muonMuonDoSmearing2stationHighPt; //to turn on/off special correction for the reco with 2-station muons with missing inner MS station allowed for abs(eta)<1.3, only HighPt WP
+    bool m_muonMuonDoExtraSmearingHighPt; //to turn on/off a special correction for the muon with high momenta.
 
     //Soft muon configuration
     float m_softmuonPtcut; // soft muon object selection pT cut
     float m_softmuonEtacut; // soft muon object selection (abs) eta cut
     std::string m_softmuonQuality; // soft muon quality used in object selection
+    bool m_softmuonUseMVALowPt; //to turn on MVA for low-pT muons
     float m_softmuonDRJetcut; // soft muon object selection DR wrt jets cut
+    bool m_softmuonDRJetcutUseRapidity; // true -> use rapidity for DR(jet,mu) matching; false -> use pseudorapidity
     bool m_softmuonAdditionalTruthInfo; //additional info on the particle-level origin of the muon, see TopParticleLevel/TruthTools.h
     bool m_softmuonAdditionalTruthInfoCheckPartonOrigin; //additional info on the parton-level origin of the muon, see TopParticleLevel/TruthTools.h
     bool m_softmuonAdditionalTruthInfoDoVerbose; //to help debugging the above options
@@ -1973,26 +2204,36 @@ namespace top {
     // Jet configuration
     float m_jetPtcut; // jet object selection pT cut
     float m_jetEtacut; // jet object selection (abs) eta cut
-    std::string m_fwdJetAndMET; // type of treatment of forward jets, including for MET calculation
     float m_jetPtGhostTracks; // jet pt threshold for ghost track systematic variations calculation
-    std::string m_jetUncertainties_BunchSpacing; // 25ns or 50ns
+    float m_jetEtaGhostTracks; // jet eta threshold for ghost track systematic variations calculation
     std::string m_jetUncertainties_NPModel; // AllNuisanceParameters, 19NP or 3NP
     std::string m_jetUncertainties_QGFracFile; // to improve Flavour composition and response
     std::vector<std::string> m_jetUncertainties_QGHistPatterns; // to improve Flavour composition and response, with
                                                                 // more flexibility
     bool m_doMultipleJES;
-    bool m_largeRSmallRCorrelations = false; // Add correlations of large/small R jets
     std::string m_jetJERSmearingModel; // Full or Simple
     std::string m_jetCalibSequence; // GCC or JMS
     bool m_jetStoreTruthLabels; // True or False
     bool m_doJVTInMETCalculation;
     bool m_saveFailJVTJets;
     std::string m_JVTWP;
+    bool m_doForwardJVTInMETCalculation;
+    bool m_saveFailForwardJVTJets;
+    std::string m_fJVTWP;
+
+    // MET configuration
+    std::string m_METUncertaintiesConfigDir; //Path prefix for directory with MET calibration configs
+    
+    //Ghost tracks quality
+    float m_ghostTrackspT;
+    std::string m_ghostTracksVertexAssociation;
+    std::string m_ghostTracksQuality;
 
     // Large R jet configuration
     float m_largeRJetPtcut; // large R jet object selection pT cut
     float m_largeRJetEtacut; // large R jet object selection (abs) eta cut
     std::string m_largeRJetUncertainties_NPModel; //large R JES/(plus old JMS, JMR, JER) uncertainties configuration
+    std::string m_largeRJetUncertaintiesConfigDir; //Relative path to directory with large R JES config
                                                   // file
     //See https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2019LargeR
     std::string m_largeRJESJMSConfig; // large R jet JES/JMS calibration choice - see ANALYSISTO-210
@@ -2001,9 +2242,15 @@ namespace top {
     float m_trackJetPtcut; // track jet object selection pT cut
     float m_trackJetEtacut; // track jet object selection (abs) eta cut
 
+    // Tracks
+    float m_trackPtcut; // track object selection pT cut
+    float m_trackEtacut; // track object selection (abs) eta cut
+
     // Jet configuration for reclustered jets
     float m_RCJetPtcut;
     float m_RCJetEtacut;
+    float m_RCInputJetPtMin;
+    float m_RCInputJetEtaMax;
     float m_RCJetTrimcut;
     float m_RCJetRadius;
     bool m_useRCJetSubstructure;
@@ -2018,6 +2265,8 @@ namespace top {
     std::string m_VarRCJetMassScale;
     bool m_useVarRCJetSubstructure;
     bool m_useVarRCJetAdditionalSubstructure;
+
+    std::string m_trackQuality; // track quality to be used in track selection                                                                                                                              
 
     // these are needed for the top mass analysis, per default should be 1.0
     float m_JSF;
@@ -2051,7 +2300,6 @@ namespace top {
       float eta = 2.5;
       std::string isolation = "None";
       std::string identification = "None";
-      bool useRadiativeZ = false;
     } m_photon_configuration, m_photon_configuration_loose;
 
     // [[[-----------------------------------------------
@@ -2286,6 +2534,7 @@ namespace top {
     std::shared_ptr<std::unordered_set<std::size_t> > m_systHashJets;
     std::shared_ptr<std::unordered_set<std::size_t> > m_systHashLargeRJets;
     std::shared_ptr<std::unordered_set<std::size_t> > m_systHashTrackJets;
+    std::shared_ptr<std::unordered_set<std::size_t> > m_systHashTracks;
     std::shared_ptr<std::unordered_set<std::size_t> > m_systHashMET;
 
     std::shared_ptr<std::unordered_set<std::size_t> > m_systHashAll;
@@ -2303,6 +2552,7 @@ namespace top {
     std::shared_ptr<std::unordered_map<std::size_t, CP::SystematicSet> > m_systMapJets;
     std::shared_ptr<std::unordered_map<std::size_t, CP::SystematicSet> > m_systMapLargeRJets;
     std::shared_ptr<std::unordered_map<std::size_t, CP::SystematicSet> > m_systMapTrackJets;
+    std::shared_ptr<std::unordered_map<std::size_t, CP::SystematicSet> > m_systMapTracks;
     std::shared_ptr<std::unordered_map<std::size_t, CP::SystematicSet> > m_systMapMET;
 
     std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systSgKeyMapPhotons;
@@ -2316,6 +2566,7 @@ namespace top {
     std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systSgKeyMapJetsLoose_electronInJetSubtraction;
     std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systSgKeyMapLargeRJets;
     std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systSgKeyMapTrackJets;
+    std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systSgKeyMapTracks;
     std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systSgKeyMapMET;
 
     // For TopEvent/SingleSystEvent - will return the nominal key if not under variation
@@ -2328,6 +2579,8 @@ namespace top {
     std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systAllSgKeyMapJets;
     std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systAllSgKeyMapLargeRJets;
     std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systAllSgKeyMapTrackJets;
+    std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systAllSgKeyMapTracks;
+
     // The boosted case is a bit more complex, we need additional collections
     std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systAllSgKeyMapElectrons_electronInJetSubtraction;
     std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systAllSgKeyMapJets_electronInJetSubtraction;
@@ -2352,6 +2605,9 @@ namespace top {
     std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systAllSgKeyMapLargeRJetsTDSAux;
     std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systAllSgKeyMapTrackJetsTDS;
     std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systAllSgKeyMapTrackJetsTDSAux;
+    std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systAllSgKeyMapTracksTDS;
+    std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systAllSgKeyMapTracksTDSAux;
+
     std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systAllSgKeyMapElectrons_electronInJetSubtractionTDS;
     std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systAllSgKeyMapElectrons_electronInJetSubtractionTDSAux;
     std::shared_ptr<std::unordered_map<std::size_t, std::string> > m_systAllSgKeyMapJets_electronInJetSubtractionTDS;
@@ -2405,11 +2661,15 @@ namespace top {
     
     std::shared_ptr<TreeFilter> m_treeFilter;
 
+    std::unordered_map<std::string, std::string> m_showerMCMCtranslator;
+
+    std::string m_year;
+
     //ReadFloatOption
     float readFloatOption(top::ConfigurationSettings* const& settings, std::string in) const;
   };
-}  // namespace top
 
-std::ostream& operator << (std::ostream& os, const top::TopConfig& config);
+  std::ostream& operator << (std::ostream& os, const TopConfig& config);
+}  // namespace top
 
 #endif

@@ -343,10 +343,10 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 from DerivationFrameworkHiggs.HIGG5D3ExtraContent import *
 HIGG5D3SlimmingHelper = SlimmingHelper("HIGG5D3SlimmingHelper")
 HIGG5D3SlimmingHelper.AppendToDictionary = {
-  "AntiKtVR30Rmax4Rmin02TrackJets"                :   "xAOD::JetContainer"        ,
-  "AntiKtVR30Rmax4Rmin02TrackJetsAux"             :   "xAOD::JetAuxContainer"     ,
-  "BTagging_AntiKtVR30Rmax4Rmin02Track"           :   "xAOD::BTaggingContainer"   ,
-  "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"        :   "xAOD::BTaggingAuxContainer",
+  "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810"     :   "xAOD::JetContainer"        ,
+  "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810Aux"  :   "xAOD::JetAuxContainer"     ,
+  "BTagging_AntiKtVR30Rmax4Rmin02Track_201810"        :   "xAOD::BTaggingContainer"   ,
+  "BTagging_AntiKtVR30Rmax4Rmin02Track_201810Aux"     :   "xAOD::BTaggingAuxContainer",
   }
 
 HIGG5D3SlimmingHelper.SmartCollections   = HIGG5Common.getHIGG5CommonSmartCollections()

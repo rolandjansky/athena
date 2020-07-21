@@ -16,7 +16,7 @@
 // Include this class's header
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 #include "ElectronPhotonSelectorTools/ElectronSelectorHelpers.h"
-#include "AsgElectronPhotonIsEMSelectorConfigHelper.h"
+#include "EgammaAnalysisHelpers/AsgElectronPhotonIsEMSelectorConfigHelper.h"
 #include "TElectronLikelihoodTool.h"
 #include "EGSelectorConfigurationMapping.h"
 

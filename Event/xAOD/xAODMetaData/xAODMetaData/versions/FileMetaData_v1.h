@@ -68,8 +68,10 @@ namespace xAOD {
          mcProcID = 9,
          /// Fast or Full sim [string]
          simFlavour = 10,
+         /// Used data overlay for backgrounds [bool]
+         isDataOverlay = 11,
          /// End marker
-         END = 11
+         END = 12
       }; // enum MetaDataType
 
       /// Get a pre-defined string value out of the object
@@ -91,6 +93,16 @@ namespace xAOD {
       bool setValue( MetaDataType type, float val );
       /// Set a generic float value on the object
       bool setValue( const std::string& type, float val );
+
+      /// Get a pre-defined bool value out of the object
+      bool value( MetaDataType type, bool& val ) const;
+      /// Get a generic bool value out of the object
+      bool value( const std::string& type, bool& val ) const;
+
+      /// Set a pre-defined bool value on the object
+      bool setValue( MetaDataType type, bool val );
+      /// Set a generic bool value on the object
+      bool setValue( const std::string& type, bool val );
 
    }; // class FileMetaData_v1
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Class handling the probability calculation of the MissingMassCalculator
@@ -142,7 +142,7 @@ double MissingMassProb::MnuProbabilityNewWrapper( MissingMassProb* prob, Missing
 
 void MissingMassProb::setParamNuMass() {
   if (paramVectorNuMass.size() > 0){
-    for(int i=0; formulaNuMass->GetNpar(); i++){
+    for(int i=0; i<formulaNuMass->GetNpar(); i++){
       formulaNuMass->SetParameter(i, paramVectorNuMass[0]->GetParameter(i));
     }
   }
@@ -1037,8 +1037,8 @@ double MissingMassProb::dTheta3d_probabilityFast(MissingMassInput& preparedInput
   else
     {
       Warning("DiTauMassTools", ">>>> WARNING in MissingMassCalculator::dTheta3d_probabilityFast() <<<<");
-      Warning("DiTauMassTools", ("..... wrong tau_type="+std::to_string(tau_type)).c_str());
-      Warning("DiTauMassTools", ("..... returning prob="+std::to_string(prob)).c_str());
+      Warning("DiTauMassTools", "%s", ("..... wrong tau_type="+std::to_string(tau_type)).c_str());
+      Warning("DiTauMassTools", "%s", ("..... returning prob="+std::to_string(prob)).c_str());
       Warning("DiTauMassTools", "____________________________________________________________");
       return prob;
     }
@@ -1068,8 +1068,8 @@ double MissingMassProb::dTheta3d_probabilityFast(MissingMassInput& preparedInput
       if( preparedInput.fUseVerbose==1 && (prob>1.0 || prob<0.0))
         {
           Warning("DiTauMassTools", ">>>> WARNING in MissingMassCalculator::dTheta3d_probabilityFast() <<<<");
-          Warning("DiTauMassTools", ("..... wrong probability="+std::to_string(prob)).c_str());
-          Warning("DiTauMassTools", ("..... debugging: tau_type="+std::to_string(tau_type)+"dTheta3d="+std::to_string(dTheta3d)+"  P_tau="+std::to_string(P_tau)).c_str());
+          Warning("DiTauMassTools", "%s", ("..... wrong probability="+std::to_string(prob)).c_str());
+          Warning("DiTauMassTools", "%s", ("..... debugging: tau_type="+std::to_string(tau_type)+"dTheta3d="+std::to_string(dTheta3d)+"  P_tau="+std::to_string(P_tau)).c_str());
           Warning("DiTauMassTools", "____________________________________________________________");
           prob=1.0E-10;
         }
@@ -1332,17 +1332,17 @@ void MissingMassProb::MET(MissingMassInput& preparedInput){
                   METoffset = 6.61*(1.0+preparedInput.METresSyst*sigmaSyst);
                 }
               if(preparedInput.fUseVerbose==1) {
-                Info("DiTauMassTools", ("SumEt = "+std::to_string(preparedInput.SumEt)).c_str());
-                Info("DiTauMassTools", ("METoffset = "+std::to_string(METoffset)).c_str());
-                Info("DiTauMassTools", ("METresScale = "+std::to_string(METresScale)).c_str());
+                Info("DiTauMassTools", "%s", ("SumEt = "+std::to_string(preparedInput.SumEt)).c_str());
+                Info("DiTauMassTools", "%s", ("METoffset = "+std::to_string(METoffset)).c_str());
+                Info("DiTauMassTools", "%s", ("METresScale = "+std::to_string(METresScale)).c_str());
               }
 
               double sigma = preparedInput.SumEt>0.0 ? METoffset+METresScale*sqrt(preparedInput.SumEt) : METoffset;
               preparedInput.METsigmaP = sigma;
               preparedInput.METsigmaL = sigma;
               if(preparedInput.fUseVerbose==1) {
-                Info("DiTauMassTools", ("=> METsigmaP = "+std::to_string(preparedInput.METsigmaP)).c_str());
-                Info("DiTauMassTools", ("=> METsigmaL = "+std::to_string(preparedInput.METsigmaL)).c_str());
+                Info("DiTauMassTools", "%s", ("=> METsigmaP = "+std::to_string(preparedInput.METsigmaP)).c_str());
+                Info("DiTauMassTools", "%s", ("=> METsigmaL = "+std::to_string(preparedInput.METsigmaL)).c_str());
               }
             }
           if(preparedInput.Njet25>0) // Inclusive 1-jet
@@ -1405,7 +1405,7 @@ void MissingMassProb::MET(MissingMassInput& preparedInput){
                             double sigma =  preparedInput.SumEt>0.0 ? METoffset+METresScale*sqrt(preparedInput.SumEt) : METoffset;
                             preparedInput.METsigmaP = sigma;
                             preparedInput.METsigmaL = sigma;
-                            Info("DiTauMassTools", ("DRDR lh nj0 2011 sigma = "+std::to_string(sigma)).c_str());
+                            Info("DiTauMassTools", "%s", ("DRDR lh nj0 2011 sigma = "+std::to_string(sigma)).c_str());
                           }
                       }
                       else if (m_MMCCalibrationSet==MMCCalibrationSetV2::MMC2012){

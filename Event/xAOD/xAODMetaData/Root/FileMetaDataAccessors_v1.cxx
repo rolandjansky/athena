@@ -14,7 +14,7 @@
 #define DECLARE_STRING_ACCESSOR( TYPE )                              \
    case FileMetaData_v1::TYPE:                                       \
    do {                                                              \
-      static SG::AuxElement::Accessor< std::string > acc( #TYPE );   \
+      const static SG::AuxElement::Accessor< std::string > acc( #TYPE ); \
       return &acc;                                                   \
    } while( 0 )
 
@@ -22,13 +22,21 @@
 #define DECLARE_FLOAT_ACCESSOR( TYPE )                               \
    case FileMetaData_v1::TYPE:                                       \
    do {                                                              \
-      static SG::AuxElement::Accessor< float > acc( #TYPE );         \
+      const static SG::AuxElement::Accessor< float > acc( #TYPE );   \
+      return &acc;                                                   \
+   } while( 0 )
+
+/// Helper macro for implementing the accessor function
+#define DECLARE_CHAR_ACCESSOR( TYPE )                                \
+   case FileMetaData_v1::TYPE:                                       \
+   do {                                                              \
+      const static SG::AuxElement::Accessor< char > acc( #TYPE );    \
       return &acc;                                                   \
    } while( 0 )
 
 namespace xAOD {
 
-   SG::AuxElement::Accessor< std::string >*
+   const SG::AuxElement::Accessor< std::string >*
    metaDataTypeStringAccessorV1( FileMetaData_v1::MetaDataType type ) {
 
       switch( type ) {
@@ -53,7 +61,7 @@ namespace xAOD {
       return 0;
    }
 
-   SG::AuxElement::Accessor< float >*
+   const SG::AuxElement::Accessor< float >*
    metaDataTypeFloatAccessorV1( FileMetaData_v1::MetaDataType type ) {
 
       switch( type ) {
@@ -63,6 +71,23 @@ namespace xAOD {
 
       default:
          std::cerr << "xAOD::FileMetaData_v1    ERROR No float accessor for "
+                   << "type: " << type << std::endl;
+         return 0;
+      }
+
+      // Just to make sure the compiler doesn't complain:
+      return 0;
+   }
+
+   const SG::AuxElement::Accessor< char >*
+   metaDataTypeCharAccessorV1( FileMetaData_v1::MetaDataType type ) {
+
+      switch( type ) {
+
+         DECLARE_CHAR_ACCESSOR( isDataOverlay );
+
+      default:
+         std::cerr << "xAOD::FileMetaData_v1    ERROR No char accessor for "
                    << "type: " << type << std::endl;
          return 0;
       }

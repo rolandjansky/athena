@@ -21,7 +21,7 @@ namespace DerivationFramework {
 // internal accessor structure
   HbbAccessors::HbbAccessors():
     parent("Parent"),
-    subjets("GhostVR30Rmax4Rmin02TrackJet"),
+    subjets("GhostVR30Rmax4Rmin02TrackJet_BTagging201810"),
     coneAssociator("BTagTrackToJetAssociator"),
     ghostAssociator("GhostTrack")
   {

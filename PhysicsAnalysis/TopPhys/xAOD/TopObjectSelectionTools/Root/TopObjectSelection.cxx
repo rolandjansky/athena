@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopObjectSelectionTools/TopObjectSelection.h"
@@ -14,17 +14,23 @@
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTau/TauJetContainer.h"
 #include "xAODJet/JetContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODEventInfo/EventInfo.h"
 
 #include "FourMomUtils/xAODP4Helpers.h"
 #include "PATCore/TAccept.h"
 
+#include "TopParticleLevel/TruthTools.h"
+#include "xAODTruth/TruthParticle.h"
+#include "xAODTruth/TruthParticleContainer.h"
+
+#include "TopDataPreparation/SampleXsection.h"
+
 namespace top {
   TopObjectSelection::TopObjectSelection(const std::string& name) :
     asg::AsgTool(name),
     m_config(nullptr),
-
     m_electronSelection(nullptr),
     m_fwdElectronSelection(nullptr),
     m_muonSelection(nullptr),
@@ -34,18 +40,19 @@ namespace top {
     m_photonSelection(nullptr),
     m_largeJetSelection(nullptr),
     m_trackJetSelection(nullptr),
-
+    m_jetGhostTrackSelection(nullptr),
+    m_trackSelection(nullptr),
     m_overlapRemovalToolPostSelection(nullptr),
-
     m_electronInJetSubtractor(nullptr),
-
     m_passPreORSelection("passPreORSelection"),
     m_passPreORSelectionLoose("passPreORSelectionLoose"),
-    // the following two are used to give failing JVT jets a lower priority in the OR
+    // the following two are used to give failing JVT and failing fJVT jets a lower priority in the OR
     m_ORToolDecoration("ORToolDecoration"),
     m_ORToolDecorationLoose("ORToolDecorationLoose"),
-
-    m_doLooseCuts(false) {
+    m_doLooseCuts(false),
+    m_overlapRemovalTool_softMuons_PFjets("OverlapRemovalTool_softMuons_PFjets"),
+    m_overlapRemovalTool_softMuons_Alljets("OverlapRemovalTool_softMuons_Alljets")
+  {
     declareProperty("config", m_config);
   }
 
@@ -66,6 +73,9 @@ namespace top {
     //         - The top recommendation is that you do OR on tight objects
     //   (3) Determination of Fakes control regions in MC - expert fakes mode
     //
+    
+    top::check(m_overlapRemovalTool_softMuons_PFjets.retrieve(), "Failed to retrieve overlap removal tool for soft muons - PF jets");
+    top::check(m_overlapRemovalTool_softMuons_Alljets.retrieve(), "Failed to retrieve overlap removal tool for soft muons - all jets");
 
     if (!m_config->isMC()) m_doLooseCuts = true;
 
@@ -136,6 +146,15 @@ namespace top {
   void TopObjectSelection::trackJetSelection(JetSelectionBase* ptr) {
     m_trackJetSelection.reset(ptr);
   }
+  
+  void TopObjectSelection::jetGhostTrackSelection(JetGhostTrackSelectionBase* ptr) {
+    m_jetGhostTrackSelection.reset(ptr);
+  }
+
+  void TopObjectSelection::trackSelection(TrackSelectionBase* ptr) {
+    m_trackSelection.reset(ptr);
+  }
+
 
   void TopObjectSelection::overlapRemovalPostSelection(OverlapRemovalBase* ptr) {
     m_overlapRemovalToolPostSelection.reset(ptr);
@@ -193,6 +212,13 @@ namespace top {
     if (m_config->useTrackJets() && m_trackJetSelection != nullptr) {
       applySelectionPreOverlapRemovalTrackJets();
     }
+    if (m_config->useJetGhostTrack() && m_jetGhostTrackSelection != nullptr) {
+      applySelectionPreOverlapRemovalJetGhostTracks();
+    }
+    if (m_config->useTracks() && m_trackSelection != nullptr) {
+      applySelectionPreOverlapRemovalTracks();
+    }
+
   }
 
   void TopObjectSelection::applySelectionPreOverlapRemovalPhotons() {
@@ -213,7 +239,7 @@ namespace top {
         if (m_doLooseCuts) {
           photonPtr->auxdecor<char>(m_passPreORSelectionLoose) = m_photonSelection->passSelectionLoose(*photonPtr);
           photonPtr->auxdecor<char>(m_ORToolDecorationLoose) =
-            photonPtr->auxdataConst<char>(m_passPreORSelectionLoose) * 2;
+          photonPtr->auxdataConst<char>(m_passPreORSelectionLoose) * 2;
         }
       }
     }
@@ -368,17 +394,33 @@ namespace top {
       for (auto jetPtr : *jets) {
         ATH_MSG_DEBUG("   Jet pt = " << (jetPtr)->pt());
         bool passed = m_jetSelection->passSelection(*jetPtr);
+
+	//Forward jets always get JVT=1, Central jets always get fJVT=1
+	bool passedJVT_and_fJVT = true;
+	if (jetPtr->isAvailable<char>("passJVT")) {
+	  if (jetPtr->isAvailable<char>("AnalysisTop_fJVTdecision")) {
+	    passedJVT_and_fJVT = jetPtr->auxdataConst<char>("passJVT") && jetPtr->auxdataConst<char>("AnalysisTop_fJVTdecision"); 
+	  }
+	  else {
+	    passedJVT_and_fJVT = jetPtr->auxdataConst<char>("passJVT");
+	  } 
+	}
+	else if (jetPtr->isAvailable<char>("AnalysisTop_fJVTdecision")) { //Possibly redundant, fJVT shouldn't really be able to run if passJVT isn't avaliable
+	  passedJVT_and_fJVT = jetPtr->auxdataConst<char>("AnalysisTop_fJVTdecision");
+	}
+
         if (m_config->applyElectronInJetSubtraction()) {
           if (jetPtr->isAvailable<char>("passesFancyOR")) {
             if (!jetPtr->auxdecor<char>("passesFancyOR")) passed = false;
           }
         }
+	// if JVT or fJVT cut enabled and valid: jets that pass (f)JVT get passPreORSelection * 2, jets that fail get the same as passPreORSelection
+	// if no JVT cut and central jet, or no fJVT and forward jet, jet gets: passPreORSelection * 2
         jetPtr->auxdecor<char>(m_passPreORSelection) = passed;
-        jetPtr->auxdecor<char>(m_ORToolDecoration) = (passed ? (jetPtr->auxdataConst<char>("passJVT") ? 2 : 1) : 0);
+        jetPtr->auxdecor<char>(m_ORToolDecoration) = (passed ? (passedJVT_and_fJVT ? 2 : 1) : 0);
         if (m_doLooseCuts) {
           jetPtr->auxdecor<char>(m_passPreORSelectionLoose) = passed;
-          jetPtr->auxdecor<char>(m_ORToolDecorationLoose) =
-            (passed ? (jetPtr->auxdataConst<char>("passJVT") ? 2 : 1) : 0);
+          jetPtr->auxdecor<char>(m_ORToolDecorationLoose) = (passed ? (passedJVT_and_fJVT ? 2 : 1) : 0);
         }
         //decorate with b-tagging flags
         std::vector<std::string> availableWPs = m_config->bTagWP_available();
@@ -416,23 +458,30 @@ namespace top {
         ATH_MSG_DEBUG(" Cut on Jets with key = " << currentSystematic.second);
 
         for (auto jetPtr : *jets) {
-          char decoration = m_jetSelection->passSelection(*jetPtr);
+          bool decoration = m_jetSelection->passSelection(*jetPtr);
+
+	  //Forward jets always get JVT=1, Central jets always get fJVT=1 
+	  bool passedJVT_and_fJVT = true;
+	  if (jetPtr->isAvailable<char>("passJVT")) {
+	    if (jetPtr->isAvailable<char>("AnalysisTop_fJVTdecision")) {
+	      passedJVT_and_fJVT = jetPtr->auxdataConst<char>("passJVT") && jetPtr->auxdataConst<char>("AnalysisTop_fJVTdecision");
+	    }
+	    else {
+	      passedJVT_and_fJVT = jetPtr->auxdataConst<char>("passJVT");
+	    } 
+	  }
+	  else if (jetPtr->isAvailable<char>("AnalysisTop_fJVTdecision")) { //Possibly redundant, fJVT shouldn't really be able to run if passJVT isn't avaliable
+	    passedJVT_and_fJVT = jetPtr->auxdataConst<char>("AnalysisTop_fJVTdecision");
+	  }
+
+          // if JVT or fJVT cut enabled: jets that pass (f)JVT get passPreORSelection*2, jets which fail get the same as passPreORSelection
+          // if no JVT cut and central jet, or no fJVT cut and forward jet, jet gets: passPreORSelection * 2
           jetPtr->auxdecor<char>(m_passPreORSelection) = decoration;
-          // if JVT cut enabled: jets that pass JVT get a 2, otherwise the same as passPreORSelection
-          // if not, passPreORSelection * 2
-          if (jetPtr->isAvailable<char>("passJVT")) {
-            jetPtr->auxdecor<char>(m_ORToolDecoration) = decoration + jetPtr->auxdataConst<char>("passJVT");
-          } else {
-            jetPtr->auxdecor<char>(m_ORToolDecoration) = decoration * 2;
-          }
-          if (m_doLooseCuts) {
-            jetPtr->auxdecor<char>(m_passPreORSelectionLoose) = decoration;
-            if (jetPtr->isAvailable<char>("passJVT")) {
-              jetPtr->auxdecor<char>(m_ORToolDecorationLoose) = decoration + jetPtr->auxdataConst<char>("passJVT");
-            } else {
-              jetPtr->auxdecor<char>(m_ORToolDecorationLoose) = decoration * 2;
-            }
-          }
+          jetPtr->auxdecor<char>(m_passPreORSelectionLoose) = decoration;
+
+	  jetPtr->auxdecor<char>(m_ORToolDecoration) = (decoration ? (passedJVT_and_fJVT ? 2 : 1) : 0);
+	  jetPtr->auxdecor<char>(m_ORToolDecorationLoose) = (decoration ? (passedJVT_and_fJVT ? 2 : 1) : 0);;
+
           //decorate with b-tagging flags
           std::vector<std::string> availableWPs = m_config->bTagWP_available();
           for (auto& WP : availableWPs) {
@@ -498,7 +547,7 @@ namespace top {
         jetPtr->auxdecor<char>(m_passPreORSelectionLoose) = decoration;
       }
 
-      if (m_config->sgKeyTrackJets() == "AntiKtVR30Rmax4Rmin02TrackJets") { // Event cleaning for variable-R track jets
+      if (m_config->sgKeyTrackJetsType() == "AntiKtVR30Rmax4Rmin02TrackJets") { // Event cleaning for variable-R track jets
         float pt_baseline = 5e3;
         float radius1 = std::max(0.02, std::min(0.4, 30000. / jetPtr->pt()));
 
@@ -528,15 +577,122 @@ namespace top {
         } else {
           int tagWeightBin = -2; // AT default
           if (std::fabs(jetPtr->eta()) < 2.5) {
-            ToolHandle<IBTaggingSelectionTool>& btagsel = m_btagSelTools[WP];
+            ToolHandle<IBTaggingSelectionTool>& btagsel = m_trkjet_btagSelTools[WP];
             tagWeightBin = btagsel->getQuantile(*jetPtr);
           }
-          jetPtr->auxdecor<int>("tagWeightBin") = tagWeightBin;
+          jetPtr->auxdecor<int>("tagWeightBin_" + WP) = tagWeightBin;
         }
       }
     }
   }
 
+void TopObjectSelection::applySelectionPreOverlapRemovalJetGhostTracks() {
+      
+    auto jetsystematic = *m_config->systSgKeyMapJets(false);  
+    CP::SystematicSet nominal;
+    std::size_t m_nominalHashValue = nominal.hash();
+    
+    for (auto currentSystematic : *m_config->systMapJetGhostTrack()) {
+      
+    // At this point some specific jet collection doesn't exist for tracking systematic so use the nominal jet collection to retrieve the ghost tracks
+      std::unordered_map<std::size_t, std::string>::const_iterator jetsyst_name = jetsystematic.find(currentSystematic.first);
+      if (jetsyst_name == jetsystematic.end()) {
+         jetsyst_name = jetsystematic.find(m_nominalHashValue); 
+      }    
+      
+      ///-- if executeNominal, skip other systematics (and vice-versa) --///                                                                                                                            
+      if (m_executeNominal && !m_config->isSystNominal(m_config->systematicName(currentSystematic.first))) continue;
+
+      if (!m_executeNominal && m_config->isSystNominal(m_config->systematicName(currentSystematic.first))) continue;
+    
+      
+      const xAOD::JetContainer* jets(nullptr);
+      top::check(evtStore()->retrieve(jets,
+                                      (*jetsyst_name).second),
+                 "TopObjectSelection::applySelectionPreOverlapRemovalJetGhostTracks() failed to retrieve jets");
+      ATH_MSG_DEBUG(" Cut on JetsGhostTracks with key = " << (*jetsyst_name).second);
+      
+     
+      
+      for (auto jetPtr : *jets)
+      {
+            if(!m_jetGhostTrackSelection->JetConsideredForGhostTrackSelection(jetPtr->pt(),jetPtr->eta())) continue;
+
+            
+            std::vector<const xAOD::TrackParticle*> jetTracks;
+    
+            jetTracks = jetPtr->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(currentSystematic.first));
+            
+            if (jetTracks.size() == 0){
+                ATH_MSG_WARNING("TopObjectSelection::applySelectionPreOverlapRemovalJetGhostTracks() failed to retrieve tracks, jet pT and eta:" << jetPtr->pt() << " " << std::fabs(jetPtr->eta()) );
+                continue;
+            }
+
+            const xAOD::VertexContainer* vertices = nullptr;
+            top::check(evtStore() -> retrieve( vertices, "PrimaryVertices" ), "Failed to get primary vertices");
+            const auto it_pv = std::find_if(vertices->cbegin(), vertices->cend(),
+                                      [](const xAOD::Vertex* vtx)
+                                      {return vtx->vertexType() == xAOD::VxType::PriVtx;});
+            const xAOD::Vertex* primaryVertex = (it_pv == vertices->cend()) ? nullptr : *it_pv;
+            if (primaryVertex == nullptr) ATH_MSG_WARNING("TopObjectSelection No primary vertex found." );
+
+
+
+            for (auto jetTrIt : jetTracks){
+
+                //Decorate the tracks with a flag "passPreORSelection" to indicate if they passed the selection
+                jetTrIt->auxdecor<char>(m_passPreORSelection) = m_jetGhostTrackSelection->passSelection(*jetTrIt, *primaryVertex);
+                jetTrIt->auxdecor<char>(m_ORToolDecoration)   = jetTrIt->auxdataConst<char>(m_passPreORSelection) * 2;
+
+            }
+            
+        }
+    }
+  }
+
+
+ void TopObjectSelection::applySelectionPreOverlapRemovalTracks() {
+    
+    for (auto currentSystematic : *m_config->systSgKeyMapTracks()) {
+
+      ///-- if executeNominal, skip other systematics (and vice-versa) --///                                                                                                                            
+      if (m_executeNominal && !m_config->isSystNominal(m_config->systematicName(currentSystematic.first))) continue;
+
+      if (!m_executeNominal && m_config->isSystNominal(m_config->systematicName(currentSystematic.first))) continue;
+
+      const xAOD::TrackParticleContainer* tracks(nullptr);
+      top::check(evtStore()->retrieve(tracks,
+                                      currentSystematic.second),
+                 "TopObjectSelection::applySelectionPreOverlapRemovalTracks() failed to retrieve tracks");
+
+      ATH_MSG_DEBUG(" Cut on Tracks with key = " << currentSystematic.second);
+
+      const xAOD::VertexContainer* vertices = nullptr;
+      
+      top::check(evtStore() -> retrieve( vertices, "PrimaryVertices" ), "Failed to get primary vertices");
+      const auto it_pv = std::find_if(vertices->cbegin(), vertices->cend(),
+                                      [](const xAOD::Vertex* vtx)
+                                      {return vtx->vertexType() == xAOD::VxType::PriVtx;});
+      const xAOD::Vertex* primaryVertex = (it_pv == vertices->cend()) ? nullptr : *it_pv;
+      if (primaryVertex == nullptr) ATH_MSG_WARNING("TopObjectSelection. No primary vertex found." );
+
+
+      int counter = 0;
+
+      for (auto trackPtr : *tracks) {
+
+        trackPtr -> auxdecor<char>(m_passPreORSelection) = m_trackSelection->passSelection(*trackPtr, *primaryVertex);
+        trackPtr -> auxdecor<char>(m_ORToolDecoration)   = trackPtr->auxdataConst<char>(m_passPreORSelection) * 2;
+
+        counter++;
+
+
+      }
+    }
+
+  }
+
+  
   StatusCode TopObjectSelection::applyOverlapRemoval() {
     bool aLooseEvent(true), aTightEvent(false);
 
@@ -655,6 +811,7 @@ namespace top {
     }
 
     std::size_t hash = currentSystematic->hashValue();
+    
 
     // Retrieve the relevant shallow copies
     const xAOD::PhotonContainer* xaod_photon(nullptr);
@@ -710,11 +867,15 @@ namespace top {
                                                                   m_config->sgKeyTrackJets()),
                                              "TopObjectSelection::applyOverlapRemovalPostSelection() failed to retrieve track jets");
 
+    const xAOD::TrackParticleContainer* xaod_tracks(nullptr);
+    if (m_config->useTracks()) top::check(evtStore()->retrieve(xaod_tracks,
+							       m_config->sgKeyTracks(hash)),
+					  "TopObjectSelection::applyOverlapRemovalPostSelection() failed to retrieve tracks");
 
 
     // vectors to store the indices of objects passing selection and overlap removal
     std::vector<unsigned int> goodPhotons, goodElectrons, goodFwdElectrons, goodMuons, goodSoftMuons, goodTaus,
-                              goodJets, goodLargeRJets, goodTrackJets;
+                              goodJets, goodLargeRJets, goodTrackJets, goodTracks;
 
     // Apply overlap removal
     m_overlapRemovalToolPostSelection->overlapremoval(xaod_photon, xaod_el, xaod_mu, xaod_tau,
@@ -765,11 +926,29 @@ namespace top {
       }
     }
 
-    // Post overlap removal decorations
-    decorateMuonsPostOverlapRemoval(xaod_mu, xaod_jet, goodMuons, goodJets);
+    // no OR applied on tracks                                                                                                                                                                          
+    if (xaod_tracks) {
+      int i(0);
+      std::string passTopCuts = "passPreORSelection";
+
+      for (const xAOD::TrackParticle* x: *xaod_tracks) {
+
+        if (x->auxdataConst< char >(m_passPreORSelection) == 1) goodTracks.push_back(i);
+
+        i++;
+      }
+    }
+
 
     // for the time being the only OR performed on soft muons is wrt prompt muons
     if (xaod_softmu) {
+      
+      if(m_config->useJets())
+      {
+        top::check(m_overlapRemovalTool_softMuons_Alljets->removeOverlaps(nullptr, xaod_softmu, xaod_jet, nullptr, nullptr), "Failed to identify overlap for soft muons - all jets");
+        if(m_config->useParticleFlowJets())top::check(m_overlapRemovalTool_softMuons_PFjets->removeOverlaps(nullptr, xaod_softmu, xaod_jet, nullptr, nullptr), "Failed to identify overlap for soft muons - PFlow jets");
+      }
+      
       int i(0);
       std::string passTopCuts = "passPreORSelection";
 
@@ -787,28 +966,68 @@ namespace top {
           }
         }
 
-        float dRMin = this->calculateMinDRMuonJet(*x, xaod_jet, goodJets); //nearest jet dR
+        float dRmin = 100; //nearest jet dR
+        if(m_config->useJets()) dRmin=this->calculateMinDRMuonJet(*x, xaod_jet, goodJets, m_config->softmuonDRJetcutUseRapidity());
 
-        if (x->auxdataConst< char >(passTopCuts) == 1 && !promptMuOR &&
-            dRMin < m_config->softmuonDRJetcut()) goodSoftMuons.push_back(i);                                                                                                                                               //the
-                                                                                                                                                                                                                            // dR
-                                                                                                                                                                                                                            // selection
-                                                                                                                                                                                                                            // must
-                                                                                                                                                                                                                            // be
-                                                                                                                                                                                                                            // done
-                                                                                                                                                                                                                            // here,
-                                                                                                                                                                                                                            // because
-                                                                                                                                                                                                                            // we
-                                                                                                                                                                                                                            // need
-                                                                                                                                                                                                                            // the
-                                                                                                                                                                                                                            // post-OR
-                                                                                                                                                                                                                            // jets...
+        if (x->auxdataConst< char >(passTopCuts) == 1 && !promptMuOR && (!m_config->useJets() || dRmin < m_config->softmuonDRJetcut()))
+        {
+           goodSoftMuons.push_back(i);//the dR selection must be done here, because we need the post-OR jets...
+        }
         i++;
       }
     }//end of OR procedure for soft muons
 
+    if(m_config->isMC() && m_config->useSoftMuons() && m_config->softmuonAdditionalTruthInfo()) decorateSoftMuonsPostOverlapRemoval(xaod_softmu,goodSoftMuons);
 
 
+      //Change the collection of ghost tracks associated to jets
+    //Store the selected ghost associated tracks
+    //It doesn't work for the nominal systematic 
+    if (m_config->useJetGhostTrack() && m_config->useJets()) {
+        
+        std::vector<const xAOD::TrackParticle*> jetTracks;
+        
+        xAOD::JetContainer* xaod_jet_ga(nullptr);
+        top::check(evtStore()->retrieve(xaod_jet_ga, m_config->sgKeyJets(hash,looseLeptonOR)),
+                                        "TopObjectSelection::applyOverlapRemovalPostSelection() failed to retrieve jets for ghost matching");
+        
+        unsigned int index= -1;
+        
+        for (const auto jetPtr : *xaod_jet_ga){
+            
+            index=index+1;
+            
+            if(!m_jetGhostTrackSelection->JetConsideredForGhostTrackSelection(jetPtr->pt(),jetPtr->eta()))
+                continue;
+            
+            if (std::find(goodJets.begin(), goodJets.end(), index) == goodJets.end()){ 
+                continue;
+            }
+            
+            jetTracks.clear();
+            
+            std::vector<const xAOD::TrackParticle*> goodJetGhostTracks;
+            jetTracks = jetPtr->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(hash));
+            
+            if (jetTracks.size() != 0) {
+                
+                std::string passTopCuts = "passPreORSelection";
+
+                for (auto& track: jetTracks) {
+
+                    if (track->auxdataConst< char >(passTopCuts) == 1) {
+                        goodJetGhostTracks.push_back(track);
+                    }
+        
+                }
+ 
+                jetPtr->setAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(hash), goodJetGhostTracks);
+                
+            }
+        }
+        
+    }
+    
     // set the indices in the xAOD::SystematicEvent
     currentSystematic->setGoodPhotons(goodPhotons);
     currentSystematic->setGoodElectrons(goodElectrons);
@@ -819,12 +1038,41 @@ namespace top {
     currentSystematic->setGoodJets(goodJets);
     currentSystematic->setGoodLargeRJets(goodLargeRJets);
     currentSystematic->setGoodTrackJets(goodTrackJets);
+    currentSystematic->setGoodTracks(goodTracks);
 
     decorateEventInfoPostOverlapRemoval(goodJets.size(), currentSystematic->isLooseEvent());
-
+    
+    
+    
     return StatusCode::SUCCESS;
   }
+  
+  void TopObjectSelection::decorateSoftMuonsPostOverlapRemoval(const xAOD::MuonContainer* xaod_softmu,std::vector<unsigned int>& goodSoftMuons)
+  {
 
+    for (auto iMu : goodSoftMuons) {
+    // Get muon iMu
+    const xAOD::Muon* muon = xaod_softmu->at(iMu);
+
+        muon->auxdecor<bool>("hasRecoMuonHistoryInfo")=false;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthMuonLink") = 0;
+        muon->auxdecor<top::LepParticleOriginFlag>("LepParticleOriginFlag") = top::LepParticleOriginFlag::MissingTruthInfo;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthFirstNonLeptonMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthBMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthCMotherLink") = 0;
+        muon->auxdecor<top::LepPartonOriginFlag>("LepPartonOriginFlag") = top::LepPartonOriginFlag::MissingTruthInfo;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthPartonMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthTopMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthWMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthZMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthPhotonMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthHiggsMotherLink") = 0;
+        muon->auxdecor<const xAOD::TruthParticle*>("truthBSMMotherLink") = 0;
+        
+        top::truth::getRecoMuonHistory(muon,m_config->softmuonAdditionalTruthInfoCheckPartonOrigin(),m_config->getShoweringAlgorithm(),m_config->softmuonAdditionalTruthInfoDoVerbose());
+    }//end of loop on soft muons
+  }
   void TopObjectSelection::applyTightSelectionPostOverlapRemoval(const xAOD::IParticleContainer* xaod,
                                                                  std::vector<unsigned int>& indices) {
     // Copy the original indices of the xAOD objects in
@@ -896,35 +1144,21 @@ namespace top {
     }
   }
 
-  void TopObjectSelection::decorateMuonsPostOverlapRemoval(const xAOD::MuonContainer* xaod_mu,
-                                                           const xAOD::JetContainer* xaod_jet,
-                                                           std::vector<unsigned int>& goodMuons,
-                                                           std::vector<unsigned int>& goodJets) {
-    // Decorate muons with the dR of closest jet (after OR is applied)
-    // Use the good indicies to loop through the good objects
-    for (auto iMu : goodMuons) {
-      // Get muon iMu
-      const xAOD::Muon* muPtr = xaod_mu->at(iMu);
-      this->calculateMinDRMuonJet(*muPtr, xaod_jet, goodJets);
-    }
-    return;
-  }
-
-  float TopObjectSelection::calculateMinDRMuonJet(const xAOD::Muon& mu, const xAOD::JetContainer* xaod_jet,
-                                                  std::vector<unsigned int>& goodJets) {
+  float TopObjectSelection::calculateMinDRMuonJet(const xAOD::Muon& mu, const xAOD::JetContainer* xaod_jet, std::vector<unsigned int>& goodJets, bool useRapidity) {
+    
     float dRMin = 100.0;
-
+    
     // Loop over jets, calculate dR and record smallest value
     for (auto iJet : goodJets) {
       const xAOD::Jet* jetPtr = xaod_jet->at(iJet);
-      float dR = mu.p4().DeltaR(jetPtr->p4());
-      if (dR < dRMin) dRMin = dR;
+      if(jetPtr->isAvailable<char>("passJVT") && !(jetPtr->auxdataConst<char>("passJVT") )) continue; //at this level we still have jets not passing the JVT cut in the ntuple
+      float dR = xAOD::P4Helpers::deltaR(mu,*jetPtr,useRapidity);
+      if (dR < dRMin) 
+      {
+        dRMin = dR;
+      }
     }
-
-    // Decorate the muon with dR of closest jet (ie smallest dR)
-
-    mu.auxdecor< float >("dRJet") = dRMin;
-
+    
     return dRMin;
   }
 
@@ -1028,6 +1262,17 @@ namespace top {
       if (!m_largeJetSelection) os << "All";
       else os << *m_largeJetSelection;
     }
+    
+    os << "\n";
+    os << "GhostTracks\n";
+    os << "  ContainerName: " << m_config->decoKeyJetGhostTrack() << "\n";
+    if (m_config->useJetGhostTrack()) {
+      os << "  Selection: ";
+      if (!m_jetGhostTrackSelection) os << "All";
+//       else m_jetGhostTrackSelection->print(os);
+      else os << *m_jetGhostTrackSelection;
+    }
+    
 
     os << "\n";
     os << "MET\n";

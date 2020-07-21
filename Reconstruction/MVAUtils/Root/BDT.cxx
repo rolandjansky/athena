@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MVAUtils/BDT.h"
 #include "MVAUtils/ForestTMVA.h"
 #include "MVAUtils/ForestLGBM.h"
+#include "MVAUtils/ForestXGBoost.h"
 
 #include "TMVA/MethodBDT.h"
 #include "TMVA/DecisionTree.h"
@@ -76,6 +77,11 @@ BDT::BDT(::TTree *tree)
       throw std::runtime_error("the title of the input tree is misformatted: cannot understand which BDT implementation to use");
     }
   }
+  else if (creator == "xgboost")
+  {
+    //this do support nan as inputs
+    m_forest = std::make_unique<ForestXGBoost>(tree);
+  }
   else {
     // default for compatibility: old TTree (based on TMVA) don't have a special title
     m_forest = std::make_unique<ForestTMVA>(tree);
@@ -84,10 +90,10 @@ BDT::BDT(::TTree *tree)
 
 BDT::~BDT(){}
 
-unsigned int BDT::GetNTrees() const { return m_forest->GetNTrees(); }  
+unsigned int BDT::GetNTrees() const { return m_forest->GetNTrees(); }
 int BDT::GetNVars() const { return m_forest->GetNVars(); }
 float BDT::GetOffset() const { return m_forest->GetOffset(); }
- 
+
 
 /** c-tor from TMVA::MethodBDT **/
 BDT::BDT(TMVA::MethodBDT* bdt, bool isRegression, bool useYesNoLeaf)
@@ -164,4 +170,3 @@ TTree* BDT::WriteTree(TString name) const { return m_forest->WriteTree(name); }
 
 void BDT::PrintForest() const { m_forest->PrintForest(); }
 void BDT::PrintTree(unsigned int itree) const { m_forest->PrintTree(itree); }
-

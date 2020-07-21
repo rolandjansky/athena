@@ -56,24 +56,24 @@ void MissingMassInput::ClearInput(){
 void MissingMassInput::PrintInputInfo() {
   if(fUseVerbose!=1) return;
 
-  Info("DiTauMassTools", ("met_x="+std::to_string(MetVec.Px())+" met_y="+std::to_string(MetVec.Py())+" MET="+std::to_string(MetVec.Mod())+" met_phi="+std::to_string(MetVec.Phi())).c_str());
-  Info("DiTauMassTools", ("sumEt="+std::to_string(SumEt)+" METsigmaP="+std::to_string(METsigmaP)+" METsigmaL="+std::to_string(METsigmaL)+" METcovphi="+std::to_string(METcovphi)).c_str());
-  //Info("DiTauMassTools", (" Njet25="+std::to_string(Njet25)+" allowUseHT="+std::to_string(prob->GetAllowUseHT())+" useHT="+std::to_string(prob->GetUseHT())).c_str());
+  Info("DiTauMassTools", "%s", ("met_x="+std::to_string(MetVec.Px())+" met_y="+std::to_string(MetVec.Py())+" MET="+std::to_string(MetVec.Mod())+" met_phi="+std::to_string(MetVec.Phi())).c_str());
+  Info("DiTauMassTools", "%s", ("sumEt="+std::to_string(SumEt)+" METsigmaP="+std::to_string(METsigmaP)+" METsigmaL="+std::to_string(METsigmaL)+" METcovphi="+std::to_string(METcovphi)).c_str());
+  //Info("DiTauMassTools", "%s", (" Njet25="+std::to_string(Njet25)+" allowUseHT="+std::to_string(prob->GetAllowUseHT())+" useHT="+std::to_string(prob->GetUseHT())).c_str());
 
-  Info("DiTauMassTools", ("MHtSigma1="+std::to_string(MHtSigma1)+" MHtSigma2="+std::to_string(MHtSigma2)
+  Info("DiTauMassTools", "%s", ("MHtSigma1="+std::to_string(MHtSigma1)+" MHtSigma2="+std::to_string(MHtSigma2)
             +" MHtGaussFr="+std::to_string(MHtGaussFr)
             +" HtOffset="+std::to_string(HtOffset)).c_str());
 
-  Info("DiTauMassTools", ("1st visible tau: type="+std::to_string(type_visTau1)+" Nprong="+std::to_string(Nprong_tau1)+"  P="+std::to_string(vistau1.P())+" Pt="+std::to_string(vistau1.Pt())
+  Info("DiTauMassTools", "%s", ("1st visible tau: type="+std::to_string(type_visTau1)+" Nprong="+std::to_string(Nprong_tau1)+"  P="+std::to_string(vistau1.P())+" Pt="+std::to_string(vistau1.Pt())
            +" Eta="+std::to_string(vistau1.Eta())+" Phi="+std::to_string(vistau1.Phi())+" M="+std::to_string(vistau1.M())).c_str());
-  Info("DiTauMassTools", ("2nd visible tau: type="+std::to_string(type_visTau2)+" Nprong="+std::to_string(Nprong_tau2)+"  P="+std::to_string(vistau2.P())+" Pt="+std::to_string(vistau2.Pt())
+  Info("DiTauMassTools", "%s", ("2nd visible tau: type="+std::to_string(type_visTau2)+" Nprong="+std::to_string(Nprong_tau2)+"  P="+std::to_string(vistau2.P())+" Pt="+std::to_string(vistau2.Pt())
            +" Eta="+std::to_string(vistau2.Eta())+" Phi="+std::to_string(vistau2.Phi())+" M="+std::to_string(vistau2.M())).c_str());
 
   if(jet4vecs.size()>0)
     {
       for(unsigned int i=0; i<jet4vecs.size(); i++)
         {
-          Info("DiTauMassTools", ("Printing jets: jet "+std::to_string(i)+" E="+std::to_string(jet4vecs[i].E())+" Pt="
+          Info("DiTauMassTools", "%s", ("Printing jets: jet "+std::to_string(i)+" E="+std::to_string(jet4vecs[i].E())+" Pt="
                    +std::to_string(jet4vecs[i].Pt())+" Phi="+std::to_string(jet4vecs[i].Phi())+" Eta="+std::to_string(jet4vecs[i].Eta())).c_str());
         }
     }
@@ -119,7 +119,7 @@ void MissingMassInput::SetVisTauType(int i, int tautype) {
 }
 // ----- input vis Tau vectors
 void MissingMassInput::SetVisTauVec(int i, const TLorentzVector & vec) {
-  if(fUseVerbose==1) { Info("DiTauMassTools", ("Seting input "+std::to_string(i)+" to pT="+std::to_string(vec.Pt())).c_str()); }
+  if(fUseVerbose==1) { Info("DiTauMassTools", "%s", ("Seting input "+std::to_string(i)+" to pT="+std::to_string(vec.Pt())).c_str()); }
   if(i==0) vistau1 = vec;
   if(i==1) vistau2 = vec;
   return;

@@ -4,11 +4,14 @@
 # import Common Algs
 from DerivationFrameworkJetEtMiss.JetCommon import DFJetAlgs
 
+from DerivationFrameworkCore.DerivationFrameworkMaster import (
+    DerivationFrameworkIsMonteCarlo as isMC)
+
 # I wish we didn't need this
 from BTagging.BTaggingConfiguration import getConfiguration
 ConfInst=getConfiguration()
 
-from GaudiKernel.Configurable import WARNING
+from GaudiKernel.Configurable import WARNING, VERBOSE
 
 # Import star stuff (it was like that when I got here)
 from DerivationFrameworkJetEtMiss.JetCommon import *
@@ -46,7 +49,7 @@ def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doGh
     subjetlabel = "Ex%s%i%sSubJets" % (subjet_mode, nsubjet, talabel)
 
     # removing truth labels if runining on data
-    if globalflags.DataSource()=='data': ExGhostLabels = ["GhostTrack"]
+    if not isMC: ExGhostLabels = ["GhostTrack"]
 
     SubjetContainerName = "%sEx%s%i%sSubJets" % (JetCollectionName.replace("Jets", ""), subjet_mode, nsubjet, talabel)
     ExKtbbTagToolName = str( "Ex%s%sbbTagTool%i_%s" % (subjet_mode, talabel, nsubjet, JetCollectionName) )
@@ -167,7 +170,7 @@ def addExKtCoM(sequence, ToolSvc, JetCollectionExCoM, nSubjets, doTrackSubJet, d
             from BTagging.BTaggingConfiguration import comTrackAssoc, comMuonAssoc, defaultTrackAssoc, defaultMuonAssoc
             mods = [defaultTrackAssoc, defaultMuonAssoc, btag_excom]
             if(subjetAlgName=="CoM"): mods = [comTrackAssoc, comMuonAssoc, btag_excom]
-            if globalflags.DataSource()!='data':
+            if isMC:
                 mods.append(jtm.jetdrlabeler)
 
             jetrec_btagging = JetRecTool( name = excomJetRecBTagToolName,
@@ -246,16 +249,17 @@ def buildVRJets(sequence, do_ghost, logger = None, doFlipTagger=False, training=
     if logger is None:
         logger = Logging.logging.getLogger('VRLogger')
 
+    supported_trainings = ['201810', '201903']
     # Check allowed trainings
     # Is there a better way to do this with a central DB?
     if training not in ['201810', '201903']:
-      logger.warning("Using an supported training tag! This is UNDEFINED, probably will default to 201810 training.")
+      logger.warning("WARNING: Using an unsupported training tag! This is UNDEFINED and will probably break. Please choose a training tag from")
+      logger.warning(supported_trainings)
 
     from JetRec.JetRecStandard import jtm
 
-    # If using the default training, we don't yet want the label (this will be added once validation is done)
-    # So only add the _201903 (etc.) for trainings that aren't 201810
-    trainingTag = '_BTagging%s' % (training) if training != '201810' else ''
+    # Making Chris Happy: all VR track-jet b-tagging should have the training campaign label
+    trainingTag = '_BTagging%s' % (training)
 
     VRJetName="AntiKtVR30Rmax4Rmin02Track%s" % (trainingTag)
     VRGhostLabel="GhostVR30Rmax4Rmin02TrackJet%s" % (trainingTag)
@@ -278,7 +282,8 @@ def buildVRJets(sequence, do_ghost, logger = None, doFlipTagger=False, training=
     # Build VR jets
     #==========================================================
 
-    VRJetRecToolName = "%sJets" % (VRJetName) if training == '201810' else VRJetName.replace('_BTagging','Jets_BTagging')
+    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import nameJetsFromAlg
+    VRJetRecToolName = nameJetsFromAlg(VRJetName)
     VRJetAlgName = "jfind_%s" % (VRJetRecToolName)
     VRJetBTagName = "BTagging_%s" % (VRJetName.replace('BTagging',''))
 
@@ -302,6 +307,19 @@ def buildVRJets(sequence, do_ghost, logger = None, doFlipTagger=False, training=
         TaggerList = BTaggingFlags.ExpertTaggers if doFlipTagger else BTaggingFlags.StandardTaggers,
         TrackAssociatorName="GhostTrack" if do_ghost else "MatchedTracks",
     )
+
+    # add delta-R to nearest jet
+    from FlavorTagDiscriminants.FlavorTagDiscriminantsLibConf import (
+        FlavorTagDiscriminants__VRJetOverlapDecoratorTool as VRORTool )
+    vrdr_label = VRORTool(name=VRJetRecToolName + "_VRLabeling")
+    ToolSvc += vrdr_label
+
+    # add Ghost label id
+    from ParticleJetTools.ParticleJetToolsConf import (
+        ParticleJetGhostLabelTool as GhostLabelTool)
+    gl_tool = GhostLabelTool(
+        name=VRJetRecToolName + "_GhostLabeling")
+    ToolSvc += gl_tool
 
     from BTagging.BTaggingConfiguration import defaultTrackAssoc, defaultMuonAssoc
 
@@ -331,10 +349,11 @@ def buildVRJets(sequence, do_ghost, logger = None, doFlipTagger=False, training=
             logger.info("Create JetRecTool %s" % VRJetRecToolName)
             #can only run trackjetdrlabeler with truth labels, so MC only
 
-            mods = [defaultTrackAssoc, defaultMuonAssoc, btag_vrjets]
+            mods = [defaultTrackAssoc, defaultMuonAssoc, btag_vrjets,
+                    vrdr_label]
 
-            if globalflags.DataSource()!='data':
-                mods.append(jtm.trackjetdrlabeler)
+            if isMC:
+                mods += [jtm.trackjetdrlabeler, gl_tool]
 
             jtm.addJetFinder(
                 VRJetRecToolName,
@@ -355,13 +374,14 @@ def buildVRJets(sequence, do_ghost, logger = None, doFlipTagger=False, training=
     #==========================================================
 
     pjgettername = VRGhostLabel.lower()
+    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import nameJetsFromAlg
 
     if hasattr(jtm, pjgettername):
         logger.info("Found %s in jtm in sequence %s" % (pjgettername, sequence))
     else:
         logger.info("Add %s to jtm in sequence %s" % (pjgettername, sequence))
-
-        inputContainerName = jetFlags.containerNamePrefix() + VRJetName + "Jets" if "BTagging" not in VRJetName else jetFlags.containerNamePrefix() + VRJetName.replace("_BTagging", "Jets_BTagging")
+        
+        inputContainerName = jetFlags.containerNamePrefix() + nameJetsFromAlg(VRJetName)
 
 
         from JetRec.JetRecConf import PseudoJetGetter
@@ -379,7 +399,7 @@ def buildVRJets(sequence, do_ghost, logger = None, doFlipTagger=False, training=
 # Build variable-R calorimeter jets
 ##################################################################
 def addVRCaloJets(sequence,outputlist,dotruth=True,writeUngroomed=False):
-    if DerivationFrameworkIsMonteCarlo and dotruth:
+    if isMC and dotruth:
         addTrimmedJets('AntiKt', 1.0, 'Truth', rclus=0.2, ptfrac=0.05, variableRMassScale=600000, variableRMinRadius=0.2, mods="truth_groomed",
                        algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
     addTrimmedJets('AntiKt', 1.0, 'PV0Track', rclus=0.2, ptfrac=0.05, variableRMassScale=600000, variableRMinRadius=0.2, mods="groomed",
@@ -425,6 +445,7 @@ def linkVRJetsToLargeRJets(
   """
   from JetRec.JetRecStandardToolManager import jtm
   import DerivationFrameworkJetEtMiss.JetCommon as JetCommon
+  from DerivationFrameworkJetEtMiss.ExtendedJetCommon import nameJetsFromAlg
   logger = Logging.logging.getLogger('HbbTaggerLog')
   # First, retrieve the original JetRecTool - this is the one that made the
   # *ungroomed* jets, not the groomed ones. Ghost association is done to
@@ -443,10 +464,7 @@ def linkVRJetsToLargeRJets(
   comb_name = "_".join(getters.keys() )
   LargeRJetFindingAlg = "jfind_{0}_{1}".format(collection, comb_name).lower()
   LargeRJetPrefix     = "{0}_{1}".format(collection, comb_name)
-  if '_BTagging' in LargeRJetPrefix:
-    LargeRJets = LargeRJetPrefix.replace('_BTagging','Jets_BTagging')
-  else:
-    LargeRJets       = "%sJets" % (LargeRJetPrefix)
+  LargeRJets = nameJetsFromAlg(LargeRJetPrefix)
   LinkTransferAlg     = "LinkTransfer_{0}_{1}".format(collection, comb_name)
 
   # Check to see if this large R jet collection is already known to JetCommon
@@ -551,7 +569,7 @@ def addHbbTagger(
         logger = Logging.logging.getLogger('HbbTaggerLog')
 
     fat_calibrator_name = get_unique_name(["HbbCalibrator", jet_collection])
-    is_data = not DerivationFrameworkIsMonteCarlo
+    is_data = not isMC
     if not hasattr(ToolSvc, fat_calibrator_name):
         fatCalib = CfgMgr.JetCalibrationTool(
             fat_calibrator_name,
@@ -619,8 +637,7 @@ xbbTaggerExtraVariables = [
 #====================================================================
 # Large-R RC jets w/ ExKt 2 & 3 subjets
 #===================================================================
-def addExKtDoubleTaggerRCJets(sequence, ToolSvc):#, ExKtJetCollection__FatJetConfigs, ExKtJetCollection__FatJet, ExKtJetCollection__SubJet):#, jetToolName, algoName):
-   DFisMC = (globalflags.DataSource()=='geant4')
+def addExKtDoubleTaggerRCJets(sequence, ToolSvc):
    jetToolName = "DFReclustertingTool"
    algoName = "DFJetReclusteringAlgo"
 
@@ -630,13 +647,13 @@ def addExKtDoubleTaggerRCJets(sequence, ToolSvc):#, ExKtJetCollection__FatJetCon
    if jetToolName not in DFJetAlgs:
      ToolSvc += CfgMgr.JetReclusteringTool(jetToolName,InputJetContainer="AntiKt4EMPFlowJets", OutputJetContainer="AntiKt8EMPFlowJets")
      getattr(ToolSvc,jetToolName).ReclusterRadius = 0.8
-     getattr(ToolSvc,jetToolName).InputJetPtMin = 20
+     getattr(ToolSvc,jetToolName).InputJetPtMin = 15
      getattr(ToolSvc,jetToolName).RCJetPtMin = 1
      getattr(ToolSvc,jetToolName).TrimPtFrac = 0
      getattr(ToolSvc,jetToolName).DoArea = False
      getattr(ToolSvc,jetToolName).GhostTracksInputContainer = "InDetTrackParticles"
      getattr(ToolSvc,jetToolName).GhostTracksVertexAssociationName  = "JetTrackVtxAssoc"
-     if(DFisMC):
+     if isMC:
        getattr(ToolSvc,jetToolName).GhostTruthBHadronsInputContainer = "BHadronsFinal"
        getattr(ToolSvc,jetToolName).GhostTruthCHadronsInputContainer = "CHadronsFinal"
 
@@ -645,7 +662,7 @@ def addExKtDoubleTaggerRCJets(sequence, ToolSvc):#, ExKtJetCollection__FatJetCon
 
    # build subjets
    GhostLabels = ["GhostTrack"]
-   if(DFisMC):
+   if isMC:
      GhostLabels += ["GhostBHadronsFinal"]
      GhostLabels += ["GhostCHadronsFinal"]
    # N=2 subjets

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopConfiguration/AodMetaDataAccess.h"
@@ -24,6 +24,9 @@
 
 #include "PathResolver/PathResolver.h"
 
+#include "TopConfiguration/MsgCategory.h"
+using namespace TopConfiguration;
+
 namespace top {
   AodMetaDataAccess::AodMetaDataAccess() : m_data(nullptr) { }
 
@@ -39,11 +42,9 @@ namespace top {
     std::string exePath = PathResolver::find_file(filename, "PATH");
 
     if (exePath == "") {
-      std::cout << "ERROR::AodMetaDataAccess - could not find file \n";
-      std::cout << filename << "\n";
-      exit(1);
+      throw std::runtime_error("ERROR::AodMetaDataAccess - could not find file \n" + filename);
     }
-    std::cout << "AodMetaDataAccess::Found " << exePath << std::endl;
+    ATH_MSG_INFO("AodMetaDataAccess::Found " << exePath);
 
 
     int pipefd[2] = {
@@ -130,6 +131,20 @@ namespace top {
     if (boost::starts_with(projectName, "data")) return false;
 
     throw std::invalid_argument("unrecognized value in meta-data entry for key 'project_name'");
+  }
+
+  bool AodMetaDataAccess::IsEventOverlayInputSim() const {
+    std::string overlay;
+    try { 
+      overlay = get("/Simulation/Parameters", "IsEventOverlayInputSim");
+    } catch (const std::logic_error& e) {
+      // the key does not exists - is data most likely
+      return false;
+    }
+
+    if (boost::iequals(overlay, "TRUE")) return true;
+    
+    return false;
   }
 
   bool AodMetaDataAccess::isAFII() const {

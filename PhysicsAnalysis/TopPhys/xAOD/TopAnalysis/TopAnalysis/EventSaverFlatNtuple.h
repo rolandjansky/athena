@@ -167,7 +167,7 @@ namespace top {
      * @returns A shared pointer to the m_branchFilters object
      */
     std::vector<top::TreeManager::BranchFilter>& branchFilters();
-
+    
     /*!
      * @brief Internal function which configures the particle level tree
      * manager. It does branch setup etc.
@@ -395,7 +395,6 @@ namespace top {
     float m_weight_photonSF = 0.;
     float m_weight_photonSF_ID_UP = 0.;
     float m_weight_photonSF_ID_DOWN = 0.;
-    float m_weight_photonSF_effIso = 0.;
     float m_weight_photonSF_effIso_UP = 0.;
     float m_weight_photonSF_effIso_DOWN = 0.;
 
@@ -411,6 +410,10 @@ namespace top {
     float m_weight_jvt = 0.0;
     float m_weight_jvt_up = 0.0;
     float m_weight_jvt_down = 0.0;
+    // fJVT
+    float m_weight_forwardjvt = 0.0;
+    float m_weight_forwardjvt_up = 0.0;
+    float m_weight_forwardjvt_down = 0.0;
 
     // Sherpa 2.2 weight
     float m_weight_sherpa_22_vjets = 0.;
@@ -574,6 +577,34 @@ namespace top {
     std::vector<int> m_softmu_b_hadron_parent_pdgid;
     std::vector<int> m_softmu_c_hadron_parent_pdgid;
 
+    //temporary: PLIV for electrons+muons
+    std::vector<float> m_PLIV_el_PromptLeptonRNN_conversion;
+    std::vector<float> m_PLIV_el_PromptLeptonRNN_non_prompt_b;
+    std::vector<float> m_PLIV_el_PromptLeptonRNN_non_prompt_c;
+    std::vector<float> m_PLIV_el_PromptLeptonRNN_prompt;
+    std::vector<short> m_PLIV_el_PromptLeptonImprovedInput_MVAXBin;
+    std::vector<float> m_PLIV_el_PromptLeptonImprovedInput_TrackJetNTrack;
+    std::vector<float> m_PLIV_el_PromptLeptonImprovedInput_topoetcone30rel;
+    std::vector<float> m_PLIV_el_PromptLeptonImprovedInput_ptvarcone30rel;
+    std::vector<float> m_PLIV_el_PromptLeptonImprovedInput_PtFrac;
+    std::vector<float> m_PLIV_el_PromptLeptonImprovedInput_DRlj;
+    std::vector<float> m_PLIV_el_PromptLeptonImprovedInput_CaloClusterSumEtRel;
+    std::vector<float> m_PLIV_el_PromptLeptonImprovedInput_PtRel;
+    std::vector<float> m_PLIV_el_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest_ThetaCutVtx;
+    std::vector<float> m_PLIV_el_PromptLeptonImprovedVetoBARR;
+    std::vector<float> m_PLIV_el_PromptLeptonImprovedVetoECAP;
+    std::vector<float> m_PLIV_mu_PromptLeptonRNN_non_prompt_b;
+    std::vector<float> m_PLIV_mu_PromptLeptonRNN_non_prompt_c;
+    std::vector<float> m_PLIV_mu_PromptLeptonRNN_prompt;
+    std::vector<short> m_PLIV_mu_PromptLeptonImprovedInput_MVAXBin;
+    std::vector<float> m_PLIV_mu_PromptLeptonImprovedInput_topoetcone30rel;
+    std::vector<float> m_PLIV_mu_PromptLeptonImprovedInput_PtFrac;
+    std::vector<float> m_PLIV_mu_PromptLeptonImprovedInput_DRlj;
+    std::vector<float> m_PLIV_mu_PromptLeptonImprovedInput_ptvarcone30_TightTTVA_pt500rel;
+    std::vector<float> m_PLIV_mu_PromptLeptonImprovedInput_CaloClusterERel;
+    std::vector<float> m_PLIV_mu_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest;
+    std::vector<float> m_PLIV_mu_PromptLeptonImprovedVeto;
+
     //photons
     std::vector<float> m_ph_pt;
     std::vector<float> m_ph_eta;
@@ -601,7 +632,8 @@ namespace top {
     std::vector<float> m_jet_mv2c10;
     std::vector<float> m_jet_mv2c20;
     std::vector<float> m_jet_jvt;
-    std::vector<char> m_jet_passfjvt;
+    std::vector<float> m_jet_fjvt;
+    std::vector<char> m_jet_passfjvt; //Could be useful to check pass/fail when fJVT only used in MET
     std::vector<float> m_jet_ip3dsv1;
     std::vector<int>   m_jet_truthflav;
     std::vector<int>   m_jet_truthPartonLabel;
@@ -619,6 +651,22 @@ namespace top {
     std::vector<std::vector<float> > m_jet_ghostTrack_d0;
     std::vector<std::vector<float> > m_jet_ghostTrack_z0;
     std::vector<std::vector<float> > m_jet_ghostTrack_qOverP;
+
+    // tracks
+    std::vector<float> m_track_pt;
+    std::vector<float> m_track_eta;
+    std::vector<float> m_track_phi;
+    std::vector<float> m_track_e;
+    std::vector<float> m_track_d0;
+    std::vector<float> m_track_z0;
+    std::vector<float> m_track_qOverP;
+    std::vector<float> m_track_charge;
+    std::vector<float> m_track_d0_significance;
+    std::vector<float> m_track_z0_significance;
+    std::vector<float> m_track_phi0;
+    std::vector<float> m_track_theta;
+    std::vector<float> m_track_chiSquared;
+    std::vector<uint8_t> m_track_numberDoF;
 
     // R21 b-tagging
     std::vector<float> m_jet_DL1;
@@ -640,6 +688,7 @@ namespace top {
     std::vector<float> m_failJvt_jet_phi;
     std::vector<float> m_failJvt_jet_e;
     std::vector<float> m_failJvt_jet_jvt;
+    std::vector<float> m_failJvt_jet_fjvt;
     std::vector<char> m_failJvt_jet_passfjvt;
     std::vector<int>   m_failJvt_jet_truthflav;
     std::vector<int>   m_failJvt_jet_truthPartonLabel;
@@ -652,6 +701,26 @@ namespace top {
     std::vector<std::vector<float> > m_failJvt_jet_ghostTrack_d0;
     std::vector<std::vector<float> > m_failJvt_jet_ghostTrack_z0;
     std::vector<std::vector<float> > m_failJvt_jet_ghostTrack_qOverP;
+
+    // fail-FJVT jets
+    std::vector<float> m_failFJvt_jet_pt;
+    std::vector<float> m_failFJvt_jet_eta;
+    std::vector<float> m_failFJvt_jet_phi;
+    std::vector<float> m_failFJvt_jet_e;
+    std::vector<float> m_failFJvt_jet_jvt;
+    std::vector<float> m_failFJvt_jet_fjvt;
+    std::vector<char> m_failFJvt_jet_passjvt;
+    std::vector<int>   m_failFJvt_jet_truthflav;
+    std::vector<int>   m_failFJvt_jet_truthPartonLabel;
+    std::vector<char>  m_failFJvt_jet_isTrueHS;
+    std::vector<int>   m_failFJvt_jet_HadronConeExclExtendedTruthLabelID; // Newer jet truth flavour label
+    std::vector<std::vector<float> > m_failFJvt_jet_ghostTrack_pt;
+    std::vector<std::vector<float> > m_failFJvt_jet_ghostTrack_eta;
+    std::vector<std::vector<float> > m_failFJvt_jet_ghostTrack_phi;
+    std::vector<std::vector<float> > m_failFJvt_jet_ghostTrack_e;
+    std::vector<std::vector<float> > m_failFJvt_jet_ghostTrack_d0;
+    std::vector<std::vector<float> > m_failFJvt_jet_ghostTrack_z0;
+    std::vector<std::vector<float> > m_failFJvt_jet_ghostTrack_qOverP;
 
     // for upgrade, we store the tagging efficiency per jet & whether it is from pileup
     std::vector<float> m_jet_mv1eff;
@@ -1105,7 +1174,6 @@ namespace top {
     const float& weight_photonSF() const {return m_weight_photonSF;}
     const float& weight_photonSF_ID_UP() const {return m_weight_photonSF_ID_UP;}
     const float& weight_photonSF_ID_DOWN() const {return m_weight_photonSF_ID_DOWN;}
-    const float& weight_photonSF_effIso() const {return m_weight_photonSF_effIso;}
     const float& weight_photonSF_effIso_UP() const {return m_weight_photonSF_effIso_UP;}
     const float& weight_photonSF_effIso_DOWN() const {return m_weight_photonSF_effIso_DOWN;}
 
@@ -1119,6 +1187,11 @@ namespace top {
     const float& weight_jvt() const {return m_weight_jvt;}
     const float& weight_jvt_up() const {return m_weight_jvt_up;}
     const float& weight_jvt_down() const {return m_weight_jvt_down;}
+
+    // FJVT
+    const float& weight_forwardjvt() const {return m_weight_forwardjvt;}
+    const float& weight_forwardjvt_up() const {return m_weight_forwardjvt_up;}
+    const float& weight_forwardjvt_down() const {return m_weight_forwardjvt_down;}
 
     // Sherpa 2.2 weight
     const float& weight_sherpa_22_vjets() const {return m_weight_sherpa_22_vjets;}
@@ -1265,7 +1338,8 @@ namespace top {
     const std::vector<float>& jet_mv2c10() const {return m_jet_mv2c10;}
     const std::vector<float>& jet_mv2c20() const {return m_jet_mv2c20;}
     const std::vector<float>& jet_jvt() const {return m_jet_jvt;}
-    const std::vector<char>& jet_passfjvt() const {return m_jet_passfjvt;}
+    const std::vector<float>& jet_forwardjvt() const {return m_jet_fjvt;}
+    const std::vector<char>& jet_passforwardjvt() const {return m_jet_passfjvt;}
     const std::vector<int>& jet_truthflav() const {return m_jet_truthflav;}
     const std::vector<int>& jet_truthPartonLabel() const {return m_jet_truthPartonLabel;}
     const std::vector<char>& jet_isTrueHS() const {return m_jet_isTrueHS;}
@@ -1296,11 +1370,25 @@ namespace top {
     const std::vector<float>& failJvt_jet_phi() const {return m_failJvt_jet_phi;}
     const std::vector<float>& failJvt_jet_e() const {return m_failJvt_jet_e;}
     const std::vector<float>& failJvt_jet_jvt() const {return m_failJvt_jet_jvt;}
-    const std::vector<char>& failJvt_jet_passfjvt() const {return m_failJvt_jet_passfjvt;}
+    const std::vector<float>& failJvt_jet_forwardjvt() const {return m_failJvt_jet_fjvt;}
+    const std::vector<char>& failJvt_jet_passforwardjvt() const {return m_failJvt_jet_passfjvt;}
     const std::vector<int>& failJvt_jet_truthflav() const {return m_failJvt_jet_truthflav;}
     const std::vector<int>& failJvt_jet_truthPartonLabel() const {return m_failJvt_jet_truthPartonLabel;}
     const std::vector<char>& failJvt_jet_isTrueHS() const {return m_failJvt_jet_isTrueHS;}
     const std::vector<int>& failJvt_jet_truthflavExtended() const {return m_failJvt_jet_HadronConeExclExtendedTruthLabelID;}
+
+    // fail-FJVT jets
+    const std::vector<float>& failFJvt_jet_pt() const {return m_failFJvt_jet_pt;}
+    const std::vector<float>& failFJvt_jet_eta() const {return m_failFJvt_jet_eta;}
+    const std::vector<float>& failFJvt_jet_phi() const {return m_failFJvt_jet_phi;}
+    const std::vector<float>& failFJvt_jet_e() const {return m_failFJvt_jet_e;}
+    const std::vector<float>& failFJvt_jet_jvt() const {return m_failFJvt_jet_jvt;}
+    const std::vector<float>& failFJvt_jet_forwardjvt() const {return m_failFJvt_jet_fjvt;}
+    const std::vector<char>& failFJvt_jet_passjvt() const {return m_failFJvt_jet_passjvt;}
+    const std::vector<int>& failFJvt_jet_truthflav() const {return m_failFJvt_jet_truthflav;}
+    const std::vector<int>& failFJvt_jet_truthPartonLabel() const {return m_failFJvt_jet_truthPartonLabel;}
+    const std::vector<char>& failFJvt_jet_isTrueHS() const {return m_failFJvt_jet_isTrueHS;}
+    const std::vector<int>& failFJvt_jet_truthflavExtended() const {return m_failFJvt_jet_HadronConeExclExtendedTruthLabelID;}
 
     //large-R jets
     const std::vector<float>& ljet_pt() const {return m_ljet_pt;}

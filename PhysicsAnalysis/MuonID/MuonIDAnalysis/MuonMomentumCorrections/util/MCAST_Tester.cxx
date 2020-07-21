@@ -8,11 +8,9 @@
 #include <string>
 #include "boost/unordered_map.hpp"
 
-
 // ROOT include(s):
 #include <TFile.h>
 #include <TError.h>
-#include <TString.h>
 #include <TTree.h>
 #include <TChain.h>
 
@@ -29,26 +27,17 @@
 #include "xAODCore/ShallowCopy.h"
 #include "PATInterfaces/SystematicVariation.h"
 #include "PATInterfaces/SystematicRegistry.h"
+#include "PATInterfaces/SystematicCode.h"
 #include "xAODCore/tools/IOStats.h"
 #include "xAODCore/tools/ReadStats.h"
 #include "AsgTools/Check.h"
 #include "AsgTools/AnaToolHandle.h"
 
-#include "PATInterfaces/SystematicCode.h"
-
-// Local include(s):
-
-// calibration
 #include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
-#include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
-
-// selection
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
-#include "MuonSelectorTools/MuonSelectionTool.h"
+#include "AsgMessaging/MessageCheck.h"
 
-
-
-using namespace std;
+ANA_MSG_HEADER(msgMMC)
 
 int main( int argc, char* argv[] ) {
 
@@ -72,15 +61,15 @@ int main( int argc, char* argv[] ) {
   ////////////////////////////////////////////////////
   //:::  parse the options
   ////////////////////////////////////////////////////
-  string options;
+  std::string options;
   for( int i=0; i<argc; i++){
     options+=(argv[i]);
   }
 
   int Ievent=-1;
-  if(options.find("-event")!=string::npos){
+  if(options.find("-event")!=std::string::npos){
     for( int ipos=0; ipos<argc ; ipos++ ) {
-      if(string(argv[ipos]).compare("-event")==0){
+      if(std::string(argv[ipos]).compare("-event")==0){
         Ievent = atoi(argv[ipos+1]);
         Info( APP_NAME, "Argument (-event) : Running only on event # %i", Ievent );
         break;
@@ -89,9 +78,9 @@ int main( int argc, char* argv[] ) {
   }
 
   int nEvents=-1;
-  if(options.find("-n")!=string::npos){
+  if(options.find("-n")!=std::string::npos){
     for( int ipos=0; ipos<argc ; ipos++ ) {
-      if(string(argv[ipos]).compare("-n")==0){
+      if(std::string(argv[ipos]).compare("-n")==0){
         nEvents = atoi(argv[ipos+1]);
         Info( APP_NAME, "Argument (-n) : Running on NEvents = %i", nEvents );
         break;
@@ -108,16 +97,16 @@ int main( int argc, char* argv[] ) {
   xAOD::TReturnCode::enableFailure();
 
   //::: Open the input file:
-  const TString fileName = argv[ 1 ];
-  Info( APP_NAME, "Opening file: %s", fileName.Data() );
-  TFile* ifile( TFile::Open( fileName, "READ" ) );
-  if( !ifile ) Error( APP_NAME, "Cannot find file %s",fileName.Data() );
+  std::string fileName = argv[1];
+  Info( APP_NAME, "Opening file: %s", fileName.c_str());
+  std::unique_ptr<TFile> ifile(TFile::Open(fileName.c_str(), "READ"));
+  if( !ifile ) Error( APP_NAME, "Cannot find file %s",fileName.c_str());
 
-  TChain *chain = new TChain ("CollectionTree","CollectionTree");
-  chain->Add(fileName);
+  std::unique_ptr<TChain> chain = std::make_unique<TChain>("CollectionTree","CollectionTree");
+  chain->Add(fileName.c_str());
 
   //::: Create a TEvent object:
-  xAOD::TEvent event( (TTree*)chain, xAOD::TEvent::kAthenaAccess );
+  xAOD::TEvent event( (TTree*)chain.get(), xAOD::TEvent::kAthenaAccess );
   Info( APP_NAME, "Number of events in the file: %i", static_cast< int >( event.getEntries() ) );
 
   //::: Create a transient object store. Needed for the tools.
@@ -202,9 +191,9 @@ int main( int argc, char* argv[] ) {
 
   std::vector< CP::SystematicSet >::const_iterator sysListItr;
 
-  std::cout<<"Systematics are "<<std::endl;
+  msgMMC::ANA_MSG_INFO("main() - Systematics are ");
   for( sysListItr = sysList.begin(); sysListItr != sysList.end(); ++sysListItr )
-    std::cout<<sysListItr->name()<<std::endl;
+    msgMMC::ANA_MSG_INFO(sysListItr->name());
 
   // branches to be stored
   Float_t InitPtCB( 0. ), InitPtID( 0. ), InitPtMS( 0. );
@@ -375,8 +364,6 @@ int main( int argc, char* argv[] ) {
   for( sysListItr = sysList.begin(); sysListItr != sysList.end(); ++sysListItr ) {
     sysTreeMap[ *sysListItr ]->Write();
   }
-
-  delete chain;
 
   //::: Close output file
   outputFile->Close();

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopEventSelectionTools/JetFtagEffPlots.h"
@@ -19,6 +19,9 @@
 // Systematic include(s):
 #include "PATInterfaces/SystematicSet.h"
 
+#include "TopEventSelectionTools/MsgCategory.h"
+using namespace TopEventSelectionTools;
+
 namespace top {
   const double JetFtagEffPlots::toGeV = 0.001;
 
@@ -27,7 +30,7 @@ namespace top {
                                    TFile* outputFile, const std::string& params, std::shared_ptr<top::TopConfig> config,
                                    EL::Worker* wk) :
     m_nominalHashValue(0),
-    m_CDIfile("xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-02-09_v1.root"),
+    m_CDIfile("xAODBTaggingEfficiency/13TeV/2020-21-13TeV-MC16-CDI-2020-03-11_v3.root"),
     m_fill_total_hists(false),
     m_histogram_suffix(""),
     m_dont_use_event_weight(false),
@@ -115,7 +118,7 @@ namespace top {
     // No option were set, run only nominal
     if (!m_doNominal && !m_doMuRup && !m_doMuRdown && !m_doMuFup
         && !m_doMuFdown && !m_doVar3cup && !m_doVar3cdown && !m_doFSRup && !m_doFSRdown) {
-      std::cout << "No variation has been set. Assuming nominal." << std::endl;
+      ATH_MSG_INFO("No variation has been set. Assuming nominal.");
       m_doNominal = true;
     }
 
@@ -232,6 +235,8 @@ namespace top {
     top::check(m_selection_tool.setProperty("TaggerName", m_tagger), "failed to initialize BtagSelectionTool " + m_tagger + "_" + m_WP + "_" + m_jetCollection);
     top::check(m_selection_tool.setProperty("OperatingPoint", m_WP), "failed to initialize BtagSelectionTool " + m_tagger + "_" + m_WP + "_" + m_jetCollection);
     top::check(m_selection_tool.setProperty("JetAuthor", m_jetCollection), "failed to initialize BtagSelectionTool " + m_tagger + "_" + m_WP + "_" + m_jetCollection);
+    top::check(m_selection_tool.setProperty("MinPt", m_min_pT*1e3), "failed to initialize BtagSelectionTool, failed in min jet pT");
+    top::check(m_selection_tool.setProperty("MaxEta", m_max_Eta), "failed to initialize BtagSelectionTool, failed in max jet eta");
 
     top::check(m_selection_tool.initialize(), "failed to initialize BtagSelectionTool " + m_tagger + "_" + m_WP + "_" + m_jetCollection);
   }

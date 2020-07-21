@@ -29,7 +29,6 @@ namespace CP {
   //____________________________________________________________________________
   PhotonVertexSelectionTool::PhotonVertexSelectionTool(const std::string &name)
   : asg::AsgTool(name)
-  , m_pointingTool("CP::PhotonPointingTool/PhotonVertexSelection", this)
   , m_vertices(nullptr)
   , m_acc_sumPt(nullptr)
   , m_acc_sumPt2(nullptr)
@@ -41,14 +40,15 @@ namespace CP {
   , m_varsDecorated(false)
   , m_fail(FailType::Unkown)
   {
+    declareProperty("PhotonPointingTool", m_pointingTool);
     declareProperty("ConfigFileCase1",
         m_configFileCase1 = "PhotonVertexSelection/v1/DiphotonVertex_case1.weights.xml");
     declareProperty("ConfigFileCase2",
         m_configFileCase2 = "PhotonVertexSelection/v1/DiphotonVertex_case2.weights.xml");
-    declareProperty("conversionPtCut"      , m_convPtCut       = 2e3 );    
-    declareProperty("updatePointing", m_updatePointing=true, "Update pointing data?");
-    declareProperty("vertexContainer", m_vertexContainerName = "PrimaryVertices");
-    declareProperty("derivationPrefix", m_derivationPrefix = "");
+    declareProperty("conversionPtCut",  m_convPtCut           = 2e3);    
+    declareProperty("updatePointing",   m_updatePointing      = true, "Update pointing data?");
+    declareProperty("vertexContainer",  m_vertexContainerName = "PrimaryVertices");
+    declareProperty("derivationPrefix", m_derivationPrefix    = "");
   }
 
   //____________________________________________________________________________
@@ -57,7 +57,7 @@ namespace CP {
   //____________________________________________________________________________
   StatusCode PhotonVertexSelectionTool::initialize()
   {
-    ATH_MSG_INFO("Initializing PhotonVertexSelectionTool...");
+    ATH_MSG_INFO("Initializing PhotonVertexSelectionTool..." << name());
 
     // Retrieve PhotonPointingTool
     if (m_pointingTool.retrieve().isFailure()) {

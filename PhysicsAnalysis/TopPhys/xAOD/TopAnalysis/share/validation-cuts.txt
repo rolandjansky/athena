@@ -31,6 +31,9 @@ PRWLumiCalcFiles GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_2
 #PRWActualMu_AF GoodRunsLists/data18_13TeV/20190318/physics_25ns_Triggerno17e33prim.actualMu.OflLumi-13TeV-010.root
 #PRWLumiCalcFiles GoodRunsLists/data18_13TeV/20190318/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-010.root
 
+#setup of TDP file, comment the following line to use the default one instead
+TDPPath dev/AnalysisTop/TopDataPreparation/CI-XSection-MC16-13TeV.data
+
 ### Object container names
 ElectronCollectionName Electrons
 MuonCollectionName Muons
@@ -75,13 +78,12 @@ PerfStats No
 ### Systematics configuration
 Systematics Nominal
 JetUncertainties_NPModel CategoryReduction
-JetUncertainties_BunchSpacing 25ns
 LargeRJetUncertainties_NPModel CategoryReduction
 
 ### Electron configuration
 ElectronID TightLH
 ElectronIDLoose LooseAndBLayerLH
-ElectronIsolation Gradient
+ElectronIsolation FCTight
 ElectronIsolationLoose None
 
 ### Photon configuration
@@ -95,14 +97,20 @@ PhotonUseRadiativeZ False
 
 ### Muon configuration
 MuonQuality Medium
+MuonUseMVALowPt False
+MuonUse2stationHighPt True
+MuonIsolation PflowTight_FixedRad
 MuonQualityLoose Medium
-MuonIsolation FCTight_FixedRad
+MuonUseMVALowPtLoose False
+MuonUse2stationHighPtLoose True
 MuonIsolationLoose None
+MuonDoExtraSmearingHighPt False
+MuonDoSmearing2stationHighPt True
 
 ### Tau configuration
 TauPt 25000
-TauJetIDWP Medium
-TauJetIDWPLoose Medium
+TauJetIDWP RNNMedium
+TauJetIDWPLoose RNNLoose
 TauEleBDTWP Loose
 TauEleBDTWPLoose Loose
 TauEleOLR False
@@ -133,10 +141,8 @@ NumberOfBootstrapReplicas 100
 
 ### Global lepton trigger scale factor example
 UseGlobalLeptonTriggerSF True
-ElectronTriggers 2015@e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose 2016@e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 2017@e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 2018@e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0
-MuonTriggers 2015@mu20_iloose_L1MU15_OR_mu50 2016@mu26_ivarmedium_OR_mu50 2017@mu26_ivarmedium_OR_mu50 2018@mu26_ivarmedium_OR_mu50
-ElectronTriggersLoose 2015@e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose 2016@e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 2017@e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 2018@e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0
-MuonTriggersLoose 2015@mu20_iloose_L1MU15_OR_mu50 2016@mu26_ivarmedium_OR_mu50 2017@mu26_ivarmedium_OR_mu50 2018@mu26_ivarmedium_OR_mu50
+GlobalTriggers 2015@e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose,mu20_iloose_L1MU15_OR_mu50 2016@e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0,mu26_ivarmedium_OR_mu50 2017@e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0,mu26_ivarmedium_OR_mu50 2018@e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0,mu26_ivarmedium_OR_mu50
+GlobalTriggersLoose 2015@e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose,mu20_iloose_L1MU15_OR_mu50 2016@e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0,mu26_ivarmedium_OR_mu50 2017@e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0,mu26_ivarmedium_OR_mu50 2018@e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0,mu26_ivarmedium_OR_mu50
 
 ########################
 ### basic selection with mandatory cuts for reco level

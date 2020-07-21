@@ -25,26 +25,21 @@ theAtlasExtrapolator.DoCaloDynamic = False # this turns off dynamic calculation 
 	           
 from TrkExTools.TrkExToolsConf import Trk__MaterialEffectsUpdator as MaterialEffectsUpdator
 AtlasMaterialEffectsUpdator = MaterialEffectsUpdator(name = 'AtlasMaterialEffectsUpdator')
-ToolSvc += AtlasMaterialEffectsUpdator #default material effects updator
+if not hasattr(ToolSvc,'AtlasMaterialEffectsUpdator'):
+    ToolSvc += AtlasMaterialEffectsUpdator #default material effects updator
 NoElossMaterialEffectsUpdator = MaterialEffectsUpdator(name = 'NoElossMaterialEffectsUpdator')
 NoElossMaterialEffectsUpdator.EnergyLoss = False
-ToolSvc += NoElossMaterialEffectsUpdator
+if  not hasattr(ToolSvc,'NoElossMaterialEffectsUpdator'):
+    ToolSvc += NoElossMaterialEffectsUpdator
 	           
 # setup MaterialEffectsUpdator arrays
-MyUpdators = []
-# This is truth particles  so 
-#    MyUpdators += [AtlasMaterialEffectsUpdator] # for ID
-MyUpdators += [NoElossMaterialEffectsUpdator] # for ID
-MyUpdators += [NoElossMaterialEffectsUpdator] # for Calo
-MyUpdators += [NoElossMaterialEffectsUpdator] # for muon
-# MyUpdators += [NoElossMaterialEffectsUpdator] # for muon
-	           
+MyUpdators = [NoElossMaterialEffectsUpdator] # for use everywhere
+
 MySubUpdators = []
 MySubUpdators += [NoElossMaterialEffectsUpdator.name()] # for ID
-#    MySubUpdators += [AtlasMaterialEffectsUpdator.name()] # for ID
 MySubUpdators += [NoElossMaterialEffectsUpdator.name()] # for Calo
 MySubUpdators += [NoElossMaterialEffectsUpdator.name()] # for muon
-	           
+
 theAtlasExtrapolator.MaterialEffectsUpdators = MyUpdators
 theAtlasExtrapolator.SubMEUpdators = MySubUpdators
 ToolSvc+=theAtlasExtrapolator

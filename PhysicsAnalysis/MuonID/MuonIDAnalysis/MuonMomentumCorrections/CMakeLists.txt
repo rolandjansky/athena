@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 777720 2016-10-11 16:57:24Z krasznaa $
 ################################################################################
 # Package: MuonMomentumCorrections
 ################################################################################
@@ -18,11 +17,13 @@ endif()
 atlas_depends_on_subdirs(
    PUBLIC
    Control/AthToolSupport/AsgTools
+   Control/AthToolSupport/AsgMessaging
    Event/xAOD/xAODMuon
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
    PhysicsAnalysis/Interfaces/MuonAnalysisInterfaces
    PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces   
    PRIVATE
+   PhysicsAnalysis/MuonID/MuonSelectorTools
    Event/xAOD/xAODBase
    Event/xAOD/xAODCore
    Event/xAOD/xAODEventInfo
@@ -37,15 +38,14 @@ atlas_add_library( MuonMomentumCorrectionsLib
    MuonMomentumCorrections/*.h Root/*.cxx
    PUBLIC_HEADERS MuonMomentumCorrections
    INCLUDE_DIRS  ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES  ${ROOT_LIBRARIES} AsgTools xAODMuon MuonAnalysisInterfacesLib AsgAnalysisInterfaces
-   PATInterfaces
+   LINK_LIBRARIES  ${ROOT_LIBRARIES} AsgTools xAODMuon MuonAnalysisInterfacesLib AsgAnalysisInterfaces AsgMessagingLib PATInterfaces
    PRIVATE_LINK_LIBRARIES xAODEventInfo PathResolver )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( MuonMomentumCorrections
       src/*.h src/*.cxx src/components/*.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps xAODMuon xAODCore MuonAnalysisInterfacesLib AsgAnalysisInterfaces
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps xAODMuon xAODCore MuonAnalysisInterfacesLib AsgAnalysisInterfaces AsgMessagingLib
       xAODBase GaudiKernel MuonSelectorToolsLib MuonMomentumCorrectionsLib )
 endif()
 
@@ -58,10 +58,10 @@ atlas_add_dictionary( MuonMomentumCorrectionsDict
 if( XAOD_STANDALONE )
    atlas_add_executable( MCAST_Tester
       util/MCAST_Tester.cxx
-      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} xAODRootAccess
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess
       xAODEventInfo xAODMuon xAODCore PATInterfaces xAODCore AsgTools AsgAnalysisInterfaces
-      MuonSelectorToolsLib MuonMomentumCorrectionsLib  MuonAnalysisInterfacesLib)
+      MuonSelectorToolsLib MuonMomentumCorrectionsLib MuonAnalysisInterfacesLib AsgMessagingLib )
 endif()
 
 # Install files from the package:

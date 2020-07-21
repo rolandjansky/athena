@@ -1,7 +1,7 @@
 /*
- Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
-#ifndef  MUONEFFICIENCYCORRECITONS_EFFICIENCYSCALEFACTOR_H_
+#ifndef MUONEFFICIENCYCORRECITONS_EFFICIENCYSCALEFACTOR_H_
 #define MUONEFFICIENCYCORRECITONS_EFFICIENCYSCALEFACTOR_H_
 
 // EDM include(s):
@@ -75,6 +75,12 @@ namespace CP {
             /// Returns the name of the bin  using the axis title from the scale-factor map
             std::string GetBinName(int bin) const;
             
+            /// Number of overflow bins in the map
+            int nOverFlowBins() const;
+            /// Check whether the bin is overflow or not
+            bool isOverFlowBin(int b) const;
+
+
             /// Finds the bin to which the muon corresponds to
             int FindBinSF(const xAOD::Muon & mu) const;
 
@@ -82,7 +88,7 @@ namespace CP {
             /// bin by bin
             bool SetSystematicBin(int bin);
             
-            bool SeperateSystBins() const;
+            bool separateBinSyst() const;
             bool IsUpVariation() const;
             
 
@@ -168,7 +174,7 @@ namespace CP {
             /// steers the pt dependent systematics
             bool m_respond_to_kineDepSyst;
             /// Can the systematic be decorrelated
-            bool m_seperateBinSyst;
+            bool m_separateBinSyst;
             /// the histograms needed to run
             std::unique_ptr<HistHandler> m_sf;
             std::unique_ptr<HistHandler> m_eff;

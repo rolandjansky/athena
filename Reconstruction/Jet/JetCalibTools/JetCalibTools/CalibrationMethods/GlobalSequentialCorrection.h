@@ -50,9 +50,10 @@ class GlobalSequentialCorrection
   double getPunchThroughResponse(double E, double eta_det, int Nsegments) const;
   double getCaloWIDTHResponse(double pT, uint etabin, double caloWIDTH) const;
   double getN90ConstituentsResponse(double pT, uint etabin, double N90Constituents) const;
+  double getTileGap3Response(double pT, uint etabin, double TileGap3) const;
 
   double getGSCCorrection(xAOD::JetFourMom_t jetP4, double eta,
-                          double trackWIDTH, double nTrk, double Tile0, double EM3, int Nsegments, double ChargedFraction, double caloWIDTH, double N90Constituents) const;
+                          double trackWIDTH, double nTrk, double Tile0, double EM3, int Nsegments, double ChargedFraction, double caloWIDTH, double N90Constituents, double TileGap3) const;
 
   double getJetPropertyMax(TString jetPropName, unsigned int etabin) {
     if ( jetPropName.Contains("EM3") && etabin < m_EM3MaxEtaBin ) return m_respFactorsEM3[etabin]->GetYaxis()->GetXmax();
@@ -61,6 +62,7 @@ class GlobalSequentialCorrection
     else if ( jetPropName.Contains("trackWIDTH") && etabin < m_trackWIDTHMaxEtaBin ) return m_respFactorstrackWIDTH[etabin]->GetYaxis()->GetXmax();
     else if ( jetPropName.Contains("N90Constituents") && etabin < m_N90ConstituentsMaxEtaBin ) return m_respFactorsN90Constituents[etabin]->GetYaxis()->GetXmax();
     else if ( jetPropName.Contains("caloWIDTH") && etabin < m_caloWIDTHMaxEtaBin ) return m_respFactorscaloWIDTH[etabin]->GetYaxis()->GetXmax();
+    else if ( jetPropName.Contains("TileGap3") && etabin < m_TileGap3MaxEtaBin ) return m_respFactorsTileGap3[etabin]->GetYaxis()->GetXmax();
     else return 1;
   }
 
@@ -80,7 +82,7 @@ class GlobalSequentialCorrection
 				TH2F *respFactors) const;
 
  private:
-  enum m_GSCSeq { ApplyChargedFraction = 1, ApplyTile0 = 2, ApplyEM3 = 4, ApplynTrk = 8, ApplytrackWIDTH = 16, ApplyPunchThrough = 32, ApplyN90Constituents = 64, ApplycaloWIDTH = 128 };
+  enum m_GSCSeq { ApplyChargedFraction = 1, ApplyTile0 = 2, ApplyEM3 = 4, ApplynTrk = 8, ApplytrackWIDTH = 16, ApplyPunchThrough = 32, ApplyN90Constituents = 64, ApplyTileGap3 = 128, ApplycaloWIDTH = 256 };
 
   //Private members set in the constructor
   TEnv * m_config;
@@ -88,9 +90,9 @@ class GlobalSequentialCorrection
   bool m_dev;
 
   //Private members set during initialization
-  VecTH2F m_respFactorsEM3, m_respFactorsnTrk, m_respFactorstrackWIDTH, m_respFactorsTile0, m_respFactorsPunchThrough, m_respFactorsChargedFraction, m_respFactorsN90Constituents, m_respFactorscaloWIDTH;
+  VecTH2F m_respFactorsEM3, m_respFactorsnTrk, m_respFactorstrackWIDTH, m_respFactorsTile0, m_respFactorsPunchThrough, m_respFactorsChargedFraction, m_respFactorsN90Constituents, m_respFactorscaloWIDTH, m_respFactorsTileGap3;
   double m_binSize;
-  uint m_depth, m_trackWIDTHMaxEtaBin, m_nTrkMaxEtaBin, m_Tile0MaxEtaBin, m_EM3MaxEtaBin, m_chargedFractionMaxEtaBin, m_caloWIDTHMaxEtaBin, m_N90ConstituentsMaxEtaBin;
+  uint m_depth, m_trackWIDTHMaxEtaBin, m_nTrkMaxEtaBin, m_Tile0MaxEtaBin, m_EM3MaxEtaBin, m_chargedFractionMaxEtaBin, m_caloWIDTHMaxEtaBin, m_N90ConstituentsMaxEtaBin, m_TileGap3MaxEtaBin;
   VecD m_punchThroughEtaBins;
   double m_punchThroughMinPt;
   bool m_turnOffTrackCorrections;

@@ -15,11 +15,14 @@ If you would like to get involved, see the twiki for [the JetMET working group f
 - [Installing](#installing)
 - [Configurations for](#configurations-for)
   - [`JetReclusteringTool` tool](#jetreclusteringtool-tool)
+  - [`JetReclusteringTool` jet substructure moment tools](#jetreclusteringtool-jet-substructure-moment-tools)
   - [`JetReclusteringAlgo` algorithm](#jetreclusteringalgo-algorithm)
   - [`AthJetReclusteringAlgo` Athena algorithm](#athjetreclusteringalgo-athena-algorithm)
 - [Using Jet Reclustering](#using-jet-reclustering)
   - [Input Jet Filtering](#input-jet-filtering)
-  - [Output Reclustered Jet Trimming](#output-reclustered-jet-trimming)
+  - [Output Reclustered Jet Grooming](#output-reclustered-jet-grooming)
+    - [Trimming](#trimming)
+    - [SoftDrop](#softdrop)
   - [Variable-R Jet Finding](#variable-r-jet-finding)
   - [Area Calculations](#area-calculations)
   - [(beta) Ghost Track Association](#beta-ghost-track-association)
@@ -64,11 +67,10 @@ ReclusterRadius           | float                     | 1.0                     
 RCJetPtMin                | float                     | 50.0                      | filter reclustered jets by requiring a minimum pt cut [GeV]
 GroomingAlg               | string                    | trim                      | grooming algorithm to apply (trim, softdrop)
 TrimPtFrac                | float                     | 0.05                      | trim the reclustered jets with a PtFrac on its constituents (eg: small-R input jets)
-TrimSubjetRadius          | float                     | 0.01                      | radius parameter for kt-clustering to form subjets (R=0.0 should not do any clustering)
+TrimSubjetRadius          | float                     | 0.01                      | size parameter for kt-clustering to form subjets (Do not set to 0.0. See notes below for more details)
 SoftDropZCut              | float                     | 0.1                       | softdrop zcut parameter
 SoftDropBeta              | float                     | 0.0                       | softdrop beta parameter
 SoftDropR0                | float                     | 1.0                       | softdrop R0 parameter
-SoftDropN                 | int                       | 1                         | number of iterations for softdrop
 VariableRMinRadius        | float                     | -1.0                      | minimum radius for variable-R jet finding
 VariableRMassScale        | float                     | -1.0                      | mass scale [GeV] for variable-R jet finding
 DoArea                    | bool                      | false                     | turn on ghost area calculations (set ghost area scale to 0.01)
@@ -108,7 +110,6 @@ m_trim_subjet_radius        | float     | 0.01                      | see above
 m_sd_zcut                   | float     | 0.1                       | see above
 m_sd_beta                   | float     | 0.0                       | see above
 m_sd_R0                     | float     | 1.0                       | see above
-m_sd_N                      | int       | 1                         | see above
 m_varR_minR                 | float     | -1.0                      | see above
 m_varR_mass                 | float     | -1.0                      | see above
 m_doArea                    | bool      | false                     | see above
@@ -133,9 +134,15 @@ JetReclusteringTool | ToolHandle                |                           | Th
 
 The input jets can be filtered using the `InputJetPtMin` or `m_ptMin_input` options. If these are set to 0 (or less), this will turn the jet filtering tool off (essentially skipping the step).
 
-### Output Reclustered Jet Trimming
+### Output Reclustered Jet Grooming
 
-The output jets can be trimmed using the `RCJetPtFrac` or `m_ptFrac` options. If these are set to 0 (or less), this will turn the reclustered jet trimming tool off (essentially skipping the step). Note that by default, we will not kt-cluster the subjets as `RCJetSubjetRadius` / `m_subjet_radius` are set to 0.0 by default, however one can set them to a non-zero radius value if you want to form subjets (if you somehow passed in `xAOD::Jet` objects that represent clusters rather than small-R jets).
+#### Trimming
+
+The output jets can be trimmed using the `RCJetPtFrac` / `m_ptFrac` options. If these are set to 0 (or less), this will turn the reclustered jet trimming tool off (essentially skipping the step). Note that by default, we will not kt-cluster the subjets as `RCJetSubjetRadius` / `m_subjet_radius` are set to 0.01 by default, which is much smaller than any ATLAS jets. Setting these to a different value should only be done with good reason. A value of 0.0 will result in jets with no constituents and subsequent issues due to a quirk in the jet trimming algorithm. For anti-kt inputs, a value equal to the input jet size parameter can result in unexpected behavior as some very soft constituent jets may survive trimming. Larger values can be used to cluster constituent jets in a well-defined way. For kt or C/A input jets, the dR separation between jets is much less well-defined so this parameter would require further study.
+
+#### SoftDrop
+
+The output jets can be groomed using the SoftDrop algorithm (https://arxiv.org/abs/1402.2657). The `SoftDropZCut` /  `m_sd_zcut`, `SoftDropBeta` /  `m_sd_beta`, and `SoftDropR0` /  `m_sd_R0` options set the parameters of the SoftDrop algorithm.
 
 ### Variable-R Jet Finding
 

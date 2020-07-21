@@ -79,7 +79,7 @@ float LhoodMMEvent::fakeEff(unsigned ilep, BaseFakeBkgTool* tool) const {
 
 }
 
-Efficiency LhoodMMEvent::realEffObj(unsigned ilep) const {
+const Efficiency& LhoodMMEvent::realEffObj(unsigned ilep) const {
   if (ilep <= m_nlep) {
     return m_realEff[ilep];
   } else {
@@ -88,7 +88,7 @@ Efficiency LhoodMMEvent::realEffObj(unsigned ilep) const {
 
 }
 
-Efficiency LhoodMMEvent::fakeEffObj(unsigned ilep) const {
+const Efficiency& LhoodMMEvent::fakeEffObj(unsigned ilep) const {
   if (ilep <= m_nlep) {
     return m_fakeEff[ilep];
   } else {

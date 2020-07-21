@@ -25,7 +25,7 @@ EXOT7SmartCollections = [
     "BTagging_AntiKt4EMTopo_201810",
     "BTagging_AntiKt4EMPFlow_201810",
     "BTagging_AntiKt4EMPFlow_201903",
-    "BTagging_AntiKtVR30Rmax4Rmin02Track",
+    "BTagging_AntiKtVR30Rmax4Rmin02Track_201810",
 ]
     
 EXOT7ExtraVariables = [
@@ -39,7 +39,7 @@ EXOT7ExtraVariables = [
 
 EXOT7AllVariables = [
     "AntiKt2PV0TrackJets",
-    "AntiKtVR30Rmax4Rmin02TrackJets",
+    "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810",
     "TruthParticles",
     "TruthEvents",
     "TruthVertices"

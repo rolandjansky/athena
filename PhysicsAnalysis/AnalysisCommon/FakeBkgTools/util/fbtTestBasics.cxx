@@ -109,7 +109,7 @@ int main(int argc, char* argv[])
 bool allTests()
 {
     
-    Result result0, result1, result2, result3, result4;
+  Result result0, result1, result2, result3, result4, result5;
     
     if(verbose) std::cout <<"\nWill do minimal test with CP::ApplyFakeFactor\n";
     FBT_CHECK( readFromROOT() );
@@ -119,41 +119,41 @@ bool allTests()
     FBT_CHECK( minimalTest("CP::AsymptMatrixTool", result1) );
     
     if(verbose) std::cout <<"\nWill do minimal test with CP::LhoodMM_tools\n";
-    FBT_CHECK( minimalTest("CP::LhoodMM_tools", result0) );
+    FBT_CHECK( minimalTest("CP::LhoodMM_tools", result2) );
     
     if(verbose) std::cout <<"\nWill test loading efficiencies from XML\n";
     FBT_CHECK( readFromXML() );
-    FBT_CHECK( minimalTest("CP::AsymptMatrixTool", result2) );
+    FBT_CHECK( minimalTest("CP::AsymptMatrixTool", result3) );
     FBT_CHECK( readFromROOT() );
-    FBT_CHECK( result1 == result2 );
+    FBT_CHECK( result1 == result3 );
     
     if(verbose) std::cout <<"\nWill test getEventWeight()\n";
     {
         asg::AnaToolHandle<CP::ILinearFakeBkgTool> tool;
         FBT_CHECK( setup(tool, "CP::AsymptMatrixTool") );
-        FBT_CHECK( eventLoop(tool, result3) );
+        FBT_CHECK( eventLoop(tool, result4) );
         if(verbose) result3.Print();
     }
-    FBT_CHECK( result1 == result3 );
+    FBT_CHECK( result1 == result4 );
     
     if(verbose) std::cout <<"\nWill test parallel jobs and merging\n";
     eventOffset = 0;
     nEvents = 16;
-    FBT_CHECK( parallelJob("CP::AsymptMatrixTool", "/tmp/fbt_job1.root") );
+    FBT_CHECK( parallelJob("CP::LhoodMM_tools", "/tmp/fbt_job1.root") );
     eventOffset = 16;
-    FBT_CHECK( parallelJob("CP::AsymptMatrixTool", "/tmp/fbt_job2.root") );
+    FBT_CHECK( parallelJob("CP::LhoodMM_tools", "/tmp/fbt_job2.root") );
     eventOffset = 32;
-    FBT_CHECK( parallelJob("CP::AsymptMatrixTool", "/tmp/fbt_job3.root") );
+    FBT_CHECK( parallelJob("CP::LhoodMM_tools", "/tmp/fbt_job3.root") );
     eventOffset = 0;
     FBT_CHECK( gSystem->Exec("hadd -f /tmp/fbt_merged.root /tmp/fbt_job*.root") == 0 );
     {
         asg::AnaToolHandle<CP::IFakeBkgTool> tool;
         progressFile = "/tmp/fbt_merged.root";
-        FBT_CHECK( setup(tool, "CP::AsymptMatrixTool") );
+        FBT_CHECK( setup(tool, "CP::LhoodMM_tools") );
         progressFile.clear();
-        FBT_CHECK( fillResult(tool, result4) );
+        FBT_CHECK( fillResult(tool, result5) );
     }
-    FBT_CHECK(result1 == result4 );
+    FBT_CHECK(result2 == result5 );
     
     return true;
 }

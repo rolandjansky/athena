@@ -36,6 +36,7 @@ else()
       AnaAlgorithm/AnaAlgorithm.h AnaAlgorithm/AnaAlgorithm.icc
       Root/AnaAlgorithm.cxx
       AnaAlgorithm/MessageCheck.h Root/MessageCheck.cxx
+      Root/FilterReporterParams.cxx Root/FilterReporter.cxx
       PUBLIC_HEADERS AnaAlgorithm
       PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES GaudiKernel AthenaBaseComps AsgTools StoreGateLib
@@ -43,10 +44,17 @@ else()
 endif()
 
 # Dictionary for the package's types:
+if( XAOD_STANDALONE )
 atlas_add_dictionary( AnaAlgorithmDict
    AnaAlgorithm/AnaAlgorithmDict.h
    AnaAlgorithm/selection.xml
    LINK_LIBRARIES AnaAlgorithmLib )
+else()
+atlas_add_dictionary( AnaAlgorithmDict
+   AnaAlgorithm/AnaAlgorithmAthenaDict.h
+   AnaAlgorithm/selection_athena.xml
+   LINK_LIBRARIES AnaAlgorithmLib )
+endif()
 
 # Install files from the package:
 if( XAOD_STANDALONE )

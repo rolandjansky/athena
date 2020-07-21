@@ -207,6 +207,15 @@ TaggerList = BTaggingFlags.StandardTaggers
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
 FlavorTagInit(JetCollections  = ['AntiKt4EMPFlowJets'], Sequencer = TOPQ5Sequence)
 
+# Decorate PFlow jets with FJVT
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import getPFlowfJVT
+getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=TOPQ5Sequence, algname='JetForwardPFlowJvtToolAlg')
+
+# Decorate PFlow jets with MVfJVT
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import applyMVfJvtAugmentation
+applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=TOPQ5Sequence, algname='JetForwardJvtToolBDTAlg')
+
+
 # Then apply truth tools in the form of aumentation
 if DFisMC:
     from DerivationFrameworkTop.TOPQCommonTruthTools import *
@@ -223,6 +232,7 @@ TOPQ5Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ5Kernel", Thi
 # JetTagNonPromptLepton decorations
 #====================================================================
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+import LeptonTaggers.LeptonTaggersConfig as LepTagConfig
 
 # Build AntiKt4PV0TrackJets and run b-tagging
 JetTagConfig.ConfigureAntiKt4PV0TrackJets(TOPQ5Sequence, 'TOPQ5')
@@ -230,6 +240,7 @@ JetTagConfig.ConfigureAntiKt4PV0TrackJets(TOPQ5Sequence, 'TOPQ5')
 # Add BDT decoration algs
 TOPQ5Sequence += JetTagConfig.GetDecoratePromptLeptonAlgs()
 TOPQ5Sequence += JetTagConfig.GetDecoratePromptTauAlgs()
+TOPQ5Sequence += LepTagConfig.GetDecorateImprovedPromptLeptonAlgs()
 
 # Finally, add the private sequence to the main job
 DerivationFrameworkJob += TOPQ5Sequence

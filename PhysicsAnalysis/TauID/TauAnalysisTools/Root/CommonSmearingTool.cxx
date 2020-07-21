@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Framework include(s):
@@ -519,8 +519,16 @@ void CommonSmearingTool::generateSystematicSets()
     // parse for nuisance parameter in histogram name
     std::vector<std::string> vSplitNP = {};
     split(mSF.first,'_',vSplitNP);
-    std::string sNP = vSplitNP.at(0);
-    std::string sNPUppercase = vSplitNP.at(0);
+    std::string sNP;
+    std::string sNPUppercase;
+    if (vSplitNP.size() > 2)
+    {
+      sNP = vSplitNP.at(0)+'_'+vSplitNP.at(1);
+      sNPUppercase = vSplitNP.at(0)+'_'+vSplitNP.at(1);
+    } else {
+      sNP = vSplitNP.at(0);
+      sNPUppercase = vSplitNP.at(0);
+    }
 
     // skip nominal scale factors
     if (sNP == "sf") continue;

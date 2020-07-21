@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // vim: ts=8 sw=2
@@ -476,17 +476,17 @@ void MissingMassCalculatorV2::PrintOtherInput() {
 
   Info("DiTauMassTools",
        ".........................Other input.....................................");
-  Info("DiTauMassTools",
+  Info("DiTauMassTools", "%s",
        ("Beam energy =" + std::to_string(preparedInput.beamEnergy) +
         "  sqrt(S) for collisions =" + std::to_string(2.0 * preparedInput.beamEnergy))
            .c_str());
-  Info("DiTauMassTools",
+  Info("DiTauMassTools", "%s",
        ("CalibrationSet " + MMCCalibrationSetV2::name[m_MMCCalibrationSet])
            .c_str());
-  Info("DiTauMassTools",
+  Info("DiTauMassTools", "%s",
        ("LFV mode " + std::to_string(preparedInput.LFVmode) + " seed=" + std::to_string(m_seed))
            .c_str());
-  Info("DiTauMassTools", ("usetauProbability=" + std::to_string(Prob->GetUseTauProbability()) +
+  Info("DiTauMassTools", "%s", ("usetauProbability=" + std::to_string(Prob->GetUseTauProbability()) +
                           " useTailCleanup=" + std::to_string(preparedInput.fUseTailCleanup))
                              .c_str());
 
@@ -497,17 +497,17 @@ void MissingMassCalculatorV2::PrintOtherInput() {
     Info("DiTauMassTools", "tau1 and tau2 were NOT internally swapped");
   }
 
-  Info("DiTauMassTools",
+  Info("DiTauMassTools", "%s",
        (" MEtLMin=" + std::to_string(m_MEtLMin) + " MEtLMax=" + std::to_string(m_MEtLMax)).c_str());
-  Info("DiTauMassTools",
+  Info("DiTauMassTools", "%s",
        (" MEtPMin=" + std::to_string(m_MEtPMin) + " MEtPMax=" + std::to_string(m_MEtPMax)).c_str());
-  Info("DiTauMassTools",
+  Info("DiTauMassTools", "%s",
        (" Phi1Min=" + std::to_string(m_Phi1Min) + " Phi1Max=" + std::to_string(m_Phi1Max)).c_str());
-  Info("DiTauMassTools",
+  Info("DiTauMassTools", "%s",
        (" Phi2Min=" + std::to_string(m_Phi2Min) + " Phi2Max=" + std::to_string(m_Phi2Max)).c_str());
-  Info("DiTauMassTools",
+  Info("DiTauMassTools", "%s",
        (" Mnu1Min=" + std::to_string(m_Mnu1Min) + " Mnu1Max=" + std::to_string(m_Mnu1Max)).c_str());
-  Info("DiTauMassTools",
+  Info("DiTauMassTools", "%s",
        (" Mnu2Min=" + std::to_string(m_Mnu2Min) + " Mnu2Max=" + std::to_string(m_Mnu2Max)).c_str());
 }
 
@@ -535,16 +535,16 @@ void MissingMassCalculatorV2::PrintResults() {
        "------------- Printing Final Results for MissingMassCalculator --------------");
   Info("DiTauMassTools",
        ".............................................................................");
-  Info("DiTauMassTools", ("Fit status=" + std::to_string(OutputInfo.FitStatus)).c_str());
+  Info("DiTauMassTools", "%s", ("Fit status=" + std::to_string(OutputInfo.FitStatus)).c_str());
 
   for (int imeth = 0; imeth < MMCFitMethodV2::MAX; ++imeth) {
-    Info("DiTauMassTools",
+    Info("DiTauMassTools", "%s",
          ("___  Results for " + MMCFitMethodV2::name[imeth] + "Method ___")
              .c_str());
-    Info("DiTauMassTools",
+    Info("DiTauMassTools", "%s",
          (" signif=" + std::to_string(OutputInfo.FitSignificance[imeth])).c_str());
-    Info("DiTauMassTools", (" mass=" + std::to_string(OutputInfo.FittedMass[imeth])).c_str());
-    Info("DiTauMassTools", (" rms/mpv=" + std::to_string(OutputInfo.RMS2MPV)).c_str());
+    Info("DiTauMassTools", "%s", (" mass=" + std::to_string(OutputInfo.FittedMass[imeth])).c_str());
+    Info("DiTauMassTools", "%s", (" rms/mpv=" + std::to_string(OutputInfo.RMS2MPV)).c_str());
 
     if (imeth == MMCFitMethodV2::MLM) {
       Info("DiTauMassTools", " no 4-momentum or MET from this method ");
@@ -561,42 +561,42 @@ void MissingMassCalculatorV2::PrintResults() {
     const TLorentzVector &tlvo2 = OutputInfo.objvec2[imeth];
     const TVector2 &tvmet = OutputInfo.FittedMetVec[imeth];
 
-    Info("DiTauMassTools",
+    Info("DiTauMassTools", "%s",
          (" Neutrino-1: P=" + std::to_string(tlvnu1.P()) + "  Pt=" + std::to_string(tlvnu1.Pt()) +
           "  Eta=" + std::to_string(tlvnu1.Eta()) + "  Phi=" + std::to_string(tlvnu1.Phi()) +
           "  M=" + std::to_string(tlvnu1.M()) + " Px=" + std::to_string(tlvnu1.Px()) +
           " Py=" + std::to_string(tlvnu1.Py()) + " Pz=" + std::to_string(tlvnu1.Pz()))
              .c_str());
-    Info("DiTauMassTools",
+    Info("DiTauMassTools", "%s",
          (" Neutrino-2: P=" + std::to_string(tlvnu2.P()) + "  Pt=" + std::to_string(tlvnu2.Pt()) +
           "  Eta=" + std::to_string(tlvnu2.Eta()) + "  Phi=" + std::to_string(tlvnu2.Phi()) +
           "  M=" + std::to_string(tlvnu2.M()) + " Px=" + std::to_string(tlvnu2.Px()) +
           " Py=" + std::to_string(tlvnu2.Py()) + " Pz=" + std::to_string(tlvnu2.Pz()))
              .c_str());
-    Info("DiTauMassTools",
+    Info("DiTauMassTools", "%s",
          (" Tau-1: P=" + std::to_string(tlvo1.P()) + "  Pt=" + std::to_string(tlvo1.Pt()) +
           "  Eta=" + std::to_string(tlvo1.Eta()) + "  Phi=" + std::to_string(tlvo1.Phi()) +
           "  M=" + std::to_string(tlvo1.M()) + " Px=" + std::to_string(tlvo1.Px()) +
           " Py=" + std::to_string(tlvo1.Py()) + " Pz=" + std::to_string(tlvo1.Pz()))
              .c_str());
-    Info("DiTauMassTools",
+    Info("DiTauMassTools", "%s",
          (" Tau-2: P=" + std::to_string(tlvo2.P()) + "  Pt=" + std::to_string(tlvo2.Pt()) +
           "  Eta=" + std::to_string(tlvo2.Eta()) + "  Phi=" + std::to_string(tlvo2.Phi()) +
           "  M=" + std::to_string(tlvo2.M()) + " Px=" + std::to_string(tlvo2.Px()) +
           " Py=" + std::to_string(tlvo2.Py()) + " Pz=" + std::to_string(tlvo2.Pz()))
              .c_str());
 
-    Info("DiTauMassTools",
+    Info("DiTauMassTools", "%s",
          (" dR(nu1-visTau1)=" + std::to_string(tlvnu1.DeltaR(*origVisTau1))).c_str());
-    Info("DiTauMassTools",
+    Info("DiTauMassTools", "%s",
          (" dR(nu2-visTau2)=" + std::to_string(tlvnu2.DeltaR(*origVisTau2))).c_str());
 
-    Info("DiTauMassTools",
+    Info("DiTauMassTools", "%s",
          (" Fitted MET =" + std::to_string(tvmet.Mod()) + "  Phi=" + std::to_string(tlvnu1.Phi()) +
           " Px=" + std::to_string(tvmet.Px()) + " Py=" + std::to_string(tvmet.Py()))
              .c_str());
 
-    Info("DiTauMassTools", (" Resonance: P=" + std::to_string(OutputInfo.totalvec[imeth].P()) +
+    Info("DiTauMassTools", "%s", (" Resonance: P=" + std::to_string(OutputInfo.totalvec[imeth].P()) +
                             "  Pt=" + std::to_string(OutputInfo.totalvec[imeth].Pt()) +
                             " Eta=" + std::to_string(OutputInfo.totalvec[imeth].Eta()) +
                             " Phi=" + std::to_string(OutputInfo.totalvec[imeth].Phi()) +
@@ -804,14 +804,14 @@ int MissingMassCalculatorV2::NuPsolutionV3(const double &mNu1, const double &mNu
     double mtau2plus = (nuvecsol2[0] + m_tauVec2).M();
     double mtau2moins = (nuvecsol2[1] + m_tauVec2).M();
     if (std::abs(pnux - pTmissx) > 0.001 || std::abs(pnuy - pTmissy) > 0.001) {
-      Info("DiTauMassTools", ("NuPsolutionV3 ERROR Pnux-Met.X or Pnuy-Met.Y > 0.001 : " +
+      Info("DiTauMassTools", "%s", ("NuPsolutionV3 ERROR Pnux-Met.X or Pnuy-Met.Y > 0.001 : " +
                               std::to_string(pnux - pTmissx) + " and " +
                               std::to_string(pnuy - pTmissx) + " " + "Invalid solutions")
                                  .c_str());
     }
     if (std::abs(mtau1plus - m_mTau) > 0.001 || std::abs(mtau1moins - m_mTau) > 0.001 ||
         std::abs(mtau2plus - m_mTau) > 0.001 || std::abs(mtau2moins - m_mTau) > 0.001) {
-      Info("DiTauMassTools", ("NuPsolutionV3 ERROR tau mass not recovered : " +
+      Info("DiTauMassTools", "%s", ("NuPsolutionV3 ERROR tau mass not recovered : " +
                               std::to_string(mtau1plus) + " " + std::to_string(mtau1moins) + " " +
                               std::to_string(mtau2plus) + " " + std::to_string(mtau2moins))
                                  .c_str());
@@ -1033,38 +1033,38 @@ int MissingMassCalculatorV2::DitauMassCalculatorV9walk() {
   if (preparedInput.fUseVerbose == 1) {
     Info("DiTauMassTools", "Scanning ");
     Info("DiTauMassTools", " Markov ");
-    Info("DiTauMassTools",
+    Info("DiTauMassTools", "%s",
          (" V9W niters=" + std::to_string(m_iter0) + " " + std::to_string(iter1)).c_str());
-    Info("DiTauMassTools", (" nFullScan " + std::to_string(m_markovNFullScan)).c_str());
-    Info("DiTauMassTools", (" nRejectNoSol " + std::to_string(m_markovNRejectNoSol)).c_str());
-    Info("DiTauMassTools", (" nRejectMetro " + std::to_string(m_markovNRejectMetropolis)).c_str());
-    Info("DiTauMassTools", (" nAccept " + std::to_string(m_markovNAccept)).c_str());
-    Info("DiTauMassTools",
+    Info("DiTauMassTools", "%s", (" nFullScan " + std::to_string(m_markovNFullScan)).c_str());
+    Info("DiTauMassTools", "%s", (" nRejectNoSol " + std::to_string(m_markovNRejectNoSol)).c_str());
+    Info("DiTauMassTools", "%s", (" nRejectMetro " + std::to_string(m_markovNRejectMetropolis)).c_str());
+    Info("DiTauMassTools", "%s", (" nAccept " + std::to_string(m_markovNAccept)).c_str());
+    Info("DiTauMassTools", "%s",
          (" probsum " + std::to_string(totalProbSum) + " msum " + std::to_string(mtautauSum))
              .c_str());
   }
 
   if (preparedInput.fUseVerbose == 1) {
     if (fit_code == 0) {
-      Info("DiTauMassTools", ("!!!----> Warning-3 in "
+      Info("DiTauMassTools", "%s", ("!!!----> Warning-3 in "
                               "MissingMassCalculator::DitauMassCalculatorV9Walk() : fit status=" +
                               std::to_string(fit_code))
                                  .c_str());
-      Info("DiTauMassTools", "....... No solution is found. Printing input info .......");
+      Info("DiTauMassTools", "%s", "....... No solution is found. Printing input info .......");
 
-      Info("DiTauMassTools", ("  vis Tau-1: Pt=" + std::to_string(preparedInput.vistau1.Pt()) +
+      Info("DiTauMassTools", "%s", ("  vis Tau-1: Pt=" + std::to_string(preparedInput.vistau1.Pt()) +
                               "  M=" + std::to_string(preparedInput.vistau1.M()) +
                               " eta=" + std::to_string(preparedInput.vistau1.Eta()) +
                               "  phi=" + std::to_string(preparedInput.vistau1.Phi()) +
                               "  type=" + std::to_string(preparedInput.type_visTau1))
                                  .c_str());
-      Info("DiTauMassTools", ("  vis Tau-2: Pt=" + std::to_string(preparedInput.vistau2.Pt()) +
+      Info("DiTauMassTools", "%s", ("  vis Tau-2: Pt=" + std::to_string(preparedInput.vistau2.Pt()) +
                               "  M=" + std::to_string(preparedInput.vistau2.M()) +
                               " eta=" + std::to_string(preparedInput.vistau2.Eta()) +
                               "  phi=" + std::to_string(preparedInput.vistau2.Phi()) +
                               "  type=" + std::to_string(preparedInput.type_visTau2))
                                  .c_str());
-      Info("DiTauMassTools", ("  MET=" + std::to_string(preparedInput.MetVec.Mod()) +
+      Info("DiTauMassTools", "%s", ("  MET=" + std::to_string(preparedInput.MetVec.Mod()) +
                               "  Met_X=" + std::to_string(preparedInput.MetVec.Px()) +
                               "  Met_Y=" + std::to_string(preparedInput.MetVec.Py()))
                                  .c_str());
@@ -1483,7 +1483,7 @@ int MissingMassCalculatorV2::DitauMassCalculatorV9lfv() {
   OutputInfo.NSuccesses = iter3;
 
   if (preparedInput.fUseVerbose == 1) {
-    Info("DiTauMassTools",
+    Info("DiTauMassTools", "%s",
          ("SpeedUp niters=" + std::to_string(iter0) + " " + std::to_string(iter1) + " " +
           std::to_string(iter2) + " " + std::to_string(iter3) + "skip:" + std::to_string(iang1low) +
           " " + std::to_string(iang1high))
@@ -1540,21 +1540,21 @@ int MissingMassCalculatorV2::DitauMassCalculatorV9lfv() {
   if (preparedInput.fUseVerbose == 1) {
     if (fit_code == 0) {
       Info(
-          "DiTauMassTools",
+          "DiTauMassTools", "%s",
           ("!!!----> Warning-3 in MissingMassCalculator::DitauMassCalculatorV9lfv() : fit status=" +
            std::to_string(fit_code))
               .c_str());
       Info("DiTauMassTools", "....... No solution is found. Printing input info .......");
 
-      Info("DiTauMassTools", ("  vis Tau-1: Pt="+std::to_string(preparedInput.vistau1.Pt())
+      Info("DiTauMassTools", "%s", ("  vis Tau-1: Pt="+std::to_string(preparedInput.vistau1.Pt())
                 +"  M="+std::to_string(preparedInput.vistau1.M())+" eta="+std::to_string(preparedInput.vistau1.Eta())
                 +"  phi="+std::to_string(preparedInput.vistau1.Phi())
                 +"  type="+std::to_string(preparedInput.type_visTau1)).c_str());
-      Info("DiTauMassTools", ("  vis Tau-2: Pt="+std::to_string(preparedInput.vistau2.Pt())
+      Info("DiTauMassTools", "%s", ("  vis Tau-2: Pt="+std::to_string(preparedInput.vistau2.Pt())
                 +"  M="+std::to_string(preparedInput.vistau2.M())+" eta="+std::to_string(preparedInput.vistau2.Eta())
                 +"  phi="+std::to_string(preparedInput.vistau2.Phi())
                 +"  type="+std::to_string(preparedInput.type_visTau2)).c_str());
-      Info("DiTauMassTools", ("  MET="+std::to_string(preparedInput.MetVec.Mod())+"  Met_X="+std::to_string(preparedInput.MetVec.Px())
+      Info("DiTauMassTools", "%s", ("  MET="+std::to_string(preparedInput.MetVec.Mod())+"  Met_X="+std::to_string(preparedInput.MetVec.Px())
                 +"  Met_Y="+std::to_string(preparedInput.MetVec.Py())).c_str());
       Info("DiTauMassTools", " ---------------------------------------------------------- ");
     }
@@ -1649,7 +1649,7 @@ MissingMassCalculatorV2::maxFromHist(TH1F *theHist, std::vector<double> &histInf
   // now compute sliding window anyway
   if (maxHistStrategy != MaxHistStrategyV2::SLIDINGWINDOW &&
       maxHistStrategy != MaxHistStrategyV2::FIT) {
-    Error("DiTauMassTools",
+    Error("DiTauMassTools", "%s",
           ("ERROR undefined maxHistStrategy:" + std::to_string(maxHistStrategy)).c_str());
     return -10.;
   }
@@ -1893,27 +1893,27 @@ int MissingMassCalculatorV2::refineSolutions(const double &M_nu1, const double &
   m_nsol = 0;
 
   if (int(m_probFinalSolVec.size()) < nsolfinalmax)
-    Error("DiTauMassTools",
+    Error("DiTauMassTools", "%s",
           ("refineSolutions ERROR probFinalSolVec.size() should be " + std::to_string(nsolfinalmax))
               .c_str());
   if (int(m_mtautauFinalSolVec.size()) < nsolfinalmax)
-    Error("DiTauMassTools",
+    Error("DiTauMassTools", "%s",
           ("refineSolutions ERROR mtautauSolVec.size() should be " + std::to_string(nsolfinalmax))
               .c_str());
   if (int(m_nu1FinalSolVec.size()) < nsolfinalmax)
-    Error("DiTauMassTools",
+    Error("DiTauMassTools", "%s",
           ("refineSolutions ERROR nu1FinalSolVec.size() should be " + std::to_string(nsolfinalmax))
               .c_str());
   if (int(m_nu2FinalSolVec.size()) < nsolfinalmax)
-    Error("DiTauMassTools",
+    Error("DiTauMassTools", "%s",
           ("refineSolutions ERROR nu2FinalSolVec.size() should be " + std::to_string(nsolfinalmax))
               .c_str());
   if (nsol1 > int(nsolmax))
-    Error("DiTauMassTools", ("refineSolutions ERROR nsol1 " + std::to_string(nsol1) +
+    Error("DiTauMassTools", "%s", ("refineSolutions ERROR nsol1 " + std::to_string(nsol1) +
                              "  > nsolmax !" + std::to_string(nsolmax))
                                 .c_str());
   if (nsol2 > int(nsolmax))
-    Error("DiTauMassTools", ("refineSolutions ERROR nsol1 " + std::to_string(nsol2) +
+    Error("DiTauMassTools", "%s", ("refineSolutions ERROR nsol1 " + std::to_string(nsol2) +
                              "  > nsolmax !" + std::to_string(nsolmax))
                                 .c_str());
 
@@ -2010,7 +2010,7 @@ int MissingMassCalculatorV2::refineSolutions(const double &M_nu1, const double &
 
       if (totalProb <= 0) {
 	      if (preparedInput.fUseVerbose)
-		      Warning("DiTauMassTools",
+		      Warning("DiTauMassTools", "%s",
 			      ("null proba solution, rejected "+std::to_string(totalProb)).c_str());
       } else {
         // only count solution with non zero probability
@@ -2018,11 +2018,11 @@ int MissingMassCalculatorV2::refineSolutions(const double &M_nu1, const double &
         mtautauSum += mtautau;
 
         if (m_nsol >= int(nsolfinalmax)) {
-          Error("DiTauMassTools",
+          Error("DiTauMassTools", "%s",
                 ("refineSolutions ERROR nsol getting larger than nsolfinalmax!!! " +
                  std::to_string(m_nsol))
                     .c_str());
-          Error("DiTauMassTools",
+          Error("DiTauMassTools", "%s",
                 (" j1 " + std::to_string(j1) + " j2 " + std::to_string(j2) + " nsol1 " +
                  std::to_string(nsol1) + " nsol2 " + std::to_string(nsol2))
                     .c_str());
@@ -2217,7 +2217,7 @@ void MissingMassCalculatorV2::handleSolutions()
     // accept anyway if null old probability (should only happen for the very
     // first point with a solution)
     if (!firstPointWithSol && totalProbSumSolOld <= 0.) {
-      Error("DiTauMassTools",
+      Error("DiTauMassTools", "%s",
             (" ERROR null old probability !!! " + std::to_string(totalProbSumSolOld) + " nsolOld " +
              std::to_string(m_nsolOld))
                 .c_str());
@@ -2449,6 +2449,7 @@ void MissingMassCalculatorV2::SpaceWalkerInit() {
   // precompute some quantities and store in m_ data members
   precomputeCache();
   if (m_MMCCalibrationSet == MMCCalibrationSetV2::MMC2019) {
+    if (Prob->GetUseMnuProbability() == true && (preparedInput.m_tauTypes == TauTypes::ll || preparedInput.m_tauTypes == TauTypes::lh) ) Prob->setParamNuMass();
     Prob->setParamAngle(m_tauVec1, 1, preparedInput.type_visTau1);
     Prob->setParamAngle(m_tauVec2, 2, preparedInput.type_visTau2);
     Prob->setParamRatio(1, preparedInput.type_visTau1);
@@ -3036,11 +3037,11 @@ void MissingMassCalculatorV2::FinalizeSettings(const xAOD::IParticle *part1,
     preparedInput.m_tauTypes = TauTypes::lh;
   }
   if (preparedInput.fUseVerbose)
-    Info("DiTauMassTools", ("running for tau types "+std::to_string(preparedInput.type_visTau1)+" "+std::to_string(preparedInput.type_visTau2)).c_str());
+    Info("DiTauMassTools", "%s", ("running for tau types "+std::to_string(preparedInput.type_visTau1)+" "+std::to_string(preparedInput.type_visTau2)).c_str());
   TVector2 met_vec(met->mpx() / GEV, met->mpy() / GEV);
   preparedInput.SetMetVec(met_vec);
   if (preparedInput.fUseVerbose)
-    Info("DiTauMassTools", ("passing SumEt="+std::to_string(met->sumet() / GEV)).c_str());
+    Info("DiTauMassTools", "%s", ("passing SumEt="+std::to_string(met->sumet() / GEV)).c_str());
   preparedInput.SetSumEt(met->sumet() / GEV);
   preparedInput.SetNjet25(njets);
 

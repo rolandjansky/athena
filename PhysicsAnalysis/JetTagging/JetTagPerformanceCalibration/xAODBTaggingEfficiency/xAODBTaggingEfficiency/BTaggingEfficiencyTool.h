@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -196,6 +196,20 @@ class BTaggingEfficiencyTool: public asg::AsgTool,
   std::map<std::string, std::vector<std::string> > listScaleFactorSystematics(bool named = false) const;
   /// @}
 
+  /**
+   * Run EigenvectorRecomposition method and get the coefficient map.
+   * Calling EigenVectorRecomposition method in CDI and retrieve recomposition map.
+   * If success, coefficientMap would be filled and return ok.
+   * If failed, return error.
+   * label  :  flavour label
+   * coefficientMap: store returned coefficient map. This map could help expressing eigenvector NPs by linear
+   * combination of original uncertainty NPs in workspace level of physics analysis. The coefficient value
+   * is stored in the map in the format of:
+   * map<"Eigen_B_0", map<"[original uncertainty name]", [corresponding coefficient value]>> 
+   */
+  CP::CorrectionCode getEigenRecompositionCoefficientMap(const std::string &label, std::map<std::string, std::map<std::string, float>> & coefficientMap);
+  /// @}
+
 private:
 
   struct SystInfo {
@@ -297,6 +311,8 @@ private:
   std::string m_OP;
   ///  jet collection name
   std::string m_jetAuthor;
+  ///  minimum jet pT
+  float m_minPt;
   /// systematics model to be used (current choices are "SFEigen", "SFEigenRefined", and "Envelope")
   std::string m_systStrategy;
   /// if true, attempt to retrieve the data/MC efficiency scale factor calibration files from the @PathResolver development area
@@ -312,6 +328,8 @@ private:
   bool m_useRecommendedEVExclusions;
   /// if true, ignore out-of-extrapolation range errors (i.e., return CorrectionCode::Ok if these are encountered)
   bool m_ignoreOutOfValidityRange;
+  /// if false, suppress any non-error/warning printout from the underlying tool
+  bool m_verboseCDITool;
   /// @}
 
   /// @name Cached variables
@@ -339,7 +357,6 @@ private:
   std::map<unsigned int, unsigned int> m_SFIndices;
   /// actual information identifying efficiency calibration objects
   std::map<unsigned int, unsigned int> m_EffIndices;
-
 
   //cache for efficiency map config file that maps from a sample DSID to the correct efficiency map
   std::map<unsigned int, unsigned int> m_DSID_to_MapIndex;

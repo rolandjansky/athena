@@ -92,6 +92,13 @@ namespace top {
     top::check(m_ghost_track_CP_tools->initialize(),
                "Failed to initialize ghost track tools");
 
+    m_track_CP_tools = std::make_unique<top::TrackCPTools>("top::TrackCPTools");
+    top::check(m_track_CP_tools->setProperty("config", m_config),
+               "Failed to share config with track CP tools");
+    top::check(m_track_CP_tools->initialize(),
+               "Failed to initialize track tools");
+
+
     return StatusCode::SUCCESS;
   }
 

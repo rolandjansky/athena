@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////
@@ -87,6 +87,10 @@ namespace Analysis
     /** matrix to remove unecessary rows and columns from covariance */
     TMatrixD    getJacobianReductionMatrix() const;
 
+    /** Eigenvector recomposition method.*/
+    bool EigenVectorRecomposition(const std::string label,
+				  std::map<std::string, std::map<std::string, float>> &coefficientMap) const;
+
   private:
     /** container object containing the basic information */
     const CalibrationDataHistogramContainer* m_cnt;
@@ -103,6 +107,9 @@ namespace Analysis
     /** eigenvector variations */
     std::vector<std::pair<TH1*, TH1*> > m_eigen;
 
+    /** indicate whether statistical uncertainties are stored as variations */
+    bool m_statVariations;
+    
     // /** @ data members needed for eigenvector method **/
     // /** the map stores the int which is needed to access the other vector<> objects **/
     // mutable std::map<std::string, unsigned int> m_eigenvectorMethod_index;

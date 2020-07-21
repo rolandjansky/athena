@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -44,9 +44,7 @@ namespace EL
 #endif
                 )
 #ifdef XAOD_STANDALONE
-    : AsgMessaging (name)
-    , m_name (name)
-    , m_properties (new PropertyMgr)
+    : AsgComponent (name)
     , m_inputMetaStore  (asg::SgTEventMeta::InputStore, nullptr)
     , m_outputMetaStore (asg::SgTEventMeta::OutputStore, nullptr)
 #else
@@ -56,7 +54,6 @@ namespace EL
 #endif
   {
 #ifdef XAOD_STANDALONE
-    msg().declarePropertyFor (*this);
     declareProperty ("RootStreamName", m_treeStreamName = "ANALYSIS",
                      "Name of the stream to put trees into");
 #endif
@@ -423,14 +420,6 @@ namespace EL
 
 
 
-  void AnaAlgorithm ::
-  addCleanup (const std::shared_ptr<void>& cleanup)
-  {
-    m_cleanup.push_back (cleanup);
-  }
-
-
-
   bool AnaAlgorithm ::
   hasFileExecute () const noexcept
   {
@@ -443,14 +432,6 @@ namespace EL
   hasBeginInputFile () const noexcept
   {
     return m_hasBeginInputFile;
-  }
-
-
-
-  const std::string& AnaAlgorithm ::
-  name () const
-  {
-    return m_name;
   }
 #endif
 

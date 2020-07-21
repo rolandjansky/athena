@@ -23,6 +23,7 @@
 
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"
+#include "IsolationSelection/IIsolationLowPtPLVTool.h"
 
 #include "TriggerAnalysisInterfaces/ITrigGlobalEfficiencyCorrectionTool.h"
 
@@ -217,6 +218,7 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
 
   dec_baseline(input) = true;
   dec_selected(input) = 2;
+  if (!m_eleIso_WP.empty() && m_eleIso_WP.find("PLV")!=std::string::npos) ATH_CHECK( m_isoToolLowPtPLV->augmentPLV(input) );
   if (!m_eleIso_WP.empty()) dec_isol(input) = m_isoTool->accept(input);
   if (!m_eleIsoHighPt_WP.empty()) dec_isolHighPt(input) = m_isoHighPtTool->accept(input);
 
@@ -302,7 +304,7 @@ bool SUSYObjDef_xAOD::IsSignalElectron(const xAOD::Electron & input, float etcut
     ATH_MSG_VERBOSE( "IsSignalElectron: passed isolation" );
   }
   
-  if(!acc_passChID(input)) return false; //add charge flip check to signal definition
+  if(m_eleChID_signal && !acc_passChID(input)) return false; //add charge flip check to signal definition
 
   dec_signal(input) = true;
 

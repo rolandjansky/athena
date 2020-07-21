@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef TOPCONFIGURATION_AODMETADATAACCESS_H
@@ -48,6 +48,13 @@ namespace top {
      * @return true for MC, false for real data
      */
     bool isSimulation() const;
+
+    /**
+     * @brief check whether the sample is MCoverlay or not
+     *
+     * @return true if it is overlay
+     */
+    bool IsEventOverlayInputSim() const;
 
     /**
      * @brief check whether this sample is simulation, and then check if it was simulated with ATLFASTII

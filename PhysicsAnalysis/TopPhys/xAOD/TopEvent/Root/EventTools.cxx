@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopEvent/EventTools.h"
@@ -14,8 +14,7 @@
 namespace top {
   void check(bool thingToCheck, const std::string& usefulFailureMessage) {
     if (!thingToCheck) {
-      std::cout << usefulFailureMessage << "\n";
-      exit(1);
+      throw std::runtime_error("top::check: " + usefulFailureMessage);
     }
   }
 

@@ -29,6 +29,7 @@ namespace DerivationFramework {
   static SG::AuxElement::Decorator<float> dec_genFiltHT("GenFiltHT");
   static SG::AuxElement::Decorator<float> dec_genFiltMET("GenFiltMET");
   static SG::AuxElement::Decorator<float> dec_genFiltPTZ("GenFiltPTZ");
+  static SG::AuxElement::Decorator<float> dec_genFiltFatJ("GenFiltFatJ");
   static SG::AuxElement::Decorator<int> dec_HFOR("HFORDecision");
 
   GenFilterTool::GenFilterTool(const std::string& t, const std::string& n, const IInterface* p)
@@ -112,14 +113,15 @@ namespace DerivationFramework {
 
     m_originMap.clear();
 
-    float genFiltHT(0.), genFiltMET(0.), genFiltPTZ(0.);
-    ATH_CHECK( getGenFiltVars(truthPC, genFiltHT, genFiltMET, genFiltPTZ) );
+    float genFiltHT(0.), genFiltMET(0.), genFiltPTZ(0.), genFiltFatJ(0.);
+    ATH_CHECK( getGenFiltVars(truthPC, genFiltHT, genFiltMET, genFiltPTZ, genFiltFatJ) );
 
-    ATH_MSG_DEBUG("Computed generator filter quantities: HT " << genFiltHT/1e3 << ", MET " << genFiltMET/1e3 << ", PTZ " << genFiltPTZ/1e3 );
+    ATH_MSG_DEBUG("Computed generator filter quantities: HT " << genFiltHT/1e3 << ", MET " << genFiltMET/1e3 << ", PTZ " << genFiltPTZ/1e3 << ", FatJ " << genFiltFatJ/1e3 );
 
     dec_genFiltHT(*eventInfo) = genFiltHT;
     dec_genFiltMET(*eventInfo) = genFiltMET;
     dec_genFiltPTZ(*eventInfo) = genFiltPTZ;
+    dec_genFiltFatJ(*eventInfo) = genFiltFatJ;
 
     if (m_hforTool->getSampleType()!=HFORType::noType){
       dec_HFOR(*eventInfo) = static_cast< int >( m_hforTool->getDecisionType() );
@@ -128,7 +130,7 @@ namespace DerivationFramework {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode GenFilterTool::getGenFiltVars(const xAOD::TruthParticleContainer* tpc, float& genFiltHT, float& genFiltMET, float& genFiltPTZ) const {
+  StatusCode GenFilterTool::getGenFiltVars(const xAOD::TruthParticleContainer* tpc, float& genFiltHT, float& genFiltMET, float& genFiltPTZ, float& genFiltFatJ) const {
     // Get jet container out
     const xAOD::JetContainer* truthjets = 0;
     if ( evtStore()->retrieve( truthjets, m_truthJetsName).isFailure() || !truthjets ){
@@ -215,6 +217,19 @@ namespace DerivationFramework {
       }
     }
     genFiltPTZ = PtZ;
+
+   //Get FatJ
+   // Get correct jet container
+   const xAOD::JetContainer* truthjets10 = 0;
+   if ( evtStore()->retrieve( truthjets10, "AntiKt10TruthJets").isFailure() || !truthjets10 ){
+     ATH_MSG_ERROR( "No xAOD::JetContainer found in StoreGate with key AntiKt10TruthJets" );
+     return StatusCode::FAILURE;
+   }
+   genFiltFatJ=0.;
+   for (const auto& j : *truthjets10) {
+     if (j->pt()>genFiltFatJ) genFiltFatJ=j->pt();
+   }
+
 
     return StatusCode::SUCCESS;
   }

@@ -6,5 +6,6 @@
 #define __EGAMMAANALYSISHELPERSDICT__
 
 #include "EgammaAnalysisHelpers/PhotonHelpers.h"
+#include "EgammaAnalysisHelpers/AsgElectronPhotonIsEMSelectorConfigHelper.h"
 
 #endif

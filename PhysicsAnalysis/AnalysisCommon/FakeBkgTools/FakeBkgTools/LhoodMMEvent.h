@@ -19,8 +19,8 @@ class LhoodMMEvent {
   unsigned nlep() const {return m_nlep;}
   float realEff(unsigned ilep, CP::BaseFakeBkgTool* tool = nullptr) const;
   float fakeEff(unsigned ilep, CP::BaseFakeBkgTool* tool = nullptr) const;
-  FakeBkgTools::Efficiency realEffObj(unsigned ilep) const;
-  FakeBkgTools::Efficiency fakeEffObj(unsigned ilep) const;
+  const FakeBkgTools::Efficiency& realEffObj(unsigned ilep) const;
+  const FakeBkgTools::Efficiency& fakeEffObj(unsigned ilep) const;
  
   bool isTight(unsigned ilep) const;
   int charge(unsigned ilep) const;
@@ -43,6 +43,7 @@ class LhoodMMEvent {
   double m_aux, m_aux2;
 
   void Init(int nlep, const std::vector<FakeBkgTools::Efficiency>& realEff, const std::vector<FakeBkgTools::Efficiency>& fakeEff, const std::vector<bool>& isTight, const std::vector<int>& charge, float weight, double aux, double aux2);
+
 };
 
 #endif

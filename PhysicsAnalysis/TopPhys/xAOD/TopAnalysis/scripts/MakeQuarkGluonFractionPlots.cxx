@@ -110,8 +110,18 @@ MakeQuarkGluonFractionPlots::MakeQuarkGluonFractionPlots(std::string filename):
       if(m_doPS) c1.Print((psfilename+"[").c_str());
       bool createMap = true;
       std::string append = "nominal_";
+      
+      //Clear the input map 
+      h_input.clear();
+      h_input_1P.clear();
+      h_input_1PVar.clear();
+      h_input_2P.clear();
+      h_input_2PUp.clear();
+      h_input_2PDown.clear();
+      
       DumpToMap(h_input, m_configNominal.path, m_channel.at(c), m_configNominal.folder, append, createMap);
       if(m_doPS) drawhistos(h_input, psfilename);
+      
       for(unsigned int v=0; v<m_config1PointVec.size(); ++v){
 	std::map<std::string, TH2D*> map_temp;
 	std::string append = "central1P_"+std::to_string(v)+"_"+m_channel.at(c)+"_";
@@ -281,11 +291,13 @@ void MakeQuarkGluonFractionPlots::CreateQGFFile(std::string prename, std::map<st
     prehistname=std::to_string(v) + "_2PSystematic_deltaUp";
     h_fractionUnc2PSyst_up.push_back(getDelta(qgf_variationUp, qgf_nominal, m_config2PointVec.at(v).scalefactor, prehistname)); //up-nominal
     if(m_doPS) drawhistos(h_fractionUnc2PSyst_up.at(v), psfilename);
+    
     std::vector<TH2D*> qgf_variationDown = computeQuarkGluonFraction(h_input_2PDown.at(v), m_doGluVsFlavour, prehistname);
     if(m_doPS) drawhistos(qgf_variationDown, psfilename);
     prehistname=std::to_string(v) + "_2PSystematic_deltaDown";
     h_fractionUnc2PSyst_down.push_back(getDelta(qgf_nominal, qgf_variationDown, m_config2PointVec.at(v).scalefactor, prehistname)); //up-nominal
     if(m_doPS) drawhistos(h_fractionUnc2PSyst_down.at(v), psfilename);
+
   }
   //-----------------------------------------------------------
   // compute the uncertainty histograms
@@ -323,6 +335,7 @@ std::vector<TH2D*> MakeQuarkGluonFractionPlots::getDelta (std::vector<TH2D*> h_n
   }
   return QuarkGluonDiffFractionhistos;
 }
+
 //Evaluate uncertainty
 std::vector<TH2D*>  MakeQuarkGluonFractionPlots::evaluateQGFUncertaity(std::vector<std::vector<TH2D*> > f_1P, std::vector<std::vector<TH2D*> > f_2PUp, std::vector<std::vector<TH2D*> > f_2PDown, std::string channel){
   std::vector<TH2D*> histUnc;
@@ -587,8 +600,8 @@ void MakeQuarkGluonFractionPlots::printXMLConfigFile(){
   for(unsigned int i=0; i<m_config2PointVec.size();++i){
     std::cout<<"\t("<<i<<") "<<m_config2PointVec.at(i).name<<"\n";
     std::cout<<"\t\tCentral file: "<<m_config2PointVec.at(i).central<<std::endl;
-    checkFile(m_config1PointVec.at(i).central);
-    std::cout<<"\t\tCentral folder: "<<m_config2PointVec.at(i).folder_c<<std::endl;
+    checkFile(m_config2PointVec.at(i).central);
+    std::cout<<"\t\tCentral folder : "<<m_config2PointVec.at(i).folder_c<<std::endl;
     std::cout<<"\t\tUp-variated file: "<<m_config2PointVec.at(i).variation_up<<std::endl;
     checkFile(m_config2PointVec.at(i).variation_up);
     std::cout<<"\t\tUp-variated folder: "<<m_config2PointVec.at(i).folder_up<<std::endl;

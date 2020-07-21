@@ -81,6 +81,7 @@ elif ( DetFlags.detdescr.ID_on() ):
         if ( DetFlags.simulate.TRT_on() ):
             trtDetectorTool.DoXenonArgonMixture = True
             trtDetectorTool.DoKryptonMixture = True
+            trtDetectorTool.IsSimulation = True
         trtDetectorTool.useDynamicAlignFolders = GeometryFlags.useDynamicAlignFolders()
         GeoModelSvc.DetectorTools += [ trtDetectorTool ]
 

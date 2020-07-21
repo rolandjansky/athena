@@ -14,7 +14,6 @@ if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
 
-
 # =============================================
 # Private sequence here
 # =============================================
@@ -73,10 +72,12 @@ thinningTools.append(TAUP1JetTPThinningTool)
 
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
 TAUP1CaloClusterThinning  = DerivationFramework__CaloClusterThinning(
-  name                      = "TAUP1ClusterThinning",
-  ThinningService           = TAUP1ThinningHelper.ThinningSvc(),
-  SGKey                     = "TauJets",
-  TopoClCollectionSGKey     = "CaloCalTopoClusters")
+  name                            = "TAUP1ClusterThinning",
+  ThinningService                 = TAUP1ThinningHelper.ThinningSvc(),
+  SGKey                           = "TauJets",
+  TopoClCollectionSGKey           = "LCOriginTopoClusters",
+  AdditionalTopoClCollectionSGKey = ["CaloCalTopoClusters"],
+  ConeSize                        = 0.6)
 
 ToolSvc += TAUP1CaloClusterThinning
 thinningTools.append(TAUP1CaloClusterThinning)
@@ -115,6 +116,7 @@ TAUP1TauTPThinningTool  = DerivationFramework__TauTrackParticleThinning(
 ToolSvc += TAUP1TauTPThinningTool
 thinningTools.append(TAUP1TauTPThinningTool)
 
+
 # truth thinning here:
 import DerivationFrameworkTau.TAUPThinningHelper 
 TAUP1TruthThinningTools = DerivationFrameworkTau.TAUPThinningHelper.setup("TAUP1",
@@ -122,13 +124,15 @@ TAUP1TruthThinningTools = DerivationFrameworkTau.TAUPThinningHelper.setup("TAUP1
                                                                           ToolSvc)
 
 thinningTools += TAUP1TruthThinningTools
+
+
 # =============================================
 # Skimming tool
 # =============================================
 
 elRequirement = "( count( Electrons.DFCommonElectronsLHLoose && (Electrons.pt > 20.0*GeV) && (abs(Electrons.eta) < 2.6) ) >= 1 )"
 muRequirement = "( count( (Muons.pt > 10.0*GeV) && (abs(Muons.eta) < 2.0) && Muons.DFCommonGoodMuon ) < 1 )"
-tauRequirement = "( count( (TauJets.pt > 12.0*GeV) && (abs(TauJets.eta) < 2.6) && (abs(TauJets.charge) == 1.0) ) >= 1 )"
+tauRequirement = "( count( ((TauJets.pt > 12.0*GeV || TauJets.ptFinalCalib > 12.0*GeV) && (abs(TauJets.eta) < 2.6) && (abs(TauJets.charge)==1.0 && (TauJets.nTracks == 1 || TauJets.nTracks == 3)) ) || (TauJets.nTracks == 2 && TauJets.BDTJetScoreSigTrans > 0.03 && (TauJets.pt > 27.0*GeV || TauJets.ptFinalCalib > 27.0*GeV) ) ) >= 1 )"
 
 expression = elRequirement + " && " + muRequirement + " && " + tauRequirement
 
@@ -139,15 +143,6 @@ TAUP1SkimmingTool = DerivationFramework__xAODStringSkimmingTool(
 
 ToolSvc += TAUP1SkimmingTool
 
-# =============================================
-# Standard jets
-# =============================================
-if globalflags.DataSource() == "geant4":
-  print 'Adding AntiKt4TruthJets here'
-  #addStandardJets("AntiKt", 0.4, "Truth", 5000, mods="truth_ungroomed", algseq=DerivationFrameworkJob, outputGroup="TAUP1")
-  reducedJetList = ["AntiKt4TruthJets"]
-  replaceAODReducedJets(reducedJetList,TAUP1seq, "TAUP1")
-  from DerivationFrameworkTau.TauTruthCommon import *
 
 # =============================================
 # Create derivation Kernel
@@ -195,6 +190,7 @@ if DerivationFrameworkIsMonteCarlo:
                                         "xAOD::TruthParticleAuxContainer#TruthPhotonsAux.",
                                         "xAOD::TruthParticleContainer#TruthNeutrinos",
                                         "xAOD::TruthParticleAuxContainer#TruthNeutrinosAux."]
+  TAUP1SlimmingHelper.SmartCollections += ["AntiKt4TruthJets"]
 
 TAUP1SlimmingHelper.IncludeMuonTriggerContent    = False
 TAUP1SlimmingHelper.IncludeTauTriggerContent     = True
@@ -202,9 +198,13 @@ TAUP1SlimmingHelper.IncludeEGammaTriggerContent  = True
 TAUP1SlimmingHelper.IncludeEtMissTriggerContent  = False
 TAUP1SlimmingHelper.IncludeJetTriggerContent     = False
 TAUP1SlimmingHelper.IncludeBJetTriggerContent    = False
+# Fix for tau pi0 container
+TAUP1SlimmingHelper.AppendToDictionary = {'finalTauPi0sAux':'xAOD::ParticleAuxContainer'}
 
 TAUP1SlimmingHelper.ExtraVariables               = ExtraContentTAUP1
 TAUP1SlimmingHelper.AllVariables                 = ExtraContainersTAUP1
+
+addOriginCorrectedClusters(TAUP1SlimmingHelper, writeLC=True, writeEM=False)
 
 if globalflags.DataSource() == "geant4":
   TAUP1SlimmingHelper.ExtraVariables            += ExtraContentTruthTAUP1

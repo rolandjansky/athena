@@ -81,9 +81,10 @@ namespace top {
     ToolHandle<ECUtils::IEventCleaningTool> m_jetEventCleaningToolTightBad;
 
     ToolHandle<IJetUpdateJvt> m_jetUpdateJvtTool;
-    ToolHandle<IJetModifier> m_fjvtTool;
+    ToolHandle<IJetModifier> m_jetSelectfJvtTool;
 
     ToolHandle<CP::IJetJvtEfficiency> m_jetJvtTool;
+    ToolHandle<CP::IJetJvtEfficiency> m_jetfJvtTool;
 
     ToolHandle<IMETMaker> m_met_maker;
     ToolHandle<IMETSystematicsTool> m_met_systematics;

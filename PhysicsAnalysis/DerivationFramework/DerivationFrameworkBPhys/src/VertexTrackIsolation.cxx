@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -36,8 +36,10 @@ namespace DerivationFramework {
     m_trackContainerName("InDetTrackParticles"),
     m_vertexContainerName("NONE"),
     m_cones(),
-    m_vertexType(7)
-
+    m_vertexType(7),
+    
+    m_doIsoPerTrk(false),
+    m_removeDuplicate(2)
   {
         ATH_MSG_DEBUG("in constructor");
     declareInterface<DerivationFramework::IAugmentationTool>(this);
@@ -51,8 +53,8 @@ namespace DerivationFramework {
     declareProperty("IsolationTypes"                 , m_cones);
     declareProperty("DoVertexTypes"                 , m_vertexType);
 
-
-
+    declareProperty("DoIsoPerTrk"                , m_doIsoPerTrk, "New property to deal with track isolation per track, the default option (m_doIsoPerTrk=false) preserves the old behavior");
+    declareProperty("RemoveDuplicate"            , m_removeDuplicate, "Used with DoIsoPerTrk");
   }
 
   // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -74,7 +76,7 @@ namespace DerivationFramework {
     if(m_cones.empty()){
         ATH_MSG_INFO("Setting ptcones to default");
 
-	   // m_cones.push_back(xAOD::Iso::ptcone50);  //Maybe remove from default
+	    if(m_doIsoPerTrk) m_cones.push_back(xAOD::Iso::ptcone50);
 	    m_cones.push_back(xAOD::Iso::ptcone40);
 	    m_cones.push_back(xAOD::Iso::ptcone30);
 	    m_cones.push_back(xAOD::Iso::ptcone20);
@@ -93,6 +95,34 @@ namespace DerivationFramework {
     return StatusCode::SUCCESS;
   }
 
+  // check if the two vertices are composed of the same set of tracks
+  bool VertexTrackIsolation::isSame(const xAOD::Vertex* theVtx1, const xAOD::Vertex* theVtx2) const {
+    if(!theVtx1 || !theVtx2) return false;
+    if(theVtx1==theVtx2) return true;
+    if(theVtx1->nTrackParticles() != theVtx2->nTrackParticles()) return false;
+
+    if(m_removeDuplicate==2 && theVtx1->nTrackParticles()==4) { // a special case with sub-structure
+      bool firstTwoAreSame = std::set<const xAOD::TrackParticle*>( { theVtx1->trackParticle(0), theVtx1->trackParticle(1)} ) == std::set<const xAOD::TrackParticle*>( {theVtx2->trackParticle(0), theVtx2->trackParticle(1)} ); // the 1st pair of tracks
+      bool lastTwoAreSame = std::set<const xAOD::TrackParticle*>( { theVtx1->trackParticle(2), theVtx1->trackParticle(3)} ) == std::set<const xAOD::TrackParticle*>( {theVtx2->trackParticle(2), theVtx2->trackParticle(3)} ); // the 2nd pair of tracks
+      if(firstTwoAreSame && lastTwoAreSame) return true;
+      else return false;
+    }
+    else { // the general case
+      std::set<const xAOD::TrackParticle*> vtxset1;
+      std::set<const xAOD::TrackParticle*> vtxset2;
+      for(size_t i=0; i<theVtx1->nTrackParticles(); i++) vtxset1.insert(theVtx1->trackParticle(i));
+      for(size_t i=0; i<theVtx2->nTrackParticles(); i++) vtxset2.insert(theVtx2->trackParticle(i));
+      return vtxset1 == vtxset2;
+    }
+  }
+  
+  bool VertexTrackIsolation::isContainedIn(const xAOD::Vertex* theVtx, const std::vector<const xAOD::Vertex*> &theColl) const {
+    for ( const auto vtxPtr : theColl ) {
+      if ( isSame(vtxPtr, theVtx) ) return true;
+    }
+    return false;
+  }
+  
   // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
   
   StatusCode VertexTrackIsolation::addBranches() const {
@@ -114,6 +144,8 @@ namespace DerivationFramework {
     else{ATH_MSG_ERROR("Failed loading vertex container");
     	return StatusCode::FAILURE;
     }
+
+    std::vector<const xAOD::Vertex*> outVtxContainer;
 
     //Convert m_cones (done per-event to avoid needing extra public dependency)
 
@@ -139,7 +171,15 @@ namespace DerivationFramework {
         }
       } // end of loop over flags
       if(passed){
-    	if(vertex->trackParticleLinks().size() != 3)ATH_MSG_WARNING("Vertex without 3 tracks, it has "<< vertex->trackParticleLinks().size() <<" instead");
+	        if(!m_doIsoPerTrk) { // for legacy
+		  if(vertex->trackParticleLinks().size() != 3)ATH_MSG_WARNING("Vertex without 3 tracks, it has "<< vertex->trackParticleLinks().size() <<" instead");
+		}
+		else {
+		  if(m_removeDuplicate) {
+		    if( isContainedIn(vertex, outVtxContainer) ) continue;
+		    outVtxContainer.push_back(vertex);
+		  }
+		}
 
 		TLorentzVector candidate;
 
@@ -192,11 +232,12 @@ namespace DerivationFramework {
 
 			xAOD::TrackIsolation result;
 
-			m_trackIsoTool->trackIsolation(result, candidate_slyTrack, cones, corrlist, refVtx, &exclusionset, idTrackParticleContainer);
+			if(!m_doIsoPerTrk) {
+			  m_trackIsoTool->trackIsolation(result, candidate_slyTrack, cones, corrlist, refVtx, &exclusionset, idTrackParticleContainer);
 
 
-			//Decorate the vertex with all the isolation values
-			for(unsigned int i =0; i < cones.size(); i++){
+			  //Decorate the vertex with all the isolation values
+			  for(unsigned int i =0; i < cones.size(); i++){
 
 				string variableName;
 
@@ -206,13 +247,25 @@ namespace DerivationFramework {
 				SG::AuxElement::Decorator<float> isolation(variableName);
 				isolation(*vertex) = result.ptcones[i];
 
+			  }
 			}
+			else {
+			  for(size_t i=0; i<vertex->nTrackParticles(); i++) {
+			    m_trackIsoTool->trackIsolation(result, *vertex->trackParticle(i), cones, corrlist, refVtx, &exclusionset, idTrackParticleContainer);
 
+			    for(unsigned int j =0; j < cones.size(); j++) {
+			      string variableName;
+			      variableName = xAOD::Iso::toString(xAOD::Iso::IsolationType(cones[j]));
+			      variableName += vtxType_name[vertex_type] + "_trk" + std::to_string(i+1);
+			      SG::AuxElement::Decorator<float> isolation(variableName);
+			      isolation(*vertex) = result.ptcones[j];
+			    }
+			  }
+			}
 		}
-
+	
       }// End of if passed
     }// end of loop over vertices
-
 
     return StatusCode::SUCCESS;
   }

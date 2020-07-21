@@ -69,7 +69,7 @@ def setup(HIGG4DxName, ToolSvc):
         tau1 = '(count(((TauJets.pt > 100.0*GeV || TauJets.ptFinalCalib > 100.0*GeV))) >= 1)'
         tau2 = '(count(((TauJets.pt > 45.0*GeV || TauJets.ptFinalCalib > 45.0*GeV))) >= 2)'
         tauTrack = '(count('+tauTracks123+' && (TauJets.pt > 45.0*GeV || TauJets.ptFinalCalib > 45.0*GeV)) >= 1)'
-        trigger = '( HLT_j15 || HLT_j25 || HLT_j35 || HLT_j55 || HLT_j60 || HLT_j85 || HLT_j110 || HLT_j150 || HLT_j175 || HLT_j200 || HLT_j260 || HLT_j300 || HLT_j320 || HLT_j360 || HLT_j380 || HLT_j400 || HLT_j420 || HLT_j440 || HLT_j460 || HLT_tau80_medium1_tracktwo_L1TAU60 || HLT_tau125_medium1_tracktwo || HLT_tau160_medium1_tracktwo || HLT_tau80_medium1_tracktwo_L1TAU60_tau50_medium1_tracktwo_L1TAU12 || HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20IM_2TAU12IM || HLT_tau80_medium1_tracktwo_L1TAU60_tau60_medium1_tracktwo_L1TAU40 || HLT_j450 || HLT_tau160_medium1_tracktwo_L1TAU100 || HLT_tau160_medium1_tracktwoEF_L1TAU100 || HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100)'
+        trigger = '( HLT_j15 || HLT_j25 || HLT_j35 || HLT_j55 || HLT_j60 || HLT_j85 || HLT_j110 || HLT_j150 || HLT_j175 || HLT_j200 || HLT_j260 || HLT_j300 || HLT_j320 || HLT_j360 || HLT_j380 || HLT_j400 || HLT_j420 || HLT_j440 || HLT_j460 || HLT_tau80_medium1_tracktwo_L1TAU60 || HLT_tau125_medium1_tracktwo || HLT_tau160_medium1_tracktwo || HLT_tau80_medium1_tracktwo_L1TAU60_tau50_medium1_tracktwo_L1TAU12 || HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20IM_2TAU12IM || HLT_tau80_medium1_tracktwo_L1TAU60_tau60_medium1_tracktwo_L1TAU40 || HLT_j450 || HLT_tau160_medium1_tracktwo_L1TAU100 || HLT_tau160_medium1_tracktwoEF_L1TAU100 || HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100|| HLT_tau80_medium1_TAU60_tau50_medium1_L1TAU12 || HLT_tau80_medium1_tracktwoEF_L1TAU60_tau60_medium1_tracktwoEF_L1TAU40 || HLT_tau80_mediumRNN_tracktwoMVA_L1TAU60_tau60_mediumRNN_tracktwoMVA_L1TAU40 || HLT_xe70_mht || HLT_xe90_mht_L1XE50 || HLT_xe110_mht_L1XE50 || HLT_xe90_pufit_L1XE50 || HLT_xe100_pufit_L1XE50 || HLT_xe100_pufit_L1XE55 || HLT_xe110_pufit_L1XE50 || HLT_xe110_pufit_L1XE55 || HLT_xe110_pufit_xe65_L1XE50 || HLT_xe110_pufit_xe70_L1XE50 || HLT_xe120_pufit_L1XE50)'
         DFisMC = (globalflags.DataSource()=='geant4')
         if not DFisMC:
             hadhad = '(((' + ditau + ') || (' + tau1 + ' && ' + tau2 + ' && ' + tauTrack + ')) && ' + trigger + ')'
@@ -96,6 +96,26 @@ def setup(HIGG4DxName, ToolSvc):
         trigger_muon     = '(HLT_mu26_ivarmedium || HLT_mu50 || HLT_mu60_0eta105_msonly)'  # for HH->WWtautau analysis
         trigger_all      = '({} || {} || {})'.format(trigger_main, trigger_electron, trigger_muon)
         skim_expression = ditaujet + "&&" + trigger_all
+
+    elif HIGG4DxName == 'HIGG6D1':
+        jetSelEM = ' count ((AntiKt4EMPFlowJets.pt > 20.0*GeV) && (abs(AntiKt4EMPFlowJets.eta) < 2.6)) >= 4'
+        jetSelLC = ' count ((AntiKt4LCTopoJets.pt > 20.0*GeV) && (abs(AntiKt4LCTopoJets.eta) < 2.6)) >= 4'
+        jetSelEMCalib = ' count ((AntiKt4EMPFlowJets.DFCommonJets_Calib_pt > 20.0*GeV) && (abs(AntiKt4EMPFlowJets.DFCommonJets_Calib_eta) < 2.6)) >= 4'
+        jetSel = '( '+ jetSelEM + ' ) || ( '+ jetSelLC + ' ) || ( '+ jetSelEMCalib + ' )'
+        tauSel = '(TauJets.pt > 25*GeV && (abs(TauJets.eta)<2.6) && (abs(TauJets.charge)<3) && ((TauJets.nTracks == 1) || (TauJets.nTracks == 2) || (TauJets.nTracks == 3) ) )'
+        skim_expression = '( '+ jetSel + ' ) && (count( ' + tauSel +  ' ) >= 1)'
+
+    elif HIGG4DxName == 'HIGG6D2':
+        singleLepTrigger = " ({0}) ".format("1") # TODO
+        electronRequirements = "( (Electrons.pt > 25*GeV) && (abs(Electrons.eta) < 2.6) && (Electrons.DFCommonElectronsLHLoose))"
+        muonRequirements = "( (Muons.pt > 25*GeV) && (abs(Muons.eta) < 2.6) && (Muons.DFCommonMuonsPreselection) )"
+        lepSel = "( ( (count({0}) >=1)  || (count({1}) >=1)))".format(electronRequirements, muonRequirements)
+        lepSel2 = "(( count({0}) + count({1}) ) >=2 )".format(electronRequirements, muonRequirements)
+        tauSel = "(TauJets.pt > 25*GeV && (abs(TauJets.eta)<2.6) && (abs(TauJets.charge)==1) && ((TauJets.nTracks == 1) || (TauJets.nTracks == 3) ) )"
+        jetSelEM = "count(({0}.pt > 20.0*GeV) && (abs({0}.eta) < 2.6)) >= (1 + count({1}) + count({2}))".format("AntiKt4EMPFlowJets", electronRequirements, tauSel)
+        jetSelEMCalib = "count(({0}.DFCommonJets_Calib_pt > 20.0*GeV)&& (abs({0}.DFCommonJets_Calib_eta) < 2.6)) >= (1 + count({1}) + count({2}) )".format("AntiKt4EMPFlowJets", electronRequirements, tauSel)
+        jetSel = "({0}) || ({1})".format(jetSelEM, jetSelEMCalib)
+        skim_expression = "({0}) &&  ( ( ({1}) && (count({2}) >= 1) ) || ({3}) )  && ({4})".format(jetSel, lepSel, tauSel, lepSel2, singleLepTrigger)
 
     elif HIGG4DxName == 'HDBS1':
         #The final selection here: (At least two leptons (and triggers) +  at least 2 jets) OR (At least one lepton (and veto the other, trigger) + at least 3 jets)

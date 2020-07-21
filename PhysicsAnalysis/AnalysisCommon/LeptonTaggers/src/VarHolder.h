@@ -25,6 +25,9 @@
 #include <string>
 #include <vector>
 
+// Athena
+#include <AsgTools/MessageCheck.h>
+
 namespace Prompt
 {
   //======================================================================================================
@@ -45,6 +48,7 @@ namespace Prompt
       EtTopoCone30Rel,
       TopoEtCone30Rel,
       PtVarCone30Rel,
+      PtVarCone30TightTTVAPt500Rel,
       DRlj,
       LepJetPtFrac,
       PtFrac,
@@ -59,11 +63,40 @@ namespace Prompt
       JetEta,
       JetPhi,
       JetM,
+
+      // track VarHolder
+      LepTrackDR,
+      Pt,
+      AbsEta,
+      NumberOfPIXHits,
+      NumberOfSCTHits,
+      NumberOfSiHits,
+      NumberOfSharedSiHits,
+      NumberOfSiHoles,
+      NumberOfPixelHoles,
+      TrackJetDR,
+      TrackPtOverTrackJetPt,
+      Z0Sin,
+      D0Sig,
+
+      // PromptLeptonImproved
+      topoetcone30rel,
+      ptvarcone30rel,
+      ptvarcone30_TightTTVA_pt500rel,
+      MVAXBin,
+      CaloClusterERel,
+      CaloClusterSumEtRel,
+      PromptLeptonRNN_prompt,
+      CandVertex_normDistToPriVtxLongitudinalBest,
+      CandVertex_normDistToPriVtxLongitudinalBest_ThetaCutVtx,
+      CandVertex_NPassVtx,
     };
 
     int RegisterAllVars();
     
     bool RegisterVar(Var var, const std::string &name);
+
+    Var RegisterDynamicVar(const std::string &name);
 
     const std::vector<std::string>&      GetAllVarNames();
     const std::vector<Prompt::Def::Var>& GetAllVarEnums();

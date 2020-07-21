@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ElementLink.h 714258 2015-12-12 04:18:16Z ssnyder $
@@ -365,6 +365,12 @@ public:
    */
   ElementType cachedElement() const;
 
+
+   /**
+    * @brief Is this link invalid because its target was removed (e.g. through
+    * slimming or thinning in the derivation framework)
+    */
+   bool wasTargetRemoved() const;
 
 
   //@)

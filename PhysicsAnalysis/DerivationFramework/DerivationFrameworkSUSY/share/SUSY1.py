@@ -13,6 +13,8 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 from DerivationFrameworkFlavourTag.HbbCommon import *
 from BTagging.BTaggingFlags import BTaggingFlags
+from DerivationFrameworkSUSY.SUSYCommonFlags import SUSYFlags
+
 
 #BTaggingFlags.Do2019Retraining = False 
 
@@ -41,10 +43,17 @@ DerivationFrameworkJob += SeqSUSY1
 # Trigger navigation thinning
 #====================================================================
 from DerivationFrameworkSUSY.SUSY1TriggerList import SUSY1ThinTriggers
-SUSY1ThinningHelper.TriggerChains = '|'.join(SUSY1ThinTriggers)
-SUSY1ThinningHelper.AppendToStream( SUSY1Stream )
 
+
+if SUSYFlags.TurnOffThinning == True and not DerivationFrameworkIsMonteCarlo:
+  SUSY1ThinningHelper.TriggerChains = ""
+else:
+  SUSY1ThinningHelper.TriggerChains = '|'.join(SUSY1ThinTriggers)
+
+SUSY1ThinningHelper.AppendToStream( SUSY1Stream )
 SUSY1ThinningHelper.Actions = ['DropFeatures', 'Reload', 'SyncThinning', 'Save', 'Restore']
+
+
 
 
 #====================================================================
@@ -381,6 +390,8 @@ SeqSUSY1 += CfgMgr.DerivationFramework__DerivationKernel(
 
 # Add VR jets
 addVRJets(SeqSUSY1)
+addVRJets(SeqSUSY1, training='201903')
+addVRJets(SeqSUSY1, do_ghost=True)
 addRecommendedXbbTaggers(SeqSUSY1, ToolSvc)
 
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
@@ -412,9 +423,11 @@ SUSY1SlimmingHelper.SmartCollections = ["Electrons","Photons",
                                         #"BTagging_AntiKt4EMTopo",
                                         #"BTagging_AntiKt4EMPFlow",
                                         # "BTagging_AntiKt2Track",
+                                        "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810",
+                                        "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
 SUSY1SlimmingHelper.AllVariables = [
-  "TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "AntiKt4TruthDressedWZJets", "AntiKtVR30Rmax4Rmin02TrackJets",
+  "TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "AntiKt4TruthDressedWZJets", "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810","AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903","BTagging_AntiKtVR30Rmax4Rmin02Track_201810","BTagging_AntiKtVR30Rmax4Rmin02Track_201903",
   #"AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets",
   "MET_Track"
 ]
@@ -423,7 +436,7 @@ SUSY1SlimmingHelper.ExtraVariables = ["Muons.etcone30.ptcone30.ptcone20.charge.q
 				                              "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi.Timing.DFCommonJets_jetClean_VeryLooseBadLLP",
                                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.KtDR.ZCut12.Angularity.Aplanarity.PlanarFlow.FoxWolfram2.FoxWolfram0.Dip12.Sphericity.ThrustMin.ThrustMaj",
                                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.XbbScoreHiggs.XbbScoreTop.XbbScoreQCD", #xbb variables
-                                      "BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c10_discriminant.MV2c10mu_discriminant.MV2c10rnn_discriminant.DL1_pu.DL1_pc.DL1_pb.DL1rmu_pu.DL1rmu_pc.DL1rmu_pb.DL1r_pu.DL1r_pc.DL1r_pb",
+                                      "BTagging_AntiKtVR30Rmax4Rmin02Track_201810.MV2c10_discriminant.MV2c10mu_discriminant.MV2c10rnn_discriminant.DL1_pu.DL1_pc.DL1_pb.DL1rmu_pu.DL1rmu_pc.DL1rmu_pb.DL1r_pu.DL1r_pc.DL1r_pb",
                                       "AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.eta.phi.m.GhostBHadronsFinalCount",
                                       # TODO: .DFCommonJets_Jvt",
 				                              "GSFTrackParticles.z0.d0.vz.definingParametersCovMatrix",

@@ -41,6 +41,8 @@ RCJetMC15::RCJetMC15(const std::string& name) :
   m_config(nullptr),
   m_ptcut(0.),
   m_etamax(0.),
+  m_inputJetPtMin(0.),
+  m_inputJetEtaMax(999.),
   m_trim(0.),
   m_radius(0.),
   m_minradius(0.),
@@ -118,6 +120,10 @@ StatusCode RCJetMC15::initialize() {
     m_useAdditionalJSS = m_config->useRCJetAdditionalSubstructure();
   }
 
+  m_inputJetPtMin = std::stof(configSettings->value("RCInputJetPtMin"));
+  m_inputJetEtaMax = std::stof(configSettings->value("RCInputJetEtaMax"));
+
+
   if (m_useJSS || m_useAdditionalJSS) {
     ATH_MSG_INFO("Calculating RCJet Substructure");
 
@@ -143,12 +149,14 @@ StatusCode RCJetMC15::initialize() {
     m_split23 = std::make_shared<JetSubStructureUtils::KtSplittingScale>(2);
 
     m_qw = std::make_shared<JetSubStructureUtils::Qw>();
-  }
-  if (m_useAdditionalJSS) {
+    
     m_ECF1 = std::make_shared<fastjet::contrib::EnergyCorrelator>(1, 1.0, fastjet::contrib::EnergyCorrelator::pt_R);
     m_ECF2 = std::make_shared<fastjet::contrib::EnergyCorrelator>(2, 1.0, fastjet::contrib::EnergyCorrelator::pt_R);
     m_ECF3 = std::make_shared<fastjet::contrib::EnergyCorrelator>(3, 1.0, fastjet::contrib::EnergyCorrelator::pt_R);
 
+  }
+  if (m_useAdditionalJSS) {
+    
     m_gECF332 = std::make_shared<JetSubStructureUtils::EnergyCorrelatorGeneralized>(3, 3, 2,
                                                                                     JetSubStructureUtils::EnergyCorrelator::pt_R);
     m_gECF461 = std::make_shared<JetSubStructureUtils::EnergyCorrelatorGeneralized>(6, 4, 1,
@@ -192,6 +200,7 @@ StatusCode RCJetMC15::initialize() {
       top::check(tool->setProperty("ReclusterRadius",
                                    m_radius), "Failed re-clustering radius initialize reclustering tool");
       top::check(tool->setProperty("RCJetPtMin", m_ptcut * 1e-3), "Failed ptmin [GeV] initialize reclustering tool");
+      top::check(tool->setProperty("InputJetPtMin", m_inputJetPtMin * 1e-3), "Failed InputJetPtMin [GeV] initialize reclustering tool");
       top::check(tool->setProperty("TrimPtFrac", m_trim), "Failed pT fraction initialize reclustering tool");
       top::check(tool->setProperty("VariableRMinRadius",
                                    m_minradius), "Failed VarRC min radius initialize reclustering tool");
@@ -219,6 +228,7 @@ StatusCode RCJetMC15::initialize() {
         top::check(tool_loose->setProperty("ReclusterRadius",
                                            m_radius), "Failed re-clustering radius initialize reclustering tool");
         top::check(tool_loose->setProperty("RCJetPtMin", m_ptcut * 1e-3), "Failed ptmin [GeV] reclustering tool");
+	top::check(tool->setProperty("InputJetPtMin", m_inputJetPtMin * 1e-3), "Failed InputJetPtMin [GeV] initialize reclustering tool");
         top::check(tool_loose->setProperty("TrimPtFrac", m_trim), "Failed pT fraction initialize reclustering tool");
         top::check(tool_loose->setProperty("VariableRMinRadius",
                                            m_minradius), "Failed VarRC min radius initialize reclustering tool");
@@ -246,6 +256,7 @@ StatusCode RCJetMC15::initialize() {
         m_outputContainerNames.insert({treeName.first, m_OutputJetContainer});
       }
     }
+    
   } // end for loop over systematics
 
   ATH_MSG_INFO(" Re-clustered jets initialized ");
@@ -270,10 +281,12 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
     // 22 Feb 2016:
     //   Code significantly shortened to make this container
     //   thanks to email exchange between Davide Gerbaudo & Attila Krasznahorkay
-    typedef ConstDataVector< xAOD::JetContainer > CJets;
-    std::unique_ptr< CJets > rcjets(new CJets(event.m_jets.begin(), event.m_jets.end(), SG::VIEW_ELEMENTS));
-    top::check(evtStore()->tds()->record(std::move(
-                                           rcjets), m_InputJetContainer),
+    auto rcJetInputs = std::make_unique< ConstDataVector< xAOD::JetContainer >>(SG::VIEW_ELEMENTS);
+    for(const xAOD::Jet* jet : event.m_jets) {
+      if(jet->pt() < m_inputJetPtMin || std::abs(jet->eta()) > m_inputJetEtaMax) continue;
+      rcJetInputs->push_back(jet);
+    }
+    top::check(evtStore()->tds()->record(std::move(rcJetInputs), m_InputJetContainer),
                "Failed to put jets in TStore for re-clustering");
   } // end if jet container exists
 
@@ -308,15 +321,13 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
 
 
         if (m_config->sgKeyJetsTDS(hash_factor * m_config->nominalHashValue(),
-                                   false).find("AntiKt4EMTopoJets") != std::string::npos) getEMTopoClusters(clusters,
-                                                                                                            rcjet); // //
-                                                                                                                    //  //
-                                                                                                                    // use
-                                                                                                                    // subjet
-                                                                                                                    // constituents
+                                   false).find("AntiKt4EMTopoJets") != std::string::npos) {
+	  getEMTopoClusters(clusters,rcjet); // use subjet constituents
+	}
         else if (m_config->sgKeyJetsTDS(hash_factor * m_config->nominalHashValue(),
-                                        false).find("AntiKt4EMPFlowJets") != std::string::npos) getPflowConstituent(
-            clusters, rcjet, event); // use ghost-matche tracks
+                                        false).find("AntiKt4EMPFlowJets") != std::string::npos) {
+	  getPflowConstituent(clusters, rcjet, event); // use ghost-matched tracks
+	}
         else getLCTopoClusters(clusters, rcjet); //  // use LCTOPO CLUSTERS matched to subjet
 
         if (m_config->sgKeyJetsTDS(hash_factor * m_config->nominalHashValue(),
@@ -346,9 +357,9 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
             double tau2 = m_nSub2_beta1->result(correctedJet);
             double tau3 = m_nSub3_beta1->result(correctedJet);
 
-            if (fabs(tau1) > 1e-8) tau21 = tau2 / tau1;
+            if (std::abs(tau1) > 1e-8) tau21 = tau2 / tau1;
             else tau21 = -999.0;
-            if (fabs(tau2) > 1e-8) tau32 = tau3 / tau2;
+            if (std::abs(tau2) > 1e-8) tau32 = tau3 / tau2;
             else tau32 = -999.0;
 
 
@@ -356,6 +367,15 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
             double split12 = m_split12->result(correctedJet);
             double split23 = m_split23->result(correctedJet);
             double qw = m_qw->result(correctedJet);
+	    
+	    double D2 = -1;
+
+            double vECF1 = m_ECF1->result(correctedJet);
+            double vECF2 = m_ECF2->result(correctedJet);
+            double vECF3 = m_ECF3->result(correctedJet);
+            if (std::abs(vECF2) > 1e-8) D2 = vECF3 * vECF1* vECF1* vECF1 / (vECF2 * vECF2 * vECF2);
+            else D2 = -999.0;
+	    
 
             // now attach the results to the original jet
             rcjet->auxdecor<float>("Tau32_clstr") = tau32;
@@ -371,16 +391,15 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
             rcjet->auxdecor<float>("Qw_clstr") = qw;
 
             rcjet->auxdecor<float>("nconstituent_clstr") = clusters.size();
+	    
+	    rcjet->auxdecor<float>("ECF1_clstr") = vECF1;
+            rcjet->auxdecor<float>("ECF2_clstr") = vECF2;
+            rcjet->auxdecor<float>("ECF3_clstr") = vECF3;
+            rcjet->auxdecor<float>("D2_clstr") = D2;
+	    
           } // end of if useJSS
 
           if (m_useAdditionalJSS) {
-            double D2 = -1;
-
-            double vECF1 = m_ECF1->result(correctedJet);
-            double vECF2 = m_ECF2->result(correctedJet);
-            double vECF3 = m_ECF3->result(correctedJet);
-            if (fabs(vECF2) > 1e-8) D2 = vECF3 * pow(vECF1, 3) / pow(vECF2, 3);
-            else D2 = -999.0;
 
             // MlB's t/H discriminators
             // E = (a*n) / (b*m)
@@ -396,23 +415,17 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
             double gECF311 = m_gECF311->result(correctedJet);
 
             double L1 = -999.0, L2 = -999.0, L3 = -999.0, L4 = -999.0, L5 = -999.0;
-            if (fabs(gECF212) > 1e-12) {
-              L1 = gECF321 / (pow(gECF212, (1.0)));
-              L2 = gECF331 / (pow(gECF212, (3.0 / 2.0)));
+            if (std::abs(gECF212) > 1e-12) {
+              L1 = gECF321 / gECF212;
+              L2 = gECF331 / sqrt(gECF212*gECF212*gECF212);
             }
-            if (fabs(gECF331) > 1e-12) {
-              L3 = gECF311 / (pow(gECF331, (1.0 / 3.0)));
-              L4 = gECF322 / (pow(gECF331, (4.0 / 3.0)));
+            if (std::abs(gECF331) > 1e-12) {
+              L3 = gECF311 / pow(gECF331,1./3.);
+              L4 = gECF322 / pow(gECF331,4./3.);
             }
-            if (fabs(gECF441) > 1e-12) {
-              L5 = gECF422 / (pow(gECF441, (1.0)));
+            if (std::abs(gECF441) > 1e-12) {
+              L5 = gECF422/gECF441;
             }
-
-
-            rcjet->auxdecor<float>("ECF1_clstr") = vECF1;
-            rcjet->auxdecor<float>("ECF2_clstr") = vECF2;
-            rcjet->auxdecor<float>("ECF3_clstr") = vECF3;
-            rcjet->auxdecor<float>("D2_clstr") = D2;
 
             rcjet->auxdecor<float>("gECF332_clstr") = gECF332;
             rcjet->auxdecor<float>("gECF461_clstr") = gECF461;
@@ -522,7 +535,7 @@ bool RCJetMC15::passSelection(const xAOD::Jet& jet) const {
   if (jet.pt() < m_ptcut) return false;
 
   // [|eta|] calibrated < 2.5
-  if (std::fabs(jet.eta()) > m_etamax) return false;
+  if (std::abs(jet.eta()) > m_etamax) return false;
 
   // small-r jet mass not calibrated and no uncertainties
 
@@ -554,30 +567,7 @@ void RCJetMC15::getEMTopoClusters(std::vector<fastjet::PseudoJet>& clusters, con
       if (clus_itr->e() > 0) {
         TLorentzVector temp_p4;
 
-        //std::cout << "SubJetRaw ConstitScale pt = " << subjet_raw->jetP4(xAOD::JetEMScaleMomentum).pt() << std::endl;
-        //std::cout << "SubJetRaw ConstitScale pt = " << subjet_raw->jetP4(xAOD::JetConstitScaleMomentum).pt() <<
-        // std::endl;
-        //std::cout << "SubJetRaw calibrated pt   = " << subjet_raw->jetP4().pt() << std::endl;
-
-        //	      const xAOD::CaloCluster* clus_raw = static_cast<const xAOD::CaloCluster*>(clus_itr->rawConstituent());
-
-        // std::cout << "Cluster is a " << typeid(clus_itr).name() << std::endl;
-        // std::cout <<"Cluster E = " << clus_itr->e() << std::endl;
-        //std::cout <<"Cluster raw type = " << clus_raw->type() << std::endl;
-
-
-        //std::cout <<"Cluster EM E = " << clus_raw->getRawE() << std::endl;
-        //std::cout <<"Cluster LC E = " << clus_raw->calE() << std::endl;
-
-        //std::cout <<"Cluster raw pt = " << clus_itr->pt(xAOD::CaloCluster_v1::State(0)) << std::endl;
-        //std::cout <<"Cluster cal pt = " << clus_raw->pt(xAOD::CaloCluster_v1::State(1)) << std::endl;
-
-        //std::cout <<"Cluster EM pT = " << clus_itr->pt() << std::endl;
-        //std::cout <<"Cluster LC pT = " << clus_itr->pt() << std::endl;
-
-        //    double sf = subjet_raw->jetP4().pt() / subjet_raw->jetP4(xAOD::JetEMScaleMomentum).pt();
         double sf = 1.0;
-        //std::cout << "SF = " << sf << std::endl;
         temp_p4.SetPtEtaPhiM(clus_itr->pt() * sf, clus_itr->eta(), clus_itr->phi(), clus_itr->m());
 
         clusters.push_back(fastjet::PseudoJet(temp_p4.Px(), temp_p4.Py(), temp_p4.Pz(), temp_p4.E()));
@@ -597,21 +587,9 @@ void RCJetMC15::getLCTopoClusters(std::vector<fastjet::PseudoJet>& clusters, con
 
 
   for (auto cluster : *myClusters) {
-    //const xAOD::CaloCluster* cluster_raw = static_cast<const xAOD::CaloCluster*>(cluster->rawConstituents());
-
-    // std::cout << "Cluster E default = " << cluster->e() <<  std::endl;
-    // std::cout << "Cluster Eta default = " << cluster->eta() <<  std::endl;
-
-    // std::cout <<" Cluster E getCalE = " << cluster->calE() << std::endl;
-    // std::cout <<" Cluster E getCalEta = " << cluster->calEta() << std::endl;
-
-    // std::cout <<"Cluster cal pt(E) = " << cluster->e(xAOD::CaloCluster_v1::State(1)) << std::endl;
-
     for (auto subjet : rcjet->getConstituents()) {
       const xAOD::Jet* subjet_raw = static_cast<const xAOD::Jet*>(subjet->rawConstituent());
 
-      //      //const xAOD::CaloCluster* cluster_raw = static_cast<const
-      // xAOD::CaloCluster*>(cluster->rawConstituents());
       float dR = subjet_raw->p4().DeltaR(cluster->p4());
       if (dR < 0.4) {
         TLorentzVector temp_p4;
@@ -638,39 +616,38 @@ void RCJetMC15::getPflowConstituent(std::vector<fastjet::PseudoJet>& clusters, c
   clusters.clear();
   std::vector<const xAOD::TrackParticle*> jetTracks;
 
-  //The primary vertex z is needed to evaluate delta z0
-  float primary_vertex_z = event.m_info->auxdataConst<float>("AnalysisTop_PRIVTX_z_position");
-
-
-
 
   for (auto subjet : rcjet->getConstituents()) {
     const xAOD::Jet* subjet_raw = static_cast<const xAOD::Jet*>(subjet->rawConstituent());
+    
+    if(subjet->pt() < m_config->jetPtGhostTracks() || std::abs(subjet->eta()) > m_config->jetEtaGhostTracks()) continue;
+    
 
     jetTracks.clear();
-    jetTracks =
-      subjet_raw->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(event.m_hashValue));
+    
+    jetTracks = subjet_raw->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(event.m_hashValue));
     bool haveJetTracks = jetTracks.size() != 0;
 
     if (haveJetTracks) {
-      for (std::vector<const xAOD::TrackParticle*>::iterator jetTrIt = jetTracks.begin(); jetTrIt != jetTracks.end();
-           ++jetTrIt) {
+      
+      for ( const xAOD::TrackParticle* jet: jetTracks ){
         TLorentzVector temp_p4;
-        if (*jetTrIt != nullptr) {
-          //Pileup suppression, using the nominal working point
-          float deltaz0 = (*jetTrIt)->z0() + (*jetTrIt)->vz() - primary_vertex_z;
-
-          if (fabs((*jetTrIt)->d0()) < 2 && fabs((*jetTrIt)->eta()) < 2.5 &&
-              fabs(sin((*jetTrIt)->theta()) * deltaz0) < 3) {
-            temp_p4.SetPtEtaPhiE((*jetTrIt)->pt(), (*jetTrIt)->eta(), (*jetTrIt)->phi(), (*jetTrIt)->e());
-            clusters.push_back(fastjet::PseudoJet(temp_p4.Px(), temp_p4.Py(), temp_p4.Pz(), temp_p4.E()));
+      
+        if (jet != nullptr) {
+          
+          // Select on track quality, pt, eta and match to vertex  
+          if(jet->auxdataConst< char >("passPreORSelection") != 1){
+            continue;
           }
+          
+          temp_p4.SetPtEtaPhiE(jet->pt(), jet->eta(), jet->phi(), jet->e());
+          clusters.emplace_back(fastjet::PseudoJet(temp_p4.Px(), temp_p4.Py(), temp_p4.Pz(), temp_p4.E()));
+    
         }
       }
     } else {
       ATH_MSG_WARNING(
-        "The link to the ghost matched tracks to the PFlow jets are missing, unable to calculate the substructure");
-      break;
-    }
+        "RCJETMC15::No remaining tracks associated to the PFlow jet");
+          }
   }
 }

@@ -47,6 +47,7 @@ atlas_depends_on_subdirs(
 
 # External(s) used by the package:
 find_package( ROOT COMPONENTS Core Hist RIO )
+find_package( Boost )
 
 # Libraries in the package:
 atlas_add_library( PMGToolsLib

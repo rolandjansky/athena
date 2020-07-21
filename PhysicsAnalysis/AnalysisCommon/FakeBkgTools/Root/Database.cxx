@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AsgAnalysisInterfaces/IFakeBkgTool.h"
@@ -942,12 +942,59 @@ void Database::importSystTH1(const TH1* hist, EfficiencyType type, const std::st
         m_systs.emplace_back(sysname, (1 << type));
     }
     
+    //loop through all bins once, to check whether all bins are zero error, 
+    //or have the same central value as the nominal
+
+    bool syst_central_equal_nom_central = true;
+    bool syst_errors_equal_zero = true;
+    bool syst_errors_equal_nom_errors = true;
+
     auto eff = table.m_efficiencies.begin();
     for(int x=1;x<xmax;++x)
     for(int y=1;y<ymax;++y)
     for(int z=1;z<zmax;++z)
     {
-        float err = hist->GetBinContent(x, y, z);
+        if (fabs ((float)eff->nominal - (float)hist->GetBinContent(x, y, z)) > 0.001 ){ syst_central_equal_nom_central = false;}
+        if ( hist->GetBinError(x, y, z) != 0 ) { syst_errors_equal_zero = false;}
+        float stat_up = 0;
+        for(auto& kv : eff->uncertainties)
+        {
+           if(!isStatUID(kv.first)) continue;
+           stat_up = kv.second.up; break;
+        }
+        if ( fabs((float) hist->GetBinError(x, y, z) - (float) stat_up ) > 0.001) { syst_errors_equal_nom_errors = false;}
+        ++eff;
+    }
+
+    // loop bins a second time and determine proceedure using above heuristics
+    eff = table.m_efficiencies.begin();
+    for(int x=1;x<xmax;++x)
+    for(int y=1;y<ymax;++y)
+    for(int z=1;z<zmax;++z)
+    {
+        
+        float err =0;
+        //want to support several possible notations:
+        // a) central values are not the same as nominal: then we can assume
+        // that the central values of the syst histos are the errors, 
+        // (default nomenclature from the documentation)
+        // b) if the central values for nominal and this hist are the same
+        // then probably the errors are to be taken from the error bars!
+        // but need to watch out for ambiguous cases
+        //
+        if (syst_central_equal_nom_central){  //central values are the same in nom and sys
+          if (syst_errors_equal_nom_errors ){ // this case is ambiguous. Is it a 100% uncertainty?
+            throw(GenericError() << "The central values and uncertainties for this systematic are identical to the nominal+stat uncertainties. This is ambiguous: did you mean to assign a 100% uncertainty? If so, please set all (unused) error bars to zero. ");
+          } else if (syst_errors_equal_zero ) { //assume here that it was intended as 100% uncertainty
+            err = hist->GetBinContent(x, y, z);
+          } else {
+            err = hist->GetBinError(x, y, z);
+          }
+        } else { // central values are different in nom and sys
+          err = hist->GetBinContent(x, y, z);
+        }
+        
+
         FakeBkgTools::Uncertainty uncdata{err, err};
         if(!eff->uncertainties.emplace(uid, uncdata).second)
         {

@@ -1,0 +1,34 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+/// \author Nils Krumnack
+
+
+#ifndef ASGTOOLS_ASGCOMPONENT_ICC
+#define ASGTOOLS_ASGCOMPONENT_ICC
+
+#include <AsgTools/PropertyMgr.h>
+#include <AsgTools/StatusCode.h>
+#include <AsgTools/TProperty.h>
+#include <utility>
+
+namespace asg
+{
+  template<typename T> Property *AsgComponent ::
+  declareProperty (const std::string& name, T& loc,
+                   const std::string& /*doc*/)
+  {
+    return m_properties->declareProperty (name, loc);
+  }
+
+
+
+  template<typename T> ::StatusCode AsgComponent ::
+  setProperty (const std::string& name, const T& value)
+  {
+    return m_properties->setProperty (name, value);
+  }
+}
+
+#endif

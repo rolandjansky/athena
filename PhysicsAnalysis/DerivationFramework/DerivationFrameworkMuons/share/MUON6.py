@@ -32,8 +32,8 @@ MUON6AugmentTools = []
 # Selection
 from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import DerivationFramework__dimuonTaggingTool
 MUON6AugmentToolSel = DerivationFramework__dimuonTaggingTool(name = 'MUON6AugmentToolSel',
-                                                            Mu1PtMin = 4*Units.GeV,
-                                                            Mu2PtMin = 34*Units.GeV,
+                                                            Mu1PtMin = 3*Units.GeV,
+                                                            Mu2PtMin = 3*Units.GeV,
                                                             UseTrackProbe = False,
                                                             TrackContainerKey = 'InDetTrackParticles',
                                                             OppositeCharge = False,

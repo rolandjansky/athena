@@ -13,6 +13,8 @@
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTau/TauJetContainer.h"
 #include "xAODJet/JetContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
+
 
 namespace top {
   ObjectCollectionMaker::ObjectCollectionMaker(const std::string& name) :
@@ -24,7 +26,9 @@ namespace top {
     m_softmuonMaker(nullptr),
     m_tauMaker(nullptr),
     m_jetMaker(nullptr),
-    m_metMaker(nullptr) {
+    m_metMaker(nullptr),
+    m_trackSystMaker(nullptr)
+  {
     declareProperty("config", m_config);
   }
 
@@ -52,6 +56,11 @@ namespace top {
     m_ghostTrackSystMaker =
       std::unique_ptr<top::GhostTrackSystematicsMaker> (new top::GhostTrackSystematicsMaker(
                                                           "top::GhostTrackSystematicsMaker"));
+
+    m_trackSystMaker =
+      std::unique_ptr<top::TrackSystematicsMaker> (new top::TrackSystematicsMaker(
+						      "top::TrackSystematicsMaker"));
+
 
     if (m_config->usePhotons() || m_config->useElectrons() || m_config->useFwdElectrons()) {
       top::check(m_egammaMaker->setProperty("config", m_config), "Failed to setProperty");
@@ -85,6 +94,15 @@ namespace top {
       top::check(m_ghostTrackSystMaker->initialize(),
                  "Failed to initialize");
     }
+
+    if (m_config->useTracks()) {
+      top::check(m_trackSystMaker->setProperty("config", m_config),
+                 "Failed to setProperty");
+
+      top::check(m_trackSystMaker->initialize(),
+                 "Failed to initialize");
+    }
+
 
     top::check(m_metMaker->setProperty("config", m_config), "Failed to setProperty");
     top::check(m_metMaker->initialize(), "Failed to initialize");
@@ -128,6 +146,9 @@ namespace top {
     }
     if (m_config->useTrackJets()) {
       top::check(m_jetMaker->executeTrackJets(true), "Failed to executeTrackJets() ");
+    }
+    if (m_config->useTracks()) {
+      top::check(m_trackSystMaker->execute(true), "Failed to executeTracks() ");
     }
 
     // This must come _AFTER_ the jets have been calibrated!
@@ -178,6 +199,12 @@ namespace top {
     if (m_config->useJets() && m_config->useJetGhostTrack()) {
       top::check(m_ghostTrackSystMaker->execute(false), "Failed to executeGhostTrackSystematics() ");
     }
+
+
+    if (m_config->useTracks()) {
+      top::check(m_trackSystMaker->execute(false), "Failed to executeTracks() ");
+    }
+
 
     return StatusCode::SUCCESS;
   }

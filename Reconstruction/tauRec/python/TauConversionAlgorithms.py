@@ -52,7 +52,8 @@ def getPhotonConversionTool():
         ToolSvc += AtlasMaterialEffectsUpdator #default material effects updator
         NoElossMaterialEffectsUpdator = MaterialEffectsUpdator(name = 'NoElossMaterialEffectsUpdator')
         NoElossMaterialEffectsUpdator.EnergyLoss = False
-        ToolSvc += NoElossMaterialEffectsUpdator
+        if not hasattr(ToolSvc,'NoElossMaterialEffectsUpdator'):
+            ToolSvc += NoElossMaterialEffectsUpdator
 
         # setup MaterialEffectsUpdator arrays
         MyUpdators = []

@@ -23,6 +23,7 @@
 
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"
+#include "IsolationSelection/IIsolationLowPtPLVTool.h"
 
 #include "TriggerAnalysisInterfaces/ITrigGlobalEfficiencyCorrectionTool.h"
 
@@ -41,6 +42,7 @@ namespace ST {
   const static SG::AuxElement::Decorator<char>      dec_passSignalID("passSignalID");
   const static SG::AuxElement::ConstAccessor<char>  acc_passSignalID("passSignalID");
 
+  const static SG::AuxElement::Decorator<float>     dec_dRJet("dRJet");
   const static SG::AuxElement::Decorator<float>     dec_z0sinTheta("z0sinTheta");
   const static SG::AuxElement::ConstAccessor<float> acc_z0sinTheta("z0sinTheta");
   const static SG::AuxElement::Decorator<float>     dec_d0sig("d0sig");
@@ -97,7 +99,8 @@ StatusCode SUSYObjDef_xAOD::FillMuon(xAOD::Muon& input, float ptcut, float etacu
   dec_isolHighPt(input) = false;
   dec_passedHighPtCuts(input) = false;
   dec_passSignalID(input) = false;
-       
+  dec_dRJet(input)=-2.0;     
+  
   // don't bother calibrating or computing WP
   if ( input.pt() < 3e3 ) return StatusCode::SUCCESS;
 
@@ -207,6 +210,7 @@ StatusCode SUSYObjDef_xAOD::FillMuon(xAOD::Muon& input, float ptcut, float etacu
   dec_baseline(input) = true;
   dec_selected(input) = 2;
 
+  if (!m_muIso_WP.empty() && m_muIso_WP.find("PLV")!=std::string::npos) ATH_CHECK( m_isoToolLowPtPLV->augmentPLV(input) );
   if (!m_muIso_WP.empty()) dec_isol(input) = m_isoTool->accept(input);
   if (!m_muIsoHighPt_WP.empty()) dec_isolHighPt(input) = m_isoHighPtTool->accept(input);
   dec_passSignalID(input) = m_muonSelectionTool->accept(input);
@@ -229,7 +233,7 @@ bool SUSYObjDef_xAOD::IsSignalMuon(const xAOD::Muon & input, float ptcut, float 
   else if ( fabs(input.eta()) > etacut ) return false;
 
   if (z0cut > 0.0 && fabs(acc_z0sinTheta(input)) > z0cut) return false; // longitudinal IP cut
-  if (dec_d0sig(input) != 0) {
+  if (acc_d0sig(input) != 0) {
     if (d0sigcut > 0.0 && fabs(acc_d0sig(input)) > d0sigcut) return false; // transverse IP cut
   }
 

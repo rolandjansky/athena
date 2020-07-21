@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODBTaggingEfficiency/BTaggingEfficiencyTool.h"
@@ -120,6 +120,8 @@ BTaggingEfficiencyTool::BTaggingEfficiencyTool( const std::string & name) : asg:
   declareProperty("TaggerName",                          m_taggerName="",               "tagging algorithm name as specified in CDI file");
   declareProperty("OperatingPoint",                      m_OP="",                       "operating point as specified in CDI file");
   declareProperty("JetAuthor",                           m_jetAuthor="",                "jet collection & JVF/JVT specification in CDI file");
+  declareProperty("JetAuthor",                           m_jetAuthor="",                "jet collection & JVF/JVT specification in CDI file");
+  declareProperty("MinPt",                               m_minPt=-1,                    "minimum jet pT cut");
   declareProperty("ScaleFactorFileName",                 m_SFFile = "",                 "name of the official scale factor calibration CDI file (uses PathResolver)");
   declareProperty("UseDevelopmentFile",                  m_useDevFile = false,          "specify whether or not to use the (PathResolver) area for temporary scale factor calibration CDI files");
   declareProperty("EfficiencyFileName",                  m_EffFile = "",                "name of optional user-provided MC efficiency CDI file");
@@ -150,6 +152,7 @@ BTaggingEfficiencyTool::BTaggingEfficiencyTool( const std::string & name) : asg:
   declareProperty("ExtendedFlavourLabel",                m_extFlavourLabel = false,     "specify whether or not to use an 'extended' flavour labelling (allowing for multiple HF hadrons or perhaps partons)");
   declareProperty("OldConeFlavourLabel",                 m_oldConeFlavourLabel = false, "when using cone-based flavour labelling, specify whether or not to use the (deprecated) Run-1 legacy labelling");
   declareProperty("IgnoreOutOfValidityRange",            m_ignoreOutOfValidityRange = false, "ignore out-of-extrapolation-range errors as returned by the underlying tool");
+  declareProperty("VerboseCDITool",                      m_verboseCDITool = true,       "specify whether or not to retain 'normal' printout from the underlying tool");
   // initialise some variables needed for caching
   // TODO : add configuration of the mapIndices - rather than just using the default of 0
   //m_mapIndices["Light"] = m_mapIndices["T"] = m_mapIndices["C"] = m_mapIndices["B"] = 0;
@@ -318,7 +321,8 @@ StatusCode BTaggingEfficiencyTool::initialize() {
 						     m_systStrategy != "Envelope",              // assume that eigenvector variations will be used unless the "Envelope" model is used
 						     true,                                      // use MC/MC scale factors
 						     false,                                     // do not use topology rescaling (only relevant for pseudo-continuous tagging)
-						     m_useRecommendedEVExclusions);             // if true, add pre-set lists of uncertainties to be excluded from EV decomposition
+						     m_useRecommendedEVExclusions,              // if true, add pre-set lists of uncertainties to be excluded from EV decomposition
+						     m_verboseCDITool);                         // if false, suppress any non-error/warning messages
 
   setMapIndex("Light",0);
   setMapIndex("C",0);
@@ -483,8 +487,9 @@ StatusCode BTaggingEfficiencyTool::initialize() {
     ATH_CHECK( m_selectionTool.setProperty("TaggerName",                   m_taggerName) );
     ATH_CHECK( m_selectionTool.setProperty("OperatingPoint",               m_OP) );
     ATH_CHECK( m_selectionTool.setProperty("JetAuthor",                    m_jetAuthor) );
+    ATH_CHECK( m_selectionTool.setProperty("MinPt",                        m_minPt) );
     ATH_CHECK( m_selectionTool.retrieve() );
-  }
+ }
 
   // if the user decides to ignore these errors, at least make her/him aware of this
   if (m_ignoreOutOfValidityRange) {
@@ -934,6 +939,33 @@ BTaggingEfficiencyTool::listScaleFactorSystematics(bool named) const {
     uncertainties[getLabel(int(flavourID))] = systematics;
   }
   return uncertainties;
+}
+
+CorrectionCode
+BTaggingEfficiencyTool::getEigenRecompositionCoefficientMap(const std::string &label, std::map<std::string, std::map<std::string, float>> & coefficientMap){
+  // Calling EigenVectorRecomposition method in CDI and retrieve recomposition map.
+  // If success, coefficientMap would be filled and return ok.
+  // If failed, return error.
+  // label  :  flavour label
+  // coefficientMap: store returned coefficient map.
+  if (! m_initialised) {
+    ATH_MSG_ERROR("BTaggingEfficiencyTool has not been initialised");
+    return CorrectionCode::Error;
+  }
+  if(label.compare("B") != 0 &&
+     label.compare("C") != 0 &&
+     label.compare("T") != 0 &&
+     label.compare("Light") != 0){
+    ATH_MSG_ERROR("Flavour label is illegal! Label need to be B,C,T or Light.");
+    return CorrectionCode::Error;
+  }
+  CalibrationStatus status = m_CDI->runEigenVectorRecomposition(m_jetAuthor, label, m_OP);
+  if (status != Analysis::kSuccess){
+    ATH_MSG_ERROR("Failure running EigenVectorRecomposition Method.");
+    return CorrectionCode::Error;
+  }
+  coefficientMap = m_CDI->getEigenVectorRecompositionCoefficientMap();
+  return CorrectionCode::Ok;
 }
 
 // WARNING the behaviour of future calls to getEfficiency and friends are modified by this

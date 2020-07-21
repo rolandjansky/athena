@@ -133,7 +133,7 @@ namespace top {
 
             // Check if this jet collection systematic matches with one removed from the EV decomposition
             // (TopCorrectionsTools)
-            std::string bTagSystName = top::bTagNamedSystCheck(m_config, currentSystematic.second, tagWP, false);
+            std::string bTagSystName = top::bTagNamedSystCheck(m_config, currentSystematic.second, tagWP, use_trackjets, false);
             // If this string is not empty, we need to search and find the appropriate systematic set to apply
             if (bTagSystName != "") {
               CP::SystematicSet bTagSyst;

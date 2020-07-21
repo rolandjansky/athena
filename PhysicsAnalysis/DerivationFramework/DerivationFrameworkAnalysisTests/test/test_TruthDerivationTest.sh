@@ -6,8 +6,19 @@
 # art-include: 21.2/AnalysisBase
 # art-include: 21.2/AthAnalysis
 # art-output: test_histograms.root
-# art-input: mc15_13TeV:mc15_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.deriv.DAOD_TRUTH3.e6337_e5984_p3655
-# art-input-nfiles: 1
+# art-output: dcube
+# art-html: dcube
 
-TruthDerivationTester --input ${ArtInFile} --output test_histograms.root --nevents -1
-echo "art-result: $?"
+art.py download --nightly-release 21.2 --project AthDerivation --platform x86_64-slc6-gcc62-opt DerivationFrameworkMCTruthART test_mc15TRUTH3.sh
+inputFile=./ref-*/DAOD_TRUTH3.art.pool.root
+echo "art-result: $? Inputs"
+
+TruthDerivationTester --input ${inputFile} --output test_histograms.root --nevents -1
+echo "art-result: $? Analysis"
+
+dcubeName="LHE"
+dcubeXml="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkAnalysisTests/Analysis_DCubeConfig.xml"
+dcubeRef="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkAnalysisTests/reference_2020_02_14_test_histograms.root"
+
+bash /cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube $dcubeName test_histograms.root $dcubeXml $dcubeRef
+echo  "art-result: $? DCube"

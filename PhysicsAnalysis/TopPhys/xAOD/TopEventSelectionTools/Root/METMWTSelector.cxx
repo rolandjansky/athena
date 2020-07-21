@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopEventSelectionTools/METMWTSelector.h"
@@ -16,8 +16,7 @@ namespace top {
     if (!event.m_electrons.empty()) lepton = event.m_electrons.front();
     else if (!event.m_muons.empty()) lepton = event.m_muons.front();
     else {
-      std::cout << "MET+MWT Tool: Not got a charged lepton" << std::endl;
-      exit(1);
+      throw std::runtime_error("METMWTSelector::apply: No charged lepton in event");
     }
 
     const double metmwt = event.m_met->met() + top::mwt(*lepton, *event.m_met);
@@ -37,8 +36,7 @@ namespace top {
     if (!event.m_electrons->empty()) lepton = event.m_electrons->front();
     else if (!event.m_muons->empty()) lepton = event.m_muons->front();
     else {
-      std::cout << "MET+MWT Tool: Not got a charged lepton" << std::endl;
-      exit(1);
+      throw std::runtime_error("METMWTSelector::applyParticleLevel: No charged lepton in event");
     }
 
     const double metmwt = event.m_met->met() + top::mwt(*lepton, *event.m_met);

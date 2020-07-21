@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 // $Id: JetScaleFactorCalculator.h 724681 2016-02-17 18:20:27Z tneep $
@@ -52,6 +52,8 @@ namespace top {
     StatusCode initialize();
     StatusCode execute();
   private:
+    StatusCode decorateJets(const xAOD::JetContainer* jets, bool isNominal);
+    
     std::shared_ptr<top::TopConfig> m_config;
 
     CP::SystematicSet m_systNominal;
@@ -59,6 +61,7 @@ namespace top {
     CP::SystematicSet m_systDOWN;
 
     ToolHandle<CP::IJetJvtEfficiency> m_jvt_tool;
+    ToolHandle<CP::IJetJvtEfficiency> m_fjvt_tool;
   };
 }  // namespace top
 #endif  // ANALYSISTOP_TOPCORRECTIONS_JETSCALEFACTORCALCULATOR_H

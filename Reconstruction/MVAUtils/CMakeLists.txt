@@ -35,8 +35,8 @@ atlas_add_executable( check_timing_mvautils
                       INCLUDE_DIRS MVAUtils
                       LINK_LIBRARIES MVAUtils )
 
-atlas_install_scripts( util/convertLGBMToRootTree.py )
+atlas_install_scripts( util/convertLGBMToRootTree.py
+                       util/convertXGBoostToRootTree.py )
 
 atlas_add_test( ut_test_MVAUtils.py
                 SCRIPT test/ut_test_MVAUtils.py TestMVAUtilsBasic )
-		      

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETCALIBTOOLS_JETPILEUPCORRECTION_H
@@ -17,6 +17,10 @@
 #include "JetCalibTools/IJetCalibrationTool.h"
 #include "JetCalibTools/JetCalibrationToolBase.h"
 #include "JetCalibTools/CalibrationMethods/ResidualOffsetCorrection.h"
+
+namespace PUCorrection {
+  struct PU3DCorrectionHelper;
+}
 
 class JetPileupCorrection 
   : virtual public ::IJetCalibrationTool,
@@ -51,9 +55,14 @@ class JetPileupCorrection
   bool m_doNJetOnly;
   bool m_doSequentialResidual;
 
+  bool m_do3Dcorrection;
+
+  
   bool m_useFull4vectorArea;
   ResidualOffsetCorrection * m_residualOffsetCorr;
 
+  std::unique_ptr<PUCorrection::PU3DCorrectionHelper> m_residual3DCorr;
+  
   bool m_doOnlyResidual;
   
   std::string m_originScale;

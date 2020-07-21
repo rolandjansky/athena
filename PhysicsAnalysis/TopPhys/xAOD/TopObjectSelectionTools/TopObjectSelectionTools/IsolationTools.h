@@ -44,7 +44,7 @@ namespace top {
     /**
      * @brief Because people like to know what isolation cuts they're applying.
      *
-     * @param os Where to print things to, e.g. cout.
+     * @param os Where to print things to, e.g. msg stream.
      */
     virtual void print(std::ostream& os) const = 0;
   };

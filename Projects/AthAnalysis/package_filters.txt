@@ -75,6 +75,7 @@
 + PhysicsAnalysis/DerivationFramework/DerivationFrameworkAnalysisTests
 - PhysicsAnalysis/ElectronPhotonID/ElectronPhotonTagTools
 + PhysicsAnalysis/ElectronPhotonID/.*
++ PhysicsAnalysis/HeavyIonPhys/HIEventUtils
 + PhysicsAnalysis/HiggsPhys/Run2/HZZ/Tools/ZMassConstraint
 + PhysicsAnalysis/Interfaces/.*
 + PhysicsAnalysis/JetMissingEtID/JetSelectorTools
@@ -87,7 +88,7 @@
 + PhysicsAnalysis/SUSYPhys/SUSYTools
 + PhysicsAnalysis/TauID/DiTauMassTools
 + PhysicsAnalysis/TauID/TauAnalysisTools
-# + PhysicsAnalysis/TopPhys/QuickAna
+- PhysicsAnalysis/TopPhys/QuickAna
 + PhysicsAnalysis/TrackingID/.*
 + Reconstruction/EventShapes/EventShapeInterface
 - Reconstruction/Jet/JetAnalysisTools/JetAnalysisEDM

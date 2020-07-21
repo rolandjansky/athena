@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////
@@ -15,6 +15,7 @@
 #include <limits>
 #include <set>
 #include <algorithm>
+#include <string>
 #include <cmath>
 
 #include "TH1.h"
@@ -22,6 +23,7 @@
 #include "TDecompSVD.h"
 #include "TMatrixDSymEigen.h"
 #include "TROOT.h"
+#include "TFile.h"
 
 using Analysis::CalibrationDataEigenVariations;
 using Analysis::CalibrationDataInterface::split;
@@ -38,7 +40,10 @@ namespace {
   // But in order to avoid unnecessary overhead, the actual dimensionality of the histograms is accounted for.
 
   // Construct the (diagonal) covariance matrix for the statistical uncertainties on the "ref" results
-  TMatrixDSym getStatCovarianceMatrix(const TH1* hist) {
+  // Note that when statistical uncertainties are stored as variations, they are already accounted for and hence should not be duplicated; hence they are dummy here
+  // (this is not very nice, in that the result of this function will technically be wrong,
+  // but the statistical uncertainty covariance matrix is anyway not separately visible to the outside world)
+  TMatrixDSym getStatCovarianceMatrix(const TH1* hist, bool zero) {
     Int_t nbinx = hist->GetNbinsX()+2, nbiny = hist->GetNbinsY()+2, nbinz = hist->GetNbinsZ()+2;
     Int_t rows = nbinx;
     if (hist->GetDimension() > 1) rows *= nbiny;
@@ -54,7 +59,7 @@ namespace {
       for (Int_t biny = 1; biny < nbiny-1; ++biny)
 	for (Int_t binz = 1; binz < nbinz-1; ++binz) {
 	  Int_t bin = hist->GetBin(binx, biny, binz);
-	  double err = hist->GetBinError(bin);
+	  double err = zero ? 0 : hist->GetBinError(bin);
 	  stat(bin, bin) = err*err;
 	}
     return stat;
@@ -198,7 +203,7 @@ ClassImp(CalibrationDataEigenVariations)
 //________________________________________________________________________________
 CalibrationDataEigenVariations::CalibrationDataEigenVariations(const CalibrationDataHistogramContainer* cnt,
 							       bool excludeRecommendedUncertaintySet) :
-  m_cnt(cnt), m_initialized(false), m_namedExtrapolation(-1)
+m_cnt(cnt), m_initialized(false), m_namedExtrapolation(-1), m_statVariations(false)
 {
   // if specified, add items recommended for exclusion from EV decomposition by the calibration group to the 'named uncertainties' list
   if (excludeRecommendedUncertaintySet) {
@@ -207,6 +212,11 @@ CalibrationDataEigenVariations::CalibrationDataEigenVariations(const Calibration
     if (to_exclude.size() == 0) {
       std::cerr << "CalibrationDataEigenVariations warning: exclusion of pre-set uncertainties list requested but no (or empty) list found" << std::endl;
     }
+  }
+  // also flag if statistical uncertainties stored as variations (this typically happens as a result of smoothing / pruning of SF results)
+  vector<string> uncs = m_cnt->listUncertainties();
+  for (auto name : uncs) {
+    if (name.find("stat_np") != string::npos) m_statVariations = true;
   }
 }
 
@@ -284,7 +294,9 @@ CalibrationDataEigenVariations::getEigenCovarianceMatrix() const
   // First, treat the statistics separately.
   // Account for the possibility that this is handled as a (non-trivial) covariance matrix
   TMatrixDSym* sCov = dynamic_cast<TMatrixDSym*>(m_cnt->GetValue("statistics"));
-  TMatrixDSym cov = (sCov) ? *sCov : getStatCovarianceMatrix(result);
+  // Alternatively, statistical uncertainties may be accounted for as variations (i.e., much like systematic uncertainties).
+  // In that case, we create a null matrix here and add the statistical contributions along with the systematic ones.
+  TMatrixDSym cov = (sCov) ? *sCov : getStatCovarianceMatrix(result, m_statVariations);
 
   // Then loop through the list of (other) uncertainties
   std::vector<string> uncs = m_cnt->listUncertainties();
@@ -1028,4 +1040,135 @@ CalibrationDataEigenVariations::isExtrapolationVariation(unsigned int nameIndex)
   // uncertainty.
 
   return (m_namedExtrapolation == int(nameIndex));
+}
+
+//________________________________________________________________________________
+bool
+CalibrationDataEigenVariations::EigenVectorRecomposition(const std::string label, 
+							 std::map<std::string, std::map<std::string, float>> &coefficientMap) const
+{
+  // Calculating eigen vector recomposition coefficient map and pass to
+  // user by reference. Return true if method success. Return false and
+  // will not modify coefficientMap if function failed.
+  //
+  //     label:          flavour label
+  //     coefficientMap: (reference to) coefficentMap which will be used as return value.
+  if (! m_initialized) const_cast<CalibrationDataEigenVariations*>(this)->initialize();
+
+  std::vector<TH1*> originSF_hvec;
+  std::vector<TH1*> eigenSF_hvec;
+
+  // Retrieving information for calculation
+  std::vector<string>fullUncList = m_cnt->listUncertainties();
+  std::vector<string> uncList;
+  for (unsigned int t = 0; t < fullUncList.size(); ++t) {
+    // entries that should never be included
+    if (fullUncList[t] == "comment" || fullUncList[t] == "result" ||
+	fullUncList[t] == "combined" || fullUncList[t] == "statistics" ||
+        fullUncList[t] == "systematics" || fullUncList[t] == "MCreference" ||
+        fullUncList[t] == "MChadronisation" || fullUncList[t] == "extrapolation" ||
+        fullUncList[t] == "ReducedSets" || fullUncList[t] == "excluded_set") continue;
+    // entries that can be excluded if desired
+    if (m_namedIndices.find(fullUncList[t]) != m_namedIndices.end()) continue;
+    
+    TH1* hunc = dynamic_cast<TH1*>(m_cnt->GetValue(fullUncList[t].c_str()));
+
+    Int_t nx = hunc->GetNbinsX();
+    Int_t ny = hunc->GetNbinsY();
+    Int_t nz = hunc->GetNbinsZ();
+    Int_t bin = 0;
+    bool retain = false; // Retain the histogram?
+
+    // discard empty histograms
+    // Read all bins without underflow&overflow
+    for(Int_t binx = 1; binx <= nx; binx++)
+      for(Int_t biny = 1; biny <= ny; biny++)
+	for(Int_t binz = 1; binz <= nz; binz++){
+	  bin = hunc->GetBin(binx, biny, binz);  
+	  if (fabs(hunc->GetBinContent(bin)) > 1E-20){
+	    retain = true;
+	    break;
+	  }
+	}// end hist bin for-loop
+    if (!retain){
+      std::cout<<"Eigenvector Recomposition: Empty uncertainty "<<fullUncList.at(t)<<" is discarded."<<std::endl;
+      continue; // discard the vector
+    }
+
+    uncList.push_back(fullUncList.at(t));
+    originSF_hvec.push_back(hunc);
+  }
+
+  TH1* nom = dynamic_cast<TH1*>(m_cnt->GetValue("result")); // Nominal SF hist
+  int dim = nom->GetDimension();
+  Int_t nx = nom->GetNbinsX();
+  Int_t ny = nom->GetNbinsY();
+  Int_t nz = nom->GetNbinsZ();
+  Int_t nbins = nx;
+  if(dim > 1) nbins *= ny;
+  if(dim > 2) nbins *= nz;
+  TMatrixD matSF(uncList.size(), nbins);
+  Int_t col = 0; // mark the column number
+  // Fill the Delta SF Matrix
+  for(unsigned int i = 0; i < uncList.size(); i++){
+    col = 0;
+    // Loop all bins except underflow&overflow bin
+    for(int binz = 1; binz <= nz; binz++)
+      for(int biny = 1; biny <= ny; biny++)
+	for(int binx = 1; binx <= nx; binx++){
+ 	  Int_t bin = originSF_hvec.at(i)->GetBin(binx, biny, binz);
+	  TMatrixDRow(matSF,i)[col] = originSF_hvec[i]->GetBinContent(bin);
+	  col++;
+	}
+  }
+
+  // get eigen vectors of scale factors. Note that this is not the original eigen-vector.
+  int nEigen = getNumberOfEigenVariations();
+  TH1* up = nullptr;
+  TH1* down = nullptr;
+  for (int i = 0; i < nEigen; i++){
+    if (!getEigenvectorVariation(i, up, down)){
+       std::cerr<<"EigenVectorRecomposition: Error on retrieving eigenvector "<<i<<std::endl;
+      return false;
+    }
+    //Need uncertainty value so subtract central calibration here.
+    up->Add(nom, -1);
+    eigenSF_hvec.push_back(up);
+  }
+  TMatrixD matEigen(nEigen, nbins);
+
+  // Fill the Eigen Matrix
+  for(int i = 0; i < nEigen; i++){
+    col = 0;
+    // Read 300 bins without underflow&overflow
+    for(int binz = 1; binz <= nz; binz++)
+      for(int biny = 1; biny <= ny; biny++)
+	for(int binx = 1; binx <= nx; binx++){
+	  Int_t bin = eigenSF_hvec.at(i)->GetBin(binx, biny, binz);
+	  TMatrixDRow(matEigen,i)[col] = eigenSF_hvec[i]->GetBinContent(bin);
+	  col++;
+	}
+  }
+
+  // Sanity check:
+  TMatrixD matEigenOriginal = matEigen;
+  TMatrixD matEigenTranspose = matEigen;
+  matEigenTranspose = matEigenTranspose.T();
+  TMatrixD matOriginalTimesTranspose = matEigenOriginal*matEigenTranspose;
+  TMatrixD matEigenInvert = matEigenTranspose*matOriginalTimesTranspose.Invert();
+  //(matEigenOriginal*matEigenInvert).DrawClone("colz"); // This should give us an identity matrix
+
+  TMatrixD matCoeff = matSF*matEigenInvert;
+  int nRows = matCoeff.GetNrows();
+  int nCols = matCoeff.GetNcols();
+  std::map<std::string, float> temp_map;
+  for (int col = 0; col < nCols; col++){
+    temp_map.clear();
+    for(int row = 0; row < nRows; row++){
+      temp_map[uncList[row]] = TMatrixDRow(matCoeff, row)[col];
+    }
+    coefficientMap["Eigen_"+label+"_"+std::to_string(col)] = temp_map;
+  }
+  
+  return true;
 }

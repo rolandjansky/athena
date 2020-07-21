@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -17,6 +17,7 @@
 #include <AsgAnalysisAlgorithms/AsgViewFromSelectionAlg.h>
 #include <AsgAnalysisAlgorithms/AsgxAODNTupleMakerAlg.h>
 #include <AsgAnalysisAlgorithms/EventFlagSelectionAlg.h>
+#include <AsgAnalysisAlgorithms/EventSelectionByObjectFlagAlg.h>
 #include <AsgAnalysisAlgorithms/IsolationCloseByCorrectionAlg.h>
 #include <AsgAnalysisAlgorithms/KinematicHistAlg.h>
 #include <AsgAnalysisAlgorithms/ObjectCutFlowHistAlg.h>
@@ -38,6 +39,7 @@ DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgSelectionAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgViewFromSelectionAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgxAODNTupleMakerAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, EventFlagSelectionAlg)
+DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, EventSelectionByObjectFlagAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, IsolationCloseByCorrectionAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, KinematicHistAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, ObjectCutFlowHistAlg)
@@ -60,6 +62,7 @@ DECLARE_FACTORY_ENTRIES(AsgAnalysisAlgorithms) {
   DECLARE_NAMESPACE_ALGORITHM (CP, AsgViewFromSelectionAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, AsgxAODNTupleMakerAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, EventFlagSelectionAlg)
+  DECLARE_NAMESPACE_ALGORITHM (CP, EventSelectionByObjectFlagAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, IsolationCloseByCorrectionAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, KinematicHistAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, ObjectCutFlowHistAlg)

@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUANALYSISTOOLS_TAUSMEARINGTOOL_H
@@ -18,8 +18,7 @@
 */
 
 // Framework include(s):
-#include "AsgTools/AsgTool.h"
-#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/AsgMetadataTool.h"
 
 // Local include(s):
 #include "TauAnalysisTools/Enums.h"
@@ -30,7 +29,7 @@ namespace TauAnalysisTools
 {
 
 class TauSmearingTool
-  : public asg::AsgTool
+  : public asg::AsgMetadataTool
   , public virtual ITauSmearingTool
 {
   /// Create a proper constructor for Athena
@@ -44,7 +43,9 @@ public:
 
   /// Function initialising the tool
   virtual StatusCode initialize();
-
+  
+  virtual StatusCode beginInputFile();
+  
   /// Apply the correction on a modifyable object
   virtual CP::CorrectionCode applyCorrection( xAOD::TauJet& xTau );
   /// Create a corrected copy from a constant tau
@@ -61,12 +62,13 @@ public:
   virtual CP::SystematicSet recommendedSystematics() const;
 
   virtual CP::SystematicCode applySystematicVariation( const CP::SystematicSet& systConfig );
-
+  
 private:
   asg::AnaToolHandle<ITauSmearingTool> m_tCommonSmearingTool;
   std::string m_sInputFilePath;
   std::string m_sRecommendationTag;
   bool m_bIsData;
+  bool m_sAFII;
   bool m_bSkipTruthMatchCheck;
   bool m_bApplyFading;
 

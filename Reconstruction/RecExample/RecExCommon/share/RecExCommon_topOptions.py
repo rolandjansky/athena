@@ -1369,7 +1369,9 @@ if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
 
             from RecExConfig.InputFilePeeker import inputFileSummary
             #Explicitely add file metadata from input and from transient store
-            MSMgr.AddMetaDataItemToAllStreams(inputFileSummary['metadata_itemsList'])
+            #Include translation of name from persistent format to transient format
+            from xAODRootAccess.ClassNameManips import pers_to_trans_name
+            MSMgr.AddMetaDataItemToAllStreams([pers_to_trans_name(x) for x in inputFileSummary['metadata_itemsList']])
             MSMgr.AddMetaDataItemToAllStreams(dfMetadataItemList())
             pass
         pass

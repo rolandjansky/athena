@@ -1,5 +1,5 @@
 /* 
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -945,8 +945,8 @@ namespace DerivationFramework {
     // select aux element names matching our PV-to-SV association types
     for (auto &name : vAuxNames) {
       for (size_t ipvt=0; ipvt < xAOD::BPhysHelper::n_pv_types; ++ipvt) {
-        if ( name.find(xAOD::BPhysHelper::pv_type_str[ipvt]
-                       +"_Link") != std::string::npos) {
+        std::regex re(".*"+xAOD::BPhysHelper::pv_type_str[ipvt]+".*_Link");
+        if ( std::regex_match(name, re) ) {
           vLinkNames.push_back(name);
           vLinkTypes.push_back((pv_type)ipvt);
         }

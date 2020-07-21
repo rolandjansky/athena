@@ -19,7 +19,6 @@
 #include "xAODTracking/VertexAuxContainer.h"
 #include "PhotonVertexSelection/IPhotonVertexSelectionTool.h"
 #include "AthContainers/ConstDataVector.h"
-#include "PhotonVertexSelection/IPhotonPointingTool.h"
 // For DeltaR
 #include "FourMomUtils/xAODP4Helpers.h"
 
@@ -34,19 +33,17 @@ DerivationFramework::DiphotonVertexDecorator::DiphotonVertexDecorator(const std:
 
   declareInterface<DerivationFramework::IAugmentationTool>(this);
  
-  declareProperty("PhotonVertexSelectionTool", m_photonVertexSelectionTool);
-  declareProperty("PhotonPointingTool", m_photonPointingTool);
-  declareProperty("PhotonContainerKey",    m_photonSGKey="Photons");
-  declareProperty("DiphotonVertexContainerKey",    m_diphotonVertexSGKey="HggPrimaryVertices");
-  declareProperty("PrimaryVertexContainerKey", m_primaryVertexSGKey="PrimaryVertices");
-  declareProperty("RemoveCrack",           m_removeCrack = true);
-  declareProperty("MaxEta",                m_maxEta = 2.37);
-  declareProperty("MinimumPhotonPt",       m_minPhotonPt = 20*CLHEP::GeV);
-  declareProperty("IgnoreConvPointing",    m_ignoreConv = false);
-  declareProperty("pfoToolName",           m_pfoToolName = "PFOTool","Name of PFO retriever tool");
-  declareProperty( "TCMatchMaxRat",        m_tcMatch_maxRat = 1.5    );
-  declareProperty( "TCMatchDeltaR",        m_tcMatch_dR     = 0.1    );
-
+  declareProperty("PhotonVertexSelectionTool",  m_photonVertexSelectionTool);
+  declareProperty("PhotonContainerKey",         m_photonSGKey         = "Photons");
+  declareProperty("DiphotonVertexContainerKey", m_diphotonVertexSGKey = "HggPrimaryVertices");
+  declareProperty("PrimaryVertexContainerKey",  m_primaryVertexSGKey  = "PrimaryVertices");
+  declareProperty("RemoveCrack",           m_removeCrack    = true);
+  declareProperty("MaxEta",                m_maxEta         = 2.37);
+  declareProperty("MinimumPhotonPt",       m_minPhotonPt    = 20*CLHEP::GeV);
+  declareProperty("IgnoreConvPointing",    m_ignoreConv     = false);
+  declareProperty("pfoToolName",           m_pfoToolName    = "PFOTool","Name of PFO retriever tool");
+  declareProperty("TCMatchMaxRat",         m_tcMatch_maxRat = 1.5    );
+  declareProperty("TCMatchDeltaR",         m_tcMatch_dR     = 0.1    );
 
 }
   
@@ -58,7 +55,6 @@ DerivationFramework::DiphotonVertexDecorator::~DiphotonVertexDecorator() {
 StatusCode DerivationFramework::DiphotonVertexDecorator::initialize()
 {
   ATH_CHECK (m_photonVertexSelectionTool.retrieve() );
-  ATH_CHECK (m_photonPointingTool.retrieve() );
   ATH_CHECK (m_pfotool.retrieve() );
   return StatusCode::SUCCESS;
 }

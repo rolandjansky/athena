@@ -78,13 +78,14 @@ Tau.Id: Medium
 #
 Jet.Pt: 20000.
 Jet.Eta: 2.8
-Jet.InputType: 1 # EMTopo
-Jet.JVT_WP: Default
+Jet.InputType: 9 # EMPFlow
+Jet.JvtWP: Default
+Jet.JvtPtMax: 60.0
 #
 FwdJet.doJVT: false
+FwdJet.JvtPtMax: 120e3
 FwdJet.JvtEtaMin: 2.5
-FwdJet.JvtPtMax: 50e3
-FwdJet.JvtOp: Loose
+FwdJet.JvtWP: Tight
 #
 Jet.LargeRcollection: AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
 Jet.LargeRuncConfig: rel21/Spring2019/R10_GlobalReduction.config
@@ -102,6 +103,10 @@ Btag.enable: true
 #
 Btag.Tagger: MV2c10
 Btag.WP: ${BTAG_WP}
+Btag.MinPt: 20000.
+#
+BtagTrkJet.TimeStamp: 
+BtagTrkJet.MinPt: 10000.
 #
 # set the -999. to positive number to override default
 OR.DoBoostedElectron: true
@@ -187,9 +192,9 @@ class TestSUSYTools(unittest.TestCase):
 
     #Working points
     EL_ID_WP  = ['LooseAndBLayerLLH', 'MediumLLH', 'TightLLH']
-    EL_ISO_WP = ['FCHighPtCaloOnly','Gradient','FCLoose','FCTight']
+    EL_ISO_WP = ['FCHighPtCaloOnly','FCLoose','FCTight']
     MU_ID_WP  = ['1']
-    MU_ISO_WP = ['FCLoose']
+    MU_ISO_WP = ['Loose_VarRad']
     PH_ID_WP  = ['Loose','Tight']
     PH_ISO_WP = ['FixedCutTight','FixedCutLoose']
     BTAG_WP   = ['FixedCutBEff_77']
@@ -198,10 +203,10 @@ class TestSUSYTools(unittest.TestCase):
     #default settings
     defaults_dict = {'el_id_base' : 'LooseAndBLayerLLH',
                      'el_id'      : 'TightLLH',
-                     'el_iso'     : 'Gradient',
+                     'el_iso'     : 'FCLoose',
                      'mu_id_base' : '1',
                      'mu_id'      : '1',
-                     'mu_iso'     : 'FCLoose',
+                     'mu_iso'     : 'Loose_VarRad',
                      'ph_id_base' : 'Tight',
                      'ph_id'      : 'Tight',
                      'ph_iso'     : 'FixedCutTight',

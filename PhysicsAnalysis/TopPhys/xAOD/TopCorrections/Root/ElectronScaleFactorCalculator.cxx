@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 // $Id: ElectronScaleFactorCalculator.cxx 799556 2017-03-05 19:46:03Z tpelzer $
@@ -112,40 +112,41 @@ namespace top {
           "Failed to retrieve loose electron SF Tool for correlation model");
       }
     }
+    std::ostream& msgInfo = msg(MSG::Level::INFO);
     // ChargeID efficiency and Charge mis-identification scale factors: to apply when enabling Electron Charge ID
     // Selector
     if (asg::ToolStore::contains<IAsgElectronEfficiencyCorrectionTool> ("AsgElectronEfficiencyCorrectionTool_ChargeID"))
     {
       m_electronEffChargeID_exists = true; // this scale factor currently exists only for MediumLHH electron
       top::check(m_electronEffSFChargeID.retrieve(), "Failed to retrieve electron charge flip efficiency SF Tool");
-      std::cout << "------>Systematics:" << std::endl;
+      msgInfo << "------>Systematics:\n";
       for (auto sys:m_electronEffSFChargeID->recommendedSystematics())
-        std::cout << "---> " << sys << std::endl;
+        msgInfo << "---> " << sys << "\n";
     }
     if (asg::ToolStore::contains<IAsgElectronEfficiencyCorrectionTool> (
           "AsgElectronEfficiencyCorrectionTool_ChargeIDLoose")) {
       m_electronEffChargeIDLoose_exists = true; // this scale factor currently exists only for MediumLHH electron
       top::check(m_electronEffSFChargeIDLoose.retrieve(), "Failed to retrieve electron charge flip efficiency SF Tool");
-      std::cout << "------>Systematics:" << std::endl;
+      msgInfo << "------>Systematics:\n";
       for (auto sys:m_electronEffSFChargeIDLoose->recommendedSystematics())
-        std::cout << "---> " << sys << std::endl;
+        msgInfo << "---> " << sys << "\n";
     }
     if (asg::ToolStore::contains<CP::ElectronChargeEfficiencyCorrectionTool> ("ElectronChargeEfficiencyCorrection") &&
         m_config->doPileupReweighting()) { // tool requires RandomRunNumber set from it
       m_electronEffChargeMisID_exists = true;
       top::check(m_electronEffSFChargeMisID.retrieve(), "Failed to retrieve electron charge mis-id SF Tool");
-      std::cout << "------>Systematics:" << std::endl;
+      msgInfo << "------>Systematics:\n";
       for (auto sys:m_electronEffSFChargeMisID->recommendedSystematics())
-        std::cout << "---> " << sys << std::endl;
+        msgInfo << "---> " << sys << "\n";
     }
     if (asg::ToolStore::contains<CP::ElectronChargeEfficiencyCorrectionTool> ("ElectronChargeEfficiencyCorrectionLoose")
         &&
         m_config->doPileupReweighting()) { // tool requires RandomRunNumber set from it
       m_electronEffChargeMisIDLoose_exists = true;
       top::check(m_electronEffSFChargeMisIDLoose.retrieve(), "Failed to retrieve electron charge mis-id SF Tool");
-      std::cout << "------>Systematics:" << std::endl;
+      msgInfo << "------>Systematics:\n";
       for (auto sys:m_electronEffSFChargeMisIDLoose->recommendedSystematics())
-        std::cout << "---> " << sys << std::endl;
+        msgInfo << "---> " << sys << "\n";
     }
 
     // If the isolation tool doesn't exist then check why...
@@ -517,7 +518,7 @@ namespace top {
             }
 
             ///-- Charge Mis ID --///
-            if (m_electronEffChargeID_exists) {
+            if (m_electronEffChargeMisID_exists) {
               ///-- Charge Mis ID STAT_UP --///
               top::check(m_electronEffSFChargeMisID->applySystematicVariation(
                            m_systChargeMisID_STAT_UP), "Failed to set systematic");
@@ -546,7 +547,7 @@ namespace top {
               top::check(m_electronEffSFChargeMisID->applySystematicVariation(m_systNominal),
                          "Failed to set systematic");
             }
-            if (m_electronEffChargeIDLoose_exists) {
+            if (m_electronEffChargeMisIDLoose_exists) {
               ///-- Charge Mis ID STAT_UP --///
               top::check(m_electronEffSFChargeMisIDLoose->applySystematicVariation(
                            m_systChargeMisID_STAT_UP), "Failed to set systematic");

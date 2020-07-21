@@ -88,7 +88,8 @@ type-specific and do a runtime type check.
 * EleJetOverlapTool - Implements the recommended ele-jet overlap removal
   based on dR cones, JVT, and user-set btagging decorations.
 * EleMuSharedTrkOverlapTool - Removes (input) electrons that share an ID track
-  with (input) muons. By default vetoes overlapping calo-muons.
+  with (input) muons. By default vetoes overlapping calo-muons. If activated,
+  electrons in a DR cone of a muon can be removed.
 * MuJetOverlapTool - Implements the recommended mu-jet overlap removal based
   on dR, jet track multiplicity, mu-jet PT ratios, and user-specified btagging.
 * TauLooseEleOverlapTool - Implements overlap removal between taus and loose

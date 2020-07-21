@@ -12,9 +12,9 @@ namespace top {
 
   FwdElectronSelectionBase::~FwdElectronSelectionBase() {
   }
-}
 
-std::ostream& operator << (std::ostream& os, const top::FwdElectronSelectionBase& selection) {
-  selection.print(os);
-  return os;
+  std::ostream& operator << (std::ostream& os, const top::FwdElectronSelectionBase& selection) {
+    selection.print(os);
+    return os;
+  }
 }

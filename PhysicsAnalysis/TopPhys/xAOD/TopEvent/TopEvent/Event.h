@@ -61,10 +61,12 @@ namespace top {
       m_softmuons(SG::VIEW_ELEMENTS),
       m_jets(SG::VIEW_ELEMENTS),
       m_failJvt_jets(SG::VIEW_ELEMENTS),
+      m_failFJvt_jets(SG::VIEW_ELEMENTS),
       m_photons(SG::VIEW_ELEMENTS),
       m_largeJets(SG::VIEW_ELEMENTS),
       m_RCJets(SG::VIEW_ELEMENTS),
       m_trackJets(SG::VIEW_ELEMENTS),
+      m_tracks(SG::VIEW_ELEMENTS),
       m_tauJets(SG::VIEW_ELEMENTS),
       m_met(nullptr),
 
@@ -111,6 +113,9 @@ namespace top {
     ///Container of fail-JVT jets (can be sorted)
     xAOD::JetContainer m_failJvt_jets;
 
+    ///Container of fail-FJVT jets (can be sorted)
+    xAOD::JetContainer m_failFJvt_jets;
+
     ///Container of photons (can be sorted)
     xAOD::PhotonContainer m_photons;
 
@@ -125,6 +130,9 @@ namespace top {
 
     ///Container of track jets (can be sorted)
     xAOD::JetContainer m_trackJets;
+
+    ///Container of tracks (can be sorted)                                                                                                                                                                
+    xAOD::TrackParticleContainer m_tracks;
 
     ///Container of taujets (can be sorted)
     xAOD::TauJetContainer m_tauJets;
@@ -147,11 +155,14 @@ namespace top {
     ///Pseudo Top Results
     mutable const xAOD::PseudoTopResultContainer* m_PseudoTopResult;
 
-    ///JVT SFs - now needed here because it includes jets that are good jets,
+    ///JVT and fJVT SFs - now needed here because they include jets that are good jets,
     ///but which are not in the top::Event::m_jets container
     float m_jvtSF = 1.;
     float m_jvtSF_UP = 1.;
     float m_jvtSF_DOWN = 1.;
+    float m_fjvtSF = 1.;
+    float m_fjvtSF_UP = 1.;
+    float m_fjvtSF_DOWN = 1.;
   };
 }
 
@@ -165,5 +176,6 @@ std::ostream& operator << (std::ostream& os, const xAOD::Jet& jet);
 std::ostream& operator << (std::ostream& os, const xAOD::TauJet& tau);
 std::ostream& operator << (std::ostream& os, const xAOD::TruthParticle& truth);
 std::ostream& operator << (std::ostream& os, const xAOD::MissingET& met);
+std::ostream& operator << (std::ostream& os, const xAOD::TrackParticle& track);
 
 #endif
