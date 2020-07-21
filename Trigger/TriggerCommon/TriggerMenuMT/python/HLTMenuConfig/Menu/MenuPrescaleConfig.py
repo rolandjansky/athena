@@ -33,10 +33,13 @@ def MenuPrescaleConfig(triggerConfigHLT):
         elif 'tight_mc_prescale' in menu_name:
             L1Prescales = Prescales.L1Prescales_tight_mc_prescale
             HLTPrescales = Prescales.HLTPrescales_tight_mc_prescale
+        elif 'TriggerValidation_mc_prescale' in menu_name:
+            L1Prescales = Prescales.L1Prescales_trigvalid_mc_prescale
+            HLTPrescales = Prescales.HLTPrescales_trigvalid_mc_prescale
         else:
             L1Prescales = Prescales.L1Prescales
             HLTPrescales = Prescales.HLTPrescales        
-
+        
     elif menu_name.startswith('Physics_pp_run3_v1'):
         log.info('Physics_pp_run3_v1 menu setup')
         from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import setupMenu, Prescales

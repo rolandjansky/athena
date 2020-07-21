@@ -266,3 +266,16 @@ def setupMenu():
 
 
 Prescales = mc_menu.Prescales
+
+ps_online_list=[
+    'mb_sptrk_L1RD0_FILLED',
+    'timeburner_L1All'
+]
+
+Prescales.L1Prescales_trigvalid_mc_prescale  = dict([(ctpid,1) for ctpid in Prescales.L1Prescales])  # setting all L1 prescales to 1
+Prescales.HLTPrescales_trigvalid_mc_prescale = {}
+
+chain_list=ps_online_list
+
+Prescales.HLTPrescales_trigvalid_mc_prescale.update(zip(chain_list,len(chain_list)*[ [-1, 0,-1] ]))
+
