@@ -41,6 +41,7 @@ namespace MuonCombined {
     if( !m_trackExtrapolationTool.empty() ) ATH_CHECK(m_trackExtrapolationTool.retrieve());
     else m_trackExtrapolationTool.disable();
     ATH_CHECK(m_ambiguityProcessor.retrieve());
+    ATH_CHECK( m_trackSummaryTool.retrieve() );
     ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_beamSpotKey.initialize());
     return StatusCode::SUCCESS;
@@ -111,7 +112,14 @@ namespace MuonCombined {
 	//If these are not successfully extrapolated, they are too low quality to be useful
 	//So only make candidates from un-extrapolated tracks if they are not EM-only
 	bool skipTrack=true;
-	for(auto& chs : msTrack.trackSummary()->muonTrackSummary()->chamberHitSummary()){
+	const Trk::MuonTrackSummary* msMuonTrackSummary=nullptr;
+	//If reading from an ESD, the track will not have a track summary yet
+	if(!msTrack.trackSummary()){
+	  std::unique_ptr<Trk::TrackSummary> msTrackSummary=m_trackSummaryTool->summary(msTrack, nullptr);
+	  msMuonTrackSummary=msTrackSummary->muonTrackSummary();
+	}
+	else msMuonTrackSummary=msTrack.trackSummary()->muonTrackSummary();
+	for(auto& chs : msMuonTrackSummary->chamberHitSummary()){
 	  if(chs.isMdt() && m_idHelperSvc->stationIndex(chs.chamberId())!=Muon::MuonStationIndex::EM){
 	    skipTrack=false;
 	    break;
