@@ -458,6 +458,7 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj, dec
             attrInView.append( collName )
             attrName.append( collName )
             #
+
             setattr(mergingTool, collType+"Views", attrView )
             setattr(mergingTool, collType+"InViews", attrInView )
             setattr(mergingTool, collType, attrName )
@@ -484,6 +485,15 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj, dec
             collType, collName = el[0].split("#")
             if "Aux" in collType: # the GapFiller crates appropriate Aux obejcts
                 continue
+            if len(el) >= 4: # see if there is an alias
+                aliases = [ x for x in el[3:]  if "alias:" in x ] # assume that the description can be: (.... , [alias:Blah | inViews:XYZ | inViews:XYZ, alias:Blah])
+                if len(aliases) == 1:
+                    alias = aliases[0].split(":")[1]
+                    __log.info("GapFiller configuration found an aliased type '{}' for '{}'".format( alias, collType))
+                    collType = alias
+                elif len(aliases) > 1:
+                    __log.error("GapFiller configuration found inconsistent '{}' (to many aliases?)".format(el[3:]))
+
             groupedByType[collType].append( collName )
 
         for collType, collNameList in six.iteritems (groupedByType):
