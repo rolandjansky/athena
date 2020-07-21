@@ -65,7 +65,7 @@ InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
         return StatusCode::FAILURE;
      }
      std::unique_ptr<TTree> training((TTree*)rootFile->Get("BDT"));
-     m_trkClassBDT =std::make_unique<MVAUtils::BDT>(MVAUtils::BDT(training.get()));
+     m_trkClassBDT =std::make_unique<MVAUtils::BDT>(training.get());
      //-------
      if (m_fitterSvc.retrieve().isFailure()) {
         ATH_MSG_DEBUG("Could not find Trk::TrkVKalVrtFitter");
