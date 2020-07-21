@@ -4515,7 +4515,7 @@ namespace top {
 	    m_rcjetsub_Ghosts_CHadron_Final_Count[i].push_back(ghostCHadronsFinalCount(*subjet));
 	  }
 	  else {
-	    ATH_MSG_DEBUG("Found a jet with no GhostBHadronFinalCount auxdata");
+	    ATH_MSG_DEBUG("Found a jet with no GhostCHadronFinalCount auxdata");
 	    m_rcjetsub_Ghosts_CHadron_Final_Count[i].push_back(0);
 	  }
 	  
