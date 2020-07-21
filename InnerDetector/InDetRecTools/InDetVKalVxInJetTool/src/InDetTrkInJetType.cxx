@@ -59,13 +59,13 @@ InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
 //-- Calibration file
 //
      std::string fullPathToFile = PathResolverFindCalibFile("InDetVKalVxInJetTool/"+m_calibFileName);
-     TFile* rootFile = TFile::Open(fullPathToFile.c_str(), "READ");    
+     std::unique_ptr<TFile> rootFile(TFile::Open(fullPathToFile.c_str(), "READ"));    
      if (!rootFile) {
         ATH_MSG_DEBUG("Can not retrieve TrackClassification calibration root file: " << m_calibFileName);
         return StatusCode::FAILURE;
      }
-     TTree * training = (TTree*)rootFile->Get("BDT");
-     m_trkClassBDT =new MVAUtils::BDT(training);
+     std::unique_ptr<TTree> training((TTree*)rootFile->Get("BDT"));
+     m_trkClassBDT =std::make_unique<MVAUtils::BDT>(MVAUtils::BDT(training.get()));
      //-------
      if (m_fitterSvc.retrieve().isFailure()) {
         ATH_MSG_DEBUG("Could not find Trk::TrkVKalVrtFitter");
@@ -87,7 +87,6 @@ InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
 
    StatusCode InDetTrkInJetType::finalize()
    {
-    if(m_trkClassBDT)delete m_trkClassBDT;
     if(m_timingProfile)m_timingProfile->chronoPrint("InDet_TrkInJetType");
     ATH_MSG_DEBUG("InDetTrkInJetType finalize()");
     return StatusCode::SUCCESS; 

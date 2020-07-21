@@ -76,7 +76,7 @@ namespace InDet {
 
    private:
 
-    MVAUtils::BDT* m_trkClassBDT{};
+    std::unique_ptr<MVAUtils::BDT> m_trkClassBDT;
     IChronoStatSvc* m_timingProfile{}; 
    
     int m_trkSctHitsCut{};
