@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 #ifndef XAODTRACKING_TRACKPARTICLECONTAINERFWD_H
 #define XAODTRACKING_TRACKPARTICLECONTAINERFWD_H
 
@@ -20,10 +19,10 @@
 
 
 // Declare that this is a vector of IParticle-derived objects
-DATAVECTOR_BASE_FWD( xAOD::TrackParticle, xAOD::IParticle );
+DATAVECTOR_BASE_FWD( xAOD::TrackParticle_v1, xAOD::IParticle );
 namespace xAOD {
    /// Provide a forward declaration for TrackParticleContainer
-   typedef DataVector< TrackParticle > TrackParticleContainer;
+   typedef DataVector< TrackParticle_v1> TrackParticleContainer;
 }
 
 #endif // XAODTRACKING_TRACKPARTICLECONTAINERFWD_H

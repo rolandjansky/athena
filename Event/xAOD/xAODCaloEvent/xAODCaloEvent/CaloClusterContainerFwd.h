@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 #ifndef XAODCALOEVENT_CALOCLUSTERCONTAINERFWD_V1_H
 #define XAODCALOEVENT_CALOCLUSTERCONTAINERFWD_V1_H
 

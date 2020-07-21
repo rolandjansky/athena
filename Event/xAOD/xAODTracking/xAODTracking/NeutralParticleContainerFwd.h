@@ -18,10 +18,10 @@
 #include "xAODTracking/NeutralParticleFwd.h"
 
 // Declare that this is a vector of IParticle-derived objects
-DATAVECTOR_BASE_FWD( xAOD::NeutralParticle, xAOD::IParticle );
+DATAVECTOR_BASE_FWD( xAOD::NeutralParticle_v1, xAOD::IParticle );
 namespace xAOD {
    /// Provide a forward declaration for NeutralParticleContainer
-   typedef DataVector< NeutralParticle > NeutralParticleContainer;
+   typedef DataVector< NeutralParticle_v1> NeutralParticleContainer;
 }
 
 #endif // XAODTRACKING_NEUTRALPARTICLECONTAINERFWD_H

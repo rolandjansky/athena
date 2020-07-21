@@ -12,10 +12,10 @@
 #include "xAODBase/IParticleContainer.h"
 #include "xAODEgamma/EgammaFwd.h"
 
-DATAVECTOR_BASE_FWD( xAOD::Egamma, xAOD::IParticle);
+DATAVECTOR_BASE_FWD( xAOD::Egamma_v1, xAOD::IParticle);
 namespace xAOD {
    /// Definition of the current "egamma container version"
-  typedef DataVector<Egamma > EgammaContainer;
+  typedef DataVector<Egamma_v1> EgammaContainer;
 }
 
 #endif // XAODEGAMMA_EGAMMACONTAINERFWD_H

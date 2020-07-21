@@ -28,6 +28,8 @@
 // ROOT include(s):
 #include "Math/Vector4D.h"
 
+//Already include the DataVector specialization for this type
+#include "xAODTracking/NeutralParticleContainerFwd.h"
 
 namespace xAOD {
   /// Class describing a NeutralParticle.
@@ -145,6 +147,9 @@ namespace xAOD {
     }; // class NeutralParticle_v1
 
 } // namespace xAOD
+
+// Finish declaration of IParticle as a base class of NeutralParticle_v1
+DATAVECTOR_BASE_FIN( xAOD::NeutralParticle_v1, xAOD::IParticle );
 
 
 #endif // XAODTRACKING_VERSIONS_NEUTRALPARTICLE_V1_H
