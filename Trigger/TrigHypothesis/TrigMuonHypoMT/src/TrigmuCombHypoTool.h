@@ -71,12 +71,12 @@ class TrigmuCombHypoTool: public ::AthAlgTool {
     StatusCode multiplicitySelection(std::vector<TrigmuCombHypoTool::CombinedMuonInfo>& input) const;
    
     StatusCode applyOverlapRemoval(std::vector<TrigmuCombHypoTool::CombinedMuonInfo>& toolInput) const;
-    StatusCode checkOverlap(std::vector<TrigmuCombHypoTool::CombinedMuonInfo>& input) const;
+    StatusCode checkOverlap(std::vector<TrigmuCombHypoTool::CombinedMuonInfo*>& input) const;
     bool isOverlap(const xAOD::L2CombinedMuon *mf1, const xAOD::L2CombinedMuon *mf2) const;
     double dR(double eta1, double phi1, double eta2, double phi2) const;
     double invMass(double m1, double pt1, double eta1, double phi1,
                    double m2, double pt2, double eta2, double phi2) const;
-    StatusCode chooseBestMuon(std::vector<TrigmuCombHypoTool::CombinedMuonInfo>& input, std::vector<unsigned int> mucombResult) const;
+    StatusCode chooseBestMuon(std::vector<TrigmuCombHypoTool::CombinedMuonInfo*>& input, std::vector<unsigned int> mucombResult) const;
 
     HLT::Identifier m_decisionId;
     

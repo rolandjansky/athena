@@ -413,12 +413,12 @@ StatusCode TrigMufastHypoTool::applyOverlapRemoval(std::vector<TrigMufastHypoToo
 
    ATH_MSG_DEBUG("Running Overlap Removal for muFast");
 
-  std::vector<TrigMufastHypoTool::MuonClusterInfo> input;
+  std::vector<TrigMufastHypoTool::MuonClusterInfo*> input;
 
   for ( auto& i: toolInput ) {
     // If muon event has difference DecisionID, it shouldn't apply.
     if ( TrigCompositeUtils::passed( m_decisionId.numeric(), i.previousDecisionIDs ) ) {
-      input.emplace_back(i);
+      input.emplace_back(&i);
     }
   }
 
@@ -447,7 +447,7 @@ StatusCode TrigMufastHypoTool::applyOverlapRemoval(std::vector<TrigMufastHypoToo
     auto mufastNrAllEVs  = Monitored::Scalar("NrAllEVs", -9999.);
     auto monitorIt       = Monitored::Group(m_monTool, mufastNrAllEVs);
     mufastNrAllEVs = numMuon;
-    ATH_CHECK(checkOverlap(toolInput));
+    ATH_CHECK(checkOverlap(input));
     return StatusCode::SUCCESS;
   }
 
@@ -458,7 +458,7 @@ StatusCode TrigMufastHypoTool::applyOverlapRemoval(std::vector<TrigMufastHypoToo
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigMufastHypoTool::checkOverlap(std::vector<TrigMufastHypoTool::MuonClusterInfo>& input) const {
+StatusCode TrigMufastHypoTool::checkOverlap(std::vector<TrigMufastHypoTool::MuonClusterInfo*>& input) const {
 
   size_t numMuon = input.size();
   unsigned int i,j;
@@ -470,7 +470,7 @@ StatusCode TrigMufastHypoTool::checkOverlap(std::vector<TrigMufastHypoTool::Muon
   for(i=0; i<numMuon-1; i++){
     for(j=i+1; j<numMuon; j++){
       ATH_MSG_DEBUG("++ i=" << i << " vs j=" << j);
-      bool overlapped = isOverlap(input[i].muFast, input[j].muFast);
+      bool overlapped = isOverlap((*input[i]).muFast, (*input[j]).muFast);
       if( ! overlapped ){ // judged as different
 	ATH_MSG_DEBUG("   judged as: different objects");
 	if( mufastResult[i] == mufastResult[j] ) { // but marked as same by someone
@@ -534,7 +534,6 @@ StatusCode TrigMufastHypoTool::checkOverlap(std::vector<TrigMufastHypoTool::Muon
     auto mufastNrActiveEVs  = Monitored::Scalar("NrActiveEVs", -9999.);
     auto monitorIt          = Monitored::Group(m_monTool, mufastNrActiveEVs);
     mufastNrActiveEVs = n_uniqueMuon;
-    // for(i=0; i<numMuon; i++) uniqueMuon.emplace_back(input[i]);
   }
 
   return StatusCode::SUCCESS;
@@ -711,7 +710,7 @@ double TrigMufastHypoTool::invMass(double m1, double pt1, double eta1, double ph
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigMufastHypoTool::chooseBestMuon(std::vector<TrigMufastHypoTool::MuonClusterInfo>& input, std::vector<unsigned int> mufastResult) const
+StatusCode TrigMufastHypoTool::chooseBestMuon(std::vector<TrigMufastHypoTool::MuonClusterInfo*>& input, std::vector<unsigned int> mufastResult) const
 {
   size_t numMuon = input.size();
   unsigned int i,j,k;
@@ -731,7 +730,7 @@ StatusCode TrigMufastHypoTool::chooseBestMuon(std::vector<TrigMufastHypoTool::Mu
     if( mufastResult[i] != i ) {
       ATH_MSG_DEBUG( "   overlap to some one. skip." );
 
-      input[i].passOR = false;
+      (*input[i]).passOR = false;
 
       continue;
     }
@@ -753,7 +752,7 @@ StatusCode TrigMufastHypoTool::chooseBestMuon(std::vector<TrigMufastHypoTool::Mu
 	j=others[k];
 	// const LVL1::RecMuonRoI* muonRoI = input[j].RecRoI;
 	// float ptRoI = muonRoI->getThresholdValue();
-	const xAOD::L2StandAloneMuon* mf = input[j].muFast;
+	const xAOD::L2StandAloneMuon* mf = (*input[j]).muFast;
 	float ptMf  = fabs(mf->pt());
 	float ptRoI = mf->roiThreshold();
 	ATH_MSG_DEBUG("     ev/PtRoI/ptMf="<< j << "/" << ptRoI << "/" << ptMf);
@@ -777,10 +776,10 @@ StatusCode TrigMufastHypoTool::chooseBestMuon(std::vector<TrigMufastHypoTool::Mu
 	if( j != best_ev ) {
 	  ATH_MSG_DEBUG( "      EventView( j=" << j << " ) is not active" );
 
-	  input[j].passOR = false;
+	  (*input[j]).passOR = false;
 
 	  // monitoring
-	  const xAOD::L2StandAloneMuon* mf = input[j].muFast;
+	  const xAOD::L2StandAloneMuon* mf = (*input[j]).muFast;
 	  mufastNrOverlapped++;
 	  mufastOverlappedPt = mf->pt();
 	  mufastOverlappedEta = mf->etaMS();

@@ -340,11 +340,11 @@ StatusCode TrigmuCombHypoTool::applyOverlapRemoval(std::vector<TrigmuCombHypoToo
 
   ATH_MSG_DEBUG("Running Overlap Removal for muComb");
 
-  std::vector<TrigmuCombHypoTool::CombinedMuonInfo> input;
+  std::vector<TrigmuCombHypoTool::CombinedMuonInfo*> input;
 
   for ( auto& i: toolInput ) {
     if ( TrigCompositeUtils::passed( m_decisionId.numeric(), i.previousDecisionIDs) ){
-      input.emplace_back(i);
+      input.emplace_back(&i);
     }
   }
 
@@ -373,7 +373,7 @@ StatusCode TrigmuCombHypoTool::applyOverlapRemoval(std::vector<TrigmuCombHypoToo
     auto mucombNrAllEVs  = Monitored::Scalar("NrAllEVs", -9999.);
     auto monitorIt       = Monitored::Group(m_monTool, mucombNrAllEVs);
     mucombNrAllEVs = numMuon;
-    ATH_CHECK(checkOverlap(toolInput));
+    ATH_CHECK(checkOverlap(input));
     return StatusCode::SUCCESS;
   }
 
@@ -383,7 +383,7 @@ StatusCode TrigmuCombHypoTool::applyOverlapRemoval(std::vector<TrigmuCombHypoToo
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigmuCombHypoTool::checkOverlap(std::vector<TrigmuCombHypoTool::CombinedMuonInfo>& input) const {
+StatusCode TrigmuCombHypoTool::checkOverlap(std::vector<TrigmuCombHypoTool::CombinedMuonInfo*>& input) const {
 
   size_t numMuon = input.size();
   unsigned int i,j;
@@ -395,7 +395,7 @@ StatusCode TrigmuCombHypoTool::checkOverlap(std::vector<TrigmuCombHypoTool::Comb
   for(i=0; i<numMuon-1; i++){
     for(j=i+1; j<numMuon; j++){
       ATH_MSG_DEBUG("++ i=" << i << " vs j=" << j);
-      bool overlapped = isOverlap(input[i].muComb, input[j].muComb);
+      bool overlapped = isOverlap((*input[i]).muComb, (*input[j]).muComb);
       if( ! overlapped ){ // judged as different
 	ATH_MSG_DEBUG("   judged as: differenr objects");
 	if( mucombResult[i] == mucombResult[j] ) { // but marked as same by someone
@@ -460,14 +460,6 @@ StatusCode TrigmuCombHypoTool::checkOverlap(std::vector<TrigmuCombHypoTool::Comb
     auto monitorIt          = Monitored::Group(m_monTool, mucombNrActiveEVs);
     mucombNrActiveEVs = n_uniqueMuon;
   }
-
-  // if(n_uniqueMuon >= m_multiplicity){
-  //   for(i=0; i<n_uniqueMuon; i++){
-  //     ATH_MSG_DEBUG("Muon event pass through Chain/ID " << m_decisionId );
-  //     TrigCompositeUtils::addDecisionID( m_decisionId, uniqueMuon[i].decision );
-  //   }
-  // }
-  // else ATH_MSG_DEBUG("No muon event passed through selection " << m_decisionId << " because not meet the required number of muons");
 
   return StatusCode::SUCCESS;
 }
@@ -646,7 +638,7 @@ double TrigmuCombHypoTool::invMass(double m1, double pt1, double eta1, double ph
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigmuCombHypoTool::chooseBestMuon(std::vector<TrigmuCombHypoTool::CombinedMuonInfo>& input, std::vector<unsigned int> mucombResult) const
+StatusCode TrigmuCombHypoTool::chooseBestMuon(std::vector<TrigmuCombHypoTool::CombinedMuonInfo*>& input, std::vector<unsigned int> mucombResult) const
 {
   size_t numMuon = input.size();
   unsigned int i,j,k;
@@ -666,7 +658,7 @@ StatusCode TrigmuCombHypoTool::chooseBestMuon(std::vector<TrigmuCombHypoTool::Co
     if( mucombResult[i] != i ) {
       ATH_MSG_DEBUG( "   overlap to some one. skip." );
 
-      input[i].passOR = false;
+      (*input[i]).passOR = false;
 
       continue;
     }
@@ -686,7 +678,7 @@ StatusCode TrigmuCombHypoTool::chooseBestMuon(std::vector<TrigmuCombHypoTool::Co
 	j=others[k];
 
 	float ptCombMf  = 0.;
-	const xAOD::L2CombinedMuon* combMf = input[j].muComb;
+	const xAOD::L2CombinedMuon* combMf = (*input[j]).muComb;
 	ptCombMf  = fabs(combMf->pt()/CLHEP::GeV);
 	ATH_MSG_DEBUG("     j="<< j << " , ptCombMf=" << ptCombMf);
 	if( ptCombMf > maxPtCombMf ) {
@@ -701,10 +693,10 @@ StatusCode TrigmuCombHypoTool::chooseBestMuon(std::vector<TrigmuCombHypoTool::Co
 	if( j != best_ev ) {
 	  ATH_MSG_DEBUG( "      EventView( j=" << j << " ) is not active" );
 
-	  input[j].passOR = false;
+	  (*input[j]).passOR = false;
 
 	  // monitoring
-	  const xAOD::L2CombinedMuon* CombMf = input[j].muComb;
+	  const xAOD::L2CombinedMuon* CombMf = (*input[j]).muComb;
 	  mucombNrOverlapped++;
 	  mucombOverlappedPt = CombMf->pt()* CombMf->charge() /CLHEP::GeV;
 	  mucombOverlappedEta = CombMf->eta();
