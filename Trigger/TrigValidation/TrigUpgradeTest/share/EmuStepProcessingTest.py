@@ -43,6 +43,7 @@ for option in defaultOptions:
 TriggerFlags.generateMenuDiagnostics=True
 
 topSequence = AlgSequence()
+
 if opt.doMenu is True:
     generateL1DecoderAndChainsByMenu(topSequence)
 else:

@@ -9,15 +9,17 @@ atlas_add_component( TrigUpgradeTest
                      LINK_LIBRARIES AthenaBaseComps TrigSteeringEvent DecisionHandlingLib TrigCompositeUtilsLib
                      )
 
-atlas_add_test( emu_step_processing
-		SCRIPT test/test_emu_step_processing.sh
+foreach(test emu_step_processing emu_step_menu_processing)
+    set( rundir ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_${test} )
+    file( REMOVE_RECURSE ${rundir} )
+    file( MAKE_DIRECTORY ${rundir} )
+    atlas_add_test( ${test}
+		SCRIPT test/test_${test}.sh
 		LOG_SELECT_PATTERN "TrigSignatureMoniMT.*INFO HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*|TriggerSummaryStep.*+++ leg.*"
+    PROPERTIES WORKING_DIRECTORY ${rundir}
 		)
+endforeach()
 
-atlas_add_test( emu_step_menu_processing
-		SCRIPT test/test_emu_step_menu_processing.sh
-		LOG_SELECT_PATTERN "TrigSignatureMoniMT.*INFO HLT_.*|TrigSignatureMoniMT.*-- #[0-9]+ (Events|Features).*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*|TriggerSummaryStep.*+++ leg.*"
-		) 
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

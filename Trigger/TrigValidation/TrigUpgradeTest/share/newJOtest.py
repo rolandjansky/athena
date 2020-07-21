@@ -63,7 +63,7 @@ acc.merge(TriggerHistSvcConfig( flags ))
 
 from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT_newJO import generateMenu as generateHLTMenu
 from TriggerJobOpts.TriggerConfig import triggerRunCfg
-acc.merge( triggerRunCfg( flags, menu=generateHLTMenu ) )
+acc.merge( triggerRunCfg( flags, seqName = "AthMasterSeq", menu=generateHLTMenu ) )
 
 from RegionSelector.RegSelConfig import regSelCfg
 acc.merge( regSelCfg( flags ) )

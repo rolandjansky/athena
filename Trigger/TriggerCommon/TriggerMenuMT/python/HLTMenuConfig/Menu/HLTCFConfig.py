@@ -31,7 +31,7 @@ from builtins import map
 from builtins import range
 from collections import OrderedDict
 # Classes to configure the CF graph, via Nodes
-from AthenaCommon.CFElements import parOR, seqAND, seqOR
+from AthenaCommon.CFElements import parOR, seqAND
 from AthenaCommon.AlgSequence import dumpSequence
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import  stepCF_DataFlow_to_dot, stepCF_ControlFlow_to_dot, all_DataFlow_to_dot, create_dot
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
@@ -126,23 +126,18 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     topSequence = AlgSequence()
 
 
-    # connect to L1Decoder
-    l1decoder = [ d for d in topSequence.getChildren() if d.getType() == "L1Decoder" ]
-    if len(l1decoder)  != 1 :
-        raise RuntimeError(" Can't find 1 instance of L1Decoder in topSequence, instead found this in topSequence "+str(topSequence.getChildren()) )
-
-    # take L1Decoder out of topSeq
-    topSequence.remove( l1decoder )
-
-    # main HLT top sequence
-    hltTop = seqOR("HLTTop")
-
-    # put L1Decoder here
-    hltTop += l1decoder
+    # find main HLT top sequence (already set up in runHLT_standalone)
+    from AthenaCommon.CFElements import findSubSequence
+    hltBeginSeq = findSubSequence(topSequence, "HLTBeginSeq")
+    l1decoder = [ d for d in hltBeginSeq.getChildren() if d.getType() == "L1Decoder" ]
 
     # add the HLT steps Node
     steps = seqAND("HLTAllSteps")
+    hltTop = findSubSequence(topSequence, "HLTTop")
     hltTop +=  steps
+
+    hltEndSeq = parOR("HLTEndSeq")
+    hltTop += hltEndSeq
 
     # make DF and CF tree from chains
     finalDecisions = decisionTreeFromChains(steps, triggerConfigHLT.configsList(), triggerConfigHLT.dictsList(), newJO)
@@ -151,8 +146,8 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     for step in finalDecisions:
         flatDecisions.extend (step)
 
-    summary= makeSummary("Final", flatDecisions)
-    hltTop += summary
+    summary = makeSummary("Final", flatDecisions)
+    hltEndSeq += summary
 
     # TODO - check we are not running things twice. Once here and once in TriggerConfig.py
 
@@ -168,7 +163,7 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     Configurable.configurableRun3Behavior=1
     summaryAcc, summaryAlg = triggerSummaryCfg( ConfigFlags, hypos )
     Configurable.configurableRun3Behavior=0
-    hltTop += conf2toConfigurable( summaryAlg )
+    hltEndSeq += conf2toConfigurable( summaryAlg )
     appendCAtoAthena( summaryAcc )
     decObj = collectDecisionObjects( hypos, filters, l1decoder[0], summaryAlg )
     decObjHypoOut = collectHypoDecisionObjects(hypos, inputs=False, outputs=True)
@@ -176,17 +171,17 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     monAcc, monAlg = triggerMonitoringCfg( ConfigFlags, hypos, filters, l1decoder[0] )
     edmAlg = triggerMergeViewsAndAddMissingEDMCfg(['AOD', 'ESD'], hypos, viewMakers, decObj, decObjHypoOut)
     Configurable.configurableRun3Behavior=0
-    hltTop += conf2toConfigurable( monAlg )
+    hltEndSeq += conf2toConfigurable( monAlg )
     appendCAtoAthena( monAcc )
 
     # this is a shotcut for now, we always assume we may be writing ESD & AOD outputs, so all gaps will be filled
-    hltTop += conf2toConfigurable(edmAlg)
+
+    hltEndSeq += conf2toConfigurable(edmAlg)
 
     # Test the configuration
     from TriggerMenuMT.HLTMenuConfig.Menu.CFValidation import testHLTTree
     testHLTTree( hltTop )
 
-    topSequence += hltTop
 
 def matrixDisplayOld( allCFSeq ):
     from collections import defaultdict
