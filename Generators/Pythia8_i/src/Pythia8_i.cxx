@@ -62,7 +62,7 @@ m_sigmaTotal(0.),
 m_conversion(1.),
 m_failureCount(0),
 m_procPtr(0),
-m_userHooksPtrs(std::vector<UserHooksPtrType>()),
+m_userHooksPtrs(),
 m_doLHE3Weights(false),
 m_athenaTool("IPythia8Custom")
 {
@@ -77,7 +77,7 @@ m_athenaTool("IPythia8Custom")
   declareProperty("FxFxXS", m_doFxFxXS = false);
   declareProperty("MaxFailures", m_maxFailures = 10);//the max number of consecutive failures
   declareProperty("UserProcess", m_userProcess="");
-  declareProperty("UserHooks", m_userHooks);
+  declareProperty("UserHooks", m_userHooks={});
   declareProperty("UserResonances", m_userResonances="");
   declareProperty("UseLHAPDF", m_useLHAPDF=true);
   declareProperty("ParticleData", m_particleDataFile="");
@@ -106,18 +106,12 @@ Pythia8_i::~Pythia8_i() {
   delete m_atlasRndmEngine;
 
   if(m_procPtr != 0)     delete m_procPtr;
-
-#ifdef PYTHIA_VERSION_INTEGER
-  #if PYTHIA_VERSION_INTEGER < 8300
+  
+  #ifndef PYTHIA8_3SERIES
   for(UserHooksPtrType ptr: m_userHooksPtrs){
     delete ptr;
   }
   #endif
-#else
-  for(UserHooksPtrType ptr: m_userHooksPtrs){
-    delete ptr;
-  }
-#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -149,7 +143,8 @@ StatusCode Pythia8_i::genInitialize() {
 
   bool firstHook=true;
   for(const auto &hook: m_userHooks){
-    m_userHooksPtrs.push_back(Pythia8_UserHooks::UserHooksFactory::create(hook));
+    ATH_MSG_INFO("Adding user hook " + hook + ".");
+    m_userHooksPtrs.push_back(PYTHIA8_PTRWRAP(Pythia8_UserHooks::UserHooksFactory::create(hook)) );
     bool canSetHook = true;
     if(firstHook){
       canSetHook = m_pythia.setUserHooksPtr(m_userHooksPtrs.back());
