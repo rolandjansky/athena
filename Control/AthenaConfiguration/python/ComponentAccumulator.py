@@ -842,7 +842,7 @@ def __setProperties( destConfigurableInstance, sourceConf2Instance, indent="" ):
 def conf2toConfigurable( comp, indent="" ):
     """
     Method converts from Conf2 ( comp argument ) to old Configurable
-    If the Configurable of the same nams exists, the prperties merting process is invoked
+    If the Configurable of the same name exists, the properties merging process is invoked
     """
     _log = logging.getLogger( "conf2toConfigurable".ljust(30) )
     from AthenaCommon.CFElements import compName
@@ -905,6 +905,13 @@ def conf2toConfigurable( comp, indent="" ):
         return classObj
 
 
+    def __listHelperToList(listOrDictHelper):
+        if isinstance(listOrDictHelper,GaudiConfig2.semantics._ListHelper):
+            return [ __listHelperToList(l) for l in listOrDictHelper.data]
+        elif isinstance(listOrDictHelper,GaudiConfig2.semantics._DictHelper):
+            return listOrDictHelper.data
+        else:
+            return listOrDictHelper
 
     def __areSettingsSame( existingConfigurableInstance, newConf2Instance, indent="" ):
         _log.debug( "{}Checking if setting is the same {}".format( indent, existingConfigurableInstance.getFullName() ) )
@@ -922,24 +929,21 @@ def conf2toConfigurable( comp, indent="" ):
                 for oldC, newC in zip( alreadySetProperties[pname], pvalue):
                     __areSettingsSame( oldC, newC, __indent(indent))
             elif "PrivateToolHandle" in propType or "GaudiConfig2.Configurables" in propType or "ServiceHandle" in propType:
-                exisitngVal = getattr(existingConfigurableInstance, pname)
+                existingVal = getattr(existingConfigurableInstance, pname)
                 if isinstance( pvalue, str ):
                     _log.warning("{}The handle {} of component {}.{} is just a string {}, skipping deeper checks, configuration may be incorrect".format(indent, propType, newConf2Instance.name, pname, pvalue))
                 else:
-                    _log.debug( "{}Some kind of handle  and, object type {} existing {}".format( indent, type(pvalue), type(exisitngVal) ) )
-                    __areSettingsSame( exisitngVal, pvalue, indent)
+                    _log.debug( "{}Some kind of handle  and, object type {} existing {}".format( indent, type(pvalue), type(existingVal) ) )
+                    __areSettingsSame( existingVal, pvalue, indent)
             else:
-                if isinstance(pvalue,(GaudiConfig2.semantics._ListHelper,GaudiConfig2.semantics._DictHelper)):
-                    pvalue=pvalue.data
-
+                pvalue=__listHelperToList(pvalue)
                 if alreadySetProperties[pname] != pvalue:
                     _log.info("{}Merging property: {} for {}".format(indent, pname, newConf2Instance.getName() ))
                     # create surrogate
                     clone = newConf2Instance.getInstance("Clone")
                     setattr(clone, pname, alreadySetProperties[pname])
-                    updatedPropValue = newConf2Instance._descriptors[pname].semantics.merge( getattr(newConf2Instance, pname), getattr(clone, pname))
-                    if isinstance(updatedPropValue,(GaudiConfig2.semantics._ListHelper,GaudiConfig2.semantics._DictHelper)):
-                        updatedPropValue=updatedPropValue.data
+                    updatedPropValue = __listHelperToList(newConf2Instance._descriptors[pname].semantics.merge( getattr(newConf2Instance, pname), getattr(clone, pname)))
+                        
                     setattr(existingConfigurable, pname, updatedPropValue)
                     del clone
                     _log.info("{} invoked GaudiConf2 semantics to merge the {} and the {} to {} for property {} of {}".format(
@@ -987,19 +991,22 @@ def appendCAtoAthena(ca):
         _log.info( "Merging services" )
         for comp in ca.getServices():
             instance = conf2toConfigurable( comp, indent="  " )
-            ServiceMgr += instance
+            if instance not in ServiceMgr:
+                ServiceMgr += instance
 
     if  len(ca._conditionsAlgs) != 0:
         _log.info( "Merging condition algorithms" )
         for comp in ca._conditionsAlgs:
             instance = conf2toConfigurable( comp, indent="  " )
-            athCondSeq += instance
+            if instance not in athCondSeq:
+                athCondSeq += instance
 
     if len( ca.getPublicTools() ) != 0:
         _log.info( "Merging public tools" )
         for comp in ca.getPublicTools():
             instance = conf2toConfigurable( comp, indent="  " )
-            ToolSvc += instance
+            if instance not in ToolSvc:
+                ToolSvc += instance
 
     if len( ca.getAppProps() ) != 0:
         _log.info( "Merging ApplicationMgr properties" )
