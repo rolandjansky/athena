@@ -9,7 +9,6 @@
 #include "JetMomentTools/JetTrackSumMomentsTool.h"
 #include "JetMomentTools/JetClusterMomentsTool.h"
 #include "JetMomentTools/JetVoronoiMomentsTool.h"
-#include "JetMomentTools/JetMuonSegmentMomentsTool.h"
 #include "JetMomentTools/JetPtAssociationTool.h"
 #include "JetMomentTools/JetIsolationTool.h"
 #include "JetMomentTools/JetLArHVTool.h"
@@ -33,7 +32,6 @@ DECLARE_COMPONENT( JetTrackMomentsTool )
 DECLARE_COMPONENT( JetTrackSumMomentsTool )
 DECLARE_COMPONENT( JetClusterMomentsTool )
 DECLARE_COMPONENT( JetVoronoiMomentsTool )
-DECLARE_COMPONENT( JetMuonSegmentMomentsTool )
 DECLARE_COMPONENT( JetPtAssociationTool )
 DECLARE_COMPONENT( JetIsolationTool )
 DECLARE_COMPONENT( JetLArHVTool )
