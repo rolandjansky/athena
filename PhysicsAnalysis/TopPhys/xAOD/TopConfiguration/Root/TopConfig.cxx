@@ -258,6 +258,9 @@ namespace top {
     m_doForwardJVTInMETCalculation(false),
     m_saveFailForwardJVTJets(false),
     m_fJVTWP("None"),
+
+    // MET configuration
+    m_METUncertaintiesConfigDir("SetMe"),
     
     // Ghost Track Configuration
     m_ghostTrackspT(500.),
@@ -1310,6 +1313,7 @@ namespace top {
       ATH_MSG_WARNING("TopConfig::setConfigSettings: fJVT WP set to Medium and fJVT in MET requested, MET working point will be changed to Tenacious to maintain compatibility with fJVT!!!");
     }
 
+
     this->largeRJetPtcut(std::stof(settings->value("LargeRJetPt")));
     this->largeRJetEtacut(std::stof(settings->value("LargeRJetEta")));
     this->largeRJetUncertainties_NPModel(settings->value("LargeRJetUncertainties_NPModel"));
@@ -1368,6 +1372,9 @@ namespace top {
       ATH_MSG_WARNING("TopConfig::setConfigSettings: Unrecognized option for \"StoreJetTruthLabels\", assuming True");
       this->jetStoreTruthLabels(true);
     }
+
+    // MET Configuration
+    this->METUncertaintiesConfigDir(settings->value("AdvancedUsage_METUncertaintiesConfigDir"));
 
     // for top mass analysis, per default set to 1.0!
     m_JSF = std::stof(settings->value("JSF"));

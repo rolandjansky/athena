@@ -1363,6 +1363,14 @@ namespace top {
     inline virtual float JSF() const {return m_JSF;}
     inline virtual float bJSF() const {return m_bJSF;}
 
+    // MET Configuration
+    inline virtual void METUncertaintiesConfigDir(const std::string& METConfigDir) {
+      if (!m_configFixed) {
+        m_METUncertaintiesConfigDir = METConfigDir;
+      }
+    }
+    inline virtual const std::string& METUncertaintiesConfigDir() const {return m_METUncertaintiesConfigDir;}
+
     // Tau configuration setters
     inline virtual void tauPtcut(const float pt) {
       if (!m_configFixed) {
@@ -2212,6 +2220,9 @@ namespace top {
     bool m_doForwardJVTInMETCalculation;
     bool m_saveFailForwardJVTJets;
     std::string m_fJVTWP;
+
+    // MET configuration
+    std::string m_METUncertaintiesConfigDir; //Path prefix for directory with MET calibration configs
     
     //Ghost tracks quality
     float m_ghostTrackspT;
