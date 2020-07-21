@@ -103,31 +103,53 @@ namespace Pythia8{
 
   class Suep_shower 
   { 
-  public: 
-    
-    // Data Members 
-    double m;
-    double Temp;
-    double Etot; 
+  public:
     
     // Constructor
     Suep_shower(double mass, double temperature, double energy);
-    
-    // methods
-    double f(double p);
-    double fp(double p);
-    double test_fun(double p);
-    std::vector<double> generate_fourvector(); 
+
+    /** Generate a shower event, in the rest frame of the showe. */
     std::vector< std::vector <double> > generate_shower();
-    double reballance_func(double a, std::vector< std::vector <double> > event);
+
+  protected: 
+    
+    /** Mass of the dark mesons to be generated in the shower */
+    double m;
+
+    /** Temperature parameter */
+    double Temp;
+
+    /** Total energy of the system */
+    double Etot; 
+
+  protected:
+    
+    /** Maxwell-Boltzman distribution, slightly massaged */
+    double f(double p);
+
+    /** Derivative of Maxwell-Boltzmann */
+    double fp(double p);
+
+    /** Test function to be solved for p_plus,p_minus */
+    double test_fun(double p);
+
+    /** generate one random 4 vector from the thermal distribution */
+    std::vector<double> generateFourVector(); 
+
+    /** auxiliary function which computes the total energy difference as a function of the 
+     * momentum vectors and a scale factor "a" to balance energy */
+    double reballance_func(double a, const std::vector< std::vector <double> > &event);
     
   private:
-    // private variables
+    /** mass/Temperature ratio */
     double A;
+    /** convenience function of mass/Temperature ratio */
     double p_m;
-    std::pair <double,double> p_plusminus;
+    /** solutions for shower generation. See paper for details. */
     double p_plus, p_minus;
+    /** solutions in Lambda for shower generation */
     double lambda_plus,lambda_minus;
+    /** solutions for shower generation. See paper for details. */
     double q_plus, q_minus, q_m;
     
   }; 
@@ -140,9 +162,9 @@ namespace Pythia8{
     Etot=energy;
     
     A=m/Temp;
-    p_m=sqrt(2/(A*A)*(1+sqrt(1+A*A)));
+    p_m=std::sqrt(2/(A*A)*(1+std::sqrt(1+A*A)));
     
-    double pmax=sqrt(2+2*sqrt(1+A*A))/A; // compute the location of the maximum, to split the range 
+    double pmax=std::sqrt(2+2*std::sqrt(1+A*A))/A; // compute the location of the maximum, to split the range 
         
     tolerance tol = 0.00001;
     p_plus = (bisect(boost::bind(&Suep_shower::test_fun, this, _1),pmax,50.0, tol)).first; // first root
@@ -157,27 +179,27 @@ namespace Pythia8{
 
   // maxwell-boltzman distribution, slightly massaged
   double  Suep_shower::f(double p){
-    return p*p*exp(-A*p*p/(1+sqrt(1+p*p)));
+    return p*p*exp(-A*p*p/(1+std::sqrt(1+p*p)));
   }
 
   // derivative of maxwell-boltzmann
   double  Suep_shower::fp(double p){
-    return exp(-A*p*p/(1+sqrt(1+p*p)))*p*(2-A*p*p/sqrt(1+p*p));
+    return exp(-A*p*p/(1+std::sqrt(1+p*p)))*p*(2-A*p*p/std::sqrt(1+p*p));
   }
 
-  // test function to be solved for p_plusminus
+  // test function to be solved for p_plus, p_minus
   double  Suep_shower::test_fun(double p){
     return log(f(p)/f(p_m))+1.0;
   }
 
   // generate one random 4 vector from the thermal distribution
-  vector<double> Suep_shower::generate_fourvector(){
+  vector<double> Suep_shower::generateFourVector(){
     
     vector<double> fourvec;
     double en, phi, theta, p;//kinematic variables of the 4 vector
     
     // first do momentum, following arxiv:1305.5226
-    double U, V, X, Y, E;
+    double U(0.0), V(0.0), X(0.0), Y(0.0), E(0.0);
     int i=0;      
     while(i<100){
       U = ((double) rand() / RAND_MAX);
@@ -213,7 +235,7 @@ namespace Pythia8{
     theta = acos(2.0*((double) rand() / RAND_MAX)-1.0);
     
     // compose the 4 vector
-    en = sqrt(p*p+(this->m)*(this->m));
+    en = std::sqrt(p*p+(this->m)*(this->m));
     fourvec.push_back(en);
     fourvec.push_back(p*cos(phi)*sin(theta));
     fourvec.push_back(p*sin(phi)*sin(theta));
@@ -225,12 +247,12 @@ namespace Pythia8{
   // auxiliary function which computes the total energy difference as a function of the momentum vectors and a scale factor "a"
   // to ballance energy, we solve for "a" by demanding that this function vanishes
   // By rescaling the momentum rather than the energy, I avoid having to do these annoying rotations from the previous version 
-  double Suep_shower::reballance_func(double a, vector< vector <double> > event){
+  double Suep_shower::reballance_func(double a, const vector< vector <double> > &event){
     double result =0.0;
     double p2;
     for(unsigned n = 0; n<event.size();n++){
       p2 = event[n][1]*event[n][1] + event[n][2]*event[n][2] + event[n][3]*event[n][3];
-      result += sqrt(a*a*p2 + (this->m)* (this->m));
+      result += std::sqrt(a*a*p2 + (this->m)* (this->m));
     }
     return result - (this->Etot);
   }
@@ -243,7 +265,7 @@ namespace Pythia8{
     
     // fill up event record
     while(sum_E<(this->Etot)){
-      event.push_back(this->generate_fourvector());
+      event.push_back(this->generateFourVector());
       sum_E += (event.back()).at(0);     
     }
     
@@ -273,7 +295,7 @@ namespace Pythia8{
       event[n][2] = p_scale*event[n][2];
       event[n][3] = p_scale*event[n][3];
       // force the energy with the on-shell condition
-      event[n][0] = sqrt(event[n][1]*event[n][1] + event[n][2]*event[n][2] + event[n][3]*event[n][3] + (this->m)*(this->m));
+      event[n][0] = std::sqrt(event[n][1]*event[n][1] + event[n][2]*event[n][2] + event[n][3]*event[n][3] + (this->m)*(this->m));
     }
     
     return event;    
