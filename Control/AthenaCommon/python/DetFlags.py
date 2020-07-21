@@ -145,7 +145,6 @@ class DetFlags:
             self.TRT_setOn()
             self.BCM_setOn()
             self.DBM_setOn()
-            self.HGTD_setOn()
         def ID_setOff (self):
             self.bpipe_setOff()
             self.pixel_setOff()
@@ -215,9 +214,9 @@ class DetFlags:
         def Forward_allOn (self):
             return self.ALFA_on() & self.ZDC_on() & self.Lucid_on() & self.AFP_on() & self.FwdRegion_on()
         def ID_on (self):
-            return self.bpipe_on() | self.pixel_on() | self.SCT_on() | self.TRT_on() | self.BCM_on() | self.DBM_on() | self.HGTD_on()
+            return self.bpipe_on() | self.pixel_on() | self.SCT_on() | self.TRT_on() | self.BCM_on() | self.DBM_on()
         def ID_allOn (self):
-            return self.bpipe_on() & self.pixel_on() & self.SCT_on() & self.TRT_on() & self.BCM_on() & self.DBM_on() # TODO: Add HGTD, but should this be upgrade aware? Should probably return true if Run-2 job where HGTD isn't on, right? I don't see this for Micromegas below though... /CO
+            return self.bpipe_on() & self.pixel_on() & self.SCT_on() & self.TRT_on() & self.BCM_on() & self.DBM_on()
         def LAr_on (self):
             return self.em_on() | self.HEC_on() | self.FCal_on() 
         def LAr_allOn (self):
@@ -463,7 +462,7 @@ class DetFlags:
         cls._setAllTask('Muon','setOff')
 
     def all_setOn (cls):
-        cls._setAllTask('all','setOn') # TODO: how can one protect against turning both MBTS and HGTD on? /CO
+        cls._setAllTask('all','setOn')
     def all_setOff (cls):
         cls._setAllTask('all','setOff')
 
