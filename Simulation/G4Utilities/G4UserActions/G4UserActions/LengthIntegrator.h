@@ -50,7 +50,7 @@ namespace G4UA
 
       struct Config
       {
-        bool isITk=false;
+        bool isPhaseII=false;
         bool doElements=false;
       };
 
@@ -69,11 +69,10 @@ namespace G4UA
 
     private:
 
-      std::string getVolumeType(std::string s);
-      std::string getLayerName(double r, double z);
+      const std::string getVolumeType(const std::string& s) const;
+      const std::string getLayerName(double r, double z) const;
       void fillNtuple();
-      std::string getMaterialClassification(std::string name, std::string volName);
-
+      const std::string getMaterialClassification(const std::string& name, const std::string& volName) const;
 
       // Holder for G4 math tools
       G4Pow* m_g4pow;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "G4UserActions/LengthIntegrator.h"
@@ -22,7 +22,6 @@
 #include "G4PhysicalConstants.hh"
 #include "G4SystemOfUnits.hh"
 
-
 // System includes
 #include <mutex>
 
@@ -33,7 +32,6 @@
 #include "GaudiKernel/IMessageSvc.h"
 //#include "AthenaBaseComps/AthMessaging.h"
 
-
 // Anonymous namespace for file-global mutexes and helper functions
 namespace
 {
@@ -43,12 +41,11 @@ namespace
   /// Helper function to attempt a retrieve a hist from the hist svc
   template<class HistType>
   bool getHist(const ServiceHandle<ITHistSvc>& hSvc,
-               const std::string& histPath, HistType*& ptr)
-  {
+               const std::string& histPath, HistType*& ptr) {
     TH1* h = nullptr;
-    if(hSvc->exists(histPath)) {
-      if(hSvc->getHist(histPath, h).isSuccess()) {
-        if((ptr = dynamic_cast<HistType*>(h))) return true;
+    if (hSvc->exists(histPath)) {
+      if (hSvc->getHist(histPath, h).isSuccess()) {
+        if ((ptr = dynamic_cast<HistType*>(h))) return true;
       }
       else throw GaudiException("Failed to getHist", "GetHistErr", StatusCode::FAILURE);
     }
@@ -111,8 +108,6 @@ namespace G4UA
     // To view Debug messages, it is neccesary to explicitly set the log level for this service
     // There has to be a more elegant way of assigning the global Sim_tf log level
     AthMessaging::msg().setLevel(MSG::Level::DEBUG);
-    
-
 
     // Protect concurrent access to the non-thread-safe hist svc
     std::lock_guard<std::mutex> lock(gHistSvcMutex);
@@ -175,15 +170,12 @@ namespace G4UA
     //total X0/L0 per event
     m_total_X0 = 0;
     m_total_L0 = 0;
-
   }
-
 
   //---------------------------------------------------------------------------
   // Setup hists for one detector
   //---------------------------------------------------------------------------
-  std::string LengthIntegrator::getMaterialClassification(std::string name, std::string volName)
-  { 
+  const std::string LengthIntegrator::getMaterialClassification(const std::string& name, const std::string& volName) const {
 /*
     if(pixelonly){
       if(name.find("SCT") != std::string::npos ) continue;
@@ -201,8 +193,8 @@ namespace G4UA
       return "ActiveSensors";
     }
 
-    //For ATLAS run-2 detector
-    if(!m_config.isITk){
+    // For ATLAS detector in Runs 1-3 (wrt ID)
+    if (!m_config.isPhaseII) {
       if(name.find("Cooling") != std::string::npos) return "Cooling";
       if(name.find("Cool") != std::string::npos) return "Cooling";
       if(name.find("CO2") != std::string::npos) return "Cooling";
@@ -225,12 +217,8 @@ namespace G4UA
       if(name.find("PST") != std::string::npos) return "PST";
       if(name.find("IST") != std::string::npos) return "IST";
       if(name.find("Disk") != std::string::npos) return "SupportStructure";
-      //if(name.find("L0") != std::string::npos) return "SupportStructure";
-      //if(name.find("L1") != std::string::npos) return "SupportStructure";
-      //if(name.find("L2") != std::string::npos) return "SupportStructure";
       if(name.find("Panel") != std::string::npos) return "Services";
       if(name.find("Radiator") != std::string::npos) return "Radiators";
-      //if(name.find("Spine") != std::string::npos) return "ThermalSpine";
       if(name.find("Spine") != std::string::npos) return "Cooling";
       if(name.find("Fibre") != std::string::npos) return "Services";
       if(name.find("Chip") != std::string::npos) return "PixelChips";
@@ -259,7 +247,8 @@ namespace G4UA
       if(name.find("Twister") != std::string::npos) return "SupportStructure";
       if(name.find("Wolfram") != std::string::npos) return "SupportStructure";
       if(name.find("Aluminium") != std::string::npos) return "SupportStructure";
-    }else{
+    }
+    else { // Phase-II detector (wrt ITk and HGTD)
       //ITk
       if(name.find("SCT_TiMetal_heat") != std::string::npos) return "HeatExchangers";
       if(name.find("pix::HEX") != std::string::npos) return "HeatExchangers";
@@ -310,7 +299,6 @@ namespace G4UA
 
       // Older stuff
       if(name.find("CO2") != std::string::npos) return "Cooling";
-      //if(name.find("BoronNitrideEpoxy") != std::string::npos) return "Cooling"; <---- ???
       //
       if(name.find("BoronNitrideEpoxy") != std::string::npos) return "SupportStructure";
       if(name.find("FwdSpineOutBase") != std::string::npos) return "SupportStructure";
@@ -375,7 +363,7 @@ namespace G4UA
     if(name.find("PP1") != std::string::npos) return "PP1";
 
     //I don't know what these are.... TRT?
-    if(!m_config.isITk){
+    if(!m_config.isPhaseII){
       if(name.find("pix::") != std::string::npos) return "OtherPixel";
       //if(name.find("Titanium") != std::string::npos) return "OtherPixel";
       if(name.find("sct::") != std::string::npos) return "OtherSCT";
@@ -387,7 +375,8 @@ namespace G4UA
       if(name.find("Titanium") != std::string::npos) return "Services";
      // if(name.find("ArCO2O2") != std::string::npos) return "ActiveSensors"; //Overwritten by some other statement...
      // if(name.find("XeCO2O2") != std::string::npos) return "ActiveSensors";  //Overwritten by some other statement...
-    }else{ //FIXME Why though
+    }
+    else { //FIXME Why though
       if(name.find("PP0") != std::string::npos) return "PP1"; //Grouping PP0 and PP1
     }
       
@@ -408,7 +397,6 @@ namespace G4UA
 
     if(name.find("Pigtail") != std::string::npos) return "Services"; //Overwritten by some other statement...
   
-
     if(name.find("IPT") != std::string::npos) return "IPT";     
     if(name.find("PixType2") != std::string::npos) return "PP1"; // Strip PP1 type2 volumes
     if(name.find("AlMetal") != std::string::npos) return "PP1"; //SCT::pixPP1outer
@@ -416,30 +404,12 @@ namespace G4UA
     if(name.find("SS304") != std::string::npos) return "SupportStructure"; //SCT::RailSquare ?? Guess this is encasing for pp1?
     if(volName.find("BeamPipe") != std::string::npos) return "BeamPipe"; //Cases of Valmat/VespelRing/PyrogelXT/Pump_Ti
 
+    ATH_MSG_DEBUG("Material not found: " << name << "  vol:" <<  volName);
 
-
-
-    //TODO Are these necessary?
-    /*
-    if(searchstring=="M_"){
-      if(name.find("Kapton") != std::string::npos) return "BeamPipe";
-    }else{
-      if(name.find("Kapton") != std::string::npos) return "Services";
-    }
-    */
-    //if(name.find("Iron") != std::string::npos) return "BeamPipe";
-
-    if(std::find(m_material_not_found.begin(),m_material_not_found.end(),name) == m_material_not_found.end()){
-      m_material_not_found.push_back(name);
-     
-      ATH_MSG_DEBUG("Material not found: " << name << "  vol:" <<  volName);
-    }
-    
     return "NONE";
-
   }
 
-  void LengthIntegrator::fillNtuple(){
+  void LengthIntegrator::fillNtuple() {
 
       m_tree->Fill();
 
@@ -465,7 +435,6 @@ namespace G4UA
       m_collected_material_elements.clear();
   }
 
-
   //---------------------------------------------------------------------------
   // Finalize event measurements
   //---------------------------------------------------------------------------
@@ -480,9 +449,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   // Accumulate results from one step
   //---------------------------------------------------------------------------
-  void LengthIntegrator::UserSteppingAction(const G4Step* aStep)
-  {
-
+  void LengthIntegrator::UserSteppingAction(const G4Step* aStep) {
     //Get information of the step
     G4TouchableHistory* touchHist = (G4TouchableHistory*) aStep->GetPreStepPoint()->GetTouchable();
     G4LogicalVolume* lv = touchHist->GetVolume()->GetLogicalVolume();
@@ -490,16 +457,15 @@ namespace G4UA
     G4ThreeVector endPoint = aStep->GetPostStepPoint()->GetPosition();
     G4Material* mat = lv->GetMaterial();
 
-    std::string volName = lv->GetName();
-    std::string matName = mat->GetName();
+    const std::string volName = lv->GetName();
+    const std::string matName = mat->GetName();
+
     std::string groupmaterial = getMaterialClassification(matName, volName); //Groups material into "general" categories, supports/sensors/pixels/cooling/etc
     std::string volumetype = getVolumeType(matName);
-
     double radl = mat->GetRadlen();
     double intl = mat->GetNuclearInterLength();
     double stepl = aStep->GetStepLength();
     double density = mat->GetDensity()*CLHEP::cm3/CLHEP::gram;
-
 
     // FIXME: using DBL_MAX just ensures double overflow below.
     double thickstepRL = radl != 0 ? stepl/radl : DBL_MAX;
@@ -509,28 +475,25 @@ namespace G4UA
     // that is located in the beampipe model at very eta ~ 6. This condition should not be used
     //if(fabs(hitPoint.z()) > 3450.) return;
 
-
     // Get Elements for the material only do this if m_config.doElements is set
-    if(m_config.doElements){
-	    G4double lambda0 = 35*g/cm2;	
-  	  const G4ElementVector* eVec = mat->GetElementVector();
+    if (m_config.doElements) {
+      G4double lambda0 = 35*g/cm2;	
+      const G4ElementVector* eVec = mat->GetElementVector();
       std::vector<double> tmp_collected_material_element_X0;
       std::vector<double> tmp_collected_material_element_L0;
       std::vector<std::string> tmp_collected_material_element;
-	    for (size_t i=0 ; i < mat->GetNumberOfElements() ; ++i) {
-	      double el_thickstepRL = stepl * (mat->GetVecNbOfAtomsPerVolume())[i] * (*eVec)[i]->GetfRadTsai();
-	      double el_thickstepIL = stepl * amu/lambda0 * (mat->GetVecNbOfAtomsPerVolume())[i] * m_g4pow->Z23( G4int( (*eVec)[i]->GetN() + 0.5 ) );
+      for (size_t i=0 ; i < mat->GetNumberOfElements() ; ++i) {
+	double el_thickstepRL = stepl * (mat->GetVecNbOfAtomsPerVolume())[i] * (*eVec)[i]->GetfRadTsai();
+	double el_thickstepIL = stepl * amu/lambda0 * (mat->GetVecNbOfAtomsPerVolume())[i] * m_g4pow->Z23( G4int( (*eVec)[i]->GetN() + 0.5 ) );
 
         tmp_collected_material_element_X0.push_back(el_thickstepRL);
         tmp_collected_material_element_L0.push_back(el_thickstepIL);
         tmp_collected_material_element.push_back((*eVec)[i]->GetName());
       }
-
       m_collected_material_element_X0.push_back(tmp_collected_material_element_X0);
       m_collected_material_element_L0.push_back(tmp_collected_material_element_L0);
       m_collected_material_elements.push_back(tmp_collected_material_element);
     }
-
 
     //Fill information for the step
     m_collected_X0.push_back(thickstepRL);
@@ -540,8 +503,8 @@ namespace G4UA
     m_collected_density.push_back(density);
     m_collected_volume.push_back(volName);
 
-    m_total_X0+=thickstepRL;
-    m_total_L0+=thickstepIL;
+    m_total_X0 += thickstepRL;
+    m_total_L0 += thickstepIL;
 
     m_collected_inhitr.push_back(hitPoint.perp());
     m_collected_inhitz.push_back(hitPoint.z());
@@ -551,18 +514,15 @@ namespace G4UA
 
     m_collected_groupedmaterial.push_back(groupmaterial);
     m_collected_volumetype.push_back(volumetype);
-  
   }
 
-
-  std::string LengthIntegrator::getVolumeType(std::string s){
-
+  const std::string LengthIntegrator::getVolumeType(const std::string& s) const {
     std::string type = "";
     auto colsPos = s.find("::");
     if (colsPos != std::string::npos)
-	      type = s.substr(0, colsPos);
+      type = s.substr(0, colsPos);
     else
-	  type=s;
+      type=s;
     return type;
   }
 
