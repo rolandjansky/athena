@@ -173,7 +173,19 @@ void ZDCTreeAnalysis::OpenOutputTree(std::string file)
     _outTree->Branch("zdc_samplesDeriv", &zdc_samplesDeriv);
     _outTree->Branch("zdc_samplesDeriv2nd", &zdc_samplesDeriv2nd);
 
+    _outTree->Branch("zdc_maxAmpModule", zdc_maxAmpModule, "zdc_maxAmpModule[2]/I");
+    _outTree->Branch("zdc_maxAmp"      , zdc_maxAmp      , "zdc_maxAmp[2]/F"      );
+
     _outTree->Branch("zdc_delayedBS", zdc_delayedBS, "zdc_delayedBS[2][4]/F");      // Bill
+
+    if (mcBranches) {
+        _outTree->Branch("zdc_maxSumTruthEnergyModule"   , zdc_maxSumTruthEnergyModule   , "zdc_maxSumTruthEnergyModule[2]/I"   );
+        _outTree->Branch("zdc_maxSumTruthEnergy"         , zdc_maxSumTruthEnergy         , "zdc_maxSumTruthEnergy[2]/F"         );
+        _outTree->Branch("zdc_maxSumTruthEnergyGapModule", zdc_maxSumTruthEnergyGapModule, "zdc_maxSumTruthEnergyGapModule[2]/I");
+        _outTree->Branch("zdc_maxSumTruthEnergyGap"      , zdc_maxSumTruthEnergyGap      , "zdc_maxSumTruthEnergyGap[2]/F"      );
+        _outTree->Branch("zdc_sumTruthEnergy"            , zdc_sumTruthEnergy            , "zdc_sumTruthEnergy[2][4]/F"         );
+        _outTree->Branch("zdc_sumTruthEnergyGap"         , zdc_sumTruthEnergyGap         , "zdc_sumTruthEnergyGap[2][4]/F"      );
+    }
 
     _doOutput = true;
 }
@@ -256,6 +268,34 @@ void ZDCTreeAnalysis::Loop(int numEntries, int startEntry)
 
             if (modEntry == 0) {
                 std::cout << "Processed event " << jentry << std::endl;
+            }
+        }
+
+        if (mcBranches) {
+            for (size_t side : {0, 1}) {
+                int   _maxSumTruthEnergyModule    = 0;
+                float _maxSumTruthEnergy          = 0;
+                int   _maxSumTruthEnergyGapModule = 0;
+                float _maxSumTruthEnergyGap       = 0;
+                for (size_t module : {0, 1, 2, 3}) {
+                    zdc_sumTruthEnergy   [side][module] = zdc_TotalTruthEnergySum[side][module][0] + zdc_TotalTruthEnergySum[side][module][1];
+                    zdc_sumTruthEnergyGap[side][module] = zdc_TotalTruthEnergySum[side][module][0];
+
+                    if (zdc_sumTruthEnergy[side][module] > _maxSumTruthEnergy) {
+                        _maxSumTruthEnergy       = zdc_sumTruthEnergy[side][module];
+                        _maxSumTruthEnergyModule = module;
+                    }
+
+                    if (zdc_sumTruthEnergyGap[side][module] > _maxSumTruthEnergyGap) {
+                        _maxSumTruthEnergyGap       = zdc_sumTruthEnergyGap[side][module];
+                        _maxSumTruthEnergyGapModule = module;
+                    }
+                }
+
+                zdc_maxSumTruthEnergyModule   [side] = _maxSumTruthEnergyModule;
+                zdc_maxSumTruthEnergy         [side] = _maxSumTruthEnergy;
+                zdc_maxSumTruthEnergyGapModule[side] = _maxSumTruthEnergyGapModule;
+                zdc_maxSumTruthEnergyGap      [side] = _maxSumTruthEnergyGap;
             }
         }
 
@@ -352,6 +392,8 @@ void ZDCTreeAnalysis::DoAnalysis()
     int vectorIdx = 0;
 
     for (size_t side : {0, 1}) {
+        int   _maxAmpModule = 0;
+        float _maxAmp       = 0;
         zdc_Quality[side] = 0;  // bill
         for (size_t module : {0, 1, 2, 3}) {
 
@@ -396,6 +438,15 @@ void ZDCTreeAnalysis::DoAnalysis()
             zdc_delayedBS[side][module] = _dataAnalyzer_p->GetdelayedBS(side, module);   // Bill
 
             // ------------------------------------------------------------
+            // Find max amp module
+            //
+            if (zdc_Amp[side][module] > _maxAmpModule) {
+                _maxAmpModule = module;
+                _maxAmp       = zdc_Amp[side][module];
+            }
+
+
+            // ------------------------------------------------------------
             // fill quality infomation
             //
             zdc_ModuleQuality[side][module] = 0;
@@ -430,7 +481,13 @@ void ZDCTreeAnalysis::DoAnalysis()
             // std::cout << "*************zdc_Amp[side][module]: " << zdc_Amp[side][module] << std::endl;
         }
 
-        zdc_SumAmp[side]   = _dataAnalyzer_p->GetModuleSum(side);
+        // ------------------------------------------------------------
+        // Save max amp module
+        //
+        zdc_maxAmpModule[side] = _maxAmpModule;
+        zdc_maxAmp      [side] = _maxAmp;
+
+        zdc_SumAmp[side]    = _dataAnalyzer_p->GetModuleSum(side);
         zdc_SumAmpErr[side] = _dataAnalyzer_p->GetModuleSumErr(side);
 
         zdc_SumCalibAmp[side]    = _dataAnalyzer_p->GetCalibModuleSum(side);

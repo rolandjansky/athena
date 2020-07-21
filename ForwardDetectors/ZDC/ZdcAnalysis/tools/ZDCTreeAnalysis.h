@@ -86,6 +86,8 @@ public :
   Bool_t          L1_ZDC_A_C;
   Float_t         ps_L1_ZDC_A_C;
 
+  Float_t         zdc_TotalTruthEnergySum[2][4][2];
+
 
   //  Data for branches that are to be added to the tree
   //
@@ -151,7 +153,17 @@ public :
   float  zdc_CalibAmp[2][4];
   float  zdc_CalibTime[2][4];
 
-  float  zdc_delayedBS[2][4];  // Bill
+  float  zdc_delayedBS[2][4];
+
+  int    zdc_maxAmpModule[2];
+  float  zdc_maxAmp[2];
+  // MC specific branches
+  int    zdc_maxSumTruthEnergyModule[2];
+  float  zdc_maxSumTruthEnergy[2];
+  int    zdc_maxSumTruthEnergyGapModule[2];
+  float  zdc_maxSumTruthEnergyGap[2];
+  float  zdc_sumTruthEnergy[2][4];
+  float  zdc_sumTruthEnergyGap[2][4];
 
   // The object responsible for the actual analysis
   //
@@ -175,7 +187,8 @@ private:
 
   static int _debugLevel;
 
-  bool saveEvent = false;
+  bool saveEvent  = false;
+  bool mcBranches = false;
 
   ZDCDataAnalyzer::ZDCModuleFloatArray _peak2ndDerivMinSamples;
   ZDCDataAnalyzer::ZDCModuleFloatArray _peak2ndDerivMinThresholdsHG;
@@ -242,13 +255,6 @@ private:
   void SetupBunchTrains();
 
 public:
-
-  ZDCTreeAnalysis(std::string filename, int nSample, double deltaT, int preSamplIdx, std::string fitFunction,
-                  const ZDCDataAnalyzer::ZDCModuleFloatArray& peak2ndDerivMinSamples,
-                  const ZDCDataAnalyzer::ZDCModuleFloatArray& peak2ndDerivMinThresholdsHG,
-                  const ZDCDataAnalyzer::ZDCModuleFloatArray& peak2ndDerivMinThresholdsLG,
-                  bool forceLG = false);
-
   ZDCTreeAnalysis(TChain *chain, int nSample, double deltaT, int preSamplIdx, std::string fitFunction,
                   const ZDCDataAnalyzer::ZDCModuleFloatArray& peak2ndDerivMinSamples,
                   const ZDCDataAnalyzer::ZDCModuleFloatArray& peak2ndDerivMinThresholdsHG,
@@ -319,6 +325,10 @@ public:
       return true;
     }
     else return false;
+  }
+
+  void enableMCBranches(bool enable = false) {
+    mcBranches = enable;
   }
 
   void DisableModule(size_t side, size_t module)
@@ -517,6 +527,7 @@ void ZDCTreeAnalysis::Init(TChain *i_chain)
   // fChain->SetBranchAddress("ps_L1_ZDC_AND", &ps_L1_ZDC_AND);
   fChain->SetBranchAddress("L1_ZDC_A_C" , &L1_ZDC_A_C );//
   // fChain->SetBranchAddress("ps_L1_ZDC_A_C", &ps_L1_ZDC_A_C);
+  fChain->SetBranchAddress("zdc_TotalTruthEnergySum", &zdc_TotalTruthEnergySum);
 
   fChain->SetBranchStatus("*", 0);
   fChain->SetBranchStatus("runNumber"  , 1);
@@ -537,6 +548,8 @@ void ZDCTreeAnalysis::Init(TChain *i_chain)
   // fChain->SetBranchStatus("zdc_ZdcModuleMask"  , 1);
   // fChain->SetBranchStatus("zdc_ZdcModuleAmp"   , 1);
   // fChain->SetBranchStatus("zdc_ZdcModuleStatus", 1);
+
+  fChain->SetBranchStatus ("zdc_TotalTruthEnergySum", 1);
 
   Notify();
 }

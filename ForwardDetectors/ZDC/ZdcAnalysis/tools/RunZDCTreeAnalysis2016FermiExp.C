@@ -144,6 +144,7 @@ ZDCTreeAnalysis* InitZDCAnalysis(TChain *chain, int year, int nSamples, bool frq
         ana->EnableRepass(peak2ndDerivMinRepassHG, peak2ndDerivMinRepassLG);
     }
 
+    if (year == 1111) ana->enableMCBranches(1);
     if (year == 2016) ana->DisableModule(0, 0);
 
     if (useDelayed) {
@@ -368,8 +369,7 @@ TChain *inputFiles(int year)
     TChain *chain = new TChain("zdcTree");
 
     if (year == 1111) {
-        // chain->Add("ZDC_10kNeutrons_Merged_157TeV_80MHz.root");
-        chain->Add("ZDC_10kNeutrons_Merged_251TeV_80MHz.root");
+        chain->Add("mcdata/MC_251_80MHz.root");
     }
     else if (year == 2016) {
         chain->Add("data16_hip8TeV_00313187_87z4/user.steinber.17047360._000001.ANALYSIS.root");
