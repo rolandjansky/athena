@@ -8,7 +8,6 @@
 /// in order to prevent complex adjustments in the core decode functions
 /// As such, it should not be flagged at this stage as unsafe
 #include "CxxUtils/checker_macros.h"
-ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 #include "RpcRdoToPrepDataTool.h"
 
