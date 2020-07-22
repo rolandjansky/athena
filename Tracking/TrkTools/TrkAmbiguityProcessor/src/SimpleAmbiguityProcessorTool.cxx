@@ -3,7 +3,6 @@
 */
 
 #include "SimpleAmbiguityProcessorTool.h"
-#include "AtlasDetDescr/AtlasDetectorID.h"
 #include "TrackScoringTool.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"

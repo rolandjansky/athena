@@ -5,7 +5,6 @@
 
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrackScoringTool.h"
-#include "TrkDetElementBase/TrkDetElementBase.h"
 #include "TrkTrack/Track.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
