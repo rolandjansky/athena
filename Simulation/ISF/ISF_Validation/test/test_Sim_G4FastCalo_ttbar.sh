@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# art-description: Run simulation  using ISF with the G4FastCalo simulator, reading ttbar events, writing HITS, using 2015 geometry and conditions
+# art-description: MC16-style simulation using FullG4
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
 # art-include: 21.9/Athena
@@ -9,26 +9,32 @@
 # art-output: test.HITS.pool.root
 # art-output: truth.root
 
+# MC16 setup
+# ATLAS-R2-2016-01-00-01 and OFLCOND-MC16-SDR-14
 Sim_tf.py \
---conditionsTag 'default:OFLCOND-RUN12-SDR-19' \
---physicsList 'FTFP_BERT' \
+--conditionsTag 'default:OFLCOND-MC16-SDR-14' \
+--physicsList 'FTFP_BERT_ATL' \
 --truthStrategy 'MC15aPlus' \
 --simulator 'G4FastCalo' \
---postInclude 'default:PyJobTransforms/UseFrontier.py' 'EVNTtoHITS:G4AtlasTests/postInclude.DCubeTest.py' \
---preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' \
---DataRunNumber '222525' \
---geometryVersion 'default:ATLAS-R2-2015-03-01-00' \
---inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1" \
+--postInclude 'default:PyJobTransforms/UseFrontier.py' \
+--preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' \
+--preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' 'from ISF_FastCaloSimServices.ISF_FastCaloSimJobProperties import ISF_FastCaloSimFlags;ISF_FastCaloSimFlags.ParamsInputFilename="/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FastCaloSim/MC16/TFCSparam_v012.root"'\
+--DataRunNumber '284500' \
+--geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
+--inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1" \
 --outputHITSFile "test.HITS.pool.root" \
---maxEvents 250 \
---imf False \
---preExec 'from ISF_FastCaloSimServices.ISF_FastCaloSimJobProperties import ISF_FastCaloSimFlags;ISF_FastCaloSimFlags.ParamsInputFilename="/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FastCaloSim/MC16/TFCSparam_v012.root"'
+--maxEvents 4 \
+--imf False
 
-echo  "art-result: $? simulation"
+rc=$?
+rc2=-9999
+echo  "art-result: $rc simulation"
+if [ $rc -eq 0 ]
+then
+    ArtPackage=$1
+    ArtJobName=$2
+    art.py compare grid --entries 4 ${ArtPackage} ${ArtJobName} --mode=semi-detailed
+    rc2=$?
+fi
 
-ArtPackage=$1
-ArtJobName=$2
-# TODO This is a regression test I think. We would also need to compare these files to fixed references
-art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=semi-detailed
-
-echo  "art-result: $? regression"
+echo  "art-result: $rc2 regression"
