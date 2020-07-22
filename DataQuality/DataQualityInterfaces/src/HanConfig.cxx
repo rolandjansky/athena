@@ -491,7 +491,7 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 	}
 	std::string newRefId;
 	std::string absAlgRefName("");	
-	for (const auto thisRefID : refIDVec) {
+	for (const auto& thisRefID : refIDVec) {
 	  std::string algRefName( m_refConfig.GetStringAttribute(thisRefID,"name") );
 	  std::string algRefPath( m_refConfig.GetStringAttribute(thisRefID,"path") );
 	  std::string algRefInfo( m_refConfig.GetStringAttribute(thisRefID,"info") );

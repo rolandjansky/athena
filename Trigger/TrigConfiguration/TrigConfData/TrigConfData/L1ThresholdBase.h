@@ -105,7 +105,7 @@ namespace TrigConf {
       // load the internal members
       void load();
 
-      unsigned int m_resolutionMeV;
+      unsigned int m_resolutionMeV { 1000 }; // default resolution is 1 GeV
    };
 
 
@@ -143,7 +143,7 @@ namespace TrigConf {
       /** Destructor */
       virtual ~L1Threshold() = default;
 
-      virtual std::string className() const
+      virtual std::string className() const override
       { return "L1Threshold"; }
 
       /** Accessor to the threshold type */

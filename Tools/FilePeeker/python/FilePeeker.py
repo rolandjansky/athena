@@ -1,8 +1,9 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
-import os,sys
+import os
+import sys
 from subprocess import check_output
 
 
@@ -31,9 +32,9 @@ def PeekFiles(inputfiles):
     fullResult=dict()
     for line in retval.split(os.linesep):
         linesplit=line.split(":")
-        if len(linesplit)!=2: continue;
-        k=linesplit[0].strip();
-        v=linesplit[1].strip();
+        if len(linesplit)!=2: continue
+        k=linesplit[0].strip()
+        v=linesplit[1].strip()
         if len(v)==0: continue
         if (k=="File"):
             result=dict()

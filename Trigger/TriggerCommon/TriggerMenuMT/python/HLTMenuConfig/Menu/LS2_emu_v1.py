@@ -50,7 +50,7 @@ def setupMenu():
         ChainProp(name='HLT_2TestChain6_muv1_L12MU6',                   stream=['Main'], groups=['RATE:Test','BW:Other']   ),
         ChainProp(name='HLT_TestChain6_muv1_TestChain10_muv1_L12MU6',   stream=['Main'], groups=['RATE:Test','BW:Other']  ),        
         ChainProp(name='HLT_2TestChain6_muEmpty1_L12MU6',               stream=['Main'], groups=['RATE:Test','BW:Other']), #may differ from manual
-        ChainProp(name='HLT_TestChain6_muv1_TestChain5_ev1dr_L12MU6',   stream=['Main'], groups=['RATE:Test','BW:Other'] ), 
+        ChainProp(name='HLT_TestChain6_muv1_TestChain5_ev1dr_L1MU6_EM5',   stream=['Main'], groups=['RATE:Test','BW:Other'] ), 
         ChainProp(name='HLT_2TestChain4_muv1dr_L12MU6', stream=['Main'], groups=['RATE:Test','BW:Other'] ),
 
         # FSNOSEED not implemented in emulation

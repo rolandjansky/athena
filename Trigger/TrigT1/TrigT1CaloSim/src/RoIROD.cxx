@@ -14,7 +14,7 @@
 #include <string>
 
 // running in Athena
-#include "TrigT1CaloSim/RoIROD.h"
+#include "RoIROD.h"
 
 #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
 

@@ -1,4 +1,4 @@
-#include "TrigT1BCM/TrigT1BCM.h"
+#include "../TrigT1BCM.h"
 
 DECLARE_COMPONENT( LVL1::TrigT1BCM )
 

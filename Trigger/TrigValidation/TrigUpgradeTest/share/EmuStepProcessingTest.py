@@ -31,7 +31,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
 # inputMakers: one per each first RecoAlg in a step (so one per step), one input per chain that needs that step
 
 log = logging.getLogger('EmuStepProcessingTest.py')
-
+log.info('Setup options:')
 defaultOptions = [a for a in dir(opt) if not a.startswith('__')]
 for option in defaultOptions:
     if option in globals():
@@ -43,6 +43,7 @@ for option in defaultOptions:
 TriggerFlags.generateMenuDiagnostics=True
 
 topSequence = AlgSequence()
+
 if opt.doMenu is True:
     generateL1DecoderAndChainsByMenu(topSequence)
 else:

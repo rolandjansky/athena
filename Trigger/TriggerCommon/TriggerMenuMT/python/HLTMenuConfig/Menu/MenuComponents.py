@@ -73,7 +73,7 @@ class AlgNode(Node):
     def addOutput(self, name):
         outputs = self.readOutputList()
         if name in outputs:
-            log.debug("Output DH not added in %s: %s already set!", self.name, name)
+            log.debug("Output DH not added in %s: %s already set!", self.Alg.getName(), name)
         else:
             if self.outputProp != '':
                 self.setPar(self.outputProp,name)
@@ -96,7 +96,7 @@ class AlgNode(Node):
     def addInput(self, name):
         inputs = self.readInputList()
         if name in inputs:
-            log.debug("Input DH not added in %s: %s already set!", self.name, name)
+            log.debug("Input DH not added in %s: %s already set!", self.Alg.getName(), name)
         else:
             if self.inputProp != '':
                 self.setPar(self.inputProp,name)
@@ -324,7 +324,7 @@ class EmptyMenuSequence(object):
         self._maker       = InputMakerNode( Alg = Maker )
         self._seed=''
         self._sequence    = Node( Alg = seqAND(name, [Maker]))
-        log.debug("Making EmptySequence %s",name)
+        log.debug("Made EmptySequence %s",name)
 
     @property
     def sequence(self):
@@ -338,16 +338,12 @@ class EmptyMenuSequence(object):
     def name(self):
         return self._name
 
-    @property
-    def __maker(self):
-        return self._maker
-
     def getOutputList(self):
-        return self.__maker.readOutputList() # Only one since it's merged
+        return self._maker.readOutputList() # Only one since it's merged
 
     def connectToFilter(self, outfilter):
         """ Connect filter to the InputMaker"""
-        self.__maker.addInput(outfilter)
+        self._maker.addInput(outfilter)
 
     def createHypoTools(self, chainDict):
         log.debug("This sequence is empty. No Hypo to conficure")
@@ -919,11 +915,6 @@ class InEventReco( ComponentAccumulator ):
         """ Merged CA movnig reconstruction algorithms into the right sequence """
         return self.merge( ca, sequenceName=self.recoSeq.getName() )
 
-    def addRecoAlg( self, alg ):
-        """Reconstruction alg to be run per event"""
-        log.warning( "InViewReco.addRecoAlgo: consider using mergeReco that takes care of the CA accumulation and moving algorithms" )
-        self.addEventAlgo( alg, self.recoSeq.name )
-
     def addHypoAlg(self, alg):
         self.addEventAlgo( alg, self.mainSeq.name )
 
@@ -972,11 +963,6 @@ class InViewReco( ComponentAccumulator ):
     def mergeReco( self, ca ):
         """ Merged CA movnig reconstruction algorithms into the right sequence """
         return self.merge( ca, sequenceName=self.viewsSeq.getName() )
-
-    def addRecoAlg( self, alg ):
-        """Reconstruction alg to be run per view"""
-        log.warning( "InViewReco.addRecoAlgo: consider using mergeReco that takes care of the CA accumulation and moving algorithms" )
-        self.addEventAlgo( alg, self.viewsSeq.name )
 
     def addHypoAlg(self, alg):
         self.addEventAlgo( alg, self.mainSeq.name )

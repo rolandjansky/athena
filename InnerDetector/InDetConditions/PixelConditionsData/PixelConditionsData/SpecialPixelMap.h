@@ -35,7 +35,7 @@ class ModuleSpecialPixelMap;
     status codes. A ModuleSpecialPixelMap is accessed by its IdentifierHash.
  */
 
-class ATLAS_NOT_THREAD_SAFE DetectorSpecialPixelMap : public PixelCoralClientUtils::DetectorSpecialPixelMap{ // Thread unsafe PixelCoralClientUtils::DetectorSpecialPixelMap class is used.
+class DetectorSpecialPixelMap : public PixelCoralClientUtils::DetectorSpecialPixelMap{
 
  public: 
   DetectorSpecialPixelMap();
@@ -62,7 +62,7 @@ class ATLAS_NOT_THREAD_SAFE DetectorSpecialPixelMap : public PixelCoralClientUti
  */
 
 
-class ATLAS_NOT_THREAD_SAFE ModuleSpecialPixelMap : public PixelCoralClientUtils::ModuleSpecialPixelMap{ // Thread unsafe PixelCoralClientUtils::ModuleSpecialPixelMap class is used.
+class ModuleSpecialPixelMap : public PixelCoralClientUtils::ModuleSpecialPixelMap{
 
  public:
    ModuleSpecialPixelMap();

@@ -1,11 +1,15 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "GaudiKernel/SystemOfUnits.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "TrigCompositeUtils/Combinators.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "TrigmuCombHypoTool.h"
+#include "CxxUtils/phihelper.h"
+
+#include <cmath>
 
 using namespace TrigCompositeUtils;
 // --------------------------------------------------------------------------------
@@ -44,7 +48,7 @@ StatusCode TrigmuCombHypoTool::initialize()
          for (std::vector<float>::size_type i = 0; i < m_bins[j]; ++i) {
  
             ATH_MSG_INFO("bin[" << j << "] " << m_ptBins[j][i] << " - " <<  m_ptBins[j][i + 1]
-               	  << " with Pt Threshold of " << (m_ptThresholds[j][i]) / CLHEP::GeV << " GeV");
+               	  << " with Pt Threshold of " << (m_ptThresholds[j][i]) / Gaudi::Units::GeV << " GeV");
          }
       }  
    }
@@ -134,14 +138,14 @@ bool TrigmuCombHypoTool::decideOnSingleObject(TrigmuCombHypoTool::CombinedMuonIn
       return result;
    }
  
-   auto ptValue = pMuon->pt() * pMuon->charge() / CLHEP::GeV;
+   auto ptValue = pMuon->pt() * pMuon->charge() / Gaudi::Units::GeV;
  
    fexPt    = ptValue;
    ptFL      = ptValue;
    idEta    = pMuon->eta();
    idPhi    = pMuon->phi();
    int usealgo      = pMuon->strategy();
-   float ptresComb = pMuon->sigmaPt() / CLHEP::GeV;
+   float ptresComb = pMuon->sigmaPt() / Gaudi::Units::GeV;
    Strategy  = usealgo;
    ATH_MSG_DEBUG("combined muon pt (GeV)/ sigma_pt (GeV)/ eta / phi / usedalgo: " 
                << fexPt << " (GeV) / " << ptresComb << " (GeV) / " << idEta << " / " << idPhi 
@@ -188,9 +192,9 @@ bool TrigmuCombHypoTool::decideOnSingleObject(TrigmuCombHypoTool::CombinedMuonIn
  
    //Std Pt cut
    bool stdCut = true;
-   if (std::abs(fexPt) <= (threshold / CLHEP::GeV)) stdCut = false;
+   if (std::abs(fexPt) <= (threshold / Gaudi::Units::GeV)) stdCut = false;
    ATH_MSG_DEBUG("REGTEST muon pt is " << fexPt
-              << " GeV and threshold cut is " << threshold / CLHEP::GeV
+              << " GeV and threshold cut is " << threshold / Gaudi::Units::GeV
               << " GeV and pik_cut is " << (pikCut ? "true" : "false"));
  
    //Strategy dependent Pt cuts
@@ -479,8 +483,8 @@ bool TrigmuCombHypoTool::isOverlap(const xAOD::L2CombinedMuon *combMf1,
   auto monitorIt       = Monitored::Group(m_monTool, mucombDR, mucombMass, mucombDRLog10, mucombMassLog10);
 
 
-  ATH_MSG_DEBUG( "   ...mF1: pt/eta/phi=" << combMf1->pt()/CLHEP::GeV << " / " << combMf1->eta() << " / " << combMf1->phi() );
-  ATH_MSG_DEBUG( "   ...mF2: pt/eta/phi=" << combMf2->pt()/CLHEP::GeV << " / " << combMf2->eta() << " / " << combMf2->phi() );
+  ATH_MSG_DEBUG( "   ...mF1: pt/eta/phi=" << combMf1->pt()/Gaudi::Units::GeV << " / " << combMf1->eta() << " / " << combMf1->phi() );
+  ATH_MSG_DEBUG( "   ...mF2: pt/eta/phi=" << combMf2->pt()/Gaudi::Units::GeV << " / " << combMf2->eta() << " / " << combMf2->phi() );
 
   // if dR or invMass is necessary but (eta,phi) info is not avaiable
   // (i.e. eta,phi=0,0; rec failed)
@@ -561,7 +565,7 @@ bool TrigmuCombHypoTool::isOverlap(const xAOD::L2CombinedMuon *combMf1,
   // mass cut
   const double TRACK_MASS = 0;  // just assume zero mass
   bool massIsClose = false;
-  double mass = invMass(TRACK_MASS,combMf1->pt()/CLHEP::GeV,combMf1->eta(),combMf1->phi(),TRACK_MASS,combMf2->pt()/CLHEP::GeV,combMf2->eta(),combMf2->phi());
+  double mass = invMass(TRACK_MASS,combMf1->pt()/Gaudi::Units::GeV,combMf1->eta(),combMf1->phi(),TRACK_MASS,combMf2->pt()/Gaudi::Units::GeV,combMf2->eta(),combMf2->phi());
 
   mucombMass = mass;
   double mass_mon = (mass>=monitor_limit) ? mass : monitor_limit;
@@ -592,11 +596,9 @@ bool TrigmuCombHypoTool::isOverlap(const xAOD::L2CombinedMuon *combMf1,
 
 double TrigmuCombHypoTool::dR(double eta1, double phi1, double eta2, double phi2) const
 {
-  double deta = eta1 - eta2;
-  double dphi = fabs(phi1 - phi2);
-  if( dphi > CLHEP::pi ) dphi = CLHEP::twopi - dphi;
-  double dR = pow( (deta*deta + dphi*dphi), 0.5 );
-  return dR;
+  const double deta = eta1 - eta2;
+  const double dphi = CxxUtils::deltaPhi(phi1, phi2);
+  return std::sqrt(deta*deta + dphi*dphi);
 }
 
 // --------------------------------------------------------------------------------
@@ -679,7 +681,7 @@ StatusCode TrigmuCombHypoTool::chooseBestMuon(std::vector<TrigmuCombHypoTool::Co
 
 	float ptCombMf  = 0.;
 	const xAOD::L2CombinedMuon* combMf = (*input[j]).muComb;
-	ptCombMf  = fabs(combMf->pt()/CLHEP::GeV);
+	ptCombMf  = fabs(combMf->pt()/Gaudi::Units::GeV);
 	ATH_MSG_DEBUG("     j="<< j << " , ptCombMf=" << ptCombMf);
 	if( ptCombMf > maxPtCombMf ) {
 	  maxPtCombMf  = ptCombMf;
@@ -698,7 +700,7 @@ StatusCode TrigmuCombHypoTool::chooseBestMuon(std::vector<TrigmuCombHypoTool::Co
 	  // monitoring
 	  const xAOD::L2CombinedMuon* CombMf = (*input[j]).muComb;
 	  mucombNrOverlapped++;
-	  mucombOverlappedPt = CombMf->pt()* CombMf->charge() /CLHEP::GeV;
+	  mucombOverlappedPt = CombMf->pt()* CombMf->charge() /Gaudi::Units::GeV;
 	  mucombOverlappedEta = CombMf->eta();
 	  mucombOverlappedPhi = CombMf->phi();
 	}

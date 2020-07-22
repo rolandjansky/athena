@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TrigBphysHypo.TrigBphysHypoConf import TrigEFTrkMassHypo
 
@@ -20,7 +20,7 @@ class EFTrkMassHypo_Jpsimumu (TrigEFTrkMassHypo):
 
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("Time")
-	
+
         self.AthenaMonTools = [ validation, online, time ]
 # Jpsi FS
 class EFTrkMassHypo_Jpsimumu_FS (TrigEFTrkMassHypo):
@@ -39,7 +39,7 @@ class EFTrkMassHypo_Jpsimumu_FS (TrigEFTrkMassHypo):
 
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("Time")
-	
+
         self.AthenaMonTools = [ validation, online, time ]
 
 # Jpsi loose
@@ -60,7 +60,7 @@ class EFTrkMassHypo_Jpsimumu_loose (TrigEFTrkMassHypo):
 
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("Time")
-	
+
         self.AthenaMonTools = [ validation, online, time ]
 # Jpsi looser
 class EFTrkMassHypo_Jpsimumu_looser (TrigEFTrkMassHypo):
@@ -80,7 +80,7 @@ class EFTrkMassHypo_Jpsimumu_looser (TrigEFTrkMassHypo):
 
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("Time")
-	
+
         self.AthenaMonTools = [ validation, online, time ]
         
 # Jpsi loose FS
@@ -100,7 +100,7 @@ class EFTrkMassHypo_Jpsimumu_loose_FS (TrigEFTrkMassHypo):
 
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("Time")
-	
+
         self.AthenaMonTools = [ validation, online, time ]
 
 # Upsi FS
@@ -120,7 +120,7 @@ class EFTrkMassHypo_Upsimumu_FS (TrigEFTrkMassHypo):
 
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("Time")
-	
+
         self.AthenaMonTools = [ validation, online, time ]
 
 
@@ -141,7 +141,7 @@ class EFTrkMassHypo_Upsimumu_loose_FS (TrigEFTrkMassHypo):
 
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("Time")
-	
+
         self.AthenaMonTools = [ validation, online, time ]
 
 

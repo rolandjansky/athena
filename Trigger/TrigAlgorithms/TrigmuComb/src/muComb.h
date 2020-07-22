@@ -23,12 +23,15 @@
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 //#include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
 #include "TrkExInterfaces/IExtrapolator.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
+//#include "MagFieldInterfaces/IMagFieldSvc.h"
+
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 
 #include "xAODTrigMuon/L2CombinedMuonContainer.h"
 #include "xAODTracking/TrackParticle.h"
 
 #include "CxxUtils/checker_macros.h"
+
 ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
 
 /** Main LVL2 Algorithm. Sided by a xAOD::L2StandaloneMuon, match the muon spectrometer track with an ID track, and produces a xAOD::L2CombinedMuon. */
@@ -62,7 +65,9 @@ class muComb : public HLT::FexAlgo
   ToolHandle<Trk::IExtrapolator>  m_backExtrapolatorG4;  
 
   /** Handle to the Magnetic field service */
-  MagField::IMagFieldSvc* m_MagFieldSvc; 
+  //MagField::IMagFieldSvc* m_MagFieldSvc; 
+  SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
+
 
   /** Pointer to Timer Service */ 
   ITrigTimerSvc*  m_pTimerService;

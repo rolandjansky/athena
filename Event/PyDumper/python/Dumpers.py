@@ -39,6 +39,10 @@ cmp = lambda x, y: (x > y) - (x < y)
 etcone10 = 0
 nucone10 = 8
 
+# Without these, cling gets confused by forward declarations.
+ROOT.xAOD.TrackParticleContainer_v1
+ROOT.xAOD.Jet_v1
+
 # Work around a cling bug.
 if hasattr(ROOT,'TrackParticleTruthCollection'):
     ROOT.TrackParticleTruthCollection()[ROOT.Rec.TrackParticleTruthKey()]

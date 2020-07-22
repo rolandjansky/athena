@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMUONHYPOMT_TRIGMUFASTHYPOTOOL_H 
 #define TRIGMUONHYPOMT_TRIGMUFASTHYPOTOOL_H 1
 
 #include "TrigCompositeUtils/HLTIdentifier.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h" 
@@ -85,14 +85,13 @@ class TrigMufastHypoTool: public ::AthAlgTool {
     StatusCode chooseBestMuon(std::vector<TrigMufastHypoTool::MuonClusterInfo*>& input, std::vector<unsigned int> mufastResult) const;
 
     float getLocalPhi(float, float, float) const;
-    //TrigMufastHypoToolConsts::ECRegions whichECRegion(const float eta, const float phi) const;
-    
+
     // Properties:
     Gaudi::Property< std::vector<std::vector<double>> > m_ptBins {
         this, "PtBins", { {0, 2.5} }, "Bins range of each pT threshold" };
 
     Gaudi::Property< std::vector<std::vector<double>> > m_ptThresholds {
-        this, "PtThresholds", { {5.49*CLHEP::GeV} }, "Track pT requirement ( separate threshold for each muon )" };
+        this, "PtThresholds", { {5.49*Gaudi::Units::GeV} }, "Track pT requirement ( separate threshold for each muon )" };
 
     Gaudi::Property< bool > m_acceptAll {
         this, "AcceptAll", false, "Ignore selection" };

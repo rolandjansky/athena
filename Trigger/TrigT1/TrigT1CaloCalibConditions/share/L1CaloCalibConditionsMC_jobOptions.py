@@ -1,5 +1,5 @@
 include.block ( "TrigT1CaloCalibConditions/L1CaloCalibConditionsMC_jobOptions.py" )
-if globalflags.DataSource() is not "data":
+if globalflags.DataSource() != "data":
   _L1CaloFolderList = [
         "/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib",
         "/TRIGGER/L1Calo/V2/Calibration/PpmDeadChannels",

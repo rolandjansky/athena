@@ -25,6 +25,3 @@ atlas_add_component( AGDD2GeoSvc
                      src/components/*.cxx
                      LINK_LIBRARIES AthenaBaseComps AGDDControl AGDDKernel GaudiKernel AGDDHandlers )
 
-# Install files from the package:
-atlas_install_headers( AGDD2GeoSvc )
-

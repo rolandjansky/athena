@@ -18,6 +18,17 @@ def fakeHypoAlgCfg(flags, name="FakeHypoForMuon"):
     HLTTest__TestHypoAlg=CompFactory.HLTTest.TestHypoAlg
     return HLTTest__TestHypoAlg( name, Input="" )
 
+def EFMuonViewDataVerifierCfg():
+    EFMuonViewDataVerifier =  CompFactory.getComp("AthViews::ViewDataVerifier")("EFMuonViewDataVerifier")
+    EFMuonViewDataVerifier.DataObjects = [( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),
+                                          ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' ),
+                                          ( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
+                                          ( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),
+                                          ( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' )]
+    result = ComponentAccumulator()
+    result.addEventAlgo(EFMuonViewDataVerifier)
+    return result
+
 def generateChains( flags, chainDict ):
     chainDict = splitChainDict(chainDict)[0]
     
@@ -93,7 +104,10 @@ def generateChains( flags, chainDict ):
     # Get Reco alg of muFast Step in order to set into the view
     algAcc, alg = l2MuFastAlgCfg( flags, roisKey=reco.name+"RoIs")
 
-    reco.addRecoAlg( alg )
+    l2MuFastAlgAcc = ComponentAccumulator()
+    l2MuFastAlgAcc.addEventAlgo(alg)
+    
+    reco.mergeReco( l2MuFastAlgAcc )
     reco.merge( algAcc )
     #    l2muFastReco = l2MuFastRecoCfg(flags)
     acc.merge( reco, sequenceName=stepReco.getName() )
@@ -110,8 +124,6 @@ def generateChains( flags, chainDict ):
                                      Hypo = l2muFastHypo,
                                      HypoToolGen = TrigMufastHypoToolFromDict,
                                      CA = acc )
-
-    l2muFastSequence.createHypoTools(chainDict)
 
     l2muFastStep = ChainStep( name=stepName, Sequences=[l2muFastSequence], chainDicts=[chainDict] )
 
@@ -136,14 +148,9 @@ def generateChains( flags, chainDict ):
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
     recoMS = InViewReco("EFMuMSReco")
     recoMS.inputMaker().RequireParentView = True
-    EFMuonViewDataVerifier =  CompFactory.getComp("AthViews::ViewDataVerifier")("EFMuonViewDataVerifier")
-    EFMuonViewDataVerifier.DataObjects = [( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),
-                                          ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' ),
-                                          ( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
-                                          ( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),
-                                          ( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' )]
 
-    recoMS.addRecoAlg(EFMuonViewDataVerifier)
+    EFMuonViewDataVerifier = EFMuonViewDataVerifierCfg()
+    recoMS.mergeReco(EFMuonViewDataVerifier)
 
     from MuonConfig.MuonSegmentFindingConfig import MooSegmentFinderAlgCfg
     segCfg = MooSegmentFinderAlgCfg(muonflags,name="TrigMooSegmentFinder",UseTGCNextBC=False, UseTGCPriorBC=False)
@@ -173,8 +180,6 @@ def generateChains( flags, chainDict ):
                                      Hypo = fakeHypoAlg, 
                                      HypoToolGen = makeFakeHypoTool,
                                      CA = accMS )
-
-    efmuMSSequence.createHypoTools(chainDict)
 
     efmuMSStep = ChainStep( name=stepEFMSName, Sequences=[efmuMSSequence], chainDicts=[chainDict] )
 

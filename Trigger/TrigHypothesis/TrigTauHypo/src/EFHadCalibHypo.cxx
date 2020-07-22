@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -8,6 +8,7 @@
 //
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ListItem.h"
+#include "GaudiKernel/SystemOfUnits.h"
 //
 #include "EFHadCalibHypo.h"
 //
@@ -28,12 +29,12 @@ EFHadCalibHypo::EFHadCalibHypo(const std::string& name,
 {
 
   // cuts on quality of high pt tracks (HT)
-  declareProperty("CutOnPtHT"             , m_PtMinCut   = 0.0*CLHEP::GeV ); 
+  declareProperty("CutOnPtHT"             , m_PtMinCut   = 0.0*Gaudi::Units::GeV );
   declareProperty("CutOnEtaHT"            , m_maxEta     = 10.0 ); 
   declareProperty("CutminSCTHitsHT"       , m_minSCTHits = -1 );
   declareProperty("CutminPixHitsHT"       , m_minPixHits = -1   );
-  declareProperty("CutmaxD0HT"            , m_maxD0      = 9999.9*CLHEP::mm );
-  declareProperty("CutmaxZ0HT"            , m_maxZ0      = 9999.9*CLHEP::mm );
+  declareProperty("CutmaxD0HT"            , m_maxD0      = 9999.9*Gaudi::Units::mm );
+  declareProperty("CutmaxZ0HT"            , m_maxZ0      = 9999.9*Gaudi::Units::mm );
 
   declareProperty("CutOnIsolationDeltaR"  , m_trackIsoDR         = 0.0 );  
   declareProperty("CutnTracksOnDeltaR"    , m_nMaxTracksOnDeltaR = 99);  

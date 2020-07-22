@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /*
  * TriggerAnalysisHelper.h
@@ -141,7 +141,7 @@ namespace Trig{
 
             // Loop over Combination container
             std::string label;
-            for( const Combination comb : features.getCombinations()){
+            for( const Combination& comb : features.getCombinations()){
                 ATH_MSG_INFO( "COMB Combination was " << ( comb.active() ? "" : "not " ) << "active." );
                 std::vector< Trig::Feature <T1> > feature1 = comb.get<T1>(key1);
                 ATH_MSG_INFO("COMB Combination has " << feature1.size() << " T1 features "); 

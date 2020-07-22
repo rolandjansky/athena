@@ -1,12 +1,16 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "GaudiKernel/SystemOfUnits.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "TrigCompositeUtils/Combinators.h"
 #include "TrigMufastHypoTool.h"
+#include "CxxUtils/phihelper.h"
 
 #include "xAODTrigMuon/TrigMuonDefs.h"
+
+#include <cmath>
 
 using namespace TrigCompositeUtils;
 // --------------------------------------------------------------------------------
@@ -53,12 +57,12 @@ StatusCode TrigMufastHypoTool::initialize()
    	sprintf(buf1,"%f5.2",m_ptBins[j][i]);
    	sprintf(buf2,"%f5.2",m_ptBins[j][i+1]);
    	ATH_MSG_DEBUG("EtaBin[" << j << "] " << buf1 << " - " <<  buf2
-   	             << ": with Pt Threshold of " << (m_ptThresholds[j][i])/CLHEP::GeV 
+   	             << ": with Pt Threshold of " << (m_ptThresholds[j][i])/Gaudi::Units::GeV
    	             << " GeV");
         }
         
-        ATH_MSG_DEBUG("Endcap WeakBField A[" << j << "]: pT threshold of " << m_ptThresholdForECWeakBRegionA[j] / CLHEP::GeV << " GeV");
-        ATH_MSG_DEBUG("Endcap WeakBField B[" << j << "]: pT threshold of " << m_ptThresholdForECWeakBRegionB[j] / CLHEP::GeV << " GeV");
+        ATH_MSG_DEBUG("Endcap WeakBField A[" << j << "]: pT threshold of " << m_ptThresholdForECWeakBRegionA[j] / Gaudi::Units::GeV << " GeV");
+        ATH_MSG_DEBUG("Endcap WeakBField B[" << j << "]: pT threshold of " << m_ptThresholdForECWeakBRegionB[j] / Gaudi::Units::GeV << " GeV");
      }
   }
 
@@ -209,11 +213,11 @@ bool TrigMufastHypoTool::decideOnSingleObject(TrigMufastHypoTool::MuonClusterInf
       threshold = m_ptThresholdForECWeakBRegionB[cutIndex];
    }
 
-   ATH_MSG_DEBUG("threshold value is set as: " << threshold/CLHEP::GeV << " GeV");
+   ATH_MSG_DEBUG("threshold value is set as: " << threshold/Gaudi::Units::GeV << " GeV");
 
    // Check pt threshold for hypothesis, 
    // convert units since Muonfeature is in GeV
-   if ( std::abs(pMuon->pt()) > (threshold/CLHEP::GeV)){
+   if ( std::abs(pMuon->pt()) > (threshold/Gaudi::Units::GeV)){
       // selects only tracks coming from a region around PV
       if( m_selectPV ){
 	 if((fabs(xatBeam)<m_RPV) && (fabs(zatBeam)<m_ZPV))
@@ -226,39 +230,12 @@ bool TrigMufastHypoTool::decideOnSingleObject(TrigMufastHypoTool::MuonClusterInf
    if ( result ) fexPtFL = -9999.;
 
    ATH_MSG_DEBUG("REGTEST: Muon pt is " << pMuon->pt() << " GeV" 
-                 << " and threshold cut is " << threshold/CLHEP::GeV << " GeV" 
+                 << " and threshold cut is " << threshold/Gaudi::Units::GeV << " GeV"
                  << " so hypothesis is " << (result?"true":"false"));
   
    return result;
 }
 
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-/*
-TrigMufastHypoToolConsts::ECRegions TrigMufastHypoTool::whichECRegion( const float eta, const float phi ) const
-{
-   float absEta = fabs(eta);
-
-   if(      ( 1.3 <= absEta && absEta < 1.45) &&
-            ( (0                 <= fabs(phi) && fabs(phi) < CLHEP::pi/48. )     ||
-	      (CLHEP::pi*11./48. <= fabs(phi) && fabs(phi) < CLHEP::pi*13./48. ) ||
-	      (CLHEP::pi*23./48. <= fabs(phi) && fabs(phi) < CLHEP::pi*25./48. ) ||
-	      (CLHEP::pi*35./48. <= fabs(phi) && fabs(phi) < CLHEP::pi*37./48. ) ||
-	      (CLHEP::pi*47./48. <= fabs(phi) && fabs(phi) < CLHEP::pi )
-	  )
-      ) return TrigMufastHypoToolConsts::WeakBFieldA;
-   
-   else if( ( 1.5 <= absEta && absEta < 1.65 ) &&
-	    ( (CLHEP::pi*3./32.  <= fabs(phi) && fabs(phi) < CLHEP::pi*5./32. ) ||
-	      (CLHEP::pi*11./32. <= fabs(phi) && fabs(phi) < CLHEP::pi*13./32.) ||
-	      (CLHEP::pi*19./32. <= fabs(phi) && fabs(phi) < CLHEP::pi*21./32.) ||
-	      (CLHEP::pi*27./32. <= fabs(phi) && fabs(phi) < CLHEP::pi*29./32.)
-	       )
-      ) return TrigMufastHypoToolConsts::WeakBFieldB;
-   
-   else return TrigMufastHypoToolConsts::Bulk;
-}
-*/
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
@@ -664,11 +641,9 @@ bool TrigMufastHypoTool::isOverlap(const xAOD::L2StandAloneMuon *mf1,
 
 double TrigMufastHypoTool::dR(double eta1, double phi1, double eta2, double phi2) const
 {
-  double deta = eta1 - eta2;
-  double dphi = fabs(phi1 - phi2);
-  if( dphi > CLHEP::pi ) dphi = CLHEP::twopi - dphi;
-  double dR = pow( (deta*deta + dphi*dphi), 0.5 );
-  return dR;
+  const double deta = eta1 - eta2;
+  const double dphi = CxxUtils::deltaPhi(phi1, phi2);
+  return std::sqrt(deta*deta + dphi*dphi);
 }
 
 // --------------------------------------------------------------------------------

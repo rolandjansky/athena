@@ -49,7 +49,7 @@ StatusCode TrigEFTauMVHypoAlgMT::execute( const EventContext& context ) const {
   for ( auto previousDecision: *previousDecisionsHandle ) {
     counter++;
     //get RoI
-    auto roiELInfo = findLink<TrigRoiDescriptorCollection>( previousDecision, initialRoIString());
+    auto roiELInfo = findLink<TrigRoiDescriptorCollection>( previousDecision, roiString());
     ATH_CHECK( roiELInfo.isValid() );
     const TrigRoiDescriptor* roi = *(roiELInfo.link);
 
