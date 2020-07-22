@@ -13,12 +13,10 @@
  */
 
 
-#ifndef TRKPARAMETERSBASE_SURFACEUNIQUEPTRT_H
-#define TRKPARAMETERSBASE_SURFACEUNIQUEPTRT_H
-
+#ifndef TRKEVENTPRIMITIVES_SURFACEUNIQUEPTRT_H
+#define TRKEVENTPRIMITIVES_SURFACEUNIQUEPTRT_H
 
 namespace Trk {
-
 
 template <class S>
 class SurfaceDeleter
@@ -29,12 +27,9 @@ public:
   }
 };
 
-
 template <class S>
 using SurfaceUniquePtrT = std::unique_ptr<S, SurfaceDeleter<S> >;
 
-
 } // namespace Trk
 
-
-#endif // not TRKPARAMETERSBASE_SURFACEUNIQUEPTRT_H
+#endif 
