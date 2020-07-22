@@ -126,7 +126,7 @@ namespace top {
 
                                   if (s == "OldMedium") return TauAnalysisTools::ELEIDBDTOLDMEDIUM;
 
-                                  // If we haven't found the correct WP, then return -1
+                                  // If we haven't found the correct WP, then return 0
                                   return TauAnalysisTools::ELEIDNONEUNCONFIGURED;
                                 };
 
@@ -173,6 +173,17 @@ namespace top {
     int iSelectionCutsLoose = iSelectionCuts;
     if (m_config->tauEleOLR()) iSelectionCuts |= TauAnalysisTools::CutEleOLR;
     if (m_config->tauEleOLRLoose()) iSelectionCutsLoose |= TauAnalysisTools::CutEleOLR;
+
+    //add warning for special case of using EleIDBDT AND ELEOLR outdated->can just use oldBDT
+
+    if (m_config->tauEleOLR()&& tauEleBDTWP >=2 && !(tauEleBDTWP==TauAnalysisTools::ELEIDBDTOLDLOOSE || tauEleBDTWP==TauAnalysisTools::ELEIDBDTOLDMEDIUM)){
+    	ATH_MSG_WARNING("Using TauELeOLR is just usable together with the old EleBDT options"
+    			"use OldLoose or OldMedium if you really want to use both (outdated)");
+    }
+    if (m_config->tauEleOLRLoose() && tauEleBDTWPLoose >=2 && !(tauEleBDTWPLoose==TauAnalysisTools::ELEIDBDTOLDLOOSE || tauEleBDTWPLoose==TauAnalysisTools::ELEIDBDTOLDMEDIUM)){
+        	ATH_MSG_WARNING("Using TauELeOLR is just usable together with the old EleBDT options. "
+        			"Use OldLoose or OldMedium if you really want to use both (outdated)");
+        }
 
     //============================================================
     // Nominal Tau Selection
