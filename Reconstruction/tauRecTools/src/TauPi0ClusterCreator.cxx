@@ -51,7 +51,7 @@ StatusCode TauPi0ClusterCreator::finalize()
 StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer,
 							  xAOD::PFOContainer& hadronicClusterPFOContainer,
 							  xAOD::CaloClusterContainer& pi0CaloClusterContainer,
-							  const xAOD::CaloClusterContainer& pPi0ClusterContainer)
+							  const xAOD::CaloClusterContainer& pPi0ClusterContainer) const
 {
     // Any tau needs to have PFO vectors. Set empty vectors before nTrack cut
     vector<ElementLink<xAOD::PFOContainer> > empty;
@@ -79,22 +79,20 @@ StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& pTau, xA
     }
     std::map<unsigned, xAOD::CaloCluster*> clusterToShotMap = getClusterToShotMap(shotVector, pPi0ClusterContainer, pTau);
 
-    xAOD::CaloClusterContainer::const_iterator clusterItr   (pPi0ClusterContainer.begin()),
-                                               clusterItrEnd(pPi0ClusterContainer.end());
-    for (; clusterItr != clusterItrEnd; ++clusterItr){
+    for (auto cluster: pPi0ClusterContainer){
 
         // selection
-        if ((*clusterItr)->pt() < m_clusterEtCut)   continue;
+        if (cluster->pt() < m_clusterEtCut)   continue;
         // Cluster container has clusters for all taus.
         // Only run on clusters that belong to this tau
-        if ((*clusterItr)->p4().DeltaR(pTau.p4()) > .4) continue;
+        if (cluster->p4().DeltaR(pTau.p4()) > .4) continue;
 
         // Get shots in this cluster. Need to use (CaloCluster*) (*clusterItr) 
         // (not a copy!) since the pointer will otherwise be different than in clusterToShotMap
-        std::vector<unsigned> shotsInCluster = getShotsMatchedToCluster( shotVector, clusterToShotMap, (xAOD::CaloCluster*) (*clusterItr));
+        std::vector<unsigned> shotsInCluster = getShotsMatchedToCluster( shotVector, clusterToShotMap, cluster);
 
         // Make a copy of the cluster to store in output container.
-        xAOD::CaloCluster* pPi0Cluster = new xAOD::CaloCluster( *(*clusterItr) );
+        xAOD::CaloCluster* pPi0Cluster = new xAOD::CaloCluster( *cluster );
 
         // store pi0 calo cluster in the output container
         pi0CaloClusterContainer.push_back(pPi0Cluster);
@@ -215,8 +213,7 @@ StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& pTau, xA
 }
 
 // Functions used to calculate BDT variables other than those provided by the CaloClusterMomentsMaker
-float TauPi0ClusterCreator::getEM1CoreFrac(
-    const xAOD::CaloCluster* pi0Candidate)
+float TauPi0ClusterCreator::getEM1CoreFrac(const xAOD::CaloCluster* pi0Candidate) const
 {
     float coreEnergy=0.;
     float sumEPosCellsEM1=0.;
@@ -242,10 +239,9 @@ float TauPi0ClusterCreator::getEM1CoreFrac(
 
 // Do cluster to shot matching. 
 // A cluster is matched to a shot if the seed cell of the shot is in the cluster
-std::map<unsigned, xAOD::CaloCluster*> TauPi0ClusterCreator::getClusterToShotMap(
-    const std::vector<const xAOD::PFO*> shotVector, 
-    const xAOD::CaloClusterContainer& pPi0ClusterContainer,
-    const xAOD::TauJet &pTau)
+std::map<unsigned, xAOD::CaloCluster*> TauPi0ClusterCreator::getClusterToShotMap(const std::vector<const xAOD::PFO*>& shotVector,
+										 const xAOD::CaloClusterContainer& pPi0ClusterContainer,
+										 const xAOD::TauJet &pTau) const
 {
     std::map<unsigned, xAOD::CaloCluster*> clusterToShotMap;
     for(unsigned iShot = 0;iShot<shotVector.size();++iShot){
@@ -299,14 +295,13 @@ std::map<unsigned, xAOD::CaloCluster*> TauPi0ClusterCreator::getClusterToShotMap
     return clusterToShotMap;
 }
 
-std::vector<unsigned> TauPi0ClusterCreator::getShotsMatchedToCluster(
-    const std::vector<const xAOD::PFO*> shotVector,
-    std::map<unsigned, xAOD::CaloCluster*> clusterToShotMap, 
-    xAOD::CaloCluster* pPi0Cluster)
+std::vector<unsigned> TauPi0ClusterCreator::getShotsMatchedToCluster(const std::vector<const xAOD::PFO*>& shotVector,
+								     const std::map<unsigned, xAOD::CaloCluster*>& clusterToShotMap, 
+								     const xAOD::CaloCluster* pPi0Cluster) const
 {
     std::vector<unsigned> shotsMatchedToCluster;
     for(unsigned iShot = 0;iShot<shotVector.size();++iShot){
-        std::map<unsigned, xAOD::CaloCluster*>::iterator itr = clusterToShotMap.find(iShot);
+        auto itr = clusterToShotMap.find(iShot);
         if(itr==clusterToShotMap.end()) continue;
         if(itr->second!=pPi0Cluster) continue;
         shotsMatchedToCluster.push_back(iShot);
@@ -314,10 +309,8 @@ std::vector<unsigned> TauPi0ClusterCreator::getShotsMatchedToCluster(
     return shotsMatchedToCluster;
 }
 
-int TauPi0ClusterCreator::getNPhotons(
-    const std::vector<const xAOD::PFO*> shotVector,
-    std::vector<unsigned> shotsInCluster
-    )
+int TauPi0ClusterCreator::getNPhotons(const std::vector<const xAOD::PFO*>& shotVector,
+				      const std::vector<unsigned>& shotsInCluster ) const
 {
     int nPhotons = 0;
     for(unsigned iShot = 0;iShot<shotsInCluster.size();++iShot){
@@ -329,8 +322,7 @@ int TauPi0ClusterCreator::getNPhotons(
     return nPhotons;
 }
 
-vector<int> TauPi0ClusterCreator::getNPosECells(
-    const xAOD::CaloCluster* pi0Candidate)
+vector<int> TauPi0ClusterCreator::getNPosECells(const xAOD::CaloCluster* pi0Candidate) const
 {
     vector<int> nPosECellsInLayer(3,0); // 3 layers initialised with 0 +ve cells
 
@@ -339,7 +331,7 @@ vector<int> TauPi0ClusterCreator::getNPosECells(
     CaloClusterCellLink::const_iterator cellInClusterItrE = theCellLink->end();
 
     for(;cellInClusterItr!=cellInClusterItrE; ++cellInClusterItr){
-        CaloCell* cellInCluster = (CaloCell*) *cellInClusterItr;
+        const CaloCell* cellInCluster = static_cast<const CaloCell*>( *cellInClusterItr);
         int sampling = cellInCluster->caloDDE()->getSampling();
         // Get cell layer: PSB and PSE belong to layer 0,  
         // EMB1 and EME1 to layer 1, EMB2 and EME2 to layer 2. 
@@ -350,8 +342,7 @@ vector<int> TauPi0ClusterCreator::getNPosECells(
 }
 
 
-vector<float> TauPi0ClusterCreator::get1stEtaMomWRTCluster(
-    const xAOD::CaloCluster* pi0Candidate)
+vector<float> TauPi0ClusterCreator::get1stEtaMomWRTCluster(const xAOD::CaloCluster* pi0Candidate) const
 {
     vector<float> firstEtaWRTClusterPositionInLayer (4, 0.);  //init with 0. for 0-3 layers
     vector<float> sumEInLayer (4, 0.); //init with 0. for 0-3 layers
@@ -382,18 +373,14 @@ vector<float> TauPi0ClusterCreator::get1stEtaMomWRTCluster(
     return firstEtaWRTClusterPositionInLayer;
 }
 
-vector<float> TauPi0ClusterCreator::get2ndEtaMomWRTCluster(
-    const xAOD::CaloCluster* pi0Candidate)
+vector<float> TauPi0ClusterCreator::get2ndEtaMomWRTCluster( const xAOD::CaloCluster* pi0Candidate) const
 {
       vector<float> secondEtaWRTClusterPositionInLayer (4, 0.); //init with 0. for 0-3 layers
       vector<float> sumEInLayer (4, 0.); //init with 0. for 0-3 layers
 
-      const CaloClusterCellLink* theCellLink = pi0Candidate->getCellLinks();
-      CaloClusterCellLink::const_iterator cellInClusterItr  = theCellLink->begin();
-      CaloClusterCellLink::const_iterator cellInClusterItrE = theCellLink->end();
+      const CaloClusterCellLink* theCellLinks = pi0Candidate->getCellLinks();
 
-      for(;cellInClusterItr!=cellInClusterItrE;++cellInClusterItr){
-            CaloCell* cellInCluster = (CaloCell*) *cellInClusterItr;
+      for(const CaloCell* cellInCluster: *theCellLinks){
             int sampling = cellInCluster->caloDDE()->getSampling();
             // Get cell layer: PSB and PSE belong to layer 0,  
             // EMB1 and EME1 to layer 1, EMB2 and EME2 to layer 2. 
@@ -414,7 +401,7 @@ vector<float> TauPi0ClusterCreator::get2ndEtaMomWRTCluster(
       return secondEtaWRTClusterPositionInLayer;
 }
 
-bool TauPi0ClusterCreator::setHadronicClusterPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& pHadronPFOContainer)
+bool TauPi0ClusterCreator::setHadronicClusterPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& pHadronPFOContainer) const
 {
     const xAOD::Jet* tauJetSeed = (*pTau.jetLink());
     if (!tauJetSeed) {
@@ -440,11 +427,12 @@ bool TauPi0ClusterCreator::setHadronicClusterPFOs(xAOD::TauJet& pTau, xAOD::PFOC
 
         // Loop over cells to calculate cluster energy in Hcal
         double clusterE_Hcal=0.;
-        const CaloClusterCellLink* theCellLink = cluster->getCellLinks();
-        CaloClusterCellLink::const_iterator cellInClusterItr  = theCellLink->begin();
-        CaloClusterCellLink::const_iterator cellInClusterItrE = theCellLink->end();
-        for(;cellInClusterItr!=cellInClusterItrE;++cellInClusterItr){
-            CaloCell* cellInCluster = (CaloCell*) *cellInClusterItr;
+	const CaloClusterCellLink* theCellLink = cluster->getCellLinks();
+	CaloClusterCellLink::const_iterator cellInClusterItr  = theCellLink->begin();
+	CaloClusterCellLink::const_iterator cellInClusterItrE = theCellLink->end();
+
+	for(; cellInClusterItr != cellInClusterItrE; ++cellInClusterItr){
+	   const CaloCell* cellInCluster = static_cast<const CaloCell*> (*cellInClusterItr);
 
             //Get only HCAL cells
             int sampling = cellInCluster->caloDDE()->getSampling();
