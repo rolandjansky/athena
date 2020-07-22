@@ -174,5 +174,111 @@
    end of hit content plots
    ========================================================
   -->
+
+<!--
+   =======================================================
+   TRT Extension plots
+   ========================================================
+  -->
+<h id="fracTRTExtensions_vs_eta" type="TEfficiency" title="Fraction of TRT Extended Tracks">
+  <x title="#eta" n="32" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Fraction of TRT Extended Tracks" lo="0" hi="2.0"/>
+</h>
+
+<h id="fracTRTExtensions_vs_pt" type="TEfficiency" title="Fraction of TRT Extended Tracks">
+  <x title="p_{T} [GeV]" n="25" lo="0" hi="50"/>
+  <y title="Fraction of TRT Extended Tracks" lo="0" hi="2.0"/>
+</h>
+
+
+<h id="fracTRTExtensions_matched_vs_eta" type="TEfficiency" title="Fraction of TRT Extended Matched Tracks">
+  <x title="#eta" n="32" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Fraction of TRT Extended Matched Tracks" lo="0" hi="2.0"/>
+</h>
+
+<h id="fracTRTExtensions_matched_vs_pt" type="TEfficiency" title="Fraction of TRT Extended Matched Tracks">
+  <x title="p_{T} [GeV]" n="25" lo="0" hi="50"/>
+  <y title="Fraction of TRT Extended Matched Tracks" lo="0" hi="2.0"/>
+</h>
+
+<h id="chi2ndofTRTExtensions" type="TH1F" title="reco_{#chi^2/ndof}">
+  <x title="reco_{#chi^2/ndof}" n="100" lo="0.0" hi="5.0"/>
+  <y title="Number of Entries"/>
+</h>
+
+<h id="chi2ndofNoTRTExtensions" type="TH1F" title="reco_{#chi^2/ndof}">
+  <x title="reco_{#chi^2/ndof}" n="100" lo="0.0" hi="5.0"/>
+  <y title="Number of Entries"/>
+</h>
+
+
+<h id="ptresNoTRTExtensions_vs_eta" type="TH2F" title="residual vs #eta for p_{T} #times q/p_{T}">
+  <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
+  <y title="reco_{p_{T} #times q/p_{T}} - truth_{p_{T} #times q/p_{T}}" n="2000" lo="-&PTQOPTRES;" hi="&PTQOPTRES;"/>
+</h>
+
+<h id="ptresNoTRTExtensions_vs_pt" type="TH2F" title="residual vs p_{T} for p_{T} #times q/p_{T}">
+  <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
+  <y title="reco_{pT #times q/pT} - truth_{pT #times q/pT}" n="2000" lo="-&PTQOPTRES;" hi="&PTQOPTRES;"/>
+</h>
+
+<h id="ptresTRTExtensions_vs_eta" type="TH2F" title="residual vs #eta for p_{T} #times q/p_{T}">
+  <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
+  <y title="reco_{p_{T} #times q/p_{T}} - truth_{p_{T} #times q/p_{T}}" n="2000" lo="-&PTQOPTRES;" hi="&PTQOPTRES;"/>
+</h>
+
+<h id="ptresTRTExtensions_vs_pt" type="TH2F" title="residual vs p_{T} for p_{T} #times q/p_{T}">
+  <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
+  <y title="reco_{pT #times q/pT} - truth_{pT #times q/pT}" n="2000" lo="-&PTQOPTRES;" hi="&PTQOPTRES;"/>
+</h>
+
+<h id="resolutionTRTExtensions_vs_eta_ptqopt" type="TH1F" title="resolution vs #eta for p_{T} #times q/p_{T}">
+  <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
+  <y title="width of resolution for p_{T} #times q/p_{T}"/>
+</h>
+
+<h id="resmeanTRTExtensions_vs_eta_ptqopt" type="TH1F" title="mean of resolution vs #eta for p_{T} #times q/p_{T}">
+  <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
+  <y title="mean of resolution for p_{T} #times q/p_{T}"/>
+</h>
+
+<h id="resolutionNoTRTExtensions_vs_eta_ptqopt" type="TH1F" title="resolution vs #eta for p_{T} #times q/p_{T}">
+  <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
+  <y title="width of resolution for p_{T} #times q/p_{T}"/>
+</h>
+
+<h id="resmeanNoTRTExtensions_vs_eta_ptqopt" type="TH1F" title="mean of resolution vs #eta for p_{T} #times q/p_{T}">
+  <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
+  <y title="mean of resolution for p_{T} #times q/p_{T}"/>
+</h>
+
+<h id="resolutionTRTExtensions_vs_pt_ptqopt" type="TH1F" title="resolution vs p_{T} for p_{T} #times q/p_{T}">
+  <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
+  <y title="width of resolution for p_{T} #times q/p_{T}"/>
+</h>
+
+<h id="resmeanTRTExtensions_vs_pt_ptqopt" type="TH1F" title="mean of resolution vs p_{T} for p_{T} #times q/p_{T}">
+  <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
+  <y title="mean of resolution for p_{T} #times q/p_{T}"/>
+</h>
+
+<h id="resolutionNoTRTExtensions_vs_pt_ptqopt" type="TH1F" title="resolution vs p_{T} for p_{T} #times q/p_{T}">
+  <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
+  <y title="width of resolution for p_{T} #times q/p_{T}"/>
+</h>
+
+
+<h id="resmeanNoTRTExtensions_vs_pt_ptqopt" type="TH1F" title="mean of resolution vs p_{T} for p_{T} #times q/p_{T}">
+  <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
+  <y title="mean of resolution for p_{T} #times q/p_{T}"/>
+</h>
+<!--
+   =======================================================
+   end TRT Extension plots
+   ========================================================
+  -->
+
 </hdef>
+
+
 

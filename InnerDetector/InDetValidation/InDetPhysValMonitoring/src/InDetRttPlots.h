@@ -26,16 +26,14 @@
 #include "InDetPerfPlot_Efficiency.h"
 #include "InDetPerfPlot_HitResidual.h"
 #include "InDetPerfPlot_HitEfficiency.h"
-
 #include "InDetPerfPlot_TrackParameters.h"
-
 #include "TrkValHistUtils/IDHitPlots.h"
 #include "InDetPerfPlot_Hits.h"
 #include "InDetPerfPlot_Vertex.h"
 #include "InDetPerfPlot_VertexTruthMatching.h"
 #include "InDetPerfPlot_VerticesVsMu.h"
-
 #include "InDetPerfPlot_TrkInJet.h"
+#include "InDetPerfPlot_TRTExtension.h"
 
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/Vertex.h"
@@ -90,6 +88,7 @@ private:
   InDetPerfPlot_Vertex m_vertexPlots;
   InDetPerfPlot_Vertex m_hardScatterVertexPlots;
   InDetPerfPlot_VertexTruthMatching m_hardScatterVertexTruthMatchingPlots;
+  InDetPerfPlot_TRTExtension m_trtExtensionPlots;
 
   std::unique_ptr<InDetPerfPlot_Resolution> m_resolutionPlotSecd;
   std::unique_ptr<InDetPerfPlot_Hits> m_hitsMatchedTracksPlots;

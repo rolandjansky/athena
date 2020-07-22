@@ -29,6 +29,7 @@ InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string& sDir, co
   m_vertexPlots(this, "Vertices/AllPrimaryVertices"),
   m_hardScatterVertexPlots(this, "Vertices/HardScatteringVertex"),
   m_hardScatterVertexTruthMatchingPlots(this, "Vertices/HardScatteringVertex"),
+  m_trtExtensionPlots(this, "Tracks/TRTExtension"),
   m_resolutionPlotSecd(nullptr),
   m_doTrackInJetPlots(true) //FIX CONFIGURATION
 {
@@ -109,6 +110,7 @@ InDetRttPlots::fill(const xAOD::TrackParticle& particle, const xAOD::TruthPartic
 
     }
 
+    if (barcode < 200000 && barcode != 0 && prob > 0.5) m_trtExtensionPlots.fill(particle, truthParticle);
 
 
   }
@@ -148,8 +150,8 @@ InDetRttPlots::fill(const xAOD::TrackParticle& particle) {
 
   }
 
-
   m_hitsRecoTracksPlots.fill(particle);
+  m_trtExtensionPlots.fill(particle);
 }
 
 //
