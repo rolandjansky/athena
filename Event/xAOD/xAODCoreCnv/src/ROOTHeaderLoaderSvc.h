@@ -18,6 +18,15 @@
 
 namespace xAODMaker {
 
+   /// Service implementing @c xAODMaker::IROOTHeaderLoaderSvc
+   ///
+   /// The service simply relies on @c TROOT::ProcessLine(...) to execute
+   /// '#include "headerName.h"' commands. Forcing ROOT to interpret those
+   /// headers during the job's initialisation. Allowing us to work around
+   /// ATR-21753 / ROOT-10940.
+   ///
+   /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+   ///
    class ROOTHeaderLoaderSvc : public extends< AthService,
                                                IROOTHeaderLoaderSvc > {
 
