@@ -56,6 +56,8 @@ atlas_add_library( Pythia8_iLib
                    src/UserHooks/WprimeWZFlat.cxx
 		   src/UserHooks/WZPolarization.cxx
                    src/UserHooks/mHatReweight.cxx
+                   src/UserHooks/DecayToSUEP.cxx
+                   src/UserHooks/suep_shower.cxx
                    src/UserHooks/main31.cxx
                    src/UserHooks/EnhanceSplittings.cxx
                    src/UserResonances/ResonanceExcitedCI.cxx
