@@ -514,9 +514,8 @@ class  ConfiguredNewTrackingSiPattern:
                                                    tryBremFit         = InDetFlags.doBremRecovery() and useBremMode and NewTrackingCuts.mode() != "DBM",
                                                    caloSeededBrem     = InDetFlags.doCaloSeededBrem() and NewTrackingCuts.mode() != "DBM",
                                                    pTminBrem          = NewTrackingCuts.minPTBrem(),
-                                                   RefitPrds          = True,
-                                                   doHadCaloSeed      = InDetFlags.doCaloSeededRefit(),
-                                                   InputHadClusterContainerName = InDetKeys.HadCaloClusterROIContainer()+"Bjet")
+                                                   RefitPrds          = True)
+
 
            # DenseEnvironmentsAmbiguityScoreProcessorTool
            from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__DenseEnvironmentsAmbiguityScoreProcessorTool as ScoreProcessorTool

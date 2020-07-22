@@ -42,5 +42,5 @@ atlas_add_component( TrkAmbiguityProcessor
                      src/RenounceToolInputsVisitor.cxx
                      src/components/*.cxx
                      PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel AthenaBaseComps AtlasDetDescr GaudiKernel InDetPrepRawData InDetRecToolInterfaces  TrkDetElementBase TrkEventPrimitives TrkParameters TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkTruthData TrkFitterInterfaces TrkToolInterfaces TrkValInterfaces TrkExInterfaces TrkCaloClusterROI)
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel AthenaBaseComps AtlasDetDescr GaudiKernel InDetPrepRawData InDetRecToolInterfaces  TrkDetElementBase TrkEventPrimitives TrkParameters TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkTruthData TrkFitterInterfaces TrkToolInterfaces TrkValInterfaces TrkExInterfaces)
 
