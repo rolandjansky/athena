@@ -1,8 +1,7 @@
-// Dear emacs, this is -*- c++ -*-
-#ifndef TRIGT1INTERFACES_CTPSLINK_H
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+#ifndef TRIGT1INTERFACES_CTPSLINK_H
 #define TRIGT1INTERFACES_CTPSLINK_H
 
 // std include(s):
@@ -67,7 +66,7 @@ namespace LVL1CTP {
       unsigned int getSize() const;
 
       //! retrieve CTP version number
-     unsigned int getCTPVersionNumber() const { return m_ctpVersionNumber;}
+      unsigned int getCTPVersionNumber() const { return m_ctpVersionNumber;}
      
       /* access data content */
 
@@ -116,10 +115,10 @@ namespace LVL1CTP {
       unsigned int m_ctpVersionNumber;
       CTPdataformatVersion *  m_ctpVersion;
       
-      mutable unsigned int m_wordsPerHeader;         //!< number of words per header
-      mutable unsigned int m_wordsPerDataElement;    //!< number of words per data element
-      mutable unsigned int m_wordsPerTrailer;        //!< number of words per trailer
-      mutable unsigned int m_wordsPerCTPSLink;       //!< number of words per CTPSLink
+      unsigned int m_wordsPerHeader;         //!< number of words per header
+      unsigned int m_wordsPerDataElement;    //!< number of words per data element
+      unsigned int m_wordsPerTrailer;        //!< number of words per trailer
+      unsigned int m_wordsPerCTPSLink;       //!< number of words per CTPSLink
 
       //! convert data contetn into string (used by dump and print)
       const std::string convert(std::vector<uint32_t> data,
