@@ -45,6 +45,8 @@
 ##                      configuration file paths relative to basename
 ##     12) 'productionMode': string ('True'/'False', default: 'True')
 ##         ('True': run as if on Tier-0. 'False': Assume testing.)
+##     13) 'servers': string with comma-separated server names to override normal config
+##         (e.g. 'aiatlas009.cern.ch,aiatlas039.cern.ch,aiatlas016.cern.ch')
 ##
 ## (C) N. Boelaert, L. Goossens, A. Nairz, P. Onyisi, S. Schaetzel, M. Wilson 
 ##     (April 2008 - July 2010)
@@ -290,6 +292,10 @@ def dq_combined_trf(jsonfile, outmap):
           n_xmlrpc_tries += 1
           if n_xmlrpc_tries <= MAX_XMLRPC_TRIES:
             time.sleep(20*2**n_xmlrpc_tries)
+
+    # data servers
+    if 'servers' in parmap and isinstance(parmap['servers'], str):
+      os.environ['DQC_SERVERS'] = parmap['servers']
 
     print("Job parameters:\n")
     print("  Run number:      ", runnr)
