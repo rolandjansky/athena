@@ -45,7 +45,7 @@ namespace Pythia8 {
       double sHat = phaseSpacePtr->sHat();
       double weightBW = m2Res*m2Res + sHat*sHat*(1 + gamMRat*gamMRat) - 2.*sHat*m2Res;      
       
-      return weightBW * breitWignerDenom(sqrt(sHat)/8000.0);
+      return weightBW * breitWignerDenom(std::sqrt(sHat)/8000.0);
     }
     
   private:

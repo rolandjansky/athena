@@ -360,7 +360,7 @@ StatusCode BSignalFilter::filterEvent()
 bool BSignalFilter::test_cuts(const double myPT, const double testPT,
 			      const double myEta, const double testEta) const
 {
-  return ( (myPT >= testPT) && (fabs(myEta) <= testEta) );
+  return ( (myPT >= testPT) && (std::abs(myEta) <= testEta) );
 }
 
 

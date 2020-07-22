@@ -252,12 +252,12 @@ Double_t get_vn(Double_t *x, Double_t *par)
   if(ihar==2) return v2;
 
   if(ihar==3) {
-    float fb=0.97 +1.06*exp(-0.5*b*b/3.2/3.2);
-    return pow(fb*sqrt(v2),3);
+    float fb=0.97 +1.06*std::exp(-0.5*b*b/3.2/3.2);
+    return std::pow(fb*std::sqrt(v2),3);
   }
-  float gb= 1.096 +1.36 *exp(-0.5*b*b/3.0/3.0);
-  gb=gb*sqrt(v2);
-  return pow(gb,ihar);
+  float gb= 1.096 +1.36 *std::exp(-0.5*b*b/3.0/3.0);
+  gb=gb*std::sqrt(v2);
+  return std::pow(gb,ihar);
 }
 
 
@@ -281,8 +281,8 @@ profile_resolution->Write();
   
   for(int ihar=0;ihar<6;ihar++){
     double reso=profile_resolution->GetBinContent(ihar+1);
-    if (reso >=0) reso= sqrt( reso);
-    else          reso=-sqrt(-reso);
+    if (reso >=0) reso= std::sqrt( reso);
+    else          reso=-std::sqrt(-reso);
     for(int ieta=0;ieta<n_etabin;ieta++){
       sprintf(name,"profile_pt_dep_reco_%d_eta%d",ihar+1,ieta);
       prof=(TProfile*)Infile->Get(name);

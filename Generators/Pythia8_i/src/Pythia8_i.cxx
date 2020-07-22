@@ -406,7 +406,7 @@ StatusCode Pythia8_i::callGenerator(){
   double eventWeight = m_pythia->info.mergingWeight()*m_pythia->info.weight();
   
   if(returnCode != StatusCode::FAILURE &&
-     (fabs(eventWeight) < 1.e-18 ||
+     (std::abs(eventWeight) < 1.e-18 ||
       m_pythia->event.size() < 2)){
        
        returnCode = this->callGenerator();
