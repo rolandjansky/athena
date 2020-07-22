@@ -115,7 +115,7 @@ namespace Pythia8{
 	particleFound=true;
 
 	//setup SUEP shower
-	static Suep_shower suep_shower(m_darkMesonMass(settingsPtr), m_darkTemperature(settingsPtr), m_mass(settingsPtr));
+	static Suep_shower suep_shower(m_darkMesonMass(settingsPtr), m_darkTemperature(settingsPtr), m_mass(settingsPtr), rndmPtr);
 
 #ifdef SUEP_DEBUG
 	std::cout << "[SUEP_DEBUG] " << "Particle (pdgId=" << m_pdgId(settingsPtr) << ", isFinal=True) found. Decaying to SUEP now." << std::endl;

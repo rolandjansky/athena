@@ -11,6 +11,7 @@
 #include <boost/math/tools/roots.hpp>
 #include <boost/bind.hpp>
 #include "Pythia8/PhaseSpace.h"
+#include "Pythia8/Basics.h"
 
 //** Auxiliary class for tolerance checks */
 class tolerance {
@@ -32,13 +33,21 @@ class Suep_shower
 { 
  public:
   
-  // Constructor
-  Suep_shower(double mass, double temperature, double energy);
+  /** Constructor.
+   * @param mass Mass of the dark meson
+   * @param temperature model parameter
+   * @param energy total energy of decaying system
+   * @param rndm random number generator, if any (if not provided will use the rand() function).
+   */
+  Suep_shower(double mass, double temperature, double energy, Pythia8::Rndm *rndm = 0);
   
   /** Generate a shower event, in the rest frame of the showe. */
   std::vector< Pythia8::Vec4 > generate_shower();
   
  protected: 
+
+  /** Random number generator, if not provided will use rand() */
+  Pythia8::Rndm *rndmEngine;
   
   /** Mass of the dark mesons to be generated in the shower */
   double m;

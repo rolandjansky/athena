@@ -10,10 +10,11 @@ using namespace std;
 using namespace Pythia8;
 
   // constructor
-  Suep_shower::Suep_shower(double mass, double temperature, double energy) {
+  Suep_shower::Suep_shower(double mass, double temperature, double energy, Pythia8::Rndm *rndm) {
     m = mass;
     Temp=temperature;
     Etot=energy;
+    rndmEngine = rndm;
     
     A=m/Temp;
     p_m=std::sqrt(2/(A*A)*(1+std::sqrt(1+A*A)));
@@ -56,8 +57,13 @@ using namespace Pythia8;
     double U(0.0), V(0.0), X(0.0), Y(0.0), E(0.0);
     int i=0;      
     while(i<100){
-      U = ((double) rand() / RAND_MAX);
-      V = ((double) rand() / RAND_MAX);
+      if (rndmEngine) {
+	U = rndmEngine->flat();
+	V = rndmEngine->flat();
+      } else {
+	U = ((double) rand() / RAND_MAX);
+	V = ((double) rand() / RAND_MAX);
+      }
         
       if(U < q_m){
 	Y=U/q_m;
@@ -85,8 +91,13 @@ using namespace Pythia8;
     p=X*(this->m); // X is the dimensionless momentum, p/m
     
     // now do the angles
-    phi = 2.0*M_PI*((double) rand() / RAND_MAX);
-    theta = acos(2.0*((double) rand() / RAND_MAX)-1.0);
+    if (rndmEngine) {
+      phi = 2.0*M_PI*(rndmEngine->flat());
+      theta = acos(2.0*rndmEngine->flat()-1.0);
+    } else {
+      phi = 2.0*M_PI*((double) rand() / RAND_MAX);
+      theta = acos(2.0*((double) rand() / RAND_MAX)-1.0);
+    }
     
     // compose the 4 vector
     en = std::sqrt(p*p+(this->m)*(this->m));
