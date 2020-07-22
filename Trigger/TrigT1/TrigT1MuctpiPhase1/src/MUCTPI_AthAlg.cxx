@@ -12,11 +12,6 @@ namespace LVL1MUCTPIPHASE1 {
     AthAlgorithm(name, pSvcLocator),
     m_muctpiTool("LVL1MUCTPIPHASE1__MUCTPI_AthTool/MUCTPI_AthTool")
   {
-    // Init message
-    ATH_MSG_INFO( "=======================================" );
-    ATH_MSG_INFO( "Constructor for MUCTPI_AthAlg."  );
-    ATH_MSG_INFO( "=======================================" );
-
     declareProperty( "MUCTPI_AthTool", m_muctpiTool, "Tool to steer the MUCTPI simulation");
   }
   
