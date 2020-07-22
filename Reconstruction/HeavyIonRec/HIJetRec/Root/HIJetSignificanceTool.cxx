@@ -4,7 +4,7 @@
 
 #include "StoreGate/WriteDecorHandle.h"
 
-#include "HIJetRec/HIJetSignificanceTool.h"
+#include "HIJetSignificanceTool.h"
 #include "xAODCaloEvent/CaloCluster.h"
 
 HIJetSignificanceTool::HIJetSignificanceTool(const std::string& name)
