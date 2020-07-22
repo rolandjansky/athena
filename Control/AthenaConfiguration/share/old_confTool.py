@@ -83,6 +83,7 @@ def _loadSingleFile(fname, args):
 
         with open(fname, "r") as input_file:
             conf = json.load(input_file, object_hook=__keepPlainStrings)
+
             print("... Read", len(conf), "items from JSON file: ", fname)
 
     else:
@@ -226,9 +227,15 @@ def _compareComponent(compRef, compChk, prefix, args, component):
                         refVal, chkVal, "\t" + prefix + ">> ", args, component
                     )
 
-    elif isinstance(compRef, list) and len(compRef) > 1:
+    elif isinstance(compRef, (list, tuple)) and len(compRef) > 1:
+        if isinstance(compRef[0], list): # to achieve hashability
+            compChk = [tuple(el) for el in compRef]
+        if len(compChk) > 0 and isinstance(compChk[0], list):
+            compChk = [tuple(el) for el in compChk]
+
         diffRef = list(set(compRef) - set(compChk))
         diffChk = list(set(compChk) - set(compRef))
+
         if diffRef:
             print(
                 "%s exists only in Ref : \033[92m %s \033[0m \033[91m<< !!!\033[0m"
