@@ -521,7 +521,7 @@ def triggerRunCfg( flags, seqName = None, menu=None ):
     acc.merge( triggerIDCCacheCreatorsCfg( flags, seqName ) )
 
     from L1Decoder.L1DecoderConfig import L1DecoderCfg
-    l1DecoderAcc, l1DecoderAlg = L1DecoderCfg( flags )
+    l1DecoderAcc = L1DecoderCfg( flags )
     acc.merge( l1DecoderAcc )
 
 
@@ -540,6 +540,7 @@ def triggerRunCfg( flags, seqName = None, menu=None ):
     acc.merge( summaryAcc )
 
     #once menu is included we should configure monitoring here as below
+    l1DecoderAlg = l1DecoderAcc.getEventAlgo("L1Decoder")
 
     monitoringAcc, monitoringAlg = triggerMonitoringCfg( flags, hypos, filters, l1DecoderAlg )
     acc.merge( monitoringAcc )

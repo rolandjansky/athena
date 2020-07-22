@@ -160,6 +160,8 @@ else:   # athenaHLT
     rec.RunNumber =_run_number
     del _run_number
 
+ConfigFlags.Input.Format = 'BS' if globalflags.InputFormat=='bytestream' else 'RDO'
+
 
 # Set final Cond/Geo tag based on input file, command line or default
 globalflags.DetDescrVersion = opt.setDetDescr or TriggerFlags.OnlineGeoTag()
@@ -451,25 +453,12 @@ hltTop += hltBeginSeq
 
 l1decoder = None
 if opt.doL1Unpacking:
-    if globalflags.InputFormat.is_bytestream():
-        # Create inputs for L1Decoder from ByteStream
-        from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1ByteStreamDecodersRecExSetup
-        L1ByteStreamDecodersRecExSetup()
     if globalflags.InputFormat.is_bytestream() or opt.doL1Sim:
-        # TODO: replace with L1DecoderCfg
-        from L1Decoder.L1DecoderConfig import L1Decoder
-        l1decoder = L1Decoder("L1Decoder")
-        l1decoder.ctpUnpacker.ForceEnableAllChains = opt.forceEnableAllChains
-        l1decoder.RoIBResult = "RoIBResult" if opt.enableL1CaloLegacy or not opt.enableL1Phase1 else ""
-        l1decoder.L1TriggerResult = "L1TriggerResult" if opt.enableL1Phase1 else ""
-        if opt.enableL1Phase1:
-            from L1Decoder.L1DecoderConfig import getL1TriggerResultMaker
-            hltBeginSeq += conf2toConfigurable(getL1TriggerResultMaker())
-        if TriggerFlags.doTransientByteStream():
-            transTypeKey = ("TransientBSOutType","StoreGateSvc+TransientBSOutKey")
-            l1decoder.ExtraInputs += [transTypeKey]
-
-        hltBeginSeq += conf2toConfigurable(l1decoder)
+        ConfigFlags.Trigger.L1Decoder.forceEnableAllChains = opt.forceEnableAllChains
+        from L1Decoder.L1DecoderConfig import L1DecoderCfg
+        CAtoGlobalWrapper(L1DecoderCfg, ConfigFlags, seqName="HLTBeginSeq")
+        from AthenaCommon.CFElements import findAlgorithm
+        l1decoder = hltBeginSeq.L1Decoder
     else:
         from TrigUpgradeTest.TestUtils import L1EmulationTest
         hltBeginSeq += L1EmulationTest()
