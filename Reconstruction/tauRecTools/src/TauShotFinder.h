@@ -21,7 +21,7 @@ public:
     virtual ~TauShotFinder();
 
     virtual StatusCode initialize() override;
-    virtual StatusCode executeShotFinder(xAOD::TauJet& pTau, xAOD::CaloClusterContainer& tauShotCaloClusContainer, xAOD::PFOContainer& tauShotPFOContainer) override;
+    virtual StatusCode executeShotFinder(xAOD::TauJet& pTau, xAOD::CaloClusterContainer& tauShotCaloClusContainer, xAOD::PFOContainer& tauShotPFOContainer) const override;
     virtual StatusCode finalize() override;
 
 private:
@@ -42,23 +42,23 @@ private:
     };
 
     /** @brief get neighbour cells */
-    std::vector<const CaloCell*> getNeighbours(const CaloCellContainer*,const CaloCell*,int /*maxDepth*/);
+    std::vector<const CaloCell*> getNeighbours(const CaloCellContainer*,const CaloCell*,int /*maxDepth*/) const;
 
     void addNeighbours(const CaloCellContainer*,
                        const CaloCell* cell,
                        std::vector<const CaloCell*>& cells,
                        int depth,
                        int maxDepth,
-                       bool next);
+                       bool next) const;
 
-    bool isPhiNeighbour(IdentifierHash cell1Hash, IdentifierHash cell2Hash, bool next);
+    bool isPhiNeighbour(IdentifierHash cell1Hash, IdentifierHash cell2Hash, bool next) const;
 
     /** @brief get eta bin */
-    float getEtaBin(float /*seedEta*/);
+    float getEtaBin(float /*seedEta*/) const;
   
     /** @brief get NPhotons in shot */
     float getNPhotons(int /*etaBin*/, 
-                      float /*seedEnergy*/);
+                      float /*seedEnergy*/) const;
 
     // number of cells in eta
     Gaudi::Property<int> m_nCellsInEta {this, "NCellsInEta"};
