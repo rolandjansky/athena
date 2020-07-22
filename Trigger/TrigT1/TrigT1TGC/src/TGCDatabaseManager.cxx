@@ -70,12 +70,11 @@ void TGCDatabaseManager::addConnectionInPP(const TGCPatchPanel* patchPanel,
 }
 
 TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs)
- : m_mapTileMu(0),
+ : AthMessaging(Athena::getMessageSvc(), "LVL1TGC::TGCDatabaseManager"),
+   m_mapTileMu(0),
    m_tgcArgs(tgcargs)
 {
-  // set message label
-  m_msg = Athena::MsgStreamMember("LVL1TGC::TGCDatabaseManager");
-  m_msg.get().setLevel(tgcArgs()->MSGLEVEL());
+  setLevel(tgcArgs()->MSGLEVEL());
 
   int i,j,k;
   for( j=0; j<NumberOfRegionType; j+=1){
@@ -100,11 +99,10 @@ TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs)
 TGCDatabaseManager::TGCDatabaseManager(TGCArguments* tgcargs,
 				       const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
 				       const std::string& ver, bool )
- : m_tgcArgs(tgcargs)
+ : AthMessaging(Athena::getMessageSvc(), "LVL1TGC::TGCDatabaseManager"),
+   m_tgcArgs(tgcargs)
 {
-  // set message label
-  m_msg = Athena::MsgStreamMember("LVL1TGC::TGCDatabaseManager");
-  m_msg.get().setLevel(tgcArgs()->MSGLEVEL());
+  setLevel(tgcArgs()->MSGLEVEL());
 
   bool status = true;
 
@@ -209,6 +207,7 @@ TGCDatabaseManager::~TGCDatabaseManager()
 }
 
 TGCDatabaseManager::TGCDatabaseManager(const TGCDatabaseManager& right)
+  : AthMessaging(Athena::getMessageSvc(), "LVL1TGC::TGCDatabaseManager")
 {
   for(int j=0; j<NumberOfRegionType; j+=1){
     for(int i=0; i<NumberOfPatchPanelType; i+=1){

@@ -12,13 +12,11 @@
 
 #include "MuonCondSvc/TGCTriggerData.h"
 #include "StoreGate/ReadCondHandleKey.h"
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
 #include <vector>
 #include <map>
 #include <string>
-
-#include "GaudiKernel/MsgStream.h"
 
 namespace LVL1TGCTrigger {
 
@@ -31,7 +29,7 @@ class TGCEIFICoincidenceMap;
 class TGCTileMuCoincidenceMap;
 class TGCNSWCoincidenceMap;
 
-class TGCDatabaseManager
+class TGCDatabaseManager : public AthMessaging
 {
   typedef std::vector<int> PatchPanelIDs; 
   typedef std::vector<const TGCPatchPanel*> PatchPanelPointers; 
@@ -63,15 +61,6 @@ class TGCDatabaseManager
 
   TGCArguments* tgcArgs() const;
 
-  /** Declaring the standard message stream
-   *  Returns a reference to the default message stream
-   */
-  MsgStream& msg(const MSG::Level lvl) const;
-  /** Test method to evaluate the verbosity level */
-  bool msgLvl(const MSG::Level lvl) const;
-  /** set message level to propagate from the parent class */
-  void setMessageLevel(const MSG::Level lvl) const;
-
  private:
   enum {NumberOfModuleInBW=9};
 
@@ -85,9 +74,6 @@ class TGCDatabaseManager
   std::map<PatchPanelIDs, std::pair<const TGCConnectionInPP, PatchPanelPointers> > m_patchPanelToConnectionInPP;
   
   TGCArguments* m_tgcArgs;
-
-  //Declaring private message stream member.
-  mutable Athena::MsgStreamMember m_msg;
 };
 
 inline
@@ -130,16 +116,6 @@ inline
 {
   return m_ASDToPP[region-1][type][forwardBackward];
 }
-
-inline MsgStream& TGCDatabaseManager::msg(const MSG::Level lvl) const { return m_msg << lvl; }
-
-inline bool TGCDatabaseManager::msgLvl(const MSG::Level lvl) const
-{
-  return (m_msg.get().level() <= lvl) ? true : false;
-}
-
-inline void TGCDatabaseManager::setMessageLevel(const MSG::Level lvl) const { m_msg.get().setLevel(lvl); }
-
 
 } //end of namespace bracket
 
