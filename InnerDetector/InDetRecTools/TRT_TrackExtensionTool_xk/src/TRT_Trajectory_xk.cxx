@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -24,7 +24,8 @@ void  InDet::TRT_Trajectory_xk::set
  double roadwidth                       ,
  double zvertexwidth                    ,
  double impact                          ,
- double scale                           )
+ double scale                           ,
+ double minTRTSegmentpT                 )
 {
   m_proptool     = pr                 ;
   m_updatortool  = up                 ;
@@ -33,6 +34,7 @@ void  InDet::TRT_Trajectory_xk::set
   m_impact       = fabs(impact      ) ;
   m_scale_error  = fabs(scale       ) ;
   for(int i=0; i!=400; ++i) m_elements[i].set(m,pr,up,riod,rion,m_scale_error);
+  m_minTRTSegmentpT = minTRTSegmentpT ;
 }
 
 void  InDet::TRT_Trajectory_xk::set
@@ -518,8 +520,7 @@ Trk::TrackSegment* InDet::TRT_Trajectory_xk::convert()
 {
 
   // Test quality of propagation to perigee
-  //
-  if(fabs(m_parameters.pT()) < 300.) return 0;
+  if(fabs(m_parameters.pT()) < m_minTRTSegmentpT) return 0;
 
   const Trk::Surface* sur = m_parameters.associatedSurface();
 
@@ -722,7 +723,7 @@ bool InDet::TRT_Trajectory_xk::fitter()
   const double trad = .003;
   double        rad =  0. ;
 
-  if(!trackParametersEstimationForLastPoint() || fabs(m_parameters.pT()) < 300.) return false;
+  if(!trackParametersEstimationForLastPoint() || std::abs(m_parameters.pT()) < m_minTRTSegmentpT) return false;
   double sin2 = 1./sin(m_parameters.par()[3]); sin2*= sin2        ;
   double P42  =        m_parameters.par()[4] ; P42  = P42*P42*134.;
 

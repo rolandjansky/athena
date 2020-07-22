@@ -22,7 +22,7 @@
 
 
 // This algorithm includes
-#include "TrigT1CaloSim/EnergyCMX.h"
+#include "EnergyCMX.h"
 
 #include "TrigConfL1Data/TriggerThreshold.h"
 #include "TrigConfL1Data/CTPConfig.h"

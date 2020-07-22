@@ -8,10 +8,10 @@
 //  Single myPropagator object of vkalPropagator type is created in CFit.cxx
 //------------------------------------------------------------------------
 // Header include
-#include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
 #include "TrkVKalVrtCore/Propagator.h"
+#include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
 #include "TrkVKalVrtCore/VKalVrtBMag.h"
-#include <math.h>
+#include <cmath>
 //-------------------------------------------------
 #include <iostream>
 
@@ -22,7 +22,7 @@ extern const vkalMagFld      myMagFld;
 
 extern void cfnewp(long int*, double*, double*, double*, double*, double*);
 extern void cferpr(long int*, double*, double*, double*, double*, double*);
-extern void cfnewpm (double*, double*, double*, double*, double*, double*, const VKalVrtControlBase * =0);
+extern void cfnewpm (double*, double*, double*, double*, double*, double*, const VKalVrtControlBase * =nullptr);
 
 //------------------------------------------------------------------------
 //  Old propagator functions:
@@ -58,14 +58,14 @@ extern void cfnewpm (double*, double*, double*, double*, double*, double*, const
       Goal[1]=RefEnd[1]-RefStart[1];
       Goal[2]=RefEnd[2]-RefStart[2];
       cfnewp( &Charge, ParOld, &Goal[0], &Way, ParNew, closePoint); 
-      if(CovOld != 0) cferpr( &Charge, ParOld, &Goal[0], &Way, CovOld, CovNew);
+      if(CovOld != nullptr) cferpr( &Charge, ParOld, &Goal[0], &Way, CovOld, CovNew);
       if(Charge==0){                      // Correction for different magnetic field values in Ini and End
         double vBx,vBy,vBz,vBzn;
         myMagFld.getMagFld(RefStart[0],RefStart[1],RefStart[2],vBx,vBy,vBz,CONTROL);
         myMagFld.getMagFld(RefEnd[0],RefEnd[1],RefEnd[2],vBx,vBy,vBzn,CONTROL);
         double Corr = vBzn/vBz;
         ParNew[4]  *= Corr;
-        if(CovOld != 0){
+        if(CovOld != nullptr){
 	  CovNew[10] *= Corr;
 	  CovNew[11] *= Corr;
 	  CovNew[12] *= Corr;
@@ -88,7 +88,7 @@ extern void cfnewpm (double*, double*, double*, double*, double*, double*, const
       Goal[1]=RefEnd[1]-RefStart[1];
       Goal[2]=RefEnd[2]-RefStart[2];
       cfnewp( &Charge, ParOld, &Goal[0], &Way, ParNew, closePoint); 
-      if(CovOld != 0)cferpr( &Charge, ParOld, &Goal[0], &Way, CovOld, CovNew);
+      if(CovOld != nullptr)cferpr( &Charge, ParOld, &Goal[0], &Way, CovOld, CovNew);
 
 // double Save[5];  if(Way > 100){for (int ii=0; ii<5;ii++) Save[ii]=ParNew[ii];}
 // double Save[4];  if(Way > 10.){for (int ii=0; ii<3;ii++) Save[ii]=closePoint[ii];Save[3]=ParNew[0];}
@@ -117,7 +117,7 @@ extern void cfnewpm (double*, double*, double*, double*, double*, double*, const
         myMagFld.getMagFld(RefEnd[0],RefEnd[1],RefEnd[2],vBx,vBy,vBzn,CONTROL);
         double Corr = vBzn/vBz;
         ParNew[4]  *= Corr;
-        if(CovOld != 0){
+        if(CovOld != nullptr){
 	  CovNew[10] *= Corr;
 	  CovNew[11] *= Corr;
 	  CovNew[12] *= Corr;
@@ -130,11 +130,11 @@ extern void cfnewpm (double*, double*, double*, double*, double*, double*, const
 //----------------------------------------------------------------------------------------
 //                         Propagator object 
 //
-   vkalPropagator::vkalPropagator(){}
-   vkalPropagator::~vkalPropagator() {}
+   vkalPropagator::vkalPropagator()= default;
+   vkalPropagator::~vkalPropagator() = default;
 
-   basePropagator::basePropagator() {}
-   basePropagator::~basePropagator() {}
+   basePropagator::basePropagator() = default;
+   basePropagator::~basePropagator() = default;
 
 
    bool vkalPropagator::checkTarget(double *) const 
@@ -149,13 +149,13 @@ extern void cfnewpm (double*, double*, double*, double*, double*, double*, const
 //std::cout<<"Core: propagator control="<<FitControl<<" oldX,Y="<<RefOld[0]<<","<<RefOld[1]<<" newX,Y="<<RefNew[0]<<","<<RefNew[1]<<'\n';
      if( RefOld[0]==RefNew[0] && RefOld[1]==RefNew[1] && RefOld[2]==RefNew[2]){
        for (int i=0; i<5;  i++) ParNew[i]=ParOld[i];
-       if(CovOld != 0) { for (int i=0; i<15; i++) CovNew[i]=CovOld[i];}
+       if(CovOld != nullptr) { for (int i=0; i<15; i++) CovNew[i]=CovOld[i];}
        return;
      }
 //
 //-- Propagation itself
 //
-     if( FitControl==0 || (FitControl->vk_objProp==0 && FitControl->vk_funcProp==0) ){   // No external propagators, use internal ones
+     if( FitControl==nullptr || (FitControl->vk_objProp==nullptr && FitControl->vk_funcProp==nullptr) ){   // No external propagators, use internal ones
 //std::cout<<" Core: use INTERNAL propagator. Charge="<<Charge<<'\n';
        if(vkalUseRKMPropagator){ Trk::PropagateRKM( Charge, ParOld, CovOld, RefOld, RefNew, ParNew, CovNew, FitControl); }
        else                    { Trk::PropagateSTD( TrkID,Charge, ParOld, CovOld, RefOld, RefNew, ParNew, CovNew, FitControl); }
@@ -180,8 +180,7 @@ extern void cfnewpm (double*, double*, double*, double*, double*, double*, const
        return;
      }
      //-------------------
-     return;
-   }
+       }
 
 
    void vkalPropagator::Propagate( VKTrack * trk, double *RefOld, double *RefNew, double *ParNew, double *CovNew,
@@ -197,7 +196,7 @@ extern void cfnewpm (double*, double*, double*, double*, double*, double*, const
 //
 //-- Propagation itself
 //
-     if( FitControl==0 || (FitControl->vk_objProp==0 && FitControl->vk_funcProp==0) ){   // No external propagators, use internal ones
+     if( FitControl==nullptr || (FitControl->vk_objProp==nullptr && FitControl->vk_funcProp==nullptr) ){   // No external propagators, use internal ones
        if(vkalUseRKMPropagator){ Trk::PropagateRKM(       Charge, trk->refPerig, trk->refCovar, RefOld, RefNew, ParNew, CovNew, FitControl); }
        else                    { Trk::PropagateSTD( TrkID,Charge, trk->refPerig, trk->refCovar, RefOld, RefNew, ParNew, CovNew, FitControl); }
        return;
@@ -223,8 +222,7 @@ extern void cfnewpm (double*, double*, double*, double*, double*, double*, const
        FitControl->vk_funcProp( TrkID, Charge, trk->refPerig, trk->refCovar, RefOld, RefNew, ParNew, CovNew);     
        return;
      }
-     return;
-   }
+       }
 
 
 

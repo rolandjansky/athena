@@ -4,8 +4,6 @@ from __future__ import print_function
 from future.utils import iteritems
 import six
 
-from past.builtins import basestring
-
 from builtins import zip
 from builtins import next
 from builtins import object
@@ -863,7 +861,7 @@ class athenaExecutor(scriptExecutor):
             msg.debug("Resource monitoring from PerfMon is now deprecated")
         
         # SkeletonFile can be None (disable) or a string or a list of strings - normalise it here
-        if isinstance(skeletonFile, basestring):
+        if isinstance(skeletonFile, six.string_types):
             self._skeleton = [skeletonFile]
         else:
             self._skeleton = skeletonFile

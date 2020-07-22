@@ -5,35 +5,6 @@
 # Declare the package name:
 atlas_subdir( TRT_Digitization )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-			  Control/StoreGate
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/CxxUtils
-                          Control/PileUpTools
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          DetectorDescription/GeoModel/GeoModelInterfaces
-                          DetectorDescription/GeoModel/GeoModelUtilities
-                          DetectorDescription/GeoPrimitives
-                          DetectorDescription/Identifier
-                          Event/xAOD/xAODEventInfo
-                          Generators/GeneratorObjects
-                          InnerDetector/InDetConditions/TRT_ConditionsData
-                          InnerDetector/InDetConditions/TRT_ConditionsServices
-                          InnerDetector/InDetDetDescr/InDetIdentifier
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
-			  InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
-                          InnerDetector/InDetRawEvent/InDetRawData
-                          InnerDetector/InDetRawEvent/InDetSimData
-                          InnerDetector/InDetSimEvent
-                          InnerDetector/InDetSimUtils/TRT_PAI_Process
-                          Simulation/HitManagement
-                          MagneticField/MagFieldElements
-                          MagneticField/MagFieldConditions )
-
 # External dependencies:
 find_package( CLHEP )
 find_package( Eigen )

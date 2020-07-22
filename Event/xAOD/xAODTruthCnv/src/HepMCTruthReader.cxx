@@ -95,7 +95,7 @@ void HepMCTruthReader::printEvent(const HepMC::GenEvent* event) {
 
 // Print method for vertex - mimics the HepMC dump.
 // Particle print method called within here
-void HepMCTruthReader::printVertex(const HepMC::GenVertexPtr vertex) {
+void HepMCTruthReader::printVertex(HepMC::ConstGenVertexPtr vertex) {
   std::ios::fmtflags f( cout.flags() ); 
   cout << "GenVertex (" << vertex << "):";
   if (HepMC::barcode(vertex) != 0) {
@@ -221,7 +221,7 @@ void HepMCTruthReader::printVertex(const HepMC::GenVertexPtr vertex) {
 
 
 // Print method for particle - mimics the HepMC dump.
-void HepMCTruthReader::printParticle(const HepMC::GenParticlePtr particle) {
+void HepMCTruthReader::printParticle(HepMC::ConstGenParticlePtr particle) {
   std::ios::fmtflags f( cout.flags() ); 
   cout << " ";
   cout.width(9);

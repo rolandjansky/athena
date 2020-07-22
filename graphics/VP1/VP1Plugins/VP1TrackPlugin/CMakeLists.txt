@@ -30,7 +30,3 @@ atlas_add_library( VP1TrackPlugin VP1TrackPlugin/*.h src/*.cxx src/*.qrc
    LINK_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets
    PRIVATE_LINK_LIBRARIES VP1Base VP1PlugUtils VP1GeometrySystems VP1GuideLineSystems VP1PRDSystems VP1RawDataSystems VP1SimHitSystems VP1TrackSystems VP1VertexSystems
 )
-
-# Install files from the package:
-atlas_install_headers( VP1TrackPlugin )
-

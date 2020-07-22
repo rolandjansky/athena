@@ -2,8 +2,10 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
 #include <algorithm>
+#include <cmath>
+#include <memory>
+
 #include "TrkVKalVrtCore/CommonPars.h"
 #include "TrkVKalVrtCore/TrkVKalVrtCore.h"
 #include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
@@ -97,11 +99,11 @@ namespace Trk {
 
 
   VKVertex::VKVertex(const VKalVrtControl & FitControl): VKVertex() 
-  {    vk_fitterControl = std::unique_ptr<VKalVrtControl>(new VKalVrtControl(FitControl));  }
+  {    vk_fitterControl = std::make_unique<VKalVrtControl>(FitControl);  }
 
   VKVertex::VKVertex(): 
      useApriorVertex(0), passNearVertex(false), passWithTrkCov(false), 
-     TrackList(0), tmpArr(0), ConstraintList(0),nextCascadeVrt(0),includedVrt(0)
+     TrackList(0), tmpArr(0), ConstraintList(0),nextCascadeVrt(nullptr),includedVrt(0)
   { 
      for(int i=0; i<3; i++) apriorV[i]=refV[i]=iniV[i]=fitV[i]=cnstV[i]=fitMom[i]=0.;
      for(int i=0; i<6; i++) apriorVWGT[i]=0.;
@@ -149,7 +151,7 @@ namespace Trk {
        savedVrtMomCov[i]=src.savedVrtMomCov[i];
        fitCovXYZMom[i]=src.fitCovXYZMom[i];
     }
-    nextCascadeVrt = 0;
+    nextCascadeVrt = nullptr;
     truncatedStep = src.truncatedStep;
     existFullCov = src.existFullCov;
 
@@ -163,14 +165,14 @@ namespace Trk {
     for( int ic=0; ic<(int)src.ConstraintList.size(); ic++){
         ConstraintList.emplace_back(src.ConstraintList[ic]->clone());
     }
-    vk_fitterControl = std::unique_ptr<VKalVrtControl>(new VKalVrtControl(*src.vk_fitterControl));
+    vk_fitterControl = std::make_unique<VKalVrtControl>(*src.vk_fitterControl);
    }
 
   VKVertex& VKVertex::operator= (const VKVertex & src)        //Assignment operator
   {
     if (this!=&src){
       vk_fitterControl.reset();
-      vk_fitterControl=std::unique_ptr<VKalVrtControl>(new VKalVrtControl(*(src.vk_fitterControl)));
+      vk_fitterControl=std::make_unique<VKalVrtControl>(*(src.vk_fitterControl));
       Chi2=src.Chi2;                         // vertex Chi2
       useApriorVertex=src.useApriorVertex;    //for a priory vertex position knowledge usage
       passNearVertex=src.passNearVertex;      // needed for "passing near vertex" constraint
@@ -192,7 +194,7 @@ namespace Trk {
         savedVrtMomCov[i]=src.savedVrtMomCov[i];
         fitCovXYZMom[i]=src.fitCovXYZMom[i];
       }
-      nextCascadeVrt = 0;
+      nextCascadeVrt = nullptr;
       truncatedStep = src.truncatedStep;
       existFullCov = src.existFullCov;
 

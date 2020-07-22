@@ -13,6 +13,8 @@ from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkEGamma.EGammaCommon import *
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from TriggerMenu.api.TriggerAPI import TriggerAPI
 from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
@@ -187,6 +189,18 @@ addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqPHYS,algname="QGTaggerToolPF
 # getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqPHYS, algname='PHYSJetForwardPFlowJvtToolAlg')
 
 #====================================================================
+# EGAMMA
+#====================================================================
+
+if DerivationFrameworkIsMonteCarlo:
+   # Schedule the two energy density tools for running after the pseudojets are created.
+   for alg in ['EDTruthCentralAlg', 'EDTruthForwardAlg']:
+      if hasattr(topSequence, alg):
+         edtalg = getattr(topSequence, alg)
+         delattr(topSequence, alg)
+         SeqPHYS += edtalg
+
+#====================================================================
 # Add our sequence to the top sequence
 #====================================================================
 # Ideally, this should come at the end of the job
@@ -198,7 +212,7 @@ DerivationFrameworkJob += SeqPHYS
 # Add low-pt di-tau reconstruction
 from DerivationFrameworkTau.TauCommon import addDiTauLowPt
 addDiTauLowPt(Seq=SeqPHYS)
-'''
+
 # Low-pt di-tau thinning
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
 PHYSDiTauLowPtThinningTool = DerivationFramework__GenericObjectThinning(name            = "PHYSDiTauLowPtThinningTool",
@@ -216,7 +230,7 @@ PHYSDiTauLowPtTPThinningTool = DerivationFramework__DiTauTrackParticleThinning(n
                                                                                SelectionString         = "DiTauJetsLowPt.nSubjets > 1")
 ToolSvc += PHYSDiTauLowPtTPThinningTool
 thinningTools.append(PHYSDiTauLowPtTPThinningTool)
-'''
+
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #====================================================================
@@ -229,18 +243,11 @@ SeqPHYS += CfgMgr.DerivationFramework__DerivationKernel("PHYSKernel",
 #====================================================================
 # FLAVOUR TAGGING   
 #====================================================================
-# Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
-# addVRJets(SeqPHYS)
-# addVRJets(SeqPHYS, training='201903')
-#addVRJetsTCC(DerivationFrameworkJob, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet",
-#             VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track",
-#             ghostArea = 0 , ptmin = 2000, ptminFilter = 2000,
-#             variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
-# add xbb taggers
-# from DerivationFrameworkFlavourTag.HbbCommon import addRecommendedXbbTaggers
-# addRecommendedXbbTaggers(SeqPHYS, ToolSvc)
 
-# FlavorTagInit(JetCollections  = [ 'AntiKt4EMTopoJets','AntiKt4EMPFlowJets'], Sequencer = SeqPHYS)
+from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollection
+
+FtagJetCollection('AntiKt4EMPFlowJets',SeqPHYS)
+
 
 #====================================================================
 # TC-LVT Vertices 
@@ -264,9 +271,7 @@ PHYSSlimmingHelper.SmartCollections = ["Electrons",
                                        "InDetTrackParticles",
                                        "AntiKt4EMTopoJets",
                                        "AntiKt4EMPFlowJets",
-                                       #"BTagging_AntiKt4EMTopo_201810",
-                                       #"BTagging_AntiKt4EMPFlow_201810",
-                                       #"BTagging_AntiKt4EMPFlow_201903",
+                                       "BTagging_AntiKt4EMPFlow",
                                        #"MET_Baseline_AntiKt4EMTopo",
                                        #"MET_Baseline_AntiKt4EMPFlow",
                                        "TauJets",

@@ -14,7 +14,6 @@ TrigMuonEfficiencyMonMT :: TrigMuonEfficiencyMonMT(const std::string& name, ISvc
 
 StatusCode TrigMuonEfficiencyMonMT :: initialize(){
   StatusCode sc = TrigMuonMonitorAlgorithm::initialize();
-  ATH_CHECK( m_matchTool.retrieve() );
 
   // Pairing HLT and L1
   unsigned int nchains = m_monitored_chains.size();
@@ -83,7 +82,7 @@ StatusCode TrigMuonEfficiencyMonMT :: fillVariablesPerOfflineMuonPerChain(const 
   if(L1pass){
     if(m_doL2SA){
       bool activestate = false;
-      m_matchTool->matchSA(mu, chain, activestate);
+      m_matchTool->matchL2SA(mu, chain, activestate);
       L2SApass = activestate;
     } else {
       L2SApass = true;
@@ -94,7 +93,7 @@ StatusCode TrigMuonEfficiencyMonMT :: fillVariablesPerOfflineMuonPerChain(const 
   if(L2SApass){
     if(m_doL2CB){
       bool activestate = false;
-      m_matchTool->matchCB(mu, chain, activestate);
+      m_matchTool->matchL2CB(mu, chain, activestate);
       L2CBpass = activestate;
     } else {
       L2CBpass = true;
@@ -116,7 +115,7 @@ StatusCode TrigMuonEfficiencyMonMT :: fillVariablesPerOfflineMuonPerChain(const 
   if(EFSApass){
     if(m_doEF){
       bool activestate = false;
-      m_matchTool->matchEF(mu, chain, activestate);
+      m_matchTool->matchEFCB(mu, chain, activestate);
       EFCBpass = activestate;
     } else {
       EFCBpass = true;
@@ -190,8 +189,8 @@ StatusCode TrigMuonEfficiencyMonMT :: selectMuonsTagAndProbe(SG::ReadHandle<xAOD
     bool pass1 = false;
     bool pass2 = false;
 
-    m_matchTool->matchEF(dimu.first, m_tag_trig, pass1);
-    m_matchTool->matchEF(dimu.second, m_tag_trig, pass2);
+    m_matchTool->matchEFCB(dimu.first, m_tag_trig, pass1);
+    m_matchTool->matchEFCB(dimu.second, m_tag_trig, pass2);
     
     if(pass1){
       if(std::find(probes.begin(), probes.end(), dimu.second)==probes.end()){

@@ -108,6 +108,14 @@ void test1()
   cache.setTrigNavigationThinningSvc (&tt);
   assert (cache.trigNavigationThinningSvc() == &tt);
 
+  assert (cache.thinningInfo ("foo")->m_vetoed.empty());
+  CxxUtils::ConcurrentBitset bs (64);
+  bs.set (13);
+  cache.setVetoed ("foo", bs);
+  assert (cache.thinningInfo ("foo")->m_vetoed == bs);
+  assert (cache.thinningInfo ("foo")->vetoed(13));
+  assert (!cache.thinningInfo ("foo")->vetoed(14));
+
   cache.clear();
   assert (cache.empty());
   assert (cache.trigNavigationThinningSvc() == nullptr);

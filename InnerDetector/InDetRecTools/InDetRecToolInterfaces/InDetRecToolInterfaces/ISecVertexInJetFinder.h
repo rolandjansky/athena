@@ -60,10 +60,7 @@ public:
         return IID_ISecVertexInJetFinder;
     };
     
-    virtual Trk::VxSecVertexInfo* findSecVertex(const Trk::RecVertex & primaryVertex,
-						      const TLorentzVector & jetMomentum,
-						      const std::vector<const Trk::TrackParticleBase*> & inputTracks) const=0;
-    
+   
     virtual Trk::VxSecVertexInfo* findSecVertex(const xAOD::Vertex & primaryVertex,
 						      const TLorentzVector & jetMomentum,
 						      const std::vector<const xAOD::IParticle*> & inputTracks) const=0;

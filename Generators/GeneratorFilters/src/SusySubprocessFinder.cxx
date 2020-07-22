@@ -111,6 +111,62 @@ void SusySubprocessFinder::findInitialSusy(int ID[], int findmode) {
 
     // Loop over all particles in the event
     int ipitr = 0;
+#ifdef HEPMC3
+    for (auto pitr: genEvt->particles()) {
+
+      if (findmode == 0 || findmode == 1 || findmode == 2) {
+        // ######################################################## findmode == 0, 1
+        // ##### findmode 0 works for [maybe, is fragile]:  Pythia, Herwig(fortran) [and Herwigpp? no, don't think so]
+        // ##### findmode 1 works for Pythia and Herwig, but not Herwigpp (initial spart do not have two mothers)
+        // ##### fomdmode 2 works for
+
+        int pdg = pitr->pdg_id();
+        int pdg_initial = 0;
+        if (isSUSY(pdg)) {
+
+          // Very simplistic finder: choose two first sparticles
+          if (findmode == 0)
+            pdg_initial= pdg;
+
+          // Very simplistic finder: choose two first sparticles which have two parents
+          else if (findmode == 1) {
+            // accept as initial sparticle only if has TWO parents (always the case?)
+            if ( pitr->production_vertex() != NULL ) {
+              if ( pitr->production_vertex()->particles_in().size() == 2) pdg_initial = pdg;
+            }
+          }
+
+          // Simplistic finder: choose two first sparticles wh
+          else if (findmode == 2) {
+            // accept as initial sparticle if parents are non-SUSY
+            int nSusyParents = 0;
+            if ( pitr->production_vertex() != NULL ) {
+              for (auto  thisParent: pitr->production_vertex()->particles_out()){
+                if (isSUSY( thisParent->pdg_id() )) nSusyParents++;
+              }
+            } else {
+              ATH_MSG_WARNING("SUSY particle without parents  iPart = " << ipitr);
+            }
+            if(nSusyParents == 0) pdg_initial = pdg;
+          }
+
+        }
+
+        // test if have a hit
+        if (pdg_initial) {
+          if (iP < 2) ID[iP++] = pdg_initial;
+
+          // checks etc.
+          if (findmode == 0 && iP == 2) break;
+          if (iP > 2) {
+            ATH_MSG_WARNING("Neglecting additional find: ipitr="<< ipitr << "   pdgid=" << pdg_initial);
+          }
+	      //if (iP == 2) break; // have found two sparticles, break off
+        }
+        // ########################################################
+      }
+    }
+#else
     HepMC::GenEvent::particle_const_iterator pitr;
     for (pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
 
@@ -171,6 +227,7 @@ void SusySubprocessFinder::findInitialSusy(int ID[], int findmode) {
         // ########################################################
       }
     }
+#endif
     ipitr++;
   }
 
@@ -520,6 +577,72 @@ void SusySubprocessFinder::verboseMC() {
 
     int iPart = 0, iSusy = 0;
     // Loop over all particles in the event
+#ifdef HEPMC3
+    for (auto pitr: genEvt->particles()) {
+
+      // ########################################################
+      // Very simplistic finder: choose two first sparticles
+
+      char c[100];
+
+      int pdg = pitr->pdg_id();
+      int status = pitr->status();
+      int barcode = HepMC::barcode(pitr);
+      double mass = pitr->generated_mass();
+
+      double px = pitr->momentum().px();
+
+      // Possibilities to filter / break off listing
+      if (! (m_verbose_mode=="all" || (m_verbose_mode=="susy" && isSUSY(pdg)) ) ) continue;
+      if (iPart > m_verbose_nPart) continue;
+
+      int particles_in_size = 0;
+      int particles_out_size = 0;
+      // Children ------------------------------------
+      std::string childrenT = "";
+      //std::string childrenbarT = "";
+      int nChildren = 0;
+
+      if ( pitr->end_vertex() != NULL ) {
+        particles_out_size = pitr->end_vertex()->particles_out().size();
+        for (auto thisChild: pitr->end_vertex()->particles_out()) {
+          sprintf(c,"%4i", thisChild->pdg_id());
+          childrenT.append(c);
+          sprintf(c,"(%i)", HepMC::barcode(thisChild));
+          childrenT.append(c);
+          childrenT.append(" ");
+          nChildren++;
+        }
+      }
+
+      // Parents --------------------------------------
+      std::string parentsT = "";
+      int nParents = 0;
+
+      if ( pitr->production_vertex()  ) {
+
+        particles_in_size = pitr->production_vertex()->particles_in().size();
+        for (auto thisParent: pitr->production_vertex()->particles_in()) {
+          sprintf(c,"%4i", thisParent->pdg_id());
+          parentsT.append(c);
+          sprintf(c,"(%i)", HepMC::barcode(thisParent));
+          parentsT.append(c);
+          parentsT.append(" ");
+          nParents++;
+        }
+
+      }
+
+      iPart++;
+      if (isSUSY(pdg)) iSusy++;
+      if (isSUSY(pdg) || iPart <= 30) printf("SUSYVERBOSE   %4i  %4i  st:%5i  CLHEP::bar:%5i  pdg: %8i  m: %5.1f  px: %6.1f | (%i->%i) |%i M: %s ||%i C: %s | \n", iPart, iSusy, status, barcode, pdg, mass, px/1000., particles_in_size, particles_out_size, nParents, parentsT.data(), nChildren, childrenT.data());
+
+      if ( (particles_in_size != nParents) || (particles_out_size != nChildren) ) {
+        ATH_MSG_WARNING("Not identical    prod: " << particles_in_size << " vs " << nParents << "     decay: " << particles_out_size << " vs " << nChildren);
+      }
+
+    }
+#else
     HepMC::GenEvent::particle_const_iterator pitr;
     for (pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
 
@@ -593,5 +716,6 @@ void SusySubprocessFinder::verboseMC() {
       }
 
     }
+#endif
   }
 }

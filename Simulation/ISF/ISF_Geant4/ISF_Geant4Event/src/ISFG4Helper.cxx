@@ -11,6 +11,8 @@
 #include "G4EventManager.hh"
 #include "G4Event.hh"
 
+#include "AtlasHepMC/GenParticle.h"
+
 // G4Atlas includes
 #include "MCTruth/EventInformation.h"
 #include "MCTruth/TrackBarcodeInfo.h"
@@ -42,7 +44,7 @@ iGeant4::ISFG4Helper::convertG4TrackToISFParticle(const G4Track& aTrack,
   int    pdgID   = particleDefinition.GetPDGEncoding();
 
   auto* genParticle = (truth) ? truth->getTruthParticle(): nullptr;
-  Barcode::ParticleBarcode barcode = (genParticle) ? genParticle->barcode() : Barcode::fUndefinedBarcode;
+  Barcode::ParticleBarcode barcode = (genParticle) ? HepMC::barcode(genParticle) : Barcode::fUndefinedBarcode;
 
   ISF::ISFParticle *isp = new ISF::ISFParticle( position,
                                                 momentum,
@@ -73,7 +75,7 @@ TrackInformation*
 iGeant4::ISFG4Helper::attachTrackInfoToNewG4Track( G4Track& aTrack,
                                                     const ISF::ISFParticle& baseIsp,
                                                     TrackClassification classification,
-                                                    HepMC::GenParticle *nonRegeneratedTruthParticle)
+                                                    HepMC::GenParticlePtr nonRegeneratedTruthParticle)
 {
   if ( aTrack.GetUserInformation() ) {
     G4ExceptionDescription description;

@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 797023 2017-02-14 11:03:58Z christos $
 ################################################################################
 # Package: ElectronEfficiencyCorrection
 ################################################################################
@@ -106,6 +105,3 @@ endif()
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py)
-atlas_install_data( data/*.root data/*.txt )
-
-

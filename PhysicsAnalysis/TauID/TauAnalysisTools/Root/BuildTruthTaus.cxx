@@ -15,9 +15,6 @@
 // Tool include(s)
 #include "MCTruthClassifier/MCTruthClassifier.h"
 
-#define PRINTVAR(VAR)                                                   \
-  std::cout<<__FILE__<<" "<<__LINE__<<":"<<#VAR<<" = "<<VAR<<"\n";
-
 using namespace TauAnalysisTools;
 
 //=================================PUBLIC-PART==================================
@@ -45,9 +42,8 @@ BuildTruthTaus::BuildTruthTaus( const std::string& name )
 }
 
 //______________________________________________________________________________
-BuildTruthTaus::~BuildTruthTaus( )
+BuildTruthTaus::~BuildTruthTaus()
 {
-
 }
 
 //______________________________________________________________________________
@@ -56,8 +52,13 @@ StatusCode BuildTruthTaus::initialize()
   ATH_MSG_INFO( "Initializing BuildTruthTaus" );
   m_sNewTruthTauContainerNameAux = m_sNewTruthTauContainerName + "Aux.";
 
+  // The following properties are only available in athena
+#ifndef XAOD_ANALYSIS
   ATH_CHECK(m_tMCTruthClassifier.setProperty("ParticleCaloExtensionTool", ""));
   ATH_CHECK(m_tMCTruthClassifier.setProperty("TruthInConeTool", ""));
+#endif
+  
+  ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tMCTruthClassifier, MCTruthClassifier));
   ATH_CHECK(m_tMCTruthClassifier.initialize());
 
   return StatusCode::SUCCESS;

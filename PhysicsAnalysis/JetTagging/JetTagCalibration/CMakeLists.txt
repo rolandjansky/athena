@@ -28,7 +28,7 @@ atlas_add_library( JetTagCalibrationLib
                    PUBLIC_HEADERS JetTagCalibration
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} ${LWTNN_LIBRARIES} AthenaBaseComps GaudiKernel StoreGateLib SGtests FileCatalog MVAUtils
-                   PRIVATE_LINK_LIBRARIES AthenaPoolUtilities )
+                   PRIVATE_LINK_LIBRARIES AthenaPoolUtilities PoolSvcLib )
 
 atlas_add_component( JetTagCalibration
                      src/components/*.cxx
@@ -36,6 +36,5 @@ atlas_add_component( JetTagCalibration
                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GaudiKernel FileCatalog AthenaPoolUtilities JetTagCalibrationLib )
 
 # Install files from the package:
+atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-atlas_install_runtime( share/*.db )
-

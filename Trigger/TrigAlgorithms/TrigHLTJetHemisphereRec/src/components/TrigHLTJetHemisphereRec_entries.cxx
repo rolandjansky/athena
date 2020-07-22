@@ -1,4 +1,4 @@
-#include "TrigHLTJetHemisphereRec/TrigHLTJetHemisphereRec.h"
+#include "../TrigHLTJetHemisphereRec.h"
 
 DECLARE_COMPONENT( TrigHLTJetHemisphereRec )
 

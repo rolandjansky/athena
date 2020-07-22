@@ -44,10 +44,10 @@ atlas_add_library( PixelCalibAlgsLib
    PRIVATE_INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
    DEFINITIONS ${CLHEP_DEFINITIONS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps CxxUtils
-   GaudiKernel InDetPrepRawData
+   GaudiKernel InDetPrepRawData InDetConditionsSummaryService PixelCablingLib
    PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaPoolUtilities CoralDB
    DetDescrConditions Identifier EventInfo PixelConditionsData InDetIdentifier
-   InDetReadoutGeometry PixelReadoutGeometry InDetRawData PathResolver PixelGeoModelLib )
+   InDetReadoutGeometry PixelReadoutGeometry InDetRawData PathResolver PixelGeoModelLib PixelConditionsToolsLib CoralDB )
 
 atlas_add_component( PixelCalibAlgs
    src/components/*.cxx

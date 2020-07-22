@@ -2,7 +2,7 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT1Lucid/TrigT1Lucid.h"
+#include "TrigT1Lucid.h"
 #include "TrigT1Interfaces/LucidCTP.h"
 #include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
 #include "TrigConfL1Data/ThresholdConfig.h"

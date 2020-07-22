@@ -102,7 +102,7 @@ namespace ISF {
     bool passesFilters(const HepMC::GenParticle& p) const;
 
     /** convert GenParticle to ISFParticle */
-    ISF::ISFParticle* convertParticle(HepMC::GenParticle* genPartPtr, EBC_EVCOLL kindOfCollection=EBC_MAINEVCOLL) const;
+    ISF::ISFParticle* convertParticle(HepMC::GenParticlePtr genPartPtr, EBC_EVCOLL kindOfCollection=EBC_MAINEVCOLL) const;
 
     /** ParticlePropertyService and ParticleDataTable */
     ServiceHandle<IPartPropSvc>           m_particlePropSvc;          //!< particle properties svc to retrieve PDT

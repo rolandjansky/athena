@@ -1,4 +1,4 @@
-#include "TrigT1NSW/NSWL1Simulation.h"
+#include "../NSWL1Simulation.h"
 
 using NSWL1::NSWL1Simulation;
 

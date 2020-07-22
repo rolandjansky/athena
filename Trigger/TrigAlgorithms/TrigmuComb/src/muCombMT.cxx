@@ -25,11 +25,12 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 
+#include "GaudiKernel/ThreadLocalContext.h"
+
 class ISvcLocator;
 
 muCombMT::muCombMT(const std::string& name, ISvcLocator* pSvcLocator):
-   AthAlgorithm(name, pSvcLocator),
-   m_MagFieldSvc(0)
+   AthAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -38,13 +39,7 @@ StatusCode muCombMT::initialize()
    ATH_MSG_DEBUG("Initialization:");
 
    //Filed service
-   if (!m_MagFieldSvc) service("AtlasFieldSvc", m_MagFieldSvc, /*createIf=*/ false).ignore();
-   if (m_MagFieldSvc) {
-      ATH_MSG_DEBUG( "Retrieved AtlasFieldSvc" );
-   } else {
-      ATH_MSG_ERROR( "Could not retrieve AtlasFieldSvc --> Abort" );
-      return StatusCode::FAILURE; 
-   }
+   ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
 
    if (!m_monTool.empty()) {
       ATH_MSG_DEBUG("Retrieving monTool");
@@ -512,10 +507,18 @@ StatusCode muCombMT::execute()
    //Magnetic field status
    bool toroidOn   = !m_assumeToroidOff;
    bool solenoidOn = !m_assumeSolenoidOff;
-   if (m_MagFieldSvc) {
-      toroidOn  = m_MagFieldSvc->toroidOn() && !m_assumeToroidOff;
-      solenoidOn = m_MagFieldSvc->solenoidOn() && !m_assumeSolenoidOff;
+
+   SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
+   const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+   if (fieldCondObj == nullptr) {
+       ATH_MSG_ERROR("execute: Failed to retrieve AtlasFieldCacheCondObj with key " << m_fieldCacheCondObjInputKey.key());
+       return StatusCode::FAILURE;
    }
+   MagField::AtlasFieldCache fieldCache;
+   fieldCondObj->getInitializedCache (fieldCache);
+
+   toroidOn   = fieldCache.toroidOn() && !m_assumeToroidOff;
+   solenoidOn = fieldCache.solenoidOn() && !m_assumeSolenoidOff;
    ATH_MSG_DEBUG( "=========== Magnetic Field Status ========== " );
    ATH_MSG_DEBUG( " Assuming Toroid OFF is:                  " << (m_assumeToroidOff ? "TRUE" : "FALSE") );
    ATH_MSG_DEBUG( " Assuming Solenoid OFF is:                " << (m_assumeSolenoidOff ? "TRUE" : "FALSE") );

@@ -23,7 +23,6 @@ HLTResultCnv::~HLTResultCnv()
 HLTResult_PERS* HLTResultCnv::createPersistent(HLT::HLTResult* transCont) 
 {
   MsgStream mlog(msgSvc(), "HLTResultConverter" );
-  mlog << MSG::DEBUG << "HLTResultCnv::createPersistent " << endmsg;
 
   HLTResult_PERS* persObj = m_TPConverter->createPersistent( transCont, mlog );
 
@@ -34,20 +33,17 @@ HLTResult_PERS* HLTResultCnv::createPersistent(HLT::HLTResult* transCont)
 HLT::HLTResult* HLTResultCnv::createTransient() 
 {
   MsgStream mlog(msgSvc(), "HLTResultConverter" );
-  mlog << MSG::DEBUG << "HLTResultCnv::createTransient " << endmsg;  
 
-  static pool::Guid p1_guid("9567573D-F35E-4D5E-9A1A-A43B07D3CF3B");  
-  static pool::Guid p0_guid("559D6CB9-9A54-4284-A03D-9C745352281D");
+  static const pool::Guid p1_guid("9567573D-F35E-4D5E-9A1A-A43B07D3CF3B");
+  static const pool::Guid p0_guid("559D6CB9-9A54-4284-A03D-9C745352281D");
   
   if ( compareClassGuid(p1_guid) ) {
-    mlog << MSG::DEBUG << "HLTResult::reading p1 persistent object" << endmsg;
     // using unique_ptr ensures deletion of the persistent object
     std::unique_ptr< HLT::HLTResult_p1 > col_vect( poolReadObject< HLT::HLTResult_p1 >() );
     return m_TPConverter->createTransient( col_vect.get(), mlog );
   }
   
   else if( compareClassGuid(p0_guid) ){
-    mlog << MSG::DEBUG << "HLTResult::reading p0 persistent object" << endmsg;
     // old version from before TP separation, just return it
     return this->poolReadObject<HLT::HLTResult>(); 
   }

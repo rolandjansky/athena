@@ -4,15 +4,17 @@
 #include "TrigConfData/L1ThrExtraInfo.h"
 
 
-TrigConf::L1Threshold_EM::L1Threshold_EM( const std::string & name, const std::string & type,
-                                          std::weak_ptr<L1ThrExtraInfoBase> m_extraInfo, const ptree & data) :
-   L1Threshold(name, type, m_extraInfo, data)
-{
-   update();
-}
+/******************************************
+ *
+ *  Legacy L1Calo thresholds
+ *
+ ******************************************/
 
+/**
+ * EM
+ */
 void
-TrigConf::L1Threshold_EM::update()
+TrigConf::L1Threshold_EM::load()
 {
    // read the isolation
    if( const auto & thrVs = data().get_child_optional("thrValues") ) {
@@ -32,35 +34,24 @@ TrigConf::L1Threshold_EM::update()
    }
 }
 
-unsigned int
-TrigConf::L1Threshold_EM::thrValueCounts(int eta) const {
-   auto emInfo = std::dynamic_pointer_cast<L1ThrExtraInfo_EMTAULegacy>(m_extraInfo.lock());
-   return thrValue(eta) * emInfo->emScale();
-}
-
 void
 TrigConf::L1Threshold_EM::print(std::ostream & os) const {
    os << "EM threshold " << name() << " with mapping " << mapping() << std::endl;
-   for( int eta = 0; eta<=49; eta++ ) {
-      auto vneg = thrValue(-eta);
-      auto vpos = thrValue(eta);
+   for( int eta = -49; eta<49; eta++ ) {
+      auto value = thrValue(eta);
+      auto valueMeV = thrValueMeV(eta);
       auto counts = thrValueCounts(eta);
       auto iso = isolationMask(eta);
-      os << "    eta = " << eta << " : " << vneg << "  " << vpos << (vpos!=vneg ? "  !!!   " : "     ") 
-         << counts << ", isoMaks " << iso << std::endl;
+      os << "    eta = " << eta << " : " << value << " GeV " << valueMeV << " MeV " 
+         << counts << " counts , isoMaks " << iso << std::endl;
    }
 }
 
-
-TrigConf::L1Threshold_TAU::L1Threshold_TAU( const std::string & name, const std::string & type,
-                                            std::weak_ptr<L1ThrExtraInfoBase> m_extraInfo, const ptree & data) :
-   L1Threshold(name, type, m_extraInfo, data)
-{
-   update();
-}
-
+/**
+ * TAU
+ */
 void
-TrigConf::L1Threshold_TAU::update()
+TrigConf::L1Threshold_TAU::load()
 {
    // read the isolation
    std::string isobits = getAttribute("isobits");
@@ -71,39 +62,49 @@ TrigConf::L1Threshold_TAU::update()
    }
 }
 
+/******************************************
+ *
+ *  New L1Calo thresholds
+ *
+ ******************************************/
 
-
-TrigConf::L1Threshold_eEM::L1Threshold_eEM( const std::string & name, const std::string & type,
-                                            std::weak_ptr<L1ThrExtraInfoBase> m_extraInfo, const ptree & data) :
-   L1Threshold(name, type, m_extraInfo, data)
-{
-   update();
-}
-
+/**
+ * eEM
+ */
 void
-TrigConf::L1Threshold_eEM::update()
+TrigConf::L1Threshold_eEM::load()
 {
    auto translate = [](const std::string &wp) { return wp=="Loose" ? Isolation::WP::LOOSE : 
                                                 ( wp=="Medium" ? Isolation::WP::MEDIUM : 
-                                                  ( wp=="Medium" ? Isolation::WP::TIGHT : Isolation::WP::NONE ) ); };
+                                                  ( wp=="Tight" ? Isolation::WP::TIGHT : Isolation::WP::NONE ) ); };
    // read the isolation requirements
    m_reta = translate(getAttribute("reta"));
    m_rhad = translate(getAttribute("rhad"));
    m_wstot = translate(getAttribute("wstot"));
 }
 
+void
+TrigConf::L1Threshold_eTAU::load()
+{}
 
 
+/******************************************
+ *
+ * Muon threshold
+ *
+ ******************************************/
 
-TrigConf::L1Threshold_MU::L1Threshold_MU( const std::string & name, const std::string & type,
-                                          std::weak_ptr<L1ThrExtraInfoBase> m_extraInfo, const ptree & data) :
-   L1Threshold(name, type, m_extraInfo, data)
+/**
+ * this function is only to satisfy the base class interface. It should not be used
+ */
+float
+TrigConf::L1Threshold_MU::thrValue(int) const
 {
-   update();
+   return static_cast<float>(m_ptBarrel);
 }
 
 void
-TrigConf::L1Threshold_MU::update()
+TrigConf::L1Threshold_MU::load()
 {
    auto muInfo = std::dynamic_pointer_cast<L1ThrExtraInfo_MU>(m_extraInfo.lock());
 

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -15,6 +15,7 @@
 #define TRIGTSERIALIZER_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "CxxUtils/checker_macros.h"
 #include "TrigSerializeResult/ITrigSerializerToolBase.h"
 #include "RVersion.h"
 #include "Rtypes.h"
@@ -31,7 +32,7 @@ typedef RootType        Type;
 typedef RootDataMember  Member;
 
 
-class TrigTSerializer : virtual public ITrigSerializerToolBase, public AthAlgTool {
+class ATLAS_NOT_THREAD_SAFE TrigTSerializer : virtual public ITrigSerializerToolBase, public AthAlgTool {
 public:
   TrigTSerializer(const std::string& name, const std::string& type,
 		  const IInterface* parent);

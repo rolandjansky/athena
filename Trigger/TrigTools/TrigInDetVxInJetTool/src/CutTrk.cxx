@@ -3,7 +3,7 @@
 */
 
 // Header include
-#include "TrigInDetVxInJetTool/TrigInDetVxInJetTool.h"
+#include "TrigInDetVxInJetTool.h"
 #include "TrigInDetEvent/TrigInDetTrack.h"
 #include "AnalysisUtils/AnalysisMisc.h"
 #include <iostream>

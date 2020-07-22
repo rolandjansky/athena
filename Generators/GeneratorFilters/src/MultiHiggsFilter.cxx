@@ -75,6 +75,20 @@ StatusCode MultiHiggsFilter::filterEvent() {
   for (itr = events()->begin(); itr!=events()->end(); ++itr) {
     // Loop over all particles in the event
     const HepMC::GenEvent* genEvt = (*itr);
+#ifdef HEPMC3
+    for(auto pitr: *genEvt) {
+      if (!( std::abs(pitr->pdg_id()) == 25 && ( pitr->status()==m_Status || !m_UseStatus))) continue;
+	bool hasHiggsParent = false;
+	for(auto thisMother: pitr->production_vertex()->particles_in()){
+	  ATH_MSG_DEBUG(" Parent " << pitr->pdg_id() << " barcode = "   << HepMC::barcode(pitr) << " status = "  << pitr->status());
+	  ATH_MSG_DEBUG(" a Parent mother "  << thisMother->pdg_id()<< " barc = " << HepMC::barcode(thisMother));
+	  if( thisMother->pdg_id() == 25 ) hasHiggsParent = true;
+	}
+      ATH_MSG_DEBUG(" has Higgs parent? " << hasHiggsParent);
+	if (hasHiggsParent) continue;
+	++nGoodParent;
+      }
+#else
     for(HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin();
 	pitr!=genEvt->particles_end(); ++pitr ) {
       if( abs((*pitr)->pdg_id()) == 25 && ( (*pitr)->status()==m_Status || !m_UseStatus)){
@@ -94,6 +108,7 @@ StatusCode MultiHiggsFilter::filterEvent() {
 	++nGoodParent;
       }
     }
+#endif    
   }
   
   ATH_MSG_INFO("Result " << nGoodParent << " Higgs ");

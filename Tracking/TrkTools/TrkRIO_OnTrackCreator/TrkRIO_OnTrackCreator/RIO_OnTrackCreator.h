@@ -89,6 +89,8 @@ namespace Trk {
     ToolHandle<IRIO_OnTrackCreator>  m_muonDriftCircleCor;
     //! Detector-specific helper tool, performing the actual calibration corrections for the remaining muon detector technologies: RPC, TGC and CSC.
     ToolHandle<IRIO_OnTrackCreator>  m_muonClusterCor;
+    //! Detector-specific helper tool, performing the actual calibration corrections for every Muon::MMPrepData 
+    ToolHandle<IRIO_OnTrackCreator>  m_mmClusterCor;
     std::string                      m_mode;   //!< flag: can be 'all', 'indet' or 'muon'
     int*                  m_nwarning;          //!< counter to locally control # of warnings
     bool                             m_doPixel; //!< Load Pixel IRIO_OnTrackCreator

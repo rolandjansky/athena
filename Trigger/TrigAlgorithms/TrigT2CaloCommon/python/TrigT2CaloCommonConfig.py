@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TrigT2CaloCommon.TrigT2CaloCommonConf import TrigDataAccess as _TrigDataAccess
 from TrigT2CaloCommon.TrigT2CaloCommonConf import TrigCaloDataAccessSvc as _TrigCaloDataAccessSvc
@@ -48,8 +48,8 @@ class TrigCaloDataAccessSvc(_TrigCaloDataAccessSvc):
             log.warning("Not possible to run BCID offset correction with COMP200")
         else:
             if TriggerFlags.doCaloOffsetCorrection():
-                log.info('Enable HLT calo offset correction')
                 if globalflags.DataSource()=='data' and athenaCommonFlags.isOnline():
+                    log.info('Enable HLT calo offset correction for data')
                     from IOVDbSvc.CondDB import conddb
                     conddb.addFolder("LAR_ONL","/LAR/ElecCalibFlat/OFC")
                     from LArRecUtils.LArRecUtilsConf import LArFlatConditionSvc
@@ -68,16 +68,22 @@ class TrigCaloDataAccessSvc(_TrigCaloDataAccessSvc):
                     LuminosityCondAlgOnlineDefault()
                     from CaloRec.CaloBCIDAvgAlgDefault import CaloBCIDAvgAlgDefault
                     CaloBCIDAvgAlgDefault()
-                    from AthenaCommon.AlgSequence import AlgSequence
-                    topSequence = AlgSequence()
-                    if not hasattr(topSequence,"CaloBCIDAvgAlg"):
-                       log.info('Cannot use timer for CaloBCIDAvgAlg')
-                    else:
-                       from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
-                       monTool = GenericMonitoringTool('MonTool')
-                       monTool.defineHistogram('TIME_exec', path='EXPERT', type='TH1F', title="CaloBCIDAvgAlg execution time; time [ us ] ; Nruns", xbins=80, xmin=0.0, xmax=4000)
-                       topSequence.CaloBCIDAvgAlg.MonTool = monTool
-                       log.info('using timer for CaloBCIDAvgAlg')
+                else:
+                    log.info('Enable HLT calo offset correction for MC')
+                    from CaloRec.CaloBCIDAvgAlgDefault import CaloBCIDAvgAlgDefault
+                    CaloBCIDAvgAlgDefault()
+
+                from AthenaCommon.AlgSequence import AlgSequence
+                topSequence = AlgSequence()
+                if not hasattr(topSequence,"CaloBCIDAvgAlg"):
+                    log.info('Cannot use timer for CaloBCIDAvgAlg')
+                else:
+                    from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
+                    monTool = GenericMonitoringTool('MonTool')
+                    monTool.defineHistogram('TIME_exec', path='EXPERT', type='TH1F', title="CaloBCIDAvgAlg execution time; time [ us ] ; Nruns", xbins=80, xmin=0.0, xmax=4000)
+                    topSequence.CaloBCIDAvgAlg.MonTool = monTool
+                    log.info('using timer for CaloBCIDAvgAlg')
+
 
             else:
                 log.info('Disable HLT calo offset correction')

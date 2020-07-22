@@ -7,7 +7,6 @@ atlas_add_library( DecisionHandlingLib
                    src/ComboHypo.cxx
                    src/ComboHypoToolBase.cxx
                    src/DumpDecisions.cxx
-                   src/HLTIdentifier.cxx
                    src/HypoBase.cxx
                    src/InputMakerBase.cxx
                    PUBLIC_HEADERS DecisionHandling

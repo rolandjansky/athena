@@ -66,9 +66,6 @@ class MinBiasChainConfig(ChainConfigurationBase):
                                            ( 'TagInfo' , 'DetectorStore+ProcessingTags' )]
 
         from IOVDbSvc.CondDB import conddb
-        if not conddb.folderRequested( '/TDAQ/Resources/ATLAS/PIXEL/Modules' ):
-          verifier.DataObjects += [( 'CondAttrListCollection', 'ConditionStore+/TDAQ/Resources/ATLAS/PIXEL/Modules' )]
-          topSequence.SGInputLoader.Load += [( 'CondAttrListCollection', 'ConditionStore+/TDAQ/Resources/ATLAS/PIXEL/Modules' )]
         if not conddb.folderRequested( '/PIXEL/DCS/FSMSTATE' ):
           verifier.DataObjects += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATE' )]
           topSequence.SGInputLoader.Load += [( 'CondAttrListCollection' , 'ConditionStore+/PIXEL/DCS/FSMSTATE' )]

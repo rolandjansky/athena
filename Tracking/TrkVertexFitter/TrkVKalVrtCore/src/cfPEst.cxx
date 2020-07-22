@@ -22,7 +22,7 @@ void cfpest(int ntrk, double *xyz, long int *ich, double (*parst)[5], double (*p
     for (int i = 0; i < ntrk; ++i) {
 
         long int TrkID=i;
-        myPropagator.Propagate( TrkID, ich[i], &parst[i][0], 0, Ref0, xyz, partmp, 0);
+        myPropagator.Propagate( TrkID, ich[i], &parst[i][0], nullptr, Ref0, xyz, partmp, nullptr);
 
 	parf[i][0] = partmp[2];
 	parf[i][1] = partmp[3];

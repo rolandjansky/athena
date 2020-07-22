@@ -15,6 +15,7 @@
 #include "GeneratorObjects/McEventCollection.h"
 
 #include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenVertex.h"
 
 #include "HepPDT/ParticleData.hh"
 #include "HepPDT/ParticleDataTable.hh"

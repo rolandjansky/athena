@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaMonitoringKernel/Monitored.h"
@@ -44,7 +44,7 @@ StatusCode TrigmuCombHypoTool::initialize()
          for (std::vector<float>::size_type i = 0; i < m_bins[j]; ++i) {
  
             ATH_MSG_INFO("bin[" << j << "] " << m_ptBins[j][i] << " - " <<  m_ptBins[j][i + 1]
-               	  << " with Pt Threshold of " << (m_ptThresholds[j][i]) / CLHEP::GeV << " GeV");
+               	  << " with Pt Threshold of " << (m_ptThresholds[j][i]) / Gaudi::Units::GeV << " GeV");
          }
       }  
    }
@@ -95,14 +95,14 @@ bool TrigmuCombHypoTool::decideOnSingleObject(TrigmuCombHypoTool::CombinedMuonIn
       return result;
    }
  
-   auto ptValue = pMuon->pt() * pMuon->charge() / CLHEP::GeV;
+   auto ptValue = pMuon->pt() * pMuon->charge() / Gaudi::Units::GeV;
  
    fexPt    = ptValue;
    ptFL      = ptValue;
    idEta    = pMuon->eta();
    idPhi    = pMuon->phi();
    int usealgo      = pMuon->strategy();
-   float ptresComb = pMuon->sigmaPt() / CLHEP::GeV;
+   float ptresComb = pMuon->sigmaPt() / Gaudi::Units::GeV;
    Strategy  = usealgo;
    ATH_MSG_DEBUG("combined muon pt (GeV)/ sigma_pt (GeV)/ eta / phi / usedalgo: " 
                << fexPt << " (GeV) / " << ptresComb << " (GeV) / " << idEta << " / " << idPhi 
@@ -149,9 +149,9 @@ bool TrigmuCombHypoTool::decideOnSingleObject(TrigmuCombHypoTool::CombinedMuonIn
  
    //Std Pt cut
    bool stdCut = true;
-   if (std::abs(fexPt) <= (threshold / CLHEP::GeV)) stdCut = false;
+   if (std::abs(fexPt) <= (threshold / Gaudi::Units::GeV)) stdCut = false;
    ATH_MSG_DEBUG("REGTEST muon pt is " << fexPt
-              << " GeV and threshold cut is " << threshold / CLHEP::GeV
+              << " GeV and threshold cut is " << threshold / Gaudi::Units::GeV
               << " GeV and pik_cut is " << (pikCut ? "true" : "false"));
  
    //Strategy dependent Pt cuts

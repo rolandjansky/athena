@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # @file:    rootcomp.py
 # @purpose: Script to compare the histograms in two root files
 # @author:  Frank Winklmeier, Will Buttinger
@@ -61,6 +61,10 @@ def main():
    parser.add_option("-a", "--axis",
                      action = "store_true",
                      help = "use axis comparison instead of bin-by-bin")
+
+   parser.add_option("-l", "--sortLabels",
+                     action = "store_true",
+                     help = "sort/deflate alphanumeric axis before comparing")
 
    parser.add_option("-t", "--threshold",
                      action = "store", type="float",
@@ -158,6 +162,7 @@ def main():
       opts.skip += ["Average Hlt Result size for physics streams"]  # ATR-14330
       opts.skip += ["HltEDMSizes:Events_Without_Truncation"]        # ATR-14330
       opts.skip += ["Trig.*CaloCellMaker.*/TCRec_"] # timing histograms in TrigCaloCellMaker
+      opts.skip += ["HLTFramework/ROBDataProviderSvc"] # RDP histograms differ in MT due to caching
 
    # Default thresholds
    if not opts.threshold:
@@ -224,7 +229,7 @@ def main():
    else:
       valid.setPsFile(opts.outFile+".ps")
 
-
+   valid.sortLabels(opts.sortLabels)
    valid.drawNormalized(opts.norm)
    valid.drawDiff(not opts.noDiff)
    

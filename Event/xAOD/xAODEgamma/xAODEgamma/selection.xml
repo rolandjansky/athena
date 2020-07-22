@@ -45,13 +45,6 @@
           id="5C389DEC-4B00-11E4-B9F0-02163E00A5BB" />
    <typedef name="xAOD::PhotonAuxContainer" />
 
-   <!-- Objects from the namespace. -->
-   <variable pattern="xAOD::EgammaParameters::*" />
-   <class name="xAOD::EgammaParameters::ROOT6_NamespaceAutoloadHook" />
-
-   <!-- Enum(s). -->
-   <enum pattern="xAOD::EgammaParameters::*" />
-
    <!-- Helper Function(s). -->
    <function pattern="xAOD::EgammaHelpers::*" />
 

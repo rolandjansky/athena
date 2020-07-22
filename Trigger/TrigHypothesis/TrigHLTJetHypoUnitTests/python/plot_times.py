@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 import pylab as pl
 import sys
