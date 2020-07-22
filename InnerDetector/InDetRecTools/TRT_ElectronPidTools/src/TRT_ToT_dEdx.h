@@ -103,7 +103,7 @@ private:
 
   bool m_useZeroRHitCut;  // skip tracks with where RHit=0
 
-  int m_nTrunkateHits = 1;
+  unsigned int m_nTrunkateHits = 1;
 
 
 public:
