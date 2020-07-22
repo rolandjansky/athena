@@ -58,6 +58,7 @@
 #include "TopPartons/CalcTopPartonHistory.h"
 #include "TopPartons/CalcTtbarGammaPartonHistory.h"
 #include "TopPartons/CalcThqPartonHistory.h"
+#include "TopPartons/CalcTzqPartonHistory.h"
 
 #include "TopParticleLevel/ParticleLevelLoader.h"
 
@@ -369,6 +370,11 @@ int main(int argc, char** argv) {
       std::unique_ptr<top::CalcTopPartonHistory>(new top::CalcThqPartonHistory("top::CalcThqPartonHistory"));
     top::check(topPartonHistory->setProperty("config", topConfig),
                "Failed to setProperty of top::CalcThqPartonHistory");
+  } else if (settings->value("TopPartonHistory") == "tZqll") {
+    topPartonHistory =
+      std::unique_ptr<top::CalcTopPartonHistory>(new top::CalcTzqPartonHistory("top::CalcTzqPartonHistory"));
+    top::check(topPartonHistory->setProperty("config", topConfig),
+               "Failed to setProperty of top::CalcTzqPartonHistory");
   }
 
 
