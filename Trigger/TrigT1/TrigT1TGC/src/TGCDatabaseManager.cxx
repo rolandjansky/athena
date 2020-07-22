@@ -264,23 +264,17 @@ TGCDatabaseManager::operator=(const TGCDatabaseManager& right)
   return *this;
 }
 
-const std::string& TGCDatabaseManager::getFilename(int type)
+std::string TGCDatabaseManager::getFilename(int type)
 {
-  static std::string fn="";
   switch (type) {
    case 0: //ASD2PP
-    fn = "MuonTGC_Cabling_ASD2PP.db";
-    break; 
+    return "MuonTGC_Cabling_ASD2PP.db";
    case 1: //PP
-    fn = "MuonTGC_Cabling_PP.db";
-    break;
+    return "MuonTGC_Cabling_PP.db";
    case 2: //PP2SL
-    fn = "MuonTGC_Cabling_PP2SL.db";
-    break;
-   default:
-    break;
+    return "MuonTGC_Cabling_PP2SL.db";
   }
-  return fn;
+  return "";
 }
 
 const std::vector<std::string> TGCDatabaseManager::splitCW(const std::string& input, char delimiter)

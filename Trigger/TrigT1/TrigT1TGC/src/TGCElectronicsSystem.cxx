@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: TGCElectronicsSystem.cxx,v 1.13 2009-05-04 11:39:44 isaya Exp $
 #include "TrigT1TGC/TGCElectronicsSystem.h"
 #include "TrigT1TGC/TGCASDOut.h"
 #include "TrigT1TGC/TGCDatabaseManager.h"
@@ -15,7 +14,7 @@ namespace LVL1TGCTrigger {
 
 void TGCElectronicsSystem::distributeSignal(LVL1TGCTrigger::TGCEvent* event)
 {
-  std::vector<LVL1TGCTrigger::TGCASDOut*>& vecASDOut= event->GetASDOutVector();
+  const std::vector<LVL1TGCTrigger::TGCASDOut*>& vecASDOut= event->GetASDOutVector();
   event=0;
   size_t i;
   for( i=0; i< vecASDOut.size(); i++) {

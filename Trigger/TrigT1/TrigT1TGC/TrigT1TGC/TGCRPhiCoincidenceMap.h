@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCRPhiCoincidenceMap_hh
@@ -47,7 +47,7 @@ public:
   bool readMap(); // for Run2
   bool readMap_Run3();// for Run3
 
-  TGCArguments* tgcArgs() const;
+  const TGCArguments* tgcArgs() const;
 
 private: // hide default constructor
   TGCRPhiCoincidenceMap() = delete;
@@ -91,7 +91,7 @@ private:
 };
 
 inline 
-TGCArguments* TGCRPhiCoincidenceMap::tgcArgs() const {
+const TGCArguments* TGCRPhiCoincidenceMap::tgcArgs() const {
   return m_tgcArgs;
 }
 

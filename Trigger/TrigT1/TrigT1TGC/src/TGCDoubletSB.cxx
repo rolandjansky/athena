@@ -12,7 +12,7 @@
 
 namespace LVL1TGCTrigger {
 
-TGCDoubletSB::TGCDoubletSB( TGCArguments* tgcargs)
+TGCDoubletSB::TGCDoubletSB(const TGCArguments* tgcargs)
   :TGCSlaveBoard(tgcargs),
    m_priorSign(1),m_numberOfData(2),m_nChInBlock(32),
    m_maxDev(0),m_posMaxDev(0),m_negMaxDev(0),m_nChAdj(0),m_iChBase(0),

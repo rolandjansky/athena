@@ -123,12 +123,7 @@ void TGCSectorLogic::setStripHighPtBoard(TGCHighPtBoard* highPtBoard)
   m_stripHighPtBoard = highPtBoard;	 
 }
 
-TGCSLSelectorOut* TGCSectorLogic::getSelectorOutput() const
-{
-  return m_selectorOut;
-}
-
-  void TGCSectorLogic::getTrackSelectorOutput(std::shared_ptr<TGCTrackSelectorOut> &trackSelectorOut)const
+void TGCSectorLogic::getTrackSelectorOutput(std::shared_ptr<TGCTrackSelectorOut> &trackSelectorOut)const
 {
   trackSelectorOut=m_trackSelectorOut;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCSlaveBoard_hh
@@ -30,13 +30,13 @@ class TGCSlaveBoard {
 
 public:
 
-  TGCSlaveBoard( TGCArguments* ); 
+  TGCSlaveBoard( const TGCArguments* );
   virtual ~TGCSlaveBoard(); 
   TGCSlaveBoard(const TGCSlaveBoard& right); 
   TGCSlaveBoard& operator=(const TGCSlaveBoard& right); 
 
   void clockIn(int bidIn);
-  TGCSlaveBoardOut* getOutput() const;
+  TGCSlaveBoardOut* getOutput() { return m_slaveBoardOut; }
   void eraseOutput();
 
   int getId() const { return m_id;};
@@ -61,7 +61,7 @@ public:
   void storeSlbIn();
   const std::bitset<200>& GetSlbIn(void) const { return m_slbin; } // for readout
 
-  TGCArguments* tgcArgs() const;
+  const TGCArguments* tgcArgs() const { return m_tgcArgs; }
   
 protected:
   void collectInput();
@@ -86,14 +86,9 @@ protected:
   TGCPatchPanelOut* m_patchPanelOut;
   std::bitset<200> m_slbin; // store SlaveBoard input for readout
 
-  TGCArguments* m_tgcArgs;
+  const TGCArguments* m_tgcArgs;
   
 };
-
-  inline TGCArguments* TGCSlaveBoard::tgcArgs() const {
-    return m_tgcArgs;
-  }
-
 
 } //end of namespace bracket
 

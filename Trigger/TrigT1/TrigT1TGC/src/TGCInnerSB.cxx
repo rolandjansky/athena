@@ -10,7 +10,7 @@
 
 namespace LVL1TGCTrigger {
 
-TGCInnerSB::TGCInnerSB(TGCArguments* tgcargs):TGCSlaveBoard(tgcargs)
+TGCInnerSB::TGCInnerSB(const TGCArguments* tgcargs):TGCSlaveBoard(tgcargs)
 {}
 
 void TGCInnerSB::createSlaveBoardOut()

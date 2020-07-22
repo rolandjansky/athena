@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCElectronicsSystem_hh
@@ -40,13 +40,15 @@ public:
     if ( (side<0) || (oct<0) || (mod<0) ) return 0;
     return m_sector[side][oct][mod];
   };
-  TGCTMDB* getTMDB() const {return m_tmdb;}
+  TGCTMDB* getTMDB() {return m_tmdb;}
+  const TGCTMDB* getTMDB() const {return m_tmdb;}
   std::shared_ptr<TGCNSW>  getNSW() const {return m_nsw;}
 
   TGCElectronicsSystem(TGCArguments*, TGCDatabaseManager* database, bool isAtlas=true);
   ~TGCElectronicsSystem();
 
-  TGCArguments* tgcArgs() const { return m_tgcArgs;}
+  TGCArguments* tgcArgs() { return m_tgcArgs;}
+  const TGCArguments* tgcArgs() const { return m_tgcArgs;}
   
 private:
   // hide default/copy constructor and assignment operator

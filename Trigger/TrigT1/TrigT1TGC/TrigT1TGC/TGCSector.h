@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCSector_h
@@ -65,7 +65,7 @@ public:
   TGCPatchPanel* getPP(int type, int index) const;
   TGCSlaveBoard* getSB(int type, int index) const;
   TGCHighPtBoard* getHPB(int type, int index) const;
-  TGCSectorLogic* getSL() const;
+  TGCSectorLogic* getSL() { return m_SL; }
 
   int getNumberOfPP(int type) const;
   int getNumberOfSB(int type) const;
@@ -79,7 +79,8 @@ public:
   int getOctantId() const { return m_octantId; }
   int getModuleId() const { return m_moduleId; }
 
-  TGCArguments* tgcArgs() const;
+  TGCArguments* tgcArgs() { return m_tgcArgs; }
+  const TGCArguments* tgcArgs() const { return m_tgcArgs; }
 
 private:
   const TGCTMDB* getTMDB() const { return m_TMDB; }
@@ -113,7 +114,7 @@ private:
   int m_moduleId;
 
   TGCForwardBackwardType m_forwardBackward;
-  TGCConnectionASDToPP* m_ASDToPP[NumberOfPatchPanelType];
+  const TGCConnectionASDToPP* m_ASDToPP[NumberOfPatchPanelType];
 
   int m_numberOfPP[NumberOfPatchPanelType];
   TGCPatchPanel**  m_PP[NumberOfPatchPanelType];
@@ -131,11 +132,6 @@ private:
   TGCArguments* m_tgcArgs;
 
 };
-
-inline
-TGCArguments* TGCSector::tgcArgs() const {
-  return m_tgcArgs;
-}
 
 inline 
  bool TGCSector::hasHit() const
@@ -163,9 +159,6 @@ inline
   if ((type<0) || (index<0)) return 0;
   return m_HPB[type][index];
 }
-inline
- TGCSectorLogic* TGCSector::getSL() const
-{ return m_SL;}
 inline
  int TGCSector::getNumberOfPP(int type) const 
 { 

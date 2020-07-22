@@ -403,7 +403,7 @@ void TGCHitPattern::write(char* buf) const
     } 
 } 
 
-bool* TGCHitPattern::getPatad(void) const
+const bool* TGCHitPattern::getPatad(void) const
 {
     return m_pattern; 
 } 

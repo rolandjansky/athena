@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: TGCSSCController.cxx,v 1.6 2009-03-15 18:07:55 isaya Exp $
 #include "TrigT1TGC/TGCSSCController.h"
 #include "TrigT1TGC/TGCSSCControllerOut.h"
 #include "TrigT1TGC/TGCSectorLogic.h"
@@ -13,7 +12,7 @@
 namespace LVL1TGCTrigger {
   
 //constructor 
-TGCSSCController::TGCSSCController(TGCArguments* tgcargs, const TGCSectorLogic* sL) 
+TGCSSCController::TGCSSCController(const TGCArguments* tgcargs, const TGCSectorLogic* sL)
   :m_sectorLogic(sL), m_NumberOfWireHighPtBoard(0),
    m_region(FORWARD), m_tgcArgs(tgcargs)
 { 

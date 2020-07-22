@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: TGCHitPattern.h,v 1.1.1.10 2003-11-03 10:18:17 mishino Exp $
 #ifndef TGCHitPattern_hh
 #define TGCHitPattern_hh
 #include <fstream>
@@ -52,7 +51,7 @@ public:
   void replace(int pos, TGCHitPattern* hp);
   void del(int pos);
   void write(char* buf) const;
-  bool* getPatad(void) const;
+  const bool* getPatad(void) const;
   void reverse(int pos);
   const char* bool2char(void);
 

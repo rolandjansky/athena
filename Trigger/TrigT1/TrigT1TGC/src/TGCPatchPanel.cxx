@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1TGC/TGCPatchPanel.h"
@@ -467,7 +467,7 @@ void TGCPatchPanel::eraseOutput(int SBId)
       m_PPOut[i]=0;
 }
 
-void TGCPatchPanel::setASDOut(int ch, int connector, TGCASDOut* asdOut)
+void TGCPatchPanel::setASDOut(int ch, int connector, const TGCASDOut* asdOut)
 {
 #ifdef TGCDEBUG
   std::cout << "TGCPatchPanel::setASDOut  "

@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: TGCPatchPanel.h,v 1.4 2008-08-10 11:36:44 isaya Exp $
 #ifndef TGCPatchPanel_hh
 #define TGCPatchPanel_hh
 
@@ -51,7 +50,7 @@ public:
   TGCPatchPanel* getAdjacentPP(int side) const { return m_PPAdj[side]; };
   void setAdjacentPP(int side, TGCPatchPanel* PP);
 
-  void setASDOut(int connector, int ch, TGCASDOut* asdOut);
+  void setASDOut(int connector, int ch, const TGCASDOut* asdOut);
 
   TGCBIDOut* getBIDOut(int ch, int connector, int bunch);
 
@@ -76,8 +75,8 @@ public:
   TGCPatchPanel(const TGCPatchPanel& right);
   TGCPatchPanel& operator=(const TGCPatchPanel& right);
 
-  TGCArguments* tgcArgs() const;
-  
+  const TGCArguments* tgcArgs() const { return m_tgcArgs; }
+
 private:
   void showResult() const;
   void doBID();
@@ -97,7 +96,7 @@ private:
   int  m_nHit; // 18-Jan-01 Added by KH
 
   TGCPatchPanelOut* m_PPOut[NumberOfPatchPanelOut];
-  TGCASDOut* m_ASDOut[NChOfPPOutputConnector][MaxNumberOfConnector];
+  const TGCASDOut* m_ASDOut[NChOfPPOutputConnector][MaxNumberOfConnector];
   TGCBIDOut* m_BIDOut[NChOfPPOutputConnector][MaxNumberOfConnector][NumberOfBunchKeptInPP];
   TGCPatchPanel* m_PPAdj[2]; // pointer to adjacent board.
   TGCConnectionInPP* m_connectionInPP;
@@ -105,10 +104,6 @@ private:
   TGCArguments* m_tgcArgs;
   
 };
-
-  inline TGCArguments* TGCPatchPanel::tgcArgs() const {
-    return m_tgcArgs;
-  }
 
 } //end of namespace bracket
 

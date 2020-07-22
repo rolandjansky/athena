@@ -150,7 +150,7 @@ void TGCRPhiCoincidenceMatrix::setRPhiMap(const TGCRPhiCoincidenceMap* map)
   this->m_map = map;
 }
 
-TGCRPhiCoincidenceMatrix::TGCRPhiCoincidenceMatrix(TGCArguments* tgcargs,const TGCSectorLogic* sL) 
+TGCRPhiCoincidenceMatrix::TGCRPhiCoincidenceMatrix(const TGCArguments* tgcargs,const TGCSectorLogic* sL)
   : m_sectorLogic(sL),
     m_matrixOut(0), m_map(0),
     m_nPhiHit(0), m_SSCId(0), m_r(0), m_dR(0), m_ptR(0), m_tgcArgs(tgcargs)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCRPhiCoincidenceMatrix_hh
@@ -25,13 +25,13 @@ public:
   void clear();
   TGCRPhiCoincidenceOut* doCoincidence();
 
-  TGCRPhiCoincidenceMatrix(TGCArguments*, const  TGCSectorLogic*  sL=0);
+  TGCRPhiCoincidenceMatrix(const TGCArguments*, const  TGCSectorLogic*  sL=0);
   virtual ~TGCRPhiCoincidenceMatrix();
 
   TGCRPhiCoincidenceMatrix(const TGCRPhiCoincidenceMatrix& right);
   TGCRPhiCoincidenceMatrix& operator=(const TGCRPhiCoincidenceMatrix& right);
   
-  TGCArguments* tgcArgs() const ;
+  const TGCArguments* tgcArgs() const { return m_tgcArgs; }
   
 private:
 
@@ -51,13 +51,8 @@ private:
   int m_dPhi[MaxNPhiHit];
   int m_ptPhi[MaxNPhiHit];
 
-  TGCArguments* m_tgcArgs;
+  const TGCArguments* m_tgcArgs;
 };
-
-inline
-TGCArguments* TGCRPhiCoincidenceMatrix::tgcArgs() const {
-  return m_tgcArgs;
-}
 
 } //end of namespace bracket
 

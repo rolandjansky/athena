@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCSSCController_hh
@@ -16,7 +16,7 @@ class TGCSectorLogic;
 
 class TGCSSCController {
 public:
-  TGCSSCController( TGCArguments*, const TGCSectorLogic* sL=0 );  
+  TGCSSCController( const TGCArguments*, const TGCSectorLogic* sL=0 );
   virtual ~TGCSSCController(){} 
 
   TGCSSCControllerOut* distribute(TGCHighPtChipOut* wire[], TGCHighPtChipOut* strip);
@@ -24,7 +24,7 @@ public:
   int getNumberOfWireHighPtBoard(){return m_NumberOfWireHighPtBoard;};
   void setRegion(TGCRegionType regionIn){ m_region=regionIn;};
 
-  TGCArguments* tgcArgs() const;
+  const TGCArguments* tgcArgs() const { return m_tgcArgs; }
 
 private:
   const TGCSectorLogic* m_sectorLogic;
@@ -34,11 +34,9 @@ private:
   int getPhiPosInSSC(int chip, int block) const;
   int m_NumberOfWireHighPtBoard;
   TGCRegionType m_region;
-  TGCArguments* m_tgcArgs;
+  const TGCArguments* m_tgcArgs;
 };
-  inline TGCArguments* TGCSSCController::tgcArgs() const {
-    return m_tgcArgs;
-  }
+
 } //end of namespace bracket
 
 #endif

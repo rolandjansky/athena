@@ -47,7 +47,7 @@ class TGCSectorLogic {
 public:
   TGCSectorLogic(const TGCSectorLogic& right);
 
-  TGCSLSelectorOut* getSelectorOutput() const;
+  const TGCSLSelectorOut* getSelectorOutput() const { return m_selectorOut; }
   void getTrackSelectorOutput(std::shared_ptr<TGCTrackSelectorOut> &trackSelectorOut)const ;
 
   int  getTileMuonWord() const;
@@ -92,7 +92,8 @@ public:
 
   void setInnerTrackletSlots(const TGCInnerTrackletSlot* innerTrackletSlots[]);
   
-  TGCArguments* tgcArgs() const;
+  TGCArguments* tgcArgs() { return m_tgcArgs; }
+  const TGCArguments* tgcArgs() const { return m_tgcArgs; }
 
 protected: 
   enum {MaxNumberOfWireHighPtBoard =2};
@@ -150,11 +151,6 @@ private:
   bool m_useTileMu;
   TGCArguments* m_tgcArgs;
 };
-
-inline
-TGCArguments* TGCSectorLogic::tgcArgs() const {
-  return m_tgcArgs;
-}
 
 inline
  int TGCSectorLogic::getNumberOfSubSectorCluster() const

@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: TGCConnectionASDToPP.h,v 1.1.1.10 2003-11-03 10:18:17 mishino Exp $
 #ifndef TGCConnectionASDToPP_hh
 #define TGCConnectionASDToPP_hh
 
@@ -14,7 +13,7 @@ namespace LVL1TGCTrigger {
 
 class TGCConnectionASDToPP {
 public:
-  int getConnection(const int sideId, const int layer, const int chamber, const int line, int* pp, int* connector, int* channel);
+  int getConnection(const int sideId, const int layer, const int chamber, const int line, int* pp, int* connector, int* channel) const;
 
   bool readData(TGCRegionType region, int type, TGCForwardBackwardType forward);  // read database
 

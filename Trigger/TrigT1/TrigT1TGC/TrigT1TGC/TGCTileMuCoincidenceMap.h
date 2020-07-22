@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCTileMuCoincidenceMap_hh
@@ -51,13 +51,14 @@ public:
 					 const int sec,
 					 const int side )  const;
 
-  const std::string&          getVersion() const;
+  const std::string&          getVersion() const { return m_verName; }
 
   void                        dumpMap() const;
 
   bool readMap();  
 
-  TGCArguments* tgcArgs() const;
+  TGCArguments* tgcArgs() { return m_tgcArgs; }
+  const TGCArguments* tgcArgs() const { return m_tgcArgs; }
   
 protected:
   enum {N_Side=2};
@@ -79,16 +80,6 @@ private:
   TGCArguments* m_tgcArgs;
   const SG::ReadCondHandleKey<TGCTriggerData>& m_readCondKey;
 };
-
-inline TGCArguments* TGCTileMuCoincidenceMap::tgcArgs() const {
-  return m_tgcArgs;
-}
-
-inline  
- const std::string& TGCTileMuCoincidenceMap::getVersion() const
-{
-  return m_verName;
-}
 
 } //end of namespace bracket
 
