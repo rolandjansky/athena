@@ -332,6 +332,7 @@ void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::
   (*m_msgFunc_p)(ZDCMsg::Verbose, ("/n Loading data for event index " + std::to_string(m_eventCount) + ", side, module = " + std::to_string(side) + ", " + std::to_string(module)));
 
   ZDCPulseAnalyzer* pulseAna_p = m_moduleAnalyzers[side][module].get();
+  pulseAna_p->LoadAndAnalyzeData(HGSamples, LGSamples);
   m_dataLoaded[side][module] = true;
 
   if (pulseAna_p->Failed()) {
@@ -366,6 +367,12 @@ void ZDCDataAnalyzer::LoadAndAnalyzeData(size_t side, size_t module, const std::
   (*m_msgFunc_p)(ZDCMsg::Verbose, ("Loading undelayed and delayed data for event index " + std::to_string(m_eventCount) + ", side, module = " + std::to_string(side) +  ", " + std::to_string(module)));
 
   ZDCPulseAnalyzer* pulseAna_p = m_moduleAnalyzers[side][module].get();
+  if (m_delayedOrder[side][module] > 0) {
+    pulseAna_p->LoadAndAnalyzeData(HGSamples, LGSamples, HGSamplesDelayed, LGSamplesDelayed);
+  }
+  else {
+    pulseAna_p->LoadAndAnalyzeData(HGSamplesDelayed, LGSamplesDelayed, HGSamples, LGSamples);
+  }
   m_dataLoaded[side][module] = true;
 
   if (pulseAna_p->Failed()) {
