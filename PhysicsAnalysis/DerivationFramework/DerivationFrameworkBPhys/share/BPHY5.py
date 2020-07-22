@@ -465,6 +465,7 @@ ToolSvc+=BPHY5ElectronTPThinningTool
 thiningCollection = [] 
 print thiningCollection
 
+import DerivationFrameworkJetEtMiss.JetCommon
 bphy5Seq = CfgMgr.AthSequencer("BPHY5Sequence")
 DerivationFrameworkJob += bphy5Seq
 
