@@ -70,6 +70,7 @@ class DetFlags:
             self._flag_TRT   = False
             self._flag_BCM   = False
             self._flag_DBM   = False
+            self._flag_HGTD = False
             # Forward
             self._flag_Lucid = False
             self._flag_ZDC = False
@@ -151,6 +152,7 @@ class DetFlags:
             self.TRT_setOff()
             self.BCM_setOff()
             self.DBM_setOff()
+            self.HGTD_setOff()
         def Calo_setOn (self):
             self.em_setOn()
             self.HEC_setOn()
@@ -345,6 +347,10 @@ class DetFlags:
         cls._setAllTask('DBM','setOn')
     def DBM_setOff (cls):
         cls._setAllTask('DBM','setOff')
+    def HGTD_setOn (cls):
+        cls._setAllTask('HGTD','setOn')
+    def HGTD_setOff (cls):
+        cls._setAllTask('HGTD','setOff')
 
     def ALFA_setOn (cls):
         cls._setAllTask('ALFA','setOn')
@@ -481,6 +487,8 @@ class DetFlags:
         return cls._anyTask_on('BCM')
     def DBM_on (cls):
         return cls._anyTask_on('DBM')
+    def HGTD_on (cls):
+        return cls._anyTask_on('HGTD')
 
     def ALFA_on (cls):
         return cls._anyTask_on('ALFA')
@@ -546,7 +554,7 @@ class DetFlags:
 
     # show flags
     def Print (cls):
-        id  =["bpipe","pixel","SCT","TRT","BCM","DBM"]
+        id  =["bpipe","pixel","SCT","TRT","BCM","DBM","HGTD"]
         forward=["Lucid", "ZDC", "ALFA", "AFP", "FwdRegion"]
         calo=["em","HEC","FCal","Tile","MBTS"]
         muon=["MDT","CSC","TGC","RPC","sTGC","Micromegas"]
@@ -554,7 +562,7 @@ class DetFlags:
         l1=["LVL1"]
         bf=["BField"]
         ftk=["FTK"]
-        # crate detectors row and format
+        # create detectors row and format
         item=[]
         item.append("")
         format = "%13s :"
@@ -596,6 +604,8 @@ class DetFlags:
     BCM_setOff   = classmethod(BCM_setOff)
     DBM_setOn    = classmethod(DBM_setOn)
     DBM_setOff   = classmethod(DBM_setOff)
+    HGTD_setOn   = classmethod(HGTD_setOn)
+    HGTD_setOff   = classmethod(HGTD_setOff)
     ALFA_setOn = classmethod(ALFA_setOn)
     ALFA_setOff= classmethod(ALFA_setOff)
     AFP_setOn = classmethod(AFP_setOn)
@@ -656,6 +666,7 @@ class DetFlags:
     TRT_on       = classmethod(TRT_on)
     BCM_on       = classmethod(BCM_on)
     DBM_on       = classmethod(DBM_on)
+    HGTD_on      = classmethod(HGTD_on)
     ALFA_on      = classmethod(ALFA_on)
     AFP_on       = classmethod(AFP_on)
     ZDC_on       = classmethod(ZDC_on)
