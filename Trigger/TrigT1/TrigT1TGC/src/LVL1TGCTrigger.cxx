@@ -154,11 +154,10 @@ namespace LVL1TGCTrigger {
     // doMaskOperation is performed at the first event
     // It is better to implement callback against
     // MuonTGC_CablingSvc::updateCableASDToPP (Susumu Oda, 2010/10/27)
-    static bool firstTime = true;
-    if(firstTime) {
+    if(m_firstTime) {
       // do mask operation
       if(getMaskedChannel().isFailure()) return StatusCode::FAILURE;
-      firstTime = false;
+      m_firstTime = false;
     }
     
     StatusCode sc = StatusCode::SUCCESS;

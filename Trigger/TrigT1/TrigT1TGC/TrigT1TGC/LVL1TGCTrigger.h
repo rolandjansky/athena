@@ -157,9 +157,9 @@ namespace LVL1TGCTrigger {
     BooleanProperty   m_USENSW{this,"USENSW",false};     // flag for using NSW
     BooleanProperty   m_useRun3Config{this,"useRun3Config",false}; // flag for using switch between Run3 and Run2 algorithms
     
-    
+    bool              m_firstTime{true};
     uint16_t          m_bctagInProcess;
-    
+
     TGCDatabaseManager *m_db;
     TGCTimingManager *m_TimingManager;
     TGCElectronicsSystem *m_system;
