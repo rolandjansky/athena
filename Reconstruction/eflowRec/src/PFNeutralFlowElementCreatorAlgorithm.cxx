@@ -2,6 +2,7 @@
 
 #include "eflowRec/eflowRecCluster.h"
 
+#include "xAODCore/ShallowCopy.h"
 #include "xAODPFlow/FlowElementAuxContainer.h"
 
 PFNeutralFlowElementCreatorAlgorithm::PFNeutralFlowElementCreatorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator) :
@@ -90,31 +91,37 @@ StatusCode PFNeutralFlowElementCreatorAlgorithm::createNeutralFlowElement(const 
 
     ATH_MSG_VERBOSE("  Sucessfully set cluster link");
 
-    /*
+
     const xAOD::CaloCluster* cluster = thisEfRecCluster->getCluster();
     ATH_MSG_VERBOSE("Got CaloCluster from EfRecCluster");
     //be careful here - cluster p4 methods do not store sign. Thus -ve energy clusters have +ve pt and hence +ve energy
-    if (!m_LCMode) {
-      //in EM->EM/LC mode we use eta,phi at EM scale for both 4-vectors
-      thisFE->setP4(cluster->pt(), cluster->rawEta(), cluster->rawPhi(), cluster->m());
-      thisFE->setP4EM(cluster->rawE()/cosh(cluster->rawEta()), cluster->rawEta(),cluster->rawPhi(),cluster->rawM());
-    }
-    else{
-      //in LC-> mode we use the LC 4-vector for the LC scale
-      thisPFO->setP4(cluster->pt(), cluster->eta(), cluster->phi(), cluster->m());
-      //we cannot access geometric weights for LC clusters, so we make an approximation of the EM energy by looping over the calocells
-      //Then the EM 4-vector uses the energy/pt at this EM scale + eta,phi from LC 4-vector
-      const CaloClusterCellLink* theCellLink = cluster->getCellLinks();
-      float emPt = 0.0;
-      for (auto thisCaloCell : *theCellLink) emPt += thisCaloCell->e()/cosh(thisCaloCell->eta());
-      
-      thisPFO->setP4EM(emPt,cluster->eta(),cluster->phi(),0.0);//mass is always zero at EM scale
+    //we use eta,phi at EM scale for both 4-vectors - standard FE are at EM scale
+    thisFE->setP4(cluster->rawE()/cosh(cluster->rawEta()), cluster->rawEta(),cluster->rawPhi(),cluster->rawM());
+    //TODO
+    //Now we make a shallow copy of the object such that we can have an LC scale version    
+    //const xAOD::FlowElement* test = const_cast<xAOD::FlowElement*>(thisFE);
+    //std::pair<xAOD::FlowElement*, xAOD::ShallowAuxInfo*>  ret = xAOD::shallowCopyObject(*test);
+    //thisFE->setP4(cluster->pt(), cluster->rawEta(), cluster->rawPhi(), cluster->m());
+    //thisFE->setP4EM(cluster->rawE()/cosh(cluster->rawEta()), cluster->rawEta(),cluster->rawPhi(),cluster->rawM());
+    
+    ATH_MSG_DEBUG("Created neutral FlowElement with E, pt, eta and phi of " << thisFE->e() << ", " << thisFE->pt() << ", " << thisFE->eta() << " and " << thisFE->phi());
+    
+    thisFE->setCharge(0);
 
-    }
-    */  
-
+  
   }//cluster loop
-
-
   return StatusCode::SUCCESS;
+}
+
+void PFNeutralFlowElementCreatorAlgorithm::addMoment(const xAOD::CaloCluster::MomentType& momentType, const std::string& feAttribute, const xAOD::CaloCluster& theCluster, xAOD::FlowElement& theFE) const {
+
+  double moment = 0.0;
+  bool isRetrieved = theCluster.retrieveMoment(momentType, moment);
+  if (true == isRetrieved) {    
+    float float_moment = static_cast<float>(moment);
+    const SG::AuxElement::Accessor<float> accFloat(feAttribute);
+    accFloat(theFE) = float_moment;
+  }
+  else ATH_MSG_WARNING(" Could not retrieve moment from the CaloCluster");
+
 }
