@@ -111,7 +111,7 @@ namespace Pythia8{
       if ( (process[ii].id() == m_pdgId(settingsPtr)) and (process[ii].daughter1()!=process[ii].daughter2() && process[ii].daughter1()>0 && process[ii].daughter2()>0) ) {
 
 	Vec4 higgs4mom, mesonmom;
-	vector< vector <double> > suep_shower4momenta;	
+	vector< Vec4 > suep_shower4momenta;	
 	particleFound=true;
 
 	//setup SUEP shower
@@ -133,7 +133,7 @@ namespace Pythia8{
 	// Loop over hidden sector mesons and append to the event	
 	for (unsigned j = 0; j < suep_shower4momenta.size(); ++j){
 	  //construct pythia 4vector
-	  mesonmom.p(suep_shower4momenta[j][1],suep_shower4momenta[j][2],suep_shower4momenta[j][3],suep_shower4momenta[j][0]);
+	  mesonmom = suep_shower4momenta[j];
             
 	  // boost to the lab frame
 	  mesonmom.bst(higgs4mom.px()/higgs4mom.e(),higgs4mom.py()/higgs4mom.e(), higgs4mom.pz()/higgs4mom.e());

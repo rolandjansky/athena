@@ -10,6 +10,7 @@
 #include <math.h>
 #include <boost/math/tools/roots.hpp>
 #include <boost/bind.hpp>
+#include "Pythia8/PhaseSpace.h"
 
 //** Auxiliary class for tolerance checks */
 class tolerance {
@@ -35,7 +36,7 @@ class Suep_shower
   Suep_shower(double mass, double temperature, double energy);
   
   /** Generate a shower event, in the rest frame of the showe. */
-  std::vector< std::vector <double> > generate_shower();
+  std::vector< Pythia8::Vec4 > generate_shower();
   
  protected: 
   
@@ -60,11 +61,11 @@ class Suep_shower
   double test_fun(double p);
   
   /** generate one random 4 vector from the thermal distribution */
-  std::vector<double> generateFourVector(); 
+  Pythia8::Vec4 generateFourVector(); 
   
   /** auxiliary function which computes the total energy difference as a function of the 
    * momentum vectors and a scale factor "a" to balance energy */
-  double reballance_func(double a, const std::vector< std::vector <double> > &event);
+  double reballance_func(double a, const std::vector< Pythia8::Vec4 > &event);
   
  private:
   /** mass/Temperature ratio */

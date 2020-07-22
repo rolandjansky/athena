@@ -7,6 +7,7 @@
 
 using namespace boost::math::tools;           // For bracket_and_solve_root.
 using namespace std;
+using namespace Pythia8;
 
   // constructor
   Suep_shower::Suep_shower(double mass, double temperature, double energy) {
@@ -46,9 +47,9 @@ using namespace std;
   }
 
   // generate one random 4 vector from the thermal distribution
-  vector<double> Suep_shower::generateFourVector(){
+  Vec4 Suep_shower::generateFourVector(){
     
-    vector<double> fourvec;
+    Vec4 fourvec;
     double en, phi, theta, p;//kinematic variables of the 4 vector
     
     // first do momentum, following arxiv:1305.5226
@@ -89,10 +90,7 @@ using namespace std;
     
     // compose the 4 vector
     en = std::sqrt(p*p+(this->m)*(this->m));
-    fourvec.push_back(en);
-    fourvec.push_back(p*cos(phi)*sin(theta));
-    fourvec.push_back(p*sin(phi)*sin(theta));
-    fourvec.push_back(p*cos(theta));
+    fourvec.p(p*cos(phi)*sin(theta), p*sin(phi)*sin(theta), p*cos(theta), en);
     
     return fourvec; 
   }
@@ -100,26 +98,26 @@ using namespace std;
   // auxiliary function which computes the total energy difference as a function of the momentum vectors and a scale factor "a"
   // to ballance energy, we solve for "a" by demanding that this function vanishes
   // By rescaling the momentum rather than the energy, I avoid having to do these annoying rotations from the previous version 
-  double Suep_shower::reballance_func(double a, const vector< vector <double> > &event){
+  double Suep_shower::reballance_func(double a, const vector< Vec4 > &event){
     double result =0.0;
     double p2;
     for(unsigned n = 0; n<event.size();n++){
-      p2 = event[n][1]*event[n][1] + event[n][2]*event[n][2] + event[n][3]*event[n][3];
+      p2 = event[n].px()*event[n].px() + event[n].py()*event[n].py() + event[n].pz()*event[n].pz();
       result += std::sqrt(a*a*p2 + (this->m)* (this->m));
     }
     return result - (this->Etot);
   }
 
   // generate a shower event, in the rest frame of the shower
-  vector< vector <double> > Suep_shower::generate_shower(){
+  vector< Vec4 > Suep_shower::generate_shower(){
     
-    vector<vector<double> > event;
+    vector< Vec4 > event;
     double sum_E = 0.0;
     
     // fill up event record
     while(sum_E<(this->Etot)){
       event.push_back(this->generateFourVector());
-      sum_E += (event.back()).at(0);     
+      sum_E += (event.back()).e();
     }
     
     // reballance momenta
@@ -144,11 +142,11 @@ using namespace std;
     p_scale = (bisect(boost::bind(&Suep_shower::reballance_func, this, _1, event),0.0,2.0, tol)).first;
     
     for(int n=0;n<len;n++){
-      event[n][1] = p_scale*event[n][1];
-      event[n][2] = p_scale*event[n][2];
-      event[n][3] = p_scale*event[n][3];
+      event[n].px(p_scale*event[n].px());
+      event[n].py(p_scale*event[n].py());
+      event[n].pz(p_scale*event[n].pz());
       // force the energy with the on-shell condition
-      event[n][0] = std::sqrt(event[n][1]*event[n][1] + event[n][2]*event[n][2] + event[n][3]*event[n][3] + (this->m)*(this->m));
+      event[n].e(std::sqrt(event[n].px()*event[n].px() + event[n].py()*event[n].py() + event[n].pz()*event[n].pz() + (this->m)*(this->m)));
     }
     
     return event;    
