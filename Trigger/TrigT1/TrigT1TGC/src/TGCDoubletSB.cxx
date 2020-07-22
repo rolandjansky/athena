@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1TGC/TGCDoubletSB.h"
@@ -55,10 +55,6 @@ void TGCDoubletSB::doCoincidence()
 
   if ( m_slaveBoardOut!= 0 ) delete m_slaveBoardOut;
   m_slaveBoardOut = new TGCSlaveBoardOut(this,m_bid);
-  if ( !m_slaveBoardOut ) {
-    std::cerr << "TGCDoubletSB::createSlaveBoardOut: Memory allocation failure.";
-    exit(1);
-  }
   m_slaveBoardOut->clear();
   m_slaveBoardOut->setNumberOfData(NumberOfDoubletSBData);
 
@@ -211,10 +207,6 @@ void TGCDoubletSB::do3outof4Coincedence(TGCHitPattern** LCOut)
   if(((LCOut[0]!=0)||(LCOut[1]!=0))&&((LCOut[2]!=0)||(LCOut[3]!=0))){
     if ( m_coincidenceOut != 0 ) delete m_coincidenceOut;
     m_coincidenceOut = new TGCHitPattern;
-    if ( !m_coincidenceOut ) {
-      std::cerr << "TGCDoubletSB::create coincidenceOut: Memory allocation failure.";
-      exit(1);
-    }
 #ifdef TGCDEBUG
     std::cout << "# DoubletSB [do3outof4Coincedence]" <<std::endl;
     std::cout<<"#SB LCOut[0]: inner 2hit";LCOut[0]->print();
