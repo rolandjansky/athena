@@ -61,7 +61,7 @@ InDetTrkInJetType::InDetTrkInJetType(const std::string& type,
      std::string fullPathToFile = PathResolverFindCalibFile("InDetVKalVxInJetTool/"+m_calibFileName);
      std::unique_ptr<TFile> rootFile(TFile::Open(fullPathToFile.c_str(), "READ"));    
      if (!rootFile) {
-        ATH_MSG_DEBUG("Can not retrieve TrackClassification calibration root file: " << m_calibFileName);
+        ATH_MSG_ERROR("Can not retrieve TrackClassification calibration root file: " << m_calibFileName);
         return StatusCode::FAILURE;
      }
      std::unique_ptr<TTree> training((TTree*)rootFile->Get("BDT"));
