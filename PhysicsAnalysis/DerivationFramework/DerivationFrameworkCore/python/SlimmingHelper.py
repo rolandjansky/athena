@@ -232,7 +232,7 @@ class SlimmingHelper:
                 for item in mainEntries:
                         Stream.AddItem(item)
                 for item in auxEntries.keys():
-                        theDictionary = dict(self.NamesAndTypes.items() + self.AppendToDictionary.items())
+                        theDictionary = dict(list(self.NamesAndTypes.items()) + list(self.AppendToDictionary.items()))
                         if item in theDictionary.keys():
                                 if (theDictionary[item]=='xAOD::JetAuxContainer'):
                                         entry = "xAOD::JetAuxContainer#"+item+"."
