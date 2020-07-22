@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# art-description: MC16-style simulation using FullG4
+# art-description: MC16-style simulation using G4FastCalo
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
 # art-include: 21.9/Athena
