@@ -31,10 +31,6 @@
 #include "xAODCaloEvent/CaloVertexedClusterBase.h"
 
 
-// PFlow EDM and helpers
-#include "xAODPFlow/PFOContainer.h"
-#include "PFlowUtils/IRetrievePFOTool.h"
-
 namespace met {
 
   using std::vector;
@@ -64,12 +60,7 @@ namespace met {
   ////////////////
   METSoftTermsTool::METSoftTermsTool(const std::string& name) : 
     AsgTool(name),
-    METBuilderTool(name),
-    m_pfotool(this,""),
-    m_st_objtype(0),
-    m_pv_inputkey("PrimaryVertices"),
-    m_caloClusterKey(""),
-    m_trackParticleKey("")
+    METBuilderTool(name)
   {
     declareProperty( "InputComposition", m_inputType = "Clusters" ); // Options : Clusters (default) OR Tracks OR PFOs
     //declareProperty( "InputPVKey",      m_pv_inputkey = "PrimaryVertices"    );

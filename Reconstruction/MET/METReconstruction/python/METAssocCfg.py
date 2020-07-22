@@ -1,7 +1,8 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
-from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.ComponentFactory import CompFactory
+
 from GaudiKernel.Constants import INFO
 import six
 
@@ -36,14 +37,11 @@ class AssocConfig:
         self.inputKey = inputKey
 
 def getAssociator(config,suffix,doPFlow=False,
-                  trkseltool=None,trkisotool=None,caloisotool=None,
+                  trkseltool=None,
+                  trkisotool=None,caloisotool=None,
                   modConstKey="",
                   modClusColls={}):
     tool = None
-
-    import cppyy
-    try: cppyy.loadDictionary('METReconstructionDict')
-    except: pass
 
     doModClus = (modConstKey!="" and not doPFlow)
     if doModClus:
@@ -99,8 +97,6 @@ def getAssociator(config,suffix,doPFlow=False,
     tool.TrackIsolationTool = trkisotool
     tool.CaloIsolationTool = caloisotool
 
-    #if not hasattr(ToolSvc,tool.name()):
-    #   ToolSvc += tool
     return tool
 
 #################################################################################
@@ -108,7 +104,7 @@ def getAssociator(config,suffix,doPFlow=False,
 
 class METAssocConfig:
     def outputCollections(self):
-        if doTruth: return 'MET_Core_'+self.suffix
+        if self.doTruth: return 'MET_Core_'+self.suffix
         else: return 'MET_Core_'+self.suffix,'MET_Reference_'+self.suffix
     #
     def outputMap(self):
@@ -116,10 +112,10 @@ class METAssocConfig:
         return 'METAssoc_'+self.suffix
     #
     def setupAssociators(self,buildconfigs):
-        print (prefix, 'Setting up associators for MET config '+self.suffix)
+        print("{} Setting up associators for MET config {}".format(prefix,self.suffix))
         for config in buildconfigs:
             if config.objType in self.associators:
-                print (prefix, 'Config '+self.suffix+' already contains a associator of type '+config.objType)
+                print ("{} Config {} already contains a associator of type {}".format(prefix,self.suffix,config.objType))
                 raise LookupError
             else:
                 associator = getAssociator(config=config,suffix=self.suffix,
@@ -135,10 +131,10 @@ class METAssocConfig:
                     associator.DecorateSoftConst = True
                 self.associators[config.objType] = associator
                 self.assoclist.append(associator)
-                print (prefix, '  Added '+config.objType+' tool named '+associator.name)
+                print("{} Added {} tool named {}".format(prefix,config.objType,associator.name))
     #
     def __init__(self,suffix,inputFlags,buildconfigs=[],
-                 doPFlow=False,doTruth=False,
+                 doPFlow=False, doTruth=False,
                  trksel=None,
                  modConstKey="",
                  modClusColls={}
@@ -153,9 +149,9 @@ class METAssocConfig:
             if modClusColls_tmp == {}: modClusColls_tmp = {'LCOriginCorrClusters':'LCOriginTopoClusters',
                                                            'EMOriginCorrClusters':'EMOriginTopoClusters'}
         if doTruth:
-            print (prefix, 'Creating MET TruthAssoc config \''+suffix+'\'')
+            print ("{} Creating MET TruthAssoc config {}".format(prefix,suffix))
         else:
-            print (prefix, 'Creating MET Assoc config \''+suffix+'\'')
+            print ("{} Creating MET Assoc config {}".format(prefix,suffix))
         self.suffix = suffix
         self.doPFlow = doPFlow                
         self.modConstKey=modConstKey_tmp
@@ -169,8 +165,6 @@ class METAssocConfig:
                                                                   maxZ0SinTheta=3,
                                                                   maxD0=2,
                                                                   minPt=500)
-            #if not hasattr(ToolSvc,self.trkseltool.name()):
-            #    ToolSvc += self.trkseltool
 
         self.trkisotool = CompFactory.getComp("xAOD::TrackIsolationTool")("TrackIsolationTool_MET")
         self.trkisotool.TrackSelectionTool = self.trkseltool # As configured above
@@ -183,9 +177,6 @@ class METAssocConfig:
                                                           addCaloExtensionDecoration=False,
                                                           ParticleCaloExtensionTool = CaloExtensionTool,
                                                           ParticleCaloCellAssociationTool = CaloCellAssocTool)
-        #if not hasattr(ToolSvc,self.caloisotool.name()):
-        #    ToolSvc += self.caloisotool
-
         self.associators = {}
         self.assoclist = [] # need an ordered list
         #
@@ -217,19 +208,16 @@ def getMETAssocAlg(algName='METAssociation',configs={},tools=[],msglvl=INFO):
 
     from METReconstruction.METRecoFlags import metFlags
     if configs=={} and tools==[]:
-        print (prefix, 'Taking configurations from METRecoFlags')
+        print ("{} Taking configurations from METRecoFlags".format(prefix))
         configs = metFlags.METAssocConfigs()
         print (configs)
     for key,conf in six.iteritems(configs):
-        print (prefix, 'Generate METAssocTool for MET_'+key)
+        print ("{} Generate METAssocTool for MET_{}".format(prefix,key))
         assoctool = getMETAssocTool(conf,msglvl)
         assocTools.append(assoctool)
-        #metFlags.METAssocTools()[key] = assoctool
 
     for tool in assocTools:
-        print (prefix, 'Added METAssocTool \''+tool.name+'\' to alg '+algName)
-
+        print ("{} Added METAssocTool {} to alg {}".format(prefix,tool.name,algName))
     assocAlg = CompFactory.getComp("met::METRecoAlg")(name=algName,
                                       RecoTools=assocTools)
-#    assocAlg.OutputLevel=DEBUG
     return assocAlg

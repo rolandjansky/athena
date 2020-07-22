@@ -1,14 +1,12 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
-from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.ComponentFactory import CompFactory
+
 
 def getMETMakerAlg(suffix,jetSelection="Tier0",jetColl=""):
 
     print ("Generate METMaker and METMakerAlg for METAssoc_"+suffix)
-    from AthenaCommon.AppMgr import ToolSvc
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()
 
     doPFlow = 'PFlow' in suffix
     doTruth = suffix.startswith('Truth')
@@ -16,24 +14,19 @@ def getMETMakerAlg(suffix,jetSelection="Tier0",jetColl=""):
                                     DoPFlow=doPFlow,
                                     DoSoftTruth=doTruth,
                                     JetSelection=jetSelection,
-                                    );
-    #ToolSvc += metMaker
+                                    )
 
     muonSel = CompFactory.getComp("CP::MuonSelectionTool")("MuonSelectionTool_METMakerAlg",
                                            MuQuality=1, # Medium
                                            MaxEta=2.4)
-    #ToolSvc += muonSel
 
     elecSelLH = CompFactory.AsgElectronLikelihoodTool("EleSelLikelihood_METMakerAlg",
                                                  WorkingPoint="MediumLHElectron")
-    #ToolSvc += elecSelLH
 
     photonSelIsEM = CompFactory.AsgPhotonIsEMSelector("PhotonSelIsEM_METMakerAlg",
                                                  WorkingPoint="TightPhoton")
-    #ToolSvc += photonSelIsEM
 
     tauSel = CompFactory.getComp("TauAnalysisTools::TauSelectionTool")("TauSelectionTool_METMakerAlg")
-    #ToolSvc += tauSel
 
     if jetColl=="":
         jetColl = suffix+'Jets'

@@ -142,24 +142,24 @@ class METConfig:
         return 'METMap_'+self.suffix
     #
     def setupBuilders(self,buildconfigs):
-        print prefix, 'Setting up builders for MET config '+self.suffix
+        print("{} Setting up builders for MET config {}".format(prefix,self.suffix))
         for config in buildconfigs:
             if config.objType in self.builders:
-                print( prefix, 'Config '+self.suffix+' already contains a builder of type '+config.objType)
+                print("{} Config {} already contains a builder of type {}".format(prefix,self.suffix,config.objType))
                 raise LookupError
             else:
                 builder = getBuilder(config,self.suffix,self.doTracks,self.doCells,
                                      self.doTriggerMET,self.doOriginCorrClus)
                 self.builders[config.objType] = builder
                 self.buildlist.append(builder)
-                print( prefix, '  Added '+config.objType+' tool named '+builder.name)
+                print("{} Added {} tool named {}".format(prefix,config.objType,builder.name))
     #
     def setupRefiners(self,refconfigs):
-        print prefix, 'Setting up refiners for MET config '+self.suffix
+        print("{} Setting up refiners for MET config {}".format(prefix,self.suffix))
         for config in refconfigs:
             # need to enforce this?
             if config.type in self.refiners:
-                print 'Config '+self.suffix+' already contains a refiner of type '+config.type
+                print("Config {} already contains a refiner of type {}".format(self.suffix,config.type))
                 raise LookupError
             else:
                 refiner = getRefiner(config=config,suffix=self.suffix,
@@ -167,25 +167,25 @@ class METConfig:
                                      trkisotool=self.trkisotool,caloisotool=self.caloisotool)
                 self.refiners[config.type] = refiner
                 self.reflist.append(refiner)
-                print(prefix, '  Added '+config.type+' tool named '+refiner.name)
+                print("{} Added {} tool named {}".format(prefix,config.type,refiner.name))
     #
     def setupRegions(self,buildconfigs):
-        print prefix, 'Setting up regions for MET config '+self.suffix
+        print("{} Setting up regions for MET config {}".format(prefix,self.suffix))
         for config in buildconfigs:
             if config.objType in self.regions:
-                print prefix, 'Config '+self.suffix+' already contains a region tool of type '+config.objType
+                print("{} Config {} already contains a region tool of type {}".format(prefix,self.suffix,config.objType))
                 raise LookupError
             else:
                 regions = getRegions(config,self.suffix)
                 self.regions[config.objType] = regions
                 self.reglist.append(regions)
-                print(prefix, '  Added '+config.objType+' region tool named '+regions.name)
+                print("{} Added {} region tool named {}".format(prefix,config.objType,regions.name))
     #
     def __init__(self,suffix,inputFlags,buildconfigs=[],refconfigs=[],
                  doTracks=False,doSum=False,doRegions=False,
                  doCells=False,doTriggerMET=True,duplicateWarning=True,
                  doOriginCorrClus=False):
-        print prefix, 'Creating MET config \''+suffix+'\''
+        print("{} Creating MET config {}".format(prefix,suffix))
         self.suffix = suffix
         self.doSum = doSum
         self.doTracks = doTracks
@@ -206,7 +206,7 @@ class METConfig:
         if doRegions:
             self.setupRegions(buildconfigs)
         #
-	from AthenaConfiguration.ComponentFactory import CompFactory
+        from AthenaConfiguration.ComponentFactory import CompFactory
         self.trkseltool=CompFactory.getComp("InDet::InDetTrackSelectionTool")("IDTrkSel_MET",
                                                               CutLevel="TightPrimary",
                                                               maxZ0SinTheta=3,
@@ -218,9 +218,8 @@ class METConfig:
         self.trkisotool = CompFactory.getComp("xAOD::TrackIsolationTool")("TrackIsolationTool_MET")
         self.trkisotool.TrackSelectionTool = self.trkseltool # As configured above
         ###
-	print("Setting up ATLAS extrapolator")
-	from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg  
-	extrapCfg = AtlasExtrapolatorCfg(inputFlags)
+        from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+        extrapCfg = AtlasExtrapolatorCfg(inputFlags)
         CaloExtensionTool= CompFactory.getComp("Trk::ParticleCaloExtensionTool")(Extrapolator = extrapCfg.popPrivateTools())
         CaloCellAssocTool = CompFactory.getComp("Rec::ParticleCaloCellAssociationTool")(ParticleCaloExtensionTool = CaloExtensionTool)
         self.caloisotool = CompFactory.getComp("xAOD::CaloIsolationTool")("CaloIsolationTool_MET",
@@ -231,7 +230,6 @@ class METConfig:
 
         self.setupBuilders(buildconfigs)
         self.setupRefiners(refconfigs)
-	print ("finish setting up config")
 
 # Set up a top-level tool with mostly defaults
 def getMETRecoTool(topconfig):
@@ -261,15 +259,13 @@ def getRegionRecoTool(topconfig):
 def getMETRecoAlg(algName='METReconstruction',configs={}):
     recoTools = []
     for key,conf in configs.items():
-        print( prefix, 'Generate METRecoTool for MET_'+key)
+        print("{} Generate METRecoTool for MET_{}".format(prefix,key))
         recotool = getMETRecoTool(conf)
         recoTools.append(recotool)
         if conf.doRegions:
             regiontool = getRegionRecoTool(conf)
             recoTools.append(regiontool)
-	    print "Added region tool"
     for tool in recoTools:
-        print( prefix, 'Added METRecoTool \''+tool.name+'\' to alg '+algName)
-    recoAlg = CompFactory.getComp("met::METRecoAlg")(name=algName,
-                                     RecoTools=recoTools)
+        print("{} Added METRecoTool {} to alg {}".format(prefix,tool.name,algName))
+    recoAlg = CompFactory.getComp("met::METRecoAlg")(name=algName,RecoTools=recoTools)
     return recoAlg

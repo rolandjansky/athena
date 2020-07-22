@@ -97,14 +97,14 @@ namespace met{
     std::string m_recoGam;
     std::string m_recoTau;
 
-    SG::ReadHandleKey<xAOD::ElectronContainer>      m_recoElKey;
-    SG::ReadHandleKey<xAOD::PhotonContainer>        m_recoGamKey;
-    SG::ReadHandleKey<xAOD::TauJetContainer>        m_recoTauKey;
-    SG::ReadHandleKey<xAOD::MuonContainer>          m_recoMuKey;
-    SG::ReadHandleKey<xAOD::JetContainer>           m_recoJetKey;
+    SG::ReadHandleKey<xAOD::ElectronContainer>      m_recoElKey{""};
+    SG::ReadHandleKey<xAOD::PhotonContainer>        m_recoGamKey{""};
+    SG::ReadHandleKey<xAOD::TauJetContainer>        m_recoTauKey{""};
+    SG::ReadHandleKey<xAOD::MuonContainer>          m_recoMuKey{""};
+    SG::ReadHandleKey<xAOD::JetContainer>           m_recoJetKey{""};
 
     std::string m_truthEvent;
-    SG::ReadHandleKey<xAOD::TruthEventContainer>           m_truthEventKey;
+    SG::ReadHandleKey<xAOD::TruthEventContainer>           m_truthEventKey{""};
 
     /// Default constructor: 
     METTruthAssociator();

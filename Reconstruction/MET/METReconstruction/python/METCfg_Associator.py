@@ -89,8 +89,8 @@ def getAssocCA(config,sequencename='METAssociation',METName=''):
     from AthenaConfiguration.ComponentFactory import CompFactory
     AthSequencer=CompFactory.AthSequencer
     components.addSequence( AthSequencer(sequencename) )
-    assoctool = getMETAssocTool(config)
-    assocAlg = getMETAssocAlg(algName='METAssociation_LCJets',tools=[assoctool])
+    #assoctool = getMETAssocTool(config)
+    assocAlg = getMETAssocAlg(algName='METAssociation_'+METName,configs={config.suffix:config})
     components.addEventAlgo(assocAlg,sequencename)
     if not METName=='':
         makerAlg=getMETMakerAlg(METName)
