@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1NSW_NSWL1SIMULATION_H
@@ -7,10 +7,10 @@
 
 // Basic includes
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/Property.h"
-//#include "StoreGate/DataHandle.h"
 
 // monitoring from HLT
 #include "TrigInterfaces/IMonitoredAlgo.h"
@@ -49,11 +49,11 @@ namespace NSWL1 {
    *
    *  @authors Alessandro Di Mattia <dimattia@cern.ch>, Geraldine Conti <geraldine.conti@cern.ch>
    *
-   * @version \$Id: NSWL1Simulation.h,v 1.20 2013-01-29 21:14:24 efeld Exp $
    *
    */
 
-  class NSWL1Simulation: public AthAlgorithm, public IMonitoredAlgo {
+  class ATLAS_NOT_THREAD_SAFE  // use of TTree in execute
+  NSWL1Simulation: public AthAlgorithm, public IMonitoredAlgo {
 
   public:
 
