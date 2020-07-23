@@ -36,7 +36,20 @@ InDetPerfPlot_TRTExtension::InDetPerfPlot_TRTExtension(InDetPlotBase* pParent, c
   m_reswidthNoTRTExtensions_vs_eta{},
   m_resmeanNoTRTExtensions_vs_eta{},
   m_reswidthNoTRTExtensions_vs_pt{},
-  m_resmeanNoTRTExtensions_vs_pt{}
+  m_resmeanNoTRTExtensions_vs_pt{},
+  m_ptpullTRTExtensions_vs_eta{},
+  m_ptpullTRTExtensions_vs_pt{},
+  m_ptpullNoTRTExtensions_vs_eta{},
+  m_ptpullNoTRTExtensions_vs_pt{},
+  m_pullwidthTRTExtensions_vs_eta{},
+  m_pullmeanTRTExtensions_vs_eta{},
+  m_pullwidthTRTExtensions_vs_pt{},
+  m_pullmeanTRTExtensions_vs_pt{},
+  m_pullwidthNoTRTExtensions_vs_eta{},
+  m_pullmeanNoTRTExtensions_vs_eta{},
+  m_pullwidthNoTRTExtensions_vs_pt{},
+  m_pullmeanNoTRTExtensions_vs_pt{}
+
 
   {
 }
@@ -57,17 +70,31 @@ InDetPerfPlot_TRTExtension::initializePlots() {
   book(m_ptresNoTRTExtensions_vs_eta, "ptresNoTRTExtensions_vs_eta");
   book(m_ptresNoTRTExtensions_vs_pt, "ptresNoTRTExtensions_vs_pt");
 
-  book(m_reswidthTRTExtensions_vs_eta, "resolutionTRTExtensions_vs_eta_ptqopt");
-  book(m_resmeanTRTExtensions_vs_eta, "resmeanTRTExtensions_vs_eta_ptqopt");
-  book(m_reswidthTRTExtensions_vs_pt, "resolutionTRTExtensions_vs_pt_ptqopt");
-  book(m_resmeanTRTExtensions_vs_pt, "resmeanTRTExtensions_vs_pt_ptqopt");
+  book(m_reswidthTRTExtensions_vs_eta, "ptresolutionTRTExtensions_vs_eta");
+  book(m_resmeanTRTExtensions_vs_eta, "ptresmeanTRTExtensions_vs_eta");
+  book(m_reswidthTRTExtensions_vs_pt, "ptresolutionTRTExtensions_vs_pt");
+  book(m_resmeanTRTExtensions_vs_pt, "ptresmeanTRTExtensions_vs_pt");
 
-  book(m_reswidthNoTRTExtensions_vs_eta, "resolutionNoTRTExtensions_vs_eta_ptqopt");
-  book(m_resmeanNoTRTExtensions_vs_eta, "resmeanNoTRTExtensions_vs_eta_ptqopt");
-  book(m_reswidthNoTRTExtensions_vs_pt, "resolutionNoTRTExtensions_vs_pt_ptqopt");
-  book(m_resmeanNoTRTExtensions_vs_pt, "resmeanNoTRTExtensions_vs_pt_ptqopt");
+  book(m_reswidthNoTRTExtensions_vs_eta, "ptresolutionNoTRTExtensions_vs_eta");
+  book(m_resmeanNoTRTExtensions_vs_eta, "ptresmeanNoTRTExtensions_vs_eta");
+  book(m_reswidthNoTRTExtensions_vs_pt, "ptresolutionNoTRTExtensions_vs_pt");
+  book(m_resmeanNoTRTExtensions_vs_pt, "ptresmeanNoTRTExtensions_vs_pt");
 
 
+  book(m_ptpullTRTExtensions_vs_eta, "ptpullTRTExtensions_vs_eta");
+  book(m_ptpullTRTExtensions_vs_pt, "ptpullTRTExtensions_vs_pt");
+  book(m_ptpullNoTRTExtensions_vs_eta, "ptpullNoTRTExtensions_vs_eta");
+  book(m_ptpullNoTRTExtensions_vs_pt, "ptpullNoTRTExtensions_vs_pt");
+
+  book(m_pullwidthTRTExtensions_vs_eta, "ptpullwidthTRTExtensions_vs_eta");
+  book(m_pullmeanTRTExtensions_vs_eta, "ptpullmeanTRTExtensions_vs_eta");
+  book(m_pullwidthTRTExtensions_vs_pt, "ptpullwidthTRTExtensions_vs_pt");
+  book(m_pullmeanTRTExtensions_vs_pt, "ptpullmeanTRTExtensions_vs_pt");
+
+  book(m_pullwidthNoTRTExtensions_vs_eta, "ptpullwidthNoTRTExtensions_vs_eta");
+  book(m_pullmeanNoTRTExtensions_vs_eta, "ptpullmeanNoTRTExtensions_vs_eta");
+  book(m_pullwidthNoTRTExtensions_vs_pt, "ptpullwidthNoTRTExtensions_vs_pt");
+  book(m_pullmeanNoTRTExtensions_vs_pt, "ptpullmeanNoTRTExtensions_vs_pt");
 
 }
 
@@ -112,13 +139,14 @@ InDetPerfPlot_TRTExtension::fill(const xAOD::TrackParticle& particle, const xAOD
   const bool saneSineValue = (std::abs(sinTheta) > 1e-8);
   const float inverseSinTheta = saneSineValue ? 1./sinTheta : undefinedValue;
   float track_qopt = saneSineValue ? particle.qOverP()*inverseSinTheta : undefinedValue;
+  const float qopterr = std::sqrt(particle.definingParametersCovMatrix()(4, 4)) * inverseSinTheta;
 
   const float truth_qop = truthParticle.isAvailable<float>("qOverP") ? truthParticle.auxdata<float>("qOverP") : undefinedValue;
   const float truth_theta = truthParticle.isAvailable<float>("theta") ? truthParticle.auxdata<float>("theta") : undefinedValue;
   float truth_qopt = std::abs(truth_theta) > 0 ? truth_qop * 1/(std::sin(truth_theta)) : undefinedValue;
 
   float ptres = (track_qopt - truth_qopt) * ( 1 / truth_qopt);
-
+  float ptpull = qopterr > smallestAllowableTan ? (track_qopt - truth_qopt) / qopterr : undefinedValue;
   float pt = truthParticle.pt() / Gaudi::Units::GeV;
   const float tanHalfTheta = std::tan(truth_theta * 0.5);
   const bool tanThetaIsSane = std::abs(tanHalfTheta) > smallestAllowableTan;
@@ -129,9 +157,15 @@ InDetPerfPlot_TRTExtension::fill(const xAOD::TrackParticle& particle, const xAOD
   if(isTRTExtension){
     fillHisto(m_ptresTRTExtensions_vs_eta, eta, ptres);
     fillHisto(m_ptresTRTExtensions_vs_pt, pt, ptres);
+
+    fillHisto(m_ptpullTRTExtensions_vs_eta, eta, ptpull);
+    fillHisto(m_ptpullTRTExtensions_vs_pt, pt, ptpull);
   } else {
     fillHisto(m_ptresNoTRTExtensions_vs_eta, eta, ptres);
     fillHisto(m_ptresNoTRTExtensions_vs_pt, pt, ptres);
+
+    fillHisto(m_ptpullNoTRTExtensions_vs_eta, eta, ptpull);
+    fillHisto(m_ptpullNoTRTExtensions_vs_pt, pt, ptpull);
   } 
 
   fillHisto(m_fracTRTExtensions_matched_vs_eta, eta, isTRTExtension);
@@ -148,6 +182,12 @@ InDetPerfPlot_TRTExtension::finalizePlots() {
   m_resolutionHelper.makeResolutions(m_ptresTRTExtensions_vs_pt, m_reswidthTRTExtensions_vs_pt, m_resmeanTRTExtensions_vs_pt, m_resolutionMethod);
   m_resolutionHelper.makeResolutions(m_ptresNoTRTExtensions_vs_eta, m_reswidthNoTRTExtensions_vs_eta, m_resmeanNoTRTExtensions_vs_eta, m_resolutionMethod);
   m_resolutionHelper.makeResolutions(m_ptresNoTRTExtensions_vs_pt, m_reswidthNoTRTExtensions_vs_pt, m_resmeanNoTRTExtensions_vs_pt, m_resolutionMethod);
+
+
+  m_resolutionHelper.makeResolutions(m_ptpullTRTExtensions_vs_eta, m_pullwidthTRTExtensions_vs_eta, m_pullmeanTRTExtensions_vs_eta, m_resolutionMethod); 
+  m_resolutionHelper.makeResolutions(m_ptpullTRTExtensions_vs_pt, m_pullwidthTRTExtensions_vs_pt, m_pullmeanTRTExtensions_vs_pt, m_resolutionMethod);
+  m_resolutionHelper.makeResolutions(m_ptpullNoTRTExtensions_vs_eta, m_pullwidthNoTRTExtensions_vs_eta, m_pullmeanNoTRTExtensions_vs_eta, m_resolutionMethod);
+  m_resolutionHelper.makeResolutions(m_ptpullNoTRTExtensions_vs_pt, m_pullwidthNoTRTExtensions_vs_pt, m_pullmeanNoTRTExtensions_vs_pt, m_resolutionMethod);
 
   //
   //Pie

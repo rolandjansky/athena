@@ -57,6 +57,22 @@ private:
   TH1* m_reswidthNoTRTExtensions_vs_pt;
   TH1* m_resmeanNoTRTExtensions_vs_pt;
 
+  TH2* m_ptpullTRTExtensions_vs_eta;
+  TH2* m_ptpullTRTExtensions_vs_pt;
+  TH2* m_ptpullNoTRTExtensions_vs_eta;
+  TH2* m_ptpullNoTRTExtensions_vs_pt;
+
+  TH1* m_pullwidthTRTExtensions_vs_eta;
+  TH1* m_pullmeanTRTExtensions_vs_eta;
+  TH1* m_pullwidthTRTExtensions_vs_pt;
+  TH1* m_pullmeanTRTExtensions_vs_pt;
+
+  TH1* m_pullwidthNoTRTExtensions_vs_eta;
+  TH1* m_pullmeanNoTRTExtensions_vs_eta;
+  TH1* m_pullwidthNoTRTExtensions_vs_pt;
+  TH1* m_pullmeanNoTRTExtensions_vs_pt;
+
+
   // plot base has nop default implementation of this; we use it to book the histos
   void initializePlots();
   // print out final stats on exact zeroes

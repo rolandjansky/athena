@@ -232,46 +232,108 @@
   <y title="reco_{pT #times q/pT} - truth_{pT #times q/pT}" n="2000" lo="-&PTQOPTRES;" hi="&PTQOPTRES;"/>
 </h>
 
-<h id="resolutionTRTExtensions_vs_eta_ptqopt" type="TH1F" title="resolution vs #eta for p_{T} #times q/p_{T}">
+<h id="ptresolutionTRTExtensions_vs_eta" type="TH1F" title="resolution vs #eta for p_{T} #times q/p_{T}">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="width of resolution for p_{T} #times q/p_{T}"/>
 </h>
 
-<h id="resmeanTRTExtensions_vs_eta_ptqopt" type="TH1F" title="mean of resolution vs #eta for p_{T} #times q/p_{T}">
+<h id="ptresmeanTRTExtensions_vs_eta" type="TH1F" title="mean of resolution vs #eta for p_{T} #times q/p_{T}">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="mean of resolution for p_{T} #times q/p_{T}"/>
 </h>
 
-<h id="resolutionNoTRTExtensions_vs_eta_ptqopt" type="TH1F" title="resolution vs #eta for p_{T} #times q/p_{T}">
+<h id="ptresolutionNoTRTExtensions_vs_eta" type="TH1F" title="resolution vs #eta for p_{T} #times q/p_{T}">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="width of resolution for p_{T} #times q/p_{T}"/>
 </h>
 
-<h id="resmeanNoTRTExtensions_vs_eta_ptqopt" type="TH1F" title="mean of resolution vs #eta for p_{T} #times q/p_{T}">
+<h id="ptresmeanNoTRTExtensions_vs_eta" type="TH1F" title="mean of resolution vs #eta for p_{T} #times q/p_{T}">
   <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
   <y title="mean of resolution for p_{T} #times q/p_{T}"/>
 </h>
 
-<h id="resolutionTRTExtensions_vs_pt_ptqopt" type="TH1F" title="resolution vs p_{T} for p_{T} #times q/p_{T}">
+<h id="ptresolutionTRTExtensions_vs_pt" type="TH1F" title="resolution vs p_{T} for p_{T} #times q/p_{T}">
   <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
   <y title="width of resolution for p_{T} #times q/p_{T}"/>
 </h>
 
-<h id="resmeanTRTExtensions_vs_pt_ptqopt" type="TH1F" title="mean of resolution vs p_{T} for p_{T} #times q/p_{T}">
+<h id="ptresmeanTRTExtensions_vs_pt" type="TH1F" title="mean of resolution vs p_{T} for p_{T} #times q/p_{T}">
   <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
   <y title="mean of resolution for p_{T} #times q/p_{T}"/>
 </h>
 
-<h id="resolutionNoTRTExtensions_vs_pt_ptqopt" type="TH1F" title="resolution vs p_{T} for p_{T} #times q/p_{T}">
+<h id="ptresolutionNoTRTExtensions_vs_pt" type="TH1F" title="resolution vs p_{T} for p_{T} #times q/p_{T}">
   <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
   <y title="width of resolution for p_{T} #times q/p_{T}"/>
 </h>
 
 
-<h id="resmeanNoTRTExtensions_vs_pt_ptqopt" type="TH1F" title="mean of resolution vs p_{T} for p_{T} #times q/p_{T}">
+<h id="ptresmeanNoTRTExtensions_vs_pt" type="TH1F" title="mean of resolution vs p_{T} for p_{T} #times q/p_{T}">
   <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
   <y title="mean of resolution for p_{T} #times q/p_{T}"/>
 </h>
+
+
+<h id="ptpullwidthTRTExtensions_vs_eta" type="TH1F" title="pull vs #eta for p_{T} #times q/p_{T}">
+  <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
+  <y title="width of pull for p_{T} #times q/p_{T}"/>
+</h>
+
+<h id="ptpullmeanTRTExtensions_vs_eta" type="TH1F" title="mean of pull vs #eta for p_{T} #times q/p_{T}">
+  <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
+  <y title="means pull for p_{T} #times q/p_{T}"/>
+</h>
+
+<h id="ptpullwidthTRTExtensions_vs_pt" type="TH1F" title="pull vs p_{T} for p_{T} #times q/p_{T}">
+  <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
+  <y title="width of pull for p_{T} #times q/p_{T}"/>
+</h>
+<h id="ptpullmeanTRTExtensions_vs_pt" type="TH1F" title="mean of pull vs p_{T} for p_{T} #times q/p_{T}">
+  <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
+  <y title="mean of pull for p_{T} #times q/p_{T}"/>
+</h>
+
+
+<h id="ptpullwidthNoTRTExtensions_vs_eta" type="TH1F" title="pull vs #eta for p_{T} #times q/p_{T}">
+  <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
+  <y title="width of pull for p_{T} #times q/p_{T}"/>
+</h>
+
+<h id="ptpullmeanNoTRTExtensions_vs_eta" type="TH1F" title="mean of pull vs #eta for p_{T} #times q/p_{T}">
+  <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
+  <y title="means pull for p_{T} #times q/p_{T}"/>
+</h>
+
+<h id="ptpullwidthNoTRTExtensions_vs_pt" type="TH1F" title="pull vs p_{T} for p_{T} #times q/p_{T}">
+  <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
+  <y title="width of pull for p_{T} #times q/p_{T}"/>
+</h>
+<h id="ptpullmeanNoTRTExtensions_vs_pt" type="TH1F" title="mean of pull vs p_{T} for p_{T} #times q/p_{T}">
+  <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
+  <y title="mean of pull for p_{T} #times q/p_{T}"/>
+</h>
+
+<h id="ptpullTRTExtensions_vs_eta" type="TH2F" title="pull vs #eta for p_{T} #times q/p_{T}">
+  <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
+  <y title="(reco_{q/p_{T}} - truth_{q/p_{T}}) / #sigma(q/p_{T})" n="100" lo="-10.0" hi="10.0"/>
+</h>
+
+<h id="ptpullTRTExtensions_vs_pt" type="TH2F" title="pull  vs p_{T} for p_{T} #times q/p_{T}">
+  <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
+  <y title="(reco_{q/p_{T}} - truth_{q/p_{T}}) / #sigma(q/p_{T})" n="100" lo="-10.0" hi="10.0"/>
+</h>
+
+<h id="ptpullNoTRTExtensions_vs_eta" type="TH2F" title="pull vs #eta for p_{T} #times q/p_{T}">
+  <x title="#eta" n="&NETA;" lo="-&ETA;" hi="&ETA;"/>
+  <y title="(reco_{q/p_{T}} - truth_{q/p_{T}}) / #sigma(q/p_{T})" n="100" lo="-10.0" hi="10.0"/>
+</h>
+
+<h id="ptpullNoTRTExtensions_vs_pt" type="TH2F" title="pull  vs p_{T} for p_{T} #times q/p_{T}">
+  <x title="p_{T} [GeV]" n="100" lo="0." hi="100"/>
+  <y title="(reco_{q/p_{T}} - truth_{q/p_{T}}) / #sigma(q/p_{T})" n="100" lo="-10.0" hi="10.0"/>
+</h>
+
+
 <!--
    =======================================================
    end TRT Extension plots
