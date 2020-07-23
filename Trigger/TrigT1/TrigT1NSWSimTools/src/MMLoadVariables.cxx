@@ -17,16 +17,18 @@
 #include "EventInfo/EventID.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "MuonIdHelpers/MmIdHelper.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 #include "TVector3.h"
 #include <cmath>
+#include <stdexcept>
 
 using std::map;
 using std::vector;
 using std::string;
 
 MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetectorManager* detManager, const MmIdHelper* idhelper, MMT_Parameters *par):
-      m_msg("MMLoadVariables"){
+   AthMessaging(Athena::getMessageSvc(), "MMLoadVariables") {
       m_par = par;
       m_evtStore = evtStore;
       m_detManager = detManager;
@@ -517,7 +519,7 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
     int setl=setup.length();
     if(plane>=setl||plane<0){
       ATH_MSG_FATAL("Pick a plane in [0,"<<setup.length()<<"] not "<<plane); 
-      exit(1);
+      throw std::runtime_error("MMLoadVariables::Get_Strip_ID: invalid plane");
     }
     string xuv=setup.substr(plane,1);
     if(xuv=="u"){//||xuv=="v"){
@@ -530,7 +532,7 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
     }
     else if(xuv!="x"){
       ATH_MSG_FATAL("Invalid plane option " << xuv ); 
-      exit(2);
+      throw std::runtime_error("MMLoadVariables::Get_Strip_ID: invalid plane");
     }
     double strip_hit = ceil(y_hit*1./strip_width);
     return strip_hit;
