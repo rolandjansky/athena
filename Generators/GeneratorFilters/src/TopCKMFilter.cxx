@@ -71,9 +71,9 @@ StatusCode TopCKMFilter::filterEvent() {
         HepMC::GenParticle * wBoson2 = 0;
 
         for (firstChildItr = firstChild1; firstChildItr != firstChildE; ++firstChildItr) {
-          if ((abs((*firstChildItr)->pdg_id()) == m_PDGChild[0] || abs((*firstChildItr)->pdg_id()) == m_PDGChild[1])
+          if ((std::abs((*firstChildItr)->pdg_id()) == m_PDGChild[0] || std::abs((*firstChildItr)->pdg_id()) == m_PDGChild[1])
               && (*firstChildItr)->momentum().perp() > m_PtMinChild
-              && fabs((*firstChildItr)->momentum().eta()) < m_EtaRangeChild) {
+              && std::abs((*firstChildItr)->momentum().eta()) < m_EtaRangeChild) {
             isOK1 = 1;
             quark1 = (*firstChildItr);
           }
@@ -83,7 +83,7 @@ StatusCode TopCKMFilter::filterEvent() {
         for (secondChildItr = secondChild1; secondChildItr != secondChildE; ++secondChildItr) {
           if ((abs((*secondChildItr)->pdg_id()) == m_PDGChild[0] || abs((*secondChildItr)->pdg_id()) == m_PDGChild[1])
               && (*secondChildItr)->momentum().perp() > m_PtMinChild
-              && fabs((*secondChildItr)->momentum().eta()) < m_EtaRangeChild){
+              && std::abs((*secondChildItr)->momentum().eta()) < m_EtaRangeChild){
             isOK2 = 1;
             quark2 = (*secondChildItr);
           }

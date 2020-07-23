@@ -90,7 +90,7 @@ StatusCode VBFMjjIntervalFilter::filterEvent() {
 	// photon - copied from VBFForwardJetsFilter.cxx
 	if ( (*pitr)->pdg_id() == 22 && (*pitr)->status() == 1 &&
 	     (*pitr)->momentum().perp() >= m_olapPt && 
-	     fabs((*pitr)->momentum().pseudoRapidity()) <= m_yMax) {
+	     std::abs((*pitr)->momentum().pseudoRapidity()) <= m_yMax) {
 	  MCTruthPhotonList.push_back((*pitr));
 	}
       }
@@ -98,7 +98,7 @@ StatusCode VBFMjjIntervalFilter::filterEvent() {
 	// electron
 	if (abs((*pitr)->pdg_id()) == 11 && (*pitr)->status() == 1 &&
 	    (*pitr)->momentum().perp() >= m_olapPt &&
-	    fabs((*pitr)->momentum().pseudoRapidity()) <= m_yMax) {
+	    std::abs((*pitr)->momentum().pseudoRapidity()) <= m_yMax) {
 	  MCTruthElectronList.push_back((*pitr));
 	}
       }
@@ -122,7 +122,7 @@ StatusCode VBFMjjIntervalFilter::filterEvent() {
 									  tau->momentum().py()-nutau.py(),
 									  tau->momentum().pz()-nutau.pz(),
 									  tau->momentum().e()-nutau.e());
-	    if (tauvis->vect().perp() >= m_olapPt && fabs(tauvis->vect().pseudoRapidity()) <= m_yMax) {
+	    if (tauvis->vect().perp() >= m_olapPt && std::abs(tauvis->vect().pseudoRapidity()) <= m_yMax) {
 	      MCTruthTauList.push_back(tauvis);
 	    } else {
 	      delete tauvis;
@@ -136,7 +136,7 @@ StatusCode VBFMjjIntervalFilter::filterEvent() {
   // Filter based on rapidity acceptance and sort
   xAOD::JetContainer filteredJets(SG::VIEW_ELEMENTS);
   for (xAOD::JetContainer::const_iterator jitr = truthJetCollection->begin(); jitr != truthJetCollection->end(); ++jitr) {
-    if (fabs( (*jitr)->rapidity() ) < m_yMax && (*jitr)->pt() >= m_olapPt) {
+    if (std::abs( (*jitr)->rapidity() ) < m_yMax && (*jitr)->pt() >= m_olapPt) {
       bool JetOverlapsWithPhoton   = false;
       bool JetOverlapsWithElectron = false;
       bool JetOverlapsWithTau      = false;

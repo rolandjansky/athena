@@ -815,16 +815,16 @@ Hijing::randomizeVertex()
   double ranx, rany, xmax, ymax;
   double ranz = CLHEP::RandFlat::shoot(engine, -Zmax, Zmax);
   if( m_wide ){ // Allow the whole pipe
-    if( fabs(ranz) < Start1 ) {
+    if( std::abs(ranz) < Start1 ) {
       xmax = Xmin + Delta1;
       ymax = xmax;
-    } else if( fabs(ranz) < Start2 ) {
+    } else if( std::abs(ranz) < Start2 ) {
       xmax = Xmin + Delta2;
       ymax = xmax;
-    } else if( fabs(ranz) < Start3 ) {
+    } else if( std::abs(ranz) < Start3 ) {
       xmax = Xmin + Delta3;
       ymax = xmax;
-    } else if ( fabs(ranz) <= Envelope ){
+    } else if ( std::abs(ranz) <= Envelope ){
       xmax = Xmin;
       ymax = xmax;
     } else {    

@@ -227,7 +227,7 @@ StatusCode AsymJetFilter::filterEvent() {
       FoundJet.setPy(jetpy);
       FoundJet.setPz(jetpz);
       FoundJet.setE(jete);
-      if (fabs(FoundJet.pseudoRapidity()) < m_UserEta) {
+      if (std::abs(FoundJet.pseudoRapidity()) < m_UserEta) {
         m_Jets.push_back(FoundJet);   //OK we found one. add it to the list  if its inside the eta region
       }
     }
