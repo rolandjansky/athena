@@ -141,7 +141,7 @@ class StandardFieldSvc final : public G4MagFieldSvcBase
     /// Standard constructor
     StandardFieldSvc(const std::string& name, ISvcLocator* pSvcLocator);
     /// Empty destructor
-    ~StandardFieldSvc() {}
+    ~StandardFieldSvc() = default;
 
     /// Athena method. called at initialization time, being customized here.
     StatusCode initialize() override final;
