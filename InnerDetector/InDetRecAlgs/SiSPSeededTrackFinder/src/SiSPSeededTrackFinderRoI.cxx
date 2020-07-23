@@ -228,11 +228,6 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::execute()
     if ( sc_aux.isFailure() ) delete theVertexAuxContainer;
     return StatusCode::FAILURE;
   }
-  else{
-    // empty container written successfully.  No need to continue with rest of code
-    return StatusCode::SUCCESS;
-  }
-
   
 
   // Find seeds that point within the RoI region in z
