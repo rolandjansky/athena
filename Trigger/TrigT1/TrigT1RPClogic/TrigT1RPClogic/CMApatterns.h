@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CMAPATTERNS_H
@@ -21,7 +21,7 @@ class CMApatterns : public RPCtrigDataObject
 {
     public:
     typedef std::pair < float, float > TRIGdistance;
-    static  TRIGdistance no_distance;
+    static const TRIGdistance no_distance;
     
     typedef std::list < CMAtrigger > TRIGlist;
     typedef std::priority_queue< CMAtrigger > TrigSigns;

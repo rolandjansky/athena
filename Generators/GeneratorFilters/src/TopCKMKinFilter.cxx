@@ -79,7 +79,7 @@ StatusCode TopCKMKinFilter::filterEvent() {
         for (firstChildItr = firstChild1; firstChildItr != firstChildE; ++firstChildItr){
           if ((std::abs((*firstChildItr)->pdg_id()) == m_PDGChild[0] || std::abs((*firstChildItr)->pdg_id()) == m_PDGChild[1])
               && (*firstChildItr)->momentum().perp() > m_PtMinChild
-              && fabs((*firstChildItr)->momentum().eta()) < m_EtaRangeChild){
+              && std::abs((*firstChildItr)->momentum().eta()) < m_EtaRangeChild){
             isOK1 = 1;
             quark1 = (*firstChildItr);
           }
@@ -89,7 +89,7 @@ StatusCode TopCKMKinFilter::filterEvent() {
         for (secondChildItr = secondChild1; secondChildItr != secondChildE; ++secondChildItr){
           if ((std::abs((*secondChildItr)->pdg_id()) == m_PDGChild[0] || std::abs((*secondChildItr)->pdg_id()) == m_PDGChild[1])
               && (*secondChildItr)->momentum().perp() > m_PtMinChild
-              && fabs((*secondChildItr)->momentum().eta()) < m_EtaRangeChild){
+              && std::abs((*secondChildItr)->momentum().eta()) < m_EtaRangeChild){
             isOK2 = 1;
             quark2 = (*secondChildItr);
           }
@@ -116,14 +116,14 @@ StatusCode TopCKMKinFilter::filterEvent() {
         for (w1SonItr = w1Son1; w1SonItr != w1SonE; ++w1SonItr){
           if (std::abs((*w1SonItr)->pdg_id()) == 15) isTau1 = 1;
           if (std::abs((*w1SonItr)->pdg_id()) == 11 || std::abs((*w1SonItr)->pdg_id()) == 13){
-            if ((*w1SonItr)->momentum().perp() > m_PtMinChild && fabs((*w1SonItr)->momentum().eta()) < m_EtaRangeChild) isKinLep1 = 1;
+            if ((*w1SonItr)->momentum().perp() > m_PtMinChild && std::abs((*w1SonItr)->momentum().eta()) < m_EtaRangeChild) isKinLep1 = 1;
           }
         }
 
         for (w2SonItr = w2Son1; w2SonItr != w2SonE; ++w2SonItr){
           if (std::abs((*w2SonItr)->pdg_id()) == 15) isTau2 = 1;
           if (std::abs((*w2SonItr)->pdg_id()) == 11 || std::abs((*w2SonItr)->pdg_id()) == 13){
-            if ((*w2SonItr)->momentum().perp() > m_PtMinChild && fabs((*w2SonItr)->momentum().eta()) < m_EtaRangeChild) isKinLep2 = 1;
+            if ((*w2SonItr)->momentum().perp() > m_PtMinChild && std::abs((*w2SonItr)->momentum().eta()) < m_EtaRangeChild) isKinLep2 = 1;
           }
         }
 

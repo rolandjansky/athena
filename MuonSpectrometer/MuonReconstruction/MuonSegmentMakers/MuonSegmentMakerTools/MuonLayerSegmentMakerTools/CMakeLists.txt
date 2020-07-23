@@ -29,5 +29,5 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( MuonLayerSegmentMakerTools
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES GaudiKernel AthenaBaseComps EventPrimitives MuonPrepRawDataProviderToolsLib MuonDetDescrUtils MuonIdHelpersLib MuonHoughPatternToolsLib MuonLayerEvent MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces MuonLayerHough TrkSegment )
+                     LINK_LIBRARIES GaudiKernel AthenaBaseComps EventPrimitives MuonPrepRawDataProviderToolsLib MuonDetDescrUtils MuonIdHelpersLib MuonHoughPatternToolsLib MuonLayerEvent MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces MuonLayerHough TrkSegment MuonSegmentMakerToolInterfaces CscSegmentMakersLib )
 

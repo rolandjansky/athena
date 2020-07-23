@@ -107,7 +107,7 @@ StatusCode TrimuMassRangeFilter::filterEvent() {
       if( ( std::abs((*pitr1)->pdg_id()) != std::abs(m_PartId1)  && 99999 != std::abs(m_PartId1) ) || //PDG ID selection
           (*pitr1)->status() != m_PartStatus  ||    //status of the particle 
           (*pitr1)->momentum().perp() < m_Ptmin1  || // pT cut
-          fabs((*pitr1)->momentum().pseudoRapidity()) > m_EtaRange1
+          std::abs((*pitr1)->momentum().pseudoRapidity()) > m_EtaRange1
         ) continue;//eta cut
           
       ATH_MSG_INFO( "   type1 " << (*pitr1)->pdg_id() << " pT1 " << (*pitr1)->momentum().perp()
@@ -127,7 +127,7 @@ StatusCode TrimuMassRangeFilter::filterEvent() {
         if( ( std::abs((*pitr2)->pdg_id()) != std::abs(m_PartId2) && 99999 != std::abs(m_PartId2) ) || //PDG ID selection
             (*pitr2)->status() != m_PartStatus  ||    //status of the particle 
             (*pitr2)->momentum().perp() < m_Ptmin2  || // pT cut
-            fabs((*pitr2)->momentum().pseudoRapidity()) > m_EtaRange2
+            std::abs((*pitr2)->momentum().pseudoRapidity()) > m_EtaRange2
           ) continue;//eta cut
         if( samePDGID12 && !samePDGID123 && (*pitr1)->pdg_id()==(*pitr2)->pdg_id()) continue;
           
@@ -148,7 +148,7 @@ StatusCode TrimuMassRangeFilter::filterEvent() {
           if( ( std::abs((*pitr3)->pdg_id()) != std::abs(m_PartId3) && 99999 != std::abs(m_PartId3) ) || //PDG ID selection
               (*pitr3)->status() != m_PartStatus  ||    //status of the particle 
               (*pitr3)->momentum().perp() < m_Ptmin3  || // pT cut
-              fabs((*pitr3)->momentum().pseudoRapidity()) > m_EtaRange3
+              std::abs((*pitr3)->momentum().pseudoRapidity()) > m_EtaRange3
             ) continue;//eta cut
           
           ATH_MSG_INFO( "   type3 " << (*pitr3)->pdg_id() << " pT3 " << (*pitr3)->momentum().perp()

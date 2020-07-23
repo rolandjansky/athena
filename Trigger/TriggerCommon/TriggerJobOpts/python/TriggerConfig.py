@@ -112,7 +112,7 @@ def collectHypoDecisionObjects(hypos, inputs = True, outputs = True):
     for step, stepHypos in six.iteritems (hypos):
         for hypoAlg in stepHypos:
             __log.debug( "Hypo %s with input %s and output %s ",
-                         hypoAlg.name, hypoAlg.HypoInputDecisions, hypoAlg.HypoOutputDecisions )
+                         hypoAlg.getName(), hypoAlg.HypoInputDecisions, hypoAlg.HypoOutputDecisions )
             if isinstance( hypoAlg.HypoInputDecisions, list):
                 if inputs:
                     [ decisionObjects.add( d ) for d in hypoAlg.HypoInputDecisions ]
@@ -506,7 +506,7 @@ def triggerMergeViewsAndAddMissingEDMCfg( edmSet, hypos, viewMakers, decObj, dec
 
 
 
-def triggerRunCfg( flags, menu=None ):
+def triggerRunCfg( flags, seqName = None, menu=None ):
     """
     top of the trigger config (for real triggering online or on MC)
     Returns: ca only
@@ -518,7 +518,7 @@ def triggerRunCfg( flags, menu=None ):
 
     acc.merge( L1ConfigSvcCfg(flags) )
 
-    acc.merge( triggerIDCCacheCreatorsCfg( flags ) )
+    acc.merge( triggerIDCCacheCreatorsCfg( flags, seqName ) )
 
     from L1Decoder.L1DecoderConfig import L1DecoderCfg
     l1DecoderAcc, l1DecoderAlg = L1DecoderCfg( flags )
@@ -571,19 +571,19 @@ def triggerRunCfg( flags, menu=None ):
 
     return acc
 
-def triggerIDCCacheCreatorsCfg(flags):
+def triggerIDCCacheCreatorsCfg(flags, seqName = None):
     """
     Configures IDC cache loading, for now unconditionally, may make it menu dependent in future
     """
-    acc = ComponentAccumulator()
+    acc = ComponentAccumulator(sequenceName = seqName)
     from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheCfg
-    acc.merge( MuonCacheCfg() )
+    acc.merge( MuonCacheCfg(), sequenceName = seqName )
 
     from MuonConfig.MuonRdoDecodeConfig import MuonPrdCacheCfg
-    acc.merge( MuonPrdCacheCfg() )
+    acc.merge( MuonPrdCacheCfg(), sequenceName = seqName )
 
     from TrigInDetConfig.TrigInDetConfig import InDetIDCCacheCreatorCfg
-    acc.merge( InDetIDCCacheCreatorCfg() )
+    acc.merge( InDetIDCCacheCreatorCfg(), sequenceName = seqName )
 
     return acc
 
@@ -613,7 +613,7 @@ if __name__ == "__main__":
         return menuCA
 
         
-    acc = triggerRunCfg( ConfigFlags, testMenu )
+    acc = triggerRunCfg( ConfigFlags, seqName = None, menu = testMenu )
     Configurable.configurableRun3Behavior=0
     from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
     appendCAtoAthena( acc )

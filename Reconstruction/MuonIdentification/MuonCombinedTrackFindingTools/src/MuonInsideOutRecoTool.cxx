@@ -318,7 +318,6 @@ namespace MuonCombined {
 						Muon::MuonStationIndex::LayerIndex layerIndex, const Muon::MuonPrepDataContainer< COL >* input, std::vector<const COL*>& output ) const {
 
     if(!input || input->size()==0) return true;
-    typedef Muon::MuonPrepDataContainer< COL > ContainerType;
     // get technologies in the given layer
     unsigned int sectorLayerHash = Muon::MuonStationIndex::sectorLayerHash( regionIndex, layerIndex );
 

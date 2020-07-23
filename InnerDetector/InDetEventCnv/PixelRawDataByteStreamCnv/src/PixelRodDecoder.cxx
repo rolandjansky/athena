@@ -79,7 +79,7 @@ StatusCode PixelRodDecoder::initialize() {
   // Retrieve Pixel Errors Service
   ATH_CHECK(m_errors.retrieve());
   ATH_CHECK(m_condCablingKey.initialize());
-  ATH_CHECK(m_condHitDiscCnfgKey.initialize());
+  ATH_CHECK(m_condHitDiscCnfgKey.initialize(m_is_ibl_present));
 
   return StatusCode::SUCCESS;
 }

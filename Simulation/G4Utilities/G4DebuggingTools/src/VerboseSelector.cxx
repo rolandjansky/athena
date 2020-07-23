@@ -116,7 +116,7 @@ namespace G4UA
           // FIXME: re-evaluate this comment below.
           // ADS this code crashes in MT runs, since eventInfo->GetCurrentlyTraced()
           // is NULL untill we migrate the truth
-          currentBarcode = eventInfo->GetCurrentlyTraced()->barcode();
+          currentBarcode = HepMC::barcode(eventInfo->GetCurrentlyTraced());
         }
 
         bool p1 = m_config.targetTrack<0 && m_config.targetBarcode<0;

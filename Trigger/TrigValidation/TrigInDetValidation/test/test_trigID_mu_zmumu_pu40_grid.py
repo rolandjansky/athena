@@ -16,10 +16,8 @@
 # art-output: *.json
 # art-output: *.root
 # art-output: *.check*
-# art-output: HLTEF-plots
-# art-output: HLTL2-plots
-# art-output: times
-# art-output: times-FTF
+# art-output: HLT*
+# art-output: times*
 # art-output: cost-perCall
 # art-output: cost-perEvent
 # art-output: cost-perCall-chain

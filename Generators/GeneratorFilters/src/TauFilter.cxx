@@ -108,19 +108,19 @@ StatusCode TauFilter::filterEvent() {
         if ( leptonic == 1 ) {
           m_eventse++;
           if ( tauvis.perp() < m_pTmine ) continue;
-          if ( fabs( tauvis.eta() ) > m_etaMaxe ) continue;
+          if ( std::abs( tauvis.eta() ) > m_etaMaxe ) continue;
           ntau++;
           m_eventseacc++;
         } else if ( leptonic == 2 ) {
           m_eventsmu++;
           if ( tauvis.perp() < m_pTminmu ) continue;
-          if ( fabs( tauvis.eta() ) > m_etaMaxmu ) continue;
+          if ( std::abs( tauvis.eta() ) > m_etaMaxmu ) continue;
           ntau++;
           m_eventsmuacc++;
         } else if ( leptonic == 0 ) {
           m_eventshad++;
           if ( tauvis.perp() < m_pTminhad ) continue;
-          if ( fabs( tauvis.eta() ) > m_etaMaxhad ) continue;
+          if ( std::abs( tauvis.eta() ) > m_etaMaxhad ) continue;
           ntau++;
           m_eventshadacc++;
         }

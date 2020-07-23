@@ -2,9 +2,13 @@
 Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "GaudiKernel/SystemOfUnits.h"
 #include "AthenaMonitoringKernel/Monitored.h"
+#include "CxxUtils/phihelper.h"
+
 #include "TrigL2MuonOverlapRemoverTool.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+
+#include <cmath>
 
 using namespace TrigCompositeUtils;
 // --------------------------------------------------------------------------------
@@ -381,11 +385,9 @@ bool TrigL2MuonOverlapRemoverTool::isOverlap(const xAOD::L2StandAloneMuon *mf1,
 
 double TrigL2MuonOverlapRemoverTool::dR(double eta1, double phi1, double eta2, double phi2) const
 {
-   double deta = eta1 - eta2;
-   double dphi = fabs(phi1 - phi2);
-   if( dphi > CLHEP::pi ) dphi = CLHEP::twopi - dphi;
-   double dR = pow( (deta*deta + dphi*dphi), 0.5 );
-   return dR;
+   const double deta = eta1 - eta2;
+   const double dphi = CxxUtils::deltaPhi(phi1, phi2);
+   return std::sqrt(deta*deta + dphi*dphi);
 }
 
 // --------------------------------------------------------------------------------
@@ -668,8 +670,8 @@ bool TrigL2MuonOverlapRemoverTool::isOverlap(const xAOD::L2CombinedMuon *combMf1
    auto monitorIt       = Monitored::Group(m_monTool, mucombDR, mucombMass, mucombDRLog10, mucombMassLog10);
 
 
-   ATH_MSG_DEBUG( "   ...mF1: pt/eta/phi=" << combMf1->pt()/CLHEP::GeV << " / " << combMf1->eta() << " / " << combMf1->phi() );
-   ATH_MSG_DEBUG( "   ...mF2: pt/eta/phi=" << combMf2->pt()/CLHEP::GeV << " / " << combMf2->eta() << " / " << combMf2->phi() );
+   ATH_MSG_DEBUG( "   ...mF1: pt/eta/phi=" << combMf1->pt()/Gaudi::Units::GeV << " / " << combMf1->eta() << " / " << combMf1->phi() );
+   ATH_MSG_DEBUG( "   ...mF2: pt/eta/phi=" << combMf2->pt()/Gaudi::Units::GeV << " / " << combMf2->eta() << " / " << combMf2->phi() );
 
    // if dR or invMass is necessary but (eta,phi) info is not avaiable
    // (i.e. eta,phi=0,0; rec failed)
@@ -750,7 +752,7 @@ bool TrigL2MuonOverlapRemoverTool::isOverlap(const xAOD::L2CombinedMuon *combMf1
    // mass cut
    const double TRACK_MASS = 0;  // just assume zero mass
    bool massIsClose = false;
-   double mass = invMass(TRACK_MASS,combMf1->pt()/CLHEP::GeV,combMf1->eta(),combMf1->phi(),TRACK_MASS,combMf2->pt()/CLHEP::GeV,combMf2->eta(),combMf2->phi());
+   double mass = invMass(TRACK_MASS,combMf1->pt()/Gaudi::Units::GeV,combMf1->eta(),combMf1->phi(),TRACK_MASS,combMf2->pt()/Gaudi::Units::GeV,combMf2->eta(),combMf2->phi());
 
    mucombMass = mass;
    double mass_mon = (mass>=monitor_limit) ? mass : monitor_limit;
@@ -819,7 +821,7 @@ void TrigL2MuonOverlapRemoverTool::chooseBestMuon(std::vector<L2CBMuonOverlapInf
                
 	       float ptCombMf  = 0.;
 	       const xAOD::L2CombinedMuon* combMf = toolInput[j].overlap;
-	       ptCombMf  = fabs(combMf->pt()/CLHEP::GeV);
+	       ptCombMf  = fabs(combMf->pt()/Gaudi::Units::GeV);
                ATH_MSG_DEBUG("     j="<< j << " , ptCombMf=" << ptCombMf);
 	       if( ptCombMf > maxPtCombMf ) {
 	          maxPtCombMf  = ptCombMf;
@@ -836,7 +838,7 @@ void TrigL2MuonOverlapRemoverTool::chooseBestMuon(std::vector<L2CBMuonOverlapInf
 	          // monitoring
 	          const xAOD::L2CombinedMuon* CombMf = toolInput[j].overlap;
 	          mucombNrOverlapped++;
-	          mucombOverlappedPt = CombMf->pt()* CombMf->charge() /CLHEP::GeV;
+	          mucombOverlappedPt = CombMf->pt()* CombMf->charge() /Gaudi::Units::GeV;
 	          mucombOverlappedEta = CombMf->eta();
 	          mucombOverlappedPhi = CombMf->phi();
 	       }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ====================================================================
@@ -12,7 +12,7 @@
 #include <iostream>
 #include <iomanip>
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "TrigT1TGC/TGCASDOut.h"
 
 namespace LVL1TGCTrigger {
@@ -98,7 +98,7 @@ void TGCASDOut::Print() const
   m_tgcReadoutIndex.Print(); 
   std::cout << "::" << std::setw(9) << strsig[m_signalType] 
             << ":: ID=" << std::setw(3) << m_hitID
-            << ", tof=" << std::setw(5) << std::setprecision(1) << m_hitToF/CLHEP::ns << "ns"
+            << ", tof=" << std::setw(5) << std::setprecision(1) << m_hitToF/Gaudi::Units::ns << "ns"
             << std::setprecision(6) << std::endl;
 }
 

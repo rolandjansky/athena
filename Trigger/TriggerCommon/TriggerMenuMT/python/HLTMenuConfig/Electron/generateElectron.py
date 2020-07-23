@@ -38,8 +38,6 @@ def generateChains( flags,  chainDict ):
                                      HypoToolGen = TrigEgammaFastCaloHypoToolFromDict, 
                                      CA = accCalo)
 
-    fastCaloSequence.createHypoTools(chainDict)
-
     accCalo.printConfig()
 
     fastCaloStep = ChainStep(name=firstStepName, Sequences=[fastCaloSequence], chainDicts=[chainDict])
@@ -72,8 +70,6 @@ def generateChains( flags,  chainDict ):
                                       Hypo        = fakeHypoAlg,
                                       HypoToolGen = makeFakeHypoTool,
                                       CA = accTrk)
-
-    fastInDetSequence.createHypoTools(chainDict)
 
     fastInDetStep = ChainStep( name=secondStepName, Sequences=[fastInDetSequence], chainDicts=[chainDict])
 

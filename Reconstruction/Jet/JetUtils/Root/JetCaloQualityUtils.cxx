@@ -172,6 +172,9 @@ namespace jet {
   bool JetCalcnLeadingCells::processConstituent(xAOD::JetConstituentVector::iterator& iter){
 
     double e = iter->e();
+    if(iter->type() == xAOD::Type::ParticleFlow){
+      e = iter->rawConstituent()->e();
+    }
     m_cell_energies.push_back(e);
     m_sumE_cells+=e;
     return true;
@@ -203,6 +206,9 @@ namespace jet {
     //double sum_all(0), sum_time(0);
     
     double aClusterE    = iter->e();
+    if(iter->type() == xAOD::Type::ParticleFlow){
+      aClusterE = iter->rawConstituent()->e();
+    }
     double aClusterTime = m_constitExtractor->time(iter);//;static_cast<const xAOD::CaloCluster*>(iter->rawConstituent())->time();
     
     
@@ -227,6 +233,9 @@ namespace jet {
   bool JetCalcTimeCells::processConstituent(xAOD::JetConstituentVector::iterator& iter){
 
     double thisNorm = iter->e()* iter->e();
+    if(iter->type() == xAOD::Type::ParticleFlow){
+      thisNorm = iter->rawConstituent()->e()*iter->rawConstituent()->e();
+    }
     m_time += m_constitExtractor->time(iter) * thisNorm; //theClus->time() * thisNorm ;
     m_norm += thisNorm;
 
@@ -255,6 +264,9 @@ namespace jet {
   bool JetCalcAverageLArQualityF::processConstituent(xAOD::JetConstituentVector::iterator& iter){
 
     double e2 = iter->e();
+    if(iter->type() == xAOD::Type::ParticleFlow){
+      e2 = iter->rawConstituent()->e();
+    }
     e2 = e2*e2;
 
     m_norm+= e2;
@@ -282,11 +294,18 @@ namespace jet {
 
 
   bool JetCalcQuality::processConstituent(xAOD::JetConstituentVector::iterator& iter){
-  
-    m_totE += iter->e(); // using iter since it is set at the expected scale by the JetCaloCalculations instance
-    double f = m_constitExtractor->moment(iter, xAOD::CaloCluster::BADLARQ_FRAC);
 
-    m_badE += f * iter->e();
+    double f = m_constitExtractor->moment(iter, xAOD::CaloCluster::BADLARQ_FRAC);
+  
+    if(iter->type() == xAOD::Type::ParticleFlow){
+      m_totE += iter->rawConstituent()->e(); // using iter since it is set at the expected scale by the JetCaloCalculations instance
+      m_badE += f * iter->rawConstituent()->e();
+    }
+    else{
+      m_totE += iter->e();
+      m_badE += f * iter->e();
+    }
+
     return true;
   }
 
@@ -324,8 +343,11 @@ namespace jet {
 
   bool JetCalcNegativeEnergy::processConstituent(xAOD::JetConstituentVector::iterator& iter){
  
-   double e = iter->e() ;  // using iter since it is set at the expected scale by the JetCaloCalculations instance
-     
+    double e = iter->e() ;  // using iter since it is set at the expected scale by the JetCaloCalculations instance
+    if(iter->type() == xAOD::Type::ParticleFlow){
+      e = iter->rawConstituent()->e();
+    }
+
     double epos= m_constitExtractor->moment(iter, xAOD::CaloCluster::ENG_POS);
     m_totE += (e - epos );
 
@@ -356,6 +378,9 @@ namespace jet {
   bool JetCalcCentroid::processConstituent(xAOD::JetConstituentVector::iterator& iter){
 
     double e = iter->e() ;  // using iter since it is set at the expected scale by the JetCaloCalculations instance
+    if(iter->type() == xAOD::Type::ParticleFlow){
+      e = iter->rawConstituent()->e();
+    }
 
     m_totE +=e;
     double x,y,z;

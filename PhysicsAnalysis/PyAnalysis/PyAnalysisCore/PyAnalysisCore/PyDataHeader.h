@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PYANALYSISCORE_PYDATAHEADER_H
@@ -73,17 +73,15 @@ public:
 
     // look for non-symlink name
     std::string name="";
-    std::set<CLID>::iterator itCLID  = ((*it)->getClassIDs()).begin();
-    std::set<CLID>::iterator itCLIDe = ((*it)->getClassIDs()).end();
-    for (; itCLID != itCLIDe; ++itCLID)
+    for (CLID clid : (*it)->getClassIDs())
       {
 	// convert CLID to class name
 	std::string localName;
-	StatusCode sc = m_classIDSvc->getTypeNameOfID (*itCLID, localName);
+	StatusCode sc = m_classIDSvc->getTypeNameOfID (clid, localName);
 	if (sc.isFailure()) 
 	  {
 	    MsgStream log(Athena::getMessageSvc(), "PyDataHeader");
-	    log << MSG::ERROR << "could not get TypeName for " << *itCLID << endmsg;
+	    log << MSG::ERROR << "could not get TypeName for " << clid << endmsg;
 	    return "";
 	  }
 	// select non-symlink

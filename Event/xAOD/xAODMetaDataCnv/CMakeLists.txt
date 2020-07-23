@@ -49,5 +49,4 @@ else()
 endif()
 
 # Install files from the package:
-atlas_install_headers( xAODMetaDataCnv )
 atlas_install_joboptions( share/*.py )

@@ -15,6 +15,3 @@ atlas_add_library( MdtCalibInterfacesLib
                    PUBLIC_HEADERS MdtCalibInterfaces
                    LINK_LIBRARIES AthenaKernel GaudiKernel )
 
-# Install files from the package:
-atlas_install_headers( MdtCalibInterfaces )
-

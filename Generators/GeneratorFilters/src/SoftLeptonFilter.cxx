@@ -18,7 +18,7 @@ StatusCode SoftLeptonFilter::filterEvent() {
     for (auto pitr: genEvt->particles()) {
       if (pitr->status() != 1) continue;
  	  if ( ( 2 != m_LeptonType && 11 == std::abs(pitr->pdg_id()) ) || ( 1 != m_LeptonType && 13 == std::abs(pitr->pdg_id())  )) {
-        if ((pitr->momentum().perp() >= m_Ptmin) && fabs(pitr->momentum().pseudoRapidity()) <= m_EtaRange) {
+        if ((pitr->momentum().perp() >= m_Ptmin) && std::abs(pitr->momentum().pseudoRapidity()) <= m_EtaRange) {
  		  // select e's from hadrons and from taus that come from hadrons,
  		  // and electrons from gammas that come from hadrons... (dalitz decay)
  		  auto decayVtx = pitr->production_vertex();
@@ -55,7 +55,7 @@ StatusCode SoftLeptonFilter::filterEvent() {
     for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
       if ((*pitr)->status() != 1) continue;
  	  if ( ( 2 != m_LeptonType && 11 == abs((*pitr)->pdg_id()) ) || ( 1 != m_LeptonType && 13 == abs((*pitr)->pdg_id()) ) ) {
-        if ( ((*pitr)->momentum().perp() >= m_Ptmin) && fabs((*pitr)->momentum().pseudoRapidity()) <= m_EtaRange) {
+        if ( ((*pitr)->momentum().perp() >= m_Ptmin) && std::abs((*pitr)->momentum().pseudoRapidity()) <= m_EtaRange) {
  		  // select e's from hadrons and from taus that come from hadrons,
  		  // and electrons from gammas that come from hadrons... (dalitz decay)
  		  HepMC::GenVertex::particle_iterator firstParent;

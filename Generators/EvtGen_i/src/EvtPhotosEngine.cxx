@@ -179,7 +179,7 @@ bool EvtPhotosEngine::doDecay(EvtParticle* theMother) {
 	  // according to what Photos has modified. However, this will 
 	  // violate energy conservation (from what Photos has provided).
 	  double mass = daugParticle->mass();
-	  double energy = sqrt(mass*mass + px*px + py*py + pz*pz);
+	  double energy = std::sqrt(mass*mass + px*px + py*py + pz*pz);
 	  newP4.set(energy, px, py, pz);
 	  // Set the new four-momentum (FSR applied)
 	  daugParticle->setP4WithFSR(newP4);
@@ -189,7 +189,7 @@ bool EvtPhotosEngine::doDecay(EvtParticle* theMother) {
       } else {
 
 	// Extra photon particle. Setup the four-momentum object.
-	double energy = sqrt(_mPhoton*_mPhoton + px*px + py*py + pz*pz);
+	double energy = std::sqrt(_mPhoton*_mPhoton + px*px + py*py + pz*pz);
 	newP4.set(energy, px, py, pz);
 
 	// Create a new photon particle and add it to the list of daughters

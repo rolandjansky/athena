@@ -24,6 +24,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkTrack
 			  MagneticField/MagFieldElements
                           MagneticField/MagFieldConditions
+			  Control/CxxUtils
 			  )
 
 # External dependencies:
@@ -35,7 +36,9 @@ atlas_add_component( TrkExSTEP_Propagator
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives EventPrimitives TrkGeometry TrkEventPrimitives TrkMaterialOnTrack TrkParameters TrkExInterfaces TrkExUtils GaudiKernel TrkDetDescrUtils TrkSurfaces TrkTrack MagFieldElements MagFieldConditions )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives EventPrimitives TrkGeometry TrkEventPrimitives 
+		     TrkMaterialOnTrack TrkParameters TrkExInterfaces TrkExUtils GaudiKernel TrkDetDescrUtils TrkSurfaces TrkTrack 
+		     MagFieldElements MagFieldConditions CxxUtils)
 
 # Install files from the package:
 atlas_install_headers( TrkExSTEP_Propagator )

@@ -272,9 +272,9 @@ class AugmentedByteStream( AugmentedStreamBase ):
         svcMgr.ToolSvc += self.bsCopyTool
 
         #default output directory
-        import commands
+        import subprocess
         cmd='pwd'
-        (statusCode,outDir) = commands.getstatusoutput(cmd)
+        (statusCode,outDir) = subprocess.getstatusoutput(cmd)
         outDir+="/"
 
         # BS output Svc

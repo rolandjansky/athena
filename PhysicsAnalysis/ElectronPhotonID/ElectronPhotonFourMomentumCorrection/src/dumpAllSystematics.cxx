@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <boost/algorithm/string/join.hpp>
@@ -159,7 +159,7 @@ StatusCode DumpAllSystematics::initialize()
     const CP::SystematicSet& sys_set = m_EgammaCalibrationAndSmearingTools[itool]->recommendedSystematics();
     ATH_MSG_INFO("size of the systematics set for tool [" << itool << "] " + m_EgammaCalibrationAndSmearingTools[itool].name() << ": " << sys_set.size());
     std::vector<std::string> sys_names; sys_names.reserve(sys_set.size());
-    for (const auto sys : sys_set) { if (sys.parameter() == 1) { sys_names.push_back(sys.name()); all_sys_names.insert(sys.name()); } }
+    for (const auto& sys : sys_set) { if (sys.parameter() == 1) { sys_names.push_back(sys.name()); all_sys_names.insert(sys.name()); } }
     std::sort(sys_names.begin(), sys_names.end());
     all_sys_names_per_tool.push_back(sys_names);
 
@@ -167,7 +167,7 @@ StatusCode DumpAllSystematics::initialize()
     m_energy_variations[itool].resize(sys_set.size());
 
     int isys = 0;
-    for (const auto sys : sys_set) {
+    for (const auto& sys : sys_set) {
       const std::string branch_name = prefix + tool_name + "_ratio_" + sys.name();
       m_tree->Branch(branch_name.c_str(), &m_energy_variations[itool][isys],
                      (branch_name + "/F").c_str());
@@ -362,7 +362,7 @@ StatusCode DumpAllSystematics::do_energy(xAOD::Egamma& particle, int itool)
 
   const CP::SystematicSet& sys_set = m_EgammaCalibrationAndSmearingTools[itool]->recommendedSystematics();
   int isys = -1;  // ugly
-  for (const auto sys : sys_set) {
+  for (const auto& sys : sys_set) {
     ++isys;
     CP::SystematicSet ss;
     ss.insert(sys);

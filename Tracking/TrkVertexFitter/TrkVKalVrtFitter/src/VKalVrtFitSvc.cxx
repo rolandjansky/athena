@@ -162,44 +162,6 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParti
 }
 
 
-
-StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParticleBase*>& InpTrk,
-        Amg::Vector3D& Vertex,
-	TLorentzVector&   Momentum,
-	long int& Charge,
-	dvect& ErrorMatrix, 
-	dvect& Chi2PerTrk, 
-        std::vector< std::vector<double> >& TrkAtVrt,
-	double& Chi2,
-        IVKalState& istate,
-        bool ifCovV0 /*= false*/) const
-{
-    State& state = dynamic_cast<State&> (istate);
-
-//
-//------  extract information about selected tracks
-//
-    int ntrk=0;
-    StatusCode sc;
-    std::vector<const TrackParameters*> baseInpTrk;
-    if(m_firstMeasuredPoint){               //First measured point strategy
-       std::vector<const TrackParticleBase*>::const_iterator   i_ntrk;
-       for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) baseInpTrk.push_back(GetFirstPoint(*i_ntrk));
-       sc=CvtTrackParameters(baseInpTrk,ntrk,state);
-       if(sc.isFailure()){ntrk=0; sc=CvtTrackParticle(InpTrk,ntrk,state);}
-    }else{
-       sc=CvtTrackParticle(InpTrk,ntrk,state);
-    }
-    if(sc.isFailure())return StatusCode::FAILURE;
-
-    int ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, 
-                            Chi2PerTrk, TrkAtVrt,Chi2, state, ifCovV0 ) ;
-    if (ierr) return StatusCode::FAILURE;
-    return StatusCode::SUCCESS;
-}
-
-
-
 StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParameters*>    & InpTrkC,
                                         const std::vector<const NeutralParameters*>  & InpTrkN,
         Amg::Vector3D& Vertex,

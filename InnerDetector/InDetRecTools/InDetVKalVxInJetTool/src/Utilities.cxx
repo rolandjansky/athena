@@ -501,39 +501,8 @@ namespace InDet{
      return TLorentzVector(px,py,pz,ee); 
    }
 //
-//  Get vector of Perigee for kinematical calculations
-//
-  std::vector<const Trk::Perigee*> InDetVKalVxInJetTool::GetPerigeeVector( const std::vector<const Rec::TrackParticle*>& InpTrk)
-  const
-  {  
-     std::vector<const Trk::Perigee*> tmp;
-     for (int i = 0; i < (int)InpTrk.size(); ++i) tmp.push_back( GetPerigee( InpTrk[i] ) ) ;
-     return tmp;       
-  }
-  std::vector<const Trk::Perigee*> InDetVKalVxInJetTool::GetPerigeeVector( const std::vector<const Trk::TrackParticleBase*>& InpTrk)
-  const
-  {  
-     std::vector<const Trk::Perigee*> tmp;
-     for (int i = 0; i < (int)InpTrk.size(); ++i) {
-       const Rec::TrackParticle* tmpP = dynamic_cast<const Rec::TrackParticle*> (InpTrk[i]);
-       if(tmpP)tmp.push_back( GetPerigee( tmpP ) ) ;
-     }
-     return tmp;       
-  }
-
-
-
-
-
-//
 //-- Perigee in Rec::TrackParticle, Trk::Track and xAOD::TrackParticle
 //
-  const Trk::Perigee* InDetVKalVxInJetTool::GetPerigee( const Rec::TrackParticle* i_ntrk)
-  const
-  {
-       return i_ntrk->perigee();
-  }
-
 
   const Trk::Perigee* InDetVKalVxInJetTool::GetPerigee( const xAOD::TrackParticle* i_ntrk)
   const
@@ -546,41 +515,15 @@ namespace InDet{
 //
 //  Needed translation from Rec::TrackParticle to Trk::TrackParticleBase
 //
-  StatusCode InDetVKalVxInJetTool::VKalVrtFitFastBase(const std::vector<const xAOD::TrackParticle*>& listTrk,
-                                                      Amg::Vector3D  & FitVertex,
-                                                      Trk::IVKalState& istate)
-  const
-  {  return m_fitSvc->VKalVrtFitFast(listTrk,FitVertex,istate);  }
-
-  StatusCode InDetVKalVxInJetTool::VKalVrtFitFastBase(const std::vector<const Rec::TrackParticle*>& listPart,
-                                                      Amg::Vector3D  & FitVertex,
-                                                      Trk::IVKalState& istate)
-  const
-  {  
-     std::vector <const Trk::TrackParticleBase*> listBase;
-     for(int i=0; i<(int)listPart.size(); i++) {
-       listBase.push_back( (const Trk::TrackParticleBase*)listPart[i]); 
-     }
-     return m_fitSvc->VKalVrtFitFast(listBase,FitVertex,istate);    /* Fast crude estimation */
-  }
-
-
-  StatusCode InDetVKalVxInJetTool::VKalVrtFitBase(const std::vector<const Rec::TrackParticle*> & listPart,
-                                                  Amg::Vector3D&                   Vertex,
-                                                  TLorentzVector&                  Momentum,
-                                                  long int&                        Charge,
-                                                  std::vector<double>&             ErrorMatrix,
-                                                  std::vector<double>&             Chi2PerTrk,
-                                                  std::vector< std::vector<double> >& TrkAtVrt,
-                                                  double& Chi2,
-                                                  Trk::IVKalState& istate,
-                                                  bool ifCovV0) const
+  StatusCode
+  InDetVKalVxInJetTool::VKalVrtFitFastBase(
+    const std::vector<const xAOD::TrackParticle*>& listTrk,
+    Amg::Vector3D& FitVertex,
+    Trk::IVKalState& istate) const
   {
-     return m_fitSvc->VKalVrtFit( PartToBase(listPart), Vertex, Momentum, Charge,
-                                  ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2,
-                                  istate, ifCovV0 );
-
+    return m_fitSvc->VKalVrtFitFast(listTrk, FitVertex, istate);
   }
+
 
   StatusCode InDetVKalVxInJetTool::VKalVrtFitBase(const std::vector<const xAOD::TrackParticle*> & listPart,
                                                   Amg::Vector3D&                   Vertex,
@@ -606,17 +549,6 @@ namespace InDet{
     return m_fitSvc->VKalGetTrkWeights(wgt, istate);
   }
 /*************************************************************************************************************/
-  void   InDetVKalVxInJetTool::getPixelLayers(const Rec::TrackParticle* Part, int &blHit, int &l1Hit, int &l2Hit, int &nLays  ) const
-  {
-     	blHit=l1Hit=l2Hit=nLays=0; 
-        const Trk::TrackSummary* testSum = Part->trackSummary();
-        if(testSum){ 
-	       if(testSum->isHit(Trk::pixelBarrel0))blHit=1;
-	       if(testSum->isHit(Trk::pixelBarrel1))l1Hit=1;
-	       if(testSum->isHit(Trk::pixelBarrel2))l2Hit=1;
-        }
-	nLays=blHit+l1Hit+l2Hit;
-  }
   void   InDetVKalVxInJetTool::getPixelLayers(const xAOD::TrackParticle* Part, int &blHit, int &l1Hit, int &l2Hit, int &nLays ) const
   {
     	blHit=l1Hit=l2Hit=nLays=0; 
@@ -677,10 +609,6 @@ namespace InDet{
           splshBL=share+split;
        }
   }
-  void InDetVKalVxInJetTool::getPixelProblems(const Rec::TrackParticle* , int &splshIBL, int &splshBL ) const
-  {
-    	splshIBL=splshBL=0;  // Temporary implementation
-  }
   void   InDetVKalVxInJetTool::getPixelDiscs(const xAOD::TrackParticle* Part, int &d0Hit, int &d1Hit, int &d2Hit) const
   {
         uint32_t HitPattern=Part->hitPattern();
@@ -688,40 +616,8 @@ namespace InDet{
 	d1Hit=0; if( HitPattern&((1<<Trk::pixelEndCap1)) ) d1Hit=1;
 	d2Hit=0; if( HitPattern&((1<<Trk::pixelEndCap2)) ) d2Hit=1;
   }
-  void   InDetVKalVxInJetTool::getPixelDiscs(const  Rec::TrackParticle* Part, int &d0Hit, int &d1Hit, int &d2Hit) const
-  {
-        const Trk::TrackSummary* testSum = Part->trackSummary();
-        if(testSum){ 
-	       if(testSum->isHit(Trk::pixelEndCap0))d0Hit=1;
-	       if(testSum->isHit(Trk::pixelEndCap1))d1Hit=1;
-	       if(testSum->isHit(Trk::pixelEndCap2))d2Hit=1;
-        } else d0Hit=d1Hit=d2Hit=0; 
-  }
 
 /*************************************************************************************************************/
-   const std::vector<const Trk::TrackParticleBase*> 
-       InDetVKalVxInJetTool::PartToBase(const std::vector<const Rec::TrackParticle*> & listPart)
-   const
-   {
-     std::vector <const Trk::TrackParticleBase*> listBase;
-     for(int i=0; i<(int)listPart.size(); i++) {
-        listBase.push_back( (const Trk::TrackParticleBase*)listPart[i]); 
-     }
-     return listBase;
-   }
-
-   const std::vector<const Rec::TrackParticle*> 
-       InDetVKalVxInJetTool::BaseToPart(const std::vector<const Trk::TrackParticleBase*> & listBase)
-   const
-   {
-     std::vector <const Rec::TrackParticle*> listPart;
-     for(int i=0; i<(int)listBase.size(); i++) {
-        listPart.push_back( dynamic_cast<const Rec::TrackParticle*> (listBase[i])); 
-     }
-     return listPart;
-   }
-
-
 
   Amg::MatrixX InDetVKalVxInJetTool::SetFullMatrix(int NTrk, std::vector<double> & Matrix) const
   {

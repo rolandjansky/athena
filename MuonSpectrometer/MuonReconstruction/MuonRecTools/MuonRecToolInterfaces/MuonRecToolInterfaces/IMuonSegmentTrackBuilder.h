@@ -37,7 +37,7 @@ namespace Muon {
 	@param track the track
 	@return a pointer to the resulting track, will return zero if combination failed. Ownership passed to user.
     */
-    virtual Trk::Track* refit( const Trk::Track& track ) const = 0;
+    virtual Trk::Track* refit( Trk::Track& track ) const = 0;
 
     /** recalibrate hits on track, does not refit
 	@param track the track

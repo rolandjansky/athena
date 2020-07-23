@@ -191,8 +191,8 @@ namespace Rec {
 
      struct DevTuple 
      { 
-       static const int maxNTrk=100;
-       static const int maxNVrt=100;
+       static constexpr int maxNTrk=100;
+       static constexpr int maxNVrt=100;
        int   nTrk;
        float pttrk[maxNTrk];
        float Sig3D[maxNTrk];
