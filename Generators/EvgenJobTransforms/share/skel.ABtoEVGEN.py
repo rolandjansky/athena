@@ -396,8 +396,8 @@ StreamEVGEN.ItemList += ["EventInfo#*", "McEventCollection#*"]
 StreamEVGEN.RequireAlgs += ["EvgenFilterSeq"]
 ## Used for pile-up (remove dynamic variables except flavour labels)
 if evgenConfig.saveJets:
-    StreamEVGEN.ItemList += ["xAOD::JetContainer_v1#*"]
-    StreamEVGEN.ItemList += ["xAOD::JetAuxContainer_v1#*.TruthLabelID.PartonTruthLabelID"]
+    StreamEVGEN.ItemList += ["xAOD::JetContainer#*"]
+    StreamEVGEN.ItemList += ["xAOD::JetAuxContainer#*.TruthLabelID.PartonTruthLabelID"]
 
 ## Set the run numbers
 dsid = os.path.basename(runArgs.jobConfig[0])
