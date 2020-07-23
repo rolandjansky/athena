@@ -334,6 +334,7 @@ namespace top {
   }
 
   void TrackSystematicsMaker::specifiedSystematics(const std::set<std::string>& specSys) {
+
     // NOTE: For this function -- unlike the "proper" ObjectCollectionMakers in AnalysisTop -- an empty
     // specifiedSystematics input is considered to represent "No Systematics". All Track systematics can be
     // requested with the string "AllTrack".
@@ -408,8 +409,10 @@ namespace top {
     // systematics lists equals the size of the list of specified
     // systematics. We can do this because we've made the individual
     // per-tool containers unique (in makeUnique).
-    top::check(systs.size() == m_specifiedSystematics.size(),
-               "Sanity check failed");
+    if(m_specifiedSystematics.size() > 1)
+      top::check(systs.size() == m_specifiedSystematics.size(), "Sanity check failed");
+    else
+      top::check(m_specifiedSystematics.size() == 1, "Sanity check failed");
 
 
   }
