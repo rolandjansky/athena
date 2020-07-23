@@ -35,7 +35,9 @@ test.exec_steps = [ex]
 test.check_steps = CheckSteps.default_check_steps(test)
 
 # Make RootComp step required
-test.get_step('RootComp').required = True
+rc = test.get_step('RootComp')
+rc.required = True
+rc.args += ' --sortLabels'
 
 import sys
 sys.exit(test.run())
