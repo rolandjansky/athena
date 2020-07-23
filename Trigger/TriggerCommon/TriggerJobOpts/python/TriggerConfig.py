@@ -521,7 +521,7 @@ def triggerRunCfg( flags, seqName = None, menu=None ):
     acc.merge( triggerIDCCacheCreatorsCfg( flags, seqName ) )
 
     from L1Decoder.L1DecoderConfig import L1DecoderCfg
-    l1DecoderAcc = L1DecoderCfg( flags )
+    l1DecoderAcc = L1DecoderCfg( flags, seqName )
     acc.merge( l1DecoderAcc )
 
 
