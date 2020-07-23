@@ -1,7 +1,6 @@
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
 #include "TrkFitterUtils/TrackFitInputPreparator.h"
 #include "TrkGlobalChi2Fitter/GlobalChi2Fitter.h"
 #include "TrkGlobalChi2Fitter/GXFMaterialEffects.h"
@@ -71,6 +70,9 @@
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
 #include <exception>
 #include <memory>
+
+#include <Eigen/Dense>
+#include <Eigen/StdVector>
 
 using CLHEP::MeV;
 using CLHEP::mm;
@@ -7815,331 +7817,181 @@ namespace Trk {
     return FitterStatusCode::Success;
   }
 
-  void
-    GlobalChi2Fitter::calculateDerivatives(GXFTrajectory & trajectory) const {
-    ATH_MSG_DEBUG("CalculateDerivatives");
+  void GlobalChi2Fitter::calculateJac(
+    Eigen::Matrix<double, 5, 5> & jac,
+    Eigen::Matrix<double, 5, 5> & out,
+    int jmin, int jmax
+  ) const {
+    out = (jac * out);
+    
+    if (jmin > 0) {
+      out.block(0, 0, 4, jmin).setZero();
+    }
 
-    std::vector < GXFTrackState * >&states = trajectory.trackStates();
-    int scatno = trajectory.numberOfUpstreamScatterers() - 1;
-    int bremno = trajectory.numberOfUpstreamBrems() - 1;
+    if (jmax < 4) {
+      out.block(0, jmax + 1, 4, 5 - (jmax + 1)).setZero();
+    }
+
+    out(4, 4) = jac(4, 4);
+  }
+
+  void GlobalChi2Fitter::calculateDerivatives(GXFTrajectory & trajectory) const { 
     int nstatesupstream = trajectory.numberOfUpstreamStates();
     int nscatupstream = trajectory.numberOfUpstreamScatterers();
     int nbremupstream = trajectory.numberOfUpstreamBrems();
     int nscats = trajectory.numberOfScatterers();
-    int nperpars = trajectory.numberOfPerigeeParameters();
-    // int nfitpars=trajectory.numberOfFitParameters();
+    int nperpars = trajectory.numberOfPerigeeParameters(); 
+    int nfitpars = trajectory.numberOfFitParameters();
 
-    // A bit of a nightmare here SMatris is Row major
-    // Storage in eigen is normally column major
-    // change stuff around so that indicies dont need to worked out;
-    // Intruth what follows is impossible to follow and needs to be clearly documented
+    typedef Eigen::Matrix<double, 5, 5> Matrix55;
 
-    typedef Eigen::Matrix < double, 5, 5, Eigen::RowMajor > EigenRM55;
-    EigenRM55 initialjac;
-      initialjac.setZero();
-      initialjac(4, 4) = 1;
-    EigenRM55 jacvertex(initialjac);
-      std::vector < EigenRM55 > jacscat(trajectory.numberOfScatterers(),
-                                        initialjac);
-    int maxk[5] = {
-      4, 4, 4, 4, 5
-    };
-    std::vector < EigenRM55 > jacbrem(trajectory.numberOfBrems(), initialjac);
-    GXFTrackState *prevstate = nullptr;
-    GXFTrackState *state = nullptr;
-    for (int hitno = nstatesupstream - 1; hitno >= 0; hitno--) {
-      state = states[hitno];
-      bool fillderivmat = false;
-      TrackState::TrackStateType tstype = state->trackStateType();
-      if (tstype != TrackState::Scatterer && tstype != TrackState::Brem) {
-        fillderivmat = true;
-      }
-      int jmin = 0;
-      int jmax = 4;
-      int jminbrem = 0;
-      int jmaxbrem = 4;
-      if (hitno == 0) {
-        if (!fillderivmat) {
-          break;
-        }
-        jmin = 2;
-        jmax = 3;
-        jminbrem = 4;
-      }
-      Eigen::Matrix<double, 5, 5> & jac = state->jacobian();
-      if (hitno == nstatesupstream - 1) {
-        for (int i = 0; i < 4; i++) {
-          for (int j = 0; j < 5; j++) {
-            jacvertex(i, j) = jac(i, j);
-          }
-        }
-        jacvertex(4, 4) = jac(4, 4);
+    Matrix55 initialjac;
+    initialjac.setZero();
+    initialjac(4, 4) = 1;
+    
+    Matrix55 jacvertex(initialjac);
+    
+    std::vector<Matrix55, Eigen::aligned_allocator<Matrix55>> jacscat(trajectory.numberOfScatterers(), initialjac);
+    std::vector<Matrix55, Eigen::aligned_allocator<Matrix55>> jacbrem(trajectory.numberOfBrems(), initialjac);
+
+    std::vector<GXFTrackState*> & states = trajectory.trackStates(); 
+    GXFTrackState *prevstate = nullptr, *state = nullptr;
+
+    int hit_begin, hit_end, scatno, bremno;
+
+    for (bool forward : {false, true}) {
+      if (forward) {
+        hit_begin = nstatesupstream;
+        hit_end = (int) states.size();  
+        scatno = nscatupstream;
+        bremno = nbremupstream;
       } else {
-        for (int scatindex = nscatupstream - 1; scatindex > scatno;
-             scatindex--) {
-          if ((prevstate != nullptr)
-              && prevstate->trackStateType() == TrackState::Scatterer
-              && scatindex == scatno + 1 && ((trajectory.prefit() == 0)
-                                             || prevstate->materialEffects()->
-                                             deltaE() == 0)) {
-            for (int i = 0; i < 4; i++) {
-              for (int j = jmin; j <= jmax; j++) {
-                jacscat[scatindex] (i, j) = jac(i, j);
-              }
-            }
-            jacscat[scatindex] (4, 4) = jac(4, 4);
-          } else {
-            EigenRM55 & tmpjac2 = jacscat[scatindex];
-            EigenRM55 & tmpjac = initialjac;
-            double *myarray = tmpjac2.data();
-            for (int i = 0; i < 4; i++) {
-              int myindex;
-              for (int j = jmin; j <= jmax; j++) {
-                double tmp = 0;
-                myindex = j;
-                for (int k = 0; k < maxk[j]; k++) {
-                  tmp += jac(i, k) * myarray[myindex];
-                  myindex += 5;
-                }
-                tmpjac(i, j) = tmp;
-              }
-            }
-            jacscat[scatindex] = tmpjac;
-            jacscat[scatindex] (4, 4) = jac(4, 4) * jacscat[scatindex] (4, 4);
-          }
-          if (fillderivmat) {
-            Amg::MatrixX & derivmat = state->derivatives();
-            int scatterPos = nperpars + 2 * scatindex;
-            for (int i = 0; i < 4; i++) {
-              derivmat(i, scatterPos) = -jacscat[scatindex] (i, 2);
-              derivmat(i, scatterPos + 1) = -jacscat[scatindex] (i, 3);
-            }
-          }
-        }
-        for (int bremindex = nbremupstream - 1; bremindex > bremno;
-             bremindex--) {
-          if ((prevstate != nullptr) && (prevstate->materialEffects() != nullptr)
-              && prevstate->materialEffects()->sigmaDeltaE() > 0
-              && bremindex == bremno + 1) {
-            for (int i = 0; i < 4; i++) {
-              for (int j = jminbrem; j <= jmaxbrem; j++) {
-                jacbrem[bremindex] (i, j) = jac(i, j);
-              }
-            }
-            jacbrem[bremindex] (4, 4) = jac(4, 4);
-          } else {
-            EigenRM55 & tmpjac = initialjac;
-            for (int i = 0; i < 4; i++) {
-              for (int j = jminbrem; j <= jmaxbrem; j++) {
-                double tmp = 0;
-                for (int k = 0; k < maxk[j]; k++) {
-                  tmp += jac(i, k) * jacbrem[bremindex] (k, j);
-                }
-                tmpjac(i, j) = tmp;
-              }
-            }
-            jacbrem[bremindex] = tmpjac;
-            jacbrem[bremindex] (4, 4) = jac(4, 4) * jacbrem[bremindex] (4, 4);
-          }
-
-          if (fillderivmat) {
-            Amg::MatrixX & derivmat = state->derivatives();
-            int scatterPos = nperpars + 2 * nscats + bremindex;
-            for (int i = 0; i < 5; i++) {
-              derivmat(i, scatterPos) = -0.001 * jacbrem[bremindex] (i, 4);
-            }
-          }
-        }
-
-        EigenRM55 & tmpjac = initialjac;
-        for (int i = 0; i < 4; i++) {
-          for (int j = 0; j < 5; j++) {
-            double tmp = 0;
-            for (int k = 0; k < maxk[j]; k++) {
-              tmp += jac(i, k) * jacvertex(k, j);
-            }
-            tmpjac(i, j) = tmp;
-          }
-        }
-        jacvertex = tmpjac;
-        jacvertex(4, 4) = jac(4, 4) * jacvertex(4, 4);
-      }
-
-      if (fillderivmat) {
-        Amg::MatrixX & derivmat = state->derivatives();
-        for (int i = 0; i < 4; i++) {
-          for (int j = 0; j < nperpars; j++) {
-            derivmat(i, j) = jacvertex(i, j);
-          }
-          if (nperpars == 5) {
-            derivmat(i, 4) *= .001;
-          }
-        }
-        if (nperpars == 5) {
-          derivmat(4, 4) = .001 * jacvertex(4, 4);
-        }
-      }
-
-      if (tstype == TrackState::Scatterer &&
-          ((trajectory.prefit() == 0)
-           || states[hitno]->materialEffects()->deltaE() == 0)) {
-        scatno--;
-      }
-      if ((states[hitno]->materialEffects() != nullptr)
-          && states[hitno]->materialEffects()->sigmaDeltaE() > 0) {
-        bremno--;
-      }
-      prevstate = states[hitno];
-    }
-
-    scatno = nscatupstream;
-    bremno = nbremupstream;
-    prevstate = nullptr;
-
-    for (int hitno = nstatesupstream; hitno < (int) states.size(); hitno++) {
-      state = states[hitno];
-      bool fillderivmat = false;
-      TrackState::TrackStateType tstype = state->trackStateType();
-      int imax = 3;
-      if (tstype != TrackState::Scatterer && tstype != TrackState::Brem) {
-        fillderivmat = true;
-      }
-      int jmin = 0;
-      int jmax = 4;
-      int jminbrem = 0;
-      int jmaxbrem = 4;
-      if (hitno == (int) states.size() - 1) {
-        if (!fillderivmat) {
-          break;
-        }
-        jmin = 2;
-        jmax = 3;
-        jminbrem = 4;
-      }
+        hit_begin = nstatesupstream - 1;
+        hit_end = 0;
+        scatno = trajectory.numberOfUpstreamScatterers() - 1;
+        bremno = trajectory.numberOfUpstreamBrems() - 1;
+      }      
       
-      Eigen::Matrix<double, 5, 5> & jac = state->jacobian();
-
-      if (hitno == nstatesupstream) {
-        for (int i = 0; i < 4; i++) {
-          for (int j = 0; j < 5; j++) {
-            jacvertex(i, j) = jac(i, j);
-          }
-        }
-        jacvertex(4, 4) = jac(4, 4);
-      } else {
-        for (int scatindex = nscatupstream; scatindex < scatno; scatindex++) {
-          if ((prevstate != nullptr)
-              && prevstate->trackStateType() == TrackState::Scatterer
-              && scatindex == scatno - 1 && ((trajectory.prefit() == 0)
-                                             || prevstate->materialEffects()->
-                                             deltaE() == 0)) {
-            for (int i = 0; i < 4; i++) {
-              for (int j = jmin; j <= jmax; j++) {
-                jacscat[scatindex] (i, j) = jac(i, j);
-              }
-            }
-            jacscat[scatindex] (4, 4) = jac(4, 4);
-          } else {
-            EigenRM55 & tmpjac2 = jacscat[scatindex];
-            EigenRM55 & tmpjac = initialjac;
-            double *myarray = tmpjac2.data();
-            for (int i = 0; i < 4; i++) {
-              int myindex;
-              for (int j = jmin; j <= jmax; j++) {
-                double tmp = 0;
-                myindex = j;
-                for (int k = 0; k < maxk[j]; k++) {
-                  tmp += jac(i, k) * myarray[myindex];
-                  myindex += 5;
-                }
-                tmpjac(i, j) = tmp;
-              }
-            }
-            jacscat[scatindex] = tmpjac;
-            jacscat[scatindex] (4, 4) = jacscat[scatindex] (4, 4) * jac(4, 4);
-          }
-          if (fillderivmat) {
-            Amg::MatrixX & derivmat = state->derivatives();
-            int scatterPos = nperpars + 2 * scatindex;
-            for (int i = 0; i <= imax; i++) {
-              derivmat(i, scatterPos) = jacscat[scatindex] (i, 2);
-              derivmat(i, scatterPos + 1) = jacscat[scatindex] (i, 3);
-            }
-          }
-        }
-        for (int bremindex = nbremupstream; bremindex < bremno; bremindex++) {
-          if ((prevstate != nullptr) && (prevstate->materialEffects() != nullptr)
-              && prevstate->materialEffects()->sigmaDeltaE() > 0
-              && bremindex == bremno - 1) {
-            for (int i = 0; i < 4; i++) {
-              for (int j = jminbrem; j <= jmaxbrem; j++) {
-                jacbrem[bremindex] (i, j) = jac(i, j);
-              }
-            }
-            jacbrem[bremindex] (4, 4) = jac(4, 4);
-          } else {
-            EigenRM55 & tmpjac = initialjac;
-            for (int i = 0; i < 4; i++) {
-              for (int j = jminbrem; j <= jmaxbrem; j++) {
-                double tmp = 0;
-                for (int k = 0; k < maxk[j]; k++) {
-                  tmp += jac(i, k) * jacbrem[bremindex] (k, j);
-                }
-                tmpjac(i, j) = tmp;
-              }
-            }
-            jacbrem[bremindex] = tmpjac;
-            jacbrem[bremindex] (4, 4) = jacbrem[bremindex] (4, 4) * jac(4, 4);
-          }
-
-          if (fillderivmat) {
-            Amg::MatrixX & derivmat = state->derivatives();
-            int scatterPos = nperpars + 2 * nscats + bremindex;
-            for (int i = 0; i <= 4; i++) {
-              derivmat(i, scatterPos) = .001 * jacbrem[bremindex] (i, 4);
-            }
-          }
+      for (
+        int hitno = hit_begin;
+        forward ? (hitno < hit_end) : (hitno >= hit_end); 
+        hitno += (forward ? 1 : -1)
+      ) {
+        state = states[hitno];
+        
+        TrackState::TrackStateType tstype = state->trackStateType();
+        bool fillderivmat = (tstype != TrackState::Scatterer && tstype != TrackState::Brem);
+       
+        if (fillderivmat && state->derivatives().cols() != nfitpars) {
+          state->derivatives().resize(5, nfitpars);
+          state->derivatives().setZero();
         }
 
-        EigenRM55 & tmpjac = initialjac;
-        for (int i = 0; i < 4; i++) {
-          for (int j = 0; j < 5; j++) {
-            double tmp = 0;
-            for (int k = 0; k < maxk[j]; k++) {
-              tmp += jac(i, k) * jacvertex(k, j);
-            }
-            tmpjac(i, j) = tmp;
+        int jminscat = 0, jmaxscat = 4, jminbrem = 0, jmaxbrem = 4;
+        
+        if (hitno == (forward ? hit_end - 1 : 0)) {
+          if (!fillderivmat) {
+            break;
           }
+          jminscat = 2;
+          jmaxscat = 3;
+          jminbrem = 4;
         }
-        jacvertex = tmpjac;
-        jacvertex(4, 4) = jacvertex(4, 4) * jac(4, 4);
-      }
+        
+        Eigen::Matrix<double, 5, 5> & jac = state->jacobian();
 
-      if (fillderivmat) {
-        Amg::MatrixX & derivmat = state->derivatives();
-        for (int i = 0; i <= imax; i++) {
-          for (int j = 0; j < nperpars; j++) {
-            derivmat(i, j) = jacvertex(i, j);
+        if (hitno == nstatesupstream + (forward ? 0 : -1)) {
+          jacvertex.block<4, 5>(0, 0) = jac.block<4, 5>(0, 0);
+          jacvertex(4, 4) = jac(4, 4);
+        } else {
+          int jmin, jmax, jcnt;
+          int lp_bgn, lp_end;
+
+          jmin = jminscat;
+          jmax = jmaxscat;
+          jcnt = jmax - jmin + 1;
+
+          lp_bgn = forward ? nscatupstream : nscatupstream - 1;
+          lp_end = scatno;
+
+          for (int i = lp_bgn; forward ? (i < lp_end) : (i > lp_end); i += (forward ? 1 : -1)) {
+            if (
+              i == scatno + (forward ? -1 : 1) &&
+              prevstate != nullptr && 
+              prevstate->trackStateType() == TrackState::Scatterer && 
+              (!trajectory.prefit() || prevstate->materialEffects()->deltaE() == 0)
+            ) {
+              jacscat[i].block(0, jmin, 4, jcnt) = jac.block(0, jmin, 4, jcnt);
+              jacscat[i](4, 4) = jac(4, 4);
+            } else {
+              calculateJac(jac, jacscat[i], jmin, jmax);
+            }
+
+            if (fillderivmat) {
+              Eigen::MatrixXd & derivmat = state->derivatives();
+              int scatterPos = nperpars + 2 * i;
+            
+              derivmat.block<4, 2>(0, scatterPos) = (forward ? 1 : -1) * jacscat[i].block<4, 2>(0, 2);
+            }
           }
+
+          jmin = jminbrem;
+          jmax = jmaxbrem;
+          jcnt = jmax - jmin + 1;
+
+          lp_bgn = forward ? nbremupstream : nbremupstream - 1;
+          lp_end = bremno;
+
+          for (int i = lp_bgn; forward ? (i < lp_end) : (i > lp_end); i += (forward ? 1 : -1)) {
+            if (
+              i == bremno + (forward ? -1 : 1) &&
+              prevstate && 
+              prevstate->materialEffects() && 
+              prevstate->materialEffects()->sigmaDeltaE() > 0 
+            ) {
+              jacbrem[i].block(0, jmin, 4, jcnt) = jac.block(0, jmin, 4, jcnt);
+              jacbrem[i](4, 4) = jac(4, 4);
+            } else {
+              calculateJac(jac, jacbrem[i], jmin, jmax);
+            }
+
+            if (fillderivmat) {
+              Eigen::MatrixXd & derivmat = state->derivatives();
+              int scatterPos = nperpars + 2 * nscats + i;
+
+              derivmat.block<5, 1>(0, scatterPos) = (forward ? .001 : -.001) * jacbrem[i].block<5, 1>(0, 4);
+            }
+          }
+
+          calculateJac(jac, jacvertex, 0, 4);
+        }
+
+        if (fillderivmat) {
+          Eigen::MatrixXd & derivmat = state->derivatives();
+          derivmat.block(0, 0, 4, nperpars) = jacvertex.block(0, 0, 4, nperpars);
+
           if (nperpars == 5) {
-            derivmat(i, 4) *= .001;
+            derivmat.col(4).segment(0, 4) *= .001;
+            derivmat(4, 4) = .001 * jacvertex(4, 4);
           }
         }
-        if (nperpars == 5) {
-          derivmat(4, 4) = 0.001 * jacvertex(4, 4);
-        }
-      }
 
-      if (tstype == TrackState::Scatterer &&
-          ((trajectory.prefit() == 0)
-           || states[hitno]->materialEffects()->deltaE() == 0)) {
-        scatno++;
+        if (
+          tstype == TrackState::Scatterer &&
+          (!trajectory.prefit() || states[hitno]->materialEffects()->deltaE() == 0)
+        ) {
+          scatno += (forward ? 1 : -1);
+        }
+        
+        if (
+          states[hitno]->materialEffects() && 
+          states[hitno]->materialEffects()->sigmaDeltaE() > 0
+        ) {
+          bremno += (forward ? 1 : -1);
+        }
+        
+        prevstate = states[hitno];
       }
-      if ((states[hitno]->materialEffects() != nullptr)
-          && states[hitno]->materialEffects()->sigmaDeltaE() > 0) {
-        bremno++;
-      }
-      prevstate = states[hitno];
     }
   }
 

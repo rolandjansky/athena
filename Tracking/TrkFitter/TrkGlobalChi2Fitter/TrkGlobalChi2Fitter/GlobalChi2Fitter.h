@@ -219,14 +219,6 @@ namespace Trk {
       int, int
     ) const;
 
-    void processStates(
-      GXFTrajectory &,
-      bool,
-      Eigen::Matrix<double, 5, 5> &,
-      std::vector<Eigen::Matrix<double, 5, 5>> &,
-      std::vector<Eigen::Matrix<double, 5, 5>> &
-    ) const;
-
     Track * fitIm(
       const EventContext& ctx,
       Cache & cache,
