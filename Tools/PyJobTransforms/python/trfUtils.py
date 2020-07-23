@@ -1199,33 +1199,21 @@ class ParallelJobProcessor(object):
         ))
         msg.debug(self.statusReport())
 
-
+## @brief Analytics service class
 class analytic():
-    """
-    Analytics service class.
-    """
 
     _fit = None
 
     def __init__(self, **kwargs):
-        """
-        Init function.
-        :param kwargs:
-        """
         self._fit = None
-        self._memTable = memFullFileToTable()
 
+    ## Fitting function
+    #  For a linear model: y(x) = slope * x + intersect
+    #  @param x list of input data (list of floats or ints).
+    #  @param y: list of input data (list of floats or ints).
+    #  @param model: model name (string).
+    #  raises UnknownException: in case Fit() fails.
     def fit(self, x, y, model='linear'):
-        """
-        Fitting function.
-        For a linear model: y(x) = slope * x + intersect
-        :param x: list of input data (list of floats or ints).
-        :param y: list of input data (list of floats or ints).
-        :param model: model name (string).
-        :raises UnknownException: in case Fit() fails.
-        :return:
-        """
-
         try:
             self._fit = Fit(x=x, y=y, model=model)
         except Exception as e:
@@ -1233,12 +1221,8 @@ class analytic():
 
         return self._fit
 
+    # Return the slope of a linear fit, y(x) = slope * x + intersect
     def slope(self):
-        """
-        Return the slope of a linear fit, y(x) = slope * x + intersect.
-        :return: slope (float).
-        """
-
         slope = None
 
         if self._fit:
@@ -1248,21 +1232,19 @@ class analytic():
 
         return slope
 
+    # Return a properly formatted job metrics string with analytics data.
+    # Currently the function returns a fit for PSS+Swap vs time, whose slope measures memory leaks.
+    # @param filename: memory monitor output file (string).
+    # @param x_name: optional string, name selector for table column.
+    # @param y_name: optional string, name selector for table column.
+    # @param precision: optional precision for fitted slope parameter, default 2.
+    # @param tails: should tails (first and last values) be used? (boolean).
+    # @return: {"slope": slope, "chi2": chi2} (float strings with desired precision).
     def get_fitted_data(self, filename, x_name='Time', y_name='pss+swap', precision=2, tails=True):
-        """
-        Return a properly formatted job metrics string with analytics data.
-        Currently the function returns a fit for PSS+Swap vs time, whose slope measures memory leaks.
-        :param filename: full path to memory monitor output (string).
-        :param x_name: optional string, name selector for table column.
-        :param y_name: optional string, name selector for table column.
-        :param precision: optional precision for fitted slope parameter, default 2.
-        :param tails: should tails (first and last values) be used? (boolean).
-        :return: {"slope": slope, "chi2": chi2} (float strings with desired precision).
-        """
         self._math = math()
         slope = ""
         chi2 = ""
-        table = self._memTable.get_table_from_file(filename,header=None, separator="\t", convert_to_float=True)
+        table = get_table_from_file(filename,header=None, separator="\t", convert_to_float=True)
 
         if table:
             # extract data to be fitted
@@ -1297,14 +1279,11 @@ class analytic():
 
         return {"slope": slope, "chi2": chi2}
 
+    # Extrcat wanted columns. e.g. x: Time , y: pss+swap
+    # @param x_name: column name to be extracted (string).
+    # @param y_name: column name to be extracted (may contain '+'-sign) (string).
+    # @return: x (list), y (list).
     def extract_from_table(self, table, x_name, y_name):
-        """
-        :param table: dictionary with columns.
-        :param x_name: column name to be extracted (string).
-        :param y_name: column name to be extracted (may contain '+'-sign) (string).
-        :return: x (list), y (list).
-        """
-
         x = table.get(x_name, [])
         if '+' not in y_name:
             y = table.get(y_name, [])
@@ -1324,11 +1303,8 @@ class analytic():
 
         return x, y
 
-
+## @breif Low-level fitting class
 class Fit():
-    """
-    Low-level fitting class.
-    """
     _model = 'linear'  # fitting model
     _x = None  # x values
     _y = None  # y values
@@ -1341,15 +1317,12 @@ class Fit():
     _chi2 = None  # chi2
 
     def __init__(self, **kwargs):
-        """
-        Init function.
-        :param kwargs:
-        """
-        self._math = math()
         # extract parameters
         self._model = kwargs.get('model', 'linear')
         self._x = kwargs.get('x', None)
         self._y = kwargs.get('y', None)
+
+        self._math = math()
 
         if not self._x or not self._y:
             msg.warning('input data not defined')
@@ -1371,88 +1344,55 @@ class Fit():
             msg.warning("\'{0}\' model is not implemented".format(self._model))
 
     def fit(self):
-        """
-        Return fitting object.
-        :return: fitting object.
-        """
-
+        #Return fitting object.
         return self
 
     def value(self, t):
-        """
-        Return the value y(x=t) of a linear fit y(x) = slope * x + intersect.
-        :return: intersect (float).
-        """
-
+        #Return the value y(x=t) of a linear fit y(x) = slope * x + intersect.
         return self._slope * t + self._intersect
 
     def set_chi2(self):
-        """
-        Calculate and set the chi2 value.
-        :return:
-        """
-
+        #Calculate and set the chi2 value.
         y_observed = self._y
         y_expected = []
-        #i = 0
         for x in self._x:
-            #y_expected.append(self.value(x) - y_observed[i])
             y_expected.append(self.value(x))
-            #i += 1
         if y_observed and y_observed != [] and y_expected and y_expected != []:
             self._chi2 = self._math.chi2(y_observed, y_expected)
         else:
             self._chi2 = None
 
     def chi2(self):
-        """
-        Return the chi2 value.
-        :return: chi2 (float).
-        """
-
+        #Return the chi2 value.
         return self._chi2
 
     def set_slope(self):
-        """
-        Calculate and set the slope of the linear fit.
-        :return:
-        """
-
+        #Calculate and set the slope of the linear fit.
         if self._ss2 and self._ss and self._ss != 0:
             self._slope = self._ss2 / self._ss
         else:
             self._slope = None
 
     def slope(self):
-        """
-        Return the slope value.
-        :return: slope (float).
-        """
-
+        #Return the slope value.
         return self._slope
 
     def set_intersect(self):
-        """
-        Calculate and set the intersect of the linear fit.
-        :return:
-        """
-
+        #Calculate and set the intersect of the linear fit.
         if self._ym and self._slope and self._xm:
             self._intersect = self._ym - self._slope * self._xm
         else:
             self._intersect = None
 
     def intersect(self):
-        """
-        Return the intersect value.
-        :return: intersect (float).
-        """
-
+        #Return the intersect value.
         return self._intersect
 
 
+## @brief some mathematical tools
 class math():
 
+    #Return the sample arithmetic mean of data.
     def mean(self, data):
         n = len(data)
         if n < 1:
@@ -1460,115 +1400,103 @@ class math():
 
         return sum(data)/n
 
+    # Return sum of square deviations of sequence data.
+    # Sum (x - x_mean)**2
     def sum_square_dev(self, data):
         c = self.mean(data)
         return sum((x - c) ** 2 for x in data)
 
+    # Return sum of deviations of sequence data.
+    # Sum (x - x_mean)**(y - y_mean)
     def sum_dev(self, x, y):
         c1 = self.mean(x)
         c2 = self.mean(y)
         return sum((_x - c1) * (_y - c2) for _x, _y in zip(x, y))
 
+    # Return the chi2 sum of the provided observed and expected values.
     def chi2(self, observed, expected):
-        """
-        Return the chi2 sum of the provided observed and expected values.
-        :param observed: list of floats.
-        :param expected: list of floats.
-        :return: chi2 (float).
-        """
         if 0 in expected:
             return 0.0
         return sum((_o - _e) ** 2 / _e for _o, _e in zip(observed, expected))
 
-
-class memFullFileToTable():
-
-    def get_table_from_file(self, filename, header=None, separator="\t", convert_to_float=None):
-        """
-        Extract a table of data from a txt file.
-        E.g.
-        header="Time VMEM PSS RSS Swap rchar wchar rbytes wbytes"
-        or the first line in the file is
-        Time VMEM PSS RSS Swap rchar wchar rbytes wbytes
-        each of which will become keys in the dictionary, whose corresponding values are stored in lists, with the entries
-        corresponding to the values in the rows of the input file.
-        The output dictionary will have the format
-        {'Time': [ .. data from first row .. ], 'VMEM': [.. data from second row], ..}
-        :param filename: name of input text file, full path (string).
-        :param header: header string.
-        :param separator: separator character (char).
-        :param convert_to_float: boolean, if True, all values will be converted to floats.
-        :return: dictionary.
-        """
-        tabledict = {}
-        keylist = []  # ordered list of dictionary key names
-        try:
-            f = open(filename, 'r')
-        except Exception as e:
-            msg.warning("failed to open file: {0}, {1}".format(filename, e))
-        else:
-            firstline = True
-            for line in f:
-                fields = line.split(separator)
-                if firstline:
-                    firstline = False
-                    tabledict, keylist = self._define_tabledict_keys(header, fields, separator)
-                    if not header:
-                        continue
-
-                # from now on, fill the dictionary fields with the input data
-                i = 0
-                for field in fields:
-                    # get the corresponding dictionary key from the keylist
-                    key = keylist[i]
-                    # store the field value in the correct list
-                    # TODO: do we need converting to float?
-                    if convert_to_float:
-                        try:
-                            field = float(field)
-                        except Exception as e:
-                            msg.warning("failed to convert {0} to float: {1} (aborting)".format(field, e))
-                            return None
-                    tabledict[key].append(field)
-                    i += 1
-            f.close()
-        return tabledict
-
-    def _define_tabledict_keys(self, header, fields, separator):
-        """
-        Define the keys for the tabledict dictionary.
-        Note: this function is only used by parse_table_from_file().
-        :param header: header string.
-        :param fields: header content string.
-        :param separator: separator character (char).
-        :return: tabledict (dictionary), keylist (ordered list with dictionary key names).
-        """
-
-        tabledict = {}
-        keylist = []
-
-        if not header:
-            # get the dictionary keys from the header of the file
-            for key in fields:
-                # first line defines the header, whose elements will be used as dictionary keys
-                if key == '':
+## @brief  Extract a table of data from a txt file
+#  @details E.g. header="Time VMEM PSS RSS Swap rchar wchar rbytes wbytes"
+#  or the first line in the file is
+#  Time VMEM PSS RSS Swap rchar wchar rbytes wbytes
+#  each of which will become keys in the dictionary, whose corresponding values are stored in lists, with the entries
+#  corresponding to the values in the rows of the input file.
+#  The output dictionary will have the format
+#  {'Time': [ .. data from first row .. ], 'VMEM': [.. data from second row], ..}
+#  @param filename name of input text file, full path (string).
+#  @param header header string.
+#  @param separator separator character (char).
+#  @param convert_to_float boolean, if True, all values will be converted to floats.
+#  @return dictionary.
+def get_table_from_file(filename, header=None, separator="\t", convert_to_float=None):
+    try:
+        f = open(filename, 'r')
+    except Exception as e:
+        msg.warning("failed to open file: {0}, {1}".format(filename, e))
+    else:
+        firstline = True
+        for line in f:
+            fields = line.split(separator)
+            if firstline:
+                firstline = False
+                tabledict, keylist = _define_tabledict_keys(header, fields, separator)
+                if not header:
                     continue
-                if key.endswith('\n'):
-                    key = key[:-1]
-                tabledict[key] = []
-                keylist.append(key)
-        else:
-            # get the dictionary keys from the provided header
-            keys = header.split(separator)
-            for key in keys:
-                if key == '':
-                    continue
-                if key.endswith('\n'):
-                    key = key[:-1]
-                tabledict[key] = []
-                keylist.append(key)
 
-        return tabledict, keylist
+            # from now on, fill the dictionary fields with the input data
+            i = 0
+            for field in fields:
+                # get the corresponding dictionary key from the keylist
+                key = keylist[i]
+                # store the field value in the correct list
+                # TODO: do we need converting to float?
+                if convert_to_float:
+                    try:
+                        field = float(field)
+                    except Exception as e:
+                        msg.warning("failed to convert {0} to float: {1} (aborting)".format(field, e))
+                        return None
+                tabledict[key].append(field)
+                i += 1
+        f.close()
+    return tabledict
+
+## @brief Define the keys for the tabledict dictionary.
+# @note should be called by get_table_from_file()
+# @param header header string.
+# @param fields header content string.
+# @param separator separator character (char).
+# @return tabledict (dictionary), keylist (ordered list with dictionary key names).
+def _define_tabledict_keys(header, fields, separator):
+    tabledict = {}
+    keylist = []
+
+    if not header:
+        # get the dictionary keys from the header of the file
+        for key in fields:
+            # first line defines the header, whose elements will be used as dictionary keys
+            if key == '':
+                continue
+            if key.endswith('\n'):
+                key = key[:-1]
+            tabledict[key] = []
+            keylist.append(key)
+    else:
+        # get the dictionary keys from the provided header
+        keys = header.split(separator)
+        for key in keys:
+            if key == '':
+                continue
+            if key.endswith('\n'):
+                key = key[:-1]
+            tabledict[key] = []
+            keylist.append(key)
+
+    return tabledict, keylist
 
 
 ### @brief return Valgrind command
