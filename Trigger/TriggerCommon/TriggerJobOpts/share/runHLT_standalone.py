@@ -450,6 +450,7 @@ from AthenaCommon.CFElements import seqOR,parOR
 hltTop = seqOR("HLTTop")
 hltBeginSeq = parOR("HLTBeginSeq")
 hltTop += hltBeginSeq
+topSequence += hltTop
 
 l1decoder = None
 if opt.doL1Unpacking:
@@ -457,13 +458,10 @@ if opt.doL1Unpacking:
         ConfigFlags.Trigger.L1Decoder.forceEnableAllChains = opt.forceEnableAllChains
         from L1Decoder.L1DecoderConfig import L1DecoderCfg
         CAtoGlobalWrapper(L1DecoderCfg, ConfigFlags, seqName="HLTBeginSeq")
-        from AthenaCommon.CFElements import findAlgorithm
-        l1decoder = hltBeginSeq.L1Decoder
+        l1Decoder = hltBeginSeq.L1Decoder
     else:
         from TrigUpgradeTest.TestUtils import L1EmulationTest
         hltBeginSeq += L1EmulationTest()
-
-topSequence += hltTop
 
 # ---------------------------------------------------------------
 # Level 1 simulation
