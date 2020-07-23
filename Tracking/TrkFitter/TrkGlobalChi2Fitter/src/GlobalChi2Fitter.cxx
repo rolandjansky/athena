@@ -7866,14 +7866,14 @@ namespace Trk {
         jmax = 3;
         jminbrem = 4;
       }
-      double (*jac)[5] = state->jacobian();
+      Eigen::Matrix<double, 5, 5> & jac = state->jacobian();
       if (hitno == nstatesupstream - 1) {
         for (int i = 0; i < 4; i++) {
           for (int j = 0; j < 5; j++) {
-            jacvertex(i, j) = jac[i][j];
+            jacvertex(i, j) = jac(i, j);
           }
         }
-        jacvertex(4, 4) = jac[4][4];
+        jacvertex(4, 4) = jac(4, 4);
       } else {
         for (int scatindex = nscatupstream - 1; scatindex > scatno;
              scatindex--) {
@@ -7884,10 +7884,10 @@ namespace Trk {
                                              deltaE() == 0)) {
             for (int i = 0; i < 4; i++) {
               for (int j = jmin; j <= jmax; j++) {
-                jacscat[scatindex] (i, j) = jac[i][j];
+                jacscat[scatindex] (i, j) = jac(i, j);
               }
             }
-            jacscat[scatindex] (4, 4) = jac[4][4];
+            jacscat[scatindex] (4, 4) = jac(4, 4);
           } else {
             EigenRM55 & tmpjac2 = jacscat[scatindex];
             EigenRM55 & tmpjac = initialjac;
@@ -7898,14 +7898,14 @@ namespace Trk {
                 double tmp = 0;
                 myindex = j;
                 for (int k = 0; k < maxk[j]; k++) {
-                  tmp += jac[i][k] * myarray[myindex];
+                  tmp += jac(i, k) * myarray[myindex];
                   myindex += 5;
                 }
                 tmpjac(i, j) = tmp;
               }
             }
             jacscat[scatindex] = tmpjac;
-            jacscat[scatindex] (4, 4) = jac[4][4] * jacscat[scatindex] (4, 4);
+            jacscat[scatindex] (4, 4) = jac(4, 4) * jacscat[scatindex] (4, 4);
           }
           if (fillderivmat) {
             Amg::MatrixX & derivmat = state->derivatives();
@@ -7923,23 +7923,23 @@ namespace Trk {
               && bremindex == bremno + 1) {
             for (int i = 0; i < 4; i++) {
               for (int j = jminbrem; j <= jmaxbrem; j++) {
-                jacbrem[bremindex] (i, j) = jac[i][j];
+                jacbrem[bremindex] (i, j) = jac(i, j);
               }
             }
-            jacbrem[bremindex] (4, 4) = jac[4][4];
+            jacbrem[bremindex] (4, 4) = jac(4, 4);
           } else {
             EigenRM55 & tmpjac = initialjac;
             for (int i = 0; i < 4; i++) {
               for (int j = jminbrem; j <= jmaxbrem; j++) {
                 double tmp = 0;
                 for (int k = 0; k < maxk[j]; k++) {
-                  tmp += jac[i][k] * jacbrem[bremindex] (k, j);
+                  tmp += jac(i, k) * jacbrem[bremindex] (k, j);
                 }
                 tmpjac(i, j) = tmp;
               }
             }
             jacbrem[bremindex] = tmpjac;
-            jacbrem[bremindex] (4, 4) = jac[4][4] * jacbrem[bremindex] (4, 4);
+            jacbrem[bremindex] (4, 4) = jac(4, 4) * jacbrem[bremindex] (4, 4);
           }
 
           if (fillderivmat) {
@@ -7956,13 +7956,13 @@ namespace Trk {
           for (int j = 0; j < 5; j++) {
             double tmp = 0;
             for (int k = 0; k < maxk[j]; k++) {
-              tmp += jac[i][k] * jacvertex(k, j);
+              tmp += jac(i, k) * jacvertex(k, j);
             }
             tmpjac(i, j) = tmp;
           }
         }
         jacvertex = tmpjac;
-        jacvertex(4, 4) = jac[4][4] * jacvertex(4, 4);
+        jacvertex(4, 4) = jac(4, 4) * jacvertex(4, 4);
       }
 
       if (fillderivmat) {
@@ -8016,15 +8016,16 @@ namespace Trk {
         jmax = 3;
         jminbrem = 4;
       }
-      double (*jac)[5] = state->jacobian();
+      
+      Eigen::Matrix<double, 5, 5> & jac = state->jacobian();
 
       if (hitno == nstatesupstream) {
         for (int i = 0; i < 4; i++) {
           for (int j = 0; j < 5; j++) {
-            jacvertex(i, j) = jac[i][j];
+            jacvertex(i, j) = jac(i, j);
           }
         }
-        jacvertex(4, 4) = jac[4][4];
+        jacvertex(4, 4) = jac(4, 4);
       } else {
         for (int scatindex = nscatupstream; scatindex < scatno; scatindex++) {
           if ((prevstate != nullptr)
@@ -8034,10 +8035,10 @@ namespace Trk {
                                              deltaE() == 0)) {
             for (int i = 0; i < 4; i++) {
               for (int j = jmin; j <= jmax; j++) {
-                jacscat[scatindex] (i, j) = jac[i][j];
+                jacscat[scatindex] (i, j) = jac(i, j);
               }
             }
-            jacscat[scatindex] (4, 4) = jac[4][4];
+            jacscat[scatindex] (4, 4) = jac(4, 4);
           } else {
             EigenRM55 & tmpjac2 = jacscat[scatindex];
             EigenRM55 & tmpjac = initialjac;
@@ -8048,14 +8049,14 @@ namespace Trk {
                 double tmp = 0;
                 myindex = j;
                 for (int k = 0; k < maxk[j]; k++) {
-                  tmp += jac[i][k] * myarray[myindex];
+                  tmp += jac(i, k) * myarray[myindex];
                   myindex += 5;
                 }
                 tmpjac(i, j) = tmp;
               }
             }
             jacscat[scatindex] = tmpjac;
-            jacscat[scatindex] (4, 4) = jacscat[scatindex] (4, 4) * jac[4][4];
+            jacscat[scatindex] (4, 4) = jacscat[scatindex] (4, 4) * jac(4, 4);
           }
           if (fillderivmat) {
             Amg::MatrixX & derivmat = state->derivatives();
@@ -8072,23 +8073,23 @@ namespace Trk {
               && bremindex == bremno - 1) {
             for (int i = 0; i < 4; i++) {
               for (int j = jminbrem; j <= jmaxbrem; j++) {
-                jacbrem[bremindex] (i, j) = jac[i][j];
+                jacbrem[bremindex] (i, j) = jac(i, j);
               }
             }
-            jacbrem[bremindex] (4, 4) = jac[4][4];
+            jacbrem[bremindex] (4, 4) = jac(4, 4);
           } else {
             EigenRM55 & tmpjac = initialjac;
             for (int i = 0; i < 4; i++) {
               for (int j = jminbrem; j <= jmaxbrem; j++) {
                 double tmp = 0;
                 for (int k = 0; k < maxk[j]; k++) {
-                  tmp += jac[i][k] * jacbrem[bremindex] (k, j);
+                  tmp += jac(i, k) * jacbrem[bremindex] (k, j);
                 }
                 tmpjac(i, j) = tmp;
               }
             }
             jacbrem[bremindex] = tmpjac;
-            jacbrem[bremindex] (4, 4) = jacbrem[bremindex] (4, 4) * jac[4][4];
+            jacbrem[bremindex] (4, 4) = jacbrem[bremindex] (4, 4) * jac(4, 4);
           }
 
           if (fillderivmat) {
@@ -8105,13 +8106,13 @@ namespace Trk {
           for (int j = 0; j < 5; j++) {
             double tmp = 0;
             for (int k = 0; k < maxk[j]; k++) {
-              tmp += jac[i][k] * jacvertex(k, j);
+              tmp += jac(i, k) * jacvertex(k, j);
             }
             tmpjac(i, j) = tmp;
           }
         }
         jacvertex = tmpjac;
-        jacvertex(4, 4) = jacvertex(4, 4) * jac[4][4];
+        jacvertex(4, 4) = jacvertex(4, 4) * jac(4, 4);
       }
 
       if (fillderivmat) {
@@ -8215,7 +8216,7 @@ namespace Trk {
           (prevstate->trackStateType() == TrackState::Fittable ||
            prevstate->trackStateType() == TrackState::GeneralOutlier)
           && !onlylocal) {
-        double (*jac)[5] = state->jacobian();
+        Eigen::Matrix<double, 5, 5> & jac = state->jacobian();
         AmgMatrix(5, 5) & prevcov =
           *states[indices[stateno - 1]]->trackCovariance();
         errors1(jac, prevcov, trackerrmat, onlylocal);
@@ -8530,7 +8531,7 @@ namespace Trk {
 
   void
    
-    GlobalChi2Fitter::errors1(double (*jac)[5], AmgSymMatrix(5) & prevcov,
+    GlobalChi2Fitter::errors1(Eigen::Matrix<double, 5, 5> & jac, AmgSymMatrix(5) & prevcov,
                               AmgSymMatrix(5) & trackerrmat,
                               bool onlylocal) const {
     // propagate error from previous state to current state
@@ -8545,7 +8546,7 @@ namespace Trk {
         tmp3 = 0;
         for (int j = 0; j < 5; j++) {
           for (int k = 0; k < 5; k++) {
-            tmp3 += jac[l][j] * prevcov(j, k) * jac[m][k];
+            tmp3 += jac(l, j) * prevcov(j, k) * jac(m, k);
           }
         }
         trackerrmat(l, m) = trackerrmat(m, l) = tmp3;
@@ -8553,7 +8554,7 @@ namespace Trk {
 
       tmp3 = 0;
       for (int k = 0; k < 5; k++) {
-        tmp3 += prevcov(4, k) * jac[l][k];
+        tmp3 += prevcov(4, k) * jac(l, k);
       }
       trackerrmat(4, l) = trackerrmat(l, 4) = tmp3;
       if (!onlylocal && trackerrmat(l, l) != 0) {
@@ -8562,9 +8563,9 @@ namespace Trk {
       tmp3 = 0;
       for (int j = 0; j < 5; j++) {
         for (int k = 0; k < j; k++) {
-          tmp3 += 2 * jac[l][j] * prevcov(j, k) * jac[l][k];
+          tmp3 += 2 * jac(l, j) * prevcov(j, k) * jac(l, k);
         }
-        tmp3 += jac[l][j] * prevcov(j, j) * jac[l][j];
+        tmp3 += jac(l, j) * prevcov(j, j) * jac(l, j);
       }
       trackerrmat(l, l) = tmp3;
     }

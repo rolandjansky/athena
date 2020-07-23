@@ -534,7 +534,7 @@ namespace Trk {
     bool correctAngles(double &, double &) const;
 
     void errors1(
-      double (*jac)[5], 
+      Eigen::Matrix<double, 5, 5> &, 
       AmgSymMatrix(5) & prevcov,
       AmgSymMatrix(5) & trackerrmat, 
       bool onlylocal
