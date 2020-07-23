@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 from AthenaCommon.AlgSequence import AlgSequence
@@ -15,7 +15,7 @@ class ContentHandler:
 		self.ContainersForExpansion = ContainersForExpansion
 	
 	def mainContainerLine(self,containerName):
-		theDictionary = dict(self.NamesAndTypes.items() + self.AppendToDictionary.items())
+		theDictionary = dict(list(self.NamesAndTypes.items()) + list(self.AppendToDictionary.items()))
 		line = ''
 		if containerName in theDictionary.keys():
 			line = theDictionary[containerName]+"#"+containerName

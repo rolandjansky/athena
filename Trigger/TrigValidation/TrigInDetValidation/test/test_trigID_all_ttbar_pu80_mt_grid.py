@@ -3,7 +3,6 @@
 # art-description: art job for all_ttbar_pu80_mp_grid
 # art-type: grid
 # art-include: master/Athena
-# art-input: mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7195
 # art-input-nfiles: 3
 # art-athena-mt: 4
 # art-output: *.txt
@@ -96,11 +95,7 @@ rdo2aod.threads = 1 # TODO: change to 4
 rdo2aod.concurrent_events = 4 
 rdo2aod.perfmon = False
 rdo2aod.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG" '
-if local:
-    rdo2aod.input = 'ttbar_pu80'   ## This isn't the same sample as the grid test but for not lets use it.
-else:
-    rdo2aod.input = ''
-    rdo2aod.args += '--inputRDOFile=$ArtInFile '
+rdo2aod.input = 'ttbar_pu80'   ## This isn't the same sample as the grid test but for not lets use it.
 
 rdo2aod.args += ' --preExec "RDOtoRDOTrigger:{:s};" "all:{:s};" "RAWtoESD:{:s};" "ESDtoAOD:{:s};"'.format(
     preexec_trig, preexec_all, preexec_reco, preexec_aod)

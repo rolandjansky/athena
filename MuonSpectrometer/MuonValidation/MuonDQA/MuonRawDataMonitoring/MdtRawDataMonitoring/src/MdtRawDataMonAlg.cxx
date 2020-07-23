@@ -460,7 +460,7 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
       ATH_CHECK( fillMDTSummaryHistograms(summaryPlots, lumiblock) );
       
       int nHighOccChambers = 0;
-      for(const auto iterstat: evnt_hitsperchamber_map) {
+      for(const auto& iterstat: evnt_hitsperchamber_map) {
 	const auto iter_tubesperchamber = m_tubesperchamber_map.find(iterstat.first);
 	if (ATH_UNLIKELY(iter_tubesperchamber == m_tubesperchamber_map.end())) { // indicates software error
 	  ATH_MSG_ERROR("Unable to find chamber " << iterstat.first);

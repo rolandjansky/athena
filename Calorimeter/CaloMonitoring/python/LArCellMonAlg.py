@@ -69,7 +69,7 @@ def LArCellMonConfig(inputFlags):
         algname=algname+'Cosmics'
 
     isCosmics = ( inputFlags.Beam.Type == 'cosmics' )
-    LArCellMonConfigCore(helper, lArCellMonAlg,inputFlags, isCosmics, inputFlags.Input.isMC)
+    LArCellMonConfigCore(helper, lArCellMonAlg,inputFlags, isCosmics, inputFlags.Input.isMC, algname)
 
     acc=helper.result()
 
@@ -85,10 +85,10 @@ def LArCellMonConfig(inputFlags):
     return cfg
 
 
-def LArCellMonConfigCore(helper, alginstance, inputFlags, isCosmics=False, isMC=False):
+def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, isMC=False, algname='LArCellMonAlg'):
 
 
-    LArCellMonAlg = helper.addAlgorithm(alginstance, 'LArCellMonAlg')
+    LArCellMonAlg = helper.addAlgorithm(algclass, algname)
 
     if isCosmics:
        badChanMaskProblems=["deadReadout","deadPhys","short","sporadicBurstNoise","highNoiseHG","highNoiseMG","highNoiseLG"]

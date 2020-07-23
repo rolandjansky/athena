@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TrigBphysHypo.TrigBphysHypoConf import TrigEFMultiMuHypo
 
@@ -32,16 +32,16 @@ class EFMultiMuHypo_DiMu (TrigEFMultiMuHypo):
         
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
-	
+
         # EF Bmumu cuts
         self.LowerMassCut      = 1500.
         self.UpperMassCut     = 14000.
         self.ApplyUpperMassCut     = True
         self.Chi2VtxCut       =   20.
-	
+
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("Time")
-	
+
         validation = TrigEFMultiMuHypoValidationMonitoring()
         online = TrigEFMultiMuHypoOnlineMonitoring()
         self.AthenaMonTools = [ validation, online, time ]
@@ -53,17 +53,17 @@ class EFMultiMuHypo_DiMu2700 (TrigEFMultiMuHypo):
         
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
-	
+
         # 
         self.OppositeSign = True
         self.LowerMassCut      = 100.
         self.UpperMassCut     = 2700.
         self.ApplyUpperMassCut     = True
         self.Chi2VtxCut       =   20.
-	
+
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("Time")
-	
+
         validation = TrigEFMultiMuHypoValidationMonitoring()
         online = TrigEFMultiMuHypoOnlineMonitoring()
         self.AthenaMonTools = [ validation, online, time ]
@@ -75,17 +75,17 @@ class EFMultiMuHypo_DiMu6000 (TrigEFMultiMuHypo):
         
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
-	
+
         # 
         self.OppositeSign = True
         self.LowerMassCut      = 100.
         self.UpperMassCut     = 6000.
         self.ApplyUpperMassCut     = True
         self.Chi2VtxCut       =   20.
-	
+
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("Time")
-	
+
         validation = TrigEFMultiMuHypoValidationMonitoring()
         online = TrigEFMultiMuHypoOnlineMonitoring()
         self.AthenaMonTools = [ validation, online, time ]
@@ -97,7 +97,7 @@ class EFMultiMuHypo_DiMu_noCut (EFMultiMuHypo_DiMu):
         self.ApplyChi2Cut      = False
         self.ApplyUpperMassCut = False
         self.LowerMassCut    = 0.
-	
+
 class EFMultiMuHypo_DiMu_noVtx (EFMultiMuHypo_DiMu):
     __slots__ = []
     def __init__(self, name = "EFMultiMuHypo_DiMu_noVtx"):
@@ -117,10 +117,10 @@ class EFMultiMuHypo_Vtx20 (TrigEFMultiMuHypo):
         self.ApplyUpperMassCut     = False
         self.ApplyChi2Cut      = True
         self.Chi2VtxCut       =   20.
-	
+
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("Time")
-	
+
         validation = TrigEFMultiMuHypoValidationMonitoring()
         online = TrigEFMultiMuHypoOnlineMonitoring()
         self.AthenaMonTools = [ validation, online, time ]
@@ -134,7 +134,7 @@ class EFMultiMuHypo_Vtx60 (EFMultiMuHypo_Vtx20):
 
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("Time")
-	
+
         validation = TrigEFMultiMuHypoValidationMonitoring()
         online = TrigEFMultiMuHypoOnlineMonitoring()
         self.AthenaMonTools = [ validation, online, time ]

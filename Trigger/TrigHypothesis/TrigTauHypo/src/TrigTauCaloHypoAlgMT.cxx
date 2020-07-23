@@ -47,7 +47,7 @@ StatusCode TrigTauCaloHypoAlgMT::execute( const EventContext& context ) const {
     counter++;
 
     //get RoI
-    auto roiELInfo = findLink<TrigRoiDescriptorCollection>( previousDecision, initialRoIString() );
+    auto roiELInfo = findLink<TrigRoiDescriptorCollection>( previousDecision, roiString() );
     ATH_CHECK( roiELInfo.isValid() );
     const TrigRoiDescriptor* roi = *(roiELInfo.link);
 

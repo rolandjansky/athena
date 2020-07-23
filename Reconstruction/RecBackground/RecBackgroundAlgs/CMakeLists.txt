@@ -39,7 +39,7 @@ atlas_add_component( RecBackgroundAlgs
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthLinks AthenaBaseComps xAODCaloEvent xAODEventInfo xAODJet GaudiKernel MuonIdHelpersLib MuonSegment MuonRecHelperToolsLib RecBackgroundEvent TrkSegment CaloGeoHelpers AthenaKernel StoreGateLib SGtests GeoPrimitives LUCID_RawEvent LArRecEvent MuonPrepRawData TagEvent TileEvent )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthLinks AthenaBaseComps xAODCaloEvent xAODEventInfo xAODJet GaudiKernel MuonIdHelpersLib MuonSegment MuonRecHelperToolsLib RecBackgroundEvent TrkSegment CaloGeoHelpers AthenaKernel StoreGateLib SGtests GeoPrimitives LUCID_RawEvent LArRecEvent MuonPrepRawData TagEvent TileEvent BCM_CollisionTimeLib )
 
 # Install files from the package:
 atlas_install_headers( RecBackgroundAlgs )

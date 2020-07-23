@@ -3,7 +3,7 @@
 */
 
 #include "TrigMuonEFInvMassHypoTool.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "xAODMuon/MuonContainer.h"
 
@@ -75,9 +75,9 @@ bool TrigMuonEFInvMassHypoTool::executeAlg(std::vector<LegDecision> &combination
       if (!tr1 || !tr2) {
 	ATH_MSG_DEBUG("No CombinedTrackParticle found.");
       } else {
-	ATH_MSG_DEBUG("Retrieved CombinedTrack tracks with abs pt "<< (*tr1).pt()/CLHEP::GeV << " GeV and "<< (*tr2).pt()/CLHEP::GeV << " GeV ");
+	ATH_MSG_DEBUG("Retrieved CombinedTrack tracks with abs pt "<< (*tr1).pt()/Gaudi::Units::GeV << " GeV and "<< (*tr2).pt()/Gaudi::Units::GeV << " GeV ");
 
-	float diMuMass = (tr1->p4()+tr2->p4()).M()/CLHEP::GeV;
+	float diMuMass = (tr1->p4()+tr2->p4()).M()/Gaudi::Units::GeV;
 
 	//fill monitored variables
 	fexInvMass.push_back(diMuMass);

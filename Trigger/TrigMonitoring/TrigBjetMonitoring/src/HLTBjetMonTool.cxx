@@ -1075,7 +1075,7 @@ StatusCode HLTBjetMonTool::book(){
 	std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > onlinejets = m_trigDec->features<xAOD::JetContainer>(trigItem, TrigDefs::Physics, m_onlineBjetContainerKey); // TM 240320
 	int ijet = 0;
 	int itrack = 0;
-	for(const auto jetLinkInfo : onlinejets) {
+	for(const auto& jetLinkInfo : onlinejets) {
 	  // jetPt
 	  const xAOD::Jet* jet = *(jetLinkInfo.link);
 	  ATH_MSG_DEBUG("                 -   pt/eta/phi: " << (jet->pt())*1.e-3 << " / " << jet->eta() << " / " << jet->phi());

@@ -124,7 +124,7 @@ class PixelConditionsServicesSetup:
           elif (runNum >= 222222 and runNum < 289350): # 2015
             IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_Run2.dat"
           else:
-            IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
+            IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
 
       condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
                                     UseDeadmapConditions=self.usePixMap,

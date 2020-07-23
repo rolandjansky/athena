@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCTByteStreamErrorFillerTool.h"
@@ -80,7 +80,7 @@ StatusCode SCTByteStreamErrorFillerTool::fill (const xAOD::EventInfo& /*p*/)
      const std::set<IdentifierHash> errorSet = m_byteStreamErrTool->getErrorSet(type);
        int eta=0,phi=0,bec=0,layer=0,side=0;
        *m_totalNumErrors += errorSet.size();
-       for(const auto idHash : errorSet) {
+       for(const auto& idHash : errorSet) {
 		 Identifier itId = m_sctid->wafer_id(idHash);
 		 layer = m_sctid->layer_disk(itId);
 		 side = m_sctid->side(itId);

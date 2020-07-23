@@ -106,6 +106,6 @@ StatusCode DecayLengthFilter::filterEvent() {
 
 
 bool DecayLengthFilter::isAccepted(float distR, float distZ) {
-  return ( (fabs(distZ)>m_Zmin && fabs(distZ)<m_Zmax && distR<m_Rmax) ||  // endcaps
-           (distR>m_Rmin && distR<m_Rmax && fabs(distZ)<m_Zmax) );  // barrel
+  return ( (std::abs(distZ)>m_Zmin && std::abs(distZ)<m_Zmax && distR<m_Rmax) ||  // endcaps
+           (distR>m_Rmin && distR<m_Rmax && std::abs(distZ)<m_Zmax) );  // barrel
 }

@@ -250,12 +250,13 @@ Trk::MultiComponentState  Trk::GsfMaterialMixtureConvolutionLM::update(
                            direction,
                            particleHypothesis);
 
-    // check all vectors have the same size
+    // check vectors have the same size
     if (caches[i].weights.size() != caches[i].deltaPs.size()) {
       ATH_MSG_ERROR("Inconsistent number of components in the updator!!! no material effect will be applied");
       caches[i].resetAndAddDummyValues();
     }
 
+    // Apply material effects to input state and store results in cache
     for( size_t j(0); j < caches[i].weights.size(); ++j){
       if (measuredCov) {
         caches[i].deltaCovariances[j] += *measuredCov;
@@ -271,8 +272,12 @@ Trk::MultiComponentState  Trk::GsfMaterialMixtureConvolutionLM::update(
       }
       // Store component weight
       caches[i].weights[j] *= inputState[i].second; 
+      // Ensure weight of component is not too small to save us from potential FPE's
+      // Value chosen to be sufficiently small so that the final state will not be impacted
+      if( caches[i].weights[j] < 1e-12 ){ 
+        caches[i].weights[j] = 1e-12;
+      }
     }
-
     n += caches[i].weights.size();   
   } 
 
@@ -294,15 +299,15 @@ Trk::MultiComponentState  Trk::GsfMaterialMixtureConvolutionLM::update(
       if( !measuredCov ){
         componentWithoutMeasurement = true; 
       }
+
       components[k].mean = caches[i].deltaParameters[j][Trk::qOverP];
       components[k].cov = cov;
       components[k].invCov = cov > 0 ? 1. / cov : 1e10;
-      components[k].weight = caches[i].weights[j] ;
+      components[k].weight = caches[i].weights[j];
       indices[k] = {i,j};
       ++k;
     }
   }
- 
 
   if(componentWithoutMeasurement){
     auto result = std::max_element(components.begin(), 
@@ -350,38 +355,47 @@ Trk::MultiComponentState  Trk::GsfMaterialMixtureConvolutionLM::update(
   std::vector<bool> isMerged( n, false); 
   for (const auto& mergePair : merges) {
     const int32_t mini = mergePair.first;
-    const int32_t minj = mergePair.second;
-
-  
-    
-    // Build the first TP
+    const int32_t minj = mergePair.second; 
+    if( isMerged[minj] ){
+      ATH_MSG_WARNING( "Component is already merged " << minj);
+      for (const auto& mergePair2 : merges) {
+        ATH_MSG_DEBUG(  "Pairs that should be merged together: " << mergePair2.first << "  "<< mergePair2.second );
+      }
+      continue;
+    }
+    // Get the first TP
     size_t stateIndex = indices[mini].first;
     size_t materialIndex = indices[mini].second;
     AmgVector(5)&  stateVector   = caches[stateIndex].deltaParameters[materialIndex];
     AmgSymMatrix(5)& measuredCov = caches[stateIndex].deltaCovariances[materialIndex];
     
-    // Build the second TP
+    // Get the second TP
     size_t stateIndex2    = indices[minj].first;
     size_t materialIndex2 = indices[minj].second;
     
+    // Some values for sanity checks
     ++nMerges;
- 
+    isMerged[minj] = true;
+    
+    // Copy weight and first parameters as they are needed later on
     const AmgVector(5) firstParameters = stateVector;
     const double firstWeight     = caches[stateIndex].weights[materialIndex]; 
-
+    
+    // Update first parameters and weight
     Trk::MultiComponentStateCombiner::combineParametersWithWeight( caches[stateIndex].deltaParameters[materialIndex], 
                                    caches[stateIndex].weights[materialIndex],
                                    caches[stateIndex2].deltaParameters[materialIndex2], 
                                    caches[stateIndex2].weights[materialIndex2] );
-
+    // Update first cov
     Trk::MultiComponentStateCombiner::combineCovWithWeight( firstParameters,  
                             measuredCov,  
                             firstWeight, 
                             caches[stateIndex2].deltaParameters[materialIndex2], 
                             caches[stateIndex2].deltaCovariances[materialIndex2], 
                             caches[stateIndex2].weights[materialIndex2] );
-     
-    isMerged[minj] = true;
+    
+   
+    // Reset 2nd parameters values just for clarity
     caches[stateIndex2].deltaParameters[materialIndex2].setZero();
     caches[stateIndex2].deltaCovariances[materialIndex2].setZero();
      
@@ -413,7 +427,7 @@ Trk::MultiComponentState  Trk::GsfMaterialMixtureConvolutionLM::update(
   } 
  
   if( nMerges + assemblerCache.multiComponentState.size() != n ){
-    ATH_MSG_ERROR("Combining complete but merger size is incompatible: " << n << "  " << nMerges << " " <<  assemblerCache.multiComponentState.size() );  
+    ATH_MSG_WARNING("Combining complete but merger size is incompatible: " << n << "  " << nMerges << " " <<  assemblerCache.multiComponentState.size() );  
   }
   
   // Check all weights 

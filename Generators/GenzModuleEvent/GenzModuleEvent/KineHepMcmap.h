@@ -13,8 +13,8 @@ class KineHepMcmap
 public:
     KineHepMcmap(const HepMC::GenEvent* evt);
 	
-    int  			giveParticle_getkine	(HepMC::GenParticlePtr p ) const;
-    HepMC::GenParticlePtr  	givekine_getParticle	( const int ikine ) const;
+    int  		                  	giveParticle_getkine	(HepMC::ConstGenParticlePtr p ) const;
+    HepMC::ConstGenParticlePtr  	givekine_getParticle	( const int ikine ) const;
 private:
     const HepMC::GenEvent*	m_evt;
     const int 	m_kine_offset;

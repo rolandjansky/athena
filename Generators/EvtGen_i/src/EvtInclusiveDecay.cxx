@@ -648,10 +648,10 @@ bool EvtInclusiveDecay::passesUserSelection(HepMC::GenEvent* hepMC) {
     for (auto muItr2 = muItr1+1; muItr2 != muons->end(); ++muItr2) {
       if( m_userSelRequireOppositeSignedMu && (*muItr1)->pdg_id() * (*muItr2)->pdg_id() > 0)
         continue;
-      if( !( (*muItr1)->momentum().perp() > m_userSelMu1MinPt && fabs((*muItr1)->momentum().pseudoRapidity()) < m_userSelMu1MaxEta && 
-             (*muItr2)->momentum().perp() > m_userSelMu2MinPt && fabs((*muItr2)->momentum().pseudoRapidity()) < m_userSelMu2MaxEta ) &&
-          !( (*muItr2)->momentum().perp() > m_userSelMu1MinPt && fabs((*muItr2)->momentum().pseudoRapidity()) < m_userSelMu1MaxEta && 
-             (*muItr1)->momentum().perp() > m_userSelMu2MinPt && fabs((*muItr1)->momentum().pseudoRapidity()) < m_userSelMu2MaxEta ) )
+      if( !( (*muItr1)->momentum().perp() > m_userSelMu1MinPt && std::abs((*muItr1)->momentum().pseudoRapidity()) < m_userSelMu1MaxEta && 
+             (*muItr2)->momentum().perp() > m_userSelMu2MinPt && std::abs((*muItr2)->momentum().pseudoRapidity()) < m_userSelMu2MaxEta ) &&
+          !( (*muItr2)->momentum().perp() > m_userSelMu1MinPt && std::abs((*muItr2)->momentum().pseudoRapidity()) < m_userSelMu1MaxEta && 
+             (*muItr1)->momentum().perp() > m_userSelMu2MinPt && std::abs((*muItr1)->momentum().pseudoRapidity()) < m_userSelMu2MaxEta ) )
         continue;
       double dimuMass = invMass((*muItr1),(*muItr2));
       if( !( dimuMass > m_userSelMinDimuMass && (dimuMass < m_userSelMaxDimuMass || m_userSelMaxDimuMass < 0.) ) )
@@ -727,6 +727,36 @@ void EvtInclusiveDecay::printHepMC(HepMC::GenEvent* hepMC, std::set<int>* barcod
 }
 #endif
 
+#ifdef HEPMC3
+unsigned int EvtInclusiveDecay::printTree(HepMC::GenParticlePtr p,
+				 std::set<HepMC::GenVertexPtr>& visited, int level, std::set<HepMC::GenParticlePtr>* barcodeList) {
+  unsigned int nParticlesVisited = 1;
+  for (int i=0; i<level; i++) std::cout << "    ";
+  std::cout << pdgName(p,m_printHepMCHighlighted,barcodeList);
+  auto v = p->end_vertex();
+  if (v) {
+    if (v->particles_in().size() > 1)
+      std::cout << " [interaction: " << v->particles_in().size() << " particles, barcode " << HepMC::barcode(v) << "]    -->   ";
+    else
+      std::cout << "   -->   ";
+    if (visited.insert(v).second) {
+      for (auto itp: v->particles_out()) {
+	std::cout << pdgName(itp,m_printHepMCHighlighted,barcodeList) << "   ";
+      }
+      std::cout << std::endl;
+      for (auto itp: v->particles_out()) {
+	if (itp->end_vertex())
+	  nParticlesVisited += printTree(itp, visited, level+1, barcodeList);
+	else
+	  nParticlesVisited++;
+      }
+    } else
+      std::cout << "see above" << std::endl;
+  } else
+    std::cout << "   no decay vertex\n" << std::endl;
+  return nParticlesVisited;
+}
+#else
 unsigned int EvtInclusiveDecay::printTree(HepMC::GenParticlePtr p,
 				 std::set<HepMC::GenVertexPtr>& visited, int level, std::set<int>* barcodeList) {
   unsigned int nParticlesVisited = 1;
@@ -782,10 +812,31 @@ unsigned int EvtInclusiveDecay::printTree(HepMC::GenParticlePtr p,
 #endif
   return nParticlesVisited;
 }
+#endif
 
+#ifdef HEPMC3
+std::string EvtInclusiveDecay::pdgName(const HepMC::GenParticlePtr p, bool statusHighlighting, std::set<HepMC::GenParticlePtr>* barcodeList) {
+  std::ostringstream buf;
+  if (statusHighlighting) {
+    if ( ((barcodeList!=0) && (barcodeList->find(p) != barcodeList->end())) ||
+         ((barcodeList==0) && isToBeDecayed(p,false)) )
+      buf << "\033[7m";   // reverse
+    if (p->status() != 1) {
+      if (p->status() == m_decayedStatus)
+	buf << "\033[33m";   // yellow
+      else
+	buf << "\033[31m";   // red
+    }
+  }
+  buf << p->pdg_id();
+  buf << "/" << HepPID::particleName(p->pdg_id());
+  if (statusHighlighting) {
+    buf << "\033[0m";   // revert color attributes
+  }
+  return buf.str();
+}
+#else
 std::string EvtInclusiveDecay::pdgName(const HepMC::GenParticlePtr p, bool statusHighlighting, std::set<int>* barcodeList) {
-  // Note: HepPDT doesn't seem to know anti-particle names
-  // const HepPDT::ParticleData* pData = m_pdt->particle(HepPDT::ParticleID(abs(p->pdg_id())));
   std::ostringstream buf;
   if (statusHighlighting) {
     if ( ((barcodeList!=0) && (barcodeList->find(HepMC::barcode(p)) != barcodeList->end())) ||
@@ -799,8 +850,6 @@ std::string EvtInclusiveDecay::pdgName(const HepMC::GenParticlePtr p, bool statu
     }
   }
   buf << p->pdg_id();
-  //if (pData)
-  //  buf << "/" << pData->name();
   buf << "/" << HepPID::particleName(p->pdg_id());
   if (statusHighlighting) {
     buf << "\033[0m";   // revert color attributes
@@ -808,6 +857,7 @@ std::string EvtInclusiveDecay::pdgName(const HepMC::GenParticlePtr p, bool statu
   return buf.str();
 }
 
+#endif
 
 
 //

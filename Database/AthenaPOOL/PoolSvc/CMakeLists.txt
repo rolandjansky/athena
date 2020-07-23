@@ -39,5 +39,4 @@ atlas_add_component( PoolSvc
    AthenaBaseComps AthenaKernel StorageSvc PersistentDataModel PathResolver DBReplicaSvcLib )
 
 # Install files from the package:
-atlas_install_headers( PoolSvc )
 atlas_install_joboptions( share/*.py )

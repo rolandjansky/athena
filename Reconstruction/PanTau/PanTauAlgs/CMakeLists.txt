@@ -48,5 +48,4 @@ if( NOT XAOD_STANDALONE )
 endif()
 
 # Install files from the package:
-atlas_install_headers( PanTauAlgs )
 atlas_install_python_modules( python/*.py )
