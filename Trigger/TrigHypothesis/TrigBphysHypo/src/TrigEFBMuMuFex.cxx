@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -331,7 +331,7 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
     // print debug info
     if(msgLvl() <= MSG::DEBUG) {
         int ic(0);
-        for ( const auto muelv : vec_elv_muons) {
+        for ( const auto& muelv : vec_elv_muons) {
             // loop over the vector of muon containers
             msg() << MSG::DEBUG << "MuonContainer, Got MuonEF " << ic << " Feature, size = " << muelv.size() << endmsg;
             int i(0);
@@ -360,7 +360,7 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
             ++ic;
         } // for muons
         ic =0;
-        for ( const auto tpelv : vec_elv_tps) {
+        for ( const auto& tpelv : vec_elv_tps) {
             msg() << MSG::DEBUG <<  "SATrackParticleContainer, Got MUSA " << ic << " Feature, size = " << tpelv.size() << endmsg;
             int i(0);
             for ( const auto tpel: tpelv) {
