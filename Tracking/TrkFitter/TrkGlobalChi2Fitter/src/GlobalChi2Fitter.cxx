@@ -1882,7 +1882,7 @@ namespace Trk {
     if (
       !firstismuon && 
       trajectory.converged() &&
-      std::abs(trajectory.residuals().back() / trajectory.errors().back()) > 10
+      std::abs(trajectory.residuals().tail<1>()(0) / trajectory.errors().tail<1>()(0)) > 10
     ) {
       return nullptr;
     }
@@ -5553,22 +5553,20 @@ namespace Trk {
     int nperpars = trajectory.numberOfPerigeeParameters();
     int nfitpars = trajectory.numberOfFitParameters();
 
-    std::vector < double >&res = trajectory.residuals();
+    Amg::VectorX & res = trajectory.residuals();
     Amg::MatrixX & weightderiv = trajectory.weightedResidualDerivatives();
     int nidhits = trajectory.numberOfSiliconHits() + trajectory.numberOfTRTHits();
     int nsihits = trajectory.numberOfSiliconHits();
     int ntrthits = trajectory.numberOfTRTHits();
     int nhits = trajectory.numberOfHits();
     int nmeas = (int) res.size();
-    std::vector < double >&error = trajectory.errors();
+    Amg::VectorX & error = trajectory.errors();
     ParamDefsAccessor paraccessor;
     bool scatwasupdated = false;
 
     GXFTrackState *state_maxbrempull = nullptr;
     int bremno_maxbrempull = 0;
     double maxbrempull = 0;
-
-    std::vector < double >residuals;
 
     for (int hitno = 0; hitno < (int) states.size(); hitno++) {
       GXFTrackState *state = states[hitno];
@@ -5603,6 +5601,8 @@ namespace Trk {
         }
         
         double *errors = state->measurementErrors();
+
+        std::vector<double> residuals;
         m_residualPullCalculator->residuals(residuals, measbase, currenttrackpar, ResidualPull::Biased, hittype);
         
         for (int i = 0; i < 5; i++) {
@@ -5865,7 +5865,7 @@ namespace Trk {
     int nperparams = trajectory.numberOfPerigeeParameters();
 
     Amg::MatrixX & weightderiv = trajectory.weightedResidualDerivatives();
-    std::vector < double >&error = trajectory.errors();
+    Amg::VectorX & error = trajectory.errors();
 
     int nmeas = (int) weightderiv.rows();
 
@@ -6071,8 +6071,8 @@ namespace Trk {
       return FitterStatusCode::Success;
     }
 
-    std::vector < double >&res = trajectory.residuals();
-    std::vector < double >&error = trajectory.errors();
+    Amg::VectorX & res = trajectory.residuals();
+    Amg::VectorX & error = trajectory.errors();
     std::vector < std::pair < double, double >>&scatsigmas = trajectory.scatteringSigmas();
 
     int nmeas = (int) res.size();
@@ -6421,8 +6421,8 @@ namespace Trk {
     }
     
     std::vector < GXFTrackState * >&states = trajectory.trackStates();
-    std::vector < double >&res = trajectory.residuals();
-    std::vector < double >&err = trajectory.errors();
+    Amg::VectorX & res = trajectory.residuals();
+    Amg::VectorX & err = trajectory.errors();
     Amg::MatrixX & weightderiv = trajectory.weightedResidualDerivatives();
     int nfitpars = trajectory.numberOfFitParameters();
     
@@ -6598,8 +6598,8 @@ namespace Trk {
     while (!trackok && oldtrajectory->nDOF() > 0) {
       trackok = true;
       std::vector < GXFTrackState * >&states = oldtrajectory->trackStates();
-      std::vector < double >&res = oldtrajectory->residuals();
-      std::vector < double >&err = oldtrajectory->errors();
+      Amg::VectorX & res = oldtrajectory->residuals();
+      Amg::VectorX & err = oldtrajectory->errors();
       Amg::MatrixX & weightderiv = oldtrajectory->weightedResidualDerivatives();
       int nfitpars = oldtrajectory->numberOfFitParameters();
       int nhits = oldtrajectory->numberOfHits();
@@ -6894,7 +6894,7 @@ namespace Trk {
             ATH_MSG_ERROR("Your assumption is wrong!!!!");
           }
 
-          std::vector < double >&newres = newtrajectory->residuals();
+          Amg::VectorX & newres = newtrajectory->residuals();
           Amg::MatrixX & newweightderiv = newtrajectory->weightedResidualDerivatives();
           if ((measno_maxsipull < 0) or(measno_maxsipull >= (int) res.size())) {
             throw std::runtime_error(
@@ -7145,7 +7145,7 @@ namespace Trk {
     
     if (m_fillderivmatrix) {
       Amg::MatrixX & derivs = oldtrajectory.weightedResidualDerivatives();
-      std::vector < double >&errors = oldtrajectory.errors();
+      Amg::VectorX & errors = oldtrajectory.errors();
       int nrealmeas = 0;
      
       for (auto & hit : states) {
