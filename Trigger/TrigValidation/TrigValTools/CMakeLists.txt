@@ -23,9 +23,6 @@ atlas_install_python_modules( python/*.py python/TrigValSteering bin/chainDump.p
 atlas_install_scripts( bin/*.py test/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_scripts( bin/*.pl bin/*.sh )
 atlas_install_data( share/*.json share/*.conf )
-atlas_install_generic( html/root2html/*.html
-                       DESTINATION share/TrigValTools/root2html
-                       EXECUTABLE )
 
 # Unit tests:
 atlas_add_test( TrigValSteering_unit_test
