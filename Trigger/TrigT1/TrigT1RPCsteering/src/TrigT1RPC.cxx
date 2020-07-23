@@ -21,9 +21,6 @@
 #include <algorithm>
 #include <cmath>
 
-static int digit_num = 0;
-static int digit_out = 0;
-
 /////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
 
@@ -328,9 +325,6 @@ StatusCode TrigT1RPC::fill_RPCdata(RPCsimuData& data, const RpcCablingCondData* 
                         xyz[0] = rpcDigit->time();  //time of digits
                         
 			
-			++digit_num;
-			if(xyz[0]<0. || xyz[0]>25.) ++digit_out;
-
                         int param[3] = {0,0,0};
 
                         RPCsimuDigit digit(0,strip_code_cab,param,xyz);
