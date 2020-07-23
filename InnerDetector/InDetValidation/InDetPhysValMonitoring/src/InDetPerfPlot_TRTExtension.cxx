@@ -21,6 +21,8 @@ InDetPerfPlot_TRTExtension::InDetPerfPlot_TRTExtension(InDetPlotBase* pParent, c
   m_resolutionMethod(IDPVM::ResolutionHelper::iterRMS_convergence),
   m_fracTRTExtensions_vs_eta{},
   m_fracTRTExtensions_vs_pt{},
+  m_fracTRTExtensions_vs_mu{},
+  m_fracTRTExtensions_vs_nvertices{},
   m_fracTRTExtensions_matched_vs_eta{},
   m_fracTRTExtensions_matched_vs_pt{},
   m_chi2ndofTRTExtensions{},
@@ -59,6 +61,9 @@ InDetPerfPlot_TRTExtension::initializePlots() {
 
   book(m_fracTRTExtensions_vs_eta, "fracTRTExtensions_vs_eta");
   book(m_fracTRTExtensions_vs_pt, "fracTRTExtensions_vs_pt");
+  book(m_fracTRTExtensions_vs_mu, "fracTRTExtensions_vs_mu");
+  book(m_fracTRTExtensions_vs_nvertices, "fracTRTExtensions_vs_nvertices");
+
   book(m_fracTRTExtensions_matched_vs_eta, "fracTRTExtensions_matched_vs_eta");
   book(m_fracTRTExtensions_matched_vs_pt, "fracTRTExtensions_matched_vs_pt");
 
@@ -122,6 +127,20 @@ InDetPerfPlot_TRTExtension::fill(const xAOD::TrackParticle& particle) {
 }
 
 void
+InDetPerfPlot_TRTExtension::fill(const xAOD::TrackParticle& particle, const float mu, const unsigned int nvertices) {
+
+  uint8_t iTrtHits = 0;
+  particle.summaryValue(iTrtHits, xAOD::numberOfTRTHits);
+
+  std::bitset<xAOD::TrackPatternRecoInfo::NumberOfTrackRecoInfo>  patternInfo = particle.patternRecoInfo();
+  bool isTRTExtension = patternInfo.test(3) or iTrtHits > 0;
+
+  fillHisto(m_fracTRTExtensions_vs_mu, mu, isTRTExtension);
+  fillHisto(m_fracTRTExtensions_vs_nvertices, nvertices, isTRTExtension);
+
+}
+
+void
 InDetPerfPlot_TRTExtension::fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle) {
 
   //Fraction of extended for truth matched tracks
@@ -174,6 +193,10 @@ InDetPerfPlot_TRTExtension::fill(const xAOD::TrackParticle& particle, const xAOD
 
 }
 
+void
+InDetPerfPlot_TRTExtension::fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle, const float mu, const unsigned int nvertices) {
+
+}
 
 void
 InDetPerfPlot_TRTExtension::finalizePlots() {

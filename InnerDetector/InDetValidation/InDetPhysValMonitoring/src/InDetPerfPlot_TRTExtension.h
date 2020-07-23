@@ -25,7 +25,10 @@ class InDetPerfPlot_TRTExtension: public InDetPlotBase {
 public:
   InDetPerfPlot_TRTExtension(InDetPlotBase* pParent, const std::string& dirName);
   void fill(const xAOD::TrackParticle& particle);
+  void fill(const xAOD::TrackParticle& particle, const float mu, const unsigned int nVtx);
+
   void fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthie);
+  void fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthie, const float mu, const unsigned int nVtx);
 
 private:
 
@@ -35,10 +38,12 @@ private:
 
   TEfficiency* m_fracTRTExtensions_vs_eta;
   TEfficiency* m_fracTRTExtensions_vs_pt;
+  TEfficiency* m_fracTRTExtensions_vs_mu;
+  TEfficiency* m_fracTRTExtensions_vs_nvertices;
 
   TEfficiency* m_fracTRTExtensions_matched_vs_eta;
   TEfficiency* m_fracTRTExtensions_matched_vs_pt;
- 
+
   TH1* m_chi2ndofTRTExtensions;
   TH1* m_chi2ndofNoTRTExtensions;
 

@@ -49,8 +49,11 @@ public:
 
   ///fill for things needing truth and track only
   void fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle);
+  void fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle, const float mu, const unsigned int nVtx);
+
   ///fill for things needing track only
   void fill(const xAOD::TrackParticle& particle);
+  void fill(const xAOD::TrackParticle& particle, const float mu, const unsigned int nVtx); //mu dependent plots
   ///fill for things needing truth only
   void fill(const xAOD::TruthParticle& particle);
   ///Fill for efficiency plots
@@ -61,7 +64,7 @@ public:
   ///fill reco-vertex related plots
   void fill(const xAOD::VertexContainer& vertexContainer, const std::vector<const xAOD::TruthVertex*>& truthHSVertices, const std::vector<const xAOD::TruthVertex*>& truthPUVertices);
   ///fill reco-vertex related plots that need EventInfo
-  void fill(const xAOD::VertexContainer& vertexContainer, unsigned int nPU);
+  void fill(const xAOD::VertexContainer& vertexContainer, const unsigned int nPU);
 
   void fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet);
   void fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::Jet& jet, const bool isGood);

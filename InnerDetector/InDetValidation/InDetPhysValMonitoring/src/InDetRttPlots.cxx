@@ -123,6 +123,18 @@ InDetRttPlots::fill(const xAOD::TrackParticle& particle, const xAOD::TruthPartic
   }
 }
 
+void
+InDetRttPlots::fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle, const float mu, const unsigned int nVtx) {
+
+  if (particle.isAvailable<float>(m_trackParticleTruthProbKey)) {
+    const float prob = particle.auxdata<float>(m_trackParticleTruthProbKey);
+    float barcode = truthParticle.barcode();
+
+    if (barcode < 200000 && barcode != 0 && prob > 0.5) m_trtExtensionPlots.fill(particle, truthParticle, mu, nVtx);
+
+  }
+
+}
 //
 //Fill basic track properties for reconstructed tracks 
 //
@@ -154,6 +166,12 @@ InDetRttPlots::fill(const xAOD::TrackParticle& particle) {
   m_trtExtensionPlots.fill(particle);
 }
 
+void
+InDetRttPlots::fill(const xAOD::TrackParticle& particle, const float mu, const unsigned int nVtx) {
+
+  m_trtExtensionPlots.fill(particle, mu, nVtx);
+
+}
 //
 //Fill plots for selected truth particle
 //

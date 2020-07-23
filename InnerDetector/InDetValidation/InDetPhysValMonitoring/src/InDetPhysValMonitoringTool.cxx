@@ -211,13 +211,15 @@ InDetPhysValMonitoringTool::fillHistograms() {
     ATH_MSG_WARNING("Shouldn't happen - EventInfo is buggy, setting mu to 0");
   }
 
-  //NORA WHY IS THIS DONE HERE?
   ATH_MSG_DEBUG("Getting number of pu interactings per event");
-  unsigned int puEvents = !m_truthPileUpEventName.key().empty() and truthPileupEventContainer.isValid() ?  static_cast<int>( truthPileupEventContainer->size() ) : pie.isValid() ? pie->averageInteractionsPerCrossing() : 0;
+
+//  std::cout << puEvents << "  " << pie->averageInteractionsPerCrossing() << " " << pie->actualInteractionsPerCrossing() << "  " << std::endl;
 
   ATH_MSG_DEBUG("Filling vertex plots");
   SG::ReadHandle<xAOD::VertexContainer>  vertices(m_vertexContainerName);
   const xAOD::Vertex* primaryvertex = nullptr;
+  const float puEvents = !m_truthPileUpEventName.key().empty() and truthPileupEventContainer.isValid() ?  static_cast<int>( truthPileupEventContainer->size() ) : pie.isValid() ? pie->actualInteractionsPerCrossing() : 0;
+  const float nVertices = not vertices->empty() ? vertices->size() : 0;
 
   if (vertices.isValid() and not vertices->empty()) {
     ATH_MSG_DEBUG("Number of vertices retrieved for this event " << vertices->size());
@@ -290,7 +292,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
     nSelectedRecoTracks++;
     //Fill plots for selected reco tracks, hits / perigee / ???
     m_monPlots->fill(*thisTrack);                                      
-   
+    m_monPlots->fill(*thisTrack, puEvents, nVertices);  //fill mu dependent plots
     const xAOD::TruthParticle* associatedTruth = getAsTruth.getTruth(thisTrack);
     float prob = getMatchingProbability(*thisTrack); 
 
@@ -308,6 +310,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
       if ((prob > m_lowProb) and passed) {
         nSelectedMatchedTracks++; 
         m_monPlots->fill(*thisTrack, *associatedTruth); // Make plots requiring matched truth
+        m_monPlots->fill(*thisTrack, *associatedTruth, puEvents, nVertices); //fill mu dependent plots
       }
     }
 

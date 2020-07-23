@@ -190,6 +190,17 @@
   <y title="Fraction of TRT Extended Tracks" lo="0" hi="2.0"/>
 </h>
 
+<h id="fracTRTExtensions_vs_nvertices" type="TEfficiency" title="Fraction of TRT Extended Tracks">
+  <x title="Number of Reconstucted Vertices" n="50" lo="0" hi="100"/>
+  <y title="Fraction of TRT Extended Tracks" lo="0" hi="2.0"/>
+</h>
+
+<h id="fracTRTExtensions_vs_mu" type="TEfficiency" title="Fraction of TRT Extended Tracks">
+  <x title="#LT#mu#GT" n="50" lo="0" hi="100"/>
+  <y title="Fraction of TRT Extended Tracks" lo="0" hi="2.0"/>
+</h>
+
+
 
 <h id="fracTRTExtensions_matched_vs_eta" type="TEfficiency" title="Fraction of TRT Extended Matched Tracks">
   <x title="#eta" n="32" lo="-&ETA;" hi="&ETA;"/>
