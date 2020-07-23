@@ -24,3 +24,6 @@ if True == jobproperties.eflowRecFlags.provideShowerSubtractedClusters:
 #Add new flow elements
 eflowRecAODList += [ "xAOD::FlowElementContainer#JetETMissChargedFlowElements"]
 eflowRecAODList += [ "xAOD::FlowElementAuxContainer#JetETMissChargedFlowElementsAux."]
+
+eflowRecAODList += [ "xAOD::FlowElementContainer#JetETMissNeutralFlowElements"]
+eflowRecAODList += [ "xAOD::FlowElementAuxContainer#JetETMissNeutralFlowElementsAux."]

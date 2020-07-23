@@ -120,6 +120,13 @@ StatusCode PFNeutralFlowElementCreatorAlgorithm::createNeutralFlowElement(const 
     this->addMoment(xAOD::CaloCluster::ISOLATION,"eflowRec_ISOLATION",*cluster,*thisFE);
     this->addMoment(xAOD::CaloCluster::SECOND_LAMBDA,"eflowRec_SECOND_LAMBDA",*cluster,*thisFE);
     this->addMoment(xAOD::CaloCluster::EM_PROBABILITY,"eflowRec_EM_PROBABILITY",*cluster,*thisFE);
+
+    if (m_useCalibHitTruth){
+      this->addMoment(xAOD::CaloCluster::ENG_CALIB_TOT,"eflowRec_ENG_CALIB_TOT",*cluster,*thisFE);
+      this->addMoment(xAOD::CaloCluster::ENG_CALIB_FRAC_EM,"eflowRec_ENG_CALIB_FRAC_EM",*cluster,*thisFE);
+      this->addMoment(xAOD::CaloCluster::ENG_CALIB_FRAC_HAD,"eflowRec_ENG_CALIB_FRAC_HAD",*cluster,*thisFE);
+      this->addMoment(xAOD::CaloCluster::ENG_CALIB_FRAC_REST,"eflowRec_ENG_CALIB_FRAC_REST",*cluster,*thisFE);
+    }
   
   }//cluster loop
   return StatusCode::SUCCESS;
