@@ -525,24 +525,6 @@ namespace Trk {
 
     bool correctAngles(double &, double &) const;
 
-    void errors1(
-      Eigen::Matrix<double, 5, 5> &, 
-      AmgSymMatrix(5) & prevcov,
-      AmgSymMatrix(5) & trackerrmat, 
-      bool onlylocal
-    ) const;
-
-    void errors2(
-      Amg::MatrixX & derivatives, 
-      AmgSymMatrix(5) & trackerrmat,
-      double *myarray, 
-      std::vector<int> *rowindices, 
-      int &maxl,
-      int *minm, 
-      bool onlylocal, 
-      int nfitpars
-    ) const;
-     
     bool isMuonTrack(const Track &) const;
 
     void incrementFitStatus(enum FitterStatusType) const;

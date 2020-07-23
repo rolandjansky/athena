@@ -8009,9 +8009,6 @@ namespace Trk {
     int nstatesupstream = trajectory.numberOfUpstreamStates();
     int nscatupstream = trajectory.numberOfUpstreamScatterers();
     int nbremupstream = trajectory.numberOfUpstreamBrems();
-    int nfitpars = trajectory.numberOfFitParameters();
-    int nscats = trajectory.numberOfScatterers();
-    int nperpars = trajectory.numberOfPerigeeParameters();
     int hitno = 0;
     int scatno = nscatupstream;
     int bremno = nbremupstream;
@@ -8025,10 +8022,6 @@ namespace Trk {
       } else {
         indices[j] = j;
       }
-    }
-    std::vector < int >rowindices[5];
-    for (auto & rowindice : rowindices) {
-      rowindice.reserve(nfitpars);
     }
     for (int stateno = 0; stateno < (int) states.size(); stateno++) {
       if (stateno == 0 || stateno == nstatesupstream) {
@@ -8069,55 +8062,13 @@ namespace Trk {
            prevstate->trackStateType() == TrackState::GeneralOutlier)
           && !onlylocal) {
         Eigen::Matrix<double, 5, 5> & jac = state->jacobian();
-        AmgMatrix(5, 5) & prevcov =
-          *states[indices[stateno - 1]]->trackCovariance();
-        errors1(jac, prevcov, trackerrmat, onlylocal);
+        AmgMatrix(5, 5) & prevcov = *states[indices[stateno - 1]]->trackCovariance();
+      
+        trackerrmat = jac * prevcov * jac.transpose();
       } else {
-        int maxl = trajectory.m_straightline ? 3 : 4;
-        int minm[5] = {
-          0, 0, 0, 0, 0
-        };
-        if (onlylocal) {
-          TrackState::MeasurementType hittype = state->measurementType();
-          if (hittype == TrackState::Pixel || state->sinStereo() != 0) {
-            maxl = 1;
-          } else {
-            maxl = 0;
-          }
-          if (hittype == TrackState::Pixel) {
-            minm[1] = 1;
-          }
-        }
         Amg::MatrixX & derivatives = state->derivatives();
-        // Only consider scatterers and brems which give non-zero derivatives
-        int scatmin = (scatno < nscatupstream) ? scatno : nscatupstream;
-        int scatmax = (scatno < nscatupstream) ? nscatupstream : scatno;
-        int bremmin = (bremno < nbremupstream) ? bremno : nbremupstream;
-        int bremmax = (bremno < nbremupstream) ? nbremupstream : bremno;
-        for (int i = 0; i < 4; i++) {
-          rowindices[i].clear();
-          for (int j = 0; j < nperpars; j++) {
-            rowindices[i].push_back(j);
-          }
-          for (int j = nperpars + 2 * scatmin; j < nperpars + 2 * scatmax;
-               j++) {
-            rowindices[i].push_back(j);
-          }
-          for (int j = nperpars + 2 * nscats + bremmin;
-               j < nperpars + 2 * nscats + bremmax; j++) {
-            rowindices[i].push_back(j);
-          }
-        }
-        if (!trajectory.m_straightline) {
-          rowindices[4].clear();
-          rowindices[4].push_back(4);
-          for (int j = nperpars + 2 * nscats + bremmin;
-               j < nperpars + 2 * nscats + bremmax; j++) {
-            rowindices[4].push_back(j);
-          }
-        }
-        errors2(derivatives, trackerrmat, fullcovmat.data(), rowindices, maxl,
-                minm, onlylocal, nfitpars);
+        
+        trackerrmat = derivatives * fullcovmat * derivatives.transpose();
       }
 
       if (!onlylocal) {
@@ -8379,98 +8330,6 @@ namespace Trk {
       phi += 2 * M_PI;
     }
     return !(theta < 0 || theta > M_PI || phi < -M_PI || phi > M_PI);
-  }
-
-  void
-   
-    GlobalChi2Fitter::errors1(Eigen::Matrix<double, 5, 5> & jac, AmgSymMatrix(5) & prevcov,
-                              AmgSymMatrix(5) & trackerrmat,
-                              bool onlylocal) const {
-    // propagate error from previous state to current state
-
-    double tmp3 = 0;
-
-    for (int l = 0; l < 4; l++) {
-      for (int m = 0; m < l; m++) {
-        if (!onlylocal && trackerrmat(l, m) != 0) {
-          continue;
-        }
-        tmp3 = 0;
-        for (int j = 0; j < 5; j++) {
-          for (int k = 0; k < 5; k++) {
-            tmp3 += jac(l, j) * prevcov(j, k) * jac(m, k);
-          }
-        }
-        trackerrmat(l, m) = trackerrmat(m, l) = tmp3;
-      }
-
-      tmp3 = 0;
-      for (int k = 0; k < 5; k++) {
-        tmp3 += prevcov(4, k) * jac(l, k);
-      }
-      trackerrmat(4, l) = trackerrmat(l, 4) = tmp3;
-      if (!onlylocal && trackerrmat(l, l) != 0) {
-        continue;
-      }
-      tmp3 = 0;
-      for (int j = 0; j < 5; j++) {
-        for (int k = 0; k < j; k++) {
-          tmp3 += 2 * jac(l, j) * prevcov(j, k) * jac(l, k);
-        }
-        tmp3 += jac(l, j) * prevcov(j, j) * jac(l, j);
-      }
-      trackerrmat(l, l) = tmp3;
-    }
-    trackerrmat(4, 4) = prevcov(4, 4);
-  }
-
-  void
-   
-    GlobalChi2Fitter::errors2(Amg::MatrixX & derivatives,
-                              AmgSymMatrix(5) & trackerrmat, double *myarray,
-                              std::vector < int >*rowindices, int &maxl,
-                              int *minm, bool onlylocal, int nfitpars) const {
-    // Project global error matrix onto current state
-
-    double tmp3 = 0;
-    int j;
-    int k;
-    int rowindex;
-
-    for (int l = 0; l <= maxl; l++) {
-      for (int m = minm[l]; m < l; m++) {
-        if (!onlylocal && trackerrmat(l, m) != 0) {
-          continue;
-        }
-        tmp3 = 0;
-        for (int j2 = 0; j2 < (int) rowindices[l].size(); j2++) {
-          j = rowindices[l][j2];
-          rowindex = j * nfitpars;
-          for (int k2 = 0; k2 < (int) rowindices[m].size(); k2++) {
-            k = rowindices[m][k2];
-            tmp3 +=
-              derivatives(l, j) * myarray[rowindex + k] * derivatives(m, k);
-          }
-        }
-        trackerrmat(l, m) = trackerrmat(m, l) = tmp3;
-      }
-
-      if (!onlylocal && trackerrmat(l, l) != 0) {
-        continue;
-      }
-      tmp3 = 0;
-      for (int j2 = 0; j2 < (int) rowindices[l].size(); j2++) {
-        j = rowindices[l][j2];
-        rowindex = j * nfitpars;
-        for (int k2 = 0; k2 < j2; k2++) {
-          k = rowindices[l][k2];
-          tmp3 +=
-            2 * derivatives(l, j) * myarray[rowindex + k] * derivatives(l, k);
-        }
-        tmp3 += derivatives(l, j) * myarray[rowindex + j] * derivatives(l, j);
-      }
-      trackerrmat(l, l) = tmp3;
-    }
   }
 
   bool Trk::GlobalChi2Fitter::isMuonTrack(const Track & intrk1) const {
